@@ -527,7 +527,7 @@ export default function BeastGamePage() {
         <p>格鬥模式・{BATTLE_VENUES.fighting.name}</p>
         <h1>神獸決鬥・組陣台</h1>
         <p className="mt-1.5 text-xs leading-6 text-white/60">
-          六十張神獸，選三張入陣，與電腦對手一起揭牌。
+          六十張神獸，選三張入陣，與易經卦象一起揭牌。
         </p>
         <nav aria-label="戰鬥模式"><Link href="/beast-game/battlefield">卡片戰場</Link><Link href="/beast-game">自由組隊</Link></nav>
         {!dueling && stakeSaved !== false && <Link href="/" className="inline-flex min-h-11 items-center rounded-xl border border-white/30 px-4 text-sm">回首頁</Link>}
@@ -867,7 +867,7 @@ export default function BeastGamePage() {
                 <details data-fairness className="mt-3 rounded-xl border border-emerald-300/20 bg-emerald-300/[0.05] p-3">
                   <summary className="min-h-11 cursor-pointer text-sm font-bold text-emerald-100">查看本場規則</summary>
                   <p className="mt-1.5 text-[11px] leading-5 text-white/60">
-                    {duel.firstPlayer === 'PLAYER' ? '你先手' : '對手先手'}・開場隨機決定{duel.isReplay ? '・本場重播' : ''}
+                    {duel.firstPlayer === 'PLAYER' ? '你先手' : '易經先手'}・開場隨機決定{duel.isReplay ? '・本場重播' : ''}
                   </p>
                   <ul className="mt-2 space-y-1">
                     {duel.fairness.sameRules.map((rule) => (
@@ -879,7 +879,7 @@ export default function BeastGamePage() {
                   </ul>
                   {duel.opponentLineup && (
                     <p className="mt-1.5 text-[11px] leading-5 text-white/45">
-                      對手這次的三席：{duel.opponentLineup.join('、')}
+                      易經這次的三席：{duel.opponentLineup.join('、')}
                     </p>
                   )}
                   <button

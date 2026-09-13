@@ -32,7 +32,7 @@ export default function GrowthStakeSlots({collection,pool}:{collection:BeastColl
    {!selected.length&&!busy&&!saved&&<button type="button" className={styles.helpButton} onClick={()=>{setGuided(true);show(picker.current);picker.current?.focus({preventScroll:true});}}>帶我選卡 <span aria-hidden="true">↓</span></button>}
    <button type="button" className={styles.toggle} onClick={()=>setGuided(v=>!v)} aria-pressed={guided}>{guided?'收起箭頭引導':'開啟箭頭引導'}</button>
   </div>
-  <p className="mt-2 text-sm leading-6">只可押已入庫的收藏卡，60 張戰鬥試用牌不能押。贈送的 28 張幼子入庫後才能使用。一次可押 1～5 張，一張、兩張都能玩，不必放滿。第一張與電腦自動單挑；輸了只沒收你押的牌，贏了原牌保留並另送一張，平手原牌保留。</p>
+  <p className="mt-2 text-sm leading-6">只可押已入庫的收藏卡，60 張戰鬥試用牌不能押。贈送的 28 張幼子入庫後才能使用。一次可押 1～5 張，一張、兩張都能玩，不必放滿。第一張與易經自動單挑；輸了只沒收你押的牌，贏了原牌保留並另送一張，平手原牌保留。</p>
   <ol className={styles.steps} aria-label="押牌三步驟"><li>① 選卡：下方選單只列你的收藏。</li><li>② 放牌：選好會自動放進押注格；點「取回」可取消。</li><li>③ 開戰：核對張數後按金色按鈕，格子裡的牌才正式成為賭注。</li></ol>
   <p className="mt-2 text-sm">持有共 {collection.cards.length} 張・目前押注 {displayed.length} 張</p>
   {movement&&!outcome&&<p role="status" className="mt-2 text-sm text-amber-100">{movement}</p>}

@@ -175,8 +175,8 @@ export function BattleActionBar({
       </div>
     </div>;
     if (match.opponent.team[match.opponent.active].defeated && attack) return <div className={styles.compactActions}>
-      <p className={styles.activeHint} role="status">對手主戰已倒下，接下來由後備上場；這一步不出招。</p>
-      <button type="button" className={styles.actionButton} disabled={busy} onClick={() => { setCommandView(null); onAction(attack); }}>繼續，對手換卡</button>
+      <p className={styles.activeHint} role="status">易經已倒下，接下來由後備上場；這一步不出招。</p>
+      <button type="button" className={styles.actionButton} disabled={busy} onClick={() => { setCommandView(null); onAction(attack); }}>繼續，易經換卡</button>
     </div>;
     return (
       <div className={styles.compactActions}>
@@ -370,7 +370,7 @@ const BattlePanel = memo(function BattlePanel({
 
       {/* HP 條已移到 BattleArena 各自卡片正下方，此處不再重複顯示 */}
 
-      {!compact && <><FighterStatus match={match} side="opponent" label="對手" />
+      {!compact && <><FighterStatus match={match} side="opponent" label="易經" />
       <FighterStatus match={match} side="player" label="你" /></>}
 
       {/*
@@ -395,7 +395,7 @@ const BattlePanel = memo(function BattlePanel({
 
       {finished && busy ? <p className={styles.activeHint} role="status">動作演出中，接著顯示結果…</p> : finished ? (
         <p className={styles.result} role="status" data-winner={match.winner ?? 'NONE'}>
-          {match.winner === 'player' ? '你贏了' : match.winner === 'opponent' ? '對手獲勝' : '平手'}
+          {match.winner === 'player' ? '你贏了' : match.winner === 'opponent' ? '易經獲勝' : '平手'}
           <small>共 {match.round - 1} 回合</small>
           {/*
             業主定調第三件：「輸掉時講得出原因，而不是只說『你輸了』。」

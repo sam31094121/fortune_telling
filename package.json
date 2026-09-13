@@ -41,7 +41,7 @@
     "test:three-in-one": "tsc tests/three-in-one.test.ts lib/bazi/engine.ts lib/ziwei-sanfang-engine.ts lib/shichen-engine.ts lib/iching-engine.ts lib/iching-psychology.ts lib/three-core-engine.ts lib/three-in-one.ts lib/ziwei-star-beast-link.ts lib/five-element-engine.ts --outDir .three-in-one-build --module commonjs --target es2022 --moduleResolution node --esModuleInterop --resolveJsonModule --types node --skipLibCheck && node .three-in-one-build/tests/three-in-one.test.js",
     "test:iching-hour": "node tests/iching-no-fabricated-hour.test.cjs",
     "test:beast-game": "node scripts/beast-build.mjs && node .beast-game-build/tests/beast-game.test.js",
-    "test:beast-fairness": "npm run test:beast-game && node tests/beast-game-review.test.cjs && node scripts/audit-beast-game-balance.cjs",
+    "test:beast-fairness": "npm run test:beast-game && node tests/beast-game-review.test.cjs && node tests/beast-opponent-name.test.cjs && node scripts/audit-beast-game-balance.cjs",
     "test:star-beast-entry-api": "node tests/star-beast-entry.api.test.cjs",
     "test:screen-health-policy": "node tests/screen-health-recovery-policy.test.cjs",
     "test:beast-card-spec": "node tests/beast-card-spec.test.cjs",

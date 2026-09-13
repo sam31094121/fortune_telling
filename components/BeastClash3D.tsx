@@ -290,7 +290,7 @@ export default function BeastClash3D({
   const staticBeasts = active ? <div data-beast-static-fallback className="absolute inset-0 flex flex-col items-center justify-between gap-2 p-6" aria-label="神獸本體靜態展示">
     {opponentSpirit ? (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={opponentSpirit} alt="電腦玩家神獸本體" className="h-[42%] max-h-full w-full min-h-0 object-contain" />
+      <img src={opponentSpirit} alt="易經卦象神獸本體" className="h-[42%] max-h-full w-full min-h-0 object-contain" />
     ) : <span className="h-[42%]" />}
     {playerSpirit ? (
       // eslint-disable-next-line @next/next/no-img-element

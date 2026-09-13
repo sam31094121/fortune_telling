@@ -31,7 +31,7 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
   const changes = receipt?.cardChanges;
   const movement = changes?.map(change => `${nameOf(change.cardId)}${change.gained ? `贏得 ${change.gained} 張` : `輸掉 ${change.lost} 張`}，${change.after > 0 ? `剩餘 ${change.after} 張` : '已無剩餘'}`).join('；');
   const retained = summary && !lost ? `原押注卡保留 ${summary.retained} 張。` : '';
-  const spoken = summary ? `${won ? '恭喜獲勝！' : lost ? '本場對手獲勝。' : '本場平手。'}你押了 ${summary.staked} 張，贏得 ${summary.gained} 張，輸掉 ${summary.lost} 張。${movement || (won ? `獎賞是${name}。` : `押注卡${stakeNames}。`)}${retained}結算已保存，共持有 ${summary.total} 張。${lost ? '可以先查看相剋，再調整陣容。' : ''}` : '';
+  const spoken = summary ? `${won ? '恭喜獲勝！' : lost ? '本場易經獲勝。' : '本場平手。'}你押了 ${summary.staked} 張，贏得 ${summary.gained} 張，輸掉 ${summary.lost} 張。${movement || (won ? `獎賞是${name}。` : `押注卡${stakeNames}。`)}${retained}結算已保存，共持有 ${summary.total} 張。${lost ? '可以先查看相剋，再調整陣容。' : ''}` : '';
 
   const iching = outcome.ichingJudgment;
   return <section data-stake-result data-stake-verdict={outcome.verdict} data-settlement-saved={saved ? 'yes' : 'no'} aria-label="押注卡片結算"
@@ -76,7 +76,7 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
     </dl>}
     <dl className="mt-3 grid grid-cols-2 gap-2 text-xs leading-5">
       <div className="rounded-lg bg-black/25 px-2 py-2"><dt className="text-white/60">你的押注籌碼・{staked} 張</dt><dd className="break-words">{stakeNames}</dd></div>
-      <div className="rounded-lg bg-black/25 px-2 py-2"><dt className="text-white/60">對手押注・1 張</dt><dd>{outcome.opponentStakeName} ×1</dd></div>
+      <div className="rounded-lg bg-black/25 px-2 py-2"><dt className="text-white/60">易經押注・1 張</dt><dd>{outcome.opponentStakeName} ×1</dd></div>
     </dl>
     {summary && <div className="mt-3 text-sm leading-6" data-card-movements>
       {changes?.length ? changes.map(change => <p key={change.cardId}>

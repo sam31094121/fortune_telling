@@ -303,7 +303,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
   }, [phase, moment, highlights, player, opponent]);
 
   function row(cards: RitualCard[] | null, side: 'player' | 'opponent') {
-    return <div className={`${styles.row} ${side === 'opponent' && opponentReady && !dealt ? styles.dealing : ''}`} aria-label={side === 'player' ? '客戶（你）的三張出戰牌' : '電腦玩家的三張出戰牌'}>
+    return <div className={`${styles.row} ${side === 'opponent' && opponentReady && !dealt ? styles.dealing : ''}`} aria-label={side === 'player' ? '客戶（你）的三張出戰牌' : '易經卦象的三張出戰牌'}>
       {POSITIONS.map((position, index) => {
         const card = cards?.[index];
         // 每一張自己判斷翻了沒——原本一個布林控制全部六張，所以六張同時翻。
@@ -319,7 +319,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
           >
             <div className={styles.face} aria-hidden={open}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              {card && <img src="/beast-game/card-back.webp" alt={`${side === 'player' ? '你' : '對手'}的${position}牌背`} />}
+              {card && <img src="/beast-game/card-back.webp" alt={`${side === 'player' ? '你' : '易經'}的${position}牌背`} />}
             </div>
             <div className={`${styles.face} ${styles.front}`} aria-hidden={!open}>
               {card && <>
@@ -379,7 +379,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
       </div>
       <div className={styles.duelSplit}>
       <section className={styles.visualPane} aria-label="格鬥畫面" data-duel-visual>
-      <div className={styles.venueHeading}><span>{BATTLE_VENUES.fighting.name}</span>{pairs && <p role="status" aria-label="目前比分">你 {shownScore.player} : {shownScore.opponent} 對手</p>}</div>
+      <div className={styles.venueHeading}><span>{BATTLE_VENUES.fighting.name}</span>{pairs && <p role="status" aria-label="目前比分">你 {shownScore.player} : {shownScore.opponent} 易經</p>}</div>
       <div className={`${styles.center} ${phase === 'clash' || pairClash !== null ? styles.clash : ''} ${fusionBeat ? styles.fusionClash : ''}`} role="status" aria-live="polite" style={{ position: 'relative' }}>
         {/*
           格鬥舞台。襯在最底層（z-index 0），三維本體與文字都壓在它上面。
@@ -415,7 +415,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
               <div className={styles.waitingOpponent} key="opponent">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={oCard && isRevealed('opponent', previewIndex) ? oCard.thumbnail : '/beast-game/card-back.webp'} alt="" />
-                <span>電腦玩家・{POSITIONS[previewIndex]}</span>
+                <span>易經卦象・{POSITIONS[previewIndex]}</span>
               </div>
               <div className={styles.waitingPlayer} key="player">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -475,7 +475,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
           />
         )}
         {pairResult && pairClash !== null ? <>
-          <strong>{pairResult.winner === 'PLAYER' ? '這一局・你贏了' : pairResult.winner === 'OPPONENT' ? '這一局・對手獲勝' : '這一局・平手'}</strong>
+          <strong>{pairResult.winner === 'PLAYER' ? '這一局・你贏了' : pairResult.winner === 'OPPONENT' ? '這一局・易經獲勝' : '這一局・平手'}</strong>
           <p>比分 {pairResult.score.player} : {pairResult.score.opponent}{pairResult.index === 1 ? (pairResult.score.player === 2 || pairResult.score.opponent === 2 ? '・第三組即將自動揭牌' : '・親手揭開決勝局') : pairResult.index === 2 ? '・三局完成' : '・準備下一組'}</p>
         </> : pairClash !== null ? <>
           {/*
@@ -489,17 +489,17 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
           <strong>{POSITIONS[pairClash]}・{fusionBeat ? '暴怒合體' : chargeSkillLabel ?? '神獸交鋒'}</strong>
           <p>{pairs ? '神獸交鋒・勝負即將揭曉' : '雙方現身・開場演武'}</p>
         </> : phase === 'clash' && event ? <>
-          <strong key={moment}>第 {event.turn} 回合・{event.side === 'PLAYER' ? '我方' : '對手'}</strong>
+          <strong key={moment}>第 {event.turn} 回合・{event.side === 'PLAYER' ? '我方' : '易經'}</strong>
           <p>{event.note}</p>
         </> : phase === 'revealing' && revealCount < REVEAL_ORDER.length ? <>
           {/* 逐張揭牌時要講出現在翻的是誰的哪一席，客戶才跟得上。 */}
           <strong key={revealCount}>
-            {REVEAL_ORDER[revealCount]?.side === 'player' ? '你的' : '對手的'}
+            {REVEAL_ORDER[revealCount]?.side === 'player' ? '你的' : '易經的'}
             {POSITIONS[REVEAL_ORDER[revealCount]?.index ?? 0]}
           </strong>
           <p>一張一張揭・{revealCount} / {REVEAL_ORDER.length}</p>
         </> : <>
-          <strong>{revealed ? '雙方揭牌' : ready ? '等你一起揭牌' : '對手理牌中…'}</strong>
+          <strong>{revealed ? '雙方揭牌' : ready ? '等你一起揭牌' : '易經理牌中…'}</strong>
           <p>{revealed ? '守護陣已展開' : ready ? '雙方三席已鎖定' : '你的三張已入陣'}</p>
         </>}
       </div>
@@ -508,16 +508,16 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
       <div className={styles.handScroll}>
       <div className={styles.lanes}>
       <div className={styles.laneOpponent}>
-      <div className={`${styles.label} ${styles.laneLabel}`}><span>電腦玩家</span><small>{revealed ? '開場陣容' : '三張待揭'}・上位</small></div>
+      <div className={`${styles.label} ${styles.laneLabel}`}><span>易經卦象</span><small>{revealed ? '開場陣容' : '三張待揭'}・上位</small></div>
       {row(opponent, 'opponent')}
       </div>
-      <p className={styles.laneHint} aria-hidden="true">上＝電腦玩家・下＝客戶（你）・元素見牌角標籤</p>
+      <p className={styles.laneHint} aria-hidden="true">上＝易經卦象・下＝客戶（你）・元素見牌角標籤</p>
       <div className={styles.lanePlayer}>
       <div className={`${styles.label} ${styles.laneLabel}`}><span>客戶（你）</span><small>{revealed ? '開場陣容' : '親手選定'}・下位</small></div>
       {row(player, 'player')}
       </div>
       </div>
-      <details className={styles.rules}><summary>格鬥規則與素材</summary><p>雙方依前鋒、中軍、後陣逐組交鋒，共三局。二比零後自動揭開第三組；一比一時親手揭開決勝局。操控區上方是電腦玩家，下方是客戶（你）。</p>{revealed && <button type="button" className={styles.skip} onClick={() => completeRef.current()}>略過動畫・看戰果</button>}<a href="/audio/beast-voices/credits.html" target="_blank" rel="noreferrer">聲音來源</a></details>
+      <details className={styles.rules}><summary>格鬥規則與素材</summary><p>雙方依前鋒、中軍、後陣逐組交鋒，共三局。二比零後自動揭開第三組；一比一時親手揭開決勝局。操控區上方是易經卦象，下方是客戶（你）。</p>{revealed && <button type="button" className={styles.skip} onClick={() => completeRef.current()}>略過動畫・看戰果</button>}<a href="/audio/beast-voices/credits.html" target="_blank" rel="noreferrer">聲音來源</a></details>
       </div>
       <div className={styles.commands}>
 
@@ -538,7 +538,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
           >
             {autoFlip
               ? '自動翻牌中…'
-              : `翻開${REVEAL_ORDER[revealCount]?.side === 'player' ? '你的' : '對手的'}${POSITIONS[REVEAL_ORDER[revealCount]?.index ?? 0]}`}
+              : `翻開${REVEAL_ORDER[revealCount]?.side === 'player' ? '你的' : '易經的'}${POSITIONS[REVEAL_ORDER[revealCount]?.index ?? 0]}`}
           </button>
           <button
             type="button"
@@ -554,7 +554,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
       )}
 
       {!revealed && <button type="button" className={styles.action} disabled={!ready} onClick={() => { if (ready) { playPlayerBeastVoice(sound.current.play, 'player', player[0].id); setPhase('revealing'); } }}>
-        {ready ? '一起揭牌' : '等待對手就緒…'}
+        {ready ? '一起揭牌' : '等待易經就緒…'}
       </button>}
       </div>
       </section>

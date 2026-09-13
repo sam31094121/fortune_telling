@@ -96,7 +96,7 @@ export default function BeastTurnGame() {
     const onAttack = attackAction ? () => act(attackAction) : null;
     return <main className={`${battleStyles.page} ${styles.calmBattle}`} data-mobile-battle>
       <div className={battleStyles.shell}>
-        <header className={battleStyles.header}><h1>卡片戰鬥</h1><span>電腦對手・自由組隊</span></header>
+        <header className={battleStyles.header}><h1>卡片戰鬥</h1><span>易經卦象・自由組隊</span></header>
         <div className={battleStyles.split} data-battle-split>
           <BattleArena match={match} cards={cards} onInspect={inspect} onAttack={onAttack} playing={playing}
             onSwap={match.status === 'PLAYING' && !busy && !playing ? (action) => act(action) : null}
@@ -110,7 +110,7 @@ export default function BeastTurnGame() {
                 <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} onAutomatic={setAutomatic} onAction={act} />
                 <BattlePanel match={match} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
                 {match.status === 'FINISHED' && !playing ? <>
-                  <BeastBattleVoice id={`free:${match.seed}:${account?.revision}`} text={`${match.winner === 'player' ? '恭喜獲勝！' : match.winner === 'opponent' ? '本場對手獲勝。' : '本場平手。'}可以更換陣容再挑戰。`} />
+                  <BeastBattleVoice id={`free:${match.seed}:${account?.revision}`} text={`${match.winner === 'player' ? '恭喜獲勝！' : match.winner === 'opponent' ? '本場易經獲勝。' : '本場平手。'}可以更換陣容再挑戰。`} />
                 </> : <details className={battleStyles.details} onToggle={event => { if (event.currentTarget.open) setAutomatic(false); }}>
                   <summary>說明</summary>
                   <p>切換先攻；同速隨機；最多 80 回；擊倒三隻獲勝。</p>
@@ -142,7 +142,7 @@ export default function BeastTurnGame() {
             <span className={styles.freeEntryStep}>第一步</span>
             <span className={styles.freeEntryIcon}>⚡</span>
             <strong>免費體驗・立刻開始</strong>
-            <span className={styles.freeEntryDesc}>選 3 張神獸卡 → 上場對戰電腦<br/>不消耗任何卡片，隨時可玩</span>
+            <span className={styles.freeEntryDesc}>選 3 張神獸卡 → 上場對戰易經<br/>不消耗任何卡片，隨時可玩</span>
             <span className={styles.freeEntryGo}>點這裡開始 →</span>
           </button>
           {/* ── 進階模式（需要持有神獸卡）── */}
@@ -157,7 +157,7 @@ export default function BeastTurnGame() {
             <Link href="/beast-game/lineup" className={styles.modeCard}>
               <span className={styles.modeIcon}>🎯</span>
               <strong>單卡押注競技場</strong>
-              <span className={styles.modeDesc}>押 1 張・贏得對手卡・易經裁定最多再得 4 張・輸失 1 張</span>
+              <span className={styles.modeDesc}>押 1 張・贏得易經卡・易經裁定最多再得 4 張・輸失 1 張</span>
               <span className={styles.modeBadge + ' ' + styles.modeBadgeWager}>押注</span>
             </Link>
           </div>
@@ -199,7 +199,7 @@ export default function BeastTurnGame() {
             return <div key={id} className={styles.card}><p className={styles.selectionCount}>{i === 0 ? '先出場' : '後備 ' + i}</p><BeastCardTile card={card} onOpen={() => setDetail(card)} /><p className={styles.confirmName}>{card.name}</p></div>;
           })}</div>
           <p className={styles.muted}>普通攻擊自動進行，技能就緒時等你決定。</p>
-          <details className={styles.muted}><summary>對戰方式</summary><p>與電腦各派三張，擊倒對方三隻即獲勝。六十張皆可用，本模式免押卡。</p></details>
+          <details className={styles.muted}><summary>對戰方式</summary><p>與易經各派三張，擊倒對方三隻即獲勝。六十張皆可用，本模式免押卡。</p></details>
         </>}
       </section>
       <footer className={styles.prepareFooter}>
