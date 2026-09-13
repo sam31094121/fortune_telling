@@ -1,0 +1,280 @@
+.victoryContainer {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+  animation: victoryFadeOut 2s ease-out 1.2s forwards;
+}
+
+@keyframes victoryFadeOut {
+  to {
+    opacity: 0;
+  }
+}
+
+/* 屏幕震動 */
+.shakeOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.1);
+  animation: shake 0.4s ease-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-3px, 3px); }
+  20% { transform: translate(3px, -3px); }
+  30% { transform: translate(-3px, 0); }
+  40% { transform: translate(2px, -2px); }
+  50% { transform: translate(-2px, 2px); }
+  60% { transform: translate(1px, -1px); }
+  70% { transform: translate(-1px, 1px); }
+  80%, 90%, 100% { transform: translate(0, 0); }
+}
+
+/* 全屏光芒爆發 */
+.flashBurst {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, var(--victory-glow) 0%, rgba(255, 255, 255, 0.2) 40%, transparent 70%);
+  animation: flashBurst 0.6s ease-out;
+  opacity: 0;
+}
+
+@keyframes flashBurst {
+  0% {
+    opacity: 1;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+/* 勝利標題 */
+.victoryTitle {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.titleText {
+  font-size: 72px;
+  font-weight: 900;
+  color: var(--victory-glow);
+  text-shadow: 0 0 20px var(--victory-glow), 0 0 40px rgba(255, 255, 255, 0.4), 0 0 60px var(--victory-glow);
+  letter-spacing: 0.05em;
+  animation: titleAppear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@keyframes titleAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(-50px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.1) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 連勝光環 */
+.streakAura {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 400px;
+  height: 400px;
+  margin-left: -200px;
+  margin-top: -200px;
+  border: 2px solid var(--victory-glow);
+  border-radius: 50%;
+  box-shadow: inset 0 0 40px var(--victory-glow), 0 0 60px var(--victory-glow);
+  animation: auraExpand 1s ease-out;
+  opacity: 0;
+}
+
+@keyframes auraExpand {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.3);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+/* 粒子爆炸 */
+.particleExplosion {
+  position: absolute;
+  inset: 0;
+}
+
+.victoryParticle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: radial-gradient(circle, var(--victory-glow), rgba(255, 191, 36, 0.3));
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--victory-glow);
+  left: 50%;
+  top: 50%;
+  margin-left: -6px;
+  margin-top: -6px;
+  animation: victoryParticleExplode 1.2s ease-out forwards;
+  animation-delay: var(--particle-delay);
+  opacity: 0;
+}
+
+@keyframes victoryParticleExplode {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--tx, 300px), var(--ty, 300px)) scale(0.1);
+  }
+}
+
+/* 新紀錄特效 */
+.recordEffect {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.recordRing {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border: 3px solid #ff006e;
+  border-radius: 50%;
+  box-shadow: 0 0 30px #ff006e, inset 0 0 30px rgba(255, 0, 110, 0.3);
+  animation: recordRingPulse 0.8s ease-out;
+  opacity: 0;
+}
+
+@keyframes recordRingPulse {
+  0% {
+    opacity: 1;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+.recordText {
+  position: absolute;
+  bottom: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 32px;
+  font-weight: 900;
+  color: #ff006e;
+  text-shadow: 0 0 15px #ff006e;
+  animation: recordTextFloat 1s ease-out;
+  opacity: 0;
+}
+
+@keyframes recordTextFloat {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-40px);
+  }
+}
+
+/* 對手消散效果 */
+.defeatAnimation {
+  position: absolute;
+  left: 25%;
+  top: 35%;
+  width: 150px;
+  height: 200px;
+  background: radial-gradient(ellipse at center, var(--victory-glow) 0%, transparent 70%);
+  filter: blur(20px);
+  animation: defeatVanish 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes defeatVanish {
+  0% {
+    opacity: 0.6;
+    transform: scale(1) translate(0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.3) translate(-100px, 50px);
+  }
+}
+
+/* 連勝強度 */
+.victoryContainer[data-intensity='epic'] .titleText {
+  font-size: 80px;
+}
+
+.victoryContainer[data-intensity='legendary'] .titleText {
+  font-size: 88px;
+  animation: titleAppear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, legendaryFlash 0.4s ease-out 0.4s;
+}
+
+@keyframes legendaryFlash {
+  0% { transform: scale(1.1) translateY(0); }
+  50% { transform: scale(1.15) translateY(0); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+/* 手機版 */
+@media (max-width: 480px) {
+  .titleText {
+    font-size: 48px;
+  }
+
+  .victoryContainer[data-intensity='epic'] .titleText {
+    font-size: 52px;
+  }
+
+  .victoryContainer[data-intensity='legendary'] .titleText {
+    font-size: 56px;
+  }
+
+  .recordText {
+    font-size: 24px;
+  }
+
+  .streakAura {
+    width: 250px;
+    height: 250px;
+    margin-left: -125px;
+    margin-top: -125px;
+  }
+
+  .recordRing {
+    width: 200px;
+    height: 200px;
+  }
+}

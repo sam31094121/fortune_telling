@@ -1,0 +1,182 @@
+.container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+/* 連勝數字展示 */
+.streakDisplay {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(6, 16, 33, 0.9);
+  border: 2px solid var(--streak-color);
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+}
+
+.streakNumber {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--streak-color);
+  text-shadow: 0 0 12px var(--streak-color), 0 0 24px rgba(255, 191, 36, 0.4);
+  animation: streakPulse 1.5s ease-in-out infinite;
+  line-height: 1;
+  min-width: 32px;
+  text-align: center;
+}
+
+.streakNumber[data-record='true'] {
+  animation: recordFlash 0.8s ease-out forwards, streakPulse 1.5s ease-in-out 0.8s infinite;
+}
+
+@keyframes streakPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.9;
+  }
+}
+
+@keyframes recordFlash {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.streakLabel {
+  font-size: 11px;
+  color: var(--streak-color);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-shadow: 0 0 6px var(--streak-color);
+}
+
+/* 傷害信息 */
+.damageInfo,
+.totalInfo {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid #3b82f6;
+  border-radius: 6px;
+  animation: slideInRight 0.4s ease-out forwards;
+}
+
+.totalInfo {
+  background: rgba(249, 115, 22, 0.12);
+  border-color: #f97316;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.damageInfo .label,
+.totalInfo .label {
+  font-size: 9px;
+  color: #b8c2ca;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.damageInfo .value,
+.totalInfo .value {
+  font-size: 14px;
+  font-weight: 800;
+  text-align: right;
+  color: #fff;
+}
+
+.damageInfo .value {
+  color: #60a5fa;
+}
+
+.totalInfo .value {
+  color: #fb923c;
+}
+
+/* 新紀錄徽章 */
+.recordBadge {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, #ff006e, #ff4757);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 0 12px rgba(255, 0, 110, 0.6);
+  animation: badgePulse 1s ease-in-out infinite;
+  letter-spacing: 0.05em;
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(255, 0, 110, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 0, 110, 0.9);
+  }
+}
+
+/* 手機版 */
+@media (max-width: 480px) {
+  .container {
+    top: 10px;
+    right: 10px;
+    gap: 6px;
+  }
+
+  .streakDisplay {
+    gap: 6px;
+    padding: 6px 8px;
+  }
+
+  .streakNumber {
+    font-size: 20px;
+    min-width: 24px;
+  }
+
+  .streakLabel {
+    font-size: 9px;
+  }
+
+  .damageInfo,
+  .totalInfo {
+    padding: 4px 6px;
+  }
+
+  .damageInfo .value,
+  .totalInfo .value {
+    font-size: 12px;
+  }
+}

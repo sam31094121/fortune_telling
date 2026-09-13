@@ -45,6 +45,8 @@ import {
   type Match,
   type Side,
 } from '@/lib/beast-game/interactive';
+import WinStreakCounter from './WinStreakCounter';
+import VictoryMoment from './VictoryMoment';
 
 /** 生命與護盾。護盾先扣，所以畫在血條上面一層。 */
 export function VitalBar({
@@ -368,8 +370,29 @@ const BattlePanel = memo(function BattlePanel({
     if (match.winner === 'player') playVictoryMusic(sound.current.play);
     else if (match.winner === 'opponent') playDefeatMusic(sound.current.play);
   }, [finished, busy, match.winner]);
+
+  /* 計算連勝數和傷害值 */
+  const calculateStreakAndDamage = () => {
+    if (match.status !== 'FINISHED' || match.winner !== 'player') {
+      return { streak: 0, totalDamage: 0, roundDamage: 0, isNewRecord: false };
+    }
+    const totalDamage = match.log.reduce((sum, entry) => {
+      const playerDamage = entry.changes?.find(c => c.side === 'opponent' && c.cardId === match.opponent.team[match.opponent.active].cardId)?.damage || 0;
+      return sum + playerDamage;
+    }, 0);
+    const lastRoundDamage = match.log[match.log.length - 1]?.changes?.find(c => c.side === 'opponent')?.damage || 0;
+    return { streak: 1, totalDamage, roundDamage: lastRoundDamage, isNewRecord: match.round >= 5 && totalDamage > 200 };
+  };
+
+  const { streak, totalDamage, roundDamage, isNewRecord } = calculateStreakAndDamage();
+  const playerFighter = match.player.team[match.player.active];
+  const playerElement = playerFighter?.element as BattleElement | undefined;
+  const showVictory = match.status === 'FINISHED' && match.winner === 'player' && busy;
+
   return (
     <section className={compact ? styles.compactPanel : styles.panel} data-battle-panel data-status={match.status}>
+      <WinStreakCounter streak={streak} totalDamage={totalDamage} roundDamage={roundDamage} isNewRecord={isNewRecord} />
+      <VictoryMoment active={showVictory} streak={streak} isNewRecord={isNewRecord} element={playerElement} />
 
       {/* HP 條已移到 BattleArena 各自卡片正下方，此處不再重複顯示 */}
 
