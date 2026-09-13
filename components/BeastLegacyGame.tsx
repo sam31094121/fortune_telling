@@ -23,6 +23,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import BeastDuelRitual from '@/components/BeastDuelRitual';
 import BeastStakeResult from '@/components/BeastStakeResult';
+import StarterPackAfterBattle from '@/components/StarterPackAfterBattle';
 import { selectRitualHighlights } from '@/lib/beast-ritual';
 import frameStyles from '@/components/BeastCardFrame.module.css';
 import { describeStakeRisk } from '@/lib/beast-game/stake';
@@ -815,6 +816,7 @@ export default function BeastGamePage() {
           {!dueling && stakeSaved !== false && <Link href="/" className="mb-3 flex min-h-11 items-center justify-center rounded-xl border border-cyan-200/40 px-4 text-sm font-bold text-cyan-100">回首頁</Link>}
           {duel.ok ? (
             <>
+              {stakeSaved === true && <StarterPackAfterBattle completed="stake-duel" />}
               <p className="text-lg font-black">
                 {duel.winner === 'PLAYER' ? '你贏了' : duel.winner === 'OPPONENT' ? '你輸了' : '平手'}
               </p>

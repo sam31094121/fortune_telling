@@ -1,6 +1,6 @@
 'use client';
 
-import { ELEMENT_LABEL, ELEMENT_COUNTER, BeastElement, ELEMENT_GENERATES } from '@/lib/beast-game/elements';
+import { ELEMENT_LABEL, ELEMENT_COUNTER, ELEMENTS, BeastElement, ELEMENT_GENERATES } from '@/lib/beast-game/elements';
 import styles from './ElementMatchupGuide.module.css';
 
 interface ElementMatchupGuideProps {
@@ -25,78 +25,24 @@ export default function ElementMatchupGuide({
 
   return (
     <details className={`${styles.matchupGuide} ${className}`}>
-      <summary>？相生相剋</summary>
-      <div className={styles.elementPair}>
-        {/* 玩家元素 */}
-        <div className={styles.elementCard}>
-          <span className={styles.elementLabel}>{playerLabel}</span>
-          <span className={`${styles.elementSymbol} ${styles[`symbol-${playerElement}`]}`}>
-            {getElementEmoji(playerElement)}
-          </span>
-        </div>
-
-        {/* 關係指示器 */}
-        <div className={styles.relationshipArea}>
-          {playerCounters && (
-            <div className={`${styles.relation} ${styles.advantage}`}>
-              <span className={styles.relationIcon}>→</span>
-              <span className={styles.relationText}>剋</span>
-            </div>
-          )}
-          {opponentCounters && (
-            <div className={`${styles.relation} ${styles.disadvantage}`}>
-              <span className={styles.relationIcon}>←</span>
-              <span className={styles.relationText}>被剋</span>
-            </div>
-          )}
-          {playerGenerates && (
-            <div className={`${styles.relation} ${styles.generates}`}>
-              <span className={styles.relationIcon}>↻</span>
-              <span className={styles.relationText}>生</span>
-            </div>
-          )}
-          {opponentGenerates && (
-            <div className={`${styles.relation} ${styles.generated}`}>
-              <span className={styles.relationIcon}>↺</span>
-              <span className={styles.relationText}>被生</span>
-            </div>
-          )}
-          {!playerCounters && !opponentCounters && !playerGenerates && !opponentGenerates && (
-            <div className={`${styles.relation} ${styles.neutral}`}>
-              <span className={styles.relationIcon}>≈</span>
-              <span className={styles.relationText}>無關</span>
-            </div>
-          )}
-        </div>
-
-        {/* 對方元素 */}
-        <div className={styles.elementCard}>
-          <span className={styles.elementLabel}>{opponentLabel}</span>
-          <span className={`${styles.elementSymbol} ${styles[`symbol-${opponentElement}`]}`}>
-            {getElementEmoji(opponentElement)}
-          </span>
-        </div>
+      <summary aria-label="查看目前兩張卡的相生相剋" title="相生相剋">？</summary>
+      <div className={styles.shortVerdict}>
+        <span>我方 {playerLabel} · 易經 {opponentLabel}</span>
+        <strong>{playerCounters ? '有利' : opponentCounters ? '不利' : playerGenerates || opponentGenerates ? '相生' : '無加成'}</strong>
       </div>
-
-      {/* 說明文字 */}
+      <div className={styles.orbRow} role="img" aria-label={`五元素寶珠示意；我方${playerLabel}，易經${opponentLabel}`}>
+        {ELEMENTS.map(element => (
+          <span key={element} className={`${styles.elementSymbol} ${styles[`symbol-${element}`]} ${element === playerElement ? styles.orbMine : ''} ${element === opponentElement ? styles.orbOpponent : ''}`} aria-hidden="true">
+            {ELEMENT_LABEL[element]}
+          </span>
+        ))}
+      </div>
       <p className={styles.explanation}>
-        {playerCounters && `${playerLabel}剋${opponentLabel}，傷害 +20%`}
-        {opponentCounters && `${opponentLabel}剋${playerLabel}，傷害 −10%`}
-        {playerGenerates && `${playerLabel}生${opponentLabel}，相生關係`}
-        {opponentGenerates && `${opponentLabel}生${playerLabel}，相生關係`}
-        {!playerCounters && !opponentCounters && !playerGenerates && !opponentGenerates && '兩者無相生相剋關係'}
+        {playerCounters && '我剋他 · 傷害 +20%'}
+        {opponentCounters && '他剋我 · 傷害 −10%'}
+        {(playerGenerates || opponentGenerates) && '相生不加傷害；合體看己方後備'}
+        {!playerCounters && !opponentCounters && !playerGenerates && !opponentGenerates && '這兩張卡沒有元素加成'}
       </p>
     </details>
   );
-}
-
-function getElementEmoji(element: BeastElement): string {
-  const emojiMap: Record<BeastElement, string> = {
-    SPACE: '◆',
-    AIR: '◈',
-    WATER: '◊',
-    FIRE: '◉',
-    EARTH: '◇',
-  };
-  return emojiMap[element] || '●';
 }

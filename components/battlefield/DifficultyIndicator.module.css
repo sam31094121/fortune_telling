@@ -1,0 +1,108 @@
+.difficultyCard {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(16, 185, 129, 0.04));
+  border: 1.5px solid #3b82f6;
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  backdrop-filter: blur(4px);
+  animation: difficultySlideIn 0.4s ease-out;
+}
+
+@keyframes difficultySlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.header h4 {
+  font-size: 12px;
+  font-weight: 700;
+  color: #7dd3fc;
+  margin: 0;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.difficulty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.stars {
+  font-size: 20px;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f6e7bd;
+}
+
+.predictedRate {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid rgba(125, 211, 252, 0.2);
+  border-bottom: 1px solid rgba(125, 211, 252, 0.2);
+  margin: 8px 0;
+}
+
+.percentage {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rate {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.reason {
+  font-size: 11px;
+  color: #b8c2ca;
+  text-align: center;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+.warning {
+  margin-top: 8px;
+  padding: 6px 8px;
+  background: rgba(249, 115, 22, 0.15);
+  border-left: 3px solid #f97316;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #f97316;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* 難度視覺反饋 */
+@media (prefers-reduced-motion: no-preference) {
+  .difficultyCard {
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .difficultyCard:hover {
+    border-color: #7dd3fc;
+    box-shadow: 0 0 16px rgba(125, 211, 252, 0.2);
+  }
+}

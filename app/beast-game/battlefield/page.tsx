@@ -43,6 +43,7 @@ import type { StakeOutcome } from '@/lib/beast-collection-ledger';
 import { namedStakeOutcome } from '@/lib/beast-stake-presentation';
 import BeastStakeResult from '@/components/BeastStakeResult';
 import BeastBattleVoice from '@/components/BeastBattleVoice';
+import StarterPackAfterBattle from '@/components/StarterPackAfterBattle';
 import DeckBuilder from '@/components/battlefield/DeckBuilder';
 import { BATTLEFIELD_DECK_SIZE, buildFreshOpeningDeck, buildUniqueDeck, sanitizeDeckSelection } from '@/lib/beast-game/deck-builder';
 import { useCombatPlayback } from '@/components/battlefield/useCombatPlayback';
@@ -579,6 +580,7 @@ export default function BattlefieldPage() {
                 </div>
               ) : match?.status === 'FINISHED' && !playing && !inspection ? (
                 <div className={styles.footer}>
+                  {(isTrial || settlement?.saved) && <StarterPackAfterBattle completed="battlefield" />}
                   <button type="button" className={styles.restart} disabled={settling || settlement?.saved === false} onClick={redeal}>{settling ? '正在保存卡片結算…' : settlement?.saved === false ? '請先重試保存結果' : '沿用可用選擇，再打一場'}</button>
                   {!settling && settlement?.saved !== false && <Link href="/" className={styles.homeLink}>回首頁</Link>}
                 </div>

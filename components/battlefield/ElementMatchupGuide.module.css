@@ -26,176 +26,97 @@
 .matchupGuide summary::-webkit-details-marker { display: none; }
 .matchupGuide summary:focus-visible { outline: 2px solid #ffe4a6; outline-offset: 2px; }
 .matchupGuide[open] {
-  padding: 8px;
+  position: relative;
+  padding: 6px;
   border: 1px solid rgba(125, 211, 252, 0.55);
   background: rgba(6, 16, 40, 0.96);
 }
-.matchupGuide[open] summary { margin-bottom: 8px; }
-
-.elementPair {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.elementCard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: rgba(13, 25, 41, 0.8);
-  border: 1px solid rgba(245, 158, 11, 0.25);
-  flex: 0 1 auto;
-  min-width: 50px;
-}
-
-.elementLabel {
-  font-size: 10px;
-  font-weight: 700;
-  color: #ffe1a0;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+.matchupGuide[open] summary {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 44px;
+  padding: 0;
 }
 
 .elementSymbol {
-  font-size: 20px;
+  font-size: 16px;
+  font-weight: 900;
   line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.44);
+  box-shadow: inset 0 2px 4px rgba(255,255,255,.3), inset 0 -5px 8px rgba(0,0,0,.42), 0 3px 9px rgba(0,0,0,.45);
 }
 
-/* 各元素符號顏色 */
 .symbol-SPACE {
-  color: #f59e0b;
-  text-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+  color: #fff0c6;
+  background: radial-gradient(circle at 32% 26%, #eac575, #815a9e 48%, #241535 82%);
 }
 
 .symbol-AIR {
-  color: #7dd3fc;
-  text-shadow: 0 0 8px rgba(125, 211, 252, 0.5);
+  color: #e9fff8;
+  background: radial-gradient(circle at 32% 26%, #d9fff0, #499f98 44%, #163944 82%);
 }
 
 .symbol-WATER {
-  color: #38bdf8;
-  text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+  color: #ebf9ff;
+  background: radial-gradient(circle at 32% 26%, #d7f3ff, #3175b9 46%, #10294e 82%);
 }
 
 .symbol-FIRE {
-  color: #fb7185;
-  text-shadow: 0 0 8px rgba(251, 113, 133, 0.5);
+  color: #fff1da;
+  background: radial-gradient(circle at 32% 26%, #ffe6a6, #d56a45 45%, #55222e 82%);
 }
 
 .symbol-EARTH {
-  color: #86efac;
-  text-shadow: 0 0 8px rgba(134, 239, 172, 0.5);
-}
-
-.relationshipArea {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  min-width: 40px;
-}
-
-.relation {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  min-height: 20px;
-}
-
-.relation.advantage {
-  background: rgba(251, 113, 133, 0.15);
-  color: #fb7185;
-  border: 1px solid rgba(251, 113, 133, 0.3);
-}
-
-.relation.disadvantage {
-  background: rgba(56, 189, 248, 0.15);
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.3);
-}
-
-.relation.generates {
-  background: rgba(134, 239, 172, 0.12);
-  color: #86efac;
-  border: 1px solid rgba(134, 239, 172, 0.25);
-}
-
-.relation.generated {
-  background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.2);
-}
-
-.relation.neutral {
-  background: rgba(107, 114, 128, 0.1);
-  color: #9ca3af;
-  border: 1px solid rgba(107, 114, 128, 0.2);
-}
-
-.relationIcon {
-  font-size: 10px;
-  font-weight: 900;
-}
-
-.relationText {
-  font-size: 8px;
-  font-weight: 700;
+  color: #fff4dd;
+  background: radial-gradient(circle at 32% 26%, #f6db9e, #aa8657 46%, #46392d 82%);
 }
 
 .explanation {
   text-align: center;
-  font-size: 10px;
+  font-size: 11px;
   color: #b8c2ca;
   line-height: 1.4;
   margin: 0;
-  padding: 6px 0 0;
+  padding: 4px 0 0;
   border-top: 1px solid rgba(125, 211, 252, 0.2);
 }
+
+.shortVerdict {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-right: 44px;
+  font-size: 11px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.shortVerdict strong { color: #f4d891; }
+.orbRow { display: flex; align-items: center; justify-content: space-around; gap: 4px; padding: 4px 44px 5px 0; }
+.orbRow .elementSymbol { flex: 0 0 26px; width: 26px; height: 26px; font-size: 14px; }
+.orbMine { outline: 2px solid #f9db8e; outline-offset: 1px; }
+.orbOpponent { border-color: #80e1ff; box-shadow: inset 0 2px 4px rgba(255,255,255,.3), inset 0 -5px 8px rgba(0,0,0,.42), 0 0 8px rgba(79,200,241,.85); }
+.orbMine.orbOpponent { outline-color: #f9db8e; }
 
 @media (max-width: 480px) {
   .matchupGuide[open] {
     padding: 5px;
   }
 
-  .matchupGuide[open] summary { margin-bottom: 4px; }
-  .elementPair { gap: 4px; }
-
-  .elementCard {
-    flex-direction: row;
-    min-width: 0;
-    gap: 2px;
-    padding: 2px 4px;
-    font-size: 10px;
-  }
-
-  .elementSymbol {
-    width: 16px;
-    height: 16px;
-    font-size: 14px;
-  }
-
-  .relationshipArea { min-width: 0; }
+  .shortVerdict { font-size: 10px; gap: 3px; }
+  .orbRow { gap: 2px; }
+  .orbRow .elementSymbol { flex-basis: 24px; width: 24px; height: 24px; font-size: 13px; }
 
   .explanation {
-    font-size: 9px;
-    line-height: 11px;
-    padding-top: 2px;
+    font-size: 11px;
+    line-height: 15px;
+    padding-top: 3px;
   }
 }

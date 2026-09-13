@@ -382,6 +382,10 @@
 .helpEntry { min-height: 44px; padding: 4px 10px; color: #bae6fd; font-size: 13px; text-decoration: underline; touch-action: manipulation; }
 .primaryActions button { min-height: 42px; padding: 4px 6px; flex-direction: column; gap: 2px; font-size: 13px; }
 .primaryActions small { font-size: 10px; font-weight: 500; }
+.primaryActions button small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rageUnavailable { background: #243449; color: #c3d0df; border-color: #526178; box-shadow: none; }
+.rageGuide { display: grid; gap: 3px; padding: 8px 10px; border: 1px solid #6b88a3; border-radius: 10px; background: #15283d; color: #d9e9f6; font-size: 12px; line-height: 1.4; }
+.rageGuide strong { color: #ffe2a4; }
 .reserveCards { display: flex; gap: 8px; overflow-x: auto; padding: 3px; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: #58728c transparent; }
 .reserveCard { display: grid; grid-template-columns: 44px minmax(0, 1fr); grid-template-rows: auto auto; align-items: center; gap: 2px 7px; flex: 0 0 156px; min-height: 60px; padding: 7px; text-align: left; border: 1px solid #7caaca; border-radius: 12px; background: #23374e; touch-action: manipulation; }
 .reserveCard img { grid-row: 1 / 3; width: 44px; height: 44px; border-radius: 8px; object-fit: cover; }

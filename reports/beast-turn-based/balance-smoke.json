@@ -1,76 +1,76 @@
 {
-  "version": "turn-based-1.0.0",
+  "version": "turn-based-1.1.0",
   "mode": "SMOKE",
   "matches": 1000,
   "policy": "deterministic skill-first, mirrored lineups; not human strategy coverage",
-  "playerWins": 487,
-  "draws": 17,
+  "playerWins": 488,
+  "draws": 7,
   "maxRounds": 80,
   "stats": {
     "beast_y14": {
       "appearances": 130,
-      "wins": 71,
-      "draws": 6
+      "wins": 70,
+      "draws": 0
     },
     "beast_a14": {
       "appearances": 96,
-      "wins": 50,
+      "wins": 52,
       "draws": 2
     },
     "beast_y19": {
       "appearances": 94,
-      "wins": 45,
-      "draws": 2
+      "wins": 44,
+      "draws": 0
     },
     "beast_a19": {
       "appearances": 74,
-      "wins": 48,
+      "wins": 52,
       "draws": 0
     },
     "beast_y03": {
       "appearances": 94,
-      "wins": 50,
-      "draws": 3
+      "wins": 51,
+      "draws": 0
     },
     "beast_a03": {
       "appearances": 60,
-      "wins": 27,
-      "draws": 2
+      "wins": 26,
+      "draws": 0
     },
     "beast_y08": {
       "appearances": 98,
-      "wins": 39,
-      "draws": 2
+      "wins": 37,
+      "draws": 0
     },
     "beast_a08": {
       "appearances": 76,
-      "wins": 48,
-      "draws": 0
+      "wins": 49,
+      "draws": 2
     },
     "beast_y04": {
       "appearances": 108,
-      "wins": 42,
+      "wins": 44,
       "draws": 0
     },
     "beast_a04": {
       "appearances": 104,
-      "wins": 40,
-      "draws": 4
+      "wins": 43,
+      "draws": 0
     },
     "beast_g_baihu": {
       "appearances": 94,
-      "wins": 45,
+      "wins": 47,
       "draws": 0
     },
     "beast_g_qinglong": {
       "appearances": 84,
-      "wins": 48,
-      "draws": 4
+      "wins": 52,
+      "draws": 2
     },
     "beast_g_xuanwu": {
       "appearances": 110,
-      "wins": 57,
-      "draws": 4
+      "wins": 53,
+      "draws": 0
     },
     "beast_g_zhuque": {
       "appearances": 82,
@@ -79,13 +79,13 @@
     },
     "beast_y23": {
       "appearances": 96,
-      "wins": 42,
+      "wins": 40,
       "draws": 0
     },
     "beast_a23": {
       "appearances": 104,
       "wins": 36,
-      "draws": 5
+      "draws": 0
     },
     "beast_y07": {
       "appearances": 106,
@@ -94,275 +94,275 @@
     },
     "beast_a07": {
       "appearances": 104,
-      "wins": 61,
+      "wins": 60,
       "draws": 0
     },
     "beast_y01": {
       "appearances": 90,
-      "wins": 39,
+      "wins": 41,
       "draws": 0
     },
     "beast_a01": {
       "appearances": 120,
-      "wins": 72,
+      "wins": 69,
       "draws": 0
     },
     "beast_y22": {
       "appearances": 104,
-      "wins": 51,
+      "wins": 56,
       "draws": 2
     },
     "beast_a22": {
       "appearances": 92,
-      "wins": 55,
-      "draws": 4
+      "wins": 56,
+      "draws": 1
     },
     "beast_y02": {
       "appearances": 92,
-      "wins": 31,
-      "draws": 3
+      "wins": 34,
+      "draws": 0
     },
     "beast_a02": {
       "appearances": 134,
-      "wins": 65,
+      "wins": 62,
       "draws": 0
     },
     "beast_y15": {
       "appearances": 112,
-      "wins": 73,
-      "draws": 2
+      "wins": 70,
+      "draws": 0
     },
     "beast_a15": {
       "appearances": 80,
-      "wins": 46,
+      "wins": 48,
       "draws": 0
     },
     "beast_y24": {
       "appearances": 120,
-      "wins": 46,
-      "draws": 2
+      "wins": 57,
+      "draws": 4
     },
     "beast_a24": {
       "appearances": 108,
-      "wins": 67,
+      "wins": 64,
       "draws": 0
     },
     "beast_y16": {
       "appearances": 102,
-      "wins": 47,
-      "draws": 2
+      "wins": 50,
+      "draws": 0
     },
     "beast_a16": {
       "appearances": 92,
       "wins": 34,
-      "draws": 1
+      "draws": 0
     },
     "beast_y18": {
       "appearances": 148,
-      "wins": 48,
+      "wins": 47,
       "draws": 4
     },
     "beast_a18": {
       "appearances": 108,
-      "wins": 32,
+      "wins": 39,
       "draws": 2
     },
     "beast_y09": {
       "appearances": 100,
-      "wins": 34,
-      "draws": 2
+      "wins": 36,
+      "draws": 0
     },
     "beast_a09": {
       "appearances": 104,
-      "wins": 51,
-      "draws": 5
+      "wins": 49,
+      "draws": 7
     },
     "beast_y10": {
       "appearances": 94,
-      "wins": 59,
+      "wins": 57,
       "draws": 0
     },
     "beast_a10": {
       "appearances": 96,
-      "wins": 67,
+      "wins": 60,
       "draws": 0
     },
     "beast_y21": {
       "appearances": 110,
-      "wins": 69,
+      "wins": 75,
       "draws": 0
     },
     "beast_a21": {
       "appearances": 108,
-      "wins": 63,
+      "wins": 61,
       "draws": 0
     },
     "beast_y13": {
       "appearances": 98,
-      "wins": 30,
-      "draws": 4
+      "wins": 39,
+      "draws": 0
     },
     "beast_a13": {
       "appearances": 88,
-      "wins": 31,
+      "wins": 28,
       "draws": 0
     },
     "beast_y06": {
       "appearances": 94,
-      "wins": 50,
-      "draws": 0
+      "wins": 47,
+      "draws": 2
     },
     "beast_a06": {
       "appearances": 88,
-      "wins": 43,
+      "wins": 46,
       "draws": 0
     },
     "beast_y17": {
       "appearances": 82,
-      "wins": 45,
-      "draws": 2
+      "wins": 51,
+      "draws": 0
     },
     "beast_a17": {
       "appearances": 104,
       "wins": 60,
-      "draws": 4
+      "draws": 2
     },
     "beast_y12": {
       "appearances": 116,
-      "wins": 57,
-      "draws": 2
+      "wins": 54,
+      "draws": 0
     },
     "beast_a12": {
       "appearances": 110,
-      "wins": 64,
-      "draws": 9
+      "wins": 68,
+      "draws": 3
     },
     "beast_y05": {
       "appearances": 104,
-      "wins": 53,
-      "draws": 0
+      "wins": 48,
+      "draws": 1
     },
     "beast_a05": {
       "appearances": 104,
-      "wins": 72,
+      "wins": 70,
       "draws": 0
     },
     "beast_y25": {
       "appearances": 90,
-      "wins": 35,
+      "wins": 33,
       "draws": 0
     },
     "beast_a25": {
       "appearances": 106,
-      "wins": 72,
+      "wins": 65,
       "draws": 0
     },
     "beast_y11": {
       "appearances": 110,
-      "wins": 45,
+      "wins": 42,
       "draws": 0
     },
     "beast_a11": {
       "appearances": 106,
-      "wins": 46,
+      "wins": 49,
       "draws": 0
     },
     "beast_y27": {
       "appearances": 94,
-      "wins": 42,
-      "draws": 2
+      "wins": 39,
+      "draws": 0
     },
     "beast_a27": {
       "appearances": 82,
-      "wins": 34,
-      "draws": 0
+      "wins": 33,
+      "draws": 1
     },
     "beast_y26": {
       "appearances": 82,
-      "wins": 31,
+      "wins": 34,
       "draws": 2
     },
     "beast_a26": {
       "appearances": 108,
-      "wins": 49,
-      "draws": 6
+      "wins": 48,
+      "draws": 3
     },
     "beast_y28": {
       "appearances": 78,
       "wins": 48,
-      "draws": 2
+      "draws": 0
     },
     "beast_a28": {
       "appearances": 110,
-      "wins": 61,
-      "draws": 4
+      "wins": 65,
+      "draws": 2
     },
     "beast_y20": {
       "appearances": 114,
-      "wins": 43,
+      "wins": 52,
       "draws": 0
     },
     "beast_a20": {
       "appearances": 104,
-      "wins": 45,
-      "draws": 2
+      "wins": 44,
+      "draws": 0
     }
   },
   "flags": [
     {
-      "id": "beast_y15",
-      "role": "主攻",
-      "rate": 0.6607142857142857,
-      "appearances": 112,
-      "wins": 73,
+      "id": "beast_a19",
+      "role": "控制",
+      "rate": 0.7027027027027027,
+      "appearances": 74,
+      "wins": 52,
+      "draws": 0
+    },
+    {
+      "id": "beast_a08",
+      "role": "控制",
+      "rate": 0.6578947368421053,
+      "appearances": 76,
+      "wins": 49,
       "draws": 2
+    },
+    {
+      "id": "beast_a23",
+      "role": "輔助",
+      "rate": 0.34615384615384615,
+      "appearances": 104,
+      "wins": 36,
+      "draws": 0
     },
     {
       "id": "beast_y18",
       "role": "輔助",
-      "rate": 0.33783783783783783,
+      "rate": 0.3310810810810811,
       "appearances": 148,
-      "wins": 48,
+      "wins": 47,
       "draws": 4
     },
     {
-      "id": "beast_a18",
-      "role": "輔助",
-      "rate": 0.3055555555555556,
-      "appearances": 108,
-      "wins": 32,
-      "draws": 2
-    },
-    {
-      "id": "beast_a10",
-      "role": "控制",
-      "rate": 0.6979166666666666,
-      "appearances": 96,
-      "wins": 67,
+      "id": "beast_y21",
+      "role": "主攻",
+      "rate": 0.6818181818181818,
+      "appearances": 110,
+      "wins": 75,
       "draws": 0
     },
     {
-      "id": "beast_y13",
-      "role": "守護",
-      "rate": 0.32653061224489793,
-      "appearances": 98,
-      "wins": 30,
-      "draws": 4
+      "id": "beast_a13",
+      "role": "反擊",
+      "rate": 0.3181818181818182,
+      "appearances": 88,
+      "wins": 28,
+      "draws": 0
     },
     {
       "id": "beast_a05",
       "role": "控制",
-      "rate": 0.6923076923076923,
+      "rate": 0.6730769230769231,
       "appearances": 104,
-      "wins": 72,
-      "draws": 0
-    },
-    {
-      "id": "beast_a25",
-      "role": "主攻",
-      "rate": 0.6792452830188679,
-      "appearances": 106,
-      "wins": 72,
+      "wins": 70,
       "draws": 0
     }
   ]
