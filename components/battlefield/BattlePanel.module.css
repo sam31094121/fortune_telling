@@ -296,7 +296,23 @@
   to    { box-shadow: inset 0 0 0 0 rgba(255, 255, 255, 0); }
 }
 
-/* 出戰方的名字掛一個元素色點，戰鬥中也看得出誰是什麼屬性。 */
+/* 元素寶珠徽章容器 */
+.elementBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.orbBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+/* 舊版色點（保留向後兼容） */
 .elementDot {
   display: inline-block;
   width: 8px;
@@ -435,7 +451,8 @@
 /* 攻擊按鈕：元素光暈（--element-glow 由 TSX 注入） */
 .actionButton[style] { border-color: var(--element-glow, rgba(255,255,255,0.25)); box-shadow: 0 0 12px var(--element-glow, transparent), 0 4px 12px rgba(0,0,0,0.3); }
 .actionButton[style]:disabled { border-color: #526178; box-shadow: none; }
-.statusHead strong { font-size: 0; }
+.statusHead strong { font-size: 0; display: flex; align-items: center; }
+.orbBadge { width: 28px; height: 28px; }
 .elementDot { width: 10px; height: 10px; margin-right: 0; }
 .energy { font-size: 10px; padding: 1px 7px; }
 /* 科技感能量 */

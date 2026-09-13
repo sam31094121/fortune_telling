@@ -21,6 +21,7 @@ import styles from './BattlePanel.module.css';
 import { memo, useEffect, useRef, useState } from 'react';
 import type { BattlefieldCardArt } from './GameBattlefield';
 import { ELEMENT_GENERATES, ELEMENT_LABEL, elementGenerates } from '@/lib/beast-game/elements';
+import ElementOrbDisplay from './ElementOrbDisplay';
 import {
   ELEMENT_FX,
   beastVoiceFor,
@@ -86,13 +87,11 @@ export function FighterStatus({ match, side, label }: { match: Match; side: Side
   return (
     <div className={styles.status}>
       <div className={styles.statusHead}>
-        <strong>
-          {/* 元素色點：戰鬥中也看得出誰是什麼屬性，不必回頭看卡面。 */}
-          <span
-            className={styles.elementDot}
-            style={{ color: ELEMENT_FX[fighter.element as BattleElement]?.glow ?? '#94a3b8' }}
-            aria-hidden="true"
-          />
+        <strong className={styles.elementBadge}>
+          {/* 元素寶珠：戰鬥中也看得出誰是什麼屬性，不必回頭看卡面。 */}
+          <div className={styles.orbBadge}>
+            <ElementOrbDisplay element={fighter.element} size="small" animated={false} />
+          </div>
           {sideSymbol}
         </strong>
         <span className={styles.energy} aria-label={`氣 ${team.energy}`}>⚡{team.energy}</span>
@@ -380,10 +379,12 @@ const BattlePanel = memo(function BattlePanel({
       return { streak: 0, totalDamage: 0, roundDamage: 0, isNewRecord: false };
     }
     const totalDamage = match.log.reduce((sum, entry) => {
-      const playerDamage = entry.changes?.find(c => c.side === 'opponent' && c.cardId === match.opponent.team[match.opponent.active].cardId)?.damage || 0;
+      const change = entry.changes?.find(c => c.side === 'opponent' && c.cardId === match.opponent.team[match.opponent.active].cardId);
+      const playerDamage = change ? Math.max(0, change.hpBefore - change.hpAfter) : 0;
       return sum + playerDamage;
     }, 0);
-    const lastRoundDamage = match.log[match.log.length - 1]?.changes?.find(c => c.side === 'opponent')?.damage || 0;
+    const lastChange = match.log[match.log.length - 1]?.changes?.find(c => c.side === 'opponent');
+    const lastRoundDamage = lastChange ? Math.max(0, lastChange.hpBefore - lastChange.hpAfter) : 0;
     return { streak: 1, totalDamage, roundDamage: lastRoundDamage, isNewRecord: match.round >= 5 && totalDamage > 200 };
   };
 
@@ -396,7 +397,7 @@ const BattlePanel = memo(function BattlePanel({
     <section className={compact ? styles.compactPanel : styles.panel} data-battle-panel data-status={match.status}>
       <WinStreakCounter streak={streak} totalDamage={totalDamage} roundDamage={roundDamage} isNewRecord={isNewRecord} />
       <VictoryMoment active={showVictory} streak={streak} isNewRecord={isNewRecord} element={playerElement} />
-      <UpgradePathHint match={match} cards={cards} />
+      <UpgradePathHint match={match} />
       <ShareBadge match={match} streak={streak} totalDamage={totalDamage} />
       <SoundEnhancer match={match} streak={streak} isNewRecord={isNewRecord} />
 
