@@ -1,0 +1,254 @@
+/* 長者友善準備指南 - 大字、簡單、清楚 */
+
+/* ========== 完整版 ========== */
+
+.fullGuide {
+  display: grid;
+  gap: 24px;
+  padding: 20px;
+  background: rgba(6, 16, 33, 0.6);
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  border-radius: 12px;
+}
+
+.header {
+  display: grid;
+  gap: 8px;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: clamp(24px, 5vw, 32px);
+  font-weight: 900;
+  color: #fbbf24;
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: clamp(14px, 3vw, 18px);
+  color: #b8c2ca;
+  margin: 0;
+}
+
+.stepsContainer {
+  display: grid;
+  gap: 20px;
+}
+
+.step {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(59, 130, 246, 0.08);
+  border-left: 4px solid #7dd3fc;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.step:hover {
+  background: rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 12px rgba(125, 211, 252, 0.2);
+}
+
+.step[data-step="1"] { border-left-color: #ff9fc5; }
+.step[data-step="2"] { border-left-color: #8dffcd; }
+.step[data-step="3"] { border-left-color: #60edff; }
+.step[data-step="4"] { border-left-color: #fbbf24; }
+.step[data-step="5"] { border-left-color: #dfd8ff; }
+.step[data-step="6"] { border-left-color: #ffe198; }
+
+.stepHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stepNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(125, 211, 252, 0.2);
+  font-size: 20px;
+  font-weight: 900;
+  color: #7dd3fc;
+  flex-shrink: 0;
+}
+
+.stepVisual {
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepTitle {
+  font-size: clamp(16px, 3vw, 20px);
+  font-weight: 800;
+  color: #e6edf8;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+.stepDescription {
+  font-size: clamp(14px, 2.5vw, 16px);
+  color: #c0d0e4;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.stepDetails {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 0 0;
+  padding: 0 0 0 20px;
+  list-style: none;
+}
+
+.stepDetails li {
+  font-size: clamp(13px, 2.2vw, 15px);
+  color: #b8c2ca;
+  line-height: 1.5;
+}
+
+.stepDetails li::before {
+  content: '▸ ';
+  color: #7dd3fc;
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+.separator {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(125, 211, 252, 0.2), transparent);
+  margin: 8px 0;
+}
+
+.footer {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  text-align: center;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 8px;
+}
+
+.encouragement {
+  font-size: clamp(14px, 2.8vw, 18px);
+  font-weight: 700;
+  color: #10b981;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+/* ========== 縮小版（快速步驟） ========== */
+
+.compactGuide {
+  display: grid;
+  gap: 12px;
+}
+
+.compactTitle {
+  font-size: clamp(14px, 2.5vw, 16px);
+  font-weight: 800;
+  color: #7dd3fc;
+  margin: 0;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.quickSteps {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quickSteps li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(125, 211, 252, 0.15);
+  transition: all 0.2s ease;
+}
+
+.quickSteps li.active {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: #7dd3fc;
+  box-shadow: 0 0 8px rgba(125, 211, 252, 0.15);
+}
+
+.stepVisual {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stepTitle {
+  font-size: clamp(11px, 1.8vw, 13px);
+  font-weight: 600;
+  color: #c0d0e4;
+  margin: 0;
+}
+
+/* 手機版 */
+@media (max-width: 480px) {
+  .fullGuide {
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .step {
+    gap: 10px;
+    padding: 12px;
+    border-left-width: 3px;
+  }
+
+  .stepHeader {
+    gap: 10px;
+  }
+
+  .stepNumber {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .stepVisual {
+    font-size: 24px;
+  }
+
+  .stepTitle {
+    font-size: 16px;
+  }
+
+  .stepDescription {
+    font-size: 14px;
+  }
+
+  .stepDetails li {
+    font-size: 13px;
+  }
+
+  .footer {
+    padding: 12px;
+  }
+
+  .encouragement {
+    font-size: 16px;
+  }
+}
