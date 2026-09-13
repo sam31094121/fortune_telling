@@ -45,27 +45,32 @@
 /* 垂直戰場：雙卡是主角；保留中段足夠的出招移動空間。 */
 .fighters { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; grid-column: 2; }
 .fighter[data-fighter='opponent'] {
-  order: 1;
-  flex: 0 0 36%;
-  height: 36%;
+  order: 2;
+  flex: 0 0 28%;
+  height: 28%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-top: 8px;
-  gap: 6px;
+  padding-top: 6px;
+  gap: 4px;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 12px);
 }
 
 .fighter[data-fighter='player'] {
-  order: 2;
-  flex: 0 0 36%;
-  height: 36%;
+  order: 1;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  padding-bottom: 8px;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  z-index: 2;
 }
 .fighter[data-fighter='opponent'] .artSpace { place-items: center; flex: 1; min-height: 0; width: 100px; container-type: size; }
 .fighter[data-fighter='player'] .artSpace { place-items: center; flex: 1; min-height: 0; width: 155px; container-type: size; }
