@@ -1,0 +1,183 @@
+.orbContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.orbContainer[data-size='small'] {
+  --orb-size: 40px;
+}
+
+.orbContainer[data-size='medium'] {
+  --orb-size: 60px;
+}
+
+.orbContainer[data-size='large'] {
+  --orb-size: 80px;
+}
+
+/* 寶珠視覺容器 */
+.orbVisual {
+  position: relative;
+  width: var(--orb-size);
+  height: var(--orb-size);
+  border-radius: 50%;
+  perspective: 1000px;
+  animation: orbFloat 3s ease-in-out infinite;
+}
+
+.orbContainer[data-animated='false'] .orbVisual {
+  animation: none;
+}
+
+@keyframes orbFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* 寶珠外環光（Ring） */
+.orbRing {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--orb-ring);
+  opacity: 0.6;
+  animation: orbRingSpin 4s linear infinite;
+}
+
+.orbContainer[data-animated='false'] .orbRing {
+  animation: none;
+}
+
+@keyframes orbRingSpin {
+  from {
+    transform: rotateZ(0deg);
+  }
+  to {
+    transform: rotateZ(360deg);
+  }
+}
+
+/* 中心發光球 */
+.orbCore {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    var(--orb-glow) 0%,
+    rgba(var(--orb-glow-rgb, 222, 216, 255), 0.4) 40%,
+    rgba(var(--orb-glow-rgb, 222, 216, 255), 0.1) 100%
+  );
+  box-shadow:
+    0 0 20px var(--orb-glow),
+    0 0 40px rgba(var(--orb-glow-rgb, 222, 216, 255), 0.5) inset,
+    0 0 10px var(--orb-ring);
+  animation: orbPulse 2s ease-in-out infinite;
+}
+
+.orbContainer[data-animated='false'] .orbCore {
+  animation: none;
+}
+
+@keyframes orbPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 20px var(--orb-glow),
+      0 0 40px rgba(var(--orb-glow-rgb, 222, 216, 255), 0.5) inset,
+      0 0 10px var(--orb-ring);
+  }
+  50% {
+    box-shadow:
+      0 0 30px var(--orb-glow),
+      0 0 60px rgba(var(--orb-glow-rgb, 222, 216, 255), 0.7) inset,
+      0 0 15px var(--orb-ring);
+  }
+}
+
+/* 邊緣Fresnel光（模擬3D邊框亮度） */
+.orbEdge {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      ellipse at 30% 30%,
+      rgba(255, 255, 255, 0.3) 0%,
+      transparent 50%
+    );
+  pointer-events: none;
+}
+
+/* 內部漸層 */
+.orbInner {
+  position: absolute;
+  inset: 20%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* 寶珠標籤 */
+.orbLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--orb-glow);
+  text-shadow: 0 0 8px var(--orb-glow);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* 元素特定色彩覆蓋 */
+.orbContainer[data-element='空'] .orbRing,
+.orbContainer[data-element='空'] .orbLabel {
+  --orb-glow-rgb: 223, 216, 255;
+}
+
+.orbContainer[data-element='風'] .orbRing,
+.orbContainer[data-element='風'] .orbLabel {
+  --orb-glow-rgb: 141, 255, 205;
+}
+
+.orbContainer[data-element='水'] .orbRing,
+.orbContainer[data-element='水'] .orbLabel {
+  --orb-glow-rgb: 96, 237, 255;
+}
+
+.orbContainer[data-element='火'] .orbRing,
+.orbContainer[data-element='火'] .orbLabel {
+  --orb-glow-rgb: 255, 159, 197;
+}
+
+.orbContainer[data-element='地'] .orbRing,
+.orbContainer[data-element='地'] .orbLabel {
+  --orb-glow-rgb: 255, 225, 152;
+}
+
+/* 手機版 */
+@media (max-width: 480px) {
+  .orbContainer[data-size='small'] {
+    --orb-size: 32px;
+  }
+
+  .orbContainer[data-size='medium'] {
+    --orb-size: 48px;
+  }
+
+  .orbContainer[data-size='large'] {
+    --orb-size: 64px;
+  }
+
+  .orbLabel {
+    font-size: 10px;
+  }
+}
