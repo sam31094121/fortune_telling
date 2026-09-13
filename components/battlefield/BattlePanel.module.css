@@ -2,18 +2,50 @@
   戰鬥面板・版面
   ============================================================================
 
+  【黃金比例系統】
+  基礎單位：8px
+  尺寸階梯：8 → 12 → 16 → 24 → 32 → 48 (按 1:1.5:2:3:4:6 比例)
+  間距層級：2 → 4 → 6 → 8 → 12 → 16 → 24 (按相同比例)
+
+  所有元素尺寸與間距都必須來自此階梯，不得隨意設定。
+
   業主定調〈十五〉：戰場不要塞滿文字。卡片負責角色視覺，
   戰場只顯示玩家、對手、回合、HP、必要狀態、可執行動作。
-
-  所以這裡只有血條、氣、隊伍狀態點、動作鈕與戰報——
-  完整故事與技能全文留在卡片詳情，不擠進戰鬥畫面。
 */
 
 .panel {
+  /* 黃金比例尺寸 */
+  --size-xs: 8px;
+  --size-sm: 12px;
+  --size-md: 16px;
+  --size-lg: 24px;
+  --size-xl: 32px;
+  --size-2xl: 48px;
+
+  /* 間距階梯 */
+  --gap-xs: 2px;
+  --gap-sm: 4px;
+  --gap-md: 6px;
+  --gap-lg: 8px;
+  --gap-xl: 12px;
+  --gap-2xl: 16px;
+  --gap-3xl: 24px;
+
+  /* 組件高度 */
+  --height-status-head: 36px;
+  --height-vital-bar: 16px;
+  --height-weapon: 20px;
+  --height-action-button: 54px;
+
+  /* 視覺層間距（防重疊） */
+  --spacing-status-top: var(--gap-xl);
+  --spacing-status-bottom: var(--gap-2xl);
+  --spacing-element-row-gap: var(--gap-xl);
+
   display: grid;
-  gap: 16px;
-  margin-top: 12px;
-  padding: 16px;
+  gap: var(--gap-2xl);
+  margin-top: var(--gap-xl);
+  padding: var(--gap-2xl);
   border: 1px solid rgba(125, 211, 252, 0.2);
   border-radius: 12px;
   background:
@@ -28,24 +60,24 @@
   backdrop-filter: blur(8px);
 }
 
-/* 狀態信息區 - 獨立層級 */
+/* 狀態信息區 - 獨立層級（防重疊） */
 .status {
   display: grid;
-  gap: 8px;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(125, 211, 252, 0.15);
-  margin-bottom: 12px;
+  gap: var(--spacing-element-row-gap);
+  padding: var(--spacing-status-top) 0 var(--spacing-status-bottom) 0;
+  border-bottom: 2px solid rgba(125, 211, 252, 0.2);
+  margin-bottom: 0;
 }
 
 .statusHead {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--gap-xl);
   font-size: 12px;
   color: #b9c5d9;
-  min-height: 32px;
-  padding: 2px 0;
+  min-height: var(--height-status-head);
+  padding: var(--gap-lg) 0;
 }
 
 .statusHead strong {
@@ -81,10 +113,11 @@
 
 .vital {
   position: relative;
-  height: 16px;
+  height: var(--height-vital-bar);
   overflow: hidden;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
+  margin: var(--gap-md) 0;
 }
 
 .life {
@@ -121,21 +154,24 @@
 .roster {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-sm);
   font-size: 11px;
   color: #93a4c0;
+  margin: var(--gap-md) 0;
+  padding: var(--gap-md) 0;
 }
 
 .onField { color: #ffdfa4; }
 .down { color: #f87171; }
 
-.rosterText { margin-left: 4px; }
+.rosterText { margin-left: var(--gap-sm); }
 
 /* ── 動作 ─────────────────────────────────────────────────────── */
 
 .actions {
   display: grid;
-  gap: 6px;
+  gap: var(--gap-lg);
+  margin-top: var(--gap-xl);
 }
 
 .actionButton,
@@ -143,10 +179,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--gap-xl);
   /* 手機最小可點高度。動作按錯一次可能就輸掉一場。 */
-  min-height: 54px;
-  padding: 8px 16px;
+  min-height: var(--height-action-button);
+  padding: var(--gap-lg) var(--gap-2xl);
   border-radius: 14px;
   font-size: 15px;
   font-weight: 900;
@@ -328,35 +364,38 @@
 .elementBadge {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 4px;
+  gap: var(--gap-lg);
+  padding: var(--gap-xs) var(--gap-sm);
   background: rgba(59, 130, 246, 0.08);
   border-radius: 6px;
   border: 1px solid rgba(125, 211, 252, 0.2);
   backdrop-filter: blur(4px);
+  flex-shrink: 0;
 }
 
 .orbBadge {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: var(--size-xl);
+  height: var(--size-xl);
   flex-shrink: 0;
   background: rgba(6, 16, 33, 0.4);
   border-radius: 6px;
   box-shadow: 0 0 12px rgba(125, 211, 252, 0.15);
+  border: 1px solid rgba(125, 211, 252, 0.1);
 }
 
 /* 舊版色點（保留向後兼容） */
 .elementDot {
   display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-right: 6px;
+  width: var(--size-xs);
+  height: var(--size-xs);
+  margin-right: var(--gap-md);
   border-radius: 50%;
   vertical-align: baseline;
   box-shadow: 0 0 8px currentColor;
+  flex-shrink: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -371,13 +410,14 @@
 .weapon {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 8px;
+  gap: var(--gap-md);
+  padding: var(--gap-xs) var(--gap-lg);
   border-left: 2px solid currentColor;
   border-radius: 0 8px 8px 0;
   background: rgba(255, 255, 255, 0.04);
   font-size: 11px;
-  line-height: 16px;
+  line-height: var(--height-weapon);
+  margin: var(--gap-md) 0;
 }
 
 .weaponName {
@@ -411,13 +451,14 @@
 */
 .matchup {
   display: grid;
-  gap: 2px;
-  padding: 8px 10px;
+  gap: var(--gap-xs);
+  padding: var(--gap-lg) var(--gap-xl);
   border-left: 3px solid currentColor;
   border-radius: 0 10px 10px 0;
   background: rgba(255, 255, 255, 0.04);
   font-size: 12px;
   line-height: 18px;
+  margin: var(--gap-md) 0;
 }
 
 .matchup strong { font-size: 13px; font-weight: 900; }
@@ -452,6 +493,14 @@
 
 /* 手機版：隱藏非必要文字，保留關鍵資訊 */
 @media (max-width: 480px) {
+  .panel {
+    --height-status-head: 32px;
+    --height-vital-bar: 14px;
+    --height-action-button: 48px;
+    --gap-xl: 8px;
+    --gap-2xl: 12px;
+  }
+
   .weapon { display: none; }
   .weaponPart { display: none; }
   .matchup span { font-size: 11px; }
@@ -463,6 +512,7 @@
   .result small { font-size: 10px; }
   .vitalText { font-size: 9px; letter-spacing: 0; }
   .vitalText b { padding-inline: 4px; }
+  .orbBadge { width: 28px; height: 28px; }
 }
 [data-swap-guide] .reserveCard:not(:disabled) { outline: 2px solid #ffe4a6; outline-offset: -2px; }
 .vital { min-height: 14px; }
@@ -487,11 +537,10 @@
 /* 攻擊按鈕：元素光暈（--element-glow 由 TSX 注入） */
 .actionButton[style] { border-color: var(--element-glow, rgba(255,255,255,0.25)); box-shadow: 0 0 12px var(--element-glow, transparent), 0 4px 12px rgba(0,0,0,0.3); }
 .actionButton[style]:disabled { border-color: #526178; box-shadow: none; }
-.statusHead strong { font-size: 0; display: flex; align-items: center; gap: 3px; }
-.elementBadge { padding: 0px 2px; gap: 3px; background: transparent; border: none; }
-.orbBadge { width: 24px; height: 24px; background: transparent; box-shadow: none; }
+.statusHead strong { font-size: 0; display: flex; align-items: center; gap: var(--gap-sm); }
+.elementBadge { padding: 0px var(--gap-xs); gap: var(--gap-sm); background: transparent; border: none; }
 .elementDot { width: 10px; height: 10px; margin-right: 0; }
-.energy { font-size: 10px; padding: 1px 7px; }
+.energy { font-size: 10px; padding: var(--gap-xs) var(--gap-lg); }
 /* 科技感能量 */
 .energy { background: rgba(0,229,255,0.12); color: #00e5ff; border: 1px solid rgba(0,229,255,0.35); box-shadow: 0 0 8px rgba(0,229,255,0.35), inset 0 0 4px rgba(0,229,255,0.08); font-variant-numeric: tabular-nums; letter-spacing:.06em; }
 /* 手機版換卡：垂直排列，不用橫向滾動 */
