@@ -1,13 +1,19 @@
-/* 戰鬥節奏控制面板 */
+/* 戰鬥節奏控制面板 - 移到對手卡片區上方邊角 */
 .pace {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top, 0px));
+  right: max(12px, env(safe-area-inset-right, 0px));
   padding: 8px;
   border: 1px solid #54718b;
-  border-radius: 12px;
-  margin-bottom: 8px;
+  border-radius: 8px;
   background: #142b3c;
   font-size: 14px;
   line-height: 1.6;
   color: #d4e6f2;
+  z-index: 100;
+  min-width: 140px;
+  max-width: 160px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* 頭部：狀態 + 暫停按鈕 */
