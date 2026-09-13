@@ -16,6 +16,7 @@ import { performedAction, isDamagingAction } from '@/lib/beast-game/combat-prese
 import { combatChanges } from '@/lib/beast-game/combat-feedback';
 import ElementMatchupGuide from './ElementMatchupGuide';
 import PhotonParticleEffect from './PhotonParticleEffect';
+import RageComboEffect from './RageComboEffect';
 import TeamRosterPanel from './TeamRosterPanel';
 
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
@@ -40,6 +41,11 @@ export default function BattleArena({ state, cards, match, onInspect, onSwap, on
 
   return (
     <section className={styles.arena} aria-label="戰鬥畫面" data-battle-visual data-playback={playing ? 'acting' : 'ready'} data-battle-revision={match?.revision} data-battle-venue="cards">
+      <RageComboEffect
+        active={playerAction === 'RAGE'}
+        element={strikeElement}
+        key={`rage-${match?.revision}`}
+      />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className={styles.backdrop} src={BATTLE_VENUES.cards.image} alt="" aria-hidden="true" decoding="async" />
       <div className="sr-only">
