@@ -47,6 +47,9 @@ import {
 } from '@/lib/beast-game/interactive';
 import WinStreakCounter from './WinStreakCounter';
 import VictoryMoment from './VictoryMoment';
+import UpgradePathHint from './UpgradePathHint';
+import ShareBadge from './ShareBadge';
+import SoundEnhancer from './SoundEnhancer';
 
 /** 生命與護盾。護盾先扣，所以畫在血條上面一層。 */
 export function VitalBar({
@@ -393,6 +396,9 @@ const BattlePanel = memo(function BattlePanel({
     <section className={compact ? styles.compactPanel : styles.panel} data-battle-panel data-status={match.status}>
       <WinStreakCounter streak={streak} totalDamage={totalDamage} roundDamage={roundDamage} isNewRecord={isNewRecord} />
       <VictoryMoment active={showVictory} streak={streak} isNewRecord={isNewRecord} element={playerElement} />
+      <UpgradePathHint match={match} cards={cards} />
+      <ShareBadge match={match} streak={streak} totalDamage={totalDamage} />
+      <SoundEnhancer match={match} streak={streak} isNewRecord={isNewRecord} />
 
       {/* HP 條已移到 BattleArena 各自卡片正下方，此處不再重複顯示 */}
 

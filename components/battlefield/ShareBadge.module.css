@@ -1,0 +1,123 @@
+.badgeContainer {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  z-index: 601;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: slideInRight 0.4s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.shareBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
+  border: 2px solid #3b82f6;
+  border-radius: 6px;
+  color: #60a5fa;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.2);
+}
+
+.shareBtn:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(59, 130, 246, 0.3));
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+.shareBtn:active {
+  transform: translateY(0);
+}
+
+.icon {
+  font-size: 14px;
+}
+
+.text {
+  letter-spacing: 0.05em;
+}
+
+/* 成就徽章 */
+.achievementBadges {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.badge {
+  padding: 6px 10px;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid #fbbf24;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fbbf24;
+  text-align: center;
+  animation: badgeAppear 0.4s ease-out;
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.2);
+}
+
+@keyframes badgeAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.badge[data-type='epic'] {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+  color: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
+  animation-delay: 0.1s;
+}
+
+.badge[data-type='legendary'] {
+  background: linear-gradient(135deg, rgba(255, 0, 110, 0.2), rgba(255, 71, 87, 0.1));
+  border-color: #ff006e;
+  color: #ff4757;
+  box-shadow: 0 0 12px rgba(255, 0, 110, 0.3);
+  animation-delay: 0.2s;
+  font-weight: 700;
+}
+
+/* 手機版 */
+@media (max-width: 480px) {
+  .badgeContainer {
+    bottom: 70px;
+    right: 10px;
+    gap: 6px;
+  }
+
+  .shareBtn {
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+
+  .badge {
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+}
