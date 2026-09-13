@@ -87,6 +87,14 @@ export const ELEMENT_COUNTER: Record<BeastElement, BeastElement> = {
   SPACE: 'AIR',
 };
 
+/** Generating cycle: metal → water → wood → fire → earth → metal. */
+export const ELEMENT_GENERATES: Record<BeastElement, BeastElement> = {
+  SPACE:'WATER', WATER:'AIR', AIR:'FIRE', FIRE:'EARTH', EARTH:'SPACE',
+};
+export function elementGenerates(source: BeastElement, target: BeastElement): boolean {
+  return ELEMENT_GENERATES[source] === target;
+}
+
 export const ELEMENT_ADVANTAGE_MULTIPLIER = 1.2;
 export const ELEMENT_DISADVANTAGE_MULTIPLIER = 0.9;
 

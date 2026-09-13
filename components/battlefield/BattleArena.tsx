@@ -46,7 +46,7 @@ export default function BattleArena({ state, cards, match, onInspect, onAttack, 
         data-element={strikeElement} data-skill={String(playerAction === 'SKILL')} style={{ '--element-strike': ELEMENT_FX[strikeElement].glow, '--action-delay': `${Math.max(0, match?.log.findIndex(entry => entry.side === 'player' && entry.text.includes('：')) ?? 0) * COMBAT_BEAT_MS}ms` } as CSSProperties} aria-hidden="true">
         <span className={styles.strikeField} />
         <span className={styles.strikeTrace} data-trace="one" />
-        <span className={styles.strikeReadout}><b>{ELEMENT_FX[strikeElement].label}元素攻擊</b></span>
+        <span className={styles.strikeReadout}><b>{playerAction === 'RAGE' ? '暴怒合體' : `${ELEMENT_FX[strikeElement].label}元素攻擊`}</b></span>
       </div>}
       <div className={styles.fighters}>
         {(['player', 'opponent'] as const).map(side => {
@@ -56,7 +56,7 @@ export default function BattleArena({ state, cards, match, onInspect, onAttack, 
           const label = side === 'player' ? '你' : '電腦';
           const change = match && fighter ? combatChanges(match, side, fighter.cardId) : '';
           const action = match ? performedAction(match, side) : null;
-          const performed = action === 'ATTACK' || action === 'SKILL';
+          const performed = action === 'ATTACK' || action === 'SKILL' || action === 'RAGE';
           const rush = Boolean(match && isDamagingAction(match, side));
           const actionOrder = match?.log.findIndex(entry => entry.side === side && entry.cardId === card?.id) ?? -1;
           const hitOrder = match?.log.findIndex(entry => entry.changes?.some(change => change.side === side && change.cardId === card?.id && (change.hpAfter < change.hpBefore || change.shieldAfter < change.shieldBefore))) ?? -1;
@@ -73,7 +73,7 @@ export default function BattleArena({ state, cards, match, onInspect, onAttack, 
                     <img src={card.thumbnail} alt={`${label}主戰：${card.name}`} width={256} height={384} decoding="async" draggable={false} />
                   ) : <span className={styles.empty}>主戰卡<br />等待上場</span>}
                 </button>
-                {action && <span className={styles.actionCue} role="status" aria-label={action === 'SKILL' ? '技能' : action === 'ATTACK' ? '攻擊' : action === 'SKIP' ? '受控' : action === 'REPLACEMENT' ? '接替' : '換卡'}>{action === 'SKILL' ? '✦' : action === 'ATTACK' ? '⚔' : action === 'SKIP' ? '⊘' : action === 'REPLACEMENT' ? '⇄' : '⇌'}</span>}
+                {action && <span className={styles.actionCue} role="status" aria-label={action === 'RAGE' ? '暴怒合體' : action === 'SKILL' ? '技能' : action === 'ATTACK' ? '攻擊' : action === 'SKIP' ? '受控' : action === 'REPLACEMENT' ? '接替' : '換卡'}>{action === 'RAGE' ? '🔥' : action === 'SKILL' ? '✦' : action === 'ATTACK' ? '⚔' : action === 'SKIP' ? '⊘' : action === 'REPLACEMENT' ? '⇄' : '⇌'}</span>}
               </div>
               {fighter && match && team && (() => {
                 const hpPct = Math.max(0, Math.min(100, (fighter.hp / Math.max(1, fighter.maxHp)) * 100));

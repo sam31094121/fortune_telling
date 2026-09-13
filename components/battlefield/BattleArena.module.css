@@ -372,6 +372,8 @@
 .fighterVitals .liveChange { display: block; min-height: 15px; color: #ffe4a6; font-size: 10px; line-height: 15px; text-align: center; overflow-wrap: anywhere; font-weight: 500; }
 .arenaNote { font-size: 11px; line-height: 16px; font-weight: 400; letter-spacing: .02em; }
 .artSpace[data-action='SKILL'][data-rush='true'] .art { animation-name: skillCharge; animation-duration: 750ms; }
+.artSpace[data-action='RAGE'][data-rush='true'] .art { animation: rageFusionRush 850ms cubic-bezier(.18,.75,.2,1) both; animation-delay:var(--action-delay,0ms); }
+@keyframes rageFusionRush { 0%,100% { transform:translateY(0) scale(1); } 18% { transform:translateY(8px) scale(.93); } 45% { transform:translateY(calc(var(--strike-y,-26px) * 1.8)) scale(1.12); } 70% { transform:translateY(calc(var(--strike-y,-26px) * .8)) scale(1.04); } }
 .artSpace[data-action='SWITCH'] .art, .artSpace[data-action='REPLACEMENT'] .art { animation: reserveEnter 650ms ease-out both; animation-delay: var(--action-delay,0ms); }
 .artSpace[data-impact='strong'] { --hit-weight: .6; }
 .artSpace[data-impact='resisted'] { --hit-weight: .15; }

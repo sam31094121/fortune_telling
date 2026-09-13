@@ -27,6 +27,7 @@ import {
   beastVoiceFor,
   createSoundPlayer,
   playBeastAction,
+  playBeastRage,
   playClashSequence,
   playVictoryMusic,
   playDefeatMusic,
@@ -38,6 +39,7 @@ import { describeMatchup, explainOutcome } from '@/lib/beast-element-guide';
 import type { BeastElement } from '@/lib/beast-game/elements';
 import {
   legalActions,
+  rageUnavailableReason,
   profile,
   type Action,
   type Match,
@@ -154,6 +156,7 @@ export function BattleActionBar({
   if (compact) {
     const attack = actions.find(action => action.type === 'ATTACK');
     const special = actions.find(action => action.type === 'SKILL');
+    const rage = actions.find(action => action.type === 'RAGE');
     const switches = actions.filter((action): action is Extract<Action, { type: 'SWITCH' }> => action.type === 'SWITCH');
     // The core's forced-replacement phase consumes neither an attack nor a round.
     // Never label that transition as a normal attack that appears to do nothing.
@@ -201,8 +204,8 @@ export function BattleActionBar({
             <strong>換卡</strong>
             <small>{switches.length ? `${switches.length} 張可換` : '看後備'}</small>
           </button>
-          <button type="button" className={styles.actionButton} disabled aria-label="暴怒合體，準備中">
-            <span aria-hidden="true">🔥</span><strong>暴怒合體</strong><small>準備中</small>
+          <button type="button" className={styles.actionButton} disabled={busy || !rage} aria-label={`暴怒合體，${rageUnavailableReason(match,'player') ?? '本場一次'}`} onClick={() => rage && onAction(rage)}>
+            <span aria-hidden="true">🔥</span><strong>暴怒合體</strong><small>{rageUnavailableReason(match,'player') ?? '本場一次'}</small>
           </button>
         </div>
         <button type="button" className={styles.helpEntry} disabled={busy} aria-expanded={commandView === 'help'} onClick={() => { onBrowse?.(); setCommandView(commandView === 'help' ? null : 'help'); }}>玩法說明</button>
@@ -239,6 +242,7 @@ export function BattleActionBar({
   const label = (action: Action) => {
     if (action.type === 'ATTACK') return '普通攻擊';
     if (action.type === 'SKILL') return skill.skillName;
+    if (action.type === 'RAGE') return '暴怒合體';
     return `換上 ${match.player.team[action.index].name}`;
   };
 
@@ -321,13 +325,15 @@ const BattlePanel = memo(function BattlePanel({
 
     // 玩家出招：三段式（含 heavy 判斷）+ SKILL 加砲聲
     const pAction = performedAction(match, 'player');
-    if (pAction === 'ATTACK' || pAction === 'SKILL') {
+    if (pAction === 'ATTACK' || pAction === 'SKILL' || pAction === 'RAGE') {
       const fighter = match.player.team[match.player.active];
       const order = match.log.findIndex(e => e.side === 'player' && e.cardId === fighter.cardId);
       const heavy = isKoHit('player');
       timers.push(window.setTimeout(() => {
         if (!sound.current) return;
-        if (isDamagingAction(match, 'player')) {
+        if (pAction === 'RAGE') {
+          cancels.push(playBeastRage(sound.current.play, fighter.element as BattleElement));
+        } else if (isDamagingAction(match, 'player')) {
           cancels.push(playBeastAction(sound.current.play, fighter.cardId, fighter.element as BattleElement, 'player', heavy));
           // 技能攻擊：加砲聲前奏，份量比普通攻擊重
           if (pAction === 'SKILL') window.setTimeout(() => sound.current?.play('/audio/taiji/cc0-cannon-fire.ogg', heavy ? 0.52 : 0.38, 1), 80);
@@ -340,13 +346,15 @@ const BattlePanel = memo(function BattlePanel({
 
     // 對手出招：之前完全靜音，現在補上輕版三段交鋒聲
     const oAction = performedAction(match, 'opponent');
-    if ((oAction === 'ATTACK' || oAction === 'SKILL') && isDamagingAction(match, 'opponent')) {
+    if ((oAction === 'ATTACK' || oAction === 'SKILL' || oAction === 'RAGE') && isDamagingAction(match, 'opponent')) {
       const oFighter = match.opponent.team[match.opponent.active];
       const oOrder = match.log.findIndex(e => e.side === 'opponent' && e.cardId === oFighter.cardId);
       const oHeavy = isKoHit('opponent');
       timers.push(window.setTimeout(() => {
         if (!sound.current) return;
-        cancels.push(playClashSequence(sound.current.play, oFighter.element as BattleElement, oHeavy, oFighter.cardId));
+        cancels.push(oAction === 'RAGE'
+          ? playBeastRage(sound.current.play, oFighter.element as BattleElement)
+          : playClashSequence(sound.current.play, oFighter.element as BattleElement, oHeavy, oFighter.cardId));
       }, Math.max(0, oOrder) * COMBAT_BEAT_MS));
     }
 

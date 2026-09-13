@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
-const {newMatch,advance,legalActions,chooseAI,interactiveCatalog}=require('../.beast-game-build/lib/beast-game/interactive');
+const {newMatch,advance,legalActions,chooseAI,interactiveCatalog,INTERACTIVE_VERSION}=require('../.beast-game-build/lib/beast-game/interactive');
 const {createRng}=require('../.beast-game-build/lib/beast-game/turn');
 const cards=interactiveCatalog(),ids=cards.map(c=>c.id);
 assert.equal(new Set(ids).size,60);
@@ -65,7 +65,7 @@ fs.mkdirSync('reports/beast-turn-based',{recursive:true});
   被一千場的結果覆蓋掉，就等於把證據換成比較弱的那一份，
   之後誰去看都以為那是完整取樣。
 */
-fs.writeFileSync(FULL?'reports/beast-turn-based/balance.json':'reports/beast-turn-based/balance-smoke.json',JSON.stringify({version:'turn-based-1.0.0',mode:FULL?'FULL':'SMOKE',matches:MATCHES,policy:'deterministic skill-first, mirrored lineups; not human strategy coverage',playerWins,draws,maxRounds,stats,flags},null,2));
+fs.writeFileSync(FULL?'reports/beast-turn-based/balance.json':'reports/beast-turn-based/balance-smoke.json',JSON.stringify({version:INTERACTIVE_VERSION,mode:FULL?'FULL':'SMOKE',matches:MATCHES,policy:'deterministic skill-first, mirrored lineups; not human strategy coverage',playerWins,draws,maxRounds,stats,flags},null,2));
 console.log(JSON.stringify({mode:FULL?'FULL':'SMOKE',matches:MATCHES,playerWins,draws,maxRounds,flags},null,2));
 if(FULL)assert.equal(flags.length,0,'35%-65% warning gate; investigate before release');
 else console.log(`煙霧模式：${MATCHES} 場，平衡閘門未評估（樣本不足會誤報）。完整驗證跑 npm run test:beast-interactive:full`);

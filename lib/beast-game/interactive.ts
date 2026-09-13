@@ -3,8 +3,22 @@ import { getCard, playableCards } from './registry';
 import { instantiate } from './battle';
 import { effectiveStat, resolveEffects, type BeastInstance, type EffectSpec, type EffectLogEntry } from './effects';
 import { createRng } from './turn';
+import { elementGenerates, type BeastElement } from './elements';
+/** Only a living deployed reserve can lend energy; collections are never consulted. */
+export function rageMaterialFor(s:Match, side:Side) {
+  const t=s[side], active=t.team[t.active];
+  return t.team.find((f,index)=>index!==t.active&&!f.defeated&&f.hp>0&&elementGenerates(f.element as BeastElement,active.element as BeastElement))??null;
+}
+export function rageUnavailableReason(s:Match, side:Side):string|null {
+  if(s.status!=='PLAYING')return '戰鬥已結束';
+  const t=s[side], f=t.team[t.active];
+  if(f.defeated)return '請先換上後備';
+  if(f.stunnedTurns>0)return '受控中';
+  if(t.rageAvailable!==1)return t.rageAvailable===0?'本場已使用':'下場開放合體';
+  return rageMaterialFor(s,side)?null:'需要相生後備';
+}
 
-export const INTERACTIVE_VERSION = 'turn-based-1.0.0';
+export const INTERACTIVE_VERSION = 'turn-based-1.1.0';
 /** 一隊最多幾隻＝戰場的主戰一格＋後備五格。 */
 export const MAX_TEAM = 6;
 export type Role = '主攻' | '守護' | '控制' | '輔助' | '反擊' | '速度';
@@ -37,7 +51,7 @@ export function profile(id: string) {
     evolution:card.form === 'YOUNG' ? id.replace('beast_y','beast_a') : null};
 }
 export type Side = 'player' | 'opponent';
-export type Action = {type:'ATTACK'} | {type:'SKILL'} | {type:'SWITCH'; index:number};
+export type Action = {type:'ATTACK'} | {type:'SKILL'} | {type:'RAGE'} | {type:'SWITCH'; index:number};
 export interface Fighter extends BeastInstance { cooldown:number; counter:boolean }
 export interface CombatChange {
   side: Side; cardId: string;
@@ -45,7 +59,7 @@ export interface CombatChange {
 }
 export interface Match {
   version:string; seed:number; round:number; revision:number; status:'PLAYING'|'FINISHED'; winner:Side|'DRAW'|null;
-  player:{team:Fighter[];active:number;energy:number}; opponent:{team:Fighter[];active:number;energy:number};
+  player:{team:Fighter[];active:number;energy:number;rageAvailable?:number}; opponent:{team:Fighter[];active:number;energy:number;rageAvailable?:number};
   log:Array<{side:Side;cardId:string;text:string;changes?:CombatChange[];action?:Action['type']|'REPLACEMENT'|'SKIP'}>;
   history:Array<{revision:number;player:Action;opponent:Action}>;
 }
@@ -68,14 +82,14 @@ export function newMatch(ids:string[],foes:string[],seed:number):Match {
   */
   for(const team of [ids,foes]) if(team.length<1||team.length>MAX_TEAM||new Set(team).size!==team.length||team.some(id=>!getCard(id))) throw new Error(`請選 1–${MAX_TEAM} 張不重複的神獸。`);
   return {version:INTERACTIVE_VERSION,seed,round:1,revision:0,status:'PLAYING',winner:null,
-    player:{team:ids.map(fighter),active:0,energy:2},opponent:{team:foes.map(fighter),active:0,energy:2},log:[],history:[]};
+    player:{team:ids.map(fighter),active:0,energy:2,rageAvailable:1},opponent:{team:foes.map(fighter),active:0,energy:2,rageAvailable:1},log:[],history:[]};
 }
 export function legalActions(s:Match,side:Side):Action[] {
   if(s.status!=='PLAYING')return [];
   const t=s[side], f=t.team[t.active];
   const swaps=t.team.flatMap((b,index):Action[]=>!b.defeated&&index!==t.active?[{type:'SWITCH',index}]:[]);
   if(f.defeated)return swaps;
-  return [{type:'ATTACK'},...(f.cooldown===0&&t.energy>=profile(f.cardId).cost?[{type:'SKILL'} as Action]:[]),...swaps];
+  return [{type:'ATTACK'},...(f.cooldown===0&&t.energy>=profile(f.cardId).cost?[{type:'SKILL'} as Action]:[]),...(rageUnavailableReason(s,side)===null?[{type:'RAGE'} as Action]:[]),...swaps];
 }
 export function chooseAI(s:Match,side:Side):Action {
   const foe:Side=side==='player'?'opponent':'player';
@@ -93,6 +107,7 @@ export function chooseAI(s:Match,side:Side):Action {
   const p=profile(f.cardId);
   const canSkill=actions.some(a=>a.type==='SKILL');
   const enemy=s[foe].team[s[foe].active];
+  if(actions.some(a=>a.type==='RAGE')&&(f.hp<f.maxHp*.55||enemy.hp<enemy.maxHp*.55))return {type:'RAGE'};
 
   // Role-specific skill timing — each role has a reason, not a blanket "always skill".
   if(canSkill){
@@ -135,7 +150,10 @@ export function advance(previous:Match,playerAction:Action,opponentAction:Action
     if(enemy.defeated)continue;
     const p=profile(f.cardId);const logs:EffectLogEntry[]=[];
     if(f.stunnedTurns>0){f.stunnedTurns--;consumeStatus();s.log.push({side,cardId:f.cardId,action:'SKIP',text:'受到控制，本次不能行動。'});continue;}
-    const effects=action.type==='SKILL'?p.effects:[{type:'DAMAGE',value:0,target:'ENEMY'} as EffectSpec];
+    const material=action.type==='RAGE'?rageMaterialFor(s,side):null;
+    if(action.type==='RAGE'&&!material)throw new Error('暴怒合體缺少存活的相生後備。');
+    const effects=action.type==='SKILL'?p.effects:[{type:'DAMAGE',value:action.type==='RAGE'?38:0,target:'ENEMY'} as EffectSpec];
+    if(action.type==='RAGE')t.rageAvailable=0;
     if(action.type==='SKILL'){t.energy-=p.cost;f.cooldown=3;if(p.role==='反擊')f.counter=true;}
     const before=enemy.hp+enemy.shield;
     const snapshots = [{ side, fighter: f }, { side: foe, fighter: enemy }].map(({ side, fighter }) => ({
@@ -144,7 +162,7 @@ export function advance(previous:Match,playerAction:Action,opponentAction:Action
     for(const effect of effects)resolveEffects([effect],{source:f,target:effect.target==='SELF'?f:enemy,baseAttack:effectiveStat(f,'attack'),side:{draw:()=>0,discard:()=>0},log:logs});
     f.shield=Math.min(70,f.shield);
     if(enemy.counter&&enemy.hp+enemy.shield<before&&!enemy.defeated){enemy.counter=false;f.hp=Math.max(0,f.hp-24);f.defeated=f.hp===0;logs.push({type:'DAMAGE',sourceName:enemy.name,targetName:f.name,applied:24,detail:'迎擊反擊 24 點'});}
-    s.log.push({side,cardId:f.cardId,action:action.type,text:`${f.name}・${action.type==='SKILL'?p.skillName:'普通攻擊'}：${logs.map(l=>l.detail).join('；')}`,
+    s.log.push({side,cardId:f.cardId,action:action.type,text:`${f.name}・${action.type==='SKILL'?p.skillName:action.type==='RAGE'?`暴怒合體・${material?.name}`:'普通攻擊'}：${logs.map(l=>l.detail).join('；')}`,
       changes: snapshots.map(({ side, fighter, hpBefore, shieldBefore }) => ({ side, cardId: fighter.cardId,
         hpBefore, hpAfter: fighter.hp, shieldBefore, shieldAfter: fighter.shield })),
     });

@@ -13,10 +13,10 @@ export function performedAction(match: Match, side: Side) {
 }
 export function isDamagingAction(match: Match, side: Side) {
   const action = performedAction(match, side);
-  return action === 'ATTACK' || (action === 'SKILL' && profile(match[side].team[match[side].active].cardId).effects.some(effect => effect.type === 'DAMAGE' && effect.target === 'ENEMY'));
+  return action === 'ATTACK' || action === 'RAGE' || (action === 'SKILL' && profile(match[side].team[match[side].active].cardId).effects.some(effect => effect.type === 'DAMAGE' && effect.target === 'ENEMY'));
 }
 export function combatPlaybackMs(match: Match, reduced = false) {
   if (!match.log.length) return 0;
   if (reduced) return 180;
-  return (match.log.length - 1) * COMBAT_BEAT_MS + 450;
+  return (match.log.length - 1) * COMBAT_BEAT_MS + (match.log.some(entry => entry.action === 'RAGE') ? 900 : 450);
 }

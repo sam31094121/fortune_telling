@@ -406,3 +406,19 @@ export function playBeastAction(
   );
   return () => timers.forEach((id) => id && window.clearTimeout(id));
 }
+
+/** Existing Tai Chi sounds, with a short one-shot fusion cadence. */
+export function playBeastRage(
+  play: (src: string, volume?: number, rate?: number) => void,
+  element: BattleElement,
+): () => void {
+  if (typeof window === 'undefined') return () => {};
+  const cues = [
+    {at: 0, src: ELEMENT_FX[element].attack, volume: .28, rate: .92},
+    {at: 110, src: `${AUDIO_BASE}/cc0-cannon-fire.ogg`, volume: .48, rate: .86},
+    {at: 370, src: CLASH_FX.impact, volume: .72, rate: .9},
+    {at: 560, src: CLASH_FX.heavyImpact, volume: .42, rate: 1},
+  ];
+  const timers = cues.map(cue => cue.at === 0 ? (play(cue.src,cue.volume,cue.rate),0) : window.setTimeout(() => play(cue.src,cue.volume,cue.rate), cue.at));
+  return () => timers.forEach(id => { if(id) window.clearTimeout(id); });
+}
