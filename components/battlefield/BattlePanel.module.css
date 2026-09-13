@@ -11,12 +11,21 @@
 
 .panel {
   display: grid;
-  gap: 10px;
-  margin-top: 10px;
-  padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  gap: 16px;
+  margin-top: 12px;
+  padding: 16px;
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg,
+      rgba(59, 130, 246, 0.08) 0%,
+      rgba(6, 16, 33, 0.6) 50%,
+      rgba(30, 58, 138, 0.05) 100%
+    );
+  box-shadow:
+    0 0 24px rgba(59, 130, 246, 0.1),
+    inset 0 1px 0 rgba(125, 211, 252, 0.1);
+  backdrop-filter: blur(8px);
 }
 
 /* 狀態信息區 - 獨立層級 */
