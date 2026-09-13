@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import styles from './BattleHelpPanel.module.css';
+import ElementCycleDisplay from './ElementCycleDisplay';
 
 export default function BattleHelpPanel({ onOpen }: { onOpen?: () => void }) {
   const [open, setOpen] = useState(false);
@@ -22,8 +23,10 @@ export default function BattleHelpPanel({ onOpen }: { onOpen?: () => void }) {
         <div className={styles.helpPanel} role="region" aria-label="戰鬥規則說明">
           <div className={styles.helpContent}>
             <h3>⚔️ 戰鬥基礎</h3>
+
+            <ElementCycleDisplay />
+
             <ul>
-              <li><strong>元素相剋</strong>：風剋地、地剋水、水剋火、火剋空、空剋風</li>
               <li><strong>氣值</strong>：用來施展技能，每回合自動恢復</li>
               <li><strong>護盾</strong>：減少傷害，會優先被扣掉</li>
             </ul>
