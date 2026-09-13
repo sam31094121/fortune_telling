@@ -27,7 +27,7 @@ import { selectRitualHighlights } from '@/lib/beast-ritual';
 import frameStyles from '@/components/BeastCardFrame.module.css';
 import { describeStakeRisk } from '@/lib/beast-game/stake';
 import { runOwnedDuel, retryStakeSettlement, recoverPendingDuel, subscribeCollection, type Settlement } from '@/lib/beast-collection';
-import { judgeSeriesVictorySkill } from '@/lib/beast-game/iching-judgment';
+import { elementGenerates } from '@/lib/beast-game/elements';
 import { readOwnedCards, type OwnedCards } from '@/lib/beast-owned-cards';
 import { BATTLE_NO_STAKE_GUIDE, BATTLE_VENUES } from '@/lib/beast-game/venues';
 import venueStyles from './battlefield/BattleVenue.module.css';
@@ -234,6 +234,7 @@ export default function BeastGamePage() {
   const [placementNote, setPlacementNote] = useState('');
   const [duel, setDuel] = useState<DuelResult | null>(null);
   const [dueling, setDueling] = useState(false);
+  const [fusionSlot, setFusionSlot] = useState<number | null>(null);
   const [ritual, setRitual] = useState<{ player: Card[]; opponent: Card[] | null; result: DuelResult | null; replay: boolean } | null>(null);
   const [lineupBudget, setLineupBudget] = useState<number | null>(null);
   const [showGuide, setShowGuide] = useState(false);
@@ -378,6 +379,13 @@ export default function BeastGamePage() {
 
   const filledCount = lineup.filter(Boolean).length;
   const lineupCost = lineup.reduce((sum, id) => sum + (id ? byId.get(id)?.cost ?? 0 : 0), 0);
+  const fusionOptions = [0, 1].flatMap((slot) => {
+    const active = lineup[slot] ? byId.get(lineup[slot]!) : null;
+    const support = active ? lineup.slice(slot + 1).map(id => id ? byId.get(id) : null)
+      .find(card => card && elementGenerates(card.element, active.element)) : null;
+    return active && support ? [{ slot, active, support }] : [];
+  });
+  const selectedFusionSlot = fusionOptions.some(option => option.slot === fusionSlot) ? fusionSlot : null;
   const overBudget = lineupBudget !== null && lineupCost > lineupBudget;
   const ready = filledCount === 3 && lineupBudget !== null && !overBudget && Boolean(board.stake && owned.counts.get(board.stake)) && !owned.storageError && stakeSaved !== false;
 
@@ -475,15 +483,11 @@ export default function BeastGamePage() {
         const result = await fetchJson<DuelResult>('/api/beast-game', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lineup, stake: board.stake }),
+          body: JSON.stringify({ lineup, stake: board.stake, fusionSlot: selectedFusionSlot }),
         }, 20000, 0);
         const ids = result.opponentLineupIds;
         if (!result.ok || !Array.isArray(ids) || ids.length !== 3 || new Set(ids).size !== 3 || ids.some((id) => !byId.has(id))) {
           throw new Error(result.error ?? '對手陣容不完整，押注卡未扣除。');
-        }
-        if (result.winner === 'PLAYER' && result.stake) {
-          const judgment = judgeSeriesVictorySkill(result);
-          result.stake = { ...result.stake, gainedCount: judgment.bonusCards, ichingJudgment: judgment };
         }
         return result;
       });
@@ -686,6 +690,17 @@ export default function BeastGamePage() {
           羈絆解鎖的加上決鬥贏來的。一張都沒有時不能只把按鈕變灰，
           要講得出為什麼沒有、去哪裡拿。
         */}
+        {fusionOptions.length > 0 && <section className="mt-3 rounded-xl border border-rose-300/30 bg-rose-300/[0.06] p-2.5" aria-label="暴怒合體選擇">
+          <p className="text-xs font-black text-rose-100">🔥 暴怒合體 <span className="font-medium text-white/55">可選，本場一次</span></p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {fusionOptions.map(option => <button key={option.slot} type="button" disabled={dueling || stakeSaved === false}
+              role="checkbox" aria-checked={selectedFusionSlot === option.slot}
+              onClick={() => setFusionSlot(selectedFusionSlot === option.slot ? null : option.slot)}
+              className={`min-h-11 rounded-lg border px-3 text-xs font-bold ${selectedFusionSlot === option.slot ? 'border-rose-200 bg-rose-200 text-slate-950' : 'border-rose-200/35 text-rose-100'}`}>
+              {option.active.name}＋{option.support.name}
+            </button>)}
+          </div>
+        </section>}
         <div className="mt-3 rounded-2xl border border-amber-300/25 bg-amber-300/[0.05] p-3" data-stake-slot>
           {owned.storageError ? <p role="alert" className="text-sm text-amber-100">{owned.storageError}</p> : owned.all.length === 0 ? (
             <div data-stake-empty>

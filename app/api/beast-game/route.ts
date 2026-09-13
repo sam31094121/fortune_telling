@@ -9,6 +9,8 @@ import { skillBodyArtFor } from '@/lib/beast-skill-archive';
 import { GAME_CORE_VERSION } from '@/lib/beast-game/schema';
 import {interactiveCatalog} from '@/lib/beast-game/interactive';
 import { playSeries } from '@/lib/beast-game/series';
+import { seriesFusionMaterial } from '@/lib/beast-game/series';
+import { judgeSeriesVictorySkill } from '@/lib/beast-game/iching-judgment';
 import {
   DECK_SIZE,
   LINEUP_SLOTS,
@@ -76,7 +78,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  let body: { lineup?: Array<string | null>; replaySeed?: number; stake?: string };
+  let body: { lineup?: Array<string | null>; replaySeed?: number; stake?: string; fusionSlot?: number | null };
   try {
     body = await request.json();
   } catch {
@@ -125,6 +127,10 @@ export async function POST(request: Request) {
     : Math.floor(randomInt(0, 2 ** 31 - 1));
 
   const chosen = lineup.filter((id): id is string => Boolean(id));
+  const playerFusion = body.fusionSlot == null ? null : body.fusionSlot;
+  if (playerFusion !== null && (!Number.isInteger(playerFusion) || !seriesFusionMaterial(chosen, playerFusion))) {
+    return NextResponse.json({ ok: false, error: '暴怒合體需要本次布陣中尚未上場的相生卡。' }, { status: 400 });
+  }
   const ids = playableCards().map((card) => card.id);
   const rng = createRng(seed);
 
@@ -136,7 +142,8 @@ export async function POST(request: Request) {
   const opponentLineup = buildLineup(ids, rng);
   // Lock the opponent's stake before resolving combat; no choosing prizes after seeing the winner.
   const opponentStakeId = ids[Math.floor(rng() * ids.length)];
-  const series = playSeries(chosen, opponentLineup, seed);
+  const opponentFusion = [0, 1].find(slot => seriesFusionMaterial(opponentLineup, slot)) ?? null;
+  const series = playSeries(chosen, opponentLineup, seed, { player: playerFusion, opponent: opponentFusion });
 
   /*
     對手也押一張，同樣從卡池抽、同樣用這一場的種子——
@@ -147,6 +154,7 @@ export async function POST(request: Request) {
     opponentStake: opponentStakeId,
     winner: series.winner,
   });
+  const judgment = stakeOutcome.verdict === 'WON' ? judgeSeriesVictorySkill({ series, turns: series.pairs.length }) : null;
   const nameOf = (id: string) => playableCards().find((c) => c.id === id)?.name ?? id;
 
   return NextResponse.json({
@@ -158,6 +166,7 @@ export async function POST(request: Request) {
     */
     stake: {
       ...stakeOutcome,
+      ...(judgment ? { gainedCount: judgment.bonusCards, ichingJudgment: judgment } : {}),
       playerStakeName: nameOf(stakeOutcome.stakes.player),
       opponentStakeName: nameOf(stakeOutcome.stakes.opponent),
       gainedCardName: stakeOutcome.gainedCardId ? nameOf(stakeOutcome.gainedCardId) : null,
@@ -168,6 +177,7 @@ export async function POST(request: Request) {
     firstPlayer: series.firstPlayer,
     winner: series.winner,
     series,
+    fusion: { player: playerFusion, opponent: opponentFusion },
     turns: series.pairs.length,
     life: { player: series.score.player, opponent: series.score.opponent },
     opponentLineup: opponentLineup.map((id) => playableCards().find((c) => c.id === id)?.name ?? id),
@@ -188,7 +198,12 @@ export async function POST(request: Request) {
       ],
       replayable: '記下這顆種子，用「重播這一場」可以完整重現同一場對戰。',
     },
-    timeline: [],
+    timeline: series.pairs.flatMap((pair) => pair.actions.map((action, turn) => ({
+      turn: turn + 1,
+      side: action.side,
+      phase: 'BATTLE',
+      note: `第 ${pair.index + 1} 局・${action.note}`,
+    }))),
     log: series.pairs.flatMap((pair) => pair.actions),
   }, { headers: { 'Cache-Control': 'no-store' } });
 }

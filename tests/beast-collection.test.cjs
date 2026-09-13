@@ -122,8 +122,14 @@ async function main() {
   check('replay clearly says no new inventory change', () => { const text = html(oneLost.settlement, true); assert.match(text, /本次不發獎，也不扣卡/); assert.doesNotMatch(text, /輸掉 −1/); });
   check('saved win names prize and held total within battle mode', () => {
     const text = renderToStaticMarkup(React.createElement(Panel, { ...props, outcome: { ...props.outcome, verdict: 'WON', gainedCardName: '亢金龍', forfeitedCardName: null }, settlement: won.settlement }));
-    assert.match(text, /獲得 ＋1/); assert.match(text, /你多了一張「亢金龍」/); assert.match(text, /目前持有 2 張卡片/);
+    assert.match(text, /獲得 ＋1/); assert.match(text, /你多了 1 張「亢金龍」/); assert.match(text, /目前持有 2 張卡片/);
     assert.doesNotMatch(text, /成長中心|growth-center#/);
+  });
+  check('multi-card win headline matches the committed reward count', () => {
+    const multi = { ...won.settlement, receipt: { ...won.settlement.receipt, gainedCount: 3, total: won.settlement.receipt.total + 2 } };
+    const text = renderToStaticMarkup(React.createElement(Panel, { ...props, outcome: { ...props.outcome, verdict: 'WON', gainedCardName: '亢金龍', forfeitedCardName: null }, settlement: multi }));
+    assert.match(text, /獲得 ＋3 張/);
+    assert.match(text, /你多了 3 張「亢金龍」/);
   });
   const ledger = h.load('lib/beast-collection-ledger.ts');
   const reserved = ledger.reserveCard(ledger.grantGrowthCards({ cards: [], history: [] }, [a], '2026-09-05'), a, 'mismatch', '2026-09-05');

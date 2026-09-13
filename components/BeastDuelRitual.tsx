@@ -42,6 +42,13 @@ type Props = {
 };
 const ELEMENTS: Record<string, string> = { SPACE: '空', AIR: '風', WATER: '水', FIRE: '火', EARTH: '地' };
 const POSITIONS = ['前鋒', '中軍', '後陣'];
+function actionForBeat(pair: PairResult | undefined, beat: number) {
+  const actions = pair?.actions ?? [];
+  if (!actions.length) return null;
+  if (beat === 1) return actions.find(action => action.fusion && action.side === 'PLAYER') ?? actions[Math.round((actions.length - 1) / 3)];
+  if (beat === 2) return actions.find(action => action.fusion && action.side === 'OPPONENT') ?? actions[Math.round(2 * (actions.length - 1) / 3)];
+  return actions[beat === 0 ? 0 : actions.length - 1];
+}
 
 export default function BeastDuelRitual({ player, opponent, timeline, replay, pairs, onComplete, onCancel }: Props) {
   const [dealt, setDealt] = useState(false);
@@ -222,7 +229,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
     const result = pairs?.[index];
     const actionSide = (beat: number) => {
       if (!result?.actions.length) return beat % 2 === 0 ? 'player' : 'opponent';
-      const action = result.actions[Math.round(beat * (result.actions.length - 1) / 3)];
+      const action = actionForBeat(result, beat)!;
       return action.side === 'PLAYER' ? 'player' : 'opponent';
     };
     setPairClash(index);
@@ -361,6 +368,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
         }
       : null;
   const clashActive = clashPairReady || clashTurnReady;
+  const fusionBeat = pairClash !== null && pairResult === null && Boolean(actionForBeat(pairs?.[pairClash], pairBeat)?.fusion);
   const previewIndex = Math.min(Math.floor(revealCount / 2), 2);
 
   return <div ref={dialog} tabIndex={-1} role="dialog" aria-modal="true" aria-label="雙方揭牌儀式" className={styles.stage} data-battle-venue="fighting" style={{ backgroundImage: `linear-gradient(#070f21b8, #070f21eb), url("${BATTLE_VENUES.fighting.image}")` }} data-duel-ritual data-ritual-phase={!opponentReady ? 'waiting' : !dealt ? 'dealing' : phase}>
@@ -372,7 +380,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
       <div className={styles.duelSplit}>
       <section className={styles.visualPane} aria-label="格鬥畫面" data-duel-visual>
       <div className={styles.venueHeading}><span>{BATTLE_VENUES.fighting.name}</span>{pairs && <p role="status" aria-label="目前比分">你 {shownScore.player} : {shownScore.opponent} 對手</p>}</div>
-      <div className={`${styles.center} ${phase === 'clash' || pairClash !== null ? styles.clash : ''}`} role="status" aria-live="polite" style={{ position: 'relative' }}>
+      <div className={`${styles.center} ${phase === 'clash' || pairClash !== null ? styles.clash : ''} ${fusionBeat ? styles.fusionClash : ''}`} role="status" aria-live="polite" style={{ position: 'relative' }}>
         {/*
           格鬥舞台。襯在最底層（z-index 0），三維本體與文字都壓在它上面。
           地板近端朝玩家、角柱玩家側較亮——舞台的視角原點跟著玩家走。
@@ -460,7 +468,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
             playerSpirit={spiritArtFor(clashCards.me.id)}
             opponentSpirit={spiritArtFor(clashCards.foe.id)}
             attacker={clashCards.attacker}
-            glow={ELEMENT_FX[clashCards.me.element as BattleElement]?.glow ?? '#fff'}
+            glow={fusionBeat ? '#fb7185' : ELEMENT_FX[clashCards.me.element as BattleElement]?.glow ?? '#fff'}
             beat={clashCards.beat}
             outcome={clashCards.outcome}
             active={clashActive}
@@ -478,7 +486,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
             （標題 297–321，晶片 305–333），兩行字印在同一個位置。
             併成一行，結構上就不可能再疊。
           */}
-          <strong>{POSITIONS[pairClash]}・{chargeSkillLabel ?? '神獸交鋒'}</strong>
+          <strong>{POSITIONS[pairClash]}・{fusionBeat ? '暴怒合體' : chargeSkillLabel ?? '神獸交鋒'}</strong>
           <p>{pairs ? '神獸交鋒・勝負即將揭曉' : '雙方現身・開場演武'}</p>
         </> : phase === 'clash' && event ? <>
           <strong key={moment}>第 {event.turn} 回合・{event.side === 'PLAYER' ? '我方' : '對手'}</strong>

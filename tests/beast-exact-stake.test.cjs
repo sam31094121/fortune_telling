@@ -61,3 +61,16 @@ for(let count=1;count<=5;count++)for(const verdict of ['WON','LOST','RETURNED'])
  assert.throws(()=>settleCard(reserved,matchId,{...outcome,selectedEntries:[]},'now'));
 }
 console.log('PASS: 1～5 張各自勝／敗／平手15種結算，張數精準、其他副本保留、重播去重');
+for(const rewardCount of [5,20]){
+ const matchId=`five-stake-reward-${rewardCount}`;
+ const reserved=reserveOwnedStakes(inventory,ids,matchId,'now');
+ const outcome={verdict:'WON',stakes:{player:card,opponent:other},gainedCardId:other,forfeitedCardId:null,selectedEntries:reserved.pending.entries,forfeitedEntryIds:[],gainedCount:rewardCount};
+ const settled=settleCard(reserved,matchId,outcome,'now');
+ assert.equal(settled.receipt.stakedCount,5);
+ assert.equal(settled.receipt.gainedCount,rewardCount);
+ assert.equal(settled.receipt.lostCount,0);
+ assert.equal(settled.collection.cards.length,inventory.cards.length+rewardCount);
+ assert.ok(ids.every(id=>settled.collection.cards.some(entry=>entry.id===id)));
+ assert.ok(settleCard(settled.collection,matchId,outcome,'now').duplicate);
+}
+console.log('PASS: 正式押五張勝局基本獎五張、技術上限二十張，原押卡保留且重試不重發');
