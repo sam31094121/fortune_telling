@@ -38,6 +38,7 @@ const RageComboEffect = memo(function RageComboEffect({
       className={styles.rageContainer}
       style={{ '--rage-glow': glow, '--intensity': intensity } as CSSProperties}
       aria-hidden="true"
+      data-rage-effect
       data-element={element}
     >
       {/* 1. 背景閃爍暗化 */}

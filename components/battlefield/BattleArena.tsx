@@ -42,7 +42,7 @@ export default function BattleArena({ state, cards, match, onInspect, onSwap, on
   return (
     <section className={styles.arena} aria-label="戰鬥畫面" data-battle-visual data-playback={playing ? 'acting' : 'ready'} data-battle-revision={match?.revision} data-battle-venue="cards">
       <RageComboEffect
-        active={playerAction === 'RAGE'}
+        active={playing && playerAction === 'RAGE'}
         element={strikeElement}
         key={`rage-${match?.revision}`}
       />

@@ -297,6 +297,12 @@ assert.match(playbackHtml,/data-playback="acting"/);assert.match(playbackHtml,/d
 assert.doesNotMatch(playbackHtml,/你贏了|對手獲勝/);
 console.log('PASS: typed performed actions distinguish attacks, skills, swaps, skipped actions and forced replacement');
 
+const rageTurn = advance(match, { type: 'RAGE' }, { type: 'ATTACK' });
+assert.equal(presentation.performedAction(rageTurn, 'player'), 'RAGE');
+assert.match(render(Arena, { match: rageTurn, cards: interactiveCatalog(), playing: true, onInspect() {} }), /data-rage-effect="true"/);
+assert.doesNotMatch(render(Arena, { match: rageTurn, cards: interactiveCatalog(), playing: false, onInspect() {} }), /data-rage-effect/, 'The full-screen rage overlay clears when playback finishes or a saved match reloads');
+assert.doesNotMatch(render(Arena, { match: stunnedTurn, cards: interactiveCatalog(), playing: true, onInspect() {} }), /data-rage-effect/, 'A skipped action never triggers the rage overlay');
+
 const Analysis = load('components/battlefield/BattlePowerAnalysis.tsx').default;
 for (const card of interactiveCatalog()) {
   const html = render(Analysis,{cardId:card.id});

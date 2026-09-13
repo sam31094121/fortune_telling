@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import styles from './BattleHelpPanel.module.css';
 
-export default function BattleHelpPanel() {
+export default function BattleHelpPanel({ onOpen }: { onOpen?: () => void }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -11,7 +11,7 @@ export default function BattleHelpPanel() {
       <button
         type="button"
         className={styles.helpButton}
-        onClick={() => setOpen(!open)}
+        onClick={() => { if (!open) onOpen?.(); setOpen(!open); }}
         aria-expanded={open}
         aria-label="戰鬥說明"
       >
@@ -31,7 +31,7 @@ export default function BattleHelpPanel() {
             <h3>✦ 行動選項</h3>
             <ul>
               <li><strong>⚔️ 攻擊</strong>：普通攻擊，無消耗</li>
-              <li><strong>✦ 技能</strong>：消耗氣值的特殊攻擊</li>
+              <li><strong>✦ 技能</strong>：消耗氣值，效果依卡片能力；也可能是護盾或自身回復</li>
               <li><strong>🔥 暴怒合體</strong>：有存活的相生後備時，本場可使用一次</li>
               <li><strong>⇌ 換卡</strong>：切換主戰卡片</li>
             </ul>

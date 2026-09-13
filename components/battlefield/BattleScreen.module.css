@@ -94,7 +94,7 @@
 }
 /* Short phones still need the full four-action row visible without scrolling. */
 @media (max-width: 600px) and (max-height: 720px) {
-  .split:not([data-preparing='true']):not([data-stake-review='true']):not([data-inspecting='true']) {
+  .split:not([data-preparing='true']):not([data-stake-review='true']):not([data-inspecting='true']):not([data-finished='true']) {
     grid-template-rows: minmax(0, 60fr) minmax(0, 40fr);
   }
 }

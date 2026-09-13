@@ -19,7 +19,6 @@ import BattlePace from './battlefield/BattlePace';
 import { useCombatPlayback } from './battlefield/useCombatPlayback';
 import BattleHelpPanel from './battlefield/BattleHelpPanel';
 import VictoryAnimation from './battlefield/VictoryAnimation';
-import QuickReplayButton from './battlefield/QuickReplayButton';
 import StarterPackAfterBattle from './StarterPackAfterBattle';
 
 type Card = ReturnType<typeof interactiveCatalog>[number];
@@ -86,7 +85,10 @@ export default function BeastTurnGame() {
       if (type === 'ACTION' && data.account.match) playRound(data.account.match);
       else resetPlayback();
       if (type === 'START') setAutomatic(true);
-      if (type === 'LEAVE') setAutomatic(false);
+      if (type === 'LEAVE') {
+        setAutomatic(false);
+        if (account.match) setSelected(account.match.player.team.map(fighter => fighter.cardId));
+      }
       if (type !== 'ACTION') { setInspection(null); setDetail(null); }
     } catch (cause) {
       resetPlayback();
@@ -103,42 +105,36 @@ export default function BeastTurnGame() {
     const inspected = inspection ? match[inspection.side].team.find(f => f.cardId === inspection.cardId) : undefined;
     const other = inspection?.side === 'opponent' ? match.player : match.opponent;
     const inspect = (cardId: string, side: 'player' | 'opponent') => { setAutomatic(false); setInspection({ cardId, side }); scroll.current?.scrollTo({ top: 0 }); };
-    const attackAction = match.status === 'PLAYING' && !busy && !playing ? legalActions(match, 'player').find(a => a.type === 'ATTACK') : undefined;
+    const attackAction = match.status === 'PLAYING' && !busy && !playing && !error ? legalActions(match, 'player').find(a => a.type === 'ATTACK') : undefined;
     const onAttack = attackAction ? () => act(attackAction) : null;
     return <main className={`${battleStyles.page} ${styles.calmBattle}`} data-mobile-battle>
-      <BattleHelpPanel />
       <VictoryAnimation show={match.status === 'FINISHED' && !playing} winner={match.winner === 'player' ? 'player' : null} />
-      <QuickReplayButton
-        show={match.status === 'FINISHED' && !playing}
-        disabled={busy}
-        onReplay={() => void send('START', { lineup: account?.match?.player.team.map(f => f.cardId).filter((id, idx) => idx < match.player.team.length) })}
-        onHome={() => void send('LEAVE')}
-      />
       <div className={battleStyles.shell}>
-        <header className={battleStyles.header}><h1>卡片戰鬥</h1><span>易經卦象・自由組隊</span></header>
-        <div className={battleStyles.split} data-battle-split>
+        <header className={battleStyles.header}><h1>三卡免費戰場</h1><div className={styles.headerActions}><Link href="/" onClick={() => setAutomatic(false)} title="本場進度保留，回來可繼續">回首頁</Link><BattleHelpPanel onOpen={() => setAutomatic(false)} /></div></header>
+        <div className={battleStyles.split} data-battle-split data-inspecting={Boolean(inspection)} data-finished={match.status === 'FINISHED' && !playing}>
           <BattleArena match={match} cards={cards} onInspect={inspect} onAttack={onAttack} playing={playing}
-            onSwap={match.status === 'PLAYING' && !busy && !playing ? (action) => act(action) : null}
-            onSkill={match.status === 'PLAYING' && !busy && !playing ? (action) => act(action) : null} />
+            onSwap={match.status === 'PLAYING' && !busy && !playing && !error ? (action) => act(action) : null}
+            onSkill={match.status === 'PLAYING' && !busy && !playing && !error ? (action) => act(action) : null} />
           <section className={battleStyles.controls} aria-label="手部操控" data-battle-controls>
             <div className={battleStyles.controlsHeading}><strong>{inspection ? '相剋' : match.status === 'FINISHED' && !playing ? '結果' : `R${match.round}`}</strong><span>{busy || playing ? '…' : match.status === 'FINISHED' ? '✓' : '⚔'}</span></div>
             <div className={battleStyles.controlScroll} ref={scroll} data-control-scroll>
               {errorNotice}
               {inspection && <BattleCardGuide cardId={inspection.cardId} fighter={inspected} opponent={other.team[other.active]} context={{ match, side: inspection.side }} opponentElement={other.team[other.active].element} onClose={() => { setInspection(null); scroll.current?.scrollTo({ top: 0 }); }} />}
-              <div hidden={Boolean(inspection)}>
+              <div hidden={Boolean(inspection) || Boolean(error)}>
                 <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} onAutomatic={setAutomatic} onAction={act} />
                 <BattlePanel match={match} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
                 {match.status === 'FINISHED' && !playing ? <>
+                  <p className={styles.prepareRule} data-free-card-balance>本場押注 0 張、輸掉 0 張。免費戰鬥不發押卡獎勵；首戰贈卡另計。</p>
                   <BeastBattleVoice id={`free:${match.seed}:${account?.revision}`} text={`${match.winner === 'player' ? '恭喜獲勝！' : match.winner === 'opponent' ? '本場易經獲勝。' : '本場平手。'}可以更換陣容再挑戰。`} />
                   <StarterPackAfterBattle completed="battlefield" />
                 </> : <details className={battleStyles.details} onToggle={event => { if (event.currentTarget.open) setAutomatic(false); }}>
                   <summary>說明</summary>
-                  <p>切換先攻；同速隨機；最多 80 回；擊倒三隻獲勝。</p>
+                  <p>切換先攻；同速隨機；最多 80 回；擊倒三隻獲勝。回首頁會保留進度；選「離開本場」則結束這場，兩者都不扣收藏卡。</p>
                   <button type="button" className={battleStyles.restart} disabled={busy} onClick={() => void send('LEAVE')}>離開本場</button>
                 </details>}
               </div>
             </div>
-            {match.status === 'FINISHED' && !playing && <div className={battleStyles.footer}><button type="button" className={battleStyles.start} style={{ animation: 'none' }} disabled={busy} onClick={() => void send('LEAVE')}>回到組隊，再戰一場</button><Link href="/" className={styles.homeLink}>回首頁</Link></div>}
+            {match.status === 'FINISHED' && !playing && !inspection && <div className={battleStyles.footer} data-free-result-actions><div className={styles.resultActions}><button type="button" className={battleStyles.start} style={{ animation: 'none' }} disabled={busy} onClick={() => void send('START', { lineup: match.player.team.map(f => f.cardId) })}>同陣容再戰</button><button type="button" className={battleStyles.restart} disabled={busy} onClick={() => void send('LEAVE')}>更換陣容</button></div><Link href="/" className={styles.homeLink}>回首頁</Link></div>}
           </section>
         </div>
       </div>
@@ -150,8 +146,8 @@ export default function BeastTurnGame() {
       <Link href="/" className={styles.homeLink}>回首頁</Link>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={BATTLE_VENUES.cards.image} alt="" aria-hidden="true" />
-      <h1>{prepareStep === 'mode' ? '選擇戰場' : prepareStep === 'select' ? '神獸對戰' : '確認陣容'}</h1>
-      <p>{prepareStep === 'mode' ? '簡單・中等・困難' : prepareStep === 'select' ? '選 3 張卡片就能開打！' : '準備好了嗎？'}</p>
+      <h1>{prepareStep === 'mode' ? '選擇戰場' : prepareStep === 'select' ? '三卡免費戰場' : '確認陣容'}</h1>
+      <p>{prepareStep === 'mode' ? '簡單・中等・困難' : prepareStep === 'select' ? '選 3 張卡開戰，不扣收藏卡。' : '準備好了嗎？'}</p>
     </header>
     {errorNotice}
     {!account ? <p>正在讀取戰鬥卡…</p> : <>
@@ -188,14 +184,15 @@ export default function BeastTurnGame() {
             {[0, 1, 2].map(i => {
               const card = cards.find(c => c.id === selected[i]);
               return (
-                <div key={i} className={`${styles.slotBarCell} ${selected[i] ? styles.slotBarFilled : styles.slotBarEmpty}`}
+                <button type="button" key={i} className={`${styles.slotBarCell} ${selected[i] ? styles.slotBarFilled : styles.slotBarEmpty}`}
+                  disabled={!card} aria-label={card ? `移除第 ${i + 1} 張：${card.name}` : `第 ${i + 1} 張尚未選擇`}
                   onClick={() => { if (selected[i]) setSelected(s => s.filter((_, idx) => idx !== i)); }}>
                   {card
                     // eslint-disable-next-line @next/next/no-img-element
                     ? <img src={card.thumbnail} alt={card.name} />
                     : <span className={styles.slotNum}>{i + 1}</span>}
                   <small>{i === 0 ? '先出場' : `後備 ${i}`}</small>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -205,6 +202,7 @@ export default function BeastTurnGame() {
               : selected.length === 2 ? `✔ 第2張選好了！再點一張 (2/3)`
               : '✅ 三張選好了！按下方「開始對戰」'}
           </p>
+          <p className={styles.prepareRule}>普通攻擊自動進行，可隨時暫停；技能就緒會等你決定。點「能力」先了解卡片，再選入隊伍。</p>
           <div className={styles.filters} aria-label="元素篩選">{['全部', ...Object.keys(labels)].map(element => <button key={element} aria-pressed={filter === element} onClick={() => setFilter(element)}>{labels[element] ?? element}</button>)}</div>
           <div className={styles.grid}>{cards.filter(c => filter === '全部' || c.element === filter).map(card => <div className={`${styles.card} ${styles.pickCard}`} key={card.id}>
             {selected.includes(card.id) && <span className={styles.pickOrder}>第 {selected.indexOf(card.id) + 1} 張</span>}
@@ -219,6 +217,7 @@ export default function BeastTurnGame() {
                 setError('已選滿三張；先點已選的卡取消，再換另一張。');
               }
             }} />
+            <button type="button" className={styles.cardInfo} aria-label={`查看${card.name}的能力`} onClick={() => setDetail(card)}>能力</button>
           </div>)}</div>
         </> : <>
           <div className={styles.slots}>{selected.map((id, i) => {
@@ -234,8 +233,8 @@ export default function BeastTurnGame() {
           <button onClick={() => { setPrepareStep('select'); setError(''); }}>← 返回選卡</button>
         </> : prepareStep === 'select' ? <>
           <button className={styles.advancedBtn} onClick={() => { setPrepareStep('mode'); setSelected([]); setError(''); }}>進階玩法 ▸</button>
-          <button className={styles.startBattle} disabled={selected.length !== 3} onClick={() => { void send('START', { lineup: selected }); }} style={selected.length === 3 ? { boxShadow: '0 0 20px rgba(59, 130, 246, 0.35)' } : {}}>
-            {selected.length === 3 ? '✨ 開始對戰！' : `選滿 ${selected.length}/3 張`}
+          <button className={styles.startBattle} disabled={busy || selected.length !== 3} onClick={() => { void send('START', { lineup: selected }); }} style={selected.length === 3 ? { boxShadow: '0 0 20px rgba(59, 130, 246, 0.35)' } : {}}>
+            {busy ? '正在準備戰場…' : selected.length === 3 ? '✨ 開始對戰！' : `選滿 ${selected.length}/3 張`}
           </button>
         </> : <>
           <button disabled={busy} onClick={() => { setPrepareStep('select'); setDetail(null); }}>← 返回選卡</button>
