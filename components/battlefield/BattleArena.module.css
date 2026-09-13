@@ -30,6 +30,9 @@
 @keyframes elementFieldBurst { 0% { opacity: 0; transform: translate3d(-12%, 5%, -120px) scale(.6) rotateX(8deg); } 20% { opacity: .55; transform: translate3d(3%, -2%, 20px) scale(1.12) rotateX(0); } 100% { opacity: 0; transform: translate3d(10%, -4%, 80px) scale(1.22) rotateX(-4deg); } }
 @keyframes elementTrace { 0% { opacity: 0; transform: translate3d(8px, 24px, -80px) scaleY(.02) skewY(-14deg); } 28% { opacity: 1; transform: translate3d(0, 0, 28px) scaleY(1.1) skewY(-4deg); } 100% { opacity: 0; transform: translate3d(-5px, -28px, 90px) scaleY(1.25) skewY(0); } }
 @keyframes elementReadout { 0% { opacity: 0; transform: translate3d(18px, 0, 0); } 20%, 65% { opacity: 1; transform: translate3d(0, 0, 0); } 100% { opacity: 0; transform: translate3d(-8px, 0, 0); } }
+/* 受擊發光效果 */
+@keyframes impactGlow { 0% { box-shadow: 0 0 0 0 rgba(255, 182, 74, 0.7), inset 0 0 20px rgba(255, 182, 74, 0); } 50% { box-shadow: 0 0 30px 10px rgba(255, 182, 74, 0.5), inset 0 0 40px rgba(255, 182, 74, 0.3); } 100% { box-shadow: 0 0 0 0 rgba(255, 182, 74, 0), inset 0 0 0 rgba(255, 182, 74, 0); } }
+.artSpace[data-hit='true'] .art { animation: impactGlow 420ms ease-out forwards; }
 .arenaHeading, .fighters, .arenaNote { position: relative; z-index: 2; }
 .fighterHeading { border-radius: 8px; padding: 2px; background: #061021b3; }
 .arenaHeading, .handHeading { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: #b6c8e0; }

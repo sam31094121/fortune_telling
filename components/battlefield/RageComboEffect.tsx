@@ -22,20 +22,30 @@ const RageComboEffect = memo(function RageComboEffect({
     EARTH: '#d97706',
   };
 
+  const elementIntensityMap: Record<string, string> = {
+    SPACE: '1.1',
+    AIR: '1.0',
+    WATER: '0.95',
+    FIRE: '1.2',
+    EARTH: '1.05',
+  };
+
   const glow = elementGlowMap[element] || '#fbbf24';
+  const intensity = elementIntensityMap[element] || '1.0';
 
   return (
     <div
       className={styles.rageContainer}
-      style={{ '--rage-glow': glow } as CSSProperties}
+      style={{ '--rage-glow': glow, '--intensity': intensity } as CSSProperties}
       aria-hidden="true"
+      data-element={element}
     >
       {/* 1. 背景閃爍暗化 */}
       <div className={styles.bgDim} />
 
-      {/* 2. 粒子爆發 - 36層光子環 */}
+      {/* 2. 粒子爆發 - 48層光子環（提升24層增強視覺） */}
       <div className={styles.particleLayer}>
-        {[1, 2, 3].map((ring) => (
+        {[1, 2, 3, 4].map((ring) => (
           <div key={`ring-${ring}`} className={styles.particleRing} data-ring={ring}>
             {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((particle) => (
               <div
