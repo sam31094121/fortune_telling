@@ -20,9 +20,6 @@ import { useCombatPlayback } from './battlefield/useCombatPlayback';
 import BattleHelpPanel from './battlefield/BattleHelpPanel';
 import VictoryAnimation from './battlefield/VictoryAnimation';
 import QuickReplayButton from './battlefield/QuickReplayButton';
-import BattleStatsPanel from './battlefield/BattleStatsPanel';
-import DifficultyIndicator from './battlefield/DifficultyIndicator';
-import QuickStatsDrawer from './battlefield/QuickStatsDrawer';
 import StarterPackAfterBattle from './StarterPackAfterBattle';
 
 type Card = ReturnType<typeof interactiveCatalog>[number];
@@ -110,9 +107,6 @@ export default function BeastTurnGame() {
     const onAttack = attackAction ? () => act(attackAction) : null;
     return <main className={`${battleStyles.page} ${styles.calmBattle}`} data-mobile-battle>
       <BattleHelpPanel />
-      <BattleStatsPanel todayWins={5} todayLosses={1} currentWinStreak={match.winner === 'player' ? 1 : 0} bestWinStreak={7} visible={match.status === 'PLAYING'} />
-      <DifficultyIndicator difficulty={3} predictedWinRate={62} visible={match.status === 'PLAYING'} />
-      <QuickStatsDrawer todayWins={5} todayLosses={1} weekWins={28} weekLosses={7} currentWinStreak={1} bestWinStreak={7} frequentCards={[]} />
       <VictoryAnimation show={match.status === 'FINISHED' && !playing} winner={match.winner === 'player' ? 'player' : null} />
       <QuickReplayButton
         show={match.status === 'FINISHED' && !playing}
@@ -130,7 +124,7 @@ export default function BeastTurnGame() {
             <div className={battleStyles.controlsHeading}><strong>{inspection ? '相剋' : match.status === 'FINISHED' && !playing ? '結果' : `R${match.round}`}</strong><span>{busy || playing ? '…' : match.status === 'FINISHED' ? '✓' : '⚔'}</span></div>
             <div className={battleStyles.controlScroll} ref={scroll} data-control-scroll>
               {errorNotice}
-              {inspection && <BattleCardGuide cardId={inspection.cardId} fighter={inspected} opponentElement={other.team[other.active].element} onClose={() => { setInspection(null); scroll.current?.scrollTo({ top: 0 }); }} />}
+              {inspection && <BattleCardGuide cardId={inspection.cardId} fighter={inspected} opponent={other.team[other.active]} context={{ match, side: inspection.side }} opponentElement={other.team[other.active].element} onClose={() => { setInspection(null); scroll.current?.scrollTo({ top: 0 }); }} />}
               <div hidden={Boolean(inspection)}>
                 <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} onAutomatic={setAutomatic} onAction={act} />
                 <BattlePanel match={match} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />

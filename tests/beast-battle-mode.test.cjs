@@ -105,9 +105,27 @@ const battlefieldPage = fs.readFileSync(path.join(root, 'app/beast-game/battlefi
 assert.match(battlefieldPage, /match\?\.status === 'FINISHED'[^?]*\? '本場結束'/, 'Finished battles do not advertise a next round');
 assert.match(battlefieldPage, /data-battle-controls data-preparing=\{!match\}/, 'Only preparation uses the combined phone scroll area');
 assert.equal((battlefieldPage.match(/parentElement\?\.scrollTo\(\{ top: 0 \}\)/g) || []).length, 3, 'Inspection and navigation reset the phone scroll area');
-assert.equal(mobileDeclaration(arenaCss, '(max-width: 480px)', '.fighters', 'grid-template-columns'), 'minmax(0, 1fr) minmax(0, 1fr)');
-assert.equal(mobileDeclaration(arenaCss, '(max-width: 480px)', '.fighter', 'height'), '100%');
-console.log('PASS: phone preparation can scroll past the guide; card artwork has a bounded grid track');
+function baseDeclaration(css, selector, property) {
+  let value;
+  css.walkRules(selector, rule => {
+    if (rule.parent.type !== 'root') return;
+    rule.walkDecls(property, decl => { value = decl.value; });
+  });
+  return value;
+}
+assert.equal(baseDeclaration(arenaCss, '.fighters', 'display'), 'flex');
+assert.equal(baseDeclaration(arenaCss, '.fighters', 'flex-direction'), 'column');
+assert.equal(baseDeclaration(arenaCss, '.arena', 'overflow'), 'clip', 'Attack effects cannot create a scrollable battlefield that hides fighters after phone rotation');
+assert.equal(baseDeclaration(arenaCss, '.fighters', 'justify-content'), 'space-between');
+assert.equal(baseDeclaration(arenaCss, '.fighters', 'height'), '100%');
+assert.equal(baseDeclaration(arenaCss, ".fighter[data-fighter='opponent']", 'order'), '1');
+assert.equal(baseDeclaration(arenaCss, ".fighter[data-fighter='player']", 'order'), '2');
+assert.equal(mobileDeclaration(arenaCss, '(max-width: 480px)', '.fighter', 'height'), 'auto');
+const fighterFractions = ['opponent', 'player'].map(side => parseFloat(baseDeclaration(arenaCss, `.fighter[data-fighter='${side}']`, 'flex').split(' ').at(-1)));
+assert.ok(fighterFractions.every(n => n > 0) && fighterFractions.reduce((a,b)=>a+b,0) < 100, 'Both vertical cards have bounded space with room for the attack');
+assert.equal(baseDeclaration(arenaCss, '.art', 'min-width'), '44px');
+assert.equal(baseDeclaration(arenaCss, '.art', 'min-height'), '44px');
+console.log('PASS: phone preparation scrolls; vertical opponent/player cards retain order, bounded space and touch targets');
 
 const { preparationGuidance, nextStakeSelection } = load('components/battlefield/preparation-guidance.ts');
 const StartGuide = load('components/battlefield/BattleStartGuide.tsx').default;
@@ -163,7 +181,7 @@ assert.deepEqual(selected, ['beast_a01'], 'Selection helper does not mutate exis
 assert.match(battlefieldPage, /runOwnedStakesDuel\(stakeCardIds/, 'Five actual collection entries use the shared atomic settlement');
 const compactActions = render(load('components/battlefield/BattlePanel.tsx').BattleActionBar, { match, onAction() { throw new Error('Read-only render'); }, compact: true, cards: interactiveCatalog() });
 assert.equal((compactActions.match(/<button\b/g) || []).length, 4, 'Combat starts with four clear commands');
-for (const text of ['普通攻擊', '技能', '換卡', '說明']) assert.ok(compactActions.includes(text));
+for (const text of ['普通攻擊', '技能', '換卡', '暴怒合體']) assert.ok(compactActions.includes(text), `Current command remains accessible: ${text}`);
 assert.doesNotMatch(compactActions, /aria-label="點戰鬥卡換上場"/, 'Reserve choices open on demand');
 const prepSource = fs.readFileSync(path.join(root, 'components/battlefield/BattleArena.tsx'), 'utf8');
 assert.ok(prepSource.indexOf('<HandZone') < prepSource.indexOf('<div ref={placement}'), 'Choose the hand before choosing the destination');
@@ -177,7 +195,7 @@ const opponentDown = structuredClone(match);
 opponentDown.opponent.team[opponentDown.opponent.active].hp = 0;
 opponentDown.opponent.team[opponentDown.opponent.active].defeated = true;
 const replacementHtml = render(ActionBar, { match: opponentDown, compact: true, onAction() {} });
-assert.match(replacementHtml, /繼續，對手換卡/);
+assert.match(replacementHtml, /繼續，易經換卡/);
 assert.doesNotMatch(replacementHtml, /普通攻擊|耗氣/);
 const replaced = advance(opponentDown, { type: 'ATTACK' });
 assert.equal(replaced.round, opponentDown.round, 'Replacement is not a completed combat round');
@@ -197,7 +215,9 @@ const stunnedVisual = structuredClone(match);
 stunnedVisual.player.team[0].stunnedTurns = 1;
 const stunnedTurn = advance(stunnedVisual, { type: 'ATTACK' }, { type: 'ATTACK' });
 const stunnedArena = render(Arena, { match: stunnedTurn, cards: interactiveCatalog(), onInspect() {} });
-assert.doesNotMatch(stunnedArena, /data-element=/, 'A skipped player action must not create an element strike');
+const skippedCard = stunnedArena.match(/<div[^>]*data-action="SKIP"[\s\S]*?<\/button>/)?.[0];
+assert.ok(skippedCard, 'The stunned fighter is identified by its performed action');
+assert.doesNotMatch(skippedCard, /data-element=/, 'A skipped player action must not create element particles');
 assert.equal((stunnedArena.match(/data-rush="true"/g) || []).length, 1, 'Only the opponent actually attacked');
 const replacedArena = render(Arena, { match: replaced, cards: interactiveCatalog(), onInspect() {} });
 assert.doesNotMatch(replacedArena, /data-rush="true"|data-element=/, 'Replacement alone never plays an attack');
@@ -256,7 +276,7 @@ assert.equal(combatChanges(replaced,'player',replaced.player.team[0].cardId),'',
 const legacyLog = structuredClone(killed); legacyLog.log.forEach(entry=>delete entry.changes);
 assert.equal(combatChanges(legacyLog,'opponent','beast_a02'),'','Old saved matches never infer damage from formulas');
 const impactHtml=render(Arena,{match:killed,cards:interactiveCatalog(),onInspect(){}});
-assert.match(impactHtml,/受傷 −3/);assert.match(impactHtml,/電腦/);
+assert.match(impactHtml,/受傷 −3/);assert.match(impactHtml,/易經/);
 const playingHtml=render(Arena,{match:shielded,cards:interactiveCatalog(),onInspect(){}});
 assert.doesNotMatch(playingHtml,/你贏了|對手獲勝|必勝/);
 console.log('PASS: recorded HP/shield loss, capped healing/shields, counter overkill, old logs and replacements display honestly');
@@ -276,3 +296,23 @@ const playbackHtml=render(Arena,{match:voluntaryTurn,cards:interactiveCatalog(),
 assert.match(playbackHtml,/data-playback="acting"/);assert.match(playbackHtml,/data-action="SWITCH"/);
 assert.doesNotMatch(playbackHtml,/你贏了|對手獲勝/);
 console.log('PASS: typed performed actions distinguish attacks, skills, swaps, skipped actions and forced replacement');
+
+const Analysis = load('components/battlefield/BattlePowerAnalysis.tsx').default;
+for (const card of interactiveCatalog()) {
+  const html = render(Analysis,{cardId:card.id});
+  assert.match(html,/戰鬥力分析/);
+  for (const stat of ['hp','attack','defense','speed']) {
+    const cell = html.match(new RegExp(`<div data-stat="${stat}">([\\s\\S]*?)<\\/div>`))?.[1];
+    assert.ok(cell?.includes(`<dd>${card.stats[stat]}${stat==='hp'?`/${card.stats.hp}`:''}</dd>`),`${card.id}: exact ${stat}`);
+  }
+  assert.match(html,/對五元素的攻守強弱/); assert.match(html,/相生合體/);
+  assert.doesNotMatch(html,/預測勝率|保證獲勝|戰力差距很小/);
+}
+const changed=structuredClone(match);changed.player.team[0].modifiers.push({stat:'attack',value:-200,remainingTurns:2,source:'test'});
+const analysisHtml=render(Analysis,{cardId:changed.player.team[0].cardId,fighter:changed.player.team[0],opponent:changed.opponent.team[0],context:{match:changed,side:'player'}});
+assert.match(analysisHtml,/攻擊 0 對 46：低 46/);
+const tileSource=fs.readFileSync(path.join(root,'components/battlefield/BeastCardTile.tsx'),'utf8');
+const freeSource=fs.readFileSync(path.join(root,'components/BeastTurnGame.tsx'),'utf8');
+assert.doesNotMatch(tileSource,/powerScore|powerLabel/, 'Display-only weighted scores cannot be called combat power');
+assert.doesNotMatch(freeSource,/(predictedWinRate|todayWins|todayLosses|weekWins|weekLosses|bestWinStreak)=\{\d+\}/, 'No fabricated forecasts or personal records');
+console.log('PASS: every card renders exact engine stats, current debuffs, two-way element analysis and honest fusion conditions');

@@ -3,7 +3,7 @@ import { combatGuideFor, elementGuideRows, elementPercent } from '../.beast-game
 import { interactiveCatalog, newMatch, advance } from '../.beast-game-build/lib/beast-game/interactive.js';
 import { getCard } from '../.beast-game-build/lib/beast-game/registry.js';
 import { computeDamage } from '../.beast-game-build/lib/beast-game/effects.js';
-import { ELEMENT_LABEL } from '../.beast-game-build/lib/beast-game/elements.js';
+import { ELEMENT_LABEL, ELEMENTS, ELEMENT_COUNTER, ELEMENT_GENERATES } from '../.beast-game-build/lib/beast-game/elements.js';
 
 const catalog = interactiveCatalog();
 assert.equal(catalog.length, 60);
@@ -16,6 +16,13 @@ for (const card of catalog) {
   assert.equal(guide.skill.cost, card.cost);
   for (const stat of ['hp', 'attack', 'defense', 'speed']) assert.equal(guide.stats[stat], card.stats[stat], `${card.id}: show turn-combat ${stat}, not deck-combat stats`);
   assert.ok(guide.guardian && guide.form && guide.wuxing && guide.weapon.name);
+  for (const stat of ['hp','attack','defense','speed']) {
+    assert.equal(guide.comparisonRange[stat].min, Math.min(...catalog.map(c=>c.stats[stat])));
+    assert.equal(guide.comparisonRange[stat].max, Math.max(...catalog.map(c=>c.stats[stat])));
+  }
+  assert.equal(ELEMENT_COUNTER[guide.tactics.teamHint.allyElement], ELEMENTS.find(e=>ELEMENT_COUNTER[e]===card.element), 'The suggested ally counters the actual nemesis');
+  assert.equal(ELEMENT_GENERATES[guide.generating.source],card.element);
+  assert.equal(guide.generating.target,ELEMENT_GENERATES[card.element]);
 }
 const differentModes = catalog.find(card => card.stats.hp !== getCard(card.id).stats.hp);
 assert.ok(differentModes, 'Fixture distinguishes turn-combat stats from card-registry stats');
@@ -40,6 +47,16 @@ const reserve = combatGuideFor('beast_a02', fighter);
 assert.equal(reserve.stats.hp, match.player.team[1].hp, 'Inspecting a reserve must not show active HP');
 assert.deepEqual(match, before, 'Inspecting cards never mutates combat');
 assert.deepEqual(advance(match, { type: 'ATTACK' }), advance(before, { type: 'ATTACK' }), 'Inspection does not change the next round');
+const fusion = newMatch(['beast_y21', 'beast_a02'], ['beast_a06'], 42);
+const fusionBefore = structuredClone(fusion);
+assert.equal(combatGuideFor('beast_y21', fusion.player.team[0], {match:fusion,side:'player'}).generating.reason,null);
+assert.equal(combatGuideFor('beast_y21', fusion.player.team[0], {match:fusion,side:'player'}).generating.partner,fusion.player.team[1].name);
+assert.match(combatGuideFor('beast_a02', fusion.player.team[1], {match:fusion,side:'player'}).generating.reason,/後備/);
+assert.deepEqual(fusion,fusionBefore);
+fusion.player.rageAvailable=0;
+assert.equal(combatGuideFor('beast_y21', fusion.player.team[0], {match:fusion,side:'player'}).generating.reason,'本場已使用');
+fusion.player.rageAvailable=1;fusion.player.team[1].defeated=true;fusion.player.team[1].hp=0;
+assert.equal(combatGuideFor('beast_y21', fusion.player.team[0], {match:fusion,side:'player'}).generating.reason,'需要相生後備');
 
 const rows = elementGuideRows();
 assert.equal(rows.length, 5);

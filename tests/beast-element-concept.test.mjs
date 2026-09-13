@@ -157,8 +157,12 @@ import { describeMatchup, explainOutcome, describeCardElement } from '../.beast-
     測試抓到自己的說明文字，是這個專案已經踩過三次的坑。
   */
   const tile = stripComments(fs.readFileSync('components/battlefield/BeastCardTile.tsx', 'utf8'));
-  const counterAt = tile.indexOf('五元素相剋');
-  const powerAt = tile.indexOf('戰鬥力');
+  assert.match(tile, /<BattlePowerAnalysis cardId=\{card.id\}/, '詳情必須使用與實戰相同的能力分析');
+  assert.doesNotMatch(tile, /powerScore|powerLabel/, '不得把不參與戰鬥的加權總分當成真實戰鬥力');
+  const analysis = stripComments(fs.readFileSync('components/battlefield/BattlePowerAnalysis.tsx', 'utf8'));
+  assert.match(analysis, /五元素相剋：\{guide.relation.line\}/, '相剋關係直接取自核心導覽資料');
+  const counterAt = analysis.indexOf('五元素相剋');
+  const powerAt = analysis.indexOf('戰鬥力');
   assert.ok(counterAt > 0 && powerAt > 0, '卡片詳情要同時有相剋與戰鬥力');
   assert.ok(
     counterAt < powerAt,

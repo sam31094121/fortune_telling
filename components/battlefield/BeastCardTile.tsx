@@ -23,9 +23,9 @@
 
 import { useEffect } from 'react';
 import styles from './BeastCardTile.module.css';
-import { guardianOf, tierOf, TIER_LABEL, powerScore, powerLabel } from '@/lib/beast-guardians';
-import { describeCardElement } from '@/lib/beast-element-guide';
-import type { BeastElement } from '@/lib/beast-game/elements';
+import { guardianOf, tierOf, TIER_LABEL } from '@/lib/beast-guardians';
+import { combatGuideFor } from '@/lib/beast-game/combat-guide';
+import BattlePowerAnalysis from './BattlePowerAnalysis';
 // 正統比例與圖窗的唯一來源。這裡不重新定義，只疊手感與狀態。
 import frame from '@/components/BeastCardFrame.module.css';
 
@@ -138,70 +138,8 @@ export function CardDetailSheet({
 
         {note && <p className={styles.block}><strong>狀態</strong>{note}</p>}
 
-        {/*
-          相剋關係放在戰鬥力前面。
-
-          只寫「火」不夠——客戶看到那個字不會自動知道火剋空、被水剋。
-          要學得會，卡片上就得把兩個方向都寫出來，
-          而且要排在戰鬥力之前：先懂相剋，再看數值，
-          順序反過來就變成教他挑數字大的。
-        */}
-        <p className={styles.block}>
-          <strong>五元素相剋</strong>
-          {describeCardElement(card.element as BeastElement).line}
-          ——帶牠去打被牠剋的，避開剋牠的。
-        </p>
-
-        {/*
-          戰鬥力。業主要「強弱都要清楚」，所以給一個總分。
-
-          但同一段一定要講出「差距很小、真正決定勝負的是相剋」——
-          只給分數不給這句，等於教客戶挑數字大的就好，
-          而實測是帶剋的幼子百分之百打贏被剋的四象（技能檔案〈二十一〉）。
-        */}
-        {card.stats && (() => {
-          const score = powerScore(card.stats);
-          const label = powerLabel(score);
-          return (
-            <p className={styles.block}>
-              <strong>戰鬥力</strong>
-              {score}（{label.text}）—— {label.note}
-            </p>
-          );
-        })()}
-
-        {card.stats && (() => {
-          const max = Math.max(card.stats.hp, card.stats.attack, card.stats.defense, card.stats.speed);
-          const percentOf = (v: number) => Math.round((v / Math.max(max, 1)) * 100);
-          return (
-            <div className={styles.stats}>
-              {([['生命', card.stats.hp], ['攻擊', card.stats.attack], ['防禦', card.stats.defense], ['速度', card.stats.speed]] as const).map(
-                ([label, value]) => (
-                  <div key={label} className={styles.stat}>
-                    <span className={styles.statLabel}>{label}</span>
-                    <div className={styles.statBar}>
-                      <div className={styles.statBarFill} style={{ width: `${percentOf(value)}%` }} />
-                    </div>
-                    <span className={styles.statValue}>{value}</span>
-                  </div>
-                ),
-              )}
-            </div>
-          );
-        })()}
-
-        {card.skillName && (
-          <p className={styles.block}>
-            <strong>技能</strong>
-            {card.skillName}：{card.description}
-          </p>
-        )}
-        {card.passive && (
-          <p className={styles.block}><strong>被動</strong>{card.passive}</p>
-        )}
-        {card.story && (
-          <p className={styles.block}><strong>來歷</strong>{card.story}</p>
-        )}
+        <BattlePowerAnalysis cardId={card.id} />
+        {(() => { const guide = combatGuideFor(card.id); return guide ? <p className={styles.block}><strong>{guide.skill.name}・耗氣 {guide.skill.cost}</strong>{guide.skill.description}</p> : null; })()}
 
         {actionLabel && onAction && (
           <button

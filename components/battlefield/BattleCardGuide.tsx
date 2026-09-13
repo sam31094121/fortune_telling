@@ -3,11 +3,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { combatGuideFor, elementGuideRows, elementPercent } from '@/lib/beast-game/combat-guide';
 import { ELEMENTS, ELEMENT_LABEL, type BeastElement } from '@/lib/beast-game/elements';
-import type { Fighter } from '@/lib/beast-game/interactive';
+import type { Fighter, Match, Side } from '@/lib/beast-game/interactive';
+import BattlePowerAnalysis from './BattlePowerAnalysis';
 import styles from './BattleCardGuide.module.css';
 
-export default function BattleCardGuide({ cardId, fighter, opponentElement, onClose }: {
-  cardId: string; fighter?: Fighter; opponentElement?: BeastElement; onClose: () => void;
+export default function BattleCardGuide({ cardId, fighter, opponentElement, opponent, context, onClose }: {
+  cardId: string; fighter?: Fighter; opponentElement?: BeastElement; opponent?: Fighter; context?: { match: Match; side: Side }; onClose: () => void;
 }) {
   const [tab, setTab] = useState<'art' | 'card' | 'elements'>('art');
   const root = useRef<HTMLElement>(null);
@@ -54,26 +55,12 @@ export default function BattleCardGuide({ cardId, fighter, opponentElement, onCl
             <div><dt>攻擊元素</dt><dd>{guide.elementLabel}系（五行：{guide.wuxing}）</dd></div>
             <div><dt>武裝風格</dt><dd>{guide.weapon.weaponClass}</dd></div>
           </dl>
-          <p className={styles.relation}>{guide.relation.line}{opponentElement && <strong>對目前敵方{ELEMENT_LABEL[opponentElement]}系：攻擊元素倍率 {elementPercent(guide.element, opponentElement)}</strong>}</p>
-          <dl className={styles.stats} aria-label="回合戰鬥數值">
-            <div><dt>生命</dt><dd>{guide.stats.hp}/{guide.stats.maxHp}</dd></div>
-            <div><dt>攻擊</dt><dd>{guide.stats.attack}</dd></div>
-            <div><dt>防禦</dt><dd>{guide.stats.defense}</dd></div>
-            <div><dt>速度</dt><dd>{guide.stats.speed}</dd></div>
-          </dl>
-          {guide.stats.shield > 0 && <p>護盾 {guide.stats.shield}，受到傷害時先扣護盾。</p>}
+          <BattlePowerAnalysis cardId={cardId} fighter={fighter} opponent={opponent} context={context} />
           <article className={styles.ability}>
             <h3>{guide.skill.name}<span>耗氣 {guide.skill.cost}{guide.skill.cooldown > 0 ? `・冷卻 ${guide.skill.cooldown} 回合` : ''}</span></h3>
             <p>{guide.skill.description}</p>
             <p className={styles.note}>{guide.passive}</p>
           </article>
-          {guide.tactics && <details className={styles.details} data-card-tactics>
-            <summary>擅長什麼、怕什麼、何時上場</summary>
-            <p><strong>擅長：</strong>{guide.tactics.strength}</p>
-            <p><strong>要留意：</strong>{guide.tactics.weakness}{guide.tactics.counter}</p>
-            <p><strong>上場時機：</strong>{guide.tactics.timing}{guide.tactics.favorable}</p>
-            <p className={styles.note}>{guide.tactics.cost}本體、幼子與四象是身分，不是勝負保證。</p>
-          </details>}
           <details className={styles.details}>
             <summary>武裝部位與攻擊方式</summary>
             <p>{guide.weapon.name}・{guide.weapon.part}</p>

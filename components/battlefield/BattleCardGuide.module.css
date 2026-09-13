@@ -33,7 +33,7 @@
 .matrix td[data-target='true'] { box-shadow: inset 0 0 0 2px #ffe2a1; }
 .showcase { --element-accent: #c7ddec; width: 100%; max-width: 320px; justify-self: center; overflow: hidden; border: 1px solid var(--element-accent); border-radius: 14px; background: #0b1725; }
 .showcase[data-element='SPACE'] { --element-accent: #d8deef; }
-.showcase[data-element='WIND'] { --element-accent: #99dfbf; }
+.showcase[data-element='AIR'] { --element-accent: #99dfbf; }
 .showcase[data-element='WATER'] { --element-accent: #8ad8f4; }
 .showcase[data-element='FIRE'] { --element-accent: #ffb28d; }
 .showcase[data-element='EARTH'] { --element-accent: #dfca8f; }
@@ -47,3 +47,13 @@
 .skillEntry > span:first-child { display: grid; }
 .skillEntry small { color: #c0d5e9; font-size: 12px; }
 .guide button:focus-visible { outline: 2px solid #fff; outline-offset: -3px; }
+.analysis { display: grid; gap: 10px; min-width: 0; font-size: 14px; line-height: 1.65; color: #dae6f5; }
+.analysis h3 { color: #ffe5af; font-size: 15px; font-weight: 800; }
+.analysis .note { font-size: 13px; }
+.analysis .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.analysis .stats dt { font-size: 13px; }
+.analysis .stats dd { font-size: 19px; }
+.modifiers { list-style: disc; padding-left: 20px; }
+.matchups { width: 100%; table-layout: fixed; text-align: center; border-collapse: collapse; font-size: 13px; }
+.matchups caption { text-align: left; color: #b5cbe3; }
+.matchups td, .matchups th { padding: 7px 2px; border: 1px solid #3d5470; }

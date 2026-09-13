@@ -4,6 +4,7 @@ import { instantiate } from './battle';
 import { effectiveStat, resolveEffects, type BeastInstance, type EffectSpec, type EffectLogEntry } from './effects';
 import { createRng } from './turn';
 import { elementGenerates, type BeastElement } from './elements';
+export const RAGE_ATTACK_BONUS = 38;
 /** Only a living deployed reserve can lend energy; collections are never consulted. */
 export function rageMaterialFor(s:Match, side:Side) {
   const t=s[side], active=t.team[t.active];
@@ -152,7 +153,7 @@ export function advance(previous:Match,playerAction:Action,opponentAction:Action
     if(f.stunnedTurns>0){f.stunnedTurns--;consumeStatus();s.log.push({side,cardId:f.cardId,action:'SKIP',text:'受到控制，本次不能行動。'});continue;}
     const material=action.type==='RAGE'?rageMaterialFor(s,side):null;
     if(action.type==='RAGE'&&!material)throw new Error('暴怒合體缺少存活的相生後備。');
-    const effects=action.type==='SKILL'?p.effects:[{type:'DAMAGE',value:action.type==='RAGE'?38:0,target:'ENEMY'} as EffectSpec];
+    const effects=action.type==='SKILL'?p.effects:[{type:'DAMAGE',value:action.type==='RAGE'?RAGE_ATTACK_BONUS:0,target:'ENEMY'} as EffectSpec];
     if(action.type==='RAGE')t.rageAvailable=0;
     if(action.type==='SKILL'){t.energy-=p.cost;f.cooldown=3;if(p.role==='反擊')f.counter=true;}
     const before=enemy.hp+enemy.shield;

@@ -1,6 +1,6 @@
 'use client';
 
-import { ELEMENT_LABEL, ELEMENT_COUNTER, ELEMENTS, BeastElement, ELEMENT_GENERATES } from '@/lib/beast-game/elements';
+import { ELEMENT_LABEL, ELEMENT_COUNTER, ELEMENTS, BeastElement, ELEMENT_GENERATES, elementMultiplier } from '@/lib/beast-game/elements';
 import styles from './ElementMatchupGuide.module.css';
 
 interface ElementMatchupGuideProps {
@@ -38,11 +38,12 @@ export default function ElementMatchupGuide({
         ))}
       </div>
       <p className={styles.explanation}>
-        {playerCounters && '我剋他 · 傷害 +20%'}
-        {opponentCounters && '他剋我 · 傷害 −10%'}
+        {playerCounters && `我剋易經 · 攻擊元素倍率 ${Math.round(elementMultiplier(playerElement, opponentElement) * 100)}%`}
+        {opponentCounters && `易經剋我 · 我方攻擊元素倍率 ${Math.round(elementMultiplier(playerElement, opponentElement) * 100)}%`}
         {(playerGenerates || opponentGenerates) && '相生不加傷害；合體看己方後備'}
         {!playerCounters && !opponentCounters && !playerGenerates && !opponentGenerates && '這兩張卡沒有元素加成'}
       </p>
+      <p className={styles.explanation}>易經攻我：{Math.round(elementMultiplier(opponentElement, playerElement) * 100)}%。實扣生命還要計算防禦與護盾。</p>
     </details>
   );
 }

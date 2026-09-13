@@ -7,7 +7,8 @@
   grid-template-rows: minmax(0, 1fr);
   gap: 8px;
   padding: 10px 8px;
-  overflow: hidden;
+  /* Attack effects must clip without turning the arena into a scroll container on rotation. */
+  overflow: clip;
   border: 1px solid #526386;
   border-radius: 18px 18px 0 0;
   background: radial-gradient(ellipse at 50% 65%, #263d60, #0c152a 72%);
@@ -757,3 +758,6 @@
   transform: translateY(-50%);
   width: min(280px, calc(100% - 16px));
 }
+.liveName { display: block; color: #ecf5ff; font-size: 12px; line-height: 16px; text-align: center; overflow-wrap: anywhere; }
+.liveChange { color: #ffe4a6; font-size: 12px; line-height: 16px; text-align: center; }
+.arenaEnergy { font-size: 12px; line-height: 16px; }

@@ -38,17 +38,17 @@ function teamSynergyHint(element: BeastElement, role: string): { allyElement: st
   // 剋星：誰剋我
   const nemesisKey = (Object.keys(ELEMENT_COUNTER) as BeastElement[]).find(k => ELEMENT_COUNTER[k] === element) ?? element;
   // 反制剋星：誰能剋掉剋星
-  const counterNemesis = ELEMENT_COUNTER[nemesisKey];
+  const counterNemesis = (Object.keys(ELEMENT_COUNTER) as BeastElement[]).find(k => ELEMENT_COUNTER[k] === nemesisKey)!;
 
   const allyLabel = ELEMENT_LABEL[counterNemesis];
   const nemesisLabel = ELEMENT_LABEL[nemesisKey];
   const selfLabel = ELEMENT_LABEL[element];
 
   const roleComplements: Record<string, string> = {
-    主攻: '搭配一張守護或輔助，能讓你撐久一點，輸出機會更多。',
+    主攻: '可換上守護承受攻擊；輔助只治療自己，不能幫主攻補血。',
     守護: '搭配一張主攻或速度，守住之後要有人收掉對手。',
-    控制: '搭配一張主攻，減攻後接著壓傷害效果最大。',
-    輔助: '搭配一張反擊，治療撐住、反擊施壓，讓對手難以集火。',
+    控制: '減攻仍在敵方身上時，可考慮換上主攻；換卡也消耗回合。',
+    輔助: '自療後可換上反擊承受下一次交手；自療不會恢復反擊卡的生命。',
     反擊: '搭配一張控制，先壓低對手攻擊、再用反擊吃一擊，觸發條件更穩。',
     速度: '搭配一張主攻，你搶先手，隊友補收尾，形成連續壓力。',
   };

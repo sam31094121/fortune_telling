@@ -108,11 +108,14 @@ export default function BattleArena({ state, cards, match, onInspect, onSwap, on
                 const hpPct = Math.max(0, Math.min(100, (fighter.hp / Math.max(1, fighter.maxHp)) * 100));
                 const isCritical = hpPct <= 30 && fighter.hp > 0;
                 return (
-                  <div className={styles.arenaVital} aria-hidden="true">
+                  <div className={styles.arenaVital}>
+                    <strong className={styles.liveName}>{card?.name}・{ELEMENT_LABEL[fighter.element]}</strong>
                     <div className={`${styles.arenaHpBar}${isCritical ? ` ${styles.critical}` : ''}`}>
                       <span style={{ width: `${hpPct}%` }} />
                     </div>
-                    <span className={styles.arenaEnergy} aria-label={`氣 ${team.energy}，生命 ${fighter.hp}/${fighter.maxHp}`}>⚡{team.energy}</span>
+                    <span className={styles.arenaEnergy}>生命 {fighter.hp}/{fighter.maxHp}・氣 {team.energy}</span>
+                    {fighter.shield > 0 && <span className={styles.liveChange}>護盾 {fighter.shield}</span>}
+                    {change && <span className={styles.liveChange} data-combat-change>{change}</span>}
                   </div>
                 );
               })()}

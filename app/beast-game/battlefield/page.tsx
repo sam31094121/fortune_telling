@@ -500,6 +500,8 @@ export default function BattlefieldPage() {
               <div className={styles.controlScroll} ref={controlScroll} key={match ? 'battle' : 'prepare'} data-control-scroll>
                 {inspection && <BattleCardGuide key={`${inspection.side}-${inspection.cardId}`} cardId={inspection.cardId}
                   fighter={match?.[inspection.side].team.find(fighter => fighter.cardId === inspection.cardId)}
+                  context={match ? { match, side: inspection.side } : undefined}
+                  opponent={match ? (() => { const other = inspection.side === 'player' ? match.opponent : match.player; return other.team[other.active]; })() : undefined}
                   opponentElement={(() => {
                     const other = inspection.side === 'player' ? 'opponent' : 'player';
                     return match ? match[other].team[match[other].active].element : cards.find(card => card.id === state[other].active)?.element as BeastElement | undefined;
