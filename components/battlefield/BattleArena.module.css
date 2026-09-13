@@ -5,13 +5,18 @@
   display: grid;
   grid-template-columns: minmax(100px, 0.9fr) minmax(0, 2fr) minmax(100px, 0.9fr);
   grid-template-rows: minmax(0, 1fr);
-  gap: 8px;
-  padding: 10px 8px;
+  gap: 12px;
+  padding: 12px 12px;
   /* Attack effects must clip without turning the arena into a scroll container on rotation. */
   overflow: clip;
-  border: 1px solid #526386;
+  border: 2px solid #7dd3fc;
   border-radius: 18px 18px 0 0;
-  background: radial-gradient(ellipse at 50% 65%, #263d60, #0c152a 72%);
+  background:
+    radial-gradient(ellipse at 50% 65%, #263d60, #0c152a 72%),
+    linear-gradient(135deg, rgba(125, 211, 252, 0.08) 0%, rgba(6, 16, 33, 0.6) 50%, rgba(30, 58, 138, 0.05) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(125, 211, 252, 0.15),
+    0 0 20px rgba(125, 211, 252, 0.1);
 }
 .backdrop { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 60%; pointer-events: none; }
 .arena::before { content: ''; position: absolute; z-index: 1; inset: 0; background: linear-gradient(180deg, #061021ed 0%, #06102178 36%, #0610215c 60%, #061021f0 100%); pointer-events: none; }
@@ -39,8 +44,29 @@
 .arenaHeading strong { color: #ffe4a6; font-size: 14px; }
 /* 垂直戰場：雙卡是主角；保留中段足夠的出招移動空間。 */
 .fighters { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; grid-column: 2; }
-.fighter[data-fighter='opponent'] { order: 1; flex: 0 0 36%; height: 36%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 4px; gap: 4px; }
-.fighter[data-fighter='player'] { order: 2; flex: 0 0 36%; height: 36%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 4px; gap: 4px; }
+.fighter[data-fighter='opponent'] {
+  order: 1;
+  flex: 0 0 36%;
+  height: 36%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 8px;
+  gap: 6px;
+}
+
+.fighter[data-fighter='player'] {
+  order: 2;
+  flex: 0 0 36%;
+  height: 36%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 8px;
+  gap: 6px;
+}
 .fighter[data-fighter='opponent'] .artSpace { place-items: center; flex: 1; min-height: 0; width: 100px; container-type: size; }
 .fighter[data-fighter='player'] .artSpace { place-items: center; flex: 1; min-height: 0; width: 155px; container-type: size; }
 /* 卡片下方資訊欄：HP 條 + 氣量，分開放在各自卡片正下方 */
@@ -60,7 +86,24 @@
 .rosterRight { grid-column: 3; display: flex; flex-direction: column; }
 .fighterName strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .artSpace { position: relative; min-height: 0; display: grid; place-items: center; container-type: size; }
-.art { position: relative; width: min(100cqw, 75cqh, 280px); height: min(100cqh, 420px); min-width: 44px; min-height: 44px; padding: 0; overflow: hidden; border: 1px solid #d8b771; border-radius: 10px; box-shadow: 0 6px 14px #0008; background: #0a1429; touch-action: manipulation; }
+.art {
+  position: relative;
+  width: min(100cqw, 75cqh, 280px);
+  height: min(100cqh, 420px);
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid #d8b771;
+  border-radius: 12px;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 0 16px rgba(216, 183, 113, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(135deg, rgba(13, 27, 42, 0.8) 0%, #0a1429 100%);
+  touch-action: manipulation;
+}
 .fighter[data-fighter='opponent'] .art { width: min(100cqw, 75cqh, 190px); height: min(100cqh, 285px); }
 .art img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .empty { height: 100%; display: grid; place-content: center; text-align: center; color: #91a6c5; font-size: 13px; }
