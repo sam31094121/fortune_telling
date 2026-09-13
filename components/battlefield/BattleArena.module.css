@@ -3,9 +3,10 @@
   isolation: isolate;
   min-height: 0;
   display: grid;
+  grid-template-columns: minmax(100px, 0.9fr) minmax(0, 2fr) minmax(100px, 0.9fr);
   grid-template-rows: minmax(0, 1fr);
   gap: 8px;
-  padding: 10px 12px;
+  padding: 10px 8px;
   overflow: hidden;
   border: 1px solid #526386;
   border-radius: 18px 18px 0 0;
@@ -33,7 +34,7 @@
 .arenaHeading, .handHeading { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: #b6c8e0; }
 .arenaHeading strong { color: #ffe4a6; font-size: 14px; }
 /* 垂直戰場：雙卡是主角；保留中段足夠的出招移動空間。 */
-.fighters { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
+.fighters { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; grid-column: 2; }
 .fighter[data-fighter='opponent'] { order: 1; flex: 0 0 36%; height: 36%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 4px; gap: 4px; }
 .fighter[data-fighter='player'] { order: 2; flex: 0 0 36%; height: 36%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 4px; gap: 4px; }
 .fighter[data-fighter='opponent'] .artSpace { place-items: center; flex: 1; min-height: 0; width: 100px; container-type: size; }
@@ -49,6 +50,10 @@
 .fighter { min-height: 0; min-width: 0; display: grid; grid-template-rows: minmax(0, 1fr); gap: 7px; }
 .fighterName { display: none; }
 .fighterName span { color: #9fc5ef; font-size: 11px; }
+
+/* 隊伍面板定位 */
+.rosterLeft { grid-column: 1; display: flex; flex-direction: column; }
+.rosterRight { grid-column: 3; display: flex; flex-direction: column; }
 .fighterName strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .artSpace { position: relative; min-height: 0; display: grid; place-items: center; container-type: size; }
 .art { position: relative; width: min(100cqw, 75cqh, 280px); height: min(100cqh, 420px); min-width: 44px; min-height: 44px; padding: 0; overflow: hidden; border: 1px solid #d8b771; border-radius: 10px; box-shadow: 0 6px 14px #0008; background: #0a1429; touch-action: manipulation; }

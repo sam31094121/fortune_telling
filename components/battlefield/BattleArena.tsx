@@ -16,6 +16,7 @@ import { performedAction, isDamagingAction } from '@/lib/beast-game/combat-prese
 import { combatChanges } from '@/lib/beast-game/combat-feedback';
 import ElementMatchupGuide from './ElementMatchupGuide';
 import PhotonParticleEffect from './PhotonParticleEffect';
+import TeamRosterPanel from './TeamRosterPanel';
 
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
 
@@ -51,6 +52,25 @@ export default function BattleArena({ state, cards, match, onInspect, onSwap, on
         <span className={styles.strikeTrace} data-trace="one" />
         <span className={styles.strikeReadout}><b>{playerAction === 'RAGE' ? '暴怒合體' : `${ELEMENT_FX[strikeElement].label}元素攻擊`}</b></span>
       </div>}
+      {/* 左手邊：對手隊伍 */}
+      {match && (
+        <div className={styles.rosterLeft}>
+          <TeamRosterPanel
+            team={match.opponent.team.map(f => ({
+              id: f.cardId,
+              name: f.name,
+              hp: f.hp,
+              maxHp: f.maxHp,
+              defeated: f.defeated,
+              element: f.element,
+              canRage: false,
+            }))}
+            side="opponent"
+            activeCardId={match.opponent.team[match.opponent.active]?.cardId}
+          />
+        </div>
+      )}
+
       <div className={styles.fighters}>
         {(['player', 'opponent'] as const).map(side => {
           const team = match?.[side];
@@ -103,6 +123,26 @@ export default function BattleArena({ state, cards, match, onInspect, onSwap, on
           );
         })}
       </div>
+
+      {/* 右手邊：玩家隊伍 */}
+      {match && (
+        <div className={styles.rosterRight}>
+          <TeamRosterPanel
+            team={match.player.team.map(f => ({
+              id: f.cardId,
+              name: f.name,
+              hp: f.hp,
+              maxHp: f.maxHp,
+              defeated: f.defeated,
+              element: f.element,
+              canRage: false,
+            }))}
+            side="player"
+            activeCardId={match.player.team[match.player.active]?.cardId}
+          />
+        </div>
+      )}
+
       {/* 相生相克教學卡片 - 戰鬥卡片下方 */}
       {match && mine && foe && (
         <ElementMatchupGuide
