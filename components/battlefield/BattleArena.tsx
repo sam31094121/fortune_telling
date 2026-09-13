@@ -14,12 +14,14 @@ import styles from './BattleArena.module.css';
 import { ELEMENT_FX, type BattleElement } from '@/lib/beast-battle-fx';
 import { performedAction, isDamagingAction } from '@/lib/beast-game/combat-presentation';
 import { combatChanges } from '@/lib/beast-game/combat-feedback';
+import ElementMatchupGuide from './ElementMatchupGuide';
 
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
 
 /** Both fighters stay above the controls. All displayed combat values come from Match. */
-export default function BattleArena({ state, cards, match, onInspect, onAttack, onSwap, onSkill, playing = false }: {
+export default function BattleArena({ state, cards, match, onInspect, onAttack, onSwap, onSkill, playing = false, quietNote = false }: {
   playing?: boolean; cards: BattlefieldCardArt[]; onInspect: (id: string, side: 'player' | 'opponent') => void;
+  quietNote?: boolean;
   onAttack?: (() => void) | null;
   onSwap?: ((action: Action) => void) | null;
   onSkill?: ((action: Action) => void) | null;
@@ -94,6 +96,14 @@ export default function BattleArena({ state, cards, match, onInspect, onAttack, 
           );
         })}
       </div>
+      {/* 相生相克教學卡片 - 戰鬥卡片下方 */}
+      {match && mine && foe && (
+        <ElementMatchupGuide
+          playerElement={mine.element as BeastElement}
+          opponentElement={foe.element as BeastElement}
+          className={styles.matchupPanel}
+        />
+      )}
       {match?.status === 'PLAYING' && (onSwap !== undefined || onSkill !== undefined) && (() => {
         const acts = legalActions(match, 'player');
         const switches = onSwap !== undefined ? acts.filter((a): a is Extract<Action, { type: 'SWITCH' }> => a.type === 'SWITCH') : [];
@@ -134,7 +144,7 @@ export default function BattleArena({ state, cards, match, onInspect, onAttack, 
           </div>
         );
       })()}
-      <p className={styles.arenaNote} role="status" aria-live="polite" data-matchup={matchup?.kind}>
+      <p className={quietNote ? 'sr-only' : styles.arenaNote} role="status" aria-live="polite" data-matchup={matchup?.kind}>
         {playing ? '▶' : finished ? (match.winner === 'player' ? '◎' : match.winner === 'opponent' ? '✕' : '＝')
           : match?.player.team[match.player.active].defeated ? '⬇'
           : match?.opponent.team[match.opponent.active].defeated ? '▶'

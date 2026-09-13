@@ -1,0 +1,169 @@
+.matchupGuide {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(125, 211, 252, 0.3);
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(6, 16, 40, 0.6));
+  font-size: 12px;
+  color: #ddeaf8;
+}
+
+.elementPair {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.elementCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(13, 25, 41, 0.8);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  flex: 0 1 auto;
+  min-width: 50px;
+}
+
+.elementLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffe1a0;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.elementSymbol {
+  font-size: 20px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+/* 各元素符號顏色 */
+.symbol-SPACE {
+  color: #f59e0b;
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+}
+
+.symbol-AIR {
+  color: #7dd3fc;
+  text-shadow: 0 0 8px rgba(125, 211, 252, 0.5);
+}
+
+.symbol-WATER {
+  color: #38bdf8;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+}
+
+.symbol-FIRE {
+  color: #fb7185;
+  text-shadow: 0 0 8px rgba(251, 113, 133, 0.5);
+}
+
+.symbol-EARTH {
+  color: #86efac;
+  text-shadow: 0 0 8px rgba(134, 239, 172, 0.5);
+}
+
+.relationshipArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 40px;
+}
+
+.relation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  min-height: 20px;
+}
+
+.relation.advantage {
+  background: rgba(251, 113, 133, 0.15);
+  color: #fb7185;
+  border: 1px solid rgba(251, 113, 133, 0.3);
+}
+
+.relation.disadvantage {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.relation.generates {
+  background: rgba(134, 239, 172, 0.12);
+  color: #86efac;
+  border: 1px solid rgba(134, 239, 172, 0.25);
+}
+
+.relation.generated {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.relation.neutral {
+  background: rgba(107, 114, 128, 0.1);
+  color: #9ca3af;
+  border: 1px solid rgba(107, 114, 128, 0.2);
+}
+
+.relationIcon {
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.relationText {
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.explanation {
+  text-align: center;
+  font-size: 10px;
+  color: #b8c2ca;
+  line-height: 1.4;
+  margin: 0;
+  padding: 6px 0 0;
+  border-top: 1px solid rgba(125, 211, 252, 0.2);
+}
+
+@media (max-width: 480px) {
+  .matchupGuide {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .elementCard {
+    min-width: 42px;
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  .elementSymbol {
+    font-size: 16px;
+  }
+
+  .explanation {
+    font-size: 9px;
+  }
+}

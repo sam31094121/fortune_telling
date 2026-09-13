@@ -738,3 +738,10 @@
     display: none !important;
   }
 }
+
+/* ── 相生相克教學面板 ── */
+.matchupPanel {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+  z-index: 5;
+}
