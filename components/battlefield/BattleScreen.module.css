@@ -12,7 +12,13 @@
 .header a { display: flex; align-items: center; min-height: 44px; font-size: 14px; color: #bae6fd; }
 .header h1 { font-size: 16px; font-weight: 900; }
 .header span { font-size: 13px; color: #94adc9; }
-.split { min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+.split {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px 0;
+}
 .controls { min-height: 0; display: grid; grid-template-rows: 30px minmax(0, 1fr) auto; border: 1px solid #526386; border-top: 2px solid #7dd3fc; border-radius: 0 0 16px 16px; background: #101b2d; overflow: hidden; }
 .controlsHeading { display: flex; align-items: center; justify-content: space-between; padding: 0 10px; font-size: 14px; color: #c7e8fd; }
 .controls[data-preparing='true'] { grid-template-rows: auto minmax(0, 1fr) auto; }

@@ -8,7 +8,7 @@ import type { BeastElement } from '@/lib/beast-game/elements';
 
 interface ElementOrbDisplayProps {
   element: BeastElement;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'tiny' | 'mini' | 'small' | 'medium' | 'large';
   animated?: boolean;
 }
 
