@@ -19,7 +19,7 @@ const MatchupSummary = memo(function MatchupSummary({
   const matchup = describeMatchup(playerElement, opponentElement);
   const icon = matchup.kind === 'ADVANTAGE' ? '▲' : matchup.kind === 'DISADVANTAGE' ? '▼' : '◉';
   const percent = matchup.kind !== 'NEUTRAL'
-    ? `${matchup.kind === 'ADVANTAGE' ? '+' : '-'}${Math.abs(Math.round((matchup.damageMultiplier - 1) * 100))}%`
+    ? `${matchup.kind === 'ADVANTAGE' ? '+' : '-'}${Math.abs(Math.round((matchup.multiplier - 1) * 100))}%`
     : '50/50';
 
   return (

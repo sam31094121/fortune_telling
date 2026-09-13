@@ -5,6 +5,7 @@ import { combatGuideFor, elementGuideRows, elementPercent } from '@/lib/beast-ga
 import { ELEMENTS, ELEMENT_LABEL, type BeastElement } from '@/lib/beast-game/elements';
 import type { Fighter, Match, Side } from '@/lib/beast-game/interactive';
 import BattlePowerAnalysis from './BattlePowerAnalysis';
+import ElementOrbDisplay from './ElementOrbDisplay';
 import styles from './BattleCardGuide.module.css';
 
 export default function BattleCardGuide({ cardId, fighter, opponentElement, opponent, context, onClose }: {
@@ -33,7 +34,10 @@ export default function BattleCardGuide({ cardId, fighter, opponentElement, oppo
       {tab === 'art' ? (
         <article className={styles.showcase} data-card-showcase data-element={guide.element}>
           <div className={styles.cardTitle}>
-            <span>{guide.elementLabel}系・{guide.role}型</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <ElementOrbDisplay element={guide.element} size="small" animated />
+              <span>{guide.elementLabel}系・{guide.role}型</span>
+            </span>
             <strong>生命 {guide.stats.hp}/{guide.stats.maxHp}</strong>
           </div>
           {/* Only the inspected card loads full-size art; hands retain lightweight thumbnails. */}
@@ -52,7 +56,10 @@ export default function BattleCardGuide({ cardId, fighter, opponentElement, oppo
           <dl className={styles.identity}>
             <div><dt>所屬四象</dt><dd>{guide.guardian}</dd></div>
             <div><dt>形態／類型</dt><dd>{guide.form}・{guide.role}型</dd></div>
-            <div><dt>攻擊元素</dt><dd>{guide.elementLabel}系（五行：{guide.wuxing}）</dd></div>
+            <div><dt>攻擊元素</dt><dd style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <ElementOrbDisplay element={guide.element} size="small" animated />
+              <span>{guide.elementLabel}系（五行：{guide.wuxing}）</span>
+            </dd></div>
             <div><dt>武裝風格</dt><dd>{guide.weapon.weaponClass}</dd></div>
           </dl>
           <BattlePowerAnalysis cardId={cardId} fighter={fighter} opponent={opponent} context={context} />
@@ -65,22 +72,22 @@ export default function BattleCardGuide({ cardId, fighter, opponentElement, oppo
             <summary>武裝部位與攻擊方式</summary>
             <p>{guide.weapon.name}・{guide.weapon.part}</p>
             <p>{guide.weapon.motion}</p>
-            <p className={styles.note}>暴風型是武裝風格；這張卡的攻擊元素是{guide.elementLabel}系。</p>
+            <p className={styles.note}>暴風型是武裝風格；這張卡的攻擊元素是<span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}><ElementOrbDisplay element={guide.element} size="small" animated />{guide.elementLabel}</span>系。</p>
           </details>
           <p className={styles.note}>主攻、守護、控制、輔助、反擊、速度是戰鬥職責，決定各卡的技能特色；相剋倍率看五元素。</p>
         </>
       ) : (
         <>
-          <p className={styles.relation}>本卡：{guide.elementLabel}系・{guide.relation.line}</p>
+          <p className={styles.relation}>本卡：<span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}><ElementOrbDisplay element={guide.element} size="small" animated />{guide.elementLabel}</span>系・{guide.relation.line}</p>
           <div className={styles.cycle} aria-label="五元素相剋方向">
             {rows.map(row => <span key={row.element}>{row.label}剋{row.beats}</span>)}
           </div>
           <table className={styles.matrix}>
             <caption>左側攻方 → 上方守方；數字為攻擊元素倍率</caption>
-            <thead><tr><th scope="col">攻＼守</th>{ELEMENTS.map(element => <th scope="col" key={element}>{ELEMENT_LABEL[element]}</th>)}</tr></thead>
+            <thead><tr><th scope="col">攻＼守</th>{ELEMENTS.map(element => <th scope="col" key={element} style={{ padding: '4px' }}><ElementOrbDisplay element={element} size="small" animated={false} /></th>)}</tr></thead>
             <tbody>{rows.map(row => (
               <tr key={row.element} data-current={row.element === guide.element}>
-                <th scope="row">{row.label}</th>
+                <th scope="row" style={{ padding: '4px' }}><ElementOrbDisplay element={row.element} size="small" animated={false} /></th>
                 {row.cells.map(cell => <td key={cell.defender} data-tone={cell.multiplier > 1 ? 'up' : cell.multiplier < 1 ? 'down' : 'neutral'} data-target={row.element === guide.element && cell.defender === opponentElement}>{Math.round(cell.multiplier * 100)}%</td>)}
               </tr>
             ))}</tbody>

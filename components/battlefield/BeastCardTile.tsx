@@ -26,6 +26,7 @@ import styles from './BeastCardTile.module.css';
 import { guardianOf, tierOf, TIER_LABEL } from '@/lib/beast-guardians';
 import { combatGuideFor } from '@/lib/beast-game/combat-guide';
 import BattlePowerAnalysis from './BattlePowerAnalysis';
+import ElementOrbDisplay from './ElementOrbDisplay';
 // 正統比例與圖窗的唯一來源。這裡不重新定義，只疊手感與狀態。
 import frame from '@/components/BeastCardFrame.module.css';
 
@@ -76,7 +77,9 @@ export function BeastCardTile({
       <span className={`${frame.card} ${styles.body}`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className={frame.art} src={card.thumbnail} alt="" loading="lazy" decoding="async" />
-        <span className={styles.dot} style={{ color: ELEMENT_COLOR[card.element] ?? '#94a3b8' }} aria-hidden="true" />
+        <div className={styles.orbIndicator} aria-hidden="true">
+          <ElementOrbDisplay element={card.element as any} size="small" animated />
+        </div>
         {owned && <span className={styles.owned}>藏</span>}
         {/* 名字條高度固定，六十張並排時底部一定對齊。 */}
         <span className={`${frame.nameBar} ${styles.name}`} style={{ display: 'block' }}>{card.name}</span>

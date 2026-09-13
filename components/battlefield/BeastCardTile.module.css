@@ -91,17 +91,12 @@
     0 4px 14px rgba(0, 0, 0, 0.55);
 }
 
-/* 元素色點放在左上角，跟著卡寬走，六十張並排時位置一致。 */
-.dot {
+/* 元素寶珠放在左上角，跟著卡寬走，六十張並排時位置一致。 */
+.orbIndicator {
   position: absolute;
-  top: 4cqw;
-  left: 4cqw;
-  width: 6cqw;
-  height: 6cqw;
-  max-width: 9px;
-  max-height: 9px;
-  border-radius: 50%;
-  box-shadow: 0 0 7px currentColor;
+  top: 2cqw;
+  left: 2cqw;
+  z-index: 10;
 }
 
 /* 收藏角標。用既有卡框的 corner 尺度，不另訂一套。 */
