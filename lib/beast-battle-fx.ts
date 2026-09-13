@@ -41,7 +41,7 @@ export function playPlayerBeastVoice(
 ): void {
   if (side !== 'player') return;
   const voice = beastVoiceFor(cardId);
-  if (voice) play(voice, 0.55, 1);
+  if (voice) play(voice, 0.35, 1);
 }
 
 function reportVoice(src: string, status: 'playing' | 'blocked' | 'stopped') {
@@ -371,7 +371,7 @@ export function beastActionTimeline(
   const out: ActionSound[] = [];
 
   const voice = side === 'player' ? beastVoiceFor(cardId) : null;
-  if (voice) out.push({ at: ACTION_BEATS.voice, src: voice, volume: 0.55, rate: 1, what: 'voice' });
+  if (voice) out.push({ at: ACTION_BEATS.voice, src: voice, volume: 0.35, rate: 1, what: 'voice' });
 
   // 五元素的材質聲先入場，讓客戶不用看文字也聽得出這是風、水、火、地或空。
   out.push({ at: 70, src: ELEMENT_FX[element].attack, volume: heavy ? 0.34 : 0.26, rate: 1, what: 'charge' });

@@ -378,7 +378,8 @@
 .compactPanel { display: grid; gap: 4px; }
 .compactActions { display: grid; gap: 4px; }
 .activeHint { color: #c4ddf3; font-size: 11px; line-height: 15px; }
-.primaryActions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+.primaryActions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; order: -1; }
+.helpEntry { min-height: 44px; padding: 4px 10px; color: #bae6fd; font-size: 13px; text-decoration: underline; touch-action: manipulation; }
 .primaryActions button { min-height: 42px; padding: 4px 6px; flex-direction: column; gap: 2px; font-size: 13px; }
 .primaryActions small { font-size: 10px; font-weight: 500; }
 .reserveCards { display: flex; gap: 8px; overflow-x: auto; padding: 3px; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: #58728c transparent; }
@@ -470,25 +471,25 @@
   line-height: 1.4;
 }
 .primaryActions {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 /* MOBILE-SWAP-ENTRY */
 @media (max-width: 900px) {
   .primaryActions {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
   }
   .swapButton {
-    grid-column: 1 / -1;
-    min-height: 56px !important;
-    flex-direction: row !important;
+    grid-column: auto;
+    min-height: 44px !important;
+    flex-direction: column !important;
     justify-content: center;
-    gap: 8px !important;
-    font-size: 16px !important;
+    gap: 2px !important;
+    font-size: 13px !important;
   }
   .swapButton strong {
-    font-size: 16px;
+    font-size: 13px;
   }
   .swapCue {
     font-size: 13px;

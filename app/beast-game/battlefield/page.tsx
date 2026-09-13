@@ -514,10 +514,10 @@ export default function BattlefieldPage() {
                   cards={cards} settlement={settlement} isReplay={false} retrying={settling} onRetry={() => void retrySettlement()} />}
                 {match ? (
                   <>
+                    <BattlePanel match={match} onAction={act} busy={playing} compact cards={cards} />
                     {match.status === 'PLAYING' && <p className={styles.notice} data-battle-stake>{battleStake
                       ? `💎 押注：${cards.find(card => card.id === battleStake)?.name}`
                       : '🎮 體驗戰'}</p>}
-                    <BattlePanel match={match} onAction={act} busy={playing} compact attackOnCard={match?.status === 'PLAYING' && !playing && Boolean(legalActions(match, 'player').find(x => x.type === 'ATTACK'))} swapOnSide={match?.status === 'PLAYING' && !playing} cards={cards} />
                     {match.status === 'PLAYING' && <details className={styles.details}><summary>離開本場</summary><p>回首頁會中斷本局，押卡不扣除。</p><Link href="/">回首頁</Link></details>}
                     {match.status === 'FINISHED' && !playing && isTrial && (
                       <p role="status" className={styles.notice} data-battle-result={match.winner}>體驗戰結束：押注 0 張・贏得 0 張・輸掉 0 張。</p>

@@ -189,10 +189,11 @@ export function BattleActionBar({
             style={{ '--element-glow': ELEMENT_FX[active.element as BattleElement]?.glow } as React.CSSProperties}
             aria-label={relaxed && special ? '保留技能・普通攻擊' : '普通攻擊'} onClick={() => attack && onAction(attack)}>
             <span aria-hidden="true" style={{ color: ELEMENT_FX[active.element as BattleElement]?.glow, textShadow: `0 0 10px ${ELEMENT_FX[active.element as BattleElement]?.glow}` }}>⚔</span>
-            <small>{({SPACE:'◇',AIR:'≋',WATER:'◉',FIRE:'♨',EARTH:'▰'} as const)[active.element as BattleElement]}</small>
+            <strong>攻擊</strong>
           </button>}
           <button type="button" className={styles.skillButton} disabled={busy || !special} aria-label={`技能 ${skill.skillName}`} onClick={() => special && onAction(special)}>
             <span aria-hidden="true">✦</span>
+            <strong>技能</strong>
             <small>{active.cooldown > 0 ? `冷${active.cooldown}` : `⚡${skill.cost}`}</small>
           </button>
           <button type="button" className={`${styles.actionButton} ${styles.swapButton}`} disabled={busy} aria-label="換卡" aria-expanded={commandView === 'swap' || active.defeated} data-swap-entry onClick={() => { onBrowse?.(); setCommandView(commandView === 'swap' ? null : 'swap'); }}>
@@ -200,10 +201,11 @@ export function BattleActionBar({
             <strong>換卡</strong>
             <small>{switches.length ? `${switches.length} 張可換` : '看後備'}</small>
           </button>
-          <button type="button" className={styles.actionButton} disabled={busy} aria-label="說明" aria-expanded={commandView === 'help'} onClick={() => { onBrowse?.(); setCommandView(commandView === 'help' ? null : 'help'); }}>
-            <span aria-hidden="true">ℹ</span>
+          <button type="button" className={styles.actionButton} disabled aria-label="暴怒合體，準備中">
+            <span aria-hidden="true">🔥</span><strong>暴怒合體</strong><small>準備中</small>
           </button>
         </div>
+        <button type="button" className={styles.helpEntry} disabled={busy} aria-expanded={commandView === 'help'} onClick={() => { onBrowse?.(); setCommandView(commandView === 'help' ? null : 'help'); }}>玩法說明</button>
         <div ref={commandDetail}>
         {(commandView === 'swap' || active.defeated) && <>
         {!switches.length && <p className={styles.activeHint}>目前沒有可換上的後備，可使用仍可用的攻擊或技能。</p>}
