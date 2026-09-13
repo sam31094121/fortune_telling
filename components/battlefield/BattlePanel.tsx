@@ -90,7 +90,7 @@ export function FighterStatus({ match, side, label }: { match: Match; side: Side
         <strong className={styles.elementBadge}>
           {/* 元素寶珠：戰鬥中也看得出誰是什麼屬性，不必回頭看卡面。 */}
           <div className={styles.orbBadge}>
-            <ElementOrbDisplay element={fighter.element} size="small" animated={false} />
+            <ElementOrbDisplay element={fighter.element} size="mini" animated={false} />
           </div>
           {sideSymbol}
         </strong>

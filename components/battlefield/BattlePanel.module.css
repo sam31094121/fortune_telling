@@ -26,22 +26,37 @@
 
 .statusHead {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
   font-size: 12px;
   color: #b9c5d9;
+  min-height: 32px;
+  padding: 2px 0;
 }
 
 .statusHead strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
   font-weight: 900;
   color: #e6edf8;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .energy {
   flex: none;
-  padding: 1px 8px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: rgba(0, 229, 255, 0.12);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  box-shadow:
+    0 0 8px rgba(0, 229, 255, 0.2),
+    inset 0 0 4px rgba(0, 229, 255, 0.08);
+  letter-spacing: 0.05em;
+  font-weight: 600;
   border-radius: 999px;
   background: rgba(125, 211, 252, 0.16);
   font-size: 11px;
@@ -296,11 +311,16 @@
   to    { box-shadow: inset 0 0 0 0 rgba(255, 255, 255, 0); }
 }
 
-/* 元素寶珠徽章容器 */
+/* 元素寶珠徽章容器 - 視覺層級提升 */
 .elementBadge {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  padding: 2px 4px;
+  background: rgba(59, 130, 246, 0.08);
+  border-radius: 6px;
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  backdrop-filter: blur(4px);
 }
 
 .orbBadge {
@@ -310,6 +330,9 @@
   width: 32px;
   height: 32px;
   flex-shrink: 0;
+  background: rgba(6, 16, 33, 0.4);
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(125, 211, 252, 0.15);
 }
 
 /* 舊版色點（保留向後兼容） */
@@ -451,8 +474,9 @@
 /* 攻擊按鈕：元素光暈（--element-glow 由 TSX 注入） */
 .actionButton[style] { border-color: var(--element-glow, rgba(255,255,255,0.25)); box-shadow: 0 0 12px var(--element-glow, transparent), 0 4px 12px rgba(0,0,0,0.3); }
 .actionButton[style]:disabled { border-color: #526178; box-shadow: none; }
-.statusHead strong { font-size: 0; display: flex; align-items: center; }
-.orbBadge { width: 28px; height: 28px; }
+.statusHead strong { font-size: 0; display: flex; align-items: center; gap: 3px; }
+.elementBadge { padding: 0px 2px; gap: 3px; background: transparent; border: none; }
+.orbBadge { width: 24px; height: 24px; background: transparent; box-shadow: none; }
 .elementDot { width: 10px; height: 10px; margin-right: 0; }
 .energy { font-size: 10px; padding: 1px 7px; }
 /* 科技感能量 */
