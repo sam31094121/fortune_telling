@@ -205,6 +205,8 @@ export default function FeatureVisitorCounter({
 
     if (storedDisplayCount !== null) {
       commitDisplayCount(storedDisplayCount);
+    } else if (featureKey === 'home') {
+      commitDisplayCount(110128);
     }
   }, [commitDisplayCount, featureKey]);
 
