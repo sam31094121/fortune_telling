@@ -3,21 +3,18 @@
 import { useState } from 'react';
 import styles from './BattleHelpPanel.module.css';
 import ElementCycleDisplay from './ElementCycleDisplay';
+import ElementBrandButton from './ElementBrandButton';
 
 export default function BattleHelpPanel({ onOpen }: { onOpen?: () => void }) {
   const [open, setOpen] = useState(false);
 
   return (
     <div className={styles.helpContainer}>
-      <button
-        type="button"
-        className={styles.helpButton}
+      <ElementBrandButton
         onClick={() => { if (!open) onOpen?.(); setOpen(!open); }}
-        aria-expanded={open}
-        aria-label="戰鬥說明"
-      >
-        ？
-      </button>
+        ariaExpanded={open}
+        ariaLabel="五元素相生相剋說明"
+      />
 
       {open && (
         <div className={styles.helpPanel} role="region" aria-label="戰鬥規則說明">
