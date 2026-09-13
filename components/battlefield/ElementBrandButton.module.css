@@ -1,18 +1,20 @@
-/* 五元素寶珠品牌按鈕 */
+/* 五元素寶珠品牌按鈕 - 黃金比例系統 */
 .brandButton {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* 黃金比例：48 × 44 (最小觸摸目標) */
   width: 48px;
-  height: 40px;
+  height: 44px;
   padding: 4px;
   border: 1px solid rgba(125, 211, 252, 0.3);
-  border-radius: 6px;
+  border-radius: 8px;
   background: rgba(6, 16, 33, 0.5);
   cursor: pointer;
   transition: all 0.2s ease;
   appearance: none;
   -webkit-tap-highlight-color: transparent;
+  gap: 2px;
 }
 
 .brandButton:hover {
@@ -66,15 +68,12 @@
   display: block;
 }
 
-/* 手機版 */
+/* 手機版 - 保持最小觸摸目標 44px */
 @media (max-width: 480px) {
   .brandButton {
+    width: 44px;
     height: 44px;
-    padding: 0 6px;
-    gap: 3px;
-  }
-
-  .brandLayout {
-    gap: 3px;
+    padding: 3px;
+    gap: 2px;
   }
 }
