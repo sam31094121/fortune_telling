@@ -3,7 +3,12 @@ setlocal
 
 cd /d "%~dp0"
 set "URL=http://localhost:8888"
-set "CHROME=C:\Program Files\Google\Chrome\Application\chrome.exe"
+set "CHROME=%ProgramFiles%\Google\Chrome\Application\chrome.exe"
+:: 取得右側螢幕寬度，若失敗預設 1920
+for /f %%W in ('powershell -NoProfile -Command "(Get-DisplayResolution).Width"') do set "SCREEN_WIDTH=%%W"
+if not defined SCREEN_WIDTH set "SCREEN_WIDTH=1920"
+:: Edge 備援路徑
+set "EDGE=%ProgramFiles%\Microsoft\Edge\Application\msedge.exe"
 
 echo Checking TianSu website on localhost:8888...
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$listener = Get-NetTCPConnection -LocalPort 8888 -State Listen -ErrorAction SilentlyContinue; if ($listener) { exit 0 } else { exit 1 }"
@@ -26,14 +31,19 @@ if errorlevel 1 (
 )
 
 if not exist "%CHROME%" (
-  echo Google Chrome was not found at:
-  echo %CHROME%
-  echo Please install Google Chrome or update this file with the correct chrome.exe path.
-  pause
-  exit /b 1
+  if exist "%EDGE%" (
+    echo Chrome not found, using Edge as fallback.
+    set "BROWSER=%EDGE%"
+  ) else (
+    echo Neither Chrome nor Edge found. Please install a browser.
+    exit /b 1
+  )
+) else (
+  set "BROWSER=%CHROME%"
 )
 
-echo Opening %URL% in a new Google Chrome window on the right monitor...
-start "" "%CHROME%" --new-window --start-maximized --window-position=1920,0 "%URL%"
+
+echo Opening %URL% in a new browser window on the right monitor...
+start "" "%BROWSER%" --new-window --start-maximized --window-position=%SCREEN_WIDTH%,0 "%URL%"
 
 endlocal

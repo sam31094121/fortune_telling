@@ -121,7 +121,31 @@ import { stripComments } from './helpers/strip-comments.mjs';
   );
 }
 
+/* ── 四、資料庫那一側也不得加底數 ─────────────────────────────── */
+{
+  // 2026-09-14 發現：Supabase 遷移把 seed_count 寫死 1010128，讀取 API 還依時間自動加。
+  // 程式碼常數歸零後，接上資料庫就會把假底數從另一側加回來。
+  const route = stripComments(fs.readFileSync('app/api/visitor/record/route.ts', 'utf8'));
+  assert.doesNotMatch(route, /seed_?count/i, '讀取 API 不得把資料庫的 seed_count 算進顯示數');
+  assert.doesNotMatch(route, /AUTO_INCREMENT|elapsedMs|elapsedDisplayCount/, '讀取 API 不得依經過時間自動加數');
+  assert.doesNotMatch(route, /display_count/, '顯示數只能取 real_count');
+
+  const migrations = fs.readdirSync('supabase/migrations').filter((name) => name.endsWith('.sql')).sort();
+  const latest = migrations.filter((name) => fs.readFileSync(`supabase/migrations/${name}`, 'utf8').includes('record_visitor_visit')).at(-1);
+  assert.ok(latest, '要找得到計數函式的遷移');
+  const sql = fs.readFileSync(`supabase/migrations/${latest}`, 'utf8');
+  assert.doesNotMatch(sql, /1010128|1011500/, `${latest} 仍帶有憑空的底數`);
+  assert.match(sql, /values \(requested_feature_key, 1, 0\)/, '計數函式寫入的底數必須是 0');
+  assert.doesNotMatch(sql, /seed_count \+/, '計數函式的顯示數不得加上底數');
+  const zeroSeed = migrations.findLast((name) => /check \(seed_count = 0\)/.test(fs.readFileSync(`supabase/migrations/${name}`, 'utf8')));
+  assert.ok(zeroSeed, '資料庫要有一支遷移強制底數為 0');
+  const laterSeed = migrations.slice(migrations.indexOf(zeroSeed) + 1)
+    .filter((name) => /seed_count[^\n]*(default|check)[^\n]*[1-9]/i.test(fs.readFileSync(`supabase/migrations/${name}`, 'utf8')));
+  assert.deepEqual(laterSeed, [], '強制底數為 0 之後，不得再有遷移把底數改回非 0');
+}
+
 console.log('PASS: 程式碼裡沒有憑空的計數底數');
+console.log('PASS: 資料庫遷移與讀取 API 不加底數、不依時間自動長大');
 console.log('PASS: 前端不會自己讓瀏覽數長大');
 console.log('PASS: 伺服器端不會自己長大，彙總欄位不凌駕真實紀錄');
 console.log('PASS: 存起來的數字不超過真實紀錄');

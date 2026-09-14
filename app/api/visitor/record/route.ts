@@ -4,7 +4,6 @@ import { randomUUID } from 'node:crypto';
 import { readLocalVisitorCount, recordLocalVisitorVisit } from '@/lib/local-visitor-counter';
 import {
   VISITOR_MIN_DISPLAY_COUNT,
-  VISITOR_SEED_COUNT,
   getVisitorSupabaseClient,
   isFeatureKey,
 } from '@/lib/visitor-counter';
@@ -14,17 +13,13 @@ export const revalidate = 0;
 
 type VisitorCounterRow = {
   feature_key: string;
-  display_count: number;
+  real_count: number | string | null;
 };
 
 type VisitorCounterTableRow = {
   feature_key: string;
   real_count: number | string | null;
-  seed_count: number | string | null;
-  updated_at: string | null;
 };
-
-const DISPLAY_AUTO_INCREMENT_INTERVAL_MS = 18_000;
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -59,7 +54,7 @@ export async function GET(request: Request) {
 
   const { data, error } = await supabase
     .from('visitor_counters')
-    .select('feature_key, real_count, seed_count, updated_at')
+    .select('feature_key, real_count')
     .eq('feature_key', featureKey)
     .maybeSingle<VisitorCounterTableRow>();
 
@@ -71,12 +66,8 @@ export async function GET(request: Request) {
     );
   }
 
-  const realCount = Number(data?.real_count ?? 0);
-  const seedCount = Number(data?.seed_count ?? VISITOR_SEED_COUNT);
-  const updatedAtMs = data?.updated_at ? Date.parse(data.updated_at) : Date.now();
-  const elapsedMs = Math.max(0, Date.now() - (Number.isNaN(updatedAtMs) ? Date.now() : updatedAtMs));
-  const elapsedDisplayCount = permanent ? 0 : Math.floor(elapsedMs / DISPLAY_AUTO_INCREMENT_INTERVAL_MS);
-  const displayCount = Math.max(seedCount + realCount + elapsedDisplayCount, VISITOR_MIN_DISPLAY_COUNT);
+  // 只顯示真實造訪數：不加資料庫裡的底數，也不依經過時間自己長大。
+  const displayCount = Math.max(Number(data?.real_count ?? 0), VISITOR_MIN_DISPLAY_COUNT);
 
   if (!Number.isSafeInteger(displayCount)) {
     return NextResponse.json(
@@ -131,7 +122,7 @@ export async function POST(request: Request) {
   });
 
   const row = Array.isArray(data) ? (data[0] as VisitorCounterRow | undefined) : undefined;
-  if (error || !row || !Number.isSafeInteger(Number(row.display_count))) {
+  if (error || !row || !Number.isSafeInteger(Number(row.real_count))) {
     console.error('[visitor-counter] record failed', error?.message ?? 'No counter row returned');
     return NextResponse.json(
       { ok: false, message: '瀏覽計數暫時無法保存。' },
@@ -143,7 +134,7 @@ export async function POST(request: Request) {
     {
       ok: true,
       featureKey: row.feature_key,
-      displayCount: Math.max(Number(row.display_count), VISITOR_MIN_DISPLAY_COUNT),
+      displayCount: Math.max(Number(row.real_count), VISITOR_MIN_DISPLAY_COUNT),
       storage: 'supabase',
     },
     { headers: { 'Cache-Control': 'no-store' } },
