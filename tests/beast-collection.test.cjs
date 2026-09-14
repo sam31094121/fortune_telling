@@ -153,9 +153,9 @@ async function main() {
     check(`${n} staked copies / ${winner}: exact counts, no duplicate settlement, honest customer receipt`, () => {
       assert.equal(settled.receipt.stakedCount,n);
       assert.equal(settled.receipt.lostCount,winner==='OPPONENT'?n:0);
-      assert.equal(settled.receipt.gainedCount,winner==='PLAYER'?1:0);
+      assert.equal(settled.receipt.gainedCount,winner==='PLAYER'?n:0,'輸少贏多：贏了至少得回押注張數');
       assert.equal(settled.receipt.beforeTotal,6);
-      assert.equal(settled.receipt.total,6+(winner==='PLAYER'?1:winner==='OPPONENT'?-n:0));
+      assert.equal(settled.receipt.total,6+(winner==='PLAYER'?n:winner==='OPPONENT'?-n:0));
       const again=ledger.settleCard(settled.collection,reserved.pending.id,out,'later');
       assert.equal(again.duplicate,true); assert.equal(again.receipt,settled.receipt);
       const named=h.load('lib/beast-stake-presentation.ts').namedStakeOutcome(out,id=>id===a?'角木蛟':id===y?'角木蛟・幼子':'亢金龍');
@@ -168,8 +168,8 @@ async function main() {
         assert.match(text,new RegExp(`本場押注卡已扣除 ${n} 張`));
       }
       if(winner==='PLAYER') {
-        assert.match(text,/獲得 ＋1 張/);
-        assert.match(text,new RegExp(`原本 ${n} 張保留＋獎勵 1 張，本場共 ${n+1} 張`));
+        assert.match(text,new RegExp(`獲得 ＋${n} 張`),'輸少贏多：押幾張，贏了至少獲得幾張');
+        assert.match(text,new RegExp(`原本 ${n} 張保留＋獎勵 ${n} 張，本場共 ${n*2} 張`));
         assert.ok(entries.every(entry => settled.collection.cards.some(card => card.id === entry.id)));
         assert.equal(settled.collection.pending, null);
       }

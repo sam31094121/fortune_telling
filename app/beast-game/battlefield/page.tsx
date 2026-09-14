@@ -49,7 +49,7 @@ import { BATTLEFIELD_DECK_SIZE, buildFreshOpeningDeck, buildUniqueDeck, sanitize
 import { useCombatPlayback } from '@/components/battlefield/useCombatPlayback';
 import { judgeVictorySkill } from '@/lib/beast-game/iching-judgment';
 import { distributeRewardCards } from '@/lib/beast-game/reward-distribution';
-import { MAX_REWARD_CARDS, MAX_STAKE_CARDS } from '@/lib/beast-game/stake-rules';
+import { MAX_REWARD_CARDS, MAX_STAKE_CARDS, stakeRewardCount } from '@/lib/beast-game/stake-rules';
 
 /** 一副牌的張數。六十張是卡池，不是一副牌全部上桌。 */
 const SAVED_DECK_KEY = 'taiji-beast-battlefield-deck-v1';
@@ -90,7 +90,7 @@ export default function BattlefieldPage() {
   const [deckEditorOpen, setDeckEditorOpen] = useState(false);
   const replayPreferences = useRef<{ active: string | null; bench: Array<string | null>; stakes: string[] } | null>(null);
   const previousOpening = useRef<{ player: string[]; opponent: string[] }>({ player: [], opponent: [] });
-  /** 正式戰固定押五張收藏紀錄；每個 id 都是可追溯的實際卡片副本。 */
+  /** 正式戰押 1～20 張收藏紀錄；每個 id 都是可追溯的實際卡片副本。 */
   const [stakeCardIds, setStakeCardIds] = useState<string[]>([]);
   const [ownedStake, setOwnedStake] = useState<StakeCard[]>([]);
   const [settlement, setSettlement] = useState<Settlement | null>(null);
@@ -238,7 +238,7 @@ export default function BattlefieldPage() {
           retained++;
         }
       });
-      setMovement(`已沿用本次抽到的 ${retained} 張陣容；其餘請補選。押卡偏好保留 ${retainedStakes.length}/5 張，請重新確認。`);
+      setMovement(`已沿用本次抽到的 ${retained} 張陣容；其餘請補選。押卡偏好保留 ${retainedStakes.length}/${MAX_STAKE_CARDS} 張，請重新確認。`);
       if (available.storageError) setStakeError(available.storageError);
     }
     setState(prepared);
@@ -384,14 +384,15 @@ export default function BattlefieldPage() {
     });
     // 易經判斷技術等級：只有玩家贏了才觸發，技術越高獎勵越多。
     const judgment = base.verdict === 'WON' ? judgeVictorySkill(match) : null;
+    const rewardCount = judgment ? stakeRewardCount(stakeCardIds.length, judgment.bonusCards) : 0;
     const outcome: StakeOutcome = judgment
-      ? { ...base, gainedCount: Math.min(MAX_REWARD_CARDS, judgment.bonusCards), rewardCardIds: distributeRewardCards(opponentStake, Math.min(MAX_REWARD_CARDS, judgment.bonusCards)), ichingJudgment: judgment }
+      ? { ...base, gainedCount: rewardCount, rewardCardIds: distributeRewardCards(opponentStake, rewardCount), ichingJudgment: judgment }
       : base;
     const pending = pendingBattle.current;
     pendingBattle.current = null;
     setOutcome(outcome);
     pending.resolve({ ok: true, stake: outcome });
-  }, [match, battleStake]);
+  }, [match, battleStake, stakeCardIds.length]);
 
   const retrySettlement = async () => {
     if (!settlement || !outcome || settling) return;
@@ -551,7 +552,7 @@ export default function BattlefieldPage() {
                       <ol>
                         <li><strong>點一次就完成佈陣</strong><p>第一張直接成為主戰，接著依序補入後備，不必重複點擊。</p></li>
                         <li><strong>陣容滿了再精準換位</strong><p>點已上場的卡即可選位置調整；查看能力不會出招。</p></li>
-                        <li><strong>選滿五張才開戰</strong><p>{isTrial ? '本場免押注，不發卡、不沒收。' : '贏了押注卡全保留，易經判斷再賠你 5～20 張；輸了扣除押入的五張。'}</p></li>
+                        <li><strong>押 1～{MAX_STAKE_CARDS} 張就能開戰</strong><p>{isTrial ? '本場免押注，不發卡、不沒收。' : `輸少贏多：贏了押注卡全保留，至少再得同樣張數，打得越漂亮越多，最多 ${MAX_REWARD_CARDS} 張；輸了只扣本場押注。`}</p></li>
                         <li><strong>每回合選一個動作</strong><p>普通攻擊、技能，或換上後備。按「說明」查看技能內容；它不會消耗回合。</p></li>
                       </ol>
                       <button type="button" className={styles.restart} onClick={() => reviewStep(guidance.currentStep)}>回到目前步驟</button>
@@ -579,7 +580,7 @@ export default function BattlefieldPage() {
                     startButtonText={isTrial ? '開始體驗戰' : `確認開戰`}
                     onStart={() => void start()}
                     blockReason={!startCheck.ready && 'reason' in startCheck ? startCheck.reason : undefined}
-                    riskNotice={state.player.active ? `${placed < opponentPlaced ? `你 ${placed} 隻、對手 ${opponentPlaced} 隻，可補後備。` : ''}${!isTrial && stakeCardIds.length ? `本場選押 ${stakeCardIds.length}/5 張。勝另得 5～20 張；負扣本場五張。` : ''}` : undefined}
+                    riskNotice={state.player.active ? `${placed < opponentPlaced ? `你 ${placed} 隻、對手 ${opponentPlaced} 隻，可補後備。` : ''}${!isTrial && stakeCardIds.length ? `本場押 ${stakeCardIds.length} 張：輸了只失去這 ${stakeCardIds.length} 張；贏了至少再得 ${stakeCardIds.length} 張，最多 ${MAX_REWARD_CARDS} 張。` : ''}` : undefined}
                   />
                 </div>
               ) : match?.status === 'FINISHED' && !playing && !inspection ? (

@@ -12,6 +12,7 @@ import { playSeries } from '@/lib/beast-game/series';
 import { seriesFusionMaterial } from '@/lib/beast-game/series';
 import { judgeSeriesVictorySkill } from '@/lib/beast-game/iching-judgment';
 import { distributeRewardCards } from '@/lib/beast-game/reward-distribution';
+import { stakeRewardCount } from '@/lib/beast-game/stake-rules';
 import {
   DECK_SIZE,
   LINEUP_SLOTS,
@@ -156,6 +157,7 @@ export async function POST(request: Request) {
     winner: series.winner,
   });
   const judgment = stakeOutcome.verdict === 'WON' ? judgeSeriesVictorySkill({ series, turns: series.pairs.length }) : null;
+  const rewardCount = judgment ? stakeRewardCount(1, judgment.bonusCards) : 0;
   const nameOf = (id: string) => playableCards().find((c) => c.id === id)?.name ?? id;
 
   return NextResponse.json({
@@ -167,7 +169,7 @@ export async function POST(request: Request) {
     */
     stake: {
       ...stakeOutcome,
-      ...(judgment ? { gainedCount: judgment.bonusCards, rewardCardIds: distributeRewardCards(stakeOutcome.stakes.opponent, judgment.bonusCards), ichingJudgment: judgment } : {}),
+      ...(judgment ? { gainedCount: rewardCount, rewardCardIds: distributeRewardCards(stakeOutcome.stakes.opponent, rewardCount), ichingJudgment: judgment } : {}),
       playerStakeName: nameOf(stakeOutcome.stakes.player),
       opponentStakeName: nameOf(stakeOutcome.stakes.opponent),
       gainedCardName: stakeOutcome.gainedCardId ? nameOf(stakeOutcome.gainedCardId) : null,

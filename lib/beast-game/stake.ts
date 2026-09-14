@@ -109,23 +109,19 @@ export function describeStakeRisk(stakeCardName: string | null, mode: 'SINGLE' |
   headline: string;
   detail: string;
 } {
-  const rewardRange = mode === 'SINGLE' ? '1～4 張' : '5～20 張';
-  const lossNote = mode === 'SINGLE' ? '押注卡沒收' : '押注卡沒收五張';
+  // 輸少贏多：贏得張數不少於押注張數，技術越好越多（上限與算法在 stake-rules.ts）。
+  const win = '贏：押注卡保留，至少再得同樣張數，打得越漂亮越多。';
   if (!stakeCardName) {
     return {
       canStart: false,
-      headline: '從持有卡片選一張押注',
-      detail: mode === 'SINGLE'
-        ? `贏：原卡保留，依本場表現共贏得 ${rewardRange}（含對手押注卡）。輸：失去 1 張押注卡。平手：退回。`
-        : `贏：得對手押注卡，易經裁定最多再得 ${rewardRange}。輸：${lossNote}。平手：退回。`,
+      headline: mode === 'SINGLE' ? '從持有卡片選一張押注' : '從持有卡片選押注卡',
+      detail: `${win}輸：只沒收押上的卡，不會多扣。平手：退回。`,
     };
   }
   return {
     canStart: true,
     headline: `你押上的是「${stakeCardName}」`,
-    detail: mode === 'SINGLE'
-      ? `贏：原卡保留，依本場表現共贏得 ${rewardRange}（含對手押注卡）。輸：失去「${stakeCardName}」1 張。平手：退回。`
-      : `贏：原卡保留，易經裁定再賠你 ${rewardRange}。輸：沒收「${stakeCardName}」五張。平手：退回。`,
+    detail: `${win}輸：只沒收押上的「${stakeCardName}」${mode === 'SINGLE' ? '1 張' : '等押注卡'}，不會多扣。平手：退回。`,
   };
 }
 

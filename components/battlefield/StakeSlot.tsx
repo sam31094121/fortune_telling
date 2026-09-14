@@ -34,7 +34,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './StakeSlot.module.css';
 import { createSoundPlayer, CLASH_FX } from '@/lib/beast-battle-fx';
-import { MAX_STAKE_CARDS, MAX_REWARD_CARDS } from '@/lib/beast-game/stake-rules';
+import { MAX_STAKE_CARDS, MAX_REWARD_CARDS, describeStakeOdds } from '@/lib/beast-game/stake-rules';
 
 export interface StakeCard {
   /** A real collection-entry id, not merely the card type. */
@@ -167,7 +167,8 @@ export default function StakeSlot({
           {picked.length ? (
             <>
               <strong>押注籌碼 {picked.length}/{MAX_STAKE_CARDS} 張</strong>
-              <span className={styles.risk}>至少押一張即可開戰。勝：原押注保留，技術獎勵最多 {MAX_REWARD_CARDS} 張；負：扣本場押注。</span>
+              <span className={styles.risk}>{describeStakeOdds(picked.length).lose}</span>
+              <span className={styles.risk}>{describeStakeOdds(picked.length).win}</span>
               <span>點卡選取或取消，開戰前不扣卡。</span>
             </>
           ) : trial ? (
@@ -178,7 +179,7 @@ export default function StakeSlot({
           ) : (
             <>
               <strong>押注籌碼 0/{MAX_STAKE_CARDS} 張</strong>
-              <span className={styles.risk}>從持有卡片選 1～{MAX_STAKE_CARDS} 張。輸了才會扣除本場押注。</span>
+              <span className={styles.risk}>從持有卡片選 1～{MAX_STAKE_CARDS} 張。輸了只失去押上的卡；贏了至少再得同樣張數，打得越漂亮越多，最多 {MAX_REWARD_CARDS} 張。</span>
             </>
           )}
         </div>
@@ -225,7 +226,7 @@ export default function StakeSlot({
               key={card.id}
               type="button"
               className={[styles.pick, selectedIds.includes(card.id) ? styles.picked : ''].filter(Boolean).join(' ')}
-              aria-label={`${selectedIds.includes(card.id) ? '取回' : '押上'}${card.name}第 ${card.copy} 張，已選 ${selectedIds.length}/5 張`}
+              aria-label={`${selectedIds.includes(card.id) ? '取回' : '押上'}${card.name}第 ${card.copy} 張，已選 ${selectedIds.length}/${MAX_STAKE_CARDS} 張`}
               aria-pressed={selectedIds.includes(card.id)}
               disabled={locked}
               onClick={() => {

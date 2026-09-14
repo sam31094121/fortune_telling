@@ -88,14 +88,14 @@ export function judgeVictorySkill(match: Match): IchingJudgment {
       hexagram: '蹇', symbol: '☶', fullName: '蹇卦・艱難克勝', tier: 2,
       bonusCards: 8,
       quote: '蹇，利西南，不利東北。',
-      verdict: '水山險阻，跌宕前進，押五贏五，公平到底。',
+      verdict: '水山險阻，跌宕前進，押多少、至少贏回多少。',
     };
   }
   return {
     hexagram: '困', symbol: '☱', fullName: '困卦・困中求勝', tier: 1,
     bonusCards: 1,
     quote: '困，亨，貞，大人吉。',
-    verdict: '澤水困境，仍舉勝旗，押五贏五，不多不少。',
+    verdict: '澤水困境，仍舉勝旗，押多少、至少贏回多少。',
   };
 }
 
@@ -147,5 +147,5 @@ export function judgeSeriesVictorySkill(duel: {
   }
   return { hexagram: '蹇', symbol: '☶', fullName: '蹇卦・艱難克勝', tier: 2,
     bonusCards: 8, quote: '蹇，利西南，不利東北。',
-    verdict: '水山險阻，跌宕前進，押一贏一，公平到底。' };
+    verdict: '水山險阻，跌宕前進，押多少、至少贏回多少。' };
 }

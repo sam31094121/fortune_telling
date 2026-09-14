@@ -68,7 +68,8 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
       <p className="mt-1 text-sm font-bold text-amber-100">{iching.fullName}</p>
       <p className="mt-1 text-xs leading-5 text-white/80">{iching.verdict}</p>
       <p className="mt-1 text-xs text-amber-300/80 italic">「{iching.quote}」</p>
-      <p className="mt-2 text-base font-black text-amber-200">易經裁定：額外獎勵 +{iching.bonusCards} 張</p>
+      <p className="mt-2 text-base font-black text-amber-200">本場獲得 {outcome.gainedCount ?? Math.max(staked, iching.bonusCards)} 張</p>
+      <p className="mt-1 text-xs text-white/75">輸少贏多：技術獎勵 {iching.bonusCards} 張、押注保底 {staked} 張，取較多的那一個，最多 100 張。</p>
     </div>}
     {summary && <dl className="mt-3 grid grid-cols-3 gap-2 text-center" data-stake-counts>
       {[['本場押注', summary.staked], ['贏得', summary.gained], ['輸掉', summary.lost]].map(([label, count]) =>

@@ -5,7 +5,7 @@ import {playableCards, getCard} from '@/lib/beast-game/registry';
 import {elementLesson} from '@/lib/beast-game/element-lesson';
 import {resolveStake} from '@/lib/beast-game/stake';
 import {adjudicate} from '@/lib/beast-game/adjudication';
-import {MAX_STAKE_CARDS} from '@/lib/beast-game/stake-rules';
+import {MAX_STAKE_CARDS, stakeRewardCount} from '@/lib/beast-game/stake-rules';
 import {judgeVictorySkill} from '@/lib/beast-game/iching-judgment';
 import {distributeRewardCards} from '@/lib/beast-game/reward-distribution';
 
@@ -27,8 +27,8 @@ export async function POST(request: Request) {
     const adjudication=adjudicate(match);
     const judgment=match.winner === 'player' ? judgeVictorySkill(match) : null;
     const stake=resolveStake({playerStake:cardId,opponentStake:opponent,winner:match.winner === 'player' ? 'PLAYER' : match.winner === 'opponent' ? 'OPPONENT' : 'DRAW'});
-    const gainedCount=judgment?.bonusCards ?? 0;
-    return NextResponse.json({ok:true,rounds:match.round-1,adjudication,stake:{...stake,elementLesson:{...elementLesson(cardId,opponent,match.winner!,logs),judgment},gainedCount:gainedCount||undefined, rewardCardIds:judgment ? distributeRewardCards(opponent,gainedCount) : undefined,netChange:stake.verdict==='LOST'?-entries.length:stake.verdict==='WON'?1:0,selectedEntries:entries,forfeitedEntryIds:stake.verdict==='LOST'?entries.map(e=>e.id):[],message:stake.verdict==='LOST'?`押入的 ${entries.length} 張已輸掉`:stake.verdict==='WON'?`原 ${entries.length} 張保留，技術獎勵 ${gainedCount} 張`:`原 ${entries.length} 張退回`}});
+    const gainedCount=judgment ? stakeRewardCount(entries.length, judgment.bonusCards) : 0;
+    return NextResponse.json({ok:true,rounds:match.round-1,adjudication,stake:{...stake,elementLesson:{...elementLesson(cardId,opponent,match.winner!,logs),judgment},gainedCount:gainedCount||undefined, rewardCardIds:judgment ? distributeRewardCards(opponent,gainedCount) : undefined,netChange:stake.verdict==='LOST'?-entries.length:stake.verdict==='WON'?1:0,selectedEntries:entries,forfeitedEntryIds:stake.verdict==='LOST'?entries.map(e=>e.id):[],message:stake.verdict==='LOST'?`押入的 ${entries.length} 張已輸掉`:stake.verdict==='WON'?`原 ${entries.length} 張保留，再得 ${gainedCount} 張`:`原 ${entries.length} 張退回`}});
   } catch (error) {
     return NextResponse.json({ok:false,error:error instanceof Error ? error.message : '對戰暫時無法開始。'}, {status:400});
   }

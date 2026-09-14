@@ -41,7 +41,7 @@ for(const verdict of ['WON','LOST','RETURNED']){
  const r=reserveOwnedStakes(inventory,ids,'batch'+verdict,'now');
  const outcome={verdict,stakes:{player:card,opponent:other},gainedCardId:verdict==='WON'?other:null,forfeitedCardId:verdict==='LOST'?card:null,selectedEntries:r.pending.entries,forfeitedEntryIds:verdict==='LOST'?ids:[]};
  const settled=settleCard(r,r.pending.id,outcome,'now');
- assert.equal(settled.collection.cards.length,verdict==='WON'?8:verdict==='LOST'?2:7);
+ assert.equal(settled.collection.cards.length,verdict==='WON'?7+ids.length:verdict==='LOST'?2:7,'贏了至少再得押注張數');
  assert.ok(settled.collection.cards.some(c=>c.id==='copy0'));
  assert.ok(settled.collection.cards.some(c=>c.id==='copy6'));
  assert.ok(settleCard(settled.collection,r.pending.id,outcome,'now').duplicate);
@@ -50,13 +50,13 @@ for(const verdict of ['WON','LOST','RETURNED']){
 }
 const savedPack=exportsObject.migrateCollection(pack);
 assert.equal(reserveOwnedStakes(savedPack,savedPack.cards.slice(0,5).map(c=>c.id),'pack','now').pending.entries.length,5);
-console.log('PASS: 真實收藏限定、排除試用牌、同名副本精準扣除、勝加一、平手保留、重播去重、入庫幼子可押');
+console.log('PASS: 真實收藏限定、排除試用牌、同名副本精準扣除、勝至少得回押注張數、平手保留、重播去重、入庫幼子可押');
 for(let count=1;count<=5;count++)for(const verdict of ['WON','LOST','RETURNED']){
  const chosen=ids.slice(0,count),matchId=`variable-${count}-${verdict}`;
  const reserved=reserveOwnedStakes(inventory,chosen,matchId,'now');
  const outcome={verdict,stakes:{player:card,opponent:other},gainedCardId:verdict==='WON'?other:null,forfeitedCardId:verdict==='LOST'?card:null,selectedEntries:reserved.pending.entries,forfeitedEntryIds:verdict==='LOST'?chosen:[]};
  const result=settleCard(reserved,matchId,outcome,'now');
- assert.equal(result.collection.cards.length,7+(verdict==='WON'?1:verdict==='LOST'?-count:0));
+ assert.equal(result.collection.cards.length,7+(verdict==='WON'?count:verdict==='LOST'?-count:0),'輸少贏多：押幾張輸幾張，贏了至少再得幾張');
  assert.ok(result.collection.cards.some(c=>c.id==='copy0'));
  assert.ok(settleCard(result.collection,matchId,outcome,'now').duplicate);
  assert.throws(()=>settleCard(reserved,matchId,{...outcome,selectedEntries:[]},'now'));

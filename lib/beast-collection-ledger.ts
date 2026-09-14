@@ -171,12 +171,13 @@ function settleOwnedStakes(current:BeastCollection,matchId:string,outcome:StakeO
  if(lost?(removed.length!==entries.length||entries.some((e,i)=>removed[i]!==e.id)||outcome.gainedCardId!==null):(removed.length!==0||outcome.forfeitedCardId!==null))throw new Error('沒收數量不符');
  if(won?outcome.gainedCardId!==outcome.stakes.opponent:outcome.gainedCardId!==null)throw new Error('獎勵數量不符');
  let cards=current.cards.filter(c=>!lost||!removed.includes(c.id));
- const n=won?Math.min(MAX_REWARD_CARDS,Math.max(1,outcome.gainedCount??1)):0;
+ // 輸少贏多：入庫張數至少等於本場押注張數（與 stake-rules.ts 的 stakeRewardCount 同一條規則）。
+ const n=won?Math.min(MAX_REWARD_CARDS,Math.max(entries.length,outcome.gainedCount??0)):0;
  const rewardCardIds=won&&outcome.rewardCardIds?.length===n?outcome.rewardCardIds:[...Array(n)].map(()=>outcome.gainedCardId!);
  if(won&&(!rewardCardIds.length||rewardCardIds.some(cardId=>!isBeastCardId(cardId))))throw new Error('獎勵牌池資料不完整，暫停入庫。');
  for(let i=0;i<n;i++)if(won)cards=[...cards,{id:`duel:${matchId}:${i}`,cardId:rewardCardIds[i],source:'DUEL_WIN' as const,at}];
  const receipt:CollectionReceipt={matchId,verdict:outcome.verdict,cardId:outcome.gainedCardId,total:cards.length,remaining:won?cards.filter(c=>c.cardId===outcome.gainedCardId).length:0,forfeitedEntryIds:removed,...receiptMovement(current.cards,cards,entries.length)};
- const wonNote=won?`原押注卡保留，易經判斷額外獎勵 ${n} 張`:'原押注卡退回';
+ const wonNote=won?`原押注卡保留，本場獲得 ${n} 張`:'原押注卡退回';
  const history:CollectionHistoryItem[]=lost?entries.map(e=>({at,kind:'FORFEITED',cardId:e.cardId,note:'所選押注卡，已精準沒收',remaining:cards.filter(c=>c.cardId===e.cardId).length})):[{at,kind:won?'WON':'RETURNED',cardId:outcome.gainedCardId,note:wonNote}];
  return {collection:{...current,cards,pending:null,receipts:{...current.receipts,[matchId]:receipt},history:[...history,...current.history].slice(0,60)},receipt,duplicate:false};
 }

@@ -1887,6 +1887,14 @@ npm run check:beast-clips        # 落地一支就驗一支
 
 **暴怒合體升級（已接入三卡免費戰場）**：`interactive.ts` 每回合由伺服器結算魔珠與暴怒——有相生後備時主戰出招打中對手解封 1 顆魔珠；受到的傷害（含護盾）除以 2 進位累積暴怒；用過合體兩者歸零、不再累積。暴怒合體依 `RAGE_TIERS` 升級：基礎攻＋38、雙珠解封攻＋55、迴天滅地攻＋72 並先擊碎護盾、暴怒・天地終焉攻＋96 並先擊碎護盾；一場仍只能用一次，電腦對手同一套規則。教學三步驟由 `lib/beast-game/rage-guide.ts` 計算、前端照印。守門 `npm run test:beast-rage-tiers`，加成以 `test:beast-interactive:full` 平衡閘門為準。五卡押注戰場（series）、首領反制、長按儀式、三招分開施放都還沒接，不得對客戶宣稱。
 
+## 押注獎勵：輸少贏多（2026-09-14）
+
+- 一次可押 1～20 張收藏卡；獎勵上限 100 張（`lib/beast-game/stake-rules.ts`）。
+- 輸：只沒收本場押上的卡，不多扣。平手：原卡退回。
+- 贏：押注卡保留，另得 `stakeRewardCount(押注張數, 易經技術獎勵)` 張＝兩者取大、最多 100 張。押 20 張險勝拿 20 張；打得漂亮依卦象拿 25～100 張。
+- 三個結算入口（押注戰場頁、單卡押注 API、收藏押注 API）一律呼叫同一個函式；收藏帳本入庫時再保底一次押注張數。
+- 押注前的說明一律用 `describeStakeOdds(張數)` 產生，張數跟著客戶放了幾張即時變動。守門 `npm run test:beast-stake-reward`。
+
 ## 二十三、戰鬥素材登記表（2026-09-14）
 
 登記表：`lib/beast-game/battle-assets.ts`；盤點：`npm run audit:battle-assets`（寫出 `reports/battle-assets/audit.md`）；守門：`npm run test:beast-assets`。

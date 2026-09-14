@@ -77,6 +77,7 @@
     "test:beast-guardians": "node scripts/beast-build.mjs && node tests/beast-guardians.test.mjs",
     "test:beast-fusion": "node scripts/beast-build.mjs && node tests/beast-fusion.test.mjs",
     "test:beast-assets": "node scripts/beast-build.mjs && node tests/beast-battle-assets.test.mjs",
+    "test:beast-stake-reward": "node scripts/beast-build.mjs && node tests/beast-stake-reward.test.mjs",
     "test:beast-rage-tiers": "node scripts/beast-build.mjs && node tests/beast-rage-tiers.test.mjs && node tests/beast-rage-fusion.test.cjs",
     "audit:battle-assets": "node scripts/beast-build.mjs && node scripts/audit-battle-assets.mjs",
     "test:beast-effects": "node scripts/beast-build.mjs && node tests/beast-effect-composer.test.mjs",
