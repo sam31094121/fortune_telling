@@ -1,0 +1,311 @@
+/* 合體全螢幕舞台｜分鏡時間軸｜禁止 DOM shake */
+.stage {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(56, 189, 248, 0.2), transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(251, 113, 133, 0.16), transparent 45%),
+    rgba(2, 6, 23, 0.58);
+  animation: backdropIn 260ms ease-out both;
+}
+
+.stage[data-tier='TRUE_FUSION'] .backdrop {
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(125, 211, 252, 0.26), transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(251, 191, 36, 0.18), transparent 50%),
+    rgba(2, 6, 23, 0.62);
+}
+
+.stage[data-tier='RAGE_ULTIMATE'] .backdrop {
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(251, 191, 36, 0.3), transparent 48%),
+    radial-gradient(ellipse at 50% 70%, rgba(248, 113, 113, 0.26), transparent 55%),
+    rgba(10, 0, 8, 0.7);
+}
+
+.stage[data-phase='charge'] .backdrop { filter: saturate(1.05); }
+.stage[data-phase='collision'] .backdrop { filter: contrast(1.08); }
+.stage[data-phase='finish'] .backdrop { filter: brightness(1.08); }
+
+.flash {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.32);
+  opacity: 0;
+  animation: flashOnce 480ms ease-out both;
+}
+
+.stage[data-tier='RAGE_ULTIMATE'] .flash {
+  background: rgba(253, 230, 138, 0.38);
+}
+
+.storyboard {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.beat {
+  position: absolute;
+  inset: 12% 8%;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.beat[data-on='1'] {
+  opacity: 1;
+  transform: scale(1);
+  z-index: 2;
+}
+
+.presetLayer {
+  width: min(72vw, 420px);
+  height: min(42vh, 280px);
+  border-radius: 28px;
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  background:
+    radial-gradient(circle at 40% 30%, rgba(125, 211, 252, calc(0.12 * var(--intensity, 3))), transparent 55%),
+    radial-gradient(circle at 60% 70%, rgba(251, 191, 36, calc(0.1 * var(--intensity, 3))), transparent 60%),
+    rgba(8, 16, 32, 0.35);
+  box-shadow: 0 0 calc(8px * var(--intensity, 3)) rgba(56, 189, 248, 0.25);
+  animation: presetIdle 900ms ease-in-out infinite;
+}
+
+/* evidence-named lightweight presets (local stage copy; no cross-module keyframes) */
+.presetLayer[data-evidence='cardCharge'],
+.presetLayer[data-evidence='skillCharge'],
+.presetLayer[data-evidence='orbPulse'],
+.presetLayer[data-evidence='attackReady'] {
+  animation: chargePulse calc(1.1s - var(--intensity, 3) * 0.08s) ease-in-out infinite;
+}
+
+.presetLayer[data-evidence='cardHit'],
+.presetLayer[data-evidence='rageFusionRush'],
+.presetLayer[data-evidence='impactTriple'] {
+  animation: collideKick 520ms ease-out both;
+}
+
+.presetLayer[data-evidence='taijiSpin'],
+.presetLayer[data-evidence='strikeOuterSpin'],
+.presetLayer[data-evidence='arenaTaijiField'],
+.presetLayer[data-evidence='holoSweep'] {
+  animation: fusionSpin 1.2s linear infinite;
+}
+
+.presetLayer[data-evidence='rageParticleExplode'],
+.presetLayer[data-evidence='shockwaveExpand'],
+.presetLayer[data-evidence='shockWavePulse'],
+.presetLayer[data-evidence='burstExpand'],
+.presetLayer[data-evidence='legendaryFlash'],
+.presetLayer[data-evidence='flashBurst'],
+.presetLayer[data-evidence='techHitFlash'],
+.presetLayer[data-evidence='victoryParticleExplode'] {
+  animation: finishBurst 700ms ease-out both;
+}
+
+.presetLayer[data-evidence='elementFieldBurst'],
+.presetLayer[data-evidence='waterFlow'],
+.presetLayer[data-evidence='lightningShift'],
+.presetLayer[data-evidence='taijiBolt'],
+.presetLayer[data-evidence='particleFloat'] {
+  animation: elementWash 900ms ease-in-out both;
+}
+
+.mediaLayer {
+  max-width: min(78vw, 460px);
+  max-height: min(46vh, 300px);
+  object-fit: contain;
+  border-radius: 16px;
+  filter: drop-shadow(0 0 18px rgba(125, 211, 252, 0.35));
+  animation: mediaIn 360ms ease-out both;
+}
+
+.beatTag {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(2, 6, 23, 0.55);
+  color: #e2e8f0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  max-width: 86vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.caption {
+  position: relative;
+  z-index: 3;
+  margin-top: min(34vh, 250px);
+  padding: 0.5rem 1.05rem;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, 0.35);
+  background: rgba(8, 10, 24, 0.62);
+  color: #f8fafc;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  font-size: clamp(0.85rem, 2.8vw, 1.08rem);
+  text-shadow: 0 0 14px rgba(125, 211, 252, 0.55);
+  animation: captionIn 420ms ease-out both;
+}
+
+.stage[data-tier='RAGE_ULTIMATE'] .caption {
+  border-color: rgba(251, 191, 36, 0.55);
+  color: #fef3c7;
+  text-shadow: 0 0 16px rgba(251, 191, 36, 0.65);
+}
+
+.meta {
+  position: relative;
+  z-index: 3;
+  margin-top: 10px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: rgba(226, 232, 240, 0.78);
+  font-weight: 700;
+}
+
+.timeline {
+  position: absolute;
+  left: 50%;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 10px;
+  list-style: none;
+  border-radius: 999px;
+  background: rgba(2, 6, 23, 0.45);
+  max-width: 94vw;
+  overflow-x: auto;
+}
+
+.timeline li {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 44px;
+  opacity: 0.45;
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.timeline li i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(148, 163, 184, 0.7);
+  display: block;
+}
+
+.timeline li[data-on='1'] {
+  opacity: 1;
+  color: #e0f2fe;
+}
+
+.timeline li[data-on='1'] i {
+  background: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+}
+
+.timeline li[data-phase='rage'][data-on='1'] i,
+.timeline li[data-phase='finish'][data-on='1'] i {
+  background: #fbbf24;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
+}
+
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes flashOnce {
+  0% { opacity: 0.5; }
+  40% { opacity: 0.12; }
+  100% { opacity: 0; }
+}
+
+@keyframes captionIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes presetIdle {
+  0%, 100% { transform: scale(1); opacity: 0.92; }
+  50% { transform: scale(1.02); opacity: 1; }
+}
+
+@keyframes chargePulse {
+  0%, 100% { transform: scale(0.96); box-shadow: 0 0 10px rgba(56, 189, 248, 0.25); }
+  50% { transform: scale(1.04); box-shadow: 0 0 22px rgba(56, 189, 248, 0.55); }
+}
+
+@keyframes collideKick {
+  0% { transform: scale(0.88); filter: brightness(1.4); }
+  35% { transform: scale(1.08); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+@keyframes fusionSpin {
+  from { transform: rotate(0deg) scale(1); }
+  to { transform: rotate(360deg) scale(1.02); }
+}
+
+@keyframes finishBurst {
+  0% { transform: scale(0.7); opacity: 0.2; }
+  40% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.92; }
+}
+
+@keyframes elementWash {
+  0% { filter: hue-rotate(0deg) saturate(1); transform: scale(0.95); }
+  50% { filter: hue-rotate(18deg) saturate(1.25); transform: scale(1.04); }
+  100% { filter: hue-rotate(0deg) saturate(1); transform: scale(1); }
+}
+
+@keyframes mediaIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 600px) {
+  .beat { inset: 16% 4%; }
+  .presetLayer {
+    width: min(88vw, 360px);
+    height: min(34vh, 220px);
+  }
+  .timeline { gap: 6px; padding: 6px 8px; }
+  .timeline li { min-width: 38px; font-size: 9px; }
+  .beatTag { font-size: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop, .flash, .caption, .presetLayer, .mediaLayer, .beat {
+    animation: none !important;
+    transition: opacity 120ms linear;
+  }
+  .beat[data-on='0'] { display: none; }
+  .timeline li i { box-shadow: none; }
+}

@@ -9,6 +9,7 @@ import type { interactiveCatalog, Match, Action } from '@/lib/beast-game/interac
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
 import BattleArena from './battlefield/BattleArena';
 import BattlePanel from './battlefield/BattlePanel';
+import FusionOrbHud from './battlefield/FusionOrbHud';
 import BeastBattleVoice from './BeastBattleVoice';
 import BattleCardGuide from './battlefield/BattleCardGuide';
 import BeastCardTile, { CardDetailSheet } from './battlefield/BeastCardTile';
@@ -123,6 +124,26 @@ export default function BeastTurnGame() {
               <div hidden={Boolean(inspection) || Boolean(error)}>
                 <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} onAutomatic={setAutomatic} onAction={act} />
                 <BattlePanel match={match} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
+                {/* 預覽用寶珠面板：魔珠與暴怒已由戰鬥引擎結算並顯示在戰場右欄，這裡隱藏。 */}
+                {false && match.status === 'PLAYING' && (() => {
+                  const active = match.player.team[match.player.active];
+                  const bench = match.player.team.find((f, i) => i !== match.player.active && !f.defeated) ?? null;
+                  return (
+                    <FusionOrbHud
+                      cardA={{ id: active.cardId, name: active.name, element: active.element }}
+                      cardB={bench ? { id: bench.cardId, name: bench.name, element: bench.element } : null}
+                      bothAlive={!active.defeated && Boolean(bench)}
+                      controlled={active.stunnedTurns > 0}
+                      orbs={match.player.orbs ?? 0}
+                      rage={match.player.rage ?? 0}
+                      onUltimate={() => {
+                        if (busy || playing) return;
+                        if (!legalActions(match, 'player').some((a) => a.type === 'RAGE')) return;
+                        act({ type: 'RAGE' });
+                      }}
+                    />
+                  );
+                })()}
                 {match.status === 'FINISHED' && !playing ? <>
                   <p className={styles.prepareRule} data-free-card-balance>本場押注 0 張、輸掉 0 張。免費戰鬥不發押卡獎勵；首戰贈卡另計。</p>
                   <BeastBattleVoice id={`free:${match.seed}:${account?.revision}`} text={`${match.winner === 'player' ? '恭喜獲勝！' : match.winner === 'opponent' ? '本場易經獲勝。' : '本場平手。'}可以更換陣容再挑戰。`} />

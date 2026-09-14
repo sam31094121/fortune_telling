@@ -75,7 +75,12 @@
     "test:beast-reward": "node scripts/beast-build.mjs && node tests/beast-reward-claim.test.mjs",
     "test:beast-element-concept": "node scripts/beast-build.mjs && node tests/beast-element-concept.test.mjs",
     "test:beast-guardians": "node scripts/beast-build.mjs && node tests/beast-guardians.test.mjs",
-    "test:beast-fusion": "node scripts/beast-build.mjs && node tests/beast-fusion.test.mjs"
+    "test:beast-fusion": "node scripts/beast-build.mjs && node tests/beast-fusion.test.mjs",
+    "test:beast-assets": "node scripts/beast-build.mjs && node tests/beast-battle-assets.test.mjs",
+    "test:beast-rage-tiers": "node scripts/beast-build.mjs && node tests/beast-rage-tiers.test.mjs && node tests/beast-rage-fusion.test.cjs",
+    "audit:battle-assets": "node scripts/beast-build.mjs && node scripts/audit-battle-assets.mjs",
+    "test:beast-effects": "node scripts/beast-build.mjs && node tests/beast-effect-composer.test.mjs",
+    "test:beast-presentation": "node scripts/beast-build.mjs && node tests/beast-fusion-presentation.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

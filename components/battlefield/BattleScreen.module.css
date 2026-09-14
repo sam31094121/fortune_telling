@@ -15,11 +15,14 @@
 .split {
   min-height: 0;
   display: grid;
-  /* 【黃金比例空間分配】對手卡 : 主戰場 : 控制面板 = 0.8 : 3.2 : auto
-     主戰場占 80% 視覺重點，對手卡縮小，控制面板按鈕化 */
-  grid-template-rows: minmax(0, 0.8fr) minmax(0, 3.2fr) minmax(0, auto);
+  /* 戰場 80%／按鍵卡 20%。 */
+  grid-template-rows: minmax(0, 80fr) minmax(0, 20fr);
   gap: 8px;
   padding: 8px 0;
+}
+/* 結果畫面要放再戰與回首頁，按鍵卡放寬到黃金比例 38%。橫放矮螢幕另有左右分欄。 */
+@media (min-height: 541px) {
+  .split[data-finished='true'] { grid-template-rows: minmax(0, 62fr) minmax(0, 38fr); }
 }
 .controls { min-height: 0; display: grid; grid-template-rows: 30px minmax(0, 1fr) auto; border: 1px solid #526386; border-top: 2px solid #7dd3fc; border-radius: 0 0 16px 16px; background: #101b2d; overflow: hidden; }
 .controlsHeading { display: flex; align-items: center; justify-content: space-between; padding: 0 10px; font-size: 14px; color: #c7e8fd; }
@@ -80,7 +83,6 @@
 }
 /* A compact command footer has its own row; only the hand/help pane scrolls. */
 @media (max-width: 600px) {
-  .split { grid-template-rows: minmax(0, 68fr) minmax(0, 32fr); }
   .controls[data-preparing='true'] {
     display: grid;
     overflow: hidden;
@@ -98,12 +100,6 @@
   }
   .controls[data-preparing='true'] > .footer {
     position: static;
-  }
-}
-/* Short phones still need the full four-action row visible without scrolling. */
-@media (max-width: 600px) and (max-height: 720px) {
-  .split:not([data-preparing='true']):not([data-stake-review='true']):not([data-inspecting='true']):not([data-finished='true']) {
-    grid-template-rows: minmax(0, 60fr) minmax(0, 40fr);
   }
 }
 @media (orientation: landscape) and (max-height: 540px) {
@@ -154,3 +150,19 @@
 }
 .homeLink { display: flex; align-items: center; justify-content: center; min-height: 44px; color: #cce8ff; font-size: 15px; text-decoration: underline; }
 .details a { display: flex; align-items: center; min-height: 44px; font-size: 15px; }
+
+/* SPACE-OPT-2026-09-14 */
+@media (max-width: 600px) {
+  .split { gap: 6px; }
+  .controls {
+    border-top-width: 3px;
+    border-radius: 14px 14px 16px 16px;
+  }
+  .controlScroll { padding: 8px 10px; }
+  .controlsHeading { padding: 0 12px; }
+}
+/* 矮手機：標題列縮到 24px，四顆按鈕仍完整留在 20% 按鍵卡內。 */
+@media (max-width: 600px) and (max-height: 700px) {
+  .controls:not([data-preparing='true']) { grid-template-rows: 24px minmax(0, 1fr) auto; }
+  .controlScroll { padding: 6px 10px; }
+}

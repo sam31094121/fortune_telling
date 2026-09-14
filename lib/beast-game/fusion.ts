@@ -11,6 +11,7 @@
 
 import { elementGenerates } from './elements';
 import type { BeastCard } from './schema';
+import type { BeastElement } from './elements';
 
 export const MAX_ORBS = 5;
 export const MAX_RAGE = 100;
@@ -26,6 +27,9 @@ export interface FusionBond {
   type: FusionBondType;
 }
 export type FusionCard = Pick<BeastCard, 'id' | 'name' | 'element'> & {
+  subElement?: BeastCard['element'] | null;
+  /** 規格別名：與 fusionBonds 並存；寫 id 清單時視為 PARTNER 羈絆。 */
+  fusionPartners?: readonly string[];
   fusionBonds?: readonly FusionBond[];
 };
 
@@ -78,14 +82,33 @@ function clampCount(value: number, max: number): number {
 }
 
 export function isElementCompatible(a: FusionCard, b: FusionCard): boolean {
-  return elementGenerates(a.element, b.element) || elementGenerates(b.element, a.element);
+  const aPrimaries = [a.element, a.subElement].filter(Boolean) as BeastElement[];
+  const bPrimaries = [b.element, b.subElement].filter(Boolean) as BeastElement[];
+  for (const ae of aPrimaries) {
+    for (const be of bPrimaries) {
+      if (elementGenerates(ae, be) || elementGenerates(be, ae)) return true;
+    }
+  }
+  return false;
 }
 
 /** SECRET 只是劇情關係，不開放合體；RIVAL 要暴怒到 80 才肯聯手。 */
+export function hasSpecialFusionBond(a: FusionCard, b: FusionCard): boolean {
+  return Boolean(
+    (a.fusionPartners ?? []).includes(b.id)
+    || (b.fusionPartners ?? []).includes(a.id)
+    || (a.fusionBonds ?? []).some((bond) => bond.targetId === b.id && ['PARTNER', 'BLOODLINE', 'DESTINED'].includes(bond.type))
+    || (b.fusionBonds ?? []).some((bond) => bond.targetId === a.id && ['PARTNER', 'BLOODLINE', 'DESTINED'].includes(bond.type)),
+  );
+}
+
 export function fusionBondBetween(a: FusionCard, b: FusionCard, rage: number): FusionBondType | null {
+  const partnerListed =
+    (a.fusionPartners ?? []).includes(b.id) || (b.fusionPartners ?? []).includes(a.id);
   const bonds = [
     ...(a.fusionBonds ?? []).filter((bond) => bond.targetId === b.id),
     ...(b.fusionBonds ?? []).filter((bond) => bond.targetId === a.id),
+    ...(partnerListed ? [{ targetId: b.id, type: 'PARTNER' as const }] : []),
   ];
   for (const type of ['PARTNER', 'BLOODLINE', 'DESTINED'] as const) {
     if (bonds.some((bond) => bond.type === type)) return type;
@@ -234,4 +257,22 @@ export function bossCounterOptions(
   else if (orbs >= 2 && orbs <= 4) counters.push('ORB_SEAL');
   if (tier === 'TRUE_FUSION' && (state === 'FUSING' || state === 'FUSION_ACTIVE')) counters.push('FUSION_BREAK');
   return counters.map((counter) => ({ counter, telegraphMs: BOSS_COUNTER_TELEGRAPH_MS }));
+}
+
+
+export interface FusionUltimateState {
+  sealBreakerUnlocked: boolean;
+  rageQuakeUnlocked: boolean;
+  heavenEarthUnlocked: boolean;
+  rageWorldEndUnlocked: boolean;
+}
+
+export function resolveUltimateState(tier: FusionTier): FusionUltimateState {
+  const trueFusion = tier === 'TRUE_FUSION' || tier === 'RAGE_ULTIMATE';
+  return {
+    sealBreakerUnlocked: trueFusion,
+    rageQuakeUnlocked: trueFusion,
+    heavenEarthUnlocked: trueFusion,
+    rageWorldEndUnlocked: tier === 'RAGE_ULTIMATE',
+  };
 }

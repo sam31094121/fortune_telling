@@ -21,17 +21,17 @@ const SoundEnhancer = memo(function SoundEnhancer({ match, streak, isNewRecord }
         // 根據連勝等級播放不同的音效
         if (isNewRecord) {
           // 傳奇音效：低音轟鳴 + 電擊
-          const audio = new Audio('/audio/beast/legendary-streak.ogg');
+          const audio = new Audio('/audio/taiji/peals-of-thunder.mp3');
           audio.volume = 0.6;
           await audio.play().catch(() => {});
         } else if (streak >= 6) {
           // 史詩音效：重鼓 + 金屬音
-          const audio = new Audio('/audio/beast/epic-streak.ogg');
+          const audio = new Audio('/audio/taiji/loud-thunder.mp3');
           audio.volume = 0.5;
           await audio.play().catch(() => {});
         } else if (streak >= 3) {
           // 罕見音效：歡呼
-          const audio = new Audio('/audio/beast/rare-streak.ogg');
+          const audio = new Audio('/audio/taiji/cc0-sfx-100-v2/sfx100v2_hit_01.ogg');
           audio.volume = 0.4;
           await audio.play().catch(() => {});
         }

@@ -249,8 +249,8 @@ export const REVEAL_INTERVAL_MS = 620;
 
 /** 戰鬥結束音樂 */
 export const BATTLE_END_MUSIC = {
-  victory: '/audio/taiji/victory-fanfare.mp3',
-  defeat: '/audio/taiji/defeat-fanfare.mp3',
+  victory: '/audio/taiji/peals-of-thunder.mp3',
+  defeat: '/audio/taiji/dry-thunder.mp3',
 } as const;
 
 /** 播放勝利音樂 */
@@ -421,4 +421,25 @@ export function playBeastRage(
   ];
   const timers = cues.map(cue => cue.at === 0 ? (play(cue.src,cue.volume,cue.rate),0) : window.setTimeout(() => play(cue.src,cue.volume,cue.rate), cue.at));
   return () => timers.forEach(id => { if(id) window.clearTimeout(id); });
+}
+
+
+/** 依 EffectComposer 結果播放媒體音效（前端只演、不重算）。 */
+export function playComposedBattleAssets(
+  play: (src: string, volume?: number, rate?: number) => void,
+  assets: ReadonlyArray<{ kind: string; type: string; path: string; intensity: number }>,
+): () => void {
+  if (typeof window === 'undefined') return () => {};
+  const AUDIO = new Set(['OGG', 'MP3', 'FLAC', 'M4A']);
+  const timers: number[] = [];
+  let i = 0;
+  for (const asset of assets) {
+    if (asset.kind !== 'MEDIA' || !AUDIO.has(asset.type)) continue;
+    const at = i * 160;
+    const volume = Math.min(0.72, 0.28 + asset.intensity * 0.08);
+    const id = window.setTimeout(() => play(asset.path, volume, 1), at);
+    timers.push(id);
+    i += 1;
+  }
+  return () => timers.forEach((id) => window.clearTimeout(id));
 }

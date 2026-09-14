@@ -84,6 +84,8 @@ export {
   rageStage,
   canTransitionFusion,
   transitionFusion,
+  resolveUltimateState,
+  hasSpecialFusionBond,
   bossCounterOptions,
 } from './fusion';
 export type {
@@ -95,5 +97,50 @@ export type {
   RageStage,
   FusionEvaluation,
   FusionBlocker,
+  FusionUltimateState,
   BossCounterOption,
 } from './fusion';
+
+export {
+  createFusionSession,
+  gainOrbs,
+  gainRage,
+  setFusionPair,
+  evaluateSession,
+  buildFusionHudModel,
+  beginFusionRitual,
+  castUltimate,
+  tickFusionCooldown,
+} from './fusion-session';
+export type { FusionSession, FusionHudModel } from './fusion-session';
+
+
+export {
+  BATTLE_ASSET_CATEGORIES,
+  BATTLE_ASSET_CATEGORY_LABEL,
+  MOBILE_BUDGET_BYTES,
+  PRELOAD_MAX_BYTES,
+  registerBattleAsset,
+  getBattleAsset,
+  battleAssets,
+  assetsInCategory,
+} from './battle-assets';
+export type { BattleAsset, BattleAssetCategory, BattleAssetType } from './battle-assets';
+
+export {
+  EFFECT_PICK_MIN,
+  EFFECT_PICK_MAX,
+  composeBattleEffects,
+  composeBattleEffectIds,
+} from './effect-composer';
+export type { EffectComposeInput, EffectComposeResult } from './effect-composer';
+
+export {
+  planFusionPresentation,
+  planTierPresentation,
+  audioCuesFromPlan,
+  presetAssetsFromPlan,
+  shouldShowRageStage,
+  ritualAudioTimeline,
+} from './fusion-presentation';
+export type { FusionPresentationPlan, RitualAudioBeat } from './fusion-presentation';

@@ -4,7 +4,20 @@ import { instantiate } from './battle';
 import { effectiveStat, resolveEffects, type BeastInstance, type EffectSpec, type EffectLogEntry } from './effects';
 import { createRng } from './turn';
 import { elementGenerates, type BeastElement } from './elements';
+import { MAX_ORBS, MAX_RAGE, resolveFusionTier, type FusionTier } from './fusion';
 export const RAGE_ATTACK_BONUS = 38;
+export interface RageTierInfo { tier: FusionTier; skillName: string; orbs: number; rage: number; bonus: number; breaksShield: boolean }
+/** 暴怒合體依魔珠與暴怒升級。門檻與 fusion.ts 相同；加成經 test:beast-interactive:full 平衡閘門驗證。 */
+export const RAGE_TIERS: readonly RageTierInfo[] = [
+  { tier: 'NONE', skillName: '暴怒合體', orbs: 0, rage: 0, bonus: RAGE_ATTACK_BONUS, breaksShield: false },
+  { tier: 'DUAL_UNSEAL', skillName: '雙珠解封', orbs: 2, rage: 50, bonus: 55, breaksShield: false },
+  { tier: 'TRUE_FUSION', skillName: '迴天滅地', orbs: 3, rage: 70, bonus: 72, breaksShield: true },
+  { tier: 'RAGE_ULTIMATE', skillName: '暴怒・天地終焉', orbs: 5, rage: 100, bonus: 96, breaksShield: true },
+];
+export function rageTierInfo(s: Match, side: Side): RageTierInfo {
+  const tier = resolveFusionTier(s[side].orbs ?? 0, s[side].rage ?? 0);
+  return RAGE_TIERS.find((info) => info.tier === tier) ?? RAGE_TIERS[0];
+}
 /** Only a living deployed reserve can lend energy; collections are never consulted. */
 export function rageMaterialFor(s:Match, side:Side) {
   const t=s[side], active=t.team[t.active];
@@ -19,7 +32,7 @@ export function rageUnavailableReason(s:Match, side:Side):string|null {
   return rageMaterialFor(s,side)?null:'需要相生後備';
 }
 
-export const INTERACTIVE_VERSION = 'turn-based-1.1.0';
+export const INTERACTIVE_VERSION = 'turn-based-1.2.0';
 /** 一隊最多幾隻＝戰場的主戰一格＋後備五格。 */
 export const MAX_TEAM = 6;
 export type Role = '主攻' | '守護' | '控制' | '輔助' | '反擊' | '速度';
@@ -58,10 +71,12 @@ export interface CombatChange {
   side: Side; cardId: string;
   hpBefore: number; hpAfter: number; shieldBefore: number; shieldAfter: number;
 }
+/** orbs／rage 缺值（舊存檔）一律視為 0。 */
+export interface MatchSide { team:Fighter[]; active:number; energy:number; rageAvailable?:number; orbs?:number; rage?:number }
 export interface Match {
   version:string; seed:number; round:number; revision:number; status:'PLAYING'|'FINISHED'; winner:Side|'DRAW'|null;
-  player:{team:Fighter[];active:number;energy:number;rageAvailable?:number}; opponent:{team:Fighter[];active:number;energy:number;rageAvailable?:number};
-  log:Array<{side:Side;cardId:string;text:string;changes?:CombatChange[];action?:Action['type']|'REPLACEMENT'|'SKIP'}>;
+  player:MatchSide; opponent:MatchSide;
+  log:Array<{side:Side;cardId:string;text:string;changes?:CombatChange[];action?:Action['type']|'REPLACEMENT'|'SKIP';fusionTier?:FusionTier;orbGained?:boolean}>;
   history:Array<{revision:number;player:Action;opponent:Action}>;
 }
 function fighter(id:string):Fighter {
@@ -83,7 +98,7 @@ export function newMatch(ids:string[],foes:string[],seed:number):Match {
   */
   for(const team of [ids,foes]) if(team.length<1||team.length>MAX_TEAM||new Set(team).size!==team.length||team.some(id=>!getCard(id))) throw new Error(`請選 1–${MAX_TEAM} 張不重複的神獸。`);
   return {version:INTERACTIVE_VERSION,seed,round:1,revision:0,status:'PLAYING',winner:null,
-    player:{team:ids.map(fighter),active:0,energy:2,rageAvailable:1},opponent:{team:foes.map(fighter),active:0,energy:2,rageAvailable:1},log:[],history:[]};
+    player:{team:ids.map(fighter),active:0,energy:2,rageAvailable:1,orbs:0,rage:0},opponent:{team:foes.map(fighter),active:0,energy:2,rageAvailable:1,orbs:0,rage:0},log:[],history:[]};
 }
 export function legalActions(s:Match,side:Side):Action[] {
   if(s.status!=='PLAYING')return [];
@@ -153,20 +168,25 @@ export function advance(previous:Match,playerAction:Action,opponentAction:Action
     if(f.stunnedTurns>0){f.stunnedTurns--;consumeStatus();s.log.push({side,cardId:f.cardId,action:'SKIP',text:'受到控制，本次不能行動。'});continue;}
     const material=action.type==='RAGE'?rageMaterialFor(s,side):null;
     if(action.type==='RAGE'&&!material)throw new Error('暴怒合體缺少存活的相生後備。');
-    const effects=action.type==='SKILL'?p.effects:[{type:'DAMAGE',value:action.type==='RAGE'?RAGE_ATTACK_BONUS:0,target:'ENEMY'} as EffectSpec];
-    if(action.type==='RAGE')t.rageAvailable=0;
+    const rageTier=action.type==='RAGE'?rageTierInfo(s,side):null;
+    const effects=action.type==='SKILL'?p.effects:[{type:'DAMAGE',value:rageTier?rageTier.bonus:0,target:'ENEMY'} as EffectSpec];
+    if(rageTier){t.rageAvailable=0;t.orbs=0;t.rage=0;}
     if(action.type==='SKILL'){t.energy-=p.cost;f.cooldown=3;if(p.role==='反擊')f.counter=true;}
     const before=enemy.hp+enemy.shield;
     const snapshots = [{ side, fighter: f }, { side: foe, fighter: enemy }].map(({ side, fighter }) => ({
       side, fighter, hpBefore: fighter.hp, shieldBefore: fighter.shield,
     }));
+    if(rageTier?.breaksShield&&enemy.shield>0){logs.push({type:'DAMAGE',sourceName:f.name,targetName:enemy.name,applied:0,detail:`破封斬：擊碎護盾 ${enemy.shield}`});enemy.shield=0;}
     for(const effect of effects)resolveEffects([effect],{source:f,target:effect.target==='SELF'?f:enemy,baseAttack:effectiveStat(f,'attack'),side:{draw:()=>0,discard:()=>0},log:logs});
     f.shield=Math.min(70,f.shield);
     if(enemy.counter&&enemy.hp+enemy.shield<before&&!enemy.defeated){enemy.counter=false;f.hp=Math.max(0,f.hp-24);f.defeated=f.hp===0;logs.push({type:'DAMAGE',sourceName:enemy.name,targetName:f.name,applied:24,detail:'迎擊反擊 24 點'});}
-    s.log.push({side,cardId:f.cardId,action:action.type,text:`${f.name}・${action.type==='SKILL'?p.skillName:action.type==='RAGE'?`暴怒合體・${material?.name}`:'普通攻擊'}：${logs.map(l=>l.detail).join('；')}`,
+    s.log.push({side,cardId:f.cardId,action:action.type,...(rageTier?{fusionTier:rageTier.tier}:{}),text:`${f.name}・${action.type==='SKILL'?p.skillName:rageTier?`暴怒合體${rageTier.tier==='NONE'?'':`・${rageTier.skillName}`}・${material?.name}`:'普通攻擊'}：${logs.map(l=>l.detail).join('；')}`,
       changes: snapshots.map(({ side, fighter, hpBefore, shieldBefore }) => ({ side, cardId: fighter.cardId,
         hpBefore, hpAfter: fighter.hp, shieldBefore, shieldAfter: fighter.shield })),
     });
+    // 有相生後備時出招打中對手才解封魔珠；受到的傷害（含護盾）一半化為暴怒。用過合體就不再累積。
+    if(!rageTier&&before>enemy.hp+enemy.shield&&t.rageAvailable===1&&rageMaterialFor(s,side)){t.orbs=Math.min(MAX_ORBS,(t.orbs??0)+1);s.log[s.log.length-1].orbGained=true;}
+    for(const snap of snapshots){const lost=snap.hpBefore+snap.shieldBefore-(snap.fighter.hp+snap.fighter.shield);const hurt=s[snap.side];if(lost>0&&hurt.rageAvailable===1)hurt.rage=Math.min(MAX_RAGE,(hurt.rage??0)+Math.ceil(lost/2));}
     consumeStatus();
   }
   // End of a complete round, both parties use identical resource rules.

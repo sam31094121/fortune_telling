@@ -33,7 +33,7 @@ if not exist "%CHROME%" (
   exit /b 1
 )
 
-echo Opening %URL% in a new Google Chrome window...
-start "" "%CHROME%" --new-window --start-maximized "%URL%"
+echo Opening %URL% in a new Google Chrome window on the right monitor...
+start "" "%CHROME%" --new-window --start-maximized --window-position=1920,0 "%URL%"
 
 endlocal

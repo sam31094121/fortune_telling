@@ -1,15 +1,17 @@
 /* 戰鬥節奏控制 - 簡化版（狀態清晰切換） */
 
+/* 收進 44px 標題列正中間，不壓戰場上緣。 */
 .pace {
   position: fixed;
-  top: max(12px, env(safe-area-inset-top, 0px));
+  top: calc(env(safe-area-inset-top, 0px) + 4px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
   display: flex;
   align-items: center;
+  height: 36px;
   gap: 6px;
-  padding: 6px 8px;
+  padding: 0 4px 0 8px;
   background: rgba(20, 43, 60, 0.9);
   border: 1px solid #54718b;
   border-radius: 6px;
@@ -33,7 +35,8 @@
 /* 暫停/自動按鈕 - 清晰狀態切換 */
 .heading button {
   min-width: 50px;
-  padding: 4px 8px;
+  min-height: 28px;
+  padding: 0 8px;
   background: rgba(59, 130, 246, 0.15);
   border: 1px solid #7dd3fc;
   border-radius: 4px;
@@ -66,7 +69,7 @@
 /* 手機版 - 更小 */
 @media (max-width: 480px) {
   .pace {
-    padding: 4px 6px;
+    padding: 0 4px 0 6px;
     gap: 4px;
     font-size: 11px;
   }
@@ -77,7 +80,7 @@
 
   .heading button {
     min-width: 44px;
-    padding: 3px 6px;
+    padding: 0 6px;
     font-size: 10px;
   }
 }

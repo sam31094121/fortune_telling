@@ -42,49 +42,27 @@
 .fighterHeading { border-radius: 8px; padding: 2px; background: #061021b3; }
 .arenaHeading, .handHeading { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: #b6c8e0; }
 .arenaHeading strong { color: #ffe4a6; font-size: 14px; }
-/* 垂直戰場：雙卡是主角；保留中段足夠的出招移動空間。 */
-.fighters { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; grid-column: 2; }
-.fighter[data-fighter='opponent'] {
-  order: 1;
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding-top: 8px;
-  gap: 4px;
-  position: relative;
-  z-index: 1;
-}
-
-.fighter[data-fighter='player'] {
-  order: 2;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  position: relative;
-  z-index: 2;
-}
-.fighter[data-fighter='opponent'] .artSpace { place-items: center; flex: 1; min-height: 0; width: 100px; container-type: size; }
-.fighter[data-fighter='player'] .artSpace { place-items: center; flex: 1; min-height: 0; width: 155px; container-type: size; }
-/* 卡片下方資訊欄：HP 條 + 氣量，分開放在各自卡片正下方 */
-.arenaVital { width: 100%; display: flex; flex-direction: column; gap: 2px; align-items: stretch; }
-.fighter[data-fighter='opponent'] .arenaVital { max-width: 100px; }
-.fighter[data-fighter='player'] .arenaVital { max-width: 155px; }
+/* 中欄高度：對手 34%／出招跑道 11%／玩家 55%，34:55 為黃金比例。 */
+.fighters { position: relative; width: 100%; height: 100%; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; align-items: stretch; grid-column: 2; grid-row: 1; }
+/* 卡圖只吃剩餘高度，資訊欄獨立一列，卡片不會壓到字。 */
+.fighter { position: relative; min-height: 0; min-width: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; justify-items: center; row-gap: 6px; }
+.fighter[data-fighter='opponent'] { order: 1; flex: 0 1 34%; z-index: 1; }
+.fighter[data-fighter='player'] { order: 2; flex: 0 1 55%; z-index: 2; row-gap: 10px; }
+/* 固定四行：名字／血條／生命・氣／護盾與變化；數字出現或消失都不推動卡圖。 */
+.arenaVital { width: 100%; max-width: 184px; display: grid; grid-template-rows: 16px 8px 16px 16px; row-gap: 3px; align-items: center; text-align: center; }
+.fighter[data-fighter='opponent'] .arenaVital { max-width: 152px; }
+.vitalChanges { display: flex; justify-content: center; gap: 6px; min-width: 0; overflow: hidden; white-space: nowrap; }
 .arenaHpBar { position: relative; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.12); overflow: hidden; }
 .arenaHpBar > span { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, #f0b86d, #ffe8a1); border-radius: inherit; transition: width 260ms ease; }
 .arenaHpBar.critical > span { background: linear-gradient(90deg, #fb7185, #fda4af); }
-.arenaEnergy { font-size: 9px; color: #00e5ff; font-weight: 900; text-align: center; letter-spacing: .05em; line-height: 1.2; }
-.fighter { min-height: 0; min-width: 0; display: grid; grid-template-rows: minmax(0, 1fr); gap: 7px; }
+.arenaEnergy { color: #00e5ff; font-weight: 900; letter-spacing: .05em; }
 .fighterName { display: none; }
 .fighterName span { color: #9fc5ef; font-size: 11px; }
 
 /* 對手側卡片 - 縮小並應用黃金比例 */
 .rosterLeft {
   grid-column: 1;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -94,21 +72,84 @@
   opacity: 0.85;
 }
 
+
 .rosterRight {
   grid-column: 3;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
   padding: 8px 4px;
-  max-height: 85%;
+  /* 底部讓給相生相剋、合體進度與五顆魔珠，隊伍卡不會壓到。 */
+  max-height: calc(100% - 330px);
   overflow-y: auto;
 }
+
+/* 右欄底部：相生相剋在上，五顆帶符咒魔珠靠最右側直排。 */
+.orbColumn { grid-column: 3; grid-row: 1; align-self: end; position: relative; z-index: 3; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; min-width: 0; margin-bottom: 4px; }
+.orbColumn > details { width: 100%; margin-top: 0; }
+.orbColumn summary { justify-content: center; flex-wrap: wrap; gap: 2px; padding: 6px 4px; font-size: 10px; }
+.fusionProgress { width: 100%; display: grid; justify-items: center; gap: 2px; padding: 5px 2px; border: 1px solid rgba(251, 191, 36, 0.55); border-radius: 10px; background: rgba(40, 20, 6, 0.72); color: #fde68a; font-size: 10px; font-weight: 900; line-height: 1.15; touch-action: manipulation; }
+.fusionProgress[aria-expanded='true'] { border-color: #fbbf24; box-shadow: 0 0 10px rgba(251, 191, 36, 0.45); }
+.fusionProgress small { font-size: 10px; color: #fca5a5; font-variant-numeric: tabular-nums; }
+.fusionLights { display: flex; gap: 4px; }
+.fusionLights i { width: 7px; height: 7px; border-radius: 50%; background: rgba(148, 163, 184, 0.35); }
+.fusionLights i[data-done='true'] { background: #fbbf24; box-shadow: 0 0 6px #fbbf24; }
+.fusionProgressText { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.orbRow { display: flex; align-items: stretch; gap: 6px; }
+.rageMeter { position: relative; width: 8px; border-radius: 999px; overflow: hidden; border: 1px solid rgba(248, 113, 113, 0.45); background: rgba(15, 23, 42, 0.85); }
+.rageMeter > span { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(0deg, #b91c1c, #f97316, #fde047); transition: height 260ms ease; }
+
+/* 教學卡：點「合體進度」才打開，看完就關，不常駐壓在卡片上。 */
+.rageGuidePanel { position: absolute; z-index: 12; right: 8px; bottom: 12px; width: min(280px, calc(100% - 16px)); max-height: calc(100% - 24px); overflow-y: auto; display: grid; gap: 8px; padding: 12px; border: 1px solid rgba(251, 191, 36, 0.7); border-radius: 14px; background: rgba(12, 8, 20, 0.95); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 18px rgba(251, 191, 36, 0.25); color: #f8fafc; }
+.rageGuideHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.rageGuideHead strong { color: #fde68a; font-size: 15px; }
+.rageGuideHead button { min-width: 36px; min-height: 36px; border-radius: 50%; color: #e2e8f0; font-size: 16px; touch-action: manipulation; }
+.rageGuideHeadline { font-size: 13px; line-height: 1.5; color: #fef3c7; }
+.rageGuideSteps { display: grid; gap: 8px; }
+.rageGuideSteps li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 8px; align-items: start; }
+.rageStepMark { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; border: 1px solid rgba(148, 163, 184, 0.6); font-size: 12px; font-weight: 900; }
+.rageGuideSteps li[data-done='true'] .rageStepMark { border-color: #fbbf24; background: #fbbf24; color: #1c1206; }
+.rageGuideSteps b { margin-right: 6px; font-size: 13px; }
+.rageGuideSteps em { font-style: normal; font-size: 12px; color: #fca5a5; font-variant-numeric: tabular-nums; }
+.rageGuideSteps small { display: block; margin-top: 2px; font-size: 12px; line-height: 1.45; color: #cbd5e1; }
+.rageLadder { display: grid; gap: 4px; padding-top: 8px; border-top: 1px solid rgba(148, 163, 184, 0.3); }
+.rageLadder li { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; padding: 5px 8px; border-radius: 8px; font-size: 11px; color: #94a3b8; }
+.rageLadder li b { font-size: 13px; color: #e2e8f0; }
+.rageLadder li span { grid-column: 1; }
+.rageLadder li em { grid-row: 1 / span 2; grid-column: 2; align-self: center; font-style: normal; font-weight: 900; color: #fca5a5; }
+.rageLadder li[data-reached='true'] b { color: #fde68a; }
+.rageLadder li[data-current='true'] { background: rgba(251, 191, 36, 0.14); outline: 1px solid rgba(251, 191, 36, 0.6); }
+.orbChain { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.orbChain::before { content: ''; position: absolute; top: 12px; bottom: 12px; left: 50%; width: 2px; transform: translateX(-50%); background: linear-gradient(180deg, rgba(168, 85, 247, 0.15), rgba(168, 85, 247, 0.6), rgba(168, 85, 247, 0.15)); pointer-events: none; }
+.orbSlot { position: relative; width: 34px; height: 34px; flex: none; }
+/* 共用舞台原尺寸 68px，整體縮一半，符咒紙比例不變形。 */
+.orbSlot > .orbStage { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.5); }
+/* 戰場不開 3D 畫布：珠體用 CSS，顏色取 WaterTreasureOrb 同一份色盤；符咒紙與封印光暈沿用全站共用樣式。 */
+.orbBody {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.22) 0 7%, transparent 20%),
+    radial-gradient(circle at 60% 66%, var(--orb-glow) 0 16%, transparent 58%),
+    radial-gradient(circle at 50% 50%, var(--orb-body) 42%, #000 100%);
+  box-shadow: inset -6px -9px 14px rgba(0, 0, 0, 0.72), 0 0 10px var(--orb-glow);
+}
+.orbBody[data-open='true'] {
+  background:
+    radial-gradient(circle at 32% 26%, #fff 0 10%, transparent 26%),
+    radial-gradient(circle at 56% 60%, var(--orb-glow) 0 32%, transparent 72%),
+    radial-gradient(circle at 50% 50%, var(--orb-body) 45%, rgba(0, 0, 0, 0.55) 100%);
+  box-shadow: inset -4px -6px 10px rgba(0, 0, 0, 0.35), 0 0 16px var(--orb-glow);
+}
 .fighterName strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.artSpace { position: relative; min-height: 0; display: grid; place-items: center; container-type: size; }
+.artSpace { position: relative; width: 100%; min-height: 0; display: grid; place-items: center; container-type: size; }
 .art {
   position: relative;
-  width: min(100cqw, 75cqh, 280px);
-  height: min(100cqh, 420px);
+  width: min(100cqw, 66.667cqh, 320px);
+  height: min(100cqh, 150cqw, 480px);
   min-width: 44px;
   min-height: 44px;
   padding: 0;
@@ -123,7 +164,6 @@
     linear-gradient(135deg, rgba(13, 27, 42, 0.8) 0%, #0a1429 100%);
   touch-action: manipulation;
 }
-.fighter[data-fighter='opponent'] .art { width: min(100cqw, 75cqh, 190px); height: min(100cqh, 285px); }
 .art img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .empty { height: 100%; display: grid; place-content: center; text-align: center; color: #91a6c5; font-size: 13px; }
 .fighterVitals { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: min(100cqw, 66.666cqh, 180px); padding: 3px 6px 6px; background: linear-gradient(0deg, rgba(6,16,33,.95) 55%, rgba(6,16,33,0)); border-radius: 0 0 10px 10px; pointer-events: none; display: grid; gap: 2px; }
@@ -175,10 +215,7 @@
   .fighterIdentity { display: none; }
 }
 @media (max-width: 480px) {
-  .fighters { gap: 8px; }
   .fighter { height: auto; }
-  .fighter[data-fighter='opponent'] { gap: 6px; padding-top: 6px; }
-  .fighter[data-fighter='player'] { min-height: 0; gap: 12px; }
   .deckInfo { display: none; }
   .inspectLabel { display: none; }
   .fighterIdentity { font-size: 10px; line-height: 13px; }
@@ -436,10 +473,6 @@
   100% { opacity: 0;  transform: scale(1.45) rotate(-360deg); }
 }
 
-/* 垂直佈局：30/40/30 - fighter 內部 grid 行列 */
-.fighter { grid-template-rows: minmax(0, 1fr); gap: 0; }
-.fighter[data-fighter='opponent'] { opacity: 0.88; max-height: none; }
-.fighter[data-fighter='player'] { }
 .fighterVitals .fighterName { display: none; }
 .fighterVitals .liveChange { display: block; min-height: 15px; color: #ffe4a6; font-size: 10px; line-height: 15px; text-align: center; overflow-wrap: anywhere; font-weight: 500; }
 .arenaNote { font-size: 11px; line-height: 16px; font-weight: 400; letter-spacing: .02em; }
@@ -646,18 +679,8 @@
    垂直佈局：對手在上（較小）、玩家在下（較大且可點擊攻擊）
    ═══════════════════════════════════════════════════════════════════ */
 
-/* 對手卡：30% 區域，稍小，代表「遠在對面」 */
-.fighter[data-fighter='opponent'] .art {
-  width: min(100cqw, 68cqh, 110px);
-  height: min(94cqh, 160px);
-  opacity: 0.9;
-}
-
-/* 玩家卡：30% 區域，比對手略大，有電光邊框 */
-.fighter[data-fighter='player'] .art {
-  width: min(100cqw, 72cqh, 155px);
-  height: min(95cqh, 225px);
-}
+/* 對手卡略淡，代表「遠在對面」；尺寸由卡圖列決定。 */
+.fighter[data-fighter='opponent'] .art { opacity: 0.9; }
 
 /* 可攻擊狀態：玩家卡閃爍元素色邊框 + 輕微搖擺（戰鬥備戰） */
 .artSpace[data-attackable='true'] .art {
@@ -824,6 +847,21 @@
   transform: translateY(-50%);
   width: min(280px, calc(100% - 16px));
 }
-.liveName { display: block; color: #ecf5ff; font-size: 12px; line-height: 16px; text-align: center; overflow-wrap: anywhere; }
-.liveChange { color: #ffe4a6; font-size: 12px; line-height: 16px; text-align: center; }
-.arenaEnergy { font-size: 12px; line-height: 16px; }
+.liveName, .arenaEnergy, .liveChange { display: block; min-width: 0; font-size: 12px; line-height: 16px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.liveName { color: #ecf5ff; }
+.liveChange { color: #ffe4a6; }
+
+/* SPACE-OPT-2026-09-14 */
+@media (max-width: 600px) {
+  .arena {
+    gap: 8px;
+    padding: 10px 8px 14px;
+    grid-template-columns: minmax(72px, 0.7fr) minmax(0, 2.4fr) minmax(72px, 0.7fr);
+  }
+  .fighter[data-fighter='player'] .art {
+    filter: drop-shadow(0 10px 16px rgba(0,0,0,0.55)) drop-shadow(0 0 12px rgba(125,211,252,0.22));
+  }
+  .fighter[data-fighter='opponent'] .art {
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+  }
+}

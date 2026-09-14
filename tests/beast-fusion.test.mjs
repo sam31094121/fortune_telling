@@ -178,7 +178,7 @@ check('規則層不擲骰、不碰畫面', () => {
 check('規則寫進唯一的技能檔案', () => {
   const doc = fs.readFileSync('docs/beast-game-skill.md', 'utf8');
   assert.ok(doc.includes('封印寶珠 × 暴怒合體 V2'));
-  assert.ok(doc.includes('尚未接入對戰'), '沒接進回合結算前，不得宣稱玩家已經打得到');
+  assert.ok(doc.includes('暴怒合體升級（已接入三卡免費戰場）'), '接入範圍要寫清楚，沒接的戰場不得宣稱');
 });
 
 console.log(`\n封印寶珠 × 暴怒合體 V2 — PASS ${passed}`);

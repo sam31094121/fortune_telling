@@ -1,0 +1,15 @@
+{
+  "mediaRegistered": 11,
+  "mediaFound": 11,
+  "mediaMissingCount": 0,
+  "missing": [],
+  "presetCount": 25,
+  "presetFileMissing": [],
+  "presetKfMissing": [],
+  "consumers": [
+    "scripts/audit-battle-assets.mjs",
+    "tests/beast-battle-assets.test.mjs"
+  ],
+  "auditScriptExists": true,
+  "categorySlotsClaimed": 23
+}

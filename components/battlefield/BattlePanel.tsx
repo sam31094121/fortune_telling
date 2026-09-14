@@ -20,7 +20,7 @@
 import styles from './BattlePanel.module.css';
 import { memo, useEffect, useRef, useState } from 'react';
 import type { BattlefieldCardArt } from './GameBattlefield';
-import { ELEMENT_GENERATES, ELEMENT_LABEL, elementGenerates } from '@/lib/beast-game/elements';
+import { rageFusionGuide } from '@/lib/beast-game/rage-guide';
 import ElementOrbDisplay from './ElementOrbDisplay';
 import {
   ELEMENT_FX,
@@ -158,13 +158,7 @@ export function BattleActionBar({
     const rage = actions.find(action => action.type === 'RAGE');
     const rageReason = rageUnavailableReason(match, 'player');
     const ragePartner = rageMaterialFor(match, 'player');
-    const neededElement = (Object.keys(ELEMENT_GENERATES) as BeastElement[])
-      .find(element => ELEMENT_GENERATES[element] === active.element);
-    const alternateActive = match.player.team.find((fighter, index) =>
-      index !== match.player.active && !fighter.defeated && fighter.hp > 0 &&
-      match.player.team.some((reserve, reserveIndex) =>
-        reserveIndex !== index && !reserve.defeated && reserve.hp > 0 &&
-        elementGenerates(reserve.element as BeastElement, fighter.element as BeastElement)));
+    const fusionGuide = rageFusionGuide(match, 'player');
     const switches = actions.filter((action): action is Extract<Action, { type: 'SWITCH' }> => action.type === 'SWITCH');
     // The core's forced-replacement phase consumes neither an attack nor a round.
     // Never label that transition as a normal attack that appears to do nothing.
@@ -210,20 +204,16 @@ export function BattleActionBar({
             <small>{switches.length ? `${switches.length} 張可換` : '看後備'}</small>
           </button>
           <button type="button" className={`${styles.actionButton} ${!rage ? styles.rageUnavailable : ''}`} disabled={busy}
-            aria-label={rage && ragePartner ? `暴怒合體，${ragePartner.name}支援主戰，按一下出招` : `暴怒合體，${rageReason ?? '查看條件'}，按一下查看引導`}
+            aria-label={rage && ragePartner ? `暴怒合體・${fusionGuide.current.skillName}，${ragePartner.name}支援主戰，按一下出招` : `暴怒合體，${rageReason ?? '查看條件'}，按一下查看引導`}
             aria-expanded={!rage ? commandView === 'rage' : undefined}
             onClick={() => { if (rage) { setCommandView(null); onAction(rage); } else setCommandView(commandView === 'rage' ? null : 'rage'); }}>
-            <span aria-hidden="true">🔥</span><strong>暴怒合體</strong><small title={rage && ragePartner ? ragePartner.name : undefined}>{rage && ragePartner ? `與${ragePartner.name}` : rageReason}</small>
+            <span aria-hidden="true">🔥</span><strong>暴怒合體</strong><small title={rage && ragePartner ? `與${ragePartner.name}合體` : undefined}>{rage && ragePartner ? fusionGuide.current.skillName : rageReason}</small>
           </button>
         </div>
         <div ref={commandDetail}>
         {commandView === 'rage' && !rage && <div className={styles.rageGuide} role="status">
-          <strong>相生後備 → 主戰 → 合體</strong>
-          <span>{rageReason === '需要相生後備' && alternateActive
-            ? `先換上${alternateActive.name}作主戰，再按合體。`
-            : rageReason === '需要相生後備'
-              ? `本場沒有相生後備；下場選一張${neededElement ? ELEMENT_LABEL[neededElement] : ''}元素卡作後備。`
-              : rageReason}</span>
+          <strong>{fusionGuide.headline}</strong>
+          {fusionGuide.steps.map(step => <span key={step.key}>{step.done ? '✓' : '○'} {step.label} {step.value}：{step.hint}</span>)}
         </div>}
         {(commandView === 'swap' || active.defeated) && <>
         {!switches.length && <p className={styles.activeHint}>目前沒有可換上的後備，可使用仍可用的攻擊或技能。</p>}

@@ -4,6 +4,8 @@ import { Canvas, extend, useFrame, useLoader, type ThreeElement } from '@react-t
 import { Environment, Sparkles, shaderMaterial } from '@react-three/drei';
 import { useEffect, useMemo, useRef } from 'react';
 import { AdditiveBlending, Color, RepeatWrapping, SRGBColorSpace, TextureLoader, type Group, type Mesh, type MeshPhysicalMaterial } from 'three';
+import { DEMON_MATERIAL, ORB_MATERIAL, type ProductElement } from './elementOrbPalette';
+import { SharedElementSealPaper } from './SharedElementSealPaper';
 
 // 科技感邊緣光（Fresnel rim）：只在球體輪廓邊緣發亮，模擬「能量護罩」的視覺語言，
 // 跟寶石本體的寫實材質分開處理——一個 shader 型別，5 顆元素共用，不會因切換元素
@@ -37,43 +39,9 @@ declare module '@react-three/fiber' {
   }
 }
 
-export type ProductElement = '空' | '風' | '水' | '火' | '地';
+export type { ProductElement } from './elementOrbPalette';
 
-/**
- * 五元素共用的唯一封印符资源。
- * 以 CSS、字型與向量式輪廓即時繪製，沒有低解析點陣圖；在 1080p 以上仍保持清晰。
- * 所有使用 WaterTreasureOrb 的卡片都必須由這裡呈現封印，不可各自複製或降級替換。
- */
-function SharedElementSealPaper({ burning = false }: { burning?: boolean }) {
-  return (
-    <span className={`space-seal-paper ${burning ? 'space-seal-paper--burning' : ''}`} data-seal-resource="shared-vector-1080p-plus">
-      <span className="space-seal-paper__script">敕令</span>
-      <span className="space-seal-paper__mark">封</span>
-      {burning && <span className="space-seal-ash" aria-hidden="true">
-        {Array.from({ length: 7 }, (_, index) => <i key={index} />)}
-      </span>}
-    </span>
-  );
-}
 type WaterOrbVariant = 'crystal' | 'caustic' | 'luminous';
-
-// 客戶介面固定使用「空、風、水、火、地」，但視覺保留正統五行的比例來源。
-// 採用一組年輕的科技寶石色盤，但每一顆仍必須一眼看出元素本質：
-// 金/空=鈦金、木/風=電光帝王綠、水=電光藍、火=鴿血紅、土/地=金絲楠木琥珀。
-// 色相不是隨手選的：水藍／風綠／火紅同時對到全球最愛顏色調查前三名
-//（2024 Ipsos／YouGov：藍 37-38%、綠 22%、紅 16%）與傳統五行色（金白·木青·水黑·火赤·土黄），
-// 空／地則延續五行「金、土」的貴金屬與大地基調，走鈦金與琥珀而非死板的白／黄。
-// 兩位老師只讀這張表，不能各自改色。
-const ORB_MATERIAL: Record<ProductElement, { color: string; emissive: string; ring: string; light: string; metalness: number; roughness: number }> = {
-  // Not flat "theme colours": every base is a deep gemstone body, with a
-  // different bright vein inside it. That keeps the palette contemporary
-  // without turning the treasures into neon toy balls.
-  空: { color: '#443087', emissive: '#b4a2ff', ring: '#eee9ff', light: '#dfd8ff', metalness: 0.82, roughness: 0.1 },
-  風: { color: '#006f4d', emissive: '#00f5a0', ring: '#c6ffe1', light: '#8dffcd', metalness: 0.22, roughness: 0.09 },
-  水: { color: '#006ee6', emissive: '#00e5ff', ring: '#c2fbff', light: '#60edff', metalness: 0.1, roughness: 0.04 },
-  火: { color: '#a40039', emissive: '#ff1264', ring: '#ffd2e7', light: '#ff9fc5', metalness: 0.3, roughness: 0.055 },
-  地: { color: '#9b4b00', emissive: '#ffad12', ring: '#ffebb0', light: '#ffe198', metalness: 0.52, roughness: 0.1 },
-};
 
 const INNER_MIST: Record<ProductElement, { deep: string; pale: string }> = {
   空: { deep: '#5a33c6', pale: '#f1edff' },
@@ -105,15 +73,6 @@ const ELEMENT_VISUAL_SEMANTICS: Record<ProductElement, {
 // 質地維持共用（見 DEMON_TEXTURE），跟解封後透光發亮的水晶寶珠形成最大反差；解封瞬間才「裂開」
 // 洗白成真正鮮明的元素玻璃球材質。
 const DEMON_TEXTURE = { metalness: 0.24, roughness: 0.34, transmission: 0.12, clearcoat: 0.58, iridescence: 0 };
-// 每個元素的魔珠色相必須鎖在自己天使色（ORB_MATERIAL）的同一色系上，只降飽和度／明度、
-// 不換色相——這樣「解封」才是同一元素的洗白，而不是換了一顆完全無關的珠子。
-const DEMON_MATERIAL: Record<ProductElement, { color: string; emissive: string }> = {
-  空: { color: '#120a1c', emissive: '#5b2a86' }, // 吞噬一切的虛空黑紫（同色系：天使紫金 #b4a2ff）
-  風: { color: '#04120c', emissive: '#1f6b4a' }, // 瘴氣毒綠（同色系：天使翠綠 #00f5a0，不再跑去橄欖黃綠）
-  水: { color: '#04141a', emissive: '#0d6b62' }, // 深淵毒潭黑青（同色系：天使電光藍 #00e5ff）
-  火: { color: '#1a0410', emissive: '#7a0f3a' }, // 焦血暗紅（同色系：天使桃紅 #ff1264，不再跑去焦橙）
-  地: { color: '#140d04', emissive: '#5c3d0f' }, // 腐土黴斑黑褐（同色系：天使琥珀 #ffad12）
-};
 const DEMON_MIST: Record<ProductElement, { deep: string; pale: string }> = {
   空: { deep: '#2a1240', pale: '#5c2e82' },
   風: { deep: '#0a2418', pale: '#2f7a54' },

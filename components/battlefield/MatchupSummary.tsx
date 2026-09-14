@@ -2,7 +2,6 @@
 
 import { memo } from 'react';
 import styles from './MatchupSummary.module.css';
-import ElementOrbDisplay from './ElementOrbDisplay';
 import { describeMatchup } from '@/lib/beast-element-guide';
 import type { BeastElement } from '@/lib/beast-game/elements';
 import { ELEMENT_LABEL } from '@/lib/beast-game/elements';
@@ -36,12 +35,12 @@ const MatchupSummary = memo(function MatchupSummary({
 
         <div className={styles.matchupGrid}>
           <div className={styles.fighter}>
-            <ElementOrbDisplay element={playerElement} size="small" animated />
+            <div className={styles.element}>{ELEMENT_LABEL[playerElement]}</div>
             <div className={styles.role}>你</div>
           </div>
           <div className={styles.vs}>{icon}</div>
           <div className={styles.fighter}>
-            <ElementOrbDisplay element={opponentElement} size="small" animated />
+            <div className={styles.element}>{ELEMENT_LABEL[opponentElement]}</div>
             <div className={styles.role}>對手</div>
           </div>
         </div>

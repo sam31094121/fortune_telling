@@ -471,9 +471,10 @@
 .compactPanel { display: grid; gap: 4px; }
 .compactActions { display: grid; gap: 4px; }
 .activeHint { color: #c4ddf3; font-size: 11px; line-height: 15px; }
-.primaryActions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; order: -1; }
+.primaryActions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; order: -1; }
 .helpEntry { min-height: 44px; padding: 4px 10px; color: #bae6fd; font-size: 13px; text-decoration: underline; touch-action: manipulation; }
-.primaryActions button { min-height: 42px; padding: 4px 6px; flex-direction: column; gap: 2px; font-size: 13px; }
+.primaryActions button { min-height: 56px; padding: 6px 4px; flex-direction: column; gap: 3px; font-size: 13px; }
+.primaryActions button > span:first-child { font-size: 15px; line-height: 1; }
 .primaryActions small { font-size: 10px; font-weight: 500; }
 .primaryActions button small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rageUnavailable { background: #243449; color: #c3d0df; border-color: #526178; box-shadow: none; }
@@ -506,7 +507,7 @@
   .matchup span { font-size: 11px; }
   .skillDesc { display: none; }
   .activeHint { font-size: 11px; }
-  .primaryActions button { font-size: 13px; min-height: 40px; }
+  .primaryActions button { font-size: 13px; min-height: 52px; }
   .primaryActions small { font-size: 11px; }
   .result { font-size: 15px; }
   .result small { font-size: 10px; }

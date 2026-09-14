@@ -156,6 +156,9 @@
   color: #b8c2ca;
   text-align: center;
   font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .activeMarker {

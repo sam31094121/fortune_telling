@@ -1,12 +1,18 @@
 'use client';
 
-import { memo, useEffect, useMemo, useRef, type CSSProperties } from 'react';
+import { memo, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { rageFusionGuide } from '@/lib/beast-game/rage-guide';
+import { planTierPresentation } from '@/lib/beast-game/fusion-presentation';
+import FusionEffectStage from './FusionEffectStage';
+import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
+import { DEMON_MATERIAL, ORB_MATERIAL } from '@/components/bazi/customer/elementOrbPalette';
+import { SharedElementSealPaper } from '@/components/bazi/customer/SharedElementSealPaper';
 import { CardSlot, HandZone, type BattlefieldCardArt } from './GameBattlefield';
 import { VitalBar } from './BattlePanel';
 import { legalDestinations, type BattleState, type Destination } from '@/lib/beast-game/battlefield';
-import { legalActions, profile, type Action, type Match } from '@/lib/beast-game/interactive';
+import { legalActions, profile, RAGE_TIERS, type Action, type Match } from '@/lib/beast-game/interactive';
 import { describeMatchup } from '@/lib/beast-element-guide';
-import { ELEMENT_LABEL, elementMultiplier, type BeastElement } from '@/lib/beast-game/elements';
+import { ELEMENTS, ELEMENT_LABEL, elementMultiplier, type BeastElement } from '@/lib/beast-game/elements';
 import { elementPercent } from '@/lib/beast-game/combat-guide';
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
 import { COMBAT_BEAT_MS } from '@/lib/beast-game/combat-presentation';
@@ -21,7 +27,6 @@ import RageComboEffect from './RageComboEffect';
 import TeamRosterPanel from './TeamRosterPanel';
 
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
-
 /** Both fighters stay above the controls. All displayed combat values come from Match. */
 export default function BattleArena({ state, cards, match, onInspect, onSwap, onSkill, playing = false }: {
   playing?: boolean; cards: BattlefieldCardArt[]; onInspect: (id: string, side: 'player' | 'opponent') => void;
@@ -39,14 +44,22 @@ export default function BattleArena({ state, cards, match, onInspect, onSwap, on
   const playerStrike = Boolean(match && match.revision > 0 && isDamagingAction(match, 'player'));
   const strikeElement = playerFighter?.element as BattleElement | undefined;
   const playerAction = match ? performedAction(match, 'player') : null;
+  const guide = match ? rageFusionGuide(match, 'player') : null;
+  const [guideOpen, setGuideOpen] = useState(false);
+  const rageEntry = match?.log.find(entry => entry.side === 'player' && entry.action === 'RAGE');
+  const castTier = rageEntry?.fusionTier && rageEntry.fusionTier !== 'NONE' ? RAGE_TIERS.find(tier => tier.tier === rageEntry.fusionTier) : undefined;
+  const ultimatePlan = useMemo(() => (playing && playerAction === 'RAGE' && castTier && playerFighter
+    ? planTierPresentation({ tier: castTier.tier, element: playerFighter.element as BeastElement, cardIds: [playerFighter.cardId] })
+    : null), [playing, playerAction, castTier, playerFighter]);
 
   return (
     <section className={styles.arena} aria-label="戰鬥畫面" data-battle-visual data-playback={playing ? 'acting' : 'ready'} data-battle-revision={match?.revision} data-battle-venue="cards">
       <RageComboEffect
-        active={playing && playerAction === 'RAGE'}
+        active={playing && playerAction === 'RAGE' && !castTier}
         element={strikeElement}
         key={`rage-${match?.revision}`}
       />
+      {ultimatePlan && <FusionEffectStage key={`ultimate-${match?.revision}`} plan={ultimatePlan} caption={castTier?.skillName} />}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className={styles.backdrop} src={BATTLE_VENUES.cards.image} alt="" aria-hidden="true" decoding="async" />
       <div className="sr-only">
@@ -121,8 +134,10 @@ export default function BattleArena({ state, cards, match, onInspect, onSwap, on
                       <span style={{ width: `${hpPct}%` }} />
                     </div>
                     <span className={styles.arenaEnergy}>生命 {fighter.hp}/{fighter.maxHp}・氣 {team.energy}</span>
-                    {fighter.shield > 0 && <span className={styles.liveChange}>護盾 {fighter.shield}</span>}
-                    {change && <span className={styles.liveChange} data-combat-change>{change}</span>}
+                    <span className={styles.vitalChanges}>
+                      {fighter.shield > 0 && <span className={styles.liveChange}>護盾 {fighter.shield}</span>}
+                      {change && <span className={styles.liveChange} data-combat-change>{change}</span>}
+                    </span>
                   </div>
                 );
               })()}
@@ -145,7 +160,7 @@ export default function BattleArena({ state, cards, match, onInspect, onSwap, on
               maxHp: f.maxHp,
               defeated: f.defeated,
               element: f.element,
-              canRage: false,
+              canRage: match.status === 'PLAYING' && !guide?.used && guide?.partnerCardId === f.cardId,
             }))}
             side="player"
             activeCardId={match.player.team[match.player.active]?.cardId}
@@ -153,12 +168,78 @@ export default function BattleArena({ state, cards, match, onInspect, onSwap, on
         </div>
       )}
 
-      {/* 相生相克 - 可展開的summary面板 */}
-      {match && mine && foe && (
-        <MatchupSummary
-          playerElement={mine.element as BeastElement}
-          opponentElement={foe.element as BeastElement}
-        />
+      {/* 右欄底部：相生相剋、合體進度、暴怒條與五顆帶符咒魔珠；數字全部來自戰鬥引擎。 */}
+      {match && guide && (() => {
+        const unsealed = guide.orbs;
+        return (
+          <div className={styles.orbColumn}>
+            {mine && foe && (
+              <MatchupSummary
+                playerElement={mine.element as BeastElement}
+                opponentElement={foe.element as BeastElement}
+              />
+            )}
+            <button type="button" className={styles.fusionProgress} aria-expanded={guideOpen} data-fusion-progress
+              aria-label={`暴怒合體教學：${guide.headline}`} onClick={() => setGuideOpen(open => !open)}>
+              <span className={styles.fusionLights} aria-hidden="true">
+                {guide.steps.map(step => <i key={step.key} data-done={step.done} />)}
+              </span>
+              <span className={styles.fusionProgressText}>{guide.used ? '已合體' : guide.current.skillName}</span>
+              <small>怒 {guide.rage}</small>
+            </button>
+            <div className={styles.orbRow}>
+            <span className={styles.rageMeter} role="meter" aria-label={`暴怒 ${guide.rage}/100`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={guide.rage}>
+              <span style={{ height: `${guide.rage}%` }} />
+            </span>
+            <div className={styles.orbChain} role="img" aria-label={`魔珠 ${unsealed}/${ELEMENTS.length} 已解封`} data-seal-orbs={unsealed}>
+              {ELEMENTS.map((orbElement, index) => {
+                const open = index < unsealed;
+                const productElement = getProductOrbFromBrand(orbElement.toLowerCase() as 'space' | 'air' | 'water' | 'fire' | 'earth');
+                return (
+                  <span key={orbElement} className={styles.orbSlot} data-unsealed={open} data-orb={orbElement}
+                    title={open ? `${productElement}寶珠` : '魔珠・封印中'}>
+                    <span className={`treasure-reveal-stage ${open ? '' : 'treasure-reveal-stage--sealed'} ${styles.orbStage}`}>
+                      <span className={`water-treasure-orb water-treasure-orb--${productElement} ${open ? 'water-treasure-orb--released' : 'water-treasure-orb--sealed'}`}
+                        style={{ '--orb-body': (open ? ORB_MATERIAL : DEMON_MATERIAL)[productElement].color, '--orb-glow': (open ? ORB_MATERIAL : DEMON_MATERIAL)[productElement].emissive } as CSSProperties}>
+                        {!open && <span className="water-treasure-seal-aura" />}
+                        {!open && <SharedElementSealPaper />}
+                        <span className={styles.orbBody} data-open={open} />
+                      </span>
+                    </span>
+                  </span>
+                );
+              })}
+            </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {match && guide && guideOpen && (
+        <div className={styles.rageGuidePanel} role="dialog" aria-label="暴怒合體怎麼用" data-rage-guide>
+          <div className={styles.rageGuideHead}>
+            <strong>暴怒合體怎麼用</strong>
+            <button type="button" onClick={() => setGuideOpen(false)} aria-label="關閉教學">✕</button>
+          </div>
+          <p className={styles.rageGuideHeadline}>{guide.headline}</p>
+          <ol className={styles.rageGuideSteps}>
+            {guide.steps.map((step, index) => (
+              <li key={step.key} data-done={step.done}>
+                <span className={styles.rageStepMark} aria-hidden="true">{step.done ? '✓' : index + 1}</span>
+                <span><b>{step.label}</b><em>{step.value}</em><small>{step.hint}</small></span>
+              </li>
+            ))}
+          </ol>
+          <ul className={styles.rageLadder} aria-label="合體等級">
+            {guide.ladder.map(row => (
+              <li key={row.tier} data-current={row.current} data-reached={row.reached}>
+                <b>{row.skillName}</b>
+                <span>{row.orbs ? `${row.orbs} 顆寶珠・暴怒 ${row.rage}` : '有相生卡即可'}</span>
+                <em>攻+{row.bonus}{row.breaksShield ? '・破盾' : ''}</em>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       {match?.status === 'PLAYING' && (onSwap !== undefined || onSkill !== undefined) && (() => {
         const acts = legalActions(match, 'player');
