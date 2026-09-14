@@ -34,6 +34,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './StakeSlot.module.css';
 import { createSoundPlayer, CLASH_FX } from '@/lib/beast-battle-fx';
+import { MAX_STAKE_CARDS, MAX_REWARD_CARDS } from '@/lib/beast-game/stake-rules';
 
 export interface StakeCard {
   /** A real collection-entry id, not merely the card type. */
@@ -94,10 +95,10 @@ export default function StakeSlot({
   const choose = (card: StakeCard) => {
     const selectedNow = selectedIds.includes(card.id);
     setMovement(selectedNow
-      ? `已取回「${card.name}」1 張，目前押注 ${Math.max(0, selectedIds.length - 1)}/5 張；持有張數不變。`
-      : selectedIds.length >= 5
-        ? '已選滿五張；先點一張已選卡取回，再換另一張。'
-        : `已將「${card.name}」1 張放入押注格，目前 ${selectedIds.length + 1}/5 張。尚未扣卡。`);
+      ? `已取回「${card.name}」1 張，目前押注 ${Math.max(0, selectedIds.length - 1)}/${MAX_STAKE_CARDS} 張；持有張數不變。`
+      : selectedIds.length >= MAX_STAKE_CARDS
+        ? `已選滿${MAX_STAKE_CARDS}張；先點一張已選卡取回，再換另一張。`
+        : `已將「${card.name}」1 張放入押注格，目前 ${selectedIds.length + 1}/${MAX_STAKE_CARDS} 張。尚未扣卡。`);
     onSelect(card.id);
   };
   useEffect(() => {
@@ -109,7 +110,7 @@ export default function StakeSlot({
   }, [currentIndex, steps]);
 
   return (
-    <section className={styles.panel} data-stake-slot data-needs-stake={picked.length !== 5 && !trial} aria-label="押注">
+    <section className={styles.panel} data-stake-slot data-needs-stake={picked.length === 0 && !trial} aria-label="押注">
       {/* 先後順序：做完的變藍、正在做的變金，不必猜下一步。 */}
       {steps.length > 0 && <ol className={styles.steps}>
         {steps.map((step, index) => (
@@ -145,14 +146,14 @@ export default function StakeSlot({
           type="button"
           className={styles.stakeTray}
           data-stake-target
-          aria-label={trial ? '體驗戰免押卡' : `押注格，已選 ${picked.length}/5 張，點此移到收藏卡`}
+          aria-label={trial ? '體驗戰免押卡' : `押注格，已選 ${picked.length}/${MAX_STAKE_CARDS} 張，點此移到收藏卡`}
           disabled={trial || locked}
           onClick={() => {
             pickerRef.current?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
             pickerRef.current?.querySelector('button')?.focus({ preventScroll: true });
           }}
         >
-          {Array.from({ length: 5 }, (_, index) => {
+          {Array.from({ length: MAX_STAKE_CARDS }, (_, index) => {
             const card = picked[index];
             return <span className={styles.stakeCell} key={card?.id ?? `empty-${index}`}>
               {card ? <>
@@ -165,8 +166,8 @@ export default function StakeSlot({
         <div className={styles.slotText}>
           {picked.length ? (
             <>
-              <strong>押注籌碼 {picked.length}/5 張</strong>
-              <span className={styles.risk}>選滿五張才開戰。勝：原押五張保留，另得 5～20 張；負：扣本場五張。</span>
+              <strong>押注籌碼 {picked.length}/{MAX_STAKE_CARDS} 張</strong>
+              <span className={styles.risk}>至少押一張即可開戰。勝：原押注保留，技術獎勵最多 {MAX_REWARD_CARDS} 張；負：扣本場押注。</span>
               <span>點卡選取或取消，開戰前不扣卡。</span>
             </>
           ) : trial ? (
@@ -176,8 +177,8 @@ export default function StakeSlot({
             </>
           ) : (
             <>
-              <strong>押注籌碼 0/5 張</strong>
-              <span className={styles.risk}>從持有卡片選滿五張。輸了才會扣除這五張。</span>
+              <strong>押注籌碼 0/{MAX_STAKE_CARDS} 張</strong>
+              <span className={styles.risk}>從持有卡片選 1～{MAX_STAKE_CARDS} 張。輸了才會扣除本場押注。</span>
             </>
           )}
         </div>
@@ -197,7 +198,7 @@ export default function StakeSlot({
           <span>左右滑動或拖動選卡</span>
           <button type="button" onClick={() => pickerRef.current?.scrollBy({ left: pickerRef.current.clientWidth * .85, behavior: 'auto' })} aria-label="後一排收藏卡">後一排 →</button>
         </div>
-        <div ref={pickerRef} className={styles.picker} role="group" aria-label="從收藏選五張押注"
+        <div ref={pickerRef} className={styles.picker} role="group" aria-label="從收藏選最多二十張押注"
           onPointerDown={event => {
             dragged.current = false;
             if (event.pointerType === 'mouse' && event.button === 0) drag.current = { id: event.pointerId, x: event.clientX, left: event.currentTarget.scrollLeft };

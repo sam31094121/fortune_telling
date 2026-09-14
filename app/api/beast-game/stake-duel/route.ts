@@ -5,6 +5,9 @@ import {playableCards, getCard} from '@/lib/beast-game/registry';
 import {elementLesson} from '@/lib/beast-game/element-lesson';
 import {resolveStake} from '@/lib/beast-game/stake';
 import {adjudicate} from '@/lib/beast-game/adjudication';
+import {MAX_STAKE_CARDS} from '@/lib/beast-game/stake-rules';
+import {judgeVictorySkill} from '@/lib/beast-game/iching-judgment';
+import {distributeRewardCards} from '@/lib/beast-game/reward-distribution';
 
 export const runtime = 'nodejs';
 /** Free collection duel: the server resolves both actors using the same engine and AI. */
@@ -13,7 +16,7 @@ export async function POST(request: Request) {
     const origin = request.headers.get('origin');
     if (origin && new URL(origin).host !== request.headers.get('host')) return NextResponse.json({ok:false,error:'來源不符'}, {status:403});
     const {entries} = await request.json();
-    if(!Array.isArray(entries)||entries.length<1||entries.length>5||new Set(entries.map(e=>e?.id)).size!==entries.length||entries.some(e=>!e||typeof e.id!=='string'||!e.id.trim()||e.id.length>200||typeof e.cardId!=='string'||!getCard(e.cardId)))throw new Error('請押 1～5 張有效收藏紀錄，戰鬥試用牌不能當押注。');
+    if(!Array.isArray(entries)||entries.length<1||entries.length>MAX_STAKE_CARDS||new Set(entries.map(e=>e?.id)).size!==entries.length||entries.some(e=>!e||typeof e.id!=='string'||!e.id.trim()||e.id.length>200||typeof e.cardId!=='string'||!getCard(e.cardId)))throw new Error(`請押 1～${MAX_STAKE_CARDS} 張有效收藏紀錄，戰鬥試用牌不能當押注。`);
     const cardId=entries[0].cardId;
     const pool = playableCards();
     const opponent = pool[randomInt(pool.length)].id;
@@ -21,9 +24,11 @@ export async function POST(request: Request) {
     const logs:string[]=[];
     for (let i = 0; i < 100 && match.status === 'PLAYING'; i++) { const round=match.round; match = advance(match, chooseAI(match, 'player')); logs.push(...match.log.map(entry=>`第 ${round} 回合 · ${entry.text}`)); }
     if (match.status !== 'FINISHED') throw new Error('對戰尚未完成，沒有扣卡。');
-    const judgment=adjudicate(match);
+    const adjudication=adjudicate(match);
+    const judgment=match.winner === 'player' ? judgeVictorySkill(match) : null;
     const stake=resolveStake({playerStake:cardId,opponentStake:opponent,winner:match.winner === 'player' ? 'PLAYER' : match.winner === 'opponent' ? 'OPPONENT' : 'DRAW'});
-    return NextResponse.json({ok:true,rounds:match.round-1,stake:{...stake,elementLesson:{...elementLesson(cardId,opponent,match.winner!,logs),judgment},netChange:stake.verdict==='LOST'?-entries.length:stake.verdict==='WON'?1:0,selectedEntries:entries,forfeitedEntryIds:stake.verdict==='LOST'?entries.map(e=>e.id):[],message:stake.verdict==='LOST'?`押入的 ${entries.length} 張已輸掉`:stake.verdict==='WON'?`原 ${entries.length} 張保留，額外獎勵一張`:`原 ${entries.length} 張退回`}});
+    const gainedCount=judgment?.bonusCards ?? 0;
+    return NextResponse.json({ok:true,rounds:match.round-1,adjudication,stake:{...stake,elementLesson:{...elementLesson(cardId,opponent,match.winner!,logs),judgment},gainedCount:gainedCount||undefined, rewardCardIds:judgment ? distributeRewardCards(opponent,gainedCount) : undefined,netChange:stake.verdict==='LOST'?-entries.length:stake.verdict==='WON'?1:0,selectedEntries:entries,forfeitedEntryIds:stake.verdict==='LOST'?entries.map(e=>e.id):[],message:stake.verdict==='LOST'?`押入的 ${entries.length} 張已輸掉`:stake.verdict==='WON'?`原 ${entries.length} 張保留，技術獎勵 ${gainedCount} 張`:`原 ${entries.length} 張退回`}});
   } catch (error) {
     return NextResponse.json({ok:false,error:error instanceof Error ? error.message : '對戰暫時無法開始。'}, {status:400});
   }

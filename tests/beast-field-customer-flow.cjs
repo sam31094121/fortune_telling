@@ -14,7 +14,7 @@ fs.mkdirSync('reports/beast-relaxed', { recursive: true });
     const rosterLabels = () => page.locator('button[aria-label^="你的主戰："],button[aria-label^="你的後備 "]').evaluateAll(nodes => nodes.map(node => node.getAttribute('aria-label')));
     const previousRoster = await rosterLabels();
     await page.getByRole('button', {name:'押注確認',exact:true}).tap();
-    const picker = page.getByRole('group', {name:'從收藏選五張押注'});
+    const picker = page.getByRole('group', {name:'從收藏選最多二十張押注'});
     for (let i = 7; i < 12; i++) await picker.getByRole('button').nth(i).tap();
     assert.equal(await picker.locator('[aria-pressed="true"]').count(),5);
     await page.screenshot({path:'reports/beast-relaxed/field-confirm.png'});

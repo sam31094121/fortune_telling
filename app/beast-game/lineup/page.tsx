@@ -22,7 +22,8 @@
  */
 
 import BeastLegacyGame from '@/components/BeastLegacyGame';
+import BeastWagerPanel from '@/components/BeastWagerPanel';
 
 export default function BeastLineupPage() {
-  return <BeastLegacyGame />;
+  return <><BeastLegacyGame /><main className="mx-auto max-w-3xl px-4 pb-10"><BeastWagerPanel mode="中等" /></main></>;
 }

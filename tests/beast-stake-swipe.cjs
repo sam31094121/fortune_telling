@@ -17,7 +17,7 @@ fs.mkdirSync('reports/beast-relaxed', { recursive: true });
       for (let card = 0; card < 3; card++) await page.getByRole('button', { name: /^手牌：/ }).first().tap();
       await page.getByRole('button', { name: '押注確認', exact: true }).tap();
       const before = await page.evaluate(() => localStorage.getItem('tdh_beast_collection_v1'));
-      const picker = page.getByRole('group', { name: '從收藏選五張押注', exact: true });
+      const picker = page.getByRole('group', { name: '從收藏選最多二十張押注', exact: true });
       await picker.scrollIntoViewIfNeeded();
       const evidence = await picker.evaluate(e => {
         const chain = []; for (let node = e; node; node = node.parentElement) {

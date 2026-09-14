@@ -11,6 +11,7 @@ import {interactiveCatalog} from '@/lib/beast-game/interactive';
 import { playSeries } from '@/lib/beast-game/series';
 import { seriesFusionMaterial } from '@/lib/beast-game/series';
 import { judgeSeriesVictorySkill } from '@/lib/beast-game/iching-judgment';
+import { distributeRewardCards } from '@/lib/beast-game/reward-distribution';
 import {
   DECK_SIZE,
   LINEUP_SLOTS,
@@ -166,7 +167,7 @@ export async function POST(request: Request) {
     */
     stake: {
       ...stakeOutcome,
-      ...(judgment ? { gainedCount: judgment.bonusCards, ichingJudgment: judgment } : {}),
+      ...(judgment ? { gainedCount: judgment.bonusCards, rewardCardIds: distributeRewardCards(stakeOutcome.stakes.opponent, judgment.bonusCards), ichingJudgment: judgment } : {}),
       playerStakeName: nameOf(stakeOutcome.stakes.player),
       opponentStakeName: nameOf(stakeOutcome.stakes.opponent),
       gainedCardName: stakeOutcome.gainedCardId ? nameOf(stakeOutcome.gainedCardId) : null,

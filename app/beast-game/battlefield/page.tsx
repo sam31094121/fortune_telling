@@ -48,6 +48,8 @@ import DeckBuilder from '@/components/battlefield/DeckBuilder';
 import { BATTLEFIELD_DECK_SIZE, buildFreshOpeningDeck, buildUniqueDeck, sanitizeDeckSelection } from '@/lib/beast-game/deck-builder';
 import { useCombatPlayback } from '@/components/battlefield/useCombatPlayback';
 import { judgeVictorySkill } from '@/lib/beast-game/iching-judgment';
+import { distributeRewardCards } from '@/lib/beast-game/reward-distribution';
+import { MAX_REWARD_CARDS, MAX_STAKE_CARDS } from '@/lib/beast-game/stake-rules';
 
 /** 一副牌的張數。六十張是卡池，不是一副牌全部上桌。 */
 const SAVED_DECK_KEY = 'taiji-beast-battlefield-deck-v1';
@@ -254,7 +256,7 @@ export default function BattlefieldPage() {
     setStakeError('');
     try {
       const next = startFromField(state, seed * 7919);
-      if (ownedStake.length && stakeCardIds.length !== 5) throw new Error('正式戰必須選滿五張押注卡。');
+      if (ownedStake.length && (stakeCardIds.length < 1 || stakeCardIds.length > MAX_STAKE_CARDS)) throw new Error(`正式戰必須選 1～${MAX_STAKE_CARDS} 張押注卡。`);
       const representative = ownedStake.find(card => card.id === stakeCardIds[0]);
       setOutcome(null); setSettlement(null); setBattleStake(representative?.cardId || null);
       setBattleVoiceId(crypto.randomUUID());
@@ -383,7 +385,7 @@ export default function BattlefieldPage() {
     // 易經判斷技術等級：只有玩家贏了才觸發，技術越高獎勵越多。
     const judgment = base.verdict === 'WON' ? judgeVictorySkill(match) : null;
     const outcome: StakeOutcome = judgment
-      ? { ...base, gainedCount: judgment.bonusCards, ichingJudgment: judgment }
+      ? { ...base, gainedCount: Math.min(MAX_REWARD_CARDS, judgment.bonusCards), rewardCardIds: distributeRewardCards(opponentStake, Math.min(MAX_REWARD_CARDS, judgment.bonusCards)), ichingJudgment: judgment }
       : base;
     const pending = pendingBattle.current;
     pendingBattle.current = null;
@@ -443,7 +445,7 @@ export default function BattlefieldPage() {
     if (!base.ready) return base;
     // 佈陣完成之後才輪到押注：先後順序不能顛倒，
     // 不然客戶會先選好賭注、才發現主戰還沒放。
-    if ((!stakeCardIds.every(id => ownedStake.some(card => card.id === id)) || stakeCardIds.length !== 5) && !isTrial) return { ready: false as const, reason: `押注要選滿五張（目前 ${stakeCardIds.length}/5）` };
+    if ((!stakeCardIds.every(id => ownedStake.some(card => card.id === id)) || stakeCardIds.length < 1 || stakeCardIds.length > MAX_STAKE_CARDS) && !isTrial) return { ready: false as const, reason: `押注要選 1～${MAX_STAKE_CARDS} 張（目前 ${stakeCardIds.length}/${MAX_STAKE_CARDS}）` };
     return base;
   }, [formationCheck, stakeCardIds, isTrial, recovering, settling, settlement, stakeError, ownedStake]);
   const guidance = preparationGuidance({

@@ -12,6 +12,7 @@ import { useCallback, useMemo, useState } from 'react';
 import type { StakeOutcome } from '@/lib/beast-collection-ledger';
 import type { Settlement } from '@/lib/beast-collection';
 import type { StakeCard } from '@/components/battlefield/StakeSlot';
+import { MAX_STAKE_CARDS } from '@/lib/beast-game/stake-rules';
 
 export function useStakeManagement() {
   const [stakeCardIds, setStakeCardIds] = useState<string[]>([]);
@@ -30,8 +31,8 @@ export function useStakeManagement() {
   const canSelectStake = useCallback((cardId: string): boolean => {
     // 1. 該卡必須在收藏裡
     if (!ownedStake.some(card => card.id === cardId)) return false;
-    // 2. 未達 5 張上限時可加入
-    if (stakeCardIds.length < 5) return true;
+    // 2. 未達 20 張上限時可加入
+    if (stakeCardIds.length < MAX_STAKE_CARDS) return true;
     // 3. 達到上限時只能替換
     return stakeCardIds.includes(cardId);
   }, [stakeCardIds, ownedStake]);
@@ -41,7 +42,7 @@ export function useStakeManagement() {
     setStakeCardIds(current =>
       current.includes(cardId)
         ? current.filter(id => id !== cardId)
-        : current.length < 5
+        : current.length < MAX_STAKE_CARDS
           ? [...current, cardId]
           : current
     );

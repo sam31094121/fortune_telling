@@ -23,9 +23,10 @@ export function preparationGuidance(input: {
   return { currentStep, actionLabels };
 }
 
-/** One tap toggles one real collection entry; formal battles cap the stake at five. */
+/** One tap toggles one real collection entry; formal battles cap the stake at twenty. */
+import {MAX_STAKE_CARDS} from '@/lib/beast-game/stake-rules';
 export function nextStakeSelection(current: string[], cardId: string): string[] {
   return current.includes(cardId)
     ? current.filter(id => id !== cardId)
-    : current.length < 5 ? [...current, cardId] : current;
+    : current.length < MAX_STAKE_CARDS ? [...current, cardId] : current;
 }

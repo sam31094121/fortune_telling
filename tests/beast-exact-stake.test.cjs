@@ -34,7 +34,8 @@ console.log('PASS: 完整28種幼子、首次只發一次、重載後不補回�
 const {reserveOwnedStakes}=exportsObject;
 const inventory={cards:Array.from({length:7},(_,i)=>({id:'copy'+i,cardId:card,source:'GROWTH'})),history:[],receipts:{}};
 const ids=inventory.cards.slice(1,6).map(c=>c.id);
-for(const invalid of [[],[...ids,'copy6'],[...ids.slice(1),'copy2'],[...ids.slice(1),'beast_y28']])assert.throws(()=>reserveOwnedStakes(inventory,invalid,'batch','now'));
+for(const invalid of [[],Array.from({length:21},(_,i)=>`copy${i}`),[...ids.slice(1),'copy2'],[...ids.slice(1),'beast_y28']])assert.throws(()=>reserveOwnedStakes(inventory,invalid,'batch','now'));
+assert.doesNotThrow(()=>reserveOwnedStakes({...inventory,cards:Array.from({length:20},(_,i)=>({id:`stake${i}`,cardId:card,source:'GROWTH'}))},Array.from({length:20},(_,i)=>`stake${i}`),'batch20','now'));
 assert.throws(()=>reserveOwnedStakes(empty,ids,'batch','now'));
 for(const verdict of ['WON','LOST','RETURNED']){
  const r=reserveOwnedStakes(inventory,ids,'batch'+verdict,'now');
@@ -49,7 +50,7 @@ for(const verdict of ['WON','LOST','RETURNED']){
 }
 const savedPack=exportsObject.migrateCollection(pack);
 assert.equal(reserveOwnedStakes(savedPack,savedPack.cards.slice(0,5).map(c=>c.id),'pack','now').pending.entries.length,5);
-console.log('PASS: 五張真實收藏限定、排除試用牌、同名副本精準扣五、勝加一、平手保留、重播去重、入庫幼子可押');
+console.log('PASS: 真實收藏限定、排除試用牌、同名副本精準扣除、勝加一、平手保留、重播去重、入庫幼子可押');
 for(let count=1;count<=5;count++)for(const verdict of ['WON','LOST','RETURNED']){
  const chosen=ids.slice(0,count),matchId=`variable-${count}-${verdict}`;
  const reserved=reserveOwnedStakes(inventory,chosen,matchId,'now');
@@ -73,10 +74,11 @@ for(const rewardCount of [5,20]){
  assert.ok(ids.every(id=>settled.collection.cards.some(entry=>entry.id===id)));
  assert.ok(settleCard(settled.collection,matchId,outcome,'now').duplicate);
 }
-console.log('PASS: 正式押五張勝局基本獎五張、技術上限二十張，原押卡保留且重試不重發');
+console.log('PASS: 多張押注勝局獎勵可到一百張，原押卡保留且重試不重發');
 for(const path of ['components/battlefield/StakeSlot.tsx','app/beast-game/battlefield/page.tsx']){
  const source=fs.readFileSync(path,'utf8');
- assert.match(source,/5～20 張/);
+ assert.match(source,/MAX_STAKE_CARDS/);
+ assert.match(source,/MAX_REWARD_CARDS|100/);
  assert.doesNotMatch(source,/勝得 1 張|獎勵一張/);
 }
-console.log('PASS: 五卡開戰前兩處提示與 5～20 張實際獎勵一致');
+console.log('PASS: 押注上限 20 張與技術獎勵上限 100 張提示一致');

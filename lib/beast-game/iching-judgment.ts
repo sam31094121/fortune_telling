@@ -11,7 +11,7 @@ export interface IchingJudgment {
 }
 
 /**
- * 以易經六十四卦判斷本場勝利的技術等級，決定額外獎勵卡數（1–20 張）。
+ * 以易經六十四卦判斷本場勝利的技術等級，決定獎勵卡數（1–100 張）。
  *
  * 技術三維：
  *   存活數  — 三隻全活為最高，零隻存活（險勝）為最低
@@ -34,15 +34,15 @@ export function judgeVictorySkill(match: Match): IchingJudgment {
   const total = survivorScore + speedScore + skillScore;             // 0–105
 
   /*
-    押五張、贏最少賠五張——基底對等。
-    技術性越高，易經裁定對手賠越多，上限 20 張。
+    押注最多二十張，輸掉的風險就是本場押注張數；勝利獎勵依技術
+    從 1 張起跳，最高 100 張，讓高技術勝利的正向報酬明顯高於風險。
     分數 0-105，映射到七個卦象等級。
   */
   if (total >= 90) {
     const extra = Math.min(5, Math.floor((total - 90) / 3));
     return {
       hexagram: '乾', symbol: '☰', fullName: '乾卦・天行健', tier: 7,
-      bonusCards: 15 + extra,
+      bonusCards: 100,
       quote: '天行健，君子以自強不息。',
       verdict: '神獸全員壓制，陽剛至極，天道獎盛世英雄。',
     };
@@ -51,7 +51,7 @@ export function judgeVictorySkill(match: Match): IchingJudgment {
     const extra = Math.floor((total - 75) / 5);
     return {
       hexagram: '大有', symbol: '☲', fullName: '大有卦・大業輝煌', tier: 6,
-      bonusCards: 12 + extra,
+      bonusCards: 80 + Math.min(10, extra * 2),
       quote: '大有，元亨。',
       verdict: '上下順應，無往不利，大業已成。',
     };
@@ -60,7 +60,7 @@ export function judgeVictorySkill(match: Match): IchingJudgment {
     const extra = Math.floor((total - 60) / 5);
     return {
       hexagram: '豐', symbol: '☳', fullName: '豐卦・豐盛有餘', tier: 5,
-      bonusCards: 9 + extra,
+      bonusCards: 55 + Math.min(15, extra * 3),
       quote: '豐，亨，王假之。',
       verdict: '雷火交攻，威震四方，豐盛有餘。',
     };
@@ -69,7 +69,7 @@ export function judgeVictorySkill(match: Match): IchingJudgment {
     const extra = Math.floor((total - 45) / 5);
     return {
       hexagram: '泰', symbol: '☷', fullName: '泰卦・天地交泰', tier: 4,
-      bonusCards: 7 + extra,
+      bonusCards: 35 + Math.min(10, extra * 2),
       quote: '泰，小往大來，吉亨。',
       verdict: '天地相交，陰陽協和，吉象已現。',
     };
@@ -78,7 +78,7 @@ export function judgeVictorySkill(match: Match): IchingJudgment {
     const extra = Math.floor((total - 30) / 7);
     return {
       hexagram: '解', symbol: '☵', fullName: '解卦・雷水解難', tier: 3,
-      bonusCards: 6 + extra,
+      bonusCards: 20 + Math.min(10, extra * 2),
       quote: '解，利西南，無所往。',
       verdict: '雷水解難，阻礙已去，前路已開。',
     };
@@ -86,14 +86,14 @@ export function judgeVictorySkill(match: Match): IchingJudgment {
   if (total >= 15) {
     return {
       hexagram: '蹇', symbol: '☶', fullName: '蹇卦・艱難克勝', tier: 2,
-      bonusCards: 5,
+      bonusCards: 8,
       quote: '蹇，利西南，不利東北。',
       verdict: '水山險阻，跌宕前進，押五贏五，公平到底。',
     };
   }
   return {
     hexagram: '困', symbol: '☱', fullName: '困卦・困中求勝', tier: 1,
-    bonusCards: 5,
+    bonusCards: 1,
     quote: '困，亨，貞，大人吉。',
     verdict: '澤水困境，仍舉勝旗，押五贏五，不多不少。',
   };
@@ -101,7 +101,7 @@ export function judgeVictorySkill(match: Match): IchingJudgment {
 
 /**
  * 單卡押注（組陣台）的易經判斷。
- * 輸入是系列賽 DuelResult（不是 Match），獎勵卡數 1–4 張（押一賠一基底，技術最多再得三張）。
+ * 輸入是系列賽 DuelResult（不是 Match），獎勵卡數 1–100 張。
  */
 export function judgeSeriesVictorySkill(duel: {
   series?: { score: { player: number; opponent: number } };
@@ -122,30 +122,30 @@ export function judgeSeriesVictorySkill(duel: {
 
   if (total >= 90) {
     return { hexagram: '乾', symbol: '☰', fullName: '乾卦・天行健', tier: 7,
-      bonusCards: 4, quote: '天行健，君子以自強不息。',
+      bonusCards: 100, quote: '天行健，君子以自強不息。',
       verdict: '三局全制，陽剛至極，天道厚賞高手。' };
   }
   if (total >= 75) {
     return { hexagram: '大有', symbol: '☲', fullName: '大有卦・大業輝煌', tier: 6,
-      bonusCards: 3, quote: '大有，元亨。',
+      bonusCards: 80, quote: '大有，元亨。',
       verdict: '上下順應，無往不利，大業已成。' };
   }
   if (total >= 60) {
     return { hexagram: '豐', symbol: '☳', fullName: '豐卦・豐盛有餘', tier: 5,
-      bonusCards: 3, quote: '豐，亨，王假之。',
+      bonusCards: 55, quote: '豐，亨，王假之。',
       verdict: '雷火交攻，威震四方，豐盛有餘。' };
   }
   if (total >= 45) {
     return { hexagram: '泰', symbol: '☷', fullName: '泰卦・天地交泰', tier: 4,
-      bonusCards: 2, quote: '泰，小往大來，吉亨。',
+      bonusCards: 35, quote: '泰，小往大來，吉亨。',
       verdict: '天地相交，陰陽協和，吉象已現。' };
   }
   if (total >= 30) {
     return { hexagram: '解', symbol: '☵', fullName: '解卦・雷水解難', tier: 3,
-      bonusCards: 2, quote: '解，利西南，無所往。',
+      bonusCards: 20, quote: '解，利西南，無所往。',
       verdict: '雷水解難，阻礙已去，前路已開。' };
   }
   return { hexagram: '蹇', symbol: '☶', fullName: '蹇卦・艱難克勝', tier: 2,
-    bonusCards: 1, quote: '蹇，利西南，不利東北。',
+    bonusCards: 8, quote: '蹇，利西南，不利東北。',
     verdict: '水山險阻，跌宕前進，押一贏一，公平到底。' };
 }

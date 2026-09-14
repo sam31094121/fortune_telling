@@ -21,6 +21,7 @@ import { useCombatPlayback } from './battlefield/useCombatPlayback';
 import BattleHelpPanel from './battlefield/BattleHelpPanel';
 import VictoryAnimation from './battlefield/VictoryAnimation';
 import StarterPackAfterBattle from './StarterPackAfterBattle';
+import BeastWagerPanel from './BeastWagerPanel';
 
 type Card = ReturnType<typeof interactiveCatalog>[number];
 // Account progression remains on the server; this screen reads only battle data.
@@ -125,7 +126,7 @@ export default function BeastTurnGame() {
                 <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} onAutomatic={setAutomatic} onAction={act} />
                 <BattlePanel match={match} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
                 {/* 預覽用寶珠面板：魔珠與暴怒已由戰鬥引擎結算並顯示在戰場右欄，這裡隱藏。 */}
-                {false && match.status === 'PLAYING' && (() => {
+                {(false as boolean) && match.status === 'PLAYING' && (() => {
                   const active = match.player.team[match.player.active];
                   const bench = match.player.team.find((f, i) => i !== match.player.active && !f.defeated) ?? null;
                   return (
@@ -224,6 +225,7 @@ export default function BeastTurnGame() {
               : '✅ 三張選好了！按下方「開始對戰」'}
           </p>
           <p className={styles.prepareRule}>普通攻擊自動進行，可隨時暫停；技能就緒會等你決定。點「能力」先了解卡片，再選入隊伍。</p>
+          <BeastWagerPanel mode="簡單" />
           <div className={styles.filters} aria-label="元素篩選">{['全部', ...Object.keys(labels)].map(element => <button key={element} aria-pressed={filter === element} onClick={() => setFilter(element)}>{labels[element] ?? element}</button>)}</div>
           <div className={styles.grid}>{cards.filter(c => filter === '全部' || c.element === filter).map(card => <div className={`${styles.card} ${styles.pickCard}`} key={card.id}>
             {selected.includes(card.id) && <span className={styles.pickOrder}>第 {selected.indexOf(card.id) + 1} 張</span>}

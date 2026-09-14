@@ -1,4 +1,6 @@
 /** Pure inventory ledger. Battle outcomes come from the game API; this only moves owned copies. */
+const MAX_STAKE_CARDS = 20;
+const MAX_REWARD_CARDS = 100;
 export interface CollectionEntry {
   id: string;
   cardId: string;
@@ -21,8 +23,9 @@ export interface StakeOutcome {
   elementLesson?: import('./beast-game/element-lesson').ElementLesson;
   selectedEntries?: Array<{id:string;cardId:string}>;
   forfeitedEntryIds?: string[];
-  /** 五卡押注戰贏了的額外獎勵張數（1–20）；由易經技術判斷決定。 */
+  /** 押注戰贏了的獎勵張數（1–100）；由易經技術判斷決定。 */
   gainedCount?: number;
+  rewardCardIds?: string[];
   /** 易經技術判斷結果；只有五卡押注戰勝利才有。 */
   ichingJudgment?: import('./beast-game/iching-judgment').IchingJudgment;
 }
@@ -153,7 +156,7 @@ export function settleCard(current: BeastCollection, matchId: string, outcome: S
 export function reserveOwnedStakes(current:BeastCollection,entryIds:string[],matchId:string,at:string):BeastCollection {
   if(current.pending)throw new Error('上一場尚待結算。');
   if(current.receipts?.[matchId])throw new Error('這場已結算。');
-  if(entryIds.length<1||entryIds.length>5||new Set(entryIds).size!==entryIds.length)throw new Error('請選 1～5 張不同的收藏紀錄。');
+  if(entryIds.length<1||entryIds.length>MAX_STAKE_CARDS||new Set(entryIds).size!==entryIds.length)throw new Error(`請選 1～${MAX_STAKE_CARDS} 張不同的收藏紀錄。`);
   const entries=entryIds.map(id=>{const matches=current.cards.filter(c=>c.id===id);if(matches.length!==1||!isBeastCardId(matches[0].cardId))throw new Error('只能押自己實際收藏的卡，試用牌不能押。');return {id,cardId:matches[0].cardId};});
   return {...current,pending:{id:matchId,entryId:entries[0].id,cardId:entries[0].cardId,at,entries}};
 }
@@ -161,15 +164,17 @@ export function reserveOwnedStakes(current:BeastCollection,entryIds:string[],mat
 function settleOwnedStakes(current:BeastCollection,matchId:string,outcome:StakeOutcome,at:string){
  const p=current.pending!;
  const entries=p.entries!;
- if(p.id!==matchId||entries.length<1||entries.length>5||new Set(entries.map(e=>e.id)).size!==entries.length||!outcome.selectedEntries||outcome.selectedEntries.length!==entries.length||entries.some((e,i)=>outcome.selectedEntries![i].id!==e.id||outcome.selectedEntries![i].cardId!==e.cardId)||entries.some(e=>current.cards.filter(c=>c.id===e.id&&c.cardId===e.cardId).length!==1))throw new Error('押注收藏與戰果不一致，暫停扣卡。');
+ if(p.id!==matchId||entries.length<1||entries.length>MAX_STAKE_CARDS||new Set(entries.map(e=>e.id)).size!==entries.length||!outcome.selectedEntries||outcome.selectedEntries.length!==entries.length||entries.some((e,i)=>outcome.selectedEntries![i].id!==e.id||outcome.selectedEntries![i].cardId!==e.cardId)||entries.some(e=>current.cards.filter(c=>c.id===e.id&&c.cardId===e.cardId).length!==1))throw new Error('押注收藏與戰果不一致，暫停扣卡。');
  const lost=outcome.verdict==='LOST',won=outcome.verdict==='WON';
  if(!['LOST','WON','RETURNED'].includes(outcome.verdict)||!isBeastCardId(outcome.stakes.opponent)||outcome.stakes.player!==entries[0].cardId)throw new Error('戰果不完整');
  const removed=outcome.forfeitedEntryIds??[];
  if(lost?(removed.length!==entries.length||entries.some((e,i)=>removed[i]!==e.id)||outcome.gainedCardId!==null):(removed.length!==0||outcome.forfeitedCardId!==null))throw new Error('沒收數量不符');
  if(won?outcome.gainedCardId!==outcome.stakes.opponent:outcome.gainedCardId!==null)throw new Error('獎勵數量不符');
  let cards=current.cards.filter(c=>!lost||!removed.includes(c.id));
- const n=won?Math.min(20,Math.max(1,outcome.gainedCount??1)):0;
- for(let i=0;i<n;i++)if(won)cards=[...cards,{id:`duel:${matchId}:${i}`,cardId:outcome.gainedCardId!,source:'DUEL_WIN' as const,at}];
+ const n=won?Math.min(MAX_REWARD_CARDS,Math.max(1,outcome.gainedCount??1)):0;
+ const rewardCardIds=won&&outcome.rewardCardIds?.length===n?outcome.rewardCardIds:[...Array(n)].map(()=>outcome.gainedCardId!);
+ if(won&&(!rewardCardIds.length||rewardCardIds.some(cardId=>!isBeastCardId(cardId))))throw new Error('獎勵牌池資料不完整，暫停入庫。');
+ for(let i=0;i<n;i++)if(won)cards=[...cards,{id:`duel:${matchId}:${i}`,cardId:rewardCardIds[i],source:'DUEL_WIN' as const,at}];
  const receipt:CollectionReceipt={matchId,verdict:outcome.verdict,cardId:outcome.gainedCardId,total:cards.length,remaining:won?cards.filter(c=>c.cardId===outcome.gainedCardId).length:0,forfeitedEntryIds:removed,...receiptMovement(current.cards,cards,entries.length)};
  const wonNote=won?`原押注卡保留，易經判斷額外獎勵 ${n} 張`:'原押注卡退回';
  const history:CollectionHistoryItem[]=lost?entries.map(e=>({at,kind:'FORFEITED',cardId:e.cardId,note:'所選押注卡，已精準沒收',remaining:cards.filter(c=>c.cardId===e.cardId).length})):[{at,kind:won?'WON':'RETURNED',cardId:outcome.gainedCardId,note:wonNote}];

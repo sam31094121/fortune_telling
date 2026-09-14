@@ -28,7 +28,7 @@ const core = require('../.beast-game-build/lib/beast-game');
     assert.deepEqual(fused.series,core.playSeries(lineup,fused.opponentLineupIds,1,fused.fusion));
     assert.ok(fused.timeline.some(entry=>entry.note.includes('暴怒合體')),'合體須能從前端戰報核對');
     assert.ok(fused.series.pairs.flatMap(pair=>pair.actions).filter(action=>action.side==='PLAYER'&&action.fusion).length<=1);
-    if(fused.winner==='PLAYER')assert.ok(fused.stake.gainedCount>=1&&fused.stake.gainedCount<=4,'單卡獎勵由 API 算，不由前端補算');
+    if(fused.winner==='PLAYER')assert.ok(fused.stake.gainedCount>=1&&fused.stake.gainedCount<=100,'技術型獎勵由 API 算，不由前端補算');
   }
   const invalid=await fetch('http://localhost:8888/api/beast-game',{
     method:'POST',headers:{'Content-Type':'application/json'},
