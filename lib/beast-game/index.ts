@@ -69,3 +69,31 @@ export { SKILLS, getSkill, allSkillIds } from '../../cards/skills';
 export type { SkillDefinition, SkillTrigger } from '../../cards/skills';
 export { playSeries, seriesFusionMaterial } from './series';
 export type { PairResult } from './series';
+
+export {
+  MAX_ORBS,
+  MAX_RAGE,
+  FUSION_TIER_LABEL,
+  ULTIMATE_LABEL,
+  FUSION_BLOCKER_LABEL,
+  checkFusionCompatibility,
+  evaluateFusion,
+  canFuse,
+  resolveFusionTier,
+  unlockedUltimates,
+  rageStage,
+  canTransitionFusion,
+  transitionFusion,
+  bossCounterOptions,
+} from './fusion';
+export type {
+  FusionCard,
+  FusionBond,
+  FusionState,
+  FusionTier,
+  UltimateSkill,
+  RageStage,
+  FusionEvaluation,
+  FusionBlocker,
+  BossCounterOption,
+} from './fusion';
