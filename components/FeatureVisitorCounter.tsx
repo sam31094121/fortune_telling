@@ -346,7 +346,7 @@ export default function FeatureVisitorCounter({
     >
       <div className={`visitor-counter-label ${compact ? 'text-[9px] leading-tight sm:text-[10px]' : 'text-[13px]'} font-semibold text-[color:var(--text-main)] opacity-75`}>{'\u7d2f\u8a08\u700f\u89bd\u4eba\u6578'}</div>
       <div data-visitor-counter-count className={`top-feedback-count visitor-counter-count ${compact ? 'mt-1 font-serif text-2xl leading-none' : 'mt-1 text-2xl'} font-black tracking-[0.04em] text-amber-300 drop-shadow-[0_0_14px_rgba(251,191,36,0.28)]`} aria-live="polite">
-        {displayCount === null ? '\u8f09\u5165\u4e2d' : displayCount.toLocaleString('zh-TW')}
+        {displayCount === null ? '\u8f09\u5165\u4e2d' : String(Math.trunc(displayCount))}
       </div>
       {compact && (
         <div className="visitor-counter-footnote mt-1 text-[9px] font-medium leading-tight text-[color:var(--text-sub)] sm:text-[10px]">
