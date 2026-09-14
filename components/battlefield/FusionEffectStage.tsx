@@ -137,7 +137,7 @@ const FusionEffectStage = memo(function FusionEffectStage({ plan, onDone, captio
     for (const phase of PHASE_FLOW) {
       const indexes = byPhase.get(phase);
       if (!indexes || indexes.length === 0) continue;
-      const base = Math.round(plan.stageMs * PHASE_SLOT[phase]);
+      const base = Math.round(plan.stageMs * PHASE_SLOT[phase as Exclude<BeatPhase, 'fx'>]);
       const span = Math.max(120, Math.round(plan.stageMs * 0.16));
       indexes.forEach((visualIndex, i) => {
         const at = Math.min(

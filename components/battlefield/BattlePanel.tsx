@@ -207,7 +207,7 @@ export function BattleActionBar({
             aria-label={rage && ragePartner ? `暴怒合體・${fusionGuide.current.skillName}，${ragePartner.name}支援主戰，按一下出招` : `暴怒合體，${rageReason ?? '查看條件'}，按一下查看引導`}
             aria-expanded={!rage ? commandView === 'rage' : undefined}
             onClick={() => { if (rage) { setCommandView(null); onAction(rage); } else setCommandView(commandView === 'rage' ? null : 'rage'); }}>
-            <span aria-hidden="true">🔥</span><strong>暴怒合體</strong><small title={rage && ragePartner ? `與${ragePartner.name}合體` : undefined}>{rage && ragePartner ? fusionGuide.current.skillName : rageReason}</small>
+            <span aria-hidden="true">🔥</span><strong>暴怒合體</strong><small title={rage && ragePartner ? `與${ragePartner.name}合體` : undefined}>{rage && ragePartner ? (fusionGuide.current.tier === 'NONE' ? `與${ragePartner.name}` : fusionGuide.current.skillName) : rageReason}</small>
           </button>
         </div>
         <div ref={commandDetail}>

@@ -87,7 +87,9 @@
 
 /* 右欄底部：相生相剋在上，五顆帶符咒魔珠靠最右側直排。 */
 .orbColumn { grid-column: 3; grid-row: 1; align-self: end; position: relative; z-index: 3; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; min-width: 0; margin-bottom: 4px; }
-.orbColumn > details { width: 100%; margin-top: 0; }
+.orbColumn > details { position: relative; width: 100%; margin-top: 0; overflow: visible; }
+/* 右欄只有 72px：相生相剋展開後改成往左彈出的說明卡，不撐開右欄、不蓋隊伍卡。 */
+.orbColumn > details > :not(summary) { position: absolute; top: 0; right: calc(100% + 6px); z-index: 12; width: 220px; border: 1px solid #526386; border-radius: 10px; background: rgba(6, 16, 33, 0.96); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55); }
 .orbColumn summary { justify-content: center; flex-wrap: wrap; gap: 2px; padding: 6px 4px; font-size: 10px; }
 .fusionProgress { width: 100%; display: grid; justify-items: center; gap: 2px; padding: 5px 2px; border: 1px solid rgba(251, 191, 36, 0.55); border-radius: 10px; background: rgba(40, 20, 6, 0.72); color: #fde68a; font-size: 10px; font-weight: 900; line-height: 1.15; touch-action: manipulation; }
 .fusionProgress[aria-expanded='true'] { border-color: #fbbf24; box-shadow: 0 0 10px rgba(251, 191, 36, 0.45); }
