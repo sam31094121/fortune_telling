@@ -28,15 +28,15 @@ function harness(data = new Map()) {
     if (file.endsWith('.json')) return JSON.parse(fs.readFileSync(file, 'utf8'));
     if (!path.extname(file)) file += fs.existsSync(file + '.ts') ? '.ts' : '.tsx';
     if (cache.has(file)) return cache.get(file).exports;
-    const module = { exports: {} }; cache.set(file, module);
+    const mod = { exports: {} }; cache.set(file, mod);
     const source = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText;
     const customRequire = (id) => {
       if (id.endsWith('.css')) return new Proxy({}, { get: (_, prop) => prop });
       if (id === 'next/link') return ({ children, ...props }) => require('react').createElement('a', props, children);
       return id.startsWith('@/') ? load(id.slice(2)) : id.startsWith('.') ? load(path.resolve(path.dirname(file), id)) : require(id);
     };
-    vm.runInNewContext(source, { module, exports: module.exports, require: customRequire, window: { localStorage, dispatchEvent: events.dispatchEvent.bind(events), addEventListener: events.addEventListener.bind(events), removeEventListener: events.removeEventListener.bind(events) }, navigator, crypto: require('node:crypto').webcrypto, Event, console, setTimeout, clearTimeout }, { filename: file });
-    return module.exports;
+    vm.runInNewContext(source, { module: mod, exports: mod.exports, require: customRequire, window: { localStorage, dispatchEvent: events.dispatchEvent.bind(events), addEventListener: events.addEventListener.bind(events), removeEventListener: events.removeEventListener.bind(events) }, navigator, crypto: require('node:crypto').webcrypto, Event, console, setTimeout, clearTimeout }, { filename: file });
+    return mod.exports;
   }
   return { data, load, failWrites: (predicate) => { fail = predicate; }, navigator };
 }

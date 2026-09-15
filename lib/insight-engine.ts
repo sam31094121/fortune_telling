@@ -90,9 +90,9 @@ const INSIGHT_RITUAL_STEP_LABELS: Record<InsightRitualStepId, { label: string; r
     passedText: '十二宮位精密解析完成',
   },
   STATISTICAL_MATCHED: {
-    label: '統計訊號',
-    ritualText: '正在比對規則模型與統計訊號...',
-    passedText: '規則模型統計訊號比對完成',
+    label: '命盤訊號',
+    ritualText: '正在比對命盤訊號...',
+    passedText: '命盤訊號比對完成',
   },
   ACCURACY_SCORED: {
     label: '準確度評估',
@@ -474,7 +474,7 @@ function buildStatisticalAnalysis(
       dimension: label,
       score,
       percentile,
-      globalComparison: '可重算的規則模型訊號，非人群百分位。',
+      globalComparison: '依固定公式算出，同樣資料每次都一樣；不是跟別人比的排名。',
       sampleSize: sampleSizeForDimension(dataSourceCount, key, index, request),
       formula: SCORE_FORMULA,
       sourceBreakdown,
@@ -548,7 +548,7 @@ function withUniqueConfidence(
       title: insight.title,
       description: insight.description,
       confidence,
-      confidenceSource: `依「${stat.dimension}」的規則模型訊號推估，非人群統計信心度。`,
+      confidenceSource: `依「${stat.dimension}」的固定公式推估，不是跟別人比出來的把握度。`,
     };
   });
 }
@@ -564,7 +564,7 @@ function buildBigDataInsights(
   return [
     {
       category: '最明顯優勢',
-      finding: `你的「${top.dimension}」在本次規則模型中為 ${top.score} 分，是本次報告最突出的訊號。`,
+      finding: `你的「${top.dimension}」這次算出 ${top.score} 分，是整份報告最突出的一項。`,
       sampleSize: top.sampleSize,
       scoreBasis: top.sourceSummary,
     },
@@ -941,7 +941,7 @@ ${buildAiCopywritingInstruction('天地人 易經紫微洞察系統')}
     scoreMethodology: {
       formula: SCORE_FORMULA,
       percentile: '未採用人群百分位；目前沒有可驗證的外部樣本資料集。',
-      sampleBasis: '本報告的數值來自姓名字義、筆畫五格、生日與時辰的手寫規則模型，不是大數據樣本。',
+      sampleBasis: '本報告的數值來自姓名字義、筆畫五格、生日與時辰的固定公式，不是拿很多人的資料統計出來的。',
       duplicatePolicy: '保留原始加權結果；相同分數不做人為拆分。',
     },
     accuracyBreakdown,

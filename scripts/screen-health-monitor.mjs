@@ -301,6 +301,12 @@ const BEHAVIOR_CHECKS = [
     script: 'test:ai-customer-message',
   },
   {
+    id: 'ZIWEI_DISPLAY_ONLY',
+    module: 'ziwei_display_only',
+    title: '紫微前端只顯示：塔羅、老師合盤、年齡由後端算，畫面無內部用語',
+    script: 'test:ziwei-display-only',
+  },
+  {
     id: 'HOME_TAIJI_LEVEL02_24_LOCK',
     module: 'taiji_level_02_24_lock',
     title: '太極第 2～24 層隔離鎖定',

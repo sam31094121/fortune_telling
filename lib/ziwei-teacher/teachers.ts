@@ -434,14 +434,14 @@ export async function runNarrativeTeacher(context: PalaceAnalysisContext): Promi
 /* ==================== 本地統計後備引擎（免費、離線、決定性） ====================
  * Gemini 不可用（額度、逾時、金鑰缺失）時，三位老師改由這裡供稿：
  * 全部內容取自已驗證命盤的實際星曜、煞曜、四化與三方四正，用固定權重做
- * 「結構能量指數」的統計交叉比對——同一張盤永遠得到同一組數字與判語。
+ * 「結構分數」的比對——同一張盤永遠得到同一組數字與判語。
  * 易經恢復後自動接回，本引擎只在 易經失敗時出手。 */
 
 type PalaceBlock = PalaceAnalysisContext['selectedPalace'];
 
 const TRANS_LABEL = { LU: '祿', QUAN: '權', KE: '科', JI: '忌' } as const;
 
-/** 結構能量指數：主星 +8／輔星 +3／煞曜 −6；化祿權科 +5、化忌 −7；基準 50，範圍 5–95。 */
+/** 結構分數：主星 +8／輔星 +3／煞曜 −6；化祿權科 +5、化忌 −7；基準 50，範圍 5–95。 */
 function palaceEnergyScore(palace: PalaceBlock): number {
   let score = 50 + palace.majorStars.length * 8 + palace.supportingStars.length * 3 - palace.maleficStars.length * 6;
   for (const t of palace.transformations) score += t.type === 'JI' ? -7 : 5;
@@ -487,22 +487,22 @@ function buildLocalStructureResult(context: PalaceAnalysisContext): StructureTea
   return {
     teacherId: 'STRUCTURE_MASTER',
     palace: p.palaceName,
-    corePattern: `${p.palaceName}結構能量指數 ${score}/100，判定為${structureType}結構：主星${majorText(p)}，四化${transText(p)}。`,
-    primaryStarSynthesis: `本宮主星${majorText(p)}，主星 ${p.majorStars.length} 顆、輔星 ${p.supportingStars.length} 顆、煞曜 ${p.maleficStars.length} 顆——星曜密度直接決定此宮承載「${guide.topic}」議題的量能。`,
-    threeHarmonySynthesis: `三方四正交叉指數：${context.threeHarmony.harmonyA.palaceName} ${scores.A}、${context.threeHarmony.harmonyB.palaceName} ${scores.B}、對宮${context.threeHarmony.opposite.palaceName} ${scores.O}。支撐最強的是${strongest.palaceName}（${majorText(strongest)}），牽制最明顯的是${weakest.palaceName}。`,
+    corePattern: `${p.palaceName}結構分數 ${score}/100（${structureType}）：主星${majorText(p)}，四化${transText(p)}。`,
+    primaryStarSynthesis: `本宮主星${majorText(p)}，主星 ${p.majorStars.length} 顆、輔星 ${p.supportingStars.length} 顆、煞曜 ${p.maleficStars.length} 顆——星曜越多，這一宮在「${guide.topic}」上扛得住的事越多。`,
+    threeHarmonySynthesis: `三方四正分數：${context.threeHarmony.harmonyA.palaceName} ${scores.A}、${context.threeHarmony.harmonyB.palaceName} ${scores.B}、對宮${context.threeHarmony.opposite.palaceName} ${scores.O}。支撐最強的是${strongest.palaceName}（${majorText(strongest)}），牽制最明顯的是${weakest.palaceName}。`,
     transformationEffect: jiList.length > 0
-      ? `${jiList.map((t) => `${t.starName}化忌`).join('、')}是本結構的主要耗損點（每一化忌以 −7 計入指數）；其餘四化${p.transformations.filter((t) => t.type !== 'JI').map((t) => `${t.starName}化${TRANS_LABEL[t.type]}`).join('、') || '無'}提供加分能量。`
+      ? `${jiList.map((t) => `${t.starName}化忌`).join('、')}是這一宮最主要的耗損點；其餘四化${p.transformations.filter((t) => t.type !== 'JI').map((t) => `${t.starName}化${TRANS_LABEL[t.type]}`).join('、') || '無'}提供加分能量。`
       : `本宮${transText(p)}；${p.transformations.length > 0 ? '四化以加分方向為主，結構取得額外推力。' : '無四化引入額外波動，結構以星曜本質穩定運作。'}`,
     importantSupportingStars: [
-      ...p.supportingStars.slice(0, 2).map((s) => `輔星${s.name}：加分訊號（+3），強化本宮的支撐面。`),
-      ...p.maleficStars.slice(0, 2).map((s) => `煞曜${s.name}：耗損訊號（−6），是指數被拉低的可回查原因。`),
+      ...p.supportingStars.slice(0, 2).map((s) => `輔星${s.name}：加分，讓這一宮更撐得住。`),
+      ...p.maleficStars.slice(0, 2).map((s) => `煞曜${s.name}：扣分，是分數被拉低的原因。`),
     ],
-    structuralStrength: `統計面最強的一段：${strongest.palaceName}以 ${Math.max(scores.A, scores.B, scores.O)} 分支撐本宮，配合主星${majorText(p)}，在「${guide.topic}」上有可複用的結構慣性。`,
-    structuralPressure: `壓力集中在${weakest.palaceName}（${Math.min(scores.A, scores.B, scores.O)} 分）${jiList.length > 0 ? `，且${jiList[0].starName}化忌落在本宮，` : '，'}表示此結構的下限由這裡決定。`,
+    structuralStrength: `最能撐住你的是${strongest.palaceName}（${Math.max(scores.A, scores.B, scores.O)} 分），配合主星${majorText(p)}，在「${guide.topic}」上有一再用得上的底氣。`,
+    structuralPressure: `壓力集中在${weakest.palaceName}（${Math.min(scores.A, scores.B, scores.O)} 分）${jiList.length > 0 ? `，且${jiList[0].starName}化忌落在本宮，` : '，'}這裡決定了這一宮最低會掉到哪裡。`,
     pastStructure: `此宮長期容易養成「${guide.topic}」上的固定慣性：能量高時傾向多承接、能量低時傾向遞延處理；這是盤面推論，不指涉具體經歷。`,
     // 流年主題是一整段話，塞進「」會變成引號套引號的長句；主題留在命盤依據裡回查即可。
     futureTendency: `${context.timeContext.annualYear} 年這一年，若${weakest.palaceName}的牽制沒有處理，分數容易往下掉；反過來把那裡補上，${structureType}結構就有機會再往上走。`,
-    conclusion: `結論：${p.palaceName}為${structureType}結構（${score}/100）。易經同步起卦得「${castPalaceHexagram(context).hexagramName}」印證：${castPalaceHexagram(context).advice}優先處理${weakest.palaceName}的牽制、善用${strongest.palaceName}的支撐，是本盤統計交叉後的最短路徑。`,
+    conclusion: `結論：${p.palaceName}為${structureType}結構（${score}/100）。易經同步起卦得「${castPalaceHexagram(context).hexagramName}」印證：${castPalaceHexagram(context).advice}優先處理${weakest.palaceName}的牽制、善用${strongest.palaceName}的支撐，是這張盤最省力的走法。`,
     evidenceRefs: buildEvidenceRefs(context),
   };
 }
@@ -522,7 +522,7 @@ function buildLocalLifeResult(context: PalaceAnalysisContext): LifeTeacherResult
     lifeMeaning: `本宮壓力核心：${pressurePoint}。它讓「${guide.topic}」的每個決定都帶著隱形利息，越晚面對，本金越大。`,
     pastPattern: `此宮長期容易重複的模式：在${guide.lifeScenes}的場景中先扛下、後消化；這是盤面傾向的推論，不是已發生事件。`,
     futureRiskWindow: `${context.timeContext.annualYear} 年這一年${context.timeContext.currentAge !== null ? `、${context.timeContext.currentAge} 歲的這一段` : ''}，當${pressurePoint}與截止壓力疊加時，是需要提高警覺的窗口；條件不成立時，壓力不會自動引爆。`,
-    strengthInReality: `可用的力量是${mainStar}帶來的承載力（能量指數 ${score}/100）；但它失控時會反噬成「什麼都自己扛」，反而把${guide.topic}的界線推垮。`,
+    strengthInReality: `可用的力量是${mainStar}帶來的承載力（結構分數 ${score}/100）；但它失控時會反噬成「什麼都自己扛」，反而把${guide.topic}的界線推垮。`,
     repeatedPattern: `一開始：你告訴自己再撐一下。接著：${guide.lifeScenes}裡的訊號被合理化。最後代價：壓力放大成整個結構發出聲響的規模——這是象徵畫面，提醒失控的方向，不是命定結局。`,
     blindSpot: `最容易被合理化的盲點：把「還沒出事」當成「沒有事」。${pressurePoint}的耗損是複利式的，安靜不等於安全。`,
     decisionStyle: `壓力下的決策傾向：${mainStar}式的先斬後奏或先扛再說；證據就在本宮星曜配置——快，但容易把代價往後挪。`,

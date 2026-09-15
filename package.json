@@ -38,6 +38,7 @@
     "test:ziwei-form-fill": "node tests/ziwei-form-fill.e2e.mjs",
     "test:ai-teacher-availability": "node tests/ai-teacher-availability.mjs",
     "test:ai-customer-message": "node tests/ai-customer-message.test.mjs",
+    "test:ziwei-display-only": "node tests/ziwei-frontend-display-only.test.mjs",
     "test:bazi-ziwei-cross": "tsc tests/bazi-ziwei-cross.test.ts lib/bazi/engine.ts lib/ziwei-sanfang-engine.ts lib/shichen-engine.ts lib/iching-engine.ts lib/iching-psychology.ts lib/three-core-engine.ts --outDir .bazi-ziwei-cross-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --resolveJsonModule --types node --skipLibCheck --resolveJsonModule && node .bazi-ziwei-cross-build/tests/bazi-ziwei-cross.test.js",
     "test:three-core": "npm run test:bazi-ziwei-cross",
     "test:taiji-ios": "node tests/taiji-ios-visibility.test.cjs",

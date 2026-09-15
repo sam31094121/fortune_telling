@@ -168,17 +168,52 @@ async function waitFor(cdp, expression, label, timeoutMs = STEP_TIMEOUT_MS) {
 /** 用座標點擊，不用 el.click()——被透明圖層蓋住時客戶點不到，這裡也要點不到。 */
 async function tap(cdp, locator, label) {
   await waitFor(cdp, `Boolean(${locator})`, label);
-  await evaluate(cdp, `(${locator}).scrollIntoView({ block: 'center' })`);
-  await sleep(250);
-  const point = await evaluate(cdp, `(() => {
+  // 按鈕外層有 overflow:hidden，scrollIntoView 會去捲那一層而不是整個視窗，頁尾的按鈕捲不到；
+  // 客戶是用手指捲整頁，所以直接把 window 捲到按鈕置中，再等位置穩定才量座標。
+  // 結果出現時頁面會自己捲到結果區，可能把剛捲好的位置又帶走，所以每一輪都重新捲一次。
+  await waitFor(cdp, `(async () => {
     const el = ${locator};
-    const r = el.getBoundingClientRect();
-    const x = r.left + r.width / 2;
-    const y = r.top + r.height / 2;
-    const hit = document.elementFromPoint(x, y);
-    return { x, y, covered: !(hit && (hit === el || el.contains(hit))), hit: hit ? hit.tagName + '.' + String(hit.className).slice(0, 60) : null };
-  })()`);
-  if (point.covered) throw new Error(`「${label}」被其他元素蓋住，客戶點不到：${point.hit}`);
+    const r0 = el.getBoundingClientRect();
+    if (r0.top < 0 || r0.bottom > innerHeight) window.scrollTo({ top: scrollY + r0.top - innerHeight / 2, behavior: 'instant' });
+    await new Promise((r) => setTimeout(r, 150));
+    const a = el.getBoundingClientRect().top;
+    await new Promise((r) => setTimeout(r, 150));
+    const b = el.getBoundingClientRect().top;
+    // 客戶看得到、點得到才算：結果區在驗證動畫播完前是 opacity-0＋pointer-events-none，
+    // 那時文字已經在 DOM 裡，但客戶根本看不到。
+    let opacity = 1;
+    for (let cur = el; cur; cur = cur.parentElement) opacity *= Number(getComputedStyle(cur).opacity);
+    const tappable = getComputedStyle(el).pointerEvents !== 'none' && opacity > 0.5;
+    return tappable && Math.abs(a - b) < 1 && b >= 0 && b < innerHeight;
+  })()`, `「${label}」出現在畫面內且可點`, PAGE_TIMEOUT_MS);
+  // 老師內容載入時版面還會移動；連續 3 秒都點不到才算真的被蓋住。
+  let point = null;
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    if (attempt) await sleep(300);
+    point = await evaluate(cdp, `(() => {
+      const el = ${locator};
+      const r = el.getBoundingClientRect();
+      const x = r.left + r.width / 2;
+      const y = r.top + r.height / 2;
+      const hit = document.elementFromPoint(x, y);
+      const name = (node) => node.tagName + '.' + String(node.className).slice(0, 40);
+      let skippedAncestor = null;
+      for (let cur = el.parentElement; cur; cur = cur.parentElement) {
+        if (getComputedStyle(cur).contentVisibility === 'auto') { skippedAncestor = name(cur); break; }
+      }
+      return {
+        x, y,
+        covered: !(hit && (hit === el || el.contains(hit))),
+        hit: hit ? name(hit) : null,
+        stack: document.elementsFromPoint(x, y).slice(0, 4).map(name),
+        visibleWithCv: typeof el.checkVisibility === 'function' ? el.checkVisibility({ contentVisibilityAuto: true }) : 'n/a',
+        cvAutoAncestor: skippedAncestor,
+        viewport: innerWidth + 'x' + innerHeight,
+      };
+    })()`);
+    if (!point.covered) break;
+  }
+  if (point.covered) throw new Error(`「${label}」被其他元素蓋住，客戶點不到：${point.hit}（座標 ${Math.round(point.x)},${Math.round(point.y)}／視窗 ${point.viewport}／疊層 ${point.stack.join(' > ')}／content-visibility 可見：${point.visibleWithCv}／auto 祖先：${point.cvAutoAncestor}）`);
   for (const type of ['mousePressed', 'mouseReleased']) {
     await cdp.send('Input.dispatchMouseEvent', { type, x: point.x, y: point.y, button: 'left', clickCount: 1 });
   }
@@ -205,6 +240,25 @@ async function typeDigits(cdp, locator, label, keys) {
       throw new Error(`「${label}」按下「${key}」後焦點跑掉（現在在 ${active}），手機鍵盤會被收掉、後面打的字消失`);
     }
   }
+}
+
+// 客戶畫面不該出現的內部用語（米其林審查 2026-09-15）。折疊全部打開後比對整頁可見文字。
+const INTERNAL_WORDS = ['TEACHER TAROT', 'ZI WEI TIME CHECK', '老師專用', '規則模型', '後端', '前端', '讓客戶', '結構能量指數', '統計面最強', '星曜密度', 'ZW-SF-', 'RESOURCE_EXHAUSTED', 'spending cap'];
+
+async function assertNoInternalWords(cdp) {
+  const found = await evaluate(cdp, `(() => {
+    document.querySelectorAll('details').forEach((d) => { d.open = true; });
+    const text = document.querySelector('main')?.innerText ?? document.body.innerText;
+    const hits = ${JSON.stringify(INTERNAL_WORDS)}.filter((word) => text.includes(word)).map((word) => {
+      const i = text.indexOf(word);
+      return word + '：「' + text.slice(Math.max(0, i - 18), i + word.length + 18).replace(/\\s+/g, ' ') + '」';
+    });
+    // 原始碼的 \\\\uXXXX 沒被當成字串解碼時，客戶會直接看到一串代碼（2026-09-15 塔羅區標題出過）。
+    const raw = /\\\\u[0-9a-fA-F]{4}/.exec(text);
+    if (raw) hits.push('未解碼的字元代碼：「' + text.slice(Math.max(0, raw.index - 10), raw.index + 30) + '」');
+    return hits;
+  })()`);
+  if (found.length) throw new Error(`畫面出現內部用語：${found.join('；')}`);
 }
 
 async function runFlow(cdp, exceptions) {
@@ -283,6 +337,31 @@ async function runFlow(cdp, exceptions) {
       );
       const missing = ['甲寅', '辛未', '待補'].filter((word) => !text.includes(word));
       if (missing.length) throw new Error(`結果缺少：${missing.join('、')}`);
+    });
+
+    await step('客戶看得到的字沒有內部用語（不知道時辰）', async () => assertNoInternalWords(cdp));
+
+    await step('重新分析，改選寅時，出現易經老師解盤', async () => {
+      // 頁面上可能有隱藏的同名按鈕；客戶點的是看得到的那一顆。
+      await tap(cdp, `[...document.querySelectorAll('button')].filter((b) => b.offsetParent && b.textContent.includes('重新分析')).pop()`, '重新分析');
+      await tap(cdp, LOCATORS.female, '女性');
+      await tap(cdp, byText(`${FORM} button`, '我知道出生時辰'), '我知道出生時辰');
+      await tap(cdp, byText(`${FORM} button[aria-pressed]`, '寅時'), '寅時');
+      await tap(cdp, LOCATORS.submit, '開始紫微斗數分析');
+      await waitFor(cdp, `document.body.innerText.includes('易經老師解盤｜')`, '易經老師解盤出現', PAGE_TIMEOUT_MS);
+    });
+
+    await step('命宮塔羅牌是後端選好送來的', async () => {
+      await waitFor(cdp, `Boolean(document.querySelector('img[alt^="命宮塔羅 "]'))`, '命宮塔羅牌圖片');
+    });
+
+    await step('客戶看得到的字沒有內部用語（有時辰）', async () => assertNoInternalWords(cdp));
+
+    await step('鬼魅老師：年齡由後端送來', async () => {
+      await tap(cdp, `[...document.querySelectorAll('button')].find((b) => b.textContent.includes('鬼魅老師解盤') && b.textContent.includes('恐怖'))`, '鬼魅老師解盤');
+      const text = await waitFor(cdp, `(() => { const t = document.body.innerText; return t.includes('第三幕') ? t : ''; })()`, '鬼魅老師劇情出現', PAGE_TIMEOUT_MS);
+      if (!/你現在 \d+ 歲/.test(text)) throw new Error('鬼魅老師沒有顯示後端送來的年齡');
+      await assertNoInternalWords(cdp);
     });
 
     await step('全程無未捕捉的前端錯誤', async () => {

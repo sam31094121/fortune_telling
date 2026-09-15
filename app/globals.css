@@ -11146,7 +11146,6 @@ body.app-touching .home-taiji-cinema * {
   content-visibility: auto;
   contain-intrinsic-size: 1px 180px;
 }
-
 @media (max-width: 430px) {
   .home-taiji-cinema .modal-taiji-button::before,
   .home-taiji-cinema .modal-taiji-button::after,
@@ -25170,6 +25169,18 @@ a.home-feature-launch::after {
     transition: none !important;
     filter: none !important;
     opacity: 1 !important;
+    /* 卡片為了手機捲動效能開了 content-visibility: auto，畫面外的卡片不渲染；
+       列印時沒有「畫面外」可言，不關掉就會印出一整疊空白框（2026-09-15 實測 14 頁）。 */
+    content-visibility: visible !important;
+    contain: none !important;
+  }
+
+  /* 圖片在紙上限高：塔羅與神獸圖原尺寸會把報告撐成十幾頁 */
+  img {
+    max-height: 80mm !important;
+    width: auto !important;
+    max-width: 100% !important;
+    object-fit: contain !important;
   }
 
   .fortune-card,
@@ -25197,6 +25208,16 @@ a.home-feature-launch::after {
   video,
   [aria-hidden='true'] {
     display: none !important;
+  }
+
+  /* 螢幕上為了排版不換行的大標題（例如「殺破狼格局」），紙張較窄會被切掉左右 */
+  .whitespace-nowrap {
+    white-space: normal !important;
+  }
+
+  /* 有些 button 本身就是內容（例如命宮卡整張可翻面），標了 data-print-keep 的照印 */
+  button[data-print-keep] {
+    display: block !important;
   }
 
   /* 摺疊區在紙上要全部攤開，客戶才不會拿到一疊「請點選展開」 */

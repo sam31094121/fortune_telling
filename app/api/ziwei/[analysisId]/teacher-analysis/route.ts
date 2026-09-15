@@ -20,7 +20,7 @@ import { runThreeInOne } from '@/lib/three-in-one';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const PROMPT_VERSION = 'teacher-v14-annual-theme-clean';
+const PROMPT_VERSION = 'teacher-v15-plain-customer-copy';
 
 type RouteContext = { params: Promise<{ analysisId: string }> };
 

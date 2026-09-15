@@ -15,18 +15,18 @@ function load(relative) {
   if (file.endsWith('.json')) return JSON.parse(fs.readFileSync(file, 'utf8'));
   if (!path.extname(file)) file += fs.existsSync(file + '.ts') ? '.ts' : '.tsx';
   if (cache.has(file)) return cache.get(file).exports;
-  const module = { exports: {} }; cache.set(file, module);
+  const mod = { exports: {} }; cache.set(file, mod);
   const source = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: {
     module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true,
   } }).outputText;
   const customRequire = id => {
     if (id.endsWith('.css')) return new Proxy({}, { get: (_, key) => String(key) });
-    if (id === 'next/link') return ({ children, ...props }) => React.createElement('a', props, children);
+    if (id === 'next/link') return function Link({ children, ...props }) { return React.createElement('a', props, children); };
     if (id === 'next/dynamic') return () => () => null;
     return id.startsWith('@/') ? load(id.slice(2)) : id.startsWith('.') ? load(path.resolve(path.dirname(file), id)) : require(id);
   };
-  vm.runInNewContext(source, { module, exports: module.exports, require: customRequire, console, setTimeout, clearTimeout, AbortController, structuredClone, crypto: require('node:crypto').webcrypto }, { filename: file });
-  return module.exports;
+  vm.runInNewContext(source, { module: mod, exports: mod.exports, require: customRequire, console, setTimeout, clearTimeout, AbortController, structuredClone, crypto: require('node:crypto').webcrypto }, { filename: file });
+  return mod.exports;
 }
 const render = (component, props = {}) => renderToStaticMarkup(React.createElement(component, props));
 const onlyBattle = html => {

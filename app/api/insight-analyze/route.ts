@@ -4,6 +4,7 @@ import type { InsightRequest } from '@/lib/types';
 import { isValidBirthday } from '@/lib/validation';
 import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
 import { runThreeInOne } from '@/lib/three-in-one';
+import { buildZiweiCustomerReadings } from '@/lib/ziwei-teacher-synthesis';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // 設定最大執行時間 60 秒
@@ -43,7 +44,7 @@ function getCacheKey(body: InsightRequest): string {
     longitudeKey,
     timezoneKey,
     correctionKey,
-    'insight-v3-ziwei-presentation',
+    'insight-v4-backend-customer-readings',
   ]);
 }
 
@@ -182,6 +183,13 @@ export async function POST(request: Request) {
       ...analysis,
       threeInOne,
       starBeasts: threeInOne.status === 'PASSED' ? threeInOne.result.starBeasts : [],
+      // 老師合盤、命宮塔羅、年齡：後端算好送出，前端只顯示（米其林審查 2026-09-15）。
+      ...buildZiweiCustomerReadings({
+        chart: analysis.ziweiSanFang,
+        annual: analysis.annualFortune,
+        destinyCard: analysis.destinyCard,
+        birthDate: body.birthDate,
+      }),
     };
 
     // 儲存到快取
