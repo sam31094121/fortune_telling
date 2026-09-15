@@ -657,13 +657,13 @@ export default function BeastGamePage() {
                   ) : (
                     <>
                       <span className="text-2xl leading-none">＋</span>
-                      <span className="mt-1.5 text-[11px] font-bold">放一張神獸卡</span>
+                      <span className="mt-1.5 text-[13px] font-bold">放一張神獸卡</span>
                     </>
                   )}
                 </button>
 
-                <p className="mt-1.5 text-center text-[11px] font-black text-white/80">{SLOT_META[index].name}</p>
-                <p className="text-center text-[10px] leading-4 text-white/40">{SLOT_META[index].hint}</p>
+                <p className="mt-1.5 text-center text-sm font-black text-white/90">{SLOT_META[index].name}</p>
+                <p className="text-center text-xs leading-5 text-white/70">{SLOT_META[index].hint}</p>
                 {/*
                   「移出」永遠佔位。
 
@@ -712,7 +712,7 @@ export default function BeastGamePage() {
           )}
         </div>
         {recommendNote && (
-          <p data-recommend-note className="mt-2 rounded-xl bg-white/5 px-3 py-2 text-[11px] leading-5 text-white/60">
+          <p data-recommend-note className="mt-2 rounded-xl bg-white/5 px-3 py-2 text-sm leading-6 text-white/80">
             {recommendNote}
           </p>
         )}
@@ -741,7 +741,7 @@ export default function BeastGamePage() {
           {owned.storageError ? <p role="alert" className="text-sm text-amber-100">{owned.storageError}</p> : owned.all.length === 0 ? (
             <div data-stake-empty>
               <p className="text-xs font-black text-amber-100">{BATTLE_NO_STAKE_GUIDE.headline}</p>
-              <p className="mt-1 text-[11px] leading-5 text-white/60">{BATTLE_NO_STAKE_GUIDE.body}</p>
+              <p className="mt-1 text-sm leading-6 text-white/80">{BATTLE_NO_STAKE_GUIDE.body}</p>
               <Link
                 href={BATTLE_NO_STAKE_GUIDE.href}
                 className="mt-2.5 inline-block min-h-11 rounded-xl bg-amber-300 px-4 py-3 text-xs font-black text-slate-950"
@@ -763,7 +763,7 @@ export default function BeastGamePage() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={stakeCard.thumbnail} alt="" aria-hidden="true" className={frameStyles.art} />
                   ) : (
-                    <span className="grid h-full w-full place-items-center text-[10px] font-bold text-amber-100/70">
+                    <span className="grid h-full w-full place-items-center text-xs font-bold text-amber-100/85">
                       選一張
                     </span>
                   )}
@@ -771,7 +771,7 @@ export default function BeastGamePage() {
 
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-black text-amber-100">{stakeRisk.headline}</p>
-                  <p className="mt-1 text-[11px] leading-5 text-white/60">{stakeRisk.detail}</p>
+                  <p className="mt-1 text-sm leading-6 text-white/80">{stakeRisk.detail}</p>
                   <p className="mt-1 text-sm text-amber-100">押注籌碼 {stakeCard ? 1 : 0} 張{stakeCard ? `・${stakeCard.name}持有 ${owned.counts.get(stakeCard.id) ?? 0} 張` : ''}</p>
                   {stakeCard && <button type="button" className="min-h-11 text-sm underline" disabled={dueling || stakeSaved === false} onClick={() => {
                     if (duelInFlight.current) return;
@@ -782,7 +782,7 @@ export default function BeastGamePage() {
               </div>
 
               {/* 只列自己的卡。押不是從六十張裡挑，是從你手上有的挑。 */}
-              <p className="mt-2.5 text-[11px] font-bold text-white/50">
+              <p className="mt-2.5 text-sm font-bold text-white/75">
                 持有共 {[...owned.counts.values()].reduce((sum, n) => sum + n, 0)} 張（{owned.all.length} 種）・本場押 1 張
               </p>
               <ul className="mt-1.5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin] [scrollbar-color:#bba16655_transparent]" data-owned-cards>
@@ -792,7 +792,8 @@ export default function BeastGamePage() {
                   const chosen = board.stake === cardId;
                   const count = owned.counts.get(cardId) ?? 1;
                   return (
-                    <li key={cardId} className="w-16 shrink-0">
+                    <li key={cardId} className="w-20 shrink-0">
+                      {/* 2026-09-15：卡名放大到 12px 後 64px 會把「角木蛟・幼子」斷成兩行；加寬到 80px，卡圖也更好認。 */}
                       <button
                         type="button"
                         onClick={() => { if (!duelInFlight.current) {
@@ -818,7 +819,7 @@ export default function BeastGamePage() {
                           </span>
                         )}
                       </button>
-                      <p className="mt-1 text-center text-[10px] leading-4 text-white/70">{card.name}</p>
+                      <p className="mt-1 text-center text-xs leading-4 text-white/85">{card.name}</p>
                     </li>
                   );
                 })}
@@ -903,7 +904,18 @@ export default function BeastGamePage() {
                 retrying={settling}
                 onRetry={retrySettlement}
               />}
-              {!dueling && stakeSaved !== false && <button type="button" className="mt-3 min-h-12 w-full rounded-xl bg-amber-200 px-3 py-2 text-sm font-black text-slate-950" onClick={() => {
+              {/* 收藏進度（2026-09-15 黏著度）：只算這台裝置真的持有的種類，不灌水。 */}
+              {stakeSaved === true && cards.length > 0 && <div data-collection-progress className="mt-3 rounded-xl border border-cyan-200/25 bg-cyan-300/[0.06] p-3">
+                <p className="text-sm font-black text-cyan-100">已收藏 {owned.all.length} / {cards.length} 種{owned.all.length < cards.length ? `・還差 ${cards.length - owned.all.length} 種收齊` : '・全部收齊'}</p>
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10" aria-hidden="true"><div className="h-full rounded-full bg-cyan-300" style={{ width: `${Math.min(100, Math.round((owned.all.length / cards.length) * 100))}%` }} /></div>
+              </div>}
+              {/* 再來一場少一步：押注卡還在手上就沿用，帶到開戰鈕；仍由客人親手按「啟陣」。 */}
+              {!dueling && stakeSaved !== false && !duel.isReplay && stakeCard && (owned.counts.get(stakeCard.id) ?? 0) > 0 && <button type="button" data-restake className="mt-3 min-h-12 w-full rounded-xl bg-amber-200 px-3 py-2 text-base font-black text-slate-950" onClick={() => {
+                setPlacementNote(`押注卡「${stakeCard.name}」1 張已放好。按「確認押 1 張，親手啟陣」就開始。`);
+                startRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                startRef.current?.focus({ preventScroll: true });
+              }}>再押「{stakeCard.name}」一場</button>}
+              {!dueling && stakeSaved !== false && <button type="button" className={`mt-3 min-h-12 w-full rounded-xl px-3 py-2 text-sm font-black ${!duel.isReplay && stakeCard && (owned.counts.get(stakeCard.id) ?? 0) > 0 ? 'border border-amber-200/50 text-amber-100' : 'bg-amber-200 text-slate-950'}`} onClick={() => {
                 setBoard(prev => ({ ...prev, stake: null }));
                 setPlacementNote('已保留原三張出戰卡。請親選本場押注卡，確認後才開戰。');
                 stakeRef.current?.scrollIntoView({ block: 'start' });
@@ -912,19 +924,19 @@ export default function BeastGamePage() {
               {duel.fairness && (
                 <details data-fairness className="mt-3 rounded-xl border border-emerald-300/20 bg-emerald-300/[0.05] p-3">
                   <summary className="min-h-11 cursor-pointer text-sm font-bold text-emerald-100">查看本場規則</summary>
-                  <p className="mt-1.5 text-[11px] leading-5 text-white/60">
+                  <p className="mt-1.5 text-sm leading-6 text-white/80">
                     {duel.firstPlayer === 'PLAYER' ? '你先手' : '易經先手'}・開場隨機決定{duel.isReplay ? '・本場重播' : ''}
                   </p>
                   <ul className="mt-2 space-y-1">
                     {duel.fairness.sameRules.map((rule) => (
-                      <li key={rule} className="flex gap-1.5 text-[11px] leading-5 text-white/55">
+                      <li key={rule} className="flex gap-1.5 text-sm leading-6 text-white/80">
                         <span className="text-emerald-300">✓</span>
                         <span>{rule}</span>
                       </li>
                     ))}
                   </ul>
                   {duel.opponentLineup && (
-                    <p className="mt-1.5 text-[11px] leading-5 text-white/45">
+                    <p className="mt-1.5 text-sm leading-6 text-white/75">
                       易經這次的三席：{duel.opponentLineup.join('、')}
                     </p>
                   )}
@@ -941,7 +953,7 @@ export default function BeastGamePage() {
               )}
               <details className="mt-3">
                 <summary className="min-h-[40px] cursor-pointer text-xs font-bold text-cyan-200">看戰報</summary>
-                <ol className="mt-2 space-y-1 text-[11px] leading-5 text-white/55">
+                <ol className="mt-2 space-y-1 text-sm leading-6 text-white/80">
                   {(duel.timeline ?? []).map((entry, i) => (
                     <li key={i}>
                       <span className="text-white/35">第 {entry.turn} 回合・{entry.side === 'PLAYER' ? '我方' : entry.side === 'OPPONENT' ? '對手' : '雙方'}</span> {entry.note}
@@ -968,7 +980,7 @@ export default function BeastGamePage() {
 
       {/* ── 卡池 ──────────────────────────────────────────────────── */}
       <section aria-label="神獸卡池" data-card-pool>
-        <p className="mb-2 text-xs text-white/50">
+        <p className="mb-2 text-sm text-white/75">
           {loading ? '卡池載入中…' : `${filtered.length} / ${cards.length} 張・點卡片放進「${slotLabel(activeSlot)}」`}
         </p>
         {loadError && <p className="rounded-xl border border-rose-400/30 p-3 text-sm text-rose-200">{loadError}</p>}
@@ -1069,7 +1081,7 @@ export default function BeastGamePage() {
               {([['生命', detail.stats.hp], ['攻擊', detail.stats.attack],
                 ['防禦', detail.stats.defense], ['速度', detail.stats.speed]] as const).map(([label, value]) => (
                 <div key={label} className="rounded-xl bg-white/5 py-2">
-                  <dt className="text-[10px] text-white/45">{label}</dt>
+                  <dt className="text-xs text-white/70">{label}</dt>
                   <dd className="text-base font-black">{value}</dd>
                 </div>
               ))}
@@ -1084,12 +1096,12 @@ export default function BeastGamePage() {
               ))}
             </ul>
             <h4 className="mt-4 text-xs font-black text-amber-200">交鋒招式</h4>
-            <p className="mt-1 text-[11px] leading-5 text-white/60">翻牌後展開交鋒；技能效果與勝負以本場戰報為準。</p>
+            <p className="mt-1 text-sm leading-6 text-white/80">翻牌後展開交鋒；技能效果與勝負以本場戰報為準。</p>
             <ul className="mt-1.5 space-y-1.5">
               {(detail.battleSkills ?? []).map((skill) => (
                 <li key={skill.id} className="rounded-xl bg-amber-400/10 px-3 py-2 ring-1 ring-amber-300/20">
-                  <p className="text-xs font-bold">{skill.name}<span className="ml-2 text-[10px] font-normal text-amber-100/50">{skill.trigger}</span></p>
-                  <p className="mt-0.5 text-[11px] leading-5 text-white/55">{skill.description}</p>
+                  <p className="text-xs font-bold">{skill.name}<span className="ml-2 text-xs font-normal text-amber-100/75">{skill.trigger}</span></p>
+                  <p className="mt-0.5 text-sm leading-6 text-white/80">{skill.description}</p>
                 </li>
               ))}
             </ul>
@@ -1135,14 +1147,14 @@ function FilterRow<T extends string | number>({ label, value, onChange, options 
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="w-8 shrink-0 text-[11px] font-bold text-white/45">{label}</span>
+      <span className="w-8 shrink-0 text-xs font-bold text-white/75">{label}</span>
       <div className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto pb-1">
         {options.map(([key, text]) => (
           <button
             key={key}
             type="button"
             onClick={() => onChange(key as never)}
-            className={`min-h-[44px] shrink-0 rounded-full px-3 text-[11px] font-bold transition
+            className={`min-h-[44px] shrink-0 rounded-full px-3 text-sm font-bold transition
               ${String(value) === key ? 'bg-cyan-300 text-slate-950' : 'bg-white/8 text-white/60'}`}
           >
             {text}

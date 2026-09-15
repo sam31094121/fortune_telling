@@ -75,3 +75,14 @@
 .modeBadge{top:12px;right:12px;font-size:13px;padding:5px 12px}
 .freeEntryBtn{margin-bottom:0}
 .modeCards{gap:12px;padding-top:8px}
+
+/* 回來就知道下一步（2026-09-15 黏著度）：只放這台裝置真的持有的收藏與上一場結果；卡圖沿用現有縮圖。 */
+.progressCard{display:flex;align-items:center;gap:14px;width:100%;min-height:96px;padding:14px 16px;margin:8px 0 4px;border-radius:18px;border:2px solid rgba(125,211,252,0.55);background:linear-gradient(160deg,rgba(40,90,130,0.35),rgba(20,30,50,0.6));color:#e6f4ff;text-decoration:none}
+.progressCard img{width:56px;height:78px;object-fit:cover;border-radius:8px;flex-shrink:0}
+.progressText{display:flex;flex-direction:column;gap:4px;min-width:0}
+.progressText strong{font-size:18px;font-weight:900;color:#ffe1a0}
+.progressText span{font-size:15px;line-height:1.5;color:#d6e4f0}
+.progressText .progressGo{font-weight:800;color:#7dd3fc}
+/* 長輩看得清楚：原本 12px 灰色大寫小標與 11px 步驟籤 */
+.modeNavLabel{font-size:15px;color:#c9d6e2;letter-spacing:.04em}
+.freeEntryStep{font-size:13px}

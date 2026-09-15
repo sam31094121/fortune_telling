@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { recordBeastGameCompleted } from '@/lib/growth-center-client';
-import { readCollection, subscribeCollection } from '@/lib/beast-collection';
+import { readCollection, subscribeCollection, type CollectionHistoryItem } from '@/lib/beast-collection';
+import { MAX_STAKE_CARDS } from '@/lib/beast-game/stake-rules';
 import { legalActions } from '@/lib/beast-game/interactive';
 import type { interactiveCatalog, Match, Action } from '@/lib/beast-game/interactive';
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
@@ -36,6 +37,8 @@ export default function BeastTurnGame() {
   const [automatic, setAutomatic] = useState(false);
   const [prepareStep, setPrepareStep] = useState<'mode' | 'select' | 'confirm'>('mode');
   const [starterPackClaimed, setStarterPackClaimed] = useState<boolean | null>(null);
+  /** 回來就知道下一步：這台裝置真的持有幾種卡、上一場結果。沒有就不顯示，不編數字。 */
+  const [progress, setProgress] = useState<{ kinds: number; last: CollectionHistoryItem | null } | null>(null);
   const [filter, setFilter] = useState('全部');
   const [detail, setDetail] = useState<Card | null>(null);
   const [inspection, setInspection] = useState<{ cardId: string; side: 'player' | 'opponent' } | null>(null);
@@ -51,7 +54,11 @@ export default function BeastTurnGame() {
   // Keep completion accounting invisible to the battle interface.
   useEffect(() => { if (match?.status === 'FINISHED') recordBeastGameCompleted('battlefield'); }, [match?.status]);
   useEffect(() => {
-    const refresh = () => setStarterPackClaimed(Boolean(readCollection().starterPack));
+    const refresh = () => {
+      const collection = readCollection();
+      setStarterPackClaimed(Boolean(collection.starterPack));
+      setProgress({ kinds: new Set(collection.cards.map((entry) => entry.cardId)).size, last: collection.history[0] ?? null });
+    };
     refresh();
     return subscribeCollection(refresh);
   }, []);
@@ -215,6 +222,22 @@ export default function BeastTurnGame() {
     {!account ? <section className={styles.prepareContent} aria-busy="true" aria-live="polite"><p className={styles.pickHint}>正在讀取戰鬥卡…</p><button type="button" className={styles.startBattle} disabled={busy} onClick={() => void load()}>重新載入</button>{errorNotice}</section> : <>
       <section className={styles.prepareContent} aria-label={prepareStep === 'mode' ? '選擇模式' : prepareStep === 'select' ? '選擇神獸卡' : '檢查陣容'}>
         {prepareStep === 'mode' ? <>
+          {progress && progress.kinds > 0 && (() => {
+            const last = progress.last;
+            const lastCard = last?.cardId ? cards.find((card) => card.id === last.cardId) : undefined;
+            const cardName = lastCard ? `「${lastCard.name}」` : '';
+            const lastText = !last ? '' : last.kind === 'WON' ? `上一場贏得${cardName}` : last.kind === 'FORFEITED' ? `上一場輸掉${cardName}，換個陣容再挑戰` : '上一場平手，押注卡已退回';
+            return <Link href="/beast-game/lineup" className={styles.progressCard} data-player-progress>
+              {/* 卡圖沿用現有縮圖素材，不另產圖。 */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {lastCard && <img src={lastCard.thumbnail} alt="" aria-hidden="true" />}
+              <span className={styles.progressText}>
+                <strong>你已收藏 {progress.kinds} 種神獸卡</strong>
+                {lastText && <span>{lastText}</span>}
+                <span className={styles.progressGo}>帶著卡去中等押注 →</span>
+              </span>
+            </Link>;
+          })()}
           <p className={styles.modeNavLabel} role="status">請先選難度（三選一）</p>
           <div className={styles.modeCards} role="list" aria-label="難度選擇">
             <button type="button" role="listitem" className={styles.freeEntryBtn} onClick={() => { setPrepareStep('select'); setError(''); }} data-difficulty="easy">
@@ -233,7 +256,7 @@ export default function BeastTurnGame() {
             <Link href="/beast-game/battlefield" className={styles.modeCard} role="listitem" data-difficulty="hard" aria-label="困難：五卡押注戰場">
               <span className={styles.modeIcon}>⚔️</span>
               <strong>困難・五卡押注</strong>
-              <span className={styles.modeDesc}>押 5 張收藏卡；輸了失去 5 張</span>
+              <span className={styles.modeDesc}>{`押 1～${MAX_STAKE_CARDS} 張收藏卡；輸了只失去押上的卡`}</span>
               <span className={styles.modeBadge + ' ' + styles.modeBadgeWager}>③ 困難</span>
             </Link>
           </div>
