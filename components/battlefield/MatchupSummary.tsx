@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import styles from './MatchupSummary.module.css';
-import { describeMatchup } from '@/lib/beast-element-guide';
+import { useGuideBook } from './GuideBookContext';
 import type { BeastElement } from '@/lib/beast-game/elements';
 import { ELEMENT_LABEL } from '@/lib/beast-game/elements';
 
@@ -15,7 +15,10 @@ const MatchupSummary = memo(function MatchupSummary({
   playerElement,
   opponentElement,
 }: MatchupSummaryProps) {
-  const matchup = describeMatchup(playerElement, opponentElement);
+  // 對位說明由後端相剋戰力手冊算好；還沒載到就不顯示。
+  const book = useGuideBook();
+  const matchup = book?.matchups[playerElement]?.[opponentElement];
+  if (!matchup) return null;
   const icon = matchup.kind === 'ADVANTAGE' ? '▲' : matchup.kind === 'DISADVANTAGE' ? '▼' : '◉';
   const percent = matchup.kind !== 'NEUTRAL'
     ? `${matchup.kind === 'ADVANTAGE' ? '+' : '-'}${Math.abs(Math.round((matchup.multiplier - 1) * 100))}%`

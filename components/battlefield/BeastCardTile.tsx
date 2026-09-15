@@ -24,7 +24,7 @@
 import { useEffect } from 'react';
 import styles from './BeastCardTile.module.css';
 import { guardianOf, tierOf, TIER_LABEL } from '@/lib/beast-guardians';
-import { combatGuideFor } from '@/lib/beast-game/combat-guide';
+import { useGuideBook } from './GuideBookContext';
 import BattlePowerAnalysis from './BattlePowerAnalysis';
 import ElementOrbDisplay from './ElementOrbDisplay';
 // 正統比例與圖窗的唯一來源。這裡不重新定義，只疊手感與狀態。
@@ -106,6 +106,7 @@ export function CardDetailSheet({
   onAction?: () => void;
   onClose: () => void;
 }) {
+  const book = useGuideBook();
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
@@ -142,7 +143,7 @@ export function CardDetailSheet({
         {note && <p className={styles.block}><strong>狀態</strong>{note}</p>}
 
         <BattlePowerAnalysis cardId={card.id} />
-        {(() => { const guide = combatGuideFor(card.id); return guide ? <p className={styles.block}><strong>{guide.skill.name}・耗氣 {guide.skill.cost}</strong>{guide.skill.description}</p> : null; })()}
+        {(() => { const guide = book?.cards[card.id]; return guide ? <p className={styles.block}><strong>{guide.skill.name}・耗氣 {guide.skill.cost}</strong>{guide.skill.description}</p> : null; })()}
 
         {actionLabel && onAction && (
           <button

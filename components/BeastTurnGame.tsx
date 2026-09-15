@@ -18,6 +18,7 @@ import styles from './BeastTurnGame.module.css';
 import battleStyles from './battlefield/BattleScreen.module.css';
 import venueStyles from './battlefield/BattleVenue.module.css';
 import BattlePace from './battlefield/BattlePace';
+import { GuideBookProvider, useFetchedGuideBook } from './battlefield/GuideBookContext';
 import { useCombatPlayback } from './battlefield/useCombatPlayback';
 import BattleHelpPanel from './battlefield/BattleHelpPanel';
 import VictoryAnimation from './battlefield/VictoryAnimation';
@@ -28,7 +29,7 @@ type Card = ReturnType<typeof interactiveCatalog>[number];
 type Account = { owned: string[]; match: Match | null; revision: number };
 const labels: Record<string, string> = { SPACE: '空', AIR: '風', WATER: '水', FIRE: '火', EARTH: '地' };
 
-export default function BeastTurnGame() {
+function BeastTurnGameScreen() {
   const [cards, setCards] = useState<Card[]>([]);
   const [account, setAccount] = useState<Account | null>(null);
   /** 後端送來的可出招清單與暴怒判斷（前端只顯示）。 */
@@ -172,7 +173,7 @@ export default function BeastTurnGame() {
             <div className={battleStyles.controlsHeading}><strong>{inspection ? '相剋' : match.status === 'FINISHED' && !playing ? '結果' : `R${match.round}`}</strong><span>{busy || playing ? '…' : match.status === 'FINISHED' ? '✓' : '⚔'}</span></div>
             <div className={battleStyles.controlScroll} ref={scroll} data-control-scroll>
               {errorNotice}
-              {inspection && <BattleCardGuide cardId={inspection.cardId} fighter={inspected} opponent={other.team[other.active]} context={{ match, side: inspection.side }} opponentElement={other.team[other.active].element} onClose={() => { setInspection(null); scroll.current?.scrollTo({ top: 0 }); }} />}
+              {inspection && <BattleCardGuide cardId={inspection.cardId} live={Boolean(inspected)} liveGuide={battleView?.guides[inspection.side][inspection.cardId] ?? null} enemyGuide={battleView?.guides[inspection.side === 'player' ? 'opponent' : 'player'][other.team[other.active].cardId] ?? null} opponentElement={other.team[other.active].element} onClose={() => { setInspection(null); scroll.current?.scrollTo({ top: 0 }); }} />}
               <div hidden={Boolean(inspection) || (Boolean(error) && match.status === 'PLAYING')}>
                 <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} canAct={Boolean(battleView?.legal.length)} onAutomatic={setAutomatic} onAuto={autoStep} />
                 <BattlePanel match={match} view={battleView} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
@@ -336,4 +337,10 @@ export default function BeastTurnGame() {
       {detail && <CardDetailSheet card={{ ...detail, story: undefined }} onClose={() => setDetail(null)} />}
     </>}
   </main>;
+}
+
+/** 相剋戰力手冊由後端算好；外層載入一次，交給所有戰鬥元件照印。 */
+export default function BeastTurnGame() {
+  const guideBook = useFetchedGuideBook();
+  return <GuideBookProvider value={guideBook}><BeastTurnGameScreen /></GuideBookProvider>;
 }

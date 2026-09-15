@@ -7,7 +7,8 @@
  *
  * 這支測試把那句話變成會紅的斷言：網頁端元件一行戰鬥運算都不准有。
  * 第一階段：困難戰場戰鬥與押注結算搬到後端；第二階段：可出招與暴怒判斷由後端 battleViewFor 送來。
- * 第三階段待辦（照實列出，不假裝做完）：相剋與戰力分析、開局發牌與易經佈陣仍在網頁端（見最後一項）。
+ * 第三階段：3A 開局發牌與易經佈陣搬到後端（牌桌票）；3B 相剋與戰力分析由後端手冊與戰況判斷送來。
+ * 掃描不看 'use client' 標記——被網頁端元件引用的元件一樣在瀏覽器執行。
  */
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -37,13 +38,15 @@ const COMPUTE = ['advance', 'chooseAI', 'newMatch', 'startFromField', 'judgeVict
   // 第二階段：可出招與暴怒判斷
   'legalActions', 'rageUnavailableReason', 'rageMaterialFor', 'rageFusionGuide', 'battleViewFor',
   // 第三階段 3A：開局發牌、洗牌、易經自動佈陣
-  'newBattle', 'autoPlaceOpponent', 'buildUniqueDeck', 'buildFreshOpeningDeck'];
+  'newBattle', 'autoPlaceOpponent', 'buildUniqueDeck', 'buildFreshOpeningDeck',
+  // 第三階段 3B：相剋與戰力分析
+  'combatGuideFor', 'describeMatchup', 'explainOutcome', 'elementPercent', 'elementGuideRows', 'elementMultiplier', 'describeCardElement', 'buildGuideBook', 'liveGuidesFor'];
 
 check('網頁端元件不得呼叫任何戰鬥、易經、押注運算函式', () => {
   const offenders = [];
   for (const file of [...walk('components'), ...walk('app/beast-game')]) {
     const source = read(file);
-    if (!isClient(source)) continue;
+    // 不看 'use client' 標記：被網頁端元件引用的元件一樣在瀏覽器執行（3B 盤點時抓到 BattlePowerAnalysis 漏網）。
     const code = stripComments(source);
     for (const name of COMPUTE) {
       if (new RegExp(`(^|[^\\w.])${name}\\(`, 'm').test(code)) offenders.push(`${file} → ${name}()`);
@@ -124,19 +127,17 @@ check('第三階段 3A：開局發牌與易經自動佈陣在後端，開戰核�
   assert.equal(openBattleSession(token), null, '牌桌票不能冒充戰局票');
 });
 
-check('第三階段 3B 待辦照實列出：相剋與戰力分析仍在網頁端', () => {
-  // 演出規劃（planTierPresentation／planFusionPresentation）只決定播哪段動畫與音效，屬前端視覺感官，不列入。
-  const PHASE3 = ['combatGuideFor', 'describeMatchup', 'explainOutcome', 'elementPercent', 'elementGuideRows', 'elementMultiplier'];
-  const pending = [];
-  for (const file of [...walk('components'), ...walk('app/beast-game')]) {
-    const source = read(file);
-    if (!isClient(source)) continue;
-    const code = stripComments(source);
-    const hits = PHASE3.filter((name) => new RegExp(`(^|[^\\w.])${name}\\(`, 'm').test(code));
-    if (hits.length) pending.push(`${file}：${hits.join('、')}`);
+check('第三階段 3B：相剋與戰力分析由後端算好（手冊 API＋戰況判斷），元件照印', () => {
+  // 演出規劃（planTierPresentation／planFusionPresentation）只決定播哪段動畫與音效，屬前端視覺感官，不列入後端化。
+  assert.match(stripComments(read('app/api/beast-game/guide-book/route.ts')), /buildGuideBook\(\)/);
+  assert.match(stripComments(read('lib/beast-game/battle-view.ts')), /guides: liveGuidesFor\(match\)/);
+  for (const file of ['components/battlefield/BattleArena.tsx', 'components/battlefield/BattleCardGuide.tsx', 'components/battlefield/BattlePowerAnalysis.tsx', 'components/battlefield/BeastCardTile.tsx', 'components/battlefield/ElementMatchupGuide.tsx', 'components/battlefield/MatchupSummary.tsx']) {
+    assert.match(read(file), /useGuideBook\(\)/, `${file} 要照印後端相剋戰力手冊`);
   }
-  console.log(`   第三階段 3B 待辦（${pending.length} 個檔案）：\n     ${pending.join('\n     ') || '已全部完成'}`);
-  assert.ok(true);
+  assert.match(read('components/battlefield/BattlePanel.tsx'), /view\?\.guides\.outcome/, '戰果解說照印後端判斷');
+  for (const file of ['app/beast-game/battlefield/page.tsx', 'components/BeastTurnGame.tsx']) {
+    assert.match(read(file), /<GuideBookProvider value=\{guideBook\}>/, `${file} 外層要載入後端手冊`);
+  }
 });
 
 console.log(`beast backend-only — PASS ${passed}`);

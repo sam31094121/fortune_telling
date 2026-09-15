@@ -28,7 +28,10 @@ function load(relative) {
   vm.runInNewContext(source, { module: mod, exports: mod.exports, require: customRequire, console, setTimeout, clearTimeout, AbortController, structuredClone, crypto: require('node:crypto').webcrypto }, { filename: file });
   return mod.exports;
 }
-const render = (component, props = {}) => renderToStaticMarkup(React.createElement(component, props));
+let guideBookCache;
+const bookOf = () => (guideBookCache ??= load('lib/beast-game/guide-book.ts').buildGuideBook());
+// 2026-09-15 後端化 3B：相剋戰力手冊由後端 buildGuideBook 算好；渲染真實元件時包上同一份手冊。
+const render = (component, props = {}) => renderToStaticMarkup(React.createElement(load('components/battlefield/GuideBookContext.tsx').GuideBookProvider, { value: bookOf() }, React.createElement(component, props)));
 // 2026-09-15 第二階段：可出招與暴怒判斷由後端 battleViewFor 送來；渲染真實元件時傳入同一份後端判斷。
 const viewOf = (m) => load('lib/beast-game/battle-view.ts').battleViewFor(m);
 const onlyBattle = html => {
@@ -318,7 +321,7 @@ for (const card of interactiveCatalog()) {
   assert.doesNotMatch(html,/預測勝率|保證獲勝|戰力差距很小/);
 }
 const changed=structuredClone(match);changed.player.team[0].modifiers.push({stat:'attack',value:-200,remainingTurns:2,source:'test'});
-const analysisHtml=render(Analysis,{cardId:changed.player.team[0].cardId,fighter:changed.player.team[0],opponent:changed.opponent.team[0],context:{match:changed,side:'player'}});
+const analysisHtml=render(Analysis,{cardId:changed.player.team[0].cardId,guide:combatGuideFor(changed.player.team[0].cardId,changed.player.team[0],{match:changed,side:'player'}),enemy:combatGuideFor(changed.opponent.team[0].cardId,changed.opponent.team[0]),live:true});
 assert.match(analysisHtml,/攻擊 0 對 46：低 46/);
 const tileSource=fs.readFileSync(path.join(root,'components/battlefield/BeastCardTile.tsx'),'utf8');
 const freeSource=fs.readFileSync(path.join(root,'components/BeastTurnGame.tsx'),'utf8');

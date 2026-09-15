@@ -34,7 +34,6 @@ import {
 } from '@/lib/beast-battle-fx';
 import { performedAction, isDamagingAction, COMBAT_BEAT_MS } from '@/lib/beast-game/combat-presentation';
 import { weaponFor } from '@/lib/beast-game/weapons';
-import { describeMatchup, explainOutcome } from '@/lib/beast-element-guide';
 import type { BeastElement } from '@/lib/beast-game/elements';
 import type { BattleView } from '@/lib/beast-game/battle-view';
 import {
@@ -407,9 +406,9 @@ const BattlePanel = memo(function BattlePanel({
         所以出戰中就把「你剋他／他剋你」寫在血條下面。
       */}
       {!compact && (() => {
-        const mine = match.player.team[match.player.active];
-        const foe = match.opponent.team[match.opponent.active];
-        const matchup = describeMatchup(mine.element as BeastElement, foe.element as BeastElement);
+        // 對位說明由後端判斷送來（後端化第三階段 3B）。
+        const matchup = view?.guides.matchup;
+        if (!matchup) return null;
         const tone = matchup.kind === 'ADVANTAGE' ? styles.advantage
           : matchup.kind === 'DISADVANTAGE' ? styles.disadvantage : styles.neutral;
         return (
@@ -429,13 +428,7 @@ const BattlePanel = memo(function BattlePanel({
             把「我輸了」跟「我帶錯元素」接起來，客戶才學得到。
           */}
           <small data-outcome-reason>
-            {explainOutcome(
-              match.winner,
-              describeMatchup(
-                match.player.team[match.player.active].element as BeastElement,
-                match.opponent.team[match.opponent.active].element as BeastElement,
-              ),
-            )}
+            {view?.guides.outcome ?? ''}
           </small>
         </p>
       ) : (

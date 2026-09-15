@@ -47,6 +47,7 @@ import DeckBuilder from '@/components/battlefield/DeckBuilder';
 import { BATTLEFIELD_DECK_SIZE, sanitizeDeckSelection } from '@/lib/beast-game/deck-builder';
 import { useCombatPlayback } from '@/components/battlefield/useCombatPlayback';
 import BattlePace from '@/components/battlefield/BattlePace';
+import { GuideBookProvider, useFetchedGuideBook } from '@/components/battlefield/GuideBookContext';
 import { MAX_REWARD_CARDS, MAX_STAKE_CARDS } from '@/lib/beast-game/stake-rules';
 
 /** 一副牌的張數。六十張是卡池，不是一副牌全部上桌。 */
@@ -76,7 +77,7 @@ function secureSeed(): number {
   return values[0] || (Date.now() >>> 0) || 1;
 }
 
-export default function BattlefieldPage() {
+function BattlefieldScreen() {
   const [cards, setCards] = useState<BattlefieldCardArt[]>([]);
   const [state, setState] = useState<BattleState | null>(null);
   /** 開戰之後的戰鬥狀態。null＝還在佈陣。 */
@@ -512,9 +513,9 @@ export default function BattlefieldPage() {
               </div>
               <div className={styles.controlScroll} ref={controlScroll} key={match ? 'battle' : 'prepare'} data-control-scroll>
                 {inspection && <BattleCardGuide key={`${inspection.side}-${inspection.cardId}`} cardId={inspection.cardId}
-                  fighter={match?.[inspection.side].team.find(fighter => fighter.cardId === inspection.cardId)}
-                  context={match ? { match, side: inspection.side } : undefined}
-                  opponent={match ? (() => { const other = inspection.side === 'player' ? match.opponent : match.player; return other.team[other.active]; })() : undefined}
+                  live={Boolean(match?.[inspection.side].team.some(fighter => fighter.cardId === inspection.cardId))}
+                  liveGuide={battleView?.guides[inspection.side][inspection.cardId] ?? null}
+                  enemyGuide={match && battleView ? (() => { const otherSide = inspection.side === 'player' ? 'opponent' : 'player'; const other = match[otherSide]; return battleView.guides[otherSide][other.team[other.active].cardId] ?? null; })() : null}
                   opponentElement={(() => {
                     const other = inspection.side === 'player' ? 'opponent' : 'player';
                     return match ? match[other].team[match[other].active].element : cards.find(card => card.id === state[other].active)?.element as BeastElement | undefined;
@@ -610,4 +611,10 @@ export default function BattlefieldPage() {
       </div>
     </main>
   );
+}
+
+/** 相剋戰力手冊由後端算好；外層載入一次，交給所有戰鬥元件照印。 */
+export default function BattlefieldPage() {
+  const guideBook = useFetchedGuideBook();
+  return <GuideBookProvider value={guideBook}><BattlefieldScreen /></GuideBookProvider>;
 }

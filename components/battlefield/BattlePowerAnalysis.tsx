@@ -1,16 +1,17 @@
-import { combatGuideFor, elementPercent } from '@/lib/beast-game/combat-guide';
-import { ELEMENTS, ELEMENT_LABEL } from '@/lib/beast-game/elements';
-import type { Fighter, Match, Side } from '@/lib/beast-game/interactive';
+import { ELEMENTS, ELEMENT_LABEL, type BeastElement } from '@/lib/beast-game/elements';
+import type { CombatGuide } from '@/lib/beast-game/guide-book';
+import { useGuideBook } from './GuideBookContext';
 import styles from './BattleCardGuide.module.css';
 
 /** Display only core values and explicitly named comparisons; no invented total score or win chance. */
-export default function BattlePowerAnalysis({ cardId, fighter, opponent, context }: {
-  cardId: string; fighter?: Fighter; opponent?: Fighter; context?: { match: Match; side: Side };
+/* 數值與相剋全部來自後端：出戰基礎取相剋戰力手冊，戰況中取後端判斷送來的 guide／enemy；這裡只照印（後端化第三階段 3B）。 */
+export default function BattlePowerAnalysis({ cardId, guide: liveGuide = null, enemy = null, live = false }: {
+  cardId: string; guide?: CombatGuide | null; enemy?: CombatGuide | null; live?: boolean;
 }) {
-  const guide = combatGuideFor(cardId, fighter, context);
+  const book = useGuideBook();
+  const guide = liveGuide ?? book?.cards[cardId] ?? null;
   if (!guide) return <p>這張卡的戰鬥資料尚未取得，暫不顯示強弱數值。</p>;
-  const enemy = opponent ? combatGuideFor(opponent.cardId, opponent) : null;
-  const live = fighter?.cardId === cardId;
+  const percent = (attacker: string, defender: string) => book?.matchups[attacker as BeastElement]?.[defender as BeastElement]?.percent ?? '—';
   const statLabels = { hp: '生命', attack: '攻擊', defense: '防禦', speed: '速度' } as const;
   return <div className={styles.analysis} data-power-analysis={cardId}>
     <p className={styles.relation}>五元素相剋：{guide.relation.line}</p>
@@ -32,7 +33,7 @@ export default function BattlePowerAnalysis({ cardId, fighter, opponent, context
         const delta = guide.stats[stat] - enemy.stats[stat];
         return <span key={stat}>{statLabels[stat]} {guide.stats[stat]} 對 {enemy.stats[stat]}：{delta === 0 ? '相同' : `${delta > 0 ? '高' : '低'} ${Math.abs(delta)}`}</span>;
       })}
-      <span>攻擊元素倍率：我攻對方 {elementPercent(guide.element, enemy.element)}／對方攻我 {elementPercent(enemy.element, guide.element)}</span>
+      <span>攻擊元素倍率：我攻對方 {percent(guide.element, enemy.element)}／對方攻我 {percent(enemy.element, guide.element)}</span>
       <small>比較的是目前數值；技能、換卡、護盾與先後手仍會影響結果。</small>
     </article>}
     <article className={styles.ability}>
@@ -51,7 +52,7 @@ export default function BattlePowerAnalysis({ cardId, fighter, opponent, context
       <summary>對五元素的攻守強弱</summary>
       <table className={styles.matchups}><caption>攻擊元素倍率，尚未扣除防禦、護盾或生命上限</caption>
         <thead><tr><th>對方元素</th><th>本卡攻對方</th><th>對方攻本卡</th></tr></thead>
-        <tbody>{ELEMENTS.map(element => <tr key={element}><th scope="row">{ELEMENT_LABEL[element]}</th><td>{elementPercent(guide.element, element)}</td><td>{elementPercent(element, guide.element)}</td></tr>)}</tbody>
+        <tbody>{ELEMENTS.map(element => <tr key={element}><th scope="row">{ELEMENT_LABEL[element]}</th><td>{percent(guide.element, element)}</td><td>{percent(element, guide.element)}</td></tr>)}</tbody>
       </table>
       <p>{guide.tactics?.teamHint.reason}</p><p>{guide.tactics?.teamHint.roleComplement}</p>
     </details>

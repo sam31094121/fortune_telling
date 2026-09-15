@@ -11,9 +11,8 @@ import { VitalBar } from './BattlePanel';
 import { legalDestinations, type BattleState, type Destination } from '@/lib/beast-game/battlefield';
 import { profile, RAGE_TIERS, type Action, type Match } from '@/lib/beast-game/interactive';
 import type { BattleView } from '@/lib/beast-game/battle-view';
-import { describeMatchup } from '@/lib/beast-element-guide';
-import { ELEMENTS, ELEMENT_LABEL, elementMultiplier, type BeastElement } from '@/lib/beast-game/elements';
-import { elementPercent } from '@/lib/beast-game/combat-guide';
+import { useGuideBook } from './GuideBookContext';
+import { ELEMENTS, ELEMENT_LABEL, type BeastElement } from '@/lib/beast-game/elements';
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
 import { COMBAT_BEAT_MS } from '@/lib/beast-game/combat-presentation';
 import styles from './BattleArena.module.css';
@@ -40,7 +39,9 @@ export default function BattleArena({ state, cards, match, view, onInspect, onSw
   const lookup = useMemo(() => new Map(cards.map(card => [card.id, card])), [cards]);
   const mine = match ? lookup.get(match.player.team[match.player.active].cardId) : lookup.get(state?.player.active ?? '');
   const foe = match ? lookup.get(match.opponent.team[match.opponent.active].cardId) : lookup.get(state?.opponent.active ?? '');
-  const matchup = mine && foe ? describeMatchup(mine.element as BeastElement, foe.element as BeastElement) : null;
+  // 對位倍率與說明取自後端相剋戰力手冊（後端化第三階段 3B）。
+  const book = useGuideBook();
+  const matchup = mine && foe ? book?.matchups[mine.element as BeastElement]?.[foe.element as BeastElement] ?? null : null;
   const finished = match?.status === 'FINISHED' && !playing;
   const playerFighter = match?.player.team[match.player.active];
   const playerStrike = Boolean(match && match.revision > 0 && isDamagingAction(match, 'player'));
@@ -106,7 +107,7 @@ export default function BattleArena({ state, cards, match, view, onInspect, onSw
           const actionOrder = match?.log.findIndex(entry => entry.side === side && entry.cardId === card?.id) ?? -1;
           const hitOrder = match?.log.findIndex(entry => entry.changes?.some(change => change.side === side && change.cardId === card?.id && (change.hpAfter < change.hpBefore || change.shieldAfter < change.shieldBefore))) ?? -1;
           const attacker = side === 'player' ? foe : mine;
-          const multiplier = card && attacker ? elementMultiplier(attacker.element as BeastElement, card.element as BeastElement) : 1;
+          const multiplier = card && attacker ? book?.matchups[attacker.element as BeastElement]?.[card.element as BeastElement]?.multiplier ?? 1 : 1;
           return (
             <div className={styles.fighter} key={side} data-fighter={side} aria-label={`${label}：${card?.name ?? '等待主戰'}`}>
               <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)} data-hit={hitOrder >= 0} data-skill={action === 'SKILL'} data-action={action ?? 'NONE'} data-impact={multiplier > 1 ? 'strong' : multiplier < 1 ? 'resisted' : 'normal'}
@@ -287,9 +288,9 @@ export default function BattleArena({ state, cards, match, view, onInspect, onSw
         {playing ? '▶' : finished ? (match.winner === 'player' ? '◎' : match.winner === 'opponent' ? '✕' : '＝')
           : match?.player.team[match.player.active].defeated ? '⬇'
           : match?.opponent.team[match.opponent.active].defeated ? '▶'
-          : matchup?.kind === 'ADVANTAGE' ? `▲ ${elementPercent(mine!.element as BeastElement, foe!.element as BeastElement)}`
-          : matchup?.kind === 'DISADVANTAGE' ? `▼ ${elementPercent(mine!.element as BeastElement, foe!.element as BeastElement)}`
-          : matchup && mine && foe ? `◉ ${elementPercent(mine.element as BeastElement, foe.element as BeastElement)}` : '◉'}
+          : matchup?.kind === 'ADVANTAGE' ? `▲ ${matchup.percent}`
+          : matchup?.kind === 'DISADVANTAGE' ? `▼ ${matchup.percent}`
+          : matchup && mine && foe ? `◉ ${matchup.percent}` : '◉'}
       </p>
     </section>
   );

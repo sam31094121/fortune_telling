@@ -10,6 +10,7 @@
  */
 import { legalActions, rageMaterialFor, rageUnavailableReason, type Action, type Match } from './interactive';
 import { rageFusionGuide, type RageGuide } from './rage-guide';
+import { liveGuidesFor, type LiveGuides } from './guide-book';
 
 export interface BattleView {
   /** 玩家這一回合可以出的招。 */
@@ -20,6 +21,8 @@ export interface BattleView {
   ragePartner: { name: string; cardId: string } | null;
   /** 暴怒合體三步驟教學與等級階梯。 */
   fusionGuide: RageGuide;
+  /** 場上每隻卡目前的戰力分析、主戰對位、戰果解說（後端化第三階段 3B）。 */
+  guides: LiveGuides;
 }
 
 export function battleViewFor(match: Match): BattleView {
@@ -29,5 +32,6 @@ export function battleViewFor(match: Match): BattleView {
     rageReason: rageUnavailableReason(match, 'player'),
     ragePartner: partner ? { name: partner.name, cardId: partner.cardId } : null,
     fusionGuide: rageFusionGuide(match, 'player'),
+    guides: liveGuidesFor(match),
   };
 }

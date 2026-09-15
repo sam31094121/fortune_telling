@@ -1,29 +1,33 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { combatGuideFor, elementGuideRows, elementPercent } from '@/lib/beast-game/combat-guide';
+import type { CombatGuide } from '@/lib/beast-game/guide-book';
+import { useGuideBook } from './GuideBookContext';
 import { ELEMENTS, ELEMENT_LABEL, type BeastElement } from '@/lib/beast-game/elements';
-import type { Fighter, Match, Side } from '@/lib/beast-game/interactive';
 import BattlePowerAnalysis from './BattlePowerAnalysis';
 import ElementOrbDisplay from './ElementOrbDisplay';
 import styles from './BattleCardGuide.module.css';
 
-export default function BattleCardGuide({ cardId, fighter, opponentElement, opponent, context, onClose }: {
-  cardId: string; fighter?: Fighter; opponentElement?: BeastElement; opponent?: Fighter; context?: { match: Match; side: Side }; onClose: () => void;
+export default function BattleCardGuide({ cardId, liveGuide = null, enemyGuide = null, live = false, opponentElement, onClose }: {
+  cardId: string;
+  /** 戰況中由後端判斷送來的這張卡目前能力；沒有就用相剋戰力手冊裡的出戰基礎。 */
+  liveGuide?: CombatGuide | null; enemyGuide?: CombatGuide | null; live?: boolean;
+  opponentElement?: BeastElement; onClose: () => void;
 }) {
+  const book = useGuideBook();
   const [tab, setTab] = useState<'art' | 'card' | 'elements'>('art');
   const root = useRef<HTMLElement>(null);
   useEffect(() => {
     root.current?.closest('[data-control-scroll]')?.scrollTo({ top: 0 });
   }, [tab]);
-  const guide = combatGuideFor(cardId, fighter);
+  const guide = liveGuide ?? book?.cards[cardId] ?? null;
   if (!guide) return <button type="button" onClick={onClose}>回到操控</button>;
-  const rows = elementGuideRows();
+  const rows = book?.elementRows ?? [];
 
   return (
     <section ref={root} className={styles.guide} aria-label={`${guide.name}的戰鬥資訊`} data-combat-guide>
       <header className={styles.header}>
-        <div><strong>{guide.name}</strong><span>{guide.system}・{fighter ? '目前能力' : '出戰能力'}</span></div>
+        <div><strong>{guide.name}</strong><span>{guide.system}・{live ? '目前能力' : '出戰能力'}</span></div>
         <button type="button" onClick={onClose}>回到操控</button>
       </header>
       <div className={styles.tabs} role="group" aria-label="戰鬥資訊分類">
@@ -62,7 +66,7 @@ export default function BattleCardGuide({ cardId, fighter, opponentElement, oppo
             </dd></div>
             <div><dt>武裝風格</dt><dd>{guide.weapon.weaponClass}</dd></div>
           </dl>
-          <BattlePowerAnalysis cardId={cardId} fighter={fighter} opponent={opponent} context={context} />
+          <BattlePowerAnalysis cardId={cardId} guide={guide} enemy={enemyGuide} live={live} />
           <article className={styles.ability}>
             <h3>{guide.skill.name}<span>耗氣 {guide.skill.cost}{guide.skill.cooldown > 0 ? `・冷卻 ${guide.skill.cooldown} 回合` : ''}</span></h3>
             <p>{guide.skill.description}</p>
@@ -72,13 +76,13 @@ export default function BattleCardGuide({ cardId, fighter, opponentElement, oppo
             <summary>武裝部位與攻擊方式</summary>
             <p>{guide.weapon.name}・{guide.weapon.part}</p>
             <p>{guide.weapon.motion}</p>
-            <p className={styles.note}>暴風型是武裝風格；這張卡的攻擊元素是<span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}><ElementOrbDisplay element={guide.element} size="small" animated />{guide.elementLabel}</span>系。</p>
+            <div className={styles.note}>暴風型是武裝風格；這張卡的攻擊元素是<span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}><ElementOrbDisplay element={guide.element} size="small" animated />{guide.elementLabel}</span>系。</div>
           </details>
           <p className={styles.note}>主攻、守護、控制、輔助、反擊、速度是戰鬥職責，決定各卡的技能特色；相剋倍率看五元素。</p>
         </>
       ) : (
         <>
-          <p className={styles.relation}>本卡：<span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}><ElementOrbDisplay element={guide.element} size="small" animated />{guide.elementLabel}</span>系・{guide.relation.line}</p>
+          <div className={styles.relation}>本卡：<span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}><ElementOrbDisplay element={guide.element} size="small" animated />{guide.elementLabel}</span>系・{guide.relation.line}</div>
           <div className={styles.cycle} aria-label="五元素相剋方向">
             {rows.map(row => <span key={row.element}>{row.label}剋{row.beats}</span>)}
           </div>
