@@ -244,6 +244,8 @@ export default function BeastGamePage() {
   const [lineupBudget, setLineupBudget] = useState<number | null>(null);
   const [showGuide, setShowGuide] = useState(false);
   const [recommendNote, setRecommendNote] = useState<string | null>(null);
+  /** 客人按過「看一張建議」：放好一格就接著預覽下一格的建議，仍由客人親手按「放入」（2026-09-15 連續引導）。 */
+  const [guided, setGuided] = useState(false);
   /** 押注結果有沒有真的存進這台裝置。null＝這次不涉及發獎（例如重播）。 */
   const [stakeSaved, setStakeSaved] = useState<boolean | null>(null);
   const [settlement, setSettlement] = useState<Settlement | null>(null);
@@ -259,6 +261,7 @@ export default function BeastGamePage() {
   const duelRequest = useRef(0);
   const resultRef = useRef<HTMLElement>(null);
   const stakeRef = useRef<HTMLDivElement>(null);
+  const startRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const refresh = () => setOwned(readOwnedCards());
@@ -365,11 +368,19 @@ export default function BeastGamePage() {
     writeLocal(ONBOARDING_SEEN_KEY, '1');
   }
 
+  /** 這一格的建議卡；已經站在別格的不重複推薦。 */
+  function suggestionFor(slot: number, current: Array<string | null>): Card | null {
+    if (cards.length < 3) return null;
+    const { lineup: picked } = recommendLineup(cards);
+    const id = picked[slot] && !current.includes(picked[slot]) ? picked[slot] : picked.find((p) => !current.includes(p));
+    return id ? cards.find((card) => card.id === id) ?? null : null;
+  }
+
   function applyRecommendation() {
     if (cards.length < 3 || duelInFlight.current) return;
-    const { lineup: picked } = recommendLineup(cards);
-    const suggestion = cards.find((card) => card.id === picked[activeSlot]);
+    const suggestion = suggestionFor(activeSlot, lineup);
     if (suggestion) setCandidate(suggestion);
+    setGuided(true);
     setRecommendNote('先看建議，由你確認放入。');
   }
 
@@ -428,6 +439,23 @@ export default function BeastGamePage() {
     setPlacementNote(activeSlot === 3
       ? `已將「${card.name}」1 張放入押注格${stakeCard ? `，原「${stakeCard.name}」1 張取回` : ''}。目前未扣卡。`
       : `「${card.name}」${lineup.includes(card.id) ? `從${slotLabel(lineup.indexOf(card.id))}移至` : '放入'}${slotLabel(activeSlot)}${lineup[activeSlot] && lineup[activeSlot] !== card.id ? `，${byId.get(lineup[activeSlot]!)?.name}移出陣容` : ''}。出戰移動不扣卡。`);
+    if (activeSlot === 3) return;
+    // 連續引導：放好一格就帶往下一步，客人不必自己找。建議仍只是預覽，放不放由客人按。
+    const next = lineup.map((id) => (id === card.id ? null : id));
+    next[activeSlot] = card.id;
+    const nextEmpty = next.findIndex((id) => !id);
+    if (nextEmpty !== -1) {
+      const suggestion = guided ? suggestionFor(nextEmpty, next) : null;
+      if (suggestion) setCandidate(suggestion);
+      return;
+    }
+    setGuided(false);
+    // 三席放滿：押注卡還沒選就帶到押注格，選好了就帶到開戰鈕。
+    window.setTimeout(() => {
+      const target = board.stake ? startRef.current : stakeRef.current;
+      target?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      target?.focus({ preventScroll: true });
+    }, 350);
   }
 
   function clearSlot(index: number) {
@@ -545,8 +573,10 @@ export default function BeastGamePage() {
       */}
       {showGuide && (
         <section data-onboarding className="mb-4 rounded-2xl border border-cyan-300/25 bg-cyan-300/[0.06] p-4">
-          <h2 className="text-sm font-black text-cyan-100">四步就能開始，不用先懂規則</h2>
-          <ol className="mt-2.5 space-y-2">
+          <h2 className="text-sm font-black text-cyan-100">選卡・放入・押一張・啟陣</h2>
+          <p className="mt-1 text-xs leading-5 text-white/60">按「看一張建議」，一格一格帶你放好。</p>
+          {/* 隱藏（2026-09-15）：四步各一段說明佔掉半個手機畫面；業主定調「說明留給卡片」。四步名稱已濃縮在標題。 */}
+          {false && <ol className="mt-2.5 space-y-2">
             {ONBOARDING.map((item) => (
               <li key={item.step} className="flex gap-2.5">
                 <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-cyan-300 text-[11px] font-black text-slate-950">
@@ -558,7 +588,7 @@ export default function BeastGamePage() {
                 </span>
               </li>
             ))}
-          </ol>
+          </ol>}
           <div className="mt-3 flex gap-2">
             <button
               type="button"
@@ -768,6 +798,8 @@ export default function BeastGamePage() {
                         onClick={() => { if (!duelInFlight.current) {
                           setBoard((prev) => ({ ...prev, stake: cardId }));
                           setPlacementNote(`已將「${card.name}」1 張放入押注格${stakeCard && stakeCard.id !== cardId ? `，原「${stakeCard.name}」1 張取回` : ''}。尚未扣卡。`);
+                          // 押注卡選好、三席也滿了：開戰鈕帶到眼前。
+                          if (filledCount === 3) window.setTimeout(() => startRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 200);
                         } }}
                         disabled={dueling || stakeSaved === false}
                         aria-label={`押上${card.name}，持有${count}張`}
@@ -800,6 +832,7 @@ export default function BeastGamePage() {
           type="button"
           disabled={!ready || dueling}
           onClick={() => startDuel()}
+          ref={startRef}
           data-start-duel
           data-ready={ready ? 'yes' : 'no'}
           className={`mt-4 min-h-[52px] w-full rounded-2xl text-base font-black transition
@@ -1005,7 +1038,7 @@ export default function BeastGamePage() {
             <button type="button" disabled={dueling || stakeSaved === false} onClick={() => place(candidate)} className="mt-5 min-h-12 w-full rounded-2xl bg-gradient-to-r from-amber-200 to-amber-400 px-4 text-sm font-black text-slate-950">
               放入{slotLabel(activeSlot)}
             </button>
-            <button type="button" onClick={() => setCandidate(null)} className="mt-2 min-h-11 w-full text-sm text-white/70">再選一張</button>
+            <button type="button" onClick={() => { setCandidate(null); setGuided(false); }} className="mt-2 min-h-11 w-full text-sm text-white/70">再選一張</button>
           </div>
         </div>
       )}

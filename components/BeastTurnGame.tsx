@@ -40,8 +40,12 @@ export default function BeastTurnGame() {
   const [detail, setDetail] = useState<Card | null>(null);
   const [inspection, setInspection] = useState<{ cardId: string; side: 'player' | 'opponent' } | null>(null);
   const pending = useRef(false);
+  const accountRevisionRef = useRef(0);
   const scroll = useRef<HTMLDivElement>(null);
   const match = account?.match;
+  useEffect(() => {
+    if (account) accountRevisionRef.current = account.revision;
+  }, [account]);
   const { playing, begin: beginPlayback, play: playRound, reset: resetPlayback } = useCombatPlayback();
 
   // Keep completion accounting invisible to the battle interface.
@@ -71,21 +75,41 @@ export default function BeastTurnGame() {
     return () => { disposed = true; clearTimeout(timer); controller.abort(); };
   }, []);
 
-  const send = useCallback(async (type: 'START' | 'ACTION' | 'LEAVE', extra: Record<string, unknown> = {}) => {
+  const send = useCallback(async (type: 'START' | 'ACTION' | 'LEAVE' | 'AUTO_FINISH', extra: Record<string, unknown> = {}) => {
     if (!account || pending.current) return;
     if (type === 'ACTION' && !beginPlayback()) return;
     pending.current = true; setBusy(true); setError('');
-    try {
+
+    const post = async (bodyType: 'START' | 'ACTION' | 'LEAVE' | 'AUTO_FINISH', bodyExtra: Record<string, unknown>, revision: number) => {
       const res = await fetch('/api/beast-game/turns', {
-        method: 'POST', signal: AbortSignal.timeout(15000), headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, revision: account.revision, requestId: crypto.randomUUID(), ...extra }),
+        method: 'POST', signal: AbortSignal.timeout(60000), headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: bodyType, revision, requestId: crypto.randomUUID(), ...bodyExtra }),
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error ?? '戰鬥操作未完成');
+      return data as { ok: true; account: Account & { match: Match | null; revision: number } };
+    };
+
+    try {
+      let data = await post(type, extra, accountRevisionRef.current);
+      accountRevisionRef.current = data.account.revision;
       setAccount(data.account);
-      if (type === 'ACTION' && data.account.match) playRound(data.account.match);
-      else resetPlayback();
-      if (type === 'START') setAutomatic(true);
+
+      // Free battle opens in auto mode: finish in one server lock to avoid
+      // multi-turn /tmp races on multi-instance hosts (live Vercel Michelin P0).
+      if (type === 'START' && data.account.match?.status === 'PLAYING') {
+        setAutomatic(true);
+        data = await post('AUTO_FINISH', {}, accountRevisionRef.current);
+        accountRevisionRef.current = data.account.revision;
+        setAccount(data.account);
+        if (data.account.match) playRound(data.account.match);
+        else resetPlayback();
+      } else if (type === 'ACTION' && data.account.match) {
+        playRound(data.account.match);
+      } else {
+        resetPlayback();
+      }
+
       if (type === 'LEAVE') {
         setAutomatic(false);
         if (account.match) setSelected(account.match.player.team.map(fighter => fighter.cardId));
@@ -94,7 +118,24 @@ export default function BeastTurnGame() {
     } catch (cause) {
       resetPlayback();
       setAutomatic(false);
-      setError(cause instanceof Error ? cause.message : '連線中斷，請重新載入確認戰況。');
+      const message = cause instanceof Error ? cause.message : '連線中斷，請重新載入確認戰況。';
+      if (message.includes('已更新戰局') || message.includes('請重新載入') || message.includes('資料正在保存')) {
+        try {
+          const res = await fetch('/api/beast-game/turns', { signal: AbortSignal.timeout(15000) });
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            accountRevisionRef.current = data.account.revision;
+            setAccount(data.account);
+            if (data.account.match?.status === 'FINISHED') {
+              setError('');
+              return;
+            }
+            setError('戰況已同步。若還在打，再點一次技能或自動即可。');
+            return;
+          }
+        } catch { /* fall through */ }
+      }
+      setError(message);
     } finally { pending.current = false; setBusy(false); }
   }, [account, beginPlayback, playRound, resetPlayback]);
 
@@ -121,7 +162,7 @@ export default function BeastTurnGame() {
             <div className={battleStyles.controlScroll} ref={scroll} data-control-scroll>
               {errorNotice}
               {inspection && <BattleCardGuide cardId={inspection.cardId} fighter={inspected} opponent={other.team[other.active]} context={{ match, side: inspection.side }} opponentElement={other.team[other.active].element} onClose={() => { setInspection(null); scroll.current?.scrollTo({ top: 0 }); }} />}
-              <div hidden={Boolean(inspection) || Boolean(error)}>
+              <div hidden={Boolean(inspection) || (Boolean(error) && match.status === 'PLAYING')}>
                 <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} onAutomatic={setAutomatic} onAction={act} />
                 <BattlePanel match={match} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
                 {/* 預覽用寶珠面板：魔珠與暴怒已由戰鬥引擎結算並顯示在戰場右欄，這裡隱藏。 */}
@@ -168,34 +209,32 @@ export default function BeastTurnGame() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={BATTLE_VENUES.cards.image} alt="" aria-hidden="true" />
       <h1>{prepareStep === 'mode' ? '選擇戰場' : prepareStep === 'select' ? '三卡免費戰場' : '確認陣容'}</h1>
-      <p>{prepareStep === 'mode' ? '簡單・中等・困難' : prepareStep === 'select' ? '選 3 張卡開戰，不扣收藏卡。' : '準備好了嗎？'}</p>
+      <p>{prepareStep === 'mode' ? '點選：簡單／中等／困難' : prepareStep === 'select' ? '選 3 張卡開戰，不扣收藏卡。' : '準備好了嗎？'}</p>
     </header>
     {errorNotice}
     {!account ? <section className={styles.prepareContent} aria-busy="true" aria-live="polite"><p className={styles.pickHint}>正在讀取戰鬥卡…</p><button type="button" className={styles.startBattle} disabled={busy} onClick={() => void load()}>重新載入</button>{errorNotice}</section> : <>
       <section className={styles.prepareContent} aria-label={prepareStep === 'mode' ? '選擇模式' : prepareStep === 'select' ? '選擇神獸卡' : '檢查陣容'}>
         {prepareStep === 'mode' ? <>
-          {/* ── 主要入口：免費體驗，一鍵開始 ── */}
-          <button className={styles.freeEntryBtn} onClick={() => { setPrepareStep('select'); setError(''); }}>
-            <span className={styles.freeEntryStep}>簡單</span>
-            <span className={styles.freeEntryIcon}>⚡</span>
-            <strong>三卡免費戰場</strong>
-            <span className={styles.freeEntryDesc}>選 3 張卡，不扣收藏卡{starterPackClaimed === false ? '・首戰完成送 28 張幼子卡' : ''}</span>
-            <span className={styles.freeEntryGo}>點這裡開始 →</span>
-          </button>
-          {/* ── 進階模式（需要持有神獸卡）── */}
-          <p className={styles.modeNavLabel}>其他戰場</p>
-          <div className={styles.modeCards}>
-            <Link href="/beast-game/lineup" className={styles.modeCard}>
+          <p className={styles.modeNavLabel} role="status">請先選難度（三選一）</p>
+          <div className={styles.modeCards} role="list" aria-label="難度選擇">
+            <button type="button" role="listitem" className={styles.freeEntryBtn} onClick={() => { setPrepareStep('select'); setError(''); }} data-difficulty="easy">
+              <span className={styles.freeEntryStep}>① 簡單</span>
+              <span className={styles.freeEntryIcon}>⚡</span>
+              <strong>簡單・三卡免費戰場</strong>
+              <span className={styles.freeEntryDesc}>選 3 張卡開戰，不扣收藏卡{starterPackClaimed === false ? '・首戰完成送 28 張幼子卡' : ''}</span>
+              <span className={styles.freeEntryGo}>點這裡開始簡單 →</span>
+            </button>
+            <Link href="/beast-game/lineup" className={styles.modeCard} role="listitem" data-difficulty="medium" aria-label="中等：單卡押注競技場">
               <span className={styles.modeIcon}>🎯</span>
-              <strong>單卡押注競技場</strong>
-              <span className={styles.modeDesc}>押 1 張，輸了會失去 1 張</span>
-              <span className={styles.modeBadge + ' ' + styles.modeBadgeWager}>中等</span>
+              <strong>中等・單卡押注</strong>
+              <span className={styles.modeDesc}>押 1 張收藏卡；輸了失去 1 張</span>
+              <span className={styles.modeBadge + ' ' + styles.modeBadgeWager}>② 中等</span>
             </Link>
-            <Link href="/beast-game/battlefield" className={styles.modeCard}>
+            <Link href="/beast-game/battlefield" className={styles.modeCard} role="listitem" data-difficulty="hard" aria-label="困難：五卡押注戰場">
               <span className={styles.modeIcon}>⚔️</span>
-              <strong>五卡押注戰場</strong>
-              <span className={styles.modeDesc}>押 5 張，輸了會失去 5 張</span>
-              <span className={styles.modeBadge + ' ' + styles.modeBadgeWager}>困難</span>
+              <strong>困難・五卡押注</strong>
+              <span className={styles.modeDesc}>押 5 張收藏卡；輸了失去 5 張</span>
+              <span className={styles.modeBadge + ' ' + styles.modeBadgeWager}>③ 困難</span>
             </Link>
           </div>
         </> : prepareStep === 'select' ? <>
@@ -223,7 +262,7 @@ export default function BeastTurnGame() {
               : selected.length === 2 ? '再選後備 2 (2/3)'
               : '三張齊了・按下方開始'}
           </p>
-          <p className={styles.prepareRule}>開戰後自動一路連擊到結束，隨時可暫停。</p>
+          <p className={styles.prepareRule}>開戰後由系統一次演算整場（較穩、較快）；完成後可看結果再戰。</p>
           {/*
             三卡免費戰場「不押收藏、不發押卡獎勵」（技能檔案〈十一〉）。
             這裡原本整塊嵌了收藏押注面板（最多押 20 張、輸了沒收），跟標題「不扣收藏卡」互相矛盾，
@@ -250,13 +289,13 @@ export default function BeastTurnGame() {
             const card = cards.find(c => c.id === id)!;
             return <div key={id} className={styles.card}><p className={styles.selectionCount}>{i === 0 ? '先出場' : '後備 ' + i}</p><BeastCardTile card={card} onOpen={() => setDetail(card)} /><p className={styles.confirmName}>{card.name}</p></div>;
           })}</div>
-          <p className={styles.muted}>開戰後自動一路連擊到結束，隨時可暫停。</p>
+          <p className={styles.muted}>開戰後由系統一次演算整場（較穩、較快）；完成後可看結果再戰。</p>
           <details className={styles.muted}><summary>對戰方式</summary><p>與易經各派三張，擊倒對方三隻即獲勝。六十張皆可用，本模式免押卡。</p></details>
         </>}
       </section>
       <footer className={styles.prepareFooter}>
         {prepareStep === 'mode' ? <>
-          <button className={styles.startBattle} onClick={() => { setPrepareStep('select'); setError(''); }}>進入簡單・選 3 張卡</button>
+          <button className={styles.startBattle} onClick={() => { setPrepareStep('select'); setError(''); }}>① 進入簡單・選 3 張卡</button>
         </> : prepareStep === 'select' ? <>
           <button className={styles.advancedBtn} onClick={() => { setPrepareStep('mode'); setSelected([]); setError(''); }}>進階玩法 ▸</button>
           <button className={styles.startBattle} disabled={busy || selected.length !== 3} onClick={() => { void send('START', { lineup: selected }); }} style={selected.length === 3 ? { boxShadow: '0 0 20px rgba(59, 130, 246, 0.35)' } : {}}>

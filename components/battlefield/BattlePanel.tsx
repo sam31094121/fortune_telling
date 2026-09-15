@@ -375,7 +375,8 @@ const BattlePanel = memo(function BattlePanel({
     }, 0);
     const lastChange = match.log[match.log.length - 1]?.changes?.find(c => c.side === 'opponent');
     const lastRoundDamage = lastChange ? Math.max(0, lastChange.hpBefore - lastChange.hpAfter) : 0;
-    return { streak: 1, totalDamage, roundDamage: lastRoundDamage, isNewRecord: match.round >= 5 && totalDamage > 200 };
+    // 沒有真的紀錄可比，不得宣稱「新紀錄」（2026-09-15 米其林：禁止造假）。
+    return { streak: 1, totalDamage, roundDamage: lastRoundDamage, isNewRecord: false };
   };
 
   const { streak, totalDamage, roundDamage, isNewRecord } = calculateStreakAndDamage();
@@ -385,9 +386,11 @@ const BattlePanel = memo(function BattlePanel({
 
   return (
     <section className={compact ? styles.compactPanel : styles.panel} data-battle-panel data-status={match.status}>
-      <WinStreakCounter streak={streak} totalDamage={totalDamage} roundDamage={roundDamage} isNewRecord={isNewRecord} />
+      {/* 隱藏（2026-09-15）：連勝寫死 1、累計傷害只算最後一張，數字不實；又固定蓋住標題列。 */}
+      {false && <WinStreakCounter streak={streak} totalDamage={totalDamage} roundDamage={roundDamage} isNewRecord={isNewRecord} />}
       <VictoryMoment active={showVictory} streak={streak} isNewRecord={isNewRecord} element={playerElement} />
-      <UpgradePathHint match={match} />
+      {/* 隱藏（2026-09-15）：元素不同就寫「剋」，沒查相剋表，會和後端「互不相剋」互相矛盾；按鈕無作用，又蓋住「再打一場」。相剋由後端戰報說明。 */}
+      {false && <UpgradePathHint match={match} />}
       <ShareBadge match={match} streak={streak} totalDamage={totalDamage} />
       <SoundEnhancer match={match} streak={streak} isNewRecord={isNewRecord} />
 

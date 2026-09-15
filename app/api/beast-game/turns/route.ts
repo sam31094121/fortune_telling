@@ -2,7 +2,7 @@ import { randomInt, randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile, rename, rm, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { NextResponse } from 'next/server';
-import { advance, interactiveCatalog, newMatch, profile, type Action, type Match } from '@/lib/beast-game/interactive';
+import { advance, chooseAI, interactiveCatalog, newMatch, profile, type Action, type Match } from '@/lib/beast-game/interactive';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -33,7 +33,7 @@ export async function POST(req:Request){
   const origin=req.headers.get('origin');
   if(origin){let valid=false;try{valid=new URL(origin).host===(req.headers.get('host')??new URL(req.url).host);}catch{/* malformed origin */}
     if(!valid)return NextResponse.json({ok:false,error:'來源不符。'},{status:403});}
-  let b:{type:string;revision:number;requestId:string;lineup?:string[];action?:Action;cardId?:string;legacyIds?:string[]};
+  let b:{type:string;revision:number;requestId:string;lineup?:string[];action?:Action;cardId?:string;legacyIds?:string[];autoFinish?:boolean};
   try{b=await req.json();}catch{return NextResponse.json({ok:false,error:'資料格式無效。'},{status:400});}
   if(!b||typeof b.requestId!=='string'||b.requestId.length>80||!Number.isInteger(b.revision))return NextResponse.json({ok:false,error:'請重新載入遊戲。'},{status:400});
   return transact(req,a=>{
@@ -66,6 +66,13 @@ export async function POST(req:Request){
         a.match=advance(a.match,b.action);
         if(a.match.status==='FINISHED'&&a.awardedRevision===null){for(const f of a.match.player.team)a.experience[f.cardId]=(a.experience[f.cardId]??0)+1;a.awardedRevision=a.match.revision;}
         break;
+      case 'AUTO_FINISH':{
+        // One-shot resolve for automatic play — avoids multi-turn /tmp races on multi-instance hosts (Vercel).
+        if(!a.match||a.match.status!=='PLAYING')throw new Error('請先組隊開戰。');
+        for(let i=0;i<200&&a.match.status==='PLAYING';i++)a.match=advance(a.match,chooseAI(a.match,'player'));
+        if(a.match.status!=='FINISHED')throw new Error('自動對戰未完成，請改手動或再試一次。');
+        if(a.awardedRevision===null){for(const f of a.match.player.team)a.experience[f.cardId]=(a.experience[f.cardId]??0)+1;a.awardedRevision=a.match.revision;}
+        break;}
       case 'LEAVE':a.match=null;break;
       case 'SUMMON':{
         const day=new Date().toISOString().slice(0,10);if(a.summonDay===day)throw new Error('今天已完成免費召喚，請明天再來。');

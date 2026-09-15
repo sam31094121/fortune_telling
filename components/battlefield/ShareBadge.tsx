@@ -10,7 +10,7 @@ interface ShareBadgeProps {
   totalDamage: number;
 }
 
-const ShareBadge = memo(function ShareBadge({ match, streak, totalDamage }: ShareBadgeProps) {
+const ShareBadge = memo(function ShareBadge({ match, streak }: ShareBadgeProps) {
   const [copied, setCopied] = useState(false);
 
   if (match.status !== 'FINISHED' || match.winner !== 'player') return null;
@@ -23,14 +23,16 @@ const ShareBadge = memo(function ShareBadge({ match, streak, totalDamage }: Shar
 
     return `🎮 我在神獸卡片戰鬥中 ${streak >= 3 ? `連勝 ${streak} 場` : '贏了'}！
 ${badges.join(' ')}
-⚔️ 共 ${match.round - 1} 回合 | 總傷害 ${totalDamage}
+⚔️ 共 ${match.round - 1} 回合
 來試試你能贏多少場？`;
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(generateShareText());
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    // 不支援剪貼簿時安靜不動，不假裝「已複製」。
+    navigator.clipboard?.writeText(generateShareText()).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {});
   };
 
   return (

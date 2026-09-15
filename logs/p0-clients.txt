@@ -1,0 +1,4 @@
+components/BeastLegacyGame.tsx [stakeDuel]
+components/BeastTurnGame.tsx [turns,requestId,revision]
+components/GrowthStakeSlots.tsx [stakeDuel]
+components/StarterPackAfterBattle.tsx [claimRetry,notIngested,stakeDuel]

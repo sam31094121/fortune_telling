@@ -12,7 +12,7 @@
   height: 36px;
   gap: 6px;
   padding: 0 4px 0 8px;
-  background: rgba(20, 43, 60, 0.9);
+  background: #142b3c; /* 實心：避免底下的頁面標題透出來疊字 */
   border: 1px solid #54718b;
   border-radius: 6px;
   font-size: 13px;

@@ -249,8 +249,8 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
       setPairClash(null);
       if (pairs && index === pairs.length - 1) completeRef.current();
       else if (pairs && index === 1) {
+        // 二比零：第三組直接揭開。一比一：自動模式照樣翻到決勝局（懶人連擊，2026-09-15）；客人切成自己翻時才等他按。
         if (result && (result.score.player === 2 || result.score.opponent === 2)) setRevealCount(REVEAL_ORDER.length);
-        else setAutoFlip(false);
       }
     };
     const showVerdict = () => {
@@ -476,7 +476,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
         )}
         {pairResult && pairClash !== null ? <>
           <strong>{pairResult.winner === 'PLAYER' ? '這一局・你贏了' : pairResult.winner === 'OPPONENT' ? '這一局・易經獲勝' : '這一局・平手'}</strong>
-          <p>比分 {pairResult.score.player} : {pairResult.score.opponent}{pairResult.index === 1 ? (pairResult.score.player === 2 || pairResult.score.opponent === 2 ? '・第三組即將自動揭牌' : '・親手揭開決勝局') : pairResult.index === 2 ? '・三局完成' : '・準備下一組'}</p>
+          <p>比分 {pairResult.score.player} : {pairResult.score.opponent}{pairResult.index === 1 ? (pairResult.score.player === 2 || pairResult.score.opponent === 2 ? '・第三組即將自動揭牌' : (autoFlip ? '・決勝局自動揭牌' : '・親手揭開決勝局')) : pairResult.index === 2 ? '・三局完成' : '・準備下一組'}</p>
         </> : pairClash !== null ? <>
           {/*
             技能名寫進這一行，不另外浮一塊。
@@ -517,7 +517,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
       {row(player, 'player')}
       </div>
       </div>
-      <details className={styles.rules}><summary>格鬥規則與素材</summary><p>雙方依前鋒、中軍、後陣逐組交鋒，共三局。二比零後自動揭開第三組；一比一時親手揭開決勝局。操控區上方是易經卦象，下方是客戶（你）。</p>{revealed && <button type="button" className={styles.skip} onClick={() => completeRef.current()}>略過動畫・看戰果</button>}<a href="/audio/beast-voices/credits.html" target="_blank" rel="noreferrer">聲音來源</a></details>
+      <details className={styles.rules}><summary>格鬥規則與素材</summary><p>雙方依前鋒、中軍、後陣逐組交鋒，共三局。二比零後自動揭開第三組；一比一時照樣自動揭開決勝局，想自己翻可按「改回自己翻」。操控區上方是易經卦象，下方是客戶（你）。</p>{revealed && <button type="button" className={styles.skip} onClick={() => completeRef.current()}>略過動畫・看戰果</button>}<a href="/audio/beast-voices/credits.html" target="_blank" rel="noreferrer">聲音來源</a></details>
       </div>
       <div className={styles.commands}>
 
@@ -525,7 +525,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
         翻牌控制。
 
         業主定調：「功能可以自己翻牌，除非選擇箭頭，可以指向自動翻牌。」
-        所以預設手動，一張一張自己翻；箭頭切成自動就自己翻完。
+        2026-09-15 起預設自動、一路翻到三局結束（懶人連擊）；想一張一張自己翻，按「改回自己翻」。
       */}
       {phase === 'revealing' && revealCount < REVEAL_ORDER.length && (
         <div className={styles.flipControls} data-flip-controls>

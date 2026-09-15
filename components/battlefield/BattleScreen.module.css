@@ -35,14 +35,15 @@
 .help h2, .confirmation h2 { color: #f1deaa; font-size: 16px; font-weight: 800; }
 .help ol { display: grid; gap: 14px; list-style: decimal; padding: 12px 0 16px 24px; }
 .help p { font-size: 15px; line-height: 1.7; color: #c0d0e4; }
-.controlScroll { min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; padding: 8px 10px; scrollbar-width: thin; }
+.controlScroll { min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; padding: 8px 10px 96px; scrollbar-width: thin; /* michelin-p1-footer-clearance */ }
 .footer {
   padding: 6px 10px;
   border-top: 1px solid #3b4e69;
   background: #101b2d;
   position: sticky;
   bottom: 0;
-  z-index: 50;
+  /* Keep above scroll content but below modal dialogs; was 50 and ate card taps. */
+  z-index: 8;
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
 }
 .start, .restart { min-height: 44px; width: 100%; padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 15px; touch-action: manipulation; }

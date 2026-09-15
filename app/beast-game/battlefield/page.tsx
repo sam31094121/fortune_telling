@@ -47,6 +47,7 @@ import StarterPackAfterBattle from '@/components/StarterPackAfterBattle';
 import DeckBuilder from '@/components/battlefield/DeckBuilder';
 import { BATTLEFIELD_DECK_SIZE, buildFreshOpeningDeck, buildUniqueDeck, sanitizeDeckSelection } from '@/lib/beast-game/deck-builder';
 import { useCombatPlayback } from '@/components/battlefield/useCombatPlayback';
+import BattlePace from '@/components/battlefield/BattlePace';
 import { judgeVictorySkill } from '@/lib/beast-game/iching-judgment';
 import { distributeRewardCards } from '@/lib/beast-game/reward-distribution';
 import { MAX_REWARD_CARDS, MAX_STAKE_CARDS, stakeRewardCount } from '@/lib/beast-game/stake-rules';
@@ -83,6 +84,8 @@ export default function BattlefieldPage() {
   /** 開戰之後的戰鬥狀態。null＝還在佈陣。 */
   const [match, setMatch] = useState<Match | null>(null);
   const { playing, begin: beginPlayback, play: playRound, reset: resetPlayback } = useCombatPlayback();
+  // 懶人玩法：開戰就自動一路連擊到結束（2026-09-15）；原本困難模式每一回合都要手動按。
+  const [automatic, setAutomatic] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [seed, setSeed] = useState(secureSeed);
   const [playerDeckIds, setPlayerDeckIds] = useState<string[]>([]);
@@ -261,6 +264,7 @@ export default function BattlefieldPage() {
       setOutcome(null); setSettlement(null); setBattleStake(representative?.cardId || null);
       setBattleVoiceId(crypto.randomUUID());
       setInspection(null);
+      setAutomatic(true);
       if (!stakeCardIds.length) { setMatch(next); return; }
       setSettling(true);
       // Reserve the actual copy before combat. The shared transaction settles once or releases on interruption.
@@ -497,7 +501,7 @@ export default function BattlefieldPage() {
                   <button type="button" aria-pressed={prepareView === 'formation'} onClick={() => openPreparation('formation')}>選卡佈陣</button>
                   <button type="button" aria-pressed={prepareView === 'stake'} onClick={() => openPreparation('stake')}>{isTrial ? '體驗確認' : '押注確認'}</button>
                   <button type="button" aria-pressed={prepareView === 'help'} onClick={() => openPreparation('help')}>玩法說明</button>
-                </nav> : <><strong>{inspection ? '能力與相剋' : playing ? '動作演出中' : match?.status === 'FINISHED' ? '對戰結果' : '選擇本回合動作'}</strong>
+                </nav> : <><strong>{inspection ? '能力與相剋' : playing ? '動作演出中' : match?.status === 'FINISHED' ? '對戰結果' : automatic ? '自動連擊中' : '選擇本回合動作'}</strong>
                   <span>{inspection ? '查看不消耗回合' : '戰況同步顯示'}</span></>}
               </div>
               <div className={styles.controlScroll} ref={controlScroll} key={match ? 'battle' : 'prepare'} data-control-scroll>
@@ -520,6 +524,7 @@ export default function BattlefieldPage() {
                   cards={cards} settlement={settlement} isReplay={false} retrying={settling} onRetry={() => void retrySettlement()} />}
                 {match ? (
                   <>
+                    <BattlePace match={match} automatic={automatic} blocked={playing || Boolean(inspection)} onAutomatic={setAutomatic} onAction={act} />
                     <BattlePanel match={match} onAction={act} busy={playing} compact cards={cards} />
                     {match.status === 'PLAYING' && <p className={styles.notice} data-battle-stake>{battleStake
                       ? `💎 押注：${cards.find(card => card.id === battleStake)?.name}`
@@ -541,7 +546,7 @@ export default function BattlefieldPage() {
                       {movement && <p role="status" className={styles.notice} data-card-move>{movement}</p>}
                     </div>
                     <section hidden={prepareView !== 'stake'} className={styles.confirmation} data-preparation-progress tabIndex={-1} aria-label="開戰前確認">
-                      <h2>{isTrial ? '體驗戰確認' : '選五張押注卡'}</h2>
+                      <h2>{isTrial ? '體驗戰確認' : `選押注卡・1～${MAX_STAKE_CARDS} 張`}</h2>
                       {!state.player.active && <p className={styles.notice}>建議先到「選卡佈陣」放好主戰，再決定本場押注。</p>}
                       <StakeSlot owned={ownedStake} selected={stakeCardIds} trial={isTrial} locked={settling || settlement?.saved === false}
                         steps={[]}
@@ -553,7 +558,7 @@ export default function BattlefieldPage() {
                         <li><strong>點一次就完成佈陣</strong><p>第一張直接成為主戰，接著依序補入後備，不必重複點擊。</p></li>
                         <li><strong>陣容滿了再精準換位</strong><p>點已上場的卡即可選位置調整；查看能力不會出招。</p></li>
                         <li><strong>押 1～{MAX_STAKE_CARDS} 張就能開戰</strong><p>{isTrial ? '本場免押注，不發卡、不沒收。' : `輸少贏多：贏了押注卡全保留，至少再得同樣張數，打得越漂亮越多，最多 ${MAX_REWARD_CARDS} 張；輸了只扣本場押注。`}</p></li>
-                        <li><strong>每回合選一個動作</strong><p>普通攻擊、技能，或換上後備。按「說明」查看技能內容；它不會消耗回合。</p></li>
+                        <li><strong>開戰後自動一路連擊</strong><p>自動替你出手直到分出勝負；想自己選攻擊、技能或換卡，就按「暫停」。</p></li>
                       </ol>
                       <button type="button" className={styles.restart} onClick={() => reviewStep(guidance.currentStep)}>回到目前步驟</button>
                       <details className={styles.details}><summary>重新準備</summary>

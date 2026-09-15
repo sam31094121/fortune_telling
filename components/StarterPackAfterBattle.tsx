@@ -42,8 +42,14 @@ export default function StarterPackAfterBattle({ completed }: { completed: 'batt
       <span className="relative z-10 ml-1 text-xl font-black">× 28</span>
     </div>}
     <p role="status" className="text-sm font-bold">{state === 'sent' ? '🎁 28 張神獸幼子卡已送入收藏！' : state === 'sending' ? '正在送出 28 張神獸幼子卡…' : '28 張卡尚未入庫'}</p>
-    {state === 'sent' && <p className="mt-1 text-xs">點一下看卡片，再選卡繼續玩。</p>}
-    {state === 'sent' && <Link href="/growth-center#beast-collection" className="mt-2 inline-flex min-h-11 items-center justify-center rounded-lg bg-amber-200 px-4 font-bold text-slate-950">查看我的卡片</Link>}
+    {/* 連續引導（2026-09-15）：從免押卡的戰場領到卡，下一步就是拿去押注——不讓客人斷在這裡自己找入口。 */}
+    {state === 'sent' && completed === 'battlefield' && <>
+      <p className="mt-1 text-xs">下一步：帶新卡去押注競技場。</p>
+      <Link href="/beast-game/lineup" className="mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-lg bg-amber-200 px-4 font-black text-slate-950">帶新卡去押注競技場</Link>
+      <Link href="/growth-center#beast-collection" className="mt-1 inline-flex min-h-11 items-center justify-center px-4 text-sm font-bold underline">查看我的卡片</Link>
+    </>}
+    {state === 'sent' && completed !== 'battlefield' && <p className="mt-1 text-xs">點一下看卡片，再選卡繼續玩。</p>}
+    {state === 'sent' && completed !== 'battlefield' && <Link href="/growth-center#beast-collection" className="mt-2 inline-flex min-h-11 items-center justify-center rounded-lg bg-amber-200 px-4 font-bold text-slate-950">查看我的卡片</Link>}
     {state === 'failed' && <><p role="alert" className="mt-1 text-xs">{error}</p><button type="button" className="mt-2 min-h-11 rounded-lg border border-amber-200/50 px-4 font-bold" onClick={() => void sendGift()}>重試領卡</button></>}
   </aside>;
 }
