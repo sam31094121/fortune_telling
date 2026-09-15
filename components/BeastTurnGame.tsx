@@ -322,9 +322,13 @@ function BeastTurnGameScreen() {
         </>}
       </section>
       <footer className={styles.prepareFooter}>
-        {prepareStep === 'mode' ? <>
+        {prepareStep === 'mode' ? (starterPackClaimed && progress && progress.kinds > 0 ? <>
+          {/* 回頭客（首戰贈卡已領、這台裝置真的有收藏卡）：主按鈕給下一步「中等」，簡單留作練習。新客人與資料未讀到時維持簡單。 */}
+          <button className={styles.advancedBtn} onClick={() => { setPrepareStep('select'); setError(''); }}>① 簡單練習</button>
+          <Link href="/beast-game/lineup" className={styles.nextStepLink} data-returning-next>② 帶著卡去中等押注 →</Link>
+        </> : <>
           <button className={styles.startBattle} onClick={() => { setPrepareStep('select'); setError(''); }}>① 進入簡單・選 3 張卡</button>
-        </> : prepareStep === 'select' ? <>
+        </>) : prepareStep === 'select' ? <>
           <button className={styles.advancedBtn} onClick={() => { setPrepareStep('mode'); setSelected([]); setError(''); }}>進階玩法 ▸</button>
           <button className={styles.startBattle} disabled={busy || selected.length !== 3} onClick={() => { void send('START', { lineup: selected, difficulty: 'NORMAL' }); }} style={selected.length === 3 ? { boxShadow: '0 0 20px rgba(59, 130, 246, 0.35)' } : {}}>
             {busy ? '正在準備戰場…' : selected.length === 3 ? '✨ 開始對戰！' : `選滿 ${selected.length}/3 張`}

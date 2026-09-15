@@ -86,3 +86,7 @@
 /* 長輩看得清楚：原本 12px 灰色大寫小標與 11px 步驟籤 */
 .modeNavLabel{font-size:15px;color:#c9d6e2;letter-spacing:.04em}
 .freeEntryStep{font-size:13px}
+
+/* 回頭客下一步：底部主按鈕改帶去中等（與 .startBattle 同金色主視覺） */
+.prepareFooter>.nextStepLink{flex:1;min-height:52px;display:flex;align-items:center;justify-content:center;padding:0 12px;border-radius:12px;background:#ffe1a0;color:#241c0b;font-weight:800;white-space:nowrap;text-decoration:none;box-shadow:0 0 20px rgba(255,225,160,.3)}
+.prepareFooter>.nextStepLink:focus-visible{outline:3px solid #9fdef2;outline-offset:2px}
