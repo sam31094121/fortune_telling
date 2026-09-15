@@ -34,11 +34,10 @@ import {
   type Destination,
 } from '@/lib/beast-game/battlefield';
 import BattlePanel from '@/components/battlefield/BattlePanel';
-import { autoPlaceOpponent, canStartBattle, startFromField } from '@/lib/beast-game/battle-bridge';
-import { advance, bossNotice, legalActions, type Action, type Match } from '@/lib/beast-game/interactive';
+import { autoPlaceOpponent, canStartBattle, fieldTeam } from '@/lib/beast-game/battle-bridge';
+import type { Action, Match } from '@/lib/beast-game/interactive';
 import StakeSlot, { type StakeCard } from '@/components/battlefield/StakeSlot';
 import { readCollection, runOwnedStakesDuel, countByCard, subscribeCollection, retryStakeSettlement, recoverPendingDuel, type Settlement } from '@/lib/beast-collection';
-import { resolveStake } from '@/lib/beast-game/stake';
 import type { StakeOutcome } from '@/lib/beast-collection-ledger';
 import { namedStakeOutcome } from '@/lib/beast-stake-presentation';
 import BeastStakeResult from '@/components/BeastStakeResult';
@@ -48,9 +47,7 @@ import DeckBuilder from '@/components/battlefield/DeckBuilder';
 import { BATTLEFIELD_DECK_SIZE, buildFreshOpeningDeck, buildUniqueDeck, sanitizeDeckSelection } from '@/lib/beast-game/deck-builder';
 import { useCombatPlayback } from '@/components/battlefield/useCombatPlayback';
 import BattlePace from '@/components/battlefield/BattlePace';
-import { judgeVictorySkill } from '@/lib/beast-game/iching-judgment';
-import { distributeRewardCards } from '@/lib/beast-game/reward-distribution';
-import { MAX_REWARD_CARDS, MAX_STAKE_CARDS, stakeRewardCount } from '@/lib/beast-game/stake-rules';
+import { MAX_REWARD_CARDS, MAX_STAKE_CARDS } from '@/lib/beast-game/stake-rules';
 
 /** 一副牌的張數。六十張是卡池，不是一副牌全部上桌。 */
 const SAVED_DECK_KEY = 'taiji-beast-battlefield-deck-v1';
@@ -72,6 +69,21 @@ function seeded(seed: number) {
   };
 }
 
+type BattleReply = { ok: true; match: Match; token: string; legal: Action[]; notice: string | null; outcome?: StakeOutcome; action?: Action };
+
+/**
+ * 困難戰場的運算全部在後端 /api/beast-game/battlefield（2026-09-15 業主定調：前端只負責顯示易經）。
+ * 這裡只送出佈陣與出招，拿回結果顯示；不自己算勝負、易經判斷或押注。
+ */
+async function callBattle(body: Record<string, unknown>): Promise<BattleReply> {
+  const res = await fetch('/api/beast-game/battlefield', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(30000),
+  });
+  const data = await res.json().catch(() => null) as (BattleReply | { ok: false; error?: string } | null);
+  if (!res.ok || !data || !data.ok) throw new Error((data && !data.ok && data.error) || '戰場暫時無法連線，押注卡未扣除。');
+  return data;
+}
+
 function secureSeed(): number {
   const values = new Uint32Array(1);
   globalThis.crypto?.getRandomValues?.(values);
@@ -83,6 +95,11 @@ export default function BattlefieldPage() {
   const [state, setState] = useState<BattleState | null>(null);
   /** 開戰之後的戰鬥狀態。null＝還在佈陣。 */
   const [match, setMatch] = useState<Match | null>(null);
+  /** 後端簽名的戰局票：每一招都帶著它請後端運算。 */
+  const battleToken = useRef<string | null>(null);
+  /** 後端送來的可出招清單與首領提示——前端不自己判斷。 */
+  const [legal, setLegal] = useState<Action[]>([]);
+  const [liveNotice, setLiveNotice] = useState<string | null>(null);
   const { playing, begin: beginPlayback, play: playRound, reset: resetPlayback } = useCombatPlayback();
   // 懶人玩法：開戰就自動一路連擊到結束（2026-09-15）；原本困難模式每一回合都要手動按。
   const [automatic, setAutomatic] = useState(false);
@@ -246,6 +263,7 @@ export default function BattlefieldPage() {
     }
     setState(prepared);
     setMatch(null);
+    battleToken.current = null; setLegal([]); setLiveNotice(null);
     setStakeCardIds(retainedStakes);
     setInspection(null);
     setGuideRequest(null);
@@ -258,10 +276,12 @@ export default function BattlefieldPage() {
     starting.current = true;
     setStakeError('');
     try {
-      // 正式押注戰＝困難首領；體驗戰（免押卡、新客人）維持簡單，不讓第一場就被首領打爛。
-      const next = startFromField(state, seed * 7919, { difficulty: stakeCardIds.length ? 'HARD' : 'EASY' });
       if (ownedStake.length && (stakeCardIds.length < 1 || stakeCardIds.length > MAX_STAKE_CARDS)) throw new Error(`正式戰必須選 1～${MAX_STAKE_CARDS} 張押注卡。`);
       const representative = ownedStake.find(card => card.id === stakeCardIds[0]);
+      // 開戰交給後端：種子、難度（押注戰＝困難首領、體驗戰＝簡單）、易經判斷都由後端決定。
+      const opened = await callBattle({ type: 'START', playerTeam: fieldTeam(state, 'PLAYER'), opponentTeam: fieldTeam(state, 'OPPONENT'), stakeCardId: stakeCardIds.length ? representative?.cardId ?? null : null, stakeCount: stakeCardIds.length });
+      battleToken.current = opened.token; setLegal(opened.legal); setLiveNotice(opened.notice);
+      const next = opened.match;
       setOutcome(null); setSettlement(null); setBattleStake(representative?.cardId || null);
       setBattleVoiceId(crypto.randomUUID());
       setInspection(null);
@@ -285,22 +305,34 @@ export default function BattlefieldPage() {
     } catch (cause) {
       if (alive.current) setStakeError(cause instanceof Error ? cause.message : '還不能開戰，押注卡未扣除。');
     } finally { starting.current = false; if (alive.current) setSettling(false); }
-  }, [state, seed, stakeCardIds, ownedStake, recovering, settlement]);
+  }, [state, stakeCardIds, ownedStake, recovering, settlement]);
+
+  /** 套用後端回傳：戰局、票、可出招清單、首領提示；押注戰打完連戰果一起交給收藏帳本。 */
+  const applyReply = useCallback((reply: BattleReply) => {
+    battleToken.current = reply.token; setLegal(reply.legal); setLiveNotice(reply.notice);
+    setMatch(reply.match); playRound(reply.match);
+    controlScroll.current?.scrollTo({ top: 0 });
+    if (reply.outcome && pendingBattle.current) {
+      const pending = pendingBattle.current;
+      pendingBattle.current = null;
+      setOutcome(reply.outcome);
+      pending.resolve({ ok: true, stake: reply.outcome });
+    }
+  }, [playRound]);
+
+  const step = useCallback(async (body: Record<string, unknown>) => {
+    if (!match || match.status !== 'PLAYING' || !battleToken.current || !beginPlayback()) return;
+    try { applyReply(await callBattle({ ...body, token: battleToken.current })); }
+    catch (cause) { resetPlayback(); setAutomatic(false); setStakeError(cause instanceof Error ? cause.message : '戰場暫時無法連線，請再按一次。'); }
+  }, [match, beginPlayback, resetPlayback, applyReply]);
 
   /**
-   * 出招。
-   *
-   * 只把動作交給 advance()，對手要出什麼由它自己的 AI 決定（預設參數）。
-   * 這裡不挑對手的動作，也不預測結果——**畫面不是裁判**。
+   * 出招：只把「玩家要出哪一招」送給後端；易經怎麼回、誰贏，全部後端算。
+   * **畫面不是裁判**。
    */
-  const act = useCallback((action: Action) => {
-    if (!match || match.status !== 'PLAYING' || !beginPlayback()) return;
-    try {
-      const next = advance(match, action);
-      setMatch(next); playRound(next);
-      controlScroll.current?.scrollTo({ top: 0 });
-    } catch { resetPlayback(); }
-  }, [match, beginPlayback, playRound, resetPlayback]);
+  const act = useCallback((action: Action) => { void step({ type: 'ACTION', action }); }, [step]);
+  /** 自動連擊：請後端依基礎規則替玩家決定下一招。 */
+  const autoStep = useCallback(() => { void step({ type: 'AUTO' }); }, [step]);
 
   const handleSelect = useCallback((cardId: string) => {
     setState((current) => {
@@ -378,26 +410,7 @@ export default function BattlefieldPage() {
     另外寫一套「應該也可以」的結算，就是拿客戶的收藏在冒險。
     勝負來自 match.winner，這裡不重算。
   */
-  useEffect(() => {
-    if (!match || match.status !== 'FINISHED' || !battleStake || !pendingBattle.current) return;
-    const opponentStake = match.opponent.team[0]?.cardId;
-    if (!opponentStake) return;
-    const base = resolveStake({
-      playerStake: battleStake,
-      opponentStake,
-      winner: match.winner === 'player' ? 'PLAYER' : match.winner === 'opponent' ? 'OPPONENT' : 'DRAW',
-    });
-    // 易經判斷技術等級：只有玩家贏了才觸發，技術越高獎勵越多。
-    const judgment = base.verdict === 'WON' ? judgeVictorySkill(match) : null;
-    const rewardCount = judgment ? stakeRewardCount(stakeCardIds.length, judgment.bonusCards) : 0;
-    const outcome: StakeOutcome = judgment
-      ? { ...base, gainedCount: rewardCount, rewardCardIds: distributeRewardCards(opponentStake, rewardCount), ichingJudgment: judgment }
-      : base;
-    const pending = pendingBattle.current;
-    pendingBattle.current = null;
-    setOutcome(outcome);
-    pending.resolve({ ok: true, stake: outcome });
-  }, [match, battleStake, stakeCardIds.length]);
+  // 戰果（勝負、易經技術判斷、獎勵張數）改由後端在最後一招一併算好送回（applyReply），這裡不再計算。
 
   const retrySettlement = async () => {
     if (!settlement || !outcome || settling) return;
@@ -493,7 +506,7 @@ export default function BattlefieldPage() {
         ) : !state ? <p className={styles.loading}>正在發牌…</p> : (
           <div className={styles.split} data-battle-split data-inspecting={Boolean(inspection)} data-preparing={!match} data-stake-review={!match && prepareView === 'stake'}>
             <BattleArena state={state} cards={cards} match={match} onInspect={inspectCard} playing={playing}
-              onAttack={match?.status === 'PLAYING' && !playing ? (() => { const a = legalActions(match, 'player').find(x => x.type === 'ATTACK'); return a ? () => act(a) : null; })() : null}
+              onAttack={match?.status === 'PLAYING' && !playing ? (() => { const a = legal.find(x => x.type === 'ATTACK'); return a ? () => act(a) : null; })() : null}
               onSwap={match?.status === 'PLAYING' && !playing ? (action) => act(action) : null}
               onSkill={match?.status === 'PLAYING' && !playing ? (action) => act(action) : null} />
             <section className={styles.controls} aria-label="手部操控" data-battle-controls data-preparing={!match}>
@@ -525,9 +538,9 @@ export default function BattlefieldPage() {
                   cards={cards} settlement={settlement} isReplay={false} retrying={settling} onRetry={() => void retrySettlement()} />}
                 {match ? (
                   <>
-                    {/* 首領預告放在操作區最上方：收在戰報裡客戶看不到，就不算預告。文字由核心 bossNotice 產生。 */}
-                    {bossNotice(match) && <p role="status" aria-live="polite" className={`${styles.notice} ${styles.bossLive}`} data-boss-live>🐉 {bossNotice(match)}</p>}
-                    <BattlePace match={match} automatic={automatic} blocked={playing || Boolean(inspection)} onAutomatic={setAutomatic} onAction={act} />
+                    {/* 首領預告放在操作區最上方：收在戰報裡客戶看不到，就不算預告。文字由後端 bossNotice 產生送來。 */}
+                    {liveNotice && <p role="status" aria-live="polite" className={`${styles.notice} ${styles.bossLive}`} data-boss-live>🐉 {liveNotice}</p>}
+                    <BattlePace match={match} automatic={automatic} blocked={playing || Boolean(inspection)} canAct={legal.length > 0} onAutomatic={setAutomatic} onAuto={autoStep} />
                     <BattlePanel match={match} onAction={act} busy={playing} compact cards={cards} />
                     {match.status === 'PLAYING' && <p className={styles.notice} data-battle-stake>{battleStake
                       ? `💎 押注：${cards.find(card => card.id === battleStake)?.name}`

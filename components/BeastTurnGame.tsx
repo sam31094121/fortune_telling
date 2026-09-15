@@ -82,12 +82,12 @@ export default function BeastTurnGame() {
     return () => { disposed = true; clearTimeout(timer); controller.abort(); };
   }, []);
 
-  const send = useCallback(async (type: 'START' | 'ACTION' | 'LEAVE' | 'AUTO_FINISH', extra: Record<string, unknown> = {}) => {
+  const send = useCallback(async (type: 'START' | 'ACTION' | 'LEAVE' | 'AUTO_FINISH' | 'AUTO_STEP', extra: Record<string, unknown> = {}) => {
     if (!account || pending.current) return;
-    if (type === 'ACTION' && !beginPlayback()) return;
+    if ((type === 'ACTION' || type === 'AUTO_STEP') && !beginPlayback()) return;
     pending.current = true; setBusy(true); setError('');
 
-    const post = async (bodyType: 'START' | 'ACTION' | 'LEAVE' | 'AUTO_FINISH', bodyExtra: Record<string, unknown>, revision: number) => {
+    const post = async (bodyType: 'START' | 'ACTION' | 'LEAVE' | 'AUTO_FINISH' | 'AUTO_STEP', bodyExtra: Record<string, unknown>, revision: number) => {
       const res = await fetch('/api/beast-game/turns', {
         method: 'POST', signal: AbortSignal.timeout(60000), headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: bodyType, revision, requestId: crypto.randomUUID(), ...bodyExtra }),
@@ -111,7 +111,7 @@ export default function BeastTurnGame() {
         setAccount(data.account);
         if (data.account.match) playRound(data.account.match);
         else resetPlayback();
-      } else if (type === 'ACTION' && data.account.match) {
+      } else if ((type === 'ACTION' || type === 'AUTO_STEP') && data.account.match) {
         playRound(data.account.match);
       } else {
         resetPlayback();
@@ -121,7 +121,7 @@ export default function BeastTurnGame() {
         setAutomatic(false);
         if (account.match) setSelected(account.match.player.team.map(fighter => fighter.cardId));
       }
-      if (type !== 'ACTION') { setInspection(null); setDetail(null); }
+      if (type !== 'ACTION' && type !== 'AUTO_STEP') { setInspection(null); setDetail(null); }
     } catch (cause) {
       resetPlayback();
       setAutomatic(false);
@@ -147,6 +147,8 @@ export default function BeastTurnGame() {
   }, [account, beginPlayback, playRound, resetPlayback]);
 
   const act = useCallback((action: Action) => { scroll.current?.scrollTo({ top: 0 }); void send('ACTION', { action }); }, [send]);
+  /** 自動連擊的下一招由後端決定（前端只負責顯示）。 */
+  const autoStep = useCallback(() => { scroll.current?.scrollTo({ top: 0 }); void send('AUTO_STEP'); }, [send]);
 
   const errorNotice = error && <p role="alert" className={styles.error}>{error} <button type="button" disabled={busy} onClick={() => void load()}>重新載入戰況</button></p>;
 
@@ -170,7 +172,7 @@ export default function BeastTurnGame() {
               {errorNotice}
               {inspection && <BattleCardGuide cardId={inspection.cardId} fighter={inspected} opponent={other.team[other.active]} context={{ match, side: inspection.side }} opponentElement={other.team[other.active].element} onClose={() => { setInspection(null); scroll.current?.scrollTo({ top: 0 }); }} />}
               <div hidden={Boolean(inspection) || (Boolean(error) && match.status === 'PLAYING')}>
-                <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} onAutomatic={setAutomatic} onAction={act} />
+                <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} canAct={match.status === 'PLAYING'} onAutomatic={setAutomatic} onAuto={autoStep} />
                 <BattlePanel match={match} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
                 {/* 預覽用寶珠面板：魔珠與暴怒已由戰鬥引擎結算並顯示在戰場右欄，這裡隱藏。 */}
                 {(false as boolean) && match.status === 'PLAYING' && (() => {

@@ -164,7 +164,9 @@ const freshBattle = (seed = 5) => {
   assert.ok(panel.includes('legalActions'), '可出的招要問 legalActions，畫面不自己判斷');
 
   const page = stripComments(fs.readFileSync('app/beast-game/battlefield/page.tsx', 'utf8'));
-  assert.ok(page.includes('advance('), '出招要交給 advance()');
+  // 2026-09-15 業主定調：易經與技能運算在後端，前端只負責顯示——出招送到後端，頁面不得自己 advance()。
+  assert.ok(page.includes('/api/beast-game/battlefield'), '出招要送到後端戰場 API');
+  assert.ok(!/(^|[^\w.])advance\(/m.test(page), '頁面不得自己呼叫 advance()');
   assert.ok(!page.includes('Math.random'), '頁面不得用 Math.random——種子才可重播');
 }
 

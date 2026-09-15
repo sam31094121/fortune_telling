@@ -157,7 +157,8 @@ check('勝率落在目標區間：簡單約五成、困難約七成，且越難�
 
 check('困難頁：只有押注戰用困難，體驗戰維持簡單，並明白告知首領反制', () => {
   const page = fs.readFileSync('app/beast-game/battlefield/page.tsx', 'utf8');
-  assert.match(page, /startFromField\(state, seed \* 7919, \{ difficulty: stakeCardIds\.length \? 'HARD' : 'EASY' \}\)/);
+  // 2026-09-15 後端化：難度由困難戰場 API 依押注決定，頁面不自己決定。
+  assert.match(fs.readFileSync('app/api/beast-game/battlefield/route.ts', 'utf8'), /difficulty: stakeCount > 0 \? 'HARD' : 'EASY'/);
   assert.match(page, /data-boss-notice>困難：易經是首領/);
   assert.ok(!/線上對戰|真人對戰/.test(page), '不得宣稱真人');
 });
@@ -172,7 +173,8 @@ check('首領預告在戰鬥畫面看得到：預告時照印對策，生效後�
   assert.match(bossNotice(warned), /暫停/, '要附對策');
   assert.match(bossNotice(advance(warned, ATTACK, ATTACK)), /你的魔珠全部被封印/);
   const page = fs.readFileSync('app/beast-game/battlefield/page.tsx', 'utf8');
-  assert.match(page, /bossNotice\(match\) && <p role="status"[^>]*data-boss-live>/, '困難頁要把提示放在操作區');
+  assert.match(page, /liveNotice && <p role="status"[^>]*data-boss-live>/, '困難頁要把後端送來的提示放在操作區');
+  assert.match(fs.readFileSync('app/api/beast-game/battlefield/route.ts', 'utf8'), /notice: bossNotice\(match\)/, '首領提示由後端產生');
 });
 
 /* ── 中等入口：三局單挑的易經組陣 ── */

@@ -74,7 +74,10 @@ id 唯一、圖片存在、元素合法、數值合法、技能存在、平衡�
 - `易經.json`＋`新人檔案.md`：神獸卡對手智能正式檔與導讀；制度章在 `docs/beast-game-skill.md`〈二十四〉（遵守「神獸卡只有一份制度檔、不得第二套核心」）。
 - 程式：`lib/beast-game/interactive.ts`（`chooseAI` 三級、首領反制、`bossNotice`）、`lib/beast-game/series.ts`（`chooseSeriesOpponent`）、`lib/beast-game/iching-skill-archive.ts`（讀 `易經.json`，網頁與伺服器共用，不得用 node:fs）、`lib/iching-source-gate.ts`
 - 對手鐵律：只變聰明、不改數值；不偷看玩家決策、陣容與種子；不假裝真人；首領反制先預告、畫面看得到。
-- 守門：`npm run test:beast-difficulty`、`npm run test:iching-sources`（都在推送閘內）
+- **後端運算、前端只顯示（米其林分工）：後端負責品質穩定與服務——技能、易經判斷、勝負、押注結算、來源治理全部在後端算完再送出；前端負責視覺感官與價值——把結果與有權威來源的易經洋蔥心理學好好呈現，不做任何運算。**
+  - 困難戰場運算在 `app/api/beast-game/battlefield/route.ts`（每回合回傳 HMAC 戰局票 `lib/beast-game/battle-session.ts`，任何一台機器都能接續；網頁端不得匯入）；簡單的自動下一招走 turns API `AUTO_STEP`。
+  - 第二階段待辦：BattlePanel／BattleArena／BeastTurnGame 仍在網頁端用 `legalActions` 判斷可按的鈕；易經自動佈陣仍在網頁端。
+- 守門：`npm run test:beast-difficulty`、`npm run test:iching-sources`、`npm run test:beast-backend-only`（都在推送閘內）
 - 「三合一」的易經卜卦、易經心理學，一樣受這套來源治理。
 
 ## 推送閘：編不過就不准上正式站

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { chooseAI, legalActions, type Action, type Match } from '@/lib/beast-game/interactive';
+import type { Match } from '@/lib/beast-game/interactive';
 import styles from './BattlePace.module.css';
 
 /**
@@ -9,22 +9,16 @@ import styles from './BattlePace.module.css';
  *
  * 原本技能就緒、前鋒倒下都會停下來等玩家，實測每一回合都卡住，
  * 按「自動／暫停」也不會繼續——客戶以為壞掉。
- * 現在自動替玩家出手，用的是和對手「易經」同一套規則（chooseAI）：
- * 倒下換最健康的後備、技能條件合適才放、否則普攻——雙方規則對稱，也不會補血互拖到八十回合。
- * 它只決定「按哪一顆合法的鍵」，勝負仍全部由後端運算。
+ *
+ * 下一招由後端依基礎規則決定（業主定調：易經與技能運算在後端，前端只負責顯示）。
+ * 這一條只管「隔多久請後端出下一招」與暫停鍵，不自己判斷要出什麼。
  */
-function nextAutoAction(match: Match): Action | null {
-  return legalActions(match, 'player').length ? chooseAI(match, 'player') : null;
-}
-
-/** Only schedules a legal action; all combat stays on the server. */
-export default function BattlePace({ match, automatic, blocked, onAutomatic, onAction }: {
-  match: Match; automatic: boolean; blocked: boolean;
-  onAutomatic: (enabled: boolean) => void; onAction: (action: Action) => void;
+export default function BattlePace({ match, automatic, blocked, canAct, onAutomatic, onAuto }: {
+  match: Match; automatic: boolean; blocked: boolean; canAct: boolean;
+  onAutomatic: (enabled: boolean) => void; onAuto: () => void;
 }) {
-  const next = match.status === 'PLAYING' ? nextAutoAction(match) : null;
   const delay = match.revision === 0 ? 500 : 1400;
-  const running = automatic && !blocked && Boolean(next) && match.status === 'PLAYING';
+  const running = automatic && !blocked && canAct && match.status === 'PLAYING';
 
   useEffect(() => {
     const pause = () => { if (document.hidden) onAutomatic(false); };
@@ -33,14 +27,14 @@ export default function BattlePace({ match, automatic, blocked, onAutomatic, onA
   }, [onAutomatic]);
 
   useEffect(() => {
-    if (!running || !next || document.hidden) return;
+    if (!running || document.hidden) return;
     const timer = window.setTimeout(() => {
-      if (!document.hidden) onAction(next);
+      if (!document.hidden) onAuto();
     }, delay);
     return () => window.clearTimeout(timer);
-    // next 由 match.revision 決定；用 revision 當依據，避免同一回合重複排程
+    // 每一回合（revision）只排一次，避免同一回合重複請後端出招
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [running, match.revision, onAction, delay]);
+  }, [running, match.revision, onAuto, delay]);
 
   if (match.status !== 'PLAYING') return null;
   return <section className={styles.pace} aria-label="戰鬥節奏">

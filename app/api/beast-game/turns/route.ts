@@ -69,6 +69,12 @@ export async function POST(req:Request){
         a.match=advance(a.match,b.action);
         if(a.match.status==='FINISHED'&&a.awardedRevision===null){for(const f of a.match.player.team)a.experience[f.cardId]=(a.experience[f.cardId]??0)+1;a.awardedRevision=a.match.revision;}
         break;
+      case 'AUTO_STEP':
+        // 自動連擊的下一招由後端依基礎規則決定（業主定調：前端只負責顯示）。
+        if(!a.match||a.match.status!=='PLAYING')throw new Error('請先組隊開戰。');
+        a.match=advance(a.match,chooseAI(a.match,'player'));
+        if(a.match.status==='FINISHED'&&a.awardedRevision===null){for(const f of a.match.player.team)a.experience[f.cardId]=(a.experience[f.cardId]??0)+1;a.awardedRevision=a.match.revision;}
+        break;
       case 'AUTO_FINISH':{
         // One-shot resolve for automatic play — avoids multi-turn /tmp races on multi-instance hosts (Vercel).
         if(!a.match||a.match.status!=='PLAYING')throw new Error('請先組隊開戰。');

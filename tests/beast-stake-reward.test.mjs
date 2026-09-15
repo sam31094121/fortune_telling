@@ -59,7 +59,7 @@ check('押注前的三句話跟著張數變，講清楚輸多少、至少贏多�
 });
 
 check('三個結算入口都用同一條公式，收藏帳本也保底', () => {
-  for (const file of ['app/api/beast-game/stake-duel/route.ts', 'app/api/beast-game/route.ts', 'app/beast-game/battlefield/page.tsx']) {
+  for (const file of ['app/api/beast-game/stake-duel/route.ts', 'app/api/beast-game/route.ts', 'app/api/beast-game/battlefield/route.ts']) {
     const source = fs.readFileSync(file, 'utf8');
     assert.match(source, /stakeRewardCount\(/, `${file} 必須用 stakeRewardCount`);
     assert.doesNotMatch(source, /gainedCount:\s*(Math\.min\(MAX_REWARD_CARDS,\s*)?judgment\.bonusCards/, `${file} 不得直接拿技術分當獎勵`);
