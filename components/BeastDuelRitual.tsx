@@ -194,6 +194,19 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
   }, [opponentReady]);
 
   /*
+    懶人連擊（2026-09-15）：客人已經親手按過「啟陣」，雙方就緒後不再多等一下。
+    自動翻牌開著就稍候自動一起揭牌；想快可以直接按。實測原本停在「等你一起揭牌」，長輩以為已經開打在等。
+  */
+  useEffect(() => {
+    if (!ready || revealed || !autoFlip) return;
+    const timer = window.setTimeout(() => {
+      playPlayerBeastVoice(sound.current.play, 'player', player[0].id);
+      setPhase('revealing');
+    }, 2500);
+    return () => window.clearTimeout(timer);
+  }, [ready, revealed, autoFlip, player]);
+
+  /*
     逐張揭牌。
 
     照 REVEAL_ORDER 一張一張翻：我的前鋒 → 對方前鋒 → 我的中軍 → …
@@ -499,7 +512,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
           </strong>
           <p>一張一張揭・{revealCount} / {REVEAL_ORDER.length}</p>
         </> : <>
-          <strong>{revealed ? '雙方揭牌' : ready ? '等你一起揭牌' : '易經理牌中…'}</strong>
+          <strong>{revealed ? '雙方揭牌' : ready ? (autoFlip ? '即將自動揭牌' : '等你一起揭牌') : '易經理牌中…'}</strong>
           <p>{revealed ? '守護陣已展開' : ready ? '雙方三席已鎖定' : '你的三張已入陣'}</p>
         </>}
       </div>
@@ -554,7 +567,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
       )}
 
       {!revealed && <button type="button" className={styles.action} disabled={!ready} onClick={() => { if (ready) { playPlayerBeastVoice(sound.current.play, 'player', player[0].id); setPhase('revealing'); } }}>
-        {ready ? '一起揭牌' : '等待易經就緒…'}
+        {ready ? (autoFlip ? '一起揭牌・馬上自動開始' : '一起揭牌') : '等待易經就緒…'}
       </button>}
       </div>
       </section>
