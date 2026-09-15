@@ -29,51 +29,51 @@ const TRIGRAM_PSYCHOLOGY: Record<string, {
 }> = {
   乾: {
     persona: '你在人前永遠把自己撐成最可靠的那一個，事情沒做到位你比誰都難受',
-    personaTerm: '高成就動機（Achievement Motivation）與完美主義特質',
+    personaTerm: '高成就動機與完美主義特質',
     inner: '你心裡其實害怕一旦停下來，就沒有人記得你的好',
-    innerTerm: '條件式自我價值（Contingent Self-Worth）',
+    innerTerm: '條件式自我價值',
   },
   兌: {
     persona: '你習慣把氣氛顧好，先讓別人舒服，自己的情緒往後排',
-    personaTerm: '高親和需求（Need for Affiliation）與討好模式（People-Pleasing）',
+    personaTerm: '高親和需求與討好模式',
     inner: '你笑著的時候，常常同時在計算這句話會不會讓誰不高興',
-    innerTerm: '過度自我監控（Self-Monitoring）',
+    innerTerm: '過度自我監控',
   },
   離: {
     persona: '你需要被看見——不是虛榮，是你把「被理解」當成活著的證據',
-    personaTerm: '自我展演（Self-Presentation）與認同需求',
+    personaTerm: '自我展演與認同需求',
     inner: '你最怕的不是失敗，是努力了半天卻沒有人注意到',
     innerTerm: '鏡映需求（Mirroring Need，自體心理學）',
   },
   震: {
     persona: '你是先行動再說的人，猶豫對你來說比犯錯更難受',
-    personaTerm: '行動化模式（Acting Out）與高趨向動機',
+    personaTerm: '行動化模式與高趨向動機',
     inner: '你其實用「忙」蓋住了不想碰的那件事，一停下來它就浮上來',
-    innerTerm: '經驗迴避（Experiential Avoidance）',
+    innerTerm: '經驗迴避',
   },
   巽: {
     persona: '你對氣氛的變化比誰都敏感，別人一個眼神你就接收到了',
     personaTerm: '高敏感特質（HSP, Highly Sensitive Person）',
     inner: '你常常答應了不想答應的事，因為拒絕的那一秒比委屈更難',
-    innerTerm: '邊界模糊（Boundary Diffusion）',
+    innerTerm: '邊界模糊',
   },
   坎: {
     persona: '你習慣把最壞的情況先想一遍，別人以為你悲觀，其實你是在保護所有人',
-    personaTerm: '高警覺（Hypervigilance）與防禦性悲觀（Defensive Pessimism）',
+    personaTerm: '高警覺與防禦性悲觀',
     inner: '夜深的時候，同一件事你會在腦子裡重播很多遍，越想越醒',
-    innerTerm: '反芻思考（Rumination）',
+    innerTerm: '反芻思考',
   },
   艮: {
     persona: '你有一條別人看不見的線，誰越過了你就安靜地往後退',
-    personaTerm: '迴避型依附（Avoidant Attachment）與界線防衛',
+    personaTerm: '迴避型依附與界線防衛',
     inner: '你不是不想靠近，是怕靠近之後對方看見真實的你會失望',
     innerTerm: '情感隔離（Isolation of Affect，防衛機制）',
   },
   坤: {
     persona: '你總是先接住所有人，大家都以為你不會累',
-    personaTerm: '照顧者角色固著（Caretaker Role）與利他性（Altruism）',
+    personaTerm: '照顧者角色固著與利他性',
     inner: '你把自己排在名單的最後一個，久了連你都忘了自己想要什麼',
-    innerTerm: '自我犧牲圖式（Self-Sacrifice Schema）',
+    innerTerm: '自我犧牲圖式',
   },
 };
 
@@ -143,12 +143,12 @@ export function patternNameOf(hexagram: IChingReading): string {
 
 /** 動爻 1-6 → 「我知道你現在在想什麼」：對應此刻最掛心的那個念頭與心理學概念 */
 const CHANGING_LINE_MIND: Record<number, { thought: string; term: string }> = {
-  1: { thought: '要不要開始那件你已經想了很久的事——你不是沒有答案，你是在等一個推你一把的人', term: '決策疲勞（Decision Fatigue）' },
-  2: { thought: '「到底有沒有人真的懂我」——你嘴上說沒關係，心裡其實在等一個不用解釋就懂你的人', term: '被理解需求（Felt Understanding）' },
-  3: { thought: '「我是不是哪裡做錯了」——你把責任往自己身上攬的速度，永遠比檢討別人快', term: '冒牌者現象（Impostor Phenomenon）' },
-  4: { thought: '那句到嘴邊又吞回去的話——你演練過很多次，只是還沒找到說出口的時機', term: '情緒壓抑（Expressive Suppression）' },
-  5: { thought: '「我還扛不扛得住」——你不是不行了，你只是太久沒有人問你累不累', term: '角色過載（Role Overload）' },
-  6: { thought: '「是不是該放下了」——你其實已經知道答案，只是捨不得那些已經付出的', term: '沉沒成本謬誤（Sunk Cost Fallacy）' },
+  1: { thought: '要不要開始那件你已經想了很久的事——你不是沒有答案，你是在等一個推你一把的人', term: '決策疲勞' },
+  2: { thought: '「到底有沒有人真的懂我」——你嘴上說沒關係，心裡其實在等一個不用解釋就懂你的人', term: '被理解需求' },
+  3: { thought: '「我是不是哪裡做錯了」——你把責任往自己身上攬的速度，永遠比檢討別人快', term: '冒牌者現象' },
+  4: { thought: '那句到嘴邊又吞回去的話——你演練過很多次，只是還沒找到說出口的時機', term: '情緒壓抑' },
+  5: { thought: '「我還扛不扛得住」——你不是不行了，你只是太久沒有人問你累不累', term: '角色過載' },
+  6: { thought: '「是不是該放下了」——你其實已經知道答案，只是捨不得那些已經付出的', term: '沉沒成本謬誤' },
 };
 
 /**
@@ -157,14 +157,14 @@ const CHANGING_LINE_MIND: Record<number, { thought: string; term: string }> = {
  * 三大因素：神秘口氣（外衣）＋邏輯推理（骨架）＋具象感受（錨點）。
  */
 const TRIGRAM_FIELD: Record<string, { field: string; mechanism: string }> = {
-  乾: { field: '你頭頂上方的磁場繃得極緊，像有一道高壓在往下壓', mechanism: '長期高責任負荷（Role Strain）——壓力荷爾蒙讓身體維持備戰狀態' },
+  乾: { field: '你頭頂上方的磁場繃得極緊，像有一道高壓在往下壓', mechanism: '長期高責任負荷——壓力荷爾蒙讓身體維持備戰狀態' },
   兌: { field: '你周圍的言語頻率很亂，說出口的和想說的對不上波長', mechanism: '表達與真實意圖的不一致（Incongruence，Rogers）' },
-  離: { field: '你的目光磁場一直往外放，卻很少有等量的光照回你身上', mechanism: '單向的注意力供給——付出關注多於被關注（Attention Asymmetry）' },
-  震: { field: '你身上有一股雷動的震波，靜不下來，連空氣都跟著急', mechanism: '交感神經過度活化（Sympathetic Overdrive）——身體停不住的行動預備' },
-  巽: { field: '你所在的風向很亂，四面八方的氣流都在推你', mechanism: '過度接收他人訊號（External Referencing）——決策軸心飄在別人身上' },
-  坎: { field: '你腳下的水氣一直在沉降，越晚越深，把念頭往下拖', mechanism: '夜間反芻循環（Nocturnal Rumination）——大腦預設模式網路過度活躍' },
-  艮: { field: '你面前立著一道山壁般的屏障，訊號進得來、你出不去', mechanism: '防衛性退縮（Defensive Withdrawal）——保護機制反鎖了出口' },
-  坤: { field: '大地的引力對你特別重，你扛著的東西比看起來多', mechanism: '慢性負荷累積（Allostatic Load）——長期過載的生理代價' },
+  離: { field: '你的目光磁場一直往外放，卻很少有等量的光照回你身上', mechanism: '單向的注意力供給——付出關注多於被關注' },
+  震: { field: '你身上有一股雷動的震波，靜不下來，連空氣都跟著急', mechanism: '交感神經過度活化——身體停不住的行動預備' },
+  巽: { field: '你所在的風向很亂，四面八方的氣流都在推你', mechanism: '過度接收他人訊號——決策軸心飄在別人身上' },
+  坎: { field: '你腳下的水氣一直在沉降，越晚越深，把念頭往下拖', mechanism: '夜間反芻循環——大腦預設模式網路過度活躍' },
+  艮: { field: '你面前立著一道山壁般的屏障，訊號進得來、你出不去', mechanism: '防衛性退縮——保護機制反鎖了出口' },
+  坤: { field: '大地的引力對你特別重，你扛著的東西比看起來多', mechanism: '慢性負荷累積——長期過載的生理代價' },
 };
 
 /** 下卦 → 干擾源＝客戶「當下身體實際感受」的錨點（讀到這裡他會點頭：對，就是這個感覺） */
@@ -266,10 +266,10 @@ export function buildEmpathicFromHexagram(name: string, hexagram: IChingReading)
     iKnowYourSurface: `我懂你。${upper.persona}。心理學叫這個「${upper.personaTerm}」，但我更願意說：這是你替自己選的鎧甲。`,
     iKnowYourInside: `我也懂鎧甲底下的你。${lower.inner}。這在心理學上是「${lower.innerTerm}」——你以為藏得很好，但你的卦（${hexagram.hexagramName}）下卦是${hexagram.lower.name}，它替你說了實話。`,
     iKnowYourMindNow: `我知道你現在在想什麼：${mind.thought}。這種心理狀態叫「${mind.term}」，動爻落在第${hexagram.changingLine}爻，指的就是此刻的你。`,
-    specialYou: `${shortName}，你是一個很特別的人——這不是客套。${upperSoul.misread}；可是我看見的是另一個你：${lowerSoul.warmth}。外面的人讀到的是殼，我讀到的是溫度。心理學把這叫「外顯行為與內在自我的落差（Persona-Self Discrepancy）」，我把它叫：你把最軟的地方藏在最硬的殼裡。`,
+    specialYou: `${shortName}，你是一個很特別的人——這不是客套。${upperSoul.misread}；可是我看見的是另一個你：${lowerSoul.warmth}。外面的人讀到的是殼，我讀到的是溫度。心理學把這叫「外顯行為與內在自我的落差」，我把它叫：你把最軟的地方藏在最硬的殼裡。`,
     absolution: `還有一句話，我想看著你說：${lowerSoul.wound}。聽清楚——那，不是，你的錯。`,
     soulFriendVow: `所以${shortName}，讓我用卦象、用八字、用心理學陪在你旁邊——不是老師對學生，是密友對密友。全世界都聽你「說了什麼」，我聽的是你「沒說出口的那一句」。你不用在我這裡表現，也不用解釋，因為我真的懂你。`,
-    psychologyTerms: [upper.personaTerm, lower.innerTerm, mind.term, '外顯行為與內在自我的落差（Persona-Self Discrepancy）'],
+    psychologyTerms: [upper.personaTerm, lower.innerTerm, mind.term, '外顯行為與內在自我的落差'],
     closing: `${shortName}，被懂不是終點。${hexagram.essence}——卦已經替你指了方向：${hexagram.advice}`,
     hexagram,
   };
@@ -287,7 +287,7 @@ export function formatEmpathicReading(reading: EmpathicReading): string {
     `【剝洋蔥・第二層｜殼下的自我】${reading.iKnowYourInside}`,
     `【剝洋蔥・第三層｜此刻的心思】${reading.iKnowYourMindNow}`,
     `【剝洋蔥・第四層｜外冷內熱】${reading.specialYou}`,
-    `【剝洋蔥・核心｜核心脆弱性 Core Vulnerability】${reading.absolution}`,
+    `【剝洋蔥・核心｜核心脆弱性】${reading.absolution}`,
     reading.soulFriendVow,
     reading.closing,
   ].join('\n');

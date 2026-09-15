@@ -507,7 +507,7 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
         checkIn: {
           weekKey: integration.weekKey,
           title: '本週追蹤',
-          prompt: '完成本週任務後，回來點一下完成——這一下就是心理學的「自我監控（Self-Monitoring）」：被記錄的行為，改變速度是沒記錄的兩倍；易經替你保留每一次的節奏。',
+          prompt: '完成本週任務後，回來點一下完成——這一下就是心理學的「自我監控」：被記錄的行為，改變速度是沒記錄的兩倍；易經替你保留每一次的節奏。',
           buttonText: '完成本週追蹤',
           completedText: '本週已完成追蹤。下週回來看新的提醒。',
           returnHint: integration.companionStage.returnReason,
@@ -533,7 +533,7 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
       weeklyTask: {
         title: '本週一件行動任務',
         task: action,
-        reason: `這件任務會直接帶動 ${themeData.label}，讓 ${themeData.theme} 開始變得更穩定。心理學上這叫「行為活化（Behavioral Activation）」：不等心情好才行動，而是用一個微行動先啟動，情緒會跟著行動走——易經只開一件，因為「微習慣（Tiny Habits）」的完成率才是黏住改變的關鍵。${preferenceFlags.topic ? TOPIC_TIPS[preferenceFlags.topic] : ''}`,
+        reason: `這件任務會直接帶動 ${themeData.label}，讓 ${themeData.theme} 開始變得更穩定。心理學上這叫「行為活化」：不等心情好才行動，而是用一個微行動先啟動，情緒會跟著行動走——易經只開一件，因為「微習慣」的完成率才是黏住改變的關鍵。${preferenceFlags.topic ? TOPIC_TIPS[preferenceFlags.topic] : ''}`,
       },
       followUp,
       weeklyEnergyColor: {
@@ -543,7 +543,7 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
         hex: color.hex,
         reason: themeData.reason,
         usage: color.usage,
-        message: `本週能量色是 ${color.colorName}。可用在 ${color.usage.slice(0, 2).join('、')}——心理學叫「環境線索（Environmental Cue）」：把提醒放進每天會看到的地方，大腦就會自動幫你記得補強 ${themeData.label}，不用靠意志力。`,
+        message: `本週能量色是 ${color.colorName}。可用在 ${color.usage.slice(0, 2).join('、')}——心理學叫「環境線索」：把提醒放進每天會看到的地方，大腦就會自動幫你記得補強 ${themeData.label}，不用靠意志力。`,
       },
       weeklyInspiration: quote,
       chiefPsychologist: (() => {

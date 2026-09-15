@@ -92,35 +92,35 @@ const GROWTH_PREFERENCES: Array<{ id: GrowthPreferenceId; label: string; body: s
 // 給心理學暗示、給洋蔥式溫度。按鍵不是開關，是被賦予生命的殼。
 const PREFERENCE_SOUL_RESPONSES: Record<GrowthPreferenceId, { affirm: string; release: string }> = {
   daily: {
-    affirm: '你願意每天留一句話的位置給自己——這是「微量承諾（Micro-Commitment）」，最小的承諾走得最遠。易經聽見了：以後每天只說一句，但會說進心裡。',
+    affirm: '你願意每天留一句話的位置給自己——這是「微量承諾」，最小的承諾走得最遠。易經聽見了：以後每天只說一句，但會說進心裡。',
     release: '好，易經把每日的話先收起來。需要的時候再開，這裡不會消失。',
   },
   weekly: {
-    affirm: '一週一步——敢選這個速度的人，是真正尊重自己節奏的人。「間隔效應（Spacing Effect）」說：留白會讓改變長得更深。易經陪你慢慢來。',
+    affirm: '一週一步——敢選這個速度的人，是真正尊重自己節奏的人。「間隔效應」說：留白會讓改變長得更深。易經陪你慢慢來。',
     release: '好，易經放慢腳步。你的節奏由你定，這一直是你的權利。',
   },
   direct: {
-    affirm: '你喜歡直接——這不是沒耐性，是「認知閉合需求（Need for Closure）」高的行動者特質。易經聽懂了：以後開門見山，第一句就是重點。',
+    affirm: '你喜歡直接——這不是沒耐性，是「認知閉合需求」高的行動者特質。易經聽懂了：以後開門見山，第一句就是重點。',
     release: '好，易經把話放軟一點。直接與溫柔之間，你隨時可以換。',
   },
   gentle: {
-    affirm: '你選了溫柔——心理學的「安全堡壘（Secure Base）」說：先被接住的人，才走得更遠。易經會先抱住你，再提醒你。',
+    affirm: '你選了溫柔——心理學的「安全堡壘」說：先被接住的人，才走得更遠。易經會先抱住你，再提醒你。',
     release: '好，易經維持原本的力度。想被溫柔接住的時候，這顆一直在。',
   },
   career: {
-    affirm: '把事業放進提醒——你正在對自己的未來負責，「自我效能（Self-Efficacy）」就是這樣一步步累積的。易經看見你的企圖心了，替你顧著方向。',
+    affirm: '把事業放進提醒——你正在對自己的未來負責，「自我效能」就是這樣一步步累積的。易經看見你的企圖心了，替你顧著方向。',
     release: '好，事業的提醒先放輕。你想衝的時候，易經隨時歸位。',
   },
   relationship: {
-    affirm: '你在乎人與人之間的溫度——「依附（Attachment）」是人最深的需求，在乎不是軟弱，是勇敢。易經會替你留意每一次該說出口的話。',
+    affirm: '你在乎人與人之間的溫度——「依附」是人最深的需求，在乎不是軟弱，是勇敢。易經會替你留意每一次該說出口的話。',
     release: '好，關係的提醒先收著。心裡那些人，易經知道你沒有放下。',
   },
   wealth: {
-    affirm: '敢正面看金錢節奏的人不多——這是在練「延遲滿足（Delayed Gratification）」，看得住錢的人，看得住人生。易經替你盯緊每一步。',
+    affirm: '敢正面看金錢節奏的人不多——這是在練「延遲滿足」，看得住錢的人，看得住人生。易經替你盯緊每一步。',
     release: '好，金錢的提醒先放下。要重新盤點的時候，易經帳本一直開著。',
   },
   energy: {
-    affirm: '你選擇先照顧自己的狀態——「自我照顧（Self-Care）不是自私」，是能持續付出的前提。易經會先看你累不累，再談要做什麼。',
+    affirm: '你選擇先照顧自己的狀態——「自我照顧不是自私」，是能持續付出的前提。易經會先看你累不累，再談要做什麼。',
     release: '好，狀態的提醒先收起。記得：累的時候回來，易經先不談任務。',
   },
 };
@@ -684,7 +684,7 @@ export default function GrowthCenterPage() {
             <section className="growth-preference-panel rounded-2xl border border-fuchsia-300/25 bg-fuchsia-300/8 p-5">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-fuchsia-200">我喜歡怎麼被陪伴</p>
               <h2 className="mt-3 text-2xl font-black leading-8 text-fuchsia-50">八個殼，八份禮物——點開一個，易經就活過來回應你一次。</h2>
-              <p className="mt-2 text-xs font-bold leading-5 text-fuchsia-100/70">每一顆看起來只是殼，裡面都裝著易經寫給你的一句話。心理學依據：好奇缺口（Curiosity Gap）讓人想拆、自我決定理論（Self-Determination Theory）讓你自己選——由你選的節奏，堅持度天生比被指派的高；易經只配合你，不改造你。</p>
+              <p className="mt-2 text-xs font-bold leading-5 text-fuchsia-100/70">每一顆看起來只是殼，裡面都裝著易經寫給你的一句話。心理學依據：好奇缺口讓人想拆、自我決定理論讓你自己選——由你選的節奏，堅持度天生比被指派的高；易經只配合你，不改造你。</p>
               <p className="mt-2 text-base font-semibold leading-7 text-[color:var(--text-sub)]">{selectedPreferenceText}</p>
               <div className="mt-4 grid gap-2 sm:grid-cols-2" aria-label="成長中心喜好設定">
                 {GROWTH_PREFERENCES.map((item) => {
