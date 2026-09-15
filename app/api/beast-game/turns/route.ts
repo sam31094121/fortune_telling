@@ -4,6 +4,7 @@ import path from 'node:path';
 import { NextResponse } from 'next/server';
 import { advance, chooseAI, interactiveCatalog, newMatch, profile, type Action, type Difficulty, type Match } from '@/lib/beast-game/interactive';
 import { TURNS_START_DEFAULT_DIFFICULTY } from '@/lib/beast-game/iching-skill-archive';
+import { battleViewFor } from '@/lib/beast-game/battle-view';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -24,7 +25,7 @@ async function transact(req:Request, mutate?:(a:Account)=>void){
     try{a=JSON.parse(await readFile(file,'utf8'));}catch(e){if((e as NodeJS.ErrnoException).code!=='ENOENT')throw e;a={owned:pick(3),experience:{},match:null,summonDay:null,imported:false,revision:0,lastRequest:null,awardedRevision:null};}
     mutate?.(a);
     const temp=file+'.tmp';await writeFile(temp,JSON.stringify(a));await rename(temp,file);
-    const res=NextResponse.json({ok:true,account:a,cards:catalog,rules:{energyStart:2,energyCap:6,energyPerRound:1,maxRounds:80,summonProbability:'每張 1/60',storage:'此伺服器與目前瀏覽器識別；尚未連接登入帳號。'}},{headers:{'Cache-Control':'no-store'}});
+    const res=NextResponse.json({ok:true,account:a,view:a.match?battleViewFor(a.match):null,cards:catalog,rules:{energyStart:2,energyCap:6,energyPerRound:1,maxRounds:80,summonProbability:'每張 1/60',storage:'此伺服器與目前瀏覽器識別；尚未連接登入帳號。'}},{headers:{'Cache-Control':'no-store'}});
     res.cookies.set(cookie,id,{httpOnly:true,sameSite:'strict',secure:new URL(req.url).protocol==='https:',path:'/',maxAge:31536000});return res;
   }catch(e){return NextResponse.json({ok:false,error:e instanceof Error?e.message:'無法保存，請稍後重試。'},{status:400});}
   finally{await rm(lock,{recursive:true,force:true});}

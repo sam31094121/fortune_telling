@@ -20,7 +20,6 @@
 import styles from './BattlePanel.module.css';
 import { memo, useEffect, useRef, useState } from 'react';
 import type { BattlefieldCardArt } from './GameBattlefield';
-import { rageFusionGuide } from '@/lib/beast-game/rage-guide';
 import ElementOrbDisplay from './ElementOrbDisplay';
 import {
   ELEMENT_FX,
@@ -37,10 +36,8 @@ import { performedAction, isDamagingAction, COMBAT_BEAT_MS } from '@/lib/beast-g
 import { weaponFor } from '@/lib/beast-game/weapons';
 import { describeMatchup, explainOutcome } from '@/lib/beast-element-guide';
 import type { BeastElement } from '@/lib/beast-game/elements';
+import type { BattleView } from '@/lib/beast-game/battle-view';
 import {
-  legalActions,
-  rageMaterialFor,
-  rageUnavailableReason,
   profile,
   type Action,
   type Match,
@@ -130,9 +127,11 @@ export function FighterStatus({ match, side, label }: { match: Match; side: Side
  * 冷卻中就沒有技能鈕、被打倒就只剩換位。**畫面不自己判斷能不能按**。
  */
 export function BattleActionBar({
-  match, onAction, busy, compact, attackOnCard, swapOnSide, cards = [], relaxed, onBrowse,
+  match, view, onAction, busy, compact, attackOnCard, swapOnSide, cards = [], relaxed, onBrowse,
 }: {
   match: Match;
+  /** 後端送來的可出招清單與暴怒判斷；畫面照印，不自己判斷。 */
+  view?: BattleView | null;
   onAction: (action: Action) => void;
   busy?: boolean;
   compact?: boolean;
@@ -148,7 +147,8 @@ export function BattleActionBar({
     if (commandView) commandDetail.current?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
   }, [commandView]);
   if (match.status !== 'PLAYING') return null;
-  const actions = legalActions(match, 'player');
+  if (!view) return <p className={styles.activeHint} role="status">戰況同步中…</p>;
+  const actions = view.legal;
   const active = match.player.team[match.player.active];
   const skill = profile(active.cardId);
 
@@ -156,9 +156,9 @@ export function BattleActionBar({
     const attack = actions.find(action => action.type === 'ATTACK');
     const special = actions.find(action => action.type === 'SKILL');
     const rage = actions.find(action => action.type === 'RAGE');
-    const rageReason = rageUnavailableReason(match, 'player');
-    const ragePartner = rageMaterialFor(match, 'player');
-    const fusionGuide = rageFusionGuide(match, 'player');
+    const rageReason = view.rageReason;
+    const ragePartner = view.ragePartner;
+    const fusionGuide = view.fusionGuide;
     const switches = actions.filter((action): action is Extract<Action, { type: 'SWITCH' }> => action.type === 'SWITCH');
     // The core's forced-replacement phase consumes neither an attack nor a round.
     // Never label that transition as a normal attack that appears to do nothing.
@@ -280,9 +280,10 @@ export function BattleLog({ match }: { match: Match }) {
 }
 
 const BattlePanel = memo(function BattlePanel({
-  match, onAction, busy, compact, swapOnSide, cards, relaxed, onBrowse,
+  match, view, onAction, busy, compact, swapOnSide, cards, relaxed, onBrowse,
 }: {
   match: Match;
+  view?: BattleView | null;
   onAction: (action: Action) => void;
   busy?: boolean;
   compact?: boolean;
@@ -438,7 +439,7 @@ const BattlePanel = memo(function BattlePanel({
           </small>
         </p>
       ) : (
-        <BattleActionBar match={match} onAction={onAction} busy={busy} compact={compact} attackOnCard={false} swapOnSide={swapOnSide} cards={cards} relaxed={relaxed} onBrowse={onBrowse} />
+        <BattleActionBar match={match} view={view} onAction={onAction} busy={busy} compact={compact} attackOnCard={false} swapOnSide={swapOnSide} cards={cards} relaxed={relaxed} onBrowse={onBrowse} />
       )}
 
       {compact ? <details className={styles.battleDetails} onToggle={event => { if (event.currentTarget.open) onBrowse?.(); }}><summary>本回合戰報{match.log.length ? `・${match.log.length} 則` : ''}</summary><BattleLog match={match} /></details> : <BattleLog match={match} />}

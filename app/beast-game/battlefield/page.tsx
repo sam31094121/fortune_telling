@@ -36,6 +36,7 @@ import {
 import BattlePanel from '@/components/battlefield/BattlePanel';
 import { autoPlaceOpponent, canStartBattle, fieldTeam } from '@/lib/beast-game/battle-bridge';
 import type { Action, Match } from '@/lib/beast-game/interactive';
+import type { BattleView } from '@/lib/beast-game/battle-view';
 import StakeSlot, { type StakeCard } from '@/components/battlefield/StakeSlot';
 import { readCollection, runOwnedStakesDuel, countByCard, subscribeCollection, retryStakeSettlement, recoverPendingDuel, type Settlement } from '@/lib/beast-collection';
 import type { StakeOutcome } from '@/lib/beast-collection-ledger';
@@ -69,7 +70,7 @@ function seeded(seed: number) {
   };
 }
 
-type BattleReply = { ok: true; match: Match; token: string; legal: Action[]; notice: string | null; outcome?: StakeOutcome; action?: Action };
+type BattleReply = { ok: true; match: Match; token: string; legal: Action[]; view: BattleView; notice: string | null; outcome?: StakeOutcome; action?: Action };
 
 /**
  * 困難戰場的運算全部在後端 /api/beast-game/battlefield（2026-09-15 業主定調：前端只負責顯示易經）。
@@ -100,6 +101,7 @@ export default function BattlefieldPage() {
   /** 後端送來的可出招清單與首領提示——前端不自己判斷。 */
   const [legal, setLegal] = useState<Action[]>([]);
   const [liveNotice, setLiveNotice] = useState<string | null>(null);
+  const [battleView, setBattleView] = useState<BattleView | null>(null);
   const { playing, begin: beginPlayback, play: playRound, reset: resetPlayback } = useCombatPlayback();
   // 懶人玩法：開戰就自動一路連擊到結束（2026-09-15）；原本困難模式每一回合都要手動按。
   const [automatic, setAutomatic] = useState(false);
@@ -263,7 +265,7 @@ export default function BattlefieldPage() {
     }
     setState(prepared);
     setMatch(null);
-    battleToken.current = null; setLegal([]); setLiveNotice(null);
+    battleToken.current = null; setLegal([]); setLiveNotice(null); setBattleView(null);
     setStakeCardIds(retainedStakes);
     setInspection(null);
     setGuideRequest(null);
@@ -280,7 +282,7 @@ export default function BattlefieldPage() {
       const representative = ownedStake.find(card => card.id === stakeCardIds[0]);
       // 開戰交給後端：種子、難度（押注戰＝困難首領、體驗戰＝簡單）、易經判斷都由後端決定。
       const opened = await callBattle({ type: 'START', playerTeam: fieldTeam(state, 'PLAYER'), opponentTeam: fieldTeam(state, 'OPPONENT'), stakeCardId: stakeCardIds.length ? representative?.cardId ?? null : null, stakeCount: stakeCardIds.length });
-      battleToken.current = opened.token; setLegal(opened.legal); setLiveNotice(opened.notice);
+      battleToken.current = opened.token; setLegal(opened.legal); setLiveNotice(opened.notice); setBattleView(opened.view);
       const next = opened.match;
       setOutcome(null); setSettlement(null); setBattleStake(representative?.cardId || null);
       setBattleVoiceId(crypto.randomUUID());
@@ -309,7 +311,7 @@ export default function BattlefieldPage() {
 
   /** 套用後端回傳：戰局、票、可出招清單、首領提示；押注戰打完連戰果一起交給收藏帳本。 */
   const applyReply = useCallback((reply: BattleReply) => {
-    battleToken.current = reply.token; setLegal(reply.legal); setLiveNotice(reply.notice);
+    battleToken.current = reply.token; setLegal(reply.legal); setLiveNotice(reply.notice); setBattleView(reply.view);
     setMatch(reply.match); playRound(reply.match);
     controlScroll.current?.scrollTo({ top: 0 });
     if (reply.outcome && pendingBattle.current) {
@@ -505,7 +507,7 @@ export default function BattlefieldPage() {
           </div>
         ) : !state ? <p className={styles.loading}>正在發牌…</p> : (
           <div className={styles.split} data-battle-split data-inspecting={Boolean(inspection)} data-preparing={!match} data-stake-review={!match && prepareView === 'stake'}>
-            <BattleArena state={state} cards={cards} match={match} onInspect={inspectCard} playing={playing}
+            <BattleArena state={state} cards={cards} match={match} view={battleView} onInspect={inspectCard} playing={playing}
               onAttack={match?.status === 'PLAYING' && !playing ? (() => { const a = legal.find(x => x.type === 'ATTACK'); return a ? () => act(a) : null; })() : null}
               onSwap={match?.status === 'PLAYING' && !playing ? (action) => act(action) : null}
               onSkill={match?.status === 'PLAYING' && !playing ? (action) => act(action) : null} />
@@ -541,7 +543,7 @@ export default function BattlefieldPage() {
                     {/* 首領預告放在操作區最上方：收在戰報裡客戶看不到，就不算預告。文字由後端 bossNotice 產生送來。 */}
                     {liveNotice && <p role="status" aria-live="polite" className={`${styles.notice} ${styles.bossLive}`} data-boss-live>🐉 {liveNotice}</p>}
                     <BattlePace match={match} automatic={automatic} blocked={playing || Boolean(inspection)} canAct={legal.length > 0} onAutomatic={setAutomatic} onAuto={autoStep} />
-                    <BattlePanel match={match} onAction={act} busy={playing} compact cards={cards} />
+                    <BattlePanel match={match} view={battleView} onAction={act} busy={playing} compact cards={cards} />
                     {match.status === 'PLAYING' && <p className={styles.notice} data-battle-stake>{battleStake
                       ? `💎 押注：${cards.find(card => card.id === battleStake)?.name}`
                       : '🎮 體驗戰'}</p>}

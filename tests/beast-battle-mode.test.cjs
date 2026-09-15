@@ -29,6 +29,8 @@ function load(relative) {
   return mod.exports;
 }
 const render = (component, props = {}) => renderToStaticMarkup(React.createElement(component, props));
+// 2026-09-15 第二階段：可出招與暴怒判斷由後端 battleViewFor 送來；渲染真實元件時傳入同一份後端判斷。
+const viewOf = (m) => load('lib/beast-game/battle-view.ts').battleViewFor(m);
 const onlyBattle = html => {
   assert.doesNotMatch(html, /成長中心|成長收藏|每日任務|完成使命|召喚神獸|覺醒成獸|growth-center#/);
   for (const [, href] of html.matchAll(/href="([^"]+)"/g)) {
@@ -65,13 +67,13 @@ const before = JSON.stringify(match);
 const Arena = load('components/battlefield/BattleArena.tsx').default;
 const Panel = load('components/battlefield/BattlePanel.tsx').default;
 const Guide = load('components/battlefield/BattleCardGuide.tsx').default;
-const arena = render(Arena, { match, cards: interactiveCatalog(), onInspect() {} });
+const arena = render(Arena, { match, view: viewOf(match), cards: interactiveCatalog(), onInspect() {} });
 assert.match(arena, /data-battle-venue="cards"/);
 assert.match(arena, /forest-battle.webp/);
 assert.match(arena, /生命/);
 onlyBattle(arena);
 onlyBattle(render(Guide, { cardId: match.player.team[0].cardId, fighter: match.player.team[0], onClose() {} }));
-onlyBattle(render(Panel, { match, onAction() {}, compact: true, cards: interactiveCatalog() }));
+onlyBattle(render(Panel, { match, view: viewOf(match), onAction() {}, compact: true, cards: interactiveCatalog() }));
 assert.equal(JSON.stringify(match), before, 'Changing the battle display must not mutate the match');
 for (const winner of ['player', 'opponent', null]) {
   onlyBattle(render(Panel, { match: { ...match, status: 'FINISHED', winner }, onAction() {}, compact: true }));
@@ -180,7 +182,7 @@ const fullStake = Array.from({ length: 20 }, (_, i) => String(i + 1));
 assert.equal(JSON.stringify(nextStakeSelection(fullStake, '21')), JSON.stringify(fullStake), 'Stake selection stops at twenty');
 assert.deepEqual(selected, ['beast_a01'], 'Selection helper does not mutate existing state');
 assert.match(battlefieldPage, /runOwnedStakesDuel\(stakeCardIds/, 'Five actual collection entries use the shared atomic settlement');
-const compactActions = render(load('components/battlefield/BattlePanel.tsx').BattleActionBar, { match, onAction() { throw new Error('Read-only render'); }, compact: true, cards: interactiveCatalog() });
+const compactActions = render(load('components/battlefield/BattlePanel.tsx').BattleActionBar, { match, view: viewOf(match), onAction() { throw new Error('Read-only render'); }, compact: true, cards: interactiveCatalog() });
 assert.equal((compactActions.match(/<button\b/g) || []).length, 4, 'Combat starts with four clear commands');
 for (const text of ['普通攻擊', '技能', '換卡', '暴怒合體']) assert.ok(compactActions.includes(text), `Current command remains accessible: ${text}`);
 assert.doesNotMatch(compactActions, /aria-label="點戰鬥卡換上場"/, 'Reserve choices open on demand');
@@ -195,7 +197,7 @@ const { advance } = load('lib/beast-game/interactive.ts');
 const opponentDown = structuredClone(match);
 opponentDown.opponent.team[opponentDown.opponent.active].hp = 0;
 opponentDown.opponent.team[opponentDown.opponent.active].defeated = true;
-const replacementHtml = render(ActionBar, { match: opponentDown, compact: true, onAction() {} });
+const replacementHtml = render(ActionBar, { match: opponentDown, view: viewOf(opponentDown), compact: true, onAction() {} });
 assert.match(replacementHtml, /繼續，易經換卡/);
 assert.doesNotMatch(replacementHtml, /普通攻擊|耗氣/);
 const replaced = advance(opponentDown, { type: 'ATTACK' });
@@ -206,7 +208,7 @@ assert.equal(replaced.opponent.active, 1);
 assert.equal(replaced.opponent.team[1].hp, opponentDown.opponent.team[1].hp, 'Continue never attacks the replacement');
 const playerDown = structuredClone(match);
 playerDown.player.team[0].hp = 0; playerDown.player.team[0].defeated = true;
-const forcedHtml = render(ActionBar, { match: playerDown, compact: true, onAction() {}, cards: interactiveCatalog() });
+const forcedHtml = render(ActionBar, { match: playerDown, view: viewOf(playerDown), compact: true, onAction() {}, cards: interactiveCatalog() });
 assert.match(forcedHtml, /選擇接替主戰的後備/);
 assert.doesNotMatch(forcedHtml, /普通攻擊|本回合指令/);
 assert.equal((forcedHtml.match(/<button\b/g) || []).length, 1, 'Only the living reserve is actionable');
@@ -215,12 +217,12 @@ console.log('PASS: forced replacements are clearly labelled and do not masquerad
 const stunnedVisual = structuredClone(match);
 stunnedVisual.player.team[0].stunnedTurns = 1;
 const stunnedTurn = advance(stunnedVisual, { type: 'ATTACK' }, { type: 'ATTACK' });
-const stunnedArena = render(Arena, { match: stunnedTurn, cards: interactiveCatalog(), onInspect() {} });
+const stunnedArena = render(Arena, { match: stunnedTurn, view: viewOf(stunnedTurn), cards: interactiveCatalog(), onInspect() {} });
 const skippedCard = stunnedArena.match(/<div[^>]*data-action="SKIP"[\s\S]*?<\/button>/)?.[0];
 assert.ok(skippedCard, 'The stunned fighter is identified by its performed action');
 assert.doesNotMatch(skippedCard, /data-element=/, 'A skipped player action must not create element particles');
 assert.equal((stunnedArena.match(/data-rush="true"/g) || []).length, 1, 'Only the opponent actually attacked');
-const replacedArena = render(Arena, { match: replaced, cards: interactiveCatalog(), onInspect() {} });
+const replacedArena = render(Arena, { match: replaced, view: viewOf(replaced), cards: interactiveCatalog(), onInspect() {} });
 assert.doesNotMatch(replacedArena, /data-rush="true"|data-element=/, 'Replacement alone never plays an attack');
 console.log('PASS: visible strikes follow performed actions, not merely submitted commands');
 
@@ -276,9 +278,9 @@ assert.match(combatChanges(guarded,'player','beast_a03'),/護盾 ＋10/,'Shield 
 assert.equal(combatChanges(replaced,'player',replaced.player.team[0].cardId),'','Replacement has no fabricated hit');
 const legacyLog = structuredClone(killed); legacyLog.log.forEach(entry=>delete entry.changes);
 assert.equal(combatChanges(legacyLog,'opponent','beast_a02'),'','Old saved matches never infer damage from formulas');
-const impactHtml=render(Arena,{match:killed,cards:interactiveCatalog(),onInspect(){}});
+const impactHtml=render(Arena,{match:killed, view: viewOf(killed),cards:interactiveCatalog(),onInspect(){}});
 assert.match(impactHtml,/受傷 −3/);assert.match(impactHtml,/易經/);
-const playingHtml=render(Arena,{match:shielded,cards:interactiveCatalog(),onInspect(){}});
+const playingHtml=render(Arena,{match:shielded, view: viewOf(shielded),cards:interactiveCatalog(),onInspect(){}});
 assert.doesNotMatch(playingHtml,/你贏了|對手獲勝|必勝/);
 console.log('PASS: recorded HP/shield loss, capped healing/shields, counter overkill, old logs and replacements display honestly');
 
@@ -293,16 +295,16 @@ const voluntaryState=structuredClone(match);
 const voluntaryTurn=advance(voluntaryState,{type:'SWITCH',index:1},{type:'ATTACK'});
 assert.equal(presentation.performedAction(voluntaryTurn,'player'),'SWITCH');
 assert.equal(presentation.isDamagingAction(voluntaryTurn,'player'),false);
-const playbackHtml=render(Arena,{match:voluntaryTurn,cards:interactiveCatalog(),playing:true,onInspect(){}});
+const playbackHtml=render(Arena,{match:voluntaryTurn, view: viewOf(voluntaryTurn),cards:interactiveCatalog(),playing:true,onInspect(){}});
 assert.match(playbackHtml,/data-playback="acting"/);assert.match(playbackHtml,/data-action="SWITCH"/);
 assert.doesNotMatch(playbackHtml,/你贏了|對手獲勝/);
 console.log('PASS: typed performed actions distinguish attacks, skills, swaps, skipped actions and forced replacement');
 
 const rageTurn = advance(match, { type: 'RAGE' }, { type: 'ATTACK' });
 assert.equal(presentation.performedAction(rageTurn, 'player'), 'RAGE');
-assert.match(render(Arena, { match: rageTurn, cards: interactiveCatalog(), playing: true, onInspect() {} }), /data-rage-effect="true"/);
-assert.doesNotMatch(render(Arena, { match: rageTurn, cards: interactiveCatalog(), playing: false, onInspect() {} }), /data-rage-effect/, 'The full-screen rage overlay clears when playback finishes or a saved match reloads');
-assert.doesNotMatch(render(Arena, { match: stunnedTurn, cards: interactiveCatalog(), playing: true, onInspect() {} }), /data-rage-effect/, 'A skipped action never triggers the rage overlay');
+assert.match(render(Arena, { match: rageTurn, view: viewOf(rageTurn), cards: interactiveCatalog(), playing: true, onInspect() {} }), /data-rage-effect="true"/);
+assert.doesNotMatch(render(Arena, { match: rageTurn, view: viewOf(rageTurn), cards: interactiveCatalog(), playing: false, onInspect() {} }), /data-rage-effect/, 'The full-screen rage overlay clears when playback finishes or a saved match reloads');
+assert.doesNotMatch(render(Arena, { match: stunnedTurn, view: viewOf(stunnedTurn), cards: interactiveCatalog(), playing: true, onInspect() {} }), /data-rage-effect/, 'A skipped action never triggers the rage overlay');
 
 const Analysis = load('components/battlefield/BattlePowerAnalysis.tsx').default;
 for (const card of interactiveCatalog()) {

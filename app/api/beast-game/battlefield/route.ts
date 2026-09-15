@@ -2,6 +2,7 @@ import { randomInt } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { advance, bossNotice, chooseAI, legalActions, newMatch, type Action } from '@/lib/beast-game/interactive';
 import { openBattleSession, signBattleSession, type BattleSession } from '@/lib/beast-game/battle-session';
+import { battleViewFor } from '@/lib/beast-game/battle-view';
 import { resolveStake } from '@/lib/beast-game/stake';
 import { judgeVictorySkill } from '@/lib/beast-game/iching-judgment';
 import { distributeRewardCards } from '@/lib/beast-game/reward-distribution';
@@ -73,6 +74,7 @@ function reply(session: BattleSession, extra: { action?: Action } = {}) {
     match,
     token: signBattleSession(session),
     legal: legalActions(match, 'player'),
+    view: battleViewFor(match),
     notice: bossNotice(match),
     outcome: settle(session),
     ...extra,

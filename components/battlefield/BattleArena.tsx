@@ -1,7 +1,6 @@
 'use client';
 
 import { memo, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import { rageFusionGuide } from '@/lib/beast-game/rage-guide';
 import { planTierPresentation } from '@/lib/beast-game/fusion-presentation';
 import FusionEffectStage from './FusionEffectStage';
 import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
@@ -10,7 +9,8 @@ import { SharedElementSealPaper } from '@/components/bazi/customer/SharedElement
 import { CardSlot, HandZone, type BattlefieldCardArt } from './GameBattlefield';
 import { VitalBar } from './BattlePanel';
 import { legalDestinations, type BattleState, type Destination } from '@/lib/beast-game/battlefield';
-import { legalActions, profile, RAGE_TIERS, type Action, type Match } from '@/lib/beast-game/interactive';
+import { profile, RAGE_TIERS, type Action, type Match } from '@/lib/beast-game/interactive';
+import type { BattleView } from '@/lib/beast-game/battle-view';
 import { describeMatchup } from '@/lib/beast-element-guide';
 import { ELEMENTS, ELEMENT_LABEL, elementMultiplier, type BeastElement } from '@/lib/beast-game/elements';
 import { elementPercent } from '@/lib/beast-game/combat-guide';
@@ -28,8 +28,10 @@ import TeamRosterPanel from './TeamRosterPanel';
 
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
 /** Both fighters stay above the controls. All displayed combat values come from Match. */
-export default function BattleArena({ state, cards, match, onInspect, onSwap, onSkill, playing = false }: {
+export default function BattleArena({ state, cards, match, view, onInspect, onSwap, onSkill, playing = false }: {
   playing?: boolean; cards: BattlefieldCardArt[]; onInspect: (id: string, side: 'player' | 'opponent') => void;
+  /** 後端送來的可出招清單與合體教學；畫面照印。 */
+  view?: BattleView | null;
   quietNote?: boolean;
   onAttack?: (() => void) | null;
   onSwap?: ((action: Action) => void) | null;
@@ -44,7 +46,7 @@ export default function BattleArena({ state, cards, match, onInspect, onSwap, on
   const playerStrike = Boolean(match && match.revision > 0 && isDamagingAction(match, 'player'));
   const strikeElement = playerFighter?.element as BattleElement | undefined;
   const playerAction = match ? performedAction(match, 'player') : null;
-  const guide = match ? rageFusionGuide(match, 'player') : null;
+  const guide = match ? view?.fusionGuide ?? null : null;
   const [guideOpen, setGuideOpen] = useState(false);
   const rageEntry = match?.log.find(entry => entry.side === 'player' && entry.action === 'RAGE');
   const castTier = rageEntry?.fusionTier && rageEntry.fusionTier !== 'NONE' ? RAGE_TIERS.find(tier => tier.tier === rageEntry.fusionTier) : undefined;
@@ -242,7 +244,7 @@ export default function BattleArena({ state, cards, match, onInspect, onSwap, on
         </div>
       )}
       {match?.status === 'PLAYING' && (onSwap !== undefined || onSkill !== undefined) && (() => {
-        const acts = legalActions(match, 'player');
+        const acts = view?.legal ?? [];
         const switches = onSwap !== undefined ? acts.filter((a): a is Extract<Action, { type: 'SWITCH' }> => a.type === 'SWITCH') : [];
         const skillAct = acts.find(a => a.type === 'SKILL');
         const activeFighter = match.player.team[match.player.active];

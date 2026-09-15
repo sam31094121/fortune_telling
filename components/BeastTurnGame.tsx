@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { recordBeastGameCompleted } from '@/lib/growth-center-client';
 import { readCollection, subscribeCollection, type CollectionHistoryItem } from '@/lib/beast-collection';
 import { MAX_STAKE_CARDS } from '@/lib/beast-game/stake-rules';
-import { legalActions } from '@/lib/beast-game/interactive';
+import type { BattleView } from '@/lib/beast-game/battle-view';
 import type { interactiveCatalog, Match, Action } from '@/lib/beast-game/interactive';
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
 import BattleArena from './battlefield/BattleArena';
@@ -31,6 +31,8 @@ const labels: Record<string, string> = { SPACE: '空', AIR: '風', WATER: '水',
 export default function BeastTurnGame() {
   const [cards, setCards] = useState<Card[]>([]);
   const [account, setAccount] = useState<Account | null>(null);
+  /** 後端送來的可出招清單與暴怒判斷（前端只顯示）。 */
+  const [battleView, setBattleView] = useState<BattleView | null>(null);
   const [selected, setSelected] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -69,7 +71,7 @@ export default function BeastTurnGame() {
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error ?? '卡池讀取失敗');
       if (signal?.aborted) return;
-      setCards(data.cards); setAccount(data.account); setError('');
+      setCards(data.cards); setAccount(data.account); setBattleView(data.view ?? null); setError('');
     } catch (cause) {
       if (!signal?.aborted) setError(cause instanceof Error ? cause.message : '連線中斷，請重新載入。');
     }
@@ -94,13 +96,13 @@ export default function BeastTurnGame() {
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error ?? '戰鬥操作未完成');
-      return data as { ok: true; account: Account & { match: Match | null; revision: number } };
+      return data as { ok: true; account: Account & { match: Match | null; revision: number }; view: BattleView | null };
     };
 
     try {
       let data = await post(type, extra, accountRevisionRef.current);
       accountRevisionRef.current = data.account.revision;
-      setAccount(data.account);
+      setAccount(data.account); setBattleView(data.view ?? null);
 
       // Free battle opens in auto mode: finish in one server lock to avoid
       // multi-turn /tmp races on multi-instance hosts (live Vercel Michelin P0).
@@ -108,7 +110,7 @@ export default function BeastTurnGame() {
         setAutomatic(true);
         data = await post('AUTO_FINISH', {}, accountRevisionRef.current);
         accountRevisionRef.current = data.account.revision;
-        setAccount(data.account);
+        setAccount(data.account); setBattleView(data.view ?? null);
         if (data.account.match) playRound(data.account.match);
         else resetPlayback();
       } else if ((type === 'ACTION' || type === 'AUTO_STEP') && data.account.match) {
@@ -132,7 +134,7 @@ export default function BeastTurnGame() {
           const data = await res.json();
           if (res.ok && data.ok) {
             accountRevisionRef.current = data.account.revision;
-            setAccount(data.account);
+            setAccount(data.account); setBattleView(data.view ?? null);
             if (data.account.match?.status === 'FINISHED') {
               setError('');
               return;
@@ -156,14 +158,14 @@ export default function BeastTurnGame() {
     const inspected = inspection ? match[inspection.side].team.find(f => f.cardId === inspection.cardId) : undefined;
     const other = inspection?.side === 'opponent' ? match.player : match.opponent;
     const inspect = (cardId: string, side: 'player' | 'opponent') => { setAutomatic(false); setInspection({ cardId, side }); scroll.current?.scrollTo({ top: 0 }); };
-    const attackAction = match.status === 'PLAYING' && !busy && !playing && !error ? legalActions(match, 'player').find(a => a.type === 'ATTACK') : undefined;
+    const attackAction = match.status === 'PLAYING' && !busy && !playing && !error ? battleView?.legal.find(a => a.type === 'ATTACK') : undefined;
     const onAttack = attackAction ? () => act(attackAction) : null;
     return <main className={`${battleStyles.page} ${styles.calmBattle}`} data-mobile-battle>
       <VictoryAnimation show={match.status === 'FINISHED' && !playing} winner={match.winner === 'player' ? 'player' : null} />
       <div className={battleStyles.shell}>
         <header className={battleStyles.header}><h1>三卡免費戰場</h1><div className={styles.headerActions}><Link href="/" onClick={() => setAutomatic(false)} title="本場進度保留，回來可繼續">回首頁</Link><BattleHelpPanel onOpen={() => setAutomatic(false)} /></div></header>
         <div className={battleStyles.split} data-battle-split data-inspecting={Boolean(inspection)} data-finished={match.status === 'FINISHED' && !playing}>
-          <BattleArena match={match} cards={cards} onInspect={inspect} onAttack={onAttack} playing={playing}
+          <BattleArena match={match} view={battleView} cards={cards} onInspect={inspect} onAttack={onAttack} playing={playing}
             onSwap={match.status === 'PLAYING' && !busy && !playing && !error ? (action) => act(action) : null}
             onSkill={match.status === 'PLAYING' && !busy && !playing && !error ? (action) => act(action) : null} />
           <section className={battleStyles.controls} aria-label="手部操控" data-battle-controls>
@@ -172,8 +174,8 @@ export default function BeastTurnGame() {
               {errorNotice}
               {inspection && <BattleCardGuide cardId={inspection.cardId} fighter={inspected} opponent={other.team[other.active]} context={{ match, side: inspection.side }} opponentElement={other.team[other.active].element} onClose={() => { setInspection(null); scroll.current?.scrollTo({ top: 0 }); }} />}
               <div hidden={Boolean(inspection) || (Boolean(error) && match.status === 'PLAYING')}>
-                <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} canAct={match.status === 'PLAYING'} onAutomatic={setAutomatic} onAuto={autoStep} />
-                <BattlePanel match={match} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
+                <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} canAct={Boolean(battleView?.legal.length)} onAutomatic={setAutomatic} onAuto={autoStep} />
+                <BattlePanel match={match} view={battleView} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
                 {/* 預覽用寶珠面板：魔珠與暴怒已由戰鬥引擎結算並顯示在戰場右欄，這裡隱藏。 */}
                 {(false as boolean) && match.status === 'PLAYING' && (() => {
                   const active = match.player.team[match.player.active];
@@ -188,7 +190,7 @@ export default function BeastTurnGame() {
                       rage={match.player.rage ?? 0}
                       onUltimate={() => {
                         if (busy || playing) return;
-                        if (!legalActions(match, 'player').some((a) => a.type === 'RAGE')) return;
+                        if (!battleView?.legal.some((a) => a.type === 'RAGE')) return;
                         act({ type: 'RAGE' });
                       }}
                     />

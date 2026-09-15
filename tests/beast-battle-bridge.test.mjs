@@ -161,7 +161,8 @@ const freshBattle = (seed = 5) => {
   for (const forbidden of ['Math.random', 'calculateDamage', 'hp <= 0', 'hp === 0']) {
     assert.ok(!panel.includes(forbidden), `畫面不得自己判斷勝負或算傷害：${forbidden}`);
   }
-  assert.ok(panel.includes('legalActions'), '可出的招要問 legalActions，畫面不自己判斷');
+  // 2026-09-15 第二階段：可出的招由後端 battleViewFor 算好送來，面板照印、不得自己呼叫 legalActions。
+  assert.ok(panel.includes('view.legal') && !/(^|[^\w.])legalActions\(/m.test(panel), '可出的招照印後端送來的清單，畫面不自己判斷');
 
   const page = stripComments(fs.readFileSync('app/beast-game/battlefield/page.tsx', 'utf8'));
   // 2026-09-15 業主定調：易經與技能運算在後端，前端只負責顯示——出招送到後端，頁面不得自己 advance()。

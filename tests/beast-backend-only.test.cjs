@@ -6,8 +6,8 @@
  *   易經前端不負責運算，前端只負責顯示易經。」
  *
  * 這支測試把那句話變成會紅的斷言：網頁端元件一行戰鬥運算都不准有。
- * 第二階段待辦（照實列出，不假裝做完）：BattlePanel／BattleArena／BeastTurnGame
- * 仍在網頁端用 legalActions 判斷可按的鈕，之後改成後端送清單。
+ * 第一階段：困難戰場戰鬥與押注結算搬到後端；第二階段：可出招與暴怒判斷由後端 battleViewFor 送來。
+ * 第三階段待辦（照實列出，不假裝做完）：相剋與戰力分析、開局發牌與易經佈陣仍在網頁端（見最後一項）。
  */
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -33,7 +33,9 @@ function walk(dir, out = []) {
 }
 const isClient = (source) => /^\s*['"]use client['"]/.test(source);
 
-const COMPUTE = ['advance', 'chooseAI', 'newMatch', 'startFromField', 'judgeVictorySkill', 'resolveStake', 'stakeRewardCount', 'distributeRewardCards', 'bossNotice', 'playSeries', 'chooseSeriesOpponent', 'judgeSeriesVictorySkill'];
+const COMPUTE = ['advance', 'chooseAI', 'newMatch', 'startFromField', 'judgeVictorySkill', 'resolveStake', 'stakeRewardCount', 'distributeRewardCards', 'bossNotice', 'playSeries', 'chooseSeriesOpponent', 'judgeSeriesVictorySkill',
+  // 第二階段：可出招與暴怒判斷
+  'legalActions', 'rageUnavailableReason', 'rageMaterialFor', 'rageFusionGuide', 'battleViewFor'];
 
 check('網頁端元件不得呼叫任何戰鬥、易經、押注運算函式', () => {
   const offenders = [];
@@ -92,10 +94,25 @@ check('戰局票：竄改、偽造、過期一律拒收；原票可接續', () =
   assert.equal(openBattleSession(token, session.issuedAt + BATTLE_SESSION_MAX_AGE_MS + 1), null, '過期必須拒收');
 });
 
-check('第二階段待辦照實列出：網頁端仍用 legalActions 判斷可按的鈕', () => {
-  const pending = ['components/battlefield/BattlePanel.tsx', 'components/battlefield/BattleArena.tsx', 'components/BeastTurnGame.tsx']
-    .filter((file) => /(^|[^\w.])legalActions\(/m.test(stripComments(read(file))));
-  console.log(`   待辦（第二階段改由後端送清單）：${pending.join('、') || '已全部完成'}`);
+check('第二階段：可出招與暴怒判斷由後端 battleViewFor 送來（困難 API、turns API），元件照印', () => {
+  assert.match(stripComments(read('app/api/beast-game/battlefield/route.ts')), /view: battleViewFor\(match\)/);
+  assert.match(stripComments(read('app/api/beast-game/turns/route.ts')), /view:a\.match\?battleViewFor\(a\.match\):null/);
+  for (const file of ['components/battlefield/BattlePanel.tsx', 'components/battlefield/BattleArena.tsx', 'components/BeastTurnGame.tsx', 'app/beast-game/battlefield/page.tsx']) {
+    assert.match(read(file), /BattleView/, `${file} 要吃後端送來的 BattleView`);
+  }
+});
+
+check('第三階段待辦照實列出：相剋與戰力分析、開局發牌與易經佈陣仍在網頁端', () => {
+  const PHASE3 = ['combatGuideFor', 'describeMatchup', 'explainOutcome', 'elementPercent', 'elementGuideRows', 'elementMultiplier', 'autoPlaceOpponent', 'newBattle', 'planTierPresentation', 'planFusionPresentation'];
+  const pending = [];
+  for (const file of [...walk('components'), ...walk('app/beast-game')]) {
+    const source = read(file);
+    if (!isClient(source)) continue;
+    const code = stripComments(source);
+    const hits = PHASE3.filter((name) => new RegExp(`(^|[^\\w.])${name}\\(`, 'm').test(code));
+    if (hits.length) pending.push(`${file}：${hits.join('、')}`);
+  }
+  console.log(`   第三階段待辦（${pending.length} 個檔案）：\n     ${pending.join('\n     ') || '已全部完成'}`);
   assert.ok(true);
 });
 
