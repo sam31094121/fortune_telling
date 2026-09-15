@@ -63,16 +63,19 @@ id 唯一、圖片存在、元素合法、數值合法、技能存在、平衡�
 一塊白方塊衝過去，這種事不能靠肉眼看。
 
 
-## 口令：「易經」（神獸卡對手智能）
+## 口令：「易經」
 
-**說「易經」＝打開神獸卡對手「易經」的智能檔案**：`docs/beast-game-skill.md`〈二十四、「易經」檔案〉。
-凡是讓易經變聰明的內容（出手判斷、組陣、首領反制、難度分級），一律寫進那一章；
-遵守上面「只有一份檔案、不得第二套核心」——不另開檔、不另立引擎。
+**說「易經」＝打開 `docs/技能戰鬥檔案/易經/`**（業主定案 2026-09-15：易經就是這個技能檔案）。
 
-- 程式：`lib/beast-game/interactive.ts`（`chooseAI` 三級、首領反制、`bossNotice`）、`lib/beast-game/series.ts`（`chooseSeriesOpponent` 中等組陣）
-- 鐵律：只變聰明、不改數值；不偷看玩家決策、陣容與種子；不假裝真人；首領反制先預告、畫面看得到。
-- 守門：`npm run test:beast-difficulty`（在推送閘內）
-- 與「三合一」的易經卜卦、易經心理學是不同的東西，不要混用。
+**鐵律：凡有「易經」兩個字，都要有交叉比對的來源、權威性的檔案、大數據的來源**——易經洋蔥心理學一樣列入。
+
+- `來源治理.md`：五級來源閘門（A 原典／研究圖書館書目、B 大學出版與學術、C 公開數位文本、D 以下只進候選區）、SOURCE_PERMISSION_GATE 必填欄位、三方交叉（VERIFIED／CONFLICT）、通過標準（授權 PASS、可信度 ≥ 90、交叉 ≥ 3、原典 ≥ 1、版本可追溯、重大衝突 0）；沒過只能放「待驗證資料池」，不得學進《易經》核心。公開網站不等於可以大量抓資料。
+- `來源登記.json`：全站每個掛「易經」的功能都要登記；狀態由 `lib/iching-source-gate.ts` 算，不得手填 VERIFIED；外部條款未經人工確認一律「待查核」。
+- `易經.json`＋`新人檔案.md`：神獸卡對手智能正式檔與導讀；制度章在 `docs/beast-game-skill.md`〈二十四〉（遵守「神獸卡只有一份制度檔、不得第二套核心」）。
+- 程式：`lib/beast-game/interactive.ts`（`chooseAI` 三級、首領反制、`bossNotice`）、`lib/beast-game/series.ts`（`chooseSeriesOpponent`）、`lib/beast-game/iching-skill-archive.ts`（讀 `易經.json`，網頁與伺服器共用，不得用 node:fs）、`lib/iching-source-gate.ts`
+- 對手鐵律：只變聰明、不改數值；不偷看玩家決策、陣容與種子；不假裝真人；首領反制先預告、畫面看得到。
+- 守門：`npm run test:beast-difficulty`、`npm run test:iching-sources`（都在推送閘內）
+- 「三合一」的易經卜卦、易經心理學，一樣受這套來源治理。
 
 ## 推送閘：編不過就不准上正式站
 

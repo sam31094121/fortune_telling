@@ -8,6 +8,9 @@
   "newbieDoc": "docs/技能戰鬥檔案/易經/新人檔案.md",
   "engine": "lib/beast-game/interactive.ts",
   "loader": "lib/beast-game/iching-skill-archive.ts",
+  "sourceGovernance": "docs/技能戰鬥檔案/易經/來源治理.md",
+  "sourceRegistry": "docs/技能戰鬥檔案/易經/來源登記.json",
+  "sourceGate": "lib/iching-source-gate.ts",
   "bigDataSummary": {
     "minedAt": "2026-09-15",
     "source": "data/beast-turn-accounts",
