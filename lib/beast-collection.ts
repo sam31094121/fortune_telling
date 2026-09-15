@@ -134,12 +134,33 @@ export async function clearCollection(): Promise<void> {
   });
 }
 
+/**
+ * 首戰禮領取。
+ * 2026-09-15 正式站實測：新版剛上線時伺服器冷啟動超過 15 秒，客人看到英文「signal timed out」又沒卡可押——斷層。
+ * 所以自動重試三次、等待逐次拉長；伺服器回 4xx 重送也沒用就不重試。
+ * 重送不會重複發卡：寫入前再看一次帳本，已有首戰禮就結束。失敗訊息一律中文，不把瀏覽器英文原文丟給客人。
+ */
+export const STARTER_PACK_SLOW_MESSAGE='連線較慢，卡片還沒入庫；按「重試領卡」再送一次，不會重複發卡。';
+const STARTER_PACK_TIMEOUTS=[15000,20000,25000];
 export async function claimStarterPack(completed:string,profileId:string):Promise<void>{
  if(!navigator.locks)throw new Error('請使用支援安全保存的瀏覽器。');
  await navigator.locks.request(LOCK,async()=>{
-  const current=readStrict();if(current.starterPack)return;
-  const response=await fetch('/api/beast-game/starter-pack',{method:'POST',headers:{'Content-Type':'application/json','x-growth-profile':profileId},body:JSON.stringify({completed}),signal:AbortSignal.timeout(15000)});
-  const result=await response.json();if(!response.ok||!result.ok||typeof result.receipt!=='string')throw new Error(result.error??'獎勵尚未保存');
-  write(grantStarterPack(current,result.receipt,now()));
+  if(readStrict().starterPack)return;
+  let lastError=new Error(STARTER_PACK_SLOW_MESSAGE);
+  for(const [attempt,timeout] of STARTER_PACK_TIMEOUTS.entries()){
+   if(attempt>0)await new Promise(resolve=>setTimeout(resolve,1500));
+   let response:Response;let result:{ok?:boolean;receipt?:unknown;error?:string};
+   try{
+    response=await fetch('/api/beast-game/starter-pack',{method:'POST',headers:{'Content-Type':'application/json','x-growth-profile':profileId},body:JSON.stringify({completed}),signal:AbortSignal.timeout(timeout)});
+    result=await response.json();
+   }catch{lastError=new Error(STARTER_PACK_SLOW_MESSAGE);continue;}
+   if(response.ok&&result.ok&&typeof result.receipt==='string'){
+    const current=readStrict();if(current.starterPack)return;
+    write(grantStarterPack(current,result.receipt,now()));return;
+   }
+   lastError=new Error(result.error??'獎勵尚未保存，請按「重試領卡」再送一次。');
+   if(response.status<500)break;
+  }
+  throw lastError;
  });
 }
