@@ -77,7 +77,8 @@ id 唯一、圖片存在、元素合法、數值合法、技能存在、平衡�
 - **後端運算、前端只顯示（米其林分工）：後端負責品質穩定與服務——技能、易經判斷、勝負、押注結算、來源治理全部在後端算完再送出；前端負責視覺感官與價值——把結果與有權威來源的易經洋蔥心理學好好呈現，不做任何運算。**
   - 困難戰場運算在 `app/api/beast-game/battlefield/route.ts`（每回合回傳 HMAC 戰局票 `lib/beast-game/battle-session.ts`，任何一台機器都能接續；網頁端不得匯入）；簡單的自動下一招走 turns API `AUTO_STEP`。
   - 第二階段完成：可出招、暴怒合體能否使用與原因、合體搭檔、合體教學由後端 `lib/beast-game/battle-view.ts` 的 `battleViewFor` 算好，隨困難戰場 API 與 turns API 送出；BattlePanel／BattleArena／BeastTurnGame 只照印。
-  - 第三階段待辦：相剋與戰力分析（combatGuideFor／describeMatchup／elementPercent 等，在 BattleArena、BattleCardGuide、BattlePanel、BeastCardTile、ElementMatchupGuide、MatchupSummary）、合體演出規劃（FusionOrbHud）、困難頁開局發牌與易經自動佈陣（newBattle／autoPlaceOpponent）。守門 `test:beast-backend-only` 會逐檔列出。
+  - 第三階段 3A 完成：困難頁開局的洗牌、發牌、易經自動佈陣由困難戰場 API 的 DEAL 在後端做，回傳簽名牌桌票；開戰（START）核對玩家只用發到手上的卡，易經陣容一律採用牌桌票裡後端排好的（前端送什麼都不採信）。
+  - 第三階段 3B 待辦：相剋與戰力分析（combatGuideFor／describeMatchup／explainOutcome／elementPercent／elementGuideRows／elementMultiplier，在 BattleArena、BattleCardGuide、BattlePanel、BeastCardTile、ElementMatchupGuide、MatchupSummary）。演出規劃（planTierPresentation／planFusionPresentation）只決定播哪段動畫與音效，屬前端視覺感官，不列入後端化。守門 `test:beast-backend-only` 會逐檔列出。
 - 守門：`npm run test:beast-difficulty`、`npm run test:iching-sources`、`npm run test:beast-backend-only`（都在推送閘內）
 - 「三合一」的易經卜卦、易經心理學，一樣受這套來源治理。
 

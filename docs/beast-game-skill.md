@@ -1966,7 +1966,8 @@ npm run check:beast-clips        # 落地一支就驗一支
 - 實測：本機 API 11 項（押注戰前端傳 EASY 仍判困難、竄改戰局票拒收、自動打完、戰果由後端送回）；手機尺寸實玩體驗戰＋押注戰（背水模式提示照印）零錯誤。
 - 守門：`npm run test:beast-backend-only`（推送閘內）。
 - **第二階段完成**：`lib/beast-game/battle-view.ts` 的 `battleViewFor(match)` 算好可出招、暴怒合體不能用的原因、合體搭檔、合體教學，隨困難戰場 API 與 turns API 的 `view` 送出；BattlePanel／BattleArena／BeastTurnGame 只照印（沒收到時顯示「戰況同步中…」，不自己推測）。守門禁止清單加入 legalActions／rageUnavailableReason／rageMaterialFor／rageFusionGuide。
-- 第三階段待辦：相剋與戰力分析（combatGuideFor／describeMatchup／elementPercent 等，在 BattleArena、BattleCardGuide、BattlePanel、BeastCardTile、ElementMatchupGuide、MatchupSummary）、合體演出規劃（FusionOrbHud）、困難頁開局發牌與易經自動佈陣（newBattle／autoPlaceOpponent）；做完後易經檔不再進網頁。
+- **第三階段 3A 完成：困難頁開局的洗牌、發牌、易經自動佈陣由困難戰場 API 的 DEAL 在後端做，回傳簽名牌桌票；開戰（START）核對玩家只用發到手上的卡，易經陣容一律採用牌桌票裡後端排好的（前端送什麼都不採信）**。實測：本機 API 17 項（沒帶牌桌票、用沒發到的卡、送假易經陣容都擋；牌桌票不能冒充戰局票）；手機實玩體驗戰＋押注戰零錯誤。
+- 第三階段 3B 待辦：相剋與戰力分析（combatGuideFor／describeMatchup／explainOutcome／elementPercent／elementGuideRows／elementMultiplier，在 BattleArena、BattleCardGuide、BattlePanel、BeastCardTile、ElementMatchupGuide、MatchupSummary）；做完後易經檔不再進網頁。演出規劃（planTierPresentation／planFusionPresentation）只決定播哪段動畫與音效，屬前端視覺感官，不列入後端化。
 
 ### 以後加進來的規矩
 

@@ -28,13 +28,12 @@ import type { BeastElement } from '@/lib/beast-game/elements';
 import styles from '@/components/battlefield/BattleScreen.module.css';
 import {
   moveCard,
-  newBattle,
   selectCard,
   type BattleState,
   type Destination,
 } from '@/lib/beast-game/battlefield';
 import BattlePanel from '@/components/battlefield/BattlePanel';
-import { autoPlaceOpponent, canStartBattle, fieldTeam } from '@/lib/beast-game/battle-bridge';
+import { canStartBattle, fieldTeam } from '@/lib/beast-game/battle-bridge';
 import type { Action, Match } from '@/lib/beast-game/interactive';
 import type { BattleView } from '@/lib/beast-game/battle-view';
 import StakeSlot, { type StakeCard } from '@/components/battlefield/StakeSlot';
@@ -45,7 +44,7 @@ import BeastStakeResult from '@/components/BeastStakeResult';
 import BeastBattleVoice from '@/components/BeastBattleVoice';
 import StarterPackAfterBattle from '@/components/StarterPackAfterBattle';
 import DeckBuilder from '@/components/battlefield/DeckBuilder';
-import { BATTLEFIELD_DECK_SIZE, buildFreshOpeningDeck, buildUniqueDeck, sanitizeDeckSelection } from '@/lib/beast-game/deck-builder';
+import { BATTLEFIELD_DECK_SIZE, sanitizeDeckSelection } from '@/lib/beast-game/deck-builder';
 import { useCombatPlayback } from '@/components/battlefield/useCombatPlayback';
 import BattlePace from '@/components/battlefield/BattlePace';
 import { MAX_REWARD_CARDS, MAX_STAKE_CARDS } from '@/lib/beast-game/stake-rules';
@@ -53,38 +52,24 @@ import { MAX_REWARD_CARDS, MAX_STAKE_CARDS } from '@/lib/beast-game/stake-rules'
 /** 一副牌的張數。六十張是卡池，不是一副牌全部上桌。 */
 const SAVED_DECK_KEY = 'taiji-beast-battlefield-deck-v1';
 
-/**
- * 種子亂數。
- *
- * 用種子而不是 Math.random：同一顆種子洗出同一副牌，
- * 客戶回報「我這局怪怪的」時才查得回去。
- */
-function seeded(seed: number) {
-  let a = seed >>> 0;
-  return () => {
-    a += 0x6d2b79f5;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 type BattleReply = { ok: true; match: Match; token: string; legal: Action[]; view: BattleView; notice: string | null; outcome?: StakeOutcome; action?: Action };
+type DealReply = { ok: true; table: BattleState; deckIds: string[]; opening: { player: string[]; opponent: string[] }; tableToken: string };
 
 /**
  * 困難戰場的運算全部在後端 /api/beast-game/battlefield（2026-09-15 業主定調：前端只負責顯示易經）。
  * 這裡只送出佈陣與出招，拿回結果顯示；不自己算勝負、易經判斷或押注。
  */
-async function callBattle(body: Record<string, unknown>): Promise<BattleReply> {
+async function callBattle<T = BattleReply>(body: Record<string, unknown>): Promise<T> {
   const res = await fetch('/api/beast-game/battlefield', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(30000),
   });
-  const data = await res.json().catch(() => null) as (BattleReply | { ok: false; error?: string } | null);
+  const data = await res.json().catch(() => null) as ({ ok: true } | { ok: false; error?: string } | null);
   if (!res.ok || !data || !data.ok) throw new Error((data && !data.ok && data.error) || '戰場暫時無法連線，押注卡未扣除。');
-  return data;
+  return data as T;
 }
 
+/** 重新發牌的請求編號（不是亂數種子——洗牌發牌的亂數都在後端）。 */
 function secureSeed(): number {
   const values = new Uint32Array(1);
   globalThis.crypto?.getRandomValues?.(values);
@@ -98,6 +83,8 @@ export default function BattlefieldPage() {
   const [match, setMatch] = useState<Match | null>(null);
   /** 後端簽名的戰局票：每一招都帶著它請後端運算。 */
   const battleToken = useRef<string | null>(null);
+  /** 後端簽名的牌桌票：開戰時證明陣容來自這一桌發的牌、易經陣容是後端排的。 */
+  const tableToken = useRef<string | null>(null);
   /** 後端送來的可出招清單與首領提示——前端不自己判斷。 */
   const [legal, setLegal] = useState<Action[]>([]);
   const [liveNotice, setLiveNotice] = useState<string | null>(null);
@@ -219,9 +206,8 @@ export default function BattlefieldPage() {
           saved = raw ? JSON.parse(raw) : [];
         } catch { saved = []; }
         const restored = sanitizeDeckSelection(saved, availableIds);
-        const initialDeck = restored.length === BATTLEFIELD_DECK_SIZE
-          ? restored
-          : buildUniqueDeck(availableIds, seeded(secureSeed()));
+        // 牌組不齊就交給後端發牌時組一副（前端不自己洗牌）。
+        const initialDeck = restored.length === BATTLEFIELD_DECK_SIZE ? restored : [];
         setCards(loadedCards);
         setPlayerDeckIds(initialDeck);
         setDeckDraft(initialDeck);
@@ -231,46 +217,50 @@ export default function BattlefieldPage() {
     return () => { disposed = true; clearTimeout(timer); controller.abort(); };
   }, [loadAttempt]);
 
-  // 卡池到齊才開桌。開桌本身是純函式，換種子就是重開一局。
+  // 卡池到齊才開桌。洗牌、發牌、易經自動佈陣都在後端（2026-09-15 後端化第三階段）；換請求編號（seed）就是重開一局。
+  const playerDeckRef = useRef(playerDeckIds);
+  playerDeckRef.current = playerDeckIds;
   useEffect(() => {
-    if (!cards.length || playerDeckIds.length !== BATTLEFIELD_DECK_SIZE) return;
-    const ids = cards.map((card) => card.id);
-    const rng = seeded(seed);
-    const playerOrder = buildFreshOpeningDeck(playerDeckIds, previousOpening.current.player, rng);
-    const opponentSelection = buildUniqueDeck(ids, rng);
-    const opponentOrder = buildFreshOpeningDeck(opponentSelection, previousOpening.current.opponent, rng);
-    const fresh = newBattle(playerOrder, opponentOrder, rng, false);
-    previousOpening.current = { player: fresh.player.hand.slice(), opponent: fresh.opponent.hand.slice() };
-    // 對手用同一套佈陣規則自動上場——沒有特權、沒有額外格子。
-    let prepared = autoPlaceOpponent(fresh, rng);
-    const preference = replayPreferences.current;
-    replayPreferences.current = null;
-    const available = readCollection();
-    const retainedStakes = available.storageError ? [] : (preference?.stakes ?? []).filter(id => available.cards.some(card => card.id === id));
-    let retained = 0;
-    if (preference) {
-      // Reuse only cards actually dealt; keep the original draw probabilities.
-      if (preference.active && prepared.player.hand.includes(preference.active)) {
-        prepared = moveCard(prepared, 'PLAYER', preference.active, { zone: 'ACTIVE' });
-        retained++;
-      }
-      preference.bench.forEach((id, slotIndex) => {
-        if (id && prepared.player.hand.includes(id)) {
-          prepared = moveCard(prepared, 'PLAYER', id, { zone: 'BENCH', slotIndex });
-          retained++;
+    if (!cards.length) return;
+    let disposed = false;
+    void callBattle<DealReply>({ type: 'DEAL', playerDeckIds: playerDeckRef.current, previousOpening: previousOpening.current })
+      .then((dealt) => {
+        if (disposed) return;
+        tableToken.current = dealt.tableToken;
+        if (dealt.deckIds.join(',') !== playerDeckRef.current.join(',')) { setPlayerDeckIds(dealt.deckIds); setDeckDraft(dealt.deckIds); }
+        previousOpening.current = { player: dealt.opening.player, opponent: dealt.opening.opponent };
+        let prepared = dealt.table;
+        const preference = replayPreferences.current;
+        replayPreferences.current = null;
+        const available = readCollection();
+        const retainedStakes = available.storageError ? [] : (preference?.stakes ?? []).filter(id => available.cards.some(card => card.id === id));
+        let retained = 0;
+        if (preference) {
+          // Reuse only cards actually dealt; keep the original draw probabilities.
+          if (preference.active && prepared.player.hand.includes(preference.active)) {
+            prepared = moveCard(prepared, 'PLAYER', preference.active, { zone: 'ACTIVE' });
+            retained++;
+          }
+          preference.bench.forEach((id, slotIndex) => {
+            if (id && prepared.player.hand.includes(id)) {
+              prepared = moveCard(prepared, 'PLAYER', id, { zone: 'BENCH', slotIndex });
+              retained++;
+            }
+          });
+          setMovement(`已沿用本次抽到的 ${retained} 張陣容；其餘請補選。押卡偏好保留 ${retainedStakes.length}/${MAX_STAKE_CARDS} 張，請重新確認。`);
+          if (available.storageError) setStakeError(available.storageError);
         }
-      });
-      setMovement(`已沿用本次抽到的 ${retained} 張陣容；其餘請補選。押卡偏好保留 ${retainedStakes.length}/${MAX_STAKE_CARDS} 張，請重新確認。`);
-      if (available.storageError) setStakeError(available.storageError);
-    }
-    setState(prepared);
-    setMatch(null);
-    battleToken.current = null; setLegal([]); setLiveNotice(null); setBattleView(null);
-    setStakeCardIds(retainedStakes);
-    setInspection(null);
-    setGuideRequest(null);
-    setPrepareView('formation');
-  }, [cards, playerDeckIds, seed]);
+        setState(prepared);
+        setMatch(null);
+        battleToken.current = null; setLegal([]); setLiveNotice(null); setBattleView(null);
+        setStakeCardIds(retainedStakes);
+        setInspection(null);
+        setGuideRequest(null);
+        setPrepareView('formation');
+      })
+      .catch((cause) => { if (!disposed) setError(cause instanceof Error ? cause.message : '發牌暫時無法連線，請點下方按鈕再試一次。'); });
+    return () => { disposed = true; };
+  }, [cards, seed]);
 
   /** 從目前的佈陣開戰。種子固定，同一局可重播。 */
   const start = useCallback(async () => {
@@ -281,7 +271,7 @@ export default function BattlefieldPage() {
       if (ownedStake.length && (stakeCardIds.length < 1 || stakeCardIds.length > MAX_STAKE_CARDS)) throw new Error(`正式戰必須選 1～${MAX_STAKE_CARDS} 張押注卡。`);
       const representative = ownedStake.find(card => card.id === stakeCardIds[0]);
       // 開戰交給後端：種子、難度（押注戰＝困難首領、體驗戰＝簡單）、易經判斷都由後端決定。
-      const opened = await callBattle({ type: 'START', playerTeam: fieldTeam(state, 'PLAYER'), opponentTeam: fieldTeam(state, 'OPPONENT'), stakeCardId: stakeCardIds.length ? representative?.cardId ?? null : null, stakeCount: stakeCardIds.length });
+      const opened = await callBattle({ type: 'START', tableToken: tableToken.current, playerTeam: fieldTeam(state, 'PLAYER'), opponentTeam: fieldTeam(state, 'OPPONENT'), stakeCardId: stakeCardIds.length ? representative?.cardId ?? null : null, stakeCount: stakeCardIds.length });
       battleToken.current = opened.token; setLegal(opened.legal); setLiveNotice(opened.notice); setBattleView(opened.view);
       const next = opened.match;
       setOutcome(null); setSettlement(null); setBattleStake(representative?.cardId || null);

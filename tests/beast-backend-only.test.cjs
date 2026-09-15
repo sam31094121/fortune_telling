@@ -35,7 +35,9 @@ const isClient = (source) => /^\s*['"]use client['"]/.test(source);
 
 const COMPUTE = ['advance', 'chooseAI', 'newMatch', 'startFromField', 'judgeVictorySkill', 'resolveStake', 'stakeRewardCount', 'distributeRewardCards', 'bossNotice', 'playSeries', 'chooseSeriesOpponent', 'judgeSeriesVictorySkill',
   // 第二階段：可出招與暴怒判斷
-  'legalActions', 'rageUnavailableReason', 'rageMaterialFor', 'rageFusionGuide', 'battleViewFor'];
+  'legalActions', 'rageUnavailableReason', 'rageMaterialFor', 'rageFusionGuide', 'battleViewFor',
+  // 第三階段 3A：開局發牌、洗牌、易經自動佈陣
+  'newBattle', 'autoPlaceOpponent', 'buildUniqueDeck', 'buildFreshOpeningDeck'];
 
 check('網頁端元件不得呼叫任何戰鬥、易經、押注運算函式', () => {
   const offenders = [];
@@ -102,8 +104,29 @@ check('第二階段：可出招與暴怒判斷由後端 battleViewFor 送來（�
   }
 });
 
-check('第三階段待辦照實列出：相剋與戰力分析、開局發牌與易經佈陣仍在網頁端', () => {
-  const PHASE3 = ['combatGuideFor', 'describeMatchup', 'explainOutcome', 'elementPercent', 'elementGuideRows', 'elementMultiplier', 'autoPlaceOpponent', 'newBattle', 'planTierPresentation', 'planFusionPresentation'];
+check('第三階段 3A：開局發牌與易經自動佈陣在後端，開戰核對牌桌票（易經陣容不採信前端）', () => {
+  const route = stripComments(read('app/api/beast-game/battlefield/route.ts'));
+  for (const name of ['newBattle(', 'autoPlaceOpponent(', 'buildUniqueDeck(', 'buildFreshOpeningDeck(', 'signTableTicket(', 'openTableTicket(']) {
+    assert.ok(route.includes(name), `後端要負責 ${name}`);
+  }
+  assert.match(route, /newMatch\(body\.playerTeam, table\.opponentTeam/, '易經陣容一律採用牌桌票裡後端排好的');
+  const page = stripComments(read('app/beast-game/battlefield/page.tsx'));
+  assert.match(page, /type: 'DEAL'/);
+  assert.match(page, /tableToken: tableToken\.current/);
+  const { signTableTicket, openTableTicket, openBattleSession } = require('../.beast-game-build/lib/beast-game/battle-session');
+  const ticket = { v: 1, kind: 'table', playerCards: ['a', 'b'], opponentTeam: ['x', 'y'], issuedAt: Date.now() };
+  const token = signTableTicket(ticket);
+  assert.deepEqual(openTableTicket(token), ticket);
+  const [payload, signature] = token.split('.');
+  const forged = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+  forged.opponentTeam = ['weak'];
+  assert.equal(openTableTicket(`${Buffer.from(JSON.stringify(forged)).toString('base64url')}.${signature}`), null, '改易經陣容必須拒收');
+  assert.equal(openBattleSession(token), null, '牌桌票不能冒充戰局票');
+});
+
+check('第三階段 3B 待辦照實列出：相剋與戰力分析仍在網頁端', () => {
+  // 演出規劃（planTierPresentation／planFusionPresentation）只決定播哪段動畫與音效，屬前端視覺感官，不列入。
+  const PHASE3 = ['combatGuideFor', 'describeMatchup', 'explainOutcome', 'elementPercent', 'elementGuideRows', 'elementMultiplier'];
   const pending = [];
   for (const file of [...walk('components'), ...walk('app/beast-game')]) {
     const source = read(file);
@@ -112,7 +135,7 @@ check('第三階段待辦照實列出：相剋與戰力分析、開局發牌與�
     const hits = PHASE3.filter((name) => new RegExp(`(^|[^\\w.])${name}\\(`, 'm').test(code));
     if (hits.length) pending.push(`${file}：${hits.join('、')}`);
   }
-  console.log(`   第三階段待辦（${pending.length} 個檔案）：\n     ${pending.join('\n     ') || '已全部完成'}`);
+  console.log(`   第三階段 3B 待辦（${pending.length} 個檔案）：\n     ${pending.join('\n     ') || '已全部完成'}`);
   assert.ok(true);
 });
 

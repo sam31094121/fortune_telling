@@ -57,3 +57,41 @@ export function openBattleSession(token: unknown, now = Date.now()): BattleSessi
     return null;
   }
 }
+
+/**
+ * 牌桌票（後端化第三階段 3A）：後端洗牌、發牌、易經自動佈陣的結果。
+ * 開戰時核對：玩家上場的卡必須是這一桌發到手上的；易經陣容一律採用這裡後端排好的。
+ */
+export interface TableTicket {
+  v: 1;
+  kind: 'table';
+  /** 發到玩家手上的牌（可以拿來佈陣的卡）。 */
+  playerCards: string[];
+  /** 後端排好的易經陣容（主戰在前）。 */
+  opponentTeam: string[];
+  issuedAt: number;
+}
+
+export function signTableTicket(ticket: TableTicket): string {
+  const payload = Buffer.from(JSON.stringify(ticket), 'utf8').toString('base64url');
+  return `${payload}.${sign(payload)}`;
+}
+
+export function openTableTicket(token: unknown, now = Date.now()): TableTicket | null {
+  if (typeof token !== 'string') return null;
+  const separator = token.lastIndexOf('.');
+  if (separator <= 0) return null;
+  const payload = token.slice(0, separator);
+  const signature = Buffer.from(token.slice(separator + 1));
+  const expected = Buffer.from(sign(payload));
+  if (signature.length !== expected.length || !timingSafeEqual(signature, expected)) return null;
+  try {
+    const ticket = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as TableTicket;
+    const isIds = (value: unknown) => Array.isArray(value) && value.every((id) => typeof id === 'string');
+    if (!ticket || ticket.v !== 1 || ticket.kind !== 'table' || !isIds(ticket.playerCards) || !isIds(ticket.opponentTeam)) return null;
+    if (typeof ticket.issuedAt !== 'number' || now - ticket.issuedAt > BATTLE_SESSION_MAX_AGE_MS) return null;
+    return ticket;
+  } catch {
+    return null;
+  }
+}
