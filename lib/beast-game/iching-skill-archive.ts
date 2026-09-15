@@ -6,9 +6,14 @@
  *
  * 給 interactive.ts 的 chooseAI／暴怒判斷用——只提供政策門檻，不改傷害公式。
  */
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 import type { FusionDifficulty } from './fusion';
+/*
+  直接匯入正式 JSON（2026-09-15 修）。
+  原本用伺服器專用的檔案模組讀檔，但 interactive.ts 也在瀏覽器裡跑（困難戰場、自動連擊條），
+  網頁打包讀到伺服器模組直接 UnhandledSchemeError，本機 /beast-game 整頁 500。
+  匯入 JSON 伺服器與網頁都讀得到，也不必再靠讀檔失敗的後備。
+*/
+import archiveJson from '../../docs/技能戰鬥檔案/易經/易經.json';
 
 export type IchingDifficulty = FusionDifficulty;
 
@@ -49,7 +54,7 @@ export interface IchingArchive {
   difficultyDefaults: unknown;
 }
 
-const ARCHIVE_SEGMENTS = ['docs', '技能戰鬥檔案', '易經', '易經.json'] as const;
+const ARCHIVE_PATH = 'docs/技能戰鬥檔案/易經/易經.json';
 
 /** 檔案讀不到時的嵌入後備（與正式 JSON 的暴怒門檻對齊）。 */
 const FALLBACK_POLICIES: Record<IchingDifficulty, IchingLevelPolicy> = {
@@ -74,29 +79,24 @@ const FALLBACK_POLICIES: Record<IchingDifficulty, IchingLevelPolicy> = {
 
 let cached: IchingArchive | null = null;
 
-function archivePath(cwd = process.cwd()): string {
-  return path.join(cwd, ...ARCHIVE_SEGMENTS);
-}
 
-export function loadIchingArchive(cwd = process.cwd()): IchingArchive {
+/** 回傳正式《易經》檔。cwd 參數保留相容，已不需要讀檔。 */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function loadIchingArchive(cwd?: string): IchingArchive {
   if (cached) return cached;
-  try {
-    cached = JSON.parse(readFileSync(archivePath(cwd), 'utf8')) as IchingArchive;
-    return cached;
-  } catch {
-    cached = {
-      id: 'iching',
-      name: '易經',
-      title: '易經對手智能正式檔（嵌入後備）',
-      version: '1.0.0-fallback',
-      updatedAt: '2026-09-15T21:55:00+08:00',
-      bigDataSummary: null,
-      intelligencePolicies: FALLBACK_POLICIES,
-      rageFairness: { sameRulesAsPlayer: true, noDamageFormulaChange: true },
-      difficultyDefaults: { turnsStartOmitted: 'NORMAL', freeThreeCardEntry: 'NORMAL' },
-    };
-    return cached;
-  }
+  const json = archiveJson as unknown as IchingArchive;
+  cached = json?.intelligencePolicies ? json : {
+    id: 'iching',
+    name: '易經',
+    title: '易經對手智能正式檔（嵌入後備）',
+    version: '1.0.0-fallback',
+    updatedAt: '2026-09-15T21:55:00+08:00',
+    bigDataSummary: null,
+    intelligencePolicies: FALLBACK_POLICIES,
+    rageFairness: { sameRulesAsPlayer: true, noDamageFormulaChange: true },
+    difficultyDefaults: { turnsStartOmitted: 'NORMAL', freeThreeCardEntry: 'NORMAL' },
+  };
+  return cached;
 }
 
 /** 讀取某一級智能政策（政策來自《易經》檔）。 */
@@ -144,5 +144,5 @@ export function shouldRageByPolicy(level: IchingDifficulty, input: RageDecisionI
 }
 
 export function ichingArchivePath(): string {
-  return archivePath();
+  return ARCHIVE_PATH;
 }
