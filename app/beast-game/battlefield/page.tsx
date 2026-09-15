@@ -488,7 +488,8 @@ function BattlefieldScreen() {
       <div className={styles.shell}>
         <header className={styles.header}>
           {match?.status === 'PLAYING' || settling || settlement?.saved === false ? <span>對戰中</span> : <Link href="/">回首頁</Link>}
-          <h1>五卡押注戰場</h1>
+          {/* 對戰中節奏條固定在標題列正中，會蓋住標題變成「五…場」；對戰時標題文字透明（保留位置與讀屏），左側已寫「對戰中」。 */}
+          <h1 style={match?.status === 'PLAYING' ? { color: 'transparent' } : undefined}>五卡押注戰場</h1>
           <span>{match?.status === 'FINISHED' && !playing ? '本場結束' : match ? `第 ${match.round} 回合` : '準備出戰'}</span>
         </header>
         {error ? (
