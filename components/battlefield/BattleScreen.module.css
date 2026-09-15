@@ -167,3 +167,6 @@
   .controls:not([data-preparing='true']) { grid-template-rows: 24px minmax(0, 1fr) auto; }
   .controlScroll { padding: 6px 10px; }
 }
+
+/* 首領預告（2026-09-15）：長輩一眼看得到——字放大、紅框，和一般提示分開。 */
+.bossLive { margin: 0 0 8px; padding: 10px 12px; border-left: 4px solid #fb7185; background: #fb718518; color: #ffe4e6; font-size: 16px; line-height: 24px; font-weight: 700; }

@@ -74,6 +74,7 @@
     "test:beast-battle-mode": "node tests/beast-battle-mode.test.cjs",
     "build:beast": "node scripts/beast-build.mjs",
     "test:beast-interactive:full": "node scripts/beast-build.mjs && node tests/beast-interactive.test.cjs",
+    "test:beast-difficulty": "node scripts/beast-build.mjs && node tests/beast-difficulty.test.cjs",
     "test:beast-weapons": "node scripts/beast-build.mjs && node tests/beast-weapons.test.mjs",
     "test:no-fake-counters": "node tests/no-fabricated-counters.test.mjs",
     "test:beast-reward": "node scripts/beast-build.mjs && node tests/beast-reward-claim.test.mjs",

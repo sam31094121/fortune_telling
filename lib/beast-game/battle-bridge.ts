@@ -23,7 +23,7 @@
  */
 
 import { legalDestinations, moveCard, type BattleState, type PlayerSide } from './battlefield';
-import { newMatch, MAX_TEAM, type Match } from './interactive';
+import { type Difficulty, newMatch, MAX_TEAM, type Match } from './interactive';
 
 /**
  * 一側目前在場上的神獸，主戰排第一。
@@ -61,10 +61,10 @@ export function canStartBattle(state: BattleState): StartCheck {
  *
  * 種子由呼叫端給——同一顆種子要打出同一場，否則重播與回報都查不了。
  */
-export function startFromField(state: BattleState, seed: number): Match {
+export function startFromField(state: BattleState, seed: number, options: { difficulty?: Difficulty } = {}): Match {
   const check = canStartBattle(state);
   if (!check.ready) throw new Error(check.reason ?? '還不能開戰。');
-  return newMatch(fieldTeam(state, 'PLAYER'), fieldTeam(state, 'OPPONENT'), seed);
+  return newMatch(fieldTeam(state, 'PLAYER'), fieldTeam(state, 'OPPONENT'), seed, options);
 }
 
 /** Project the resolved match onto the table; never calculate combat here. */

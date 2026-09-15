@@ -1,0 +1,23 @@
+{
+  "version": "turn-based-1.3.0",
+  "policy": "opponent level vs player base auto-combo (EASY), mirrored 3v3 lineups, HARD includes boss counters",
+  "seeds": 300,
+  "results": {
+    "EASY": {
+      "games": 600,
+      "opponentWinRate": 0.499,
+      "draws": 5
+    },
+    "NORMAL": {
+      "games": 600,
+      "opponentWinRate": 0.576,
+      "draws": 5
+    },
+    "HARD": {
+      "games": 600,
+      "opponentWinRate": 0.703,
+      "draws": 3
+    }
+  },
+  "note": "中等入口（單卡押注競技場）走三局單挑引擎 series.ts，這裡的 NORMAL 是同一核心的中間層，不代表中等入口的實測勝率。"
+}

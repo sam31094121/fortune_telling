@@ -35,7 +35,7 @@ import {
 } from '@/lib/beast-game/battlefield';
 import BattlePanel from '@/components/battlefield/BattlePanel';
 import { autoPlaceOpponent, canStartBattle, startFromField } from '@/lib/beast-game/battle-bridge';
-import { advance, legalActions, type Action, type Match } from '@/lib/beast-game/interactive';
+import { advance, bossNotice, legalActions, type Action, type Match } from '@/lib/beast-game/interactive';
 import StakeSlot, { type StakeCard } from '@/components/battlefield/StakeSlot';
 import { readCollection, runOwnedStakesDuel, countByCard, subscribeCollection, retryStakeSettlement, recoverPendingDuel, type Settlement } from '@/lib/beast-collection';
 import { resolveStake } from '@/lib/beast-game/stake';
@@ -258,7 +258,8 @@ export default function BattlefieldPage() {
     starting.current = true;
     setStakeError('');
     try {
-      const next = startFromField(state, seed * 7919);
+      // 正式押注戰＝困難首領；體驗戰（免押卡、新客人）維持簡單，不讓第一場就被首領打爛。
+      const next = startFromField(state, seed * 7919, { difficulty: stakeCardIds.length ? 'HARD' : 'EASY' });
       if (ownedStake.length && (stakeCardIds.length < 1 || stakeCardIds.length > MAX_STAKE_CARDS)) throw new Error(`正式戰必須選 1～${MAX_STAKE_CARDS} 張押注卡。`);
       const representative = ownedStake.find(card => card.id === stakeCardIds[0]);
       setOutcome(null); setSettlement(null); setBattleStake(representative?.cardId || null);
@@ -524,6 +525,8 @@ export default function BattlefieldPage() {
                   cards={cards} settlement={settlement} isReplay={false} retrying={settling} onRetry={() => void retrySettlement()} />}
                 {match ? (
                   <>
+                    {/* 首領預告放在操作區最上方：收在戰報裡客戶看不到，就不算預告。文字由核心 bossNotice 產生。 */}
+                    {bossNotice(match) && <p role="status" aria-live="polite" className={`${styles.notice} ${styles.bossLive}`} data-boss-live>🐉 {bossNotice(match)}</p>}
                     <BattlePace match={match} automatic={automatic} blocked={playing || Boolean(inspection)} onAutomatic={setAutomatic} onAction={act} />
                     <BattlePanel match={match} onAction={act} busy={playing} compact cards={cards} />
                     {match.status === 'PLAYING' && <p className={styles.notice} data-battle-stake>{battleStake
@@ -547,6 +550,7 @@ export default function BattlefieldPage() {
                     </div>
                     <section hidden={prepareView !== 'stake'} className={styles.confirmation} data-preparation-progress tabIndex={-1} aria-label="開戰前確認">
                       <h2>{isTrial ? '體驗戰確認' : `選押注卡・1～${MAX_STAKE_CARDS} 張`}</h2>
+                      {!isTrial && <p className={styles.notice} data-boss-notice>困難：易經是首領，會先在戰報預告，再用寶珠封印、合體破壞、背水模式；雙方數值相同。</p>}
                       {!state.player.active && <p className={styles.notice}>建議先到「選卡佈陣」放好主戰，再決定本場押注。</p>}
                       <StakeSlot owned={ownedStake} selected={stakeCardIds} trial={isTrial} locked={settling || settlement?.saved === false}
                         steps={[]}

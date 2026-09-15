@@ -1,5 +1,5 @@
 {
-  "version": "turn-based-1.2.0",
+  "version": "turn-based-1.3.0",
   "mode": "FULL",
   "matches": 10000,
   "policy": "deterministic skill-first, mirrored lineups; not human strategy coverage",
