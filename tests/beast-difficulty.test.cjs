@@ -218,4 +218,38 @@ check('中等易經勝率約六成（對隨機組陣的基礎玩家），隨機�
   assert.ok(!/一比一時親手揭開決勝局/.test(api), '公平說明不得寫過期的揭牌規則');
 });
 
-console.log(`beast difficulty — PASS ${passed}`);
+
+/* ── 《易經》檔案＋turns difficulty 接線 ── */
+check('易經正式檔與新人檔存在，且載入層讀得到政策', () => {
+  const archivePath = 'docs/技能戰鬥檔案/易經/易經.json';
+  const newbiePath = 'docs/技能戰鬥檔案/易經/新人檔案.md';
+  assert.ok(fs.existsSync(archivePath), '缺正式易經.json');
+  assert.ok(fs.existsSync(newbiePath), '缺新人檔案.md');
+  const archive = JSON.parse(fs.readFileSync(archivePath, 'utf8'));
+  assert.equal(archive.name, '易經');
+  assert.ok(archive.intelligencePolicies.EASY.rage);
+  assert.ok(archive.intelligencePolicies.NORMAL.rage);
+  assert.ok(archive.intelligencePolicies.HARD.rage);
+  assert.ok(archive.bigDataSummary.rates.opponent.RAGE < 0.02, '大數據應記錄暴怒偏低');
+  assert.ok(archive.bigDataSummary.rates.opponent.SKILL > 0.25, '大數據應記錄技能率');
+  const { getIchingPolicy, difficultyFromMode, TURNS_START_DEFAULT_DIFFICULTY, shouldRageByPolicy } = require(B + 'iching-skill-archive');
+  assert.equal(TURNS_START_DEFAULT_DIFFICULTY, 'NORMAL');
+  assert.equal(difficultyFromMode('easy'), 'NORMAL');
+  assert.equal(difficultyFromMode('hard'), 'HARD');
+  assert.equal(getIchingPolicy('NORMAL').rage.orbsAtLeast, 2);
+  assert.equal(shouldRageByPolicy('NORMAL', { selfHpRatio: 0.9, enemyHpRatio: 0.9, orbs: 2 }), true);
+  assert.equal(shouldRageByPolicy('EASY', { selfHpRatio: 0.9, enemyHpRatio: 0.9, orbs: 0 }), false);
+});
+
+check('turns START 接 difficulty、缺省 NORMAL；免費三卡 UI 送 NORMAL', () => {
+  const route = fs.readFileSync('app/api/beast-game/turns/route.ts', 'utf8');
+  assert.match(route, /TURNS_START_DEFAULT_DIFFICULTY/, 'START 缺省讀易經檔預設');
+  assert.match(route, /newMatch\(b\.lineup,pick\(3\),randomInt\(2147483647\),\{difficulty\}\)/, 'START 必須傳 difficulty');
+  const page = fs.readFileSync('components/BeastTurnGame.tsx', 'utf8');
+  assert.match(page, /send\('START', \{ lineup: selected, difficulty: 'NORMAL' \}\)/, '免費三卡開戰送 NORMAL');
+  const interactive = fs.readFileSync('lib/beast-game/interactive.ts', 'utf8');
+  assert.match(interactive, /shouldRageByPolicy/, '暴怒判斷讀易經政策');
+  assert.match(interactive, /政策門檻來自《易經》檔/, '註解標明政策來源');
+});
+
+console.log(`beast difficulty ─ PASS ${passed}`);

@@ -2,7 +2,8 @@ import { randomInt, randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile, rename, rm, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { NextResponse } from 'next/server';
-import { advance, chooseAI, interactiveCatalog, newMatch, profile, type Action, type Match } from '@/lib/beast-game/interactive';
+import { advance, chooseAI, interactiveCatalog, newMatch, profile, type Action, type Difficulty, type Match } from '@/lib/beast-game/interactive';
+import { TURNS_START_DEFAULT_DIFFICULTY } from '@/lib/beast-game/iching-skill-archive';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -33,7 +34,7 @@ export async function POST(req:Request){
   const origin=req.headers.get('origin');
   if(origin){let valid=false;try{valid=new URL(origin).host===(req.headers.get('host')??new URL(req.url).host);}catch{/* malformed origin */}
     if(!valid)return NextResponse.json({ok:false,error:'來源不符。'},{status:403});}
-  let b:{type:string;revision:number;requestId:string;lineup?:string[];action?:Action;cardId?:string;legacyIds?:string[];autoFinish?:boolean};
+  let b:{type:string;revision:number;requestId:string;lineup?:string[];action?:Action;cardId?:string;legacyIds?:string[];autoFinish?:boolean;difficulty?:Difficulty};
   try{b=await req.json();}catch{return NextResponse.json({ok:false,error:'資料格式無效。'},{status:400});}
   if(!b||typeof b.requestId!=='string'||b.requestId.length>80||!Number.isInteger(b.revision))return NextResponse.json({ok:false,error:'請重新載入遊戲。'},{status:400});
   return transact(req,a=>{
@@ -60,7 +61,9 @@ export async function POST(req:Request){
         */
         if(!Array.isArray(b.lineup)||b.lineup.length!==3||new Set(b.lineup).size!==3)throw new Error('請選三張不重複的神獸。');
         if(b.lineup.some(id=>!ids.includes(id)))throw new Error('這張神獸不在正式牌庫裡。');
-        a.match=newMatch(b.lineup,pick(3),randomInt(2147483647));a.awardedRevision=null;break;
+        const allowed:Difficulty[]=['EASY','NORMAL','HARD'];
+        const difficulty:Difficulty=allowed.includes(b.difficulty as Difficulty)?(b.difficulty as Difficulty):TURNS_START_DEFAULT_DIFFICULTY;
+        a.match=newMatch(b.lineup,pick(3),randomInt(2147483647),{difficulty});a.awardedRevision=null;break;
       case 'ACTION':
         if(!a.match||!b.action)throw new Error('請先組隊開戰。');
         a.match=advance(a.match,b.action);

@@ -5,6 +5,7 @@ import { effectiveStat, resolveEffects, type BeastInstance, type EffectSpec, typ
 import { createRng } from './turn';
 import { elementGenerates, elementMultiplier, type BeastElement } from './elements';
 import { MAX_ORBS, MAX_RAGE, resolveFusionTier, bossCounterOptions, type BossCounter, type FusionDifficulty, type FusionTier } from './fusion';
+import { shouldRageByPolicy } from './iching-skill-archive';
 export const RAGE_ATTACK_BONUS = 38;
 export interface RageTierInfo { tier: FusionTier; skillName: string; orbs: number; rage: number; bonus: number; breaksShield: boolean }
 /** 暴怒合體依魔珠與暴怒升級。門檻與 fusion.ts 相同；加成經 test:beast-interactive:full 平衡閘門驗證。 */
@@ -138,7 +139,8 @@ function basicChoice(s:Match,side:Side,allowRage=true):Action {
   const p=profile(f.cardId);
   const canSkill=actions.some(a=>a.type==='SKILL');
   const enemy=s[foe].team[s[foe].active];
-  if(allowRage&&actions.some(a=>a.type==='RAGE')&&(f.hp<f.maxHp*.55||enemy.hp<enemy.maxHp*.55))return {type:'RAGE'};
+  // 暴怒門檻：《易經》檔 EASY 政策（雙珠或血量壓力）；不改傷害公式。
+  if(allowRage&&actions.some(a=>a.type==='RAGE')&&shouldRageByPolicy('EASY',{selfHpRatio:f.hp/f.maxHp,enemyHpRatio:enemy.hp/enemy.maxHp,orbs:t.orbs??0}))return {type:'RAGE'};
 
   // Role-specific skill timing — each role has a reason, not a blanket "always skill".
   if(canSkill){
@@ -157,7 +159,7 @@ function basicChoice(s:Match,side:Side,allowRage=true):Action {
   return {type:'ATTACK'};
 }
 /**
- * 易經出手（2026-09-15 三級）。
+ * 易經出手（2026-09-15 三級）。政策門檻來自《易經》檔（iching-skill-archive／易經.json）。
  * 簡單：固定規則。中等：合體忍到雙珠以上、被相剋時換上不吃虧的後備。困難：再往後推演一步。
  * 三級都只看檯面上的公開狀態：不讀對方本回合要出什麼、不改數值、不看種子決定的先後手。
  * 玩家那一側預設永遠是簡單——自動連擊不跟著變聰明（業主定調）。
@@ -169,7 +171,7 @@ export function chooseAI(s:Match,side:Side,level:Difficulty=side==='opponent'?(s
 }
 const otherSide=(side:Side):Side=>side==='player'?'opponent':'player';
 const matchup=(a:Fighter,b:Fighter)=>elementMultiplier(a.element as BeastElement,b.element as BeastElement)-elementMultiplier(b.element as BeastElement,a.element as BeastElement);
-function tacticalChoice(s:Match,side:Side):Action {
+function tacticalChoice(s:Match,side:Side,level:Difficulty='NORMAL'):Action {
   const t=s[side], f=t.team[t.active], e=s[otherSide(side)], enemy=e.team[e.active];
   const actions=legalActions(s,side);
   const swaps=actions.filter((a):a is Extract<Action,{type:'SWITCH'}>=>a.type==='SWITCH');
@@ -177,8 +179,9 @@ function tacticalChoice(s:Match,side:Side):Action {
     const score=(i:number)=>t.team[i].hp/t.team[i].maxHp+matchup(t.team[i],enemy)*2;
     return swaps.reduce<Action>((best,a)=>best.type!=='SWITCH'||score(a.index)>score(best.index)?a:best,swaps[0]??actions[0]);
   }
-  // 合體忍到雙珠以上；快倒下才提早放。
-  if(actions.some(a=>a.type==='RAGE')&&(rageTierInfo(s,side).tier!=='NONE'||f.hp<f.maxHp*.3))return {type:'RAGE'};
+  // 暴怒門檻：《易經》檔 NORMAL／HARD 政策（雙珠／危急／敵壓）；不改傷害公式。
+  const rageLevel:Difficulty=level==='HARD'?'HARD':'NORMAL';
+  if(actions.some(a=>a.type==='RAGE')&&shouldRageByPolicy(rageLevel,{selfHpRatio:f.hp/f.maxHp,enemyHpRatio:enemy.hp/enemy.maxHp,orbs:t.orbs??0,dualUnsealReady:rageTierInfo(s,side).tier!=='NONE'}))return {type:'RAGE'};
   // 被相剋就換上不吃虧、還健康的後備；換卡要花一回合，所以四次動作內不重複換。
   if(matchup(enemy,f)>0&&f.hp>f.maxHp*.25){
     const safe=swaps.filter(a=>{const r=t.team[a.index];return r.hp>r.maxHp*.6&&matchup(enemy,r)<=0;});
@@ -211,7 +214,7 @@ const sameAction=(a:Action,b:Action)=>a.type===b.type&&(a.type!=='SWITCH'||(b.ty
  * 實測（300 局）：推演時放任換卡，易經每場亂換 3.5 次、白送回合，勝率反而掉到 38%。
  */
 function lookaheadCandidates(s:Match,side:Side):{actions:Action[];preferred:Action} {
-  const preferred=tacticalChoice(s,side);
+  const preferred=tacticalChoice(s,side,s.difficulty==='HARD'?'HARD':'NORMAL');
   const actions=legalActions(s,side);
   if(s[side].team[s[side].active].defeated)return {actions,preferred};
   return {actions:actions.filter(a=>a.type!=='SWITCH'||sameAction(a,preferred)),preferred};

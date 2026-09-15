@@ -1,0 +1,116 @@
+{
+  "id": "iching",
+  "name": "易經",
+  "title": "易經對手智能正式檔",
+  "version": "1.0.0",
+  "updatedAt": "2026-09-15T21:55:00+08:00",
+  "sourceOfTruth": "docs/技能戰鬥檔案/易經/易經.json",
+  "newbieDoc": "docs/技能戰鬥檔案/易經/新人檔案.md",
+  "engine": "lib/beast-game/interactive.ts",
+  "loader": "lib/beast-game/iching-skill-archive.ts",
+  "bigDataSummary": {
+    "minedAt": "2026-09-15",
+    "source": "data/beast-turn-accounts",
+    "accountsWithHistory": 14,
+    "opponentActions": 433,
+    "rates": {
+      "opponent": {
+        "ATTACK": 0.6305,
+        "SKILL": 0.3326,
+        "RAGE": 0.0092,
+        "SWITCH": 0.0277
+      },
+      "player": {
+        "ATTACK": 0.6697,
+        "SKILL": 0.2887,
+        "RAGE": 0.0069,
+        "SWITCH": 0.0346
+      }
+    },
+    "findings": [
+      "對手技能率約 33%（對齊角色技能偏好，屬合理基線）",
+      "對手暴怒僅約 0.9%～1.1%，嚴重偏低——政策須在雙珠／血量壓力時更常 RAGE",
+      "雙方規則對稱：同一套 orbs／rage／相生後備／RAGE_TIERS；只改判斷，不改傷害公式"
+    ],
+    "note": "口語約數：技能率約 34%、暴怒約 1.1%；本檔以本機挖出的精確比例為準。"
+  },
+  "intelligencePolicies": {
+    "EASY": {
+      "label": "簡單",
+      "chooseAI": "basicChoice",
+      "description": "固定角色技能時機；暴怒在血量壓力或已有雙珠時放出。",
+      "skillBias": {
+        "主攻": "有技能就放",
+        "速度": "有技能就放",
+        "控制": "有技能就放",
+        "守護": "無護盾時放",
+        "輔助": "生命低於 60% 時放",
+        "反擊": "無護盾且敵方仍有威脅時放"
+      },
+      "rage": {
+        "selfHpBelow": 0.55,
+        "enemyHpBelow": 0.55,
+        "orbsAtLeast": 2,
+        "note": "雙珠就緒也可放，避免實戰暴怒趨近於零"
+      }
+    },
+    "NORMAL": {
+      "label": "中等層（免費三卡預設）",
+      "chooseAI": "tacticalChoice",
+      "description": "合體優先雙珠以上；被相剋時換健康後備；暴怒門檻對齊大數據修正。",
+      "skillBias": "沿用 EASY 角色偏好（basicChoice 後備）",
+      "rage": {
+        "orbsAtLeast": 2,
+        "selfHpBelow": 0.4,
+        "enemyHpBelow": 0.35,
+        "enemyPressureOrbsAtLeast": 1,
+        "preferDualUnseal": true,
+        "note": "雙珠即放；或己方危急；或敵方低血且已有一珠"
+      },
+      "switch": {
+        "whenDisadvantaged": true,
+        "reserveHpAbove": 0.6,
+        "minRevisionsBetweenSwitches": 4
+      }
+    },
+    "HARD": {
+      "label": "困難",
+      "chooseAI": "lookaheadChoice",
+      "description": "兩步推演＋首領反制；暴怒價值納入局面分數。",
+      "skillBias": "推演候選含 SKILL／RAGE／認可的 SWITCH",
+      "rage": {
+        "orbsAtLeast": 2,
+        "selfHpBelow": 0.45,
+        "enemyHpBelow": 0.3,
+        "softSelfHpBelow": 0.55,
+        "softOrbsAtLeast": 1,
+        "preferDualUnseal": true,
+        "note": "tactical 門檻略寬；lookahead 再以 rageValue 加權"
+      },
+      "bossCounters": true
+    }
+  },
+  "rageFairness": {
+    "sameRulesAsPlayer": true,
+    "requireSynergyReserve": true,
+    "sharedSystems": [
+      "orbs",
+      "rage",
+      "rageAvailable",
+      "RAGE_TIERS",
+      "elementGenerates material"
+    ],
+    "noDamageFormulaChange": true,
+    "playerAutoCombo": "EASY（業主定調：自動連擊不跟著變聰明）"
+  },
+  "difficultyDefaults": {
+    "newMatchOmitted": "EASY（舊存檔／單元測試相容；difficulty 欄位缺省）",
+    "turnsStartOmitted": "NORMAL（全面變聰明基線）",
+    "freeThreeCardEntry": "NORMAL",
+    "modeMapping": {
+      "easy_ui_entry": "NORMAL",
+      "medium_series_entry": "chooseSeriesOpponent（非 interactive difficulty）",
+      "hard_battlefield_stake": "HARD"
+    }
+  }
+}
