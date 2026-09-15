@@ -6,7 +6,7 @@ set "URL=http://localhost:8888"
 set "CHROME=%ProgramFiles%\Google\Chrome\Application\chrome.exe"
 :: 取得右側螢幕寬度，若失敗預設 1920
 for /f %%W in ('powershell -NoProfile -Command "(Get-DisplayResolution).Width"') do set "SCREEN_WIDTH=%%W"
-if not defined SCREEN_WIDTH set "SCREEN_WIDTH=1920"
+if not defined SCREEN_WIDTH set "SCREEN_WIDTH=0"
 :: Edge 備援路徑
 set "EDGE=%ProgramFiles%\Microsoft\Edge\Application\msedge.exe"
 
@@ -35,15 +35,18 @@ if not exist "%CHROME%" (
     echo Chrome not found, using Edge as fallback.
     set "BROWSER=%EDGE%"
   ) else (
-    echo Neither Chrome nor Edge found. Please install a browser.
-    exit /b 1
+    echo Neither Chrome nor Edge found, using system default browser.
+    set "BROWSER="
   )
 ) else (
   set "BROWSER=%CHROME%"
 )
 
-
-echo Opening %URL% in a new browser window on the right monitor...
-start "" "%BROWSER%" --new-window --start-maximized --window-position=%SCREEN_WIDTH%,0 "%URL%"
+rem Launch browser or default
+if defined BROWSER (
+  start "" "%BROWSER%" --new-window --start-maximized --window-position=%SCREEN_WIDTH%,0 "%URL%"
+) else (
+  start "" "%URL%"
+)
 
 endlocal

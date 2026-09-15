@@ -34,6 +34,29 @@ function text(value: unknown, max = 220) {
   return typeof value === 'string' ? value.trim().slice(0, max) : '';
 }
 
+
+function buildLocalHorrorReading(facts: {
+  shortName: string; age: string; previousAge: string; nextAge: string;
+  dayMaster: string; structure: string; usefulGod: string; avoidGod: string;
+  treasureElement: string; treasureName: string; treasurePower: string;
+}) {
+  const iching = castHexagram(facts.shortName, facts.dayMaster, facts.structure);
+  const empathic = buildEmpathicFromHexagram(facts.shortName, iching);
+  const pattern = patternNameOf(iching);
+  const ghost = formatGhostDecoding(iching);
+  const treasure = facts.treasureElement
+    ? `五元素封印：${facts.treasureElement}元素・${facts.treasureName || '今日封印練習'}。今天就能做的小事：${facts.treasurePower || '先把一直迴響的念頭寫下一句，再決定要不要行動'}。`
+    : '五元素封印：今天先完成一件讓肩頸鬆一點的小事。';
+  return (
+    `${facts.shortName}，你現在 ${facts.age}。門外的存在感應到你握著發燙的手機；先靜下來——卦已成：${formatHexagramLine(iching)}，特殊格局「${pattern}」。` +
+    `第一道・磁場：${ghost} ${empathic.iKnowYourSurface}` +
+    `第二道・詭異：${empathic.iKnowYourInside} 那些還沒散場的舊迴聲，其實是你很早學會的自保方式。` +
+    `第三道・因果：若持續舊模式，代價會慢慢累積在決策與關係的摩擦上；若今天調整一步，呼吸與肩頸通常會先鬆開。` +
+    `${empathic.absolution} ${treasure}` +
+    `（本機鬼魅後備解盤：雲端老師忙碌時仍可閱讀。）`
+  ).replace(/\s+/g, ' ').trim();
+}
+
 async function withTimeout<T>(task: Promise<T>, ms: number) {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
@@ -47,6 +70,7 @@ async function withTimeout<T>(task: Promise<T>, ms: number) {
 }
 
 export async function POST(request: Request) {
+  let factsForFallback: Parameters<typeof buildLocalHorrorReading>[0] | null = null;
   try {
     const body = await request.json() as HorrorBaziReadingRequest;
     const facts = {
@@ -61,20 +85,29 @@ export async function POST(request: Request) {
       strengthFactors: text(body.strengthFactors, 420), plainSections: text(body.plainSections, 1800),
       treasureElement: text(body.treasureElement, 8), treasureName: text(body.treasureName, 80), treasurePower: text(body.treasurePower, 220),
     };
-    if (!facts.dayMaster || !facts.structure) return NextResponse.json({ ok: false, message: '命盤核心資料不足，暫不生成鬼魅解盤。' }, { status: 400 });
+    if (!facts.dayMaster || !facts.structure) {
+      return NextResponse.json({ ok: false, message: '命盤核心資料不足，暫不生成鬼魅解盤。' }, { status: 400 });
+    }
+    factsForFallback = facts;
 
     const apiKey = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-    if (!apiKey) return NextResponse.json({ ok: false, message: '尚未設定 Gemini API 金鑰。' }, { status: 503 });
-
-    // 易經起卦：與 Google 老師同一組輸入決定性起卦，兩位老師共用同一卦互為印證
     const iching = castHexagram(facts.shortName, facts.dayMaster, facts.structure);
-    // 易經心理學共感層：同一卦推導（恐怖是外殼，知己的溫度是內核）
     const empathic = buildEmpathicFromHexagram(facts.shortName, iching);
 
-    const ai = new GoogleGenAI({ apiKey });
-    const response = await withTimeout(ai.models.generateContent({
-      model: 'gemini-3.6-flash',
-      contents: `你是「鬼魅八字解盤老師」，以易經與生辰八字交叉推理，進行一場真正的心理學論述（神秘口氣是外衣、心理學邏輯是骨架、當下實際感受是錨點）。只能根據下列已鎖定的客戶八字資料與後端已起好的易經卦象，寫出可直接給客戶閱讀的解盤。
+    if (!apiKey) {
+      return NextResponse.json({
+        ok: true,
+        provider: '鬼魅老師（本機後備）',
+        source: 'local-fallback',
+        reading: buildLocalHorrorReading(facts),
+      }, { headers: { 'Cache-Control': 'no-store' } });
+    }
+
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await withTimeout(ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: `你是「鬼魅八字解盤老師」，以易經與生辰八字交叉推理，進行一場真正的心理學論述（神秘口氣是外衣、心理學邏輯是骨架、當下實際感受是錨點）。只能根據下列已鎖定的客戶八字資料與後端已起好的易經卦象，寫出可直接給客戶閱讀的解盤。
 易經卦象（後端已決定性起卦，劇情必須以此卦的意象自然貫穿，不可自行改卦；卦名可作為場景中的神祕符號出現）：${formatHexagramLine(iching)}；卦義：${iching.judgment}；卦示行動：${iching.advice}
 鬼魅拆卦（後端已運算；三大核心＝神秘口氣＋真實邏輯推理＋當下實際感受。你要把卦象拆解成「磁場／詭異／因果」的語言，但每一句底下都必須有真實心理機制與身體感受錨點——神秘是外衣，邏輯是骨架，不可只丟氣氛）：
 ${formatGhostDecoding(iching)}
@@ -113,14 +146,33 @@ ${formatGhostDecoding(iching)}
 五行強弱依據：${facts.strengthFactors || '核心未提供'}
 既有老師段落：${facts.plainSections || '核心未提供'}
 唯一五元素寶物：${facts.treasureElement || '未提供'}元素・${facts.treasureName || '未提供'}；能力提示：${facts.treasurePower || '未提供'}`,
-      config: { temperature: 0.6, maxOutputTokens: 4000 },
-    }), 35_000);
-    const reading = text(response.text, 1300).replace(/\s+/g, ' ');
-    const chineseCharacters = (reading.match(/[\u3400-\u9fff]/g) ?? []).length;
-    if (!reading || reading.length < 220 || chineseCharacters < 150) throw new Error('鬼魅回覆過短，未達可顯示的解盤品質。');
-    return NextResponse.json({ ok: true, provider: '鬼魅解盤', reading }, { headers: { 'Cache-Control': 'no-store' } });
+        config: { temperature: 0.6, maxOutputTokens: 4000 },
+      }), 35_000);
+      const reading = text(response.text, 1300).replace(/\s+/g, ' ');
+      const chineseCharacters = (reading.match(/[\u3400-\u9fff]/g) ?? []).length;
+      if (!reading || reading.length < 220 || chineseCharacters < 150) throw new Error('鬼魅回覆過短，未達可顯示的解盤品質。');
+      return NextResponse.json({ ok: true, provider: '鬼魅解盤', source: 'gemini', reading }, { headers: { 'Cache-Control': 'no-store' } });
+    } catch (aiError) {
+      console.error('[bazi/horror-reading] AI unavailable, local fallback', aiError instanceof Error ? aiError.message : aiError);
+      return NextResponse.json({
+        ok: true,
+        provider: '鬼魅老師（本機後備）',
+        source: 'local-fallback',
+        reading: buildLocalHorrorReading(facts),
+        notice: customerSafeAiMessage(aiError, '雲端老師忙碌，已改用本機鬼魅後備解盤。'),
+      }, { headers: { 'Cache-Control': 'no-store' } });
+    }
   } catch (error) {
     console.error('[bazi/horror-reading]', error instanceof Error ? error.message : error);
+    if (factsForFallback) {
+      return NextResponse.json({
+        ok: true,
+        provider: '鬼魅老師（本機後備）',
+        source: 'local-fallback',
+        reading: buildLocalHorrorReading(factsForFallback),
+        notice: customerSafeAiMessage(error, '雲端老師忙碌，已改用本機鬼魅後備解盤。'),
+      }, { headers: { 'Cache-Control': 'no-store' } });
+    }
     const message = customerSafeAiMessage(error, '鬼魅老師這一刻比較忙，請稍候一兩分鐘再按一次。');
     return NextResponse.json({ ok: false, message }, { status: 502, headers: { 'Cache-Control': 'no-store' } });
   }

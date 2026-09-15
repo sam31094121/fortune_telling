@@ -90,7 +90,7 @@ function BaziSealedComparisonOrbs({ primaryElement }: { primaryElement: ProductE
           <div key={element} className="relative flex min-h-[116px] flex-col items-center justify-center overflow-hidden rounded-xl border border-amber-100/20 bg-black/20 px-2 py-3 text-center">
             <span className="treasure-reveal-stage treasure-reveal-stage--sealed scale-[0.82]" aria-hidden="true"><WaterTreasureOrb element={element} released={false} preview /></span>
             <p className="mt-1 text-xs font-black text-amber-50">{element}元素</p>
-            <p className="mt-0.5 text-[10px] font-semibold text-amber-100/65">封印中・僅供對照</p>
+            <p className="mt-0.5 text-[11px] font-semibold text-amber-100/65">封印中・僅供對照</p>
           </div>
         ))}
       </div>
@@ -123,11 +123,13 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
   const [googleReading, setGoogleReading] = useState<string | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState<string | null>(null);
+  const [googleNotice, setGoogleNotice] = useState<string | null>(null);
   const [googleRun, setGoogleRun] = useState(0);
   const [googleStage, setGoogleStage] = useState(0);
   const [horrorReading, setHorrorReading] = useState<string | null>(null);
   const [horrorLoading, setHorrorLoading] = useState(false);
   const [horrorError, setHorrorError] = useState<string | null>(null);
+  const [horrorNotice, setHorrorNotice] = useState<string | null>(null);
   const [horrorRun, setHorrorRun] = useState(0);
   const evidence = useMemo(() => {
     const luck = currentLuck(view);
@@ -187,6 +189,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
     if (active !== 'CHART') return;
     const controller = new AbortController();
     let cancelled = false;
+    setGoogleNotice(null);
     setGoogleLoading(true);
     setGoogleError(null);
     setGoogleStage(0);
@@ -199,9 +202,9 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
       body: googleRequestKey,
       signal: controller.signal,
     }).then(async (response) => {
-      const json = await response.json() as { ok?: boolean; reading?: string; message?: string };
+      const json = await response.json() as { ok?: boolean; reading?: string; message?: string; notice?: string; source?: string };
       if (!response.ok || !json.ok || !json.reading) throw new Error(json.message || '易經老師解盤未返回內容。');
-      return json.reading;
+      return { reading: json.reading, notice: json.notice ?? (json.source === 'local-fallback' ? '雲端老師忙碌，已改用本機易經後備解盤（手機可正常閱讀）。' : null) };
     });
     // A tap must always visibly "run" for at least MIN_RITUAL_MS, even when
     // the API answers instantly — otherwise a fast reply reads as no reaction at all.
@@ -209,7 +212,8 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
       window.clearInterval(stageTimer);
       if (cancelled) return;
       if (result.status === 'fulfilled') {
-        setGoogleReading(result.value);
+        setGoogleReading(result.value.reading);
+        setGoogleNotice(result.value.notice);
         setGoogleError(null);
       } else if (!(result.reason instanceof DOMException && result.reason.name === 'AbortError')) {
         setGoogleReading(null);
@@ -228,6 +232,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
     if (active !== 'HORROR_GHOST') return;
     const controller = new AbortController();
     let cancelled = false;
+    setHorrorNotice(null);
     setHorrorLoading(true);
     setHorrorError(null);
     setHorrorStage(0);
@@ -240,15 +245,16 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
       body: googleRequestKey,
       signal: controller.signal,
     }).then(async (response) => {
-      const json = await response.json() as { ok?: boolean; reading?: string; message?: string };
+      const json = await response.json() as { ok?: boolean; reading?: string; message?: string; notice?: string; source?: string };
       if (!response.ok || !json.ok || !json.reading) throw new Error(json.message || '鬼魅解盤未返回內容。');
-      return json.reading;
+      return { reading: json.reading, notice: json.notice ?? (json.source === 'local-fallback' ? '雲端老師忙碌，已改用本機鬼魅後備解盤（手機可正常閱讀）。' : null) };
     });
     Promise.allSettled([request, delay(MIN_RITUAL_MS)]).then(([result]) => {
       window.clearInterval(stageTimer);
       if (cancelled) return;
       if (result.status === 'fulfilled') {
-        setHorrorReading(result.value);
+        setHorrorReading(result.value.reading);
+        setHorrorNotice(result.value.notice);
         setHorrorError(null);
       } else if (!(result.reason instanceof DOMException && result.reason.name === 'AbortError')) {
         setHorrorReading(null);
@@ -264,10 +270,10 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
   }, [active, googleRequestKey, horrorRun]);
 
   return (
-    <section className="space-y-4" aria-label="易經八字老師解盤">
-      <div className="rounded-[22px] border-2 border-amber-200/60 bg-[linear-gradient(135deg,rgba(120,53,15,0.2),rgba(2,6,23,0.62))] p-3 shadow-[0_0_26px_rgba(251,191,36,0.16)]">
-        <p className="rounded-xl border-2 border-amber-100/60 bg-amber-300/12 px-3 py-2 text-[11px] font-black tracking-[0.16em] text-amber-100 shadow-[0_0_16px_rgba(251,191,36,0.12)]">友善引導・先選一位老師開始解盤</p>
-        <div className="grid gap-2 sm:grid-cols-2">
+    <section className="space-y-4 overflow-x-hidden" aria-label="易經八字老師解盤">
+      <div className="rounded-[22px] border-2 border-amber-200/60 bg-[linear-gradient(135deg,rgba(120,53,15,0.28),rgba(2,6,23,0.68))] p-3.5 shadow-[0_0_28px_rgba(251,191,36,0.18)]">
+        <p className="rounded-xl border-2 border-amber-100/60 bg-amber-300/12 px-3 py-2.5 text-xs font-black tracking-[0.14em] text-amber-100 shadow-[0_0_16px_rgba(251,191,36,0.12)]">友善引導・先選一位老師開始解盤</p>
+        <div className="mt-2.5 grid gap-2.5 sm:grid-cols-2">
           {TEACHERS.map((teacher) => {
             const selected = active === teacher.id;
             return (
@@ -282,7 +288,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
                   if (teacher.id === 'HORROR_GHOST') setHorrorRun((value) => value + 1);
                 }}
                 aria-pressed={selected}
-                className={`rounded-2xl border-2 px-4 py-3 text-left transition ${selected ? 'border-amber-100/90 bg-amber-300/[0.16] text-amber-50 shadow-[0_0_22px_rgba(251,191,36,0.2)] ring-1 ring-amber-100/35' : 'border-violet-200/45 bg-white/[0.05] text-white/80 shadow-[0_0_12px_rgba(139,92,246,0.08)] hover:border-violet-100/75 hover:bg-violet-400/[0.1]'}`}
+                className={`min-h-[52px] touch-manipulation rounded-2xl border-2 px-4 py-3.5 text-left transition active:scale-[0.99] ${selected ? 'border-amber-100/90 bg-amber-300/[0.16] text-amber-50 shadow-[0_0_22px_rgba(251,191,36,0.2)] ring-1 ring-amber-100/35' : 'border-violet-200/45 bg-white/[0.05] text-white/80 shadow-[0_0_12px_rgba(139,92,246,0.08)] hover:border-violet-100/75 hover:bg-violet-400/[0.1]'}`}
               >
                 <span className="block text-sm font-black">{teacher.title}</span>
                 <span className="mt-1 block text-xs font-semibold opacity-65">{teacher.subtitle}</span>
@@ -293,7 +299,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
       </div>
 
       <section className="rounded-[20px] border border-cyan-200/20 bg-cyan-950/20 px-4 py-3">
-        <p className="text-[11px] font-black tracking-[0.16em] text-cyan-100">當下時間層・不改本命盤</p>
+        <p className="text-xs font-black tracking-[0.14em] text-cyan-100">當下時間層・不改本命盤</p>
         <p className="mt-1 text-sm font-semibold leading-6 text-white/75">
           {view.timeContext.age === null ? '年齡資料待確認' : `目前 ${view.timeContext.age} 歲`}・{view.timeContext.currentYear} 年・{view.timeContext.dayNight}閱讀
           {view.timeContext.activeDaYun ? `・正在走 ${view.timeContext.activeDaYun.ageRange} 的 ${view.timeContext.activeDaYun.pillar} 大運` : '・大運區間未能對應'}
@@ -305,8 +311,8 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
         <>
           <article className="flex flex-col rounded-[20px] border-2 border-cyan-200/55 bg-[linear-gradient(135deg,rgba(8,47,73,0.54),rgba(15,23,42,0.78))] p-4 shadow-[0_0_22px_rgba(34,211,238,0.12)]" aria-label="易經老師解盤">
             <div className="order-1 flex items-center justify-between gap-3">
-              <p className="text-[11px] font-black tracking-[0.16em] text-cyan-100">易經老師解盤・全盤白話翻譯</p>
-              <span className={`rounded-full border px-2 py-1 text-[10px] font-black ${googleLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : googleReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-cyan-100/35 bg-cyan-300/10 text-cyan-50/80'}`}>
+              <p className="text-xs font-black tracking-[0.14em] text-cyan-100">易經老師解盤・全盤白話翻譯</p>
+              <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-black ${googleLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : googleReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-cyan-100/35 bg-cyan-300/10 text-cyan-50/80'}`}>
                 {googleLoading ? '正在生成' : googleReading ? '易經老師已完成' : '等待解盤'}
               </span>
             </div>
@@ -322,22 +328,27 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
                 </div>
               </div>
             )}
-            {googleError && (
+            {googleNotice && (
+              <p role="status" aria-live="polite" className="order-3 mt-3 w-full rounded-2xl border border-amber-200/35 bg-amber-950/50 px-3 py-2.5 text-[13px] leading-6 text-amber-50 shadow-[inset_0_0_12px_rgba(251,191,36,0.08)]">
+                {googleNotice}
+              </p>
+            )}
+      {googleError && (
               <div className="order-3 mt-2">
                 <p className="text-sm font-semibold leading-6 text-rose-100">易經老師解盤暫時未完成：{googleError}</p>
-                <button type="button" onClick={() => setGoogleRun((value) => value + 1)} className="mt-2 rounded-xl border-2 border-cyan-100/70 bg-cyan-300/12 px-3 py-2 text-xs font-black text-cyan-50">重新請 易經老師解盤</button>
+                <button type="button" onClick={() => setGoogleRun((value) => value + 1)} className="mt-2 min-h-[44px] w-full touch-manipulation rounded-xl border-2 border-cyan-100/70 bg-cyan-300/12 px-3 py-2.5 text-sm font-black text-cyan-50">重新請 易經老師解盤</button>
               </div>
             )}
             {googleReading && <p className="order-5 mt-4 rounded-2xl border border-cyan-100/30 bg-black/20 p-3 text-sm font-semibold leading-7 text-cyan-50/90">{googleReading}</p>}
             {googleReading && (
               <section className="five-element-treasure-card order-4 mt-4 overflow-hidden rounded-[1.45rem] border-2 border-amber-200/70 p-5" aria-label="今日五元素寶物行動">
-                <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">依老師提醒・解開五元素寶石</p>
+                <p className="text-[11px] font-black tracking-[0.16em] text-amber-100">依老師提醒・解開五元素寶石</p>
                 <div className="mt-3 grid grid-cols-1 items-center gap-5 rounded-2xl border-2 border-amber-100/55 bg-black/25 p-5 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
-                  <div key={`google-treasure-${treasurePulse}`} className={`treasure-reveal-stage treasure-reveal-stage--${elementTreasure.element === '水' ? 'water' : 'standard'} treasure-reveal-stage--hero justify-self-center scale-[1.78] ${treasureCollected ? 'treasure-reveal-stage--collected' : ''} ${treasureOpening ? 'treasure-reveal-stage--opening' : ''}`} aria-hidden="true">
+                  <div key={`google-treasure-${treasurePulse}`} className={`treasure-reveal-stage treasure-reveal-stage--${elementTreasure.element === '水' ? 'water' : 'standard'} treasure-reveal-stage--hero justify-self-center scale-[1.35] sm:scale-[1.78] ${treasureCollected ? 'treasure-reveal-stage--collected' : ''} ${treasureOpening ? 'treasure-reveal-stage--opening' : ''}`} aria-hidden="true">
                     <WaterTreasureOrb element={elementTreasure.element} released={treasureCollected || treasureOpening} burnSealOnRelease animating={treasureOpening} />
                   </div>
                   <div className="min-w-0 text-center sm:text-left">
-                    <p className="text-[10px] font-black tracking-[0.2em] text-cyan-100/80">命盤專屬補強方向</p>
+                    <p className="text-[11px] font-black tracking-[0.16em] text-cyan-100/80">命盤專屬補強方向</p>
                     <h5 className="mt-1 font-serif text-2xl font-black leading-8 text-amber-50">{elementTreasure.element}元素・{elementTreasure.name}</h5>
                     <p className="mt-2 text-sm font-bold leading-6 text-amber-50/80">{elementTreasure.power}</p>
                     <p className={`mt-2 text-xs font-black tracking-[0.1em] ${treasureCollected ? 'text-emerald-100' : 'text-amber-100'}`}>{treasureOpening ? '封印正在鬆動・寶物即將入背包' : treasureCollected ? '已收下・今天的練習已啟動' : '未收下也可以直接執行這項練習'}</p>
@@ -348,7 +359,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
                   onClick={treasureCollected ? resealTreasure : collectTreasure}
                   aria-pressed={treasureCollected}
                   disabled={treasureOpening}
-                  className={`mt-3 w-full rounded-xl border-2 px-3 py-3 text-sm font-black transition disabled:cursor-wait disabled:opacity-90 ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/85 bg-amber-300/20 text-amber-50 shadow-[0_0_20px_rgba(251,191,36,0.2)]'}`}
+                  className={`mt-3 w-full touch-manipulation rounded-xl border-2 px-3 py-3.5 text-sm font-black transition disabled:cursor-wait disabled:opacity-90 ${treasureCollected ? 'border-emerald-200/75 bg-emerald-400/15 text-emerald-50' : 'border-amber-100/85 bg-amber-300/20 text-amber-50 shadow-[0_0_20px_rgba(251,191,36,0.2)]'}`}
                 >
                   {treasureOpening ? '寶石正在解封・能量釋放中…' : treasureCollected ? '還原封印・再次進行完整儀式' : `依提醒解開${elementTreasure.element}元素寶石`}
                 </button>
@@ -411,7 +422,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
           <section className="relative mt-3 rounded-2xl border-2 border-violet-200/35 bg-[linear-gradient(135deg,rgba(76,5,25,0.42),rgba(30,27,75,0.52))] p-4" aria-label="正式恐怖鬼魅八字解盤">
             <div className="flex items-center justify-between gap-3">
               <p className="ghost-reply-title">鬼魅正式解盤・同盤回應</p>
-              <span className={`rounded-full border px-2 py-1 text-[10px] font-black ${horrorLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : horrorReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-rose-100/35 bg-rose-300/10 text-rose-100/80'}`}>{horrorLoading ? '正在生成' : horrorReading ? '鬼魅已回應' : '等待回應'}</span>
+              <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-black ${horrorLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : horrorReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-rose-100/35 bg-rose-300/10 text-rose-100/80'}`}>{horrorLoading ? '正在生成' : horrorReading ? '鬼魅已回應' : '等待回應'}</span>
             </div>
             {/* 同盤說明卡依需求隱藏（2026-08-28）：又是講後端運作的說明，客戶不需要 */}
             {false && (
@@ -439,7 +450,12 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
                 </div>
               </div>
             )}
-            {horrorError && <div className="mt-3"><p className="text-sm font-semibold leading-6 text-rose-100">鬼魅回應暫時未完成：{horrorError}</p><button type="button" onClick={() => setHorrorRun((value) => value + 1)} className="mt-2 rounded-xl border-2 border-rose-100/70 bg-rose-300/10 px-3 py-2 text-xs font-black text-rose-50">重新請鬼魅回應</button></div>}
+            {horrorNotice && (
+              <p role="status" aria-live="polite" className="mt-3 w-full rounded-2xl border border-rose-200/35 bg-rose-950/50 px-3 py-2.5 text-[13px] leading-6 text-rose-50 shadow-[inset_0_0_12px_rgba(244,63,94,0.08)]">
+                {horrorNotice}
+              </p>
+            )}
+      {horrorError && <div className="mt-3"><p className="text-sm font-semibold leading-6 text-rose-100">鬼魅回應暫時未完成：{horrorError}</p><button type="button" onClick={() => setHorrorRun((value) => value + 1)} className="mt-2 min-h-[44px] w-full touch-manipulation rounded-xl border-2 border-rose-100/70 bg-rose-300/10 px-3 py-2.5 text-sm font-black text-rose-50">重新請鬼魅回應</button></div>}
             {horrorReading && (() => {
               const parsed = splitGhostReading(horrorReading);
               if (!parsed) return <p className="ghost-reply-copy mt-3 rounded-xl border border-rose-100/20 bg-black/25 p-3">{horrorReading}</p>;
@@ -447,7 +463,7 @@ export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView;
                 <div className="mt-3 space-y-3">
                   <div className="relative overflow-hidden rounded-2xl border border-rose-100/25 bg-black/30 p-4">
                     <span aria-hidden="true" className="absolute right-3 top-1 font-serif text-5xl font-black text-rose-100/[0.08]">卦</span>
-                    <p className="text-[10px] font-black tracking-[0.2em] text-rose-200/80">隔門卜卦・開場低語</p>
+                    <p className="text-[11px] font-black tracking-[0.16em] text-rose-200/80">隔門卜卦・開場低語</p>
                     <p className="ghost-reply-copy relative mt-2">{parsed.intro}</p>
                   </div>
                   {GHOST_READING_SECTIONS.map((section, index) => (

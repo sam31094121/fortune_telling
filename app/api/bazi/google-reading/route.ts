@@ -34,6 +34,30 @@ function text(value: unknown, max = 180) {
   return typeof value === 'string' ? value.trim().slice(0, max) : '';
 }
 
+
+function buildLocalGoogleReading(facts: {
+  shortName: string; age: string; previousAge: string; nextAge: string;
+  dayMaster: string; structure: string; usefulGod: string; avoidGod: string;
+  activeLuck: string; annualLuck: string; treasureElement: string; treasureName: string; treasurePower: string;
+}) {
+  const iching = castHexagram(facts.shortName, facts.dayMaster, facts.structure);
+  const empathic = buildEmpathicFromHexagram(facts.shortName, iching);
+  const pattern = patternNameOf(iching);
+  const treasure = facts.treasureElement
+    ? `五元素寶物：${facts.treasureElement}元素・${facts.treasureName || '今日練習'}。今天可做的一小步：${facts.treasurePower || '先完成一件你認定正確的小事'}。收下寶物或直接靠自律執行，核心都是今天願意開始。`
+    : '五元素寶物：先以今天能完成的一件小事當練習，不追求完美。';
+  return (
+    `${facts.shortName}，你現在 ${facts.age}。請先靜下來、慢慢呼吸——這一卦已起定：${formatHexagramLine(iching)}，特殊格局「${pattern}」。` +
+    `${empathic.iKnowYourSurface} ${empathic.iKnowYourInside}` +
+    `${facts.previousAge}：延續此前的節奏與慣性，回看哪些習慣仍在替你擋風，哪些已開始吃力。` +
+    `${facts.age}（現在）：日主${facts.dayMaster}、格局${facts.structure}提示你把力氣放在「用神 ${facts.usefulGod || '已鎖定方向'}」，少在「忌神 ${facts.avoidGod || '耗損處'}」空轉。` +
+    `此刻最應建立的自律：把浮現且你認定正確的一件事，拆成今天就能完成的第一步。` +
+    `${facts.nextAge}：若這一步有被重複練習，資源與節奏較容易往較穩的方向累積；這是條件式方向，不是保證。` +
+    `${empathic.absolution} ${treasure}` +
+    `（本機易經後備解盤：雲端老師忙碌時仍可閱讀，待額度恢復後可再請完整口述。）`
+  ).replace(/\s+/g, ' ').trim();
+}
+
 async function withTimeout<T>(task: Promise<T>, ms: number) {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
@@ -49,6 +73,7 @@ async function withTimeout<T>(task: Promise<T>, ms: number) {
 }
 
 export async function POST(request: Request) {
+  let factsForFallback: Parameters<typeof buildLocalGoogleReading>[0] | null = null;
   try {
     const body = await request.json() as GoogleBaziReadingRequest;
     const facts = {
@@ -76,22 +101,27 @@ export async function POST(request: Request) {
     if (!facts.dayMaster || !facts.structure) {
       return NextResponse.json({ ok: false, message: '命盤核心資料不足，暫不送易經老師解盤。' }, { status: 400 });
     }
+    factsForFallback = facts;
 
     const apiKey = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ ok: false, message: '尚未設定 Gemini API 金鑰。' }, { status: 503 });
-    }
-
-    // 易經起卦：以日主＋格局＋姓名決定性起卦，解盤必須以易經卦象與八字互為印證
     const iching = castHexagram(facts.shortName, facts.dayMaster, facts.structure);
-    // 易經心理學共感層：與上面同一卦，保證口徑一致（剝洋蔥＋我懂你＋核心脆弱性）
     const empathic = buildEmpathicFromHexagram(facts.shortName, iching);
 
-    const ai = new GoogleGenAI({ apiKey });
-    const response = await withTimeout(
-      ai.models.generateContent({
-        model: 'gemini-3.6-flash',
-        contents: `你是「Google 老師」，以易經與生辰八字交叉解盤。只能根據下列已鎖定的客戶八字資料與後端已起好的易經卦象，用繁體中文產出可直接給客戶閱讀的正式解盤。
+    if (!apiKey) {
+      return NextResponse.json({
+        ok: true,
+        provider: '易經老師（本機後備）',
+        source: 'local-fallback',
+        reading: buildLocalGoogleReading(facts),
+      }, { headers: { 'Cache-Control': 'no-store' } });
+    }
+
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await withTimeout(
+        ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: `你是「Google 老師」，以易經與生辰八字交叉解盤。只能根據下列已鎖定的客戶八字資料與後端已起好的易經卦象，用繁體中文產出可直接給客戶閱讀的正式解盤。
 易經卦象（後端已決定性起卦，必須在解盤中自然引用印證，不可自行改卦）：${formatHexagramLine(iching)}；卦義：${iching.judgment}；卦示行動：${iching.advice}
 易經心理學共感層（後端已運算；整份解盤要像「最懂他的密友」在說話——剝洋蔥式由外而內，最後帶到核心脆弱性，語氣有溫度，不是老師對學生）：
 - 他的專屬格局名稱：「${patternNameOf(iching)}」（六十四格裡就這一格是他）
@@ -127,21 +157,37 @@ export async function POST(request: Request) {
 既有老師段落：${facts.plainSections || '核心未提供'}
 五元素寶物：${facts.treasureElement || '未提供'}元素・${facts.treasureName || '未提供'}；能力提示：${facts.treasurePower || '未提供'}
 `,
-        // Gemini 3.6 Flash reserves output tokens for reasoning.  A small cap
-        // truncates the visible Chinese answer, so keep enough room for both.
-        config: { temperature: 0.35, maxOutputTokens: 4_000 },
-      }),
-      35_000,
-    );
-    const reading = text(response.text, 900).replace(/\s+/g, ' ');
-    const chineseCharacters = (reading?.match(/[\u3400-\u9fff]/g) ?? []).length;
-    if (!reading || reading.length < 180 || chineseCharacters < 120) {
-      throw new Error('回覆過短，未達可顯示的解盤品質。');
+          config: { temperature: 0.35, maxOutputTokens: 4_000 },
+        }),
+        35_000,
+      );
+      const reading = text(response.text, 900).replace(/\s+/g, ' ');
+      const chineseCharacters = (reading?.match(/[\u3400-\u9fff]/g) ?? []).length;
+      if (!reading || reading.length < 180 || chineseCharacters < 120) {
+        throw new Error('回覆過短，未達可顯示的解盤品質。');
+      }
+      return NextResponse.json({ ok: true, provider: 'Google 老師', source: 'gemini', reading }, { headers: { 'Cache-Control': 'no-store' } });
+    } catch (aiError) {
+      console.error('[bazi/google-reading] AI unavailable, local fallback', aiError instanceof Error ? aiError.message : aiError);
+      return NextResponse.json({
+        ok: true,
+        provider: '易經老師（本機後備）',
+        source: 'local-fallback',
+        reading: buildLocalGoogleReading(facts),
+        notice: customerSafeAiMessage(aiError, '雲端老師忙碌，已改用本機易經後備解盤。'),
+      }, { headers: { 'Cache-Control': 'no-store' } });
     }
-
-    return NextResponse.json({ ok: true, provider: 'Google 老師', reading }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     console.error('[bazi/google-reading]', error instanceof Error ? error.message : error);
+    if (factsForFallback) {
+      return NextResponse.json({
+        ok: true,
+        provider: '易經老師（本機後備）',
+        source: 'local-fallback',
+        reading: buildLocalGoogleReading(factsForFallback),
+        notice: customerSafeAiMessage(error, '雲端老師忙碌，已改用本機易經後備解盤。'),
+      }, { headers: { 'Cache-Control': 'no-store' } });
+    }
     const message = customerSafeAiMessage(error, '易經老師這一刻比較忙，請稍候一兩分鐘再按一次。');
     return NextResponse.json({ ok: false, message }, { status: 502, headers: { 'Cache-Control': 'no-store' } });
   }

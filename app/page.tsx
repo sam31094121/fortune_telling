@@ -15,6 +15,7 @@ import type { GrowthElement } from '@/lib/growth-center-engine';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiTopShell3D from '@/components/taiji/TaijiTopShell3D';
+import { SharedElementSealPaper } from '@/components/bazi/customer/SharedElementSealPaper';
 import TodayDirectionQuest from '@/components/TodayDirectionQuest';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
@@ -2659,8 +2660,28 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <Link href="/beast-game" className="mx-auto mb-4 flex min-h-12 w-full max-w-[440px] items-center justify-between rounded-xl border border-amber-200/50 bg-slate-950/80 px-4 py-3 text-sm font-bold text-amber-100">
-          <span><span className="block">順天而行心存感恩</span><span className="block">逆天而行米田共</span></span><span aria-hidden="true">開始 →</span>
+        <Link href="/beast-game" className="home-top-motto-link home-top-motto-link--wood-4d mx-auto mb-5 flex min-h-[5.25rem] w-full max-w-[440px] items-center justify-between gap-3 px-5 py-4 sm:px-6 sm:py-5 text-amber-100">
+          <span className="min-w-0">
+            <span className="home-top-brush-gratitude home-top-brush-gratitude--sun block">
+              <span className="home-top-brush-gratitude__lead">順天而行，</span>
+              <span className="home-top-brush-gratitude__heart">感恩的心</span>
+            </span>
+            <span
+              className="home-top-ward-seal home-top-ward-seal--alive home-top-ward-seal--curse mt-3 inline-flex flex-col items-start gap-2"
+              aria-label="古老咒語：逆天而行等於米田共，米田共已被符咒封印"
+            >
+              <span className="home-top-ward-seal__script inline-flex flex-wrap items-center gap-2">
+                <span className="home-top-ward-seal__curse home-top-ward-seal__lead">逆天而行</span>
+                <span className="home-top-ward-seal__eq" aria-hidden="true">＝</span>
+                <span className="home-top-ward-seal__sealed home-top-ward-seal__sealed--shared" title="符咒結界封印">
+                  <span className="home-top-ward-seal__sealed-text">米田共</span>
+                  <SharedElementSealPaper />
+                  <span className="home-top-ward-seal__pulse" aria-hidden="true" />
+                </span>
+              </span>
+            </span>
+          </span>
+          <span aria-hidden="true" className="home-top-motto-link__cta shrink-0">開始 →</span>
         </Link>
         {/* 2026-08-21 依業主指示拿掉外框：粒子與光子連宇宙都框不住，太極不該被裝在
             一個有邊線、有暗底的卡片裡——讓它直接浮在頁面本身的星空背景上，
