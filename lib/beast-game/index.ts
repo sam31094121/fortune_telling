@@ -67,7 +67,7 @@ export type { GameState, PlayerState, TurnPhase, LineupSetup } from './turn';
 
 export { SKILLS, getSkill, allSkillIds } from '../../cards/skills';
 export type { SkillDefinition, SkillTrigger } from '../../cards/skills';
-export { playSeries, seriesFusionMaterial } from './series';
+export { playSeries, seriesFusionMaterial, chooseSeriesOpponent, MEDIUM_TOP_FRACTION } from './series';
 export type { PairResult } from './series';
 
 export {

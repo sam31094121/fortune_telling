@@ -1,0 +1,7 @@
+{
+  "games": 1200,
+  "mediumOpponentWinRate": 0.598,
+  "randomBaseline": 0.466,
+  "topFraction": 0.7,
+  "policy": "chooseSeriesOpponent vs random buildLineup player with first valid fusion slot"
+}

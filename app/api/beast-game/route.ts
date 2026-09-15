@@ -9,7 +9,7 @@ import { skillBodyArtFor } from '@/lib/beast-skill-archive';
 import { GAME_CORE_VERSION } from '@/lib/beast-game/schema';
 import {interactiveCatalog} from '@/lib/beast-game/interactive';
 import { playSeries } from '@/lib/beast-game/series';
-import { seriesFusionMaterial } from '@/lib/beast-game/series';
+import { chooseSeriesOpponent, seriesFusionMaterial } from '@/lib/beast-game/series';
 import { judgeSeriesVictorySkill } from '@/lib/beast-game/iching-judgment';
 import { distributeRewardCards } from '@/lib/beast-game/reward-distribution';
 import { stakeRewardCount } from '@/lib/beast-game/stake-rules';
@@ -18,7 +18,6 @@ import {
   LINEUP_SLOTS,
   MAX_LINEUP_COST,
   STARTING_LIFE,
-  buildLineup,
   createRng,
   validateLineup,
 } from '@/lib/beast-game/turn';
@@ -137,14 +136,13 @@ export async function POST(request: Request) {
   const rng = createRng(seed);
 
   /*
-    對手用完全一樣的規則產生：同一個卡池、同樣的三席、同樣二十張牌組。
-    對手沒有額外本命、沒有額外氣、沒有專屬卡——想確認的話，
-    回傳的 fairness 欄位就是給客戶看的那份對照。
+    易經（中等）組陣：同一個卡池、同樣預算、同樣三席，沒有額外本命、氣或專屬卡。
+    2026-09-15 起不再隨機抽：避開最弱的三成組合，並排出能暴怒合體的站位（chooseSeriesOpponent）。
+    它只收卡池與本場種子——看不到客戶這一場的陣容；回傳的 fairness 欄位照實寫給客戶看。
   */
-  const opponentLineup = buildLineup(ids, rng);
+  const { lineup: opponentLineup, fusionSlot: opponentFusion } = chooseSeriesOpponent(ids, rng);
   // Lock the opponent's stake before resolving combat; no choosing prizes after seeing the winner.
   const opponentStakeId = ids[Math.floor(rng() * ids.length)];
-  const opponentFusion = [0, 1].find(slot => seriesFusionMaterial(opponentLineup, slot)) ?? null;
   const series = playSeries(chosen, opponentLineup, seed, { player: playerFusion, opponent: opponentFusion });
 
   /*
@@ -193,7 +191,8 @@ export async function POST(request: Request) {
       seedSource: isReplay ? '重播（沿用你指定的種子）' : '伺服器產生，客戶端無法指定',
       firstPlayer: '每局依速度決定先手，同速由本場種子決定',
       sameRules: [
-        '三局取多勝；二比零時第三組自動揭牌，一比一時親手揭開決勝局',
+        '易經從同一卡池、同樣預算挑三席與合體位置，組陣時看不到你的陣容；卡片數值雙方相同',
+        '三局取多勝；二比零時第三組自動揭牌，一比一時決勝局也自動揭牌（可改回自己翻）',
         '每局重置生命與技能次數，沿用卡片屬性、元素相剋與戰鬥技能',
         '單挑不抽牌、不補位，抽棄牌技能在此模式不生效',
         `雙方開場布陣最多 ${MAX_LINEUP_COST} 氣，同一卡不能重複上陣`,

@@ -175,4 +175,47 @@ check('首領預告在戰鬥畫面看得到：預告時照印對策，生效後�
   assert.match(page, /bossNotice\(match\) && <p role="status"[^>]*data-boss-live>/, '困難頁要把提示放在操作區');
 });
 
+/* ── 中等入口：三局單挑的易經組陣 ── */
+const core = require(B + 'index');
+check('中等易經組陣：只收卡池與種子（看不到玩家陣容）、合法、可重現、不會每場同一套', () => {
+  const pool = core.playableCards().map((c) => c.id);
+  assert.equal(core.chooseSeriesOpponent.length, 2, '函式只收卡池與種子');
+  assert.deepEqual(core.chooseSeriesOpponent(pool, createRng(42)), core.chooseSeriesOpponent(pool, createRng(42)));
+  const seen = new Set();
+  for (let seed = 0; seed < 200; seed++) {
+    const { lineup, fusionSlot } = core.chooseSeriesOpponent(pool, createRng(seed + 9000));
+    assert.equal(core.validateLineup(lineup).ready, true, core.validateLineup(lineup).reason);
+    assert.ok(lineup.reduce((sum, id) => sum + core.getCard(id).cost, 0) <= 12);
+    if (fusionSlot !== null) assert.ok(core.seriesFusionMaterial(lineup, fusionSlot), '合體位置必須真的有未上場的相生卡');
+    seen.add(lineup.join(','));
+  }
+  assert.ok(seen.size >= 150, `陣容要有變化，不可被摸透：${seen.size}`);
+});
+
+check('中等易經勝率約六成（對隨機組陣的基礎玩家），隨機對隨機約五成', () => {
+  const pool = core.playableCards().map((c) => c.id);
+  const randomSide = (rng) => { const lineup = core.buildLineup(pool, rng); return { lineup, fusionSlot: [0, 1].find((s) => core.seriesFusionMaterial(lineup, s)) ?? null }; };
+  const rate = (chooseOpponent) => {
+    let opp = 0, draws = 0; const games = 1200;
+    for (let seed = 0; seed < games; seed++) {
+      const p = randomSide(createRng(seed + 5000));
+      const o = chooseOpponent(createRng(seed + 9000));
+      const r = core.playSeries(p.lineup, o.lineup, seed, { player: p.fusionSlot, opponent: o.fusionSlot });
+      if (r.winner === 'OPPONENT') opp += 1; else if (r.winner === 'DRAW') draws += 1;
+    }
+    return +((opp + draws * 0.5) / games).toFixed(3);
+  };
+  const medium = rate((rng) => core.chooseSeriesOpponent(pool, rng));
+  const baseline = rate(randomSide);
+  console.log(JSON.stringify({ mediumOpponentWinRate: medium, randomBaseline: baseline }));
+  assert.ok(baseline >= 0.4 && baseline <= 0.56, `隨機對隨機應約五成：${baseline}`);
+  assert.ok(medium >= 0.54 && medium <= 0.68, `中等易經應約六成：${medium}`);
+  fs.writeFileSync('reports/beast-turn-based/medium-opponent.json', JSON.stringify({ games: 1200, mediumOpponentWinRate: medium, randomBaseline: baseline, topFraction: core.MEDIUM_TOP_FRACTION, policy: 'chooseSeriesOpponent vs random buildLineup player with first valid fusion slot' }, null, 2));
+  const api = fs.readFileSync('app/api/beast-game/route.ts', 'utf8');
+  assert.match(api, /chooseSeriesOpponent\(ids, rng\)/, '中等 API 要用易經組陣');
+  assert.ok(!/buildLineup\(ids, rng\)/.test(api), '不可再隨機抽易經陣容');
+  assert.match(api, /組陣時看不到你的陣容/, '公平說明要照實告訴客戶');
+  assert.ok(!/一比一時親手揭開決勝局/.test(api), '公平說明不得寫過期的揭牌規則');
+});
+
 console.log(`beast difficulty — PASS ${passed}`);
