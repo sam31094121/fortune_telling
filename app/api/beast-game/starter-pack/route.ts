@@ -8,7 +8,7 @@ const modules=new Set(['number','ziwei','bazi','nameology','zodiac','soul_match'
 /**
  * Anonymous first-win gift. Browser collection is the customer source of truth;
  * server receipt is best-effort anti-spam. Must work on Vercel even without BEAST_DATA_DIR
- * (Michein P0: live was hard-503 →「28 張卡尚未入庫／重試領卡」).
+ * (Michelin P0: live was hard-503 →「28 張卡尚未入庫／重試領卡」).
  */
 export async function POST(req:Request){
  try{
