@@ -15,7 +15,6 @@ import type { GrowthElement } from '@/lib/growth-center-engine';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiTopShell3D from '@/components/taiji/TaijiTopShell3D';
-import { SharedElementSealPaper } from '@/components/bazi/customer/SharedElementSealPaper';
 import TodayDirectionQuest from '@/components/TodayDirectionQuest';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
@@ -178,9 +177,8 @@ const HOME_QUICK_NAV = [
   { href: '/tarot', icon: '牌', label: '塔羅占問', tone: 'amber' },
 ] as const;
 
-// 桌機（24 吋等寬螢幕）右側「快速切換」功能按鍵：2026-08-28 依指示恢復顯示；
-// 2026-09-15 依指示隱藏（程式碼保留）。要恢復把這裡改回 true，且需使用者明說「叫醒／顯示」。
-const SHOW_DESKTOP_QUICK_NAV = false;
+// 桌機（24 吋等寬螢幕）右側「快速切換」功能按鍵：2026-08-28 依指示恢復顯示
+const SHOW_DESKTOP_QUICK_NAV = true;
 // 行動版右側「功能」按鈕依需求隱藏；要恢復把這裡改回 true 即可
 const SHOW_MOBILE_QUICK_NAV = false;
 
@@ -2661,31 +2659,9 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <section
-          aria-label="首頁箴言木板卡"
-          className="home-top-motto-link home-top-motto-link--wood-4d home-top-motto-link--display mx-auto mb-5 flex min-h-[6.25rem] w-full max-w-[440px] items-center justify-center px-7 py-6 sm:px-9 sm:py-7 text-amber-100"
-        >
-          <div className="home-top-motto-link__body min-w-0 w-full text-center">
-            <span className="home-top-brush-gratitude home-top-brush-gratitude--sun block">
-              <span className="home-top-brush-gratitude__lead">順天而行，</span>
-              <span className="home-top-brush-gratitude__heart">感恩的心</span>
-            </span>
-            <span
-              className="home-top-ward-seal home-top-ward-seal--alive home-top-ward-seal--curse mt-4 inline-flex w-full flex-col items-center gap-2"
-              aria-label="古老咒語：逆天而行等於米田共，米田共已被符咒封印"
-            >
-              <span className="home-top-ward-seal__script inline-flex flex-wrap items-center justify-center gap-2.5">
-                <span className="home-top-ward-seal__curse home-top-ward-seal__lead">逆天而行</span>
-                <span className="home-top-ward-seal__eq" aria-hidden="true">＝</span>
-                <span className="home-top-ward-seal__sealed home-top-ward-seal__sealed--shared" title="符咒結界封印">
-                  <span className="home-top-ward-seal__sealed-text">米田共</span>
-                  <SharedElementSealPaper />
-                  <span className="home-top-ward-seal__pulse" aria-hidden="true" />
-                </span>
-              </span>
-            </span>
-          </div>
-        </section>
+        <Link href="/beast-game" className="mx-auto mb-4 flex min-h-12 w-full max-w-[440px] items-center justify-between rounded-xl border border-amber-200/50 bg-slate-950/80 px-4 py-3 text-sm font-bold text-amber-100">
+          <span><span className="block">順天而行心存感恩</span><span className="block">逆天而行米田共</span></span><span aria-hidden="true">開始 →</span>
+        </Link>
         {/* 2026-08-21 依業主指示拿掉外框：粒子與光子連宇宙都框不住，太極不該被裝在
             一個有邊線、有暗底的卡片裡——讓它直接浮在頁面本身的星空背景上，
             從第一眼（×1）就沒有邊界，不是放大之後才「無限」。 */}

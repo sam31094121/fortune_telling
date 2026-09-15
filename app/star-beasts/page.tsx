@@ -141,7 +141,7 @@ export default function StarBeastsPage() {
           <h1 className="mt-3 font-serif text-4xl font-black tracking-wide text-white sm:text-6xl">星宿神獸卡片</h1>
           <p className="mt-4 text-sm text-slate-300">本體二十八・幼子二十八・四象四，共六十張。</p>
           <SelfStarBeastEntry onFound={(id) => { setForm('awakened'); setSeason('all'); setSelectedId(id); }} />
-          <Link href="/beast-game" className="mt-4 inline-flex min-h-12 items-center rounded-full border border-cyan-100/30 px-6 text-sm font-bold text-cyan-100">親手布陣・六十張神獸卡</Link>
+          <Link href="/beast-game" className="mt-4 inline-flex min-h-12 items-center rounded-full border border-cyan-100/30 px-6 text-sm font-bold text-cyan-100">開始 →</Link>
           <details className="mt-4 max-w-2xl text-xs text-slate-400">
             <summary className="cursor-pointer font-bold text-slate-300">這裡有什麼？</summary>
             <p className="mt-2 leading-6">二十八星宿分為春夏秋冬，每一宿都有本體神獸與神獸幼子。</p>
@@ -296,6 +296,7 @@ export default function StarBeastsPage() {
                   <p className="text-xs font-black tracking-[0.16em] text-cyan-100/75">性格與命運特質</p>
                   <p className="mt-2 text-sm leading-7 text-slate-200">{selected.traits}</p>
                 </div>
+                <Link href="/beast-game" className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-cyan-100/40 bg-cyan-300/15 px-4 py-3 text-sm font-black text-cyan-50">開始 →</Link>
                 <div className="mt-5 flex gap-3">
                   <button type="button" onClick={() => moveSelected(-1)} className="flex-1 rounded-xl border border-white/15 bg-white/[0.06] px-4 py-3 text-sm font-black text-white transition hover:border-cyan-200/55 hover:bg-cyan-300/10">← 上一張</button>
                   <button type="button" onClick={() => moveSelected(1)} className="flex-1 rounded-xl border border-amber-200/35 bg-amber-300/15 px-4 py-3 text-sm font-black text-amber-50 transition hover:border-amber-100 hover:bg-amber-300/25">下一張 →</button>
