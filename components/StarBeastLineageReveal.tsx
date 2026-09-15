@@ -42,6 +42,9 @@ export default function StarBeastLineageReveal({
       <img
         src={isAdult ? beast.image : beast.youngDivineImage}
         alt={`${beast.name}${label}${context}`}
+        // 神獸原圖每張約 3MB，排在結果頁下半部；滑到才載，手機不必一進頁就下載十幾 MB。
+        loading="lazy"
+        decoding="async"
         className={imageClassName}
       />
       <div className={overlayClassName}>

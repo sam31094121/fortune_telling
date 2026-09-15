@@ -34,7 +34,8 @@ check('後端 API 送出老師合盤、命宮塔羅、年齡', () => {
 });
 
 check('紫微頁沒有內部用語', () => {
-  const banned = ['TEACHER TAROT BRIDGE', 'ZI WEI TIME CHECK', '老師專用', '規則模型統計訊號', '讓客戶看懂', '後端交叉驗證', '後端命盤資料', '不由前端推測', '後端正式命盤資料', '後端目前尚未提供'];
+  // 「易經卜卦判定」只能出現在真的有起卦的地方；紫微頁的宮位範本冒用過這個名義（2026-09-15）。
+  const banned = ['TEACHER TAROT BRIDGE', 'ZI WEI TIME CHECK', '老師專用', '規則模型統計訊號', '讓客戶看懂', '後端交叉驗證', '後端命盤資料', '不由前端推測', '後端正式命盤資料', '後端目前尚未提供', '易經卜卦判定'];
   for (const word of banned) assert.ok(!page.includes(word), `page.tsx 仍有「${word}」`);
 });
 

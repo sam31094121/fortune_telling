@@ -246,7 +246,7 @@ function buildSanFangPlainFallback(analysis: ZiweiSanFangAnalysis, annual: Annua
     `【現在重點】命宮是${stars('MING')}；先處理${focus('MING')}，不要同時把所有事扛在身上。`,
     `【工作與錢】官祿宮是${stars('GUAN_LU')}、財帛宮是${stars('CAI_BO')}；工作與金錢先把${focus('GUAN_LU')}和${focus('CAI_BO')}講清楚。`,
     `【人際與機會】遷移宮是${stars('QIAN_YI')}；外出、合作或換環境時，重點放在${focus('QIAN_YI')}。`,
-    `【下一步】${annual.year} 年先照「${annual.annualTheme}」排一件本週能完成的工作，再決定下一個機會。`,
+    `【下一步】${annual.year} 年先順著今年的主軸，排一件本週能完成的工作，再決定下一個機會。`,
   ].join('\n');
 }
 
@@ -296,7 +296,7 @@ function buildLocalInsightNarrative(input: {
     },
     {
       title: '今年流年主軸',
-      description: `${input.annual.year} 年主題是「${input.annual.annualTheme}」。今年的選擇以這條主軸為準，偏離主軸的機會再亮眼也先放後面。`,
+      description: `${input.annual.year} 年的主題：${themeClause(input.annual.annualTheme)}。今年的選擇以這條主軸為準，偏離主軸的機會再亮眼也先放後面。`,
       confidence: 76,
     },
     ...(input.iching
@@ -313,7 +313,7 @@ function buildLocalInsightNarrative(input: {
   ];
 
   const recommendations = [
-    `照「${input.annual.annualTheme}」的方向，先完成一件本週就能交付的具體工作。`,
+    `順著今年的主軸，先完成一件本週就能交付的具體工作。`,
     `工作上把${focus('GUAN_LU')}的責任與進度講清楚，再接新的目標。`,
     `金錢流向以${focus('CAI_BO')}為界線：先守住既有的，再考慮新的投入。`,
     `與人合作或換環境前，先確認${focus('QIAN_YI')}，條件不清楚就不急著答應。`,
@@ -323,7 +323,7 @@ function buildLocalInsightNarrative(input: {
     `命宮${stars('MING')}定調你今年的主場${scopeNote}：${focus('MING')}是第一優先。` +
     `事業面官祿宮${stars('GUAN_LU')}、財帛宮${stars('CAI_BO')}互為表裡——${focus('GUAN_LU')}與${focus('CAI_BO')}同步整理，收入與成果才會對得上。` +
     `對外的遷移宮${stars('QIAN_YI')}提醒你：${focus('QIAN_YI')}顧好了，機會自然靠近。` +
-    `${input.annual.year} 年流年主題「${input.annual.annualTheme}」是全年判斷的準繩；把每個決定放回這條主軸檢查，就不會被短期波動帶偏。` +
+    `${input.annual.year} 年的流年主題是全年判斷的準繩：${themeClause(input.annual.annualTheme)}。把每個決定放回這條主軸檢查，就不會被短期波動帶偏。` +
     (input.iching
       ? `易經以你的生辰起卦得「${input.iching.hexagramName}」，與命盤互為印證：${input.iching.advice}`
       : '易經生辰卦需要出生時辰才起得出來；補上時辰後，卦象會與這張命盤互相印證。');
@@ -627,6 +627,11 @@ function safeJsonParse<T>(text: string): T {
       : '易經回應格式異常，無法解析。';
     throw new Error(reason);
   }
+}
+
+/** 流年主題是一整句話；接在別的句子裡時先拿掉句尾標點，避免出現「…。」。 */
+function themeClause(theme: string): string {
+  return theme.trim().replace(/[。．.！!？?]+$/u, '');
 }
 
 export async function generateInsightAnalysis(request: InsightRequest): Promise<InsightAnalysisResponse> {

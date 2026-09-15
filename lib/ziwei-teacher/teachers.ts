@@ -565,13 +565,14 @@ function buildLocalNarrativeResult(context: PalaceAnalysisContext): NarrativeTea
 /* ---------------- 共用：可回查的證據來源（規格「二十一」的可追溯性要求） ---------------- */
 
 function buildEvidenceRefs(context: PalaceAnalysisContext): string[] {
-  const refs = [`宮位:${context.selectedPalace.palaceName}`, `易經:${castPalaceHexagram(context).hexagramName}第${castPalaceHexagram(context).changingLine}爻`];
-  if (context.timeContext.currentAge !== null) refs.push(`目前年齡:${context.timeContext.currentAge}歲`);
-  refs.push(`流年:${context.timeContext.annualYear}`);
-  if (context.timeContext.annualTheme) refs.push(`流年主題:${context.timeContext.annualTheme}`);
-  context.selectedPalace.majorStars.forEach((s) => refs.push(`主星:${s.name}`));
-  context.selectedPalace.transformations.forEach((t) => refs.push(`四化:${t.starName}化${TRANS_LABEL[t.type]}`));
-  refs.push(`三合宮A:${context.threeHarmony.harmonyA.palaceName}`, `三合宮B:${context.threeHarmony.harmonyB.palaceName}`, `對宮:${context.threeHarmony.opposite.palaceName}`);
+  // 這些依據會原樣顯示給客戶：用全形冒號與一般說法，不用「三合宮A」這種內部代號。
+  const refs = [`宮位：${context.selectedPalace.palaceName}`, `易經：${castPalaceHexagram(context).hexagramName}第${castPalaceHexagram(context).changingLine}爻`];
+  if (context.timeContext.currentAge !== null) refs.push(`目前年齡：${context.timeContext.currentAge}歲`);
+  refs.push(`流年：${context.timeContext.annualYear}`);
+  if (context.timeContext.annualTheme) refs.push(`流年主題：${context.timeContext.annualTheme}`);
+  context.selectedPalace.majorStars.forEach((s) => refs.push(`主星：${s.name}`));
+  context.selectedPalace.transformations.forEach((t) => refs.push(`四化：${t.starName}化${TRANS_LABEL[t.type]}`));
+  refs.push(`三合宮位：${context.threeHarmony.harmonyA.palaceName}`, `三合宮位：${context.threeHarmony.harmonyB.palaceName}`, `對宮：${context.threeHarmony.opposite.palaceName}`);
   return refs;
 }
 

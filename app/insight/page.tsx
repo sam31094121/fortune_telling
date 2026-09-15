@@ -629,7 +629,7 @@ function NameologyResultPanel({ analysis }: { analysis?: InsightResult['nameolog
                     <p className="mt-1 text-xs text-[color:var(--text-muted)]">{item.strokeCount}畫 · {item.element}{item.yinYang}</p>
                   </div>
                 </div>
-                <span className="rounded-full border border-white/10 px-2 py-1 text-[10px] text-[color:var(--text-muted)]">
+                <span className="rounded-full border border-white/10 px-2 py-1 text-[11px] text-[color:var(--text-muted)]">
                   {item.strokeSource === 'fixed_table' ? '字義表' : '結構表'}
                 </span>
               </div>
@@ -921,7 +921,12 @@ function InsightPsychologyCard({ insights }: { insights?: InsightResult['psychol
     <section className="fortune-card border-rose-300/25 p-6 sm:p-8">
       <p className="text-xs uppercase tracking-[0.35em] text-rose-300">拆開有禮</p>
       <h3 className="mt-3 font-serif text-2xl text-rose-100">{lead.title}</h3>
-      <p className="mt-4 whitespace-pre-line text-sm leading-8 text-[color:var(--text-sub)]">{lead.description}</p>
+      {/* 四層剝洋蔥原本擠成一大塊；只在每個【】前分段，不改任何一個字 */}
+      <div className="mt-4 whitespace-pre-line text-sm leading-8 text-[color:var(--text-sub)]">
+        {lead.description.split('【').map((part, index) => part.trim() && (
+          <p key={index} className={index > 0 ? 'mt-4' : undefined}>{index > 0 ? '【' : ''}{part.trim()}</p>
+        ))}
+      </div>
       {rest.length > 0 && (
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           {rest.map((item) => (
@@ -1295,36 +1300,36 @@ function SanFangSummaryCard({ analysis, plainSummary, meta, starBeasts, threeInO
       <div className="pointer-events-none absolute -right-12 -top-16 h-48 w-48 rounded-full border border-amber-200/15" />
       <div className="relative">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="hidden rounded-full border border-cyan-200/30 bg-cyan-300/10 px-3 py-1 text-[10px] font-black tracking-[0.2em] text-cyan-100" aria-hidden="true">I-CHING FUSION CARD</span>
-          <span className="inline-flex rounded-full border border-amber-200/20 bg-amber-300/[0.08] px-3 py-1.5 text-[10px] font-black tracking-[0.18em] text-amber-100/90">命・遷・官・財｜四宮合參</span>
+          <span className="hidden rounded-full border border-cyan-200/30 bg-cyan-300/10 px-3 py-1 text-[11px] font-black tracking-[0.2em] text-cyan-100" aria-hidden="true">I-CHING FUSION CARD</span>
+          <span className="inline-flex rounded-full border border-amber-200/20 bg-amber-300/[0.08] px-3 py-1.5 text-[11px] font-black tracking-[0.18em] text-amber-100/90">命・遷・官・財｜四宮合參</span>
         </div>
         <div className="mt-3 flex justify-end">
           <div className="min-w-[210px]">
             <div className="rounded-2xl border border-amber-200/30 bg-[linear-gradient(135deg,rgba(251,191,36,0.16),rgba(120,53,15,0.12))] px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]">
-              <p className="text-[10px] font-black tracking-[0.14em] text-amber-100/75">稱骨幾兩重</p>
+              <p className="text-[11px] font-black tracking-[0.14em] text-amber-100/75">稱骨幾兩重</p>
               <p className="mt-1 font-serif text-2xl font-black leading-none text-amber-200">{boneWeight?.display ?? '待換算'}</p>
-              <p className="mt-1 text-[10px] text-amber-100/65">農曆年・月・日・時加總</p>
+              <p className="mt-1 text-[11px] text-amber-100/65">農曆年・月・日・時加總</p>
             </div>
           </div>
         </div>
 
         {boneWeight && <div className="mt-4 rounded-2xl border border-amber-200/15 bg-black/20 px-4 py-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[10px] font-black tracking-[0.16em] text-amber-100/80">標準計算明細</p>
-            <p className="text-[10px] text-[color:var(--text-muted)]">{boneWeight.lunarDateLabel}{boneWeight.isHourEstimated ? '・時辰暫以午時估算' : ''}</p>
+            <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">標準計算明細</p>
+            <p className="text-[11px] text-[color:var(--text-muted)]">{boneWeight.lunarDateLabel}{boneWeight.isHourEstimated ? '・時辰暫以午時估算' : ''}</p>
           </div>
-          <div className="mt-3 grid grid-cols-4 gap-2">
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {boneWeight.components.map((item) => (
               <div key={item.label} className="rounded-xl border border-white/10 bg-white/[0.03] px-2 py-2 text-center">
-                <p className="text-[10px] text-[color:var(--text-muted)]">{item.label}｜{item.value}</p>
-                <p className="mt-1 font-serif text-base font-black text-amber-100">{formatQian(item.qian)}</p>
+                <p className="text-[11px] text-[color:var(--text-muted)]">{item.label}｜{item.value}</p>
+                <p className="mt-1 whitespace-nowrap font-serif text-base font-black text-amber-100">{formatQian(item.qian)}</p>
               </div>
             ))}
           </div>
         </div>}
 
         <div className="hidden mt-5 rounded-2xl border border-amber-200/15 bg-black/20 px-4 py-3" aria-hidden="true">
-          <p className="text-[10px] font-black tracking-[0.18em] text-amber-100/70">定格依據</p>
+          <p className="text-[11px] font-black tracking-[0.18em] text-amber-100/70">定格依據</p>
           <p className="mt-1 text-sm font-black leading-6 text-amber-100">{analysis.pattern.basis}</p>
         </div>
 
@@ -1340,16 +1345,16 @@ function SanFangSummaryCard({ analysis, plainSummary, meta, starBeasts, threeInO
                 <span className={`pointer-events-none absolute -right-1 -top-6 font-serif text-[112px] font-black leading-none opacity-[0.08] ${tone.text}`}>{label.glyph}</span>
                 <div className="relative flex items-start justify-between gap-3">
                   <div>
-                    <p className={`text-[10px] font-black tracking-[0.18em] ${tone.text}`}>{label.role}</p>
+                    <p className={`text-[11px] font-black tracking-[0.18em] ${tone.text}`}>{label.role}</p>
                     <h3 className="mt-1 font-serif text-2xl font-black text-white">{label.name}</h3>
                   </div>
-                  <span className={`rounded-full border border-white/15 bg-black/20 px-2.5 py-1 text-[10px] font-black ${tone.text}`}>{label.index}</span>
+                  <span className={`rounded-full border border-white/15 bg-black/20 px-2.5 py-1 text-[11px] font-black ${tone.text}`}>{label.index}</span>
                 </div>
                 <div className="relative mt-5 flex flex-wrap gap-2">
                   {stars.length ? stars.map((star) => (
                     <span key={star.name} className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-sm font-black ${tone.chip}`}>
                       {star.name}
-                      {star.brightness && <em className={`rounded px-1.5 py-0.5 text-[10px] not-italic ${tone.brightness}`}>{star.brightness}</em>}
+                      {star.brightness && <em className={`rounded px-1.5 py-0.5 text-[11px] not-italic ${tone.brightness}`}>{star.brightness}</em>}
                     </span>
                   )) : <span className="text-sm font-semibold text-white/55">無十四主星坐守</span>}
                 </div>
@@ -1370,7 +1375,7 @@ function SanFangSummaryCard({ analysis, plainSummary, meta, starBeasts, threeInO
             aria-label="紫微神獸卡本次不產出"
             data-star-beasts="UNAVAILABLE"
           >
-            <p className="text-[10px] font-black tracking-[0.16em] text-cyan-100">紫微斗數 × 二十八宿神獸</p>
+            <p className="text-[11px] font-black tracking-[0.16em] text-cyan-100">紫微斗數 × 二十八宿神獸</p>
             <p className="mt-2 text-[11px] font-semibold leading-5 text-white/60">
               {threeInOne?.status === 'TIME_UNKNOWN'
                 ? threeInOne.noHourMethod.layers.find((layer) => layer.layer === '神獸卡')?.reason
@@ -1387,12 +1392,12 @@ function SanFangSummaryCard({ analysis, plainSummary, meta, starBeasts, threeInO
         <section className="mt-3 rounded-2xl border border-white/10 bg-black/20 p-3" aria-label="紫微斗數與二十八宿神獸連結" data-star-beasts="READY">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <p className="text-[10px] font-black tracking-[0.16em] text-cyan-100">紫微斗數 × 二十八宿神獸</p>
+              <p className="text-[11px] font-black tracking-[0.16em] text-cyan-100">紫微斗數 × 二十八宿神獸</p>
               <p className="mt-1 text-[11px] font-semibold leading-5 text-white/55">四張宮位先看本宮主星；空宮才依三方四正借星，固定對應一張二十八宿收藏卡。</p>
             </div>
-            <Link href="/star-beasts" className="rounded-full border border-cyan-100/25 px-3 py-1.5 text-[10px] font-black text-cyan-50">查看 28 張神獸</Link>
+            <Link href="/star-beasts" className="rounded-full border border-cyan-100/25 px-3 py-1.5 text-[11px] font-black text-cyan-50">查看 28 張神獸</Link>
           </div>
-          <p className="mt-2 text-[10px] font-semibold leading-4 text-white/40">這是依正式紫微資料建立的遊戲收藏連結，不宣稱為傳統紫微斗數既有的二十八宿定盤規則。</p>
+          <p className="mt-2 text-[11px] font-semibold leading-4 text-white/40">這是依正式紫微資料建立的遊戲收藏連結，不宣稱為傳統紫微斗數既有的二十八宿定盤規則。</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {(['MING', 'QIAN_YI', 'GUAN_LU', 'CAI_BO'] as const).map((key) => {
             const label = palaceLabels[key];
@@ -1412,15 +1417,15 @@ function SanFangSummaryCard({ analysis, plainSummary, meta, starBeasts, threeInO
             const visual = link ? beastVisualTone[link.season] : null;
             return (
               <article key={`${key}-star-beast`} className={`relative min-h-[280px] overflow-hidden rounded-[26px] border p-4 shadow-[0_18px_42px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.14)] ${link ? `bg-gradient-to-br ${visual?.panel}` : tone.card}`}>
-                {link && <img src={link.beast.image} alt="" aria-hidden="true" className="pointer-events-none absolute -right-7 -top-8 h-[220px] w-[156px] opacity-[0.16] blur-[1px] object-cover" />}
+                {link && <img src={link.beast.image} alt="" aria-hidden="true" loading="lazy" decoding="async" className="pointer-events-none absolute -right-7 -top-8 h-[220px] w-[156px] opacity-[0.16] blur-[1px] object-cover" />}
                 {link && <div aria-hidden="true" className={`pointer-events-none absolute -right-16 top-20 h-44 w-44 rounded-full blur-3xl ${visual?.glow}`} />}
                 <span className={`pointer-events-none absolute -right-1 -top-7 font-serif text-[104px] font-black opacity-[0.08] ${tone.text}`}>{label.glyph}</span>
                 <div className="relative flex items-start justify-between gap-3">
                   <div>
-                    <p className={`text-[10px] font-black tracking-[0.18em] ${tone.text}`}>{label.role}・星宿神獸卡</p>
+                    <p className={`text-[11px] font-black tracking-[0.18em] ${tone.text}`}>{label.role}・星宿神獸卡</p>
                     <h4 className="mt-1 font-serif text-2xl font-black text-white">{label.name}</h4>
                   </div>
-                  <span className={`rounded-full border border-white/15 bg-black/20 px-2.5 py-1 text-[10px] font-black ${tone.text}`}>{label.index}</span>
+                  <span className={`rounded-full border border-white/15 bg-black/20 px-2.5 py-1 text-[11px] font-black ${tone.text}`}>{label.index}</span>
                 </div>
                 {link ? (
                   <div className="relative mt-4 grid min-h-[144px] grid-cols-2 overflow-hidden rounded-2xl border border-white/15 bg-black/20">
@@ -1432,18 +1437,18 @@ function SanFangSummaryCard({ analysis, plainSummary, meta, starBeasts, threeInO
                         className="relative h-full min-h-[144px]"
                         imageClassName="h-full min-h-[144px] w-full object-cover object-center shadow-[0_16px_30px_rgba(0,0,0,0.38)]"
                         overlayClassName="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-transparent px-2 pb-2 pt-8"
-                        buttonClassName="mt-1 rounded-full border border-white/20 bg-slate-950/75 px-2 py-1 text-[9px] font-black text-cyan-50 transition hover:border-cyan-100/60"
+                        buttonClassName="mt-1 rounded-full border border-white/20 bg-slate-950/75 px-2 py-1 text-[11px] font-black text-cyan-50 transition hover:border-cyan-100/60"
                       />
                     </div>
                     <div className="min-w-0 p-3">
-                      <p className={`text-[10px] font-black tracking-[0.14em] ${visual?.text}`}>{link.seasonLabel}・{link.productElement}訊號</p>
-                      <p className="mt-1 text-[10px] font-semibold leading-4 text-white/60">先看本命神獸的守護力量；神獸幼子需主動查看。</p>
+                      <p className={`text-[11px] font-black tracking-[0.14em] ${visual?.text}`}>{link.seasonLabel}・{link.productElement}訊號</p>
+                      <p className="mt-1 text-[11px] font-semibold leading-4 text-white/60">先看本命神獸的守護力量；神獸幼子需主動查看。</p>
                       <p className="mt-2 text-xs font-semibold leading-5 text-white/70">{link.beast.coreMeaning}</p>
                       <div className="mt-3 flex flex-wrap gap-1.5">
                         {(palace?.majorStars.length ? palace.majorStars : link.sourceStar ? [link.sourceStar] : []).map((star) => (
                           <span key={star} className={`rounded-lg border px-2 py-1 text-xs font-black ${tone.chip}`}>{star}</span>
                         ))}
-                        {!palace?.majorStars.length && link.borrowedPalaceName && <span className="rounded-lg border border-white/15 bg-black/20 px-2 py-1 text-[10px] font-bold text-white/65">借{link.borrowedPalaceName}主星</span>}
+                        {!palace?.majorStars.length && link.borrowedPalaceName && <span className="rounded-lg border border-white/15 bg-black/20 px-2 py-1 text-[11px] font-bold text-white/65">借{link.borrowedPalaceName}主星</span>}
                       </div>
                     </div>
                   </div>
@@ -1463,7 +1468,7 @@ function SanFangSummaryCard({ analysis, plainSummary, meta, starBeasts, threeInO
             ['遷移對宮訊號', analysis.patternMetrics.oppositePalaceStarCount],
           ].map(([label, value]) => (
             <div key={label} className="rounded-xl border border-white/10 bg-black/20 px-2 py-3 text-center">
-              <p className="text-[10px] font-bold leading-4 text-[color:var(--text-muted)]">{label}</p>
+              <p className="text-[11px] font-bold leading-4 text-[color:var(--text-muted)]">{label}</p>
               <p className="mt-1 text-xl font-black text-cyan-100">{value}</p>
             </div>
           ))}
@@ -1748,7 +1753,7 @@ function getZiweiAiElementPriorities(fiveElement?: FiveElementIntegrationResult)
     return {
       label: ['第一補強', '第二補強', '第三補強'][index] ?? '後續補強',
       element: `${element}元素`,
-      detail: `易經卜卦判定：目前${index === 0 ? '最需要' : '依序需要'}補強 ${element}元素${typeof need === 'number' ? `，補強需求 ${need} 分` : ''}。`,
+      detail: `依五元素分數：目前${index === 0 ? '最需要' : '依序需要'}補強 ${element}元素${typeof need === 'number' ? `，補強需求 ${need} 分` : ''}。`,
     };
   });
 }
@@ -2421,7 +2426,7 @@ function ZiweiProfessionalTeacherMode({
                 <div key={star.name} className="rounded-2xl border border-white/10 bg-white/[0.045] p-3">
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-serif text-lg font-black text-amber-50">{star.name}</p>
-                    <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-2 py-0.5 text-[10px] font-black text-cyan-100">{star.element}</span>
+                    <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-2 py-0.5 text-[11px] font-black text-cyan-100">{star.element}</span>
                   </div>
                   <p className="mt-2 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">{star.role}</p>
                   <p className="mt-2 text-[11px] font-black text-amber-100/80">{locatedPalaces.length ? locatedPalaces.join('、') : '未坐守，需借對宮與三方四正參照'}</p>
@@ -2438,7 +2443,7 @@ function ZiweiProfessionalTeacherMode({
               <div key={star.name} className="rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-2">
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-black text-cyan-50">{star.name}</p>
-                  <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-2 py-0.5 text-[10px] font-black text-amber-100">{star.group}</span>
+                  <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-2 py-0.5 text-[11px] font-black text-amber-100">{star.group}</span>
                 </div>
                 <p className="mt-1 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">{star.role}</p>
               </div>
@@ -2474,7 +2479,7 @@ function ZiweiProfessionalTeacherMode({
               <article key={palace.key} className="rounded-[20px] border border-white/10 bg-slate-950/42 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
                 <div className="flex items-center justify-between gap-2">
                   <h6 className="font-serif text-xl font-black text-cyan-50">{palaceName}</h6>
-                  <span className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[10px] font-black text-cyan-100">
+                  <span className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[11px] font-black text-cyan-100">
                     {palace.palaceStem || '宮干'}{palace.branch || '地支'}
                   </span>
                 </div>
@@ -2563,7 +2568,7 @@ function ZiweiTeacherEvidenceRefs({ refs }: { refs: string[] }) {
   return (
     <div className="mt-3 flex flex-wrap gap-2">
       {refs.map((ref, index) => (
-        <span key={index} className="rounded-full border border-white/10 bg-black/18 px-2.5 py-1 text-[11px] font-bold text-white/55">{ref}</span>
+        <span key={index} className="rounded-2xl border border-white/10 bg-black/18 px-2.5 py-1 text-xs font-bold leading-5 text-white/70">{ref}</span>
       ))}
     </div>
   );
@@ -2664,7 +2669,7 @@ function ZiweiHorrorGhostMovieView({
       <div aria-hidden="true" className="pointer-events-none absolute -left-14 bottom-8 h-44 w-44 rounded-full bg-violet-500/10 blur-3xl" />
       <div className="relative flex flex-wrap items-center justify-between gap-2">
         <p className="text-[11px] font-black tracking-[0.18em] text-rose-100">鬼魅老師解盤・紫微沉浸式電影模式</p>
-        <span className="rounded-full border border-rose-200/25 bg-rose-500/10 px-2.5 py-1 text-[10px] font-black tracking-[0.12em] text-rose-100">原創虛構遊戲</span>
+        <span className="rounded-full border border-rose-200/25 bg-rose-500/10 px-2.5 py-1 text-[11px] font-black tracking-[0.12em] text-rose-100">原創虛構遊戲</span>
       </div>
       <p className="relative mt-2 rounded-xl border border-violet-200/15 bg-black/25 px-3 py-2 text-xs font-bold leading-5 text-violet-100/80">戲劇化紫微命盤遊戲情境：只以本宮、主星、三方四正與時間層創作，不代表已發生的真實事件。</p>
       <p className="relative mt-3 text-base font-black leading-7 text-rose-50">{name}，你現在 {ageLabel}；你的{palaceName}命盤正在打開。恐怖是壓力的逼近；鬼魅是同一張命盤最後浮現的象徵畫面。</p>
@@ -2676,12 +2681,12 @@ function ZiweiHorrorGhostMovieView({
           <div aria-hidden="true" className="absolute -right-6 -top-8 text-8xl font-black text-rose-100/[0.05]">封</div>
           <div className="relative flex items-center justify-between gap-3">
             <p className="text-[11px] font-black tracking-[0.18em] text-rose-100">本局遊戲任務</p>
-            <span className="rounded-full border border-rose-100/25 bg-black/25 px-2 py-1 text-[10px] font-black text-rose-100">三幕試煉</span>
+            <span className="rounded-full border border-rose-100/25 bg-black/25 px-2 py-1 text-[11px] font-black text-rose-100">三幕試煉</span>
           </div>
           <div className="relative mt-3 grid grid-cols-3 gap-2">
-            <div className="rounded-xl border border-white/10 bg-black/20 p-2"><p className="text-[9px] font-black tracking-[0.12em] text-rose-100/70">舞台</p><p className="mt-1 text-[11px] font-black leading-4 text-white">{palaceName}</p></div>
-            <div className="rounded-xl border border-white/10 bg-black/20 p-2"><p className="text-[9px] font-black tracking-[0.12em] text-rose-100/70">線索</p><p className="mt-1 line-clamp-2 text-[11px] font-black leading-4 text-white">{evidenceRefs.slice(0, 2).join('・') || '正式命盤訊號'}</p></div>
-            <div className="rounded-xl border border-white/10 bg-black/20 p-2"><p className="text-[9px] font-black tracking-[0.12em] text-rose-100/70">出口</p><p className="mt-1 text-[11px] font-black leading-4 text-white">{treasure.label}元素寶珠</p></div>
+            <div className="rounded-xl border border-white/10 bg-black/20 p-2"><p className="text-[11px] font-black tracking-[0.12em] text-rose-100/70">舞台</p><p className="mt-1 text-[11px] font-black leading-4 text-white">{palaceName}</p></div>
+            <div className="rounded-xl border border-white/10 bg-black/20 p-2"><p className="text-[11px] font-black tracking-[0.12em] text-rose-100/70">線索</p><p className="mt-1 line-clamp-2 text-[11px] font-black leading-4 text-white">{evidenceRefs.slice(0, 2).join('・') || '正式命盤訊號'}</p></div>
+            <div className="rounded-xl border border-white/10 bg-black/20 p-2"><p className="text-[11px] font-black tracking-[0.12em] text-rose-100/70">出口</p><p className="mt-1 text-[11px] font-black leading-4 text-white">{treasure.label}元素寶珠</p></div>
           </div>
         </section>
       )}
@@ -2712,7 +2717,7 @@ function ZiweiHorrorGhostMovieView({
         {ritualOpening && <section className="mt-3 rounded-xl border border-amber-100/25 bg-black/25 px-3 py-3" aria-live="polite">
           <div className="flex items-center justify-between gap-2">
             <p className="text-[11px] font-black tracking-[0.12em] text-amber-100">{ritual.title}</p>
-            <p className="text-[10px] font-bold text-amber-50/65">十二秒儀式</p>
+            <p className="text-[11px] font-bold text-amber-50/65">十二秒儀式</p>
           </div>
           <p className="mt-2 text-sm font-semibold leading-6 text-amber-50">{ritual.scenes[ritualStage ?? 0]}</p>
           <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-black/40">
@@ -2748,7 +2753,7 @@ function ZiweiHorrorGhostMovieView({
           ['功能 03', '因果', '因果鏈拆解・破印喚醒本源'],
         ].map(([time, title, detail], index) => (
           <div key={time} className={`rounded-xl border p-3 ${index === 1 ? 'border-rose-200/35 bg-rose-500/10' : 'border-white/10 bg-black/20'}`}>
-            <p className="text-[10px] font-black tracking-[0.16em] text-rose-200/80">{time}</p>
+            <p className="text-[11px] font-black tracking-[0.16em] text-rose-200/80">{time}</p>
             <p className="mt-1 text-sm font-black text-white">{title}</p>
             <p className="mt-1 text-[11px] font-semibold leading-4 text-white/55">{detail}</p>
           </div>
@@ -2786,8 +2791,8 @@ function ZiweiHorrorGhostMovieView({
         <p className="ghost-reply-lead relative mt-3">「{name}，{palaceName}的門沒有關好。」</p>
         <p className="ghost-reply-copy relative mt-2">「{ghostReply}」</p>
         <div className="relative mt-3 grid grid-cols-2 gap-2 border-t border-rose-100/15 pt-3">
-          <p className="rounded-xl border border-rose-100/15 bg-black/20 px-2.5 py-2 text-[11px] font-semibold leading-5 text-violet-100/80"><span className="block text-[9px] font-black tracking-[0.14em] text-rose-100/80">它盯上的線索</span>{evidenceRefs.slice(0, 1).join('') || `${palaceName}的正式命盤訊號`}</p>
-          <p className="rounded-xl border border-rose-100/15 bg-black/20 px-2.5 py-2 text-[11px] font-semibold leading-5 text-violet-100/80"><span className="block text-[9px] font-black tracking-[0.14em] text-rose-100/80">它留下的問題</span>{life.blindSpot}</p>
+          <p className="rounded-xl border border-rose-100/15 bg-black/20 px-2.5 py-2 text-[11px] font-semibold leading-5 text-violet-100/80"><span className="block text-[11px] font-black tracking-[0.14em] text-rose-100/80">它盯上的線索</span>{evidenceRefs.slice(0, 1).join('') || `${palaceName}的正式命盤訊號`}</p>
+          <p className="rounded-xl border border-rose-100/15 bg-black/20 px-2.5 py-2 text-[11px] font-semibold leading-5 text-violet-100/80"><span className="block text-[11px] font-black tracking-[0.14em] text-rose-100/80">它留下的問題</span>{life.blindSpot}</p>
         </div>
         <p className="relative mt-3 border-l-2 border-rose-300/50 pl-3 text-xs font-semibold leading-5 text-violet-100/80">邪印仍壓著{palaceName}的答案。破開封鎖、讓元素本源甦醒，才會走進本局的下一幕。</p>
       </section>
@@ -2808,7 +2813,7 @@ function ZiweiTeacherResultView({ result }: { result: StructureTeacherResult | L
           <p><span className="font-black text-emerald-200">可用優勢：</span>{result.structuralStrength}</p>
           <p><span className="font-black text-cyan-200">當前方向：</span>{result.futureTendency} {result.conclusion}</p>
           <details className="rounded-xl border border-white/10 bg-black/10 px-3 py-2">
-            <summary className="cursor-pointer text-sm font-black text-purple-200">查看命盤依據</summary>
+            <summary className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 text-sm font-black text-purple-200">查看命盤依據<span aria-hidden="true" className="shrink-0 text-xs font-bold opacity-70">點開 ▾</span></summary>
             <div className="mt-2 grid gap-2 text-sm leading-6 text-[color:var(--text-sub)]">
               <p><span className="font-black text-purple-200">三方四正：</span>{result.threeHarmonySynthesis}</p>
               <p><span className="font-black text-purple-200">四化效應：</span>{result.transformationEffect}</p>
@@ -2828,7 +2833,7 @@ function ZiweiTeacherResultView({ result }: { result: StructureTeacherResult | L
       <div className="mt-4">
         <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">鬼魅老師解盤｜命盤壓力依據</p>
         <div className="mt-3 rounded-2xl border border-rose-300/25 bg-gradient-to-br from-rose-950/50 via-purple-950/35 to-slate-950/55 px-4 py-3 shadow-[inset_0_0_32px_rgba(244,63,94,0.12)]">
-          <p className="text-[10px] font-black tracking-[0.18em] text-rose-200/90">本宮驚悚開場・戲劇化風險情境</p>
+          <p className="text-[11px] font-black tracking-[0.18em] text-rose-200/90">本宮驚悚開場・戲劇化風險情境</p>
           <p className="mt-1 font-serif text-base font-bold leading-7 text-rose-50">{result.fearScene}</p>
         </div>
         <h4 className="mt-2 font-serif text-xl font-black leading-tight text-purple-50">{result.lifeMeaning}</h4>
@@ -2901,7 +2906,7 @@ function ZiweiTeacherTarotBridgePanel({ cards }: { cards: ZiweiTeacherTarotSlot[
                 loading="lazy"
                 className="mx-auto aspect-[275/480] w-full max-w-[180px] object-cover object-top sm:max-w-none"
               />
-              <span className="absolute left-3 top-3 rounded-full border border-amber-200/30 bg-black/55 px-2.5 py-1 text-[10px] font-black text-amber-100">
+              <span className="absolute left-3 top-3 rounded-full border border-amber-200/30 bg-black/55 px-2.5 py-1 text-[11px] font-black text-amber-100">
                 {String(index + 1).padStart(2, '0')}
               </span>
             </div>
@@ -2915,7 +2920,7 @@ function ZiweiTeacherTarotBridgePanel({ cards }: { cards: ZiweiTeacherTarotSlot[
               <p className="mt-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{item.role}</p>
               <p className="mt-2 text-xs font-semibold leading-6 text-amber-100/85">{item.chainText}</p>
               <details className="mt-3 rounded-xl border border-white/10 bg-black/18 p-3">
-                <summary className="cursor-pointer text-xs font-black text-cyan-100">{'\u9078\u724c\u4f9d\u64da'}</summary>
+                <summary className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 text-xs font-black text-cyan-100">{'\u9078\u724c\u4f9d\u64da'}<span aria-hidden="true" className="shrink-0 text-xs font-bold opacity-70">點開 ▾</span></summary>
                 <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{item.reason}</p>
               </details>
             </div>
@@ -2945,7 +2950,7 @@ function ZiweiReadingScanState({
     <div className={`mt-4 flex min-h-[88px] items-center gap-3 rounded-2xl border p-4 ${palette}`} role="status" aria-live="polite" aria-busy="true">
       <span aria-hidden="true" className={`h-7 w-7 shrink-0 animate-spin rounded-full border-2 ${accent}`} />
       <div className="min-w-0">
-        <p className={`text-[10px] font-black tracking-[0.18em] ${label}`}>命盤掃描中</p>
+        <p className={`text-[11px] font-black tracking-[0.18em] ${label}`}>命盤掃描中</p>
         <p className="mt-1 text-sm font-black leading-6">{title}</p>
         <p className={`mt-1 text-xs font-semibold leading-5 ${label}`}>{detail}</p>
       </div>
@@ -3188,10 +3193,10 @@ function ZiweiTeacherSynthesisPanel({
       {showTarotBridge && <ZiweiTeacherTarotBridgePanel cards={synthesis.tarotBridge} />}
 
       <details className="mt-4 rounded-xl border border-white/10 bg-black/18 p-3">
-        <summary className="flex min-h-[48px] cursor-pointer items-center text-sm font-black text-purple-100">本宮與主星</summary>
+        <summary className="flex min-h-[48px] cursor-pointer items-center justify-between gap-3 text-sm font-black text-purple-100">本宮與主星<span aria-hidden="true" className="shrink-0 text-xs font-bold text-purple-200/75">點開 ▾</span></summary>
         <p className="mt-2 text-base font-semibold leading-7 text-[color:var(--text-main)]">{synthesis.harmonyTexts[0]?.text ?? ''}</p>
         <details className="mt-2 rounded-lg border border-white/10 bg-white/[0.03] p-2.5">
-          <summary className="cursor-pointer text-xs font-bold text-purple-200/80">為什麼？</summary>
+          <summary className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 text-xs font-bold text-purple-200/80">為什麼？<span aria-hidden="true" className="shrink-0 text-xs font-bold opacity-70">點開 ▾</span></summary>
           <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
             命盤資料：{synthesis.originName}主星＝{synthesis.structure.origin.majorStars.join('、') || '無'}；宮干 {synthesis.structure.origin.palaceStem || '未提供'}／地支 {synthesis.structure.origin.branch || '未提供'}。
           </p>
@@ -3199,7 +3204,7 @@ function ZiweiTeacherSynthesisPanel({
       </details>
 
       <details className="mt-3 rounded-xl border border-white/10 bg-black/18 p-3">
-        <summary className="flex min-h-[48px] cursor-pointer items-center text-sm font-black text-purple-100">三方四正</summary>
+        <summary className="flex min-h-[48px] cursor-pointer items-center justify-between gap-3 text-sm font-black text-purple-100">三方四正<span aria-hidden="true" className="shrink-0 text-xs font-bold text-purple-200/75">點開 ▾</span></summary>
         <div className="mt-2 grid gap-2">
           {synthesis.harmonyTexts.map((item) => (
             <p key={item.zoneKey} className="text-base font-semibold leading-7 text-[color:var(--text-main)]">
@@ -3209,7 +3214,7 @@ function ZiweiTeacherSynthesisPanel({
         </div>
         {synthesis.crossCheck && (
           <details className="mt-2 rounded-lg border border-white/10 bg-white/[0.03] p-2.5">
-            <summary className="cursor-pointer text-xs font-bold text-purple-200/80">為什麼？</summary>
+            <summary className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 text-xs font-bold text-purple-200/80">為什麼？<span aria-hidden="true" className="shrink-0 text-xs font-bold opacity-70">點開 ▾</span></summary>
             <p data-rule-id={synthesis.crossCheck.ruleId} className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
               八字交叉對照：{synthesis.crossCheck.title}．{synthesis.crossCheck.detail}
             </p>
@@ -3218,7 +3223,7 @@ function ZiweiTeacherSynthesisPanel({
       </details>
 
       <details className="mt-3 rounded-xl border border-white/10 bg-black/18 p-3">
-        <summary className="flex min-h-[48px] cursor-pointer items-center text-sm font-black text-purple-100">四化與輔星</summary>
+        <summary className="flex min-h-[48px] cursor-pointer items-center justify-between gap-3 text-sm font-black text-purple-100">四化與輔星<span aria-hidden="true" className="shrink-0 text-xs font-bold text-purple-200/75">點開 ▾</span></summary>
         <div className="mt-2 grid gap-1.5">
           {synthesis.transformationEffects.length ? (
             synthesis.transformationEffects.map((item, index) => (
@@ -3237,7 +3242,7 @@ function ZiweiTeacherSynthesisPanel({
       </details>
 
       <details className="mt-3 rounded-xl border border-white/10 bg-black/18 p-3">
-        <summary className="flex min-h-[48px] cursor-pointer items-center text-sm font-black text-purple-100">大限／流年</summary>
+        <summary className="flex min-h-[48px] cursor-pointer items-center justify-between gap-3 text-sm font-black text-purple-100">大限／流年<span aria-hidden="true" className="shrink-0 text-xs font-bold text-purple-200/75">點開 ▾</span></summary>
         <div className="mt-2 grid gap-2.5">
           <p className="text-base font-semibold leading-7 text-[color:var(--text-main)]">
             <span className="font-black text-purple-200">大限：</span>大限（十年運）目前還沒有排盤資料，這裡不猜，先以今年流年為準。
@@ -3253,7 +3258,7 @@ function ZiweiTeacherSynthesisPanel({
       </details>
 
       <details className="mt-3 rounded-xl border border-purple-200/20 bg-purple-300/[0.06] p-3">
-        <summary className="flex min-h-[48px] cursor-pointer items-center text-sm font-black text-purple-100">老師完整判讀</summary>
+        <summary className="flex min-h-[48px] cursor-pointer items-center justify-between gap-3 text-sm font-black text-purple-100">老師完整判讀<span aria-hidden="true" className="shrink-0 text-xs font-bold text-purple-200/75">點開 ▾</span></summary>
         <div className="mt-2 grid gap-2.5">
           <p className="text-base font-semibold leading-7 text-[color:var(--text-main)]"><span className="font-black text-purple-200">格局：</span>{synthesis.corePattern}</p>
           <p className="text-base font-semibold leading-7 text-[color:var(--text-main)]"><span className="font-black text-emerald-200">優勢：</span>{synthesis.strength}</p>
@@ -3309,7 +3314,7 @@ function ZiweiDestinyCardView({
             紫微負責排盤，命宮卡把結果翻成看得懂的話；星曜、宮位、四化與三方四正都能回頭對照命盤。
           </p>
         </div>
-        <span className={`rounded-full border px-3 py-1 text-[10px] font-black tracking-[0.14em] ${isReady ? 'border-emerald-200/30 bg-emerald-300/10 text-emerald-100' : 'border-amber-200/35 bg-amber-300/10 text-amber-100'}`}>
+        <span className={`rounded-full border px-3 py-1 text-[11px] font-black tracking-[0.14em] ${isReady ? 'border-emerald-200/30 bg-emerald-300/10 text-emerald-100' : 'border-amber-200/35 bg-amber-300/10 text-amber-100'}`}>
           {isReady ? '資料已核對' : '文化參考'}
         </span>
       </div>
@@ -3362,7 +3367,7 @@ function ZiweiDestinyCardView({
                   <div className="space-y-3">
                     <div className="flex flex-wrap justify-center gap-2">
                       {[archetypeLabel, ...elementLabels].slice(0, 4).map((item) => (
-                        <span key={item} className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[10px] font-black text-white/70">{item}</span>
+                        <span key={item} className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[11px] font-black text-white/70">{item}</span>
                       ))}
                     </div>
                     <p className="text-center text-[11px] font-bold leading-5 text-amber-100/70">點一下，翻出你的命宮塔羅牌</p>
@@ -3377,8 +3382,8 @@ function ZiweiDestinyCardView({
               >
                 <div className="relative flex h-full flex-col">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-[10px] font-black tracking-[0.22em] text-amber-100/80">命宮塔羅 · {card.palace.name}</p>
-                    <span className="rounded-full border border-amber-200/30 bg-amber-300/10 px-2 py-0.5 text-[9px] font-black text-amber-100">78 張現成牌庫</span>
+                    <p className="text-[11px] font-black tracking-[0.22em] text-amber-100/80">命宮塔羅 · {card.palace.name}</p>
+                    <span className="rounded-full border border-amber-200/30 bg-amber-300/10 px-2 py-0.5 text-[11px] font-black text-amber-100">78 張現成牌庫</span>
                   </div>
                   <div className="mt-3 flex-1 overflow-hidden rounded-2xl border border-white/12 bg-black/30">
                     {destinyTarot && (<img                      src={destinyTarot.imageUrl}                      alt={`命宮塔羅 ${destinyTarot.cardNameZh}`}                      loading="lazy"                      className="mx-auto h-full w-full object-contain object-center"                    />)}
@@ -3400,36 +3405,36 @@ function ZiweiDestinyCardView({
             <p className="mt-3 text-sm font-bold leading-7 text-[color:var(--text-main)]">{card.customerCopy.direction}</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                <p className="text-[10px] font-black text-white/45">主角</p>
+                <p className="text-[11px] font-black text-white/45">主角</p>
                 <p className="mt-1 text-sm font-black text-amber-50">{card.heroStars.map((star) => star.name).join(' × ') || '主星待確認'}</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                <p className="text-[10px] font-black text-white/45">支援符號</p>
+                <p className="text-[11px] font-black text-white/45">支援符號</p>
                 <p className="mt-1 text-sm font-black text-cyan-50">{card.supportingSymbols.slice(0, 4).join('、') || '回看命盤依據'}</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                <p className="text-[10px] font-black text-white/45">視覺氣質</p>
+                <p className="text-[11px] font-black text-white/45">視覺氣質</p>
                 <p className="mt-1 text-sm font-black text-emerald-50">{card.visualTheme.keywords.slice(0, 3).join('、')}</p>
               </div>
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                <p className="text-[10px] font-black tracking-[0.18em] text-emerald-100/70">核心力量</p>
+                <p className="text-[11px] font-black tracking-[0.18em] text-emerald-100/70">核心力量</p>
                 <p className="mt-1 text-sm font-bold leading-6 text-[color:var(--text-main)]">{card.customerCopy.power}</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                <p className="text-[10px] font-black tracking-[0.18em] text-rose-100/70">目前課題</p>
+                <p className="text-[11px] font-black tracking-[0.18em] text-rose-100/70">目前課題</p>
                 <p className="mt-1 text-sm font-bold leading-6 text-[color:var(--text-main)]">{card.customerCopy.challenge}</p>
               </div>
               <div className="rounded-2xl border border-amber-200/20 bg-amber-300/10 p-3">
-                <p className="text-[10px] font-black tracking-[0.18em] text-amber-100/75">立即行動</p>
+                <p className="text-[11px] font-black tracking-[0.18em] text-amber-100/75">立即行動</p>
                 <p className="mt-1 text-sm font-black leading-6 text-amber-50">{card.customerCopy.action}</p>
               </div>
             </div>
           </article>
 
           <details className="rounded-[24px] border border-white/10 bg-black/18 p-4">
-            <summary className="cursor-pointer text-sm font-black text-cyan-100">查看命盤依據</summary>
+            <summary className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 text-sm font-black text-cyan-100">查看命盤依據<span aria-hidden="true" className="shrink-0 text-xs font-bold opacity-70">點開 ▾</span></summary>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <p className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs font-semibold leading-6 text-[color:var(--text-main)]">主宮位：{card.evidence.palace}</p>
               <p className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs font-semibold leading-6 text-[color:var(--text-main)]">星曜：{card.evidence.stars.join('、') || '無星曜資料'}</p>
@@ -3618,13 +3623,13 @@ function ZiweiTwelvePalaceCards({
             </p>
             <p className="mt-2 text-xs font-black tracking-wide text-amber-100/85">主星亮度：廟、旺、得地、利益、平和、不得地、落陷</p>
           </div>
-          <span className="shrink-0 rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[10px] font-black tracking-[0.14em] text-cyan-100">{displayAnalysisId}</span>
+          <span className="shrink-0 rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-black tracking-[0.14em] text-cyan-100">{displayAnalysisId}</span>
         </div>
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {trustCards.map((item) => (
             <article key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.045] p-3">
-              <p className="text-[10px] font-black tracking-[0.18em] text-white/45">{item.label}</p>
+              <p className="text-[11px] font-black tracking-[0.18em] text-white/45">{item.label}</p>
               <p className="mt-1 break-words text-sm font-black leading-6 text-cyan-50">{item.value}</p>
               <p className="mt-2 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">{item.detail}</p>
             </article>
@@ -3633,12 +3638,12 @@ function ZiweiTwelvePalaceCards({
 
         <div className="mt-4">
           <article className="hidden rounded-2xl border border-amber-200/18 bg-amber-300/[0.07] p-4" aria-hidden="true">
-            <p className="text-[10px] font-black tracking-[0.18em] text-amber-100/70">星曜排列</p>
+            <p className="text-[11px] font-black tracking-[0.18em] text-amber-100/70">星曜排列</p>
             <h3 className="mt-1 font-serif text-xl font-black leading-tight text-amber-50">{formatStars(allMajorStars, '主星待確認')}</h3>
             <p className="mt-2 text-xs font-semibold leading-6 text-amber-100/82">{dataStatus}</p>
           </article>
           <article className="rounded-2xl border border-emerald-200/18 bg-emerald-300/[0.06] p-4">
-            <p className="text-[10px] font-black tracking-[0.18em] text-emerald-100/75">易經最終方向</p>
+            <p className="text-[11px] font-black tracking-[0.18em] text-emerald-100/75">易經最終方向</p>
             <h3 className="mt-1 text-sm font-black leading-6 text-emerald-50">{coreAction}</h3>
             <p className="mt-2 text-xs font-semibold leading-6 text-emerald-100/75">{coreTitle}：{coreReason}</p>
           </article>
@@ -3678,7 +3683,7 @@ function ZiweiTwelvePalaceCards({
             ['平和', 'border-slate-200/30 bg-slate-300/10 text-slate-100'],
             ['不得地', 'border-orange-200/35 bg-orange-300/10 text-orange-100'],
             ['弱陷', 'border-rose-200/35 bg-rose-300/10 text-rose-100'],
-          ].map(([label, tone]) => <span key={label} className={`rounded-full border px-2.5 py-1 text-[10px] font-black ${tone}`}>{label}</span>)}
+          ].map(([label, tone]) => <span key={label} className={`rounded-full border px-2.5 py-1 text-[11px] font-black ${tone}`}>{label}</span>)}
         </div>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {sortedPalaces.map((palace) => {
@@ -3705,14 +3710,14 @@ function ZiweiTwelvePalaceCards({
               <details key={palace.key} className={`group relative overflow-hidden rounded-[24px] border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_16px_34px_rgba(2,6,23,0.22)] transition duration-300 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-[0_22px_42px_rgba(2,6,23,0.4)] ${visual.tone}`}>
                 <span className={`pointer-events-none absolute -right-2 -top-8 font-serif text-[118px] font-black leading-none opacity-[0.08] ${visual.accent}`}>{visual.glyph}</span>
                 <span className="pointer-events-none absolute bottom-5 right-5 h-2 w-2 rounded-full bg-white/60 shadow-[0_0_18px_rgba(255,255,255,0.95)]" />
-                <summary className="relative flex min-h-[132px] cursor-pointer touch-manipulation select-none list-none items-center justify-between gap-4 rounded-2xl px-3 py-4 [-webkit-tap-highlight-color:transparent] [&::-webkit-details-marker]:hidden">
+                <summary className="relative flex min-h-[132px] cursor-pointer touch-manipulation select-none list-none flex-col items-stretch gap-3 rounded-2xl px-3 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 [-webkit-tap-highlight-color:transparent] [&::-webkit-details-marker]:hidden">
                   {/*
                     收合狀態原本十二張卡寫的都是同一句「點選按鈕展開完整資料」，
                     命宮和父母宮長得一模一樣，客戶不知道該點哪一個，也看不出哪一宮重要。
                     主星、亮度、四化這些資料本來就在 palace 裡，收合時先給一行摘要。
                   */}
                   <div className="min-w-0">
-                    <h4 className="font-serif text-[2.6rem] font-black leading-none tracking-[0.08em] text-white drop-shadow-[0_4px_18px_rgba(255,255,255,0.16)] sm:text-5xl">{palaceName}</h4>
+                    <h4 className="whitespace-nowrap font-serif text-[2.25rem] font-black leading-none tracking-[0.06em] text-white drop-shadow-[0_4px_18px_rgba(255,255,255,0.16)] sm:text-5xl">{palaceName}</h4>
                     <p className={`mt-2.5 text-sm font-black leading-6 ${visual.accent} group-open:hidden`}>
                       {palace.majorStars.length ? palace.majorStars.join('・') : '無主星・借對宮判讀'}
                       {palace.majorStars.length > 0 && brightnessByStar.get(palace.majorStars[0]) && (
@@ -3731,7 +3736,7 @@ function ZiweiTwelvePalaceCards({
                       <span className="hidden group-open:inline">完整資料如下</span>
                     </p>
                   </div>
-                  <span className={`rounded-full border px-4 py-2 text-sm font-black shadow-[0_8px_20px_rgba(2,6,23,0.2)] ${visual.chip}`}><span className="group-open:hidden">查看{palaceName}資料</span><span className="hidden group-open:inline">收起資料</span></span>
+                  <span className={`whitespace-nowrap rounded-full border px-4 py-2.5 text-center text-sm font-black shadow-[0_8px_20px_rgba(2,6,23,0.2)] ${visual.chip}`}><span className="group-open:hidden">查看{palaceName}資料</span><span className="hidden group-open:inline">收起資料</span></span>
                 </summary>
                 <div className="relative border-t border-white/10 pt-4">
                 <div className="flex items-start justify-between gap-3">
@@ -3739,21 +3744,21 @@ function ZiweiTwelvePalaceCards({
                   <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-black ${visual.chip}`}>{palace.palaceStem}{palace.branch}</span>
                 </div>
                 <div className="relative mt-4">
-                  <p className="text-[10px] font-black tracking-[0.16em] text-white/50">主星核心</p>
+                  <p className="text-[11px] font-black tracking-[0.16em] text-white/50">主星核心</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {(palace.majorStars.length ? palace.majorStars : ['無十四主星']).map((star) => {
                       const brightness = brightnessByStar.get(star);
-                      return <span key={star} className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-sm font-black ${visual.chip}`}>{star}{brightness && <em className={`rounded-full border px-1.5 py-0.5 text-[10px] not-italic ${brightnessTone(brightness)}`}>{normalizeBrightness(brightness)}</em>}</span>;
+                      return <span key={star} className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-sm font-black ${visual.chip}`}>{star}{brightness && <em className={`rounded-full border px-1.5 py-0.5 text-[11px] not-italic ${brightnessTone(brightness)}`}>{normalizeBrightness(brightness)}</em>}</span>;
                     })}
                   </div>
                 </div>
-                <div className="relative mt-4 flex flex-wrap gap-2 text-[10px] font-bold">
+                <div className="relative mt-4 flex flex-wrap gap-2 text-[11px] font-bold">
                   <span className="rounded-full border border-emerald-200/20 bg-emerald-300/10 px-2 py-1 text-emerald-100">吉 {formatStars(palace.auspiciousStars ?? [], '—')}</span>
                   <span className="rounded-full border border-rose-200/20 bg-rose-300/10 px-2 py-1 text-rose-100">煞 {formatStars(palace.maleficStars ?? [], '—')}</span>
                   <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-2 py-1 text-cyan-100">四化 {formatStars(palace.transformations, '—')}</span>
                 </div>
                 <div className="relative mt-4 rounded-xl border border-white/10 bg-black/20 p-3">
-                  <p className="text-[10px] font-black tracking-[0.15em] text-white/55">完整星曜明細</p>
+                  <p className="text-[11px] font-black tracking-[0.15em] text-white/55">完整星曜明細</p>
                   <p className="mt-2 text-xs font-semibold leading-6 text-white/70">輔星小星：{formatStars(palace.minorStars, '未集中顯示')}</p>
                   <p className="mt-1 text-[11px] font-semibold leading-5 text-white/45">宮干 {palace.palaceStem || '—'} · 地支 {palace.branch || '—'} · {palace.focus}</p>
                 </div>
@@ -3770,7 +3775,7 @@ function ZiweiTwelvePalaceCards({
                     <span className="block text-sm font-black">{teacherPalaceKey === palace.key ? '本宮老師解盤已顯示' : '查看兩位老師解盤'}</span>
                     <span className="mt-1 block text-[11px] font-bold leading-4 text-purple-100/75">易經老師解盤 · 鬼魅老師解盤</span>
                   </span>
-                  <span className="shrink-0 rounded-full border border-amber-200/30 bg-amber-300/10 px-2.5 py-1 text-[10px] font-black text-amber-100">本宮＋三方四正</span>
+                  <span className="shrink-0 rounded-full border border-amber-200/30 bg-amber-300/10 px-2.5 py-1 text-[11px] font-black text-amber-100">本宮＋三方四正</span>
                 </button>
                 </div>
               </details>
@@ -3918,7 +3923,7 @@ function ZiweiPalaceStoryPanel({
 
         <div className="mt-4 grid gap-3 lg:grid-cols-3">
           <article className="rounded-2xl border border-cyan-200/18 bg-cyan-950/18 p-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-200">Layer 1</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-cyan-200">Layer 1</p>
             <h5 className="mt-2 text-base font-black text-cyan-50">專業命盤底盤</h5>
             <p className="mt-2 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{palaceBlueprint.layerOne}</p>
             <div className="mt-3 grid gap-2">
@@ -3926,10 +3931,10 @@ function ZiweiPalaceStoryPanel({
                 <div key={star.name} className="rounded-xl border border-white/10 bg-black/18 px-3 py-2">
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-black text-cyan-50">{star.name}</p>
-                    <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-2 py-0.5 text-[10px] font-black text-amber-100">{star.element}</span>
+                    <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-2 py-0.5 text-[11px] font-black text-amber-100">{star.element}</span>
                   </div>
                   <p className="mt-1 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">{star.role}</p>
-                  <p className="mt-1 text-[10px] font-bold text-cyan-100/72">{star.keywords.join(' / ')}</p>
+                  <p className="mt-1 text-[11px] font-bold text-cyan-100/72">{star.keywords.join(' / ')}</p>
                 </div>
               ))}
             </div>
@@ -3937,7 +3942,7 @@ function ZiweiPalaceStoryPanel({
           </article>
 
           <article className="rounded-2xl border border-violet-200/18 bg-violet-950/18 p-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-200">Layer 2</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-violet-200">Layer 2</p>
             <h5 className="mt-2 text-base font-black text-violet-50">易經白話故事解讀</h5>
             <p className="mt-2 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{palaceBlueprint.layerTwo}</p>
             <p className="mt-3 rounded-xl border border-white/10 bg-black/18 px-3 py-2 text-xs font-bold leading-6 text-violet-50/84">
@@ -3946,13 +3951,13 @@ function ZiweiPalaceStoryPanel({
           </article>
 
           <article className="rounded-2xl border border-amber-200/20 bg-amber-950/18 p-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200">Layer 3</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-amber-200">Layer 3</p>
             <h5 className="mt-2 text-base font-black text-amber-50">易經五元素補強排序</h5>
             <p className="mt-2 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{palaceBlueprint.layerThree}</p>
             <div className="mt-3 grid gap-2">
               {elementPriorities.map((item) => (
                 <div key={item.label} className="rounded-xl border border-white/10 bg-black/18 px-3 py-2">
-                  <p className="text-[10px] font-black tracking-[0.16em] text-amber-100/72">{item.label}</p>
+                  <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/72">{item.label}</p>
                   <p className="mt-1 text-lg font-black text-amber-50">{item.element}</p>
                   <p className="mt-1 text-xs font-bold leading-5 text-[color:var(--text-sub)]">{item.detail}</p>
                 </div>
@@ -3982,12 +3987,12 @@ function ZiweiPalaceStoryPanel({
             return (
               <div key={key} className="min-h-[116px] rounded-[18px] border border-white/10 bg-black/18 px-3 py-3">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-[10px] font-semibold tracking-[0.18em] text-cyan-100/60">{label.role}</p>
-                  {itemAnnual && <span className="rounded-full bg-white/[0.08] px-2 py-0.5 text-[10px] font-semibold text-cyan-100/80">{itemAnnual.score} 分</span>}
+                  <p className="text-[11px] font-semibold tracking-[0.18em] text-cyan-100/60">{label.role}</p>
+                  {itemAnnual && <span className="rounded-full bg-white/[0.08] px-2 py-0.5 text-[11px] font-semibold text-cyan-100/80">{itemAnnual.score} 分</span>}
                 </div>
                 <p className="mt-2 font-serif text-lg font-black leading-none text-cyan-50">{label.label}</p>
                 <p className="mt-2 line-clamp-2 text-[11px] font-semibold leading-5 text-[color:var(--text-main)]">{stars}</p>
-                <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-[color:var(--text-sub)]">{itemAnnual?.focus ?? item.focus}</p>
+                <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-[color:var(--text-sub)]">{itemAnnual?.focus ?? item.focus}</p>
               </div>
             );
           })}
@@ -4032,7 +4037,7 @@ function ZiweiPalaceStoryPanel({
       <div className="mt-4 rounded-2xl border border-amber-300/20 bg-amber-950/15 p-4">
         <p className="text-xs font-semibold tracking-[0.2em] text-amber-200">第三層 易經行動排序</p>
         <p className="mt-3 rounded-xl border border-amber-200/20 bg-black/15 px-3 py-2 text-sm font-bold leading-7 text-amber-100">
-          易經卜卦判定：{palaceName} 目前優先執行「{layerMaterial.layerThreeTitle}」。第一步處理「{thirdLayerPriorities[0].title}」，完成後再處理「{thirdLayerPriorities[1].title}」，最後回到「{thirdLayerPriorities[2].title}」。
+          依這一宮的性質，建議先做「{layerMaterial.layerThreeTitle}」（這是宮位通用順序，不是卜卦結果）。第一步處理「{thirdLayerPriorities[0].title}」，完成後再處理「{thirdLayerPriorities[1].title}」，最後回到「{thirdLayerPriorities[2].title}」。
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           {thirdLayerPriorities.map((item) => (
@@ -4511,10 +4516,10 @@ export default function InsightPage() {
         ritualTimerRef.current = window.setTimeout(() => {
           setRitualCollapsed(true);
           window.setTimeout(() => mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 520);
-        }, 900);
+        }, 600);
         return;
       }
-      ritualTimerRef.current = window.setTimeout(() => revealOne(index + 1), 340);
+      ritualTimerRef.current = window.setTimeout(() => revealOne(index + 1), 220);
     };
     ritualTimerRef.current = window.setTimeout(() => revealOne(0), 220);
   }
@@ -5192,6 +5197,16 @@ export default function InsightPage() {
                 >
                   <div className="min-h-0 pb-5">
                     <ZiweiRitualStepsPanel steps={result.ritualSteps} revealCount={ritualRevealCount} collapsing={ritualCollapsed} />
+                    {/* 驗證是價值，但不能變成等待：想直接看結果的人一鍵跳過，不必等十二項跑完。 */}
+                    {!ritualCollapsed && (
+                      <button
+                        type="button"
+                        onClick={() => showRitualCompleteImmediately(result.ritualSteps)}
+                        className="mt-3 inline-flex min-h-[48px] w-full items-center justify-center rounded-2xl border border-cyan-200/30 bg-cyan-300/10 px-4 text-sm font-black text-cyan-50 transition hover:border-cyan-100/60 hover:bg-cyan-300/15"
+                      >
+                        直接看結果 →
+                      </button>
+                    )}
                   </div>
                 </div>
                 {/*
