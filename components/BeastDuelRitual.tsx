@@ -87,7 +87,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
    * 所以預設是**手動**——客戶自己按，一張一張翻，節奏由他決定。
    * 想省事的人按箭頭切成自動，就照間隔自己翻完。
    */
-  const [autoFlip, setAutoFlip] = useState(false);
+  const [autoFlip, setAutoFlip] = useState(true);
   const sound = useRef(createSoundPlayer());
   useEffect(() => {
     const playerSound = sound.current;

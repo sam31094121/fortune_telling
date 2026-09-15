@@ -46,3 +46,11 @@
 - Motto card: sun 順天而行感恩的心 + curse 逆天而行＝米田共 (SharedElementSealPaper) + wood-4d frame + bg fallback #5c3218
 - Michelin (local): 品質9 / 穩定8.5 / 服務8.5
 - Board: http://127.0.0.1:8767/board.html (agent right screen)
+
+## 2026-09-15 戰場體驗五項（慵懶連擊／斷層）
+1. 卡預覽空白：preview min-height + front 失敗回退 thumbnail（BeastLegacyGame CardFaceImg）。
+2. 連續引導：prepareStep 預設 mode（簡單／中等／困難）；選卡短狀態；免費模式拿掉押注牆。
+3. 載入逾時：讀卡失敗可「重新載入」。
+4. 揭牌預設自動連揭（可切手動）。
+5. 換卡可發現性：sideSwap 金標＋底欄既有換卡。
+本機 BattlePace 慵懶連擊（chooseAI）一併保留。

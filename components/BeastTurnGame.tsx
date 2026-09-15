@@ -21,7 +21,6 @@ import { useCombatPlayback } from './battlefield/useCombatPlayback';
 import BattleHelpPanel from './battlefield/BattleHelpPanel';
 import VictoryAnimation from './battlefield/VictoryAnimation';
 import StarterPackAfterBattle from './StarterPackAfterBattle';
-import BeastWagerPanel from './BeastWagerPanel';
 
 type Card = ReturnType<typeof interactiveCatalog>[number];
 // Account progression remains on the server; this screen reads only battle data.
@@ -35,7 +34,7 @@ export default function BeastTurnGame() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [automatic, setAutomatic] = useState(false);
-  const [prepareStep, setPrepareStep] = useState<'mode' | 'select' | 'confirm'>('select');
+  const [prepareStep, setPrepareStep] = useState<'mode' | 'select' | 'confirm'>('mode');
   const [starterPackClaimed, setStarterPackClaimed] = useState<boolean | null>(null);
   const [filter, setFilter] = useState('全部');
   const [detail, setDetail] = useState<Card | null>(null);
@@ -172,7 +171,7 @@ export default function BeastTurnGame() {
       <p>{prepareStep === 'mode' ? '簡單・中等・困難' : prepareStep === 'select' ? '選 3 張卡開戰，不扣收藏卡。' : '準備好了嗎？'}</p>
     </header>
     {errorNotice}
-    {!account ? <p>正在讀取戰鬥卡…</p> : <>
+    {!account ? <section className={styles.prepareContent} aria-busy="true" aria-live="polite"><p className={styles.pickHint}>正在讀取戰鬥卡…</p><button type="button" className={styles.startBattle} disabled={busy} onClick={() => void load()}>重新載入</button>{errorNotice}</section> : <>
       <section className={styles.prepareContent} aria-label={prepareStep === 'mode' ? '選擇模式' : prepareStep === 'select' ? '選擇神獸卡' : '檢查陣容'}>
         {prepareStep === 'mode' ? <>
           {/* ── 主要入口：免費體驗，一鍵開始 ── */}
@@ -219,13 +218,17 @@ export default function BeastTurnGame() {
             })}
           </div>
           <p className={styles.pickHint} role="status" aria-live="polite">
-            {selected.length === 0 ? '👆 點任何一張卡片開始選 (0/3)'
-              : selected.length === 1 ? `✔ 第1張選好了！再點一張 (1/3)`
-              : selected.length === 2 ? `✔ 第2張選好了！再點一張 (2/3)`
-              : '✅ 三張選好了！按下方「開始對戰」'}
+            {selected.length === 0 ? '點一張卡放入先出場 (0/3)'
+              : selected.length === 1 ? '再選後備 1 (1/3)'
+              : selected.length === 2 ? '再選後備 2 (2/3)'
+              : '三張齊了・按下方開始'}
           </p>
-          <p className={styles.prepareRule}>普通攻擊自動進行，可隨時暫停；技能就緒會等你決定。點「能力」先了解卡片，再選入隊伍。</p>
-          <BeastWagerPanel mode="簡單" />
+          <p className={styles.prepareRule}>開戰後自動一路連擊到結束，隨時可暫停。</p>
+          {/*
+            三卡免費戰場「不押收藏、不發押卡獎勵」（技能檔案〈十一〉）。
+            這裡原本整塊嵌了收藏押注面板（最多押 20 張、輸了沒收），跟標題「不扣收藏卡」互相矛盾，
+            還把卡片推到三屏半之後。2026-09-15 依指示隱藏，程式碼保留；押注請走中等／困難入口。
+          */}
           <div className={styles.filters} aria-label="元素篩選">{['全部', ...Object.keys(labels)].map(element => <button key={element} aria-pressed={filter === element} onClick={() => setFilter(element)}>{labels[element] ?? element}</button>)}</div>
           <div className={styles.grid}>{cards.filter(c => filter === '全部' || c.element === filter).map(card => <div className={`${styles.card} ${styles.pickCard}`} key={card.id}>
             {selected.includes(card.id) && <span className={styles.pickOrder}>第 {selected.indexOf(card.id) + 1} 張</span>}
@@ -247,13 +250,13 @@ export default function BeastTurnGame() {
             const card = cards.find(c => c.id === id)!;
             return <div key={id} className={styles.card}><p className={styles.selectionCount}>{i === 0 ? '先出場' : '後備 ' + i}</p><BeastCardTile card={card} onOpen={() => setDetail(card)} /><p className={styles.confirmName}>{card.name}</p></div>;
           })}</div>
-          <p className={styles.muted}>普通攻擊自動進行，技能就緒時等你決定。</p>
+          <p className={styles.muted}>開戰後自動一路連擊到結束，隨時可暫停。</p>
           <details className={styles.muted}><summary>對戰方式</summary><p>與易經各派三張，擊倒對方三隻即獲勝。六十張皆可用，本模式免押卡。</p></details>
         </>}
       </section>
       <footer className={styles.prepareFooter}>
         {prepareStep === 'mode' ? <>
-          <button onClick={() => { setPrepareStep('select'); setError(''); }}>← 返回選卡</button>
+          <button className={styles.startBattle} onClick={() => { setPrepareStep('select'); setError(''); }}>進入簡單・選 3 張卡</button>
         </> : prepareStep === 'select' ? <>
           <button className={styles.advancedBtn} onClick={() => { setPrepareStep('mode'); setSelected([]); setError(''); }}>進階玩法 ▸</button>
           <button className={styles.startBattle} disabled={busy || selected.length !== 3} onClick={() => { void send('START', { lineup: selected }); }} style={selected.length === 3 ? { boxShadow: '0 0 20px rgba(59, 130, 246, 0.35)' } : {}}>

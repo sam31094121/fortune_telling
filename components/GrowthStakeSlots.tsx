@@ -416,7 +416,7 @@ export default function GrowthStakeSlots({
 
       {collection.cards.length === 0 && (
         <p className="mt-2 text-sm">
-          你還沒有收藏卡。先完成遊戲並領取 28 張幼子入庫，再回來按「再放一張」就能玩。
+          還沒有收藏卡。先打完一場免費戰場領幼子卡，再回來押注。
         </p>
       )}
     </section>

@@ -1000,7 +1000,7 @@ export default function BeastGamePage() {
             <p className="mb-3 text-sm font-bold text-amber-100">{candidate.name}・{slotLabel(activeSlot)}</p>
             <div className={`${frameStyles.card} ${frameStyles.preview}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={candidate.front} alt={candidate.name} className={frameStyles.art} />
+              <CardFaceImg front={candidate.front} thumb={candidate.thumbnail} name={candidate.name} className={frameStyles.art} />
             </div>
             <button type="button" disabled={dueling || stakeSaved === false} onClick={() => place(candidate)} className="mt-5 min-h-12 w-full rounded-2xl bg-gradient-to-r from-amber-200 to-amber-400 px-4 text-sm font-black text-slate-950">
               放入{slotLabel(activeSlot)}
@@ -1026,7 +1026,7 @@ export default function BeastGamePage() {
           >
             <div className={`${frameStyles.card} ${frameStyles.preview}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={detail.front} alt={detail.name} loading="lazy" decoding="async" className={frameStyles.art} />
+              <CardFaceImg front={detail.front} thumb={detail.thumbnail} name={detail.name} className={frameStyles.art} />
             </div>
             <h3 className="mt-3 text-xl font-black">{detail.name}</h3>
             <p className="mt-1 text-xs text-white/55">
@@ -1072,6 +1072,25 @@ export default function BeastGamePage() {
         pairs={ritual.result?.series?.pairs}
         onComplete={completeRitual} onCancel={cancelRitual} />}
     </main>
+  );
+}
+
+
+function CardFaceImg({ front, thumb, name, className }: { front: string; thumb?: string; name: string; className?: string }) {
+  const [src, setSrc] = useState(front || thumb || '');
+  useEffect(() => { setSrc(front || thumb || ''); }, [front, thumb]);
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src || thumb || ''}
+      alt={name}
+      className={className}
+      loading="eager"
+      decoding="async"
+      onError={() => {
+        if (thumb && src !== thumb) setSrc(thumb);
+      }}
+    />
   );
 }
 

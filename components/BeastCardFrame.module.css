@@ -50,8 +50,10 @@
   放大預覽。這裡是唯一要看清楚整張圖的地方，所以用 contain 不裁切，
   並補一層深底，讓留白看起來是卡框的一部分，不是破圖。
 */
+/* PREVIEW-BLANK-GUARD */
 .preview {
   width: min(100%, 22dvh);
+  min-height: min(100%, 30.7dvh);
   margin-inline: auto;
   border: 1px solid #d4b67688;
   background: #10121c;

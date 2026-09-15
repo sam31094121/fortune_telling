@@ -867,3 +867,27 @@
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
   }
 }
+
+
+/* SWAP-AFFORDANCE-BOOST — 換卡可發現性（手機優先，短標不堆說明） */
+.sideSwapLabel {
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.12em;
+  color: #fde68a !important;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.45);
+}
+.swapTag {
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  color: #0f172a !important;
+  background: #fbbf24 !important;
+  border-radius: 999px;
+  padding: 2px 6px;
+}
+.swapCard {
+  outline: 2px solid rgba(251, 191, 36, 0.55);
+}
+@media (max-width: 900px) {
+  .sideSwapLabel { display: none; } /* 窄螢幕靠底部入口；標籤留給寬螢幕 */
+}
