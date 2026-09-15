@@ -276,6 +276,16 @@ const BEHAVIOR_CHECKS = [
     script: 'test:three-in-one',
   },
   {
+    // 路由 200 不代表客戶填得進去：2026-09-15 正式站手機上，生日一湊齊元件就重掛、
+    // 鍵盤收掉，後面打的字全部消失，健檢卻照樣綠燈。這一項用真的 Chrome、手機寬度逐鍵走完整張表。
+    id: 'ZIWEI_FORM_FILL',
+    module: 'ziwei_form_fill',
+    title: '紫微表單手機實填：逐鍵輸入焦點不跑、送出後出三柱',
+    path: '/insight',
+    script: 'test:ziwei-form-fill',
+    timeoutMs: 150000,
+  },
+  {
     id: 'HOME_TAIJI_LEVEL02_24_LOCK',
     module: 'taiji_level_02_24_lock',
     title: '太極第 2～24 層隔離鎖定',

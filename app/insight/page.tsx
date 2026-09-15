@@ -5307,8 +5307,8 @@ export default function InsightPage() {
                 />
                 <MegaInputGuide
                   title="請填紫微排盤資料"
-                  steps={['姓名至少 2 個字', '生日要用萬年曆完成', '性別、時辰依序點選']}
-                  example="1979-09-02，寅時，女。"
+                  steps={['姓名至少 2 個字', '生日依序填年、月、日（民國或西元都可以）', '性別、時辰依序點選']}
+                  example="民國 68 年 9 月 2 日、寅時、女。"
                   tone="cyan"
                 />
 
@@ -5347,8 +5347,8 @@ export default function InsightPage() {
                 <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
                   2. 出生日期（民國年）{input.birthDate && <span className="text-green-400">✓</span>}
                 </label>
+                {/* 不得用 birthDate 當 key：日期一湊齊就整個重掛，手機鍵盤收掉、後面打的字消失。守門 test:ziwei-form-fill */}
                 <LunarBirthdayInput
-                  key={input.birthDate || 'empty-birth-date'}
                   value={input.birthDate}
                   onChange={(solarDate) => setInput({ ...input, birthDate: solarDate.trim() })}
                   accent="violet"
