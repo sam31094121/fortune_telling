@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
+import { customerSafeAiMessage } from '@/lib/ai-error-message';
 import { castHexagram, formatHexagramLine } from '@/lib/iching-engine';
 import { buildEmpathicFromHexagram, formatGhostDecoding, patternNameOf } from '@/lib/iching-psychology';
 
@@ -119,8 +120,8 @@ ${formatGhostDecoding(iching)}
     if (!reading || reading.length < 220 || chineseCharacters < 150) throw new Error('鬼魅回覆過短，未達可顯示的解盤品質。');
     return NextResponse.json({ ok: true, provider: '鬼魅解盤', reading }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
-    const message = error instanceof Error ? error.message : '鬼魅解盤暫時無法完成。';
-    console.error('[bazi/horror-reading]', message);
+    console.error('[bazi/horror-reading]', error instanceof Error ? error.message : error);
+    const message = customerSafeAiMessage(error, '鬼魅老師這一刻比較忙，請稍候一兩分鐘再按一次。');
     return NextResponse.json({ ok: false, message }, { status: 502, headers: { 'Cache-Control': 'no-store' } });
   }
 }

@@ -500,7 +500,8 @@ function buildLocalStructureResult(context: PalaceAnalysisContext): StructureTea
     structuralStrength: `統計面最強的一段：${strongest.palaceName}以 ${Math.max(scores.A, scores.B, scores.O)} 分支撐本宮，配合主星${majorText(p)}，在「${guide.topic}」上有可複用的結構慣性。`,
     structuralPressure: `壓力集中在${weakest.palaceName}（${Math.min(scores.A, scores.B, scores.O)} 分）${jiList.length > 0 ? `，且${jiList[0].starName}化忌落在本宮，` : '，'}表示此結構的下限由這裡決定。`,
     pastStructure: `此宮長期容易養成「${guide.topic}」上的固定慣性：能量高時傾向多承接、能量低時傾向遞延處理；這是盤面推論，不指涉具體經歷。`,
-    futureTendency: `${context.timeContext.annualYear} 年${context.timeContext.annualTheme ? `主題「${context.timeContext.annualTheme}」` : ''}期間，若${weakest.palaceName}的牽制未處理，指數容易向下修；反之補上該處，${structureType}結構可望升級。`,
+    // 流年主題是一整段話，塞進「」會變成引號套引號的長句；主題留在命盤依據裡回查即可。
+    futureTendency: `${context.timeContext.annualYear} 年這一年，若${weakest.palaceName}的牽制沒有處理，分數容易往下掉；反過來把那裡補上，${structureType}結構就有機會再往上走。`,
     conclusion: `結論：${p.palaceName}為${structureType}結構（${score}/100）。易經同步起卦得「${castPalaceHexagram(context).hexagramName}」印證：${castPalaceHexagram(context).advice}優先處理${weakest.palaceName}的牽制、善用${strongest.palaceName}的支撐，是本盤統計交叉後的最短路徑。`,
     evidenceRefs: buildEvidenceRefs(context),
   };
@@ -520,7 +521,7 @@ function buildLocalLifeResult(context: PalaceAnalysisContext): LifeTeacherResult
     fearScene: `這一宮談的是${guide.topic}。${img.light}，${img.sound}。真正逼近的不是畫面，是${pressurePoint}在${guide.topic}上累積的代價：${guide.lifeScenes}裡的每一次遞延，都會讓你付出的成本再墊高一層；若持續忽視，這股壓力容易從單點擴大成整片。`,
     lifeMeaning: `本宮壓力核心：${pressurePoint}。它讓「${guide.topic}」的每個決定都帶著隱形利息，越晚面對，本金越大。`,
     pastPattern: `此宮長期容易重複的模式：在${guide.lifeScenes}的場景中先扛下、後消化；這是盤面傾向的推論，不是已發生事件。`,
-    futureRiskWindow: `${context.timeContext.annualYear} 年${context.timeContext.annualTheme ? `「${context.timeContext.annualTheme}」` : ''}期間${context.timeContext.currentAge !== null ? `、${context.timeContext.currentAge} 歲的這一段` : ''}，當${pressurePoint}與截止壓力疊加時，是需要提高警覺的窗口；條件不成立時，壓力不會自動引爆。`,
+    futureRiskWindow: `${context.timeContext.annualYear} 年這一年${context.timeContext.currentAge !== null ? `、${context.timeContext.currentAge} 歲的這一段` : ''}，當${pressurePoint}與截止壓力疊加時，是需要提高警覺的窗口；條件不成立時，壓力不會自動引爆。`,
     strengthInReality: `可用的力量是${mainStar}帶來的承載力（能量指數 ${score}/100）；但它失控時會反噬成「什麼都自己扛」，反而把${guide.topic}的界線推垮。`,
     repeatedPattern: `一開始：你告訴自己再撐一下。接著：${guide.lifeScenes}裡的訊號被合理化。最後代價：壓力放大成整個結構發出聲響的規模——這是象徵畫面，提醒失控的方向，不是命定結局。`,
     blindSpot: `最容易被合理化的盲點：把「還沒出事」當成「沒有事」。${pressurePoint}的耗損是複利式的，安靜不等於安全。`,

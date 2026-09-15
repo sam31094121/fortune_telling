@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { customerSafeAiMessage } from '@/lib/ai-error-message';
 import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
 import { resolveVerifiedZiweiChart } from '@/lib/ziwei-chart-store';
 import { buildPalaceContext, ZIWEI_TEACHER_PALACE_ORDER } from '@/lib/ziwei-teacher/palace-context';
@@ -19,7 +20,7 @@ import { runThreeInOne } from '@/lib/three-in-one';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const PROMPT_VERSION = 'teacher-v13-palace-topic-game-intro';
+const PROMPT_VERSION = 'teacher-v14-annual-theme-clean';
 
 type RouteContext = { params: Promise<{ analysisId: string }> };
 
@@ -84,7 +85,7 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ ok: true, requestId, cached: false, data: result }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     console.error('ZIWEI_TEACHER_ANALYSIS_FAILED', { analysisId, palaceId, teacherId, error });
-    const message = error instanceof Error ? error.message : '老師解讀失敗，請稍後再試。';
+    const message = customerSafeAiMessage(error, '老師這一刻比較忙，請稍候一兩分鐘再按一次。');
     return friendlyErrorResponse(requestId, 'TEACHER_ANALYSIS_FAILED', message, 502);
   }
 }

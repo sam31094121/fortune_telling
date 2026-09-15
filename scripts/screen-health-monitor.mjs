@@ -286,6 +286,21 @@ const BEHAVIOR_CHECKS = [
     timeoutMs: 150000,
   },
   {
+    // 老師在 AI 失敗時會安靜改走本地後備文字，API 照樣 200，路由健檢看不出來。
+    // 2026-09-15 Gemini 月度花費上限用完，全站老師都在走後備，健檢卻綠燈。
+    id: 'AI_TEACHER_AVAILABILITY',
+    module: 'ai_teacher_availability',
+    title: '易經老師／鬼魅老師 AI 連線：不是安靜地走後備文字',
+    script: 'test:ai-teacher-availability',
+    timeoutMs: 40000,
+  },
+  {
+    id: 'AI_CUSTOMER_MESSAGE',
+    module: 'ai_customer_message',
+    title: 'AI 失敗時客戶只看到中文，不看到額度、金鑰、網址原文',
+    script: 'test:ai-customer-message',
+  },
+  {
     id: 'HOME_TAIJI_LEVEL02_24_LOCK',
     module: 'taiji_level_02_24_lock',
     title: '太極第 2～24 層隔離鎖定',

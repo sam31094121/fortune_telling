@@ -531,7 +531,9 @@ export function calculateAnnualFortune(input: AnnualFortuneInput): AnnualFortune
     yearElement: annual.element,
     level,
     overallScore,
-    annualTheme: `本區只看${year} ${annual.ganzhi}年的流年運勢。${annual.ganzhi}年以${annual.element}氣為主，對日主${dayMaster}形成「${relation}」；今年主軸落在${strongest.focus}，同時需要照顧${weakest.focus}。`,
+    // 主題只放內容本身。「本區只看今年」是流年卡片自己的標題與標籤；寫進主題會跟著被
+    // 老師解盤、下一步建議等處引用，變成一句卡片說明夾在別人的句子裡。
+    annualTheme: `${annual.ganzhi}年以${annual.element}氣為主，對日主${dayMaster}形成「${relation}」；今年主軸落在${strongest.focus}，同時需要照顧${weakest.focus}。`,
     timeConfidence: input.ziweiSanFang.timeConfidence,
     baziFocus: {
       dayMaster,
