@@ -1969,6 +1969,7 @@ npm run check:beast-clips        # 落地一支就驗一支
 - **第二階段完成**：`lib/beast-game/battle-view.ts` 的 `battleViewFor(match)` 算好可出招、暴怒合體不能用的原因、合體搭檔、合體教學，隨困難戰場 API 與 turns API 的 `view` 送出；BattlePanel／BattleArena／BeastTurnGame 只照印（沒收到時顯示「戰況同步中…」，不自己推測）。守門禁止清單加入 legalActions／rageUnavailableReason／rageMaterialFor／rageFusionGuide。
 - **第三階段 3A 完成：困難頁開局的洗牌、發牌、易經自動佈陣由困難戰場 API 的 DEAL 在後端做，回傳簽名牌桌票；開戰（START）核對玩家只用發到手上的卡，易經陣容一律採用牌桌票裡後端排好的（前端送什麼都不採信）**。實測：本機 API 17 項（沒帶牌桌票、用沒發到的卡、送假易經陣容都擋；牌桌票不能冒充戰局票）；手機實玩體驗戰＋押注戰零錯誤。
 - **第三階段 3B 完成：相剋與戰力分析由後端算好，元件只照印**。`lib/beast-game/guide-book.ts`：`buildGuideBook()` 算六十張卡的出戰基礎分析與五元素 5×5 攻守表，由 `/api/beast-game/guide-book` 送出（快取 5 分鐘）；`liveGuidesFor(match)` 算場上每隻卡目前能力、主戰對位、打完的戰果解說，隨 `battleViewFor` 的 `view.guides` 送出。困難頁與簡單頁外層用 `GuideBookProvider` 載入一次手冊；BattleArena、BattleCardGuide、BattlePowerAnalysis、BattlePanel、BeastCardTile、ElementMatchupGuide、MatchupSummary 不再呼叫 combatGuideFor／describeMatchup／explainOutcome／elementPercent／elementGuideRows／elementMultiplier，手冊還沒載到就不顯示數字、不自己推算。守門掃描改為不看 'use client' 標記（BattlePowerAnalysis 沒有標記、先前漏網）。實測：本機 API 21 項（加驗 view 附雙方戰力、打完送戰果解說、手冊 60 張卡＋5×5 對位）；手機實玩出戰前與戰況中能力卡數值正確。演出規劃（planTierPresentation／planFusionPresentation）只決定播哪段動畫與音效，屬前端視覺感官，不列入後端化。
+- **出招請求自動重送（2026-09-16）**：正式站實測偶有一次戰場請求卡住 16 秒（伺服器平時每步 0.4 秒內），畫面停在「動作演出中」像壞掉。困難頁出招／自動連擊先等 6 秒，沒回應就自動再送一次（仍有 30 秒上限）；戰局票無狀態、後端 ACTION／AUTO 不寫任何資料，同一張票重送不會重複出招或重複結算。失敗仍照實顯示「戰場暫時無法連線」。
 
 ### 以後加進來的規矩
 

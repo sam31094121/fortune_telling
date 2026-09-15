@@ -61,9 +61,9 @@ type DealReply = { ok: true; table: BattleState; deckIds: string[]; opening: { p
  * 困難戰場的運算全部在後端 /api/beast-game/battlefield（2026-09-15 業主定調：前端只負責顯示易經）。
  * 這裡只送出佈陣與出招，拿回結果顯示；不自己算勝負、易經判斷或押注。
  */
-async function callBattle<T = BattleReply>(body: Record<string, unknown>): Promise<T> {
+async function callBattle<T = BattleReply>(body: Record<string, unknown>, timeoutMs = 30000): Promise<T> {
   const res = await fetch('/api/beast-game/battlefield', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(30000),
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(timeoutMs),
   });
   const data = await res.json().catch(() => null) as ({ ok: true } | { ok: false; error?: string } | null);
   if (!res.ok || !data || !data.ok) throw new Error((data && !data.ok && data.error) || '戰場暫時無法連線，押注卡未扣除。');
@@ -315,7 +315,15 @@ function BattlefieldScreen() {
 
   const step = useCallback(async (body: Record<string, unknown>) => {
     if (!match || match.status !== 'PLAYING' || !battleToken.current || !beginPlayback()) return;
-    try { applyReply(await callBattle({ ...body, token: battleToken.current })); }
+    const payload = { ...body, token: battleToken.current };
+    try {
+      // 正式站偶爾有一次請求卡十幾秒（2026-09-16 實測 AUTO 16 秒），畫面停在「動作演出中」像壞掉。
+      // 戰局票無狀態、同一張票同一招結果相同，重送不會重複出招：先等 6 秒，沒回就自動再送一次。
+      let reply: BattleReply;
+      try { reply = await callBattle(payload, 6000); }
+      catch (first) { if (!(first instanceof DOMException && (first.name === 'TimeoutError' || first.name === 'AbortError'))) throw first; reply = await callBattle(payload); }
+      applyReply(reply);
+    }
     catch (cause) { resetPlayback(); setAutomatic(false); setStakeError(cause instanceof Error ? cause.message : '戰場暫時無法連線，請再按一次。'); }
   }, [match, beginPlayback, resetPlayback, applyReply]);
 
