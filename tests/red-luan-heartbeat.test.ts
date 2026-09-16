@@ -529,7 +529,8 @@ assert.ok(shareText.includes('還有 5 天'), '具體天數才是分享時最抓
 assert.ok(shareText.includes(reminderFixture.topCandidate));
 assert.equal(buildRedLuanShareText({ ...reminderFixture, daysAway: 0 }).includes('就是這個月'), true);
 
-const ics = buildRedLuanIcs(reminderFixture);
+// 固定「今天」：月份還沒開始（9/1 看 9/8 開窗）。不固定的話，真實日期一過 9/8 測試就會過期變紅。
+const ics = buildRedLuanIcs(reminderFixture, undefined, '2026-09-01');
 const icsLines = ics.split('\r\n');
 assert.equal(icsLines[0], 'BEGIN:VCALENDAR');
 assert.equal(icsLines[icsLines.length - 1], 'END:VCALENDAR');
@@ -538,6 +539,11 @@ assert.ok(icsLines.includes('DTSTART;VALUE=DATE:20260908'));
 assert.ok(icsLines.includes('DTEND;VALUE=DATE:20260909'), '提醒必須是單日，不是整個月的橫幅');
 assert.ok(icsLines.some((line) => line.startsWith('DTSTAMP:') && !line.includes('20260908T000000Z')), 'DTSTAMP 要是產生時間');
 assert.ok(icsLines.some((line) => line === 'TRIGGER:-P1D'), '前一天要提醒');
+// 已經開始的月份（9/16 看 9/8 開窗）：行事曆不會回頭提醒，改掛明天、當天早上九點提醒。
+const startedLines = buildRedLuanIcs(reminderFixture, undefined, '2026-09-16').split('\r\n');
+assert.ok(startedLines.includes('DTSTART;VALUE=DATE:20260917'), '進行中的月份改掛明天');
+assert.ok(startedLines.includes('TRIGGER:PT9H'), '進行中的月份當天早上九點提醒');
+assert.ok(startedLines.some((line) => line.startsWith('SUMMARY:') && line.includes('進行中')), '進行中的月份標題要寫明進行中');
 // 提醒跳出來時客戶多半忘了細節，整段內容與回卡片的路都要在裡面。
 const descriptionLine = icsLines.find((line) => line.startsWith('DESCRIPTION:') && line.includes('容易來電')) ?? '';
 assert.ok(descriptionLine.includes(reminderFixture.url), '行事曆說明要帶回卡片的連結');

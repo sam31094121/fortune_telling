@@ -131,8 +131,8 @@ function buildRedLuanEvent(month: RedLuanReminderMonth, reminder: RedLuanReminde
  * 引擎算得出未來一年的每一個機會月，以前卻只把其中一個放進行事曆——
  * 等於一整年只跟客戶接觸一次。帶入 months 就會整年一次寫進去。
  */
-export function buildRedLuanIcs(reminder: RedLuanReminder, months?: RedLuanReminderMonth[]) {
-  const today = taipeiToday();
+export function buildRedLuanIcs(reminder: RedLuanReminder, months?: RedLuanReminderMonth[], today: string = taipeiToday()) {
+  // today 可由測試固定（YYYY-MM-DD），正式呼叫一律用台北當天；否則測試會隨真實日期過期。
   const list: RedLuanReminderMonth[] = months && months.length > 0
     ? months
     : [{ startsOn: reminder.startsOn, endsOn: reminder.endsOn, monthLine: reminder.monthLine, kind: 'SOUL_RESONANCE' }];
