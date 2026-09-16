@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef, type Ref } from 'react';
+import { FRONTEND_COPY } from '@/lib/credibility-phrases';
 import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NextStepGuide from '@/components/NextStepGuide';
@@ -4252,11 +4253,8 @@ const ZIWEI_RITUAL_COPY: Record<InsightRitualStep['id'], { label: string; ritual
     ritualText: '正在比對命盤訊號...',
     passedText: '命盤訊號比對完成',
   },
-  ACCURACY_SCORED: {
-    label: '準確度評估',
-    ritualText: '正在計算本次判定準確度...',
-    passedText: '本次判定準確度評估完成',
-  },
+  // 分數評的是資料完整度與規則覆蓋，不是預測準確度（公信力話術，2026-09-16）。
+  ACCURACY_SCORED: FRONTEND_COPY.accuracyStep,
   ANNUAL_FORTUNE_CALCULATED: {
     label: '流年運勢',
     ritualText: '正在整合今年流年運勢...',

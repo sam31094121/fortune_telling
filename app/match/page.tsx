@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
+import { FRONTEND_COPY } from '@/lib/credibility-phrases';
 import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
@@ -678,7 +679,7 @@ function PersonStep({
         <div>
           <label className="mb-2.5 block text-sm font-black text-[color:var(--text-main)]">
             1. 姓名
-            <OracleHint text="🔮 姓名乃人和磁場之五格載體，大數據將通過姓名聲波諧振進行血緣與宿命課題共振。" />
+            <OracleHint text={FRONTEND_COPY.nameHint} />
           </label>
           <input
             type="text"

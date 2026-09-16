@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { FRONTEND_COPY } from '@/lib/credibility-phrases';
 import Link from 'next/link';
 import {
   buildGrowthCenterQuery,
@@ -188,7 +189,7 @@ function computeWeeklyStreak(history: CheckInHistory, currentWeekKey: string): n
 }
 
 function streakMilestone(streak: number): string {
-  if (streak >= 12) return '🏆 連續 12 週：你已經是長期夥伴，易經會持續加深每週判定的精準度。';
+  if (streak >= 12) return FRONTEND_COPY.longTermMilestone;
   if (streak >= 8) return '🏆 連續 8 週：節奏已經穩定，這是真正的養成中。';
   if (streak >= 4) return '🏅 連續 4 週：習慣正在養成，繼續保持。';
   if (streak >= 2) return `🔥 連續 ${streak} 週回來，易經記得你走過的每一步。`;

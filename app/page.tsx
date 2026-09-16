@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState, useDeferredValue, useEffect, useRef, type CSSProperties } from 'react';
+import { FRONTEND_COPY } from '@/lib/credibility-phrases';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { injectPerformanceCSS } from '@/lib/performance-css';
@@ -994,7 +995,7 @@ function AnalyticalConsole({
     <div className="fortune-card p-6 sm:p-8 font-mono border border-cyan-500/20 bg-slate-950/80 shadow-[0_0_30px_rgba(34,211,238,0.08)]">
       <div className="flex flex-col md:flex-row items-center gap-6 justify-between">
         <div className="flex-1 w-full">
-          <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">🧬 大數據 易經運算終端</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">{FRONTEND_COPY.terminalTitle}</p>
           <div className="mt-6 space-y-3.5 text-xs sm:text-sm text-cyan-100 leading-7 min-h-[160px]">
             {logs.map((log, index) => (
               <p key={index} className="animate-fade-in">
@@ -1076,7 +1077,7 @@ function PersonStep({
         <div>
           <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
             1. 姓名
-            <OracleHint text="🔮 姓名乃人和磁場之五格載體，大數據將通過姓名聲波諧振進行血緣與宿命課題共振。" />
+            <OracleHint text={FRONTEND_COPY.nameHint} />
           </label>
           <input
             type="text"
