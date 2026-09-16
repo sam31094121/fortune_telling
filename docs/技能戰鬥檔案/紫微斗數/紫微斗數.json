@@ -20,7 +20,7 @@
       "entry": "lib/ziwei-sanfang-engine.ts",
       "note": "三方四正；真太陽時用 @ziweijs/core 的 calculateTrueSolarTime；四柱一律取自 lib/bazi/engine.ts"
     },
-    "fourPillars": "lib/bazi/engine.ts（createBaziCore，底層 tyme4ts）",
+    "fourPillars": "lib/bazi/engine.ts（createBaziCore，底層 lunar-typescript 的 Solar）",
     "teacherSynthesis": [
       "lib/ziwei-teacher-synthesis.ts",
       "lib/ziwei-teacher/consensus.ts",
@@ -28,18 +28,65 @@
     ]
   },
   "software": [
-    { "package": "iztro", "version": "2.5.8", "license": "MIT", "repository": "https://github.com/SylarLong/iztro", "role": "紫微斗數排盤（命盤、宮位、星曜、四化）" },
-    { "package": "@ziweijs/core", "version": "0.3.0", "license": "MIT", "repository": "https://github.com/lzm0x219/ziwei", "role": "真太陽時換算" },
-    { "package": "tyme4ts", "version": "1.3.9", "license": "MIT", "repository": "https://github.com/6tail/tyme4ts", "role": "曆法、節氣、干支（八字四柱底層）" }
+    {
+      "package": "iztro",
+      "version": "2.5.8",
+      "license": "MIT",
+      "repository": "https://github.com/SylarLong/iztro",
+      "role": "紫微斗數排盤（命盤、宮位、星曜、四化）"
+    },
+    {
+      "package": "@ziweijs/core",
+      "version": "0.3.0",
+      "license": "MIT",
+      "repository": "https://github.com/lzm0x219/ziwei",
+      "role": "真太陽時換算"
+    },
+    {
+      "package": "lunar-lite",
+      "version": "0.2.8",
+      "license": "MIT",
+      "repository": "https://github.com/SylarLong/lunar-lite",
+      "role": "iztro 內部曆法換算"
+    },
+    {
+      "package": "lunar-typescript",
+      "version": "1.8.6",
+      "license": "MIT",
+      "repository": "https://github.com/6tail/lunar-typescript",
+      "role": "八字四柱底層（lib/bazi/engine.ts），紫微四柱一律取自這裡"
+    },
+    {
+      "package": "tyme4ts",
+      "version": "1.3.9",
+      "license": "MIT",
+      "repository": "https://github.com/6tail/tyme4ts",
+      "role": "@ziweijs/core 相依、lib/lunar-calendar.ts 農曆顯示"
+    }
   ],
   "verification": {
     "measuredAt": "2026-09-16",
     "tests": [
-      { "script": "npm run test:ziwei", "result": "第一層紫微核心 PASS 37 / FAIL 0" },
-      { "script": "npm run test:three-core", "result": "三核心交叉驗證（八字→紫微→易經）PASS 103 / FAIL 0" },
-      { "script": "npm run test:three-in-one", "result": "三合一整合層 PASS 136 / FAIL 0" },
-      { "script": "npm run test:ziwei-unknown-time", "result": "無時辰不代填、不給未驗證星卡：PASS" },
-      { "script": "npm run test:ziwei-display-only", "result": "前端只顯示 PASS 4 / FAIL 0" }
+      {
+        "script": "npm run test:ziwei",
+        "result": "第一層紫微核心 PASS 37 / FAIL 0"
+      },
+      {
+        "script": "npm run test:three-core",
+        "result": "三核心交叉驗證（八字→紫微→易經）PASS 103 / FAIL 0"
+      },
+      {
+        "script": "npm run test:three-in-one",
+        "result": "三合一整合層 PASS 136 / FAIL 0"
+      },
+      {
+        "script": "npm run test:ziwei-unknown-time",
+        "result": "無時辰不代填、不給未驗證星卡：PASS"
+      },
+      {
+        "script": "npm run test:ziwei-display-only",
+        "result": "前端只顯示 PASS 4 / FAIL 0"
+      }
     ],
     "lockedSample": "1974-07-02 03:30 女 → 甲寅／庚午／甲辰／丙寅（八字與紫微四柱逐字一致）"
   },

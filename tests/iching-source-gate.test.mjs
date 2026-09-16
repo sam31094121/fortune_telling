@@ -2,7 +2,7 @@
  * 《易經》來源閘門守門（2026-09-15 業主定案；2026-09-16 紫微斗數沿用同一套）
  *
  * 凡有「易經」兩個字，都要有交叉比對的來源、權威性的檔案、大數據的來源；
- * 易經洋蔥心理學一樣列入。紫微斗數另開資料夾，走同一個閘門。
+ * 易經洋蔥心理學一樣列入。紫微斗數、八字另開資料夾，走同一個閘門；口令「易經」以三核心融會貫通檔一次帶出。
  * 這支測試把那句話變成會紅的斷言。
  */
 import assert from 'node:assert/strict';
@@ -22,7 +22,7 @@ const REGISTRIES = [
     pattern: /iching|易經/i,
     minClaims: 5,
     // 治理工具本身（規格、登記表、閘門程式）不是要登記來源的內容。
-    governance: new Set(['docs/技能戰鬥檔案/易經/來源登記.json', GOVERNANCE, 'lib/iching-source-gate.ts']),
+    governance: new Set(['docs/技能戰鬥檔案/易經/來源登記.json', GOVERNANCE, 'lib/iching-source-gate.ts', 'docs/技能戰鬥檔案/易經/三核心融會貫通.md']),
   },
   {
     label: '紫微斗數',
@@ -30,6 +30,13 @@ const REGISTRIES = [
     pattern: /ziwei|紫微/i,
     minClaims: 2,
     governance: new Set(['docs/技能戰鬥檔案/紫微斗數/來源登記.json']),
+  },
+  {
+    label: '八字',
+    registry: 'docs/技能戰鬥檔案/八字/來源登記.json',
+    pattern: /bazi|八字/i,
+    minClaims: 2,
+    governance: new Set(['docs/技能戰鬥檔案/八字/來源登記.json']),
   },
 ];
 let passed = 0;
@@ -131,6 +138,16 @@ check('口令與文件接好：CLAUDE.md、新人檔案、正式檔都指到來�
   assert.match(fs.readFileSync('docs/技能戰鬥檔案/紫微斗數/新人檔案.md', 'utf8'), /來源治理\.md/);
   const ziwei = JSON.parse(fs.readFileSync('docs/技能戰鬥檔案/紫微斗數/紫微斗數.json', 'utf8'));
   assert.equal(ziwei.sourceRegistry, 'docs/技能戰鬥檔案/紫微斗數/來源登記.json');
+  const bazi = JSON.parse(fs.readFileSync('docs/技能戰鬥檔案/八字/八字.json', 'utf8'));
+  assert.equal(bazi.sourceRegistry, 'docs/技能戰鬥檔案/八字/來源登記.json');
+  // 三核心融會貫通：口令「易經」一次帶出八字、紫微、易經。
+  const integration = fs.readFileSync('docs/技能戰鬥檔案/易經/三核心融會貫通.md', 'utf8');
+  for (const part of ['八字/', '紫微斗數/', '易經/']) assert.ok(integration.includes(part), `融會貫通檔要連到 ${part}`);
+  assert.match(claude, /三核心融會貫通.md/);
+  // 業主批准的先後順序：① 填寫資料→八字命盤 ② 紫微斗數命盤 ③ 易經心理學、洋蔥心理學、權威心理學大數據。
+  const order = ['填寫資料', '紫微斗數命盤', '易經心理學、洋蔥心理學、權威心理學大數據'].map((s) => integration.indexOf(s));
+  assert.ok(order.every((i) => i >= 0) && order[0] < order[1] && order[1] < order[2], '融會貫通檔要依序寫明 八字→紫微→易經心理學');
+  assert.match(claude, /① 填寫資料 → 八字命盤 → ② 紫微斗數命盤 → ③ 易經心理學、洋蔥心理學、權威心理學大數據/);
 });
 
 console.log(`iching source gate — PASS ${passed}`);

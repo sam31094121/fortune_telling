@@ -1,0 +1,48 @@
+{
+  "id": "bazi",
+  "name": "八字命盤",
+  "title": "八字命盤技能正式檔（三核心第一層）",
+  "version": "1.0.0",
+  "updatedAt": "2026-09-16T00:00:00+08:00",
+  "sourceOfTruth": "docs/技能戰鬥檔案/八字/八字.json",
+  "newbieDoc": "docs/技能戰鬥檔案/八字/新人檔案.md",
+  "integration": "docs/技能戰鬥檔案/易經/三核心融會貫通.md",
+  "sourceGovernance": "docs/技能戰鬥檔案/易經/來源治理.md",
+  "sourceRegistry": "docs/技能戰鬥檔案/八字/來源登記.json",
+  "sourceGate": "lib/iching-source-gate.ts",
+  "layer": "第一層（核心）：唯一的四柱來源；紫微與易經都消費這一層",
+  "engine": {
+    "entry": "lib/bazi/engine.ts",
+    "function": "createBaziCore()",
+    "outputs": ["年柱", "月柱", "日柱", "時柱", "日主", "十神", "藏干", "大運"],
+    "calendarLibrary": "lunar-typescript 1.8.6（MIT，https://github.com/6tail/lunar-typescript）的 Solar",
+    "rules": ["年界以立春", "月界以節氣", "晚子時不換日"]
+  },
+  "relatedFiles": [
+    "lib/bazi-engine.ts",
+    "lib/bazi-detail.ts",
+    "lib/bazi-professional-result-v5.ts",
+    "lib/bazi-four-pillar-beasts.ts",
+    "lib/nameology-bazi-crosscheck.ts",
+    "lib/three-core-engine.ts",
+    "lib/three-in-one.ts"
+  ],
+  "verification": {
+    "measuredAt": "2026-09-16",
+    "tests": [
+      { "script": "npm run test:bazi", "result": "BAZI GOLDEN TESTS PASS 81 / FAIL 0" },
+      { "script": "npm run test:bazi-contract", "result": "BAZI V5 CONTRACT PASS 17 / FAIL 0" },
+      { "script": "npm run test:three-core", "result": "八字→紫微→易經交叉 PASS 103 / FAIL 0" },
+      { "script": "npm run test:three-in-one", "result": "三合一整合層 PASS 136 / FAIL 0" }
+    ],
+    "lockedSample": "1974-07-02 03:30 女 → 甲寅／庚午／甲辰／丙寅；月柱庚午因小暑（7/7）前仍屬午月；對照組 1974-07-08 → 辛未"
+  },
+  "ironRules": [
+    "任何模組需要四柱，一律呼叫 lib/bazi/engine.ts 的 createBaziCore()，禁止另寫一套四柱推算",
+    "八字先算並凍結，紫微、易經才開始；後一層不得回頭改寫前一層",
+    "八字與紫微四柱逐字一致，對不上停在核對關，不得自動改成同一套",
+    "前端不得自己編結論、自己算數字",
+    "公信力分三件事講：古籍權威、曆法與排盤正確性、科學效度；不得寫成科學已證實",
+    "外部書目、網站條款、館藏未經人工確認，一律「待查核」"
+  ]
+}
