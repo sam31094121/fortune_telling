@@ -8,9 +8,9 @@ const nextConfig = {
   compress: true,
   productionBrowserSourceMaps: false,
   outputFileTracingRoot: process.cwd(),
-  // ZiWei's published runtime bundles its own module loader. It is only used by
-  // the server-side insight API, so let Node load it instead of re-bundling it.
-  serverExternalPackages: ['@ziweijs/core', 'tyme4ts'],
+  // tyme4ts 只在伺服器端農曆換算使用，交給 Node 載入、不重新打包。
+  // （@ziweijs/core 已從 npm 下架，真太陽時改用專案內 lib/true-solar-time.ts，2026-09-16。）
+  serverExternalPackages: ['tyme4ts'],
 
   // 性能优化
   poweredByHeader: false,

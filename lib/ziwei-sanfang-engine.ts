@@ -1,4 +1,4 @@
-import { calculateTrueSolarTime } from '@ziweijs/core';
+import { calculateTrueSolarTime } from './true-solar-time';
 import { getShichenInfo } from './shichen-engine';
 import { assertChartCertifiedForAi, generateZiweiChart, type ZiweiBirthInput } from './ziwei/chartEngine';
 import { BRANCHES, createBaziCore, type Branch } from './bazi/engine';

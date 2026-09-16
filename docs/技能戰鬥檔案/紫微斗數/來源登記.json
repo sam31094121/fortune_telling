@@ -110,7 +110,7 @@
       "source_id": "S-ZIWEIJS-CORE",
       "author": "lzm0x219",
       "locator": "https://github.com/lzm0x219/ziwei",
-      "data_type": "北派紫微斗數排盤程式庫（本站只用真太陽時換算）",
+      "data_type": "北派紫微斗數排盤程式庫（本站原只用真太陽時換算，已搬入 lib/true-solar-time.ts）",
       "kind": "工程證據",
       "can_cite": "PASS",
       "can_reproduce": "PASS",
@@ -121,7 +121,7 @@
       "accessed_at": "2026-09-16",
       "edition": "0.3.0（npm 已下架：registry 與 tarball 皆 HTTP 404，2026-09-16 實測）",
       "trust": "C",
-      "note": "供應風險：鎖檔指向的 tarball 已 404，全新安裝會失敗；本站只在 lib/ziwei-sanfang-engine.ts 用 calculateTrueSolarTime。"
+      "note": "2026-09-16 業主批准：calculateTrueSolarTime 依 MIT 搬入 lib/true-solar-time.ts（保留原聲明），40 筆逐毫秒比對，套件已從 package.json 移除；守門 tests/true-solar-time.test.mjs。"
     },
     {
       "source_id": "S-LUNAR-TYPESCRIPT",
@@ -385,7 +385,7 @@
         }
       ],
       "status": "CONFLICT",
-      "note": "四柱一律取自 lib/bazi/engine.ts，八字與紫微四柱逐字一致（三合一守門）。供應風險：@ziweijs/core 已從 npm 下架（404），全新安裝會失敗。"
+      "note": "四柱一律取自 lib/bazi/engine.ts，八字與紫微四柱逐字一致（三合一守門）。真太陽時已搬入 lib/true-solar-time.ts，不再依賴已下架套件；lunar-typescript、tyme4ts 改為直接相依。"
     },
     {
       "claim_id": "C-ZIWEI-CLASSICS",
