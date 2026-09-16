@@ -1,0 +1,453 @@
+{
+  "version": "1.0.0",
+  "updatedAt": "2026-09-16",
+  "rule": "紫微斗數沿用《易經》來源治理（docs/技能戰鬥檔案/易經/來源治理.md）：交叉比對的來源、權威性的檔案、大數據的來源；狀態由 lib/iching-source-gate.ts 計算，不得手填 VERIFIED。",
+  "sources": [
+    {
+      "source_id": "S-ZIWEI-JSON",
+      "author": "本站",
+      "locator": "docs/技能戰鬥檔案/紫微斗數/紫微斗數.json",
+      "data_type": "紫微斗數技能正式檔",
+      "kind": "正式檔",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "本站自有",
+      "accessed_at": "2026-09-16",
+      "trust": "A",
+      "edition": "1.0.0（2026-09-16）",
+      "tracked_path": "docs/技能戰鬥檔案/紫微斗數/紫微斗數.json"
+    },
+    {
+      "source_id": "S-TEST-ZIWEI-CHART",
+      "author": "本站",
+      "locator": "tests/ziwei-chart.test.ts",
+      "data_type": "排盤回歸測試：7 張鎖定命盤（命宮＋十四主星位置），含 1 張客戶實證盤",
+      "kind": "工程證據",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "本站自有",
+      "accessed_at": "2026-09-16",
+      "trust": "A",
+      "edition": "npm run test:ziwei（2026-09-16 PASS）",
+      "tracked_path": "tests/ziwei-chart.test.ts",
+      "note": "鎖定盤為 iztro 預設流派輸出的回歸鎖，不是第二套引擎的獨立對照。"
+    },
+    {
+      "source_id": "S-TEST-ZIWEI-CORE",
+      "author": "本站",
+      "locator": "tests/ziwei-core.test.ts",
+      "data_type": "紫微核心測試（命宮干支、晚子時、iztro 宮位索引陷阱）",
+      "kind": "工程證據",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "本站自有",
+      "accessed_at": "2026-09-16",
+      "trust": "A",
+      "edition": "PASS 37 / FAIL 0（2026-09-16）",
+      "tracked_path": "tests/ziwei-core.test.ts"
+    },
+    {
+      "source_id": "S-TEST-THREE-CORE",
+      "author": "本站",
+      "locator": "tests/bazi-ziwei-cross.test.ts",
+      "data_type": "八字×紫微×易經交叉核對（四柱逐字一致）",
+      "kind": "工程證據",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "本站自有",
+      "accessed_at": "2026-09-16",
+      "trust": "A",
+      "edition": "PASS 103 / FAIL 0（2026-09-16）",
+      "tracked_path": "tests/bazi-ziwei-cross.test.ts"
+    },
+    {
+      "source_id": "S-TEST-THREE-IN-ONE",
+      "author": "本站",
+      "locator": "tests/three-in-one.test.ts",
+      "data_type": "三合一整合層測試",
+      "kind": "工程證據",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "本站自有",
+      "accessed_at": "2026-09-16",
+      "trust": "A",
+      "edition": "PASS 136 / FAIL 0（2026-09-16）",
+      "tracked_path": "tests/three-in-one.test.ts"
+    },
+    {
+      "source_id": "S-IZTRO",
+      "author": "SylarLong 與貢獻者",
+      "locator": "https://github.com/SylarLong/iztro（文件 https://docs.iztro.com）",
+      "data_type": "紫微斗數排盤程式庫",
+      "kind": "工程證據",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "MIT：「to deal in the Software without restriction, including without limitation the rights to use, copy, modify…」（Copyright (c) 2023 All Contributors）",
+      "accessed_at": "2026-09-16",
+      "edition": "本站使用 2.5.8（npm 2026-03-01）；npm 最新 2.6.1（2026-09-03）",
+      "trust": "C",
+      "note": "GitHub 約 4.2k stars。README：「紫微斗数流派众多，不同的流派的四化以及星耀亮度都会有些许差异」；2.5.0 起可選 default／zhongzhou（中州派）；本站用預設流派。未見準確度驗證聲明。"
+    },
+    {
+      "source_id": "S-ZIWEIJS-CORE",
+      "author": "lzm0x219",
+      "locator": "https://github.com/lzm0x219/ziwei",
+      "data_type": "北派紫微斗數排盤程式庫（本站只用真太陽時換算）",
+      "kind": "工程證據",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "MIT（Copyright (c) 2025 lzm0x219）",
+      "accessed_at": "2026-09-16",
+      "edition": "0.3.0（npm 已下架：registry 與 tarball 皆 HTTP 404，2026-09-16 實測）",
+      "trust": "C",
+      "note": "供應風險：鎖檔指向的 tarball 已 404，全新安裝會失敗；本站只在 lib/ziwei-sanfang-engine.ts 用 calculateTrueSolarTime。"
+    },
+    {
+      "source_id": "S-TYME4TS",
+      "author": "6tail",
+      "locator": "https://github.com/6tail/tyme4ts",
+      "data_type": "曆法、節氣、干支程式庫（八字四柱底層）",
+      "kind": "工程證據",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "MIT（node_modules/tyme4ts/package.json 標示）",
+      "accessed_at": "2026-09-16",
+      "edition": "1.3.9",
+      "trust": "C"
+    },
+    {
+      "source_id": "S-WENMO",
+      "author": "文墨天機（營運者待查核）",
+      "locator": "App Store id1193514811；Google Play air.com.ziwei001.zwmobilenui",
+      "data_type": "商業紫微斗數軟體",
+      "kind": "公開數位文本",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "待查核（商業軟體；官網 www.ziwei001.com 目前為停權主機頁）",
+      "accessed_at": "2026-09-16",
+      "edition": "基礎版／專業版（版本待查核）",
+      "trust": "D",
+      "note": "「飛星、三合、四化、四柱」「解決安星不準」屬廣告宣稱，不作依據。"
+    },
+    {
+      "source_id": "S-CWA-CALENDAR",
+      "author": "交通部中央氣象署",
+      "locator": "https://www.cwa.gov.tw/V8/C/D/calendar_data.html；天文資料 https://www.cwa.gov.tw/V8/C/D/astronomy_data.html",
+      "data_type": "官方日曆資料表（節氣、朔望、日月食）",
+      "kind": "工程證據",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "「以無償、非專屬、得由使用者再授權之方式提供公眾使用」「使用時應註明出處」（https://www.cwa.gov.tw/V8/C/information.html；特別標示之著作與商標除外）",
+      "accessed_at": "2026-09-16",
+      "edition": "逐年日曆資料表（例 2026cal.pdf）",
+      "trust": "A"
+    },
+    {
+      "source_id": "S-HKO-LUNAR",
+      "author": "香港天文台",
+      "locator": "https://www.hko.gov.hk/tc/gts/time/conversion.htm",
+      "data_type": "公曆與農曆對照表 1901–2100",
+      "kind": "工程證據",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "非商業使用「必須註明政府為資料的知識產權擁有人」「嚴禁出售或交換資料的任何部分」；商業使用須事先書面許可（本站是否屬商業待查核）",
+      "accessed_at": "2026-09-16",
+      "edition": "1901–2100 對照表（PDF／純文字）",
+      "trust": "A",
+      "note": "天文台提醒數十年後節氣時間可能有數分鐘誤差，2057、2089、2097 年可能差一日。"
+    },
+    {
+      "source_id": "S-ZWDS-QUANSHU",
+      "author": "題宋・陳摶（希夷）撰；明・潘希尹補輯",
+      "locator": "《新鋟希夷陳先生紫微斗數全書》7 卷；數位影像 https://www.shuge.org/view/zi_wei_dou_shu_quan_shu/",
+      "data_type": "紫微斗數古籍",
+      "kind": "原典",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "古籍原文屬公有領域；書格影像授權（傳為 CC BY 4.0）待查核",
+      "accessed_at": "2026-09-16",
+      "edition": "明南陽堂刊本（書格稱藏日本內閣文庫，館藏紀錄待查核）",
+      "trust": "A",
+      "note": "羅洪先序署嘉靖庚戌（1550）但學界有疑；題陳摶撰僅為傳統說法。"
+    },
+    {
+      "source_id": "S-ZWDS-JIELAN",
+      "author": "撰人不詳；金陵王洛川刊",
+      "locator": "《新刻纂集紫微斗數捷覽》",
+      "data_type": "紫微斗數古籍",
+      "kind": "原典",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "古籍原文屬公有領域；取用版本權利待查核",
+      "accessed_at": "2026-09-16",
+      "edition": "明萬曆九年（1581）刊本（館藏待查核）",
+      "trust": "A",
+      "note": "中文維基百科稱為目前可考「紫微斗數」之名最早年份；蘇州博物館藏本待查核。"
+    },
+    {
+      "source_id": "S-DAOZANG-ZWDS",
+      "author": "撰人不詳",
+      "locator": "《萬曆續道藏》《紫微斗數》3 卷（https://ctext.org/wiki.pl?if=gb&res=979714；道教百科引胡孚琛《中華道教大辭典》1995 頁 399）",
+      "data_type": "道藏收錄本",
+      "kind": "古籍版本注疏",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "FAIL",
+      "automated_crawl": "FAIL",
+      "training_use": "待查核",
+      "license_terms": "ctext 條款：「Web scraping of this site is in violation of our terms of service」（https://ctext.org/tools/terms-of-use）；引用權限待查核",
+      "accessed_at": "2026-09-16",
+      "edition": "萬曆續道藏（1607）洞真部眾術類薑字號",
+      "trust": "A",
+      "note": "星曜與排盤法與現代紫微斗數不同，不得作為 iztro 式排盤依據。"
+    },
+    {
+      "source_id": "S-TEO-2018",
+      "author": "張惠清（中山醫學大學心理學系臨床心理學碩士班；指導 何明洲）",
+      "locator": "《紫微斗數與具信效度心理量表的相關》 https://www.airitilibrary.com/Article/Detail/U0003-1807201810474500",
+      "data_type": "碩士論文（實證）",
+      "kind": "原始研究",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "學位論文著作權；書目可標示出處引用，全文不重製",
+      "accessed_at": "2026-09-16",
+      "edition": "2018 碩士論文",
+      "trust": "B",
+      "note": "243 名大學生：命盤判讀與具信效度的人格、依附、家庭量表無顯著相關。"
+    },
+    {
+      "source_id": "S-HUANG-PCCU",
+      "author": "黃威仁（中國文化大學心理輔導研究所；指導 郭士賢）",
+      "locator": "《紫微斗數命理師在助人歷程上之語言技巧的研究》 https://irlib.pccu.edu.tw/bitstream/987654321/20075/2/gsweb729.pdf",
+      "data_type": "碩士論文（命理師語言技巧）",
+      "kind": "學術出版",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "待查核（學位論文著作權）",
+      "accessed_at": "2026-09-16",
+      "edition": "年份待查核（搜尋摘要稱 2011）",
+      "trust": "B",
+      "note": "研究命理師怎麼說話，不是命盤準不準。"
+    },
+    {
+      "source_id": "S-LIN-NYCU",
+      "author": "林聖軒（國立陽明交通大學統計所）、劉政猷",
+      "locator": "〈以社會變遷調查資料庫進行統計命理學之實證研究〉2020 台灣 STS 年會；中研院人社中心演講 2023-05-11 https://www.rchss.sinica.edu.tw/main/posts/11340",
+      "data_type": "研討會論文與演講（未經同儕審查）",
+      "kind": "學術出版",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "待查核",
+      "accessed_at": "2026-09-16",
+      "edition": "2020 研討會論文（PDF 未開啟，結果待查核）",
+      "trust": "B",
+      "note": "搜尋摘要：以婚姻狀態做 Kappa 分析，結果與年齡相關，尚未證實預測準確度。"
+    },
+    {
+      "source_id": "S-CARLSON-1985",
+      "author": "Shawn Carlson",
+      "locator": "A double-blind test of astrology. Nature. https://doi.org/10.1038/318419a0",
+      "data_type": "雙盲占星實驗",
+      "kind": "原始研究",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "Nature 期刊著作權；書目與短引可標示出處引用，全文不重製",
+      "accessed_at": "2026-09-16",
+      "edition": "Nature 318(6045):419–425，1985-12",
+      "trust": "A",
+      "note": "西洋本命占星表現不優於機率。Ertel 2009 再分析稱 p≈.05／.04（僅搜尋摘要，待查核）。"
+    },
+    {
+      "source_id": "S-DEAN-KELLY-2003",
+      "author": "Geoffrey Dean、Ivan W. Kelly",
+      "locator": "Is astrology relevant to consciousness and psi? Journal of Consciousness Studies. https://www.ingentaconnect.com/content/imp/jcs/2003/00000010/f0020006/art00010",
+      "data_type": "時間雙胞胎研究與 40 餘項對照研究統合",
+      "kind": "原始研究",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "Imprint Academic 期刊著作權；書目與短引可標示出處引用，全文不重製",
+      "accessed_at": "2026-09-16",
+      "edition": "Journal of Consciousness Studies 10(6–7)，2003",
+      "trust": "A",
+      "note": "出生相差不到 5 分鐘的「時間雙胞胎」無相似性；40 餘項對照研究中占星師不優於機率（出版社頁 403，細節來自搜尋摘要，樣本數待查核）。"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "C-ZIWEI-CHART",
+      "title": "紫微斗數排盤正確性（命宮、十二宮、十四主星、三方四正、真太陽時）",
+      "domain": "紫微斗數排盤",
+      "files": [
+        "lib/ziwei/engine.ts",
+        "lib/ziwei/chartEngine.ts",
+        "lib/ziwei-calculator.ts",
+        "lib/ziwei-chart-store.ts",
+        "lib/ziwei-result-cache.ts",
+        "lib/ziwei-sanfang-engine.ts",
+        "docs/技能戰鬥檔案/紫微斗數/紫微斗數.json"
+      ],
+      "authority_files": [
+        "S-ZIWEI-JSON"
+      ],
+      "big_data_sources": [
+        "S-TEST-ZIWEI-CHART",
+        "S-TEST-THREE-CORE"
+      ],
+      "cross_references": [
+        "S-TEST-ZIWEI-CORE",
+        "S-TEST-THREE-CORE",
+        "S-TEST-THREE-IN-ONE",
+        "S-IZTRO",
+        "S-TYME4TS",
+        "S-CWA-CALENDAR"
+      ],
+      "conflicts": [
+        {
+          "topic": "流派差異：四化與星曜亮度",
+          "sources": [
+            "S-IZTRO",
+            "S-ZIWEIJS-CORE"
+          ],
+          "difference": "iztro 明言不同流派四化與亮度有差異，提供 default／中州派；@ziweijs/core 為北派且壬干化科取左輔",
+          "weight_note": "兩者皆 C 級軟體；本站未以第二套引擎逐盤對照",
+          "adopted": "本站採 iztro 預設流派，客戶畫面須標明流派，不宣稱「唯一正確盤」",
+          "reason": "七張鎖定盤是 iztro 自身輸出的回歸鎖，缺第二引擎或曆法權威逐盤獨立對照，差異未解"
+        }
+      ],
+      "status": "CONFLICT",
+      "note": "四柱一律取自 lib/bazi/engine.ts，八字與紫微四柱逐字一致（三合一守門）。供應風險：@ziweijs/core 已從 npm 下架（404），全新安裝會失敗。"
+    },
+    {
+      "claim_id": "C-ZIWEI-CLASSICS",
+      "title": "紫微斗數星曜、宮位與格局的古籍依據（老師綜合、命格卡、星獸連結）",
+      "domain": "紫微斗數知識",
+      "files": [
+        "lib/ziwei-teacher-synthesis.ts",
+        "lib/ziwei-teacher/consensus.ts",
+        "lib/ziwei-teacher/teachers.ts",
+        "lib/ziwei-teacher/types.ts",
+        "lib/ziwei-teacher/palace-context.ts",
+        "lib/ziwei-destiny-card.ts",
+        "lib/ziwei-presentation-service.ts",
+        "lib/ziwei-star-beast-link.ts"
+      ],
+      "authority_files": [
+        "S-ZWDS-QUANSHU",
+        "S-ZWDS-JIELAN"
+      ],
+      "big_data_sources": [
+        "S-DAOZANG-ZWDS"
+      ],
+      "cross_references": [
+        "S-ZWDS-QUANSHU",
+        "S-ZWDS-JIELAN",
+        "S-DAOZANG-ZWDS",
+        "S-IZTRO"
+      ],
+      "conflicts": [
+        {
+          "topic": "《紫微斗數全書》版本史與作者",
+          "sources": [
+            "S-ZWDS-QUANSHU",
+            "S-ZWDS-JIELAN"
+          ],
+          "difference": "書格稱存明南陽堂刊本，中文維基稱《全書》存民國石印本；羅洪先 1550 序有疑，現存刊本晚於 1581《捷覽》；題陳摶撰僅為傳統說法",
+          "weight_note": "皆未取得研究圖書館館藏紀錄",
+          "adopted": "客戶文字只說「傳統上題陳希夷撰」，不寫成史實",
+          "reason": "版本與作者未三方一致"
+        },
+        {
+          "topic": "道藏本與現代紫微斗數體系不同",
+          "sources": [
+            "S-DAOZANG-ZWDS",
+            "S-ZWDS-QUANSHU"
+          ],
+          "difference": "《續道藏》《紫微斗數》三卷的星曜與排盤法與現代紫微斗數不同",
+          "adopted": "道藏本只作歷史參考，不作本站排盤或星曜意涵依據",
+          "reason": "同名不同體系，不能互證"
+        }
+      ],
+      "status": "CONFLICT",
+      "note": "本站星曜意涵與老師綜合文字未逐條對照古籍底本。"
+    },
+    {
+      "claim_id": "C-ZIWEI-VALIDITY",
+      "title": "紫微斗數的公信力定位：傳統文化詮釋，不是已驗證的預測",
+      "domain": "紫微斗數知識",
+      "files": [
+        "lib/ziwei-teacher/entertainment.ts",
+        "lib/ziwei-teacher/entertainment-types.ts",
+        "docs/技能戰鬥檔案/紫微斗數/新人檔案.md"
+      ],
+      "authority_files": [
+        "S-CARLSON-1985"
+      ],
+      "big_data_sources": [
+        "S-DEAN-KELLY-2003"
+      ],
+      "cross_references": [
+        "S-CARLSON-1985",
+        "S-DEAN-KELLY-2003",
+        "S-TEO-2018",
+        "S-LIN-NYCU"
+      ],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "找不到專門檢驗紫微斗數的同儕審查期刊論文；現有對照檢驗（Carlson 1985、Dean & Kelly 2003 為西洋占星；張惠清 2018 碩論、林聖軒研討會）皆未發現超越機率的效果。客戶文字只可定位為傳統與文化詮釋。"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-09-15",
+  "updatedAt": "2026-09-16",
   "rule": "凡有「易經」兩個字，都要有交叉比對的來源、權威性的檔案、大數據的來源；狀態由 lib/iching-source-gate.ts 計算，不得手填 VERIFIED。",
   "sources": [
     {
@@ -38,19 +38,19 @@
     {
       "source_id": "S-CTEXT",
       "author": "Chinese Text Project（中國哲學書電子化計劃）",
-      "locator": "https://ctext.org",
+      "locator": "https://ctext.org/book-of-changes/zh（周易頁；網站擋爬蟲，頁面內容未能讀取）",
       "data_type": "公開數位古籍文本（多底本）",
       "kind": "公開數位文本",
       "can_cite": "待查核",
       "can_reproduce": "待查核",
-      "bulk_extraction": "待查核",
-      "automated_crawl": "待查核",
+      "bulk_extraction": "FAIL",
+      "automated_crawl": "FAIL",
       "training_use": "待查核",
-      "license_terms": "待查核：據業主提供整理，該站列有自動下載限制，須人工確認使用條款；可人工查證比對，不得因公開就大量擷取",
-      "accessed_at": "未存取（待人工查核）",
+      "license_terms": "網站聲明「Web scraping of this site is in violation of our terms of service」（https://ctext.org/tools/api）；完整條款頁無法取得，引用與訓練權限待查核",
+      "accessed_at": "2026-09-16",
       "edition": "站內列多個底本（武英殿、阮元校刻十三經注疏、四庫全書等，待人工確認）",
       "trust": "C",
-      "note": "只能輔助查找與比字，不能單獨決定核心規則"
+      "note": "網站聲明會對爬蟲間歇回傳錯誤資料；付費訂閱提供 API。只做人工查證比對，不做自動擷取。"
     },
     {
       "source_id": "S-HARVARD-YENCHING",
@@ -64,10 +64,10 @@
       "automated_crawl": "待查核",
       "training_use": "待查核",
       "license_terms": "待查核",
-      "accessed_at": "未存取（待人工查核）",
+      "accessed_at": "2026-09-16",
       "edition": "用於核對版本、年代、典藏存在性",
       "trust": "A",
-      "note": "館藏規模等數字未經本專案查證，不寫入"
+      "note": "HOLLIS 書目（哈佛公開目錄 API 查得）：周易正義 1914 劉氏嘉業堂 990077069120203941；宋監本周易正義 1935 990080805300203941；周易本義集成 2005 990101727780203941。單行朱熹《周易本義》前五筆未見（待查核）。使用條款未查得。"
     },
     {
       "source_id": "S-WORLDCAT",
@@ -77,18 +77,18 @@
       "kind": "研究圖書館書目",
       "can_cite": "待查核",
       "can_reproduce": "待查核",
-      "bulk_extraction": "待查核",
-      "automated_crawl": "待查核",
+      "bulk_extraction": "FAIL",
+      "automated_crawl": "FAIL",
       "training_use": "待查核",
-      "license_terms": "待查核",
-      "accessed_at": "未存取（待人工查核）",
+      "license_terms": "OCLC 條款禁止「use of bots, spiders, or other automated information-gathering devices…to mine or harvest material amounts of Data」（https://policies.oclc.org/en/terms/worldcatorg.html）；引用與訓練權限待查核",
+      "accessed_at": "2026-09-16",
       "edition": "書目記錄（逐筆待查核）",
       "trust": "A"
     },
     {
       "source_id": "S-LYNN-COLUMBIA",
       "author": "Richard John Lynn（譯注）",
-      "locator": "The Classic of Changes: A New Translation of the I Ching as Interpreted by Wang Bi, Columbia University Press, 1994",
+      "locator": "https://cup.columbia.edu/book/the-classic-of-changes/9780231082952/",
       "data_type": "大學出版社學術譯注（王弼注本）",
       "kind": "學術出版",
       "can_cite": "待查核",
@@ -97,15 +97,15 @@
       "automated_crawl": "待查核",
       "training_use": "待查核",
       "license_terms": "待查核（受著作權保護之現代出版品）",
-      "accessed_at": "未存取（待人工查核）",
-      "edition": "1994 年版（待查核）",
+      "accessed_at": "2026-09-16",
+      "edition": "精裝 1994 ISBN 9780231082945；平裝 2004 ISBN 9780231082952；電子書 ISBN 9780231514057",
       "trust": "B",
       "note": "詮釋層，不可取代原典"
     },
     {
       "source_id": "S-REDMOND-HON-OUP",
       "author": "Geoffrey Redmond、Tze-ki Hon",
-      "locator": "Teaching the I Ching (Book of Changes), Oxford University Press, 2014",
+      "locator": "https://global.oup.com/academic/product/teaching-the-i-ching-book-of-changes-9780199766819",
       "data_type": "大學出版社學術研究",
       "kind": "學術出版",
       "can_cite": "待查核",
@@ -114,8 +114,8 @@
       "automated_crawl": "待查核",
       "training_use": "待查核",
       "license_terms": "待查核（受著作權保護之現代出版品）",
-      "accessed_at": "未存取（待人工查核）",
-      "edition": "2014 年版（待查核）",
+      "accessed_at": "2026-09-16",
+      "edition": "2014，ISBN 978-0-19-976681-9（AAR Teaching Religious Studies；OUP 頁面未能載入，依 OUP 搜尋列表與 Brill 書評）",
       "trust": "B",
       "note": "歷史研究層，不可取代原典"
     },
@@ -182,9 +182,10 @@
       "automated_crawl": "待查核",
       "training_use": "待查核",
       "license_terms": "待查核",
-      "accessed_at": "未存取（待人工查核）",
-      "edition": "線上版（逐詞條待查核）",
-      "trust": "A"
+      "accessed_at": "2026-09-16",
+      "edition": "印刷版 2007；線上版 2018 起；2023 內容更新",
+      "trust": "A",
+      "note": "APA 出版部落格（2023-11-28）稱「more than 25,000 authoritative entries spanning 90 psychology subfields」。apa.org 頁面未能開啟，使用條款僅見搜尋摘要（禁止重製與改作），權限維持待查核：只可標示出處短引，不大量複製。"
     },
     {
       "source_id": "S-PSYCINFO",
@@ -198,9 +199,10 @@
       "automated_crawl": "待查核",
       "training_use": "待查核",
       "license_terms": "待查核（訂閱制資料庫）",
-      "accessed_at": "未存取（待人工查核）",
+      "accessed_at": "2026-09-16",
       "edition": "資料庫索引（檢索式與日期待記錄）",
-      "trust": "A"
+      "trust": "A",
+      "note": "訂閱制。APA 新聞（2021）稱達第 500 萬筆紀錄、2026-04 收錄期刊 2,319 種——皆為搜尋摘要，頁面未能開啟，數字待查核。大量資料為付費個案申請服務。"
     },
     {
       "source_id": "S-PUBMED",
@@ -208,15 +210,16 @@
       "locator": "PubMed, https://pubmed.ncbi.nlm.nih.gov",
       "data_type": "生醫與心理文獻大數據索引",
       "kind": "學術資料庫",
-      "can_cite": "待查核",
-      "can_reproduce": "待查核",
-      "bulk_extraction": "待查核",
-      "automated_crawl": "待查核",
+      "can_cite": "PASS",
+      "can_reproduce": "FAIL",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
       "training_use": "待查核",
-      "license_terms": "待查核（摘要與全文授權依各期刊）",
-      "accessed_at": "未存取（待人工查核）",
-      "edition": "資料庫索引（檢索式與日期待記錄）",
-      "trust": "A"
+      "license_terms": "NLM 條款：須標示「Courtesy of the U.S. National Library of Medicine」、不得暗示背書；摘要可能受著作權保護，不得重製；大量取用限 FTP baseline，自動化限 E-utilities（每秒 ≤3 次、有金鑰 ≤10 次，大型作業於美東夜間或週末）",
+      "accessed_at": "2026-09-16",
+      "edition": "線上資料庫（2026-09-16 官方頁：more than 40 million citations and abstracts）",
+      "trust": "A",
+      "note": "涵蓋生醫為主，心理學不完整，須搭配 PsycInfo。"
     },
     {
       "source_id": "S-ARON-1997",
@@ -432,14 +435,14 @@
       "locator": "Ego depletion: Is the active self a limited resource? Journal of Personality and Social Psychology, 1998",
       "data_type": "同儕審查原始研究（自我耗竭／決策疲勞相關）",
       "kind": "原始研究",
-      "can_cite": "待查核",
+      "can_cite": "PASS",
       "can_reproduce": "待查核",
       "bulk_extraction": "待查核",
       "automated_crawl": "待查核",
       "training_use": "待查核",
-      "license_terms": "待查核（期刊著作權）",
-      "accessed_at": "未存取（待人工查核）",
-      "edition": "1998 年期刊論文（卷期待查核）",
+      "license_terms": "APA 期刊著作權；書目與短引可標示出處引用，全文不重製",
+      "accessed_at": "2026-09-16",
+      "edition": "JPSP 74(5):1252–1265；DOI 10.1037/0022-3514.74.5.1252；PMID 9599441",
       "trust": "A"
     },
     {
@@ -448,15 +451,16 @@
       "locator": "A multilab preregistered replication of the ego-depletion effect. Perspectives on Psychological Science, 2016",
       "data_type": "預先登記多實驗室重複研究",
       "kind": "原始研究",
-      "can_cite": "待查核",
+      "can_cite": "PASS",
       "can_reproduce": "待查核",
       "bulk_extraction": "待查核",
       "automated_crawl": "待查核",
       "training_use": "待查核",
-      "license_terms": "待查核（期刊著作權）",
-      "accessed_at": "未存取（待人工查核）",
-      "edition": "2016 年期刊論文（卷期待查核）",
-      "trust": "A"
+      "license_terms": "SAGE 期刊著作權；書目與短引可標示出處引用，全文不重製",
+      "accessed_at": "2026-09-16",
+      "edition": "Perspectives on Psychological Science 11(4):546–573；DOI 10.1177/1745691616652873；PMID 27474142",
+      "trust": "A",
+      "note": "23 個實驗室、N = 2,141，預先登記；效果 d = 0.04，95% CI [-0.07, 0.15]，涵蓋零。"
     },
     {
       "source_id": "S-ARCHIVE-JSON",
@@ -594,6 +598,207 @@
       "edition": "現行版",
       "trust": "A",
       "tracked_path": "tests/beast-stake-reward.test.mjs"
+    },
+    {
+      "source_id": "S-NCL-RBOOK",
+      "author": "國家圖書館（臺灣）",
+      "locator": "https://rbook.ncl.edu.tw/NCLSearch/（古籍與特藏文獻資源：中文古籍聯合目錄、古籍影像檢索）",
+      "data_type": "研究圖書館古籍書目與影像",
+      "kind": "研究圖書館書目",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "頁尾「國家圖書館著作權聲明 Copyright © All rights reserved.」；未見專屬使用條款頁，引用與擷取權限待查核",
+      "accessed_at": "2026-09-16",
+      "edition": "線上書目系統（非單一版本）",
+      "trust": "A"
+    },
+    {
+      "source_id": "S-NCL-BENYI-1773",
+      "author": "宋・朱熹撰；國家圖書館藏",
+      "locator": "https://catalog.digitalarchives.tw/item/00/08/61/cb.html",
+      "data_type": "古籍刊本書目與影像詮釋資料",
+      "kind": "古籍版本注疏",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "FAIL",
+      "license_terms": "頁面標示創用 CC「姓名標示/非商業性/禁止改作」（CC BY-NC-ND）；標示對象為目錄與影像紀錄",
+      "accessed_at": "2026-09-16",
+      "edition": "清乾隆三十八年（1773）金陵敦化堂刊本，4 冊，20.1×13cm",
+      "trust": "A",
+      "note": "可標示出處引用；禁止改作，故不納入訓練、不改寫成本站文字。權利洽國圖特藏文獻組。"
+    },
+    {
+      "source_id": "S-WIKISOURCE-ZHOUYI",
+      "author": "維基文庫貢獻者／Wikimedia Foundation",
+      "locator": "https://zh.wikisource.org/wiki/周易",
+      "data_type": "公開數位文本（經文）",
+      "kind": "公開數位文本",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "「本站的全部文字在知识共享 署名-相同方式共享 4.0协议之条款下提供」（CC BY-SA 4.0，須標示出處與授權、相同方式分享）",
+      "accessed_at": "2026-09-16",
+      "edition": "底本未標明（待查核）",
+      "trust": "C"
+    },
+    {
+      "source_id": "S-WILHELM-PRINCETON",
+      "author": "Richard Wilhelm 譯，Cary F. Baynes 英譯，C. G. Jung 序；Princeton University Press",
+      "locator": "https://press.princeton.edu/books/hardcover/9780691097503/the-i-ching-or-book-of-changes",
+      "data_type": "學術翻譯（含榮格序）",
+      "kind": "學術出版",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "待查核（受著作權保護之現行出版品）",
+      "accessed_at": "2026-09-16",
+      "edition": "Bollingen Series（XIX 見外部書目）；精裝 1967 出版（©1968），ISBN 9780691097503",
+      "trust": "B",
+      "note": "出版社頁面：808 頁，序文署名 C. G. Jung 與 Hellmut Wilhelm；首版年份（常見 1950）待查核。榮格序屬歷史詮釋，不是實證研究證據。"
+    },
+    {
+      "source_id": "S-WILHELM-DATASET-GITHUB",
+      "author": "adamblvck（GitHub）",
+      "locator": "https://github.com/adamblvck/iching-wilhelm-dataset",
+      "data_type": "衛禮賢譯本 JSON／CSV 資料集",
+      "kind": "公開數位文本",
+      "can_cite": "待查核",
+      "can_reproduce": "FAIL",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "FAIL",
+      "license_terms": "程式庫標 MIT，README 稱譯本「has entered the public domain in 2020」，與普林斯頓仍在販售該譯本衝突，著作權待查核",
+      "accessed_at": "2026-09-16",
+      "edition": "Wilhelm/Baynes 譯文（版本待查核）",
+      "trust": "D",
+      "note": "著作權衝突未解：不得進《易經》核心、不得重製或訓練。"
+    },
+    {
+      "source_id": "S-PMC-OA",
+      "author": "U.S. National Library of Medicine／NCBI",
+      "locator": "https://pmc.ncbi.nlm.nih.gov/tools/openftlist/",
+      "data_type": "開放授權全文研究（大數據）",
+      "kind": "學術資料庫",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "FAIL",
+      "training_use": "待查核",
+      "license_terms": "「License terms vary. Please refer to the license statement in each article」；大量取用限 PMC Cloud、OAI-PMH、E-utilities、BioC API，「Systematic retrieval…through any other automated process is prohibited」",
+      "accessed_at": "2026-09-16",
+      "edition": "線上資料集（筆數待查核）",
+      "trust": "A",
+      "note": "只有 CC BY／CC0 文章可安全商業再利用，須逐篇核對授權。"
+    },
+    {
+      "source_id": "S-OSF",
+      "author": "Center for Open Science",
+      "locator": "https://osf.io（條款：https://github.com/CenterForOpenScience/cos.io/blob/master/TERMS_OF_USE.md）",
+      "data_type": "預先登記與重複研究資料庫",
+      "kind": "學術資料庫",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "公開內容依各專案管理者標示的授權提供；條款未提及爬取與訓練，僅禁止造成不合理流量",
+      "accessed_at": "2026-09-16",
+      "edition": "使用條款 2025-01-10 更新版",
+      "trust": "A"
+    },
+    {
+      "source_id": "S-OSC-2015",
+      "author": "Open Science Collaboration",
+      "locator": "Estimating the reproducibility of psychological science. Science, 2015. https://doi.org/10.1126/science.aac4716",
+      "data_type": "心理學重複研究（100 項）",
+      "kind": "原始研究",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "AAAS 期刊著作權；書目與短引可標示出處引用，全文不重製",
+      "accessed_at": "2026-09-16",
+      "edition": "Science 349(6251):aac4716；PMID 26315443",
+      "trust": "A",
+      "note": "原研究 97% 顯著，重複研究僅 36% 顯著，效果量約減半：單一研究的心理學名詞須有重複證據才進核心。"
+    },
+    {
+      "source_id": "S-FORER-1949",
+      "author": "Bertram R. Forer",
+      "locator": "The fallacy of personal validation: a classroom demonstration of gullibility. https://doi.org/10.1037/h0059240",
+      "data_type": "原始研究（巴納姆／佛瑞效應）",
+      "kind": "原始研究",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "APA 期刊著作權；書目與短引可標示出處引用，全文不重製",
+      "accessed_at": "2026-09-16",
+      "edition": "Journal of Abnormal and Social Psychology 44(1):118–123（1949-01）",
+      "trust": "A",
+      "note": "籠統描述會被當成「很準、就是在說我」。常見引用的 4.26/5 評分待查核。"
+    },
+    {
+      "source_id": "S-HONG-HENRICH-2021",
+      "author": "Ze Hong、Joseph Henrich（Harvard University）",
+      "locator": "The Cultural Evolution of Epistemic Practices: The Case of Divination. https://doi.org/10.1007/s12110-021-09408-6",
+      "data_type": "原始研究（形式模型＋民族誌）",
+      "kind": "原始研究",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "Springer 期刊著作權；書目與短引可標示出處引用，全文不重製",
+      "accessed_at": "2026-09-16",
+      "edition": "Human Nature 32(3):622–651；PMID 34463944",
+      "trust": "A",
+      "note": "強烈先驗信念、少報反例、由行為誤推信念，會讓人高估占卜效果。"
+    },
+    {
+      "source_id": "S-STORM-THALBOURNE-2001",
+      "author": "Lance Storm、Michael A. Thalbourne",
+      "locator": "Studies of the I Ching: I. A replication. Journal of Parapsychology. https://www.aiprinc.org/documents/para-ac08_Storm%20and%20Thalbourne_2001.pdf",
+      "data_type": "易經占卜實驗（超心理學期刊）",
+      "kind": "原始研究",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "期刊著作權；書目與短引可標示出處引用，全文不重製",
+      "accessed_at": "2026-09-16",
+      "edition": "Journal of Parapsychology 65(2):105–124；N = 107",
+      "trust": "C",
+      "note": "卦象命中顯著，但先前的人格相關未重現；未預先登記；檢驗的是超感官宣稱，不是諮商效果。"
+    },
+    {
+      "source_id": "S-ZENG-2023",
+      "author": "Zeng",
+      "locator": "The I Ching as a Potential Jungian Application: History and Practice. https://doi.org/10.1111/1468-5922.12958",
+      "data_type": "榮格分析心理學歷史與個案討論",
+      "kind": "學術出版",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "Wiley 期刊著作權；書目與短引可標示出處引用，全文不重製",
+      "accessed_at": "2026-09-16",
+      "edition": "Journal of Analytical Psychology 68(5):913–932；PMID 37782002",
+      "trust": "B",
+      "note": "只有臨床個案，沒有對照資料。PubMed 以 I Ching／Yijing 搜題名摘要 78 筆，沒有易經用於諮商的對照試驗。"
     }
   ],
   "claims": [
@@ -601,10 +806,27 @@
       "claim_id": "C-ICHING-TEXT",
       "title": "六十四卦卦名、王家序與卦義",
       "domain": "易經知識",
-      "files": ["data/iching-hexagrams.json", "lib/iching-engine.ts"],
-      "authority_files": ["S-ZHOUYI-ZHENGYI", "S-ZHOUYI-BENYI"],
-      "big_data_sources": ["S-CTEXT", "S-WORLDCAT"],
-      "cross_references": ["S-ZHOUYI-ZHENGYI", "S-ZHOUYI-BENYI", "S-HARVARD-YENCHING", "S-LYNN-COLUMBIA", "S-SITE-HEXAGRAMS"],
+      "files": [
+        "data/iching-hexagrams.json",
+        "lib/iching-engine.ts"
+      ],
+      "authority_files": [
+        "S-ZHOUYI-ZHENGYI",
+        "S-ZHOUYI-BENYI"
+      ],
+      "big_data_sources": [
+        "S-CTEXT",
+        "S-WORLDCAT",
+        "S-NCL-RBOOK"
+      ],
+      "cross_references": [
+        "S-ZHOUYI-ZHENGYI",
+        "S-ZHOUYI-BENYI",
+        "S-HARVARD-YENCHING",
+        "S-LYNN-COLUMBIA",
+        "S-SITE-HEXAGRAMS",
+        "S-NCL-BENYI-1773"
+      ],
       "conflicts": [],
       "status": "PENDING_POOL",
       "note": "卦名與王家序可望與原典三方一致，但授權與底本尚未人工查核；本站白話卦義精要未逐條對照底本。"
@@ -613,14 +835,32 @@
       "claim_id": "C-ICHING-METHOD",
       "title": "起卦法（梅花易數生辰／報數起卦）與先天卦數對照",
       "domain": "易經知識",
-      "files": ["lib/iching-numbers.ts", "data/iching-number-map.json"],
-      "authority_files": ["S-ZHOUYI-BENYI", "S-MEIHUA"],
-      "big_data_sources": ["S-CTEXT", "S-WORLDCAT"],
-      "cross_references": ["S-ZHOUYI-BENYI", "S-MEIHUA", "S-REDMOND-HON-OUP", "S-SITE-NUMBERMAP"],
+      "files": [
+        "lib/iching-numbers.ts",
+        "data/iching-number-map.json"
+      ],
+      "authority_files": [
+        "S-ZHOUYI-BENYI",
+        "S-MEIHUA"
+      ],
+      "big_data_sources": [
+        "S-CTEXT",
+        "S-WORLDCAT"
+      ],
+      "cross_references": [
+        "S-ZHOUYI-BENYI",
+        "S-MEIHUA",
+        "S-REDMOND-HON-OUP",
+        "S-SITE-NUMBERMAP",
+        "S-NCL-BENYI-1773"
+      ],
       "conflicts": [
         {
           "topic": "《梅花易數》作者與成書年代",
-          "sources": ["S-MEIHUA", "S-REDMOND-HON-OUP"],
+          "sources": [
+            "S-MEIHUA",
+            "S-REDMOND-HON-OUP"
+          ],
           "difference": "傳統題名宋・邵雍；作者歸屬與成書年代未經原典、版本、研究三方一致查證",
           "weight_note": "術數古籍（C 級）不得單獨決定核心規則",
           "adopted": "只稱「梅花易數起卦法」，不宣稱邵雍親撰",
@@ -628,7 +868,10 @@
         },
         {
           "topic": "數字 9 與 0 的卦意（用九至陽、太極歸藏）",
-          "sources": ["S-SITE-NUMBERMAP", "S-ZHOUYI-BENYI"],
+          "sources": [
+            "S-SITE-NUMBERMAP",
+            "S-ZHOUYI-BENYI"
+          ],
           "difference": "先天卦數只有一到八；9、0 的配意為本站詮釋，古籍未見同樣對照",
           "adopted": "標為本站詮釋，不宣稱古籍原文",
           "reason": "與原典範圍不一致"
@@ -640,14 +883,46 @@
       "claim_id": "C-ICHING-PSYCHOLOGY",
       "title": "易經洋蔥心理學：心理學專有名詞與諮商技法",
       "domain": "易經洋蔥心理學",
-      "files": ["lib/iching-psychology.ts", "lib/red-luan-iching-reading.ts", "lib/nameology-iching-presentation.ts", "docs/iching-skill-manual.md"],
-      "authority_files": ["S-APA-DICTIONARY"],
-      "big_data_sources": ["S-PSYCINFO", "S-PUBMED"],
-      "cross_references": ["S-ARON-1997", "S-CLANCE-1978", "S-NOREM-1986", "S-NOLEN-HOEKSEMA-1991", "S-HAYES-1996", "S-BARTHOLOMEW-1991", "S-LIEBERMAN-2007", "S-BORDIN-1979", "S-CROCKER-2001", "S-ARKES-1985", "S-SNYDER-1974", "S-YOUNG-2003", "S-KOHUT-1971", "S-BAUMEISTER-1998", "S-HAGGER-2016"],
+      "files": [
+        "lib/iching-psychology.ts",
+        "lib/red-luan-iching-reading.ts",
+        "lib/nameology-iching-presentation.ts",
+        "docs/iching-skill-manual.md"
+      ],
+      "authority_files": [
+        "S-APA-DICTIONARY"
+      ],
+      "big_data_sources": [
+        "S-PSYCINFO",
+        "S-PUBMED",
+        "S-PMC-OA",
+        "S-OSF"
+      ],
+      "cross_references": [
+        "S-ARON-1997",
+        "S-CLANCE-1978",
+        "S-NOREM-1986",
+        "S-NOLEN-HOEKSEMA-1991",
+        "S-HAYES-1996",
+        "S-BARTHOLOMEW-1991",
+        "S-LIEBERMAN-2007",
+        "S-BORDIN-1979",
+        "S-CROCKER-2001",
+        "S-ARKES-1985",
+        "S-SNYDER-1974",
+        "S-YOUNG-2003",
+        "S-KOHUT-1971",
+        "S-BAUMEISTER-1998",
+        "S-HAGGER-2016",
+        "S-OSC-2015"
+      ],
       "conflicts": [
         {
           "topic": "決策疲勞（自我耗竭）",
-          "sources": ["S-BAUMEISTER-1998", "S-HAGGER-2016"],
+          "sources": [
+            "S-BAUMEISTER-1998",
+            "S-HAGGER-2016"
+          ],
           "difference": "原始研究報告意志力會耗竭；預先登記的多實驗室重複研究效果接近零",
           "weight_note": "兩者皆 A 級；後者為預先登記多實驗室",
           "adopted": "客戶文字暫不把「決策疲勞」當成確定結論",
@@ -661,10 +936,26 @@
       "claim_id": "C-BEAST-OPPONENT",
       "title": "神獸卡對手「易經」的智能（三級難度、首領反制、中等組陣）",
       "domain": "易經對手智能",
-      "files": ["docs/技能戰鬥檔案/易經/易經.json", "docs/技能戰鬥檔案/易經/新人檔案.md", "lib/beast-game/iching-skill-archive.ts"],
-      "authority_files": ["S-ARCHIVE-JSON"],
-      "big_data_sources": ["S-BEAST-ACCOUNTS", "S-REPORT-DIFFICULTY", "S-REPORT-MEDIUM", "S-REPORT-BALANCE"],
-      "cross_references": ["S-REPORT-DIFFICULTY", "S-REPORT-MEDIUM", "S-REPORT-BALANCE", "S-TEST-DIFFICULTY"],
+      "files": [
+        "docs/技能戰鬥檔案/易經/易經.json",
+        "docs/技能戰鬥檔案/易經/新人檔案.md",
+        "lib/beast-game/iching-skill-archive.ts"
+      ],
+      "authority_files": [
+        "S-ARCHIVE-JSON"
+      ],
+      "big_data_sources": [
+        "S-BEAST-ACCOUNTS",
+        "S-REPORT-DIFFICULTY",
+        "S-REPORT-MEDIUM",
+        "S-REPORT-BALANCE"
+      ],
+      "cross_references": [
+        "S-REPORT-DIFFICULTY",
+        "S-REPORT-MEDIUM",
+        "S-REPORT-BALANCE",
+        "S-TEST-DIFFICULTY"
+      ],
       "conflicts": [],
       "status": "VERIFIED"
     },
@@ -672,13 +963,49 @@
       "claim_id": "C-BEAST-JUDGMENT",
       "title": "易經技術判斷（勝利卦象等級與獎勵張數）",
       "domain": "易經對手智能",
-      "files": ["lib/beast-game/iching-judgment.ts"],
-      "authority_files": ["S-JUDGMENT-CODE"],
+      "files": [
+        "lib/beast-game/iching-judgment.ts"
+      ],
+      "authority_files": [
+        "S-JUDGMENT-CODE"
+      ],
       "big_data_sources": [],
-      "cross_references": ["S-JUDGMENT-CODE", "S-TEST-STAKE-REWARD"],
+      "cross_references": [
+        "S-JUDGMENT-CODE",
+        "S-TEST-STAKE-REWARD"
+      ],
       "conflicts": [],
       "status": "PENDING_POOL",
       "note": "卦象等級門檻與獎勵張數尚未以實際對局分布校準，沒有大數據來源。"
+    },
+    {
+      "claim_id": "C-ICHING-DIVINATION-FRAMING",
+      "title": "易經卜卦的心理學定位：自我反思的文化工具，不是已驗證的診斷或預測",
+      "domain": "易經洋蔥心理學",
+      "files": [
+        "lib/iching-psychology.ts",
+        "lib/iching-engine.ts",
+        "docs/iching-skill-manual.md"
+      ],
+      "authority_files": [
+        "S-APA-DICTIONARY"
+      ],
+      "big_data_sources": [
+        "S-PUBMED",
+        "S-PSYCINFO",
+        "S-OSF"
+      ],
+      "cross_references": [
+        "S-FORER-1949",
+        "S-HONG-HENRICH-2021",
+        "S-OSC-2015",
+        "S-STORM-THALBOURNE-2001",
+        "S-ZENG-2023",
+        "S-WILHELM-PRINCETON"
+      ],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "主流心理學最強的證據解釋「為什麼讀起來很準」（巴納姆效應、信念維持偏誤），不支持預測力；易經用於諮商只有榮格派歷史與個案，沒有對照研究。客戶文字只可定位為引導自我反思，不得宣稱科學證實、診斷或預測。"
     }
   ]
 }

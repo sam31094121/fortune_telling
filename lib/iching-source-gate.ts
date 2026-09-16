@@ -6,8 +6,8 @@
  *   凡有「易經」兩個字，都要有**交叉比對的來源、權威性的檔案、大數據的來源**。
  *   易經洋蔥心理學的權威來源也一樣列入。
  *
- * 規格：docs/技能戰鬥檔案/易經/來源治理.md
- * 登記：docs/技能戰鬥檔案/易經/來源登記.json
+ * 規格：docs/技能戰鬥檔案/易經/來源治理.md（紫微斗數沿用同一份規格）
+ * 登記：docs/技能戰鬥檔案/易經/來源登記.json、docs/技能戰鬥檔案/紫微斗數/來源登記.json
  * 守門：npm run test:iching-sources
  *
  * 狀態只由這裡算——登記表不得手填 VERIFIED。沒過閘門的內容只能放「待驗證資料池」，
@@ -17,7 +17,13 @@
 export type TrustLevel = 'A' | 'B' | 'C' | 'D';
 export type Permission = 'PASS' | 'FAIL' | '待查核';
 export type GateStatus = 'VERIFIED' | 'CONFLICT' | 'PENDING_POOL';
-export type ClaimDomain = '易經知識' | '易經洋蔥心理學' | '易經對手智能';
+export type ClaimDomain = '易經知識' | '易經洋蔥心理學' | '易經對手智能' | '紫微斗數排盤' | '紫微斗數知識';
+
+/**
+ * 工程判斷類（不是古籍知識）改用工程證據標準：權威檔 ≥ 1、大數據 ≥ 1（至少一份進版控）、交叉 ≥ 3、授權全 PASS、衝突 0。
+ * 紫微斗數排盤＝算得對不對（套件＋交叉核對測試）；紫微斗數知識（星曜、宮位意涵）走古籍知識標準。
+ */
+export const ENGINEERING_DOMAINS: readonly ClaimDomain[] = ['易經對手智能', '紫微斗數排盤'];
 export type SourceKind =
   | '原典'
   | '古籍版本注疏'
@@ -145,7 +151,7 @@ export function evaluateClaim(claim: ClaimEntry, sources: Record<string, SourceE
     reasons.push(`交叉比對來源 ${cross.length} 個，未達 ${GATE_THRESHOLDS.minCrossSources} 個`);
   }
 
-  if (claim.domain === '易經對手智能') {
+  if (ENGINEERING_DOMAINS.includes(claim.domain)) {
     const all = [...new Set(referenced)].map(lookup).filter((s): s is SourceEntry => Boolean(s));
     if (all.some((s) => !permissionPass(s))) reasons.push('有來源授權未通過');
     const bigData = claim.big_data_sources.map(lookup).filter((s): s is SourceEntry => Boolean(s));

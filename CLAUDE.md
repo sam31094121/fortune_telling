@@ -65,7 +65,9 @@ id 唯一、圖片存在、元素合法、數值合法、技能存在、平衡�
 
 ## 口令：「易經」
 
-**說「易經」＝打開 `docs/技能戰鬥檔案/易經/`**（業主定案 2026-09-15：易經就是這個技能檔案）。
+**說「易經」＝打開 `docs/技能戰鬥檔案/易經/`**（業主定案 2026-09-15：易經就是這個技能檔案），**並一併帶出 `docs/技能戰鬥檔案/紫微斗數/`**（2026-09-16：易經心理學與紫微斗數的權威檔案、軟體、大數據、公信力都歸入技能檔案）。
+
+- 全球權威來源與大數據總覽：`易經/來源治理.md`〈八〉（易經原典書目、APA／PubMed／PMC／OSF 心理學大數據、心理學證據上限）；紫微斗數見 `紫微斗數/新人檔案.md`〈三〉〈四〉。
 
 **鐵律：凡有「易經」兩個字，都要有交叉比對的來源、權威性的檔案、大數據的來源**——易經洋蔥心理學一樣列入。
 
@@ -81,6 +83,16 @@ id 唯一、圖片存在、元素合法、數值合法、技能存在、平衡�
   - 第三階段 3B 完成：相剋與戰力分析由後端 `lib/beast-game/guide-book.ts` 算好——出戰基礎與五元素攻守表走 `/api/beast-game/guide-book`（頁面外層 `GuideBookProvider` 載入一次），戰況中能力、主戰對位、戰果解說隨 `view.guides` 送出；元件不得再呼叫 combatGuideFor／describeMatchup／explainOutcome／elementPercent／elementGuideRows／elementMultiplier。演出規劃（planTierPresentation／planFusionPresentation）只決定播哪段動畫與音效，屬前端視覺感官，不列入後端化。守門 `test:beast-backend-only` 掃全部元件，不看 'use client' 標記。
 - 守門：`npm run test:beast-difficulty`、`npm run test:iching-sources`、`npm run test:beast-backend-only`（都在推送閘內）
 - 「三合一」的易經卜卦、易經心理學，一樣受這套來源治理。
+
+## 口令：「紫微斗數」
+
+**說「紫微斗數」＝打開 `docs/技能戰鬥檔案/紫微斗數/`**（業主定案 2026-09-16：另開資料夾，歸納權威檔案、軟體、大數據與公信力）。
+
+- `紫微斗數.json`：正式檔——排盤引擎、所用套件與授權、守門測試、鐵律。
+- `新人檔案.md`：導讀＋權威來源總覽＋公信力說明（古籍權威、排盤正確性、科學效度三件事分開講）。
+- `來源登記.json`：走同一個來源閘門 `lib/iching-source-gate.ts`、同一份規格 `易經/來源治理.md`；狀態由程式算，外部條款未人工確認一律「待查核」。
+- 公信力鐵律：紫微斗數可以有古籍權威與排盤正確性，**不得寫成科學已證實**；排盤結果以三合一交叉核對為準（四柱來自 `lib/bazi/engine.ts`）。
+- 守門：`npm run test:iching-sources`（兩份登記表都檢查；名稱含 ziwei／紫微 的檔案沒登記就擋）、`npm run test:ziwei`、`npm run test:three-core`。
 
 ## 推送閘：編不過就不准上正式站
 

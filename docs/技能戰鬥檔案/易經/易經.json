@@ -115,5 +115,14 @@
       "medium_series_entry": "chooseSeriesOpponent（非 interactive difficulty）",
       "hard_battlefield_stake": "HARD"
     }
+  },
+  "globalSourceOverview": "docs/技能戰鬥檔案/易經/來源治理.md#八、全球權威來源與大數據總覽（2026-09-16 上網查證）",
+  "relatedSkills": {
+    "ziwei": {
+      "folder": "docs/技能戰鬥檔案/紫微斗數/",
+      "archive": "docs/技能戰鬥檔案/紫微斗數/紫微斗數.json",
+      "registry": "docs/技能戰鬥檔案/紫微斗數/來源登記.json",
+      "note": "口令「易經」一併帶出；三合一第二層"
+    }
   }
 }
