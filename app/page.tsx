@@ -177,6 +177,7 @@ const HOME_QUICK_NAV = [
   { href: '/bazi', icon: '八', label: '八字命盤', tone: 'emerald' },
   { href: '/zodiac', icon: '星', label: '西洋星座', tone: 'fuchsia' },
   { href: '/tarot', icon: '牌', label: '塔羅占問', tone: 'amber' },
+  { href: '/3D', icon: '立', label: '立體太極模型', tone: 'violet' },
 ] as const;
 
 // 桌機（24 吋等寬螢幕）右側「快速切換」功能按鍵：2026-08-28 依指示恢復顯示；
@@ -3117,6 +3118,22 @@ export default function HomePage() {
             </div>
             <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-amber-200/40 bg-amber-300/15 px-5 py-3 text-xs font-bold text-amber-50 transition group-hover:bg-amber-300/25">
               <span>查看 60 種神獸</span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
+            </div>
+          </Link>
+          <Link
+            href="/3D"
+            className="home-feature-launch order-10 w-full relative group overflow-hidden rounded-3xl border border-violet-300/30 bg-[radial-gradient(circle_at_82%_22%,rgba(167,139,250,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(45,28,74,0.62),rgba(12,18,42,0.98))] p-6 text-left shadow-[0_0_30px_rgba(167,139,250,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-200/70 hover:shadow-[0_0_50px_rgba(167,139,250,0.25)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-200/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+            <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
+              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-violet-100/35 bg-violet-200/10 font-serif text-2xl font-black text-violet-100 shadow-[0_0_28px_rgba(167,139,250,0.18)]" aria-hidden="true">極</div>
+              <div className="min-w-0 flex-1">
+                <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-violet-50 sm:text-2xl">立體太極模型工作室</h2>
+                <p className="mt-1 text-sm text-slate-200">獨立 3D 工作區，逐幀對位影片、拆解建模、逐層對照。</p>
+              </div>
+            </div>
+            <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-violet-200/40 bg-violet-300/15 px-5 py-3 text-xs font-bold text-violet-50 transition group-hover:bg-violet-300/25">
+              <span>打開模型工作室</span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>
           </div>

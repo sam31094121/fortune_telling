@@ -64,3 +64,6 @@ t12
 .beast-game-build/
 /data/beast-turn-accounts/
 /reports/beast-relaxed/
+
+# 3D 工作室對位用的影片參考幀（他人影片畫面，僅本機對位，不上版控）
+/public/model-lab/ref/
