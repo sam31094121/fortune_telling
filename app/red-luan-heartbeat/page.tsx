@@ -38,7 +38,9 @@ type AffinityProfile = {
   spouseStars: Array<{ palace: string; star: string; trait: string; career: string }>;
   onionLayers: Array<{ step: number; title: string; headline: string; detail: string }>;
   candidates: Array<{ rank: number; career: string; look: string; basis: string }>;
+  typeLabel: string;
   typeHeadline: string;
+  typeBasisNote: string;
   typeSummary: string;
   partnerGender: string;
   partnerLabel: string;
@@ -292,7 +294,7 @@ function ContextChoiceGroup({
   return (
     <fieldset className="rounded-2xl border border-white/10 bg-black/15 p-4">
       <legend className="px-1 text-sm font-black text-amber-50">{title}</legend>
-      <p className="mt-1 text-xs leading-5 text-white/50">{reason}　可以跳過。</p>
+      <p className="mt-1 text-xs leading-5 text-white/75">{reason}　可以跳過。</p>
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
         {options.map((option) => (
           <FriendlyChoiceCard
@@ -312,7 +314,7 @@ function ContextChoiceGroup({
           type="button"
           disabled={disabled}
           onClick={() => onChange('')}
-          className="mt-3 text-xs font-bold text-white/45 underline underline-offset-4 transition hover:text-white/70 disabled:opacity-50"
+          className="mt-3 text-xs font-bold text-white/75 underline underline-offset-4 transition hover:text-white/70 disabled:opacity-50"
         >
           清除這一題
         </button>
@@ -339,15 +341,20 @@ const LABEL_WORDS: Record<string, string> = {
  * 動畫可以沒有，回饋不能沒有。
  */
 function scrollToTarget(find: () => Element | null | undefined, block: ScrollLogicalPosition = 'start') {
+  // 等狀態更新（儀式框移除、表單收起）排版完成再捲；版面還在跳時捲，會停在半路。
   window.setTimeout(() => {
     const element = find();
     if (!element) return;
-    const before = window.scrollY;
     element.scrollIntoView({ behavior: 'smooth', block });
+    // 3. 平滑捲動被中途打斷時（2026-09-17 實測只動了 23px），量目標實際位置，沒到就瞬間補到位。
     window.setTimeout(() => {
-      if (Math.abs(window.scrollY - before) < 4) find()?.scrollIntoView({ block });
-    }, 260);
-  }, 0);
+      const target = find();
+      if (!target) return;
+      const top = target.getBoundingClientRect().top;
+      const arrived = block === 'start' ? Math.abs(top) < 48 : top >= 0 && top < window.innerHeight;
+      if (!arrived) target.scrollIntoView({ block });
+    }, 520);
+  }, 80);
 }
 
 /**
@@ -451,13 +458,13 @@ function EncounterCard({ encounter, fromDate, title, tone }: { encounter: Encoun
       <p className={`mt-1 text-base font-black ${text}`}>
         {MONTH_DAY(encounter.startsOn)} – {MONTH_DAY(encounter.endsOn)}　{awayLabel(encounter, fromDate)}
       </p>
-      <p className="mt-1 text-xs font-bold text-white/45">農曆{encounter.lunarLabel}・{encounter.jieqi}起</p>
+      <p className="mt-1 text-xs font-bold text-white/75">農曆{encounter.lunarLabel}・{encounter.jieqi}起</p>
       <p className="mt-2 text-sm leading-6 text-white/70">{encounter.monthLine}</p>
       <p className="mt-3 text-sm leading-7 text-white/85">{encounter.magnet}</p>
       <p className="mt-2 rounded-2xl border border-emerald-200/20 bg-emerald-300/[0.08] p-3 text-sm leading-7 text-emerald-50">{encounter.action}</p>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {encounter.loveWords.map((word) => (
-          <span key={word} className="rounded-full border border-white/15 bg-white/[0.05] px-2.5 py-1 text-[11px] font-bold text-white/70">{word}</span>
+          <span key={word} className="rounded-full border border-white/15 bg-white/[0.05] px-2.5 py-1 text-xs font-bold text-white/70">{word}</span>
         ))}
       </div>
     </div>
@@ -506,11 +513,11 @@ function Fold({
         <span className="min-w-0">
           <span className="flex items-center gap-2">
             <span className="text-sm font-black text-white">{title}</span>
-            {badge && <span className="shrink-0 rounded-full border border-white/15 px-2 py-0.5 text-[10px] font-black text-white/55">{badge}</span>}
+            {badge && <span className="shrink-0 rounded-full border border-white/15 px-2 py-0.5 text-xs font-black text-white/75">{badge}</span>}
           </span>
-          {teaser && !isOpen && <span className="mt-1 block text-xs leading-5 text-white/45">{teaser}</span>}
+          {teaser && !isOpen && <span className="mt-1 block text-xs leading-5 text-white/75">{teaser}</span>}
         </span>
-        <span className={`shrink-0 text-xs font-black text-white/45 transition ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true">▼</span>
+        <span className={`shrink-0 text-xs font-black text-white/75 transition ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true">▼</span>
       </button>
       {isOpen && <div className="border-t border-white/10 p-4">{children}</div>}
     </section>
@@ -520,8 +527,8 @@ function Fold({
 function CalculationEvidence({ result }: { result: Reading['result'] }) {
   return (
     <div className="mt-4 space-y-4">
-      <section className="rounded-2xl border border-white/12 bg-slate-950/70 p-4"><EvidenceList title="本命・紅鸞／天喜／咸池桃花" items={result.bazi.natalEvidence} empty="本命四柱中未見這些規則現位；這不代表關係好或不好。" /><div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-sm font-black text-white/80">來源</p>{result.bazi.sources.map((source) => <p key={source.title} className="mt-2 text-xs leading-5 text-white/60">{source.title}：{source.reference}</p>)}</div></section>
-      <section className="rounded-2xl border border-rose-200/20 bg-rose-400/[0.06] p-4"><h3 className="text-lg font-black text-white">未來 {result.annualRhythm.length} 年</h3><p className="mt-2 text-sm leading-7 text-white/65">紅鸞、天喜、咸池桃花、天乙貴人與日支六合／六沖分開列證；沒有權重分數。</p><div className="mt-4 space-y-3">{result.annualRhythm.map((year) => <article key={year.year} className="rounded-2xl border border-white/10 bg-black/15 p-4"><div className="flex items-center justify-between gap-3"><h4 className="font-black text-white">{year.year} 年・{year.annualBranch}年</h4><span className={`rounded-full border px-2.5 py-1 text-[10px] font-black ${year.status === 'RULE_HIT' ? 'border-rose-200/30 bg-rose-300/10 text-rose-100' : 'border-white/10 text-white/45'}`}>{year.status === 'RULE_HIT' ? '有規則命中' : '無本組規則命中'}</span></div>{year.evidence.length > 0 ? <ul className="mt-3 space-y-3">{year.evidence.map((item) => <li key={`${year.year}-${item.ruleId}-${item.evidence}`} data-rule-id={item.ruleId} data-rule-version={item.ruleVersion} className="text-sm leading-6 text-white/75"><span className="font-black text-rose-100">{item.label}</span>　{item.evidence}<span className="mt-1 block text-[11px] text-white/45">{ruleIdentifierLabel(item.ruleId)}｜{ruleVersionLabel(item.ruleVersion)}｜證據 {item.evidenceBranches.join('・')}｜{item.source}</span></li>)}</ul> : <p className="mt-3 text-sm text-white/55">本年度未命中目前已驗證的規則；這不等於沒有關係機會。</p>}<p className="mt-3 text-[11px] leading-5 text-white/40">精度：年度地支。{year.limitation}</p></article>)}</div></section>
+      <section className="rounded-2xl border border-white/12 bg-slate-950/70 p-4"><EvidenceList title="本命・紅鸞／天喜／咸池桃花" items={result.bazi.natalEvidence} empty="本命四柱中未見這些規則現位；這不代表關係好或不好。" /><div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-sm font-black text-white/80">來源</p>{result.bazi.sources.map((source) => <p key={source.title} className="mt-2 text-xs leading-5 text-white/75">{source.title}：{source.reference}</p>)}</div></section>
+      <section className="rounded-2xl border border-rose-200/20 bg-rose-400/[0.06] p-4"><h3 className="text-lg font-black text-white">未來 {result.annualRhythm.length} 年</h3><p className="mt-2 text-sm leading-7 text-white/65">紅鸞、天喜、咸池桃花、天乙貴人與日支六合／六沖分開列證；沒有權重分數。</p><div className="mt-4 space-y-3">{result.annualRhythm.map((year) => <article key={year.year} className="rounded-2xl border border-white/10 bg-black/15 p-4"><div className="flex items-center justify-between gap-3"><h4 className="font-black text-white">{year.year} 年・{year.annualBranch}年</h4><span className={`rounded-full border px-2.5 py-1 text-xs font-black ${year.status === 'RULE_HIT' ? 'border-rose-200/30 bg-rose-300/10 text-rose-100' : 'border-white/10 text-white/75'}`}>{year.status === 'RULE_HIT' ? '有規則命中' : '無本組規則命中'}</span></div>{year.evidence.length > 0 ? <ul className="mt-3 space-y-3">{year.evidence.map((item) => <li key={`${year.year}-${item.ruleId}-${item.evidence}`} data-rule-id={item.ruleId} data-rule-version={item.ruleVersion} className="text-sm leading-6 text-white/75"><span className="font-black text-rose-100">{item.label}</span>　{item.evidence}<span className="mt-1 block text-xs text-white/75">{ruleIdentifierLabel(item.ruleId)}｜{ruleVersionLabel(item.ruleVersion)}｜證據 {item.evidenceBranches.join('・')}｜{item.source}</span></li>)}</ul> : <p className="mt-3 text-sm text-white/75">本年度未命中目前已驗證的規則；這不等於沒有關係機會。</p>}<p className="mt-3 text-xs leading-5 text-white/75">精度：年度地支。{year.limitation}</p></article>)}</div></section>
       <section className="rounded-2xl border border-amber-200/20 bg-amber-300/[0.06] p-4">
         <p className="text-xs font-black tracking-[0.18em] text-amber-200">月份節奏・{result.monthlyRhythm.year} 年十二節氣月</p>
         <h3 className="mt-2 text-lg font-black text-white">與年度同一組規則，改以流月地支觸發</h3>
@@ -529,15 +536,15 @@ function CalculationEvidence({ result }: { result: Reading['result'] }) {
           {result.monthlyRhythm.months.map((month) => (
             <article key={month.monthIndex} className={`rounded-2xl border p-3 ${month.status === 'RULE_HIT' ? 'border-amber-200/30 bg-black/20' : 'border-white/10 bg-white/[0.03]'}`}>
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h4 className="text-sm font-black text-white">{month.lunarLabel}・{month.monthBranch}月　<span className="text-xs font-bold text-white/55">{month.jieqi}起　{month.gregorianHint}</span></h4>
-                <span className={`rounded-full border px-2.5 py-1 text-[10px] font-black ${month.status === 'RULE_HIT' ? 'border-amber-200/30 bg-amber-300/10 text-amber-100' : 'border-white/10 text-white/40'}`}>{month.status === 'RULE_HIT' ? `命中 ${month.hitCount} 條` : '無規則命中'}</span>
+                <h4 className="text-sm font-black text-white">{month.lunarLabel}・{month.monthBranch}月　<span className="text-xs font-bold text-white/75">{month.jieqi}起　{month.gregorianHint}</span></h4>
+                <span className={`rounded-full border px-2.5 py-1 text-xs font-black ${month.status === 'RULE_HIT' ? 'border-amber-200/30 bg-amber-300/10 text-amber-100' : 'border-white/10 text-white/75'}`}>{month.status === 'RULE_HIT' ? `命中 ${month.hitCount} 條` : '無規則命中'}</span>
               </div>
               {month.evidence.length > 0 && (
                 <ul className="mt-2 space-y-2">
                   {month.evidence.map((item) => (
                     <li key={`${month.monthIndex}-${item.ruleId}-${item.evidence}`} data-rule-id={item.ruleId} data-rule-version={item.ruleVersion} className="text-xs leading-5 text-white/70">
                       <span className="font-black text-amber-100">{item.label}</span>　{item.evidence}
-                      <span className="mt-1 block text-[10px] text-white/40">{ruleIdentifierLabel(item.ruleId)}｜{ruleVersionLabel(item.ruleVersion)}｜精度：節氣月支</span>
+                      <span className="mt-1 block text-xs text-white/75">{ruleIdentifierLabel(item.ruleId)}｜{ruleVersionLabel(item.ruleVersion)}｜精度：節氣月支</span>
                     </li>
                   ))}
                 </ul>
@@ -545,9 +552,9 @@ function CalculationEvidence({ result }: { result: Reading['result'] }) {
             </article>
           ))}
         </div>
-        <p className="mt-3 text-[11px] leading-5 text-white/45">{result.monthlyRhythm.limitation}</p>
+        <p className="mt-3 text-xs leading-5 text-white/75">{result.monthlyRhythm.limitation}</p>
       </section>
-      <section className="rounded-2xl border border-violet-200/20 bg-violet-400/[0.07] p-4"><div className="flex flex-wrap items-center gap-2"><p className="text-xs font-black tracking-[0.18em] text-violet-200">紫微本命夫妻宮</p><span className="rounded-full border border-violet-200/20 px-2 py-1 text-[10px] font-black text-violet-100">{ziweiStatusLabel(result.ziwei.status)}</span></div>{result.ziwei.status === 'READY' ? <div className="mt-4 space-y-3">{result.ziwei.palaces?.map((palace) => <article key={`${palace.palace}-${palace.earthlyBranch}`} className="rounded-2xl border border-white/10 bg-black/15 p-4"><h4 className="font-black text-white">{palace.palace}・{palace.earthlyBranch}</h4><p className="mt-2 text-sm leading-6 text-white/75">主星：{palace.majorStars.join('、') || '—'}</p><p className="mt-1 text-sm leading-6 text-white/60">輔星：{palace.minorStars.join('、') || '—'}</p></article>)}</div> : <p className="mt-3 rounded-2xl border border-violet-200/15 bg-violet-300/[0.08] p-4 text-sm leading-7 text-violet-50">尚未填出生時辰，因此不顯示紫微夫妻宮資料，也不以預設時辰代替。</p>}<p className="mt-3 text-xs leading-6 text-white/50">{result.crossCheck.summary} {result.crossCheck.limitation}</p></section>
+      <section className="rounded-2xl border border-violet-200/20 bg-violet-400/[0.07] p-4"><div className="flex flex-wrap items-center gap-2"><p className="text-xs font-black tracking-[0.18em] text-violet-200">紫微本命夫妻宮</p><span className="rounded-full border border-violet-200/20 px-2 py-1 text-xs font-black text-violet-100">{ziweiStatusLabel(result.ziwei.status)}</span></div>{result.ziwei.status === 'READY' ? <div className="mt-4 space-y-3">{result.ziwei.palaces?.map((palace) => <article key={`${palace.palace}-${palace.earthlyBranch}`} className="rounded-2xl border border-white/10 bg-black/15 p-4"><h4 className="font-black text-white">{palace.palace}・{palace.earthlyBranch}</h4><p className="mt-2 text-sm leading-6 text-white/75">主星：{palace.majorStars.join('、') || '—'}</p><p className="mt-1 text-sm leading-6 text-white/75">輔星：{palace.minorStars.join('、') || '—'}</p></article>)}</div> : <p className="mt-3 rounded-2xl border border-violet-200/15 bg-violet-300/[0.08] p-4 text-sm leading-7 text-violet-50">尚未填出生時辰，因此不顯示紫微夫妻宮資料，也不以預設時辰代替。</p>}<p className="mt-3 text-xs leading-6 text-white/75">{result.crossCheck.summary} {result.crossCheck.limitation}</p></section>
     </div>
   );
 }
@@ -584,6 +591,10 @@ function RedLuanHeartbeatExperience() {
   const [fromShare, setFromShare] = useState(false);
   /** 滑到結果深處時，把「哪一天、還有幾天」變成隨身可見的浮標。 */
   const [showJumpPill, setShowJumpPill] = useState(false);
+  /** 想看的對象：auto＝依客戶性別預設異性，客戶可以改成另一個或「都可以」。 */
+  const [partnerChoice, setPartnerChoice] = useState<'auto' | 'male' | 'female' | 'any'>('auto');
+  /** 拿到結果後表單收成一行摘要，按「修改出生資料」才展開，答案不再壓在三屏表單底下。 */
+  const [editingBirth, setEditingBirth] = useState(false);
   /**
    * 送出的同步鎖。
    * loading 是 React 狀態，同一個 tick 內連點兩下時第二下還讀到舊值，
@@ -663,7 +674,8 @@ function RedLuanHeartbeatExperience() {
     */
     let cardsBottom = 0;
     const measure = () => { cardsBottom = window.scrollY + monthCards.getBoundingClientRect().bottom; };
-    const update = () => setShowJumpPill(window.scrollY > cardsBottom);
+    // 滑到頁尾收尾區（行事曆、分享）時收起，否則浮標會壓在最後的按鈕與說明上。
+    const update = () => setShowJumpPill(window.scrollY > cardsBottom && window.innerHeight + window.scrollY < document.documentElement.scrollHeight - 360);
     const remeasure = () => { measure(); update(); };
     remeasure();
     window.addEventListener('scroll', update, { passive: true });
@@ -708,6 +720,11 @@ function RedLuanHeartbeatExperience() {
       // 但「按了我知道、卻還沒點任何一張卡」是懸空狀態，放行就會拿到別人的時辰。
       profile.birthHourBranch === HOUR_BRANCH_PENDING ? 'birthHourBranch' : '',
     ].filter(Boolean);
+  }
+
+  function effectivePartnerGender(gender?: string): 'male' | 'female' | 'any' {
+    if (partnerChoice !== 'auto') return partnerChoice;
+    return gender === 'female' ? 'male' : gender === 'male' ? 'female' : 'any';
   }
 
   async function submit(profile: BirthProfile, submittedContext: SelfReportedContext = context, mode: 'initial' | 'refine' = 'initial') {
@@ -773,6 +790,7 @@ function RedLuanHeartbeatExperience() {
           familyResponsibility: submittedContext.familyResponsibility,
           currentExpectation: submittedContext.currentExpectation,
           attractedType: submittedContext.attractedType,
+          partnerGender: effectivePartnerGender(profile.gender),
         }),
       });
       const payload = await response.json() as Reading & { error?: string; message?: string };
@@ -780,6 +798,7 @@ function RedLuanHeartbeatExperience() {
       // 結果先回來也要把儀式演完，不然畫面會閃一下就跳走，反而像出錯。
       await ritual;
       setReading(payload);
+      setEditingBirth(false);
       setAppliedContext(submittedContext);
       setAlignmentChoice('');
       if (mode === 'initial') {
@@ -840,16 +859,16 @@ function RedLuanHeartbeatExperience() {
     : '';
 
   return (
-    <main className="mx-auto min-h-screen max-w-3xl px-4 py-6 pb-16 sm:px-6">
+    <main className="mx-auto min-h-screen max-w-3xl px-4 py-6 pb-28 sm:px-6">
       <header className="rounded-3xl border border-rose-200/25 bg-[radial-gradient(circle_at_top_right,rgba(251,113,133,0.18),transparent_44%),linear-gradient(135deg,rgba(31,17,34,0.98),rgba(9,17,35,0.98))] p-6 shadow-[0_18px_60px_rgba(244,63,94,0.13)]">
         <p className="text-xs font-black tracking-[0.22em] text-rose-200">桃花・紅鸞</p>
         <h1 className="mt-2 font-serif text-3xl font-black text-rose-50">桃花・紅鸞心動</h1>
-        <p className="mt-3 text-sm leading-7 text-white/75">抽出下一次心動的月份與對象。</p>
+        <p className="mt-3 text-sm leading-7 text-white/75">依八字紅鸞、天喜規則，找出你的桃花月份與傳統對應類型。</p>
         <div className="mt-4 grid grid-cols-3 gap-2" aria-label="完成資料後可解鎖三份結果">
           {['心動月份', '對象類型', '相遇提示'].map((label) => (
             <div key={label} className="rounded-2xl border border-rose-100/20 bg-black/20 px-2 py-3 text-center">
               <span className="block text-base" aria-hidden="true">🔒</span>
-              <span className="mt-1 block text-[11px] font-black text-rose-50/80">{label}</span>
+              <span className="mt-1 block text-xs font-black text-rose-50/80">{label}</span>
             </div>
           ))}
         </div>
@@ -870,7 +889,7 @@ function RedLuanHeartbeatExperience() {
         {fromShare && !returningName && !reading && !loading && (
           <div className="mb-5 rounded-2xl border border-amber-200/40 bg-amber-300/[0.1] p-4">
             <p className="text-sm font-black text-amber-50">有人把他的紅鸞傳給你了</p>
-            <p className="mt-1.5 text-xs leading-5 text-white/70">他已經算出自己下一次心動是哪個月、會碰到哪一型的人。你的呢？只要生日，不用註冊、不用付費。</p>
+            <p className="mt-1.5 text-xs leading-5 text-white/70">他已經查了自己的紅鸞月份與傳統對應類型。你的呢？只要生日，不用註冊、不用付費。</p>
           </div>
         )}
         {returningName && identityTarget !== 'guest' && !reading && !loading && (
@@ -881,7 +900,7 @@ function RedLuanHeartbeatExperience() {
               倒數天數每天都在變，這一句是他這次才看得到的東西。
             */}
             {returnLine && <p className="mt-1.5 text-sm font-black leading-6 text-amber-100">{returnLine}</p>}
-            <p className="mt-1 text-xs leading-5 text-white/60">資料都還在，直接看你現在的紅鸞就好。</p>
+            <p className="mt-1 text-xs leading-5 text-white/75">資料都還在，直接看你現在的紅鸞就好。</p>
             <button
               type="button"
               disabled={loading}
@@ -892,6 +911,12 @@ function RedLuanHeartbeatExperience() {
             </button>
           </div>
         )}
+        {reading && !editingBirth && !loading ? (
+          <div className="mb-2 rounded-2xl border border-white/15 bg-white/[0.05] p-4" data-birth-summary>
+            <p className="text-sm font-black text-white">{reading.person.name}・{reading.person.birthDate}・{form.gender === 'female' ? '女' : form.gender === 'male' ? '男' : ''}・{reading.person.hourKnown ? '已填時辰' : '未填時辰'}・想看的對象：{!reading.affinity || reading.affinity.partnerLabel === '對方' ? '都可以' : reading.affinity.partnerLabel}</p>
+            <button type="button" onClick={() => { setEditingBirth(true); scrollToTarget(() => document.querySelector('.red-luan-unified-flow'), 'start'); }} className="mt-3 min-h-11 w-full rounded-2xl border border-white/25 px-4 py-2.5 text-sm font-black text-white/90">修改出生資料</button>
+          </div>
+        ) : <>
         <IdentitySplitSelector className="mb-5" nextStepLabel="接著填出生資料" />
         <UnifiedBirthForm
           value={form}
@@ -909,7 +934,21 @@ function RedLuanHeartbeatExperience() {
           onChange={(profile) => setForm((current) => ({ ...current, ...profile }))}
           onSubmit={(profile) => { void submit(profile); }}
         />
-        <p className="mt-3 rounded-2xl border border-violet-200/15 bg-violet-300/[0.06] px-4 py-3 text-xs leading-6 text-violet-50/75">不知道時辰也可以算月份和人選；補上時辰還能多解鎖你的卦象。</p>
+        <p className="mt-3 rounded-2xl border border-violet-200/15 bg-violet-300/[0.06] px-4 py-3 text-xs leading-6 text-violet-50/85">不知道時辰也可以算月份和人選；補上時辰還能多解鎖你的卦象。</p>
+        <div className="mt-4" data-field="partnerGender">
+          <p className="text-sm font-black text-white">想看的對象（可以改）</p>
+          <div className="mt-2 grid grid-cols-3 gap-2" role="group" aria-label="想看的對象">
+            {([['male', '男生'], ['female', '女生'], ['any', '都可以']] as const).map(([value, label]) => {
+              const active = effectivePartnerGender(form.gender) === value;
+              return (
+                <button key={value} type="button" aria-pressed={active} disabled={loading} onClick={() => setPartnerChoice(value)}
+                  className={`min-h-11 rounded-2xl border px-3 py-2.5 text-sm font-black transition ${active ? 'border-rose-100/70 bg-rose-300/25 text-rose-50' : 'border-white/20 bg-white/[0.04] text-white/85'}`}>
+                  {active ? '✓ ' : ''}{label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         <button
           type="button"
@@ -919,6 +958,7 @@ function RedLuanHeartbeatExperience() {
         >
           {loading ? '解鎖中…' : '抽出我的心動月份'}
         </button>
+        </>}
         {ritualStep >= 0 && (
           <div className="mt-4 rounded-2xl border border-rose-200/30 bg-rose-400/[0.08] p-6 text-center" role="status" aria-live="polite">
             <div className="flex flex-col-reverse items-center gap-1.5" aria-hidden="true">
@@ -932,7 +972,7 @@ function RedLuanHeartbeatExperience() {
             <p className="mt-4 text-sm font-bold leading-7 text-rose-50">{RITUAL_LINES[ritualStep]}</p>
           </div>
         )}
-        <p className="mt-3 text-center text-xs leading-5 text-white/45">其他問題結果出來再問，想跳過也可以。</p>
+        <p className="mt-3 text-center text-xs leading-5 text-white/75">其他問題結果出來再問，想跳過也可以。</p>
         {error && (
           <div className="mt-5 rounded-2xl border border-rose-300/30 bg-rose-500/10 p-4" role="alert">
             <p className="text-sm font-bold leading-6 text-rose-100">{error}</p>
@@ -981,7 +1021,7 @@ function RedLuanHeartbeatExperience() {
               <EncounterCard
                 encounter={reading.nextEncounters.soulResonance}
                 fromDate={reading.nextEncounters.fromDate}
-                title={reading.nextEncounters.soulResonance?.kind === 'BOTH' ? '下一次紅鸞心動・桃花和貴人同一個月' : '下一次紅鸞心動・會碰到跟你相吸的人'}
+                title={reading.nextEncounters.soulResonance?.kind === 'BOTH' ? '下一次紅鸞心動・桃花和貴人同一個月' : '下一次紅鸞心動月份'}
                 tone="rose"
               />
               {reading.nextEncounters.benefactor
@@ -997,7 +1037,7 @@ function RedLuanHeartbeatExperience() {
           )}
 
           <div className="mt-3 rounded-2xl border border-rose-200/30 bg-rose-300/[0.1] p-5">
-            <p className="text-sm font-black text-rose-100">{reading.affinity.partnerLabel === '對方' ? '對方長什麼樣子？' : `會跟你來電的，是哪一型的${reading.affinity.partnerLabel}？`}</p>
+            <p className="text-sm font-black text-rose-100">{reading.affinity.typeLabel}</p>
             <p className="mt-2 text-3xl font-black leading-tight text-rose-50">{reading.affinity.typeHeadline}</p>
             <div className="mt-4 space-y-2">
               {(reading.affinity.candidates ?? []).map((candidate) => (
@@ -1005,11 +1045,12 @@ function RedLuanHeartbeatExperience() {
                   <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-rose-300/25 text-xs font-black text-rose-50">{candidate.rank}</span>
                   <span className="min-w-0">
                     <span className="block text-base font-black text-white">{candidate.career}</span>
-                    <span className="mt-0.5 block text-xs leading-5 text-white/60">{candidate.look}</span>
+                    <span className="mt-0.5 block text-xs leading-5 text-white/75">{candidate.look}</span>
                   </span>
                 </div>
               ))}
             </div>
+            {reading.affinity.typeBasisNote && <p className="mt-3 text-xs leading-5 text-white/75">{reading.affinity.typeBasisNote}</p>}
           </div>
 
           {/*
@@ -1025,14 +1066,14 @@ function RedLuanHeartbeatExperience() {
                     <span className={`w-20 shrink-0 text-sm font-black ${item.isCurrent ? 'text-rose-50' : 'text-white/80'}`}>
                       {Number(item.startsOn.slice(0, 4))}/{Number(item.startsOn.slice(5, 7))}
                     </span>
-                    <span className="min-w-0 flex-1 text-xs text-white/60">{item.monthLine}</span>
-                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-black ${item.kind === 'BENEFACTOR' ? 'bg-amber-300/20 text-amber-100' : 'bg-rose-300/20 text-rose-100'}`}>
+                    <span className="min-w-0 flex-1 text-xs text-white/75">{item.monthLine}</span>
+                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-black ${item.kind === 'BENEFACTOR' ? 'bg-amber-300/20 text-amber-100' : 'bg-rose-300/20 text-rose-100'}`}>
                       {item.kind === 'BENEFACTOR' ? '貴人' : item.kind === 'BOTH' ? '桃花＋貴人' : '桃花'}
                     </span>
                   </div>
                 ))}
               </div>
-              <p className="mt-3 text-[11px] leading-5 text-white/40">機會不等於一定發生，但這幾個月的節奏值得留意。</p>
+              <p className="mt-3 text-xs leading-5 text-white/75">機會不等於一定發生，但這幾個月的節奏值得留意。</p>
             </div>
           )}
           {reading.ichingReading && <div className="mt-4 rounded-2xl border border-violet-200/30 bg-violet-400/[0.1] p-4">
@@ -1052,7 +1093,7 @@ function RedLuanHeartbeatExperience() {
                   className={`rounded-2xl border px-4 py-4 text-left transition ${teacherKey === teacher.key ? 'border-violet-100/70 bg-violet-300/25 text-violet-50 shadow-[0_0_22px_rgba(167,139,250,0.22)]' : 'border-white/12 bg-white/[0.05] text-white/70'}`}
                 >
                   <span className="block text-lg font-black">{teacher.name}</span>
-                  <span className="mt-1 block text-[11px] leading-4 opacity-75">{teacher.preview}</span>
+                  <span className="mt-1 block text-xs leading-4 opacity-75">{teacher.preview}</span>
                 </button>
               ))}
             </div>
@@ -1072,12 +1113,12 @@ function RedLuanHeartbeatExperience() {
               >
                 補上時辰，解鎖我的卦象 →
               </button>
-              <p className="mt-2 text-[11px] leading-5 text-cyan-100/60">不知道也沒關係：問一下家裡，或翻出生證明上的時間，下次回來再補都可以。上面的月份與人選不會因此改變。</p>
+              <p className="mt-2 text-xs leading-5 text-cyan-100/85">不知道也沒關係：問一下家裡，或翻出生證明上的時間，下次回來再補都可以。上面的月份與人選不會因此改變。</p>
             </div>
           )}
           <div className="mt-4 flex items-center justify-between gap-3">
-            <p className="text-xs leading-5 text-white/45">以下想看再打開就好，不看也不影響上面的結論。</p>
-            <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-black ${allGiftsOpened ? 'border-amber-200/45 bg-amber-300/15 text-amber-100' : 'border-white/15 text-white/55'}`}>
+            <p className="text-xs leading-5 text-white/75">以下想看再打開就好，不看也不影響上面的結論。</p>
+            <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-black ${allGiftsOpened ? 'border-amber-200/45 bg-amber-300/15 text-amber-100' : 'border-white/15 text-white/75'}`}>
               {allGiftsOpened ? '全部拆完了 ✦' : `已拆 ${openedGiftCount} / ${giftFoldKeys.length}`}
             </span>
           </div>
@@ -1125,13 +1166,13 @@ function RedLuanHeartbeatExperience() {
               <div className="space-y-2">
                 {(reading.ichingReading.onion ?? []).map((layer) => (
                   <article key={layer.step} className="rounded-2xl border border-white/10 bg-black/22 p-4">
-                    <p className="text-[10px] font-black tracking-[0.14em] text-cyan-100">第 {layer.step} 層・{layer.layer}</p>
+                    <p className="text-xs font-black tracking-[0.14em] text-cyan-100">第 {layer.step} 層・{layer.layer}</p>
                     <p className="mt-2 text-sm leading-7 text-white/85">{layer.point}</p>
-                    {layer.term && <p className="mt-1 text-[11px] leading-5 text-white/40">{layer.term}</p>}
+                    {layer.term && <p className="mt-1 text-xs leading-5 text-white/75">{layer.term}</p>}
                   </article>
                 ))}
               </div>
-              <p className="mt-3 text-[11px] leading-5 text-white/40">心理學名詞是真實學術用語，可以自行查證。這是自我反思，不是心理診斷。</p>
+              <p className="mt-3 text-xs leading-5 text-white/75">心理學名詞是真實學術用語，可以自行查證。這是自我反思，不是心理診斷。</p>
             </Fold>
             </>}
 
@@ -1141,7 +1182,7 @@ function RedLuanHeartbeatExperience() {
                   const unlocked = index <= peeled;
                   return (
                     <article key={layer.step} id={`red-luan-onion-${index}`} className={`scroll-mt-5 rounded-2xl border p-4 transition ${unlocked ? 'border-cyan-200/25 bg-black/25' : 'border-white/10 bg-white/[0.03]'}`}>
-                      <p className={`text-[10px] font-black tracking-[0.14em] ${unlocked ? 'text-cyan-100' : 'text-white/30'}`}>{layer.title}</p>
+                      <p className={`text-xs font-black tracking-[0.14em] ${unlocked ? 'text-cyan-100' : 'text-white/30'}`}>{layer.title}</p>
                       {unlocked ? (
                         <>
                           <p className="mt-2 text-lg font-black text-white">{layer.headline}</p>
@@ -1157,7 +1198,7 @@ function RedLuanHeartbeatExperience() {
                 <button type="button" onClick={() => { setPeeled((current) => current + 1); scrollToTarget(() => document.getElementById(`red-luan-onion-${peeled + 1}`), 'center'); }} className="mt-3 w-full rounded-2xl border border-cyan-200/35 bg-cyan-300/12 px-4 py-3 text-sm font-black text-cyan-50 transition">再剝一層 →</button>
               )}
               {reading.affinity.selfReportedType !== 'UNSPECIFIED' && (
-                <p className="mt-3 text-xs leading-6 text-white/50">你填的是「{reading.affinity.selfReportedLabel}」，放在這裡跟命盤方向對照，不參與運算。</p>
+                <p className="mt-3 text-xs leading-6 text-white/75">你填的是「{reading.affinity.selfReportedLabel}」，放在這裡跟命盤方向對照，不參與運算。</p>
               )}
             </Fold>
 
@@ -1175,7 +1216,7 @@ function RedLuanHeartbeatExperience() {
                   <p key={line.slice(0, 12)} className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm leading-7 text-white/78">{line}</p>
                 ))}
               </div>
-              <p className="mt-3 text-[11px] leading-5 text-white/45">起卦依據：{reading.ichingReading.seedText}（梅花易數生辰起卦，同一生辰永遠同一卦，可回查驗算）。</p>
+              <p className="mt-3 text-xs leading-5 text-white/75">起卦依據：{reading.ichingReading.seedText}（梅花易數生辰起卦，同一生辰永遠同一卦，可回查驗算）。</p>
             </Fold>
 
 
@@ -1183,7 +1224,7 @@ function RedLuanHeartbeatExperience() {
               <p className="text-sm leading-7 text-white/78">{reading.ichingReading.karmicBond.owed}</p>
               <p className="mt-2 text-sm leading-7 text-amber-100">{reading.ichingReading.karmicBond.lesson}</p>
               <p className="mt-2 rounded-2xl border border-rose-200/20 bg-rose-300/[0.08] p-4 text-sm leading-7 text-rose-50">{reading.ichingReading.karmicBond.reunion}</p>
-              <p className="mt-3 text-[11px] leading-5 text-white/45">{reading.ichingReading.karmicBond.note}</p>
+              <p className="mt-3 text-xs leading-5 text-white/75">{reading.ichingReading.karmicBond.note}</p>
             </Fold>
 
             <Fold title="同一卦・兩種說法" badge="易經／鬼魅" teaser="兩位老師講法完全不同，挑一個聽" foldKey="teachers" anchorId="red-luan-teachers" opened={openedFolds} onToggle={toggleFold}>
@@ -1191,7 +1232,7 @@ function RedLuanHeartbeatExperience() {
                 {(reading.ichingReading.teachers ?? []).map((teacher) => (
                   <button key={teacher.key} type="button" aria-pressed={teacherKey === teacher.key} onClick={() => setTeacherKey(teacher.key)} className={`rounded-2xl border px-4 py-3 text-left transition ${teacherKey === teacher.key ? 'border-violet-200/70 bg-violet-300/20 text-violet-50' : 'border-white/10 bg-white/[0.04] text-white/65'}`}>
                     <span className="block text-base font-black">{teacher.name}</span>
-                    <span className="mt-1 block text-[11px] leading-4 opacity-75">{teacher.tagline}</span>
+                    <span className="mt-1 block text-xs leading-4 opacity-75">{teacher.tagline}</span>
                   </button>
                 ))}
               </div>
@@ -1203,7 +1244,7 @@ function RedLuanHeartbeatExperience() {
                     {teacher.opening.split('\n').filter(Boolean).map((line) => <p key={line.slice(0, 14)} className="text-sm leading-7 text-white/78">{line}</p>)}
                     {teacher.sections.map((section) => (
                       <article key={section.title} className="rounded-2xl border border-white/10 bg-black/22 p-4">
-                        <p className="text-[10px] font-black tracking-[0.14em] text-violet-100">{section.title}</p>
+                        <p className="text-xs font-black tracking-[0.14em] text-violet-100">{section.title}</p>
                         <p className="mt-2 text-sm leading-7 text-white/78">{section.text}</p>
                       </article>
                     ))}
@@ -1242,7 +1283,7 @@ function RedLuanHeartbeatExperience() {
               )}
             </div>
           )}
-          <p className="mt-4 text-[11px] leading-5 text-white/45">月份以節氣為界，不是國曆一號起算。</p>
+          <p className="mt-4 text-xs leading-5 text-white/75">月份以節氣為界，不是國曆一號起算。</p>
         </section>}
 
         {/* 完整推算過程：後端證據、品質門控、規則編號。想查的人才需要打開。 */}
@@ -1253,14 +1294,14 @@ function RedLuanHeartbeatExperience() {
           <h3 className="mt-2 text-xl font-black text-white">先完成八字＋可用紫微的確定性運算</h3>
           <p className="mt-2 text-sm leading-7 text-white/65">順序固定為出生資料標準化、八字規則、可用的紫微本命資料，再凍結可驗證證據；關係位置只會在下一階段加入，不會反向改寫本層。</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-xs text-white/50">曆法與日期</p><p className="mt-2 text-sm font-bold text-white">原始：{reading.result.normalizedBirth.inputCalendarType === 'SOLAR' ? '國曆' : '農曆'}｜國曆 {reading.result.normalizedBirth.normalizedSolarDate}</p><p className="mt-1 text-xs leading-5 text-white/60">農曆：{reading.result.normalizedBirth.normalizedLunarDate}</p></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-xs text-white/50">時間精度</p><p className="mt-2 text-sm font-bold text-white">{timePrecisionLabel(reading.result.normalizedBirth.timePrecision)}</p><p className="mt-1 text-xs leading-5 text-white/60">{reading.result.normalizedBirth.exactTime ? `精確時間 ${reading.result.normalizedBirth.exactTime}` : reading.result.normalizedBirth.traditionalHour ? `${reading.result.normalizedBirth.traditionalHour}時（${reading.result.normalizedBirth.traditionalHourRange}）` : '未知時辰；時柱未計算'}｜台北標準時間（東八區）</p></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-xs text-white/75">曆法與日期</p><p className="mt-2 text-sm font-bold text-white">原始：{reading.result.normalizedBirth.inputCalendarType === 'SOLAR' ? '國曆' : '農曆'}｜國曆 {reading.result.normalizedBirth.normalizedSolarDate}</p><p className="mt-1 text-xs leading-5 text-white/75">農曆：{reading.result.normalizedBirth.normalizedLunarDate}</p></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-xs text-white/75">時間精度</p><p className="mt-2 text-sm font-bold text-white">{timePrecisionLabel(reading.result.normalizedBirth.timePrecision)}</p><p className="mt-1 text-xs leading-5 text-white/75">{reading.result.normalizedBirth.exactTime ? `精確時間 ${reading.result.normalizedBirth.exactTime}` : reading.result.normalizedBirth.traditionalHour ? `${reading.result.normalizedBirth.traditionalHour}時（${reading.result.normalizedBirth.traditionalHourRange}）` : '未知時辰；時柱未計算'}｜台北標準時間（東八區）</p></div>
           </div>
           <div className="mt-4 rounded-2xl border border-amber-200/20 bg-amber-300/[0.06] p-4">
             <p className="text-xs font-black tracking-[0.16em] text-amber-200">品質門控</p>
             <h4 className="mt-2 text-lg font-black text-white">主引擎：{statusLabel(reading.result.validation.primaryStatus)}・整體：{statusLabel(reading.result.validation.qualityGateStatus)}</h4>
             <p className="mt-2 text-sm leading-7 text-white/75" data-engine={reading.result.validation.primaryEngine} data-rule-set={reading.result.validation.primaryRuleSet}>八字確定性核心・版本 {reading.result.validation.primaryEngineVersion}｜台灣傳統八字規則集。獨立第二來源與人工黃金案例尚未建立，因此不會偽稱三方來源已一致通過。</p>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2"><div><p className="text-xs font-black text-emerald-100">已驗證範圍</p><ul className="mt-2 space-y-1 text-xs leading-5 text-white/70">{reading.result.validation.verifiedScope.map((item) => <li key={item}>• {item}</li>)}</ul></div><div><p className="text-xs font-black text-white/70">尚未驗證／不計算</p><ul className="mt-2 space-y-1 text-xs leading-5 text-white/60">{reading.result.validation.unverifiedScope.map((item) => <li key={item}>• {item}</li>)}</ul></div></div>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2"><div><p className="text-xs font-black text-emerald-100">已驗證範圍</p><ul className="mt-2 space-y-1 text-xs leading-5 text-white/70">{reading.result.validation.verifiedScope.map((item) => <li key={item}>• {item}</li>)}</ul></div><div><p className="text-xs font-black text-white/70">尚未驗證／不計算</p><ul className="mt-2 space-y-1 text-xs leading-5 text-white/75">{reading.result.validation.unverifiedScope.map((item) => <li key={item}>• {item}</li>)}</ul></div></div>
           </div>
           <CalculationEvidence result={reading.result} />
           <button type="button" onClick={() => openLayer(1)} className="mt-5 w-full rounded-2xl border border-rose-200/25 bg-rose-300/10 px-4 py-3 text-sm font-black text-rose-50">打開第二層・此刻位置 →</button>
@@ -1275,43 +1316,43 @@ function RedLuanHeartbeatExperience() {
           <div className="mt-4 grid gap-2 sm:grid-cols-3">
             {CONTEXT_GROUPS.map((group) => (
               <div key={group.field} className="rounded-2xl border border-white/10 bg-black/15 p-4">
-                <p className="text-xs text-white/45">{CONTEXT_FIELD_LABELS[group.field]}</p>
+                <p className="text-xs text-white/75">{CONTEXT_FIELD_LABELS[group.field]}</p>
                 <p className="mt-2 text-sm font-black text-white">{contextValueLabel(group.field, reading.relationshipPosition[group.field])}</p>
               </div>
             ))}
           </div>
-          <p className="mt-4 text-xs leading-6 text-white/50">未填的項目一律走中性引導，系統不會回推。四題全部留白也照樣算得出月份與卦象——第一層證據在這之前就已經凍結，不受這裡影響。</p>
+          <p className="mt-4 text-xs leading-6 text-white/75">未填的項目一律走中性引導，系統不會回推。四題全部留白也照樣算得出月份與卦象——第一層證據在這之前就已經凍結，不受這裡影響。</p>
           <button type="button" onClick={() => openLayer(2)} className="mt-5 w-full rounded-2xl border border-amber-200/25 bg-amber-300/10 px-4 py-3 text-sm font-black text-amber-50">打開第三層・情境交叉 →</button>
         </section>}
 
         {openedLayer >= 2 && <section id="red-luan-layer-2" className="scroll-mt-5 rounded-3xl border border-amber-200/20 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.12),transparent_48%),rgba(15,23,42,0.82)] p-5">
           <p className="text-xs font-black tracking-[0.18em] text-amber-200">第三層・情境交叉</p>
-          <div className="mt-2 flex flex-wrap items-center gap-2"><h3 className="text-xl font-black text-white">此刻的關係位置・已完成情境運算</h3><span className="rounded-full border border-amber-200/25 bg-amber-300/10 px-2.5 py-1 text-[10px] font-black text-amber-100">僅供反思引導</span></div>
+          <div className="mt-2 flex flex-wrap items-center gap-2"><h3 className="text-xl font-black text-white">此刻的關係位置・已完成情境運算</h3><span className="rounded-full border border-amber-200/25 bg-amber-300/10 px-2.5 py-1 text-xs font-black text-amber-100">僅供反思引導</span></div>
           <p className="mt-2 text-sm leading-7 text-white/70">這是客戶自述與已驗證年度規則證據的交叉呈現，用來增加引導貼合度。關係情境運算依你的自述調整引導，不改變八字排盤、紅鸞規則、年份證據或品質門控，也不代表命盤計算精準度提高。</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-cyan-200/20 bg-cyan-300/[0.06] p-4"><p className="text-xs font-black text-cyan-100">第一階段・先完成並凍結</p><p className="mt-2 text-sm font-bold text-white">八字：{statusLabel(reading.contextAlignment.calculationOrder.stageOne.baziStatus)}｜紫微：{ziweiStatusLabel(reading.contextAlignment.calculationOrder.stageOne.ziweiStatus)}</p><p className="mt-2 text-xs leading-5 text-white/55">出生資料標準化 → 八字確定性規則 → 時辰足夠時使用既有紫微引擎；證據先凍結。</p></div>
-            <div className="rounded-2xl border border-amber-200/20 bg-amber-300/[0.06] p-4"><p className="text-xs font-black text-amber-100">第二階段・再做情境交叉</p><p className="mt-2 text-sm font-bold text-white">關係位置：已完成運算（填寫 {reading.contextAlignment.calculationOrder.stageTwo.providedFields.length} 項、留白 {reading.contextAlignment.calculationOrder.stageTwo.unspecifiedFields.length} 項）</p><p className="mt-2 text-xs leading-5 text-white/55">只調整心理學自我反思與易經式文化引導，不能回頭改寫第一階段；留白的項目走中性引導。</p></div>
+            <div className="rounded-2xl border border-cyan-200/20 bg-cyan-300/[0.06] p-4"><p className="text-xs font-black text-cyan-100">第一階段・先完成並凍結</p><p className="mt-2 text-sm font-bold text-white">八字：{statusLabel(reading.contextAlignment.calculationOrder.stageOne.baziStatus)}｜紫微：{ziweiStatusLabel(reading.contextAlignment.calculationOrder.stageOne.ziweiStatus)}</p><p className="mt-2 text-xs leading-5 text-white/75">出生資料標準化 → 八字確定性規則 → 時辰足夠時使用既有紫微引擎；證據先凍結。</p></div>
+            <div className="rounded-2xl border border-amber-200/20 bg-amber-300/[0.06] p-4"><p className="text-xs font-black text-amber-100">第二階段・再做情境交叉</p><p className="mt-2 text-sm font-bold text-white">關係位置：已完成運算（填寫 {reading.contextAlignment.calculationOrder.stageTwo.providedFields.length} 項、留白 {reading.contextAlignment.calculationOrder.stageTwo.unspecifiedFields.length} 項）</p><p className="mt-2 text-xs leading-5 text-white/75">只調整心理學自我反思與易經式文化引導，不能回頭改寫第一階段；留白的項目走中性引導。</p></div>
           </div>
           <div className="mt-4 grid gap-2 sm:grid-cols-3">
             {CONTEXT_GROUPS.map((group) => (
               <div key={group.field} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                <p className="text-[10px] font-black tracking-[0.12em] text-white/45">{CONTEXT_FIELD_LABELS[group.field]}</p>
+                <p className="text-xs font-black tracking-[0.12em] text-white/75">{CONTEXT_FIELD_LABELS[group.field]}</p>
                 <p className="mt-2 text-sm font-black text-white">{contextValueLabel(group.field, reading.relationshipPosition[group.field])}</p>
               </div>
             ))}
           </div>
           <section className="mt-4 rounded-2xl border border-rose-200/15 bg-rose-300/[0.06] p-4"><p className="text-xs font-black tracking-[0.14em] text-rose-100">與年度規則證據並列</p><p className="mt-2 text-sm leading-7 text-white/70">{reading.contextAlignment.annualEvidence.years.length > 0 ? `目前已驗證規則共有 ${reading.contextAlignment.annualEvidence.evidenceCount} 筆證據，出現在 ${reading.contextAlignment.annualEvidence.years.join('、')} 年；只作為可留意的年度節奏。` : '目前年度範圍內沒有本組已驗證規則命中；這不代表沒有關係機會。'}</p></section>
           <h4 className="mt-5 text-lg font-black text-amber-50">{reading.contextAlignment.themeTitle}</h4>
-          <p className="mt-1 text-xs leading-5 text-white/55">以下三個方向由後端逐一組合：你填寫的項目走對應引導，留白的項目走中性引導。可任選一項，也可以不選；這不是人格分析或心理測驗。</p>
+          <p className="mt-1 text-xs leading-5 text-white/75">以下三個方向由後端逐一組合：你填寫的項目走對應引導，留白的項目走中性引導。可任選一項，也可以不選；這不是人格分析或心理測驗。</p>
           <div className="mt-4 grid gap-3">{reading.contextAlignment.actionDirections.map((direction) => <button key={direction.id} type="button" onClick={() => setAlignmentChoice(direction.id)} aria-pressed={alignmentChoice === direction.id} className={`rounded-2xl border p-4 text-left transition ${alignmentChoice === direction.id ? 'border-amber-100/40 bg-amber-200/15' : 'border-white/10 bg-black/10'}`}><strong className="text-sm text-amber-50">{direction.title}</strong><span className="mt-2 block text-sm leading-6 text-white/75">易經式比喻：{direction.symbolism}</span><span className="mt-2 block text-sm leading-6 text-white/70">自我反思：{direction.reflectionQuestion}</span><span className="mt-2 block text-xs leading-5 text-emerald-100">可選小步：{direction.action}</span></button>)}</div>
           {alignmentChoice && <p className="mt-4 rounded-2xl border border-emerald-200/15 bg-emerald-300/[0.06] p-4 text-sm leading-7 text-emerald-50">你選擇先從「{reading.contextAlignment.actionDirections.find((item) => item.id === alignmentChoice)?.title}」開始。這只是可修改、可停止的自我反思方向。</p>}
-          <p className="mt-4 text-[11px] leading-5 text-white/45">不推斷焦慮、依附型態、創傷、性格或未填資訊；不作心理診斷或婚姻預測；自述資料不送入易經表達層。</p>
+          <p className="mt-4 text-xs leading-5 text-white/75">不推斷焦慮、依附型態、創傷、性格或未填資訊；不作心理診斷或婚姻預測；自述資料不送入易經表達層。</p>
           <button type="button" onClick={() => openLayer(3)} className="mt-5 w-full rounded-2xl border border-amber-200/25 bg-amber-300/10 px-4 py-3 text-sm font-black text-amber-50">打開第四層・問心 →</button>
         </section>}
 
         {openedLayer >= 3 && <section id="red-luan-layer-3" className="scroll-mt-5 rounded-3xl border border-amber-200/20 bg-amber-300/[0.06] p-5">
           <p className="text-xs font-black tracking-[0.18em] text-amber-200">第四層・問心</p><h3 className="mt-2 text-xl font-black text-white">{reading.contextAlignment.guidancePrompt}</h3><p className="mt-2 text-sm leading-7 text-white/70">這不是系統對你內心的判斷。請自行選一個此刻願意嘗試的方向，也可以只閱讀、不採取行動。</p>
-          <div className="mt-4 grid gap-3">{REFLECTION_CHOICES.map((choice) => <button key={choice.id} type="button" onClick={() => setReflectionChoice(choice.id)} aria-pressed={reflectionChoice === choice.id} className={`rounded-2xl border p-4 text-left transition ${reflectionChoice === choice.id ? 'border-amber-100/40 bg-amber-200/15' : 'border-white/10 bg-black/10'}`}><strong className="text-sm text-white">{choice.label}</strong><span className="mt-1 block text-xs leading-5 text-white/60">{choice.note}</span></button>)}</div>
+          <div className="mt-4 grid gap-3">{REFLECTION_CHOICES.map((choice) => <button key={choice.id} type="button" onClick={() => setReflectionChoice(choice.id)} aria-pressed={reflectionChoice === choice.id} className={`rounded-2xl border p-4 text-left transition ${reflectionChoice === choice.id ? 'border-amber-100/40 bg-amber-200/15' : 'border-white/10 bg-black/10'}`}><strong className="text-sm text-white">{choice.label}</strong><span className="mt-1 block text-xs leading-5 text-white/75">{choice.note}</span></button>)}</div>
           {reflectionChoice && <p className="mt-4 rounded-2xl border border-emerald-200/15 bg-emerald-300/[0.06] p-4 text-sm leading-7 text-emerald-50">你選擇了「{REFLECTION_CHOICES.find((choice) => choice.id === reflectionChoice)?.label}」。這只是你自己的探索方向，隨時可以更改或停止。</p>}
           <button type="button" onClick={() => openLayer(4)} className="mt-5 w-full rounded-2xl border border-cyan-200/25 bg-cyan-300/10 px-4 py-3 text-sm font-black text-cyan-50">打開第五層・易經引導 →</button>
         </section>}
@@ -1325,20 +1366,20 @@ function RedLuanHeartbeatExperience() {
             <div className="mt-4 space-y-2">
               {(reading.ichingReading.onion ?? []).map((step) => (
                 <article key={step.layer} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                  <p className="text-[10px] font-black tracking-[0.14em] text-rose-100">第 {step.step} 層・{step.layer}</p>
+                  <p className="text-xs font-black tracking-[0.14em] text-rose-100">第 {step.step} 層・{step.layer}</p>
                   <p className="mt-2 text-sm leading-7 text-white/85">{step.point}</p>
-                  {step.term && <p className="mt-1 text-[11px] leading-5 text-white/40">{step.term}</p>}
+                  {step.term && <p className="mt-1 text-xs leading-5 text-white/75">{step.term}</p>}
                 </article>
               ))}
             </div>
             <p className="mt-4 rounded-2xl border border-emerald-200/15 bg-emerald-300/[0.06] p-4 text-sm leading-7 text-emerald-50">{reading.ichingReading.closing}</p>
-            <p className="mt-3 text-[11px] leading-5 text-white/45">卦義出自六十四卦知識庫，起卦依生辰（梅花易數）決定；同一生辰永遠同一卦，可回查驗算。這是文化探索與自我反思，不是心理診斷。</p>
+            <p className="mt-3 text-xs leading-5 text-white/75">卦義出自六十四卦知識庫，起卦依生辰（梅花易數）決定；同一生辰永遠同一卦，可回查驗算。這是文化探索與自我反思，不是心理診斷。</p>
           </section>}
-          <section className="rounded-3xl border border-cyan-200/20 bg-cyan-300/[0.06] p-5"><p className="text-xs font-black tracking-[0.18em] text-cyan-200">第五層・易經引導</p><div className="mt-2 flex flex-wrap items-center gap-2"><h3 className="text-lg font-black text-white">{reading.result.culturalReading.status === 'READY' ? '易經文化表達層' : '文化引導目前鎖定'}</h3><span className={`rounded-full border px-2.5 py-1 text-[10px] font-black ${reading.result.culturalReading.gate.status === 'PASSED' ? 'border-emerald-200/20 text-emerald-100' : 'border-rose-200/20 text-rose-100'}`}>門控：{statusLabel(reading.result.culturalReading.gate.status)}</span></div><p className="mt-2 text-xs leading-5 text-white/50">易經表達層只把已通過的證據寫成文化反思，不是超自然權威，也不參與排盤或預言。</p>
+          <section className="rounded-3xl border border-cyan-200/20 bg-cyan-300/[0.06] p-5"><p className="text-xs font-black tracking-[0.18em] text-cyan-200">第五層・易經引導</p><div className="mt-2 flex flex-wrap items-center gap-2"><h3 className="text-lg font-black text-white">{reading.result.culturalReading.status === 'READY' ? '易經文化表達層' : '文化引導目前鎖定'}</h3><span className={`rounded-full border px-2.5 py-1 text-xs font-black ${reading.result.culturalReading.gate.status === 'PASSED' ? 'border-emerald-200/20 text-emerald-100' : 'border-rose-200/20 text-rose-100'}`}>門控：{statusLabel(reading.result.culturalReading.gate.status)}</span></div><p className="mt-2 text-xs leading-5 text-white/75">易經表達層只把已通過的證據寫成文化反思，不是超自然權威，也不參與排盤或預言。</p>
             {reading.result.culturalReading.status === 'READY' ? <><p className="mt-3 text-sm leading-7 text-white/75">{reading.result.culturalReading.summary}</p><div className="mt-4 space-y-3">{reading.result.culturalReading.yearlyGuidance?.map((item) => <article key={`${item.year}-${item.theme}`} className="rounded-2xl border border-white/10 bg-black/15 p-4"><h4 className="font-black text-cyan-50">{item.year}・{item.theme}</h4><p className="mt-2 text-sm leading-6 text-white/70">{item.reflection}</p><p className="mt-2 text-sm leading-6 text-cyan-100">行動參考：{item.action}</p></article>)}</div></> : <p className="mt-3 rounded-2xl border border-rose-200/15 bg-rose-300/[0.06] p-4 text-sm leading-7 text-white/70">{reading.result.culturalReading.status === 'UNAVAILABLE_AI_NOT_CONFIGURED' ? '後端證據已完成，但文化表達服務未設定，因此不以假文字代替。' : reading.result.culturalReading.status === 'BLOCKED_BY_VALIDATION' ? `資料尚未通過完整品質門控，易經表達層不會收到未驗證結果。${reading.result.culturalReading.gate.reasons.join('；')}。` : '文化表達服務暫時無法使用；後端規則證據仍維持原樣。'}</p>}
-            <p className="mt-3 text-[11px] leading-5 text-white/45">門控檢查到 {reading.result.culturalReading.gate.evidenceCount} 筆具規則編號的主引擎年度證據；品質門控通過前不會傳給表達層。固定排除：{reading.result.culturalReading.gate.withheldFields.join('、')}。</p>
+            <p className="mt-3 text-xs leading-5 text-white/75">門控檢查到 {reading.result.culturalReading.gate.evidenceCount} 筆具規則編號的主引擎年度證據；品質門控通過前不會傳給表達層。固定排除：{reading.result.culturalReading.gate.withheldFields.join('、')}。</p>
           </section>
-          <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-5"><p className="text-xs font-black tracking-[0.18em] text-white/55">易經補卦狀態</p><p className="mt-2 text-sm leading-7 text-white/70">{reading.result.iching.limitation}</p></section>
+          <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-5"><p className="text-xs font-black tracking-[0.18em] text-white/75">易經補卦狀態</p><p className="mt-2 text-sm leading-7 text-white/70">{reading.result.iching.limitation}</p></section>
         </section>}
         </div>
         </Fold>
@@ -1364,7 +1405,7 @@ function RedLuanHeartbeatExperience() {
                     ? `把這 ${reminderMonthsOf(reading).length} 個月全放進行事曆`
                     : `提醒我 ${Number(followUpEncounter.startsOn.slice(5, 7))} 月`}
                 </span>
-                <span className="mt-1 block text-[11px] leading-4 text-amber-100/75">未來一年的每一次，都幫你先記好</span>
+                <span className="mt-1 block text-xs leading-4 text-amber-100/75">未來一年的每一次，都幫你先記好</span>
               </button>
             )}
             <button
@@ -1373,7 +1414,7 @@ function RedLuanHeartbeatExperience() {
               className="rounded-2xl border border-rose-200/45 bg-rose-300/15 px-4 py-4 text-left transition hover:bg-rose-300/25"
             >
               <span className="block text-base font-black text-rose-50">分享這張卡</span>
-              <span className="mt-1 block text-[11px] leading-4 text-rose-100/75">傳給想跟你一起看的人</span>
+              <span className="mt-1 block text-xs leading-4 text-rose-100/75">傳給想跟你一起看的人</span>
             </button>
             <button
               type="button"
@@ -1381,12 +1422,12 @@ function RedLuanHeartbeatExperience() {
               className="rounded-2xl border border-cyan-200/45 bg-cyan-300/15 px-4 py-4 text-left transition hover:bg-cyan-300/25"
             >
               <span className="block text-base font-black text-cyan-50">幫朋友算一次</span>
-              <span className="mt-1 block text-[11px] leading-4 text-cyan-100/75">不會存進你的成長檔</span>
+              <span className="mt-1 block text-xs leading-4 text-cyan-100/75">不會存進你的成長檔</span>
             </button>
           </div>
           {/* 沒命中的人最需要被接住，以前這裡整段不渲染，他只拿到一行免責聲明。 */}
           {!followUpEncounter && (
-            <p className="mt-3 text-xs leading-6 text-white/60">未來一年半沒有命中不代表沒有機會——這一路的力道不在時間上。與其等一個月份，不如把自己準備好。</p>
+            <p className="mt-3 text-xs leading-6 text-white/75">未來一年半沒有命中不代表沒有機會——這一路的力道不在時間上。與其等一個月份，不如把自己準備好。</p>
           )}
           {followUp !== 'idle' && (
             <p className="mt-3 text-xs leading-6 text-emerald-100" role="status" aria-live="polite">
@@ -1397,7 +1438,7 @@ function RedLuanHeartbeatExperience() {
             </p>
           )}
         </section>
-        <p className="text-[11px] leading-5 text-white/40">本服務是文化探索與自我反思，不是心理診斷，也不是確定預測。</p>
+        <p className="text-xs leading-5 text-white/75">本服務是文化探索與自我反思，不是心理診斷，也不是確定預測。</p>
       </section>}
 
       <Link href="/" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-cyan-100 underline underline-offset-4">⌂ 返回首頁</Link>

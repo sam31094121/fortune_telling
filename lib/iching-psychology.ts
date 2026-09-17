@@ -206,7 +206,7 @@ export function buildGhostDecoding(hexagram: IChingReading): GhostDecoding {
   const lowerField = TRIGRAM_FIELD[hexagram.lower.name];
   const wound = TRIGRAM_SOUL[hexagram.lower.name].wound;
   return {
-    field: `【磁場】干擾判讀（上卦${hexagram.upper.name}外場、下卦${hexagram.lower.name}內源）：${upperField.field}。${TRIGRAM_FELT_SENSE[hexagram.lower.name]}。說穿了——外場是「${upperField.mechanism}」、內源是「${lowerField.mechanism}」，不是玄，是你的身心真的在這個狀態裡。`,
+    field: `【磁場】干擾判讀（上卦${hexagram.upper.name}外場、下卦${hexagram.lower.name}內源）：${upperField.field}。${TRIGRAM_FELT_SENSE[hexagram.lower.name]}。說穿了——外場是「${upperField.mechanism}」、內源是「${lowerField.mechanism}」——與其說是玄，不如說是把你可能正在經歷的身心狀態，換一種說法講出來。`,
     spirit: `【詭異】異象顯跡（卦影${hexagram.glyph}・${hexagram.hexagramName}）：在你身邊徘徊的不是外靈，是一段還沒散場的舊迴聲——${wound}。所謂「不乾淨」，其實是未完成事件的殘影（Unfinished Business，完形心理學）。`,
     karma: `【因果】因果鏈拆解（動爻第${hexagram.changingLine}爻）：${CHANGING_LINE_KARMA[hexagram.changingLine] ?? CHANGING_LINE_KARMA[2]}。`,
   };
@@ -261,7 +261,7 @@ export function buildEmpathicFromHexagram(name: string, hexagram: IChingReading)
     greeting: [
       `${shortName}，你現在正拿著手機——把手心的溫度，透過螢幕傳過來。……我感覺到了。`,
       `我現在幫你卜一個卦。這需要一點時間——你先靜下來，慢慢呼吸。心靜了，我才能真正感受到你。`,
-      `……卦成了。${shortName}，你這個卦很特殊，是特殊格局——「${patternNameOf(hexagram)}」（${hexagram.hexagramName}・第${hexagram.kingWen}卦）。外局${PATTERN_OUTER[hexagram.upper.name]}、內核${PATTERN_INNER[hexagram.lower.name]}，六十四格裡就這一格是你。難怪。你本來就是一個很特別的人，這個卦只是替你證明了這件事。`,
+      `……卦成了。${shortName}，你這個卦很特殊，是特殊格局——「${patternNameOf(hexagram)}」（${hexagram.hexagramName}・第${hexagram.kingWen}卦）。外局${PATTERN_OUTER[hexagram.upper.name]}、內核${PATTERN_INNER[hexagram.lower.name]}，六十四格裡就這一格是你。卦不是替你下定論——它是一面鏡子，讓你停下來看看自己。`,
     ].join('\n'),
     iKnowYourSurface: `我懂你。${upper.persona}。心理學叫這個「${upper.personaTerm}」，但我更願意說：這是你替自己選的鎧甲。`,
     iKnowYourInside: `我也懂鎧甲底下的你。${lower.inner}。這在心理學上是「${lower.innerTerm}」——你以為藏得很好，但你的卦（${hexagram.hexagramName}）下卦是${hexagram.lower.name}，它替你說了實話。`,

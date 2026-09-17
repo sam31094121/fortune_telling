@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-09-16",
+  "updatedAt": "2026-09-17",
   "rule": "八字沿用《易經》來源治理（docs/技能戰鬥檔案/易經/來源治理.md）：交叉比對的來源、權威性的檔案、大數據的來源；狀態由 lib/iching-source-gate.ts 計算，不得手填 VERIFIED。",
   "sources": [
     {
@@ -302,6 +302,57 @@
       "accessed_at": "2026-09-16",
       "edition": "第十屆中華傳統術數文化學術研討會論文集 2021（尚無結果）",
       "trust": "B"
+    },
+    {
+      "source_id": "S-XINGXUE-DACHENG",
+      "author": "明・萬民英",
+      "locator": "《星學大成》〈論紅鸞天喜〉（引擎 RED_LUAN_BY_YEAR_BRANCH_V1、TIAN_XI_OPPOSITE_RED_LUAN_V1 標註的出處）",
+      "data_type": "星命古籍",
+      "kind": "原典",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "古籍原文屬公有領域；實際取用版本權利待查核",
+      "accessed_at": "2026-09-17",
+      "edition": "版本與卷次待查核（程式已標註出處，本次未上網核對館藏）",
+      "trust": "A"
+    },
+    {
+      "source_id": "S-SITE-BRANCH-PROFILE",
+      "author": "本站",
+      "locator": "lib/red-luan-heartbeat-engine.ts BRANCH_PERSON_PROFILE、BRANCH_AFFINITY、ZIWEI_STAR_CAREER",
+      "data_type": "地支 → 外型印象、相處特質、職業場域的五行氣性對應",
+      "kind": "本站整理",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "本站自有整理；未逐條標注古籍出處，屬本站文化詮釋",
+      "accessed_at": "2026-09-17",
+      "edition": "2026-09-17 版",
+      "trust": "C",
+      "tracked_path": "lib/red-luan-heartbeat-engine.ts",
+      "note": "外型與職業對應找不到可追溯的古籍條文；客戶畫面標「傳統對應・僅供參考」，分享文字不帶。"
+    },
+    {
+      "source_id": "S-TEST-RED-LUAN",
+      "author": "本站",
+      "locator": "tests/red-luan-heartbeat.test.ts",
+      "data_type": "紅鸞卡規則與話術守門（含確定性預測掃描、最旺唯一性）",
+      "kind": "工程證據",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "本站自有",
+      "accessed_at": "2026-09-17",
+      "edition": "npm run test:red-luan-heartbeat（2026-09-17 PASS）",
+      "trust": "A",
+      "tracked_path": "tests/red-luan-heartbeat.test.ts"
     }
   ],
   "claims": [
@@ -405,6 +456,26 @@
       "conflicts": [],
       "status": "PENDING_POOL",
       "note": "未找到同儕審查的對照研究證明八字能預測人格、健康或婚姻；Lancet 1993 顯示「相信命理」可能透過心身歷程影響健康。客戶文字不得宣稱科學證實或預測。"
+    },
+    {
+      "claim_id": "C-RED-LUAN-SHENSHA",
+      "title": "紅鸞、天喜、桃花、天乙貴人的月份規則，與地支外型／職業類型對應",
+      "domain": "八字知識",
+      "files": [
+        "lib/red-luan-heartbeat-engine.ts"
+      ],
+      "authority_files": [
+        "S-XINGXUE-DACHENG"
+      ],
+      "big_data_sources": [],
+      "cross_references": [
+        "S-XINGXUE-DACHENG",
+        "S-SITE-BRANCH-PROFILE",
+        "S-TEST-RED-LUAN"
+      ],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "月份規則有古籍出處標註但版本未核對；外型與職業對應是本站詮釋，沒有古籍條文，只能標為參考。"
     }
   ]
 }

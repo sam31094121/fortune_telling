@@ -507,6 +507,27 @@ for (const simplified of ['资料', '时间', '验证', '规则', '关系', '显
   assert.equal(pageSource.includes(simplified), false, `customer copy contains simplified Chinese: ${simplified}`);
 }
 
+
+// ---- 2026-09-17 米其林審查：「最旺」只能有一個；後端話術不得講成確定預測或前世事實 ----
+for (const sample of [nextFromSep, insideWindow, nextFromDec]) {
+  const lines = [sample.soulResonance, sample.benefactor, ...sample.upcoming].filter(Boolean).map((item) => item!.monthLine);
+  assert.equal(lines.some((line) => line.includes('最旺')), false, `不得出現「最旺」罐頭句：${lines.join('／')}`);
+  const topStarts = new Set(sample.upcoming.filter((item) => item.monthLine.includes('命中最多')).map((item) => item.startsOn));
+  assert.ok(topStarts.size <= 1, '「命中最多」最多只能標一個月');
+}
+const OVERCLAIM = /(最旺|你自己會知道是誰|不是玄|會跟你來電|會碰到跟你相吸|替你證明|像磁鐵一樣|一定會|注定)/;
+const PAST_LIFE_AS_FACT = /(^|[^是])上輩子你/;
+for (const [label, payload] of [['下一次月份', nextFromSep], ['進行中月份', insideWindow], ['跨年月份', nextFromDec], ['有緣類型', affinity], ['易經層', ichingA], ['易經層無高峰', ichingNoPeak]] as const) {
+  const text = JSON.stringify(payload);
+  assert.equal(OVERCLAIM.test(text), false, `${label} 出現確定性預測：${text.match(OVERCLAIM)?.[0]}`);
+  assert.equal(PAST_LIFE_AS_FACT.test(text.replace(/\n/g, '')), false, `${label} 把前世寫成事實：${text.match(/.{0,12}上輩子你.{0,12}/)?.[0]}`);
+}
+assert.ok(affinity.typeLabel.startsWith('傳統對應'), '類型小標要標明是傳統對應參考');
+assert.ok(affinity.typeBasisNote.includes('僅供參考'), '類型要附出處與參考說明');
+assert.equal(pageSource.includes('會跟你來電的'), false, '前端不得寫死「會跟你來電的」');
+assert.ok(pageSource.includes('partnerGender: effectivePartnerGender(profile.gender)'), '送出要帶客戶選的對象性別');
+assert.ok(pageSource.includes('data-birth-summary'), '拿到結果後表單要收成摘要');
+
 console.log('Red Luan heartbeat rules passed');
 
 // ---- 結尾三動作：分享與行事曆是傳播與回訪的實際載體 ----
@@ -526,7 +547,11 @@ const shareText = buildRedLuanShareText(reminderFixture);
 assert.ok(shareText.includes(reminderFixture.url), '分享文字一定要帶連結');
 assert.ok(shareText.includes('2026 年 9 月'));
 assert.ok(shareText.includes('還有 5 天'), '具體天數才是分享時最抓人的地方');
-assert.ok(shareText.includes(reminderFixture.topCandidate));
+// 2026-09-17 米其林審查：外型與職業是傳統對應參考，分享出去容易被讀成「算準了會遇到誰」，分享文字不帶；要附文化探索說明。
+assert.equal(shareText.includes(reminderFixture.topCandidate), false, '分享文字不得帶職業人選');
+assert.equal(shareText.includes(reminderFixture.typeHeadline), false, '分享文字不得帶外型');
+assert.equal(/會跟我來電/.test(shareText), false, '分享文字不得講成確定會遇到');
+assert.ok(shareText.includes('不是確定預測'), '分享文字要附文化探索說明');
 assert.equal(buildRedLuanShareText({ ...reminderFixture, daysAway: 0 }).includes('就是這個月'), true);
 
 // 固定「今天」：月份還沒開始（9/1 看 9/8 開窗）。不固定的話，真實日期一過 9/8 測試就會過期變紅。
@@ -545,7 +570,9 @@ assert.ok(startedLines.includes('DTSTART;VALUE=DATE:20260917'), '進行中的月
 assert.ok(startedLines.includes('TRIGGER:PT9H'), '進行中的月份當天早上九點提醒');
 assert.ok(startedLines.some((line) => line.startsWith('SUMMARY:') && line.includes('進行中')), '進行中的月份標題要寫明進行中');
 // 提醒跳出來時客戶多半忘了細節，整段內容與回卡片的路都要在裡面。
-const descriptionLine = icsLines.find((line) => line.startsWith('DESCRIPTION:') && line.includes('容易來電')) ?? '';
+const descriptionLine = icsLines.find((line) => line.startsWith('DESCRIPTION:') && line.includes('傳統對應的參考類型')) ?? '';
+assert.equal(ics.includes('容易來電'), false, '行事曆不得講成確定會來電');
+assert.equal(ics.includes('吸力會很明顯'), false, '行事曆不得講成確定吸力');
 assert.ok(descriptionLine.includes(reminderFixture.url), '行事曆說明要帶回卡片的連結');
 assert.ok(descriptionLine.includes(reminderFixture.topCandidate));
 // .ics 規格：逗號與分號必須跳脫，否則整個欄位會被解析器截斷。

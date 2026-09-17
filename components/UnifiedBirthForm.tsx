@@ -186,7 +186,7 @@ export function HourBranchSelector({ value, unknown, missing, requireExplicitPic
         <div ref={panelRef} className="mt-5 scroll-mt-24 rounded-2xl border border-cyan-300/40 bg-cyan-950/20 p-4 shadow-[0_0_30px_rgba(34,211,238,0.18)]">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <span className="text-sm font-black tracking-wide text-cyan-100">👇 請點選你的出生時辰</span>
-            <span className="text-[11px] font-bold text-cyan-200/70">標準十二時辰</span>
+            <span className="text-xs font-bold text-cyan-200/90">標準十二時辰</span>
           </div>
           {selectedItem && (
             <div className="mb-3 rounded-xl border border-cyan-200/45 bg-cyan-300/12 px-4 py-2.5 text-sm font-black text-cyan-50">
@@ -213,7 +213,7 @@ export function HourBranchSelector({ value, unknown, missing, requireExplicitPic
                 >
                   <p className={`text-lg font-black ${selected ? 'text-cyan-100' : 'text-[color:var(--text-main)]'}`}>{selected ? '✓ ' : ''}{item.label}</p>
                   <p className="mt-0.5 text-xs font-semibold text-[color:var(--text-sub)]">{item.range}</p>
-                  <p className="mt-1 text-[11px] leading-4 text-[color:var(--text-muted)]">{item.imagery}</p>
+                  <p className="mt-1 text-xs leading-5 text-[color:var(--text-sub)]">{item.imagery}</p>
                 </button>
               );
             })}
