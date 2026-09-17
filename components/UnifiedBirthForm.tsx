@@ -72,6 +72,8 @@ type UnifiedBirthFormProps = {
    * 這裡會一併從無障礙樹與 Tab 順序移除，讀屏才不會唸到兩顆同名按鈕。
    */
   hideSubmitChrome?: boolean;
+  /** 標為選填的欄位（目前只支援姓名）：標籤寫「選填」、總覽不列為待填。計算用不到姓名的卡片使用。 */
+  optionalFields?: Array<'name'>;
   /** 呼叫端已核對本人資料時，避免再次由全域儲存覆蓋。 */
   autoFillIdentity?: boolean;
   onChange: (value: BirthProfile) => void;
@@ -213,7 +215,7 @@ export function HourBranchSelector({ value, unknown, missing, requireExplicitPic
                 >
                   <p className={`text-lg font-black ${selected ? 'text-cyan-100' : 'text-[color:var(--text-main)]'}`}>{selected ? '✓ ' : ''}{item.label}</p>
                   <p className="mt-0.5 text-xs font-semibold text-[color:var(--text-sub)]">{item.range}</p>
-                  <p className="mt-1 text-xs leading-5 text-[color:var(--text-sub)]">{item.imagery}</p>
+                  <p className="mt-1 text-xs leading-5 text-[color:var(--text-sub)]">{item.period}</p>
                 </button>
               );
             })}
@@ -235,6 +237,7 @@ export function UnifiedBirthForm({
   dateAccent = 'amber',
   requireExplicitHourPick = false,
   hideSubmitChrome = false,
+  optionalFields = [],
   autoFillIdentity = true,
   onChange,
   onSubmit,
@@ -283,8 +286,9 @@ export function UnifiedBirthForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const nameOptional = optionalFields.includes('name');
   const completed = [
-    fields.name ? { id: 'name', label: '姓名', done: (value.name ?? '').trim().length >= 2, text: (value.name ?? '').trim().length >= 2 ? '已確認' : '待填寫' } : null,
+    fields.name ? { id: 'name', label: '姓名', done: nameOptional || (value.name ?? '').trim().length >= 2, text: (value.name ?? '').trim().length >= 2 ? '已確認' : nameOptional ? '選填' : '待填寫' } : null,
     fields.birthDate ? { id: 'birthDate', label: '萬年曆生日', done: Boolean(value.birthDate), text: value.birthDate ? `西元 ${value.birthDate}` : '待換算' } : null,
     fields.gender ? { id: 'gender', label: '性別', done: Boolean(value.gender), text: value.gender === 'male' ? '男性' : value.gender === 'female' ? '女性' : '待選擇' } : null,
     fields.birthPlace ? { id: 'birthPlace', label: '出生地', done: Boolean(value.country && value.city), text: value.country && value.city ? `${value.country} ${value.city}` : '待填寫' } : null,
@@ -306,13 +310,13 @@ export function UnifiedBirthForm({
 
       {fields.name && (
         <section data-field="name" className={fieldFrameClass(missing, 'name', value)}>
-          <label className="block text-sm font-black text-[color:var(--text-main)]">1. 姓名 {(value.name ?? '').trim().length >= 2 && <span className="ml-2 text-green-400">完成</span>}</label>
+          <label className="block text-sm font-black text-[color:var(--text-main)]">1. 姓名{nameOptional && <span className="ml-1 text-sm font-bold text-[color:var(--text-sub)]">（選填）</span>} {(value.name ?? '').trim().length >= 2 && <span className="ml-2 text-green-400">完成</span>}</label>
           <input
             value={value.name ?? ''}
             onChange={(event) => onChange({ ...value, name: event.target.value })}
             onBlur={(event) => onChange({ ...value, name: event.target.value.trim() })}
             maxLength={20}
-            placeholder="請輸入姓名，至少 2 個字"
+            placeholder={nameOptional ? '可以不填；填了，結果會用名字稱呼你' : '請輸入姓名，至少 2 個字'}
             className={`mt-3 w-full rounded-2xl border bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60 ${hasMissing(missing, 'name') ? 'border-rose-300/70' : 'border-white/10'}`}
             autoComplete="off"
             disabled={disabled}

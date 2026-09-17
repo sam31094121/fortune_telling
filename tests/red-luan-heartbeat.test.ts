@@ -492,6 +492,13 @@ for (const jargon of ['品質門控', '確定性運算', '確定性核心', '門
   assert.equal(pageSource.includes(jargon), false, `證據區仍有工程術語：${jargon}`);
 }
 assert.equal(pageSource.includes('daysAway <= 365'), false, '「一年內」不得由前端計算');
+// 2026-09-17 業主批准 1～3：儀式不聲稱感應；時辰卡不顯示個性描述；姓名選填。
+assert.equal(/我感覺到了|手心的溫度|真正感受到你|卦才感受得到你|替你證明/.test(pageSource + JSON.stringify(ichingA)), false, '儀式不得聲稱感應到客戶');
+const namelessReading = buildRedLuanIChingReading({ ...ichingInput, name: '' });
+assert.equal(/(^|["\n。])，/.test(JSON.stringify(namelessReading)), false, '沒填姓名時句子不得以逗號開頭');
+assert.equal(pageSource.includes("(profile.name ?? '').trim().length < 2 ? 'name'"), false, '紅鸞卡姓名改為選填');
+assert.ok(pageSource.includes("optionalFields={['name']}"), '表單要標示姓名選填');
+assert.equal(routeSource.includes('姓名至少需要 2 個字'), false, 'API 不得再要求姓名');
 assert.equal(/[A-Z]{2,}_[A-Z_]+/.test(oneYearResult.bazi.sources.map((source) => source.title + source.reference).join('')), false, '來源說明不得出現英文規則代碼');
 assert.ok(nextFromSep.upcoming.every((item) => item.withinYear === (item.daysAway <= 365)), 'withinYear 必須與天數一致');
 assert.ok(routeSource.includes("coreCredibility('八字')"), '查證狀態句由後端來源閘門組好');
@@ -523,7 +530,7 @@ for (const sample of [nextFromSep, insideWindow, nextFromDec]) {
   const topStarts = new Set(sample.upcoming.filter((item) => item.monthLine.includes('命中最多')).map((item) => item.startsOn));
   assert.ok(topStarts.size <= 1, '「命中最多」最多只能標一個月');
 }
-const OVERCLAIM = /(最旺|你自己會知道是誰|不是玄|會跟你來電|會碰到跟你相吸|替你證明|像磁鐵一樣|一定會|注定)/;
+const OVERCLAIM = /(最旺|你自己會知道是誰|不是玄|會跟你來電|會碰到跟你相吸|會靠近你的|替你證明|像磁鐵一樣|一定會|注定|我看見了|我已經看到了|我感覺到了)/;
 const PAST_LIFE_AS_FACT = /(^|[^是])上輩子你/;
 for (const [label, payload] of [['下一次月份', nextFromSep], ['進行中月份', insideWindow], ['跨年月份', nextFromDec], ['有緣類型', affinity], ['易經層', ichingA], ['易經層無高峰', ichingNoPeak]] as const) {
   const text = JSON.stringify(payload);

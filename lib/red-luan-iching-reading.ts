@@ -204,7 +204,8 @@ function buildTeacherReadings(input: {
     ...(affinity.onionLayers.length > 0
       ? [{
         title: '先講對象',
-        text: `會靠近你的，最主要是${affinity.onionLayers[0].headline}這一型${
+        // 2026-09-17：傳統對應不是預言，不說「會靠近你的」。
+        text: `傳統對應裡，最常對應到的是${affinity.onionLayers[0].headline}這一型${
           affinity.onionLayers[2] ? `，常出現在${affinity.onionLayers[2].headline}` : ''
         }。細節你可以自己翻「一層一層看他是誰」，我這邊先講時間。`,
       }]
@@ -219,11 +220,12 @@ function buildTeacherReadings(input: {
     { title: '【磁場】干擾判讀', text: ghost.field },
     { title: '【詭異】異象顯跡', text: ghost.spirit },
     { title: '【因果】因果鏈拆解', text: ghost.karma },
-    { title: '【門縫】會靠近的那個人', text: affinity.onionLayers.length > 0
-      ? `我從門縫看出去……有一個影子的輪廓浮出來了：${affinity.onionLayers[0].headline}。再靠近一點看——${affinity.onionLayers.find((layer) => layer.step === 3)?.headline ?? '場域還看不清'}。方位在${affinity.onionLayers.find((layer) => layer.step === 4)?.headline ?? '未定'}。這不是預言，是你命盤裡紅鸞、天喜、桃花與貴人所在地支的氣性——影子是它們投出來的。`
+    // 2026-09-17 業主批准：網站看不見也感應不到，鬼魅口吻保留，但不聲稱「看見」。
+    { title: '【門縫】傳統對應的那一型', text: affinity.onionLayers.length > 0
+      ? `我從門縫往外看……照規則對應，浮出來的輪廓是：${affinity.onionLayers[0].headline}。再靠近一點看——${affinity.onionLayers.find((layer) => layer.step === 3)?.headline ?? '場域還看不清'}。方位在${affinity.onionLayers.find((layer) => layer.step === 4)?.headline ?? '未定'}。這不是預言，是你命盤裡紅鸞、天喜、桃花與貴人所在地支的氣性——影子是它們投出來的。`
       : '我從門縫看出去……這一年門外沒有停留的影子。不是空，是還沒到；這組規則沒有給出方向，我就不替你捏一個出來。' },
     { title: '【倒數】時間', text: input.hasPeak
-      ? `時間我已經看到了——${timing}。過了這個月，磁場會再沉下去。要不要在那之前把自己準備好，是你的決定，不是卦的決定。`
+      ? `規則算出來的時間是——${timing}。過了這個月，這組規則就不再命中。要不要在那之前把自己準備好，是你的決定，不是卦的決定。`
       : `${timing}。門外安靜的年份不用硬敲；${hexagram.advice}` },
   ];
 
@@ -242,7 +244,7 @@ function buildTeacherReadings(input: {
       name: '鬼魅老師',
       tagline: '門外低語',
       preview: '說出你身上那道還沒散掉的舊迴聲',
-      opening: `……你先別出聲。我隔著門替你卜這一卦——${hexagram.hexagramName}，第${hexagram.kingWen}卦，${hexagram.glyph}。格局是「${patternName}」。門外的東西，我看見了。`,
+      opening: `……你先別出聲。我隔著門替你卜這一卦——${hexagram.hexagramName}，第${hexagram.kingWen}卦，${hexagram.glyph}。格局是「${patternName}」。門外的東西，我們一起把它看清楚。`,
       sections: ghostSections,
       closing: `聽清楚：${empathic.absolution.split('聽清楚')[0].trim()}那不是你的錯。門我替你留著，要不要走出來，你自己決定。`,
     },

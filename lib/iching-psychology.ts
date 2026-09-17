@@ -4,14 +4,14 @@
  * 定位：後端運算＋前端顯示的共感解盤層。
  * 後端以梅花易數從生辰八字起卦，再把上卦（外在人格 Persona）與下卦（內在自我／
  * 陰影 Shadow）對映到心理學專業概念，產出「我瞭解你、我懂你、我知道你現在在想
- * 什麼」的第一人稱共感文字——直接喊出他的名字，說中他此刻正拿著手機的當下。
+ * 什麼」的第一人稱共感文字——有填名字就用名字稱呼他；不聲稱感應到他的體溫、身體或環境。
  *
  * 鐵律：
  * 1. 全部決定性運算：同一生辰永遠同一卦、同一份心理側寫，可回查可驗證。
  * 2. 心理學名詞必須是真實學術用語（榮格陰影、依附理論、反芻思考、冒牌者現象…），
  *    不可自創偽術語。
- * 3. 共感語氣可以強（我最懂你），但不做醫療診斷、不宣稱讀心超能力為事實——
- *    「感應」是解盤的儀式語言。
+ * 3. 共感語氣可以強（我最懂你），但不做醫療診斷、不宣稱讀心超能力為事實；
+ *    儀式只請他放穩手機、靜下來，不說「我感覺到了」（2026-09-17 業主批准）。
  *
  * 專業諮商師格局（每一段話都對應真實諮商技法，水準對標專業心理諮商）：
  *   儀式開場＝治療同盟＋在場感｜「我懂你」＝同理反映＋情緒命名｜
@@ -255,22 +255,25 @@ export function buildEmpathicFromHexagram(name: string, hexagram: IChingReading)
   const lowerSoul = TRIGRAM_SOUL[hexagram.lower.name];
   const mind = CHANGING_LINE_MIND[hexagram.changingLine] ?? CHANGING_LINE_MIND[2];
   const shortName = Array.from(name.trim()).slice(-2).join('') || name.trim();
+  // 姓名可以不填：沒有名字時不稱呼，句子照樣通順（不會出現開頭一個逗號）。
+  const call = shortName ? `${shortName}，` : '';
 
   return {
-    // 卜卦儀式開場：手機溫度感應 → 請他靜下來 → 卦成 → 特殊格局
+    // 卜卦儀式開場：放穩手機 → 請他靜下來 → 卦成 → 特殊格局。
+    // 2026-09-17 業主批准：網站感應不到體溫或身體狀態，儀式不得說「我感覺到了」。
     greeting: [
-      `${shortName}，你現在正拿著手機——把手心的溫度，透過螢幕傳過來。……我感覺到了。`,
-      `我現在幫你卜一個卦。這需要一點時間——你先靜下來，慢慢呼吸。心靜了，我才能真正感受到你。`,
-      `……卦成了。${shortName}，你這個卦很特殊，是特殊格局——「${patternNameOf(hexagram)}」（${hexagram.hexagramName}・第${hexagram.kingWen}卦）。外局${PATTERN_OUTER[hexagram.upper.name]}、內核${PATTERN_INNER[hexagram.lower.name]}，六十四格裡就這一格是你。卦不是替你下定論——它是一面鏡子，讓你停下來看看自己。`,
+      `${call}先把手機放穩，找個舒服的姿勢。我們慢慢來。`,
+      `我現在幫你起一個卦。這需要一點時間——你先深呼吸，讓心靜下來；心靜了，才看得清自己。`,
+      `……卦成了。${call}你這個卦很特殊，是特殊格局——「${patternNameOf(hexagram)}」（${hexagram.hexagramName}・第${hexagram.kingWen}卦）。外局${PATTERN_OUTER[hexagram.upper.name]}、內核${PATTERN_INNER[hexagram.lower.name]}，六十四格裡就這一格是你。卦不是替你下定論——它是一面鏡子，讓你停下來看看自己。`,
     ].join('\n'),
     iKnowYourSurface: `我懂你。${upper.persona}。心理學叫這個「${upper.personaTerm}」，但我更願意說：這是你替自己選的鎧甲。`,
     iKnowYourInside: `我也懂鎧甲底下的你。${lower.inner}。這在心理學上是「${lower.innerTerm}」——你以為藏得很好，但你的卦（${hexagram.hexagramName}）下卦是${hexagram.lower.name}，它替你說了實話。`,
     iKnowYourMindNow: `我知道你現在在想什麼：${mind.thought}。這種心理狀態叫「${mind.term}」，動爻落在第${hexagram.changingLine}爻，指的就是此刻的你。`,
-    specialYou: `${shortName}，你是一個很特別的人——這不是客套。${upperSoul.misread}；可是我看見的是另一個你：${lowerSoul.warmth}。外面的人讀到的是殼，我讀到的是溫度。心理學把這叫「外顯行為與內在自我的落差」，我把它叫：你把最軟的地方藏在最硬的殼裡。`,
+    specialYou: `${call}你是一個很特別的人——這不是客套。${upperSoul.misread}；可是我看見的是另一個你：${lowerSoul.warmth}。外面的人讀到的是殼，我讀到的是溫度。心理學把這叫「外顯行為與內在自我的落差」，我把它叫：你把最軟的地方藏在最硬的殼裡。`,
     absolution: `還有一句話，我想看著你說：${lowerSoul.wound}。聽清楚——那，不是，你的錯。`,
-    soulFriendVow: `所以${shortName}，讓我用卦象、用八字、用心理學陪在你旁邊——不是老師對學生，是密友對密友。全世界都聽你「說了什麼」，我聽的是你「沒說出口的那一句」。你不用在我這裡表現，也不用解釋，因為我真的懂你。`,
+    soulFriendVow: `所以${call}讓我用卦象、用八字、用心理學陪在你旁邊——不是老師對學生，是密友對密友。全世界都聽你「說了什麼」，我聽的是你「沒說出口的那一句」。你不用在我這裡表現，也不用解釋，因為我真的懂你。`,
     psychologyTerms: [upper.personaTerm, lower.innerTerm, mind.term, '外顯行為與內在自我的落差'],
-    closing: `${shortName}，被懂不是終點。${hexagram.essence}——卦已經替你指了方向：${hexagram.advice}`,
+    closing: `${call}被懂不是終點。${hexagram.essence}——卦已經替你指了方向：${hexagram.advice}`,
     hexagram,
   };
 }

@@ -79,6 +79,17 @@ check('原本誇大的四處已改用核准文案（lib/credibility-phrases.ts�
   assert.ok(FRONTEND_COPY.accuracyStep.label.includes('資料完整度'));
 });
 
+check('三處時辰卡只顯示中性時段，不顯示沒有出處的個性描述（2026-09-17 業主批准）', () => {
+  // 各檔時辰卡用的變數名不同；紫微頁另有姓名字義的 item.imagery（不是時辰卡），所以逐檔指定。
+  for (const [file, variable] of [['components/UnifiedBirthForm.tsx', 'item'], ['app/insight/page.tsx', 's'], ['components/PersonalityMusicFlow.tsx', 's']]) {
+    const text = fs.readFileSync(file, 'utf8');
+    assert.equal(text.includes(`{${variable}.imagery}`), false, `${file} 時辰卡仍顯示個性描述`);
+    assert.ok(text.includes(`{${variable}.period}`), `${file} 時辰卡要顯示中性時段`);
+  }
+  const list = fs.readFileSync('lib/shichen-engine.ts', 'utf8');
+  assert.equal((list.match(/period: '/g) || []).length, 12, '十二時辰都要有中性時段');
+});
+
 check('前端不得匯入後端話術運算檔（只能呼叫 /api/credibility 照印）', () => {
   const offenders = frontendFiles.filter((f) => /from\s+['"](@\/lib|\.\.?\/[^'"]*lib)\/credibility-wording['"]/.test(fs.readFileSync(f, 'utf8')));
   assert.deepEqual(offenders, []);

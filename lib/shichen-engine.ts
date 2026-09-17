@@ -35,21 +35,23 @@ export interface ShichenInfo {
   range: string;
   wuxing: WuxingElement;
   imagery: string;
+  /** 中性時段（深夜、清晨、晚上…）。選時辰的卡片顯示這個，不顯示沒有出處的個性描述（2026-09-17 業主批准）。 */
+  period: string;
 }
 
 export const SHICHEN_LIST: ShichenInfo[] = [
-  { branch: '子', branchIndex: 0, label: '子時', startHour: 23, range: '23:00-00:59', wuxing: '水', imagery: '夜深蓄勢，適合沉澱直覺與內在聲音' },
-  { branch: '丑', branchIndex: 1, label: '丑時', startHour: 1, range: '01:00-02:59', wuxing: '土', imagery: '穩定醞釀，重視安全感與耐力' },
-  { branch: '寅', branchIndex: 2, label: '寅時', startHour: 3, range: '03:00-04:59', wuxing: '木', imagery: '破曉啟動，帶有開創與行動力' },
-  { branch: '卯', branchIndex: 3, label: '卯時', startHour: 5, range: '05:00-06:59', wuxing: '木', imagery: '晨光舒展，感受力與人際節奏較明顯' },
-  { branch: '辰', branchIndex: 4, label: '辰時', startHour: 7, range: '07:00-08:59', wuxing: '土', imagery: '萬物整隊，適合建立格局與責任感' },
-  { branch: '巳', branchIndex: 5, label: '巳時', startHour: 9, range: '09:00-10:59', wuxing: '火', imagery: '思緒明亮，表達、判斷與熱度提升' },
-  { branch: '午', branchIndex: 6, label: '午時', startHour: 11, range: '11:00-12:59', wuxing: '火', imagery: '能量外放，具有舞台感與感染力' },
-  { branch: '未', branchIndex: 7, label: '未時', startHour: 13, range: '13:00-14:59', wuxing: '土', imagery: '午後收束，重視照顧、修復與整合' },
-  { branch: '申', branchIndex: 8, label: '申時', startHour: 15, range: '15:00-16:59', wuxing: '金', imagery: '反應俐落，帶有分析與轉換能力' },
-  { branch: '酉', branchIndex: 9, label: '酉時', startHour: 17, range: '17:00-18:59', wuxing: '金', imagery: '光影收斂，重視品味、標準與精準' },
-  { branch: '戌', branchIndex: 10, label: '戌時', startHour: 19, range: '19:00-20:59', wuxing: '土', imagery: '夜幕守成，忠誠、界線與承諾感突出' },
-  { branch: '亥', branchIndex: 11, label: '亥時', startHour: 21, range: '21:00-22:59', wuxing: '水', imagery: '靈感回流，情緒、想像與內心對話加深' },
+  { branch: '子', branchIndex: 0, label: '子時', startHour: 23, range: '23:00-00:59', wuxing: '水', imagery: '夜深蓄勢，適合沉澱直覺與內在聲音', period: '深夜' },
+  { branch: '丑', branchIndex: 1, label: '丑時', startHour: 1, range: '01:00-02:59', wuxing: '土', imagery: '穩定醞釀，重視安全感與耐力', period: '半夜' },
+  { branch: '寅', branchIndex: 2, label: '寅時', startHour: 3, range: '03:00-04:59', wuxing: '木', imagery: '破曉啟動，帶有開創與行動力', period: '凌晨' },
+  { branch: '卯', branchIndex: 3, label: '卯時', startHour: 5, range: '05:00-06:59', wuxing: '木', imagery: '晨光舒展，感受力與人際節奏較明顯', period: '清晨' },
+  { branch: '辰', branchIndex: 4, label: '辰時', startHour: 7, range: '07:00-08:59', wuxing: '土', imagery: '萬物整隊，適合建立格局與責任感', period: '早上' },
+  { branch: '巳', branchIndex: 5, label: '巳時', startHour: 9, range: '09:00-10:59', wuxing: '火', imagery: '思緒明亮，表達、判斷與熱度提升', period: '上午' },
+  { branch: '午', branchIndex: 6, label: '午時', startHour: 11, range: '11:00-12:59', wuxing: '火', imagery: '能量外放，具有舞台感與感染力', period: '中午' },
+  { branch: '未', branchIndex: 7, label: '未時', startHour: 13, range: '13:00-14:59', wuxing: '土', imagery: '午後收束，重視照顧、修復與整合', period: '午後' },
+  { branch: '申', branchIndex: 8, label: '申時', startHour: 15, range: '15:00-16:59', wuxing: '金', imagery: '反應俐落，帶有分析與轉換能力', period: '下午' },
+  { branch: '酉', branchIndex: 9, label: '酉時', startHour: 17, range: '17:00-18:59', wuxing: '金', imagery: '光影收斂，重視品味、標準與精準', period: '傍晚' },
+  { branch: '戌', branchIndex: 10, label: '戌時', startHour: 19, range: '19:00-20:59', wuxing: '土', imagery: '夜幕守成，忠誠、界線與承諾感突出', period: '晚上' },
+  { branch: '亥', branchIndex: 11, label: '亥時', startHour: 21, range: '21:00-22:59', wuxing: '水', imagery: '靈感回流，情緒、想像與內心對話加深', period: '夜晚' },
 ];
 
 export function getShichenInfo(branchIndex: number): ShichenInfo {

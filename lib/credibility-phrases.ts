@@ -57,4 +57,6 @@ export const BANNED_CLAIMS: ReadonlyArray<{ phrase: string; reason: string }> = 
   { phrase: '加深每週判定的精準度', reason: '沒有任何驗證顯示回訪會讓判定更準' },
   { phrase: '科學證實命', reason: '沒有對照研究支持命理預測力' },
   { phrase: '準確率高達', reason: '命理不做準確率宣稱' },
+  { phrase: '我感覺到了', reason: '網站感應不到體溫、身體或環境（2026-09-17 業主批准）' },
+  { phrase: '手心的溫度', reason: '同上：儀式不得聲稱隔著螢幕感應' },
 ];

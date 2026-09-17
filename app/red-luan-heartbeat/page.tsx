@@ -478,8 +478,8 @@ function EncounterCard({ encounter, fromDate, title, tone }: { encounter: Encoun
  * 這不是隱藏——想深入就按開，關掉也不影響上面已經給出的結論。
  */
 const RITUAL_LINES = [
-  '把手心的溫度，透過螢幕傳過來……',
-  '先靜下來，慢慢呼吸。心靜了，卦才感受得到你。',
+  '先把手機放穩，找個舒服的姿勢……',
+  '先靜下來，慢慢呼吸。心靜了，才看得清自己。',
   '卦成了。',
 ];
 
@@ -582,7 +582,7 @@ function RedLuanHeartbeatExperience() {
   /** 起卦儀式的第幾句；-1 代表沒有在進行。 */
   const [ritualStep, setRitualStep] = useState(-1);
   /** 上次填過的人；有的話就直接請他一鍵重看，不必再走一次表單。 */
-  const [returningName, setReturningName] = useState('');
+  const [returningName, setReturningName] = useState<string | null>(null);
   /** 上次來留下的痕跡：倒數走到哪、拆到第幾層、有沒有填時辰。 */
   const [returnVisit, setReturnVisit] = useState<RedLuanReturnVisit | null>(null);
   /** 上一次是哪一種送出失敗；有值就代表可以原封不動再送一次。 */
@@ -617,7 +617,7 @@ function RedLuanHeartbeatExperience() {
     setMissing([]);
     // 不清掉的話，畫面會一邊要客戶填朋友的資料、一邊叫著上一位的名字說
     // 「資料都還在」，而那顆按鈕按下去只會噴「請先填寫姓名」。
-    setReturningName('');
+    setReturningName(null);
     scrollToTarget(() => document.querySelector('.red-luan-unified-flow'));
   }
 
@@ -645,9 +645,9 @@ function RedLuanHeartbeatExperience() {
   useEffect(() => {
     // 之前算過的人回來時直接認出他。被行事曆提醒回來的客戶最需要這個。
     const saved = readCanonicalBirthProfile();
-    if (saved?.birthDate && saved.name) {
+    if (saved?.birthDate) {
       const profile = toUnifiedBirthProfile(saved);
-      if (profile.name && profile.birthDate && profile.gender) setReturningName(profile.name);
+      if (profile.birthDate && profile.gender) setReturningName((profile.name ?? '').trim());
     }
     setReturnVisit(readRedLuanReturnVisit());
     // 直接讀 location，不用 useSearchParams：那個 hook 需要 Suspense 邊界，
@@ -715,7 +715,7 @@ function RedLuanHeartbeatExperience() {
 
   function birthMissingFields(profile: BirthProfile) {
     return [
-      (profile.name ?? '').trim().length < 2 ? 'name' : '',
+      // 姓名只用來稱呼，不參與任何計算：選填（2026-09-17 業主批准）。
       !profile.birthDate ? 'birthDate' : '',
       !profile.gender ? 'gender' : '',
       // 時辰是加值不是前提：沒有時辰照樣算得出月份與人選，只是少了卦象與紫微。
@@ -742,7 +742,7 @@ function RedLuanHeartbeatExperience() {
       setRetryMode(null);
       setError(nextMissing[0] === 'birthHourBranch'
         ? '你按了「我知道出生時辰」，請點一張時辰卡；不確定的話改回「不知道出生時辰」也算得出來。'
-        : '請先把姓名、生日和性別填完。');
+        : '請先把生日和性別填完。');
       scrollToTarget(() => document.querySelector(`[data-field="${nextMissing[0]}"]`), 'center');
       return;
     }
@@ -766,7 +766,7 @@ function RedLuanHeartbeatExperience() {
     */
     let ritualLive = true;
     // 回訪的人不必再從第一句聽起，但也不能一句都不演——1.5 秒的收尾就夠。
-    const ritualFrom = returningName ? 1 : 0;
+    const ritualFrom = returningName !== null ? 1 : 0;
     const ritual = mode === 'initial'
       ? (async () => {
         for (let step = ritualFrom; step < RITUAL_LINES.length; step += 1) {
@@ -888,15 +888,15 @@ function RedLuanHeartbeatExperience() {
           落地卻只看到一張空表單——承諾與畫面對不上，傳播鏈就斷在這裡。
           先講一句銜接的話，再讓他填。連結上只帶固定標記，不帶任何個人資料。
         */}
-        {fromShare && !returningName && !reading && !loading && (
+        {fromShare && returningName === null && !reading && !loading && (
           <div className="mb-5 rounded-2xl border border-amber-200/40 bg-amber-300/[0.1] p-4">
             <p className="text-sm font-black text-amber-50">有人把他的紅鸞傳給你了</p>
             <p className="mt-1.5 text-xs leading-5 text-white/70">他已經查了自己的紅鸞月份與傳統對應類型。你的呢？只要生日，不用註冊、不用付費。</p>
           </div>
         )}
-        {returningName && identityTarget !== 'guest' && !reading && !loading && (
+        {returningName !== null && identityTarget !== 'guest' && !reading && !loading && (
           <div className="mb-5 rounded-2xl border border-rose-200/35 bg-rose-300/[0.1] p-4">
-            <p className="text-sm font-black text-rose-50">{returningName}，歡迎回來</p>
+            <p className="text-sm font-black text-rose-50">{returningName ? `${returningName}，` : ''}歡迎回來</p>
             {/*
               回來的人如果看到跟上次一模一樣的畫面，就不會有第三次。
               倒數天數每天都在變，這一句是他這次才看得到的東西。
@@ -915,7 +915,7 @@ function RedLuanHeartbeatExperience() {
         )}
         {reading && !editingBirth && !loading ? (
           <div className="mb-2 rounded-2xl border border-white/15 bg-white/[0.05] p-4" data-birth-summary>
-            <p className="text-sm font-black text-white">{reading.person.name}・{reading.person.birthDate}・{form.gender === 'female' ? '女' : form.gender === 'male' ? '男' : ''}・{reading.person.hourKnown ? '已填時辰' : '未填時辰'}・想看的對象：{!reading.affinity || reading.affinity.partnerLabel === '對方' ? '都可以' : reading.affinity.partnerLabel}</p>
+            <p className="text-sm font-black text-white">{reading.person.name ? `${reading.person.name}・` : ''}{reading.person.birthDate}・{form.gender === 'female' ? '女' : form.gender === 'male' ? '男' : ''}・{reading.person.hourKnown ? '已填時辰' : '未填時辰'}・想看的對象：{!reading.affinity || reading.affinity.partnerLabel === '對方' ? '都可以' : reading.affinity.partnerLabel}</p>
             <button type="button" onClick={() => { setEditingBirth(true); scrollToTarget(() => document.querySelector('.red-luan-unified-flow'), 'start'); }} className="mt-3 min-h-11 w-full rounded-2xl border border-white/25 px-4 py-2.5 text-sm font-black text-white/90">修改出生資料</button>
           </div>
         ) : <>
@@ -923,6 +923,7 @@ function RedLuanHeartbeatExperience() {
         <UnifiedBirthForm
           value={form}
           fields={{ name: true, gender: true, birthDate: true, birthHourBranch: true, calendarType: true }}
+          optionalFields={['name']}
           missing={missing}
           disabled={loading}
           isSubmitting={loading}
@@ -1008,7 +1009,7 @@ function RedLuanHeartbeatExperience() {
         */}
         <header className="rounded-3xl border border-cyan-200/25 bg-cyan-300/[0.08] p-5">
           <p className="text-xs font-black tracking-[0.18em] text-cyan-100/75">三份驚喜已解鎖</p>
-          <h2 className="mt-1 text-2xl font-black text-white">{reading.person.name}，這是你的紅鸞</h2>
+          <h2 className="mt-1 text-2xl font-black text-white">{reading.person.name ? `${reading.person.name}，這是你的紅鸞` : '這是你的紅鸞'}</h2>
           {/*
             回訪那一句原本只出現在送出前，客戶按下去就消失了——
             他最後停留的畫面，反而沒有任何「這次跟上次不一樣」的證據。

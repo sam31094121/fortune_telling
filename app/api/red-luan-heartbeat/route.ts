@@ -27,7 +27,8 @@ import { coreCredibility } from '@/lib/credibility-wording';
 export const dynamic = 'force-dynamic';
 
 type SinglePersonRequest = {
-  name: string;
+  /** 選填：只用來稱呼，不參與計算。 */
+  name?: string;
   birthDate: string;
   calendarType?: 'SOLAR' | 'LUNAR';
   isLeapMonth?: boolean;
@@ -62,8 +63,9 @@ function currentTaipeiYear() {
 function validate(body: unknown): string | null {
   if (!body || typeof body !== 'object') return '請提供有效的出生資料。';
   const person = body as Partial<SinglePersonRequest>;
-  if (typeof person.name !== 'string' || person.name.trim().length < 2 || person.name.trim().length > 20) {
-    return '姓名至少需要 2 個字。';
+  // 姓名選填（2026-09-17 業主批准）：有填才檢查長度。
+  if (person.name !== undefined && person.name !== null && (typeof person.name !== 'string' || person.name.trim().length > 20)) {
+    return '姓名最多 20 個字。';
   }
   if (typeof person.birthDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(person.birthDate)) return '生日日期無效。';
   const [year, month, day] = person.birthDate.split('-').map(Number);
@@ -118,6 +120,7 @@ export async function POST(request: Request) {
 
   try {
     const timePrecision = resolvedTimePrecision(person);
+    const displayName = typeof person.name === 'string' ? person.name.trim() : '';
     const hourKnown = timePrecision !== 'UNKNOWN_TIME';
     const exactHour = timePrecision === 'EXACT_TIME' ? exactTimeBranch(person.birthTime) : undefined;
     const selectedHour = timePrecision === 'TRADITIONAL_HOUR'
@@ -128,7 +131,7 @@ export async function POST(request: Request) {
     // 未知時辰時這兩項明說不可用，絕不以預設午時充數。
     const ziweiReady = hourKnown && Boolean(selectedHour);
     const core = createBaziCore({
-      name: person.name.trim(),
+      name: displayName || undefined,
       birthDate: person.birthDate,
       birthTimeKnown: hourKnown,
       birthTime: timePrecision === 'EXACT_TIME' ? person.birthTime : undefined,
@@ -224,7 +227,7 @@ export async function POST(request: Request) {
     // 稽核規則：未知時辰不採預設午時，因此無時辰就不起生辰卦，明說要補時辰才解鎖。
     const ichingReading = ziweiReady && selectedHour
       ? buildRedLuanIChingReading({
-        name: person.name.trim(),
+        name: displayName,
         birthDate: core.calendar.solarDate,
         shichenIndex: SHICHEN_LIST.findIndex((item) => item.branch === selectedHour.branch),
         year: result.annualYear,
@@ -242,7 +245,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       threeInOne,
-      person: { name: person.name.trim(), birthDate: core.calendar.solarDate, hourKnown },
+      person: { name: displayName, birthDate: core.calendar.solarDate, hourKnown },
       relationshipPosition: {
         ...selfReportedContext,
         attractedType,

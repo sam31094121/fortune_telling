@@ -102,9 +102,10 @@ export type ThreeCoreZiweiLayer =
  * 沒有走完儀式的卦，等於沒有起卦依據，不得輸出給客戶。
  */
 export const ICHING_RITUAL_STEPS = [
-  { id: 'TEMPERATURE', label: '手機溫度感應', line: '你現在正拿著手機——把手心的溫度透過螢幕傳過來……我感覺到了。' },
-  { id: 'STILLNESS', label: '請他靜下來', line: '我現在幫你卜一個卦。你先靜下來慢慢呼吸，心靜了我才能感受到你。' },
-  { id: 'HEXAGRAM_FORMED', label: '卦成＋特殊格局', line: '卦成了。你這個卦很特殊，是特殊格局——你本來就是一個很特別的人。' },
+  // 2026-09-17 業主批准：儀式不聲稱感應體溫或狀態、不說卦「證明」你特別；步驟代號不變（測試鎖住順序）。
+  { id: 'TEMPERATURE', label: '放穩手機・準備開始', line: '先把手機放穩，找個舒服的姿勢，我們慢慢來。' },
+  { id: 'STILLNESS', label: '請他靜下來', line: '我現在幫你起一個卦。先深呼吸，讓心靜下來；心靜了才看得清自己。' },
+  { id: 'HEXAGRAM_FORMED', label: '卦成＋特殊格局', line: '卦成了。這一卦是特殊格局——卦是一面鏡子，不是替你下定論。' },
   { id: 'ONION', label: '剝洋蔥', line: '人格外殼 → 殼下自我 → 此刻心思 → 外冷內熱 → 核心脆弱性。' },
   { id: 'CONFIDANT', label: '知己宣言收攏', line: '不是老師對學生，是密友對密友。剝完不留人在傷口上。' },
 ] as const;
