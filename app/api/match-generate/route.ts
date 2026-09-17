@@ -633,6 +633,7 @@ export async function POST(request: Request) {
       ].map((claim) => claim.customerLine),
     });
     const reinforcementLayer = buildSoulMatchReinforcementLayer(aiInterpretationLayer);
+    const teacherFromGoogle = enhanced.provider === 'google' && finalSummary === enhanced.summary;
 
     const responseData = {
       threeInOne: { personA: threeInOneA, personB: threeInOneB },
@@ -651,9 +652,10 @@ export async function POST(request: Request) {
       scoreBasis: '相處共鳴指數與四項指標，依兩人的星座、生日、出生季節、血型（不知道就用預設值）與姓名首字，套用固定規則計算；同樣資料每次結果都一樣。這不是八字合盤，也不是準確率。',
       teacherReadings: {
         google: {
-          reading: finalSummary,
-          // AI 摘要沒通過一致性檢查時，這段其實是規則文字，來源要照實標。
-          source: finalSummary === enhanced.summary ? enhanced.provider : 'local',
+          // Google AI 改寫通過檢查才用改寫版；否則改用專業層的共鳴與溝通說明，
+          // 不再重複分數卡上同一句摘要（2026-09-17 米其林升級）。
+          reading: teacherFromGoogle ? finalSummary : `${aiInterpretationLayer.emotionalPattern}${aiInterpretationLayer.communicationPattern}`,
+          source: teacherFromGoogle ? 'google' : 'local',
         },
         ghost: ghostTeacher,
       },
