@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI, Type } from '@google/genai';
 import { computeCompatibility, type PersonProfile, type PersonalityMatrixCompat } from '@/lib/compatibility-engine';
-import { isConsistentAiSummary, stabilizeMatchResult } from '@/lib/match-stability';
+import { hasAiRewriteOverclaim, isConsistentAiSummary, stabilizeMatchResult } from '@/lib/match-stability';
 import { PersonalityMatrixEngine } from '@/lib/personality-matrix-engine';
 import { computeDestinyProfile } from '@/lib/destiny-engine';
 import { getZodiacEnglishName, getZodiacSign } from '@/lib/zodiac';
 import { isValidBirthday } from '@/lib/validation';
 import { computeRelationshipMatrix } from '@/lib/relationship-matrix-engine';
 import { createRequestId, friendlyErrorResponse, hashedCacheKey } from '@/lib/api-stability';
-import { buildAiCopywritingInstruction, enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
+import { buildMatchStory } from '@/lib/match-story-engine';
 import { buildMatchFiveElementResult, type MatchFiveElementKey } from '@/lib/match-five-element-engine';
 import { buildSoulMatchAiInterpretationLayer, buildSoulMatchProfessionalLayer, buildSoulMatchReinforcementLayer } from '@/lib/match-professional-layer';
 import { analyzeBazi } from '@/lib/bazi-engine';
@@ -16,6 +16,8 @@ import { deriveBaziPillarBeast } from '@/lib/bazi-four-pillar-beasts';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { buildBaziLovePersonSignal, buildZiweiLovePersonSignal, type RedLuanHeartbeatResult } from '@/lib/red-luan-heartbeat-engine';
 import { runThreeInOne } from '@/lib/three-in-one';
+import { buildMatchThreeCoreView } from '@/lib/match-three-core-view';
+import { coreCredibility } from '@/lib/credibility-wording';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,6 +40,8 @@ interface PersonDisplay {
   chineseZodiac: string;
   wuxing: string;
   bloodType: string;
+  /** 畫面用：「A 型」或「血型不知道」。 */
+  bloodTypeLabel: string;
 }
 type MatchEnhancementPayload = {
   summary: string;
@@ -185,6 +189,7 @@ function buildProfile(person: PersonInput): { profile: PersonProfile; display: P
       chineseZodiac: destiny.chineseZodiac,
       wuxing: destiny.dominantWuxing,
       bloodType: person.bloodType === 'unknown' ? '不知道' : person.bloodType,
+      bloodTypeLabel: person.bloodType === 'unknown' ? '血型不知道' : `${person.bloodType} 型`,
     },
   };
 }
@@ -337,7 +342,7 @@ function buildRedLuanHeartbeat(
     },
     iching: {
       status: 'UNAVAILABLE_RULE_SOURCE_REQUIRED',
-      limitation: '易經補卦尚未選定可追溯的雙人起卦或映射規則，因此本階段不生成卦象。',
+      limitation: '雙人合卦目前還沒有能查證出處的起卦規則，所以這裡不產生卦，也不借別的卦來湊。',
     },
   };
 }
@@ -389,7 +394,10 @@ async function enhanceMatchResultWithAI(
 
 本次尚未選定可追溯的雙人易經起卦規則；不可生成、引用或暗示卦象，也不可從出生資料推定心理狀態。
 
-${buildAiCopywritingInstruction('天地人配對系統')}
+【語氣與界線】
+- 繁體中文，說人話，具體、溫和、直接；不要用術語。
+- 這是依固定規則算出的相處參考，不是預測：不得寫「一定會」「注定」「保證」「越走越順」「天作之合」。
+- 本次沒有起卦：不得出現「易經卜卦」「卦象」「卜卦判定」，也不得自稱感應到任何人的心意。
 
 合盤對象：
 - 第一位：姓名 ${displayA.name}，生肖 ${displayA.chineseZodiac}，星座 ${displayA.zodiacZh}，五行 ${displayA.wuxing}，血型 ${displayA.bloodType}
@@ -417,7 +425,7 @@ ${buildAiCopywritingInstruction('天地人配對系統')}
 【改寫指令與限制】：
 1. 必須將原始各點改寫融入「雙方姓名、星座、生肖、八字日主、日柱神獸與共同元素」的實際差異；不可只換姓名後輸出相同內容。
 2. 四大關係象限（共鳴、互補、磨合、衝突）中，每一區請生成 1 到 2 條全新、具體、個性化的相處提醒（每條請控制在 25 字內，切忌空洞泛泛的讚美）。
-3. 摘要 summary 請控制在 120 字內的一段話，語氣高冷犀利、字字點中要害，直接點破相處關卡。
+3. 摘要 summary 請控制在 120 字內的一段話，清楚點出這組配對最值得留意的相處關卡，並給一個做得到的方向。
 4. ⚠️【JSON 安全與轉義鐵律】：
    - 輸出必須是合法的 JSON。
    - 絕對不准在 JSON 值（value）的文字內容內部使用任何「雙引號（"）」。若需使用引用，請一律使用「單引號（'）」或「書名號（《》）」。
@@ -455,17 +463,21 @@ ${buildAiCopywritingInstruction('天地人配對系統')}
     if (!text) throw new Error('Empty response');
 
     const parsed = parseMatchEnhancement(text);
-
-    return {
-      summary: enforceAiCopywritingTone(parsed.summary || result.summary),
+    const enhanced = {
+      summary: parsed.summary || result.summary,
       zones: {
-        resonance: (parsed.resonance?.length ? parsed.resonance : result.zones.resonance).slice(0, 3).map(enforceAiCopywritingTone),
-        complement: (parsed.complement?.length ? parsed.complement : result.zones.complement).slice(0, 3).map(enforceAiCopywritingTone),
-        grinding: (parsed.grinding?.length ? parsed.grinding : result.zones.grinding).slice(0, 3).map(enforceAiCopywritingTone),
-        conflict: (parsed.conflict?.length ? parsed.conflict : result.zones.conflict).slice(0, 3).map(enforceAiCopywritingTone),
+        resonance: (parsed.resonance?.length ? parsed.resonance : result.zones.resonance).slice(0, 3),
+        complement: (parsed.complement?.length ? parsed.complement : result.zones.complement).slice(0, 3),
+        grinding: (parsed.grinding?.length ? parsed.grinding : result.zones.grinding).slice(0, 3),
+        conflict: (parsed.conflict?.length ? parsed.conflict : result.zones.conflict).slice(0, 3),
       },
-      provider: 'google',
     };
+    // AI 改寫只要有一句越過證據（提到卦、保證、注定），整份退回規則文字，不挑著用。
+    if ([enhanced.summary, ...Object.values(enhanced.zones).flat()].some(hasAiRewriteOverclaim)) {
+      throw new Error('AI rewrite overclaimed');
+    }
+
+    return { ...enhanced, provider: 'google' };
   } catch (error) {
     console.info('[enhanceMatchResultWithAI] AI enhancement unavailable; using deterministic templates.', error instanceof Error ? error.message : String(error));
     return { summary: result.summary, zones: result.zones, provider: 'local' };
@@ -530,7 +542,7 @@ export async function POST(request: Request) {
     body.personB.birthHourBranch ?? 'unknown',
     body.personB.bloodType,
     body.personB.gender,
-    'soul-match-red-luan-heartbeat-v3',
+    'soul-match-three-core-v5',
   ]);
   const cached = responseCache.get(cacheKey);
   if (cached && now < cached.expireTime) {
@@ -549,8 +561,8 @@ export async function POST(request: Request) {
       runThreeInOne({ birthDate: body.personA.birthDate, birthTime: null, hourBranchIndex: hourIndex(body.personA), gender: body.personA.gender }),
       runThreeInOne({ birthDate: body.personB.birthDate, birthTime: null, hourBranchIndex: hourIndex(body.personB), gender: body.personB.gender }),
     ]);
-    const validThreeInOne = [threeInOneA, threeInOneB].every((item) => item.status === 'PASSED' || item.status === 'TIME_UNKNOWN');
-    if (!validThreeInOne) {
+    // 寫成逐一比對（不用 every），TypeScript 才會把兩人的結果收窄成「成立」或「時辰未知」，後面整理三核心視圖時型別有保障。
+    if ((threeInOneA.status !== 'PASSED' && threeInOneA.status !== 'TIME_UNKNOWN') || (threeInOneB.status !== 'PASSED' && threeInOneB.status !== 'TIME_UNKNOWN')) {
       return friendlyErrorResponse(requestId, 'THREE_IN_ONE_NOT_VERIFIED', '其中一人的三合一核對未通過，暫不顯示配對結果。', 422);
     }
 
@@ -599,6 +611,27 @@ export async function POST(request: Request) {
       result: finalResult,
     });
     const aiInterpretationLayer = buildSoulMatchAiInterpretationLayer(professionalLayer);
+    // 老師格局、鬼魅劇情、結尾行動都在後端組好；前端只照印（2026-09-17 米其林審查）。
+    const story = buildMatchStory({
+      nameA: displayA.name,
+      nameB: displayB.name,
+      result: finalResult,
+      fiveElementMatch,
+      sceneKey: baziFoundation.sceneKey,
+      hasBaziFoundation: true,
+    });
+    // 兩人各自的三核心（① 八字 → ② 紫微 → ③ 易經）；查證狀態由來源閘門重算組句，不手填（2026-09-17 米其林升級）。
+    const threeCore = buildMatchThreeCoreView({
+      nameA: displayA.name,
+      nameB: displayB.name,
+      personA: threeInOneA,
+      personB: threeInOneB,
+      sourceChecks: [
+        ...coreCredibility('八字').claims.filter((claim) => claim.claimId === 'C-BAZI-CHART'),
+        ...coreCredibility('紫微斗數').claims.filter((claim) => claim.claimId === 'C-ZIWEI-CHART'),
+        ...coreCredibility('易經').claims.filter((claim) => ['C-ICHING-METHOD', 'C-ICHING-TEXT', 'C-ICHING-DIVINATION-FRAMING'].includes(claim.claimId)),
+      ].map((claim) => claim.customerLine),
+    });
     const reinforcementLayer = buildSoulMatchReinforcementLayer(aiInterpretationLayer);
 
     const responseData = {
@@ -613,10 +646,14 @@ export async function POST(request: Request) {
       fiveElementMatch,
       baziFoundation,
       redLuanHeartbeat,
+      story,
+      threeCore,
+      scoreBasis: '相處共鳴指數與四項指標，依兩人的星座、生日、出生季節、血型（不知道就用預設值）與姓名首字，套用固定規則計算；同樣資料每次結果都一樣。這不是八字合盤，也不是準確率。',
       teacherReadings: {
         google: {
-          reading: enhanced.summary || finalSummary,
-          source: enhanced.provider,
+          reading: finalSummary,
+          // AI 摘要沒通過一致性檢查時，這段其實是規則文字，來源要照實標。
+          source: finalSummary === enhanced.summary ? enhanced.provider : 'local',
         },
         ghost: ghostTeacher,
       },

@@ -19,7 +19,8 @@ const REGISTRIES = [
   {
     label: '易經',
     registry: 'docs/技能戰鬥檔案/易經/來源登記.json',
-    pattern: /iching|易經/i,
+    // 2026-09-17：紅鸞卡檔名不含 iching，以前閘門完全看不到它的心理學話術；一併納入。
+    pattern: /iching|易經|red-luan|紅鸞/i,
     minClaims: 5,
     // 治理工具本身（規格、登記表、閘門程式）不是要登記來源的內容。
     governance: new Set(['docs/技能戰鬥檔案/易經/來源登記.json', GOVERNANCE, 'lib/iching-source-gate.ts', 'docs/技能戰鬥檔案/易經/三核心融會貫通.md']),

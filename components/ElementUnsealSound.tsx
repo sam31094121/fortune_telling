@@ -240,7 +240,7 @@ export function ElementUnsealSoundToggle() {
       <button
         type="button"
         onClick={toggle}
-        className="rounded-full border border-white/15 bg-black/25 px-3 py-1.5 text-[10px] font-black tracking-wide text-white/70 transition active:scale-[0.98]"
+        className="rounded-full border border-white/15 bg-black/25 px-3 py-1.5 text-xs font-black tracking-wide text-white/80 transition active:scale-[0.98]"
         aria-pressed={muted}
         aria-label={muted ? '開啟解封儀式聲音' : '關閉解封儀式聲音'}
       >
@@ -249,7 +249,7 @@ export function ElementUnsealSoundToggle() {
       <button
         type="button"
         onClick={toggleVolume}
-        className="rounded-full border border-amber-100/20 bg-amber-200/8 px-3 py-1.5 text-[10px] font-black tracking-wide text-amber-50/75 transition active:scale-[0.98] disabled:opacity-35"
+        className="rounded-full border border-amber-100/20 bg-amber-200/8 px-3 py-1.5 text-xs font-black tracking-wide text-amber-50/85 transition active:scale-[0.98] disabled:opacity-35"
         aria-pressed={enhanced}
         aria-label={enhanced ? '恢復標準解封音量' : '增強解封音量'}
         disabled={muted}

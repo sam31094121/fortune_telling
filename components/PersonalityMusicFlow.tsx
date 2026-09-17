@@ -724,7 +724,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                 >
                   <p className={`text-base font-bold ${selected ? 'text-cyan-300' : 'text-[color:var(--text-main)]'}`}>{s.label}</p>
                   <p className="mt-0.5 text-xs font-semibold text-[color:var(--text-sub)]">{s.range}</p>
-                  <p className="mt-1 text-[11px] leading-4 text-[color:var(--text-muted)]">{s.imagery}</p>
+                  <p className="mt-1 text-xs leading-5 text-[color:var(--text-sub)]">{s.period}</p>
                 </button>
               );
             })}

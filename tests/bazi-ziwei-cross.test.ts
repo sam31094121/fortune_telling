@@ -367,6 +367,8 @@ for (const item of CASES) {
     if (known.iching.status === 'READY') {
       const ids = known.iching.ritual.steps.map((step) => step.id);
       check('儀式關卡・五步順序固定', ids, ['TEMPERATURE', 'STILLNESS', 'HEXAGRAM_FORMED', 'ONION', 'CONFIDANT']);
+      // 2026-09-17 業主批准：網站感應不到體溫或狀態，儀式文字不得聲稱感應。
+      check('儀式關卡・不聲稱感應到客戶', known.iching.ritual.steps.some((step) => /感覺到了|手心的溫度|感受到你/.test(`${step.label}${'line' in step ? String((step as { line?: string }).line) : ''}`)), false);
     }
   }
 

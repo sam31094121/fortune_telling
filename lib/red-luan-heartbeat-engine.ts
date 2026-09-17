@@ -788,6 +788,8 @@ export type RedLuanEncounter = {
   daysLeft: number;
   /** 今天是否就落在這個窗口內。 */
   isCurrent: boolean;
+  /** 是否在一年（365 天）內開始；「接下來一年幾次機會」與行事曆都用這個，前端不自己算。 */
+  withinYear: boolean;
   kind: RedLuanEncounterKind;
   /** 命中的規則名稱，例如 ['紅鸞', '天喜']。 */
   labels: string[];
@@ -807,9 +809,10 @@ export type RedLuanEncounter = {
 /**
  * 「磁鐵」那一段的話術與其心理學骨架。
  *
- * 吸力為什麼會「特別明顯」，有真實機制可講：命中的月份代表這段時間你會更常
- * 出現在特定場域（接近性效應），重複照面本身就會提升好感（單純曝光效應），
- * 而節奏變動帶來的心跳加速容易被讀成心動（錯誤歸因激發）。
+ * 話術只講「傾向」：常碰面比較容易累積好感（接近性效應；單純曝光效應有統合分析支持，
+ * 但 Montoya 2017 顯示呈倒 U 形，不是見越多越好）。不講「你自己會知道是誰」這種確定預測。
+ * 吊橋實驗（錯誤歸因激發）有四次重複失敗（Kenrick 1979），不用在話術與機制欄位。
+ * 來源登記：docs/技能戰鬥檔案/易經/來源登記.json 的 C-RED-LUAN-PSYCHOLOGY。
  *
  * 為什麼「只差伸手那一下」也有機制：想做與真的做之間有落差（意圖—行動落差），
  * 落差多半由怕被拒絕撐著（拒絕敏感度）。解法不是勇氣，是先把句子準備好
@@ -817,10 +820,11 @@ export type RedLuanEncounter = {
  */
 const ENCOUNTER_COPY: Record<RedLuanEncounterKind, { monthLine: string; magnet: string; action: string; loveWords: string[]; mechanism: string[] }> = {
   SOUL_RESONANCE: {
-    monthLine: '這個月你的桃花最旺',
-    magnet: '這個月的吸力會很明顯——像磁鐵一樣，你自己會知道是誰。不是玄，是你這段時間會一直跟同一個人照到面，看久了心就軟了。',
+    // 「最旺」只能給唯一一個月（見 buildRedLuanNextEncounters 的收尾）；每個月都寫最旺，客戶一比就知道是罐頭。
+    monthLine: '這個月桃花星到位',
+    magnet: '這段時間比較容易留意到常碰面的人——同一個場合一再照面，好感本來就容易累積。心裡如果已經有人，這個月可以多留意你們的互動。',
     action: '差的只是當下你有沒有伸出手、有沒有把那一句話講出口。先想好要說什麼，機會來的時候才不會又吞回去。',
-    loveWords: ['你們會一直出現在同一個地方', '看久了，心就會軟', '想了很多次，就差說出口那一次', '先想好要說什麼，當下才不會愣住'],
+    loveWords: ['常碰面，好感比較容易累積', '熟悉會讓人放下防備', '想了很多次，就差說出口那一次', '先想好要說什麼，當下才不會愣住'],
     mechanism: ['接近性效應（Propinquity Effect）', '單純曝光效應（Mere Exposure Effect）', '意圖—行動落差（Intention–Behavior Gap）', '執行意圖（Implementation Intentions）'],
   },
   BENEFACTOR: {
@@ -832,9 +836,9 @@ const ENCOUNTER_COPY: Record<RedLuanEncounterKind, { monthLine: string; magnet: 
   },
   BOTH: {
     monthLine: '這個月桃花和貴人一起到',
-    magnet: '這個月兩股力道會一起來——相吸的那一種，和願意拉你一把的那一種。吸力會很明顯，像磁鐵，你會分得出來是誰。',
+    magnet: '這個月兩種規則一起到位——相吸的桃花，和願意拉你一把的貴人。多留意常碰面的人，也多留意主動關心你的人。',
     action: '兩邊都只差你先動那一下：想靠近的就伸手，需要幫忙的就開口。先把話準備好，當下就不會愣住。',
-    loveWords: ['你們會一直出現在同一個地方', '看久了，心就會軟', '你先說一句真心話，對方才敢說第二句', '想歸想，手要伸出去才算'],
+    loveWords: ['常碰面，好感比較容易累積', '熟悉會讓人放下防備', '你先說一句真心話，對方才敢說第二句', '想歸想，手要伸出去才算'],
     mechanism: ['接近性效應（Propinquity Effect）', '單純曝光效應（Mere Exposure Effect）', '意圖—行動落差（Intention–Behavior Gap）', '自我揭露互惠（Reciprocal Self-Disclosure）'],
   },
 };
@@ -952,10 +956,21 @@ export function buildRedLuanNextEncounters(input: {
       daysAway: Math.max(0, daysBetween(input.fromDate, window.startsOn)),
       daysLeft: isCurrent ? Math.max(0, daysBetween(input.fromDate, endsOn)) : 0,
       isCurrent,
+      withinYear: Math.max(0, daysBetween(input.fromDate, window.startsOn)) <= 365,
       kind,
       labels: [...new Set(meaningful.map((item) => item.label))],
       evidence: meaningful,
     });
+  }
+
+  // 「最」只能有一個：命中規則數（紅鸞、天喜、桃花、六合）唯一最多、且至少兩條的桃花月才標出來；
+  // 同分就誰都不標，不替客戶挑一個假的第一名。
+  const resonanceMonths = upcoming.filter((item) => item.kind !== 'BENEFACTOR');
+  const hitCount = (item: RedLuanEncounter) => item.labels.filter((label) => label !== '天乙貴人').length;
+  const topHits = Math.max(0, ...resonanceMonths.map(hitCount));
+  const topMonths = resonanceMonths.filter((item) => hitCount(item) === topHits);
+  if (topHits >= 2 && topMonths.length === 1) {
+    topMonths[0].monthLine = `這一年桃花規則命中最多的月份（${topMonths[0].labels.join('、')}）`;
   }
 
   // 兩張卡各自講各自的事。若同一個月同時命中兩者，貴人卡改用貴人專屬話術，
@@ -967,7 +982,10 @@ export function buildRedLuanNextEncounters(input: {
   const sameMonth = Boolean(resonanceHit && benefactorHit && resonanceHit.startsOn === benefactorHit.startsOn);
   const asRole = (encounter: RedLuanEncounter | undefined, role: RedLuanEncounterKind) => {
     if (!encounter) return null;
-    return sameMonth ? encounter : { ...encounter, ...ENCOUNTER_COPY[role] };
+    if (sameMonth) return encounter;
+    // 換成角色話術時，唯一「命中最多」的標記要留著，不能被罐頭月份句蓋掉。
+    const keepTopLine = role !== 'BENEFACTOR' && encounter.monthLine.startsWith('這一年桃花規則命中最多');
+    return { ...encounter, ...ENCOUNTER_COPY[role], monthLine: keepTopLine ? encounter.monthLine : ENCOUNTER_COPY[role].monthLine };
   };
 
   return {
@@ -1052,8 +1070,12 @@ export function validateRedLuanPartnerGender(value: unknown): string | null {
 
 export type RedLuanAffinityProfile = {
   status: 'READY';
-  /** 客戶最想看的一句話：直接講明是哪一型的男生／女生。 */
+  /** 類型小標：講清楚這是傳統對應參考，不是指認特定的人（前端照印，不自己寫「會跟你來電」）。 */
+  typeLabel: string;
+  /** 類型一句話：傳統對應裡最主要的那一型。 */
   typeHeadline: string;
+  /** 類型的出處說明。 */
+  typeBasisNote: string;
   typeSummary: string;
   partnerGender: RedLuanPartnerGender;
   partnerLabel: string;
@@ -1158,7 +1180,7 @@ export function buildRedLuanAffinityProfile(input: {
         step: 2,
         title: '第二層・相處起來',
         headline: leadRow ? leadRow.trait.split('，')[0] : '',
-        detail: `真的接觸之後，最可能的是${leadRow.trait}。${
+        detail: `相處起來常見的樣子是${leadRow.trait}。${
           spouseStars.length > 0 ? `紫微夫妻宮補一筆：${spouseStars[0].trait}。` : ''
         }`,
       },
@@ -1207,8 +1229,15 @@ export function buildRedLuanAffinityProfile(input: {
     basis: `${row.label}落在${row.branch}（屬${row.zodiac}・${row.direction}）`,
   }));
 
+  const typeLabel = partnerLabel === '對方' ? '傳統對應・對方常見的樣子' : `傳統對應・容易對上頻率的${partnerLabel}`;
+  const typeBasisNote = lead
+    ? `依${lead.label}落在${lead.branch}（屬${lead.zodiac}）的五行氣性對應整理，是本站的傳統文化詮釋，僅供參考，不是指認特定的人。`
+    : '這一路沒有命中，不做類型對應。';
+
   return {
     status: 'READY',
+    typeLabel,
+    typeBasisNote,
     typeHeadline,
     typeSummary,
     candidates,
@@ -1300,7 +1329,7 @@ export function buildBaziLovePersonSignal(input: {
     annualTriggers,
     sources: [
       { title: '《星學大成》〈論紅鸞天喜〉', reference: '紅鸞子年加卯逆數；天喜子年加酉逆數。' },
-      { title: '專案既有八字神煞規則', reference: 'TW_SHENSHA_BASIC_V1：年支／日支三合局沐浴位桃花。' },
+      { title: '本站八字神煞規則（基礎神煞規則集・第 1 版）', reference: '桃花取年支、日支三合局的沐浴位（咸池）。' },
     ],
     limitations: [
       '此為傳統文化的關係主題訊號，不保證戀愛、婚嫁、真愛或任何事件。',

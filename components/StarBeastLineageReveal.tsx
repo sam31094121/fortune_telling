@@ -48,7 +48,7 @@ export default function StarBeastLineageReveal({
         className={imageClassName}
       />
       <div className={overlayClassName}>
-        <p className="text-[10px] font-black tracking-[0.14em] text-amber-100/90">{label}</p>
+        <p className="text-xs font-black tracking-[0.14em] text-amber-100/90">{label}</p>
         {showName && <p className="mt-0.5 text-xs font-black text-white">{beast.name}</p>}
         <button
           type="button"

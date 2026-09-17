@@ -7,6 +7,13 @@
       "runtimeArgs": ["run", "dev"],
       "port": 8888,
       "autoPort": false
+    },
+    {
+      "name": "next-dev-review",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["cross-env", "NEXT_DIST_DIR=.next-review", "next", "dev", "-H", "0.0.0.0", "-p", "8890"],
+      "port": 8890,
+      "autoPort": false
     }
   ]
 }

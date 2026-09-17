@@ -22,11 +22,13 @@ import { generateRedLuanCulturalReading } from '@/lib/red-luan-cultural-reading'
 import { createRequestId, friendlyErrorResponse } from '@/lib/api-stability';
 import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '@/lib/red-luan-public-access';
 import { runThreeInOne } from '@/lib/three-in-one';
+import { coreCredibility } from '@/lib/credibility-wording';
 
 export const dynamic = 'force-dynamic';
 
 type SinglePersonRequest = {
-  name: string;
+  /** 選填：只用來稱呼，不參與計算。 */
+  name?: string;
   birthDate: string;
   calendarType?: 'SOLAR' | 'LUNAR';
   isLeapMonth?: boolean;
@@ -61,8 +63,9 @@ function currentTaipeiYear() {
 function validate(body: unknown): string | null {
   if (!body || typeof body !== 'object') return '請提供有效的出生資料。';
   const person = body as Partial<SinglePersonRequest>;
-  if (typeof person.name !== 'string' || person.name.trim().length < 2 || person.name.trim().length > 20) {
-    return '姓名至少需要 2 個字。';
+  // 姓名選填（2026-09-17 業主批准）：有填才檢查長度。
+  if (person.name !== undefined && person.name !== null && (typeof person.name !== 'string' || person.name.trim().length > 20)) {
+    return '姓名最多 20 個字。';
   }
   if (typeof person.birthDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(person.birthDate)) return '生日日期無效。';
   const [year, month, day] = person.birthDate.split('-').map(Number);
@@ -117,6 +120,7 @@ export async function POST(request: Request) {
 
   try {
     const timePrecision = resolvedTimePrecision(person);
+    const displayName = typeof person.name === 'string' ? person.name.trim() : '';
     const hourKnown = timePrecision !== 'UNKNOWN_TIME';
     const exactHour = timePrecision === 'EXACT_TIME' ? exactTimeBranch(person.birthTime) : undefined;
     const selectedHour = timePrecision === 'TRADITIONAL_HOUR'
@@ -127,7 +131,7 @@ export async function POST(request: Request) {
     // 未知時辰時這兩項明說不可用，絕不以預設午時充數。
     const ziweiReady = hourKnown && Boolean(selectedHour);
     const core = createBaziCore({
-      name: person.name.trim(),
+      name: displayName || undefined,
       birthDate: person.birthDate,
       birthTimeKnown: hourKnown,
       birthTime: timePrecision === 'EXACT_TIME' ? person.birthTime : undefined,
@@ -223,7 +227,7 @@ export async function POST(request: Request) {
     // 稽核規則：未知時辰不採預設午時，因此無時辰就不起生辰卦，明說要補時辰才解鎖。
     const ichingReading = ziweiReady && selectedHour
       ? buildRedLuanIChingReading({
-        name: person.name.trim(),
+        name: displayName,
         birthDate: core.calendar.solarDate,
         shichenIndex: SHICHEN_LIST.findIndex((item) => item.branch === selectedHour.branch),
         year: result.annualYear,
@@ -233,10 +237,15 @@ export async function POST(request: Request) {
       })
       : null;
     const culturalReading = await generateRedLuanCulturalReading(result);
+    // 查證狀態由來源閘門在後端重算、組好句子（只有 VERIFIED 才說已通過交叉比對），前端照印。
+    const sourceChecks = [
+      ...coreCredibility('八字').claims.filter((claim) => ['C-BAZI-CHART', 'C-RED-LUAN-SHENSHA'].includes(claim.claimId)),
+      ...coreCredibility('易經').claims.filter((claim) => claim.claimId === 'C-RED-LUAN-PSYCHOLOGY'),
+    ].map((claim) => claim.customerLine);
 
     return NextResponse.json({
       threeInOne,
-      person: { name: person.name.trim(), birthDate: core.calendar.solarDate, hourKnown },
+      person: { name: displayName, birthDate: core.calendar.solarDate, hourKnown },
       relationshipPosition: {
         ...selfReportedContext,
         attractedType,
@@ -251,6 +260,7 @@ export async function POST(request: Request) {
         note: ichingReading === null ? '補上出生時辰，還能解鎖你的卦象、兩位老師的解讀，以及紫微夫妻宮。' : '',
       },
       ichingReading,
+      sourceChecks,
       result: { ...result, culturalReading },
     });
   } catch (error) {

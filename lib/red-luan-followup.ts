@@ -102,9 +102,9 @@ function buildRedLuanEvent(month: RedLuanReminderMonth, reminder: RedLuanReminde
   // 提醒跳出來時，客戶多半忘了細節——所以整段內容都要在這裡，包含回卡片的路。
   const description = escapeText([
     `${month.monthLine}（${month.startsOn} 到 ${month.endsOn}）。`,
-    `容易來電的類型：${reminder.typeHeadline}${reminder.topCandidate ? `，常出現在${reminder.topCandidate}` : ''}。`,
+    `傳統對應的參考類型：${reminder.typeHeadline}${reminder.topCandidate ? `，常出現在${reminder.topCandidate}` : ''}（僅供參考）。`,
     '',
-    '吸力會很明顯，差的只是你有沒有先開口。先想好要說什麼，當下就不會愣住。',
+    '這個月可以多留意常碰面的人。先想好要說什麼，當下就不會愣住。',
     // 沒填時辰的人，卦象一直鎖著。一年七次提醒是唯一還碰得到他的機會，每一次都該講一句。
     ...(reminder.hexagramLocked ? ['', '補上出生時辰，還能解鎖你的卦象與紫微夫妻宮。'] : []),
     ...(reminder.url ? ['', `重看你的紅鸞：${reminder.url}`] : []),
@@ -173,13 +173,11 @@ export function downloadRedLuanReminder(reminder: RedLuanReminder, months?: RedL
 export function buildRedLuanShareText(reminder: RedLuanReminder, monthCount?: number) {
   const [year, month] = [Number(reminder.startsOn.slice(0, 4)), Number(reminder.startsOn.slice(5, 7))];
   const when = reminder.daysAway === 0 ? '就是這個月' : `還有 ${reminder.daysAway} 天`;
-  const who = reminder.topCandidate
-    ? `${reminder.typeHeadline}（${reminder.topCandidate}那一型）`
-    : reminder.typeHeadline;
   return [
-    `我的紅鸞心動算出來了：${year} 年 ${month} 月，${when}。`,
-    `會跟我來電的是${who}。`,
+    `我的紅鸞心動月份：${year} 年 ${month} 月，${when}。`,
+    // 外型與職業是傳統對應參考，傳出去容易被讀成「算準了會遇到誰」，分享文字不帶。
     ...(monthCount && monthCount > 1 ? [`未來一年我還有 ${monthCount} 次機會月。`] : []),
+    '（八字紅鸞、天喜規則的文化探索，不是確定預測）',
     '',
     // 帶落地標記：朋友點進來時，畫面才知道要先講一句銜接的話，而不是丟一張空表單給他。
     `你也算算自己的 👉 ${withShareMark(reminder.url)}`,
