@@ -889,7 +889,7 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
         <div className="grid grid-cols-3 gap-2 lg:grid-cols-1">
           <div className="rounded-2xl border border-cyan-200/25 bg-cyan-300/10 px-3 py-3 text-center">
             <p className="text-xs font-black text-cyan-100">兩人最缺</p>
-            <p className="mt-1 font-serif text-2xl font-black leading-none text-cyan-50">{result.relationPair}</p>
+            <p className="mt-1 whitespace-nowrap font-serif text-lg font-black leading-tight text-cyan-50 sm:text-2xl">{result.relationPair}</p>
           </div>
           <div className="rounded-2xl border border-amber-200/30 bg-amber-300/12 px-3 py-3 text-center">
             <p className="text-xs font-black text-amber-100">共同先補</p>
@@ -914,7 +914,7 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
             </div>
           </div>
 
-          <div className="relative mx-auto mt-3 aspect-square w-full max-w-[390px] min-w-0">
+          <div className="relative mx-auto mt-10 aspect-square w-full max-w-[390px] min-w-0">
             <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" aria-hidden="true">
               <circle cx="50" cy="50" r="44" fill="rgba(255,255,255,0.014)" stroke="rgba(255,255,255,0.14)" strokeWidth="0.9" />
               <circle cx="50" cy="50" r="31" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="0.7" />
