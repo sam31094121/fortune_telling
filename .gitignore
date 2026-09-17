@@ -4,6 +4,7 @@
 # next.js
 /.next/
 /.next-production/
+/.next-review/
 /.next-production-verify/
 /.next-production-final-*/
 /out/
