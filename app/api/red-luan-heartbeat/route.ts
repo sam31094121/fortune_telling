@@ -22,6 +22,7 @@ import { generateRedLuanCulturalReading } from '@/lib/red-luan-cultural-reading'
 import { createRequestId, friendlyErrorResponse } from '@/lib/api-stability';
 import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '@/lib/red-luan-public-access';
 import { runThreeInOne } from '@/lib/three-in-one';
+import { coreCredibility } from '@/lib/credibility-wording';
 
 export const dynamic = 'force-dynamic';
 
@@ -233,6 +234,11 @@ export async function POST(request: Request) {
       })
       : null;
     const culturalReading = await generateRedLuanCulturalReading(result);
+    // 查證狀態由來源閘門在後端重算、組好句子（只有 VERIFIED 才說已通過交叉比對），前端照印。
+    const sourceChecks = [
+      ...coreCredibility('八字').claims.filter((claim) => ['C-BAZI-CHART', 'C-RED-LUAN-SHENSHA'].includes(claim.claimId)),
+      ...coreCredibility('易經').claims.filter((claim) => claim.claimId === 'C-RED-LUAN-PSYCHOLOGY'),
+    ].map((claim) => claim.customerLine);
 
     return NextResponse.json({
       threeInOne,
@@ -251,6 +257,7 @@ export async function POST(request: Request) {
         note: ichingReading === null ? '補上出生時辰，還能解鎖你的卦象、兩位老師的解讀，以及紫微夫妻宮。' : '',
       },
       ichingReading,
+      sourceChecks,
       result: { ...result, culturalReading },
     });
   } catch (error) {

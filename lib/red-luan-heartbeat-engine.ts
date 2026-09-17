@@ -788,6 +788,8 @@ export type RedLuanEncounter = {
   daysLeft: number;
   /** 今天是否就落在這個窗口內。 */
   isCurrent: boolean;
+  /** 是否在一年（365 天）內開始；「接下來一年幾次機會」與行事曆都用這個，前端不自己算。 */
+  withinYear: boolean;
   kind: RedLuanEncounterKind;
   /** 命中的規則名稱，例如 ['紅鸞', '天喜']。 */
   labels: string[];
@@ -954,6 +956,7 @@ export function buildRedLuanNextEncounters(input: {
       daysAway: Math.max(0, daysBetween(input.fromDate, window.startsOn)),
       daysLeft: isCurrent ? Math.max(0, daysBetween(input.fromDate, endsOn)) : 0,
       isCurrent,
+      withinYear: Math.max(0, daysBetween(input.fromDate, window.startsOn)) <= 365,
       kind,
       labels: [...new Set(meaningful.map((item) => item.label))],
       evidence: meaningful,
@@ -1326,7 +1329,7 @@ export function buildBaziLovePersonSignal(input: {
     annualTriggers,
     sources: [
       { title: '《星學大成》〈論紅鸞天喜〉', reference: '紅鸞子年加卯逆數；天喜子年加酉逆數。' },
-      { title: '專案既有八字神煞規則', reference: 'TW_SHENSHA_BASIC_V1：年支／日支三合局沐浴位桃花。' },
+      { title: '本站八字神煞規則（基礎神煞規則集・第 1 版）', reference: '桃花取年支、日支三合局的沐浴位（咸池）。' },
     ],
     limitations: [
       '此為傳統文化的關係主題訊號，不保證戀愛、婚嫁、真愛或任何事件。',

@@ -486,7 +486,15 @@ for (const forbidden of ['AI 文化表達層', '不會被 AI 改寫', '不送入
   assert.equal(pageSource.includes(forbidden), false, `前端仍出現 AI 字樣：${forbidden}`);
 }
 assert.ok(pageSource.includes('易經文化表達層'));
-assert.ok(pageSource.includes('品質門控通過前不會傳給表達層'));
+assert.ok(pageSource.includes('品質核對通過前不會傳給表達層'));
+// 2026-09-17 優化：證據區不得出現工程術語；「一年內」由後端 withinYear 判斷；查證狀態由後端來源閘門組句。
+for (const jargon of ['品質門控', '確定性運算', '確定性核心', '門控檢查', '後端確定性引導', '證據先凍結', '由後端逐一組合']) {
+  assert.equal(pageSource.includes(jargon), false, `證據區仍有工程術語：${jargon}`);
+}
+assert.equal(pageSource.includes('daysAway <= 365'), false, '「一年內」不得由前端計算');
+assert.equal(/[A-Z]{2,}_[A-Z_]+/.test(oneYearResult.bazi.sources.map((source) => source.title + source.reference).join('')), false, '來源說明不得出現英文規則代碼');
+assert.ok(nextFromSep.upcoming.every((item) => item.withinYear === (item.daysAway <= 365)), 'withinYear 必須與天數一致');
+assert.ok(routeSource.includes("coreCredibility('八字')"), '查證狀態句由後端來源閘門組好');
 assert.ok(pageSource.includes('不是超自然權威'));
 assert.ok(pageSource.includes('此刻的關係位置'));
 for (const label of ['關係現況', '生活責任', '期待方向', '未婚單身', '交往中', '已婚', '分居', '離異', '喪偶', '認識對象', '穩定交往', '婚姻規劃', '修復關係']) {
