@@ -107,20 +107,28 @@ export function stabilizeMatchResult(result: MatchResult): MatchResult {
 }
 
 /**
- * 配對結果不准出現的說法：沒有起卦就不能說卦；分數是固定規則，不能保證關係結果。
+ * 配對結果不准出現的說法：不得把規則結果冒充「卜卦判定」；分數是固定規則，不能保證關係結果。
  * 2026-09-17 米其林審查：AI 改寫與規則範本都要過這一關，守門 npm run test:soul-match。
  */
-export const MATCH_OVERCLAIM_PATTERN = /易經卜卦|卦象|卜卦判定|越走越順|一定會|注定|保證|天作之合|命中注定|務必/;
+export const MATCH_OVERCLAIM_PATTERN = /卜卦判定|越走越順|一定會|注定|保證|天作之合|命中注定|務必/;
 
 export function hasMatchOverclaim(text: string) {
   return MATCH_OVERCLAIM_PATTERN.test(text);
+}
+
+/**
+ * AI 改寫另加一條：AI 拿不到兩人的卦（卦只由三合一引擎起），所以它寫的任何「卦」都是自己編的。
+ * 規則文字與三核心視圖裡的卦有起卦依據，不受這條限制。
+ */
+export function hasAiRewriteOverclaim(text: string) {
+  return hasMatchOverclaim(text) || /卦/.test(text);
 }
 
 export function isConsistentAiSummary(summary: string, result: MatchResult) {
   const text = summary.trim();
   if (!text) return false;
   if (text.length > 140) return false;
-  if (hasMatchOverclaim(text)) return false;
+  if (hasAiRewriteOverclaim(text)) return false;
 
   const optimisticWords = ['非常穩定', '幾乎沒有衝突', '天作之合', '完全契合', '高度完美'];
   const warningWords = ['衝突明顯', '磨合壓力', '需要耐心', '需要調整', '節奏不同'];

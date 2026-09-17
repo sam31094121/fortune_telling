@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI, Type } from '@google/genai';
 import { computeCompatibility, type PersonProfile, type PersonalityMatrixCompat } from '@/lib/compatibility-engine';
-import { hasMatchOverclaim, isConsistentAiSummary, stabilizeMatchResult } from '@/lib/match-stability';
+import { hasAiRewriteOverclaim, isConsistentAiSummary, stabilizeMatchResult } from '@/lib/match-stability';
 import { PersonalityMatrixEngine } from '@/lib/personality-matrix-engine';
 import { computeDestinyProfile } from '@/lib/destiny-engine';
 import { getZodiacEnglishName, getZodiacSign } from '@/lib/zodiac';
@@ -16,6 +16,8 @@ import { deriveBaziPillarBeast } from '@/lib/bazi-four-pillar-beasts';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { buildBaziLovePersonSignal, buildZiweiLovePersonSignal, type RedLuanHeartbeatResult } from '@/lib/red-luan-heartbeat-engine';
 import { runThreeInOne } from '@/lib/three-in-one';
+import { buildMatchThreeCoreView } from '@/lib/match-three-core-view';
+import { coreCredibility } from '@/lib/credibility-wording';
 
 export const dynamic = 'force-dynamic';
 
@@ -470,8 +472,8 @@ async function enhanceMatchResultWithAI(
         conflict: (parsed.conflict?.length ? parsed.conflict : result.zones.conflict).slice(0, 3),
       },
     };
-    // AI 改寫只要有一句越過證據（說卦、保證、注定），整份退回規則文字，不挑著用。
-    if ([enhanced.summary, ...Object.values(enhanced.zones).flat()].some(hasMatchOverclaim)) {
+    // AI 改寫只要有一句越過證據（提到卦、保證、注定），整份退回規則文字，不挑著用。
+    if ([enhanced.summary, ...Object.values(enhanced.zones).flat()].some(hasAiRewriteOverclaim)) {
       throw new Error('AI rewrite overclaimed');
     }
 
@@ -540,7 +542,7 @@ export async function POST(request: Request) {
     body.personB.birthHourBranch ?? 'unknown',
     body.personB.bloodType,
     body.personB.gender,
-    'soul-match-backend-story-v4',
+    'soul-match-three-core-v5',
   ]);
   const cached = responseCache.get(cacheKey);
   if (cached && now < cached.expireTime) {
@@ -559,8 +561,8 @@ export async function POST(request: Request) {
       runThreeInOne({ birthDate: body.personA.birthDate, birthTime: null, hourBranchIndex: hourIndex(body.personA), gender: body.personA.gender }),
       runThreeInOne({ birthDate: body.personB.birthDate, birthTime: null, hourBranchIndex: hourIndex(body.personB), gender: body.personB.gender }),
     ]);
-    const validThreeInOne = [threeInOneA, threeInOneB].every((item) => item.status === 'PASSED' || item.status === 'TIME_UNKNOWN');
-    if (!validThreeInOne) {
+    // 寫成逐一比對（不用 every），TypeScript 才會把兩人的結果收窄成「成立」或「時辰未知」，後面整理三核心視圖時型別有保障。
+    if ((threeInOneA.status !== 'PASSED' && threeInOneA.status !== 'TIME_UNKNOWN') || (threeInOneB.status !== 'PASSED' && threeInOneB.status !== 'TIME_UNKNOWN')) {
       return friendlyErrorResponse(requestId, 'THREE_IN_ONE_NOT_VERIFIED', '其中一人的三合一核對未通過，暫不顯示配對結果。', 422);
     }
 
@@ -618,6 +620,18 @@ export async function POST(request: Request) {
       sceneKey: baziFoundation.sceneKey,
       hasBaziFoundation: true,
     });
+    // 兩人各自的三核心（① 八字 → ② 紫微 → ③ 易經）；查證狀態由來源閘門重算組句，不手填（2026-09-17 米其林升級）。
+    const threeCore = buildMatchThreeCoreView({
+      nameA: displayA.name,
+      nameB: displayB.name,
+      personA: threeInOneA,
+      personB: threeInOneB,
+      sourceChecks: [
+        ...coreCredibility('八字').claims.filter((claim) => claim.claimId === 'C-BAZI-CHART'),
+        ...coreCredibility('紫微斗數').claims.filter((claim) => claim.claimId === 'C-ZIWEI-CHART'),
+        ...coreCredibility('易經').claims.filter((claim) => ['C-ICHING-METHOD', 'C-ICHING-TEXT', 'C-ICHING-DIVINATION-FRAMING'].includes(claim.claimId)),
+      ].map((claim) => claim.customerLine),
+    });
     const reinforcementLayer = buildSoulMatchReinforcementLayer(aiInterpretationLayer);
 
     const responseData = {
@@ -633,6 +647,7 @@ export async function POST(request: Request) {
       baziFoundation,
       redLuanHeartbeat,
       story,
+      threeCore,
       scoreBasis: '相處共鳴指數與四項指標，依兩人的星座、生日、出生季節、血型（不知道就用預設值）與姓名首字，套用固定規則計算；同樣資料每次結果都一樣。這不是八字合盤，也不是準確率。',
       teacherReadings: {
         google: {

@@ -15,6 +15,7 @@ import { CONTROLS, FIVE_ELEMENT_CODE_MAP, GENERATES, type FiveElementKey } from 
 import { buildMatchFiveElementResult, type MatchFiveElementKey, type MatchFiveElementResult } from '../lib/match-five-element-engine';
 import { buildMatchStory, type MatchStoryScores } from '../lib/match-story-engine';
 import { buildStableSummary, hasMatchOverclaim, isConsistentAiSummary } from '../lib/match-stability';
+import { buildMatchThreeCoreView, type MatchThreeCoreInput } from '../lib/match-three-core-view';
 
 let passed = 0;
 const check = (name: string, fn: () => void) => {
@@ -145,6 +146,40 @@ check('分數摘要不越過證據；AI 摘要說卦或保證會被退回', () =
   const scores = { match_score: 90, resonance: 90, communication: 90, stability: 90, conflict_risk: 10, summary: '', zones: { resonance: [], complement: [], grinding: [], conflict: [] } };
   assert.equal(isConsistentAiSummary('易經卜卦判定：你們注定在一起。', scores as never), false);
   assert.equal(isConsistentAiSummary('兩人節奏相近，記得把在意的事說清楚。', scores as never), true);
+  // AI 拿不到兩人的卦，它寫出的任何卦都是自己編的
+  assert.equal(isConsistentAiSummary('這一卦顯示你們的緣分很深，記得多溝通。', scores as never), false);
+});
+
+check('兩人各自的三核心：① 八字 → ② 紫微 → ③ 易經；沒有時辰不排紫微、不起卦', () => {
+  const passed: MatchThreeCoreInput = {
+    status: 'PASSED',
+    fourPillars: { bazi: { year: '庚午', month: '辛巳', day: '乙酉', hour: '丁亥' } },
+    result: {
+      ziwei: { analysis: { palaces: [{ name: '命宮', branch: '午', majorStars: ['太陽'], majorStarDetails: [{ name: '太陽', brightness: '旺' }] }], pattern: { name: '命財官遷綜合格局' } } },
+      yijing: { patternName: '山鎮抱火格', reading: { hexagramName: '山火賁', kingWen: 22, glyph: '䷕', changingLine: 5, essence: '山下有火，文飾之美，質勝於文', advice: '包裝可以，但內容要真', seedText: '梅花易數|1990-05-20|時辰12' } },
+    },
+  };
+  const unknown: MatchThreeCoreInput = {
+    status: 'TIME_UNKNOWN',
+    threePillars: { year: '戊辰', month: '壬戌', day: '壬戌' },
+    noHourMethod: { layers: [{ layer: '紫微', reason: '命宮由月支與時支共同定位，缺時支就定不了命宮。', available: false }] },
+  };
+  // 這兩句是來源閘門 coreCredibility() 的實際輸出格式；後者是免責定位，不是冒充卜卦判定
+  const checks = ['起卦法（梅花易數生辰／報數起卦）與先天卦數對照：各家來源說法不一，僅作傳統參考', '易經卜卦的心理學定位：自我反思的文化工具，不是已驗證的診斷或預測：仍在查證中，僅作自我反思參考'];
+  const view = buildMatchThreeCoreView({ nameA: '林佩君', nameB: '陳大明', personA: passed, personB: unknown, sourceChecks: checks });
+  assertCustomerCopy('threeCore', { ...view, version: 'match_five_element_v2' });
+  for (const person of view.people) assert.deepEqual(person.steps.map((step) => step.title), ['八字命盤', '紫微斗數命盤', '易經卦象'], '三核心順序不可顛倒');
+  const [a, b] = view.people;
+  assert.ok(a.hexagram && a.hexagram.basis.includes('生日 1990-05-20、時辰數 12'), `有時辰：卦要附可回查的起卦依據（${a.hexagram?.basis}）`);
+  assert.ok(!a.hexagram!.basis.includes('|'), '起卦依據不顯示內部分隔符號');
+  assert.equal(a.steps[2].value, '山鎮抱火格');
+  assert.equal(b.hexagram, null, '沒有時辰：這張卡不起卦');
+  assert.deepEqual(b.steps.map((step) => step.available), [true, false, false], '沒有時辰：八字三柱照算，紫微與易經標未開放');
+  assert.ok(b.steps[0].value.includes('時柱不推定'));
+  assert.deepEqual(view.sourceChecks, checks, '查證狀態照來源閘門傳入，不在這裡改寫');
+  assert.ok(view.pairNote.includes('不把兩個卦硬合成一個結論'));
+  const knowledge = fs.readFileSync('data/iching-hexagrams.json', 'utf8');
+  assert.ok(!hasMatchOverclaim(knowledge), '卦義知識庫會原文顯示，不得有保證、注定之類的字');
 });
 
 const page = fs.readFileSync('app/match/page.tsx', 'utf8');
@@ -158,13 +193,13 @@ check('配對頁只照印：沒有寫死的生剋圈、沒有前端劇情、沒�
     'text-[9px]', 'text-[10px]', 'text-[11px]',
   ];
   for (const word of banned) assert.ok(!page.includes(word), `app/match/page.tsx 仍有「${word}」`);
-  for (const field of ['orbit.generatingCycle', 'orbit.controllingCycle', 'orbit.ranking', 'data.story', 'data.scoreBasis', 'closingAction', 'bloodTypeLabel', 'id="match-result-anchor"']) {
+  for (const field of ['orbit.generatingCycle', 'orbit.controllingCycle', 'orbit.ranking', 'data.story', 'data.scoreBasis', 'closingAction', 'bloodTypeLabel', 'id="match-result-anchor"', '<MatchThreeCorePanel view={data.threeCore} />', 'aria-label="一眼看懂"']) {
     assert.ok(page.includes(field), `app/match/page.tsx 要照印後端欄位 ${field}`);
   }
 });
 
 check('配對 API：劇情與分數依據由後端送出；AI 提示詞不逼它說卦', () => {
-  for (const field of ['buildMatchStory(', 'scoreBasis:', 'hasMatchOverclaim', 'bloodTypeLabel']) assert.ok(route.includes(field), `route 缺 ${field}`);
+  for (const field of ['buildMatchStory(', 'scoreBasis:', 'hasAiRewriteOverclaim', 'bloodTypeLabel', 'buildMatchThreeCoreView(', "coreCredibility('易經')", "coreCredibility('八字')", "coreCredibility('紫微斗數')"]) assert.ok(route.includes(field), `route 缺 ${field}`);
   for (const word of ['buildAiCopywritingInstruction', 'enforceAiCopywritingTone', '字字點中要害', '高冷犀利']) assert.ok(!route.includes(word), `route 仍有「${word}」`);
   const templates = fs.readFileSync('lib/compatibility-engine.ts', 'utf8');
   for (const word of ['靈魂容易共鳴', '依附需求相近，關係安全感強', '矩陣分析']) assert.ok(!templates.includes(word), `compatibility-engine 仍有「${word}」`);

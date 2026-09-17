@@ -20,6 +20,7 @@ import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
 import StarBeastLineageReveal from '@/components/StarBeastLineageReveal';
 import type { MatchFiveElementKey, MatchFiveElementResult } from '@/lib/match-five-element-engine';
 import type { MatchStory, MatchStoryTone } from '@/lib/match-story-engine';
+import type { MatchThreeCoreView } from '@/lib/match-three-core-view';
 
 interface PersonInput {
   name: string;
@@ -129,6 +130,7 @@ interface MatchResponse {
   teacherReadings?: MatchTeacherReadings;
   story?: MatchStory;
   scoreBasis?: string;
+  threeCore?: MatchThreeCoreView;
 }
 
 type MatchDailyResult = {
@@ -144,7 +146,7 @@ const BLOOD_TYPES = ['A', 'B', 'AB', 'O'] as const;
 const EMPTY: PersonInput = { name: '', birthDate: '', birthHourBranch: 'unknown', bloodType: 'unknown', gender: 'female' };
 const EMPTY_SELECTION_CONFIRM: SelectionConfirm = { bloodType: false, gender: false };
 // v6：劇情、格局、生剋圈改由後端送出（2026-09-17）；舊的當日紀錄沒有這些欄位，要清掉重算。
-const MATCH_DAILY_SCHEMA_VERSION = 'soul-match-backend-story-v6';
+const MATCH_DAILY_SCHEMA_VERSION = 'soul-match-three-core-v7';
 // sharedElement 已改為真實八字五行需求驅動（見 match-generate/route.ts），視覺開放顯示。
 const SHOW_SHARED_ELEMENT_PEARL = true;
 const MATCH_DEMO_NAMES = new Set(['\u738b\u5c0f\u660e', '\u9673\u5c0f\u7f8e']);
@@ -1097,6 +1099,58 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
   );
 }
 
+const STEP_MARK = ['①', '②', '③'];
+
+/** 兩人各自的三核心：① 八字 → ② 紫微 → ③ 易經。只照印 /api/match-generate 的 threeCore。 */
+function MatchThreeCorePanel({ view }: { view?: MatchThreeCoreView }) {
+  if (!view) return null;
+  return (
+    <section className="fortune-card border border-violet-200/25 bg-[linear-gradient(145deg,rgba(46,16,101,0.32),rgba(15,23,42,0.95))] p-5 sm:p-6">
+      <p className="text-xs font-black tracking-[0.2em] text-violet-200">① 八字 → ② 紫微 → ③ 易經</p>
+      <h2 className="mt-2 font-serif text-2xl font-black text-violet-50 sm:text-3xl">兩人各自的三核心命盤</h2>
+      <p className="mt-2 text-sm font-bold leading-6 text-[color:var(--text-main)]">{view.people.map((person) => person.teaser).join('；')}</p>
+      <p className="mt-1 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">{view.orderNote}</p>
+      <details className="mt-4 rounded-2xl border border-white/10 bg-black/15 p-3 sm:p-4">
+        <summary className="cursor-pointer list-none text-sm font-black text-violet-100">點開看兩人的完整命盤與卦 ▾</summary>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">
+          {view.people.map((person) => (
+            <article key={person.name} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+              <p className="text-base font-black text-violet-100">{person.name}</p>
+              <ol className="mt-3 space-y-2">
+                {person.steps.map((step) => (
+                  <li key={step.order} className={`rounded-xl border p-3 ${step.available ? 'border-white/10 bg-white/[0.04]' : 'border-dashed border-white/20'}`}>
+                    <p className="text-xs font-black text-violet-200">{STEP_MARK[step.order - 1]} {step.title}</p>
+                    <p className="mt-1 text-base font-black text-[color:var(--text-main)]">{step.value}</p>
+                    <p className="mt-1 text-sm leading-6 text-[color:var(--text-sub)]">{step.detail}</p>
+                  </li>
+                ))}
+              </ol>
+              {person.hexagram && (
+                <div className="mt-3 rounded-2xl border border-amber-200/25 bg-amber-300/[0.06] p-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-5xl leading-none text-amber-100" aria-hidden="true">{person.hexagram.glyph}</span>
+                    <div>
+                      <p className="text-lg font-black text-amber-50">{person.hexagram.patternName}</p>
+                      <p className="mt-1 text-xs font-bold text-amber-100/85">{person.hexagram.line}</p>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-sm leading-7 text-[color:var(--text-main)]">卦義：{person.hexagram.essence}</p>
+                  <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{person.hexagram.advice}</p>
+                  <p className="mt-2 text-xs leading-5 text-white/80">{person.hexagram.basis}</p>
+                </div>
+              )}
+            </article>
+          ))}
+        </div>
+        <p className="mt-4 text-sm leading-7 text-[color:var(--text-sub)]">{view.pairNote}</p>
+        <ul className="mt-3 space-y-1 text-xs leading-5 text-white/80">
+          {view.sourceChecks.map((line) => <li key={line}>・{line}</li>)}
+        </ul>
+      </details>
+    </section>
+  );
+}
+
 const STORY_TONE_CLASS: Record<MatchStoryTone, string> = {
   violet: 'border-violet-300/30 bg-[linear-gradient(135deg,rgba(46,16,101,0.58),rgba(10,8,22,0.88))] text-violet-100',
   rose: 'border-rose-300/35 bg-[linear-gradient(135deg,rgba(127,29,29,0.52),rgba(24,5,15,0.92))] text-rose-100',
@@ -1514,7 +1568,31 @@ export default function MatchPage() {
           <div className="space-y-6">
             <div id="match-result-anchor" className="scroll-mt-4" />
             <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="易經靈魂配對" onViewResult={dailyRecord ? () => restoreDailyRecord(dailyRecord) : undefined} />
+            {data.story && data.fiveElementMatch && (
+              <section className="fortune-card border border-amber-200/30 p-5 sm:p-6" aria-label="一眼看懂">
+                <p className="text-xs font-black tracking-[0.24em] text-amber-200">一眼看懂</p>
+                <h2 className="mt-2 font-serif text-2xl font-black text-amber-50">{data.displayA.name} × {data.displayB.name}</h2>
+                <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                  <div className="rounded-2xl border border-rose-200/25 bg-rose-300/10 px-2 py-3">
+                    <p className="text-xs font-black text-rose-100">相處共鳴指數</p>
+                    <p className="mt-1 font-serif text-3xl font-black leading-none text-rose-50">{data.result.match_score}</p>
+                  </div>
+                  <div className="rounded-2xl border border-amber-200/30 bg-amber-300/12 px-2 py-3">
+                    <p className="text-xs font-black text-amber-100">共同先補</p>
+                    <p className="mt-1 font-serif text-3xl font-black leading-none text-amber-50">{data.fiveElementMatch.elementGuide[data.fiveElementMatch.sharedElement].short}</p>
+                  </div>
+                  <div className="rounded-2xl border border-cyan-200/25 bg-cyan-300/10 px-2 py-3">
+                    <p className="text-xs font-black text-cyan-100">兩人最缺</p>
+                    <p className="mt-1 whitespace-nowrap font-serif text-lg font-black leading-tight text-cyan-50 sm:text-2xl">{data.fiveElementMatch.relationPair}</p>
+                  </div>
+                </div>
+                <p className="mt-4 text-xs font-black tracking-[0.12em] text-amber-100">{data.story.closingAction.title}</p>
+                <p className="mt-1 text-base font-black leading-7 text-[color:var(--text-main)]">{data.story.closingAction.copy}</p>
+                <p className="mt-3 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">分數依據、兩人的三核心命盤與卦、兩位老師的解讀，都在下面。</p>
+              </section>
+            )}
             <MatchTeacherReadings data={data} />
+            <MatchThreeCorePanel view={data.threeCore} />
             <BaziBeastPairCards
               foundation={data.baziFoundation}
               personAName={data.displayA.name}
