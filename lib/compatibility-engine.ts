@@ -139,9 +139,9 @@ function buildZones(a: PersonalityMatrixCompat, b: PersonalityMatrixCompat): Mat
   const rkGap = Math.abs(a.risk       - b.risk);
 
   // ── 共鳴區（差距 < 20）────────────────────────────────
-  if (eGap   < 20) resonance.push('情感波頻相近，靈魂容易共鳴');
+  if (eGap   < 20) resonance.push('情感表達的節奏相近，比較容易有共鳴');
   if (sGap   < 20) resonance.push('社交節奏一致，相處自在舒適');
-  if (attGap < 20) resonance.push('依附需求相近，關係安全感強');
+  if (attGap < 20) resonance.push('對親密與陪伴的需求相近，比較不容易因此不安');
   if (secGap < 15) resonance.push('安全感標準一致，不易因此起摩擦');
   if (lGap   < 15) resonance.push('思考邏輯相近，對話不費力');
 
@@ -167,8 +167,8 @@ function buildZones(a: PersonalityMatrixCompat, b: PersonalityMatrixCompat): Mat
   // 確保每區至少有預設文字
   if (resonance.length  === 0) resonance.push( '兩人個性差異明顯，但差異也是成長的起點');
   if (complement.length === 0) complement.push('整體特質相近，彼此不太需要「補位」，方向感一致');
-  if (grinding.length   === 0) grinding.push(  '目前看不出明顯磨合點，溝通障礙相對低');
-  if (conflict.length   === 0) conflict.push(  '矩陣分析未見高衝突警示，維持日常溝通即可');
+  if (grinding.length   === 0) grinding.push(  '這組規則沒有找到明顯的磨合點；日常仍要把話說清楚');
+  if (conflict.length   === 0) conflict.push(  '這組規則沒有找到高衝突提醒，維持日常溝通即可');
 
   return { resonance, complement, grinding, conflict };
 }

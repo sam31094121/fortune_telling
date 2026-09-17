@@ -1,4 +1,4 @@
-import type { MatchResult } from '@/lib/compatibility-engine';
+import type { MatchResult } from './compatibility-engine';
 
 function clamp(value: number, min = 0, max = 100) {
   return Math.max(min, Math.min(max, Math.round(value)));
@@ -43,19 +43,19 @@ export function buildStableSummary(scores: {
   const { match_score, resonance, communication, stability, conflict_risk } = scores;
 
   if (match_score >= 82 && conflict_risk <= 35) {
-    return '整體配對穩定度高，雙方在共鳴與相處節奏上有明顯優勢，只要持續保持真誠溝通，這段關係會越走越順。';
+    return '整體指標偏高，共鳴與相處節奏是這組配對的優勢；持續把話說清楚，是讓這份默契維持下去的關鍵。';
   }
 
   if (match_score >= 72) {
     if (communication < 60) {
-      return '整體配對基礎不錯，但溝通節奏仍需要磨合。只要放慢情緒反應、把話說清楚，關係就能維持穩定並逐步加深。';
+      return '整體配對基礎不錯，但溝通節奏仍需要磨合。放慢情緒反應、把話說清楚，比較能維持穩定並慢慢加深。';
     }
 
     if (stability < 60) {
       return '雙方有一定吸引力與互補性，但安全感與生活節奏仍需協調。先把日常規則談清楚，會比只靠感覺更穩。';
     }
 
-    return '這組配對有不錯的共鳴基礎，互補性也足夠。若能持續照顧彼此的感受與節奏，關係會往穩定方向發展。';
+    return '這組配對有不錯的共鳴基礎，互補性也足夠。持續照顧彼此的感受與節奏，比較容易往穩定的方向走。';
   }
 
   if (match_score >= 60) {
@@ -67,7 +67,7 @@ export function buildStableSummary(scores: {
   }
 
   if (conflict_risk >= 70) {
-    return '目前這組配對的衝突敏感度偏高，互動時容易因節奏不同而累積壓力。若要走得長久，務必要先建立清楚的溝通規則。';
+    return '目前這組配對的衝突敏感度偏高，互動時容易因節奏不同而累積壓力。想走得長久，最好先建立清楚的溝通規則。';
   }
 
   return '這組配對目前的磨合壓力較大，彼此看待事情的方式差異明顯。若想繼續靠近，建議先從理解與尊重彼此節奏開始。';
@@ -106,10 +106,21 @@ export function stabilizeMatchResult(result: MatchResult): MatchResult {
   };
 }
 
+/**
+ * 配對結果不准出現的說法：沒有起卦就不能說卦；分數是固定規則，不能保證關係結果。
+ * 2026-09-17 米其林審查：AI 改寫與規則範本都要過這一關，守門 npm run test:soul-match。
+ */
+export const MATCH_OVERCLAIM_PATTERN = /易經卜卦|卦象|卜卦判定|越走越順|一定會|注定|保證|天作之合|命中注定|務必/;
+
+export function hasMatchOverclaim(text: string) {
+  return MATCH_OVERCLAIM_PATTERN.test(text);
+}
+
 export function isConsistentAiSummary(summary: string, result: MatchResult) {
   const text = summary.trim();
   if (!text) return false;
   if (text.length > 140) return false;
+  if (hasMatchOverclaim(text)) return false;
 
   const optimisticWords = ['非常穩定', '幾乎沒有衝突', '天作之合', '完全契合', '高度完美'];
   const warningWords = ['衝突明顯', '磨合壓力', '需要耐心', '需要調整', '節奏不同'];
