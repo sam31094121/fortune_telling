@@ -201,6 +201,8 @@ check('配對頁只照印：沒有寫死的生剋圈、沒有前端劇情、沒�
 check('配對 API：劇情與分數依據由後端送出；AI 提示詞不逼它說卦', () => {
   for (const field of ['buildMatchStory(', 'scoreBasis:', 'hasAiRewriteOverclaim', 'bloodTypeLabel', 'buildMatchThreeCoreView(', "coreCredibility('易經')", "coreCredibility('八字')", "coreCredibility('紫微斗數')"]) assert.ok(route.includes(field), `route 缺 ${field}`);
   for (const word of ['buildAiCopywritingInstruction', 'enforceAiCopywritingTone', '字字點中要害', '高冷犀利']) assert.ok(!route.includes(word), `route 仍有「${word}」`);
+  // 解盤老師的規則版段落不得重複分數卡上的同一句摘要
+  assert.ok(route.includes('aiInterpretationLayer.emotionalPattern') && route.includes('teacherFromGoogle ? finalSummary'), '老師規則版段落要改用專業層說明');
   const templates = fs.readFileSync('lib/compatibility-engine.ts', 'utf8');
   for (const word of ['靈魂容易共鳴', '依附需求相近，關係安全感強', '矩陣分析']) assert.ok(!templates.includes(word), `compatibility-engine 仍有「${word}」`);
 });
