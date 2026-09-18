@@ -15,8 +15,12 @@ export const CAMERA_DOLLY_END_DEPTH = 5;
 /** 滾輪／觸控板：單次事件最多推進一點點，避免一下跳過多層。 */
 export const TAIJI_WHEEL_DEPTH_GAIN = 0.0035;
 export const TAIJI_WHEEL_DEPTH_CAP = 0.22;
+/** 主頁第一畫面單指垂直滑動：像素 → 層。 */
+export const TAIJI_TOUCH_DEPTH_GAIN = 0.02;
 /** 兩指撐開距離每翻一倍，約前進 1.35 層。 */
 export const TAIJI_PINCH_DEPTH_GAIN = 1.35;
+/** 視為還在頁面頂端（第一畫面）的容差。 */
+export const TAIJI_PAGE_TOP_EPSILON = 8;
 
 export type TaijiMacroStage = 'TAIJI' | 'LIANGYI' | 'SIXIANG' | 'BAGUA';
 
@@ -90,6 +94,18 @@ export function setJourneyTarget(state: TaijiJourneyState, depth: number) {
 export function nudgeJourneyTarget(state: TaijiJourneyState, delta: number) {
   state.target = clampDepth(state.target + delta);
   return state.target;
+}
+
+/**
+ * 主頁第一畫面是否要把滾動／滑動寫進太極時軸，而不是捲表單。
+ * 頁面已離開頂端 → 永遠還給表單。
+ * 頂端往更深走：還沒到第 24 層才攔截。
+ * 頂端往回走：沿時軸折返。
+ */
+export function shouldDriveTaijiFromPageScroll(pageScrollY: number, depth: number, intent: 'deeper' | 'shallower') {
+  if (!Number.isFinite(pageScrollY) || pageScrollY > TAIJI_PAGE_TOP_EPSILON) return false;
+  if (intent === 'deeper') return depth < TAIJI_DEPTH_MAX;
+  return depth > TAIJI_DEPTH_MIN;
 }
 
 export function jumpJourney(state: TaijiJourneyState, depth: number) {
