@@ -9,7 +9,7 @@ import { CELL_SPACING, ROD_RADIUS, multiverseCells, cellRods } from './multivers
  * 不逐根建 Mesh——半徑 1 就有 26 個鄰居、832 根邊，逐根建會直接拖垮手機。
  * 鋪排數學與「面貼面不重疊」由 tests/model-lab-multiverse.test.cjs 守著。
  */
-export default function MultiverseField({ radius = 1, opacity = 0.5 }: { radius?: number; opacity?: number }) {
+export default function MultiverseField({ radius = 1, opacity = 0.62 }: { radius?: number; opacity?: number }) {
   const mesh = useRef<THREE.InstancedMesh>(null);
 
   const { geometry, material, count, matrices, colors } = useMemo(() => {
@@ -35,7 +35,8 @@ export default function MultiverseField({ radius = 1, opacity = 0.5 }: { radius?
     }
     return {
       geometry: new THREE.CylinderGeometry(ROD_RADIUS, ROD_RADIUS, 1, 6),
-      material: new THREE.MeshBasicMaterial({ transparent: true, opacity, toneMapped: false, depthWrite: false }),
+      // 加法混色：線交疊的地方自然變亮，遠處自動淡掉，不用另外畫輝光
+      material: new THREE.MeshBasicMaterial({ transparent: true, opacity, toneMapped: false, depthWrite: false, blending: THREE.AdditiveBlending }),
       count: matrices.length,
       matrices,
       colors,

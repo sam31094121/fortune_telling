@@ -21,6 +21,69 @@ export const CELL_SPACING = 2 * (PROJECTION.numerator / (PROJECTION.distance4D -
 export const ROD_WIDTH = BEAM * CELL_SPACING;
 export const ROD_RADIUS = ROD_WIDTH / 2;
 
+/**
+ * 四維與三維的對照，全部從真的頂點、真的邊數出來，不是打在畫面上的字。
+ * 三維立方：8 角、12 線、6 個正方形面。
+ * 四維超立方（正八胞體）：16 角、32 線、24 個正方形面、8 個立方單元。
+ * 投影換算：scale = numerator / (distance4D − w)，所以 w=+1 的外立方邊長 2、w=−1 的內立方邊長 1。
+ */
+export function geometryFacts() {
+  const vertices3D = new Set<string>();
+  const edges3D: Array<[number, number]> = [];
+  for (const vertex of VERTICES_4D) {
+    if (vertex[3] === 1) vertices3D.add(vertex.slice(0, 3).join(','));
+  }
+  for (const { from, to, axis } of EDGES_4D) {
+    if (axis !== 3 && VERTICES_4D[from][3] === 1) edges3D.push([from, to]);
+  }
+  // 三維立方的正方形面：固定任一軸的正負，剩下四個角就是一個面
+  let cubeFaces = 0;
+  for (let axis = 0; axis < 3; axis += 1) {
+    for (const sign of [-1, 1]) {
+      if (VERTICES_4D.filter((v) => v[3] === 1 && v[axis] === sign).length === 4) cubeFaces += 1;
+    }
+  }
+
+  // 四維的正方形面：任取兩個軸當面、另外兩個軸固定正負，就是一個面
+  let squareFaces = 0;
+  for (let a = 0; a < 4; a += 1) {
+    for (let b = a + 1; b < 4; b += 1) {
+      const rest = [0, 1, 2, 3].filter((axis) => axis !== a && axis !== b);
+      for (const s of [-1, 1]) {
+        for (const t of [-1, 1]) {
+          const corners = VERTICES_4D.filter((v) => v[rest[0]] === s && v[rest[1]] === t);
+          if (corners.length === 4) squareFaces += 1;
+        }
+      }
+    }
+  }
+
+  // 四維的立方單元：固定任一軸的正負，剩下的 8 個角就是一個立方
+  let cells = 0;
+  for (let axis = 0; axis < 4; axis += 1) {
+    for (const sign of [-1, 1]) {
+      if (VERTICES_4D.filter((v) => v[axis] === sign).length === 8) cells += 1;
+    }
+  }
+
+  const edgeLength = (from: number, to: number) => {
+    const a = project4D(VERTICES_4D[from]);
+    const b = project4D(VERTICES_4D[to]);
+    return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+  };
+  const byKind = (kind: RodKind) => {
+    const edge = EDGES_4D.find(({ from, axis }) => (axis === 3 ? 'bridge' : VERTICES_4D[from][3] === 1 ? 'outer' : 'inner') === kind)!;
+    return edgeLength(edge.from, edge.to);
+  };
+
+  return {
+    cube: { vertices: vertices3D.size, edges: edges3D.length, squareFaces: cubeFaces },
+    tesseract: { vertices: VERTICES_4D.length, edges: EDGES_4D.length, squareFaces, cells },
+    projected: { outerEdge: byKind('outer'), innerEdge: byKind('inner'), bridge: byKind('bridge') },
+    taiji: { cell: PROJECTION.taijiScale * CELL_SPACING, line: PROJECTION.taijiScale * ROD_WIDTH },
+  };
+}
+
 export type RodKind = 'outer' | 'inner' | 'bridge';
 
 export type Rod = {
