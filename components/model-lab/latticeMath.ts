@@ -1,20 +1,22 @@
 /** Integer-indexed, unit cubic lattice. Rendering and collision share these dimensions. */
 export const CELL = 1;
-export const BEAM = 0.06;
+export const BEAM = 0.006;
 export const BODY_RADIUS = 0.12;
 export const CHUNK = 8;
-/** Exterior centre spacing .6; beam .036; clear opening .564; outer width .636. */
+/** Exterior centre spacing .6; line .0036; clear opening .5964; outer width .6036. */
 export const ENTRANCE_SCALE = .6;
+/** Field starts beyond the real cavity's rear end (local Y=-.55). */
+export const ENTRANCE_Y = -.56;
 export type Point = [number, number, number];
 export type Address = { chunk: [bigint, bigint, bigint]; local: Point };
 
 /** Proper rotation + uniform scale, not a mirror. Interior camera +Z/up+Y maps to -Y/up-Z. */
 export function entrancePoint(p: Point): Point {
-  return [-(p[0] - .5) * ENTRANCE_SCALE, Math.SQRT1_2 - p[2] * ENTRANCE_SCALE, -(p[1] - .5) * ENTRANCE_SCALE];
+  return [-(p[0] - .5) * ENTRANCE_SCALE, ENTRANCE_Y - p[2] * ENTRANCE_SCALE, -(p[1] - .5) * ENTRANCE_SCALE];
 }
 
 export function portalProjection(eyeY: number) {
-  const distance = Math.max(.12, (eyeY - Math.SQRT1_2) / ENTRANCE_SCALE);
+  const distance = Math.max(.12, (eyeY - ENTRANCE_Y) / ENTRANCE_SCALE);
   return { distance, fov: 2 * Math.atan(.5 / distance) * 180 / Math.PI, near: Math.max(.01, distance - .001) };
 }
 

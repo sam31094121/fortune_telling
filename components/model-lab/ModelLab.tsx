@@ -228,7 +228,10 @@ export default function ModelLab() {
             </select>
           </label>
           <p className={styles.note}>{settings.glbUrl ? `外部模型：${glbName}` : activeNote}</p>
-          {settings.modelId === 'taiji' && !settings.glbUrl ? <button type="button" className={styles.primaryBtn} onClick={() => setSettings(previous => ({ ...previous, viewId: 'cavity_front', viewNonce: previous.viewNonce + 1, autoRotate: false }))}>查看本體方形厚度</button> : null}
+          {settings.modelId === 'taiji' && !settings.glbUrl ? <>
+            <button type="button" className={styles.primaryBtn} onClick={() => setSettings(previous => ({ ...previous, viewId: 'cavity_front', viewNonce: previous.viewNonce + 1, autoRotate: false }))}>查看本體方形厚度</button>
+            <button type="button" className={styles.primaryBtn} onClick={() => setEntrance(true)}>沿方形通道查看深層格網</button>
+          </> : null}
           <label className={styles.fileBtn}>
             載入 .glb / .gltf
             <input type="file" accept=".glb,.gltf,model/gltf-binary,model/gltf+json" onChange={pickGlb} hidden />

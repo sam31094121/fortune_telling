@@ -78,6 +78,7 @@
     "test:credibility-wording": "tsc lib/credibility-wording.ts --outDir .credibility-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --resolveJsonModule --skipLibCheck && node tests/credibility-wording.test.cjs",
     "test:soul-match": "tsc lib/match-five-element-engine.ts lib/match-story-engine.ts lib/match-stability.ts tests/soul-match.test.ts --outDir .soul-match-test-build --module commonjs --target es2021 --moduleResolution node --resolveJsonModule --esModuleInterop --skipLibCheck && node .soul-match-test-build/tests/soul-match.test.js",
     "test:model-lab-lattice": "node tests/model-lab-lattice.test.cjs",
+    "test:taiji-square-cavity": "node tests/taiji-square-cavity.test.cjs",
     "test:true-solar-time": "node tests/true-solar-time.test.mjs",
     "test:iching-sources": "node tests/iching-source-gate.test.mjs",
     "test:beast-backend-only": "node scripts/beast-build.mjs && node tests/beast-backend-only.test.cjs",

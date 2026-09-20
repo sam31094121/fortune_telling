@@ -3,7 +3,7 @@
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { latticeEdges } from './latticeMath';
+import { BEAM, latticeEdges } from './latticeMath';
 
 /** Shared portal/interior field: one draw call, fine luminous rods, sixteen-cell render radius. */
 export default function LatticeField() {
@@ -14,8 +14,8 @@ export default function LatticeField() {
     const object = new THREE.Object3D();
     edges.forEach(({ axis, center }, index) => {
       object.position.set(...center);
-      // The collision clearance remains conservatively wider than the luminous centre line.
-      object.scale.set(.018, .018, .018); object.scale.setComponent(axis, 1);
+      // All three axes share the same fine line width and collision geometry.
+      object.scale.set(BEAM, BEAM, BEAM); object.scale.setComponent(axis, 1);
       object.updateMatrix(); mesh.current?.setMatrixAt(index, object.matrix);
     });
     if (mesh.current) mesh.current.instanceMatrix.needsUpdate = true;
