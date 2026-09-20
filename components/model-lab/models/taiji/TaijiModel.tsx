@@ -5,7 +5,9 @@ import { Line } from '@react-three/drei';
 import * as THREE from 'three';
 import type { LabModelProps } from '../registry';
 import TesseractModel from '../../TesseractModel';
+import TaijiTesseractField from '../../TaijiTesseractField';
 import { PROJECTION } from '../../projectionMath';
+import { createContactRibs } from './contactRibs';
 import {
   arcDotGeometry,
   bandGeometry,
@@ -22,6 +24,7 @@ import {
 
 export const TAIJI_LAYERS = [
   { id: 'squareCavity', name: '內外立方連接投影', defaultOn: true },
+  { id: 'cellField', name: '每一格都是四維格子（貼住內壁）', defaultOn: false },
   { id: 'ghost', name: '粉紅線框球', defaultOn: false },
   { id: 'seam', name: '金色接縫', defaultOn: true },
   { id: 'rim', name: '外圈大圓', defaultOn: true },
@@ -75,6 +78,11 @@ export default function TaijiModel({ wireframe, layers }: LabModelProps) {
     [],
   );
 
+  const contacts = useMemo(() => createContactRibs([
+    geo.band.yin2, geo.band.yang1, geo.disc['-z'], geo.disc['+z'], geo.cap['-z'], geo.cap['+z'],
+  ]), [geo]);
+  useEffect(() => () => contacts.forEach(rib => { rib.geometry.dispose(); rib.pad.dispose(); }), [contacts]);
+
   useEffect(() => {
     [mat.black, mat.white, mat.blackDot, mat.whiteDot].forEach((m) => {
       m.wireframe = wireframe;
@@ -99,6 +107,11 @@ export default function TaijiModel({ wireframe, layers }: LabModelProps) {
     <group>
       {on('squareCavity') && on('flatStyle') && on('black') && on('white') && on('yin2') && on('yang1') ? <>
         <TesseractModel scale={PROJECTION.taijiScale} />
+        {on('cellField') ? <TaijiTesseractField /> : null}
+        {contacts.map(rib => <group key={rib.edge.join('-')}>
+          <mesh geometry={rib.geometry}><meshStandardMaterial color="#426d79" transparent opacity={.08} roughness={.7} side={THREE.DoubleSide} depthWrite={false} /></mesh>
+          <mesh geometry={rib.pad}><meshStandardMaterial color="#20323a" roughness={.8} side={THREE.DoubleSide} /></mesh>
+        </group>)}
       </> : null}
       {PIECE_IDS.map((id) => {
         const { side, disc } = PIECES[id];

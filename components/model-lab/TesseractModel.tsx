@@ -2,15 +2,15 @@
 
 import { useEffect, useMemo } from 'react';
 import * as THREE from 'three';
-import { EDGES_4D, PROJECTION, VERTICES_4D, project4D } from './projectionMath';
+import { EDGES_4D, PROJECTION, VERTICES_4D, project4D, rotate4D } from './projectionMath';
 
 /** Same vertices, edges, colours and luminous rods as the approved B preview. */
-export default function TesseractModel({ scale = 1 }: { scale?: number }) {
+export default function TesseractModel({ scale = 1, xw = 0, yw = 0 }: { scale?: number; xw?: number; yw?: number }) {
   const model = useMemo(() => {
     const group = new THREE.Group();
     const geometries: THREE.BufferGeometry[] = [];
     const materials: THREE.Material[] = [];
-    const vertices = VERTICES_4D.map(p => new THREE.Vector3(...project4D(p)));
+    const vertices = VERTICES_4D.map(p => new THREE.Vector3(...project4D(rotate4D(p, xw, yw))));
     for (const { from, to, axis } of EDGES_4D) {
       const start = vertices[from], end = vertices[to];
       const direction = end.clone().sub(start);
@@ -29,7 +29,7 @@ export default function TesseractModel({ scale = 1 }: { scale?: number }) {
       geometries.push(geometry); materials.push(material, glowMaterial);
     }
     return { group, geometries, materials };
-  }, []);
+  }, [xw, yw]);
   useEffect(() => () => { model.geometries.forEach(g => g.dispose()); model.materials.forEach(m => m.dispose()); }, [model]);
   return <primitive object={model.group} scale={scale} />;
 }

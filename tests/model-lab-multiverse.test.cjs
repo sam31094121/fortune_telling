@@ -27,7 +27,7 @@ function load(file) {
   return module.exports;
 }
 
-const { CELL_SPACING, ROD_WIDTH, cellRods, multiverseCells, multiverseRods } = load('components/model-lab/multiverseMath.ts');
+const { CELL_SPACING, ROD_WIDTH, cellRods, multiverseCells, multiverseRods, geometryFacts } = load('components/model-lab/multiverseMath.ts');
 const { PROJECTION } = load('components/model-lab/projectionMath.ts');
 const { BEAM, ENTRANCE_SCALE } = load('components/model-lab/latticeMath.ts');
 const { CAVITY_PITCH, CAVITY_LINE_WIDTH, cavityLatticeEdges } = load('components/model-lab/models/taiji/squareCavity.ts');
@@ -148,6 +148,18 @@ for (const rod of bridges) {
   bridgePairs.add(key(far));
 }
 assert.equal(bridgePairs.size, 8, '外立方 8 個角各接一條連接邊，不重複');
+
+// 3.7 數字要剛好加起來：邊數、面數、尤拉公式全部對得起來
+const facts = geometryFacts();
+assert.equal(facts.cube.vertices - facts.cube.edges + facts.cube.squareFaces, 2, '三維立方：8 − 12 + 6 = 2');
+assert.equal(facts.tesseract.vertices - facts.tesseract.edges + facts.tesseract.squareFaces - facts.tesseract.cells, 0, '四維超立方：16 − 32 + 24 − 8 = 0');
+assert.equal((facts.cube.squareFaces * 4) / 2, facts.cube.edges, '三維：每條邊被兩個面共用');
+assert.equal((facts.tesseract.cells * 12) / 3, facts.tesseract.edges, '四維：每條邊被三個立方單元共用');
+assert.equal(facts.tesseract.edges, counts.outer + counts.inner + counts.bridge, '12 外＋12 內＋8 連接 = 32 條');
+assert.equal(facts.tesseract.vertices, 2 * facts.cube.vertices, '四維超立方的角數＝兩個立方的角數相加');
+close(facts.projected.outerEdge / facts.projected.innerEdge, 2, '外立方邊長剛好是內立方的兩倍');
+close(facts.taiji.cell, CAVITY_PITCH, '放進太極後的格距＝內壁格距');
+close(facts.taiji.line, CAVITY_LINE_WIDTH, '放進太極後的線寬＝內壁線寬');
 
 // 4. 線寬借太極內壁的同一個比例：線寬占格距的比例，兩邊必須一模一樣（1:1 貼面）
 close(CAVITY_LINE_WIDTH / CAVITY_PITCH, BEAM, '太極內壁：線寬占格距的比例');

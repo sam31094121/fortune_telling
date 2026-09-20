@@ -17,3 +17,20 @@ export function project4D([x, y, z, w]: Point4): [number, number, number] {
   const scale = PROJECTION.numerator / (PROJECTION.distance4D - w);
   return [x * scale, y * scale, z * scale];
 }
+
+/** Orthogonal rotations before perspective projection; never stretch the 3D image. */
+export function rotate4D([x, y, z, w]: Point4, xw = 0, yw = 0): Point4 {
+  const X = x * Math.cos(xw) - w * Math.sin(xw);
+  const W = x * Math.sin(xw) + w * Math.cos(xw);
+  return [X, y * Math.cos(yw) - W * Math.sin(yw), z, y * Math.sin(yw) + W * Math.cos(yw)];
+}
+
+/** The same source x=+1 cell throughout: six faces, stable source vertex IDs. */
+export const CONTACT_CELL_FACES = [
+  { name: '黃面', ids: [3, 7, 15, 11] },
+  { name: '對面', ids: [1, 5, 13, 9] },
+  { name: '左面', ids: [1, 3, 11, 9] },
+  { name: '右面', ids: [5, 7, 15, 13] },
+  { name: '前面', ids: [1, 3, 7, 5] },
+  { name: '後面', ids: [9, 11, 15, 13] },
+] as const;

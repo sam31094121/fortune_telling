@@ -81,6 +81,8 @@
     "test:taiji-square-cavity": "node tests/taiji-square-cavity.test.cjs",
     "test:model-lab-projection": "node tests/model-lab-projection.test.cjs",
     "test:model-lab-multiverse": "node tests/model-lab-multiverse.test.cjs",
+    "test:taiji-4d-cells": "node tests/taiji-4d-cells.test.cjs",
+    "test:taiji-contact-ribs": "node tests/taiji-contact-ribs.test.cjs",
     "test:true-solar-time": "node tests/true-solar-time.test.mjs",
     "test:iching-sources": "node tests/iching-source-gate.test.mjs",
     "test:beast-backend-only": "node scripts/beast-build.mjs && node tests/beast-backend-only.test.cjs",
