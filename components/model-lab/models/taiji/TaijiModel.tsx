@@ -4,7 +4,8 @@ import { useEffect, useMemo } from 'react';
 import { Line } from '@react-three/drei';
 import * as THREE from 'three';
 import type { LabModelProps } from '../registry';
-import { squareCavityGeometry } from './squareCavity';
+import TesseractModel from '../../TesseractModel';
+import { PROJECTION } from '../../projectionMath';
 import {
   arcDotGeometry,
   bandGeometry,
@@ -20,7 +21,7 @@ import {
 } from './geometry';
 
 export const TAIJI_LAYERS = [
-  { id: 'squareCavity', name: '本體方形內壁厚度', defaultOn: true },
+  { id: 'squareCavity', name: '內外立方連接投影', defaultOn: true },
   { id: 'ghost', name: '粉紅線框球', defaultOn: false },
   { id: 'seam', name: '金色接縫', defaultOn: true },
   { id: 'rim', name: '外圈大圓', defaultOn: true },
@@ -58,8 +59,6 @@ export default function TaijiModel({ wireframe, layers }: LabModelProps) {
       meridians: meridianGeometry(),
       seam: seamPoints(),
       rim: rimPoints(),
-      squareBlack: squareCavityGeometry(true),
-      squareWhite: squareCavityGeometry(false),
     }),
     [],
   );
@@ -89,7 +88,6 @@ export default function TaijiModel({ wireframe, layers }: LabModelProps) {
         Object.values(group).forEach((g) => g.dispose()),
       );
       geo.meridians.dispose();
-      geo.squareBlack.dispose(); geo.squareWhite.dispose();
       Object.values(mat).forEach((m) => m.dispose());
     },
     [geo, mat],
@@ -100,8 +98,7 @@ export default function TaijiModel({ wireframe, layers }: LabModelProps) {
   return (
     <group>
       {on('squareCavity') && on('flatStyle') && on('black') && on('white') && on('yin2') && on('yang1') ? <>
-        <mesh geometry={geo.squareBlack} material={mat.black} />
-        <mesh geometry={geo.squareWhite} material={mat.white} />
+        <TesseractModel scale={PROJECTION.taijiScale} />
       </> : null}
       {PIECE_IDS.map((id) => {
         const { side, disc } = PIECES[id];

@@ -1,20 +1,45 @@
 import * as THREE from 'three';
-import { A } from './geometry';
+import { BEAM, ENTRANCE_SCALE, entrancePoint, type Point } from '../../latticeMath';
 
-export const CAVITY_HALF_CLEAR = .30;
-export const CAVITY_HALF_OUTER = .325;
-export const CAVITY_HALF_LENGTH = .55;
+export const CAVITY_PITCH = ENTRANCE_SCALE;
+export const CAVITY_LINE_WIDTH = BEAM * ENTRANCE_SCALE;
+export const CAVITY_CLEAR = CAVITY_PITCH - CAVITY_LINE_WIDTH;
+const INNER_RADIUS = .995;
+export type CavityEdge = { start: Point; end: Point };
 
-/** Two L-shaped thickness solids along local Y. The deep +/-Z supports meet
- * the existing flat black/white discs; .025 side walls connect to those supports.
- * No face caps the central square, and no original exterior surface is removed. */
-export function squareCavityGeometry(black: boolean): THREE.BufferGeometry {
-  const c = CAVITY_HALF_CLEAR, o = CAVITY_HALF_OUTER;
-  const shape = new THREE.Shape();
-  shape.moveTo(c, -c); shape.lineTo(o, -c); shape.lineTo(o, A);
-  shape.lineTo(-o, A); shape.lineTo(-o, c); shape.lineTo(c, c); shape.closePath();
-  const geometry = new THREE.ExtrudeGeometry(shape, { depth: CAVITY_HALF_LENGTH * 2, bevelEnabled: false, steps: 1, curveSegments: 1 });
-  geometry.rotateX(Math.PI / 2); geometry.translate(0, CAVITY_HALF_LENGTH, 0);
-  if (black) geometry.rotateY(Math.PI);
+/** The interior's cubic lattice, rotated and uniformly scaled into the sphere.
+ * Keep complete cells only: no clipped faces, stretched axes or dangling rods. */
+export function cavityLatticeEdges(): CavityEdge[] {
+  const result = new Map<string, CavityEdge>();
+  for (let x = -2; x <= 2; x++) for (let y = -2; y <= 2; y++) for (let z = -3; z <= 1; z++) {
+    const corners = Array.from({ length: 8 }, (_, n) => [x + (n & 1), y + ((n >> 1) & 1), z + ((n >> 2) & 1)] as Point);
+    if (corners.some(p => Math.hypot(...entrancePoint(p)) > INNER_RADIUS)) continue;
+    corners.forEach((start, n) => {
+      for (let axis = 0; axis < 3; axis++) {
+        if (n & (1 << axis)) continue;
+        const end = corners[n | (1 << axis)];
+        result.set(`${start.join(',')}|${end.join(',')}`, { start: entrancePoint(start), end: entrancePoint(end) });
+      }
+    });
+  }
+  return [...result.values()];
+}
+
+/** Thin 3D rods use the same world-space width as the interior mapping. */
+export function squareCavityGeometry(): THREE.BufferGeometry {
+  const positions: number[] = [], indices: number[] = [];
+  for (const { start, end } of cavityLatticeEdges()) {
+    const size = start.map((value, i) => Math.max(CAVITY_LINE_WIDTH, Math.abs(end[i] - value))) as Point;
+    const rod = new THREE.BoxGeometry(...size);
+    rod.translate(...start.map((value, i) => (value + end[i]) / 2) as Point);
+    const offset = positions.length / 3;
+    positions.push(...rod.attributes.position.array);
+    for (const index of rod.index!.array) indices.push(index + offset);
+    rod.dispose();
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setIndex(indices);
+  geometry.computeBoundingSphere();
   return geometry;
 }

@@ -11,4 +11,6 @@
 .rows { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:5px; margin:6px 0; }
 .rows button { padding:7px 2px; font-size:12px; }
 .controls small { display:block; color:#a3bdc6; font-size:10px; margin-top:7px; }
+.facts { margin-top:10px; color:#a3bdc6; font-size:11px; }
+.facts summary { cursor:pointer; min-height:28px; }
 @media (max-height:500px) { .controls { width:460px; max-width:100%; } .controls small,.controls p { display:none; } }

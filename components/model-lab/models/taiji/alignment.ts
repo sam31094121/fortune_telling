@@ -12,9 +12,9 @@ export const TAIJI_VIEWS: LabView[] = [
   { id: 't13_25', name: '13.25s 轉開', quaternion: [0.56549, 0.40111, -0.41683, 0.58787], halfHeight: 1.4286, offset: [-0.0043, -0.0131], note: '吻合 100%・平均 0.41px' },
   { id: 't20_2', name: '20.2s 接近正面', quaternion: [-0.38575, -0.07855, 0.1969, -0.89792], halfHeight: 1.4286, offset: [-0.0018, -0.0004], note: '吻合 100%・平均 0.24px' },
   { id: 't24_5', name: '24.5s 正對陽面', quaternion: [-0.05771, -0.01015, 0.2209, -0.97354], halfHeight: 1.4223, offset: [-0.0031, 0.0136], note: '吻合 100%・平均 0.19px' },
-  { id: 'cavity_front', name: '本體方口・正面（沿 Y 軸）', quaternion: [Math.SQRT1_2, 0, 0, Math.SQRT1_2], halfHeight: 1.25, offset: [0, 0], note: '中央淨口 0.60 × 0.60；原黑白圓面向內形成厚度。' },
-  { id: 'cavity_left', name: '本體方口・左斜面', quaternion: [0.701057385, 0.092295956, -0.092295956, 0.701057385], halfHeight: 1.25, offset: [0, 0], note: '左斜視檢查內壁厚度與原圓面的連接。' },
-  { id: 'cavity_right', name: '本體方口・右斜面', quaternion: [0.701057385, -0.092295956, 0.092295956, 0.701057385], halfHeight: 1.25, offset: [0, 0], note: '右斜視檢查內壁厚度與原圓面的連接。' },
+  { id: 'cavity_front', name: '本體方口・正面（沿 Y 軸）', quaternion: [Math.SQRT1_2, 0, 0, Math.SQRT1_2], halfHeight: 1.25, offset: [0, 0], note: '內外立方連接投影；原四維等邊，三維投影面不一定為正方形。' },
+  { id: 'cavity_left', name: '本體方口・左斜面', quaternion: [0.701057385, 0.092295956, -0.092295956, 0.701057385], halfHeight: 1.25, offset: [0, 0], note: '左斜視檢查內外立方連接與原黑白曲面。' },
+  { id: 'cavity_right', name: '本體方口・右斜面', quaternion: [0.701057385, -0.092295956, 0.092295956, 0.701057385], halfHeight: 1.25, offset: [0, 0], note: '右斜視檢查內外立方連接與原黑白曲面。' },
   { id: 'cavity_back', name: '本體方口・背面', quaternion: [-Math.SQRT1_2, 0, 0, Math.SQRT1_2], halfHeight: 1.25, offset: [0, 0], note: '從另一端確認方形通道沒有封底。' },
 ];
 

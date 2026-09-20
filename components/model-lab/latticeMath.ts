@@ -5,8 +5,8 @@ export const BODY_RADIUS = 0.12;
 export const CHUNK = 8;
 /** Exterior centre spacing .6; line .0036; clear opening .5964; outer width .6036. */
 export const ENTRANCE_SCALE = .6;
-/** Field starts beyond the real cavity's rear end (local Y=-.55). */
-export const ENTRANCE_Y = -.56;
+/** Rear face of the first central cube; its opposite face is Y=+.3. */
+export const ENTRANCE_Y = -.3;
 export type Point = [number, number, number];
 export type Address = { chunk: [bigint, bigint, bigint]; local: Point };
 

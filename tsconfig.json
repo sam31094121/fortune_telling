@@ -33,9 +33,9 @@
     "**/*.tsx",
     ".next-production-final-duel-ritual/types/**/*.ts",
     ".next-production/types/**/*.ts",
+    ".next-review/types/**/*.ts",
     ".next/types/**/*.ts",
-    "next-env.d.ts",
-    ".next-review/types/**/*.ts"
+    "next-env.d.ts"
   ],
   "exclude": [
     "node_modules",

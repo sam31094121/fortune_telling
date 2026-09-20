@@ -26,7 +26,7 @@ for (const edge of edges) for (let axis = 0; axis < 3; axis++) {
   assert.ok(Number.isInteger(edge.center[axis] - (axis === edge.axis ? .5 : 0)));
 }
 const { entrancePoint, portalProjection, ENTRANCE_SCALE, ENTRANCE_Y } = moduleBox.exports;
-assert.ok(ENTRANCE_Y < -.55, 'field window must be behind the real cavity walls');
+close(ENTRANCE_Y, -.3); // rear face of the .6 cube centred at the origin
 close(ENTRANCE_SCALE * (1 - BEAM), .5964);
 close(ENTRANCE_SCALE * (1 + BEAM), .6036);
 for (let axis = 0; axis < 3; axis++) {
@@ -62,3 +62,26 @@ const before = { chunk: [huge, BigInt(0), BigInt(0)], local: [7.99, .5, .5] };
 const after = rebase({ ...before, local: moveSafely(before.local, [.02, 0, 0]) });
 assert.equal(after.chunk[0], huge + BigInt(1)); close(after.local[0], .01);
 console.log('PASS: exact grid dimensions, unique edges, huge signed addresses, six-way openings, continuous conservative collision and rebasing');
+// Repeated motion must cross positive/negative chunk boundaries without drift or rescaling.
+let crossings=0;
+for(let axis=0;axis<3;axis++) for(const sign of [-1,1]) {
+  let address={chunk:[huge,-huge,huge],local:[.5,.5,.5]};
+  const initial={chunk:[...address.chunk],local:[...address.local]};
+  for(let step=0;step<1000;step++) {
+    const delta=[0,0,0];delta[axis]=sign*.02;
+    const before={chunk:[...address.chunk],local:[...address.local]};
+    address=rebase({...address,local:moveSafely(address.local,delta)});
+    for(let i=0;i<3;i++) {
+      const displacement=Number(address.chunk[i]-before.chunk[i])*8+address.local[i]-before.local[i];
+      close(displacement,delta[i],1e-10);
+      if(address.chunk[i]!==before.chunk[i])crossings++;
+    }
+    // Field translation is integer only: fractional eye position stays consistent across rebasing.
+    const actualFraction=address.local[axis]-Math.floor(address.local[axis]);
+    const expectedFraction=((.5+sign*.02*(step+1))%1+1)%1;
+    const fractionalError=Math.abs(actualFraction-expectedFraction);
+    assert.ok(Math.min(fractionalError,1-fractionalError)<1e-8);
+  }
+  close(Number(address.chunk[axis]-initial.chunk[axis])*8+address.local[axis]-.5,sign*20,1e-8);
+}
+console.log(`PASS: 6000 motion steps, six directions x 20 units, ${crossings} signed chunk crossings; per-step displacement error < 1e-10`);

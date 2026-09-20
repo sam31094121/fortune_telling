@@ -6,7 +6,7 @@ import type { CSSProperties } from 'react';
 import LabStage, { type NudgeFn, type StageSettings } from './LabStage';
 import { LAB_MODELS, defaultLayers, type LabModel, type LabRef } from './models/registry';
 import styles from './ModelLab.module.css';
-import LatticeInterior from './LatticeInterior';
+import TesseractInterior from './TesseractInterior';
 import LatticeEntrance from './LatticeEntrance';
 
 type BlendMode = 'normal' | 'difference' | 'screen';
@@ -197,7 +197,7 @@ export default function ModelLab() {
 
   return (
     <>
-    {inside ? <LatticeInterior onExit={leaveInterior} /> : null}
+    {inside ? <TesseractInterior onExit={leaveInterior} /> : null}
     {entrance ? <LatticeEntrance settings={settings} onEnter={enterInterior} onExit={() => setEntrance(false)} /> : null}
     <div className={styles.lab} style={inside || entrance ? { visibility: 'hidden', pointerEvents: 'none' } : undefined} aria-hidden={inside || entrance || undefined} inert={inside || entrance || undefined}>
       <aside className={styles.panel}>
@@ -229,8 +229,8 @@ export default function ModelLab() {
           </label>
           <p className={styles.note}>{settings.glbUrl ? `外部模型：${glbName}` : activeNote}</p>
           {settings.modelId === 'taiji' && !settings.glbUrl ? <>
-            <button type="button" className={styles.primaryBtn} onClick={() => setSettings(previous => ({ ...previous, viewId: 'cavity_front', viewNonce: previous.viewNonce + 1, autoRotate: false }))}>查看本體方形厚度</button>
-            <button type="button" className={styles.primaryBtn} onClick={() => setEntrance(true)}>沿方形通道查看深層格網</button>
+            <button type="button" className={styles.primaryBtn} onClick={() => setSettings(previous => ({ ...previous, viewId: 'cavity_front', viewNonce: previous.viewNonce + 1, autoRotate: false }))}>查看內外立方連接</button>
+            <button type="button" className={styles.primaryBtn} onClick={() => setEntrance(true)}>進入太極連接空間</button>
           </> : null}
           <label className={styles.fileBtn}>
             載入 .glb / .gltf
