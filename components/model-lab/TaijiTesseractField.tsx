@@ -3,18 +3,18 @@
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { ROD_RADIUS } from './multiverseMath';
-import { TAIJI_UNIT_SCALE, taijiCellRods } from './taijiCells';
+import { INSCRIBED_SCALE, TAIJI_UNIT_SCALE, inscribedUnitRods, taijiCellRods } from './taijiCells';
 
 /**
  * 太極內壁的每一格都換成四維單元：7 格、224 根線，一個 InstancedMesh 畫完。
  * 外立方與內壁格線完全重合（守門 tests/taiji-4d-cells.test.cjs 逐條比對），
  * 所以線是接起來的、沒有縫；線寬沿用同一個比例縮到太極裡。
  */
-export default function TaijiTesseractField({ opacity = 0.9 }: { opacity?: number }) {
+export default function TaijiTesseractField({ opacity = 0.9, mode = 'cells' }: { opacity?: number; mode?: 'cells' | 'inscribed' }) {
   const mesh = useRef<THREE.InstancedMesh>(null);
 
   const { geometry, material, matrices, colors } = useMemo(() => {
-    const rods = taijiCellRods();
+    const rods = mode === 'inscribed' ? inscribedUnitRods() : taijiCellRods();
     const object = new THREE.Object3D();
     const up = new THREE.Vector3(0, 1, 0);
     const matrices: THREE.Matrix4[] = [];
@@ -31,12 +31,12 @@ export default function TaijiTesseractField({ opacity = 0.9 }: { opacity?: numbe
       colors.push(new THREE.Color(rod.color));
     }
     return {
-      geometry: new THREE.CylinderGeometry(ROD_RADIUS * TAIJI_UNIT_SCALE, ROD_RADIUS * TAIJI_UNIT_SCALE, 1, 6),
+      geometry: new THREE.CylinderGeometry(ROD_RADIUS * (mode === 'inscribed' ? INSCRIBED_SCALE : TAIJI_UNIT_SCALE), ROD_RADIUS * (mode === 'inscribed' ? INSCRIBED_SCALE : TAIJI_UNIT_SCALE), 1, 6),
       material: new THREE.MeshBasicMaterial({ transparent: true, opacity, toneMapped: false, depthWrite: false, blending: THREE.AdditiveBlending }),
       matrices,
       colors,
     };
-  }, [opacity]);
+  }, [opacity, mode]);
 
   useEffect(() => {
     const instanced = mesh.current;

@@ -5,6 +5,7 @@ import { useFrame } from '@react-three/fiber';
 import type { ComponentType } from 'react';
 import type { Group } from 'three';
 import TaijiModel, { TAIJI_LAYERS } from './taiji/TaijiModel';
+import EqualEdgeTesseract from '../EqualEdgeTesseract';
 import { TAIJI_REFS, TAIJI_VIEWS } from './taiji/alignment';
 
 export interface LabModelProps {
@@ -88,6 +89,13 @@ export const LAB_MODELS: LabModel[] = [
     layers: TAIJI_LAYERS,
     views: TAIJI_VIEWS,
     refs: TAIJI_REFS,
+  },
+  {
+    id: 'tesseract-equal',
+    name: '四維單元・等長投影',
+    note: '平行投影（方向 1,1,1,1）：32 條邊在畫面上長度完全相同（√3），外立方與內立方一樣大。太極裡用的是透視投影，看起來一大一小——那是眼睛被騙，四維裡本來就等長。外殼是菱形十二面體（對照 Wolfram MathWorld 與 Wikipedia）。',
+    Component: EqualEdgeTesseract,
+    layers: [{ id: 'spin', name: '自動旋轉', defaultOn: true }],
   },
   { id: 'empty', name: '空舞台（佔位）', note: '還沒放模型。燈光與相機在跑，代表舞台正常。', Component: EmptySlot },
   { id: 'ruler', name: '比例尺 1.7m', note: '1 單位 = 1 公尺。拿來對影片裡物件的相對大小。', Component: ScaleRuler },

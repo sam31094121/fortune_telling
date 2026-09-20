@@ -25,6 +25,7 @@ import {
 export const TAIJI_LAYERS = [
   { id: 'squareCavity', name: '內外立方連接投影', defaultOn: true },
   { id: 'cellField', name: '每一格都是四維格子（貼住內壁）', defaultOn: false },
+  { id: 'cellCube', name: '一顆四角形空間（內接正立方・八角貼球面）', defaultOn: false },
   { id: 'ghost', name: '粉紅線框球', defaultOn: false },
   { id: 'seam', name: '金色接縫', defaultOn: true },
   { id: 'rim', name: '外圈大圓', defaultOn: true },
@@ -108,6 +109,7 @@ export default function TaijiModel({ wireframe, layers }: LabModelProps) {
       {on('squareCavity') && on('flatStyle') && on('black') && on('white') && on('yin2') && on('yang1') ? <>
         <TesseractModel scale={PROJECTION.taijiScale} />
         {on('cellField') ? <TaijiTesseractField /> : null}
+        {on('cellCube') ? <TaijiTesseractField mode="inscribed" /> : null}
         {contacts.map(rib => <group key={rib.edge.join('-')}>
           <mesh geometry={rib.geometry}><meshStandardMaterial color="#426d79" transparent opacity={.08} roughness={.7} side={THREE.DoubleSide} depthWrite={false} /></mesh>
           <mesh geometry={rib.pad}><meshStandardMaterial color="#20323a" roughness={.8} side={THREE.DoubleSide} /></mesh>

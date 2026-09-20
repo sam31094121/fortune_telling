@@ -23,7 +23,7 @@ function load(file) {
   return module.exports;
 }
 
-const { taijiCellCenters, taijiCellRods, TAIJI_CELL_SIZE, TAIJI_UNIT_SCALE } = load('components/model-lab/taijiCells.ts');
+const { taijiCellCenters, taijiCellRods, TAIJI_CELL_SIZE, TAIJI_UNIT_SCALE, inscribedUnitRods, INSCRIBED_EDGE } = load('components/model-lab/taijiCells.ts');
 const { CAVITY_PITCH, cavityLatticeEdges } = load('components/model-lab/models/taiji/squareCavity.ts');
 const { ROD_WIDTH } = load('components/model-lab/multiverseMath.ts');
 const { CAVITY_LINE_WIDTH } = load('components/model-lab/models/taiji/squareCavity.ts');
@@ -113,6 +113,47 @@ for (const [id] of faceMap) {
   for (const rod of onFace) close(length(rod.a, rod.b), CAVITY_PITCH, '面上的線都等長（正方形）');
 }
 
+// 3.8 一顆四角形空間：內接正立方，精度收到 1e-12（比億萬分之一還嚴）
+const EXACT = 1e-12;
+const exact = (a, b, message) => assert.ok(Math.abs(a - b) < EXACT, `${message}：${a} != ${b}（差 ${Math.abs(a - b)}）`);
+const inscribed = inscribedUnitRods();
+assert.equal(inscribed.length, 32, '一顆也是完整的 32 條線');
+const inscribedOuter = inscribed.filter((rod) => rod.kind === 'outer');
+assert.equal(inscribedOuter.length, 12, '外立方 12 條線');
+exact(INSCRIBED_EDGE, 2 / Math.sqrt(3), '內接正立方邊長 = 2/√3');
+for (const rod of inscribedOuter) exact(length(rod.a, rod.b), INSCRIBED_EDGE, '12 條線等長');
+// 注意：上面的 key() 只留 6 位小數，拿它還原座標會引入 ~5e-7 的誤差，
+// 這一段要驗到 1e-12，所以改用原始數值去重，不能經過四捨五入。
+const exactKey = (point) => point.map((v) => v.toExponential(15)).join(',');
+const inscribedCorners = [...new Map(inscribedOuter.flatMap((rod) => [rod.a, rod.b]).map((p) => [exactKey(p), p])).values()];
+assert.equal(inscribedCorners.length, 8, '八個角');
+for (const corner of inscribedCorners) {
+  // 角到球心距離＝球半徑 1：這就是「剛好貼住」，不是「差不多」
+  exact(Math.hypot(...corner), 1, '八個角都剛好落在球面上（半徑 1）');
+  // 太極的四個切面在 |y|,|z| = √½；立方的半邊要小於它，切口才切不到
+  assert.ok(Math.abs(corner[1]) < Math.SQRT1_2 + EXACT && Math.abs(corner[2]) < Math.SQRT1_2 + EXACT, '不被四個切面切到');
+}
+exact(INSCRIBED_EDGE / 2, Math.max(...inscribedCorners.map((c) => Math.abs(c[0]))), '半邊＝邊長的一半');
+// 六個面都是正方形：四條等長、相鄰垂直
+let inscribedFaces = 0;
+for (let axis = 0; axis < 3; axis += 1) {
+  for (const sign of [-1, 1]) {
+    const plane = (sign * INSCRIBED_EDGE) / 2;
+    const onFace = inscribedOuter.filter((rod) => Math.abs(rod.a[axis] - plane) < EXACT && Math.abs(rod.b[axis] - plane) < EXACT);
+    assert.equal(onFace.length, 4, '每個面四條線');
+    for (const rod of onFace) {
+      const direction = rod.a.map((v, i) => v - rod.b[i]);
+      const touching = onFace.filter((other) => other !== rod && [key(other.a), key(other.b)].some((p) => p === key(rod.a) || p === key(rod.b)));
+      for (const other of touching) {
+        const otherDirection = other.a.map((v, i) => v - other.b[i]);
+        exact(direction.reduce((sum, v, i) => sum + v * otherDirection[i], 0), 0, '相鄰兩條線夾角剛好 90 度');
+      }
+    }
+    inscribedFaces += 1;
+  }
+}
+assert.equal(inscribedFaces, 6, '六個面都驗過');
+
 // 4. 全部線都在球內，不戳出太極表面
 for (const rod of rods) {
   for (const point of [rod.a, rod.b]) {
@@ -120,4 +161,4 @@ for (const rod of rods) {
   }
 }
 
-console.log(`PASS: 球內 7 格全部換成四維單元（${rods.length} 條線）；外立方線與內壁 ${wall.size} 條格線完全同一組，不多不少；相鄰格共用整面四條線；格距 ${TAIJI_CELL_SIZE}、線寬 ${(TAIJI_UNIT_SCALE * ROD_WIDTH).toFixed(4)} 與內壁 1:1；所有線都在球內；七格併起來共 36 個不重複的面，每個面仍是同樣大小的正方形（42 − 6 = 36）。`);
+console.log(`PASS: 球內 7 格全部換成四維單元（${rods.length} 條線）；外立方線與內壁 ${wall.size} 條格線完全同一組，不多不少；相鄰格共用整面四條線；格距 ${TAIJI_CELL_SIZE}、線寬 ${(TAIJI_UNIT_SCALE * ROD_WIDTH).toFixed(4)} 與內壁 1:1；所有線都在球內；七格併起來共 36 個不重複的面，每個面仍是同樣大小的正方形（42 − 6 = 36）；另有「一顆」內接正立方：邊長 2/√3、八角到球心距離剛好 1、六面皆正方形，全部以 1e-12 精度核對。`);

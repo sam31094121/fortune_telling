@@ -83,6 +83,7 @@
     "test:model-lab-multiverse": "node tests/model-lab-multiverse.test.cjs",
     "test:taiji-4d-cells": "node tests/taiji-4d-cells.test.cjs",
     "test:taiji-contact-ribs": "node tests/taiji-contact-ribs.test.cjs",
+    "test:model-lab-equal-edge": "node tests/model-lab-equal-edge.test.cjs",
     "test:true-solar-time": "node tests/true-solar-time.test.mjs",
     "test:iching-sources": "node tests/iching-source-gate.test.mjs",
     "test:beast-backend-only": "node scripts/beast-build.mjs && node tests/beast-backend-only.test.cjs",

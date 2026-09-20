@@ -16,6 +16,27 @@ const INNER_RADIUS = 0.995;
 /** 放進太極後的縮放：外立方邊長 = taijiScale × CELL_SPACING = 內壁格距 0.6。 */
 export const TAIJI_UNIT_SCALE = PROJECTION.taijiScale;
 
+/**
+ * 太極裡面「剛好一顆」的四角形空間：內接正立方。
+ *
+ * 外圍是球，看起來是圓的——那是視覺。真正能放進去的最大正立方，邊長 2/√3，
+ * 八個角剛好頂在球面上（角到球心距離正好 1），而且半邊 0.5774 小於切面位置 0.7071，
+ * 所以四個切口也切不到它。一顆四維單元放進去，外立方就是這顆正立方。
+ */
+export const INSCRIBED_HALF = 1 / Math.sqrt(3);
+export const INSCRIBED_EDGE = 2 * INSCRIBED_HALF;
+export const INSCRIBED_SCALE = INSCRIBED_EDGE / CELL_SPACING;
+
+/** 一顆：四維單元放大到內接正立方，八角貼在球面上。 */
+export function inscribedUnitRods(): Rod[] {
+  return cellRods().map((rod) => ({
+    kind: rod.kind,
+    color: rod.color,
+    a: rod.a.map((v) => v * INSCRIBED_SCALE) as Point,
+    b: rod.b.map((v) => v * INSCRIBED_SCALE) as Point,
+  }));
+}
+
 /** 球內完整格子的中心（世界座標）。 */
 export function taijiCellCenters(): Point[] {
   const centers: Point[] = [];

@@ -57,7 +57,7 @@ for t in test:three-core test:three-in-one test:taiji-ios \
          test:beast-difficulty test:iching-sources test:beast-backend-only \
          test:true-solar-time test:credibility-wording test:soul-match \
          test:model-lab-lattice test:taiji-square-cavity \
-         test:model-lab-projection test:model-lab-multiverse test:taiji-4d-cells test:taiji-contact-ribs; do
+         test:model-lab-projection test:model-lab-multiverse test:taiji-4d-cells test:taiji-contact-ribs test:model-lab-equal-edge; do
   # 不印「進行中」—— 在管線或 CI 記錄裡不會清行，會留下半截字。
   if npm run "$t" >"$LOG" 2>&1; then
     echo "   ✓ $t"
