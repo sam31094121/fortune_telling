@@ -6,6 +6,8 @@ import type { CSSProperties } from 'react';
 import LabStage, { type NudgeFn, type StageSettings } from './LabStage';
 import { LAB_MODELS, defaultLayers, type LabModel, type LabRef } from './models/registry';
 import styles from './ModelLab.module.css';
+import LatticeInterior from './LatticeInterior';
+import LatticeEntrance from './LatticeEntrance';
 
 type BlendMode = 'normal' | 'difference' | 'screen';
 
@@ -35,6 +37,10 @@ function modelDefaults(model: LabModel | undefined): Partial<StageSettings> {
 const INITIAL_MODEL = LAB_MODELS[0];
 
 export default function ModelLab() {
+  const [inside, setInside] = useState(false);
+  const [entrance, setEntrance] = useState(false);
+  const enterInterior = useCallback(() => { setEntrance(false); setInside(true); }, []);
+  const leaveInterior = useCallback(() => setInside(false), []);
   const [settings, setSettings] = useState<StageSettings>(() => ({
     modelId: INITIAL_MODEL.id,
     glbUrl: null,
@@ -64,6 +70,8 @@ export default function ModelLab() {
 
   const [overlaySrc, setOverlaySrc] = useState<string | null>(null);
   const [overlayOn, setOverlayOn] = useState(true);
+  // 參考幀只存在本機：別台機器（含正式站）載不到時要照實說，不能讓狀態列繼續報吻合率。
+  const [overlayMissing, setOverlayMissing] = useState(false);
   const [overlayOpacity, setOverlayOpacity] = useState(0.5);
   const [overlayBlend, setOverlayBlend] = useState<BlendMode>('normal');
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
@@ -174,6 +182,7 @@ export default function ModelLab() {
     setVideoSrc(null);
     setOverlaySrc(ref.src);
     setOverlayOn(true);
+    setOverlayMissing(false);
     patch({ viewId: ref.viewId, layers: { ...defaultLayers(activeModel), ...ref.layers }, ortho: true, showGrid: false, showShadow: false, showGizmo: false });
     setSettings((prev) => ({ ...prev, viewNonce: prev.viewNonce + 1 }));
     const view = activeModel?.views?.find((v) => v.id === ref.viewId);
@@ -187,7 +196,10 @@ export default function ModelLab() {
   const frameStyle = aspectLocked ? ({ '--ar': overlayAspect } as CSSProperties) : undefined;
 
   return (
-    <div className={styles.lab}>
+    <>
+    {inside ? <LatticeInterior onExit={leaveInterior} /> : null}
+    {entrance ? <LatticeEntrance settings={settings} onEnter={enterInterior} onExit={() => setEntrance(false)} /> : null}
+    <div className={styles.lab} style={inside || entrance ? { visibility: 'hidden', pointerEvents: 'none' } : undefined} aria-hidden={inside || entrance || undefined} inert={inside || entrance || undefined}>
       <aside className={styles.panel}>
         <header className={styles.head}>
           <h1 className={styles.title}>3D 模型工作室</h1>
@@ -216,6 +228,7 @@ export default function ModelLab() {
             </select>
           </label>
           <p className={styles.note}>{settings.glbUrl ? `外部模型：${glbName}` : activeNote}</p>
+          {settings.modelId === 'taiji' && !settings.glbUrl ? <button type="button" className={styles.primaryBtn} onClick={() => setSettings(previous => ({ ...previous, viewId: 'cavity_front', viewNonce: previous.viewNonce + 1, autoRotate: false }))}>查看本體方形厚度</button> : null}
           <label className={styles.fileBtn}>
             載入 .glb / .gltf
             <input type="file" accept=".glb,.gltf,model/gltf-binary,model/gltf+json" onChange={pickGlb} hidden />
@@ -344,6 +357,10 @@ export default function ModelLab() {
             </div>
           ) : null}
 
+          {overlaySrc && overlayMissing ? (
+            <p className={styles.note}>這台機器上沒有這張參考幀，所以沒有疊圖；視角與圖層仍照常套用。</p>
+          ) : null}
+
           {overlaySrc ? (
             <div className={styles.sub2}>
               <label className={styles.toggle}>
@@ -464,6 +481,7 @@ export default function ModelLab() {
       <main className={styles.stage}>
         <div className={aspectLocked ? styles.frameLocked : styles.frame} style={frameStyle}>
           <LabStage
+            paused={inside || entrance}
             settings={settings}
             readoutRef={readoutRef}
             nudgeRef={nudgeRef}
@@ -475,7 +493,15 @@ export default function ModelLab() {
               className={styles.overlay}
               src={overlaySrc}
               alt=""
-              onLoad={(e) => setOverlayAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight)}
+              onLoad={(e) => {
+                setOverlayAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight);
+                setOverlayMissing(false);
+              }}
+              onError={() => {
+                setOverlayMissing(true);
+                setOverlayAspect(null);
+                setStatus(`這台機器上沒有 ${overlaySrc} 這張參考幀（參考幀不進版控），所以沒有疊圖。視角與圖層已照常套用；吻合率要在有參考幀的機器上才算數。`);
+              }}
               style={{ opacity: overlayOpacity, mixBlendMode: overlayBlend }}
             />
           ) : null}
@@ -497,5 +523,6 @@ export default function ModelLab() {
         </div>
       </main>
     </div>
+    </>
   );
 }

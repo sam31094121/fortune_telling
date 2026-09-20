@@ -144,12 +144,14 @@ function CameraNudger({ nudgeRef }: { nudgeRef: RefObject<NudgeFn | null> }) {
 }
 
 export default function LabStage({
+  paused = false,
   settings,
   readoutRef,
   nudgeRef,
   onRendererReady,
   onLoadError,
 }: {
+  paused?: boolean;
   settings: StageSettings;
   readoutRef: RefObject<HTMLElement | null>;
   nudgeRef: RefObject<NudgeFn | null>;
@@ -164,7 +166,7 @@ export default function LabStage({
   const modelPosition: [number, number, number] = view ? [view.offset[0], view.offset[1], 0] : ORIGIN;
 
   return (
-    <Canvas shadows dpr={[1, 2]} gl={{ preserveDrawingBuffer: true, antialias: true }}>
+    <Canvas frameloop={paused ? 'never' : 'always'} shadows dpr={[1, 2]} gl={{ preserveDrawingBuffer: true, antialias: true }}>
       {settings.ortho ? (
         <OrthographicCamera makeDefault position={ORTHO_START} near={0.01} far={100} zoom={100} />
       ) : (
@@ -229,10 +231,10 @@ export default function LabStage({
       ) : null}
 
       {settings.autoRotate ? (
-        <OrbitControls makeDefault enableDamping dampingFactor={0.08} autoRotate autoRotateSpeed={0.9} rotateSpeed={settings.dragSpeed} />
+        <OrbitControls makeDefault enabled={!paused} enableDamping dampingFactor={0.08} autoRotate={!paused} autoRotateSpeed={0.9} rotateSpeed={settings.dragSpeed} />
       ) : (
         // 軌道控制會把上下翻轉鎖在兩極之間；檢查模型要能翻過頭頂，改用不設限的軌跡球
-        <TrackballControls makeDefault rotateSpeed={settings.dragSpeed} zoomSpeed={1.2} panSpeed={0.8} dynamicDampingFactor={0.15} />
+        <TrackballControls makeDefault enabled={!paused} rotateSpeed={settings.dragSpeed} zoomSpeed={1.2} panSpeed={0.8} dynamicDampingFactor={0.15} />
       )}
       <CameraNudger nudgeRef={nudgeRef} />
       <ViewRig view={view} ortho={settings.ortho} nonce={settings.viewNonce} fov={settings.fov} />
