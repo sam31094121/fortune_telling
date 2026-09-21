@@ -9,9 +9,10 @@
  * - 往外／死角：保留但降權，不搶「往內仍是方」的主讀
  */
 
-import { INSCRIBED_HALF } from '../../taijiCells';
+import { HOLLOW_RADIUS, INSCRIBED_HALF } from '../../taijiCells';
 
-export const SPHERE_R = 1;
+/** 夾邊半徑＝殼內壁（空心的邊界）。原本用外表面 1，線會畫進殼的厚度裡。 */
+export const SPHERE_R = HOLLOW_RADIUS;
 export const CORE_HALF = INSCRIBED_HALF;
 
 /** 往內層數：越多越像無限伸展進去 */
@@ -176,6 +177,7 @@ export function buildInfiniteHollowSquareSegments(options?: {
   faceDepth?: number;
   faceRatio?: number;
   outDepth?: number;
+  outRatio?: number;
   withSpin?: boolean;
 }): HollowSegment[] {
   const inDepth = options?.inDepth ?? IN_DEPTH;
@@ -183,6 +185,7 @@ export function buildInfiniteHollowSquareSegments(options?: {
   const faceDepth = options?.faceDepth ?? FACE_DEPTH;
   const faceRatio = options?.faceRatio ?? FACE_RATIO;
   const outDepth = options?.outDepth ?? OUT_DEPTH;
+  const outRatio = options?.outRatio ?? OUT_RATIO;
   const withSpin = options?.withSpin === true;
 
   assertTwelveEdges(CORE_HALF);

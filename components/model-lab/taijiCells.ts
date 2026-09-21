@@ -1,6 +1,7 @@
 import { entrancePoint, type Point } from './latticeMath';
 import { PROJECTION } from './projectionMath';
 import { CELL_SPACING, cellRods, type Rod } from './multiverseMath';
+import { INNER_RADIUS } from './models/taiji/squareCavity';
 
 /**
  * 太極裡面的每一格，都放一個四維單元。
@@ -11,7 +12,13 @@ import { CELL_SPACING, cellRods, type Rod } from './multiverseMath';
  *
  * 判定「裝得下」的規則與內壁一致：八個角都要落在半徑 INNER_RADIUS 以內，不留半截格子。
  */
-const INNER_RADIUS = 0.995;
+/**
+ * 空心的半徑＝殼的內壁（0.995），不是外表面（1）。
+ * 厚度細修（2026-09-21）：原本核心的角貼在外表面 1，等於伸進殼的厚度 0.005 裡；
+ * 改貼內壁之後，核心完完整整在空心裡，殼把它包住。
+ */
+export const HOLLOW_RADIUS = INNER_RADIUS;
+export const SHELL_THICKNESS = 1 - HOLLOW_RADIUS;
 
 /** 放進太極後的縮放：外立方邊長 = taijiScale × CELL_SPACING = 內壁格距 0.6。 */
 export const TAIJI_UNIT_SCALE = PROJECTION.taijiScale;
@@ -19,11 +26,12 @@ export const TAIJI_UNIT_SCALE = PROJECTION.taijiScale;
 /**
  * 太極裡面「剛好一顆」的四角形空間：內接正立方。
  *
- * 外圍是球，看起來是圓的——那是視覺。真正能放進去的最大正立方，邊長 2/√3，
- * 八個角剛好頂在球面上（角到球心距離正好 1），而且半邊 0.5774 小於切面位置 0.7071，
- * 所以四個切口也切不到它。一顆四維單元放進去，外立方就是這顆正立方。
+ * 外圍是球，看起來是圓的——那是視覺。空心裡能放進去的最大正立方，邊長 2 × 0.995 / √3，
+ * 八個角剛好頂在殼的內壁上（角到球心距離正好 0.995），殼的厚度 0.005 一點都沒碰到；
+ * 半邊 0.5745 小於切面位置 0.7071，所以四個切口也切不到它。
  */
-export const INSCRIBED_HALF = 1 / Math.sqrt(3);
+// 八個角到球心剛好＝殼內壁半徑：角貼著內壁，不伸進殼的厚度
+export const INSCRIBED_HALF = HOLLOW_RADIUS / Math.sqrt(3);
 export const INSCRIBED_EDGE = 2 * INSCRIBED_HALF;
 export const INSCRIBED_SCALE = INSCRIBED_EDGE / CELL_SPACING;
 
@@ -95,7 +103,7 @@ export function taijiCellCenters(): Point[] {
       for (let z = -4; z <= 2; z += 1) {
         const corners = Array.from({ length: 8 }, (_, n) => [x + (n & 1), y + ((n >> 1) & 1), z + ((n >> 2) & 1)] as Point);
         const points = corners.map(entrancePoint);
-        if (points.some((p) => Math.hypot(...p) > INNER_RADIUS)) continue;
+        if (points.some((p) => Math.hypot(...p) > HOLLOW_RADIUS)) continue;
         centers.push([0, 1, 2].map((axis) => points.reduce((sum, p) => sum + p[axis], 0) / 8) as Point);
       }
     }

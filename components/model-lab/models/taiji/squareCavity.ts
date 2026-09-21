@@ -4,7 +4,8 @@ import { BEAM, ENTRANCE_SCALE, entrancePoint, type Point } from '../../latticeMa
 export const CAVITY_PITCH = ENTRANCE_SCALE;
 export const CAVITY_LINE_WIDTH = BEAM * ENTRANCE_SCALE;
 export const CAVITY_CLEAR = CAVITY_PITCH - CAVITY_LINE_WIDTH;
-const INNER_RADIUS = .995;
+/** 殼的內壁半徑：外表面是 1，殼有厚度，裡面的空心從這裡開始。全站只認這一個值。 */
+export const INNER_RADIUS = .995;
 export type CavityEdge = { start: Point; end: Point };
 
 /** The interior's cubic lattice, rotated and uniformly scaled into the sphere.
