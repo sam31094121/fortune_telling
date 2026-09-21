@@ -122,8 +122,8 @@ assert.equal(inscribedUnitRods({ includeInner: true }).length, 32, 'full 32 when
 const inscribedOuter = inscribed.filter((rod) => rod.kind === 'outer');
 assert.equal(inscribedOuter.length, 12, '外立方 12 條線');
 // 厚度細修：空心半徑＝殼內壁，殼厚度＝1 − 內壁；核心邊長 2 × 內壁 / √3
-exact(HOLLOW_RADIUS, 0.995, '空心半徑＝殼內壁 0.995（與 squareCavity 同一個值）');
-exact(SHELL_THICKNESS, 1 - 0.995, '殼厚度 0.005');
+exact(HOLLOW_RADIUS, 1, 'fit radius = outer shell 1 (1:1 flush)');
+exact(SHELL_THICKNESS, 0, 'visual shell-core flush: no air band');
 exact(INSCRIBED_EDGE, (2 * HOLLOW_RADIUS) / Math.sqrt(3), '內接正立方邊長 = 2 × 內壁 / √3');
 for (const rod of inscribedOuter) exact(length(rod.a, rod.b), INSCRIBED_EDGE, '12 條線等長');
 // 注意：上面的 key() 只留 6 位小數，拿它還原座標會引入 ~5e-7 的誤差，
@@ -132,9 +132,9 @@ const exactKey = (point) => point.map((v) => v.toExponential(15)).join(',');
 const inscribedCorners = [...new Map(inscribedOuter.flatMap((rod) => [rod.a, rod.b]).map((p) => [exactKey(p), p])).values()];
 assert.equal(inscribedCorners.length, 8, '八個角');
 for (const corner of inscribedCorners) {
-  // 角到球心距離＝殼內壁：貼住空心的邊界，不伸進殼的厚度
-  exact(Math.hypot(...corner), HOLLOW_RADIUS, '八個角都剛好落在殼內壁上');
-  assert.ok(Math.hypot(...corner) < 1 - SHELL_THICKNESS / 2, '角絕不能伸進殼的厚度（1 − 0.005 以外）');
+  // 業主一比一緊貼：八角到球心＝外圓半徑，不冒出
+  exact(Math.hypot(...corner), HOLLOW_RADIUS, '八個角都剛好落在外圓上（一比一緊貼）');
+  assert.ok(Math.hypot(...corner) <= 1 + EXACT, '角絕不能冒出外圓');
   // 太極的四個切面在 |y|,|z| = √½；立方的半邊要小於它，切口才切不到
   assert.ok(Math.abs(corner[1]) < Math.SQRT1_2 + EXACT && Math.abs(corner[2]) < Math.SQRT1_2 + EXACT, '不被四個切面切到');
 }
@@ -166,4 +166,4 @@ for (const rod of rods) {
   }
 }
 
-console.log(`PASS: 球內 7 格全部換成四維單元（${rods.length} 條線）；外立方線與內壁 ${wall.size} 條格線完全同一組，不多不少；相鄰格共用整面四條線；格距 ${TAIJI_CELL_SIZE}、線寬 ${(TAIJI_UNIT_SCALE * ROD_WIDTH).toFixed(4)} 與內壁 1:1；所有線都在球內；七格併起來共 36 個不重複的面，每個面仍是同樣大小的正方形（42 − 6 = 36）；另有「一顆」內接正立方：邊長 2×0.995/√3、八角剛好貼在殼內壁 0.995、不碰殼的 0.005 厚度、六面皆正方形，全部以 1e-12 精度核對。`);
+console.log(`PASS: 球內 7 格全部換成四維單元（${rods.length} 條線）；外立方線與內壁 ${wall.size} 條格線完全同一組，不多不少；相鄰格共用整面四條線；格距 ${TAIJI_CELL_SIZE}、線寬 ${(TAIJI_UNIT_SCALE * ROD_WIDTH).toFixed(4)} 與內壁 1:1；所有線都在球內；七格併起來共 36 個不重複的面，每個面仍是同樣大小的正方形（42 − 6 = 36）；另有「一顆」內接正立方：邊長 2/√3、八角剛好貼在外圓半徑 1（一比一緊貼、殼厚 0）、六面皆正方形，全部以 1e-12 精度核對。`);

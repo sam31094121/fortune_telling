@@ -13,12 +13,13 @@ import { INNER_RADIUS } from './models/taiji/squareCavity';
  * 判定「裝得下」的規則與內壁一致：八個角都要落在半徑 INNER_RADIUS 以內，不留半截格子。
  */
 /**
- * 空心的半徑＝殼的內壁（0.995），不是外表面（1）。
- * 厚度細修（2026-09-21）：原本核心的角貼在外表面 1，等於伸進殼的厚度 0.005 裡；
- * 改貼內壁之後，核心完完整整在空心裡，殼把它包住。
+ * 業主（2026-09-21）：內核「方形空心」置中；與外圓太極殼一比一緊貼。
+ * 八角到球心＝外殼半徑 1（無縫、不冒出、殼核不留空帶）。
+ * squareCavity.INNER_RADIUS 仍供格網裝填用；視覺貼合只認 FIT_RADIUS。
  */
-export const HOLLOW_RADIUS = INNER_RADIUS;
-export const SHELL_THICKNESS = 1 - HOLLOW_RADIUS;
+export const FIT_RADIUS = 1;
+export const HOLLOW_RADIUS = FIT_RADIUS;
+export const SHELL_THICKNESS = 0;
 
 /** 放進太極後的縮放：外立方邊長 = taijiScale × CELL_SPACING = 內壁格距 0.6。 */
 export const TAIJI_UNIT_SCALE = PROJECTION.taijiScale;
@@ -26,9 +27,8 @@ export const TAIJI_UNIT_SCALE = PROJECTION.taijiScale;
 /**
  * 太極裡面「剛好一顆」的四角形空間：內接正立方。
  *
- * 外圍是球，看起來是圓的——那是視覺。空心裡能放進去的最大正立方，邊長 2 × 0.995 / √3，
- * 八個角剛好頂在殼的內壁上（角到球心距離正好 0.995），殼的厚度 0.005 一點都沒碰到；
- * 半邊 0.5745 小於切面位置 0.7071，所以四個切口也切不到它。
+ * 外圍是球（視覺是圓），內核是置中的正立方空心。邊長 2/√3，八角剛好頂在外圓半徑 1 上——殼核一比一緊貼。
+ * 半邊 1/√3 ≈ 0.577 小於切面 A=√2/2，四個切口切不到它。
  */
 // 八個角到球心剛好＝殼內壁半徑：角貼著內壁，不伸進殼的厚度
 export const INSCRIBED_HALF = HOLLOW_RADIUS / Math.sqrt(3);
@@ -54,7 +54,7 @@ export function inscribedUnitRods(options: { includeInner?: boolean } = {}): Rod
 /**
  * 空心太極的核心：把內接正立方切成 n×n×n 個小格，每一格放一個四維單元。
  *
- * 太極當成空心殼，殼把核心包起來；核心就是那顆內接正立方（八角貼在球面上）。
+ * 太極當成空心殼，殼把核心包起來；核心就是那顆內接正立方（八角貼外圓，置中空心）。
  * 核心裡面全部是四角形：每一小格邊長 INSCRIBED_EDGE / n，面貼面、不留縫，
  * 而且整個核心都在球內，所以殼一定包得住。
  *

@@ -22,7 +22,7 @@ export const IN_RATIO = 0.78;
 export const FACE_DEPTH = 8;
 export const FACE_RATIO = 0.82;
 
-export const OUT_DEPTH = 3;
+export const OUT_DEPTH = 0; // 業主：不往外冒；方只在圓內緊貼
 export const OUT_RATIO = 0.72;
 export const SPIN_STEPS = 4;
 
