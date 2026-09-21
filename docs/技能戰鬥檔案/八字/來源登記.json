@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-09-17",
+  "updatedAt": "2026-09-21",
   "rule": "八字沿用《易經》來源治理（docs/技能戰鬥檔案/易經/來源治理.md）：交叉比對的來源、權威性的檔案、大數據的來源；狀態由 lib/iching-source-gate.ts 計算，不得手填 VERIFIED。",
   "sources": [
     {
@@ -353,6 +353,39 @@
       "edition": "npm run test:red-luan-heartbeat（2026-09-17 PASS）",
       "trust": "A",
       "tracked_path": "tests/red-luan-heartbeat.test.ts"
+    },
+    {
+      "source_id": "S-DITIANSUI-WUSHEN-QUOTES",
+      "author": "通吉堂（搜狐）、渊海拾遗（豆瓣）、至真斋主（新浪部落格）轉引任鐵樵《滴天髓闡微》",
+      "locator": "https://www.sohu.com/a/378934761_120284699 ；https://www.douban.com/note/861821332/ ；https://blog.sina.com.cn/s/blog_4ef9125501019ip5.html",
+      "data_type": "五神定義的轉引：喜神「輔格助用之神」、忌神「破格損用之神」，其餘為閒神",
+      "kind": "網路轉引",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "待查核",
+      "accessed_at": "2026-09-21",
+      "edition": "轉引句未對照《滴天髓闡微》原刊本（待查核）",
+      "trust": "D"
+    },
+    {
+      "source_id": "S-TEST-BAZI-FIVE-GODS",
+      "author": "本站",
+      "locator": "tests/soul-match.test.ts",
+      "data_type": "五神守門：五個五行各不相同、喜神不剋用神、身弱用印喜比劫、身旺不取印比；配對頁最需要補＝八字頁用神",
+      "kind": "工程證據",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "本站自有",
+      "accessed_at": "2026-09-21",
+      "edition": "npm run test:soul-match（2026-09-21 PASS，掃描 1950～2010 共 127 張命盤）",
+      "trust": "A",
+      "tracked_path": "tests/soul-match.test.ts"
     }
   ],
   "claims": [
@@ -476,6 +509,37 @@
       "conflicts": [],
       "status": "PENDING_POOL",
       "note": "月份規則有古籍出處標註但版本未核對；外型與職業對應是本站詮釋，沒有古籍條文，只能標為參考。"
+    },
+    {
+      "claim_id": "C-BAZI-FIVE-GODS",
+      "title": "五神（用神、喜神、忌神、仇神、閒神）的取法",
+      "domain": "八字知識",
+      "files": [
+        "lib/bazi-engine.ts"
+      ],
+      "authority_files": [
+        "S-DITIANSUI"
+      ],
+      "big_data_sources": [],
+      "cross_references": [
+        "S-DITIANSUI",
+        "S-DITIANSUI-WUSHEN-QUOTES",
+        "S-ZIPING-ZHENQUAN",
+        "S-TEST-BAZI-FIVE-GODS"
+      ],
+      "conflicts": [
+        {
+          "topic": "身弱用印時，喜神取比劫還是取生印的官殺",
+          "sources": [
+            "S-DITIANSUI-WUSHEN-QUOTES"
+          ],
+          "difference": "「輔格助用」可讀成「生用神」（官殺生印）或「與用神同幫日主」（比劫）；各家取法不一",
+          "adopted": "身弱取比劫為喜神（坊間通行「身弱喜印比」）；五神必定五個不同，喜神不得剋用神",
+          "reason": "舊版把剋用神的五行標成喜神，同一五行同時是喜神與仇神，任何取法都不成立"
+        }
+      ],
+      "note": "2026-09-21 修正：舊版喜神取「數量最少的五行」，身弱時常剛好剋用神（例：1990-05-20 亥時，喜神、仇神都是土）。定義出處只見網路轉引，原刊本待查核，所以只列為傳統取法參考。",
+      "status": "CONFLICT"
     }
   ]
 }

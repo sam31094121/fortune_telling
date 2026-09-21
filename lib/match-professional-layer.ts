@@ -242,6 +242,7 @@ export function buildSoulMatchAiInterpretationLayer(layer: SoulMatchProfessional
   const firstAxis = findAxis(layer, focusAxes[0]);
   const secondAxis = findAxis(layer, focusAxes[1]);
   const thirdAxis = findAxis(layer, focusAxes[2]);
+  const samePattern = people.length === 2 && people[0].primaryPattern === people[1].primaryPattern;
   const evidenceChain = [
     layer.pairOverview,
     layer.relationshipStory.opening,
@@ -257,7 +258,9 @@ export function buildSoulMatchAiInterpretationLayer(layer: SoulMatchProfessional
     pairTitle: layer.pairTitle,
     focusAxes,
     userReadableSummary: 'AI \u8b80\u53d6\u7b2c\u4e00\u5c64\u5f8c\u5224\u5b9a\uff1a' + layer.pairTitle + '\u7684\u95dc\u4fc2\u4e0d\u662f\u53ea\u770b\u7e3d\u5206\uff0c\u800c\u662f\u8981\u5148\u8655\u7406\u3010' + firstAxis.title + '\u3011\uff0c\u518d\u5e36\u52d5\u3010' + secondAxis.title + '\u3011\u8207\u3010' + thirdAxis.title + '\u3011\u3002',
-    relationshipPositioning: layer.relationshipStory.opening + '\u9019\u4ee3\u8868\u95dc\u4fc2\u7684\u4e3b\u8ef8\u662f\u300c\u5169\u500b\u5e95\u8272\u4e0d\u540c\u7684\u4eba\u5982\u4f55\u5728\u540c\u4e00\u500b\u65e5\u5e38\u88e1\u5c0d\u9f4a\u300d\u3002',
+    relationshipPositioning: layer.relationshipStory.opening + (samePattern
+      ? '這代表關係的主軸是「兩個底色相近的人，怎麼不把同一個盲點一起放大」。'
+      : '這代表關係的主軸是「兩個底色不同的人，怎麼在同一個日常裡對齊」。'),
     emotionalPattern: layer.relationshipStory.resonanceStory + '\u9019\u662f\u95dc\u4fc2\u53ef\u4ee5\u7e7c\u7e8c\u52a0\u6df1\u7684\u60c5\u611f\u6839\u57fa\u3002',
     communicationPattern: '\u6e9d\u901a\u9700\u8981\u5148\u56de\u5230\u300c\u78ba\u8a8d\u300d\u800c\u4e0d\u662f\u300c\u8aaa\u670d\u300d\u3002\u7576\u96d9\u65b9\u80fd\u5148\u78ba\u8a8d\u611f\u53d7\u8207\u4e8b\u5be6\uff0c\u95dc\u4fc2\u6bd4\u8f03\u5bb9\u6613\u56de\u5230\u53ef\u4ee5\u4fee\u5fa9\u7684\u72c0\u614b\u3002',
     riskTranslation: layer.relationshipStory.frictionStory + '\u58d3\u529b\u9ede\u4e0d\u662f\u7d50\u8ad6\uff0c\u800c\u662f\u95dc\u4fc2\u9700\u8981\u5b78\u6703\u7684\u4fee\u5fa9\u6280\u8853\u3002',
@@ -270,7 +273,7 @@ export function buildSoulMatchAiInterpretationLayer(layer: SoulMatchProfessional
       },
       {
         title: '\u96d9\u65b9\u5e95\u8272',
-        reading: people.map((person) => person.name + '\u662f' + person.primaryPattern).join('\uff1b') + '\u3002\u9019\u4efd\u5dee\u7570\u662f\u4e92\u88dc\u7d20\u6750\uff0c\u4e5f\u662f\u9700\u8981\u88ab\u7ffb\u8b6f\u7684\u65e5\u5e38\u8a9e\u8a00\u3002',
+        reading: people.map((person) => person.name + '\u662f' + person.primaryPattern).join('\uff1b') + (samePattern ? '。底色相近，默契來得快；也要留意兩人同時忽略同一件事。' : '。這份差異是互補素材，也是需要被翻譯的日常語言。'),
         evidence: people.map((person) => person.storySeed),
       },
       {

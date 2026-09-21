@@ -445,29 +445,73 @@ function buildStructurePattern(pillars: BaziPillars, distribution: BaziTenGodDis
   };
 }
 
+/**
+ * 五神：用神、喜神、忌神、仇神、閒神——五個一定是五個不同的五行。
+ *
+ * 定義依任鐵樵《滴天髓闡微》：喜神是「輔格助用之神」、忌神是「破格損用之神」，其餘為閒神；
+ * 仇神取坊間通行說法「生助忌神之神」。用神依扶抑：
+ *   身弱：用印（生扶日主）、喜比劫；忌神取食傷財官中最重的，仇神取生它的五行。
+ *   身旺：用食傷財官中最缺的、喜神取生用神者（不取印比）；忌、仇為印與比劫（重者為忌）。
+ *   中和：用最缺的五行，喜＝生用神、忌＝剋用神、仇＝生忌神、閒＝用神所生。
+ *
+ * 2026-09-21 修正：舊版喜神直接取「數量最少的五行」，身弱時常常剛好是剋用神的那一個，
+ * 於是同一個五行同時被標成喜神與仇神（例：乙木日主用水，喜神、仇神都是土）——
+ * 喜神應該幫用神，不能剋用神。守門：tests/soul-match.test.ts〈五神〉。
+ */
 function chooseGods(counts: Record<TraditionalElement, number>, strength: string, dayElement: TraditionalElement): BaziGodSet {
-  const lowToHigh = [...ELEMENTS].sort((a, b) => counts[a] - counts[b]);
-  const highToLow = [...ELEMENTS].sort((a, b) => counts[b] - counts[a]);
-  const low = lowToHigh[0];
-  const high = highToLow[0];
-  const useful = strength === '偏弱' ? (ELEMENTS.find((element) => GENERATES[element] === dayElement) ?? dayElement) : low;
-  const neutral = lowToHigh.find((element) => element !== useful && element !== low && element !== high) ?? dayElement;
-  const enemy = ELEMENTS.find((element) => CONTROLS[element] === useful) ?? high;
+  const generatorOf = (target: TraditionalElement) => ELEMENTS.find((element) => GENERATES[element] === target) as TraditionalElement;
+  const controllerOf = (target: TraditionalElement) => ELEMENTS.find((element) => CONTROLS[element] === target) as TraditionalElement;
+  // 同數量時依金木水火土的固定順序，同樣資料每次結果都一樣。
+  const lightToHeavy = (list: readonly TraditionalElement[]) => [...list].sort((a, b) => counts[a] - counts[b] || ELEMENTS.indexOf(a) - ELEMENTS.indexOf(b));
+  const seal = generatorOf(dayElement);
+  const support: TraditionalElement[] = [seal, dayElement];
+  const drain: TraditionalElement[] = [GENERATES[dayElement], CONTROLS[dayElement], controllerOf(dayElement)];
+  let useful: TraditionalElement;
+  let joy: TraditionalElement;
+  let avoid: TraditionalElement;
+  let enemy: TraditionalElement;
+
+  if (strength === '偏弱') {
+    useful = seal;
+    joy = dayElement;
+    const [, middle, heaviest] = lightToHeavy(drain);
+    avoid = heaviest;
+    // 忌神是食傷時，生它的是比劫（喜神），仇神改取另外兩者中較重的。
+    enemy = drain.includes(generatorOf(avoid)) ? generatorOf(avoid) : middle;
+  } else if (strength === '偏旺') {
+    useful = lightToHeavy(drain)[0];
+    // 用神是食傷時，生它的是比劫（身旺不取），喜神改取用神所生的財星。
+    joy = drain.includes(generatorOf(useful)) ? generatorOf(useful) : GENERATES[useful];
+    [enemy, avoid] = lightToHeavy(support);
+  } else {
+    useful = lightToHeavy(ELEMENTS)[0];
+    joy = generatorOf(useful);
+    avoid = controllerOf(useful);
+    enemy = generatorOf(avoid);
+  }
+  const neutral = ELEMENTS.find((element) => ![useful, joy, avoid, enemy].includes(element)) as TraditionalElement;
+
   return {
-    joyGod: low,
+    joyGod: joy,
     usefulGod: useful,
-    avoidGod: high,
+    avoidGod: avoid,
     neutralGod: neutral,
     enemyGod: enemy,
-    reason: '八字引擎依四柱、藏干、十神與日主旺衰判斷：用神為' + useful + '，喜神為' + low + '，忌神為' + high + '，仇神為' + enemy + '，閒神為' + neutral + '。',
+    reason: '八字引擎依四柱、藏干、十神與日主旺衰判斷：用神為' + useful + '，喜神為' + joy + '，忌神為' + avoid + '，仇神為' + enemy + '，閒神為' + neutral + '。',
   };
 }
+
+/** 忌神、仇神不是補強對象：補強分數上限（低於 50 的「不列入補強」區）。 */
+const NOT_A_REINFORCEMENT_TARGET_CEILING = 40;
 
 function buildElementPriority(chart: BaziProfessionalChart): BaziElementPriority[] {
   const percentages = chart.elementStatistics.percentages;
   const maxPercent = Math.max(...ELEMENTS.map((element) => percentages[element]), 1);
   const lowToHigh = [...ELEMENTS].sort((a, b) => percentages[a] - percentages[b]);
   const ordered = Array.from(new Set([chart.gods.usefulGod, chart.gods.joyGod, chart.gods.neutralGod, ...lowToHigh]));
+  // 補強分數必須跟補強先後同向（排後面的不會比排前面的高）；忌神、仇神不是補強對象，最高 40。
+  // 舊版只看「越少越高」，數量少的仇神會拿到 85，配對頁兩人平均時把仇神排到另一人的用神前面。
+  let ceiling = 100;
   return ordered.map((element, index) => {
     const display = ELEMENT_DISPLAY[element];
     const count = chart.elementCounts[element];
@@ -475,7 +519,9 @@ function buildElementPriority(chart: BaziProfessionalChart): BaziElementPriority
     const godBonus = element === chart.gods.usefulGod ? 28 : element === chart.gods.joyGod ? 18 : element === chart.gods.neutralGod ? 8 : 0;
     const avoidPenalty = element === chart.gods.avoidGod ? 14 : element === chart.gods.enemyGod ? 8 : 0;
     const rootNeed = chart.strengthAnalysis.verdict === '偏弱' && (element === chart.gods.usefulGod || element === chart.dayMaster.element) ? 12 : 0;
-    const needScore = clampScore(100 - (percent / maxPercent) * 54 + godBonus + rootNeed - avoidPenalty);
+    const notATarget = element === chart.gods.avoidGod || element === chart.gods.enemyGod;
+    const needScore = Math.min(clampScore(100 - (percent / maxPercent) * 54 + godBonus + rootNeed - avoidPenalty), notATarget ? NOT_A_REINFORCEMENT_TARGET_CEILING : 100, ceiling);
+    ceiling = needScore;
     const judgementLevel = index === 0 ? 'primary' : index === 1 ? 'secondary' : 'supporting';
     const professionalBasis = [
       '第一層五行比例：' + element + '佔 ' + percent + '%，原始權重 ' + count + '。',

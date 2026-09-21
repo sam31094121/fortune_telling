@@ -58,8 +58,8 @@ type BaziMatchFoundation = {
   // 這個欄位先給一個暫定值（見 buildBaziMatchFoundation），主流程算完 fiveElementMatch
   // 後會立刻覆蓋成同一份真實資料算出的結果，確保跟五元素引擎不會各說各話。
   sharedElement: MatchFiveElementKey;
-  personA: { dayMaster: string; primaryReinforcement: string; beastCard: BaziBeastCard; needScores: Record<MatchFiveElementKey, number> };
-  personB: { dayMaster: string; primaryReinforcement: string; beastCard: BaziBeastCard; needScores: Record<MatchFiveElementKey, number> };
+  personA: { dayMaster: string; primaryReinforcement: string; beastCard: BaziBeastCard; needScores: Record<MatchFiveElementKey, number>; needPriority: MatchFiveElementKey[] };
+  personB: { dayMaster: string; primaryReinforcement: string; beastCard: BaziBeastCard; needScores: Record<MatchFiveElementKey, number>; needPriority: MatchFiveElementKey[] };
 };
 
 type BaziMatchFoundationBuild = {
@@ -93,6 +93,11 @@ function elementPriorityToNeedScores(elementPriority: ReturnType<typeof analyzeB
     scores[BAZI_BRAND_TO_MATCH[item.brandElement]] = item.needScore;
   }
   return scores;
+}
+
+/** 補強先後照八字引擎的順序（用神 → 喜神 → …），配對頁「最需要補」才會跟八字頁同一個答案。 */
+function elementPriorityToOrder(elementPriority: ReturnType<typeof analyzeBazi>['aiDeepAnalysis']['elementPriority']): MatchFiveElementKey[] {
+  return elementPriority.map((item) => BAZI_BRAND_TO_MATCH[item.brandElement]);
 }
 
 const MATCH_ENHANCEMENT_SCHEMA = {
@@ -265,6 +270,7 @@ function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): B
       dayMaster: `${chartA.dayMaster.stem}${chartA.dayMaster.element}`,
       primaryReinforcement: firstA.displayName,
       needScores: needScoresA,
+      needPriority: elementPriorityToOrder(chartA.aiDeepAnalysis.elementPriority),
       beastCard: {
         name: beastA.beast.name,
         image: beastA.beast.image,
@@ -279,6 +285,7 @@ function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): B
       dayMaster: `${chartB.dayMaster.stem}${chartB.dayMaster.element}`,
       primaryReinforcement: firstB.displayName,
       needScores: needScoresB,
+      needPriority: elementPriorityToOrder(chartB.aiDeepAnalysis.elementPriority),
       beastCard: {
         name: beastB.beast.name,
         image: beastB.beast.image,
@@ -356,7 +363,8 @@ function buildGhostTeacherReading(
     : result.communication < 65
       ? '未回應的話正在結界裡留下回音'
       : '回音尚未失控，但結界仍在等待第一個人伸手';
-  const thread = result.zones.conflict[0] || result.zones.grinding[0] || '把真正的感受說清楚';
+  // 外層用「」，句子裡原本的「」改成『』，不會變成「…「…」…」。
+  const thread = (result.zones.conflict[0] || result.zones.grinding[0] || '把真正的感受說清楚').replace(/「/g, '『').replace(/」/g, '』');
 
   return {
     displayName: '鬼魅老師',
@@ -575,8 +583,8 @@ export async function POST(request: Request) {
     // 算完立刻把 sharedElement 寫回 baziFoundation，讓下面的 易經提示詞跟五元素引擎、
     // 前端寶珠三方看到的是同一個判定結果，不會各說各話。
     const fiveElementMatch = buildMatchFiveElementResult(
-      { name: body.personA.name, needScores: baziFoundation.personA.needScores },
-      { name: body.personB.name, needScores: baziFoundation.personB.needScores },
+      { name: body.personA.name, needScores: baziFoundation.personA.needScores, priority: baziFoundation.personA.needPriority },
+      { name: body.personB.name, needScores: baziFoundation.personB.needScores, priority: baziFoundation.personB.needPriority },
     );
     baziFoundation.sharedElement = fiveElementMatch.sharedElement;
     const enhanced = await enhanceMatchResultWithAI(result, displayA, displayB, baziFoundation);

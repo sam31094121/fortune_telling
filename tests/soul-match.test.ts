@@ -8,6 +8,14 @@
  *    → 後端每一句輸出都不得越過證據（MATCH_OVERCLAIM_PATTERN）。
  * 3. 前端自己編結論：格局名、鬼魅四幕、最弱指標。
  *    → 劇情由 lib/match-story-engine.ts 組句，頁面只照印；頁面不得再出現那些函式與寫死的生剋圈。
+ *
+ * 2026-09-21 複審追加：
+ * 4. 五神自相矛盾：八字引擎把喜神取成「數量最少的五行」，身弱時剛好剋用神，同一個五行同時是喜神與仇神
+ *    （1990-05-20 亥時：喜神土、仇神土）。配對頁又在分數同為 100 時照元素固定順序挑「最需要補」，
+ *    把陳大明的仇神「火」排到用神「金」前面——同一個人，八字頁說補金、配對頁說補火。
+ *    → 五神依《滴天髓闡微》定義（喜神輔用、忌神損用），五個必定不同；配對頁「最需要補」＝八字頁的用神。
+ * 5. 同一頁互相否定：「互補優勢：整體特質相近」對上「兩個底色不同的人」；「需要磨合：沒有磨合點」對上「注意衝突」。
+ * 6. 紅鸞證據句是術語（「流年支午命中日支酉三合局沐浴位」），客戶看不懂。
  */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -16,6 +24,9 @@ import { buildMatchFiveElementResult, type MatchFiveElementKey, type MatchFiveEl
 import { buildMatchStory, type MatchStoryScores } from '../lib/match-story-engine';
 import { buildStableSummary, hasMatchOverclaim, isConsistentAiSummary } from '../lib/match-stability';
 import { buildMatchThreeCoreView, type MatchThreeCoreInput } from '../lib/match-three-core-view';
+import { analyzeBazi } from '../lib/bazi-engine';
+import { computeCompatibility, type PersonalityMatrixCompat } from '../lib/compatibility-engine';
+import { buildBaziLovePersonSignal } from '../lib/red-luan-heartbeat-engine';
 
 let passed = 0;
 const check = (name: string, fn: () => void) => {
@@ -165,7 +176,7 @@ check('兩人各自的三核心：① 八字 → ② 紫微 → ③ 易經；沒
     noHourMethod: { layers: [{ layer: '紫微', reason: '命宮由月支與時支共同定位，缺時支就定不了命宮。', available: false }] },
   };
   // 這兩句是來源閘門 coreCredibility() 的實際輸出格式；後者是免責定位，不是冒充卜卦判定
-  const checks = ['起卦法（梅花易數生辰／報數起卦）與先天卦數對照：各家來源說法不一，僅作傳統參考', '易經卜卦的心理學定位：自我反思的文化工具，不是已驗證的診斷或預測：仍在查證中，僅作自我反思參考'];
+  const checks = ['起卦法（梅花易數生辰／報數起卦）與先天卦數對照：各家來源說法不一，僅作傳統參考', '易經卜卦的心理學定位（自我反思的文化工具，不是已驗證的診斷或預測）：仍在查證中，僅作自我反思參考'];
   const view = buildMatchThreeCoreView({ nameA: '林佩君', nameB: '陳大明', personA: passed, personB: unknown, sourceChecks: checks });
   assertCustomerCopy('threeCore', { ...view, version: 'match_five_element_v2' });
   for (const person of view.people) assert.deepEqual(person.steps.map((step) => step.title), ['八字命盤', '紫微斗數命盤', '易經卦象'], '三核心順序不可顛倒');
@@ -178,6 +189,9 @@ check('兩人各自的三核心：① 八字 → ② 紫微 → ③ 易經；沒
   assert.ok(b.steps[0].value.includes('時柱不推定'));
   assert.deepEqual(view.sourceChecks, checks, '查證狀態照來源閘門傳入，不在這裡改寫');
   assert.ok(view.pairNote.includes('不把兩個卦硬合成一個結論'));
+  assert.ok(view.pairNote.startsWith('這次只有林佩君起了卦'), `只有一人起卦時照實說（${view.pairNote}）`);
+  const none = buildMatchThreeCoreView({ nameA: '林佩君', nameB: '陳大明', personA: unknown, personB: unknown, sourceChecks: checks });
+  assert.ok(none.pairNote.startsWith('兩人這次都沒有起卦') && !none.pairNote.includes('兩個卦是各自'), `兩人都沒時辰時不得說「兩個卦是各自依生辰起的」（${none.pairNote}）`);
   const knowledge = fs.readFileSync('data/iching-hexagrams.json', 'utf8');
   assert.ok(!hasMatchOverclaim(knowledge), '卦義知識庫會原文顯示，不得有保證、注定之類的字');
 });
@@ -205,6 +219,102 @@ check('配對 API：劇情與分數依據由後端送出；AI 提示詞不逼它
   assert.ok(route.includes('aiInterpretationLayer.emotionalPattern') && route.includes('teacherFromGoogle ? finalSummary'), '老師規則版段落要改用專業層說明');
   const templates = fs.readFileSync('lib/compatibility-engine.ts', 'utf8');
   for (const word of ['靈魂容易共鳴', '依附需求相近，關係安全感強', '矩陣分析']) assert.ok(!templates.includes(word), `compatibility-engine 仍有「${word}」`);
+});
+
+const TRAD_GENERATES: Record<string, string> = { 木: '火', 火: '土', 土: '金', 金: '水', 水: '木' };
+const TRAD_CONTROLS: Record<string, string> = { 木: '土', 土: '水', 水: '火', 火: '金', 金: '木' };
+const chartOf = (birthDate: string, hour: string) => analyzeBazi({ name: '測試', birthDate, birthTime: '12:00', birthTimeKnown: true, timeUnknown: false, traditionalHour: hour, gender: 'female', country: 'TW', city: 'Taipei' });
+
+check('五神：五個五行各不相同，喜神不剋用神；身弱用印喜比劫、身旺不取印比（《滴天髓闡微》喜神輔用、忌神損用）', () => {
+  const hours = ['子', '卯', '午', '酉', '亥'];
+  let charts = 0;
+  const seenVerdicts = new Set<string>();
+  for (let day = 0; day < 365 * 60; day += 173) {
+    const date = new Date(Date.UTC(1950, 0, 1) + day * 86400000).toISOString().slice(0, 10);
+    const chart = chartOf(date, hours[day % hours.length]).professionalChart;
+    const { usefulGod, joyGod, avoidGod, enemyGod, neutralGod } = chart.gods;
+    const dayElement = chart.dayMaster.element;
+    const label = `${date}（${chart.strengthAnalysis.verdict}）`;
+    seenVerdicts.add(chart.strengthAnalysis.verdict);
+    assert.equal(new Set([usefulGod, joyGod, avoidGod, enemyGod, neutralGod]).size, 5, `${label} 五神有重複：${JSON.stringify(chart.gods)}`);
+    assert.notEqual(TRAD_CONTROLS[joyGod], usefulGod, `${label} 喜神${joyGod}剋用神${usefulGod}`);
+    assert.ok(chart.gods.reason.includes(`喜神為${joyGod}`) && chart.gods.reason.includes(`仇神為${enemyGod}`), `${label} 說明句要跟欄位一致`);
+    const seal = Object.keys(TRAD_GENERATES).find((element) => TRAD_GENERATES[element] === dayElement);
+    if (chart.strengthAnalysis.verdict === '偏弱') {
+      assert.equal(usefulGod, seal, `${label} 身弱要用印`);
+      assert.equal(joyGod, dayElement, `${label} 身弱喜比劫`);
+    }
+    if (chart.strengthAnalysis.verdict === '偏旺') {
+      assert.ok(![seal, dayElement].includes(usefulGod) && ![seal, dayElement].includes(joyGod), `${label} 身旺不得用印比`);
+      assert.ok([seal, dayElement].includes(avoidGod), `${label} 身旺忌印比`);
+    }
+    // 補強分數跟補強先後同向；忌神、仇神不是補強對象（上限 40），不得排到用神、喜神前面
+    const priority = chartOf(date, hours[day % hours.length]).aiDeepAnalysis.elementPriority;
+    assert.deepEqual(priority.slice(0, 3).map((item) => item.element), [usefulGod, joyGod, neutralGod], `${label} 補強先後要是用神、喜神、閒神`);
+    for (let i = 1; i < priority.length; i += 1) assert.ok(priority[i].needScore <= priority[i - 1].needScore, `${label} 補強分數不得後高於前：${priority.map((item) => item.element + item.needScore).join(' ')}`);
+    for (const item of priority) if (item.element === avoidGod || item.element === enemyGod) assert.ok(item.needScore <= 40, `${label} 忌神／仇神${item.element}補強分數 ${item.needScore} 超過 40`);
+    charts += 1;
+  }
+  assert.ok(charts > 100 && seenVerdicts.size >= 2, `掃描的命盤要夠多、旺衰要不只一種（${charts} 張、${[...seenVerdicts].join('／')}）`);
+  // 複審實例：兩人原本都是「喜神＝仇神」
+  const lin = chartOf('1990-05-20', '亥').professionalChart.gods;
+  assert.deepEqual([lin.usefulGod, lin.joyGod, lin.avoidGod, lin.enemyGod, lin.neutralGod], ['水', '木', '金', '土', '火']);
+  const chen = chartOf('1988-11-03', '辰').professionalChart.gods;
+  assert.deepEqual([chen.usefulGod, chen.joyGod, chen.avoidGod, chen.enemyGod, chen.neutralGod], ['金', '水', '土', '火', '木']);
+});
+
+check('配對頁「最需要補」＝八字頁的用神、「其次」＝喜神；同分不再照元素固定順序亂挑', () => {
+  const toMatch: Record<string, MatchFiveElementKey> = { SPACE: 'space', AIR: 'air', WATER: 'water', FIRE: 'fire', EARTH: 'earth' };
+  const inputOf = (name: string, date: string, hour: string) => {
+    const priority = chartOf(date, hour).aiDeepAnalysis.elementPriority;
+    const needScores = {} as Record<MatchFiveElementKey, number>;
+    for (const item of priority) needScores[toMatch[item.brandElement]] = item.needScore;
+    return { name, needScores, priority: priority.map((item) => toMatch[item.brandElement]) };
+  };
+  const lin = inputOf('林佩君', '1990-05-20', '亥');
+  const chen = inputOf('陳大明', '1988-11-03', '辰');
+  assert.equal(chen.needScores.space, chen.needScores.water, '實例前提：陳大明的金（用神）、水（喜神）需求同為 100——照元素固定順序會先挑到水');
+  const result = buildMatchFiveElementResult(lin, chen);
+  assert.deepEqual([result.personA.primaryElement, result.personA.secondaryElement], ['water', 'air'], '林佩君：用神水、喜神木');
+  assert.deepEqual([result.personB.primaryElement, result.personB.secondaryElement], ['space', 'water'], '陳大明：用神金、喜神水（不是仇神火）');
+  assert.equal(result.sharedElement, 'water', '水是林佩君的用神、陳大明的喜神；金是林佩君的忌神，不能當共同先補');
+  const reason = result.orbit.ranking.length ? JSON.stringify(result) : '';
+  assert.ok(!reason.includes('需求分數較高'), '兩人分數一樣時不得說「需求分數較高」');
+  // 沒給順序（舊呼叫端）仍照分數排
+  const fallback = buildMatchFiveElementResult({ name: '甲', needScores: needsWithPrimary('fire', 1) }, { name: '乙', needScores: needsWithPrimary('fire', 2) });
+  assert.equal(fallback.personA.primaryElement, 'fire');
+  assert.ok(route.includes('priority: baziFoundation.personA.needPriority') && route.includes('priority: baziFoundation.personB.needPriority'), 'route 要把八字引擎的補強先後傳進配對引擎');
+});
+
+check('同一頁不互相否定：沒找到互補不說「特質相近」；有衝突提醒時不說「沒有磨合點」', () => {
+  const base: PersonalityMatrixCompat = { emotion: 60, logic: 60, social: 60, leadership: 80, security: 60, creativity: 60, risk: 60, attachment: 60 };
+  const result = computeCompatibility({ name: '甲', matrix: base }, { name: '乙', matrix: { ...base, leadership: 82 } });
+  assert.ok(result.zones.conflict.some((item) => item.includes('主導欲都強')), '前提：兩人主導欲都強，衝突區有提醒');
+  assert.ok(!result.zones.grinding.some((item) => item.includes('沒有找到明顯的磨合點')), '衝突區有提醒時，磨合區不得說沒有磨合點');
+  assert.ok(result.zones.complement.every((item) => !item.includes('整體特質相近')), '沒找到互補不代表特質相近');
+  const layer = fs.readFileSync('lib/match-professional-layer.ts', 'utf8');
+  assert.ok(layer.includes('samePattern'), '「兩個底色不同的人」要看兩人底色是否真的不同');
+});
+
+check('紅鸞證據句說人話：不出現「流年支」「命中」「沐浴位」', () => {
+  const signal = buildBaziLovePersonSignal({
+    yearBranch: '午', dayBranch: '酉', hourKnown: true, annualYear: 2026,
+    presentBranches: [{ pillar: '年', branch: '午' }, { pillar: '月', branch: '巳' }, { pillar: '日', branch: '酉' }, { pillar: '時', branch: '亥' }],
+  });
+  const lines = [...signal.annualTriggers, ...signal.natalEvidence].map((item) => item.evidence);
+  assert.ok(signal.annualTriggers.length > 0 && signal.natalEvidence.length > 0, '實例前提：林佩君 2026 有桃花訊號、命盤有紅鸞');
+  for (const line of lines) assert.ok(!/流年支|命中|沐浴|三合局/.test(line), `證據句仍是術語：${line}`);
+  assert.ok(signal.annualTriggers.some((item) => item.evidence.startsWith('2026 是午年')), '要先說今年是什麼年');
+  for (const word of ['兩人最缺', '流年支 {', '年度關係主題觸發', '命盤現位']) assert.ok(!page.includes(word), `app/match/page.tsx 仍有「${word}」`);
+});
+
+check('第一屏看得到分數依據；本站格局名不冒充古籍卦名；匯出報告兩位老師都印', () => {
+  const glance = page.slice(page.indexOf('aria-label="一眼看懂"'), page.indexOf('<MatchTeacherReadings'));
+  assert.ok(glance.includes('{data.scoreBasis}'), '一眼看懂要照印後端的分數依據，不能只放一個 89');
+  assert.ok(page.includes('print:block') && page.includes('匯出報告時兩位老師都印出來'), '列印時未點選的老師也要印出來');
+  const view = fs.readFileSync('lib/match-three-core-view.ts', 'utf8');
+  assert.ok(view.includes('是本站替這一卦取的名字，不是古籍卦名'), '格局名要標明是本站取的');
+  assert.ok(view.includes("'三方四正沒有形成傳統上有名稱的格局。'"), '紫微兜底名稱不得當成格局名顯示');
 });
 
 console.log(`soul match — PASS ${passed}`);

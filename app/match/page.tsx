@@ -283,6 +283,14 @@ function MatchTeacherReadings({ data }: { data: MatchResponse }) {
           <p className={`mt-3 border-t pt-3 text-sm font-semibold leading-6 ${showingGhost ? 'border-rose-200/15 font-serif text-rose-100/85' : 'border-cyan-200/15 text-cyan-100/85'}`}>{showingGhost ? story?.ghostDetail : formalDetail}</p>
         )}
       </article>
+      {/* 匯出報告時兩位老師都印出來；畫面上只顯示目前點選的那一位。 */}
+      {ghostReading && (
+        <article className="mt-3 hidden rounded-[22px] border border-white/15 p-4 print:block">
+          <p className="text-xs font-black tracking-[0.16em]">{showingGhost ? teacherName : '鬼魅老師'}</p>
+          <p className="mt-2 text-sm font-black leading-7">{showingGhost ? formalReading : ghostReading}</p>
+          {(showingGhost ? formalDetail : story?.ghostDetail) && <p className="mt-2 text-sm font-semibold leading-6">{showingGhost ? formalDetail : story?.ghostDetail}</p>}
+        </article>
+      )}
       <p className={`mt-3 text-center text-xs font-black leading-6 ${showingGhost ? 'text-rose-100/85' : 'text-cyan-100/85'}`}>
         {SHOW_SHARED_ELEMENT_PEARL
           ? showingGhost
@@ -715,7 +723,7 @@ function RedLuanHeartbeatPanel({ result, personAName, personBName }: { result?: 
       </article>
       <details className="mt-5 rounded-2xl border border-white/10 bg-black/15 p-4" open>
         <summary className="cursor-pointer list-none text-base font-black text-amber-100">查看八字年度關係訊號 <span className="ml-2 text-xs text-rose-100/80">點選可收起</span></summary>
-        <div className="mt-4 grid gap-3 lg:grid-cols-2">{people.map(({ name, bazi }) => <article key={name} className="rounded-2xl border border-rose-100/12 bg-white/[0.04] p-4"><p className="font-black text-rose-100">{name}</p><p className="mt-1 text-xs font-semibold text-white/80">{bazi.inputCompleteness}・流年支 {bazi.annualBranch}</p><p className="mt-3 text-sm font-black text-amber-100">年度關係主題觸發</p>{bazi.annualTriggers.length ? <ul className="mt-2 space-y-1.5 text-sm leading-6 text-rose-50/85">{bazi.annualTriggers.map((item) => <li key={`${item.label}-${item.evidence}`}>• {item.label}：{item.evidence}</li>)}</ul> : <p className="mt-2 text-sm leading-6 text-white/80">今年未命中這組固定關係訊號；不代表感情沒有可能或沒有價值。</p>}{bazi.natalEvidence.length > 0 && <p className="mt-3 text-xs leading-6 text-white/80">命盤現位：{bazi.natalEvidence.map((item) => `${item.label}（${item.evidence}）`).join('；')}</p>}</article>)}</div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">{people.map(({ name, bazi }) => <article key={name} className="rounded-2xl border border-rose-100/12 bg-white/[0.04] p-4"><p className="font-black text-rose-100">{name}</p><p className="mt-1 text-xs font-semibold text-white/80">{bazi.inputCompleteness}・{bazi.annualYear} 是{bazi.annualBranch}年</p><p className="mt-3 text-sm font-black text-amber-100">今年碰到的關係訊號</p>{bazi.annualTriggers.length ? <ul className="mt-2 space-y-1.5 text-sm leading-6 text-rose-50/85">{bazi.annualTriggers.map((item) => <li key={`${item.label}-${item.evidence}`}>• {item.label}：{item.evidence}</li>)}</ul> : <p className="mt-2 text-sm leading-6 text-white/80">今年沒有碰到這組規則的關係訊號；不代表感情沒有可能或沒有價值。</p>}{bazi.natalEvidence.length > 0 && <><p className="mt-3 text-xs font-black text-amber-100">命盤裡本來就有</p><ul className="mt-1 space-y-1 text-xs leading-6 text-white/80">{bazi.natalEvidence.map((item) => <li key={`${item.label}-${item.evidence}`}>• {item.label}：{item.evidence}</li>)}</ul></>}</article>)}</div>
         <p className="mt-4 text-xs leading-6 text-white/80">依據：{result.bazi.personA.sources.map((item) => `${item.title}（${item.reference}）`).join('；')}</p>
       </details>
       <details className="mt-3 rounded-2xl border border-violet-100/12 bg-violet-950/20 p-4">
@@ -890,8 +898,9 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
 
         <div className="grid grid-cols-3 gap-2 lg:grid-cols-1">
           <div className="rounded-2xl border border-cyan-200/25 bg-cyan-300/10 px-3 py-3 text-center">
-            <p className="text-xs font-black text-cyan-100">兩人最缺</p>
-            <p className="mt-1 whitespace-nowrap font-serif text-lg font-black leading-tight text-cyan-50 sm:text-2xl">{result.relationPair}</p>
+            <p className="text-xs font-black text-cyan-100">各自最缺</p>
+            <p className="mt-1 whitespace-nowrap font-serif text-2xl font-black leading-none text-cyan-50">{elementGuide[result.personA.primaryElement].short}・{elementGuide[result.personB.primaryElement].short}</p>
+            <p className="mt-1 whitespace-nowrap text-xs font-bold text-cyan-100">{result.relationPair}</p>
           </div>
           <div className="rounded-2xl border border-amber-200/30 bg-amber-300/12 px-3 py-3 text-center">
             <p className="text-xs font-black text-amber-100">共同先補</p>
@@ -984,6 +993,8 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
                     width: `${size}px`,
                     height: `${size}px`,
                     transform: 'translate(-50%, -50%)',
+                    // 星球底下壓一層深色，生剋線穿過時數字與字不會被線切到（手機實測「66」壓在虛線上）。
+                    backgroundImage: 'linear-gradient(rgba(2,6,23,0.74), rgba(2,6,23,0.74))',
                     boxShadow: isSelected || isShared ? `0 0 ${isSelected ? 38 : 24}px ${style.halo}` : undefined,
                   }}
                 >
@@ -1582,13 +1593,15 @@ export default function MatchPage() {
                     <p className="mt-1 font-serif text-3xl font-black leading-none text-amber-50">{data.fiveElementMatch.elementGuide[data.fiveElementMatch.sharedElement].short}</p>
                   </div>
                   <div className="rounded-2xl border border-cyan-200/25 bg-cyan-300/10 px-2 py-3">
-                    <p className="text-xs font-black text-cyan-100">兩人最缺</p>
-                    <p className="mt-1 whitespace-nowrap font-serif text-lg font-black leading-tight text-cyan-50 sm:text-2xl">{data.fiveElementMatch.relationPair}</p>
+                    <p className="text-xs font-black text-cyan-100">各自最缺</p>
+                    <p className="mt-1 whitespace-nowrap font-serif text-2xl font-black leading-tight text-cyan-50">{data.fiveElementMatch.elementGuide[data.fiveElementMatch.personA.primaryElement].short}・{data.fiveElementMatch.elementGuide[data.fiveElementMatch.personB.primaryElement].short}</p>
+                    <p className="mt-1 whitespace-nowrap text-xs font-bold text-cyan-100">{data.fiveElementMatch.relationPair}</p>
                   </div>
                 </div>
                 <p className="mt-4 text-xs font-black tracking-[0.12em] text-amber-100">{data.story.closingAction.title}</p>
                 <p className="mt-1 text-base font-black leading-7 text-[color:var(--text-main)]">{data.story.closingAction.copy}</p>
-                <p className="mt-3 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">分數依據、兩人的三核心命盤與卦、兩位老師的解讀，都在下面。</p>
+                {data.scoreBasis && <p className="mt-3 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">{data.scoreBasis}</p>}
+                <p className="mt-2 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">兩人的三核心命盤與卦、兩位老師的解讀，都在下面。</p>
               </section>
             )}
             <MatchTeacherReadings data={data} />

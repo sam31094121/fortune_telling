@@ -1624,7 +1624,7 @@
     },
     {
       "claim_id": "C-ICHING-DIVINATION-FRAMING",
-      "title": "易經卜卦的心理學定位：自我反思的文化工具，不是已驗證的診斷或預測",
+      "title": "易經卜卦的心理學定位（自我反思的文化工具，不是已驗證的診斷或預測）",
       "domain": "易經洋蔥心理學",
       "files": [
         "lib/iching-psychology.ts",

@@ -58,6 +58,8 @@ export type MatchFiveElementPersonResult = {
   secondaryElement: MatchFiveElementKey;
   elementScores: Record<MatchFiveElementKey, number>;
   needScores: Record<MatchFiveElementKey, number>;
+  /** 補強先後：八字引擎 elementPriority 的順序（用神 → 喜神 → 閒神 → 其餘由少到多），跟八字頁同一份。 */
+  needOrder: MatchFiveElementKey[];
   reason: string;
   changeTarget: string;
 };
@@ -123,6 +125,9 @@ export type MatchFiveElementResult = {
 export type MatchElementNeedInput = {
   name: string;
   needScores: Record<MatchFiveElementKey, number>;
+  /** 八字引擎 elementPriority 的順序（用神第一、喜神第二）。有給就以它決定「最需要補／其次」，
+   * 不再只比分數——分數同為 100 時，舊版照元素固定順序挑，會把喜神甚至仇神排到用神前面。 */
+  priority?: MatchFiveElementKey[];
 };
 
 const ELEMENTS: MatchFiveElementKey[] = ['earth', 'water', 'fire', 'air', 'space'];
@@ -222,8 +227,13 @@ function clamp(value: number) {
   return Math.max(0, Math.min(100, Math.round(value)));
 }
 
-function rank(scores: Record<MatchFiveElementKey, number>) {
-  return [...ELEMENTS].sort((a, b) => scores[b] - scores[a]);
+/** 分數高的在前；同分時依 tieBreak（數字小的在前），再依元素固定順序，同樣資料每次結果都一樣。 */
+function rank(scores: Record<MatchFiveElementKey, number>, tieBreak?: Record<MatchFiveElementKey, number>) {
+  return [...ELEMENTS].sort((a, b) => scores[b] - scores[a] || (tieBreak ? tieBreak[a] - tieBreak[b] : 0));
+}
+
+function isFullOrder(order: MatchFiveElementKey[] | undefined): order is MatchFiveElementKey[] {
+  return Array.isArray(order) && order.length === ELEMENTS.length && ELEMENTS.every((element) => order.includes(element));
 }
 
 function buildPersonResult(person: MatchElementNeedInput): MatchFiveElementPersonResult {
@@ -237,9 +247,9 @@ function buildPersonResult(person: MatchElementNeedInput): MatchFiveElementPerso
     return acc;
   }, {} as Record<MatchFiveElementKey, number>);
 
-  const needRank = rank(needScores);
-  const primaryElement = needRank[0];
-  const secondaryElement = needRank[1];
+  const needOrder = isFullOrder(person.priority) ? [...person.priority] : rank(needScores);
+  const primaryElement = needOrder[0];
+  const secondaryElement = needOrder[1];
   const name = person.name.trim() || '使用者';
 
   return {
@@ -248,6 +258,7 @@ function buildPersonResult(person: MatchElementNeedInput): MatchFiveElementPerso
     secondaryElement,
     elementScores,
     needScores,
+    needOrder,
     reason: `依${name}的八字五行強弱與用神喜神計算：目前最需要補${ELEMENT_LABEL[primaryElement]}，其次是${ELEMENT_LABEL[secondaryElement]}。`,
     changeTarget: `補的時候，可以先從${CHANGE_TARGET[primaryElement]}開始。`,
   };
@@ -278,13 +289,24 @@ function getSharedElement(personA: MatchFiveElementPersonResult, personB: MatchF
   if (personA.primaryElement === personB.primaryElement) return personA.primaryElement;
   const mode = getRelationMode(personA.primaryElement, personB.primaryElement);
   if (mode === 'generating') {
-    return personA.needScores[personA.primaryElement] >= personB.needScores[personB.primaryElement]
-      ? personA.primaryElement
-      : personB.primaryElement;
+    const needA = personA.needScores[personA.primaryElement];
+    const needB = personB.needScores[personB.primaryElement];
+    if (needA !== needB) return needA > needB ? personA.primaryElement : personB.primaryElement;
+    // 同分：看兩人補強先後加起來誰在前（例：水是一人的用神、另一人的喜神，就比只在一人前面的元素優先）。
+    const order = combinedOrder(personA, personB);
+    return order[personB.primaryElement] < order[personA.primaryElement] ? personB.primaryElement : personA.primaryElement;
   }
   // 相剋／制衡都改用兩人真實需求分數加總最高者；相剋不再寫死固定答案，
   // 而是從兩人各自的真實八字需求裡，找出兩人共同都缺得最多的那一個。
-  return rank(combinedNeed(personA, personB))[0];
+  return rank(combinedNeed(personA, personB), combinedOrder(personA, personB))[0];
+}
+
+/** 兩人補強先後名次相加（越小越優先），給加總同分時決定先後。 */
+function combinedOrder(personA: MatchFiveElementPersonResult, personB: MatchFiveElementPersonResult) {
+  return ELEMENTS.reduce((acc, element) => {
+    acc[element] = personA.needOrder.indexOf(element) + personB.needOrder.indexOf(element);
+    return acc;
+  }, {} as Record<MatchFiveElementKey, number>);
 }
 
 function getSharedReason(personA: MatchFiveElementPersonResult, personB: MatchFiveElementPersonResult, sharedElement: MatchFiveElementKey) {
@@ -292,15 +314,21 @@ function getSharedReason(personA: MatchFiveElementPersonResult, personB: MatchFi
   if (personA.primaryElement === personB.primaryElement) return `兩人最需要補的都是${label}，所以一起先補${label}。`;
   if (getRelationMode(personA.primaryElement, personB.primaryElement) === 'generating') {
     const owner = sharedElement === personA.primaryElement ? personA : personB;
-    return `兩人最需要補的元素相生（${getRelationPair(personA.primaryElement, personB.primaryElement)}），先補需求分數較高的${label}（${owner.name} ${owner.needScores[sharedElement]}）。`;
+    const other = owner === personA ? personB : personA;
+    const pair = getRelationPair(personA.primaryElement, personB.primaryElement);
+    if (owner.needScores[sharedElement] !== other.needScores[other.primaryElement]) {
+      return `兩人最需要補的元素相生（${pair}），先補需求分數較高的${label}（${owner.name} ${owner.needScores[sharedElement]}）。`;
+    }
+    return `兩人最需要補的元素相生（${pair}），需求分數一樣高；${label}在${owner.name}排第 1、在${other.name}排第 ${other.needOrder.indexOf(sharedElement) + 1}，兩人加起來最前面，所以先一起補${label}。`;
   }
   return `兩人最需要補的元素相剋，所以改看兩人補強需求加總：最高的是${label}。`;
 }
 
 function buildRanking(personA: MatchFiveElementPersonResult, personB: MatchFiveElementPersonResult, sharedElement: MatchFiveElementKey) {
   const combined = combinedNeed(personA, personB);
+  const order = combinedOrder(personA, personB);
   return [...ELEMENTS]
-    .sort((a, b) => combined[b] - combined[a] || Number(b === sharedElement) - Number(a === sharedElement))
+    .sort((a, b) => combined[b] - combined[a] || Number(b === sharedElement) - Number(a === sharedElement) || order[a] - order[b])
     .map((element) => ({ element, averageNeed: Math.round(combined[element] / 2) }));
 }
 

@@ -166,8 +166,12 @@ function buildZones(a: PersonalityMatrixCompat, b: PersonalityMatrixCompat): Mat
 
   // 確保每區至少有預設文字
   if (resonance.length  === 0) resonance.push( '兩人個性差異明顯，但差異也是成長的起點');
-  if (complement.length === 0) complement.push('整體特質相近，彼此不太需要「補位」，方向感一致');
-  if (grinding.length   === 0) grinding.push(  '這組規則沒有找到明顯的磨合點；日常仍要把話說清楚');
+  // 沒找到互補點不代表兩人相近（差距也可能大到超出互補區），只能如實說規則沒找到。
+  if (complement.length === 0) complement.push('這組規則沒有找到明顯的分工互補；兩人各自要補的方向，看下方五元素補強');
+  // 衝突區已經有提醒時，那就是這組配對最需要磨合的地方，不能同時說「沒有磨合點」。
+  if (grinding.length   === 0) grinding.push(conflict.length > 0
+    ? '主要的磨合點就是下方「注意衝突」那一項；其他面向這組規則沒有找到明顯落差'
+    : '這組規則沒有找到明顯的磨合點；日常仍要把話說清楚');
   if (conflict.length   === 0) conflict.push(  '這組規則沒有找到高衝突提醒，維持日常溝通即可');
 
   return { resonance, complement, grinding, conflict };

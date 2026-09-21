@@ -83,15 +83,15 @@ function personView(name: string, input: MatchThreeCoreInput): MatchThreeCorePer
     const ming = input.result.ziwei.analysis.palaces.find((palace) => palace.name === '命宮');
     const mingStars = ming?.majorStarDetails.length
       ? ming.majorStarDetails.map((star) => (star.brightness ? `${star.name}（${star.brightness}）` : star.name)).join('、')
-      : '無十四主星';
+      : '無十四主星（空宮）';
     const { reading, patternName } = input.result.yijing;
     return {
       name,
       hourKnown: true,
       steps: [
         { order: 1, title: '八字命盤', value: `${bazi.year}・${bazi.month}・${bazi.day}・${bazi.hour}`, detail: '年、月、日、時四柱，和紫微命盤逐字核對一致。', available: true },
-        { order: 2, title: '紫微斗數命盤', value: `命宮在${ming?.branch ?? '—'}・${mingStars}`, detail: `三方四正格局：${input.result.ziwei.analysis.pattern.name}。`, available: true },
-        { order: 3, title: '易經卦象', value: patternName, detail: '四柱核對一致後，依生辰起卦；卦義與起卦依據在下方。', available: true },
+        { order: 2, title: '紫微斗數命盤', value: `命宮在${ming?.branch ?? '—'}・${mingStars}`, detail: ziweiPatternLine(input.result.ziwei.analysis.pattern.name), available: true },
+        { order: 3, title: '易經卦象', value: patternName, detail: `四柱核對一致後，依生辰起卦，起到${reading.hexagramName}；「${patternName}」是本站替這一卦取的名字，不是古籍卦名。卦義與起卦依據在下方。`, available: true },
       ],
       hexagram: {
         glyph: reading.glyph,
@@ -120,6 +120,23 @@ function personView(name: string, input: MatchThreeCoreInput): MatchThreeCorePer
   };
 }
 
+/** 紫微引擎沒對上任何有名稱的格局時，回的是「命財官遷綜合格局」——那是兜底名稱，不是傳統格局，照實說。 */
+const ZIWEI_FALLBACK_PATTERN = '命財官遷綜合格局';
+function ziweiPatternLine(name: string) {
+  return name === ZIWEI_FALLBACK_PATTERN ? '三方四正沒有形成傳統上有名稱的格局。' : `三方四正格局：${name}。`;
+}
+
+/** 依實際起了幾個卦照實說；兩人都沒時辰時，不能寫「兩個卦是各自依生辰起的」。 */
+function pairNoteFor(people: MatchThreeCorePerson[]) {
+  const cast = people.filter((person) => person.hexagram);
+  const lead = cast.length === 2
+    ? '兩個卦是各自依自己的生辰起的。'
+    : cast.length === 1
+      ? `這次只有${cast[0].name}起了卦；另一位補上出生時辰後，才會依自己的生辰起卦。`
+      : '兩人這次都沒有起卦；補上出生時辰後，才會各自依生辰起卦。';
+  return `${lead}雙人合卦目前沒有能查證出處的起卦規則，所以不把兩個卦硬合成一個結論；卦是給自己看的一面鏡子，不是對這段關係的預測。`;
+}
+
 export function buildMatchThreeCoreView(input: {
   nameA: string;
   nameB: string;
@@ -127,11 +144,12 @@ export function buildMatchThreeCoreView(input: {
   personB: MatchThreeCoreInput;
   sourceChecks: string[];
 }): MatchThreeCoreView {
+  const people: [MatchThreeCorePerson, MatchThreeCorePerson] = [personView(input.nameA, input.personA), personView(input.nameB, input.personB)];
   return {
     version: 'match_three_core_v1',
     orderNote: '依《易經》口令的順序：① 八字命盤 → ② 紫微斗數命盤 → ③ 易經卦象。四柱逐字一致才往下起卦。',
-    people: [personView(input.nameA, input.personA), personView(input.nameB, input.personB)],
-    pairNote: '兩個卦是各自依自己的生辰起的。雙人合卦目前沒有能查證出處的起卦規則，所以不把兩個卦硬合成一個結論；卦是給自己看的一面鏡子，不是對這段關係的預測。',
+    people,
+    pairNote: pairNoteFor(people),
     sourceChecks: input.sourceChecks,
   };
 }

@@ -1296,10 +1296,10 @@ export function buildBaziLovePersonSignal(input: {
   }
   const annualBranch = annualBranchOf(input.annualYear);
   const targets: Array<{ label: RedLuanEvidence['label']; branch: Branch; scope: string }> = [
-    { label: '紅鸞', branch: redLuanBranchOf(input.yearBranch), scope: `年支${input.yearBranch}` },
-    { label: '天喜', branch: tianXiBranchOf(input.yearBranch), scope: `年支${input.yearBranch}` },
-    { label: '桃花', branch: PEACH_BY_TRINE_BRANCH[input.yearBranch], scope: `年支${input.yearBranch}三合局沐浴位` },
-    { label: '桃花', branch: PEACH_BY_TRINE_BRANCH[input.dayBranch], scope: `日支${input.dayBranch}三合局沐浴位` },
+    { label: '紅鸞', branch: redLuanBranchOf(input.yearBranch), scope: `依出生年的地支${input.yearBranch}推出的紅鸞位（${redLuanBranchOf(input.yearBranch)}）` },
+    { label: '天喜', branch: tianXiBranchOf(input.yearBranch), scope: `依出生年的地支${input.yearBranch}推出的天喜位（${tianXiBranchOf(input.yearBranch)}）` },
+    { label: '桃花', branch: PEACH_BY_TRINE_BRANCH[input.yearBranch], scope: `依出生年的地支${input.yearBranch}推出的桃花位（${PEACH_BY_TRINE_BRANCH[input.yearBranch]}）` },
+    { label: '桃花', branch: PEACH_BY_TRINE_BRANCH[input.dayBranch], scope: `依出生日的地支${input.dayBranch}推出的桃花位（${PEACH_BY_TRINE_BRANCH[input.dayBranch]}）` },
   ];
 
   const seen = new Set<string>();
@@ -1313,11 +1313,11 @@ export function buildBaziLovePersonSignal(input: {
   const natalEvidence = normalizedTargets.flatMap((target) =>
     availablePillars
       .filter((item) => item.branch === target.branch)
-      .map((item) => ({ ...branchEvidence(target.label, target.branch, target.scope), evidence: `${target.scope}；${item.pillar}支${item.branch}` })),
+      .map((item) => ({ ...branchEvidence(target.label, target.branch, target.scope), evidence: `${target.scope}；命盤的${item.pillar}支正好是${item.branch}` })),
   );
   const annualTriggers = normalizedTargets
     .filter((target) => target.branch === annualBranch)
-    .map((target) => ({ ...branchEvidence(target.label, target.branch, target.scope), evidence: `${input.annualYear}流年支${annualBranch}命中${target.scope}` }));
+    .map((target) => ({ ...branchEvidence(target.label, target.branch, target.scope), evidence: `${input.annualYear} 是${annualBranch}年，正好落在${target.scope}` }));
 
   return {
     status: 'READY',
@@ -1329,7 +1329,7 @@ export function buildBaziLovePersonSignal(input: {
     annualTriggers,
     sources: [
       { title: '《星學大成》〈論紅鸞天喜〉', reference: '紅鸞子年加卯逆數；天喜子年加酉逆數。' },
-      { title: '本站八字神煞規則（基礎神煞規則集・第 1 版）', reference: '桃花取年支、日支三合局的沐浴位（咸池）。' },
+      { title: '本站八字神煞規則・第 1 版', reference: '桃花位由出生年、出生日的地支推出，傳統稱「咸池」，取三合局的沐浴位。' },
     ],
     limitations: [
       '此為傳統文化的關係主題訊號，不保證戀愛、婚嫁、真愛或任何事件。',
