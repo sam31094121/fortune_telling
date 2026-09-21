@@ -5,6 +5,9 @@ import { Canvas, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import TesseractModel from './TesseractModel';
 import MultiverseField from './MultiverseField';
+import CellFaceInspector from './CellFaceInspector';
+import TaijiModel from './models/taiji/TaijiModel';
+import { geometryFacts } from './multiverseMath';
 import { PROJECTION } from './projectionMath';
 import styles from './LatticeInterior.module.css';
 
@@ -51,19 +54,33 @@ function Scene({ zoom, multiverse }: { zoom: MutableRefObject<((factor: number) 
       canvas.removeEventListener('wheel', wheel); window.removeEventListener('blur', clear);
     };
   }, [camera, gl, invalidate, zoom]);
-  return <><color attach="background" args={[PROJECTION.background]} /><group ref={group}><TesseractModel />{multiverse ? <MultiverseField /> : null}</group></>;
+  return <><color attach="background" args={[PROJECTION.background]} /><ambientLight intensity={1} /><directionalLight position={[3, 4, 5]} intensity={2} /><group ref={group}><group scale={1 / PROJECTION.taijiScale}><TaijiModel wireframe={false} layers={{ ghost: false, yin1: false, yang2: false }} /></group>{multiverse ? <MultiverseField /> : null}</group></>;
 }
+
+const FACTS = geometryFacts();
+const round = (value: number) => Math.round(value * 1000) / 1000;
 
 export default function TesseractInterior({ onExit }: { onExit: () => void }) {
   const zoom = useRef<((factor: number) => void) | null>(null);
   const [multiverse, setMultiverse] = useState(false);
+  const [inspect, setInspect] = useState(false);
   useEffect(() => { const escape = (e: KeyboardEvent) => { if (e.key === 'Escape') onExit(); }; window.addEventListener('keydown', escape); return () => window.removeEventListener('keydown', escape); }, [onExit]);
+  if (inspect) return <CellFaceInspector onExit={() => setInspect(false)} />;
   return <section className={styles.interior} aria-label="太極內外立方連接投影">
     <Canvas frameloop="demand" dpr={[1, 1.5]} camera={{ fov: 40, near: .01, far: 100 }} gl={{ antialias: true }}><Scene zoom={zoom} multiverse={multiverse} /></Canvas>
     <header className={styles.header}><div><strong>太極 · 內外立方連接</strong><span>拖動旋轉 · 滾輪或雙指推進</span></div><button onClick={onExit}>返回太極</button></header>
     <div className={styles.controls}>
+      <button onClick={() => setInspect(true)}>同一單元六面檢查</button>{' '}
       <button onClick={() => zoom.current?.(.8)}>推進</button>{' '}<button onClick={() => zoom.current?.(1.25)}>後退</button>{' '}<button aria-pressed={multiverse} onClick={() => setMultiverse(on => !on)}>{multiverse ? '只看一個單元' : '四角形多重宇宙（1:1 貼面）'}</button>
-      <details className={styles.facts}><summary>幾何說明</summary><small>16 頂點、32 邊、8 個立方單元；四維裡的 24 個面都是正方形。原四維邊長相等；三維投影後的連接面不一定是正方形。開「四角形多重宇宙」是把同一個單元往六個方向 1:1 面貼面鋪開：外立方投影後邊長 2、間距也是 2，相鄰兩個單元剛好共用一整面的四條邊，不留縫也不重疊——那是視覺上的無盡感，不是數學上的四維空間填充。</small></details>
+      <details className={styles.facts}><summary>四維與三維・精算對照</summary>
+        <table className={styles.facts}><tbody>
+          <tr><th>三維立方</th><td>{FACTS.cube.vertices} 個角・{FACTS.cube.edges} 條線・{FACTS.cube.squareFaces} 個正方形面</td></tr>
+          <tr><th>四維超立方</th><td>{FACTS.tesseract.vertices} 個角・{FACTS.tesseract.edges} 條線・{FACTS.tesseract.squareFaces} 個正方形面・{FACTS.tesseract.cells} 個立方單元</td></tr>
+          <tr><th>投影換算</th><td>scale = {PROJECTION.numerator} ÷ ({PROJECTION.distance4D} − w)：外立方邊長 {round(FACTS.projected.outerEdge)}、內立方 {round(FACTS.projected.innerEdge)}、連接邊 {round(FACTS.projected.bridge)}</td></tr>
+          <tr><th>貼住太極</th><td>放進太極後每格 {round(FACTS.taiji.cell)}、線寬 {FACTS.taiji.line}，與方形內壁 1:1，八個角落在內壁格點上</td></tr>
+        </tbody></table>
+        <small>數字都是從真的頂點與邊數算出來的（守門：npm run test:model-lab-multiverse）。四維邊長本來相等，投影到三維後連接邊會被壓短，所以連接面不一定是正方形；重複鋪排是視覺上的無盡感，不是數學上的四維空間填充。</small>
+      </details>
     </div>
   </section>;
 }

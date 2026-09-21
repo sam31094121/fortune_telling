@@ -33,8 +33,7 @@ import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
 import { getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
 import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '@/lib/red-luan-public-access';
 
-/* 全站停用中的死碼元件（見 TaijiStandaloneCard.tsx 內註解）：改成動態載入，
-   避免它與依賴的 UnifiedTaijiCore（約 1,300 行 TSX + CSS module）進入首屏 bundle。 */
+/* 立體太極卡片：動態載入 UnifiedTaijiCore（2026-09-20 健康檢查已恢復渲染）。 */
 const TaijiStandaloneCard = dynamic(() => import('@/components/TaijiStandaloneCard'), { ssr: false });
 
 interface PersonInput {

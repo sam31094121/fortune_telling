@@ -7,6 +7,7 @@ import type { LabModelProps } from '../registry';
 import TesseractModel from '../../TesseractModel';
 import TaijiTesseractField from '../../TaijiTesseractField';
 import { PROJECTION } from '../../projectionMath';
+import { INSCRIBED_HALF } from '../../taijiCells';
 import { createContactRibs } from './contactRibs';
 import {
   arcDotGeometry,
@@ -21,11 +22,14 @@ import {
   type DiscId,
   type PieceId,
 } from './geometry';
+import { assertTwelveEdges, buildInfiniteHollowSquareSegments } from './infiniteHollowSquares';
 
 export const TAIJI_LAYERS = [
-  { id: 'squareCavity', name: '內外立方連接投影', defaultOn: true },
-  { id: 'cellField', name: '每一格都是四維格子（貼住內壁）', defaultOn: false },
-  { id: 'cellCube', name: '一顆四角形空間（內接正立方・八角貼球面）', defaultOn: false },
+  { id: 'twelveHollowSquares', name: '十二線・往內無限四方形', defaultOn: true },
+  { id: 'squareCavity', name: '內圍厚度・四角空腔', defaultOn: true },
+  { id: 'cellField', name: '每一格一顆四維單元（七格網）', defaultOn: false },
+  { id: 'cellCube', name: '一顆四角空間（內接正立方）', defaultOn: true },
+  { id: 'coreUnit', name: '核心四維單元（含內核，易顯十字）', defaultOn: false },
   { id: 'ghost', name: '粉紅線框球', defaultOn: false },
   { id: 'seam', name: '金色接縫', defaultOn: true },
   { id: 'rim', name: '外圈大圓', defaultOn: true },
@@ -50,6 +54,26 @@ const DOT_LAYER: Record<DiscId, string> = { '+y': 'dotWhite', '+z': 'dotBlack', 
 type GeoMap = Record<DiscId, THREE.BufferGeometry>;
 const byDisc = (make: (d: DiscId) => THREE.BufferGeometry) =>
   Object.fromEntries((['+y', '-y', '+z', '-z'] as DiscId[]).map((d) => [d, make(d)])) as GeoMap;
+
+
+/** 內接正立方外框：外圍太極是球會騙眼；內圍厚度剛好是這顆四角形空間。 */
+function InscribedSquareOutline() {
+  const h = INSCRIBED_HALF;
+  const edges: Array<[[number, number, number], [number, number, number]]> = [];
+  const signs = [-1, 1] as const;
+  for (const a of signs) for (const b of signs) {
+    edges.push([[-h, a * h, b * h], [h, a * h, b * h]]);
+    edges.push([[a * h, -h, b * h], [a * h, h, b * h]]);
+    edges.push([[a * h, b * h, -h], [a * h, b * h, h]]);
+  }
+  return (
+    <group name="inscribed-square-outline">
+      {edges.map(([p, q], i) => (
+        <Line key={i} points={[p, q]} color="#f5d76e" lineWidth={2.2} transparent opacity={0.92} depthWrite={false} />
+      ))}
+    </group>
+  );
+}
 
 export default function TaijiModel({ wireframe, layers }: LabModelProps) {
   const geo = useMemo(
@@ -102,17 +126,23 @@ export default function TaijiModel({ wireframe, layers }: LabModelProps) {
     [geo, mat],
   );
 
+  const hollowSegs = useMemo(() => {
+    assertTwelveEdges();
+    return buildInfiniteHollowSquareSegments();
+  }, []);
+
   const on = (id: string) => layers[id] !== false;
 
   return (
     <group>
       {on('squareCavity') && on('flatStyle') && on('black') && on('white') && on('yin2') && on('yang1') ? <>
-        <TesseractModel scale={PROJECTION.taijiScale} />
-        {on('cellField') ? <TaijiTesseractField /> : null}
-        {on('cellCube') ? <TaijiTesseractField mode="inscribed" /> : null}
+        <InscribedSquareOutline />
+        {on('cellCube') ? <TaijiTesseractField mode="inscribed" opacity={1} /> : null}
+        {on('coreUnit') ? <TesseractModel scale={PROJECTION.taijiScale} /> : null}
+        {on('cellField') ? <TaijiTesseractField opacity={0.72} /> : null}
         {contacts.map(rib => <group key={rib.edge.join('-')}>
-          <mesh geometry={rib.geometry}><meshStandardMaterial color="#426d79" transparent opacity={.08} roughness={.7} side={THREE.DoubleSide} depthWrite={false} /></mesh>
-          <mesh geometry={rib.pad}><meshStandardMaterial color="#20323a" roughness={.8} side={THREE.DoubleSide} /></mesh>
+          <mesh geometry={rib.geometry}><meshStandardMaterial color="#426d79" transparent opacity={.04} roughness={.7} side={THREE.DoubleSide} depthWrite={false} /></mesh>
+          {null}
         </group>)}
       </> : null}
       {PIECE_IDS.map((id) => {
@@ -149,6 +179,9 @@ export default function TaijiModel({ wireframe, layers }: LabModelProps) {
         </>
       ) : null}
 
+            {on('twelveHollowSquares') ? hollowSegs.map((seg, i) => (
+        <Line key={`hollow-${seg.dir}-${seg.kind}-${seg.edgeId}-${seg.nest}-${i}`} points={[seg.a, seg.b]} color={seg.kind === 'core' ? '#6ef0ff' : seg.dir === 'face' ? '#ffe6a0' : seg.dir === 'in' ? '#ffd06b' : seg.dir === 'out' ? '#ff9f4388' : '#c891fa'} lineWidth={seg.kind === 'core' ? 2.8 : seg.dir === 'face' ? Math.max(0.8, 1.8 - seg.nest * 0.12) : seg.dir === 'in' ? Math.max(1.0, 2.2 - seg.nest * 0.12) : 1.0} transparent opacity={seg.dir === 'out' ? 0.28 : seg.kind === 'spin' ? 0.3 : seg.dir === 'face' ? Math.max(0.35, 0.9 - seg.nest * 0.07) : Math.max(0.4, 0.95 - seg.nest * 0.06)} depthWrite={false} />
+      )) : null}
       {on('seam') ? <Line points={geo.seam} color={GOLD} lineWidth={2.5} /> : null}
       {on('rim') ? <Line points={geo.rim} color={GOLD} lineWidth={2.5} /> : null}
     </group>

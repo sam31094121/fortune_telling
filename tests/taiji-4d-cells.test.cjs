@@ -117,7 +117,8 @@ for (const [id] of faceMap) {
 const EXACT = 1e-12;
 const exact = (a, b, message) => assert.ok(Math.abs(a - b) < EXACT, `${message}：${a} != ${b}（差 ${Math.abs(a - b)}）`);
 const inscribed = inscribedUnitRods();
-assert.equal(inscribed.length, 32, '一顆也是完整的 32 條線');
+assert.equal(inscribed.length, 12, 'inner square default: 12 outer edges only');
+assert.equal(inscribedUnitRods({ includeInner: true }).length, 32, 'full 32 when includeInner');
 const inscribedOuter = inscribed.filter((rod) => rod.kind === 'outer');
 assert.equal(inscribedOuter.length, 12, '外立方 12 條線');
 exact(INSCRIBED_EDGE, 2 / Math.sqrt(3), '內接正立方邊長 = 2/√3');

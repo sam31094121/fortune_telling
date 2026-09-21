@@ -27,14 +27,64 @@ export const INSCRIBED_HALF = 1 / Math.sqrt(3);
 export const INSCRIBED_EDGE = 2 * INSCRIBED_HALF;
 export const INSCRIBED_SCALE = INSCRIBED_EDGE / CELL_SPACING;
 
-/** 一顆：四維單元放大到內接正立方，八角貼在球面上。 */
-export function inscribedUnitRods(): Rod[] {
-  return cellRods().map((rod) => ({
-    kind: rod.kind,
-    color: rod.color,
-    a: rod.a.map((v) => v * INSCRIBED_SCALE) as Point,
-    b: rod.b.map((v) => v * INSCRIBED_SCALE) as Point,
-  }));
+/**
+ * 一顆四角空間：只留外立方 12 邊（八角貼球面）。
+ * 內立方＋橋接會在核心畫出「標準十字」，業主定調很難看——預設不畫。
+ */
+export function inscribedUnitRods(options: { includeInner?: boolean } = {}): Rod[] {
+  const includeInner = options.includeInner === true;
+  return cellRods()
+    .filter((rod) => includeInner || rod.kind === 'outer')
+    .map((rod) => ({
+      kind: rod.kind,
+      color: rod.color,
+      a: rod.a.map((v) => v * INSCRIBED_SCALE) as Point,
+      b: rod.b.map((v) => v * INSCRIBED_SCALE) as Point,
+    }));
+}
+
+/**
+ * 空心太極的核心：把內接正立方切成 n×n×n 個小格，每一格放一個四維單元。
+ *
+ * 太極當成空心殼，殼把核心包起來；核心就是那顆內接正立方（八角貼在球面上）。
+ * 核心裡面全部是四角形：每一小格邊長 INSCRIBED_EDGE / n，面貼面、不留縫，
+ * 而且整個核心都在球內，所以殼一定包得住。
+ *
+ * 數量對答案（閉合公式，scripts/model-lab-4d-audit.mjs 會一路算到很大去驗）：
+ *   格 n³、頂點 (n+1)³、邊 3n(n+1)²、面 3n²(n+1)，且 V − E + F − C 恆等於 1。
+ */
+export function hollowCoreCellCenters(subdivisions: number): Point[] {
+  const n = Math.max(1, Math.floor(subdivisions));
+  const step = INSCRIBED_EDGE / n;
+  const start = -INSCRIBED_EDGE / 2 + step / 2;
+  const centers: Point[] = [];
+  for (let x = 0; x < n; x += 1) {
+    for (let y = 0; y < n; y += 1) {
+      for (let z = 0; z < n; z += 1) {
+        centers.push([start + x * step, start + y * step, start + z * step]);
+      }
+    }
+  }
+  return centers;
+}
+
+/** 核心裡的所有線：n³ 格 × 32 條，每格都是完整的四維單元。 */
+export function hollowCoreRods(subdivisions: number): Rod[] {
+  const n = Math.max(1, Math.floor(subdivisions));
+  const scale = INSCRIBED_SCALE / n;
+  const unit = cellRods();
+  const rods: Rod[] = [];
+  for (const center of hollowCoreCellCenters(n)) {
+    for (const rod of unit) {
+      rods.push({
+        kind: rod.kind,
+        color: rod.color,
+        a: rod.a.map((v, i) => v * scale + center[i]) as Point,
+        b: rod.b.map((v, i) => v * scale + center[i]) as Point,
+      });
+    }
+  }
+  return rods;
 }
 
 /** 球內完整格子的中心（世界座標）。 */

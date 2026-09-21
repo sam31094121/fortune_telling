@@ -1,0 +1,141 @@
+{
+  "checks": [
+    {
+      "name": "file:app/page.tsx",
+      "ok": true,
+      "detail": "227525B"
+    },
+    {
+      "name": "file:app/3D/page.tsx",
+      "ok": true,
+      "detail": "400B"
+    },
+    {
+      "name": "file:components/model-lab/ModelLabMount.tsx",
+      "ok": true,
+      "detail": "398B"
+    },
+    {
+      "name": "file:components/model-lab/ModelLab.tsx",
+      "ok": true,
+      "detail": "23212B"
+    },
+    {
+      "name": "file:components/model-lab/models/registry.tsx",
+      "ok": true,
+      "detail": "3730B"
+    },
+    {
+      "name": "file:components/model-lab/models/taiji/TaijiModel.tsx",
+      "ok": true,
+      "detail": "8958B"
+    },
+    {
+      "name": "file:components/model-lab/models/taiji/infiniteHollowSquares.ts",
+      "ok": true,
+      "detail": "6786B"
+    },
+    {
+      "name": "home:studio-title",
+      "ok": true,
+      "detail": "idx=144501"
+    },
+    {
+      "name": "home:card-href",
+      "ok": true,
+      "detail": "href=/3D"
+    },
+    {
+      "name": "home:feature-class",
+      "ok": true,
+      "detail": "home-feature-launch"
+    },
+    {
+      "name": "home:order-10",
+      "ok": true,
+      "detail": "order-10 class"
+    },
+    {
+      "name": "3D:imports-mount",
+      "ok": true,
+      "detail": "ModelLabMount import"
+    },
+    {
+      "name": "mount:renders-lab",
+      "ok": true,
+      "detail": "uses ModelLab"
+    },
+    {
+      "name": "registry:taiji",
+      "ok": true,
+      "detail": "taiji registered"
+    },
+    {
+      "name": "registry:taiji-id",
+      "ok": true,
+      "detail": "taiji"
+    },
+    {
+      "name": "taiji:hollow-layer",
+      "ok": true,
+      "detail": "hollow layer present"
+    },
+    {
+      "name": "taiji:layer-on-match",
+      "ok": true,
+      "detail": "layer id matches on()"
+    },
+    {
+      "name": "geo:in-depth",
+      "ok": true,
+      "detail": "IN_DEPTH=10"
+    },
+    {
+      "name": "geo:face-depth",
+      "ok": true,
+      "detail": "FACE_DEPTH=8"
+    },
+    {
+      "name": "http:home",
+      "ok": true,
+      "detail": "200 99ms len=64368"
+    },
+    {
+      "name": "http:3D",
+      "ok": true,
+      "detail": "200 62ms len=32949"
+    },
+    {
+      "name": "http:home-has-studio",
+      "ok": true,
+      "detail": "SSR/HTML contains title"
+    },
+    {
+      "name": "http:home-has-href",
+      "ok": true,
+      "detail": "HTML href /3D"
+    },
+    {
+      "name": "fix:page-written",
+      "ok": true,
+      "detail": "no page rewrite needed"
+    },
+    {
+      "name": "fix:3D-metadata",
+      "ok": true,
+      "detail": "title/description aligned"
+    }
+  ],
+  "fixes": [
+    "3D page metadata aligned to 立體太極模型工作室"
+  ],
+  "scores": {
+    "品質": 8.3,
+    "穩定": 8.2,
+    "服務": 8,
+    "fails": [],
+    "fixes": [
+      "3D page metadata aligned to 立體太極模型工作室"
+    ]
+  }
+}

@@ -35,7 +35,8 @@
     ".next-production/types/**/*.ts",
     ".next-review/types/**/*.ts",
     ".next/types/**/*.ts",
-    "next-env.d.ts"
+    "next-env.d.ts",
+    ".next-contact-ribs-check/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
