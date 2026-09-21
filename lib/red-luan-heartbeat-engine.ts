@@ -272,6 +272,8 @@ export type RedLuanEvidence = {
   id: 'red_luan' | 'tian_xi' | 'peach_blossom';
   label: '紅鸞' | '天喜' | '桃花';
   targetBranch: Branch;
+  /** 這條規則從哪個地支推出來（出生年或出生日的地支）；年度證據的「證據」欄用它，不從句子裡找字。 */
+  basisBranch: Branch;
   evidence: string;
 };
 
@@ -492,10 +494,10 @@ export function buildSingleRedLuanMonthlyRhythm(input: {
   const dayBranch = input.dayBranch;
 
   const targets: Array<{ id: RedLuanTimelineEvidence['id']; label: string; branch: Branch; scope: string; ruleId: string; source: string }> = [
-    { id: 'red_luan', label: '紅鸞', branch: redLuanBranchOf(yearBranch), scope: `年支${yearBranch}之紅鸞位`, ruleId: 'RED_LUAN_BY_YEAR_BRANCH_V1', source: '《星學大成》〈論紅鸞天喜〉' },
-    { id: 'tian_xi', label: '天喜', branch: tianXiBranchOf(yearBranch), scope: `年支${yearBranch}之天喜位`, ruleId: 'TIAN_XI_OPPOSITE_RED_LUAN_V1', source: '《星學大成》〈論紅鸞天喜〉' },
-    { id: 'peach_blossom', label: '桃花', branch: PEACH_BY_TRINE_BRANCH[yearBranch], scope: `年支${yearBranch}三合局沐浴位`, ruleId: 'TW_SHENSHA_BASIC_V1_TAOHUA', source: '專案既有八字神煞規則' },
-    { id: 'peach_blossom', label: '桃花', branch: PEACH_BY_TRINE_BRANCH[dayBranch], scope: `日支${dayBranch}三合局沐浴位`, ruleId: 'TW_SHENSHA_BASIC_V1_TAOHUA', source: '專案既有八字神煞規則' },
+    { id: 'red_luan', label: '紅鸞', branch: redLuanBranchOf(yearBranch), scope: plainScope('紅鸞', '年', yearBranch, redLuanBranchOf(yearBranch)), ruleId: 'RED_LUAN_BY_YEAR_BRANCH_V1', source: '《星學大成》〈論紅鸞天喜〉' },
+    { id: 'tian_xi', label: '天喜', branch: tianXiBranchOf(yearBranch), scope: plainScope('天喜', '年', yearBranch, tianXiBranchOf(yearBranch)), ruleId: 'TIAN_XI_OPPOSITE_RED_LUAN_V1', source: '《星學大成》〈論紅鸞天喜〉' },
+    { id: 'peach_blossom', label: '桃花', branch: PEACH_BY_TRINE_BRANCH[yearBranch], scope: plainScope('桃花', '年', yearBranch, PEACH_BY_TRINE_BRANCH[yearBranch]), ruleId: 'TW_SHENSHA_BASIC_V1_TAOHUA', source: '本站八字神煞規則' },
+    { id: 'peach_blossom', label: '桃花', branch: PEACH_BY_TRINE_BRANCH[dayBranch], scope: plainScope('桃花', '日', dayBranch, PEACH_BY_TRINE_BRANCH[dayBranch]), ruleId: 'TW_SHENSHA_BASIC_V1_TAOHUA', source: '本站八字神煞規則' },
   ];
   const seen = new Set<string>();
   const uniqueTargets = targets.filter((target) => {
@@ -516,7 +518,7 @@ export function buildSingleRedLuanMonthlyRhythm(input: {
         ruleId: target.ruleId,
         ruleVersion: RED_LUAN_HEARTBEAT_BAZI_VERSION,
         evidenceBranches: [target.branch, monthBranch],
-        evidence: `${period}流月支${monthBranch}命中${target.scope}`,
+        evidence: `${period}的月支是${monthBranch}，正好落在${target.scope}`,
         source: target.source,
       }, 'SOLAR_TERM_MONTH_BRANCH'));
 
@@ -527,8 +529,8 @@ export function buildSingleRedLuanMonthlyRhythm(input: {
         ruleId: 'TW_SHENSHA_BASIC_V1_TIANYI',
         ruleVersion: 'TW_SHENSHA_BASIC_V1',
         evidenceBranches: [input.dayMasterStem, monthBranch],
-        evidence: `${period}流月支${monthBranch}命中日干${input.dayMasterStem}之天乙貴人位${TIANYI_BY_DAY_STEM[input.dayMasterStem].join('/')}`,
-        source: '專案既有八字神煞規則',
+        evidence: `${period}的月支是${monthBranch}，正好是${plainTianyi(input.dayMasterStem)}`,
+        source: '本站八字神煞規則',
       }, 'SOLAR_TERM_MONTH_BRANCH'));
     }
     if (pairMatches(dayBranch, monthBranch, DAY_BRANCH_SIX_COMBINE)) {
@@ -538,8 +540,8 @@ export function buildSingleRedLuanMonthlyRhythm(input: {
         ruleId: 'DAY_BRANCH_SIX_COMBINE_V1',
         ruleVersion: 'TW_TRADITIONAL_BAZI_V1',
         evidenceBranches: [dayBranch, monthBranch],
-        evidence: `本命日支${dayBranch}與${period}流月支${monthBranch}構成六合`,
-        source: '專案既有干支作用規則',
+        evidence: `${period}的月支${monthBranch}，跟命盤的日支${dayBranch}相合（六合）`,
+        source: '本站干支作用規則',
       }, 'SOLAR_TERM_MONTH_BRANCH'));
     }
     if (pairMatches(dayBranch, monthBranch, DAY_BRANCH_SIX_CLASH)) {
@@ -549,8 +551,8 @@ export function buildSingleRedLuanMonthlyRhythm(input: {
         ruleId: 'DAY_BRANCH_SIX_CLASH_V1',
         ruleVersion: 'TW_TRADITIONAL_BAZI_V1',
         evidenceBranches: [dayBranch, monthBranch],
-        evidence: `本命日支${dayBranch}與${period}流月支${monthBranch}構成六沖`,
-        source: '專案既有干支作用規則',
+        evidence: `${period}的月支${monthBranch}，跟命盤的日支${dayBranch}相沖（六沖）`,
+        source: '本站干支作用規則',
       }, 'SOLAR_TERM_MONTH_BRANCH'));
     }
 
@@ -568,6 +570,15 @@ export function buildSingleRedLuanMonthlyRhythm(input: {
       limitation: '月份以節氣為界，非國曆一號起算；命中表示該月地支觸發規則，不保證發生特定事件。',
     };
   });
+}
+
+/** 客戶看得懂的推算說法：「依出生年的地支午推出的紅鸞位（酉）」。規則與出處不變，只換說法。 */
+function plainScope(label: string, pillar: '年' | '日', basis: string, target: string) {
+  return `依出生${pillar}的地支${basis}推出的${label}位（${target}）`;
+}
+
+function plainTianyi(stem: Stem) {
+  return `依出生日的天干${stem}推出的天乙貴人位（${TIANYI_BY_DAY_STEM[stem].join('、')}）`;
 }
 
 export function buildSingleRedLuanAnnualRhythm(input: {
@@ -599,7 +610,6 @@ export function buildSingleRedLuanAnnualRhythm(input: {
       annualYear: year,
     });
     const evidence: RedLuanTimelineEvidence[] = base.annualTriggers.map((item) => {
-      const basisBranch = item.evidence.includes('命中年支') ? yearBranch : dayBranch;
       return timelineEvidence({
         id: item.id,
         label: item.label,
@@ -609,9 +619,9 @@ export function buildSingleRedLuanAnnualRhythm(input: {
             ? 'TIAN_XI_OPPOSITE_RED_LUAN_V1'
             : 'TW_SHENSHA_BASIC_V1_TAOHUA',
         ruleVersion: RED_LUAN_HEARTBEAT_BAZI_VERSION,
-        evidenceBranches: [basisBranch, annualBranch],
+        evidenceBranches: [item.basisBranch, annualBranch],
         evidence: item.evidence,
-        source: item.id === 'peach_blossom' ? '專案既有八字神煞規則' : '《星學大成》〈論紅鸞天喜〉',
+        source: item.id === 'peach_blossom' ? '本站八字神煞規則' : '《星學大成》〈論紅鸞天喜〉',
       });
     });
 
@@ -622,8 +632,8 @@ export function buildSingleRedLuanAnnualRhythm(input: {
         ruleId: 'TW_SHENSHA_BASIC_V1_TIANYI',
         ruleVersion: 'TW_SHENSHA_BASIC_V1',
         evidenceBranches: [input.dayMasterStem, annualBranch],
-        evidence: `${year}流年支${annualBranch}命中日干${input.dayMasterStem}之天乙貴人位${TIANYI_BY_DAY_STEM[input.dayMasterStem].join('/')}`,
-        source: '專案既有八字神煞規則',
+        evidence: `${year} 是${annualBranch}年，正好是${plainTianyi(input.dayMasterStem)}`,
+        source: '本站八字神煞規則',
       }));
     }
     if (pairMatches(dayBranch, annualBranch, DAY_BRANCH_SIX_COMBINE)) {
@@ -633,8 +643,8 @@ export function buildSingleRedLuanAnnualRhythm(input: {
         ruleId: 'DAY_BRANCH_SIX_COMBINE_V1',
         ruleVersion: 'TW_TRADITIONAL_BAZI_V1',
         evidenceBranches: [dayBranch, annualBranch],
-        evidence: `本命日支${dayBranch}與${year}流年支${annualBranch}構成六合`,
-        source: '專案既有干支作用規則',
+        evidence: `${year} 是${annualBranch}年，跟命盤的日支${dayBranch}相合（六合）`,
+        source: '本站干支作用規則',
       }));
     }
     if (pairMatches(dayBranch, annualBranch, DAY_BRANCH_SIX_CLASH)) {
@@ -644,8 +654,8 @@ export function buildSingleRedLuanAnnualRhythm(input: {
         ruleId: 'DAY_BRANCH_SIX_CLASH_V1',
         ruleVersion: 'TW_TRADITIONAL_BAZI_V1',
         evidenceBranches: [dayBranch, annualBranch],
-        evidence: `本命日支${dayBranch}與${year}流年支${annualBranch}構成六沖`,
-        source: '專案既有干支作用規則',
+        evidence: `${year} 是${annualBranch}年，跟命盤的日支${dayBranch}相沖（六沖）`,
+        source: '本站干支作用規則',
       }));
     }
 
@@ -1111,15 +1121,15 @@ export function buildRedLuanAffinityProfile(input: {
   const partnerGender = input.partnerGender ?? 'any';
   const partnerLabel = redLuanPartnerLabel(partnerGender);
   const rows: RedLuanAffinityProfile['branches'] = [
-    { label: '紅鸞', branch: redLuanBranchOf(input.yearBranch), ruleId: 'RED_LUAN_BY_YEAR_BRANCH_V1', basis: `年支${input.yearBranch}起紅鸞` },
-    { label: '天喜', branch: tianXiBranchOf(input.yearBranch), ruleId: 'TIAN_XI_OPPOSITE_RED_LUAN_V1', basis: `年支${input.yearBranch}起天喜` },
-    { label: '桃花', branch: PEACH_BY_TRINE_BRANCH[input.yearBranch], ruleId: 'TW_SHENSHA_BASIC_V1_TAOHUA', basis: `年支${input.yearBranch}三合局沐浴位` },
-    { label: '桃花', branch: PEACH_BY_TRINE_BRANCH[input.dayBranch], ruleId: 'TW_SHENSHA_BASIC_V1_TAOHUA', basis: `日支${input.dayBranch}三合局沐浴位` },
-    ...(isStem(input.dayMasterStem)
-      ? TIANYI_BY_DAY_STEM[input.dayMasterStem].map((branch) => ({
-        label: '天乙貴人', branch, ruleId: 'TW_SHENSHA_BASIC_V1_TIANYI', basis: `日干${input.dayMasterStem}之天乙貴人位`,
+    { label: '紅鸞', branch: redLuanBranchOf(input.yearBranch), ruleId: 'RED_LUAN_BY_YEAR_BRANCH_V1', basis: plainScope('紅鸞', '年', input.yearBranch, redLuanBranchOf(input.yearBranch)) },
+    { label: '天喜', branch: tianXiBranchOf(input.yearBranch), ruleId: 'TIAN_XI_OPPOSITE_RED_LUAN_V1', basis: plainScope('天喜', '年', input.yearBranch, tianXiBranchOf(input.yearBranch)) },
+    { label: '桃花', branch: PEACH_BY_TRINE_BRANCH[input.yearBranch], ruleId: 'TW_SHENSHA_BASIC_V1_TAOHUA', basis: plainScope('桃花', '年', input.yearBranch, PEACH_BY_TRINE_BRANCH[input.yearBranch]) },
+    { label: '桃花', branch: PEACH_BY_TRINE_BRANCH[input.dayBranch], ruleId: 'TW_SHENSHA_BASIC_V1_TAOHUA', basis: plainScope('桃花', '日', input.dayBranch, PEACH_BY_TRINE_BRANCH[input.dayBranch]) },
+    ...((stem) => (isStem(stem)
+      ? TIANYI_BY_DAY_STEM[stem].map((branch) => ({
+        label: '天乙貴人', branch, ruleId: 'TW_SHENSHA_BASIC_V1_TIANYI', basis: plainTianyi(stem),
       }))
-      : []),
+      : []))(input.dayMasterStem),
   ].map((row) => {
     const person = BRANCH_PERSON_PROFILE[row.branch];
     return {
@@ -1279,9 +1289,9 @@ export function normalizeRedLuanAttractedType(value: unknown): RedLuanAttractedT
     : RED_LUAN_CONTEXT_UNSPECIFIED;
 }
 
-function branchEvidence(label: RedLuanEvidence['label'], targetBranch: Branch, scope: string) {
+function branchEvidence(label: RedLuanEvidence['label'], targetBranch: Branch, scope: string, basisBranch: Branch) {
   const id = label === '紅鸞' ? 'red_luan' : label === '天喜' ? 'tian_xi' : 'peach_blossom';
-  return { id, label, targetBranch, evidence: `${scope}見${targetBranch}` } as RedLuanEvidence;
+  return { id, label, targetBranch, basisBranch, evidence: `${scope}見${targetBranch}` } as RedLuanEvidence;
 }
 
 export function buildBaziLovePersonSignal(input: {
@@ -1295,11 +1305,11 @@ export function buildBaziLovePersonSignal(input: {
     throw new Error('RED_LUAN_HEARTBEAT_INVALID_BAZI_BRANCH');
   }
   const annualBranch = annualBranchOf(input.annualYear);
-  const targets: Array<{ label: RedLuanEvidence['label']; branch: Branch; scope: string }> = [
-    { label: '紅鸞', branch: redLuanBranchOf(input.yearBranch), scope: `依出生年的地支${input.yearBranch}推出的紅鸞位（${redLuanBranchOf(input.yearBranch)}）` },
-    { label: '天喜', branch: tianXiBranchOf(input.yearBranch), scope: `依出生年的地支${input.yearBranch}推出的天喜位（${tianXiBranchOf(input.yearBranch)}）` },
-    { label: '桃花', branch: PEACH_BY_TRINE_BRANCH[input.yearBranch], scope: `依出生年的地支${input.yearBranch}推出的桃花位（${PEACH_BY_TRINE_BRANCH[input.yearBranch]}）` },
-    { label: '桃花', branch: PEACH_BY_TRINE_BRANCH[input.dayBranch], scope: `依出生日的地支${input.dayBranch}推出的桃花位（${PEACH_BY_TRINE_BRANCH[input.dayBranch]}）` },
+  const targets: Array<{ label: RedLuanEvidence['label']; branch: Branch; scope: string; basisBranch: Branch }> = [
+    { label: '紅鸞', branch: redLuanBranchOf(input.yearBranch), scope: plainScope('紅鸞', '年', input.yearBranch, redLuanBranchOf(input.yearBranch)), basisBranch: input.yearBranch },
+    { label: '天喜', branch: tianXiBranchOf(input.yearBranch), scope: plainScope('天喜', '年', input.yearBranch, tianXiBranchOf(input.yearBranch)), basisBranch: input.yearBranch },
+    { label: '桃花', branch: PEACH_BY_TRINE_BRANCH[input.yearBranch], scope: plainScope('桃花', '年', input.yearBranch, PEACH_BY_TRINE_BRANCH[input.yearBranch]), basisBranch: input.yearBranch },
+    { label: '桃花', branch: PEACH_BY_TRINE_BRANCH[input.dayBranch], scope: plainScope('桃花', '日', input.dayBranch, PEACH_BY_TRINE_BRANCH[input.dayBranch]), basisBranch: input.dayBranch },
   ];
 
   const seen = new Set<string>();
@@ -1313,11 +1323,11 @@ export function buildBaziLovePersonSignal(input: {
   const natalEvidence = normalizedTargets.flatMap((target) =>
     availablePillars
       .filter((item) => item.branch === target.branch)
-      .map((item) => ({ ...branchEvidence(target.label, target.branch, target.scope), evidence: `${target.scope}；命盤的${item.pillar}支正好是${item.branch}` })),
+      .map((item) => ({ ...branchEvidence(target.label, target.branch, target.scope, target.basisBranch), evidence: `${target.scope}；命盤的${item.pillar}支正好是${item.branch}` })),
   );
   const annualTriggers = normalizedTargets
     .filter((target) => target.branch === annualBranch)
-    .map((target) => ({ ...branchEvidence(target.label, target.branch, target.scope), evidence: `${input.annualYear} 是${annualBranch}年，正好落在${target.scope}` }));
+    .map((target) => ({ ...branchEvidence(target.label, target.branch, target.scope, target.basisBranch), evidence: `${input.annualYear} 是${annualBranch}年，正好落在${target.scope}` }));
 
   return {
     status: 'READY',

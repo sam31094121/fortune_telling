@@ -125,6 +125,32 @@ const combine2026 = buildSingleRedLuanAnnualRhythm({
 })[0];
 assert.ok(combine2026.evidence.some((item) => item.id === 'day_branch_combine' && item.evidenceBranches.join('') === '未午'));
 
+// 2026-09-21 複審：證據句改說人話後，年度證據的推算依據改用結構化欄位，不再從句子裡找「命中年支」。
+// 曾經的回歸：紅鸞 2029（酉年）證據顯示「酉・酉」，應該是出生年地支「午・酉」。
+const redLuan2029 = buildSingleRedLuanAnnualRhythm({
+  yearBranch: '午',
+  dayBranch: '酉',
+  dayMasterStem: '乙',
+  presentBranches: [{ pillar: '年', branch: '午' }, { pillar: '月', branch: '巳' }, { pillar: '日', branch: '酉' }, { pillar: '時', branch: '亥' }],
+  hourKnown: true,
+  fromYear: 2026,
+  toYear: 2029,
+});
+const redLuanHit = redLuan2029.find((row) => row.year === 2029)?.evidence.find((item) => item.id === 'red_luan');
+assert.equal(redLuanHit?.evidenceBranches.join(''), '午酉', '紅鸞由出生年的地支推出，證據要是「年支・流年支」');
+const peach2026 = redLuan2029.find((row) => row.year === 2026)?.evidence.find((item) => item.id === 'peach_blossom');
+assert.equal(peach2026?.evidenceBranches.join(''), '酉午', '依出生日地支推出的桃花，證據要是「日支・流年支」');
+// 客戶看得到的年度、月份證據都要說人話
+const monthlyPlain = buildSingleRedLuanMonthlyRhythm({ yearBranch: '午', dayBranch: '酉', dayMasterStem: '乙', year: 2026 });
+const customerEvidence = [
+  ...redLuan2029.flatMap((row) => row.evidence.map((item) => `${item.evidence}｜${item.source}`)),
+  ...monthlyPlain.flatMap((row) => row.evidence.map((item) => `${item.evidence}｜${item.source}`)),
+];
+assert.ok(customerEvidence.length >= 6, '實例前提：年度與月份都有證據句');
+for (const line of customerEvidence) {
+  assert.equal(/流年支|流月支|命中|三合局|沐浴位|構成六|專案既有|日干/.test(line), false, `證據句仍是術語：${line}`);
+}
+
 const oneYearResult = buildSingleRedLuanHeartbeat({
   yearBranch: '子',
   dayBranch: '子',

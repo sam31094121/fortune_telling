@@ -317,4 +317,15 @@ check('第一屏看得到分數依據；本站格局名不冒充古籍卦名；�
   assert.ok(view.includes("'三方四正沒有形成傳統上有名稱的格局。'"), '紫微兜底名稱不得當成格局名顯示');
 });
 
+check('八字頁主珠＝後端第一補強（用神），前端不自己挑最弱的五行', () => {
+  // 最弱不等於最需要：林佩君最弱的是土，土卻是她的仇神；舊版前端照強弱排序挑出土，跟同頁「用神／忌神：水／金」打架。
+  const modes = fs.readFileSync('components/bazi/customer/BaziTeacherModes.tsx', 'utf8');
+  const fn = modes.slice(modes.indexOf('function getBaziElementTreasure'), modes.indexOf('function currentLuck'));
+  assert.ok(fn.includes('view.reinforcement.priorityOrder[0]'), '主珠要照印後端的第一補強');
+  assert.ok(!/\.sort\(/.test(fn) && !fn.includes('strength'), '主珠不得在前端依五行強弱排序挑選');
+  assert.ok(!modes.includes('依五行強弱選出的主珠'), '說明文字不得再寫「依五行強弱選出」');
+  const lin = chartOf('1990-05-20', '亥');
+  assert.equal(lin.aiReinforcementPlan.priorityOrder[0].displayName, '水元素', '林佩君的第一補強是用神水，不是仇神土');
+});
+
 console.log(`soul match — PASS ${passed}`);

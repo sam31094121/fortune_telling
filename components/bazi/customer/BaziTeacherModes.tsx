@@ -84,7 +84,7 @@ function BaziSealedComparisonOrbs({ primaryElement }: { primaryElement: ProductE
   return (
     <section className="mt-4 overflow-hidden rounded-2xl border-2 border-amber-100/30 bg-black/25 p-4 shadow-[inset_0_0_24px_rgba(251,191,36,0.06)]" aria-label="其餘四顆封印元素對照">
       <p className="text-xs font-black tracking-[0.14em] text-amber-100/90">其餘四顆・封印對照</p>
-      <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">命盤只解封上方依五行強弱選出的主珠；其餘四顆維持封咒，作為完整元素對照。</p>
+      <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">命盤只解封上方的主珠——它是你命盤的第一補強（用神）；其餘四顆維持封咒，作為完整元素對照。</p>
       <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {PRODUCT_ORB_ORDER.filter((element) => element !== primaryElement).map((element) => (
           <div key={element} className="relative flex min-h-[116px] flex-col items-center justify-center overflow-hidden rounded-xl border border-amber-100/20 bg-black/20 px-2 py-3 text-center">
@@ -98,11 +98,14 @@ function BaziSealedComparisonOrbs({ primaryElement }: { primaryElement: ProductE
   );
 }
 
+/**
+ * 主珠照印後端的「第一補強」（八字引擎 elementPriority 第一名＝用神），前端不自己挑。
+ * 2026-09-21 修正：舊版在前端挑「最弱的五行」，最弱不等於最需要——林佩君最弱的是土，
+ * 土卻是她的仇神（剋用神水），同一頁「用神／忌神：水／金」旁邊叫她先補土。
+ */
 function getBaziElementTreasure(view: BaziCustomerView) {
-  const weakest = view.fiveElementOrbit.items
-    .filter((item) => item.status === 'AVAILABLE' && typeof item.strength === 'number')
-    .sort((a, b) => (a.strength ?? Number.POSITIVE_INFINITY) - (b.strength ?? Number.POSITIVE_INFINITY))[0]?.label;
-  const sourceElement = weakest ?? view.dayMaster.element;
+  const firstReinforcement = view.reinforcement.priorityOrder[0]?.displayName?.replace('元素', '');
+  const sourceElement = firstReinforcement || view.dayMaster.element;
   const element = ['空', '風', '水', '火', '地'].includes(sourceElement)
     ? sourceElement as '空' | '風' | '水' | '火' | '地'
     : getProductElementNameFromTraditional(sourceElement);
