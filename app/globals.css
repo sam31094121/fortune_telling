@@ -26742,3 +26742,67 @@ a.home-feature-launch::after {
     filter: saturate(0.92);
   }
 }
+
+
+/* 第三／四段：首屏信任收據＋太極輔助（手機優先） */
+.home-trust-receipt {
+  position: relative;
+  z-index: 2;
+}
+
+.home-taiji-aux {
+  opacity: 0.92;
+  transform: scale(0.92);
+  transform-origin: center top;
+}
+
+@media (min-width: 640px) {
+  .home-taiji-aux {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+/* ===== client home order 1-7 2026-09-23 ===== */
+/* 1 箴言 → 2 太極 → 3 今日定向 → 4 主推功能 → 5 成長中心 → 6 社群信任 → 7 LINE */
+/* 信任收據／今日主線面板已隱藏，避免重複 */
+.home-first-screen-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+}
+@media (max-width: 900px), (pointer: coarse) {
+  .home-first-screen-stack .home-top-motto-link--compact-mobile {
+    order: 1 !important;
+    margin-bottom: 0.35rem !important;
+  }
+  .home-first-screen-stack .home-top-brand-stage,
+  .home-first-screen-stack #home-top-empty-shell-card {
+    order: 2 !important;
+    width: min(72vw, 280px) !important;
+    max-width: 280px !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0.1rem auto 0.45rem !important;
+    opacity: 1 !important;
+    align-self: center;
+    overflow: visible !important;
+    transform: none !important;
+  }
+  .home-first-screen-stack .home-top-brand-stage > * {
+    transform: scale(0.86) !important;
+    transform-origin: center center;
+  }
+  .home-first-screen-stack .home-primary-quest-wrap {
+    order: 3 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0.75rem !important;
+  }
+  /* 取消先前把太極壓成 132 輔視覺的規則（僅首屏堆疊內） */
+  .home-first-screen-stack .home-taiji-aux {
+    opacity: 1;
+  }
+}
+

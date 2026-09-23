@@ -272,7 +272,19 @@
 }
 
 .feedbackGrid .quietButton {
-  margin-top: 0.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.35rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.45);
+  color: rgba(226, 232, 240, 0.95);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .checkinOrb {
@@ -948,3 +960,153 @@
   letter-spacing: 0.04em;
   line-height: 1.55;
 }
+
+
+.streakChip {
+  display: inline-flex;
+  align-items: center;
+  margin: 0.35rem 0 0;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  background: rgba(251, 191, 36, 0.08);
+  color: #fcd34d;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.intro .returnNote {
+  margin: 0.45rem 0 0;
+  color: rgba(186, 230, 253, 0.92);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+
+/* 第四段：結果可帶走卡片 */
+.takeawayCard {
+  margin: 0.85rem 0 0.35rem;
+  padding: 0.9rem 0.95rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  background: linear-gradient(165deg, rgba(15, 23, 42, 0.92), rgba(2, 6, 23, 0.78));
+  text-align: left;
+  box-shadow: 0 10px 28px rgba(2, 6, 23, 0.28);
+}
+
+.takeawayMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: rgba(253, 230, 138, 0.92);
+}
+
+.takeawayTitle {
+  margin: 0.45rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 900;
+  line-height: 1.35;
+  color: #f8fafc;
+}
+
+.takeawayReflection {
+  margin: 0.45rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: rgba(226, 232, 240, 0.92);
+}
+
+.takeawayAction {
+  margin-top: 0.7rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.takeawayAction span {
+  display: block;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: rgba(165, 243, 252, 0.9);
+}
+
+.takeawayAction strong {
+  display: block;
+  margin-top: 0.28rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.5;
+  color: #ecfeff;
+}
+
+/* ===== B1 return visual 2026-09-23f — returnNote/streakChip only ===== */
+/* 回訪提示：一眼可讀、暗底青／金、不搶主 CTA；不動流程 */
+.returnNote {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0.55rem 0 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 211, 238, 0.28);
+  background:
+    linear-gradient(180deg, rgba(8, 47, 73, 0.42), rgba(2, 6, 23, 0.55));
+  color: rgba(186, 230, 253, 0.94);
+  font-size: 0.8rem;
+  font-weight: 750;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+  text-align: center;
+  text-wrap: balance;
+  box-shadow:
+    inset 0 1px 0 rgba(165, 243, 252, 0.08),
+    0 6px 18px rgba(2, 6, 23, 0.28);
+}
+
+.intro .returnNote {
+  margin: 0.4rem 0 0;
+  color: rgba(186, 230, 253, 0.94);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.streakChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.4rem auto 0;
+  padding: 0.22rem 0.62rem;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  background: rgba(120, 53, 15, 0.28);
+  color: #fde68a;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  box-shadow: inset 0 1px 0 rgba(253, 230, 138, 0.12);
+}
+
+@media (max-width: 900px), (pointer: coarse) {
+  .returnNote {
+    margin-top: 0.45rem;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+  .streakChip {
+    margin-top: 0.32rem;
+    font-size: 0.68rem;
+  }
+  /* tension／area 階段：提示貼進度條下，壓縮垂直佔位，避免擠主選項 */
+  .progressBlock + .returnNote,
+  .questHead + .returnNote {
+    margin-top: 0.4rem;
+  }
+}
+

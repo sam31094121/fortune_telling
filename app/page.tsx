@@ -18,6 +18,7 @@ import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiTopShell3D from '@/components/taiji/TaijiTopShell3D';
 import { SharedElementSealPaper } from '@/components/bazi/customer/SharedElementSealPaper';
 import TodayDirectionQuest from '@/components/TodayDirectionQuest';
+import HomeTrustReceipt from '@/components/HomeTrustReceipt';
 import HomeTrustEvidence from '@/components/HomeTrustEvidence';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
@@ -1247,7 +1248,7 @@ function LineVipShareCard({ friendHref, onShare }: { friendHref: string; onShare
         </button>
       </div>
 
-      <section className="home-line-share-card mb-8 overflow-hidden rounded-[28px] border border-emerald-300/25 p-5 shadow-[0_18px_55px_rgba(16,185,129,0.16)] sm:p-6">
+      <section data-home-step="7" className="home-line-share-card mb-8 overflow-hidden rounded-[28px] border border-emerald-300/25 p-5 shadow-[0_18px_55px_rgba(16,185,129,0.16)] sm:p-6">
         <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="inline-flex items-center rounded-full border border-emerald-200/30 bg-emerald-300/10 px-3 py-1 text-[11px] font-black tracking-[0.2em] text-emerald-100">
@@ -1293,7 +1294,7 @@ type HomeGrowthModuleGuide = {
 };
 
 const HOME_GROWTH_MODULE_GUIDES: HomeGrowthModuleGuide[] = [
-  { id: 'number', label: '易經論數字', helper: '完成一組數字，取得今日好壞判定。', cta: '立即開始', href: '/numerology', sticky: '用一組數字建立今日行動訊號。', reward: '完成後，首頁會記住你的數字提醒。' },
+  { id: 'number', label: '易經論數字', helper: '完成一組數字，取得今日好壞判定。', cta: '接主線', href: '/numerology', sticky: '用一組數字建立今日行動訊號。', reward: '完成後，首頁會記住你的數字提醒。' },
   { id: 'ziwei', label: '易經紫微斗數', helper: '完成紫微命盤探索。', cta: '去完成紫微斗數', href: '/insight', sticky: '把長期方向接進成長中心。', reward: '完成後，成長中心會知道你的長期方向。' },
   { id: 'soul_match', label: '易經靈魂配對', helper: '完成雙人配對探索。', cta: '去完成靈魂配對', href: '/match', sticky: '讓關係互動留下可追蹤提醒。', reward: '完成後，關係提醒會變得更貼近你。' },
   { id: 'music', label: '易經生成歌曲', helper: '完成生命音樂生成。', cta: '去生成一首歌', href: '/music', sticky: '把個人節奏變成可回聽記憶。', reward: '完成後，你會多一個可以回來聽的記憶點。' },
@@ -1412,6 +1413,7 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
 
   const content = (
     <section
+      data-home-step="5"
       className={`home-growth-entry group relative w-full overflow-hidden rounded-3xl border p-5 shadow-[0_18px_55px_rgba(0,0,0,0.2)] transition-all duration-500 sm:p-6 ${
         unlocked
           ? 'border-amber-200/50 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.24),rgba(16,185,129,0.12)_42%,rgba(15,23,42,0.88)_100%)] shadow-[0_0_45px_rgba(251,191,36,0.24)]'
@@ -1519,7 +1521,7 @@ function HomeStickyJourneyPanel({ completed, completedModules, total, onOpenNumb
   ) : null;
 
   return (
-    <section className="home-sticky-journey" aria-label="今日主線進度">
+    <section className="home-sticky-journey" aria-label="今日主線進度" data-home-step="4">
       <div className="home-sticky-journey__compact-grid">
         <div className="home-sticky-journey__compact-copy">
           <p className="home-sticky-journey__compact-kicker">今日主線</p>
@@ -2664,9 +2666,10 @@ export default function HomePage() {
           </Link>
         </div>
 
-                <div className="home-first-screen-stack">
+                <div className="home-first-screen-stack" data-home-order="1-3-taiji-quest">
 <section
           aria-label="首頁箴言木板卡"
+          data-home-step="1"
           className="home-top-motto-link home-top-motto-link--wood-4d home-top-motto-link--display home-top-motto-link--compact-mobile mx-auto mb-5 flex min-h-[6.25rem] w-full max-w-[440px] items-center justify-center px-7 py-6 sm:px-9 sm:py-7 text-amber-100"
         >
           <div className="home-top-motto-link__body min-w-0 w-full text-center">
@@ -2690,41 +2693,34 @@ export default function HomePage() {
             </span>
           </div>
         </section>
-        {/* 2026-08-21 依業主指示拿掉外框：粒子與光子連宇宙都框不住，太極不該被裝在
-            一個有邊線、有暗底的卡片裡——讓它直接浮在頁面本身的星空背景上，
-            從第一眼（×1）就沒有邊界，不是放大之後才「無限」。 */}
+                {/* 客戶順序 1箴言→2太極→3定向；信任收據／今日主線隱藏避免重複 */}
         <section
           id="home-top-empty-shell-card"
-          className="home-top-brand-stage mx-auto grid w-[min(92vw,440px)] place-items-center mb-3 sm:mb-5"
-          aria-label="首頁最上方太極三層立體卡片"
-          data-home-slot="top-empty-shell"
+          className="home-taiji-hero home-top-brand-stage mx-auto mb-3 grid w-[min(92vw,440px)] place-items-center sm:mb-5"
+          aria-label="太極主視覺：矛盾並存"
+          data-home-slot="taiji-hero"
+          data-home-step="2"
         >
           <TaijiTopShell3D />
         </section>
 
-        <div className="home-primary-quest-wrap mb-3 sm:mb-5">
+        <div className="home-primary-quest-wrap mb-3 sm:mb-5" data-home-step="3">
           <TodayDirectionQuest />
         </div>
 
-        <a
-          href="#home-trust-strip"
-          className="home-trust-pulse mx-auto mb-4 flex w-full max-w-[440px] items-center justify-between gap-3 rounded-2xl border border-amber-200/25 bg-slate-950/55 px-3.5 py-2.5 text-left shadow-[0_8px_24px_rgba(2,6,23,0.28)] backdrop-blur-md"
-          data-stickiness="trust-pulse"
-        >
-          <span className="min-w-0">
-            <strong className="block text-[0.78rem] font-black tracking-[0.08em] text-amber-100">社群信任可見</strong>
-            <span className="mt-0.5 block text-[0.7rem] font-semibold leading-5 text-slate-300/90">認同／瀏覽每次累加，數字只增不減。點此查看。</span>
-          </span>
-          <span className="shrink-0 text-cyan-200" aria-hidden="true">↓</span>
-        </a>
         </div>
 
+        {false && (
         <HomeStickyJourneyPanel
           completed={growthCompletedCount}
           completedModules={growthCompletedModules}
           total={GROWTH_VIP_TOTAL_MODULES}
           onOpenNumber={openFortuneModal}
         />
+        )}
+
+        {/* trust receipt / sticky journey hidden 2026-09-23: avoid duplicate of steps 6 / growth */}
+        {false && <HomeTrustReceipt />}
         <section className="home-hero-stage home-hero-stage--taiji-only home-hero-stage--raised mb-6 flex justify-center sm:mb-8">
           <div className="hidden relative z-10">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-rose-400/25 bg-rose-400/10 px-4 py-1.5 text-xs font-bold tracking-[0.28em] text-rose-200 shadow-[0_0_24px_rgba(244,63,94,0.12)]">
@@ -2805,7 +2801,7 @@ export default function HomePage() {
         </section>
 
 
-        <section id="home-eight-card-route" className="home-eight-card-route mb-8 scroll-mt-6">
+        <section id="home-eight-card-route" className="home-eight-card-route mb-8 scroll-mt-6" data-home-step="4">
           {/* 「其他探索素材」標題卡已隱藏（2026-08-11）：依指示不顯示 */}
           <div className="home-eight-card-route__header home-eight-card-route__header--sticky">
             <p>亂中有序・序中有正・正中有細</p>
@@ -3884,7 +3880,7 @@ export default function HomePage() {
 
         <section className="mt-10 pb-5 sm:mt-14 sm:pb-8" aria-label="Home trust counters">
           <div className="mx-auto max-w-3xl">
-            <div id="home-trust-strip" className="home-trust-strip home-trust-strip--footer grid scroll-mt-6 grid-cols-1 items-stretch gap-2 sm:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+            <div id="home-trust-strip" data-home-step="6" className="home-trust-strip home-trust-strip--footer grid scroll-mt-6 grid-cols-1 items-stretch gap-2 sm:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
               <AiTrustFeedback className="home-trust-card flex min-h-[108px] min-w-0 flex-col justify-center overflow-hidden rounded-xl border border-amber-300/25 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.15),rgba(34,211,238,0.1)_38%,rgba(15,23,42,0.76)_64%,rgba(2,6,23,0.93)_100%)] px-3 py-2.5 text-center shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl" />
               <FeatureVisitorCounter featureKey="home" className="home-trust-card home-trust-card--visitor h-full !w-full min-w-0" deferMs={1500} compact permanent />
             </div>
