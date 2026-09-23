@@ -426,6 +426,7 @@ export default function TodayDirectionQuest() {
                 <span>免填資料</span>
               </div>
               <p className={styles.returnPromise}>每天一件事，明天回來繼續；進度會幫你留著。</p>
+            <p className={styles.growthBridge} data-bridge="home-quest-growth-bridge">走完這一關，進度會記入成長中心</p>
             </div>
 
             <div className={styles.introAction}>

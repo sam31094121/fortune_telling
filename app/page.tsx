@@ -1331,19 +1331,19 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
   const unlocked = safeCompleted >= safeTotal;
   const remaining = Math.max(safeTotal - safeCompleted, 0);
   const progressPercent = Math.min(100, Math.round((safeCompleted / safeTotal) * 100));
-  const headline = unlocked ? '八道關卡已全部通過，第一顆五元素寶珠可以解封。' : '完成一張探索只算通過一道關卡；八關全部完成前，五顆寶珠一律封印。';
+  const headline = unlocked ? '八道關卡已全部通過，第一顆五元素寶珠可以解封。' : '完成一關就會亮一格進度；八關走完前，五顆寶珠先封著，明天回來進度還在。';
   const progressText = unlocked ? `\u63a2\u7d22\u5b8c\u6210\uff1a${safeTotal} / ${safeTotal}` : `\u63a2\u7d22\u9032\u5ea6\uff1a${safeCompleted} / ${safeTotal}`;
   const remainingText = unlocked
     ? '八道通關印記已集齊；現在可以進入成長中心取得第一顆寶珠。'
     : nextModule
       ? `目前已通過 ${safeCompleted} / ${safeTotal} 關；下一道是「${nextModule.label}」。`
-      : `目前已通過 ${safeCompleted} 關，距離第一顆寶珠解封還差 ${remaining} 關。`;
+      : `目前已通過 ${safeCompleted} 關，還差 ${remaining} 關；同一裝置下次打開會接續。`;
 
   const renderModuleRoute = (module: HomeGrowthModuleGuide, index: number) => {
     const done = completedSet.has(module.id);
     const isNext = !unlocked && nextModule?.id === module.id;
     const state = done ? 'done' : isNext ? 'next' : 'pending';
-    const statusText = done ? '已收下' : isNext ? '可獲取' : '封印中';
+    const statusText = done ? '已收下' : isNext ? '可獲取' : '尚未走完';
     const treasureSeal = HOME_MODULE_TREASURE_SEALS[module.id];
     const treasureText = done
       ? `已通過本關，取得「${treasureSeal.relic}」通關印記；本關線索：${treasureSeal.gear}`
@@ -1478,7 +1478,7 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
 
       <div className="relative z-10 mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs font-semibold leading-6 text-[color:var(--text-muted)]">
-          {unlocked ? '每週提醒、補強元素、能量色與行動任務已開放。' : '不是很多功能一起丟給你，而是先完成這一張，讓進度被記住。'}
+          {unlocked ? '每週提醒、補強元素、能量色與行動任務已開放。' : '進度記在這台裝置上。先完成眼前這一關；明天打開同一頁就能接下一關。'}
         </p>
         {unlocked ? (
           <Link
@@ -1519,12 +1519,12 @@ function HomeStickyJourneyPanel({ completed, completedModules, total, onOpenNumb
   ) : null;
 
   return (
-    <section className="hidden" aria-label="今日清楚下一步" aria-hidden="true">
+    <section className="home-sticky-journey" aria-label="今日主線進度">
       <div className="home-sticky-journey__compact-grid">
         <div className="home-sticky-journey__compact-copy">
-          <p className="home-sticky-journey__compact-kicker">今日下一步</p>
+          <p className="home-sticky-journey__compact-kicker">今日主線</p>
           <h2>{unlocked ? '成長中心已開放' : nextModule?.label ?? '今日探索已完成'}</h2>
-          <p>{unlocked ? `已完成 ${safeCompleted}/${safeTotal}` : `已完成 ${safeCompleted}/${safeTotal}`}</p>
+          <p>{unlocked ? `已通過 ${safeCompleted}/${safeTotal} 關 · 成長中心已開放` : `已通過 ${safeCompleted}/${safeTotal} 關 · 走完會記入成長中心`}</p>
         </div>
         <div className="home-sticky-journey__compact-action">{nextAction}</div>
       </div>
@@ -1550,6 +1550,7 @@ export default function HomePage() {
   const [growthCompletedCount, setGrowthCompletedCount] = useState(0);
   const [growthCompletedModules, setGrowthCompletedModules] = useState<string[]>([]);
   const [growthJustUnlocked, setGrowthJustUnlocked] = useState(false);
+  const [showMoreFeatures, setShowMoreFeatures] = useState(false);
   const previousGrowthCountRef = useRef(0);
   const [ziweiOpening, setZiweiOpening] = useState(false);
   const ziweiNavLockRef = useRef(false);
@@ -2820,10 +2821,18 @@ export default function HomePage() {
               className="mb-4"
             />
           )}
-          <div className="home-feature-stack flex w-full flex-col gap-3 sm:gap-4">
+          <div className={`home-feature-stack flex w-full flex-col gap-3 sm:gap-4 ${showMoreFeatures ? 'home-feature-stack--expanded' : 'home-feature-stack--collapsed'}`}>
           <p className="home-feature-section-label home-feature-section-label--primary">今日主推</p>
           <p className="home-feature-section-label home-feature-section-label--secondary">深入命盤</p>
           <p className="home-feature-section-label home-feature-section-label--explore">繼續探索</p>
+          <button
+            type="button"
+            className="home-feature-more-toggle"
+            aria-expanded={showMoreFeatures}
+            onClick={() => setShowMoreFeatures((v) => !v)}
+          >
+            {showMoreFeatures ? '收合更多探索' : '更多探索（可稍後）'}
+          </button>
           <Link
             href="/match"
             className="home-feature-launch home-feature-rose home-feature-tier-secondary order-5 w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
