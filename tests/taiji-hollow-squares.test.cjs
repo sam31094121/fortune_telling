@@ -34,9 +34,9 @@ const length = (s) => Math.hypot(...s.a.map((v, i) => v - s.b[i]));
 const radius = (p) => Math.hypot(...p);
 
 // 0. 單一來源：空心半徑就是 squareCavity 的殼內壁，夾邊半徑也用它
-exact(HOLLOW_RADIUS, INNER_RADIUS, '空心半徑與殼內壁是同一個值');
-exact(hollow.SPHERE_R, HOLLOW_RADIUS, '夾邊半徑＝殼內壁，不是外表面 1');
-exact(SHELL_THICKNESS, 1 - INNER_RADIUS, '殼厚度＝1 − 內壁');
+exact(HOLLOW_RADIUS, 1, '視覺貼合：空心半徑＝外圓 1（一比一緊貼）');
+exact(hollow.SPHERE_R, HOLLOW_RADIUS, '夾殼半徑＝空心半徑');
+exact(SHELL_THICKNESS, 0, '視覺貼合：殼厚 0，無空隙帶');
 
 for (const options of [{}, { outDepth: 5 }, { withSpin: true }, { inDepth: 14, faceDepth: 10 }]) {
   const segments = hollow.buildInfiniteHollowSquareSegments(options);
