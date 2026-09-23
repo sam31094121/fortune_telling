@@ -1,0 +1,149 @@
+{
+  "started": true,
+  "order": [
+    {
+      "top": 16,
+      "height": 188,
+      "id": null,
+      "cls": "home-trust-receipt mx-auto mb-4 w-full max-w-[440px] rounded-2xl borde",
+      "tag": "SECTION",
+      "text": "信任收據 先看清楚我們承諾什麼 今日關卡免費、免填資料；進度記在這台裝置。社群認同／瀏覽可點開核對，說明頁寫清「算什麼／不算什麼」。 可核對 誠信說明 查看社群數字",
+      "inFirstFold": true
+    },
+    {
+      "top": 238,
+      "height": 340,
+      "id": null,
+      "cls": "TodayDirectionQuest_windGlow__fPbRk",
+      "tag": "SPAN",
+      "text": "",
+      "inFirstFold": true
+    },
+    {
+      "top": 332,
+      "height": 421,
+      "id": null,
+      "cls": "home-primary-quest-wrap mb-3 sm:mb-5",
+      "tag": "DIV",
+      "text": "今日定向關卡 先成一，再生二 今天，只做好一件事。 先走一步，讓明天開始改變。 免費 90 秒 免填資料 走完這一關，進度會記入成長中心 敕令 封 下一層 等你選擇 開始 → 文化",
+      "inFirstFold": true
+    },
+    {
+      "top": 385,
+      "height": 300,
+      "id": null,
+      "cls": "TodayDirectionQuest_intro__ihShq",
+      "tag": "DIV",
+      "text": "先成一，再生二 今天，只做好一件事。 先走一步，讓明天開始改變。 免費 90 秒 免填資料 走完這一關，進度會記入成長中心 敕令 封 下一層 等你選擇 開始 →",
+      "inFirstFold": true
+    },
+    {
+      "top": 549,
+      "height": 136,
+      "id": null,
+      "cls": "TodayDirectionQuest_introAction__o9xa8",
+      "tag": "DIV",
+      "text": "敕令 封 下一層 等你選擇 開始 →",
+      "inFirstFold": true
+    },
+    {
+      "top": 631,
+      "height": 54,
+      "id": null,
+      "cls": "TodayDirectionQuest_primaryButton__EmgT4",
+      "tag": "BUTTON",
+      "text": "開始 →",
+      "inFirstFold": true
+    },
+    {
+      "top": 765,
+      "height": 93,
+      "id": null,
+      "cls": "home-sticky-journey",
+      "tag": "SECTION",
+      "text": "今日主線 易經論數字 已通過 0/8 關 · 走完會記入成長中心 立即開始",
+      "inFirstFold": true
+    },
+    {
+      "top": 859,
+      "height": 363,
+      "id": null,
+      "cls": "TaijiSystem_visualPulse__GJdRg",
+      "tag": "SPAN",
+      "text": "",
+      "inFirstFold": false
+    },
+    {
+      "top": 1249,
+      "height": 929,
+      "id": "home-eight-card-route",
+      "cls": "home-eight-card-route mb-8 scroll-mt-6",
+      "tag": "SECTION",
+      "text": "亂中有序・序中有正・正中有細 先走主推，再深入命盤，其餘慢慢探索。 今日主推 更多探索（可稍後） 吉 CARD 01 · 數字好壞速測 易經論數字 輸入 2 到 10 碼，易經立即",
+      "inFirstFold": false
+    },
+    {
+      "top": 1315,
+      "height": 863,
+      "id": null,
+      "cls": "home-feature-stack flex w-full flex-col gap-3 sm:gap-4 home-feature-st",
+      "tag": "DIV",
+      "text": "今日主推 更多探索（可稍後） 吉 CARD 01 · 數字好壞速測 易經論數字 輸入 2 到 10 碼，易經立即整理吉凶傾向與今日行動。🎁 拆開有禮：你的數字會起出一支專屬卦，六",
+      "inFirstFold": false
+    },
+    {
+      "top": 1574,
+      "height": 272,
+      "id": null,
+      "cls": "tarot-entry-card home-feature-launch home-feature-tier-primary order-1",
+      "tag": "A",
+      "text": "CARD 01 · 古老塔羅牌 古老塔羅牌 先固定一個問題，再親手抽牌；易經最後只留下最重要的一句判定。🎁 拆開有禮：三張牌直接回答你的問題，附上明確的機率數字。 免費 親手抽牌",
+      "inFirstFold": false
+    },
+    {
+      "top": 1858,
+      "height": 263,
+      "id": null,
+      "cls": "home-feature-launch home-feature-cyan home-feature-tier-primary order-",
+      "tag": "A",
+      "text": "吉 CARD 01 · 數字好壞速測 易經論數字 輸入 2 到 10 碼，易經立即整理吉凶傾向與今日行動。🎁 拆開有禮：你的數字會起出一支專屬卦，六十四格裡就這一格是你。 免費 ",
+      "inFirstFold": false
+    },
+    {
+      "top": 2210,
+      "height": 1592,
+      "id": null,
+      "cls": "home-growth-entry group relative w-full overflow-hidden rounded-3xl bo",
+      "tag": "SECTION",
+      "text": "🔒 GROWTH CENTER 易經個人成長中心 完成一關就會亮一格進度；八關走完前，五顆寶珠先封著，明天回來進度還在。 目前已通過 0 / 8 關；下一道是「易經論數字」。 未",
+      "inFirstFold": false
+    },
+    {
+      "top": 3841,
+      "height": 342,
+      "id": null,
+      "cls": "mt-10 pb-5 sm:mt-14 sm:pb-8",
+      "tag": "SECTION",
+      "text": "易經 回饋校準 認同或不認同，擇一送出即可 認同 712 人 不認同 72 人 👍 我認同 👎 我不認同 每次點選都會累加；數字只增不減 累計瀏覽人數 110162 每來一位朋",
+      "inFirstFold": false
+    },
+    {
+      "top": 4065,
+      "height": 98,
+      "id": null,
+      "cls": "inline-flex w-fit flex-col border border-amber-300/30 bg-white/[0.08] ",
+      "tag": "ASIDE",
+      "text": "累計瀏覽人數 110162 每來一位朋友，就加 1 人",
+      "inFirstFold": false
+    },
+    {
+      "top": 4239,
+      "height": 222,
+      "id": null,
+      "cls": "home-line-share-card mb-8 overflow-hidden rounded-[28px] border border",
+      "tag": "SECTION",
+      "text": "",
+      "inFirstFold": false
+    }
+  ]
+}

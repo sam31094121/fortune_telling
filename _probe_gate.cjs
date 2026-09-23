@@ -1,0 +1,16 @@
+﻿const fs = require('fs');
+const path = 'C:/Users/DRAGON/Desktop/\u547d\u7406/app/page.tsx';
+const c = fs.readFileSync(path, 'utf8');
+const names = [...c.matchAll(/function\s+([A-Za-z0-9_]+)/g)].map(m => m[1]).filter(n => /Sticky|Growth|Vip|Journey|Unlock/i.test(n));
+console.log('funcs', names);
+const calls = [...c.matchAll(/<(Home[A-Za-z]+|Vip[A-Za-z]+)\b/g)].map(m => m[1]);
+console.log('calls', [...new Set(calls)].filter(x => /Sticky|Growth|Vip|Journey|Unlock/i.test(x)));
+const sticky = c.match(/function\s+\w*Sticky\w*[\s\S]{0,900}?return \([\s\S]{0,500}?<\/section>/);
+console.log('STICKY_SNIP\n', sticky && sticky[0].slice(0, 800));
+const hl = c.match(/[^\n]*八道關卡[^\n]*/);
+console.log('HL', hl && hl[0]);
+const st = c.match(/[^\n]*封印中[^\n]*/);
+console.log('ST', st && st[0]);
+console.log('labels', c.match(/home-feature-section-label--[a-z]+/g));
+console.log('tiers', [...new Set(c.match(/home-feature-tier-[a-z]+/g) || [])]);
+console.log('stack', c.match(/className="home-feature-stack[^"]*"/));

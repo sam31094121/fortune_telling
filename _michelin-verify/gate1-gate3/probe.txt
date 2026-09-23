@@ -1,0 +1,7 @@
+﻿sticky=True
+toggle=True
+collapsed=True
+bridge=True
+gate3a=True
+gate3b=True
+len=70374

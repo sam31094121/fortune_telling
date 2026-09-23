@@ -1,0 +1,100 @@
+﻿        </div>
+
+                <div className="home-first-screen-stack">
+<section
+          aria-label="擐?蝞渲??冽??
+          className="home-top-motto-link home-top-motto-link--wood-4d home-top-motto-link--display home-top-motto-link--compact-mobile mx-auto mb-5 flex min-h-[6.25rem] w-full max-w-[440px] items-center justify-center px-7 py-6 sm:px-9 sm:py-7 text-amber-100"
+        >
+          <div className="home-top-motto-link__body min-w-0 w-full text-center">
+            <span className="home-top-brush-gratitude home-top-brush-gratitude--sun block">
+              <span className="home-top-brush-gratitude__lead">?予??嚗?/span>
+              <span className="home-top-brush-gratitude__heart">???</span>
+            </span>
+            <span
+              className="home-top-ward-seal home-top-ward-seal--alive home-top-ward-seal--curse mt-4 inline-flex w-full flex-col items-center gap-2"
+              aria-label="?方?隤??予??蝑蝐喟?梧?蝐喟?勗歇鋡怎泵????
+            >
+              <span className="home-top-ward-seal__script inline-flex flex-wrap items-center justify-center gap-2.5">
+                <span className="home-top-ward-seal__curse home-top-ward-seal__lead">?予??</span>
+                <span className="home-top-ward-seal__eq" aria-hidden="true">嚗?/span>
+                <span className="home-top-ward-seal__sealed home-top-ward-seal__sealed--shared" title="蝚血?蝯?撠">
+                  <span className="home-top-ward-seal__sealed-text">蝐喟??/span>
+                  <SharedElementSealPaper />
+                  <span className="home-top-ward-seal__pulse" aria-hidden="true" />
+                </span>
+              </span>
+            </span>
+          </div>
+        </section>
+                {/* 蝚砌?畾蛛???擐??香 隞銝????靽∩遙?嗆? ??銝餌?嚗云璆菜?箄??抬?銝宏嚗?*/}
+        <div className="home-primary-quest-wrap mb-3 sm:mb-5">
+          <TodayDirectionQuest />
+        </div>
+
+        <HomeTrustReceipt />
+        </div>
+
+        <HomeStickyJourneyPanel
+          completed={growthCompletedCount}
+          completedModules={growthCompletedModules}
+          total={GROWTH_VIP_TOTAL_MODULES}
+          onOpenNumber={openFortuneModal}
+        />
+
+        <section
+          id="home-top-empty-shell-card"
+          className="home-taiji-aux home-top-brand-stage mx-auto mb-3 grid w-[min(92vw,440px)] place-items-center sm:mb-5"
+          aria-label="頛憭芣扔閬死嚗?擐?銝餌?嚗?
+          data-home-slot="taiji-auxiliary"
+        >
+          <TaijiTopShell3D />
+        </section>
+        <section className="home-hero-stage home-hero-stage--taiji-only home-hero-stage--raised mb-6 flex justify-center sm:mb-8">
+          <div className="hidden relative z-10">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-rose-400/25 bg-rose-400/10 px-4 py-1.5 text-xs font-bold tracking-[0.28em] text-rose-200 shadow-[0_0_24px_rgba(244,63,94,0.12)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-rose-300 shadow-[0_0_12px_rgba(253,164,175,0.9)]" />
+              ??雿??賡???隡港噤
+            </div>
+            <h1 className="mystic-title home-hero-title mb-4 font-serif text-4xl leading-tight sm:text-6xl md:text-7xl">
+              憭拙挪?賜?<br />???賡?閫?Ⅳ??
+            </h1>
+            <p className="hidden max-w-2xl text-sm leading-7 text-[color:var(--text-sub)] sm:text-base">
+              ?????犖?潸瘜Ｕ楛摨行?撖??詨?憟賢??葉??嚗?瘥?甈⊿脩??賢???銝摨扳??澆??蜓?批??
+            </p>
+
+            <div className="hidden home-signal-grid mt-6 grid gap-3 sm:grid-cols-3">
+              {HOME_SIGNAL_METRICS.map((item) => (
+                <div key={item.label} className={`home-signal-chip home-signal-${item.tone}`}>
+                  <span>{item.label}</span>
+                  <strong className="hidden">{item.value}</strong>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8">
+              <div className="flex flex-col gap-4">
+              <button
+                type="button"
+                onClick={() => {
+                  const target = document.getElementById('step-entry');
+                  target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }}
+                className="home-primary-cta group inline-flex items-center justify-center gap-2 rounded-full border border-rose-300/45 bg-rose-500/15 px-8 py-3 text-sm font-black text-rose-100 transition-all shadow-[0_0_28px_rgba(244,63,94,0.24)] shimmer-btn"
+              >
+                <span>銝?菟???颲啗???/span>
+                <span className="transition-transform group-hover:translate-x-1">??/span>
+              </button>
+              <Link
+                href="/numerology"
+                prefetch
+                className="home-secondary-cta inline-flex items-center justify-center gap-2 rounded-full border border-cyan-300/35 bg-cyan-400/10 px-8 py-3 text-sm font-black text-cyan-100 transition-all shadow-[0_0_24px_rgba(34,211,238,0.18)]"
+              >
+                <span>蝡閫?Ⅳ?詨?憟賢?</span>
+                <span>??/span>
+              </Link>
+              </div>
+
+              {/* ??憭拙挪瘞????Ｘ */}
+              <div className="home-forecast-panel mt-6 max-w-xl rounded-2xl border border-amber-500/25 bg-amber-500/7 p-4 text-left shadow-[0_0_24px_rgba(245,158,11,0.08)]">
+                <p className="text-xs uppercase tracking-[0.25em] text-amber-300 font-bold font-mono flex items-center gap-2">
+                  <span className="animate-ping inline-block w-1.5 h-1.5 rounded-full bg-amber-400" />

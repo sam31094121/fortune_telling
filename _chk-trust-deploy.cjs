@@ -1,0 +1,11 @@
+﻿const fs = require("fs");
+const p = fs.readFileSync("app/page.tsx", "utf8");
+const css = fs.readFileSync("app/globals.css", "utf8");
+console.log("css home-trust-evidence", css.includes(".home-trust-evidence"));
+console.log("css michelin markers", /stickiness|michelin-mobile|2026-09-23/.test(css));
+const i = p.indexOf("home-first-screen-stack");
+console.log("stack at", i);
+console.log(p.slice(Math.max(0, i - 80), i + 350));
+console.log("HomeTrustEvidence count", (p.match(/HomeTrustEvidence/g) || []).length);
+const t = fs.readFileSync("features/tarot/components/TarotEntryCard.tsx", "utf8");
+console.log("tarot", (t.match(/HomeTrustEvidence/g) || []).length);
