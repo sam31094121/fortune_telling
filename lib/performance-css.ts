@@ -281,7 +281,7 @@
       content-visibility: visible !important;
       contain: layout paint !important;
       pointer-events: auto !important;
-      touch-action: pan-y pinch-zoom;
+      touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -635,6 +635,32 @@ body.app-lite-effects .home-feature-launch .home-feature-cta {
     will-change: auto !important;
     scroll-margin-top: 0.75rem;
   }
+}
+
+
+/* LOCK: trust counters must stay painted on phones (no contain paint blanking). */
+body.app-mobile-device .home-trust-card,
+body.app-mobile-device .home-ai-feedback-card,
+body.app-mobile-device [data-visitor-counter],
+body.app-mobile-device .top-feedback-count,
+body.app-mobile-device .visitor-counter-count,
+body.app-social-browser .home-trust-card,
+body.app-social-browser .home-ai-feedback-card,
+body.app-social-browser [data-visitor-counter],
+body.app-social-browser .top-feedback-count,
+body.app-social-browser .visitor-counter-count,
+body.app-lite-effects .home-trust-card,
+body.app-lite-effects .home-ai-feedback-card,
+body.app-lite-effects [data-visitor-counter],
+body.app-lite-effects .top-feedback-count,
+body.app-lite-effects .visitor-counter-count {
+  contain: none !important;
+  content-visibility: visible !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  filter: none !important;
+  overflow: visible !important;
 }
 
   `;

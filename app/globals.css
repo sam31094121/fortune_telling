@@ -26246,3 +26246,39 @@ a.home-feature-launch::after {
     margin-top: 0.9rem !important;
   }
 }
+
+
+/* LOCK: mobile trust strip — like / dislike / visitor digits always visible, never blank zero flash */
+@media (max-width: 900px), (pointer: coarse) {
+  .home-trust-strip,
+  .home-trust-strip .home-trust-card,
+  .home-trust-strip .home-ai-feedback-card,
+  .home-trust-strip [data-visitor-counter] {
+    contain: none !important;
+    content-visibility: visible !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+  }
+
+  .home-trust-strip .top-feedback-count,
+  .home-trust-strip .visitor-counter-count,
+  .home-trust-strip [data-visitor-counter-count],
+  .home-ai-feedback-card .top-feedback-count {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: rgb(252 211 77) !important;
+    font-size: clamp(1.2rem, 7.2vw, 1.7rem) !important;
+    font-weight: 900 !important;
+    line-height: 1.1 !important;
+    min-height: 1.3em !important;
+    overflow: visible !important;
+    text-shadow: none !important;
+    -webkit-text-fill-color: rgb(252 211 77) !important;
+  }
+
+  .home-ai-feedback-stat--improve .top-feedback-count {
+    color: rgb(165 243 252) !important;
+    -webkit-text-fill-color: rgb(165 243 252) !important;
+  }
+}

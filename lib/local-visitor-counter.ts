@@ -9,6 +9,7 @@ import {
   VISITOR_SEED_COUNT,
   type FeatureKey,
 } from '@/lib/visitor-counter';
+import { monotonicCount, visitorFloorFor } from '@/lib/trust-counter-floors';
 import { resolveLocalDataDirectory } from '@/lib/local-data-directory';
 
 const DATA_DIRECTORY = resolveLocalDataDirectory();
@@ -32,14 +33,14 @@ function createInitialCounters(now = new Date()): NormalizedCounters {
   return Object.fromEntries(
     Object.values(FEATURE_KEYS).map((featureKey) => [
       featureKey,
-      { displayCount: VISITOR_MIN_DISPLAY_COUNT, updatedAt: now.toISOString(), visitIds: [] },
+      { displayCount: Math.max(VISITOR_MIN_DISPLAY_COUNT, visitorFloorFor(featureKey)), updatedAt: now.toISOString(), visitIds: [] },
     ]),
   ) as unknown as NormalizedCounters;
 }
 
 function normalizeCounterValue(value: LocalCounterValue | undefined, now: Date): StoredCounter {
   if (typeof value === 'number' && Number.isSafeInteger(value) && value >= VISITOR_SEED_COUNT) {
-    return { displayCount: Math.max(value, VISITOR_MIN_DISPLAY_COUNT), updatedAt: now.toISOString(), visitIds: [] };
+    return { displayCount: monotonicCount(value, VISITOR_MIN_DISPLAY_COUNT), updatedAt: now.toISOString(), visitIds: [] };
   }
 
   if (!value || typeof value !== 'object') {
@@ -69,10 +70,19 @@ function normalizeCounterValue(value: LocalCounterValue | undefined, now: Date):
       真相是「有幾個人來過」，那是數得出來的。
       彙總欄位只是快取，不該凌駕它所彙總的東西。
     */
-    return { displayCount: visitIds.length, updatedAt, visitIds };
+    // owner: counts only rise
+    return {
+      displayCount: monotonicCount(displayCount, visitIds.length, VISITOR_MIN_DISPLAY_COUNT),
+      updatedAt,
+      visitIds,
+    };
   }
 
-  return { displayCount: visitIds.length, updatedAt: now.toISOString(), visitIds };
+  return {
+    displayCount: monotonicCount(visitIds.length, VISITOR_MIN_DISPLAY_COUNT),
+    updatedAt: now.toISOString(),
+    visitIds,
+  };
 }
 
 function projectCounter(counter: StoredCounter): StoredCounter {
@@ -101,8 +111,12 @@ async function readCounters({ projectElapsed = true } = {}): Promise<NormalizedC
       for (const featureKey of Object.values(FEATURE_KEYS)) {
         const normalized = normalizeCounterValue(stored[featureKey], now);
         const projected = projectElapsed ? projectCounter(normalized) : normalized;
-        if (projected.displayCount > initial[featureKey].displayCount) {
-          initial[featureKey] = projected;
+        const raised = {
+          ...projected,
+          displayCount: monotonicCount(projected.displayCount, visitorFloorFor(featureKey)),
+        };
+        if (raised.displayCount > initial[featureKey].displayCount) {
+          initial[featureKey] = raised;
         }
       }
     } catch {
@@ -130,12 +144,16 @@ export function recordLocalVisitorVisit(featureKey: FeatureKey, visitId?: string
     const counter = counters[featureKey];
     const alreadyRecorded = Boolean(visitId && counter.visitIds.includes(visitId));
 
+    const floor = visitorFloorFor(featureKey);
+    const base = monotonicCount(counter.displayCount, floor);
     if (!alreadyRecorded) {
       counters[featureKey] = {
-        displayCount: counter.displayCount + 1,
+        displayCount: base + 1,
         updatedAt: new Date().toISOString(),
         visitIds: visitId ? [...counter.visitIds, visitId].slice(-5000) : counter.visitIds,
       };
+    } else if (base !== counter.displayCount) {
+      counters[featureKey] = { ...counter, displayCount: base };
     }
 
     await persistCounters(counters);
@@ -152,6 +170,11 @@ export async function readLocalVisitorCount(
 ): Promise<number> {
   const operation = writeQueue.then(async () => {
     const counters = await readCounters({ projectElapsed });
+    const floor = visitorFloorFor(featureKey);
+    const raised = monotonicCount(counters[featureKey].displayCount, floor);
+    if (raised !== counters[featureKey].displayCount) {
+      counters[featureKey] = { ...counters[featureKey], displayCount: raised, updatedAt: new Date().toISOString() };
+    }
     await persistCounters(counters);
     return counters[featureKey].displayCount;
   });

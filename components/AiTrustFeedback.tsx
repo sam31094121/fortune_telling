@@ -1,4 +1,5 @@
-﻿'use client';
+'use client';
+import { AI_LIKE_FLOOR, AI_SUGGESTION_FLOOR, monotonicCount } from '@/lib/trust-counter-floors';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -13,7 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
   不因為「別人都這樣做」而變成可以。歸零之後數字會很難看，
   但難看的真話勝過好看的假話。
 */
-const LIKE_INITIAL_COUNT = 0;
+const LIKE_INITIAL_COUNT = AI_LIKE_FLOOR;
 /*
   底數歸零。
 
@@ -25,7 +26,7 @@ const LIKE_INITIAL_COUNT = 0;
   不因為「別人都這樣做」而變成可以。歸零之後數字會很難看，
   但難看的真話勝過好看的假話。
 */
-const SUGGESTION_INITIAL_COUNT = 0;
+const SUGGESTION_INITIAL_COUNT = AI_SUGGESTION_FLOOR;
 const DEVICE_ID_KEY = 'taiji_ai_feedback_device_id_v1';
 const LEGACY_LIKE_DEVICE_ID_KEY = 'taiji_ai_like_device_id_v1';
 const LEGACY_SUGGESTION_DEVICE_ID_KEY = 'taiji_ai_suggestion_device_id_v1';
@@ -311,7 +312,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         永遠壓著真實的 46——歸真只對沒看過的人生效。
         伺服器是真相來源，它說多少就是多少，包括變少。
       */
-      const permanentCount = normalizeTotalCount(nextCount, LIKE_INITIAL_COUNT);
+      const permanentCount = monotonicCount(currentCount, normalizeTotalCount(nextCount, LIKE_INITIAL_COUNT), LIKE_INITIAL_COUNT);
       writeStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, permanentCount, LIKE_INITIAL_COUNT);
       return permanentCount;
     });
@@ -319,7 +320,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
 
   const commitImproveCount = useCallback((nextCount: unknown) => {
     setImproveCount((currentCount) => {
-      const permanentCount = normalizeTotalCount(nextCount, SUGGESTION_INITIAL_COUNT);
+      const permanentCount = monotonicCount(currentCount, normalizeTotalCount(nextCount, SUGGESTION_INITIAL_COUNT), SUGGESTION_INITIAL_COUNT);
       writeStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, permanentCount, SUGGESTION_INITIAL_COUNT);
       return permanentCount;
     });
@@ -332,7 +333,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         但不再參考 localStorage 的歷史最高值：那裡存著虛增時期的數字，
         會把真實值壓在下面。只取「我剛投的」與「伺服器說的」較大者。
       */
-      const permanentCount = Math.max(currentCount + 1, normalizeTotalCount(nextCount, LIKE_INITIAL_COUNT));
+      const permanentCount = monotonicCount(currentCount + 1, normalizeTotalCount(nextCount, LIKE_INITIAL_COUNT), LIKE_INITIAL_COUNT);
       writeStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, permanentCount, LIKE_INITIAL_COUNT);
       return permanentCount;
     });
@@ -345,7 +346,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         但不再參考 localStorage 的歷史最高值：那裡存著虛增時期的數字，
         會把真實值壓在下面。只取「我剛投的」與「伺服器說的」較大者。
       */
-      const permanentCount = Math.max(currentCount + 1, normalizeTotalCount(nextCount, SUGGESTION_INITIAL_COUNT));
+      const permanentCount = monotonicCount(currentCount + 1, normalizeTotalCount(nextCount, SUGGESTION_INITIAL_COUNT), SUGGESTION_INITIAL_COUNT);
       writeStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, permanentCount, SUGGESTION_INITIAL_COUNT);
       return permanentCount;
     });

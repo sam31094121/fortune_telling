@@ -1,3 +1,4 @@
+import { AI_SUGGESTION_FLOOR } from '@/lib/trust-counter-floors';
 import 'server-only';
 
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
@@ -10,7 +11,7 @@ import { resolveLocalDataDirectory } from './local-data-directory';
   畫面寫「不認同 204 人」，實際只有 36 個裝置按過，
   其中 168 是憑空加上去的。禁止作假。
 */
-export const AI_SUGGESTION_INITIAL_COUNT = 0;
+export const AI_SUGGESTION_INITIAL_COUNT = AI_SUGGESTION_FLOOR;
 
 const DATA_DIRECTORY = resolveLocalDataDirectory();
 const COUNTER_FILE = path.join(DATA_DIRECTORY, 'ai-suggestion-counter.json');

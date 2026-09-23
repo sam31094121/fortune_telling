@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 
 import { readLocalVisitorCount, recordLocalVisitorVisit } from '@/lib/local-visitor-counter';
+import { monotonicCount, visitorFloorFor } from '@/lib/trust-counter-floors';
 import {
   VISITOR_MIN_DISPLAY_COUNT,
   getVisitorSupabaseClient,
@@ -35,9 +36,10 @@ export async function GET(request: Request) {
   const supabase = getVisitorSupabaseClient();
   if (!supabase) {
     try {
-      const displayCount = Math.max(
+      const displayCount = monotonicCount(
         await readLocalVisitorCount(featureKey, { projectElapsed: !permanent }),
         VISITOR_MIN_DISPLAY_COUNT,
+        visitorFloorFor(featureKey),
       );
       return NextResponse.json(
         { ok: true, featureKey, displayCount, storage: 'local' },
@@ -67,7 +69,7 @@ export async function GET(request: Request) {
   }
 
   // 只顯示真實造訪數：不加資料庫裡的底數，也不依經過時間自己長大。
-  const displayCount = Math.max(Number(data?.real_count ?? 0), VISITOR_MIN_DISPLAY_COUNT);
+  const displayCount = monotonicCount(Number(data?.real_count ?? 0), VISITOR_MIN_DISPLAY_COUNT, visitorFloorFor(featureKey));
 
   if (!Number.isSafeInteger(displayCount)) {
     return NextResponse.json(
@@ -102,7 +104,7 @@ export async function POST(request: Request) {
   const supabase = getVisitorSupabaseClient();
   if (!supabase) {
     try {
-      const displayCount = Math.max(await recordLocalVisitorVisit(body.featureKey, visitId), VISITOR_MIN_DISPLAY_COUNT);
+      const displayCount = monotonicCount(await recordLocalVisitorVisit(body.featureKey, visitId), VISITOR_MIN_DISPLAY_COUNT, visitorFloorFor(body.featureKey));
       return NextResponse.json(
         { ok: true, featureKey: body.featureKey, displayCount, storage: 'local' },
         { headers: { 'Cache-Control': 'no-store' } },
@@ -134,7 +136,7 @@ export async function POST(request: Request) {
     {
       ok: true,
       featureKey: row.feature_key,
-      displayCount: Math.max(Number(row.real_count), VISITOR_MIN_DISPLAY_COUNT),
+      displayCount: monotonicCount(Number(row.real_count), VISITOR_MIN_DISPLAY_COUNT, visitorFloorFor(body.featureKey)),
       storage: 'supabase',
     },
     { headers: { 'Cache-Control': 'no-store' } },

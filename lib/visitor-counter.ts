@@ -10,6 +10,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
   真實計數從 0 開始，這才是它本來的樣子。
 */
 export const VISITOR_SEED_COUNT = 0;
+// 各功能地板見 lib/trust-counter-floors.ts（home=110128）。
 /*
   底數歸零。
 
@@ -21,7 +22,7 @@ export const VISITOR_SEED_COUNT = 0;
   不因為「別人都這樣做」而變成可以。歸零之後數字會很難看，
   但難看的真話勝過好看的假話。
 */
-export const VISITOR_MIN_DISPLAY_COUNT = 0;
+export const VISITOR_MIN_DISPLAY_COUNT = 0; // 全域底線；home 另有 HOME_VISITOR_FLOOR
 
 export const FEATURE_KEYS = {
   home: 'home',

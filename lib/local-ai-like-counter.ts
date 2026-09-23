@@ -1,3 +1,4 @@
+import { AI_LIKE_FLOOR } from '@/lib/trust-counter-floors';
 import 'server-only';
 
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
@@ -16,7 +17,7 @@ import { resolveLocalDataDirectory } from './local-data-directory';
   不因為「別人都這樣做」而變成可以。歸零之後數字會很難看，
   但難看的真話勝過好看的假話。
 */
-export const AI_LIKE_INITIAL_COUNT = 0;
+export const AI_LIKE_INITIAL_COUNT = AI_LIKE_FLOOR;
 
 const DATA_DIRECTORY = resolveLocalDataDirectory();
 const COUNTER_FILE = path.join(DATA_DIRECTORY, 'ai-like-counter.json');

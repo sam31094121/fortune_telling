@@ -1,4 +1,5 @@
 'use client';
+import { monotonicCount, visitorFloorFor } from '@/lib/trust-counter-floors';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -123,7 +124,8 @@ function isMobileOrSocialBrowser() {
 }
 
 function getCounterStartDelayMs(deferMs: number) {
-  return Math.max(deferMs, isMobileOrSocialBrowser() ? 2500 : 0);
+  // 手機改 400ms：太久會還沒計到瀏覽人就離開。
+  return Math.max(deferMs, isMobileOrSocialBrowser() ? 400 : 0);
 }
 
 function getCounterSyncIntervalMs(permanent: boolean) {
@@ -168,7 +170,10 @@ export default function FeatureVisitorCounter({
   compact?: boolean;
   permanent?: boolean;
 }) {
-  const [displayCount, setDisplayCount] = useState<number | null>(null);
+  const [displayCount, setDisplayCount] = useState<number | null>(() => {
+    const floor = visitorFloorFor(featureKey);
+    return floor > 0 ? floor : null;
+  });
   const cardRef = useRef<HTMLElement>(null);
   const didRecord = useRef(false);
   const visitId = useRef<string | null>(null);
@@ -191,7 +196,9 @@ export default function FeatureVisitorCounter({
 
           伺服器才是真相來源。它說多少就是多少——**包括變少**。
         */
-        const nextCount = safeRequestedCount;
+        // owner: UI count only rises
+        const floor = visitorFloorFor(featureKey);
+        const nextCount = monotonicCount(currentBaseCount, safeRequestedCount, floor);
 
         writeStoredDisplayCount(featureKey, nextCount);
         return nextCount;
@@ -203,10 +210,11 @@ export default function FeatureVisitorCounter({
   useEffect(() => {
     const storedDisplayCount = readStoredDisplayCount(featureKey);
 
+    const floor = visitorFloorFor(featureKey);
     if (storedDisplayCount !== null) {
-      commitDisplayCount(storedDisplayCount);
-    } else if (featureKey === 'home') {
-      commitDisplayCount(110128);
+      commitDisplayCount(monotonicCount(storedDisplayCount, floor));
+    } else {
+      commitDisplayCount(floor);
     }
   }, [commitDisplayCount, featureKey]);
 
@@ -320,7 +328,7 @@ export default function FeatureVisitorCounter({
             observer.disconnect();
           }
         },
-        { threshold: 0.5 },
+        { threshold: 0.15, rootMargin: '0px 0px 80px 0px' },
       );
       observer.observe(cardRef.current);
 
