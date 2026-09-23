@@ -42,7 +42,7 @@ export async function GET(request: Request) {
         visitorFloorFor(featureKey),
       );
       return NextResponse.json(
-        { ok: true, featureKey, displayCount, storage: 'local' },
+        { ok: true, featureKey, displayCount, storage: 'local', floorApplied: visitorFloorFor(featureKey) },
         { headers: { 'Cache-Control': 'no-store' } },
       );
     } catch (error) {
@@ -79,7 +79,7 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json(
-    { ok: true, featureKey, displayCount, storage: 'supabase' },
+    { ok: true, featureKey, displayCount, storage: 'supabase', floorApplied: visitorFloorFor(featureKey) },
     { headers: { 'Cache-Control': 'no-store' } },
   );
 }
@@ -106,7 +106,7 @@ export async function POST(request: Request) {
     try {
       const displayCount = monotonicCount(await recordLocalVisitorVisit(body.featureKey, visitId), VISITOR_MIN_DISPLAY_COUNT, visitorFloorFor(body.featureKey));
       return NextResponse.json(
-        { ok: true, featureKey: body.featureKey, displayCount, storage: 'local' },
+        { ok: true, featureKey: body.featureKey, displayCount, storage: 'local', floorApplied: visitorFloorFor(body.featureKey) },
         { headers: { 'Cache-Control': 'no-store' } },
       );
     } catch (error) {
