@@ -817,3 +817,123 @@
   0%, 100% { opacity: 0.58; transform: scale(0.96); }
   50% { opacity: 0.9; transform: scale(1.04); }
 }
+
+
+/* stickiness 2026-09-23: secondary area chips + primary quest lift */
+.areaChipRow {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0 0 0.85rem;
+}
+.areaChipHint {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: rgba(226, 232, 240, 0.72);
+}
+.areaChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.areaChip,
+.areaChipActive {
+  min-height: 44px;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.55);
+  color: rgba(226, 232, 240, 0.92);
+  font-size: 0.82rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.areaChipActive {
+  border-color: rgba(125, 211, 252, 0.75);
+  background: rgba(14, 116, 144, 0.28);
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.18);
+}
+.quest.home-primary-quest,
+:global(.home-primary-quest).quest {
+  position: relative;
+  z-index: 2;
+}
+
+
+/* stickiness upgrade 2026-09-23b: return + compact first screen */
+.returnPromise,
+.returnSoft {
+  margin: 0.7rem 0 0;
+  color: rgba(186, 230, 253, 0.88);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+}
+.returnSoft {
+  margin-top: 0.45rem;
+  color: rgba(253, 230, 138, 0.82);
+  font-size: 0.74rem;
+  font-weight: 750;
+}
+@media (max-width: 900px), (pointer: coarse) {
+  .intro {
+    margin-top: 0.55rem;
+    gap: 0.75rem;
+  }
+  .intro h2 {
+    font-size: clamp(1.35rem, 6.2vw, 1.75rem) !important;
+    line-height: 1.25 !important;
+  }
+  .lead {
+    font-size: 0.88rem !important;
+    line-height: 1.5 !important;
+  }
+  .introAction {
+    gap: 0.65rem;
+  }
+  .lockPreview {
+    min-height: 3.6rem;
+    padding: 0.55rem 0.7rem;
+  }
+  .primaryButton {
+    min-height: 3.15rem !important;
+    box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.35), 0 10px 28px rgba(34, 211, 238, 0.22);
+  }
+  .promiseRow span {
+    font-size: 0.68rem !important;
+  }
+}
+
+
+/* michelin-mobile start-peek 2026-09-23c */
+@media (max-width: 900px), (pointer: coarse) {
+  .intro {
+    margin-top: 0.35rem !important;
+    gap: 0.55rem !important;
+  }
+  .intro h2 {
+    font-size: clamp(1.28rem, 6vw, 1.62rem) !important;
+    line-height: 1.22 !important;
+  }
+  .lead {
+    margin-top: 0.35rem !important;
+    font-size: 0.84rem !important;
+    line-height: 1.45 !important;
+  }
+  .returnPromise {
+    display: none; /* 首屏先讓「開始」浮上來；回訪承諾改在開始後再說 */
+  }
+  .lockPreview {
+    min-height: 3.1rem !important;
+    padding: 0.45rem 0.65rem !important;
+  }
+  .primaryButton {
+    min-height: 3.35rem !important;
+    font-size: 1.02rem !important;
+    box-shadow:
+      0 0 0 1px rgba(253, 230, 138, 0.45),
+      0 12px 32px rgba(34, 211, 238, 0.28) !important;
+  }
+}

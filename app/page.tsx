@@ -18,6 +18,7 @@ import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiTopShell3D from '@/components/taiji/TaijiTopShell3D';
 import { SharedElementSealPaper } from '@/components/bazi/customer/SharedElementSealPaper';
 import TodayDirectionQuest from '@/components/TodayDirectionQuest';
+import HomeTrustEvidence from '@/components/HomeTrustEvidence';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
@@ -2662,9 +2663,10 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <section
+                <div className="home-first-screen-stack">
+<section
           aria-label="首頁箴言木板卡"
-          className="home-top-motto-link home-top-motto-link--wood-4d home-top-motto-link--display mx-auto mb-5 flex min-h-[6.25rem] w-full max-w-[440px] items-center justify-center px-7 py-6 sm:px-9 sm:py-7 text-amber-100"
+          className="home-top-motto-link home-top-motto-link--wood-4d home-top-motto-link--display home-top-motto-link--compact-mobile mx-auto mb-5 flex min-h-[6.25rem] w-full max-w-[440px] items-center justify-center px-7 py-6 sm:px-9 sm:py-7 text-amber-100"
         >
           <div className="home-top-motto-link__body min-w-0 w-full text-center">
             <span className="home-top-brush-gratitude home-top-brush-gratitude--sun block">
@@ -2692,14 +2694,29 @@ export default function HomePage() {
             從第一眼（×1）就沒有邊界，不是放大之後才「無限」。 */}
         <section
           id="home-top-empty-shell-card"
-          className="mx-auto grid w-[min(92vw,440px)] place-items-center mb-5 sm:mb-6"
+          className="home-top-brand-stage mx-auto grid w-[min(92vw,440px)] place-items-center mb-3 sm:mb-5"
           aria-label="首頁最上方太極三層立體卡片"
           data-home-slot="top-empty-shell"
         >
           <TaijiTopShell3D />
         </section>
 
-        <TodayDirectionQuest />
+        <div className="home-primary-quest-wrap mb-3 sm:mb-5">
+          <TodayDirectionQuest />
+        </div>
+
+        <a
+          href="#home-trust-strip"
+          className="home-trust-pulse mx-auto mb-4 flex w-full max-w-[440px] items-center justify-between gap-3 rounded-2xl border border-amber-200/25 bg-slate-950/55 px-3.5 py-2.5 text-left shadow-[0_8px_24px_rgba(2,6,23,0.28)] backdrop-blur-md"
+          data-stickiness="trust-pulse"
+        >
+          <span className="min-w-0">
+            <strong className="block text-[0.78rem] font-black tracking-[0.08em] text-amber-100">社群信任可見</strong>
+            <span className="mt-0.5 block text-[0.7rem] font-semibold leading-5 text-slate-300/90">認同／瀏覽每次累加，數字只增不減。點此查看。</span>
+          </span>
+          <span className="shrink-0 text-cyan-200" aria-hidden="true">↓</span>
+        </a>
+        </div>
 
         <HomeStickyJourneyPanel
           completed={growthCompletedCount}
@@ -2789,9 +2806,9 @@ export default function HomePage() {
 
         <section id="home-eight-card-route" className="home-eight-card-route mb-8 scroll-mt-6">
           {/* 「其他探索素材」標題卡已隱藏（2026-08-11）：依指示不顯示 */}
-          <div className="home-eight-card-route__header hidden">
-            <p>其他探索素材</p>
-            <h2>想多看，再選一張；不想想，就照上面下一步走。</h2>
+          <div className="home-eight-card-route__header home-eight-card-route__header--sticky">
+            <p>亂中有序・序中有正・正中有細</p>
+            <h2>先走主推，再深入命盤，其餘慢慢探索。</h2>
           </div>
           {/* 「8 張卡片，一張一張填」引導卡已隱藏（2026-08-11）：依指示不顯示 */}
           {false && (
@@ -2803,10 +2820,13 @@ export default function HomePage() {
               className="mb-4"
             />
           )}
-          <div className="flex w-full flex-col gap-4">
+          <div className="home-feature-stack flex w-full flex-col gap-3 sm:gap-4">
+          <p className="home-feature-section-label home-feature-section-label--primary">今日主推</p>
+          <p className="home-feature-section-label home-feature-section-label--secondary">深入命盤</p>
+          <p className="home-feature-section-label home-feature-section-label--explore">繼續探索</p>
           <Link
             href="/match"
-            className="home-feature-launch home-feature-rose order-4 w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-rose home-feature-tier-secondary order-5 w-full relative group overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-r from-slate-950 via-rose-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(244,63,94,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-rose-400 hover:shadow-[0_0_50px_rgba(244,63,94,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -2835,6 +2855,7 @@ export default function HomePage() {
               </div>
             </div>
 
+            <HomeTrustEvidence items={["免費試算","需兩人資料","免登入"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 px-5 py-3 text-xs font-bold text-rose-200 transition group-hover:bg-rose-500/25">
               <span>立即開啟配對</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
@@ -2843,7 +2864,7 @@ export default function HomePage() {
 
           <Link
             href="/music"
-            className="home-feature-launch home-feature-violet order-5 w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-4 flex-wrap sm:p-6 sm:gap-6"
+            className="home-feature-launch home-feature-violet home-feature-tier-secondary order-6 w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-4 flex-wrap sm:p-6 sm:gap-6"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
@@ -2871,6 +2892,7 @@ export default function HomePage() {
               </div>
             </div>
 
+            <HomeTrustEvidence items={["免費生成", "依生辰", "可重聽"]} />
             <div className="home-feature-cta home-music-cta flex items-center gap-2 rounded-xl border border-violet-500/40 bg-violet-950/30 px-5 py-3 text-xs font-bold text-violet-200 transition group-hover:bg-violet-500/25">
               <span>{"\u7acb\u5373\u751f\u6210\u6b4c\u66f2"}</span>
               <span className="transition-transform group-hover:translate-x-1.5">{"\u279c"}</span>
@@ -2879,7 +2901,7 @@ export default function HomePage() {
 
           <Link
             href="/nameology"
-            className="home-feature-launch home-feature-amber order-6 w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-amber home-feature-tier-explore order-12 w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -2908,6 +2930,7 @@ export default function HomePage() {
               </div>
             </div>
 
+            <HomeTrustEvidence items={["免費","需姓名","免登入"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-950/30 px-5 py-3 text-xs font-bold text-amber-200 transition group-hover:bg-amber-500/25">
               <span>開啟姓名決策</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
@@ -2917,7 +2940,7 @@ export default function HomePage() {
           <Link
             href="/numerology"
             prefetch
-            className="home-feature-launch home-feature-cyan order-2 w-full relative group overflow-hidden rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-950 via-cyan-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-cyan home-feature-tier-primary order-2 w-full relative group overflow-hidden rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-950 via-cyan-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -2945,6 +2968,7 @@ export default function HomePage() {
               </div>
             </div>
             
+            <HomeTrustEvidence items={["免費","約 30 秒","只需數字"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-950/30 px-5 py-3 text-xs font-bold text-cyan-200 transition group-hover:bg-cyan-500/25">
               <span>立即開始</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
@@ -2956,7 +2980,7 @@ export default function HomePage() {
             data-module="ziwei"
             data-navigation-target={ZIWEI_ROUTE}
             onClick={handleZiweiOpen}
-            className="home-feature-launch home-feature-indigo order-3 w-full relative group overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-950 via-indigo-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-indigo-400 hover:shadow-[0_0_50px_rgba(99,102,241,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap [touch-action:manipulation]"
+            className="home-feature-launch home-feature-indigo home-feature-tier-secondary order-4 w-full relative group overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-950 via-indigo-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-indigo-400 hover:shadow-[0_0_50px_rgba(99,102,241,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap [touch-action:manipulation]"
             aria-label="開啟 易經紫微斗數"
             aria-busy={ziweiOpening}
           >
@@ -2986,6 +3010,7 @@ export default function HomePage() {
               </div>
             </div>
 
+            <HomeTrustEvidence items={["需生辰","看長期方向","免登入"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-indigo-500/40 bg-indigo-950/30 px-5 py-3 text-xs font-bold text-indigo-200 transition group-hover:bg-indigo-500/25">
               <span>{ziweiOpening ? '正在開啟紫微…' : '立即開啟紫微'}</span>
               <span className={`transition-transform ${ziweiOpening ? 'animate-pulse' : 'group-hover:translate-x-1.5'}`}>→</span>
@@ -2994,7 +3019,7 @@ export default function HomePage() {
 
           <Link
             href="/bazi"
-            className="home-feature-launch home-feature-emerald order-7 w-full relative group overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-r from-slate-950 via-emerald-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-emerald-400 hover:shadow-[0_0_50px_rgba(16,185,129,0.26)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-emerald home-feature-tier-explore order-11 w-full relative group overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-r from-slate-950 via-emerald-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-emerald-400 hover:shadow-[0_0_50px_rgba(16,185,129,0.26)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
@@ -3022,6 +3047,7 @@ export default function HomePage() {
               </div>
             </div>
 
+            <HomeTrustEvidence items={["需生辰","正統排盤","免登入"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-950/30 px-5 py-3 text-xs font-bold text-emerald-200 transition group-hover:bg-emerald-500/25">
               <span>{'立即開啟命盤'}</span>
               <span className="transition-transform group-hover:translate-x-1.5">{'\u279c'}</span>
@@ -3030,7 +3056,7 @@ export default function HomePage() {
 
           <Link
             href="/zodiac"
-            className="home-feature-launch order-8 w-full relative group overflow-hidden rounded-3xl border border-fuchsia-500/30 bg-gradient-to-r from-slate-950 via-fuchsia-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(217,70,239,0.15)] transition-all duration-500 hover:border-fuchsia-300 hover:shadow-[0_0_50px_rgba(217,70,239,0.28)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-tier-explore order-8 w-full relative group overflow-hidden rounded-3xl border border-fuchsia-500/30 bg-gradient-to-r from-slate-950 via-fuchsia-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(217,70,239,0.15)] transition-all duration-500 hover:border-fuchsia-300 hover:shadow-[0_0_50px_rgba(217,70,239,0.28)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(217,70,239,0.22),transparent_34%),radial-gradient(circle_at_78%_30%,rgba(34,211,238,0.16),transparent_28%)] pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-fuchsia-400/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -3059,6 +3085,7 @@ export default function HomePage() {
               </div>
             </div>
 
+            <HomeTrustEvidence items={["免費", "需生日", "約 20 秒"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-fuchsia-400/40 bg-fuchsia-950/30 px-5 py-3 text-xs font-bold text-fuchsia-100 transition group-hover:bg-fuchsia-500/20">
               <span>{'\u958b\u59cb\u661f\u5ea7\u5206\u6790'}</span>
               <span className="transition-transform group-hover:translate-x-1.5">{'\u279c'}</span>
@@ -3067,7 +3094,7 @@ export default function HomePage() {
 
           {RED_LUAN_PUBLIC_ARCHIVED ? (
             <section
-              className="home-feature-launch order-0 w-full relative overflow-hidden rounded-3xl border border-rose-200/30 bg-[radial-gradient(circle_at_50%_40%,rgba(251,113,133,0.18),transparent_32%),radial-gradient(circle_at_82%_22%,rgba(251,191,36,0.10),transparent_28%),linear-gradient(115deg,rgba(51,8,30,0.98),rgba(26,12,42,0.96)_58%,rgba(15,23,42,0.98))] p-6 text-center shadow-[0_0_34px_rgba(244,63,94,0.14)]"
+              className="home-feature-launch home-feature-tier-primary order-0 w-full relative overflow-hidden rounded-3xl border border-rose-200/30 bg-[radial-gradient(circle_at_50%_40%,rgba(251,113,133,0.18),transparent_32%),radial-gradient(circle_at_82%_22%,rgba(251,191,36,0.10),transparent_28%),linear-gradient(115deg,rgba(51,8,30,0.98),rgba(26,12,42,0.96)_58%,rgba(15,23,42,0.98))] p-6 text-center shadow-[0_0_34px_rgba(244,63,94,0.14)]"
               aria-label={`${RED_LUAN_ARCHIVE_COPY.title}，${RED_LUAN_ARCHIVE_COPY.message}`}
               aria-disabled="true"
             >
@@ -3085,7 +3112,7 @@ export default function HomePage() {
           ) : (
             <Link
               href="/red-luan-heartbeat"
-              className="home-feature-launch order-0 w-full relative group overflow-hidden rounded-3xl border border-rose-300/35 bg-[radial-gradient(circle_at_14%_20%,rgba(251,113,133,0.24),transparent_34%),radial-gradient(circle_at_84%_22%,rgba(251,191,36,0.16),transparent_30%),linear-gradient(115deg,rgba(51,8,30,0.98),rgba(26,12,42,0.96)_58%,rgba(15,23,42,0.98))] p-6 text-left shadow-[0_0_34px_rgba(244,63,94,0.18)] transition-[border-color,box-shadow,transform] duration-500 hover:border-rose-200/75 hover:shadow-[0_0_54px_rgba(244,63,94,0.30)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+              className="home-feature-launch home-feature-tier-primary order-0 w-full relative group overflow-hidden rounded-3xl border border-rose-300/35 bg-[radial-gradient(circle_at_14%_20%,rgba(251,113,133,0.24),transparent_34%),radial-gradient(circle_at_84%_22%,rgba(251,191,36,0.16),transparent_30%),linear-gradient(115deg,rgba(51,8,30,0.98),rgba(26,12,42,0.96)_58%,rgba(15,23,42,0.98))] p-6 text-left shadow-[0_0_34px_rgba(244,63,94,0.18)] transition-[border-color,box-shadow,transform] duration-500 hover:border-rose-200/75 hover:shadow-[0_0_54px_rgba(244,63,94,0.30)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
               aria-label="算出下一次紅鸞心動的月份與對象類型"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-100/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
@@ -3096,7 +3123,8 @@ export default function HomePage() {
                   <p className="mt-1 text-xs leading-5 text-rose-50/75">抽出心動月份、對象類型與相遇提示。</p>
                 </div>
               </div>
-              <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-rose-100/45 bg-rose-200/12 px-5 py-3 text-xs font-bold text-rose-50 transition group-hover:bg-rose-200/22">
+              <HomeTrustEvidence items={["免費","一抽即見","免登入"]} />
+            <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-rose-100/45 bg-rose-200/12 px-5 py-3 text-xs font-bold text-rose-50 transition group-hover:bg-rose-200/22">
                 <span>抽出我的心動月份</span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
               </div>
             </Link>
@@ -3104,7 +3132,7 @@ export default function HomePage() {
           <TarotEntryCard />
           <Link
             href="/star-beasts"
-            className="home-feature-launch order-9 w-full relative group overflow-hidden rounded-3xl border border-amber-200/30 bg-[radial-gradient(circle_at_82%_22%,rgba(251,191,36,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(63,35,70,0.62),rgba(12,18,42,0.98))] p-6 text-left shadow-[0_0_30px_rgba(251,191,36,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-200/70 hover:shadow-[0_0_50px_rgba(251,191,36,0.25)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-tier-explore order-9 w-full relative group overflow-hidden rounded-3xl border border-amber-200/30 bg-[radial-gradient(circle_at_82%_22%,rgba(251,191,36,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(63,35,70,0.62),rgba(12,18,42,0.98))] p-6 text-left shadow-[0_0_30px_rgba(251,191,36,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-200/70 hover:shadow-[0_0_50px_rgba(251,191,36,0.25)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
             <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
@@ -3115,13 +3143,14 @@ export default function HomePage() {
                 <p className="mt-1 text-sm text-slate-200">28 張本體、28 張幼子、4 張四象，共 60 種神獸。瀏覽卡片，認識各自的守護特質。</p>
               </div>
             </div>
+            <HomeTrustEvidence items={["免費瀏覽","60 種可看","先看再玩"]} />
             <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-amber-200/40 bg-amber-300/15 px-5 py-3 text-xs font-bold text-amber-50 transition group-hover:bg-amber-300/25">
               <span>查看 60 種神獸</span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>
           <Link
             href="/3D"
-            className="home-feature-launch order-10 w-full relative group overflow-hidden rounded-3xl border border-violet-300/30 bg-[radial-gradient(circle_at_82%_22%,rgba(167,139,250,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(45,28,74,0.62),rgba(12,18,42,0.98))] p-6 text-left shadow-[0_0_30px_rgba(167,139,250,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-200/70 hover:shadow-[0_0_50px_rgba(167,139,250,0.25)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+            className="home-feature-launch home-feature-tier-explore order-10 w-full relative group overflow-hidden rounded-3xl border border-violet-300/30 bg-[radial-gradient(circle_at_82%_22%,rgba(167,139,250,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(45,28,74,0.62),rgba(12,18,42,0.98))] p-6 text-left shadow-[0_0_30px_rgba(167,139,250,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-200/70 hover:shadow-[0_0_50px_rgba(167,139,250,0.25)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-200/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
             <div className="pointer-events-none absolute -right-6 -top-8 h-40 w-40 opacity-[0.18] transition-opacity duration-500 group-hover:opacity-[0.32]" aria-hidden="true">
@@ -3165,6 +3194,7 @@ export default function HomePage() {
                 <p className="mt-1 text-sm text-slate-200">空心太極包方形核心，方圓緊貼，進入四維。</p>
               </div>
             </div>
+            <HomeTrustEvidence items={["免費體驗", "可旋轉", "非付費牆"]} />
             <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-violet-200/40 bg-violet-300/15 px-5 py-3 text-xs font-bold text-violet-50 transition group-hover:bg-violet-300/25">
               <span>打開模型工作室</span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
@@ -3845,7 +3875,7 @@ export default function HomePage() {
 
         <section className="mt-10 pb-5 sm:mt-14 sm:pb-8" aria-label="Home trust counters">
           <div className="mx-auto max-w-3xl">
-            <div className="home-trust-strip home-trust-strip--footer grid grid-cols-1 items-stretch gap-2 sm:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+            <div id="home-trust-strip" className="home-trust-strip home-trust-strip--footer grid scroll-mt-6 grid-cols-1 items-stretch gap-2 sm:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
               <AiTrustFeedback className="home-trust-card flex min-h-[108px] min-w-0 flex-col justify-center overflow-hidden rounded-xl border border-amber-300/25 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.15),rgba(34,211,238,0.1)_38%,rgba(15,23,42,0.76)_64%,rgba(2,6,23,0.93)_100%)] px-3 py-2.5 text-center shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl" />
               <FeatureVisitorCounter featureKey="home" className="home-trust-card home-trust-card--visitor h-full !w-full min-w-0" deferMs={1500} compact permanent />
             </div>

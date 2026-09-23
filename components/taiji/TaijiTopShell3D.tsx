@@ -57,6 +57,34 @@ function StaticTaiji({ state }: { state: 'loading' | 'static' }) {
   );
 }
 
+
+function MobilePlayHint() {
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const narrow = window.matchMedia('(max-width: 900px), (pointer: coarse)').matches;
+    if (!narrow) {
+      setVisible(false);
+      return;
+    }
+    const hide = () => setVisible(false);
+    window.addEventListener('pointerdown', hide, { once: true, capture: true });
+    const timer = window.setTimeout(hide, 9000);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener('pointerdown', hide, true);
+    };
+  }, []);
+
+  if (!visible) return null;
+  return (
+    <p className="taiji-mobile-play-hint" role="note">
+      拖曳太極 · 感受氣場
+    </p>
+  );
+}
+
 export default function TaijiTopShell3D({
   textureUrl,
   videoUrl,
@@ -139,6 +167,7 @@ export default function TaijiTopShell3D({
     <TaijiMountBoundary fallback={<StaticTaiji state="static" />}>
       <div className="relative w-full overflow-visible rounded-[28px]">
         <TaijiSystem textureUrl={textureUrl ?? '/taiji.png'} videoUrl={videoUrl} />
+        <MobilePlayHint />
       </div>
     </TaijiMountBoundary>
   );

@@ -26282,3 +26282,360 @@ a.home-feature-launch::after {
     -webkit-text-fill-color: rgb(165 243 252) !important;
   }
 }
+
+
+/* ===== stickiness 2026-09-23 mobile-first hierarchy ===== */
+.home-top-brand-stage {
+  position: relative;
+}
+@media (max-width: 900px), (pointer: coarse) {
+  .home-top-brand-stage {
+    transform: scale(0.92);
+    opacity: 0.88;
+    margin-bottom: 0.35rem !important;
+    pointer-events: auto;
+  }
+  .home-top-brand-stage .modal-evolution-rays .modal-energy-ray:nth-child(n+5) {
+    display: none !important;
+  }
+  .home-top-brand-stage .taiji-celestial-mist,
+  .home-top-brand-stage .taiji-celestial-wisp,
+  .home-top-brand-stage .taiji-gold-waves {
+    opacity: 0.35;
+  }
+  .home-primary-quest-wrap {
+    position: relative;
+    z-index: 3;
+    filter: drop-shadow(0 10px 28px rgba(34, 211, 238, 0.18));
+  }
+  .home-primary-quest-wrap .home-primary-quest,
+  .home-primary-quest-wrap [data-quest-stage] {
+    border-color: rgba(125, 211, 252, 0.45);
+  }
+}
+
+.home-eight-card-route__header--sticky {
+  display: grid !important;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+  padding: 0.35rem 0.15rem 0.15rem;
+}
+.home-eight-card-route__header--sticky p {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  color: rgba(251, 191, 36, 0.78);
+}
+.home-eight-card-route__header--sticky h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: rgba(248, 250, 252, 0.95);
+  letter-spacing: 0.04em;
+}
+
+.home-feature-stack {
+  display: flex;
+  flex-direction: column;
+}
+.home-feature-section-label {
+  margin: 0.35rem 0 0.1rem;
+  padding: 0.15rem 0.2rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: rgba(226, 232, 240, 0.78);
+}
+.home-feature-section-label--primary { order: -1; color: rgba(251, 191, 36, 0.92); }
+.home-feature-section-label--secondary { order: 3; color: rgba(165, 180, 252, 0.9); }
+.home-feature-section-label--explore { order: 7; color: rgba(148, 163, 184, 0.88); }
+
+/* visual tiers: 亂中有序 */
+.home-feature-tier-primary {
+  padding-top: 1.35rem !important;
+  padding-bottom: 1.35rem !important;
+  box-shadow: 0 0 42px rgba(251, 191, 36, 0.12), 0 0 28px rgba(244, 63, 94, 0.1) !important;
+  border-width: 1.5px !important;
+}
+.home-feature-tier-primary .home-feature-cta {
+  min-height: 44px;
+  font-size: 0.8rem;
+}
+.home-feature-tier-secondary {
+  opacity: 0.98;
+}
+.home-feature-tier-explore {
+  padding-top: 0.95rem !important;
+  padding-bottom: 0.95rem !important;
+  opacity: 0.9;
+  filter: saturate(0.92);
+  box-shadow: none !important;
+}
+.home-feature-tier-explore .home-oracle-3d-emblem,
+.home-feature-tier-explore .number-fortune-auspicious-emblem,
+.home-feature-tier-explore .ziwei-dou-3d-emblem {
+  transform: scale(0.9);
+}
+@media (max-width: 900px) {
+  .home-feature-tier-explore {
+    gap: 0.85rem !important;
+  }
+  .home-trust-strip--footer {
+    border-top: 1px solid rgba(148, 163, 184, 0.22);
+    padding-top: 0.75rem;
+    margin-top: 0.5rem;
+  }
+}
+
+
+
+/* ===== stickiness upgrade 2026-09-23b customer-first ===== */
+@media (max-width: 900px), (pointer: coarse) {
+  .home-top-motto-link--compact-mobile {
+    margin-bottom: 0.55rem !important;
+    min-height: 4.6rem !important;
+    padding-top: 0.85rem !important;
+    padding-bottom: 0.85rem !important;
+    padding-left: 1.1rem !important;
+    padding-right: 1.1rem !important;
+    transform: scale(0.96);
+    transform-origin: top center;
+  }
+  .home-top-motto-link--compact-mobile .home-top-ward-seal {
+    margin-top: 0.55rem !important;
+  }
+
+  .home-top-brand-stage {
+    width: min(68vw, 240px) !important;
+    max-width: 240px !important;
+    transform: scale(0.72);
+    transform-origin: top center;
+    opacity: 0.82;
+    margin-bottom: 0.15rem !important;
+    margin-top: -0.15rem !important;
+  }
+  .home-top-brand-stage .modal-evolution-rays,
+  .home-top-brand-stage .taiji-celestial-mist,
+  .home-top-brand-stage .taiji-celestial-wisp,
+  .home-top-brand-stage .taiji-gold-waves {
+    opacity: 0.22 !important;
+  }
+  .home-top-brand-stage .modal-evolution-rays .modal-energy-ray:nth-child(n+3) {
+    display: none !important;
+  }
+  /* fallback static taiji also shrinks with stage */
+
+  .home-primary-quest-wrap {
+    margin-top: -0.35rem;
+    filter: drop-shadow(0 12px 30px rgba(34, 211, 238, 0.22));
+  }
+}
+
+.home-trust-pulse {
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+.home-trust-pulse:active {
+  transform: scale(0.99);
+}
+.home-trust-pulse:hover {
+  border-color: rgba(251, 191, 36, 0.45);
+}
+@media (max-width: 900px) {
+  .home-trust-pulse {
+    max-width: min(92vw, 440px);
+  }
+  .home-trust-strip--footer {
+    border-top: 1px solid rgba(251, 191, 36, 0.22);
+    padding-top: 0.9rem;
+    margin-top: 0.65rem;
+    box-shadow: 0 -8px 28px rgba(2, 6, 23, 0.25);
+  }
+}
+
+
+
+/* ===== stickiness upgrade 2026-09-23c first-screen CTA ===== */
+.home-first-screen-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+}
+@media (max-width: 900px), (pointer: coarse) {
+  .home-first-screen-stack .home-top-motto-link--compact-mobile {
+    order: 1;
+    margin-bottom: 0.4rem !important;
+    min-height: 4.1rem !important;
+    padding-top: 0.7rem !important;
+    padding-bottom: 0.7rem !important;
+  }
+  /* 定向關卡升到太極之前：開始進第一眼 */
+  .home-first-screen-stack .home-primary-quest-wrap {
+    order: 2;
+    margin-top: 0 !important;
+    margin-bottom: 0.55rem !important;
+  }
+  .home-first-screen-stack .home-top-brand-stage {
+    order: 3;
+    width: 132px !important;
+    max-width: 132px !important;
+    height: 132px !important;
+    max-height: 132px !important;
+    overflow: hidden !important;
+    margin: 0.15rem auto 0.35rem !important;
+    transform: none !important;
+    opacity: 0.9;
+    align-self: center;
+  }
+  .home-first-screen-stack .home-top-brand-stage > * {
+    transform: scale(0.48);
+    transform-origin: center center;
+  }
+  .home-first-screen-stack .home-trust-pulse {
+    order: 4;
+    margin-bottom: 0.75rem !important;
+  }
+}
+
+
+
+/* ===== stickiness fine-tune 2026-09-23c michelin-mobile ===== */
+@media (max-width: 900px), (pointer: coarse) {
+  /* 讓首屏更快看到「開始」：太極殼再收一點、任務卡上提 */
+  #home-top-empty-shell-card,
+  .home-top-brand-stage {
+    margin-bottom: 0.05rem !important;
+  }
+  .home-primary-quest-wrap {
+    margin-top: -0.7rem !important;
+    margin-bottom: 0.85rem !important;
+  }
+  .taiji-mobile-play-hint {
+    pointer-events: none;
+    position: absolute;
+    left: 50%;
+    bottom: 0.35rem;
+    z-index: 6;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0.28rem 0.7rem;
+    border: 1px solid rgba(253, 230, 138, 0.35);
+    border-radius: 999px;
+    background: rgba(2, 6, 23, 0.62);
+    box-shadow: 0 0 18px rgba(34, 211, 238, 0.18);
+    color: rgba(254, 243, 199, 0.92);
+    font-size: 0.68rem;
+    font-weight: 850;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+    animation: taiji-play-hint-breathe 2.4s ease-in-out infinite;
+  }
+  @keyframes taiji-play-hint-breathe {
+    0%, 100% { opacity: 0.72; transform: translateX(-50%) translateY(0); }
+    50% { opacity: 1; transform: translateX(-50%) translateY(-2px); }
+  }
+  /* 手機卡文少截斷：2 行 → 3 行，降低「寫不完」的不信任感 */
+  .home-feature-launch p {
+    -webkit-line-clamp: 3 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .taiji-mobile-play-hint {
+    animation: none !important;
+  }
+}
+
+/* ===== taiji shell quiet 2026-09-23e — live TaijiSystem/level01 shell only; no height/order ===== */
+@media (max-width: 900px), (pointer: coarse) {
+  .home-first-screen-stack .home-top-brand-stage [class*="visualPulse"],
+  .home-top-brand-stage [class*="visualPulse"] {
+    opacity: 0 !important;
+    animation: none !important;
+  }
+  .home-first-screen-stack .home-top-brand-stage [class*="energyVeil"],
+  .home-top-brand-stage [class*="energyVeil"],
+  .home-first-screen-stack .home-top-brand-stage [class*="journeyRing"],
+  .home-top-brand-stage [class*="journeyRing"],
+  .home-first-screen-stack .home-top-brand-stage [class*="completionHalo"],
+  .home-top-brand-stage [class*="completionHalo"] {
+    opacity: 0 !important;
+    animation: none !important;
+  }
+  .home-first-screen-stack .home-top-brand-stage [class*="groundShadow"],
+  .home-top-brand-stage [class*="groundShadow"] {
+    opacity: 0.35 !important;
+    filter: blur(2px) !important;
+  }
+  .home-first-screen-stack .home-top-brand-stage [class*="shadowGlow"],
+  .home-top-brand-stage [class*="shadowGlow"] {
+    opacity: 0.12 !important;
+    animation: none !important;
+  }
+  .home-first-screen-stack .home-top-brand-stage [class*="particlePair"],
+  .home-top-brand-stage [class*="particlePair"] {
+    opacity: 0.08 !important;
+  }
+  .home-first-screen-stack .home-top-brand-stage [class*="chaseCounterLight"],
+  .home-top-brand-stage [class*="chaseCounterLight"],
+  .home-first-screen-stack .home-top-brand-stage [class*="chaseParticle"],
+  .home-top-brand-stage [class*="chaseParticle"] {
+    opacity: 0.18 !important;
+    animation: none !important;
+    box-shadow: none !important;
+  }
+  .home-first-screen-stack .home-top-brand-stage .taiji-mobile-play-hint,
+  .home-top-brand-stage .taiji-mobile-play-hint {
+    opacity: 0.55 !important;
+  }
+  .home-first-screen-stack .home-top-brand-stage .modal-evolution-rays,
+  .home-top-brand-stage .modal-evolution-rays {
+    opacity: 0.12 !important;
+  }
+  .home-first-screen-stack .home-top-brand-stage .taiji-celestial-mist,
+  .home-first-screen-stack .home-top-brand-stage .taiji-celestial-wisp,
+  .home-first-screen-stack .home-top-brand-stage .taiji-gold-waves,
+  .home-top-brand-stage .taiji-celestial-mist,
+  .home-top-brand-stage .taiji-celestial-wisp,
+  .home-top-brand-stage .taiji-gold-waves {
+    opacity: 0.1 !important;
+  }
+}
+
+/* ===== trust-evidence 2026-09-23 michelin ===== */
+.home-trust-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.4rem;
+  margin: 0.55rem 0 0.65rem;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+}
+.home-trust-evidence__chip {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(226, 232, 240, 0.22);
+  background: rgba(2, 6, 23, 0.45);
+  color: rgba(226, 232, 240, 0.88);
+  font-size: 0.62rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+@media (max-width: 900px), (pointer: coarse) {
+  .home-trust-evidence {
+    margin-top: 0.45rem;
+    margin-bottom: 0.55rem;
+  }
+  .home-trust-evidence__chip {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.5rem;
+  }
+}

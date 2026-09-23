@@ -140,8 +140,8 @@ const QUEST_AREAS: QuestArea[] = [
 
 const STAGE_NUMBER: Record<Exclude<QuestStage, 'intro' | 'checkin' | 'reward'>, number> = {
   area: 1,
-  tension: 2,
-  action: 3,
+  tension: 1,
+  action: 2,
 };
 
 const WIND_RITUAL_SCENES = [
@@ -281,9 +281,10 @@ export default function TodayDirectionQuest() {
     windRitual.reseal();
     setRestoredReleased(false);
     setActionMode('ready');
-    setAreaId(null);
+    // 手機黏著：開始後直接進入「自己」推薦路徑，心／行／緣改為次要切換
+    setAreaId('self');
     setPathId(null);
-    setStage('area');
+    setStage('tension');
   }
 
   function chooseArea(nextAreaId: QuestAreaId) {
@@ -342,9 +343,14 @@ export default function TodayDirectionQuest() {
     };
     setReturnNote(notes[response]);
     setActionMode('ready');
-    setAreaId(null);
     setPathId(null);
-    setStage('area');
+    if (response === 'switch') {
+      setAreaId(null);
+      setStage('area');
+      return;
+    }
+    setAreaId('self');
+    setStage('tension');
   }
 
   function chooseAnotherPath() {
@@ -369,7 +375,7 @@ export default function TodayDirectionQuest() {
     <section
       ref={panelRef}
       id="today-direction-quest"
-      className={styles.quest}
+      className={`${styles.quest} home-primary-quest`}
       aria-labelledby="today-direction-title"
       tabIndex={-1}
       data-quest-stage={stage}
@@ -419,6 +425,7 @@ export default function TodayDirectionQuest() {
                 <span>90 秒</span>
                 <span>免填資料</span>
               </div>
+              <p className={styles.returnPromise}>每天一件事，明天回來繼續；進度會幫你留著。</p>
             </div>
 
             <div className={styles.introAction}>
@@ -457,14 +464,14 @@ export default function TodayDirectionQuest() {
               <button type="button" className={styles.secondaryButton} onClick={() => answerCheckin('progress')}>我有前進</button>
               <button type="button" className={styles.quietButton} onClick={() => answerCheckin('switch')}>我想換條路</button>
             </div>
-            <p className={styles.checkinPromise}>不論答案，成果都會保留。</p>
+            <p className={styles.checkinPromise}>不論答案，成果都會保留。每天回來一步，比一次做完更重要。</p>
           </div>
         )}
 
         {stage === 'area' && (
           <div className={styles.step}>
-            <p className={styles.kicker}>第一層</p>
-            <h2 id="today-direction-title">今天想先整理哪裡？</h2>
+            <p className={styles.kicker}>改選面向</p>
+            <h2 id="today-direction-title">你想先整理哪裡？</h2>
             {returnNote && <p className={styles.returnNote} aria-live="polite">{returnNote}</p>}
             <div className={styles.areaGrid}>
               {QUEST_AREAS.map((item) => (
@@ -489,8 +496,25 @@ export default function TodayDirectionQuest() {
 
         {stage === 'tension' && area && (
           <div className={styles.step}>
-            <p className={styles.kicker}>第二層｜{area.label}</p>
+            <p className={styles.kicker}>今日一件事｜{area.label}</p>
             <h2 id="today-direction-title">哪一句最接近現在？</h2>
+            <div className={styles.areaChipRow} aria-label="改選其他面向">
+              <span className={styles.areaChipHint}>先做這一件｜也可改選</span>
+              <div className={styles.areaChips}>
+                {QUEST_AREAS.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={item.id === area.id ? styles.areaChipActive : styles.areaChip}
+                    onClick={() => chooseArea(item.id)}
+                    data-quest-area={item.id}
+                  >
+                    <span aria-hidden="true">{item.glyph}</span>
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className={styles.pathList}>
               {area.paths.map((item, index) => (
                 <button
@@ -594,7 +618,8 @@ export default function TodayDirectionQuest() {
                 <p className={styles.kicker}>今天已前進</p>
                 <h2 id="today-direction-title">風寶珠已解封</h2>
                 <p className={styles.rewardLead}>今天的一步，正在改變明天。</p>
-                <p className={styles.tomorrowClue}>明天，風寶珠會帶回下一條線索。</p>
+                <p className={styles.tomorrowClue}>明天回來，風寶珠會記得你，並帶回下一條線索。</p>
+                <p className={styles.returnSoft}>先離開也沒關係；明天打開首頁就能續走。</p>
                 <div className={styles.nextClue}>
                   <span>繼續探索</span>
                   <strong>{path.routeLabel}</strong>
