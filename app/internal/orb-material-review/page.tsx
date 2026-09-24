@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { ElementTreasureOrb } from '@/components/bazi/customer/ElementTreasureOrb';
 import type { ProductElement } from '@/components/bazi/customer/elementOrbPalette';
@@ -25,7 +26,7 @@ export default function OrbReview() {
       .orb-review button,.orb-review select {background:#243754;color:#fff;border:1px solid #99bdd2;border-radius:12px;padding:12px;margin:6px;min-height:44px;}
       .orb-review button:disabled {opacity:.6;} .orb-review a {color:#bdeeff;} .orb-review .status {min-height:28px;}
     `}</style>
-    <a href="/">返回首頁</a><h1>寶珠・封印與解封體驗</h1>
+    <Link href="/">返回首頁</Link><h1>寶珠・封印與解封體驗</h1>
     <p>此處只預覽外觀，不儲存進度、不發放獎勵。</p>
     <label>主珠元素 <select aria-label="主珠元素" value={element} disabled={state === 'opening'} onChange={e => {setElement(e.target.value as ProductElement);setState('sealed');setSeconds(0);}}>{elements.map(e => <option key={e}>{e}</option>)}</select></label>
     <div className="hero"><ElementTreasureOrb key={element} element={element} released={state !== 'sealed'} burning={state === 'opening'} /></div>
