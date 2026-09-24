@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import AppStabilityGuard from '@/components/AppStabilityGuard';
+import { InterfaceLanguageProvider } from '@/components/InterfaceLanguage';
 import ScreenArrowReview from '@/components/ScreenArrowReview';
 import { TAROT_CARD_BACK_CSS_IMAGE } from '@/features/tarot/constants/cardBack';
 import './globals.css';
@@ -116,7 +117,7 @@ export default function RootLayout({
         ) : null}
         <AppStabilityGuard />
         <ScreenArrowReview />
-        {children}
+        <InterfaceLanguageProvider>{children}</InterfaceLanguageProvider>
       </body>
     </html>
   );

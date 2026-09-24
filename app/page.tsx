@@ -3,6 +3,7 @@
 import { useMemo, useState, useDeferredValue, useEffect, useRef, type CSSProperties } from 'react';
 import { FRONTEND_COPY } from '@/lib/credibility-phrases';
 import Link from 'next/link';
+import { InterfaceLanguagePicker, useInterfaceLanguage } from '@/components/InterfaceLanguage';
 import dualChartEntryStyles from './dual-chart-entry.module.css';
 import dynamic from 'next/dynamic';
 import { injectPerformanceCSS } from '@/lib/performance-css';
@@ -1549,6 +1550,7 @@ function HomeStickyJourneyPanel({ completed, completedModules, total, onOpenNumb
 }
 
 export default function HomePage() {
+  const { language: readingLanguage, copy: readingCopy } = useInterfaceLanguage();
   const [step, setStep] = useState<StepKey>('personA-base');
   const [personA, setPersonA] = useState<PersonInput>({ ...EMPTY, gender: 'female' });
   const [personB, setPersonB] = useState<PersonInput>({ ...EMPTY, gender: 'male' });
@@ -2668,6 +2670,7 @@ export default function HomePage() {
       )}
 
       <main ref={mainRef} className="relative z-10 mx-auto max-w-5xl px-4 pt-4 pb-10 sm:px-6 sm:pt-6 lg:pt-8 lg:pb-14">
+        <InterfaceLanguagePicker />
         <div className="hidden mb-8 items-center gap-4">
           <span className="text-xs tracking-widest text-rose-300">// 易經靈魂配對</span>
           <span className="text-[color:var(--text-muted)]">·</span>
@@ -2828,15 +2831,16 @@ export default function HomePage() {
             />
           )}
           <div className={`home-feature-stack flex w-full flex-col gap-3 sm:gap-4 ${showMoreFeatures ? 'home-feature-stack--expanded' : 'home-feature-stack--collapsed'}`}>
-          <p className="home-feature-section-label home-feature-section-label--secondary">深入命盤</p>
-          <p className="home-feature-section-label home-feature-section-label--explore">繼續探索</p>
+          <p lang={readingLanguage} className="home-feature-section-label home-feature-section-label--secondary">{readingCopy.deeper}</p>
+          <p lang={readingLanguage} className="home-feature-section-label home-feature-section-label--explore">{readingCopy.explore}</p>
           <button
             type="button"
             className="home-feature-more-toggle"
+            lang={readingLanguage}
             aria-expanded={showMoreFeatures}
             onClick={() => setShowMoreFeatures((v) => !v)}
           >
-            {showMoreFeatures ? '收合更多探索' : '更多探索（可稍後）'}
+            {showMoreFeatures ? readingCopy.less : readingCopy.more}
           </button>
           <Link
             href="/match"
@@ -3068,12 +3072,12 @@ export default function HomePage() {
             </div>
           </Link>
 
-          <Link href="/dual-chart" aria-label="雙命盤：輸入密碼，查看八字與紫微" className={`${dualChartEntryStyles.entry} home-feature-launch home-feature-tier-explore order-[13] w-full rounded-3xl border border-violet-400/30 bg-gradient-to-r from-slate-950 via-violet-950/25 to-slate-950 p-5 sm:p-6 flex flex-wrap items-center justify-between gap-5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300`}>
+          <Link href="/dual-chart" lang={readingLanguage} aria-label={readingCopy.enter} className={`${dualChartEntryStyles.entry} home-feature-launch home-feature-tier-explore order-[13] w-full rounded-3xl border border-violet-400/30 bg-gradient-to-r from-slate-950 via-violet-950/25 to-slate-950 p-5 sm:p-6 flex flex-wrap items-center justify-between gap-5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300`}>
             <div className="flex min-w-0 items-start gap-3 sm:gap-4">
               <span aria-hidden="true" className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-violet-300/30 text-3xl font-serif text-violet-100">雙</span>
-              <div className="min-w-0"><h2 className="text-xl font-black leading-snug text-violet-100">雙命盤</h2><p className="mt-1 text-sm font-bold leading-6 text-violet-100/90">八字 × 紫微斗數</p><p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">一份出生資料，查看兩張命盤。<br />可切換彩色／黑白 A4 預覽與下載。</p><p className="mt-2 text-xs leading-6 text-violet-200">需使用已取得的進入密碼</p></div>
+              <div className="min-w-0"><h2 className="text-xl font-black leading-snug text-violet-100">{readingCopy.dual}</h2><p className="mt-1 text-sm font-bold leading-6 text-violet-100/90">{readingCopy.systems}</p><p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{readingCopy.description}</p><p className="mt-2 text-xs leading-6 text-violet-200">{readingCopy.password}</p></div>
             </div>
-            <span className="home-feature-cta flex min-h-12 w-full items-center justify-center rounded-xl border border-violet-300/30 bg-violet-500/10 px-5 py-3 text-sm font-bold text-violet-100 sm:w-auto">輸入密碼，開啟雙命盤 →</span>
+            <span className="home-feature-cta flex min-h-12 w-full items-center justify-center rounded-xl border border-violet-300/30 bg-violet-500/10 px-5 py-3 text-sm font-bold text-violet-100 sm:w-auto">{readingCopy.enter}</span>
           </Link>
 
           <Link
