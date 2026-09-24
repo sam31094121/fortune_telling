@@ -1,0 +1,19 @@
+.paper {
+  color: #a3281b;
+  background:
+    repeating-linear-gradient(96deg, rgba(107, 65, 12, .06) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(3deg, rgba(255, 244, 193, .12) 0 1px, transparent 1px 8px),
+    linear-gradient(100deg, #bd852b 0%, #e8bd61 13%, #f6dc94 48%, #e2b35a 84%, #ae7224 100%);
+  border-color: rgba(130, 71, 19, .72);
+}
+.paper::before { display: none; }
+.ink {
+  position: absolute;
+  inset: 5% 10% 6%;
+  width: 80%;
+  height: 89%;
+  overflow: visible;
+  opacity: .94;
+  mix-blend-mode: multiply;
+  filter: drop-shadow(.35px .25px 0 rgba(119, 27, 12, .2));
+}
