@@ -12,6 +12,7 @@ import ZiweiChart from './ZiweiChart';
 export default function DualChart({ unlocked, configured }: { unlocked: boolean; configured: boolean }) {
   const router = useRouter();
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState<BirthProfile>({ name: '', gender: '', birthDate: '', calendarType: 'solar', country: '台灣', city: '台北' });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -37,7 +38,7 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
     event.preventDefault(); setBusy(true); setError('');
     try {
       const response = await fetch('/api/dual-chart/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
-      setPassword('');
+      setPassword(''); setShowPassword(false);
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
       router.refresh();
@@ -83,13 +84,14 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
     <nav className={styles.nav}><Link href="/">← 返回首頁</Link>{unlocked && <button disabled={busy} onClick={() => void lock()}>鎖定離開</button>}</nav>
     <header className={styles.header}><p>生辰排盤 · 密碼保護</p><h1>雙命盤</h1><p>填寫一份出生資料，查看八字與紫微斗數命盤。</p></header>
     {!unlocked ? <section className={styles.panel}>
-      <h2>輸入密碼開啟</h2>
-      {!configured && <p role="status">管理員尚未設定進入口令，目前保持鎖定。</p>}
-      <form onSubmit={unlock} className={styles.login}>
+      <h2>{configured ? '輸入密碼，開啟雙命盤' : '雙命盤暫未開放登入'}</h2>
+      {!configured ? <div className={styles.login} role="status"><p className={styles.note}>網站的登入設定尚未完成，目前無法驗證密碼。這不是您輸入錯誤，請聯絡網站管理員啟用後再試。</p><button type="button" onClick={() => router.refresh()}>重新檢查入口</button><Link href="/">先返回首頁</Link></div> : <form onSubmit={unlock} className={styles.login} aria-busy={busy}>
+        <p id="dual-password-help" className={styles.note}>請輸入您已取得的進入密碼。解鎖後即可填寫一份出生資料，查看八字與紫微命盤。</p>
         <label htmlFor="dual-password">進入密碼</label>
-        <input id="dual-password" type="password" autoComplete="current-password" value={password} maxLength={256} required disabled={busy || !configured} onChange={e => setPassword(e.target.value)} />
-        <button disabled={busy || !configured}>{busy ? '驗證中…' : '解鎖雙命盤'}</button>
-      </form>
+        <div className={styles.passwordField}><input id="dual-password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" autoCapitalize="none" spellCheck={false} aria-describedby="dual-password-help" value={password} maxLength={256} required disabled={busy} onChange={e => setPassword(e.target.value)} /><button type="button" className={styles.passwordToggle} disabled={busy} aria-pressed={showPassword} onClick={() => setShowPassword(value => !value)}>{showPassword ? '隱藏密碼' : '顯示密碼'}</button></div>
+        <button disabled={busy || !password}>{busy ? '正在驗證，請稍候…' : '解鎖雙命盤'}</button>
+        <p className={styles.note}>若密碼不符，請重新輸入後再試；不必重新整理頁面。</p>
+      </form>}
     </section> : <>
       <section className={`${styles.panel} ${styles.inputPanel}`}>
         <p className={styles.note}>沿用系統萬年曆：國曆或農曆生日會統一換算後排盤。採台灣標準時間（UTC+8），未做真太陽時校正；時辰卡採代表時間，若只知子時，請補選午夜前後。</p>

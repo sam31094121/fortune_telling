@@ -6,7 +6,7 @@ const input = { birthDate: '1974-07-28', birthTime: '09:30', gender: 'male', cal
 const request = (path, body, cookie, origin = base, method = 'POST') => fetch(`${base}${path}`, { method, headers: { 'Content-Type': 'application/json', Origin: origin, ...(cookie ? { Cookie: cookie } : {}) }, ...(method === 'POST' ? { body: JSON.stringify(body) } : {}) });
 const locked = await fetch(`${base}/dual-chart`);
 assert.equal(locked.status, 200);
-assert.ok((await locked.text()).includes('輸入密碼開啟'));
+assert.ok((await locked.text()).includes('輸入密碼，開啟雙命盤'));
 assert.equal((await request('/api/dual-chart', input)).status, 401);
 assert.equal((await request('/api/dual-chart/session', { password: 'invalid-test-credential' })).status, 401);
 assert.equal((await request('/api/dual-chart/session', { password: 'invalid-test-credential' }, undefined, 'https://outside.example')).status, 403);

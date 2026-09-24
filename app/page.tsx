@@ -3,6 +3,7 @@
 import { useMemo, useState, useDeferredValue, useEffect, useRef, type CSSProperties } from 'react';
 import { FRONTEND_COPY } from '@/lib/credibility-phrases';
 import Link from 'next/link';
+import dualChartEntryStyles from './dual-chart-entry.module.css';
 import dynamic from 'next/dynamic';
 import { injectPerformanceCSS } from '@/lib/performance-css';
 import AiTrustFeedback from '@/components/AiTrustFeedback';
@@ -3067,12 +3068,12 @@ export default function HomePage() {
             </div>
           </Link>
 
-          <Link href="/dual-chart" className="home-feature-launch home-feature-tier-explore order-[13] w-full rounded-3xl border border-violet-400/30 bg-gradient-to-r from-slate-950 via-violet-950/25 to-slate-950 p-6 flex flex-wrap items-center justify-between gap-5">
-            <div className="flex min-w-0 items-center gap-4">
+          <Link href="/dual-chart" aria-label="雙命盤：輸入密碼，查看八字與紫微" className={`${dualChartEntryStyles.entry} home-feature-launch home-feature-tier-explore order-[13] w-full rounded-3xl border border-violet-400/30 bg-gradient-to-r from-slate-950 via-violet-950/25 to-slate-950 p-5 sm:p-6 flex flex-wrap items-center justify-between gap-5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300`}>
+            <div className="flex min-w-0 items-start gap-3 sm:gap-4">
               <span aria-hidden="true" className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-violet-300/30 text-3xl font-serif text-violet-100">雙</span>
-              <div><h2 className="text-xl font-black text-violet-100">雙命盤</h2><p className="mt-2 text-sm text-[color:var(--text-sub)]">輸入密碼後，填一份生辰，查看八字與紫微斗數命盤。</p></div>
+              <div className="min-w-0"><h2 className="text-xl font-black leading-snug text-violet-100">雙命盤</h2><p className="mt-1 text-sm font-bold leading-6 text-violet-100/90">八字 × 紫微斗數</p><p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">一份出生資料，查看兩張命盤。<br />可切換彩色／黑白 A4 預覽與下載。</p><p className="mt-2 text-xs leading-6 text-violet-200">需使用已取得的進入密碼</p></div>
             </div>
-            <span className="home-feature-cta rounded-xl border border-violet-300/30 px-5 py-3 text-sm font-bold text-violet-100">密碼開啟 →</span>
+            <span className="home-feature-cta flex min-h-12 w-full items-center justify-center rounded-xl border border-violet-300/30 bg-violet-500/10 px-5 py-3 text-sm font-bold text-violet-100 sm:w-auto">輸入密碼，開啟雙命盤 →</span>
           </Link>
 
           <Link
