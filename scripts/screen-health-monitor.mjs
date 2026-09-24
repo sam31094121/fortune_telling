@@ -290,7 +290,7 @@ const BEHAVIOR_CHECKS = [
     // 2026-09-15 Gemini 月度花費上限用完，全站老師都在走後備，健檢卻綠燈。
     id: 'AI_TEACHER_AVAILABILITY',
     module: 'ai_teacher_availability',
-    title: '易經老師／鬼魅老師 AI 連線：不是安靜地走後備文字',
+    title: '易經老師本機運算：完整解讀、缺項驗證與 Google 零外送',
     script: 'test:ai-teacher-availability',
     timeoutMs: 40000,
   },

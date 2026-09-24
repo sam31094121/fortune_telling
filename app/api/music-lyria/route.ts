@@ -1,3 +1,4 @@
+import { googleGenerationKey } from '@/lib/teacher-provider';
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { createRequestId, friendlyErrorResponse } from '@/lib/api-stability';
@@ -386,9 +387,9 @@ function mapLyriaError(message: string, status = '') {
 
 export async function POST(request: Request) {
   const requestId = createRequestId();
-  const apiKey = process.env.GEMINI_API_KEY?.trim();
+  const apiKey = googleGenerationKey();
   if (!apiKey) {
-    return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '系統正在重新同步，請稍候再試。', 503);
+    return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '歌曲音訊生成目前暫停，現有音樂資料仍可查看。', 503);
   }
 
   let body: MusicLyriaRequest;

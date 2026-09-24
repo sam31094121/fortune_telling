@@ -1,3 +1,4 @@
+import { googleGenerationKey } from '@/lib/teacher-provider';
 import { NextResponse } from 'next/server';
 import { GoogleGenAI, Type } from '@google/genai';
 import { computeCompatibility, type PersonProfile, type PersonalityMatrixCompat } from '@/lib/compatibility-engine';
@@ -393,7 +394,7 @@ async function enhanceMatchResultWithAI(
   displayB: PersonDisplay,
   baziFoundation: BaziMatchFoundation,
 ): Promise<{ summary: string; zones: { resonance: string[]; complement: string[]; grinding: string[]; conflict: string[] }; provider: 'google' | 'local' }> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = googleGenerationKey();
   if (!apiKey) return { summary: result.summary, zones: result.zones, provider: 'local' };
 
   const prompt = `
@@ -513,7 +514,7 @@ export async function POST(request: Request) {
   const requestId = createRequestId();
   const now = Date.now();
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
-  
+
   cleanCaches();
 
   const record = ipCache.get(ip);

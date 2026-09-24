@@ -1,3 +1,4 @@
+import { googleGenerationKey } from '@/lib/teacher-provider';
 /**
  * 三位 易經老師（2026-08-22）｜規格「二、三、八、九、十、二十」
  *
@@ -190,7 +191,7 @@ function hasUsableData(context: PalaceAnalysisContext): boolean {
 }
 
 function apiKey(): string {
-  const key = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  const key = googleGenerationKey();
   if (!key) throw new Error('未設定 GEMINI_API_KEY 環境變數。');
   return key;
 }
@@ -239,37 +240,7 @@ function stripModelHexagramClaims(value: string): string {
 
 export async function runStructureTeacher(context: PalaceAnalysisContext): Promise<StructureTeacherResult | typeof INSUFFICIENT_DATA> {
   if (!hasUsableData(context)) return INSUFFICIENT_DATA;
-  try {
-    const route = TEACHER_MODEL_ROUTE.STRUCTURE_MASTER;
-    const ai = new GoogleGenAI({ apiKey: apiKey() });
-    const response = await withTimeout(
-      ai.models.generateContent({
-        model: route.model,
-        contents: buildStructurePrompt(context),
-        config: { responseSchema: STRUCTURE_SCHEMA as never, responseMimeType: 'application/json', temperature: route.temperature, thinkingConfig: { thinkingBudget: 0 }, maxOutputTokens: 2048 },
-      }),
-      TEACHER_TIMEOUT_MS,
-      '格局老師分析逾時，請稍後再試。',
-    );
-    const text = response.text || '';
-    if (!text) throw new Error('格局老師未返回有效回應。');
-    const parsed = safeJsonParse<Omit<StructureTeacherResult, 'teacherId' | 'palace' | 'evidenceRefs'>>(text);
-    // 正式卦象只由後端決定。模型只負責紫微結構文字，不能另起第二卦。
-    const gua = castPalaceHexagram(context);
-    parsed.corePattern = `此宮正式卦象為「${gua.hexagramName}」，對應此盤此宮的解讀格局「${patternNameOf(gua)}」。`;
-    parsed.conclusion = stripModelHexagramClaims(parsed.conclusion);
-    return {
-      teacherId: 'STRUCTURE_MASTER',
-      palace: context.selectedPalace.palaceName,
-      ...parsed,
-      importantSupportingStars: parsed.importantSupportingStars ?? [],
-      evidenceRefs: buildEvidenceRefs(context),
-    };
-  } catch (error) {
-    // 易經不可用（額度、逾時、金鑰）→ 本地統計後備接手，功能不中斷
-    console.error('[ziwei-teacher] 格局老師 易經不可用，改用本地統計後備：', error instanceof Error ? error.message : String(error));
-    return buildLocalStructureResult(context);
-  }
+  return buildLocalStructureResult(context);
 }
 
 /* ==================== 老師 2｜恐怖型老師 LIFE_MASTER ==================== */
@@ -320,32 +291,7 @@ ${renderSituationAnchor(context)}
 
 export async function runLifeTeacher(context: PalaceAnalysisContext): Promise<LifeTeacherResult | typeof INSUFFICIENT_DATA> {
   if (!hasUsableData(context)) return INSUFFICIENT_DATA;
-  try {
-    const route = TEACHER_MODEL_ROUTE.LIFE_MASTER;
-    const ai = new GoogleGenAI({ apiKey: apiKey() });
-    const response = await withTimeout(
-      ai.models.generateContent({
-        model: route.model,
-        contents: buildLifePrompt(context),
-        config: { responseSchema: LIFE_SCHEMA as never, responseMimeType: 'application/json', temperature: route.temperature, thinkingConfig: { thinkingBudget: 0 }, maxOutputTokens: 2048 },
-      }),
-      TEACHER_TIMEOUT_MS,
-      '恐怖型老師解盤逾時，請稍後再試。',
-    );
-    const text = response.text || '';
-    if (!text) throw new Error('恐怖型老師未返回有效回應。');
-    const parsed = safeJsonParse<Omit<LifeTeacherResult, 'teacherId' | 'evidenceRefs'>>(text);
-    // 卜卦儀式的程式碼保證：模型漏掉卦名或格局名稱時，決定性補進開場欄位
-    const gua = castPalaceHexagram(context);
-    const joined = Object.values(parsed).filter((v) => typeof v === 'string').join(' ');
-    if (!joined.includes(gua.hexagramName) || !joined.includes(patternNameOf(gua))) {
-      parsed.fearScene = `此宮起卦，卦成——「${gua.hexagramName}」，特殊格局「${patternNameOf(gua)}」的倒數已經開始。${parsed.fearScene}`;
-    }
-    return { teacherId: 'LIFE_MASTER', ...normalizeLifeResult(parsed), evidenceRefs: buildEvidenceRefs(context) };
-  } catch (error) {
-    console.error('[ziwei-teacher] 恐怖型老師 易經不可用，改用本地統計後備：', error instanceof Error ? error.message : String(error));
-    return buildLocalLifeResult(context);
-  }
+  return buildLocalLifeResult(context);
 }
 
 /* ==================== 老師 3｜鬼魅型老師 NARRATIVE_MASTER ==================== */
@@ -403,32 +349,7 @@ ${renderSituationAnchor(context)}
 
 export async function runNarrativeTeacher(context: PalaceAnalysisContext): Promise<NarrativeTeacherResult | typeof INSUFFICIENT_DATA> {
   if (!hasUsableData(context)) return INSUFFICIENT_DATA;
-  try {
-    const route = TEACHER_MODEL_ROUTE.NARRATIVE_MASTER;
-    const ai = new GoogleGenAI({ apiKey: apiKey() });
-    const response = await withTimeout(
-      ai.models.generateContent({
-        model: route.model,
-        contents: buildNarrativePrompt(context),
-        config: { responseSchema: NARRATIVE_SCHEMA as never, responseMimeType: 'application/json', temperature: route.temperature, thinkingConfig: { thinkingBudget: 0 }, maxOutputTokens: 2048 },
-      }),
-      TEACHER_TIMEOUT_MS,
-      '鬼魅型老師解盤逾時，請稍後再試。',
-    );
-    const text = response.text || '';
-    if (!text) throw new Error('鬼魅型老師未返回有效回應。');
-    const parsed = safeJsonParse<Omit<NarrativeTeacherResult, 'teacherId' | 'evidenceRefs'>>(text);
-    // 卜卦儀式的程式碼保證：卦名或格局名稱缺席時，以鬼魅低語決定性補進收尾
-    const gua = castPalaceHexagram(context);
-    const joined = [parsed.scene, parsed.story, parsed.pastEcho, parsed.futureShadow, parsed.finalMetaphor].join(' ');
-    if (!joined.includes(gua.hexagramName.slice(-1)) || !joined.includes(patternNameOf(gua))) {
-      parsed.finalMetaphor = `門的另一邊，有人用舊墨寫下此宮的卦——「${gua.hexagramName}」，低語念出此盤此宮的解讀格局：「${patternNameOf(gua)}」。${parsed.finalMetaphor}`;
-    }
-    return { teacherId: 'NARRATIVE_MASTER', ...normalizeNarrativeResult(parsed), evidenceRefs: buildEvidenceRefs(context) };
-  } catch (error) {
-    console.error('[ziwei-teacher] 鬼魅型老師 易經不可用，改用本地統計後備：', error instanceof Error ? error.message : String(error));
-    return buildLocalNarrativeResult(context);
-  }
+  return buildLocalNarrativeResult(context);
 }
 
 /* ==================== 本地統計後備引擎（免費、離線、決定性） ====================

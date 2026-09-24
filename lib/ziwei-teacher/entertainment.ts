@@ -1,3 +1,4 @@
+import { googleGenerationKey } from '@/lib/teacher-provider';
 /**
  * 娛樂老師（恐怖／鬼魅，2026-08-22）
  *
@@ -11,6 +12,8 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import type { PalaceAnalysisContext } from './types';
 import type { EntertainmentTeacherId, EntertainmentTeacherResult } from './entertainment-types';
+import { runNarrativeTeacher } from './teachers';
+import { INSUFFICIENT_DATA } from './types';
 
 const MODEL_NAME = 'gemini-2.5-flash';
 const TIMEOUT_MS = 20000;
@@ -58,7 +61,7 @@ function renderContext(context: PalaceAnalysisContext): string {
 }
 
 function apiKey(): string {
-  const key = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  const key = googleGenerationKey();
   if (!key) throw new Error('未設定 GEMINI_API_KEY 環境變數。');
   return key;
 }
@@ -123,6 +126,12 @@ async function runOne(teacherId: EntertainmentTeacherId, prompt: string, tempera
 }
 
 export async function runEntertainmentTeacher(teacherId: EntertainmentTeacherId, context: PalaceAnalysisContext): Promise<EntertainmentTeacherResult> {
-  if (teacherId === 'HORROR') return runOne('HORROR', buildHorrorPrompt(context), ROUTE.HORROR.temperature);
-  return runOne('GHOST', buildGhostPrompt(context), ROUTE.GHOST.temperature);
+  const result = await runNarrativeTeacher(context);
+  if (result === INSUFFICIENT_DATA) throw new Error('命盤資料不足，請先完成命盤。');
+  return {
+    teacherId, title: result.visualTitle, openingScene: result.scene,
+    narrative: result.story, chillingTwist: result.futureShadow,
+    closingWhisper: result.finalMetaphor, inspiredBy: result.evidenceRefs,
+    disclaimer: DISCLAIMER,
+  };
 }

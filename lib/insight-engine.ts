@@ -1,3 +1,4 @@
+import { googleGenerationKey } from '@/lib/teacher-provider';
 import { GoogleGenAI, Type } from '@google/genai';
 import { castHexagramFromBirth, formatHexagramLine, type IChingReading } from '@/lib/iching-engine';
 import { buildEmpathicReading, formatEmpathicReading, formatGhostDecoding } from '@/lib/iching-psychology';
@@ -638,7 +639,7 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
   // 與專案其他模組一致使用 GEMINI_API_KEY，並保留舊名稱作為後備。
   // 金鑰缺失或 易經呼叫失敗都不再讓整個紫微分析掛掉——命盤是本地排的，
   // 解說文字會改用 buildLocalInsightNarrative 的免費離線後備。
-  const apiKey = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  const apiKey = googleGenerationKey();
 
   // 獲取基本人格分數
   const birthScores = getBirthPersonalityScores(request.birthDate);

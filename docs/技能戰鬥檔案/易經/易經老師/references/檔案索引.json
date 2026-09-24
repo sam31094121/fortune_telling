@@ -1,0 +1,249 @@
+{
+  "name": "易經老師",
+  "command": "易經老師",
+  "skill": "yijing-teacher",
+  "storage": "原檔保留原位，以索引收納",
+  "scope": "易經命名檔案及直接引用核心模組的整合檔案；不含密鑰、客戶資料、建置產物或備份",
+  "files": [
+    {
+      "type": "檔案",
+      "path": "app/api/bazi/google-reading/route.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "app/api/bazi/horror-reading/route.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "app/api/beast-game/battlefield/route.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "app/api/beast-game/route.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "app/api/beast-game/stake-duel/route.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "app/api/beast-game/turns/route.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "app/api/nameology-analyze/route.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "app/api/number-fortune/route.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "app/api/red-luan-heartbeat/route.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "app/api/solar-term/route.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "components/BeastLegacyGame.tsx",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "components/BeastStakeResult.tsx",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "data/iching-hexagrams.json",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "data/iching-number-map.json",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "docs/技能戰鬥檔案/易經/三核心融會貫通.md",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "docs/技能戰鬥檔案/易經/公信力話術.md",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "docs/技能戰鬥檔案/易經/來源治理.md",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "docs/技能戰鬥檔案/易經/來源登記.json",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "docs/技能戰鬥檔案/易經/易經.json",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "docs/技能戰鬥檔案/易經/新人檔案.md",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "docs/iching-skill-manual.md",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/beast-collection-ledger.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/beast-game/iching-judgment.ts",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/beast-game/iching-skill-archive.ts",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/beast-game/interactive.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/credibility-wording.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/growth-center-engine.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/iching-engine.ts",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/iching-numbers.ts",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/iching-psychology.ts",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/iching-source-gate.ts",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/insight-engine.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/nameology-engine.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/nameology-iching-presentation.ts",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/red-luan-iching-reading.ts",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/three-core-engine.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/ziwei-teacher/teachers.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/zodiac-engine.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "tests/bazi-ziwei-cross.test.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "tests/beast-difficulty.test.cjs",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "tests/beast-stake-reward.test.mjs",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "tests/credibility-wording.test.cjs",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "tests/iching-no-fabricated-hour.test.cjs",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "tests/iching-source-gate.test.mjs",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "tests/nameology-iching-presentation.test.cjs",
+      "role": "易經直接檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "tests/red-luan-heartbeat.test.ts",
+      "role": "引用易經的整合檔案"
+    },
+    {
+      "type": "檔案",
+      "path": "lib/teacher-provider.ts",
+      "role": "易經老師運算模式與可用性驗證"
+    },
+    {
+      "type": "檔案",
+      "path": "tests/ai-teacher-availability.mjs",
+      "role": "易經老師運算模式與可用性驗證"
+    }
+  ]
+}

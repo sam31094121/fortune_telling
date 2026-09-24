@@ -1,3 +1,4 @@
+import { googleGenerationKey } from '@/lib/teacher-provider';
 import { createHash, randomUUID } from 'node:crypto';
 import { after, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
@@ -87,7 +88,7 @@ function resolvePurpose(value: unknown): NumberPurpose {
 }
 
 async function explainNumberWithGoogle(result: NumberAnalysisResponse, purpose: NumberPurpose, rawValue: string): Promise<string | null> {
-  const apiKey = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  const apiKey = googleGenerationKey();
   if (!apiKey) return null;
 
   const strongest = Object.entries(result.matrix).sort(([, left], [, right]) => right - left).slice(0, 2);

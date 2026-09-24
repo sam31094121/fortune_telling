@@ -1,3 +1,4 @@
+import { googleGenerationKey } from '@/lib/teacher-provider';
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { computeRelationshipMatrix } from '@/lib/relationship-matrix-engine';
@@ -69,9 +70,9 @@ interface KarmaRequest {
 }
 
 async function generateKarmaStory(request: KarmaRequest): Promise<KarmaStory> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = googleGenerationKey();
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY not configured');
+    throw new Error('故事生成目前暫停。');
   }
 
   // 計算關係矩陣 — 故事的數據源
@@ -372,6 +373,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ karma_story: karmaStory });
   } catch (error) {
     console.error('[karma-story-generate] request failed', requestId, error instanceof Error ? error.message : String(error));
-    return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '系統正在重新同步，請稍候再試。', 503);
+    return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '故事生成目前暫停，配對資料仍可查看。', 503);
   }
 }

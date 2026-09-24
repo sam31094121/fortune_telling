@@ -1,3 +1,4 @@
+import { googleGenerationKey } from '@/lib/teacher-provider';
 import { GoogleGenAI, Type } from '@google/genai';
 import { getBirthPersonalityScores, getBirthZodiac } from './birth-model-db';
 import { getBloodTypeDescription, getBloodTypePersonalityScores } from './blood-model-db';
@@ -246,9 +247,9 @@ async function generateStructuredText<T>(
 }
 
 export async function analyzeDestiny(person: PersonInput): Promise<AnalysisResult> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = googleGenerationKey();
   if (!apiKey) {
-    throw new Error('尚未設定 GEMINI_API_KEY。');
+    throw new Error('外部生成目前暫停，請使用易經老師解讀。');
   }
 
   const birthScores = getBirthPersonalityScores(person.birthday);
@@ -645,7 +646,7 @@ BPM：${input.musicParameters.bpm} · 音調：${input.musicParameters.key}
 }
 
 export async function generateMusicReport(input: MusicReportInput): Promise<MusicReportOutput> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = googleGenerationKey();
   if (!apiKey) return createLocalMusicReport(input);
 
   try {
@@ -880,7 +881,7 @@ BPM：${input.musicParameters.bpm} · 音調：${input.musicParameters.key}
 }
 
 export async function generateSongDrafts(input: MusicReportInput): Promise<OriginalSongDraftsOutput> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = googleGenerationKey();
   if (!apiKey) {
     console.warn('[generateSongDrafts] 無 API key，使用本地 fallback');
     return createLocalSongDrafts(input);
@@ -1172,7 +1173,7 @@ ${input.magneticVoice ? `磁性聲線歌詞規則（聲音與歌詞綁定，一�
 }
 
 export async function generateFusionSong(input: FusionSongInput): Promise<FusionSongOutput> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = googleGenerationKey();
   if (!apiKey) {
     console.warn('[generateFusionSong] 無 API key，使用本地 fallback');
     return createLocalFusionSong(input);
@@ -1196,9 +1197,9 @@ export async function analyzePreview(input: {
   birthday: string;
   bloodType: Exclude<PersonInput['bloodType'], ''>;
 }): Promise<PreviewAnalysisResult> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = googleGenerationKey();
   if (!apiKey) {
-    throw new Error('尚未設定 GEMINI_API_KEY。');
+    throw new Error('外部生成目前暫停，請使用易經老師解讀。');
   }
 
   const birthScores = getBirthPersonalityScores(input.birthday);

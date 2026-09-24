@@ -5,6 +5,9 @@ const { join } = require('path');
 const root = join(__dirname, '..');
 const baseline = JSON.parse(readFileSync(join(root, 'reports/taiji-lock/LEVEL_02_TO_24_BASELINE.json'), 'utf8'));
 
+// A valid fingerprint must also retain the reviewed mobile behavior.
+require('./taiji-first-screen-scroll.test.cjs');
+
 function sha256(file) {
   return createHash('sha256').update(readFileSync(join(root, file))).digest('hex');
 }

@@ -1,3 +1,4 @@
+import { TEACHER_SOURCE } from '@/lib/teacher-provider';
 import {
   PLATFORM_AI_CORE_POLICY,
   PLATFORM_ANALYSIS_MODULES,
@@ -196,7 +197,7 @@ const AI_CENTER = {
 function buildMonitor(now: Date): PlatformMonitorItem[] {
   const numberProbe = analyzeNumberCore('1688');
   const hasSupabaseConfig = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL);
-  const hasAiConfig = Boolean(process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || process.env.OPENAI_API_KEY);
+  const hasAiConfig = TEACHER_SOURCE === 'local-iching';
 
   return [
     {
@@ -217,8 +218,8 @@ function buildMonitor(now: Date): PlatformMonitorItem[] {
       id: 'ai_core_config',
       title: 'AI Core 設定',
       status: hasAiConfig ? 'ready' : 'review',
-      target: 'AI Provider Env',
-      detail: hasAiConfig ? '已偵測 易經 Provider 環境設定。' : '目前未偵測 易經 Provider key，部署前需要確認。',
+      target: TEACHER_SOURCE,
+      detail: hasAiConfig ? '易經老師採用本機規則與檔案，Google 生成已暫停；可用性另由老師健康檢查驗證。' : '老師運算模式需要確認。',
     },
     {
       id: 'member_profile',

@@ -1,0 +1,4 @@
+interface:
+  display_name: "易經老師"
+  short_description: "統一收納易經核心、卦象資料、來源治理及整合檔案，查找時保留原始路徑與既有功能"
+  default_prompt: "使用 $yijing-teacher 查閱易經老師的檔案索引，找出相關原始檔案並依本次需求處理。"

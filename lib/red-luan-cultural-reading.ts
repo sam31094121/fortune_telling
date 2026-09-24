@@ -1,3 +1,4 @@
+import { googleGenerationKey } from '@/lib/teacher-provider';
 import { GoogleGenAI } from '@google/genai';
 import type { SingleRedLuanHeartbeatResult } from './red-luan-heartbeat-engine';
 
@@ -135,7 +136,7 @@ export async function generateRedLuanCulturalReading(result: SingleRedLuanHeartb
   ];
   if (gate.status !== 'PASSED') return { status: 'BLOCKED_BY_VALIDATION', provider: 'none', gate, limitations };
 
-  const apiKey = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  const apiKey = googleGenerationKey();
   if (!apiKey) return { status: 'UNAVAILABLE_AI_NOT_CONFIGURED', provider: 'none', gate, limitations };
 
   const payload = buildRedLuanAiEvidencePayload(result);

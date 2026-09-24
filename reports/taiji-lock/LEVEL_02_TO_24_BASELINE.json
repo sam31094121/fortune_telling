@@ -2,7 +2,7 @@
   "version": "LEVEL_02_TO_24_BASELINE",
   "createdAt": "2026-08-30T12:00:00.000Z",
   "fileHashes": {
-    "lib/taiji-journey-depth.ts": "3d7dc730494b3d241718476ee0d335418311fdd5e404c504528ee6b5c215be06",
+    "lib/taiji-journey-depth.ts": "36edb7b37b1d5dd8403dfc4f8eeb529802effe8bbd6085feb1571c5f5c8964e5",
     "lib/taiji24-sound-engine.ts": "470e6e63a091266538ec26f178eb1e9a52cfc8355b07ba9c3fb91b70639e9b25",
     "lib/taiji-adaptive-stage.ts": "dbab461c4e0f92cbacc444ed815f9606f7a6ce24718e848c26afcc35387a54ca",
     "lib/taiji-core-engine.ts": "1c45aa21f9e261b2e48c1313efb7cb48ffcac8397d05ce13f399ebcb2ad06f3b",
