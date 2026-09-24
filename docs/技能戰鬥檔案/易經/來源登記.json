@@ -1630,7 +1630,11 @@
         "lib/iching-psychology.ts",
         "lib/iching-engine.ts",
         "docs/iching-skill-manual.md",
-        "lib/match-three-core-view.ts"
+        "lib/match-three-core-view.ts",
+        "docs/技能戰鬥檔案/易經/易經老師/SKILL.md",
+        "docs/技能戰鬥檔案/易經/易經老師/agents/openai.yaml",
+        "docs/技能戰鬥檔案/易經/易經老師/references/本機運算.md",
+        "docs/技能戰鬥檔案/易經/易經老師/references/檔案索引.json"
       ],
       "authority_files": [
         "S-APA-DICTIONARY"
