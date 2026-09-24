@@ -34,7 +34,7 @@ export default function ZiweiChart({ result }: { result: DualChartResult }) {
           <span className={styles.printStars}>{p.minorStars.map(star => <span key={star.name}>{star.name}{star.brightness && <small>（{star.brightness}）</small>}{star.mutagen && <b className={styles.badge} data-mutagen={star.mutagen}>{star.mutagen}</b>}</span>)}</span>
           <span className={styles.palaceCycles}><span>長生：{cycle?.stage}</span><span>博士：{cycle?.boshi}</span><span>歲前：{cycle?.suiqian}</span><span>將前：{cycle?.jiangqian}</span></span>
           <span className={styles.cellTitle}>{p.name}{p.isBodyPalace && <b>身宮</b>}<span className={styles.cellBranch}>{p.heavenlyStem}{p.earthlyBranch}</span></span>
-          <span className={styles.ageStrip}>小限 {cycle?.ages.join('·')}</span>
+          <span className={styles.ageStrip}><b>小限</b><span className={styles.ageValues}>{cycle?.ages.map((age, index) => <span key={age}>{index > 0 ? '· ' : ''}{age}</span>)}</span></span>
           <span className={styles.cellPeriod}>大限 {cycle?.range.join('–')} 歲</span>
         </button>;
       })}

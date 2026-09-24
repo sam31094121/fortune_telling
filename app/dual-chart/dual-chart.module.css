@@ -165,3 +165,13 @@
 .printPreview .baziMain>.relations{flex:1;align-content:space-evenly;font-size:13px;line-height:1.6}.printPreview .relations small{font-size:12px}
 .printPreview .baziMain>.micro{margin-top:10px;margin-bottom:8px}.printPreview .startLuck{font-size:14px}
 .printPreview .baziMain>.luckGrid{font-size:13px;line-height:1.55}.printPreview .baziMain>.micro{font-size:13px;line-height:1.6}.printPreview .baziMain>.relations{font-size:14px}.printPreview .baziMain>.relations small{font-size:12.5px}
+/* Reading hierarchy: primary data, aligned labels, then secondary details. */
+.summaryGrid>div{display:grid;grid-template-columns:2.2em minmax(0,1fr);align-items:baseline}.summaryGrid dd{font-weight:500}
+.ageStrip{display:grid;grid-template-columns:2em minmax(0,1fr);column-gap:5px;align-items:start}.ageStrip>b{font-weight:600}.ageValues{display:flex;flex-wrap:wrap;column-gap:3px}.ageValues>span{white-space:nowrap;font-variant-numeric:tabular-nums}
+.printPreview .panel h2{font-size:26px;letter-spacing:4px;font-weight:750}
+.printPreview .baziMain>.pillarGrid{outline:1px solid #a697ad;outline-offset:-1px}.printPreview .baziMain>.pillarGrid thead th{font-size:16px;letter-spacing:1px}
+.printPreview .summaryGrid{font-size:12.5px}.printPreview .summaryGrid dt{font-weight:750}.printPreview .annualGrid small,.printPreview .annualGrid span{font-size:11.5px}
+.printPreview .baziMain>.luckGrid{font-variant-numeric:tabular-nums}.printPreview .baziMain>.luckGrid b{font-size:18px}
+.printPreview .cellStars{font-size:18px;line-height:1.45;column-gap:6px}.printPreview .starBrightness{font-size:11px;font-weight:500}.printPreview .printStars{font-size:12.5px;line-height:1.5;column-gap:7px}
+.printPreview .palaceCycles{font-size:11.5px;line-height:1.45}.printPreview .ageStrip{font-size:11px;line-height:1.45}.printPreview .cellPeriod{font-weight:600}
+.printPreview.monochrome .baziMain>.pillarGrid{outline-color:#666}
