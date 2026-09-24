@@ -2,6 +2,8 @@
 
 import { memo } from 'react';
 import styles from './ElementBrandButton.module.css';
+import { ORB_MATERIAL } from '@/components/bazi/customer/elementOrbPalette';
+import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
 
 /**
  * 五元素寶珠品牌按鈕
@@ -16,14 +18,6 @@ import styles from './ElementBrandButton.module.css';
 
 const ELEMENTS_IN_CYCLE = ['AIR', 'EARTH', 'WATER', 'FIRE', 'SPACE'];
 
-// 寶珠顏色（迷你版使用）
-const ORB_COLORS: Record<string, { glow: string; ring: string }> = {
-  SPACE: { glow: '#dfd8ff', ring: '#eee9ff' },
-  AIR: { glow: '#8dffcd', ring: '#c6ffe1' },
-  WATER: { glow: '#60edff', ring: '#c2fbff' },
-  FIRE: { glow: '#ff9fc5', ring: '#ffd2e7' },
-  EARTH: { glow: '#ffe198', ring: '#ffebb0' },
-};
 
 const ElementBrandButton = memo(function ElementBrandButton({
   onClick,
@@ -83,7 +77,7 @@ const ElementBrandButton = memo(function ElementBrandButton({
           const angle = (i * 72) * (Math.PI / 180);
           const x = 50 + 35 * Math.cos(angle);
           const y = 50 + 35 * Math.sin(angle);
-          const colors = ORB_COLORS[element];
+          const colors = ORB_MATERIAL[getProductOrbFromBrand(element.toLowerCase() as 'space' | 'air' | 'water' | 'fire' | 'earth')];
 
           return (
             <g key={element}>
@@ -92,7 +86,7 @@ const ElementBrandButton = memo(function ElementBrandButton({
                 cx={x}
                 cy={y}
                 r="2.5"
-                fill={colors.glow}
+                fill={colors.light}
                 opacity="0.9"
                 filter="url(#orbGlow)"
               />

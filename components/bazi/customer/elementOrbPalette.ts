@@ -1,6 +1,7 @@
 /**
  * 五元素寶珠色盤（全站唯一一份）。
- * WaterTreasureOrb 的 3D 材質與戰場上的 CSS 魔珠都讀這裡，不能各自改色。
+ * 寶珠系統 ElementTreasureOrb、戰鬥元素展示與品牌標記共用 light/ring。
+ * 其餘材質欄位保留相容，不能另建寶珠色表。
  */
 
 export type ProductElement = '空' | '風' | '水' | '火' | '地';

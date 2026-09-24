@@ -127,25 +127,6 @@
 .orbSlot { position: relative; width: 34px; height: 34px; flex: none; }
 /* 共用舞台原尺寸 68px，整體縮一半，符咒紙比例不變形。 */
 .orbSlot > .orbStage { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.5); }
-/* 戰場不開 3D 畫布：珠體用 CSS，顏色取 WaterTreasureOrb 同一份色盤；符咒紙與封印光暈沿用全站共用樣式。 */
-.orbBody {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.22) 0 7%, transparent 20%),
-    radial-gradient(circle at 60% 66%, var(--orb-glow) 0 16%, transparent 58%),
-    radial-gradient(circle at 50% 50%, var(--orb-body) 42%, #000 100%);
-  box-shadow: inset -6px -9px 14px rgba(0, 0, 0, 0.72), 0 0 10px var(--orb-glow);
-}
-.orbBody[data-open='true'] {
-  background:
-    radial-gradient(circle at 32% 26%, #fff 0 10%, transparent 26%),
-    radial-gradient(circle at 56% 60%, var(--orb-glow) 0 32%, transparent 72%),
-    radial-gradient(circle at 50% 50%, var(--orb-body) 45%, rgba(0, 0, 0, 0.55) 100%);
-  box-shadow: inset -4px -6px 10px rgba(0, 0, 0, 0.35), 0 0 16px var(--orb-glow);
-}
 .fighterName strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .artSpace { position: relative; width: 100%; min-height: 0; display: grid; place-items: center; container-type: size; }
 .art {

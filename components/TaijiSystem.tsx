@@ -2738,12 +2738,14 @@ export default function TaijiSystem({
     <section
       className={`${styles.root} ${styles[`stage_${journeyStage.toLowerCase()}`]}`}
       aria-label="太極演化系統"
+      data-taiji-layout="root"
       style={visualStyle}
       data-deep-field={displayLayer >= 13}
       data-journey-step={displayLayer}
     >
       <div
         ref={wrapperRef}
+        data-taiji-layout="sphere"
         className={`${styles.sphereWrapper} ${touchActive ? styles.sphereWrapperTouching : ''}`}
         onPointerDown={handleTouchStart}
         onPointerMove={handleTouchMove}

@@ -26578,14 +26578,7 @@ a.home-feature-launch::after {
   .home-top-brand-stage [class*="particlePair"] {
     opacity: 0.08 !important;
   }
-  .home-first-screen-stack .home-top-brand-stage [class*="chaseCounterLight"],
-  .home-top-brand-stage [class*="chaseCounterLight"],
-  .home-first-screen-stack .home-top-brand-stage [class*="chaseParticle"],
-  .home-top-brand-stage [class*="chaseParticle"] {
-    opacity: 0.18 !important;
-    animation: none !important;
-    box-shadow: none !important;
-  }
+  /* Keep the original black lightning emitters and their breathing glow. */
   .home-first-screen-stack .home-top-brand-stage .taiji-mobile-play-hint,
   .home-top-brand-stage .taiji-mobile-play-hint {
     opacity: 0.55 !important;
@@ -26776,24 +26769,57 @@ a.home-feature-launch::after {
 @media (max-width: 900px), (pointer: coarse) {
   .home-first-screen-stack .home-top-motto-link--compact-mobile {
     order: 1 !important;
-    margin-bottom: 0.35rem !important;
+    margin-bottom: 0 !important;
   }
   .home-first-screen-stack .home-top-brand-stage,
   .home-first-screen-stack #home-top-empty-shell-card {
     order: 2 !important;
-    width: min(72vw, 280px) !important;
-    max-width: 280px !important;
+    width: 100% !important;
+    max-width: 440px !important;
+    min-height: 0 !important;
     height: auto !important;
+    aspect-ratio: 1 / 1;
+    padding: 0 !important;
+    box-sizing: border-box;
     max-height: none !important;
-    margin: 0.1rem auto 0.45rem !important;
+    margin: 0 auto !important;
     opacity: 1 !important;
     align-self: center;
     overflow: visible !important;
     transform: none !important;
   }
   .home-first-screen-stack .home-top-brand-stage > * {
-    transform: scale(0.86) !important;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    transform: none !important;
     transform-origin: center center;
+  }
+  /* Size the scene from this square card, not the larger viewport. */
+  .home-first-screen-stack #home-top-empty-shell-card [data-taiji-layout="root"] {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  .home-first-screen-stack #home-top-empty-shell-card [data-taiji-layout="sphere"] {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    aspect-ratio: 1 / 1;
+    flex-shrink: 0;
+  }
+  .home-first-screen-stack #home-top-empty-shell-card [data-taiji-fallback] {
+    height: 100%;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  .home-first-screen-stack #home-top-empty-shell-card [data-taiji-fallback] > [role="img"] {
+    width: 72%;
+    height: auto;
+    aspect-ratio: 1 / 1;
   }
   .home-first-screen-stack .home-primary-quest-wrap {
     order: 3 !important;
@@ -26803,6 +26829,34 @@ a.home-feature-launch::after {
   /* 取消先前把太極壓成 132 輔視覺的規則（僅首屏堆疊內） */
   .home-first-screen-stack .home-taiji-aux {
     opacity: 1;
+  }
+}
+
+/* Homepage mobile spacing: leave the touching motto/taiji/quest stack intact. */
+@media (max-width: 900px), (pointer: coarse) {
+  .home-first-screen-stack + .home-hero-stage--taiji-only {
+    margin: 0;
+  }
+  #home-eight-card-route {
+    margin-bottom: 16px;
+  }
+  #home-eight-card-route .home-feature-stack {
+    gap: 12px;
+  }
+  #home-eight-card-route .home-feature-more-toggle {
+    margin-block: 0;
+    min-height: 44px;
+  }
+  #home-eight-card-route + .home-growth-entry {
+    padding: 16px;
+  }
+  #home-eight-card-route + .home-growth-entry + section {
+    margin-top: 16px;
+    padding-bottom: 16px;
+  }
+  .home-first-screen-stack ~ .home-line-share-card {
+    padding: 16px;
+    margin-bottom: 16px;
   }
 }
 

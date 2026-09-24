@@ -4,6 +4,7 @@
   align-items: center;
   gap: 6px;
 }
+.orbStage { position: relative; display: block; width: var(--orb-size); height: var(--orb-size); }
 
 /* 統一比例系統（黃金比例 1.33× 遞增） */
 .orbContainer[data-size='tiny'] {
@@ -110,7 +111,7 @@
     /* 投影陰影 */
     0 calc(3px * var(--orb-scale)) calc(12px * var(--orb-scale)) rgba(0, 0, 0, 0.4),
     inset 0 calc(-2px * var(--orb-scale)) calc(8px * var(--orb-scale)) rgba(0, 0, 0, 0.3);
-  animation: orbPulse 2s ease-in-out infinite;
+  animation: orbPulse var(--orb-pulse-duration, 2s) ease-in-out var(--orb-pulse-delay, 0s) infinite;
 }
 
 .orbContainer[data-animated='false'] .orbCore {
@@ -181,7 +182,7 @@
 .orbLabel {
   font-size: 12px;
   font-weight: 700;
-  color: var(--orb-glow);
+  color: var(--orb-glow, #eee9ff);
   text-shadow: 0 0 8px var(--orb-glow);
   letter-spacing: 0.1em;
   text-transform: uppercase;

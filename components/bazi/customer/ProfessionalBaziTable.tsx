@@ -9,7 +9,7 @@
 const PILLAR_ORDER = ['year', 'month', 'day', 'hour'] as const;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function ProfessionalBaziTable({ result, hourUnknown }: { result: any; hourUnknown: boolean }) {
+export function ProfessionalBaziTable({ result, hourUnknown, chartOnly = false }: { result: any; hourUnknown: boolean; chartOnly?: boolean }) {
   const pc = result.professionalChart;
   const hasValue = (value: unknown) => {
     if (value == null) return false;
@@ -36,6 +36,28 @@ export function ProfessionalBaziTable({ result, hourUnknown }: { result: any; ho
     { label: '合沖刑害破', value: pc.interactions },
     { label: '神煞／特星', value: pc.shenSha },
   ].filter((item) => !hasValue(item.value));
+  // The password-protected double chart reuses this table's real mapped fields,
+  // without interpretation/AI sections. Existing callers keep the full view.
+  if (chartOnly) return <div className="space-y-4" data-bazi-raw-chart>
+    <p className="text-sm leading-7 text-white/70">{result.input.name || '命主'} · {result.input.gender === 'male' ? '男' : '女'} · 國曆 {result.input.birthDate} · {result.input.birthTime}（時辰代表時間）</p>
+    <p className="text-sm leading-7 text-white/70">{pc.calendar.lunarDate} · 台灣標準時間（UTC+8）</p>
+    <table className="w-full table-fixed border-collapse text-center text-sm leading-7" aria-label="八字四柱表">
+      <thead><tr>{PILLAR_ORDER.map(key => <th key={key} scope="col" className="border border-white/20 p-2 text-amber-100">{pc.pillarDetails[key].label}</th>)}</tr></thead>
+      <tbody>
+        <tr>{PILLAR_ORDER.map(key => <td key={key} className="border border-white/20 px-1 py-4 font-serif text-2xl text-amber-100">{pc.pillarDetails[key].ganzhi}</td>)}</tr>
+        <tr>{PILLAR_ORDER.map(key => <td key={key} className="border border-white/20 p-2"><small className="block text-white/50">天干十神</small>{pc.pillarDetails[key].stemTenGod}</td>)}</tr>
+        <tr>{PILLAR_ORDER.map(key => <td key={key} className="border border-white/20 p-2"><small className="block text-white/50">藏干</small>{(pc.hiddenStemStructure[key] ?? []).map((h: { stem: string; tenGod: string }) => <span key={h.stem} className="block">{h.stem} · {h.tenGod}</span>)}</td>)}</tr>
+        <tr>{PILLAR_ORDER.map(key => <td key={key} className="border border-white/20 p-2"><small className="block text-white/50">十二長生</small>{pc.twelveStages[key]}</td>)}</tr>
+      </tbody>
+    </table>
+    <div className="grid gap-2 text-sm leading-7 sm:grid-cols-2">
+      <p>空亡：年 {pc.kongWang.yearXunKong} · 日 {pc.kongWang.dayXunKong}</p><p>胎元：{pc.taiYuan} · 胎息：{pc.taiXi}</p>
+      <p>命宮：{pc.mingGong} · 身宮：{pc.shenGong || '未提供'}</p><p>節氣：{pc.calendar.solarTerm} {pc.calendar.solarTermTime}</p>
+    </div>
+    <h3 className="text-base font-bold text-amber-100">大運</h3>
+    <div className="grid grid-cols-2 gap-2 text-sm leading-6 sm:grid-cols-4">{result.luckCycles.map((cycle: { startAge: number; endAge: number; pillar: string; startYear: number }) => <p key={cycle.startAge} className="rounded-lg border border-white/20 p-2"><strong>{cycle.pillar}</strong><br />{cycle.startAge}–{cycle.endAge} 歲<br />{cycle.startYear} 年起</p>)}</div>
+    <p className="text-xs leading-6 text-white/60">沿用既有排盤核心；年柱以立春、月柱以節氣分界，晚子時日柱不換日，未做真太陽時校正。</p>
+  </div>;
   return (
     <div className="space-y-4">
       {/* 出生資料 */}

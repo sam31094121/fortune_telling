@@ -1423,6 +1423,18 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
       }`}
       aria-label="易經個人成長中心入口"
     >
+      <details className="group/growth relative" data-home-growth-disclosure>
+        <summary className="relative z-10 flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 rounded-xl text-[color:var(--text-main)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200 [&::-webkit-details-marker]:hidden">
+          <div className="min-w-0">
+            <h2 className="font-serif text-xl font-black leading-tight sm:text-3xl">易經個人成長中心</h2>
+            <p className="mt-1 text-sm leading-relaxed text-[color:var(--text-muted)]" data-growth-summary-progress>已通過 {safeCompleted} / {safeTotal} 關</p>
+          </div>
+          <span className="shrink-0 text-sm font-bold text-amber-100">
+            <span className="group-open/growth:hidden">展開 ＋</span>
+            <span className="hidden group-open/growth:inline">收起 −</span>
+          </span>
+        </summary>
+        <div className="pt-4">
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.08),transparent)] opacity-0 transition duration-700 group-hover:opacity-100" />
       {unlocked && <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-amber-300/16 blur-3xl" />}
       <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -1436,7 +1448,6 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
             </span>
             <div className="min-w-0">
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200/85">Growth Center</p>
-              <h2 className="mt-1 font-serif text-2xl font-black leading-tight text-[color:var(--text-main)] sm:text-3xl">易經個人成長中心</h2>
             </div>
           </div>
           <p className="mt-4 text-sm font-black leading-7 text-[color:var(--text-main)]">{headline}</p>
@@ -1491,6 +1502,8 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
           </Link>
         ) : nextAction}
       </div>
+        </div>
+      </details>
     </section>
   );
 
@@ -2803,10 +2816,6 @@ export default function HomePage() {
 
         <section id="home-eight-card-route" className="home-eight-card-route mb-8 scroll-mt-6" data-home-step="4">
           {/* 「其他探索素材」標題卡已隱藏（2026-08-11）：依指示不顯示 */}
-          <div className="home-eight-card-route__header home-eight-card-route__header--sticky">
-            <p>亂中有序・序中有正・正中有細</p>
-            <h2>先走主推，再深入命盤，其餘慢慢探索。</h2>
-          </div>
           {/* 「8 張卡片，一張一張填」引導卡已隱藏（2026-08-11）：依指示不顯示 */}
           {false && (
             <MegaInputGuide
@@ -2818,7 +2827,6 @@ export default function HomePage() {
             />
           )}
           <div className={`home-feature-stack flex w-full flex-col gap-3 sm:gap-4 ${showMoreFeatures ? 'home-feature-stack--expanded' : 'home-feature-stack--collapsed'}`}>
-          <p className="home-feature-section-label home-feature-section-label--primary">今日主推</p>
           <p className="home-feature-section-label home-feature-section-label--secondary">深入命盤</p>
           <p className="home-feature-section-label home-feature-section-label--explore">繼續探索</p>
           <button
@@ -3057,6 +3065,14 @@ export default function HomePage() {
               <span>{'立即開啟命盤'}</span>
               <span className="transition-transform group-hover:translate-x-1.5">{'\u279c'}</span>
             </div>
+          </Link>
+
+          <Link href="/dual-chart" className="home-feature-launch home-feature-tier-explore order-[13] w-full rounded-3xl border border-violet-400/30 bg-gradient-to-r from-slate-950 via-violet-950/25 to-slate-950 p-6 flex flex-wrap items-center justify-between gap-5">
+            <div className="flex min-w-0 items-center gap-4">
+              <span aria-hidden="true" className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-violet-300/30 text-3xl font-serif text-violet-100">雙</span>
+              <div><h2 className="text-xl font-black text-violet-100">雙命盤</h2><p className="mt-2 text-sm text-[color:var(--text-sub)]">輸入密碼後，填一份生辰，查看八字與紫微斗數命盤。</p></div>
+            </div>
+            <span className="home-feature-cta rounded-xl border border-violet-300/30 px-5 py-3 text-sm font-bold text-violet-100">密碼開啟 →</span>
           </Link>
 
           <Link

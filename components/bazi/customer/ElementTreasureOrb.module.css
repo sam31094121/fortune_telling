@@ -1,0 +1,49 @@
+/* Reuse the reference's full visual material; the seal is an independent layer. */
+.orb.orb {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: block;
+  border-radius: 50%;
+  isolation: isolate;
+  overflow: visible;
+  pointer-events: none;
+  animation: elementalFloat var(--orb-float-duration) ease-in-out var(--orb-pulse-delay) infinite;
+}
+/* Move the whole sealed sphere so the paper stays attached to it. */
+.orb > div { height: 100%; animation: none; transition: filter 1.2s ease, transform 1.2s ease; }
+.orb[data-animated='false'], .orb[data-animated='false']::before, .orb[data-animated='false'] * { animation: none !important; }
+.orb[data-state='sealed'] > div { filter: brightness(.82) saturate(1.18); transform: scale(.94); }
+.orb[data-state='sealed'] { --orb-float-distance: 2px !important; }
+.orb::before, .orb::after {
+  content: ''; position: absolute; inset: -16%; border-radius: 50%;
+  pointer-events: none; opacity: 0; transition: opacity 1.2s ease, transform 1.2s ease;
+}
+.orb::before {
+  border: 1px solid var(--orb-ring);
+  box-shadow: 0 0 18px rgba(var(--orb-glow-rgb), .55), inset 0 0 12px rgba(var(--orb-glow-rgb), .25);
+  transform: scale(.72);
+}
+.orb::after {
+  inset: 8%;
+  background: radial-gradient(ellipse at 30% 23%, #fff 0%, rgba(255,255,255,.65) 4%, transparent 19%), radial-gradient(ellipse at 68% 78%, rgba(var(--orb-glow-rgb), .7), transparent 48%);
+  mix-blend-mode: screen;
+}
+.orb[data-state='released']::before { opacity: .7; transform: scale(1); }
+.orb[data-state='released']::after { opacity: .85; }
+.orb[data-state='opening']::before { animation: releaseWave 3s ease-out infinite; }
+@keyframes releaseWave {
+  from { opacity: .85; transform: scale(.72); }
+  to { opacity: 0; transform: scale(1.35); }
+}
+@keyframes elementalFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(calc(-1 * var(--orb-float-distance))); }
+}
+/* Keep complete static glow with reduced motion. The existing ritual timer
+   removes the paper at completion; it never depends on animationend. */
+@media (prefers-reduced-motion: reduce) {
+  .orb, .orb::before, .orb::after, .orb *, .orb *::before, .orb *::after { animation: none !important; transition: none !important; }
+  .orb[data-state='opening']::before { opacity: .5; transform: scale(.85); }
+  .orb :global(.space-seal-ash) { display: none; }
+}

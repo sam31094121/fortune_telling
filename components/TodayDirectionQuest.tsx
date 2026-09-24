@@ -5,9 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 import { WaterTreasureOrb } from '@/components/bazi/customer/WaterTreasureOrb';
 import { useElementTreasureRitual } from '@/components/five-elements/useElementTreasureRitual';
 import styles from './TodayDirectionQuest.module.css';
+import { localDateKey, previousQuestLabel, restoreQuestState, type QuestStage, type QuestAreaId, type ActionMode, type SavedQuestState, type QuestContext } from '@/lib/today-quest-state';
 
-type QuestStage = 'intro' | 'checkin' | 'area' | 'tension' | 'action' | 'reward';
-type QuestAreaId = 'self' | 'work' | 'relationship';
 type CheckinResponse = 'done' | 'progress' | 'switch';
 
 type QuestPath = {
@@ -20,7 +19,6 @@ type QuestPath = {
   routeLabel: string;
 };
 
-type ActionMode = 'ready' | 'check' | 'smaller';
 
 type QuestArea = {
   id: QuestAreaId;
@@ -156,21 +154,7 @@ const QUEST_STORAGE_KEY = 'today-direction-quest-v1';
 const QUEST_HISTORY_KEY = 'today-direction-quest-history-v1';
 
 
-type SavedQuestState = {
-  date: string;
-  stage: QuestStage;
-  areaId: QuestAreaId | null;
-  pathId: string | null;
-  completed: boolean;
-  actionMode?: ActionMode;
-};
-
-function todayKey() {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${now.getFullYear()}-${month}-${day}`;
-}
+const todayKey = localDateKey;
 
 type QuestHistory = {
   streak: number;
@@ -204,7 +188,7 @@ function readQuestHistory(): QuestHistory {
 }
 
 function writeQuestHistory(history: QuestHistory) {
-  window.localStorage.setItem(QUEST_HISTORY_KEY, JSON.stringify(history));
+  try { window.localStorage.setItem(QUEST_HISTORY_KEY, JSON.stringify(history)); } catch { /* Storage may be disabled. */ }
 }
 
 function bumpQuestStreak(): QuestHistory {
@@ -222,37 +206,14 @@ function bumpQuestStreak(): QuestHistory {
 }
 
 
-function isQuestAreaId(value: unknown): value is QuestAreaId {
-  return QUEST_AREAS.some((item) => item.id === value);
-}
-
-function isSavedStage(value: unknown): value is SavedQuestState['stage'] {
-  return value === 'intro' || value === 'checkin' || value === 'area' || value === 'tension' || value === 'action' || value === 'reward';
-}
-
-function isActionMode(value: unknown): value is ActionMode {
-  return value === 'ready' || value === 'check' || value === 'smaller';
-}
-
-function isValidSavedState(value: unknown): value is SavedQuestState {
-  if (!value || typeof value !== 'object') return false;
-  const saved = value as Partial<SavedQuestState>;
-  if (typeof saved.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(saved.date) || !isSavedStage(saved.stage)) return false;
-  if (saved.actionMode !== undefined && !isActionMode(saved.actionMode)) return false;
-  if (saved.stage === 'intro') return saved.areaId === null && saved.pathId === null;
-  if (saved.stage === 'checkin') return saved.completed === true && saved.areaId === null && saved.pathId === null;
-  if (saved.stage === 'area') return saved.areaId === null && saved.pathId === null;
-  if (!isQuestAreaId(saved.areaId)) return false;
-  if (saved.stage === 'tension') return saved.pathId === null;
-  const savedArea = QUEST_AREAS.find((item) => item.id === saved.areaId);
-  return typeof saved.pathId === 'string' && Boolean(savedArea?.paths.some((item) => item.id === saved.pathId));
-}
-
 export default function TodayDirectionQuest() {
   const [stage, setStage] = useState<QuestStage>('intro');
   const [areaId, setAreaId] = useState<QuestAreaId | null>(null);
   const [pathId, setPathId] = useState<string | null>(null);
   const [actionMode, setActionMode] = useState<ActionMode>('ready');
+  const [smaller, setSmaller] = useState(false);
+  const [outcome, setOutcome] = useState<QuestContext['outcome']>('unknown');
+  const [returnContext, setReturnContext] = useState<QuestContext | null>(null);
   const [collectedToday, setCollectedToday] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [restoredReleased, setRestoredReleased] = useState(false);
@@ -264,62 +225,34 @@ export default function TodayDirectionQuest() {
 
   const area = QUEST_AREAS.find((item) => item.id === areaId) ?? null;
   const path = area?.paths.find((item) => item.id === pathId) ?? null;
+  const previousPath = QUEST_AREAS.find(item => item.id === returnContext?.areaId)?.paths.find(item => item.id === returnContext?.pathId);
   const rewardOpening = !restoredReleased && windRitual.opening;
   const rewardReleased = restoredReleased || windRitual.released;
 
   useEffect(() => {
     try {
       const history = readQuestHistory();
-      setStreakDays(history.streak);
+      setStreakDays([todayKey(), yesterdayKey()].includes(history.lastCompletedDate) ? history.streak : 0);
 
       const raw = window.localStorage.getItem(QUEST_STORAGE_KEY);
       if (!raw) return;
-      const saved: unknown = JSON.parse(raw);
-      if (!isValidSavedState(saved)) {
-        window.localStorage.removeItem(QUEST_STORAGE_KEY);
-        return;
-      }
-      if (saved.date !== todayKey()) {
-        // 跨日：做完 → 回訪打卡；做到一半 → 進度接續（兌現「進度會幫你留著」）
-        if (saved.completed) {
-          setAreaId(null);
-          setPathId(null);
-          setStage('checkin');
-          setCollectedToday(true);
-          setRestoredReleased(true);
-          setReturnNote(
-            history.streak > 1
-              ? `已連續 ${history.streak} 天。昨天的風寶珠還在，今天再走一步。`
-              : '昨天的風寶珠還在。今天再走一步。',
-          );
-        } else if (saved.stage !== 'intro') {
-          setAreaId(saved.areaId);
-          setPathId(saved.pathId);
-          setStage(saved.stage === 'reward' ? 'action' : saved.stage);
-          setActionMode(saved.actionMode ?? 'ready');
-          setCollectedToday(false);
-          setRestoredReleased(false);
-          setReturnNote('昨天的進度還在，今天接著走。');
-        } else if (history.streak > 0) {
-          setReturnNote(
-            history.streak > 1
-              ? `已連續 ${history.streak} 天，今天也只做好一件事。`
-              : '歡迎回來。今天也只做好一件事。',
-          );
-        }
-        return;
-      }
+      const input = JSON.parse(raw);
+      const saved = restoreQuestState(input, QUEST_AREAS);
+      if (!saved) return;
       setAreaId(saved.areaId);
       setPathId(saved.pathId);
       setStage(saved.stage);
       setActionMode(saved.actionMode ?? 'ready');
+      setSmaller(Boolean(saved.smaller));
+      setOutcome(saved.outcome ?? 'unknown');
+      setReturnContext(saved.returnContext ?? null);
       setCollectedToday(saved.completed);
       setRestoredReleased(saved.stage === 'reward' && saved.completed);
-      if (history.streak > 1 && saved.stage === 'intro' && !saved.completed) {
-        setReturnNote(`已連續 ${history.streak} 天，今天也只做好一件事。`);
+      if (input.date !== todayKey() && saved.stage !== 'intro') {
+        setReturnNote(`${previousQuestLabel(saved.returnContext?.date ?? input.date)}的進度還在這台裝置，今天接著走。`);
       }
     } catch {
-      window.localStorage.removeItem(QUEST_STORAGE_KEY);
+      // Missing, malformed or unavailable storage must not block the first visit.
     } finally {
       setHydrated(true);
     }
@@ -334,9 +267,12 @@ export default function TodayDirectionQuest() {
       pathId,
       completed: collectedToday || stage === 'reward',
       actionMode,
+      smaller,
+      outcome,
+      returnContext,
     };
-    window.localStorage.setItem(QUEST_STORAGE_KEY, JSON.stringify(saved));
-  }, [actionMode, areaId, collectedToday, hydrated, pathId, stage]);
+    try { window.localStorage.setItem(QUEST_STORAGE_KEY, JSON.stringify(saved)); } catch { /* Keep this session usable. */ }
+  }, [actionMode, areaId, collectedToday, hydrated, pathId, stage, smaller, outcome, returnContext]);
 
   useEffect(() => {
     if (stage === 'intro') return;
@@ -375,6 +311,9 @@ export default function TodayDirectionQuest() {
   }
 
   function choosePath(nextPathId: string) {
+    setSmaller(false);
+    setOutcome('unknown');
+    setReturnContext(null);
     setActionMode('ready');
     setPathId(nextPathId);
     setStage('action');
@@ -407,7 +346,9 @@ export default function TodayDirectionQuest() {
     setStage('intro');
   }
 
-  function completeQuest() {
+  function completeQuest(result: 'done' | 'started') {
+    setOutcome(result);
+    if (areaId && pathId) setReturnContext({ date: todayKey(), areaId, pathId, smaller, outcome: result });
     const history = bumpQuestStreak();
     setStreakDays(history.streak);
     setCollectedToday(true);
@@ -504,6 +445,10 @@ export default function TodayDirectionQuest() {
             <div className={styles.introCopy}>
               <p className={styles.kicker}>先成一，再生二</p>
               <h2 id="today-direction-title">今天，只做好一件事。</h2>
+              <button type="button" className={styles.primaryButton} onClick={beginQuest} data-quest-action="start">
+                <span>{collectedToday ? '再選一條路' : '找到今天的一步'}</span>
+                <span aria-hidden="true">→</span>
+              </button>
               <p className={styles.lead}>先走一步，讓明天開始改變。</p>
               <div className={styles.promiseRow} aria-label="遊戲說明">
                 <span>免費</span>
@@ -523,17 +468,13 @@ export default function TodayDirectionQuest() {
             <div className={styles.introAction}>
               <div className={styles.lockPreview} aria-hidden="true">
                 <span className={`treasure-reveal-stage ${collectedToday ? 'treasure-reveal-stage--collected' : 'treasure-reveal-stage--sealed'} ${styles.introOrbStage}`}>
-                  <WaterTreasureOrb element="風" released={collectedToday} preview displayProfile={collectedToday ? 'mobile-reward' : 'default'} />
+                  <WaterTreasureOrb element="風" released={collectedToday} preview />
                 </span>
                 <span>
                   <small>{collectedToday ? '今日成果' : '下一層'}</small>
                   <strong>{collectedToday ? '風寶珠已取得' : '等你選擇'}</strong>
                 </span>
               </div>
-              <button type="button" className={styles.primaryButton} onClick={beginQuest} data-quest-action="start">
-                <span>{collectedToday ? '再選一條路' : '開始'}</span>
-                <span aria-hidden="true">→</span>
-              </button>
             </div>
           </div>
         )}
@@ -542,9 +483,16 @@ export default function TodayDirectionQuest() {
           <div className={styles.step}>
             <p className={styles.kicker}>風寶珠記得你</p>
             <h2 id="today-direction-title">上次那一步，現在怎麼樣？</h2>
+            {returnContext && previousPath ? (
+              <div className={styles.actionCard} data-quest-return-action>
+                <span>{previousQuestLabel(returnContext.date)}選的{ returnContext.smaller ? '更小一步' : '一步' }・{returnContext.date}</span>
+                <p>{returnContext.smaller ? previousPath.smallerAction : previousPath.action}</p>
+                <small>{returnContext.outcome === 'done' ? '你上次回報：已完成' : returnContext.outcome === 'started' ? '你上次回報：有開始' : '舊紀錄未保存完成情況，請依實際情況回覆。'}</small>
+              </div>
+            ) : <p className={styles.returnNote}>舊紀錄未保留具體行動，請依你記得的那一步回覆。</p>}
             <div className={styles.checkinOrb} aria-label="已保留的風寶珠，寶珠進度一共五顆，目前一顆">
               <span className={`treasure-reveal-stage treasure-reveal-stage--collected ${styles.introOrbStage}`}>
-                <WaterTreasureOrb element="風" released preview displayProfile="mobile-reward" />
+                <WaterTreasureOrb element="風" released preview />
               </span>
               <span>
                 <small>成果已保留</small>
@@ -642,8 +590,8 @@ export default function TodayDirectionQuest() {
               <p>{path.reflection}</p>
             </div>
             <div className={styles.actionCard}>
-              <span>{actionMode === 'smaller' ? '更小一步' : '現在做'}</span>
-              <p>{actionMode === 'smaller' ? path.smallerAction : path.action}</p>
+              <span>{smaller ? '更小一步' : '現在做'}</span>
+              <p>{smaller ? path.smallerAction : path.action}</p>
             </div>
             {actionMode === 'ready' && (
               <button type="button" className={styles.primaryButton} onClick={() => setActionMode('check')} data-quest-action="start-action">
@@ -653,9 +601,9 @@ export default function TodayDirectionQuest() {
             )}
             {actionMode === 'check' && (
               <div className={styles.feedbackGrid} aria-label="行動回報">
-                <button type="button" className={styles.primaryButton} onClick={completeQuest} data-quest-action="complete">我做完了</button>
-                <button type="button" className={styles.secondaryButton} onClick={completeQuest} data-quest-action="started">我有開始</button>
-                <button type="button" className={styles.quietButton} onClick={() => setActionMode('smaller')}>這一步太大</button>
+                <button type="button" className={styles.primaryButton} onClick={() => completeQuest('done')} data-quest-action="complete">我做完了</button>
+                <button type="button" className={styles.secondaryButton} onClick={() => completeQuest('started')} data-quest-action="started">我有開始</button>
+                <button type="button" className={styles.quietButton} onClick={() => { setSmaller(true); setActionMode('smaller'); }}>這一步太大</button>
               </div>
             )}
             {actionMode === 'smaller' && (
@@ -684,7 +632,6 @@ export default function TodayDirectionQuest() {
                 released={rewardReleased || rewardOpening}
                 burnSealOnRelease={rewardOpening}
                 animating={rewardOpening}
-                displayProfile="mobile-reward"
               />
             </div>
             <div className={styles.sealedPreview} aria-label="其餘四顆尚未解鎖的元素寶珠">
@@ -723,7 +670,7 @@ export default function TodayDirectionQuest() {
                   <p className={styles.takeawayReflection}>{path.reflection}</p>
                   <div className={styles.takeawayAction}>
                     <span>今天可做的一步</span>
-                    <strong>{actionMode === 'smaller' ? path.smallerAction : path.action}</strong>
+                    <strong>{smaller ? path.smallerAction : path.action}</strong>
                   </div>
                 </article>
                 <p className={styles.tomorrowClue}>

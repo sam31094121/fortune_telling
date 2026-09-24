@@ -76,6 +76,8 @@ type UnifiedBirthFormProps = {
   optionalFields?: Array<'name'>;
   /** 呼叫端已核對本人資料時，避免再次由全域儲存覆蓋。 */
   autoFillIdentity?: boolean;
+  /** 私密或一次性排盤可停用寫入共用出生資料；其他頁面維持原行為。 */
+  persistIdentity?: boolean;
   onChange: (value: BirthProfile) => void;
   onSubmit: (value: BirthProfile) => void;
 };
@@ -239,6 +241,7 @@ export function UnifiedBirthForm({
   hideSubmitChrome = false,
   optionalFields = [],
   autoFillIdentity = true,
+  persistIdentity = true,
   onChange,
   onSubmit,
 }: UnifiedBirthFormProps) {
@@ -299,7 +302,7 @@ export function UnifiedBirthForm({
     <form
       onSubmit={(event) => {
         event.preventDefault();
-        if (getAnalysisIdentityTarget() === 'self') {
+        if (persistIdentity && getAnalysisIdentityTarget() === 'self') {
           saveSelfBirthProfile(value); // 本人資料檔案：下次選「自己」自動帶入
           saveCanonicalBirthProfile(fromUnifiedBirthProfile(value)); // 唯一出生資料：讓紫微那頁也能帶出來
         }

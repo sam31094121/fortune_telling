@@ -4,8 +4,7 @@ import { memo, useEffect, useMemo, useRef, useState, type CSSProperties } from '
 import { planTierPresentation } from '@/lib/beast-game/fusion-presentation';
 import FusionEffectStage from './FusionEffectStage';
 import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
-import { DEMON_MATERIAL, ORB_MATERIAL } from '@/components/bazi/customer/elementOrbPalette';
-import { SharedElementSealPaper } from '@/components/bazi/customer/SharedElementSealPaper';
+import { ElementTreasureOrb } from '@/components/bazi/customer/ElementTreasureOrb';
 import { CardSlot, HandZone, type BattlefieldCardArt } from './GameBattlefield';
 import { VitalBar } from './BattlePanel';
 import { legalDestinations, type BattleState, type Destination } from '@/lib/beast-game/battlefield';
@@ -202,12 +201,7 @@ export default function BattleArena({ state, cards, match, view, onInspect, onSw
                   <span key={orbElement} className={styles.orbSlot} data-unsealed={open} data-orb={orbElement}
                     title={open ? `${productElement}寶珠` : '魔珠・封印中'}>
                     <span className={`treasure-reveal-stage ${open ? '' : 'treasure-reveal-stage--sealed'} ${styles.orbStage}`}>
-                      <span className={`water-treasure-orb water-treasure-orb--${productElement} ${open ? 'water-treasure-orb--released' : 'water-treasure-orb--sealed'}`}
-                        style={{ '--orb-body': (open ? ORB_MATERIAL : DEMON_MATERIAL)[productElement].color, '--orb-glow': (open ? ORB_MATERIAL : DEMON_MATERIAL)[productElement].emissive } as CSSProperties}>
-                        {!open && <span className="water-treasure-seal-aura" />}
-                        {!open && <SharedElementSealPaper />}
-                        <span className={styles.orbBody} data-open={open} />
-                      </span>
+                      <ElementTreasureOrb element={productElement} released={open} preview visualScale={1.7} />
                     </span>
                   </span>
                 );

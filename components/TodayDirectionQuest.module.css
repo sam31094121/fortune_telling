@@ -533,8 +533,7 @@
   height: 6.6rem;
   margin: 0 auto 1.15rem;
   filter:
-    drop-shadow(0 0 18px rgba(52, 211, 153, 0.5))
-    drop-shadow(0 12px 26px rgba(2, 6, 23, 0.7));
+    drop-shadow(0 5px 8px rgba(2, 6, 23, 0.25));
   transform: translateY(0.3rem);
 }
 
@@ -566,7 +565,7 @@
   width: 3.35rem;
   height: 3.35rem;
   margin-inline: auto;
-  filter: saturate(0.72) brightness(0.78);
+  filter: none;
 }
 
 .sealedOrb small {
