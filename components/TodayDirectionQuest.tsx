@@ -468,11 +468,11 @@ export default function TodayDirectionQuest() {
 
             <aside className={styles.orbCard} aria-label="風寶珠解封">
               <button type="button" className={styles.orbCardTrigger}
-                disabled={collectedToday || cardRitual.opening || cardRitual.released}
+                disabled={cardRitual.opening || cardRitual.released}
                 onClick={cardRitual.start}
-                aria-label={collectedToday || cardRitual.released ? '風寶珠已解封' : cardRitual.opening ? '風寶珠解封中' : '點擊解封風寶珠'}>
+                aria-label={cardRitual.released ? '風寶珠已解封' : cardRitual.opening ? '風寶珠解封中' : '點擊解封風寶珠'}>
                 <span className={`treasure-reveal-stage ${styles.orbCardStage}`} aria-hidden="true">
-                  <WaterTreasureOrb element="風" released={collectedToday || cardRitual.opening || cardRitual.released} burnSealOnRelease={cardRitual.opening} animating={cardRitual.opening} />
+                  <WaterTreasureOrb element="風" released={cardRitual.opening || cardRitual.released} burnSealOnRelease={cardRitual.opening} animating={cardRitual.opening} />
                 </span>
               </button>
             </aside>
