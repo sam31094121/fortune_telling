@@ -177,3 +177,47 @@
 .printPreview.monochrome .baziMain>.pillarGrid{outline-color:#666}
 .passwordField{display:flex;gap:8px;align-items:stretch;min-width:0}.passwordField input{min-width:0;flex:1}.login .passwordToggle{flex:none;min-height:48px;padding:10px;background:#292236;color:#eee2ff;border:1px solid #a899ba;font-size:14px}.login .note{margin:0}.login>a{padding:12px 0;color:#d8c6ff}
 @media(max-width:360px){.passwordField{flex-wrap:wrap}.passwordField input{flex-basis:100%}.login .passwordToggle{width:100%}}
+
+/* Keep five-character summary values clear of their labels on phones.
+   Preserve the existing font sizes, desktop layout and fixed A4 canvas. */
+@media screen and (max-width:540px){
+ .page:not(.printPreview) .summaryGrid>div{grid-template-columns:minmax(0,1fr);gap:4px;padding:7px 8px;align-content:start}
+ .page:not(.printPreview) .summaryGrid dd{min-width:0;margin:0;line-height:1.8;overflow-wrap:anywhere}
+}
+
+/* Distribute the Bazi sheet's spare height inside its existing 8mm margins.
+   Intrinsic content can still grow, so export's overflow guard remains valid. */
+.printPreview .results>.panel:first-of-type{display:flex;flex-direction:column}
+.printPreview .baziReport{display:flex;flex-direction:column;flex:1}
+.printPreview .baziColumns{flex:1;min-height:0}
+.printPreview .baziSidebar .summaryGrid{font-size:13px}
+.printPreview .baziSidebar .summaryGrid>div{padding:4px 3px;line-height:1.6}
+.printPreview .baziSidebar .annualGrid small,.printPreview .baziSidebar .annualGrid span{font-size:12px;line-height:1.4}
+.printPreview .baziMain>.pillarGrid{font-size:16px;line-height:1.55}
+.printPreview .baziMain>.pillarGrid th,.printPreview .baziMain>.pillarGrid td{padding-top:7px;padding-bottom:7px}
+.printPreview .baziMain>.pillarGrid .largeGlyph td{font-size:28px;padding-top:10px;padding-bottom:10px}
+.printPreview .baziMain>.micro{margin-bottom:0}
+
+/* Hierarchy stays inside the relationship section; data order is unchanged. */
+.relations h3{font-size:18px;font-weight:800;letter-spacing:.06em;line-height:1.35}
+.relations p{min-width:0;overflow-wrap:anywhere;line-height:1.5}
+.relations p>b{font-size:17px;font-weight:800;line-height:1.4}
+.relationParticipants{display:inline-block;margin-left:8px;font-size:13px;font-weight:500;line-height:1.4}
+.relations small{margin-top:3px;line-height:1.4}
+.printPreview .baziMain>.relations{padding:7px 9px;gap:6px 12px;align-content:space-evenly}
+.printPreview .relations h3{font-size:18px;line-height:1.35}
+.printPreview .relations p>b{font-size:17px}
+.printPreview .relations[data-density='compact']{grid-template-columns:repeat(3,minmax(0,1fr))}
+.printPreview .relations[data-density='dense']{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px 8px;padding:6px 8px}
+.printPreview .relations[data-density='compact'] p>b,.printPreview .relations[data-density='dense'] p>b{display:block;font-size:15px;line-height:1.35}
+.printPreview .relations[data-density='compact'] .relationParticipants,.printPreview .relations[data-density='dense'] .relationParticipants{display:block;margin-left:0;line-height:1.3}
+.printPreview .relations[data-density='compact'] small,.printPreview .relations[data-density='dense'] small{margin-top:0;line-height:1.3}
+/* Fill the tablet relationship card through typography and spacing only. */
+@media screen and (min-width:541px) and (max-width:1100px){
+ .page:not(.printPreview) .relations{padding:14px 16px}
+ .page:not(.printPreview) .relations h3{margin-bottom:10px;font-size:20px;line-height:1.4}
+ .page:not(.printPreview) .relations p{margin-top:9px;line-height:1.5}
+ .page:not(.printPreview) .relations p>b{font-size:19px;line-height:1.4}
+ .page:not(.printPreview) .relationParticipants{margin-left:10px;font-size:15px;line-height:1.5}
+ .page:not(.printPreview) .relations small{margin-top:4px;font-size:13px;line-height:1.5}
+}

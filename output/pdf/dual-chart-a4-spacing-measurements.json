@@ -1,0 +1,166 @@
+{
+  "before": [
+    {
+      "children": [
+        {
+          "bottom": 79.23218154907227,
+          "class": "",
+          "height": 49.000003814697266,
+          "top": 30.232177734375
+        },
+        {
+          "bottom": 1068.2545166015625,
+          "class": "dual-chart_baziReport__3WNw6",
+          "height": 977.0223388671876,
+          "top": 91.232177734375
+        },
+        {
+          "bottom": 173.44646453857422,
+          "class": "dual-chart_birthBand__oDr7Y",
+          "height": 82.21428680419922,
+          "top": 91.232177734375
+        },
+        {
+          "bottom": 1003.6027221679688,
+          "class": "dual-chart_baziColumns__e69yu",
+          "height": 820.1563110351562,
+          "top": 183.4464111328125
+        },
+        {
+          "bottom": 1003.6027221679688,
+          "class": "dual-chart_baziSidebar__O5gDk",
+          "height": 820.1563110351562,
+          "top": 183.4464111328125
+        },
+        {
+          "bottom": 605,
+          "class": "dual-chart_pillarGrid__CCvl6 ",
+          "height": 421.5535888671875,
+          "top": 183.4464111328125
+        },
+        {
+          "bottom": 944.0045166015624,
+          "class": "dual-chart_relations__fAHgB",
+          "height": 161.37054443359375,
+          "top": 782.6339721679688
+        },
+        {
+          "bottom": 1068.2545700073242,
+          "class": "dual-chart_reportFooter__ZsH3i",
+          "height": 50.65178680419922,
+          "top": 1017.602783203125
+        }
+      ],
+      "height": 1122.5179443359375,
+      "width": 793.6964721679688
+    },
+    {
+      "children": [
+        {
+          "bottom": 79.23215103149414,
+          "class": "",
+          "height": 49.000003814697266,
+          "top": 30.232147216796875
+        },
+        {
+          "bottom": 689.3973412513733,
+          "class": "dual-chart_pillarGrid__CCvl6 dual-chart_compactGrid__j1pyB",
+          "height": 188.24107360839844,
+          "top": 501.15626764297485
+        }
+      ],
+      "height": 1122.5179443359375,
+      "width": 793.6964721679688
+    }
+  ],
+  "after": [
+    {
+      "footerBottom": 1090.209815979004,
+      "height": 1122.5179443359375,
+      "padding": "30.2362px",
+      "ring": [
+        {
+          "h": 118.00000762939452,
+          "w": 118.00000762939452
+        }
+      ],
+      "width": 793.6964721679688
+    },
+    {
+      "footerBottom": null,
+      "height": 1122.5179443359375,
+      "padding": "30.2362px",
+      "ring": [],
+      "width": 793.6964721679688
+    }
+  ],
+  "longName": [
+    {
+      "height": 1122.5179443359375,
+      "outsideSafeBottom": [],
+      "width": 793.6964721679688
+    },
+    {
+      "height": 1122.5179443359375,
+      "outsideSafeBottom": [],
+      "width": 793.6964721679688
+    }
+  ],
+  "ziweiUnchanged": true,
+  "normalViews": [
+    {
+      "available": 98,
+      "columns": "97.8839px",
+      "pageWidth": 305,
+      "scrollWidth": 305,
+      "value": "庚金（陽）",
+      "valueFont": "14px",
+      "width": 320
+    },
+    {
+      "available": 98,
+      "columns": "97.8839px",
+      "pageWidth": 360,
+      "scrollWidth": 360,
+      "value": "庚金（陽）",
+      "valueFont": "14px",
+      "width": 375
+    },
+    {
+      "available": 98,
+      "columns": "97.8839px",
+      "pageWidth": 375,
+      "scrollWidth": 375,
+      "value": "庚金（陽）",
+      "valueFont": "14px",
+      "width": 390
+    },
+    {
+      "available": 98,
+      "columns": "97.8839px",
+      "pageWidth": 415,
+      "scrollWidth": 415,
+      "value": "庚金（陽）",
+      "valueFont": "14px",
+      "width": 430
+    },
+    {
+      "available": 72,
+      "columns": "30.7991px 72.0848px",
+      "pageWidth": 753,
+      "scrollWidth": 753,
+      "value": "庚金（陽）",
+      "valueFont": "14px",
+      "width": 768
+    },
+    {
+      "available": 110,
+      "columns": "30.7991px 109.875px",
+      "pageWidth": 1265,
+      "scrollWidth": 1265,
+      "value": "庚金（陽）",
+      "valueFont": "14px",
+      "width": 1280
+    }
+  ]
+}

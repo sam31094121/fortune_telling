@@ -1,0 +1,558 @@
+{
+  "mobile": [
+    {
+      "documentWidth": 305,
+      "rows": [
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "日主",
+          "text": 70,
+          "value": "庚金（陽）"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "命宮",
+          "text": 28,
+          "value": "己巳"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "身宮",
+          "text": 28,
+          "value": "丁丑"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "胎元",
+          "text": 28,
+          "value": "壬戌"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 4.000020980834961,
+          "inside": true,
+          "label": "胎息",
+          "text": 28,
+          "value": "乙未"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 4.000020980834961,
+          "inside": true,
+          "label": "年空",
+          "text": 28,
+          "value": "子丑"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "日空",
+          "text": 28,
+          "value": "戌亥"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "旺衰",
+          "text": 28,
+          "value": "偏旺"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "格局",
+          "text": 42,
+          "value": "正印格"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "用神",
+          "text": 14,
+          "value": "水"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "喜神",
+          "text": 14,
+          "value": "木"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "忌神",
+          "text": 14,
+          "value": "金"
+        }
+      ],
+      "scrollWidth": 305,
+      "width": 320
+    },
+    {
+      "documentWidth": 360,
+      "rows": [
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "日主",
+          "text": 70,
+          "value": "庚金（陽）"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "命宮",
+          "text": 28,
+          "value": "己巳"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "身宮",
+          "text": 28,
+          "value": "丁丑"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "胎元",
+          "text": 28,
+          "value": "壬戌"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "胎息",
+          "text": 28,
+          "value": "乙未"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "年空",
+          "text": 28,
+          "value": "子丑"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "日空",
+          "text": 28,
+          "value": "戌亥"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "旺衰",
+          "text": 28,
+          "value": "偏旺"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "格局",
+          "text": 42,
+          "value": "正印格"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "用神",
+          "text": 14,
+          "value": "水"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "喜神",
+          "text": 14,
+          "value": "木"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "忌神",
+          "text": 14,
+          "value": "金"
+        }
+      ],
+      "scrollWidth": 360,
+      "width": 375
+    },
+    {
+      "documentWidth": 375,
+      "rows": [
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "日主",
+          "text": 70,
+          "value": "庚金（陽）"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "命宮",
+          "text": 28,
+          "value": "己巳"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "身宮",
+          "text": 28,
+          "value": "丁丑"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "胎元",
+          "text": 28,
+          "value": "壬戌"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 4.000020980834961,
+          "inside": true,
+          "label": "胎息",
+          "text": 28,
+          "value": "乙未"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 4.000020980834961,
+          "inside": true,
+          "label": "年空",
+          "text": 28,
+          "value": "子丑"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "日空",
+          "text": 28,
+          "value": "戌亥"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "旺衰",
+          "text": 28,
+          "value": "偏旺"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "格局",
+          "text": 42,
+          "value": "正印格"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "用神",
+          "text": 14,
+          "value": "水"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "喜神",
+          "text": 14,
+          "value": "木"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "忌神",
+          "text": 14,
+          "value": "金"
+        }
+      ],
+      "scrollWidth": 375,
+      "width": 390
+    },
+    {
+      "documentWidth": 415,
+      "rows": [
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "日主",
+          "text": 70,
+          "value": "庚金（陽）"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "命宮",
+          "text": 28,
+          "value": "己巳"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "身宮",
+          "text": 28,
+          "value": "丁丑"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "胎元",
+          "text": 28,
+          "value": "壬戌"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 4.000020980834961,
+          "inside": true,
+          "label": "胎息",
+          "text": 28,
+          "value": "乙未"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 4.000020980834961,
+          "inside": true,
+          "label": "年空",
+          "text": 28,
+          "value": "子丑"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "日空",
+          "text": 28,
+          "value": "戌亥"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "旺衰",
+          "text": 28,
+          "value": "偏旺"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "格局",
+          "text": 42,
+          "value": "正印格"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "用神",
+          "text": 14,
+          "value": "水"
+        },
+        {
+          "available": 97.8839340209961,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "喜神",
+          "text": 14,
+          "value": "木"
+        },
+        {
+          "available": 98.74107360839844,
+          "font": "14px",
+          "gap": 3.999990463256836,
+          "inside": true,
+          "label": "忌神",
+          "text": 14,
+          "value": "金"
+        }
+      ],
+      "scrollWidth": 415,
+      "width": 430
+    }
+  ],
+  "lengthChecks": [
+    {
+      "available": 98,
+      "characters": [
+        {
+          "count": 3,
+          "width": 42
+        },
+        {
+          "count": 4,
+          "width": 56
+        },
+        {
+          "count": 5,
+          "width": 70
+        }
+      ],
+      "width": 320
+    },
+    {
+      "available": 98,
+      "characters": [
+        {
+          "count": 3,
+          "width": 42
+        },
+        {
+          "count": 4,
+          "width": 56
+        },
+        {
+          "count": 5,
+          "width": 70
+        }
+      ],
+      "width": 375
+    },
+    {
+      "available": 98,
+      "characters": [
+        {
+          "count": 3,
+          "width": 42
+        },
+        {
+          "count": 4,
+          "width": 56
+        },
+        {
+          "count": 5,
+          "width": 70
+        }
+      ],
+      "width": 390
+    },
+    {
+      "available": 98,
+      "characters": [
+        {
+          "count": 3,
+          "width": 42
+        },
+        {
+          "count": 4,
+          "width": 56
+        },
+        {
+          "count": 5,
+          "width": 70
+        }
+      ],
+      "width": 430
+    }
+  ],
+  "desktop": [
+    {
+      "columns": "30.7991px 72.0848px",
+      "font": "14px",
+      "gap": "5px",
+      "padding": "5px 3px",
+      "width": 768
+    },
+    {
+      "columns": "30.7991px 109.875px",
+      "font": "14px",
+      "gap": "5px",
+      "padding": "5px 3px",
+      "width": 1280
+    }
+  ],
+  "paper": {
+    "comparedNodes": 804,
+    "identical": true
+  }
+}
