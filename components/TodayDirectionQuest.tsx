@@ -222,6 +222,7 @@ export default function TodayDirectionQuest() {
   const panelRef = useRef<HTMLElement>(null);
   const rewardRef = useRef<HTMLDivElement>(null);
   const windRitual = useElementTreasureRitual('風');
+  const cardRitual = useElementTreasureRitual('風');
 
   const area = QUEST_AREAS.find((item) => item.id === areaId) ?? null;
   const path = area?.paths.find((item) => item.id === pathId) ?? null;
@@ -465,17 +466,16 @@ export default function TodayDirectionQuest() {
             <p className={styles.growthBridge} data-bridge="home-quest-growth-bridge">走完這一關，進度會記入成長中心</p>
             </div>
 
-            <div className={styles.introAction}>
-              <div className={styles.lockPreview} aria-hidden="true">
-                <span className={`treasure-reveal-stage ${collectedToday ? 'treasure-reveal-stage--collected' : 'treasure-reveal-stage--sealed'} ${styles.introOrbStage}`}>
-                  <WaterTreasureOrb element="風" released={collectedToday} preview />
+            <aside className={styles.orbCard} aria-label="風寶珠解封">
+              <button type="button" className={styles.orbCardTrigger}
+                disabled={collectedToday || cardRitual.opening || cardRitual.released}
+                onClick={cardRitual.start}
+                aria-label={collectedToday || cardRitual.released ? '風寶珠已解封' : cardRitual.opening ? '風寶珠解封中' : '點擊解封風寶珠'}>
+                <span className={`treasure-reveal-stage ${styles.orbCardStage}`} aria-hidden="true">
+                  <WaterTreasureOrb element="風" released={collectedToday || cardRitual.opening || cardRitual.released} burnSealOnRelease={cardRitual.opening} animating={cardRitual.opening} />
                 </span>
-                <span>
-                  <small>{collectedToday ? '今日成果' : '下一層'}</small>
-                  <strong>{collectedToday ? '風寶珠已取得' : '等你選擇'}</strong>
-                </span>
-              </div>
-            </div>
+              </button>
+            </aside>
           </div>
         )}
 
