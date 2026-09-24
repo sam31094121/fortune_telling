@@ -38,6 +38,19 @@ export type RedLuanReminder = {
  */
 export const RED_LUAN_SHARE_MARK = 'from=share';
 
+/** Calendar draft only: the customer still confirms Save in Google Calendar. */
+export function redLuanCalendarDraft(month: RedLuanReminderMonth, today: string = taipeiToday()) {
+  const date = month.startsOn < today ? shiftDays(today, 1) : month.startsOn;
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: '月份提醒',
+    dates: `${icsDate(date)}/${nextDay(date)}`,
+    details: `留意自己的生活安排。參考期間：${month.startsOn} 至 ${month.endsOn}。`,
+  });
+  // No name, birth data or relationship interpretation in an external URL.
+  return `https://calendar.google.com/calendar/render?${params}`;
+}
+
 function withShareMark(url: string) {
   if (!url) return url;
   return `${url}${url.includes('?') ? '&' : '?'}${RED_LUAN_SHARE_MARK}`;
@@ -159,11 +172,27 @@ export function downloadRedLuanReminder(reminder: RedLuanReminder, months?: RedL
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
-    URL.revokeObjectURL(url);
+    // Mobile browsers may consume the download asynchronously after the click.
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
     return true;
   } catch {
     return false;
   }
+}
+
+/** Let supported phones hand the calendar file to an app; otherwise download it. */
+export async function exportRedLuanReminder(reminder: RedLuanReminder, months?: RedLuanReminderMonth[]): Promise<'calendar-shared' | 'reminded' | 'cancelled' | 'failed'> {
+  try {
+    const file = new File([buildRedLuanIcs(reminder, months)], `紅鸞心動-${reminder.startsOn}.ics`, { type: 'text/calendar' });
+    if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ files: [file], title: '紅鸞心動行事曆' });
+      return 'calendar-shared';
+    }
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') return 'cancelled';
+    // Unsupported file sharing still has the ordinary download path.
+  }
+  return downloadRedLuanReminder(reminder, months) ? 'reminded' : 'failed';
 }
 
 /**
@@ -185,7 +214,7 @@ export function buildRedLuanShareText(reminder: RedLuanReminder, monthCount?: nu
 }
 
 /** 優先用系統分享面板，沒有就複製到剪貼簿。回傳實際用了哪一種。 */
-export async function shareRedLuanReading(reminder: RedLuanReminder, monthCount?: number): Promise<'shared' | 'copied' | 'failed'> {
+export async function shareRedLuanReading(reminder: RedLuanReminder, monthCount?: number): Promise<'shared' | 'copied' | 'cancelled' | 'failed'> {
   const text = buildRedLuanShareText(reminder, monthCount);
   try {
     if (typeof navigator !== 'undefined' && navigator.share) {
@@ -193,6 +222,10 @@ export async function shareRedLuanReading(reminder: RedLuanReminder, monthCount?
       await navigator.share({ title: '桃花・紅鸞心動', text, url: withShareMark(reminder.url) });
       return 'shared';
     }
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') return 'cancelled';
+  }
+  try {
     await navigator.clipboard.writeText(text);
     return 'copied';
   } catch {

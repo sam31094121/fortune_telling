@@ -134,12 +134,6 @@ export default function AiLikeFeedback({ className = '' }: { className?: string 
   }, []);
 
   const flashCountIncrease = useCallback(() => {
-    setTotalCount((currentCount) => {
-      const nextCount = Math.max(currentCount, readStoredHighestCount(), INITIAL_COUNT) + 1;
-      writeStoredHighestCount(nextCount);
-      return nextCount;
-    });
-
     setCountPulse((currentPulse) => currentPulse + 1);
     if (countPulseTimerRef.current !== null) {
       window.clearTimeout(countPulseTimerRef.current);
@@ -202,7 +196,6 @@ export default function AiLikeFeedback({ className = '' }: { className?: string 
 
     setSubmitting(true);
     setNotice(null);
-    flashCountIncrease();
 
     try {
       const response = await fetch('/api/ai-like', {
@@ -220,6 +213,7 @@ export default function AiLikeFeedback({ className = '' }: { className?: string 
         commitTotalCount(data.totalCount);
       }
 
+      flashCountIncrease();
       setLiked(true);
       writeStoredLiked();
       showNotice({

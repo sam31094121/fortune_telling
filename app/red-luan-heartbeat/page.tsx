@@ -2,13 +2,15 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { ElementTreasureOrb } from '@/components/bazi/customer/ElementTreasureOrb';
+import { playElementUnsealSound } from '@/components/ElementUnsealSound';
 import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
 import { HOUR_BRANCH_PENDING } from '@/components/UnifiedBirthForm';
 import FriendlyChoiceCard from '@/components/FriendlyChoiceCard';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT, setAnalysisIdentityTarget } from '@/lib/identity-split-client';
- import { downloadRedLuanReminder, RED_LUAN_SHARE_MARK, shareRedLuanReading, type RedLuanReminder, type RedLuanReminderMonth } from '@/lib/red-luan-followup';
+ import { buildRedLuanShareText, redLuanCalendarDraft, exportRedLuanReminder, RED_LUAN_SHARE_MARK, shareRedLuanReading, type RedLuanReminder, type RedLuanReminderMonth } from '@/lib/red-luan-followup';
 import { buildRedLuanReturnLine, readRedLuanReturnVisit, saveRedLuanReturnVisit, taipeiToday, type RedLuanReturnVisit } from '@/lib/red-luan-return-visit';
 import { readCanonicalBirthProfile, saveCanonicalBirthProfile } from '@/lib/canonical-birth-profile-client';
 import { fromUnifiedBirthProfile, toUnifiedBirthProfile } from '@/lib/canonical-birth-profile';
@@ -578,7 +580,30 @@ function RedLuanHeartbeatExperience() {
   const [teacherKey, setTeacherKey] = useState('iching');
   /** 目前展開的折疊區塊。預設全部收起，首屏只留客戶最想看的兩個答案。 */
   const [openedFolds, setOpenedFolds] = useState<string[]>([]);
-  const [followUp, setFollowUp] = useState<'idle' | 'reminded' | 'shared' | 'copied' | 'failed'>('idle');
+  const [inLineBrowser, setInLineBrowser] = useState(false);
+  useEffect(() => { setInLineBrowser(/Line\//i.test(navigator.userAgent)); }, []);
+  const [showReminderMonths, setShowReminderMonths] = useState(false);
+  const [revealedEntrances, setRevealedEntrances] = useState<string[]>([]);
+  const [openingEntrance, setOpeningEntrance] = useState<string | null>(null);
+  const [entranceCountdown, setEntranceCountdown] = useState(3);
+  useEffect(() => {
+    if (!openingEntrance) return;
+    const startedAt = Date.now();
+    const timer = window.setInterval(() => {
+      setEntranceCountdown(Math.max(1, 3 - Math.floor((Date.now() - startedAt) / 1000)));
+    }, 100);
+    return () => window.clearInterval(timer);
+  }, [openingEntrance]);
+  const entranceTimer = useRef<number | null>(null);
+  useEffect(() => {
+    // Changing person/result or leaving the page cancels the old reveal.
+    setOpeningEntrance(null);
+    return () => {
+      if (entranceTimer.current !== null) window.clearTimeout(entranceTimer.current);
+      entranceTimer.current = null;
+    };
+  }, [reading]);
+  const [followUp, setFollowUp] = useState<'idle' | 'reminded' | 'calendar-shared' | 'shared' | 'copied' | 'failed'>('idle');
   /** 起卦儀式的第幾句；-1 代表沒有在進行。 */
   const [ritualStep, setRitualStep] = useState(-1);
   /** 上次填過的人；有的話就直接請他一鍵重看，不必再走一次表單。 */
@@ -612,6 +637,8 @@ function RedLuanHeartbeatExperience() {
     setContext(EMPTY_CONTEXT);
     setAppliedContext(EMPTY_CONTEXT);
     setFollowUp('idle');
+    setShowReminderMonths(false);
+    setRevealedEntrances([]);
     setError('');
     setRetryMode(null);
     setMissing([]);
@@ -810,6 +837,8 @@ function RedLuanHeartbeatExperience() {
         setTeacherKey('iching');
         setOpenedFolds([]);
         setFollowUp('idle');
+    setShowReminderMonths(false);
+    setRevealedEntrances([]);
       }
       // 回訪記憶：下次進來才講得出「上次還有 87 天，現在剩 4 天」這種每次都不一樣的話。
       const headline = payload.nextEncounters?.soulResonance ?? payload.nextEncounters?.benefactor ?? null;
@@ -866,14 +895,49 @@ function RedLuanHeartbeatExperience() {
         <p className="text-xs font-black tracking-[0.22em] text-rose-200">桃花・紅鸞</p>
         <h1 className="mt-2 font-serif text-3xl font-black text-rose-50">桃花・紅鸞心動</h1>
         <p className="mt-3 text-sm leading-7 text-white/75">依八字紅鸞、天喜規則，找出你的桃花月份與傳統對應類型。</p>
-        <div className="mt-4 grid grid-cols-3 gap-2" aria-label="完成資料後可解鎖三份結果">
-          {['心動月份', '對象類型', '相遇提示'].map((label) => (
-            <div key={label} className="rounded-2xl border border-rose-100/20 bg-black/20 px-2 py-3 text-center">
-              <span className="block text-base" aria-hidden="true">🔒</span>
-              <span className="mt-1 block text-xs font-black text-rose-50/80">{label}</span>
-            </div>
+        <div className="mt-4 grid grid-cols-3 gap-2" aria-label="結果解鎖入口">
+          {[
+            // Palette choices identify these three functions, not calculated birth-chart elements.
+            { label: '心動月份', element: '地' as const, target: 'red-luan-when', ready: Boolean(reading?.affinity && reading.nextEncounters) },
+            { label: '對象類型', element: '火' as const, target: 'red-luan-type', ready: Boolean(reading?.affinity?.typeHeadline) },
+            { label: '相遇提示', element: '水' as const, target: 'red-luan-hints', ready: Boolean(reading?.affinity?.onionLayers?.length) },
+          ].map((item) => (
+            <button key={item.label} type="button" disabled={loading || openingEntrance !== null}
+              aria-label={item.label + (loading ? '，解鎖中' : item.ready ? '，結果已備妥，點選揭符查看' : reading ? '，目前無對應結果，點選查看說明' : '，待填寫資料，點選開始')}
+              onClick={() => {
+                if (entranceTimer.current !== null) return;
+                if (!item.ready) {
+                  scrollToTarget(() => reading ? document.getElementById('red-luan-result') : document.querySelector('.red-luan-unified-flow'));
+                  return;
+                }
+                const openAnswer = () => {
+                  if (item.target === 'red-luan-hints') toggleFoldOpen('onion');
+                  scrollToTarget(() => document.getElementById(item.target));
+                };
+                if (revealedEntrances.includes(item.target)) { openAnswer(); return; }
+                setEntranceCountdown(3);
+                setOpeningEntrance(item.target);
+                // Must start inside the tap gesture on mobile; audio failure cannot block the answer.
+                try { playElementUnsealSound(item.element, { tapEnabled: true }); } catch { /* Silent devices still reveal normally. */ }
+                entranceTimer.current = window.setTimeout(() => {
+                  entranceTimer.current = null;
+                  setOpeningEntrance(null);
+                  setRevealedEntrances((current) => current.includes(item.target) ? current : [...current, item.target]);
+                  openAnswer();
+                }, 3000);
+              }}
+              className={`red-luan-sealed-entry min-w-0 rounded-2xl border px-2 py-3 text-center transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-100 disabled:opacity-60 ${item.ready ? 'border-amber-200/50 bg-amber-300/15' : 'border-rose-100/20 bg-black/20'}`}
+              data-revealed={item.ready && revealedEntrances.includes(item.target)}
+            >
+              <span className="red-luan-orb-stage" aria-hidden="true">
+                <ElementTreasureOrb element={item.element} preview visualScale={1.05} burning={openingEntrance === item.target} released={item.ready && revealedEntrances.includes(item.target)} />
+              </span>
+              <span className="mt-2 block text-xs font-black text-rose-50 sm:text-sm">{item.label}</span>
+              <span className="mt-1 block text-[10px] leading-4 text-amber-100/80">{openingEntrance === item.target ? `心中許個願・${entranceCountdown}` : loading ? '核對中' : item.ready ? revealedEntrances.includes(item.target) ? '已揭符・再查看' : '點擊揭符' : reading ? '暫無結果' : '填寫後可揭符'}</span>
+            </button>
           ))}
         </div>
+        <p className="mt-3 text-xs leading-6 text-rose-100/80" role="status">{loading ? '正在核對資料，結果完成後才會解鎖。' : reading ? '已產生的結果可點選查看，其他項目會標示暫無結果。' : '填好生日與性別，選擇時辰或「不知道」，再按「抽出我的心動月份」。'}</p>
       </header>
 
       <section className="red-luan-unified-flow mt-5 rounded-3xl border border-white/12 bg-slate-950/70 p-5 shadow-[0_18px_48px_rgba(2,6,23,0.35)]">
@@ -994,6 +1058,10 @@ function RedLuanHeartbeatExperience() {
         )}
       </section>
       <style jsx>{`
+        .red-luan-orb-stage { position: relative; display: block; width: min(100%, 116px); aspect-ratio: 1; margin: 18px auto 22px; }
+        .red-luan-orb-stage :global(.space-seal-paper--burning) { animation-duration: 3s; }
+        .red-luan-orb-stage :global(.space-seal-ash::before) { animation-duration: 2.7s; }
+        .red-luan-orb-stage :global(.space-seal-ash i) { animation-duration: 2.15s; animation-delay: calc(var(--ash-delay, 0s) / 4); }
         .red-luan-unified-flow :global(.mega-friendly-form > p),
         .red-luan-unified-flow :global(.mega-friendly-form > button[type='submit']),
         .red-luan-unified-flow :global(.mega-friendly-form > section:last-child) {
@@ -1008,7 +1076,7 @@ function RedLuanHeartbeatExperience() {
           免責與後端稽核資料也全部往後收，讓它們在「想查」時才出現。
         */}
         <header className="rounded-3xl border border-cyan-200/25 bg-cyan-300/[0.08] p-5">
-          <p className="text-xs font-black tracking-[0.18em] text-cyan-100/75">三份驚喜已解鎖</p>
+          <p className="text-xs font-black tracking-[0.18em] text-cyan-100/75">結果已產生，可由上方卡片查看各項內容</p>
           <h2 className="mt-1 text-2xl font-black text-white">{reading.person.name ? `${reading.person.name}，這是你的紅鸞` : '這是你的紅鸞'}</h2>
           {/*
             回訪那一句原本只出現在送出前，客戶按下去就消失了——
@@ -1039,7 +1107,7 @@ function RedLuanHeartbeatExperience() {
             </div>
           )}
 
-          <div className="mt-3 rounded-2xl border border-rose-200/30 bg-rose-300/[0.1] p-5">
+          <div id="red-luan-type" className="mt-3 scroll-mt-5 rounded-2xl border border-rose-200/30 bg-rose-300/[0.1] p-5">
             <p className="text-sm font-black text-rose-100">{reading.affinity.typeLabel}</p>
             <p className="mt-2 text-3xl font-black leading-tight text-rose-50">{reading.affinity.typeHeadline}</p>
             <div className="mt-4 space-y-2">
@@ -1179,7 +1247,7 @@ function RedLuanHeartbeatExperience() {
             </Fold>
             </>}
 
-            <Fold title="一層一層看他是誰" badge={`${(reading.affinity.onionLayers ?? []).length} 層`} teaser="他在哪一行、從哪個方向來，一層一層拆給你看" foldKey="onion" opened={openedFolds} onToggle={toggleFold}>
+            <Fold anchorId="red-luan-hints" title="一層一層看他是誰" badge={`${(reading.affinity.onionLayers ?? []).length} 層`} teaser="他在哪一行、從哪個方向來，一層一層拆給你看" foldKey="onion" opened={openedFolds} onToggle={toggleFold}>
               <div className="space-y-2">
                 {(reading.affinity.onionLayers ?? []).map((layer, index) => {
                   const unlocked = index <= peeled;
@@ -1393,6 +1461,7 @@ function RedLuanHeartbeatExperience() {
         */}
         <section className="rounded-3xl border border-amber-200/25 bg-amber-300/[0.07] p-5">
           <p className="text-sm font-black text-amber-100">接下來</p>
+          {inLineBrowser && <p className="mt-2 text-xs leading-6 text-amber-100/80">你正在 LINE 裡開啟。月份可直接查看；若行事曆或分享無法開啟，請從 LINE 頁面選單選擇以外部瀏覽器開啟，再試一次。</p>}
           <div className={`mt-3 grid gap-2 ${followUpEncounter ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
             {/*
               這張卡的結果是靜態的，行事曆是唯一會自己把客戶叫回來的東西。
@@ -1401,20 +1470,22 @@ function RedLuanHeartbeatExperience() {
             {followUpEncounter && (
               <button
                 type="button"
-                onClick={() => setFollowUp(downloadRedLuanReminder(reminderOf(reading), reminderMonthsOf(reading)) ? 'reminded' : 'failed')}
+                aria-expanded={showReminderMonths}
+                aria-controls="red-luan-reminder-months"
+                onClick={() => setShowReminderMonths((current) => !current)}
                 className="rounded-2xl border border-amber-200/45 bg-amber-300/15 px-4 py-4 text-left transition hover:bg-amber-300/25"
               >
                 <span className="block text-base font-black text-amber-50">
                   {reminderMonthsOf(reading).length > 1
-                    ? `把這 ${reminderMonthsOf(reading).length} 個月全放進行事曆`
+                    ? `查看這 ${reminderMonthsOf(reading).length} 個月的提醒`
                     : `提醒我 ${Number(followUpEncounter.startsOn.slice(5, 7))} 月`}
                 </span>
-                <span className="mt-1 block text-xs leading-4 text-amber-100/75">未來一年的每一次，都幫你先記好</span>
+                <span className="mt-1 block text-xs leading-4 text-amber-100/75">直接查看日期，選擇月份加入行事曆</span>
               </button>
             )}
             <button
               type="button"
-              onClick={() => { void shareRedLuanReading(reminderOf(reading), reminderMonthsOf(reading).length).then((outcome) => setFollowUp(outcome === 'failed' ? 'failed' : outcome)); }}
+              onClick={() => { void shareRedLuanReading(reminderOf(reading), reminderMonthsOf(reading).length).then((outcome) => setFollowUp(outcome === 'cancelled' ? 'idle' : outcome)); }}
               className="rounded-2xl border border-rose-200/45 bg-rose-300/15 px-4 py-4 text-left transition hover:bg-rose-300/25"
             >
               <span className="block text-base font-black text-rose-50">分享這張卡</span>
@@ -1429,16 +1500,44 @@ function RedLuanHeartbeatExperience() {
               <span className="mt-1 block text-xs leading-4 text-cyan-100/75">不會存進你的成長檔</span>
             </button>
           </div>
+          {showReminderMonths && followUpEncounter && (
+            <div id="red-luan-reminder-months" className="mt-4 space-y-3 rounded-2xl border border-amber-200/20 p-3">
+              <p className="text-sm leading-6 text-amber-50">先查看每個月份。使用 Google 行事曆時，可逐筆開啟並按「儲存」；提醒時間需在行事曆確認。</p>
+              <ul className="space-y-2">
+                {reminderMonthsOf(reading).map((month) => (
+                  <li key={month.startsOn} className="min-w-0 rounded-xl bg-white/5 p-3">
+                    <p className="text-sm font-bold text-amber-50">{month.startsOn} ～ {month.endsOn}</p>
+                    <p className="mt-1 text-xs leading-5 text-amber-100/80">{month.monthLine}</p>
+                    <a href={redLuanCalendarDraft(month)} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex min-h-11 items-center rounded-xl border border-amber-200/40 px-3 py-2 text-sm font-bold text-amber-50">在 Google 行事曆開啟</a>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs leading-5 text-amber-100/75">不使用 Google 行事曆，也可以截圖保留以上日期。已開始的月份，行事曆草稿會安排在明天。</p>
+              <details className="text-xs leading-6 text-amber-100/80">
+                <summary className="min-h-11 cursor-pointer py-2">其他行事曆：匯出檔案</summary>
+                <p>適用支援 .ics 匯入的 App；不支援的手機不必下載。</p>
+                <button type="button" className="mt-2 min-h-11 rounded-xl border border-amber-200/30 px-3 py-2" onClick={() => { void exportRedLuanReminder(reminderOf(reading), reminderMonthsOf(reading)).then((outcome) => setFollowUp(outcome === 'cancelled' ? 'idle' : outcome)); }}>匯出全部月份</button>
+              </details>
+            </div>
+          )}
           {/* 沒命中的人最需要被接住，以前這裡整段不渲染，他只拿到一行免責聲明。 */}
           {!followUpEncounter && (
             <p className="mt-3 text-xs leading-6 text-white/75">未來一年半沒有命中不代表沒有機會——這一路的力道不在時間上。與其等一個月份，不如把自己準備好。</p>
           )}
+          {(inLineBrowser || followUp === 'failed') && (
+            <details className="mt-3 text-xs leading-6 text-white/80">
+              <summary className="min-h-11 cursor-pointer py-2">分享無法開啟？長按複製分享內容</summary>
+              <label className="block" htmlFor="red-luan-share-copy">選取下方文字，複製後貼到 LINE 對話；也可以直接截圖分享。</label>
+              <textarea id="red-luan-share-copy" readOnly rows={6} className="mt-2 w-full min-w-0 rounded-xl border border-white/20 bg-black/20 p-3 text-base leading-6 text-white" value={buildRedLuanShareText(reminderOf(reading), reminderMonthsOf(reading).length)} />
+            </details>
+          )}
           {followUp !== 'idle' && (
             <p className="mt-3 text-xs leading-6 text-emerald-100" role="status" aria-live="polite">
-              {followUp === 'reminded' && '行事曆檔已下載，打開它就會全部加進你的行事曆；每一個月份都會在開始前提醒你一次。'}
+              {followUp === 'reminded' && '已送出行事曆檔下載。請用支援 .ics 的行事曆開啟或匯入，確認加入並啟用提醒；下載本身不會自動加入。'}
+              {followUp === 'calendar-shared' && '已送出行事曆檔，請在接收的 App 確認匯入及提醒設定。'}
               {followUp === 'shared' && '已開啟分享。'}
               {followUp === 'copied' && '已複製到剪貼簿，可以直接貼給朋友。'}
-              {followUp === 'failed' && '這個裝置不支援，可以直接截圖分享。'}
+              {followUp === 'failed' && '尚未完成操作。若在 LINE 等內建瀏覽器，請改用 Safari 或 Chrome 重試；分享也可以使用截圖。'}
             </p>
           )}
         </section>

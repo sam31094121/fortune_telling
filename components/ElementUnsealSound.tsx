@@ -43,16 +43,16 @@ function soundIsEnhanced() {
  * 五元素共用的唯一解封儀式聲音。只可由使用者點擊事件呼叫；不自動、不循環、無外部音檔。
  * 音色由短生命週期 Web Audio 節點合成，結束後自動釋放，避免手機持續重播或卡頓。
  */
-export function playElementUnsealSound(element: ElementSoundKey = '空') {
-  if (typeof window === 'undefined' || soundIsMuted()) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+export function playElementUnsealSound(element: ElementSoundKey = '空', options: { tapEnabled?: boolean } = {}) {
+  if (typeof window === 'undefined' || (!options.tapEnabled && soundIsMuted())) return;
+  if (!options.tapEnabled && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   const AudioContextClass = window.AudioContext ?? (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   if (!AudioContextClass) return;
 
   const context = new AudioContextClass();
   const profile = ELEMENT_SOUND_PROFILE[element];
-  const masterLevel = soundIsEnhanced() ? 0.38 : 0.28;
+  const masterLevel = !options.tapEnabled && soundIsEnhanced() ? 0.38 : 0.28;
   const master = context.createGain();
   const compressor = context.createDynamicsCompressor();
   const now = context.currentTime;

@@ -1,4 +1,4 @@
-import { googleGenerationKey } from '@/lib/teacher-provider';
+import { googleGenerationKey } from './teacher-provider';
 import { GoogleGenAI } from '@google/genai';
 import type { SingleRedLuanHeartbeatResult } from './red-luan-heartbeat-engine';
 

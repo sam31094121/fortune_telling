@@ -326,31 +326,9 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
     });
   }, []);
 
-  const commitAcceptedLikeCount = useCallback((nextCount: unknown) => {
-    setLikeCount((currentCount) => {
-      /*
-        自己按下去立刻 +1 是合理的樂觀更新——那一票確實是你投的。
-        但不再參考 localStorage 的歷史最高值：那裡存著虛增時期的數字，
-        會把真實值壓在下面。只取「我剛投的」與「伺服器說的」較大者。
-      */
-      const permanentCount = monotonicCount(currentCount + 1, normalizeTotalCount(nextCount, LIKE_INITIAL_COUNT), LIKE_INITIAL_COUNT);
-      writeStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, permanentCount, LIKE_INITIAL_COUNT);
-      return permanentCount;
-    });
-  }, []);
-
-  const commitAcceptedImproveCount = useCallback((nextCount: unknown) => {
-    setImproveCount((currentCount) => {
-      /*
-        自己按下去立刻 +1 是合理的樂觀更新——那一票確實是你投的。
-        但不再參考 localStorage 的歷史最高值：那裡存著虛增時期的數字，
-        會把真實值壓在下面。只取「我剛投的」與「伺服器說的」較大者。
-      */
-      const permanentCount = monotonicCount(currentCount + 1, normalizeTotalCount(nextCount, SUGGESTION_INITIAL_COUNT), SUGGESTION_INITIAL_COUNT);
-      writeStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, permanentCount, SUGGESTION_INITIAL_COUNT);
-      return permanentCount;
-    });
-  }, []);
+  // Only the confirmed server total may update the display, including retries.
+  const commitAcceptedLikeCount = commitLikeCount;
+  const commitAcceptedImproveCount = commitImproveCount;
 
   const showNotice = useCallback((nextNotice: FeedbackNotice) => {
     if (noticeTimerRef.current !== null) {
@@ -477,6 +455,8 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
 
       if (data.queued) {
         queuePendingFeedbackEvent(nextChoice, eventId);
+        showNotice({ title: '等待確認', body: '尚未確認保存成功，已保留操作供重試；原有數字不變。', tone: 'error' });
+        return;
       }
 
       const accepted = nextChoice === 'like'
@@ -510,19 +490,10 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
       });
     } catch {
       queuePendingFeedbackEvent(nextChoice, eventId);
-
-      if (nextChoice === 'like') {
-        commitAcceptedLikeCount(null);
-      } else {
-        commitAcceptedImproveCount(null);
-      }
-
-      setChoice(nextChoice);
-      pulseAcceptedCount(nextChoice);
       showNotice({
-        title: nextChoice === 'like' ? COPY.thankLikeTitle : COPY.thankImproveTitle,
-        body: nextChoice === 'like' ? COPY.thankLikeBody : COPY.thankImproveBody,
-        tone: nextChoice,
+        title: '等待確認',
+        body: '尚未確認保存成功，已保留操作供重試；原有數字不變。',
+        tone: 'error',
       });
     } finally {
       setSubmittingChoice(null);
