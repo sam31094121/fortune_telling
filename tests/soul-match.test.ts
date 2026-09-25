@@ -207,9 +207,10 @@ check('配對頁只照印：沒有寫死的生剋圈、沒有前端劇情、沒�
     'text-[9px]', 'text-[10px]', 'text-[11px]',
   ];
   for (const word of banned) assert.ok(!page.includes(word), `app/match/page.tsx 仍有「${word}」`);
-  for (const field of ['orbit.generatingCycle', 'orbit.controllingCycle', 'orbit.ranking', 'data.story', 'data.scoreBasis', 'closingAction', 'bloodTypeLabel', 'id="match-result-anchor"', '<MatchThreeCorePanel view={data.threeCore} />', 'aria-label="一眼看懂"']) {
+  for (const field of ['orbit.generatingCycle', 'orbit.controllingCycle', 'orbit.ranking', 'data.story', 'data.scoreBasis', 'closingAction', 'bloodTypeLabel', 'id="match-result-anchor"', '<MatchThreeCorePanel view={data.threeCore} />']) {
     assert.ok(page.includes(field), `app/match/page.tsx 要照印後端欄位 ${field}`);
   }
+  assert.ok(page.includes('aria-label="一眼看懂"') || page.includes("aria-label={resultUi.t('一眼看懂')}"), '一眼看懂區塊需保留可存取名稱');
 });
 
 check('配對 API：劇情與分數依據由後端送出；AI 提示詞不逼它說卦', () => {
@@ -309,7 +310,8 @@ check('紅鸞證據句說人話：不出現「流年支」「命中」「沐浴�
 });
 
 check('第一屏看得到分數依據；本站格局名不冒充古籍卦名；匯出報告兩位老師都印', () => {
-  const glance = page.slice(page.indexOf('aria-label="一眼看懂"'), page.indexOf('<MatchTeacherReadings'));
+  const glanceStart = Math.max(page.indexOf('aria-label="一眼看懂"'), page.indexOf("aria-label={resultUi.t('一眼看懂')}"));
+  const glance = page.slice(glanceStart, page.indexOf('<MatchTeacherReadings'));
   assert.ok(glance.includes('{data.scoreBasis}'), '一眼看懂要照印後端的分數依據，不能只放一個 89');
   assert.ok(page.includes('print:block') && page.includes('匯出報告時兩位老師都印出來'), '列印時未點選的老師也要印出來');
   const view = fs.readFileSync('lib/match-three-core-view.ts', 'utf8');

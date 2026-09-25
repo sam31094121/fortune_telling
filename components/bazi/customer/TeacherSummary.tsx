@@ -12,6 +12,14 @@ import { AnnualLuckSection } from './AnnualLuckSection';
  * 預設先展開第一步，結論放在依據之後；每個判定附「看依據」。
  */
 export function TeacherSummary({ view }: { view: BaziCustomerView }) {
+  if (!view.traditionalGate.interpretationReady) {
+    return (
+      <section className="rounded-[22px] border border-amber-200/25 bg-amber-100/[0.05] p-5">
+        <p className="text-xs font-black tracking-[0.18em] text-amber-200/85">傳統八字輸出守門</p>
+        <p className="mt-2 text-sm font-semibold leading-7 text-white/75">{view.traditionalGate.customerMessage}</p>
+      </section>
+    );
+  }
   const t = view.teacher;
   const sec = (idx: number) => t.sections[idx];
   const sequence = ['日主與月令', '四柱骨架', '十神結構', '五行強弱', '大運', '流年', '老師總判'];

@@ -128,6 +128,14 @@ type BaziResult = {
     strengthFactors: BaziStrengthFactor[];
     structurePattern: { primaryPattern: string; supportingPattern: string; stability: 'stable' | 'mixed' | 'unstable'; mixed: boolean; brokenBy: string[]; specialNotes: string[] };
     verification: BaziVerificationGate;
+    traditionalInterpretationGate?: {
+      version: string;
+      coreReady: boolean;
+      interpretationReady: boolean;
+      shenShaReady: boolean;
+      customerMessage: string;
+      withheldFields: readonly string[];
+    };
     calculationId?: string;
     birthInputFingerprint?: string;
     professionalResultId?: string;
@@ -225,6 +233,7 @@ function isCurrentBaziResult(value: BaziResult | null | undefined): value is Baz
     value.professionalChart.pillarDetails &&
     value.professionalChart.hiddenStemStructure &&
     value.professionalChart.elementStatistics &&
+    value.professionalChart.traditionalInterpretationGate?.coreReady === true &&
     value.professionalChart.strengthFactors &&
     value.professionalChart.structurePattern &&
     value.professionalChart.pipeline?.currentState === 'API_READY' &&
@@ -508,7 +517,12 @@ export default function BaziPage() {
       setDailyRecord(saveDailyAnalysis<BaziResult>('bazi', data));
       setMessage('');
       scrollToResult();
-      if (targetMode === 'self') markGrowthModuleCompleted('bazi', data.aiReinforcementPlan.first.brandElement);
+      if (targetMode === 'self') {
+        const brandElement = data.professionalChart.traditionalInterpretationGate?.interpretationReady
+          ? data.aiReinforcementPlan.first.brandElement
+          : undefined;
+        markGrowthModuleCompleted('bazi', brandElement);
+      }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : '目前無法完成八字命盤。');
       setCeremonyPhase('gate_failed');

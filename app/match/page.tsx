@@ -63,7 +63,13 @@ interface BaziMatchFoundation {
   source: '八字四柱合盤' | '八字三柱基礎合盤' | '八字混合合盤';
   timeNote: string;
   sceneKey: string;
-  sharedElement: MatchFiveElementKey;
+  sharedElement: MatchFiveElementKey | null;
+  traditionalGate?: {
+    coreReady: boolean;
+    interpretationReady: boolean;
+    shenShaReady: boolean;
+    customerMessage: string;
+  };
   personA: { dayMaster: string; primaryReinforcement: string; beastCard?: BaziBeastCard };
   personB: { dayMaster: string; primaryReinforcement: string; beastCard?: BaziBeastCard };
 }
@@ -1579,6 +1585,13 @@ export default function MatchPage() {
           <div className="space-y-6">
             <div id="match-result-anchor" className="scroll-mt-4" />
             <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="易經靈魂配對" onViewResult={dailyRecord ? () => restoreDailyRecord(dailyRecord) : undefined} />
+            {data.baziFoundation?.traditionalGate && !data.baziFoundation.traditionalGate.interpretationReady && (
+              <section className="fortune-card border border-amber-200/25 p-5" aria-label="傳統八字輸出守門">
+                <p className="text-xs font-black tracking-[0.18em] text-amber-100">八字基礎命盤已核對</p>
+                <p className="mt-2 text-sm font-semibold leading-7 text-white/75">{data.baziFoundation.traditionalGate.customerMessage}</p>
+                <p className="mt-1 text-xs leading-6 text-white/55">本次不產生用神補強、共同先補或神煞結論；紫微與可核對的四柱資料不受影響。</p>
+              </section>
+            )}
             {data.story && data.fiveElementMatch && (
               <section className="fortune-card border border-amber-200/30 p-5 sm:p-6" aria-label="一眼看懂">
                 <p className="text-xs font-black tracking-[0.24em] text-amber-200">一眼看懂</p>
@@ -1618,7 +1631,7 @@ export default function MatchPage() {
               personAName={data.displayA.name}
               personBName={data.displayB.name}
             />
-            {SHOW_SHARED_ELEMENT_PEARL && <MatchSharedElementPearl result={data.fiveElementMatch} />}
+            {SHOW_SHARED_ELEMENT_PEARL && data.fiveElementMatch && <MatchSharedElementPearl result={data.fiveElementMatch} />}
             {data.story && (
               <div className="fortune-card overflow-hidden border border-rose-300/35 bg-[radial-gradient(circle_at_18%_0%,rgba(127,29,29,0.38),transparent_36%),radial-gradient(circle_at_86%_14%,rgba(76,29,149,0.32),transparent_38%),linear-gradient(145deg,rgba(22,5,16,0.99),rgba(18,9,30,0.98)_55%,rgba(4,8,18,0.99))] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.52)] sm:p-8">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

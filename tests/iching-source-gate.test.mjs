@@ -37,7 +37,7 @@ const REGISTRIES = [
     registry: 'docs/技能戰鬥檔案/八字/來源登記.json',
     pattern: /bazi|八字/i,
     minClaims: 2,
-    governance: new Set(['docs/技能戰鬥檔案/八字/來源登記.json']),
+    governance: new Set(['docs/技能戰鬥檔案/八字/來源登記.json', 'lib/bazi-traditional-gate.ts']),
   },
 ];
 let passed = 0;

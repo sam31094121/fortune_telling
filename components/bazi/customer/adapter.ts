@@ -60,6 +60,14 @@ export interface BaziTimeContext {
 
 export interface CustomerTeacherSection { title: string; basis?: string; content: string }
 
+export interface BaziTraditionalGateView {
+  coreReady: boolean;
+  interpretationReady: boolean;
+  shenShaReady: boolean;
+  customerMessage: string;
+  withheldFields: readonly string[];
+}
+
 export interface BaziCustomerView {
   name: string;
   birthSummary: string;
@@ -68,6 +76,7 @@ export interface BaziCustomerView {
   pillars: CustomerPillar[];
   elementBars: CustomerElementBar[];
   fiveElementOrbit: FiveElementOrbitViewModel;
+  traditionalGate: BaziTraditionalGateView;
   themeLine: string;
   // LEVEL 2
   teacher: {
@@ -126,6 +135,7 @@ type BackendResult = {
     tenGodDistribution: { ranked: Array<{ tenGod: string; score: number }>; dominant: string[]; missing: string[] };
     structurePattern: { primaryPattern: string; supportingPattern: string; stability: string };
     verification: { readyForInterpretation: boolean };
+    traditionalInterpretationGate?: BaziTraditionalGateView;
     calculationId?: string;
     birthInputFingerprint?: string;
     professionalResultId?: string;
@@ -193,6 +203,13 @@ function buildTimeContext(result: BackendResult): BaziTimeContext {
 
 export function toBaziCustomerView(result: BackendResult, hourUnknown: boolean): BaziCustomerView {
   const pc = result.professionalChart;
+  const traditionalGate: BaziTraditionalGateView = pc.traditionalInterpretationGate ?? {
+    coreReady: false,
+    interpretationReady: false,
+    shenShaReady: false,
+    customerMessage: '傳統解釋守門資料缺失，本次只顯示基礎命盤。',
+    withheldFields: ['旺衰定論', '格局定論', '用神', '喜神', '忌神', '補強排序', '老師解讀'],
+  };
   return {
     name: result.input?.name || '',
     birthSummary: `${result.input?.birthDate ?? ''} · ${hourUnknown ? '時辰未提供' : `${pc.calendar.birthTime}（${pc.calendar.shichen.label}）`} · ${result.input?.gender === 'male' ? '男' : '女'}`,
@@ -201,7 +218,9 @@ export function toBaziCustomerView(result: BackendResult, hourUnknown: boolean):
     pillars: PILLAR_ORDER.map((key) => ({ key, ...result.pillars[key] })),
     elementBars: Object.entries(pc.elementStatistics.percentages).map(([element, percent]) => ({ element, percent })),
     fiveElementOrbit: toFiveElementOrbitView(result),
+    traditionalGate,
     themeLine: (() => {
+      if (!traditionalGate.interpretationReady) return traditionalGate.customerMessage;
       const raw = result.structureFocus || result.aiDeepAnalysis.chartSummary || '';
       // 未知時辰：舊核心文案可能含補午時敘述，與時柱「未提供」矛盾 → 以誠實句取代（僅呈現層，非重算）
       if (hourUnknown && /(四柱已完成|時辰為|午時)/.test(raw)) {
@@ -220,14 +239,14 @@ export function toBaziCustomerView(result: BackendResult, hourUnknown: boolean):
       tenGodsMissing: pc.tenGodDistribution.missing,
       daYun: result.luckCycles,
       annual: result.annualFortunes,
-      verified: pc.verification.readyForInterpretation,
+      verified: pc.verification.readyForInterpretation && traditionalGate.interpretationReady,
     },
     timeContext: buildTimeContext(result),
-    reinforcement: {
+    reinforcement: traditionalGate.interpretationReady ? {
       principle: (result as unknown as { aiReinforcementPlan?: { principle?: string } }).aiReinforcementPlan?.principle ?? '',
       basisSummary: (result as unknown as { aiReinforcementPlan?: { basisSummary?: string } }).aiReinforcementPlan?.basisSummary ?? '',
       priorityOrder: ((result as unknown as { aiReinforcementPlan?: { priorityOrder?: Array<{ rank: number; displayName?: string; title?: string; reason?: string }> } }).aiReinforcementPlan?.priorityOrder ?? []),
-    },
+    } : { principle: '', basisSummary: '', priorityOrder: [] },
     elementEvidence: ['木', '火', '土', '金', '水'].map((el) => {
       const stats = pc.elementStatistics as unknown as { percentages: Record<string, number>; stems?: Record<string, number>; branches?: Record<string, number>; hiddenStems?: Record<string, number> };
       return {
@@ -264,7 +283,7 @@ export function validateBaziCustomerViewPipeline(result: BackendResult, view: Ba
   if (!view.source.professionalResultId || view.source.professionalResultId !== pipeline?.professionalResultId) issues.push('view professionalResultId mismatch');
   const expectedMode = hourUnknown ? 'PARTIAL_BAZI' : 'FULL_BAZI';
   if (view.source.mode !== expectedMode || pipeline?.mode !== expectedMode) issues.push('view mode mismatch');
-  if (!result.aiDeepAnalysis?.summary) issues.push('AI_INTERPRETATION_COMPLETED missing');
+  if (view.traditionalGate.interpretationReady && !result.aiDeepAnalysis?.summary) issues.push('AI_INTERPRETATION_COMPLETED missing');
   if (!view.pillars.length || !view.professional) issues.push('CUSTOMER_VIEW_READY missing');
   return issues;
 }

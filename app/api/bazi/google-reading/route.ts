@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { customerSafeAiMessage } from '@/lib/ai-error-message';
 import { castHexagram, formatHexagramLine } from '@/lib/iching-engine';
 import { buildEmpathicFromHexagram, patternNameOf } from '@/lib/iching-psychology';
+import { getBaziTraditionalOutputGate } from '@/lib/bazi-traditional-gate';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -72,6 +73,13 @@ async function withTimeout<T>(task: Promise<T>, ms: number) {
 }
 
 export async function POST(request: Request) {
+  const traditionalGate = getBaziTraditionalOutputGate(true);
+  if (!traditionalGate.interpretationReady) {
+    return NextResponse.json(
+      { ok: false, code: 'BAZI_TRADITIONAL_INTERPRETATION_BLOCKED', message: traditionalGate.customerMessage },
+      { status: 409, headers: { 'Cache-Control': 'no-store' } },
+    );
+  }
   let factsForFallback: Parameters<typeof buildLocalGoogleReading>[0] | null = null;
   try {
     const body = await request.json() as GoogleBaziReadingRequest;

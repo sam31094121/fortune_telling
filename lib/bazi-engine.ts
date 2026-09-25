@@ -148,6 +148,8 @@ export type BaziVerificationGate = {
   failedReasons: string[];
 };
 
+export type BaziTraditionalInterpretationGate = import('./bazi-traditional-gate').BaziTraditionalOutputGate;
+
 export type BaziProfessionalChart = {
   layer: 'professional_chart';
   generatedFrom: 'normalized_birth_input';
@@ -172,6 +174,11 @@ export type BaziProfessionalChart = {
   structurePattern: BaziStructurePattern;
   structureFocus: string;
   verification: BaziVerificationGate;
+  /**
+   * 與 verification 分開：verification 只驗證排盤計算；這一道才決定
+   * 格局、旺衰、五神、神煞與老師解讀能否對客戶輸出。
+   */
+  traditionalInterpretationGate?: BaziTraditionalInterpretationGate;
   detail: BaziDetail;
 };
 

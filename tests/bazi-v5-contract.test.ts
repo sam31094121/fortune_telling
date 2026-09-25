@@ -53,6 +53,9 @@ const fullInput: BaziRuntimeInput = {
   check('V5 pipeline transitions legal', pc.pipeline.transitions.every((transition: any) => isLegalBaziPipelineTransition(transition.from, transition.to)), true);
   check('V5 illegal transition blocked', isLegalBaziPipelineTransition('CORE_PROCESSING', 'CUSTOMER_VIEW_READY'), false);
   check('V5 five element ten god map keeps all five nodes', ['木', '火', '土', '金', '水'].every((element) => Array.isArray(pc.fiveElementTenGodMap[element])), true);
+  check('V5 traditional core gate passed', pc.traditionalInterpretationGate.coreReady, true);
+  check('V5 unverified traditional interpretation withheld', pc.traditionalInterpretationGate.interpretationReady, false);
+  check('V5 incomplete ShenSha scope withheld', pc.traditionalInterpretationGate.shenShaReady, false);
 }
 
 const partialInput: BaziRuntimeInput = {

@@ -19,6 +19,7 @@ import { buildBaziLovePersonSignal, buildZiweiLovePersonSignal, type RedLuanHear
 import { runThreeInOne } from '@/lib/three-in-one';
 import { buildMatchThreeCoreView } from '@/lib/match-three-core-view';
 import { coreCredibility } from '@/lib/credibility-wording';
+import { getBaziTraditionalOutputGate, type BaziTraditionalOutputGate } from '@/lib/bazi-traditional-gate';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,7 +59,8 @@ type BaziMatchFoundation = {
   sceneKey: string;
   // 這個欄位先給一個暫定值（見 buildBaziMatchFoundation），主流程算完 fiveElementMatch
   // 後會立刻覆蓋成同一份真實資料算出的結果，確保跟五元素引擎不會各說各話。
-  sharedElement: MatchFiveElementKey;
+  sharedElement: MatchFiveElementKey | null;
+  traditionalGate: BaziTraditionalOutputGate;
   personA: { dayMaster: string; primaryReinforcement: string; beastCard: BaziBeastCard; needScores: Record<MatchFiveElementKey, number>; needPriority: MatchFiveElementKey[] };
   personB: { dayMaster: string; primaryReinforcement: string; beastCard: BaziBeastCard; needScores: Record<MatchFiveElementKey, number>; needPriority: MatchFiveElementKey[] };
 };
@@ -219,6 +221,10 @@ function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): B
   };
   const chartA = analyzeBazi(toBaziInput(personA));
   const chartB = analyzeBazi(toBaziInput(personB));
+  const traditionalGate = getBaziTraditionalOutputGate(
+    chartA.professionalChart.verification.readyForInterpretation
+      && chartB.professionalChart.verification.readyForInterpretation,
+  );
   const firstA = chartA.aiReinforcementPlan.first;
   const firstB = chartB.aiReinforcementPlan.first;
   // Soul matching deliberately reuses the exact same day-pillar helper as the
@@ -237,11 +243,15 @@ function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): B
   });
   const hasHourA = Boolean(personA.birthHourBranch && personA.birthHourBranch !== 'unknown');
   const hasHourB = Boolean(personB.birthHourBranch && personB.birthHourBranch !== 'unknown');
-  const needScoresA = elementPriorityToNeedScores(chartA.aiDeepAnalysis.elementPriority);
-  const needScoresB = elementPriorityToNeedScores(chartB.aiDeepAnalysis.elementPriority);
+  const needScoresA = traditionalGate.interpretationReady
+    ? elementPriorityToNeedScores(chartA.aiDeepAnalysis.elementPriority)
+    : { earth: 0, water: 0, fire: 0, air: 0, space: 0 };
+  const needScoresB = traditionalGate.interpretationReady
+    ? elementPriorityToNeedScores(chartB.aiDeepAnalysis.elementPriority)
+    : { earth: 0, water: 0, fire: 0, air: 0, space: 0 };
   // 暫定值：呼叫端算完 fiveElementMatch 後會立刻覆蓋成同一份真實需求分數算出的結果
   // （見 route.ts 主流程），這裡不再用「對不上就忽略對方命盤」的舊邏輯頂替。
-  const sharedElement = BAZI_BRAND_TO_MATCH[firstA.brandElement];
+  const sharedElement = traditionalGate.interpretationReady ? BAZI_BRAND_TO_MATCH[firstA.brandElement] : null;
 
   return {
     charts: { personA: chartA, personB: chartB },
@@ -267,11 +277,12 @@ function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): B
       chartB.pillars.day.branch,
     ].join(''),
     sharedElement,
+    traditionalGate,
     personA: {
       dayMaster: `${chartA.dayMaster.stem}${chartA.dayMaster.element}`,
-      primaryReinforcement: firstA.displayName,
+      primaryReinforcement: traditionalGate.interpretationReady ? firstA.displayName : '傳統解釋尚未通過校驗，暫不判定',
       needScores: needScoresA,
-      needPriority: elementPriorityToOrder(chartA.aiDeepAnalysis.elementPriority),
+      needPriority: traditionalGate.interpretationReady ? elementPriorityToOrder(chartA.aiDeepAnalysis.elementPriority) : [],
       beastCard: {
         name: beastA.beast.name,
         image: beastA.beast.image,
@@ -284,9 +295,9 @@ function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): B
     },
     personB: {
       dayMaster: `${chartB.dayMaster.stem}${chartB.dayMaster.element}`,
-      primaryReinforcement: firstB.displayName,
+      primaryReinforcement: traditionalGate.interpretationReady ? firstB.displayName : '傳統解釋尚未通過校驗，暫不判定',
       needScores: needScoresB,
-      needPriority: elementPriorityToOrder(chartB.aiDeepAnalysis.elementPriority),
+      needPriority: traditionalGate.interpretationReady ? elementPriorityToOrder(chartB.aiDeepAnalysis.elementPriority) : [],
       beastCard: {
         name: beastB.beast.name,
         image: beastB.beast.image,
@@ -579,16 +590,22 @@ export async function POST(request: Request) {
     const result = stabilizeMatchResult(rawResult);
     const baziBuild = buildBaziMatchFoundation(body.personA, body.personB);
     const baziFoundation = baziBuild.foundation;
-    const redLuanHeartbeat = buildRedLuanHeartbeat(body.personA, body.personB, baziBuild.charts);
+    const redLuanHeartbeat = baziFoundation.traditionalGate.shenShaReady
+      ? buildRedLuanHeartbeat(body.personA, body.personB, baziBuild.charts)
+      : undefined;
     // fiveElementMatch 提前算，兩人的 needScores 直接來自 baziFoundation（真實八字），
     // 算完立刻把 sharedElement 寫回 baziFoundation，讓下面的 易經提示詞跟五元素引擎、
     // 前端寶珠三方看到的是同一個判定結果，不會各說各話。
-    const fiveElementMatch = buildMatchFiveElementResult(
-      { name: body.personA.name, needScores: baziFoundation.personA.needScores, priority: baziFoundation.personA.needPriority },
-      { name: body.personB.name, needScores: baziFoundation.personB.needScores, priority: baziFoundation.personB.needPriority },
-    );
-    baziFoundation.sharedElement = fiveElementMatch.sharedElement;
-    const enhanced = await enhanceMatchResultWithAI(result, displayA, displayB, baziFoundation);
+    const fiveElementMatch = baziFoundation.traditionalGate.interpretationReady
+      ? buildMatchFiveElementResult(
+          { name: body.personA.name, needScores: baziFoundation.personA.needScores, priority: baziFoundation.personA.needPriority },
+          { name: body.personB.name, needScores: baziFoundation.personB.needScores, priority: baziFoundation.personB.needPriority },
+        )
+      : undefined;
+    if (fiveElementMatch) baziFoundation.sharedElement = fiveElementMatch.sharedElement;
+    const enhanced = baziFoundation.traditionalGate.interpretationReady
+      ? await enhanceMatchResultWithAI(result, displayA, displayB, baziFoundation)
+      : { summary: result.summary, zones: result.zones, provider: 'local' as const };
     const finalSummary = isConsistentAiSummary(enhanced.summary, result) ? enhanced.summary : result.summary;
 
     const karmaRelation = computeRelationshipMatrix(
@@ -621,14 +638,14 @@ export async function POST(request: Request) {
     });
     const aiInterpretationLayer = buildSoulMatchAiInterpretationLayer(professionalLayer);
     // 老師格局、鬼魅劇情、結尾行動都在後端組好；前端只照印（2026-09-17 米其林審查）。
-    const story = buildMatchStory({
+    const story = fiveElementMatch ? buildMatchStory({
       nameA: displayA.name,
       nameB: displayB.name,
       result: finalResult,
       fiveElementMatch,
       sceneKey: baziFoundation.sceneKey,
       hasBaziFoundation: true,
-    });
+    }) : undefined;
     // 兩人各自的三核心（① 八字 → ② 紫微 → ③ 易經）；查證狀態由來源閘門重算組句，不手填（2026-09-17 米其林升級）。
     const threeCore = buildMatchThreeCoreView({
       nameA: displayA.name,

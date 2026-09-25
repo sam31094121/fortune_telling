@@ -11,6 +11,7 @@ const PILLAR_ORDER = ['year', 'month', 'day', 'hour'] as const;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function ProfessionalBaziTable({ result, hourUnknown, chartOnly = false }: { result: any; hourUnknown: boolean; chartOnly?: boolean }) {
   const pc = result.professionalChart;
+  const interpretationReady = pc.traditionalInterpretationGate?.interpretationReady === true;
   const hasValue = (value: unknown) => {
     if (value == null) return false;
     if (Array.isArray(value)) return true;
@@ -23,7 +24,7 @@ export function ProfessionalBaziTable({ result, hourUnknown, chartOnly = false }
   };
   const simpleValue = (value: unknown, field: string) => {
     if (!hasValue(value)) return fieldStatus(field);
-    if (Array.isArray(value)) return value.length > 0 ? `${value.length} 筆` : '無命中（欄位已完成）';
+    if (Array.isArray(value)) return value.length > 0 ? `${value.length} 筆` : '—';
     if (typeof value === 'object') return JSON.stringify(value);
     return String(value);
   };
@@ -38,7 +39,8 @@ export function ProfessionalBaziTable({ result, hourUnknown, chartOnly = false }
   ].filter((item) => !hasValue(item.value));
   // The password-protected double chart reuses this table's real mapped fields,
   // without interpretation/AI sections. Existing callers keep the full view.
-  if (chartOnly) return <div className="space-y-4" data-bazi-raw-chart>
+  if (chartOnly || !interpretationReady) return <div className="space-y-4" data-bazi-raw-chart>
+    {!interpretationReady && <p className="rounded-xl border border-amber-200/20 bg-amber-100/[0.05] px-4 py-3 text-sm font-semibold leading-6 text-amber-50/85">{pc.traditionalInterpretationGate?.customerMessage ?? '傳統解釋守門尚未完成，本次只顯示基礎命盤。'}</p>}
     <p className="text-sm leading-7 text-white/70">{result.input.name || '命主'} · {result.input.gender === 'male' ? '男' : '女'} · 國曆 {result.input.birthDate} · {result.input.birthTime}（時辰代表時間）</p>
     <p className="text-sm leading-7 text-white/70">{pc.calendar.lunarDate} · 台灣標準時間（UTC+8）</p>
     <table className="w-full table-fixed border-collapse text-center text-sm leading-7" aria-label="八字四柱表">

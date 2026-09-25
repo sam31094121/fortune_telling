@@ -45,9 +45,10 @@ try {
     const {POST} = load(`app/api/bazi/${mode}-reading/route.ts`);
     const response = await POST({json:async()=>({dayMaster:'甲',structure:'正官格',shortName:'測試'})});
     const body = await response.json();
-    assert.equal(response.status,200); assert.equal(body.provider,'易經老師'); assert.equal(body.source,'local-iching'); assert.ok(body.reading.length>100);
-    assert.doesNotMatch(body.reading,/Google|Gemini|AI\s*老師|雲端老師忙碌/);
-    assert.equal((await POST({json:async()=>({})})).status,400);
+    assert.equal(response.status,409);
+    assert.equal(body.code,'BAZI_TRADITIONAL_INTERPRETATION_BLOCKED');
+    assert.ok(body.message.includes('基礎八字命盤'));
+    assert.equal((await POST({json:async()=>({})})).status,409);
   }
   for (const id of ['HORROR','GHOST']) {
     const result = await load('lib/ziwei-teacher/entertainment.ts').runEntertainmentTeacher(id,context);
@@ -55,7 +56,7 @@ try {
     assert.ok(result.narrative.length>50);
   }
   assert.equal(externalCalls,0);
-  console.log('PASS 易經老師：三種紫微解讀、兩種八字解讀、娛樂解讀、缺項拒絕、結果一致、Google 外送 0 次');
+  console.log('PASS 易經老師：三種紫微解讀與娛樂解讀維持；未驗證八字解讀由共同後端守門拒絕；Google 外送 0 次');
   console.log('AI_TEACHER_AVAILABLE=true');
 } catch(error) {
   console.error(error); console.log('AI_TEACHER_AVAILABLE=false'); process.exitCode=1;

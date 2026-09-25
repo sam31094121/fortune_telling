@@ -1,5 +1,6 @@
 import type { BaziAnalysisInput, BaziAnalysisResult } from './bazi-engine';
 import { createBaziCore, type BaziBirthInput, type BaziProfessionalResult, type Branch, type Element, type TenGod } from './bazi/engine';
+import { getBaziTraditionalOutputGate } from './bazi-traditional-gate';
 
 export type BaziRuntimeInput = BaziAnalysisInput & {
   calculationId?: string;
@@ -325,6 +326,7 @@ export function attachBaziProfessionalCoreV5<T extends BaziAnalysisResult>(resul
     coreReadyForInterpretation: core.verification.readyForInterpretation,
     coreIssues: core.verification.issues,
   };
+  professionalChart.traditionalInterpretationGate = getBaziTraditionalOutputGate(core.verification.readyForInterpretation);
   pipeline.advance('PROFESSIONAL_RESULT_CREATED');
   const traces = buildFieldTraces(core, professionalChart, partial, calculationId);
   professionalChart.fieldTrace = traces;

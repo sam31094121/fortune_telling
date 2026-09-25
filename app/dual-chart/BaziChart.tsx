@@ -9,6 +9,7 @@ const labels = { hour: '時', day: '日', month: '月', year: '年' };
 export function PillarGrid({ result, compact = false }: { result: DualChartResult; compact?: boolean }) {
   const { core, bazi } = result;
   const pc = bazi.professionalChart;
+  const traditionalGate = pc.traditionalInterpretationGate;
   const row = (title: string, render: (key: typeof order[number]) => ReactNode, className?: string) => <tr className={className}>{order.map(key => <td key={key}>{render(key)}</td>)}<th scope="row">{title}</th></tr>;
   return <table className={`${styles.pillarGrid} ${compact ? styles.compactGrid : ''}`} aria-label={compact ? '中央八字摘要' : '八字四柱時日月年主表'}>
     <thead><tr>{order.map(key => <th key={key} scope="col">{labels[key]}柱</th>)}<th>項目</th></tr></thead>
@@ -20,8 +21,9 @@ export function PillarGrid({ result, compact = false }: { result: DualChartResul
       {row('副星', key => pc.hiddenStemStructure[key].map(h => <span className={styles.stack} key={h.stem}>{h.tenGod}</span>))}
       {row('十二運', key => core.twelveStages[key])}
       {!compact && row('神煞', key => {
+        if (traditionalGate?.shenShaReady !== true) return '未校驗';
         const names = Array.isArray(core.shenSha) ? [...new Set(core.shenSha.filter(s => s.evidence.startsWith(key.toUpperCase() + ' ')).map(s => s.name))] : [];
-        return names.length ? names.map(name => <span className={styles.stack} key={name}>{name}</span>) : '無命中';
+        return names.length ? names.map(name => <span className={styles.stack} key={name}>{name}</span>) : '—';
       }, styles.shenshaRow)}
     </tbody>
   </table>;
@@ -39,6 +41,7 @@ export function LuckGrid({ result, compact = false }: { result: DualChartResult;
 export default function BaziChart({ result, monochrome = false }: { result: DualChartResult; monochrome?: boolean }) {
   const { core, bazi, annual } = result;
   const pc = bazi.professionalChart;
+  const traditionalGate = pc.traditionalInterpretationGate;
   const meta = core.daYunMeta;
   return <div className={styles.reportScroll}><div className={styles.baziReport}>
     <div className={styles.birthBand}><b>{bazi.input.name || '命主'}</b><span>{bazi.input.gender === 'male' ? '男' : '女'} · {core.pillars.year.yinYang}年</span><span>國曆 {bazi.input.birthDate}　{bazi.input.birthTime}</span><span>農曆 {core.calendar.lunarDate}</span></div>
@@ -46,9 +49,9 @@ export default function BaziChart({ result, monochrome = false }: { result: Dual
       <aside className={styles.baziSidebar}>
         <ElementRing percentages={pc.elementStatistics.percentages} monochrome={monochrome} />
         <dl className={styles.summaryGrid}>
-          {Object.entries({ 日主: `${core.dayMaster.stem}${core.dayMaster.element}（${core.dayMaster.yinYang}）`, 命宮: core.mingGong, 身宮: core.shenGong, 胎元: core.taiYuan, 胎息: core.taiXi, 年空: core.kongWang.yearXunKong, 日空: core.kongWang.dayXunKong, 旺衰: pc.strengthAnalysis.verdict, 格局: pc.structurePattern.primaryPattern, 用神: pc.gods.usefulGod, 喜神: pc.gods.joyGod, 忌神: pc.gods.avoidGod }).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
+          {Object.entries({ 日主: `${core.dayMaster.stem}${core.dayMaster.element}（${core.dayMaster.yinYang}）`, 命宮: core.mingGong, 身宮: core.shenGong, 胎元: core.taiYuan, 胎息: core.taiXi, 年空: core.kongWang.yearXunKong, 日空: core.kongWang.dayXunKong }).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
         </dl>
-        <p className={styles.micro}>旺衰、格局與用喜忌沿用本系統規則，流派口徑可能不同。</p>
+        <p className={styles.micro}>{traditionalGate?.customerMessage ?? '傳統解釋守門尚未完成，本次不作格局、旺衰與喜用定論。'}</p>
         <h3 className={styles.subheading}>流年 · {annual[0].year}–{annual.at(-1)?.year}</h3>
         {[0, 5, 10].map(start => <table key={start} className={styles.annualGrid} aria-label={`流年 ${annual[start].year} 年起`}><tbody>
           <tr>{annual.slice(start, start + 5).reverse().map(a => <th key={a.year}>{a.year}<small>{a.age}虛歲</small></th>)}</tr>
@@ -61,7 +64,7 @@ export default function BaziChart({ result, monochrome = false }: { result: Dual
         <div className={styles.startLuck}>{typeof meta === 'object' ? `出生後 ${meta.startAgeYears} 年 ${meta.startAgeMonths} 月 ${meta.startAgeDays} 天起運 · ${meta.direction === 'FORWARD' ? '順行' : '逆行'}` : '起運資料未提供'}</div>
         <LuckGrid result={result} />
         <section className={styles.relations} data-density={core.interactions.length > 6 ? 'dense' : core.interactions.length > 4 ? 'compact' : 'regular'}><h3>命局合沖刑害破</h3>{core.interactions.length ? core.interactions.map((r, index) => <p key={index}><b>{r.interactionType}</b><span className={styles.relationParticipants}>{r.participants.join('、')}</span><small>{r.affectedPillars.map(key => ({ YEAR: '年柱', MONTH: '月柱', DAY: '日柱', HOUR: '時柱' })[key] ?? key).join('、')}</small></p>) : <p>本系統規則未命中</p>}</section>
-        <p className={styles.micro}>神煞按各柱命中顯示；現有規則含天乙、文昌、桃花、驛馬、華蓋，非所有流派全集。</p>
+        <p className={styles.micro}>神煞尚未通過完整來源校驗，本版不作「無命中」或完整神煞定論。</p>
       </section>
     </div>
     <footer className={styles.reportFooter}>節氣：{core.calendar.solarTerm} {core.calendar.solarTermTime}<br />台灣標準時間 UTC+8 · 年以立春、月以節氣為界 · 晚子時日柱不換日 · 未做真太陽時校正</footer>

@@ -116,11 +116,24 @@ function currentLuck(view: BaziCustomerView) {
   return view.timeContext.activeDaYun ?? view.teacher.daYun[0] ?? null;
 }
 
+export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView; onOpenFull: () => void }) {
+  if (!view.traditionalGate.interpretationReady) {
+    return (
+      <section className="rounded-[20px] border border-amber-200/25 bg-amber-100/[0.05] p-5" aria-label="傳統八字輸出守門">
+        <p className="text-xs font-black tracking-[0.16em] text-amber-100">老師解讀暫不生成</p>
+        <p className="mt-2 text-sm font-semibold leading-7 text-white/75">{view.traditionalGate.customerMessage}</p>
+        <button type="button" onClick={onOpenFull} className="mt-3 min-h-[44px] rounded-xl border border-white/20 bg-white/[0.04] px-4 py-2 text-sm font-black text-white/80">查看已核對的基礎命盤</button>
+      </section>
+    );
+  }
+  return <VerifiedBaziTeacherModes view={view} onOpenFull={onOpenFull} />;
+}
+
 /**
  * 兩位老師只讀同一張 BaziCustomerView；不重算四柱、不改動既有核心。
  * 目前先提供可驗證的本地解讀模組，底層獨立 易經服務會在後續任務另行接入。
  */
-export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView; onOpenFull: () => void }) {
+function VerifiedBaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView; onOpenFull: () => void }) {
   const [active, setActive] = useState<TeacherMode>('CHART');
   const [treasurePulse, setTreasurePulse] = useState(0);
   const [googleReading, setGoogleReading] = useState<string | null>(null);
