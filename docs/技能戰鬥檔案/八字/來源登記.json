@@ -1,8 +1,26 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-09-21",
+  "updatedAt": "2026-09-26",
   "rule": "八字沿用《易經》來源治理（docs/技能戰鬥檔案/易經/來源治理.md）：交叉比對的來源、權威性的檔案、大數據的來源；狀態由 lib/iching-source-gate.ts 計算，不得手填 VERIFIED。",
   "sources": [
+    {
+      "source_id": "S-MINGLI-TANYUAN-1937-SCAN",
+      "author": "袁樹珊",
+      "locator": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf",
+      "data_type": "增訂命理探原卷上63至65頁：天乙、文昌、華蓋、驛馬原頁影像",
+      "kind": "原典",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "Commons檔案頁標示原書及機械掃描為公有領域；只保存已讀三頁，未授予其他來源權利。",
+      "accessed_at": "2026-09-26",
+      "edition": "檔案說明記載1937年星相研究社發行；掃描題名增訂命理探原；館方目錄入口本次逾時",
+      "trust": "C",
+      "tracked_path": "docs/技能戰鬥檔案/八字/原典影像/命理探原-卷上65.png",
+      "note": "已實讀PDF93至96、102至103頁。不是五項完整取法背書；桃花納音條件、年支華蓋適用範圍待核。掃描PDF SHA256: 8E8EBF3AA66781A3FB49A4ACFC17229B6D0255AF81A7CB9DE0F83BAFD43EB5AB。版本及館藏尚未獨立核定，不升為A級。"
+    },
     {
       "source_id": "S-BAZI-JSON",
       "author": "本站",
@@ -491,6 +509,23 @@
       "note": "未找到同儕審查的對照研究證明八字能預測人格、健康或婚姻；Lancet 1993 顯示「相信命理」可能透過心身歷程影響健康。客戶文字不得宣稱科學證實或預測。"
     },
     {
+      "claim_id": "C-BAZI-PILLAR-SHENSHA",
+      "title": "四柱神煞：天乙、文昌、桃花、驛馬、華蓋的逐柱查表規則",
+      "domain": "八字知識",
+      "files": [
+        "lib/bazi/engine.ts",
+        "app/dual-chart/BaziChart.tsx"
+      ],
+      "authority_files": [],
+      "big_data_sources": [],
+      "cross_references": [
+        "S-MINGLI-TANYUAN-1937-SCAN"
+      ],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "2026-09-26 從紅鸞月份規則獨立拆出。已納入實讀掃描來源，修正驛馬日支查年柱及華蓋日支自查，631組工程案例通過。工程案例不是大數據研究，單一原書不是三個獨立來源；桃花条件、年支華蓋、版本與交叉來源仍未核全。詳見神煞逐條對照.md，未完成前不放行，也不影響基礎四柱顯示。"
+    },
+    {
       "claim_id": "C-RED-LUAN-SHENSHA",
       "title": "紅鸞、天喜、桃花、天乙貴人的月份規則，與地支外型／職業類型對應",
       "domain": "八字知識",
@@ -540,6 +575,91 @@
       ],
       "note": "2026-09-21 修正：舊版喜神取「數量最少的五行」，身弱時常剛好剋用神（例：1990-05-20 亥時，喜神、仇神都是土）。定義出處只見網路轉引，原刊本待查核，所以只列為傳統取法參考。",
       "status": "CONFLICT"
+    },
+    {
+      "claim_id": "C-BAZI-SHENSHA-TIANYI",
+      "title": "天乙逐柱查表取法",
+      "domain": "八字知識",
+      "files": [
+        "lib/bazi/engine.ts",
+        "docs/技能戰鬥檔案/八字/神煞逐條對照.md"
+      ],
+      "authority_files": [],
+      "big_data_sources": [],
+      "cross_references": [
+        "S-MINGLI-TANYUAN-1937-SCAN"
+      ],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "日干查四柱地支；卷上62至63頁古歌與以日為主；不混晝夜分貴取法。"
+    },
+    {
+      "claim_id": "C-BAZI-SHENSHA-WENCHANG",
+      "title": "文昌逐柱查表取法",
+      "domain": "八字知識",
+      "files": [
+        "lib/bazi/engine.ts",
+        "docs/技能戰鬥檔案/八字/神煞逐條對照.md"
+      ],
+      "authority_files": [],
+      "big_data_sources": [],
+      "cross_references": [
+        "S-MINGLI-TANYUAN-1937-SCAN"
+      ],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "日干查四柱地支；卷上63至64頁；保留己／巳字形校勘紀錄。"
+    },
+    {
+      "claim_id": "C-BAZI-SHENSHA-TAOHUA",
+      "title": "桃花逐柱查表取法",
+      "domain": "八字知識",
+      "files": [
+        "lib/bazi/engine.ts",
+        "docs/技能戰鬥檔案/八字/神煞逐條對照.md"
+      ],
+      "authority_files": [],
+      "big_data_sources": [],
+      "cross_references": [
+        "S-MINGLI-TANYUAN-1937-SCAN"
+      ],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "年日雙錨點及倒插桃花仍待完整版本交叉核對；卷上71頁另含納音條件，不可忽略。"
+    },
+    {
+      "claim_id": "C-BAZI-SHENSHA-YIMA",
+      "title": "驛馬逐柱查表取法",
+      "domain": "八字知識",
+      "files": [
+        "lib/bazi/engine.ts",
+        "docs/技能戰鬥檔案/八字/神煞逐條對照.md"
+      ],
+      "authority_files": [],
+      "big_data_sources": [],
+      "cross_references": [
+        "S-MINGLI-TANYUAN-1937-SCAN"
+      ],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "日支查年月時；卷上65頁；同頁年主法另述，年支錨點需獨立核適用範圍。"
+    },
+    {
+      "claim_id": "C-BAZI-SHENSHA-HUAGAI",
+      "title": "華蓋逐柱查表取法",
+      "domain": "八字知識",
+      "files": [
+        "lib/bazi/engine.ts",
+        "docs/技能戰鬥檔案/八字/神煞逐條對照.md"
+      ],
+      "authority_files": [],
+      "big_data_sources": [],
+      "cross_references": [
+        "S-MINGLI-TANYUAN-1937-SCAN"
+      ],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "日支查年月時；卷上64頁；現有年支錨點及自查適用範圍尚未核全。"
     }
   ]
 }

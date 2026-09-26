@@ -565,7 +565,7 @@ const TRINE_GROUP: Record<Branch, { taoHua: Branch; yiMa: Branch; huaGai: Branch
   巳: { taoHua: '午', yiMa: '亥', huaGai: '丑' }, 酉: { taoHua: '午', yiMa: '亥', huaGai: '丑' }, 丑: { taoHua: '午', yiMa: '亥', huaGai: '丑' },
   亥: { taoHua: '子', yiMa: '巳', huaGai: '未' }, 卯: { taoHua: '子', yiMa: '巳', huaGai: '未' }, 未: { taoHua: '子', yiMa: '巳', huaGai: '未' },
 };
-const SHENSHA_RULE_VERSION = 'TW_SHENSHA_BASIC_V1';
+const SHENSHA_RULE_VERSION = 'TW_SHENSHA_BASIC_V3';
 
 export function computeShenSha(dayMaster: Stem, yearBranch: Branch, dayBranch: Branch, pillars: BaziPillarModel[]): BaziShenShaItem[] {
   const out: BaziShenShaItem[] = [];
@@ -577,9 +577,14 @@ export function computeShenSha(dayMaster: Stem, yearBranch: Branch, dayBranch: B
     if (WENCHANG_TABLE[dayMaster] === b) push('wenchang', '文昌貴人', `日干${dayMaster}見${WENCHANG_TABLE[dayMaster]}`, `${key} 支${b}`);
     for (const anchor of [{ br: yearBranch, tag: '年支' }, { br: dayBranch, tag: '日支' }]) {
       const g = TRINE_GROUP[anchor.br];
-      if (g.taoHua === b && key !== 'YEAR') push('taohua', '桃花', `${anchor.tag}${anchor.br}三合局沐浴位${g.taoHua}`, `${key} 支${b}`);
-      if (g.yiMa === b && key !== 'YEAR') push('yima', '驛馬', `${anchor.tag}${anchor.br}三合局驛馬位${g.yiMa}`, `${key} 支${b}`);
-      if (g.huaGai === b) push('huagai', '華蓋', `${anchor.tag}${anchor.br}三合局華蓋位${g.huaGai}`, `${key} 支${b}`);
+      // 古今圖書集成 Volume 470 p.80「倒插桃花」有月日時反朝年支的取法。
+      // 此處只修復既有日支查法漏掉年柱，不擴充月／時錨點或吉凶解讀。
+      // 逐條來源、版本與適用範圍仍須通過獨立來源閘才可正式顯示。
+      if (g.taoHua === b) push('taohua', '桃花', `${anchor.tag}${anchor.br}三合局沐浴位${g.taoHua}${key === 'YEAR' ? '（倒插桃花）' : ''}`, `${key} 支${b}`);
+      // 《增訂命理探原》卷上第65頁：日支驛馬查年月時，不能排除年柱。
+      if (g.yiMa === b) push('yima', '驛馬', `${anchor.tag}${anchor.br}三合局驛馬位${g.yiMa}`, `${key} 支${b}`);
+      // 同書第64頁：日支華蓋查年月時；不以日支自身形成一筆命中。
+      if (g.huaGai === b && !(anchor.tag === '日支' && key === 'DAY')) push('huagai', '華蓋', `${anchor.tag}${anchor.br}三合局華蓋位${g.huaGai}`, `${key} 支${b}`);
     }
   }
   // 去重（同 id + evidence）

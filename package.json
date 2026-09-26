@@ -101,7 +101,8 @@
     "test:beast-rage-tiers": "node scripts/beast-build.mjs && node tests/beast-rage-tiers.test.mjs && node tests/beast-rage-fusion.test.cjs",
     "audit:battle-assets": "node scripts/beast-build.mjs && node scripts/audit-battle-assets.mjs",
     "test:beast-effects": "node scripts/beast-build.mjs && node tests/beast-effect-composer.test.mjs",
-    "test:beast-presentation": "node scripts/beast-build.mjs && node tests/beast-fusion-presentation.test.mjs"
+    "test:beast-presentation": "node scripts/beast-build.mjs && node tests/beast-fusion-presentation.test.mjs",
+    "test:shensha-source-tables": "tsc tests/shensha-source-tables.test.ts --outDir .tmp/shensha-source-tests --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp/shensha-source-tests/tests/shensha-source-tables.test.js"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",
