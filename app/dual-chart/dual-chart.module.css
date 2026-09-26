@@ -104,7 +104,13 @@
 .pillarGrid th,.pillarGrid td,.luckGrid th,.luckGrid td,.annualGrid th,.annualGrid td{border:1px solid #a697ad;padding:6px 3px;overflow-wrap:anywhere}
 .pillarGrid th,.luckGrid th,.annualGrid th{background:#493b55;font-weight:700}
 .pillarGrid th:last-child{width:15%}.stack{display:block}.largeGlyph td{font-size:27px;font-weight:700;padding:13px 3px}
-.shenshaRow td{height:112px;vertical-align:top;padding-top:12px}.luckGrid{font-size:12px;margin-top:8px}.luckGrid b{font-size:17px}.luckGrid th{width:36px}
+.shenshaRow td{height:112px;vertical-align:top;padding-top:12px}.shenshaStatus{display:block;font-size:13px;line-height:1.5;white-space:normal}.shenshaStatus small,small.shenshaStatus{font-size:11px;margin-top:4px}.luckGrid{font-size:12px;margin-top:8px}.luckGrid b{font-size:17px}.luckGrid th{width:36px}
+.shenshaSource{display:block;font-size:10px;line-height:1.4;text-decoration:underline;color:inherit}
+.printPreview .baziMain>p.shenshaNote{font-size:11.5px;line-height:1.5;margin-top:6px}
+.shenshaEvidence{font-size:12px;line-height:1.6;margin-top:8px;overflow-wrap:anywhere}.shenshaEvidence a{text-decoration:underline}.shenshaEvidence section{margin-top:8px}.printPreview .shenshaEvidence{display:none}
+.page:not(.printPreview) .shenshaNote{font-size:14px;line-height:1.7}.page:not(.printPreview) .shenshaNote a{display:inline-flex;align-items:center;min-height:44px;padding:0 6px}.page:not(.printPreview) .shenshaEvidence{font-size:14px;line-height:1.7}.page:not(.printPreview) .shenshaEvidence summary{min-height:44px;padding:10px 0;cursor:pointer}
+.page:not(.printPreview) .baziMain>.shenshaNote,.page:not(.printPreview) .baziMain>.shenshaEvidence,.printPreview .screenShenShaNotes{display:none}.screenShenShaNotes{min-width:0;overflow-wrap:anywhere;padding-top:8px}
+@media print{.shenshaEvidence{display:none}}
 .startLuck{border:1px solid #a697ad;padding:9px 6px;font-size:13px;margin-top:10px;text-align:center}
 .elementSummary{text-align:center;padding:6px 0 12px}.elementRing{width:154px;height:154px;border-radius:50%;margin:0 auto 12px;padding:19px}
 .elementRing>div{border-radius:50%;background:#222333;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column}.elementRing b{font-size:25px}.elementRing small{font-size:12px}

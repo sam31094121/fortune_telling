@@ -9,6 +9,7 @@ const assert = require('node:assert/strict');
   assert.equal(canRecoverService(report(failed('HOME', 500)), false), false);
   assert.equal(canRecoverService({ ok: true, routes: [] }, true), false);
   assert.equal(canRecoverService(report(failed('BEAST_CARD_GAME_CORE', null)), true), false);
+  assert.equal(canRecoverService(report(failed('BAZI_SERVICE_AVAILABILITY', null)), true), false);
   assert.equal(canRecoverService(report(failed('STAR_BEAST_SELF_ENTRY_API', null)), true), false);
   assert.equal(canRecoverService(report(failed('CARD_BEAST_GAME', 500)), true), false);
   assert.equal(canRecoverService(report(failed('HOME', 200)), true), false);

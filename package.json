@@ -15,6 +15,11 @@
     "share:lan": "node scripts/share-tunnel.js --lan-only",
     "auto-qa": "node scripts/auto-qa.mjs",
     "screen:health": "node scripts/screen-health-monitor.mjs --no-repair",
+    "check:bazi-service-health": "node scripts/bazi-functional-health.cjs",
+    "check:bazi-registry-completeness": "node scripts/bazi-registry-completeness.cjs",
+    "test:bazi-feature-complete": "node tests/bazi-feature-complete.test.cjs",
+    "check:dual-chart-shensha-display": "node scripts/dual-chart-shensha-display-check.cjs",
+    "test:bazi-output-availability": "node tests/bazi-functional-health.test.cjs && node tests/bazi-basic-reading.test.cjs && node tests/bazi-progress-availability.test.cjs && node tests/dual-chart-shensha-output.test.cjs",
     "health:check": "node scripts/screen-health-monitor.mjs --mobile-first --recover-server",
     "screen:watch": "node scripts/screen-health-monitor.mjs --watch",
     "platform:v6:audit": "node scripts/platform-core-v6-audit.mjs",
@@ -102,7 +107,11 @@
     "audit:battle-assets": "node scripts/beast-build.mjs && node scripts/audit-battle-assets.mjs",
     "test:beast-effects": "node scripts/beast-build.mjs && node tests/beast-effect-composer.test.mjs",
     "test:beast-presentation": "node scripts/beast-build.mjs && node tests/beast-fusion-presentation.test.mjs",
-    "test:shensha-source-tables": "tsc tests/shensha-source-tables.test.ts --outDir .tmp/shensha-source-tests --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp/shensha-source-tests/tests/shensha-source-tables.test.js"
+    "check:three-core-traditional-health": "node scripts/three-core-traditional-health.cjs",
+    "test:three-core-reading-routes": "npm run test:three-in-one && node tests/three-core-reading-routes.test.cjs",
+    "test:meihua-original-cases": "node tests/meihua-original-cases.test.cjs",
+    "test:shensha-source-tables": "tsc tests/shensha-source-tables.test.ts --outDir .tmp/shensha-source-tests --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp/shensha-source-tests/tests/shensha-source-tables.test.js",
+    "test:shensha-live-api": "node --env-file=.env.local tests/shensha-live-api.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

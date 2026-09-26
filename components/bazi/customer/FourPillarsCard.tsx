@@ -1,5 +1,6 @@
 'use client';
 
+import HomeTranslatedText from '@/components/HomeTranslatedText';
 import type { CustomerPillar } from './adapter';
 import { ELEMENT_COLOR } from './adapter';
 import { deriveBaziPillarBeast } from '@/lib/bazi-four-pillar-beasts';
@@ -34,8 +35,8 @@ export function FourPillarsCard({ pillars, hourUnknown, elementOf }: {
               <p className={`text-[10px] font-black tracking-[0.12em] sm:text-sm sm:tracking-widest ${isDay ? 'text-amber-200' : 'text-white/50'}`}>{p.label.replace('柱', '')}柱</p>
               {isUnknownHour ? (
                 <>
-                  <p className="mt-4 text-base font-black leading-6 text-white/40">時辰<br />未提供</p>
-                  <p className="mt-3 text-xs font-bold text-white/35">未定</p>
+                  <p className="mt-4 text-base font-black leading-6 text-white/40"><HomeTranslatedText text={"時辰"} /><br /><HomeTranslatedText text={"未提供"} /></p>
+                  <p className="mt-3 text-xs font-bold text-white/35"><HomeTranslatedText text={"未定"} /></p>
                 </>
               ) : (
                 <>
@@ -55,9 +56,7 @@ export function FourPillarsCard({ pillars, hourUnknown, elementOf }: {
         })}
       </div>
       {hourUnknown && (
-        <p className="mt-3 rounded-2xl bg-white/[0.04] px-4 py-2.5 text-sm font-semibold leading-6 text-white/60">
-          目前為三柱分析；補充出生時辰後，可建立完整四柱。
-        </p>
+        <p className="mt-3 rounded-2xl bg-white/[0.04] px-4 py-2.5 text-sm font-semibold leading-6 text-white/60"><HomeTranslatedText text={"目前為三柱分析；補充出生時辰後，可建立完整四柱。"} /></p>
       )}
     </div>
   );

@@ -2,6 +2,7 @@ import { calculateTrueSolarTime } from './true-solar-time';
 import { getShichenInfo } from './shichen-engine';
 import { assertChartCertifiedForAi, generateZiweiChart, type ZiweiBirthInput } from './ziwei/chartEngine';
 import { BRANCHES, createBaziCore, type Branch } from './bazi/engine';
+import { assertReusableExactBaziCore } from './bazi-reuse';
 
 const PALACE_CONFIG = [
   { key: 'MING', name: '命宮', focus: '核心人格與行動動能' },
@@ -801,7 +802,7 @@ function buildSanFangSummary(palaces: ZiweiPalaceEvidence[], pattern: ZiweiPatte
   return `命宮以${coreStars}為核心，財帛與官祿三方匯入${trineStars}的結構訊號；遷移宮作為對宮，整體主要呈現「${pattern.name}」的判讀方向。`;
 }
 
-export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAnalysis {
+export function calculateZiweiSanFang(input: ZiweiSanFangInput, existingCore?: ReturnType<typeof createBaziCore>): ZiweiSanFangAnalysis {
   const { year, month, day } = parseBirthDate(input.birthDate);
   const exactClock = parseBirthTime(input.birthTime);
   const shichen = resolveShichen(input.shichen, input.isTimeConfirmed);
@@ -831,7 +832,13 @@ export function calculateZiweiSanFang(input: ZiweiSanFangInput): ZiweiSanFangAna
     整段流年的生剋關係與建議全部建立在錯的日主上。
     同一份回應裡 meta.dayPillar 一直是對的，兩邊互相矛盾。
   */
-  const baziCore = createBaziCore({
+  if (existingCore) assertReusableExactBaziCore({
+    gender: input.gender,
+    birthDate: `${calculationDate.getFullYear()}-${calculationDate.getMonth() + 1}-${calculationDate.getDate()}`,
+    birthTime: `${String(calculationDate.getHours()).padStart(2, '0')}:${String(calculationDate.getMinutes()).padStart(2, '0')}`,
+    birthTimeKnown: true, calendarType: 'SOLAR', timezone: 'Asia/Taipei',
+  }, existingCore);
+  const baziCore = existingCore ?? createBaziCore({
     gender: input.gender,
     birthDate: `${calculationDate.getFullYear()}-${calculationDate.getMonth() + 1}-${calculationDate.getDate()}`,
     calendarType: 'SOLAR',

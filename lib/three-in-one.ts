@@ -57,6 +57,7 @@
 import { shichenFromClockHour } from './shichen-engine';
 import { deriveZiweiStarBeastLink } from './ziwei-star-beast-link';
 import {
+  ICHING_RITUAL_STEPS,
   isZiweiCertified,
   runBaziLayer,
   runIChingLayer,
@@ -84,7 +85,7 @@ export interface UnifiedInput {
    * 卡片如果本來就讓客戶選十二時辰（姓名學、紅鸞都是），直接傳這個，
    * 不要為了配合 birthTime 的格式先換算成 HH:mm 再換回來——
    * 那一來一回就是資料在傳遞中被改寫的機會，而那正是四柱核對要抓的東西。
-   * 有值時優先於 birthTime。
+   * 同時提供 birthTime 時必須一致；衝突時停止，不任選其一。
    */
   hourBranchIndex?: number | null;
   gender: 'male' | 'female';
@@ -113,7 +114,7 @@ export type ThreeInOneStatus =
    * 要真實以告沒有時辰的算法。」
    *
    * 所以缺時辰時不是回一句「不能算」了事，而是走一套講得出來、
-   * 可回查、也照實告知的降級算法：八字給三柱、紫微不排、易經改象徵起卦。
+   * 可回查的缺時辰狀態：八字給三柱，紫微與易經暫不提供。
    */
   | 'TIME_UNKNOWN'
   | 'ABNORMAL'
@@ -380,7 +381,7 @@ export type ThreeInOneResult =
  */
 export function buildNoHourMethod(bazi: ThreeCoreBaziLayer): NoHourMethod {
   return {
-    title: '無時辰算法：三柱成立、紫微不排、易經改走象徵起卦',
+    title: '時辰待補：可查看三柱，紫微與易經暫未提供',
     layers: [
       {
         layer: '八字',
@@ -409,11 +410,10 @@ export function buildNoHourMethod(bazi: ThreeCoreBaziLayer): NoHourMethod {
       },
       {
         layer: '易經',
-        method: '不用生辰起卦，改走姓名象徵起卦：以姓名、生日與固定主題，依既有字串雜湊規則產生。',
+        method: '暫不起卦；補齊出生時辰並完成八字、紫微與四柱核對後，才提供生辰卦。',
         reason: '梅花易數生辰起卦的下卦與動爻都含時辰數，沒有時辰就算不出來。'
-          + '象徵卦是另一套規則、另一個依據，同一組輸入永遠同一卦、可回查，'
-          + '但它不是你的生辰卦，也不等同傳統占筮——這一點不會含糊帶過。',
-        available: true,
+          + '因此不使用姓名或其他文案另起一卦替代。',
+        available: false,
       },
     ],
     crossCheck: '八字與紫微的四柱核對這次不執行：紫微沒有排盤，沒有東西可以核對。'
@@ -422,7 +422,7 @@ export function buildNoHourMethod(bazi: ThreeCoreBaziLayer): NoHourMethod {
       + '四張紫微神獸卡與時柱神獸、你的生辰卦與卜卦儀式，'
       + '以及八字×紫微的四柱交叉核對。',
     honesty: '這份結果是在沒有出生時辰的條件下算的。'
-      + '我們沒有用預設時辰替你補上，也沒有把象徵卦說成生辰卦。'
+      + '我們沒有用預設時辰替你補上，也不以姓名象徵卦替代生辰卦。'
       + '能算的部分照實給，不能算的部分直接告訴你不能算。',
   };
 }
@@ -528,6 +528,7 @@ export async function runThreeInOne(input: UnifiedInput): Promise<ThreeInOneResu
     : toHourBranchIndex(input.birthTime);
   const coreInput: ThreeCoreInput = {
     birthDate: input.birthDate,
+    birthTime: input.birthTime,
     gender: input.gender,
     hourBranchIndex,
     longitude: input.longitude ?? null,
@@ -639,7 +640,7 @@ export async function runThreeInOne(input: UnifiedInput): Promise<ThreeInOneResu
     要真實以告沒有時辰的算法。」
 
     所以這裡不再往下跑紫微再報 ZIWEI_FAILED——那讀起來像系統壞了。
-    改成一個明確的模式：三柱照給、紫微不排、易經改象徵起卦，
+    改成一個明確的模式：三柱照給、紫微不排、易經暫不提供，
     每一層為什麼只能這樣算，全部寫在 noHourMethod 裡直接端給客戶看。
   */
   if (hourBranchIndex === null) {
@@ -654,12 +655,12 @@ export async function runThreeInOne(input: UnifiedInput): Promise<ThreeInOneResu
       threePillars: { year: bazi.year, month: bazi.month, day: bazi.day },
       noHourMethod,
       checklist: checklistOf(
-        { bazi: 'PASSED', ziwei: 'ABNORMAL', fourPillars: 'PENDING', yijing: 'PASSED', combined: 'PENDING' },
+        { bazi: 'PASSED', ziwei: 'ABNORMAL', fourPillars: 'PENDING', yijing: 'PENDING', combined: 'PENDING' },
         {
           BAZI: `${bazi.year} ${bazi.month} ${bazi.day}（三柱成立，時柱不推定）`,
           ZIWEI: '不排盤：命宮要月支＋時支，缺時支就定不了，不以預設時辰代替',
           FOUR_PILLARS: '本次不執行：紫微沒有排盤，沒有東西可以核對',
-          YIJING: '改走姓名象徵起卦，不是生辰卦',
+          YIJING: '時辰待補，核對完成前暫不起卦',
           COMBINED: '三合一不成立——缺紫微這一層',
         },
       ),
@@ -672,7 +673,7 @@ export async function runThreeInOne(input: UnifiedInput): Promise<ThreeInOneResu
   machine.to('ZIWEI_RUNNING');
   let ziwei: ThreeCoreZiweiLayer;
   try {
-    ziwei = runZiweiLayer(coreInput);
+    ziwei = runZiweiLayer(coreInput, core);
   } catch (error) {
     ziwei = {
       status: 'UNAVAILABLE_BIRTH_TIME_REQUIRED',
@@ -890,4 +891,25 @@ export function assertThreeInOnePassed(result: ThreeInOneResult): asserts result
     }
     throw new Error(`THREE_IN_ONE_NOT_PASSED: ${result.status} — ${detail}`);
   }
+  const { bazi, ziwei, yijing } = result.result;
+  const pillars: FourPillars = { year: bazi.year, month: bazi.month, day: bazi.day, hour: bazi.hour ?? '' };
+  const fingerprint = [pillars.year, pillars.month, pillars.day, pillars.hour].join('|');
+  const expectedTrace = ['WAITING_INPUT', 'BAZI_RUNNING', 'ZIWEI_RUNNING', 'VERIFYING_FOUR_PILLARS', 'YIJING_RUNNING', 'PASSED'];
+  const valid = result.success && result.completed
+    && result.verification.bazi === true && result.verification.ziwei === true
+    && result.verification.fourPillars === true && result.verification.yijing === true
+    && /^[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]$/.test(pillars.hour)
+    && expectedTrace.join('|') === result.trace.join('|')
+    && isZiweiCertified(ziwei)
+    && verifyFourPillars(pillars, ziwei.analysis.bazi).differences.length === 0
+    && verifyFourPillars(pillars, result.fourPillars.bazi).differences.length === 0
+    && verifyFourPillars(pillars, result.fourPillars.ziwei).differences.length === 0
+    && result.fourPillars.differences.length === 0
+    && yijing.ritual.completed && yijing.ritual.steps.length === ICHING_RITUAL_STEPS.length
+    && yijing.ritual.steps.every((step, index) => step.passed && step.id === ICHING_RITUAL_STEPS[index].id)
+    && yijing.certificate.baziVerified && yijing.certificate.ziweiCertified
+    && yijing.certificate.ritualCompleted
+    && yijing.certificate.chartFingerprint === fingerprint
+    && yijing.ritual.chartFingerprint === fingerprint;
+  if (!valid) throw new Error('THREE_IN_ONE_NOT_PASSED: 三核心內容或執行順序不一致');
 }

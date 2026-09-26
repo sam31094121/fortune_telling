@@ -16,7 +16,7 @@ import { analyzeBazi } from '@/lib/bazi-engine';
 import { deriveBaziPillarBeast } from '@/lib/bazi-four-pillar-beasts';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { buildBaziLovePersonSignal, buildZiweiLovePersonSignal, type RedLuanHeartbeatResult } from '@/lib/red-luan-heartbeat-engine';
-import { runThreeInOne } from '@/lib/three-in-one';
+import { assertThreeInOnePassed, runThreeInOne } from '@/lib/three-in-one';
 import { buildMatchThreeCoreView } from '@/lib/match-three-core-view';
 import { coreCredibility } from '@/lib/credibility-wording';
 import { getBaziTraditionalOutputGate, type BaziTraditionalOutputGate } from '@/lib/bazi-traditional-gate';
@@ -586,11 +586,13 @@ export async function POST(request: Request) {
       return friendlyErrorResponse(requestId, 'THREE_IN_ONE_NOT_VERIFIED', '其中一人的三合一核對未通過，暫不顯示配對結果。', 422);
     }
 
+    if (threeInOneA.status === 'PASSED') assertThreeInOnePassed(threeInOneA);
+    if (threeInOneB.status === 'PASSED') assertThreeInOnePassed(threeInOneB);
     const rawResult = computeCompatibility(profileA, profileB);
     const result = stabilizeMatchResult(rawResult);
     const baziBuild = buildBaziMatchFoundation(body.personA, body.personB);
     const baziFoundation = baziBuild.foundation;
-    const redLuanHeartbeat = baziFoundation.traditionalGate.shenShaReady
+    const redLuanHeartbeat = baziFoundation.traditionalGate.redLuanReady
       ? buildRedLuanHeartbeat(body.personA, body.personB, baziBuild.charts)
       : undefined;
     // fiveElementMatch 提前算，兩人的 needScores 直接來自 baziFoundation（真實八字），
@@ -603,7 +605,7 @@ export async function POST(request: Request) {
         )
       : undefined;
     if (fiveElementMatch) baziFoundation.sharedElement = fiveElementMatch.sharedElement;
-    const enhanced = baziFoundation.traditionalGate.interpretationReady
+    const enhanced = threeInOneA.status === 'PASSED' && threeInOneB.status === 'PASSED' && baziFoundation.traditionalGate.interpretationReady
       ? await enhanceMatchResultWithAI(result, displayA, displayB, baziFoundation)
       : { summary: result.summary, zones: result.zones, provider: 'local' as const };
     const finalSummary = isConsistentAiSummary(enhanced.summary, result) ? enhanced.summary : result.summary;

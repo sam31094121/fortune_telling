@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { createBaziCore, computeShenSha, STEMS, BRANCHES, type Stem, type Branch } from '../lib/bazi/engine';
 
 // 預期值取自三命通會卷三論天乙貴人、論驛馬，不由正式查表產生。
-// 僅測表值；年／日取法、柱位範圍、原刻本校勘仍待核實。
+// 採《增訂命理探原》1937訂正本與1938再版本對讀的指定取法。
+// 預期表值獨立維護，不從實作匯入；這些是規則組合，不是歷史命例。
 const tianyi: Record<Stem, string> = {
   甲: '丑未', 乙: '子申', 丙: '酉亥', 丁: '酉亥', 戊: '丑未',
   己: '子申', 庚: '丑未', 辛: '寅午', 壬: '卯巳', 癸: '卯巳',
@@ -12,8 +13,7 @@ const yima: Record<Branch, Branch> = {
   午: '申', 未: '巳', 申: '寅', 酉: '亥', 戌: '申', 亥: '巳',
 };
 const core = createBaziCore({ birthDate: '1990-01-01', gender: 'male', birthTimeKnown: true, birthTime: '11:30' });
-// 《命理探源》卷三「文昌」「華蓋」電子轉錄；原版影像仍待校勘。
-// 此處只核對表值，不以測試通過取代來源放行。
+// 《增訂命理探原》卷上63–64頁文昌、華蓋原頁。
 const wenchang: Record<Stem, Branch> = {
   甲: '巳', 乙: '午', 丙: '申', 丁: '酉', 戊: '申',
   己: '酉', 庚: '亥', 辛: '子', 壬: '寅', 癸: '卯',
@@ -61,18 +61,34 @@ for (const day of BRANCHES) {
     assertions++;
   }
 }
-// 古今圖書集成 Volume 470 p.80 明列卯年見寅午戌月日時、酉年見申子辰月日時。
-// 本引擎目前只用年／日錨點，因此驗證日支反查年支，不假稱已實作月／時錨點。
-for (const [year, days] of [['卯', ['寅', '午', '戌']], ['酉', ['申', '子', '辰']]] as const) {
-  for (const day of days) {
-    const yearPillar = { ...core.pillars.year, earthlyBranch: year };
-    const matches = computeShenSha('甲', year, day, [yearPillar]).filter(item => item.id === 'taohua');
-    assert.equal(matches.length, 1, `${year}年/${day}日：不可漏掉倒插桃花`);
-    assert.match(matches[0].rule, /日支.*倒插桃花/);
-    assert.equal(matches[0].evidence, `YEAR 支${year}`);
+// 原書卷上71頁日主納音法；同日支換納音即有不同結果，不能只比三合表。
+// 丙寅爐中火／甲寅大溪水；丙子澗下水／甲子海中金；
+// 辛巳白蠟金／己巳大林木；己亥平地木／丁亥屋上土。
+for (const [stem, day, bath, eligible] of [
+  ['丙', '寅', '卯', true], ['甲', '寅', '卯', false],
+  ['丙', '子', '酉', true], ['甲', '子', '酉', false],
+  ['辛', '巳', '午', true], ['己', '巳', '午', false],
+  ['己', '亥', '子', true], ['丁', '亥', '子', false],
+] as const) {
+  for (const key of ['year', 'month', 'day', 'hour'] as const) for (const branch of BRANCHES) {
+    const base = core.pillars[key];
+    if (base === 'UNKNOWN') throw new Error('測試需有時柱');
+    const hits = computeShenSha(stem, '巳', day, [{ ...base, earthlyBranch: branch }]).filter(item => item.id === 'taohua');
+    const expected = eligible && branch === bath && (key === 'month' || key === 'hour');
+    assert.equal(hits.length > 0, expected, `咸池${stem}${day}/${key}${branch}`);
+    for (const hit of hits) {
+      assert.match(hit.rule, /納音.*查月時/);
+      assert.equal(hit.source.printedPage, '71');
+    }
     assertions++;
   }
 }
-assert.equal(computeShenSha('甲', '卯', '亥', [{ ...core.pillars.year, earthlyBranch: '卯' }]).some(item => item.id === 'taohua'), false);
+// 年支自己的墓庫不可被混成已核對的日主華蓋。
+assert.equal(computeShenSha('丙', '辰', '寅', [{ ...core.pillars.year, earthlyBranch: '辰' }]).some(item => item.id === 'huagai'), false);
 assertions++;
-console.log(`PASS ${assertions}: 天乙文昌驛馬華蓋表值及倒插桃花回歸；不代表五項神煞完整來源已通過`);
+for (const item of computeShenSha('丁', '巳', '亥', [{ ...core.pillars.month, earthlyBranch: '亥' }])) {
+  assert.ok(item.source.sourceId && item.source.printedPage && item.source.url);
+  assert.equal(item.ruleVersion, 'MINGLI_TANYUAN_SHENSHA_V5');
+  assertions++;
+}
+console.log(`PASS ${assertions}: 五項指定取法表值、納音正反例、柱位與來源追蹤；非所有流派或歷史命例驗證`);

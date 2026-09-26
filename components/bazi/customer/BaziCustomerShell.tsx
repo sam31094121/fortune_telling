@@ -7,6 +7,7 @@
  * 鐵律：只呈現後端資料，前端零計算（Adapter 只做映射）。
  */
 
+import HomeTranslatedText from '@/components/HomeTranslatedText';
 import { useRef, useState } from 'react';
 import { toBaziCustomerView, validateBaziCustomerViewPipeline } from './adapter';
 import { BaziHeroCard } from './BaziHeroCard';
@@ -37,8 +38,8 @@ export function BaziCustomerShell({ result, hourUnknown }: { result: any; hourUn
   if (pipelineIssues.length > 0) {
     return (
       <section className="rounded-[24px] border border-rose-300/25 bg-rose-500/[0.06] p-5 text-center sm:p-6">
-        <p className="text-lg font-black text-rose-100">命盤尚未完成</p>
-        <p className="mt-1 text-sm font-semibold text-white/55">Final Render Gate 未通過，系統已停止顯示命盤。</p>
+        <p className="text-lg font-black text-rose-100"><HomeTranslatedText text={"命盤尚未完成"} /></p>
+        <p className="mt-1 text-sm font-semibold text-white/55"><HomeTranslatedText text={"Final Render Gate 未通過，系統已停止顯示命盤。"} /></p>
         <p className="mt-3 text-xs font-semibold leading-5 text-white/40">{pipelineIssues.join('；')}</p>
       </section>
     );
@@ -54,8 +55,8 @@ export function BaziCustomerShell({ result, hourUnknown }: { result: any; hourUn
         {level === 'teacher' && (
           <div>
             <div className="mb-3 flex items-baseline justify-between">
-              <h3 className="text-xl font-black text-[color:var(--text-main)]">兩位老師解盤</h3>
-              <p className="text-xs font-bold text-white/40">同盤鎖定，切換解讀。</p>
+              <h3 className="text-xl font-black text-[color:var(--text-main)]"><HomeTranslatedText text={view.traditionalGate.interpretationReady ? '兩位老師解盤' : '命盤資料說明'} /></h3>
+              <p className="text-xs font-bold text-white/40"><HomeTranslatedText text={view.traditionalGate.interpretationReady ? '同盤鎖定，切換解讀。' : '依本次排盤逐項列示。'} /></p>
             </div>
             <BaziTeacherModes view={view} onOpenFull={() => openLevel('full')} />
           </div>
@@ -63,8 +64,8 @@ export function BaziCustomerShell({ result, hourUnknown }: { result: any; hourUn
         {level === 'full' && (
           <div>
             <div className="mb-3 flex items-baseline justify-between">
-              <h3 className="text-xl font-black text-[color:var(--text-main)]">完整傳統八字命盤</h3>
-              <p className="text-xs font-bold text-white/40">專業核對用</p>
+              <h3 className="text-xl font-black text-[color:var(--text-main)]"><HomeTranslatedText text={"完整傳統八字命盤"} /></h3>
+              <p className="text-xs font-bold text-white/40"><HomeTranslatedText text={"專業核對用"} /></p>
             </div>
             <ProfessionalBaziTable result={result} hourUnknown={hourUnknown} />
           </div>

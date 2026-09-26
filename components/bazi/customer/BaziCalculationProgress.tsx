@@ -1,5 +1,6 @@
 'use client';
 
+import HomeTranslatedText from '@/components/HomeTranslatedText';
 import { useEffect, useState } from 'react';
 
 /**
@@ -44,6 +45,8 @@ export type BaziFieldTraceStatus =
   | 'CORE_NOT_SUPPORTED'
   | 'CALCULATION_FAILED'
   | 'MAPPING_MISSING'
+  | 'OUTPUT_WITHHELD'
+  | 'NOT_EVALUATED'
   | 'OPTIONAL_NOT_AVAILABLE';
 
 export interface BaziFieldTrace {
@@ -113,6 +116,8 @@ export function validateBaziProfessionalCompleteness(result: any, hourUnknown: b
     : FULL_BAZI_REQUIRED_PROFESSIONAL_FIELDS;
   const requiredTraces: BaziFieldTrace[] = requiredFields.map((field) => {
     const available = hasProfessionalValue(readPath(result, field.path));
+    const gate = result?.professionalChart?.traditionalInterpretationGate;
+    const hasShenShaOutput = gate?.coreReady && Object.values(gate.shenShaRules ?? {}).some(rule => (rule as { ready?: boolean }).ready);
     return {
       field: field.key,
       label: field.label,
@@ -121,7 +126,11 @@ export function validateBaziProfessionalCompleteness(result: any, hourUnknown: b
       professionalResult: available ? 'VALID_VALUE' : 'MAPPING_MISSING',
       api: available ? 'VALID_VALUE' : 'MISSING',
       adapter: available ? 'VALID_VALUE' : 'MISSING',
-      frontend: available ? 'VALID_VALUE' : 'MISSING',
+      // Mapping completion does not certify that React rendered the value.
+      frontend: !available ? 'MISSING'
+        : field.key === 'shenSha' && !hasShenShaOutput
+          ? 'OUTPUT_WITHHELD'
+          : 'NOT_EVALUATED',
     };
   });
   const missingRequiredFields = requiredTraces
@@ -192,11 +201,22 @@ export function toBaziProgressView(result: any, hourUnknown: boolean): BaziCalcu
     },
     { key: 'teacher', label: '易經老師解析', status: done(pipelineDone('API_READY') && has(result?.aiDeepAnalysis?.summary)), source: 'BACKEND' },
   ];
+  // 有計算欄位不等於可向客戶提供；進度必須與正式輸出狀態一致。
+  const traditionalGate = pc?.traditionalInterpretationGate;
+  const interpretationKeys = new Set(['strength', 'usefulGod', 'avoidGod', 'pattern', 'teacher']);
+  for (const item of items) {
+    if ((interpretationKeys.has(item.key) && traditionalGate?.interpretationReady !== true)
+      || (item.key === 'shenSha' && traditionalGate?.shenShaReady !== true)) {
+      item.status = 'UNAVAILABLE';
+      item.note = '本次暫未提供';
+    }
+  }
   const anyFailed = items.some((i) => i.status === 'FAILED');
+  const anyUnavailable = items.some((i) => i.status === 'UNAVAILABLE');
   return {
     calculationId: String(pipeline?.calculationId ?? result?.aiDeepAnalysis?.sourceChecksum ?? result?.engineVersion ?? 'unknown'),
     mode: hourUnknown ? 'PARTIAL_BAZI' : 'FULL_BAZI',
-    overallStatus: anyFailed ? 'FAILED' : hourUnknown ? 'PARTIAL_COMPLETED' : 'COMPLETED',
+    overallStatus: anyFailed ? 'FAILED' : hourUnknown || anyUnavailable ? 'PARTIAL_COMPLETED' : 'COMPLETED',
     pipelineState: String(pipeline?.currentState ?? 'UNKNOWN'),
     items,
     missingRequiredFields: completeness.missingRequiredFields,
@@ -312,27 +332,27 @@ export function BaziCalculationCeremony({ phase, view, onOpenResult }: {
 
   return (
     <section className="rounded-[24px] border border-white/10 bg-[linear-gradient(165deg,rgba(14,14,18,0.97),rgba(22,20,16,0.94))] p-5 sm:p-6">
-      <h3 className="text-xl font-black text-[color:var(--text-main)]">正在建立您的 易經八字命盤</h3>
-      <p className="mt-1.5 text-sm font-semibold text-white/50">完成勾選只來自後端真實資料；核心未提供的項目會分開標示，不補值。</p>
+      <h3 className="text-xl font-black text-[color:var(--text-main)]"><HomeTranslatedText text={"正在建立您的 易經八字命盤"} /></h3>
+      <p className="mt-1.5 text-sm font-semibold text-white/50"><HomeTranslatedText text={"完成勾選只來自後端真實資料；核心未提供的項目會分開標示，不補值。"} /></p>
 
       <div className="mt-5 space-y-4">
         {phase === 'processing' ? (
           <div className="flex items-center gap-3 rounded-2xl bg-white/[0.03] px-4 py-3">
             <span className="text-amber-200">●</span>
-            <span className="text-base font-bold text-white/75">TraditionalBaziCore 排盤運算中…（結果由後端真實回傳後才逐項確認）</span>
+            <span className="text-base font-bold text-white/75"><HomeTranslatedText text={"TraditionalBaziCore 排盤運算中…（結果由後端真實回傳後才逐項確認）"} /></span>
           </div>
         ) : (
           <>
             <div>
               <div className="mb-2 flex items-center justify-between gap-3">
-                <p className="text-sm font-black text-emerald-100">認證通過中…</p>
+                <p className="text-sm font-black text-emerald-100"><HomeTranslatedText text={"排盤資料確認"} /></p>
                 <p className="text-xs font-black text-emerald-200">{completedItems.length} / {totalReveal}</p>
               </div>
               <div className="space-y-1.5">
                 {completedItems.map((item, idx) => (
                   <div key={item.key} className="flex items-center justify-between gap-3 rounded-xl bg-white/[0.025] px-4 py-2" style={{ animation: 'fadeIn 200ms ease' }}>
                     <span className="text-sm font-bold text-white/70"><span className="mr-2 text-[11px] font-black text-emerald-300/70">{String(idx + 1).padStart(2, '0')}</span>{item.label}</span>
-                    <span className="shrink-0 text-sm font-black text-emerald-300">✓ 通過</span>
+                    <span className="shrink-0 text-sm font-black text-emerald-300"><HomeTranslatedText text={"✓ 通過"} /></span>
                   </div>
                 ))}
               </div>
@@ -340,7 +360,7 @@ export function BaziCalculationCeremony({ phase, view, onOpenResult }: {
 
             {skippedItems.length > 0 && (
               <div>
-                <p className="mb-2 text-sm font-black text-white/55">依資料條件略過</p>
+                <p className="mb-2 text-sm font-black text-white/55"><HomeTranslatedText text={"依資料條件略過"} /></p>
                 <ProgressRows items={skippedItems} />
               </div>
             )}
@@ -348,8 +368,8 @@ export function BaziCalculationCeremony({ phase, view, onOpenResult }: {
             {unavailableItems.length > 0 && (
               <div>
                 <div className="mb-2 flex items-center justify-between gap-3">
-                  <p className="text-sm font-black text-white/45">核心目前未提供</p>
-                  <p className="text-xs font-bold text-white/30">不補值、不推算</p>
+                  <p className="text-sm font-black text-white/45"><HomeTranslatedText text={"本次未提供的項目"} /></p>
+                  <p className="text-xs font-bold text-white/30"><HomeTranslatedText text={"不補值、不推算"} /></p>
                 </div>
                 <ProgressRows items={unavailableItems} />
               </div>
@@ -357,11 +377,11 @@ export function BaziCalculationCeremony({ phase, view, onOpenResult }: {
 
             {failedItems.length > 0 && (
               <div>
-                <p className="mb-2 text-sm font-black text-rose-100">未通過項目</p>
+                <p className="mb-2 text-sm font-black text-rose-100"><HomeTranslatedText text={"未通過項目"} /></p>
                 <ProgressRows items={failedItems} />
                 {view?.missingRequiredFields && view.missingRequiredFields.length > 0 && (
                   <div className="mt-3 rounded-2xl border border-rose-300/15 bg-rose-500/[0.04] px-4 py-3">
-                    <p className="text-sm font-black text-rose-100">需要逐項接入的台灣完整欄位</p>
+                    <p className="text-sm font-black text-rose-100"><HomeTranslatedText text={"需要逐項接入的台灣完整欄位"} /></p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {view.missingRequiredFields.map((field) => (
                         <span key={field} className="rounded-full border border-rose-200/20 bg-black/18 px-3 py-1 text-xs font-bold text-rose-100/80">{field}</span>
@@ -374,7 +394,7 @@ export function BaziCalculationCeremony({ phase, view, onOpenResult }: {
 
             {view?.unavailableOptionalFields && view.unavailableOptionalFields.length > 0 && (
               <div className="rounded-2xl border border-white/8 bg-white/[0.025] px-4 py-3">
-                <p className="text-sm font-black text-white/45">非必要或使用者未提供</p>
+                <p className="text-sm font-black text-white/45"><HomeTranslatedText text={"非必要或使用者未提供"} /></p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {view.unavailableOptionalFields.map((field) => (
                     <span key={field} className="rounded-full border border-white/10 bg-black/18 px-3 py-1 text-xs font-bold text-white/45">{field}</span>
@@ -396,11 +416,11 @@ export function BaziGateFailed({ issues, onRetry, onCheckInput }: { issues: stri
   const systemIssues = issues.filter((issue) => !issue.includes('｜'));
   return (
     <section className="rounded-[24px] border border-rose-300/25 bg-rose-500/[0.06] p-5 text-center sm:p-6">
-      <p className="text-lg font-black text-rose-100">命盤尚未完成</p>
-      <p className="mt-1 text-sm font-semibold text-white/55">台灣完整八字欄位仍有資料未接入，系統不會宣稱完整完成。</p>
+      <p className="text-lg font-black text-rose-100"><HomeTranslatedText text={"命盤尚未完成"} /></p>
+      <p className="mt-1 text-sm font-semibold text-white/55"><HomeTranslatedText text={"台灣完整八字欄位仍有資料未接入，系統不會宣稱完整完成。"} /></p>
       {fieldIssues.length > 0 && (
         <div className="mt-4 rounded-2xl border border-rose-200/15 bg-black/18 px-4 py-3 text-left">
-          <p className="text-sm font-black text-rose-100">需要逐項突破</p>
+          <p className="text-sm font-black text-rose-100"><HomeTranslatedText text={"需要逐項突破"} /></p>
           <div className="mt-2 flex flex-wrap gap-2">
             {fieldIssues.map((issue) => (
               <span key={issue} className="rounded-full border border-rose-200/20 bg-rose-300/[0.06] px-3 py-1 text-xs font-bold text-rose-100/85">{issue}</span>
@@ -412,8 +432,8 @@ export function BaziGateFailed({ issues, onRetry, onCheckInput }: { issues: stri
         <p className="mt-3 text-xs font-semibold leading-5 text-white/40">{systemIssues.join('；')}</p>
       )}
       <div className="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
-        <button type="button" onClick={onRetry} className="rounded-full border border-rose-200/40 bg-rose-300/12 px-8 py-3 text-sm font-black text-rose-50 transition hover:bg-rose-300/20">重新分析</button>
-        <button type="button" onClick={onCheckInput} className="rounded-full border border-white/15 bg-white/[0.05] px-8 py-3 text-sm font-black text-white/70 transition hover:text-white">檢查出生資料</button>
+        <button type="button" onClick={onRetry} className="rounded-full border border-rose-200/40 bg-rose-300/12 px-8 py-3 text-sm font-black text-rose-50 transition hover:bg-rose-300/20"><HomeTranslatedText text={"重新分析"} /></button>
+        <button type="button" onClick={onCheckInput} className="rounded-full border border-white/15 bg-white/[0.05] px-8 py-3 text-sm font-black text-white/70 transition hover:text-white"><HomeTranslatedText text={"檢查出生資料"} /></button>
       </div>
     </section>
   );

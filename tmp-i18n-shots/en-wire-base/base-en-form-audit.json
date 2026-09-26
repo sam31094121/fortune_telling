@@ -1,0 +1,328 @@
+{
+ "lang": "en",
+ "errors": [
+  "console: Failed to load resource: the server responded with a status of 404 (Not Found)"
+ ],
+ "steps": [
+  {
+   "name": "empty",
+   "files": [
+    "C:\\Users\\DRAGON\\Desktop\\命理\\tmp-i18n-shots\\en-wire-base\\base-en-form-empty.png",
+    "C:\\Users\\DRAGON\\Desktop\\命理\\tmp-i18n-shots\\en-wire-base\\base-en-form-empty-full.png"
+   ],
+   "cjk": [
+    {
+     "kind": "text",
+     "text": "返回首頁",
+     "tag": "a",
+     "lang": "zh-Hant"
+    },
+    {
+     "kind": "aria-label",
+     "text": "返回首頁",
+     "tag": "a"
+    }
+   ]
+  },
+  {
+   "name": "error",
+   "files": [
+    "C:\\Users\\DRAGON\\Desktop\\命理\\tmp-i18n-shots\\en-wire-base\\base-en-form-error.png",
+    "C:\\Users\\DRAGON\\Desktop\\命理\\tmp-i18n-shots\\en-wire-base\\base-en-form-error-full.png"
+   ],
+   "cjk": [
+    {
+     "kind": "text",
+     "text": "返回首頁",
+     "tag": "a",
+     "lang": "zh-Hant"
+    },
+    {
+     "kind": "aria-label",
+     "text": "返回首頁",
+     "tag": "a"
+    }
+   ]
+  },
+  {
+   "name": "filled",
+   "files": [
+    "C:\\Users\\DRAGON\\Desktop\\命理\\tmp-i18n-shots\\en-wire-base\\base-en-form-filled.png",
+    "C:\\Users\\DRAGON\\Desktop\\命理\\tmp-i18n-shots\\en-wire-base\\base-en-form-filled-full.png"
+   ],
+   "cjk": [
+    {
+     "kind": "text",
+     "text": "Zi (子)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Chou (丑)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Yin (寅)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Mao (卯)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Chen (辰)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Si (巳)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Wu (午)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Wei (未)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Shen (申)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "You (酉)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Xu (戌)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Hai (亥)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "返回首頁",
+     "tag": "a",
+     "lang": "zh-Hant"
+    },
+    {
+     "kind": "aria-label",
+     "text": "返回首頁",
+     "tag": "a"
+    }
+   ]
+  },
+  {
+   "name": "filled-options",
+   "files": [
+    "C:\\Users\\DRAGON\\Desktop\\命理\\tmp-i18n-shots\\en-wire-base\\base-en-form-filled-options.png",
+    "C:\\Users\\DRAGON\\Desktop\\命理\\tmp-i18n-shots\\en-wire-base\\base-en-form-filled-options-full.png"
+   ],
+   "cjk": [
+    {
+     "kind": "text",
+     "text": "Zi (子)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Chou (丑)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Yin (寅)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Mao (卯)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Chen (辰)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Si (巳)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Wu (午)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Wei (未)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Shen (申)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "You (酉)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Xu (戌)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "Hai (亥)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "返回首頁",
+     "tag": "a",
+     "lang": "zh-Hant"
+    },
+    {
+     "kind": "aria-label",
+     "text": "返回首頁",
+     "tag": "a"
+    }
+   ]
+  },
+  {
+   "name": "person2",
+   "files": [
+    "C:\\Users\\DRAGON\\Desktop\\命理\\tmp-i18n-shots\\en-wire-base\\base-en-form-person2.png",
+    "C:\\Users\\DRAGON\\Desktop\\命理\\tmp-i18n-shots\\en-wire-base\\base-en-form-person2-full.png"
+   ],
+   "cjk": [
+    {
+     "kind": "text",
+     "text": "返回首頁",
+     "tag": "a",
+     "lang": "zh-Hant"
+    },
+    {
+     "kind": "aria-label",
+     "text": "返回首頁",
+     "tag": "a"
+    }
+   ]
+  },
+  {
+   "name": "confirm",
+   "files": [
+    "C:\\Users\\DRAGON\\Desktop\\命理\\tmp-i18n-shots\\en-wire-base\\base-en-form-confirm.png",
+    "C:\\Users\\DRAGON\\Desktop\\命理\\tmp-i18n-shots\\en-wire-base\\base-en-form-confirm-full.png"
+   ],
+   "cjk": [
+    {
+     "kind": "text",
+     "text": "王小明",
+     "tag": "span",
+     "lang": "zh-Hant"
+    },
+    {
+     "kind": "text",
+     "text": "Wu (午)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "陳美玲",
+     "tag": "span",
+     "lang": "zh-Hant"
+    },
+    {
+     "kind": "text",
+     "text": "返回首頁",
+     "tag": "a",
+     "lang": "zh-Hant"
+    },
+    {
+     "kind": "aria-label",
+     "text": "返回首頁",
+     "tag": "a"
+    }
+   ]
+  },
+  {
+   "name": "confirm-lower",
+   "files": [
+    "C:\\Users\\DRAGON\\Desktop\\命理\\tmp-i18n-shots\\en-wire-base\\base-en-form-confirm-lower.png",
+    "C:\\Users\\DRAGON\\Desktop\\命理\\tmp-i18n-shots\\en-wire-base\\base-en-form-confirm-lower-full.png"
+   ],
+   "cjk": [
+    {
+     "kind": "text",
+     "text": "王小明",
+     "tag": "span",
+     "lang": "zh-Hant"
+    },
+    {
+     "kind": "text",
+     "text": "Wu (午)",
+     "tag": "span",
+     "lang": "en"
+    },
+    {
+     "kind": "text",
+     "text": "陳美玲",
+     "tag": "span",
+     "lang": "zh-Hant"
+    },
+    {
+     "kind": "text",
+     "text": "返回首頁",
+     "tag": "a",
+     "lang": "zh-Hant"
+    },
+    {
+     "kind": "aria-label",
+     "text": "返回首頁",
+     "tag": "a"
+    }
+   ]
+  }
+ ]
+}

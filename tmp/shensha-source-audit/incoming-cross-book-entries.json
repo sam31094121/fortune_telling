@@ -1,0 +1,183 @@
+{
+  "capturedAt": "2026-09-25T18:11:00.733Z",
+  "hash": "60F958BA8A232BD074E39E14FFEB6251EB0D7795B2AB2014E8047BD28DEA0DFD",
+  "note": "合併前原始登記快照，內含待校正分類與轉錄字；不是目前來源狀態。",
+  "claims": [
+    {
+      "claim_id": "C-BAZI-SHENSHA-TIANYI",
+      "title": "天乙｜增訂命理探原指定取法",
+      "domain": "八字知識",
+      "files": [
+        "lib/bazi/engine.ts",
+        "docs/技能戰鬥檔案/八字/神煞逐條對照.md"
+      ],
+      "authority_files": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION"
+      ],
+      "big_data_sources": [
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
+      "cross_references": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
+      "conflicts": [
+        {
+          "topic": "天乙貴人：固定古歌表（日主）與晝夜／陰陽分取、年支起例",
+          "sources": [
+            "S-GUJIN-V470-SANMING-SCAN",
+            "S-GUJIN-V468-ZHANGGUO-SCAN",
+            "S-MINGLI-TANYUAN-1937-SCAN"
+          ],
+          "difference": "三命通會稱「甲戊庚牛羊之歌則泥而不通」，並載晝生取晝貴、夜生取夜貴及以年支查月日時干之例；張果星宗亦分列晝貴（天乙）與夜貴（玉堂）。命理探原則以日為主，兩貴並取，不分晝夜。同一命盤可得不同結果。",
+          "adopted": "預設仍採命理探原卷上63頁日主古歌表（引擎V5不改）；因分歧未解，頁面暫不提供天乙。",
+          "reason": "已核原頁的同範圍取法會產生不同命中結果，依守門規則列CONFLICT阻擋。",
+          "citations": [
+            {
+              "book": "三命通會（古今圖書集成藝術典第599卷收錄）",
+              "locator": "〈論天乙貴人〉；第470冊 djvu 第63頁",
+              "quote": "甲戊庚牛羊之歌則泥而不通矣此說就以天星論尤為有理今六壬選擇諸術或分陰陽或分晝夜蓋本此二說",
+              "url": "https://zh.wikisource.org/wiki/Page:Gujin_Tushu_Jicheng,_Volume_470_(1700-1725).djvu/63",
+              "verification": "已核掃描原頁"
+            },
+            {
+              "book": "三命通會（古今圖書集成藝術典第599卷收錄）",
+              "locator": "〈論天乙貴人〉；第470冊 djvu 第64頁",
+              "quote": "假如丑未生人月日時得甲戊庚是遇正天乙",
+              "url": "https://zh.wikisource.org/wiki/Page:Gujin_Tushu_Jicheng,_Volume_470_(1700-1725).djvu/64",
+              "verification": "已核掃描原頁"
+            },
+            {
+              "book": "張果星宗（古今圖書集成藝術典第568卷收錄）",
+              "locator": "諸星起例「天乙」「玉堂」；第468冊 djvu 第33頁",
+              "quote": "天乙貴人者即晝貴人也……玉堂貴人者即夜貴人也",
+              "url": "https://zh.wikisource.org/wiki/Page:Gujin_Tushu_Jicheng,_Volume_468_(1700-1725).djvu/33",
+              "verification": "已核掃描原頁；七政四餘系統旁證"
+            },
+            {
+              "book": "增訂命理探原（1937訂正本）",
+              "locator": "卷上 強弱 天乙，第63頁",
+              "quote": "以日為主。如甲日見丑見未。戊日見丑見未皆是。",
+              "url": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf",
+              "verification": "已核掃描原頁（同 S-MINGLI-TANYUAN-1937-SCAN）"
+            }
+          ]
+        }
+      ],
+      "status": "CONFLICT",
+      "note": "天乙：1937卷上62–63頁古歌及日主法，日干查四柱支；不混晝夜貴。 依來源治理第4節做原典、可靠版本、研究圖書館書目三類核對，非三份獨立研究。對讀及算法驗收見神煞逐條對照.md；不替吉凶斷語、老師解讀或預測準確性背書。 VERIFIED只適用上述指定版本取法，不代表跨書共識；跨書已核異說與待校勘資料分列comparisons，任何本取法內未解衝突仍列conflicts並阻擋。 本書已核不保證ready；2026-09-26使用者定案的顯示政策：已確認同範圍跨書分歧亦暫停，另列outputStatus=BLOCKED_VARIANT，不偽造本書內CONFLICT。 本站預設採袁樹珊《增訂命理探原》取法，頁面標示「採袁樹珊《增訂命理探原》」。",
+      "verification_scope": "SELECTED_EDITION",
+      "selected_method": {
+        "title": "增訂命理探原",
+        "edition": "1937訂正本；1938再版本對讀",
+        "ruleVersion": "MINGLI_TANYUAN_SHENSHA_V5",
+        "summary": "日干查四柱支，依本書古歌固定表，不分晝夜。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf?page=93#file",
+        "printedPage": "62–63"
+      },
+      "comparisons": [
+        {
+          "status": "DOCUMENTED_VARIANT",
+          "title": "三命通會：晝夜／陰陽貴人",
+          "detail": "卷三並述晝夜、陰陽分取：同一天干按晝夜選貴位，可能與袁本不分晝夜的合併固定表得出不同命中，屬同一命例可有不同答案的取法分歧。本書驗證保留，依顯示政策暫不提供天乙。",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC416-13jh000156-94145_三命通會.pdf?page=154#file",
+          "locator": "1926文明書局本，卷三12–13；PDF154–155"
+        }
+      ]
+    },
+    {
+      "claim_id": "C-BAZI-SHENSHA-WENCHANG",
+      "title": "文昌｜增訂命理探原指定取法",
+      "domain": "八字知識",
+      "files": [
+        "lib/bazi/engine.ts",
+        "docs/技能戰鬥檔案/八字/神煞逐條對照.md"
+      ],
+      "authority_files": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION"
+      ],
+      "big_data_sources": [
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
+      "cross_references": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
+      "conflicts": [
+        {
+          "topic": "文昌貴人：各書查表值不同",
+          "sources": [
+            "S-GUJIN-V470-SANMING-SCAN",
+            "S-GUJIN-V468-ZHANGGUO-SCAN",
+            "S-XINGXUE-DACHENG-SKQS-TRANSCRIPT",
+            "S-MINGLI-TANYUAN-1937-SCAN"
+          ],
+          "difference": "三命通會文昌貴為甲蛇(巳)乙猪(亥)丙狗(戌)丁龍(辰)戊猴(申)己午庚寅辛未壬卯癸牛(丑)，與命理探原表大部分不同；張果星宗「辛犬」、星學大成「以戌為文昌」，辛干取戌，命理探原「辛鼠」取子。",
+          "adopted": "預設仍採命理探原卷上63頁：甲巳、乙午、丙戊申、丁己酉、庚亥、辛子、壬寅、癸卯（引擎V5不改）；因分歧未解，頁面暫不提供文昌。",
+          "reason": "已核原頁表值互異，屬同一神煞不同查表結果，依守門規則列CONFLICT阻擋。",
+          "citations": [
+            {
+              "book": "三命通會（古今圖書集成藝術典第599卷收錄）",
+              "locator": "〈論太極貴〉附文昌貴；第470冊 djvu 第66頁",
+              "quote": "有文昌貴甲人蛇口乙猪頭丙狗丁龍戊向猴己午庚寅辛未貴六壬卯位癸逢牛",
+              "url": "https://zh.wikisource.org/wiki/Page:Gujin_Tushu_Jicheng,_Volume_470_(1700-1725).djvu/66",
+              "verification": "已核掃描原頁"
+            },
+            {
+              "book": "張果星宗（古今圖書集成藝術典第568卷收錄）",
+              "locator": "諸星起例「文昌」；第468冊 djvu 第33頁",
+              "quote": "甲乙巳午報君知　丙戊申宮丁巳雞　庚猪辛犬壬逢虎　癸人見兔入雲梯",
+              "url": "https://zh.wikisource.org/wiki/Page:Gujin_Tushu_Jicheng,_Volume_468_(1700-1725).djvu/33",
+              "verification": "已核掃描原頁；七政四餘系統旁證"
+            },
+            {
+              "book": "星學大成（四庫全書本）",
+              "locator": "卷一〈論文昌〉",
+              "quote": "獨辛不以生而以戌為文昌",
+              "url": "https://zh.wikisource.org/wiki/星學大成_(四庫全書本)/卷01",
+              "verification": "僅轉錄，未核掃描"
+            },
+            {
+              "book": "增訂命理探原（1937訂正本）",
+              "locator": "卷上 文昌，第63頁",
+              "quote": "甲乙巳午報君知。丙戊申宮丁巳雞。庚猪辛鼠壬逢虎。癸人見兔入雲梯。以日為主。",
+              "url": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf",
+              "verification": "已核掃描原頁（同 S-MINGLI-TANYUAN-1937-SCAN）"
+            }
+          ]
+        }
+      ],
+      "status": "CONFLICT",
+      "note": "文昌：卷上63–64頁日干查四柱支；甲巳、乙午、丙戊申、丁己酉、庚亥、辛子、壬寅、癸卯。己／巳轉錄疑字依兩版原頁及同段食神說明核對。 依來源治理第4節做原典、可靠版本、研究圖書館書目三類核對，非三份獨立研究。對讀及算法驗收見神煞逐條對照.md；不替吉凶斷語、老師解讀或預測準確性背書。 VERIFIED只適用上述指定版本取法，不代表跨書共識；跨書已核異說與待校勘資料分列comparisons，任何本取法內未解衝突仍列conflicts並阻擋。 本書已核不保證ready；2026-09-26使用者定案的顯示政策：已確認同範圍跨書分歧亦暫停，另列outputStatus=BLOCKED_VARIANT，不偽造本書內CONFLICT。 本站預設採袁樹珊《增訂命理探原》取法，頁面標示「採袁樹珊《增訂命理探原》」。",
+      "verification_scope": "SELECTED_EDITION",
+      "selected_method": {
+        "title": "增訂命理探原",
+        "edition": "1937訂正本；1938再版本對讀",
+        "ruleVersion": "MINGLI_TANYUAN_SHENSHA_V5",
+        "summary": "日干查四柱支：甲巳乙午、丙戊申、丁己酉、庚亥辛子、壬寅癸卯。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf?page=94#file",
+        "printedPage": "63–64"
+      },
+      "comparisons": [
+        {
+          "status": "PENDING_COLLATION",
+          "title": "三命通會：文昌／文星異名待校勘",
+          "detail": "網路通行文本列文昌貴與文星貴兩名，轉錄有疑字；本輪掃描原頁尚未核實該段，不將其標成已證實表值差異。",
+          "sourceUrl": "https://zh.wikisource.org/zh-hant/三命通會/卷三",
+          "locator": "通行轉錄卷三；候選文字，尚無對應掃描原頁"
+        },
+        {
+          "status": "DOCUMENTED_VARIANT",
+          "title": "三命通會：文昌貴表值不同（原頁已核）",
+          "detail": "古今圖書集成收錄三命通會〈論太極貴〉附文昌貴：甲巳、乙亥、丙戌、丁辰、戊申、己午、庚寅、辛未、壬卯、癸丑，與袁本表值多處不同；另張果星宗辛取戌。詳見conflicts。",
+          "sourceUrl": "https://zh.wikisource.org/wiki/Page:Gujin_Tushu_Jicheng,_Volume_470_(1700-1725).djvu/66",
+          "locator": "古今圖書集成藝術典第599卷，第470冊djvu第66頁"
+        }
+      ]
+    }
+  ]
+}

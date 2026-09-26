@@ -125,6 +125,51 @@ const HOME_COMPONENT_CHECKS = [
 // of every health scan. These tests use synthetic sensor values only.
 const BEHAVIOR_CHECKS = [
   {
+    id: 'BAZI_ZIWEI_SHARED_PILLARS',
+    module: 'bazi_ziwei_shared_pillars',
+    title: '八字與紫微共用四柱、日期與未知時辰交叉核對',
+    path: '/dual-chart',
+    script: 'test:bazi-ziwei-cross',
+    timeoutMs: 60000,
+  },
+  {
+    id: 'BAZI_OUTPUT_CONSISTENCY',
+    module: 'bazi_output_consistency',
+    title: '八字逐項輸出、進度勾選與校驗範圍一致',
+    path: '/bazi',
+    script: 'test:bazi-output-availability',
+  },
+  {
+    id: 'BAZI_SERVICE_AVAILABILITY',
+    module: 'bazi_service_availability',
+    title: '八字神煞、老師判讀與配對補強實際放行狀態',
+    path: '/bazi',
+    script: 'check:bazi-service-health',
+  },
+  {
+    id: 'BAZI_SHENSHA_LIVE_FLOW',
+    module: 'bazi_shensha_live_flow',
+    title: '神煞出生資料到真實API與四柱顯示的固定命例核對',
+    path: '/dual-chart',
+    script: 'test:shensha-live-api',
+    timeoutMs: 120000,
+  },
+  {
+    id: 'BAZI_SOURCE_REGISTRY_COMPLETE',
+    module: 'bazi_source_registry',
+    title: '八字來源登記完整性（未驗證或缺古籍來源即失敗）',
+    path: '/dual-chart',
+    script: 'check:bazi-registry-completeness',
+  },
+  {
+    // 「擋得對」(test:bazi-traditional-gate) 不能代替「功能完整」：任一客戶功能未放行即失敗並列名。
+    id: 'BAZI_FEATURE_COMPLETE',
+    module: 'bazi_feature_complete',
+    title: '八字客戶功能完整（排盤、五項神煞、老師判讀、五神、紅鸞皆須放行）',
+    path: '/bazi',
+    script: 'test:bazi-feature-complete',
+  },
+  {
     id: 'HOME_TAIJI_LEVEL01_MOTION',
     module: 'taiji_level_01_motion',
     title: '第一層太極手機感測、慣性、水平儀與回場',
@@ -276,6 +321,18 @@ const BEHAVIOR_CHECKS = [
     script: 'test:three-in-one',
   },
   {
+    id: 'THREE_CORE_TRADITIONAL_DEFECTS',
+    module: 'three_core_traditional_defects',
+    title: '三核心原典缺陷：禁止以流程通過代替算法正確',
+    script: 'check:three-core-traditional-health',
+  },
+  {
+    id: 'MEIHUA_ORIGINAL_CASES',
+    module: 'meihua_original_cases',
+    title: '梅花原典取數算例（不代表生辰流程已核實）',
+    script: 'test:meihua-original-cases',
+  },
+  {
     // 路由 200 不代表客戶填得進去：2026-09-15 正式站手機上，生日一湊齊元件就重掛、
     // 鍵盤收掉，後面打的字全部消失，健檢卻照樣綠燈。這一項用真的 Chrome、手機寬度逐鍵走完整張表。
     id: 'ZIWEI_FORM_FILL',
@@ -290,7 +347,7 @@ const BEHAVIOR_CHECKS = [
     // 2026-09-15 Gemini 月度花費上限用完，全站老師都在走後備，健檢卻綠燈。
     id: 'AI_TEACHER_AVAILABILITY',
     module: 'ai_teacher_availability',
-    title: '易經老師本機運算：完整解讀、缺項驗證與 Google 零外送',
+    title: '紫微老師輸出與八字後端校驗契約（不代表八字進階服務可用）',
     script: 'test:ai-teacher-availability',
     timeoutMs: 40000,
   },
@@ -573,6 +630,49 @@ async function checkHealthScript(check) {
   }
 }
 
+// 神煞列畫面檢查：非阻斷。以真實 calculateDualChart＋真實閘門渲染雙命盤 PillarGrid，
+// 神煞格只顯示「尚待核對／暫未提供／資料待補」或佔位內容時回報 WARNING，不讓 report.ok 變 false。
+// 檢查本身跑不起來也只記 WARNING（附原因），因為這一項定位是提醒，不是放行門檻。
+async function checkDualChartShenShaDisplay() {
+  const check = {
+    id: 'DUAL_CHART_SHENSHA_DISPLAY',
+    module: 'dual_chart_shensha_display',
+    title: '雙命盤四柱神煞列實際顯示（只提醒，不阻斷）',
+    path: '/dual-chart',
+  };
+  const startedAt = Date.now();
+  let stdout = '';
+  let runError = null;
+  try {
+    ({ stdout } = await execFileAsync(process.execPath, ['scripts/dual-chart-shensha-display-check.cjs'], {
+      cwd: PROJECT_ROOT, windowsHide: true, timeout: 120000, maxBuffer: 1024 * 1024,
+    }));
+  } catch (error) {
+    stdout = error && typeof error.stdout === 'string' ? error.stdout : '';
+    runError = error instanceof Error ? error.message : String(error);
+  }
+  const jsonLine = stdout.split(/\r?\n/).reverse().find((line) => line.startsWith('SHENSHA_DISPLAY_JSON:'));
+  let parsed = null;
+  try {
+    parsed = jsonLine ? JSON.parse(jsonLine.slice('SHENSHA_DISPLAY_JSON:'.length)) : null;
+  } catch {
+    parsed = null;
+  }
+  const warnings = parsed ? parsed.warnings : [`檢查無法執行：${runError || '沒有輸出結果'}`];
+  return {
+    ...check,
+    status: warnings.length ? 'WARNING' : 'PASSED',
+    sourcePath: 'app/dual-chart/BaziChart.tsx',
+    httpStatus: null,
+    durationMs: Date.now() - startedAt,
+    htmlLength: 0,
+    error: null,
+    issue: warnings.length ? warnings.join('；') : null,
+    warnings,
+    output: stdout.trim().slice(-2000),
+  };
+}
+
 async function scanScreenHealth() {
   const startedAt = nowIso();
   const routes = [];
@@ -623,7 +723,13 @@ async function scanScreenHealth() {
     await log(`${result.status} ${result.title} health verification (${result.durationMs}ms)`, result.status === 'PASSED' ? 'INFO' : 'WARN');
   }
 
-  const failed = routes.filter((route) => route.status !== 'PASSED');
+  const shenShaDisplay = await checkDualChartShenShaDisplay();
+  routes.push(shenShaDisplay);
+  await log(`${shenShaDisplay.status} ${shenShaDisplay.title} (${shenShaDisplay.durationMs}ms)${shenShaDisplay.issue ? `: ${shenShaDisplay.issue}` : ''}`, shenShaDisplay.status === 'PASSED' ? 'INFO' : 'WARN');
+
+  // WARNING 只提醒、不算失敗：不影響 report.ok，也不會觸發任何復原。
+  const warned = routes.filter((route) => route.status === 'WARNING');
+  const failed = routes.filter((route) => route.status !== 'PASSED' && route.status !== 'WARNING');
   return {
     ok: failed.length === 0,
     version: 'screen-health-monitor-v1',
@@ -636,11 +742,18 @@ async function scanScreenHealth() {
     autoRepair: AUTO_REPAIR,
     summary: {
       total: routes.length,
-      passed: routes.length - failed.length,
+      passed: routes.length - failed.length - warned.length,
       failed: failed.length,
+      warnings: warned.length,
       screenStatus: failed.length === 0 ? 'HEALTHY' : 'UNHEALTHY',
     },
     failedRoutes: failed.map((route) => ({
+      id: route.id,
+      title: route.title,
+      path: route.path,
+      issue: route.issue,
+    })),
+    warningRoutes: warned.map((route) => ({
       id: route.id,
       title: route.title,
       path: route.path,
@@ -803,7 +916,7 @@ async function runOnce() {
   }
 
   await writeReport(report);
-  await log(`Screen health result: ${report.summary.screenStatus} (${report.summary.passed}/${report.summary.total})`, report.ok ? 'SUCCESS' : 'ERROR');
+  await log(`Screen health result: ${report.summary.screenStatus} (${report.summary.passed}/${report.summary.total}, warnings ${report.summary.warnings ?? 0})`, report.ok ? 'SUCCESS' : 'ERROR');
   return report;
 }
 

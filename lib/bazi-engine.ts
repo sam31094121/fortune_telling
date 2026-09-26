@@ -1,6 +1,7 @@
 import { getShichenInfo } from './shichen-engine';
 import { computeDetail } from './bazi-detail';
 import type { BaziDetail } from './bazi-detail';
+import { assertReusableExactBaziCore } from './bazi-reuse';
 import { createBaziCore, type BaziBirthInput, type BaziPillarModel, type Branch as CoreBranch } from './bazi/engine';
 
 const HEAVENLY_STEMS = ['\u7532', '\u4e59', '\u4e19', '\u4e01', '\u620a', '\u5df1', '\u5e9a', '\u8f9b', '\u58ec', '\u7678'] as const;
@@ -907,8 +908,10 @@ function buildCoreProfessionalChart(input: BaziAnalysisInput, core: ReturnType<t
   } as BaziProfessionalChart;
 }
 
-export function analyzeBazi(input: BaziAnalysisInput): BaziAnalysisResult {
-  const core = createBaziCore(toTraditionalCoreInput(input));
+export function analyzeBazi(input: BaziAnalysisInput, existingCore?: ReturnType<typeof createBaziCore>): BaziAnalysisResult {
+  const coreInput = toTraditionalCoreInput(input);
+  if (existingCore) assertReusableExactBaziCore(coreInput, existingCore);
+  const core = existingCore ?? createBaziCore(coreInput);
   const professionalChart = buildCoreProfessionalChart(input, core);
   const aiDeepAnalysis = buildDeepAnalysis(professionalChart);
   const aiReinforcementPlan = buildReinforcementPlan(aiDeepAnalysis);

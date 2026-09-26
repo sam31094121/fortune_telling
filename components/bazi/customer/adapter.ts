@@ -70,6 +70,7 @@ export interface BaziTraditionalGateView {
 
 export interface BaziCustomerView {
   name: string;
+  birthInput?: { birthDate: string; birthTime: string; gender: string; calendarType: 'solar'; timezone: 'Asia/Taipei'; timeUnknown: boolean };
   birthSummary: string;
   hourUnknown: boolean;
   dayMaster: { stem: string; element: string; level: string };
@@ -128,7 +129,7 @@ type BackendResult = {
     professionalSignals: { dayMaster: string; structure: string; elementFocus: string };
   };
   professionalChart: {
-    calendar: { birthTime: string; shichen: { label: string; range: string } };
+    calendar: { birthTime: string; solarDate?: string; shichen: { label: string; range: string } };
     elementStatistics: { percentages: Record<string, number> };
     fiveElementTenGodMap?: Record<string, string[]>;
     strengthFactors: Array<{ id: string; label: string; status: string; score: number; detail: string }>;
@@ -212,6 +213,8 @@ export function toBaziCustomerView(result: BackendResult, hourUnknown: boolean):
   };
   return {
     name: result.input?.name || '',
+    birthInput: pc.calendar.solarDate ? { birthDate: pc.calendar.solarDate, birthTime: pc.calendar.birthTime,
+      gender: result.input?.gender || '', calendarType: 'solar', timezone: 'Asia/Taipei', timeUnknown: hourUnknown } : undefined,
     birthSummary: `${result.input?.birthDate ?? ''} · ${hourUnknown ? '時辰未提供' : `${pc.calendar.birthTime}（${pc.calendar.shichen.label}）`} · ${result.input?.gender === 'male' ? '男' : '女'}`,
     hourUnknown,
     dayMaster: result.dayMaster,

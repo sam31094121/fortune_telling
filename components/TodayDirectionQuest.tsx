@@ -701,7 +701,6 @@ export default function TodayDirectionQuest() {
           </div>
         )}
 
-        <p className={styles.disclaimer}>文化探索・非心理診斷或確定預測</p>
       </div>
     </section>
   );

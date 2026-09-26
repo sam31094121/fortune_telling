@@ -1,6 +1,7 @@
 import type { BaziAnalysisInput, BaziAnalysisResult } from './bazi-engine';
+import { assertReusableExactBaziCore } from './bazi-reuse';
 import { createBaziCore, type BaziBirthInput, type BaziProfessionalResult, type Branch, type Element, type TenGod } from './bazi/engine';
-import { getBaziTraditionalOutputGate } from './bazi-traditional-gate';
+import { getBaziTraditionalOutputGate, type BaziTraditionalOutputGate } from './bazi-traditional-gate';
 
 export type BaziRuntimeInput = BaziAnalysisInput & {
   calculationId?: string;
@@ -12,7 +13,7 @@ export type BaziRuntimeInput = BaziAnalysisInput & {
   isLeapMonth?: boolean;
 };
 
-type BaziFieldCondition = 'VALID_VALUE' | 'USER_NOT_PROVIDED' | 'CORE_NOT_SUPPORTED' | 'CALCULATION_FAILED' | 'MAPPING_MISSING' | 'OPTIONAL_NOT_AVAILABLE';
+type BaziFieldCondition = 'VALID_VALUE' | 'USER_NOT_PROVIDED' | 'CORE_NOT_SUPPORTED' | 'CALCULATION_FAILED' | 'MAPPING_MISSING' | 'OPTIONAL_NOT_AVAILABLE' | 'OUTPUT_WITHHELD' | 'NOT_EVALUATED';
 export type BaziPipelineState =
   | 'INPUT_RECEIVED'
   | 'INPUT_VALIDATED'
@@ -241,6 +242,8 @@ function buildFiveElementTenGodMap(core: BaziProfessionalResult): Record<Element
 }
 
 function buildFieldTraces(core: BaziProfessionalResult, professionalChart: Record<string, unknown>, partial: boolean, calculationId: string): V5FieldTrace[] {
+  const gate = professionalChart.traditionalInterpretationGate as BaziTraditionalOutputGate | undefined;
+  const hasShenShaOutput = gate?.coreReady && Object.values(gate.shenShaRules ?? {}).some(rule => rule.ready);
   return REQUIRED_V5_FIELDS.map((entry) => {
     const dataConditionSkip = partial && ['mingGong'].includes(entry.field);
     const coreValue = getPath({ core }, entry.sourcePath);
@@ -258,8 +261,12 @@ function buildFieldTraces(core: BaziProfessionalResult, professionalChart: Recor
       core: hasValue(coreValue) ? 'VALID_VALUE' : dataConditionSkip ? 'OPTIONAL_NOT_AVAILABLE' : 'CALCULATION_FAILED',
       professionalResult: status,
       api: status === 'VALID_VALUE' ? 'VALID_VALUE' : status,
-      adapter: status === 'VALID_VALUE' ? 'VALID_VALUE' : status,
-      frontend: status === 'VALID_VALUE' ? 'VALID_VALUE' : status,
+      // This runs on the server before the adapter or React view executes.
+      adapter: status === 'VALID_VALUE' ? 'NOT_EVALUATED' : status,
+      frontend: status !== 'VALID_VALUE' ? status
+        : entry.field === 'shenSha' && !hasShenShaOutput
+          ? 'OUTPUT_WITHHELD'
+          : 'NOT_EVALUATED',
     };
   });
 }
@@ -275,7 +282,7 @@ function summarizeCompleteness(fieldTraces: V5FieldTrace[]) {
   };
 }
 
-export function attachBaziProfessionalCoreV5<T extends BaziAnalysisResult>(result: T, input: BaziRuntimeInput): T {
+export function attachBaziProfessionalCoreV5<T extends BaziAnalysisResult>(result: T, input: BaziRuntimeInput, existingCore?: BaziProfessionalResult): T {
   const calculationId = createCalculationId(input);
   const fingerprint = birthInputFingerprint(input);
   const pipeline = createPipelineRecorder(calculationId, fingerprint);
@@ -284,7 +291,8 @@ export function attachBaziProfessionalCoreV5<T extends BaziAnalysisResult>(resul
   const coreInput = toCoreInput(input);
   pipeline.advance('INPUT_NORMALIZED');
   pipeline.advance('CORE_PROCESSING');
-  const core = createBaziCore(coreInput);
+  if (existingCore) assertReusableExactBaziCore(coreInput, existingCore);
+  const core = existingCore ?? createBaziCore(coreInput);
   pipeline.advance('CORE_COMPLETED');
   const partial = core.chartMode === 'PARTIAL_BAZI';
   const professionalChart = result.professionalChart as unknown as Record<string, unknown>;

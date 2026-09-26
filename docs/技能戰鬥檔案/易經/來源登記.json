@@ -1481,7 +1481,11 @@
       "domain": "易經知識",
       "files": [
         "lib/iching-numbers.ts",
-        "data/iching-number-map.json"
+        "data/iching-number-map.json",
+        "docs/技能戰鬥檔案/易經/三核心功能清點.md",
+        "docs/技能戰鬥檔案/易經/三核心原典對照研究.md",
+        "docs/技能戰鬥檔案/易經/梅花年月日時原典算例.json",
+        "docs/技能戰鬥檔案/易經/禁止正式使用清單.json"
       ],
       "authority_files": [
         "S-ZHOUYI-BENYI",
@@ -1695,7 +1699,8 @@
         "lib/red-luan-return-visit.ts",
         "lib/red-luan-public-access.ts",
         "lib/red-luan-engineering-audit.ts",
-        "docs/red-luan-engineering-audit.md"
+        "docs/red-luan-engineering-audit.md",
+        "lib/korean-copy/pages/red-luan-heartbeat.ts"
       ],
       "authority_files": [
         "S-APA-DICTIONARY"
@@ -1720,7 +1725,7 @@
       ],
       "conflicts": [],
       "status": "PENDING_POOL",
-      "note": "有統合分析支持：單純曝光（但呈倒 U，不是越多越好）、意圖—行動落差、執行意圖、自我揭露與好感。證據弱：富蘭克林效應（1969 單一小研究＋概念性重複）、支持動員（僅相關研究）、接近性（單一場域相關研究）。吊橋實驗（錯誤歸因激發）有四次重複失敗與統合分析的另一種解釋，本卡不用在客戶文字與機制欄位。客戶文字只講傾向，不講確定會遇到誰。"
+      "note": "有統合分析支持：單純曝光（但呈倒 U，不是越多越好）、意圖—行動落差、執行意圖、自我揭露與好感。證據弱：富蘭克林效應（1969 單一小研究＋概念性重複）、支持動員（僅相關研究）、接近性（單一場域相關研究）。吊橋實驗（錯誤歸因激發）有四次重複失敗與統合分析的另一種解釋，本卡不用在客戶文字與機制欄位。客戶文字只講傾向，不講確定會遇到誰。 韓文紅鸞顯示字典沿用相同待核主張，登記不代表翻譯或原主張通過，不作新增算法依據。"
     }
   ]
 }

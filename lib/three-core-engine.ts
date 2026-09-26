@@ -61,6 +61,8 @@ export interface ThreeCoreInput {
   /** 國曆 YYYY-MM-DD */
   birthDate: string;
   gender: 'male' | 'female';
+  /** Optional exact Taiwan-standard time; keep 23:xx distinct from 00:xx. */
+  birthTime?: string | null;
   /**
    * 時辰地支索引，0＝子 … 11＝亥。
    * null／undefined 代表「不知道時辰」——此時不會代填任何值。
@@ -134,7 +136,7 @@ export interface ThreeCoreCrossCheckItem {
 
 export interface ThreeCoreResult {
   engine: typeof THREE_CORE_ENGINE;
-  timePrecision: 'TRADITIONAL_HOUR' | 'UNKNOWN_TIME';
+  timePrecision: 'EXACT_TIME' | 'TRADITIONAL_HOUR' | 'UNKNOWN_TIME';
   bazi: ThreeCoreBaziLayer;
   ziwei: ThreeCoreZiweiLayer;
   iching: ThreeCoreIChingLayer;
@@ -150,6 +152,14 @@ export interface ThreeCoreResult {
 
 function isKnownHour(index: number | null | undefined): index is number {
   return typeof index === 'number' && Number.isInteger(index) && index >= 0 && index <= 11;
+}
+
+function inputHourIndex(input: ThreeCoreInput): number | null {
+  if (!input.birthTime) return isKnownHour(input.hourBranchIndex) ? input.hourBranchIndex : null;
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(input.birthTime)) throw new Error('THREE_CORE_INVALID_EXACT_TIME');
+  const index = Math.floor((Number(input.birthTime.slice(0, 2)) + 1) / 2) % 12;
+  if (input.hourBranchIndex !== undefined && input.hourBranchIndex !== index) throw new Error('THREE_CORE_TIME_INPUT_MISMATCH');
+  return index;
 }
 
 /** 只計年月日三柱：時辰未知時，四柱版會含推估時柱，不能拿給客戶看。 */
@@ -191,7 +201,7 @@ export function runBaziLayer(input: ThreeCoreInput): {
   core: BaziProfessionalResult;
   bazi: ThreeCoreBaziLayer;
 } {
-  const hourIndex = isKnownHour(input.hourBranchIndex) ? input.hourBranchIndex : null;
+  const hourIndex = inputHourIndex(input);
   const hourKnown = hourIndex !== null;
   const hourBranch = hourKnown ? (BRANCHES[hourIndex] as Branch) : null;
 
@@ -200,7 +210,8 @@ export function runBaziLayer(input: ThreeCoreInput): {
     birthDate: input.birthDate,
     calendarType: 'SOLAR',
     birthTimeKnown: hourKnown,
-    traditionalHour: hourBranch ?? undefined,
+    birthTime: input.birthTime || undefined,
+    traditionalHour: input.birthTime ? undefined : hourBranch ?? undefined,
     timezone: 'Asia/Taipei',
   });
 
@@ -228,8 +239,8 @@ export function runBaziLayer(input: ThreeCoreInput): {
 }
 
 /** 第二層：紫微斗數。消費第一層；時辰未知時不硬排命宮。 */
-export function runZiweiLayer(input: ThreeCoreInput): ThreeCoreZiweiLayer {
-  const hourIndex = isKnownHour(input.hourBranchIndex) ? input.hourBranchIndex : null;
+export function runZiweiLayer(input: ThreeCoreInput, existingCore?: BaziProfessionalResult): ThreeCoreZiweiLayer {
+  const hourIndex = inputHourIndex(input);
   if (hourIndex === null) {
     return {
       status: 'UNAVAILABLE_BIRTH_TIME_REQUIRED',
@@ -240,12 +251,12 @@ export function runZiweiLayer(input: ThreeCoreInput): ThreeCoreZiweiLayer {
     status: 'READY',
     analysis: calculateZiweiSanFang({
       birthDate: input.birthDate,
-      birthTime: `${String(hourIndex === 0 ? 0 : hourIndex * 2 - 1).padStart(2, '0')}:30`,
+      birthTime: input.birthTime || `${String(hourIndex === 0 ? 0 : hourIndex * 2 - 1).padStart(2, '0')}:30`,
       gender: input.gender,
       shichen: hourIndex,
       isTimeConfirmed: true,
       longitude: input.longitude ?? null,
-    }),
+    }, input.birthTime && input.longitude == null ? existingCore : undefined),
   };
 }
 
@@ -259,6 +270,12 @@ export function isZiweiCertified(ziwei: ThreeCoreZiweiLayer): boolean {
   return ziwei.status === 'READY'
     && Array.isArray(ziwei.analysis.allPalaces) && ziwei.analysis.allPalaces.length === 12
     && ziwei.analysis.timeConfidence === 'exact';
+}
+
+/** 共用四柱逐字核對，時柱不得省略；適用已知時辰的完整流程。 */
+function ziweiMatchesBazi(bazi: ThreeCoreBaziLayer, ziwei: ThreeCoreZiweiLayer): boolean {
+  return ziwei.status === 'READY' && bazi.hour !== null
+    && (['year', 'month', 'day', 'hour'] as const).every(key => ziwei.analysis.bazi[key] === bazi[key]);
 }
 
 /** 四柱格式是否成立（兩字、天干地支都認得）。 */
@@ -283,7 +300,7 @@ export function runIChingLayer(params: {
   ziwei: ThreeCoreZiweiLayer;
 }): ThreeCoreIChingLayer {
   const { input, core, bazi, ziwei } = params;
-  const hourIndex = isKnownHour(input.hourBranchIndex) ? input.hourBranchIndex : null;
+  const hourIndex = inputHourIndex(input);
 
   const chartFingerprint = [bazi.year, bazi.month, bazi.day, bazi.hour ?? 'UNKNOWN'].join('|');
   /*
@@ -299,19 +316,29 @@ export function runIChingLayer(params: {
   const gate = core.verification;
   const pillarsWellFormed = pillarsWellFormedOf(bazi);
   const ziweiCertified = isZiweiCertified(ziwei);
-  const chartLocked = gate.readyForInterpretation && pillarsWellFormed && ziweiCertified;
+  const coreMatches = (['year', 'month', 'day', 'hour'] as const).every(key => {
+    const pillar = core.pillars[key];
+    return (pillar === 'UNKNOWN' ? null : pillar.ganZhi) === bazi[key];
+  });
+  const normalizeDate = (date: string) => date.trim().split('-').map(Number).join('-');
+  const inputMatches = normalizeDate(input.birthDate) === normalizeDate(core.calendar.solarDate)
+    && input.gender === core.input.gender
+    && (!input.birthTime || (core.timePrecision === 'EXACT_TIME' && core.calendar.normalizedDateTime.slice(11, 16) === input.birthTime))
+    && hourIndex !== null && bazi.hourBranch === BRANCHES[hourIndex];
+  const crossVerified = coreMatches && inputMatches && ziweiMatchesBazi(bazi, ziwei);
+  const chartLocked = gate.readyForInterpretation && pillarsWellFormed && ziweiCertified && crossVerified;
 
   const ritualStepPassed: Record<IChingRitualStepId, boolean> = {
     // 溫度感應：要先有一張成立的命盤，才有東西可以「感應」。
-    TEMPERATURE: pillarsWellFormed,
+    TEMPERATURE: pillarsWellFormed && coreMatches,
     // 請他靜下來：曆法與四柱都驗過，時間軸才算定住。
-    STILLNESS: gate.calendarVerified && gate.pillarsVerified,
+    STILLNESS: gate.calendarVerified && gate.pillarsVerified && inputMatches,
     // 卦成＋格局：十神成立，且紫微十二宮定盤，格局才推得出來。
-    HEXAGRAM_FORMED: gate.tenGodsVerified && ziweiCertified,
+    HEXAGRAM_FORMED: gate.tenGodsVerified && ziweiCertified && crossVerified,
     // 剝洋蔥：大運驗過，才有「此刻走到哪一層」可以剝。
     ONION: gate.luckCyclesVerified,
     // 知己宣言：八字四道閘＋紫微定盤全過，才准把話交給表達層。
-    CONFIDANT: gate.readyForInterpretation && ziweiCertified,
+    CONFIDANT: gate.readyForInterpretation && ziweiCertified && crossVerified,
   };
 
   const ritualSteps = ICHING_RITUAL_STEPS.map((step) => ({
@@ -335,7 +362,7 @@ export function runIChingLayer(params: {
   if (!ritual.completed) {
     return {
       status: 'BLOCKED_RITUAL_INCOMPLETE',
-      reason: '八字命盤尚未鎖定，正統卜卦儀式不成立。命盤未定不得起卦。',
+      reason: '八字、紫微與本次出生資料尚未完成一致性核對，正統卜卦儀式不成立；核對通過前不得起卦。',
       ritual,
     };
   }
@@ -346,7 +373,7 @@ export function runIChingLayer(params: {
     會直接丟例外——寧可不出卦，不出假卦。
   */
   const certificate: IChingCastCertificate = {
-    baziVerified: gate.readyForInterpretation && pillarsWellFormed,
+    baziVerified: gate.readyForInterpretation && pillarsWellFormed && coreMatches && inputMatches,
     ziweiCertified,
     ritualCompleted: ritual.completed,
     chartFingerprint,
@@ -356,12 +383,14 @@ export function runIChingLayer(params: {
 }
 
 export function computeThreeCore(input: ThreeCoreInput): ThreeCoreResult {
-  const hourIndex = isKnownHour(input.hourBranchIndex) ? input.hourBranchIndex : null;
+  const hourIndex = inputHourIndex(input);
   const hourKnown = hourIndex !== null;
 
   const { core, bazi } = runBaziLayer(input);
-  const ziwei = runZiweiLayer(input);
-  const iching = runIChingLayer({ input, core, bazi, ziwei });
+  if (!core.verification.readyForInterpretation) {
+    throw new Error('THREE_CORE_BAZI_NOT_VERIFIED: 第一層未通過核對，不得進入紫微或易經。');
+  }
+  const ziwei = runZiweiLayer(input, core);
 
   // ── 引擎自己驗自己 ──────────────────────────────────────────────
   const checks: ThreeCoreCrossCheckItem[] = [];
@@ -382,14 +411,14 @@ export function computeThreeCore(input: ThreeCoreInput): ThreeCoreResult {
 
   if (ziwei.status === 'READY') {
     const zb = ziwei.analysis.bazi;
-    const same = zb.year === bazi.year && zb.month === bazi.month && zb.day === bazi.day;
+    const same = ziweiMatchesBazi(bazi, ziwei);
     checks.push({
       id: 'ZIWEI_BAZI_MATCHES_CORE',
       label: '第二層四柱必須等於第一層',
       passed: same,
       detail: same
-        ? `兩層一致：${bazi.year} ${bazi.month} ${bazi.day}`
-        : `不一致！第一層 ${bazi.year} ${bazi.month} ${bazi.day}／第二層 ${zb.year} ${zb.month} ${zb.day}`,
+        ? `兩層一致：${bazi.year} ${bazi.month} ${bazi.day} ${bazi.hour}`
+        : `不一致！第一層 ${bazi.year} ${bazi.month} ${bazi.day} ${bazi.hour}／第二層 ${zb.year} ${zb.month} ${zb.day} ${zb.hour}`,
     });
   } else {
     checks.push({
@@ -400,6 +429,8 @@ export function computeThreeCore(input: ThreeCoreInput): ThreeCoreResult {
     });
   }
 
+  // 前兩層核對完成後才進第三層；第三層入口亦自行核對，防止被單獨呼叫繞過。
+  const iching = runIChingLayer({ input, core, bazi, ziwei });
   if (iching.status === 'READY' && hourIndex !== null) {
     const expectedSeed = `梅花易數|${input.birthDate}|時辰${hourIndex + 1}`;
     checks.push({
@@ -441,7 +472,7 @@ export function computeThreeCore(input: ThreeCoreInput): ThreeCoreResult {
 
   return {
     engine: THREE_CORE_ENGINE,
-    timePrecision: hourKnown ? 'TRADITIONAL_HOUR' : 'UNKNOWN_TIME',
+    timePrecision: hourKnown ? input.birthTime ? 'EXACT_TIME' : 'TRADITIONAL_HOUR' : 'UNKNOWN_TIME',
     bazi,
     ziwei,
     iching,
@@ -459,7 +490,17 @@ export function computeThreeCore(input: ThreeCoreInput): ThreeCoreResult {
  * 就是先前那個 bug 能活這麼久的原因——寧可擋掉，不要讓客戶拿到互相矛盾的命盤。
  */
 export function assertThreeCoreConsistent(result: ThreeCoreResult): void {
-  if (!result.crossCheck.passed) {
+  const currentPillarsMatch = result.ziwei.status !== 'READY' || ziweiMatchesBazi(result.bazi, result.ziwei);
+  const fingerprint = [result.bazi.year, result.bazi.month, result.bazi.day, result.bazi.hour ?? 'UNKNOWN'].join('|');
+  const readingMatches = result.iching.status !== 'READY' || (
+    result.ziwei.status === 'READY' && isZiweiCertified(result.ziwei) && currentPillarsMatch
+    && result.iching.ritual.completed && result.iching.ritual.steps.every(step => step.passed)
+    && result.iching.certificate.baziVerified && result.iching.certificate.ziweiCertified
+    && result.iching.certificate.ritualCompleted
+    && result.iching.certificate.chartFingerprint === fingerprint
+    && result.iching.ritual.chartFingerprint === fingerprint
+  );
+  if (!result.crossCheck.passed || result.crossCheck.checks.some(check => !check.passed) || !currentPillarsMatch || !readingMatches) {
     throw new Error(`THREE_CORE_CROSS_CHECK_FAILED: ${result.crossCheck.failedReasons.join('；')}`);
   }
 }

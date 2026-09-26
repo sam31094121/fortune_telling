@@ -8,9 +8,13 @@ import BaziChart from './BaziChart';
 import type { DualChartResult } from '@/lib/dual-chart';
 import styles from './dual-chart.module.css';
 import ZiweiChart from './ZiweiChart';
+import { useInterfaceLanguage } from '@/components/InterfaceLanguage';
 
 export default function DualChart({ unlocked, configured }: { unlocked: boolean; configured: boolean }) {
   const router = useRouter();
+  const { language } = useInterfaceLanguage();
+  const languageRef = useRef(language);
+  languageRef.current = language;
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState<BirthProfile>({ name: '', gender: '', birthDate: '', calendarType: 'solar', country: '台灣', city: '台北' });
@@ -24,7 +28,7 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
   const [monochrome, setMonochrome] = useState(false);
   const resultRef = useRef<HTMLElement>(null);
   useEffect(() => () => { if (pdfUrl) URL.revokeObjectURL(pdfUrl); }, [pdfUrl]);
-  useEffect(() => { setPdfUrl(''); }, [result]);
+  useEffect(() => { setPdfUrl(''); }, [result, language]);
   useEffect(() => { if (result) resultRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, [result]);
   useEffect(() => {
     if (!unlocked) { setResult(null); setPrintMode(false); return; }
@@ -71,10 +75,12 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
   }
   async function exportPdf() {
     if (!resultRef.current || pdfBusy) return;
+    const exportLanguage = language;
     setPdfBusy(true); setError('');
     try {
       const { createDualChartPdf } = await import('./export-pdf');
       const blob = await createDualChartPdf(resultRef.current, monochrome);
+      if (languageRef.current !== exportLanguage) { setError('語言已變更，請重新製作 PDF。'); return; }
       setPdfUrl(URL.createObjectURL(blob));
     } catch (e) { setError(e instanceof Error ? e.message : 'PDF 製作失敗，請再試一次。'); }
     finally { setPdfBusy(false); }
@@ -100,7 +106,7 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
       </section>
       {result && <section ref={resultRef} className={styles.results} aria-label="雙命盤結果">
         {!printMode && <button type="button" className={styles.printButton} onClick={() => { setPrintMode(true); resultRef.current?.scrollIntoView({ block: 'start' }); }}>列印專用版</button>}
-        <article className={styles.panel}><h2>八字命盤</h2><BaziChart result={result} monochrome={printMode && monochrome} /></article>
+        <article className={styles.panel}><h2>八字命盤</h2><BaziChart result={result} monochrome={printMode && monochrome} language={language} /></article>
         <article className={styles.panel}><h2>紫微斗數命盤</h2>
           <ZiweiChart key={JSON.stringify(result.ziwei.birthInput)} result={result} />
         </article>

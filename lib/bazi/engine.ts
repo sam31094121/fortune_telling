@@ -18,13 +18,13 @@
  *          依賴時柱／出生時刻的項目一律 NOT_CALCULATED，禁止補午時冒充）。
  */
 
-import { Solar } from 'lunar-typescript';
+import { Solar, LunarUtil } from 'lunar-typescript';
 
 // ==================== 常量與規則版本 ====================
 
 export const BAZI_ENGINE = {
   name: 'TraditionalBaziCore',
-  version: '1.1.0', // +空亡/命宮/身宮/胎元/胎息/十二長生（皆確定性規則）
+  version: '1.2.0', // 神煞改採可追溯V5取法；亦更新專業結果識別，避免沿用旧版快取。
   ruleSet: 'TW_TRADITIONAL_BAZI_V1',
   yearBoundary: 'LI_CHUN',
   monthBoundary: 'JIE_QI',
@@ -126,7 +126,10 @@ export interface BaziDaYunStep {
   stemTenGod: TenGod | null;
 }
 export interface BaziAnnualLuckItem { year: number; ganZhi: string; stemTenGod: TenGod; branch: Branch }
-export interface BaziShenShaItem { id: string; name: string; rule: string; evidence: string; ruleVersion: string }
+export interface BaziShenShaItem {
+  id: string; name: string; rule: string; evidence: string; ruleVersion: string;
+  source: { sourceId: string; title: string; printedPage: string; url: string };
+}
 
 export interface BaziProfessionalResult {
   engine: { name: string; version: string; ruleSet: string; yearBoundary: string; monthBoundary: string; lateZiRule: string; timeCorrectionMode: string };
@@ -565,26 +568,34 @@ const TRINE_GROUP: Record<Branch, { taoHua: Branch; yiMa: Branch; huaGai: Branch
   巳: { taoHua: '午', yiMa: '亥', huaGai: '丑' }, 酉: { taoHua: '午', yiMa: '亥', huaGai: '丑' }, 丑: { taoHua: '午', yiMa: '亥', huaGai: '丑' },
   亥: { taoHua: '子', yiMa: '巳', huaGai: '未' }, 卯: { taoHua: '子', yiMa: '巳', huaGai: '未' }, 未: { taoHua: '子', yiMa: '巳', huaGai: '未' },
 };
-const SHENSHA_RULE_VERSION = 'TW_SHENSHA_BASIC_V3';
+const SHENSHA_RULE_VERSION = 'MINGLI_TANYUAN_SHENSHA_V5';
+const SHENSHA_PAGES: Record<string, string> = { tianyi: '62–63', wenchang: '63–64', huagai: '64', yima: '65', taohua: '71' };
 
 export function computeShenSha(dayMaster: Stem, yearBranch: Branch, dayBranch: Branch, pillars: BaziPillarModel[]): BaziShenShaItem[] {
   const out: BaziShenShaItem[] = [];
   const branchesInChart = pillars.map((p) => ({ b: p.earthlyBranch, key: p.key }));
-  const push = (id: string, name: string, rule: string, evidence: string) => out.push({ id, name, rule, evidence, ruleVersion: SHENSHA_RULE_VERSION });
+  const push = (id: string, name: string, rule: string, evidence: string) => out.push({
+    id, name, rule, evidence, ruleVersion: SHENSHA_RULE_VERSION,
+    source: { sourceId: 'S-MINGLI-TANYUAN-1937-SCAN', title: '增訂命理探原（1937訂正本；1938再版本對讀）', printedPage: SHENSHA_PAGES[id], url: 'https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf' },
+  });
+  const dayGroup = TRINE_GROUP[dayBranch];
+  // 卷上71頁選用日主納音法：日支三合局與日柱納音同五行，查月、時。
+  // 同頁月起法及其他版本年起／倒插法不混入此規則。
+  const bathElement: Partial<Record<Branch, Element>> = { 子: '木', 卯: '火', 午: '金', 酉: '水' };
+  const dayNaYin = LunarUtil.NAYIN[dayMaster + dayBranch];
 
   for (const { b, key } of branchesInChart) {
     if (TIANYI_TABLE[dayMaster].includes(b)) push('tianyi', '天乙貴人', `日干${dayMaster}見${TIANYI_TABLE[dayMaster].join('/')}`, `${key} 支${b}`);
     if (WENCHANG_TABLE[dayMaster] === b) push('wenchang', '文昌貴人', `日干${dayMaster}見${WENCHANG_TABLE[dayMaster]}`, `${key} 支${b}`);
+    if ((key === 'MONTH' || key === 'HOUR') && dayGroup.taoHua === b && bathElement[b] && dayNaYin?.endsWith(bathElement[b])) {
+      push('taohua', '桃花', `日支${dayBranch}三合局沐浴位${b}，日柱納音${dayNaYin}；查月時`, `${key} 支${b}`);
+    }
+    // 卷上64頁採日支查年月時，不把另一年主取法合併或查日柱自身。
+    if (key !== 'DAY' && dayGroup.huaGai === b) push('huagai', '華蓋', `日支${dayBranch}三合局華蓋位${b}；查年月時`, `${key} 支${b}`);
     for (const anchor of [{ br: yearBranch, tag: '年支' }, { br: dayBranch, tag: '日支' }]) {
       const g = TRINE_GROUP[anchor.br];
-      // 古今圖書集成 Volume 470 p.80「倒插桃花」有月日時反朝年支的取法。
-      // 此處只修復既有日支查法漏掉年柱，不擴充月／時錨點或吉凶解讀。
-      // 逐條來源、版本與適用範圍仍須通過獨立來源閘才可正式顯示。
-      if (g.taoHua === b) push('taohua', '桃花', `${anchor.tag}${anchor.br}三合局沐浴位${g.taoHua}${key === 'YEAR' ? '（倒插桃花）' : ''}`, `${key} 支${b}`);
-      // 《增訂命理探原》卷上第65頁：日支驛馬查年月時，不能排除年柱。
-      if (g.yiMa === b) push('yima', '驛馬', `${anchor.tag}${anchor.br}三合局驛馬位${g.yiMa}`, `${key} 支${b}`);
-      // 同書第64頁：日支華蓋查年月時；不以日支自身形成一筆命中。
-      if (g.huaGai === b && !(anchor.tag === '日支' && key === 'DAY')) push('huagai', '華蓋', `${anchor.tag}${anchor.br}三合局華蓋位${g.huaGai}`, `${key} 支${b}`);
+      // 卷上65頁兼述年主、日主兩法；分開保存錨點證據，不自查。
+      if (key !== (anchor.tag === '年支' ? 'YEAR' : 'DAY') && g.yiMa === b) push('yima', '驛馬', `${anchor.tag}${anchor.br}三合局驛馬位${g.yiMa}`, `${key} 支${b}`);
     }
   }
   // 去重（同 id + evidence）

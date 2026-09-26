@@ -113,6 +113,35 @@ export function castHexagram(...inputs: Array<string | number | null | undefined
 }
 
 /**
+ * 《梅花易數》卷一「年月日時起例」的取數層。
+ * 僅接受已核對的年支序數及月日、時數；不自行決定年界、閏月或占問用途。
+ * 原典獨立算例見 docs/技能戰鬥檔案/易經/梅花年月日時原典算例.json。
+ * 返回卦象結構，不夾帶尚未核實的現代解讀文字。
+ */
+export function calculateMeihuaTimeNumbers(input: {
+  yearNumber: number; monthNumber: number; dayNumber: number; hourNumber: number;
+}) {
+  for (const [value, maximum] of [
+    [input.yearNumber, 12], [input.monthNumber, 12], [input.dayNumber, 30], [input.hourNumber, 12],
+  ]) {
+    if (!Number.isInteger(value) || value < 1 || value > maximum) {
+      throw new Error('MEIHUA_INVALID_TRADITIONAL_NUMBER');
+    }
+  }
+  const upperSum = input.yearNumber + input.monthNumber + input.dayNumber;
+  const totalSum = upperSum + input.hourNumber;
+  const upperIndex = (upperSum - 1) % 8;
+  const lowerIndex = (totalSum - 1) % 8;
+  return {
+    upperSum, totalSum,
+    upper: TRIGRAMS[upperIndex].name,
+    lower: TRIGRAMS[lowerIndex].name,
+    hexagramName: HEXAGRAM_NAMES[upperIndex][lowerIndex],
+    changingLine: (totalSum - 1) % 6 + 1,
+  };
+}
+
+/**
  * 梅花易數・生辰起卦（正統時間起卦法）：
  * 上卦＝（年＋月＋日）除以 8 取餘，下卦＝（年＋月＋日＋時辰數）除以 8 取餘，
  * 動爻＝（年＋月＋日＋時辰數）除以 6 取餘（餘 0 作 8／6）。

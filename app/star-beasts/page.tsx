@@ -139,7 +139,7 @@ export default function StarBeastsPage() {
           <div className="pointer-events-none absolute right-5 top-5 font-serif text-7xl font-black text-amber-100/[0.06] sm:right-10 sm:text-9xl">28</div>
           <p className="text-xs font-black tracking-[0.28em] text-amber-200/85">THE TWENTY-EIGHT MANSIONS</p>
           <h1 className="mt-3 font-serif text-4xl font-black tracking-wide text-white sm:text-6xl">星宿神獸卡片</h1>
-          <p className="mt-4 text-sm text-slate-300">本體二十八・幼子二十八・四象四，共六十張。</p>
+          <p className="mt-4 text-sm text-slate-300">二十八星宿分類，各有本體與幼子形態；另有四隻四象守護獸。</p>
           <SelfStarBeastEntry onFound={(id) => { setForm('awakened'); setSeason('all'); setSelectedId(id); }} />
           <Link href="/beast-game" className="mt-4 inline-flex min-h-12 items-center rounded-full border border-cyan-100/30 px-6 text-sm font-bold text-cyan-100">開始 →</Link>
           <details className="mt-4 max-w-2xl text-xs text-slate-400">

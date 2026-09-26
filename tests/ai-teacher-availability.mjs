@@ -10,7 +10,7 @@ let externalCalls = 0;
 function load(file) {
   file = path.resolve(file);
   if (cache.has(file)) return cache.get(file).exports;
-  const module = { exports: {} }; cache.set(file, module);
+  const compiledModule = { exports: {} }; cache.set(file, compiledModule);
   const source = fs.readFileSync(file, 'utf8');
   const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText;
   const localRequire = (id) => {
@@ -24,8 +24,8 @@ function load(file) {
     }
     return require(id);
   };
-  vm.runInNewContext(code, {require: localRequire, module, exports: module.exports, console, process, setTimeout, clearTimeout, Response, fetch: () => {externalCalls++; throw Error('禁止外送');}}, {filename:file});
-  return module.exports;
+  vm.runInNewContext(code, {require: localRequire, module: compiledModule, exports: compiledModule.exports, console, process, setTimeout, clearTimeout, Response, fetch: () => {externalCalls++; throw Error('禁止外送');}}, {filename:file});
+  return compiledModule.exports;
 }
 try {
   process.env.GEMINI_API_KEY = 'test-key-must-not-be-used';
@@ -47,7 +47,8 @@ try {
     const body = await response.json();
     assert.equal(response.status,409);
     assert.equal(body.code,'BAZI_TRADITIONAL_INTERPRETATION_BLOCKED');
-    assert.ok(body.message.includes('基礎八字命盤'));
+    assert.ok(body.message.includes('基礎資料說明'));
+    assert.equal(body.message.includes('已核對'), false, '未讀取本次命盤，不得聲稱本次資料已核對');
     assert.equal((await POST({json:async()=>({})})).status,409);
   }
   for (const id of ['HORROR','GHOST']) {
@@ -57,7 +58,7 @@ try {
   }
   assert.equal(externalCalls,0);
   console.log('PASS 易經老師：三種紫微解讀與娛樂解讀維持；未驗證八字解讀由共同後端守門拒絕；Google 外送 0 次');
-  console.log('AI_TEACHER_AVAILABLE=true');
+  console.log('ZIWEI_TEACHER_CONTRACT_PASSED=true; BAZI_ADVANCED_READING_AVAILABLE=false');
 } catch(error) {
   console.error(error); console.log('AI_TEACHER_AVAILABLE=false'); process.exitCode=1;
 }

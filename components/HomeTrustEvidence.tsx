@@ -1,3 +1,4 @@
+import HomeTranslatedText from '@/components/HomeTranslatedText';
 /** 首頁神秘入口旁的可核對信任標（費用／時間或資料／登入）— 不寫假人數 */
 export default function HomeTrustEvidence({
   items,
@@ -11,7 +12,7 @@ export default function HomeTrustEvidence({
     <ul className="home-trust-evidence" aria-label={label}>
       {items.map((item) => (
         <li key={item} className="home-trust-evidence__chip">
-          {item}
+          <HomeTranslatedText text={item} />
         </li>
       ))}
     </ul>

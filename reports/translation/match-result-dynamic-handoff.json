@@ -1,0 +1,58 @@
+[
+  {
+    "line": 227,
+    "expression": "showingGhost ? '雙人封印檔案・鬼魅低語' : '兩人合盤・關係解讀'"
+  },
+  {
+    "line": 229,
+    "expression": "showingGhost ? '鬼魅老師' : teacherName"
+  },
+  {
+    "line": 243,
+    "expression": "teacherName"
+  },
+  {
+    "line": 260,
+    "expression": "showingGhost ? '封印檔案・關係結界' : '兩人關係格局'"
+  },
+  {
+    "line": 270,
+    "expression": "title"
+  },
+  {
+    "line": 285,
+    "expression": "fromGoogle ? '這段由 Google AI 依同一份配對資料改寫。' : '這段是依固定規則寫成的基礎解讀。'"
+  },
+  {
+    "line": 297,
+    "expression": "showingGhost ? teacherName : '鬼魅老師'"
+  },
+  {
+    "line": 673,
+    "expression": "label"
+  },
+  {
+    "line": 734,
+    "expression": "result.crossCheck.status === 'READY' ? '兩人都已排出' : '需完整出生時辰'"
+  },
+  {
+    "line": 770,
+    "expression": "opening ? `解封儀式進行中・${(stage ?? 0) + 1}/4` : released ? '儀式完成・五元素封印寶珠已收下' : '五元素封印寶珠・靜止等待先行者'"
+  },
+  {
+    "line": 787,
+    "expression": "released ? '五元素封印寶珠・本局已解除' : opening ? '五元素封印寶珠・結界解除中' : '五顆封印寶珠・從這一顆開始解除'"
+  },
+  {
+    "line": 790,
+    "expression": "elementLabel"
+  },
+  {
+    "line": 804,
+    "expression": "label"
+  },
+  {
+    "line": 805,
+    "expression": "MATCH_ELEMENT_LABEL[person.primaryElement]"
+  }
+]

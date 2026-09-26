@@ -1,0 +1,90 @@
+{
+  "version": "1.0.0",
+  "updatedAt": "2026-09-26",
+  "scope": "禁止作為已核實的傳統命理規則或正式解讀依據；保留原檔供追查，不等於所有呼叫端已完成停用",
+  "items": [
+    {
+      "id": "MEIHUA_GREGORIAN_SUM",
+      "path": "lib/iching-engine.ts",
+      "symbol": "castHexagramFromBirth",
+      "status": "BLOCKED_FOR_TRADITIONAL_USE",
+      "reason": "公曆年月日直接加總與已閱梅花年月日時取數傳本不符",
+      "runtimeDisabled": false,
+      "releaseConditions": [
+        "固定版本與年界、閏月、生辰用途",
+        "替換錯誤取數並通過原典獨立算例",
+        "所有呼叫端回歸及快取版本更新"
+      ]
+    },
+    {
+      "id": "BAZI_TEXT_HASH_READING",
+      "paths": [
+        "app/api/bazi/google-reading/route.ts",
+        "app/api/bazi/horror-reading/route.ts"
+      ],
+      "symbol": "buildLocalGoogleReading / buildLocalHorrorReading",
+      "status": "BLOCKED_FOR_TRADITIONAL_USE",
+      "reason": "另以姓名與文案雜湊起卦，未沿用三核心已核對卦象",
+      "runtimeDisabled": true,
+      "runtimeRestriction": "目前來源閘阻擋；必須修正後才能放行，不能只改来源狀態",
+      "releaseConditions": [
+        "後端重新核對原始出生資料",
+        "只使用三核心已核對結果",
+        "偽成功、快取及後備路徑負向測試"
+      ]
+    },
+    {
+      "id": "KARMA_AI_CHART_AND_FIXED_FALLBACK",
+      "path": "app/api/karma-story-generate/route.ts",
+      "symbol": "generateKarmaStory / getFallbackKarmaStory",
+      "status": "BLOCKED_FOR_TRADITIONAL_USE",
+      "reason": "讓模型自行推算命宮星曜並提供固定卦象後備，未由已核對命盤提供",
+      "runtimeDisabled": true,
+      "runtimeRestriction": "目前 Google 供應商停用；未完成獨立規則閘，不可因供應商重啟而直接恢復",
+      "releaseConditions": [
+        "移除模型排盤及固定卦象後備",
+        "雙方三核心與適用規則均通過",
+        "輸出逐項可追溯至正式資料"
+      ]
+    },
+    {
+      "path": "lib/ziwei-teacher/teachers.ts",
+      "reason": "三核心核對後仍依宮名主星流年文字另起雜湊卦",
+      "status": "BLOCKED_FOR_TRADITIONAL_USE",
+      "id": "ZIWEI_PALACE_HASH",
+      "releaseConditions": [
+        "原典版本與取法依據",
+        "同次三核心資料及用途一致",
+        "独立算例與入口回歸"
+      ],
+      "runtimeDisabled": false,
+      "symbol": "castPalaceHexagram"
+    },
+    {
+      "path": "lib/growth-center-engine.ts",
+      "reason": "週次與個人種子文字映射未有原典依據",
+      "status": "BLOCKED_FOR_TRADITIONAL_USE",
+      "id": "GROWTH_WEEK_HASH",
+      "releaseConditions": [
+        "原典版本與取法依據",
+        "同次三核心資料及用途一致",
+        "独立算例與入口回歸"
+      ],
+      "runtimeDisabled": false,
+      "symbol": "castHexagram call"
+    },
+    {
+      "path": "app/api/solar-term/route.ts",
+      "reason": "節氣名稱與年份映射卦象不等於官方曆法或正統起卦",
+      "status": "BLOCKED_FOR_TRADITIONAL_USE",
+      "id": "SOLAR_TERM_HASH",
+      "releaseConditions": [
+        "原典版本與取法依據",
+        "同次三核心資料及用途一致",
+        "独立算例與入口回歸"
+      ],
+      "runtimeDisabled": false,
+      "symbol": "GET"
+    }
+  ]
+}

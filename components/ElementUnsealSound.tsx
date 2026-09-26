@@ -207,7 +207,13 @@ export function playElementUnsealSound(element: ElementSoundKey = '空', options
   window.setTimeout(() => void context.close(), 2_900);
 }
 
-export function ElementUnsealSoundToggle() {
+/** Optional display labels (e.g. English on /match); omitted = the original Chinese copy. */
+export type ElementUnsealSoundLabels = {
+  soundOn: string; soundOff: string; turnOn: string; turnOff: string;
+  volume: string; enhanced: string; standard: string; enhance: string; restore: string;
+};
+
+export function ElementUnsealSoundToggle({ labels }: { labels?: ElementUnsealSoundLabels } = {}) {
   const [muted, setMuted] = useState(true);
   const [enhanced, setEnhanced] = useState(false);
 
@@ -242,19 +248,19 @@ export function ElementUnsealSoundToggle() {
         onClick={toggle}
         className="rounded-full border border-white/15 bg-black/25 px-3 py-1.5 text-xs font-black tracking-wide text-white/80 transition active:scale-[0.98]"
         aria-pressed={muted}
-        aria-label={muted ? '開啟解封儀式聲音' : '關閉解封儀式聲音'}
+        aria-label={labels ? (muted ? labels.turnOn : labels.turnOff) : muted ? '開啟解封儀式聲音' : '關閉解封儀式聲音'}
       >
-        {muted ? '解封聲音：關' : '解封聲音：開'}
+        {labels ? (muted ? labels.soundOff : labels.soundOn) : muted ? '解封聲音：關' : '解封聲音：開'}
       </button>
       <button
         type="button"
         onClick={toggleVolume}
         className="rounded-full border border-amber-100/20 bg-amber-200/8 px-3 py-1.5 text-xs font-black tracking-wide text-amber-50/85 transition active:scale-[0.98] disabled:opacity-35"
         aria-pressed={enhanced}
-        aria-label={enhanced ? '恢復標準解封音量' : '增強解封音量'}
+        aria-label={labels ? (enhanced ? labels.restore : labels.enhance) : enhanced ? '恢復標準解封音量' : '增強解封音量'}
         disabled={muted}
       >
-        音量：{enhanced ? '增強' : '標準'}
+        {labels ? `${labels.volume}${enhanced ? labels.enhanced : labels.standard}` : <>音量：{enhanced ? '增強' : '標準'}</>}
       </button>
     </span>
   );

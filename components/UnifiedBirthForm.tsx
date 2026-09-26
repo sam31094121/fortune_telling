@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { useEffect, useRef, type ReactNode } from 'react';
+import HomeTranslatedText, { useDisplayText } from '@/components/HomeTranslatedText';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import { getAnalysisIdentityTarget, IDENTITY_TARGET_UPDATED_EVENT, type AnalysisIdentityTarget } from '@/lib/identity-split-client';
 import { readSelfBirthProfile, saveSelfBirthProfile } from '@/lib/self-profile-client';
@@ -177,30 +178,26 @@ export function HourBranchSelector({ value, unknown, missing, requireExplicitPic
     <div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <ChoiceButton active={Boolean(unknown || value === 'unknown')} alert={missing} onClick={() => onChange('unknown')}>
-          <span className="block text-base font-black">不知道出生時辰</span>
-          <span className="mt-1.5 block text-xs font-semibold leading-5">不知道也沒關係，先算得出來的部分；之後補上時辰會更完整。</span>
+          <span className="block text-base font-black"><HomeTranslatedText text={"不知道出生時辰"} /></span>
+          <span className="mt-1.5 block text-xs font-semibold leading-5"><HomeTranslatedText text={"不知道也沒關係，先算得出來的部分；之後補上時辰會更完整。"} /></span>
         </ChoiceButton>
         <ChoiceButton active={knownSelected} alert={missing} tone="cyan" onClick={() => onChange((knownSelected ? value : requireExplicitPick ? HOUR_BRANCH_PENDING : 'wu') as BirthHourBranch)}>
-          <span className="block text-base font-black">我知道出生時辰</span>
-          <span className="mt-1.5 block text-xs font-semibold leading-5">點下去會展開 12 張時辰卡，直接點選，不需手打。</span>
+          <span className="block text-base font-black"><HomeTranslatedText text={"我知道出生時辰"} /></span>
+          <span className="mt-1.5 block text-xs font-semibold leading-5"><HomeTranslatedText text={"點下去會展開 12 張時辰卡，直接點選，不需手打。"} /></span>
         </ChoiceButton>
       </div>
 
       {knownSelected && (
         <div ref={panelRef} className="mt-5 scroll-mt-24 rounded-2xl border border-cyan-300/40 bg-cyan-950/20 p-4 shadow-[0_0_30px_rgba(34,211,238,0.18)]">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <span className="text-sm font-black tracking-wide text-cyan-100">👇 請點選你的出生時辰</span>
-            <span className="text-xs font-bold text-cyan-200/90">標準十二時辰</span>
+            <span className="text-sm font-black tracking-wide text-cyan-100"><HomeTranslatedText text={"👇 請點選你的出生時辰"} /></span>
+            <span className="text-xs font-bold text-cyan-200/90"><HomeTranslatedText text={"標準十二時辰"} /></span>
           </div>
           {selectedItem && (
-            <div className="mb-3 rounded-xl border border-cyan-200/45 bg-cyan-300/12 px-4 py-2.5 text-sm font-black text-cyan-50">
-              ✓ 已選擇：{selectedItem.label}（{selectedItem.range}）——選錯可直接點別張更換
-            </div>
+            <div className="mb-3 rounded-xl border border-cyan-200/45 bg-cyan-300/12 px-4 py-2.5 text-sm font-black text-cyan-50"><HomeTranslatedText text={"✓ 已選擇："} /><HomeTranslatedText text={selectedItem.label} />（{selectedItem.range}<HomeTranslatedText text={"）——選錯可直接點別張更換"} /></div>
           )}
           {awaitingPick && (
-            <div className="mb-3 rounded-xl border border-amber-200/45 bg-amber-300/12 px-4 py-2.5 text-sm font-black text-amber-50" role="status">
-              還沒選——下面 12 張點一張就好。不確定的話，回上面選「不知道出生時辰」也算得出來。
-            </div>
+            <div className="mb-3 rounded-xl border border-amber-200/45 bg-amber-300/12 px-4 py-2.5 text-sm font-black text-amber-50" role="status"><HomeTranslatedText text={"還沒選——下面 12 張點一張就好。不確定的話，回上面選「不知道出生時辰」也算得出來。"} /></div>
           )}
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
             {SHICHEN_LIST.map((item, index) => {
@@ -215,9 +212,9 @@ export function HourBranchSelector({ value, unknown, missing, requireExplicitPic
                   onClick={() => onChange(branch)}
                   className={`min-h-[88px] rounded-xl border px-3 py-4 text-left transition-all active:scale-[0.97] ${selected ? 'border-cyan-200 bg-cyan-400/20 text-cyan-100 shadow-[0_0_18px_rgba(255,255,255,0.18)]' : 'border-white/10 bg-white/5 hover:border-cyan-300/50 hover:bg-cyan-400/10'}`}
                 >
-                  <p className={`text-lg font-black ${selected ? 'text-cyan-100' : 'text-[color:var(--text-main)]'}`}>{selected ? '✓ ' : ''}{item.label}</p>
+                  <p className={`text-lg font-black ${selected ? 'text-cyan-100' : 'text-[color:var(--text-main)]'}`}>{selected ? '✓ ' : ''}<HomeTranslatedText text={item.label} /></p>
                   <p className="mt-0.5 text-xs font-semibold text-[color:var(--text-sub)]">{item.range}</p>
-                  <p className="mt-1 text-xs leading-5 text-[color:var(--text-sub)]">{item.period}</p>
+                  <p className="mt-1 text-xs leading-5 text-[color:var(--text-sub)]"><HomeTranslatedText text={item.period} /></p>
                 </button>
               );
             })}
@@ -289,6 +286,7 @@ export function UnifiedBirthForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const display = useDisplayText();
   const nameOptional = optionalFields.includes('name');
   const completed = [
     fields.name ? { id: 'name', label: '姓名', done: nameOptional || (value.name ?? '').trim().length >= 2, text: (value.name ?? '').trim().length >= 2 ? '已確認' : nameOptional ? '選填' : '待填寫' } : null,
@@ -313,69 +311,69 @@ export function UnifiedBirthForm({
 
       {fields.name && (
         <section data-field="name" className={fieldFrameClass(missing, 'name', value)}>
-          <label className="block text-sm font-black text-[color:var(--text-main)]">1. 姓名{nameOptional && <span className="ml-1 text-sm font-bold text-[color:var(--text-sub)]">（選填）</span>} {(value.name ?? '').trim().length >= 2 && <span className="ml-2 text-green-400">完成</span>}</label>
+          <label className="block text-sm font-black text-[color:var(--text-main)]"><HomeTranslatedText text={"1. 姓名"} />{nameOptional && <span className="ml-1 text-sm font-bold text-[color:var(--text-sub)]"><HomeTranslatedText text={"（選填）"} /></span>} {(value.name ?? '').trim().length >= 2 && <span className="ml-2 text-green-400"><HomeTranslatedText text={"完成"} /></span>}</label>
           <input
             value={value.name ?? ''}
             onChange={(event) => onChange({ ...value, name: event.target.value })}
             onBlur={(event) => onChange({ ...value, name: event.target.value.trim() })}
             maxLength={20}
-            placeholder={nameOptional ? '可以不填；填了，結果會用名字稱呼你' : '請輸入姓名，至少 2 個字'}
+            placeholder={display(nameOptional ? '可以不填；填了，結果會用名字稱呼你' : '請輸入姓名，至少 2 個字')}
             className={`mt-3 w-full rounded-2xl border bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60 ${hasMissing(missing, 'name') ? 'border-rose-300/70' : 'border-white/10'}`}
             autoComplete="off"
             disabled={disabled}
           />
-          {hasMissing(missing, 'name') && !isFieldDone(value, 'name') && <p className="form-missing-alert">請先填寫姓名，至少 2 個字。</p>}
+          {hasMissing(missing, 'name') && !isFieldDone(value, 'name') && <p className="form-missing-alert"><HomeTranslatedText text={"請先填寫姓名，至少 2 個字。"} /></p>}
         </section>
       )}
 
       {fields.birthDate && (
         <section data-field="birthDate" className={fieldFrameClass(missing, 'birthDate', value)}>
-          <label className="block text-sm font-black text-[color:var(--text-main)]">2. 出生日期（萬年曆）{value.birthDate && <span className="ml-2 text-green-400">完成</span>}</label>
+          <label className="block text-sm font-black text-[color:var(--text-main)]"><HomeTranslatedText text={"2. 出生日期（萬年曆）"} />{value.birthDate && <span className="ml-2 text-green-400"><HomeTranslatedText text={"完成"} /></span>}</label>
           <div className="mt-4">
             <LunarBirthdayInput
               value={value.birthDate ?? ''}
               onChange={(birthDate) => onChange({ ...value, birthDate: birthDate.trim() })}
               accent={dateAccent}
-              label="出生日期（萬年曆）"
+              label={display("出生日期（萬年曆）")}
               disabled={disabled}
             />
           </div>
-          {hasMissing(missing, 'birthDate') && !isFieldDone(value, 'birthDate') && <p className="form-missing-alert">請先完成生日萬年曆推算。</p>}
+          {hasMissing(missing, 'birthDate') && !isFieldDone(value, 'birthDate') && <p className="form-missing-alert"><HomeTranslatedText text={"請先完成生日萬年曆推算。"} /></p>}
         </section>
       )}
 
       {fields.gender && (
         <section data-field="gender" className={fieldFrameClass(missing, 'gender', value)}>
-          <label className="block text-sm font-black text-[color:var(--text-main)]">3. 性別 {value.gender && <span className="ml-2 text-green-400">完成</span>}</label>
+          <label className="block text-sm font-black text-[color:var(--text-main)]"><HomeTranslatedText text={"3. 性別"} />{value.gender && <span className="ml-2 text-green-400"><HomeTranslatedText text={"完成"} /></span>}</label>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {[
               { label: '女性', value: 'female' as const, description: '用女性的算法。' },
               { label: '男性', value: 'male' as const, description: '用男性的算法。' },
             ].map((item) => (
               <ChoiceButton key={item.value} active={value.gender === item.value} alert={hasMissing(missing, 'gender')} onClick={() => onChange({ ...value, gender: item.value })}>
-                <span className="block text-base font-black">{item.label}</span>
-                <span className="mt-1.5 block text-xs font-semibold leading-5">{item.description}</span>
+                <span className="block text-base font-black"><HomeTranslatedText text={item.label} /></span>
+                <span className="mt-1.5 block text-xs font-semibold leading-5"><HomeTranslatedText text={item.description} /></span>
               </ChoiceButton>
             ))}
           </div>
-          {hasMissing(missing, 'gender') && !isFieldDone(value, 'gender') && <p className="form-missing-alert">請點選性別，這欄還沒有確認。</p>}
+          {hasMissing(missing, 'gender') && !isFieldDone(value, 'gender') && <p className="form-missing-alert"><HomeTranslatedText text={"請點選性別，這欄還沒有確認。"} /></p>}
         </section>
       )}
 
       {fields.birthPlace && (
         <section data-field="birthPlace" className={fieldFrameClass(missing, 'birthPlace', value)}>
-          <label className="block text-sm font-black text-[color:var(--text-main)]">4. 出生地點 {value.country && value.city && <span className="ml-2 text-green-400">完成</span>}</label>
+          <label className="block text-sm font-black text-[color:var(--text-main)]"><HomeTranslatedText text={"4. 出生地點"} />{value.country && value.city && <span className="ml-2 text-green-400"><HomeTranslatedText text={"完成"} /></span>}</label>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <input value={value.country ?? ''} onChange={(event) => onChange({ ...value, country: event.target.value, birthPlace: [event.target.value, value.city ?? ''].filter(Boolean).join(' ') })} placeholder="國家，例如台灣" className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60" disabled={disabled} />
-            <input value={value.city ?? ''} onChange={(event) => onChange({ ...value, city: event.target.value, birthPlace: [value.country ?? '', event.target.value].filter(Boolean).join(' ') })} placeholder="城市，例如台北" className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60" disabled={disabled} />
+            <input value={value.country ?? ''} onChange={(event) => onChange({ ...value, country: event.target.value, birthPlace: [event.target.value, value.city ?? ''].filter(Boolean).join(' ') })} placeholder={display("國家，例如台灣")} className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60" disabled={disabled} />
+            <input value={value.city ?? ''} onChange={(event) => onChange({ ...value, city: event.target.value, birthPlace: [value.country ?? '', event.target.value].filter(Boolean).join(' ') })} placeholder={display("城市，例如台北")} className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60" disabled={disabled} />
           </div>
-          {hasMissing(missing, 'birthPlace') && !isFieldDone(value, 'birthPlace') && <p className="form-missing-alert">請確認出生國家與城市。</p>}
+          {hasMissing(missing, 'birthPlace') && !isFieldDone(value, 'birthPlace') && <p className="form-missing-alert"><HomeTranslatedText text={"請確認出生國家與城市。"} /></p>}
         </section>
       )}
 
       {fields.birthHourBranch && (
         <section data-field="birthHourBranch" className={fieldFrameClass(missing, 'birthHourBranch', value)}>
-          <label className="block text-sm font-black text-[color:var(--text-main)]">{[fields.name, fields.birthDate, fields.gender, fields.birthPlace].filter(Boolean).length + 1}. 出生時辰 {isHourBranchChosen(value) && <span className="ml-2 text-green-400">完成</span>}</label>
+          <label className="block text-sm font-black text-[color:var(--text-main)]">{[fields.name, fields.birthDate, fields.gender, fields.birthPlace].filter(Boolean).length + 1}<HomeTranslatedText text={". 出生時辰"} />{isHourBranchChosen(value) && <span className="ml-2 text-green-400"><HomeTranslatedText text={"完成"} /></span>}</label>
           <HourBranchSelector
             value={value.birthHourBranch}
             unknown={value.timeUnknown}
@@ -391,17 +389,17 @@ export function UnifiedBirthForm({
               });
             }}
           />
-          {hasMissing(missing, 'birthHourBranch') && <p className="form-missing-alert">請先選擇出生時辰方式。</p>}
+          {hasMissing(missing, 'birthHourBranch') && <p className="form-missing-alert"><HomeTranslatedText text={"請先選擇出生時辰方式。"} /></p>}
         </section>
       )}
 
       {/* 完成引導：全部填好 → 金色光芒 + 明確指引（資料未完成則低調提示） */}
       {completed.every((item) => item.done) && !isSubmitting ? (
         <p className="mega-submit-guide" aria-live="polite" aria-hidden={hideSubmitChrome || undefined}>
-          <span aria-hidden="true">✨</span> 資料全部完成！點下方金色按鈕開始 <span className="mega-submit-guide__arrow" aria-hidden="true">⬇</span>
+          <span aria-hidden="true">✨</span><HomeTranslatedText text={"資料全部完成！點下方金色按鈕開始"} /><span className="mega-submit-guide__arrow" aria-hidden="true">⬇</span>
         </p>
       ) : (
-        <p className="text-center text-xs font-semibold text-white/40" aria-hidden={hideSubmitChrome || undefined}>完成上方欄位後，開始鍵會亮起金色光芒</p>
+        <p className="text-center text-xs font-semibold text-white/40" aria-hidden={hideSubmitChrome || undefined}><HomeTranslatedText text={"完成上方欄位後，開始鍵會亮起金色光芒"} /></p>
       )}
       <button
         type="submit"
@@ -415,18 +413,18 @@ export function UnifiedBirthForm({
         }
       >
         {completed.every((item) => item.done) && !isSubmitting && <span aria-hidden="true">✨</span>}
-        {isSubmitting ? loadingLabel : submitLabel}
+        <HomeTranslatedText text={isSubmitting ? loadingLabel : submitLabel} />
       </button>
 
       {/* 資料填寫進度總覽：移至送出鈕下方（2026-08-11）——按下開始時直接看到哪裡沒填 */}
       <section aria-hidden={hideSubmitChrome || undefined} className="rounded-[28px] border border-amber-300/25 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.16),rgba(15,23,42,0.78)_58%,rgba(2,6,23,0.94)_100%)] p-5 shadow-[0_0_34px_rgba(251,191,36,0.12)]">
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">資料填寫</p>
-        <h2 className="mt-3 text-2xl font-black leading-8 text-amber-50">依序完成欄位，易經才會開始運算</h2>
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200"><HomeTranslatedText text={"資料填寫"} /></p>
+        <h2 className="mt-3 text-2xl font-black leading-8 text-amber-50"><HomeTranslatedText text={"依序完成欄位，易經才會開始運算"} /></h2>
         <div className={`mt-4 grid gap-2 ${completed.length >= 5 ? 'sm:grid-cols-5' : 'sm:grid-cols-4'}`}>
           {completed.map((item) => (
             <div key={item.id} className={`rounded-xl border px-3 py-2 text-xs font-black ${item.done ? 'border-emerald-300/30 bg-emerald-300/10 text-emerald-100' : hasMissing(missing, item.id) ? 'border-rose-300/50 bg-rose-500/15 text-rose-100 shadow-[0_0_18px_rgba(244,63,94,0.22)]' : 'border-white/10 bg-black/15 text-[color:var(--text-sub)]'}`}>
-              <span>{item.done ? '已完成' : '待填寫'} · {item.label}</span>
-              <span className="mt-1 block text-[11px] font-bold opacity-75">{item.text}</span>
+              <span><HomeTranslatedText text={item.done ? '已完成' : '待填寫'} /> · <HomeTranslatedText text={item.label} /></span>
+              <span className="mt-1 block text-[11px] font-bold opacity-75">{item.id === 'birthPlace' && item.done ? item.text : item.id === 'birthDate' && value.birthDate ? <><HomeTranslatedText text="西元" /> {value.birthDate}</> : <HomeTranslatedText text={item.text} />}</span>
             </div>
           ))}
         </div>

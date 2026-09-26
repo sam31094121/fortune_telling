@@ -9,6 +9,7 @@
  * CORE CALCULATES ONCE. UI READS MANY TIMES. 零重算、零 易經補值、零假拆分。
  */
 
+import HomeTranslatedText from '@/components/HomeTranslatedText';
 import { useState } from 'react';
 import type { FiveElementOrbitItem, FiveElementOrbitViewModel } from './adapter';
 
@@ -115,7 +116,7 @@ export function FiveElementOrbit({ view, evidence }: {
 
         {/* 中心日主：金色質感 */}
         <div className="absolute inset-[30%] grid place-items-center rounded-full border border-amber-200/25 bg-[radial-gradient(circle_at_35%_30%,rgba(251,191,36,0.14),rgba(0,0,0,0.35)_70%)] shadow-[0_0_26px_rgba(251,191,36,0.12)]">
-          <p className="text-xs font-black text-white/40">日主</p>
+          <p className="text-xs font-black text-white/40"><HomeTranslatedText text={"日主"} /></p>
           <p className="mt-1 font-serif text-2xl font-black text-amber-100 drop-shadow-[0_0_10px_rgba(251,191,36,0.35)]">{view.centerLabel}</p>
         </div>
 
@@ -145,9 +146,9 @@ export function FiveElementOrbit({ view, evidence }: {
 
       {/* 圖例 */}
       <div className="mt-2 flex items-center justify-center gap-4 text-[10px] font-bold text-white/45">
-        <span className="flex items-center gap-1.5"><span className="inline-block h-px w-5 bg-emerald-300/70" />外圈相生</span>
-        <span className="flex items-center gap-1.5"><span className="inline-block h-px w-5 bg-rose-300/60" />內星相剋</span>
-        <span className="text-white/30">點星體看依據</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block h-px w-5 bg-emerald-300/70" /><HomeTranslatedText text={"外圈相生"} /></span>
+        <span className="flex items-center gap-1.5"><span className="inline-block h-px w-5 bg-rose-300/60" /><HomeTranslatedText text={"內星相剋"} /></span>
+        <span className="text-white/30"><HomeTranslatedText text={"點星體看依據"} /></span>
       </div>
 
       {/* ===== Drilldown Sheet：Lazy Render，只讀已完成 Professional Result ===== */}
@@ -159,20 +160,14 @@ export function FiveElementOrbit({ view, evidence }: {
             </p>
             <span className="rounded-full bg-white/[0.07] px-2 py-0.5 text-[10px] font-black text-white/45">CORE_CALCULATED</span>
           </div>
-          <p className="mt-1.5 text-sm font-semibold leading-6 text-white/60">
-            對應十神：{activeItem.tenGodLabels.length > 0 ? activeItem.tenGodLabels.join('、') : '目前核心未提供此五行的正式十神映射'}
+          <p className="mt-1.5 text-sm font-semibold leading-6 text-white/60"><HomeTranslatedText text={"對應十神："} />{activeItem.tenGodLabels.length > 0 ? activeItem.tenGodLabels.join('、') : '目前核心未提供此五行的正式十神映射'}
           </p>
           {activeEvidence && (
-            <p className="mt-1.5 text-sm font-semibold leading-6 text-white/60">
-              【力量從哪裡來】天干 {activeEvidence.stems} 個・地支 {activeEvidence.branches} 個・藏干 {activeEvidence.hiddenStems} 個
+            <p className="mt-1.5 text-sm font-semibold leading-6 text-white/60"><HomeTranslatedText text={"【力量從哪裡來】天干"} />{activeEvidence.stems}<HomeTranslatedText text={"個・地支"} />{activeEvidence.branches}<HomeTranslatedText text={"個・藏干"} />{activeEvidence.hiddenStems} 個
             </p>
           )}
-          <p className="mt-1.5 text-sm font-semibold leading-6 text-white/55">
-            【生剋】<span className="text-emerald-200">{GENERATES_ME[activeItem.label]}生{activeItem.label}</span>｜<span className="text-emerald-200">{activeItem.label}生{I_GENERATE[activeItem.label]}</span>｜<span className="text-rose-200">{CONTROLS_ME[activeItem.label]}剋{activeItem.label}</span>（圖上亮起的線路）
-          </p>
-          <p className="mt-2 text-xs font-semibold leading-5 text-white/35">
-            目前核心提供最終比例與來源計數；未提供強弱標籤與細部分數拆解（月令權重、十神細分），系統不自行編造。
-          </p>
+          <p className="mt-1.5 text-sm font-semibold leading-6 text-white/55"><HomeTranslatedText text={"【生剋】"} /><span className="text-emerald-200">{GENERATES_ME[activeItem.label]}生{activeItem.label}</span>｜<span className="text-emerald-200">{activeItem.label}生{I_GENERATE[activeItem.label]}</span>｜<span className="text-rose-200">{CONTROLS_ME[activeItem.label]}剋{activeItem.label}</span><HomeTranslatedText text={"（圖上亮起的線路）"} /></p>
+          <p className="mt-2 text-xs font-semibold leading-5 text-white/35"><HomeTranslatedText text={"目前核心提供最終比例與來源計數；未提供強弱標籤與細部分數拆解（月令權重、十神細分），系統不自行編造。"} /></p>
         </div>
       )}
     </div>

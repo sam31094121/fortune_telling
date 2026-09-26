@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
 import { APPROVED_PHRASES, FRONTEND_COPY } from '@/lib/credibility-phrases';
 import Link from 'next/link';
+import HomeTranslatedText, { useDisplayText } from '@/components/HomeTranslatedText';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import NextStepGuide from '@/components/NextStepGuide';
@@ -21,6 +22,8 @@ import StarBeastLineageReveal from '@/components/StarBeastLineageReveal';
 import type { MatchFiveElementKey, MatchFiveElementResult } from '@/lib/match-five-element-engine';
 import type { MatchStory, MatchStoryTone } from '@/lib/match-story-engine';
 import type { MatchThreeCoreView } from '@/lib/match-three-core-view';
+import { useMatchResultView, useResultUi } from '@/components/ResultEnglishText';
+import { PEARL_NAME_EN, PEARL_TITLE_EN, RESULT_UI_TEMPLATES as EN_TPL, STAR_BEAST_LABELS_EN, UNSEAL_SOUND_LABELS_EN } from '@/lib/result-english/ui';
 
 interface PersonInput {
   name: string;
@@ -202,6 +205,7 @@ const GHOST_SEAL_TITLES = ['情感壓力', '鬼魅回應', '神祕封印', '詭�
 
 function MatchTeacherReadings({ data }: { data: MatchResponse }) {
   const [mode, setMode] = useState<'teacher' | 'ghost'>('teacher');
+  const resultUi = useResultUi();
   const interpretation = data.aiInterpretationLayer;
   const googleReading = data.teacherReadings?.google;
   const fromGoogle = googleReading?.source === 'google';
@@ -220,14 +224,12 @@ function MatchTeacherReadings({ data }: { data: MatchResponse }) {
     }`}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className={`text-xs font-black tracking-[0.2em] ${showingGhost ? 'text-rose-100/85' : 'text-cyan-100/85'}`}>{showingGhost ? '雙人封印檔案・鬼魅低語' : '兩人合盤・關係解讀'}</p>
+          <p className={`text-xs font-black tracking-[0.2em] ${showingGhost ? 'text-rose-100/85' : 'text-cyan-100/85'}`}>{resultUi.t(showingGhost ? '雙人封印檔案・鬼魅低語' : '兩人合盤・關係解讀')}</p>
           <h2 className={`mt-1 font-serif text-2xl font-black sm:text-3xl ${showingGhost ? 'text-rose-50' : 'text-cyan-50'}`}>
-            {showingGhost ? '鬼魅老師' : teacherName}
+            {resultUi.t(showingGhost ? '鬼魅老師' : teacherName)}
           </h2>
         </div>
-        <span className={`rounded-full border px-3 py-1 text-xs font-black ${showingGhost ? 'border-rose-200/25 bg-rose-300/10 text-rose-100' : 'border-cyan-200/25 bg-cyan-300/10 text-cyan-100'}`}>
-          同一份配對資料
-        </span>
+        <span className={`rounded-full border px-3 py-1 text-xs font-black ${showingGhost ? 'border-rose-200/25 bg-rose-300/10 text-rose-100' : 'border-cyan-200/25 bg-cyan-300/10 text-cyan-100'}`}><HomeTranslatedText text={"同一份配對資料"} /></span>
       </div>
 
       {ghostReading && (
@@ -238,8 +240,8 @@ function MatchTeacherReadings({ data }: { data: MatchResponse }) {
             aria-pressed={!showingGhost}
             className={`rounded-2xl border px-3 py-3 text-left transition ${!showingGhost ? 'border-cyan-200/45 bg-cyan-300/14 text-cyan-50' : 'border-white/10 bg-black/16 text-white/75'}`}
           >
-            <p className="text-sm font-black">{teacherName}</p>
-            <p className="mt-1 text-xs font-semibold leading-5">清楚說明兩人的關係主軸</p>
+            <p className="text-sm font-black">{resultUi.t(teacherName)}</p>
+            <p className="mt-1 text-xs font-semibold leading-5"><HomeTranslatedText text={"清楚說明兩人的關係主軸"} /></p>
           </button>
           <button
             type="button"
@@ -247,15 +249,15 @@ function MatchTeacherReadings({ data }: { data: MatchResponse }) {
             aria-pressed={showingGhost}
             className={`rounded-2xl border px-3 py-3 text-left transition ${showingGhost ? 'border-rose-200/45 bg-rose-300/14 text-rose-50' : 'border-white/10 bg-black/16 text-white/75'}`}
           >
-            <p className="text-sm font-black">鬼魅老師</p>
-            <p className="mt-1 text-xs font-semibold leading-5">用遊戲劇情說同一個答案</p>
+            <p className="text-sm font-black"><HomeTranslatedText text={"鬼魅老師"} /></p>
+            <p className="mt-1 text-xs font-semibold leading-5"><HomeTranslatedText text={"用遊戲劇情說同一個答案"} /></p>
           </button>
         </div>
       )}
 
       {story && (
         <div className={`mt-3 rounded-2xl border px-3 py-3 ${showingGhost ? 'border-rose-200/20 bg-rose-950/20' : 'border-cyan-200/20 bg-cyan-950/20'}`}>
-          <p className={`text-xs font-black tracking-[0.16em] ${showingGhost ? 'text-rose-100/85' : 'text-cyan-100/85'}`}>{showingGhost ? '封印檔案・關係結界' : '兩人關係格局'}</p>
+          <p className={`text-xs font-black tracking-[0.16em] ${showingGhost ? 'text-rose-100/85' : 'text-cyan-100/85'}`}>{resultUi.t(showingGhost ? '封印檔案・關係結界' : '兩人關係格局')}</p>
           <p className={`mt-1 text-base font-black ${showingGhost ? 'text-rose-50' : 'text-cyan-50'}`}>{story.pairStructure.title}</p>
           <p className="mt-1 text-sm font-semibold leading-6 text-white/80">{showingGhost ? story.pairStructure.ghostCopy : story.pairStructure.copy}</p>
         </div>
@@ -265,12 +267,12 @@ function MatchTeacherReadings({ data }: { data: MatchResponse }) {
         <div className="mt-3 grid grid-cols-2 gap-2" aria-hidden="true">
           {GHOST_SEAL_TITLES.map((title, index) => (
             <div key={title} className="rounded-xl border border-rose-200/18 bg-[linear-gradient(135deg,rgba(127,29,29,0.28),rgba(0,0,0,0.48))] px-2.5 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_8px_18px_rgba(0,0,0,0.24)]">
-              <p className="text-xs font-black text-rose-100">{title}</p>
+              <p className="text-xs font-black text-rose-100">{resultUi.t(title)}</p>
               <div className="relative mx-auto mt-2 h-8 w-12 drop-shadow-[0_4px_6px_rgba(0,0,0,0.45)]" style={{ transform: `rotate(${index % 2 === 0 ? -3 : 3}deg)` }}>
                 <span className="absolute inset-0 rounded-[2px] border border-amber-950/60 bg-[linear-gradient(135deg,#f5e8be_0%,#c6a86c_46%,#f0d69a_100%)] shadow-[inset_1px_1px_0_rgba(255,255,255,0.62),inset_-2px_-2px_4px_rgba(78,35,12,0.42)]" />
                 <span className="absolute inset-x-[11%] top-[18%] h-px bg-amber-950/40" />
                 <span className="absolute inset-x-[18%] bottom-[17%] h-px bg-amber-950/35" />
-                <span className="absolute left-1/2 top-1/2 grid h-5 w-5 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-sm border border-rose-950/70 bg-[radial-gradient(circle_at_35%_28%,#ef6e64,#7f1d1d_58%,#3f0714)] text-xs font-black text-amber-50 shadow-[inset_1px_1px_1px_rgba(255,255,255,0.35),0_1px_2px_rgba(0,0,0,0.7)]">封</span>
+                <span className="absolute left-1/2 top-1/2 grid h-5 w-5 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-sm border border-rose-950/70 bg-[radial-gradient(circle_at_35%_28%,#ef6e64,#7f1d1d_58%,#3f0714)] text-xs font-black text-amber-50 shadow-[inset_1px_1px_1px_rgba(255,255,255,0.35),0_1px_2px_rgba(0,0,0,0.7)]">{resultUi.t('封')}</span>
               </div>
             </div>
           ))}
@@ -280,10 +282,10 @@ function MatchTeacherReadings({ data }: { data: MatchResponse }) {
       <article className={`mt-3 rounded-[22px] border p-4 ${showingGhost ? 'border-rose-200/28 bg-[linear-gradient(145deg,rgba(64,7,23,0.58),rgba(0,0,0,0.52))] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]' : 'border-cyan-200/20 bg-black/20'}`}>
         {!showingGhost && (
           <p className="mb-2 text-xs font-semibold leading-5 text-amber-100/90">
-            {fromGoogle ? '這段由 Google AI 依同一份配對資料改寫。' : '這段是依固定規則寫成的基礎解讀。'}
+            {resultUi.t(fromGoogle ? '這段由 Google AI 依同一份配對資料改寫。' : '這段是依固定規則寫成的基礎解讀。')}
           </p>
         )}
-        {showingGhost && <p className="mb-2 text-xs font-black tracking-[0.2em] text-rose-100/80">鬼魅回應・封印低語</p>}
+        {showingGhost && <p className="mb-2 text-xs font-black tracking-[0.2em] text-rose-100/80">{resultUi.t('鬼魅回應・封印低語')}</p>}
         <p className={`text-sm font-black leading-7 ${showingGhost ? 'font-serif text-rose-50' : 'text-cyan-50'}`}>{showingGhost ? ghostReading : formalReading}</p>
         {(showingGhost ? story?.ghostDetail : formalDetail) && (
           <p className={`mt-3 border-t pt-3 text-sm font-semibold leading-6 ${showingGhost ? 'border-rose-200/15 font-serif text-rose-100/85' : 'border-cyan-200/15 text-cyan-100/85'}`}>{showingGhost ? story?.ghostDetail : formalDetail}</p>
@@ -292,13 +294,19 @@ function MatchTeacherReadings({ data }: { data: MatchResponse }) {
       {/* 匯出報告時兩位老師都印出來；畫面上只顯示目前點選的那一位。 */}
       {ghostReading && (
         <article className="mt-3 hidden rounded-[22px] border border-white/15 p-4 print:block">
-          <p className="text-xs font-black tracking-[0.16em]">{showingGhost ? teacherName : '鬼魅老師'}</p>
+          <p className="text-xs font-black tracking-[0.16em]">{resultUi.t(showingGhost ? teacherName : '鬼魅老師')}</p>
           <p className="mt-2 text-sm font-black leading-7">{showingGhost ? formalReading : ghostReading}</p>
           {(showingGhost ? formalDetail : story?.ghostDetail) && <p className="mt-2 text-sm font-semibold leading-6">{showingGhost ? formalDetail : story?.ghostDetail}</p>}
         </article>
       )}
       <p className={`mt-3 text-center text-xs font-black leading-6 ${showingGhost ? 'text-rose-100/85' : 'text-cyan-100/85'}`}>
-        {SHOW_SHARED_ELEMENT_PEARL
+        {resultUi.en
+          ? SHOW_SHARED_ELEMENT_PEARL
+            ? showingGhost
+              ? 'The ghost leaves only one way out: take the five-element sealed orb below together and open the barrier.'
+              : 'Next: take the five-element sealed orb below together, open the barrier and complete this round’s shared task.'
+            : 'The shared orb ritual remains sealed until its visual design is finalized.'
+          : SHOW_SHARED_ELEMENT_PEARL
           ? showingGhost
             ? '鬼魅留下唯一出口：兩人一起拿到下方的五元素封印寶珠，解除結界。'
             : '下一步：兩人一起拿到下方的五元素封印寶珠，解除結界，完成這一局的共同任務。'
@@ -349,12 +357,12 @@ function ElderChoiceCard({
       className={`w-full rounded-2xl border px-4 py-4 text-left transition-all hover:border-white/20 ${attentionClass || tones[tone]}`}
     >
       <div className="flex items-center justify-between gap-3">
-        <p className="text-lg font-bold">{title}</p>
+        <p className="text-lg font-bold"><HomeTranslatedText text={title} /></p>
         <span className={`choice-signal ${active ? 'choice-signal--done' : 'choice-signal--idle'}`}>
-          {active ? '已選' : '點選'}
+          <HomeTranslatedText text={active ? '已選' : '點選'} />
         </span>
       </div>
-      <p className="mt-2 text-sm leading-6 text-[color:var(--text-sub)]">{description}</p>
+      <p className="mt-2 text-sm leading-6 text-[color:var(--text-sub)]"><HomeTranslatedText text={description} /></p>
     </button>
   );
 }
@@ -370,7 +378,7 @@ function ScoreRow({ label, score, tone }: { label: string; score: number; tone: 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-4">
-        <span className="text-sm text-[color:var(--text-sub)]">{label}</span>
+        <span className="text-sm text-[color:var(--text-sub)]"><HomeTranslatedText text={label} /></span>
         <span className="text-sm font-semibold text-[color:var(--text-main)]">{score}</span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-white/8">
@@ -398,14 +406,12 @@ function OracleHint({ text }: { text: string }) {
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <span className="absolute bottom-7 left-1/2 -translate-x-1/2 z-50 w-56 rounded-xl border border-cyan-400/30 bg-slate-950/95 p-3.5 text-xs leading-5 text-cyan-100 shadow-[0_0_15px_rgba(34,211,238,0.25)] animate-fade-in font-sans">
-            {text}
+            <HomeTranslatedText text={text} />
             <button 
               type="button" 
               className="block mt-2 text-xs font-bold text-cyan-400 text-right w-full hover:underline"
               onClick={() => setOpen(false)}
-            >
-              我知道了 ✗
-            </button>
+            ><HomeTranslatedText text={"我知道了 ✗"} /></button>
           </span>
         </>
       )}
@@ -432,6 +438,7 @@ function PersonStep({
   onSelectionConfirm: Dispatch<SetStateAction<SelectionConfirm>>;
   showValidation?: boolean;
 }) {
+  const display = useDisplayText();
   const updatePerson = useCallback((patch: Partial<PersonInput>) => {
     onChange((current) => ({ ...current, ...patch }));
   }, [onChange]);
@@ -452,37 +459,31 @@ function PersonStep({
   return (
     <div className="fortune-card p-5 sm:p-7">
       <div className="max-w-2xl">
-        <p className={`inline-flex rounded-full border px-3.5 py-1 text-xs font-black uppercase tracking-[0.24em] ${accent === 'violet' ? 'border-violet-400/25 bg-violet-950/20 text-violet-300' : 'border-amber-400/25 bg-amber-950/20 text-amber-300'}`}>
-          配對資料
-        </p>
+        <p className={`inline-flex rounded-full border px-3.5 py-1 text-xs font-black uppercase tracking-[0.24em] ${accent === 'violet' ? 'border-violet-400/25 bg-violet-950/20 text-violet-300' : 'border-amber-400/25 bg-amber-950/20 text-amber-300'}`}><HomeTranslatedText text={"配對資料"} /></p>
         <h2 className="mt-3 font-serif text-2xl font-black leading-tight text-[color:var(--text-main)] sm:text-3xl">
-          {title}
+          <HomeTranslatedText text={title} />
         </h2>
-        <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{description}</p>
+        <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]"><HomeTranslatedText text={description} /></p>
       </div>
 
       <div className="mt-6 space-y-7">
         <div>
-          <label className="mb-2.5 block text-sm font-black text-[color:var(--text-main)]">
-            1. 姓名
-            <OracleHint text={FRONTEND_COPY.nameHint} />
+          <label className="mb-2.5 block text-sm font-black text-[color:var(--text-main)]"><HomeTranslatedText text={"1. 姓名"} /><OracleHint text={FRONTEND_COPY.nameHint} />
           </label>
           <input
             type="text"
             value={value.name}
             onChange={updateName}
-            placeholder="請輸入姓名，至少 2 個字"
+            placeholder={display("請輸入姓名，至少 2 個字")}
             className={`form-input w-full text-base neon-input-focus neon-card-hover glass-input ${accent === 'violet' ? 'glass-input-cyan' : ''} ${showMissingName ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}`}
           />
           {showMissingName && (
-            <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u586b\u5beb\u59d3\u540d\uff0c\u81f3\u5c11 2 \u500b\u5b57\u3002"}</p>
+            <p className="form-missing-alert"><HomeTranslatedText text={"⚠️ 請填寫姓名，至少 2 個字。"} /></p>
           )}
         </div>
 
         <div>
-          <label className="mb-2.5 block text-sm font-black text-[color:var(--text-main)]">
-            2. 出生日期（萬年曆）
-            <OracleHint text={`🪐 ${APPROVED_PHRASES.crossCheck}`} />
+          <label className="mb-2.5 block text-sm font-black text-[color:var(--text-main)]"><HomeTranslatedText text={"2. 出生日期（萬年曆）"} /><OracleHint text={`🪐 ${APPROVED_PHRASES.crossCheck}`} />
           </label>
           <LunarBirthdayInput
             value={value.birthDate}
@@ -491,14 +492,12 @@ function PersonStep({
             label="請選擇國曆或農曆"
           />
           {showMissingBirthDate && (
-            <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u5148\u5b8c\u6210\u751f\u65e5\u8cc7\u6599\u3002"}</p>
+            <p className="form-missing-alert"><HomeTranslatedText text={"⚠️ 請先完成生日資料。"} /></p>
           )}
         </div>
 
         <div>
-          <label className="mb-2.5 block text-sm font-black text-[color:var(--text-main)]">
-            3. 出生時辰（可略過）
-            <OracleHint text="知道時辰可生成完整四柱八字；不知道也可以直接選不知道，系統只用年、月、日三柱，不會假裝補出時柱。" />
+          <label className="mb-2.5 block text-sm font-black text-[color:var(--text-main)]"><HomeTranslatedText text={"3. 出生時辰（可略過）"} /><OracleHint text="知道時辰可生成完整四柱八字；不知道也可以直接選不知道，系統只用年、月、日三柱，不會假裝補出時柱。" />
           </label>
           <div className="grid gap-3 sm:grid-cols-2">
             <ElderChoiceCard
@@ -528,7 +527,7 @@ function PersonStep({
                   onClick={() => updatePerson({ birthHourBranch: shichen.branch })}
                   className={`rounded-xl border px-2 py-2.5 text-center transition ${value.birthHourBranch === shichen.branch ? 'border-2 border-amber-100 bg-amber-300/20 text-amber-50 shadow-[0_0_20px_rgba(251,191,36,0.26)]' : 'border-white/10 bg-white/[0.035] text-white/80 hover:border-cyan-100/40 hover:text-cyan-50'}`}
                 >
-                  <span className="block text-sm font-black">{shichen.label}</span>
+                  <span className="block text-sm font-black"><HomeTranslatedText text={shichen.label} /></span>
                   <span className="mt-0.5 block text-xs font-bold opacity-70">{shichen.range}</span>
                 </button>
               ))}
@@ -537,9 +536,7 @@ function PersonStep({
         </div>
 
         <div>
-          <label className="mb-2.5 block text-sm font-black text-[color:var(--text-main)]">
-            4. 血型
-            <OracleHint text="🧬 血型只用在「相處共鳴指數」的固定規則裡；不知道就用預設值，不會影響八字與五元素。" />
+          <label className="mb-2.5 block text-sm font-black text-[color:var(--text-main)]"><HomeTranslatedText text={"4. 血型"} /><OracleHint text="🧬 血型只用在「相處共鳴指數」的固定規則裡；不知道就用預設值，不會影響八字與五元素。" />
           </label>
           <div className="grid gap-3 sm:grid-cols-2">
             <ElderChoiceCard
@@ -579,12 +576,10 @@ function PersonStep({
         </div>
 
         <div>
-          <label className="mb-2.5 block text-sm font-black text-[color:var(--text-main)]">
-            5. 性別
-            <OracleHint text="✦ 性別不會改變八字四柱；紫微命盤與相處共鳴指數會參考它。" />
+          <label className="mb-2.5 block text-sm font-black text-[color:var(--text-main)]"><HomeTranslatedText text={"5. 性別"} /><OracleHint text="✦ 性別不會改變八字四柱；紫微命盤與相處共鳴指數會參考它。" />
           </label>
           {showMissingGender && (
-            <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u9ede\u9078\u6027\u5225\uff0c\u9019\u6b04\u9084\u6c92\u6709\u78ba\u8a8d\u3002"}</p>
+            <p className="form-missing-alert"><HomeTranslatedText text={"⚠️ 請點選性別，這欄還沒有確認。"} /></p>
           )}
           <div className="grid gap-3 sm:grid-cols-2">
             <ElderChoiceCard
@@ -643,6 +638,7 @@ function BaziBeastPairCards({
   personABirthDate?: string;
   personBBirthDate?: string;
 }) {
+  const resultUi = useResultUi();
   const beastA = foundation?.personA.beastCard;
   const beastB = foundation?.personB.beastCard;
   if (!beastA || !beastB) return null;
@@ -656,9 +652,9 @@ function BaziBeastPairCards({
     <section className="fortune-card relative overflow-hidden border border-cyan-100/20 bg-[radial-gradient(circle_at_18%_0%,rgba(34,211,238,0.14),transparent_37%),radial-gradient(circle_at_82%_0%,rgba(251,191,36,0.12),transparent_37%),linear-gradient(145deg,rgba(15,23,42,0.98),rgba(17,24,39,0.95))] p-3 shadow-[0_20px_56px_rgba(0,0,0,0.28)] sm:p-5">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent" />
       <div className="px-1 pb-3 pt-1 text-center sm:pb-4">
-        <p className="text-xs font-black tracking-[0.25em] text-cyan-100/80">兩人八字・二十八宿神獸</p>
+        <p className="text-xs font-black tracking-[0.25em] text-cyan-100/80">{resultUi.t('兩人八字・二十八宿神獸')}</p>
         <p className="mt-1 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">
-          同一份出生資料，會和八字頁的日柱神獸完全一致。
+          {resultUi.t('同一份出生資料，會和八字頁的日柱神獸完全一致。')}
         </p>
       </div>
 
@@ -674,13 +670,14 @@ function BaziBeastPairCards({
                   : 'border-amber-200/35 bg-[linear-gradient(145deg,rgba(146,64,14,0.28),rgba(15,23,42,0.94)_72%)]'
               }`}
             >
-              <p className={`truncate text-xs font-black tracking-[0.12em] ${isViolet ? 'text-violet-100/85' : 'text-amber-100/85'}`}>{label}</p>
-              <p className="mt-1 truncate text-sm font-black text-[color:var(--text-main)]">{name}{age === null ? '' : `・${age}歲`}</p>
+              <p className={`truncate text-xs font-black tracking-[0.12em] ${isViolet ? 'text-violet-100/85' : 'text-amber-100/85'}`}>{resultUi.t(label)}</p>
+              <p className="mt-1 truncate text-sm font-black text-[color:var(--text-main)]">{name}{age === null ? '' : resultUi.en ? EN_TPL.age(age) : `・${age}歲`}</p>
 
               <div className="relative mt-2 aspect-[1.04] overflow-hidden rounded-[17px] border border-white/14 bg-black/25">
                 <StarBeastLineageReveal
                   beast={beast}
-                  context="八字配對神獸卡"
+                  context={resultUi.t('八字配對神獸卡')}
+                  labels={resultUi.en ? STAR_BEAST_LABELS_EN : undefined}
                   className="h-full"
                   imageClassName="h-full w-full object-cover"
                   overlayClassName="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent px-2 pb-2 pt-9"
@@ -690,12 +687,12 @@ function BaziBeastPairCards({
 
               <div className="mt-2 flex flex-wrap gap-1.5">
                 <span className={`rounded-full border px-2 py-1 text-xs font-black ${isViolet ? 'border-violet-200/25 bg-violet-200/10 text-violet-100' : 'border-amber-200/25 bg-amber-200/10 text-amber-100'}`}>
-                  {beast.productElement}元素
+                  {resultUi.en ? EN_TPL.productElement(beast.productElement) : <>{beast.productElement}元素</>}
                 </span>
-                <span className="rounded-full border border-white/10 bg-black/20 px-2 py-1 text-xs font-bold text-white/75">日柱 {beast.dayPillar}</span>
+                <span className="rounded-full border border-white/10 bg-black/20 px-2 py-1 text-xs font-bold text-white/75">{resultUi.en ? EN_TPL.dayPillar(beast.dayPillar) : <>日柱 {beast.dayPillar}</>}</span>
               </div>
               <p className="mt-2 line-clamp-2 text-xs font-semibold leading-5 text-white/75 ">{beast.coreMeaning}</p>
-              <p className="mt-2 text-xs leading-4 text-white/80">先看本命神獸；神獸幼子需主動深入查看。</p>
+              <p className="mt-2 text-xs leading-4 text-white/80">{resultUi.t('先看本命神獸；神獸幼子需主動深入查看。')}</p>
               <p className="mt-2 border-t border-white/8 pt-2 text-xs leading-4 text-white/80">{beast.direction}</p>
             </article>
           );
@@ -703,13 +700,14 @@ function BaziBeastPairCards({
       </div>
 
       <p className="px-1 pt-3 text-center text-xs font-semibold leading-5 text-white/80">
-        配對順序：先各自定位神獸，再交叉解讀兩人的互動。
+        {resultUi.t('配對順序：先各自定位神獸，再交叉解讀兩人的互動。')}
       </p>
     </section>
   );
 }
 
 function RedLuanHeartbeatPanel({ result, personAName, personBName }: { result?: RedLuanHeartbeatResult; personAName: string; personBName: string }) {
+  const resultUi = useResultUi();
   if (!result) return null;
   const people = [
     { name: personAName, bazi: result.bazi.personA, ziwei: result.ziwei.personA },
@@ -718,25 +716,25 @@ function RedLuanHeartbeatPanel({ result, personAName, personBName }: { result?: 
   return (
     <section className="fortune-card overflow-hidden border border-rose-200/25 bg-[radial-gradient(circle_at_12%_0%,rgba(244,63,94,0.18),transparent_33%),linear-gradient(145deg,rgba(44,10,27,0.92),rgba(17,12,35,0.96))] p-5 sm:p-7">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div><p className="text-xs font-black tracking-[0.24em] text-rose-200">紅鸞心動・第二階段</p><h2 className="mt-2 font-serif text-3xl font-black text-amber-100">關係訊號核對</h2></div>
-        <span className="rounded-full border border-rose-100/25 bg-rose-200/10 px-3 py-1.5 text-xs font-black text-rose-100">{result.annualYear} 年文化參考</span>
+        <div><p className="text-xs font-black tracking-[0.24em] text-rose-200"><HomeTranslatedText text={"紅鸞心動・第二階段"} /></p><h2 className="mt-2 font-serif text-3xl font-black text-amber-100"><HomeTranslatedText text={"關係訊號核對"} /></h2></div>
+        <span className="rounded-full border border-rose-100/25 bg-rose-200/10 px-3 py-1.5 text-xs font-black text-rose-100">{resultUi.en ? EN_TPL.culturalReference(result.annualYear) : <>{result.annualYear} 年文化參考</>}</span>
       </div>
-      <p className="mt-4 text-sm font-semibold leading-7 text-rose-50/80">先看可核對的八字年度訊號；出生時辰完整後，再展開紫微本命夫妻宮資料。不判定感情好壞，也不保證事件。</p>
+      <p className="mt-4 text-sm font-semibold leading-7 text-rose-50/80">{resultUi.t('先看可核對的八字年度訊號；出生時辰完整後，再展開紫微本命夫妻宮資料。不判定感情好壞，也不保證事件。')}</p>
       <article className="mt-4 rounded-2xl border border-amber-100/20 bg-amber-200/[0.06] p-4">
-        <p className="text-xs font-black tracking-[0.18em] text-amber-100">交叉核對摘要・{result.crossCheck.status === 'READY' ? '資料可並列閱讀' : '待補出生時辰'}</p>
+        <p className="text-xs font-black tracking-[0.18em] text-amber-100">{resultUi.en ? EN_TPL.crossCheck(result.crossCheck.status === 'READY' ? '資料可並列閱讀' : '待補出生時辰') : <>交叉核對摘要・{result.crossCheck.status === 'READY' ? '資料可並列閱讀' : '待補出生時辰'}</>}</p>
         <p className="mt-2 text-sm font-semibold leading-7 text-amber-50/88">{result.crossCheck.summary}</p>
         <p className="mt-2 text-xs leading-6 text-white/80">{result.crossCheck.limitation}</p>
       </article>
       <details className="mt-5 rounded-2xl border border-white/10 bg-black/15 p-4" open>
-        <summary className="cursor-pointer list-none text-base font-black text-amber-100">查看八字年度關係訊號 <span className="ml-2 text-xs text-rose-100/80">點選可收起</span></summary>
-        <div className="mt-4 grid gap-3 lg:grid-cols-2">{people.map(({ name, bazi }) => <article key={name} className="rounded-2xl border border-rose-100/12 bg-white/[0.04] p-4"><p className="font-black text-rose-100">{name}</p><p className="mt-1 text-xs font-semibold text-white/80">{bazi.inputCompleteness}・{bazi.annualYear} 是{bazi.annualBranch}年</p><p className="mt-3 text-sm font-black text-amber-100">今年碰到的關係訊號</p>{bazi.annualTriggers.length ? <ul className="mt-2 space-y-1.5 text-sm leading-6 text-rose-50/85">{bazi.annualTriggers.map((item) => <li key={`${item.label}-${item.evidence}`}>• {item.label}：{item.evidence}</li>)}</ul> : <p className="mt-2 text-sm leading-6 text-white/80">今年沒有碰到這組規則的關係訊號；不代表感情沒有可能或沒有價值。</p>}{bazi.natalEvidence.length > 0 && <><p className="mt-3 text-xs font-black text-amber-100">命盤裡本來就有</p><ul className="mt-1 space-y-1 text-xs leading-6 text-white/80">{bazi.natalEvidence.map((item) => <li key={`${item.label}-${item.evidence}`}>• {item.label}：{item.evidence}</li>)}</ul></>}</article>)}</div>
-        <p className="mt-4 text-xs leading-6 text-white/80">依據：{result.bazi.personA.sources.map((item) => `${item.title}（${item.reference}）`).join('；')}</p>
+        <summary className="cursor-pointer list-none text-base font-black text-amber-100"><HomeTranslatedText text={"查看八字年度關係訊號"} /><span className="ml-2 text-xs text-rose-100/80"><HomeTranslatedText text={"點選可收起"} /></span></summary>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">{people.map(({ name, bazi }) => <article key={name} className="rounded-2xl border border-rose-100/12 bg-white/[0.04] p-4"><p className="font-black text-rose-100">{name}</p><p className="mt-1 text-xs font-semibold text-white/80">{resultUi.en ? EN_TPL.annualLine(bazi.inputCompleteness, bazi.annualYear, bazi.annualBranch) : <>{bazi.inputCompleteness}・{bazi.annualYear} 是{bazi.annualBranch}年</>}</p><p className="mt-3 text-sm font-black text-amber-100"><HomeTranslatedText text={"今年碰到的關係訊號"} /></p>{bazi.annualTriggers.length ? <ul className="mt-2 space-y-1.5 text-sm leading-6 text-rose-50/85">{bazi.annualTriggers.map((item) => <li key={`${item.label}-${item.evidence}`}>• {item.label}：{item.evidence}</li>)}</ul> : <p className="mt-2 text-sm leading-6 text-white/80"><HomeTranslatedText text={"今年沒有碰到這組規則的關係訊號；不代表感情沒有可能或沒有價值。"} /></p>}{bazi.natalEvidence.length > 0 && <><p className="mt-3 text-xs font-black text-amber-100"><HomeTranslatedText text={"命盤裡本來就有"} /></p><ul className="mt-1 space-y-1 text-xs leading-6 text-white/80">{bazi.natalEvidence.map((item) => <li key={`${item.label}-${item.evidence}`}>• {item.label}：{item.evidence}</li>)}</ul></>}</article>)}</div>
+        <p className="mt-4 text-xs leading-6 text-white/80"><HomeTranslatedText text={"依據："} />{result.bazi.personA.sources.map((item) => `${item.title}（${item.reference}）`).join('；')}</p>
       </details>
       <details className="mt-3 rounded-2xl border border-violet-100/12 bg-violet-950/20 p-4">
-        <summary className="cursor-pointer list-none text-base font-black text-violet-100">查看紫微本命夫妻宮資料 <span className="ml-2 text-xs text-violet-100/80">{result.crossCheck.status === 'READY' ? '兩人都已排出' : '需完整出生時辰'}</span></summary>
-        <div className="mt-4 grid gap-3 lg:grid-cols-2">{people.map(({ name, ziwei }) => <article key={name} className="rounded-2xl border border-violet-100/10 bg-black/15 p-4"><p className="font-black text-violet-100">{name}</p>{ziwei.status === 'UNAVAILABLE_BIRTH_TIME_REQUIRED' ? <p className="mt-2 text-sm leading-7 text-white/80">時辰尚未提供，因此不以預設時辰排紫微。補上時辰後，才能解鎖本命夫妻宮與三方四正資料。</p> : <div className="mt-3 space-y-2">{ziwei.palaces?.map((palace) => <div key={palace.palace} className="rounded-xl bg-white/[0.04] p-3 text-xs leading-6 text-white/80"><b className="text-violet-100">{palace.palace}・{palace.earthlyBranch}</b><br />主星：{palace.majorStars.join('、') || '無十四主星'}<br />輔星：{palace.minorStars.join('、') || '—'}</div>)}</div>}<p className="mt-3 text-xs leading-6 text-white/80">年度紫微：規則來源待確認，現階段不推算。</p></article>)}</div>
+        <summary className="cursor-pointer list-none text-base font-black text-violet-100"><HomeTranslatedText text={"查看紫微本命夫妻宮資料"} /><span className="ml-2 text-xs text-violet-100/80">{resultUi.t(result.crossCheck.status === 'READY' ? '兩人都已排出' : '需完整出生時辰')}</span></summary>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">{people.map(({ name, ziwei }) => <article key={name} className="rounded-2xl border border-violet-100/10 bg-black/15 p-4"><p className="font-black text-violet-100">{name}</p>{ziwei.status === 'UNAVAILABLE_BIRTH_TIME_REQUIRED' ? <p className="mt-2 text-sm leading-7 text-white/80">{resultUi.t('時辰尚未提供，因此不以預設時辰排紫微。補上時辰後，才能解鎖本命夫妻宮與三方四正資料。')}</p> : <div className="mt-3 space-y-2">{ziwei.palaces?.map((palace) => <div key={palace.palace} className="rounded-xl bg-white/[0.04] p-3 text-xs leading-6 text-white/80"><b className="text-violet-100">{palace.palace}・{palace.earthlyBranch}</b><br />{resultUi.en ? EN_TPL.majorStars(palace.majorStars) : <>主星：{palace.majorStars.join('、') || '無十四主星'}</>}<br />{resultUi.en ? EN_TPL.minorStars(palace.minorStars) : <>輔星：{palace.minorStars.join('、') || '—'}</>}</div>)}</div>}<p className="mt-3 text-xs leading-6 text-white/80"><HomeTranslatedText text={"年度紫微：規則來源待確認，現階段不推算。"} /></p></article>)}</div>
       </details>
-      <details className="mt-3 rounded-2xl border border-cyan-100/12 bg-cyan-950/15 p-4"><summary className="cursor-pointer list-none text-base font-black text-cyan-100">易經補卦 <span className="ml-2 text-xs text-cyan-100/80">尚未開放</span></summary><p className="mt-3 text-sm leading-7 text-white/80">{result.iching.limitation}</p></details>
+      <details className="mt-3 rounded-2xl border border-cyan-100/12 bg-cyan-950/15 p-4"><summary className="cursor-pointer list-none text-base font-black text-cyan-100"><HomeTranslatedText text={"易經補卦"} /><span className="ml-2 text-xs text-cyan-100/80"><HomeTranslatedText text={"尚未開放"} /></span></summary><p className="mt-3 text-sm leading-7 text-white/80">{result.iching.limitation}</p></details>
     </section>
   );
 }
@@ -752,6 +750,7 @@ const MATCH_PRODUCT_ELEMENTS: ProductElement[] = ['空', '風', '水', '火', '�
 
 function MatchSharedElementPearl({ result }: { result?: MatchFiveElementResult }) {
   const [initiator, setInitiator] = useState<'personA' | 'personB' | null>(null);
+  const resultUi = useResultUi();
   const primaryElement = result ? MATCH_ELEMENT_SHORT_LABEL[result.sharedElement] : '空';
   const { released, opening, stage, start, reseal } = useElementTreasureRitual(primaryElement);
   if (!result) return null;
@@ -768,7 +767,8 @@ function MatchSharedElementPearl({ result }: { result?: MatchFiveElementResult }
     start();
   };
   const initiatorName = initiator === 'personA' ? result.personA.name : initiator === 'personB' ? result.personB.name : '';
-  const ritualCopy = opening ? `解封儀式進行中・${(stage ?? 0) + 1}/4` : released ? '儀式完成・五元素封印寶珠已收下' : '五元素封印寶珠・靜止等待先行者';
+  const ritualCopy = resultUi.en && opening ? EN_TPL.ritualOpening((stage ?? 0) + 1) : resultUi.t(opening ? `解封儀式進行中・${(stage ?? 0) + 1}/4` : released ? '儀式完成・五元素封印寶珠已收下' : '五元素封印寶珠・靜止等待先行者');
+  const pearlName = (key: MatchFiveElementKey) => (resultUi.en ? PEARL_NAME_EN[key] : MATCH_PEARL_META[key].name);
 
   return (
     <section className="fortune-card relative overflow-hidden border border-white/14 bg-[linear-gradient(135deg,rgba(8,15,31,0.98),rgba(17,24,39,0.94)_56%,rgba(8,47,73,0.78))] p-4 shadow-[0_18px_52px_rgba(0,0,0,0.25)] sm:p-5">
@@ -784,15 +784,15 @@ function MatchSharedElementPearl({ result }: { result?: MatchFiveElementResult }
         </div>
         <div className="min-w-0">
           <p className="text-xs font-black tracking-[0.22em] text-cyan-100/80">
-            {released ? '五元素封印寶珠・本局已解除' : opening ? '五元素封印寶珠・結界解除中' : '五顆封印寶珠・從這一顆開始解除'}
+            {resultUi.t(released ? '五元素封印寶珠・本局已解除' : opening ? '五元素封印寶珠・結界解除中' : '五顆封印寶珠・從這一顆開始解除')}
           </p>
-          <h2 className="mt-1 font-serif text-2xl font-black tracking-wide text-amber-50 sm:text-3xl">{meta.name}</h2>
-          <p className="mt-1 text-sm font-black text-cyan-100">{elementLabel}・{meta.title}</p>
+          <h2 className="mt-1 font-serif text-2xl font-black tracking-wide text-amber-50 sm:text-3xl">{pearlName(result.sharedElement)}</h2>
+          <p className="mt-1 text-sm font-black text-cyan-100">{resultUi.en ? `${resultUi.t(elementLabel)} · ${PEARL_TITLE_EN[result.sharedElement]}` : <>{elementLabel}・{meta.title}</>}</p>
           <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">
-            這一顆是兩人目前共同要補的元素。兩位老師會先解讀原因，最後由你們一起拿到這顆五元素封印寶珠、解除結界並收下它。
+            {resultUi.t('這一顆是兩人目前共同要補的元素。兩位老師會先解讀原因，最後由你們一起拿到這顆五元素封印寶珠、解除結界並收下它。')}
           </p>
           <p className="mt-2 text-xs font-black leading-5 text-amber-100/90">
-            五元素共有五顆封印寶珠：空、風、水、火、地。本局只解除兩人共同先補的這一顆；其餘四顆保留封印作為對照。
+            {resultUi.t('五元素共有五顆封印寶珠：空、風、水、火、地。本局只解除兩人共同先補的這一顆；其餘四顆保留封印作為對照。')}
           </p>
         </div>
       </div>
@@ -801,9 +801,9 @@ function MatchSharedElementPearl({ result }: { result?: MatchFiveElementResult }
           const personalMeta = MATCH_PEARL_META[person.primaryElement];
           return (
             <div key={label} className="rounded-2xl border border-white/10 bg-black/20 px-3 py-2.5">
-              <p className="text-xs font-black tracking-wide text-white/80">{label}</p>
-              <p className="mt-1 text-sm font-black text-amber-50">{MATCH_ELEMENT_LABEL[person.primaryElement]}</p>
-              <p className="mt-0.5 text-xs font-semibold text-cyan-100/80">{personalMeta.name}</p>
+              <p className="text-xs font-black tracking-wide text-white/80">{resultUi.t(label)}</p>
+              <p className="mt-1 text-sm font-black text-amber-50">{resultUi.t(MATCH_ELEMENT_LABEL[person.primaryElement])}</p>
+              <p className="mt-0.5 text-xs font-semibold text-cyan-100/80">{resultUi.en ? pearlName(person.primaryElement) : personalMeta.name}</p>
             </div>
           );
         })}
@@ -811,19 +811,19 @@ function MatchSharedElementPearl({ result }: { result?: MatchFiveElementResult }
       <p className="mt-2 text-center text-xs font-semibold leading-5 text-white/80">
         {ritualCopy}
       </p>
-      <div className="mt-3 grid grid-cols-2 gap-2" aria-label="其餘四顆封印元素對照">
+      <div className="mt-3 grid grid-cols-2 gap-2" aria-label={resultUi.t('其餘四顆封印元素對照')}>
         {MATCH_PRODUCT_ELEMENTS.filter((element) => element !== productElement).map((element) => (
           <div key={element} className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/20 p-2">
             <span className="treasure-reveal-stage treasure-reveal-stage--sealed scale-[0.7] shrink-0" aria-hidden="true"><WaterTreasureOrb element={element} released={false} preview /></span>
-            <span className="text-xs font-black text-white/75">{element}元素・封印中</span>
+            <span className="text-xs font-black text-white/75">{resultUi.en ? EN_TPL.sealedElement(element) : <>{element}元素・封印中</>}</span>
           </div>
         ))}
       </div>
       {!opening && !released ? (
         <div className="mt-3 grid grid-cols-2 gap-2">
           {[
-            { key: 'personA' as const, label: `${result.personA.name}拿起封印寶珠` },
-            { key: 'personB' as const, label: `${result.personB.name}拿起封印寶珠` },
+            { key: 'personA' as const, label: resultUi.en ? EN_TPL.pickUpOrb(result.personA.name) : `${result.personA.name}拿起封印寶珠` },
+            { key: 'personB' as const, label: resultUi.en ? EN_TPL.pickUpOrb(result.personB.name) : `${result.personB.name}拿起封印寶珠` },
           ].map(({ key, label }) => (
             <button
               type="button"
@@ -838,12 +838,12 @@ function MatchSharedElementPearl({ result }: { result?: MatchFiveElementResult }
       ) : (
         <div className="mt-3" aria-live="polite">
           <div className={`rounded-2xl border px-4 py-3 text-center text-sm font-black ${released ? 'border-emerald-200/35 bg-emerald-300/14 text-emerald-50' : 'border-cyan-200/35 bg-cyan-300/14 text-cyan-50 animate-pulse'}`}>
-            {released ? `${initiatorName}已先解除五元素封印寶珠・收下${meta.name}` : `${initiatorName}正在解除結界・請等待十二秒`}
+            {resultUi.en ? (released ? EN_TPL.released(initiatorName, pearlName(result.sharedElement)) : EN_TPL.releasing(initiatorName)) : released ? `${initiatorName}已先解除五元素封印寶珠・收下${meta.name}` : `${initiatorName}正在解除結界・請等待十二秒`}
           </div>
-          {released && <button type="button" onClick={() => { setInitiator(null); reseal(); }} className="mt-2 w-full rounded-2xl border border-amber-200/55 bg-amber-300/10 px-3 py-2 text-sm font-black text-amber-50 transition active:scale-[0.99]">還原封印・再次進行完整儀式</button>}
+          {released && <button type="button" onClick={() => { setInitiator(null); reseal(); }} className="mt-2 w-full rounded-2xl border border-amber-200/55 bg-amber-300/10 px-3 py-2 text-sm font-black text-amber-50 transition active:scale-[0.99]">{resultUi.t('還原封印・再次進行完整儀式')}</button>}
         </div>
       )}
-      <div className="mt-2 flex justify-end"><ElementUnsealSoundToggle /></div>
+      <div className="mt-2 flex justify-end"><ElementUnsealSoundToggle labels={resultUi.en ? UNSEAL_SOUND_LABELS_EN : undefined} /></div>
     </section>
   );
 }
@@ -869,6 +869,7 @@ const ORBIT_ELEMENT_STYLE: Record<MatchFiveElementKey, { className: string; halo
 
 function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResult }) {
   const [selectedElement, setSelectedElement] = useState<MatchFiveElementKey>(result.sharedElement);
+  const resultUi = useResultUi();
   const { orbit, elementGuide } = result;
   const slotOf = (element: MatchFiveElementKey) => ORBIT_SLOTS[Math.max(0, orbit.generatingCycle.indexOf(element))];
   const pointList = (chain: MatchFiveElementKey[]) => chain.map((element) => `${slotOf(element).x},${slotOf(element).y}`).join(' ');
@@ -877,10 +878,10 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
   const shared = elementGuide[result.sharedElement];
   const selected = elementGuide[selectedElement];
   const neighbours = [
-    { label: `生${shared.short}的是`, element: orbit.shared.generatedBy, tone: 'border-amber-300/40 bg-amber-400/10 text-amber-50' },
-    { label: `${shared.short}再生`, element: orbit.shared.generates, tone: 'border-amber-300/40 bg-amber-400/10 text-amber-50' },
-    { label: `剋${shared.short}的是`, element: orbit.shared.controlledBy, tone: 'border-rose-300/40 bg-rose-400/10 text-rose-50' },
-    { label: `${shared.short}剋`, element: orbit.shared.controls, tone: 'border-cyan-300/40 bg-cyan-400/10 text-cyan-50' },
+    { label: resultUi.en ? EN_TPL.generatedBy(shared.short) : `生${shared.short}的是`, element: orbit.shared.generatedBy, tone: 'border-amber-300/40 bg-amber-400/10 text-amber-50' },
+    { label: resultUi.en ? EN_TPL.generates(shared.short) : `${shared.short}再生`, element: orbit.shared.generates, tone: 'border-amber-300/40 bg-amber-400/10 text-amber-50' },
+    { label: resultUi.en ? EN_TPL.controlledBy(shared.short) : `剋${shared.short}的是`, element: orbit.shared.controlledBy, tone: 'border-rose-300/40 bg-rose-400/10 text-rose-50' },
+    { label: resultUi.en ? EN_TPL.controls(shared.short) : `${shared.short}剋`, element: orbit.shared.controls, tone: 'border-cyan-300/40 bg-cyan-400/10 text-cyan-50' },
   ];
 
   useEffect(() => {
@@ -893,27 +894,34 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_270px] lg:items-start">
         <div className="min-w-0">
-          <p className="text-xs font-black tracking-[0.2em] text-cyan-100">五元素補強星軌</p>
-          <h2 className="mt-2 font-serif text-3xl font-black leading-tight text-cyan-50 sm:text-5xl">
-            五元素星軌配對
-          </h2>
+          <p className="text-xs font-black tracking-[0.2em] text-cyan-100"><HomeTranslatedText text={"五元素補強星軌"} /></p>
+          <h2 className="mt-2 font-serif text-3xl font-black leading-tight text-cyan-50 sm:text-5xl"><HomeTranslatedText text={"五元素星軌配對"} /></h2>
           <p className="mt-3 text-sm font-bold leading-7 text-[color:var(--text-sub)]">
-            把兩人八字五行的補強需求換成五顆星：數字是兩人的平均補強值，越高越需要補。亮起的那顆是兩人共同先補的元素；點星可看它代表什麼、可以先做什麼。
+            {resultUi.t('把兩人八字五行的補強需求換成五顆星：數字是兩人的平均補強值，越高越需要補。亮起的那顆是兩人共同先補的元素；點星可看它代表什麼、可以先做什麼。')}
           </p>
         </div>
 
         <div className="grid grid-cols-3 gap-2 lg:grid-cols-1">
           <div className="rounded-2xl border border-cyan-200/25 bg-cyan-300/10 px-3 py-3 text-center">
-            <p className="text-xs font-black text-cyan-100">各自最缺</p>
-            <p className="mt-1 whitespace-nowrap font-serif text-2xl font-black leading-none text-cyan-50">{elementGuide[result.personA.primaryElement].short}・{elementGuide[result.personB.primaryElement].short}</p>
-            <p className="mt-1 whitespace-nowrap text-xs font-bold text-cyan-100">{result.relationPair}</p>
+            <p className="text-xs font-black text-cyan-100"><HomeTranslatedText text={"各自最缺"} /></p>
+            {resultUi.en ? (
+              <>
+                <p className="mt-1 break-words font-serif text-lg font-black leading-tight text-cyan-50">{EN_TPL.greatestNeed(elementGuide[result.personA.primaryElement].short, elementGuide[result.personB.primaryElement].short)}</p>
+                <p className="mt-1 break-words text-xs font-bold leading-4 text-cyan-100">{result.relationPair}</p>
+              </>
+            ) : (
+              <>
+                <p className="mt-1 whitespace-nowrap font-serif text-2xl font-black leading-none text-cyan-50">{elementGuide[result.personA.primaryElement].short}・{elementGuide[result.personB.primaryElement].short}</p>
+                <p className="mt-1 whitespace-nowrap text-xs font-bold text-cyan-100">{result.relationPair}</p>
+              </>
+            )}
           </div>
           <div className="rounded-2xl border border-amber-200/30 bg-amber-300/12 px-3 py-3 text-center">
-            <p className="text-xs font-black text-amber-100">共同先補</p>
+            <p className="text-xs font-black text-amber-100"><HomeTranslatedText text={"共同先補"} /></p>
             <p className="mt-1 font-serif text-2xl font-black leading-none text-amber-50">{shared.short}</p>
           </div>
           <div className="rounded-2xl border border-rose-200/25 bg-rose-300/10 px-3 py-3 text-center">
-            <p className="text-xs font-black text-rose-100">平均補強值</p>
+            <p className="text-xs font-black text-rose-100">{resultUi.en ? resultUi.t('平均補強值（卡片）') : <HomeTranslatedText text={"平均補強值"} />}</p>
             <p className="mt-1 font-serif text-2xl font-black leading-none text-rose-50">{averageOf(result.sharedElement)}</p>
           </div>
         </div>
@@ -922,12 +930,12 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
       <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(330px,420px)_minmax(0,1fr)] lg:items-stretch">
         <div className="rounded-[28px] border border-white/10 bg-black/24 p-3 sm:p-4">
           <div className="flex flex-col gap-2">
-            <p className="text-xs font-black tracking-[0.16em] text-white/75">五星生剋圖</p>
+            <p className="text-xs font-black tracking-[0.16em] text-white/75"><HomeTranslatedText text={"五星生剋圖"} /></p>
             <div className="flex flex-wrap gap-1.5 text-xs font-black">
-              <span className="rounded-full border border-amber-200/25 bg-amber-300/10 px-2 py-1 text-amber-100">金線＝相生</span>
-              <span className="rounded-full border border-cyan-200/25 bg-cyan-300/10 px-2 py-1 text-cyan-100">青線＝相剋</span>
-              <span className="rounded-full border border-rose-200/30 bg-rose-400/12 px-2 py-1 text-rose-100">紅線＝剋{shared.short}的那一環</span>
-              <span className="rounded-full border border-amber-100/40 bg-amber-200/12 px-2 py-1 text-amber-50">亮金線＝{shared.short}生出去的那一環</span>
+              <span className="rounded-full border border-amber-200/25 bg-amber-300/10 px-2 py-1 text-amber-100"><HomeTranslatedText text={"金線＝相生"} /></span>
+              <span className="rounded-full border border-cyan-200/25 bg-cyan-300/10 px-2 py-1 text-cyan-100"><HomeTranslatedText text={"青線＝相剋"} /></span>
+              <span className="rounded-full border border-rose-200/30 bg-rose-400/12 px-2 py-1 text-rose-100">{resultUi.en ? EN_TPL.redLine(shared.short) : <>紅線＝剋{shared.short}的那一環</>}</span>
+              <span className="rounded-full border border-amber-100/40 bg-amber-200/12 px-2 py-1 text-amber-50">{resultUi.en ? EN_TPL.goldLine(shared.short) : <>亮金線＝{shared.short}生出去的那一環</>}</span>
             </div>
           </div>
 
@@ -965,9 +973,9 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
 
             <div className="absolute inset-[35%] grid place-items-center rounded-full border border-white/12 bg-slate-950/72 text-center shadow-[inset_0_0_24px_rgba(255,255,255,0.06)]">
               <div>
-                <p className="text-xs font-black tracking-[0.12em] text-white/75">共同先補</p>
+                <p className="text-xs font-black tracking-[0.12em] text-white/75"><HomeTranslatedText text={"共同先補"} /></p>
                 <p className="mt-1 font-serif text-3xl font-black leading-none text-amber-100">{shared.short}</p>
-                <p className="mt-1 text-xs font-bold text-cyan-100">點星看解讀</p>
+                <p className="mt-1 text-xs font-bold text-cyan-100"><HomeTranslatedText text={"點星看解讀"} /></p>
               </div>
             </div>
 
@@ -984,7 +992,7 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
                   type="button"
                   key={element}
                   aria-pressed={isSelected}
-                  aria-label={`查看${guide.label}解讀`}
+                  aria-label={resultUi.en ? EN_TPL.viewReading(guide.label) : `查看${guide.label}解讀`}
                   onClick={() => setSelectedElement(element)}
                   className={`absolute grid place-items-center rounded-full border px-2 text-center ${style.className} ${
                     isSelected
@@ -1004,21 +1012,21 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
                     boxShadow: isSelected || isShared ? `0 0 ${isSelected ? 38 : 24}px ${style.halo}` : undefined,
                   }}
                 >
-                  <span className="sr-only">{guide.label}</span>
+                  <span className="sr-only"><HomeTranslatedText text={guide.label} /></span>
                   <span className="font-serif text-2xl font-black leading-none">{guide.short}</span>
                   <span className="mt-1 text-xs font-black leading-none">{score}</span>
-                  <span className={`mt-1 text-xs font-black leading-tight ${isShared ? 'text-amber-50' : 'text-white/80'}`}>{isShared ? '共同先補' : isSelected ? '解讀中' : '點選'}</span>
+                  <span className={`mt-1 text-xs font-black leading-tight ${isShared ? 'text-amber-50' : 'text-white/80'}`}>{resultUi.en ? EN_TPL.starCaption(isShared, isSelected) : isShared ? '共同先補' : isSelected ? '解讀中' : '點選'}</span>
                 </button>
               );
             })}
           </div>
 
-          <div className="mt-3 rounded-2xl border border-white/10 bg-black/30 px-3 py-3" aria-label="共同先補元素的生剋對照">
+          <div className="mt-3 rounded-2xl border border-white/10 bg-black/30 px-3 py-3" aria-label={resultUi.t('共同先補元素的生剋對照')}>
             <div className="grid grid-cols-2 gap-2 text-center">
               {neighbours.map((item) => (
                 <div key={item.label} className={`rounded-xl border px-2 py-2 ${item.tone}`}>
                   <p className="text-xs font-black">{item.label}</p>
-                  <p className="mt-0.5 text-base font-black">{elementGuide[item.element].short}<span className="ml-1 text-xs font-bold text-white/80">（{elementGuide[item.element].traditional}）</span></p>
+                  <p className="mt-0.5 text-base font-black">{elementGuide[item.element].short}<span className="ml-1 text-xs font-bold text-white/80">{resultUi.en ? `(${elementGuide[item.element].traditional})` : <>（{elementGuide[item.element].traditional}）</>}</span></p>
                 </div>
               ))}
             </div>
@@ -1030,30 +1038,29 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
         <div className={`rounded-[28px] border p-4 ${ORBIT_ELEMENT_STYLE[selectedElement].className}`}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-black tracking-[0.16em] text-white/80">點星解讀</p>
+              <p className="text-xs font-black tracking-[0.16em] text-white/80"><HomeTranslatedText text={"點星解讀"} /></p>
               <h3 className="mt-1 text-3xl font-black leading-tight text-[color:var(--text-main)]">
-                {selected.label}・{selected.title}
+                <HomeTranslatedText text={selected.label} />・<HomeTranslatedText text={selected.title} />
               </h3>
             </div>
-            <span className="rounded-full border border-white/15 bg-black/20 px-3 py-1 text-xs font-black text-amber-50">
-              平均補強值 {averageOf(selectedElement)}
+            <span className="rounded-full border border-white/15 bg-black/20 px-3 py-1 text-xs font-black text-amber-50"><HomeTranslatedText text={"平均補強值"} />{averageOf(selectedElement)}
             </span>
           </div>
 
-          <p className="mt-3 text-sm font-bold leading-7 text-[color:var(--text-sub)]">{selected.story}</p>
+          <p className="mt-3 text-sm font-bold leading-7 text-[color:var(--text-sub)]"><HomeTranslatedText text={selected.story} /></p>
 
           <div className="mt-4 grid gap-2">
             <div className="rounded-2xl border border-white/10 bg-black/18 p-3">
-              <p className="text-xs font-black text-amber-100">補起來的好處</p>
-              <p className="mt-1 text-sm font-bold leading-6 text-[color:var(--text-sub)]">{selected.benefit}</p>
+              <p className="text-xs font-black text-amber-100"><HomeTranslatedText text={"補起來的好處"} /></p>
+              <p className="mt-1 text-sm font-bold leading-6 text-[color:var(--text-sub)]"><HomeTranslatedText text={selected.benefit} /></p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/18 p-3">
-              <p className="text-xs font-black text-rose-100">不足時容易出現</p>
-              <p className="mt-1 text-sm font-bold leading-6 text-[color:var(--text-sub)]">{selected.friction}</p>
+              <p className="text-xs font-black text-rose-100"><HomeTranslatedText text={"不足時容易出現"} /></p>
+              <p className="mt-1 text-sm font-bold leading-6 text-[color:var(--text-sub)]"><HomeTranslatedText text={selected.friction} /></p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/18 p-3">
-              <p className="text-xs font-black text-cyan-100">可以先做的一件事</p>
-              <p className="mt-1 text-sm font-bold leading-6 text-[color:var(--text-sub)]">{selected.action}</p>
+              <p className="text-xs font-black text-cyan-100"><HomeTranslatedText text={"可以先做的一件事"} /></p>
+              <p className="mt-1 text-sm font-bold leading-6 text-[color:var(--text-sub)]"><HomeTranslatedText text={selected.action} /></p>
             </div>
           </div>
         </div>
@@ -1062,16 +1069,16 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
       <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="rounded-[24px] border border-cyan-200/20 bg-cyan-300/10 p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm font-black tracking-[0.12em] text-cyan-100">兩人的補強方向</p>
-            <span className="rounded-full border border-cyan-200/25 bg-black/20 px-3 py-1 text-xs font-black text-cyan-50">{result.relationTitle}</span>
+            <p className="text-sm font-black tracking-[0.12em] text-cyan-100"><HomeTranslatedText text={"兩人的補強方向"} /></p>
+            <span className="rounded-full border border-cyan-200/25 bg-black/20 px-3 py-1 text-xs font-black text-cyan-50"><HomeTranslatedText text={result.relationTitle} /></span>
           </div>
-          <p className="mt-2 text-sm font-bold leading-6 text-[color:var(--text-sub)]">{result.relationStory}</p>
-          <p className="mt-2 text-sm font-black leading-6 text-amber-100">{result.relationFocus}</p>
-          <p className="mt-2 text-xs font-semibold leading-5 text-white/75">{result.sharedReason}</p>
+          <p className="mt-2 text-sm font-bold leading-6 text-[color:var(--text-sub)]"><HomeTranslatedText text={result.relationStory} /></p>
+          <p className="mt-2 text-sm font-black leading-6 text-amber-100"><HomeTranslatedText text={result.relationFocus} /></p>
+          <p className="mt-2 text-xs font-semibold leading-5 text-white/75"><HomeTranslatedText text={result.sharedReason} /></p>
         </div>
 
         <div className="rounded-[24px] border border-white/10 bg-black/18 p-4">
-          <p className="text-sm font-black tracking-[0.12em] text-white/80">兩人平均補強排序</p>
+          <p className="text-sm font-black tracking-[0.12em] text-white/80"><HomeTranslatedText text={"兩人平均補強排序"} /></p>
           <div className="mt-3 space-y-2">
             {orbit.ranking.map(({ element, averageNeed }, index) => (
               <button
@@ -1084,7 +1091,7 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
                 }`}
               >
                 <span className="text-xs font-black text-white/75">{index + 1}.</span>{' '}
-                <span className="text-sm font-black text-[color:var(--text-main)]">{elementGuide[element].label}{element === result.sharedElement ? '・共同先補' : ''}</span>{' '}
+                <span className="text-sm font-black text-[color:var(--text-main)]">{elementGuide[element].label}{element === result.sharedElement ? resultUi.t('・共同先補') : ''}</span>{' '}
                 <span className="text-right text-sm font-black text-amber-100">{averageNeed}</span>
               </button>
             ))}
@@ -1098,11 +1105,11 @@ function MatchFiveElementOrbitSystem({ result }: { result: MatchFiveElementResul
             <p className="text-sm font-black text-cyan-100">{person.name}</p>
             <div className="mt-3 grid grid-cols-2 gap-2">
               <div className="rounded-2xl border border-amber-200/20 bg-amber-300/10 p-3">
-                <p className="text-xs font-black text-amber-100">最需要補</p>
+                <p className="text-xs font-black text-amber-100"><HomeTranslatedText text={"最需要補"} /></p>
                 <p className="mt-1 text-lg font-black text-amber-50">{elementGuide[person.primaryElement].label}</p>
               </div>
               <div className="rounded-2xl border border-cyan-200/20 bg-cyan-300/10 p-3">
-                <p className="text-xs font-black text-cyan-100">其次</p>
+                <p className="text-xs font-black text-cyan-100"><HomeTranslatedText text={"其次"} /></p>
                 <p className="mt-1 text-lg font-black text-cyan-50">{elementGuide[person.secondaryElement].label}</p>
               </div>
             </div>
@@ -1120,15 +1127,16 @@ const STEP_MARK = ['①', '②', '③'];
 
 /** 兩人各自的三核心：① 八字 → ② 紫微 → ③ 易經。只照印 /api/match-generate 的 threeCore。 */
 function MatchThreeCorePanel({ view }: { view?: MatchThreeCoreView }) {
+  const resultUi = useResultUi();
   if (!view) return null;
   return (
     <section className="fortune-card border border-violet-200/25 bg-[linear-gradient(145deg,rgba(46,16,101,0.32),rgba(15,23,42,0.95))] p-5 sm:p-6">
-      <p className="text-xs font-black tracking-[0.2em] text-violet-200">① 八字 → ② 紫微 → ③ 易經</p>
-      <h2 className="mt-2 font-serif text-2xl font-black text-violet-50 sm:text-3xl">兩人各自的三核心命盤</h2>
-      <p className="mt-2 text-sm font-bold leading-6 text-[color:var(--text-main)]">{view.people.map((person) => person.teaser).join('；')}</p>
+      <p className="text-xs font-black tracking-[0.2em] text-violet-200"><HomeTranslatedText text={"① 八字 → ② 紫微 → ③ 易經"} /></p>
+      <h2 className="mt-2 font-serif text-2xl font-black text-violet-50 sm:text-3xl"><HomeTranslatedText text={"兩人各自的三核心命盤"} /></h2>
+      <p className="mt-2 text-sm font-bold leading-6 text-[color:var(--text-main)]">{view.people.map((person) => person.teaser).join(resultUi.en ? '; ' : '；')}</p>
       <p className="mt-1 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">{view.orderNote}</p>
       <details className="mt-4 rounded-2xl border border-white/10 bg-black/15 p-3 sm:p-4">
-        <summary className="cursor-pointer list-none text-sm font-black text-violet-100">點開看兩人的完整命盤與卦 ▾</summary>
+        <summary className="cursor-pointer list-none text-sm font-black text-violet-100"><HomeTranslatedText text={"點開看兩人的完整命盤與卦 ▾"} /></summary>
         <div className="mt-4 grid gap-3 lg:grid-cols-2">
           {view.people.map((person) => (
             <article key={person.name} className="rounded-2xl border border-white/10 bg-black/20 p-4">
@@ -1151,7 +1159,7 @@ function MatchThreeCorePanel({ view }: { view?: MatchThreeCoreView }) {
                       <p className="mt-1 text-xs font-bold text-amber-100/85">{person.hexagram.line}</p>
                     </div>
                   </div>
-                  <p className="mt-3 text-sm leading-7 text-[color:var(--text-main)]">卦義：{person.hexagram.essence}</p>
+                  <p className="mt-3 text-sm leading-7 text-[color:var(--text-main)]"><HomeTranslatedText text={"卦義："} />{resultUi.en && ' '}{person.hexagram.essence}</p>
                   <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{person.hexagram.advice}</p>
                   <p className="mt-2 text-xs leading-5 text-white/80">{person.hexagram.basis}</p>
                 </div>
@@ -1188,6 +1196,10 @@ export default function MatchPage() {
   const [data, setData] = useState<MatchResponse | null>(null);
   const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<MatchDailyResult> | null>(null);
   const submitLockRef = useRef(false);
+  const formDisplay = useDisplayText();
+  // English: display copy of the result built from the same engine values; other languages get `data` unchanged.
+  const resultView = useMatchResultView(data);
+  const resultUi = useResultUi();
 
   useEffect(() => {
     if (!getAnalysisIdentityTarget()) {
@@ -1458,39 +1470,37 @@ export default function MatchPage() {
             {step === 'review' && (
               <div className="space-y-6">
                 <div className="fortune-card p-6 sm:p-8">
-                  <p className="text-xs tracking-[0.3em] text-rose-300">最後確認</p>
-                  <h2 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]">確認資料後開始配對</h2>
-                  <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]">
-                    名字、生日、血型都沒問題，就可以開始。這一步讓你安心確認，不怕按太快。
-                  </p>
+                  <p className="text-xs tracking-[0.3em] text-rose-300"><HomeTranslatedText text={"最後確認"} /></p>
+                  <h2 className="mt-3 font-serif text-3xl text-[color:var(--text-main)]"><HomeTranslatedText text={"確認資料後開始配對"} /></h2>
+                  <p className="mt-3 text-sm leading-8 text-[color:var(--text-sub)]"><HomeTranslatedText text={"名字、生日、血型都沒問題，就可以開始。這一步讓你安心確認，不怕按太快。"} /></p>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   {reviewCards.map(({ label, person, accent }) => (
                     <div key={label} className="fortune-card p-5 sm:p-6">
                       <p className={`inline-flex rounded-full border px-4 py-1 text-xs tracking-[0.3em] ${accent === 'violet' ? 'border-violet-400/25 bg-violet-950/20 text-violet-300' : 'border-amber-400/25 bg-amber-950/20 text-amber-300'}`}>
-                        {label}
+                        <HomeTranslatedText text={label} />
                       </p>
                       <div className="mt-5 space-y-3 text-sm text-[color:var(--text-sub)]">
                         <div>
-                          <span className="text-[color:var(--text-sub)]">姓名：</span>
-                          <span className="text-[color:var(--text-main)]">{person.name || '未填'}</span>
+                          <span className="text-[color:var(--text-sub)]"><HomeTranslatedText text={"姓名："} /></span>
+                          <span className="text-[color:var(--text-main)]">{person.name || <HomeTranslatedText text={"未填"} />}</span>
                         </div>
                         <div>
-                          <span className="text-[color:var(--text-sub)]">西元生日：</span>
-                          <span className="text-[color:var(--text-main)]">{person.birthDate || '未換算完成'}</span>
+                          <span className="text-[color:var(--text-sub)]"><HomeTranslatedText text={"西元生日："} /></span>
+                          <span className="text-[color:var(--text-main)]">{person.birthDate || <HomeTranslatedText text={"未換算完成"} />}</span>
                         </div>
                         <div>
-                          <span className="text-[color:var(--text-sub)]">出生時辰：</span>
-                          <span className="text-[color:var(--text-main)]">{person.birthHourBranch && person.birthHourBranch !== 'unknown' ? `${person.birthHourBranch}時` : '不知道（以三柱計算）'}</span>
+                          <span className="text-[color:var(--text-sub)]"><HomeTranslatedText text={"出生時辰："} /></span>
+                          <span className="text-[color:var(--text-main)]"><HomeTranslatedText text={person.birthHourBranch && person.birthHourBranch !== 'unknown' ? `${person.birthHourBranch}時` : '不知道（以三柱計算）'} /></span>
                         </div>
                         <div>
-                          <span className="text-[color:var(--text-sub)]">血型：</span>
-                          <span className="text-[color:var(--text-main)]">{person.bloodType === 'unknown' ? '不知道' : `${person.bloodType} 型`}</span>
+                          <span className="text-[color:var(--text-sub)]"><HomeTranslatedText text={"血型："} /></span>
+                          <span className="text-[color:var(--text-main)]"><HomeTranslatedText text={person.bloodType === 'unknown' ? '不知道' : `${person.bloodType} 型`} /></span>
                         </div>
                         <div>
-                          <span className="text-[color:var(--text-sub)]">性別：</span>
-                          <span className="text-[color:var(--text-main)]">{person.gender === 'female' ? '女性' : '男性'}</span>
+                          <span className="text-[color:var(--text-sub)]"><HomeTranslatedText text={"性別："} /></span>
+                          <span className="text-[color:var(--text-main)]"><HomeTranslatedText text={person.gender === 'female' ? '女性' : '男性'} /></span>
                         </div>
                       </div>
                     </div>
@@ -1501,7 +1511,7 @@ export default function MatchPage() {
 
             {error && (
               <div className="rounded-2xl border border-rose-400/20 bg-rose-950/20 p-4 text-sm text-rose-300">
-                {error}
+                <HomeTranslatedText text={error} />
               </div>
             )}
 
@@ -1512,9 +1522,7 @@ export default function MatchPage() {
                   onClick={goBack}
                   disabled={loading}
                   className="rounded-full border border-white/10 bg-white/5 px-6 py-4 text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-white/20 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  上一步
-                </button>
+                ><HomeTranslatedText text={"上一步"} /></button>
               )}
 
               {step !== 'review' ? (
@@ -1524,7 +1532,7 @@ export default function MatchPage() {
                   disabled={loading}
                   className="vip-gold-btn flex-1 py-5 text-base disabled:cursor-not-allowed disabled:opacity-50 shimmer-btn"
                 >
-                  {step === 'personA' ? '下一步：填第二位' : '下一步：確認資料'}
+                  <HomeTranslatedText text={step === 'personA' ? '下一步：填第二位' : '下一步：確認資料'} />
                 </button>
               ) : (
                 <button
@@ -1533,16 +1541,16 @@ export default function MatchPage() {
                   disabled={!reviewReady || loading}
                   className="vip-gold-btn flex-1 py-5 text-base disabled:cursor-not-allowed disabled:opacity-40 shimmer-btn"
                 >
-                  {loading ? '正在整理配對結果…' : getDailyAnalysisButtonLabel(dailyRecord)}
+                  <HomeTranslatedText text={loading ? '正在整理配對結果…' : getDailyAnalysisButtonLabel(dailyRecord)} />
                 </button>
               )}
             </div>
 
             <div className="grid gap-3 rounded-3xl border border-rose-300/22 bg-gradient-to-br from-rose-950/22 via-rose-950/10 to-slate-950/38 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_14px_30px_rgba(76,5,25,0.18)] sm:grid-cols-[minmax(0,1fr)_minmax(220px,300px)_auto] sm:items-center sm:p-4">
               <div className="min-w-0">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-rose-200/80">目前進度</p>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-rose-200/80"><HomeTranslatedText text={"目前進度"} /></p>
                 <p className="mt-1 bg-gradient-to-r from-rose-50 via-white to-rose-200/90 bg-clip-text font-serif text-xl font-black leading-tight tracking-[0.03em] text-transparent drop-shadow-[0_0_14px_rgba(251,113,133,0.16)]">
-                  {step === 'personA' ? '先填第一位' : step === 'personB' ? '再填第二位' : '確認後開始配對'}
+                  <HomeTranslatedText text={step === 'personA' ? '先填第一位' : step === 'personB' ? '再填第二位' : '確認後開始配對'} />
                 </p>
               </div>
 
@@ -1563,7 +1571,7 @@ export default function MatchPage() {
                     >
                       <p className={`text-base font-black leading-none ${active ? 'text-rose-100' : done ? 'text-violet-200' : 'text-[color:var(--text-main)]'}`}>{done ? '✓' : index + 1}</p>
                       <p className={`mt-1 text-xs font-bold tracking-wide ${active ? 'text-rose-100/90' : 'text-[color:var(--text-sub)]'}`}>
-                        {item === 'personA' ? '第一位' : item === 'personB' ? '第二位' : '確認'}
+                        <HomeTranslatedText text={item === 'personA' ? '第一位' : item === 'personB' ? '第二位' : '確認'} />
                       </p>
                     </div>
                   );
@@ -1573,15 +1581,15 @@ export default function MatchPage() {
               <Link
                 href="/"
                 className="feature-home-link feature-home-link--rose shrink-0 justify-self-end"
-                aria-label={"\u8fd4\u56de\u9996\u9801"}
+                aria-label={formDisplay("\u8fd4\u56de\u9996\u9801")}
               >
-                {"\u8fd4\u56de\u9996\u9801"}
+                <HomeTranslatedText text={"\u8fd4\u56de\u9996\u9801"} />
               </Link>
             </div>
           </div>
         )}
 
-        {data && (
+        {resultView && ((data: MatchResponse) => (
           <div className="space-y-6">
             <div id="match-result-anchor" className="scroll-mt-4" />
             <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="易經靈魂配對" onViewResult={dailyRecord ? () => restoreDailyRecord(dailyRecord) : undefined} />
@@ -1593,28 +1601,37 @@ export default function MatchPage() {
               </section>
             )}
             {data.story && data.fiveElementMatch && (
-              <section className="fortune-card border border-amber-200/30 p-5 sm:p-6" aria-label="一眼看懂">
-                <p className="text-xs font-black tracking-[0.24em] text-amber-200">一眼看懂</p>
+              <section className="fortune-card border border-amber-200/30 p-5 sm:p-6" aria-label={resultUi.t('一眼看懂')}>
+                <p className="text-xs font-black tracking-[0.24em] text-amber-200"><HomeTranslatedText text={"一眼看懂"} /></p>
                 <h2 className="mt-2 font-serif text-2xl font-black text-amber-50">{data.displayA.name} × {data.displayB.name}</h2>
                 <div className="mt-4 grid grid-cols-3 gap-2 text-center">
                   <div className="rounded-2xl border border-rose-200/25 bg-rose-300/10 px-2 py-3">
-                    <p className="text-xs font-black text-rose-100">相處共鳴指數</p>
+                    <p className="text-xs font-black text-rose-100"><HomeTranslatedText text={"相處共鳴指數"} /></p>
                     <p className="mt-1 font-serif text-3xl font-black leading-none text-rose-50">{data.result.match_score}</p>
                   </div>
                   <div className="rounded-2xl border border-amber-200/30 bg-amber-300/12 px-2 py-3">
-                    <p className="text-xs font-black text-amber-100">共同先補</p>
+                    <p className="text-xs font-black text-amber-100"><HomeTranslatedText text={"共同先補"} /></p>
                     <p className="mt-1 font-serif text-3xl font-black leading-none text-amber-50">{data.fiveElementMatch.elementGuide[data.fiveElementMatch.sharedElement].short}</p>
                   </div>
                   <div className="rounded-2xl border border-cyan-200/25 bg-cyan-300/10 px-2 py-3">
-                    <p className="text-xs font-black text-cyan-100">各自最缺</p>
-                    <p className="mt-1 whitespace-nowrap font-serif text-2xl font-black leading-tight text-cyan-50">{data.fiveElementMatch.elementGuide[data.fiveElementMatch.personA.primaryElement].short}・{data.fiveElementMatch.elementGuide[data.fiveElementMatch.personB.primaryElement].short}</p>
-                    <p className="mt-1 whitespace-nowrap text-xs font-bold text-cyan-100">{data.fiveElementMatch.relationPair}</p>
+                    <p className="text-xs font-black text-cyan-100"><HomeTranslatedText text={"各自最缺"} /></p>
+                    {resultUi.en ? (
+                      <>
+                        <p className="mt-1 break-words font-serif text-lg font-black leading-tight text-cyan-50">{EN_TPL.greatestNeed(data.fiveElementMatch.elementGuide[data.fiveElementMatch.personA.primaryElement].short, data.fiveElementMatch.elementGuide[data.fiveElementMatch.personB.primaryElement].short)}</p>
+                        <p className="mt-1 break-words text-xs font-bold leading-4 text-cyan-100">{data.fiveElementMatch.relationPair}</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="mt-1 whitespace-nowrap font-serif text-2xl font-black leading-tight text-cyan-50">{data.fiveElementMatch.elementGuide[data.fiveElementMatch.personA.primaryElement].short}・{data.fiveElementMatch.elementGuide[data.fiveElementMatch.personB.primaryElement].short}</p>
+                        <p className="mt-1 whitespace-nowrap text-xs font-bold text-cyan-100">{data.fiveElementMatch.relationPair}</p>
+                      </>
+                    )}
                   </div>
                 </div>
                 <p className="mt-4 text-xs font-black tracking-[0.12em] text-amber-100">{data.story.closingAction.title}</p>
                 <p className="mt-1 text-base font-black leading-7 text-[color:var(--text-main)]">{data.story.closingAction.copy}</p>
                 {data.scoreBasis && <p className="mt-3 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">{data.scoreBasis}</p>}
-                <p className="mt-2 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">兩人的三核心命盤與卦、兩位老師的解讀，都在下面。</p>
+                <p className="mt-2 text-xs font-semibold leading-5 text-[color:var(--text-sub)]"><HomeTranslatedText text={"兩人的三核心命盤與卦、兩位老師的解讀，都在下面。"} /></p>
               </section>
             )}
             <MatchTeacherReadings data={data} />
@@ -1636,12 +1653,12 @@ export default function MatchPage() {
               <div className="fortune-card overflow-hidden border border-rose-300/35 bg-[radial-gradient(circle_at_18%_0%,rgba(127,29,29,0.38),transparent_36%),radial-gradient(circle_at_86%_14%,rgba(76,29,149,0.32),transparent_38%),linear-gradient(145deg,rgba(22,5,16,0.99),rgba(18,9,30,0.98)_55%,rgba(4,8,18,0.99))] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.52)] sm:p-8">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <p className="text-xs font-black tracking-[0.3em] text-rose-100">鬼魅・神祕・靈異磁場遊戲</p>
-                    <p className="mt-1 text-xs font-black tracking-[0.16em] text-rose-100/80">鬼魅儀式・虛構遊戲劇情</p>
+                    <p className="text-xs font-black tracking-[0.3em] text-rose-100">{resultUi.t('鬼魅・神祕・靈異磁場遊戲')}</p>
+                    <p className="mt-1 text-xs font-black tracking-[0.16em] text-rose-100/80">{resultUi.t('鬼魅儀式・虛構遊戲劇情')}</p>
                     <h2 className="mt-3 font-serif text-3xl font-black text-amber-100 sm:text-4xl">
                       {data.story.mystery.aIdentity} × {data.story.mystery.bIdentity}
                     </h2>
-                    <p className="mt-2 text-sm font-black tracking-[0.12em] text-fuchsia-100/85">本局關卡・{data.story.mystery.realmTitle}</p>
+                    <p className="mt-2 text-sm font-black tracking-[0.12em] text-fuchsia-100/85">{resultUi.en ? EN_TPL.realm(data.story.mystery.realmTitle) : <>本局關卡・{data.story.mystery.realmTitle}</>}</p>
                   </div>
                   <span className="rounded-full border border-rose-200/30 bg-rose-300/10 px-3 py-1 text-xs font-semibold text-rose-100/85">
                     {data.story.mystery.basisBadge}
@@ -1651,7 +1668,7 @@ export default function MatchPage() {
                 <p className="mt-5 text-sm font-bold leading-8 text-amber-50/90">{data.story.mystery.opening}</p>
 
                 <article className={`mt-4 rounded-2xl border p-4 ${STORY_TONE_CLASS[data.story.mystery.soulEcho.tone]}`}>
-                  <p className="text-xs font-black tracking-[0.2em]">靈魂回音・{data.story.mystery.soulEcho.label}</p>
+                  <p className="text-xs font-black tracking-[0.2em]">{resultUi.en ? EN_TPL.soulEcho(data.story.mystery.soulEcho.label) : <>靈魂回音・{data.story.mystery.soulEcho.label}</>}</p>
                   <p className="mt-2 text-sm font-semibold leading-7 text-white/85">{data.story.mystery.soulEcho.copy}</p>
                 </article>
 
@@ -1667,17 +1684,17 @@ export default function MatchPage() {
             )}
 
             <div className="fortune-card p-6 sm:p-8 text-center">
-              <p className="text-xs uppercase tracking-[0.35em] text-rose-300">配對結果</p>
+              <p className="text-xs uppercase tracking-[0.35em] text-rose-300"><HomeTranslatedText text={"配對結果"} /></p>
               <h2 className="mt-3 font-serif text-5xl text-[color:var(--text-main)]">{data.result.match_score}</h2>
-              <p className="mt-2 text-sm text-[color:var(--text-sub)]">相處共鳴指數</p>
+              <p className="mt-2 text-sm text-[color:var(--text-sub)]"><HomeTranslatedText text={"相處共鳴指數"} /></p>
               {data.scoreBasis && <p className="mx-auto mt-3 max-w-2xl rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{data.scoreBasis}</p>}
-              <p className="mx-auto mt-6 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">{data.result.summary}</p>
+              <p className="mx-auto mt-6 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]"><HomeTranslatedText text={data.result.summary} /></p>
               {data.fiveElementMatch && (
                 <>
-                  <p className="mx-auto mt-5 max-w-3xl text-xs font-black tracking-[0.2em] text-emerald-200">五元素補強方向</p>
-                  <p className="mx-auto mt-2 max-w-3xl text-sm font-black leading-7 text-emerald-50">{data.fiveElementMatch.summary}</p>
-                  <p className="mx-auto mt-2 max-w-3xl text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{data.fiveElementMatch.relationReason}</p>
-                  <p className="mx-auto mt-2 max-w-3xl text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{data.fiveElementMatch.basisNote}</p>
+                  <p className="mx-auto mt-5 max-w-3xl text-xs font-black tracking-[0.2em] text-emerald-200"><HomeTranslatedText text={"五元素補強方向"} /></p>
+                  <p className="mx-auto mt-2 max-w-3xl text-sm font-black leading-7 text-emerald-50"><HomeTranslatedText text={data.fiveElementMatch.summary} /></p>
+                  <p className="mx-auto mt-2 max-w-3xl text-xs font-semibold leading-6 text-[color:var(--text-sub)]"><HomeTranslatedText text={data.fiveElementMatch.relationReason} /></p>
+                  <p className="mx-auto mt-2 max-w-3xl text-xs font-semibold leading-6 text-[color:var(--text-sub)]"><HomeTranslatedText text={data.fiveElementMatch.basisNote} /></p>
                   {data.baziFoundation?.timeNote && <p className="mx-auto mt-1 max-w-3xl text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{data.baziFoundation.timeNote}</p>}
                 </>
               )}
@@ -1687,7 +1704,7 @@ export default function MatchPage() {
 
             <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="fortune-card p-6 sm:p-8">
-                <p className="mb-6 text-xs tracking-[0.35em] text-[color:var(--text-sub)]">四項核心指標</p>
+                <p className="mb-6 text-xs tracking-[0.35em] text-[color:var(--text-sub)]"><HomeTranslatedText text={"四項核心指標"} /></p>
                 <div className="space-y-5">
                   <ScoreRow label="共鳴感" score={data.result.resonance} tone="violet" />
                   <ScoreRow label="溝通感" score={data.result.communication} tone="cyan" />
@@ -1697,7 +1714,7 @@ export default function MatchPage() {
               </div>
 
               <div className="fortune-card p-6 sm:p-8">
-                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-rose-300">雙方基本資料</p>
+                <p className="mb-6 text-xs uppercase tracking-[0.35em] text-rose-300"><HomeTranslatedText text={"雙方基本資料"} /></p>
                 <div className="space-y-5 text-sm">
                   <div>
                     <p className="font-semibold text-violet-300">{data.displayA.name}</p>
@@ -1731,7 +1748,7 @@ export default function MatchPage() {
               ].map((section) => (
                 <div key={section.title} className="fortune-card p-5 sm:p-6">
                   <p className={`text-sm font-semibold ${section.tone === 'violet' ? 'text-violet-300' : section.tone === 'amber' ? 'text-amber-300' : section.tone === 'cyan' ? 'text-cyan-300' : 'text-pink-300'}`}>
-                    {section.title}
+                    <HomeTranslatedText text={section.title} />
                   </p>
                   <ul className="mt-4 space-y-3 text-sm leading-7 text-[color:var(--text-sub)]">
                     {section.items.slice(0, 3).map((item) => (
@@ -1747,7 +1764,7 @@ export default function MatchPage() {
 
             {data.story && (
               <div className="fortune-card border border-amber-200/30 p-6 sm:p-8">
-                <p className="text-xs font-black tracking-[0.24em] text-amber-200">下一步</p>
+                <p className="text-xs font-black tracking-[0.24em] text-amber-200"><HomeTranslatedText text={"下一步"} /></p>
                 <h2 className="mt-2 font-serif text-2xl font-black text-amber-50">{data.story.closingAction.title}</h2>
                 <p className="mt-3 text-base font-black leading-8 text-[color:var(--text-main)]">{data.story.closingAction.copy}</p>
                 <p className="mt-2 text-sm leading-7 text-[color:var(--text-sub)]">{data.story.closingAction.why}</p>
@@ -1755,27 +1772,21 @@ export default function MatchPage() {
             )}
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              <button type="button" onClick={() => window.print()} className="vip-gold-btn flex-1 py-4 text-sm">
-                匯出配對報告
-              </button>
+              <button type="button" onClick={() => window.print()} className="vip-gold-btn flex-1 py-4 text-sm"><HomeTranslatedText text={"匯出配對報告"} /></button>
               <Link
                 href="/"
                 className="rounded-full border border-cyan-200/25 bg-cyan-300/10 px-6 py-4 text-center text-sm font-black text-cyan-50 transition hover:border-cyan-200/50 hover:bg-cyan-300/15"
-              >
-                回到主頁
-              </Link>
+              ><HomeTranslatedText text={"回到主頁"} /></Link>
               <button
                 type="button"
                 onClick={resetAll}
                 className="rounded-full border border-white/10 bg-white/5 px-6 py-4 text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-white/20 hover:text-white"
-              >
-                重新輸入
-              </button>
+              ><HomeTranslatedText text={"重新輸入"} /></button>
             </div>
 
             <NextStepGuide current="match" hideDestinations={['music', 'insight']} />
           </div>
-        )}
+        ))(resultView)}
       </main>
     </div>
   );

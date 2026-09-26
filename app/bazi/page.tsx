@@ -1,5 +1,6 @@
 'use client';
 
+import HomeTranslatedText from '@/components/HomeTranslatedText';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
@@ -279,8 +280,8 @@ function PillarCard({ pillar }: { pillar: BaziPillar }) {
     <div className="min-w-0 rounded-2xl border border-white/10 bg-black/18 p-4 text-center">
       <p className="text-[11px] font-black text-[color:var(--text-sub)]">{pillar.label}</p>
       <p className="mt-2 font-serif text-3xl font-black text-amber-100">{pillar.stem}{pillar.branch}</p>
-      <p className="mt-2 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">天干 {pillar.stemElement} · 地支 {pillar.branchElement}</p>
-      <p className="mt-1 text-xs font-bold text-cyan-100">十神 {pillar.stemTenGod}</p>
+      <p className="mt-2 text-xs font-semibold leading-5 text-[color:var(--text-sub)]"><HomeTranslatedText text={"天干"} />{pillar.stemElement}<HomeTranslatedText text={"· 地支"} />{pillar.branchElement}</p>
+      <p className="mt-1 text-xs font-bold text-cyan-100"><HomeTranslatedText text={"十神"} />{pillar.stemTenGod}</p>
     </div>
   );
 }
@@ -300,8 +301,8 @@ function BaziDailyTarotCard({ tarot }: { tarot: NonNullable<BaziResult['dailyTar
   return (
     <section className="rounded-[28px] border border-violet-300/25 bg-black/18 p-5">
       <LayerBadge label="Daily Tarot · One Draw Per Day" />
-      <h2 className="mt-3 text-2xl font-black leading-8 text-violet-50">今日運勢塔羅牌</h2>
-      <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">依你的八字命盤判定，78 張塔羅牌中固定抽出一張作為今日運勢；同一天內固定不變，{tarot.dateKey} 後才會重新判定。</p>
+      <h2 className="mt-3 text-2xl font-black leading-8 text-violet-50"><HomeTranslatedText text={"今日運勢塔羅牌"} /></h2>
+      <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]"><HomeTranslatedText text={"依你的八字命盤判定，78 張塔羅牌中固定抽出一張作為今日運勢；同一天內固定不變，"} />{tarot.dateKey}<HomeTranslatedText text={"後才會重新判定。"} /></p>
 
       <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start">
         <div className="mx-auto w-40 shrink-0 sm:mx-0 [perspective:1400px]">
@@ -313,7 +314,7 @@ function BaziDailyTarotCard({ tarot }: { tarot: NonNullable<BaziResult['dailyTar
           >
             <span className="absolute inset-0 overflow-hidden rounded-[16px] border-2 border-violet-300/30 bg-black shadow-[0_14px_34px_rgba(2,6,23,0.34)] [backface-visibility:hidden]">
               <img src={TAROT_CARD_BACK_URL} alt="" aria-hidden="true" className="h-full w-full object-cover" />
-              <span className="absolute inset-x-2 bottom-2 rounded-md bg-black/55 px-2 py-1 text-[10px] font-semibold leading-4 text-white/90">輕觸翻牌</span>
+              <span className="absolute inset-x-2 bottom-2 rounded-md bg-black/55 px-2 py-1 text-[10px] font-semibold leading-4 text-white/90"><HomeTranslatedText text={"輕觸翻牌"} /></span>
             </span>
             <span className="absolute inset-0 flex flex-col overflow-hidden rounded-[16px] border-2 border-amber-200/50 bg-black [backface-visibility:hidden] [transform:rotateY(180deg)]">
               <img src={tarot.imageUrl} alt={tarot.nameZh} loading="lazy" className="h-[62%] w-full object-cover object-top" />
@@ -329,7 +330,7 @@ function BaziDailyTarotCard({ tarot }: { tarot: NonNullable<BaziResult['dailyTar
           {flipped ? (
             <>
               <div className="rounded-2xl border border-white/10 bg-black/16 p-4">
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-200">牌義</p>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-200"><HomeTranslatedText text={"牌義"} /></p>
                 <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{tarot.uprightMeaning}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {tarot.uprightKeywords.map((keyword) => (
@@ -338,18 +339,16 @@ function BaziDailyTarotCard({ tarot }: { tarot: NonNullable<BaziResult['dailyTar
                 </div>
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/16 p-4">
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200">與命盤的關聯</p>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200"><HomeTranslatedText text={"與命盤的關聯"} /></p>
                 <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{tarot.bridge}</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/16 p-4">
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-200">今日自問</p>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-200"><HomeTranslatedText text={"今日自問"} /></p>
                 <p className="mt-2 text-sm leading-7 text-[color:var(--text-main)]">{tarot.reflectionPrompt}</p>
               </div>
             </>
           ) : (
-            <div className="flex h-full items-center rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-6 text-sm leading-7 text-[color:var(--text-sub)]">
-              點選左側牌卡，翻開你今天的運勢塔羅牌。
-            </div>
+            <div className="flex h-full items-center rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-6 text-sm leading-7 text-[color:var(--text-sub)]"><HomeTranslatedText text={"點選左側牌卡，翻開你今天的運勢塔羅牌。"} /></div>
           )}
         </div>
       </div>
@@ -366,7 +365,7 @@ function ReinforcementCard({ item }: { item: BaziReinforcementItem }) {
       <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{item.action}</p>
       <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-muted)]">{item.suggestion}</p>
       <div className="mt-3 rounded-xl border border-white/10 bg-black/16 p-3">
-        <p className="text-[11px] font-black text-violet-100">判定依據</p>
+        <p className="text-[11px] font-black text-violet-100"><HomeTranslatedText text={"判定依據"} /></p>
         <div className="mt-2 space-y-1">
           {item.basis.slice(0, 4).map((basis) => <p key={basis} className="text-[11px] font-semibold leading-5 text-[color:var(--text-sub)]">{basis}</p>)}
         </div>
@@ -541,8 +540,7 @@ export default function BaziPage() {
             {/* 眉標：雙側金色引線夾中文 */}
             <div className="flex items-center justify-center gap-3">
               <span className="h-px w-10 bg-gradient-to-r from-transparent to-amber-300/80" aria-hidden="true" />
-              <p className="text-xs font-black tracking-[0.3em] text-amber-200">
-                辰 · 八字命盤 <span className="ml-1 text-[10px] font-bold uppercase tracking-[0.2em] text-amber-200/50">BAZI ENGINE</span>
+              <p className="text-xs font-black tracking-[0.3em] text-amber-200"><HomeTranslatedText text={"辰 · 八字命盤"} /><span className="ml-1 text-[10px] font-bold uppercase tracking-[0.2em] text-amber-200/50">BAZI ENGINE</span>
               </p>
               <span className="h-px w-10 bg-gradient-to-l from-transparent to-amber-300/80" aria-hidden="true" />
             </div>
@@ -551,9 +549,7 @@ export default function BaziPage() {
               易經八字命盤
             </h1>
             {/* 副標：置中收尾 */}
-            <p className="mx-auto mt-4 max-w-2xl text-base font-bold leading-7 text-amber-100/75 sm:text-lg">
-              先排準，再解讀。
-            </p>
+            <p className="mx-auto mt-4 max-w-2xl text-base font-bold leading-7 text-amber-100/75 sm:text-lg"><HomeTranslatedText text={"先排準，再解讀。"} /></p>
           </div>
         </header>
 
@@ -627,9 +623,7 @@ export default function BaziPage() {
             href="/"
             className="group inline-flex min-h-[48px] items-center justify-center rounded-2xl border border-cyan-200/20 bg-cyan-300/[0.06] px-5 py-3 text-sm font-black text-cyan-50 shadow-[0_12px_30px_rgba(8,47,73,0.22)] transition hover:border-cyan-200/40 hover:bg-cyan-300/[0.1] active:scale-[0.99]"
           >
-            <span className="mr-2 h-1.5 w-1.5 rounded-full bg-amber-200/80 shadow-[0_0_14px_rgba(251,191,36,0.45)]" aria-hidden="true" />
-            返回首頁
-          </Link>
+            <span className="mr-2 h-1.5 w-1.5 rounded-full bg-amber-200/80 shadow-[0_0_14px_rgba(251,191,36,0.45)]" aria-hidden="true" /><HomeTranslatedText text={"返回首頁"} /></Link>
         </footer>
       </main>
     </div>

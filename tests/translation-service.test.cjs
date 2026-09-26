@@ -1,0 +1,52 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const ts = require('typescript');
+const cache = new Map();
+const testEnv = {};
+let testFetch = async () => { throw new Error('Unexpected network request'); };
+function load(file) {
+  file = path.resolve(file);
+  if(cache.has(file)) return cache.get(file);
+  const mod={exports:{}}; cache.set(file,mod.exports);
+  const code=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
+  vm.runInNewContext(code,{module:mod,exports:mod.exports,URL,AbortSignal,fetch:(...args)=>testFetch(...args),process:{env:testEnv},require:name=>name==='@google/genai'?{GoogleGenAI:class {constructor(){throw new Error('No live requests in unit tests');}},Type:{}}:load(path.join(path.dirname(file),name+'.ts'))});
+  return mod.exports;
+}
+(async()=>{
+ const {translateDisplayText}=load('lib/translation-service.ts');
+ let calls=0;
+ const generate=async()=>{calls++;return JSON.stringify({translations:['Hello','Goodbye']});};
+ assert.equal((await translateDisplayText(['你好','再見'],'en',generate)).ok,true);
+ assert.equal((await translateDisplayText(['你好'],'en',generate)).reason,'incomplete');
+ assert.equal((await translateDisplayText(['x'.repeat(5001)],'en',generate)).reason,'invalid-input');
+ assert.equal(calls,2);
+ assert.equal((await translateDisplayText(['你好'],'xx',generate)).reason,'invalid-input');
+ assert.equal((await translateDisplayText(['你好'],'en')).reason,'unconfigured');
+ const quota=await translateDisplayText(['你好'],'en',async()=>{throw {status:429};});
+ assert.equal(quota.reason,'quota');assert.equal('translations' in quota,false);
+ assert.equal((await translateDisplayText(['你好'],'en',async()=>'not JSON')).reason,'incomplete');
+ assert.equal((await translateDisplayText(['你好'],'en',async()=>'{}')).reason,'incomplete');
+ assert.equal((await translateDisplayText(['你好'],'en',async()=>' {"translations":[""]}')).reason,'incomplete');
+ testEnv.LIBRETRANSLATE_URL='https://translation.example.test';
+ const requests=[];
+ testFetch=async(url,options)=>{
+   requests.push({url,options});
+   return {ok:true,json:async()=>url.endsWith('/languages')?[{code:'en'}]:{translatedText:['Hello']}};
+ };
+ const offlineProvider=await translateDisplayText(['你好'],'en');
+ assert.equal(offlineProvider.ok,true);
+ assert.equal(offlineProvider.translations[0],'Hello');
+ assert.equal(requests.length,2);
+ assert.equal(JSON.parse(requests[1].options.body).q[0],'你好');
+ assert.equal(requests[1].options.redirect,'error');
+ requests.length=0;
+ assert.equal((await translateDisplayText(['你好'],'ko')).reason,'unavailable');
+ assert.equal(requests.length,1,'Unsupported target must not submit text');
+ testEnv.LIBRETRANSLATE_URL='http://translation.example.test';requests.length=0;
+ assert.equal((await translateDisplayText(['你好'],'en')).reason,'unavailable');
+ assert.equal(requests.length,0,'Reject plaintext remote endpoint before a network call');
+ console.log('PASS: bounded input, translation count, malformed output, missing configuration and quota failure without fabricated results');
+ console.log('PASS: self-hosted provider, target capability checks and endpoint validation');
+})().catch(error=>{console.error(error);process.exitCode=1});

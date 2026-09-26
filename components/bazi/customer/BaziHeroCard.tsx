@@ -1,5 +1,6 @@
 'use client';
 
+import HomeTranslatedText from '@/components/HomeTranslatedText';
 import type { BaziCustomerView } from './adapter';
 import { FourPillarsCard } from './FourPillarsCard';
 import { FiveElementOrbit } from './FiveElementOrbit';
@@ -21,7 +22,7 @@ export function BaziHeroCard({ view, elementOf }: {
           <h2 className="mt-1 truncate font-serif text-2xl font-black text-[color:var(--text-main)] sm:text-3xl">{view.name || '我的八字'}</h2>
         </div>
         <div className="shrink-0 text-right">
-          <p className="text-xs font-bold text-white/40">日主</p>
+          <p className="text-xs font-bold text-white/40"><HomeTranslatedText text={"日主"} /></p>
           <p className="font-serif text-3xl font-black leading-none text-amber-100">{view.dayMaster.stem}{view.dayMaster.element}</p>
         </div>
       </div>
@@ -32,7 +33,7 @@ export function BaziHeroCard({ view, elementOf }: {
       </div>
 
       <div className="mt-5">
-        <p className="mb-2.5 text-sm font-black text-white/55">固定五行星體</p>
+        <p className="mb-2.5 text-sm font-black text-white/55"><HomeTranslatedText text={"固定五行星體"} /></p>
         <FiveElementOrbit view={view.fiveElementOrbit} evidence={view.elementEvidence} />
       </div>
     </section>

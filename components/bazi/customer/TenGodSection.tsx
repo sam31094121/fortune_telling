@@ -1,4 +1,5 @@
-'use client';
+'use client';import HomeTranslatedText from '@/components/HomeTranslatedText';
+
 
 /** 十神：主畫面只顯示最重要 3–4 個（核心），其餘完整版放 LEVEL 3 */
 export function TenGodSection({ ranked, dominant, missing }: {
@@ -21,8 +22,7 @@ export function TenGodSection({ ranked, dominant, missing }: {
           </span>
         ))}
       </div>
-      <p className="mt-3 text-sm font-semibold leading-6 text-white/55">
-        主訊號：{dominant.join('、') || '分布平均'}{missing.length > 0 ? `；缺位：${missing.join('、')}` : ''}
+      <p className="mt-3 text-sm font-semibold leading-6 text-white/55"><HomeTranslatedText text={"主訊號："} />{dominant.join('、') || '分布平均'}{missing.length > 0 ? `；缺位：${missing.join('、')}` : ''}
       </p>
     </div>
   );

@@ -1,0 +1,20 @@
+/* 2026-09-25 star-beast i18n toggle — scoped styles for the homepage 星宿神獸 card wrapper. */
+
+/* The inner <a> keeps .home-feature-tier-explore and is hidden by the site's collapse rule;
+   hide the wrapper too so the language toggle never floats alone when the stack is collapsed. */
+@media (max-width: 900px), (pointer: coarse) {
+  :global(.home-feature-stack--collapsed) .wrap {
+    display: none;
+  }
+}
+
+/* Keep the label pill clear of the absolutely positioned 中｜EN toggle (top-right). */
+.label {
+  margin-right: 5.5rem;
+}
+
+@media (min-width: 640px) {
+  .label {
+    margin-right: 0;
+  }
+}

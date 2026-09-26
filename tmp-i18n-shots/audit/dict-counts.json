@@ -1,0 +1,195 @@
+{
+ "rows": [
+  {
+   "lang": "en",
+   "area": "home",
+   "file": "lib/home-english-copy.ts",
+   "entries": 84,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "en",
+   "area": "form",
+   "file": "lib/form-english-copy.ts",
+   "entries": 151,
+   "identical": 0,
+   "valueHanNoLocalScript": 12
+  },
+  {
+   "lang": "en",
+   "area": "birthday",
+   "file": "lib/birthday-english-copy.ts",
+   "entries": 23,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "en",
+   "area": "result",
+   "file": "lib/result-english-copy.ts",
+   "entries": 122,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "en",
+   "area": "result-english/tables FIXED_SENTENCE_EN",
+   "file": "lib/result-english/tables.ts",
+   "entries": 91,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ja",
+   "area": "home",
+   "file": "lib/home-japanese-copy.ts",
+   "entries": 84,
+   "identical": 0,
+   "valueHanNoLocalScript": 7
+  },
+  {
+   "lang": "ko",
+   "area": "home",
+   "file": "lib/korean-copy/home.ts",
+   "entries": 84,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ko",
+   "area": "form",
+   "file": "lib/korean-copy/form.ts",
+   "entries": 98,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ko",
+   "area": "birthday",
+   "file": "lib/korean-copy/birthday.ts",
+   "entries": 23,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ko",
+   "area": "result",
+   "file": "lib/korean-copy/result.ts",
+   "entries": 571,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ko",
+   "area": "pages/bazi",
+   "file": "lib/korean-copy/pages/bazi.ts",
+   "entries": 401,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ko",
+   "area": "pages/nameology",
+   "file": "lib/korean-copy/pages/nameology.ts",
+   "entries": 211,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ko",
+   "area": "pages/numerology",
+   "file": "lib/korean-copy/pages/numerology.ts",
+   "entries": 138,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ko",
+   "area": "pages/zodiac",
+   "file": "lib/korean-copy/pages/zodiac.ts",
+   "entries": 120,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ko",
+   "area": "pages/red-luan-heartbeat",
+   "file": "lib/korean-copy/pages/red-luan-heartbeat.ts",
+   "entries": 287,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ko",
+   "area": "pages/tarot",
+   "file": "lib/korean-copy/pages/tarot.ts",
+   "entries": 771,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ko",
+   "area": "pages/insight",
+   "file": "lib/korean-copy/pages/insight.ts",
+   "entries": 1123,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ko",
+   "area": "pages/music",
+   "file": "lib/korean-copy/pages/music.ts",
+   "entries": 334,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ko",
+   "area": "pages/star-beasts",
+   "file": "lib/korean-copy/pages/star-beasts.ts",
+   "entries": 197,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ko",
+   "area": "pages/growth-center",
+   "file": "lib/korean-copy/pages/growth-center.ts",
+   "entries": 247,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ko",
+   "area": "pages/shared",
+   "file": "lib/korean-copy/pages/shared.ts",
+   "entries": 373,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ko",
+   "area": "pages/beast-game",
+   "file": "lib/korean-copy/pages/beast-game.ts",
+   "entries": 864,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  },
+  {
+   "lang": "ko",
+   "area": "pages/misc",
+   "file": "lib/korean-copy/pages/misc.ts",
+   "entries": 874,
+   "identical": 0,
+   "valueHanNoLocalScript": 0
+  }
+ ],
+ "uniqueKeysPerLang": {
+  "en": 457,
+  "ja": 84,
+  "ko": 6716
+ },
+ "koKeysAlsoInEn": 433,
+ "jaKeysAlsoInEn": 84
+}

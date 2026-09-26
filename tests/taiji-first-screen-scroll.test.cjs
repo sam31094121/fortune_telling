@@ -110,4 +110,30 @@ assert.strictEqual(ref.current.target, 1);
 cleanup();
 assert.strictEqual(handlers.size, 0);
 
+load(hook, { react: { useEffect: fn => { cleanup = fn(); } }, '@/lib/taiji-journey-depth': journey },
+  { window, document: { documentElement: { scrollTop: 0 } }, HTMLElement: Element }
+).useTaijiFirstScreenScroll(ref, false);
+assert.strictEqual(handlers.size, 0, 'paused page input registers no listeners');
+
+const pinch = fs.readFileSync('components/taiji/useTaijiPinch.ts', 'utf8');
+load(pinch, { react: { useEffect: fn => { cleanup = fn(); } }, '@/lib/taiji-journey-depth': journey })
+  .useTaijiPinch({ current: window }, ref);
+assert.strictEqual(handlers.has('wheel'), false);
+assert.strictEqual(handlers.has('touchmove'), false);
+journey.jumpJourney(ref.current, 1);
+const pointer = (name, id, x) => event(name, { pointerType: 'touch', pointerId: id, clientX: x, clientY: 0 });
+pointer('pointerdown', 1, 0);
+pointer('pointermove', 1, 10);
+assert.strictEqual(ref.current.target, 1, 'single finger cannot advance depth');
+pointer('pointerdown', 2, 110);
+pointer('pointermove', 2, 210);
+assert.strictEqual(ref.current.target, 1 + journey.TAIJI_PINCH_DEPTH_GAIN, 'spreading two fingers enlarges');
+pointer('pointermove', 2, 60);
+assert.strictEqual(ref.current.target, 1, 'pinching inward clamps at first layer');
+pointer('pointercancel', 2, 60);
+pointer('pointermove', 1, 100);
+assert.strictEqual(ref.current.target, 1, 'cancelled pinch stops changing depth');
+cleanup();
+assert.strictEqual(handlers.size, 0);
+
 console.log('taiji-first-screen-scroll ok');

@@ -129,6 +129,17 @@ async function main() {
 
   console.log('\n【三】正常流程：三套全部成立才算完整');
   const ok = await runThreeInOne(ANCHOR);
+  assertThreeInOnePassed(ok);
+  for (const [label, mutate] of [
+    ['時柱遭改寫', (value: typeof ok) => { value.result.bazi.hour = '丁卯'; }],
+    ['跳過核對流程', (value: typeof ok) => { value.trace = value.trace.filter(step => step !== 'VERIFYING_FOUR_PILLARS'); }],
+    ['易經沿用其他命盤', (value: typeof ok) => { value.result.yijing.certificate.chartFingerprint = 'other'; }],
+    ['只有成功標記', (value: typeof ok) => { Object.assign(value.verification, { yijing: false }); }],
+  ] as const) {
+    const altered = structuredClone(ok);
+    mutate(altered);
+    throws(`${label}不得放行`, () => assertThreeInOnePassed(altered), 'THREE_IN_ONE_NOT_PASSED');
+  }
   {
     eq('狀態為 PASSED', ok.status, 'PASSED');
     check('success 與 completed 同時為真', ok.success === true && ok.completed === true);
@@ -210,15 +221,12 @@ async function main() {
       eq('與 HH:mm 走出同一顆卦',
         byIndex.result.yijing.reading.hexagramName, ok.result.yijing.reading.hexagramName);
     }
-    // 地支序優先於 birthTime——兩者衝突時不得各算各的
+    // 精確時間與地支序衝突時不得任選其一。
     const conflict = await runThreeInOne({
       birthDate: ANCHOR.birthDate, birthTime: '23:00', hourBranchIndex: 2, gender: 'female',
     });
-    if (conflict.status === 'PASSED') {
-      eq('地支序優先，不受 birthTime 干擾', conflict.fourPillars.bazi.hour, '丙寅');
-    } else {
-      check('地支序優先，不受 birthTime 干擾', false, conflict.status);
-    }
+    eq('精確時間與地支序衝突，停止計算', conflict.status, 'FAILED');
+    check('時間衝突不进入紫微或易經', !conflict.trace.includes('ZIWEI_RUNNING') && !conflict.trace.includes('YIJING_RUNNING'));
   }
 
   console.log('\n【五】無時辰：要有「沒有時辰」的算法，而且要照實講');
@@ -240,7 +248,8 @@ async function main() {
       eq('八字算得出來', m.layers[0].available, true);
       eq('紫微不算', m.layers[1].available, false);
       eq('神獸卡不給', m.layers[2].available, false);
-      eq('易經改走象徵起卦，算得出來', m.layers[3].available, true);
+      eq('缺時辰不得用象徵卦替代', m.layers[3].available, false);
+      eq('易經進度不得顯示已通過', noTime.checklist.find(item => item.id === 'YIJING')?.state, 'PENDING');
 
       // 每一層都要有「怎麼算」與「為什麼只能這樣」，不能只有一句系統限制
       for (const layer of m.layers) {
@@ -251,13 +260,13 @@ async function main() {
       check('紫微要講出命宮定不了的機制', m.layers[1].reason.includes('命宮'));
       check('神獸卡要講出依賴命宮', m.layers[2].reason.includes('命宮'));
       check('神獸卡要說明時柱那張也不給', m.layers[2].method.includes('時柱那張不給'));
-      check('易經要明說不是生辰卦', m.layers[3].reason.includes('不是你的生辰卦'));
+      check('易經要明說不另起卦替代', m.layers[3].reason.includes('不使用姓名'));
       check('要說明核對為何不執行', m.crossCheck.includes('沒有排盤'));
       check('要說明補時辰能解鎖什麼', m.unlock.includes('補上出生時辰'));
 
       // 不能用騙的
       check('誠實聲明：沒有用預設時辰補', m.honesty.includes('沒有用預設時辰'));
-      check('誠實聲明：沒有把象徵卦說成生辰卦', m.honesty.includes('象徵卦說成生辰卦'));
+      check('誠實聲明：不以象徵卦替代生辰卦', m.honesty.includes('不以姓名象徵卦替代'));
 
       const allText = JSON.stringify(m);
       check('全份說明不得提到以午時代替', !allText.includes('以午時計') && !allText.includes('預設午時'));

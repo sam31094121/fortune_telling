@@ -3,6 +3,9 @@
 import type { ChangeEvent } from 'react';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { normalizeCalendarInput, solarToLunarParts } from '@/lib/lunar-calendar';
+import { useInterfaceLanguage } from '@/components/InterfaceLanguage';
+import { birthdayEnglishCopy } from '@/lib/birthday-english-copy';
+import { koreanCopy } from '@/lib/korean-copy';
 
 interface LunarBirthdayInputProps {
   value: string;
@@ -34,6 +37,10 @@ function LunarBirthdayInput({
   accent = 'violet',
   label = '請輸入出生日期',
 }: LunarBirthdayInputProps) {
+  const { language } = useInterfaceLanguage();
+  const english = language === 'en';
+  const korean = language === 'ko';
+  const display = (text: string) => english ? birthdayEnglishCopy[text] ?? text : korean ? koreanCopy[text] ?? text : text;
   const [mode, setMode] = useState<'solar' | 'lunar'>('solar');
   const [rocYear, setRocYear] = useState('');
   const [month, setMonth] = useState('');
@@ -69,17 +76,25 @@ function LunarBirthdayInput({
     if (day === '') return '第三格填「日」：例如 25。';
     const maxDay = mode === 'lunar' ? 30 : 31;
     if (effectiveRocYear <= 0) return '年份看起來不對：請填民國年（例如 63）或西元年（例如 1974）。';
-    if (isFutureYear) return `年份超過今年了：民國 ${effectiveRocYear} 年是西元 ${effectiveRocYear + 1911} 年，請再確認一次。`;
+    if (isFutureYear) return english ? `The year is in the future: ROC ${effectiveRocYear} is Gregorian ${effectiveRocYear + 1911}. Please check it.` : korean ? `연도가 올해보다 뒤입니다: 민국 ${effectiveRocYear}년은 서기 ${effectiveRocYear + 1911}년입니다. 다시 확인해 주십시오.` : `年份超過今年了：民國 ${effectiveRocYear} 年是西元 ${effectiveRocYear + 1911} 年，請再確認一次。`;
     if (Number(month) < 1 || Number(month) > 12) return '月份只能填 1 到 12，請再確認一次。';
-    if (Number(day) < 1 || Number(day) > maxDay) return `日期只能填 1 到 ${maxDay}，請再確認一次。`;
+    if (Number(day) < 1 || Number(day) > maxDay) return english ? `The day must be between 1 and ${maxDay}. Please check it.` : korean ? `일은 1부터 ${maxDay} 사이여야 합니다. 다시 확인해 주십시오.` : `日期只能填 1 到 ${maxDay}，請再確認一次。`;
     if (!normalizedCalendar) {
       return mode === 'lunar'
         ? '這個農曆日期查不到，請確認月份、日期，或是不是閏月。'
-        : `${Number(month)} 月沒有 ${Number(day)} 日，請再確認一次。`;
+        : english ? `Month ${Number(month)} has no day ${Number(day)}. Please check the date.` : korean ? `${Number(month)}월에는 ${Number(day)}일이 없습니다. 날짜를 다시 확인해 주십시오.` : `${Number(month)} 月沒有 ${Number(day)} 日，請再確認一次。`;
     }
     const yearNote = fromGregorian ? `（已把西元 ${rocYear} 年換成民國 ${effectiveRocYear} 年）` : '';
+    if (english) {
+      const lunar = normalizedCalendar.lunar;
+      return `Confirmed Gregorian date: ${normalizedCalendar.solarDate}. Lunar date: ROC year ${lunar.rocYear}, ${lunar.isLeapMonth ? 'leap ' : ''}month ${lunar.month}, day ${lunar.day}.${fromGregorian ? ` Gregorian ${rocYear} corresponds to ROC ${effectiveRocYear}.` : ''}`;
+    }
+    if (korean) {
+      const lunar = normalizedCalendar.lunar;
+      return `양력 날짜를 확인했습니다: ${normalizedCalendar.solarDate}. 음력: 민국 ${lunar.rocYear}년 ${lunar.isLeapMonth ? '윤' : ''}${lunar.month}월 ${lunar.day}일.${fromGregorian ? ` 서기 ${rocYear}년은 민국 ${effectiveRocYear}년에 해당합니다.` : ''}`;
+    }
     return `已確認西元 ${normalizedCalendar.solarDate}，${formatLunarDate(normalizedCalendar.lunar)}${yearNote}`;
-  }, [day, effectiveRocYear, fromGregorian, isFutureYear, mode, month, normalizedCalendar, rocYear]);
+  }, [day, effectiveRocYear, english, fromGregorian, korean, isFutureYear, mode, month, normalizedCalendar, rocYear]);
 
   const handleNumberInput = (setter: (next: string) => void, maxLength: number) => (event: ChangeEvent<HTMLInputElement>) => {
     setter(onlyDigits(event.target.value, maxLength));
@@ -157,11 +172,11 @@ function LunarBirthdayInput({
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="text-xs font-semibold text-cyan-200">生日資料</p>
-          <p className="text-sm font-semibold text-[color:var(--text-sub)]">{label}</p>
+          <p className="text-xs font-semibold text-cyan-200">{display('生日資料')}</p>
+          <p className="text-sm font-semibold text-[color:var(--text-sub)]">{display(label)}</p>
         </div>
         <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${accentClass}`}>
-          {mode === 'solar' ? '國曆輸入' : '農曆輸入'}
+          {display(mode === 'solar' ? '國曆輸入' : '農曆輸入')}
         </span>
       </div>
 
@@ -172,7 +187,7 @@ function LunarBirthdayInput({
           onClick={() => handleModeChange('solar')}
           className={`rounded-lg px-3 py-2.5 font-semibold transition-all ${mode === 'solar' ? 'border border-cyan-300/30 bg-cyan-400/15 text-cyan-100' : 'text-[color:var(--text-sub)] hover:text-white'}`}
         >
-          國曆生日
+          {display('國曆生日')}
         </button>
         <button
           type="button"
@@ -180,35 +195,35 @@ function LunarBirthdayInput({
           onClick={() => handleModeChange('lunar')}
           className={`rounded-lg px-3 py-2.5 font-semibold transition-all ${mode === 'lunar' ? 'border border-violet-300/30 bg-violet-400/15 text-violet-100' : 'text-[color:var(--text-sub)] hover:text-white'}`}
         >
-          農曆生日
+          {display('農曆生日')}
         </button>
       </div>
 
       {/* placeholder 放範例，不放今天日期——長輩會以為已經幫他填好了。 */}
       <div className="grid grid-cols-3 gap-3">
         <label className="relative block">
-          <input inputMode="numeric" enterKeyHint="next" type="text" aria-label="民國年" placeholder="例 63" value={rocYear} disabled={disabled} onChange={handleNumberInput(setRocYear, 4)} className="form-input glass-input glass-input-cyan w-full pr-9" />
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[color:var(--text-muted)]">年</span>
+          <input inputMode="numeric" enterKeyHint="next" type="text" aria-label={display('民國年')} placeholder={display('例 63')} value={rocYear} disabled={disabled} onChange={handleNumberInput(setRocYear, 4)} className="form-input glass-input glass-input-cyan w-full pr-9" />
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[color:var(--text-muted)]">{display('年')}</span>
         </label>
         <label className="relative block">
-          <input inputMode="numeric" enterKeyHint="next" type="text" aria-label="月份" placeholder="例 7" value={month} disabled={disabled} onChange={handleNumberInput(setMonth, 2)} className="form-input glass-input glass-input-cyan w-full pr-9" />
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[color:var(--text-muted)]">月</span>
+          <input inputMode="numeric" enterKeyHint="next" type="text" aria-label={display('月份')} placeholder={display('例 7')} value={month} disabled={disabled} onChange={handleNumberInput(setMonth, 2)} className="form-input glass-input glass-input-cyan w-full pr-9" />
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[color:var(--text-muted)]">{display('月')}</span>
         </label>
         <label className="relative block">
-          <input inputMode="numeric" enterKeyHint="done" type="text" aria-label="日期" placeholder="例 25" value={day} disabled={disabled} onChange={handleNumberInput(setDay, 2)} className="form-input glass-input glass-input-cyan w-full pr-9" />
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[color:var(--text-muted)]">日</span>
+          <input inputMode="numeric" enterKeyHint="done" type="text" aria-label={display('日期')} placeholder={display('例 25')} value={day} disabled={disabled} onChange={handleNumberInput(setDay, 2)} className="form-input glass-input glass-input-cyan w-full pr-9" />
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[color:var(--text-muted)]">{display('日')}</span>
         </label>
       </div>
 
       {mode === 'lunar' && (
         <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-[color:var(--text-sub)]">
           <input type="checkbox" checked={isLeapMonth} disabled={disabled} onChange={(event) => setIsLeapMonth(event.target.checked)} className="h-4 w-4 accent-violet-300" />
-          這個農曆月份是閏月
+          {display('這個農曆月份是閏月')}
         </label>
       )}
 
       <p aria-live="polite" className={`rounded-xl border px-3 py-2 text-sm leading-6 ${statusClass}`}>
-        {statusMessage}
+        {display(statusMessage)}
       </p>
     </div>
   );

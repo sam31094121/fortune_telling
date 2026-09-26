@@ -4774,6 +4774,20 @@ body.vgc-explode .vgc-core-char { transform: translateZ(18px) scale(1.12); }
   overflow-wrap: anywhere;
 }
 
+.home-line-share-button.home-line-share-button--compact {
+  width: auto;
+  min-height: 44px;
+  border-radius: 12px;
+  padding: 8px 12px;
+  letter-spacing: normal;
+  white-space: nowrap;
+  writing-mode: horizontal-tb;
+}
+.home-line-share-button--compact > span:last-child {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
 @media (max-width: 430px) {
   .home-line-share-card {
     padding-inline: 1rem;
@@ -26830,6 +26844,17 @@ a.home-feature-launch::after {
   .home-first-screen-stack .home-taiji-aux {
     opacity: 1;
   }
+}
+
+/* Keep the quest and the language strip together without stacked bottom margins. */
+.home-first-screen-stack .home-primary-quest-wrap {
+  margin-bottom: 8px !important;
+}
+.home-first-screen-stack .home-primary-quest-wrap #today-direction-quest {
+  margin-bottom: 0;
+}
+.home-first-screen-stack + .home-hero-stage--taiji-only {
+  display: none;
 }
 
 /* Homepage mobile spacing: leave the touching motto/taiji/quest stack intact. */

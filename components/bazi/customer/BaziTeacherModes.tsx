@@ -1,7 +1,9 @@
 'use client';
 
+import HomeTranslatedText from '@/components/HomeTranslatedText';
 import { useEffect, useMemo, useState } from 'react';
 import type { BaziCustomerView } from './adapter';
+import { BasicChartReading } from './BasicChartReading';
 import { CustomerEvidenceDrawer } from './CustomerAccordion';
 import { WaterTreasureOrb, type ProductElement } from './WaterTreasureOrb';
 import { getProductElementNameFromTraditional } from '@/lib/five-element-engine';
@@ -21,16 +23,10 @@ const TEACHERS: Array<{ id: TeacherMode; title: string; subtitle: string }> = [
  * never as a frozen screen — even when the API answers in under a second.
  */
 const GOOGLE_RITUAL_STAGES = [
-  '易經老師正在整理命盤重點…',
-  '正在比對日主、格局與十神…',
-  '正在校對五行、用神與大運流年…',
-  '正在把結構整理成白話…',
+  '正在核對本次出生資料，請稍候…',
 ];
 const HORROR_RITUAL_STAGES = [
-  '鬼魅正在翻開封印的第一頁…',
-  '磁場、詭異、因果正在對齊同一張命盤…',
-  '最後一盞燈正在被點亮…',
-  '正在寫下這一集的回應…',
+  '正在核對本次出生資料，請稍候…',
 ];
 const GHOST_READING_MARKERS = ['第一道・磁場：', '第二道・詭異：', '第三道・因果：', '五元素封印：'] as const;
 const GHOST_READING_SECTIONS = [
@@ -83,14 +79,14 @@ const PRODUCT_ORB_ORDER: readonly ProductElement[] = ['空', '風', '水', '火'
 function BaziSealedComparisonOrbs({ primaryElement }: { primaryElement: ProductElement }) {
   return (
     <section className="mt-4 overflow-hidden rounded-2xl border-2 border-amber-100/30 bg-black/25 p-4 shadow-[inset_0_0_24px_rgba(251,191,36,0.06)]" aria-label="其餘四顆封印元素對照">
-      <p className="text-xs font-black tracking-[0.14em] text-amber-100/90">其餘四顆・封印對照</p>
-      <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70">命盤只解封上方的主珠——它是你命盤的第一補強（用神）；其餘四顆維持封咒，作為完整元素對照。</p>
+      <p className="text-xs font-black tracking-[0.14em] text-amber-100/90"><HomeTranslatedText text={"其餘四顆・封印對照"} /></p>
+      <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/70"><HomeTranslatedText text={"命盤只解封上方的主珠——它是你命盤的第一補強（用神）；其餘四顆維持封咒，作為完整元素對照。"} /></p>
       <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {PRODUCT_ORB_ORDER.filter((element) => element !== primaryElement).map((element) => (
           <div key={element} className="relative flex min-h-[116px] flex-col items-center justify-center overflow-hidden rounded-xl border border-amber-100/20 bg-black/20 px-2 py-3 text-center">
             <span className="treasure-reveal-stage treasure-reveal-stage--sealed scale-[0.82]" aria-hidden="true"><WaterTreasureOrb element={element} released={false} preview /></span>
-            <p className="mt-1 text-xs font-black text-amber-50">{element}元素</p>
-            <p className="mt-0.5 text-[11px] font-semibold text-amber-100/65">封印中・僅供對照</p>
+            <p className="mt-1 text-xs font-black text-amber-50">{element}<HomeTranslatedText text={"元素"} /></p>
+            <p className="mt-0.5 text-[11px] font-semibold text-amber-100/65"><HomeTranslatedText text={"封印中・僅供對照"} /></p>
           </div>
         ))}
       </div>
@@ -119,14 +115,13 @@ function currentLuck(view: BaziCustomerView) {
 export function BaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView; onOpenFull: () => void }) {
   if (!view.traditionalGate.interpretationReady) {
     return (
-      <section className="rounded-[20px] border border-amber-200/25 bg-amber-100/[0.05] p-5" aria-label="傳統八字輸出守門">
-        <p className="text-xs font-black tracking-[0.16em] text-amber-100">老師解讀暫不生成</p>
-        <p className="mt-2 text-sm font-semibold leading-7 text-white/75">{view.traditionalGate.customerMessage}</p>
+      <section className="rounded-[20px] border border-amber-200/25 bg-amber-100/[0.05] p-5" aria-label="命盤資料說明">
+        <BasicChartReading view={view} />
         <button type="button" onClick={onOpenFull} className="mt-3 min-h-[44px] rounded-xl border border-white/20 bg-white/[0.04] px-4 py-2 text-sm font-black text-white/80">查看已核對的基礎命盤</button>
       </section>
     );
   }
-  return <VerifiedBaziTeacherModes view={view} onOpenFull={onOpenFull} />;
+  return <VerifiedBaziTeacherModes key={JSON.stringify(view.birthInput)} view={view} onOpenFull={onOpenFull} />;
 }
 
 /**
@@ -179,26 +174,8 @@ function VerifiedBaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView
   };
   const googleRequest = useMemo(() => ({
     shortName,
-    age: ageLabel,
-    previousAge: previousAgeLabel,
-    nextAge: nextAgeLabel,
-    dayMaster: `${view.dayMaster.stem}${view.dayMaster.element}（${view.dayMaster.level}）`,
-    structure: view.structurePattern.primaryPattern,
-    usefulGod: view.gods.usefulGod,
-    avoidGod: view.gods.avoidGod,
-    activeLuck: primaryLuck ? `${primaryLuck.ageRange}・${primaryLuck.pillar}` : '',
-    annualLuck: view.teacher.annual[0] ? `${view.teacher.annual[0].year}・${view.teacher.annual[0].pillar}` : '',
-    elementFocus: view.teacher.signals.elementFocus,
-    chartSummary: view.teacher.chartSummary,
-    structureSignal: view.teacher.signals.structure,
-    dominantTenGods: view.teacher.tenGodsDominant.join('、') || '分布平均',
-    missingTenGods: view.teacher.tenGodsMissing.join('、') || '未見明顯缺位',
-    strengthFactors: view.teacher.strengthFactors.map((factor) => `${factor.label}：${factor.detail}`).join('；'),
-    plainSections: view.teacher.sections.slice(0, 7).map((section) => `${section.title}：${section.content}`).join('；'),
-    treasureElement: elementTreasure.element,
-    treasureName: elementTreasure.name,
-    treasurePower: elementTreasure.power,
-  }), [shortName, ageLabel, previousAgeLabel, nextAgeLabel, view, primaryLuck, elementTreasure]);
+    birthInput: view.birthInput,
+  }), [shortName, view.birthInput]);
   const googleRequestKey = JSON.stringify(googleRequest);
 
   useEffect(() => {
@@ -206,6 +183,7 @@ function VerifiedBaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView
     const controller = new AbortController();
     let cancelled = false;
     setGoogleNotice(null);
+    setGoogleReading(null);
     setGoogleLoading(true);
     setGoogleError(null);
     setGoogleStage(0);
@@ -249,6 +227,7 @@ function VerifiedBaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView
     const controller = new AbortController();
     let cancelled = false;
     setHorrorNotice(null);
+    setHorrorReading(null);
     setHorrorLoading(true);
     setHorrorError(null);
     setHorrorStage(0);
@@ -288,7 +267,7 @@ function VerifiedBaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView
   return (
     <section className="space-y-4 overflow-x-hidden" aria-label="易經八字老師解盤">
       <div className="rounded-[22px] border-2 border-amber-200/60 bg-[linear-gradient(135deg,rgba(120,53,15,0.28),rgba(2,6,23,0.68))] p-3.5 shadow-[0_0_28px_rgba(251,191,36,0.18)]">
-        <p className="rounded-xl border-2 border-amber-100/60 bg-amber-300/12 px-3 py-2.5 text-xs font-black tracking-[0.14em] text-amber-100 shadow-[0_0_16px_rgba(251,191,36,0.12)]">友善引導・先選一位老師開始解盤</p>
+        <p className="rounded-xl border-2 border-amber-100/60 bg-amber-300/12 px-3 py-2.5 text-xs font-black tracking-[0.14em] text-amber-100 shadow-[0_0_16px_rgba(251,191,36,0.12)]"><HomeTranslatedText text={"友善引導・先選一位老師開始解盤"} /></p>
         <div className="mt-2.5 grid gap-2.5 sm:grid-cols-2">
           {TEACHERS.map((teacher) => {
             const selected = active === teacher.id;
@@ -315,10 +294,9 @@ function VerifiedBaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView
       </div>
 
       <section className="rounded-[20px] border border-cyan-200/20 bg-cyan-950/20 px-4 py-3">
-        <p className="text-xs font-black tracking-[0.14em] text-cyan-100">當下時間層・不改本命盤</p>
+        <p className="text-xs font-black tracking-[0.14em] text-cyan-100"><HomeTranslatedText text={"當下時間層・不改本命盤"} /></p>
         <p className="mt-1 text-sm font-semibold leading-6 text-white/75">
-          {view.timeContext.age === null ? '年齡資料待確認' : `目前 ${view.timeContext.age} 歲`}・{view.timeContext.currentYear} 年・{view.timeContext.dayNight}閱讀
-          {view.timeContext.activeDaYun ? `・正在走 ${view.timeContext.activeDaYun.ageRange} 的 ${view.timeContext.activeDaYun.pillar} 大運` : '・大運區間未能對應'}
+          {view.timeContext.age === null ? '年齡資料待確認' : `目前 ${view.timeContext.age} 歲`}・{view.timeContext.currentYear} 年・{view.timeContext.dayNight}<HomeTranslatedText text={"閱讀"} />{view.timeContext.activeDaYun ? `・正在走 ${view.timeContext.activeDaYun.ageRange} 的 ${view.timeContext.activeDaYun.pillar} 大運` : '・大運區間未能對應'}
           {view.timeContext.annualLuck ? `・流年 ${view.timeContext.annualLuck.pillar}` : ''}
         </p>
       </section>
@@ -327,12 +305,12 @@ function VerifiedBaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView
         <>
           <article className="flex flex-col rounded-[20px] border-2 border-cyan-200/55 bg-[linear-gradient(135deg,rgba(8,47,73,0.54),rgba(15,23,42,0.78))] p-4 shadow-[0_0_22px_rgba(34,211,238,0.12)]" aria-label="易經老師解盤">
             <div className="order-1 flex items-center justify-between gap-3">
-              <p className="text-xs font-black tracking-[0.14em] text-cyan-100">易經老師解盤・全盤白話翻譯</p>
+              <p className="text-xs font-black tracking-[0.14em] text-cyan-100"><HomeTranslatedText text={"易經老師解盤・全盤白話翻譯"} /></p>
               <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-black ${googleLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : googleReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-cyan-100/35 bg-cyan-300/10 text-cyan-50/80'}`}>
                 {googleLoading ? '正在生成' : googleReading ? '易經老師已完成' : '等待解盤'}
               </span>
             </div>
-            <p className="order-2 mt-2 rounded-xl border border-cyan-100/20 bg-cyan-950/35 px-3 py-2 text-xs font-bold leading-5 text-cyan-50/75">易經老師會以姓名後兩字與目前年齡開場，按「前一歲／現在／下一歲」白話解說日主、格局、十神、五行、大運與流年；讀完提醒後，解開你的五元素寶石，讓今天的行動有一個明確起點。</p>
+            <p className="order-2 mt-2 rounded-xl border border-cyan-100/20 bg-cyan-950/35 px-3 py-2 text-xs font-bold leading-5 text-cyan-50/75"><HomeTranslatedText text={"先核對本次出生資料與命盤，再依生辰卦提供文化解讀；核對未完成時暫不提供。"} /></p>
             {googleLoading && (
               <div className="order-3 mt-3 rounded-xl border border-cyan-100/25 bg-cyan-950/40 px-3 py-3" aria-live="polite">
                 <div className="flex items-center gap-2">
@@ -351,21 +329,21 @@ function VerifiedBaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView
             )}
       {googleError && (
               <div className="order-3 mt-2">
-                <p className="text-sm font-semibold leading-6 text-rose-100">易經老師解盤暫時未完成：{googleError}</p>
-                <button type="button" onClick={() => setGoogleRun((value) => value + 1)} className="mt-2 min-h-[44px] w-full touch-manipulation rounded-xl border-2 border-cyan-100/70 bg-cyan-300/12 px-3 py-2.5 text-sm font-black text-cyan-50">重新請 易經老師解盤</button>
+                <p className="text-sm font-semibold leading-6 text-rose-100"><HomeTranslatedText text={"易經老師解盤暫時未完成："} />{googleError}</p>
+                <button type="button" onClick={() => setGoogleRun((value) => value + 1)} className="mt-2 min-h-[44px] w-full touch-manipulation rounded-xl border-2 border-cyan-100/70 bg-cyan-300/12 px-3 py-2.5 text-sm font-black text-cyan-50"><HomeTranslatedText text={"重新請 易經老師解盤"} /></button>
               </div>
             )}
             {googleReading && <p className="order-5 mt-4 rounded-2xl border border-cyan-100/30 bg-black/20 p-3 text-sm font-semibold leading-7 text-cyan-50/90">{googleReading}</p>}
             {googleReading && (
               <section className="five-element-treasure-card order-4 mt-4 overflow-hidden rounded-[1.45rem] border-2 border-amber-200/70 p-5" aria-label="今日五元素寶物行動">
-                <p className="text-[11px] font-black tracking-[0.16em] text-amber-100">依老師提醒・解開五元素寶石</p>
+                <p className="text-[11px] font-black tracking-[0.16em] text-amber-100"><HomeTranslatedText text={"依老師提醒・解開五元素寶石"} /></p>
                 <div className="mt-3 grid grid-cols-1 items-center gap-5 rounded-2xl border-2 border-amber-100/55 bg-black/25 p-5 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
                   <div key={`google-treasure-${treasurePulse}`} className={`treasure-reveal-stage treasure-reveal-stage--${elementTreasure.element === '水' ? 'water' : 'standard'} treasure-reveal-stage--hero justify-self-center scale-[1.35] sm:scale-[1.78] ${treasureCollected ? 'treasure-reveal-stage--collected' : ''} ${treasureOpening ? 'treasure-reveal-stage--opening' : ''}`} aria-hidden="true">
                     <WaterTreasureOrb element={elementTreasure.element} released={treasureCollected || treasureOpening} burnSealOnRelease animating={treasureOpening} />
                   </div>
                   <div className="min-w-0 text-center sm:text-left">
-                    <p className="text-[11px] font-black tracking-[0.16em] text-cyan-100/80">命盤專屬補強方向</p>
-                    <h5 className="mt-1 font-serif text-2xl font-black leading-8 text-amber-50">{elementTreasure.element}元素・{elementTreasure.name}</h5>
+                    <p className="text-[11px] font-black tracking-[0.16em] text-cyan-100/80"><HomeTranslatedText text={"命盤專屬補強方向"} /></p>
+                    <h5 className="mt-1 font-serif text-2xl font-black leading-8 text-amber-50">{elementTreasure.element}<HomeTranslatedText text={"元素・"} />{elementTreasure.name}</h5>
                     <p className="mt-2 text-sm font-bold leading-6 text-amber-50/80">{elementTreasure.power}</p>
                     <p className={`mt-2 text-xs font-black tracking-[0.1em] ${treasureCollected ? 'text-emerald-100' : 'text-amber-100'}`}>{treasureOpening ? '封印正在鬆動・寶物即將入背包' : treasureCollected ? '已收下・今天的練習已啟動' : '未收下也可以直接執行這項練習'}</p>
                   </div>
@@ -393,25 +371,25 @@ function VerifiedBaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView
           <div aria-hidden="true" className="pointer-events-none absolute -left-16 bottom-16 h-52 w-52 rounded-full bg-violet-500/10 blur-3xl" />
           <div aria-hidden="true" className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-rose-100/60 to-transparent" />
           <div className="relative flex items-center justify-between gap-3">
-            <p className="text-xs font-black tracking-[0.18em] text-rose-200">恐怖鬼魅解命盤・集數式沉浸劇情</p>
-            <span className="rounded-full border border-rose-200/25 bg-rose-500/10 px-2 py-1 text-[10px] font-black tracking-[0.12em] text-rose-100">原創恐怖遊戲</span>
+            <p className="text-xs font-black tracking-[0.18em] text-rose-200"><HomeTranslatedText text={"恐怖鬼魅解命盤・集數式沉浸劇情"} /></p>
+            <span className="rounded-full border border-rose-200/25 bg-rose-500/10 px-2 py-1 text-[10px] font-black tracking-[0.12em] text-rose-100"><HomeTranslatedText text={"原創恐怖遊戲"} /></span>
           </div>
           {/* 戲劇化情境提示卡依需求隱藏（2026-08-28）；「不代表真實事件」的界線已由後端提示詞強制寫進解盤內容本身 */}
           {false && (
-            <p className="mt-2 rounded-xl border border-violet-200/15 bg-black/25 px-3 py-2 text-xs font-bold leading-5 text-violet-100/80">戲劇化命盤遊戲情境：以同一張八字盤與當下時間層創作，不代表已發生的真實事件。</p>
+            <p className="mt-2 rounded-xl border border-violet-200/15 bg-black/25 px-3 py-2 text-xs font-bold leading-5 text-violet-100/80"><HomeTranslatedText text={"戲劇化命盤遊戲情境：以同一張八字盤與當下時間層創作，不代表已發生的真實事件。"} /></p>
           )}
           <h4 className="relative mt-3 font-serif text-[1.38rem] font-black leading-8 text-white">{episodeTitle}</h4>
-          <p className="relative mt-1 text-sm font-black leading-6 text-rose-100/90">{shortName}，你現在 {ageLabel}。這次解盤會用以前、現在、未來的生活節奏，陪你看懂眼前的訊號。</p>
+          <p className="relative mt-1 text-sm font-black leading-6 text-rose-100/90">{shortName}<HomeTranslatedText text={"，你現在"} />{ageLabel}<HomeTranslatedText text={"。這次解盤會用以前、現在、未來的生活節奏，陪你看懂眼前的訊號。"} /></p>
           {/* 「劇情壓力正在累積」跑馬提示依需求永久隱藏（2026-08-28），以後不再顯示 */}
           {false && (
             <div className="relative mt-3 flex items-center gap-2 rounded-xl border border-rose-200/30 bg-black/35 px-3 py-2 shadow-[inset_0_0_20px_rgba(190,24,93,0.08)]">
               <span aria-hidden="true" className="h-2 w-2 animate-pulse rounded-full bg-rose-300 shadow-[0_0_12px_rgba(253,164,175,0.95)]" />
-              <p className="text-xs font-black tracking-[0.12em] text-rose-100">劇情壓力正在累積・每一幕都比前一幕更靠近</p>
+              <p className="text-xs font-black tracking-[0.12em] text-rose-100"><HomeTranslatedText text={"劇情壓力正在累積・每一幕都比前一幕更靠近"} /></p>
             </div>
           )}
           {/* 流程說明段依需求隱藏（2026-08-28）；「非事件預言」的免責聲明由上方戲劇化情境提示卡保留，要恢復移除 false && 即可 */}
           {false && (
-            <p className="relative mt-2 text-sm font-bold leading-6 text-rose-100/80">這是原創虛構的恐怖遊戲，不是事件預言。本集先讓異常出現，再讓壓力逼近，最後由鬼魅回應前面留下的八字線索；每一段都能回到同一張盤核對。</p>
+            <p className="relative mt-2 text-sm font-bold leading-6 text-rose-100/80"><HomeTranslatedText text={"這是原創虛構的恐怖遊戲，不是事件預言。本集先讓異常出現，再讓壓力逼近，最後由鬼魅回應前面留下的八字線索；每一段都能回到同一張盤核對。"} /></p>
           )}
           <div className="relative mt-4 grid grid-cols-3 gap-2" aria-label="恐怖鬼魅劇情結構">
             {[
@@ -429,20 +407,18 @@ function VerifiedBaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView
           {/* 「本集命盤腳本」說明卡依需求隱藏（2026-08-28）：後端運作方式客戶沒必要看到；要恢復移除 false && 即可 */}
           {false && (
             <div className="relative mt-3 rounded-2xl border border-rose-200/15 bg-black/25 p-3" aria-label="劇情因果鏈">
-              <p className="text-[10px] font-black tracking-[0.16em] text-rose-200/80">本集命盤腳本・不是隨機故事</p>
-              <p className="mt-1 text-sm font-bold leading-6 text-white/75">
-                後端會用已鎖定的八字資料建立伏筆；客戶端只看以前的你留下的殘影、{shortName}現在的警報與未來的你面前的門縫。你不必先懂術語，照著這三段就能走完本集。
-              </p>
+              <p className="text-[10px] font-black tracking-[0.16em] text-rose-200/80"><HomeTranslatedText text={"本集命盤腳本・不是隨機故事"} /></p>
+              <p className="mt-1 text-sm font-bold leading-6 text-white/75"><HomeTranslatedText text={"後端會用已鎖定的八字資料建立伏筆；客戶端只看以前的你留下的殘影、"} />{shortName}<HomeTranslatedText text={"現在的警報與未來的你面前的門縫。你不必先懂術語，照著這三段就能走完本集。"} /></p>
             </div>
           )}
           <section className="relative mt-3 rounded-2xl border-2 border-violet-200/35 bg-[linear-gradient(135deg,rgba(76,5,25,0.42),rgba(30,27,75,0.52))] p-4" aria-label="正式恐怖鬼魅八字解盤">
             <div className="flex items-center justify-between gap-3">
-              <p className="ghost-reply-title">鬼魅正式解盤・同盤回應</p>
+              <p className="ghost-reply-title"><HomeTranslatedText text={"鬼魅正式解盤・同盤回應"} /></p>
               <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-black ${horrorLoading ? 'border-amber-100/55 bg-amber-300/10 text-amber-50' : horrorReading ? 'border-emerald-100/55 bg-emerald-300/10 text-emerald-50' : 'border-rose-100/35 bg-rose-300/10 text-rose-100/80'}`}>{horrorLoading ? '正在生成' : horrorReading ? '鬼魅已回應' : '等待回應'}</span>
             </div>
             {/* 同盤說明卡依需求隱藏（2026-08-28）：又是講後端運作的說明，客戶不需要 */}
             {false && (
-              <p className="mt-2 text-xs font-bold leading-5 text-violet-100/75">和 易經老師解盤使用完全相同的八字資料與五元素寶石；鬼魅老師會用故事給你一個暗示提醒，最後引導你解開對應的寶石，不會塞進看不懂的術語。</p>
+              <p className="mt-2 text-xs font-bold leading-5 text-violet-100/75"><HomeTranslatedText text={"和 易經老師解盤使用完全相同的八字資料與五元素寶石；鬼魅老師會用故事給你一個暗示提醒，最後引導你解開對應的寶石，不會塞進看不懂的術語。"} /></p>
             )}
             {/* 「第一步・解開寶石」按鈕依需求隱藏（2026-08-28）：所有隱藏元素一律不得再顯示，除非明確叫醒／顯示；解封入口保留下方鬼魅回應後的封印儀式 */}
             {false && (
@@ -471,7 +447,7 @@ function VerifiedBaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView
                 {horrorNotice}
               </p>
             )}
-      {horrorError && <div className="mt-3"><p className="text-sm font-semibold leading-6 text-rose-100">鬼魅回應暫時未完成：{horrorError}</p><button type="button" onClick={() => setHorrorRun((value) => value + 1)} className="mt-2 min-h-[44px] w-full touch-manipulation rounded-xl border-2 border-rose-100/70 bg-rose-300/10 px-3 py-2.5 text-sm font-black text-rose-50">重新請鬼魅回應</button></div>}
+      {horrorError && <div className="mt-3"><p className="text-sm font-semibold leading-6 text-rose-100"><HomeTranslatedText text={"鬼魅回應暫時未完成："} />{horrorError}</p><button type="button" onClick={() => setHorrorRun((value) => value + 1)} className="mt-2 min-h-[44px] w-full touch-manipulation rounded-xl border-2 border-rose-100/70 bg-rose-300/10 px-3 py-2.5 text-sm font-black text-rose-50"><HomeTranslatedText text={"重新請鬼魅回應"} /></button></div>}
             {horrorReading && (() => {
               const parsed = splitGhostReading(horrorReading);
               if (!parsed) return <p className="ghost-reply-copy mt-3 rounded-xl border border-rose-100/20 bg-black/25 p-3">{horrorReading}</p>;
@@ -479,7 +455,7 @@ function VerifiedBaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView
                 <div className="mt-3 space-y-3">
                   <div className="relative overflow-hidden rounded-2xl border border-rose-100/25 bg-black/30 p-4">
                     <span aria-hidden="true" className="absolute right-3 top-1 font-serif text-5xl font-black text-rose-100/[0.08]">卦</span>
-                    <p className="text-[11px] font-black tracking-[0.16em] text-rose-200/80">隔門卜卦・開場低語</p>
+                    <p className="text-[11px] font-black tracking-[0.16em] text-rose-200/80"><HomeTranslatedText text={"隔門卜卦・開場低語"} /></p>
                     <p className="ghost-reply-copy relative mt-2">{parsed.intro}</p>
                   </div>
                   {GHOST_READING_SECTIONS.map((section, index) => (
@@ -491,26 +467,26 @@ function VerifiedBaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView
                   ))}
                   <div className="relative overflow-hidden rounded-2xl border-2 border-amber-200/60 bg-amber-950/25 p-4 shadow-[inset_0_0_24px_rgba(251,191,36,0.1)]">
                     <span aria-hidden="true" className="absolute right-3 top-1 font-serif text-5xl font-black text-amber-100/[0.08]">封</span>
-                    <p className="text-xs font-black tracking-[0.14em] text-amber-100">五元素封印・今天就能做的一小步</p>
+                    <p className="text-xs font-black tracking-[0.14em] text-amber-100"><HomeTranslatedText text={"五元素封印・今天就能做的一小步"} /></p>
                     <p className="relative mt-2 text-sm font-semibold leading-7 text-amber-50/90">{parsed.seal}</p>
                   </div>
                 </div>
               );
             })()}
           </section>
-          <section className="five-element-treasure-card five-element-treasure-card--horror relative mt-3 overflow-hidden rounded-2xl border-2 border-amber-200/70 p-5" aria-label="五元素寶物關卡">
-            <p className="text-[10px] font-black tracking-[0.18em] text-amber-100">依鬼魅老師提醒・解開五元素寶石</p>
+          {horrorReading && <><section className="five-element-treasure-card five-element-treasure-card--horror relative mt-3 overflow-hidden rounded-2xl border-2 border-amber-200/70 p-5" aria-label="五元素寶物關卡">
+            <p className="text-[10px] font-black tracking-[0.18em] text-amber-100"><HomeTranslatedText text={"依鬼魅老師提醒・解開五元素寶石"} /></p>
             <div className="mt-3 grid grid-cols-1 items-center gap-5 rounded-2xl border-2 border-amber-100/50 bg-black/25 p-5 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
               <div key={`horror-treasure-${treasurePulse}`} className={`treasure-reveal-stage treasure-reveal-stage--${elementTreasure.element === '水' ? 'water' : 'standard'} treasure-reveal-stage--hero justify-self-center scale-[1.78] ${treasureCollected ? 'treasure-reveal-stage--collected' : ''} ${treasureOpening ? 'treasure-reveal-stage--opening' : ''}`} aria-hidden="true">
                 <WaterTreasureOrb element={elementTreasure.element} released={treasureCollected || treasureOpening} burnSealOnRelease animating={treasureOpening} />
               </div>
               <div className="min-w-0 text-center sm:text-left">
-                <p className="text-[10px] font-black tracking-[0.2em] text-cyan-100/80">命盤專屬補強方向</p>
-                <h5 className="mt-1 font-serif text-2xl font-black text-amber-50">{elementTreasure.element}元素・{elementTreasure.name}</h5>
+                <p className="text-[10px] font-black tracking-[0.2em] text-cyan-100/80"><HomeTranslatedText text={"命盤專屬補強方向"} /></p>
+                <h5 className="mt-1 font-serif text-2xl font-black text-amber-50">{elementTreasure.element}<HomeTranslatedText text={"元素・"} />{elementTreasure.name}</h5>
                 <p className={`mt-1 text-xs font-black tracking-[0.12em] ${treasureCollected ? 'text-emerald-100' : 'text-amber-100'}`}>{treasureOpening ? '魔珠正在裂開・寶珠正在釋放' : treasureCollected ? '魔珠已破・寶珠已入背包' : '魔珠封印中・尚未收下'}</p>
               </div>
             </div>
-            <p className="mt-3 text-sm font-semibold leading-6 text-amber-50/85">{elementTreasure.power} 這是依命盤五行強弱得到的遊戲線索；收下它代表你願意練習這個方向，不是保證任何結果。</p>
+            <p className="mt-3 text-sm font-semibold leading-6 text-amber-50/85">{elementTreasure.power}<HomeTranslatedText text={"這是依命盤五行強弱得到的遊戲線索；收下它代表你願意練習這個方向，不是保證任何結果。"} /></p>
             <button
               type="button"
                 onClick={treasureCollected ? resealTreasure : collectTreasure}
@@ -526,7 +502,7 @@ function VerifiedBaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView
               <section className="mt-3 rounded-xl border border-amber-100/25 bg-black/25 px-3 py-3" aria-live="polite">
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-[11px] font-black tracking-[0.12em] text-amber-100">{treasureRitual.title}</p>
-                  <p className="text-[10px] font-bold text-amber-50/65">十二秒儀式</p>
+                  <p className="text-[10px] font-bold text-amber-50/65"><HomeTranslatedText text={"十二秒儀式"} /></p>
                 </div>
                 <p className="mt-2 text-sm font-semibold leading-6 text-amber-50">{treasureRitual.scenes[ritualStage]}</p>
                 <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-black/40"><div className="h-full rounded-full bg-gradient-to-r from-amber-200 via-amber-50 to-cyan-100 transition-[width] duration-[2800ms] ease-linear" style={{ width: `${(ritualStage + 1) * 25}%` }} /></div>
@@ -534,10 +510,10 @@ function VerifiedBaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView
             )}
             {treasureCollected && (
               <div className="mt-3 rounded-xl border-2 border-cyan-100/50 bg-cyan-950/35 p-3">
-              <p className="text-xs font-black tracking-[0.14em] text-cyan-100">寶石已解封・選擇下一步</p>
+              <p className="text-xs font-black tracking-[0.14em] text-cyan-100"><HomeTranslatedText text={"寶石已解封・選擇下一步"} /></p>
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                  <button type="button" onClick={() => setActive('CHART')} className="rounded-xl border-2 border-violet-100/50 bg-violet-300/10 px-3 py-2 text-sm font-black text-violet-50">回到老師解盤</button>
-                  <button type="button" onClick={onOpenFull} className="rounded-xl border-2 border-amber-100/70 bg-amber-300/14 px-3 py-2 text-sm font-black text-amber-50">進入完整命盤</button>
+                  <button type="button" onClick={() => setActive('CHART')} className="rounded-xl border-2 border-violet-100/50 bg-violet-300/10 px-3 py-2 text-sm font-black text-violet-50"><HomeTranslatedText text={"回到老師解盤"} /></button>
+                  <button type="button" onClick={onOpenFull} className="rounded-xl border-2 border-amber-100/70 bg-amber-300/14 px-3 py-2 text-sm font-black text-amber-50"><HomeTranslatedText text={"進入完整命盤"} /></button>
                 </div>
               </div>
             )}
@@ -545,33 +521,34 @@ function VerifiedBaziTeacherModes({ view, onOpenFull }: { view: BaziCustomerView
           <div className="mt-4 space-y-3 text-base font-semibold leading-7 text-white/75">
             <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/25 p-4">
               <span aria-hidden="true" className="absolute right-3 top-2 text-3xl font-black text-rose-100/10">01</span>
-              <p className="text-xs font-black tracking-[0.14em] text-rose-100">第一道・磁場・干擾判讀</p>
-              <p className="mt-2">{shortName}，先不談玄的——談你的身體。最近是不是常常肩頸先僵、胃先縮，事情都還沒發生，警覺就先開機了？易經卜卦判定：你的雷達替太多人開著，訊號全往你這裡灌，所以你會累，不是因為你弱，是因為你接收得太多。磁場說的就是這件事：外面的壓力場，正在用你的身體先說話。</p>
+              <p className="text-xs font-black tracking-[0.14em] text-rose-100"><HomeTranslatedText text={"第一道・磁場・干擾判讀"} /></p>
+              <p className="mt-2">{shortName}<HomeTranslatedText text={"，先不談玄的——談你的身體。最近是不是常常肩頸先僵、胃先縮，事情都還沒發生，警覺就先開機了？易經卜卦判定：你的雷達替太多人開著，訊號全往你這裡灌，所以你會累，不是因為你弱，是因為你接收得太多。磁場說的就是這件事：外面的壓力場，正在用你的身體先說話。"} /></p>
             </section>
             <section className="relative overflow-hidden rounded-2xl border border-rose-200/25 bg-rose-950/30 p-4 shadow-[inset_0_0_28px_rgba(127,29,29,0.18)]">
               <span aria-hidden="true" className="absolute right-3 top-2 text-3xl font-black text-rose-100/15">02</span>
-              <p className="text-xs font-black tracking-[0.14em] text-rose-100">第二道・詭異・異象顯跡</p>
-              <p className="mt-2">{shortName}，那些反覆出現的老感覺——明明想拒絕卻先答應、明明累了卻先照顧別人——不是這幾天才長出來的。它們是還沒散場的舊迴聲：你很早就學會察言觀色、先扛起期待，因為當年那樣做最安全。詭異的不是有什麼跟著你，而是一套學來的慣性還在替過去的你做決定。</p>
-              <p className="mt-2">被說中不用害怕。看見它從哪裡來，它就管不動你了。</p>
+              <p className="text-xs font-black tracking-[0.14em] text-rose-100"><HomeTranslatedText text={"第二道・詭異・異象顯跡"} /></p>
+              <p className="mt-2">{shortName}<HomeTranslatedText text={"，那些反覆出現的老感覺——明明想拒絕卻先答應、明明累了卻先照顧別人——不是這幾天才長出來的。它們是還沒散場的舊迴聲：你很早就學會察言觀色、先扛起期待，因為當年那樣做最安全。詭異的不是有什麼跟著你，而是一套學來的慣性還在替過去的你做決定。"} /></p>
+              <p className="mt-2"><HomeTranslatedText text={"被說中不用害怕。看見它從哪裡來，它就管不動你了。"} /></p>
             </section>
             <section className="relative overflow-hidden rounded-2xl border border-violet-200/20 bg-violet-950/30 p-4 shadow-[inset_0_0_28px_rgba(76,29,149,0.16)]">
               <span aria-hidden="true" className="absolute right-3 top-2 text-3xl font-black text-violet-100/15">03</span>
-              <p className="text-xs font-black tracking-[0.14em] text-violet-100">第三道・因果・因果鏈拆解</p>
-              <p className="mt-2">{shortName}，卦把邏輯鏈攤開：當年學會的自保，變成今天的慣性；今天的慣性，累積成此刻身體的訊號。若照舊，代價會繼續往身上疊；若今天先做一件該做卻一直放著的小事，鏈條就從這一環鬆開。這不是命定，是條件式——下一幕由你選。</p>
-              <p className="mt-2 border-t border-violet-100/10 pt-2 text-sm font-black text-violet-100/85">還有一句要說在前面：會長成這樣，那不是你的錯。那是當年最聰明的自保，只是現在的你，已經不需要付這麼大的代價了。</p>
+              <p className="text-xs font-black tracking-[0.14em] text-violet-100"><HomeTranslatedText text={"第三道・因果・因果鏈拆解"} /></p>
+              <p className="mt-2">{shortName}<HomeTranslatedText text={"，卦把邏輯鏈攤開：當年學會的自保，變成今天的慣性；今天的慣性，累積成此刻身體的訊號。若照舊，代價會繼續往身上疊；若今天先做一件該做卻一直放著的小事，鏈條就從這一環鬆開。這不是命定，是條件式——下一幕由你選。"} /></p>
+              <p className="mt-2 border-t border-violet-100/10 pt-2 text-sm font-black text-violet-100/85"><HomeTranslatedText text={"還有一句要說在前面：會長成這樣，那不是你的錯。那是當年最聰明的自保，只是現在的你，已經不需要付這麼大的代價了。"} /></p>
             </section>
           </div>
           <CustomerEvidenceDrawer items={evidence} />
           <section className="relative mt-3 overflow-hidden rounded-2xl border-2 border-rose-100/65 bg-[radial-gradient(circle_at_78%_16%,rgba(190,24,93,0.3),transparent_30%),linear-gradient(135deg,rgba(76,5,25,0.78),rgba(30,27,75,0.66),rgba(2,6,23,0.94))] p-5 shadow-[0_0_34px_rgba(190,24,93,0.23),inset_0_0_30px_rgba(190,24,93,0.16)]" aria-label="鬼魅回應">
             <span aria-hidden="true" className="absolute right-3 top-1 font-serif text-6xl font-black text-rose-100/[0.08]">答</span>
             <div className="relative flex items-center justify-between gap-2">
-            <p className="ghost-reply-title">鬼魅老師解封暗示提醒</p>
-              <span className="ghost-reply-status">不要回頭</span>
+            <p className="ghost-reply-title"><HomeTranslatedText text={"鬼魅老師解封暗示提醒"} /></p>
+              <span className="ghost-reply-status"><HomeTranslatedText text={"不要回頭"} /></span>
             </div>
-            <p className="ghost-reply-lead relative mt-4">「{shortName}，門外的聲音停了。不是它離開，而是它已經站在封印的另一邊，等你開口。」</p>
+            <p className="ghost-reply-lead relative mt-4">「{shortName}<HomeTranslatedText text={"，門外的聲音停了。不是它離開，而是它已經站在封印的另一邊，等你開口。」"} /></p>
             <p className="ghost-reply-copy relative mt-2">{ghostReply}</p>
-            <p className="relative mt-5 border-l-2 border-rose-200/80 pl-3 text-sm font-black leading-6 text-rose-50">這不是預言，而是鬼魅老師給你的暗示提醒：現在解開五元素寶石，帶著它的行動方向往下一步走。</p>
+            <p className="relative mt-5 border-l-2 border-rose-200/80 pl-3 text-sm font-black leading-6 text-rose-50"><HomeTranslatedText text={"這不是預言，而是鬼魅老師給你的暗示提醒：現在解開五元素寶石，帶著它的行動方向往下一步走。"} /></p>
           </section>
+          </>}
         </article>
       )}
     </section>

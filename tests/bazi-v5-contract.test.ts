@@ -2,8 +2,8 @@
  * Taiwan Full Traditional Bazi V5 Contract Test
  *
  * TraditionalBaziCore -> Professional Result -> API payload shape.
- * This test proves full traditional fields are exported instead of being
- * hidden as "currently unavailable" while the core already has them.
+ * Checks exported data and trace honesty. API field presence is not proof
+ * that the customer view rendered the field.
  */
 
 import { analyzeBazi } from '../lib/bazi-engine';
@@ -55,7 +55,15 @@ const fullInput: BaziRuntimeInput = {
   check('V5 five element ten god map keeps all five nodes', ['木', '火', '土', '金', '水'].every((element) => Array.isArray(pc.fiveElementTenGodMap[element])), true);
   check('V5 traditional core gate passed', pc.traditionalInterpretationGate.coreReady, true);
   check('V5 unverified traditional interpretation withheld', pc.traditionalInterpretationGate.interpretationReady, false);
-  check('V5 incomplete ShenSha scope withheld', pc.traditionalInterpretationGate.shenShaReady, false);
+  check('V5 selected ShenSha source scope verified', pc.traditionalInterpretationGate.shenShaStatus, 'VERIFIED');
+  check('V5 documented variant withheld by display policy', pc.traditionalInterpretationGate.shenShaRules.tianyi.outputStatus, 'BLOCKED_VARIANT');
+  check('V5 Wenchang original-page variant withheld', pc.traditionalInterpretationGate.shenShaRules.wenchang.outputStatus, 'BLOCKED_VARIANT');
+  check('V5 full ShenSha output truthfully incomplete', pc.traditionalInterpretationGate.shenShaReady, false);
+  const shenShaTrace = pc.fieldTrace.find((trace: any) => trace.field === 'shenSha');
+  check('V5 ShenSha exists in API', shenShaTrace.api, 'VALID_VALUE');
+  check('V5 API does not certify an unexecuted adapter', shenShaTrace.adapter, 'NOT_EVALUATED');
+  check('V5 eligible ShenSha is not proof of successful frontend rendering', shenShaTrace.frontend, 'NOT_EVALUATED');
+  check('V5 API does not certify a rendered base field', pc.fieldTrace.find((trace: any) => trace.field === 'taiYuan').frontend, 'NOT_EVALUATED');
 }
 
 const partialInput: BaziRuntimeInput = {

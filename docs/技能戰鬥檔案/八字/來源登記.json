@@ -7,19 +7,19 @@
       "source_id": "S-MINGLI-TANYUAN-1937-SCAN",
       "author": "袁樹珊",
       "locator": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf",
-      "data_type": "增訂命理探原卷上63至65頁：天乙、文昌、華蓋、驛馬原頁影像",
+      "data_type": "卷上62–65、71頁神煞規則及PDF320版權頁原典影像",
       "kind": "原典",
       "can_cite": "PASS",
       "can_reproduce": "PASS",
       "bulk_extraction": "待查核",
       "automated_crawl": "待查核",
       "training_use": "待查核",
-      "license_terms": "Commons檔案頁標示原書及機械掃描為公有領域；只保存已讀三頁，未授予其他來源權利。",
+      "license_terms": "Commons檔案頁標示原書及機械掃描為公有領域；只保存本輪已讀少量規則頁及版權頁，不擴張其他來源權利。",
       "accessed_at": "2026-09-26",
-      "edition": "檔案說明記載1937年星相研究社發行；掃描題名增訂命理探原；館方目錄入口本次逾時",
-      "trust": "C",
+      "edition": "民國二十六年（1937）訂正，星相研究社發行；版本由PDF320版權頁直接核實",
+      "trust": "A",
       "tracked_path": "docs/技能戰鬥檔案/八字/原典影像/命理探原-卷上65.png",
-      "note": "已實讀PDF93至96、102至103頁。不是五項完整取法背書；桃花納音條件、年支華蓋適用範圍待核。掃描PDF SHA256: 8E8EBF3AA66781A3FB49A4ACFC17229B6D0255AF81A7CB9DE0F83BAFD43EB5AB。版本及館藏尚未獨立核定，不升為A級。"
+      "note": "2026-09-26實讀PDF93–96、102–103及320頁。320頁明列民國二十六年訂正、著作者袁樹珊、發行者星相研究社，與檔案說明相符；1938館藏版對讀73–75、80頁規則。A指可追溯原典，不代表命理論斷獲科學證實。中國國家圖書館目錄仍逾時，不冒稱已讀。SHA256: 8E8EBF3AA66781A3FB49A4ACFC17229B6D0255AF81A7CB9DE0F83BAFD43EB5AB。版權頁本地檔：docs/技能戰鬥檔案/八字/原典影像/命理探原-1937版權頁.png。"
     },
     {
       "source_id": "S-BAZI-JSON",
@@ -404,6 +404,108 @@
       "edition": "npm run test:soul-match（2026-09-21 PASS，掃描 1950～2010 共 127 張命盤）",
       "trust": "A",
       "tracked_path": "tests/soul-match.test.ts"
+    },
+    {
+      "source_id": "S-MINGLI-TANYUAN-1938-EDITION",
+      "author": "袁樹珊；國家圖書館典藏",
+      "locator": "https://taiwanebook.ncl.edu.tw/pdfjs/web/viewer.html?file=/ebkFiles/NCL-9910006747/NCL-9910006747.PDF&r2l=true",
+      "data_type": "1938再版本原頁校勘，PDF73–75、80頁天乙、文昌、華蓋、驛馬、咸池",
+      "kind": "古籍版本注疏",
+      "can_cite": "PASS",
+      "can_reproduce": "FAIL",
+      "bulk_extraction": "FAIL",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "館方標示僅供網路瀏覽、禁止轉載；此處只標書目出處並用程式表達查表規則，不重製館方影像、不大量下載。",
+      "accessed_at": "2026-09-26",
+      "edition": "增訂命理探原，鎮江潤德堂，1938再版，266頁，登錄001583936",
+      "trust": "A",
+      "note": "實際館方閱讀器對讀。與1937本屬同一著作不同版本，不稱第三個獨立術數研究；其作用為校勘字形、取法與版本。"
+    },
+    {
+      "source_id": "S-NCL-MINGLI-TANYUAN-CATALOG",
+      "author": "國家圖書館臺灣華文電子書庫",
+      "locator": "https://taiwanebook.ncl.edu.tw/zh-tw/book/NCL-9910006747",
+      "data_type": "研究圖書館資料庫書目，核對著者、1938版本、出版者、頁數及館藏登錄號",
+      "kind": "研究圖書館書目",
+      "can_cite": "PASS",
+      "can_reproduce": "FAIL",
+      "bulk_extraction": "FAIL",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "館方標示僅供網路瀏覽、禁止轉載；此處只標示書目事實及連結，不轉載頁面影像或大量資料。",
+      "accessed_at": "2026-09-26",
+      "edition": "NCL-9910006747，登錄001583936；2026-09-26查閱",
+      "trust": "A",
+      "note": "來源治理的大數據欄在此指研究图書館檢索資料庫，不是大量命例或預測效度研究。僅驗書目；不獨立證明取法，不把本條與館方原頁當兩本不同著作。"
+    },
+    {
+      "source_id": "S-SANMING-1926-COMPARISON",
+      "author": "萬民英撰；秦慎安校勘",
+      "locator": "https://commons.wikimedia.org/wiki/File:NLC416-13jh000156-94145_三命通會.pdf",
+      "data_type": "跨書比較原頁，非袁本選定規則的放行證據",
+      "kind": "原典",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "Commons標示公有領域原書機械掃描；本輪僅核讀並保存少量對照頁，不擴張其他用途權利。",
+      "accessed_at": "2026-09-26",
+      "edition": "1926文明書局本（年份及校者據Commons檔案書目；未讀本冊版權頁）",
+      "trust": "B",
+      "note": "實读PDF134–135、147、154–159。對照範圍限神煞規則，不沿用古文健康、婚姻或人格斷語；不計為選定袁本主張的新增獨立證據。"
+    },
+    {
+      "source_id": "S-GUJIN-V470-SANMING-SCAN",
+      "author": "明・萬民英《三命通會》；清・陳夢雷等編《欽定古今圖書集成・博物彙編・藝術典》星命部收錄",
+      "locator": "https://commons.wikimedia.org/wiki/File:Gujin_Tushu_Jicheng,_Volume_470_(1700-1725).djvu",
+      "data_type": "三命通會〈論天乙貴人〉〈論太極貴〉附文昌貴、倒插桃花等段原頁影像（djvu第63、64、66、80頁）",
+      "kind": "原典",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "Commons 標示公有領域掃描；本輪只核讀少量頁面，不擴張其他用途。",
+      "accessed_at": "2026-09-26",
+      "edition": "古今圖書集成（中華書局影印本）第470冊；藝術典第599卷（p63–66）、第601卷（p80），卷次由原頁版心直接核讀",
+      "trust": "B",
+      "note": "實看掃描影像（非轉錄）：p63「或分陰陽或分晝夜」、p64「假如丑未生人月日時得甲戊庚是遇正天乙」、p66「文昌貴甲人蛇口…癸逢牛」、p80「倒插桃花」。屬類書轉收，非三命通會單行明刻本，故列B。只作跨書取法比對，不作袁本放行證據。"
+    },
+    {
+      "source_id": "S-GUJIN-V468-ZHANGGUO-SCAN",
+      "author": "《張果星宗》；清・陳夢雷等編《欽定古今圖書集成・博物彙編・藝術典》第568卷星命部彙考四收錄",
+      "locator": "https://commons.wikimedia.org/wiki/File:Gujin_Tushu_Jicheng,_Volume_468_(1700-1725).djvu",
+      "data_type": "張果星宗諸星起例「天乙／玉堂（晝貴夜貴分列）」「文昌」原頁影像（djvu第33頁）",
+      "kind": "原典",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "Commons 標示公有領域掃描；本輪只核讀少量頁面。",
+      "accessed_at": "2026-09-26",
+      "edition": "古今圖書集成（中華書局影印本）第468冊，藝術典第568卷（目錄頁djvu第30頁）",
+      "trust": "B",
+      "note": "實看掃描影像。張果星宗屬七政四餘星命系統，與子平八字不同術數，僅作文昌、天乙起例異說之旁證。"
+    },
+    {
+      "source_id": "S-XINGXUE-DACHENG-SKQS-TRANSCRIPT",
+      "author": "明・萬民英《星學大成》",
+      "locator": "https://zh.wikisource.org/wiki/星學大成_(四庫全書本)/卷01",
+      "data_type": "四庫全書本卷一〈論文昌〉維基文庫轉錄",
+      "kind": "原典",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "古籍原文公有領域；維基文庫轉錄條款待查核。",
+      "accessed_at": "2026-09-26",
+      "edition": "文淵閣四庫全書本（據維基文庫轉錄頁標示；未見對應掃描影像）",
+      "trust": "C",
+      "note": "僅轉錄，未核掃描原頁，故列C。星學大成屬七政四餘，與子平不同術數。"
     }
   ],
   "claims": [
@@ -416,7 +518,9 @@
         "lib/bazi-engine.ts",
         "lib/bazi-detail.ts",
         "lib/bazi-professional-result-v5.ts",
-        "docs/技能戰鬥檔案/八字/八字.json"
+        "docs/技能戰鬥檔案/八字/八字.json",
+        "lib/bazi-reuse.ts",
+        "lib/bazi-verified-reading.ts"
       ],
       "authority_files": [
         "S-BAZI-JSON"
@@ -443,7 +547,8 @@
       "domain": "八字知識",
       "files": [
         "lib/bazi-four-pillar-beasts.ts",
-        "lib/nameology-bazi-crosscheck.ts"
+        "lib/nameology-bazi-crosscheck.ts",
+        "lib/korean-copy/pages/bazi.ts"
       ],
       "authority_files": [
         "S-SIKU-109"
@@ -510,20 +615,39 @@
     },
     {
       "claim_id": "C-BAZI-PILLAR-SHENSHA",
-      "title": "四柱神煞：天乙、文昌、桃花、驛馬、華蓋的逐柱查表規則",
+      "title": "五項固定查表採本次逐條登記取法；MINGLI_TANYUAN_SHENSHA_V5，非一切神煞或所有流派。｜增訂命理探原指定取法",
       "domain": "八字知識",
       "files": [
         "lib/bazi/engine.ts",
-        "app/dual-chart/BaziChart.tsx"
+        "app/dual-chart/BaziChart.tsx",
+        "docs/技能戰鬥檔案/八字/神煞修復時間報表.md",
+        "docs/技能戰鬥檔案/八字/神煞與解讀修復紀錄.md",
+        "docs/技能戰鬥檔案/八字/原典影像/命理探原-卷上63.png",
+        "docs/技能戰鬥檔案/八字/原典影像/命理探原-卷上64.png",
+        "docs/技能戰鬥檔案/八字/原典影像/命理探原-卷上65.png",
+        "docs/技能戰鬥檔案/八字/原典影像/命理探原-卷上71.png",
+        "docs/技能戰鬥檔案/八字/原典影像/命理探原-1937版權頁.png",
+        "docs/技能戰鬥檔案/八字/原典影像/三命通會-1926-PDF134.png",
+        "docs/技能戰鬥檔案/八字/原典影像/三命通會-1926-PDF135.png",
+        "docs/技能戰鬥檔案/八字/原典影像/三命通會-1926-PDF147.png",
+        "docs/技能戰鬥檔案/八字/原典影像/三命通會-1926-PDF154.png",
+        "docs/技能戰鬥檔案/八字/原典影像/三命通會-1926-PDF155.png"
       ],
-      "authority_files": [],
-      "big_data_sources": [],
+      "authority_files": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION"
+      ],
+      "big_data_sources": [
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
       "cross_references": [
-        "S-MINGLI-TANYUAN-1937-SCAN"
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
       ],
       "conflicts": [],
-      "status": "PENDING_POOL",
-      "note": "2026-09-26 從紅鸞月份規則獨立拆出。已納入實讀掃描來源，修正驛馬日支查年柱及華蓋日支自查，631組工程案例通過。工程案例不是大數據研究，單一原書不是三個獨立來源；桃花条件、年支華蓋、版本與交叉來源仍未核全。詳見神煞逐條對照.md，未完成前不放行，也不影響基礎四柱顯示。"
+      "status": "VERIFIED",
+      "note": "五項固定查表採本次逐條登記取法；MINGLI_TANYUAN_SHENSHA_V5，非一切神煞或所有流派。 依來源治理第4節做原典、可靠版本、研究圖書館書目三類核對，非三份獨立研究。對讀及算法驗收見神煞逐條對照.md；不替吉凶斷語、老師解讀或預測準確性背書。"
     },
     {
       "claim_id": "C-RED-LUAN-SHENSHA",
@@ -578,88 +702,273 @@
     },
     {
       "claim_id": "C-BAZI-SHENSHA-TIANYI",
-      "title": "天乙逐柱查表取法",
+      "title": "天乙｜增訂命理探原指定取法",
       "domain": "八字知識",
       "files": [
         "lib/bazi/engine.ts",
         "docs/技能戰鬥檔案/八字/神煞逐條對照.md"
       ],
-      "authority_files": [],
-      "big_data_sources": [],
+      "authority_files": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION"
+      ],
+      "big_data_sources": [
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
       "cross_references": [
-        "S-MINGLI-TANYUAN-1937-SCAN"
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
       ],
       "conflicts": [],
-      "status": "PENDING_POOL",
-      "note": "日干查四柱地支；卷上62至63頁古歌與以日為主；不混晝夜分貴取法。"
+      "status": "VERIFIED",
+      "note": "天乙：1937卷上62–63頁古歌及日主法，日干查四柱支；不混晝夜貴。 依來源治理第4節做原典、可靠版本、研究圖書館書目三類核對，非三份獨立研究。對讀及算法驗收見神煞逐條對照.md；不替吉凶斷語、老師解讀或預測準確性背書。 VERIFIED只適用上述指定版本取法，不代表跨書共識；跨書已核異說與待校勘資料分列comparisons，任何本取法內未解衝突仍列conflicts並阻擋。 本書已核不保證ready；2026-09-26使用者定案的顯示政策：已確認同範圍跨書分歧亦暫停，另列outputStatus=BLOCKED_VARIANT，不偽造本書內CONFLICT。 本站預設採袁樹珊《增訂命理探原》取法，頁面標示「採袁樹珊《增訂命理探原》」。",
+      "verification_scope": "SELECTED_EDITION",
+      "selected_method": {
+        "title": "增訂命理探原",
+        "edition": "1937訂正本；1938再版本對讀",
+        "ruleVersion": "MINGLI_TANYUAN_SHENSHA_V5",
+        "summary": "日干查四柱支，依本書古歌固定表，不分晝夜。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf?page=93#file",
+        "printedPage": "62–63"
+      },
+      "comparisons": [
+        {
+          "status": "DOCUMENTED_VARIANT",
+          "title": "三命通會：晝夜／陰陽貴人",
+          "detail": "卷三並述晝夜、陰陽分取：同一天干按晝夜選貴位，可能與袁本不分晝夜的合併固定表得出不同命中，屬同一命例可有不同答案的取法分歧。本書驗證保留，依顯示政策暫不提供天乙。 張果星宗的天乙／玉堂屬七政四餘起例，僅作旁證，不混算到八字。",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC416-13jh000156-94145_三命通會.pdf?page=154#file",
+          "locator": "1926文明書局本，卷三12–13；PDF154–155",
+          "citations": [
+            {
+              "book": "三命通會（古今圖書集成藝術典第599卷收錄）",
+              "locator": "〈論天乙貴人〉；第470冊 djvu 第63頁",
+              "quote": "甲戊庚牛羊之歌則泥而不通矣此說就以天星論尤為有理今六壬選擇諸術或分陰陽或分晝夜蓋本此二說",
+              "url": "https://zh.wikisource.org/wiki/Page:Gujin_Tushu_Jicheng,_Volume_470_(1700-1725).djvu/63",
+              "verification": "已核掃描原頁"
+            },
+            {
+              "book": "三命通會（古今圖書集成藝術典第599卷收錄）",
+              "locator": "〈論天乙貴人〉；第470冊 djvu 第64頁",
+              "quote": "假如丑未生人月日時得甲戊庚是遇正天乙",
+              "url": "https://zh.wikisource.org/wiki/Page:Gujin_Tushu_Jicheng,_Volume_470_(1700-1725).djvu/64",
+              "verification": "已核掃描原頁"
+            },
+            {
+              "book": "張果星宗（古今圖書集成藝術典第568卷收錄）",
+              "locator": "諸星起例「天乙」「玉堂」；第468冊 djvu 第33頁",
+              "quote": "天乙貴人者即晝貴人也……玉堂貴人者即夜貴人也",
+              "url": "https://zh.wikisource.org/wiki/Page:Gujin_Tushu_Jicheng,_Volume_468_(1700-1725).djvu/33",
+              "verification": "已核掃描原頁；七政四餘系統旁證"
+            },
+            {
+              "book": "增訂命理探原（1937訂正本）",
+              "locator": "卷上 強弱 天乙，第63頁",
+              "quote": "以日為主。如甲日見丑見未。戊日見丑見未皆是。",
+              "url": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf",
+              "verification": "已核掃描原頁（同 S-MINGLI-TANYUAN-1937-SCAN）"
+            }
+          ]
+        }
+      ]
     },
     {
       "claim_id": "C-BAZI-SHENSHA-WENCHANG",
-      "title": "文昌逐柱查表取法",
+      "title": "文昌｜增訂命理探原指定取法",
       "domain": "八字知識",
       "files": [
         "lib/bazi/engine.ts",
         "docs/技能戰鬥檔案/八字/神煞逐條對照.md"
       ],
-      "authority_files": [],
-      "big_data_sources": [],
+      "authority_files": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION"
+      ],
+      "big_data_sources": [
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
       "cross_references": [
-        "S-MINGLI-TANYUAN-1937-SCAN"
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
       ],
       "conflicts": [],
-      "status": "PENDING_POOL",
-      "note": "日干查四柱地支；卷上63至64頁；保留己／巳字形校勘紀錄。"
+      "status": "VERIFIED",
+      "note": "文昌：卷上63–64頁日干查四柱支；甲巳、乙午、丙戊申、丁己酉、庚亥、辛子、壬寅、癸卯。己／巳轉錄疑字依兩版原頁及同段食神說明核對。 依來源治理第4節做原典、可靠版本、研究圖書館書目三類核對，非三份獨立研究。對讀及算法驗收見神煞逐條對照.md；不替吉凶斷語、老師解讀或預測準確性背書。 VERIFIED只適用上述指定版本取法，不代表跨書共識；跨書已核異說與待校勘資料分列comparisons，任何本取法內未解衝突仍列conflicts並阻擋。 本書已核不保證ready；2026-09-26使用者定案的顯示政策：已確認同範圍跨書分歧亦暫停，另列outputStatus=BLOCKED_VARIANT，不偽造本書內CONFLICT。 本站預設採袁樹珊《增訂命理探原》取法，頁面標示「採袁樹珊《增訂命理探原》」。 2026-09-26補核古今圖書集成第470冊第66頁原影像：文昌貴表值異說已確認，取年／日未明；舊「尚無原頁」記錄由本次核讀取代。保守暫停輸出不等於否定袁本日干表。",
+      "verification_scope": "SELECTED_EDITION",
+      "selected_method": {
+        "title": "增訂命理探原",
+        "edition": "1937訂正本；1938再版本對讀",
+        "ruleVersion": "MINGLI_TANYUAN_SHENSHA_V5",
+        "summary": "日干查四柱支：甲巳乙午、丙戊申、丁己酉、庚亥辛子、壬寅癸卯。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf?page=94#file",
+        "printedPage": "63–64"
+      },
+      "comparisons": [
+        {
+          "status": "DOCUMENTED_VARIANT",
+          "title": "三命通會：文昌貴表值不同（原頁已核）",
+          "detail": "古今圖書集成收錄三命通會〈論太極貴〉附文昌貴：甲巳、乙亥、丙戌、丁辰、戊申、己午、庚寅、辛未、壬卯、癸丑，與袁本同名表值多處不同；本段未明言年干或日干，不能宣稱完整適用範圍相同。文星貴另列，未混用。依保守政策暫停文昌輸出。張果星宗辛取戌僅為不同術數旁證；星學大成仍只核轉錄。",
+          "sourceUrl": "https://zh.wikisource.org/wiki/Page:Gujin_Tushu_Jicheng,_Volume_470_(1700-1725).djvu/66",
+          "locator": "古今圖書集成藝術典第599卷，第470冊djvu第66頁",
+          "citations": [
+            {
+              "book": "三命通會（古今圖書集成藝術典第599卷收錄）",
+              "locator": "〈論太極貴〉附文昌貴；第470冊 djvu 第66頁",
+              "quote": "有文昌貴甲人蛇口乙猪頭丙狗丁龍戊向猴己午庚寅辛未貴六壬卯位癸逢牛",
+              "url": "https://zh.wikisource.org/wiki/Page:Gujin_Tushu_Jicheng,_Volume_470_(1700-1725).djvu/66",
+              "verification": "已核掃描原頁"
+            },
+            {
+              "book": "張果星宗（古今圖書集成藝術典第568卷收錄）",
+              "locator": "諸星起例「文昌」；第468冊 djvu 第33頁",
+              "quote": "丙戊申宮丁己雞，庚猪辛犬壬逢虎。",
+              "url": "https://zh.wikisource.org/wiki/Page:Gujin_Tushu_Jicheng,_Volume_468_(1700-1725).djvu/33",
+              "verification": "本輪直接複核掃描：原頁為丁己雞，修正原登記丁巳雞轉錄；七政四餘旁證，不作同一八字取主證明。"
+            },
+            {
+              "book": "星學大成（四庫全書本）",
+              "locator": "卷一〈論文昌〉",
+              "quote": "獨辛不以生而以戌為文昌",
+              "url": "https://zh.wikisource.org/wiki/星學大成_(四庫全書本)/卷01",
+              "verification": "僅轉錄，未核掃描"
+            },
+            {
+              "book": "增訂命理探原（1937訂正本）",
+              "locator": "卷上 文昌，第63頁",
+              "quote": "甲乙巳午報君知。丙戊申宮丁巳雞。庚猪辛鼠壬逢虎。癸人見兔入雲梯。以日為主。",
+              "url": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf",
+              "verification": "已核掃描原頁（同 S-MINGLI-TANYUAN-1937-SCAN）"
+            }
+          ]
+        }
+      ]
     },
     {
       "claim_id": "C-BAZI-SHENSHA-TAOHUA",
-      "title": "桃花逐柱查表取法",
+      "title": "咸池（桃花）｜增訂命理探原指定取法",
       "domain": "八字知識",
       "files": [
         "lib/bazi/engine.ts",
         "docs/技能戰鬥檔案/八字/神煞逐條對照.md"
       ],
-      "authority_files": [],
-      "big_data_sources": [],
+      "authority_files": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION"
+      ],
+      "big_data_sources": [
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
       "cross_references": [
-        "S-MINGLI-TANYUAN-1937-SCAN"
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
       ],
       "conflicts": [],
-      "status": "PENDING_POOL",
-      "note": "年日雙錨點及倒插桃花仍待完整版本交叉核對；卷上71頁另含納音條件，不可忽略。"
+      "status": "VERIFIED",
+      "note": "咸池（桃花）：卷上71頁採日主納音法，日支三合局與日柱納音同五行，查月、時沐浴位。月起法、無納音條件的年日混算法、倒插桃花不混入；不宣稱其他流派錯誤。 依來源治理第4節做原典、可靠版本、研究圖書館書目三類核對，非三份獨立研究。對讀及算法驗收見神煞逐條對照.md；不替吉凶斷語、老師解讀或預測準確性背書。 VERIFIED只適用上述指定版本取法，不代表跨書共識；跨書已核異說與待校勘資料分列comparisons，任何本取法內未解衝突仍列conflicts並阻擋。 本書已核不保證ready；2026-09-26使用者定案的顯示政策：已確認同範圍跨書分歧亦暫停，另列outputStatus=BLOCKED_VARIANT，不偽造本書內CONFLICT。 2026-09-26 原頁核對：三命通會「倒插桃花」（古今圖書集成藝術典第601卷，第470冊 djvu 第80頁，已核掃描：「卯人見寅午戌月日時酉人見申子辰月日時反朝於年謂之倒插桃花」）為另立名目之格，非咸池查表值矛盾；V5 不實作，不列衝突。 本站預設採袁樹珊《增訂命理探原》取法，頁面標示「採袁樹珊《增訂命理探原》」。",
+      "verification_scope": "SELECTED_EDITION",
+      "selected_method": {
+        "title": "增訂命理探原",
+        "edition": "1937訂正本；1938再版本對讀",
+        "ruleVersion": "MINGLI_TANYUAN_SHENSHA_V5",
+        "summary": "採日主納音法：日支三合局與日柱納音同五行，再查月、時沐浴位。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf?page=102#file",
+        "printedPage": "71"
+      },
+      "comparisons": [
+        {
+          "status": "MATCHED_SCOPE",
+          "title": "三命通會：咸池納音条件相符",
+          "detail": "卷二按語也要求納音與地支三合局同類，四組沐浴位相符。只核對此條件及表值，不宣稱查年／查日和全部適用柱位相同。",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC416-13jh000156-94145_三命通會.pdf?page=135#file",
+          "locator": "1926文明書局本，卷二57；PDF135"
+        }
+      ]
     },
     {
       "claim_id": "C-BAZI-SHENSHA-YIMA",
-      "title": "驛馬逐柱查表取法",
+      "title": "驛馬｜增訂命理探原指定取法",
       "domain": "八字知識",
       "files": [
         "lib/bazi/engine.ts",
         "docs/技能戰鬥檔案/八字/神煞逐條對照.md"
       ],
-      "authority_files": [],
-      "big_data_sources": [],
+      "authority_files": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION"
+      ],
+      "big_data_sources": [
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
       "cross_references": [
-        "S-MINGLI-TANYUAN-1937-SCAN"
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
       ],
       "conflicts": [],
-      "status": "PENDING_POOL",
-      "note": "日支查年月時；卷上65頁；同頁年主法另述，年支錨點需獨立核適用範圍。"
+      "status": "VERIFIED",
+      "note": "驛馬：卷上65頁兼載日主與年主法；各錨點查其他柱，分別記錄，不排除日支查年柱。 依來源治理第4節做原典、可靠版本、研究圖書館書目三類核對，非三份獨立研究。對讀及算法驗收見神煞逐條對照.md；不替吉凶斷語、老師解讀或預測準確性背書。 VERIFIED只適用上述指定版本取法，不代表跨書共識；跨書已核異說與待校勘資料分列comparisons，任何本取法內未解衝突仍列conflicts並阻擋。 本書已核不保證ready；2026-09-26使用者定案的顯示政策：已確認同範圍跨書分歧亦暫停，另列outputStatus=BLOCKED_VARIANT，不偽造本書內CONFLICT。 本站預設採袁樹珊《增訂命理探原》取法，頁面標示「採袁樹珊《增訂命理探原》」。",
+      "verification_scope": "SELECTED_EDITION",
+      "selected_method": {
+        "title": "增訂命理探原",
+        "edition": "1937訂正本；1938再版本對讀",
+        "ruleVersion": "MINGLI_TANYUAN_SHENSHA_V5",
+        "summary": "原頁兼載日主及年主法，兩種錨點分別查其他柱並記錄依據。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf?page=96#file",
+        "printedPage": "65"
+      },
+      "comparisons": [
+        {
+          "status": "MATCHED_SCOPE",
+          "title": "三命通會：驛馬四組表值相符",
+          "detail": "卷三所列火局申、水局寅、金局亥、木局巳與本書表值相符；此比對不等於所有取主及柱位範圍均相同。",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC416-13jh000156-94145_三命通會.pdf?page=147#file",
+          "locator": "1926文明書局本，卷三5；PDF147"
+        }
+      ]
     },
     {
       "claim_id": "C-BAZI-SHENSHA-HUAGAI",
-      "title": "華蓋逐柱查表取法",
+      "title": "華蓋｜增訂命理探原指定取法",
       "domain": "八字知識",
       "files": [
         "lib/bazi/engine.ts",
         "docs/技能戰鬥檔案/八字/神煞逐條對照.md"
       ],
-      "authority_files": [],
-      "big_data_sources": [],
+      "authority_files": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION"
+      ],
+      "big_data_sources": [
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
       "cross_references": [
-        "S-MINGLI-TANYUAN-1937-SCAN"
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
       ],
       "conflicts": [],
-      "status": "PENDING_POOL",
-      "note": "日支查年月時；卷上64頁；現有年支錨點及自查適用範圍尚未核全。"
+      "status": "VERIFIED",
+      "note": "華蓋：卷上64頁採日支查年月時；不把年主法及日柱自查混入。 依來源治理第4節做原典、可靠版本、研究圖書館書目三類核對，非三份獨立研究。對讀及算法驗收見神煞逐條對照.md；不替吉凶斷語、老師解讀或預測準確性背書。 VERIFIED只適用上述指定版本取法，不代表跨書共識；跨書已核異說與待校勘資料分列comparisons，任何本取法內未解衝突仍列conflicts並阻擋。 本書已核不保證ready；2026-09-26使用者定案的顯示政策：已確認同範圍跨書分歧亦暫停，另列outputStatus=BLOCKED_VARIANT，不偽造本書內CONFLICT。 本站預設採袁樹珊《增訂命理探原》取法，頁面標示「採袁樹珊《增訂命理探原》」。",
+      "verification_scope": "SELECTED_EDITION",
+      "selected_method": {
+        "title": "增訂命理探原",
+        "edition": "1937訂正本；1938再版本對讀",
+        "ruleVersion": "MINGLI_TANYUAN_SHENSHA_V5",
+        "summary": "日支取三合墓位，查年、月、時；不查日柱自身。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf?page=95#file",
+        "printedPage": "64"
+      },
+      "comparisons": [
+        {
+          "status": "MATCHED_SCOPE",
+          "title": "三命通會：華蓋三合墓位相符",
+          "detail": "卷二同以三合墓位取華蓋。本書明定日支查年月時；兩書此處只核對墓位原理，不把取年／取日和柱位範圍標為完全一致。",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC416-13jh000156-94145_三命通會.pdf?page=134#file",
+          "locator": "1926文明書局本，卷二56–57；PDF134–135"
+        }
+      ]
     }
   ]
 }

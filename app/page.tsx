@@ -3,6 +3,7 @@
 import { useMemo, useState, useDeferredValue, useEffect, useRef, type CSSProperties } from 'react';
 import { FRONTEND_COPY } from '@/lib/credibility-phrases';
 import Link from 'next/link';
+import HomeTranslatedText from '@/components/HomeTranslatedText';
 import { InterfaceLanguagePicker, useInterfaceLanguage } from '@/components/InterfaceLanguage';
 import dualChartEntryStyles from './dual-chart-entry.module.css';
 import dynamic from 'next/dynamic';
@@ -28,6 +29,7 @@ import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import FineDiningServiceProgress from '@/components/FineDiningServiceProgress';
 import TarotEntryCard from '@/features/tarot/components/TarotEntryCard';
+import StarBeastHomeCard from '@/components/StarBeastHomeCard';
 import { markPendingRoute, recoverFromChunkError } from '@/lib/chunk-recovery';
 import { safeJsonFetch } from '@/lib/safe-fetch';
 import { curateExperienceContent } from '@/lib/experience-content-curator';
@@ -197,7 +199,7 @@ function HomeQuickNavigation() {
           aria-label="命理功能快速入口"
           className="fixed right-4 top-1/2 z-30 hidden w-14 -translate-y-1/2 flex-col items-center gap-2 rounded-3xl border border-white/10 bg-slate-950/75 px-2 py-3 shadow-[0_16px_45px_rgba(2,6,23,0.42)] backdrop-blur-xl min-[1280px]:flex"
         >
-          <span className="mb-1 text-[9px] font-black tracking-[0.18em] text-white/45 [writing-mode:vertical-rl]">快速切換</span>
+          <span className="mb-1 text-[9px] font-black tracking-[0.18em] text-white/45 [writing-mode:vertical-rl]"><HomeTranslatedText text={"快速切換"} /></span>
           {HOME_QUICK_NAV.map((item) => (
             <Link
               key={item.href}
@@ -216,9 +218,7 @@ function HomeQuickNavigation() {
 
       {SHOW_MOBILE_QUICK_NAV && (
         <details className="group fixed right-2 top-1/2 z-30 -translate-y-1/2 min-[1280px]:hidden">
-          <summary className="grid h-12 w-12 cursor-pointer list-none place-items-center rounded-2xl border border-cyan-200/35 bg-slate-950/90 text-[11px] font-black tracking-[0.12em] text-cyan-100 shadow-[0_10px_28px_rgba(2,6,23,0.42)] backdrop-blur-xl transition hover:border-cyan-100/70 [&::-webkit-details-marker]:hidden">
-            功能
-          </summary>
+          <summary className="grid h-12 w-12 cursor-pointer list-none place-items-center rounded-2xl border border-cyan-200/35 bg-slate-950/90 text-[11px] font-black tracking-[0.12em] text-cyan-100 shadow-[0_10px_28px_rgba(2,6,23,0.42)] backdrop-blur-xl transition hover:border-cyan-100/70 [&::-webkit-details-marker]:hidden"><HomeTranslatedText text={"功能"} /></summary>
           <nav aria-label="命理功能快速入口" className="absolute right-0 top-[-7.25rem] flex w-40 flex-col gap-1.5 rounded-2xl border border-white/15 bg-slate-950/95 p-2 shadow-[0_16px_44px_rgba(2,6,23,0.5)] backdrop-blur-xl">
             {HOME_QUICK_NAV.map((item) => (
               <Link key={item.href} href={item.href} prefetch className="flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-bold text-white/85 transition hover:bg-cyan-300/12 hover:text-cyan-50">
@@ -1239,29 +1239,23 @@ function ShichenStep({
 function LineVipShareCard({ friendHref, onShare }: { friendHref: string; onShare: () => void }) {
   return (
     <>
-      <div className="mb-3 flex justify-end">
-        <button
-          type="button"
-          onClick={onShare}
-          className="home-line-share-button inline-flex shrink-0 items-center justify-center rounded-full px-5 py-3 text-sm font-black tracking-[0.12em] text-slate-950 transition active:scale-[0.98]"
-          aria-label="使用 LINE 分享免費體驗給朋友"
-        >
-          <span>分享給朋友</span>
-        </button>
-      </div>
-
       <section data-home-step="7" className="home-line-share-card mb-8 overflow-hidden rounded-[28px] border border-emerald-300/25 p-5 shadow-[0_18px_55px_rgba(16,185,129,0.16)] sm:p-6">
+
         <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <p className="inline-flex items-center rounded-full border border-emerald-200/30 bg-emerald-300/10 px-3 py-1 text-[11px] font-black tracking-[0.2em] text-emerald-100">
-              LINE 好友支持
-            </p>
-            <h2 className="mt-4 font-serif text-2xl font-black leading-tight text-white sm:text-3xl">
-              加 LINE 好友，免費立即體驗 VIP
-            </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-50/78">
-              加入官方 LINE 好友，取得配對、人格、數字好壞與深度洞察的免費體驗入口。
-            </p>
+            <p className="inline-flex items-center rounded-full border border-emerald-200/30 bg-emerald-300/10 px-3 py-1 text-[11px] font-black tracking-[0.2em] text-emerald-100"><HomeTranslatedText text={"LINE 好友支持"} /></p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+            <h2 className="font-serif text-2xl font-black leading-tight text-white sm:text-3xl"><HomeTranslatedText text={"加 LINE 好友，免費立即體驗 VIP"} /></h2>
+          <button
+            type="button"
+            onClick={onShare}
+            className="home-line-share-button home-line-share-button--compact inline-flex shrink-0 items-center justify-center px-5 py-3 text-sm font-black text-slate-950 transition active:scale-[0.98]"
+            aria-label="使用 LINE 分享免費體驗給朋友"
+          >
+            <span><HomeTranslatedText text={"分享給朋友"} /></span>
+          </button>
+            </div>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-50/78"><HomeTranslatedText text={"加入官方 LINE 好友，取得配對、人格、數字好壞與深度洞察的免費體驗入口。"} /></p>
           </div>
 
           <a
@@ -1274,9 +1268,10 @@ function LineVipShareCard({ friendHref, onShare }: { friendHref: string; onShare
             <span className="flex h-8 min-w-10 items-center justify-center whitespace-nowrap rounded-full bg-slate-950 px-2 text-[10px] font-black tracking-normal text-emerald-300">
               LINE
             </span>
-            <span>加好友領體驗</span>
+            <span><HomeTranslatedText text={"加好友領體驗"} /></span>
           </a>
         </div>
+
       </section>
     </>
   );
@@ -2670,7 +2665,6 @@ export default function HomePage() {
       )}
 
       <main ref={mainRef} className="relative z-10 mx-auto max-w-5xl px-4 pt-4 pb-10 sm:px-6 sm:pt-6 lg:pt-8 lg:pb-14">
-        <InterfaceLanguagePicker />
         <div className="hidden mb-8 items-center gap-4">
           <span className="text-xs tracking-widest text-rose-300">// 易經靈魂配對</span>
           <span className="text-[color:var(--text-muted)]">·</span>
@@ -2691,15 +2685,15 @@ export default function HomePage() {
         >
           <div className="home-top-motto-link__body min-w-0 w-full text-center">
             <span className="home-top-brush-gratitude home-top-brush-gratitude--sun block">
-              <span className="home-top-brush-gratitude__lead">順天而行，</span>
-              <span className="home-top-brush-gratitude__heart">感恩的心</span>
+              <span className="home-top-brush-gratitude__lead"><HomeTranslatedText text={"順天而行，"} /></span>
+              <span className="home-top-brush-gratitude__heart"><HomeTranslatedText text={"感恩的心"} /></span>
             </span>
             <span
               className="home-top-ward-seal home-top-ward-seal--alive home-top-ward-seal--curse mt-4 inline-flex w-full flex-col items-center gap-2"
               aria-label="古老咒語：逆天而行等於米田共，米田共已被符咒封印"
             >
               <span className="home-top-ward-seal__script inline-flex flex-wrap items-center justify-center gap-2.5">
-                <span className="home-top-ward-seal__curse home-top-ward-seal__lead">逆天而行</span>
+                <span className="home-top-ward-seal__curse home-top-ward-seal__lead"><HomeTranslatedText text={"逆天而行"} /></span>
                 <span className="home-top-ward-seal__eq" aria-hidden="true">＝</span>
                 <span className="home-top-ward-seal__sealed home-top-ward-seal__sealed--shared" title="符咒結界封印">
                   <span className="home-top-ward-seal__sealed-text">米田共</span>
@@ -2830,9 +2824,8 @@ export default function HomePage() {
               className="mb-4"
             />
           )}
+          <InterfaceLanguagePicker />
           <div className={`home-feature-stack flex w-full flex-col gap-3 sm:gap-4 ${showMoreFeatures ? 'home-feature-stack--expanded' : 'home-feature-stack--collapsed'}`}>
-          <p lang={readingLanguage} className="home-feature-section-label home-feature-section-label--secondary">{readingCopy.deeper}</p>
-          <p lang={readingLanguage} className="home-feature-section-label home-feature-section-label--explore">{readingCopy.explore}</p>
           <button
             type="button"
             className="home-feature-more-toggle"
@@ -2858,24 +2851,18 @@ export default function HomePage() {
                 <span className="home-oracle-3d-emblem__glyph">緣</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-block rounded-full bg-rose-500/10 border border-rose-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-rose-300 uppercase animate-pulse">
-                  易經 · 靈魂雙星配對
-                </span>
+                <span className="inline-block rounded-full bg-rose-500/10 border border-rose-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-rose-300 uppercase animate-pulse"><HomeTranslatedText text={"易經 · 靈魂雙星配對"} /></span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-rose-100 tracking-wide flex items-center gap-2">
-                  <span>易經靈魂配對</span>
-                  <span className="text-xs font-sans text-rose-300 font-normal opacity-85 hidden sm:inline">
-                    // 雙人命盤 · 相處節奏 · 互補點分析
-                  </span>
+                  <span><HomeTranslatedText text={"易經靈魂配對"} /></span>
+                  <span className="text-xs font-sans text-rose-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 雙人命盤 · 相處節奏 · 互補點分析"} /></span>
                 </h2>
-                <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  輸入兩位資料，分析相處頻率、吸引力、溝通模式與命定互補關係。🎁 拆開有禮：兩顆心的合卦，和一句誰最懂誰的答案。
-                </p>
+                <p className="mt-1 text-xs text-[color:var(--text-sub)]"><HomeTranslatedText text={"輸入兩位資料，分析相處頻率、吸引力、溝通模式與命定互補關係。🎁 拆開有禮：兩顆心的合卦，和一句誰最懂誰的答案。"} /></p>
               </div>
             </div>
 
             <HomeTrustEvidence items={["免費試算","需兩人資料","免登入"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 px-5 py-3 text-xs font-bold text-rose-200 transition group-hover:bg-rose-500/25">
-              <span>立即開啟配對</span>
+              <span><HomeTranslatedText text={"立即開啟配對"} /></span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>
@@ -2896,23 +2883,23 @@ export default function HomePage() {
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-flex max-w-full rounded-full bg-violet-500/10 border border-violet-500/25 px-3 py-1 text-[10px] font-bold leading-none tracking-[0.12em] text-violet-300 uppercase animate-pulse">
-                  {"\u6613\u7d93\u8072\u97f3\u6b4c\u66f2"}
+                  <HomeTranslatedText text={"易經聲音歌曲"} />
                 </span>
                 <h2 className="home-music-title mt-2 font-serif font-black text-violet-100">
                   {/* 2026-08-16 依指示：標題首行改為「生成一首歌」（原「易經生成一首歌」，要恢復把下一行換回原字即可） */}
-                  <span className="home-music-title-line">{"\u751f\u6210\u4e00\u9996\u6b4c"}</span>
-                  <span className="hidden" aria-hidden="true">{"\u81ea\u6211\u4eba\u683c\u5206\u88c2"}</span>
-                  <span className="hidden" aria-hidden="true">{"\u8ddf\u4f60\u81ea\u6211\u5c0d\u8a71"}</span>
+                  <span className="home-music-title-line"><HomeTranslatedText text={"生成一首歌"} /></span>
+                  <span className="hidden" aria-hidden="true"><HomeTranslatedText text={"自我人格分裂"} /></span>
+                  <span className="hidden" aria-hidden="true"><HomeTranslatedText text={"跟你自我對話"} /></span>
                 </h2>
                 <p className="home-music-copy mt-1.5 text-xs text-[color:var(--text-sub)]">
-                  {"\u9019\u9996\u6b4c\uff0c\u662f\u4f60\u4eba\u683c\u5206\u88c2\u5f8c\uff0c\u6bcf\u4e00\u500b\u81ea\u5df1\u5171\u540c\u5531\u51fa\u7684\u5167\u5fc3\u7368\u767d\u3002\ud83c\udf81 \u62c6\u958b\u6709\u79ae\uff1a\u4e00\u9996\u53ea\u5c6c\u65bc\u4f60\u751f\u8fb0\u5366\u8c61\u7684\u9748\u9b42\u4e4b\u6b4c\u3002"}
+                  <HomeTranslatedText text={"這首歌，是你人格分裂後，每一個自己共同唱出的內心獨白。🎁 拆開有禮：一首只屬於你生辰卦象的靈魂之歌。"} />
                 </p>
               </div>
             </div>
 
             <HomeTrustEvidence items={["免費生成", "依生辰", "可重聽"]} />
             <div className="home-feature-cta home-music-cta flex items-center gap-2 rounded-xl border border-violet-500/40 bg-violet-950/30 px-5 py-3 text-xs font-bold text-violet-200 transition group-hover:bg-violet-500/25">
-              <span>{"\u7acb\u5373\u751f\u6210\u6b4c\u66f2"}</span>
+              <span><HomeTranslatedText text={"立即生成歌曲"} /></span>
               <span className="transition-transform group-hover:translate-x-1.5">{"\u279c"}</span>
             </div>
           </Link>
@@ -2933,24 +2920,18 @@ export default function HomePage() {
                 <span className="home-oracle-3d-emblem__glyph">名</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-block rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-300 uppercase animate-pulse">
-                  易經 · 姓名決策系統
-                </span>
+                <span className="inline-block rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-300 uppercase animate-pulse"><HomeTranslatedText text={"易經 · 姓名決策系統"} /></span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-amber-100 tracking-wide flex items-center gap-2">
-                  <span>易經姓名學</span>
-                  <span className="text-xs font-sans text-amber-300 font-normal opacity-85 hidden sm:inline">
-                    // 臺灣字典 · 取名意境 · 易經卜卦判定
-                  </span>
+                  <span><HomeTranslatedText text={"易經姓名學"} /></span>
+                  <span className="text-xs font-sans text-amber-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 臺灣字典 · 取名意境 · 易經卜卦判定"} /></span>
                 </h2>
-                <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  以臺灣字典固定部首、筆畫與取名意境，最後只留下今天最需要改變的一個方向。🎁 拆開有禮：你名字裡藏著一句沒人說破的溫度話。
-                </p>
+                <p className="mt-1 text-xs text-[color:var(--text-sub)]"><HomeTranslatedText text={"以臺灣字典固定部首、筆畫與取名意境，最後只留下今天最需要改變的一個方向。🎁 拆開有禮：你名字裡藏著一句沒人說破的溫度話。"} /></p>
               </div>
             </div>
 
             <HomeTrustEvidence items={["免費","需姓名","免登入"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-950/30 px-5 py-3 text-xs font-bold text-amber-200 transition group-hover:bg-amber-500/25">
-              <span>開啟姓名決策</span>
+              <span><HomeTranslatedText text={"開啟姓名決策"} /></span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>
@@ -2971,24 +2952,18 @@ export default function HomePage() {
                 <span className="number-fortune-auspicious-emblem__glyph">吉</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-block rounded-full bg-cyan-500/10 border border-cyan-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-300 uppercase animate-pulse">
-                  CARD 01 · 數字好壞速測
-                </span>
+                <span className="inline-block rounded-full bg-cyan-500/10 border border-cyan-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-300 uppercase animate-pulse"><HomeTranslatedText text={"CARD 01 · 數字好壞速測"} /></span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-cyan-100 tracking-wide flex items-center gap-2">
-                  <span>易經論數字</span>
-                  <span className="text-xs font-sans text-cyan-300 font-normal opacity-85 hidden sm:inline">
-                    // 4 / 6 / 8 / 10 碼 · 即時判定
-                  </span>
+                  <span><HomeTranslatedText text={"易經論數字"} /></span>
+                  <span className="text-xs font-sans text-cyan-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 4 / 6 / 8 / 10 碼 · 即時判定"} /></span>
                 </h2>
-                <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  輸入 2 到 10 碼，易經立即整理吉凶傾向與今日行動。🎁 拆開有禮：你的數字會起出一支專屬卦，六十四格裡就這一格是你。
-                </p>
+                <p className="mt-1 text-xs text-[color:var(--text-sub)]"><HomeTranslatedText text={"輸入 2 到 10 碼，易經立即整理吉凶傾向與今日行動。🎁 拆開有禮：你的數字會起出一支專屬卦，六十四格裡就這一格是你。"} /></p>
               </div>
             </div>
             
             <HomeTrustEvidence items={["免費","約 30 秒","只需數字"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-950/30 px-5 py-3 text-xs font-bold text-cyan-200 transition group-hover:bg-cyan-500/25">
-              <span>立即開始</span>
+              <span><HomeTranslatedText text={"立即開始"} /></span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>
@@ -3013,18 +2988,12 @@ export default function HomePage() {
                 <span className="ziwei-dou-3d-emblem__glyph">紫</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-block rounded-full bg-indigo-500/10 border border-indigo-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-indigo-300 uppercase animate-pulse">
-                  易經 · 紫微斗數命盤
-                </span>
+                <span className="inline-block rounded-full bg-indigo-500/10 border border-indigo-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-indigo-300 uppercase animate-pulse"><HomeTranslatedText text={"易經 · 紫微斗數命盤"} /></span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-indigo-100 tracking-wide flex items-center gap-2">
-                  <span>易經紫微斗數</span>
-                  <span className="text-xs font-sans text-indigo-300 font-normal opacity-85 hidden sm:inline">
-                    // 命宮主軸 · 三方四正 · 年度方向
-                  </span>
+                  <span><HomeTranslatedText text={"易經紫微斗數"} /></span>
+                  <span className="text-xs font-sans text-indigo-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 命宮主軸 · 三方四正 · 年度方向"} /></span>
                 </h2>
-                <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  依出生資料整理命宮主軸，先看懂長期方向，再交給 易經做精華判定。🎁 拆開有禮：你的特殊格局名稱，和一句「我真的懂你」。
-                </p>
+                <p className="mt-1 text-xs text-[color:var(--text-sub)]"><HomeTranslatedText text={"依出生資料整理命宮主軸，先看懂長期方向，再交給 易經做精華判定。🎁 拆開有禮：你的特殊格局名稱，和一句「我真的懂你」。"} /></p>
               </div>
             </div>
 
@@ -3051,23 +3020,23 @@ export default function HomePage() {
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-emerald-500/10 border border-emerald-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-emerald-300 uppercase animate-pulse">
-                  {'易經 · 八字命盤'}
+                  <HomeTranslatedText text={"易經 · 八字命盤"} />
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-emerald-100 tracking-wide flex items-center gap-2">
-                  <span>{'易經八字命盤'}</span>
+                  <span><HomeTranslatedText text={"易經八字命盤"} /></span>
                   <span className="text-xs font-sans text-emerald-300 font-normal opacity-85 hidden sm:inline">
-                    {'// \u516b\u5b57\u56db\u67f1 \u00b7 \u4e94\u5143\u7d20\u88dc\u5f37 \u00b7 \u76f8\u751f\u76f8\u524b'}
+                    <HomeTranslatedText text={"// 八字四柱 · 五元素補強 · 相生相剋"} />
                   </span>
                 </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  {'獨立八字排盤，整理四柱、藏干、十神、旺衰、大運與流年。🎁 拆開有禮：同一張盤的兩種聲音——溫柔的與神祕的，各給你一份。'}
+                  <HomeTranslatedText text={"獨立八字排盤，整理四柱、藏干、十神、旺衰、大運與流年。🎁 拆開有禮：同一張盤的兩種聲音——溫柔的與神祕的，各給你一份。"} />
                 </p>
               </div>
             </div>
 
             <HomeTrustEvidence items={["需生辰","正統排盤","免登入"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-950/30 px-5 py-3 text-xs font-bold text-emerald-200 transition group-hover:bg-emerald-500/25">
-              <span>{'立即開啟命盤'}</span>
+              <span><HomeTranslatedText text={"立即開啟命盤"} /></span>
               <span className="transition-transform group-hover:translate-x-1.5">{'\u279c'}</span>
             </div>
           </Link>
@@ -3097,23 +3066,23 @@ export default function HomePage() {
               </div>
               <div className="min-w-0 flex-1">
                 <span className="inline-block rounded-full bg-fuchsia-500/10 border border-fuchsia-400/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-fuchsia-200 uppercase animate-pulse">
-                  {'\u6613\u7d93 \u00b7 \u661f\u7a7a\u4eba\u683c'}
+                  <HomeTranslatedText text={"易經 · 星空人格"} />
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-fuchsia-100 tracking-wide flex items-center gap-2">
-                  <span>{'\u6613\u7d93\u897f\u6d0b\u661f\u5ea7'}</span>
+                  <span><HomeTranslatedText text={"易經西洋星座"} /></span>
                   <span className="text-xs font-sans text-fuchsia-200 font-normal opacity-85 hidden sm:inline">
-                    {'// \u51fa\u751f\u5e74\u6708\u65e5 \u00b7 \u5341\u4e8c\u661f\u5ea7 \u00b7 \u672c\u9031\u63d0\u9192'}
+                    <HomeTranslatedText text={"// 出生年月日 · 十二星座 · 本週提醒"} />
                   </span>
                 </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">
-                  {'\u8f38\u5165\u51fa\u751f\u5e74\u6708\u65e5\uff0c\u7368\u7acb\u5224\u5b9a\u5341\u4e8c\u661f\u5ea7\uff0c\u6574\u7406\u4eba\u683c\u7279\u8cea\u3001\u512a\u52e2\u3001\u5ffd\u7565\u9ede\u8207\u672c\u9031\u63d0\u9192\u3002\ud83c\udf81 \u62c6\u958b\u6709\u79ae\uff1a\u4f60\u7684\u661f\u5ea7\u00d7\u6613\u7d93\u5366\u8c61\uff0c\u4e00\u9031\u525b\u525b\u597d\u7684\u63d0\u9192\u3002'}
+                  <HomeTranslatedText text={"輸入出生年月日，獨立判定十二星座，整理人格特質、優勢、忽略點與本週提醒。🎁 拆開有禮：你的星座×易經卦象，一週剛剛好的提醒。"} />
                 </p>
               </div>
             </div>
 
             <HomeTrustEvidence items={["免費", "需生日", "約 20 秒"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-fuchsia-400/40 bg-fuchsia-950/30 px-5 py-3 text-xs font-bold text-fuchsia-100 transition group-hover:bg-fuchsia-500/20">
-              <span>{'\u958b\u59cb\u661f\u5ea7\u5206\u6790'}</span>
+              <span><HomeTranslatedText text={"開始星座分析"} /></span>
               <span className="transition-transform group-hover:translate-x-1.5">{'\u279c'}</span>
             </div>
           </Link>
@@ -3145,35 +3114,19 @@ export default function HomePage() {
               <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
                 <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-rose-100/40 bg-rose-200/10 font-serif text-3xl font-black text-rose-100 shadow-[0_0_28px_rgba(251,113,133,0.24)]" aria-hidden="true">鸞</div>
                 <div className="min-w-0 flex-1">
-                  <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-rose-50 sm:text-2xl">桃花・紅鸞心動</h2>
-                  <p className="mt-1 text-xs leading-5 text-rose-50/75">抽出心動月份、對象類型與相遇提示。</p>
+                  <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-rose-50 sm:text-2xl"><HomeTranslatedText text={"桃花・紅鸞心動"} /></h2>
+                  <p className="mt-1 text-xs leading-5 text-rose-50/75"><HomeTranslatedText text={"抽出心動月份、對象類型與相遇提示。"} /></p>
                 </div>
               </div>
               <HomeTrustEvidence items={["免費","一抽即見","免登入"]} />
             <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-rose-100/45 bg-rose-200/12 px-5 py-3 text-xs font-bold text-rose-50 transition group-hover:bg-rose-200/22">
-                <span>抽出我的心動月份</span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
+                <span><HomeTranslatedText text={"抽出我的心動月份"} /></span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
               </div>
             </Link>
           )}
           <TarotEntryCard />
-          <Link
-            href="/star-beasts"
-            className="home-feature-launch home-feature-tier-explore order-9 w-full relative group overflow-hidden rounded-3xl border border-amber-200/30 bg-[radial-gradient(circle_at_82%_22%,rgba(251,191,36,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(63,35,70,0.62),rgba(12,18,42,0.98))] p-6 text-left shadow-[0_0_30px_rgba(251,191,36,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-200/70 hover:shadow-[0_0_50px_rgba(251,191,36,0.25)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
-            <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
-              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-amber-100/35 bg-amber-200/10 font-serif text-2xl font-black text-amber-100 shadow-[0_0_28px_rgba(251,191,36,0.18)]" aria-hidden="true">宿</div>
-              <div className="min-w-0 flex-1">
-                <span className="inline-block rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-100">28 星宿・四象收藏</span>
-                <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-amber-50 sm:text-2xl">星宿神獸卡片</h2>
-                <p className="mt-1 text-sm text-slate-200">28 張本體、28 張幼子、4 張四象，共 60 種神獸。瀏覽卡片，認識各自的守護特質。</p>
-              </div>
-            </div>
-            <HomeTrustEvidence items={["免費瀏覽","60 種可看","先看再玩"]} />
-            <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-amber-200/40 bg-amber-300/15 px-5 py-3 text-xs font-bold text-amber-50 transition group-hover:bg-amber-300/25">
-              <span>查看 60 種神獸</span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
-            </div>
-          </Link>
+          {/* 2026-09-25 star-beast i18n toggle: card extracted to a client component with 中｜EN switch */}
+          <StarBeastHomeCard />
           <Link
             href="/3D"
             className="home-feature-launch home-feature-tier-explore order-10 w-full relative group overflow-hidden rounded-3xl border border-violet-300/30 bg-[radial-gradient(circle_at_82%_22%,rgba(167,139,250,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(45,28,74,0.62),rgba(12,18,42,0.98))] p-6 text-left shadow-[0_0_30px_rgba(167,139,250,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-200/70 hover:shadow-[0_0_50px_rgba(167,139,250,0.25)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
@@ -3215,14 +3168,14 @@ export default function HomePage() {
                 </svg>
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-block rounded-full border border-violet-200/30 bg-violet-300/10 px-2.5 py-0.5 text-[10px] font-bold tracking-widest text-violet-100">四維 · 超立方</span>
-                <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-violet-50 sm:text-2xl">立體太極模型工作室</h2>
-                <p className="mt-1 text-sm text-slate-200">空心太極包方形核心，方圓緊貼，進入四維。</p>
+                <span className="inline-block rounded-full border border-violet-200/30 bg-violet-300/10 px-2.5 py-0.5 text-[10px] font-bold tracking-widest text-violet-100"><HomeTranslatedText text={"四維 · 超立方"} /></span>
+                <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-violet-50 sm:text-2xl"><HomeTranslatedText text={"立體太極模型工作室"} /></h2>
+                <p className="mt-1 text-sm text-slate-200"><HomeTranslatedText text={"空心太極包方形核心，方圓緊貼，進入四維。"} /></p>
               </div>
             </div>
             <HomeTrustEvidence items={["免費體驗", "可旋轉", "非付費牆"]} />
             <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-violet-200/40 bg-violet-300/15 px-5 py-3 text-xs font-bold text-violet-50 transition group-hover:bg-violet-300/25">
-              <span>打開模型工作室</span>
+              <span><HomeTranslatedText text={"打開模型工作室"} /></span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>

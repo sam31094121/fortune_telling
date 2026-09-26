@@ -16,6 +16,15 @@ type Props = {
   overlayClassName?: string;
   buttonClassName?: string;
   showName?: boolean;
+  /** Optional display labels (e.g. English on /match); omitted = the original Chinese copy. */
+  labels?: {
+    adult: string;
+    child: string;
+    showChild: string;
+    showAdult: string;
+    showChildAria: (name: string) => string;
+    showAdultAria: (name: string) => string;
+  };
 };
 
 /**
@@ -30,10 +39,11 @@ export default function StarBeastLineageReveal({
   overlayClassName = '',
   buttonClassName = '',
   showName = true,
+  labels,
 }: Props) {
   const [view, setView] = useState<'adult' | 'child'>('adult');
   const isAdult = view === 'adult';
-  const label = isAdult ? '本命神獸' : '神獸幼子';
+  const label = labels ? (isAdult ? labels.adult : labels.child) : isAdult ? '本命神獸' : '神獸幼子';
 
   useEffect(() => setView('adult'), [beast.name]);
 
@@ -53,11 +63,11 @@ export default function StarBeastLineageReveal({
         <button
           type="button"
           aria-pressed={!isAdult}
-          aria-label={isAdult ? `深入查看${beast.name}的神獸幼子` : `返回${beast.name}的本命神獸`}
+          aria-label={labels ? (isAdult ? labels.showChildAria(beast.name) : labels.showAdultAria(beast.name)) : isAdult ? `深入查看${beast.name}的神獸幼子` : `返回${beast.name}的本命神獸`}
           onClick={() => setView(isAdult ? 'child' : 'adult')}
           className={buttonClassName}
         >
-          {isAdult ? '深入查看神獸幼子' : '返回本命神獸'}
+          {labels ? (isAdult ? labels.showChild : labels.showAdult) : isAdult ? '深入查看神獸幼子' : '返回本命神獸'}
         </button>
       </div>
     </div>

@@ -24,8 +24,9 @@ function clampStep(value: number) {
 }
 
 /** 主頁第一畫面：整頁滾輪／單指直滑對應太極時軸；不改版面。 */
-export function useTaijiFirstScreenScroll(journeyRef: TaijiJourneyRef) {
+export function useTaijiFirstScreenScroll(journeyRef: TaijiJourneyRef, enabled = true) {
   useEffect(() => {
+    if (!enabled) return;
     const pageY = () => window.scrollY || document.documentElement.scrollTop || 0;
 
     const onWheel = (event: WheelEvent) => {
@@ -78,5 +79,5 @@ export function useTaijiFirstScreenScroll(journeyRef: TaijiJourneyRef) {
       window.removeEventListener('touchend', onTouchEnd);
       window.removeEventListener('touchcancel', onTouchEnd);
     };
-  }, [journeyRef]);
+  }, [journeyRef, enabled]);
 }

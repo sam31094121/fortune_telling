@@ -1,6 +1,8 @@
 'use client';
 
+import HomeTranslatedText from '@/components/HomeTranslatedText';
 import type { BaziCustomerView } from './adapter';
+import { BasicChartReading } from './BasicChartReading';
 import { CustomerAccordion, CustomerEvidenceDrawer } from './CustomerAccordion';
 import { TenGodSection } from './TenGodSection';
 import { DaYunTimeline } from './DaYunTimeline';
@@ -15,8 +17,7 @@ export function TeacherSummary({ view }: { view: BaziCustomerView }) {
   if (!view.traditionalGate.interpretationReady) {
     return (
       <section className="rounded-[22px] border border-amber-200/25 bg-amber-100/[0.05] p-5">
-        <p className="text-xs font-black tracking-[0.18em] text-amber-200/85">傳統八字輸出守門</p>
-        <p className="mt-2 text-sm font-semibold leading-7 text-white/75">{view.traditionalGate.customerMessage}</p>
+        <BasicChartReading view={view} />
       </section>
     );
   }
@@ -27,7 +28,7 @@ export function TeacherSummary({ view }: { view: BaziCustomerView }) {
   return (
     <div className="space-y-3">
       <section className="rounded-[20px] border border-white/10 bg-white/[0.03] p-5">
-        <p className="text-xs font-black tracking-[0.18em] text-amber-200/80">解盤順序</p>
+        <p className="text-xs font-black tracking-[0.18em] text-amber-200/80"><HomeTranslatedText text={"解盤順序"} /></p>
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
           {sequence.map((item, index) => (
             <div key={item} className="rounded-2xl border border-white/8 bg-black/20 px-3 py-2">
@@ -105,23 +106,23 @@ export function TeacherSummary({ view }: { view: BaziCustomerView }) {
 
       {/* ⑦ 老師總判：先看依據，再看結論 */}
       <section className="rounded-[22px] border border-amber-200/25 bg-amber-100/[0.05] p-5">
-        <p className="text-xs font-black tracking-[0.18em] text-amber-200/85">⑦ 老師總判</p>
+        <p className="text-xs font-black tracking-[0.18em] text-amber-200/85"><HomeTranslatedText text={"⑦ 老師總判"} /></p>
         <h3 className="mt-2 text-xl font-black leading-8 text-[color:var(--text-main)]">{t.chartSummary}</h3>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <div className="rounded-2xl bg-black/18 px-4 py-3">
-            <p className="text-sm font-black text-amber-100">核心格局</p>
+            <p className="text-sm font-black text-amber-100"><HomeTranslatedText text={"核心格局"} /></p>
             <p className="mt-1 text-base font-semibold leading-7 text-white/75">{view.structurePattern.primaryPattern}</p>
           </div>
           <div className="rounded-2xl bg-black/18 px-4 py-3">
-            <p className="text-sm font-black text-amber-100">主要力量</p>
-            <p className="mt-1 text-base font-semibold leading-7 text-white/75">{t.tenGodsDominant.join('、') || '十神分布平均'}｜用神 {view.gods.usefulGod}、喜神 {view.gods.joyGod}</p>
+            <p className="text-sm font-black text-amber-100"><HomeTranslatedText text={"主要力量"} /></p>
+            <p className="mt-1 text-base font-semibold leading-7 text-white/75">{t.tenGodsDominant.join('、') || '十神分布平均'}<HomeTranslatedText text={"｜用神"} />{view.gods.usefulGod}<HomeTranslatedText text={"、喜神"} />{view.gods.joyGod}</p>
           </div>
           <div className="rounded-2xl bg-black/18 px-4 py-3">
-            <p className="text-sm font-black text-amber-100">結構阻力</p>
-            <p className="mt-1 text-base font-semibold leading-7 text-white/75">忌神 {view.gods.avoidGod}{t.tenGodsMissing.length > 0 ? `｜缺位：${t.tenGodsMissing.join('、')}` : ''}</p>
+            <p className="text-sm font-black text-amber-100"><HomeTranslatedText text={"結構阻力"} /></p>
+            <p className="mt-1 text-base font-semibold leading-7 text-white/75"><HomeTranslatedText text={"忌神"} />{view.gods.avoidGod}{t.tenGodsMissing.length > 0 ? `｜缺位：${t.tenGodsMissing.join('、')}` : ''}</p>
           </div>
           <div className="rounded-2xl bg-black/18 px-4 py-3">
-            <p className="text-sm font-black text-amber-100">目前主題</p>
+            <p className="text-sm font-black text-amber-100"><HomeTranslatedText text={"目前主題"} /></p>
             <p className="mt-1 text-base font-semibold leading-7 text-white/75">{t.summary}</p>
           </div>
         </div>
@@ -156,12 +157,12 @@ export function TeacherSummary({ view }: { view: BaziCustomerView }) {
             <details key={ev.element} className="group rounded-2xl bg-white/[0.03]">
               <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3">
                 <span className="text-base font-black text-white/85">{ev.element}</span>
-                <span className="text-sm font-bold text-white/55">{ev.percent === null ? '—' : `${ev.percent}%`} <span className="ml-1 text-white/35 group-open:hidden">▸ 看依據</span></span>
+                <span className="text-sm font-bold text-white/55">{ev.percent === null ? '—' : `${ev.percent}%`} <span className="ml-1 text-white/35 group-open:hidden"><HomeTranslatedText text={"▸ 看依據"} /></span></span>
               </summary>
               <div className="space-y-1.5 px-4 pb-3 text-sm font-semibold leading-6 text-white/60">
-                <p className="text-white/80">【{ev.element} 目前結果】比例 {ev.percent === null ? '未提供' : `${ev.percent}%`}<span className="ml-2 rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] font-black text-white/45">CORE_CALCULATED</span></p>
-                <p>【來源組成】天干 {ev.stems} 個・地支 {ev.branches} 個・藏干 {ev.hiddenStems} 個</p>
-                <p className="text-white/40">目前核心提供最終比例與來源計數；未提供更細的分數拆解（月令權重等），系統不自行編造。</p>
+                <p className="text-white/80">【{ev.element}<HomeTranslatedText text={"目前結果】比例"} />{ev.percent === null ? '未提供' : `${ev.percent}%`}<span className="ml-2 rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] font-black text-white/45">CORE_CALCULATED</span></p>
+                <p><HomeTranslatedText text={"【來源組成】天干"} />{ev.stems}<HomeTranslatedText text={"個・地支"} />{ev.branches}<HomeTranslatedText text={"個・藏干"} />{ev.hiddenStems} 個</p>
+                <p className="text-white/40"><HomeTranslatedText text={"目前核心提供最終比例與來源計數；未提供更細的分數拆解（月令權重等），系統不自行編造。"} /></p>
               </div>
             </details>
           ))}

@@ -51,6 +51,7 @@ import TaijiEntanglementCore from './taiji/TaijiEntanglementCore';
 import TaijiCellularCore from './taiji/TaijiCellularCore';
 import TaijiAbyssField from './taiji/TaijiAbyssField';
 import { useTaijiFirstScreenScroll } from './taiji/useTaijiFirstScreenScroll';
+import { useTaijiPinch } from './taiji/useTaijiPinch';
 import {
   Level01FrameBinder,
   Level01TaijiMotionController,
@@ -2492,8 +2493,10 @@ export default function TaijiSystem({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [showLayerReviewPanel, setShowLayerReviewPanel] = useState(false);
   const canvasQuality = useTaijiCanvasQuality(wrapperRef);
-  // 主頁第一畫面整頁滾動／單指直滑寫入唯一旅程；版面與球尺寸不變。
-  useTaijiFirstScreenScroll(journeyRef);
+  // 暫停整頁滾動／單指直滑連動；日後將 false 改為 true 即可恢復。
+  useTaijiFirstScreenScroll(journeyRef, false);
+  // 只啟用兩指縮放，滾輪不改變太極進度。
+  useTaijiPinch(wrapperRef, journeyRef);
   const level01ControllerRef = useRef<Level01TaijiMotionController | null>(null);
   if (level01ControllerRef.current == null) {
     level01ControllerRef.current = new Level01TaijiMotionController();

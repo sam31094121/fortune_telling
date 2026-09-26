@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "reviewedAt": "2026-09-26",
+  "status": "TRANSCRIPTION_REVIEWED_IMAGE_COLLATION_PENDING",
+  "source": "https://zh.wikisource.org/zh-hant/梅花易數/卷一",
+  "scope": "年月日時取數的獨立算例；不是生辰用途、曆法換算或預測有效性驗證",
+  "cases": [
+    {
+      "name": "觀梅占",
+      "section": "象數易理篇之二・觀梅占",
+      "input": { "yearBranch": "辰", "yearNumber": 5, "monthNumber": 12, "dayNumber": 17, "hourBranch": "申", "hourNumber": 9 },
+      "expected": { "upperSum": 34, "totalSum": 43, "upper": "兌", "lower": "離", "hexagramName": "澤火革", "changingLine": 1 }
+    },
+    {
+      "name": "牡丹占",
+      "section": "象數易理篇之二・牡丹占",
+      "input": { "yearBranch": "巳", "yearNumber": 6, "monthNumber": 3, "dayNumber": 16, "hourBranch": "卯", "hourNumber": 4 },
+      "expected": { "upperSum": 25, "totalSum": 29, "upper": "乾", "lower": "巽", "hexagramName": "天風姤", "changingLine": 5 }
+    }
+  ],
+  "pending": ["原刻本影像校勘", "出生時間用法的來源", "農曆年界與閏月政策", "正式引擎與算例逐項對照"]
+}

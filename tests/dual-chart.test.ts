@@ -3,6 +3,7 @@ import { randomBytes } from 'node:crypto';
 import { createSession, gateConfigured, passwordMatches, validSession, takeLoginAttempt, sameOrigin } from '../lib/dual-chart-auth';
 import { calculateDualChart } from '../lib/dual-chart';
 import { createZiweiAstrolabe } from '../lib/ziwei/engine';
+import { assertReusableExactBaziCore } from '../lib/bazi-reuse';
 
 delete process.env.DUAL_CHART_PASSWORD;
 delete process.env.DUAL_CHART_SESSION_SECRET;
@@ -62,4 +63,25 @@ assert.deepEqual(calculateDualChart(input).ziwei, charts.ziwei);
 for (const change of [{ birthDate: '2023-02-29' }, { birthDate: '2099-01-01' }, { birthTime: '' }, { birthTime: '25:01' }, { gender: '' }, { timezone: 'America/New_York' }, { calendarType: 'lunar' }, { timeUnknown: true }, { birthHourBranch: 'pending' }, { birthHourBranch: 'unknown' }]) assert.throws(() => calculateDualChart({ ...input, ...change }));
 assert.equal(calculateDualChart({ ...input, birthTime: '00:30' }).ziwei.birthInput.timeIndex, 0);
 assert.equal(calculateDualChart({ ...input, birthTime: '23:30' }).ziwei.birthInput.timeIndex, 12);
+assert.equal(calculateDualChart({ ...input, birthTime: '23:30', birthHourBranch: 'zi' }).ziwei.birthInput.timeIndex, 12);
+assert.throws(() => calculateDualChart({ ...input, birthTime: '23:30', birthHourBranch: 'yin' }));
+assert.throws(() => calculateDualChart({ ...input, birthHourBranch: 'not-a-branch' }));
+for (const birthTime of ['00:01', '00:59', '09:01', '09:59', '23:01', '23:59']) {
+  const exact = calculateDualChart({ ...input, birthTime });
+  assert.equal(exact.core.timePrecision, 'EXACT_TIME');
+  assert.equal(exact.core.calendar.normalizedDateTime.slice(11, 16), birthTime);
+  assert.equal(exact.bazi.input.birthTime, birthTime);
+  for (const key of ['year', 'month', 'day', 'hour'] as const) {
+    const pillar = exact.core.pillars[key];
+    assert.ok(pillar !== 'UNKNOWN');
+    assert.equal(exact.bazi.professionalChart.pillarDetails[key].ganzhi, pillar.ganZhi);
+  }
+}
+const reuseInput = { ...charts.core.input };
+assert.doesNotThrow(() => assertReusableExactBaziCore(reuseInput, charts.core));
+for (const change of [{ birthTime: '09:31' }, { birthDate: '1974-07-29' }, { gender: 'female' as const }, { birthTimeKnown: false }, { calendarType: 'LUNAR' as const }, { timezone: 'UTC' }, { traditionalHour: '巳' as const }]) {
+  assert.throws(() => assertReusableExactBaziCore({ ...reuseInput, ...change }, charts.core));
+}
+const oldLateZi = calculateDualChart({ ...input, birthTime: '23:30' });
+assert.throws(() => assertReusableExactBaziCore({ ...oldLateZi.core.input, birthTime: '00:30' }, oldLateZi.core), 'late and early Zi cannot share a cached core');
 console.log('PASS: dual-chart gate, expiry, tampering, rotation, throttle, 12 palaces/14 stars, known pillars, validation and midnight boundary.');

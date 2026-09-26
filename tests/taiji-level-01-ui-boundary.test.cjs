@@ -28,8 +28,8 @@ if (!taijiSystem.includes('IntersectionObserver') || !taijiSystem.includes("fram
 if (!taijiSystem.includes('const motionSplit = 0') || !taijiSystem.includes("if (displayLayer === 1)")) throw new Error('clicking or progressing inside level 01 must not reveal level 02 macro visuals');
 if (overlay.includes("pose.motionGameEnabled ? '轉動手機，感受太極回應'")) throw new Error('the customer view must not stack a duplicate motion instruction over the taiji surface');
 if (!taijiSystem.includes("params.get('taijiReview') === '1'") || taijiSystem.includes('const SHOW_LAYER_REVIEW_PANEL = true')) throw new Error('the 24-layer engineering review panel must stay hidden from the customer view');
-if (!taijiSystem.includes('useTaijiFirstScreenScroll(journeyRef)')) throw new Error('the homepage first screen must drive the taiji journey from page scroll');
-if (taijiSystem.includes('useTaijiJourneyGestures(wrapperRef, journeyRef)')) throw new Error('pinch and in-frame wheel must not remain the homepage taiji journey input');
+if (!taijiSystem.includes('useTaijiFirstScreenScroll(journeyRef, false)')) throw new Error('homepage page-scroll journey input must remain paused');
+if (!taijiSystem.includes('useTaijiPinch(wrapperRef, journeyRef)')) throw new Error('homepage must enable pinch-only journey input');
 if (!taijiSystem.includes('jumpJourney(journeyRef.current, TAIJI_DEPTH_MIN)') || taijiSystem.includes('jumpJourney(journeyRef.current, TAIJI_DEPTH_MAX)')) throw new Error('returning customers must stay on level 01 instead of restoring the level 24 satellite field');
 if (!taijiSystem.includes('displayLayer === 1 && level01Controller.pose.motionGameEnabled') || taijiSystem.includes('displayLayer === 1 && showLayerReviewPanel && <Level01SpatialLightning')) throw new Error('level 01 lightning must follow the rollout flag, not the engineering review panel');
 if (!taijiSystem.includes('const gestureStrikeActive = gestureStrikeAge >= 0') || !taijiSystem.includes('const striking = gestureStrikeActive || previewActive')) throw new Error('a short phone tap must latch one complete bounded lightning discharge');
