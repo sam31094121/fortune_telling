@@ -4,9 +4,14 @@ import { indexSources, type SourceRegistry } from './iching-source-gate';
 import { evaluateBaziShenShaRule, type BaziTraditionalOutputGate } from './bazi-traditional-gate';
 import { BRANCHES, type BaziProfessionalResult, type BaziShenShaItem, type Branch, type Stem } from './bazi/engine';
 
-export const DUAL_SHENSHA_VERSION = 'DUAL_SHENSHA_SELECTED_V2';
+export const DUAL_SHENSHA_VERSION = 'DUAL_SHENSHA_SELECTED_V3';
 const YANGREN: Record<Stem, Branch> = { 甲: '卯', 乙: '辰', 丙: '午', 丁: '未', 戊: '午', 己: '未', 庚: '酉', 辛: '戌', 壬: '子', 癸: '丑' };
 const JIANGXING: Record<Branch, Branch> = { 子: '子', 丑: '酉', 寅: '午', 卯: '卯', 辰: '子', 巳: '酉', 午: '午', 未: '卯', 申: '子', 酉: '酉', 戌: '午', 亥: '卯' };
+// Yuan 1937, printed pp60–61: month is the anchor, only the day stem is checked.
+// p60 explicitly excludes the four cardinal months; do not invent a branch target
+// from 乾坤艮巽, or confuse 天德 with the separately requested 天德合.
+const TIANDE: Record<Branch, Stem | null> = { 寅: '丁', 卯: null, 辰: '壬', 巳: '辛', 午: null, 未: '甲', 申: '癸', 酉: null, 戌: '丙', 亥: '乙', 子: null, 丑: '庚' };
+const YUEDE: Record<Branch, Stem> = { 寅: '丙', 午: '丙', 戌: '丙', 申: '壬', 子: '壬', 辰: '壬', 亥: '甲', 卯: '甲', 未: '甲', 巳: '庚', 酉: '庚', 丑: '庚' };
 const pillars = ['hour', 'day', 'month', 'year'] as const;
 type Pillar = typeof pillars[number];
 type Status = 'MATCHED' | 'NOT_MATCHED' | 'BLOCKED_VARIANT' | 'BLOCKED_SOURCE' | 'BLOCKED_CORE' | 'BLOCKED_DATA' | 'UNSUPPORTED';
@@ -24,7 +29,9 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
   const jiangxingGate = evaluateBaziShenShaRule(jiangxingClaim, indexSources(registry), gate.coreReady && core.verification.readyForInterpretation);
   const gejiaoClaim = registry.claims.find(c => c.claim_id === 'C-DUAL-SHENSHA-GEJIAO');
   const gejiaoGate = evaluateBaziShenShaRule(gejiaoClaim, indexSources(registry), coreReady);
-  const rules = { ...gate.shenShaRules, yangren: yangrenGate, yuanchen: yuanchenGate, jiangxing: jiangxingGate, gejiao: gejiaoGate };
+  const tiandeGate = evaluateBaziShenShaRule(registry.claims.find(c => c.claim_id === 'C-DUAL-SHENSHA-TIANDE'), indexSources(registry), coreReady);
+  const yuedeGate = evaluateBaziShenShaRule(registry.claims.find(c => c.claim_id === 'C-DUAL-SHENSHA-YUEDE'), indexSources(registry), coreReady);
+  const rules = { ...gate.shenShaRules, yangren: yangrenGate, yuanchen: yuanchenGate, jiangxing: jiangxingGate, gejiao: gejiaoGate, tiande: tiandeGate, yuede: yuedeGate };
   const raw: BaziShenShaItem[] = Array.isArray(core.shenSha) ? [...core.shenSha] : [];
   // Selected 1937 text, printed p72: day stem is anchor; inspect year/month/hour, not self.
   if (gate.coreReady && core.verification.readyForInterpretation && yangrenGate.status === 'VERIFIED') {
@@ -76,6 +83,18 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
       source: { sourceId: 'S-SHENFENG-1929-V2-SCAN', title: '神峰通考（1929年秦慎安校勘本）', printedPage: '卷四14（第二冊PDF16）', url: 'https://commons.wikimedia.org/wiki/File:NLC511-027032013020556-10361_神峰通考_第2卷.pdf?page=16#file' },
     });
   }
+  for (const [id, name, table, page] of [
+    ['tiande', '天德', TIANDE, '60'], ['yuede', '月德', YUEDE, '61'],
+  ] as const) {
+    const target = table[core.pillars.month.earthlyBranch];
+    if (!coreReady || !rules[id].ready || !target || core.pillars.day.heavenlyStem !== target) continue;
+    raw.push({
+      id, name, rule: `月支${core.pillars.month.earthlyBranch}取${name}${target}；只查日干（袁本）`,
+      evidence: `DAY 干${target}`, ruleVersion: `MINGLI_TANYUAN_1937_${id.toUpperCase()}_MONTH_DAY_V1`,
+      source: { sourceId: 'S-MINGLI-TANYUAN-1937-SCAN', title: '增訂命理探原（1937訂正本）', printedPage: page,
+        url: `https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf?page=${Number(page) + 31}#file` },
+    });
+  }
   const byPillar = Object.fromEntries(pillars.map(key => [key, [] as BaziShenShaItem[]])) as Record<Pillar, BaziShenShaItem[]>;
   for (const hit of raw) {
     const rule = rules[hit.id as keyof typeof rules];
@@ -85,7 +104,7 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
     if (!byPillar[key].some(s => s.id === hit.id && s.name === hit.name)) byPillar[key].push(hit);
   }
   const yuanchenDataReady = Boolean(gender && typeof core.pillars.year !== 'string' && typeof core.pillars.hour !== 'string');
-  const coverage: DualShenShaCoverage[] = [['yangren', '羊刃'], ['yuanchen', '元辰'], ['jiangxing', '將星'], ['taohua', '桃花'], ['yima', '驛馬'], ['tianyi', '天乙'], ['wenchang', '文昌'], ['huagai', '華蓋'], ['gejiao', '隔角']].map(([id, name]) => {
+  const coverage: DualShenShaCoverage[] = [['yangren', '羊刃'], ['yuanchen', '元辰'], ['jiangxing', '將星'], ['taohua', '桃花'], ['yima', '驛馬'], ['tianyi', '天乙'], ['wenchang', '文昌'], ['huagai', '華蓋'], ['gejiao', '隔角'], ['tiande', '天德'], ['yuede', '月德']].map(([id, name]) => {
     const rule = rules[id as keyof typeof rules];
     const matchedPillars = pillars.filter(key => byPillar[key].some(s => s.id === id));
     const dataBlocked = (id === 'yuanchen' && !yuanchenDataReady) || (id === 'gejiao' && !gejiaoDataReady);
