@@ -25,6 +25,7 @@ export const SHENSHA_INSPECTED_PILLARS: Record<string, ShenShaCardPillar[]> = {
   yuepo: ['year', 'day', 'hour'],
   yuanchen: ['hour'], waiTaohua: ['hour'],
   kuigang: ['day'], kongwang: ['year', 'month', 'hour'], jinyu: ALL, xuetang: ALL, hongyan: ALL,
+  suipo: ['month', 'day', 'hour'], yuekong: ALL, jielu: ['hour'], tianzhuan: ['day'], dizhuan: ['day'], shiling: ['day'], ride: ['day'], rigui: ['day'],
   sangmen: ['month', 'day', 'hour'], baihu: ['month', 'day', 'hour'], bingfu: ['month', 'day', 'hour'], pima: ['month', 'day', 'hour'],
   yuedehe: ALL, feiren: ['year', 'month', 'hour'], jinshen: ['day', 'hour'], bazhuan: ['day'], jiuchou: ['day'], liuxiu: ['day'],
   guoyin: ALL, tianchu: ALL, liuxia: ALL, sanqi: ALL, wangshen: ['month', 'day', 'hour'],

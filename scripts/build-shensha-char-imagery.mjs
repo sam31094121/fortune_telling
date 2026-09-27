@@ -4,7 +4,7 @@
 // 守門：tests/dual-chart-shensha-extension.test.ts 會比對本檔與字庫是否一致。
 import fs from 'node:fs';
 
-const NAMES = ['天德合', '天德', '月德', '龍德', '天狗', '金匱', '五鬼', '災煞', '六厄', '沐浴', '月破', '日破', '將星', '驛馬', '隔角', '元辰', '羊刃', '桃花', '外桃花', '天乙貴人', '文昌貴人', '華蓋', '魁罡', '空亡', '金輿', '學堂', '紅艷', '祿神', '天醫', '劫煞', '孤辰', '寡宿', '國印', '天廚', '天赦', '三奇', '亡神', '陰陽差錯', '孤鸞', '十惡大敗', '流霞', '四廢', '月德合', '飛刃', '金神', '八專', '九醜', '六秀', '喪門', '白虎', '病符', '披麻'];
+const NAMES = ['天德合', '天德', '月德', '龍德', '天狗', '金匱', '五鬼', '災煞', '六厄', '沐浴', '月破', '日破', '將星', '驛馬', '隔角', '元辰', '羊刃', '桃花', '外桃花', '天乙貴人', '文昌貴人', '華蓋', '魁罡', '空亡', '金輿', '學堂', '紅艷', '祿神', '天醫', '劫煞', '孤辰', '寡宿', '國印', '天廚', '天赦', '三奇', '亡神', '陰陽差錯', '孤鸞', '十惡大敗', '流霞', '四廢', '月德合', '飛刃', '金神', '八專', '九醜', '六秀', '喪門', '白虎', '病符', '披麻', '歲破', '月空', '截路空亡', '天轉', '地轉', '十靈', '日德', '日貴'];
 const manifest = JSON.parse(fs.readFileSync('data/dictionaries/nameology/manifest.json', 'utf8'));
 const characters = JSON.parse(fs.readFileSync('data/dictionaries/nameology/characters.json', 'utf8'));
 const byChar = new Map(characters.map(entry => [entry.normalizedCharacter, entry]));

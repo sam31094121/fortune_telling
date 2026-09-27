@@ -63,6 +63,15 @@ const BAZHUAN_DAYS = ['甲寅', '乙卯', '丁未', '戊戌', '己未', '庚申'
 const JIUCHOU_DAYS = ['戊子', '戊午', '壬子', '壬午', '乙卯', '乙酉', '己卯', '己酉', '辛卯', '辛酉'];
 const LIUXIU_DAYS = ['丙午', '丁未', '戊子', '戊午', '己丑', '己未'];
 
+/** 2026-09-28 第六批：公認查表，列為本派取法。 */
+const YUEKONG: Record<Trine, Stem> = { 寅午戌: '壬', 申子辰: '丙', 亥卯未: '庚', 巳酉丑: '甲' };
+const JIELU: Record<Stem, [Branch, Branch]> = { 甲: ['申', '酉'], 己: ['申', '酉'], 乙: ['午', '未'], 庚: ['午', '未'], 丙: ['辰', '巳'], 辛: ['辰', '巳'], 丁: ['寅', '卯'], 壬: ['寅', '卯'], 戊: ['子', '丑'], 癸: ['子', '丑'] };
+const TIANZHUAN_DAY: Record<'春' | '夏' | '秋' | '冬', string> = { 春: '乙卯', 夏: '丙午', 秋: '辛酉', 冬: '壬子' };
+const DIZHUAN_DAY: Record<'春' | '夏' | '秋' | '冬', string> = { 春: '辛卯', 夏: '戊午', 秋: '癸酉', 冬: '丙子' };
+const SHILING_DAYS = ['甲辰', '乙亥', '丙辰', '丁酉', '戊午', '庚戌', '庚寅', '辛亥', '壬寅', '癸未'];
+const RIDE_DAYS = ['甲寅', '丙辰', '戊辰', '庚辰', '壬戌'];
+const RIGUI_DAYS = ['丁酉', '丁亥', '癸巳', '癸卯'];
+
 /** 日柱所在旬的兩個空亡地支。 */
 export function xunKong(stem: Stem, branch: Branch): [Branch, Branch] {
   const start = (BRANCHES.indexOf(branch) - STEMS_ORDER.indexOf(stem) + 12) % 12; // 旬首（甲）所在地支
@@ -92,6 +101,7 @@ export const DUAL_SHENSHA_RULES: ReadonlyArray<readonly [string, string]> = [
   ['yinyangChacuo', '陰陽差錯'], ['guluan', '孤鸞'], ['shieDabai', '十惡大敗'], ['liuxia', '流霞'], ['sifei', '四廢'],
   ['yuedehe', '月德合'], ['feiren', '飛刃'], ['jinshen', '金神'], ['bazhuan', '八專'], ['jiuchou', '九醜'], ['liuxiu', '六秀'],
   ['sangmen', '喪門'], ['baihu', '白虎'], ['bingfu', '病符'], ['pima', '披麻'],
+  ['suipo', '歲破'], ['yuekong', '月空'], ['jielu', '截路空亡'], ['tianzhuan', '天轉'], ['dizhuan', '地轉'], ['shiling', '十靈'], ['ride', '日德'], ['rigui', '日貴'],
 ];
 
 /** 八字與紫微四柱逐字核對結果；神煞從這兩張已核對的命盤衍生，不另排四柱。 */
@@ -161,6 +171,14 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
     baihu: reference('年支順數八位（歲神白虎），查月日時；讀法採本派提醒與轉化。'),
     bingfu: reference('年支順數十一位（歲神病符），查月日時；不作健康或醫療斷語。'),
     pima: reference('年支順數九位（披麻），查月日時；讀法採本派提醒與轉化。'),
+    suipo: reference('與年支相沖者，查月日時。'),
+    yuekong: reference('月支三合取月空（寅午戌壬、申子辰丙、亥卯未庚、巳酉丑甲），四柱天干皆查。'),
+    jielu: reference('日干取截路空亡（甲己申酉、乙庚午未、丙辛辰巳、丁壬寅卯、戊癸子丑），只查時柱。'),
+    tianzhuan: reference('春乙卯、夏丙午、秋辛酉、冬壬子日；季節依月支。只看日柱。'),
+    dizhuan: reference('春辛卯、夏戊午、秋癸酉、冬丙子日；季節依月支。只看日柱。'),
+    shiling: reference('日柱為甲辰、乙亥、丙辰、丁酉、戊午、庚戌、庚寅、辛亥、壬寅、癸未者。只看日柱。'),
+    ride: reference('日柱為甲寅、丙辰、戊辰、庚辰、壬戌者。只看日柱。'),
+    rigui: reference('日柱為丁酉、丁亥、癸巳、癸卯者。只看日柱。'),
     hongyan: reference('日干取紅艷（甲乙午、丙寅、丁未、戊己辰、庚戌、辛酉、壬子、癸申），四柱皆查。'),
   };
   // 核心引擎的袁本桃花（含納音條件）只供其他卡片使用；本卡改依參考命盤取法重查。
@@ -284,6 +302,26 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
       if (BAZHUAN_DAYS.includes(day.ganZhi)) push('bazhuan', '八專', 'day', `日柱${day.ganZhi}為八專日`, `柱${day.ganZhi}`);
       if (JIUCHOU_DAYS.includes(day.ganZhi)) push('jiuchou', '九醜', 'day', `日柱${day.ganZhi}為九醜日`, `柱${day.ganZhi}`);
       if (LIUXIU_DAYS.includes(day.ganZhi)) push('liuxiu', '六秀', 'day', `日柱${day.ganZhi}為六秀日`, `柱${day.ganZhi}`);
+    }
+    if (year) {
+      const po = BRANCHES[(BRANCHES.indexOf(year.earthlyBranch) + 6) % 12];
+      branchHit('suipo', '歲破', po, ['month', 'day', 'hour'], `年支${year.earthlyBranch}沖${po}；查月日時`);
+    }
+    if (month) {
+      const kong = YUEKONG[TRINE_OF[month.earthlyBranch]];
+      for (const key of pillars) if (at(key)?.heavenlyStem === kong) push('yuekong', '月空', key, `月支${month.earthlyBranch}月空在${kong}；四柱天干皆查`, `干${kong}`);
+    }
+    if (day) {
+      const ds = day.heavenlyStem as Stem;
+      for (const target of JIELU[ds]) branchHit('jielu', '截路空亡', target, ['hour'], `日干${ds}截路空亡在${JIELU[ds].join('')}；只查時柱`);
+      if (month) {
+        const season = SEASON_OF[month.earthlyBranch];
+        if (TIANZHUAN_DAY[season] === day.ganZhi) push('tianzhuan', '天轉', 'day', `${season}季逢${day.ganZhi}日為天轉`, `柱${day.ganZhi}`);
+        if (DIZHUAN_DAY[season] === day.ganZhi) push('dizhuan', '地轉', 'day', `${season}季逢${day.ganZhi}日為地轉`, `柱${day.ganZhi}`);
+      }
+      if (SHILING_DAYS.includes(day.ganZhi)) push('shiling', '十靈', 'day', `日柱${day.ganZhi}為十靈日`, `柱${day.ganZhi}`);
+      if (RIDE_DAYS.includes(day.ganZhi)) push('ride', '日德', 'day', `日柱${day.ganZhi}為日德`, `柱${day.ganZhi}`);
+      if (RIGUI_DAYS.includes(day.ganZhi)) push('rigui', '日貴', 'day', `日柱${day.ganZhi}為日貴`, `柱${day.ganZhi}`);
     }
     // 三奇：相連三柱天干依序（年月日、月日時）。
     for (const run of [['year', 'month', 'day'], ['month', 'day', 'hour']] as const) {

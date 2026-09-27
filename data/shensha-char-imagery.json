@@ -1038,6 +1038,78 @@
       "sourceId": "cns11643_official",
       "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
       "cnsCode": "1-5E28"
+    },
+    "歲": {
+      "element": "火",
+      "meanings": [
+        "年。",
+        "時光。",
+        "年齡。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-6459"
+    },
+    "截": {
+      "element": "火",
+      "meanings": [
+        "割斷。",
+        "阻攔、阻擋。",
+        "量詞。計算分成數段的物品的單位。相當於「段」。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-6870"
+    },
+    "路": {
+      "element": "火",
+      "meanings": [
+        "道路，供人馬舟車等行走的途徑。",
+        "條理、紋理。",
+        "方法、途徑。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-667B"
+    },
+    "轉": {
+      "element": "金",
+      "meanings": [
+        "變換、改變。",
+        "移動。",
+        "搖動、飄蕩。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-774B"
+    },
+    "地": {
+      "element": "土",
+      "meanings": [
+        "結構助詞。用在副詞之後。",
+        "人類萬物棲息生長的場所。有時直接指地球。",
+        "陸地。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-4762"
+    },
+    "靈": {
+      "element": "火",
+      "meanings": [
+        "事神的女巫。",
+        "鬼神。",
+        "魂魄。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-7C71"
     }
   }
 }
