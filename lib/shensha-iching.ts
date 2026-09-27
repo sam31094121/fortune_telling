@@ -17,11 +17,12 @@ import { evaluateClaim, indexSources, type GateStatus, type SourceRegistry } fro
 import { STATUS_WORDING } from './credibility-phrases';
 import type { ThreeCoreIChingLayer } from './three-core-engine';
 import type { ShenShaCardView } from './dual-chart-shensha-card';
+import { SHENSHA_IMAGERY_ATTRIBUTION, shenShaImagery, type ShenShaImagery } from './shensha-char-imagery';
 
 export const SHENSHA_ICHING_CLAIM = 'C-SHENSHA-ICHING';
 
 export interface ShenShaIChingStep { step: '八字' | '紫微' | '特星神煞' | '易經'; text: string }
-export interface ShenShaIChingItem { name: string; pillar: string; derivation: string; reference: boolean }
+export interface ShenShaIChingItem { name: string; pillar: string; derivation: string; reference: boolean; imagery: ShenShaImagery }
 export type ShenShaIChingView =
   | {
     state: 'READY';
@@ -34,6 +35,8 @@ export type ShenShaIChingView =
     /** 老師解盤：只串接可回查的事實與既有卦義，不自編吉凶。 */
     reading: string[];
     credibility: { status: GateStatus; line: string };
+    /** 字的意境出處說明。 */
+    imageryAttribution: string;
   }
   | { state: 'BLOCKED'; chain: ShenShaIChingStep[]; reason: string };
 
@@ -56,6 +59,8 @@ export function buildShenShaIChing(params: {
   const items: ShenShaIChingItem[] = card.columns.flatMap(col => col.hits.map(hit => ({
     // 取法原文分號後是查柱範圍（工程用），客戶只看推導本身。
     name: hit.name, pillar: col.label, derivation: hit.rule.split('；')[0], reference: hit.reference,
+    // 老師解盤：字有字的意境，取姓名學字庫字義作參考（業主定案 2026-09-27）。
+    imagery: shenShaImagery(hit.name),
   })));
   const distribution = card.columns.map(col => ({ pillar: col.label, count: col.hits.length }));
   chain.push({ step: '特星神煞', text: items.length ? `共 ${items.length} 項：${distribution.map(d => `${d.pillar}${d.count}`).join('、')}` : '本次依本派取法未命中任何特星神煞' });
@@ -76,6 +81,7 @@ export function buildShenShaIChing(params: {
       : '依本派取法，這張盤沒有命中特星神煞；這不代表其他流派也沒有。',
     `易經以同一份生辰起卦，得「${r.hexagramName}」：${r.essence.replace(/[。．.]?$/, '。')}`,
     `行動建議：${r.advice}`,
+    ...(items.length ? ['老師解盤從字的意境看每一個神煞：下表逐項列出字義（取自姓名學字庫原文），讀字、讀位、讀卦，三者合看。'] : []),
   ];
 
   const registry = ichingRegistry as unknown as SourceRegistry;
@@ -85,5 +91,6 @@ export function buildShenShaIChing(params: {
     state: 'READY', chain, items, distribution, reading,
     hexagram: { name: r.hexagramName, glyph: r.glyph, kingWen: r.kingWen, changingLine: r.changingLine, essence: r.essence, advice: r.advice },
     credibility: { status, line: `神煞易經解盤：${STATUS_WORDING[status]}` },
+    imageryAttribution: SHENSHA_IMAGERY_ATTRIBUTION,
   };
 }

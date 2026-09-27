@@ -1732,7 +1732,9 @@
       "title": "神煞易經：特星神煞串接生辰卦解盤",
       "domain": "易經知識",
       "files": [
-        "lib/shensha-iching.ts"
+        "lib/shensha-iching.ts",
+        "lib/shensha-char-imagery.ts",
+        "data/shensha-char-imagery.json"
       ],
       "authority_files": [
         "S-ZHOUYI-ZHENGYI",

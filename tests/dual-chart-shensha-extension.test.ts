@@ -4,6 +4,8 @@ import { buildDualChartShenSha } from '../lib/dual-chart-shensha';
 import { getBaziTraditionalOutputGate } from '../lib/bazi-traditional-gate';
 import { calculateDualChart } from '../lib/dual-chart';
 import { buildShenShaIChing } from '../lib/shensha-iching';
+import { SHENSHA_SENSE_PICKS } from '../lib/shensha-char-imagery';
+import fs from 'node:fs';
 
 // Independent transcription: 1937 printed p72, PDF103; 1938 PDF80–81.
 const expected: Record<Stem, string> = { 甲:'卯',乙:'辰',丙:'午',丁:'未',戊:'午',己:'未',庚:'酉',辛:'戌',壬:'子',癸:'丑' };
@@ -141,6 +143,20 @@ if(ic.state==='READY'){
   assert.equal(ic.credibility.status,'PENDING_POOL');
   assert.ok(!ic.credibility.line.includes('已通過交叉比對'),'unverified claim cannot sound verified');
   assert.deepEqual(calculateDualChart(input).specialStars.iching,ic,'same chart, same hexagram and reading');
+  // 字的意境：每一個神煞都有；字義必須是字庫原文（CC BY-ND 禁止改作），且附出處。
+  const dictionary=new Map((JSON.parse(fs.readFileSync('data/dictionaries/nameology/characters.json','utf8')) as {normalizedCharacter:string;meanings:string[];element:string}[]).map(e=>[e.normalizedCharacter,e]));
+  const snapshot=JSON.parse(fs.readFileSync('data/shensha-char-imagery.json','utf8'));
+  for (const [char,entry] of Object.entries(snapshot.entries) as [string,{meanings:string[];element:string}][]) {
+    assert.deepEqual(entry.meanings,dictionary.get(char)?.meanings,`snapshot ${char} equals the nameology dictionary`);
+    assert.equal(entry.element,dictionary.get(char)?.element);
+    assert.ok(char in SHENSHA_SENSE_PICKS,`${char} has an explicit sense pick (or null)`);
+  }
+  for (const item of ic.items) {
+    assert.equal(item.imagery.chars.map(c=>c.char).join(''),item.name,`${item.name} imagery covers every character`);
+    for (const c of item.imagery.chars) if (c.sense) assert.ok(dictionary.get(c.char)!.meanings.some(m=>m.includes(c.sense!)),`${c.char} sense is verbatim dictionary text`);
+  }
+  assert.ok(ic.imageryAttribution.includes('CC BY-ND'),'dictionary attribution is shown');
+  assert.ok(!ic.items.map(i=>i.imagery.line).join('').match(/主(吉|凶)|大吉|大凶|必定/),'imagery adds no verdicts');
 }
 // 八字紫微四柱不一致：停在核對關，不判定、不自動改任一套。
 const mismatch=buildDualChartShenSha(base,gate,'male',{passed:false,mismatches:['日柱：八字庚子、紫微辛丑']});

@@ -64,8 +64,11 @@ function ShenShaIChingSection({ view }: { view?: DualChartResult['specialStars']
     {view.state === 'BLOCKED' ? <p role="status">{view.reason}</p> : <>
       <p className={styles.shenshaHexagram}><span aria-hidden="true">{view.hexagram.glyph}</span>{view.hexagram.name}<small>第{view.hexagram.changingLine}爻動</small></p>
       {view.reading.map((line, index) => <p key={index}>{line}</p>)}
-      {view.items.length > 0 && <table className={styles.shenshaDerivation} aria-label="特星神煞逐項推導"><thead><tr><th scope="col">神煞</th><th scope="col">柱位</th><th scope="col">怎麼推出來</th></tr></thead>
-        <tbody>{view.items.map(item => <tr key={`${item.pillar}:${item.name}`}><td>{item.name}{item.reference ? '＊' : ''}</td><td>{item.pillar}</td><td>{item.derivation}</td></tr>)}</tbody></table>}
+      {view.items.length > 0 && <ol className={styles.shenshaDerivation} aria-label="特星神煞逐項推導與字的意境">{view.items.map(item =>
+        <li key={`${item.pillar}:${item.name}`}><p><b>{item.name}{item.reference ? '＊' : ''}</b><span>{item.pillar}</span></p>
+          <p>推導：{item.derivation}</p>
+          {item.imagery?.chars?.length > 0 && <ul className={styles.shenshaImagery} aria-label={`${item.name}字的意境`}>{item.imagery.chars.map((c, index) => <li key={index}><b>{c.char}</b><small>{c.element}</small><span>{c.sense ?? '（字庫無合適字義，只取五行）'}</span></li>)}</ul>}</li>)}</ol>}
+      {view.imageryAttribution && <p className={styles.shenshaFootnote}>{view.imageryAttribution}</p>}
       <p className={styles.shenshaFootnote}>{view.credibility.line}</p>
     </>}
   </section>;
