@@ -56,6 +56,13 @@ const SHIE_DABAI_DAYS = ['甲辰', '乙巳', '丙申', '丁亥', '戊戌', '己�
 /** 三奇：天上甲戊庚、地下乙丙丁、人中壬癸辛，須在相連三柱依序出現。 */
 const SANQI: Record<string, string> = { 甲戊庚: '天上三奇', 乙丙丁: '地下三奇', 壬癸辛: '人中三奇' };
 
+/** 2026-09-28 第四批（總覽以外的常用神煞）：常見查表，列為本派取法。 */
+const YUEDEHE: Record<Trine, Stem> = { 寅午戌: '辛', 申子辰: '丁', 亥卯未: '己', 巳酉丑: '乙' };
+const JINSHEN_PILLARS = ['乙丑', '己巳', '癸酉'];
+const BAZHUAN_DAYS = ['甲寅', '乙卯', '丁未', '戊戌', '己未', '庚申', '辛酉', '癸丑'];
+const JIUCHOU_DAYS = ['戊子', '戊午', '壬子', '壬午', '乙卯', '乙酉', '己卯', '己酉', '辛卯', '辛酉'];
+const LIUXIU_DAYS = ['丙午', '丁未', '戊子', '戊午', '己丑', '己未'];
+
 /** 日柱所在旬的兩個空亡地支。 */
 export function xunKong(stem: Stem, branch: Branch): [Branch, Branch] {
   const start = (BRANCHES.indexOf(branch) - STEMS_ORDER.indexOf(stem) + 12) % 12; // 旬首（甲）所在地支
@@ -83,6 +90,7 @@ export const DUAL_SHENSHA_RULES: ReadonlyArray<readonly [string, string]> = [
   ['lushen', '祿神'], ['tianyiDoctor', '天醫'], ['jiesha', '劫煞'], ['guchen', '孤辰'], ['guasu', '寡宿'],
   ['guoyin', '國印'], ['tianchu', '天廚'], ['tianshe', '天赦'], ['sanqi', '三奇'], ['wangshen', '亡神'],
   ['yinyangChacuo', '陰陽差錯'], ['guluan', '孤鸞'], ['shieDabai', '十惡大敗'], ['liuxia', '流霞'], ['sifei', '四廢'],
+  ['yuedehe', '月德合'], ['feiren', '飛刃'], ['jinshen', '金神'], ['bazhuan', '八專'], ['jiuchou', '九醜'], ['liuxiu', '六秀'],
 ];
 
 /** 八字與紫微四柱逐字核對結果；神煞從這兩張已核對的命盤衍生，不另排四柱。 */
@@ -142,6 +150,12 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
     shieDabai: reference('日柱為甲辰、乙巳、丙申、丁亥、戊戌、己丑、庚辰、辛巳、壬申、癸亥者。只看日柱。'),
     liuxia: reference('日干取流霞（甲酉乙戌丙未丁申戊巳己午庚辰辛卯壬亥癸寅），四柱皆查。'),
     sifei: reference('春庚申辛酉、夏壬子癸亥、秋甲寅乙卯、冬丙午丁巳日；季節依月支。只看日柱。'),
+    yuedehe: reference('月支三合取月德，再取其天干之合（寅午戌辛、申子辰丁、亥卯未己、巳酉丑乙），四柱天干皆查。'),
+    feiren: reference('日干羊刃之沖位為飛刃，查年月時。'),
+    jinshen: reference('日柱或時柱為乙丑、己巳、癸酉者。'),
+    bazhuan: reference('日柱為甲寅、乙卯、丁未、戊戌、己未、庚申、辛酉、癸丑者。只看日柱。'),
+    jiuchou: reference('日柱為戊子、戊午、壬子、壬午、乙卯、乙酉、己卯、己酉、辛卯、辛酉者。只看日柱。'),
+    liuxiu: reference('日柱為丙午、丁未、戊子、戊午、己丑、己未者。只看日柱。'),
     hongyan: reference('日干取紅艷（甲乙午、丙寅、丁未、戊己辰、庚戌、辛酉、壬子、癸申），四柱皆查。'),
   };
   // 核心引擎的袁本桃花（含納音條件）只供其他卡片使用；本卡改依參考命盤取法重查。
@@ -248,6 +262,19 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
         if (TIANSHE_DAY[season] === dayGz) push('tianshe', '天赦', 'day', `${season}季（月支${month.earthlyBranch}）逢${dayGz}日為天赦`, `柱${dayGz}`);
         if (SIFEI_DAYS[season].includes(dayGz)) push('sifei', '四廢', 'day', `${season}季（月支${month.earthlyBranch}）逢${dayGz}日為四廢`, `柱${dayGz}`);
       }
+    }
+    if (month) {
+      const target = YUEDEHE[TRINE_OF[month.earthlyBranch]];
+      for (const key of pillars) if (at(key)?.heavenlyStem === target) push('yuedehe', '月德合', key, `月支${month.earthlyBranch}月德合在${target}；四柱天干皆查`, `干${target}`);
+    }
+    if (day) {
+      const ds = day.heavenlyStem as Stem;
+      const fei = BRANCHES[(BRANCHES.indexOf(YANGREN[ds]) + 6) % 12];
+      branchHit('feiren', '飛刃', fei, ['year', 'month', 'hour'], `日干${ds}羊刃${YANGREN[ds]}沖${fei}為飛刃；查年月時`);
+      for (const key of ['day', 'hour'] as const) { const p = at(key); if (p && JINSHEN_PILLARS.includes(p.ganZhi)) push('jinshen', '金神', key, `${key === 'day' ? '日' : '時'}柱${p.ganZhi}為金神`, `柱${p.ganZhi}`); }
+      if (BAZHUAN_DAYS.includes(day.ganZhi)) push('bazhuan', '八專', 'day', `日柱${day.ganZhi}為八專日`, `柱${day.ganZhi}`);
+      if (JIUCHOU_DAYS.includes(day.ganZhi)) push('jiuchou', '九醜', 'day', `日柱${day.ganZhi}為九醜日`, `柱${day.ganZhi}`);
+      if (LIUXIU_DAYS.includes(day.ganZhi)) push('liuxiu', '六秀', 'day', `日柱${day.ganZhi}為六秀日`, `柱${day.ganZhi}`);
     }
     // 三奇：相連三柱天干依序（年月日、月日時）。
     for (const run of [['year', 'month', 'day'], ['month', 'day', 'hour']] as const) {

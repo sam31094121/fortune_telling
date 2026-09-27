@@ -175,6 +175,32 @@ for (let i=0;i<60;i++) for (const mb of BRANCHES) {
   assert.deepEqual(at('sanqi'),[],'no 三奇 when stems are 癸…');
   batch3Cases++;
 }
+// 第四批：獨立抄表。月德合（月支三合→天干之合，四柱天干）、飛刃（羊刃之沖，查年月時）、
+// 金神（日柱或時柱乙丑己巳癸酉）、八專／九醜／六秀（日柱）。
+const expYuedehe:Record<string,string>={寅:'辛',午:'辛',戌:'辛',申:'丁',子:'丁',辰:'丁',亥:'己',卯:'己',未:'己',巳:'乙',酉:'乙',丑:'乙'};
+const expFeiren:Record<string,string>={甲:'酉',乙:'戌',丙:'子',丁:'丑',戊:'子',己:'丑',庚:'卯',辛:'辰',壬:'午',癸:'未'};
+const expBazhuan=['甲寅','乙卯','丁未','戊戌','己未','庚申','辛酉','癸丑'];
+const expJiuchou=['戊子','戊午','壬子','壬午','乙卯','乙酉','己卯','己酉','辛卯','辛酉'];
+const expLiuxiu=['丙午','丁未','戊子','戊午','己丑','己未'];
+let batch4Cases=0;
+for (let i=0;i<60;i++) for (const mb of BRANCHES) for (const ys of ['甲','丁','辛'] as const) {
+  const stem=STEMS[i%10]; const branch=BRANCHES[i%12]; const gz=stem+branch;
+  const f=structuredClone(base); f.shenSha=[]; f.dayMaster.stem=stem as Stem;
+  const d=f.pillars.day; d.heavenlyStem=stem as Stem; d.earthlyBranch=branch; d.ganZhi=gz;
+  const hh=f.pillars.hour; if(hh==='UNKNOWN') throw new Error('known hour required');
+  f.pillars.year.earthlyBranch=mb; f.pillars.month.earthlyBranch=mb; hh.earthlyBranch=mb;
+  f.pillars.year.heavenlyStem=ys as Stem; f.pillars.month.heavenlyStem='癸'; hh.heavenlyStem='癸'; hh.ganZhi='癸'+mb;
+  const out=buildDualChartShenSha(f,gate,'male');
+  const at=(id:string)=>(['year','month','day','hour'] as const).filter(k=>out.byPillar[k].some(s=>s.id===id));
+  const stemOf=(k:string)=>k==='year'?ys:k==='day'?stem:'癸';
+  assert.deepEqual(at('yuedehe'),(['year','month','day','hour'] as const).filter(k=>stemOf(k)===expYuedehe[mb]),`月德合 月${mb}/${ys}${gz}`);
+  assert.deepEqual(at('feiren'),(['year','month','hour'] as const).filter(()=>mb===expFeiren[stem]),`飛刃 ${stem}/${mb}`);
+  assert.deepEqual(at('jinshen'),[...(['乙丑','己巳','癸酉'].includes(gz)?['day']:[]),...(['乙丑','己巳','癸酉'].includes('癸'+mb)?['hour']:[])],`金神 ${gz}/癸${mb}`);
+  assert.deepEqual(at('bazhuan'),expBazhuan.includes(gz)?['day']:[],`八專 ${gz}`);
+  assert.deepEqual(at('jiuchou'),expJiuchou.includes(gz)?['day']:[],`九醜 ${gz}`);
+  assert.deepEqual(at('liuxiu'),expLiuxiu.includes(gz)?['day']:[],`六秀 ${gz}`);
+  batch4Cases++;
+}
 // 三奇：依序才算，順序顛倒不算。
 const sanqiCase=(y:string,m:string,d:string,hs:string)=>{ const f=structuredClone(base); f.shenSha=[]; f.pillars.year.heavenlyStem=y as Stem; f.pillars.month.heavenlyStem=m as Stem; f.pillars.day.heavenlyStem=d as Stem; f.dayMaster.stem=d as Stem; const hh=f.pillars.hour; if(hh==='UNKNOWN') throw new Error('x'); hh.heavenlyStem=hs as Stem; const o=buildDualChartShenSha(f,gate,'male'); return (['year','month','day','hour'] as const).filter(k=>o.byPillar[k].some(s=>s.id==='sanqi')); };
 assert.deepEqual(sanqiCase('甲','戊','庚','癸'),['year','month','day'],'天上三奇 年月日');
@@ -312,4 +338,4 @@ assert.deepEqual(calculateDualChart(input).specialStars,actual.specialStars,'rep
 const changed=calculateDualChart({...input,birthTime:'15:30'});
 assert.equal(changed.core.shenSha.some(s=>s.id==='yangren'),false,'different hour does not inherit a hardcoded hit');
 assert.equal(base.shenSha instanceof Array&&base.shenSha.some(s=>s.id==='yangren'),false,'other cards retain original shared core');
-console.log(`PASS paper chart 17/17 + bazi/ziwei pillar gate + ${batch3Cases} 國印／天廚／流霞／亡神／天赦／四廢／陰陽差錯／孤鸞／十惡大敗 combinations + 5 三奇 order cases + ${batch2Cases} 祿神／孤辰／寡宿／劫煞／天醫 combinations + ${expansionCases} 魁罡／空亡／金輿／學堂／紅艷 combinations + ${cases} 羊刃 combinations + ${yuanchenCases} 元辰 combinations + ${jiangxingCases} 將星 combinations + ${gejiaoCases} 隔角 combinations + gates, missing data, scope, alternate hour, determinism and shared-core isolation`);
+console.log(`PASS paper chart 17/17 + bazi/ziwei pillar gate + ${batch4Cases} 月德合／飛刃／金神／八專／九醜／六秀 combinations + ${batch3Cases} 國印／天廚／流霞／亡神／天赦／四廢／陰陽差錯／孤鸞／十惡大敗 combinations + 5 三奇 order cases + ${batch2Cases} 祿神／孤辰／寡宿／劫煞／天醫 combinations + ${expansionCases} 魁罡／空亡／金輿／學堂／紅艷 combinations + ${cases} 羊刃 combinations + ${yuanchenCases} 元辰 combinations + ${jiangxingCases} 將星 combinations + ${gejiaoCases} 隔角 combinations + gates, missing data, scope, alternate hour, determinism and shared-core isolation`);

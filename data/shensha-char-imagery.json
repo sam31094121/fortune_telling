@@ -870,6 +870,78 @@
       "sourceId": "cns11643_official",
       "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
       "cnsCode": "1-6C59"
+    },
+    "飛": {
+      "element": "水",
+      "meanings": [
+        "鳥類及昆蟲類或航空機械騰行於空中。",
+        "飄揚。",
+        "散發。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-5379"
+    },
+    "八": {
+      "element": "木",
+      "meanings": [
+        "介於七與九之間的自然數。如：「六、七、八、九……」。大寫作「捌」，阿拉伯數字作「8」。",
+        "姓。如漢代有西域人八滑。",
+        "二一四部首之一。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-442C"
+    },
+    "專": {
+      "element": "木",
+      "meanings": [
+        "集中心志、一心一意。",
+        "單獨的。",
+        "特別的。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-5971"
+    },
+    "九": {
+      "element": "木",
+      "meanings": [
+        "介於八與十之間的自然數。如：「七、八、九、十……。」大寫作「玖」。阿拉伯數字作「9」。",
+        "姓。如唐代有九嘉。",
+        "形容極多。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-4426"
+    },
+    "醜": {
+      "element": "金",
+      "meanings": [
+        "形貌陋劣、難看。",
+        "惡劣的、不好的。",
+        "汙穢。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-756B"
+    },
+    "秀": {
+      "element": "金",
+      "meanings": [
+        "稻麥等穀類吐穗開花。",
+        "泛指草木開花。",
+        "生長、成長。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-4B34"
     }
   }
 }
