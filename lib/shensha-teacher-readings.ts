@@ -119,7 +119,7 @@ export const SHENSHA_TEACHER_READINGS: Record<string, ShenShaTeacherReading> = {
     action: '把衝勁用在目標上，不用在人身上；說重話前先收一收，刀留給真正的難關。',
   },
   taohua: {
-    theme: '人緣與魅力', tone: '福氣',
+    theme: '人緣與魅力', tone: '動能',
     essence: '桃花是人緣與魅力，走到哪裡都容易被看見、被喜歡，感情緣分也較旺。',
     imagery: '像春天的桃花開滿枝頭，不用招手，蜂蝶自己就來了。',
     action: '好人緣是資產：多參加聚會、多認識新朋友；感情上真誠專一，桃花才會結果。',
@@ -149,6 +149,19 @@ export const SHENSHA_TEACHER_READINGS: Record<string, ShenShaTeacherReading> = {
     action: '留時間給自己的興趣與修行；孤獨不是缺點，是你充電與創作的方式。',
   },
 };
+
+/**
+ * 傳統三分類（業主提供「常用神煞總覽」，D 級候選資料；見 docs/技能戰鬥檔案/神煞易經/常用神煞對照.md）。
+ * 只標總覽中有出現的神煞；沒出現的不猜。
+ */
+export const SHENSHA_TRADITION: Record<string, '吉神貴人' | '凶煞惡星' | '動態中性'> = {
+  tianyi: '吉神貴人', tiande: '吉神貴人', yuede: '吉神貴人', wenchang: '吉神貴人',
+  yangren: '凶煞惡星', yuanchen: '凶煞惡星',
+  yima: '動態中性', jiangxing: '動態中性', huagai: '動態中性', taohua: '動態中性',
+};
+
+/** 本派解盤原則（融入總覽「命理師的真心話」）。 */
+export const SHENSHA_PRINCIPLE = '神煞是命盤的「形容詞」，真正決定格局的是五行生剋與十神；所以本派讀神煞，只看它替你點亮了哪一面，不拿它單獨論斷好壞。';
 
 /** 本派柱位宮義：這股氣落在人生哪一面。 */
 export const PILLAR_PALACE: Record<string, string> = {

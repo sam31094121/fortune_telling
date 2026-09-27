@@ -172,6 +172,12 @@ if(ic.state==='READY'){
   const wai=ic.items.find(i=>i.id==='waiTaohua')!;
   assert.ok(wai.teacher!.text.includes('異性緣')&&wai.teacher!.text.includes('貴人'),'外桃花 reads as 人緣／異性緣／貴人 (owner example)');
   assert.ok(ic.reading.some(l=>l.includes('福氣')&&l.includes('動能')&&l.includes('提醒')),'tone overview ties the shensha together');
+  // 常用神煞總覽融入：本派解盤原則＋傳統三分類（只標總覽有列的）。
+  assert.ok(ic.reading.some(l=>l.includes('形容詞')&&l.includes('五行生剋')&&l.includes('十神')),'principle: shensha are adjectives; five elements and ten gods decide');
+  assert.equal(ic.items.find(i=>i.id==='yangren')?.tradition,'傳統分類：凶煞惡星');
+  assert.equal(ic.items.find(i=>i.id==='taohua')?.tradition,'傳統分類：動態中性');
+  assert.equal(ic.items.find(i=>i.id==='taohua')?.teacher?.tone,'動能','桃花 follows the overview: dynamic, not purely blessing');
+  assert.equal(ic.items.find(i=>i.id==='longde')?.tradition,null,'shensha absent from the overview get no guessed class');
   // 洋蔥心理學：殼→心→禮物；名詞只掛已登記 A 級文獻，出處由登記表讀出；不診斷。
   const reg=JSON.parse(fs.readFileSync('docs/技能戰鬥檔案/易經/來源登記.json','utf8'));
   const onionClaim=reg.claims.find((c:{claim_id:string})=>c.claim_id==='C-SHENSHA-ONION');

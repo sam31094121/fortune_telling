@@ -18,7 +18,7 @@ import { STATUS_WORDING } from './credibility-phrases';
 import type { ThreeCoreIChingLayer } from './three-core-engine';
 import type { ShenShaCardView } from './dual-chart-shensha-card';
 import { SHENSHA_IMAGERY_ATTRIBUTION, shenShaImagery, type ShenShaImagery } from './shensha-char-imagery';
-import { SHENSHA_TEACHER_READINGS, teacherReadingFor, type ShenShaTone } from './shensha-teacher-readings';
+import { SHENSHA_PRINCIPLE, SHENSHA_TEACHER_READINGS, SHENSHA_TRADITION, teacherReadingFor, type ShenShaTone } from './shensha-teacher-readings';
 import { shenShaOnion, shenShaOnionCredibility, type ShenShaOnionView } from './shensha-onion';
 
 export const SHENSHA_ICHING_CLAIM = 'C-SHENSHA-ICHING';
@@ -28,6 +28,8 @@ export interface ShenShaIChingItem {
   id: string; name: string; pillar: string; derivation: string; reference: boolean; imagery: ShenShaImagery;
   /** 本派導師解盤：本意→意境→柱位→落地，一整段話。 */
   teacher: { theme: string; tone: ShenShaTone; text: string } | null;
+  /** 傳統三分類（常用神煞總覽）；總覽沒列的為 null。 */
+  tradition: string | null;
   /** 神煞洋蔥心理學：殼→心→禮物，對得上的附心理學名詞與原始文獻。 */
   onion: ShenShaOnionView | null;
 }
@@ -83,6 +85,7 @@ export function buildShenShaIChing(params: {
     // 取法原文分號後是查柱範圍（工程用），客戶只看推導本身。
     id: hit.id, name: hit.name, pillar: col.label, derivation: hit.rule.split('；')[0], reference: hit.reference,
     onion: shenShaOnion(hit.id),
+    tradition: SHENSHA_TRADITION[hit.id] ? `傳統分類：${SHENSHA_TRADITION[hit.id]}` : null,
     teacher: SHENSHA_TEACHER_READINGS[hit.id] ? { theme: SHENSHA_TEACHER_READINGS[hit.id].theme, tone: SHENSHA_TEACHER_READINGS[hit.id].tone, text: teacherReadingFor(hit.id, hit.name, col.label)! } : null,
     // 老師解盤：字有字的意境，取姓名學字庫字義作參考（業主定案 2026-09-27）。
     imagery: shenShaImagery(hit.name),
@@ -104,7 +107,7 @@ export function buildShenShaIChing(params: {
     items.length
       ? `特星神煞共 ${items.length} 項，${focus.join('、')}最集中（${max} 項）${empty.length ? `，${empty.join('、')}本派取法未命中` : ''}。每一項的推導都列在下方，可逐項回查。`
       : '依本派取法，這張盤沒有命中特星神煞；這不代表其他流派也沒有。',
-    ...(items.length ? [toneSummary(items)] : []),
+    ...(items.length ? [toneSummary(items), SHENSHA_PRINCIPLE] : []),
     `易經以同一份生辰起卦，得「${r.hexagramName}」：${r.essence.replace(/[。．.]?$/, '。')}`,
     `行動建議：${r.advice}`,
     ...(items.length ? [`導師解盤的讀法：先讀神煞的本意，再看它落在哪一柱，最後回到「${r.hexagramName}」的行動建議——讀意、讀位、讀卦，三者合看。下方逐項展開：導師話術、洋蔥心理學（殼→心→禮物）、推導與字的意境。`] : []),
