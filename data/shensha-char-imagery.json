@@ -457,6 +457,110 @@
       "sourceId": "cns11643_official",
       "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
       "cnsCode": "1-6A64"
+    },
+    "魁": {
+      "element": "火",
+      "meanings": [
+        "湯勺，舀湯的器具。",
+        "為首、帶頭的人。",
+        "明代科舉分五經取士，每一經的首選人稱為「經魁」，五位經魁簡稱為「五魁」，後稱考試或比賽得到第一名為「奪魁」。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-6B76"
+    },
+    "罡": {
+      "element": "水",
+      "meanings": [
+        "參見「罡風」、「天罡」等條。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "2-317E"
+    },
+    "空": {
+      "element": "金",
+      "meanings": [
+        "沒有東西的。",
+        "不切實際的。",
+        "廣闊、高曠。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-4F28"
+    },
+    "亡": {
+      "element": "火",
+      "meanings": [
+        "沒有。",
+        "逃跑。",
+        "失去。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-4441"
+    },
+    "輿": {
+      "element": "金",
+      "meanings": [
+        "車。",
+        "轎子。",
+        "地域、疆域。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-7561"
+    },
+    "學": {
+      "element": "土",
+      "meanings": [
+        "覺悟、領會。",
+        "研習、學習。",
+        "模仿、仿效。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-7050"
+    },
+    "堂": {
+      "element": "木",
+      "meanings": [
+        "正房、大廳。",
+        "以前官府辦公、審訊、舉行典禮的地方。",
+        "用於廳堂名稱。有時也含有某一世系的意義。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-5958"
+    },
+    "紅": {
+      "element": "水",
+      "meanings": [
+        "工作。通「工」。多指女子所做的織布、縫紉、刺繡等工作。如：「女紅」。",
+        "似血的顏色。",
+        "充作禮物的紅色綾羅。後亦借指禮物。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-5278"
+    },
+    "艷": {
+      "element": "火",
+      "meanings": [
+        "「豔」的異體字。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-7C6C"
     }
   }
 }

@@ -7,7 +7,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 // Synthetic fixtures: 1990-01-01 男，己巳年／丙子月／丙寅日，只換時柱。
 // 預期名稱依「太極紫微易經派取法」（docs/技能戰鬥檔案/八字/shensha-rule-integrity/references/參考命盤取法.md）手算，
 // 不是抄引擎輸出。年、月、日三柱固定：年柱天德（子月天德在巳）；月柱龍德（巳年順七至子）、六厄（巳酉丑六厄在子）。
-const fixedPillars = { year: ['天德'], month: ['龍德', '六厄'], day: [] };
+// 日柱丙寅：學堂（丙長生在寅）、紅艷（丙紅艷在寅）。丙寅在甲子旬，旬空戌亥。
+const fixedPillars = { year: ['天德'], month: ['龍德', '六厄'], day: ['學堂', '紅艷'] };
 const fixtures = [
   // 卯：天狗（巳順十）、災煞（巳酉丑在卯）、沐浴（丙至卯）、桃花（寅午戌咸池卯）、外桃花（桃花在時）
   ['05:30', '辛卯', ['天狗', '災煞', '沐浴', '桃花', '外桃花']],
@@ -18,9 +19,9 @@ const fixtures = [
   // 申：天德合（子月合在申）、日破（寅沖申）、驛馬（寅日馬在申）、文昌（丙見申）
   ['15:30', '丙申', ['天德合', '日破', '驛馬', '文昌貴人']],
   // 戌：元辰（己巳陰年男命順五至戌）、華蓋（寅午戌華蓋戌）
-  ['19:30', '戊戌', ['元辰', '華蓋']],
+  ['19:30', '戊戌', ['元辰', '華蓋', '空亡']],
   // 亥：驛馬（巳年馬在亥）、天乙（丙見亥）
-  ['21:30', '己亥', ['驛馬', '天乙貴人']],
+  ['21:30', '己亥', ['驛馬', '天乙貴人', '空亡']],
 ];
 const base = process.env.DUAL_CHART_TEST_URL || 'http://127.0.0.1:8888';
 assert.match(base, /^http:\/\/(localhost|127\.0\.0\.1):\d+$/, 'Synthetic test credentials stay on the local development server');

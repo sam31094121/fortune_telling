@@ -18,7 +18,9 @@ const PENDING_MARKERS = ['尚待核對', '暫未提供', '資料待補'];
 // Independent baseline: removing an extension must not shrink both the result and its health criteria.
 const EXPECTED_RULE_IDS = ['tianyi', 'wenchang', 'taohua', 'yima', 'huagai', 'yangren', 'yuanchen', 'jiangxing', 'gejiao',
   // 2026-09-27 依參考命盤補齊（業主定案）：
-  'tiande', 'yuede', 'tiandehe', 'longde', 'tiangou', 'jinkui', 'wugui', 'zaisha', 'liue', 'yuepo', 'ripo', 'muyu', 'waiTaohua'];
+  'tiande', 'yuede', 'tiandehe', 'longde', 'tiangou', 'jinkui', 'wugui', 'zaisha', 'liue', 'yuepo', 'ripo', 'muyu', 'waiTaohua',
+  // 2026-09-27 業主指定擴充：
+  'kuigang', 'kongwang', 'jinyu', 'xuetang', 'hongyan'];
 // Product expansion requested on 2026-09-27. This is independent of what the
 // current engine happens to return; a transport pass must not imply full delivery.
 const REQUESTED_RULES = {

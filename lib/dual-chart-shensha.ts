@@ -26,6 +26,19 @@ const TRINE_TABLE: Record<'taohua' | 'jiangxing' | 'zaisha' | 'liue', Record<Tri
 const TIANDE: Record<Branch, Stem | Branch> = { 寅: '丁', 卯: '申', 辰: '壬', 巳: '辛', 午: '亥', 未: '甲', 申: '癸', 酉: '寅', 戌: '丙', 亥: '乙', 子: '巳', 丑: '庚' };
 const TIANDEHE: Record<Branch, Stem | Branch> = { 寅: '壬', 卯: '巳', 辰: '丁', 巳: '丙', 午: '寅', 未: '己', 申: '戊', 酉: '亥', 戌: '辛', 亥: '庚', 子: '申', 丑: '乙' };
 const YUEDE: Record<Branch, Stem> = { 寅: '丙', 午: '丙', 戌: '丙', 申: '壬', 子: '壬', 辰: '壬', 亥: '甲', 卯: '甲', 未: '甲', 巳: '庚', 酉: '庚', 丑: '庚' };
+/** 2026-09-27 擴充（業主指定先做五個）：常見查表，列為本派取法，原典頁碼待補。 */
+const KUIGANG_DAYS = ['庚辰', '庚戌', '壬辰', '戊戌'];
+const JINYU: Record<Stem, Branch> = { 甲: '辰', 乙: '巳', 丙: '未', 丁: '申', 戊: '未', 己: '申', 庚: '戌', 辛: '亥', 壬: '丑', 癸: '寅' };
+/** 學堂＝日干長生位。 */
+const XUETANG: Record<Stem, Branch> = { 甲: '亥', 乙: '午', 丙: '寅', 丁: '酉', 戊: '寅', 己: '酉', 庚: '巳', 辛: '子', 壬: '申', 癸: '卯' };
+const HONGYAN: Record<Stem, Branch> = { 甲: '午', 乙: '午', 丙: '寅', 丁: '未', 戊: '辰', 己: '辰', 庚: '戌', 辛: '酉', 壬: '子', 癸: '申' };
+const STEMS_ORDER = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'] as const;
+/** 日柱所在旬的兩個空亡地支。 */
+export function xunKong(stem: Stem, branch: Branch): [Branch, Branch] {
+  const start = (BRANCHES.indexOf(branch) - STEMS_ORDER.indexOf(stem) + 12) % 12; // 旬首（甲）所在地支
+  return [BRANCHES[(start + 10) % 12], BRANCHES[(start + 11) % 12]];
+}
+
 /** 年支順數的歲神位：五鬼＋4、龍德＋7、天狗＋10。 */
 const YEAR_OFFSET = { wugui: 4, longde: 7, tiangou: 10 } as const;
 
@@ -43,6 +56,7 @@ export const DUAL_SHENSHA_RULES: ReadonlyArray<readonly [string, string]> = [
   ['wugui', '五鬼'], ['zaisha', '災煞'], ['liue', '六厄'], ['muyu', '沐浴'], ['yuepo', '月破'], ['ripo', '日破'],
   ['jiangxing', '將星'], ['yima', '驛馬'], ['gejiao', '隔角'], ['yuanchen', '元辰'], ['yangren', '羊刃'],
   ['taohua', '桃花'], ['waiTaohua', '外桃花'], ['tianyi', '天乙'], ['wenchang', '文昌'], ['huagai', '華蓋'],
+  ['kuigang', '魁罡'], ['kongwang', '空亡'], ['jinyu', '金輿'], ['xuetang', '學堂'], ['hongyan', '紅艷'],
 ];
 
 /** 八字與紫微四柱逐字核對結果；神煞從這兩張已核對的命盤衍生，不另排四柱。 */
@@ -83,6 +97,11 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
     yuepo: reference('與月支相沖者，查年日時。'),
     ripo: reference('與日支相沖者，查年月時。'),
     muyu: reference('日干十二運落在沐浴之柱，四柱皆查。'),
+    kuigang: reference('日柱為庚辰、庚戌、壬辰、戊戌者；只看日柱（另有流派加壬戌，本派不採）。'),
+    kongwang: reference('依日柱所在旬取旬空兩支，查年月時。'),
+    jinyu: reference('日干取金輿（甲辰乙巳丙戊未丁己申庚戌辛亥壬丑癸寅），四柱皆查。'),
+    xuetang: reference('日干長生位為學堂，四柱皆查（另有以年納音長生取者，本派不採）。'),
+    hongyan: reference('日干取紅艷（甲乙午、丙寅、丁未、戊己辰、庚戌、辛酉、壬子、癸申），四柱皆查。'),
   };
   // 核心引擎的袁本桃花（含納音條件）只供其他卡片使用；本卡改依參考命盤取法重查。
   const raw: DualShenShaItem[] = Array.isArray(core.shenSha) ? core.shenSha.filter(item => item.id !== 'taohua') : [];
@@ -166,6 +185,15 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
       branchHit('jinkui', '金匱', TRINE_TABLE.jiangxing[yearTrine], rest, `年支${y}（${yearTrine}）金匱在${TRINE_TABLE.jiangxing[yearTrine]}；查月日時`);
       branchHit('zaisha', '災煞', TRINE_TABLE.zaisha[yearTrine], rest, `年支${y}（${yearTrine}）災煞在${TRINE_TABLE.zaisha[yearTrine]}；查月日時`);
       branchHit('liue', '六厄', TRINE_TABLE.liue[yearTrine], rest, `年支${y}（${yearTrine}）六厄在${TRINE_TABLE.liue[yearTrine]}；查月日時`);
+    }
+    if (day) {
+      const ds = day.heavenlyStem as Stem;
+      if (KUIGANG_DAYS.includes(day.ganZhi)) push('kuigang', '魁罡', 'day', `日柱${day.ganZhi}為魁罡日`, `柱${day.ganZhi}`);
+      const [k1, k2] = xunKong(ds, day.earthlyBranch);
+      for (const target of [k1, k2]) branchHit('kongwang', '空亡', target, ['year', 'month', 'hour'], `日柱${day.ganZhi}旬空${k1}${k2}；查年月時`);
+      branchHit('jinyu', '金輿', JINYU[ds], pillars, `日干${ds}金輿在${JINYU[ds]}；四柱皆查`);
+      branchHit('xuetang', '學堂', XUETANG[ds], pillars, `日干${ds}長生在${XUETANG[ds]}為學堂；四柱皆查`);
+      branchHit('hongyan', '紅艷', HONGYAN[ds], pillars, `日干${ds}紅艷在${HONGYAN[ds]}；四柱皆查`);
     }
     for (const key of pillars) {
       if (at(key) && core.twelveStages[key] === '沐浴') push('muyu', '沐浴', key, `日干${core.dayMaster.stem}十二運至${at(key)!.earthlyBranch}為沐浴`, `支${at(key)!.earthlyBranch}`);

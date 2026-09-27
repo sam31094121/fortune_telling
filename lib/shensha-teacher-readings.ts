@@ -142,6 +142,36 @@ export const SHENSHA_TEACHER_READINGS: Record<string, ShenShaTeacherReading> = {
     imagery: '像書桌上那盞燈，一開，思路就亮了。',
     action: '給自己一個學習目標或證照；把想法寫下來、說出來，文昌的光就有地方照。',
   },
+  kuigang: {
+    theme: '剛毅的主見', tone: '動能',
+    essence: '魁罡是日柱自帶的剛強之氣，主見強、有決斷，說一不二，是能扛事的人。',
+    imagery: '像北斗的魁星與天罡並立，光不柔，卻讓人在夜裡找得到方向。',
+    action: '把剛強用在承擔與原則上；和親近的人相處時，先聽完再下決定，剛柔並濟最有力量。',
+  },
+  kongwang: {
+    theme: '看見卻未落地', tone: '提醒',
+    essence: '空亡是旬中空出的位置，落在哪一柱，那一柱的人事就容易「看得見、還沒抓牢」，需要多一分經營。',
+    imagery: '像山谷裡的回音，聲音是真的，但要走過去才碰得到。',
+    action: '對空亡那一柱的人事，少一點想像、多一點實際行動；有些東西要慢慢填，空處也能變成餘裕。',
+  },
+  jinyu: {
+    theme: '有人載你一程', tone: '福氣',
+    essence: '金輿是富貴車馬，代表生活有依靠、出入有助力，常得伴侶或身邊人的資源相挺。',
+    imagery: '像一輛穩當的車停在門口，要去遠方時，不必一個人走。',
+    action: '接受別人的助力不丟臉；把資源用在讓自己走更遠的地方，也記得回頭載別人一程。',
+  },
+  xuetang: {
+    theme: '天生的學習力', tone: '福氣',
+    essence: '學堂是日干的長生之地，主理解力、模仿力強，學什麼上手快，有書卷與儒雅之氣。',
+    imagery: '像一間窗明几淨的書房，坐進去，心就靜了，字就讀進去了。',
+    action: '給自己一門長期精進的學問或手藝；你學得比別人快，更該選一條走得深的路。',
+  },
+  hongyan: {
+    theme: '自帶的浪漫魅力', tone: '動能',
+    essence: '紅艷是個人散發的魅力與浪漫特質，比桃花更偏向自身的吸引力，容易被欣賞、被喜歡。',
+    imagery: '像一朵正紅的花開在綠葉裡，不用說話，目光就落在它身上。',
+    action: '魅力是天賦也是責任；在感情裡真誠清楚，把吸引力留給值得的人。',
+  },
   huagai: {
     theme: '靈性與才藝', tone: '動能',
     essence: '華蓋是頭頂的華麗傘蓋，代表才華、藝術、宗教與哲思，也有一份喜歡獨處的孤高。',
@@ -154,10 +184,11 @@ export const SHENSHA_TEACHER_READINGS: Record<string, ShenShaTeacherReading> = {
  * 傳統三分類（業主提供「常用神煞總覽」，D 級候選資料；見 docs/技能戰鬥檔案/神煞易經/常用神煞對照.md）。
  * 只標總覽中有出現的神煞；沒出現的不猜。
  */
-export const SHENSHA_TRADITION: Record<string, '吉神貴人' | '凶煞惡星' | '動態中性'> = {
+export const SHENSHA_TRADITION: Record<string, '吉神貴人' | '凶煞惡星' | '動態中性' | '特殊格局'> = {
   tianyi: '吉神貴人', tiande: '吉神貴人', yuede: '吉神貴人', wenchang: '吉神貴人',
   yangren: '凶煞惡星', yuanchen: '凶煞惡星',
   yima: '動態中性', jiangxing: '動態中性', huagai: '動態中性', taohua: '動態中性',
+  jinyu: '吉神貴人', xuetang: '吉神貴人', kongwang: '凶煞惡星', hongyan: '動態中性', kuigang: '特殊格局',
 };
 
 /** 本派解盤原則（融入總覽「命理師的真心話」）。 */
