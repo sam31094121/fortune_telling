@@ -1,0 +1,611 @@
+"use strict";
+/**
+ * 三合一整合控制層｜八字 × 紫微斗數 × 易經
+ * ============================================================================
+ *
+ * 這一層**不算命**。
+ *
+ * 八字、紫微、易經三套系統全部沿用既有的，一行運算規則都沒有改寫。
+ * 這裡只做一件事：把三套鎖成一條流程，互相核對，缺一不可，異常立即阻斷。
+ *
+ * 【為什麼需要它】
+ *
+ * 三套系統各自都會過自己的測試——因為從來沒有人把它們放在一起比對。
+ * 2026-09-04 就是這樣出事的：紫微自己重算了一份八字，日柱差 23 天，
+ * 兩份八字各自內部一致，所以兩邊的測試都是綠的。
+ *
+ * 錯的資料一旦通過，就會一路往下傳：
+ *   資料錯 → 紫微錯 → 老師解盤錯 → 三合一整合錯 → 客戶看到錯的結果
+ * 而且是同時大量客戶一起中。這一層就是用來把骨牌在第一張就按住。
+ *
+ * 【流程（順序不可顛倒、不可跳關）】
+ *
+ *   唯一出生資料
+ *        ↓
+ *   呼叫既有八字        ← 四柱唯一來源
+ *        ↓
+ *   呼叫既有紫微
+ *        ↓
+ *   八字 × 紫微 四柱交叉核對   ← 年月日時逐字比對，不容錯
+ *        ↓  對不上就停在這裡，不往下走
+ *   呼叫既有易經
+ *        ↓
+ *   三套狀態確認
+ *        ↓
+ *   三合一成立，才允許輸出正式結果
+ *
+ * 【這一層的紀律】
+ *
+ *   不重寫任何一套核心
+ *   不自己排四柱、不自己判命盤
+ *   四柱不一致時，不自動把其中一套改成另一套——那會把「抓錯」變成「藏錯」
+ *   不吞例外；抓到就往上報，並且報到工程端看得懂是哪一柱、兩邊各是什麼
+ *
+ * 【一個必須講清楚的限制】
+ *
+ * 依 CLAUDE.md 的鐵律，紫微那一層現在也是呼叫 lib/bazi/engine.ts 取四柱，
+ * 所以兩邊同源。這道核對因此**抓不到「兩套演算法算出不同答案」**——
+ * 系統裡已經只剩一套演算法，這是刻意的。
+ *
+ * 它抓得到的是**資料傳遞**出錯：兩邊拿到不同的生日、不同的時辰、
+ * 中途被改寫、快取串味、或哪天有人又偷偷接了第二套排盤回來。
+ * 歷史上真正出事的那次正是這一類（餵錯曆法），所以這道閘留著有意義，
+ * 但不要把它當成「演算法互相驗證」。
+ *
+ * 守門測試：npm run test:three-in-one
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PILLAR_LABELS = exports.ThreeInOneStateMachine = void 0;
+exports.verifyFourPillars = verifyFourPillars;
+exports.buildNoHourMethod = buildNoHourMethod;
+exports.runThreeInOne = runThreeInOne;
+exports.assertThreeInOnePassed = assertThreeInOnePassed;
+const shichen_engine_1 = require("./shichen-engine");
+const ziwei_star_beast_link_1 = require("./ziwei-star-beast-link");
+const three_core_engine_1 = require("./three-core-engine");
+/** 合法轉移表。寫死在這裡，任何跳關都會在執行期就爆掉，而不是靜靜地過去。 */
+const ALLOWED_TRANSITIONS = {
+    WAITING_INPUT: ['BAZI_RUNNING', 'FAILED'],
+    // 八字算完才知道要走完整流程還是無時辰模式——三柱本來就算得出來。
+    BAZI_RUNNING: ['ZIWEI_RUNNING', 'TIME_UNKNOWN', 'FAILED'],
+    ZIWEI_RUNNING: ['VERIFYING_FOUR_PILLARS', 'FAILED'],
+    VERIFYING_FOUR_PILLARS: ['YIJING_RUNNING', 'ABNORMAL'],
+    YIJING_RUNNING: ['PASSED', 'FAILED'],
+    PASSED: [],
+    TIME_UNKNOWN: [],
+    ABNORMAL: [],
+    FAILED: [],
+};
+/**
+ * 狀態機。
+ *
+ * 之所以要真的做成一台機器、而不是幾個 if：
+ * 「ABNORMAL 之後不准再往下走」如果只靠流程順序自然成立，
+ * 哪天有人插一行、或改了順序，它就會靜靜地失效——沒有人會發現。
+ * 寫成轉移表，違規當場丟例外。
+ */
+class ThreeInOneStateMachine {
+    current = 'WAITING_INPUT';
+    history = ['WAITING_INPUT'];
+    get status() {
+        return this.current;
+    }
+    /** 走過的每一關，依序記下來。異常報告要附這條軌跡，工程端才知道停在哪。 */
+    get trace() {
+        return [...this.history];
+    }
+    to(next) {
+        const allowed = ALLOWED_TRANSITIONS[this.current];
+        if (!allowed.includes(next)) {
+            throw new Error(`THREE_IN_ONE_ILLEGAL_TRANSITION: ${this.current} → ${next} 不是合法轉移。` +
+                `合法的只有：${allowed.length > 0 ? allowed.join('、') : '（終點，不得再轉移）'}`);
+        }
+        this.current = next;
+        this.history.push(next);
+    }
+}
+exports.ThreeInOneStateMachine = ThreeInOneStateMachine;
+const PILLAR_FIELDS = ['year', 'month', 'day', 'hour'];
+/** 四柱名稱的中文，異常報告要給人看的。 */
+exports.PILLAR_LABELS = {
+    year: '年柱',
+    month: '月柱',
+    day: '日柱',
+    hour: '時柱',
+};
+function verifyFourPillars(bazi, ziwei) {
+    const differences = PILLAR_FIELDS
+        .filter((field) => bazi[field] !== ziwei[field])
+        .map((field) => ({ pillar: field, bazi: bazi[field], ziwei: ziwei[field] }));
+    return { passed: differences.length === 0, differences };
+}
+/**
+ * 無時辰算法（三層逐一交代）。
+ *
+ * 這不是「算不出來」的藉口清單，是一套講得出來的降級算法：
+ * 能算的照算並說明依據，不能算的直接說不能算與為什麼，
+ * 一律不以預設時辰代替。
+ */
+function buildNoHourMethod(bazi) {
+    return {
+        title: '時辰待補：可查看三柱，紫微與易經暫未提供',
+        layers: [
+            {
+                layer: '八字',
+                method: `採年、月、日三柱（${bazi.year}／${bazi.month}／${bazi.day}），時柱留空不推定。`
+                    + `日主「${bazi.dayMaster}」由日柱天干決定，十神與大運照常成立。`,
+                reason: '日主看日干、大運看月柱與年干陰陽及性別——這三件事本來就不依賴時辰，'
+                    + '所以三柱這一段是完整的，不是打折的。時柱缺了就缺了，不補。',
+                available: true,
+            },
+            {
+                layer: '紫微',
+                method: '不排盤。這一層在無時辰時沒有結果。',
+                reason: '命宮由月支與時支共同定位，缺時支就定不了命宮；命宮一動，十二宮全部跟著移。'
+                    + '用預設時辰硬排，等於整張盤都是猜的，錯得無聲無息。所以寧可不排。',
+                available: false,
+            },
+            {
+                layer: '神獸卡',
+                method: '紫微神獸卡（命宮、遷移、官祿、財帛四張）不產出。'
+                    + `八字四柱神獸只給年、月、日三張（${bazi.year}／${bazi.month}／${bazi.day}），時柱那張不給；`
+                    + '姓名總格神獸照給——它算的是筆畫總格，跟時辰無關。',
+                reason: '紫微神獸是從宮位地支的三合方位與宮內主星五行推出來的，'
+                    + '整條依賴命宮；命宮沒定住，四張卡就都是猜的。'
+                    + '時柱神獸同理：沒有時柱就沒有那一張，不拿別柱頂替。',
+                available: false,
+            },
+            {
+                layer: '易經',
+                method: '暫不起卦；補齊出生時辰並完成八字、紫微與四柱核對後，才提供生辰卦。',
+                reason: '梅花易數生辰起卦的下卦與動爻都含時辰數，沒有時辰就算不出來。'
+                    + '因此不使用姓名或其他文案另起一卦替代。',
+                available: false,
+            },
+        ],
+        crossCheck: '八字與紫微的四柱核對這次不執行：紫微沒有排盤，沒有東西可以核對。'
+            + '三柱本身仍由同一支八字引擎產出，來源單一。',
+        unlock: '補上出生時辰，就會解鎖：完整四柱（含時柱）、紫微十二宮與三方四正、'
+            + '四張紫微神獸卡與時柱神獸、你的生辰卦與卜卦儀式，'
+            + '以及八字×紫微的四柱交叉核對。',
+        honesty: '這份結果是在沒有出生時辰的條件下算的。'
+            + '我們沒有用預設時辰替你補上，也不以姓名象徵卦替代生辰卦。'
+            + '能算的部分照實給，不能算的部分直接告訴你不能算。',
+    };
+}
+const NOTHING_VISIBLE = { bazi: false, ziwei: false, yijing: false, combined: false };
+/* ────────────────────────────────────────────────────────────────────────────
+   五、整合控制層
+   ──────────────────────────────────────────────────────────────────────────── */
+/** HH:mm → 時辰地支索引。用既有的 shichen 引擎換算，這一層不自己算。 */
+function toHourBranchIndex(birthTime) {
+    if (!birthTime)
+        return null;
+    const match = /^(\d{1,2}):(\d{2})$/.exec(birthTime.trim());
+    if (!match)
+        return null;
+    const hour24 = Number(match[1]);
+    if (!Number.isInteger(hour24) || hour24 < 0 || hour24 > 23)
+        return null;
+    return (0, shichen_engine_1.shichenFromClockHour)(hour24);
+}
+function checklistOf(states, details) {
+    return [
+        { id: 'BAZI', label: '八字資料完成', state: states.bazi, detail: details.BAZI },
+        { id: 'ZIWEI', label: '紫微資料完成', state: states.ziwei, detail: details.ZIWEI },
+        { id: 'FOUR_PILLARS', label: '八字／紫微四柱核對', state: states.fourPillars, detail: details.FOUR_PILLARS },
+        { id: 'YIJING', label: '易經資料完成', state: states.yijing, detail: details.YIJING },
+        { id: 'COMBINED', label: '三合一驗證完成', state: states.combined, detail: details.COMBINED },
+    ];
+}
+const STAR_BEAST_PALACES = ['MING', 'QIAN_YI', 'GUAN_LU', 'CAI_BO'];
+/**
+ * 四張紫微神獸卡。
+ *
+ * 只在三合一成立之後才呼叫——它整條依賴命宮，而命宮要時辰才定得了。
+ * 推導規則沿用既有的 lib/ziwei-star-beast-link.ts，一行都沒有改寫；
+ * 這裡只是把它從瀏覽器搬到後端，讓它跟其他兩層走同一道閘。
+ */
+function buildZiweiStarBeasts(ziwei) {
+    const all = ziwei.analysis.allPalaces;
+    const cards = [];
+    for (const key of STAR_BEAST_PALACES) {
+        const palace = all.find((item) => item.key === key);
+        if (!palace)
+            continue;
+        const crossPalaces = STAR_BEAST_PALACES
+            .filter((other) => other !== key)
+            .map((other) => all.find((item) => item.key === other))
+            .filter((candidate) => Boolean(candidate));
+        const link = (0, ziwei_star_beast_link_1.deriveZiweiStarBeastLink)({
+            palace,
+            bodyPalace: ziwei.analysis.bodyPalace,
+            crossPalaces,
+        });
+        if (!link.beast)
+            continue;
+        cards.push({
+            palaceKey: key,
+            palaceName: palace.name,
+            beast: {
+                id: link.beast.id,
+                name: link.beast.name,
+                image: link.beast.image,
+                youngDivineImage: link.beast.youngDivineImage,
+                coreMeaning: link.beast.coreMeaning,
+                season: link.beast.season,
+            },
+            beastId: link.beast.id,
+            beastName: link.beast.name,
+            beastImage: link.beast.image,
+            season: link.season,
+            seasonLabel: link.seasonLabel,
+            sourceStar: link.sourceStar,
+            borrowedPalaceName: link.borrowedPalaceName,
+            productElement: link.productElement,
+            evidence: link.evidence,
+        });
+    }
+    return cards;
+}
+/**
+ * 跑一次完整的三合一。
+ *
+ * 三套全部成立才回 success；任何一關沒過都停在該關，並且把原因說清楚。
+ * 呼叫端拿到的 display 已經算好哪幾塊可以顯示——前端照著開關就好，不要自己判斷。
+ */
+async function runThreeInOne(input) {
+    const machine = new ThreeInOneStateMachine();
+    const hourBranchIndex = typeof input.hourBranchIndex === 'number'
+        ? input.hourBranchIndex
+        : toHourBranchIndex(input.birthTime);
+    const coreInput = {
+        birthDate: input.birthDate,
+        birthTime: input.birthTime,
+        gender: input.gender,
+        hourBranchIndex,
+        longitude: input.longitude ?? null,
+    };
+    // ── 0. 輸入檢查 ────────────────────────────────────────────────────────
+    if (!/^\d{4}-\d{1,2}-\d{1,2}$/.test(input.birthDate.trim())) {
+        machine.to('FAILED');
+        return {
+            success: false,
+            completed: false,
+            status: 'FAILED',
+            failureType: 'INPUT_INVALID',
+            trace: machine.trace,
+            verification: { fourPillars: false, bazi: false, ziwei: false, yijing: false },
+            checklist: checklistOf({ bazi: 'PENDING', ziwei: 'PENDING', fourPillars: 'PENDING', yijing: 'PENDING', combined: 'PENDING' }, {
+                BAZI: '尚未開始',
+                ZIWEI: '尚未開始',
+                FOUR_PILLARS: '尚未開始',
+                YIJING: '尚未開始',
+                COMBINED: '尚未開始',
+            }),
+            report: {
+                title: '出生日期格式無法辨識',
+                reason: `收到的 birthDate 是「${input.birthDate}」，不是 YYYY-MM-DD。`,
+                nextStep: '請重新確認出生日期後再送一次。',
+            },
+            display: NOTHING_VISIBLE,
+            partial: { bazi: null },
+        };
+    }
+    // ── 1. 呼叫既有八字 ────────────────────────────────────────────────────
+    machine.to('BAZI_RUNNING');
+    let bazi;
+    let core;
+    try {
+        const layer = (0, three_core_engine_1.runBaziLayer)(coreInput);
+        bazi = layer.bazi;
+        core = layer.core;
+    }
+    catch (error) {
+        machine.to('FAILED');
+        return {
+            success: false,
+            completed: false,
+            status: 'FAILED',
+            failureType: 'BAZI_FAILED',
+            trace: machine.trace,
+            verification: { fourPillars: false, bazi: false, ziwei: false, yijing: false },
+            checklist: checklistOf({ bazi: 'ABNORMAL', ziwei: 'PENDING', fourPillars: 'PENDING', yijing: 'PENDING', combined: 'PENDING' }, {
+                BAZI: error instanceof Error ? error.message : String(error),
+                ZIWEI: '八字未完成，未進入',
+                FOUR_PILLARS: '八字未完成，未進入',
+                YIJING: '八字未完成，未進入',
+                COMBINED: '未成立',
+            }),
+            report: {
+                title: '八字排盤未完成',
+                reason: error instanceof Error ? error.message : String(error),
+                nextStep: null,
+            },
+            display: NOTHING_VISIBLE,
+            partial: { bazi: null },
+        };
+    }
+    const baziDetail = `${bazi.year} ${bazi.month} ${bazi.day} ${bazi.hour ?? '（時柱待補）'}`;
+    const baziReady = Boolean(bazi.year && bazi.month && bazi.day) && core.verification.readyForInterpretation;
+    if (!baziReady) {
+        machine.to('FAILED');
+        return {
+            success: false,
+            completed: false,
+            status: 'FAILED',
+            failureType: 'BAZI_FAILED',
+            trace: machine.trace,
+            verification: { fourPillars: false, bazi: false, ziwei: false, yijing: false },
+            checklist: checklistOf({ bazi: 'ABNORMAL', ziwei: 'PENDING', fourPillars: 'PENDING', yijing: 'PENDING', combined: 'PENDING' }, {
+                BAZI: `四柱或驗證閘未通過：${baziDetail}`,
+                ZIWEI: '八字未完成，未進入',
+                FOUR_PILLARS: '八字未完成，未進入',
+                YIJING: '八字未完成，未進入',
+                COMBINED: '未成立',
+            }),
+            report: {
+                title: '八字命盤未通過驗證閘',
+                reason: '曆法、四柱、十神、大運四道驗證未全數通過，命盤不算鎖定。',
+                nextStep: null,
+            },
+            display: NOTHING_VISIBLE,
+            partial: { bazi },
+        };
+    }
+    /*
+      ── 1.5 沒有時辰：走「無時辰算法」，不是回一句不能算 ──────────────
+  
+      業主定調：「沒有時辰，就要有『沒有時辰』的算法。不能硬算，也不能用騙的，
+      要真實以告沒有時辰的算法。」
+  
+      所以這裡不再往下跑紫微再報 ZIWEI_FAILED——那讀起來像系統壞了。
+      改成一個明確的模式：三柱照給、紫微不排、易經暫不提供，
+      每一層為什麼只能這樣算，全部寫在 noHourMethod 裡直接端給客戶看。
+    */
+    if (hourBranchIndex === null) {
+        machine.to('TIME_UNKNOWN');
+        const noHourMethod = buildNoHourMethod(bazi);
+        return {
+            success: false,
+            completed: false,
+            status: 'TIME_UNKNOWN',
+            trace: machine.trace,
+            verification: { fourPillars: false, bazi: true, ziwei: false, yijing: false },
+            threePillars: { year: bazi.year, month: bazi.month, day: bazi.day },
+            noHourMethod,
+            checklist: checklistOf({ bazi: 'PASSED', ziwei: 'ABNORMAL', fourPillars: 'PENDING', yijing: 'PENDING', combined: 'PENDING' }, {
+                BAZI: `${bazi.year} ${bazi.month} ${bazi.day}（三柱成立，時柱不推定）`,
+                ZIWEI: '不排盤：命宮要月支＋時支，缺時支就定不了，不以預設時辰代替',
+                FOUR_PILLARS: '本次不執行：紫微沒有排盤，沒有東西可以核對',
+                YIJING: '時辰待補，核對完成前暫不起卦',
+                COMBINED: '三合一不成立——缺紫微這一層',
+            }),
+            display: { bazi: true, ziwei: false, yijing: false, combined: false },
+            result: { bazi },
+        };
+    }
+    // ── 2. 呼叫既有紫微 ────────────────────────────────────────────────────
+    machine.to('ZIWEI_RUNNING');
+    let ziwei;
+    try {
+        ziwei = (0, three_core_engine_1.runZiweiLayer)(coreInput, core);
+    }
+    catch (error) {
+        ziwei = {
+            status: 'UNAVAILABLE_BIRTH_TIME_REQUIRED',
+            reason: error instanceof Error ? error.message : String(error),
+        };
+    }
+    if (ziwei.status !== 'READY' || !(0, three_core_engine_1.isZiweiCertified)(ziwei)) {
+        machine.to('FAILED');
+        const reason = ziwei.status === 'READY'
+            ? '紫微命盤未定盤：十二宮未齊備，或時辰未確認。'
+            : ziwei.reason;
+        return {
+            success: false,
+            completed: false,
+            status: 'FAILED',
+            failureType: 'ZIWEI_FAILED',
+            trace: machine.trace,
+            verification: { fourPillars: false, bazi: true, ziwei: false, yijing: false },
+            checklist: checklistOf({ bazi: 'PASSED', ziwei: 'ABNORMAL', fourPillars: 'PENDING', yijing: 'PENDING', combined: 'PENDING' }, {
+                BAZI: baziDetail,
+                ZIWEI: reason,
+                FOUR_PILLARS: '紫微未完成，未進入',
+                YIJING: '紫微未完成，未進入',
+                COMBINED: '未成立',
+            }),
+            report: {
+                title: '紫微命盤未完成',
+                reason,
+                nextStep: hourBranchIndex === null
+                    ? '補上出生時辰即可解鎖命宮、三方四正與卦象。上面的年、月、日三柱不會因此改變。'
+                    : null,
+            },
+            // 八字三柱本來就成立，沒必要一起扣住——扣住只會讓客戶覺得整個系統壞了。
+            display: { bazi: true, ziwei: false, yijing: false, combined: false },
+            partial: { bazi },
+        };
+    }
+    // ── 3. 八字 × 紫微 四柱交叉核對 ────────────────────────────────────────
+    machine.to('VERIFYING_FOUR_PILLARS');
+    const baziPillars = {
+        year: bazi.year,
+        month: bazi.month,
+        day: bazi.day,
+        hour: bazi.hour ?? '',
+    };
+    const ziweiPillars = {
+        year: ziwei.analysis.bazi.year,
+        month: ziwei.analysis.bazi.month,
+        day: ziwei.analysis.bazi.day,
+        hour: ziwei.analysis.bazi.hour,
+    };
+    const verification = verifyFourPillars(baziPillars, ziweiPillars);
+    const ziweiDetail = `${ziweiPillars.year} ${ziweiPillars.month} ${ziweiPillars.day} ${ziweiPillars.hour || '（空）'}`;
+    if (!verification.passed) {
+        /*
+          這裡**不修正**任何一邊。
+    
+          把紫微改成八字（或反過來）會讓畫面看起來正常，但那是在藏錯：
+          真正的問題是「有一段資料或傳遞跑掉了」，蓋掉之後就再也找不到。
+          所以只做三件事：停下來、不顯示、把哪一柱不同原封不動報出去。
+        */
+        machine.to('ABNORMAL');
+        const lines = verification.differences
+            .map((d) => `${exports.PILLAR_LABELS[d.pillar]}\n八字：${d.bazi || '（空）'}\n紫微：${d.ziwei || '（空）'}`)
+            .join('\n\n');
+        return {
+            success: false,
+            completed: false,
+            status: 'ABNORMAL',
+            abnormalType: 'FOUR_PILLARS_MISMATCH',
+            source: 'BAZI_ZIWEI_CROSS_CHECK',
+            trace: machine.trace,
+            verification: { fourPillars: false, bazi: true, ziwei: true, yijing: false },
+            fourPillars: { bazi: baziPillars, ziwei: ziweiPillars, differences: verification.differences },
+            checklist: checklistOf({ bazi: 'PASSED', ziwei: 'PASSED', fourPillars: 'ABNORMAL', yijing: 'PENDING', combined: 'PENDING' }, {
+                BAZI: baziDetail,
+                ZIWEI: ziweiDetail,
+                FOUR_PILLARS: verification.differences
+                    .map((d) => `${exports.PILLAR_LABELS[d.pillar]} 八字「${d.bazi}」≠ 紫微「${d.ziwei}」`)
+                    .join('；'),
+                YIJING: '核對未過，未進入',
+                COMBINED: '未成立',
+            }),
+            report: {
+                title: '八字與紫微四柱核對異常',
+                reason: '八字與紫微四柱未完全一致',
+                differences: verification.differences,
+                customerMessage: '資料核對異常\n\n'
+                    + '八字與紫微斗數的出生四柱未完全一致，\n'
+                    + '系統已停止本次運算，以避免錯誤結果繼續向下傳遞。\n\n'
+                    + `異常項目：\n${lines}\n\n`
+                    + '處理狀態：\n'
+                    + '本次紫微結果不顯示\n'
+                    + '三合一結果不成立\n'
+                    + '請重新檢查原始出生資料或紫微排盤來源',
+            },
+            display: { bazi: true, ziwei: false, yijing: false, combined: false },
+        };
+    }
+    // ── 4. 呼叫既有易經（含正統卜卦儀式）──────────────────────────────────
+    machine.to('YIJING_RUNNING');
+    let yijing;
+    try {
+        yijing = (0, three_core_engine_1.runIChingLayer)({ input: coreInput, core, bazi, ziwei });
+    }
+    catch (error) {
+        // castHexagramCertified 憑證不符時會丟例外。不吞掉，照實往上報。
+        machine.to('FAILED');
+        return {
+            success: false,
+            completed: false,
+            status: 'FAILED',
+            failureType: 'YIJING_FAILED',
+            trace: machine.trace,
+            verification: { fourPillars: true, bazi: true, ziwei: true, yijing: false },
+            checklist: checklistOf({ bazi: 'PASSED', ziwei: 'PASSED', fourPillars: 'PASSED', yijing: 'ABNORMAL', combined: 'PENDING' }, {
+                BAZI: baziDetail,
+                ZIWEI: ziweiDetail,
+                FOUR_PILLARS: '年、月、日、時四柱逐字一致',
+                YIJING: error instanceof Error ? error.message : String(error),
+                COMBINED: '未成立',
+            }),
+            report: {
+                title: '易經起卦未完成',
+                reason: error instanceof Error ? error.message : String(error),
+                nextStep: null,
+            },
+            display: { bazi: true, ziwei: true, yijing: false, combined: false },
+            partial: { bazi },
+        };
+    }
+    if (yijing.status !== 'READY') {
+        machine.to('FAILED');
+        return {
+            success: false,
+            completed: false,
+            status: 'FAILED',
+            failureType: 'YIJING_FAILED',
+            trace: machine.trace,
+            verification: { fourPillars: true, bazi: true, ziwei: true, yijing: false },
+            checklist: checklistOf({ bazi: 'PASSED', ziwei: 'PASSED', fourPillars: 'PASSED', yijing: 'ABNORMAL', combined: 'PENDING' }, {
+                BAZI: baziDetail,
+                ZIWEI: ziweiDetail,
+                FOUR_PILLARS: '年、月、日、時四柱逐字一致',
+                YIJING: yijing.reason,
+                COMBINED: '未成立',
+            }),
+            report: { title: '易經卦象未成立', reason: yijing.reason, nextStep: null },
+            display: { bazi: true, ziwei: true, yijing: false, combined: false },
+            partial: { bazi },
+        };
+    }
+    // ── 5. 三套全部成功 ────────────────────────────────────────────────────
+    machine.to('PASSED');
+    return {
+        success: true,
+        completed: true,
+        status: 'PASSED',
+        trace: machine.trace,
+        verification: { fourPillars: true, bazi: true, ziwei: true, yijing: true },
+        fourPillars: { bazi: baziPillars, ziwei: ziweiPillars, differences: [] },
+        checklist: checklistOf({ bazi: 'PASSED', ziwei: 'PASSED', fourPillars: 'PASSED', yijing: 'PASSED', combined: 'PASSED' }, {
+            BAZI: baziDetail,
+            ZIWEI: ziweiDetail,
+            FOUR_PILLARS: '年、月、日、時四柱逐字一致',
+            YIJING: `${yijing.reading.hexagramName} → ${yijing.patternName}`,
+            COMBINED: `命盤指紋 ${yijing.ritual.chartFingerprint}`,
+        }),
+        display: { bazi: true, ziwei: true, yijing: true, combined: true },
+        result: { bazi, ziwei, yijing, starBeasts: buildZiweiStarBeasts(ziwei) },
+    };
+}
+/**
+ * 三合一沒成立就直接擋下。
+ *
+ * 用在「要把結果送去表達層／回傳給前端」之前。
+ * 這一行是最後一道保險：就算呼叫端忘了看 display，也不會把半套結果送出去。
+ */
+function assertThreeInOnePassed(result) {
+    if (result.status !== 'PASSED') {
+        let detail;
+        if (result.status === 'ABNORMAL') {
+            detail = result.report.differences
+                .map((d) => `${exports.PILLAR_LABELS[d.pillar]} 八字「${d.bazi}」≠ 紫微「${d.ziwei}」`)
+                .join('；');
+        }
+        else if (result.status === 'TIME_UNKNOWN') {
+            // 無時辰不是壞掉，是另一套算法；訊息要講得出走了哪一套。
+            detail = result.noHourMethod.title;
+        }
+        else {
+            detail = result.report.reason;
+        }
+        throw new Error(`THREE_IN_ONE_NOT_PASSED: ${result.status} — ${detail}`);
+    }
+    const { bazi, ziwei, yijing } = result.result;
+    const pillars = { year: bazi.year, month: bazi.month, day: bazi.day, hour: bazi.hour ?? '' };
+    const fingerprint = [pillars.year, pillars.month, pillars.day, pillars.hour].join('|');
+    const expectedTrace = ['WAITING_INPUT', 'BAZI_RUNNING', 'ZIWEI_RUNNING', 'VERIFYING_FOUR_PILLARS', 'YIJING_RUNNING', 'PASSED'];
+    const valid = result.success && result.completed
+        && result.verification.bazi === true && result.verification.ziwei === true
+        && result.verification.fourPillars === true && result.verification.yijing === true
+        && /^[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]$/.test(pillars.hour)
+        && expectedTrace.join('|') === result.trace.join('|')
+        && (0, three_core_engine_1.isZiweiCertified)(ziwei)
+        && verifyFourPillars(pillars, ziwei.analysis.bazi).differences.length === 0
+        && verifyFourPillars(pillars, result.fourPillars.bazi).differences.length === 0
+        && verifyFourPillars(pillars, result.fourPillars.ziwei).differences.length === 0
+        && result.fourPillars.differences.length === 0
+        && yijing.ritual.completed && yijing.ritual.steps.length === three_core_engine_1.ICHING_RITUAL_STEPS.length
+        && yijing.ritual.steps.every((step, index) => step.passed && step.id === three_core_engine_1.ICHING_RITUAL_STEPS[index].id)
+        && yijing.certificate.baziVerified && yijing.certificate.ziweiCertified
+        && yijing.certificate.ritualCompleted
+        && yijing.certificate.chartFingerprint === fingerprint
+        && yijing.ritual.chartFingerprint === fingerprint;
+    if (!valid)
+        throw new Error('THREE_IN_ONE_NOT_PASSED: 三核心內容或執行順序不一致');
+}

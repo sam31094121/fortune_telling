@@ -1,0 +1,566 @@
+{
+    "note": "由 scripts/build-shensha-char-imagery.mjs 從 data/dictionaries/nameology 抽出，字義原文不改。",
+    "dictionaryVersion": "nameology_dictionary_zh_tw_authority_v2.1.0",
+    "attribution": {
+        "moe": "教育部國語辭典公眾授權資料（CC-BY-ND-TW-3.0 (教育部重編國語辭典修訂本 text); format conversion CC0）",
+        "cns": "CNS11643 全字庫（開放資料）（政府資料開放授權條款第1版）",
+        "curated": "本站姓名學精修字義"
+    },
+    "entries": {
+        "天": {
+            "element": "火",
+            "meanings": [
+                "日月星辰所羅列的空間，即天空。",
+                "一晝夜的時間。",
+                "白天或一天中的某一段時間。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4532"
+        },
+        "德": {
+            "element": "土",
+            "meanings": [
+                "人類共同遵循的規範。",
+                "品行、作風。",
+                "恩澤、恩惠。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-6C61"
+        },
+        "合": {
+            "element": "土",
+            "meanings": [
+                "參見「公合」條。",
+                "關閉、合攏。",
+                "會、聚。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4759"
+        },
+        "月": {
+            "element": "火",
+            "meanings": [
+                "月亮、月球。",
+                "月光。",
+                "計時單位，約為月球繞行地球一周所需時間。陽曆月為大月31日，小月30日（二月除外），一年有十二個月。陰曆則以月球相位變化週期而制定，大月30日，小月29日。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-454C"
+        },
+        "龍": {
+            "element": "火",
+            "meanings": [
+                "龍象升騰，代表氣勢、企圖、舞台能量與轉化力。"
+            ],
+            "curated": true,
+            "sourceId": "taiwan-moe-standard-radical-v2",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-733E"
+        },
+        "狗": {
+            "element": "金",
+            "meanings": [
+                "食肉犬科動物的通稱。種類很多，嗅覺和聽覺都很靈敏，可訓練來追蹤、守衛、導盲、救生或飼為寵物，且性忠誠，為人類之友。",
+                "姓。如漢代有狗未央。",
+                "諂媚奉承。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4E70"
+        },
+        "金": {
+            "element": "金",
+            "meanings": [
+                "（gold，Au）化學元素。原子序79。金屬元素之一，質地柔軟，延展性極大，可與銀、銅等合金製成貨幣、裝飾品、筆尖等。由於色澤黃澄，俗稱為「黃金」。",
+                "金屬的總稱。",
+                "刀劍之類的武器。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4F5A"
+        },
+        "匱": {
+            "element": "火",
+            "meanings": [
+                "儲放東西的箱子。",
+                "缺乏、竭盡。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-6824"
+        },
+        "五": {
+            "element": "火",
+            "meanings": [
+                "介於四與六之間的自然數。如：「三、四、五、六……。」大寫作「伍」，阿拉伯數字作「5」。",
+                "姓。如漢代有五京。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-446C"
+        },
+        "鬼": {
+            "element": "水",
+            "meanings": [
+                "人死後的靈魂。",
+                "有某種嗜好、行為或癖性不好的人。",
+                "詭計、噱頭。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-5870"
+        },
+        "災": {
+            "element": "金",
+            "meanings": [
+                "水、火、刀兵、荒旱等自然或人為禍害的通稱。",
+                "不幸的事。",
+                "受禍害的。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4B24"
+        },
+        "煞": {
+            "element": "火",
+            "meanings": [
+                "殺死。",
+                "停止。",
+                "凶神。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-6521"
+        },
+        "六": {
+            "element": "火",
+            "meanings": [
+                "介於五與七之間的自然數。大寫作「陸」，阿拉伯數字作「6」。",
+                "國名。周代時位於今大陸地區安徽省六安縣北，一說在今大陸地區安徽舒城縣東南六十里處。",
+                "姓。皋陶之後，以國為氏。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-447A"
+        },
+        "厄": {
+            "element": "火",
+            "meanings": [
+                "樹木的節。",
+                "災難、困難。",
+                "車轅前端套在牛、馬等頸上的橫木。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-452D"
+        },
+        "沐": {
+            "element": "金",
+            "meanings": [
+                "洗髮。",
+                "承受。",
+                "休假。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4A6F"
+        },
+        "浴": {
+            "element": "水",
+            "meanings": [
+                "洗澡。",
+                "洗滌。",
+                "浸染、浸泡。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-5647"
+        },
+        "破": {
+            "element": "水",
+            "meanings": [
+                "毀壞、使碎裂。",
+                "突破、破除。",
+                "擊敗、攻下。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-5722"
+        },
+        "日": {
+            "element": "火",
+            "meanings": [
+                "人名用字。如漢代有金日磾。",
+                "太陽。",
+                "白天。與「夜」相對。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-454A"
+        },
+        "將": {
+            "element": "木",
+            "meanings": [
+                "會、可能。",
+                "快要。",
+                "差不多。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-5972"
+        },
+        "星": {
+            "element": "水",
+            "meanings": [
+                "宇宙中會發光或反射光的天體。",
+                "比喻細碎或發亮的東西。",
+                "比喻為人所崇拜、注目，或是某事的主要人物。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-5153"
+        },
+        "驛": {
+            "element": "火",
+            "meanings": [
+                "古代供傳遞公文或官員來往使用的馬。",
+                "古代供傳送公文的人或往來官員換馬、暫時休息的地方。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-7C52"
+        },
+        "馬": {
+            "element": "水",
+            "meanings": [
+                "動物名。四肢強健，每肢僅有一蹄，善跑，能載重行遠。草食性，性溫和。",
+                "計數的工具。",
+                "姓。如漢代有馬融，元代有馬致遠。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-586B"
+        },
+        "隔": {
+            "element": "火",
+            "meanings": [
+                "遮斷、阻塞。",
+                "距離、間隔。",
+                "改變、變異。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-6752"
+        },
+        "角": {
+            "element": "金",
+            "meanings": [
+                "參見「角里」條。",
+                "獸類頭上或鼻前長出的硬質突狀物。",
+                "幾何學上稱兩直線相交所夾成的空間。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4B45"
+        },
+        "元": {
+            "element": "火",
+            "meanings": [
+                "頭。",
+                "量詞。計算錢幣的單位。一元等於十角。",
+                "代數式中，表示未知數的文字稱為「元」。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4477"
+        },
+        "辰": {
+            "element": "金",
+            "meanings": [
+                "地支的第五位。",
+                "時辰名。約當上午七點到九點。",
+                "時運。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4B51"
+        },
+        "羊": {
+            "element": "土",
+            "meanings": [
+                "吉利、吉祥。",
+                "哺乳綱牛科部分動物的泛稱。皮、毛、角、骨可供使用，肉、乳可食用。有綿羊、山羊、羚羊等。",
+                "姓。如漢代有羊續。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4850"
+        },
+        "刃": {
+            "element": "火",
+            "meanings": [
+                "兵器銳利的部分。",
+                "泛稱具有鋒刃的兵器。",
+                "殺。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4443"
+        },
+        "桃": {
+            "element": "水",
+            "meanings": [
+                "植物名。薔薇科李屬，落葉小喬木。葉橢圓狀披針形至倒卵狀披針形，先端漸尖，細鋸齒緣。腋芽常三枚並生，兩側為花芽，中間為葉芽，春初開花，有白、紅二色。核果圓形或扁平，頂端有小突尖，外被毛，味酸可口。",
+                "形狀像桃子的東西。",
+                "生日的代稱。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-562B"
+        },
+        "花": {
+            "element": "金",
+            "meanings": [
+                "被子植物的生殖器官，由許多變形的葉集生而成。包括花托、花萼、花冠、雄蕊群與雌蕊或心皮群。可供人觀賞。",
+                "形狀像花的物體。",
+                "比喻美女。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4F44"
+        },
+        "外": {
+            "element": "土",
+            "meanings": [
+                "不屬於某一定的範圍內均稱為「外」。相對於「內」而言。",
+                "特指外國。",
+                "戲曲中的角色名稱，多扮演老年男子。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4640"
+        },
+        "乙": {
+            "element": "木",
+            "meanings": [
+                "天干的第二位。",
+                "姓。如明代有乙瑄。",
+                "二一四部首之一。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4422"
+        },
+        "貴": {
+            "element": "木",
+            "meanings": [
+                "價錢高。",
+                "地位崇高、優越。",
+                "品質高。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-6238"
+        },
+        "人": {
+            "element": "木",
+            "meanings": [
+                "具有高度智慧和靈性，且能製造並使用工具以進行勞動的高等動物。",
+                "別人、他人。",
+                "每人。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4429"
+        },
+        "文": {
+            "element": "火",
+            "meanings": [
+                "線條交錯的圖案、花紋。",
+                "文字。",
+                "文章。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4546"
+        },
+        "昌": {
+            "element": "金",
+            "meanings": [
+                "光明。",
+                "恰當、美好。",
+                "存活。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4D79"
+        },
+        "華": {
+            "element": "木",
+            "meanings": [
+                "植物的花朵。",
+                "中國、華夏的簡稱。",
+                "光彩、光澤。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-615E"
+        },
+        "蓋": {
+            "element": "火",
+            "meanings": [
+                "地名。戰國時齊邑，漢置蓋縣，北齊廢。故城約位於今大陸地區山東省沂水縣西北。",
+                "姓。如漢代有蓋寬饒。",
+                "茅草。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-6A64"
+        },
+        "魁": {
+            "element": "火",
+            "meanings": [
+                "湯勺，舀湯的器具。",
+                "為首、帶頭的人。",
+                "明代科舉分五經取士，每一經的首選人稱為「經魁」，五位經魁簡稱為「五魁」，後稱考試或比賽得到第一名為「奪魁」。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-6B76"
+        },
+        "罡": {
+            "element": "水",
+            "meanings": [
+                "參見「罡風」、「天罡」等條。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "2-317E"
+        },
+        "空": {
+            "element": "金",
+            "meanings": [
+                "沒有東西的。",
+                "不切實際的。",
+                "廣闊、高曠。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4F28"
+        },
+        "亡": {
+            "element": "火",
+            "meanings": [
+                "沒有。",
+                "逃跑。",
+                "失去。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-4441"
+        },
+        "輿": {
+            "element": "金",
+            "meanings": [
+                "車。",
+                "轎子。",
+                "地域、疆域。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-7561"
+        },
+        "學": {
+            "element": "土",
+            "meanings": [
+                "覺悟、領會。",
+                "研習、學習。",
+                "模仿、仿效。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-7050"
+        },
+        "堂": {
+            "element": "木",
+            "meanings": [
+                "正房、大廳。",
+                "以前官府辦公、審訊、舉行典禮的地方。",
+                "用於廳堂名稱。有時也含有某一世系的意義。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-5958"
+        },
+        "紅": {
+            "element": "水",
+            "meanings": [
+                "工作。通「工」。多指女子所做的織布、縫紉、刺繡等工作。如：「女紅」。",
+                "似血的顏色。",
+                "充作禮物的紅色綾羅。後亦借指禮物。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-5278"
+        },
+        "艷": {
+            "element": "火",
+            "meanings": [
+                "「豔」的異體字。"
+            ],
+            "curated": false,
+            "sourceId": "cns11643_official",
+            "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+            "cnsCode": "1-7C6C"
+        }
+    }
+}

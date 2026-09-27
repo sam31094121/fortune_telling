@@ -7,6 +7,8 @@ const engine_2 = require("./ziwei/engine");
 const bazi_engine_1 = require("./bazi-engine");
 const bazi_professional_result_v5_1 = require("./bazi-professional-result-v5");
 const three_core_engine_1 = require("./three-core-engine");
+const shensha_iching_1 = require("./shensha-iching");
+const three_in_one_1 = require("./three-in-one");
 const bazi_traditional_gate_1 = require("./bazi-traditional-gate");
 const dual_chart_shensha_1 = require("./dual-chart-shensha");
 function calculateDualChart(body) {
@@ -30,7 +32,7 @@ function calculateDualChart(body) {
     const hourBranchIndex = input.birthHourBranch === undefined ? undefined : hourChoices.indexOf(String(input.birthHourBranch));
     if (hourBranchIndex === -1)
         throw new Error('出生時辰無法辨識，請重新選擇。');
-    const { core: bazi } = (0, three_core_engine_1.runBaziLayer)({ birthDate: input.birthDate, birthTime: input.birthTime, gender: input.gender, hourBranchIndex });
+    const { core: bazi, bazi: baziLayer } = (0, three_core_engine_1.runBaziLayer)({ birthDate: input.birthDate, birthTime: input.birthTime, gender: input.gender, hourBranchIndex });
     if (!bazi.verification.readyForInterpretation || bazi.pillars.hour === 'UNKNOWN')
         throw new Error('八字資料核對未通過，暫不繼續排盤。');
     if (!(0, bazi_traditional_gate_1.getBaziTraditionalOutputGate)(bazi.verification.readyForInterpretation).coreReady)
@@ -46,10 +48,28 @@ function calculateDualChart(body) {
     });
     if (!samePillars || professional.professionalChart.traditionalInterpretationGate?.coreReady !== true)
         throw new Error('命盤資料核對未通過，暫不提供結果，請重新排盤。');
-    const specialStars = (0, dual_chart_shensha_1.buildDualChartShenSha)(bazi, professional.professionalChart.traditionalInterpretationGate, input.gender);
+    // 特星神煞衍生鏈：客戶資料 → 八字 → 紫微 → 四柱逐字核對（沿用三合一的 runZiweiLayer＋verifyFourPillars）→ 神煞。
+    // 對不上就停在核對關，原樣列出哪一柱不同；不自動改任何一套。
+    const baziInput = { birthDate: input.birthDate, birthTime: input.birthTime, gender: input.gender, hourBranchIndex };
+    const ziweiLayer = (0, three_core_engine_1.runZiweiLayer)(baziInput, bazi);
+    const pillarLabels = { year: '年柱', month: '月柱', day: '日柱', hour: '時柱' };
+    const ganZhiOf = (key) => { const p = bazi.pillars[key]; return p === 'UNKNOWN' ? '' : p.ganZhi; };
+    const baziPillars = { year: ganZhiOf('year'), month: ganZhiOf('month'), day: ganZhiOf('day'), hour: ganZhiOf('hour') };
+    const pillarCheck = ziweiLayer.status === 'READY'
+        ? (0, three_in_one_1.verifyFourPillars)(baziPillars, { year: ziweiLayer.analysis.bazi.year, month: ziweiLayer.analysis.bazi.month, day: ziweiLayer.analysis.bazi.day, hour: ziweiLayer.analysis.bazi.hour })
+        : { passed: false, differences: [] };
+    const mismatches = ziweiLayer.status === 'READY'
+        ? pillarCheck.differences.map(d => `${pillarLabels[d.pillar]}：八字${d.bazi}、紫微${d.ziwei || '缺'}`)
+        : ['紫微命盤未完成，無法核對四柱'];
+    const shenSha = (0, dual_chart_shensha_1.buildDualChartShenSha)(bazi, professional.professionalChart.traditionalInterpretationGate, input.gender, { passed: mismatches.length === 0, mismatches });
+    // 《神煞易經》第④層：同一張已核對的命盤，沿用三合一帶憑證起卦，把特星神煞串進易經解盤。
+    const iching = (0, three_core_engine_1.runIChingLayer)({ input: baziInput, core: bazi, bazi: baziLayer, ziwei: ziweiLayer });
+    const specialStars = { ...shenSha, iching: (0, shensha_iching_1.buildShenShaIChing)({ pillars: baziPillars, pillarCheckPassed: mismatches.length === 0, card: shenSha.card, iching }) };
     // Reuse the existing backend extension over the verified pillars; the UI only renders its results.
-    const dualCore = { ...bazi, shenSha: specialStars.raw };
-    const dualProfessionalChart = { ...professional.professionalChart, shenSha: specialStars.raw,
+    // 參考取法項目沒有原典頁碼（source 省略）；所有讀取 source 的畫面都先判斷是否存在。
+    const dualShenSha = specialStars.raw;
+    const dualCore = { ...bazi, shenSha: dualShenSha };
+    const dualProfessionalChart = { ...professional.professionalChart, shenSha: dualShenSha,
         traditionalCore: dualCore,
         traditionalInterpretationGate: { ...professional.professionalChart.traditionalInterpretationGate, shenShaRules: specialStars.rules } };
     const raw = (0, engine_2.createZiweiAstrolabe)(ziwei.birthInput);
