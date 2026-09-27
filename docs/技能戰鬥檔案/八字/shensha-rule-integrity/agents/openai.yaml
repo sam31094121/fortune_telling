@@ -1,0 +1,4 @@
+interface:
+  display_name: "四柱神煞"
+  short_description: "核對指定版本、逐柱神煞與顯示守門，保留分歧與未驗證界線，不另造算法"
+  default_prompt: "使用 $shensha-rule-integrity 核對四柱神煞的來源、輸出限制與實際顯示，先報告再依授權修改。"

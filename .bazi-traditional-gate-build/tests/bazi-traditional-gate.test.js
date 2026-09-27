@@ -37,15 +37,15 @@ const sources = (0, iching_source_gate_1.indexSources)(registry);
 const tianyi = structuredClone(registry.claims.find(c => c.claim_id === 'C-BAZI-SHENSHA-TIANYI'));
 const scoped = (0, bazi_traditional_gate_1.evaluateBaziShenShaRule)(tianyi, sources, true);
 strict_1.default.equal(scoped.status, 'VERIFIED', '本書驗證與輸出政策分開');
-strict_1.default.equal(scoped.ready, false);
-strict_1.default.equal(scoped.outputStatus, 'BLOCKED_VARIANT');
+strict_1.default.equal(scoped.ready, true);
+strict_1.default.equal(scoped.outputStatus, 'READY');
 strict_1.default.equal(scoped.verificationScope, 'SELECTED_EDITION');
 strict_1.default.equal(scoped.comparisons[0].status, 'DOCUMENTED_VARIANT');
 strict_1.default.ok(scoped.method?.summary && scoped.method?.printedPage);
 const wenchang = (0, bazi_traditional_gate_1.evaluateBaziShenShaRule)(registry.claims.find(c => c.claim_id === 'C-BAZI-SHENSHA-WENCHANG'), sources, true);
 strict_1.default.equal(wenchang.status, 'VERIFIED');
-strict_1.default.equal(wenchang.outputStatus, 'BLOCKED_VARIANT');
-strict_1.default.equal(wenchang.ready, false);
+strict_1.default.equal(wenchang.outputStatus, 'READY');
+strict_1.default.equal(wenchang.ready, true);
 strict_1.default.equal(wenchang.comparisons.some(c => c.status === 'PENDING_COLLATION'), false, '已核原頁不得仍報整段未取得');
 strict_1.default.ok(wenchang.comparisons[0].citations?.some(c => c.url.endsWith('.djvu/66')), '保留實際原頁證據');
 tianyi.conflicts.push({ topic: '注入本書未解矛盾', sources: [], difference: '本書條件互相矛盾', adopted: '暫不採用', reason: '待核' });
@@ -61,7 +61,7 @@ for (const [key, rule] of rules) {
     strict_1.default.equal(rule.method?.ruleVersion, 'MINGLI_TANYUAN_SHENSHA_V5');
     for (const comparison of rule.comparisons)
         strict_1.default.ok(comparison.sourceUrl && comparison.locator && comparison.detail);
-    strict_1.default.equal(rule.ready, gate.coreReady && rule.status === 'VERIFIED' && !rule.comparisons.some(item => item.status === 'DOCUMENTED_VARIANT'), `神煞 ${key}：來源及同範圍分歧政策皆通過才可放行`);
+    strict_1.default.equal(rule.ready, gate.coreReady && rule.status === 'VERIFIED', `神煞 ${key}：所選版本來源通過即可放行`);
 }
 const everyRuleVerified = rules.every(([, rule]) => rule.status === 'VERIFIED');
 strict_1.default.equal(gate.shenShaStatus === 'VERIFIED', everyRuleVerified);
@@ -111,7 +111,7 @@ const dualChart = node_fs_1.default.readFileSync('app/dual-chart/BaziChart.tsx',
 strict_1.default.equal(dualChart.includes("'無命中'"), false, '雙命盤不得再用絕對的「無命中」');
 strict_1.default.equal(/旺衰:\s*pc\.strengthAnalysis|格局:\s*pc\.structurePattern|用神:\s*pc\.gods/.test(dualChart), false, '雙命盤不得繞過守門顯示舊解釋');
 // 未放行時的扣住路徑必須存在（不論目前是否放行）。
-strict_1.default.ok(dualChart.includes('四柱神煞暫未提供'), '雙命盤必須保留神煞未放行時的扣住文字');
+strict_1.default.ok(dualChart.includes('本次神煞暫未提供'), '雙命盤必須保留神煞未放行時的扣住文字');
 strict_1.default.equal(dualChart.includes("return '未校驗'"), false);
 const teacherModes = node_fs_1.default.readFileSync('components/bazi/customer/BaziTeacherModes.tsx', 'utf8');
 strict_1.default.ok(teacherModes.includes('!view.traditionalGate.interpretationReady'), '老師解讀前端必須先過傳統守門');

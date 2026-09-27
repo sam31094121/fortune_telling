@@ -7,7 +7,7 @@ import { shenShaDisplayCopy, shenShaDisplayNames } from '@/lib/shensha-display-c
 
 const order = ['hour', 'day', 'month', 'year'] as const;
 const labels = { hour: '時', day: '日', month: '月', year: '年' };
-const shenShaLabels = { tianyi: '天乙', wenchang: '文昌', taohua: '桃花', yima: '驛馬', huagai: '華蓋' } as const;
+const shenShaLabels = shenShaDisplayNames.zh;
 function shenShaAvailability(result: DualChartResult) {
   const gate = result.bazi.professionalChart.traditionalInterpretationGate;
   const allowed = new Set(Object.entries(gate?.shenShaRules ?? {}).filter(([, rule]) => gate?.coreReady && rule.ready && rule.status === 'VERIFIED' && rule.outputStatus === 'READY').map(([id]) => id));
@@ -34,7 +34,7 @@ export function PillarGrid({ result, compact = false, language = 'zh' }: { resul
   const { core, bazi } = result;
   const pc = bazi.professionalChart;
   const { allowed, hasData, conflicts } = shenShaAvailability(result);
-  const row = (title: string, render: (key: typeof order[number]) => ReactNode, className?: string) => <tr className={className}>{order.map(key => <td key={key}>{render(key)}</td>)}<th scope="row">{title}</th></tr>;
+  const row = (title: string, render: (key: typeof order[number]) => ReactNode, className?: string) => <tr className={className} data-screen-arrow-target={title === '特星神煞' ? 'dual-chart-special-stars' : undefined}>{order.map(key => <td key={key}>{render(key)}</td>)}<th scope="row">{title}</th></tr>;
   return <table className={`${styles.pillarGrid} ${compact ? styles.compactGrid : ''}`} aria-label={compact ? '中央八字摘要' : '八字四柱時日月年主表'}>
     <thead><tr>{order.map(key => <th key={key} scope="col">{labels[key]}柱</th>)}<th>項目</th></tr></thead>
     <tbody>
@@ -44,13 +44,12 @@ export function PillarGrid({ result, compact = false, language = 'zh' }: { resul
       {row('藏干', key => pc.hiddenStemStructure[key].map(h => h.stem).join('　'))}
       {row('副星', key => pc.hiddenStemStructure[key].map(h => <span className={styles.stack} key={h.stem}>{h.tenGod}</span>))}
       {row('十二運', key => core.twelveStages[key])}
-      {!compact && (!allowed.size || !hasData ? <tr className={styles.shenshaRow}>
-        <td colSpan={4} data-shensha-state={!allowed.size ? conflicts.length ? 'restricted' : 'pending' : 'unavailable'}>
+      {!compact && (!allowed.size || !hasData ? <tr className={styles.shenshaRow} data-screen-arrow-target="dual-chart-special-stars">
+        {order.map(key => <td key={key} data-shensha-pillar={key} data-shensha-state={!allowed.size ? conflicts.length ? 'restricted' : 'pending' : 'unavailable'}>
           <span className={styles.shenshaStatus}>{!allowed.size ? conflicts.length ? '取法分歧，暫未提供' : '尚待核對' : '資料待補'}</span>
-          <small className={styles.shenshaStatus}>{!allowed.size ? '四柱神煞暫未提供，不代表沒有神煞。' : '請重新排盤，暫不判定是否命中。'}</small>
-        </td><th scope="row">神煞</th>
-      </tr> : row('神煞', key => {
-        const hits = Array.isArray(core.shenSha) ? [...new Map(core.shenSha.filter(s => allowed.has(s.id) && s.evidence.startsWith(key.toUpperCase() + ' ')).map(s => [s.name, s])).values()] : [];
+        </td>)}<th scope="row">特星神煞</th>
+      </tr> : row('特星神煞', key => {
+        const hits = result.specialStars?.byPillar[key] ?? (Array.isArray(core.shenSha) ? [...new Map(core.shenSha.filter(s => allowed.has(s.id) && s.evidence.startsWith(key.toUpperCase() + ' ')).map(s => [s.name, s])).values()] : []);
         return hits.length ? hits.map(hit => <span className={styles.stack} key={hit.name} title={hit.rule}>{hit.name}{hit.source && <a className={styles.shenshaSource} href={hit.source.url} target="_blank" rel="noreferrer" aria-label={`${hit.name}來源：${hit.source.title}，卷上${hit.source.printedPage}頁`}>原典 {hit.source.printedPage}頁</a>}</span>) : null;
       }, styles.shenshaRow))}
     </tbody>

@@ -56,9 +56,9 @@ const fullInput: BaziRuntimeInput = {
   check('V5 traditional core gate passed', pc.traditionalInterpretationGate.coreReady, true);
   check('V5 unverified traditional interpretation withheld', pc.traditionalInterpretationGate.interpretationReady, false);
   check('V5 selected ShenSha source scope verified', pc.traditionalInterpretationGate.shenShaStatus, 'VERIFIED');
-  check('V5 documented variant withheld by display policy', pc.traditionalInterpretationGate.shenShaRules.tianyi.outputStatus, 'BLOCKED_VARIANT');
-  check('V5 Wenchang original-page variant withheld', pc.traditionalInterpretationGate.shenShaRules.wenchang.outputStatus, 'BLOCKED_VARIANT');
-  check('V5 full ShenSha output truthfully incomplete', pc.traditionalInterpretationGate.shenShaReady, false);
+  check('V5 Tianyi follows the selected edition', pc.traditionalInterpretationGate.shenShaRules.tianyi.outputStatus, 'READY');
+  check('V5 Wenchang follows the selected edition', pc.traditionalInterpretationGate.shenShaRules.wenchang.outputStatus, 'READY');
+  check('V5 selected-edition ShenSha output ready', pc.traditionalInterpretationGate.shenShaReady, true);
   const shenShaTrace = pc.fieldTrace.find((trace: any) => trace.field === 'shenSha');
   check('V5 ShenSha exists in API', shenShaTrace.api, 'VALID_VALUE');
   check('V5 API does not certify an unexecuted adapter', shenShaTrace.adapter, 'NOT_EVALUATED');

@@ -14,6 +14,8 @@
 - 來源規則只有一份：`易經/來源治理.md`
 - 這三個資料夾是**制度與來源檔**，以 `docs/` 為準；下方神獸卡執行期技能資料才以 `public/` 為準
 
+四柱神煞的參考查核技能另見 [四柱神煞](八字/shensha-rule-integrity/SKILL.md) 與 [參考審核](八字/shensha-rule-integrity/references/參考審核.md)。歸屬八字，不是易經核心或神獸執行期技能；使用者原稿存為 untrusted-reference，不構成公式驗證或發布授權。
+
 ## 二、神獸卡執行期技能資料（三戰兩勝）
 
 神獸卡執行期技能資料與 `public/技能戰鬥檔案/` 同步，正式運行以 `public/` 為準。

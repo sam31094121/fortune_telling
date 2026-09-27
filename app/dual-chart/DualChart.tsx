@@ -9,6 +9,7 @@ import type { DualChartResult } from '@/lib/dual-chart';
 import styles from './dual-chart.module.css';
 import ZiweiChart from './ZiweiChart';
 import { useInterfaceLanguage } from '@/components/InterfaceLanguage';
+import { dualChartHourStatus } from '@/lib/dual-chart-form';
 
 export default function DualChart({ unlocked, configured }: { unlocked: boolean; configured: boolean }) {
   const router = useRouter();
@@ -58,11 +59,17 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
     } catch (e) { setError(e instanceof Error ? e.message : '連線失敗。'); }
     finally { setBusy(false); }
   }
+  function updateForm(profile: BirthProfile) {
+    setForm(profile);
+    setError('');
+    setMissing(previous => previous.filter(field => field === 'birthDate' ? !profile.birthDate : field === 'gender' ? !profile.gender : field === 'birthHourBranch' ? !dualChartHourStatus(profile).done : false));
+  }
   async function calculate(profile: BirthProfile) {
     setError(''); setResult(null);
-    const fields = [!profile.birthDate && 'birthDate', !profile.gender && 'gender', (!profile.birthTime || !profile.birthHourBranch || profile.birthHourBranch === 'pending' || profile.timeUnknown || profile.birthHourBranch === 'unknown') && 'birthHourBranch'].filter(Boolean) as string[];
+    const hour = dualChartHourStatus(profile);
+    const fields = [!profile.birthDate && 'birthDate', !profile.gender && 'gender', !hour.done && 'birthHourBranch'].filter(Boolean) as string[];
     setMissing(fields);
-    if (fields.length) { setError('請完成生日、性別及出生時辰。時辰不明時，暫不產生雙命盤。'); return; }
+    if (fields.length) { setError([!profile.birthDate && '請完成出生日期。', !profile.gender && '請選擇性別。', !hour.done && hour.message].filter(Boolean).join('')); return; }
     setBusy(true);
     try {
       const response = await fetch('/api/dual-chart', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...profile, calendarType: 'solar', timezone: 'Asia/Taipei' }) });
@@ -101,8 +108,9 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
     </section> : <>
       <section className={`${styles.panel} ${styles.inputPanel}`}>
         <p className={styles.note}>沿用系統萬年曆：國曆或農曆生日會統一換算後排盤。採台灣標準時間（UTC+8），未做真太陽時校正；時辰卡採代表時間，若只知子時，請補選午夜前後。</p>
-        <UnifiedBirthForm value={form} fields={{ name: true, gender: true, birthDate: true, birthHourBranch: true, calendarType: true }} optionalFields={['name']} autoFillIdentity={false} persistIdentity={false} requireExplicitHourPick missing={missing} disabled={busy} isSubmitting={busy} submitLabel="排出雙命盤" loadingLabel="正在排盤…" onChange={profile => setForm(profile.birthHourBranch === 'zi' && form.birthHourBranch !== 'zi' ? { ...profile, birthTime: '' } : profile)} onSubmit={profile => void calculate(profile)} />
-        {form.birthHourBranch === 'zi' && <label className={styles.zi}>子時跨日確認<select value={form.birthTime ?? ''} onChange={e => setForm({ ...form, birthTime: e.target.value })}><option value="">請確認午夜前或午夜後</option><option value="23:30">晚子時：23:00–23:59（出生當日）</option><option value="00:30">早子時：00:00–00:59（出生當日）</option></select></label>}
+        <UnifiedBirthForm value={form} fields={{ name: true, gender: true, birthDate: true, birthHourBranch: true, calendarType: true }} optionalFields={['name']} autoFillIdentity={false} persistIdentity={false} requireExplicitHourPick requireKnownHour hourCompletion={dualChartHourStatus(form)} missing={missing} disabled={busy} isSubmitting={busy} submitLabel="排出雙命盤" loadingLabel="正在排盤…"
+          onChange={profile => updateForm(profile.birthHourBranch === 'zi' ? { ...profile, birthTime: form.birthHourBranch === 'zi' ? form.birthTime : '' } : profile)} onSubmit={profile => void calculate(profile)}
+          afterHourPicker={form.birthHourBranch === 'zi' && <label className={styles.zi}>子時跨日確認<select disabled={busy} value={form.birthTime ?? ''} onChange={e => updateForm({ ...form, birthTime: e.target.value })}><option value="">請確認午夜前或午夜後</option><option value="23:30">晚子時：23:00–23:59（出生當日）</option><option value="00:30">早子時：00:00–00:59（出生當日）</option></select></label>} />
       </section>
       {result && <section ref={resultRef} className={styles.results} aria-label="雙命盤結果">
         {!printMode && <button type="button" className={styles.printButton} onClick={() => { setPrintMode(true); resultRef.current?.scrollIntoView({ block: 'start' }); }}>列印專用版</button>}

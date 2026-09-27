@@ -7,6 +7,16 @@
   "files": [
     {
       "type": "檔案",
+      "path": "docs/技能戰鬥檔案/八字/shensha-rule-integrity/SKILL.md",
+      "role": "八字相關參考查核技能；非易經核心，不新增算法或放行狀態"
+    },
+    {
+      "type": "檔案",
+      "path": "docs/技能戰鬥檔案/八字/shensha-rule-integrity/references/source-index.json",
+      "role": "一份未信任工程原稿的三次上傳來源；非三項獨立證據"
+    },
+    {
+      "type": "檔案",
       "path": "docs/技能戰鬥檔案/八字/神煞逐條對照.md",
       "role": "V5五項神煞指定取法、原頁與版本校勘、驗收界線"
     },

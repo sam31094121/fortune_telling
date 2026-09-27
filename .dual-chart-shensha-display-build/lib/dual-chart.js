@@ -8,6 +8,7 @@ const bazi_engine_1 = require("./bazi-engine");
 const bazi_professional_result_v5_1 = require("./bazi-professional-result-v5");
 const three_core_engine_1 = require("./three-core-engine");
 const bazi_traditional_gate_1 = require("./bazi-traditional-gate");
+const dual_chart_shensha_1 = require("./dual-chart-shensha");
 function calculateDualChart(body) {
     if (!body || typeof body !== 'object')
         throw new Error('請填寫出生資料。');
@@ -45,6 +46,12 @@ function calculateDualChart(body) {
     });
     if (!samePillars || professional.professionalChart.traditionalInterpretationGate?.coreReady !== true)
         throw new Error('命盤資料核對未通過，暫不提供結果，請重新排盤。');
+    const specialStars = (0, dual_chart_shensha_1.buildDualChartShenSha)(bazi, professional.professionalChart.traditionalInterpretationGate, input.gender);
+    // Reuse the existing backend extension over the verified pillars; the UI only renders its results.
+    const dualCore = { ...bazi, shenSha: specialStars.raw };
+    const dualProfessionalChart = { ...professional.professionalChart, shenSha: specialStars.raw,
+        traditionalCore: dualCore,
+        traditionalInterpretationGate: { ...professional.professionalChart.traditionalInterpretationGate, shenShaRules: specialStars.rules } };
     const raw = (0, engine_2.createZiweiAstrolabe)(ziwei.birthInput);
     const periods = raw.palaces.map(palace => ({ branch: String(palace.earthlyBranch), range: palace.decadal?.range ?? [], stage: String(palace.changsheng12 ?? ''), ages: [...palace.ages], boshi: String(palace.boshi12), suiqian: String(palace.suiqian12), jiangqian: String(palace.jiangqian12) }));
     // Read the existing calendar library at mid-year, after Li Chun. No new annual algorithm.
@@ -57,5 +64,5 @@ function calculateDualChart(body) {
         return { year, age: year - y + 1, ganzhi: lunar.getYearInGanZhiByLiChun(), stemGod: (0, engine_1.calculateTenGod)(bazi.dayMaster.stem, stem), branchGod: (0, engine_1.calculateTenGod)(bazi.dayMaster.stem, engine_1.HIDDEN_STEM_DICTIONARY[branch].primary) };
     });
     const ziweiProfile = { polarity: engine_1.STEM_YINYANG[raw.chineseDate[0]] ?? '', zodiac: raw.zodiac };
-    return { bazi: { input: professional.input, professionalChart: professional.professionalChart, luckCycles: professional.luckCycles }, core: bazi, annual, ziwei, periods, ziweiProfile };
+    return { bazi: { input: professional.input, professionalChart: dualProfessionalChart, luckCycles: professional.luckCycles }, core: dualCore, specialStars, annual, ziwei, periods, ziweiProfile };
 }

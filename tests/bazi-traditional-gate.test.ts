@@ -34,15 +34,15 @@ const sources = indexSources(registry);
 const tianyi = structuredClone(registry.claims.find(c => c.claim_id === 'C-BAZI-SHENSHA-TIANYI')!);
 const scoped = evaluateBaziShenShaRule(tianyi, sources, true);
 assert.equal(scoped.status, 'VERIFIED', '本書驗證與輸出政策分開');
-assert.equal(scoped.ready, false);
-assert.equal(scoped.outputStatus, 'BLOCKED_VARIANT');
+assert.equal(scoped.ready, true);
+assert.equal(scoped.outputStatus, 'READY');
 assert.equal(scoped.verificationScope, 'SELECTED_EDITION');
 assert.equal(scoped.comparisons[0].status, 'DOCUMENTED_VARIANT');
 assert.ok(scoped.method?.summary && scoped.method?.printedPage);
 const wenchang = evaluateBaziShenShaRule(registry.claims.find(c => c.claim_id === 'C-BAZI-SHENSHA-WENCHANG'), sources, true);
 assert.equal(wenchang.status, 'VERIFIED');
-assert.equal(wenchang.outputStatus, 'BLOCKED_VARIANT');
-assert.equal(wenchang.ready, false);
+assert.equal(wenchang.outputStatus, 'READY');
+assert.equal(wenchang.ready, true);
 assert.equal(wenchang.comparisons.some(c => c.status === 'PENDING_COLLATION'), false, '已核原頁不得仍報整段未取得');
 assert.ok(wenchang.comparisons[0].citations?.some(c => c.url.endsWith('.djvu/66')), '保留實際原頁證據');
 tianyi.conflicts.push({ topic: '注入本書未解矛盾', sources: [], difference: '本書條件互相矛盾', adopted: '暫不採用', reason: '待核' });
@@ -57,7 +57,7 @@ for (const [key, rule] of rules) {
   assert.equal(rule.verificationScope, 'SELECTED_EDITION');
   assert.equal(rule.method?.ruleVersion, 'MINGLI_TANYUAN_SHENSHA_V5');
   for (const comparison of rule.comparisons) assert.ok(comparison.sourceUrl && comparison.locator && comparison.detail);
-  assert.equal(rule.ready, gate.coreReady && rule.status === 'VERIFIED' && !rule.comparisons.some(item => item.status === 'DOCUMENTED_VARIANT'), `神煞 ${key}：來源及同範圍分歧政策皆通過才可放行`);
+  assert.equal(rule.ready, gate.coreReady && rule.status === 'VERIFIED', `神煞 ${key}：所選版本來源通過即可放行`);
 }
 const everyRuleVerified = rules.every(([, rule]) => rule.status === 'VERIFIED');
 assert.equal(gate.shenShaStatus === 'VERIFIED', everyRuleVerified);
@@ -115,7 +115,7 @@ const dualChart = fs.readFileSync('app/dual-chart/BaziChart.tsx', 'utf8');
 assert.equal(dualChart.includes("'無命中'"), false, '雙命盤不得再用絕對的「無命中」');
 assert.equal(/旺衰:\s*pc\.strengthAnalysis|格局:\s*pc\.structurePattern|用神:\s*pc\.gods/.test(dualChart), false, '雙命盤不得繞過守門顯示舊解釋');
 // 未放行時的扣住路徑必須存在（不論目前是否放行）。
-assert.ok(dualChart.includes('四柱神煞暫未提供'), '雙命盤必須保留神煞未放行時的扣住文字');
+assert.ok(dualChart.includes('本次神煞暫未提供'), '雙命盤必須保留神煞未放行時的扣住文字');
 assert.equal(dualChart.includes("return '未校驗'"), false);
 
 const teacherModes = fs.readFileSync('components/bazi/customer/BaziTeacherModes.tsx', 'utf8');

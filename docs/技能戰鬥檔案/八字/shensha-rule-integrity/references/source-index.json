@@ -1,0 +1,39 @@
+{
+  "schema": "shensha-reference-archive-v1",
+  "name": "四柱神煞工程參考來源索引",
+  "category": "八字神煞參考技能；非易經核心",
+  "archivedOn": "2026-09-27",
+  "trust": "untrusted-reference",
+  "paperReference": {
+    "recordedOn": "2026-09-27",
+    "path": "C:/Users/DRAGON/AppData/Local/Temp/codex-clipboard-2142a896-7fd4-45d4-ad8a-8cf039b568b0.png",
+    "sha256": "3E8D586753BC4DFBDC554F692B6760D6514669CBF2556C486265A07DE57A29CE",
+    "policy": "原位保留，不打包照片或出生資料；只作呈現及待查項目參考，不作古籍來源",
+    "note": "references/紙本呈現參考.md"
+  },
+  "reviewStatus": "工程原則部分採納並改寫；非公式驗證、非人工雙簽、非產品發布",
+  "original": {
+    "path": "assets/untrusted-reference/工程師參考原稿.txt",
+    "pathBase": "skill-root",
+    "sha256": "5E37FFA28CBF3669D9D440013237CAE3EC9D22A071001C2845C7CBC2DE9D94DE",
+    "copyPolicy": "byte-for-byte; original uploads retained",
+    "meaning": "hash相同只證位元一致；三次上傳不是三份獨立佐證"
+  },
+  "uploads": [
+    { "recordedOn": "2026-09-27", "path": "C:/Users/DRAGON/.codex/attachments/2300fed5-20b5-4ab3-b961-5d199c4756d5/貼上的文字.txt", "sha256": "5E37FFA28CBF3669D9D440013237CAE3EC9D22A071001C2845C7CBC2DE9D94DE" },
+    { "recordedOn": "2026-09-27", "path": "C:/Users/DRAGON/.codex/attachments/fc62ccae-d346-4ea1-b39d-a85645a59ef3/貼上的文字.txt", "sha256": "5E37FFA28CBF3669D9D440013237CAE3EC9D22A071001C2845C7CBC2DE9D94DE" },
+    { "recordedOn": "2026-09-27", "path": "C:/Users/DRAGON/.codex/attachments/35c0dc28-01df-4aff-b55a-4a8cf8b9bf92/貼上的文字.txt", "sha256": "5E37FFA28CBF3669D9D440013237CAE3EC9D22A071001C2845C7CBC2DE9D94DE" }
+  ],
+  "files": [
+    { "type": "檔案", "pathBase": "skill-root", "path": "references/紙本呈現參考.md", "role": "非個資紙本呈現與逐條查證限制" },
+    { "type": "檔案", "pathBase": "skill-root", "path": "SKILL.md", "role": "改寫後可重用技能" },
+    { "type": "檔案", "pathBase": "skill-root", "path": "references/參考審核.md", "role": "三類審核與未驗證限制" },
+    { "type": "檔案", "pathBase": "skill-root", "path": "references/project-map.md", "role": "既有程式與測試接點，不複製實作" },
+    { "type": "檔案", "pathBase": "project-root", "path": "docs/技能戰鬥檔案/八字/神煞逐條對照.md", "role": "既有V5取法及來源限制" },
+    { "type": "檔案", "pathBase": "project-root", "path": "docs/技能戰鬥檔案/八字/來源登記.json", "role": "現有主張，不由本參考稿增設已驗證條目" },
+    { "type": "檔案", "pathBase": "project-root", "path": "lib/bazi/engine.ts", "role": "唯一四柱及既有神煞取法" },
+    { "type": "檔案", "pathBase": "project-root", "path": "lib/bazi-traditional-gate.ts", "role": "逐項來源與輸出許可" },
+    { "type": "檔案", "pathBase": "project-root", "path": "tests/shensha-source-tables.test.ts", "role": "指定版本表值與柱位測例" },
+    { "type": "檔案", "pathBase": "project-root", "path": "tests/shensha-live-api.test.mjs", "role": "本機合成命例與元件輸出驗證" }
+  ]
+}

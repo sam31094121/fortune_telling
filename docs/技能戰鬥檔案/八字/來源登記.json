@@ -1,8 +1,58 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-09-26",
+  "updatedAt": "2026-09-27",
   "rule": "八字沿用《易經》來源治理（docs/技能戰鬥檔案/易經/來源治理.md）：交叉比對的來源、權威性的檔案、大數據的來源；狀態由 lib/iching-source-gate.ts 計算，不得手填 VERIFIED。",
   "sources": [
+    {
+      "source_id": "S-TAIJIN-V6-ZJLIB-SCAN",
+      "author": "（明）馬績華撰（館藏元資料）",
+      "locator": "https://commons.wikimedia.org/wiki/File:ZJLib-62836c27d8147868cc532705-4_太黅六卷_第4冊.pdf",
+      "data_type": "《太黅》卷六元辰煞例原典影像，PDF25–26／原刊葉十二正反",
+      "kind": "原典",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "Wikimedia Commons檔案頁提供公有領域古籍掃描；專案只引用已核少量原頁。",
+      "accessed_at": "2026-09-27",
+      "edition": "浙江圖書館藏明末刻本第4冊（館藏元資料1621–1644）",
+      "trust": "A",
+      "note": "已實讀PDF25–26。原始PDF SHA256 32405BC4908770997FA73A7D5C89F0A7615370D27D36A2EDCE12092D9241F6E2；只支持以年起、男女陰陽方向、時見及運見。"
+    },
+    {
+      "source_id": "S-TAIJIN-V6-COMMONS-CATALOG",
+      "author": "Wikimedia Commons／浙江圖書館",
+      "locator": "https://commons.wikimedia.org/wiki/File:ZJLib-62836c27d8147868cc532705-4_太黅六卷_第4冊.pdf",
+      "data_type": "《太黅六卷》第4冊館藏書目、版本與檔案結構資料",
+      "kind": "研究圖書館書目",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "Wikimedia Commons檔案頁公開館藏元資料；只作版本定位。",
+      "accessed_at": "2026-09-27",
+      "edition": "Commons館藏元資料，2026-09-27核對",
+      "trust": "A"
+    },
+    {
+      "source_id": "S-SANMING-TONGHUI-1926-YUANCHEN",
+      "author": "萬民英；秦慎安校勘",
+      "locator": "https://commons.wikimedia.org/wiki/File:NLC416-13jh000156-94145_三命通會.pdf",
+      "data_type": "《三命通會》文明書局本卷三36–37頁元辰原典影像",
+      "kind": "古籍版本注疏",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "Wikimedia Commons公開公有領域古籍掃描；只引用已核元辰段。",
+      "accessed_at": "2026-09-27",
+      "edition": "1926上海文明書局本，卷三36–37頁／PDF178–179",
+      "trust": "A",
+      "note": "方向及甲子男至乙未、乙丑男至甲午例可交叉核對；正元辰、半元辰及七煞異說不併入本次太黅限時柱版本。"
+    },
     {
       "source_id": "S-MINGLI-TANYUAN-1937-SCAN",
       "author": "袁樹珊",
@@ -631,7 +681,14 @@
         "docs/技能戰鬥檔案/八字/原典影像/三命通會-1926-PDF135.png",
         "docs/技能戰鬥檔案/八字/原典影像/三命通會-1926-PDF147.png",
         "docs/技能戰鬥檔案/八字/原典影像/三命通會-1926-PDF154.png",
-        "docs/技能戰鬥檔案/八字/原典影像/三命通會-1926-PDF155.png"
+        "docs/技能戰鬥檔案/八字/原典影像/三命通會-1926-PDF155.png",
+        "docs/技能戰鬥檔案/八字/shensha-rule-integrity/SKILL.md",
+        "docs/技能戰鬥檔案/八字/shensha-rule-integrity/agents/openai.yaml",
+        "docs/技能戰鬥檔案/八字/shensha-rule-integrity/assets/untrusted-reference/工程師參考原稿.txt",
+        "docs/技能戰鬥檔案/八字/shensha-rule-integrity/references/project-map.md",
+        "docs/技能戰鬥檔案/八字/shensha-rule-integrity/references/source-index.json",
+        "docs/技能戰鬥檔案/八字/shensha-rule-integrity/references/參考審核.md",
+        "docs/技能戰鬥檔案/八字/shensha-rule-integrity/references/紙本呈現參考.md"
       ],
       "authority_files": [
         "S-MINGLI-TANYUAN-1937-SCAN",
@@ -927,6 +984,78 @@
           "locator": "1926文明書局本，卷三5；PDF147"
         }
       ]
+    },
+    {
+      "claim_id": "C-DUAL-SHENSHA-JIANGXING",
+      "title": "雙命盤將星｜增訂命理探原日支查年月時指定取法",
+      "domain": "八字知識",
+      "files": ["lib/dual-chart-shensha.ts", "tests/dual-chart-shensha-extension.test.ts"],
+      "authority_files": ["S-MINGLI-TANYUAN-1937-SCAN", "S-MINGLI-TANYUAN-1938-EDITION"],
+      "big_data_sources": ["S-NCL-MINGLI-TANYUAN-CATALOG"],
+      "cross_references": ["S-MINGLI-TANYUAN-1937-SCAN", "S-MINGLI-TANYUAN-1938-EDITION", "S-NCL-MINGLI-TANYUAN-CATALOG"],
+      "conflicts": [],
+      "status": "VERIFIED",
+      "note": "只採袁樹珊1937訂正本明文的日支取主、查年／月／時法；日柱只作取主，不列回日柱。參考照片把將星列於日柱，與本指定版本不符，標記為照片方法受限，不為配圖擴大規則。",
+      "verification_scope": "SELECTED_EDITION",
+      "selected_method": {
+        "title": "增訂命理探原",
+        "edition": "1937訂正本",
+        "ruleVersion": "JIANGXING_YUAN_1937_DAY_TO_YEAR_MONTH_HOUR",
+        "summary": "以日支所屬三合局的中位為將星；逐一查年、月、時地支，不查日柱自身。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf",
+        "printedPage": "64–65（PDF95–96）"
+      },
+      "comparisons": []
+    },
+    {
+      "claim_id": "C-DUAL-SHENSHA-YUANCHEN",
+      "title": "雙命盤元辰｜太黅卷六年起查時指定取法",
+      "domain": "八字知識",
+      "files": ["lib/dual-chart-shensha.ts", "tests/dual-chart-shensha-extension.test.ts"],
+      "authority_files": ["S-TAIJIN-V6-ZJLIB-SCAN", "S-SANMING-TONGHUI-1926-YUANCHEN"],
+      "big_data_sources": ["S-TAIJIN-V6-COMMONS-CATALOG"],
+      "cross_references": ["S-TAIJIN-V6-ZJLIB-SCAN", "S-SANMING-TONGHUI-1926-YUANCHEN", "S-TAIJIN-V6-COMMONS-CATALOG"],
+      "conflicts": [],
+      "status": "VERIFIED",
+      "note": "只採《太黅》卷六明文可追溯的本命年支起算、男女陰陽方向及時柱查找；不擴為月日年全查，不接運勢，不併入《三命通會》正／半元辰或七煞異說。",
+      "verification_scope": "SELECTED_EDITION",
+      "selected_method": {
+        "title": "太黅卷六元辰煞例",
+        "edition": "浙江圖書館藏明末刻本第4冊",
+        "ruleVersion": "TAIJIN_V6_YUANCHEN_YEAR_HOUR_V1",
+        "summary": "出生年支起算；陽男或陰女取年支順移7位，陰男或陽女順移5位；只查時柱地支。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:ZJLib-62836c27d8147868cc532705-4_太黅六卷_第4冊.pdf",
+        "printedPage": "葉十二正反（PDF25–26）"
+      },
+      "comparisons": []
+    },
+    {
+      "claim_id": "C-DUAL-SHENSHA-YANGREN",
+      "title": "雙命盤羊刃｜增訂命理探原指定十干取法",
+      "domain": "八字知識",
+      "files": ["lib/dual-chart-shensha.ts", "tests/dual-chart-shensha-extension.test.ts"],
+      "authority_files": ["S-MINGLI-TANYUAN-1937-SCAN", "S-MINGLI-TANYUAN-1938-EDITION"],
+      "big_data_sources": ["S-NCL-MINGLI-TANYUAN-CATALOG"],
+      "cross_references": ["S-MINGLI-TANYUAN-1937-SCAN", "S-MINGLI-TANYUAN-1938-EDITION", "S-NCL-MINGLI-TANYUAN-CATALOG"],
+      "conflicts": [],
+      "status": "VERIFIED",
+      "note": "只用於雙命盤特星神煞擴充，不改其他卡片。1937掃描PDF103／印頁72與1938再版PDF80–81羊刃段已目視對讀。原文：甲日羊刃在卯，乙日羊刃在辰，丙戊日羊刃在午，丁己日羊刃在未，庚日羊刃在酉，辛日羊刃在戌，壬日羊刃在子，癸日羊刃在丑。如甲日見卯年卯月卯時皆是。依既有来源治理的原典、版本、書目三類核對，不冒充三個獨立研究或雙人簽核。只證指定十干表與取主/查柱，非全流派共識；不含飛刃、吉凶斷語。",
+      "verification_scope": "SELECTED_EDITION",
+      "selected_method": {
+        "title": "增訂命理探原",
+        "edition": "1937訂正本；1938再版本對讀",
+        "ruleVersion": "MINGLI_TANYUAN_YANGREN_V1",
+        "summary": "日干取羊刃表：甲卯、乙辰、丙戊午、丁己未、庚酉、辛戌、壬子、癸丑；查年、月、時，不查日柱自身。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf?page=103#file",
+        "printedPage": "72"
+      },
+      "comparisons": [{
+        "status": "MATCHED_SCOPE",
+        "title": "1938再版本：羊刃十干表與查柱範圍",
+        "detail": "與1937訂正本的十干表及甲日見卯年/月/時例相同；這是同書版本對讀，不是跨書共識。",
+        "sourceUrl": "https://taiwanebook.ncl.edu.tw/zh-tw/book/NCL-9910006747",
+        "locator": "1938再版PDF80–81，羊刃段"
+      }]
     },
     {
       "claim_id": "C-BAZI-SHENSHA-HUAGAI",

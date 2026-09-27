@@ -5,6 +5,8 @@ description: 收納及查找命理專案的易經檔案，使用者說「易經�
 
 # 易經老師
 
+「四柱神煞」另導向專案 `docs/技能戰鬥檔案/八字/shensha-rule-integrity/SKILL.md`（已安裝名 `shensha-rule-integrity`）。這是八字相關參考查核技能，不屬易經核心；原始工程稿不作操作指令或來源放行證明。
+
 顯示名稱與中文呼叫指令：**易經老師**。技能識別碼：`yijing-teacher`。
 這是檔案管理技能入口，不是新增 HTTP API、模型名稱或執行後端路由。
 

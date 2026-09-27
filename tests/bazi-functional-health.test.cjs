@@ -6,13 +6,13 @@ const actual = readAvailability(registry);
 assert.equal(actual.ok, false, 'unavailable customer features must not report healthy');
 assert.equal(actual.capabilities.find(c => c.id === 'BAZI_CORE_SOURCE').available, true);
 const actualShenSha = actual.capabilities.find(c => c.id === 'BAZI_PILLAR_SHENSHA');
-assert.equal(actualShenSha.available, false, 'documented variant hold must not report complete availability');
+assert.equal(actualShenSha.available, true, 'selected-edition rules must report complete availability');
 assert.equal(actualShenSha.rules.tianyi.status, 'VERIFIED', 'selected source verification stays distinct');
-assert.equal(actualShenSha.rules.tianyi.outputStatus, 'BLOCKED_VARIANT');
-assert.equal(actualShenSha.rules.tianyi.ready, false);
+assert.equal(actualShenSha.rules.tianyi.outputStatus, 'READY');
+assert.equal(actualShenSha.rules.tianyi.ready, true);
 assert.equal(actualShenSha.rules.wenchang.status, 'VERIFIED');
-assert.equal(actualShenSha.rules.wenchang.outputStatus, 'BLOCKED_VARIANT');
-assert.equal(actualShenSha.rules.wenchang.ready, false);
+assert.equal(actualShenSha.rules.wenchang.outputStatus, 'READY');
+assert.equal(actualShenSha.rules.wenchang.ready, true);
 for (const id of ['taohua', 'yima', 'huagai']) assert.equal(actualShenSha.rules[id].ready, true, `${id} must remain independently available`);
 assert.equal(actual.capabilities.find(c => c.id === 'BAZI_TEACHER_ADVANCED').available, false);
 

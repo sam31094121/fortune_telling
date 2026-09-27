@@ -630,14 +630,14 @@ async function checkHealthScript(check) {
   }
 }
 
-// 神煞列畫面檢查：非阻斷。以真實 calculateDualChart＋真實閘門渲染雙命盤 PillarGrid，
-// 神煞格只顯示「尚待核對／暫未提供／資料待補」或佔位內容時回報 WARNING，不讓 report.ok 變 false。
-// 檢查本身跑不起來也只記 WARNING（附原因），因為這一項定位是提醒，不是放行門檻。
+// 神煞列畫面檢查：阻斷式。以真實 calculateDualChart＋真實閘門渲染雙命盤 PillarGrid，
+// 後端未完成運算、API 未回傳、前端只顯示待核／受限／資料缺漏或佔位內容時一律 FAILED。
+// 檢查本身跑不起來也視為 FAILED，避免只憑頁面可開啟就誤判健康。
 async function checkDualChartShenShaDisplay() {
   const check = {
     id: 'DUAL_CHART_SHENSHA_DISPLAY',
     module: 'dual_chart_shensha_display',
-    title: '雙命盤四柱神煞列實際顯示（只提醒，不阻斷）',
+    title: '雙命盤四柱神煞後端運算到前端顯示',
     path: '/dual-chart',
   };
   const startedAt = Date.now();
@@ -661,12 +661,12 @@ async function checkDualChartShenShaDisplay() {
   const warnings = parsed ? parsed.warnings : [`檢查無法執行：${runError || '沒有輸出結果'}`];
   return {
     ...check,
-    status: warnings.length ? 'WARNING' : 'PASSED',
+    status: warnings.length ? 'FAILED' : 'PASSED',
     sourcePath: 'app/dual-chart/BaziChart.tsx',
     httpStatus: null,
     durationMs: Date.now() - startedAt,
     htmlLength: 0,
-    error: null,
+    error: runError,
     issue: warnings.length ? warnings.join('；') : null,
     warnings,
     output: stdout.trim().slice(-2000),

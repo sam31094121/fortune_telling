@@ -23,8 +23,9 @@ const blocked = render();
 assert.equal(blocked.includes('未校驗'), false);
 assert.equal(blocked.includes('天乙貴人'), false, 'advanced interpretation cannot unlock shensha');
 assert.ok(blocked.includes('尚待核對'));
-assert.ok(blocked.includes('colSpan="4"') || blocked.includes('colspan="4"'));
-assert.ok(blocked.includes('神煞暫未提供，不代表沒有神煞。'));
+assert.equal(blocked.includes('colSpan="4"'), false, 'restricted results preserve all four pillar columns');
+assert.equal((blocked.match(/data-shensha-pillar=/g) || []).length, 4);
+assert.ok(blocked.includes('特星神煞'));
 assert.equal(blocked.includes('未命中'), false);
 assert.ok(blocked.includes('甲'));
 sample.bazi.professionalChart.traditionalInterpretationGate.shenShaReady = true;
@@ -35,6 +36,9 @@ assert.equal((render().match(/天乙貴人/g) || []).length, 1, 'verified names 
 assert.equal(render().includes('桃花'), false, 'a pending rule neither leaks nor blocks a verified sibling');
 assert.equal(render().includes('未命中'), false, 'checked non-hits remain empty');
 assert.equal(render().includes('尚待核對'), false);
+const activeRow = render().match(/<tr[^>]*>(?:(?!<tr)[\s\S])*?<th scope="row">特星神煞<\/th><\/tr>/)?.[0];
+assert.ok(activeRow, 'special-star row is visible below twelve stages');
+assert.match(activeRow, /<td><\/td><td>[\s\S]*天乙貴人[\s\S]*<\/td><td><\/td><td><\/td>/, 'day evidence stays in second column (hour/day/month/year)');
 delete sample.bazi.professionalChart.traditionalInterpretationGate.shenShaRules.tianyi.outputStatus;
 assert.equal(render().includes('天乙貴人'), false, 'old results without effective output policy cannot unlock rules');
 sample.bazi.professionalChart.traditionalInterpretationGate.shenShaRules.tianyi.outputStatus = 'READY';
@@ -118,3 +122,28 @@ const enHtml = renderToStaticMarkup(React.createElement(englishProfessional.Prof
 assert.ok(enHtml.includes('Some shensha are currently withheld'));
 assert.equal(enHtml.includes('symbolic stars'), false);
 console.log('PASS: bilingual source comparisons distinguish selected-method readiness and require located evidence');
+
+const { inspectShenShaCoverage } = require('../scripts/dual-chart-shensha-display-check.cjs');
+const expectedIds = ['tianyi', 'wenchang', 'taohua', 'yima', 'huagai', 'yangren', 'yuanchen', 'jiangxing'];
+const connected = {
+  bazi: { professionalChart: { traditionalInterpretationGate: { shenShaRules: Object.fromEntries(expectedIds.map(id => [id, { outputStatus: 'READY' }])) } } },
+  specialStars: {
+    coverage: expectedIds.map(id => ({ id, status: 'NOT_MATCHED' })),
+    byPillar: Object.fromEntries(pillars.map(key => [key, []])),
+  },
+};
+assert.deepEqual(inspectShenShaCoverage(connected), [], 'complete evaluated non-hits remain valid');
+const disconnected = structuredClone(connected);
+delete disconnected.specialStars;
+assert.ok(inspectShenShaCoverage(disconnected).length, 'removed extension must fail, not become a valid empty chart');
+const silentlyReduced = structuredClone(connected);
+silentlyReduced.specialStars.coverage = silentlyReduced.specialStars.coverage.filter(item => item.id !== 'yuanchen');
+delete silentlyReduced.bazi.professionalChart.traditionalInterpretationGate.shenShaRules.yuanchen;
+assert.ok(inspectShenShaCoverage(silentlyReduced).some(message => message.includes('yuanchen')), 'removing both coverage and backend rule cannot shrink the health baseline');
+const missingPillar = structuredClone(connected);
+delete missingPillar.specialStars.byPillar.month;
+assert.ok(inspectShenShaCoverage(missingPillar).some(message => message.includes('month')), 'missing pillar is not an evaluated empty pillar');
+const duplicatedRule = structuredClone(connected);
+duplicatedRule.specialStars.coverage.push({ id: 'yuanchen', status: 'NOT_MATCHED' });
+assert.ok(inspectShenShaCoverage(duplicatedRule).some(message => message.includes('yuanchen')), 'duplicated coverage does not prove completeness');
+console.log('PASS: shensha health baseline detects disconnected, silently reduced and malformed backend results');

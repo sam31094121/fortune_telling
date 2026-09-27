@@ -68,6 +68,10 @@ type UnifiedBirthFormProps = {
    * 預設 false＝維持既有行為，不影響其他已上線的卡片。
    */
   requireExplicitHourPick?: boolean;
+  /** Opt-in caller readiness; defaults retain partial/unknown-hour flows. */
+  hourCompletion?: { done: boolean; text: string; message: string };
+  requireKnownHour?: boolean;
+  afterHourPicker?: ReactNode;
   /**
    * 呼叫端已經用 CSS 把送出鈕與進度總覽藏起來、改用自己的按鈕時傳 true：
    * 這裡會一併從無障礙樹與 Tab 順序移除，讀屏才不會唸到兩顆同名按鈕。
@@ -156,7 +160,7 @@ function ChoiceButton({ active, alert, children, onClick, tone = 'amber' }: { ac
   );
 }
 
-export function HourBranchSelector({ value, unknown, missing, requireExplicitPick = false, onChange }: { value?: string; unknown?: boolean; missing?: boolean; requireExplicitPick?: boolean; onChange: (branch: BirthHourBranch) => void }) {
+export function HourBranchSelector({ value, unknown, missing, requireExplicitPick = false, requireKnownHour = false, onChange }: { value?: string; unknown?: boolean; missing?: boolean; requireExplicitPick?: boolean; requireKnownHour?: boolean; onChange: (branch: BirthHourBranch) => void }) {
   const knownSelected = Boolean(value && value !== 'unknown' && !unknown);
   /** 面板開著、但客戶還沒點任何一張卡。 */
   const awaitingPick = value === HOUR_BRANCH_PENDING;
@@ -179,7 +183,7 @@ export function HourBranchSelector({ value, unknown, missing, requireExplicitPic
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <ChoiceButton active={Boolean(unknown || value === 'unknown')} alert={missing} onClick={() => onChange('unknown')}>
           <span className="block text-base font-black"><HomeTranslatedText text={"不知道出生時辰"} /></span>
-          <span className="mt-1.5 block text-xs font-semibold leading-5"><HomeTranslatedText text={"不知道也沒關係，先算得出來的部分；之後補上時辰會更完整。"} /></span>
+          <span className="mt-1.5 block text-xs font-semibold leading-5"><HomeTranslatedText text={requireKnownHour ? '雙命盤需要出生時辰；不知道時暫不排盤，確認後可回來補填。' : '不知道也沒關係，先算得出來的部分；之後補上時辰會更完整。'} /></span>
         </ChoiceButton>
         <ChoiceButton active={knownSelected} alert={missing} tone="cyan" onClick={() => onChange((knownSelected ? value : requireExplicitPick ? HOUR_BRANCH_PENDING : 'wu') as BirthHourBranch)}>
           <span className="block text-base font-black"><HomeTranslatedText text={"我知道出生時辰"} /></span>
@@ -197,7 +201,7 @@ export function HourBranchSelector({ value, unknown, missing, requireExplicitPic
             <div className="mb-3 rounded-xl border border-cyan-200/45 bg-cyan-300/12 px-4 py-2.5 text-sm font-black text-cyan-50"><HomeTranslatedText text={"✓ 已選擇："} /><HomeTranslatedText text={selectedItem.label} />（{selectedItem.range}<HomeTranslatedText text={"）——選錯可直接點別張更換"} /></div>
           )}
           {awaitingPick && (
-            <div className="mb-3 rounded-xl border border-amber-200/45 bg-amber-300/12 px-4 py-2.5 text-sm font-black text-amber-50" role="status"><HomeTranslatedText text={"還沒選——下面 12 張點一張就好。不確定的話，回上面選「不知道出生時辰」也算得出來。"} /></div>
+            <div className="mb-3 rounded-xl border border-amber-200/45 bg-amber-300/12 px-4 py-2.5 text-sm font-black text-amber-50" role="status"><HomeTranslatedText text={requireKnownHour ? '還沒選——請在下面點選出生時辰；不知道時暫不產生雙命盤。' : '還沒選——下面 12 張點一張就好。不確定的話，回上面選「不知道出生時辰」也算得出來。'} /></div>
           )}
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
             {SHICHEN_LIST.map((item, index) => {
@@ -235,6 +239,9 @@ export function UnifiedBirthForm({
   isSubmitting = false,
   dateAccent = 'amber',
   requireExplicitHourPick = false,
+  requireKnownHour = false,
+  hourCompletion,
+  afterHourPicker,
   hideSubmitChrome = false,
   optionalFields = [],
   autoFillIdentity = true,
@@ -288,12 +295,13 @@ export function UnifiedBirthForm({
 
   const display = useDisplayText();
   const nameOptional = optionalFields.includes('name');
+  const hourDone = hourCompletion?.done ?? isHourBranchChosen(value);
   const completed = [
     fields.name ? { id: 'name', label: '姓名', done: nameOptional || (value.name ?? '').trim().length >= 2, text: (value.name ?? '').trim().length >= 2 ? '已確認' : nameOptional ? '選填' : '待填寫' } : null,
     fields.birthDate ? { id: 'birthDate', label: '萬年曆生日', done: Boolean(value.birthDate), text: value.birthDate ? `西元 ${value.birthDate}` : '待換算' } : null,
     fields.gender ? { id: 'gender', label: '性別', done: Boolean(value.gender), text: value.gender === 'male' ? '男性' : value.gender === 'female' ? '女性' : '待選擇' } : null,
     fields.birthPlace ? { id: 'birthPlace', label: '出生地', done: Boolean(value.country && value.city), text: value.country && value.city ? `${value.country} ${value.city}` : '待填寫' } : null,
-    fields.birthHourBranch ? { id: 'birthHourBranch', label: '出生時辰', done: isHourBranchChosen(value), text: value.timeUnknown ? '不確定' : isHourBranchChosen(value) ? '已確認' : '待選擇' } : null,
+    fields.birthHourBranch ? { id: 'birthHourBranch', label: '出生時辰', done: hourDone, text: hourCompletion?.text ?? (value.timeUnknown ? '不確定' : isHourBranchChosen(value) ? '已確認' : '待選擇') } : null,
   ].filter(Boolean) as Array<{ id: string; label: string; done: boolean; text: string }>;
 
   return (
@@ -373,12 +381,13 @@ export function UnifiedBirthForm({
 
       {fields.birthHourBranch && (
         <section data-field="birthHourBranch" className={fieldFrameClass(missing, 'birthHourBranch', value)}>
-          <label className="block text-sm font-black text-[color:var(--text-main)]">{[fields.name, fields.birthDate, fields.gender, fields.birthPlace].filter(Boolean).length + 1}<HomeTranslatedText text={". 出生時辰"} />{isHourBranchChosen(value) && <span className="ml-2 text-green-400"><HomeTranslatedText text={"完成"} /></span>}</label>
+          <label className="block text-sm font-black text-[color:var(--text-main)]">{[fields.name, fields.birthDate, fields.gender, fields.birthPlace].filter(Boolean).length + 1}<HomeTranslatedText text={". 出生時辰"} />{hourDone && <span className="ml-2 text-green-400"><HomeTranslatedText text={"完成"} /></span>}</label>
           <HourBranchSelector
             value={value.birthHourBranch}
             unknown={value.timeUnknown}
             missing={hasMissing(missing, 'birthHourBranch')}
             requireExplicitPick={requireExplicitHourPick}
+            requireKnownHour={requireKnownHour}
             onChange={(birthHourBranch) => {
               const isUnknown = birthHourBranch === 'unknown';
               onChange({
@@ -389,7 +398,8 @@ export function UnifiedBirthForm({
               });
             }}
           />
-          {hasMissing(missing, 'birthHourBranch') && <p className="form-missing-alert"><HomeTranslatedText text={"請先選擇出生時辰方式。"} /></p>}
+          {afterHourPicker}
+          {hasMissing(missing, 'birthHourBranch') && !hourDone && <p className="form-missing-alert"><HomeTranslatedText text={hourCompletion?.message || '請先選擇出生時辰方式。'} /></p>}
         </section>
       )}
 

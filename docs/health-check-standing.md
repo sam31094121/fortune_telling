@@ -29,6 +29,21 @@
 | 八字調試 | `/api/bazi-debug?debugBazi=1&…` | `BAZI_CHART_CERTIFIED` 通過 |
 | AI 額度探測 | `npm run`／`node tests/ai-teacher-availability.mjs` | 僅狀態探測；失敗不應讓客戶看到英文 429 |
 
+## 特星神煞健康检查与审查（常驻）
+
+每次修改特星神煞或四柱输出后，最终健康检查必须同时核对：
+
+1. 来源登记 gate 与指定版本、页码、取主、查柱范围一致。
+2. 八字基本测试、八字与紫微交叉测试通过，确认没有重排四柱。
+3. 每项新规则具备独立 HIT、MISS、缺资料与错柱案例；测试总数及结果写入验收报告。
+4. 后端 API 的 `byPillar`、`coverage` 与前端时／日／月／年四栏一致。
+5. `BLOCKED_SOURCE`、`BLOCKED_VARIANT`、`BLOCKED_CORE`、资料不足与真正未命中必须分开，不得互相冒充。
+6. 实际客户流程从填写资料到结果显示可用；手机宽度 ≤430px 不溢出，PDF／列印在整卡完成后验收。
+7. 通过记录写入 `reports/dual-chart/shensha-source-ui-2026-09-26.md`；失败必须保留并阻止提交推送。
+8. `DUAL_CHART_SHENSHA_DISPLAY` 是阻断式检查：必须使用真实后端命盘与规则闸门完成运算，经 API 回传 `byPillar`／`coverage`，前端只负责显示；本站既定规则集只要仍有 `BLOCKED_SOURCE`、`BLOCKED_VARIANT`、`BLOCKED_CORE`、`BLOCKED_DATA`，或后端命中没有完整显示到对应柱位，就连后端健康状态也不得通过，不能以警告放行。照片或其他体系中未纳入本站规则集的名称只作参考，不列入运行时 coverage，也不为了凑数另造算法。
+
+9. 既定支援範圍須有獨立固定清單；即使後端與前端一起漏掉同一項，健康檢查也必須失敗，不能藉縮小 coverage 通過。缺少算法不等於未命中；「既有結果完整送達」與「全部需求實作完成」分別回報，前者不能替後者背書。
+
 ## 技能
 見 Grok Bot 技能「右側螢幕連結健康檢查」。
 

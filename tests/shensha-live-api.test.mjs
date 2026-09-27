@@ -8,9 +8,11 @@ import { renderToStaticMarkup } from 'react-dom/server';
 // are hand derived from the selected source rules, not from engine output.
 const fixtures = [
   ['05:30', '辛卯', ['桃花']],
-  ['11:30', '甲午', []],
+  // 丙寅日依袁本將星取午，午時落在被查時柱。
+  ['11:30', '甲午', ['羊刃', '將星']],
   ['15:30', '丙申', ['文昌貴人', '驛馬']],
-  ['19:30', '戊戌', ['華蓋']],
+  // 己巳年為陰年，男命按《太黅》指定法由巳順移五位至戌；只查時柱。
+  ['19:30', '戊戌', ['元辰', '華蓋']],
   ['21:30', '己亥', ['天乙貴人', '驛馬']],
 ];
 const base = process.env.DUAL_CHART_TEST_URL || 'http://127.0.0.1:8888';
@@ -37,32 +39,32 @@ for (const [birthTime, hour, expected] of fixtures) {
   const pc = data.bazi.professionalChart;
   assert.equal(data.core.engine.version, '1.2.0');
   assert.deepEqual(['year', 'month', 'day', 'hour'].map(k => data.core.pillars[k].ganZhi), ['己巳', '丙子', '丙寅', hour]);
-  assert.equal(pc.traditionalInterpretationGate.shenShaReady, false, 'Documented variants withheld, not a full recovery claim');
+  assert.equal(pc.traditionalInterpretationGate.shenShaReady, true, 'Selected-edition rules are deterministic and ready');
   assert.equal(pc.traditionalInterpretationGate.shenShaRules.tianyi.status, 'VERIFIED');
-  assert.equal(pc.traditionalInterpretationGate.shenShaRules.tianyi.outputStatus, 'BLOCKED_VARIANT');
+  assert.equal(pc.traditionalInterpretationGate.shenShaRules.tianyi.outputStatus, 'READY');
   assert.equal(pc.traditionalInterpretationGate.shenShaRules.wenchang.status, 'VERIFIED');
-  assert.equal(pc.traditionalInterpretationGate.shenShaRules.wenchang.outputStatus, 'BLOCKED_VARIANT');
+  assert.equal(pc.traditionalInterpretationGate.shenShaRules.wenchang.outputStatus, 'READY');
   assert.equal(pc.traditionalInterpretationGate.interpretationReady, false, 'God-name output must not unlock advanced judgments');
   assert.deepEqual(pc.shenSha, data.core.shenSha);
   assert.deepEqual(data.core.shenSha.map(s => s.name).sort(), [...expected].sort(), `${birthTime} fixed expected names`);
   for (const item of data.core.shenSha) {
     assert.match(item.evidence, /^HOUR 支/, `${birthTime} only the hour pillar matches`);
-    assert.equal(item.ruleVersion, 'MINGLI_TANYUAN_SHENSHA_V5');
-    assert.equal(item.source.sourceId, 'S-MINGLI-TANYUAN-1937-SCAN');
+    assert.equal(item.ruleVersion, item.id === 'yangren' ? 'MINGLI_TANYUAN_YANGREN_V1' : item.id === 'yuanchen' ? 'TAIJIN_V6_YUANCHEN_YEAR_HOUR_V1' : item.id === 'jiangxing' ? 'JIANGXING_YUAN_1937_DAY_TO_YEAR_MONTH_HOUR' : 'MINGLI_TANYUAN_SHENSHA_V5');
+    assert.equal(item.source.sourceId, item.id === 'yuanchen' ? 'S-TAIJIN-V6-ZJLIB-SCAN' : 'S-MINGLI-TANYUAN-1937-SCAN');
     assert.ok(item.source.printedPage && item.source.url);
   }
   const html = renderToStaticMarkup(React.createElement(component.PillarGrid, { result: data }));
   assert.equal(html.includes('暫未提供'), false);
-  const displayed = expected.filter(name => !['天乙貴人', '文昌貴人'].includes(name));
-  assert.equal(html.includes('天乙貴人'), false, 'Documented Tianyi variant cannot leak into the result row');
-  assert.equal(html.includes('文昌貴人'), false, 'Documented Wenchang variant cannot leak into the result row');
+  const displayed = expected;
+  assert.equal(html.includes('天乙貴人'), expected.includes('天乙貴人'), 'Tianyi follows the selected edition');
+  assert.equal(html.includes('文昌貴人'), expected.includes('文昌貴人'), 'Wenchang follows the selected edition');
   for (const name of displayed) assert.ok(html.includes(name), `${birthTime}: API data reaches the actual PillarGrid component`);
-  if (!expected.length) assert.match(html, /<tr[^>]*><td><\/td><td><\/td><td><\/td><td><\/td><th scope="row">神煞<\/th><\/tr>/, 'No-match row stays empty by user display policy');
+  if (!expected.length) assert.match(html, /<tr[^>]*><td><\/td><td><\/td><td><\/td><td><\/td><th scope="row">特星神煞<\/th><\/tr>/, 'No-match row stays empty by user display policy');
   assert.equal(html.includes('未命中'), false);
   const professional = renderToStaticMarkup(React.createElement(professionalComponent.ProfessionalBaziTable, { result: data.bazi, hourUnknown: false }));
   for (const name of displayed) assert.ok(professional.includes(name + ' · HOUR'), `${birthTime}: basic professional table must also show the eligible item while advanced reading is blocked`);
-  assert.equal(professional.includes('天乙貴人 · HOUR'), false);
-  assert.equal(professional.includes('文昌貴人 · HOUR'), false);
+  assert.equal(professional.includes('天乙貴人 · HOUR'), expected.includes('天乙貴人'));
+  assert.equal(professional.includes('文昌貴人 · HOUR'), expected.includes('文昌貴人'));
   if (birthTime === '21:30') {
     fs.mkdirSync('.tmp/dual-chart-ui-qa', { recursive: true });
     fs.writeFileSync('.tmp/dual-chart-ui-qa/live-data.json', JSON.stringify(data, null, 2));

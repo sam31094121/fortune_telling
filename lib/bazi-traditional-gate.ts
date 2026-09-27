@@ -67,17 +67,16 @@ export function evaluateBaziShenShaRule(
   const scoped = claim?.verification_scope === 'SELECTED_EDITION' && method
     && ['title', 'edition', 'ruleVersion', 'summary', 'sourceUrl', 'printedPage'].every(key => Boolean(method[key as keyof BaziShenShaMethod]));
   const status = evaluated.status === 'CONFLICT' ? 'CONFLICT' : scoped ? evaluated.status : 'PENDING_POOL';
-  // User policy: a documented alternative producing different answers for the
-  // compared rule is withheld, even when the selected book itself is verified.
-  // Detail records scope limits; a same-name variant is not proof of identical anchors.
+  // Product policy: one selected edition is the deterministic production rule.
+  // Other documented variants remain comparison evidence and do not block a
+  // selected method that has passed source governance.
   const hasVariant = claim?.comparisons?.some(item => item.status === 'DOCUMENTED_VARIANT') ?? false;
-  const outputStatus = !coreReady ? 'BLOCKED_CORE' : status !== 'VERIFIED' ? 'BLOCKED_SOURCE'
-    : hasVariant ? 'BLOCKED_VARIANT' : 'READY';
+  const outputStatus = !coreReady ? 'BLOCKED_CORE' : status !== 'VERIFIED' ? 'BLOCKED_SOURCE' : 'READY';
   return {
     status,
     ready: outputStatus === 'READY',
     outputStatus,
-    reasons: [...evaluated.reasons, ...(!scoped ? ['缺少指定版本與取法範圍'] : []), ...(hasVariant ? ['跨書比較已有原頁取法或表值差異，適用範圍見比較紀錄，依顯示政策暫不提供'] : [])],
+    reasons: [...evaluated.reasons, ...(!scoped ? ['缺少指定版本與取法範圍'] : []), ...(hasVariant ? ['跨書差異保留作版本說明；正式輸出固定採用所選版本'] : [])],
     verificationScope: 'SELECTED_EDITION',
     method,
     comparisons: claim?.comparisons ?? [],
@@ -158,7 +157,6 @@ export function getBaziTraditionalOutputGate(coreVerified: boolean): BaziTraditi
   if (classicsStatus !== 'VERIFIED') reasons.push('格局、旺衰與斷語的古籍來源仍有衝突');
   if (fiveGodsStatus !== 'VERIFIED') reasons.push('用神、喜神、忌神取法仍有流派衝突');
   if (shenShaStatus !== 'VERIFIED') reasons.push('神煞規則尚未通過完整來源驗證');
-  if (Object.values(shenShaRules).some(rule => rule.outputStatus === 'BLOCKED_VARIANT')) reasons.push('部分神煞因已核實的跨書取法分歧暫不提供');
 
   return {
     version: BAZI_TRADITIONAL_GATE_VERSION,
