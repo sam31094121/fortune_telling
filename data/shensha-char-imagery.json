@@ -942,6 +942,102 @@
       "sourceId": "cns11643_official",
       "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
       "cnsCode": "1-4B34"
+    },
+    "喪": {
+      "element": "木",
+      "meanings": [
+        "有關死者的事宜。",
+        "屍體。",
+        "姓。如周代有喪左。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-5E46"
+    },
+    "門": {
+      "element": "金",
+      "meanings": [
+        "建築物或車、船等可以開關的出入口，也指設於出入口能關閉的裝置。",
+        "形狀或作用像門的物體。",
+        "人體身上的孔竅。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-4F5C"
+    },
+    "白": {
+      "element": "土",
+      "meanings": [
+        "(一)之讀音。",
+        "像雪或乳汁般素淨的顏色。",
+        "代表五行中金的顏色。如天地四方的西方、一年四季的秋、五臟的肺等。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-4675"
+    },
+    "虎": {
+      "element": "金",
+      "meanings": [
+        "參見「馬馬虎虎」條。",
+        "動物名。哺乳類食肉目貓科。形似貓，全身黃褐色，具黑色條紋。性凶猛。獨居，善游泳。於夜間狩獵，以鹿、羊、豬等為食。",
+        "姓。如漢代有虎旗。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-4F4D"
+    },
+    "病": {
+      "element": "水",
+      "meanings": [
+        "指生物體發生不健康的現象。亦指生理或心理方面產生不正常的狀態。",
+        "瑕疵、短處。",
+        "生病、患病。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-5669"
+    },
+    "符": {
+      "element": "木",
+      "meanings": [
+        "古代用為憑信的器物，刻字在竹、木、金、玉、銅之上，剖為兩半，各執其一，相合以為徵信。",
+        "文件、憑證。",
+        "祥瑞的徵兆。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-5C4A"
+    },
+    "披": {
+      "element": "金",
+      "meanings": [
+        "(一)之又音。",
+        "將衣物搭在肩背上。",
+        "打開、翻開。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-4D5E"
+    },
+    "麻": {
+      "element": "木",
+      "meanings": [
+        "以韌皮纖維為主要用途之草本植物的統稱。其莖部的韌皮纖維長而堅韌，可供紡織用。其果實可為飼料或榨油用。種類甚多，有大麻、黃麻、業麻、苧麻、亞麻等，中國古來即有種植。",
+        "大麻科「大麻」的別名，參見「大麻」條。",
+        "喪服。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-5E28"
     }
   }
 }

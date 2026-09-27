@@ -69,8 +69,8 @@ export function xunKong(stem: Stem, branch: Branch): [Branch, Branch] {
   return [BRANCHES[(start + 10) % 12], BRANCHES[(start + 11) % 12]];
 }
 
-/** 年支順數的歲神位：五鬼＋4、龍德＋7、天狗＋10。 */
-const YEAR_OFFSET = { wugui: 4, longde: 7, tiangou: 10 } as const;
+/** 年支順數的歲神位：五鬼＋4、龍德＋7、天狗＋10；2026-09-28 第五批：喪門＋2、白虎＋8、披麻＋9、病符＋11。 */
+const YEAR_OFFSET = { wugui: 4, longde: 7, tiangou: 10, sangmen: 2, baihu: 8, pima: 9, bingfu: 11 } as const;
 
 const pillars = ['hour', 'day', 'month', 'year'] as const;
 type Pillar = typeof pillars[number];
@@ -91,6 +91,7 @@ export const DUAL_SHENSHA_RULES: ReadonlyArray<readonly [string, string]> = [
   ['guoyin', '國印'], ['tianchu', '天廚'], ['tianshe', '天赦'], ['sanqi', '三奇'], ['wangshen', '亡神'],
   ['yinyangChacuo', '陰陽差錯'], ['guluan', '孤鸞'], ['shieDabai', '十惡大敗'], ['liuxia', '流霞'], ['sifei', '四廢'],
   ['yuedehe', '月德合'], ['feiren', '飛刃'], ['jinshen', '金神'], ['bazhuan', '八專'], ['jiuchou', '九醜'], ['liuxiu', '六秀'],
+  ['sangmen', '喪門'], ['baihu', '白虎'], ['bingfu', '病符'], ['pima', '披麻'],
 ];
 
 /** 八字與紫微四柱逐字核對結果；神煞從這兩張已核對的命盤衍生，不另排四柱。 */
@@ -156,6 +157,10 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
     bazhuan: reference('日柱為甲寅、乙卯、丁未、戊戌、己未、庚申、辛酉、癸丑者。只看日柱。'),
     jiuchou: reference('日柱為戊子、戊午、壬子、壬午、乙卯、乙酉、己卯、己酉、辛卯、辛酉者。只看日柱。'),
     liuxiu: reference('日柱為丙午、丁未、戊子、戊午、己丑、己未者。只看日柱。'),
+    sangmen: reference('年支順數兩位（歲神喪門），查月日時；讀法採本派提醒與轉化。'),
+    baihu: reference('年支順數八位（歲神白虎），查月日時；讀法採本派提醒與轉化。'),
+    bingfu: reference('年支順數十一位（歲神病符），查月日時；不作健康或醫療斷語。'),
+    pima: reference('年支順數九位（披麻），查月日時；讀法採本派提醒與轉化。'),
     hongyan: reference('日干取紅艷（甲乙午、丙寅、丁未、戊己辰、庚戌、辛酉、壬子、癸申），四柱皆查。'),
   };
   // 核心引擎的袁本桃花（含納音條件）只供其他卡片使用；本卡改依參考命盤取法重查。
@@ -236,6 +241,10 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
       const rest = ['month', 'day', 'hour'] as const;
       branchHit('longde', '龍德', BRANCHES[(yi + YEAR_OFFSET.longde) % 12], rest, `年支${y}順數七位龍德在${BRANCHES[(yi + 7) % 12]}；查月日時`);
       branchHit('tiangou', '天狗', BRANCHES[(yi + YEAR_OFFSET.tiangou) % 12], rest, `年支${y}順數十位天狗在${BRANCHES[(yi + 10) % 12]}；查月日時`);
+      for (const [id, name, label] of [['sangmen', '喪門', '兩'], ['baihu', '白虎', '八'], ['pima', '披麻', '九'], ['bingfu', '病符', '十一']] as const) {
+        const target = BRANCHES[(yi + YEAR_OFFSET[id]) % 12];
+        branchHit(id, name, target, rest, `年支${y}順數${label}位${name}在${target}；查月日時`);
+      }
       branchHit('wugui', '五鬼', BRANCHES[(yi + YEAR_OFFSET.wugui) % 12], rest, `年支${y}順數四位五鬼在${BRANCHES[(yi + 4) % 12]}；查月日時`);
       branchHit('jinkui', '金匱', TRINE_TABLE.jiangxing[yearTrine], rest, `年支${y}（${yearTrine}）金匱在${TRINE_TABLE.jiangxing[yearTrine]}；查月日時`);
       branchHit('zaisha', '災煞', TRINE_TABLE.zaisha[yearTrine], rest, `年支${y}（${yearTrine}）災煞在${TRINE_TABLE.zaisha[yearTrine]}；查月日時`);
