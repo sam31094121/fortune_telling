@@ -67,9 +67,12 @@ function ShenShaIChingSection({ view }: { view?: DualChartResult['specialStars']
       {view.items.length > 0 && <ol className={styles.shenshaDerivation} aria-label="特星神煞逐項導師解盤、推導與字的意境">{view.items.map(item =>
         <li key={`${item.pillar}:${item.name}`} data-shensha-tone={item.teacher?.tone}><p><b>{item.name}{item.reference ? '＊' : ''}</b><span>{item.pillar}</span>{item.teacher && <em>{item.teacher.tone}｜{item.teacher.theme}</em>}</p>
           {item.teacher && <p className={styles.shenshaTeacher}>{item.teacher.text}</p>}
+          {item.onion && <div className={styles.shenshaOnion} aria-label={`${item.name}洋蔥心理學`}>{item.onion.layers.map(layer => <p key={layer.layer}><b>{layer.layer}</b><small>{layer.label}</small><span>{layer.text}</span></p>)}
+            {item.onion.term && <p className={styles.shenshaTerm}><b>心理學</b><span>{item.onion.term.name}｜{item.onion.term.link}<cite>{item.onion.term.citation}</cite></span></p>}</div>}
           <p className={styles.shenshaBasis}>推導：{item.derivation}</p>
           {item.imagery?.chars?.length > 0 && <ul className={styles.shenshaImagery} aria-label={`${item.name}字的意境`}>{item.imagery.chars.map((c, index) => <li key={index}><b>{c.char}</b><small>{c.element}</small><span>{c.senseText ?? c.sense}</span></li>)}</ul>}</li>)}</ol>}
       {view.imageryAttribution && <p className={styles.shenshaFootnote}>{view.imageryAttribution}</p>}
+      {view.onionCredibility && <p className={styles.shenshaFootnote}>{view.onionCredibility.line}</p>}
       <p className={styles.shenshaFootnote}>{view.credibility.line}</p>
     </>}
   </section>;

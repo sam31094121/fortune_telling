@@ -6,6 +6,7 @@ import { calculateDualChart } from '../lib/dual-chart';
 import { buildShenShaIChing } from '../lib/shensha-iching';
 import { SHENSHA_SENSE_PICKS } from '../lib/shensha-char-imagery';
 import { SHENSHA_TEACHER_READINGS, PILLAR_PALACE } from '../lib/shensha-teacher-readings';
+import { SHENSHA_ONION } from '../lib/shensha-onion';
 import { DUAL_SHENSHA_RULES } from '../lib/dual-chart-shensha';
 import fs from 'node:fs';
 
@@ -171,6 +172,27 @@ if(ic.state==='READY'){
   const wai=ic.items.find(i=>i.id==='waiTaohua')!;
   assert.ok(wai.teacher!.text.includes('異性緣')&&wai.teacher!.text.includes('貴人'),'外桃花 reads as 人緣／異性緣／貴人 (owner example)');
   assert.ok(ic.reading.some(l=>l.includes('福氣')&&l.includes('動能')&&l.includes('提醒')),'tone overview ties the shensha together');
+  // 洋蔥心理學：殼→心→禮物；名詞只掛已登記 A 級文獻，出處由登記表讀出；不診斷。
+  const reg=JSON.parse(fs.readFileSync('docs/技能戰鬥檔案/易經/來源登記.json','utf8'));
+  const onionClaim=reg.claims.find((c:{claim_id:string})=>c.claim_id==='C-SHENSHA-ONION');
+  assert.ok(onionClaim,'onion psychology is registered');
+  for (const [id,name] of DUAL_SHENSHA_RULES) {
+    const entry=SHENSHA_ONION[id];
+    assert.ok(entry&&entry.shell&&entry.heart&&entry.gift,`${name} has shell, heart and gift`);
+    assert.ok(!Object.values(entry).map(v=>typeof v==='string'?v:JSON.stringify(v)).join('').match(/症|疾患|障礙|診斷|病/),`${name} onion never diagnoses`);
+    if (entry.term) {
+      const source=reg.sources.find((s:{source_id:string})=>s.source_id===entry.term!.sourceId);
+      assert.ok(source&&source.trust==='A',`${name} term cites a registered A-level source`);
+      assert.ok(onionClaim.cross_references.includes(entry.term.sourceId),`${name} source is listed in C-SHENSHA-ONION`);
+      assert.notEqual(entry.term.sourceId,'S-BAUMEISTER-1998','contested ego-depletion is never used');
+    }
+  }
+  for (const item of ic.items) {
+    assert.deepEqual(item.onion?.layers.map(l=>l.layer),['殼','心','禮物'],`${item.name} onion peels three layers`);
+    if (SHENSHA_ONION[item.id].term) assert.ok(item.onion!.term?.citation.includes(reg.sources.find((s:{source_id:string})=>s.source_id===SHENSHA_ONION[item.id].term!.sourceId).author),`${item.name} citation is read from the registry`);
+  }
+  assert.equal(ic.onionCredibility.status,onionClaim.status,'onion credibility equals the gate');
+  if (ic.onionCredibility.status!=='VERIFIED') assert.ok(!ic.onionCredibility.line.includes('已通過交叉比對'));
   assert.ok(!ic.items.map(i=>i.imagery.line).join('').match(/主(吉|凶)|大吉|大凶|必定/),'imagery adds no verdicts');
 }
 // 八字紫微四柱不一致：停在核對關，不判定、不自動改任一套。

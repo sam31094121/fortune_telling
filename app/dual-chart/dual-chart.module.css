@@ -135,14 +135,21 @@
 .shenshaDerivation{list-style:none;margin:10px 0;padding:0;display:grid;gap:10px}
 .shenshaDerivation li{padding:10px 12px;border:1px solid #bba4d033;border-radius:10px;background:#1d1b2c;min-width:0}
 .shenshaDerivation li p{margin:0;font-size:14px;line-height:1.7;color:#e9e2f5;overflow-wrap:anywhere}
-.shenshaDerivation li p:first-child{display:flex;gap:10px;align-items:baseline;margin-bottom:4px}
+.shenshaDerivation > li > p:first-child{display:flex;gap:10px;align-items:baseline;margin-bottom:4px}
 .shenshaDerivation b{font-size:17px;color:#f2dba8}
-.shenshaDerivation li p:first-child span{font-size:13px;color:#bcb6ca}
-.shenshaDerivation li p:first-child em{margin-inline-start:auto;font-style:normal;font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid #bba4d055;color:#e7ccff;white-space:nowrap}
+.shenshaDerivation > li > p:first-child span{font-size:13px;color:#bcb6ca}
+.shenshaDerivation > li > p:first-child em{margin-inline-start:auto;font-style:normal;font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid #bba4d055;color:#e7ccff;white-space:nowrap}
 .shenshaDerivation li[data-shensha-tone=福氣] em{border-color:#e9c46a88;color:#f2dba8}
 .shenshaDerivation li[data-shensha-tone=提醒] em{border-color:#8ecae688;color:#bfe3f2}
 .shenshaDerivation li p.shenshaTeacher{font-size:15px;line-height:1.85;color:#f5f0ff;margin:6px 0}
 .shenshaDerivation li p.shenshaBasis{font-size:13px;color:#bcb6ca}
+.shenshaOnion{margin:6px 0;padding:8px 10px;border-radius:8px;background:#26213a;display:grid;gap:4px}
+.shenshaOnion p{margin:0;font-size:14px;line-height:1.7;color:#e9e2f5;overflow-wrap:anywhere}
+.shenshaOnion p b{color:#f2dba8;margin-inline-end:6px}
+.shenshaOnion p small{font-size:12px;color:#bcb6ca}
+.shenshaOnion p span{display:block}
+.shenshaOnion p.shenshaTerm{border-top:1px dashed #bba4d033;padding-top:6px}
+.shenshaTerm cite{display:block;font-style:normal;font-size:12px;color:#bcb6ca;margin-top:2px}
 .shenshaImagery{list-style:none;margin:6px 0 0;padding:6px 0 0;border-top:1px dashed #bba4d033;display:grid;gap:4px}
 .shenshaDerivation .shenshaImagery li{display:grid;grid-template-columns:1.4em 1.6em minmax(0,1fr);gap:6px;align-items:baseline;padding:0;border:0;background:none;font-size:14px;line-height:1.6;color:#d8cfe8}
 .shenshaImagery b{font-size:16px;color:#f0e0ff}

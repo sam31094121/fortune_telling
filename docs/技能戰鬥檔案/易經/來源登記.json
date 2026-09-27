@@ -1735,6 +1735,8 @@
         "lib/shensha-iching.ts",
         "lib/shensha-char-imagery.ts",
         "lib/shensha-teacher-readings.ts",
+        "docs/技能戰鬥檔案/神煞易經/神煞易經.json",
+        "docs/技能戰鬥檔案/神煞易經/新人檔案.md",
         "data/shensha-char-imagery.json"
       ],
       "authority_files": [
@@ -1757,6 +1759,38 @@
       "conflicts": [],
       "status": "PENDING_POOL",
       "note": "業主定案 2026-09-27《神煞易經》：八字→紫微四柱核對→特星神煞（太極紫微易經派取法）→易經。卦名卦義沿用 C-ICHING-TEXT 同一套來源；每個神煞的導師解盤話術（本意→意境→柱位→落地）為本派自撰（業主定案 2026-09-27），不是古籍原文；凶煞只講提醒與轉化，不下定論。字的意境取姓名學字庫原文。"
+    },
+    {
+      "claim_id": "C-SHENSHA-ONION",
+      "title": "神煞易經：神煞洋蔥心理學（殼→心→禮物）",
+      "domain": "易經洋蔥心理學",
+      "files": [
+        "lib/shensha-onion.ts"
+      ],
+      "authority_files": [
+        "S-APA-DICTIONARY"
+      ],
+      "big_data_sources": [
+        "S-PSYCINFO",
+        "S-PUBMED",
+        "S-PMC-OA",
+        "S-OSF"
+      ],
+      "cross_references": [
+        "S-ARKES-1985",
+        "S-NOREM-1986",
+        "S-HAYES-1996",
+        "S-CROCKER-2001",
+        "S-BARTHOLOMEW-1991",
+        "S-NOLEN-HOEKSEMA-1991",
+        "S-LIEBERMAN-2007",
+        "S-SNYDER-1974",
+        "S-CLANCE-1978",
+        "S-ARON-1997"
+      ],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "業主定案 2026-09-27：神煞洋蔥心理學為本派自撰話術；心理學名詞只掛已登記 A 級原始文獻、且概念確實對得上的神煞（10 項），出處由程式從本登記表讀出。刻意不用自我耗竭（S-BAUMEISTER-1998 與 S-HAGGER-2016 重大衝突）。不作診斷。"
     }
   ]
 }
