@@ -104,7 +104,7 @@ id 唯一、圖片存在、元素合法、數值合法、技能存在、平衡�
 **說這個口令＝打開 `docs/技能戰鬥檔案/八字/shensha-rule-integrity/`**（業主定案 2026-09-27：特星神煞列為檔案功能、檔案技能；八字、紫微、神煞、易經有邏輯地融會貫通以後，叫做《神煞易經》）。
 
 - 衍生鏈（本站自家一派「太極紫微易經派」，順序不可顛倒）：客戶填寫資料 → ①八字運算 → ②生成紫微斗數，四柱逐字核對（沿用三合一 `runZiweiLayer`＋`verifyFourPillars`）→ ③有邏輯地衍生特星神煞 → ④易經（沿用三合一 `runIChingLayer` 起卦，每一個命中的神煞都逐項延伸進解盤）→ 前端只顯示。對不上就停在核對關，不自動改任一套。
-- 第④層：`lib/shensha-iching.ts`，來源登記 `docs/技能戰鬥檔案/易經/來源登記.json` 的 `C-SHENSHA-ICHING`（閘門算狀態，不手填）。神煞吉凶含義尚無登記來源，解盤只寫名稱、柱位、推導與既有卦義，不自編吉凶。
+- 第④層：`lib/shensha-iching.ts`，來源登記 `docs/技能戰鬥檔案/易經/來源登記.json` 的 `C-SHENSHA-ICHING`（閘門算狀態，不手填）。導師解盤話術：`lib/shensha-teacher-readings.ts`，22 個神煞各有本派話術（本意→意境→柱位→落地），例：外桃花＝牆外的好人緣（異性緣、外面的貴人）。這是本派自撰，不是古籍原文，卡片照實標「僅作自我反思參考」；凶煞只講提醒與轉化（殼與禮物），禁止「必定、註定、大凶、血光」等字（測試會擋）。
 - 老師解盤「字有字的意境」：取姓名學字庫字義（`lib/shensha-char-imagery.ts`＋`data/shensha-char-imagery.json`，由 `scripts/build-shensha-char-imagery.mjs` 抽出）。教育部辭典 CC BY-ND：只挑義項、原文照引、標出處，不改字；找不到合適義項只寫五行。
 - 取法與標準答案：`references/參考命盤取法.md`（紙本命盤 1974-06-28 18:00 男，17 項逐柱）。
 - 後端運算、前端只顯示：`lib/dual-chart-shensha.ts`（運算）→ `lib/dual-chart-shensha-card.ts`（卡片檢視）→ `app/dual-chart/BaziChart.tsx` 的 `ShenShaCard`（只照印）。

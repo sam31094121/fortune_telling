@@ -1734,6 +1734,7 @@
       "files": [
         "lib/shensha-iching.ts",
         "lib/shensha-char-imagery.ts",
+        "lib/shensha-teacher-readings.ts",
         "data/shensha-char-imagery.json"
       ],
       "authority_files": [
@@ -1755,7 +1756,7 @@
       ],
       "conflicts": [],
       "status": "PENDING_POOL",
-      "note": "業主定案 2026-09-27《神煞易經》：八字→紫微四柱核對→特星神煞（太極紫微易經派取法）→易經。卦名卦義沿用 C-ICHING-TEXT 同一套來源；神煞吉凶含義尚無登記來源，解盤只寫名稱、柱位與推導，不寫吉凶。"
+      "note": "業主定案 2026-09-27《神煞易經》：八字→紫微四柱核對→特星神煞（太極紫微易經派取法）→易經。卦名卦義沿用 C-ICHING-TEXT 同一套來源；每個神煞的導師解盤話術（本意→意境→柱位→落地）為本派自撰（業主定案 2026-09-27），不是古籍原文；凶煞只講提醒與轉化，不下定論。字的意境取姓名學字庫原文。"
     }
   ]
 }

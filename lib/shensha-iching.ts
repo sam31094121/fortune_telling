@@ -18,11 +18,16 @@ import { STATUS_WORDING } from './credibility-phrases';
 import type { ThreeCoreIChingLayer } from './three-core-engine';
 import type { ShenShaCardView } from './dual-chart-shensha-card';
 import { SHENSHA_IMAGERY_ATTRIBUTION, shenShaImagery, type ShenShaImagery } from './shensha-char-imagery';
+import { SHENSHA_TEACHER_READINGS, teacherReadingFor, type ShenShaTone } from './shensha-teacher-readings';
 
 export const SHENSHA_ICHING_CLAIM = 'C-SHENSHA-ICHING';
 
 export interface ShenShaIChingStep { step: '八字' | '紫微' | '特星神煞' | '易經'; text: string }
-export interface ShenShaIChingItem { name: string; pillar: string; derivation: string; reference: boolean; imagery: ShenShaImagery }
+export interface ShenShaIChingItem {
+  id: string; name: string; pillar: string; derivation: string; reference: boolean; imagery: ShenShaImagery;
+  /** 本派導師解盤：本意→意境→柱位→落地，一整段話。 */
+  teacher: { theme: string; tone: ShenShaTone; text: string } | null;
+}
 export type ShenShaIChingView =
   | {
     state: 'READY';
@@ -39,6 +44,19 @@ export type ShenShaIChingView =
     imageryAttribution: string;
   }
   | { state: 'BLOCKED'; chain: ShenShaIChingStep[]; reason: string };
+
+/** 福氣／動能／提醒三類各幾項，給導師解盤一個總覽。 */
+function toneSummary(items: ShenShaIChingItem[]): string {
+  const count = (tone: ShenShaTone) => items.filter(i => i.teacher?.tone === tone);
+  const names = (list: ShenShaIChingItem[]) => list.map(i => i.name).join('、');
+  const blessing = count('福氣'); const drive = count('動能'); const reminder = count('提醒');
+  const parts = [
+    blessing.length ? `福氣 ${blessing.length} 項（${names(blessing)}）是你的底氣` : '',
+    drive.length ? `動能 ${drive.length} 項（${names(drive)}）是推你往前的力量` : '',
+    reminder.length ? `提醒 ${reminder.length} 項（${names(reminder)}）是要你多留一分心的地方` : '',
+  ].filter(Boolean);
+  return `把這些神煞分成三類來看：${parts.join('；')}。提醒不是壞消息，而是先把燈點亮。`;
+}
 
 export function buildShenShaIChing(params: {
   pillars: { year: string; month: string; day: string; hour: string };
@@ -58,7 +76,8 @@ export function buildShenShaIChing(params: {
   }
   const items: ShenShaIChingItem[] = card.columns.flatMap(col => col.hits.map(hit => ({
     // 取法原文分號後是查柱範圍（工程用），客戶只看推導本身。
-    name: hit.name, pillar: col.label, derivation: hit.rule.split('；')[0], reference: hit.reference,
+    id: hit.id, name: hit.name, pillar: col.label, derivation: hit.rule.split('；')[0], reference: hit.reference,
+    teacher: SHENSHA_TEACHER_READINGS[hit.id] ? { theme: SHENSHA_TEACHER_READINGS[hit.id].theme, tone: SHENSHA_TEACHER_READINGS[hit.id].tone, text: teacherReadingFor(hit.id, hit.name, col.label)! } : null,
     // 老師解盤：字有字的意境，取姓名學字庫字義作參考（業主定案 2026-09-27）。
     imagery: shenShaImagery(hit.name),
   })));
@@ -79,9 +98,10 @@ export function buildShenShaIChing(params: {
     items.length
       ? `特星神煞共 ${items.length} 項，${focus.join('、')}最集中（${max} 項）${empty.length ? `，${empty.join('、')}本派取法未命中` : ''}。每一項的推導都列在下方，可逐項回查。`
       : '依本派取法，這張盤沒有命中特星神煞；這不代表其他流派也沒有。',
+    ...(items.length ? [toneSummary(items)] : []),
     `易經以同一份生辰起卦，得「${r.hexagramName}」：${r.essence.replace(/[。．.]?$/, '。')}`,
     `行動建議：${r.advice}`,
-    ...(items.length ? ['老師解盤從字的意境看每一個神煞：下表逐項列出字義（取自姓名學字庫原文），讀字、讀位、讀卦，三者合看。'] : []),
+    ...(items.length ? [`導師解盤的讀法：先讀神煞的本意，再看它落在哪一柱，最後回到「${r.hexagramName}」的行動建議——讀意、讀位、讀卦，三者合看。下方逐項展開，每一項並附字的意境。`] : []),
   ];
 
   const registry = ichingRegistry as unknown as SourceRegistry;

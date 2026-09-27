@@ -5,6 +5,8 @@ import { getBaziTraditionalOutputGate } from '../lib/bazi-traditional-gate';
 import { calculateDualChart } from '../lib/dual-chart';
 import { buildShenShaIChing } from '../lib/shensha-iching';
 import { SHENSHA_SENSE_PICKS } from '../lib/shensha-char-imagery';
+import { SHENSHA_TEACHER_READINGS, PILLAR_PALACE } from '../lib/shensha-teacher-readings';
+import { DUAL_SHENSHA_RULES } from '../lib/dual-chart-shensha';
 import fs from 'node:fs';
 
 // Independent transcription: 1937 printed p72, PDF103; 1938 PDF80–81.
@@ -156,6 +158,19 @@ if(ic.state==='READY'){
     for (const c of item.imagery.chars) if (c.sense) assert.ok(dictionary.get(c.char)!.meanings.some(m=>m.includes(c.sense!)),`${c.char} sense is verbatim dictionary text`);
   }
   assert.ok(ic.imageryAttribution.includes('CC BY-ND'),'dictionary attribution is shown');
+  // 導師解盤：每一個神煞都有本派話術（本意→意境→柱位→落地），不嚇人、不下定論。
+  for (const [id,name] of DUAL_SHENSHA_RULES) {
+    const t=SHENSHA_TEACHER_READINGS[id];
+    assert.ok(t&&t.essence&&t.imagery&&t.action&&t.theme,`${name} has a complete teacher reading`);
+    assert.ok(!Object.values(t).join('').match(/必定|一定會|註定|大凶|血光|死/),`${name} reading avoids fatalistic words`);
+  }
+  for (const item of ic.items) {
+    assert.ok(item.teacher,`${item.name} carries a teacher reading`);
+    assert.ok(item.teacher!.text.includes(PILLAR_PALACE[item.pillar]),`${item.name} reading extends into its pillar`);
+  }
+  const wai=ic.items.find(i=>i.id==='waiTaohua')!;
+  assert.ok(wai.teacher!.text.includes('異性緣')&&wai.teacher!.text.includes('貴人'),'外桃花 reads as 人緣／異性緣／貴人 (owner example)');
+  assert.ok(ic.reading.some(l=>l.includes('福氣')&&l.includes('動能')&&l.includes('提醒')),'tone overview ties the shensha together');
   assert.ok(!ic.items.map(i=>i.imagery.line).join('').match(/主(吉|凶)|大吉|大凶|必定/),'imagery adds no verdicts');
 }
 // 八字紫微四柱不一致：停在核對關，不判定、不自動改任一套。
