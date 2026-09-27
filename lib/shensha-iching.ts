@@ -20,6 +20,7 @@ import type { ShenShaCardView } from './dual-chart-shensha-card';
 import { SHENSHA_IMAGERY_ATTRIBUTION, shenShaImagery, type ShenShaImagery } from './shensha-char-imagery';
 import { SHENSHA_PRINCIPLE, SHENSHA_TEACHER_READINGS, SHENSHA_TRADITION, teacherReadingFor, type ShenShaTone } from './shensha-teacher-readings';
 import { shenShaOnion, shenShaOnionCredibility, type ShenShaOnionView } from './shensha-onion';
+import { findShenShaCombos, type ShenShaCombo } from './shensha-combos';
 
 export const SHENSHA_ICHING_CLAIM = 'C-SHENSHA-ICHING';
 
@@ -38,6 +39,8 @@ export type ShenShaIChingView =
     state: 'READY';
     chain: ShenShaIChingStep[];
     hexagram: { name: string; glyph: string; kingWen: number; changingLine: number; changingLabel: string; essence: string; advice: string };
+    /** 整盤合看：本派組合規則找出的神煞組合（同柱或整盤）。 */
+    combos: ShenShaCombo[];
     /** 每一個命中的神煞，逐項延伸。 */
     items: ShenShaIChingItem[];
     /** 各柱命中數，依柱序（年月日時）。 */
@@ -99,6 +102,7 @@ export function buildShenShaIChing(params: {
   const r = iching.reading;
   chain.push({ step: '易經', text: `生辰起卦：${r.hexagramName}，動爻第${r.changingLine}爻` });
 
+  const combos = findShenShaCombos(items.map(i => ({ id: i.id, name: i.name, pillar: i.pillar, tone: i.teacher?.tone })));
   const max = Math.max(0, ...distribution.map(d => d.count));
   const focus = distribution.filter(d => d.count === max && max > 0).map(d => d.pillar);
   const empty = distribution.filter(d => d.count === 0).map(d => d.pillar);
@@ -108,6 +112,7 @@ export function buildShenShaIChing(params: {
       ? `特星神煞共 ${items.length} 項，${focus.join('、')}最集中（${max} 項）${empty.length ? `，${empty.join('、')}本派取法未命中` : ''}。每一項的推導都列在下方，可逐項回查。`
       : '依本派取法，這張盤沒有命中特星神煞；這不代表其他流派也沒有。',
     ...(items.length ? [toneSummary(items), SHENSHA_PRINCIPLE] : []),
+    ...(combos.length ? [`整盤合看，這張盤有 ${combos.length} 組神煞彼此呼應：${combos.map(c => c.pillar ? `${c.title}（${c.pillar}）` : c.title).join('、')}。老師看盤不只看單一顆星，而是看它們怎麼一起說話，下方逐組說明。`] : []),
     `易經以同一份生辰起卦，得「${r.hexagramName}」：${r.essence.replace(/[。．.]?$/, '。')}`,
     `行動建議：${r.advice}`,
     ...(items.length ? [`導師解盤的讀法：先讀神煞的本意，再看它落在哪一柱，最後回到「${r.hexagramName}」的行動建議——讀意、讀位、讀卦，三者合看。下方逐項展開：導師話術、洋蔥心理學（殼→心→禮物）、推導與字的意境。`] : []),
@@ -117,7 +122,7 @@ export function buildShenShaIChing(params: {
   const claim = registry.claims.find(c => c.claim_id === SHENSHA_ICHING_CLAIM);
   const status: GateStatus = claim ? evaluateClaim(claim, indexSources(registry)).status : 'PENDING_POOL';
   return {
-    state: 'READY', chain, items, distribution, reading,
+    state: 'READY', chain, items, distribution, reading, combos,
     hexagram: { name: r.hexagramName, glyph: r.glyph, kingWen: r.kingWen, changingLine: r.changingLine, changingLabel: `第${r.changingLine}爻動`, essence: r.essence, advice: r.advice },
     credibility: { status, line: `神煞易經解盤：${STATUS_WORDING[status]}` },
     imageryAttribution: SHENSHA_IMAGERY_ATTRIBUTION,

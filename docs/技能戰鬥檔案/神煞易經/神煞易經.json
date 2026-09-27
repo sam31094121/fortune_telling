@@ -2,7 +2,7 @@
   "id": "shensha-iching",
   "name": "神煞易經",
   "title": "《神煞易經》太極紫微易經派｜八字→紫微→特星神煞→易經→洋蔥心理學",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "updatedAt": "2026-09-27",
   "sourceOfTruth": "業主定案 2026-09-27：八字、紫微、神煞、易經有邏輯地融會貫通，叫做《神煞易經》；本站自家一派，以後獨立門派。",
   "newbieDoc": "docs/技能戰鬥檔案/神煞易經/新人檔案.md",
@@ -19,6 +19,7 @@
     "② 紫微斗數（三合一 runZiweiLayer＋verifyFourPillars，四柱逐字核對；對不上停在核對關）",
     "③ 特星神煞（lib/dual-chart-shensha.ts，太極紫微易經派取法，紙本 17 項為標準答案）",
     "④ 易經（三合一 runIChingLayer 帶憑證起卦；lib/shensha-iching.ts 逐項延伸）",
+    "④之一 整盤合看（lib/shensha-combos.ts：12 條本派組合規則，同柱或整盤；例：驛馬＋將星同柱、桃花＋紅艷＋沐浴、德星化煞）",
     "⑤ 導師話術（lib/shensha-teacher-readings.ts：本意→意境→柱位→落地）",
     "⑥ 洋蔥心理學（lib/shensha-onion.ts：殼→心→禮物，名詞附原始文獻）",
     "⑦ 字的意境（lib/shensha-char-imagery.ts：姓名學字庫原文照引）",
@@ -34,7 +35,8 @@
     "charImageryData": "data/shensha-char-imagery.json",
     "charImageryBuilder": "scripts/build-shensha-char-imagery.mjs",
     "methodDoc": "docs/技能戰鬥檔案/八字/shensha-rule-integrity/references/參考命盤取法.md",
-    "maintenanceSkill": "docs/技能戰鬥檔案/八字/shensha-rule-integrity/SKILL.md"
+    "maintenanceSkill": "docs/技能戰鬥檔案/八字/shensha-rule-integrity/SKILL.md",
+    "combos": "lib/shensha-combos.ts"
   },
   "verification": [
     "npx tsx tests/dual-chart-shensha-extension.test.ts（紙本 17/17、四柱核對、易經層、導師話術、洋蔥心理學、字的意境）",
@@ -51,7 +53,8 @@
     "凶煞只講提醒與轉化（殼與禮物），禁止「必定、註定、大凶、血光」等字。",
     "教育部辭典 CC BY-ND：只挑義項、原文照引、標出處，不改字。",
     "不使用有重大衝突的自我耗竭／決策疲勞。",
-    "常用神煞總覽的「血光、刀傷、官司赦免、醫療、男忌女忌、一生保證」等說法不照搬，轉成提醒或不寫。"
+    "常用神煞總覽的「血光、刀傷、官司赦免、醫療、男忌女忌、一生保證」等說法不照搬，轉成提醒或不寫。",
+    "整盤合看只根據「命中了哪些神煞、落在哪一柱」判斷，不重算四柱、不加新神煞；組合話術同樣禁止恐嚇字眼。"
   ],
   "references": {
     "commonShenShaOverview": "docs/技能戰鬥檔案/神煞易經/參考/常用神煞總覽（業主提供原文）.md",

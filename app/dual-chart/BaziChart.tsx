@@ -64,6 +64,7 @@ function ShenShaIChingSection({ view }: { view?: DualChartResult['specialStars']
     {view.state === 'BLOCKED' ? <p role="status">{view.reason}</p> : <>
       <p className={styles.shenshaHexagram}><span aria-hidden="true">{view.hexagram.glyph}</span>{view.hexagram.name}<small>{view.hexagram.changingLabel}</small></p>
       {view.reading.map((line, index) => <p key={index}>{line}</p>)}
+      {view.combos?.length > 0 && <ol className={styles.shenshaCombos} aria-label="整盤合看">{view.combos.map(combo => <li key={`${combo.id}:${combo.pillar ?? ''}`} data-shensha-combo={combo.id}><b>{combo.title}</b>{combo.pillar && <small>{combo.pillar}</small>}<p>{combo.text}</p></li>)}</ol>}
       {view.items.length > 0 && <ol className={styles.shenshaDerivation} aria-label="特星神煞逐項導師解盤、推導與字的意境">{view.items.map(item =>
         <li key={`${item.pillar}:${item.name}`} data-shensha-tone={item.teacher?.tone}><p><b>{item.name}{item.reference ? '＊' : ''}</b><span>{item.pillar}</span>{item.teacher && <em>{item.teacher.tone}｜{item.teacher.theme}</em>}</p>
           {item.tradition && <p className={styles.shenshaBasis}>{item.tradition}</p>}

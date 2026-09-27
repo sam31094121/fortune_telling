@@ -7,6 +7,7 @@ import { buildShenShaIChing } from '../lib/shensha-iching';
 import { SHENSHA_SENSE_PICKS } from '../lib/shensha-char-imagery';
 import { SHENSHA_TEACHER_READINGS, PILLAR_PALACE } from '../lib/shensha-teacher-readings';
 import { SHENSHA_ONION } from '../lib/shensha-onion';
+import { SHENSHA_COMBO_RULES, findShenShaCombos } from '../lib/shensha-combos';
 import { DUAL_SHENSHA_RULES } from '../lib/dual-chart-shensha';
 import fs from 'node:fs';
 
@@ -348,6 +349,19 @@ if(ic.state==='READY'){
   assert.equal(ic.items.find(i=>i.id==='taohua')?.tradition,'傳統分類：動態中性');
   assert.equal(ic.items.find(i=>i.id==='taohua')?.teacher?.tone,'動能','桃花 follows the overview: dynamic, not purely blessing');
   assert.equal(ic.items.find(i=>i.id==='longde')?.tradition,null,'shensha absent from the overview get no guessed class');
+  // 整盤合看：紙本命盤手算應成立的組合（不多不少）。
+  assert.deepEqual(ic.combos.map(c=>c.id+(c.pillar?'@'+c.pillar:'')),['charm-trio','de-softens@年柱','de-softens@時柱','outer-waves'],'paper chart combos match the hand-derived set');
+  assert.ok(ic.reading.some(l=>l.startsWith('整盤合看')),'combo overview joins the teacher reading');
+  // 遠方的緣分一定要有驛馬；沒有驛馬只有桃花類，不成立。
+  assert.deepEqual(findShenShaCombos([{id:'taohua',name:'桃花',pillar:'時柱'},{id:'waiTaohua',name:'外桃花',pillar:'時柱'}]).filter(c=>c.id==='distant-romance'),[]);
+  assert.equal(findShenShaCombos([{id:'yima',name:'驛馬',pillar:'年柱'},{id:'taohua',name:'桃花',pillar:'年柱'}]).filter(c=>c.id==='distant-romance').length,1);
+  // 德星化煞必須同柱有提醒類。
+  assert.deepEqual(findShenShaCombos([{id:'tiande',name:'天德',pillar:'年柱',tone:'福氣'},{id:'lushen',name:'祿神',pillar:'年柱',tone:'福氣'}]).filter(c=>c.id==='de-softens'),[]);
+  for (const rule of SHENSHA_COMBO_RULES) {
+    const text=rule.text(['甲','乙'],'年柱');
+    assert.ok(!text.match(/必定|一定會|註定|大凶|血光|死|病/),`combo ${rule.id} avoids fatalistic words`);
+    assert.ok(rule.members.every(id=>DUAL_SHENSHA_RULES.some(([rid])=>rid===id)),`combo ${rule.id} only uses computed shensha`);
+  }
   // 洋蔥心理學：殼→心→禮物；名詞只掛已登記 A 級文獻，出處由登記表讀出；不診斷。
   const reg=JSON.parse(fs.readFileSync('docs/技能戰鬥檔案/易經/來源登記.json','utf8'));
   const onionClaim=reg.claims.find((c:{claim_id:string})=>c.claim_id==='C-SHENSHA-ONION');
