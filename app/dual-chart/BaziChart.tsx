@@ -62,13 +62,13 @@ function ShenShaIChingSection({ view }: { view?: DualChartResult['specialStars']
   return <section className={styles.shenshaIching} aria-label="神煞易經解盤" data-shensha-iching-state={view.state}>
     <ol className={styles.shenshaChain}>{view.chain.map(item => <li key={item.step}><b>{item.step}</b>{item.text}</li>)}</ol>
     {view.state === 'BLOCKED' ? <p role="status">{view.reason}</p> : <>
-      <p className={styles.shenshaHexagram}><span aria-hidden="true">{view.hexagram.glyph}</span>{view.hexagram.name}<small>第{view.hexagram.changingLine}爻動</small></p>
+      <p className={styles.shenshaHexagram}><span aria-hidden="true">{view.hexagram.glyph}</span>{view.hexagram.name}<small>{view.hexagram.changingLabel}</small></p>
       {view.reading.map((line, index) => <p key={index}>{line}</p>)}
       {view.items.length > 0 && <ol className={styles.shenshaDerivation} aria-label="特星神煞逐項導師解盤、推導與字的意境">{view.items.map(item =>
         <li key={`${item.pillar}:${item.name}`} data-shensha-tone={item.teacher?.tone}><p><b>{item.name}{item.reference ? '＊' : ''}</b><span>{item.pillar}</span>{item.teacher && <em>{item.teacher.tone}｜{item.teacher.theme}</em>}</p>
           {item.teacher && <p className={styles.shenshaTeacher}>{item.teacher.text}</p>}
           <p className={styles.shenshaBasis}>推導：{item.derivation}</p>
-          {item.imagery?.chars?.length > 0 && <ul className={styles.shenshaImagery} aria-label={`${item.name}字的意境`}>{item.imagery.chars.map((c, index) => <li key={index}><b>{c.char}</b><small>{c.element}</small><span>{c.sense ?? '（字庫無合適字義，只取五行）'}</span></li>)}</ul>}</li>)}</ol>}
+          {item.imagery?.chars?.length > 0 && <ul className={styles.shenshaImagery} aria-label={`${item.name}字的意境`}>{item.imagery.chars.map((c, index) => <li key={index}><b>{c.char}</b><small>{c.element}</small><span>{c.senseText ?? c.sense}</span></li>)}</ul>}</li>)}</ol>}
       {view.imageryAttribution && <p className={styles.shenshaFootnote}>{view.imageryAttribution}</p>}
       <p className={styles.shenshaFootnote}>{view.credibility.line}</p>
     </>}
@@ -117,7 +117,7 @@ export default function BaziChart({ result, monochrome = false, language = 'zh' 
     ? '本次神煞暫未提供；不影響四柱、藏干與十神資料。'
     : !hasData
     ? '神煞資料待補，請重新排盤；暫不判定是否命中。'
-    : <>{language === 'en' ? 'Special stars follow this site’s own Taiji–Ziwei–I Ching method; Yuan Shushan’s method is listed below for comparison. ' : '特星神煞依本站太極紫微易經派取法；下方列袁樹珊取法作來源對照。'}{copy.compactScope} </>}<ShenShaRestrictions result={result} language={language} /><ShenShaComparisonSummary rules={comparisonRules} language={language} includeMatched={false} /></p>
+    : <>{result.specialStars?.sourceNote?.[language === 'en' ? 'en' : 'zh']}{copy.compactScope} </>}<ShenShaRestrictions result={result} language={language} /><ShenShaComparisonSummary rules={comparisonRules} language={language} includeMatched={false} /></p>
     <ShenShaSourceEvidence rules={comparisonRules} language={language} className={styles.shenshaEvidence} /></>;
   return <><div className={styles.reportScroll}><div className={styles.baziReport}>
     <div className={styles.birthBand}><b>{bazi.input.name || '命主'}</b><span>{bazi.input.gender === 'male' ? '男' : '女'} · {core.pillars.year.yinYang}年</span><span>國曆 {bazi.input.birthDate}　{bazi.input.birthTime}</span><span>農曆 {core.calendar.lunarDate}</span></div>

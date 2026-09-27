@@ -242,11 +242,11 @@ console.log('PASS: backend card view drives the card; pending rules only mark th
 // 《神煞易經》第④層：照印後端 iching 檢視；擋下時如實顯示原因。
 const withIching = structuredClone(deliveryFixture);
 withIching.specialStars.iching = { state: 'READY', chain: [{ step: '八字', text: 'A' }, { step: '紫微', text: 'B' }, { step: '特星神煞', text: 'C' }, { step: '易經', text: 'D' }],
-  hexagram: { name: '測試卦', glyph: '䷀', kingWen: 1, changingLine: 2, essence: 'e', advice: 'a' }, items: [{ id: 'taohua', name: '桃花', pillar: '時柱', derivation: '後端推導原文', reference: true, teacher: { theme: '後端主題', tone: '福氣', text: '後端導師話術' }, imagery: { name: '桃花', chars: [{ char: '桃', element: '水', sense: null, source: null }, { char: '花', element: '金', sense: '後端字義原文', source: 'MOE' }], line: '' } }],
+  hexagram: { name: '測試卦', glyph: '䷀', kingWen: 1, changingLine: 2, changingLabel: '後端爻位文字', essence: 'e', advice: 'a' }, items: [{ id: 'taohua', name: '桃花', pillar: '時柱', derivation: '後端推導原文', reference: true, teacher: { theme: '後端主題', tone: '福氣', text: '後端導師話術' }, imagery: { name: '桃花', chars: [{ char: '桃', element: '水', sense: null, source: null, senseText: '後端無字義說明' }, { char: '花', element: '金', sense: '後端字義原文', source: 'MOE', senseText: '後端字義原文' }], line: '' } }],
   distribution: [], reading: ['後端解盤第一句'], credibility: { status: 'PENDING_POOL', line: '神煞易經解盤：仍在查證中' }, imageryAttribution: '後端出處說明' };
 const ichingHtml = card(withIching);
 assert.ok(ichingHtml.includes('>神煞易經</h3>'));
-for (const text of ['後端解盤第一句', '後端推導原文', '桃花＊', '測試卦', '仍在查證中', '後端字義原文', '後端出處說明', '後端導師話術', '福氣｜後端主題']) assert.ok(ichingHtml.includes(text), `prints backend text: ${text}`);
+for (const text of ['後端解盤第一句', '後端推導原文', '桃花＊', '測試卦', '仍在查證中', '後端字義原文', '後端出處說明', '後端導師話術', '福氣｜後端主題', '後端爻位文字', '後端無字義說明']) assert.ok(ichingHtml.includes(text), `prints backend text: ${text}`);
 assert.deepEqual(inspectShenShaCard(withIching, ichingHtml), [], 'the I Ching section does not disturb the four-pillar card');
 // 舊版結果（沒有字的意境欄位）不得讓整張卡出錯。
 const legacyIching = structuredClone(withIching);
@@ -257,6 +257,17 @@ withIching.specialStars.iching = { state: 'BLOCKED', chain: [{ step: '八字', t
 const blockedIchingHtml = card(withIching);
 assert.ok(blockedIchingHtml.includes('後端擋下原因') && !blockedIchingHtml.includes('測試卦'));
 console.log('PASS: 神煞易經 prints the backend chain, hexagram, every derivation and blocked reasons verbatim');
+// 後端只負責運算，前端只負責顯示，前端禁止生成（業主定案 2026-09-27）：
+// 神煞易經卡的前端程式碼不得自己寫句子（含「，」「。」「；」的中文字串），只准照印後端欄位。
+const cardSource = fs.readFileSync('app/dual-chart/BaziChart.tsx', 'utf8');
+const cardSlice = cardSource.slice(cardSource.indexOf('function ShenShaIChingSection'), cardSource.indexOf('export function LuckGrid'));
+assert.ok(cardSlice.length > 500, 'card source slice found');
+const allowedStatus = ['神煞資料尚未完整，暫不能判斷有無結果。'];
+const cjkSentence = /[一-鿿][^'"`<>{}\n]*[，。；]/;
+const literals = [...cardSlice.matchAll(/'([^'\n]*)'|"([^"\n]*)"|>([^<>{}\n]+)</g)].map(m => (m[1] ?? m[2] ?? m[3]).trim());
+const generated = literals.filter(text => cjkSentence.test(text) && !allowedStatus.includes(text));
+assert.deepEqual(generated, [], 'frontend must not compose sentences for the 神煞易經 card');
+console.log('PASS: 神煞易經 frontend only prints backend text (no generated sentences)');
 
 const { inspectRequestedShenShaScope } = require('../scripts/dual-chart-shensha-display-check.cjs');
 const legacyScope = fixtureFor(legacyIds);

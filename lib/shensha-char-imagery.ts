@@ -26,7 +26,12 @@ export const SHENSHA_SENSE_PICKS: Record<string, readonly [number, number] | nul
 
 export const SHENSHA_IMAGERY_ATTRIBUTION = '字義參考：本站姓名學字庫（教育部《重編國語辭典修訂本》CC BY-ND 3.0 TW 原文照引；「龍」等字為本站姓名學精修字義）。字面意境僅供參考，不是神煞古籍定義。';
 
-export interface ShenShaCharSense { char: string; element: ElementName; sense: string | null; source: 'MOE' | 'CURATED' | null }
+export interface ShenShaCharSense {
+  char: string; element: ElementName; sense: string | null; source: 'MOE' | 'CURATED' | null;
+  /** 前端照印的字義文字（沒有合適字義時由後端給說明，前端不自己寫）。 */
+  senseText: string;
+}
+const NO_SENSE_TEXT = '（字庫無合適字義，只取五行）';
 export interface ShenShaImagery { name: string; chars: ShenShaCharSense[]; line: string }
 
 /** 以「。」為界切句，保留句號；不改任何字。 */
@@ -34,11 +39,11 @@ const sentences = (text: string) => text.match(/[^。]+。?/g) ?? [text];
 
 export function charSense(char: string): ShenShaCharSense {
   const entry = ENTRIES[char];
-  if (!entry) return { char, element: '土', sense: null, source: null };
+  if (!entry) return { char, element: '土', sense: null, source: null, senseText: NO_SENSE_TEXT };
   const pick = SHENSHA_SENSE_PICKS[char];
   const meaning = pick ? entry.meanings[pick[0]] : undefined;
   const sense = meaning ? sentences(meaning)[pick![1]] ?? null : null;
-  return { char, element: entry.element as ElementName, sense, source: sense ? entry.curated ? 'CURATED' : 'MOE' : null };
+  return { char, element: entry.element as ElementName, sense, source: sense ? entry.curated ? 'CURATED' : 'MOE' : null, senseText: sense ?? NO_SENSE_TEXT };
 }
 
 /** 一個神煞名稱的字義意境：逐字取義，組成老師解盤的一句話。 */

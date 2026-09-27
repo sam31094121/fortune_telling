@@ -194,5 +194,10 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
   // 卡片要顯示的內容在後端一次決定；前端只照印。
   const card = buildShenShaCardView({ raw, byPillar, coverage }, coreReady, pillarCheck?.passed === false ? pillarCheck.mismatches : undefined);
   // 原核心規則（袁本）不動，只作來源對照說明用；本卡的正式輸出以 rules 為準。
-  return { version: DUAL_SHENSHA_VERSION, raw, byPillar, coverage, rules, card, sourceComparisonRules: gate.shenShaRules };
+  // 來源說明句由後端給，前端只照印（前端禁止生成）。
+  const sourceNote = {
+    zh: '特星神煞依本站太極紫微易經派取法；下方列袁樹珊取法作來源對照。',
+    en: 'Special stars follow this site’s own Taiji–Ziwei–I Ching method; Yuan Shushan’s method is listed below for comparison. ',
+  };
+  return { version: DUAL_SHENSHA_VERSION, raw, byPillar, coverage, rules, card, sourceComparisonRules: gate.shenShaRules, sourceNote };
 }

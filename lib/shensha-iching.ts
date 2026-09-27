@@ -32,7 +32,7 @@ export type ShenShaIChingView =
   | {
     state: 'READY';
     chain: ShenShaIChingStep[];
-    hexagram: { name: string; glyph: string; kingWen: number; changingLine: number; essence: string; advice: string };
+    hexagram: { name: string; glyph: string; kingWen: number; changingLine: number; changingLabel: string; essence: string; advice: string };
     /** 每一個命中的神煞，逐項延伸。 */
     items: ShenShaIChingItem[];
     /** 各柱命中數，依柱序（年月日時）。 */
@@ -109,7 +109,7 @@ export function buildShenShaIChing(params: {
   const status: GateStatus = claim ? evaluateClaim(claim, indexSources(registry)).status : 'PENDING_POOL';
   return {
     state: 'READY', chain, items, distribution, reading,
-    hexagram: { name: r.hexagramName, glyph: r.glyph, kingWen: r.kingWen, changingLine: r.changingLine, essence: r.essence, advice: r.advice },
+    hexagram: { name: r.hexagramName, glyph: r.glyph, kingWen: r.kingWen, changingLine: r.changingLine, changingLabel: `第${r.changingLine}爻動`, essence: r.essence, advice: r.advice },
     credibility: { status, line: `神煞易經解盤：${STATUS_WORDING[status]}` },
     imageryAttribution: SHENSHA_IMAGERY_ATTRIBUTION,
   };
