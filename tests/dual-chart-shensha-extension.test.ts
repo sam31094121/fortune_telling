@@ -124,7 +124,7 @@ for (const stem of STEMS) for (const yb of BRANCHES) for (const probe of BRANCHE
   const fixture=structuredClone(base); fixture.shenSha=[];
   fixture.dayMaster.stem=stem as Stem; fixture.pillars.day.heavenlyStem=stem as Stem;
   const y=fixture.pillars.year; const m=fixture.pillars.month; const h=fixture.pillars.hour;
-  if(y==='UNKNOWN'||m==='UNKNOWN'||h==='UNKNOWN') throw new Error('known');
+  if(h==='UNKNOWN') throw new Error('known hour required');
   y.earthlyBranch=yb; m.earthlyBranch=probe; fixture.pillars.day.earthlyBranch=probe; h.earthlyBranch=probe;
   const out=buildDualChartShenSha(fixture,gate,'male');
   const at=(id:string)=>(['year','month','day','hour'] as const).filter(k=>out.byPillar[k].some(s=>s.id===id));
@@ -138,6 +138,50 @@ for (const stem of STEMS) for (const yb of BRANCHES) for (const probe of BRANCHE
   assert.deepEqual(at('tianyiDoctor'),where(expDoctor[probe],['year','day','hour']),`天醫 月${probe}/年${yb}`);
   batch2Cases++;
 }
+// 第三批：獨立抄表。國印／天廚／流霞（日干，四柱）、亡神（年支三合，查月日時）、
+// 天赦／四廢（季節＋日柱）、陰陽差錯／孤鸞／十惡大敗（日柱）、三奇（相連三柱天干依序）。
+const expGuoyin:Record<string,string>={甲:'戌',乙:'亥',丙:'丑',丁:'寅',戊:'丑',己:'寅',庚:'辰',辛:'巳',壬:'未',癸:'申'};
+const expTianchu:Record<string,string>={甲:'巳',乙:'午',丙:'巳',丁:'午',戊:'申',己:'酉',庚:'亥',辛:'子',壬:'寅',癸:'卯'};
+const expLiuxia:Record<string,string>={甲:'酉',乙:'戌',丙:'未',丁:'申',戊:'巳',己:'午',庚:'辰',辛:'卯',壬:'亥',癸:'寅'};
+const expWangshen:Record<string,string>={申:'亥',子:'亥',辰:'亥',寅:'巳',午:'巳',戌:'巳',巳:'申',酉:'申',丑:'申',亥:'寅',卯:'寅',未:'寅'};
+const seasonOf=(b:string)=>'寅卯辰'.includes(b)?'春':'巳午未'.includes(b)?'夏':'申酉戌'.includes(b)?'秋':'冬';
+const expTianshe:Record<string,string>={春:'戊寅',夏:'甲午',秋:'戊申',冬:'甲子'};
+const expSifei:Record<string,string[]>={春:['庚申','辛酉'],夏:['壬子','癸亥'],秋:['甲寅','乙卯'],冬:['丙午','丁巳']};
+const expYinyang=['丙子','丁丑','戊寅','辛卯','壬辰','癸巳','丙午','丁未','戊申','辛酉','壬戌','癸亥'];
+const expGuluan=['乙巳','丁巳','辛亥','戊申','甲寅','壬子','丙午','戊午'];
+const expShie=['甲辰','乙巳','丙申','丁亥','戊戌','己丑','庚辰','辛巳','壬申','癸亥'];
+let batch3Cases=0;
+for (let i=0;i<60;i++) for (const mb of BRANCHES) {
+  const stem=STEMS[i%10]; const branch=BRANCHES[i%12]; const gz=stem+branch;
+  const fixture=structuredClone(base); fixture.shenSha=[];
+  fixture.dayMaster.stem=stem as Stem;
+  const d=fixture.pillars.day; d.heavenlyStem=stem as Stem; d.earthlyBranch=branch; d.ganZhi=gz;
+  const h=fixture.pillars.hour; if(h==='UNKNOWN') throw new Error('known hour required');
+  fixture.pillars.year.earthlyBranch=mb; fixture.pillars.month.earthlyBranch=mb; h.earthlyBranch=mb;
+  // 年月時干設成不構成三奇的組合，三奇另外測。
+  fixture.pillars.year.heavenlyStem='癸'; fixture.pillars.month.heavenlyStem='癸'; h.heavenlyStem='癸';
+  const out=buildDualChartShenSha(fixture,gate,'male');
+  const at=(id:string)=>(['year','month','day','hour'] as const).filter(k=>out.byPillar[k].some(s=>s.id===id));
+  const all=(target:string)=>(['year','month','day','hour'] as const).filter(k=>(k==='day'?branch:mb)===target);
+  assert.deepEqual(at('guoyin'),all(expGuoyin[stem]),`國印 ${gz}/${mb}`);
+  assert.deepEqual(at('tianchu'),all(expTianchu[stem]),`天廚 ${gz}/${mb}`);
+  assert.deepEqual(at('liuxia'),all(expLiuxia[stem]),`流霞 ${gz}/${mb}`);
+  assert.deepEqual(at('wangshen'),(['month','day','hour'] as const).filter(k=>(k==='day'?branch:mb)===expWangshen[mb]),`亡神 年${mb}/${gz}`);
+  assert.deepEqual(at('tianshe'),expTianshe[seasonOf(mb)]===gz?['day']:[],`天赦 ${seasonOf(mb)}/${gz}`);
+  assert.deepEqual(at('sifei'),expSifei[seasonOf(mb)].includes(gz)?['day']:[],`四廢 ${seasonOf(mb)}/${gz}`);
+  assert.deepEqual(at('yinyangChacuo'),expYinyang.includes(gz)?['day']:[],`陰陽差錯 ${gz}`);
+  assert.deepEqual(at('guluan'),expGuluan.includes(gz)?['day']:[],`孤鸞 ${gz}`);
+  assert.deepEqual(at('shieDabai'),expShie.includes(gz)?['day']:[],`十惡大敗 ${gz}`);
+  assert.deepEqual(at('sanqi'),[],'no 三奇 when stems are 癸…');
+  batch3Cases++;
+}
+// 三奇：依序才算，順序顛倒不算。
+const sanqiCase=(y:string,m:string,d:string,hs:string)=>{ const f=structuredClone(base); f.shenSha=[]; f.pillars.year.heavenlyStem=y as Stem; f.pillars.month.heavenlyStem=m as Stem; f.pillars.day.heavenlyStem=d as Stem; f.dayMaster.stem=d as Stem; const hh=f.pillars.hour; if(hh==='UNKNOWN') throw new Error('x'); hh.heavenlyStem=hs as Stem; const o=buildDualChartShenSha(f,gate,'male'); return (['year','month','day','hour'] as const).filter(k=>o.byPillar[k].some(s=>s.id==='sanqi')); };
+assert.deepEqual(sanqiCase('甲','戊','庚','癸'),['year','month','day'],'天上三奇 年月日');
+assert.deepEqual(sanqiCase('癸','乙','丙','丁'),['month','day','hour'],'地下三奇 月日時');
+assert.deepEqual(sanqiCase('壬','癸','辛','甲'),['year','month','day'],'人中三奇 年月日');
+assert.deepEqual(sanqiCase('庚','戊','甲','癸'),[],'reversed order is not 三奇');
+assert.deepEqual(sanqiCase('甲','戊','癸','庚'),[],'non-adjacent is not 三奇');
 const blocked=buildDualChartShenSha(base,{...gate,coreReady:false});
 // Reference-chart method: day branch advanced two places, inspected in year, month and hour.
 const gejiaoPairs = { 子:'寅',丑:'卯',寅:'辰',卯:'巳',辰:'午',巳:'未',午:'申',未:'酉',申:'戌',酉:'亥',戌:'子',亥:'丑' };
@@ -268,4 +312,4 @@ assert.deepEqual(calculateDualChart(input).specialStars,actual.specialStars,'rep
 const changed=calculateDualChart({...input,birthTime:'15:30'});
 assert.equal(changed.core.shenSha.some(s=>s.id==='yangren'),false,'different hour does not inherit a hardcoded hit');
 assert.equal(base.shenSha instanceof Array&&base.shenSha.some(s=>s.id==='yangren'),false,'other cards retain original shared core');
-console.log(`PASS paper chart 17/17 + bazi/ziwei pillar gate + ${batch2Cases} 祿神／孤辰／寡宿／劫煞／天醫 combinations + ${expansionCases} 魁罡／空亡／金輿／學堂／紅艷 combinations + ${cases} 羊刃 combinations + ${yuanchenCases} 元辰 combinations + ${jiangxingCases} 將星 combinations + ${gejiaoCases} 隔角 combinations + gates, missing data, scope, alternate hour, determinism and shared-core isolation`);
+console.log(`PASS paper chart 17/17 + bazi/ziwei pillar gate + ${batch3Cases} 國印／天廚／流霞／亡神／天赦／四廢／陰陽差錯／孤鸞／十惡大敗 combinations + 5 三奇 order cases + ${batch2Cases} 祿神／孤辰／寡宿／劫煞／天醫 combinations + ${expansionCases} 魁罡／空亡／金輿／學堂／紅艷 combinations + ${cases} 羊刃 combinations + ${yuanchenCases} 元辰 combinations + ${jiangxingCases} 將星 combinations + ${gejiaoCases} 隔角 combinations + gates, missing data, scope, alternate hour, determinism and shared-core isolation`);

@@ -644,6 +644,232 @@
       "sourceId": "cns11643_official",
       "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
       "cnsCode": "1-596E"
+    },
+    "國": {
+      "element": "木",
+      "meanings": [
+        "古代稱諸侯或君王的封地為「國」。",
+        "有土地、人民、主權的團體。",
+        "城市。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-594F"
+    },
+    "印": {
+      "element": "土",
+      "meanings": [
+        "用木或金石等所刻成的圖章。",
+        "痕跡。",
+        "印度的簡稱。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-474D"
+    },
+    "廚": {
+      "element": "土",
+      "meanings": [
+        "烹調食物的地方。",
+        "儲藏東西的櫃子。",
+        "櫥形的床帳。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-6C5A"
+    },
+    "赦": {
+      "element": "木",
+      "meanings": [
+        "寬免應得的刑罰。",
+        "姓。如明代有赦敬。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-5D50"
+    },
+    "三": {
+      "element": "火",
+      "meanings": [
+        "介於二和四之間的自然數。如：「二、三、四、五……」。大寫作「參」，阿拉伯數字作「3」。",
+        "姓。如明代有三成志。",
+        "第三位的。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-4435"
+    },
+    "奇": {
+      "element": "金",
+      "meanings": [
+        "單數的。與「偶」相對。",
+        "不順利、乖舛。",
+        "餘數、零頭。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-4C61"
+    },
+    "陰": {
+      "element": "木",
+      "meanings": [
+        "山的北面或水的南面。",
+        "陽光照不到的地方。",
+        "泛指背面。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-5D75"
+    },
+    "陽": {
+      "element": "木",
+      "meanings": [
+        "山的南面或水的北面。",
+        "太陽。",
+        "人間。與「陰」相對。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-626C"
+    },
+    "差": {
+      "element": "水",
+      "meanings": [
+        "缺失、錯誤。",
+        "區別、不同。",
+        "數學上指兩數相減所得的數。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-5538"
+    },
+    "錯": {
+      "element": "土",
+      "meanings": [
+        "安置。",
+        "廢棄。",
+        "停止。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-7263"
+    },
+    "鸞": {
+      "element": "水",
+      "meanings": [
+        "傳說中的一種神鳥，似鳳凰。",
+        "繫在馬上的鈴鐺。",
+        "姓。如戰國時趙國有鸞繳。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-7D4A"
+    },
+    "十": {
+      "element": "木",
+      "meanings": [
+        "數目字，為九加一的總和。大寫為「拾」，阿拉伯數字作「10」。",
+        "二一四部首之一。",
+        "滿足、完滿。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-4432"
+    },
+    "惡": {
+      "element": "木",
+      "meanings": [
+        "參見「惡心」條。",
+        "罪過、不良的行為。",
+        "疾病。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-5F2A"
+    },
+    "大": {
+      "element": "火",
+      "meanings": [
+        "在體積、面積、容量、數量、強度、深度、力量等方面超過一般，或超過比較的對象。與「小」相對而言。",
+        "最年長的、排行第一的。",
+        "表示尊敬之詞。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-444B"
+    },
+    "敗": {
+      "element": "木",
+      "meanings": [
+        "戰爭失利。",
+        "事不成功。",
+        "打敗、戰勝。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-5A75"
+    },
+    "流": {
+      "element": "水",
+      "meanings": [
+        "水的通稱。",
+        "像水流的東西。",
+        "派別。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-517C"
+    },
+    "霞": {
+      "element": "金",
+      "meanings": [
+        "陽光照在雲層上所映出的紅色光彩。",
+        "彩色的。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-7625"
+    },
+    "四": {
+      "element": "土",
+      "meanings": [
+        "介於三和五之間的自然數。如：「三、四、五、六……」。大寫作「肆」，阿拉伯數字作「4」。",
+        "古代樂譜上用來表示音高的符號。如工尺譜、二四譜（潮州音樂）。",
+        "姓。如宋代有四象。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-463E"
+    },
+    "廢": {
+      "element": "土",
+      "meanings": [
+        "停止、捨棄。",
+        "衰敗、毀壞。",
+        "敗壞的。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-6C59"
     }
   }
 }

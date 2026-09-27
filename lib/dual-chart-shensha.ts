@@ -41,6 +41,21 @@ const GUCHEN_GUASU: Record<Branch, [Branch, Branch]> = {
 const JIESHA: Record<Trine, Branch> = { 申子辰: '巳', 寅午戌: '亥', 巳酉丑: '寅', 亥卯未: '申' };
 const LUSHEN: Record<Stem, Branch> = { 甲: '寅', 乙: '卯', 丙: '巳', 丁: '午', 戊: '巳', 己: '午', 庚: '申', 辛: '酉', 壬: '亥', 癸: '子' };
 
+/** 2026-09-27 第三批：常見查表，列為本派取法。 */
+const GUOYIN: Record<Stem, Branch> = { 甲: '戌', 乙: '亥', 丙: '丑', 丁: '寅', 戊: '丑', 己: '寅', 庚: '辰', 辛: '巳', 壬: '未', 癸: '申' };
+const TIANCHU: Record<Stem, Branch> = { 甲: '巳', 乙: '午', 丙: '巳', 丁: '午', 戊: '申', 己: '酉', 庚: '亥', 辛: '子', 壬: '寅', 癸: '卯' };
+const LIUXIA: Record<Stem, Branch> = { 甲: '酉', 乙: '戌', 丙: '未', 丁: '申', 戊: '巳', 己: '午', 庚: '辰', 辛: '卯', 壬: '亥', 癸: '寅' };
+const WANGSHEN: Record<Trine, Branch> = { 申子辰: '亥', 寅午戌: '巳', 巳酉丑: '申', 亥卯未: '寅' };
+type Season = '春' | '夏' | '秋' | '冬';
+const SEASON_OF: Record<Branch, Season> = { 寅: '春', 卯: '春', 辰: '春', 巳: '夏', 午: '夏', 未: '夏', 申: '秋', 酉: '秋', 戌: '秋', 亥: '冬', 子: '冬', 丑: '冬' };
+const TIANSHE_DAY: Record<Season, string> = { 春: '戊寅', 夏: '甲午', 秋: '戊申', 冬: '甲子' };
+const SIFEI_DAYS: Record<Season, string[]> = { 春: ['庚申', '辛酉'], 夏: ['壬子', '癸亥'], 秋: ['甲寅', '乙卯'], 冬: ['丙午', '丁巳'] };
+const YINYANG_CHACUO_DAYS = ['丙子', '丁丑', '戊寅', '辛卯', '壬辰', '癸巳', '丙午', '丁未', '戊申', '辛酉', '壬戌', '癸亥'];
+const GULUAN_DAYS = ['乙巳', '丁巳', '辛亥', '戊申', '甲寅', '壬子', '丙午', '戊午'];
+const SHIE_DABAI_DAYS = ['甲辰', '乙巳', '丙申', '丁亥', '戊戌', '己丑', '庚辰', '辛巳', '壬申', '癸亥'];
+/** 三奇：天上甲戊庚、地下乙丙丁、人中壬癸辛，須在相連三柱依序出現。 */
+const SANQI: Record<string, string> = { 甲戊庚: '天上三奇', 乙丙丁: '地下三奇', 壬癸辛: '人中三奇' };
+
 /** 日柱所在旬的兩個空亡地支。 */
 export function xunKong(stem: Stem, branch: Branch): [Branch, Branch] {
   const start = (BRANCHES.indexOf(branch) - STEMS_ORDER.indexOf(stem) + 12) % 12; // 旬首（甲）所在地支
@@ -66,6 +81,8 @@ export const DUAL_SHENSHA_RULES: ReadonlyArray<readonly [string, string]> = [
   ['taohua', '桃花'], ['waiTaohua', '外桃花'], ['tianyi', '天乙'], ['wenchang', '文昌'], ['huagai', '華蓋'],
   ['kuigang', '魁罡'], ['kongwang', '空亡'], ['jinyu', '金輿'], ['xuetang', '學堂'], ['hongyan', '紅艷'],
   ['lushen', '祿神'], ['tianyiDoctor', '天醫'], ['jiesha', '劫煞'], ['guchen', '孤辰'], ['guasu', '寡宿'],
+  ['guoyin', '國印'], ['tianchu', '天廚'], ['tianshe', '天赦'], ['sanqi', '三奇'], ['wangshen', '亡神'],
+  ['yinyangChacuo', '陰陽差錯'], ['guluan', '孤鸞'], ['shieDabai', '十惡大敗'], ['liuxia', '流霞'], ['sifei', '四廢'],
 ];
 
 /** 八字與紫微四柱逐字核對結果；神煞從這兩張已核對的命盤衍生，不另排四柱。 */
@@ -115,6 +132,16 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
     jiesha: reference('年支三合取劫煞（申子辰巳、寅午戌亥、巳酉丑寅、亥卯未申），查月日時。'),
     lushen: reference('日干祿位（甲寅乙卯丙戊巳丁己午庚申辛酉壬亥癸子），四柱皆查。'),
     tianyiDoctor: reference('月支前一位為天醫，查年日時。'),
+    guoyin: reference('日干取國印（甲戌乙亥丙戊丑丁己寅庚辰辛巳壬未癸申），四柱皆查。'),
+    tianchu: reference('日干取天廚（甲丙巳乙丁午戊申己酉庚亥辛子壬寅癸卯），四柱皆查。'),
+    tianshe: reference('春戊寅、夏甲午、秋戊申、冬甲子日；季節依月支。只看日柱。'),
+    sanqi: reference('天上甲戊庚、地下乙丙丁、人中壬癸辛，於年月日或月日時三柱天干依序相連。'),
+    wangshen: reference('年支三合取亡神（申子辰亥、寅午戌巳、巳酉丑申、亥卯未寅），查月日時。'),
+    yinyangChacuo: reference('日柱為丙子、丁丑、戊寅、辛卯、壬辰、癸巳、丙午、丁未、戊申、辛酉、壬戌、癸亥者。只看日柱。'),
+    guluan: reference('日柱為乙巳、丁巳、辛亥、戊申、甲寅、壬子、丙午、戊午者。只看日柱；不分男女。'),
+    shieDabai: reference('日柱為甲辰、乙巳、丙申、丁亥、戊戌、己丑、庚辰、辛巳、壬申、癸亥者。只看日柱。'),
+    liuxia: reference('日干取流霞（甲酉乙戌丙未丁申戊巳己午庚辰辛卯壬亥癸寅），四柱皆查。'),
+    sifei: reference('春庚申辛酉、夏壬子癸亥、秋甲寅乙卯、冬丙午丁巳日；季節依月支。只看日柱。'),
     hongyan: reference('日干取紅艷（甲乙午、丙寅、丁未、戊己辰、庚戌、辛酉、壬子、癸申），四柱皆查。'),
   };
   // 核心引擎的袁本桃花（含納音條件）只供其他卡片使用；本卡改依參考命盤取法重查。
@@ -209,6 +236,29 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
       branchHit('xuetang', '學堂', XUETANG[ds], pillars, `日干${ds}長生在${XUETANG[ds]}為學堂；四柱皆查`);
       branchHit('hongyan', '紅艷', HONGYAN[ds], pillars, `日干${ds}紅艷在${HONGYAN[ds]}；四柱皆查`);
       branchHit('lushen', '祿神', LUSHEN[ds], pillars, `日干${ds}祿在${LUSHEN[ds]}；四柱皆查`);
+      branchHit('guoyin', '國印', GUOYIN[ds], pillars, `日干${ds}國印在${GUOYIN[ds]}；四柱皆查`);
+      branchHit('tianchu', '天廚', TIANCHU[ds], pillars, `日干${ds}天廚在${TIANCHU[ds]}；四柱皆查`);
+      branchHit('liuxia', '流霞', LIUXIA[ds], pillars, `日干${ds}流霞在${LIUXIA[ds]}；四柱皆查`);
+      const dayGz = day.ganZhi;
+      if (YINYANG_CHACUO_DAYS.includes(dayGz)) push('yinyangChacuo', '陰陽差錯', 'day', `日柱${dayGz}為陰陽差錯日`, `柱${dayGz}`);
+      if (GULUAN_DAYS.includes(dayGz)) push('guluan', '孤鸞', 'day', `日柱${dayGz}為孤鸞日`, `柱${dayGz}`);
+      if (SHIE_DABAI_DAYS.includes(dayGz)) push('shieDabai', '十惡大敗', 'day', `日柱${dayGz}為十惡大敗日`, `柱${dayGz}`);
+      if (month) {
+        const season = SEASON_OF[month.earthlyBranch];
+        if (TIANSHE_DAY[season] === dayGz) push('tianshe', '天赦', 'day', `${season}季（月支${month.earthlyBranch}）逢${dayGz}日為天赦`, `柱${dayGz}`);
+        if (SIFEI_DAYS[season].includes(dayGz)) push('sifei', '四廢', 'day', `${season}季（月支${month.earthlyBranch}）逢${dayGz}日為四廢`, `柱${dayGz}`);
+      }
+    }
+    // 三奇：相連三柱天干依序（年月日、月日時）。
+    for (const run of [['year', 'month', 'day'], ['month', 'day', 'hour']] as const) {
+      const stems = run.map(key => at(key)?.heavenlyStem);
+      if (stems.some(stem => !stem)) continue;
+      const kind = SANQI[stems.join('')];
+      if (kind) for (const key of run) push('sanqi', '三奇', key, `${run.map(k => ({ year: '年', month: '月', day: '日', hour: '時' })[k]).join('')}干${stems.join('')}依序為${kind}`, `干${at(key)!.heavenlyStem}`);
+    }
+    if (year) {
+      const ws = WANGSHEN[TRINE_OF[year.earthlyBranch]];
+      branchHit('wangshen', '亡神', ws, ['month', 'day', 'hour'], `年支${year.earthlyBranch}（${TRINE_OF[year.earthlyBranch]}）亡神在${ws}；查月日時`);
     }
     if (year) {
       const [gu, gua] = GUCHEN_GUASU[year.earthlyBranch];

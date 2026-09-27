@@ -126,7 +126,7 @@ console.log('PASS: bilingual source comparisons distinguish selected-method read
 const { inspectShenShaCoverage } = require('../scripts/dual-chart-shensha-display-check.cjs');
 const legacyIds = ['tianyi', 'wenchang', 'taohua', 'yima', 'huagai', 'yangren', 'yuanchen', 'jiangxing', 'gejiao'];
 // 2026-09-27 reference-chart expansion (owner decision): the full baseline the card must evaluate.
-const expectedIds = [...legacyIds, 'tiande', 'yuede', 'tiandehe', 'longde', 'tiangou', 'jinkui', 'wugui', 'zaisha', 'liue', 'yuepo', 'ripo', 'muyu', 'waiTaohua', 'kuigang', 'kongwang', 'jinyu', 'xuetang', 'hongyan', 'lushen', 'tianyiDoctor', 'jiesha', 'guchen', 'guasu'];
+const expectedIds = [...legacyIds, 'tiande', 'yuede', 'tiandehe', 'longde', 'tiangou', 'jinkui', 'wugui', 'zaisha', 'liue', 'yuepo', 'ripo', 'muyu', 'waiTaohua', 'kuigang', 'kongwang', 'jinyu', 'xuetang', 'hongyan', 'lushen', 'tianyiDoctor', 'jiesha', 'guchen', 'guasu', 'guoyin', 'tianchu', 'tianshe', 'sanqi', 'wangshen', 'yinyangChacuo', 'guluan', 'shieDabai', 'liuxia', 'sifei'];
 const fixtureFor = ids => ({
   bazi: { professionalChart: { traditionalInterpretationGate: { shenShaRules: Object.fromEntries(ids.map(id => [id, { outputStatus: 'READY' }])) } } },
   specialStars: { coverage: ids.map(id => ({ id, status: 'NOT_MATCHED' })), byPillar: Object.fromEntries(pillars.map(key => [key, []])) },
