@@ -99,6 +99,18 @@ id 唯一、圖片存在、元素合法、數值合法、技能存在、平衡�
 - 公信力鐵律：紫微斗數可以有古籍權威與排盤正確性，**不得寫成科學已證實**；排盤結果以三合一交叉核對為準（四柱來自 `lib/bazi/engine.ts`）。
 - 守門：`npm run test:iching-sources`（兩份登記表都檢查；名稱含 ziwei／紫微 的檔案沒登記就擋）、`npm run test:ziwei`、`npm run test:three-core`。
 
+## 口令：《神煞易經》／「特星神煞」
+
+**說這個口令＝打開 `docs/技能戰鬥檔案/八字/shensha-rule-integrity/`**（業主定案 2026-09-27：特星神煞列為檔案功能、檔案技能；八字、紫微、神煞、易經有邏輯地融會貫通以後，叫做《神煞易經》）。
+
+- 衍生鏈（本站自家一派「太極紫微易經派」，順序不可顛倒）：客戶填寫資料 → ①八字運算 → ②生成紫微斗數，四柱逐字核對（沿用三合一 `runZiweiLayer`＋`verifyFourPillars`）→ ③有邏輯地衍生特星神煞 → ④易經（沿用三合一 `runIChingLayer` 起卦，每一個命中的神煞都逐項延伸進解盤）→ 前端只顯示。對不上就停在核對關，不自動改任一套。
+- 第④層：`lib/shensha-iching.ts`，來源登記 `docs/技能戰鬥檔案/易經/來源登記.json` 的 `C-SHENSHA-ICHING`（閘門算狀態，不手填）。神煞吉凶含義尚無登記來源，解盤只寫名稱、柱位、推導與既有卦義，不自編吉凶。
+- 取法與標準答案：`references/參考命盤取法.md`（紙本命盤 1974-06-28 18:00 男，17 項逐柱）。
+- 後端運算、前端只顯示：`lib/dual-chart-shensha.ts`（運算）→ `lib/dual-chart-shensha-card.ts`（卡片檢視）→ `app/dual-chart/BaziChart.tsx` 的 `ShenShaCard`（只照印）。
+- 只動這張卡：八字核心、紫微、共用元件與其他卡片一律不動。
+- 無原典頁碼的項目標＊、來源狀態維持 `PENDING_POOL`，不得寫成已通過交叉比對。
+- 守門：`tests/dual-chart-shensha-extension.test.ts`、`tests/dual-chart-shensha-output.test.cjs`、`npm run check:dual-chart-shensha-display`、`npm run test:shensha-live-api`。
+
 ## 推送閘：編不過就不准上正式站
 
 `git push` 會先跑 **編譯 ＋ 七支守門測試**，任何一項沒過就擋下來。

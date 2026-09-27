@@ -1726,6 +1726,34 @@
       "conflicts": [],
       "status": "PENDING_POOL",
       "note": "有統合分析支持：單純曝光（但呈倒 U，不是越多越好）、意圖—行動落差、執行意圖、自我揭露與好感。證據弱：富蘭克林效應（1969 單一小研究＋概念性重複）、支持動員（僅相關研究）、接近性（單一場域相關研究）。吊橋實驗（錯誤歸因激發）有四次重複失敗與統合分析的另一種解釋，本卡不用在客戶文字與機制欄位。客戶文字只講傾向，不講確定會遇到誰。 韓文紅鸞顯示字典沿用相同待核主張，登記不代表翻譯或原主張通過，不作新增算法依據。"
+    },
+    {
+      "claim_id": "C-SHENSHA-ICHING",
+      "title": "神煞易經：特星神煞串接生辰卦解盤",
+      "domain": "易經知識",
+      "files": [
+        "lib/shensha-iching.ts"
+      ],
+      "authority_files": [
+        "S-ZHOUYI-ZHENGYI",
+        "S-ZHOUYI-BENYI"
+      ],
+      "big_data_sources": [
+        "S-CTEXT",
+        "S-WORLDCAT",
+        "S-NCL-RBOOK"
+      ],
+      "cross_references": [
+        "S-ZHOUYI-ZHENGYI",
+        "S-ZHOUYI-BENYI",
+        "S-HARVARD-YENCHING",
+        "S-LYNN-COLUMBIA",
+        "S-SITE-HEXAGRAMS",
+        "S-NCL-BENYI-1773"
+      ],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "業主定案 2026-09-27《神煞易經》：八字→紫微四柱核對→特星神煞（太極紫微易經派取法）→易經。卦名卦義沿用 C-ICHING-TEXT 同一套來源；神煞吉凶含義尚無登記來源，解盤只寫名稱、柱位與推導，不寫吉凶。"
     }
   ]
 }

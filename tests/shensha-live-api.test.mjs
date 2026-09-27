@@ -4,18 +4,23 @@ import { createRequire } from 'node:module';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
-// Synthetic fixtures: 丙寅日、爐中火。Expected names and pillar locations
-// are hand derived from the selected source rules, not from engine output.
+// Synthetic fixtures: 1990-01-01 男，己巳年／丙子月／丙寅日，只換時柱。
+// 預期名稱依「太極紫微易經派取法」（docs/技能戰鬥檔案/八字/shensha-rule-integrity/references/參考命盤取法.md）手算，
+// 不是抄引擎輸出。年、月、日三柱固定：年柱天德（子月天德在巳）；月柱龍德（巳年順七至子）、六厄（巳酉丑六厄在子）。
+const fixedPillars = { year: ['天德'], month: ['龍德', '六厄'], day: [] };
 const fixtures = [
-  ['05:30', '辛卯', ['桃花']],
-  // 神峰通考卷四14：寅日順隔一支至辰時；只落時柱。
-  ['07:30', '壬辰', ['隔角']],
-  // 丙寅日依袁本將星取午，午時落在被查時柱。
-  ['11:30', '甲午', ['羊刃', '將星']],
-  ['15:30', '丙申', ['文昌貴人', '驛馬']],
-  // 己巳年為陰年，男命按《太黅》指定法由巳順移五位至戌；只查時柱。
+  // 卯：天狗（巳順十）、災煞（巳酉丑在卯）、沐浴（丙至卯）、桃花（寅午戌咸池卯）、外桃花（桃花在時）
+  ['05:30', '辛卯', ['天狗', '災煞', '沐浴', '桃花', '外桃花']],
+  // 壬辰：月德（子月壬，時干壬）、隔角（寅順兩位辰）
+  ['07:30', '壬辰', ['月德', '隔角']],
+  // 午：月破（子沖午）、將星（寅午戌將星午）、羊刃（丙刃午）
+  ['11:30', '甲午', ['月破', '將星', '羊刃']],
+  // 申：天德合（子月合在申）、日破（寅沖申）、驛馬（寅日馬在申）、文昌（丙見申）
+  ['15:30', '丙申', ['天德合', '日破', '驛馬', '文昌貴人']],
+  // 戌：元辰（己巳陰年男命順五至戌）、華蓋（寅午戌華蓋戌）
   ['19:30', '戊戌', ['元辰', '華蓋']],
-  ['21:30', '己亥', ['天乙貴人', '驛馬']],
+  // 亥：驛馬（巳年馬在亥）、天乙（丙見亥）
+  ['21:30', '己亥', ['驛馬', '天乙貴人']],
 ];
 const base = process.env.DUAL_CHART_TEST_URL || 'http://127.0.0.1:8888';
 assert.match(base, /^http:\/\/(localhost|127\.0\.0\.1):\d+$/, 'Synthetic test credentials stay on the local development server');
@@ -32,7 +37,6 @@ const require = createRequire(import.meta.url);
 const loadShenShaUi = require('./helpers/load-shensha-ui.cjs');
 const component = loadShenShaUi('app/dual-chart/BaziChart.tsx');
 const { inspectShenShaDelivery, inspectShenShaRow, inspectShenShaPlacement, inspectShenShaCard } = require('../scripts/dual-chart-shensha-display-check.cjs');
-const professionalComponent = loadShenShaUi('components/bazi/customer/ProfessionalBaziTable.tsx');
 
 for (const [birthTime, hour, expected] of fixtures) {
   const response = await req('/api/dual-chart', { birthDate: '1990-01-01', birthTime, gender: 'male', calendarType: 'solar', timezone: 'Asia/Taipei' }, cookie);
@@ -49,12 +53,15 @@ for (const [birthTime, hour, expected] of fixtures) {
   assert.equal(pc.traditionalInterpretationGate.shenShaRules.wenchang.outputStatus, 'READY');
   assert.equal(pc.traditionalInterpretationGate.interpretationReady, false, 'God-name output must not unlock advanced judgments');
   assert.deepEqual(pc.shenSha, data.core.shenSha);
-  assert.deepEqual(data.core.shenSha.map(s => s.name).sort(), [...expected].sort(), `${birthTime} fixed expected names`);
+  const expectedByPillar = { ...fixedPillars, hour: expected };
+  for (const key of ['year', 'month', 'day', 'hour']) {
+    assert.deepEqual(data.specialStars.byPillar[key].map(s => s.name), expectedByPillar[key], `${birthTime} ${key} hand-derived names`);
+  }
+  assert.equal(data.specialStars.card.state, 'received', `${birthTime}: bazi/ziwei pillars agree and every rule is evaluated`);
   for (const item of data.core.shenSha) {
-    assert.match(item.evidence, /^HOUR 支/, `${birthTime} only the hour pillar matches`);
-    assert.equal(item.ruleVersion, item.id === 'gejiao' ? 'SHENFENG_1929_GEJIAO_DAY_HOUR_V1' : item.id === 'yangren' ? 'MINGLI_TANYUAN_YANGREN_V1' : item.id === 'yuanchen' ? 'TAIJIN_V6_YUANCHEN_YEAR_HOUR_V1' : item.id === 'jiangxing' ? 'JIANGXING_YUAN_1937_DAY_TO_YEAR_MONTH_HOUR' : 'MINGLI_TANYUAN_SHENSHA_V5');
-    assert.equal(item.source.sourceId, item.id === 'gejiao' ? 'S-SHENFENG-1929-V2-SCAN' : item.id === 'yuanchen' ? 'S-TAIJIN-V6-ZJLIB-SCAN' : 'S-MINGLI-TANYUAN-1937-SCAN');
-    assert.ok(item.source.printedPage && item.source.url);
+    // 有原典頁碼的（羊刃、元辰、天乙、文昌、驛馬、華蓋）必附完整來源；太極紫微易經派取法項目不得冒充原典。
+    if (item.source) assert.ok(item.source.printedPage && item.source.url);
+    else assert.equal(item.ruleVersion, 'REFERENCE_CHART_1974_V1');
   }
   const html = renderToStaticMarkup(React.createElement(component.PillarGrid, { result: data }));
   assert.deepEqual(inspectShenShaDelivery(data, inspectShenShaRow(html)), [], `${birthTime}: API data reaches the original four pillars exactly`);
@@ -62,35 +69,27 @@ for (const [birthTime, hour, expected] of fixtures) {
   assert.deepEqual(inspectShenShaCard(data, renderToStaticMarkup(React.createElement(component.ShenShaCard, { result: data }))), [], `${birthTime}: all original card content is directly visible`);
   assert.equal(html.includes('暫未提供'), false);
   const displayed = expected;
+  const cardHtml = renderToStaticMarkup(React.createElement(component.ShenShaCard, { result: data }));
   assert.equal(html.includes('天乙貴人'), expected.includes('天乙貴人'), 'Tianyi follows the selected edition');
   assert.equal(html.includes('文昌貴人'), expected.includes('文昌貴人'), 'Wenchang follows the selected edition');
   for (const name of displayed) assert.ok(html.includes(name), `${birthTime}: API data reaches the actual PillarGrid component`);
   if (!expected.length) assert.match(html, /<tr[^>]*><td><\/td><td><\/td><td><\/td><td><\/td><th scope="row">特星神煞<\/th><\/tr>/, 'No-match row stays empty by user display policy');
   assert.equal(html.includes('未命中'), false);
-  const professional = renderToStaticMarkup(React.createElement(professionalComponent.ProfessionalBaziTable, { result: data.bazi, hourUnknown: false }));
-  for (const name of displayed) assert.ok(professional.includes(name + ' · HOUR'), `${birthTime}: basic professional table must also show the eligible item while advanced reading is blocked`);
-  assert.equal(professional.includes('天乙貴人 · HOUR'), expected.includes('天乙貴人'));
-  assert.equal(professional.includes('文昌貴人 · HOUR'), expected.includes('文昌貴人'));
+  for (const name of displayed) assert.ok(cardHtml.includes(`>${name}</li>`), `${birthTime}: ${name} reaches the special-stars card`);
   if (birthTime === '21:30') {
     fs.mkdirSync('.tmp/dual-chart-ui-qa', { recursive: true });
     fs.writeFileSync('.tmp/dual-chart-ui-qa/live-data.json', JSON.stringify(data, null, 2));
   }
-  const unknownHour = renderToStaticMarkup(React.createElement(professionalComponent.ProfessionalBaziTable, { result: data.bazi, hourUnknown: true }));
-  assert.equal(unknownHour.includes(' · HOUR'), false, 'unknown-hour display cannot leak a stale hour match in its source details');
   console.log(`PASS: 1990-01-01 ${birthTime}｜${hour}｜${displayed.join('、') || '顯示空欄'}｜API資料與輸出政策、實際元件一致`);
 }
-// Same 寅 day branch and 卯 hour as the positive case, but 甲寅 is 大溪水,
-// so the selected 火局／火納音 condition fails. The old unconditional day
-// branch lookup would incorrectly return 桃花 for this selected method.
+// 太極紫微易經派桃花不加納音條件：甲寅日（大溪水）見卯時，舊袁本納音法不命中，本派命中時柱桃花＋外桃花。
 const contrastResponse = await req('/api/dual-chart', { birthDate: '1990-02-18', birthTime: '05:30', gender: 'male', calendarType: 'solar', timezone: 'Asia/Taipei' }, cookie);
 assert.equal(contrastResponse.status, 200);
 const { data: contrast } = await contrastResponse.json();
 assert.equal(contrast.core.pillars.day.ganZhi, '甲寅');
 assert.equal(contrast.core.pillars.hour.ganZhi, '丁卯');
-assert.equal(contrast.bazi.professionalChart.traditionalInterpretationGate.shenShaRules.taohua.ready, true);
-assert.equal(contrast.core.shenSha.some(s => s.id === 'taohua'), false);
+assert.ok(contrast.specialStars.byPillar.hour.some(s => s.id === 'taohua'));
+assert.ok(contrast.specialStars.byPillar.hour.some(s => s.id === 'waiTaohua'));
 assert.deepEqual(contrast.core.shenSha, contrast.bazi.professionalChart.shenSha);
-const contrastHtml = renderToStaticMarkup(React.createElement(component.PillarGrid, { result: contrast }));
-assert.equal(contrastHtml.includes('桃花'), false);
-console.log('PASS: 1990-02-18 05:30｜甲寅日丁卯時｜納音不符，桃花不命中；舊日支通用查表反例');
+console.log('PASS: 1990-02-18 05:30｜甲寅日丁卯時｜本派桃花不加納音條件，時柱桃花、外桃花命中');
 console.log('PASS: live API and rendered component; browser layout still requires separate visual verification');

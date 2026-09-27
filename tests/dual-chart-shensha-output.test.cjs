@@ -124,7 +124,13 @@ assert.equal(enHtml.includes('symbolic stars'), false);
 console.log('PASS: bilingual source comparisons distinguish selected-method readiness and require located evidence');
 
 const { inspectShenShaCoverage } = require('../scripts/dual-chart-shensha-display-check.cjs');
-const expectedIds = ['tianyi', 'wenchang', 'taohua', 'yima', 'huagai', 'yangren', 'yuanchen', 'jiangxing', 'gejiao'];
+const legacyIds = ['tianyi', 'wenchang', 'taohua', 'yima', 'huagai', 'yangren', 'yuanchen', 'jiangxing', 'gejiao'];
+// 2026-09-27 reference-chart expansion (owner decision): the full baseline the card must evaluate.
+const expectedIds = [...legacyIds, 'tiande', 'yuede', 'tiandehe', 'longde', 'tiangou', 'jinkui', 'wugui', 'zaisha', 'liue', 'yuepo', 'ripo', 'muyu', 'waiTaohua'];
+const fixtureFor = ids => ({
+  bazi: { professionalChart: { traditionalInterpretationGate: { shenShaRules: Object.fromEntries(ids.map(id => [id, { outputStatus: 'READY' }])) } } },
+  specialStars: { coverage: ids.map(id => ({ id, status: 'NOT_MATCHED' })), byPillar: Object.fromEntries(pillars.map(key => [key, []])) },
+});
 const connected = {
   bazi: { professionalChart: { traditionalInterpretationGate: { shenShaRules: Object.fromEntries(expectedIds.map(id => [id, { outputStatus: 'READY' }])) } } },
   specialStars: {
@@ -198,7 +204,10 @@ console.log('PASS: shensha is one unfolded row under the original four pillars')
 
 const { inspectShenShaCard } = require('../scripts/dual-chart-shensha-display-check.cjs');
 deliveryFixture.bazi.professionalChart.pillarDetails = Object.fromEntries(pillars.map(key => [key, { ganzhi: '甲子' }]));
-const card = value => renderToStaticMarkup(React.createElement(target.exports.ShenShaCard, { result: value }));
+const { buildShenShaCardView } = loadUi('lib/dual-chart-shensha-card.ts');
+// The card view is computed on the backend; fixtures rebuild it the same way the API does.
+const withCard = value => { value.specialStars.card = buildShenShaCardView(value.specialStars, value.bazi.professionalChart.traditionalInterpretationGate.coreReady === true); return value; };
+const card = value => renderToStaticMarkup(React.createElement(target.exports.ShenShaCard, { result: withCard(value) }));
 const cardHtml = card(deliveryFixture);
 assert.deepEqual(inspectShenShaCard(deliveryFixture, cardHtml), []);
 assert.equal(/本次未出現|各項判定|data-shensha-rule=/.test(cardHtml), false, 'customer card shows actual results without the rule-status list');
@@ -213,11 +222,41 @@ assert.ok(card(missingCard).includes('資料尚未完整'));
 const blockedCard = structuredClone(deliveryFixture);
 blockedCard.bazi.professionalChart.traditionalInterpretationGate.coreReady = false;
 assert.equal(card(blockedCard).includes('data-shensha-result='), false);
+const noCardHtml = renderToStaticMarkup(React.createElement(target.exports.ShenShaCard, { result: { ...structuredClone(deliveryFixture), specialStars: { ...deliveryFixture.specialStars, card: undefined } } }));
+assert.ok(noCardHtml.includes('data-shensha-card-state="unavailable"'), 'without a backend card view the frontend must not compute its own result');
+// A pending rule only marks the pillars it actually inspects (五鬼 checks month, day and hour only).
+const partialPending = structuredClone(deliveryFixture);
+partialPending.specialStars.coverage.push({ id: 'wugui', name: '五鬼', status: 'BLOCKED_SOURCE' });
+const pendingHtml = card(partialPending);
+const colState = key => pendingHtml.match(new RegExp(`data-shensha-column="${key}" data-shensha-column-state="([A-Z]+)"`))?.[1];
+assert.equal(colState('year'), 'NONE', 'a rule that never inspects the year pillar must not mark it pending');
+assert.equal(colState('month'), 'PENDING');
+assert.equal(colState('day'), 'PENDING');
+assert.equal(colState('hour'), 'HIT');
+assert.ok(pendingHtml.includes('另有五鬼待確認'), 'a hit column still discloses its own pending rule');
+assert.ok(pendingHtml.includes('五鬼（月柱、日柱、時柱）'), 'notice names the affected pillars');
+assert.ok(pendingHtml.includes('data-shensha-card-state="partial"'));
+assert.ok(cardHtml.includes('神煞由已核對一致的八字、紫微四柱衍生'), 'the card states where the result is derived from');
 console.log('PASS: calculated shensha results stay complete and unfolded without repeated rule-status text');
+console.log('PASS: backend card view drives the card; pending rules only mark the pillars they inspect');
+// 《神煞易經》第④層：照印後端 iching 檢視；擋下時如實顯示原因。
+const withIching = structuredClone(deliveryFixture);
+withIching.specialStars.iching = { state: 'READY', chain: [{ step: '八字', text: 'A' }, { step: '紫微', text: 'B' }, { step: '特星神煞', text: 'C' }, { step: '易經', text: 'D' }],
+  hexagram: { name: '測試卦', glyph: '䷀', kingWen: 1, changingLine: 2, essence: 'e', advice: 'a' }, items: [{ name: '桃花', pillar: '時柱', derivation: '後端推導原文', reference: true }],
+  distribution: [], reading: ['後端解盤第一句'], credibility: { status: 'PENDING_POOL', line: '神煞易經解盤：仍在查證中' } };
+const ichingHtml = card(withIching);
+assert.ok(ichingHtml.includes('>神煞易經</h3>'));
+for (const text of ['後端解盤第一句', '後端推導原文', '桃花＊', '測試卦', '仍在查證中']) assert.ok(ichingHtml.includes(text), `prints backend text: ${text}`);
+assert.deepEqual(inspectShenShaCard(withIching, ichingHtml), [], 'the I Ching section does not disturb the four-pillar card');
+withIching.specialStars.iching = { state: 'BLOCKED', chain: [{ step: '八字', text: 'A' }], reason: '後端擋下原因' };
+const blockedIchingHtml = card(withIching);
+assert.ok(blockedIchingHtml.includes('後端擋下原因') && !blockedIchingHtml.includes('測試卦'));
+console.log('PASS: 神煞易經 prints the backend chain, hexagram, every derivation and blocked reasons verbatim');
 
 const { inspectRequestedShenShaScope } = require('../scripts/dual-chart-shensha-display-check.cjs');
-assert.equal(inspectRequestedShenShaScope(connected).length,11,'transport completeness cannot certify newly requested rules');
-const falseClaim = structuredClone(connected);
+const legacyScope = fixtureFor(legacyIds);
+assert.equal(inspectRequestedShenShaScope(legacyScope).length,11,'transport completeness cannot certify newly requested rules');
+const falseClaim = structuredClone(legacyScope);
 falseClaim.specialStars.rules = { tiandehe: { ready: true, outputStatus: 'READY' } };
 assert.equal(inspectRequestedShenShaScope(falseClaim).length,11,'ready flag without evaluated coverage is insufficient');
 falseClaim.specialStars.coverage.push({id:'tiandehe',status:'NOT_MATCHED'});

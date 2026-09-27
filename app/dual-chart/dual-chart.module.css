@@ -119,6 +119,24 @@
 .shenshaPillars ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .shenshaPillars li{font-size:16px;color:#f2dba8;line-height:1.7;overflow-wrap:anywhere}
 .shenshaEmpty{color:#bcb6ca;font-size:16px}
+.shenshaPillars li[data-shensha-method=reference]{white-space:nowrap;letter-spacing:-.02em}
+.shenshaPillars li[data-shensha-method=reference]::after{content:'＊';font-size:11px;color:#bcb6ca}
+@media (max-width:400px){.shenshaPillars li{font-size:15px}.shenshaPillars>div{padding:8px 2px}}
+.shenshaCard>p.shenshaFootnote{margin:10px 0 0;font-size:13px;color:#bcb6ca}
+.shenshaCard>p.shenshaSubtitle{margin:-6px 0 12px;font-size:13px;color:#bcb6ca}
+.shenshaIching{margin-top:16px;padding-top:14px;border-top:1px solid #bba4d033;min-width:0}
+.shenshaIching>p{font-size:15px;line-height:1.8;color:#e9e2f5;margin:0 0 8px}
+.shenshaChain{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:4px}
+.shenshaChain li{display:grid;grid-template-columns:5em minmax(0,1fr);gap:6px;font-size:14px;line-height:1.6;color:#d8cfe8;overflow-wrap:anywhere}
+.shenshaChain b{color:#f2dba8}
+.shenshaIching>p.shenshaHexagram{font-size:20px;font-weight:800;color:#f0e0ff}
+.shenshaHexagram span{margin-inline-end:8px;font-size:26px}
+.shenshaHexagram small{margin-inline-start:8px;font-size:13px;font-weight:400;color:#bcb6ca}
+.shenshaDerivation{width:100%;border-collapse:collapse;margin:8px 0;font-size:14px;table-layout:fixed}
+.shenshaDerivation th,.shenshaDerivation td{padding:6px 4px;border-bottom:1px solid #bba4d022;text-align:start;vertical-align:top;overflow-wrap:anywhere;color:#e9e2f5}
+.shenshaDerivation th{color:#bcb6ca;font-weight:600}
+.shenshaDerivation th:nth-child(1){width:5em}.shenshaDerivation th:nth-child(2){width:3.5em}
+.shenshaPillarNote{display:block;margin-top:6px;font-size:13px;line-height:1.5;color:#ffe1a7;overflow-wrap:anywhere}
 .printPreview .shenshaCard{display:none}
 @media print{.shenshaCard{display:none}}
 .printPreview .baziMain>p.shenshaNote{font-size:11.5px;line-height:1.5;margin-top:6px}

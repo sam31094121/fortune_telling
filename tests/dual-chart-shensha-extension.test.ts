@@ -3,6 +3,7 @@ import { createBaziCore, BRANCHES, type Stem, type BaziProfessionalResult } from
 import { buildDualChartShenSha } from '../lib/dual-chart-shensha';
 import { getBaziTraditionalOutputGate } from '../lib/bazi-traditional-gate';
 import { calculateDualChart } from '../lib/dual-chart';
+import { buildShenShaIChing } from '../lib/shensha-iching';
 
 // Independent transcription: 1937 printed p72, PDF103; 1938 PDF80–81.
 const expected: Record<Stem, string> = { 甲:'卯',乙:'辰',丙:'午',丁:'未',戊:'午',己:'未',庚:'酉',辛:'戌',壬:'子',癸:'丑' };
@@ -33,9 +34,10 @@ assert.equal(JSON.stringify(base),snapshot,'shared input is never mutated');
 assert.equal(scoped.rules.yangren.outputStatus,'READY');
 assert.equal(scoped.rules.tianyi.outputStatus,'READY');
 assert.equal(scoped.rules.wenchang.outputStatus,'READY');
-assert.deepEqual(scoped.byPillar.hour.map(s=>s.name),['羊刃']);
-assert.deepEqual(scoped.byPillar.year.map(s=>s.name),['驛馬']);
-assert.equal(scoped.coverage.find(s=>s.id==='taohua')?.status,'NOT_MATCHED');
+// No gender supplied: 元辰 is withheld as BLOCKED_DATA, every other paper-chart item still appears.
+assert.deepEqual(scoped.byPillar.hour.map(s=>s.name),['龍德','六厄','羊刃','桃花','外桃花']);
+assert.deepEqual(scoped.byPillar.year.map(s=>s.name),['天德合','驛馬','隔角']);
+assert.equal(scoped.coverage.find(s=>s.id==='taohua')?.status,'MATCHED');
 assert.equal(scoped.coverage.some(s=>!['MATCHED','NOT_MATCHED','BLOCKED_DATA'].includes(s.status)),false,'adopted scope contains no reference-only gaps');
 assert.equal(scoped.coverage.find(s=>s.id==='yuanchen')?.status,'BLOCKED_DATA','missing gender is not a miss');
 
@@ -59,13 +61,13 @@ for (const [yearIndex,yearBranch] of BRANCHES.entries()) for (const gender of ['
   if(hits.length) assert.equal(hits[0].evidence,`HOUR 支${hourBranch}`);
   yuanchenCases++;
 }
+// Reference-chart method (owner decision 2026-09-27): day-branch trine, all four pillars including the day itself.
 let jiangxingCases=0;
-for (const dayBranch of BRANCHES) for (const targetKey of ['year','month','day','hour'] as const) for (const candidate of BRANCHES) {
+for (const dayBranch of BRANCHES) for (const targetKey of ['year','month','hour'] as const) for (const candidate of BRANCHES) {
   const fixture=structuredClone(base);
   fixture.shenSha=[];
-  const anchorBranch=targetKey==='day'?candidate:dayBranch;
-  const target=expectedJiangxing[anchorBranch];
-  fixture.pillars.day.earthlyBranch=anchorBranch;
+  const target=expectedJiangxing[dayBranch];
+  fixture.pillars.day.earthlyBranch=dayBranch;
   for (const key of ['year','month','hour'] as const) {
     const pillar=fixture.pillars[key];
     if (pillar === 'UNKNOWN') throw new Error(`fixture requires known ${key}`);
@@ -73,34 +75,32 @@ for (const dayBranch of BRANCHES) for (const targetKey of ['year','month','day',
   }
   const targetPillar=fixture.pillars[targetKey];
   if (targetPillar === 'UNKNOWN') throw new Error(`fixture requires known ${targetKey}`);
-  if(targetKey!=='day') targetPillar.earthlyBranch=candidate;
+  targetPillar.earthlyBranch=candidate;
   const result=buildDualChartShenSha(fixture,gate,'male');
-  const hits=result.raw.filter(s=>s.id==='jiangxing');
-  assert.equal(hits.length,targetKey!=='day'&&candidate===target?1:0,`${dayBranch}/${targetKey}/${candidate}`);
-  assert.equal(result.byPillar.day.some(s=>s.id==='jiangxing'),false,'day is anchor, never target');
+  const hitKeys=(['year','month','day','hour'] as const).filter(k=>result.byPillar[k].some(s=>s.id==='jiangxing'));
+  const expectedKeys=(['year','month','day','hour'] as const).filter(k=>(k===targetKey&&candidate===target)||(k==='day'&&dayBranch===target));
+  assert.deepEqual(hitKeys,expectedKeys,`${dayBranch}/${targetKey}/${candidate}`);
   jiangxingCases++;
 }
 const blocked=buildDualChartShenSha(base,{...gate,coreReady:false});
-// Independent expansion of the original 日與時隔一字 text, not imported from the implementation.
-// The scan explicitly supplies 丑卯、辰午、未酉、戌子 as golden pairs.
+// Reference-chart method: day branch advanced two places, inspected in year, month and hour.
 const gejiaoPairs = { 子:'寅',丑:'卯',寅:'辰',卯:'巳',辰:'午',巳:'未',午:'申',未:'酉',申:'戌',酉:'亥',戌:'子',亥:'丑' };
 let gejiaoCases=0;
-for (const day of BRANCHES) for (const hour of BRANCHES) {
+for (const day of BRANCHES) for (const key of ['year','month','hour'] as const) for (const candidate of BRANCHES) {
   const fixture=structuredClone(base);
   fixture.shenSha=[];
-  if(fixture.pillars.hour==='UNKNOWN') throw new Error('known hour required');
+  const target=gejiaoPairs[day] as typeof BRANCHES[number];
   fixture.pillars.day.earthlyBranch=day;
-  fixture.pillars.hour.earthlyBranch=hour;
-  // Put the target in both other pillars: neither is an eligible location.
-  fixture.pillars.year.earthlyBranch=gejiaoPairs[day] as typeof BRANCHES[number];
-  fixture.pillars.month.earthlyBranch=gejiaoPairs[day] as typeof BRANCHES[number];
+  for (const p of ['year','month','hour'] as const) {
+    const model=fixture.pillars[p];
+    if(model==='UNKNOWN') throw new Error('known pillars required');
+    model.earthlyBranch=p===key?candidate:BRANCHES.find(b=>b!==target)!;
+  }
   const output=buildDualChartShenSha(fixture,gate,'male');
-  const matched=hour===gejiaoPairs[day];
+  const matched=candidate===target;
   assert.equal(output.rules.gejiao.outputStatus,'READY');
-  assert.deepEqual(output.raw.filter(s=>s.id==='gejiao').map(s=>s.evidence),matched?[`HOUR 支${hour}`]:[]);
-  assert.deepEqual(output.coverage.find(s=>s.id==='gejiao')?.matchedPillars,matched?['hour']:[]);
-  assert.equal(output.coverage.find(s=>s.id==='gejiao')?.status,matched?'MATCHED':'NOT_MATCHED');
-  for(const p of ['year','month','day'] as const) assert.equal(output.byPillar[p].some(s=>s.id==='gejiao'),false);
+  assert.deepEqual(output.coverage.find(s=>s.id==='gejiao')?.matchedPillars,matched?[key==='year'?'year':key]:[]);
+  assert.equal(output.byPillar.day.some(s=>s.id==='gejiao'),false,'day is anchor, never target');
   gejiaoCases++;
 }
 assert.equal(blocked.raw.some(s=>s.id==='gejiao'),false);
@@ -113,17 +113,49 @@ assert.ok(Object.values(invalidOutput.byPillar).every(a=>a.length===0),'caller g
 assert.ok(invalidOutput.coverage.filter(s=>s.status!=='UNSUPPORTED').every(s=>s.status==='BLOCKED_CORE'),'blocked core must not look like a miss');
 const partial: BaziProfessionalResult=structuredClone(base);
 partial.pillars.hour='UNKNOWN';
-assert.equal(buildDualChartShenSha(partial,gate).coverage.find(s=>s.id==='gejiao')?.status,'BLOCKED_DATA');
-assert.equal(buildDualChartShenSha(partial,gate).raw.some(s=>s.id==='gejiao'),false);
+assert.equal(buildDualChartShenSha(partial,gate).coverage.find(s=>s.id==='waiTaohua')?.status,'BLOCKED_DATA','unknown hour cannot be a 外桃花 miss');
+assert.equal(buildDualChartShenSha(partial,gate).raw.some(s=>s.evidence.startsWith('HOUR')),false);
 assert.equal(buildDualChartShenSha(partial,gate).raw.some(s=>s.id==='yangren'&&s.evidence.startsWith('HOUR')),false);
 const input={birthDate:'1974-06-28',birthTime:'18:00',gender:'male',calendarType:'solar',timezone:'Asia/Taipei'};
 const actual=calculateDualChart(input);
 assert.deepEqual(actual.core.pillars,base.pillars,'extension cannot change the four pillars');
 assert.deepEqual(actual.core.shenSha,actual.bazi.professionalChart.shenSha);
-assert.deepEqual(actual.specialStars.byPillar.hour.map(s=>s.name),['羊刃','元辰']);
+// Golden: owner's paper chart 1974-06-28 18:00 male (甲寅／庚午／庚子／乙酉), 17 items pillar by pillar.
+const paper={ year:['天德合','驛馬','隔角'], month:['金匱','五鬼','沐浴','日破'], day:['天狗','災煞','月破','將星'], hour:['龍德','六厄','元辰','羊刃','桃花','外桃花'] };
+for (const key of ['year','month','day','hour'] as const) assert.deepEqual(actual.specialStars.byPillar[key].map(s=>s.name),paper[key],`paper chart ${key}`);
+assert.equal(actual.specialStars.card.state,'received');
+assert.ok(actual.specialStars.coverage.every(s=>['MATCHED','NOT_MATCHED'].includes(s.status)),'every rule evaluated for the paper chart');
+// 《神煞易經》第④層：同一張盤起卦，每一個命中的神煞都逐項延伸，順序固定 八字→紫微→特星神煞→易經。
+const ic=actual.specialStars.iching;
+assert.equal(ic.state,'READY');
+if(ic.state==='READY'){
+  assert.deepEqual(ic.chain.map(c=>c.step),['八字','紫微','特星神煞','易經']);
+  assert.equal(ic.items.length,17,'every shensha extends into the reading');
+  for (const key of ['year','month','day','hour'] as const) {
+    const label={year:'年柱',month:'月柱',day:'日柱',hour:'時柱'}[key];
+    assert.deepEqual(ic.items.filter(i=>i.pillar===label).map(i=>i.name),paper[key],`reading keeps ${key} in the card order`);
+  }
+  assert.ok(ic.items.every(i=>i.derivation&&!i.derivation.includes('；')),'derivation is customer-readable');
+  assert.ok(ic.reading.some(line=>line.includes(ic.hexagram.name)));
+  assert.ok(!ic.reading.join('').match(/主(吉|凶)|大吉|大凶|必定/),'no unsourced good/bad verdicts');
+  assert.equal(ic.credibility.status,'PENDING_POOL');
+  assert.ok(!ic.credibility.line.includes('已通過交叉比對'),'unverified claim cannot sound verified');
+  assert.deepEqual(calculateDualChart(input).specialStars.iching,ic,'same chart, same hexagram and reading');
+}
+// 八字紫微四柱不一致：停在核對關，不判定、不自動改任一套。
+const mismatch=buildDualChartShenSha(base,gate,'male',{passed:false,mismatches:['日柱：八字庚子、紫微辛丑']});
+assert.ok(Object.values(mismatch.byPillar).every(a=>a.length===0));
+assert.ok(mismatch.card.notice?.includes('日柱：八字庚子、紫微辛丑'));
+assert.ok(mismatch.coverage.every(s=>s.reason.includes('八字與紫微四柱不一致')));
+const blockedIching=buildShenShaIChing({pillars:{year:'甲寅',month:'庚午',day:'庚子',hour:'乙酉'},pillarCheckPassed:false,card:mismatch.card,iching:{status:'UNAVAILABLE_BIRTH_TIME_REQUIRED',reason:'x'}});
+assert.equal(blockedIching.state,'BLOCKED','no hexagram when bazi and ziwei disagree');
+const lateZi=calculateDualChart({...input,birthTime:'23:30'});
+// Same pillar check as 三合一 (runZiweiLayer + verifyFourPillars): late-zi keeps one consistent day pillar.
+assert.equal(lateZi.specialStars.card.state,'received');
+assert.equal(lateZi.core.pillars.day.ganZhi,'庚子');
 assert.equal(actual.specialStars.coverage.find(s=>s.id==='yuanchen')?.status,'MATCHED');
 assert.deepEqual(calculateDualChart(input).specialStars,actual.specialStars,'repeat result deterministic');
 const changed=calculateDualChart({...input,birthTime:'15:30'});
 assert.equal(changed.core.shenSha.some(s=>s.id==='yangren'),false,'different hour does not inherit a hardcoded hit');
 assert.equal(base.shenSha instanceof Array&&base.shenSha.some(s=>s.id==='yangren'),false,'other cards retain original shared core');
-console.log(`PASS ${cases} 羊刃 combinations + ${yuanchenCases} 元辰 combinations + ${jiangxingCases} 將星 combinations + ${gejiaoCases} 隔角 combinations + gates, missing data, scope, alternate hour, determinism and shared-core isolation`);
+console.log(`PASS paper chart 17/17 + bazi/ziwei pillar gate + ${cases} 羊刃 combinations + ${yuanchenCases} 元辰 combinations + ${jiangxingCases} 將星 combinations + ${gejiaoCases} 隔角 combinations + gates, missing data, scope, alternate hour, determinism and shared-core isolation`);

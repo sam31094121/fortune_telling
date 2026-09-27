@@ -6,12 +6,11 @@ import ShenShaSourceEvidence, { ShenShaComparisonSummary, ShenShaEvidenceLinks }
 import { shenShaDisplayCopy, shenShaDisplayNames } from '@/lib/shensha-display-copy';
 
 const order = ['hour', 'day', 'month', 'year'] as const;
-const cardOrder = ['year', 'month', 'day', 'hour'] as const;
 const labels = { hour: '時', day: '日', month: '月', year: '年' };
 const shenShaLabels = shenShaDisplayNames.zh;
 function shenShaAvailability(result: DualChartResult) {
   const gate = result.bazi.professionalChart.traditionalInterpretationGate;
-  const allowed = new Set(Object.entries(gate?.shenShaRules ?? {}).filter(([, rule]) => gate?.coreReady && rule.ready && rule.status === 'VERIFIED' && rule.outputStatus === 'READY').map(([id]) => id));
+  const allowed = new Set(Object.entries(gate?.shenShaRules ?? {}).filter(([, rule]) => gate?.coreReady && rule.ready && (rule.status === 'VERIFIED' || (rule as { referenceMethod?: boolean }).referenceMethod === true) && rule.outputStatus === 'READY').map(([id]) => id));
   const hasData = Array.isArray(result.core.shenSha);
   const restricted = Object.entries(shenShaLabels).filter(([id]) => !allowed.has(id));
   const isConflict = (id: string) => {
@@ -57,25 +56,38 @@ export function PillarGrid({ result, compact = false, language = 'zh' }: { resul
   </table>;
 }
 
-/** Independent, unfolded card; consumes the same server result as the chart. */
-export function ShenShaCard({ result }: { result: DualChartResult }) {
-  const stars = result.specialStars;
-  const { allowed } = shenShaAvailability(result);
-  const completeData = Boolean(stars && Array.isArray(stars.raw) && Array.isArray(stars.coverage) && stars.coverage.length && order.every(key => Array.isArray(stars.byPillar?.[key])));
-  const coreReady = result.bazi.professionalChart.traditionalInterpretationGate?.coreReady === true;
-  const pending = completeData ? stars.coverage.filter(item => !['MATCHED', 'NOT_MATCHED'].includes(item.status)) : [];
-  return <section className={styles.shenshaCard} aria-label="特星神煞" data-screen-arrow-target="dual-chart-special-stars" data-shensha-card-state={!completeData ? 'unavailable' : !coreReady || pending.length ? 'partial' : 'received'}>
-    <h3>特星神煞</h3>
-    {!completeData ? <p role="status">神煞資料尚未完整，暫不能判斷有無結果。</p> : <>
-      {(!coreReady || pending.length > 0) && <p role="status">部分項目尚未完成，不代表沒有神煞。{pending.length > 0 && `待確認：${pending.map(item => item.name).join('、')}。`}</p>}
-      <div className={styles.shenshaPillars}>{cardOrder.map(key => {
-        const hits = coreReady ? stars.byPillar[key].filter(hit => allowed.has(hit.id)) : [];
-        return <div key={key} data-shensha-column={key}><h4>{labels[key]}柱</h4>
-          <ul aria-label={`${labels[key]}柱神煞`}>{hits.map(hit => <li key={`${hit.id}:${hit.name}`} data-shensha-result={hit.id}>{hit.name}</li>)}</ul>
-          {!hits.length && <span className={styles.shenshaEmpty} aria-label={!coreReady || pending.length ? '結果尚未完整' : '本次未命中本站既有規則'}>{!coreReady || pending.length ? '待確認' : '—'}</span>}
-        </div>;
-      })}</div>
+/** 《神煞易經》第④層：只照印後端 buildShenShaIChing 的結果，不自己組句、不自己算。 */
+function ShenShaIChingSection({ view }: { view?: DualChartResult['specialStars']['iching'] }) {
+  if (!view) return null;
+  return <section className={styles.shenshaIching} aria-label="神煞易經解盤" data-shensha-iching-state={view.state}>
+    <ol className={styles.shenshaChain}>{view.chain.map(item => <li key={item.step}><b>{item.step}</b>{item.text}</li>)}</ol>
+    {view.state === 'BLOCKED' ? <p role="status">{view.reason}</p> : <>
+      <p className={styles.shenshaHexagram}><span aria-hidden="true">{view.hexagram.glyph}</span>{view.hexagram.name}<small>第{view.hexagram.changingLine}爻動</small></p>
+      {view.reading.map((line, index) => <p key={index}>{line}</p>)}
+      {view.items.length > 0 && <table className={styles.shenshaDerivation} aria-label="特星神煞逐項推導"><thead><tr><th scope="col">神煞</th><th scope="col">柱位</th><th scope="col">怎麼推出來</th></tr></thead>
+        <tbody>{view.items.map(item => <tr key={`${item.pillar}:${item.name}`}><td>{item.name}{item.reference ? '＊' : ''}</td><td>{item.pillar}</td><td>{item.derivation}</td></tr>)}</tbody></table>}
+      <p className={styles.shenshaFootnote}>{view.credibility.line}</p>
     </>}
+  </section>;
+}
+
+/** Independent, unfolded card. Every display decision comes from the backend `specialStars.card`; this only prints it. */
+export function ShenShaCard({ result }: { result: DualChartResult }) {
+  const card = result.specialStars?.card;
+  const state = card?.state ?? 'unavailable';
+  return <section className={styles.shenshaCard} aria-label="特星神煞" data-screen-arrow-target="dual-chart-special-stars" data-shensha-card-state={state}>
+    <h3>神煞易經</h3>
+    <p className={styles.shenshaSubtitle}>八字 → 紫微 → 特星神煞 → 易經</p>
+    {card?.notice && <p role="status">{card.notice}</p>}
+    {!card && <p role="status">神煞資料尚未完整，暫不能判斷有無結果。</p>}
+    {card && card.columns.length > 0 && <div className={styles.shenshaPillars}>{card.columns.map(col =>
+      <div key={col.pillar} data-shensha-column={col.pillar} data-shensha-column-state={col.state}><h4>{col.label}</h4>
+        <ul aria-label={`${col.label}神煞`}>{col.hits.map(hit => <li key={`${hit.id}:${hit.name}`} data-shensha-result={hit.id} data-shensha-method={hit.reference ? 'reference' : 'source'} title={`${hit.rule}｜${hit.sourceLabel}`}>{hit.name}</li>)}</ul>
+        {col.emptyText && <span className={styles.shenshaEmpty} aria-label={col.state === 'PENDING' ? `結果尚未完整：${col.pendingNames.join('、')}` : '本次未命中本站既有規則'}>{col.emptyText}</span>}
+        {col.note && <small className={styles.shenshaPillarNote}>{col.note}</small>}
+      </div>)}</div>}
+    {card?.footnote && <p className={styles.shenshaFootnote}>{card.footnote}</p>}
+    <ShenShaIChingSection view={result.specialStars?.iching} />
   </section>;
 }
 
@@ -95,12 +107,14 @@ export default function BaziChart({ result, monochrome = false, language = 'zh' 
   const { allowed, hasData } = shenShaAvailability(result);
   const meta = core.daYunMeta;
   const copy = shenShaDisplayCopy[language === 'en' ? 'en' : 'zh'];
+  // 來源對照只讀後端保留的原核心規則；本卡採用的參考取法不冒充原典已核對。
+  const comparisonRules = result.specialStars?.sourceComparisonRules ?? traditionalGate?.shenShaRules;
   const sourceNotes = <><p className={`${styles.micro} ${styles.shenshaNote}`}>{!allowed.size
     ? '本次神煞暫未提供；不影響四柱、藏干與十神資料。'
     : !hasData
     ? '神煞資料待補，請重新排盤；暫不判定是否命中。'
-    : <>{copy.compactAdopted} {copy.compactScope} </>}<ShenShaRestrictions result={result} language={language} /><ShenShaComparisonSummary rules={traditionalGate?.shenShaRules} language={language} includeMatched={false} /></p>
-    <ShenShaSourceEvidence rules={traditionalGate?.shenShaRules} language={language} className={styles.shenshaEvidence} /></>;
+    : <>{language === 'en' ? 'Special stars follow this site’s own Taiji–Ziwei–I Ching method; Yuan Shushan’s method is listed below for comparison. ' : '特星神煞依本站太極紫微易經派取法；下方列袁樹珊取法作來源對照。'}{copy.compactScope} </>}<ShenShaRestrictions result={result} language={language} /><ShenShaComparisonSummary rules={comparisonRules} language={language} includeMatched={false} /></p>
+    <ShenShaSourceEvidence rules={comparisonRules} language={language} className={styles.shenshaEvidence} /></>;
   return <><div className={styles.reportScroll}><div className={styles.baziReport}>
     <div className={styles.birthBand}><b>{bazi.input.name || '命主'}</b><span>{bazi.input.gender === 'male' ? '男' : '女'} · {core.pillars.year.yinYang}年</span><span>國曆 {bazi.input.birthDate}　{bazi.input.birthTime}</span><span>農曆 {core.calendar.lunarDate}</span></div>
     <div className={styles.baziColumns}>

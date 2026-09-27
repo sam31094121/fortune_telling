@@ -1,9 +1,11 @@
-import { calculateTenGod, HIDDEN_STEM_DICTIONARY, STEM_YINYANG, type Stem, type Branch } from './bazi/engine';
+import { calculateTenGod, HIDDEN_STEM_DICTIONARY, STEM_YINYANG, type Stem, type Branch, type BaziShenShaItem } from './bazi/engine';
 import { Solar } from 'lunar-typescript';
 import { createZiweiCore, createZiweiAstrolabe, hourToTimeIndex } from './ziwei/engine';
 import { analyzeBazi } from './bazi-engine';
 import { attachBaziProfessionalCoreV5, type BaziRuntimeInput } from './bazi-professional-result-v5';
-import { runBaziLayer } from './three-core-engine';
+import { runBaziLayer, runIChingLayer, runZiweiLayer } from './three-core-engine';
+import { buildShenShaIChing } from './shensha-iching';
+import { verifyFourPillars } from './three-in-one';
 import { getBaziTraditionalOutputGate } from './bazi-traditional-gate';
 import { buildDualChartShenSha } from './dual-chart-shensha';
 
@@ -21,7 +23,7 @@ export function calculateDualChart(body: unknown) {
   const hourChoices = ['zi', 'chou', 'yin', 'mao', 'chen', 'si', 'wu', 'wei', 'shen', 'you', 'xu', 'hai'];
   const hourBranchIndex = input.birthHourBranch === undefined ? undefined : hourChoices.indexOf(String(input.birthHourBranch));
   if (hourBranchIndex === -1) throw new Error('出生時辰無法辨識，請重新選擇。');
-  const { core: bazi } = runBaziLayer({ birthDate: input.birthDate, birthTime: input.birthTime, gender: input.gender, hourBranchIndex });
+  const { core: bazi, bazi: baziLayer } = runBaziLayer({ birthDate: input.birthDate, birthTime: input.birthTime, gender: input.gender, hourBranchIndex });
   if (!bazi.verification.readyForInterpretation || bazi.pillars.hour === 'UNKNOWN') throw new Error('八字資料核對未通過，暫不繼續排盤。');
   if (!getBaziTraditionalOutputGate(bazi.verification.readyForInterpretation).coreReady) throw new Error('八字來源核對未通過，暫不繼續排盤。');
   const ziwei = createZiweiCore({ date: input.birthDate, calendarType: 'solar', gender: input.gender === 'male' ? '男' : '女', timeIndex: hourToTimeIndex(Number(input.birthTime.slice(0, 2))) });
@@ -33,10 +35,28 @@ export function calculateDualChart(body: unknown) {
     return pillar !== 'UNKNOWN' && professional.professionalChart.pillarDetails[key]?.ganzhi === pillar.ganZhi;
   });
   if (!samePillars || professional.professionalChart.traditionalInterpretationGate?.coreReady !== true) throw new Error('命盤資料核對未通過，暫不提供結果，請重新排盤。');
-  const specialStars = buildDualChartShenSha(bazi, professional.professionalChart.traditionalInterpretationGate, input.gender);
+  // 特星神煞衍生鏈：客戶資料 → 八字 → 紫微 → 四柱逐字核對（沿用三合一的 runZiweiLayer＋verifyFourPillars）→ 神煞。
+  // 對不上就停在核對關，原樣列出哪一柱不同；不自動改任何一套。
+  const baziInput = { birthDate: input.birthDate, birthTime: input.birthTime, gender: input.gender as 'male' | 'female', hourBranchIndex };
+  const ziweiLayer = runZiweiLayer(baziInput, bazi);
+  const pillarLabels = { year: '年柱', month: '月柱', day: '日柱', hour: '時柱' } as const;
+  const ganZhiOf = (key: 'year' | 'month' | 'day' | 'hour') => { const p = bazi.pillars[key]; return p === 'UNKNOWN' ? '' : p.ganZhi; };
+  const baziPillars = { year: ganZhiOf('year'), month: ganZhiOf('month'), day: ganZhiOf('day'), hour: ganZhiOf('hour') };
+  const pillarCheck = ziweiLayer.status === 'READY'
+    ? verifyFourPillars(baziPillars, { year: ziweiLayer.analysis.bazi.year, month: ziweiLayer.analysis.bazi.month, day: ziweiLayer.analysis.bazi.day, hour: ziweiLayer.analysis.bazi.hour })
+    : { passed: false, differences: [] };
+  const mismatches = ziweiLayer.status === 'READY'
+    ? pillarCheck.differences.map(d => `${pillarLabels[d.pillar]}：八字${d.bazi}、紫微${d.ziwei || '缺'}`)
+    : ['紫微命盤未完成，無法核對四柱'];
+  const shenSha = buildDualChartShenSha(bazi, professional.professionalChart.traditionalInterpretationGate, input.gender, { passed: mismatches.length === 0, mismatches });
+  // 《神煞易經》第④層：同一張已核對的命盤，沿用三合一帶憑證起卦，把特星神煞串進易經解盤。
+  const iching = runIChingLayer({ input: baziInput, core: bazi, bazi: baziLayer, ziwei: ziweiLayer });
+  const specialStars = { ...shenSha, iching: buildShenShaIChing({ pillars: baziPillars, pillarCheckPassed: mismatches.length === 0, card: shenSha.card, iching }) };
   // Reuse the existing backend extension over the verified pillars; the UI only renders its results.
-  const dualCore = { ...bazi, shenSha: specialStars.raw };
-  const dualProfessionalChart = { ...professional.professionalChart, shenSha: specialStars.raw,
+  // 參考取法項目沒有原典頁碼（source 省略）；所有讀取 source 的畫面都先判斷是否存在。
+  const dualShenSha = specialStars.raw as BaziShenShaItem[];
+  const dualCore = { ...bazi, shenSha: dualShenSha };
+  const dualProfessionalChart = { ...professional.professionalChart, shenSha: dualShenSha,
     traditionalCore: dualCore,
     traditionalInterpretationGate: { ...professional.professionalChart.traditionalInterpretationGate, shenShaRules: specialStars.rules } };
   const raw = createZiweiAstrolabe(ziwei.birthInput);

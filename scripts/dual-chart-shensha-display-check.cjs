@@ -16,7 +16,9 @@ const SAMPLES = [
 ];
 const PENDING_MARKERS = ['尚待核對', '暫未提供', '資料待補'];
 // Independent baseline: removing an extension must not shrink both the result and its health criteria.
-const EXPECTED_RULE_IDS = ['tianyi', 'wenchang', 'taohua', 'yima', 'huagai', 'yangren', 'yuanchen', 'jiangxing', 'gejiao'];
+const EXPECTED_RULE_IDS = ['tianyi', 'wenchang', 'taohua', 'yima', 'huagai', 'yangren', 'yuanchen', 'jiangxing', 'gejiao',
+  // 2026-09-27 依參考命盤補齊（業主定案）：
+  'tiande', 'yuede', 'tiandehe', 'longde', 'tiangou', 'jinkui', 'wugui', 'zaisha', 'liue', 'yuepo', 'ripo', 'muyu', 'waiTaohua'];
 // Product expansion requested on 2026-09-27. This is independent of what the
 // current engine happens to return; a transport pass must not imply full delivery.
 const REQUESTED_RULES = {
@@ -133,7 +135,7 @@ function inspectShenShaDelivery(result, inspected) {
   const expected = Object.fromEntries(keys.map(key => [key, []]));
   for (const item of raw) {
     const rule = gate?.shenShaRules?.[item.id];
-    if (!gate?.coreReady || !rule?.ready || rule.status !== 'VERIFIED' || rule.outputStatus !== 'READY') continue;
+    if (!gate?.coreReady || !rule?.ready || (rule.status !== 'VERIFIED' && rule.referenceMethod !== true) || rule.outputStatus !== 'READY') continue;
     const key = keys.find(p => item.evidence?.startsWith(p.toUpperCase() + ' '));
     if (!key) { warnings.push(`後端神煞 ${item.id} 缺少有效柱位`); continue; }
     if (!expected[key].some(hit => hit.id === item.id && hit.name === item.name)) expected[key].push(item);
