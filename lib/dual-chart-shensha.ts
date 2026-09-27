@@ -33,6 +33,14 @@ const JINYU: Record<Stem, Branch> = { 甲: '辰', 乙: '巳', 丙: '未', 丁: '
 const XUETANG: Record<Stem, Branch> = { 甲: '亥', 乙: '午', 丙: '寅', 丁: '酉', 戊: '寅', 己: '酉', 庚: '巳', 辛: '子', 壬: '申', 癸: '卯' };
 const HONGYAN: Record<Stem, Branch> = { 甲: '午', 乙: '午', 丙: '寅', 丁: '未', 戊: '辰', 己: '辰', 庚: '戌', 辛: '酉', 壬: '子', 癸: '申' };
 const STEMS_ORDER = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'] as const;
+/** 2026-09-27 第二批：孤辰寡宿依年支方局、劫煞依年支三合、祿神依日干、天醫依月支前一位。 */
+const GUCHEN_GUASU: Record<Branch, [Branch, Branch]> = {
+  亥: ['寅', '戌'], 子: ['寅', '戌'], 丑: ['寅', '戌'], 寅: ['巳', '丑'], 卯: ['巳', '丑'], 辰: ['巳', '丑'],
+  巳: ['申', '辰'], 午: ['申', '辰'], 未: ['申', '辰'], 申: ['亥', '未'], 酉: ['亥', '未'], 戌: ['亥', '未'],
+};
+const JIESHA: Record<Trine, Branch> = { 申子辰: '巳', 寅午戌: '亥', 巳酉丑: '寅', 亥卯未: '申' };
+const LUSHEN: Record<Stem, Branch> = { 甲: '寅', 乙: '卯', 丙: '巳', 丁: '午', 戊: '巳', 己: '午', 庚: '申', 辛: '酉', 壬: '亥', 癸: '子' };
+
 /** 日柱所在旬的兩個空亡地支。 */
 export function xunKong(stem: Stem, branch: Branch): [Branch, Branch] {
   const start = (BRANCHES.indexOf(branch) - STEMS_ORDER.indexOf(stem) + 12) % 12; // 旬首（甲）所在地支
@@ -57,6 +65,7 @@ export const DUAL_SHENSHA_RULES: ReadonlyArray<readonly [string, string]> = [
   ['jiangxing', '將星'], ['yima', '驛馬'], ['gejiao', '隔角'], ['yuanchen', '元辰'], ['yangren', '羊刃'],
   ['taohua', '桃花'], ['waiTaohua', '外桃花'], ['tianyi', '天乙'], ['wenchang', '文昌'], ['huagai', '華蓋'],
   ['kuigang', '魁罡'], ['kongwang', '空亡'], ['jinyu', '金輿'], ['xuetang', '學堂'], ['hongyan', '紅艷'],
+  ['lushen', '祿神'], ['tianyiDoctor', '天醫'], ['jiesha', '劫煞'], ['guchen', '孤辰'], ['guasu', '寡宿'],
 ];
 
 /** 八字與紫微四柱逐字核對結果；神煞從這兩張已核對的命盤衍生，不另排四柱。 */
@@ -101,6 +110,11 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
     kongwang: reference('依日柱所在旬取旬空兩支，查年月時。'),
     jinyu: reference('日干取金輿（甲辰乙巳丙戊未丁己申庚戌辛亥壬丑癸寅），四柱皆查。'),
     xuetang: reference('日干長生位為學堂，四柱皆查（另有以年納音長生取者，本派不採）。'),
+    guchen: reference('年支所屬方局取孤辰（亥子丑寅、寅卯辰巳、巳午未申、申酉戌亥），查月日時；不分男女。'),
+    guasu: reference('年支所屬方局取寡宿（亥子丑戌、寅卯辰丑、巳午未辰、申酉戌未），查月日時；不分男女。'),
+    jiesha: reference('年支三合取劫煞（申子辰巳、寅午戌亥、巳酉丑寅、亥卯未申），查月日時。'),
+    lushen: reference('日干祿位（甲寅乙卯丙戊巳丁己午庚申辛酉壬亥癸子），四柱皆查。'),
+    tianyiDoctor: reference('月支前一位為天醫，查年日時。'),
     hongyan: reference('日干取紅艷（甲乙午、丙寅、丁未、戊己辰、庚戌、辛酉、壬子、癸申），四柱皆查。'),
   };
   // 核心引擎的袁本桃花（含納音條件）只供其他卡片使用；本卡改依參考命盤取法重查。
@@ -194,6 +208,18 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
       branchHit('jinyu', '金輿', JINYU[ds], pillars, `日干${ds}金輿在${JINYU[ds]}；四柱皆查`);
       branchHit('xuetang', '學堂', XUETANG[ds], pillars, `日干${ds}長生在${XUETANG[ds]}為學堂；四柱皆查`);
       branchHit('hongyan', '紅艷', HONGYAN[ds], pillars, `日干${ds}紅艷在${HONGYAN[ds]}；四柱皆查`);
+      branchHit('lushen', '祿神', LUSHEN[ds], pillars, `日干${ds}祿在${LUSHEN[ds]}；四柱皆查`);
+    }
+    if (year) {
+      const [gu, gua] = GUCHEN_GUASU[year.earthlyBranch];
+      branchHit('guchen', '孤辰', gu, ['month', 'day', 'hour'], `年支${year.earthlyBranch}孤辰在${gu}；查月日時`);
+      branchHit('guasu', '寡宿', gua, ['month', 'day', 'hour'], `年支${year.earthlyBranch}寡宿在${gua}；查月日時`);
+      const js = JIESHA[TRINE_OF[year.earthlyBranch]];
+      branchHit('jiesha', '劫煞', js, ['month', 'day', 'hour'], `年支${year.earthlyBranch}（${TRINE_OF[year.earthlyBranch]}）劫煞在${js}；查月日時`);
+    }
+    if (month) {
+      const doctor = BRANCHES[(BRANCHES.indexOf(month.earthlyBranch) + 11) % 12];
+      branchHit('tianyiDoctor', '天醫', doctor, ['year', 'day', 'hour'], `月支${month.earthlyBranch}前一位${doctor}為天醫；查年日時`);
     }
     for (const key of pillars) {
       if (at(key) && core.twelveStages[key] === '沐浴') push('muyu', '沐浴', key, `日干${core.dayMaster.stem}十二運至${at(key)!.earthlyBranch}為沐浴`, `支${at(key)!.earthlyBranch}`);

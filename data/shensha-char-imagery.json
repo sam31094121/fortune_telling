@@ -561,6 +561,89 @@
       "sourceId": "cns11643_official",
       "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
       "cnsCode": "1-7C6C"
+    },
+    "祿": {
+      "element": "火",
+      "meanings": [
+        "福、善。",
+        "俸給、官俸。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-655A"
+    },
+    "神": {
+      "element": "水",
+      "meanings": [
+        "天地萬物的創造者與主宰者稱為「神」。",
+        "聖賢或所崇拜的人死後的精靈也稱為「神」。",
+        "人的精氣或注意力。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-572E"
+    },
+    "醫": {
+      "element": "金",
+      "meanings": [
+        "治療疾病的人。",
+        "醫術、醫學。",
+        "治療。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-7750"
+    },
+    "劫": {
+      "element": "金",
+      "meanings": [
+        "用威嚇的手段脅迫。",
+        "強取、搶奪。",
+        "梵語音譯「劫波」（kalpa）的略稱。一個極為長久的時間單位。佛教以世界經歷若干萬年即毀滅一次，再重新開始為「一劫」。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-4936"
+    },
+    "孤": {
+      "element": "金",
+      "meanings": [
+        "幼年喪父或無父母。",
+        "單獨。",
+        "特出、怪異。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-4C76"
+    },
+    "寡": {
+      "element": "火",
+      "meanings": [
+        "少。",
+        "丈夫已死的婦女。",
+        "古代王侯的自稱。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-6850"
+    },
+    "宿": {
+      "element": "木",
+      "meanings": [
+        "夜晚。",
+        "星座。",
+        "供休止的處所。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-596E"
     }
   }
 }

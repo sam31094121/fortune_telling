@@ -114,6 +114,30 @@ for (let i=0;i<60;i++) {
     expansionCases++;
   }
 }
+// 第二批：祿神（日干，四柱）、孤辰寡宿／劫煞（年支，查月日時）、天醫（月支前一位，查年日時）。獨立抄表。
+const expLu:Record<string,string>={甲:'寅',乙:'卯',丙:'巳',丁:'午',戊:'巳',己:'午',庚:'申',辛:'酉',壬:'亥',癸:'子'};
+const expGuGua:Record<string,[string,string]>={亥:['寅','戌'],子:['寅','戌'],丑:['寅','戌'],寅:['巳','丑'],卯:['巳','丑'],辰:['巳','丑'],巳:['申','辰'],午:['申','辰'],未:['申','辰'],申:['亥','未'],酉:['亥','未'],戌:['亥','未']};
+const expJie:Record<string,string>={申:'巳',子:'巳',辰:'巳',寅:'亥',午:'亥',戌:'亥',巳:'寅',酉:'寅',丑:'寅',亥:'申',卯:'申',未:'申'};
+const expDoctor:Record<string,string>={子:'亥',丑:'子',寅:'丑',卯:'寅',辰:'卯',巳:'辰',午:'巳',未:'午',申:'未',酉:'申',戌:'酉',亥:'戌'};
+let batch2Cases=0;
+for (const stem of STEMS) for (const yb of BRANCHES) for (const probe of BRANCHES) {
+  const fixture=structuredClone(base); fixture.shenSha=[];
+  fixture.dayMaster.stem=stem as Stem; fixture.pillars.day.heavenlyStem=stem as Stem;
+  const y=fixture.pillars.year; const m=fixture.pillars.month; const h=fixture.pillars.hour;
+  if(y==='UNKNOWN'||m==='UNKNOWN'||h==='UNKNOWN') throw new Error('known');
+  y.earthlyBranch=yb; m.earthlyBranch=probe; fixture.pillars.day.earthlyBranch=probe; h.earthlyBranch=probe;
+  const out=buildDualChartShenSha(fixture,gate,'male');
+  const at=(id:string)=>(['year','month','day','hour'] as const).filter(k=>out.byPillar[k].some(s=>s.id===id));
+  const branchOf=(k:string)=>k==='year'?yb:probe;
+  const where=(target:string,keys:readonly string[])=>(['year','month','day','hour'] as const).filter(k=>keys.includes(k)&&branchOf(k)===target);
+  const rest=['month','day','hour'];
+  assert.deepEqual(at('lushen'),where(expLu[stem],['year','month','day','hour']),`祿神 ${stem}/${yb}/${probe}`);
+  assert.deepEqual(at('guchen'),where(expGuGua[yb][0],rest),`孤辰 ${yb}/${probe}`);
+  assert.deepEqual(at('guasu'),where(expGuGua[yb][1],rest),`寡宿 ${yb}/${probe}`);
+  assert.deepEqual(at('jiesha'),where(expJie[yb],rest),`劫煞 ${yb}/${probe}`);
+  assert.deepEqual(at('tianyiDoctor'),where(expDoctor[probe],['year','day','hour']),`天醫 月${probe}/年${yb}`);
+  batch2Cases++;
+}
 const blocked=buildDualChartShenSha(base,{...gate,coreReady:false});
 // Reference-chart method: day branch advanced two places, inspected in year, month and hour.
 const gejiaoPairs = { 子:'寅',丑:'卯',寅:'辰',卯:'巳',辰:'午',巳:'未',午:'申',未:'酉',申:'戌',酉:'亥',戌:'子',亥:'丑' };
@@ -244,4 +268,4 @@ assert.deepEqual(calculateDualChart(input).specialStars,actual.specialStars,'rep
 const changed=calculateDualChart({...input,birthTime:'15:30'});
 assert.equal(changed.core.shenSha.some(s=>s.id==='yangren'),false,'different hour does not inherit a hardcoded hit');
 assert.equal(base.shenSha instanceof Array&&base.shenSha.some(s=>s.id==='yangren'),false,'other cards retain original shared core');
-console.log(`PASS paper chart 17/17 + bazi/ziwei pillar gate + ${expansionCases} 魁罡／空亡／金輿／學堂／紅艷 combinations + ${cases} 羊刃 combinations + ${yuanchenCases} 元辰 combinations + ${jiangxingCases} 將星 combinations + ${gejiaoCases} 隔角 combinations + gates, missing data, scope, alternate hour, determinism and shared-core isolation`);
+console.log(`PASS paper chart 17/17 + bazi/ziwei pillar gate + ${batch2Cases} 祿神／孤辰／寡宿／劫煞／天醫 combinations + ${expansionCases} 魁罡／空亡／金輿／學堂／紅艷 combinations + ${cases} 羊刃 combinations + ${yuanchenCases} 元辰 combinations + ${jiangxingCases} 將星 combinations + ${gejiaoCases} 隔角 combinations + gates, missing data, scope, alternate hour, determinism and shared-core isolation`);

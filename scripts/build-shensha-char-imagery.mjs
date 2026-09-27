@@ -4,7 +4,7 @@
 // 守門：tests/dual-chart-shensha-extension.test.ts 會比對本檔與字庫是否一致。
 import fs from 'node:fs';
 
-const NAMES = ['天德合', '天德', '月德', '龍德', '天狗', '金匱', '五鬼', '災煞', '六厄', '沐浴', '月破', '日破', '將星', '驛馬', '隔角', '元辰', '羊刃', '桃花', '外桃花', '天乙貴人', '文昌貴人', '華蓋', '魁罡', '空亡', '金輿', '學堂', '紅艷'];
+const NAMES = ['天德合', '天德', '月德', '龍德', '天狗', '金匱', '五鬼', '災煞', '六厄', '沐浴', '月破', '日破', '將星', '驛馬', '隔角', '元辰', '羊刃', '桃花', '外桃花', '天乙貴人', '文昌貴人', '華蓋', '魁罡', '空亡', '金輿', '學堂', '紅艷', '祿神', '天醫', '劫煞', '孤辰', '寡宿'];
 const manifest = JSON.parse(fs.readFileSync('data/dictionaries/nameology/manifest.json', 'utf8'));
 const characters = JSON.parse(fs.readFileSync('data/dictionaries/nameology/characters.json', 'utf8'));
 const byChar = new Map(characters.map(entry => [entry.normalizedCharacter, entry]));

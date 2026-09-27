@@ -25,6 +25,7 @@ export const SHENSHA_INSPECTED_PILLARS: Record<string, ShenShaCardPillar[]> = {
   yuepo: ['year', 'day', 'hour'],
   yuanchen: ['hour'], waiTaohua: ['hour'],
   kuigang: ['day'], kongwang: ['year', 'month', 'hour'], jinyu: ALL, xuetang: ALL, hongyan: ALL,
+  lushen: ALL, tianyiDoctor: ['year', 'day', 'hour'], jiesha: ['month', 'day', 'hour'], guchen: ['month', 'day', 'hour'], guasu: ['month', 'day', 'hour'],
 };
 
 /** reference＝依太極紫微易經派取法（本站自家一派），尚無原典頁碼；前端以＊標註。 */
