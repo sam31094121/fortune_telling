@@ -4,6 +4,40 @@
   "rule": "八字沿用《易經》來源治理（docs/技能戰鬥檔案/易經/來源治理.md）：交叉比對的來源、權威性的檔案、大數據的來源；狀態由 lib/iching-source-gate.ts 計算，不得手填 VERIFIED。",
   "sources": [
     {
+      "source_id": "S-SHENFENG-1929-V2-SCAN",
+      "author": "張楠；秦慎安校勘",
+      "locator": "https://upload.wikimedia.org/wikipedia/commons/d/d1/NLC511-027032013020556-10361_神峰通考_第2卷.pdf",
+      "data_type": "國家圖書館民國文獻掃描；卷四印頁14隔角（第二冊PDF16）",
+      "kind": "原典", "can_cite": "PASS", "can_reproduce": "PASS",
+      "bulk_extraction": "待查核", "automated_crawl": "待查核", "training_use": "待查核",
+      "license_terms": "Commons標示公有領域古籍機械掃描；僅引用少量已核原頁，不移除館藏浮水印。",
+      "accessed_at": "2026-09-27", "edition": "中華書局／文明書局1929年11月秦慎安校勘本，第二冊",
+      "trust": "A",
+      "note": "已目視原頁：以日時上起，日與時隔一字；丑卯、辰午、未酉、戌子四例。只支持日支順移二支查時，不能放到年柱。PDF SHA256 CCB21CF1215A1E487FE79497839F9343534AF42A2E3AF6C1E7DD04F3FAEA9289；SHA1與Commons公布值相符。"
+    },
+    {
+      "source_id": "S-SHENFENG-1929-CATALOG",
+      "author": "Wikimedia Commons／中國國家圖書館館藏元資料",
+      "locator": "https://commons.wikimedia.org/wiki/File:NLC511-027032013020556-10361_神峰通考_第2卷.pdf",
+      "data_type": "公開館藏書目、1929年月版本、頁數與檔案指紋",
+      "kind": "研究圖書館書目", "can_cite": "PASS", "can_reproduce": "PASS",
+      "bulk_extraction": "待查核", "automated_crawl": "待查核", "training_use": "待查核",
+      "license_terms": "Commons公開館藏元資料；結構化資料CC0，文字遵其頁面授權。本項只記書目事實。",
+      "accessed_at": "2026-09-27", "edition": "Commons檔案頁oldid=1155656407；1929年11月本",
+      "trust": "A", "note": "只核版本及追溯，不是獨立公式、官方準確性認證或大量命例。"
+    },
+    {
+      "source_id": "S-SHENFENG-WIKISOURCE-GEJIAO",
+      "author": "張楠原著；維基文庫公開轉錄",
+      "locator": "https://zh.wikisource.org/zh-hant/神峰通考",
+      "data_type": "隔角段公開轉錄；與1929掃描逐字核對取主、查柱及四例",
+      "kind": "公開數位文本", "can_cite": "PASS", "can_reproduce": "PASS",
+      "bulk_extraction": "待查核", "automated_crawl": "待查核", "training_use": "待查核",
+      "license_terms": "原著為公有領域；維基文庫文字依其CC BY-SA條款，保留連結及署名；本項僅核短段。",
+      "accessed_at": "2026-09-27", "edition": "2026-09-27讀取的隔角段；僅取與1929卷四14頁完全一致的文字",
+      "trust": "B", "note": "轉錄不能單獨核定其他條目或出版版本；與掃描屬同一原著，不冒充不同古籍共識。"
+    },
+    {
       "source_id": "S-TAIJIN-V6-ZJLIB-SCAN",
       "author": "（明）馬績華撰（館藏元資料）",
       "locator": "https://commons.wikimedia.org/wiki/File:ZJLib-62836c27d8147868cc532705-4_太黅六卷_第4冊.pdf",
@@ -1004,6 +1038,28 @@
         "summary": "以日支所屬三合局的中位為將星；逐一查年、月、時地支，不查日柱自身。",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf",
         "printedPage": "64–65（PDF95–96）"
+      },
+      "comparisons": []
+    },
+    {
+      "claim_id": "C-DUAL-SHENSHA-GEJIAO",
+      "title": "雙命盤隔角｜神峰通考1929本日時取法",
+      "domain": "八字知識",
+      "files": ["lib/dual-chart-shensha.ts", "tests/dual-chart-shensha-extension.test.ts"],
+      "authority_files": ["S-SHENFENG-1929-V2-SCAN"],
+      "big_data_sources": ["S-SHENFENG-1929-CATALOG"],
+      "cross_references": ["S-SHENFENG-1929-V2-SCAN", "S-SHENFENG-1929-CATALOG", "S-SHENFENG-WIKISOURCE-GEJIAO"],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "2026-09-27使用者授權補充本卡缺項來源。僅此新增項採神峰通考，不更換原八项公式或四柱核心。狀態由來源守門重算，不信此欄。三個記錄分别是原頁、版本書目、轉錄對读，並非三部獨立原典或大數據命例驗證。",
+      "verification_scope": "SELECTED_EDITION",
+      "selected_method": {
+        "title": "神峰通考",
+        "edition": "1929年11月秦慎安校勘，中華書局／文明書局本，第二冊",
+        "ruleVersion": "SHENFENG_1929_GEJIAO_DAY_HOUR_V1",
+        "summary": "以日支為取主；時支等於日支順移二支才命中隔角；只落時柱，不查年月，也不作反向隔二支。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC511-027032013020556-10361_神峰通考_第2卷.pdf?page=16#file",
+        "printedPage": "卷四14（第二冊PDF16）"
       },
       "comparisons": []
     },

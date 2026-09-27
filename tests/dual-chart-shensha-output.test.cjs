@@ -124,7 +124,7 @@ assert.equal(enHtml.includes('symbolic stars'), false);
 console.log('PASS: bilingual source comparisons distinguish selected-method readiness and require located evidence');
 
 const { inspectShenShaCoverage } = require('../scripts/dual-chart-shensha-display-check.cjs');
-const expectedIds = ['tianyi', 'wenchang', 'taohua', 'yima', 'huagai', 'yangren', 'yuanchen', 'jiangxing'];
+const expectedIds = ['tianyi', 'wenchang', 'taohua', 'yima', 'huagai', 'yangren', 'yuanchen', 'jiangxing', 'gejiao'];
 const connected = {
   bazi: { professionalChart: { traditionalInterpretationGate: { shenShaRules: Object.fromEntries(expectedIds.map(id => [id, { outputStatus: 'READY' }])) } } },
   specialStars: {
@@ -147,3 +147,81 @@ const duplicatedRule = structuredClone(connected);
 duplicatedRule.specialStars.coverage.push({ id: 'yuanchen', status: 'NOT_MATCHED' });
 assert.ok(inspectShenShaCoverage(duplicatedRule).some(message => message.includes('yuanchen')), 'duplicated coverage does not prove completeness');
 console.log('PASS: shensha health baseline detects disconnected, silently reduced and malformed backend results');
+
+const { inspectShenShaDelivery, inspectShenShaRow } = require('../scripts/dual-chart-shensha-display-check.cjs');
+const deliveryFixture = structuredClone(connected);
+const fixtureHit = { id: 'taohua', name: '桃花', evidence: 'HOUR 支卯' };
+deliveryFixture.specialStars.raw = [fixtureHit];
+deliveryFixture.core = { shenSha: [fixtureHit] };
+deliveryFixture.bazi.professionalChart.shenSha = [fixtureHit];
+deliveryFixture.bazi.professionalChart.traditionalInterpretationGate.coreReady = true;
+deliveryFixture.bazi.professionalChart.traditionalInterpretationGate.shenShaRules.taohua = { ready: true, status: 'VERIFIED', outputStatus: 'READY' };
+deliveryFixture.specialStars.byPillar.hour = [fixtureHit];
+deliveryFixture.specialStars.coverage.forEach(item => {
+  item.status = item.id === 'taohua' ? 'MATCHED' : 'NOT_MATCHED';
+  item.matchedPillars = item.id === 'taohua' ? ['hour'] : [];
+});
+const rowFixture = name => inspectShenShaRow(`<table><tr><td><span>${name}<a href="https://example.org/scan">原典 71頁</a></span></td><td></td><td></td><td></td><th scope="row">特星神煞</th></tr></table>`);
+assert.deepEqual(inspectShenShaDelivery(deliveryFixture, rowFixture('桃花')), [], 'exact backend to cell delivery passes');
+assert.ok(inspectShenShaDelivery(deliveryFixture, rowFixture('外桃花')).length, 'substring names cannot pass');
+assert.ok(inspectShenShaDelivery(deliveryFixture, rowFixture('')).length, 'missing visible result fails');
+assert.ok(inspectShenShaDelivery(deliveryFixture, rowFixture('桃花</span><span>桃花')).length, 'duplicated visible names fail');
+assert.ok(inspectShenShaDelivery(deliveryFixture, rowFixture('桃花</span><span>驛馬')).length, 'an extra visible name fails');
+const droppedTwice = structuredClone(deliveryFixture);
+droppedTwice.specialStars.byPillar.hour = [];
+assert.ok(inspectShenShaDelivery(droppedTwice, rowFixture('')).some(m => m.includes('原始運算')), 'API and UI cannot jointly lose the same raw result');
+const wrongPillar = structuredClone(deliveryFixture);
+wrongPillar.specialStars.byPillar.day = wrongPillar.specialStars.byPillar.hour;
+wrongPillar.specialStars.byPillar.hour = [];
+assert.ok(inspectShenShaDelivery(wrongPillar, rowFixture('桃花')).length, 'wrong-pillar transport fails');
+const duplicatedHit = structuredClone(deliveryFixture);
+duplicatedHit.specialStars.byPillar.hour.push(fixtureHit);
+assert.ok(inspectShenShaDelivery(duplicatedHit, rowFixture('桃花')).length, 'duplicate transport fails');
+const staleCore = structuredClone(deliveryFixture);
+staleCore.core.shenSha = [];
+assert.ok(inspectShenShaDelivery(staleCore, rowFixture('桃花')).length, 'split backend copies cannot pass');
+const staleCoverage = structuredClone(deliveryFixture);
+staleCoverage.specialStars.coverage.find(item => item.id === 'taohua').status = 'NOT_MATCHED';
+assert.ok(inspectShenShaDelivery(staleCoverage, rowFixture('桃花')).length, 'a match cannot be labelled not matched');
+assert.ok(inspectShenShaRow('<table><tr><td></td><th scope="row">特星神煞</th></tr></table>').warnings.length, 'a truncated table cannot pass');
+console.log('PASS: exact raw → per-pillar → visible-name delivery detects omissions, extras, duplicates, stale copies and wrong pillars');
+
+const { inspectShenShaPlacement } = require('../scripts/dual-chart-shensha-display-check.cjs');
+const inlineHtml = render();
+assert.deepEqual(inspectShenShaPlacement(inlineHtml), [], 'shensha stays directly under the original four pillars');
+assert.ok(!/<(?:details|summary)\b/.test(inlineHtml), 'results require no expansion');
+assert.equal(inlineHtml.includes('回傳'), false, 'customer table avoids transport jargon');
+assert.ok(inspectShenShaPlacement(inlineHtml.replace('</tbody>', `${activeRow}</tbody>`)).length, 'duplicate shensha row fails health');
+assert.ok(inspectShenShaPlacement(inlineHtml.replace('<tbody>', '<tbody><details>')).length, 'folded results fail health');
+assert.ok(inspectShenShaPlacement(inlineHtml.replace('>十二運</th>', '>其他</th>')).length, 'incorrect placement fails health');
+console.log('PASS: shensha is one unfolded row under the original four pillars');
+
+const { inspectShenShaCard } = require('../scripts/dual-chart-shensha-display-check.cjs');
+deliveryFixture.bazi.professionalChart.pillarDetails = Object.fromEntries(pillars.map(key => [key, { ganzhi: '甲子' }]));
+const card = value => renderToStaticMarkup(React.createElement(target.exports.ShenShaCard, { result: value }));
+const cardHtml = card(deliveryFixture);
+assert.deepEqual(inspectShenShaCard(deliveryFixture, cardHtml), []);
+assert.equal(/本次未出現|各項判定|data-shensha-rule=/.test(cardHtml), false, 'customer card shows actual results without the rule-status list');
+assert.ok(!/<(?:details|summary)\b/.test(cardHtml), 'no expansion is required');
+assert.ok(inspectShenShaCard(deliveryFixture, `<details>${cardHtml}</details>`).length, 'collapsed content fails health');
+assert.ok(inspectShenShaCard(deliveryFixture, cardHtml.replace('data-shensha-result="taohua"', 'data-shensha-result="missing"')).length, 'lost calculated result fails health');
+assert.ok(inspectShenShaCard(deliveryFixture, `${cardHtml}<p>桃花 本次未出現</p>`).length, 'repeated status list fails health');
+assert.ok(inspectShenShaCard(deliveryFixture, cardHtml.replace('data-shensha-column="hour"', 'data-shensha-column="day"')).length, 'wrong pillar fails health');
+const missingCard = structuredClone(deliveryFixture);
+delete missingCard.specialStars.byPillar.month;
+assert.ok(card(missingCard).includes('資料尚未完整'));
+const blockedCard = structuredClone(deliveryFixture);
+blockedCard.bazi.professionalChart.traditionalInterpretationGate.coreReady = false;
+assert.equal(card(blockedCard).includes('data-shensha-result='), false);
+console.log('PASS: calculated shensha results stay complete and unfolded without repeated rule-status text');
+
+const { inspectRequestedShenShaScope } = require('../scripts/dual-chart-shensha-display-check.cjs');
+assert.equal(inspectRequestedShenShaScope(connected).length,11,'transport completeness cannot certify newly requested rules');
+const falseClaim = structuredClone(connected);
+falseClaim.specialStars.rules = { tiandehe: { ready: true, outputStatus: 'READY' } };
+assert.equal(inspectRequestedShenShaScope(falseClaim).length,11,'ready flag without evaluated coverage is insufficient');
+falseClaim.specialStars.coverage.push({id:'tiandehe',status:'NOT_MATCHED'});
+assert.equal(inspectRequestedShenShaScope(falseClaim).length,10,'only an individually evaluated rule reduces the missing scope');
+falseClaim.specialStars.coverage.at(-1).status='BLOCKED_SOURCE';
+assert.equal(inspectRequestedShenShaScope(falseClaim).length,11,'blocked source cannot masquerade as a completed non-hit');
+console.log('PASS: full-card health remains blocked while requested calculations are missing');

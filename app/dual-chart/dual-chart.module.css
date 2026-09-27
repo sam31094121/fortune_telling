@@ -109,6 +109,18 @@
 .page:not(.printPreview) .shenshaRow td{height:72px;vertical-align:middle;padding:8px 3px}
 .page:not(.printPreview) .shenshaRow .stack{font-size:13px;line-height:1.45;white-space:nowrap}
 .page:not(.printPreview) .shenshaRow .shenshaSource{display:none}
+@media screen{.page:not(.printPreview) .shenshaRow{display:none}}
+.shenshaCard{width:100%;min-width:0;box-sizing:border-box;margin:20px 0;padding:16px;border:1px solid #bba4d055;border-radius:16px;background:linear-gradient(145deg,#242039,#171626);scroll-margin-top:20px;box-shadow:0 8px 28px #08071133}
+.shenshaCard>h3{margin:0 0 12px;font-size:20px;font-weight:800;color:#f0e0ff}
+.shenshaCard>p{font-size:13px;line-height:1.6;color:#ffe1a7;margin:0 0 10px}
+.shenshaPillars{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.shenshaPillars>div{min-width:0;padding:8px 5px;text-align:center;border:1px solid #bba4d033;border-radius:8px;background:#222032}
+.shenshaPillars h4{font-size:15px;margin:0 0 8px;color:#e7ccff}
+.shenshaPillars ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.shenshaPillars li{font-size:16px;color:#f2dba8;line-height:1.7;overflow-wrap:anywhere}
+.shenshaEmpty{color:#bcb6ca;font-size:16px}
+.printPreview .shenshaCard{display:none}
+@media print{.shenshaCard{display:none}}
 .printPreview .baziMain>p.shenshaNote{font-size:11.5px;line-height:1.5;margin-top:6px}
 .shenshaEvidence{font-size:12px;line-height:1.6;margin-top:8px;overflow-wrap:anywhere}.shenshaEvidence a{text-decoration:underline}.shenshaEvidence section{margin-top:8px}.printPreview .shenshaEvidence{display:none}
 .page:not(.printPreview) .shenshaNote{font-size:14px;line-height:1.7}.page:not(.printPreview) .shenshaNote a{display:inline-flex;align-items:center;min-height:44px;padding:0 6px}.page:not(.printPreview) .shenshaEvidence{font-size:14px;line-height:1.7}.page:not(.printPreview) .shenshaEvidence summary{min-height:44px;padding:10px 0;cursor:pointer}

@@ -6,6 +6,7 @@ import ShenShaSourceEvidence, { ShenShaComparisonSummary, ShenShaEvidenceLinks }
 import { shenShaDisplayCopy, shenShaDisplayNames } from '@/lib/shensha-display-copy';
 
 const order = ['hour', 'day', 'month', 'year'] as const;
+const cardOrder = ['year', 'month', 'day', 'hour'] as const;
 const labels = { hour: '時', day: '日', month: '月', year: '年' };
 const shenShaLabels = shenShaDisplayNames.zh;
 function shenShaAvailability(result: DualChartResult) {
@@ -34,7 +35,7 @@ export function PillarGrid({ result, compact = false, language = 'zh' }: { resul
   const { core, bazi } = result;
   const pc = bazi.professionalChart;
   const { allowed, hasData, conflicts } = shenShaAvailability(result);
-  const row = (title: string, render: (key: typeof order[number]) => ReactNode, className?: string) => <tr className={className} data-screen-arrow-target={title === '特星神煞' ? 'dual-chart-special-stars' : undefined}>{order.map(key => <td key={key}>{render(key)}</td>)}<th scope="row">{title}</th></tr>;
+  const row = (title: string, render: (key: typeof order[number]) => ReactNode, className?: string) => <tr className={className}>{order.map(key => <td key={key}>{render(key)}</td>)}<th scope="row">{title}</th></tr>;
   return <table className={`${styles.pillarGrid} ${compact ? styles.compactGrid : ''}`} aria-label={compact ? '中央八字摘要' : '八字四柱時日月年主表'}>
     <thead><tr>{order.map(key => <th key={key} scope="col">{labels[key]}柱</th>)}<th>項目</th></tr></thead>
     <tbody>
@@ -44,7 +45,7 @@ export function PillarGrid({ result, compact = false, language = 'zh' }: { resul
       {row('藏干', key => pc.hiddenStemStructure[key].map(h => h.stem).join('　'))}
       {row('副星', key => pc.hiddenStemStructure[key].map(h => <span className={styles.stack} key={h.stem}>{h.tenGod}</span>))}
       {row('十二運', key => core.twelveStages[key])}
-      {!compact && (!allowed.size || !hasData ? <tr className={styles.shenshaRow} data-screen-arrow-target="dual-chart-special-stars">
+      {!compact && (!allowed.size || !hasData ? <tr className={styles.shenshaRow}>
         {order.map(key => <td key={key} data-shensha-pillar={key} data-shensha-state={!allowed.size ? conflicts.length ? 'restricted' : 'pending' : 'unavailable'}>
           <span className={styles.shenshaStatus}>{!allowed.size ? conflicts.length ? '取法分歧，暫未提供' : '尚待核對' : '資料待補'}</span>
         </td>)}<th scope="row">特星神煞</th>
@@ -54,6 +55,28 @@ export function PillarGrid({ result, compact = false, language = 'zh' }: { resul
       }, styles.shenshaRow))}
     </tbody>
   </table>;
+}
+
+/** Independent, unfolded card; consumes the same server result as the chart. */
+export function ShenShaCard({ result }: { result: DualChartResult }) {
+  const stars = result.specialStars;
+  const { allowed } = shenShaAvailability(result);
+  const completeData = Boolean(stars && Array.isArray(stars.raw) && Array.isArray(stars.coverage) && stars.coverage.length && order.every(key => Array.isArray(stars.byPillar?.[key])));
+  const coreReady = result.bazi.professionalChart.traditionalInterpretationGate?.coreReady === true;
+  const pending = completeData ? stars.coverage.filter(item => !['MATCHED', 'NOT_MATCHED'].includes(item.status)) : [];
+  return <section className={styles.shenshaCard} aria-label="特星神煞" data-screen-arrow-target="dual-chart-special-stars" data-shensha-card-state={!completeData ? 'unavailable' : !coreReady || pending.length ? 'partial' : 'received'}>
+    <h3>特星神煞</h3>
+    {!completeData ? <p role="status">神煞資料尚未完整，暫不能判斷有無結果。</p> : <>
+      {(!coreReady || pending.length > 0) && <p role="status">部分項目尚未完成，不代表沒有神煞。{pending.length > 0 && `待確認：${pending.map(item => item.name).join('、')}。`}</p>}
+      <div className={styles.shenshaPillars}>{cardOrder.map(key => {
+        const hits = coreReady ? stars.byPillar[key].filter(hit => allowed.has(hit.id)) : [];
+        return <div key={key} data-shensha-column={key}><h4>{labels[key]}柱</h4>
+          <ul aria-label={`${labels[key]}柱神煞`}>{hits.map(hit => <li key={`${hit.id}:${hit.name}`} data-shensha-result={hit.id}>{hit.name}</li>)}</ul>
+          {!hits.length && <span className={styles.shenshaEmpty} aria-label={!coreReady || pending.length ? '結果尚未完整' : '本次未命中本站既有規則'}>{!coreReady || pending.length ? '待確認' : '—'}</span>}
+        </div>;
+      })}</div>
+    </>}
+  </section>;
 }
 
 export function LuckGrid({ result, compact = false }: { result: DualChartResult; compact?: boolean }) {
@@ -103,5 +126,5 @@ export default function BaziChart({ result, monochrome = false, language = 'zh' 
       </section>
     </div>
     <footer className={styles.reportFooter}>節氣：{core.calendar.solarTerm} {core.calendar.solarTermTime}<br />台灣標準時間 UTC+8 · 年以立春、月以節氣為界 · 晚子時日柱不換日 · 未做真太陽時校正</footer>
-  </div></div><section className={styles.screenShenShaNotes} aria-label={language === 'en' ? 'Shensha source status' : '神煞來源狀態'}>{sourceNotes}</section></>;
+  </div></div><ShenShaCard result={result} /><section className={styles.screenShenShaNotes} aria-label={language === 'en' ? 'Shensha source status' : '神煞來源狀態'}>{sourceNotes}</section></>;
 }

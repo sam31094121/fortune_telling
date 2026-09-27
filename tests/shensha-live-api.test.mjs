@@ -8,6 +8,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 // are hand derived from the selected source rules, not from engine output.
 const fixtures = [
   ['05:30', '辛卯', ['桃花']],
+  // 神峰通考卷四14：寅日順隔一支至辰時；只落時柱。
+  ['07:30', '壬辰', ['隔角']],
   // 丙寅日依袁本將星取午，午時落在被查時柱。
   ['11:30', '甲午', ['羊刃', '將星']],
   ['15:30', '丙申', ['文昌貴人', '驛馬']],
@@ -29,6 +31,7 @@ assert.ok(cookie);
 const require = createRequire(import.meta.url);
 const loadShenShaUi = require('./helpers/load-shensha-ui.cjs');
 const component = loadShenShaUi('app/dual-chart/BaziChart.tsx');
+const { inspectShenShaDelivery, inspectShenShaRow, inspectShenShaPlacement, inspectShenShaCard } = require('../scripts/dual-chart-shensha-display-check.cjs');
 const professionalComponent = loadShenShaUi('components/bazi/customer/ProfessionalBaziTable.tsx');
 
 for (const [birthTime, hour, expected] of fixtures) {
@@ -49,11 +52,14 @@ for (const [birthTime, hour, expected] of fixtures) {
   assert.deepEqual(data.core.shenSha.map(s => s.name).sort(), [...expected].sort(), `${birthTime} fixed expected names`);
   for (const item of data.core.shenSha) {
     assert.match(item.evidence, /^HOUR 支/, `${birthTime} only the hour pillar matches`);
-    assert.equal(item.ruleVersion, item.id === 'yangren' ? 'MINGLI_TANYUAN_YANGREN_V1' : item.id === 'yuanchen' ? 'TAIJIN_V6_YUANCHEN_YEAR_HOUR_V1' : item.id === 'jiangxing' ? 'JIANGXING_YUAN_1937_DAY_TO_YEAR_MONTH_HOUR' : 'MINGLI_TANYUAN_SHENSHA_V5');
-    assert.equal(item.source.sourceId, item.id === 'yuanchen' ? 'S-TAIJIN-V6-ZJLIB-SCAN' : 'S-MINGLI-TANYUAN-1937-SCAN');
+    assert.equal(item.ruleVersion, item.id === 'gejiao' ? 'SHENFENG_1929_GEJIAO_DAY_HOUR_V1' : item.id === 'yangren' ? 'MINGLI_TANYUAN_YANGREN_V1' : item.id === 'yuanchen' ? 'TAIJIN_V6_YUANCHEN_YEAR_HOUR_V1' : item.id === 'jiangxing' ? 'JIANGXING_YUAN_1937_DAY_TO_YEAR_MONTH_HOUR' : 'MINGLI_TANYUAN_SHENSHA_V5');
+    assert.equal(item.source.sourceId, item.id === 'gejiao' ? 'S-SHENFENG-1929-V2-SCAN' : item.id === 'yuanchen' ? 'S-TAIJIN-V6-ZJLIB-SCAN' : 'S-MINGLI-TANYUAN-1937-SCAN');
     assert.ok(item.source.printedPage && item.source.url);
   }
   const html = renderToStaticMarkup(React.createElement(component.PillarGrid, { result: data }));
+  assert.deepEqual(inspectShenShaDelivery(data, inspectShenShaRow(html)), [], `${birthTime}: API data reaches the original four pillars exactly`);
+  assert.deepEqual(inspectShenShaPlacement(html), [], `${birthTime}: results appear directly below the pillars without folding`);
+  assert.deepEqual(inspectShenShaCard(data, renderToStaticMarkup(React.createElement(component.ShenShaCard, { result: data }))), [], `${birthTime}: all original card content is directly visible`);
   assert.equal(html.includes('暫未提供'), false);
   const displayed = expected;
   assert.equal(html.includes('天乙貴人'), expected.includes('天乙貴人'), 'Tianyi follows the selected edition');
