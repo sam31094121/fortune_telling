@@ -137,21 +137,21 @@
 .shenshaLegend span[data-shensha-tone]::before{content:'';display:inline-block;width:10px;height:10px;margin-inline-end:5px;border-radius:50%;background:var(--ss-tone);vertical-align:-1px}
 .shenshaCard>p.shenshaFootnote{margin:6px 0 0;font-size:13px;line-height:1.6;color:var(--ss-muted);text-align:center}
 .shenshaIching{margin-top:18px;padding-top:4px;min-width:0}
-.shenshaSectionTitle{display:flex;align-items:center;gap:8px;margin:22px 0 10px;font-size:17px;font-weight:800;letter-spacing:.12em;color:#f0e0ff}
+.shenshaSectionTitle{display:flex;align-items:center;gap:8px;margin:18px 0 8px;font-size:17px;font-weight:800;letter-spacing:.12em;color:#f0e0ff}
 .shenshaSectionTitle::before{content:'';width:4px;height:18px;border-radius:2px;background:linear-gradient(180deg,var(--ss-gold),var(--ss-violet))}
 .shenshaChain{list-style:none;margin:0;padding:0;display:grid;gap:6px}
-.shenshaChain li{display:grid;grid-template-columns:5.2em minmax(0,1fr);gap:8px;align-items:baseline;padding:8px 12px;border-radius:10px;background:var(--ss-panel);font-size:14px;line-height:1.6;color:var(--ss-text);overflow-wrap:anywhere}
+.shenshaChain li{display:grid;grid-template-columns:5.2em minmax(0,1fr);gap:8px;align-items:baseline;padding:6px 12px;border-radius:10px;background:var(--ss-panel);font-size:14px;line-height:1.6;color:var(--ss-text);overflow-wrap:anywhere}
 .shenshaChain b{color:var(--ss-gold);letter-spacing:.06em}
-.shenshaHexagram{display:flex;align-items:center;justify-content:center;gap:16px;margin:18px 0 4px;padding:16px 14px;border-radius:16px;border:1px solid #e9c46a44;background:radial-gradient(90% 120% at 50% 0%,#3a3052,#221d33)}
+.shenshaHexagram{display:flex;align-items:center;justify-content:center;gap:16px;margin:14px 0 2px;padding:12px 14px;border-radius:16px;border:1px solid #e9c46a44;background:radial-gradient(90% 120% at 50% 0%,#3a3052,#221d33)}
 .shenshaHexagram>span{font-size:52px;line-height:1;color:#f4e6ff;text-shadow:0 0 18px #cdb2ff55}
 .shenshaHexagram p{display:grid;gap:2px;margin:0;text-align:start}
 .shenshaHexagram b{font-size:24px;font-weight:800;letter-spacing:.12em;color:#f4e6ff}
 .shenshaHexagram small{font-size:13px;color:var(--ss-muted)}
-.shenshaReading{display:grid;gap:10px}
-.shenshaReading p{margin:0;font-size:15px;line-height:1.9;color:var(--ss-text);overflow-wrap:anywhere}
-.shenshaCombos{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-.shenshaCombos li{padding:12px 14px;border-radius:12px;border:1px solid #e9c46a55;background:linear-gradient(135deg,#322a45,#241f35);min-width:0}
-.shenshaCombos p{margin:0;font-size:15px;line-height:1.85;color:var(--ss-text);overflow-wrap:anywhere}
+.shenshaReading{display:grid;gap:8px}
+.shenshaReading p{margin:0;font-size:15px;line-height:1.8;color:var(--ss-text);overflow-wrap:anywhere}
+.shenshaCombos{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.shenshaCombos li{padding:10px 12px;border-radius:12px;border:1px solid #e9c46a55;background:linear-gradient(135deg,#322a45,#241f35);min-width:0}
+.shenshaCombos p{margin:0;font-size:15px;line-height:1.75;color:var(--ss-text);overflow-wrap:anywhere}
 .shenshaCombos p:first-child{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
 .shenshaCombos b{font-size:17px;color:var(--ss-gold);letter-spacing:.06em}
 .shenshaCombos small{font-size:12px;padding:1px 8px;border-radius:999px;border:1px solid var(--ss-line);color:var(--ss-muted)}
@@ -159,28 +159,30 @@
 .shenshaJump a{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;min-height:44px;border-radius:999px;font-size:15px;color:var(--ss-text);text-decoration:none;background:var(--ss-panel2)}
 .shenshaJump a small{font-size:12px;color:var(--ss-gold)}
 .shenshaGroup{scroll-margin-top:72px}
-.shenshaGroup h5{display:flex;align-items:center;justify-content:center;gap:10px;margin:16px 0 8px;font-size:15px;letter-spacing:.2em;color:#e7ccff}
+.shenshaGroup h5{display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 0 4px;font-size:15px;letter-spacing:.2em;color:#e7ccff}
 .shenshaGroup h5 a{position:absolute;right:0;display:inline-flex;align-items:center;min-height:44px;padding:0 4px;font-size:13px;letter-spacing:0;color:var(--ss-muted);text-decoration:underline}
 .shenshaGroup{position:relative}
 .shenshaGroup h5 span::before,.shenshaGroup h5 span::after{content:'';display:inline-block;width:28px;height:1px;margin:0 10px;vertical-align:middle;background:#bba4d066}
-.shenshaDerivation{list-style:none;margin:0;padding:0;display:grid;gap:12px}
-.shenshaDerivation>li{position:relative;padding:12px 14px 12px 16px;border:1px solid var(--ss-line);border-radius:12px;background:var(--ss-panel);min-width:0;overflow:hidden}
+.shenshaGroupIntro{margin:0 0 10px;text-align:center;font-size:13px;line-height:1.7;color:var(--ss-muted);overflow-wrap:anywhere}
+.shenshaGroupIntro small{display:block;margin-top:2px;font-size:12px;letter-spacing:.08em;color:var(--ss-gold)}
+.shenshaDerivation{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.shenshaDerivation>li{position:relative;padding:10px 12px 10px 14px;border:1px solid var(--ss-line);border-radius:12px;background:var(--ss-panel);min-width:0;overflow:hidden}
 .shenshaDerivation>li::before{content:'';position:absolute;inset:0 auto 0 0;width:4px;background:var(--ss-tone,var(--ss-violet))}
 .shenshaDerivation li p{margin:0;font-size:14px;line-height:1.7;color:var(--ss-text);overflow-wrap:anywhere}
 .shenshaDerivation p.shenshaItemHead{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;margin-bottom:6px}
 .shenshaItemHead b{font-size:18px;color:var(--ss-tone,var(--ss-gold));letter-spacing:.04em}
 .shenshaItemHead span{font-size:13px;color:var(--ss-muted)}
 .shenshaItemHead em{margin-inline-start:auto;font-style:normal;font-size:12px;padding:2px 10px;border-radius:999px;border:1px solid var(--ss-tone,#bba4d055);color:var(--ss-tone,#e7ccff);white-space:nowrap}
-.shenshaDerivation li p.shenshaTeacher{font-size:15px;line-height:1.9;color:#f5f0ff;margin:6px 0 8px}
+.shenshaDerivation li p.shenshaTeacher{font-size:15px;line-height:1.8;color:#f5f0ff;margin:4px 0 6px}
 .shenshaDerivation li p.shenshaBasis{font-size:13px;color:var(--ss-muted)}
-.shenshaOnion{margin:8px 0;padding:10px 12px;border-radius:10px;background:var(--ss-panel2);display:grid;gap:6px}
+.shenshaOnion{margin:6px 0;padding:8px 10px;border-radius:10px;background:var(--ss-panel2);display:grid;gap:4px}
 .shenshaOnion p{margin:0;font-size:14px;line-height:1.7;color:var(--ss-text);overflow-wrap:anywhere}
 .shenshaOnion p b{color:var(--ss-gold);margin-inline-end:6px}
 .shenshaOnion p small{font-size:12px;color:var(--ss-muted)}
 .shenshaOnion p span{display:block}
-.shenshaOnion p.shenshaTerm{border-top:1px dashed var(--ss-line);padding-top:8px}
+.shenshaOnion p.shenshaTerm{border-top:1px dashed var(--ss-line);padding-top:6px}
 .shenshaTerm cite{display:block;font-style:normal;font-size:12px;color:var(--ss-muted);margin-top:2px}
-.shenshaImagery{list-style:none;margin:8px 0 0;padding:8px 0 0;border-top:1px dashed var(--ss-line);display:grid;gap:4px}
+.shenshaImagery{list-style:none;margin:6px 0 0;padding:6px 0 0;border-top:1px dashed var(--ss-line);display:grid;gap:4px}
 .shenshaDerivation .shenshaImagery li{display:grid;grid-template-columns:1.4em 1.6em minmax(0,1fr);gap:6px;align-items:baseline;padding:0;border:0;background:none;font-size:14px;line-height:1.6;color:#d8cfe8}
 .shenshaImagery b{font-size:16px;color:#f0e0ff}
 .shenshaImagery small{font-size:12px;color:var(--ss-muted)}

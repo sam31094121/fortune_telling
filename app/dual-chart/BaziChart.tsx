@@ -60,9 +60,9 @@ type ShenShaIChingView = NonNullable<DualChartResult['specialStars']['iching']>;
 type ShenShaIChingReady = Extract<ShenShaIChingView, { state: 'READY' }>;
 
 /** 逐項細看的一張卡：導師話術 → 洋蔥三層 → 推導 → 字的意境。只照印後端欄位。 */
-function ShenShaItemCard({ item }: { item: ShenShaIChingReady['items'][number] }) {
+function ShenShaItemCard({ item, grouped = false }: { item: ShenShaIChingReady['items'][number]; grouped?: boolean }) {
   return <li data-shensha-tone={item.teacher?.tone}>
-    <p className={styles.shenshaItemHead}><b>{item.name}{item.reference ? '＊' : ''}</b><span>{item.pillar}</span>{item.teacher && <em>{item.teacher.tone}｜{item.teacher.theme}</em>}</p>
+    <p className={styles.shenshaItemHead}><b>{item.name}{item.reference ? '＊' : ''}</b>{!grouped && <span>{item.pillar}</span>}{item.teacher && <em>{item.teacher.tone}｜{item.teacher.theme}</em>}</p>
     {item.tradition && <p className={styles.shenshaBasis}>{item.tradition}</p>}
     {item.teacher && <p className={styles.shenshaTeacher}>{item.teacher.text}</p>}
     {item.onion && <div className={styles.shenshaOnion} aria-label={`${item.name}洋蔥心理學`}>{item.onion.layers.map(layer => <p key={layer.layer}><b>{layer.layer}</b><small>{layer.label}</small><span>{layer.text}</span></p>)}
@@ -93,7 +93,8 @@ function ShenShaIChingSection({ view }: { view?: DualChartResult['specialStars']
         {groups.length > 1 && <nav id="shensha-jump" className={styles.shenshaJump} aria-label="跳到柱位">{groups.map(group => <a key={group.anchor} href={`#${group.anchor}`}>{group.pillar}<small>{group.count}</small></a>)}</nav>}
         {groups.map(group => <div key={group.anchor} id={group.anchor} className={styles.shenshaGroup}>
           {group.pillar && <h5><span>{group.pillar}</span>{groups.length > 1 && <a href="#shensha-jump">回選單</a>}</h5>}
-          <ol className={styles.shenshaDerivation} aria-label={`${group.pillar}逐項導師解盤`}>{group.items.map(item => <ShenShaItemCard key={`${item.pillar}:${item.name}`} item={item} />)}</ol>
+          {'palace' in group && group.palace && <p className={styles.shenshaGroupIntro}>{group.palace}<small>{group.toneLine}</small></p>}
+          <ol className={styles.shenshaDerivation} aria-label={`${group.pillar}逐項導師解盤`}>{group.items.map(item => <ShenShaItemCard key={`${item.pillar}:${item.name}`} item={item} grouped={Boolean(group.pillar)} />)}</ol>
         </div>)}
       </>}
       <div className={styles.shenshaSources} aria-label="出處與公信力">

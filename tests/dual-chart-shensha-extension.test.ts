@@ -338,11 +338,14 @@ if(ic.state==='READY'){
   }
   for (const item of ic.items) {
     assert.ok(item.teacher,`${item.name} carries a teacher reading`);
-    assert.ok(item.teacher!.text.includes(PILLAR_PALACE[item.pillar]),`${item.name} reading extends into its pillar`);
+    assert.ok(item.teacher!.text.includes(`落在${item.pillar}`),`${item.name} reading names its pillar`);
+    assert.ok(!item.teacher!.text.includes(PILLAR_PALACE[item.pillar]),`${item.name} reading no longer repeats the palace line`);
   }
   const wai=ic.items.find(i=>i.id==='waiTaohua')!;
   assert.ok(wai.teacher!.text.includes('異性緣')&&wai.teacher!.text.includes('貴人'),'外桃花 reads as 人緣／異性緣／貴人 (owner example)');
   assert.ok(ic.reading.some(l=>l.includes('福氣')&&l.includes('動能')&&l.includes('提醒')),'tone overview ties the shensha together');
+  for (const g of ic.groups) { assert.equal(g.palace,`${PILLAR_PALACE[g.pillar]}。`,`${g.pillar} palace is told once in the group`); assert.equal(g.items.length,g.count); }
+  assert.equal(ic.groups.find(g=>g.pillar==='時柱')?.toneLine,'福氣 2　動能 2　提醒 2','hour group tone counts (龍德外桃花／羊刃桃花／六厄元辰)');
   // 常用神煞總覽融入：本派解盤原則＋傳統三分類（只標總覽有列的）。
   assert.ok(ic.reading.some(l=>l.includes('形容詞')&&l.includes('五行生剋')&&l.includes('十神')),'principle: shensha are adjectives; five elements and ten gods decide');
   assert.equal(ic.items.find(i=>i.id==='yangren')?.tradition,'傳統分類：凶煞惡星');
