@@ -22,6 +22,8 @@ export interface ShenShaGhostLine { name: string; tone: ShenShaTone | null; text
 export type ShenShaGhostView =
   | {
     state: 'READY';
+    teaser: string;
+    oneLiner: string;
     opening: string;
     decoding: { label: string; text: string }[];
     groups: { pillar: string; intro: string; lines: ShenShaGhostLine[] }[];
@@ -29,7 +31,7 @@ export type ShenShaGhostView =
     closing: string;
     disclaimer: string;
   }
-  | { state: 'BLOCKED'; reason: string };
+  | { state: 'BLOCKED'; teaser: string; reason: string };
 
 /**
  * 鬼語三段：起（依類別三種說法輪替）→ 門外的聲音替你說出心事（取洋蔥「心」那一層，每個神煞不同）→ 收（依類別三種說法輪替）。
@@ -79,7 +81,7 @@ const GHOST_FORMATION: Record<string, (members: string, where: string) => string
 
 export function buildShenShaGhost(view: ShenShaIChingView, hexagram: IChingReading | null): ShenShaGhostView {
   if (view.state !== 'READY' || !hexagram) {
-    return { state: 'BLOCKED', reason: '四柱還沒對齊，壇不能開。茅山的規矩：盤不清，不開口。' };
+    return { state: 'BLOCKED', teaser: '壇未開', reason: '四柱還沒對齊，壇不能開。茅山的規矩：盤不清，不開口。' };
   }
   const d = buildGhostDecoding(hexagram);
   const strip = (text: string) => text.replace(/^【[^】]+】/, '');
@@ -106,6 +108,8 @@ export function buildShenShaGhost(view: ShenShaIChingView, hexagram: IChingReadi
   const heaviest = [...view.groups].sort((a, b) => b.count - a.count)[0];
   return {
     state: 'READY',
+    teaser: total ? `${total} 道神煞氣${heaviest ? `・氣最重在${heaviest.pillar}` : ''}${formations.length ? `・${formations.length} 個陣` : ''}` : '盤上無神煞伏著',
+    oneLiner: total ? `門外低語：${heaviest ? `${heaviest.pillar}的氣最重，` : ''}看起來像鬼的，多半是還沒說出口的心事。` : '門外低語：盤上乾乾淨淨，燈你自己點。',
     opening: `（門外低語）茅山的規矩：先驗四柱，再開壇。你這張盤，八字與紫微一字不差——門，可以開了。${total ? `盤上伏著 ${total} 道神煞氣——護身 ${tones.福氣} 道、活氣 ${tones.動能} 道、門縫風 ${tones.提醒} 道；${heaviest ? `氣最重的在${heaviest.pillar}，${heaviest.count} 道擠在一起。` : ''}今天一道一道點給你看。` : '盤上乾乾淨淨，沒有神煞伏著，這也是一種福氣。'}`,
     decoding: [
       { label: '磁場', text: strip(d.field) },

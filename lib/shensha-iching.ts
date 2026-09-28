@@ -48,6 +48,10 @@ export type ShenShaIChingView =
     /** 各柱命中數，依柱序（年月日時）。 */
     distribution: { pillar: string; count: number }[];
     /** 老師解盤：只串接可回查的事實與既有卦義，不自編吉凶。 */
+    /** 折疊卡預告：收起來時也看得到裡面有什麼。 */
+    teaser: string;
+    /** 一句話：易經老師對這張盤最想說的話（與鬼魅老師對照用）。 */
+    oneLiner: string;
     /** 導師總評：一段話說完這張盤的輪廓。 */
     summary: string;
     /** 最集中柱位的解讀：這張盤的故事多半在哪一面發生。沒有命中時為 null。 */
@@ -137,6 +141,8 @@ export function buildShenShaIChing(params: {
   const claim = registry.claims.find(c => c.claim_id === SHENSHA_ICHING_CLAIM);
   const status: GateStatus = claim ? evaluateClaim(claim, indexSources(registry)).status : 'PENDING_POOL';
   return {
+    teaser: `本命卦「${r.hexagramName}」・神煞 ${items.length} 項${combos.length ? `・合看 ${combos.length} 組` : ''}`,
+    oneLiner: items.length ? `讀意、讀位、讀卦：${focus.join('、')}最集中，回到「${r.hexagramName}」——${r.advice.split('（')[0]}。` : `盤上沒有特星神煞，回到「${r.hexagramName}」——${r.advice.split('（')[0]}。`,
     state: 'READY', chain, items, distribution, summary, focusLine, highlights, reading, combos,
     groups: card.columns.map(col => {
       const groupItems = items.filter(i => i.pillar === col.label);

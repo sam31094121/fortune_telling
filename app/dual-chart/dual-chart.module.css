@@ -200,9 +200,18 @@
 .shenshaSources p{margin:0 0 6px;font-size:13px;line-height:1.7;color:var(--ss-muted);overflow-wrap:anywhere}
 /* 兩張老師解盤卡：易經老師（神，金紫）與鬼魅老師（魔，暗紅黑），折疊點閱。 */
 .teacherCard{margin-top:14px;border-radius:16px;border:1px solid #e9c46a55;background:#1c1929;overflow:hidden}
-.teacherCard>summary{display:flex;align-items:center;gap:10px;min-height:56px;padding:10px 16px;cursor:pointer;list-style:none;user-select:none}
+.teacherDuet{display:grid;gap:8px;margin:14px 0 4px}
+.teacherDuet p{margin:0;padding:10px 12px;border-radius:12px;font-size:14px;line-height:1.75;overflow-wrap:anywhere}
+.teacherDuet b{display:block;margin-bottom:2px;font-size:13px;letter-spacing:.14em}
+.teacherDuet p[data-teacher=iching]{background:#2a2440;border:1px solid #e9c46a44;color:#ece6f7}
+.teacherDuet p[data-teacher=iching] b{color:#f2cf7a}
+.teacherDuet p[data-teacher=ghost]{background:#170a0e;border:1px solid #8f1d2c88;color:#ecdcde;font-family:"Kaiti TC","BiauKai","STKaiti","KaiTi",serif}
+.teacherDuet p[data-teacher=ghost] b{color:#ff8b95}
+.teacherHead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.teacherTeaser{display:block;width:100%;font-size:12.5px;letter-spacing:.04em;opacity:.85}
+.teacherCard>summary{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;min-height:56px;padding:10px 40px 10px 16px;position:relative;cursor:pointer;list-style:none;user-select:none}
 .teacherCard>summary::-webkit-details-marker{display:none}
-.teacherCard>summary::after{content:'';margin-inline-start:auto;width:10px;height:10px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .2s ease;opacity:.8}
+.teacherCard>summary::after{content:'';position:absolute;right:18px;top:50%;margin-top:-7px;width:10px;height:10px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .2s ease;opacity:.8}
 .teacherCard[open]>summary::after{transform:rotate(-135deg)}
 .teacherCard>summary b{font-size:18px;letter-spacing:.14em}
 .teacherCard>summary small{font-size:12px;letter-spacing:.1em;opacity:.8}

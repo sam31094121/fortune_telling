@@ -150,12 +150,16 @@ export function ShenShaCard({ result }: { result: DualChartResult }) {
       </div>)}</div>}
     {card && card.columns.length > 0 && <p className={styles.shenshaLegend} aria-label="圖例"><span data-shensha-tone="福氣">福氣</span><span data-shensha-tone="動能">動能</span><span data-shensha-tone="提醒">提醒</span><span>＊ 本派取法</span></p>}
     {card?.footnote && <p className={styles.shenshaFootnote}>{card.footnote}</p>}
+    {result.specialStars?.iching?.state === 'READY' && result.specialStars?.ghost?.state === 'READY' && <div className={styles.teacherDuet} aria-label="兩位老師一句話">
+      <p data-teacher="iching"><b>易經老師</b>{result.specialStars.iching.oneLiner}</p>
+      <p data-teacher="ghost"><b>鬼魅老師</b>{result.specialStars.ghost.oneLiner}</p>
+    </div>}
     {result.specialStars?.iching && <details className={styles.teacherCard} data-teacher="iching">
-      <summary><b>易經老師解盤</b><small>神　溫和的智慧</small></summary>
+      <summary><span className={styles.teacherHead}><b>易經老師解盤</b><small>神　溫和的智慧</small></span>{result.specialStars.iching.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.iching.teaser}</span>}</summary>
       <ShenShaIChingSection view={result.specialStars.iching} />
     </details>}
     {result.specialStars?.ghost && <details className={styles.teacherCard} data-teacher="ghost">
-      <summary><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small></summary>
+      <summary><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small></span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span></summary>
       <ShenShaGhostSection view={result.specialStars.ghost} />
     </details>}
   </section>;
