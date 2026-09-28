@@ -227,6 +227,12 @@
 .shenshaGhost{padding:6px 14px 18px;color:#e6d4d6;font-family:"Kaiti TC","BiauKai","STKaiti","KaiTi",serif}
 .shenshaGhost p,.shenshaGhost li{overflow-wrap:anywhere}
 .ghostOpening{margin:10px 0 4px;padding:12px 14px;border-left:3px solid #b3263a;background:#1a0c10;font-size:16px;line-height:1.9;color:#f3dfe1;font-style:italic}
+.ghostPersona ol{list-style:none;margin:0;padding:0;display:grid;gap:6px;counter-reset:none}
+.ghostPersona li{display:grid;grid-template-columns:3em minmax(0,1fr);gap:8px;align-items:baseline;padding:8px 10px;border-left:2px solid #5a1a23;font-size:14.5px;line-height:1.85;color:#ecdcde}
+.ghostPersona li b{font-size:14px;letter-spacing:.2em;color:#ff8b95}
+.ghostPersona li:last-child{border-left-color:#d9a441}
+.ghostPersona li:last-child b{color:#f2cf7a}
+.ghostMotto{margin:14px 0 4px;text-align:center;font-size:24px;font-weight:700;letter-spacing:.35em;color:#f3dfe1;text-shadow:0 0 16px #ff3b4f66}
 .ghostTitle{display:flex;align-items:center;gap:8px;margin:18px 0 8px;font-size:16px;letter-spacing:.3em;color:#ff8b95}
 .ghostTitle::before{content:'';width:14px;height:1px;background:#b3263a}
 .ghostDecoding,.ghostFormations{list-style:none;margin:0;padding:0;display:grid;gap:8px}

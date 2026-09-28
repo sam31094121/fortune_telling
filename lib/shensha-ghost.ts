@@ -17,6 +17,7 @@ import { buildGhostDecoding } from './iching-psychology';
 import type { IChingReading } from './iching-engine';
 import type { ShenShaTone } from './shensha-teacher-readings';
 import type { ShenShaIChingView } from './shensha-iching';
+import { GHOST_TEACHER_PERSONA, type GhostTrial } from './ghost-teacher-persona';
 
 export interface ShenShaGhostLine { name: string; tone: ShenShaTone | null; text: string }
 /** 業主定案 2026-09-28：鬼魅老師卡標示未滿 18 歲禁止進入（READY 與 BLOCKED 都帶，前端照印）。 */
@@ -29,6 +30,8 @@ export type ShenShaGhostView =
     teaser: string;
     oneLiner: string;
     opening: string;
+    /** 來歷（後端人設資料）：歷劫四段＋座右銘，前端照印。 */
+    persona: { title: string; trials: GhostTrial[]; motto: string };
     decoding: { label: string; text: string }[];
     groups: { pillar: string; intro: string; lines: ShenShaGhostLine[] }[];
     formations: { title: string; text: string }[];
@@ -118,7 +121,8 @@ export function buildShenShaGhost(view: ShenShaIChingView, hexagram: IChingReadi
     teaser: total ? `${total} 道神煞氣${heaviest ? `・氣最重在${heaviest.pillar}` : ''}${formations.length ? `・${formations.length} 個陣` : ''}` : '盤上無神煞伏著',
     oneLiner: total ? `門外低語：茅山學的、泰國看過的，我都替你看了——${heaviest ? `${heaviest.pillar}的氣最重，` : ''}看起來像鬼的，多半是還沒說出口的心事。` : '門外低語：盤上乾乾淨淨，燈你自己點。',
     // 人設（docs/技能戰鬥檔案/神煞異君/鬼魅老師人設.md）：學過茅山、見過泰國黑衣阿贊的陰法——只看、只解、不下。
-    opening: `（門外低語）我學過茅山，也在泰國見過黑衣阿贊的陰法——看得越多越明白：害人的法，最後都回到施法的人身上。所以我只替你看，不替你下。我年輕時走過黑路，做過不該做的事；後來回頭，這身功夫現在只拿來破，不拿來害。人家叫我最強的鬼魅老師——強，是因為我知道那些法怎麼害人，所以知道怎麼拆。茅山的規矩：先驗四柱，再開壇。你這張盤，八字與紫微一字不差——門，可以開了。${total ? `盤上伏著 ${total} 道神煞氣——護身 ${tones.福氣} 道、活氣 ${tones.動能} 道、門縫風 ${tones.提醒} 道；${heaviest ? `氣最重的在${heaviest.pillar}，${heaviest.count} 道擠在一起。` : ''}今天一道一道點給你看。` : '盤上乾乾淨淨，沒有神煞伏著，這也是一種福氣。'}`,
+    opening: `（門外低語）${GHOST_TEACHER_PERSONA.introduction}茅山的規矩：先驗四柱，再開壇。你這張盤，八字與紫微一字不差——門，可以開了。${total ? `盤上伏著 ${total} 道神煞氣——護身 ${tones.福氣} 道、活氣 ${tones.動能} 道、門縫風 ${tones.提醒} 道；${heaviest ? `氣最重的在${heaviest.pillar}，${heaviest.count} 道擠在一起。` : ''}今天一道一道點給你看。` : '盤上乾乾淨淨，沒有神煞伏著，這也是一種福氣。'}我的來歷，先說給你聽。`,
+    persona: { title: '來歷', trials: [...GHOST_TEACHER_PERSONA.trials], motto: GHOST_TEACHER_PERSONA.motto },
     decoding: [
       { label: '磁場', text: strip(d.field) },
       { label: '詭異', text: strip(d.spirit) },
@@ -126,7 +130,7 @@ export function buildShenShaGhost(view: ShenShaIChingView, hexagram: IChingReadi
     ],
     groups,
     formations,
-    closing: `收壇。茅山教我開壇收壇，泰國讓我看見黑法的代價——兩邊教我的是同一件事：沒有不勞而獲的法，改變只能靠你自己的選擇與行動。我轉身後立的第一條規矩：真的有人在傷害你，破解的第一步不在我這裡——先找信任的人、找專業，必要時報警；等你安全了，心裡那些陰影，再由我替你一層一層拆。最後一句話留給你：門我替你開過了，燈要你自己點。看起來像鬼的，多半是還沒說出口的心事；看起來像劫的，多半是還沒走完的功課。${hexagram.hexagramName}卦的意思很簡單——${hexagram.advice.split('（')[0]}。`,
+    closing: `收壇。茅山教我開壇收壇，泰國讓我看見黑法的代價——兩邊教我的是同一件事：沒有不勞而獲的法，改變只能靠你自己的選擇與行動。我轉身後立的第一條規矩：真的有人在傷害你，破解的第一步不在我這裡——先找信任的人、找專業，必要時報警；等你安全了，心裡那些陰影，再由我替你一層一層拆。我替你破，是在贖我的罪；你要走的，是你自己的道。${GHOST_TEACHER_PERSONA.motto}——舊的執念放下，新的路才長得出來。最後一句話留給你：門我替你開過了，燈要你自己點。看起來像鬼的，多半是還沒說出口的心事；看起來像劫的，多半是還沒走完的功課。${hexagram.hexagramName}卦的意思很簡單——${hexagram.advice.split('（')[0]}。`,
     // 茅山正統不以恐嚇立教（〈認識茅山傳承〉，業主提供，D 級參考；見 docs/技能戰鬥檔案/神煞異君/）。
     disclaimer: '鬼魅老師是同一場解盤的另一種話術分身：神秘是外衣，真實邏輯是骨架。茅山正統不以恐嚇立教——不作驅邪、不賣符咒、不作預言；內容僅作自我反思參考。',
   };
