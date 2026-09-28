@@ -4,6 +4,7 @@
  * 只可使用型別匯入：測試會用 transpile 直接載入本檔。
  */
 import type { BaziShenShaItem } from './bazi/engine';
+import type { ShenShaTone } from './shensha-teacher-readings';
 
 export type ShenShaCardPillar = 'year' | 'month' | 'day' | 'hour';
 const ALL: ShenShaCardPillar[] = ['year', 'month', 'day', 'hour'];
@@ -34,7 +35,7 @@ export const SHENSHA_INSPECTED_PILLARS: Record<string, ShenShaCardPillar[]> = {
 };
 
 /** reference＝依太極紫微易經派取法（本站自家一派），尚無原典頁碼；前端以＊標註。 */
-export interface ShenShaCardHit { id: string; name: string; rule: string; sourceLabel: string; reference: boolean }
+export interface ShenShaCardHit { id: string; name: string; rule: string; sourceLabel: string; reference: boolean; tone: ShenShaTone | null }
 export interface ShenShaCardColumn {
   pillar: ShenShaCardPillar;
   label: string;
@@ -61,7 +62,7 @@ interface SpecialStarsLike { byPillar?: Partial<Record<ShenShaCardPillar, CardIt
 
 const DONE = new Set(['MATCHED', 'NOT_MATCHED']);
 
-export function buildShenShaCardView(stars: SpecialStarsLike | undefined, coreReady: boolean, pillarMismatches?: string[]): ShenShaCardView {
+export function buildShenShaCardView(stars: SpecialStarsLike | undefined, coreReady: boolean, pillarMismatches?: string[], toneOf: (id: string) => ShenShaTone | null = () => null): ShenShaCardView {
   const complete = Boolean(stars && Array.isArray(stars.raw) && Array.isArray(stars.coverage) && stars.coverage.length
     && ALL.every(key => Array.isArray(stars.byPillar?.[key])));
   if (!complete) return { state: 'unavailable', notice: '神煞資料尚未完整，暫不能判斷有無結果。', footnote: null, columns: [] };
@@ -74,6 +75,7 @@ export function buildShenShaCardView(stars: SpecialStarsLike | undefined, coreRe
       id: hit.id, name: hit.name, rule: hit.rule,
       sourceLabel: hit.source ? `${hit.source.title}，${/^\d/.test(hit.source.printedPage) ? `印頁${hit.source.printedPage}` : hit.source.printedPage}` : '太極紫微易經派取法（原典頁碼待補）',
       reference: !hit.source,
+      tone: toneOf(hit.id),
     })) : [];
     const pendingNames = coreReady ? pendingFor(key) : [];
     const state = hits.length ? 'HIT' : !coreReady || pendingNames.length ? 'PENDING' : 'NONE';

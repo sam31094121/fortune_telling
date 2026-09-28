@@ -41,6 +41,8 @@ export type ShenShaIChingView =
     hexagram: { name: string; glyph: string; kingWen: number; changingLine: number; changingLabel: string; essence: string; advice: string };
     /** 整盤合看：本派組合規則找出的神煞組合（同柱或整盤）。 */
     combos: ShenShaCombo[];
+    /** 逐柱細看：依年月日時分組（只含有命中的柱），anchor 供畫面跳轉。 */
+    groups: { pillar: string; anchor: string; count: number; items: ShenShaIChingItem[] }[];
     /** 每一個命中的神煞，逐項延伸。 */
     items: ShenShaIChingItem[];
     /** 各柱命中數，依柱序（年月日時）。 */
@@ -123,6 +125,7 @@ export function buildShenShaIChing(params: {
   const status: GateStatus = claim ? evaluateClaim(claim, indexSources(registry)).status : 'PENDING_POOL';
   return {
     state: 'READY', chain, items, distribution, reading, combos,
+    groups: card.columns.map(col => ({ pillar: col.label, anchor: `shensha-${col.pillar}`, count: col.hits.length, items: items.filter(i => i.pillar === col.label) })).filter(g => g.count > 0),
     hexagram: { name: r.hexagramName, glyph: r.glyph, kingWen: r.kingWen, changingLine: r.changingLine, changingLabel: `第${r.changingLine}爻動`, essence: r.essence, advice: r.advice },
     credibility: { status, line: `神煞易經解盤：${STATUS_WORDING[status]}` },
     imageryAttribution: SHENSHA_IMAGERY_ATTRIBUTION,

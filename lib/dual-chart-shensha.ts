@@ -3,6 +3,7 @@ import registryJson from '../docs/技能戰鬥檔案/八字/來源登記.json';
 import { indexSources, type SourceRegistry } from './iching-source-gate';
 import { evaluateBaziShenShaRule, type BaziShenShaRuleGate, type BaziTraditionalOutputGate } from './bazi-traditional-gate';
 import { buildShenShaCardView } from './dual-chart-shensha-card';
+import { SHENSHA_TEACHER_READINGS } from './shensha-teacher-readings';
 import { BRANCHES, type BaziProfessionalResult, type BaziShenShaItem, type Branch, type Stem } from './bazi/engine';
 
 export const DUAL_SHENSHA_VERSION = 'DUAL_SHENSHA_REFERENCE_CHART_V4';
@@ -370,7 +371,7 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
       reason: pillarCheck?.passed === false ? `八字與紫微四柱不一致（${pillarCheck.mismatches.join('；')}）；不判定是否命中。` : !coreReady ? '基礎四柱尚未通過驗證；不判定是否命中。' : dataBlocked ? id === 'waiTaohua' ? '外桃花需要已確認的時柱；資料不足不判定未命中。' : '元辰需要已確認的性別、年柱與時柱；資料不足不判定未命中。' : rule.outputStatus === 'READY' ? `依已採用取法${matchedPillars.length ? '命中' : '未命中'}；不是所有流派皆無。` : rule.reasons.join('；'), matchedPillars };
   });
   // 卡片要顯示的內容在後端一次決定；前端只照印。
-  const card = buildShenShaCardView({ raw, byPillar, coverage }, coreReady, pillarCheck?.passed === false ? pillarCheck.mismatches : undefined);
+  const card = buildShenShaCardView({ raw, byPillar, coverage }, coreReady, pillarCheck?.passed === false ? pillarCheck.mismatches : undefined, id => SHENSHA_TEACHER_READINGS[id]?.tone ?? null);
   // 原核心規則（袁本）不動，只作來源對照說明用；本卡的正式輸出以 rules 為準。
   // 來源說明句由後端給，前端只照印（前端禁止生成）。
   const sourceNote = {

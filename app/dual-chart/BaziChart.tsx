@@ -56,26 +56,52 @@ export function PillarGrid({ result, compact = false, language = 'zh' }: { resul
   </table>;
 }
 
+type ShenShaIChingView = NonNullable<DualChartResult['specialStars']['iching']>;
+type ShenShaIChingReady = Extract<ShenShaIChingView, { state: 'READY' }>;
+
+/** 逐項細看的一張卡：導師話術 → 洋蔥三層 → 推導 → 字的意境。只照印後端欄位。 */
+function ShenShaItemCard({ item }: { item: ShenShaIChingReady['items'][number] }) {
+  return <li data-shensha-tone={item.teacher?.tone}>
+    <p className={styles.shenshaItemHead}><b>{item.name}{item.reference ? '＊' : ''}</b><span>{item.pillar}</span>{item.teacher && <em>{item.teacher.tone}｜{item.teacher.theme}</em>}</p>
+    {item.tradition && <p className={styles.shenshaBasis}>{item.tradition}</p>}
+    {item.teacher && <p className={styles.shenshaTeacher}>{item.teacher.text}</p>}
+    {item.onion && <div className={styles.shenshaOnion} aria-label={`${item.name}洋蔥心理學`}>{item.onion.layers.map(layer => <p key={layer.layer}><b>{layer.layer}</b><small>{layer.label}</small><span>{layer.text}</span></p>)}
+      {item.onion.term && <p className={styles.shenshaTerm}><b>心理學</b><span>{item.onion.term.name}｜{item.onion.term.link}<cite>{item.onion.term.citation}</cite></span></p>}</div>}
+    <p className={styles.shenshaBasis}>推導：{item.derivation}</p>
+    {item.imagery?.chars?.length > 0 && <ul className={styles.shenshaImagery} aria-label={`${item.name}字的意境`}>{item.imagery.chars.map((c, index) => <li key={index}><b>{c.char}</b><small>{c.element}</small><span>{c.senseText ?? c.sense}</span></li>)}</ul>}
+  </li>;
+}
+
 /** 《神煞易經》第④層：只照印後端 buildShenShaIChing 的結果，不自己組句、不自己算。 */
 function ShenShaIChingSection({ view }: { view?: DualChartResult['specialStars']['iching'] }) {
   if (!view) return null;
+  // 舊版結果沒有 groups 時，整批照原順序顯示，不在前端自己分組。
+  const groups = view.state === 'READY' ? view.groups ?? [{ pillar: '', anchor: 'shensha-items', count: view.items.length, items: view.items }] : [];
   return <section className={styles.shenshaIching} aria-label="神煞易經解盤" data-shensha-iching-state={view.state}>
-    <ol className={styles.shenshaChain}>{view.chain.map(item => <li key={item.step}><b>{item.step}</b>{item.text}</li>)}</ol>
+    <h4 className={styles.shenshaSectionTitle}>衍生鏈</h4>
+    <ol className={styles.shenshaChain}>{view.chain.map(item => <li key={item.step}><b>{item.step}</b><span>{item.text}</span></li>)}</ol>
     {view.state === 'BLOCKED' ? <p role="status">{view.reason}</p> : <>
-      <p className={styles.shenshaHexagram}><span aria-hidden="true">{view.hexagram.glyph}</span>{view.hexagram.name}<small>{view.hexagram.changingLabel}</small></p>
-      {view.reading.map((line, index) => <p key={index}>{line}</p>)}
-      {view.combos?.length > 0 && <ol className={styles.shenshaCombos} aria-label="整盤合看">{view.combos.map(combo => <li key={`${combo.id}:${combo.pillar ?? ''}`} data-shensha-combo={combo.id}><b>{combo.title}</b>{combo.pillar && <small>{combo.pillar}</small>}<p>{combo.text}</p></li>)}</ol>}
-      {view.items.length > 0 && <ol className={styles.shenshaDerivation} aria-label="特星神煞逐項導師解盤、推導與字的意境">{view.items.map(item =>
-        <li key={`${item.pillar}:${item.name}`} data-shensha-tone={item.teacher?.tone}><p><b>{item.name}{item.reference ? '＊' : ''}</b><span>{item.pillar}</span>{item.teacher && <em>{item.teacher.tone}｜{item.teacher.theme}</em>}</p>
-          {item.tradition && <p className={styles.shenshaBasis}>{item.tradition}</p>}
-          {item.teacher && <p className={styles.shenshaTeacher}>{item.teacher.text}</p>}
-          {item.onion && <div className={styles.shenshaOnion} aria-label={`${item.name}洋蔥心理學`}>{item.onion.layers.map(layer => <p key={layer.layer}><b>{layer.layer}</b><small>{layer.label}</small><span>{layer.text}</span></p>)}
-            {item.onion.term && <p className={styles.shenshaTerm}><b>心理學</b><span>{item.onion.term.name}｜{item.onion.term.link}<cite>{item.onion.term.citation}</cite></span></p>}</div>}
-          <p className={styles.shenshaBasis}>推導：{item.derivation}</p>
-          {item.imagery?.chars?.length > 0 && <ul className={styles.shenshaImagery} aria-label={`${item.name}字的意境`}>{item.imagery.chars.map((c, index) => <li key={index}><b>{c.char}</b><small>{c.element}</small><span>{c.senseText ?? c.sense}</span></li>)}</ul>}</li>)}</ol>}
-      {view.imageryAttribution && <p className={styles.shenshaFootnote}>{view.imageryAttribution}</p>}
-      {view.onionCredibility && <p className={styles.shenshaFootnote}>{view.onionCredibility.line}</p>}
-      <p className={styles.shenshaFootnote}>{view.credibility.line}</p>
+      <div className={styles.shenshaHexagram}><span aria-hidden="true">{view.hexagram.glyph}</span><p><small>本命卦</small><b>{view.hexagram.name}</b><small>{view.hexagram.changingLabel}</small></p></div>
+      <h4 className={styles.shenshaSectionTitle}>導師總覽</h4>
+      <div className={styles.shenshaReading}>{view.reading.map((line, index) => <p key={index}>{line}</p>)}</div>
+      {view.combos?.length > 0 && <>
+        <h4 className={styles.shenshaSectionTitle}>整盤合看</h4>
+        <ol className={styles.shenshaCombos} aria-label="整盤合看">{view.combos.map(combo => <li key={`${combo.id}:${combo.pillar ?? ''}`} data-shensha-combo={combo.id}><p><b>{combo.title}</b>{combo.pillar && <small>{combo.pillar}</small>}</p><p>{combo.text}</p></li>)}</ol>
+      </>}
+      {groups.length > 0 && <>
+        <h4 className={styles.shenshaSectionTitle}>逐柱細看</h4>
+        {groups.length > 1 && <nav id="shensha-jump" className={styles.shenshaJump} aria-label="跳到柱位">{groups.map(group => <a key={group.anchor} href={`#${group.anchor}`}>{group.pillar}<small>{group.count}</small></a>)}</nav>}
+        {groups.map(group => <div key={group.anchor} id={group.anchor} className={styles.shenshaGroup}>
+          {group.pillar && <h5><span>{group.pillar}</span>{groups.length > 1 && <a href="#shensha-jump">回選單</a>}</h5>}
+          <ol className={styles.shenshaDerivation} aria-label={`${group.pillar}逐項導師解盤`}>{group.items.map(item => <ShenShaItemCard key={`${item.pillar}:${item.name}`} item={item} />)}</ol>
+        </div>)}
+      </>}
+      <div className={styles.shenshaSources} aria-label="出處與公信力">
+        <h4 className={styles.shenshaSectionTitle}>出處與公信力</h4>
+        {view.imageryAttribution && <p>{view.imageryAttribution}</p>}
+        {view.onionCredibility && <p>{view.onionCredibility.line}</p>}
+        <p>{view.credibility.line}</p>
+      </div>
     </>}
   </section>;
 }
@@ -85,16 +111,19 @@ export function ShenShaCard({ result }: { result: DualChartResult }) {
   const card = result.specialStars?.card;
   const state = card?.state ?? 'unavailable';
   return <section className={styles.shenshaCard} aria-label="特星神煞" data-screen-arrow-target="dual-chart-special-stars" data-shensha-card-state={state}>
-    <h3>神煞易經</h3>
-    <p className={styles.shenshaSubtitle}>八字 → 紫微 → 特星神煞 → 易經</p>
+    <header className={styles.shenshaHeader}>
+      <h3>神煞易經</h3>
+      <p className={styles.shenshaSubtitle}>八字 → 紫微 → 特星神煞 → 易經</p>
+    </header>
     {card?.notice && <p role="status">{card.notice}</p>}
     {!card && <p role="status">神煞資料尚未完整，暫不能判斷有無結果。</p>}
     {card && card.columns.length > 0 && <div className={styles.shenshaPillars}>{card.columns.map(col =>
       <div key={col.pillar} data-shensha-column={col.pillar} data-shensha-column-state={col.state}><h4>{col.label}</h4>
-        <ul aria-label={`${col.label}神煞`}>{col.hits.map(hit => <li key={`${hit.id}:${hit.name}`} data-shensha-result={hit.id} data-shensha-method={hit.reference ? 'reference' : 'source'} title={`${hit.rule}｜${hit.sourceLabel}`}>{hit.name}</li>)}</ul>
+        <ul aria-label={`${col.label}神煞`}>{col.hits.map(hit => <li key={`${hit.id}:${hit.name}`} data-shensha-result={hit.id} data-shensha-method={hit.reference ? 'reference' : 'source'} data-shensha-tone={hit.tone ?? undefined} title={`${hit.rule}｜${hit.sourceLabel}`}>{hit.name}</li>)}</ul>
         {col.emptyText && <span className={styles.shenshaEmpty} aria-label={col.state === 'PENDING' ? `結果尚未完整：${col.pendingNames.join('、')}` : '本次未命中本站既有規則'}>{col.emptyText}</span>}
         {col.note && <small className={styles.shenshaPillarNote}>{col.note}</small>}
       </div>)}</div>}
+    {card && card.columns.length > 0 && <p className={styles.shenshaLegend} aria-label="圖例"><span data-shensha-tone="福氣">福氣</span><span data-shensha-tone="動能">動能</span><span data-shensha-tone="提醒">提醒</span><span>＊ 本派取法</span></p>}
     {card?.footnote && <p className={styles.shenshaFootnote}>{card.footnote}</p>}
     <ShenShaIChingSection view={result.specialStars?.iching} />
   </section>;
