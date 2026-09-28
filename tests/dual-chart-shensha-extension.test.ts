@@ -392,6 +392,12 @@ if(ic.state==='READY'){
     assert.ok(gh.groups.every(g=>g.intro.startsWith(g.pillar)),'each ghost pillar has its own intro');
     assert.equal(gh.teaser,'17 道神煞氣・氣最重在時柱・4 個陣');
     assert.equal(gh.ageGate,'未滿 18 歲禁止進入','ghost card carries the 18+ notice');
+    // 人設貫穿：收壇、一句話都帶出茅山與泰國兩段經歷；風浪陣用「看破」拆穿收錢解降的說法。
+    assert.ok(gh.closing.includes('茅山')&&gh.closing.includes('泰國')&&gh.closing.includes('沒有不勞而獲'),'closing weaves both lineages');
+    assert.ok(gh.opening.includes('走過黑路')&&gh.opening.includes('回頭')&&gh.opening.includes('只拿來破'),'opening tells the reformed-master backstory');
+    assert.ok(gh.closing.includes('找信任的人')&&gh.closing.includes('報警'),'breaking harm never delays real-world help');
+    assert.ok(gh.oneLiner.includes('茅山')&&gh.oneLiner.includes('泰國'),'one-liner carries the persona');
+    assert.ok(gh.formations.find(f=>f.title.startsWith('外來的風浪陣'))!.text.includes('看破'),'outer-waves formation debunks the paid-cure pitch');
     assert.equal(ic.teaser,'本命卦「地澤臨」・神煞 17 項・合看 4 組');
     assert.notEqual(ic.oneLiner,gh.oneLiner,'the two teachers say different one-liners');
     assert.ok(gh.oneLiner.startsWith('門外低語')&&ic.oneLiner.includes(ic.hexagram.name));
