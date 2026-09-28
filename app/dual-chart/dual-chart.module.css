@@ -462,3 +462,8 @@ details[open]>summary .moreHint::after{content:' ▴'}
 /* 客人審查第三輪：格子點擊高度 28px → 40px（長輩好點） */
 .shenshaPillars ul{gap:0}
 .shenshaPillars li a{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 2px;line-height:1.3}
+/* 鬼魅老師封印：貼現有封印符（SharedElementSealPaper），卡頭仍透出、點不開 */
+.ghostSealed{position:relative;overflow:visible;cursor:not-allowed;user-select:none}
+.ghostSealedHead{padding:14px 16px;opacity:.55;filter:saturate(.6)}
+.ghostSealNotice{display:block;margin-top:6px;font-size:13px;letter-spacing:.2em;color:#ff9aa4}
+.ghostSealed :global(.space-seal-paper){top:-18%;left:auto;right:10%;width:58px;height:136%;padding-top:10px}

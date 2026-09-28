@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { DualChartResult } from '@/lib/dual-chart';
 import styles from './dual-chart.module.css';
+import { SharedElementSealPaper } from '@/components/bazi/customer/SharedElementSealPaper';
 import ElementRing from './ElementRing';
 import ShenShaSourceEvidence, { ShenShaComparisonSummary, ShenShaEvidenceLinks } from '@/components/bazi/customer/ShenShaSourceEvidence';
 import { shenShaDisplayCopy, shenShaDisplayNames } from '@/lib/shensha-display-copy';
@@ -252,6 +253,8 @@ function ShenShaFlowSection({ view }: { view?: DualChartResult['specialStars']['
 /** 鬼魅老師解盤（茅山道士話術分身）：只照印後端 buildShenShaGhost 的結果。 */
 function ShenShaGhostSection({ view }: { view?: DualChartResult['specialStars']['ghost'] }) {
   if (!view) return null;
+  // 封印中：本文一個字都不畫（後端本來也不送）。
+  if (view.state === 'SEALED') return null;
   if (view.state === 'BLOCKED') return <section className={styles.shenshaGhost} aria-label="鬼魅老師解盤內容">{view.ageGate && <p className={styles.ageGateBanner}>{view.ageGate}</p>}<p role="status">{view.reason}</p></section>;
   return <section className={styles.shenshaGhost} aria-label="鬼魅老師解盤內容">
     {view.ageGate && <p className={styles.ageGateBanner}>{view.ageGate}</p>}
@@ -294,9 +297,9 @@ export function ShenShaCard({ result }: { result: DualChartResult }) {
     {card && card.columns.length > 0 && <p className={styles.shenshaLegend} aria-label="圖例"><span data-shensha-tone="福氣">福氣</span><span data-shensha-tone="動能">動能</span><span data-shensha-tone="提醒">提醒</span><span>＊ 本派取法</span></p>}
     {card?.footnote && <p className={styles.shenshaFootnote}>{card.footnote}</p>}
     {result.specialStars?.flow?.state === 'READY' && <div className={styles.flowStrip} aria-label="流年一句話">{result.specialStars.flow.years.map(year => <p key={year.year}><b>{year.label}</b>{year.oneLiner}</p>)}</div>}
-    {result.specialStars?.iching?.state === 'READY' && result.specialStars?.ghost?.state === 'READY' && <div className={styles.teacherDuet} aria-label="兩位老師一句話">
+    {result.specialStars?.iching?.state === 'READY' && <div className={styles.teacherDuet} aria-label="兩位老師一句話">
       <p data-teacher="iching"><b>易經老師</b>{result.specialStars.iching.oneLiner}</p>
-      <p data-teacher="ghost"><b>鬼魅老師</b>{result.specialStars.ghost.oneLiner}</p>
+      {result.specialStars?.ghost?.state === 'READY' && <p data-teacher="ghost"><b>鬼魅老師</b>{result.specialStars.ghost.oneLiner}</p>}
     </div>}
     {result.specialStars?.iching && <TeacherFold teacher="iching" summary={<summary><span className={styles.teacherHead}><b>易經老師解盤</b><small>神　溫和的智慧</small></span>{result.specialStars.iching.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.iching.teaser}</span>}</summary>}>
       <ShenShaIChingSection view={result.specialStars.iching} />
@@ -305,7 +308,12 @@ export function ShenShaCard({ result }: { result: DualChartResult }) {
       <ShenShaFlowSection view={result.specialStars.flow} />
     </TeacherFold>}
     <ShenShaShare share={result.specialStars?.share} />
-    {result.specialStars?.ghost && <TeacherFold teacher="ghost" summary={<summary><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small>{result.specialStars.ghost.ageGate && <em className={styles.ageGate}>{result.specialStars.ghost.ageGate}</em>}</span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span></summary>}>
+    {/* 鬼魅老師封印中（業主定案 2026-09-28）：貼現有封印符，卡頭可見、點不開；解封改 lib/shensha-ghost.ts 的 GHOST_SEALED。 */}
+    {result.specialStars?.ghost?.state === 'SEALED' && <div className={`${styles.teacherCard} ${styles.ghostSealed}`} data-teacher="ghost" data-sealed="true" aria-label={result.specialStars.ghost.sealNotice}>
+      <div className={styles.ghostSealedHead}><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small><em className={styles.ageGate}>{result.specialStars.ghost.ageGate}</em></span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span><span className={styles.ghostSealNotice}>{result.specialStars.ghost.sealNotice}</span></div>
+      <SharedElementSealPaper />
+    </div>}
+    {result.specialStars?.ghost && result.specialStars.ghost.state !== 'SEALED' && <TeacherFold teacher="ghost" summary={<summary><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small>{result.specialStars.ghost.ageGate && <em className={styles.ageGate}>{result.specialStars.ghost.ageGate}</em>}</span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span></summary>}>
       <ShenShaGhostSection view={result.specialStars.ghost} />
     </TeacherFold>}
   </section>;

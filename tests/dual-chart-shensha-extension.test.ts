@@ -477,7 +477,7 @@ if(ic.state==='READY'){
   assert.ok(ic.items.every(i=>!i.hook!.startsWith('其實')),'hooks do not all open with the same word');
   // 同一顆神煞落在兩柱：第二次的重點句講柱位，不和第一次一樣（易經老師與鬼魅老師都是）。
   {
-    const twice=calculateDualChart({birthDate:'1990-05-15',birthTime:'14:00',gender:'female',calendarType:'solar',timezone:'Asia/Taipei'});
+    const twice=calculateDualChart({birthDate:'1990-05-15',birthTime:'14:00',gender:'female',calendarType:'solar',timezone:'Asia/Taipei'},{revealSealedGhost:true});
     const ic2=twice.specialStars.iching; const gh2=twice.specialStars.ghost;
     assert.ok(ic2.state==='READY'&&gh2.state==='READY');
     if (ic2.state==='READY'&&gh2.state==='READY') {
@@ -510,7 +510,11 @@ if(ic.state==='READY'){
     assert.ok(rule.members.every(id=>DUAL_SHENSHA_RULES.some(([rid])=>rid===id)),`combo ${rule.id} only uses computed shensha`);
   }
   // 鬼魅老師（茅山道士話術分身）：同一張盤、同一個卦，說法落差大，但界線不變。
-  const gh=actual.specialStars.ghost;
+  // 鬼魅老師封印中：對外回應只有卡頭與封印說明，話術本文不出後端。
+  const sealed=actual.specialStars.ghost as { state: string };
+  assert.equal(sealed.state,'SEALED','ghost teacher is sealed for the public');
+  assert.deepEqual(Object.keys(sealed).sort(),['ageGate','sealNotice','state','teaser'],'sealed ghost sends only the header');
+  const gh=calculateDualChart(input,{revealSealedGhost:true}).specialStars.ghost;
   assert.equal(gh.state,'READY');
   if(gh.state==='READY'){
     assert.deepEqual(gh.decoding.map(d=>d.label),['磁場','詭異','因果'],'ghost decoding follows the three-part standard');

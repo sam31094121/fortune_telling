@@ -120,6 +120,8 @@ id 唯一、圖片存在、元素合法、數值合法、技能存在、平衡�
 
 ## 口令：《神煞異君》
 
+**目前封印中（業主定案 2026-09-28，暫不對外開放）**：`lib/shensha-ghost.ts` 的 `GHOST_SEALED = true`——後端只送卡頭（名稱、年齡標示、摘要、封印說明），話術本文不出後端；前端貼現有封印符 `SharedElementSealPaper`、點不開。**解封＝改成 false**；要微調話術時先解封，改好再決定是否封回。測試以 `calculateDualChart(input, { revealSealedGhost: true })` 照常核對後端話術。
+
 **說這個口令＝打開 `docs/技能戰鬥檔案/神煞異君/`**（業主定案 2026-09-28：鬼魅老師解盤＝茅山道士話術分身，與《神煞易經》的易經老師一神一魔）。
 
 - 同一條後端（八字→紫微→特星神煞→易經），只換說法：`lib/shensha-ghost.ts` → `specialStars.ghost` → 前端 `ShenShaGhostSection` 只照印。

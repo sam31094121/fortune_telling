@@ -5,14 +5,17 @@ import { analyzeBazi } from './bazi-engine';
 import { attachBaziProfessionalCoreV5, type BaziRuntimeInput } from './bazi-professional-result-v5';
 import { runBaziLayer, runIChingLayer, runZiweiLayer } from './three-core-engine';
 import { buildShenShaIChing } from './shensha-iching';
-import { buildShenShaGhost } from './shensha-ghost';
+import { buildShenShaGhost, GHOST_SEALED, sealShenShaGhost, type ShenShaGhostView, type ShenShaGhostSealed } from './shensha-ghost';
+
+const sealedGhost = (view: ShenShaGhostView, reveal?: boolean): ShenShaGhostView | ShenShaGhostSealed => GHOST_SEALED && !reveal ? sealShenShaGhost(view) : view;
 import { verifyFourPillars } from './three-in-one';
 import { getBaziTraditionalOutputGate } from './bazi-traditional-gate';
 import { buildDualChartShenSha, buildFlowYearShenSha } from './dual-chart-shensha';
 import { buildShenShaFlow } from './shensha-flow-year';
 import { buildShenShaShare } from './shensha-share';
 
-export function calculateDualChart(body: unknown) {
+/** revealSealedGhost 只給測試核對後端話術用；對外 API 一律不帶，鬼魅老師封印中只送卡頭。 */
+export function calculateDualChart(body: unknown, options: { revealSealedGhost?: boolean } = {}) {
   if (!body || typeof body !== 'object') throw new Error('請填寫出生資料。');
   const input = body as Record<string, unknown>;
   if (input.calendarType !== 'solar' || input.timezone !== 'Asia/Taipei') throw new Error('基礎版僅支援國曆及台灣標準時間（UTC+8）。');
@@ -56,7 +59,7 @@ export function calculateDualChart(body: unknown) {
   const iching = runIChingLayer({ input: baziInput, core: bazi, bazi: baziLayer, ziwei: ziweiLayer });
   const ichingView = buildShenShaIChing({ pillars: baziPillars, pillarCheckPassed: mismatches.length === 0, card: shenSha.card, iching });
   // 鬼魅老師（茅山道士話術分身）：同一張盤、同一個卦，後端另組一套說法。
-  const specialStars = { ...shenSha, iching: ichingView, ghost: buildShenShaGhost(ichingView, iching.status === 'READY' ? iching.reading : null) };
+  const specialStars = { ...shenSha, iching: ichingView, ghost: sealedGhost(buildShenShaGhost(ichingView, iching.status === 'READY' ? iching.reading : null), options.revealSealedGhost) };
   // Reuse the existing backend extension over the verified pillars; the UI only renders its results.
   // 參考取法項目沒有原典頁碼（source 省略）；所有讀取 source 的畫面都先判斷是否存在。
   const dualShenSha = specialStars.raw as BaziShenShaItem[];

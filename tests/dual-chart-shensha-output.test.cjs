@@ -291,6 +291,15 @@ const formationHtml = card(withFormation);
 const fi = formationHtml.indexOf('後端陣名');
 assert.ok(fi > 0 && formationHtml.lastIndexOf('<summary', fi) > formationHtml.lastIndexOf('</summary>', fi) && fi < formationHtml.indexOf('後端陣法內容'), 'formation name is the summary; its text is folded under it');
 console.log('PASS: 鬼魅老師 hook first, full ghost wording folded; formations show names first');
+// 鬼魅老師封印：卡頭可見、貼現有封印符、點不開；兩位老師一句話只剩易經老師。
+const withSeal = structuredClone(withGhostHook);
+withSeal.specialStars.iching = withIching.specialStars.iching.state === 'READY' ? withIching.specialStars.iching : { state: 'READY', oneLiner: '後端易經一句', teaser: 't' };
+withSeal.specialStars.ghost = { state: 'SEALED', ageGate: '後端年齡標示', teaser: '後端封印摘要', sealNotice: '後端封印說明' };
+const sealHtml = card(withSeal);
+for (const text of ['鬼魅老師解盤', '後端封印摘要', '後端封印說明', 'data-sealed="true"', 'data-seal-resource="shared-vector-1080p-plus"']) assert.ok(sealHtml.includes(text), `sealed ghost shows ${text}`);
+assert.ok(!/<details[^>]*data-teacher="ghost"/.test(sealHtml), 'sealed ghost card cannot be opened');
+assert.ok(!sealHtml.includes('後端鬼魅一句') && !sealHtml.includes('<p data-teacher="ghost">'), 'no ghost wording leaks while sealed');
+console.log('PASS: 鬼魅老師 sealed with the shared talisman, header only');
 withIching.specialStars.iching = { state: 'BLOCKED', chain: [{ step: '八字', text: 'A' }], reason: '後端擋下原因' };
 const blockedIchingHtml = card(withIching);
 assert.ok(blockedIchingHtml.includes('後端擋下原因') && !blockedIchingHtml.includes('測試卦'));

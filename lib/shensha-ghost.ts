@@ -24,6 +24,17 @@ export interface ShenShaGhostLine { name: string; tone: ShenShaTone | null; hook
 /** 業主定案 2026-09-28：鬼魅老師卡標示未滿 18 歲禁止進入（READY 與 BLOCKED 都帶，前端照印）。 */
 export const GHOST_AGE_GATE = '未滿 18 歲禁止進入';
 
+/**
+ * 業主定案 2026-09-28：鬼魅老師貼上封印，暫不對外開放。
+ * 封印中只送卡頭（名稱、年齡標示、摘要）與封印說明，話術本文不出後端；前端貼現有封印符（SharedElementSealPaper）、點不開。
+ * 解封：改成 false。後端話術與測試都保留，解封即恢復。
+ */
+export const GHOST_SEALED = true;
+export interface ShenShaGhostSealed { state: 'SEALED'; ageGate: string; teaser: string; sealNotice: string }
+export function sealShenShaGhost(view: ShenShaGhostView): ShenShaGhostSealed {
+  return { state: 'SEALED', ageGate: GHOST_AGE_GATE, teaser: view.teaser, sealNotice: '封印中・暫不對外開放' };
+}
+
 export type ShenShaGhostView =
   | {
     state: 'READY';
