@@ -415,3 +415,12 @@
 .flowItems li p.shenshaItemHead{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;margin-bottom:4px}
 .flowItems li p.shenshaDerive{margin-top:6px;font-size:12px;color:var(--ss-muted)}
 .flowEmpty{margin:0;font-size:13px;color:var(--ss-muted)}
+/* 分享卡 */
+.shareCard{display:grid;justify-items:center;gap:6px;margin:12px 0 4px;text-align:center}
+.shareButton{min-height:44px;padding:0 22px;border:1px solid #d9b86a;border-radius:999px;background:linear-gradient(180deg,#3a2f52,#282038);color:#f2dba8;font-size:15px;letter-spacing:.08em;cursor:pointer}
+.shareButton:disabled{opacity:.6;cursor:progress}
+.shareCard small{font-size:12px;color:var(--ss-muted)}
+.shareCard p{margin:0;font-size:13px;color:var(--ss-text)}
+.shareCard figure{margin:6px 0 0;display:grid;gap:6px;justify-items:center}
+.shareCard img{width:min(100%,360px);height:auto;border-radius:12px;border:1px solid var(--ss-line)}
+.shareCard a{font-size:13px;color:#f2dba8}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { DualChartResult } from '@/lib/dual-chart';
 import styles from './dual-chart.module.css';
 import ElementRing from './ElementRing';
@@ -152,6 +152,80 @@ function TeacherFold({ teacher, summary, children }: { teacher: 'iching' | 'ghos
   return <details ref={ref} className={styles.teacherCard} data-teacher={teacher} onToggle={remember}>{summary}{children}</details>;
 }
 
+/** 分享卡：把後端 buildShenShaShare 組好的內容畫成一張圖（只排版，不組句、不運算；不含出生資料）。 */
+const SHARE_TONE_COLOR: Record<string, string> = { 福氣: '#f2cf7a', 動能: '#c9a8ff', 提醒: '#9fd3f0' };
+function drawShareCard(share: NonNullable<DualChartResult['specialStars']['share']>): HTMLCanvasElement {
+  const W = 1080, H = 1350, canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d')!;
+  const bg = ctx.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#231d38'); bg.addColorStop(1, '#0e0c18');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(231,204,255,.35)'; ctx.lineWidth = 3; ctx.strokeRect(36, 36, W - 72, H - 72);
+  const font = (weight: number, size: number) => `${weight} ${size}px "Noto Serif TC", "Noto Sans TC", serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#f3e6ff'; ctx.font = font(700, 76); ctx.fillText(share.title, W / 2, 150);
+  ctx.fillStyle = '#b9a9d6'; ctx.font = font(400, 32); ctx.fillText(share.subtitle, W / 2, 205);
+  const colW = (W - 160 - 3 * 24) / 4, top = 250, rowH = 54;
+  const tallest = Math.max(1, ...share.columns.map(col => col.names.length));
+  const boxH = 90 + tallest * rowH;
+  share.columns.forEach((col, index) => {
+    const x = 80 + index * (colW + 24);
+    ctx.fillStyle = 'rgba(42,36,64,.9)'; ctx.fillRect(x, top, colW, boxH);
+    ctx.strokeStyle = 'rgba(231,204,255,.25)'; ctx.lineWidth = 2; ctx.strokeRect(x, top, colW, boxH);
+    ctx.fillStyle = '#e7ccff'; ctx.font = font(700, 36); ctx.fillText(col.label, x + colW / 2, top + 55);
+    ctx.font = font(500, 36);
+    (col.names.length ? col.names : [{ name: share.emptyColumn, tone: null }]).forEach((item, row) => {
+      ctx.fillStyle = (item.tone && SHARE_TONE_COLOR[item.tone]) || '#f2dba8';
+      ctx.fillText(item.name, x + colW / 2, top + 115 + row * rowH, colW - 16);
+    });
+  });
+  let y = top + boxH + 90;
+  ctx.fillStyle = '#f2cf7a'; ctx.font = font(700, 44); ctx.fillText(share.hexagram, W / 2, y);
+  ctx.textAlign = 'left';
+  const wrap = (text: string, x: number, maxWidth: number, lineHeight: number) => {
+    let line = '';
+    for (const ch of [...text]) {
+      if (ctx.measureText(line + ch).width > maxWidth && line) { ctx.fillText(line, x, y); y += lineHeight; line = ch; } else line += ch;
+    }
+    if (line) { ctx.fillText(line, x, y); y += lineHeight; }
+  };
+  for (const line of share.lines) {
+    if (y > H - 220) break;
+    y += 70;
+    ctx.fillStyle = '#e7ccff'; ctx.font = font(700, 34); ctx.fillText(line.label, 100, y); y += 52;
+    ctx.fillStyle = '#efe7f7'; ctx.font = font(400, 34); wrap(line.text, 100, W - 200, 50);
+  }
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#b9a9d6'; ctx.font = font(400, 28); ctx.fillText(share.footer, W / 2, H - 110);
+  ctx.fillStyle = '#8f82aa'; ctx.font = font(400, 26); ctx.fillText(share.site, W / 2, H - 70);
+  return canvas;
+}
+
+function ShenShaShare({ share }: { share?: DualChartResult['specialStars']['share'] }) {
+  const [status, setStatus] = useState<'idle' | 'busy' | 'done' | 'fail'>('idle');
+  const [image, setImage] = useState<string | null>(null);
+  if (!share) return null;
+  const make = async () => {
+    setStatus('busy');
+    try {
+      const canvas = drawShareCard(share);
+      const url = canvas.toDataURL('image/png');
+      setImage(url);
+      const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+      const file = blob ? new File([blob], share.fileName, { type: 'image/png' }) : null;
+      if (file && navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], text: share.shareText }).catch(() => undefined);
+      setStatus('done');
+    } catch { setStatus('fail'); }
+  };
+  return <div className={styles.shareCard} aria-label="分享卡">
+    <button type="button" className={styles.shareButton} onClick={make} disabled={status === 'busy'}>{status === 'busy' ? share.busyLabel : share.buttonLabel}</button>
+    <small>{share.privacyNote}</small>
+    {status === 'done' && <p role="status">{share.doneLabel}</p>}
+    {status === 'fail' && <p role="status">{share.failLabel}</p>}
+    {image && <figure><img src={image} alt={share.shareText} /><a href={image} download={share.fileName}>{share.fileName}</a></figure>}
+  </div>;
+}
+
 /** 流年神煞：只照印後端 buildShenShaFlow 的結果（本命被觸動／今年歲神，今年＋明年）。 */
 function ShenShaFlowSection({ view }: { view?: DualChartResult['specialStars']['flow'] }) {
   if (!view) return null;
@@ -226,6 +300,7 @@ export function ShenShaCard({ result }: { result: DualChartResult }) {
     {result.specialStars?.flow && <TeacherFold teacher="flow" summary={<summary><span className={styles.teacherHead}><b>流年神煞</b><small>今年與明年</small></span>{result.specialStars.flow.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.flow.teaser}</span>}</summary>}>
       <ShenShaFlowSection view={result.specialStars.flow} />
     </TeacherFold>}
+    <ShenShaShare share={result.specialStars?.share} />
     {result.specialStars?.ghost && <TeacherFold teacher="ghost" summary={<summary><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small>{result.specialStars.ghost.ageGate && <em className={styles.ageGate}>{result.specialStars.ghost.ageGate}</em>}</span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span></summary>}>
       <ShenShaGhostSection view={result.specialStars.ghost} />
     </TeacherFold>}

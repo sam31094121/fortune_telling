@@ -271,6 +271,13 @@ assert.deepEqual(inspectShenShaCard(withFlow, flowHtml), [], 'flow section keeps
 withFlow.specialStars.flow = { state: 'BLOCKED', reason: '後端流年擋下' };
 assert.ok(card(withFlow).includes('後端流年擋下'));
 console.log('PASS: 流年神煞 prints backend text only, one-liner visible, details folded');
+// 分享卡：按鈕與隱私說明都是後端給的字；圖片要按下才產生。
+const withShare = structuredClone(deliveryFixture);
+withShare.specialStars.share = { title: 't', subtitle: 's', columns: [], emptyColumn: '-', hexagram: 'h', lines: [], footer: 'f', site: 'x', fileName: 'a.png', shareText: 'st', buttonLabel: '後端分享按鈕', busyLabel: 'b', doneLabel: 'd', failLabel: 'e', privacyNote: '後端隱私說明' };
+const shareHtml = card(withShare);
+assert.ok(shareHtml.includes('>後端分享按鈕</button>') && shareHtml.includes('後端隱私說明') && !shareHtml.includes('<img'), 'share button and privacy note come from the backend; no image until pressed');
+assert.deepEqual(inspectShenShaCard(withShare, shareHtml), [], 'share button keeps the four-pillar card intact');
+console.log('PASS: 分享卡 prints backend labels only');
 withIching.specialStars.iching = { state: 'BLOCKED', chain: [{ step: '八字', text: 'A' }], reason: '後端擋下原因' };
 const blockedIchingHtml = card(withIching);
 assert.ok(blockedIchingHtml.includes('後端擋下原因') && !blockedIchingHtml.includes('測試卦'));

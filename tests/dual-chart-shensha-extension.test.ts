@@ -324,6 +324,17 @@ if (flowView.state==='READY') {
   assert.ok(!flowView.years[1].touched.concat(flowView.years[1].suiShen).some(i=>i.text.includes('今年')),'next year is not called this year');
   assert.ok(flowView.years.every(y=>[...y.touched,...y.suiShen].every(i=>i.derivation.startsWith(`${y.year} ${y.ganZhi}年：`))));
 }
+// 分享卡：後端組好內容；不含出生日期、時辰、姓名；四柱神煞與卡片一致。
+{
+  const named=calculateDualChart({birthDate:'1974-06-28',birthTime:'18:00',gender:'male',calendarType:'solar',timezone:'Asia/Taipei',name:'王小明'});
+  const share=named.specialStars.share!;
+  assert.ok(share,'share card is built for a verified chart');
+  const shareText=JSON.stringify(share);
+  for (const secret of ['1974','06-28','18:00','王小明','男','甲寅','庚午','庚子','乙酉']) assert.ok(!shareText.includes(secret),`share card leaves out ${secret}`);
+  assert.deepEqual(share.columns.map(c=>c.names.map(n=>n.name)),named.specialStars.card.columns.map(c=>c.hits.map(h=>h.name)),'share grid equals the card grid');
+  assert.equal(share.lines[0].text,named.specialStars.iching.state==='READY'?named.specialStars.iching.oneLiner:'');
+  assert.ok(named.specialStars.flow.state==='READY'&&share.lines[1].label===named.specialStars.flow.years[0].label,'share card carries the current flow-year line');
+}
 // 三奇：依序才算，順序顛倒不算。
 const sanqiCase=(y:string,m:string,d:string,hs:string)=>{ const f=structuredClone(base); f.shenSha=[]; f.pillars.year.heavenlyStem=y as Stem; f.pillars.month.heavenlyStem=m as Stem; f.pillars.day.heavenlyStem=d as Stem; f.dayMaster.stem=d as Stem; const hh=f.pillars.hour; if(hh==='UNKNOWN') throw new Error('x'); hh.heavenlyStem=hs as Stem; const o=buildDualChartShenSha(f,gate,'male'); return (['year','month','day','hour'] as const).filter(k=>o.byPillar[k].some(s=>s.id==='sanqi')); };
 assert.deepEqual(sanqiCase('甲','戊','庚','癸'),['year','month','day'],'天上三奇 年月日');

@@ -10,6 +10,7 @@ import { verifyFourPillars } from './three-in-one';
 import { getBaziTraditionalOutputGate } from './bazi-traditional-gate';
 import { buildDualChartShenSha, buildFlowYearShenSha } from './dual-chart-shensha';
 import { buildShenShaFlow } from './shensha-flow-year';
+import { buildShenShaShare } from './shensha-share';
 
 export function calculateDualChart(body: unknown) {
   if (!body || typeof body !== 'object') throw new Error('請填寫出生資料。');
@@ -78,6 +79,6 @@ export function calculateDualChart(body: unknown) {
   const flowCheck = { passed: mismatches.length === 0, mismatches };
   const flow = buildShenShaFlow(annual.slice(0, 2).map(a => buildFlowYearShenSha(bazi, professional.professionalChart.traditionalInterpretationGate!, input.gender as 'male' | 'female', flowCheck, { year: a.year, ganZhi: a.ganzhi })));
   const ziweiProfile = { polarity: STEM_YINYANG[raw.chineseDate[0] as Stem] ?? '', zodiac: raw.zodiac };
-  return { bazi: { input: professional.input, professionalChart: dualProfessionalChart, luckCycles: professional.luckCycles }, core: dualCore, specialStars: { ...specialStars, flow }, annual, ziwei, periods, ziweiProfile };
+  return { bazi: { input: professional.input, professionalChart: dualProfessionalChart, luckCycles: professional.luckCycles }, core: dualCore, specialStars: { ...specialStars, flow, share: buildShenShaShare(specialStars.card, ichingView, flow) }, annual, ziwei, periods, ziweiProfile };
 }
 export type DualChartResult = ReturnType<typeof calculateDualChart>;
