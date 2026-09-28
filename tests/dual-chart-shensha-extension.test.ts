@@ -386,6 +386,12 @@ if(ic.state==='READY'){
   // 遠方的緣分一定要有驛馬；沒有驛馬只有桃花類，不成立。
   assert.deepEqual(findShenShaCombos([{id:'taohua',name:'桃花',pillar:'時柱'},{id:'waiTaohua',name:'外桃花',pillar:'時柱'}]).filter(c=>c.id==='distant-romance'),[]);
   assert.equal(findShenShaCombos([{id:'yima',name:'驛馬',pillar:'年柱'},{id:'taohua',name:'桃花',pillar:'年柱'}]).filter(c=>c.id==='distant-romance').length,1);
+  // 上鞍出征一定要有攀鞍；將星＋驛馬沒有攀鞍不成立。
+  assert.deepEqual(findShenShaCombos([{id:'jiangxing',name:'將星',pillar:'日柱'},{id:'yima',name:'驛馬',pillar:'年柱'}]).filter(c=>c.id==='mount-and-ride'),[]);
+  assert.equal(findShenShaCombos([{id:'panan',name:'攀鞍',pillar:'年柱'},{id:'yima',name:'驛馬',pillar:'時柱'}]).filter(c=>c.id==='mount-and-ride').length,1);
+  // 暗祿併入衣食有底、退神併入心思深重。
+  assert.equal(findShenShaCombos([{id:'anlu',name:'暗祿',pillar:'年柱'},{id:'lushen',name:'祿神',pillar:'日柱'}]).filter(c=>c.id==='livelihood').length,1);
+  assert.equal(findShenShaCombos([{id:'tuishen',name:'退神',pillar:'日柱'},{id:'kongwang',name:'空亡',pillar:'年柱'}]).filter(c=>c.id==='busy-mind').length,1);
   // 德星化煞必須同柱有提醒類。
   assert.deepEqual(findShenShaCombos([{id:'tiande',name:'天德',pillar:'年柱',tone:'福氣'},{id:'lushen',name:'祿神',pillar:'年柱',tone:'福氣'}]).filter(c=>c.id==='de-softens'),[]);
   for (const rule of SHENSHA_COMBO_RULES) {

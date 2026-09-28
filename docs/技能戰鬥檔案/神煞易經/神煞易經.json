@@ -19,7 +19,7 @@
     "② 紫微斗數（三合一 runZiweiLayer＋verifyFourPillars，四柱逐字核對；對不上停在核對關）",
     "③ 特星神煞（lib/dual-chart-shensha.ts，太極紫微易經派取法，紙本 17 項為標準答案）",
     "④ 易經（三合一 runIChingLayer 帶憑證起卦；lib/shensha-iching.ts 逐項延伸）",
-    "④之一 整盤合看（lib/shensha-combos.ts：12 條本派組合規則，同柱或整盤；例：驛馬＋將星同柱、桃花＋紅艷＋沐浴、德星化煞）",
+    "④之一 整盤合看（lib/shensha-combos.ts：13 條本派組合規則，同柱或整盤；例：驛馬＋將星同柱、桃花＋紅艷＋沐浴、德星化煞）",
     "⑤ 導師話術（lib/shensha-teacher-readings.ts：本意→意境→柱位→落地）",
     "⑥ 洋蔥心理學（lib/shensha-onion.ts：殼→心→禮物，名詞附原始文獻）",
     "⑦ 字的意境（lib/shensha-char-imagery.ts：姓名學字庫原文照引）",
