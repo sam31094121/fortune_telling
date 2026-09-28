@@ -439,3 +439,23 @@
 .formationFold>summary::after{content:'▾';font-size:11px;color:#d9a3aa}
 .formationFold[open]>summary::after{content:'▴'}
 .formationFold>p{padding:0 12px 10px}
+/* 客人審查第三輪：整張卡頭就是點擊區，不另佔一排按鈕 */
+.shenshaMore{margin-top:0}
+.shenshaMore>summary{display:block;min-height:0;padding:0;border:0;border-radius:0;font-size:inherit;color:inherit;cursor:pointer;list-style:none}
+.shenshaMore>summary::after{content:none}
+.shenshaMore[open]>summary{margin-bottom:8px}
+.shenshaMore>summary .shenshaItemHead{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;margin-bottom:6px}
+.shenshaMore>summary .shenshaHook{display:block;font-size:15px;line-height:1.75;color:var(--ss-text)}
+.moreHint{display:inline-block;margin-left:8px;font-size:12px;color:var(--ss-muted);white-space:nowrap;border-bottom:1px dotted currentColor}
+.moreHint::after{content:' ▾'}
+details[open]>summary .moreHint::after{content:' ▴'}
+.ghostMore>summary{display:block;min-height:0;padding:0;border:0;border-radius:0;font-size:inherit;color:inherit;cursor:pointer;list-style:none}
+.ghostMore>summary::after{content:none}
+.ghostMore>summary .ghostHook{display:block;line-height:1.8}
+.ghostMore>summary .moreHint{color:#d9a3aa}
+.shenshaCombos li{padding:0}
+.comboFold>summary{display:block;padding:10px 12px;cursor:pointer;list-style:none}
+.comboFold>summary::-webkit-details-marker{display:none}
+.comboHead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.comboMembers{display:flex;flex-wrap:wrap;gap:4px 8px;margin-top:4px;font-size:13px;color:var(--ss-muted)}
+.comboFold>p{padding:0 12px 10px}

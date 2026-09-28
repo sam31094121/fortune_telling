@@ -257,8 +257,8 @@ assert.ok(card(legacyIching).includes('後端推導原文'), 'legacy result with
 const hooked = structuredClone(withIching);
 Object.assign(hooked.specialStars.iching.items[0], { hook: '後端一句重點', anchor: 'shensha-item-hour-taohua' });
 const hookedHtml = card(hooked);
-for (const text of ['後端一句重點', 'id="shensha-item-hour-taohua"', '>完整解讀</summary>', '>回四柱</a>', 'id="shensha-grid"', 'href="#shensha-item-']) assert.ok(hookedHtml.includes(text), `hook layout shows ${text}`);
-assert.ok(hookedHtml.indexOf('後端一句重點') < hookedHtml.indexOf('>完整解讀</summary>') && hookedHtml.indexOf('>完整解讀</summary>') < hookedHtml.indexOf('後端導師話術'), 'hook first, full reading folded after it');
+for (const text of ['後端一句重點', 'id="shensha-item-hour-taohua"', '完整解讀</span></span></summary>', '>回四柱</a>', 'id="shensha-grid"', 'href="#shensha-item-']) assert.ok(hookedHtml.includes(text), `hook layout shows ${text}`);
+assert.ok(hookedHtml.indexOf('後端一句重點') < hookedHtml.indexOf('完整解讀</span></span></summary>') && hookedHtml.indexOf('</summary>', hookedHtml.indexOf('後端一句重點')) < hookedHtml.indexOf('後端導師話術'), 'name and hook are the tap target; full reading folded after it');
 assert.deepEqual(inspectShenShaCard(hooked, hookedHtml), [], 'tappable grid keeps the four-pillar card intact');
 // 流年神煞：四柱下方常駐一句話，完整內容在第三張折疊卡；每個字都是後端給的。
 const withFlow = structuredClone(deliveryFixture);
@@ -283,7 +283,7 @@ const withGhostHook = structuredClone(deliveryFixture);
 withGhostHook.specialStars.ghost = { state: 'READY', ageGate: 'g', teaser: 't', oneLiner: 'o', opening: 'op', decoding: [], closing: 'c', disclaimer: 'd', formations: [],
   groups: [{ pillar: '年柱', intro: 'i', lines: [{ name: '月德', tone: '福氣', hook: '後端鬼魅一句', text: '後端完整鬼語' }, { name: '天狗', tone: '提醒', text: '後端舊版整句' }] }] };
 const ghostHookHtml = card(withGhostHook);
-assert.ok(ghostHookHtml.indexOf('後端鬼魅一句') < ghostHookHtml.indexOf('>完整鬼語</summary>') && ghostHookHtml.indexOf('>完整鬼語</summary>') < ghostHookHtml.indexOf('後端完整鬼語'), 'ghost hook first, full text folded');
+assert.ok(ghostHookHtml.indexOf('後端鬼魅一句') < ghostHookHtml.indexOf('完整鬼語</span></span></summary>') && ghostHookHtml.indexOf('</summary>', ghostHookHtml.indexOf('後端鬼魅一句')) < ghostHookHtml.indexOf('後端完整鬼語'), 'ghost hook is the tap target, full text folded');
 assert.ok(ghostHookHtml.includes('後端舊版整句'), 'legacy ghost line without hook still prints');
 const withFormation = structuredClone(withGhostHook);
 withFormation.specialStars.ghost.formations = [{ title: '後端陣名', text: '後端陣法內容' }];
@@ -294,6 +294,7 @@ console.log('PASS: 鬼魅老師 hook first, full ghost wording folded; formation
 withIching.specialStars.iching = { state: 'BLOCKED', chain: [{ step: '八字', text: 'A' }], reason: '後端擋下原因' };
 const blockedIchingHtml = card(withIching);
 assert.ok(blockedIchingHtml.includes('後端擋下原因') && !blockedIchingHtml.includes('測試卦'));
+{ const ci = ichingHtml.indexOf('後端組合標題'); assert.ok(ci > 0 && ichingHtml.lastIndexOf('<summary', ci) > ichingHtml.lastIndexOf('</summary>', ci), 'combo title is a fold summary; its text opens on tap'); }
 console.log('PASS: 神煞易經 prints the backend chain, hexagram, every derivation and blocked reasons verbatim');
 // 兩張老師解盤卡：易經老師（神）與鬼魅老師（魔）都折疊點閱；四柱神煞表不得被折疊。
 const withGhost = structuredClone(deliveryFixture);

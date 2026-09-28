@@ -64,10 +64,12 @@ function ShenShaItemCard({ item, grouped = false }: { item: ShenShaIChingReady['
   const head = <p className={styles.shenshaItemHead}><b>{item.name}{item.reference ? '＊' : ''}</b>{!grouped && <span>{item.pillar}</span>}{item.teacher && <em>{item.teacher.tone}｜{item.teacher.theme}</em>}</p>;
   // 舊版結果沒有 hook：照舊整段展開。
   if (!item.hook) return <li id={item.anchor} data-shensha-tone={item.teacher?.tone}>{head}<ShenShaItemBody item={item} /></li>;
+  // 整張卡頭（名稱＋重點句）就是點擊區，不另佔一排按鈕；長輩也好點。
   return <li id={item.anchor} data-shensha-tone={item.teacher?.tone}>
-    {head}
-    <p className={styles.shenshaHook}>{item.hook}</p>
-    <details className={styles.shenshaMore}><summary>完整解讀</summary><ShenShaItemBody item={item} /><a className={styles.shenshaBack} href="#shensha-grid">回四柱</a></details>
+    <details className={styles.shenshaMore}>
+      <summary><span className={styles.shenshaItemHead}><b>{item.name}{item.reference ? '＊' : ''}</b>{!grouped && <span>{item.pillar}</span>}{item.teacher && <em>{item.teacher.tone}｜{item.teacher.theme}</em>}</span><span className={styles.shenshaHook}>{item.hook}<span className={styles.moreHint}>完整解讀</span></span></summary>
+      <ShenShaItemBody item={item} /><a className={styles.shenshaBack} href="#shensha-grid">回四柱</a>
+    </details>
   </li>;
 }
 
@@ -108,7 +110,7 @@ function ShenShaIChingSection({ view }: { view?: DualChartResult['specialStars']
       <div className={styles.shenshaReading}>{view.reading.map((line, index) => <p key={index}>{line}</p>)}</div>
       {view.combos?.length > 0 && <>
         <h4 className={styles.shenshaSectionTitle}>整盤合看</h4>
-        <ol className={styles.shenshaCombos} aria-label="整盤合看">{view.combos.map(combo => <li key={`${combo.id}:${combo.pillar ?? ''}`} data-shensha-combo={combo.id}><p><b>{combo.title}</b>{combo.pillar && <small>{combo.pillar}</small>}</p><p>{combo.text}</p></li>)}</ol>
+        <ol className={styles.shenshaCombos} aria-label="整盤合看">{view.combos.map(combo => <li key={`${combo.id}:${combo.pillar ?? ''}`} data-shensha-combo={combo.id}><details className={styles.comboFold}><summary><span className={styles.comboHead}><b>{combo.title}</b>{combo.pillar && <small>{combo.pillar}</small>}</span><span className={styles.comboMembers}>{combo.members.map(name => <span key={name}>{name}</span>)}<span className={styles.moreHint}>看說明</span></span></summary><p>{combo.text}</p></details></li>)}</ol>
       </>}
       {groups.length > 0 && <>
         <h4 className={styles.shenshaSectionTitle}>逐柱細看</h4>
@@ -260,7 +262,7 @@ function ShenShaGhostSection({ view }: { view?: DualChartResult['specialStars'][
       <h4 className={styles.ghostTitle}>逐柱點氣</h4>
       {view.groups.map(group => <div key={group.pillar} className={styles.ghostGroup}><h5>{group.pillar}</h5>{group.intro && <p className={styles.ghostPillarIntro}>{group.intro}</p>}
         <ul>{group.lines.map((line, index) => <li key={`${line.name}:${index}`} data-shensha-tone={line.tone ?? undefined}>{line.hook
-          ? <><p className={styles.ghostHook}>{line.hook}</p><details className={styles.ghostMore}><summary>完整鬼語</summary><p>{line.text}</p></details></>
+          ? <details className={styles.ghostMore}><summary><span className={styles.ghostHook}>{line.hook}<span className={styles.moreHint}>完整鬼語</span></span></summary><p>{line.text}</p></details>
           : line.text}</li>)}</ul></div>)}
     </>}
     {view.formations.length > 0 && <>
