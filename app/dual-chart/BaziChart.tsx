@@ -265,7 +265,7 @@ function ShenShaGhostSection({ view }: { view?: DualChartResult['specialStars'][
     </>}
     {view.formations.length > 0 && <>
       <h4 className={styles.ghostTitle}>陣法</h4>
-      <ul className={styles.ghostFormations}>{view.formations.map((f, index) => <li key={`${f.title}:${index}`}><b>{f.title}</b><p>{f.text}</p></li>)}</ul>
+      <ul className={styles.ghostFormations}>{view.formations.map((f, index) => <li key={`${f.title}:${index}`}><details className={styles.formationFold}><summary><b>{f.title}</b></summary><p>{f.text}</p></details></li>)}</ul>
     </>}
     <p className={styles.ghostClosing}>{view.closing}</p>
     <p className={styles.ghostDisclaimer}>{view.disclaimer}</p>

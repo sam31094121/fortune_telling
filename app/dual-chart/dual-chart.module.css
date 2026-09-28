@@ -432,3 +432,10 @@
 .ghostMore>summary::after{content:'▾';font-size:11px}
 .ghostMore[open]>summary::after{content:'▴'}
 .ghostMore>p{margin:8px 0 0;line-height:1.85}
+/* 陣法：先看陣名，點開再看內容 */
+.ghostFormations li{padding:0}
+.formationFold>summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:0 12px}
+.formationFold>summary::-webkit-details-marker{display:none}
+.formationFold>summary::after{content:'▾';font-size:11px;color:#d9a3aa}
+.formationFold[open]>summary::after{content:'▴'}
+.formationFold>p{padding:0 12px 10px}

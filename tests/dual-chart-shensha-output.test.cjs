@@ -285,7 +285,12 @@ withGhostHook.specialStars.ghost = { state: 'READY', ageGate: 'g', teaser: 't', 
 const ghostHookHtml = card(withGhostHook);
 assert.ok(ghostHookHtml.indexOf('後端鬼魅一句') < ghostHookHtml.indexOf('>完整鬼語</summary>') && ghostHookHtml.indexOf('>完整鬼語</summary>') < ghostHookHtml.indexOf('後端完整鬼語'), 'ghost hook first, full text folded');
 assert.ok(ghostHookHtml.includes('後端舊版整句'), 'legacy ghost line without hook still prints');
-console.log('PASS: 鬼魅老師 hook first, full ghost wording folded');
+const withFormation = structuredClone(withGhostHook);
+withFormation.specialStars.ghost.formations = [{ title: '後端陣名', text: '後端陣法內容' }];
+const formationHtml = card(withFormation);
+const fi = formationHtml.indexOf('後端陣名');
+assert.ok(fi > 0 && formationHtml.lastIndexOf('<summary', fi) > formationHtml.lastIndexOf('</summary>', fi) && fi < formationHtml.indexOf('後端陣法內容'), 'formation name is the summary; its text is folded under it');
+console.log('PASS: 鬼魅老師 hook first, full ghost wording folded; formations show names first');
 withIching.specialStars.iching = { state: 'BLOCKED', chain: [{ step: '八字', text: 'A' }], reason: '後端擋下原因' };
 const blockedIchingHtml = card(withIching);
 assert.ok(blockedIchingHtml.includes('後端擋下原因') && !blockedIchingHtml.includes('測試卦'));
@@ -296,7 +301,7 @@ withGhost.specialStars.iching = { state: 'BLOCKED', chain: [{ step: '八字', te
 withGhost.specialStars.ghost = { state: 'READY', ageGate: '後端年齡標示', teaser: '後端鬼預告', oneLiner: '後端鬼一句', opening: '後端開壇語', decoding: [{ label: '磁場', text: '後端磁場' }], groups: [{ pillar: '時柱', intro: '後端柱引', lines: [{ name: '桃花', tone: '動能', text: '後端鬼語' }] }], formations: [{ title: '後端陣名', text: '後端陣解' }], closing: '後端收壇', disclaimer: '後端聲明' };
 const ghostHtml = card(withGhost);
 for (const text of ['後端年齡標示', '後端鬼預告', '後端柱引', '易經老師解盤', '鬼魅老師解盤', '後端開壇語', '後端磁場', '後端鬼語', '後端陣名', '後端收壇', '後端聲明']) assert.ok(ghostHtml.includes(text), `prints ${text}`);
-assert.equal((ghostHtml.match(/<details/g) || []).length, 2, 'two folded teacher cards');
+assert.equal((ghostHtml.match(/<details[^>]*data-teacher=/g) || []).length, 2, 'two folded teacher cards');
 assert.ok(ghostHtml.indexOf('data-shensha-column=') < ghostHtml.indexOf('<details'), 'pillar grid stays visible above the folded cards');
 assert.deepEqual(inspectShenShaCard(withGhost, ghostHtml), [], 'folded teacher cards after the grid pass health');
 assert.ok(inspectShenShaCard(withGhost, `<details>${ghostHtml}</details>`).length, 'folding the pillar grid still fails health');
