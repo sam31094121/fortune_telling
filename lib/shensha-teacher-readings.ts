@@ -447,6 +447,6 @@ export function teacherReadingFor(id: string, name: string, pillar: string): str
   const reading = SHENSHA_TEACHER_READINGS[id];
   const palace = PILLAR_PALACE[pillar];
   if (!reading || !palace) return null;
-  // 柱位宮義改在分組標題講一次（groupPalace），這裡不再逐項重複。
-  return `${reading.essence}${reading.imagery}這股「${reading.theme}」落在${pillar}，${PILLAR_LINK[pillar] ?? '在這一柱顯現'}。${reading.action}`;
+  // 柱位宮義與「落在哪一柱」都在分組開頭講一次，這裡不再逐項重複（客人審查：同一句重複四次像套版）。
+  return `${reading.essence}${reading.imagery}${reading.action}`;
 }

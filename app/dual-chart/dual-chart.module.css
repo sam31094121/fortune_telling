@@ -385,3 +385,17 @@
 .relations[data-density='compact']>p:nth-of-type(1),.relations[data-density='compact']>p:nth-of-type(2){grid-column:1}
 .relations[data-density='compact']>p:nth-of-type(3),.relations[data-density='compact']>p:nth-of-type(4){grid-column:2}
 .relations[data-density='compact']>p:nth-of-type(5),.relations[data-density='compact']>p:nth-of-type(6){grid-column:3}
+/* 客人審查 2026-09-28：格子可點、逐項先重點後全文 */
+.shenshaPillars li a{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor;display:inline-block;min-height:28px;line-height:1.7}
+.shenshaPillars li a:hover,.shenshaPillars li a:focus-visible{border-bottom-style:solid;outline:none}
+.shenshaDerivation>li{scroll-margin-top:72px}
+.shenshaDerivation>li:target{box-shadow:0 0 0 2px var(--ss-tone,var(--ss-violet))}
+.shenshaDerivation li p.shenshaHook{font-size:15px;line-height:1.75;color:var(--ss-text)}
+.shenshaMore{margin-top:6px}
+.shenshaMore>summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border:1px solid var(--ss-line);border-radius:999px;font-size:13px;color:var(--ss-muted)}
+.shenshaMore>summary::-webkit-details-marker{display:none}
+.shenshaMore>summary::after{content:'▾';font-size:11px}
+.shenshaMore[open]>summary{margin-bottom:8px}
+.shenshaMore[open]>summary::after{content:'▴'}
+.shenshaBack{display:inline-block;margin-top:8px;font-size:12px;color:var(--ss-muted)}
+.shenshaPillars{scroll-margin-top:72px}

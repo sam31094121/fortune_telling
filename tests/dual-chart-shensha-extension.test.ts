@@ -5,7 +5,7 @@ import { getBaziTraditionalOutputGate } from '../lib/bazi-traditional-gate';
 import { calculateDualChart } from '../lib/dual-chart';
 import { buildShenShaIChing } from '../lib/shensha-iching';
 import { SHENSHA_SENSE_PICKS } from '../lib/shensha-char-imagery';
-import { SHENSHA_TEACHER_READINGS, PILLAR_PALACE } from '../lib/shensha-teacher-readings';
+import { SHENSHA_TEACHER_READINGS, PILLAR_PALACE, PILLAR_LINK } from '../lib/shensha-teacher-readings';
 import { SHENSHA_ONION } from '../lib/shensha-onion';
 import { SHENSHA_COMBO_RULES, findShenShaCombos } from '../lib/shensha-combos';
 import { GHOST_TEACHER_PERSONA } from '../lib/ghost-teacher-persona';
@@ -348,9 +348,10 @@ if(ic.state==='READY'){
   }
   assert.ok(ic.items.every(i=>i.derivation&&!i.derivation.includes('；')),'derivation is customer-readable');
   assert.ok(ic.reading.some(line=>line.includes(ic.hexagram.name)));
-  // 銜接句依柱變化：同一柱共用一句，不同柱不同句。
-  const linkOf=(p:string)=>ic.items.find(i=>i.pillar===p)!.teacher!.text;
-  assert.ok(linkOf('年柱').includes('第一印象')&&linkOf('時柱').includes('晚景')&&!linkOf('時柱').includes('最容易在這一面感受到它'));
+  // 柱位只在分組開頭講一次：各柱開頭不同，逐項話術不再重複柱位銜接句。
+  const palaceOf=(p:string)=>ic.groups.find(g=>g.pillar===p)!.palace;
+  assert.notEqual(palaceOf('年柱'),palaceOf('時柱'));
+  assert.ok(ic.items.every(i=>!Object.values(PILLAR_LINK).some(link=>i.teacher!.text.includes(link))),'pillar link sentence is not repeated per item');
   assert.ok(!ic.reading.join('').match(/主(吉|凶)|大吉|大凶|必定/),'no unsourced good/bad verdicts');
   assert.equal(ic.credibility.status,'PENDING_POOL');
   assert.ok(!ic.credibility.line.includes('已通過交叉比對'),'unverified claim cannot sound verified');
@@ -364,7 +365,7 @@ if(ic.state==='READY'){
     assert.ok(char in SHENSHA_SENSE_PICKS,`${char} has an explicit sense pick (or null)`);
   }
   for (const item of ic.items) {
-    assert.equal(item.imagery.chars.map(c=>c.char).join(''),item.name,`${item.name} imagery covers every character`);
+    assert.ok(item.imagery.chars.every(c=>c.sense&&item.name.includes(c.char)),`${item.name} imagery only lists characters with a real meaning`);
     for (const c of item.imagery.chars) if (c.sense) assert.ok(dictionary.get(c.char)!.meanings.some(m=>m.includes(c.sense!)),`${c.char} sense is verbatim dictionary text`);
   }
   assert.ok(ic.imageryAttribution.includes('CC BY-ND'),'dictionary attribution is shown');
@@ -376,7 +377,8 @@ if(ic.state==='READY'){
   }
   for (const item of ic.items) {
     assert.ok(item.teacher,`${item.name} carries a teacher reading`);
-    assert.ok(item.teacher!.text.includes(`落在${item.pillar}`),`${item.name} reading names its pillar`);
+    assert.ok(!item.teacher!.text.includes('落在'),`${item.name} reading does not repeat the pillar (said once per group)`);
+    assert.ok(item.anchor&&item.hook,`${item.name} has a jump anchor and a one-line hook`);
     assert.ok(!item.teacher!.text.includes(PILLAR_PALACE[item.pillar]),`${item.name} reading no longer repeats the palace line`);
   }
   const wai=ic.items.find(i=>i.id==='waiTaohua')!;

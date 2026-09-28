@@ -61,15 +61,35 @@ type ShenShaIChingReady = Extract<ShenShaIChingView, { state: 'READY' }>;
 
 /** 逐項細看的一張卡：導師話術 → 洋蔥三層 → 推導 → 字的意境。只照印後端欄位。 */
 function ShenShaItemCard({ item, grouped = false }: { item: ShenShaIChingReady['items'][number]; grouped?: boolean }) {
-  return <li data-shensha-tone={item.teacher?.tone}>
-    <p className={styles.shenshaItemHead}><b>{item.name}{item.reference ? '＊' : ''}</b>{!grouped && <span>{item.pillar}</span>}{item.teacher && <em>{item.teacher.tone}｜{item.teacher.theme}</em>}</p>
+  const head = <p className={styles.shenshaItemHead}><b>{item.name}{item.reference ? '＊' : ''}</b>{!grouped && <span>{item.pillar}</span>}{item.teacher && <em>{item.teacher.tone}｜{item.teacher.theme}</em>}</p>;
+  // 舊版結果沒有 hook：照舊整段展開。
+  if (!item.hook) return <li id={item.anchor} data-shensha-tone={item.teacher?.tone}>{head}<ShenShaItemBody item={item} /></li>;
+  return <li id={item.anchor} data-shensha-tone={item.teacher?.tone}>
+    {head}
+    <p className={styles.shenshaHook}>{item.hook}</p>
+    <details className={styles.shenshaMore}><summary>完整解讀</summary><ShenShaItemBody item={item} /><a className={styles.shenshaBack} href="#shensha-grid">回四柱</a></details>
+  </li>;
+}
+
+function ShenShaItemBody({ item }: { item: ShenShaIChingReady['items'][number] }) {
+  return <>
     {item.tradition && <p className={styles.shenshaBasis}>{item.tradition}</p>}
     {item.teacher && <p className={styles.shenshaTeacher}>{item.teacher.text}</p>}
     {item.onion && <div className={styles.shenshaOnion} aria-label={`${item.name}洋蔥心理學`}>{item.onion.layers.map(layer => <p key={layer.layer}><b>{layer.layer}</b><small>{layer.label}</small><span>{layer.text}</span></p>)}
       {item.onion.term && <p className={styles.shenshaTerm}><b>心理學</b><span>{item.onion.term.name}｜{item.onion.term.link}<cite>{item.onion.term.citation}</cite></span></p>}</div>}
     {item.imagery?.chars?.length > 0 && <ul className={styles.shenshaImagery} aria-label={`${item.name}字的意境`}>{item.imagery.chars.map((c, index) => <li key={index}><b>{c.char}</b><small>{c.element}</small><span>{c.senseText ?? c.sense}</span></li>)}</ul>}
     <p className={styles.shenshaDerive}>推導：{item.derivation}</p>
-  </li>;
+  </>;
+}
+
+/** 點四柱格子裡的神煞：打開易經老師與那一項的完整解讀，捲過去（只做畫面跳轉，不運算）。 */
+function openShenShaItem(anchor: string) {
+  const target = document.getElementById(anchor);
+  if (!target) return false;
+  for (let el: HTMLElement | null = target; el; el = el.parentElement) if (el instanceof HTMLDetailsElement) el.open = true;
+  target.querySelector('details')?.setAttribute('open', '');
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  return true;
 }
 
 /** 《神煞易經》第④層：只照印後端 buildShenShaIChing 的結果，不自己組句、不自己算。 */
@@ -166,9 +186,9 @@ export function ShenShaCard({ result }: { result: DualChartResult }) {
     </header>
     {card?.notice && <p role="status">{card.notice}</p>}
     {!card && <p role="status">神煞資料尚未完整，暫不能判斷有無結果。</p>}
-    {card && card.columns.length > 0 && <div className={styles.shenshaPillars}>{card.columns.map(col =>
+    {card && card.columns.length > 0 && <div id="shensha-grid" className={styles.shenshaPillars}>{card.columns.map(col =>
       <div key={col.pillar} data-shensha-column={col.pillar} data-shensha-column-state={col.state}><h4>{col.label}</h4>
-        {col.hits.length > 0 && <ul aria-label={`${col.label}神煞`}>{col.hits.map(hit => <li key={`${hit.id}:${hit.name}`} data-shensha-result={hit.id} data-shensha-method={hit.reference ? 'reference' : 'source'} data-shensha-tone={hit.tone ?? undefined} aria-label={hit.tone ? `${hit.name}（${hit.tone}）` : undefined} title={`${hit.name}${hit.tone ? `（${hit.tone}）` : ''}｜${hit.rule}｜${hit.sourceLabel}`}>{hit.name}</li>)}</ul>}
+        {col.hits.length > 0 && <ul aria-label={`${col.label}神煞`}>{col.hits.map(hit => <li key={`${hit.id}:${hit.name}`} data-shensha-result={hit.id} data-shensha-method={hit.reference ? 'reference' : 'source'} data-shensha-tone={hit.tone ?? undefined} aria-label={hit.tone ? `${hit.name}（${hit.tone}）` : undefined} title={`${hit.name}${hit.tone ? `（${hit.tone}）` : ''}｜${hit.rule}｜${hit.sourceLabel}`}>{hit.anchor ? <a href={`#${hit.anchor}`} onClick={event => { if (openShenShaItem(hit.anchor)) event.preventDefault(); }}>{hit.name}</a> : hit.name}</li>)}</ul>}
         {col.emptyText && <span className={styles.shenshaEmpty} aria-label={col.state === 'PENDING' ? `結果尚未完整：${col.pendingNames.join('、')}` : '本次未命中本站既有規則'}>{col.emptyText}</span>}
         {col.note && <small className={styles.shenshaPillarNote}>{col.note}</small>}
       </div>)}</div>}

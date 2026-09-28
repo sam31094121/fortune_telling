@@ -20,7 +20,7 @@ export const SHENSHA_SENSE_PICKS: Record<string, readonly [number, number] | nul
   天: [0, 0], 德: [2, 0], 合: [2, 0], 月: [0, 0], 龍: [0, 0], 狗: [0, 1], 金: [1, 0], 匱: [0, 0],
   五: null, 鬼: [0, 0], 災: [1, 0], 煞: [2, 0], 六: null, 厄: [1, 0], 沐: [0, 0], 浴: [1, 0],
   破: [1, 0], 日: [1, 0], 將: null, 星: [2, 0], 驛: [1, 0], 馬: [0, 1], 隔: [1, 0], 角: [1, 0],
-  元: [0, 0], 辰: [2, 0], 羊: [0, 0], 刃: [0, 0], 桃: null, 花: [2, 0], 外: [0, 0], 乙: [0, 0],
+  元: [0, 0], 辰: [2, 0], 羊: null, 刃: [0, 0], 桃: null, 花: [2, 0], 外: [0, 0], 乙: [0, 0],
   貴: [1, 0], 人: [1, 0], 文: [1, 0], 昌: [0, 0], 華: [2, 0], 蓋: null,
   歲: [1, 0], 截: null, 路: [2, 0], 轉: [0, 0], 地: [1, 0], 靈: null,
   喪: null, 門: [0, 0], 白: [1, 0], 虎: null, 病: null, 符: [2, 0], 披: [2, 0], 麻: null,
@@ -55,7 +55,8 @@ export function charSense(char: string): ShenShaCharSense {
 
 /** 一個神煞名稱的字義意境：逐字取義，組成老師解盤的一句話。 */
 export function shenShaImagery(name: string): ShenShaImagery {
-  const chars = [...name].map(charSense);
+  // 只列有合適字義的字；沒有的字不印「字庫無合適字義」（客人讀起來像沒做完）。
+  const chars = [...name].map(charSense).filter(c => c.sense);
   // 字義原文自帶句號，逐字並列，不拼接改寫。
   const parts = chars.map(c => c.sense ? `${c.char}（${c.element}）：${c.sense}` : `${c.char}（${c.element}）`);
   return { name, chars, line: parts.join('　') };

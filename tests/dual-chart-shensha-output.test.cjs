@@ -253,6 +253,13 @@ const legacyIching = structuredClone(withIching);
 delete legacyIching.specialStars.iching.items[0].imagery;
 delete legacyIching.specialStars.iching.imageryAttribution;
 assert.ok(card(legacyIching).includes('後端推導原文'), 'legacy result without imagery still renders');
+// 客人審查：格子可點（錨點由後端給）、逐項先給一句重點，完整解讀折疊，看完可回四柱。
+const hooked = structuredClone(withIching);
+Object.assign(hooked.specialStars.iching.items[0], { hook: '後端一句重點', anchor: 'shensha-item-hour-taohua' });
+const hookedHtml = card(hooked);
+for (const text of ['後端一句重點', 'id="shensha-item-hour-taohua"', '>完整解讀</summary>', '>回四柱</a>', 'id="shensha-grid"', 'href="#shensha-item-']) assert.ok(hookedHtml.includes(text), `hook layout shows ${text}`);
+assert.ok(hookedHtml.indexOf('後端一句重點') < hookedHtml.indexOf('>完整解讀</summary>') && hookedHtml.indexOf('>完整解讀</summary>') < hookedHtml.indexOf('後端導師話術'), 'hook first, full reading folded after it');
+assert.deepEqual(inspectShenShaCard(hooked, hookedHtml), [], 'tappable grid keeps the four-pillar card intact');
 withIching.specialStars.iching = { state: 'BLOCKED', chain: [{ step: '八字', text: 'A' }], reason: '後端擋下原因' };
 const blockedIchingHtml = card(withIching);
 assert.ok(blockedIchingHtml.includes('後端擋下原因') && !blockedIchingHtml.includes('測試卦'));

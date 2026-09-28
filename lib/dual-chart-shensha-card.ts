@@ -36,7 +36,9 @@ export const SHENSHA_INSPECTED_PILLARS: Record<string, ShenShaCardPillar[]> = {
 };
 
 /** reference＝依太極紫微易經派取法（本站自家一派），尚無原典頁碼；前端以＊標註。 */
-export interface ShenShaCardHit { id: string; name: string; rule: string; sourceLabel: string; reference: boolean; tone: ShenShaTone | null }
+/** 四柱格子與逐項細看共用的跳轉錨點（後端給，前端不自己組）。 */
+export const shenShaItemAnchor = (pillar: ShenShaCardPillar, id: string) => `shensha-item-${pillar}-${id}`;
+export interface ShenShaCardHit { id: string; name: string; rule: string; sourceLabel: string; reference: boolean; tone: ShenShaTone | null; anchor: string }
 export interface ShenShaCardColumn {
   pillar: ShenShaCardPillar;
   label: string;
@@ -77,6 +79,7 @@ export function buildShenShaCardView(stars: SpecialStarsLike | undefined, coreRe
       sourceLabel: hit.source ? `${hit.source.title}，${/^\d/.test(hit.source.printedPage) ? `印頁${hit.source.printedPage}` : hit.source.printedPage}` : '太極紫微易經派取法（原典頁碼待補）',
       reference: !hit.source,
       tone: toneOf(hit.id),
+      anchor: shenShaItemAnchor(key, hit.id),
     })) : [];
     const pendingNames = coreReady ? pendingFor(key) : [];
     const state = hits.length ? 'HIT' : !coreReady || pendingNames.length ? 'PENDING' : 'NONE';

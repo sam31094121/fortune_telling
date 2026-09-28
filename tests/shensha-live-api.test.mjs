@@ -80,7 +80,7 @@ for (const [birthTime, hour, expected] of fixtures) {
   for (const name of displayed) assert.ok(html.includes(name), `${birthTime}: API data reaches the actual PillarGrid component`);
   if (!expected.length) assert.match(html, /<tr[^>]*><td><\/td><td><\/td><td><\/td><td><\/td><th scope="row">特星神煞<\/th><\/tr>/, 'No-match row stays empty by user display policy');
   assert.equal(html.includes('未命中'), false);
-  for (const name of displayed) assert.ok(cardHtml.includes(`>${name}</li>`), `${birthTime}: ${name} reaches the special-stars card`);
+  for (const name of displayed) assert.ok((cardHtml.includes(`>${name}</li>`) || cardHtml.includes(`>${name}</a></li>`)), `${birthTime}: ${name} reaches the special-stars card`);
   if (birthTime === '21:30') {
     fs.mkdirSync('.tmp/dual-chart-ui-qa', { recursive: true });
     fs.writeFileSync('.tmp/dual-chart-ui-qa/live-data.json', JSON.stringify(data, null, 2));

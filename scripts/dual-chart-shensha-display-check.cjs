@@ -81,7 +81,7 @@ function inspectShenShaCard(result, html) {
   if (blocks.length !== 4) warnings.push('神煞卡缺少四柱');
   ['year', 'month', 'day', 'hour'].forEach((key, i) => {
     const block = blocks[i];
-    const names = [...(block?.[2] ?? '').matchAll(/<li[^>]*data-shensha-result="([^"]+)"[^>]*>([^<]*)<\/li>/g)].map(m => `${m[1]}:${m[2]}`).sort();
+    const names = [...(block?.[2] ?? '').matchAll(/<li[^>]*data-shensha-result="([^"]+)"[^>]*>([\s\S]*?)<\/li>/g)].map(m => `${m[1]}:${m[2].replace(/<[^>]+>/g, '')}`).sort();
     const expected = (result.specialStars?.byPillar?.[key] ?? []).map(item => `${item.id}:${item.name}`).sort();
     if (block?.[1] !== key || JSON.stringify(names) !== JSON.stringify(expected)) warnings.push(`神煞卡 ${key} 漏顯、增項、重複或錯柱`);
   });
