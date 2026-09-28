@@ -272,6 +272,20 @@ for (let i=0;i<60;i++) for (const mb of BRANCHES) {
   assert.deepEqual(at('tuishen'),expTuishen.includes(gz)?['day']:[],`退神 ${gz}`);
   batch7Cases++;
 }
+// 第八批：拱祿（三命通會五組，日時同干夾拱）。獨立抄表，60 日柱 × 60 時柱。
+const expGonglu:Record<string,string>={癸亥癸丑:'子',癸丑癸亥:'子',丁巳丁未:'午',己未己巳:'午',戊辰戊午:'巳'};
+let batch8Cases=0;
+for (let i=0;i<60;i++) for (let j=0;j<60;j++) {
+  const dgz=STEMS[i%10]+BRANCHES[i%12]; const hgz=STEMS[j%10]+BRANCHES[j%12];
+  const f=structuredClone(base); f.shenSha=[]; f.dayMaster.stem=STEMS[i%10] as Stem;
+  const d=f.pillars.day; d.heavenlyStem=STEMS[i%10] as Stem; d.earthlyBranch=BRANCHES[i%12]; d.ganZhi=dgz;
+  const hh=f.pillars.hour; if(hh==='UNKNOWN') throw new Error('known hour required');
+  hh.heavenlyStem=STEMS[j%10] as Stem; hh.earthlyBranch=BRANCHES[j%12]; hh.ganZhi=hgz;
+  const out=buildDualChartShenSha(f,gate,'male');
+  const at=(id:string)=>(['year','month','day','hour'] as const).filter(k=>out.byPillar[k].some(s=>s.id===id));
+  assert.deepEqual(at('gonglu'),expGonglu[dgz+hgz]?['day','hour']:[],`拱祿 ${dgz}日${hgz}時`);
+  batch8Cases++;
+}
 // 三奇：依序才算，順序顛倒不算。
 const sanqiCase=(y:string,m:string,d:string,hs:string)=>{ const f=structuredClone(base); f.shenSha=[]; f.pillars.year.heavenlyStem=y as Stem; f.pillars.month.heavenlyStem=m as Stem; f.pillars.day.heavenlyStem=d as Stem; f.dayMaster.stem=d as Stem; const hh=f.pillars.hour; if(hh==='UNKNOWN') throw new Error('x'); hh.heavenlyStem=hs as Stem; const o=buildDualChartShenSha(f,gate,'male'); return (['year','month','day','hour'] as const).filter(k=>o.byPillar[k].some(s=>s.id==='sanqi')); };
 assert.deepEqual(sanqiCase('甲','戊','庚','癸'),['year','month','day'],'天上三奇 年月日');
@@ -389,7 +403,11 @@ if(ic.state==='READY'){
   // 上鞍出征一定要有攀鞍；將星＋驛馬沒有攀鞍不成立。
   assert.deepEqual(findShenShaCombos([{id:'jiangxing',name:'將星',pillar:'日柱'},{id:'yima',name:'驛馬',pillar:'年柱'}]).filter(c=>c.id==='mount-and-ride'),[]);
   assert.equal(findShenShaCombos([{id:'panan',name:'攀鞍',pillar:'年柱'},{id:'yima',name:'驛馬',pillar:'時柱'}]).filter(c=>c.id==='mount-and-ride').length,1);
-  // 暗祿併入衣食有底、退神併入心思深重。
+  // 上鞍出征只說盤上真的有的那幾步：沒有將星就不說點兵。
+  const mount=findShenShaCombos([{id:'panan',name:'攀鞍',pillar:'年柱'},{id:'yima',name:'驛馬',pillar:'時柱'}]).find(c=>c.id==='mount-and-ride')!;
+  assert.ok(mount.text.includes('上鞍、出發')&&!mount.text.includes('點兵'),'mount combo only names the steps present');
+  // 暗祿、拱祿併入衣食有底、退神併入心思深重。
+  assert.equal(findShenShaCombos([{id:'gonglu',name:'拱祿',pillar:'日柱'},{id:'anlu',name:'暗祿',pillar:'年柱'}]).filter(c=>c.id==='livelihood').length,1);
   assert.equal(findShenShaCombos([{id:'anlu',name:'暗祿',pillar:'年柱'},{id:'lushen',name:'祿神',pillar:'日柱'}]).filter(c=>c.id==='livelihood').length,1);
   assert.equal(findShenShaCombos([{id:'tuishen',name:'退神',pillar:'日柱'},{id:'kongwang',name:'空亡',pillar:'年柱'}]).filter(c=>c.id==='busy-mind').length,1);
   // 德星化煞必須同柱有提醒類。
@@ -486,4 +504,4 @@ assert.deepEqual(calculateDualChart(input).specialStars,actual.specialStars,'rep
 const changed=calculateDualChart({...input,birthTime:'15:30'});
 assert.equal(changed.core.shenSha.some(s=>s.id==='yangren'),false,'different hour does not inherit a hardcoded hit');
 assert.equal(base.shenSha instanceof Array&&base.shenSha.some(s=>s.id==='yangren'),false,'other cards retain original shared core');
-console.log(`PASS paper chart 17/17 + bazi/ziwei pillar gate + ${batch7Cases} 攀鞍／暗祿／進神／退神 combinations + ${batch6Cases} 歲破／月空／截路空亡／天轉／地轉／十靈／日德／日貴 combinations + ${batch5Cases} 喪門／白虎／披麻／病符 combinations + ${batch4Cases} 月德合／飛刃／金神／八專／九醜／六秀 combinations + ${batch3Cases} 國印／天廚／流霞／亡神／天赦／四廢／陰陽差錯／孤鸞／十惡大敗 combinations + 5 三奇 order cases + ${batch2Cases} 祿神／孤辰／寡宿／劫煞／天醫 combinations + ${expansionCases} 魁罡／空亡／金輿／學堂／紅艷 combinations + ${cases} 羊刃 combinations + ${yuanchenCases} 元辰 combinations + ${jiangxingCases} 將星 combinations + ${gejiaoCases} 隔角 combinations + gates, missing data, scope, alternate hour, determinism and shared-core isolation`);
+console.log(`PASS paper chart 17/17 + bazi/ziwei pillar gate + ${batch8Cases} 拱祿 day×hour combinations + ${batch7Cases} 攀鞍／暗祿／進神／退神 combinations + ${batch6Cases} 歲破／月空／截路空亡／天轉／地轉／十靈／日德／日貴 combinations + ${batch5Cases} 喪門／白虎／披麻／病符 combinations + ${batch4Cases} 月德合／飛刃／金神／八專／九醜／六秀 combinations + ${batch3Cases} 國印／天廚／流霞／亡神／天赦／四廢／陰陽差錯／孤鸞／十惡大敗 combinations + 5 三奇 order cases + ${batch2Cases} 祿神／孤辰／寡宿／劫煞／天醫 combinations + ${expansionCases} 魁罡／空亡／金輿／學堂／紅艷 combinations + ${cases} 羊刃 combinations + ${yuanchenCases} 元辰 combinations + ${jiangxingCases} 將星 combinations + ${gejiaoCases} 隔角 combinations + gates, missing data, scope, alternate hour, determinism and shared-core isolation`);

@@ -389,6 +389,12 @@ export const SHENSHA_TEACHER_READINGS: Record<string, ShenShaTeacherReading> = {
     imagery: '像順風的船帆，一揚起來就往前走。',
     action: '趁勢往前，也記得看清方向；衝得快，更要衝得準。',
   },
+  gonglu: {
+    theme: '夾出來的福祿', tone: '福氣',
+    essence: '拱祿是日柱與時柱同干、兩支一左一右把祿位夾在中間，祿不在盤上卻被拱出來，主福祿藏而不露、越到後來越豐厚。',
+    imagery: '像兩座山夾出一道谷，谷裡的水不是誰倒進去的，是兩邊慢慢匯下來的。',
+    action: '別急著把福氣攤在桌上；守住日子與晚年這兩根柱子，祿會自己匯過來。',
+  },
   tuishen: {
     theme: '退一步的智慧', tone: '提醒',
     essence: '退神是日柱帶收斂之氣的組合，本派讀作提醒：做事容易猶豫、想退，但懂得退也是一種智慧。',

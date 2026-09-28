@@ -1169,6 +1169,18 @@
       "sourceId": "cns11643_official",
       "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
       "cnsCode": "1-584D"
+    },
+    "拱": {
+      "element": "水",
+      "meanings": [
+        "雙手相合，臂的前部上舉，以示恭敬。",
+        "圍繞。",
+        "肢體上聳彎曲而成弧形。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-5141"
     }
   }
 }

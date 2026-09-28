@@ -77,6 +77,8 @@ const PANAN: Record<Trine, Branch> = { 申子辰: '丑', 寅午戌: '未', 巳�
 const ANLU: Record<Stem, Branch> = { 甲: '亥', 乙: '戌', 丙: '申', 丁: '未', 戊: '申', 己: '未', 庚: '巳', 辛: '辰', 壬: '寅', 癸: '丑' };
 const JINSHEN_DAYS = ['甲子', '甲午', '己卯', '己酉'];
 const TUISHEN_DAYS = ['丁丑', '丁未', '壬辰', '壬戌'];
+/** 拱祿（三命通會五組）：日時同干，兩支夾拱出祿位。 */
+const GONGLU: Record<string, Branch> = { 癸亥癸丑: '子', 癸丑癸亥: '子', 丁巳丁未: '午', 己未己巳: '午', 戊辰戊午: '巳' };
 
 /** 日柱所在旬的兩個空亡地支。 */
 export function xunKong(stem: Stem, branch: Branch): [Branch, Branch] {
@@ -109,6 +111,7 @@ export const DUAL_SHENSHA_RULES: ReadonlyArray<readonly [string, string]> = [
   ['sangmen', '喪門'], ['baihu', '白虎'], ['bingfu', '病符'], ['pima', '披麻'],
   ['suipo', '歲破'], ['yuekong', '月空'], ['jielu', '截路空亡'], ['tianzhuan', '天轉'], ['dizhuan', '地轉'], ['shiling', '十靈'], ['ride', '日德'], ['rigui', '日貴'],
   ['panan', '攀鞍'], ['anlu', '暗祿'], ['jinshenDay', '進神'], ['tuishen', '退神'],
+  ['gonglu', '拱祿'],
 ];
 
 /** 八字與紫微四柱逐字核對結果；神煞從這兩張已核對的命盤衍生，不另排四柱。 */
@@ -189,6 +192,7 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
     panan: reference('日支三合取攀鞍（申子辰丑、寅午戌未、巳酉丑戌、亥卯未辰），查年月時。'),
     anlu: reference('日干祿位之六合為暗祿（甲亥乙戌丙戊申丁己未庚巳辛辰壬寅癸丑），四柱皆查。'),
     jinshenDay: reference('日柱為甲子、甲午、己卯、己酉者。只看日柱（另有兼看時柱者，本派不採）。'),
+    gonglu: reference('日時同干夾拱祿位：癸亥日癸丑時、癸丑日癸亥時拱子，丁巳日丁未時、己未日己巳時拱午，戊辰日戊午時拱巳；日柱與時柱同標（另有加「四柱不見所拱之祿」條件者，本派不採）。'),
     tuishen: reference('日柱為丁丑、丁未、壬辰、壬戌者。只看日柱（另有兼看時柱者，本派不採）；讀法採本派提醒與轉化。'),
     hongyan: reference('日干取紅艷（甲乙午、丙寅、丁未、戊己辰、庚戌、辛酉、壬子、癸申），四柱皆查。'),
   };
@@ -342,6 +346,9 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
       branchHit('anlu', '暗祿', ANLU[ds], pillars, `日干${ds}祿在${LUSHEN[ds]}，其合${ANLU[ds]}為暗祿；四柱皆查`);
       if (JINSHEN_DAYS.includes(day.ganZhi)) push('jinshenDay', '進神', 'day', `日柱${day.ganZhi}為進神`, `柱${day.ganZhi}`);
       if (TUISHEN_DAYS.includes(day.ganZhi)) push('tuishen', '退神', 'day', `日柱${day.ganZhi}為退神`, `柱${day.ganZhi}`);
+      const hr = at('hour');
+      const gong = hr ? GONGLU[day.ganZhi + hr.ganZhi] : undefined;
+      if (hr && gong) for (const key of ['day', 'hour'] as const) push('gonglu', '拱祿', key, `日柱${day.ganZhi}、時柱${hr.ganZhi}夾拱祿位${gong}`, `柱${at(key)!.ganZhi}`);
     }
     // 三奇：相連三柱天干依序（年月日、月日時）。
     for (const run of [['year', 'month', 'day'], ['month', 'day', 'hour']] as const) {
