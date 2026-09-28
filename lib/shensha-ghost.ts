@@ -44,56 +44,56 @@ export type ShenShaGhostView =
  * 福氣＝護身符、動能＝要壓陣的活氣、提醒＝門縫裡的風。輪替依盤上順序決定，同一張盤永遠同一套說法。
  */
 const GHOST_OPEN: Record<ShenShaTone, ((n: string, p: string) => string)[]> = {
-  福氣: [(n, p) => `「${n}」伏在${p}——這是護身的東西。`, (n, p) => `${p}亮著一點金光，是「${n}」。`, (n, p) => `${p}有一道「${n}」，壓在你背後護著。`],
-  動能: [(n, p) => `「${n}」伏在${p}——這股氣是活的，會動、會衝。`, (n, p) => `${p}裡「${n}」在躁動，按不太住。`, (n, p) => `「${n}」在${p}打轉，像一匹還沒上韁的馬。`],
-  提醒: [(n, p) => `「${n}」伏在${p}——門縫裡有風。`, (n, p) => `${p}的角落，「${n}」在低聲說話。`, (n, p) => `「${n}」蹲在${p}，一直沒走。`],
+  福氣: [(n, p) => `「${n}」伏在${p}，護身的。`, (n, p) => `${p}一點金光——「${n}」。`, (n, p) => `「${n}」在${p}，護著你的背。`],
+  動能: [(n, p) => `「${n}」在${p}，活的，會衝。`, (n, p) => `${p}裡，「${n}」按不住。`, (n, p) => `「${n}」在${p}打轉，像未上韁的馬。`],
+  提醒: [(n, p) => `「${n}」在${p}，門縫有風。`, (n, p) => `${p}的角落，「${n}」在低語。`, (n, p) => `「${n}」蹲在${p}，沒走。`],
 };
 const GHOST_CLOSE: Record<ShenShaTone, ((theme: string) => string)[]> = {
-  福氣: [t => `茅山的說法：這道「${t}」的符不是誰替你畫的，是你自己一路積下來的；常做好事，它才一直亮著。`, t => `「${t}」這道光是你自己積的，別小看它。`, t => `記得回頭謝謝那些替你擋過風的人，「${t}」才會一直在。`, t => `這道「${t}」不用供、不用買，守住本心就不會散。`, t => `「${t}」護著你，也在等你把它傳給下一個人。`],
-  動能: [t => `道士只說一句：「${t}，壓得住是兵，壓不住是亂。」你要當那個壓陣的人。`, t => `給「${t}」一個方向，它就替你開路。`, t => `韁繩在你手上，慢一步，「${t}」就聽話了。`, t => `「${t}」是把火，拿來煮飯就別拿來燒屋。`, t => `先定好要去哪，「${t}」才不會帶你繞圈。`],
-  提醒: [t => `別慌，那不是外靈，是「${t}」還沒收乾淨；燈點亮、名字叫出來，它自己就退了。`, t => `把「${t}」寫下來，它就從暗處走到亮處。`, t => `茅山不驅它，看懂「${t}」，它就散了。`, t => `「${t}」不是來找麻煩的，是來提醒你哪裡該補。`, t => `跟「${t}」說一聲我看見了，它就不用一直敲門。`],
+  福氣: [t => `這道「${t}」的符，是你自己畫的。`, t => `「${t}」是你積的光，別看輕它。`, t => `謝過替你擋風的人，「${t}」才長亮。`, t => `「${t}」不用供、不用買，守住本心就在。`, t => `「${t}」護著你，也等你傳下去。`],
+  動能: [t => `「${t}」——壓得住是兵，壓不住是亂。`, t => `給「${t}」一個方向，它替你開路。`, t => `韁繩在你手，慢一步，「${t}」就聽話。`, t => `「${t}」是火：拿來煮飯，別拿來燒屋。`, t => `先定去處，「${t}」才不繞圈。`],
+  提醒: [t => `不是外靈，是「${t}」沒收乾淨；叫出名字，它就退。`, t => `寫下「${t}」，它就從暗處走到亮處。`, t => `茅山不驅它；看懂「${t}」，它就散。`, t => `「${t}」不找麻煩，只提醒你哪裡該補。`, t => `跟「${t}」說聲看見了，它就不再敲門。`],
 };
 function ghostLine(name: string, pillar: string, theme: string, tone: ShenShaTone | null, heart: string | null, index: number, repeatOf?: string): string {
   if (!tone) return `「${name}」伏在${pillar}——這一筆氣還在打量你，先別理它，把眼前的事做穩。`;
-  if (repeatOf) return `${GHOST_OPEN[tone][index % 3](name, pillar)}和${repeatOf}那道是同一道氣，換了位置，${GHOST_REPEAT[pillar] ?? '換一種樣子出現'}。${GHOST_CLOSE[tone][index % GHOST_CLOSE[tone].length](theme)}`;
+  if (repeatOf) return `${GHOST_OPEN[tone][index % 3](name, pillar)}和${repeatOf}那道同一道氣，${GHOST_REPEAT[pillar] ?? '換一種樣子出現'}。${GHOST_CLOSE[tone][index % GHOST_CLOSE[tone].length](theme)}`;
   const open = GHOST_OPEN[tone][index % 3](name, pillar);
   // 起三種、收五種，錯開輪替：同一類別連著十幾道也不會一句一句重複。
   const close = GHOST_CLOSE[tone][index % GHOST_CLOSE[tone].length](theme);
-  const secret = heart ? `門外的聲音替你說出來：「${heart.replace(/^其實/, '')}」` : '';
+  const secret = heart ? `門外替你說：「${heart.replace(/^其實/, '')}」` : '';
   return `${open}${secret}${close}`;
 }
 
 /** 同一道氣換了柱位：鬼魅版的柱位說法（只用在第二次出現）。 */
 const GHOST_REPEAT: Record<string, string> = {
-  年柱: '這回是從祖上那一脈飄過來',
-  月柱: '這回是在家門口、同事同輩之間打轉',
-  日柱: '這回貼到你身上、睡在你枕邊',
-  時柱: '這回往外走，跟著你伸出去的那隻手',
+  年柱: '這回從祖上飄來',
+  月柱: '這回在家門口打轉',
+  日柱: '這回貼到你身上',
+  時柱: '這回跟著你往外走',
 };
 
 /** 鬼魅版柱位宮義：每柱開頭一句（易經老師講宮位，鬼魅老師講「氣從哪裡來」）。 */
 const GHOST_PILLAR: Record<string, string> = {
-  年柱: '年柱是祖上那一脈傳下來的氣，老一輩的事、別人第一眼看你的樣子，都從這裡飄出來。',
-  月柱: '月柱是家門口的氣，父母兄弟、同事同輩，天天進出，你最常撞見的就是它。',
-  日柱: '日柱是貼身的氣，睡在你枕邊，跟你最親的人，也在這一柱。',
-  時柱: '時柱是往外走的氣，子女、部屬、你這輩子往外伸出去的那隻手，都在這裡。',
+  年柱: '年柱，祖上傳下的氣；別人第一眼看見的你，也從這裡來。',
+  月柱: '月柱，家門口的氣；父母兄弟、同事同輩，天天照面。',
+  日柱: '日柱，貼身的氣；睡在枕邊的人，也在這一柱。',
+  時柱: '時柱，往外走的氣；子女、部屬、你伸出去的那隻手。',
 };
 
 /** 陣法台詞：每一種陣各有一句鬼魅說法（依整盤合看的規則 id）。 */
 const GHOST_FORMATION: Record<string, (members: string, where: string) => string> = {
-  'march-leader': (m, w) => `${m}在${w}一起行軍——邊走邊點兵的陣。走到哪，人就跟到哪；先想好往哪走，別讓隊伍跟著你繞圈。`,
-  'charm-trio': (m, w) => `${m}在${w}圍成一圈——桃花陣。香氣太濃，蜂蝶會來，雜蟲也會來；門要開，也要知道什麼時候關。`,
-  'noble-pair': (m, w) => `${m}在${w}站成一排——貴人陣。這不是天上掉下來的，是你以前幫過的人，換一種樣子回來找你。`,
-  'de-softens': (m, w) => `${m}鎮在${w}——德星壓煞的陣。煞氣是真的，但壓在德底下翻不了身；你守住善念，它就一直被壓著。`,
-  'edge-and-command': (m, w) => `${m}在${w}刀出鞘、令在手——權柄陣。刀太亮會傷自己人，收一半在鞘裡，陣才鎮得住。`,
-  'scholar': (m, w) => `${m}在${w}點起一盞油燈——書房陣。夜深了燈還亮著，那是你的腦子不肯休息；寫下來，燈油才不會白燒。`,
-  'solitary-depth': (m, w) => `${m}在${w}各守一角——閉關陣。一個人待著不是壞事，但別把門從裡面鎖死。`,
-  'livelihood': (m, w) => `${m}在${w}守著米缸——衣食陣。缸不會自己滿，先存一把米，再煮一鍋飯。`,
-  'busy-mind': (m, w) => `${m}在${w}繞成一團線——心結陣。我在泰國看過，這種睡不好、想太多的人，最常被黑衣阿贊說成「被下了東西」；不是，線頭在你手上，一次解一個結，別整團亂扯。`,
-  'outer-waves': (m, w) => `${m}在${w}颳起外風——風浪陣。這種陣，泰國的假阿贊最愛拿來收錢解。我看破給你聽：風是從外面吹進來的，不是你招的，也不是誰對你下了什麼；關好窗、留好後路，風自己會過去。`,
-  'distant-romance': (m, w) => `${m}在${w}同路——遠行遇緣陣。緣分常在路上碰見，出門時眼睛多留一點給陌生人。`,
-  'mount-and-ride': (m, w) => `${m}在${w}牽出一匹備好鞍的馬——出征陣。鞍上好了，韁繩在你手上；往哪走你自己定，別讓馬替你選路。`,
-  'care-and-rest': (m, w) => `${m}在${w}守著一盞藥爐——照看陣。你總在替別人熬藥，也記得替自己添一把柴。`,
+  'march-leader': (m, w) => `${m}在${w}行軍——點兵陣。先定方向，別讓隊伍陪你繞圈。`,
+  'charm-trio': (m, w) => `${m}在${w}圍成一圈——桃花陣。香濃招蝶，也招蟲；門要會開，也要會關。`,
+  'noble-pair': (m, w) => `${m}在${w}站成一排——貴人陣。不是天降，是你幫過的人，換個樣子回來。`,
+  'de-softens': (m, w) => `${m}鎮在${w}——德星壓煞陣。煞是真的，壓在德下翻不了身；善念守住，它就一直被壓著。`,
+  'edge-and-command': (m, w) => `${m}在${w}刀出鞘、令在手——權柄陣。刀太亮傷自己人；收一半，陣才鎮得住。`,
+  'scholar': (m, w) => `${m}在${w}點起一盞油燈——書房陣。夜深燈不熄，是腦子不肯睡；寫下來，油才不白燒。`,
+  'solitary-depth': (m, w) => `${m}在${w}各守一角——閉關陣。獨處無妨，別把門從裡面反鎖。`,
+  'livelihood': (m, w) => `${m}在${w}守著米缸——衣食陣。缸不會自己滿，先存一把米。`,
+  'busy-mind': (m, w) => `${m}在${w}纏成一團線——心結陣。在泰國，這種睡不好、想太多，常被說成「被下了東西」；不是。線頭在你手上，一次解一個結。`,
+  'outer-waves': (m, w) => `${m}在${w}颳起外風——風浪陣。假阿贊最愛拿這陣收錢。我看破給你聽：風從外面來，不是你招的，也沒人對你下什麼；關窗、留後路，風自會過。`,
+  'distant-romance': (m, w) => `${m}在${w}同路——遠行遇緣陣。緣分在路上；出門，多看一眼陌生人。`,
+  'mount-and-ride': (m, w) => `${m}在${w}牽出備好鞍的馬——出征陣。韁繩在你手，路你自己選。`,
+  'care-and-rest': (m, w) => `${m}在${w}守一盞藥爐——照看陣。總替別人熬藥，也替自己添把柴。`,
 };
 
 export function buildShenShaGhost(view: ShenShaIChingView, hexagram: IChingReading | null): ShenShaGhostView {
@@ -118,7 +118,7 @@ export function buildShenShaGhost(view: ShenShaIChingView, hexagram: IChingReadi
       if (!repeatOf) firstPillar.set(item.id, item.pillar);
       const hook = repeatOf
         ? `「${item.name}」又落在${item.pillar}——和${repeatOf}那道是同一道氣。`
-        : heart ? `「${item.name}」門外的聲音：「${heart}」` : `「${item.name}」伏在${item.pillar}。`;
+        : heart ? `「${item.name}」門外替你說：「${heart}」` : `「${item.name}」伏在${item.pillar}。`;
       return { name: item.name, tone, hook, text: ghostLine(item.name, item.pillar, item.teacher?.theme ?? item.name, tone, heart, index, repeatOf) };
     }),
   }));
@@ -135,9 +135,9 @@ export function buildShenShaGhost(view: ShenShaIChingView, hexagram: IChingReadi
     state: 'READY',
     ageGate: GHOST_AGE_GATE,
     teaser: total ? `${total} 道神煞氣${heaviest ? `・氣最重在${heaviest.pillar}` : ''}${formations.length ? `・${formations.length} 個陣` : ''}` : '盤上無神煞伏著',
-    oneLiner: total ? `門外低語：茅山學的、泰國看過的，我都替你看了——${heaviest ? `${heaviest.pillar}的氣最重，` : ''}看起來像鬼的，多半是還沒說出口的心事。` : '門外低語：盤上乾乾淨淨，燈你自己點。',
+    oneLiner: total ? `門外低語：茅山、泰國，我都替你看過了——${heaviest ? `${heaviest.pillar}的氣最重。` : ''}像鬼的，多半是沒說出口的心事。` : '門外低語：盤上乾淨，燈你自己點。',
     // 人設（docs/技能戰鬥檔案/神煞異君/鬼魅老師人設.md）：學過茅山、見過泰國黑衣阿贊的陰法——只看、只解、不下。
-    opening: `（門外低語）${GHOST_TEACHER_PERSONA.introduction}茅山的規矩：先驗四柱，再開壇。你這張盤，八字與紫微一字不差——門，可以開了。${total ? `盤上伏著 ${total} 道神煞氣——護身 ${tones.福氣} 道、活氣 ${tones.動能} 道、門縫風 ${tones.提醒} 道；${heaviest ? `氣最重的在${heaviest.pillar}，${heaviest.count} 道擠在一起。` : ''}今天一道一道點給你看。` : '盤上乾乾淨淨，沒有神煞伏著，這也是一種福氣。'}${GHOST_TEACHER_PERSONA.voice}`,
+    opening: `（門外低語）${GHOST_TEACHER_PERSONA.introduction}先驗四柱，再開壇——八字與紫微一字不差，門開了。${total ? `盤上伏著 ${total} 道氣：護身 ${tones.福氣} 道、活氣 ${tones.動能} 道、門縫風 ${tones.提醒} 道；${heaviest ? `氣最重的在${heaviest.pillar}。` : ''}` : '盤上乾淨，沒有神煞伏著，這也是福氣。'}${GHOST_TEACHER_PERSONA.voice}`,
     decoding: [
       { label: '磁場', text: strip(d.field) },
       { label: '詭異', text: strip(d.spirit) },
@@ -145,7 +145,7 @@ export function buildShenShaGhost(view: ShenShaIChingView, hexagram: IChingReadi
     ],
     groups,
     formations,
-    closing: `收壇。茅山教我開壇收壇，泰國讓我看見黑法的代價——兩邊教我的是同一件事：沒有不勞而獲的法，改變只能靠你自己的選擇與行動。我轉身後立的第一條規矩：真的有人在傷害你，破解的第一步不在我這裡——先找信任的人、找專業，必要時報警；等你安全了，心裡那些陰影，再由我替你一層一層拆。我替你破，是在贖我的罪；你要走的，是你自己的道。${GHOST_TEACHER_PERSONA.motto}——舊的執念放下，新的路才長得出來。最後一句話留給你：門我替你開過了，燈要你自己點。看起來像鬼的，多半是還沒說出口的心事；看起來像劫的，多半是還沒走完的功課。${hexagram.hexagramName}卦的意思很簡單——${hexagram.advice.split('（')[0]}。`,
+    closing: `收壇。茅山與泰國，教我同一件事：沒有不勞而獲的法。真有人傷你，先找信任的人、找專業，必要時報警——人平安了，心裡的影子我再替你拆。我替你破，是在贖我的罪；你的道，你自己走。${GHOST_TEACHER_PERSONA.motto}——舊執念放下，新路才長得出來。門我開了，燈你自己點。「${hexagram.hexagramName}」只留一句——${hexagram.advice.split('（')[0]}。`,
     // 茅山正統不以恐嚇立教（〈認識茅山傳承〉，業主提供，D 級參考；見 docs/技能戰鬥檔案/神煞異君/）。
     disclaimer: '鬼魅老師是同一場解盤的另一種話術分身：神秘是外衣，真實邏輯是骨架。茅山正統不以恐嚇立教——不作驅邪、不賣符咒、不作預言；內容僅作自我反思參考。',
   };
