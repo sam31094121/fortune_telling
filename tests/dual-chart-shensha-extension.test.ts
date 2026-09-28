@@ -520,6 +520,7 @@ if(ic.state==='READY'){
     assert.ok(ghostLines.every(l=>l.text.includes(l.name)));
     assert.equal(new Set(ghostLines.map(l=>l.text)).size,ghostLines.length,'no two ghost lines read the same');
     assert.ok(!ghostLines.some(l=>/「你[^」]*，你/.test(l.text)&&/「你(舞台|同一件事)/.test(l.text)),'no doubled 你 in the voiced secret');
+    assert.ok(ghostLines.every(l=>!/「[^」]*「/.test(l.text.split('門外替你說：')[1]??'')),'no quote nested inside the voiced secret');
     assert.ok(ghostLines.every(l=>l.text.includes('門外替你說')),'each ghost line voices that shensha\'s own hidden heart');
     for (const tone of ['福氣','動能','提醒']) { const opens=ghostLines.filter(l=>l.tone===tone).map(l=>l.text.split('門外替你說')[0].replace(/「[^」]+」|[年月日時]柱/g,'')); if(opens.length>=2) assert.ok(new Set(opens).size>1,`${tone} ghost openings rotate`); }
     assert.equal(gh.formations.length,ic.combos.length,'every combo becomes a formation');
