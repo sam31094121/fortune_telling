@@ -391,6 +391,7 @@ if(ic.state==='READY'){
     assert.ok(gh.opening.includes('護身 4 道')&&gh.opening.includes('活氣 7 道')&&gh.opening.includes('門縫風 6 道')&&gh.opening.includes('氣最重的在時柱'),'opening reads this chart');
     assert.ok(gh.groups.every(g=>g.intro.startsWith(g.pillar)),'each ghost pillar has its own intro');
     assert.equal(gh.teaser,'17 道神煞氣・氣最重在時柱・4 個陣');
+    assert.equal(gh.ageGate,'未滿 18 歲禁止進入','ghost card carries the 18+ notice');
     assert.equal(ic.teaser,'本命卦「地澤臨」・神煞 17 項・合看 4 組');
     assert.notEqual(ic.oneLiner,gh.oneLiner,'the two teachers say different one-liners');
     assert.ok(gh.oneLiner.startsWith('門外低語')&&ic.oneLiner.includes(ic.hexagram.name));

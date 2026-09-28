@@ -19,9 +19,13 @@ import type { ShenShaTone } from './shensha-teacher-readings';
 import type { ShenShaIChingView } from './shensha-iching';
 
 export interface ShenShaGhostLine { name: string; tone: ShenShaTone | null; text: string }
+/** 業主定案 2026-09-28：鬼魅老師卡標示未滿 18 歲禁止進入（READY 與 BLOCKED 都帶，前端照印）。 */
+export const GHOST_AGE_GATE = '未滿 18 歲禁止進入';
+
 export type ShenShaGhostView =
   | {
     state: 'READY';
+    ageGate: string;
     teaser: string;
     oneLiner: string;
     opening: string;
@@ -31,7 +35,7 @@ export type ShenShaGhostView =
     closing: string;
     disclaimer: string;
   }
-  | { state: 'BLOCKED'; teaser: string; reason: string };
+  | { state: 'BLOCKED'; ageGate: string; teaser: string; reason: string };
 
 /**
  * 鬼語三段：起（依類別三種說法輪替）→ 門外的聲音替你說出心事（取洋蔥「心」那一層，每個神煞不同）→ 收（依類別三種說法輪替）。
@@ -81,7 +85,7 @@ const GHOST_FORMATION: Record<string, (members: string, where: string) => string
 
 export function buildShenShaGhost(view: ShenShaIChingView, hexagram: IChingReading | null): ShenShaGhostView {
   if (view.state !== 'READY' || !hexagram) {
-    return { state: 'BLOCKED', teaser: '壇未開', reason: '四柱還沒對齊，壇不能開。茅山的規矩：盤不清，不開口。' };
+    return { state: 'BLOCKED', ageGate: GHOST_AGE_GATE, teaser: '壇未開', reason: '四柱還沒對齊，壇不能開。茅山的規矩：盤不清，不開口。' };
   }
   const d = buildGhostDecoding(hexagram);
   // 拆卦三段沿用共用的 buildGhostDecoding（其他卡片也在用，不改它）；這裡只去掉段名，
@@ -110,6 +114,7 @@ export function buildShenShaGhost(view: ShenShaIChingView, hexagram: IChingReadi
   const heaviest = [...view.groups].sort((a, b) => b.count - a.count)[0];
   return {
     state: 'READY',
+    ageGate: GHOST_AGE_GATE,
     teaser: total ? `${total} 道神煞氣${heaviest ? `・氣最重在${heaviest.pillar}` : ''}${formations.length ? `・${formations.length} 個陣` : ''}` : '盤上無神煞伏著',
     oneLiner: total ? `門外低語：${heaviest ? `${heaviest.pillar}的氣最重，` : ''}看起來像鬼的，多半是還沒說出口的心事。` : '門外低語：盤上乾乾淨淨，燈你自己點。',
     // 人設（docs/技能戰鬥檔案/神煞異君/鬼魅老師人設.md）：學過茅山、見過泰國黑衣阿贊的陰法——只看、只解、不下。

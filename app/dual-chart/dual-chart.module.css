@@ -222,6 +222,8 @@
 .teacherCard[data-teacher=ghost]{border-color:#8f1d2c99;background:#0d0a0f}
 .teacherCard[data-teacher=ghost]>summary{color:#e8c9cc;background:linear-gradient(90deg,#3a0d14,#150a0e)}
 .teacherCard[data-teacher=ghost]>summary b{color:#ff8b95;text-shadow:0 0 12px #ff3b4f55}
+.ageGate{display:inline-flex;align-items:center;padding:1px 8px;border-radius:999px;border:1px solid #ff5a6a;background:#3a0d14;color:#ffb3ba;font-size:12px;font-style:normal;letter-spacing:.04em;white-space:nowrap}
+.ageGateBanner{margin:12px 0 0;padding:8px 12px;border-radius:10px;border:1px solid #ff5a6a;background:#2a0a10;color:#ffd0d5;font-family:initial;font-size:14px;font-weight:700;text-align:center;letter-spacing:.08em}
 .shenshaGhost{padding:6px 14px 18px;color:#e6d4d6;font-family:"Kaiti TC","BiauKai","STKaiti","KaiTi",serif}
 .shenshaGhost p,.shenshaGhost li{overflow-wrap:anywhere}
 .ghostOpening{margin:10px 0 4px;padding:12px 14px;border-left:3px solid #b3263a;background:#1a0c10;font-size:16px;line-height:1.9;color:#f3dfe1;font-style:italic}

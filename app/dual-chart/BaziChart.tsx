@@ -135,8 +135,9 @@ function TeacherFold({ teacher, summary, children }: { teacher: 'iching' | 'ghos
 /** 鬼魅老師解盤（茅山道士話術分身）：只照印後端 buildShenShaGhost 的結果。 */
 function ShenShaGhostSection({ view }: { view?: DualChartResult['specialStars']['ghost'] }) {
   if (!view) return null;
-  if (view.state === 'BLOCKED') return <section className={styles.shenshaGhost} aria-label="鬼魅老師解盤內容"><p role="status">{view.reason}</p></section>;
+  if (view.state === 'BLOCKED') return <section className={styles.shenshaGhost} aria-label="鬼魅老師解盤內容">{view.ageGate && <p className={styles.ageGateBanner}>{view.ageGate}</p>}<p role="status">{view.reason}</p></section>;
   return <section className={styles.shenshaGhost} aria-label="鬼魅老師解盤內容">
+    {view.ageGate && <p className={styles.ageGateBanner}>{view.ageGate}</p>}
     <p className={styles.ghostOpening}>{view.opening}</p>
     <h4 className={styles.ghostTitle}>拆卦</h4>
     <ul className={styles.ghostDecoding}>{view.decoding.map(d => <li key={d.label}><b>{d.label}</b><p>{d.text}</p></li>)}</ul>
@@ -180,7 +181,7 @@ export function ShenShaCard({ result }: { result: DualChartResult }) {
     {result.specialStars?.iching && <TeacherFold teacher="iching" summary={<summary><span className={styles.teacherHead}><b>易經老師解盤</b><small>神　溫和的智慧</small></span>{result.specialStars.iching.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.iching.teaser}</span>}</summary>}>
       <ShenShaIChingSection view={result.specialStars.iching} />
     </TeacherFold>}
-    {result.specialStars?.ghost && <TeacherFold teacher="ghost" summary={<summary><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small></span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span></summary>}>
+    {result.specialStars?.ghost && <TeacherFold teacher="ghost" summary={<summary><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small>{result.specialStars.ghost.ageGate && <em className={styles.ageGate}>{result.specialStars.ghost.ageGate}</em>}</span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span></summary>}>
       <ShenShaGhostSection view={result.specialStars.ghost} />
     </TeacherFold>}
   </section>;
