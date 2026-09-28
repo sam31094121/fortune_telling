@@ -325,6 +325,17 @@ assert.deepEqual(f2026.suiShen.map(s=>`${s.name}${s.pillar}`).sort(),['太歲mon
     assert.ok(v.years[0].suiShen.every(i=>i.text.startsWith(`這一年歲神${i.name}`)),'suishen text says 歲神 to tell it from a natal star of the same name');
   }
 }
+// 同一個心理學名詞一張盤只出現一次（1985-11-20 辰時：天狗兩柱＋十惡大敗都對到沉沒成本）。
+{
+  const r=calculateDualChart({birthDate:'1985-11-20',birthTime:'07:30',gender:'male',calendarType:'solar',timezone:'Asia/Taipei'});
+  const ic3=r.specialStars.iching; assert.equal(ic3.state,'READY');
+  if (ic3.state==='READY') {
+    const terms=ic3.items.map(i=>i.onion?.term?.name).filter(Boolean);
+    assert.equal(new Set(terms).size,terms.length,'each psychology term shows once per chart');
+    assert.ok(terms.some(t=>t!.includes('sunk cost')),'the first occurrence keeps its citation');
+  }
+  for (const ch of ['狗','馬','驛','角']) assert.equal(SHENSHA_SENSE_PICKS[ch],null,`${ch} dictionary-style sense is not used`);
+}
 // 核對沒過就不給流年；話術後端組好、不下吉凶斷語、明年不說「今年」。
 assert.equal(buildFlowYearShenSha(base,gate,'male',{passed:false,mismatches:['x']},{year:2026,ganZhi:'丙午'}),null);
 assert.equal(buildShenShaFlow([null]).state,'BLOCKED');

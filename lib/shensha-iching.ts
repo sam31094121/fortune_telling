@@ -118,6 +118,14 @@ export function buildShenShaIChing(params: {
     imagery: shenShaImagery(hit.name),
   })));
   // 同一顆神煞落在兩柱以上：第二次起重點句改講這一柱，不再和第一次一模一樣（客人審查第二輪）。
+  // 同一個心理學名詞在一張盤只出現一次（客人審查第三輪：天狗與十惡大敗都掛「沉沒成本」）。
+  const termSeen = new Set<string>();
+  for (const item of items) {
+    const term = item.onion?.term;
+    if (!term) continue;
+    if (termSeen.has(term.name)) item.onion = { ...item.onion!, term: null };
+    else termSeen.add(term.name);
+  }
   const firstPillar = new Map<string, string>();
   for (const item of items) {
     const first = firstPillar.get(item.id);

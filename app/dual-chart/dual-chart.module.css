@@ -459,3 +459,6 @@ details[open]>summary .moreHint::after{content:' ▴'}
 .comboHead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .comboMembers{display:flex;flex-wrap:wrap;gap:4px 8px;margin-top:4px;font-size:13px;color:var(--ss-muted)}
 .comboFold>p{padding:0 12px 10px}
+/* 客人審查第三輪：格子點擊高度 28px → 40px（長輩好點） */
+.shenshaPillars ul{gap:0}
+.shenshaPillars li a{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 2px;line-height:1.3}
