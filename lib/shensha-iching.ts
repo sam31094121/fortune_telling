@@ -110,7 +110,8 @@ export function buildShenShaIChing(params: {
     id: hit.id, name: hit.name, pillar: col.label, derivation: hit.rule.split('；')[0], reference: hit.reference,
     onion: shenShaOnion(hit.id),
     anchor: hit.anchor,
-    hook: shenShaOnion(hit.id)?.layers.find(l => l.layer === '心')?.text ?? SHENSHA_TEACHER_READINGS[hit.id]?.theme ?? null,
+    // 重點句單獨出現時去掉開頭「其實」：十幾句連著都以「其實你」起頭，讀起來像套版。
+    hook: shenShaOnion(hit.id)?.layers.find(l => l.layer === '心')?.text.replace(/^其實/, '') ?? SHENSHA_TEACHER_READINGS[hit.id]?.theme ?? null,
     tradition: SHENSHA_TRADITION[hit.id] ? `傳統分類：${SHENSHA_TRADITION[hit.id]}` : null,
     teacher: SHENSHA_TEACHER_READINGS[hit.id] ? { theme: SHENSHA_TEACHER_READINGS[hit.id].theme, tone: SHENSHA_TEACHER_READINGS[hit.id].tone, text: teacherReadingFor(hit.id, hit.name, col.label)! } : null,
     // 老師解盤：字有字的意境，取姓名學字庫字義作參考（業主定案 2026-09-27）。
@@ -138,9 +139,7 @@ export function buildShenShaIChing(params: {
     : null;
   const reading = [
     ...(items.length ? [SHENSHA_PRINCIPLE] : []),
-    ...(combos.length ? [`整盤合看，這張盤有 ${combos.length} 組神煞彼此呼應：${combos.map(c => c.pillar ? `${c.title}（${c.pillar}）` : c.title).join('、')}。老師看盤不只看單一顆星，而是看它們怎麼一起說話，下方逐組說明。`] : []),
     `易經以同一份生辰起卦，得「${r.hexagramName}」：${r.essence.replace(/[。．.]?$/, '。')}行動建議：${r.advice}`,
-    ...(items.length ? [`導師解盤的讀法：先讀神煞的本意，再看它落在哪一柱，最後回到「${r.hexagramName}」的行動建議——讀意、讀位、讀卦，三者合看。下方逐項先給一句重點，點「完整解讀」再展開導師話術、洋蔥心理學（殼→心→禮物）、推導與字的意境。`] : []),
   ];
 
   const registry = ichingRegistry as unknown as SourceRegistry;

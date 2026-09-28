@@ -25,6 +25,8 @@ interface ComboRule {
   require?: string[];
   /** companions：同柱中符合 withTone 的神煞名稱（德星化煞用來點名是哪些提醒）。 */
   text: (names: string[], pillar: string | null, companions?: string[]) => string;
+  /** 同柱規則在多柱成立時合成一組（客人審查：同一段話重複三次像套版）。 */
+  merged?: (parts: { pillar: string; names: string[]; companions: string[] }[]) => string;
 }
 
 /** 上鞍出征只說盤上真的有的那幾步。 */
@@ -40,7 +42,8 @@ export const SHENSHA_COMBO_RULES: ComboRule[] = [
   { id: 'noble-pair', title: '貴人相逢', scope: 'chart', min: 2, members: ['tianyi', 'tiande', 'yuede', 'tiandehe', 'yuedehe'],
     text: n => `${n.join('、')}一起出現：貴人星不只一顆，遇到困難時常有人伸手。平常多結善緣、守信用，貴人記得的是你的為人。` },
   { id: 'de-softens', title: '德星化煞', scope: 'same-pillar', min: 1, members: DE_STARS, withTone: '提醒',
-    text: (n, p, c = []) => `${p}的${n.join('、')}與${c.join('、')}同柱：本派讀作「有德護身」，這一柱的關卡雖然存在，但常有轉圜的餘地。守住善念與分寸，就是最好的化解。` },
+    text: (n, p, c = []) => `${p}的${n.join('、')}與${c.join('、')}同柱：本派讀作「有德護身」，這一柱的關卡雖然存在，但常有轉圜的餘地。守住善念與分寸，就是最好的化解。`,
+    merged: parts => `${parts.map(x => `${x.pillar}的${x.names.join('、')}護著${x.companions.join('、')}`).join('；')}：本派讀作「有德護身」，這幾柱的關卡雖然存在，但都有德星在旁，常有轉圜的餘地。守住善念與分寸，就是最好的化解。` },
   { id: 'edge-and-command', title: '鋒芒與權柄', scope: 'same-pillar', min: 2, members: ['yangren', 'jiangxing', 'kuigang', 'jinshen'],
     text: (n, p) => `${n.join('、')}同在${p}：魄力與領導力都強，是能扛大事的組合。剛上加剛時，更要學會放軟聲音，力量才會被接受。` },
   { id: 'scholar', title: '書香與文思', scope: 'chart', min: 2, members: ['wenchang', 'xuetang', 'yuekong', 'huagai', 'liuxiu', 'shiling'],
@@ -74,6 +77,7 @@ export function findShenShaCombos(hits: ComboHit[]): ShenShaCombo[] {
       if (names.length >= rule.min) combos.push({ id: rule.id, title: rule.title, members: names, pillar: null, text: rule.text(names, null) });
       continue;
     }
+    const parts: { pillar: string; names: string[]; companions: string[] }[] = [];
     for (const pillar of pillars) {
       const inPillar = hits.filter(h => h.pillar === pillar);
       const names = [...new Set(inPillar.filter(h => rule.members.includes(h.id)).map(h => h.name))];
@@ -81,7 +85,12 @@ export function findShenShaCombos(hits: ComboHit[]): ShenShaCombo[] {
       const companions = rule.withTone ? [...new Set(inPillar.filter(h => h.tone === rule.withTone).map(h => h.name))] : [];
       if (rule.withTone && !companions.length) continue;
       if (rule.require && !rule.require.every(id => inPillar.some(h => h.id === id))) continue;
-      combos.push({ id: rule.id, title: rule.title, members: names, pillar, text: rule.text(names, pillar, companions) });
+      parts.push({ pillar, names, companions });
+    }
+    if (parts.length > 1 && rule.merged) {
+      combos.push({ id: rule.id, title: rule.title, members: [...new Set(parts.flatMap(x => x.names))], pillar: parts.map(x => x.pillar).join('、'), text: rule.merged(parts) });
+    } else {
+      for (const x of parts) combos.push({ id: rule.id, title: rule.title, members: x.names, pillar: x.pillar, text: rule.text(x.names, x.pillar, x.companions) });
     }
   }
   return combos;

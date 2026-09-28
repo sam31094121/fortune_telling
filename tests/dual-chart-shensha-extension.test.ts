@@ -446,8 +446,9 @@ if(ic.state==='READY'){
   assert.equal(ic.items.find(i=>i.id==='taohua')?.teacher?.tone,'動能','桃花 follows the overview: dynamic, not purely blessing');
   assert.equal(ic.items.find(i=>i.id==='longde')?.tradition,null,'shensha absent from the overview get no guessed class');
   // 整盤合看：紙本命盤手算應成立的組合（不多不少）。
-  assert.deepEqual(ic.combos.map(c=>c.id+(c.pillar?'@'+c.pillar:'')),['charm-trio','de-softens@年柱','de-softens@時柱','outer-waves'],'paper chart combos match the hand-derived set');
-  assert.ok(ic.reading.some(l=>l.startsWith('整盤合看')),'combo overview joins the teacher reading');
+  assert.deepEqual(ic.combos.map(c=>c.id+(c.pillar?'@'+c.pillar:'')),['charm-trio','de-softens@年柱、時柱','outer-waves'],'paper chart combos match the hand-derived set (德星化煞 in two pillars shown as one)');
+  assert.ok(!ic.reading.some(l=>l.startsWith('整盤合看')||l.startsWith('導師解盤的讀法')),'overview drops the paragraphs that only repeat the combo list or explain the layout');
+  assert.ok(ic.items.every(i=>!i.hook!.startsWith('其實')),'hooks do not all open with the same word');
   // 遠方的緣分一定要有驛馬；沒有驛馬只有桃花類，不成立。
   assert.deepEqual(findShenShaCombos([{id:'taohua',name:'桃花',pillar:'時柱'},{id:'waiTaohua',name:'外桃花',pillar:'時柱'}]).filter(c=>c.id==='distant-romance'),[]);
   assert.equal(findShenShaCombos([{id:'yima',name:'驛馬',pillar:'年柱'},{id:'taohua',name:'桃花',pillar:'年柱'}]).filter(c=>c.id==='distant-romance').length,1);
@@ -486,7 +487,7 @@ if(ic.state==='READY'){
     assert.equal(new Set(gh.formations.map(f=>f.text.replace(/^[^—]+/,''))).size,new Set(ic.combos.map(c=>c.id)).size,'each formation kind has its own ghost wording');
     assert.ok(gh.opening.includes('護身 4 道')&&gh.opening.includes('活氣 7 道')&&gh.opening.includes('門縫風 6 道')&&gh.opening.includes('氣最重的在時柱'),'opening reads this chart');
     assert.ok(gh.groups.every(g=>g.intro.startsWith(g.pillar)),'each ghost pillar has its own intro');
-    assert.equal(gh.teaser,'17 道神煞氣・氣最重在時柱・4 個陣');
+    assert.equal(gh.teaser,'17 道神煞氣・氣最重在時柱・3 個陣');
     assert.equal(gh.ageGate,'未滿 18 歲禁止進入','ghost card carries the 18+ notice');
     // 人設貫穿：收壇、一句話都帶出茅山與泰國兩段經歷；風浪陣用「看破」拆穿收錢解降的說法。
     assert.ok(gh.closing.includes('茅山')&&gh.closing.includes('泰國')&&gh.closing.includes('沒有不勞而獲'),'closing weaves both lineages');
@@ -503,7 +504,7 @@ if(ic.state==='READY'){
     assert.ok(gh.closing.includes('找信任的人')&&gh.closing.includes('報警'),'breaking harm never delays real-world help');
     assert.ok(gh.oneLiner.includes('茅山')&&gh.oneLiner.includes('泰國'),'one-liner carries the persona');
     assert.ok(gh.formations.find(f=>f.title.startsWith('外來的風浪陣'))!.text.includes('看破'),'outer-waves formation debunks the paid-cure pitch');
-    assert.equal(ic.teaser,'本命卦「地澤臨」・神煞 17 項・合看 4 組');
+    assert.equal(ic.teaser,'本命卦「地澤臨」・神煞 17 項・合看 3 組');
     assert.notEqual(ic.oneLiner,gh.oneLiner,'the two teachers say different one-liners');
     assert.ok(gh.oneLiner.startsWith('門外低語')&&ic.oneLiner.includes(ic.hexagram.name));
     assert.ok(gh.closing.includes(ic.hexagram.name));
