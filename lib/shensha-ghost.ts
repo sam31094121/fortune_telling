@@ -17,7 +17,7 @@ import { buildGhostDecoding } from './iching-psychology';
 import type { IChingReading } from './iching-engine';
 import type { ShenShaTone } from './shensha-teacher-readings';
 import type { ShenShaIChingView } from './shensha-iching';
-import { GHOST_TEACHER_PERSONA, type GhostTrial } from './ghost-teacher-persona';
+import { GHOST_TEACHER_PERSONA } from './ghost-teacher-persona';
 
 export interface ShenShaGhostLine { name: string; tone: ShenShaTone | null; text: string }
 /** 業主定案 2026-09-28：鬼魅老師卡標示未滿 18 歲禁止進入（READY 與 BLOCKED 都帶，前端照印）。 */
@@ -30,8 +30,6 @@ export type ShenShaGhostView =
     teaser: string;
     oneLiner: string;
     opening: string;
-    /** 來歷（後端人設資料）：歷劫四段＋座右銘，前端照印。 */
-    persona: { title: string; trials: GhostTrial[]; motto: string };
     decoding: { label: string; text: string }[];
     groups: { pillar: string; intro: string; lines: ShenShaGhostLine[] }[];
     formations: { title: string; text: string }[];
@@ -121,8 +119,7 @@ export function buildShenShaGhost(view: ShenShaIChingView, hexagram: IChingReadi
     teaser: total ? `${total} 道神煞氣${heaviest ? `・氣最重在${heaviest.pillar}` : ''}${formations.length ? `・${formations.length} 個陣` : ''}` : '盤上無神煞伏著',
     oneLiner: total ? `門外低語：茅山學的、泰國看過的，我都替你看了——${heaviest ? `${heaviest.pillar}的氣最重，` : ''}看起來像鬼的，多半是還沒說出口的心事。` : '門外低語：盤上乾乾淨淨，燈你自己點。',
     // 人設（docs/技能戰鬥檔案/神煞異君/鬼魅老師人設.md）：學過茅山、見過泰國黑衣阿贊的陰法——只看、只解、不下。
-    opening: `（門外低語）${GHOST_TEACHER_PERSONA.introduction}茅山的規矩：先驗四柱，再開壇。你這張盤，八字與紫微一字不差——門，可以開了。${total ? `盤上伏著 ${total} 道神煞氣——護身 ${tones.福氣} 道、活氣 ${tones.動能} 道、門縫風 ${tones.提醒} 道；${heaviest ? `氣最重的在${heaviest.pillar}，${heaviest.count} 道擠在一起。` : ''}今天一道一道點給你看。` : '盤上乾乾淨淨，沒有神煞伏著，這也是一種福氣。'}我的來歷，先說給你聽。`,
-    persona: { title: '來歷', trials: [...GHOST_TEACHER_PERSONA.trials], motto: GHOST_TEACHER_PERSONA.motto },
+    opening: `（門外低語）${GHOST_TEACHER_PERSONA.introduction}茅山的規矩：先驗四柱，再開壇。你這張盤，八字與紫微一字不差——門，可以開了。${total ? `盤上伏著 ${total} 道神煞氣——護身 ${tones.福氣} 道、活氣 ${tones.動能} 道、門縫風 ${tones.提醒} 道；${heaviest ? `氣最重的在${heaviest.pillar}，${heaviest.count} 道擠在一起。` : ''}今天一道一道點給你看。` : '盤上乾乾淨淨，沒有神煞伏著，這也是一種福氣。'}${GHOST_TEACHER_PERSONA.voice}`,
     decoding: [
       { label: '磁場', text: strip(d.field) },
       { label: '詭異', text: strip(d.spirit) },

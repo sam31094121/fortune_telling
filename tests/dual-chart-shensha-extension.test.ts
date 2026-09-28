@@ -8,6 +8,7 @@ import { SHENSHA_SENSE_PICKS } from '../lib/shensha-char-imagery';
 import { SHENSHA_TEACHER_READINGS, PILLAR_PALACE } from '../lib/shensha-teacher-readings';
 import { SHENSHA_ONION } from '../lib/shensha-onion';
 import { SHENSHA_COMBO_RULES, findShenShaCombos } from '../lib/shensha-combos';
+import { GHOST_TEACHER_PERSONA } from '../lib/ghost-teacher-persona';
 import { DUAL_SHENSHA_RULES } from '../lib/dual-chart-shensha';
 import fs from 'node:fs';
 
@@ -394,13 +395,16 @@ if(ic.state==='READY'){
     assert.equal(gh.ageGate,'未滿 18 歲禁止進入','ghost card carries the 18+ notice');
     // 人設貫穿：收壇、一句話都帶出茅山與泰國兩段經歷；風浪陣用「看破」拆穿收錢解降的說法。
     assert.ok(gh.closing.includes('茅山')&&gh.closing.includes('泰國')&&gh.closing.includes('沒有不勞而獲'),'closing weaves both lineages');
-    assert.deepEqual(gh.persona.trials.map(t=>t.stage),['逆天','天罰','贖罪','涅槃'],'persona history comes from the backend in order');
-    assert.equal(gh.persona.motto,'心不死，道不生');
-    const personaText=gh.persona.trials.map(t=>t.text).join('');
+    // 來歷只在後端運算，不送前端；前端只顯示話術，來歷透過口吻與底氣帶出。
+    const motto=GHOST_TEACHER_PERSONA.motto;
+    assert.ok(!('persona' in gh),'persona history stays in the backend, not sent to the frontend');
+    assert.deepEqual(GHOST_TEACHER_PERSONA.trials.map(t=>t.stage),['逆天','天罰','贖罪','涅槃'],'persona history is backend data in order');
+    assert.equal(motto,'心不死，道不生');
+    const personaText=GHOST_TEACHER_PERSONA.trials.map(t=>t.text).join('');
     assert.ok(personaText.includes('萬劫不復')&&personaText.includes('贖罪')&&personaText.includes('涅槃')&&personaText.includes('只拿來破'),'persona carries the trials and the reformed stance');
     assert.ok(!/你[^。]*死/.test(personaText)&&!/降頭|情降|借運|陰牌|古曼童|屍油|陰料|控靈/.test(personaText),'persona speaks of himself only, never threatens or teaches');
-    assert.ok(!gh.opening.includes('走過黑路'),'backstory lives in the persona block, not repeated in the opening');
-    assert.ok(gh.opening.endsWith('我的來歷，先說給你聽。')&&gh.closing.includes(`${gh.persona.motto}——`)&&gh.closing.includes('贖我的罪'),'persona runs from opening to closing');
+    assert.ok(!gh.opening.includes('走過黑路'),'full backstory stays in the backend, not repeated in the opening');
+    assert.ok(gh.opening.endsWith(GHOST_TEACHER_PERSONA.voice)&&gh.opening.includes('萬劫不復')&&gh.closing.includes(`${motto}——`)&&gh.closing.includes('贖我的罪'),'persona voice runs from opening to closing');
     assert.ok(gh.closing.includes('找信任的人')&&gh.closing.includes('報警'),'breaking harm never delays real-world help');
     assert.ok(gh.oneLiner.includes('茅山')&&gh.oneLiner.includes('泰國'),'one-liner carries the persona');
     assert.ok(gh.formations.find(f=>f.title.startsWith('外來的風浪陣'))!.text.includes('看破'),'outer-waves formation debunks the paid-cure pitch');
@@ -410,7 +414,7 @@ if(ic.state==='READY'){
     assert.ok(gh.closing.includes(ic.hexagram.name));
     assert.ok(gh.disclaimer.includes('不作驅邪')&&gh.disclaimer.includes('自我反思'));
     // 座右銘「心不死，道不生」是他自己的修行語，不算對客人說死；其餘對客人說的話照樣禁用。
-    const ghostAll=[gh.opening,...gh.decoding.map(d=>d.text),...ghostLines.map(l=>l.text),...gh.formations.map(f=>f.text),gh.closing].join('').split(gh.persona.motto).join('');
+    const ghostAll=[gh.opening,...gh.decoding.map(d=>d.text),...ghostLines.map(l=>l.text),...gh.formations.map(f=>f.text),gh.closing].join('').split(motto).join('');
     assert.ok(!ghostAll.match(/必定|一定會|註定|大凶|血光|死|附身|符咒費|法事/),'ghost voice keeps the no-fear boundary');
     // 人設：學過茅山、見過黑衣阿贊——只看、只解、不下；不提供降頭、情降、借運、陰牌、古曼童。
     assert.ok(gh.opening.includes('茅山')&&gh.opening.includes('黑衣阿贊')&&gh.opening.includes('不替你下'),'opening introduces the persona and its stance');

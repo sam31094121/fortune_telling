@@ -139,11 +139,6 @@ function ShenShaGhostSection({ view }: { view?: DualChartResult['specialStars'][
   return <section className={styles.shenshaGhost} aria-label="鬼魅老師解盤內容">
     {view.ageGate && <p className={styles.ageGateBanner}>{view.ageGate}</p>}
     <p className={styles.ghostOpening}>{view.opening}</p>
-    {view.persona && <div className={styles.ghostPersona} aria-label="鬼魅老師來歷">
-      <h4 className={styles.ghostTitle}>{view.persona.title}</h4>
-      <ol>{view.persona.trials.map(trial => <li key={trial.stage}><b>{trial.stage}</b><span>{trial.text}</span></li>)}</ol>
-      <p className={styles.ghostMotto}>{view.persona.motto}</p>
-    </div>}
     <h4 className={styles.ghostTitle}>拆卦</h4>
     <ul className={styles.ghostDecoding}>{view.decoding.map(d => <li key={d.label}><b>{d.label}</b><p>{d.text}</p></li>)}</ul>
     {view.groups.length > 0 && <>
