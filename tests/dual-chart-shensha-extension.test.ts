@@ -9,7 +9,8 @@ import { SHENSHA_TEACHER_READINGS, PILLAR_PALACE, PILLAR_LINK } from '../lib/she
 import { SHENSHA_ONION } from '../lib/shensha-onion';
 import { SHENSHA_COMBO_RULES, findShenShaCombos } from '../lib/shensha-combos';
 import { GHOST_TEACHER_PERSONA } from '../lib/ghost-teacher-persona';
-import { DUAL_SHENSHA_RULES } from '../lib/dual-chart-shensha';
+import { DUAL_SHENSHA_RULES, buildFlowYearShenSha, FLOW_TOUCH_IDS, FLOW_SUISHEN } from '../lib/dual-chart-shensha';
+import { buildShenShaFlow } from '../lib/shensha-flow-year';
 import fs from 'node:fs';
 
 // Independent transcription: 1937 printed p72, PDF103; 1938 PDF80–81.
@@ -286,6 +287,43 @@ for (let i=0;i<60;i++) for (let j=0;j<60;j++) {
   assert.deepEqual(at('gonglu'),expGonglu[dgz+hgz]?['day','hour']:[],`拱祿 ${dgz}日${hgz}時`);
   batch8Cases++;
 }
+// 流年神煞（業主定案 2026-09-28，兩種取法、今年＋明年）。紙本命盤 甲寅／庚午／庚子／乙酉，獨立抄表。
+// 甲、本命被觸動：流年干支當第五柱。
+let flowCases=0;
+for (let i=0;i<60;i++) {
+  const fs0=STEMS[i%10]; const fb=BRANCHES[i%12]; const gz=fs0+fb;
+  const out=buildFlowYearShenSha(base,gate,'male',undefined,{year:2000+i,ganZhi:gz})!;
+  const ids=out.touched.map(t=>t.id);
+  const has=(id:string,expect:boolean)=>assert.equal(ids.includes(id),expect,`流年${gz} ${id}`);
+  has('tianyi',['丑','未'].includes(fb)); has('lushen',fb==='申'); has('yangren',fb==='酉'); has('taohua',fb==='酉');
+  has('ripo',fb==='午'); has('suipo',fb==='申'); has('yuepo',fb==='子'); has('yima',fb==='申'||fb==='寅');
+  has('yuede',fs0==='丙'); has('jinkui',fb==='午'); has('jiangxing',fb==='子'); has('hongyan',fb==='戌');
+  assert.ok(ids.every(id=>(FLOW_TOUCH_IDS as readonly string[]).includes(id)),`流年${gz} only natal-anchored rules`);
+  assert.equal(new Set(ids).size,ids.length,`流年${gz} one entry per shensha`);
+  // 乙、今年歲神：以流年地支排歲神，落在本命四柱（寅午子酉）。
+  const natal={year:'寅',month:'午',day:'子',hour:'酉'} as const;
+  const expSui=FLOW_SUISHEN.flatMap(([id,,off])=>(['year','month','day','hour'] as const).filter(k=>natal[k]===BRANCHES[(BRANCHES.indexOf(fb)+off)%12]).map(k=>`${id}:${k}`)).sort();
+  assert.deepEqual(out.suiShen.map(s=>`${s.id}:${s.pillar}`).sort(),expSui,`歲神 流年${gz}`);
+  flowCases++;
+}
+assert.deepEqual(FLOW_SUISHEN.map(([,n,o])=>n+o),['太歲0','喪門2','五鬼4','龍德7','白虎8','披麻9','天狗10','病符11'],'歲神位數沿用本卡');
+assert.ok(!FLOW_SUISHEN.some(([id])=>id==='suipo'),'歲破 is expressed by the touched section, not repeated');
+// 2026 丙午：手算標準答案。
+const f2026=buildFlowYearShenSha(base,gate,'male',undefined,{year:2026,ganZhi:'丙午'})!;
+assert.deepEqual(f2026.touched.map(t=>t.name).sort(),['日破','月德','金匱'].sort());
+assert.deepEqual(f2026.suiShen.map(s=>`${s.name}${s.pillar}`).sort(),['太歲month','白虎year'].sort());
+// 核對沒過就不給流年；話術後端組好、不下吉凶斷語、明年不說「今年」。
+assert.equal(buildFlowYearShenSha(base,gate,'male',{passed:false,mismatches:['x']},{year:2026,ganZhi:'丙午'}),null);
+assert.equal(buildShenShaFlow([null]).state,'BLOCKED');
+const flowView=buildShenShaFlow([f2026,buildFlowYearShenSha(base,gate,'male',undefined,{year:2027,ganZhi:'丁未'})]);
+assert.equal(flowView.state,'READY');
+if (flowView.state==='READY') {
+  assert.equal(flowView.years.length,2); assert.equal(flowView.teaser,'2026 丙午年・觸動 3・歲神 2');
+  const flowText=[flowView.intro,flowView.note,...flowView.years.flatMap(y=>[y.oneLiner,...[...y.touched,...y.suiShen].map(i=>i.text)])].join('');
+  assert.ok(!flowText.match(/必定|一定會|註定|大凶|血光|死|犯太歲/),'flow wording keeps the no-fear boundary');
+  assert.ok(!flowView.years[1].touched.concat(flowView.years[1].suiShen).some(i=>i.text.includes('今年')),'next year is not called this year');
+  assert.ok(flowView.years.every(y=>[...y.touched,...y.suiShen].every(i=>i.derivation.startsWith(`${y.year} ${y.ganZhi}年：`))));
+}
 // 三奇：依序才算，順序顛倒不算。
 const sanqiCase=(y:string,m:string,d:string,hs:string)=>{ const f=structuredClone(base); f.shenSha=[]; f.pillars.year.heavenlyStem=y as Stem; f.pillars.month.heavenlyStem=m as Stem; f.pillars.day.heavenlyStem=d as Stem; f.dayMaster.stem=d as Stem; const hh=f.pillars.hour; if(hh==='UNKNOWN') throw new Error('x'); hh.heavenlyStem=hs as Stem; const o=buildDualChartShenSha(f,gate,'male'); return (['year','month','day','hour'] as const).filter(k=>o.byPillar[k].some(s=>s.id==='sanqi')); };
 assert.deepEqual(sanqiCase('甲','戊','庚','癸'),['year','month','day'],'天上三奇 年月日');
@@ -506,4 +544,4 @@ assert.deepEqual(calculateDualChart(input).specialStars,actual.specialStars,'rep
 const changed=calculateDualChart({...input,birthTime:'15:30'});
 assert.equal(changed.core.shenSha.some(s=>s.id==='yangren'),false,'different hour does not inherit a hardcoded hit');
 assert.equal(base.shenSha instanceof Array&&base.shenSha.some(s=>s.id==='yangren'),false,'other cards retain original shared core');
-console.log(`PASS paper chart 17/17 + bazi/ziwei pillar gate + ${batch8Cases} 拱祿 day×hour combinations + ${batch7Cases} 攀鞍／暗祿／進神／退神 combinations + ${batch6Cases} 歲破／月空／截路空亡／天轉／地轉／十靈／日德／日貴 combinations + ${batch5Cases} 喪門／白虎／披麻／病符 combinations + ${batch4Cases} 月德合／飛刃／金神／八專／九醜／六秀 combinations + ${batch3Cases} 國印／天廚／流霞／亡神／天赦／四廢／陰陽差錯／孤鸞／十惡大敗 combinations + 5 三奇 order cases + ${batch2Cases} 祿神／孤辰／寡宿／劫煞／天醫 combinations + ${expansionCases} 魁罡／空亡／金輿／學堂／紅艷 combinations + ${cases} 羊刃 combinations + ${yuanchenCases} 元辰 combinations + ${jiangxingCases} 將星 combinations + ${gejiaoCases} 隔角 combinations + gates, missing data, scope, alternate hour, determinism and shared-core isolation`);
+console.log(`PASS paper chart 17/17 + bazi/ziwei pillar gate + ${flowCases} 流年 (本命被觸動＋今年歲神) cases + ${batch8Cases} 拱祿 day×hour combinations + ${batch7Cases} 攀鞍／暗祿／進神／退神 combinations + ${batch6Cases} 歲破／月空／截路空亡／天轉／地轉／十靈／日德／日貴 combinations + ${batch5Cases} 喪門／白虎／披麻／病符 combinations + ${batch4Cases} 月德合／飛刃／金神／八專／九醜／六秀 combinations + ${batch3Cases} 國印／天廚／流霞／亡神／天赦／四廢／陰陽差錯／孤鸞／十惡大敗 combinations + 5 三奇 order cases + ${batch2Cases} 祿神／孤辰／寡宿／劫煞／天醫 combinations + ${expansionCases} 魁罡／空亡／金輿／學堂／紅艷 combinations + ${cases} 羊刃 combinations + ${yuanchenCases} 元辰 combinations + ${jiangxingCases} 將星 combinations + ${gejiaoCases} 隔角 combinations + gates, missing data, scope, alternate hour, determinism and shared-core isolation`);

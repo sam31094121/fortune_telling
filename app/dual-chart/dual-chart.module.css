@@ -399,3 +399,19 @@
 .shenshaMore[open]>summary::after{content:'▴'}
 .shenshaBack{display:inline-block;margin-top:8px;font-size:12px;color:var(--ss-muted)}
 .shenshaPillars{scroll-margin-top:72px}
+/* 流年神煞（今年＋明年） */
+.flowStrip{display:grid;gap:6px;margin:12px 0 4px;padding:10px 12px;border:1px solid var(--ss-line);border-radius:12px;background:linear-gradient(180deg,#26203a,#1d1a2b)}
+.flowStrip p{margin:0;font-size:14px;line-height:1.7;color:var(--ss-text);overflow-wrap:anywhere}
+.flowStrip b{margin-right:8px;color:#f2dba8;letter-spacing:.04em}
+.teacherCard[data-teacher=flow]>summary b{color:#f2dba8}
+.shenshaFlow{display:grid;gap:12px;padding:4px 2px 2px}
+.flowIntro,.flowOneLiner{margin:0;font-size:14px;line-height:1.8;color:var(--ss-text)}
+.flowYear{display:grid;gap:8px;padding-top:8px;border-top:1px solid var(--ss-line)}
+.flowSubTitle{margin:6px 0 0;font-size:13px;letter-spacing:.12em;color:var(--ss-muted)}
+.flowItems{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.flowItems>li{position:relative;padding:10px 12px 10px 14px;border:1px solid var(--ss-line);border-radius:12px;background:var(--ss-panel);min-width:0}
+.flowItems>li::before{content:'';position:absolute;inset:0 auto 0 0;width:4px;border-radius:12px 0 0 12px;background:var(--ss-tone,var(--ss-violet))}
+.flowItems li p{margin:0;font-size:14px;line-height:1.7;color:var(--ss-text);overflow-wrap:anywhere}
+.flowItems li p.shenshaItemHead{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;margin-bottom:4px}
+.flowItems li p.shenshaDerive{margin-top:6px;font-size:12px;color:var(--ss-muted)}
+.flowEmpty{margin:0;font-size:13px;color:var(--ss-muted)}

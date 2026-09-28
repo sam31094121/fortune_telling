@@ -260,6 +260,17 @@ const hookedHtml = card(hooked);
 for (const text of ['後端一句重點', 'id="shensha-item-hour-taohua"', '>完整解讀</summary>', '>回四柱</a>', 'id="shensha-grid"', 'href="#shensha-item-']) assert.ok(hookedHtml.includes(text), `hook layout shows ${text}`);
 assert.ok(hookedHtml.indexOf('後端一句重點') < hookedHtml.indexOf('>完整解讀</summary>') && hookedHtml.indexOf('>完整解讀</summary>') < hookedHtml.indexOf('後端導師話術'), 'hook first, full reading folded after it');
 assert.deepEqual(inspectShenShaCard(hooked, hookedHtml), [], 'tappable grid keeps the four-pillar card intact');
+// 流年神煞：四柱下方常駐一句話，完整內容在第三張折疊卡；每個字都是後端給的。
+const withFlow = structuredClone(deliveryFixture);
+withFlow.specialStars.flow = { state: 'READY', teaser: '後端流年摘要', intro: '後端流年說明', touchedTitle: '後端觸動標題', suiShenTitle: '後端歲神標題', emptyTouched: '後端無觸動', emptySuiShen: '後端無歲神', note: '後端流年出處',
+  years: [{ year: 2026, ganZhi: '丙午', label: '後端年份標籤', oneLiner: '後端流年一句話', touched: [{ id: 'yuede', name: '月德', pillar: '流年', derivation: '後端流年推導', tone: '福氣', theme: '後端流年主題', text: '後端流年話術' }], suiShen: [] }] };
+const flowHtml = card(withFlow);
+for (const text of ['後端流年摘要', '後端流年說明', '後端觸動標題', '後端歲神標題', '後端無歲神', '後端流年出處', '後端年份標籤', '後端流年一句話', '後端流年推導', '後端流年主題', '後端流年話術', 'data-teacher="flow"']) assert.ok(flowHtml.includes(text), `flow prints ${text}`);
+assert.ok(flowHtml.indexOf('後端流年一句話') < flowHtml.indexOf('<details'), 'flow one-liner is visible above the folds');
+assert.deepEqual(inspectShenShaCard(withFlow, flowHtml), [], 'flow section keeps the four-pillar card intact');
+withFlow.specialStars.flow = { state: 'BLOCKED', reason: '後端流年擋下' };
+assert.ok(card(withFlow).includes('後端流年擋下'));
+console.log('PASS: 流年神煞 prints backend text only, one-liner visible, details folded');
 withIching.specialStars.iching = { state: 'BLOCKED', chain: [{ step: '八字', text: 'A' }], reason: '後端擋下原因' };
 const blockedIchingHtml = card(withIching);
 assert.ok(blockedIchingHtml.includes('後端擋下原因') && !blockedIchingHtml.includes('測試卦'));

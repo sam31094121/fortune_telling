@@ -134,7 +134,7 @@ function ShenShaIChingSection({ view }: { view?: DualChartResult['specialStars']
  * 無痕模式或瀏覽器擋住儲存時，讀寫失敗就維持預設收起，不出錯。
  */
 const TEACHER_FOLD_KEY = 'shensha-teacher-open';
-function TeacherFold({ teacher, summary, children }: { teacher: 'iching' | 'ghost'; summary: ReactNode; children: ReactNode }) {
+function TeacherFold({ teacher, summary, children }: { teacher: 'iching' | 'ghost' | 'flow'; summary: ReactNode; children: ReactNode }) {
   const ref = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     try {
@@ -150,6 +150,27 @@ function TeacherFold({ teacher, summary, children }: { teacher: 'iching' | 'ghos
     } catch { /* 儲存不可用：不記住也不影響閱讀 */ }
   };
   return <details ref={ref} className={styles.teacherCard} data-teacher={teacher} onToggle={remember}>{summary}{children}</details>;
+}
+
+/** 流年神煞：只照印後端 buildShenShaFlow 的結果（本命被觸動／今年歲神，今年＋明年）。 */
+function ShenShaFlowSection({ view }: { view?: DualChartResult['specialStars']['flow'] }) {
+  if (!view) return null;
+  if (view.state === 'BLOCKED') return <section className={styles.shenshaFlow} aria-label="流年神煞內容"><p role="status">{view.reason}</p></section>;
+  const list = (items: typeof view.years[number]['touched'], empty: string) => items.length
+    ? <ul className={styles.flowItems}>{items.map((item, index) => <li key={`${item.id}:${item.pillar}:${index}`} data-shensha-tone={item.tone ?? undefined}>
+      <p className={styles.shenshaItemHead}><b>{item.name}</b><span>{item.pillar}</span>{item.theme && <em>{item.tone}｜{item.theme}</em>}</p>
+      <p>{item.text}</p><p className={styles.shenshaDerive}>推導：{item.derivation}</p></li>)}</ul>
+    : <p className={styles.flowEmpty}>{empty}</p>;
+  return <section className={styles.shenshaFlow} aria-label="流年神煞內容">
+    <p className={styles.flowIntro}>{view.intro}</p>
+    {view.years.map(year => <div key={year.year} className={styles.flowYear} data-flow-year={year.year}>
+      <h4 className={styles.shenshaSectionTitle}>{year.label}</h4>
+      <p className={styles.flowOneLiner}>{year.oneLiner}</p>
+      <h5 className={styles.flowSubTitle}>{view.touchedTitle}</h5>{list(year.touched, view.emptyTouched)}
+      <h5 className={styles.flowSubTitle}>{view.suiShenTitle}</h5>{list(year.suiShen, view.emptySuiShen)}
+    </div>)}
+    <p className={styles.shenshaSources}>{view.note}</p>
+  </section>;
 }
 
 /** 鬼魅老師解盤（茅山道士話術分身）：只照印後端 buildShenShaGhost 的結果。 */
@@ -194,12 +215,16 @@ export function ShenShaCard({ result }: { result: DualChartResult }) {
       </div>)}</div>}
     {card && card.columns.length > 0 && <p className={styles.shenshaLegend} aria-label="圖例"><span data-shensha-tone="福氣">福氣</span><span data-shensha-tone="動能">動能</span><span data-shensha-tone="提醒">提醒</span><span>＊ 本派取法</span></p>}
     {card?.footnote && <p className={styles.shenshaFootnote}>{card.footnote}</p>}
+    {result.specialStars?.flow?.state === 'READY' && <div className={styles.flowStrip} aria-label="流年一句話">{result.specialStars.flow.years.map(year => <p key={year.year}><b>{year.label}</b>{year.oneLiner}</p>)}</div>}
     {result.specialStars?.iching?.state === 'READY' && result.specialStars?.ghost?.state === 'READY' && <div className={styles.teacherDuet} aria-label="兩位老師一句話">
       <p data-teacher="iching"><b>易經老師</b>{result.specialStars.iching.oneLiner}</p>
       <p data-teacher="ghost"><b>鬼魅老師</b>{result.specialStars.ghost.oneLiner}</p>
     </div>}
     {result.specialStars?.iching && <TeacherFold teacher="iching" summary={<summary><span className={styles.teacherHead}><b>易經老師解盤</b><small>神　溫和的智慧</small></span>{result.specialStars.iching.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.iching.teaser}</span>}</summary>}>
       <ShenShaIChingSection view={result.specialStars.iching} />
+    </TeacherFold>}
+    {result.specialStars?.flow && <TeacherFold teacher="flow" summary={<summary><span className={styles.teacherHead}><b>流年神煞</b><small>今年與明年</small></span>{result.specialStars.flow.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.flow.teaser}</span>}</summary>}>
+      <ShenShaFlowSection view={result.specialStars.flow} />
     </TeacherFold>}
     {result.specialStars?.ghost && <TeacherFold teacher="ghost" summary={<summary><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small>{result.specialStars.ghost.ageGate && <em className={styles.ageGate}>{result.specialStars.ghost.ageGate}</em>}</span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span></summary>}>
       <ShenShaGhostSection view={result.specialStars.ghost} />

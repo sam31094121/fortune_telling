@@ -8,7 +8,8 @@ import { buildShenShaIChing } from './shensha-iching';
 import { buildShenShaGhost } from './shensha-ghost';
 import { verifyFourPillars } from './three-in-one';
 import { getBaziTraditionalOutputGate } from './bazi-traditional-gate';
-import { buildDualChartShenSha } from './dual-chart-shensha';
+import { buildDualChartShenSha, buildFlowYearShenSha } from './dual-chart-shensha';
+import { buildShenShaFlow } from './shensha-flow-year';
 
 export function calculateDualChart(body: unknown) {
   if (!body || typeof body !== 'object') throw new Error('請填寫出生資料。');
@@ -73,7 +74,10 @@ export function calculateDualChart(body: unknown) {
     const branch = lunar.getYearZhiByLiChun() as Branch;
     return { year, age: year - y + 1, ganzhi: lunar.getYearInGanZhiByLiChun(), stemGod: calculateTenGod(bazi.dayMaster.stem, stem), branchGod: calculateTenGod(bazi.dayMaster.stem, HIDDEN_STEM_DICTIONARY[branch].primary) };
   });
+  // 流年神煞：今年＋明年（annual 以立春後的年干支為準），沿用本卡取法，後端算好話術。
+  const flowCheck = { passed: mismatches.length === 0, mismatches };
+  const flow = buildShenShaFlow(annual.slice(0, 2).map(a => buildFlowYearShenSha(bazi, professional.professionalChart.traditionalInterpretationGate!, input.gender as 'male' | 'female', flowCheck, { year: a.year, ganZhi: a.ganzhi })));
   const ziweiProfile = { polarity: STEM_YINYANG[raw.chineseDate[0] as Stem] ?? '', zodiac: raw.zodiac };
-  return { bazi: { input: professional.input, professionalChart: dualProfessionalChart, luckCycles: professional.luckCycles }, core: dualCore, specialStars, annual, ziwei, periods, ziweiProfile };
+  return { bazi: { input: professional.input, professionalChart: dualProfessionalChart, luckCycles: professional.luckCycles }, core: dualCore, specialStars: { ...specialStars, flow }, annual, ziwei, periods, ziweiProfile };
 }
 export type DualChartResult = ReturnType<typeof calculateDualChart>;

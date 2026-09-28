@@ -389,6 +389,12 @@ export const SHENSHA_TEACHER_READINGS: Record<string, ShenShaTeacherReading> = {
     imagery: '像順風的船帆，一揚起來就往前走。',
     action: '趁勢往前，也記得看清方向；衝得快，更要衝得準。',
   },
+  taisui: {
+    theme: '回到自己的那一年', tone: '提醒',
+    essence: '流年地支與本命同支，民間稱本命年、值太歲；本派讀作「重新面對自己」的一年，不作凶論。',
+    imagery: '像走回自己出生的那條街，熟悉，也照見這些年的變化。',
+    action: '適合整理、回顧、把舊習慣換新；重大決定多問一句、多等一天。',
+  },
   gonglu: {
     theme: '夾出來的福祿', tone: '福氣',
     essence: '拱祿是日柱與時柱同干、兩支一左一右把祿位夾在中間，祿不在盤上卻被拱出來，主福祿藏而不露、越到後來越豐厚。',

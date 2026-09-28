@@ -4,7 +4,7 @@ import { indexSources, type SourceRegistry } from './iching-source-gate';
 import { evaluateBaziShenShaRule, type BaziShenShaRuleGate, type BaziTraditionalOutputGate } from './bazi-traditional-gate';
 import { buildShenShaCardView } from './dual-chart-shensha-card';
 import { SHENSHA_TEACHER_READINGS } from './shensha-teacher-readings';
-import { BRANCHES, type BaziProfessionalResult, type BaziShenShaItem, type Branch, type Stem } from './bazi/engine';
+import { BRANCHES, computeShenSha, type BaziPillarModel, type BaziProfessionalResult, type BaziShenShaItem, type Branch, type Stem } from './bazi/engine';
 
 export const DUAL_SHENSHA_VERSION = 'DUAL_SHENSHA_REFERENCE_CHART_V4';
 const YANGREN: Record<Stem, Branch> = { 甲: '卯', 乙: '辰', 丙: '午', 丁: '未', 戊: '午', 己: '未', 庚: '酉', 辛: '戌', 壬: '子', 癸: '丑' };
@@ -405,4 +405,50 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
     en: 'Special stars follow this site’s own Taiji–Ziwei–I Ching method; Yuan Shushan’s method is listed below for comparison. ',
   };
   return { version: DUAL_SHENSHA_VERSION, raw, byPillar, coverage, rules, card, sourceComparisonRules: gate.shenShaRules, sourceNote };
+}
+
+// ── 流年神煞（業主定案 2026-09-28：兩種取法都做、分兩段顯示；看今年＋明年）──────────
+// 甲、本命被觸動：把流年干支當第五柱，沿用本卡既有取法（取主仍是本命日干、日支、年支、月支），看哪些神煞落在流年。
+//     不另創公式：流年柱放進時柱的位置重跑同一套規則，只收下列「以本命為取主、會查到該柱」的規則。
+//     不收：沐浴（十二運是逐柱預算好的值）、只看日柱或時柱的組合、以年支排的歲神（交給乙段，避免同名兩義）。
+// 乙、今年歲神：以流年地支為取主，照本卡歲神位數（喪門二、五鬼四、龍德七、白虎八、披麻九、天狗十、病符十一）
+//     加太歲（同支，本命年／值太歲），看落在本命哪一柱。歲破已由甲段的「流年沖年支」表達，不重複。
+export const FLOW_TOUCH_IDS = [
+  'tianyi', 'wenchang', 'yima', 'huagai', 'taohua', 'jiangxing', 'gejiao', 'yangren',
+  'tiande', 'yuede', 'tiandehe', 'yuedehe', 'jinkui', 'zaisha', 'liue', 'jiesha', 'guchen', 'guasu', 'wangshen',
+  'yuepo', 'ripo', 'suipo', 'kongwang', 'jinyu', 'xuetang', 'hongyan', 'lushen', 'anlu', 'tianyiDoctor',
+  'guoyin', 'tianchu', 'liuxia', 'feiren', 'yuekong', 'panan',
+] as const;
+export const FLOW_SUISHEN: ReadonlyArray<readonly [string, string, number]> = [
+  ['taisui', '太歲', 0], ['sangmen', '喪門', 2], ['wugui', '五鬼', 4], ['longde', '龍德', 7],
+  ['baihu', '白虎', 8], ['pima', '披麻', 9], ['tiangou', '天狗', 10], ['bingfu', '病符', 11],
+];
+export interface FlowShenShaHit { id: string; name: string; pillar: Pillar | 'flow'; rule: string }
+export interface FlowYearShenSha { year: number; ganZhi: string; touched: FlowShenShaHit[]; suiShen: FlowShenShaHit[] }
+
+export function buildFlowYearShenSha(core: BaziProfessionalResult, gate: BaziTraditionalOutputGate, gender: 'male' | 'female' | undefined, pillarCheck: BaziZiweiPillarCheck | undefined, flow: { year: number; ganZhi: string }): FlowYearShenSha | null {
+  const { year, month, day, hour } = core.pillars;
+  const ready = gate.coreReady && core.verification.readyForInterpretation && pillarCheck?.passed !== false;
+  const stem = flow.ganZhi[0] as Stem; const branch = flow.ganZhi[1] as Branch;
+  if (!ready || hour === 'UNKNOWN' || !STEMS_ORDER.includes(stem as typeof STEMS_ORDER[number]) || !BRANCHES.includes(branch)) return null;
+  const flowPillar: BaziPillarModel = { ...(hour as BaziPillarModel), key: 'HOUR', heavenlyStem: stem, earthlyBranch: branch, ganZhi: flow.ganZhi };
+  const pillarsWithFlow = [year, month, day, flowPillar] as BaziPillarModel[];
+  const synthetic = { ...core, pillars: { ...core.pillars, hour: flowPillar }, shenSha: computeShenSha(core.dayMaster.stem, year.earthlyBranch, day.earthlyBranch, pillarsWithFlow) } as BaziProfessionalResult;
+  const touchedRaw = buildDualChartShenSha(synthetic, gate, gender, pillarCheck).byPillar.hour.filter(hit => (FLOW_TOUCH_IDS as readonly string[]).includes(hit.id));
+  const touched: FlowShenShaHit[] = [];
+  for (const hit of touchedRaw) {
+    const rule = hit.rule.split('；')[0];
+    const found = touched.find(t => t.id === hit.id);
+    if (found) { if (!found.rule.includes(rule)) found.rule += `、${rule}`; } else touched.push({ id: hit.id, name: hit.name, pillar: 'flow', rule });
+  }
+  const suiShen: FlowShenShaHit[] = [];
+  const at = BRANCHES.indexOf(branch);
+  for (const [id, name, offset] of FLOW_SUISHEN) {
+    const target = BRANCHES[(at + offset) % 12];
+    for (const key of ['year', 'month', 'day', 'hour'] as const) {
+      if ((core.pillars[key] as BaziPillarModel).earthlyBranch !== target) continue;
+      suiShen.push({ id, name, pillar: key, rule: offset ? `流年${branch}順數${offset}位為${name}（${target}）` : `流年${branch}與本命同支（值太歲）` });
+    }
+  }
+  return { year: flow.year, ganZhi: flow.ganZhi, touched, suiShen };
 }
