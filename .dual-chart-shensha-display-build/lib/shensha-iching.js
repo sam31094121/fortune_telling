@@ -25,6 +25,7 @@ const credibility_phrases_1 = require("./credibility-phrases");
 const shensha_char_imagery_1 = require("./shensha-char-imagery");
 const shensha_teacher_readings_1 = require("./shensha-teacher-readings");
 const shensha_onion_1 = require("./shensha-onion");
+const shensha_combos_1 = require("./shensha-combos");
 exports.SHENSHA_ICHING_CLAIM = 'C-SHENSHA-ICHING';
 /** 福氣／動能／提醒三類各幾項，給導師解盤一個總覽。 */
 function toneSummary(items) {
@@ -69,6 +70,7 @@ function buildShenShaIChing(params) {
     }
     const r = iching.reading;
     chain.push({ step: '易經', text: `生辰起卦：${r.hexagramName}，動爻第${r.changingLine}爻` });
+    const combos = (0, shensha_combos_1.findShenShaCombos)(items.map(i => ({ id: i.id, name: i.name, pillar: i.pillar, tone: i.teacher?.tone })));
     const max = Math.max(0, ...distribution.map(d => d.count));
     const focus = distribution.filter(d => d.count === max && max > 0).map(d => d.pillar);
     const empty = distribution.filter(d => d.count === 0).map(d => d.pillar);
@@ -78,6 +80,7 @@ function buildShenShaIChing(params) {
             ? `特星神煞共 ${items.length} 項，${focus.join('、')}最集中（${max} 項）${empty.length ? `，${empty.join('、')}本派取法未命中` : ''}。每一項的推導都列在下方，可逐項回查。`
             : '依本派取法，這張盤沒有命中特星神煞；這不代表其他流派也沒有。',
         ...(items.length ? [toneSummary(items), shensha_teacher_readings_1.SHENSHA_PRINCIPLE] : []),
+        ...(combos.length ? [`整盤合看，這張盤有 ${combos.length} 組神煞彼此呼應：${combos.map(c => c.pillar ? `${c.title}（${c.pillar}）` : c.title).join('、')}。老師看盤不只看單一顆星，而是看它們怎麼一起說話，下方逐組說明。`] : []),
         `易經以同一份生辰起卦，得「${r.hexagramName}」：${r.essence.replace(/[。．.]?$/, '。')}`,
         `行動建議：${r.advice}`,
         ...(items.length ? [`導師解盤的讀法：先讀神煞的本意，再看它落在哪一柱，最後回到「${r.hexagramName}」的行動建議——讀意、讀位、讀卦，三者合看。下方逐項展開：導師話術、洋蔥心理學（殼→心→禮物）、推導與字的意境。`] : []),
@@ -86,7 +89,7 @@ function buildShenShaIChing(params) {
     const claim = registry.claims.find(c => c.claim_id === exports.SHENSHA_ICHING_CLAIM);
     const status = claim ? (0, iching_source_gate_1.evaluateClaim)(claim, (0, iching_source_gate_1.indexSources)(registry)).status : 'PENDING_POOL';
     return {
-        state: 'READY', chain, items, distribution, reading,
+        state: 'READY', chain, items, distribution, reading, combos,
         hexagram: { name: r.hexagramName, glyph: r.glyph, kingWen: r.kingWen, changingLine: r.changingLine, changingLabel: `第${r.changingLine}爻動`, essence: r.essence, advice: r.advice },
         credibility: { status, line: `神煞易經解盤：${credibility_phrases_1.STATUS_WORDING[status]}` },
         imageryAttribution: shensha_char_imagery_1.SHENSHA_IMAGERY_ATTRIBUTION,

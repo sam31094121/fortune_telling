@@ -38,13 +38,47 @@ const JINYU = { 甲: '辰', 乙: '巳', 丙: '未', 丁: '申', 戊: '未', 己:
 const XUETANG = { 甲: '亥', 乙: '午', 丙: '寅', 丁: '酉', 戊: '寅', 己: '酉', 庚: '巳', 辛: '子', 壬: '申', 癸: '卯' };
 const HONGYAN = { 甲: '午', 乙: '午', 丙: '寅', 丁: '未', 戊: '辰', 己: '辰', 庚: '戌', 辛: '酉', 壬: '子', 癸: '申' };
 const STEMS_ORDER = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+/** 2026-09-27 第二批：孤辰寡宿依年支方局、劫煞依年支三合、祿神依日干、天醫依月支前一位。 */
+const GUCHEN_GUASU = {
+    亥: ['寅', '戌'], 子: ['寅', '戌'], 丑: ['寅', '戌'], 寅: ['巳', '丑'], 卯: ['巳', '丑'], 辰: ['巳', '丑'],
+    巳: ['申', '辰'], 午: ['申', '辰'], 未: ['申', '辰'], 申: ['亥', '未'], 酉: ['亥', '未'], 戌: ['亥', '未'],
+};
+const JIESHA = { 申子辰: '巳', 寅午戌: '亥', 巳酉丑: '寅', 亥卯未: '申' };
+const LUSHEN = { 甲: '寅', 乙: '卯', 丙: '巳', 丁: '午', 戊: '巳', 己: '午', 庚: '申', 辛: '酉', 壬: '亥', 癸: '子' };
+/** 2026-09-27 第三批：常見查表，列為本派取法。 */
+const GUOYIN = { 甲: '戌', 乙: '亥', 丙: '丑', 丁: '寅', 戊: '丑', 己: '寅', 庚: '辰', 辛: '巳', 壬: '未', 癸: '申' };
+const TIANCHU = { 甲: '巳', 乙: '午', 丙: '巳', 丁: '午', 戊: '申', 己: '酉', 庚: '亥', 辛: '子', 壬: '寅', 癸: '卯' };
+const LIUXIA = { 甲: '酉', 乙: '戌', 丙: '未', 丁: '申', 戊: '巳', 己: '午', 庚: '辰', 辛: '卯', 壬: '亥', 癸: '寅' };
+const WANGSHEN = { 申子辰: '亥', 寅午戌: '巳', 巳酉丑: '申', 亥卯未: '寅' };
+const SEASON_OF = { 寅: '春', 卯: '春', 辰: '春', 巳: '夏', 午: '夏', 未: '夏', 申: '秋', 酉: '秋', 戌: '秋', 亥: '冬', 子: '冬', 丑: '冬' };
+const TIANSHE_DAY = { 春: '戊寅', 夏: '甲午', 秋: '戊申', 冬: '甲子' };
+const SIFEI_DAYS = { 春: ['庚申', '辛酉'], 夏: ['壬子', '癸亥'], 秋: ['甲寅', '乙卯'], 冬: ['丙午', '丁巳'] };
+const YINYANG_CHACUO_DAYS = ['丙子', '丁丑', '戊寅', '辛卯', '壬辰', '癸巳', '丙午', '丁未', '戊申', '辛酉', '壬戌', '癸亥'];
+const GULUAN_DAYS = ['乙巳', '丁巳', '辛亥', '戊申', '甲寅', '壬子', '丙午', '戊午'];
+const SHIE_DABAI_DAYS = ['甲辰', '乙巳', '丙申', '丁亥', '戊戌', '己丑', '庚辰', '辛巳', '壬申', '癸亥'];
+/** 三奇：天上甲戊庚、地下乙丙丁、人中壬癸辛，須在相連三柱依序出現。 */
+const SANQI = { 甲戊庚: '天上三奇', 乙丙丁: '地下三奇', 壬癸辛: '人中三奇' };
+/** 2026-09-28 第四批（總覽以外的常用神煞）：常見查表，列為本派取法。 */
+const YUEDEHE = { 寅午戌: '辛', 申子辰: '丁', 亥卯未: '己', 巳酉丑: '乙' };
+const JINSHEN_PILLARS = ['乙丑', '己巳', '癸酉'];
+const BAZHUAN_DAYS = ['甲寅', '乙卯', '丁未', '戊戌', '己未', '庚申', '辛酉', '癸丑'];
+const JIUCHOU_DAYS = ['戊子', '戊午', '壬子', '壬午', '乙卯', '乙酉', '己卯', '己酉', '辛卯', '辛酉'];
+const LIUXIU_DAYS = ['丙午', '丁未', '戊子', '戊午', '己丑', '己未'];
+/** 2026-09-28 第六批：公認查表，列為本派取法。 */
+const YUEKONG = { 寅午戌: '壬', 申子辰: '丙', 亥卯未: '庚', 巳酉丑: '甲' };
+const JIELU = { 甲: ['申', '酉'], 己: ['申', '酉'], 乙: ['午', '未'], 庚: ['午', '未'], 丙: ['辰', '巳'], 辛: ['辰', '巳'], 丁: ['寅', '卯'], 壬: ['寅', '卯'], 戊: ['子', '丑'], 癸: ['子', '丑'] };
+const TIANZHUAN_DAY = { 春: '乙卯', 夏: '丙午', 秋: '辛酉', 冬: '壬子' };
+const DIZHUAN_DAY = { 春: '辛卯', 夏: '戊午', 秋: '癸酉', 冬: '丙子' };
+const SHILING_DAYS = ['甲辰', '乙亥', '丙辰', '丁酉', '戊午', '庚戌', '庚寅', '辛亥', '壬寅', '癸未'];
+const RIDE_DAYS = ['甲寅', '丙辰', '戊辰', '庚辰', '壬戌'];
+const RIGUI_DAYS = ['丁酉', '丁亥', '癸巳', '癸卯'];
 /** 日柱所在旬的兩個空亡地支。 */
 function xunKong(stem, branch) {
     const start = (engine_1.BRANCHES.indexOf(branch) - STEMS_ORDER.indexOf(stem) + 12) % 12; // 旬首（甲）所在地支
     return [engine_1.BRANCHES[(start + 10) % 12], engine_1.BRANCHES[(start + 11) % 12]];
 }
-/** 年支順數的歲神位：五鬼＋4、龍德＋7、天狗＋10。 */
-const YEAR_OFFSET = { wugui: 4, longde: 7, tiangou: 10 };
+/** 年支順數的歲神位：五鬼＋4、龍德＋7、天狗＋10；2026-09-28 第五批：喪門＋2、白虎＋8、披麻＋9、病符＋11。 */
+const YEAR_OFFSET = { wugui: 4, longde: 7, tiangou: 10, sangmen: 2, baihu: 8, pima: 9, bingfu: 11 };
 const pillars = ['hour', 'day', 'month', 'year'];
 /** 顯示順序與名稱（同柱依此排列，與紙本排法相近）。 */
 exports.DUAL_SHENSHA_RULES = [
@@ -53,6 +87,12 @@ exports.DUAL_SHENSHA_RULES = [
     ['jiangxing', '將星'], ['yima', '驛馬'], ['gejiao', '隔角'], ['yuanchen', '元辰'], ['yangren', '羊刃'],
     ['taohua', '桃花'], ['waiTaohua', '外桃花'], ['tianyi', '天乙'], ['wenchang', '文昌'], ['huagai', '華蓋'],
     ['kuigang', '魁罡'], ['kongwang', '空亡'], ['jinyu', '金輿'], ['xuetang', '學堂'], ['hongyan', '紅艷'],
+    ['lushen', '祿神'], ['tianyiDoctor', '天醫'], ['jiesha', '劫煞'], ['guchen', '孤辰'], ['guasu', '寡宿'],
+    ['guoyin', '國印'], ['tianchu', '天廚'], ['tianshe', '天赦'], ['sanqi', '三奇'], ['wangshen', '亡神'],
+    ['yinyangChacuo', '陰陽差錯'], ['guluan', '孤鸞'], ['shieDabai', '十惡大敗'], ['liuxia', '流霞'], ['sifei', '四廢'],
+    ['yuedehe', '月德合'], ['feiren', '飛刃'], ['jinshen', '金神'], ['bazhuan', '八專'], ['jiuchou', '九醜'], ['liuxiu', '六秀'],
+    ['sangmen', '喪門'], ['baihu', '白虎'], ['bingfu', '病符'], ['pima', '披麻'],
+    ['suipo', '歲破'], ['yuekong', '月空'], ['jielu', '截路空亡'], ['tianzhuan', '天轉'], ['dizhuan', '地轉'], ['shiling', '十靈'], ['ride', '日德'], ['rigui', '日貴'],
 ];
 function buildDualChartShenSha(core, gate, gender, pillarCheck) {
     // Never trust a caller's ready gate over the actual core verification.
@@ -93,6 +133,39 @@ function buildDualChartShenSha(core, gate, gender, pillarCheck) {
         kongwang: reference('依日柱所在旬取旬空兩支，查年月時。'),
         jinyu: reference('日干取金輿（甲辰乙巳丙戊未丁己申庚戌辛亥壬丑癸寅），四柱皆查。'),
         xuetang: reference('日干長生位為學堂，四柱皆查（另有以年納音長生取者，本派不採）。'),
+        guchen: reference('年支所屬方局取孤辰（亥子丑寅、寅卯辰巳、巳午未申、申酉戌亥），查月日時；不分男女。'),
+        guasu: reference('年支所屬方局取寡宿（亥子丑戌、寅卯辰丑、巳午未辰、申酉戌未），查月日時；不分男女。'),
+        jiesha: reference('年支三合取劫煞（申子辰巳、寅午戌亥、巳酉丑寅、亥卯未申），查月日時。'),
+        lushen: reference('日干祿位（甲寅乙卯丙戊巳丁己午庚申辛酉壬亥癸子），四柱皆查。'),
+        tianyiDoctor: reference('月支前一位為天醫，查年日時。'),
+        guoyin: reference('日干取國印（甲戌乙亥丙戊丑丁己寅庚辰辛巳壬未癸申），四柱皆查。'),
+        tianchu: reference('日干取天廚（甲丙巳乙丁午戊申己酉庚亥辛子壬寅癸卯），四柱皆查。'),
+        tianshe: reference('春戊寅、夏甲午、秋戊申、冬甲子日；季節依月支。只看日柱。'),
+        sanqi: reference('天上甲戊庚、地下乙丙丁、人中壬癸辛，於年月日或月日時三柱天干依序相連。'),
+        wangshen: reference('年支三合取亡神（申子辰亥、寅午戌巳、巳酉丑申、亥卯未寅），查月日時。'),
+        yinyangChacuo: reference('日柱為丙子、丁丑、戊寅、辛卯、壬辰、癸巳、丙午、丁未、戊申、辛酉、壬戌、癸亥者。只看日柱。'),
+        guluan: reference('日柱為乙巳、丁巳、辛亥、戊申、甲寅、壬子、丙午、戊午者。只看日柱；不分男女。'),
+        shieDabai: reference('日柱為甲辰、乙巳、丙申、丁亥、戊戌、己丑、庚辰、辛巳、壬申、癸亥者。只看日柱。'),
+        liuxia: reference('日干取流霞（甲酉乙戌丙未丁申戊巳己午庚辰辛卯壬亥癸寅），四柱皆查。'),
+        sifei: reference('春庚申辛酉、夏壬子癸亥、秋甲寅乙卯、冬丙午丁巳日；季節依月支。只看日柱。'),
+        yuedehe: reference('月支三合取月德，再取其天干之合（寅午戌辛、申子辰丁、亥卯未己、巳酉丑乙），四柱天干皆查。'),
+        feiren: reference('日干羊刃之沖位為飛刃，查年月時。'),
+        jinshen: reference('日柱或時柱為乙丑、己巳、癸酉者。'),
+        bazhuan: reference('日柱為甲寅、乙卯、丁未、戊戌、己未、庚申、辛酉、癸丑者。只看日柱。'),
+        jiuchou: reference('日柱為戊子、戊午、壬子、壬午、乙卯、乙酉、己卯、己酉、辛卯、辛酉者。只看日柱。'),
+        liuxiu: reference('日柱為丙午、丁未、戊子、戊午、己丑、己未者。只看日柱。'),
+        sangmen: reference('年支順數兩位（歲神喪門），查月日時；讀法採本派提醒與轉化。'),
+        baihu: reference('年支順數八位（歲神白虎），查月日時；讀法採本派提醒與轉化。'),
+        bingfu: reference('年支順數十一位（歲神病符），查月日時；不作健康或醫療斷語。'),
+        pima: reference('年支順數九位（披麻），查月日時；讀法採本派提醒與轉化。'),
+        suipo: reference('與年支相沖者，查月日時。'),
+        yuekong: reference('月支三合取月空（寅午戌壬、申子辰丙、亥卯未庚、巳酉丑甲），四柱天干皆查。'),
+        jielu: reference('日干取截路空亡（甲己申酉、乙庚午未、丙辛辰巳、丁壬寅卯、戊癸子丑），只查時柱。'),
+        tianzhuan: reference('春乙卯、夏丙午、秋辛酉、冬壬子日；季節依月支。只看日柱。'),
+        dizhuan: reference('春辛卯、夏戊午、秋癸酉、冬丙子日；季節依月支。只看日柱。'),
+        shiling: reference('日柱為甲辰、乙亥、丙辰、丁酉、戊午、庚戌、庚寅、辛亥、壬寅、癸未者。只看日柱。'),
+        ride: reference('日柱為甲寅、丙辰、戊辰、庚辰、壬戌者。只看日柱。'),
+        rigui: reference('日柱為丁酉、丁亥、癸巳、癸卯者。只看日柱。'),
         hongyan: reference('日干取紅艷（甲乙午、丙寅、丁未、戊己辰、庚戌、辛酉、壬子、癸申），四柱皆查。'),
     };
     // 核心引擎的袁本桃花（含納音條件）只供其他卡片使用；本卡改依參考命盤取法重查。
@@ -182,6 +255,10 @@ function buildDualChartShenSha(core, gate, gender, pillarCheck) {
             const rest = ['month', 'day', 'hour'];
             branchHit('longde', '龍德', engine_1.BRANCHES[(yi + YEAR_OFFSET.longde) % 12], rest, `年支${y}順數七位龍德在${engine_1.BRANCHES[(yi + 7) % 12]}；查月日時`);
             branchHit('tiangou', '天狗', engine_1.BRANCHES[(yi + YEAR_OFFSET.tiangou) % 12], rest, `年支${y}順數十位天狗在${engine_1.BRANCHES[(yi + 10) % 12]}；查月日時`);
+            for (const [id, name, label] of [['sangmen', '喪門', '兩'], ['baihu', '白虎', '八'], ['pima', '披麻', '九'], ['bingfu', '病符', '十一']]) {
+                const target = engine_1.BRANCHES[(yi + YEAR_OFFSET[id]) % 12];
+                branchHit(id, name, target, rest, `年支${y}順數${label}位${name}在${target}；查月日時`);
+            }
             branchHit('wugui', '五鬼', engine_1.BRANCHES[(yi + YEAR_OFFSET.wugui) % 12], rest, `年支${y}順數四位五鬼在${engine_1.BRANCHES[(yi + 4) % 12]}；查月日時`);
             branchHit('jinkui', '金匱', TRINE_TABLE.jiangxing[yearTrine], rest, `年支${y}（${yearTrine}）金匱在${TRINE_TABLE.jiangxing[yearTrine]}；查月日時`);
             branchHit('zaisha', '災煞', TRINE_TABLE.zaisha[yearTrine], rest, `年支${y}（${yearTrine}）災煞在${TRINE_TABLE.zaisha[yearTrine]}；查月日時`);
@@ -197,6 +274,99 @@ function buildDualChartShenSha(core, gate, gender, pillarCheck) {
             branchHit('jinyu', '金輿', JINYU[ds], pillars, `日干${ds}金輿在${JINYU[ds]}；四柱皆查`);
             branchHit('xuetang', '學堂', XUETANG[ds], pillars, `日干${ds}長生在${XUETANG[ds]}為學堂；四柱皆查`);
             branchHit('hongyan', '紅艷', HONGYAN[ds], pillars, `日干${ds}紅艷在${HONGYAN[ds]}；四柱皆查`);
+            branchHit('lushen', '祿神', LUSHEN[ds], pillars, `日干${ds}祿在${LUSHEN[ds]}；四柱皆查`);
+            branchHit('guoyin', '國印', GUOYIN[ds], pillars, `日干${ds}國印在${GUOYIN[ds]}；四柱皆查`);
+            branchHit('tianchu', '天廚', TIANCHU[ds], pillars, `日干${ds}天廚在${TIANCHU[ds]}；四柱皆查`);
+            branchHit('liuxia', '流霞', LIUXIA[ds], pillars, `日干${ds}流霞在${LIUXIA[ds]}；四柱皆查`);
+            const dayGz = day.ganZhi;
+            if (YINYANG_CHACUO_DAYS.includes(dayGz))
+                push('yinyangChacuo', '陰陽差錯', 'day', `日柱${dayGz}為陰陽差錯日`, `柱${dayGz}`);
+            if (GULUAN_DAYS.includes(dayGz))
+                push('guluan', '孤鸞', 'day', `日柱${dayGz}為孤鸞日`, `柱${dayGz}`);
+            if (SHIE_DABAI_DAYS.includes(dayGz))
+                push('shieDabai', '十惡大敗', 'day', `日柱${dayGz}為十惡大敗日`, `柱${dayGz}`);
+            if (month) {
+                const season = SEASON_OF[month.earthlyBranch];
+                if (TIANSHE_DAY[season] === dayGz)
+                    push('tianshe', '天赦', 'day', `${season}季（月支${month.earthlyBranch}）逢${dayGz}日為天赦`, `柱${dayGz}`);
+                if (SIFEI_DAYS[season].includes(dayGz))
+                    push('sifei', '四廢', 'day', `${season}季（月支${month.earthlyBranch}）逢${dayGz}日為四廢`, `柱${dayGz}`);
+            }
+        }
+        if (month) {
+            const target = YUEDEHE[TRINE_OF[month.earthlyBranch]];
+            for (const key of pillars)
+                if (at(key)?.heavenlyStem === target)
+                    push('yuedehe', '月德合', key, `月支${month.earthlyBranch}月德合在${target}；四柱天干皆查`, `干${target}`);
+        }
+        if (day) {
+            const ds = day.heavenlyStem;
+            const fei = engine_1.BRANCHES[(engine_1.BRANCHES.indexOf(YANGREN[ds]) + 6) % 12];
+            branchHit('feiren', '飛刃', fei, ['year', 'month', 'hour'], `日干${ds}羊刃${YANGREN[ds]}沖${fei}為飛刃；查年月時`);
+            for (const key of ['day', 'hour']) {
+                const p = at(key);
+                if (p && JINSHEN_PILLARS.includes(p.ganZhi))
+                    push('jinshen', '金神', key, `${key === 'day' ? '日' : '時'}柱${p.ganZhi}為金神`, `柱${p.ganZhi}`);
+            }
+            if (BAZHUAN_DAYS.includes(day.ganZhi))
+                push('bazhuan', '八專', 'day', `日柱${day.ganZhi}為八專日`, `柱${day.ganZhi}`);
+            if (JIUCHOU_DAYS.includes(day.ganZhi))
+                push('jiuchou', '九醜', 'day', `日柱${day.ganZhi}為九醜日`, `柱${day.ganZhi}`);
+            if (LIUXIU_DAYS.includes(day.ganZhi))
+                push('liuxiu', '六秀', 'day', `日柱${day.ganZhi}為六秀日`, `柱${day.ganZhi}`);
+        }
+        if (year) {
+            const po = engine_1.BRANCHES[(engine_1.BRANCHES.indexOf(year.earthlyBranch) + 6) % 12];
+            branchHit('suipo', '歲破', po, ['month', 'day', 'hour'], `年支${year.earthlyBranch}沖${po}；查月日時`);
+        }
+        if (month) {
+            const kong = YUEKONG[TRINE_OF[month.earthlyBranch]];
+            for (const key of pillars)
+                if (at(key)?.heavenlyStem === kong)
+                    push('yuekong', '月空', key, `月支${month.earthlyBranch}月空在${kong}；四柱天干皆查`, `干${kong}`);
+        }
+        if (day) {
+            const ds = day.heavenlyStem;
+            for (const target of JIELU[ds])
+                branchHit('jielu', '截路空亡', target, ['hour'], `日干${ds}截路空亡在${JIELU[ds].join('')}；只查時柱`);
+            if (month) {
+                const season = SEASON_OF[month.earthlyBranch];
+                if (TIANZHUAN_DAY[season] === day.ganZhi)
+                    push('tianzhuan', '天轉', 'day', `${season}季逢${day.ganZhi}日為天轉`, `柱${day.ganZhi}`);
+                if (DIZHUAN_DAY[season] === day.ganZhi)
+                    push('dizhuan', '地轉', 'day', `${season}季逢${day.ganZhi}日為地轉`, `柱${day.ganZhi}`);
+            }
+            if (SHILING_DAYS.includes(day.ganZhi))
+                push('shiling', '十靈', 'day', `日柱${day.ganZhi}為十靈日`, `柱${day.ganZhi}`);
+            if (RIDE_DAYS.includes(day.ganZhi))
+                push('ride', '日德', 'day', `日柱${day.ganZhi}為日德`, `柱${day.ganZhi}`);
+            if (RIGUI_DAYS.includes(day.ganZhi))
+                push('rigui', '日貴', 'day', `日柱${day.ganZhi}為日貴`, `柱${day.ganZhi}`);
+        }
+        // 三奇：相連三柱天干依序（年月日、月日時）。
+        for (const run of [['year', 'month', 'day'], ['month', 'day', 'hour']]) {
+            const stems = run.map(key => at(key)?.heavenlyStem);
+            if (stems.some(stem => !stem))
+                continue;
+            const kind = SANQI[stems.join('')];
+            if (kind)
+                for (const key of run)
+                    push('sanqi', '三奇', key, `${run.map(k => ({ year: '年', month: '月', day: '日', hour: '時' })[k]).join('')}干${stems.join('')}依序為${kind}`, `干${at(key).heavenlyStem}`);
+        }
+        if (year) {
+            const ws = WANGSHEN[TRINE_OF[year.earthlyBranch]];
+            branchHit('wangshen', '亡神', ws, ['month', 'day', 'hour'], `年支${year.earthlyBranch}（${TRINE_OF[year.earthlyBranch]}）亡神在${ws}；查月日時`);
+        }
+        if (year) {
+            const [gu, gua] = GUCHEN_GUASU[year.earthlyBranch];
+            branchHit('guchen', '孤辰', gu, ['month', 'day', 'hour'], `年支${year.earthlyBranch}孤辰在${gu}；查月日時`);
+            branchHit('guasu', '寡宿', gua, ['month', 'day', 'hour'], `年支${year.earthlyBranch}寡宿在${gua}；查月日時`);
+            const js = JIESHA[TRINE_OF[year.earthlyBranch]];
+            branchHit('jiesha', '劫煞', js, ['month', 'day', 'hour'], `年支${year.earthlyBranch}（${TRINE_OF[year.earthlyBranch]}）劫煞在${js}；查月日時`);
+        }
+        if (month) {
+            const doctor = engine_1.BRANCHES[(engine_1.BRANCHES.indexOf(month.earthlyBranch) + 11) % 12];
+            branchHit('tianyiDoctor', '天醫', doctor, ['year', 'day', 'hour'], `月支${month.earthlyBranch}前一位${doctor}為天醫；查年日時`);
         }
         for (const key of pillars) {
             if (at(key) && core.twelveStages[key] === '沐浴')
