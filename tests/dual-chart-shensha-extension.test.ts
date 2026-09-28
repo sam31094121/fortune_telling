@@ -398,6 +398,9 @@ if(ic.state==='READY'){
     assert.ok(gh.disclaimer.includes('不作驅邪')&&gh.disclaimer.includes('自我反思'));
     const ghostAll=[gh.opening,...gh.decoding.map(d=>d.text),...ghostLines.map(l=>l.text),...gh.formations.map(f=>f.text),gh.closing].join('');
     assert.ok(!ghostAll.match(/必定|一定會|註定|大凶|血光|死|附身|符咒費|法事/),'ghost voice keeps the no-fear boundary');
+    // 人設：學過茅山、見過黑衣阿贊——只看、只解、不下；不提供降頭、情降、借運、陰牌、古曼童。
+    assert.ok(gh.opening.includes('茅山')&&gh.opening.includes('黑衣阿贊')&&gh.opening.includes('不替你下'),'opening introduces the persona and its stance');
+    assert.ok(!ghostAll.match(/降頭|情降|借運|陰牌|古曼童|屍油|陰料|控靈/),'ghost voice never offers or details black-magic practices');
     assert.ok(!ghostAll.includes(ic.summary)&&!ghostAll.includes(ic.items[0].teacher!.text),'ghost voice is a different telling, not a copy of the I Ching teacher');
   }
   // 洋蔥心理學：殼→心→禮物；名詞只掛已登記 A 級文獻，出處由登記表讀出；不診斷。
