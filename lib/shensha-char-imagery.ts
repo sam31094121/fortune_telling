@@ -28,6 +28,7 @@ export const SHENSHA_SENSE_PICKS: Record<string, readonly [number, number] | nul
   國: null, 印: [0, 0], 廚: [0, 0], 赦: null, 三: null, 奇: null, 陰: null, 陽: [1, 0], 差: [1, 0], 錯: null, 鸞: [0, 0], 十: [2, 0], 惡: null, 大: null, 敗: null, 流: [0, 0], 霞: [0, 0], 四: null, 廢: null,
   祿: [0, 0], 神: [2, 0], 醫: null, 劫: null, 孤: [1, 0], 寡: [0, 0], 宿: [2, 0],
   魁: [1, 0], 罡: null, 空: [2, 0], 亡: [2, 0], 輿: [0, 0], 學: [1, 0], 堂: [0, 0], 紅: null, 艷: null,
+  攀: [0, 0], 鞍: [0, 0], 暗: [1, 0], 進: [0, 0], 退: [2, 0],
 };
 
 export const SHENSHA_IMAGERY_ATTRIBUTION = '字義參考：本站姓名學字庫（教育部《重編國語辭典修訂本》CC BY-ND 3.0 TW 原文照引；「龍」等字為本站姓名學精修字義）。字面意境僅供參考，不是神煞古籍定義。';

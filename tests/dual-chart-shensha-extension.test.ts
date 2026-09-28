@@ -252,6 +252,26 @@ for (let i=0;i<60;i++) for (const mb of BRANCHES) {
   assert.deepEqual(at('rigui'),expRigui.includes(gz)?['day']:[],`日貴 ${gz}`);
   batch6Cases++;
 }
+// 第七批：獨立抄表。攀鞍（日支三合，查年月時）、暗祿（日干祿之合，四柱）、進神／退神（日柱）。
+const expPanan:Record<string,string>={申:'丑',子:'丑',辰:'丑',寅:'未',午:'未',戌:'未',巳:'戌',酉:'戌',丑:'戌',亥:'辰',卯:'辰',未:'辰'};
+const expAnlu:Record<string,string>={甲:'亥',乙:'戌',丙:'申',丁:'未',戊:'申',己:'未',庚:'巳',辛:'辰',壬:'寅',癸:'丑'};
+const expJinshen=['甲子','甲午','己卯','己酉'];
+const expTuishen=['丁丑','丁未','壬辰','壬戌'];
+let batch7Cases=0;
+for (let i=0;i<60;i++) for (const mb of BRANCHES) {
+  const stem=STEMS[i%10]; const branch=BRANCHES[i%12]; const gz=stem+branch;
+  const f=structuredClone(base); f.shenSha=[]; f.dayMaster.stem=stem as Stem;
+  const d=f.pillars.day; d.heavenlyStem=stem as Stem; d.earthlyBranch=branch; d.ganZhi=gz;
+  const hh=f.pillars.hour; if(hh==='UNKNOWN') throw new Error('known hour required');
+  f.pillars.year.earthlyBranch=mb; f.pillars.month.earthlyBranch=mb; hh.earthlyBranch=mb;
+  const out=buildDualChartShenSha(f,gate,'male');
+  const at=(id:string)=>(['year','month','day','hour'] as const).filter(k=>out.byPillar[k].some(s=>s.id===id));
+  assert.deepEqual(at('panan'),mb===expPanan[branch]?['year','month','hour']:[],`攀鞍 日${branch}/${mb}`);
+  assert.deepEqual(at('anlu'),(['year','month','day','hour'] as const).filter(k=>(k==='day'?branch:mb)===expAnlu[stem]),`暗祿 ${gz}/${mb}`);
+  assert.deepEqual(at('jinshenDay'),expJinshen.includes(gz)?['day']:[],`進神 ${gz}`);
+  assert.deepEqual(at('tuishen'),expTuishen.includes(gz)?['day']:[],`退神 ${gz}`);
+  batch7Cases++;
+}
 // 三奇：依序才算，順序顛倒不算。
 const sanqiCase=(y:string,m:string,d:string,hs:string)=>{ const f=structuredClone(base); f.shenSha=[]; f.pillars.year.heavenlyStem=y as Stem; f.pillars.month.heavenlyStem=m as Stem; f.pillars.day.heavenlyStem=d as Stem; f.dayMaster.stem=d as Stem; const hh=f.pillars.hour; if(hh==='UNKNOWN') throw new Error('x'); hh.heavenlyStem=hs as Stem; const o=buildDualChartShenSha(f,gate,'male'); return (['year','month','day','hour'] as const).filter(k=>o.byPillar[k].some(s=>s.id==='sanqi')); };
 assert.deepEqual(sanqiCase('甲','戊','庚','癸'),['year','month','day'],'天上三奇 年月日');
@@ -460,4 +480,4 @@ assert.deepEqual(calculateDualChart(input).specialStars,actual.specialStars,'rep
 const changed=calculateDualChart({...input,birthTime:'15:30'});
 assert.equal(changed.core.shenSha.some(s=>s.id==='yangren'),false,'different hour does not inherit a hardcoded hit');
 assert.equal(base.shenSha instanceof Array&&base.shenSha.some(s=>s.id==='yangren'),false,'other cards retain original shared core');
-console.log(`PASS paper chart 17/17 + bazi/ziwei pillar gate + ${batch6Cases} 歲破／月空／截路空亡／天轉／地轉／十靈／日德／日貴 combinations + ${batch5Cases} 喪門／白虎／披麻／病符 combinations + ${batch4Cases} 月德合／飛刃／金神／八專／九醜／六秀 combinations + ${batch3Cases} 國印／天廚／流霞／亡神／天赦／四廢／陰陽差錯／孤鸞／十惡大敗 combinations + 5 三奇 order cases + ${batch2Cases} 祿神／孤辰／寡宿／劫煞／天醫 combinations + ${expansionCases} 魁罡／空亡／金輿／學堂／紅艷 combinations + ${cases} 羊刃 combinations + ${yuanchenCases} 元辰 combinations + ${jiangxingCases} 將星 combinations + ${gejiaoCases} 隔角 combinations + gates, missing data, scope, alternate hour, determinism and shared-core isolation`);
+console.log(`PASS paper chart 17/17 + bazi/ziwei pillar gate + ${batch7Cases} 攀鞍／暗祿／進神／退神 combinations + ${batch6Cases} 歲破／月空／截路空亡／天轉／地轉／十靈／日德／日貴 combinations + ${batch5Cases} 喪門／白虎／披麻／病符 combinations + ${batch4Cases} 月德合／飛刃／金神／八專／九醜／六秀 combinations + ${batch3Cases} 國印／天廚／流霞／亡神／天赦／四廢／陰陽差錯／孤鸞／十惡大敗 combinations + 5 三奇 order cases + ${batch2Cases} 祿神／孤辰／寡宿／劫煞／天醫 combinations + ${expansionCases} 魁罡／空亡／金輿／學堂／紅艷 combinations + ${cases} 羊刃 combinations + ${yuanchenCases} 元辰 combinations + ${jiangxingCases} 將星 combinations + ${gejiaoCases} 隔角 combinations + gates, missing data, scope, alternate hour, determinism and shared-core isolation`);

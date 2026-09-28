@@ -25,7 +25,7 @@ const EXPECTED_RULE_IDS = ['tianyi', 'wenchang', 'taohua', 'yima', 'huagai', 'ya
   'guoyin', 'tianchu', 'tianshe', 'sanqi', 'wangshen', 'yinyangChacuo', 'guluan', 'shieDabai', 'liuxia', 'sifei',
   'yuedehe', 'feiren', 'jinshen', 'bazhuan', 'jiuchou', 'liuxiu',
   'sangmen', 'baihu', 'bingfu', 'pima',
-  'suipo', 'yuekong', 'jielu', 'tianzhuan', 'dizhuan', 'shiling', 'ride', 'rigui'];
+  'suipo', 'yuekong', 'jielu', 'tianzhuan', 'dizhuan', 'shiling', 'ride', 'rigui', 'panan', 'anlu', 'jinshenDay', 'tuishen'];
 // Product expansion requested on 2026-09-27. This is independent of what the
 // current engine happens to return; a transport pass must not imply full delivery.
 const REQUESTED_RULES = {

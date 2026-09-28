@@ -1110,6 +1110,65 @@
       "sourceId": "cns11643_official",
       "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
       "cnsCode": "1-7C71"
+    },
+    "攀": {
+      "element": "水",
+      "meanings": [
+        "抓住物體往上爬。",
+        "依附。",
+        "牽連、牽扯。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-7838"
+    },
+    "鞍": {
+      "element": "土",
+      "meanings": [
+        "馬背上的騎墊。即馬鞍。",
+        "地名。春秋時齊地，故址約今之山東省濟南市。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-6F6B"
+    },
+    "暗": {
+      "element": "火",
+      "meanings": [
+        "不明亮的、光線不足的、黑夜的。",
+        "幽深、陰翳。",
+        "昏昧、不明事理。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-643C"
+    },
+    "進": {
+      "element": "木",
+      "meanings": [
+        "向上或向前移動。相對於「退」。",
+        "由外入內。",
+        "出仕、做官。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-6250"
+    },
+    "退": {
+      "element": "水",
+      "meanings": [
+        "向後倒行、移動。與「進」相對。",
+        "畏縮。",
+        "謙讓。"
+      ],
+      "curated": false,
+      "sourceId": "cns11643_official",
+      "moeSourceUrl": "https://github.com/g0v/moedict-data (dict-revised.json, MOE 重編國語辭典修訂本, CC-BY-ND-TW-3.0)",
+      "cnsCode": "1-584D"
     }
   }
 }

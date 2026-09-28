@@ -73,6 +73,11 @@ const SHILING_DAYS = ['甲辰', '乙亥', '丙辰', '丁酉', '戊午', '庚戌'
 const RIDE_DAYS = ['甲寅', '丙辰', '戊辰', '庚辰', '壬戌'];
 const RIGUI_DAYS = ['丁酉', '丁亥', '癸巳', '癸卯'];
 
+const PANAN: Record<Trine, Branch> = { 申子辰: '丑', 寅午戌: '未', 巳酉丑: '戌', 亥卯未: '辰' };
+const ANLU: Record<Stem, Branch> = { 甲: '亥', 乙: '戌', 丙: '申', 丁: '未', 戊: '申', 己: '未', 庚: '巳', 辛: '辰', 壬: '寅', 癸: '丑' };
+const JINSHEN_DAYS = ['甲子', '甲午', '己卯', '己酉'];
+const TUISHEN_DAYS = ['丁丑', '丁未', '壬辰', '壬戌'];
+
 /** 日柱所在旬的兩個空亡地支。 */
 export function xunKong(stem: Stem, branch: Branch): [Branch, Branch] {
   const start = (BRANCHES.indexOf(branch) - STEMS_ORDER.indexOf(stem) + 12) % 12; // 旬首（甲）所在地支
@@ -103,6 +108,7 @@ export const DUAL_SHENSHA_RULES: ReadonlyArray<readonly [string, string]> = [
   ['yuedehe', '月德合'], ['feiren', '飛刃'], ['jinshen', '金神'], ['bazhuan', '八專'], ['jiuchou', '九醜'], ['liuxiu', '六秀'],
   ['sangmen', '喪門'], ['baihu', '白虎'], ['bingfu', '病符'], ['pima', '披麻'],
   ['suipo', '歲破'], ['yuekong', '月空'], ['jielu', '截路空亡'], ['tianzhuan', '天轉'], ['dizhuan', '地轉'], ['shiling', '十靈'], ['ride', '日德'], ['rigui', '日貴'],
+  ['panan', '攀鞍'], ['anlu', '暗祿'], ['jinshenDay', '進神'], ['tuishen', '退神'],
 ];
 
 /** 八字與紫微四柱逐字核對結果；神煞從這兩張已核對的命盤衍生，不另排四柱。 */
@@ -180,6 +186,10 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
     shiling: reference('日柱為甲辰、乙亥、丙辰、丁酉、戊午、庚戌、庚寅、辛亥、壬寅、癸未者。只看日柱。'),
     ride: reference('日柱為甲寅、丙辰、戊辰、庚辰、壬戌者。只看日柱。'),
     rigui: reference('日柱為丁酉、丁亥、癸巳、癸卯者。只看日柱。'),
+    panan: reference('日支三合取攀鞍（申子辰丑、寅午戌未、巳酉丑戌、亥卯未辰），查年月時。'),
+    anlu: reference('日干祿位之六合為暗祿（甲亥乙戌丙戊申丁己未庚巳辛辰壬寅癸丑），四柱皆查。'),
+    jinshenDay: reference('日柱為甲子、甲午、己卯、己酉者。只看日柱（另有兼看時柱者，本派不採）。'),
+    tuishen: reference('日柱為丁丑、丁未、壬辰、壬戌者。只看日柱（另有兼看時柱者，本派不採）；讀法採本派提醒與轉化。'),
     hongyan: reference('日干取紅艷（甲乙午、丙寅、丁未、戊己辰、庚戌、辛酉、壬子、癸申），四柱皆查。'),
   };
   // 核心引擎的袁本桃花（含納音條件）只供其他卡片使用；本卡改依參考命盤取法重查。
@@ -323,6 +333,15 @@ export function buildDualChartShenSha(core: BaziProfessionalResult, gate: BaziTr
       if (SHILING_DAYS.includes(day.ganZhi)) push('shiling', '十靈', 'day', `日柱${day.ganZhi}為十靈日`, `柱${day.ganZhi}`);
       if (RIDE_DAYS.includes(day.ganZhi)) push('ride', '日德', 'day', `日柱${day.ganZhi}為日德`, `柱${day.ganZhi}`);
       if (RIGUI_DAYS.includes(day.ganZhi)) push('rigui', '日貴', 'day', `日柱${day.ganZhi}為日貴`, `柱${day.ganZhi}`);
+    }
+    // 第七批：攀鞍（日支三合，查年月時）、暗祿（日干祿之合，四柱）、進神／退神（日柱）。
+    if (day) {
+      const ds = day.heavenlyStem as Stem;
+      const pa = PANAN[TRINE_OF[day.earthlyBranch as Branch]];
+      branchHit('panan', '攀鞍', pa, ['year', 'month', 'hour'], `日支${day.earthlyBranch}三合攀鞍在${pa}；查年月時`);
+      branchHit('anlu', '暗祿', ANLU[ds], pillars, `日干${ds}祿在${LUSHEN[ds]}，其合${ANLU[ds]}為暗祿；四柱皆查`);
+      if (JINSHEN_DAYS.includes(day.ganZhi)) push('jinshenDay', '進神', 'day', `日柱${day.ganZhi}為進神`, `柱${day.ganZhi}`);
+      if (TUISHEN_DAYS.includes(day.ganZhi)) push('tuishen', '退神', 'day', `日柱${day.ganZhi}為退神`, `柱${day.ganZhi}`);
     }
     // 三奇：相連三柱天干依序（年月日、月日時）。
     for (const run of [['year', 'month', 'day'], ['month', 'day', 'hour']] as const) {
