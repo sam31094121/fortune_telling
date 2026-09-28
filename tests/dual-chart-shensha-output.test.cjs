@@ -260,9 +260,9 @@ console.log('PASS: 神煞易經 prints the backend chain, hexagram, every deriva
 // 兩張老師解盤卡：易經老師（神）與鬼魅老師（魔）都折疊點閱；四柱神煞表不得被折疊。
 const withGhost = structuredClone(deliveryFixture);
 withGhost.specialStars.iching = { state: 'BLOCKED', chain: [{ step: '八字', text: 'A' }], reason: '易經擋下' };
-withGhost.specialStars.ghost = { state: 'READY', opening: '後端開壇語', decoding: [{ label: '磁場', text: '後端磁場' }], groups: [{ pillar: '時柱', lines: [{ name: '桃花', tone: '動能', text: '後端鬼語' }] }], formations: [{ title: '後端陣名', text: '後端陣解' }], closing: '後端收壇', disclaimer: '後端聲明' };
+withGhost.specialStars.ghost = { state: 'READY', opening: '後端開壇語', decoding: [{ label: '磁場', text: '後端磁場' }], groups: [{ pillar: '時柱', intro: '後端柱引', lines: [{ name: '桃花', tone: '動能', text: '後端鬼語' }] }], formations: [{ title: '後端陣名', text: '後端陣解' }], closing: '後端收壇', disclaimer: '後端聲明' };
 const ghostHtml = card(withGhost);
-for (const text of ['易經老師解盤', '鬼魅老師解盤', '後端開壇語', '後端磁場', '後端鬼語', '後端陣名', '後端收壇', '後端聲明']) assert.ok(ghostHtml.includes(text), `prints ${text}`);
+for (const text of ['後端柱引', '易經老師解盤', '鬼魅老師解盤', '後端開壇語', '後端磁場', '後端鬼語', '後端陣名', '後端收壇', '後端聲明']) assert.ok(ghostHtml.includes(text), `prints ${text}`);
 assert.equal((ghostHtml.match(/<details/g) || []).length, 2, 'two folded teacher cards');
 assert.ok(ghostHtml.indexOf('data-shensha-column=') < ghostHtml.indexOf('<details'), 'pillar grid stays visible above the folded cards');
 assert.deepEqual(inspectShenShaCard(withGhost, ghostHtml), [], 'folded teacher cards after the grid pass health');

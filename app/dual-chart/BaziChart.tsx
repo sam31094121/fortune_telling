@@ -119,7 +119,7 @@ function ShenShaGhostSection({ view }: { view?: DualChartResult['specialStars'][
     <ul className={styles.ghostDecoding}>{view.decoding.map(d => <li key={d.label}><b>{d.label}</b><p>{d.text}</p></li>)}</ul>
     {view.groups.length > 0 && <>
       <h4 className={styles.ghostTitle}>逐柱點氣</h4>
-      {view.groups.map(group => <div key={group.pillar} className={styles.ghostGroup}><h5>{group.pillar}</h5>
+      {view.groups.map(group => <div key={group.pillar} className={styles.ghostGroup}><h5>{group.pillar}</h5>{group.intro && <p className={styles.ghostPillarIntro}>{group.intro}</p>}
         <ul>{group.lines.map((line, index) => <li key={`${line.name}:${index}`} data-shensha-tone={line.tone ?? undefined}>{line.text}</li>)}</ul></div>)}
     </>}
     {view.formations.length > 0 && <>

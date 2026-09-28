@@ -223,6 +223,7 @@
 .ghostDecoding b,.ghostFormations b{display:block;font-size:15px;letter-spacing:.2em;color:#ffb3ba}
 .ghostDecoding p,.ghostFormations p{margin:4px 0 0;font-size:14.5px;line-height:1.85;color:#e6d4d6}
 .ghostGroup h5{margin:12px 0 6px;font-size:14px;letter-spacing:.3em;color:#c98b93}
+.ghostPillarIntro{margin:0 0 6px;font-size:13.5px;line-height:1.75;color:#c9a7ac;font-style:italic}
 .ghostGroup ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .ghostGroup li{position:relative;padding:8px 10px 8px 14px;border-radius:8px;background:#150c10;font-size:14.5px;line-height:1.85;color:#ecdcde}
 .ghostGroup li::before{content:'';position:absolute;inset:6px auto 6px 0;width:3px;border-radius:2px;background:#b3263a}

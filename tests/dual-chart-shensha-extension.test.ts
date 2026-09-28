@@ -386,6 +386,9 @@ if(ic.state==='READY'){
     for (const tone of ['福氣','動能','提醒']) { const opens=ghostLines.filter(l=>l.tone===tone).map(l=>l.text.split('門外的聲音')[0].replace(/「[^」]+」|[年月日時]柱/g,'')); if(opens.length>=2) assert.ok(new Set(opens).size>1,`${tone} ghost openings rotate`); }
     assert.equal(gh.formations.length,ic.combos.length,'every combo becomes a formation');
     assert.equal(new Set(gh.formations.map(f=>f.title)).size,gh.formations.length,'formation titles are unique (pillar in the name)');
+    assert.equal(new Set(gh.formations.map(f=>f.text.replace(/^[^—]+/,''))).size,new Set(ic.combos.map(c=>c.id)).size,'each formation kind has its own ghost wording');
+    assert.ok(gh.opening.includes('護身 4 道')&&gh.opening.includes('活氣 7 道')&&gh.opening.includes('門縫風 6 道')&&gh.opening.includes('氣最重的在時柱'),'opening reads this chart');
+    assert.ok(gh.groups.every(g=>g.intro.startsWith(g.pillar)),'each ghost pillar has its own intro');
     assert.ok(gh.closing.includes(ic.hexagram.name));
     assert.ok(gh.disclaimer.includes('不作驅邪')&&gh.disclaimer.includes('自我反思'));
     const ghostAll=[gh.opening,...gh.decoding.map(d=>d.text),...ghostLines.map(l=>l.text),...gh.formations.map(f=>f.text),gh.closing].join('');
