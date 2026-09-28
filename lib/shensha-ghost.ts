@@ -31,12 +31,26 @@ export type ShenShaGhostView =
   }
   | { state: 'BLOCKED'; reason: string };
 
-/** 三種鬼語：福氣＝護身符、動能＝要壓陣的活氣、提醒＝門縫裡的風。 */
-function ghostLine(name: string, pillar: string, theme: string, tone: ShenShaTone | null): string {
-  if (tone === '福氣') return `「${name}」伏在${pillar}——這是護身的東西。茅山的說法：你身上有一道「${theme}」的符，不是誰替你畫的，是你自己一路積下來的。符會褪色，常做好事，它才一直亮著。`;
-  if (tone === '動能') return `「${name}」伏在${pillar}——這股氣是活的，會動、會衝。道士見了只說一句：「${theme}，壓得住是兵，壓不住是亂。」你要當那個壓陣的人。`;
-  if (tone === '提醒') return `「${name}」伏在${pillar}——門縫裡有風。別慌，那不是外靈，是你心裡那段「${theme}」還沒收乾淨。茅山不驅它，只教你：燈點亮、名字叫出來，它自己就退了。`;
-  return `「${name}」伏在${pillar}——這一筆氣還在打量你，先別理它，把眼前的事做穩。`;
+/**
+ * 鬼語三段：起（依類別三種說法輪替）→ 門外的聲音替你說出心事（取洋蔥「心」那一層，每個神煞不同）→ 收（依類別三種說法輪替）。
+ * 福氣＝護身符、動能＝要壓陣的活氣、提醒＝門縫裡的風。輪替依盤上順序決定，同一張盤永遠同一套說法。
+ */
+const GHOST_OPEN: Record<ShenShaTone, ((n: string, p: string) => string)[]> = {
+  福氣: [(n, p) => `「${n}」伏在${p}——這是護身的東西。`, (n, p) => `${p}亮著一點金光，是「${n}」。`, (n, p) => `${p}有一道「${n}」，壓在你背後護著。`],
+  動能: [(n, p) => `「${n}」伏在${p}——這股氣是活的，會動、會衝。`, (n, p) => `${p}裡「${n}」在躁動，按不太住。`, (n, p) => `「${n}」在${p}打轉，像一匹還沒上韁的馬。`],
+  提醒: [(n, p) => `「${n}」伏在${p}——門縫裡有風。`, (n, p) => `${p}的角落，「${n}」在低聲說話。`, (n, p) => `「${n}」蹲在${p}，一直沒走。`],
+};
+const GHOST_CLOSE: Record<ShenShaTone, ((theme: string) => string)[]> = {
+  福氣: [t => `茅山的說法：這道「${t}」的符不是誰替你畫的，是你自己一路積下來的；常做好事，它才一直亮著。`, t => `「${t}」這道光是你自己積的，別小看它。`, t => `記得回頭謝謝那些替你擋過風的人，「${t}」才會一直在。`],
+  動能: [t => `道士只說一句：「${t}，壓得住是兵，壓不住是亂。」你要當那個壓陣的人。`, t => `給「${t}」一個方向，它就替你開路。`, t => `韁繩在你手上，慢一步，「${t}」就聽話了。`],
+  提醒: [t => `別慌，那不是外靈，是「${t}」還沒收乾淨；燈點亮、名字叫出來，它自己就退了。`, t => `把「${t}」寫下來，它就從暗處走到亮處。`, t => `茅山不驅它，看懂「${t}」，它就散了。`],
+};
+function ghostLine(name: string, pillar: string, theme: string, tone: ShenShaTone | null, heart: string | null, index: number): string {
+  if (!tone) return `「${name}」伏在${pillar}——這一筆氣還在打量你，先別理它，把眼前的事做穩。`;
+  const open = GHOST_OPEN[tone][index % 3](name, pillar);
+  const close = GHOST_CLOSE[tone][Math.floor(index / 3) % 3](theme);
+  const secret = heart ? `門外的聲音替你說出來：「${heart.replace(/^其實/, '')}」` : '';
+  return `${open}${secret}${close}`;
 }
 
 export function buildShenShaGhost(view: ShenShaIChingView, hexagram: IChingReading | null): ShenShaGhostView {
@@ -45,9 +59,16 @@ export function buildShenShaGhost(view: ShenShaIChingView, hexagram: IChingReadi
   }
   const d = buildGhostDecoding(hexagram);
   const strip = (text: string) => text.replace(/^【[^】]+】/, '');
+  // 依盤上順序給每個神煞一個輪替序號，同一類別的鬼語不重複句型。
+  const toneIndex: Record<string, number> = {};
   const groups = view.groups.map(group => ({
     pillar: group.pillar,
-    lines: group.items.map(item => ({ name: item.name, tone: item.teacher?.tone ?? null, text: ghostLine(item.name, item.pillar, item.teacher?.theme ?? item.name, item.teacher?.tone ?? null) })),
+    lines: group.items.map(item => {
+      const tone = item.teacher?.tone ?? null;
+      const index = tone ? (toneIndex[tone] = (toneIndex[tone] ?? -1) + 1) : 0;
+      const heart = item.onion?.layers.find(layer => layer.layer === '心')?.text ?? null;
+      return { name: item.name, tone, text: ghostLine(item.name, item.pillar, item.teacher?.theme ?? item.name, tone, heart, index) };
+    }),
   }));
   const formations = view.combos.map(combo => ({
     // 同一種陣可能在不同柱各成一陣（例：德星化煞在年柱、時柱），陣名帶柱位才分得清。
