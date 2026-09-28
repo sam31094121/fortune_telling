@@ -288,7 +288,7 @@ for (let i=0;i<60;i++) for (let j=0;j<60;j++) {
   batch8Cases++;
 }
 // 流年神煞（業主定案 2026-09-28，兩種取法、今年＋明年）。紙本命盤 甲寅／庚午／庚子／乙酉，獨立抄表。
-// 甲、本命被觸動：流年干支當第五柱。
+// 甲、今年遇到（以本命起算）：流年干支當第五柱。
 let flowCases=0;
 for (let i=0;i<60;i++) {
   const fs0=STEMS[i%10]; const fb=BRANCHES[i%12]; const gz=fs0+fb;
@@ -312,16 +312,30 @@ assert.ok(!FLOW_SUISHEN.some(([id])=>id==='suipo'),'歲破 is expressed by the t
 const f2026=buildFlowYearShenSha(base,gate,'male',undefined,{year:2026,ganZhi:'丙午'})!;
 assert.deepEqual(f2026.touched.map(t=>t.name).sort(),['日破','月德','金匱'].sort());
 assert.deepEqual(f2026.suiShen.map(s=>`${s.name}${s.pillar}`).sort(),['太歲month','白虎year'].sort());
+// 歲神同一顆落兩柱：顆數算名字，名單寫出兩柱（客人審查第三輪：「3 顆（五鬼、披麻）」對不上）。
+{
+  const nat=createBaziCore({ birthDate:'1985-11-20', birthTime:'07:30', birthTimeKnown:true, gender:'male' });
+  const y27=buildFlowYearShenSha(nat,gate,'male',undefined,{year:2027,ganZhi:'丁未'})!;
+  assert.equal(y27.suiShen.filter(s=>s.id==='wugui').length,2,'fixture: 五鬼 lands on two pillars');
+  const v=buildShenShaFlow([y27]); assert.equal(v.state,'READY');
+  if (v.state==='READY') {
+    const line=v.years[0].oneLiner; const m=line.match(/歲神 ([0-9]+) 顆落入本命（(.+?)）。/)!;
+    assert.equal(Number(m[1]),new Set(y27.suiShen.map(s=>s.name)).size,'count equals distinct names');
+    assert.ok(line.includes('五鬼（月柱、日柱）'),'a two-pillar star names both pillars');
+    assert.ok(v.years[0].suiShen.every(i=>i.text.startsWith(`這一年歲神${i.name}`)),'suishen text says 歲神 to tell it from a natal star of the same name');
+  }
+}
 // 核對沒過就不給流年；話術後端組好、不下吉凶斷語、明年不說「今年」。
 assert.equal(buildFlowYearShenSha(base,gate,'male',{passed:false,mismatches:['x']},{year:2026,ganZhi:'丙午'}),null);
 assert.equal(buildShenShaFlow([null]).state,'BLOCKED');
 const flowView=buildShenShaFlow([f2026,buildFlowYearShenSha(base,gate,'male',undefined,{year:2027,ganZhi:'丁未'})]);
 assert.equal(flowView.state,'READY');
 if (flowView.state==='READY') {
-  assert.equal(flowView.years.length,2); assert.equal(flowView.teaser,'2026 丙午年・觸動 3・歲神 2');
+  assert.equal(flowView.years.length,2); assert.equal(flowView.teaser,'2026 丙午年・遇到 3・歲神 2');
+  assert.ok(!JSON.stringify(flowView).includes('被觸動')&&!JSON.stringify(flowView).includes('喚醒'),'flow never implies the natal chart already had these stars');
   const flowText=[flowView.intro,flowView.note,...flowView.years.flatMap(y=>[y.oneLiner,...[...y.touched,...y.suiShen].map(i=>i.text)])].join('');
   assert.ok(!flowText.match(/必定|一定會|註定|大凶|血光|死|犯太歲/),'flow wording keeps the no-fear boundary');
-  assert.ok(!flowView.years[1].touched.concat(flowView.years[1].suiShen).some(i=>i.text.includes('今年')),'next year is not called this year');
+  assert.ok(!flowView.years[1].touched.concat(flowView.years[1].suiShen).some(i=>i.text.includes('今年'))&&!flowView.years[1].oneLiner.includes('今年')&&!flowView.touchedTitle.includes('今年')&&!flowView.suiShenTitle.includes('今年'),'next year is never called this year');
   assert.ok(flowView.years.every(y=>[...y.touched,...y.suiShen].every(i=>i.derivation.startsWith(`${y.year} ${y.ganZhi}年：`))));
 }
 // 分享卡：後端組好內容；不含出生日期、時辰、姓名；四柱神煞與卡片一致。
@@ -414,7 +428,8 @@ if(ic.state==='READY'){
     assert.ok(char in SHENSHA_SENSE_PICKS,`${char} has an explicit sense pick (or null)`);
   }
   for (const item of ic.items) {
-    assert.ok(item.imagery.chars.every(c=>c.sense&&item.name.includes(c.char)),`${item.name} imagery only lists characters with a real meaning`);
+    assert.ok(item.imagery.chars.length===0||item.imagery.chars.map(c=>c.char).join('')===item.name,`${item.name} imagery shows every character or none`);
+    assert.ok(item.imagery.chars.every(c=>c.sense),`${item.name} imagery only lists characters with a real meaning`);
     for (const c of item.imagery.chars) if (c.sense) assert.ok(dictionary.get(c.char)!.meanings.some(m=>m.includes(c.sense!)),`${c.char} sense is verbatim dictionary text`);
   }
   assert.ok(ic.imageryAttribution.includes('CC BY-ND'),'dictionary attribution is shown');
@@ -570,4 +585,4 @@ assert.deepEqual(calculateDualChart(input).specialStars,actual.specialStars,'rep
 const changed=calculateDualChart({...input,birthTime:'15:30'});
 assert.equal(changed.core.shenSha.some(s=>s.id==='yangren'),false,'different hour does not inherit a hardcoded hit');
 assert.equal(base.shenSha instanceof Array&&base.shenSha.some(s=>s.id==='yangren'),false,'other cards retain original shared core');
-console.log(`PASS paper chart 17/17 + bazi/ziwei pillar gate + ${flowCases} 流年 (本命被觸動＋今年歲神) cases + ${batch8Cases} 拱祿 day×hour combinations + ${batch7Cases} 攀鞍／暗祿／進神／退神 combinations + ${batch6Cases} 歲破／月空／截路空亡／天轉／地轉／十靈／日德／日貴 combinations + ${batch5Cases} 喪門／白虎／披麻／病符 combinations + ${batch4Cases} 月德合／飛刃／金神／八專／九醜／六秀 combinations + ${batch3Cases} 國印／天廚／流霞／亡神／天赦／四廢／陰陽差錯／孤鸞／十惡大敗 combinations + 5 三奇 order cases + ${batch2Cases} 祿神／孤辰／寡宿／劫煞／天醫 combinations + ${expansionCases} 魁罡／空亡／金輿／學堂／紅艷 combinations + ${cases} 羊刃 combinations + ${yuanchenCases} 元辰 combinations + ${jiangxingCases} 將星 combinations + ${gejiaoCases} 隔角 combinations + gates, missing data, scope, alternate hour, determinism and shared-core isolation`);
+console.log(`PASS paper chart 17/17 + bazi/ziwei pillar gate + ${flowCases} 流年 (今年遇到＋今年歲神) cases + ${batch8Cases} 拱祿 day×hour combinations + ${batch7Cases} 攀鞍／暗祿／進神／退神 combinations + ${batch6Cases} 歲破／月空／截路空亡／天轉／地轉／十靈／日德／日貴 combinations + ${batch5Cases} 喪門／白虎／披麻／病符 combinations + ${batch4Cases} 月德合／飛刃／金神／八專／九醜／六秀 combinations + ${batch3Cases} 國印／天廚／流霞／亡神／天赦／四廢／陰陽差錯／孤鸞／十惡大敗 combinations + 5 三奇 order cases + ${batch2Cases} 祿神／孤辰／寡宿／劫煞／天醫 combinations + ${expansionCases} 魁罡／空亡／金輿／學堂／紅艷 combinations + ${cases} 羊刃 combinations + ${yuanchenCases} 元辰 combinations + ${jiangxingCases} 將星 combinations + ${gejiaoCases} 隔角 combinations + gates, missing data, scope, alternate hour, determinism and shared-core isolation`);

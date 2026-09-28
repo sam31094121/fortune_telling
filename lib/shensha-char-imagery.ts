@@ -56,7 +56,9 @@ export function charSense(char: string): ShenShaCharSense {
 /** 一個神煞名稱的字義意境：逐字取義，組成老師解盤的一句話。 */
 export function shenShaImagery(name: string): ShenShaImagery {
   // 只列有合適字義的字；沒有的字不印「字庫無合適字義」（客人讀起來像沒做完）。
-  const chars = [...name].map(charSense).filter(c => c.sense);
+  // 客人審查第三輪：只剩部分字時意思會說反（十惡大敗只剩「十：完滿」），所以要每個字都有字義才顯示。
+  const all = [...name].map(charSense);
+  const chars = all.every(c => c.sense) ? all : [];
   // 字義原文自帶句號，逐字並列，不拼接改寫。
   const parts = chars.map(c => c.sense ? `${c.char}（${c.element}）：${c.sense}` : `${c.char}（${c.element}）`);
   return { name, chars, line: parts.join('　') };
