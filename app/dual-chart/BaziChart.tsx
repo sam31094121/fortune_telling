@@ -83,6 +83,8 @@ function ShenShaIChingSection({ view }: { view?: DualChartResult['specialStars']
     {view.state === 'BLOCKED' ? <p role="status">{view.reason}</p> : <>
       <div className={styles.shenshaHexagram}><span aria-hidden="true">{view.hexagram.glyph}</span><p><small>本命卦</small><b>{view.hexagram.name}</b><small>{view.hexagram.changingLabel}</small></p></div>
       <h4 className={styles.shenshaSectionTitle}>導師總覽</h4>
+      {view.summary && <p className={styles.shenshaSummary}>{view.summary}</p>}
+      {view.highlights?.length > 0 && <ul className={styles.shenshaHighlights} aria-label="三個重點">{view.highlights.map(h => <li key={h.tone} data-shensha-tone={h.tone}><b>{h.title}</b><p>{h.text}</p></li>)}</ul>}
       <div className={styles.shenshaReading}>{view.reading.map((line, index) => <p key={index}>{line}</p>)}</div>
       {view.combos?.length > 0 && <>
         <h4 className={styles.shenshaSectionTitle}>整盤合看</h4>

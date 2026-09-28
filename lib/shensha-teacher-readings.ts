@@ -404,11 +404,19 @@ export const PILLAR_PALACE: Record<string, string> = {
   時柱: '時柱是出口與晚景，管子女、部屬，以及你向外延伸出去的那一面',
 };
 
+/** 本派柱位銜接句：這股氣在這一柱多半怎麼顯現（宮義本身只在分組標題講一次）。 */
+export const PILLAR_LINK: Record<string, string> = {
+  年柱: '多半先從家族、長輩或別人對你的第一印象裡顯現',
+  月柱: '多半在工作、同儕與成長的環境裡被看見',
+  日柱: '最貼近你自己，也最常在親密關係裡感受到',
+  時柱: '多半往外延伸，在部屬、子女與晚景裡慢慢展開',
+};
+
 /** 神煞＋柱位，組成導師解盤一整段話（本意→意境→柱位→落地）。 */
 export function teacherReadingFor(id: string, name: string, pillar: string): string | null {
   const reading = SHENSHA_TEACHER_READINGS[id];
   const palace = PILLAR_PALACE[pillar];
   if (!reading || !palace) return null;
   // 柱位宮義改在分組標題講一次（groupPalace），這裡不再逐項重複。
-  return `${reading.essence}${reading.imagery}這股「${reading.theme}」落在${pillar}，最容易在這一面感受到它。${reading.action}`;
+  return `${reading.essence}${reading.imagery}這股「${reading.theme}」落在${pillar}，${PILLAR_LINK[pillar] ?? '在這一柱顯現'}。${reading.action}`;
 }

@@ -48,6 +48,11 @@ export type ShenShaIChingView =
     /** 各柱命中數，依柱序（年月日時）。 */
     distribution: { pillar: string; count: number }[];
     /** 老師解盤：只串接可回查的事實與既有卦義，不自編吉凶。 */
+    /** 導師總評：一段話說完這張盤的輪廓。 */
+    summary: string;
+    /** 三個重點：底氣（福氣）、推力（動能）、留心（提醒）；沒有的類別不出現。 */
+    highlights: { tone: ShenShaTone; title: string; names: string[]; text: string }[];
+    /** 其餘解盤段落（原則、卦義、整盤合看、讀法）。 */
     reading: string[];
     credibility: { status: GateStatus; line: string };
     /** 字的意境出處說明。 */
@@ -58,16 +63,20 @@ export type ShenShaIChingView =
   | { state: 'BLOCKED'; chain: ShenShaIChingStep[]; reason: string };
 
 /** 福氣／動能／提醒三類各幾項，給導師解盤一個總覽。 */
-function toneSummary(items: ShenShaIChingItem[]): string {
-  const count = (tone: ShenShaTone) => items.filter(i => i.teacher?.tone === tone);
-  const names = (list: ShenShaIChingItem[]) => list.map(i => i.name).join('、');
-  const blessing = count('福氣'); const drive = count('動能'); const reminder = count('提醒');
-  const parts = [
-    blessing.length ? `福氣 ${blessing.length} 項（${names(blessing)}）是你的底氣` : '',
-    drive.length ? `動能 ${drive.length} 項（${names(drive)}）是推你往前的力量` : '',
-    reminder.length ? `提醒 ${reminder.length} 項（${names(reminder)}）是要你多留一分心的地方` : '',
-  ].filter(Boolean);
-  return `把這些神煞分成三類來看：${parts.join('；')}。提醒不是壞消息，而是先把燈點亮。`;
+/** 三個重點：底氣／推力／留心。 */
+const HIGHLIGHT_COPY: Record<ShenShaTone, { title: string; text: (names: string) => string }> = {
+  福氣: { title: '你的底氣', text: n => `${n}是你一路走來的依靠，遇到難處時，這些是你可以回頭借力的地方。` },
+  動能: { title: '推你往前的力量', text: n => `${n}是推著你往前的引擎，用在對的方向，就是你最有衝勁的時候。` },
+  提醒: { title: '要多留一分心', text: n => `${n}不是壞消息，是先把燈點亮：知道哪裡要多留心，路就走得穩。` },
+};
+function highlightsOf(items: ShenShaIChingItem[]) {
+  return (['福氣', '動能', '提醒'] as const).flatMap(tone => {
+    const names = [...new Set(items.filter(i => i.teacher?.tone === tone).map(i => i.name))];
+    return names.length ? [{ tone, title: HIGHLIGHT_COPY[tone].title, names, text: HIGHLIGHT_COPY[tone].text(names.join('、')) }] : [];
+  });
+}
+function toneCountLine(items: ShenShaIChingItem[]): string {
+  return (['福氣', '動能', '提醒'] as const).map(tone => [tone, items.filter(i => i.teacher?.tone === tone).length] as const).filter(([, n]) => n > 0).map(([tone, n]) => `${tone} ${n}`).join('、');
 }
 
 export function buildShenShaIChing(params: {
@@ -108,15 +117,14 @@ export function buildShenShaIChing(params: {
   const max = Math.max(0, ...distribution.map(d => d.count));
   const focus = distribution.filter(d => d.count === max && max > 0).map(d => d.pillar);
   const empty = distribution.filter(d => d.count === 0).map(d => d.pillar);
+  const summary = items.length
+    ? `這張盤由八字排出四柱（${chain[0].text}），紫微斗數逐字核對一致，從同一張盤衍生特星神煞 ${items.length} 項（${toneCountLine(items)}），以${focus.join('、')}最集中${empty.length ? `，${empty.join('、')}本派取法未命中` : ''}；本命卦為「${r.hexagramName}」。`
+    : `這張盤由八字排出四柱（${chain[0].text}），紫微斗數逐字核對一致；依本派取法沒有命中特星神煞，這不代表其他流派也沒有。本命卦為「${r.hexagramName}」。`;
+  const highlights = highlightsOf(items);
   const reading = [
-    `這張命盤先由八字排出四柱（${chain[0].text}），紫微斗數四柱逐字核對一致，才從同一張盤衍生特星神煞。`,
-    items.length
-      ? `特星神煞共 ${items.length} 項，${focus.join('、')}最集中（${max} 項）${empty.length ? `，${empty.join('、')}本派取法未命中` : ''}。每一項的推導都列在下方，可逐項回查。`
-      : '依本派取法，這張盤沒有命中特星神煞；這不代表其他流派也沒有。',
-    ...(items.length ? [toneSummary(items), SHENSHA_PRINCIPLE] : []),
+    ...(items.length ? [SHENSHA_PRINCIPLE] : []),
     ...(combos.length ? [`整盤合看，這張盤有 ${combos.length} 組神煞彼此呼應：${combos.map(c => c.pillar ? `${c.title}（${c.pillar}）` : c.title).join('、')}。老師看盤不只看單一顆星，而是看它們怎麼一起說話，下方逐組說明。`] : []),
-    `易經以同一份生辰起卦，得「${r.hexagramName}」：${r.essence.replace(/[。．.]?$/, '。')}`,
-    `行動建議：${r.advice}`,
+    `易經以同一份生辰起卦，得「${r.hexagramName}」：${r.essence.replace(/[。．.]?$/, '。')}行動建議：${r.advice}`,
     ...(items.length ? [`導師解盤的讀法：先讀神煞的本意，再看它落在哪一柱，最後回到「${r.hexagramName}」的行動建議——讀意、讀位、讀卦，三者合看。下方逐項展開：導師話術、洋蔥心理學（殼→心→禮物）、推導與字的意境。`] : []),
   ];
 
@@ -124,7 +132,7 @@ export function buildShenShaIChing(params: {
   const claim = registry.claims.find(c => c.claim_id === SHENSHA_ICHING_CLAIM);
   const status: GateStatus = claim ? evaluateClaim(claim, indexSources(registry)).status : 'PENDING_POOL';
   return {
-    state: 'READY', chain, items, distribution, reading, combos,
+    state: 'READY', chain, items, distribution, summary, highlights, reading, combos,
     groups: card.columns.map(col => {
       const groupItems = items.filter(i => i.pillar === col.label);
       const tones = (['福氣', '動能', '提醒'] as const).map(tone => [tone, groupItems.filter(i => i.teacher?.tone === tone).length] as const).filter(([, n]) => n > 0);

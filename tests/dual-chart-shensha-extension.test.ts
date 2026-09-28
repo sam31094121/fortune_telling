@@ -313,6 +313,9 @@ if(ic.state==='READY'){
   }
   assert.ok(ic.items.every(i=>i.derivation&&!i.derivation.includes('；')),'derivation is customer-readable');
   assert.ok(ic.reading.some(line=>line.includes(ic.hexagram.name)));
+  // 銜接句依柱變化：同一柱共用一句，不同柱不同句。
+  const linkOf=(p:string)=>ic.items.find(i=>i.pillar===p)!.teacher!.text;
+  assert.ok(linkOf('年柱').includes('第一印象')&&linkOf('時柱').includes('晚景')&&!linkOf('時柱').includes('最容易在這一面感受到它'));
   assert.ok(!ic.reading.join('').match(/主(吉|凶)|大吉|大凶|必定/),'no unsourced good/bad verdicts');
   assert.equal(ic.credibility.status,'PENDING_POOL');
   assert.ok(!ic.credibility.line.includes('已通過交叉比對'),'unverified claim cannot sound verified');
@@ -343,7 +346,10 @@ if(ic.state==='READY'){
   }
   const wai=ic.items.find(i=>i.id==='waiTaohua')!;
   assert.ok(wai.teacher!.text.includes('異性緣')&&wai.teacher!.text.includes('貴人'),'外桃花 reads as 人緣／異性緣／貴人 (owner example)');
-  assert.ok(ic.reading.some(l=>l.includes('福氣')&&l.includes('動能')&&l.includes('提醒')),'tone overview ties the shensha together');
+  assert.ok(ic.summary.includes('福氣')&&ic.summary.includes('動能')&&ic.summary.includes('提醒')&&ic.summary.includes(ic.hexagram.name),'summary gives the whole-chart outline in one paragraph');
+  assert.deepEqual(ic.highlights.map(h=>h.title),['你的底氣','推你往前的力量','要多留一分心'],'three highlights in fixed order');
+  assert.ok(ic.highlights.every(h=>h.names.length>0&&h.names.every(n=>h.text.includes(n))));
+  assert.ok(ic.reading.length<=5,'overview paragraphs are condensed');
   for (const g of ic.groups) { assert.equal(g.palace,`${PILLAR_PALACE[g.pillar]}。`,`${g.pillar} palace is told once in the group`); assert.equal(g.items.length,g.count); }
   assert.equal(ic.groups.find(g=>g.pillar==='時柱')?.toneLine,'福氣 2　動能 2　提醒 2','hour group tone counts (龍德外桃花／羊刃桃花／六厄元辰)');
   // 常用神煞總覽融入：本派解盤原則＋傳統三分類（只標總覽有列的）。

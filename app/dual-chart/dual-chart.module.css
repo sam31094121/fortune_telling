@@ -147,6 +147,11 @@
 .shenshaHexagram p{display:grid;gap:2px;margin:0;text-align:start}
 .shenshaHexagram b{font-size:24px;font-weight:800;letter-spacing:.12em;color:#f4e6ff}
 .shenshaHexagram small{font-size:13px;color:var(--ss-muted)}
+.shenshaSummary{margin:0 0 10px;padding:12px 14px;border-radius:12px;border:1px solid #e9c46a44;background:#241f35;font-size:16px;line-height:1.85;color:#f5f0ff;overflow-wrap:anywhere}
+.shenshaHighlights{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px}
+.shenshaHighlights li{padding:10px 12px 10px 14px;border-radius:12px;background:var(--ss-panel);border:1px solid var(--ss-line);border-left:4px solid var(--ss-tone,var(--ss-violet));min-width:0}
+.shenshaHighlights b{display:block;font-size:15px;letter-spacing:.08em;color:var(--ss-tone,var(--ss-gold))}
+.shenshaHighlights p{margin:4px 0 0;font-size:14px;line-height:1.75;color:var(--ss-text);overflow-wrap:anywhere}
 .shenshaReading{display:grid;gap:8px}
 .shenshaReading p{margin:0;font-size:15px;line-height:1.8;color:var(--ss-text);overflow-wrap:anywhere}
 .shenshaCombos{list-style:none;margin:0;padding:0;display:grid;gap:8px}
