@@ -13,7 +13,7 @@
  * - 凶煞只講提醒與轉化，不嚇人、不下定論；禁止「必定、一定會、註定、大凶、血光、死」等字眼（測試會擋）。
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PILLAR_PALACE = exports.SHENSHA_PRINCIPLE = exports.SHENSHA_TRADITION = exports.SHENSHA_TEACHER_READINGS = void 0;
+exports.PILLAR_LINK = exports.PILLAR_PALACE = exports.SHENSHA_PRINCIPLE = exports.SHENSHA_TRADITION = exports.SHENSHA_TEACHER_READINGS = void 0;
 exports.teacherReadingFor = teacherReadingFor;
 exports.SHENSHA_TEACHER_READINGS = {
     tiandehe: {
@@ -102,8 +102,9 @@ exports.SHENSHA_TEACHER_READINGS = {
     },
     gejiao: {
         theme: '隔著一道牆', tone: '提醒',
-        essence: '隔角是隔閡與孤立感，和這一柱代表的人事之間，常像隔著一道看不見的牆。',
-        imagery: '像兩個房間只隔一面牆，彼此聽得見聲音，卻要有人先敲門。',
+        // 語源（業主提供，D 級參考）：兩支之間「隔了一位」；古說寅申巳亥為天地四角，地支轉到這裡被阻隔。
+        essence: '隔角的「隔」，是日支與這一柱之間恰好隔了一位；古人也說地支走到寅、申、巳、亥這四個轉角時會被擋一下。本派讀作：和這一柱代表的人事之間，常像隔著一道看不見的牆，不是沒有緣分，而是要多轉一個彎才碰得到。',
+        imagery: '像羅盤上的四個轉角，路沒有斷，只是得轉個身才看得見對方；也像兩個房間只隔一面牆，彼此聽得見聲音，卻要有人先敲門。',
         action: '主動敲那扇門：先問候、先釋出善意；牆不會自己倒，但門一直都在。',
     },
     yuanchen: {
@@ -370,6 +371,42 @@ exports.SHENSHA_TEACHER_READINGS = {
         imagery: '像一盞燈放在自己家門口，客人還沒進門，就先看到光。',
         action: '保持你的氣度與分寸；貴人欣賞的，是你待人處事的格局。',
     },
+    panan: {
+        theme: '坐上馬鞍', tone: '動能',
+        essence: '攀鞍是將星之後、驛馬之前的位置，像要上馬前先攀住鞍，主升遷、受提拔、在位子上站穩。',
+        imagery: '像馬已經備好鞍，你一腳踩穩了，下一步就能出發。',
+        action: '機會來的時候先把位子坐穩；把基本功練紮實，提拔自然跟著來。',
+    },
+    anlu: {
+        theme: '看不見的資糧', tone: '福氣',
+        essence: '暗祿是祿神的暗合，主暗中有人照應、關鍵時刻有意外的資源與援手。',
+        imagery: '像井底連著一條暗泉，表面看不出來，水卻一直沒斷過。',
+        action: '記得那些默默幫你的人；把這份福氣傳下去，暗泉會越流越旺。',
+    },
+    jinshenDay: {
+        theme: '往前推的力量', tone: '動能',
+        essence: '進神是日柱帶進取之氣的組合，主積極向前、敢做敢衝，容易把握先機。',
+        imagery: '像順風的船帆，一揚起來就往前走。',
+        action: '趁勢往前，也記得看清方向；衝得快，更要衝得準。',
+    },
+    taisui: {
+        theme: '回到自己的那一年', tone: '提醒',
+        essence: '流年地支與本命同支，民間稱本命年、值太歲；本派讀作「重新面對自己」的一年，不作凶論。',
+        imagery: '像走回自己出生的那條街，熟悉，也照見這些年的變化。',
+        action: '適合整理、回顧、把舊習慣換新；重大決定多問一句、多等一天。',
+    },
+    gonglu: {
+        theme: '夾出來的福祿', tone: '福氣',
+        essence: '拱祿是日柱與時柱同干、兩支一左一右把祿位夾在中間，祿不在盤上卻被拱出來，主福祿藏而不露、越到後來越豐厚。',
+        imagery: '像兩座山夾出一道谷，谷裡的水不是誰倒進去的，是兩邊慢慢匯下來的。',
+        action: '別急著把福氣攤在桌上；守住日子與晚年這兩根柱子，祿會自己匯過來。',
+    },
+    tuishen: {
+        theme: '退一步的智慧', tone: '提醒',
+        essence: '退神是日柱帶收斂之氣的組合，本派讀作提醒：做事容易猶豫、想退，但懂得退也是一種智慧。',
+        imagery: '像拉弓，先往後拉，箭才射得遠。',
+        action: '想退的時候先問自己：是在休息，還是在逃避？休息就好好休息，逃避就再往前一步。',
+    },
     huagai: {
         theme: '靈性與才藝', tone: '動能',
         essence: '華蓋是頭頂的華麗傘蓋，代表才華、藝術、宗教與哲思，也有一份喜歡獨處的孤高。',
@@ -399,11 +436,19 @@ exports.PILLAR_PALACE = {
     日柱: '日柱是你自己，也是枕邊人與最親近的關係',
     時柱: '時柱是出口與晚景，管子女、部屬，以及你向外延伸出去的那一面',
 };
+/** 本派柱位銜接句：這股氣在這一柱多半怎麼顯現（宮義本身只在分組標題講一次）。 */
+exports.PILLAR_LINK = {
+    年柱: '多半先從家族、長輩或別人對你的第一印象裡顯現',
+    月柱: '多半在工作、同儕與成長的環境裡被看見',
+    日柱: '最貼近你自己，也最常在親密關係裡感受到',
+    時柱: '多半往外延伸，在部屬、子女與晚景裡慢慢展開',
+};
 /** 神煞＋柱位，組成導師解盤一整段話（本意→意境→柱位→落地）。 */
 function teacherReadingFor(id, name, pillar) {
     const reading = exports.SHENSHA_TEACHER_READINGS[id];
     const palace = exports.PILLAR_PALACE[pillar];
     if (!reading || !palace)
         return null;
-    return `${reading.essence}${reading.imagery}這股「${reading.theme}」落在${pillar}：${palace}，所以最容易在這一面感受到它。${reading.action}`;
+    // 柱位宮義與「落在哪一柱」都在分組開頭講一次，這裡不再逐項重複（客人審查：同一句重複四次像套版）。
+    return `${reading.essence}${reading.imagery}${reading.action}`;
 }

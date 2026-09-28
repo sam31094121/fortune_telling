@@ -3,14 +3,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DUAL_SHENSHA_RULES = exports.REFERENCE_RULE_VERSION = exports.DUAL_SHENSHA_VERSION = void 0;
+exports.FLOW_SUISHEN = exports.FLOW_TOUCH_IDS = exports.DUAL_SHENSHA_RULES = exports.REFERENCE_RULE_VERSION = exports.DUAL_SHENSHA_VERSION = void 0;
 exports.xunKong = xunKong;
 exports.buildDualChartShenSha = buildDualChartShenSha;
+exports.buildFlowYearShenSha = buildFlowYearShenSha;
 /** Dual-chart-only extension. Consumes the verified core; never recalculates pillars. */
 const _____json_1 = __importDefault(require("../docs/\u6280\u80FD\u6230\u9B25\u6A94\u6848/\u516B\u5B57/\u4F86\u6E90\u767B\u8A18.json"));
 const iching_source_gate_1 = require("./iching-source-gate");
 const bazi_traditional_gate_1 = require("./bazi-traditional-gate");
 const dual_chart_shensha_card_1 = require("./dual-chart-shensha-card");
+const shensha_teacher_readings_1 = require("./shensha-teacher-readings");
 const engine_1 = require("./bazi/engine");
 exports.DUAL_SHENSHA_VERSION = 'DUAL_SHENSHA_REFERENCE_CHART_V4';
 const YANGREN = { 甲: '卯', 乙: '辰', 丙: '午', 丁: '未', 戊: '午', 己: '未', 庚: '酉', 辛: '戌', 壬: '子', 癸: '丑' };
@@ -72,6 +74,12 @@ const DIZHUAN_DAY = { 春: '辛卯', 夏: '戊午', 秋: '癸酉', 冬: '丙子'
 const SHILING_DAYS = ['甲辰', '乙亥', '丙辰', '丁酉', '戊午', '庚戌', '庚寅', '辛亥', '壬寅', '癸未'];
 const RIDE_DAYS = ['甲寅', '丙辰', '戊辰', '庚辰', '壬戌'];
 const RIGUI_DAYS = ['丁酉', '丁亥', '癸巳', '癸卯'];
+const PANAN = { 申子辰: '丑', 寅午戌: '未', 巳酉丑: '戌', 亥卯未: '辰' };
+const ANLU = { 甲: '亥', 乙: '戌', 丙: '申', 丁: '未', 戊: '申', 己: '未', 庚: '巳', 辛: '辰', 壬: '寅', 癸: '丑' };
+const JINSHEN_DAYS = ['甲子', '甲午', '己卯', '己酉'];
+const TUISHEN_DAYS = ['丁丑', '丁未', '壬辰', '壬戌'];
+/** 拱祿（三命通會五組）：日時同干，兩支夾拱出祿位。 */
+const GONGLU = { 癸亥癸丑: '子', 癸丑癸亥: '子', 丁巳丁未: '午', 己未己巳: '午', 戊辰戊午: '巳' };
 /** 日柱所在旬的兩個空亡地支。 */
 function xunKong(stem, branch) {
     const start = (engine_1.BRANCHES.indexOf(branch) - STEMS_ORDER.indexOf(stem) + 12) % 12; // 旬首（甲）所在地支
@@ -93,6 +101,8 @@ exports.DUAL_SHENSHA_RULES = [
     ['yuedehe', '月德合'], ['feiren', '飛刃'], ['jinshen', '金神'], ['bazhuan', '八專'], ['jiuchou', '九醜'], ['liuxiu', '六秀'],
     ['sangmen', '喪門'], ['baihu', '白虎'], ['bingfu', '病符'], ['pima', '披麻'],
     ['suipo', '歲破'], ['yuekong', '月空'], ['jielu', '截路空亡'], ['tianzhuan', '天轉'], ['dizhuan', '地轉'], ['shiling', '十靈'], ['ride', '日德'], ['rigui', '日貴'],
+    ['panan', '攀鞍'], ['anlu', '暗祿'], ['jinshenDay', '進神'], ['tuishen', '退神'],
+    ['gonglu', '拱祿'],
 ];
 function buildDualChartShenSha(core, gate, gender, pillarCheck) {
     // Never trust a caller's ready gate over the actual core verification.
@@ -166,6 +176,11 @@ function buildDualChartShenSha(core, gate, gender, pillarCheck) {
         shiling: reference('日柱為甲辰、乙亥、丙辰、丁酉、戊午、庚戌、庚寅、辛亥、壬寅、癸未者。只看日柱。'),
         ride: reference('日柱為甲寅、丙辰、戊辰、庚辰、壬戌者。只看日柱。'),
         rigui: reference('日柱為丁酉、丁亥、癸巳、癸卯者。只看日柱。'),
+        panan: reference('日支三合取攀鞍（申子辰丑、寅午戌未、巳酉丑戌、亥卯未辰），查年月時。'),
+        anlu: reference('日干祿位之六合為暗祿（甲亥乙戌丙戊申丁己未庚巳辛辰壬寅癸丑），四柱皆查。'),
+        jinshenDay: reference('日柱為甲子、甲午、己卯、己酉者。只看日柱（另有兼看時柱者，本派不採）。'),
+        gonglu: reference('日時同干夾拱祿位：癸亥日癸丑時、癸丑日癸亥時拱子，丁巳日丁未時、己未日己巳時拱午，戊辰日戊午時拱巳；日柱與時柱同標（另有加「四柱不見所拱之祿」條件者，本派不採）。'),
+        tuishen: reference('日柱為丁丑、丁未、壬辰、壬戌者。只看日柱（另有兼看時柱者，本派不採）；讀法採本派提醒與轉化。'),
         hongyan: reference('日干取紅艷（甲乙午、丙寅、丁未、戊己辰、庚戌、辛酉、壬子、癸申），四柱皆查。'),
     };
     // 核心引擎的袁本桃花（含納音條件）只供其他卡片使用；本卡改依參考命盤取法重查。
@@ -343,6 +358,22 @@ function buildDualChartShenSha(core, gate, gender, pillarCheck) {
             if (RIGUI_DAYS.includes(day.ganZhi))
                 push('rigui', '日貴', 'day', `日柱${day.ganZhi}為日貴`, `柱${day.ganZhi}`);
         }
+        // 第七批：攀鞍（日支三合，查年月時）、暗祿（日干祿之合，四柱）、進神／退神（日柱）。
+        if (day) {
+            const ds = day.heavenlyStem;
+            const pa = PANAN[TRINE_OF[day.earthlyBranch]];
+            branchHit('panan', '攀鞍', pa, ['year', 'month', 'hour'], `日支${day.earthlyBranch}三合攀鞍在${pa}；查年月時`);
+            branchHit('anlu', '暗祿', ANLU[ds], pillars, `日干${ds}祿在${LUSHEN[ds]}，其合${ANLU[ds]}為暗祿；四柱皆查`);
+            if (JINSHEN_DAYS.includes(day.ganZhi))
+                push('jinshenDay', '進神', 'day', `日柱${day.ganZhi}為進神`, `柱${day.ganZhi}`);
+            if (TUISHEN_DAYS.includes(day.ganZhi))
+                push('tuishen', '退神', 'day', `日柱${day.ganZhi}為退神`, `柱${day.ganZhi}`);
+            const hr = at('hour');
+            const gong = hr ? GONGLU[day.ganZhi + hr.ganZhi] : undefined;
+            if (hr && gong)
+                for (const key of ['day', 'hour'])
+                    push('gonglu', '拱祿', key, `日柱${day.ganZhi}、時柱${hr.ganZhi}夾拱祿位${gong}`, `柱${at(key).ganZhi}`);
+        }
         // 三奇：相連三柱天干依序（年月日、月日時）。
         for (const run of [['year', 'month', 'day'], ['month', 'day', 'hour']]) {
             const stems = run.map(key => at(key)?.heavenlyStem);
@@ -397,7 +428,7 @@ function buildDualChartShenSha(core, gate, gender, pillarCheck) {
             reason: pillarCheck?.passed === false ? `八字與紫微四柱不一致（${pillarCheck.mismatches.join('；')}）；不判定是否命中。` : !coreReady ? '基礎四柱尚未通過驗證；不判定是否命中。' : dataBlocked ? id === 'waiTaohua' ? '外桃花需要已確認的時柱；資料不足不判定未命中。' : '元辰需要已確認的性別、年柱與時柱；資料不足不判定未命中。' : rule.outputStatus === 'READY' ? `依已採用取法${matchedPillars.length ? '命中' : '未命中'}；不是所有流派皆無。` : rule.reasons.join('；'), matchedPillars };
     });
     // 卡片要顯示的內容在後端一次決定；前端只照印。
-    const card = (0, dual_chart_shensha_card_1.buildShenShaCardView)({ raw, byPillar, coverage }, coreReady, pillarCheck?.passed === false ? pillarCheck.mismatches : undefined);
+    const card = (0, dual_chart_shensha_card_1.buildShenShaCardView)({ raw, byPillar, coverage }, coreReady, pillarCheck?.passed === false ? pillarCheck.mismatches : undefined, id => shensha_teacher_readings_1.SHENSHA_TEACHER_READINGS[id]?.tone ?? null);
     // 原核心規則（袁本）不動，只作來源對照說明用；本卡的正式輸出以 rules 為準。
     // 來源說明句由後端給，前端只照印（前端禁止生成）。
     const sourceNote = {
@@ -405,4 +436,54 @@ function buildDualChartShenSha(core, gate, gender, pillarCheck) {
         en: 'Special stars follow this site’s own Taiji–Ziwei–I Ching method; Yuan Shushan’s method is listed below for comparison. ',
     };
     return { version: exports.DUAL_SHENSHA_VERSION, raw, byPillar, coverage, rules, card, sourceComparisonRules: gate.shenShaRules, sourceNote };
+}
+// ── 流年神煞（業主定案 2026-09-28：兩種取法都做、分兩段顯示；看今年＋明年）──────────
+// 甲、本命被觸動：把流年干支當第五柱，沿用本卡既有取法（取主仍是本命日干、日支、年支、月支），看哪些神煞落在流年。
+//     不另創公式：流年柱放進時柱的位置重跑同一套規則，只收下列「以本命為取主、會查到該柱」的規則。
+//     不收：沐浴（十二運是逐柱預算好的值）、只看日柱或時柱的組合、以年支排的歲神（交給乙段，避免同名兩義）。
+// 乙、今年歲神：以流年地支為取主，照本卡歲神位數（喪門二、五鬼四、龍德七、白虎八、披麻九、天狗十、病符十一）
+//     加太歲（同支，本命年／值太歲），看落在本命哪一柱。歲破已由甲段的「流年沖年支」表達，不重複。
+exports.FLOW_TOUCH_IDS = [
+    'tianyi', 'wenchang', 'yima', 'huagai', 'taohua', 'jiangxing', 'gejiao', 'yangren',
+    'tiande', 'yuede', 'tiandehe', 'yuedehe', 'jinkui', 'zaisha', 'liue', 'jiesha', 'guchen', 'guasu', 'wangshen',
+    'yuepo', 'ripo', 'suipo', 'kongwang', 'jinyu', 'xuetang', 'hongyan', 'lushen', 'anlu', 'tianyiDoctor',
+    'guoyin', 'tianchu', 'liuxia', 'feiren', 'yuekong', 'panan',
+];
+exports.FLOW_SUISHEN = [
+    ['taisui', '太歲', 0], ['sangmen', '喪門', 2], ['wugui', '五鬼', 4], ['longde', '龍德', 7],
+    ['baihu', '白虎', 8], ['pima', '披麻', 9], ['tiangou', '天狗', 10], ['bingfu', '病符', 11],
+];
+function buildFlowYearShenSha(core, gate, gender, pillarCheck, flow) {
+    const { year, month, day, hour } = core.pillars;
+    const ready = gate.coreReady && core.verification.readyForInterpretation && pillarCheck?.passed !== false;
+    const stem = flow.ganZhi[0];
+    const branch = flow.ganZhi[1];
+    if (!ready || hour === 'UNKNOWN' || !STEMS_ORDER.includes(stem) || !engine_1.BRANCHES.includes(branch))
+        return null;
+    const flowPillar = { ...hour, key: 'HOUR', heavenlyStem: stem, earthlyBranch: branch, ganZhi: flow.ganZhi };
+    const pillarsWithFlow = [year, month, day, flowPillar];
+    const synthetic = { ...core, pillars: { ...core.pillars, hour: flowPillar }, shenSha: (0, engine_1.computeShenSha)(core.dayMaster.stem, year.earthlyBranch, day.earthlyBranch, pillarsWithFlow) };
+    const touchedRaw = buildDualChartShenSha(synthetic, gate, gender, pillarCheck).byPillar.hour.filter(hit => exports.FLOW_TOUCH_IDS.includes(hit.id));
+    const touched = [];
+    for (const hit of touchedRaw) {
+        const rule = hit.rule.split('；')[0];
+        const found = touched.find(t => t.id === hit.id);
+        if (found) {
+            if (!found.rule.includes(rule))
+                found.rule += `、${rule}`;
+        }
+        else
+            touched.push({ id: hit.id, name: hit.name, pillar: 'flow', rule });
+    }
+    const suiShen = [];
+    const at = engine_1.BRANCHES.indexOf(branch);
+    for (const [id, name, offset] of exports.FLOW_SUISHEN) {
+        const target = engine_1.BRANCHES[(at + offset) % 12];
+        for (const key of ['year', 'month', 'day', 'hour']) {
+            if (core.pillars[key].earthlyBranch !== target)
+                continue;
+            suiShen.push({ id, name, pillar: key, rule: offset ? `流年${branch}順數${offset}位為${name}（${target}）` : `流年${branch}與本命同支（值太歲）` });
+        }
+    }
+    return { year: flow.year, ganZhi: flow.ganZhi, touched, suiShen };
 }

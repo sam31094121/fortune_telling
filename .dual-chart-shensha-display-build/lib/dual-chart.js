@@ -8,10 +8,15 @@ const bazi_engine_1 = require("./bazi-engine");
 const bazi_professional_result_v5_1 = require("./bazi-professional-result-v5");
 const three_core_engine_1 = require("./three-core-engine");
 const shensha_iching_1 = require("./shensha-iching");
+const shensha_ghost_1 = require("./shensha-ghost");
+const sealedGhost = (view, reveal) => shensha_ghost_1.GHOST_SEALED && !reveal ? (0, shensha_ghost_1.sealShenShaGhost)(view) : view;
 const three_in_one_1 = require("./three-in-one");
 const bazi_traditional_gate_1 = require("./bazi-traditional-gate");
 const dual_chart_shensha_1 = require("./dual-chart-shensha");
-function calculateDualChart(body) {
+const shensha_flow_year_1 = require("./shensha-flow-year");
+const shensha_share_1 = require("./shensha-share");
+/** revealSealedGhost 只給測試核對後端話術用；對外 API 一律不帶，鬼魅老師封印中只送卡頭。 */
+function calculateDualChart(body, options = {}) {
     if (!body || typeof body !== 'object')
         throw new Error('請填寫出生資料。');
     const input = body;
@@ -64,7 +69,9 @@ function calculateDualChart(body) {
     const shenSha = (0, dual_chart_shensha_1.buildDualChartShenSha)(bazi, professional.professionalChart.traditionalInterpretationGate, input.gender, { passed: mismatches.length === 0, mismatches });
     // 《神煞易經》第④層：同一張已核對的命盤，沿用三合一帶憑證起卦，把特星神煞串進易經解盤。
     const iching = (0, three_core_engine_1.runIChingLayer)({ input: baziInput, core: bazi, bazi: baziLayer, ziwei: ziweiLayer });
-    const specialStars = { ...shenSha, iching: (0, shensha_iching_1.buildShenShaIChing)({ pillars: baziPillars, pillarCheckPassed: mismatches.length === 0, card: shenSha.card, iching }) };
+    const ichingView = (0, shensha_iching_1.buildShenShaIChing)({ pillars: baziPillars, pillarCheckPassed: mismatches.length === 0, card: shenSha.card, iching });
+    // 鬼魅老師（茅山道士話術分身）：同一張盤、同一個卦，後端另組一套說法。
+    const specialStars = { ...shenSha, iching: ichingView, ghost: sealedGhost((0, shensha_ghost_1.buildShenShaGhost)(ichingView, iching.status === 'READY' ? iching.reading : null), options.revealSealedGhost) };
     // Reuse the existing backend extension over the verified pillars; the UI only renders its results.
     // 參考取法項目沒有原典頁碼（source 省略）；所有讀取 source 的畫面都先判斷是否存在。
     const dualShenSha = specialStars.raw;
@@ -83,6 +90,9 @@ function calculateDualChart(body) {
         const branch = lunar.getYearZhiByLiChun();
         return { year, age: year - y + 1, ganzhi: lunar.getYearInGanZhiByLiChun(), stemGod: (0, engine_1.calculateTenGod)(bazi.dayMaster.stem, stem), branchGod: (0, engine_1.calculateTenGod)(bazi.dayMaster.stem, engine_1.HIDDEN_STEM_DICTIONARY[branch].primary) };
     });
+    // 流年神煞：今年＋明年（annual 以立春後的年干支為準），沿用本卡取法，後端算好話術。
+    const flowCheck = { passed: mismatches.length === 0, mismatches };
+    const flow = (0, shensha_flow_year_1.buildShenShaFlow)(annual.slice(0, 2).map(a => (0, dual_chart_shensha_1.buildFlowYearShenSha)(bazi, professional.professionalChart.traditionalInterpretationGate, input.gender, flowCheck, { year: a.year, ganZhi: a.ganzhi })));
     const ziweiProfile = { polarity: engine_1.STEM_YINYANG[raw.chineseDate[0]] ?? '', zodiac: raw.zodiac };
-    return { bazi: { input: professional.input, professionalChart: dualProfessionalChart, luckCycles: professional.luckCycles }, core: dualCore, specialStars, annual, ziwei, periods, ziweiProfile };
+    return { bazi: { input: professional.input, professionalChart: dualProfessionalChart, luckCycles: professional.luckCycles }, core: dualCore, specialStars: { ...specialStars, flow, share: (0, shensha_share_1.buildShenShaShare)(specialStars.card, ichingView, flow) }, annual, ziwei, periods, ziweiProfile };
 }

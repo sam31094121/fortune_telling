@@ -28,18 +28,20 @@ const shensha_onion_1 = require("./shensha-onion");
 const shensha_combos_1 = require("./shensha-combos");
 exports.SHENSHA_ICHING_CLAIM = 'C-SHENSHA-ICHING';
 /** 福氣／動能／提醒三類各幾項，給導師解盤一個總覽。 */
-function toneSummary(items) {
-    const count = (tone) => items.filter(i => i.teacher?.tone === tone);
-    const names = (list) => list.map(i => i.name).join('、');
-    const blessing = count('福氣');
-    const drive = count('動能');
-    const reminder = count('提醒');
-    const parts = [
-        blessing.length ? `福氣 ${blessing.length} 項（${names(blessing)}）是你的底氣` : '',
-        drive.length ? `動能 ${drive.length} 項（${names(drive)}）是推你往前的力量` : '',
-        reminder.length ? `提醒 ${reminder.length} 項（${names(reminder)}）是要你多留一分心的地方` : '',
-    ].filter(Boolean);
-    return `把這些神煞分成三類來看：${parts.join('；')}。提醒不是壞消息，而是先把燈點亮。`;
+/** 三個重點：底氣／推力／留心。 */
+const HIGHLIGHT_COPY = {
+    福氣: { title: '你的底氣', text: n => `${n}是你一路走來的依靠，遇到難處時，這些是你可以回頭借力的地方。` },
+    動能: { title: '推你往前的力量', text: n => `${n}是推著你往前的引擎，用在對的方向，就是你最有衝勁的時候。` },
+    提醒: { title: '要多留一分心', text: n => `${n}不是壞消息，是先把燈點亮：知道哪裡要多留心，路就走得穩。` },
+};
+function highlightsOf(items) {
+    return ['福氣', '動能', '提醒'].flatMap(tone => {
+        const names = [...new Set(items.filter(i => i.teacher?.tone === tone).map(i => i.name))];
+        return names.length ? [{ tone, title: HIGHLIGHT_COPY[tone].title, names, text: HIGHLIGHT_COPY[tone].text(names.join('、')) }] : [];
+    });
+}
+function toneCountLine(items) {
+    return ['福氣', '動能', '提醒'].map(tone => [tone, items.filter(i => i.teacher?.tone === tone).length]).filter(([, n]) => n > 0).map(([tone, n]) => `${tone} ${n}`).join('、');
 }
 function buildShenShaIChing(params) {
     const { pillars, pillarCheckPassed, card, iching } = params;
@@ -57,11 +59,34 @@ function buildShenShaIChing(params) {
         // 取法原文分號後是查柱範圍（工程用），客戶只看推導本身。
         id: hit.id, name: hit.name, pillar: col.label, derivation: hit.rule.split('；')[0], reference: hit.reference,
         onion: (0, shensha_onion_1.shenShaOnion)(hit.id),
+        anchor: hit.anchor,
+        // 重點句單獨出現時去掉開頭「其實」：十幾句連著都以「其實你」起頭，讀起來像套版。
+        hook: (0, shensha_onion_1.shenShaOnion)(hit.id)?.layers.find(l => l.layer === '心')?.text.replace(/^其實/, '') ?? shensha_teacher_readings_1.SHENSHA_TEACHER_READINGS[hit.id]?.theme ?? null,
         tradition: shensha_teacher_readings_1.SHENSHA_TRADITION[hit.id] ? `傳統分類：${shensha_teacher_readings_1.SHENSHA_TRADITION[hit.id]}` : null,
         teacher: shensha_teacher_readings_1.SHENSHA_TEACHER_READINGS[hit.id] ? { theme: shensha_teacher_readings_1.SHENSHA_TEACHER_READINGS[hit.id].theme, tone: shensha_teacher_readings_1.SHENSHA_TEACHER_READINGS[hit.id].tone, text: (0, shensha_teacher_readings_1.teacherReadingFor)(hit.id, hit.name, col.label) } : null,
         // 老師解盤：字有字的意境，取姓名學字庫字義作參考（業主定案 2026-09-27）。
         imagery: (0, shensha_char_imagery_1.shenShaImagery)(hit.name),
     })));
+    // 同一顆神煞落在兩柱以上：第二次起重點句改講這一柱，不再和第一次一模一樣（客人審查第二輪）。
+    // 同一個心理學名詞在一張盤只出現一次（客人審查第三輪：天狗與十惡大敗都掛「沉沒成本」）。
+    const termSeen = new Set();
+    for (const item of items) {
+        const term = item.onion?.term;
+        if (!term)
+            continue;
+        if (termSeen.has(term.name))
+            item.onion = { ...item.onion, term: null };
+        else
+            termSeen.add(term.name);
+    }
+    const firstPillar = new Map();
+    for (const item of items) {
+        const first = firstPillar.get(item.id);
+        if (first)
+            item.hook = `和${first}那顆是同一顆；落在${item.pillar}，${shensha_teacher_readings_1.PILLAR_LINK[item.pillar] ?? '在這一柱顯現'}。`;
+        else
+            firstPillar.set(item.id, item.pillar);
+    }
     const distribution = card.columns.map(col => ({ pillar: col.label, count: col.hits.length }));
     chain.push({ step: '特星神煞', text: items.length ? `共 ${items.length} 項：${distribution.map(d => `${d.pillar}${d.count}`).join('、')}` : '本次依本派取法未命中任何特星神煞' });
     if (iching.status !== 'READY') {
@@ -74,22 +99,29 @@ function buildShenShaIChing(params) {
     const max = Math.max(0, ...distribution.map(d => d.count));
     const focus = distribution.filter(d => d.count === max && max > 0).map(d => d.pillar);
     const empty = distribution.filter(d => d.count === 0).map(d => d.pillar);
+    const summary = items.length
+        ? `這張盤由八字排出四柱（${chain[0].text}），紫微斗數逐字核對一致，從同一張盤衍生特星神煞 ${items.length} 項（${toneCountLine(items)}），以${focus.join('、')}最集中${empty.length ? `，${empty.join('、')}本派取法未命中` : ''}；本命卦為「${r.hexagramName}」。`
+        : `這張盤由八字排出四柱（${chain[0].text}），紫微斗數逐字核對一致；依本派取法沒有命中特星神煞，這不代表其他流派也沒有。本命卦為「${r.hexagramName}」。`;
+    const highlights = highlightsOf(items);
+    const focusLine = items.length && focus.length
+        ? `神煞最集中在${focus.join('、')}，${focus.map(p => shensha_teacher_readings_1.PILLAR_LINK[p]).filter(Boolean).join('；也')}——這張盤的故事，多半在這一面發生。`
+        : null;
     const reading = [
-        `這張命盤先由八字排出四柱（${chain[0].text}），紫微斗數四柱逐字核對一致，才從同一張盤衍生特星神煞。`,
-        items.length
-            ? `特星神煞共 ${items.length} 項，${focus.join('、')}最集中（${max} 項）${empty.length ? `，${empty.join('、')}本派取法未命中` : ''}。每一項的推導都列在下方，可逐項回查。`
-            : '依本派取法，這張盤沒有命中特星神煞；這不代表其他流派也沒有。',
-        ...(items.length ? [toneSummary(items), shensha_teacher_readings_1.SHENSHA_PRINCIPLE] : []),
-        ...(combos.length ? [`整盤合看，這張盤有 ${combos.length} 組神煞彼此呼應：${combos.map(c => c.pillar ? `${c.title}（${c.pillar}）` : c.title).join('、')}。老師看盤不只看單一顆星，而是看它們怎麼一起說話，下方逐組說明。`] : []),
-        `易經以同一份生辰起卦，得「${r.hexagramName}」：${r.essence.replace(/[。．.]?$/, '。')}`,
-        `行動建議：${r.advice}`,
-        ...(items.length ? [`導師解盤的讀法：先讀神煞的本意，再看它落在哪一柱，最後回到「${r.hexagramName}」的行動建議——讀意、讀位、讀卦，三者合看。下方逐項展開：導師話術、洋蔥心理學（殼→心→禮物）、推導與字的意境。`] : []),
+        ...(items.length ? [shensha_teacher_readings_1.SHENSHA_PRINCIPLE] : []),
+        `易經以同一份生辰起卦，得「${r.hexagramName}」：${r.essence.replace(/[。．.]?$/, '。')}行動建議：${r.advice}`,
     ];
     const registry = _____json_1.default;
     const claim = registry.claims.find(c => c.claim_id === exports.SHENSHA_ICHING_CLAIM);
     const status = claim ? (0, iching_source_gate_1.evaluateClaim)(claim, (0, iching_source_gate_1.indexSources)(registry)).status : 'PENDING_POOL';
     return {
-        state: 'READY', chain, items, distribution, reading, combos,
+        teaser: `本命卦「${r.hexagramName}」・神煞 ${items.length} 項${combos.length ? `・合看 ${combos.length} 組` : ''}`,
+        oneLiner: items.length ? `讀意、讀位、讀卦：${focus.join('、')}最集中，回到「${r.hexagramName}」——${r.advice.split('（')[0]}。` : `盤上沒有特星神煞，回到「${r.hexagramName}」——${r.advice.split('（')[0]}。`,
+        state: 'READY', chain, items, distribution, summary, focusLine, highlights, reading, combos,
+        groups: card.columns.map(col => {
+            const groupItems = items.filter(i => i.pillar === col.label);
+            const tones = ['福氣', '動能', '提醒'].map(tone => [tone, groupItems.filter(i => i.teacher?.tone === tone).length]).filter(([, n]) => n > 0);
+            return { pillar: col.label, anchor: `shensha-${col.pillar}`, count: col.hits.length, palace: `${shensha_teacher_readings_1.PILLAR_PALACE[col.label] ?? ''}。`, toneLine: tones.map(([tone, n]) => `${tone} ${n}`).join('　'), items: groupItems };
+        }).filter(g => g.count > 0),
         hexagram: { name: r.hexagramName, glyph: r.glyph, kingWen: r.kingWen, changingLine: r.changingLine, changingLabel: `第${r.changingLine}爻動`, essence: r.essence, advice: r.advice },
         credibility: { status, line: `神煞易經解盤：${credibility_phrases_1.STATUS_WORDING[status]}` },
         imageryAttribution: shensha_char_imagery_1.SHENSHA_IMAGERY_ATTRIBUTION,

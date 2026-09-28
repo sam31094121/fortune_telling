@@ -19,12 +19,13 @@ exports.shenShaImagery = shenShaImagery;
  */
 const shensha_char_imagery_json_1 = __importDefault(require("../data/shensha-char-imagery.json"));
 const ENTRIES = shensha_char_imagery_json_1.default.entries;
-/** 本派選義：[義項序, 句序]。null＝字庫沒有合適義項，只寫五行。 */
+/** 本派選義：[義項序, 句序]。null＝字庫沒有合適義項，只寫五行。
+ * 客人審查第三輪：狗、馬、驛、角的義項讀起來像查字典（「每肢僅有一蹄」「獸類頭上的硬質突狀物」），改只取五行。 */
 exports.SHENSHA_SENSE_PICKS = {
-    天: [0, 0], 德: [2, 0], 合: [2, 0], 月: [0, 0], 龍: [0, 0], 狗: [0, 1], 金: [1, 0], 匱: [0, 0],
+    天: [0, 0], 德: [2, 0], 合: [2, 0], 月: [0, 0], 龍: [0, 0], 狗: null, 金: [1, 0], 匱: [0, 0],
     五: null, 鬼: [0, 0], 災: [1, 0], 煞: [2, 0], 六: null, 厄: [1, 0], 沐: [0, 0], 浴: [1, 0],
-    破: [1, 0], 日: [1, 0], 將: null, 星: [2, 0], 驛: [1, 0], 馬: [0, 1], 隔: [1, 0], 角: [1, 0],
-    元: [0, 0], 辰: [2, 0], 羊: [0, 0], 刃: [0, 0], 桃: null, 花: [2, 0], 外: [0, 0], 乙: [0, 0],
+    破: [1, 0], 日: [1, 0], 將: null, 星: [2, 0], 驛: null, 馬: null, 隔: [1, 0], 角: null,
+    元: [0, 0], 辰: [2, 0], 羊: null, 刃: [0, 0], 桃: null, 花: [2, 0], 外: [0, 0], 乙: [0, 0],
     貴: [1, 0], 人: [1, 0], 文: [1, 0], 昌: [0, 0], 華: [2, 0], 蓋: null,
     歲: [1, 0], 截: null, 路: [2, 0], 轉: [0, 0], 地: [1, 0], 靈: null,
     喪: null, 門: [0, 0], 白: [1, 0], 虎: null, 病: null, 符: [2, 0], 披: [2, 0], 麻: null,
@@ -32,6 +33,7 @@ exports.SHENSHA_SENSE_PICKS = {
     國: null, 印: [0, 0], 廚: [0, 0], 赦: null, 三: null, 奇: null, 陰: null, 陽: [1, 0], 差: [1, 0], 錯: null, 鸞: [0, 0], 十: [2, 0], 惡: null, 大: null, 敗: null, 流: [0, 0], 霞: [0, 0], 四: null, 廢: null,
     祿: [0, 0], 神: [2, 0], 醫: null, 劫: null, 孤: [1, 0], 寡: [0, 0], 宿: [2, 0],
     魁: [1, 0], 罡: null, 空: [2, 0], 亡: [2, 0], 輿: [0, 0], 學: [1, 0], 堂: [0, 0], 紅: null, 艷: null,
+    攀: [0, 0], 鞍: [0, 0], 暗: [1, 0], 進: [0, 0], 退: [2, 0], 拱: [1, 0],
 };
 exports.SHENSHA_IMAGERY_ATTRIBUTION = '字義參考：本站姓名學字庫（教育部《重編國語辭典修訂本》CC BY-ND 3.0 TW 原文照引；「龍」等字為本站姓名學精修字義）。字面意境僅供參考，不是神煞古籍定義。';
 const NO_SENSE_TEXT = '（字庫無合適字義，只取五行）';
@@ -48,7 +50,10 @@ function charSense(char) {
 }
 /** 一個神煞名稱的字義意境：逐字取義，組成老師解盤的一句話。 */
 function shenShaImagery(name) {
-    const chars = [...name].map(charSense);
+    // 只列有合適字義的字；沒有的字不印「字庫無合適字義」（客人讀起來像沒做完）。
+    // 客人審查第三輪：只剩部分字時意思會說反（十惡大敗只剩「十：完滿」），所以要每個字都有字義才顯示。
+    const all = [...name].map(charSense);
+    const chars = all.every(c => c.sense) ? all : [];
     // 字義原文自帶句號，逐字並列，不拼接改寫。
     const parts = chars.map(c => c.sense ? `${c.char}（${c.element}）：${c.sense}` : `${c.char}（${c.element}）`);
     return { name, chars, line: parts.join('　') };

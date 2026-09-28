@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SHENSHA_INSPECTED_PILLARS = void 0;
+exports.shenShaItemAnchor = exports.SHENSHA_INSPECTED_PILLARS = void 0;
 exports.buildShenShaCardView = buildShenShaCardView;
 const ALL = ['year', 'month', 'day', 'hour'];
 const CARD_ORDER = ['year', 'month', 'day', 'hour'];
@@ -21,14 +21,19 @@ exports.SHENSHA_INSPECTED_PILLARS = {
     yuanchen: ['hour'], waiTaohua: ['hour'],
     kuigang: ['day'], kongwang: ['year', 'month', 'hour'], jinyu: ALL, xuetang: ALL, hongyan: ALL,
     suipo: ['month', 'day', 'hour'], yuekong: ALL, jielu: ['hour'], tianzhuan: ['day'], dizhuan: ['day'], shiling: ['day'], ride: ['day'], rigui: ['day'],
+    panan: ['year', 'month', 'hour'], anlu: ALL, jinshenDay: ['day'], tuishen: ['day'], gonglu: ['day', 'hour'],
     sangmen: ['month', 'day', 'hour'], baihu: ['month', 'day', 'hour'], bingfu: ['month', 'day', 'hour'], pima: ['month', 'day', 'hour'],
     yuedehe: ALL, feiren: ['year', 'month', 'hour'], jinshen: ['day', 'hour'], bazhuan: ['day'], jiuchou: ['day'], liuxiu: ['day'],
     guoyin: ALL, tianchu: ALL, liuxia: ALL, sanqi: ALL, wangshen: ['month', 'day', 'hour'],
     tianshe: ['day'], yinyangChacuo: ['day'], guluan: ['day'], shieDabai: ['day'], sifei: ['day'],
     lushen: ALL, tianyiDoctor: ['year', 'day', 'hour'], jiesha: ['month', 'day', 'hour'], guchen: ['month', 'day', 'hour'], guasu: ['month', 'day', 'hour'],
 };
+/** reference＝依太極紫微易經派取法（本站自家一派），尚無原典頁碼；前端以＊標註。 */
+/** 四柱格子與逐項細看共用的跳轉錨點（後端給，前端不自己組）。 */
+const shenShaItemAnchor = (pillar, id) => `shensha-item-${pillar}-${id}`;
+exports.shenShaItemAnchor = shenShaItemAnchor;
 const DONE = new Set(['MATCHED', 'NOT_MATCHED']);
-function buildShenShaCardView(stars, coreReady, pillarMismatches) {
+function buildShenShaCardView(stars, coreReady, pillarMismatches, toneOf = () => null) {
     const complete = Boolean(stars && Array.isArray(stars.raw) && Array.isArray(stars.coverage) && stars.coverage.length
         && ALL.every(key => Array.isArray(stars.byPillar?.[key])));
     if (!complete)
@@ -41,6 +46,8 @@ function buildShenShaCardView(stars, coreReady, pillarMismatches) {
             id: hit.id, name: hit.name, rule: hit.rule,
             sourceLabel: hit.source ? `${hit.source.title}，${/^\d/.test(hit.source.printedPage) ? `印頁${hit.source.printedPage}` : hit.source.printedPage}` : '太極紫微易經派取法（原典頁碼待補）',
             reference: !hit.source,
+            tone: toneOf(hit.id),
+            anchor: (0, exports.shenShaItemAnchor)(key, hit.id),
         })) : [];
         const pendingNames = coreReady ? pendingFor(key) : [];
         const state = hits.length ? 'HIT' : !coreReady || pendingNames.length ? 'PENDING' : 'NONE';
