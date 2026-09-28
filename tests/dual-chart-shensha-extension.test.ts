@@ -377,6 +377,7 @@ if(ic.state==='READY'){
   assert.equal(gh.state,'READY');
   if(gh.state==='READY'){
     assert.deepEqual(gh.decoding.map(d=>d.label),['磁場','詭異','因果'],'ghost decoding follows the three-part standard');
+    assert.ok(gh.decoding.every(d=>!/[A-Za-z]/.test(d.text)),'ghost decoding keeps the Maoshan voice (no English jargon)');
     const ghostLines=gh.groups.flatMap(g=>g.lines);
     assert.equal(ghostLines.length,17,'every shensha gets a ghost line');
     assert.ok(ghostLines.every(l=>l.text.includes(l.name)));

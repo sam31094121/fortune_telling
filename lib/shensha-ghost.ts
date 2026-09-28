@@ -84,7 +84,9 @@ export function buildShenShaGhost(view: ShenShaIChingView, hexagram: IChingReadi
     return { state: 'BLOCKED', teaser: '壇未開', reason: '四柱還沒對齊，壇不能開。茅山的規矩：盤不清，不開口。' };
   }
   const d = buildGhostDecoding(hexagram);
-  const strip = (text: string) => text.replace(/^【[^】]+】/, '');
+  // 拆卦三段沿用共用的 buildGhostDecoding（其他卡片也在用，不改它）；這裡只去掉段名，
+  // 並拿掉夾在括號裡的英文心理學名詞，讓茅山口吻不被打斷，句子本身的邏輯保留。
+  const strip = (text: string) => text.replace(/^【[^】]+】/, '').replace(/（[^（）]*[A-Za-z][^（）]*）/g, '');
   // 依盤上順序給每個神煞一個輪替序號，同一類別的鬼語不重複句型。
   const toneIndex: Record<string, number> = {};
   const groups = view.groups.map(group => ({
