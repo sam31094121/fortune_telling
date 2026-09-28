@@ -1,0 +1,44 @@
+{
+  "id": "shensha-yijun",
+  "name": "神煞異君",
+  "title": "《神煞異君》鬼魅老師解盤｜茅山道士話術分身（與《神煞易經》一神一魔）",
+  "version": "1.0.0",
+  "updatedAt": "2026-09-28",
+  "sourceOfTruth": "業主定案 2026-09-28：《神煞易經》再多一張卡片——鬼魅老師解盤，資料來源：話術、茅山道士；與易經老師落差要很大（神與魔）；兩張都折疊點閱；後端負責運算，前端只顯示。技能歸納為《神煞異君》。",
+  "newbieDoc": "docs/技能戰鬥檔案/神煞異君/新人檔案.md",
+  "sibling": "docs/技能戰鬥檔案/神煞易經/神煞易經.json",
+  "layerOrder": [
+    "同一條衍生鏈：客戶資料 → 八字 → 紫微（四柱逐字核對）→ 特星神煞 → 易經起卦（與《神煞易經》共用，不另算）",
+    "開壇（opening）：茅山的規矩——先驗四柱，再開壇",
+    "拆卦三段（decoding）：磁場／詭異／因果，沿用 lib/iching-psychology.ts 的 buildGhostDecoding",
+    "逐柱點氣（groups）：福氣＝護身符、動能＝要壓陣的活氣、提醒＝門縫裡的風",
+    "陣法（formations）：整盤合看的組合改稱「陣」，陣名帶柱位",
+    "收壇（closing）＋聲明（disclaimer）",
+    "前端：app/dual-chart/BaziChart.tsx 的 ShenShaGhostSection，折疊卡「鬼魅老師解盤」，只照印"
+  ],
+  "engines": {
+    "ghost": "lib/shensha-ghost.ts",
+    "ghostDecoding": "lib/iching-psychology.ts（buildGhostDecoding）",
+    "wiring": "lib/dual-chart.ts（specialStars.ghost）",
+    "frontend": "app/dual-chart/BaziChart.tsx（ShenShaGhostSection、teacherCard details）"
+  },
+  "references": {
+    "maoshanLineage": "docs/技能戰鬥檔案/神煞異君/參考/茅山傳承（業主提供）摘要.md",
+    "grade": "D 級參考（宗門自述，非古籍、非學術）；只作口吻與界線參考，不作事實或效驗宣稱；原文有著作權，只存摘要與出處",
+    "ghostTeacherStandard": "docs/iching-skill-manual.md〈五〉鬼魅老師標準輸出＝靈異・磁場・因果"
+  },
+  "verification": [
+    "npx tsx tests/dual-chart-shensha-extension.test.ts（鬼魅三段、17 道鬼語、陣名不重複、禁語、與易經老師不重複）",
+    "node tests/dual-chart-shensha-output.test.cjs（兩張折疊卡、四柱表不可折疊、前端只照印）",
+    "npm run check:dual-chart-shensha-display（四柱表之後的老師卡可折疊，表本身不可）"
+  ],
+  "ironRules": [
+    "後端只負責運算，前端只負責顯示，前端禁止生成。",
+    "與易經老師同一張盤、同一個卦，說法落差大（神與魔），但界線相同。",
+    "恐怖是外殼、知己是內核：每句最後回到自己能做的事。",
+    "茅山正統不以恐嚇立教：不說會出事、不說外靈附身、不賣符咒、不作驅邪法事或預言。",
+    "符只作比喻（自己積下的護身符），不提供、不販售、不指導畫符。",
+    "禁止「必定、一定會、註定、大凶、血光、死、附身、法事」等字（測試會擋）。",
+    "這是本派話術分身，不是宗教儀式或事實宣稱；內容僅作自我反思參考。"
+  ]
+}

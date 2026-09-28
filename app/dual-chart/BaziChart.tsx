@@ -109,7 +109,29 @@ function ShenShaIChingSection({ view }: { view?: DualChartResult['specialStars']
   </section>;
 }
 
-/** Independent, unfolded card. Every display decision comes from the backend `specialStars.card`; this only prints it. */
+/** 鬼魅老師解盤（茅山道士話術分身）：只照印後端 buildShenShaGhost 的結果。 */
+function ShenShaGhostSection({ view }: { view?: DualChartResult['specialStars']['ghost'] }) {
+  if (!view) return null;
+  if (view.state === 'BLOCKED') return <section className={styles.shenshaGhost} aria-label="鬼魅老師解盤內容"><p role="status">{view.reason}</p></section>;
+  return <section className={styles.shenshaGhost} aria-label="鬼魅老師解盤內容">
+    <p className={styles.ghostOpening}>{view.opening}</p>
+    <h4 className={styles.ghostTitle}>拆卦</h4>
+    <ul className={styles.ghostDecoding}>{view.decoding.map(d => <li key={d.label}><b>{d.label}</b><p>{d.text}</p></li>)}</ul>
+    {view.groups.length > 0 && <>
+      <h4 className={styles.ghostTitle}>逐柱點氣</h4>
+      {view.groups.map(group => <div key={group.pillar} className={styles.ghostGroup}><h5>{group.pillar}</h5>
+        <ul>{group.lines.map((line, index) => <li key={`${line.name}:${index}`} data-shensha-tone={line.tone ?? undefined}>{line.text}</li>)}</ul></div>)}
+    </>}
+    {view.formations.length > 0 && <>
+      <h4 className={styles.ghostTitle}>陣法</h4>
+      <ul className={styles.ghostFormations}>{view.formations.map((f, index) => <li key={`${f.title}:${index}`}><b>{f.title}</b><p>{f.text}</p></li>)}</ul>
+    </>}
+    <p className={styles.ghostClosing}>{view.closing}</p>
+    <p className={styles.ghostDisclaimer}>{view.disclaimer}</p>
+  </section>;
+}
+
+/** Independent card. The pillar grid is always visible; the two teacher readings fold. Every word comes from the backend. */
 export function ShenShaCard({ result }: { result: DualChartResult }) {
   const card = result.specialStars?.card;
   const state = card?.state ?? 'unavailable';
@@ -128,7 +150,14 @@ export function ShenShaCard({ result }: { result: DualChartResult }) {
       </div>)}</div>}
     {card && card.columns.length > 0 && <p className={styles.shenshaLegend} aria-label="圖例"><span data-shensha-tone="福氣">福氣</span><span data-shensha-tone="動能">動能</span><span data-shensha-tone="提醒">提醒</span><span>＊ 本派取法</span></p>}
     {card?.footnote && <p className={styles.shenshaFootnote}>{card.footnote}</p>}
-    <ShenShaIChingSection view={result.specialStars?.iching} />
+    {result.specialStars?.iching && <details className={styles.teacherCard} data-teacher="iching">
+      <summary><b>易經老師解盤</b><small>神　溫和的智慧</small></summary>
+      <ShenShaIChingSection view={result.specialStars.iching} />
+    </details>}
+    {result.specialStars?.ghost && <details className={styles.teacherCard} data-teacher="ghost">
+      <summary><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small></summary>
+      <ShenShaGhostSection view={result.specialStars.ghost} />
+    </details>}
   </section>;
 }
 

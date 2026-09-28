@@ -87,7 +87,10 @@ function inspectShenShaCard(result, html) {
   });
   if (/本次未出現|各項判定|data-shensha-rule=/.test(html)) warnings.push('結果卡不應重複列出判定或未命中清單');
   warnings.push(...inspectShenShaCoverage(result));
-  if (/<(?:details|summary)\b/.test(html)) warnings.push('神煞卡原有內容不應折疊');
+  // 四柱神煞表不得被折疊；表之後的「易經老師／鬼魅老師」解盤卡（業主定案 2026-09-28）可以折疊點閱。
+  const firstColumn = html.indexOf('data-shensha-column=');
+  const firstFold = html.search(/<(?:details|summary)\b/);
+  if (firstFold >= 0 && (firstColumn < 0 || firstFold < firstColumn)) warnings.push('神煞卡原有內容不應折疊');
   return warnings;
 }
 

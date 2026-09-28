@@ -372,6 +372,22 @@ if(ic.state==='READY'){
     assert.ok(!text.match(/必定|一定會|註定|大凶|血光|死|病/),`combo ${rule.id} avoids fatalistic words`);
     assert.ok(rule.members.every(id=>DUAL_SHENSHA_RULES.some(([rid])=>rid===id)),`combo ${rule.id} only uses computed shensha`);
   }
+  // 鬼魅老師（茅山道士話術分身）：同一張盤、同一個卦，說法落差大，但界線不變。
+  const gh=actual.specialStars.ghost;
+  assert.equal(gh.state,'READY');
+  if(gh.state==='READY'){
+    assert.deepEqual(gh.decoding.map(d=>d.label),['磁場','詭異','因果'],'ghost decoding follows the three-part standard');
+    const ghostLines=gh.groups.flatMap(g=>g.lines);
+    assert.equal(ghostLines.length,17,'every shensha gets a ghost line');
+    assert.ok(ghostLines.every(l=>l.text.includes(l.name)));
+    assert.equal(gh.formations.length,ic.combos.length,'every combo becomes a formation');
+    assert.equal(new Set(gh.formations.map(f=>f.title)).size,gh.formations.length,'formation titles are unique (pillar in the name)');
+    assert.ok(gh.closing.includes(ic.hexagram.name));
+    assert.ok(gh.disclaimer.includes('不作驅邪')&&gh.disclaimer.includes('自我反思'));
+    const ghostAll=[gh.opening,...gh.decoding.map(d=>d.text),...ghostLines.map(l=>l.text),...gh.formations.map(f=>f.text),gh.closing].join('');
+    assert.ok(!ghostAll.match(/必定|一定會|註定|大凶|血光|死|附身|符咒費|法事/),'ghost voice keeps the no-fear boundary');
+    assert.ok(!ghostAll.includes(ic.summary)&&!ghostAll.includes(ic.items[0].teacher!.text),'ghost voice is a different telling, not a copy of the I Ching teacher');
+  }
   // 洋蔥心理學：殼→心→禮物；名詞只掛已登記 A 級文獻，出處由登記表讀出；不診斷。
   const reg=JSON.parse(fs.readFileSync('docs/技能戰鬥檔案/易經/來源登記.json','utf8'));
   const onionClaim=reg.claims.find((c:{claim_id:string})=>c.claim_id==='C-SHENSHA-ONION');

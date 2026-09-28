@@ -5,6 +5,7 @@ import { analyzeBazi } from './bazi-engine';
 import { attachBaziProfessionalCoreV5, type BaziRuntimeInput } from './bazi-professional-result-v5';
 import { runBaziLayer, runIChingLayer, runZiweiLayer } from './three-core-engine';
 import { buildShenShaIChing } from './shensha-iching';
+import { buildShenShaGhost } from './shensha-ghost';
 import { verifyFourPillars } from './three-in-one';
 import { getBaziTraditionalOutputGate } from './bazi-traditional-gate';
 import { buildDualChartShenSha } from './dual-chart-shensha';
@@ -51,7 +52,9 @@ export function calculateDualChart(body: unknown) {
   const shenSha = buildDualChartShenSha(bazi, professional.professionalChart.traditionalInterpretationGate, input.gender, { passed: mismatches.length === 0, mismatches });
   // 《神煞易經》第④層：同一張已核對的命盤，沿用三合一帶憑證起卦，把特星神煞串進易經解盤。
   const iching = runIChingLayer({ input: baziInput, core: bazi, bazi: baziLayer, ziwei: ziweiLayer });
-  const specialStars = { ...shenSha, iching: buildShenShaIChing({ pillars: baziPillars, pillarCheckPassed: mismatches.length === 0, card: shenSha.card, iching }) };
+  const ichingView = buildShenShaIChing({ pillars: baziPillars, pillarCheckPassed: mismatches.length === 0, card: shenSha.card, iching });
+  // 鬼魅老師（茅山道士話術分身）：同一張盤、同一個卦，後端另組一套說法。
+  const specialStars = { ...shenSha, iching: ichingView, ghost: buildShenShaGhost(ichingView, iching.status === 'READY' ? iching.reading : null) };
   // Reuse the existing backend extension over the verified pillars; the UI only renders its results.
   // 參考取法項目沒有原典頁碼（source 省略）；所有讀取 source 的畫面都先判斷是否存在。
   const dualShenSha = specialStars.raw as BaziShenShaItem[];

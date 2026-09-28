@@ -198,6 +198,38 @@
 .shenshaSources{margin-top:18px;padding:4px 14px 12px;border-radius:12px;border:1px solid var(--ss-line);background:#141320}
 .shenshaSources .shenshaSectionTitle{font-size:15px;margin:12px 0 8px}
 .shenshaSources p{margin:0 0 6px;font-size:13px;line-height:1.7;color:var(--ss-muted);overflow-wrap:anywhere}
+/* 兩張老師解盤卡：易經老師（神，金紫）與鬼魅老師（魔，暗紅黑），折疊點閱。 */
+.teacherCard{margin-top:14px;border-radius:16px;border:1px solid #e9c46a55;background:#1c1929;overflow:hidden}
+.teacherCard>summary{display:flex;align-items:center;gap:10px;min-height:56px;padding:10px 16px;cursor:pointer;list-style:none;user-select:none}
+.teacherCard>summary::-webkit-details-marker{display:none}
+.teacherCard>summary::after{content:'';margin-inline-start:auto;width:10px;height:10px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .2s ease;opacity:.8}
+.teacherCard[open]>summary::after{transform:rotate(-135deg)}
+.teacherCard>summary b{font-size:18px;letter-spacing:.14em}
+.teacherCard>summary small{font-size:12px;letter-spacing:.1em;opacity:.8}
+.teacherCard>summary:focus-visible{outline:2px solid #f2cf7a;outline-offset:-4px}
+.teacherCard[data-teacher=iching]>summary{color:#f4e6ff;background:linear-gradient(90deg,#3a3052,#241f35)}
+.teacherCard[data-teacher=iching]>summary b{color:#f2cf7a}
+.teacherCard[data-teacher=iching]>.shenshaIching{margin:0;padding:4px 14px 16px}
+.teacherCard[data-teacher=ghost]{border-color:#8f1d2c99;background:#0d0a0f}
+.teacherCard[data-teacher=ghost]>summary{color:#e8c9cc;background:linear-gradient(90deg,#3a0d14,#150a0e)}
+.teacherCard[data-teacher=ghost]>summary b{color:#ff8b95;text-shadow:0 0 12px #ff3b4f55}
+.shenshaGhost{padding:6px 14px 18px;color:#e6d4d6;font-family:"Kaiti TC","BiauKai","STKaiti","KaiTi",serif}
+.shenshaGhost p,.shenshaGhost li{overflow-wrap:anywhere}
+.ghostOpening{margin:10px 0 4px;padding:12px 14px;border-left:3px solid #b3263a;background:#1a0c10;font-size:16px;line-height:1.9;color:#f3dfe1;font-style:italic}
+.ghostTitle{display:flex;align-items:center;gap:8px;margin:18px 0 8px;font-size:16px;letter-spacing:.3em;color:#ff8b95}
+.ghostTitle::before{content:'';width:14px;height:1px;background:#b3263a}
+.ghostDecoding,.ghostFormations{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ghostDecoding li,.ghostFormations li{padding:10px 12px;border-radius:10px;border:1px solid #5a1a2366;background:#140b0e}
+.ghostDecoding b,.ghostFormations b{display:block;font-size:15px;letter-spacing:.2em;color:#ffb3ba}
+.ghostDecoding p,.ghostFormations p{margin:4px 0 0;font-size:14.5px;line-height:1.85;color:#e6d4d6}
+.ghostGroup h5{margin:12px 0 6px;font-size:14px;letter-spacing:.3em;color:#c98b93}
+.ghostGroup ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.ghostGroup li{position:relative;padding:8px 10px 8px 14px;border-radius:8px;background:#150c10;font-size:14.5px;line-height:1.85;color:#ecdcde}
+.ghostGroup li::before{content:'';position:absolute;inset:6px auto 6px 0;width:3px;border-radius:2px;background:#b3263a}
+.ghostGroup li[data-shensha-tone="福氣"]::before{background:#d9a441}
+.ghostGroup li[data-shensha-tone="動能"]::before{background:#9b6bd6}
+.ghostClosing{margin:18px 0 8px;padding:12px 14px;border-radius:10px;border:1px solid #8f1d2c88;background:linear-gradient(135deg,#2a0c12,#12090c);font-size:15.5px;line-height:1.9;color:#f3dfe1}
+.ghostDisclaimer{margin:0;font-family:initial;font-size:12.5px;line-height:1.7;color:#a98a8e}
 .printPreview .shenshaCard{display:none}
 @media print{.shenshaCard{display:none}}
 .printPreview .baziMain>p.shenshaNote{font-size:11.5px;line-height:1.5;margin-top:6px}

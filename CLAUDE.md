@@ -116,6 +116,14 @@ id 唯一、圖片存在、元素合法、數值合法、技能存在、平衡�
 - 無原典頁碼的項目標＊、來源狀態維持 `PENDING_POOL`，不得寫成已通過交叉比對。
 - 守門：`tests/dual-chart-shensha-extension.test.ts`、`tests/dual-chart-shensha-output.test.cjs`、`npm run check:dual-chart-shensha-display`、`npm run test:shensha-live-api`。
 
+## 口令：《神煞異君》
+
+**說這個口令＝打開 `docs/技能戰鬥檔案/神煞異君/`**（業主定案 2026-09-28：鬼魅老師解盤＝茅山道士話術分身，與《神煞易經》的易經老師一神一魔）。
+
+- 同一條後端（八字→紫微→特星神煞→易經），只換說法：`lib/shensha-ghost.ts` → `specialStars.ghost` → 前端 `ShenShaGhostSection` 只照印。
+- 兩張老師卡（易經老師、鬼魅老師）在四柱神煞表下方折疊點閱；四柱神煞表本身不可折疊（健康檢查會擋）。
+- 茅山參考：〈認識茅山傳承〉（業主提供，D 級，只存摘要與出處）。茅山正統不以恐嚇立教：不說會出事、不說附身、不賣符咒、不作驅邪法事或預言。
+
 ## 推送閘：編不過就不准上正式站
 
 `git push` 會先跑 **編譯 ＋ 七支守門測試**，任何一項沒過就擋下來。
