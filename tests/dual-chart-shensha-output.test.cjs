@@ -278,6 +278,14 @@ const shareHtml = card(withShare);
 assert.ok(shareHtml.includes('>後端分享按鈕</button>') && shareHtml.includes('後端隱私說明') && !shareHtml.includes('<img'), 'share button and privacy note come from the backend; no image until pressed');
 assert.deepEqual(inspectShenShaCard(withShare, shareHtml), [], 'share button keeps the four-pillar card intact');
 console.log('PASS: 分享卡 prints backend labels only');
+// 鬼魅老師：每道先一句，完整鬼語折疊；舊版沒有 hook 時照舊整句。
+const withGhostHook = structuredClone(deliveryFixture);
+withGhostHook.specialStars.ghost = { state: 'READY', ageGate: 'g', teaser: 't', oneLiner: 'o', opening: 'op', decoding: [], closing: 'c', disclaimer: 'd', formations: [],
+  groups: [{ pillar: '年柱', intro: 'i', lines: [{ name: '月德', tone: '福氣', hook: '後端鬼魅一句', text: '後端完整鬼語' }, { name: '天狗', tone: '提醒', text: '後端舊版整句' }] }] };
+const ghostHookHtml = card(withGhostHook);
+assert.ok(ghostHookHtml.indexOf('後端鬼魅一句') < ghostHookHtml.indexOf('>完整鬼語</summary>') && ghostHookHtml.indexOf('>完整鬼語</summary>') < ghostHookHtml.indexOf('後端完整鬼語'), 'ghost hook first, full text folded');
+assert.ok(ghostHookHtml.includes('後端舊版整句'), 'legacy ghost line without hook still prints');
+console.log('PASS: 鬼魅老師 hook first, full ghost wording folded');
 withIching.specialStars.iching = { state: 'BLOCKED', chain: [{ step: '八字', text: 'A' }], reason: '後端擋下原因' };
 const blockedIchingHtml = card(withIching);
 assert.ok(blockedIchingHtml.includes('後端擋下原因') && !blockedIchingHtml.includes('測試卦'));

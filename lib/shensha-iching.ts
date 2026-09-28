@@ -117,6 +117,13 @@ export function buildShenShaIChing(params: {
     // 老師解盤：字有字的意境，取姓名學字庫字義作參考（業主定案 2026-09-27）。
     imagery: shenShaImagery(hit.name),
   })));
+  // 同一顆神煞落在兩柱以上：第二次起重點句改講這一柱，不再和第一次一模一樣（客人審查第二輪）。
+  const firstPillar = new Map<string, string>();
+  for (const item of items) {
+    const first = firstPillar.get(item.id);
+    if (first) item.hook = `和${first}那顆是同一顆；落在${item.pillar}，${PILLAR_LINK[item.pillar] ?? '在這一柱顯現'}。`;
+    else firstPillar.set(item.id, item.pillar);
+  }
   const distribution = card.columns.map(col => ({ pillar: col.label, count: col.hits.length }));
   chain.push({ step: '特星神煞', text: items.length ? `共 ${items.length} 項：${distribution.map(d => `${d.pillar}${d.count}`).join('、')}` : '本次依本派取法未命中任何特星神煞' });
   if (iching.status !== 'READY') {

@@ -424,3 +424,11 @@
 .shareCard figure{margin:6px 0 0;display:grid;gap:6px;justify-items:center}
 .shareCard img{width:min(100%,360px);height:auto;border-radius:12px;border:1px solid var(--ss-line)}
 .shareCard a{font-size:13px;color:#f2dba8}
+/* 鬼魅老師：每道先一句，完整鬼語折疊 */
+.ghostHook{margin:0;line-height:1.8}
+.ghostMore{margin-top:4px}
+.ghostMore>summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 12px;border:1px solid #5a1a23;border-radius:999px;font-size:12.5px;color:#d9a3aa}
+.ghostMore>summary::-webkit-details-marker{display:none}
+.ghostMore>summary::after{content:'▾';font-size:11px}
+.ghostMore[open]>summary::after{content:'▴'}
+.ghostMore>p{margin:8px 0 0;line-height:1.85}

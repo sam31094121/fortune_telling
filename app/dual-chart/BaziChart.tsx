@@ -259,7 +259,9 @@ function ShenShaGhostSection({ view }: { view?: DualChartResult['specialStars'][
     {view.groups.length > 0 && <>
       <h4 className={styles.ghostTitle}>逐柱點氣</h4>
       {view.groups.map(group => <div key={group.pillar} className={styles.ghostGroup}><h5>{group.pillar}</h5>{group.intro && <p className={styles.ghostPillarIntro}>{group.intro}</p>}
-        <ul>{group.lines.map((line, index) => <li key={`${line.name}:${index}`} data-shensha-tone={line.tone ?? undefined}>{line.text}</li>)}</ul></div>)}
+        <ul>{group.lines.map((line, index) => <li key={`${line.name}:${index}`} data-shensha-tone={line.tone ?? undefined}>{line.hook
+          ? <><p className={styles.ghostHook}>{line.hook}</p><details className={styles.ghostMore}><summary>完整鬼語</summary><p>{line.text}</p></details></>
+          : line.text}</li>)}</ul></div>)}
     </>}
     {view.formations.length > 0 && <>
       <h4 className={styles.ghostTitle}>陣法</h4>

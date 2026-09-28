@@ -449,6 +449,20 @@ if(ic.state==='READY'){
   assert.deepEqual(ic.combos.map(c=>c.id+(c.pillar?'@'+c.pillar:'')),['charm-trio','de-softens@年柱、時柱','outer-waves'],'paper chart combos match the hand-derived set (德星化煞 in two pillars shown as one)');
   assert.ok(!ic.reading.some(l=>l.startsWith('整盤合看')||l.startsWith('導師解盤的讀法')),'overview drops the paragraphs that only repeat the combo list or explain the layout');
   assert.ok(ic.items.every(i=>!i.hook!.startsWith('其實')),'hooks do not all open with the same word');
+  // 同一顆神煞落在兩柱：第二次的重點句講柱位，不和第一次一樣（易經老師與鬼魅老師都是）。
+  {
+    const twice=calculateDualChart({birthDate:'1990-05-15',birthTime:'14:00',gender:'female',calendarType:'solar',timezone:'Asia/Taipei'});
+    const ic2=twice.specialStars.iching; const gh2=twice.specialStars.ghost;
+    assert.ok(ic2.state==='READY'&&gh2.state==='READY');
+    if (ic2.state==='READY'&&gh2.state==='READY') {
+      const yd=ic2.items.filter(i=>i.id==='yuede');
+      assert.equal(yd.length,2,'fixture has 月德 in two pillars');
+      assert.notEqual(yd[0].hook,yd[1].hook); assert.ok(yd[1].hook!.startsWith(`和${yd[0].pillar}那顆是同一顆`));
+      const gl=gh2.groups.flatMap(g=>g.lines).filter(l=>l.name==='月德');
+      assert.notEqual(gl[0].hook,gl[1].hook); assert.ok(gl[1].hook.includes('同一道氣')&&gl[1].text.includes('同一道氣'));
+      assert.ok(gh2.groups.flatMap(g=>g.lines).every(l=>l.hook&&l.text.length>l.hook.length),'every ghost line has a short hook and a longer full text');
+    }
+  }
   // 遠方的緣分一定要有驛馬；沒有驛馬只有桃花類，不成立。
   assert.deepEqual(findShenShaCombos([{id:'taohua',name:'桃花',pillar:'時柱'},{id:'waiTaohua',name:'外桃花',pillar:'時柱'}]).filter(c=>c.id==='distant-romance'),[]);
   assert.equal(findShenShaCombos([{id:'yima',name:'驛馬',pillar:'年柱'},{id:'taohua',name:'桃花',pillar:'年柱'}]).filter(c=>c.id==='distant-romance').length,1);

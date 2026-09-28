@@ -19,7 +19,8 @@ import type { ShenShaTone } from './shensha-teacher-readings';
 import type { ShenShaIChingView } from './shensha-iching';
 import { GHOST_TEACHER_PERSONA } from './ghost-teacher-persona';
 
-export interface ShenShaGhostLine { name: string; tone: ShenShaTone | null; text: string }
+/** hook：先給一句（門外的聲音替你說的心事）；text：完整鬼語，前端折疊。 */
+export interface ShenShaGhostLine { name: string; tone: ShenShaTone | null; hook: string; text: string }
 /** 業主定案 2026-09-28：鬼魅老師卡標示未滿 18 歲禁止進入（READY 與 BLOCKED 都帶，前端照印）。 */
 export const GHOST_AGE_GATE = '未滿 18 歲禁止進入';
 
@@ -52,14 +53,23 @@ const GHOST_CLOSE: Record<ShenShaTone, ((theme: string) => string)[]> = {
   動能: [t => `道士只說一句：「${t}，壓得住是兵，壓不住是亂。」你要當那個壓陣的人。`, t => `給「${t}」一個方向，它就替你開路。`, t => `韁繩在你手上，慢一步，「${t}」就聽話了。`, t => `「${t}」是把火，拿來煮飯就別拿來燒屋。`, t => `先定好要去哪，「${t}」才不會帶你繞圈。`],
   提醒: [t => `別慌，那不是外靈，是「${t}」還沒收乾淨；燈點亮、名字叫出來，它自己就退了。`, t => `把「${t}」寫下來，它就從暗處走到亮處。`, t => `茅山不驅它，看懂「${t}」，它就散了。`, t => `「${t}」不是來找麻煩的，是來提醒你哪裡該補。`, t => `跟「${t}」說一聲我看見了，它就不用一直敲門。`],
 };
-function ghostLine(name: string, pillar: string, theme: string, tone: ShenShaTone | null, heart: string | null, index: number): string {
+function ghostLine(name: string, pillar: string, theme: string, tone: ShenShaTone | null, heart: string | null, index: number, repeatOf?: string): string {
   if (!tone) return `「${name}」伏在${pillar}——這一筆氣還在打量你，先別理它，把眼前的事做穩。`;
+  if (repeatOf) return `${GHOST_OPEN[tone][index % 3](name, pillar)}和${repeatOf}那道是同一道氣，換了位置，${GHOST_REPEAT[pillar] ?? '換一種樣子出現'}。${GHOST_CLOSE[tone][index % GHOST_CLOSE[tone].length](theme)}`;
   const open = GHOST_OPEN[tone][index % 3](name, pillar);
   // 起三種、收五種，錯開輪替：同一類別連著十幾道也不會一句一句重複。
   const close = GHOST_CLOSE[tone][index % GHOST_CLOSE[tone].length](theme);
   const secret = heart ? `門外的聲音替你說出來：「${heart.replace(/^其實/, '')}」` : '';
   return `${open}${secret}${close}`;
 }
+
+/** 同一道氣換了柱位：鬼魅版的柱位說法（只用在第二次出現）。 */
+const GHOST_REPEAT: Record<string, string> = {
+  年柱: '這回是從祖上那一脈飄過來',
+  月柱: '這回是在家門口、同事同輩之間打轉',
+  日柱: '這回貼到你身上、睡在你枕邊',
+  時柱: '這回往外走，跟著你伸出去的那隻手',
+};
 
 /** 鬼魅版柱位宮義：每柱開頭一句（易經老師講宮位，鬼魅老師講「氣從哪裡來」）。 */
 const GHOST_PILLAR: Record<string, string> = {
@@ -96,14 +106,20 @@ export function buildShenShaGhost(view: ShenShaIChingView, hexagram: IChingReadi
   const strip = (text: string) => text.replace(/^【[^】]+】/, '').replace(/（[^（）]*[A-Za-z][^（）]*）/g, '');
   // 依盤上順序給每個神煞一個輪替序號，同一類別的鬼語不重複句型。
   const toneIndex: Record<string, number> = {};
+  const firstPillar = new Map<string, string>();
   const groups = view.groups.map(group => ({
     pillar: group.pillar,
     intro: GHOST_PILLAR[group.pillar] ?? '',
     lines: group.items.map(item => {
       const tone = item.teacher?.tone ?? null;
       const index = tone ? (toneIndex[tone] = (toneIndex[tone] ?? -1) + 1) : 0;
-      const heart = item.onion?.layers.find(layer => layer.layer === '心')?.text ?? null;
-      return { name: item.name, tone, text: ghostLine(item.name, item.pillar, item.teacher?.theme ?? item.name, tone, heart, index) };
+      const heart = item.onion?.layers.find(layer => layer.layer === '心')?.text.replace(/^其實/, '') ?? null;
+      const repeatOf = firstPillar.get(item.id);
+      if (!repeatOf) firstPillar.set(item.id, item.pillar);
+      const hook = repeatOf
+        ? `「${item.name}」又落在${item.pillar}——和${repeatOf}那道是同一道氣。`
+        : heart ? `「${item.name}」門外的聲音：「${heart}」` : `「${item.name}」伏在${item.pillar}。`;
+      return { name: item.name, tone, hook, text: ghostLine(item.name, item.pillar, item.teacher?.theme ?? item.name, tone, heart, index, repeatOf) };
     }),
   }));
   const formations = view.combos.map(combo => ({
