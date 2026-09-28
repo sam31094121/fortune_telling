@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import type { DualChartResult } from '@/lib/dual-chart';
 import styles from './dual-chart.module.css';
 import ElementRing from './ElementRing';
@@ -109,6 +109,29 @@ function ShenShaIChingSection({ view }: { view?: DualChartResult['specialStars']
   </section>;
 }
 
+/**
+ * 老師解盤折疊卡：記住這位訪客上次點開哪一張（只存在本機瀏覽器，純個人便利，不影響運算）。
+ * 無痕模式或瀏覽器擋住儲存時，讀寫失敗就維持預設收起，不出錯。
+ */
+const TEACHER_FOLD_KEY = 'shensha-teacher-open';
+function TeacherFold({ teacher, summary, children }: { teacher: 'iching' | 'ghost'; summary: ReactNode; children: ReactNode }) {
+  const ref = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(TEACHER_FOLD_KEY) ?? '{}') as Record<string, boolean>;
+      if (ref.current && saved[teacher]) ref.current.open = true;
+    } catch { /* 儲存不可用：維持預設收起 */ }
+  }, [teacher]);
+  const remember = () => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(TEACHER_FOLD_KEY) ?? '{}') as Record<string, boolean>;
+      saved[teacher] = Boolean(ref.current?.open);
+      window.localStorage.setItem(TEACHER_FOLD_KEY, JSON.stringify(saved));
+    } catch { /* 儲存不可用：不記住也不影響閱讀 */ }
+  };
+  return <details ref={ref} className={styles.teacherCard} data-teacher={teacher} onToggle={remember}>{summary}{children}</details>;
+}
+
 /** 鬼魅老師解盤（茅山道士話術分身）：只照印後端 buildShenShaGhost 的結果。 */
 function ShenShaGhostSection({ view }: { view?: DualChartResult['specialStars']['ghost'] }) {
   if (!view) return null;
@@ -154,14 +177,12 @@ export function ShenShaCard({ result }: { result: DualChartResult }) {
       <p data-teacher="iching"><b>易經老師</b>{result.specialStars.iching.oneLiner}</p>
       <p data-teacher="ghost"><b>鬼魅老師</b>{result.specialStars.ghost.oneLiner}</p>
     </div>}
-    {result.specialStars?.iching && <details className={styles.teacherCard} data-teacher="iching">
-      <summary><span className={styles.teacherHead}><b>易經老師解盤</b><small>神　溫和的智慧</small></span>{result.specialStars.iching.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.iching.teaser}</span>}</summary>
+    {result.specialStars?.iching && <TeacherFold teacher="iching" summary={<summary><span className={styles.teacherHead}><b>易經老師解盤</b><small>神　溫和的智慧</small></span>{result.specialStars.iching.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.iching.teaser}</span>}</summary>}>
       <ShenShaIChingSection view={result.specialStars.iching} />
-    </details>}
-    {result.specialStars?.ghost && <details className={styles.teacherCard} data-teacher="ghost">
-      <summary><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small></span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span></summary>
+    </TeacherFold>}
+    {result.specialStars?.ghost && <TeacherFold teacher="ghost" summary={<summary><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small></span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span></summary>}>
       <ShenShaGhostSection view={result.specialStars.ghost} />
-    </details>}
+    </TeacherFold>}
   </section>;
 }
 
