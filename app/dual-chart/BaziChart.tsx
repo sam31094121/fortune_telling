@@ -67,8 +67,8 @@ function ShenShaItemCard({ item, grouped = false }: { item: ShenShaIChingReady['
     {item.teacher && <p className={styles.shenshaTeacher}>{item.teacher.text}</p>}
     {item.onion && <div className={styles.shenshaOnion} aria-label={`${item.name}洋蔥心理學`}>{item.onion.layers.map(layer => <p key={layer.layer}><b>{layer.layer}</b><small>{layer.label}</small><span>{layer.text}</span></p>)}
       {item.onion.term && <p className={styles.shenshaTerm}><b>心理學</b><span>{item.onion.term.name}｜{item.onion.term.link}<cite>{item.onion.term.citation}</cite></span></p>}</div>}
-    <p className={styles.shenshaBasis}>推導：{item.derivation}</p>
     {item.imagery?.chars?.length > 0 && <ul className={styles.shenshaImagery} aria-label={`${item.name}字的意境`}>{item.imagery.chars.map((c, index) => <li key={index}><b>{c.char}</b><small>{c.element}</small><span>{c.senseText ?? c.sense}</span></li>)}</ul>}
+    <p className={styles.shenshaDerive}>推導：{item.derivation}</p>
   </li>;
 }
 
@@ -83,7 +83,7 @@ function ShenShaIChingSection({ view }: { view?: DualChartResult['specialStars']
     {view.state === 'BLOCKED' ? <p role="status">{view.reason}</p> : <>
       <div className={styles.shenshaHexagram}><span aria-hidden="true">{view.hexagram.glyph}</span><p><small>本命卦</small><b>{view.hexagram.name}</b><small>{view.hexagram.changingLabel}</small></p></div>
       <h4 className={styles.shenshaSectionTitle}>導師總覽</h4>
-      {view.summary && <p className={styles.shenshaSummary}>{view.summary}</p>}
+      {view.summary && <p className={styles.shenshaSummary}>{view.summary}{view.focusLine && <span>{view.focusLine}</span>}</p>}
       {view.highlights?.length > 0 && <ul className={styles.shenshaHighlights} aria-label="三個重點">{view.highlights.map(h => <li key={h.tone} data-shensha-tone={h.tone}><b>{h.title}</b><p>{h.text}</p></li>)}</ul>}
       <div className={styles.shenshaReading}>{view.reading.map((line, index) => <p key={index}>{line}</p>)}</div>
       {view.combos?.length > 0 && <>
@@ -122,7 +122,7 @@ export function ShenShaCard({ result }: { result: DualChartResult }) {
     {!card && <p role="status">神煞資料尚未完整，暫不能判斷有無結果。</p>}
     {card && card.columns.length > 0 && <div className={styles.shenshaPillars}>{card.columns.map(col =>
       <div key={col.pillar} data-shensha-column={col.pillar} data-shensha-column-state={col.state}><h4>{col.label}</h4>
-        <ul aria-label={`${col.label}神煞`}>{col.hits.map(hit => <li key={`${hit.id}:${hit.name}`} data-shensha-result={hit.id} data-shensha-method={hit.reference ? 'reference' : 'source'} data-shensha-tone={hit.tone ?? undefined} title={`${hit.rule}｜${hit.sourceLabel}`}>{hit.name}</li>)}</ul>
+        {col.hits.length > 0 && <ul aria-label={`${col.label}神煞`}>{col.hits.map(hit => <li key={`${hit.id}:${hit.name}`} data-shensha-result={hit.id} data-shensha-method={hit.reference ? 'reference' : 'source'} data-shensha-tone={hit.tone ?? undefined} aria-label={hit.tone ? `${hit.name}（${hit.tone}）` : undefined} title={`${hit.name}${hit.tone ? `（${hit.tone}）` : ''}｜${hit.rule}｜${hit.sourceLabel}`}>{hit.name}</li>)}</ul>}
         {col.emptyText && <span className={styles.shenshaEmpty} aria-label={col.state === 'PENDING' ? `結果尚未完整：${col.pendingNames.join('、')}` : '本次未命中本站既有規則'}>{col.emptyText}</span>}
         {col.note && <small className={styles.shenshaPillarNote}>{col.note}</small>}
       </div>)}</div>}

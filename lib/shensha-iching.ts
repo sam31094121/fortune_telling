@@ -18,7 +18,7 @@ import { STATUS_WORDING } from './credibility-phrases';
 import type { ThreeCoreIChingLayer } from './three-core-engine';
 import type { ShenShaCardView } from './dual-chart-shensha-card';
 import { SHENSHA_IMAGERY_ATTRIBUTION, shenShaImagery, type ShenShaImagery } from './shensha-char-imagery';
-import { PILLAR_PALACE, SHENSHA_PRINCIPLE, SHENSHA_TEACHER_READINGS, SHENSHA_TRADITION, teacherReadingFor, type ShenShaTone } from './shensha-teacher-readings';
+import { PILLAR_LINK, PILLAR_PALACE, SHENSHA_PRINCIPLE, SHENSHA_TEACHER_READINGS, SHENSHA_TRADITION, teacherReadingFor, type ShenShaTone } from './shensha-teacher-readings';
 import { shenShaOnion, shenShaOnionCredibility, type ShenShaOnionView } from './shensha-onion';
 import { findShenShaCombos, type ShenShaCombo } from './shensha-combos';
 
@@ -50,6 +50,8 @@ export type ShenShaIChingView =
     /** 老師解盤：只串接可回查的事實與既有卦義，不自編吉凶。 */
     /** 導師總評：一段話說完這張盤的輪廓。 */
     summary: string;
+    /** 最集中柱位的解讀：這張盤的故事多半在哪一面發生。沒有命中時為 null。 */
+    focusLine: string | null;
     /** 三個重點：底氣（福氣）、推力（動能）、留心（提醒）；沒有的類別不出現。 */
     highlights: { tone: ShenShaTone; title: string; names: string[]; text: string }[];
     /** 其餘解盤段落（原則、卦義、整盤合看、讀法）。 */
@@ -121,6 +123,9 @@ export function buildShenShaIChing(params: {
     ? `這張盤由八字排出四柱（${chain[0].text}），紫微斗數逐字核對一致，從同一張盤衍生特星神煞 ${items.length} 項（${toneCountLine(items)}），以${focus.join('、')}最集中${empty.length ? `，${empty.join('、')}本派取法未命中` : ''}；本命卦為「${r.hexagramName}」。`
     : `這張盤由八字排出四柱（${chain[0].text}），紫微斗數逐字核對一致；依本派取法沒有命中特星神煞，這不代表其他流派也沒有。本命卦為「${r.hexagramName}」。`;
   const highlights = highlightsOf(items);
+  const focusLine = items.length && focus.length
+    ? `神煞最集中在${focus.join('、')}，${focus.map(p => PILLAR_LINK[p]).filter(Boolean).join('；也')}——這張盤的故事，多半在這一面發生。`
+    : null;
   const reading = [
     ...(items.length ? [SHENSHA_PRINCIPLE] : []),
     ...(combos.length ? [`整盤合看，這張盤有 ${combos.length} 組神煞彼此呼應：${combos.map(c => c.pillar ? `${c.title}（${c.pillar}）` : c.title).join('、')}。老師看盤不只看單一顆星，而是看它們怎麼一起說話，下方逐組說明。`] : []),
@@ -132,7 +137,7 @@ export function buildShenShaIChing(params: {
   const claim = registry.claims.find(c => c.claim_id === SHENSHA_ICHING_CLAIM);
   const status: GateStatus = claim ? evaluateClaim(claim, indexSources(registry)).status : 'PENDING_POOL';
   return {
-    state: 'READY', chain, items, distribution, summary, highlights, reading, combos,
+    state: 'READY', chain, items, distribution, summary, focusLine, highlights, reading, combos,
     groups: card.columns.map(col => {
       const groupItems = items.filter(i => i.pillar === col.label);
       const tones = (['福氣', '動能', '提醒'] as const).map(tone => [tone, groupItems.filter(i => i.teacher?.tone === tone).length] as const).filter(([, n]) => n > 0);

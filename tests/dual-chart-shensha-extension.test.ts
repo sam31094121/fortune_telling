@@ -350,6 +350,7 @@ if(ic.state==='READY'){
   assert.deepEqual(ic.highlights.map(h=>h.title),['你的底氣','推你往前的力量','要多留一分心'],'three highlights in fixed order');
   assert.ok(ic.highlights.every(h=>h.names.length>0&&h.names.every(n=>h.text.includes(n))));
   assert.ok(ic.reading.length<=5,'overview paragraphs are condensed');
+  assert.ok(ic.focusLine?.startsWith('神煞最集中在時柱')&&ic.focusLine.includes('晚景'),'focus line reads the most concentrated pillar');
   for (const g of ic.groups) { assert.equal(g.palace,`${PILLAR_PALACE[g.pillar]}。`,`${g.pillar} palace is told once in the group`); assert.equal(g.items.length,g.count); }
   assert.equal(ic.groups.find(g=>g.pillar==='時柱')?.toneLine,'福氣 2　動能 2　提醒 2','hour group tone counts (龍德外桃花／羊刃桃花／六厄元辰)');
   // 常用神煞總覽融入：本派解盤原則＋傳統三分類（只標總覽有列的）。

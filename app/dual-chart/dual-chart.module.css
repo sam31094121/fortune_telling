@@ -148,6 +148,9 @@
 .shenshaHexagram b{font-size:24px;font-weight:800;letter-spacing:.12em;color:#f4e6ff}
 .shenshaHexagram small{font-size:13px;color:var(--ss-muted)}
 .shenshaSummary{margin:0 0 10px;padding:12px 14px;border-radius:12px;border:1px solid #e9c46a44;background:#241f35;font-size:16px;line-height:1.85;color:#f5f0ff;overflow-wrap:anywhere}
+.shenshaSummary span{display:block;margin-top:8px;padding-top:8px;border-top:1px dashed #e9c46a44;font-size:15px;color:var(--ss-gold)}
+.shenshaDerivation li p.shenshaDerive{margin-top:8px;padding-top:6px;border-top:1px dashed var(--ss-line);font-size:12px;color:var(--ss-muted)}
+.shenshaIching>p[role=status],.shenshaCard>p[role=status]{padding:10px 12px;border-radius:10px;border:1px solid #93d3ea55;background:#1b2330;font-size:14px;line-height:1.7;color:#d7eef7}
 .shenshaHighlights{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px}
 .shenshaHighlights li{padding:10px 12px 10px 14px;border-radius:12px;background:var(--ss-panel);border:1px solid var(--ss-line);border-left:4px solid var(--ss-tone,var(--ss-violet));min-width:0}
 .shenshaHighlights b{display:block;font-size:15px;letter-spacing:.08em;color:var(--ss-tone,var(--ss-gold))}
