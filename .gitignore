@@ -75,3 +75,9 @@ t12
 /_*.mjs
 /_*.js
 /scripts/tmp-*.js
+
+# 測試與健檢自動產生的編譯暫存（每次執行重新產生，不進版控；內含未公開話術的編譯檔）
+/.dual-chart-shensha-display-build/
+/.dual-chart-shensha-extension-build/
+/.bazi-traditional-gate-build/
+/.five-element-orb-test-build/
