@@ -44,7 +44,12 @@ export async function POST(request: NextRequest) {
           input.gender === 'male' ? 'male' : 'female',
           input.birthDate as string,
           input.birthTime as string,
-          result,
+          {
+            year: result.core.pillars.year !== 'UNKNOWN' ? result.core.pillars.year.ganZhi : '',
+            month: result.core.pillars.month !== 'UNKNOWN' ? result.core.pillars.month.ganZhi : '',
+            day: result.core.pillars.day !== 'UNKNOWN' ? result.core.pillars.day.ganZhi : '',
+            hour: result.core.pillars.hour !== 'UNKNOWN' ? result.core.pillars.hour.ganZhi : '',
+          },
           {
             ipAddress: clientIP,
             userAgent: request.headers.get('user-agent') || 'unknown',
