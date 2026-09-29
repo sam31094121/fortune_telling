@@ -188,10 +188,10 @@ export function recordDualChartAudit(
       bazi: {
         status: 'READY',
         pillars: {
-          year: result.core.pillars.year !== 'UNKNOWN' ? result.core.pillars.year.ganZhi : '',
-          month: result.core.pillars.month !== 'UNKNOWN' ? result.core.pillars.month.ganZhi : '',
-          day: result.core.pillars.day !== 'UNKNOWN' ? result.core.pillars.day.ganZhi : '',
-          hour: result.core.pillars.hour !== 'UNKNOWN' ? result.core.pillars.hour.ganZhi : '',
+          year: typeof result.core.pillars.year === 'string' ? '' : result.core.pillars.year.ganZhi,
+          month: typeof result.core.pillars.month === 'string' ? '' : result.core.pillars.month.ganZhi,
+          day: typeof result.core.pillars.day === 'string' ? '' : result.core.pillars.day.ganZhi,
+          hour: typeof result.core.pillars.hour === 'string' ? '' : result.core.pillars.hour.ganZhi,
         },
         dayMaster: `${result.core.dayMaster.stem}${result.core.dayMaster.element}`,
         verification: {
@@ -209,10 +209,10 @@ export function recordDualChartAudit(
       pillarCheck: {
         passed: true,
         bazi: {
-          year: result.core.pillars.year !== 'UNKNOWN' ? result.core.pillars.year.ganZhi : '',
-          month: result.core.pillars.month !== 'UNKNOWN' ? result.core.pillars.month.ganZhi : '',
-          day: result.core.pillars.day !== 'UNKNOWN' ? result.core.pillars.day.ganZhi : '',
-          hour: result.core.pillars.hour !== 'UNKNOWN' ? result.core.pillars.hour.ganZhi : '',
+          year: typeof result.core.pillars.year === 'string' ? '' : result.core.pillars.year.ganZhi,
+          month: typeof result.core.pillars.month === 'string' ? '' : result.core.pillars.month.ganZhi,
+          day: typeof result.core.pillars.day === 'string' ? '' : result.core.pillars.day.ganZhi,
+          hour: typeof result.core.pillars.hour === 'string' ? '' : result.core.pillars.hour.ganZhi,
         },
         ziwei: {
           year: result.bazi.professionalChart.pillarDetails.year?.ganzhi ?? '',
