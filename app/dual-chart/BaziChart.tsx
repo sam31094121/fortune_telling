@@ -288,36 +288,36 @@ function openShenShaItemCard(anchor: string) {
 }
 
 /** Independent card. The pillar grid is always visible; the two teacher readings fold. Every word comes from the backend. */
-export function ShenShaCard({ result }: { result: DualChartResult }) {
+export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false }: { result: DualChartResult; printMode?: boolean; hideShenShaGrid?: boolean }) {
   const card = result.specialStars?.card;
   const state = card?.state ?? 'unavailable';
   return <section className={styles.shenshaCard} aria-label="特星神煞" data-screen-arrow-target="dual-chart-special-stars" data-shensha-card-state={state}>
     <header className={styles.shenshaHeader}>
-      <h3>神煞易經</h3>
-      <p className={styles.shenshaSubtitle}>八字 → 紫微 → 特星神煞 → 易經</p>
+      <h3>{printMode ? '特星神煞' : '神煞易經'}</h3>
+      {!printMode && <p className={styles.shenshaSubtitle}>八字 → 紫微 → 特星神煞 → 易經</p>}
     </header>
-    {card?.notice && <p role="status">{card.notice}</p>}
-    {!card && <p role="status">神煞資料尚未完整，暫不能判斷有無結果。</p>}
-    {card?.footnote && <p className={styles.shenshaFootnote}>{card.footnote}</p>}
-    {result.specialStars?.flow?.state === 'READY' && <div className={styles.flowStrip} aria-label="流年一句話">{result.specialStars.flow.years.map(year => <p key={year.year}><b>{year.label}</b>{year.oneLiner}</p>)}</div>}
-    {result.specialStars?.iching?.state === 'READY' && <div className={styles.teacherDuet} aria-label="兩位老師一句話">
+    {!printMode && card?.notice && <p role="status">{card.notice}</p>}
+    {!printMode && !card && <p role="status">神煞資料尚未完整，暫不能判斷有無結果。</p>}
+    {!printMode && card?.footnote && <p className={styles.shenshaFootnote}>{card.footnote}</p>}
+    {!printMode && result.specialStars?.flow?.state === 'READY' && <div className={styles.flowStrip} aria-label="流年一句話">{result.specialStars.flow.years.map(year => <p key={year.year}><b>{year.label}</b>{year.oneLiner}</p>)}</div>}
+    {!printMode && result.specialStars?.iching?.state === 'READY' && <div className={styles.teacherDuet} aria-label="兩位老師一句話">
       <p data-teacher="iching"><b>易經老師</b>{result.specialStars.iching.oneLiner}</p>
       {result.specialStars?.ghost?.state === 'READY' && <p data-teacher="ghost"><b>鬼魅老師</b>{result.specialStars.ghost.oneLiner}</p>}
     </div>}
-    {result.specialStars?.iching && <TeacherFold teacher="iching" summary={<summary><span className={styles.teacherHead}><b>易經老師解盤</b><small>神　溫和的智慧</small></span>{result.specialStars.iching.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.iching.teaser}</span>}</summary>}>
+    {!printMode && result.specialStars?.iching && <TeacherFold teacher="iching" summary={<summary><span className={styles.teacherHead}><b>易經老師解盤</b><small>神　溫和的智慧</small></span>{result.specialStars.iching.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.iching.teaser}</span>}</summary>}>
       <ShenShaIChingSection view={result.specialStars.iching} />
     </TeacherFold>}
-    {result.specialStars?.flow && <TeacherFold teacher="flow" summary={<summary><span className={styles.teacherHead}><b>流年神煞</b><small>今年與明年</small></span>{result.specialStars.flow.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.flow.teaser}</span>}</summary>}>
+    {!printMode && result.specialStars?.flow && <TeacherFold teacher="flow" summary={<summary><span className={styles.teacherHead}><b>流年神煞</b><small>今年與明年</small></span>{result.specialStars.flow.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.flow.teaser}</span>}</summary>}>
       <ShenShaFlowSection view={result.specialStars.flow} />
     </TeacherFold>}
-    <ShenShaShare share={result.specialStars?.share} />
-    {card && card.columns.length > 0 && <div id="shensha-grid" className={styles.shenshaPillars}>{card.columns.map(col =>
+    {!printMode && <ShenShaShare share={result.specialStars?.share} />}
+    {!hideShenShaGrid && card && card.columns.length > 0 && <div id="shensha-grid" className={styles.shenshaPillars}>{card.columns.map(col =>
       <div key={col.pillar} data-shensha-column={col.pillar} data-shensha-column-state={col.state}><h4>{col.label}</h4>
         {col.hits.length > 0 && <ul aria-label={`${col.label}神煞`}>{col.hits.map(hit => <li key={`${hit.id}:${hit.name}`} data-shensha-result={hit.id} data-shensha-method={hit.reference ? 'reference' : 'source'} data-shensha-tone={hit.tone ?? undefined} aria-label={hit.tone ? `${hit.name}（${hit.tone}）` : undefined} title={`${hit.name}${hit.tone ? `（${hit.tone}）` : ''}｜${hit.rule}｜${hit.sourceLabel}`}>{hit.anchor ? <a href={`#${hit.anchor}`} onClick={event => { if (openShenShaItemCard(hit.anchor)) event.preventDefault(); }}>{hit.name}</a> : hit.name}</li>)}</ul>}
         {col.emptyText && <span className={styles.shenshaEmpty} aria-label={col.state === 'PENDING' ? `結果尚未完整：${col.pendingNames.join('、')}` : '本次未命中本站既有規則'}>{col.emptyText}</span>}
         {col.note && <small className={styles.shenshaPillarNote}>{col.note}</small>}
       </div>)}</div>}
-    {card && card.columns.length > 0 && <p className={styles.shenshaLegend} aria-label="圖例"><span data-shensha-tone="福氣">福氣</span><span data-shensha-tone="動能">動能</span><span data-shensha-tone="提醒">提醒</span><span>＊ 本派取法</span></p>}
+    {!hideShenShaGrid && card && card.columns.length > 0 && <p className={styles.shenshaLegend} aria-label="圖例"><span data-shensha-tone="福氣">福氣</span><span data-shensha-tone="動能">動能</span><span data-shensha-tone="提醒">提醒</span><span>＊ 本派取法</span></p>}
     {/* 鬼魅老師封印中（業主定案 2026-09-28）：貼現有封印符，卡頭可見、點不開；解封改 lib/shensha-ghost.ts 的 GHOST_SEALED。 */}
     {result.specialStars?.ghost?.state === 'SEALED' && <div className={`${styles.teacherCard} ${styles.ghostSealed}`} data-teacher="ghost" data-sealed="true" aria-label={result.specialStars.ghost.sealNotice}>
       <div className={styles.ghostSealedHead}><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small><em className={styles.ageGate}>{result.specialStars.ghost.ageGate}</em></span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span><span className={styles.ghostSealNotice}>{result.specialStars.ghost.sealNotice}</span></div>
