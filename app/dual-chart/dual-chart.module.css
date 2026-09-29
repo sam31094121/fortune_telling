@@ -81,14 +81,14 @@
 .printPreview{max-width:calc(210mm + 32px);background:#e8e6eb!important;color:#222!important;font-family:'Microsoft JhengHei','PingFang TC',sans-serif}
 .printPreview .nav,.printPreview .header,.printPreview .inputPanel{display:none}
 .printPreview .results{overflow-x:auto;padding:0;max-width:100%;overscroll-behavior-x:contain}
-.printPreview .results>.panel{width:210mm;max-width:none;min-height:297mm;box-sizing:border-box;background:#fffefb!important;border:0;border-radius:0;padding:12mm;margin:0 auto 24px;color:#272337!important;box-shadow:0 3px 10px #0002;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.printPreview .results>.panel{width:210mm;max-width:none;min-height:297mm;box-sizing:border-box;background:#fdfbf7!important;border:0;border-radius:0;padding:12mm;margin:0 auto 24px;color:#2a2235!important;box-shadow:0 3px 10px #0002;print-color-adjust:exact;-webkit-print-color-adjust:exact}
 .printPreview .panel h2{color:#51355f!important;font-size:24px;line-height:1.5;border-bottom:2px solid #c8a563;padding-bottom:12px;margin-bottom:18px;letter-spacing:2px}
 .printPreview .note{color:#565064!important;font-size:12px;line-height:1.7}
-.printPreview .chart{background:#a593af!important;border-color:#a593af!important;border-radius:0;gap:1px;grid-template-rows:repeat(4,minmax(48mm,auto));margin:20px 0}
-.printPreview .cell{background:#fffdf3!important;padding:9px;gap:6px;cursor:default}
-.printPreview .center{background:#f8f3e9!important;padding:16px;font-size:14px;gap:8px;color:#363042!important}
-.printPreview .center strong{font-size:22px;color:#654877!important}.printPreview .center p{line-height:1.6}
-.printPreview .life{background:#f3e7fa!important;border:2px solid #9466ac}.printPreview .body{background:#e8f5ee!important;border:2px dashed #569278}
+.printPreview .chart{background:#9d8ba4!important;border-color:#9d8ba4!important;border-radius:0;gap:1px;grid-template-rows:repeat(4,minmax(48mm,auto));margin:20px 0}
+.printPreview .cell{background:#fefcf8!important;padding:9px;gap:6px;cursor:default;border:0.5px solid #ddd}
+.printPreview .center{background:#faf7f1!important;padding:16px;font-size:14px;gap:8px;color:#3a3248!important;border:1px solid #ddd}
+.printPreview .center strong{font-size:22px;color:#6d4f8f!important}.printPreview .center p{line-height:1.6}
+.printPreview .life{background:#f5ebfd!important;border:2px solid #9d7fb5}.printPreview .body{background:#ebf7f0!important;border:2px dashed #5fa084}
 .printPreview .cell[aria-pressed=true]{outline:none}.printPreview .cellMinor{display:none}
 .printPreview .printStars{display:flex;flex-wrap:wrap;gap:2px 8px;font-size:12.5px;line-height:1.7;overflow-wrap:anywhere;color:#343650!important}
 .printPreview .cellStars{font-size:18px;line-height:1.5;display:flex;flex-wrap:wrap;color:#6a366d!important}.printPreview .cellStars>span{display:inline-flex}
@@ -324,15 +324,17 @@
 .printPreview .largeGlyph td{padding:8px 3px;line-height:1.5}.printPreview .shenshaRow td{height:105px}.printPreview .relations{display:grid;grid-template-columns:1fr 1fr;gap:5px 9px;font-size:12px;line-height:1.5}.printPreview .relations h3{grid-column:1/-1;margin:0}.printPreview .relations p{margin:0}
 .printPreview .compactGrid{line-height:1.3}.printPreview .compactGrid td,.printPreview .compactGrid th{padding:2px}.printPreview .compactGrid .largeGlyph td{padding:2px;line-height:1.3}
 .outputChoice{display:flex;gap:6px}.outputChoice button[aria-pressed=true]{background:#35283f;color:#fff;border-color:#35283f}
-.printPreview.monochrome .results *{color:#171717!important;border-color:#666!important}
-.printPreview.monochrome .results>.panel,.printPreview.monochrome .cell,.printPreview.monochrome .center{background:#fff!important}
-.printPreview.monochrome .chart{background:#666!important}.printPreview.monochrome .panel h2{border-bottom:2px solid #222!important}
-.printPreview.monochrome .pillarGrid th,.printPreview.monochrome .luckGrid th,.printPreview.monochrome .annualGrid th{background:#e5e5e5!important;font-weight:800}
-.printPreview.monochrome .pillarGrid td,.printPreview.monochrome .luckGrid td,.printPreview.monochrome .annualGrid td{background:#fff!important}
-.printPreview.monochrome .life{border:2px solid #111!important}.printPreview.monochrome .body{border:2px dashed #111!important}
-.printPreview.monochrome .badge[data-mutagen]{background:#fff!important;color:#111!important;border:1px solid #111!important;font-weight:900;border-radius:0}
-.printPreview.monochrome .badge[data-mutagen='權']{border-width:2px!important}.printPreview.monochrome .badge[data-mutagen='科']{border-style:dashed!important}.printPreview.monochrome .badge[data-mutagen='忌']{background:#333!important;color:#fff!important}
-.printPreview.monochrome .cellStars{font-weight:900}.printPreview.monochrome .printStars{font-weight:500}.printPreview.monochrome .elementRing{filter:grayscale(1);border:1px solid #555}.printPreview.monochrome .elementRing>div{background:white!important;border:1px solid #aaa}.printPreview.monochrome .elementLegend i{filter:grayscale(1);border:1px solid #444}
+.printPreview.monochrome .results *{color:#0a0a0a!important;border-color:#555!important}
+.printPreview.monochrome .results>.panel,.printPreview.monochrome .cell{background:#fafafa!important}
+.printPreview.monochrome .results>.panel{background:#fff!important}
+.printPreview.monochrome .center{background:#f0f0f0!important;color:#1a1a1a!important}
+.printPreview.monochrome .chart{background:#777!important}.printPreview.monochrome .panel h2{border-bottom:3px solid #111!important;color:#000!important;font-weight:900}
+.printPreview.monochrome .pillarGrid th,.printPreview.monochrome .luckGrid th,.printPreview.monochrome .annualGrid th{background:#d0d0d0!important;color:#000!important;font-weight:900;border:1px solid #555}
+.printPreview.monochrome .pillarGrid td,.printPreview.monochrome .luckGrid td,.printPreview.monochrome .annualGrid td{background:#fff!important;border:1px solid #ccc}
+.printPreview.monochrome .life{border:3px solid #000!important;background:#fff!important}.printPreview.monochrome .body{border:2px dashed #000!important;background:#fff!important}
+.printPreview.monochrome .badge[data-mutagen]{background:#f5f5f5!important;color:#000!important;border:2px solid #000!important;font-weight:900;border-radius:2px}
+.printPreview.monochrome .badge[data-mutagen='權']{border-width:3px!important}.printPreview.monochrome .badge[data-mutagen='科']{border-style:double!important}.printPreview.monochrome .badge[data-mutagen='忌']{background:#222!important;color:#fff!important;border:2px solid #000!important}
+.printPreview.monochrome .cellStars{font-weight:900;color:#000!important}.printPreview.monochrome .printStars{font-weight:600}.printPreview.monochrome .elementRing{filter:grayscale(1) contrast(1.1);border:2px solid #333}.printPreview.monochrome .elementRing>div{background:#fafafa!important;border:1px solid #888}.printPreview.monochrome .elementLegend i{filter:grayscale(1) brightness(0.95);border:1px solid #333}
 .elementRingSvg{display:block;width:154px;height:154px;margin:0 auto 8px}.elementLegend svg{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-right:4px}.elementLegend small{font-size:10px}
 .printPreview .elementRingSvg{width:118px;height:118px}.printPreview .elementLegend{gap:3px 8px}
 
