@@ -8,6 +8,7 @@ import BaziChart from './BaziChart';
 import type { DualChartResult } from '@/lib/dual-chart';
 import styles from './dual-chart.module.css';
 import ZiweiChart from './ZiweiChart';
+import ComparisonCard from './ComparisonCard';
 import { useInterfaceLanguage } from '@/components/InterfaceLanguage';
 import { dualChartHourStatus } from '@/lib/dual-chart-form';
 
@@ -157,7 +158,7 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
         {(!isMobile || chartTab === 'ziwei') && <article className={styles.panel}><h2>紫微斗數命盤</h2>
           <ZiweiChart key={JSON.stringify(result.ziwei.birthInput)} result={result} />
         </article>}
-        {(!isMobile || chartTab === 'comparison') && <article className={styles.panel}><h2>五行對比</h2><p className={styles.comparisionPlaceholder}>對比卡片功能開發中…</p></article>}
+        {(!isMobile || chartTab === 'comparison') && <article className={styles.panel}><ComparisonCard result={result} /></article>}
       </section>}
     </>}
     {error && <p className={styles.error} role="alert">{error}</p>}

@@ -37,6 +37,36 @@
 .chartTabNav button{flex:1;padding:14px 12px;background:transparent;color:#c4bfd2;border:none;font-weight:600;border-bottom:3px solid transparent;cursor:pointer;transition:all 0.2s}
 .chartTabNav button[aria-selected=true],.chartTabNav button.active{color:#d9bef5;border-bottom-color:#d9bef5}
 .comparisionPlaceholder{color:#a899ba;text-align:center;padding:40px 20px;font-style:italic}
+.comparisonCard{display:grid;gap:32px}
+.comparisonHeader h3{font-size:24px;font-weight:800;color:#eee2ff;margin-bottom:4px}
+.comparisonSubtitle{font-size:14px;color:#c4bfd2;margin-bottom:20px}
+.comparisonSection{padding:20px;background:#1b2030;border-radius:16px;border:1px solid #bca0e833}
+.comparisonSection h4{font-size:18px;font-weight:700;color:#d9bef5;margin-bottom:16px}
+.elementComparison{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:16px}
+.elementColumn h5{font-size:14px;color:#a899ba;margin-bottom:12px;font-weight:600}
+.elementBar{display:grid;grid-template-columns:40px 1fr 30px;gap:12px;align-items:center;margin-bottom:12px;font-size:13px}
+.elementBar label{color:#c4bfd2;font-weight:500}
+.barContainer{height:16px;background:#0a0d14;border-radius:8px;overflow:hidden;border:1px solid #6b5a7f}
+.barFill{height:100%;background:linear-gradient(90deg,#d9bef5,#b9a9d6);transition:width 0.3s ease}
+.barValue{color:#9d8fb3;font-weight:600;text-align:right}
+.mappingTable{width:100%;font-size:13px;border-collapse:collapse;margin-bottom:16px}
+.mappingTable th{background:#2a2540;color:#d9bef5;padding:12px;text-align:left;font-weight:700}
+.mappingTable td{padding:12px;border-bottom:1px solid #bca0e833;color:#d7d2e0;line-height:1.6}
+.mappingTable tr:hover{background:#252038}
+.comparisonHint{font-size:13px;color:#9d8fb3;line-height:1.7;margin:0;padding:12px;background:#0a0d14;border-radius:8px}
+.shenshaExtendedList{list-style:none;margin:0;padding:0;display:grid;gap:16px}
+.shenshaExtendedList li{padding:14px;background:#0a0d14;border-radius:12px;border-left:3px solid #d9bef5}
+.shenshaExtendedList li[data-shensha-tone="福氣"]{border-left-color:#a5d6a7}
+.shenshaExtendedList li[data-shensha-tone="動能"]{border-left-color:#ffb74d}
+.shenshaExtendedList li[data-shensha-tone="提醒"]{border-left-color:#ef9a9a}
+.shenshaItemHead{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+.shenshaItemHead b{color:#e5d0ff;font-size:14px}
+.shenshaItemHead span{font-size:12px;color:#9d8fb3;background:#171725;padding:2px 8px;border-radius:4px}
+.shenshaItemHead em{font-style:normal;font-size:12px;color:#b9a9d6}
+.shenshaComment{color:#d7d2e0;font-size:13px;line-height:1.7;margin:0}
+.comparisonFooter{padding:16px;background:#2a2540;border-radius:12px;border:1px solid #6b5a7f}
+.comparisonFooter p{color:#d7d2e0;font-size:13px;line-height:1.7;margin:0}
+.comparisonFooter strong{color:#d9bef5}
 @media(max-width:767px){
  .chartTabNav{display:flex}
  .panel{padding:16px}.page{padding:16px 12px 48px}
