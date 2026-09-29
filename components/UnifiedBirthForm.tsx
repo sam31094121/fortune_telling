@@ -183,7 +183,7 @@ export function HourBranchSelector({ value, unknown, missing, requireExplicitPic
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <ChoiceButton active={Boolean(unknown || value === 'unknown')} alert={missing} onClick={() => onChange('unknown')}>
           <span className="block text-base font-black"><HomeTranslatedText text={"不知道出生時辰"} /></span>
-          <span className="mt-1.5 block text-xs font-semibold leading-5"><HomeTranslatedText text={requireKnownHour ? '雙命盤需要出生時辰；不知道時暫不排盤，確認後可回來補填。' : '不知道也沒關係，先算得出來的部分；之後補上時辰會更完整。'} /></span>
+          <span className="mt-1.5 block text-xs font-semibold leading-5"><HomeTranslatedText text={requireKnownHour ? '神煞易經需要出生時辰；不知道時暫不排盤，確認後可回來補填。' : '不知道也沒關係，先算得出來的部分；之後補上時辰會更完整。'} /></span>
         </ChoiceButton>
         <ChoiceButton active={knownSelected} alert={missing} tone="cyan" onClick={() => onChange((knownSelected ? value : requireExplicitPick ? HOUR_BRANCH_PENDING : 'wu') as BirthHourBranch)}>
           <span className="block text-base font-black"><HomeTranslatedText text={"我知道出生時辰"} /></span>
@@ -201,7 +201,7 @@ export function HourBranchSelector({ value, unknown, missing, requireExplicitPic
             <div className="mb-3 rounded-xl border border-cyan-200/45 bg-cyan-300/12 px-4 py-2.5 text-sm font-black text-cyan-50"><HomeTranslatedText text={"✓ 已選擇："} /><HomeTranslatedText text={selectedItem.label} />（{selectedItem.range}<HomeTranslatedText text={"）——選錯可直接點別張更換"} /></div>
           )}
           {awaitingPick && (
-            <div className="mb-3 rounded-xl border border-amber-200/45 bg-amber-300/12 px-4 py-2.5 text-sm font-black text-amber-50" role="status"><HomeTranslatedText text={requireKnownHour ? '還沒選——請在下面點選出生時辰；不知道時暫不產生雙命盤。' : '還沒選——下面 12 張點一張就好。不確定的話，回上面選「不知道出生時辰」也算得出來。'} /></div>
+            <div className="mb-3 rounded-xl border border-amber-200/45 bg-amber-300/12 px-4 py-2.5 text-sm font-black text-amber-50" role="status"><HomeTranslatedText text={requireKnownHour ? '還沒選——請在下面點選出生時辰；不知道時暫不產生神煞易經。' : '還沒選——下面 12 張點一張就好。不確定的話，回上面選「不知道出生時辰」也算得出來。'} /></div>
           )}
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
             {SHICHEN_LIST.map((item, index) => {

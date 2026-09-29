@@ -99,7 +99,7 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
     const name = form.name ? form.name.replace(/[\/\\:*?"<>|]/g, '') : '';
     const dateStr = birthDate ? birthDate.replace(/-/g, '') : '';
     const timeStr = birthHour ? `${birthHour}點` : '';
-    const parts = ['雙命盤', dateStr, timeStr, name, monochrome ? '黑白' : '彩色'].filter(Boolean);
+    const parts = ['神煞易經', dateStr, timeStr, name, monochrome ? '黑白' : '彩色'].filter(Boolean);
     return `${parts.join('-')}.pdf`;
   }
   async function exportPdf() {
@@ -127,24 +127,24 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
   return <main className={`${styles.page} ${printMode ? styles.printPreview : ''} ${printMode && monochrome ? styles.monochrome : ''}`}>
     {printMode && <nav className={styles.printTools} aria-label="列印專用版操作"><button disabled={pdfBusy} onClick={() => setPrintMode(false)}>← 返回命盤</button><strong>列印專用版</strong><div className={styles.selectionPanel} role="group" aria-label="選擇列印面盤"><label><input type="checkbox" checked={printSelection.bazi} onChange={e => setPrintSelection({...printSelection, bazi: e.target.checked})} disabled={pdfBusy} /> 八字命盤</label><label><input type="checkbox" checked={printSelection.ziwei} onChange={e => setPrintSelection({...printSelection, ziwei: e.target.checked})} disabled={pdfBusy} /> 紫微斗數</label><label><input type="checkbox" checked={printSelection.iching} onChange={e => setPrintSelection({...printSelection, iching: e.target.checked})} disabled={pdfBusy} /> 易經神煞</label></div><div className={styles.outputChoice} role="group" aria-label="輸出色彩">{[false, true].map(value => <button key={String(value)} disabled={pdfBusy} aria-pressed={monochrome === value} onClick={() => { setMonochrome(value); setPdfUrl(''); setPdfProgress(0); }}>{value ? '黑白日常版' : '彩色客戶版'}</button>)}</div><button disabled={pdfBusy} onClick={() => void exportPdf()}>{pdfBusy ? pdfProgress > 0 && pdfProgress < 100 ? `正在排版…${pdfProgress}%` : '正在製作 PDF…' : `製作${monochrome ? '黑白' : '彩色'} A4 PDF`}</button>{pdfBusy && pdfProgress > 0 && <div className={styles.progressBar} role="progressbar" aria-valuenow={pdfProgress} aria-valuemin={0} aria-valuemax={100}><div className={styles.progressFill} style={{ width: `${pdfProgress}%` }}></div></div>}<button disabled={pdfBusy} onClick={() => window.print()}>瀏覽器列印</button>{pdfUrl && <a className={styles.pdfDownload} href={pdfUrl} download={generatePdfFilename()}>下載{monochrome ? '黑白' : '彩色'} PDF（{Object.values(printSelection).filter(Boolean).length} 頁）</a>}<p className={styles.printHint}>若瀏覽器未開啟列印視窗，請先製作並下載 PDF，再用 PDF 閱讀器列印。A4 {monochrome ? '黑白' : '彩色'} · 手機可左右滑動紙張查看；瀏覽器列印請選 A4、100% 比例並關閉頁首頁尾。</p></nav>}
     <nav className={styles.nav}><Link href="/">← 返回首頁</Link>{unlocked && <button disabled={busy} onClick={() => void lock()}>鎖定離開</button>}</nav>
-    <header className={styles.header}><p>生辰排盤 · 密碼保護</p><h1>雙命盤</h1><p>填寫一份出生資料，查看八字與紫微斗數命盤。</p></header>
+    <header className={styles.header}><p>生辰排盤 · 密碼保護</p><h1>神煞易經</h1><p>填寫一份出生資料，查看三張命盤：八字、紫微斗數、易經神煞。</p></header>
     {!unlocked ? <section className={styles.panel}>
-      <h2>{configured ? '輸入密碼，開啟雙命盤' : '雙命盤暫未開放登入'}</h2>
+      <h2>{configured ? '輸入密碼，開啟神煞易經' : '神煞易經暫未開放登入'}</h2>
       {!configured ? <div className={styles.login} role="status"><p className={styles.note}>網站的登入設定尚未完成，目前無法驗證密碼。這不是您輸入錯誤，請聯絡網站管理員啟用後再試。</p><button type="button" onClick={() => router.refresh()}>重新檢查入口</button><Link href="/">先返回首頁</Link></div> : <form onSubmit={unlock} className={styles.login} aria-busy={busy}>
         <p id="dual-password-help" className={styles.note}>請輸入您已取得的進入密碼。解鎖後即可填寫一份出生資料，查看八字與紫微命盤。</p>
         <label htmlFor="dual-password">進入密碼</label>
         <div className={styles.passwordField}><input id="dual-password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" autoCapitalize="none" spellCheck={false} aria-describedby="dual-password-help" value={password} maxLength={256} required disabled={busy} onChange={e => setPassword(e.target.value)} /><button type="button" className={styles.passwordToggle} disabled={busy} aria-pressed={showPassword} onClick={() => setShowPassword(value => !value)}>{showPassword ? '隱藏密碼' : '顯示密碼'}</button></div>
-        <button disabled={busy || !password}>{busy ? '正在驗證，請稍候…' : '解鎖雙命盤'}</button>
+        <button disabled={busy || !password}>{busy ? '正在驗證，請稍候…' : '解鎖神煞易經'}</button>
         <p className={styles.note}>若密碼不符，請重新輸入後再試；不必重新整理頁面。</p>
       </form>}
     </section> : <>
       <section className={`${styles.panel} ${styles.inputPanel}`}>
         <p className={styles.note}>沿用系統萬年曆：國曆或農曆生日會統一換算後排盤。採台灣標準時間（UTC+8），未做真太陽時校正；時辰卡採代表時間，若只知子時，請補選午夜前後。</p>
-        <UnifiedBirthForm value={form} fields={{ name: true, gender: true, birthDate: true, birthHourBranch: true, calendarType: true }} optionalFields={['name']} autoFillIdentity={false} persistIdentity={false} requireExplicitHourPick requireKnownHour hourCompletion={dualChartHourStatus(form)} missing={missing} disabled={busy} isSubmitting={busy} submitLabel="排出雙命盤" loadingLabel="正在排盤…"
+        <UnifiedBirthForm value={form} fields={{ name: true, gender: true, birthDate: true, birthHourBranch: true, calendarType: true }} optionalFields={['name']} autoFillIdentity={false} persistIdentity={false} requireExplicitHourPick requireKnownHour hourCompletion={dualChartHourStatus(form)} missing={missing} disabled={busy} isSubmitting={busy} submitLabel="排出神煞易經" loadingLabel="正在排盤…"
           onChange={profile => updateForm(profile.birthHourBranch === 'zi' ? { ...profile, birthTime: form.birthHourBranch === 'zi' ? form.birthTime : '' } : profile)} onSubmit={profile => void calculate(profile)}
           afterHourPicker={form.birthHourBranch === 'zi' && <label className={styles.zi}>子時跨日確認<select disabled={busy} value={form.birthTime ?? ''} onChange={e => updateForm({ ...form, birthTime: e.target.value })}><option value="">請確認午夜前或午夜後</option><option value="23:30">晚子時：23:00–23:59（出生當日）</option><option value="00:30">早子時：00:00–00:59（出生當日）</option></select></label>} />
       </section>
-      {result && <section ref={resultRef} className={styles.results} aria-label="雙命盤結果">
+      {result && <section ref={resultRef} className={styles.results} aria-label="神煞易經結果">
         {!printMode && (
           <>
             {isMobile && <nav className={styles.chartTabNav} role="tablist">
@@ -155,11 +155,32 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
             <button type="button" className={styles.printButton} onClick={() => { setPrintMode(true); resultRef.current?.scrollIntoView({ block: 'start' }); }}>列印專用版</button>
           </>
         )}
-        {(!isMobile || chartTab === 'bazi') && (!printMode || printSelection.bazi) && <article className={styles.panel}><h2>八字命盤</h2><BaziChart result={result} monochrome={printMode && monochrome} language={language} /></article>}
-        {(!isMobile || chartTab === 'ziwei') && (!printMode || printSelection.ziwei) && <article className={styles.panel}><h2>紫微斗數命盤</h2>
+        {printMode && (
+          <div className={styles.panel} style={{ backgroundColor: 'rgba(139, 92, 246, 0.08)', borderColor: 'rgba(139, 92, 246, 0.3)' }}>
+            <h3 style={{ marginBottom: '1rem' }}>選擇要列印的神煞易經命盤</h3>
+            <div style={{ display: 'grid', gap: '0.75rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input type="checkbox" checked={printSelection.bazi} onChange={e => setPrintSelection({ ...printSelection, bazi: e.target.checked })} />
+                <span>八字命盤</span>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input type="checkbox" checked={printSelection.ziwei} onChange={e => setPrintSelection({ ...printSelection, ziwei: e.target.checked })} />
+                <span>紫微斗數命盤</span>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input type="checkbox" checked={printSelection.iching} onChange={e => setPrintSelection({ ...printSelection, iching: e.target.checked })} />
+                <span>易經神煞</span>
+              </label>
+            </div>
+            <button type="button" onClick={() => setPrintMode(false)} style={{ marginTop: '1rem', padding: '0.5rem 1rem', backgroundColor: 'transparent', border: '1px solid rgba(139, 92, 246, 0.5)', borderRadius: '0.5rem', color: '#e9d5ff', cursor: 'pointer' }}>返回檢視</button>
+          </div>
+        )}
+        {(!isMobile || chartTab === 'bazi') && (printMode ? printSelection.bazi : true) && <article className={styles.panel}><h2>八字命盤</h2><BaziChart result={result} monochrome={printMode && monochrome} language={language} /></article>}
+        {!printMode && !isMobile && <div className={styles.chartDivider} />}
+        {(!isMobile || chartTab === 'ziwei') && (printMode ? printSelection.ziwei : true) && <article className={styles.panel}><h2>紫微斗數命盤</h2>
           <ZiweiChart key={JSON.stringify(result.ziwei.birthInput)} result={result} />
         </article>}
-        {(!isMobile || chartTab === 'comparison') && <article className={styles.panel}><ComparisonCard result={result} /></article>}
+        {(!isMobile || chartTab === 'comparison') && (printMode ? false : true) && <article className={styles.panel}><ComparisonCard result={result} /></article>}
         {printMode && printSelection.iching && <article className={styles.panel}><h2>易經神煞</h2><ShenShaCard result={result} /></article>}
       </section>}
     </>}

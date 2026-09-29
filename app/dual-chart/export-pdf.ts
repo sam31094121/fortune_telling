@@ -13,7 +13,7 @@ export async function createDualChartPdf(root: HTMLElement, monochrome = false, 
   if (pages.length < 1) throw new Error('請至少選擇一張卡片進行列印。');
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
   const selectedCount = pages.length;
-  pdf.setProperties({ title: `雙命盤（${selectedCount}張） · ${monochrome ? '黑白' : '彩色'} A4`, subject: '八字與紫微斗數命盤' });
+  pdf.setProperties({ title: `神煞易經（${selectedCount}張） · ${monochrome ? '黑白' : '彩色'} A4`, subject: '八字與紫微斗數命盤' });
   for (let index = 0; index < pages.length; index++) {
     const page = pages[index];
     const { width, height } = page.getBoundingClientRect();
