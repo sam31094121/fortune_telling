@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
-import BaziChart from './BaziChart';
+import BaziChart, { ShenShaCard } from './BaziChart';
 import type { DualChartResult } from '@/lib/dual-chart';
 import styles from './dual-chart.module.css';
 import ZiweiChart from './ZiweiChart';
@@ -159,6 +159,7 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
           <ZiweiChart key={JSON.stringify(result.ziwei.birthInput)} result={result} />
         </article>}
         {(!isMobile || chartTab === 'comparison') && <article className={styles.panel}><ComparisonCard result={result} /></article>}
+        {printMode && <article className={styles.panel}><h2>易經神煞</h2><ShenShaCard result={result} /></article>}
       </section>}
     </>}
     {error && <p className={styles.error} role="alert">{error}</p>}
