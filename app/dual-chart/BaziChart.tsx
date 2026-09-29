@@ -277,6 +277,16 @@ function ShenShaGhostSection({ view }: { view?: DualChartResult['specialStars'][
   </section>;
 }
 
+/** 點四柱格子裡的神煞：打開易經老師與那一項的完整解讀，捲過去（只做畫面跳轉，不運算）。 */
+function openShenShaItemCard(anchor: string) {
+  const target = document.getElementById(anchor);
+  if (!target) return false;
+  for (let el: HTMLElement | null = target; el; el = el.parentElement) if (el instanceof HTMLDetailsElement) el.open = true;
+  target.querySelector('details')?.setAttribute('open', '');
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  return true;
+}
+
 /** Independent card. The pillar grid is always visible; the two teacher readings fold. Every word comes from the backend. */
 export function ShenShaCard({ result }: { result: DualChartResult }) {
   const card = result.specialStars?.card;
@@ -301,6 +311,13 @@ export function ShenShaCard({ result }: { result: DualChartResult }) {
       <ShenShaFlowSection view={result.specialStars.flow} />
     </TeacherFold>}
     <ShenShaShare share={result.specialStars?.share} />
+    {card && card.columns.length > 0 && <div id="shensha-grid" className={styles.shenshaPillars}>{card.columns.map(col =>
+      <div key={col.pillar} data-shensha-column={col.pillar} data-shensha-column-state={col.state}><h4>{col.label}</h4>
+        {col.hits.length > 0 && <ul aria-label={`${col.label}神煞`}>{col.hits.map(hit => <li key={`${hit.id}:${hit.name}`} data-shensha-result={hit.id} data-shensha-method={hit.reference ? 'reference' : 'source'} data-shensha-tone={hit.tone ?? undefined} aria-label={hit.tone ? `${hit.name}（${hit.tone}）` : undefined} title={`${hit.name}${hit.tone ? `（${hit.tone}）` : ''}｜${hit.rule}｜${hit.sourceLabel}`}>{hit.anchor ? <a href={`#${hit.anchor}`} onClick={event => { if (openShenShaItemCard(hit.anchor)) event.preventDefault(); }}>{hit.name}</a> : hit.name}</li>)}</ul>}
+        {col.emptyText && <span className={styles.shenshaEmpty} aria-label={col.state === 'PENDING' ? `結果尚未完整：${col.pendingNames.join('、')}` : '本次未命中本站既有規則'}>{col.emptyText}</span>}
+        {col.note && <small className={styles.shenshaPillarNote}>{col.note}</small>}
+      </div>)}</div>}
+    {card && card.columns.length > 0 && <p className={styles.shenshaLegend} aria-label="圖例"><span data-shensha-tone="福氣">福氣</span><span data-shensha-tone="動能">動能</span><span data-shensha-tone="提醒">提醒</span><span>＊ 本派取法</span></p>}
     {/* 鬼魅老師封印中（業主定案 2026-09-28）：貼現有封印符，卡頭可見、點不開；解封改 lib/shensha-ghost.ts 的 GHOST_SEALED。 */}
     {result.specialStars?.ghost?.state === 'SEALED' && <div className={`${styles.teacherCard} ${styles.ghostSealed}`} data-teacher="ghost" data-sealed="true" aria-label={result.specialStars.ghost.sealNotice}>
       <div className={styles.ghostSealedHead}><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small><em className={styles.ageGate}>{result.specialStars.ghost.ageGate}</em></span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span><span className={styles.ghostSealNotice}>{result.specialStars.ghost.sealNotice}</span></div>
@@ -357,13 +374,6 @@ export default function BaziChart({ result, monochrome = false, language = 'zh' 
         <div className={styles.startLuck}>{typeof meta === 'object' ? `出生後 ${meta.startAgeYears} 年 ${meta.startAgeMonths} 月 ${meta.startAgeDays} 天起運 · ${meta.direction === 'FORWARD' ? '順行' : '逆行'}` : '起運資料未提供'}</div>
         <LuckGrid result={result} />
         <section className={styles.relations} data-density={core.interactions.length > 6 ? 'dense' : core.interactions.length > 4 ? 'compact' : 'regular'}><h3>命局合沖刑害破</h3>{core.interactions.length ? core.interactions.map((r, index) => <p key={index}><b>{r.interactionType}</b><span className={styles.relationParticipants}>{r.participants.join('、')}</span><small>{r.affectedPillars.map(key => ({ YEAR: '年柱', MONTH: '月柱', DAY: '日柱', HOUR: '時柱' })[key] ?? key).join('、')}</small></p>) : <p>本系統規則未命中</p>}</section>
-        {result.specialStars?.card && result.specialStars.card.columns.length > 0 && <div id="shensha-grid" className={styles.shenshaPillars}>{result.specialStars.card.columns.map(col =>
-          <div key={col.pillar} data-shensha-column={col.pillar} data-shensha-column-state={col.state}><h4>{col.label}</h4>
-            {col.hits.length > 0 && <ul aria-label={`${col.label}神煞`}>{col.hits.map(hit => <li key={`${hit.id}:${hit.name}`} data-shensha-result={hit.id} data-shensha-method={hit.reference ? 'reference' : 'source'} data-shensha-tone={hit.tone ?? undefined} aria-label={hit.tone ? `${hit.name}（${hit.tone}）` : undefined} title={`${hit.name}${hit.tone ? `（${hit.tone}）` : ''}｜${hit.rule}｜${hit.sourceLabel}`}>{hit.anchor ? <a href={`#${hit.anchor}`} onClick={event => { if (openShenShaItem(hit.anchor)) event.preventDefault(); }}>{hit.name}</a> : hit.name}</li>)}</ul>}
-            {col.emptyText && <span className={styles.shenshaEmpty} aria-label={col.state === 'PENDING' ? `結果尚未完整：${col.pendingNames.join('、')}` : '本次未命中本站既有規則'}>{col.emptyText}</span>}
-            {col.note && <small className={styles.shenshaPillarNote}>{col.note}</small>}
-          </div>)}</div>}
-        {result.specialStars?.card && result.specialStars.card.columns.length > 0 && <p className={styles.shenshaLegend} aria-label="圖例"><span data-shensha-tone="福氣">福氣</span><span data-shensha-tone="動能">動能</span><span data-shensha-tone="提醒">提醒</span><span>＊ 本派取法</span></p>}
         {sourceNotes}
       </section>
     </div>
