@@ -15,9 +15,7 @@ export default function AdminLogin() {
   const [ipStatus, setIpStatus] = useState('檢查中...');
 
   useEffect(() => {
-    // 檢查是否已登入
     checkLoginStatus();
-    // 檢查 IP 白名單狀態
     checkIPStatus();
   }, []);
 
@@ -181,7 +179,7 @@ export default function AdminLogin() {
               <p className={styles.empty}>暫無日誌記錄</p>
             ) : (
               <div className={styles.logsList}>
-                {logs.map(log => (
+                {logs.map((log: any) => (
                   <div
                     key={log.id}
                     className={`${styles.logItem} ${selectedLogId === log.id ? styles.active : ''}`}
@@ -194,7 +192,7 @@ export default function AdminLogin() {
                     <div className={styles.logMeta}>
                       <span>{log.gender === 'male' ? '♂' : '♀'}</span>
                       <span>{log.birthDate} {log.birthTime}</span>
-                      <span>神煞: {log.manufacturing.shensha.totalHits}</span>
+                      <span>{log.bazi.year}{log.bazi.month}{log.bazi.day}{log.bazi.hour}</span>
                     </div>
                   </div>
                 ))}
@@ -212,22 +210,18 @@ export default function AdminLogin() {
                   <dl>
                     <dt>八字四柱</dt>
                     <dd>
-                      {selectedLog.manufacturing.bazi.pillars.year} {selectedLog.manufacturing.bazi.pillars.month}{' '}
-                      {selectedLog.manufacturing.bazi.pillars.day} {selectedLog.manufacturing.bazi.pillars.hour}
+                      {selectedLog.bazi.year} {selectedLog.bazi.month} {selectedLog.bazi.day}{' '}
+                      {selectedLog.bazi.hour}
                     </dd>
 
-                    <dt>日主</dt>
-                    <dd>{selectedLog.manufacturing.bazi.dayMaster}</dd>
+                    <dt>出生日期</dt>
+                    <dd>{selectedLog.birthDate}</dd>
 
-                    <dt>神煞命中</dt>
-                    <dd>
-                      福氣 {selectedLog.manufacturing.shensha.byTone['福氣']} | 動能{' '}
-                      {selectedLog.manufacturing.shensha.byTone['動能']} | 提醒{' '}
-                      {selectedLog.manufacturing.shensha.byTone['提醒']}
-                    </dd>
+                    <dt>出生時間</dt>
+                    <dd>{selectedLog.birthTime}</dd>
 
-                    <dt>易經卦象</dt>
-                    <dd>{selectedLog.manufacturing.iching.hexagram}</dd>
+                    <dt>性別</dt>
+                    <dd>{selectedLog.gender === 'male' ? '♂ 男' : '♀ 女'}</dd>
                   </dl>
                 </div>
 
@@ -235,75 +229,52 @@ export default function AdminLogin() {
                   <h3>📚 來源與授權</h3>
                   <dl>
                     <dt>八字參考</dt>
-                    <dd>{selectedLog.sources.bazi.references.join('、')}</dd>
+                    <dd>{selectedLog.sources.bazi.join('、')}</dd>
 
                     <dt>紫微參考</dt>
-                    <dd>{selectedLog.sources.ziwei.references.join('、')}</dd>
+                    <dd>{selectedLog.sources.ziwei.join('、')}</dd>
 
                     <dt>神煞框架</dt>
-                    <dd>{selectedLog.sources.shensha.framework}</dd>
+                    <dd>{selectedLog.sources.shensha}</dd>
 
                     <dt>易經版本</dt>
-                    <dd>{selectedLog.sources.iching.edition}</dd>
+                    <dd>{selectedLog.sources.iching}</dd>
                   </dl>
                 </div>
 
                 <div className={styles.tab}>
                   <h3>🛡️ 著作權信息</h3>
-                  <div className={styles.copyrightInfo}>
-                    {selectedLog.copyright.engine.map((eng: any, i: number) => (
-                      <div key={i} className={styles.copyrightItem}>
-                        <strong>{eng.name}</strong>
-                        <p>所有者: {eng.owner}</p>
-                        <p>授權: {eng.license}</p>
-                        <p>版本: {eng.version}</p>
-                      </div>
-                    ))}
-                    {selectedLog.copyright.customAlgorithms.map((algo: any, i: number) => (
-                      <div key={i} className={styles.copyrightItem}>
-                        <strong>✨ {algo.description}</strong>
-                        <p>所有者: {algo.owner}</p>
-                        <p>保護方式: {algo.protectionMethod}</p>
-                        <p className={styles.warning}>完全保護，未經許可禁止使用。</p>
-                      </div>
-                    ))}
-                  </div>
+                  <dl>
+                    <dt>所有者</dt>
+                    <dd>{selectedLog.copyright.owner}</dd>
+
+                    <dt>保護方式</dt>
+                    <dd>
+                      {selectedLog.copyright.protection === 'trade-secret'
+                        ? '🔐 商業秘密'
+                        : '📜 著作權'}
+                    </dd>
+                  </dl>
+                  <p className={styles.warning}>完全保護，未經許可禁止使用。</p>
                 </div>
 
                 <div className={styles.tab}>
                   <h3>🔍 法律追蹤</h3>
                   <dl>
                     <dt>請求 IP</dt>
-                    <dd>{selectedLog.legalTracking.ipAddress}</dd>
+                    <dd>{selectedLog.ipAddress}</dd>
 
-                    <dt>請求時間</dt>
-                    <dd>{selectedLog.legalTracking.requestedAt}</dd>
+                    <dt>記錄時間</dt>
+                    <dd>{selectedLog.timestamp}</dd>
+
+                    <dt>用戶代理</dt>
+                    <dd className={styles.mono} style={{ fontSize: '11px' }}>
+                      {selectedLog.userAgent}
+                    </dd>
 
                     <dt>響應雜湊（完整性驗證）</dt>
-                    <dd className={styles.hash}>{selectedLog.legalTracking.responseHash}</dd>
+                    <dd className={styles.hash}>{selectedLog.responseHash}</dd>
                   </dl>
-                </div>
-
-                <div className={styles.tab}>
-                  <h3>⏱️ 計算步驟</h3>
-                  <table className={styles.stepsTable}>
-                    <thead>
-                      <tr>
-                        <th>步驟</th>
-                        <th>執行時間</th>
-                        <th>耗時 (ms)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedLog.calculationSteps.map((step: any, i: number) => (
-                        <tr key={i}>
-                          <td>{step.stepName}</td>
-                          <td className={styles.mono}>{step.timestamp.slice(11, 19)}</td>
-                          <td>{step.duration_ms}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
                 </div>
               </div>
             </section>
