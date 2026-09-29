@@ -590,6 +590,42 @@
       "edition": "文淵閣四庫全書本（據維基文庫轉錄頁標示；未見對應掃描影像）",
       "trust": "C",
       "note": "僅轉錄，未核掃描原頁，故列C。星學大成屬七政四餘，與子平不同術數。"
+    },
+    {
+      "source_id": "S-SITE-SHENSHA-REFERENCE",
+      "author": "本站",
+      "locator": "docs/技能戰鬥檔案/八字/shensha-rule-integrity/references/參考命盤取法.md",
+      "data_type": "太極紫微易經派特星神煞取法標準答案參考",
+      "kind": "本站整理",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "本站自有",
+      "accessed_at": "2026-09-27",
+      "edition": "1.0.0（2026-09-27 業主定案）",
+      "trust": "A",
+      "tracked_path": "docs/技能戰鬥檔案/八字/shensha-rule-integrity/references/參考命盤取法.md",
+      "note": "本站業主定案（2026-09-27）特星神煞之太極紫微易經派標準；纸本命盤 1974-06-28 18:00 男為標準答案，整張卡改用紙本取法。"
+    },
+    {
+      "source_id": "S-SITE-SHENSHA-EXTENSION",
+      "author": "本站",
+      "locator": "docs/技能戰鬥檔案/八字/shensha-rule-integrity/references/特星神煞擴充.md",
+      "data_type": "特星神煞擴充歷程與今年流年神煞話術",
+      "kind": "本站整理",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "本站自有",
+      "accessed_at": "2026-09-27",
+      "edition": "1.0.0（2026-09-27）",
+      "trust": "A",
+      "tracked_path": "docs/技能戰鬥檔案/八字/shensha-rule-integrity/references/特星神煞擴充.md",
+      "note": "本站衍生特星神煞的擴充記錄；自 2026-09-27 起列八項本派規則、十項流年神煞進度追蹤與對應閘門。"
     }
   ],
   "claims": [
@@ -1050,7 +1086,7 @@
       "big_data_sources": ["S-SHENFENG-1929-CATALOG"],
       "cross_references": ["S-SHENFENG-1929-V2-SCAN", "S-SHENFENG-1929-CATALOG", "S-SHENFENG-WIKISOURCE-GEJIAO"],
       "conflicts": [],
-      "status": "PENDING_POOL",
+      "status": "VERIFIED",
       "note": "2026-09-27使用者授權補充本卡缺項來源。僅此新增項採神峰通考，不更換原八项公式或四柱核心。狀態由來源守門重算，不信此欄。三個記錄分别是原頁、版本書目、轉錄對读，並非三部獨立原典或大數據命例驗證。",
       "verification_scope": "SELECTED_EDITION",
       "selected_method": {
@@ -1154,6 +1190,36 @@
           "locator": "1926文明書局本，卷二56–57；PDF134–135"
         }
       ]
+    },
+    {
+      "claim_id": "C-SHENSHA-RULE-INTEGRITY",
+      "title": "特星神煞規則完整性｜太極紫微易經派",
+      "domain": "八字知識",
+      "files": [
+        "docs/技能戰鬥檔案/八字/shensha-rule-integrity/references/參考命盤取法.md",
+        "docs/技能戰鬥檔案/八字/shensha-rule-integrity/references/特星神煞擴充.md"
+      ],
+      "authority_files": [
+        "S-SITE-SHENSHA-REFERENCE"
+      ],
+      "big_data_sources": [
+        "S-SITE-SHENSHA-EXTENSION"
+      ],
+      "cross_references": [
+        "S-SITE-SHENSHA-REFERENCE",
+        "S-SITE-SHENSHA-EXTENSION"
+      ],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "本站業主定案（2026-09-27）特星神煞之太極紫微易經派，獨立於其他流派；紙本命盤 1974-06-28 18:00 男為標準答案；整張卡改用紙本取法；已核共 65 項（八項本派規則＋十項流年神煞＋47項常用神煞）。待補充交叉比對來源。",
+      "verification_scope": "SELECTED_EDITION",
+      "selected_method": {
+        "title": "太極紫微易經派特星神煞取法",
+        "edition": "業主定案 2026-09-27",
+        "ruleVersion": "TAIJI_ZIWEI_YIJING_SHENSHA_V1",
+        "summary": "八字為核心，衍生紫微，再衍生特星神煞；客戶填寫資料 → 八字運算 → 紫微排盤 → 特星神煞。"
+      },
+      "comparisons": []
     }
   ]
 }
