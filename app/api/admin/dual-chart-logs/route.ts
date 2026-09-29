@@ -55,13 +55,14 @@ export async function GET(request: NextRequest) {
         id: log.id,
         timestamp: log.timestamp,
         name: log.name,
+        gender: log.gender,
         birthDate: log.birthDate,
         birthTime: log.birthTime,
-        manufacturing: log.manufacturing,
+        bazi: log.bazi,
         sources: log.sources,
         copyright: log.copyright,
-        legalTracking: log.legalTracking,
-        // calculationSteps 不在列表中返回，需單獨查詢
+        ipAddress: log.ipAddress,
+        userAgent: log.userAgent,
       })),
     });
   } catch (error) {
