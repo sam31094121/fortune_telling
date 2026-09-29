@@ -323,7 +323,7 @@
 .printPreview .summaryGrid>div{padding:3px;line-height:1.5}.printPreview .annualGrid{line-height:1.35;margin-top:6px}.printPreview .annualGrid td,.printPreview .annualGrid th{padding:4px 2px}.printPreview .annualGrid small,.printPreview .annualGrid span{line-height:1.4}.printPreview .annualGrid b{font-size:15px}
 .printPreview .largeGlyph td{padding:8px 3px;line-height:1.5}.printPreview .shenshaRow td{height:105px}.printPreview .relations{display:grid;grid-template-columns:1fr 1fr;gap:5px 9px;font-size:12px;line-height:1.5}.printPreview .relations h3{grid-column:1/-1;margin:0}.printPreview .relations p{margin:0}
 .printPreview .compactGrid{line-height:1.3}.printPreview .compactGrid td,.printPreview .compactGrid th{padding:2px}.printPreview .compactGrid .largeGlyph td{padding:2px;line-height:1.3}
-.outputChoice{display:flex;gap:6px}.outputChoice button[aria-pressed=true]{background:#35283f;color:#fff;border-color:#35283f}
+.selectionPanel{display:flex;gap:16px;align-items:center;padding:8px 0;border-bottom:1px solid #ccc;margin-bottom:8px}.selectionPanel label{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;font-size:13px}.selectionPanel input[type="checkbox"]{cursor:pointer}.outputChoice{display:flex;gap:6px}.outputChoice button[aria-pressed=true]{background:#35283f;color:#fff;border-color:#35283f}
 .printPreview.monochrome .results *{color:#0a0a0a!important;border-color:#555!important}
 .printPreview.monochrome .results>.panel,.printPreview.monochrome .cell{background:#fafafa!important}
 .printPreview.monochrome .results>.panel{background:#fff!important}
