@@ -1732,15 +1732,15 @@
       "title": "神煞易經：特星神煞串接生辰卦解盤",
       "domain": "易經知識",
       "files": [
-        "lib/shensha-iching.ts",
-        "lib/shensha-char-imagery.ts",
-        "lib/shensha-teacher-readings.ts",
-        "docs/技能戰鬥檔案/神煞易經/神煞易經.json",
-        "docs/技能戰鬥檔案/神煞易經/新人檔案.md",
-        "docs/技能戰鬥檔案/神煞易經/常用神煞對照.md",
-        "docs/技能戰鬥檔案/神煞易經/參考/常用神煞總覽（業主提供原文）.md",
-        "docs/技能戰鬥檔案/神煞易經/參考/隔角語源（業主提供原文）.md",
-        "data/shensha-char-imagery.json"
+        "lib/iching-shensha-iching.ts",
+        "lib/iching-shensha-char-imagery.ts",
+        "lib/iching-shensha-teacher-readings.ts",
+        "docs/技能戰鬥檔案/易經神煞/易經神煞.json",
+        "docs/技能戰鬥檔案/易經神煞/新人檔案.md",
+        "docs/技能戰鬥檔案/易經神煞/常用神煞對照.md",
+        "docs/技能戰鬥檔案/易經神煞/參考/常用神煞總覽（業主提供原文）.md",
+        "docs/技能戰鬥檔案/易經神煞/參考/隔角語源（業主提供原文）.md",
+        "data/iching-shensha-char-imagery.json"
       ],
       "authority_files": [
         "S-ZHOUYI-ZHENGYI",
@@ -1768,7 +1768,7 @@
       "title": "神煞易經：神煞洋蔥心理學（殼→心→禮物）",
       "domain": "易經洋蔥心理學",
       "files": [
-        "lib/shensha-onion.ts"
+        "lib/iching-shensha-onion.ts"
       ],
       "authority_files": [
         "S-APA-DICTIONARY"
