@@ -3041,7 +3041,7 @@ export default function HomePage() {
             </div>
           </Link>
 
-          <Link href="/dual-chart" lang={readingLanguage} aria-label={readingCopy.enter} className={`${dualChartEntryStyles.entry} home-feature-launch home-feature-violet home-feature-tier-primary order-[13] w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 sm:p-6 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex flex-wrap items-center justify-between gap-5 sm:gap-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300`}>
+          <Link href="/dual-chart" lang={readingLanguage} aria-label={readingCopy.enter} className={`${dualChartEntryStyles.entry} home-feature-launch home-feature-violet home-feature-tier-primary order-[13] w-full mb-3 relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 sm:p-6 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex flex-wrap items-center justify-between gap-5 sm:gap-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300`}>
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
@@ -3068,7 +3068,7 @@ export default function HomePage() {
             </div>
           </Link>
 
-          <Link href="/single-shensha" lang={readingLanguage} aria-label={readingCopy.singleEnter} className={`${dualChartEntryStyles.entry} home-feature-launch home-feature-indigo home-feature-tier-primary order-[14] w-full relative group overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-950 via-indigo-950/20 to-slate-950 p-5 sm:p-6 text-left shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-indigo-400 hover:shadow-[0_0_50px_rgba(99,102,241,0.3)] active:scale-[0.99] flex flex-wrap items-center justify-between gap-5 sm:gap-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-300`}>
+          <Link href="/single-shensha" lang={readingLanguage} aria-label={readingCopy.singleEnter} className={`${dualChartEntryStyles.entry} home-feature-launch home-feature-indigo home-feature-tier-primary order-[14] w-full mt-3 relative group overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-950 via-indigo-950/20 to-slate-950 p-5 sm:p-6 text-left shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-indigo-400 hover:shadow-[0_0_50px_rgba(99,102,241,0.3)] active:scale-[0.99] flex flex-wrap items-center justify-between gap-5 sm:gap-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-300`}>
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
@@ -3081,7 +3081,7 @@ export default function HomePage() {
                 <span className="home-oracle-3d-emblem__glyph">煞</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-block rounded-full bg-indigo-500/10 border border-indigo-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-indigo-300 uppercase animate-pulse">神煞 · 個人視角</span>
+                <span className="inline-block rounded-full bg-indigo-500/10 border border-indigo-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-indigo-300 uppercase animate-pulse">鬼魅 · 阿修羅</span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-indigo-100 tracking-wide">{readingCopy.single}</h2>
                 <p className="mt-1 text-xs font-bold text-indigo-200/85">{readingCopy.singleSystems}</p>
                 <p className="mt-1.5 text-xs text-[color:var(--text-sub)] leading-relaxed">{readingCopy.singleDescription}</p>

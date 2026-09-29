@@ -91,6 +91,7 @@ export default function SingleShensha({ unlocked }: { unlocked: boolean }) {
 
       if (missing.length > 0) {
         setMissing(missing);
+        setBusy(false);
         return;
       }
 
@@ -124,7 +125,7 @@ export default function SingleShensha({ unlocked }: { unlocked: boolean }) {
     return (
       <div className={styles.page}>
         <div className={`${styles.panel} max-w-md mx-auto`}>
-          <h1 className="text-2xl font-bold mb-6">個人易經神煞</h1>
+          <h1 className="text-2xl font-bold mb-6">鬼魅阿修羅</h1>
           <form onSubmit={unlock} className={styles.login}>
             <div>
               <label className="block mb-2 font-bold">進入密碼</label>
@@ -149,7 +150,7 @@ export default function SingleShensha({ unlocked }: { unlocked: boolean }) {
                 </button>
               </div>
             </div>
-            {error && <div className={styles.error}>{error}</div>}
+            {error && <div className={styles.error} style={{ background: '#8B6914', borderColor: '#D4AF37', color: '#FFF8DC' }}>{error}</div>}
             <button type="submit" disabled={busy} className={styles.loginButton}>
               {busy ? '驗證中...' : '登入'}
             </button>
@@ -170,7 +171,7 @@ export default function SingleShensha({ unlocked }: { unlocked: boolean }) {
 
       {!result ? (
         <div className={styles.header}>
-          <h1>個人易經神煞</h1>
+          <h1>鬼魅阿修羅</h1>
           <p className={styles.note}>八字 × 特星神煞 × 易經心理學</p>
         </div>
       ) : null}
