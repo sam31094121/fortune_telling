@@ -65,7 +65,7 @@ export interface DualChartAuditLog {
 
     // 神煞層
     shensha: {
-      status: 'READY' | 'PENDING' | 'FAILED';
+      status: string; // 'received' | 'unavailable' 等
       totalHits: number;
       byTone: {
         '福氣': number;
@@ -223,7 +223,7 @@ export function recordDualChartAudit(
         mismatches: [],
       },
       shensha: {
-        status: result.specialStars?.card?.state === 'READY' ? 'READY' : 'PENDING',
+        status: result.specialStars?.card?.state ?? 'unavailable',
         totalHits: result.specialStars?.card?.columns.reduce((sum, col) => sum + col.hits.length, 0) ?? 0,
         byTone: {
           '福氣': result.specialStars?.card?.columns.reduce((sum, col) => sum + col.hits.filter(h => h.tone === '福氣').length, 0) ?? 0,
@@ -238,7 +238,7 @@ export function recordDualChartAudit(
         })) ?? [],
       },
       iching: {
-        status: result.specialStars?.iching?.state === 'READY' ? 'READY' : 'PENDING',
+        status: result.specialStars?.iching?.state ?? 'unavailable',
         hexagram: result.specialStars?.iching?.hexagram ?? '',
         judgement: result.specialStars?.iching?.judgement ?? '',
         image: result.specialStars?.iching?.image ?? '',
