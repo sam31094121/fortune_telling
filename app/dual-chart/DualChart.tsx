@@ -26,7 +26,9 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
   const [printMode, setPrintMode] = useState(false);
   const [pdfUrl, setPdfUrl] = useState('');
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfProgress, setPdfProgress] = useState(0);
   const [monochrome, setMonochrome] = useState(false);
+  const pdfCacheRef = useRef<{ [key: string]: string }>({});
   const [chartTab, setChartTab] = useState<'bazi' | 'ziwei' | 'comparison'>('bazi');
   const [isMobile, setIsMobile] = useState(false);
   const resultRef = useRef<HTMLElement>(null);
@@ -88,20 +90,40 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
     } catch (e) { setError(e instanceof Error ? e.message : '連線失敗，請稍後再試。'); }
     finally { setBusy(false); }
   }
+  function generatePdfFilename() {
+    if (!result) return 'dual-chart.pdf';
+    const birthDate = result.bazi.input.birthDate;
+    const birthHour = form.birthHourBranch || '';
+    const name = form.name ? form.name.replace(/[\/\\:*?"<>|]/g, '') : '';
+    const dateStr = birthDate ? birthDate.replace(/-/g, '') : '';
+    const timeStr = birthHour ? `${birthHour}點` : '';
+    const parts = ['雙命盤', dateStr, timeStr, name, monochrome ? '黑白' : '彩色'].filter(Boolean);
+    return `${parts.join('-')}.pdf`;
+  }
   async function exportPdf() {
-    if (!resultRef.current || pdfBusy) return;
+    if (!resultRef.current || pdfBusy || !result) return;
+    const cacheKey = `${monochrome}`;
+    if (pdfCacheRef.current[cacheKey]) {
+      setPdfUrl(pdfCacheRef.current[cacheKey]);
+      return;
+    }
     const exportLanguage = language;
-    setPdfBusy(true); setError('');
+    setPdfBusy(true); setPdfProgress(10); setError('');
     try {
       const { createDualChartPdf } = await import('./export-pdf');
+      setPdfProgress(30);
       const blob = await createDualChartPdf(resultRef.current, monochrome);
+      setPdfProgress(80);
       if (languageRef.current !== exportLanguage) { setError('語言已變更，請重新製作 PDF。'); return; }
-      setPdfUrl(URL.createObjectURL(blob));
+      const url = URL.createObjectURL(blob);
+      pdfCacheRef.current[cacheKey] = url;
+      setPdfUrl(url);
+      setPdfProgress(100);
     } catch (e) { setError(e instanceof Error ? e.message : 'PDF 製作失敗，請再試一次。'); }
-    finally { setPdfBusy(false); }
+    finally { setPdfBusy(false); setPdfProgress(0); }
   }
   return <main className={`${styles.page} ${printMode ? styles.printPreview : ''} ${printMode && monochrome ? styles.monochrome : ''}`}>
-    {printMode && <nav className={styles.printTools} aria-label="列印專用版操作"><button disabled={pdfBusy} onClick={() => setPrintMode(false)}>← 返回命盤</button><strong>列印專用版</strong><div className={styles.outputChoice} role="group" aria-label="輸出色彩">{[false, true].map(value => <button key={String(value)} disabled={pdfBusy} aria-pressed={monochrome === value} onClick={() => { setMonochrome(value); setPdfUrl(''); }}>{value ? '黑白日常版' : '彩色客戶版'}</button>)}</div><button disabled={pdfBusy} onClick={() => void exportPdf()}>{pdfBusy ? '正在製作 PDF…' : `製作${monochrome ? '黑白' : '彩色'} A4 PDF`}</button><button disabled={pdfBusy} onClick={() => window.print()}>瀏覽器列印</button>{pdfUrl && <a className={styles.pdfDownload} href={pdfUrl} download={`雙命盤-A4-${monochrome ? '黑白' : '彩色'}.pdf`}>下載{monochrome ? '黑白' : '彩色'} PDF（2 頁）</a>}<p className={styles.printHint}>若瀏覽器未開啟列印視窗，請先製作並下載 PDF，再用 PDF 閱讀器列印。A4 {monochrome ? '黑白' : '彩色'} · 手機可左右滑動紙張查看；瀏覽器列印請選 A4、100% 比例並關閉頁首頁尾。</p></nav>}
+    {printMode && <nav className={styles.printTools} aria-label="列印專用版操作"><button disabled={pdfBusy} onClick={() => setPrintMode(false)}>← 返回命盤</button><strong>列印專用版</strong><div className={styles.outputChoice} role="group" aria-label="輸出色彩">{[false, true].map(value => <button key={String(value)} disabled={pdfBusy} aria-pressed={monochrome === value} onClick={() => { setMonochrome(value); setPdfUrl(''); setPdfProgress(0); }}>{value ? '黑白日常版' : '彩色客戶版'}</button>)}</div><button disabled={pdfBusy} onClick={() => void exportPdf()}>{pdfBusy ? pdfProgress > 0 && pdfProgress < 100 ? `正在排版…${pdfProgress}%` : '正在製作 PDF…' : `製作${monochrome ? '黑白' : '彩色'} A4 PDF`}</button>{pdfBusy && pdfProgress > 0 && <div className={styles.progressBar} role="progressbar" aria-valuenow={pdfProgress} aria-valuemin={0} aria-valuemax={100}><div className={styles.progressFill} style={{ width: `${pdfProgress}%` }}></div></div>}<button disabled={pdfBusy} onClick={() => window.print()}>瀏覽器列印</button>{pdfUrl && <a className={styles.pdfDownload} href={pdfUrl} download={generatePdfFilename()}>下載{monochrome ? '黑白' : '彩色'} PDF（2 頁）</a>}<p className={styles.printHint}>若瀏覽器未開啟列印視窗，請先製作並下載 PDF，再用 PDF 閱讀器列印。A4 {monochrome ? '黑白' : '彩色'} · 手機可左右滑動紙張查看；瀏覽器列印請選 A4、100% 比例並關閉頁首頁尾。</p></nav>}
     <nav className={styles.nav}><Link href="/">← 返回首頁</Link>{unlocked && <button disabled={busy} onClick={() => void lock()}>鎖定離開</button>}</nav>
     <header className={styles.header}><p>生辰排盤 · 密碼保護</p><h1>雙命盤</h1><p>填寫一份出生資料，查看八字與紫微斗數命盤。</p></header>
     {!unlocked ? <section className={styles.panel}>
