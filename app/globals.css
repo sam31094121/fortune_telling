@@ -18677,6 +18677,12 @@ body.app-touching .home-taiji-cinema * {
   --emblem-deep: 112, 26, 117;
 }
 
+.home-oracle-3d-emblem--indigo {
+  --emblem-main: 99, 102, 241;
+  --emblem-hot: 168, 85, 247;
+  --emblem-deep: 55, 48, 163;
+}
+
 .home-oracle-3d-emblem::before {
   content: "";
   position: absolute;
