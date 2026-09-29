@@ -45,10 +45,10 @@ export async function POST(request: NextRequest) {
           input.birthDate as string,
           input.birthTime as string,
           {
-            year: result.core.pillars.year !== 'UNKNOWN' ? result.core.pillars.year.ganZhi : '',
-            month: result.core.pillars.month !== 'UNKNOWN' ? result.core.pillars.month.ganZhi : '',
-            day: result.core.pillars.day !== 'UNKNOWN' ? result.core.pillars.day.ganZhi : '',
-            hour: result.core.pillars.hour !== 'UNKNOWN' ? result.core.pillars.hour.ganZhi : '',
+            year: typeof result.core.pillars.year === 'object' ? result.core.pillars.year.ganZhi : '',
+            month: typeof result.core.pillars.month === 'object' ? result.core.pillars.month.ganZhi : '',
+            day: typeof result.core.pillars.day === 'object' ? result.core.pillars.day.ganZhi : '',
+            hour: typeof result.core.pillars.hour === 'object' ? result.core.pillars.hour.ganZhi : '',
           },
           {
             ipAddress: clientIP,

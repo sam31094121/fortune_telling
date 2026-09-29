@@ -328,13 +328,6 @@ export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false
       <p data-teacher="iching"><b>易經老師</b>{result.specialStars.iching.oneLiner}</p>
       {result.specialStars?.ghost?.state === 'READY' && <p data-teacher="ghost"><b>鬼魅老師</b>{result.specialStars.ghost.oneLiner}</p>}
     </div>}
-    {!printMode && result.specialStars?.iching && <TeacherFold teacher="iching" summary={<summary><span className={styles.teacherHead}><b>易經老師解盤</b><small>神　溫和的智慧</small></span>{result.specialStars.iching.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.iching.teaser}</span>}</summary>}>
-      <ShenShaIChingSection view={result.specialStars.iching} />
-    </TeacherFold>}
-    {!printMode && result.specialStars?.flow && <TeacherFold teacher="flow" summary={<summary><span className={styles.teacherHead}><b>流年神煞</b><small>今年與明年</small></span>{result.specialStars.flow.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.flow.teaser}</span>}</summary>}>
-      <ShenShaFlowSection view={result.specialStars.flow} />
-    </TeacherFold>}
-    {!printMode && <ShenShaShare share={result.specialStars?.share} />}
     {/* 鬼魅老師封印中（業主定案 2026-09-28）：貼現有封印符，卡頭可見、點不開；解封改 lib/shensha-ghost.ts 的 GHOST_SEALED。 */}
     {result.specialStars?.ghost?.state === 'SEALED' && <div className={`${styles.teacherCard} ${styles.ghostSealed}`} data-teacher="ghost" data-sealed="true" aria-label={result.specialStars.ghost.sealNotice}>
       <div className={styles.ghostSealedHead}><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small><em className={styles.ageGate}>{result.specialStars.ghost.ageGate}</em></span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span><span className={styles.ghostSealNotice}>{result.specialStars.ghost.sealNotice}</span></div>
@@ -343,6 +336,13 @@ export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false
     {result.specialStars?.ghost && result.specialStars.ghost.state !== 'SEALED' && <TeacherFold teacher="ghost" summary={<summary><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small>{result.specialStars.ghost.ageGate && <em className={styles.ageGate}>{result.specialStars.ghost.ageGate}</em>}</span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span></summary>}>
       <ShenShaGhostSection view={result.specialStars.ghost} />
     </TeacherFold>}
+    {!printMode && result.specialStars?.iching && <TeacherFold teacher="iching" summary={<summary><span className={styles.teacherHead}><b>易經老師解盤</b><small>神　溫和的智慧</small></span>{result.specialStars.iching.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.iching.teaser}</span>}</summary>}>
+      <ShenShaIChingSection view={result.specialStars.iching} />
+    </TeacherFold>}
+    {!printMode && result.specialStars?.flow && <TeacherFold teacher="flow" summary={<summary><span className={styles.teacherHead}><b>流年神煞</b><small>今年與明年</small></span>{result.specialStars.flow.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.flow.teaser}</span>}</summary>}>
+      <ShenShaFlowSection view={result.specialStars.flow} />
+    </TeacherFold>}
+    {!printMode && <ShenShaShare share={result.specialStars?.share} />}
   </section>;
 }
 
@@ -395,5 +395,5 @@ export default function BaziChart({ result, monochrome = false, language = 'zh',
       </section>
     </div>
     <footer className={styles.reportFooter}>節氣：{core.calendar.solarTerm} {core.calendar.solarTermTime}<br />台灣標準時間 UTC+8 · 年以立春、月以節氣為界 · 晚子時日柱不換日 · 未做真太陽時校正</footer>
-  </div></div>{!monochrome && !hideShenShaCard && <ShenShaCard result={result} />}<section className={styles.screenShenShaNotes} aria-label={language === 'en' ? 'Shensha source status' : '神煞來源狀態'}>{sourceNotes}</section></>;
+  </div>{!monochrome && !hideShenShaCard && <ShenShaCard result={result} />}</div><section className={styles.screenShenShaNotes} aria-label={language === 'en' ? 'Shensha source status' : '神煞來源狀態'}>{sourceNotes}</section></>;
 }
