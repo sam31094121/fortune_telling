@@ -176,7 +176,8 @@ export function recordDualChartAudit(
     userAgent: string;
     responseHash: string;
   }
-): DualChartAuditLog {
+): void {
+  // 簡化實現：只記錄日誌，不返回完整物件
   const log: DualChartAuditLog = {
     id,
     timestamp: new Date().toISOString(),
@@ -338,7 +339,7 @@ export function recordDualChartAudit(
   };
 
   auditLogs.set(id, log);
-  return log;
+  // 不返回，只記錄到內存
 }
 
 export function getAuditLog(id: string): DualChartAuditLog | undefined {
