@@ -9,7 +9,7 @@
  * - 字庫只收前三個義項，找不到合適義項的字（例：將、蓋）不硬湊，只寫五行。
  * - 這是字面意境的參考，不是神煞的古籍定義，也不下吉凶斷語。
  */
-import imagery from '../data/shensha-char-imagery.json';
+import imagery from '../data/iching-shensha-char-imagery.json';
 
 type ElementName = '木' | '火' | '土' | '金' | '水';
 interface ImageryEntry { element: string; meanings: string[]; curated: boolean }

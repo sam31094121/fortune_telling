@@ -4,7 +4,7 @@ import styles from './dual-chart.module.css';
 import { SharedElementSealPaper } from '@/components/bazi/customer/SharedElementSealPaper';
 import ElementRing from './ElementRing';
 import ShenShaSourceEvidence, { ShenShaComparisonSummary, ShenShaEvidenceLinks } from '@/components/bazi/customer/ShenShaSourceEvidence';
-import { shenShaDisplayCopy, shenShaDisplayNames } from '@/lib/shensha-display-copy';
+import { shenShaDisplayCopy, shenShaDisplayNames } from '@/lib/iching-shensha-display-copy';
 
 const order = ['hour', 'day', 'month', 'year'] as const;
 const labels = { hour: '時', day: '日', month: '月', year: '年' };

@@ -16,11 +16,11 @@ import ichingRegistry from '../docs/技能戰鬥檔案/易經/來源登記.json'
 import { evaluateClaim, indexSources, type GateStatus, type SourceRegistry } from './iching-source-gate';
 import { STATUS_WORDING } from './credibility-phrases';
 import type { ThreeCoreIChingLayer } from './three-core-engine';
-import type { ShenShaCardView } from './dual-chart-shensha-card';
-import { SHENSHA_IMAGERY_ATTRIBUTION, shenShaImagery, type ShenShaImagery } from './shensha-char-imagery';
-import { PILLAR_LINK, PILLAR_PALACE, SHENSHA_PRINCIPLE, SHENSHA_TEACHER_READINGS, SHENSHA_TRADITION, teacherReadingFor, type ShenShaTone } from './shensha-teacher-readings';
-import { shenShaOnion, shenShaOnionCredibility, type ShenShaOnionView } from './shensha-onion';
-import { findShenShaCombos, type ShenShaCombo } from './shensha-combos';
+import type { ShenShaCardView } from './dual-chart-iching-shensha-card';
+import { SHENSHA_IMAGERY_ATTRIBUTION, shenShaImagery, type ShenShaImagery } from './iching-shensha-char-imagery';
+import { PILLAR_LINK, PILLAR_PALACE, SHENSHA_PRINCIPLE, SHENSHA_TEACHER_READINGS, SHENSHA_TRADITION, teacherReadingFor, type ShenShaTone } from './iching-shensha-teacher-readings';
+import { shenShaOnion, shenShaOnionCredibility, type ShenShaOnionView } from './iching-shensha-onion';
+import { findShenShaCombos, type ShenShaCombo } from './iching-shensha-combos';
 
 export const SHENSHA_ICHING_CLAIM = 'C-SHENSHA-ICHING';
 

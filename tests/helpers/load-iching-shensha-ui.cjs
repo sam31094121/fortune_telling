@@ -10,7 +10,7 @@ module.exports = function loadShenShaUi(file, language = 'zh-Hant') {
     if (id === './ElementRing') return () => null;
     if (id === '@/components/HomeTranslatedText') return ({ text }) => text;
     if (id === '@/components/InterfaceLanguage') return { useInterfaceLanguage: () => ({ language }) };
-    if (id === '@/lib/shensha-display-copy') return module.exports('lib/shensha-display-copy.ts', language);
+    if (id === '@/lib/iching-shensha-display-copy') return module.exports('lib/iching-shensha-display-copy.ts', language);
     if (id.endsWith('/ShenShaSourceEvidence')) return module.exports('components/bazi/customer/ShenShaSourceEvidence.tsx', language);
     if (id.endsWith('/SharedElementSealPaper')) return module.exports('components/bazi/customer/SharedElementSealPaper.tsx', language);
     return require(id);

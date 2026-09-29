@@ -2,7 +2,7 @@
 import type { BaziShenShaItem } from '@/lib/bazi/engine';
 import { useInterfaceLanguage } from '@/components/InterfaceLanguage';
 import ShenShaSourceEvidence, { ShenShaComparisonSummary, ShenShaEvidenceLinks } from './ShenShaSourceEvidence';
-import { shenShaDisplayCopy, shenShaDisplayNames } from '@/lib/shensha-display-copy';
+import { shenShaDisplayCopy, shenShaDisplayNames } from '@/lib/iching-shensha-display-copy';
 
 
 /**

@@ -4,7 +4,7 @@
  * 只可使用型別匯入：測試會用 transpile 直接載入本檔。
  */
 import type { BaziShenShaItem } from './bazi/engine';
-import type { ShenShaTone } from './shensha-teacher-readings';
+import type { ShenShaTone } from './iching-shensha-teacher-readings';
 
 export type ShenShaCardPillar = 'year' | 'month' | 'day' | 'hour';
 const ALL: ShenShaCardPillar[] = ['year', 'month', 'day', 'hour'];

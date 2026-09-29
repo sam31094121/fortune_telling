@@ -15,8 +15,8 @@
  */
 import { buildGhostDecoding } from './iching-psychology';
 import type { IChingReading } from './iching-engine';
-import type { ShenShaTone } from './shensha-teacher-readings';
-import type { ShenShaIChingView } from './shensha-iching';
+import type { ShenShaTone } from './iching-shensha-teacher-readings';
+import type { ShenShaIChingView } from './iching-shensha-iching';
 import { GHOST_TEACHER_PERSONA } from './ghost-teacher-persona';
 
 /** hook：先給一句（門外的聲音替你說的心事）；text：完整鬼語，前端折疊。 */

@@ -4,15 +4,15 @@ import { createZiweiCore, createZiweiAstrolabe, hourToTimeIndex } from './ziwei/
 import { analyzeBazi } from './bazi-engine';
 import { attachBaziProfessionalCoreV5, type BaziRuntimeInput } from './bazi-professional-result-v5';
 import { runBaziLayer, runIChingLayer, runZiweiLayer } from './three-core-engine';
-import { buildShenShaIChing } from './shensha-iching';
-import { buildShenShaGhost, GHOST_SEALED, sealShenShaGhost, type ShenShaGhostView, type ShenShaGhostSealed } from './shensha-ghost';
+import { buildShenShaIChing } from './iching-shensha-iching';
+import { buildShenShaGhost, GHOST_SEALED, sealShenShaGhost, type ShenShaGhostView, type ShenShaGhostSealed } from './iching-shensha-ghost';
 
 const sealedGhost = (view: ShenShaGhostView, reveal?: boolean): ShenShaGhostView | ShenShaGhostSealed => GHOST_SEALED && !reveal ? sealShenShaGhost(view) : view;
 import { verifyFourPillars } from './three-in-one';
 import { getBaziTraditionalOutputGate } from './bazi-traditional-gate';
-import { buildDualChartShenSha, buildFlowYearShenSha } from './dual-chart-shensha';
-import { buildShenShaFlow } from './shensha-flow-year';
-import { buildShenShaShare } from './shensha-share';
+import { buildDualChartShenSha, buildFlowYearShenSha } from './dual-chart-iching-shensha';
+import { buildShenShaFlow } from './iching-shensha-flow-year';
+import { buildShenShaShare } from './iching-shensha-share';
 
 /** revealSealedGhost 只給測試核對後端話術用；對外 API 一律不帶，鬼魅老師封印中只送卡頭。 */
 export function calculateDualChart(body: unknown, options: { revealSealedGhost?: boolean } = {}) {

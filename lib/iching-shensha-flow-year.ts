@@ -8,8 +8,8 @@
  *   乙、今年歲神：以流年地支為取主排歲神，看落在本命哪一柱。
  * 取法屬太極紫微易經派（本站自家一派），原典頁碼待補；話術只講提醒與轉化，不作吉凶斷語。
  */
-import type { FlowYearShenSha } from './dual-chart-shensha';
-import { PILLAR_LINK, SHENSHA_TEACHER_READINGS, type ShenShaTone } from './shensha-teacher-readings';
+import type { FlowYearShenSha } from './dual-chart-iching-shensha';
+import { PILLAR_LINK, SHENSHA_TEACHER_READINGS, type ShenShaTone } from './iching-shensha-teacher-readings';
 
 export interface ShenShaFlowItem { id: string; name: string; pillar: string; derivation: string; tone: ShenShaTone | null; theme: string | null; text: string }
 export interface ShenShaFlowYear { year: number; ganZhi: string; label: string; oneLiner: string; touched: ShenShaFlowItem[]; suiShen: ShenShaFlowItem[] }

@@ -4,7 +4,7 @@ const vm = require('node:vm');
 const ts = require('typescript');
 const React = require('react');
 const { renderToStaticMarkup } = require('react-dom/server');
-const loadUi = require('./helpers/load-shensha-ui.cjs');
+const loadUi = require('./helpers/load-iching-shensha-ui.cjs');
 const target = { exports: loadUi('app/dual-chart/BaziChart.tsx') };
 const pillars = ['hour', 'day', 'month', 'year'];
 const sample = {
@@ -24,7 +24,7 @@ assert.equal(blocked.includes('未校驗'), false);
 assert.equal(blocked.includes('天乙貴人'), false, 'advanced interpretation cannot unlock shensha');
 assert.ok(blocked.includes('尚待核對'));
 assert.equal(blocked.includes('colSpan="4"'), false, 'restricted results preserve all four pillar columns');
-assert.equal((blocked.match(/data-shensha-pillar=/g) || []).length, 4);
+assert.equal((blocked.match(/data-iching-shensha-pillar=/g) || []).length, 4);
 assert.ok(blocked.includes('特星神煞'));
 assert.equal(blocked.includes('未命中'), false);
 assert.ok(blocked.includes('甲'));
@@ -123,7 +123,7 @@ assert.ok(enHtml.includes('Some shensha are currently withheld'));
 assert.equal(enHtml.includes('symbolic stars'), false);
 console.log('PASS: bilingual source comparisons distinguish selected-method readiness and require located evidence');
 
-const { inspectShenShaCoverage } = require('../scripts/dual-chart-shensha-display-check.cjs');
+const { inspectShenShaCoverage } = require('../scripts/dual-chart-iching-shensha-display-check.cjs');
 const legacyIds = ['tianyi', 'wenchang', 'taohua', 'yima', 'huagai', 'yangren', 'yuanchen', 'jiangxing', 'gejiao'];
 // 2026-09-27 reference-chart expansion (owner decision): the full baseline the card must evaluate.
 const expectedIds = [...legacyIds, 'tiande', 'yuede', 'tiandehe', 'longde', 'tiangou', 'jinkui', 'wugui', 'zaisha', 'liue', 'yuepo', 'ripo', 'muyu', 'waiTaohua', 'kuigang', 'kongwang', 'jinyu', 'xuetang', 'hongyan', 'lushen', 'tianyiDoctor', 'jiesha', 'guchen', 'guasu', 'guoyin', 'tianchu', 'tianshe', 'sanqi', 'wangshen', 'yinyangChacuo', 'guluan', 'shieDabai', 'liuxia', 'sifei', 'yuedehe', 'feiren', 'jinshen', 'bazhuan', 'jiuchou', 'liuxiu', 'sangmen', 'baihu', 'bingfu', 'pima', 'suipo', 'yuekong', 'jielu', 'tianzhuan', 'dizhuan', 'shiling', 'ride', 'rigui', 'panan', 'anlu', 'jinshenDay', 'tuishen', 'gonglu'];
@@ -154,7 +154,7 @@ duplicatedRule.specialStars.coverage.push({ id: 'yuanchen', status: 'NOT_MATCHED
 assert.ok(inspectShenShaCoverage(duplicatedRule).some(message => message.includes('yuanchen')), 'duplicated coverage does not prove completeness');
 console.log('PASS: shensha health baseline detects disconnected, silently reduced and malformed backend results');
 
-const { inspectShenShaDelivery, inspectShenShaRow } = require('../scripts/dual-chart-shensha-display-check.cjs');
+const { inspectShenShaDelivery, inspectShenShaRow } = require('../scripts/dual-chart-iching-shensha-display-check.cjs');
 const deliveryFixture = structuredClone(connected);
 const fixtureHit = { id: 'taohua', name: '桃花', evidence: 'HOUR 支卯' };
 deliveryFixture.specialStars.raw = [fixtureHit];
@@ -192,7 +192,7 @@ assert.ok(inspectShenShaDelivery(staleCoverage, rowFixture('桃花')).length, 'a
 assert.ok(inspectShenShaRow('<table><tr><td></td><th scope="row">特星神煞</th></tr></table>').warnings.length, 'a truncated table cannot pass');
 console.log('PASS: exact raw → per-pillar → visible-name delivery detects omissions, extras, duplicates, stale copies and wrong pillars');
 
-const { inspectShenShaPlacement } = require('../scripts/dual-chart-shensha-display-check.cjs');
+const { inspectShenShaPlacement } = require('../scripts/dual-chart-iching-shensha-display-check.cjs');
 const inlineHtml = render();
 assert.deepEqual(inspectShenShaPlacement(inlineHtml), [], 'shensha stays directly under the original four pillars');
 assert.ok(!/<(?:details|summary)\b/.test(inlineHtml), 'results require no expansion');
@@ -202,40 +202,40 @@ assert.ok(inspectShenShaPlacement(inlineHtml.replace('<tbody>', '<tbody><details
 assert.ok(inspectShenShaPlacement(inlineHtml.replace('>十二運</th>', '>其他</th>')).length, 'incorrect placement fails health');
 console.log('PASS: shensha is one unfolded row under the original four pillars');
 
-const { inspectShenShaCard } = require('../scripts/dual-chart-shensha-display-check.cjs');
+const { inspectShenShaCard } = require('../scripts/dual-chart-iching-shensha-display-check.cjs');
 deliveryFixture.bazi.professionalChart.pillarDetails = Object.fromEntries(pillars.map(key => [key, { ganzhi: '甲子' }]));
-const { buildShenShaCardView } = loadUi('lib/dual-chart-shensha-card.ts');
+const { buildShenShaCardView } = loadUi('lib/dual-chart-iching-shensha-card.ts');
 // The card view is computed on the backend; fixtures rebuild it the same way the API does.
 const withCard = value => { value.specialStars.card = buildShenShaCardView(value.specialStars, value.bazi.professionalChart.traditionalInterpretationGate.coreReady === true); return value; };
 const card = value => renderToStaticMarkup(React.createElement(target.exports.ShenShaCard, { result: withCard(value) }));
 const cardHtml = card(deliveryFixture);
 assert.deepEqual(inspectShenShaCard(deliveryFixture, cardHtml), []);
-assert.equal(/本次未出現|各項判定|data-shensha-rule=/.test(cardHtml), false, 'customer card shows actual results without the rule-status list');
+assert.equal(/本次未出現|各項判定|data-iching-shensha-rule=/.test(cardHtml), false, 'customer card shows actual results without the rule-status list');
 assert.ok(!/<(?:details|summary)\b/.test(cardHtml), 'no expansion is required');
 assert.ok(inspectShenShaCard(deliveryFixture, `<details>${cardHtml}</details>`).length, 'collapsed content fails health');
-assert.ok(inspectShenShaCard(deliveryFixture, cardHtml.replace('data-shensha-result="taohua"', 'data-shensha-result="missing"')).length, 'lost calculated result fails health');
+assert.ok(inspectShenShaCard(deliveryFixture, cardHtml.replace('data-iching-shensha-result="taohua"', 'data-iching-shensha-result="missing"')).length, 'lost calculated result fails health');
 assert.ok(inspectShenShaCard(deliveryFixture, `${cardHtml}<p>桃花 本次未出現</p>`).length, 'repeated status list fails health');
-assert.ok(inspectShenShaCard(deliveryFixture, cardHtml.replace('data-shensha-column="hour"', 'data-shensha-column="day"')).length, 'wrong pillar fails health');
+assert.ok(inspectShenShaCard(deliveryFixture, cardHtml.replace('data-iching-shensha-column="hour"', 'data-iching-shensha-column="day"')).length, 'wrong pillar fails health');
 const missingCard = structuredClone(deliveryFixture);
 delete missingCard.specialStars.byPillar.month;
 assert.ok(card(missingCard).includes('資料尚未完整'));
 const blockedCard = structuredClone(deliveryFixture);
 blockedCard.bazi.professionalChart.traditionalInterpretationGate.coreReady = false;
-assert.equal(card(blockedCard).includes('data-shensha-result='), false);
+assert.equal(card(blockedCard).includes('data-iching-shensha-result='), false);
 const noCardHtml = renderToStaticMarkup(React.createElement(target.exports.ShenShaCard, { result: { ...structuredClone(deliveryFixture), specialStars: { ...deliveryFixture.specialStars, card: undefined } } }));
-assert.ok(noCardHtml.includes('data-shensha-card-state="unavailable"'), 'without a backend card view the frontend must not compute its own result');
+assert.ok(noCardHtml.includes('data-iching-shensha-card-state="unavailable"'), 'without a backend card view the frontend must not compute its own result');
 // A pending rule only marks the pillars it actually inspects (五鬼 checks month, day and hour only).
 const partialPending = structuredClone(deliveryFixture);
 partialPending.specialStars.coverage.push({ id: 'wugui', name: '五鬼', status: 'BLOCKED_SOURCE' });
 const pendingHtml = card(partialPending);
-const colState = key => pendingHtml.match(new RegExp(`data-shensha-column="${key}" data-shensha-column-state="([A-Z]+)"`))?.[1];
+const colState = key => pendingHtml.match(new RegExp(`data-iching-shensha-column="${key}" data-iching-shensha-column-state="([A-Z]+)"`))?.[1];
 assert.equal(colState('year'), 'NONE', 'a rule that never inspects the year pillar must not mark it pending');
 assert.equal(colState('month'), 'PENDING');
 assert.equal(colState('day'), 'PENDING');
 assert.equal(colState('hour'), 'HIT');
 assert.ok(pendingHtml.includes('另有五鬼待確認'), 'a hit column still discloses its own pending rule');
 assert.ok(pendingHtml.includes('五鬼（月柱、日柱、時柱）'), 'notice names the affected pillars');
-assert.ok(pendingHtml.includes('data-shensha-card-state="partial"'));
+assert.ok(pendingHtml.includes('data-iching-shensha-card-state="partial"'));
 assert.ok(cardHtml.includes('神煞由已核對一致的八字、紫微四柱衍生'), 'the card states where the result is derived from');
 console.log('PASS: calculated shensha results stay complete and unfolded without repeated rule-status text');
 console.log('PASS: backend card view drives the card; pending rules only mark the pillars they inspect');
@@ -255,9 +255,9 @@ delete legacyIching.specialStars.iching.imageryAttribution;
 assert.ok(card(legacyIching).includes('後端推導原文'), 'legacy result without imagery still renders');
 // 客人審查：格子可點（錨點由後端給）、逐項先給一句重點，完整解讀折疊，看完可回四柱。
 const hooked = structuredClone(withIching);
-Object.assign(hooked.specialStars.iching.items[0], { hook: '後端一句重點', anchor: 'shensha-item-hour-taohua' });
+Object.assign(hooked.specialStars.iching.items[0], { hook: '後端一句重點', anchor: 'iching-shensha-item-hour-taohua' });
 const hookedHtml = card(hooked);
-for (const text of ['後端一句重點', 'id="shensha-item-hour-taohua"', '完整解讀</span></span></summary>', '>回四柱</a>', 'id="shensha-grid"', 'href="#shensha-item-']) assert.ok(hookedHtml.includes(text), `hook layout shows ${text}`);
+for (const text of ['後端一句重點', 'id="iching-shensha-item-hour-taohua"', '完整解讀</span></span></summary>', '>回四柱</a>', 'id="iching-shensha-grid"', 'href="#iching-shensha-item-']) assert.ok(hookedHtml.includes(text), `hook layout shows ${text}`);
 assert.ok(hookedHtml.indexOf('後端一句重點') < hookedHtml.indexOf('完整解讀</span></span></summary>') && hookedHtml.indexOf('</summary>', hookedHtml.indexOf('後端一句重點')) < hookedHtml.indexOf('後端導師話術'), 'name and hook are the tap target; full reading folded after it');
 assert.deepEqual(inspectShenShaCard(hooked, hookedHtml), [], 'tappable grid keeps the four-pillar card intact');
 // 流年神煞：四柱下方常駐一句話，完整內容在第三張折疊卡；每個字都是後端給的。
@@ -312,7 +312,7 @@ withGhost.specialStars.ghost = { state: 'READY', ageGate: '後端年齡標示', 
 const ghostHtml = card(withGhost);
 for (const text of ['後端年齡標示', '後端鬼預告', '後端柱引', '易經老師解盤', '鬼魅老師解盤', '後端開壇語', '後端磁場', '後端鬼語', '後端陣名', '後端收壇', '後端聲明']) assert.ok(ghostHtml.includes(text), `prints ${text}`);
 assert.equal((ghostHtml.match(/<details[^>]*data-teacher=/g) || []).length, 2, 'two folded teacher cards');
-assert.ok(ghostHtml.indexOf('data-shensha-column=') < ghostHtml.indexOf('<details'), 'pillar grid stays visible above the folded cards');
+assert.ok(ghostHtml.indexOf('data-iching-shensha-column=') < ghostHtml.indexOf('<details'), 'pillar grid stays visible above the folded cards');
 assert.deepEqual(inspectShenShaCard(withGhost, ghostHtml), [], 'folded teacher cards after the grid pass health');
 assert.ok(inspectShenShaCard(withGhost, `<details>${ghostHtml}</details>`).length, 'folding the pillar grid still fails health');
 console.log('PASS: 易經老師／鬼魅老師 fold below a visible pillar grid and print backend text only');
@@ -328,7 +328,7 @@ const generated = literals.filter(text => cjkSentence.test(text) && !allowedStat
 assert.deepEqual(generated, [], 'frontend must not compose sentences for the 神煞易經 card');
 console.log('PASS: 神煞易經 frontend only prints backend text (no generated sentences)');
 
-const { inspectRequestedShenShaScope } = require('../scripts/dual-chart-shensha-display-check.cjs');
+const { inspectRequestedShenShaScope } = require('../scripts/dual-chart-iching-shensha-display-check.cjs');
 const legacyScope = fixtureFor(legacyIds);
 assert.equal(inspectRequestedShenShaScope(legacyScope).length,11,'transport completeness cannot certify newly requested rules');
 const falseClaim = structuredClone(legacyScope);

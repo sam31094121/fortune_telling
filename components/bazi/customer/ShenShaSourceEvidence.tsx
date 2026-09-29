@@ -1,4 +1,4 @@
-import { shenShaDisplayCopy, shenShaDisplayNames } from '@/lib/shensha-display-copy';
+import { shenShaDisplayCopy, shenShaDisplayNames } from '@/lib/iching-shensha-display-copy';
 
 export type ShenShaDisplayRule = {
   status?: string; ready?: boolean; verificationScope?: string; outputStatus?: string;

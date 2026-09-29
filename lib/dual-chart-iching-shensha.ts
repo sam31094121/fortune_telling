@@ -2,8 +2,8 @@
 import registryJson from '../docs/技能戰鬥檔案/八字/來源登記.json';
 import { indexSources, type SourceRegistry } from './iching-source-gate';
 import { evaluateBaziShenShaRule, type BaziShenShaRuleGate, type BaziTraditionalOutputGate } from './bazi-traditional-gate';
-import { buildShenShaCardView } from './dual-chart-shensha-card';
-import { SHENSHA_TEACHER_READINGS } from './shensha-teacher-readings';
+import { buildShenShaCardView } from './dual-chart-iching-shensha-card';
+import { SHENSHA_TEACHER_READINGS } from './iching-shensha-teacher-readings';
 import { BRANCHES, computeShenSha, type BaziPillarModel, type BaziProfessionalResult, type BaziShenShaItem, type Branch, type Stem } from './bazi/engine';
 
 export const DUAL_SHENSHA_VERSION = 'DUAL_SHENSHA_REFERENCE_CHART_V4';

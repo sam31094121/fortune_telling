@@ -139,7 +139,7 @@ export default function TaijiModel({ wireframe, layers }: LabModelProps) {
         <InscribedSquareOutline />
         {on('cellCube') ? <TaijiTesseractField mode="inscribed" opacity={1} /> : null}
         {on('coreUnit') ? <TesseractModel scale={PROJECTION.taijiScale} /> : null}
-        {on('cellField') ? <TaijiTesseractField opacity={0.72} /> : null}
+        {on('cellField') ? <TaijiTesseractField opacity={0.72} /> : null}
         {contacts.map(rib => <group key={rib.edge.join('-')}>
           <mesh geometry={rib.geometry}><meshStandardMaterial color="#426d79" transparent opacity={.04} roughness={.7} side={THREE.DoubleSide} depthWrite={false} /></mesh>
           {null}

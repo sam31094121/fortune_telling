@@ -7,7 +7,7 @@
  * 每條組合規則是本派的讀盤邏輯：只根據「命中了哪些神煞、落在哪一柱」判斷，
  * 不重算四柱、不加任何新的神煞。凶煞組合一樣只講提醒與轉化，不嚇人、不下定論。
  */
-import type { ShenShaTone } from './shensha-teacher-readings';
+import type { ShenShaTone } from './iching-shensha-teacher-readings';
 
 export interface ComboHit { id: string; name: string; pillar: string; tone?: ShenShaTone }
 export interface ShenShaCombo { id: string; title: string; members: string[]; pillar: string | null; text: string }

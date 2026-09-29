@@ -5,10 +5,10 @@
  * 隱私：卡上不放出生日期、時辰、姓名——只有神煞、本命卦、老師一句話與流年一句話。
  * 前端只負責排版與輸出圖片，不自己組句、不自己算。
  */
-import type { ShenShaCardView } from './dual-chart-shensha-card';
-import type { ShenShaIChingView } from './shensha-iching';
-import type { ShenShaFlowView } from './shensha-flow-year';
-import type { ShenShaTone } from './shensha-teacher-readings';
+import type { ShenShaCardView } from './dual-chart-iching-shensha-card';
+import type { ShenShaIChingView } from './iching-shensha-iching';
+import type { ShenShaFlowView } from './iching-shensha-flow-year';
+import type { ShenShaTone } from './iching-shensha-teacher-readings';
 
 export interface ShenShaShareView {
   title: string; subtitle: string;

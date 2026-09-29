@@ -416,7 +416,7 @@ export const SHENSHA_TEACHER_READINGS: Record<string, ShenShaTeacherReading> = {
 };
 
 /**
- * 傳統三分類（業主提供「常用神煞總覽」，D 級候選資料；見 docs/技能戰鬥檔案/神煞易經/常用神煞對照.md）。
+ * 傳統三分類（業主提供「常用神煞總覽」，D 級候選資料；見 docs/技能戰鬥檔案/易經神煞/常用神煞對照.md）。
  * 只標總覽中有出現的神煞；沒出現的不猜。
  */
 export const SHENSHA_TRADITION: Record<string, '吉神貴人' | '凶煞惡星' | '動態中性' | '特殊格局'> = {

@@ -8,7 +8,7 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
 const root = path.resolve(__dirname, '..');
-const OUT_DIR = path.join(root, '.dual-chart-shensha-display-build');
+const OUT_DIR = path.join(root, '.dual-chart-iching-shensha-display-build');
 const SAMPLES = [
   { name: '固定命例一', birthDate: '1990-01-01', birthTime: '11:30', gender: 'male' },
   { name: '固定命例二', birthDate: '1974-07-02', birthTime: '04:00', gender: 'female' },
@@ -71,24 +71,24 @@ function buildDualChart() {
 
 function loadPillarGrid() {
   // Resolve the same TS/source-evidence imports as the API/UI regression tests.
-  return require('../tests/helpers/load-shensha-ui.cjs')('app/dual-chart/BaziChart.tsx').PillarGrid;
+  return require('../tests/helpers/load-iching-shensha-ui.cjs')('app/dual-chart/BaziChart.tsx').PillarGrid;
 }
 
 function inspectShenShaCard(result, html) {
   const warnings = [];
-  if (!html.includes('aria-label="特星神煞"') || !html.includes('data-shensha-card-state="received"')) warnings.push('神煞卡缺失或資料未完整');
-  const blocks = [...html.matchAll(/<div[^>]*data-shensha-column="([^"]+)"[^>]*>([\s\S]*?)<\/div>/g)];
+  if (!html.includes('aria-label="特星神煞"') || !html.includes('data-iching-shensha-card-state="received"')) warnings.push('神煞卡缺失或資料未完整');
+  const blocks = [...html.matchAll(/<div[^>]*data-iching-shensha-column="([^"]+)"[^>]*>([\s\S]*?)<\/div>/g)];
   if (blocks.length !== 4) warnings.push('神煞卡缺少四柱');
   ['year', 'month', 'day', 'hour'].forEach((key, i) => {
     const block = blocks[i];
-    const names = [...(block?.[2] ?? '').matchAll(/<li[^>]*data-shensha-result="([^"]+)"[^>]*>([\s\S]*?)<\/li>/g)].map(m => `${m[1]}:${m[2].replace(/<[^>]+>/g, '')}`).sort();
+    const names = [...(block?.[2] ?? '').matchAll(/<li[^>]*data-iching-shensha-result="([^"]+)"[^>]*>([\s\S]*?)<\/li>/g)].map(m => `${m[1]}:${m[2].replace(/<[^>]+>/g, '')}`).sort();
     const expected = (result.specialStars?.byPillar?.[key] ?? []).map(item => `${item.id}:${item.name}`).sort();
     if (block?.[1] !== key || JSON.stringify(names) !== JSON.stringify(expected)) warnings.push(`神煞卡 ${key} 漏顯、增項、重複或錯柱`);
   });
-  if (/本次未出現|各項判定|data-shensha-rule=/.test(html)) warnings.push('結果卡不應重複列出判定或未命中清單');
+  if (/本次未出現|各項判定|data-iching-shensha-rule=/.test(html)) warnings.push('結果卡不應重複列出判定或未命中清單');
   warnings.push(...inspectShenShaCoverage(result));
   // 四柱神煞表不得被折疊；表之後的「易經老師／鬼魅老師」解盤卡（業主定案 2026-09-28）可以折疊點閱。
-  const firstColumn = html.indexOf('data-shensha-column=');
+  const firstColumn = html.indexOf('data-iching-shensha-column=');
   const firstFold = html.search(/<(?:details|summary)\b/);
   if (firstFold >= 0 && (firstColumn < 0 || firstFold < firstColumn)) warnings.push('神煞卡原有內容不應折疊');
   return warnings;
@@ -176,7 +176,7 @@ function checkShenShaDisplay() {
   const { renderToStaticMarkup } = require(require.resolve('react-dom/server', { paths: [root] }));
   const { calculateDualChart } = buildDualChart();
   const PillarGrid = loadPillarGrid();
-  const { ShenShaCard } = require('../tests/helpers/load-shensha-ui.cjs')('app/dual-chart/BaziChart.tsx');
+  const { ShenShaCard } = require('../tests/helpers/load-iching-shensha-ui.cjs')('app/dual-chart/BaziChart.tsx');
   const samples = SAMPLES.map((sample) => {
     const result = calculateDualChart({ ...sample, calendarType: 'solar', timezone: 'Asia/Taipei' });
     const gate = result.bazi.professionalChart.traditionalInterpretationGate;
