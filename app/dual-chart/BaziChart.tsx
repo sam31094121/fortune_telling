@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { DualChartResult } from '@/lib/dual-chart';
+import type { ShenShaFlowYear } from '@/lib/iching-shensha-flow-year';
 import styles from './dual-chart.module.css';
 import { SharedElementSealPaper } from '@/components/bazi/customer/SharedElementSealPaper';
 import ElementRing from './ElementRing';
@@ -229,6 +230,28 @@ function ShenShaShare({ share }: { share?: DualChartResult['specialStars']['shar
   </div>;
 }
 
+/** 流年運勢簡要卡片：當年一覽 */
+function FlowYearSummaryCard({ year }: { year: ShenShaFlowYear }) {
+  const goodCount = year.touched.filter(s => s.tone === '福氣').length + year.suiShen.filter(s => s.tone === '福氣').length;
+  const cautionCount = year.touched.filter(s => s.tone === '提醒').length + year.suiShen.filter(s => s.tone === '提醒').length;
+  const totalCount = year.touched.length + year.suiShen.length;
+  const vibe = totalCount === 0 ? '平順' : goodCount > cautionCount ? '吉' : cautionCount > goodCount ? '需注意' : '平衡';
+
+  return <div className={styles.flowYearSummary} data-vibe={vibe}>
+    <div className={styles.flowSummaryHeader}>
+      <h4>{year.label}</h4>
+      <span className={styles.vibeTag} data-vibe={vibe}>{vibe}</span>
+    </div>
+    <p className={styles.flowSummaryMotto}>{year.oneLiner}</p>
+    {totalCount > 0 && <div className={styles.flowSummaryStats}>
+      <span><b>{totalCount}</b>項神煞</span>
+      {goodCount > 0 && <span data-tone="福氣">吉 {goodCount}</span>}
+      {cautionCount > 0 && <span data-tone="提醒">需注意 {cautionCount}</span>}
+    </div>}
+    <p className={styles.flowSummaryHint}>👇 點下方展開詳細</p>
+  </div>;
+}
+
 /** 流年神煞：只照印後端 buildShenShaFlow 的結果（本命被觸動／今年歲神，今年＋明年）。 */
 function ShenShaFlowSection({ view }: { view?: DualChartResult['specialStars']['flow'] }) {
   if (!view) return null;
@@ -240,11 +263,14 @@ function ShenShaFlowSection({ view }: { view?: DualChartResult['specialStars']['
     : <p className={styles.flowEmpty}>{empty}</p>;
   return <section className={styles.shenshaFlow} aria-label="流年神煞內容">
     <p className={styles.flowIntro}>{view.intro}</p>
-    {view.years.map(year => <div key={year.year} className={styles.flowYear} data-flow-year={year.year}>
-      <h4 className={styles.shenshaSectionTitle}>{year.label}</h4>
-      <p className={styles.flowOneLiner}>{year.oneLiner}</p>
-      <h5 className={styles.flowSubTitle}>{view.touchedTitle}</h5>{list(year.touched, view.emptyTouched)}
-      <h5 className={styles.flowSubTitle}>{view.suiShenTitle}</h5>{list(year.suiShen, view.emptySuiShen)}
+    {view.years.map((year, idx) => <div key={year.year}>
+      {idx === 0 && <FlowYearSummaryCard year={year} />}
+      <div className={styles.flowYear} data-flow-year={year.year}>
+        <h4 className={styles.shenshaSectionTitle}>{year.label}</h4>
+        <p className={styles.flowOneLiner}>{year.oneLiner}</p>
+        <h5 className={styles.flowSubTitle}>{view.touchedTitle}</h5>{list(year.touched, view.emptyTouched)}
+        <h5 className={styles.flowSubTitle}>{view.suiShenTitle}</h5>{list(year.suiShen, view.emptySuiShen)}
+      </div>
     </div>)}
     <p className={styles.shenshaSources}>{view.note}</p>
   </section>;

@@ -476,6 +476,28 @@
 .flowItems li p.shenshaItemHead{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;margin-bottom:4px}
 .flowItems li p.shenshaDerive{margin-top:6px;font-size:12px;color:var(--ss-muted)}
 .flowEmpty{margin:0;font-size:13px;color:var(--ss-muted)}
+/* 流年運勢簡要卡片 */
+.flowYearSummary{margin:12px 0 4px;padding:14px 16px;border-radius:12px;border:1px solid var(--ss-line);background:var(--ss-panel);min-width:0}
+.flowYearSummary[data-vibe="吉"]{background:linear-gradient(135deg,rgba(165,214,167,.08),rgba(165,214,167,.04));border-color:rgba(165,214,167,.3)}
+.flowYearSummary[data-vibe="平順"]{background:linear-gradient(135deg,rgba(205,178,255,.08),rgba(205,178,255,.04));border-color:rgba(205,178,255,.3)}
+.flowYearSummary[data-vibe="需注意"]{background:linear-gradient(135deg,rgba(147,211,234,.08),rgba(147,211,234,.04));border-color:rgba(147,211,234,.3)}
+.flowYearSummary[data-vibe="平衡"]{background:linear-gradient(135deg,rgba(233,196,106,.06),rgba(233,196,106,.02));border-color:rgba(233,196,106,.2)}
+.flowSummaryHeader{display:flex;align-items:center;gap:12px;margin:0 0 10px;justify-content:space-between}
+.flowSummaryHeader h4{margin:0;font-size:17px;font-weight:800;color:#e5d0ff;letter-spacing:.04em}
+.vibeTag{display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:2px 14px;border-radius:999px;font-size:13px;font-weight:700;letter-spacing:.05em;white-space:nowrap}
+.vibeTag[data-vibe="吉"]{background:rgba(165,214,167,.2);color:#a5d6a7;border:1px solid rgba(165,214,167,.4)}
+.vibeTag[data-vibe="平順"]{background:rgba(205,178,255,.2);color:#cdb2ff;border:1px solid rgba(205,178,255,.4)}
+.vibeTag[data-vibe="需注意"]{background:rgba(147,211,234,.2);color:#93d3ea;border:1px solid rgba(147,211,234,.4)}
+.vibeTag[data-vibe="平衡"]{background:rgba(233,196,106,.15);color:#f2cf7a;border:1px solid rgba(233,196,106,.3)}
+.flowSummaryMotto{margin:8px 0 0;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.2);font-size:14px;line-height:1.75;color:#ece6f7;overflow-wrap:anywhere}
+.flowSummaryStats{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0;align-items:center;font-size:13px}
+.flowSummaryStats span{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;background:rgba(0,0,0,.2);color:var(--ss-muted)}
+.flowSummaryStats span b{font-weight:700;color:#f2cf7a}
+.flowSummaryStats span[data-tone="福氣"]{background:rgba(165,214,167,.12);color:#a5d6a7}
+.flowSummaryStats span[data-tone="福氣"] b{color:#a5d6a7}
+.flowSummaryStats span[data-tone="提醒"]{background:rgba(147,211,234,.12);color:#93d3ea}
+.flowSummaryStats span[data-tone="提醒"] b{color:#93d3ea}
+.flowSummaryHint{margin:6px 0 0;font-size:12px;color:var(--ss-muted);text-align:center;letter-spacing:.05em}
 /* 分享卡 */
 .shareCard{display:grid;justify-items:center;gap:6px;margin:12px 0 4px;text-align:center}
 .shareButton{min-height:44px;padding:0 22px;border:1px solid #d9b86a;border-radius:999px;background:linear-gradient(180deg,#3a2f52,#282038);color:#f2dba8;font-size:15px;letter-spacing:.08em;cursor:pointer}
