@@ -27,7 +27,15 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
   const [pdfUrl, setPdfUrl] = useState('');
   const [pdfBusy, setPdfBusy] = useState(false);
   const [monochrome, setMonochrome] = useState(false);
+  const [chartTab, setChartTab] = useState<'bazi' | 'ziwei' | 'comparison'>('bazi');
+  const [isMobile, setIsMobile] = useState(false);
   const resultRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   useEffect(() => () => { if (pdfUrl) URL.revokeObjectURL(pdfUrl); }, [pdfUrl]);
   useEffect(() => { setPdfUrl(''); }, [result, language]);
   useEffect(() => { if (result) resultRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, [result]);
@@ -113,11 +121,21 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
           afterHourPicker={form.birthHourBranch === 'zi' && <label className={styles.zi}>子時跨日確認<select disabled={busy} value={form.birthTime ?? ''} onChange={e => updateForm({ ...form, birthTime: e.target.value })}><option value="">請確認午夜前或午夜後</option><option value="23:30">晚子時：23:00–23:59（出生當日）</option><option value="00:30">早子時：00:00–00:59（出生當日）</option></select></label>} />
       </section>
       {result && <section ref={resultRef} className={styles.results} aria-label="雙命盤結果">
-        {!printMode && <button type="button" className={styles.printButton} onClick={() => { setPrintMode(true); resultRef.current?.scrollIntoView({ block: 'start' }); }}>列印專用版</button>}
-        <article className={styles.panel}><h2>八字命盤</h2><BaziChart result={result} monochrome={printMode && monochrome} language={language} /></article>
-        <article className={styles.panel}><h2>紫微斗數命盤</h2>
+        {!printMode && (
+          <>
+            {isMobile && <nav className={styles.chartTabNav} role="tablist">
+              <button role="tab" aria-selected={chartTab === 'bazi'} onClick={() => setChartTab('bazi')} className={chartTab === 'bazi' ? styles.active : ''}>八字</button>
+              <button role="tab" aria-selected={chartTab === 'ziwei'} onClick={() => setChartTab('ziwei')} className={chartTab === 'ziwei' ? styles.active : ''}>紫微</button>
+              <button role="tab" aria-selected={chartTab === 'comparison'} onClick={() => setChartTab('comparison')} className={chartTab === 'comparison' ? styles.active : ''}>對比</button>
+            </nav>}
+            <button type="button" className={styles.printButton} onClick={() => { setPrintMode(true); resultRef.current?.scrollIntoView({ block: 'start' }); }}>列印專用版</button>
+          </>
+        )}
+        {(!isMobile || chartTab === 'bazi') && <article className={styles.panel}><h2>八字命盤</h2><BaziChart result={result} monochrome={printMode && monochrome} language={language} /></article>}
+        {(!isMobile || chartTab === 'ziwei') && <article className={styles.panel}><h2>紫微斗數命盤</h2>
           <ZiweiChart key={JSON.stringify(result.ziwei.birthInput)} result={result} />
-        </article>
+        </article>}
+        {(!isMobile || chartTab === 'comparison') && <article className={styles.panel}><h2>五行對比</h2><p className={styles.comparisionPlaceholder}>對比卡片功能開發中…</p></article>}
       </section>}
     </>}
     {error && <p className={styles.error} role="alert">{error}</p>}
