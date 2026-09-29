@@ -296,6 +296,30 @@ export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false
       <h3>{printMode ? '特星神煞' : '神煞易經'}</h3>
       {!printMode && <p className={styles.shenshaSubtitle}>八字 → 紫微 → 特星神煞 → 易經</p>}
     </header>
+    {/* 🆕 四柱神煞摘要：移到最前面（在標題下方，作為第一個內容塊） */}
+    {!hideShenShaGrid && card && card.columns.length > 0 && <div className={styles.shenshaSummary} aria-label="四柱神煞摘要">
+      <h4>本命盤命中</h4>
+      <div className={styles.shenshaSummaryStats}>
+        {(() => {
+          const allHits = card.columns.flatMap(col => col.hits);
+          const totalCount = allHits.length;
+          const byTone = { 福氣: allHits.filter(h => h.tone === '福氣').length, 動能: allHits.filter(h => h.tone === '動能').length, 提醒: allHits.filter(h => h.tone === '提醒').length };
+          return <><span className={styles.summaryTotal}><b>{totalCount}</b> 項神煞</span>
+            <span className={styles.summaryTone} data-tone="福氣">福氣 {byTone.福氣}</span>
+            <span className={styles.summaryTone} data-tone="動能">動能 {byTone.動能}</span>
+            <span className={styles.summaryTone} data-tone="提醒">提醒 {byTone.提醒}</span></>;
+        })()}
+      </div>
+      <p className={styles.shenshaSummaryHint}>點下方展開完整四柱對照</p>
+    </div>}
+    {/* 四柱神煞網格表 */}
+    {!hideShenShaGrid && card && card.columns.length > 0 && <div id="shensha-grid" className={styles.shenshaPillars}>{card.columns.map(col =>
+      <div key={col.pillar} data-shensha-column={col.pillar} data-shensha-column-state={col.state}><h4>{col.label}</h4>
+        {col.hits.length > 0 && <ul aria-label={`${col.label}神煞`}>{col.hits.map(hit => <li key={`${hit.id}:${hit.name}`} data-shensha-result={hit.id} data-shensha-method={hit.reference ? 'reference' : 'source'} data-shensha-tone={hit.tone ?? undefined} aria-label={hit.tone ? `${hit.name}（${hit.tone}）` : undefined} title={`${hit.name}${hit.tone ? `（${hit.tone}）` : ''}｜${hit.rule}｜${hit.sourceLabel}`}>{hit.anchor ? <a href={`#${hit.anchor}`} onClick={event => { if (openShenShaItemCard(hit.anchor)) event.preventDefault(); }}>{hit.name}</a> : hit.name}</li>)}</ul>}
+        {col.emptyText && <span className={styles.shenshaEmpty} aria-label={col.state === 'PENDING' ? `結果尚未完整：${col.pendingNames.join('、')}` : '本次未命中本站既有規則'}>{col.emptyText}</span>}
+        {col.note && <small className={styles.shenshaPillarNote}>{col.note}</small>}
+      </div>)}</div>}
+    {!hideShenShaGrid && card && card.columns.length > 0 && <p className={styles.shenshaLegend} aria-label="圖例"><span data-shensha-tone="福氣">福氣</span><span data-shensha-tone="動能">動能</span><span data-shensha-tone="提醒">提醒</span><span>＊ 本派取法</span></p>}
     {!printMode && card?.notice && <p role="status">{card.notice}</p>}
     {!printMode && !card && <p role="status">神煞資料尚未完整，暫不能判斷有無結果。</p>}
     {!printMode && card?.footnote && <p className={styles.shenshaFootnote}>{card.footnote}</p>}
@@ -311,13 +335,6 @@ export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false
       <ShenShaFlowSection view={result.specialStars.flow} />
     </TeacherFold>}
     {!printMode && <ShenShaShare share={result.specialStars?.share} />}
-    {!hideShenShaGrid && card && card.columns.length > 0 && <div id="shensha-grid" className={styles.shenshaPillars}>{card.columns.map(col =>
-      <div key={col.pillar} data-shensha-column={col.pillar} data-shensha-column-state={col.state}><h4>{col.label}</h4>
-        {col.hits.length > 0 && <ul aria-label={`${col.label}神煞`}>{col.hits.map(hit => <li key={`${hit.id}:${hit.name}`} data-shensha-result={hit.id} data-shensha-method={hit.reference ? 'reference' : 'source'} data-shensha-tone={hit.tone ?? undefined} aria-label={hit.tone ? `${hit.name}（${hit.tone}）` : undefined} title={`${hit.name}${hit.tone ? `（${hit.tone}）` : ''}｜${hit.rule}｜${hit.sourceLabel}`}>{hit.anchor ? <a href={`#${hit.anchor}`} onClick={event => { if (openShenShaItemCard(hit.anchor)) event.preventDefault(); }}>{hit.name}</a> : hit.name}</li>)}</ul>}
-        {col.emptyText && <span className={styles.shenshaEmpty} aria-label={col.state === 'PENDING' ? `結果尚未完整：${col.pendingNames.join('、')}` : '本次未命中本站既有規則'}>{col.emptyText}</span>}
-        {col.note && <small className={styles.shenshaPillarNote}>{col.note}</small>}
-      </div>)}</div>}
-    {!hideShenShaGrid && card && card.columns.length > 0 && <p className={styles.shenshaLegend} aria-label="圖例"><span data-shensha-tone="福氣">福氣</span><span data-shensha-tone="動能">動能</span><span data-shensha-tone="提醒">提醒</span><span>＊ 本派取法</span></p>}
     {/* 鬼魅老師封印中（業主定案 2026-09-28）：貼現有封印符，卡頭可見、點不開；解封改 lib/shensha-ghost.ts 的 GHOST_SEALED。 */}
     {result.specialStars?.ghost?.state === 'SEALED' && <div className={`${styles.teacherCard} ${styles.ghostSealed}`} data-teacher="ghost" data-sealed="true" aria-label={result.specialStars.ghost.sealNotice}>
       <div className={styles.ghostSealedHead}><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small><em className={styles.ageGate}>{result.specialStars.ghost.ageGate}</em></span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span><span className={styles.ghostSealNotice}>{result.specialStars.ghost.sealNotice}</span></div>

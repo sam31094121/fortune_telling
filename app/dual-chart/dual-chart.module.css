@@ -188,7 +188,16 @@
 .shenshaHexagram p{display:grid;gap:2px;margin:0;text-align:start}
 .shenshaHexagram b{font-size:24px;font-weight:800;letter-spacing:.12em;color:#f4e6ff}
 .shenshaHexagram small{font-size:13px;color:var(--ss-muted)}
-.shenshaSummary{margin:0 0 10px;padding:12px 14px;border-radius:12px;border:1px solid #e9c46a44;background:#241f35;font-size:16px;line-height:1.85;color:#f5f0ff;overflow-wrap:anywhere}
+.shenshaSummary{margin:0 0 12px;padding:14px 16px;border-radius:12px;border:1px solid #e9c46a44;background:linear-gradient(135deg,#2a2440,#1f1c2f);font-size:16px;line-height:1.85;color:#f5f0ff;overflow-wrap:anywhere}
+.shenshaSummary h4{margin:0 0 12px;font-size:15px;font-weight:700;letter-spacing:.1em;color:#f0e0ff}
+.shenshaSummaryStats{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0;padding:8px 0;align-items:center}
+.summaryTotal{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(233,196,106,.1);border:1px solid #e9c46a55;border-radius:999px;font-size:14px;color:#f0e0ff}
+.summaryTotal b{font-size:18px;font-weight:800;color:#f2cf7a}
+.summaryTone{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;font-size:14px;color:#f5f0ff}
+.summaryTone[data-tone="福氣"]{background:rgba(165,214,167,.08);color:#a5d6a7}
+.summaryTone[data-tone="動能"]{background:rgba(205,178,255,.08);color:#cdb2ff}
+.summaryTone[data-tone="提醒"]{background:rgba(147,211,234,.08);color:#93d3ea}
+.shenshaSummaryHint{margin:6px 0 0;font-size:13px;color:var(--ss-muted);text-align:center;letter-spacing:.06em}
 .shenshaSummary span{display:block;margin-top:8px;padding-top:8px;border-top:1px dashed #e9c46a44;font-size:15px;color:var(--ss-gold)}
 .shenshaDerivation li p.shenshaDerive{margin-top:8px;padding-top:6px;border-top:1px dashed var(--ss-line);font-size:12px;color:var(--ss-muted)}
 .shenshaIching>p[role=status],.shenshaCard>p[role=status]{padding:10px 12px;border-radius:10px;border:1px solid #93d3ea55;background:#1b2330;font-size:14px;line-height:1.7;color:#d7eef7}
