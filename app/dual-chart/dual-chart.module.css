@@ -519,3 +519,15 @@ details[open]>summary .moreHint::after{content:' ▴'}
 .ghostSealedHead{padding:14px 16px;opacity:.55;filter:saturate(.6)}
 .ghostSealNotice{display:block;margin-top:6px;font-size:13px;letter-spacing:.2em;color:#ff9aa4}
 .ghostSealed :global(.space-seal-paper){top:-18%;left:auto;right:10%;width:58px;height:136%;padding-top:10px}
+/* 融合卡片：八字易經神煞命盤 */
+.fusedChart{position:relative}
+.fusedChart h2{font-size:24px;font-weight:800;margin-bottom:4px;color:#f5e6ff;text-align:center;letter-spacing:.02em}
+.fusedSubtitle{text-align:center;font-size:13px;color:#b8a8c8;margin-bottom:20px;letter-spacing:.05em;font-weight:500}
+.shenshaIchingFused{margin-top:24px;padding-top:20px;border-top:2px solid rgba(217,190,245,.2)}
+.shenshaIchingFused .shenshaCard{border:none;background:transparent;padding:0}
+.shenshaIchingFused .shenshaCard h3{font-size:20px;color:#e5d0ff;margin-top:0}
+/* Print mode for fused chart */
+.printPreview .fusedChart{padding:14mm 12mm}
+.printPreview .fusedChart h2{font-size:23px;margin-bottom:8px}
+.printPreview .fusedSubtitle{font-size:12px;margin-bottom:14px}
+.printPreview .shenshaIchingFused{margin-top:16px;padding-top:14px;border-top:1.5px solid rgba(0,0,0,.1)}

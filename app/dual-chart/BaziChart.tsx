@@ -338,7 +338,7 @@ export function LuckGrid({ result, compact = false }: { result: DualChartResult;
   </tbody></table>;
 }
 
-export default function BaziChart({ result, monochrome = false, language = 'zh' }: { result: DualChartResult; monochrome?: boolean; language?: string }) {
+export default function BaziChart({ result, monochrome = false, language = 'zh', hideShenShaCard = false }: { result: DualChartResult; monochrome?: boolean; language?: string; hideShenShaCard?: boolean }) {
   const { core, bazi, annual } = result;
   const pc = bazi.professionalChart;
   const traditionalGate = pc.traditionalInterpretationGate;
@@ -378,5 +378,5 @@ export default function BaziChart({ result, monochrome = false, language = 'zh' 
       </section>
     </div>
     <footer className={styles.reportFooter}>節氣：{core.calendar.solarTerm} {core.calendar.solarTermTime}<br />台灣標準時間 UTC+8 · 年以立春、月以節氣為界 · 晚子時日柱不換日 · 未做真太陽時校正</footer>
-  </div></div>{!monochrome && <ShenShaCard result={result} />}<section className={styles.screenShenShaNotes} aria-label={language === 'en' ? 'Shensha source status' : '神煞來源狀態'}>{sourceNotes}</section></>;
+  </div></div>{!monochrome && !hideShenShaCard && <ShenShaCard result={result} />}<section className={styles.screenShenShaNotes} aria-label={language === 'en' ? 'Shensha source status' : '神煞來源狀態'}>{sourceNotes}</section></>;
 }

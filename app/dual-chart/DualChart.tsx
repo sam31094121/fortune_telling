@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
 import BaziChart, { ShenShaCard } from './BaziChart';
+import BaziIChingShenShaCard from './BaziIChingShenShaCard';
 import type { DualChartResult } from '@/lib/dual-chart';
 import styles from './dual-chart.module.css';
 import ZiweiChart from './ZiweiChart';
@@ -179,14 +180,12 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
             <button type="button" onClick={() => setPrintMode(false)} style={{ marginTop: '1rem', padding: '0.5rem 1rem', backgroundColor: 'transparent', border: '1px solid rgba(139, 92, 246, 0.5)', borderRadius: '0.5rem', color: '#e9d5ff', cursor: 'pointer' }}>返回檢視</button>
           </div>
         )}
-        {(!isMobile || chartTab === 'bazi') && (printMode ? printSelection.bazi : true) && <article className={styles.panel}><h2>八字命盤</h2><BaziChart result={result} monochrome={printMode ? true : monochrome} language={language} /></article>}
-        {printMode && printSelection.shensha && <article className={styles.panel}><h3>特星神煞</h3><ShenShaCard result={result} printMode={true} /></article>}
+        {(!isMobile || chartTab === 'bazi') && (printMode ? printSelection.bazi : true) && <BaziIChingShenShaCard result={result} language={language} />}
         {!printMode && !isMobile && <div className={styles.chartDivider} />}
         {(!isMobile || chartTab === 'ziwei') && (printMode ? printSelection.ziwei : true) && <article className={styles.panel}><h2>紫微斗數命盤</h2>
           <ZiweiChart key={JSON.stringify(result.ziwei.birthInput)} result={result} />
         </article>}
         {(!isMobile || chartTab === 'comparison') && (printMode ? false : true) && <article className={styles.panel}><ComparisonCard result={result} /></article>}
-        {printMode && printSelection.iching && <article className={styles.panel}><h2>易經神煞</h2><ShenShaCard result={result} hideShenShaGrid={printSelection.shensha} /></article>}
       </section>}
     </>}
     {error && <p className={styles.error} role="alert">{error}</p>}
