@@ -84,10 +84,10 @@
 .printPreview{max-width:calc(210mm + 32px);background:#e8e6eb!important;color:#222!important;font-family:'Microsoft JhengHei','PingFang TC',sans-serif}
 .printPreview .nav,.printPreview .header,.printPreview .inputPanel{display:none}
 .printPreview .results{overflow-x:auto;padding:0;max-width:100%;overscroll-behavior-x:contain}
-.printPreview .results>.panel{width:210mm;max-width:none;min-height:297mm;box-sizing:border-box;background:#fdfbf7!important;border:0;border-radius:0;padding:12mm;margin:0 auto 24px;color:#2a2235!important;box-shadow:0 3px 10px #0002;print-color-adjust:exact;-webkit-print-color-adjust:exact}
-.printPreview .panel h2{color:#51355f!important;font-size:24px;line-height:1.5;border-bottom:2px solid #c8a563;padding-bottom:12px;margin-bottom:18px;letter-spacing:2px}
+.printPreview .results>.panel{width:210mm;max-width:none;min-height:297mm;box-sizing:border-box;background:#fdfbf7!important;border:0;border-radius:0;padding:14mm 12mm;margin:0 auto 24px;color:#2a2235!important;box-shadow:0 3px 10px #0002;print-color-adjust:exact;-webkit-print-color-adjust:exact;display:flex;flex-direction:column}
+.printPreview .panel h2{color:#51355f!important;font-size:23px;line-height:1.4;border-bottom:2px solid #c8a563;padding-bottom:10px;margin-bottom:14px;letter-spacing:1.5px;flex-shrink:0}
 .printPreview .note{color:#565064!important;font-size:12px;line-height:1.7}
-.printPreview .chart{background:#9d8ba4!important;border-color:#9d8ba4!important;border-radius:0;gap:1px;grid-template-rows:repeat(4,minmax(48mm,auto));margin:20px 0}
+.printPreview .chart{background:#9d8ba4!important;border-color:#9d8ba4!important;border-radius:0;gap:1px;grid-template-rows:repeat(4,minmax(46mm,auto));margin:16px 0}
 .printPreview .cell{background:#fefcf8!important;padding:9px;gap:6px;cursor:default;border:0.5px solid #ddd}
 .printPreview .center{background:#faf7f1!important;padding:16px;font-size:14px;gap:8px;color:#3a3248!important;border:1px solid #ddd}
 .printPreview .center strong{font-size:22px;color:#6d4f8f!important}.printPreview .center p{line-height:1.6}
@@ -102,8 +102,8 @@
 .printPreview [data-bazi-raw-chart]{font-size:14px;line-height:1.7}
 .printPreview [data-bazi-raw-chart] *{color:#343042!important;border-color:#b7abbc!important}
 .printPreview [data-bazi-raw-chart] table{font-size:14px;line-height:1.7;background:#fffdf6!important}
-.printPreview [data-bazi-raw-chart] th{background:#eee5f5!important;color:#633f70!important;font-size:16px}
-.printPreview [data-bazi-raw-chart] td{padding:14px 8px}
+.printPreview [data-bazi-raw-chart] th{background:#eee5f5!important;color:#633f70!important;font-size:15px;padding:8px 6px}
+.printPreview [data-bazi-raw-chart] td{padding:10px 6px;line-height:1.5}
 .printPreview [data-bazi-raw-chart] :global(.text-2xl){font-size:25px;color:#71436e!important}
 .printPreview [data-bazi-raw-chart] :global(.grid-cols-2){grid-template-columns:repeat(4,minmax(0,1fr))}
 .printPreview [data-bazi-raw-chart] :global(.sm\:grid-cols-2){grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -284,15 +284,15 @@
 .ghostClosing{margin:18px 0 8px;padding:12px 14px;border-radius:10px;border:1px solid #8f1d2c88;background:linear-gradient(135deg,#2a0c12,#12090c);font-size:15.5px;line-height:1.9;color:#f3dfe1}
 .ghostDisclaimer{margin:0;font-family:initial;font-size:12.5px;line-height:1.7;color:#a98a8e}
 .printPreview .shenshaCard{display:none}
-.printPreview #shensha-grid{margin-top:12px;margin-bottom:8px;padding-top:12px;border-top:1px solid #ddd}
-.printPreview .shenshaPillars{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-.printPreview .shenshaPillars>div{padding:8px 3px;border:1px solid #999;background:#fff!important;text-align:center}
-.printPreview .shenshaPillars h4{font-size:12px;color:#333!important;margin:0 0 6px;padding-bottom:4px;border-bottom:1px solid #ddd}
-.printPreview .shenshaPillars ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
-.printPreview .shenshaPillars li{font-size:13px;color:#333!important;line-height:1.4}
-.printPreview .shenshaEmpty{color:#666!important;font-size:12px}
-.printPreview .shenshaPillarNote{font-size:11px;color:#666!important}
-.printPreview .baziMain>p.shenshaLegend{font-size:11px;color:#666!important;margin-top:8px}
+.printPreview #shensha-grid{margin-top:10px;margin-bottom:6px;padding-top:10px;border-top:1.5px solid #bbb;flex-shrink:0}
+.printPreview .shenshaPillars{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.printPreview .shenshaPillars>div{padding:9px 4px;border:1px solid #888;background:#fff!important;text-align:center;border-radius:4px}
+.printPreview .shenshaPillars h4{font-size:12px;font-weight:700;color:#333!important;margin:0 0 7px;padding-bottom:5px;border-bottom:1px solid #ddd}
+.printPreview .shenshaPillars ul{list-style:none;margin:0;padding:0;display:grid;gap:3px}
+.printPreview .shenshaPillars li{font-size:12.5px;color:#2a2235!important;line-height:1.5;font-weight:500}
+.printPreview .shenshaEmpty{color:#666!important;font-size:11px}
+.printPreview .shenshaPillarNote{font-size:10px;color:#888!important;margin-top:4px}
+.printPreview .baziMain>p.shenshaLegend{font-size:10px;color:#888!important;margin-top:6px;gap:4px 10px;letter-spacing:0}
 @media print{.shenshaCard{display:none}}
 .printPreview .baziMain>p.shenshaNote{font-size:11.5px;line-height:1.5;margin-top:6px}
 .shenshaEvidence{font-size:12px;line-height:1.6;margin-top:8px;overflow-wrap:anywhere}.shenshaEvidence a{text-decoration:underline}.shenshaEvidence section{margin-top:8px}.printPreview .shenshaEvidence{display:none}
@@ -360,7 +360,7 @@
 .printPreview .baziMain>.pillarGrid{font-size:15px}.printPreview .shenshaRow td{height:88px}
 .printPreview .baziMain>.relations{flex:1;align-content:space-evenly;font-size:13px;line-height:1.6}.printPreview .relations small{font-size:12px}
 .printPreview .baziMain>.micro{margin-top:10px;margin-bottom:8px}.printPreview .startLuck{font-size:14px}
-.printPreview .baziMain>.luckGrid{font-size:13px;line-height:1.55}.printPreview .baziMain>.micro{font-size:13px;line-height:1.6}.printPreview .baziMain>.relations{font-size:14px}.printPreview .baziMain>.relations small{font-size:12.5px}
+.printPreview .baziMain>.luckGrid{font-size:12px;line-height:1.5;margin-top:6px}.printPreview .baziMain>.micro{font-size:12px;line-height:1.5}.printPreview .baziMain>.relations{font-size:13px;margin-top:6px}.printPreview .baziMain>.relations small{font-size:11px}
 /* Reading hierarchy: primary data, aligned labels, then secondary details. */
 .summaryGrid>div{display:grid;grid-template-columns:2.2em minmax(0,1fr);align-items:baseline}.summaryGrid dd{font-weight:500}
 .ageStrip{display:grid;grid-template-columns:2em minmax(0,1fr);column-gap:5px;align-items:start}.ageStrip>b{font-weight:600}.ageValues{display:flex;flex-wrap:wrap;column-gap:3px}.ageValues>span{white-space:nowrap;font-variant-numeric:tabular-nums}
