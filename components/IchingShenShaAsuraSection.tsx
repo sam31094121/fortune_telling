@@ -9,7 +9,6 @@
  */
 
 import type { DualChartResult } from '@/lib/dual-chart';
-import { translateToAsuraName } from '@/lib/ghost-asura-registry';
 import styles from '@/app/dual-chart/dual-chart.module.css';
 
 export function IchingShenShaAsuraSection({ view }: { view?: DualChartResult['specialStars']['asura'] }) {
@@ -36,15 +35,13 @@ export function IchingShenShaAsuraSection({ view }: { view?: DualChartResult['sp
               <h5>{group.pillar}</h5>
               {group.intro && <p className={styles.asuraPillarIntro}>{group.intro}</p>}
               <ul>
-                {group.lines.map((line, index) => {
-                  const asuraName = translateToAsuraName(line.name);
-                  return (
-                    <li key={`${line.name}:${index}`} data-shensha-tone={line.tone ?? undefined}>
+                {group.lines.map((line, index) => (
+                    <li key={`${line.originalName}:${index}`} data-shensha-tone={line.tone ?? undefined}>
                       {line.narrative ? (
                         <details className={styles.asuraMore}>
                           <summary>
                             <span className={styles.asuraHook}>
-                              {asuraName}
+                              {line.displayName}
                               <span className={styles.moreHint}>完整敘述</span>
                             </span>
                           </summary>
@@ -58,12 +55,11 @@ export function IchingShenShaAsuraSection({ view }: { view?: DualChartResult['sp
                         </details>
                       ) : (
                         <p>
-                          <b>{asuraName}</b>
+                          <b>{line.displayName}</b>
                         </p>
                       )}
                     </li>
-                  );
-                })}
+                  ))}
               </ul>
             </div>
           ))}

@@ -15,13 +15,15 @@
  */
 
 import { generateAsuraNarrative, type AsuraNarrativeOutput, type AsuraIntensityLevel } from './asura-narrative-engine';
+import { translateToAsuraName } from './ghost-asura-registry';
 import type { IChingReading } from './iching-engine';
 import type { ShenShaTone } from './iching-shensha-teacher-readings';
 import type { ShenShaIChingView } from './iching-shensha-iching';
 
 /** 阿修羅卡片輸出行 */
 export interface ShenShaAsuraLine {
-  name: string;
+  originalName: string;
+  displayName: string;
   tone: ShenShaTone | null;
   /** 敘事層產出的五層結構 */
   narrative: AsuraNarrativeOutput;
@@ -69,20 +71,25 @@ export function buildShenShaAsura(view: ShenShaIChingView, hexagram: IChingReadi
   const groups = readyView.groups?.map((group: any) => ({
     pillar: group.pillar,
     intro: generateAsuraPillarIntro(group.pillar),
-    lines: group.items.map((item: any) => ({
-      name: item.name,
-      tone: item.teacher?.tone ?? null,
-      narrative: generateAsuraNarrative(
-        {
-          analysisId: `asura-shensha-${item.id}`,
-          professionalData: { shenShaId: item.id, pillar: group.pillar },
-          teacherInterpretation: (item.teacher?.text || null) ?? item.name,
-          contentType: 'shensha',
-          keyIndicators: { shenShaName: item.name, pillar: group.pillar, intensity },
-        },
-        intensity,
-      ),
-    })),
+    lines: group.items.map((item: any) => {
+      const originalName = item.name;
+      const displayName = translateToAsuraName(originalName);
+      return {
+        originalName,
+        displayName,
+        tone: item.teacher?.tone ?? null,
+        narrative: generateAsuraNarrative(
+          {
+            analysisId: `asura-shensha-${item.id}`,
+            professionalData: { shenShaId: item.id, pillar: group.pillar },
+            teacherInterpretation: (item.teacher?.text || null) ?? originalName,
+            contentType: 'shensha',
+            keyIndicators: { shenShaName: originalName, pillar: group.pillar, intensity },
+          },
+          intensity,
+        ),
+      };
+    }),
   }));
 
   // 陣法 — 用阿修羅視角說明整盤組合
