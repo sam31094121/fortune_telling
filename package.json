@@ -114,7 +114,8 @@
     "test:iching-shensha-live-api": "node --env-file=.env.local tests/iching-shensha-live-api.test.mjs",
     "test:asura-narrative-consistency": "node tests/asura-narrative-consistency.test.mjs",
     "test:asura-no-fabrication": "node tests/asura-no-fabrication.test.cjs",
-    "test:asura-frontend-only": "node tests/asura-frontend-only.test.cjs"
+    "test:asura-frontend-only": "node tests/asura-frontend-only.test.cjs",
+    "test:ghost-asura-completeness": "node tests/ghost-asura-completeness.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

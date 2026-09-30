@@ -78,7 +78,7 @@ export function buildShenShaAsura(view: ShenShaIChingView, hexagram: IChingReadi
           professionalData: { shenShaId: item.id, pillar: group.pillar },
           teacherInterpretation: (item.teacher?.text || null) ?? item.name,
           contentType: 'shensha',
-          keyIndicators: { shenShaName: item.name, pillar: group.pillar },
+          keyIndicators: { shenShaName: item.name, pillar: group.pillar, intensity },
         },
         intensity,
       ),

@@ -9,7 +9,7 @@
  */
 
 import type { DualChartResult } from '@/lib/dual-chart';
-import { translateToAsuraName } from '@/lib/asura-name-map';
+import { translateToAsuraName } from '@/lib/ghost-asura-registry';
 import styles from '@/app/dual-chart/dual-chart.module.css';
 
 export function IchingShenShaAsuraSection({ view }: { view?: DualChartResult['specialStars']['asura'] }) {
