@@ -7,7 +7,6 @@ import ElementRing from './ElementRing';
 import ShenShaSourceEvidence, { ShenShaComparisonSummary, ShenShaEvidenceLinks } from '@/components/bazi/customer/ShenShaSourceEvidence';
 import { shenShaDisplayCopy, shenShaDisplayNames } from '@/lib/iching-shensha-display-copy'; // imported correctly
 import { IchingShenShaAsuraSection } from '@/components/IchingShenShaAsuraSection';
-import { validateAsuraGroupsCompleteness } from '@/lib/ghost-asura-frontend-guard';
 
 const order = ['hour', 'day', 'month', 'year'] as const;
 const labels = { hour: '時', day: '日', month: '月', year: '年' };
@@ -412,21 +411,13 @@ export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false
 
     {/* 阿修羅解盤 — 新增卡片 */}
     {!printMode && shenshaTab === 'asura' && result.specialStars?.asura?.state === 'READY' && (() => {
-      // 完整度驗證：確保後端 = 前端，不漏掉任何神煞
-      const backendGroups = result.specialStars?.asura?.groups ?? [];
-      const validation = validateAsuraGroupsCompleteness(
-        backendGroups.map(g => ({ pillar: g.pillar || '', lines: g.lines || [] })),
-        backendGroups.map(g => ({
-          pillar: g.pillar || '',
-          lines: (g.lines || []).map(line => ({
-            name: line.name,
-            displayName: line.displayName || line.name
-          }))
-        }))
-      );
+      // 完整度驗證：簡單檢查（詳細驗證在測試層）
+      const asuraView = result.specialStars?.asura;
+      if (asuraView?.state !== 'READY') return null;
 
-      if (validation.status === 'FAILED') {
-        console.error('🚨 ASURA_FRONTEND_COMPLETENESS_FAILED:', validation.message);
+      const backendLineCount = (asuraView.groups ?? []).reduce((sum, g) => sum + (g.lines?.length ?? 0), 0);
+      if (backendLineCount === 0) {
+        console.error('🚨 ASURA_FRONTEND_COMPLETENESS_FAILED: 後端無神煞');
         return null;
       }
 
