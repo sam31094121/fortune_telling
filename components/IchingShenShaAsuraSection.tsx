@@ -4,9 +4,12 @@
  * 只照印後端 buildShenShaAsura 的結果
  * 後端已產出：五層敘事層 (破/鎖/斷/立/行) + 四柱分組 + 整盤陣法 + 收場宣言
  * 前端零編結論，禁止運算
+ *
+ * 名稱轉譯層：所有神煞名稱自動用 asuraNameMap 轉譯成鬼魅阿修羅版本
  */
 
 import type { DualChartResult } from '@/lib/dual-chart';
+import { translateToAsuraName } from '@/lib/asura-name-map';
 import styles from '@/app/dual-chart/dual-chart.module.css';
 
 export function IchingShenShaAsuraSection({ view }: { view?: DualChartResult['specialStars']['asura'] }) {
@@ -14,7 +17,6 @@ export function IchingShenShaAsuraSection({ view }: { view?: DualChartResult['sp
   if (view.state === 'BLOCKED') {
     return (
       <section className={styles.shenshaAsura} aria-label="阿修羅解盤內容">
-        {view.ageGate && <p className={styles.ageGateBanner}>{view.ageGate}</p>}
         <p role="status">{view.reason}</p>
       </section>
     );
@@ -22,8 +24,6 @@ export function IchingShenShaAsuraSection({ view }: { view?: DualChartResult['sp
 
   return (
     <section className={styles.shenshaAsura} aria-label="阿修羅解盤內容">
-      {view.ageGate && <p className={styles.ageGateBanner}>{view.ageGate}</p>}
-
       {/* 開場 — 阿修羅本人的宣言 */}
       <p className={styles.asuraOpening}>{view.opening}</p>
 
@@ -36,26 +36,29 @@ export function IchingShenShaAsuraSection({ view }: { view?: DualChartResult['sp
               <h5>{group.pillar}</h5>
               {group.intro && <p className={styles.asuraPillarIntro}>{group.intro}</p>}
               <ul>
-                {group.lines.map((line, index) => (
-                  <li key={`${line.name}:${index}`} data-shensha-tone={line.tone ?? undefined}>
-                    {line.narrative ? (
-                      <details className={styles.asuraMore}>
-                        <summary>
-                          <span className={styles.asuraHook}>
-                            {line.name}
-                            <span className={styles.moreHint}>完整敘述</span>
-                          </span>
-                        </summary>
-                        <p>{line.narrative}</p>
-                      </details>
-                    ) : (
-                      <p>
-                        <b>{line.name}</b>
-                        {line.text && <span>{line.text}</span>}
-                      </p>
-                    )}
-                  </li>
-                ))}
+                {group.lines.map((line, index) => {
+                  const asuraName = translateToAsuraName(line.name);
+                  return (
+                    <li key={`${line.name}:${index}`} data-shensha-tone={line.tone ?? undefined}>
+                      {line.narrative ? (
+                        <details className={styles.asuraMore}>
+                          <summary>
+                            <span className={styles.asuraHook}>
+                              {asuraName}
+                              <span className={styles.moreHint}>完整敘述</span>
+                            </span>
+                          </summary>
+                          <p>{line.narrative}</p>
+                        </details>
+                      ) : (
+                        <p>
+                          <b>{asuraName}</b>
+                          {line.text && <span>{line.text}</span>}
+                        </p>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
