@@ -48,12 +48,17 @@ export function IchingShenShaAsuraSection({ view }: { view?: DualChartResult['sp
                               <span className={styles.moreHint}>完整敘述</span>
                             </span>
                           </summary>
-                          <p>{line.narrative}</p>
+                          <div className={styles.asuraNarrativeLayers}>
+                            <p><b>【破】</b> {line.narrative.breakPoint}</p>
+                            <p><b>【鎖】</b> {line.narrative.lockCore}</p>
+                            <p><b>【斷】</b> {line.narrative.severing}</p>
+                            <p><b>【立】</b> {line.narrative.establish}</p>
+                            <p><b>【行】</b> {line.narrative.action}</p>
+                          </div>
                         </details>
                       ) : (
                         <p>
                           <b>{asuraName}</b>
-                          {line.text && <span>{line.text}</span>}
                         </p>
                       )}
                     </li>

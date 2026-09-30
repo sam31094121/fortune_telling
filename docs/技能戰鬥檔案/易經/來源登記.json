@@ -1742,6 +1742,7 @@
         "lib/iching-shensha-display-copy.ts",
         "lib/iching-shensha-flow-year.ts",
         "lib/iching-shensha-ghost.ts",
+        "lib/iching-shensha-asura.ts",
         "lib/iching-shensha-share.ts",
         "docs/技能戰鬥檔案/易經神煞/易經神煞.json",
         "docs/技能戰鬥檔案/易經神煞/新人檔案.md",
