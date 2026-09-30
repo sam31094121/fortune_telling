@@ -102,7 +102,7 @@ export function buildShenShaAsura(view: ShenShaIChingView, hexagram: IChingReadi
   const closing = generateAsuraClosing(groups.length, formations.length);
 
   // 免責聲明
-  const disclaimer = '⚠️ 這是阿修羅的戰鬥宣言，不代表命運宣告。行動權永遠在你手上。';
+  const disclaimer = '⚡ 這是阿修羅的戰鬥宣言——不是預言，不是宿命，只是戰場的地圖。你的刀在你手上。';
 
   return {
     state: 'READY',
@@ -120,22 +120,22 @@ export function buildShenShaAsura(view: ShenShaIChingView, hexagram: IChingReadi
 function generateAsuraOpening(total: number): string {
 
   if (total === 0) {
-    return '盤上無神煞。這不是說你無敵。這是說你沒有明顯的暗流。反而需要更清醒。';
+    return '⚔️ 盤上無神煞——沒有明顯敵人，反而最危險。你要找的，是那些看不見的刀。';
   }
 
   if (total === 1) {
-    return '盤上只有一道神煞。這不是幸運。這是說你的力量集中在一處。用得好就是絕殺。用不好就是死穴。';
+    return '⚔️ 只有一道神煞。你的力量集中在一點。用好了是破城槌，用不好就是自殺刀。';
   }
 
   if (total <= 3) {
-    return `盤上有 ${total} 道神煞。力量明確。問題是你知不知道怎麼用。`;
+    return `⚔️ 盤上有 ${total} 道神煞。敵人明確。問題是你敢不敢正面迎戰。`;
   }
 
   if (total <= 6) {
-    return `盤上有 ${total} 道神煞。信號混雜。現在要做的不是理解全部。是選一個，打穿它。`;
+    return `⚔️ 盤上有 ${total} 道神煞。信號混雜，戰局複雜。現在不是理解全部，而是選一個敵人，打穿他。`;
   }
 
-  return `盤上有 ${total} 道神煞。這代表什麼？你的人生不會無聊。但也意味著你要比別人清醒一倍。`;
+  return `⚔️ 盤上有 ${total} 道神煞。這是什麼意思？這是說你的人生註定不會安寧。但這也代表你有 ${total} 個理由去戰鬥。`;
 }
 
 /**
@@ -143,13 +143,13 @@ function generateAsuraOpening(total: number): string {
  */
 function generateAsuraPillarIntro(pillar: string): string {
   const intros: Record<string, string> = {
-    年柱: '年柱。祖上的氣。這是你的底色。',
-    月柱: '月柱。家門口的氣。這是你天天照面的局。',
-    日柱: '日柱。貼身的氣。這是你最親近的人。',
-    時柱: '時柱。往外走的氣。這是你要去爭的世界。',
+    年柱: '年柱 ◇ 你的血脈帝國——祖先的戰爭遺產，刻在你的骨子裡。',
+    月柱: '月柱 ◇ 當下的戰場——每一天都在上演的局，沒有休戰日。',
+    日柱: '日柱 ◇ 近身的對手——最親近的人，也是最容易傷你的刀。',
+    時柱: '時柱 ◇ 遠方的領地——你要征服的世界，所有敵人都在那裡等。',
   };
 
-  return intros[pillar] ?? `${pillar}。`;
+  return intros[pillar] ?? `${pillar} ◇ 戰局在此。`;
 }
 
 /**
@@ -160,12 +160,12 @@ function generateAsuraFormationNarrative(title: string, members: string[], pilla
   const where = (pillar ?? null) || '這張盤上';
 
   const narratives: Record<string, string> = {
-    '行軍': `${memberStr}在${where}行軍。這不是逃走。這是有序出擊。`,
-    '桃花': `${memberStr}在${where}圍成一圈。香引蝶，也引蟲。要么全關，要么全開。`,
-    '貴人': `${memberStr}在${where}站成一排。貴人不是天賜。是你之前種下的因。`,
-    '化煞': `${memberStr}鎮在${where}。煞是真的。但被鎮住了。用對方式，反而是最強的盾。`,
-    '權柄': `${memberStr}在${where}刀出鞘、令在手。權力在手，責任也在手。`,
-    '書房': `${memberStr}在${where}點一盞油燈。深夜不睡的人，往往知道別人不知道的事。`,
+    '行軍': `⚔️ ${memberStr}在${where}行軍——不是潰逃，是戰術調動。節奏、秩序、力量。這是專業的打法。`,
+    '桃花': `⚔️ ${memberStr}在${where}圍成一圈——香氣引來蝴蝶，也引來蒼蠅。你得決定：全部關掉，還是全部打爆。`,
+    '貴人': `⚔️ ${memberStr}在${where}站成一排——這不是天賜的幸運，是你過去種下的因。現在該收割了。`,
+    '化煞': `⚔️ ${memberStr}鎮在${where}——煞氣是真實的，但也被鎖死了。用對方法，反而成為最銳利的刀。`,
+    '權柄': `⚔️ ${memberStr}在${where}刀已出鞘、令已在手。權力不只是榮耀，是責任。也是戰爭。`,
+    '書房': `⚔️ ${memberStr}在${where}點起一盞燈——夜裡不睡的人，往往看穿了別人看不見的戰局。`,
   };
 
   for (const [key, narrative] of Object.entries(narratives)) {
@@ -174,7 +174,7 @@ function generateAsuraFormationNarrative(title: string, members: string[], pilla
     }
   }
 
-  return `${memberStr}在${where}結成一陣。這個組合的力量，等著你去激活。`;
+  return `⚔️ ${memberStr}在${where}結成一陣——這個組合就是你的致命武器。問題是，你敢不敢用。`;
 }
 
 /**
@@ -182,15 +182,15 @@ function generateAsuraFormationNarrative(title: string, members: string[], pilla
  */
 function generateAsuraClosing(groupCount: number, formationCount: number): string {
   if (groupCount === 0) {
-    return '盤上無神煞。這就是你的機會——沒有人知道你什麼時候出手。';
+    return '⚡ 盤上無神煞——沒有明顯的敵人，反而給了你最大的自由。沒人知道你什麼時候亮刀。';
   }
 
   const closings = [
-    '看到了嗎？這就是你命盤上的武器庫。用對了，世界讓開。',
-    '這些氣流，都在等著你去指揮。現在，選一個，破掉它。',
-    '命盤已經攤開。局已經擺好。剩下的，只看你敢不敢動。',
-    `四柱有${groupCount}個陣地，${formationCount}個組合。這些都是你的棋子。怎麼下，看你。`,
-    '現在你知道了。你的力量在哪。敵人會在哪。剩下的，就是出擊。',
+    '⚡ 看清楚了嗎？這就是你的武器庫。用對了，世界會為你讓路。不用對，你會成為自己的敵人。',
+    '⚡ 這些力量都在等著你去揮霍。現在選一個敵人，打穿他。不要等，不要想，就是打。',
+    '⚡ 命盤已經攤開——這是你的戰場地圖。剩下的，全看你敢不敢真的動。',
+    `⚡ 四柱有 ${groupCount} 個陣地，${formationCount} 個組合——都是你的武器。現在問題是，你怎麼用它們去贏。`,
+    '⚡ 你已經看清了。你的力量在哪，敵人在哪，上風口在哪。現在沒有藉口了。該出擊了。',
   ];
 
   return closings[Math.floor(Math.random() * closings.length)];
