@@ -562,3 +562,440 @@ details[open]>summary .moreHint::after{content:' ▴'}
 .printPreview .fusedChart h2{font-size:23px;margin-bottom:8px}
 .printPreview .fusedSubtitle{font-size:12px;margin-bottom:14px}
 .printPreview .shenshaIchingFused{margin-top:16px;padding-top:14px;border-top:1.5px solid rgba(0,0,0,.1)}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   《鬼魅阿修羅》卡片 — 深黑修羅風格 + 手機優先設計
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.shenshaAsura {
+  --asura-black: #0A0A0A;
+  --asura-silver: #E8E8E8;
+  --asura-dark-red: #8B0000;
+  --asura-border: rgba(255, 255, 255, 0.08);
+  --asura-panel: rgba(20, 20, 30, 0.8);
+  --asura-text: #E8E8E8;
+  --asura-muted: #999999;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid var(--asura-border);
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0F0F1F 0%, #0A0A0A 50%, #050508 100%);
+  background-attachment: fixed;
+  box-shadow:
+    0 0 40px rgba(139, 0, 0, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.05),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.5);
+  scroll-margin-top: 20px;
+  color: var(--asura-text);
+  font-size: 15px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+/* 深色模式加深（OLED屏優化） */
+@media (prefers-color-scheme: dark) {
+  .shenshaAsura {
+    background: linear-gradient(135deg, #050508 0%, #0A0A0A 50%, #0F0F1F 100%);
+    box-shadow:
+      0 0 60px rgba(139, 0, 0, 0.2),
+      inset 0 1px 1px rgba(255, 255, 255, 0.03),
+      inset 0 -1px 2px rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* 開場宣言 — ⚔️ 戰神符號 */
+.asuraOpening {
+  margin: 0 0 20px;
+  padding: 16px 16px;
+  border-left: 3px solid var(--asura-dark-red);
+  background: linear-gradient(90deg, rgba(139, 0, 0, 0.1), rgba(139, 0, 0, 0.04));
+  font-size: 16px;
+  line-height: 1.9;
+  color: var(--asura-text);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.03);
+}
+
+/* 四柱標題 — ⚔️ 四柱戰線 */
+.asuraTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 24px 0 12px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #F0E6FF;
+  text-transform: uppercase;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--asura-border);
+}
+
+/* 四柱分組容器 */
+.asuraGroup {
+  margin-bottom: 20px;
+  padding: 14px;
+  border: 1px solid var(--asura-border);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(30, 25, 40, 0.6), rgba(20, 15, 30, 0.6));
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.02);
+}
+
+.asuraGroup > h5 {
+  margin: 0 0 10px;
+  padding-bottom: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #D9D0E8;
+  border-bottom: 1px dashed var(--asura-border);
+}
+
+/* 四柱介紹文案 — ◇ 風格 */
+.asuraPillarIntro {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--asura-panel);
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: var(--asura-muted);
+  font-style: italic;
+  border-left: 2px solid var(--asura-dark-red);
+}
+
+/* 神煞列表 */
+.asuraGroup > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.asuraGroup > ul > li {
+  position: relative;
+  padding: 10px 12px 10px 14px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, rgba(50, 40, 60, 0.4), rgba(30, 25, 40, 0.3));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 3px solid var(--asura-dark-red);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: all 0.15s ease;
+}
+
+.asuraGroup > ul > li:hover {
+  border-left-color: #FF6B6B;
+  background: linear-gradient(90deg, rgba(60, 45, 70, 0.5), rgba(40, 30, 50, 0.4));
+  box-shadow: 0 2px 6px rgba(139, 0, 0, 0.25);
+}
+
+/* 神煞名稱（displayName）*/
+.asuraHook {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #E8D5FF;
+  font-size: 15px;
+}
+
+.moreHint {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(139, 0, 0, 0.15);
+  color: var(--asura-muted);
+  font-size: 12px;
+  border: 1px solid var(--asura-border);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.moreHint::after {
+  content: ' ▾';
+}
+
+details[open] > summary .moreHint::after {
+  content: ' ▴';
+}
+
+/* 五層敘述層折疊 — 破/鎖/斷/立/行 */
+.asuraMore {
+  margin-top: 6px;
+}
+
+.asuraMore > summary {
+  cursor: pointer;
+  list-style: none;
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+.asuraMore > summary::-webkit-details-marker {
+  display: none;
+}
+
+.asuraNarrativeLayers {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--asura-border);
+  display: grid;
+  gap: 10px;
+}
+
+.asuraNarrativeLayers > p {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--asura-panel);
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--asura-text);
+  border-left: 3px solid var(--asura-dark-red);
+}
+
+.asuraNarrativeLayers > p > b {
+  display: inline-block;
+  margin-right: 6px;
+  color: #FF8B9B;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* 整盤陣法 */
+.asuraFormations {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.asuraFormations > li {
+  padding: 0;
+  border-radius: 10px;
+  background: transparent;
+}
+
+.formationFold > summary {
+  cursor: pointer;
+  list-style: none;
+  display: block;
+  min-height: 44px;
+  padding: 12px;
+  border: 1px solid var(--asura-border);
+  border-radius: 10px;
+  background: linear-gradient(90deg, rgba(50, 40, 60, 0.4), rgba(30, 25, 40, 0.3));
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  font-weight: 600;
+  color: #E8D5FF;
+  transition: all 0.15s ease;
+}
+
+.formationFold > summary::-webkit-details-marker {
+  display: none;
+}
+
+.formationFold > summary::after {
+  content: ' ▾';
+  display: inline-block;
+  float: right;
+  font-size: 12px;
+  color: var(--asura-muted);
+  transition: transform 0.2s ease;
+}
+
+.formationFold[open] > summary {
+  border-bottom-color: var(--asura-dark-red);
+  background: linear-gradient(90deg, rgba(70, 50, 80, 0.5), rgba(50, 35, 65, 0.4));
+}
+
+.formationFold[open] > summary::after {
+  content: ' ▴';
+  transform: rotate(180deg);
+}
+
+.formationFold > p {
+  margin: 0;
+  padding: 12px 12px 12px 14px;
+  border-left: 3px solid var(--asura-dark-red);
+  background: var(--asura-panel);
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--asura-text);
+  border-radius: 0 8px 8px 0;
+}
+
+/* 收場宣言 — ⚡ 戰士符號 */
+.asuraClosing {
+  margin: 24px 0 12px;
+  padding: 16px 16px;
+  border-left: 3px solid var(--asura-dark-red);
+  background: linear-gradient(90deg, rgba(139, 0, 0, 0.12), rgba(139, 0, 0, 0.06));
+  font-size: 16px;
+  line-height: 1.9;
+  color: var(--asura-text);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.03);
+}
+
+/* 免責聲明 — 灰色文字 */
+.asuraDisclaimer {
+  margin: 16px 0 0;
+  padding: 12px 12px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--asura-muted);
+  border: 1px solid var(--asura-border);
+  border-radius: 8px;
+  background: var(--asura-panel);
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   手機優先設計（375px 基準）
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+  .shenshaAsura {
+    margin: 12px 0;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 14.5px;
+  }
+
+  .asuraOpening,
+  .asuraClosing {
+    padding: 12px 12px;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  .asuraTitle {
+    font-size: 16px;
+    margin: 16px 0 10px;
+    gap: 6px;
+  }
+
+  .asuraGroup {
+    margin-bottom: 12px;
+    padding: 10px;
+  }
+
+  .asuraGroup > h5 {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .asuraPillarIntro {
+    font-size: 12.5px;
+    margin-bottom: 8px;
+    padding: 8px 10px;
+  }
+
+  .asuraGroup > ul > li {
+    padding: 8px 10px 8px 12px;
+    border-radius: 8px;
+  }
+
+  .asuraHook {
+    font-size: 14px;
+  }
+
+  .asuraNarrativeLayers {
+    margin-top: 10px;
+    padding-top: 10px;
+    gap: 8px;
+  }
+
+  .asuraNarrativeLayers > p {
+    padding: 8px 10px;
+    font-size: 13.5px;
+  }
+
+  .formationFold > summary {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .formationFold > p {
+    padding: 10px 10px 10px 12px;
+    font-size: 13.5px;
+  }
+
+  .asuraDisclaimer {
+    font-size: 11px;
+    padding: 10px;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   平板適配（768px - 1023px）
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .shenshaAsura {
+    padding: 18px;
+    font-size: 15px;
+  }
+
+  .asuraTitle {
+    font-size: 17px;
+  }
+
+  .asuraGroup {
+    padding: 12px;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   電腦版本（1024px+）
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 1024px) {
+  .shenshaAsura {
+    padding: 20px;
+  }
+
+  .asuraTitle {
+    font-size: 19px;
+  }
+
+  .asuraGroup {
+    padding: 16px;
+  }
+
+  .formationFold > summary {
+    min-height: 48px;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   打印模式（隱藏阿修羅卡）
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@media print {
+  .shenshaAsura {
+    display: none;
+  }
+}
+
+.printPreview .shenshaAsura {
+  display: none;
+}
