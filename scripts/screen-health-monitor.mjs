@@ -644,7 +644,7 @@ async function checkDualChartShenShaDisplay() {
   let stdout = '';
   let runError = null;
   try {
-    ({ stdout } = await execFileAsync(process.execPath, ['scripts/dual-chart-shensha-display-check.cjs'], {
+    ({ stdout } = await execFileAsync(process.execPath, ['scripts/dual-chart-iching-shensha-display-check.cjs'], {
       cwd: PROJECT_ROOT, windowsHide: true, timeout: 120000, maxBuffer: 1024 * 1024,
     }));
   } catch (error) {
