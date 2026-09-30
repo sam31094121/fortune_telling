@@ -9,6 +9,7 @@
  */
 
 import type { DualChartResult } from '@/lib/dual-chart';
+import { translateAsuraText } from '@/lib/asura-text-translator';
 import styles from '@/app/dual-chart/dual-chart.module.css';
 
 export function IchingShenShaAsuraSection({ view }: { view?: DualChartResult['specialStars']['asura'] }) {
@@ -29,10 +30,10 @@ export function IchingShenShaAsuraSection({ view }: { view?: DualChartResult['sp
       {/* 四柱分組 — 每個神煞一份敘事層輸出 */}
       {view.groups && view.groups.length > 0 && (
         <>
-          <h4 className={styles.asuraTitle}>四柱宣言</h4>
+          <h4 className={styles.asuraTitle}>{translateAsuraText('四柱宣言', 'ui')}</h4>
           {view.groups.map((group) => (
             <div key={group.pillar} className={styles.asuraGroup}>
-              <h5>{group.pillar}</h5>
+              <h5>{translateAsuraText(group.pillar, 'pillar')}</h5>
               {group.intro && <p className={styles.asuraPillarIntro}>{group.intro}</p>}
               <ul>
                 {group.lines.map((line, index) => (
@@ -69,7 +70,7 @@ export function IchingShenShaAsuraSection({ view }: { view?: DualChartResult['sp
       {/* 整盤陣法 — 組合的阿修羅視角 */}
       {view.formations && view.formations.length > 0 && (
         <>
-          <h4 className={styles.asuraTitle}>整盤戰局</h4>
+          <h4 className={styles.asuraTitle}>{translateAsuraText('整盤陣法', 'ui')}</h4>
           <ul className={styles.asuraFormations}>
             {view.formations.map((f, index) => (
               <li key={`${f.title}:${index}`}>
