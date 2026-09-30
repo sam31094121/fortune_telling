@@ -3171,7 +3171,7 @@ export default function HomePage() {
             </Link>
           )}
           <TarotEntryCard />
-          {/* 2026-09-25 star-beast i18n toggle: card extracted to a client component with 中｜EN switch */}
+          {/* 2026-09-25 star-beast i18n toggle: card extracted to a client component with 中｜EN switch; href="/star-beasts" */}
           <StarBeastHomeCard />
           <Link
             href="/3D"
