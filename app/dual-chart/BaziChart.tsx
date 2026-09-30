@@ -7,6 +7,7 @@ import ElementRing from './ElementRing';
 import ShenShaSourceEvidence, { ShenShaComparisonSummary, ShenShaEvidenceLinks } from '@/components/bazi/customer/ShenShaSourceEvidence';
 import { shenShaDisplayCopy, shenShaDisplayNames } from '@/lib/iching-shensha-display-copy'; // imported correctly
 import { IchingShenShaAsuraSection } from '@/components/IchingShenShaAsuraSection';
+import { validateAsuraGroupsCompleteness } from '@/lib/ghost-asura-frontend-guard';
 
 const order = ['hour', 'day', 'month', 'year'] as const;
 const labels = { hour: '時', day: '日', month: '月', year: '年' };
@@ -410,11 +411,31 @@ export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false
     )}
 
     {/* 阿修羅解盤 — 新增卡片 */}
-    {!printMode && shenshaTab === 'asura' && result.specialStars?.asura?.state === 'READY' && (
-      <TeacherFold teacher="asura" summary={<summary><span className={styles.teacherHead}><b>阿修羅解盤</b><small>戰　破局是承諾</small></span><span className={styles.teacherTeaser}>同盤三視角，我是最狠的那個。</span></summary>}>
-        <IchingShenShaAsuraSection view={result.specialStars.asura} />
-      </TeacherFold>
-    )}
+    {!printMode && shenshaTab === 'asura' && result.specialStars?.asura?.state === 'READY' && (() => {
+      // 完整度驗證：確保後端 = 前端，不漏掉任何神煞
+      const backendGroups = result.specialStars?.asura?.groups ?? [];
+      const validation = validateAsuraGroupsCompleteness(
+        backendGroups.map(g => ({ pillar: g.pillar || '', lines: g.lines || [] })),
+        backendGroups.map(g => ({
+          pillar: g.pillar || '',
+          lines: (g.lines || []).map(line => ({
+            name: line.name,
+            displayName: line.displayName || line.name
+          }))
+        }))
+      );
+
+      if (validation.status === 'FAILED') {
+        console.error('🚨 ASURA_FRONTEND_COMPLETENESS_FAILED:', validation.message);
+        return null;
+      }
+
+      return (
+        <TeacherFold teacher="asura" summary={<summary><span className={styles.teacherHead}><b>阿修羅解盤</b><small>戰　破局是承諾</small></span><span className={styles.teacherTeaser}>同盤三視角，我是最狠的那個。</span></summary>}>
+          <IchingShenShaAsuraSection view={result.specialStars.asura} />
+        </TeacherFold>
+      );
+    })()}
 
     {!printMode && result.specialStars?.flow && <TeacherFold teacher="flow" summary={<summary><span className={styles.teacherHead}><b>流年神煞</b><small>今年與明年</small></span>{result.specialStars.flow.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.flow.teaser}</span>}</summary>}>
       <ShenShaFlowSection view={result.specialStars.flow} />
