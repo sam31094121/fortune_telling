@@ -6,6 +6,7 @@ import { attachBaziProfessionalCoreV5, type BaziRuntimeInput } from './bazi-prof
 import { runBaziLayer, runIChingLayer, runZiweiLayer } from './three-core-engine';
 import { buildShenShaIChing } from './iching-shensha-iching';
 import { buildShenShaGhost, GHOST_SEALED, sealShenShaGhost, type ShenShaGhostView, type ShenShaGhostSealed } from './iching-shensha-ghost';
+import { buildShenShaAsura, type ShenShaAsuraView } from './iching-shensha-asura';
 
 const sealedGhost = (view: ShenShaGhostView, reveal?: boolean): ShenShaGhostView | ShenShaGhostSealed => GHOST_SEALED && !reveal ? sealShenShaGhost(view) : view;
 import { verifyFourPillars } from './three-in-one';
@@ -59,7 +60,8 @@ export function calculateDualChart(body: unknown, options: { revealSealedGhost?:
   const iching = runIChingLayer({ input: baziInput, core: bazi, bazi: baziLayer, ziwei: ziweiLayer });
   const ichingView = buildShenShaIChing({ pillars: baziPillars, pillarCheckPassed: mismatches.length === 0, card: shenSha.card, iching });
   // 鬼魅老師（茅山道士話術分身）：同一張盤、同一個卦，後端另組一套說法。
-  const specialStars = { ...shenSha, iching: ichingView, ghost: sealedGhost(buildShenShaGhost(ichingView, iching.status === 'READY' ? iching.reading : null), options.revealSealedGhost) };
+  // 阿修羅（戰神解盤）：同一張盤、同一個卦，後端用霸道話術另組第三套說法。
+  const specialStars = { ...shenSha, iching: ichingView, ghost: sealedGhost(buildShenShaGhost(ichingView, iching.status === 'READY' ? iching.reading : null), options.revealSealedGhost), asura: buildShenShaAsura(ichingView, iching.status === 'READY' ? iching.reading : null) };
   // Reuse the existing backend extension over the verified pillars; the UI only renders its results.
   // 參考取法項目沒有原典頁碼（source 省略）；所有讀取 source 的畫面都先判斷是否存在。
   const dualShenSha = specialStars.raw as BaziShenShaItem[];

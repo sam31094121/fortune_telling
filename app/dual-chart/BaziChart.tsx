@@ -6,6 +6,7 @@ import { SharedElementSealPaper } from '@/components/bazi/customer/SharedElement
 import ElementRing from './ElementRing';
 import ShenShaSourceEvidence, { ShenShaComparisonSummary, ShenShaEvidenceLinks } from '@/components/bazi/customer/ShenShaSourceEvidence';
 import { shenShaDisplayCopy, shenShaDisplayNames } from '@/lib/iching-shensha-display-copy'; // imported correctly
+import { IchingShenShaAsuraSection } from '@/components/IchingShenShaAsuraSection';
 
 const order = ['hour', 'day', 'month', 'year'] as const;
 const labels = { hour: '時', day: '日', month: '月', year: '年' };
@@ -138,7 +139,7 @@ function ShenShaIChingSection({ view }: { view?: DualChartResult['specialStars']
  * 無痕模式或瀏覽器擋住儲存時，讀寫失敗就維持預設收起，不出錯。
  */
 const TEACHER_FOLD_KEY = 'shensha-teacher-open';
-function TeacherFold({ teacher, summary, children }: { teacher: 'iching' | 'ghost' | 'flow'; summary: ReactNode; children: ReactNode }) {
+function TeacherFold({ teacher, summary, children }: { teacher: 'iching' | 'ghost' | 'asura' | 'flow'; summary: ReactNode; children: ReactNode }) {
   const ref = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     try {
@@ -313,10 +314,11 @@ function openShenShaItemCard(anchor: string) {
   return true;
 }
 
-/** Independent card. The pillar grid is always visible; the two teacher readings fold. Every word comes from the backend. */
+/** Independent card. The pillar grid is always visible; the three teacher readings fold. Every word comes from the backend. */
 export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false }: { result: DualChartResult; printMode?: boolean; hideShenShaGrid?: boolean }) {
   const card = result.specialStars?.card;
   const state = card?.state ?? 'unavailable';
+  const [shenshaTab, setShenShaTab] = useState<'iching' | 'ghost' | 'asura'>('iching'); // 三卡選擇：易經老師 / 鬼魅 / 阿修羅
   return <section className={styles.shenshaCard} aria-label="特星神煞" data-screen-arrow-target="dual-chart-special-stars" data-shensha-card-state={state}>
     <header className={styles.shenshaHeader}>
       <h3>{printMode ? '特星神煞' : '神煞易經'}</h3>
@@ -350,21 +352,70 @@ export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false
     {!printMode && !card && <p role="status">神煞資料尚未完整，暫不能判斷有無結果。</p>}
     {!printMode && card?.footnote && <p className={styles.shenshaFootnote}>{card.footnote}</p>}
     {!printMode && result.specialStars?.flow?.state === 'READY' && <div className={styles.flowStrip} aria-label="流年一句話">{result.specialStars.flow.years.map(year => <p key={year.year}><b>{year.label}</b>{year.oneLiner}</p>)}</div>}
-    {!printMode && result.specialStars?.iching?.state === 'READY' && <div className={styles.teacherDuet} aria-label="兩位老師一句話">
-      <p data-teacher="iching"><b>易經老師</b>{result.specialStars.iching.oneLiner}</p>
-      {result.specialStars?.ghost?.state === 'READY' && <p data-teacher="ghost"><b>鬼魅老師</b>{result.specialStars.ghost.oneLiner}</p>}
+    {!printMode && result.specialStars?.iching?.state === 'READY' && <div className={styles.teacherTriple} aria-label="三位老師一句話">
+      <div className={styles.teacherTabs} role="tablist">
+        <button
+          role="tab"
+          aria-selected={shenshaTab === 'iching'}
+          onClick={() => setShenShaTab('iching')}
+          className={shenshaTab === 'iching' ? styles.tabActive : ''}
+        >
+          易經老師
+        </button>
+        {result.specialStars?.ghost?.state === 'READY' && (
+          <button
+            role="tab"
+            aria-selected={shenshaTab === 'ghost'}
+            onClick={() => setShenShaTab('ghost')}
+            className={shenshaTab === 'ghost' ? styles.tabActive : ''}
+          >
+            鬼魅老師
+          </button>
+        )}
+        {result.specialStars?.asura?.state === 'READY' && (
+          <button
+            role="tab"
+            aria-selected={shenshaTab === 'asura'}
+            onClick={() => setShenShaTab('asura')}
+            className={shenshaTab === 'asura' ? styles.tabActive : ''}
+          >
+            阿修羅
+          </button>
+        )}
+      </div>
+      <div className={styles.teacherQuotes}>
+        {shenshaTab === 'iching' && <p data-teacher="iching"><b>易經老師</b>{result.specialStars.iching.oneLiner}</p>}
+        {shenshaTab === 'ghost' && result.specialStars?.ghost?.state === 'READY' && <p data-teacher="ghost"><b>鬼魅老師</b>{result.specialStars.ghost.oneLiner}</p>}
+        {shenshaTab === 'asura' && result.specialStars?.asura?.state === 'READY' && <p data-teacher="asura"><b>阿修羅</b>破局是我的承諾。</p>}
+      </div>
     </div>}
+    {/* 三位老師卡片 — 按 shenshaTab 狀態切換顯示 */}
+    {!printMode && shenshaTab === 'iching' && result.specialStars?.iching && (
+      <TeacherFold teacher="iching" summary={<summary><span className={styles.teacherHead}><b>易經老師解盤</b><small>神　溫和的智慧</small></span>{result.specialStars.iching.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.iching.teaser}</span>}</summary>}>
+        <ShenShaIChingSection view={result.specialStars.iching} />
+      </TeacherFold>
+    )}
+
     {/* 鬼魅老師封印中（業主定案 2026-09-28）：貼現有封印符，卡頭可見、點不開；解封改 lib/shensha-ghost.ts 的 GHOST_SEALED。 */}
-    {result.specialStars?.ghost?.state === 'SEALED' && <div className={`${styles.teacherCard} ${styles.ghostSealed}`} data-teacher="ghost" data-sealed="true" aria-label={result.specialStars.ghost.sealNotice}>
-      <div className={styles.ghostSealedHead}><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small><em className={styles.ageGate}>{result.specialStars.ghost.ageGate}</em></span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span><span className={styles.ghostSealNotice}>{result.specialStars.ghost.sealNotice}</span></div>
-      <SharedElementSealPaper />
-    </div>}
-    {result.specialStars?.ghost && result.specialStars.ghost.state !== 'SEALED' && <TeacherFold teacher="ghost" summary={<summary><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small>{result.specialStars.ghost.ageGate && <em className={styles.ageGate}>{result.specialStars.ghost.ageGate}</em>}</span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span></summary>}>
-      <ShenShaGhostSection view={result.specialStars.ghost} />
-    </TeacherFold>}
-    {!printMode && result.specialStars?.iching && <TeacherFold teacher="iching" summary={<summary><span className={styles.teacherHead}><b>易經老師解盤</b><small>神　溫和的智慧</small></span>{result.specialStars.iching.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.iching.teaser}</span>}</summary>}>
-      <ShenShaIChingSection view={result.specialStars.iching} />
-    </TeacherFold>}
+    {!printMode && shenshaTab === 'ghost' && result.specialStars?.ghost?.state === 'SEALED' && (
+      <div className={`${styles.teacherCard} ${styles.ghostSealed}`} data-teacher="ghost" data-sealed="true" aria-label={result.specialStars.ghost.sealNotice}>
+        <div className={styles.ghostSealedHead}><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small><em className={styles.ageGate}>{result.specialStars.ghost.ageGate}</em></span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span><span className={styles.ghostSealNotice}>{result.specialStars.ghost.sealNotice}</span></div>
+        <SharedElementSealPaper />
+      </div>
+    )}
+    {!printMode && shenshaTab === 'ghost' && result.specialStars?.ghost && result.specialStars.ghost.state !== 'SEALED' && (
+      <TeacherFold teacher="ghost" summary={<summary><span className={styles.teacherHead}><b>鬼魅老師解盤</b><small>魔　茅山門外低語</small>{result.specialStars.ghost.ageGate && <em className={styles.ageGate}>{result.specialStars.ghost.ageGate}</em>}</span><span className={styles.teacherTeaser}>{result.specialStars.ghost.teaser}</span></summary>}>
+        <ShenShaGhostSection view={result.specialStars.ghost} />
+      </TeacherFold>
+    )}
+
+    {/* 阿修羅解盤 — 新增卡片 */}
+    {!printMode && shenshaTab === 'asura' && result.specialStars?.asura?.state === 'READY' && (
+      <TeacherFold teacher="asura" summary={<summary><span className={styles.teacherHead}><b>阿修羅解盤</b><small>戰　破局是承諾</small></span><span className={styles.teacherTeaser}>同盤三視角，我是最狠的那個。</span></summary>}>
+        <IchingShenShaAsuraSection view={result.specialStars.asura} />
+      </TeacherFold>
+    )}
+
     {!printMode && result.specialStars?.flow && <TeacherFold teacher="flow" summary={<summary><span className={styles.teacherHead}><b>流年神煞</b><small>今年與明年</small></span>{result.specialStars.flow.state === 'READY' && <span className={styles.teacherTeaser}>{result.specialStars.flow.teaser}</span>}</summary>}>
       <ShenShaFlowSection view={result.specialStars.flow} />
     </TeacherFold>}

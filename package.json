@@ -111,7 +111,10 @@
     "test:three-core-reading-routes": "npm run test:three-in-one && node tests/three-core-reading-routes.test.cjs",
     "test:meihua-original-cases": "node tests/meihua-original-cases.test.cjs",
     "test:iching-shensha-source-tables": "tsc tests/iching-shensha-source-tables.test.ts --outDir .tmp/iching-shensha-source-tests --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp/iching-shensha-source-tests/tests/iching-shensha-source-tables.test.js",
-    "test:iching-shensha-live-api": "node --env-file=.env.local tests/iching-shensha-live-api.test.mjs"
+    "test:iching-shensha-live-api": "node --env-file=.env.local tests/iching-shensha-live-api.test.mjs",
+    "test:asura-narrative-consistency": "node tests/asura-narrative-consistency.test.mjs",
+    "test:asura-no-fabrication": "node tests/asura-no-fabrication.test.cjs",
+    "test:asura-frontend-only": "node tests/asura-frontend-only.test.cjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

@@ -69,7 +69,7 @@ export function buildShenShaAsura(view: ShenShaIChingView, hexagram: IChingReadi
   const groups = readyView.groups?.map((group: any) => ({
     pillar: group.pillar,
     intro: generateAsuraPillarIntro(group.pillar),
-    lines: group.items.map((item) => ({
+    lines: group.items.map((item: any) => ({
       name: item.name,
       tone: item.teacher?.tone ?? null,
       narrative: generateAsuraNarrative(
