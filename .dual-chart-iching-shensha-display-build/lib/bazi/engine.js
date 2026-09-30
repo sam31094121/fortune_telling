@@ -1,0 +1,512 @@
+"use strict";
+/**
+ * ============================================================
+ * 【天地人和 易經平台】Traditional Bazi Core V1
+ * 傳統八字確定性排盤核心｜先算準 → 再驗證 → 再解盤
+ * ============================================================
+ *
+ * 架構鐵律：
+ * A. CALCULATION WORLD（本檔）＝確定性排盤，禁止 易經參與。
+ * B. INTERPRETATION WORLD（易經老師層）＝只讀本檔已驗證結果。
+ *
+ * 曆法來源：lunar-typescript（確定性天文曆法庫）
+ * - 年柱：立春實刻為界（yearBoundary = LI_CHUN）
+ * - 月柱：十二節實刻為界（monthBoundary = JIE_QI）
+ * - 日柱：確定性干支日演算法（lunar-typescript）
+ * - 時柱：五鼠遁（日干起時）
+ *
+ * 缺時辰：PARTIAL_BAZI（只排年月日；時柱 UNKNOWN；
+ *          依賴時柱／出生時刻的項目一律 NOT_CALCULATED，禁止補午時冒充）。
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.HIDDEN_STEM_DICTIONARY = exports.BRANCH_YINYANG = exports.BRANCH_ELEMENT = exports.STEM_YINYANG = exports.STEM_ELEMENT = exports.BRANCHES = exports.STEMS = exports.BAZI_ENGINE = void 0;
+exports.calculateTenGod = calculateTenGod;
+exports.createBaziCore = createBaziCore;
+exports.assertReadyForInterpretation = assertReadyForInterpretation;
+exports.computeInteractions = computeInteractions;
+exports.computeShenSha = computeShenSha;
+exports.debugBaziCore = debugBaziCore;
+const lunar_typescript_1 = require("lunar-typescript");
+// ==================== 常量與規則版本 ====================
+exports.BAZI_ENGINE = {
+    name: 'TraditionalBaziCore',
+    version: '1.2.0', // 神煞改採可追溯V5取法；亦更新專業結果識別，避免沿用旧版快取。
+    ruleSet: 'TW_TRADITIONAL_BAZI_V1',
+    yearBoundary: 'LI_CHUN',
+    monthBoundary: 'JIE_QI',
+    lateZiRule: 'DAY_UNCHANGED_TIME_NEXT', // 晚子時（23:00 後）：日柱不換日、時柱起子
+    timeCorrectionMode: 'STANDARD_TIME', // 第一階段僅支援標準時，明確記錄、不偷偷假設
+    hiddenStemWeights: 'PRIMARY_1.0_SECONDARY_0.5_TERTIARY_0.3',
+    monthQiMultiplier: 1.5,
+};
+exports.STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+exports.BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+exports.STEM_ELEMENT = {
+    甲: '木', 乙: '木', 丙: '火', 丁: '火', 戊: '土', 己: '土', 庚: '金', 辛: '金', 壬: '水', 癸: '水',
+};
+exports.STEM_YINYANG = {
+    甲: '陽', 乙: '陰', 丙: '陽', 丁: '陰', 戊: '陽', 己: '陰', 庚: '陽', 辛: '陰', 壬: '陽', 癸: '陰',
+};
+exports.BRANCH_ELEMENT = {
+    子: '水', 丑: '土', 寅: '木', 卯: '木', 辰: '土', 巳: '火', 午: '火', 未: '土', 申: '金', 酉: '金', 戌: '土', 亥: '水',
+};
+exports.BRANCH_YINYANG = {
+    子: '陽', 丑: '陰', 寅: '陽', 卯: '陰', 辰: '陽', 巳: '陰', 午: '陽', 未: '陰', 申: '陽', 酉: '陰', 戌: '陽', 亥: '陰',
+};
+/** 藏干唯一字典（HiddenStemDictionary｜固定資料表，禁止 易經生成） */
+exports.HIDDEN_STEM_DICTIONARY = {
+    子: { primary: '癸' },
+    丑: { primary: '己', secondary: '癸', tertiary: '辛' },
+    寅: { primary: '甲', secondary: '丙', tertiary: '戊' },
+    卯: { primary: '乙' },
+    辰: { primary: '戊', secondary: '乙', tertiary: '癸' },
+    巳: { primary: '丙', secondary: '庚', tertiary: '戊' },
+    午: { primary: '丁', secondary: '己' },
+    未: { primary: '己', secondary: '丁', tertiary: '乙' },
+    申: { primary: '庚', secondary: '壬', tertiary: '戊' },
+    酉: { primary: '辛' },
+    戌: { primary: '戊', secondary: '辛', tertiary: '丁' },
+    亥: { primary: '壬', secondary: '甲' },
+};
+const GENERATES = { 木: '火', 火: '土', 土: '金', 金: '水', 水: '木' };
+const CONTROLS = { 木: '土', 土: '水', 水: '火', 火: '金', 金: '木' };
+// ==================== TenGodEngine（禁止 易經判十神） ====================
+function calculateTenGod(dayMaster, target) {
+    const dmElement = exports.STEM_ELEMENT[dayMaster];
+    const tElement = exports.STEM_ELEMENT[target];
+    const samePolarity = exports.STEM_YINYANG[dayMaster] === exports.STEM_YINYANG[target];
+    if (tElement === dmElement)
+        return samePolarity ? '比肩' : '劫財';
+    if (GENERATES[dmElement] === tElement)
+        return samePolarity ? '食神' : '傷官';
+    if (CONTROLS[dmElement] === tElement)
+        return samePolarity ? '偏財' : '正財';
+    if (CONTROLS[tElement] === dmElement)
+        return samePolarity ? '七殺' : '正官';
+    return samePolarity ? '偏印' : '正印'; // tElement 生 dmElement
+}
+// ==================== 時辰處理 ====================
+const BRANCH_HOUR_START = {
+    子: 23, 丑: 1, 寅: 3, 卯: 5, 辰: 7, 巳: 9, 午: 11, 未: 13, 申: 15, 酉: 17, 戌: 19, 亥: 21,
+};
+function resolveTimePrecision(input) {
+    if (!input.birthTimeKnown)
+        return 'UNKNOWN_TIME';
+    if (input.birthTime && /^\d{1,2}:\d{2}$/.test(input.birthTime))
+        return 'EXACT_TIME';
+    if (input.traditionalHour && exports.BRANCHES.includes(input.traditionalHour))
+        return 'TRADITIONAL_HOUR';
+    return 'UNKNOWN_TIME';
+}
+/** TRADITIONAL_HOUR：取時辰「中點」僅供曆法計算定位（時柱地支本身由時辰直接決定，不受此影響） */
+function traditionalHourToClock(branch) {
+    const start = BRANCH_HOUR_START[branch];
+    return { hour: (start + 1) % 24, minute: 0 };
+}
+// ==================== 主入口：createBaziCore ====================
+function createBaziCore(input) {
+    const issues = [];
+    const timePrecision = resolveTimePrecision(input);
+    const chartMode = timePrecision === 'UNKNOWN_TIME' ? 'PARTIAL_BAZI' : 'FULL_BAZI';
+    // ---- 1. 時間標準化 ----
+    const dateMatch = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/.exec(input.birthDate.trim());
+    if (!dateMatch)
+        throw new Error('BAZI_INPUT_INVALID_DATE: birthDate 必須為 YYYY-M-D');
+    const [y, m, d] = [Number(dateMatch[1]), Number(dateMatch[2]), Number(dateMatch[3])];
+    let hour = 12;
+    let minute = 0; // 僅 UNKNOWN_TIME 使用正午定位「日期」層級曆法，時柱不排
+    if (timePrecision === 'EXACT_TIME') {
+        const [hh, mm] = input.birthTime.split(':').map(Number);
+        if (hh < 0 || hh > 23 || mm < 0 || mm > 59)
+            throw new Error('BAZI_INPUT_INVALID_TIME');
+        hour = hh;
+        minute = mm;
+    }
+    else if (timePrecision === 'TRADITIONAL_HOUR') {
+        const clock = traditionalHourToClock(input.traditionalHour);
+        hour = clock.hour;
+        minute = clock.minute;
+    }
+    // ---- 2. 曆法轉換（SOLAR / LUNAR）----
+    let solar;
+    if ((input.calendarType ?? 'SOLAR') === 'LUNAR') {
+        // 農曆輸入 → 轉國曆（lunar-typescript Lunar.fromYmdHms 閏月以負月表示）
+        const lunarMonth = input.isLeapMonth ? -m : m;
+        const { Lunar } = require('lunar-typescript');
+        const lunarObj = Lunar.fromYmdHms(y, lunarMonth, d, hour, minute, 0);
+        solar = lunarObj.getSolar();
+    }
+    else {
+        solar = lunar_typescript_1.Solar.fromYmdHms(y, m, d, hour, minute, 0);
+    }
+    const lunar = solar.getLunar();
+    const eightChar = lunar.getEightChar();
+    eightChar.setSect(2); // 晚子時日柱不換日（規則版本已記錄於 BAZI_ENGINE.lateZiRule）
+    // ---- 3. 節氣（確定性曆法取得，禁止 易經推測）----
+    let solarTerm = '';
+    let solarTermTime = '';
+    try {
+        const prevJie = lunar.getPrevJie(true);
+        solarTerm = prevJie.getName();
+        solarTermTime = prevJie.getSolar().toYmdHms();
+    }
+    catch {
+        issues.push('SOLAR_TERM_LOOKUP_FAILED');
+    }
+    // ---- 4. 四柱排定 ----
+    const yearGZ = eightChar.getYear();
+    const monthGZ = eightChar.getMonth();
+    const dayGZ = eightChar.getDay();
+    const hourGZ = eightChar.getTime();
+    const splitGZ = (gz) => {
+        const stem = gz[0];
+        const branch = gz[1];
+        if (!exports.STEMS.includes(stem) || !exports.BRANCHES.includes(branch))
+            throw new Error(`BAZI_PILLAR_INVALID: ${gz}`);
+        return { stem, branch };
+    };
+    const dayParts = splitGZ(dayGZ);
+    const dayMasterStem = dayParts.stem;
+    const buildPillar = (key, gz) => {
+        const { stem, branch } = splitGZ(gz);
+        const dict = exports.HIDDEN_STEM_DICTIONARY[branch];
+        const hiddenStems = [];
+        const pushHidden = (s, tier, weight) => {
+            if (!s)
+                return;
+            hiddenStems.push({ stem: s, element: exports.STEM_ELEMENT[s], tenGod: calculateTenGod(dayMasterStem, s), weight, tier });
+        };
+        pushHidden(dict.primary, 'primary', 1.0);
+        pushHidden(dict.secondary, 'secondary', 0.5);
+        pushHidden(dict.tertiary, 'tertiary', 0.3);
+        return {
+            key,
+            heavenlyStem: stem,
+            earthlyBranch: branch,
+            ganZhi: gz,
+            hiddenStems,
+            tenGodStem: key === 'DAY' ? 'DAY_MASTER' : calculateTenGod(dayMasterStem, stem),
+            element: exports.STEM_ELEMENT[stem],
+            branchElement: exports.BRANCH_ELEMENT[branch],
+            yinYang: exports.STEM_YINYANG[stem],
+        };
+    };
+    const yearPillar = buildPillar('YEAR', yearGZ);
+    const monthPillar = buildPillar('MONTH', monthGZ);
+    const dayPillar = buildPillar('DAY', dayGZ);
+    const hourPillar = chartMode === 'FULL_BAZI' ? buildPillar('HOUR', hourGZ) : 'UNKNOWN';
+    const activePillars = [yearPillar, monthPillar, dayPillar, ...(hourPillar !== 'UNKNOWN' ? [hourPillar] : [])];
+    // ---- 5. 五行統計（RAW_COUNT + WEIGHTED_STRENGTH，字面數量不等同旺衰）----
+    const rawCount = { 木: 0, 火: 0, 土: 0, 金: 0, 水: 0 };
+    const weighted = { 木: 0, 火: 0, 土: 0, 金: 0, 水: 0 };
+    for (const p of activePillars) {
+        rawCount[p.element] += 1;
+        rawCount[p.branchElement] += 1;
+        weighted[p.element] += 1.0;
+        const monthBoost = p.key === 'MONTH' ? exports.BAZI_ENGINE.monthQiMultiplier : 1.0;
+        for (const h of p.hiddenStems)
+            weighted[h.element] += h.weight * monthBoost;
+    }
+    for (const k of Object.keys(weighted))
+        weighted[k] = Math.round(weighted[k] * 100) / 100;
+    // ---- 6. SeasonalStrengthEngine（月令旺相休囚死＋得地得助訊號）----
+    const dmElement = exports.STEM_ELEMENT[dayMasterStem];
+    const monthQi = exports.STEM_ELEMENT[exports.HIDDEN_STEM_DICTIONARY[monthPillar.earthlyBranch].primary];
+    let lifeStage;
+    if (monthQi === dmElement)
+        lifeStage = '旺';
+    else if (GENERATES[monthQi] === dmElement)
+        lifeStage = '相';
+    else if (GENERATES[dmElement] === monthQi)
+        lifeStage = '休';
+    else if (CONTROLS[dmElement] === monthQi)
+        lifeStage = '囚';
+    else
+        lifeStage = '死';
+    const seasonalSignals = [`月令${monthPillar.earthlyBranch}（主氣${monthQi}），日主${dmElement}處「${lifeStage}」`];
+    const supportSignals = [];
+    const drainSignals = [];
+    const controlSignals = [];
+    for (const p of activePillars) {
+        if (p.key !== 'DAY') {
+            if (p.element === dmElement)
+                supportSignals.push(`${p.key} 天干${p.heavenlyStem}比劫幫身`);
+            else if (GENERATES[p.element] === dmElement)
+                supportSignals.push(`${p.key} 天干${p.heavenlyStem}印星生身`);
+            else if (GENERATES[dmElement] === p.element)
+                drainSignals.push(`${p.key} 天干${p.heavenlyStem}食傷泄身`);
+            else if (CONTROLS[dmElement] === p.element)
+                drainSignals.push(`${p.key} 天干${p.heavenlyStem}財星耗身`);
+            else
+                controlSignals.push(`${p.key} 天干${p.heavenlyStem}官殺剋身`);
+        }
+        for (const h of p.hiddenStems) {
+            if (h.element === dmElement && h.tier === 'primary')
+                supportSignals.push(`${p.key} 支${p.earthlyBranch}藏${h.stem}為根（得地）`);
+        }
+    }
+    const supportScore = (lifeStage === '旺' ? 30 : lifeStage === '相' ? 20 : lifeStage === '休' ? -8 : lifeStage === '囚' ? -16 : -24)
+        + supportSignals.length * 9 - drainSignals.length * 7 - controlSignals.length * 9;
+    const tendency = supportScore >= 14 ? 'STRONG' : supportScore <= -14 ? 'WEAK' : 'BALANCED';
+    // ---- 7. StemBranchInteractionEngine ----
+    const interactions = computeInteractions(activePillars);
+    // ---- 8. DaYunEngine（順逆／性別／年陰陽／起運，由 lunar-typescript Yun 確定性計算）----
+    let daYun = 'NOT_CALCULATED';
+    let daYunMeta = 'NOT_CALCULATED';
+    if (chartMode === 'FULL_BAZI') {
+        const yun = eightChar.getYun(input.gender === 'male' ? 1 : 0, 2);
+        const steps = [];
+        const arr = yun.getDaYun();
+        for (let i = 1; i < Math.min(arr.length, 9); i++) { // index 0 為起運前
+            const dy = arr[i];
+            const gz = dy.getGanZhi();
+            steps.push({
+                index: i,
+                ganZhi: gz,
+                startAge: dy.getStartAge(),
+                endAge: dy.getEndAge(),
+                startYear: dy.getStartYear(),
+                stemTenGod: gz ? calculateTenGod(dayMasterStem, gz[0]) : null,
+            });
+        }
+        daYun = steps;
+        daYunMeta = {
+            direction: yun.isForward() ? 'FORWARD' : 'BACKWARD',
+            startAgeYears: yun.getStartYear(),
+            startAgeMonths: yun.getStartMonth(),
+            startAgeDays: yun.getStartDay(),
+        };
+    }
+    // ---- 9. AnnualLuckEngine（流年干支＝確定性；ganzhi 以立春為界標註）----
+    const nowYear = new Date().getFullYear();
+    const annualLuck = [];
+    for (let yy = nowYear; yy < nowYear + 6; yy++) {
+        const stem = exports.STEMS[(yy - 4) % 10 < 0 ? ((yy - 4) % 10) + 10 : (yy - 4) % 10];
+        const branch = exports.BRANCHES[(yy - 4) % 12 < 0 ? ((yy - 4) % 12) + 12 : (yy - 4) % 12];
+        annualLuck.push({ year: yy, ganZhi: `${stem}${branch}`, stemTenGod: calculateTenGod(dayMasterStem, stem), branch });
+    }
+    // ---- 10. ShenShaEngine（輔助訊號，不凌駕核心）----
+    const shenSha = computeShenSha(dayMasterStem, yearPillar.earthlyBranch, dayPillar.earthlyBranch, activePillars);
+    // ---- 10.5 空亡／命宮／胎元／胎息／十二長生（lunar-typescript 確定性 API） ----
+    const toTraditional = (v) => {
+        const MAP = { 长生: '長生', 冠带: '冠帶', 临官: '臨官', 绝: '絕', 养: '養' };
+        return MAP[v] ?? v;
+    };
+    const kongWang = { yearXunKong: eightChar.getYearXunKong(), dayXunKong: eightChar.getDayXunKong() };
+    const mingGong = chartMode === 'FULL_BAZI' ? eightChar.getMingGong() : 'NOT_CALCULATED';
+    const shenGong = chartMode === 'FULL_BAZI' ? eightChar.getShenGong() : 'NOT_CALCULATED';
+    const taiYuan = eightChar.getTaiYuan();
+    const taiXi = eightChar.getTaiXi();
+    const twelveStages = {
+        year: toTraditional(eightChar.getYearDiShi()),
+        month: toTraditional(eightChar.getMonthDiShi()),
+        day: toTraditional(eightChar.getDayDiShi()),
+        hour: chartMode === 'FULL_BAZI' ? toTraditional(eightChar.getTimeDiShi()) : 'UNKNOWN',
+    };
+    // ---- 11. 驗證 Gate ----
+    const calendarVerified = Boolean(solar.toYmdHms()) && Boolean(lunar.toString()) && solarTerm !== '';
+    const pillarsVerified = activePillars.every((p) => exports.STEMS.includes(p.heavenlyStem) && exports.BRANCHES.includes(p.earthlyBranch))
+        && (chartMode === 'PARTIAL_BAZI' || hourPillar !== 'UNKNOWN');
+    const tenGodsVerified = activePillars.every((p) => p.key === 'DAY' ? p.tenGodStem === 'DAY_MASTER' : p.tenGodStem !== 'DAY_MASTER')
+        && activePillars.every((p) => p.hiddenStems.length > 0);
+    const luckCyclesVerified = chartMode === 'PARTIAL_BAZI'
+        ? true // PARTIAL：大運明確標記 NOT_CALCULATED，不假裝完整
+        : daYun !== 'NOT_CALCULATED' && daYun.length >= 6;
+    if (!calendarVerified)
+        issues.push('CALENDAR_NOT_VERIFIED');
+    if (!pillarsVerified)
+        issues.push('PILLARS_NOT_VERIFIED');
+    if (!tenGodsVerified)
+        issues.push('TEN_GODS_NOT_VERIFIED');
+    if (!luckCyclesVerified)
+        issues.push('LUCK_CYCLES_NOT_VERIFIED');
+    const readyForInterpretation = calendarVerified && pillarsVerified && tenGodsVerified && luckCyclesVerified;
+    return {
+        engine: {
+            name: exports.BAZI_ENGINE.name, version: exports.BAZI_ENGINE.version, ruleSet: exports.BAZI_ENGINE.ruleSet,
+            yearBoundary: exports.BAZI_ENGINE.yearBoundary, monthBoundary: exports.BAZI_ENGINE.monthBoundary,
+            lateZiRule: exports.BAZI_ENGINE.lateZiRule, timeCorrectionMode: exports.BAZI_ENGINE.timeCorrectionMode,
+        },
+        chartMode,
+        timePrecision,
+        input,
+        calendar: {
+            normalizedDateTime: solar.toYmdHms(),
+            solarDate: solar.toYmd(),
+            lunarDate: lunar.toString(),
+            timezone: input.timezone ?? 'Asia/Taipei (UTC+8, STANDARD_TIME)',
+            solarTerm,
+            solarTermTime,
+            yearBoundaryRule: 'LI_CHUN',
+        },
+        pillars: { year: yearPillar, month: monthPillar, day: dayPillar, hour: hourPillar },
+        dayMaster: { stem: dayMasterStem, element: dmElement, yinYang: exports.STEM_YINYANG[dayMasterStem] },
+        fiveElements: { rawCount, weightedStrength: weighted, weightRule: exports.BAZI_ENGINE.hiddenStemWeights + `_MONTHx${exports.BAZI_ENGINE.monthQiMultiplier}` },
+        seasonalStrength: { monthQi, lifeStage, seasonalSignals, supportSignals, drainSignals, controlSignals, tendency, score: supportScore },
+        interactions,
+        kongWang,
+        mingGong,
+        shenGong,
+        taiYuan,
+        taiXi,
+        twelveStages,
+        daYun,
+        daYunMeta,
+        annualLuck,
+        shenSha: chartMode === 'FULL_BAZI' ? shenSha : shenSha, // PARTIAL 已排除時柱參與項
+        verification: { calendarVerified, pillarsVerified, tenGodsVerified, luckCyclesVerified, readyForInterpretation, issues },
+    };
+}
+/** 驗證未通過即擋下 易經解盤（Gate） */
+function assertReadyForInterpretation(core) {
+    if (!core.verification.readyForInterpretation) {
+        throw new Error('BAZI_CORE_VALIDATION_FAILED: ' + core.verification.issues.join(','));
+    }
+}
+// ==================== StemBranchInteractionEngine ====================
+const STEM_COMBINE = [
+    ['甲', '己', '甲己合土'], ['乙', '庚', '乙庚合金'], ['丙', '辛', '丙辛合水'], ['丁', '壬', '丁壬合木'], ['戊', '癸', '戊癸合火'],
+];
+const STEM_CLASH = [['甲', '庚'], ['乙', '辛'], ['丙', '壬'], ['丁', '癸']];
+const BRANCH_SIX_COMBINE = [
+    ['子', '丑', '子丑合土'], ['寅', '亥', '寅亥合木'], ['卯', '戌', '卯戌合火'], ['辰', '酉', '辰酉合金'], ['巳', '申', '巳申合水'], ['午', '未', '午未合土'],
+];
+const BRANCH_TRINE = [
+    ['申', '子', '辰', '申子辰三合水局'], ['亥', '卯', '未', '亥卯未三合木局'], ['寅', '午', '戌', '寅午戌三合火局'], ['巳', '酉', '丑', '巳酉丑三合金局'],
+];
+const BRANCH_DIRECTIONAL = [
+    ['寅', '卯', '辰', '寅卯辰三會木方'], ['巳', '午', '未', '巳午未三會火方'], ['申', '酉', '戌', '申酉戌三會金方'], ['亥', '子', '丑', '亥子丑三會水方'],
+];
+const BRANCH_CLASH = [['子', '午'], ['丑', '未'], ['寅', '申'], ['卯', '酉'], ['辰', '戌'], ['巳', '亥']];
+const BRANCH_HARM = [['子', '未'], ['丑', '午'], ['寅', '巳'], ['卯', '辰'], ['申', '亥'], ['酉', '戌']];
+const BRANCH_BREAK = [['子', '酉'], ['卯', '午'], ['辰', '丑'], ['未', '戌'], ['寅', '亥'], ['巳', '申']];
+const BRANCH_PUNISH_TRIO = [
+    ['寅', '巳', '申', '寅巳申三刑（無恩之刑）'], ['丑', '戌', '未', '丑戌未三刑（恃勢之刑）'],
+];
+const BRANCH_PUNISH_PAIR = [['子', '卯', '子卯相刑（無禮之刑）']];
+const BRANCH_SELF_PUNISH = ['辰', '午', '酉', '亥'];
+function computeInteractions(pillars) {
+    const out = [];
+    const stems = pillars.map((p) => ({ v: p.heavenlyStem, key: p.key }));
+    const branches = pillars.map((p) => ({ v: p.earthlyBranch, key: p.key }));
+    const pairScan = (list, table, type, ruleName) => {
+        for (let i = 0; i < list.length; i++)
+            for (let j = i + 1; j < list.length; j++) {
+                for (const row of table) {
+                    if ((list[i].v === row[0] && list[j].v === row[1]) || (list[i].v === row[1] && list[j].v === row[0])) {
+                        out.push({
+                            participants: [list[i].v, list[j].v],
+                            interactionType: row[2] ?? `${list[i].v}${list[j].v}${type}`,
+                            sourceRule: ruleName,
+                            affectedPillars: [list[i].key, list[j].key],
+                        });
+                    }
+                }
+            }
+    };
+    pairScan(stems, STEM_COMBINE, '合', 'STEM_FIVE_COMBINE');
+    pairScan(stems, STEM_CLASH.map(([a, b]) => [a, b, `${a}${b}相沖`]), '沖', 'STEM_CLASH');
+    pairScan(branches, BRANCH_SIX_COMBINE, '合', 'BRANCH_SIX_COMBINE');
+    pairScan(branches, BRANCH_CLASH.map(([a, b]) => [a, b, `${a}${b}相沖`]), '沖', 'BRANCH_SIX_CLASH');
+    pairScan(branches, BRANCH_HARM.map(([a, b]) => [a, b, `${a}${b}相害`]), '害', 'BRANCH_HARM');
+    pairScan(branches, BRANCH_BREAK.map(([a, b]) => [a, b, `${a}${b}相破`]), '破', 'BRANCH_BREAK');
+    pairScan(branches, BRANCH_PUNISH_PAIR, '刑', 'BRANCH_PUNISH_PAIR');
+    const branchSet = branches.map((b) => b.v);
+    const trioScan = (table, ruleName) => {
+        for (const [a, b, c, label] of table) {
+            if (branchSet.includes(a) && branchSet.includes(b) && branchSet.includes(c)) {
+                out.push({
+                    participants: [a, b, c],
+                    interactionType: label,
+                    sourceRule: ruleName,
+                    affectedPillars: branches.filter((x) => [a, b, c].includes(x.v)).map((x) => x.key),
+                });
+            }
+        }
+    };
+    trioScan(BRANCH_TRINE, 'BRANCH_TRINE_COMBINE');
+    trioScan(BRANCH_DIRECTIONAL, 'BRANCH_DIRECTIONAL_COMBINE');
+    trioScan(BRANCH_PUNISH_TRIO, 'BRANCH_PUNISH_TRIO');
+    for (const sb of BRANCH_SELF_PUNISH) {
+        const hits = branches.filter((x) => x.v === sb);
+        if (hits.length >= 2) {
+            out.push({ participants: [sb, sb], interactionType: `${sb}${sb}自刑`, sourceRule: 'BRANCH_SELF_PUNISH', affectedPillars: hits.map((h) => h.key) });
+        }
+    }
+    return out;
+}
+// ==================== ShenShaEngine（輔助訊號） ====================
+const TIANYI_TABLE = {
+    甲: ['丑', '未'], 戊: ['丑', '未'], 庚: ['丑', '未'],
+    乙: ['子', '申'], 己: ['子', '申'],
+    丙: ['亥', '酉'], 丁: ['亥', '酉'],
+    壬: ['卯', '巳'], 癸: ['卯', '巳'],
+    辛: ['午', '寅'],
+};
+const WENCHANG_TABLE = { 甲: '巳', 乙: '午', 丙: '申', 戊: '申', 丁: '酉', 己: '酉', 庚: '亥', 辛: '子', 壬: '寅', 癸: '卯' };
+const TRINE_GROUP = {
+    申: { taoHua: '酉', yiMa: '寅', huaGai: '辰' }, 子: { taoHua: '酉', yiMa: '寅', huaGai: '辰' }, 辰: { taoHua: '酉', yiMa: '寅', huaGai: '辰' },
+    寅: { taoHua: '卯', yiMa: '申', huaGai: '戌' }, 午: { taoHua: '卯', yiMa: '申', huaGai: '戌' }, 戌: { taoHua: '卯', yiMa: '申', huaGai: '戌' },
+    巳: { taoHua: '午', yiMa: '亥', huaGai: '丑' }, 酉: { taoHua: '午', yiMa: '亥', huaGai: '丑' }, 丑: { taoHua: '午', yiMa: '亥', huaGai: '丑' },
+    亥: { taoHua: '子', yiMa: '巳', huaGai: '未' }, 卯: { taoHua: '子', yiMa: '巳', huaGai: '未' }, 未: { taoHua: '子', yiMa: '巳', huaGai: '未' },
+};
+const SHENSHA_RULE_VERSION = 'MINGLI_TANYUAN_SHENSHA_V5';
+const SHENSHA_PAGES = { tianyi: '62–63', wenchang: '63–64', huagai: '64', yima: '65', taohua: '71' };
+function computeShenSha(dayMaster, yearBranch, dayBranch, pillars) {
+    const out = [];
+    const branchesInChart = pillars.map((p) => ({ b: p.earthlyBranch, key: p.key }));
+    const push = (id, name, rule, evidence) => out.push({
+        id, name, rule, evidence, ruleVersion: SHENSHA_RULE_VERSION,
+        source: { sourceId: 'S-MINGLI-TANYUAN-1937-SCAN', title: '增訂命理探原（1937訂正本；1938再版本對讀）', printedPage: SHENSHA_PAGES[id], url: 'https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf' },
+    });
+    const dayGroup = TRINE_GROUP[dayBranch];
+    // 卷上71頁選用日主納音法：日支三合局與日柱納音同五行，查月、時。
+    // 同頁月起法及其他版本年起／倒插法不混入此規則。
+    const bathElement = { 子: '木', 卯: '火', 午: '金', 酉: '水' };
+    const dayNaYin = lunar_typescript_1.LunarUtil.NAYIN[dayMaster + dayBranch];
+    for (const { b, key } of branchesInChart) {
+        if (TIANYI_TABLE[dayMaster].includes(b))
+            push('tianyi', '天乙貴人', `日干${dayMaster}見${TIANYI_TABLE[dayMaster].join('/')}`, `${key} 支${b}`);
+        if (WENCHANG_TABLE[dayMaster] === b)
+            push('wenchang', '文昌貴人', `日干${dayMaster}見${WENCHANG_TABLE[dayMaster]}`, `${key} 支${b}`);
+        if ((key === 'MONTH' || key === 'HOUR') && dayGroup.taoHua === b && bathElement[b] && dayNaYin?.endsWith(bathElement[b])) {
+            push('taohua', '桃花', `日支${dayBranch}三合局沐浴位${b}，日柱納音${dayNaYin}；查月時`, `${key} 支${b}`);
+        }
+        // 卷上64頁採日支查年月時，不把另一年主取法合併或查日柱自身。
+        if (key !== 'DAY' && dayGroup.huaGai === b)
+            push('huagai', '華蓋', `日支${dayBranch}三合局華蓋位${b}；查年月時`, `${key} 支${b}`);
+        for (const anchor of [{ br: yearBranch, tag: '年支' }, { br: dayBranch, tag: '日支' }]) {
+            const g = TRINE_GROUP[anchor.br];
+            // 卷上65頁兼述年主、日主兩法；分開保存錨點證據，不自查。
+            if (key !== (anchor.tag === '年支' ? 'YEAR' : 'DAY') && g.yiMa === b)
+                push('yima', '驛馬', `${anchor.tag}${anchor.br}三合局驛馬位${g.yiMa}`, `${key} 支${b}`);
+        }
+    }
+    // 去重（同 id + evidence）
+    const seen = new Set();
+    return out.filter((s) => { const k = s.id + s.evidence + s.rule; if (seen.has(k))
+        return false; seen.add(k); return true; });
+}
+// ==================== Debug 摘要 ====================
+function debugBaziCore(core) {
+    return {
+        engine: core.engine,
+        chartMode: core.chartMode,
+        timePrecision: core.timePrecision,
+        四柱: {
+            年柱: core.pillars.year.ganZhi,
+            月柱: core.pillars.month.ganZhi,
+            日柱: core.pillars.day.ganZhi,
+            時柱: core.pillars.hour === 'UNKNOWN' ? 'UNKNOWN（未知時辰，不冒充）' : core.pillars.hour.ganZhi,
+        },
+        日主: `${core.dayMaster.stem}${core.dayMaster.element}（${core.dayMaster.yinYang}）`,
+        節氣: `${core.calendar.solarTerm} @ ${core.calendar.solarTermTime}`,
+        空亡: `年柱旬空 ${core.kongWang.yearXunKong}｜日柱旬空 ${core.kongWang.dayXunKong}`,
+        命宮: core.mingGong,
+        身宮: core.shenGong,
+        胎元: core.taiYuan,
+        胎息: core.taiXi,
+        十二長生: core.twelveStages,
+        驗證: core.verification,
+    };
+}
