@@ -90,7 +90,13 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
 
       {/* 按四柱分組排列印記 — 年月日時順序 */}
       {(() => {
-        const pillarOrder = ['年柱', '月柱', '日柱', '時柱'];
+        const pillarOrder = [
+          '祖域（年柱）',
+          '命境（月柱）',
+          '本魂（日柱）',
+          '後界（時柱）',
+        ];
+        const pillarNames = ['年柱', '月柱', '日柱', '時柱'];
         const groupedByPillar = new Map<string, typeof reading.items>();
 
         reading.items.forEach((item) => {
@@ -105,14 +111,14 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
 
         return (
           <>
-            {pillarOrder.map((pillarName) => {
-              const itemsForPillar = groupedByPillar.get(pillarName) || [];
+            {pillarOrder.map((fullLabel, idx) => {
+              const itemsForPillar = groupedByPillar.get(fullLabel) || [];
               if (itemsForPillar.length === 0) return null;
 
               return (
-                <div key={pillarName} className={styles.pillarGroup}>
-                  <h3 className={styles.pillarGroupTitle}>{pillarName}</h3>
-                  <ul className={styles.list} data-asura-list={pillarName}>
+                <div key={fullLabel} className={styles.pillarGroup}>
+                  <h3 className={styles.pillarGroupTitle}>{pillarNames[idx]}</h3>
+                  <ul className={styles.list} data-asura-list={pillarNames[idx]}>
                     {itemsForPillar.map((item) => {
                       const itemClass =
                         item.sealStatus === 'awakened'
