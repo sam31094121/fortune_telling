@@ -66,50 +66,64 @@ export default function GhostAsuraHomeEntry() {
       </div>
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-600/12 to-transparent -translate-x-full group-hover:animate-[shimmer_2.4s_infinite] pointer-events-none" />
 
-      {/* 【年柱 — 上層】視覺識別區（天干｜地支） */}
-      <div className="relative w-full grid grid-cols-2 gap-3 sm:gap-4 items-center">
-        <div
-          className="justify-self-start grid h-12 w-12 place-items-center rounded-2xl border border-amber-500/50 bg-gradient-to-br from-amber-700/60 to-orange-900/40 font-serif text-2xl font-black text-amber-100 shadow-[0_0_24px_rgba(217,119,6,0.3)] transition-transform duration-300 group-hover:scale-105 group-active:scale-85"
-          aria-hidden="true"
-        >
-          ⚡
+      {/* 表格式網格佈局（借鑒八字命盤） */}
+      <div className="relative w-full">
+        {/* 第一行：圖標、狀態、免費、時間 */}
+        <div className="grid grid-cols-4 gap-0 border-b border-amber-500/30 pb-3">
+          {/* 左：圖標 */}
+          <div className="col-span-1 flex items-center justify-center">
+            <div
+              className="grid h-12 w-12 place-items-center rounded-2xl border border-amber-500/50 bg-gradient-to-br from-amber-700/60 to-orange-900/40 font-serif text-2xl font-black text-amber-100 shadow-[0_0_24px_rgba(217,119,6,0.3)] transition-transform duration-300 group-hover:scale-105 group-active:scale-85"
+              aria-hidden="true"
+            >
+              ⚡
+            </div>
+          </div>
+
+          {/* 中左：狀態標籤 */}
+          <div className="col-span-1 flex items-center pl-2">
+            <span className="text-[10px] font-black tracking-widest text-amber-200">
+              <HomeTranslatedText text={`${featuredImpression.status}`} />
+            </span>
+          </div>
+
+          {/* 中右：免費 */}
+          <div className="col-span-1 flex items-center justify-center">
+            <div className="inline-flex items-center rounded-full bg-amber-950/60 border border-amber-600/50 px-2.5 py-1 text-[8px] font-bold tracking-widest text-amber-200 uppercase">
+              <HomeTranslatedText text={'免費'} />
+            </div>
+          </div>
+
+          {/* 右：時間 */}
+          <div className="col-span-1 flex items-center justify-end">
+            <span className="text-[10px] font-bold text-amber-200/70 px-2.5 py-1 rounded-full border border-amber-400/30 bg-amber-950/40">
+              <HomeTranslatedText text={'3 分鐘'} />
+            </span>
+          </div>
         </div>
 
-        <div className="justify-self-end inline-flex items-center rounded-full bg-amber-950/60 border border-amber-600/50 px-3 py-1.5 text-[9px] font-bold tracking-widest text-amber-200 uppercase transition-all duration-300 group-hover:bg-amber-950/80 group-active:scale-90">
-          <HomeTranslatedText text={'免費'} />
-        </div>
-      </div>
-
-      {/* 【月柱 — 上中層】主體名稱區（天干｜地支） */}
-      <div className="relative w-full grid grid-cols-2 gap-3 sm:gap-4 items-center pt-2">
-        <div className="justify-self-start">
-          <span className="text-[10px] font-black tracking-widest text-amber-200 uppercase">
-            <HomeTranslatedText text={`${featuredImpression.status}`} />
-          </span>
+        {/* 第二行：主標題「命魂戰局」跨越全寬 */}
+        <div className="grid grid-cols-1 gap-0 border-b border-amber-500/30 py-3">
+          <h2 className="font-serif text-3xl sm:text-4xl font-black text-amber-50 text-center tracking-tight drop-shadow-lg">
+            <HomeTranslatedText text={'命魂戰局'} />
+          </h2>
         </div>
 
-        <h2 className="justify-self-end font-serif text-2xl sm:text-3xl font-black text-amber-50 tracking-tight text-right leading-tight drop-shadow-lg">
-          <HomeTranslatedText text={'命魂戰局'} />
-        </h2>
-      </div>
+        {/* 第三行：印記名稱 */}
+        <div className="grid grid-cols-1 gap-0 border-b border-amber-500/30 py-2.5">
+          <p className="text-[12px] sm:text-[13px] font-semibold text-amber-300 text-center">
+            <HomeTranslatedText text={featuredImpression.title} />
+          </p>
+        </div>
 
-      {/* 【日柱 — 下中層】動態內容區（天干｜地支）— 隱藏幫助文案 */}
-      <div className="relative w-full grid grid-cols-2 gap-3 sm:gap-4 items-center pt-2">
-        <p className="justify-self-start text-[11px] font-semibold text-amber-300">
-          <HomeTranslatedText text={featuredImpression.title} />
-        </p>
-        <span className="justify-self-end text-[10px] font-bold text-amber-200/70 px-2.5 py-1 rounded-full border border-amber-400/30 bg-amber-950/40">
-          <HomeTranslatedText text={'3 分鐘'} />
-        </span>
-      </div>
-
-      {/* 【時柱 — 下層】行動區（CTA 主體） — 最大化優先級 */}
-      <div className="relative w-full pt-3">
-        <div className="home-feature-cta flex items-center justify-center gap-2.5 rounded-2xl border-2 border-amber-400/75 bg-gradient-to-r from-amber-600/55 to-orange-600/45 px-6 py-4 sm:py-5 text-sm sm:text-base font-bold text-amber-50 shadow-[0_0_28px_rgba(217,119,6,0.4)] transition-all duration-300 group-hover:border-amber-300/90 group-hover:shadow-[0_0_44px_rgba(217,119,6,0.55)] group-hover:bg-gradient-to-r group-hover:from-amber-600/70 group-hover:to-orange-600/60 active:scale-95 active:shadow-[0_0_18px_rgba(217,119,6,0.25)]">
-          <span>
-            <HomeTranslatedText text={'開啟秘卷'} />
-          </span>
-          <span className="transition-transform duration-300 group-hover:translate-x-2 group-active:translate-x-0">→</span>
+        {/* 第四行：CTA 按鈕 */}
+        <div className="grid grid-cols-1 gap-0 pt-3">
+          <div className="home-feature-cta flex items-center justify-center gap-2.5 rounded-2xl border-2 border-amber-400/75 bg-gradient-to-r from-amber-600/55 to-orange-600/45 px-6 py-4 sm:py-5 text-sm sm:text-base font-bold text-amber-50 shadow-[0_0_28px_rgba(217,119,6,0.4)] transition-all duration-300 group-hover:border-amber-300/90 group-hover:shadow-[0_0_44px_rgba(217,119,6,0.55)] group-hover:bg-gradient-to-r group-hover:from-amber-600/70 group-hover:to-orange-600/60 active:scale-95 active:shadow-[0_0_18px_rgba(217,119,6,0.25)]">
+            <span>
+              <HomeTranslatedText text={'開啟秘卷'} />
+            </span>
+            <span className="transition-transform duration-300 group-hover:translate-x-2 group-active:translate-x-0">→</span>
+          </div>
         </div>
       </div>
 
