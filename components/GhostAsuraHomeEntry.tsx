@@ -21,14 +21,14 @@ interface AsuraImpression {
 
 /** 主頁展示用核心印記（對齊固定映射；非總數上限） */
 const ASURA_CORE_IMPRESSIONS: AsuraImpression[] = [
-  { title: '裂天劫印', description: '劫勢未成形，先布防、先斬斷、先破局', status: '印記覺醒' },
-  { title: '五陰纏影', description: '陰氣已纏命魂，陰影合圍前先鎮碎', status: '印記覺醒' },
-  { title: '血刃之鋒', description: '爆發與鋒利的行動力', status: '印記覺醒' },
-  { title: '魅生之印', description: '魅力與人緣的印記', status: '印記覺醒' },
-  { title: '天赦神契', description: '化解劫勢的護佑之力', status: '印記覺醒' },
-  { title: '逐界行者', description: '打破界限的移動力量', status: '印記覺醒' },
-  { title: '鎮軍之魂', description: '領導與掌控的戰魂', status: '印記覺醒' },
-  { title: '虛界空印', description: '空白本身就是劫難，先看清再填補', status: '印記沉眠' },
+  { title: '裂天劫印', description: '破局之力已甦醒，命運從此刻起向上翻轉', status: '力量覺醒' },
+  { title: '五陰纏影', description: '靈魂之敵已現，用阿修羅之力反制與超越', status: '力量覺醒' },
+  { title: '血刃之鋒', description: '行動力爆發，成就與威力俱在此刻', status: '力量覺醒' },
+  { title: '魅生之印', description: '人緣與魅力的覺醒，吸引力進入新紀元', status: '力量覺醒' },
+  { title: '天赦神契', description: '天佑之力護佑，逆轉與救贖同時啟動', status: '力量覺醒' },
+  { title: '逐界行者', description: '超越界限的力量，向新世界展開行進', status: '力量覺醒' },
+  { title: '鎮軍之魂', description: '領導力與號召力同步激活，掌控局勢', status: '力量覺醒' },
+  { title: '虛界空印', description: '虛空的回聲中，重建與新生的機會浮現', status: '力量蟄伏' },
 ];
 
 /** 穩定挑選 featured 印記：同環境每次一致，禁止 Math.random */
@@ -52,57 +52,69 @@ export default function GhostAsuraHomeEntry() {
   return (
     <Link
       href="/ghost-asura"
-      className="home-feature-launch home-feature-tier-primary order-9 w-full relative group overflow-hidden rounded-3xl border border-zinc-500/45 bg-[radial-gradient(circle_at_18%_28%,rgba(127,29,29,0.22),transparent_34%),radial-gradient(circle_at_84%_18%,rgba(63,63,70,0.18),transparent_30%),linear-gradient(115deg,rgba(8,8,10,0.99),rgba(18,14,16,0.97),rgba(8,8,10,0.99))] p-6 text-left shadow-[0_0_34px_rgba(127,29,29,0.18)] transition-[border-color,box-shadow,transform] duration-500 hover:border-red-800/55 hover:shadow-[0_0_48px_rgba(127,29,29,0.28)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+      className="home-feature-launch home-feature-tier-primary order-9 w-full relative group overflow-hidden rounded-3xl border border-amber-500/65 bg-[radial-gradient(circle_at_18%_28%,rgba(217,119,6,0.25),transparent_34%),radial-gradient(circle_at_84%_18%,rgba(120,53,15,0.22),transparent_30%),linear-gradient(115deg,rgba(20,13,10,0.97),rgba(28,20,15,0.95),rgba(20,13,10,0.97))] p-5 sm:p-6 text-left shadow-[0_0_52px_rgba(217,119,6,0.35)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-400/75 hover:shadow-[0_0_68px_rgba(217,119,6,0.48)] active:scale-[0.99] flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       data-card-type="ghost-asura-home-entry"
       aria-label="鬼魅阿修羅｜開啟阿修羅秘卷"
     >
       {/* 微霧／金屬邊線 */}
-      <div className="absolute inset-0 pointer-events-none opacity-40 mix-blend-soft-light bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.06),transparent_55%)]" />
+      <div className="absolute inset-0 pointer-events-none opacity-50 mix-blend-soft-light bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.08),transparent_55%)]" />
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-zinc-300/35 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-red-900/35 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/45 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-amber-700/35 to-transparent" />
       </div>
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-red-950/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2.4s_infinite] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-600/12 to-transparent -translate-x-full group-hover:animate-[shimmer_2.4s_infinite] pointer-events-none" />
 
-      <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
+      {/* 【年柱 — 上層】視覺識別區（天干｜地支） */}
+      <div className="relative w-full grid grid-cols-2 gap-3 sm:gap-4 items-center">
         <div
-          className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-zinc-400/40 bg-gradient-to-br from-zinc-800/80 to-red-950/40 font-serif text-2xl font-black text-zinc-100 shadow-[0_0_28px_rgba(127,29,29,0.28)] transition-transform duration-300 group-hover:scale-105"
+          className="justify-self-start grid h-12 w-12 place-items-center rounded-2xl border border-amber-500/50 bg-gradient-to-br from-amber-700/60 to-orange-900/40 font-serif text-2xl font-black text-amber-100 shadow-[0_0_24px_rgba(217,119,6,0.3)] transition-transform duration-300 group-hover:scale-105 group-active:scale-85"
           aria-hidden="true"
         >
           ⚡
         </div>
 
-        <div className="min-w-0 flex-1">
-          <div className="inline-block rounded-full bg-zinc-900/70 border border-zinc-500/40 px-3 py-0.5 text-[10px] font-bold tracking-widest text-zinc-200 uppercase mb-1">
-            <HomeTranslatedText text={'鬼魅阿修羅'} />
-          </div>
-          <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-zinc-50 tracking-wide">
-            <HomeTranslatedText text={'命魂戰局'} />
-          </h2>
-          <p className="mt-1 text-[11px] leading-5 text-red-200/80">
-            <HomeTranslatedText text={`${featuredImpression.status}｜${featuredImpression.title}`} />
-          </p>
-          <p className="mt-0.5 text-xs leading-5 text-zinc-300/80">
-            <HomeTranslatedText text={featuredImpression.description} />
-          </p>
+        <div className="justify-self-end inline-flex items-center rounded-full bg-amber-950/60 border border-amber-600/50 px-3 py-1.5 text-[9px] font-bold tracking-widest text-amber-200 uppercase transition-all duration-300 group-hover:bg-amber-950/80 group-active:scale-90">
+          <HomeTranslatedText text={'免費'} />
         </div>
       </div>
 
-      <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
-        <HomeTrustEvidence items={['免費', '獨立秘卷', '阿修羅秘卷']} />
-
-        <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-zinc-400/40 bg-zinc-900/60 px-5 py-3 text-xs font-bold text-zinc-100 transition group-hover:bg-red-950/35 group-hover:border-red-800/50">
-          <span>
-            <HomeTranslatedText text={'開啟阿修羅秘卷'} />
+      {/* 【月柱 — 上中層】主體名稱區（天干｜地支） */}
+      <div className="relative w-full grid grid-cols-2 gap-3 sm:gap-4 items-center pt-2">
+        <div className="justify-self-start">
+          <span className="text-[10px] font-black tracking-widest text-amber-200 uppercase">
+            <HomeTranslatedText text={`${featuredImpression.status}`} />
           </span>
-          <span className="transition-transform group-hover:translate-x-1.5">➜</span>
+        </div>
+
+        <h2 className="justify-self-end font-serif text-2xl sm:text-3xl font-black text-amber-50 tracking-tight text-right leading-tight drop-shadow-lg">
+          <HomeTranslatedText text={'命魂戰局'} />
+        </h2>
+      </div>
+
+      {/* 【日柱 — 下中層】動態內容區（天干｜地支）— 隱藏幫助文案 */}
+      <div className="relative w-full grid grid-cols-2 gap-3 sm:gap-4 items-center pt-2">
+        <p className="justify-self-start text-[11px] font-semibold text-amber-300">
+          <HomeTranslatedText text={featuredImpression.title} />
+        </p>
+        <span className="justify-self-end text-[10px] font-bold text-amber-200/70 px-2.5 py-1 rounded-full border border-amber-400/30 bg-amber-950/40">
+          <HomeTranslatedText text={'3 分鐘'} />
+        </span>
+      </div>
+
+      {/* 【時柱 — 下層】行動區（CTA 主體） — 最大化優先級 */}
+      <div className="relative w-full pt-3">
+        <div className="home-feature-cta flex items-center justify-center gap-2.5 rounded-2xl border-2 border-amber-400/75 bg-gradient-to-r from-amber-600/55 to-orange-600/45 px-6 py-4 sm:py-5 text-sm sm:text-base font-bold text-amber-50 shadow-[0_0_28px_rgba(217,119,6,0.4)] transition-all duration-300 group-hover:border-amber-300/90 group-hover:shadow-[0_0_44px_rgba(217,119,6,0.55)] group-hover:bg-gradient-to-r group-hover:from-amber-600/70 group-hover:to-orange-600/60 active:scale-95 active:shadow-[0_0_18px_rgba(217,119,6,0.25)]">
+          <span>
+            <HomeTranslatedText text={'開啟秘卷'} />
+          </span>
+          <span className="transition-transform duration-300 group-hover:translate-x-2 group-active:translate-x-0">→</span>
         </div>
       </div>
 
       {isHovered && (
-        <div className="absolute inset-0 pointer-events-none rounded-3xl bg-gradient-to-t from-red-950/25 via-transparent to-transparent" />
+        <div className="absolute inset-0 pointer-events-none rounded-3xl bg-gradient-to-t from-amber-600/15 via-transparent to-transparent" />
       )}
     </Link>
   );

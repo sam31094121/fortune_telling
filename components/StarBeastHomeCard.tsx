@@ -12,12 +12,15 @@ const FADE_MS = 200;
 
 const COPY = {
   zh: {
-    label: '28 星宿・四象收藏',
+    label: '28 星宿・四象',
+    badge: '60 種',
     title: '星宿神獸卡片',
-    desc: '二十八星宿分類各有本體與幼子形態，另有四隻四象守護獸。瀏覽卡片，認識各自的守護特質。',
-    chips: ['免費瀏覽', '60 種可看', '先看再玩'],
-    cta: '查看 60 種神獸',
+    subtitle: '本月守護獸',
+    desc: '二十八星宿各有本體與幼子，另有四象守護獸。找到屬於你的星宿與守護特質。',
+    chips: ['免費瀏覽', '先看再玩'],
+    cta: '查看神獸',
     chipsLabel: '可核對承諾',
+    time: '1 分鐘',
   },
   en: {
     label: '28 Lunar Mansions · Four Symbols Collection',
@@ -67,24 +70,43 @@ export default function StarBeastHomeCard() {
       <Link
         href="/star-beasts"
         lang={isZh ? 'zh-Hant' : 'en'}
-        className="home-feature-launch home-feature-tier-explore w-full relative group overflow-hidden rounded-3xl border border-amber-200/30 bg-[radial-gradient(circle_at_82%_22%,rgba(251,191,36,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(63,35,70,0.62),rgba(12,18,42,0.98))] p-6 text-left shadow-[0_0_30px_rgba(251,191,36,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-200/70 hover:shadow-[0_0_50px_rgba(251,191,36,0.25)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+        className="home-feature-launch home-feature-tier-explore w-full relative group overflow-hidden rounded-3xl border border-amber-200/30 bg-[radial-gradient(circle_at_82%_22%,rgba(251,191,36,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(63,35,70,0.62),rgba(12,18,42,0.98))] p-5 sm:p-6 text-left shadow-[0_0_30px_rgba(251,191,36,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-200/70 hover:shadow-[0_0_50px_rgba(251,191,36,0.25)] active:scale-[0.99] flex flex-col gap-3 sm:gap-4"
       >
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
-        <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
-          <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-amber-100/35 bg-amber-200/10 font-serif text-2xl font-black text-amber-100 shadow-[0_0_28px_rgba(251,191,36,0.18)]" aria-hidden="true">宿</div>
-          <div className="min-w-0 flex-1">
-            <span className={`${styles.label} inline-block rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-100`}><span className={fade}>{text(t.label)}</span></span>
-            <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-amber-50 sm:text-2xl"><span className={fade}>{text(t.title)}</span></h2>
-            <p className="mt-1 text-sm text-slate-200"><span className={fade}>{text(t.desc)}</span></p>
+
+        {/* 【年柱 — 上層】視覺識別 */}
+        <div className="relative w-full grid grid-cols-2 gap-3 sm:gap-4 items-center">
+          <div className="justify-self-start grid h-12 w-12 place-items-center rounded-2xl border border-amber-100/35 bg-amber-200/10 font-serif text-2xl font-black text-amber-100 shadow-[0_0_24px_rgba(251,191,36,0.15)]" aria-hidden="true">宿</div>
+          <div className="justify-self-end inline-block rounded-full border border-amber-200/25 bg-amber-300/10 px-2.5 py-1 text-[9px] font-bold tracking-widest text-amber-100">
+            <span className={fade}>{text(t.badge)}</span>
           </div>
         </div>
-        <ul className="home-trust-evidence" aria-label={t.chipsLabel}>
-          {t.chips.map((chip) => (
-            <li key={chip} className="home-trust-evidence__chip"><span className={fade}>{text(chip)}</span></li>
-          ))}
-        </ul>
-        <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-amber-200/40 bg-amber-300/15 px-5 py-3 text-xs font-bold text-amber-50 transition group-hover:bg-amber-300/25">
-          <span className={fade}>{text(t.cta)}</span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
+
+        {/* 【月柱 — 上中層】名稱層 */}
+        <div className="relative w-full grid grid-cols-2 gap-3 sm:gap-4 items-center pt-1">
+          <div className="justify-self-start">
+            <span className={`${styles.label} text-[10px] font-bold tracking-widest text-amber-100`}><span className={fade}>{text(t.label)}</span></span>
+          </div>
+          <h2 className="justify-self-end font-serif text-lg sm:text-xl font-black text-amber-50 tracking-tight text-right">
+            <span className={fade}>{text(t.title)}</span>
+          </h2>
+        </div>
+
+        {/* 【日柱 — 下中層】動態內容 */}
+        <div className="relative w-full grid grid-cols-2 gap-3 sm:gap-4 items-center pt-1">
+          <p className="justify-self-start text-[11px] font-semibold text-amber-200">
+            <span className={fade}>{text(t.subtitle)}</span>
+          </p>
+          <span className="justify-self-end text-[10px] font-bold text-amber-100/70 px-2.5 py-1 rounded-full border border-amber-200/25 bg-amber-950/30">
+            <span className={fade}>{text(t.time)}</span>
+          </span>
+        </div>
+
+        {/* 【時柱 — 下層】行動層 */}
+        <div className="relative w-full pt-2">
+          <div className="home-feature-cta flex items-center justify-center gap-2 rounded-2xl border border-amber-200/40 bg-amber-300/15 px-6 py-4 text-sm font-bold text-amber-50 shadow-[0_0_20px_rgba(251,191,36,0.15)] transition group-hover:bg-amber-300/25 active:scale-95">
+            <span className={fade}>{text(t.cta)}</span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
+          </div>
         </div>
       </Link>
 
