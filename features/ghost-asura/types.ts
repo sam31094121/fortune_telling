@@ -151,6 +151,13 @@ export interface GhostAsuraReading {
   motherVersion: string;
   namingVersion: string;
   translateVersion: string;
+  /** 四柱幹支（年月日時） */
+  pillars: {
+    year: string;
+    month: string;
+    day: string;
+    hour: string;
+  };
   items: GhostAsuraDisplayItem[];
   dualClashes: GhostAsuraDualClash[];
   chains: GhostAsuraChain[];

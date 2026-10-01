@@ -28,6 +28,26 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
         </p>
       </header>
 
+      {/* 四柱表格（年月日時）— 從左到右逐層展開 */}
+      <div className={styles.pillarsTable}>
+        <div className={styles.pillarColumn}>
+          <div className={styles.pillarLabel}>年柱</div>
+          <div className={styles.pillarValue}>{reading.pillars.year}</div>
+        </div>
+        <div className={styles.pillarColumn}>
+          <div className={styles.pillarLabel}>月柱</div>
+          <div className={styles.pillarValue}>{reading.pillars.month}</div>
+        </div>
+        <div className={styles.pillarColumn}>
+          <div className={styles.pillarLabel}>日柱</div>
+          <div className={styles.pillarValue}>{reading.pillars.day}</div>
+        </div>
+        <div className={styles.pillarColumn}>
+          <div className={styles.pillarLabel}>時柱</div>
+          <div className={styles.pillarValue}>{reading.pillars.hour}</div>
+        </div>
+      </div>
+
       <div className={styles.banner}>
         別人還沒看見風暴，阿修羅先看見。
         <br />

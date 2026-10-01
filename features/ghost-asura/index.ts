@@ -39,6 +39,14 @@ export function buildGhostAsuraReading(
 ): GhostAsuraReading {
   const adapted = adaptVerifiedShenSha(input);
 
+  // 提取四柱幹支（年月日時）
+  const pillars = {
+    year: input.result?.core?.pillars?.year?.ganZhi ?? '',
+    month: input.result?.core?.pillars?.month?.ganZhi ?? '',
+    day: input.result?.core?.pillars?.day?.ganZhi ?? '',
+    hour: input.result?.core?.pillars?.hour?.ganZhi ?? '',
+  };
+
   if (adapted.blockedReason) {
     const emptyGuard = guardCompleteness({
       backend: [],
@@ -51,6 +59,7 @@ export function buildGhostAsuraReading(
       motherVersion: adapted.motherVersion,
       namingVersion: GHOST_ASURA_NAMING_VERSION,
       translateVersion: GHOST_ASURA_TRANSLATE_VERSION,
+      pillars,
       items: [],
       dualClashes: [],
       chains: [],
@@ -143,6 +152,7 @@ export function buildGhostAsuraReading(
     motherVersion: adapted.motherVersion,
     namingVersion: GHOST_ASURA_NAMING_VERSION,
     translateVersion: GHOST_ASURA_TRANSLATE_VERSION,
+    pillars,
     items,
     dualClashes,
     chains,
