@@ -1,0 +1,247 @@
+/**
+ * 鬼魅阿修羅卡片樣式
+ * 規格書第十五項：深黑、精緻、戰場感、手機優先
+ */
+
+.asuraCard {
+  background: linear-gradient(135deg, #0a0a0a 0%, #15101a 100%);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 8px;
+  padding: 24px 20px;
+  margin: 24px 0;
+  color: #e8e8e8;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.asuraHeader {
+  border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+}
+
+.asuraHeader h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #d4af37;
+  letter-spacing: 0.05em;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #a89860;
+  font-weight: 500;
+}
+
+.summary {
+  background: rgba(212, 175, 55, 0.05);
+  border-left: 3px solid #d4af37;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.statsLine {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+
+.totalCount,
+.hitCount,
+.missingCount {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.totalCount b {
+  font-size: 16px;
+  color: #d4af37;
+}
+
+.pillarGroups {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.pillarGroup {
+  background: rgba(20, 15, 25, 0.8);
+  border-left: 3px solid #d4af37;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.pillarHead {
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #d4af37;
+  letter-spacing: 0.08em;
+}
+
+.pillarName {
+  flex-shrink: 0;
+}
+
+.pillarTrad {
+  font-size: 12px;
+  color: #a89860;
+  font-weight: 400;
+}
+
+.itemCount {
+  margin-left: auto;
+  background: rgba(212, 175, 55, 0.1);
+  padding: 2px 8px;
+  border-radius: 3px;
+  color: #d4af37;
+  font-weight: 600;
+}
+
+.asuraList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.asuraItem {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  padding: 12px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.asuraItem:hover {
+  background: rgba(212, 175, 55, 0.08);
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.asuraItem[data-matched='true'] {
+  border-left: 3px solid #d4af37;
+}
+
+.asuraItem[data-matched='false'] {
+  border-left: 3px solid #a89860;
+  opacity: 0.8;
+}
+
+.asuraName {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.asuraName strong {
+  font-size: 14px;
+  color: #f5d547;
+  font-weight: 600;
+}
+
+.status {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: rgba(212, 175, 55, 0.1);
+  color: #d4af37;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.debug {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  color: #888;
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+}
+
+.completeness {
+  background: rgba(20, 15, 25, 0.6);
+  border: 1px dashed rgba(212, 175, 55, 0.2);
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-top: 20px;
+}
+
+.completionLabel {
+  margin: 0 0 8px 0;
+  color: #a89860;
+  font-family: 'Courier New', monospace;
+}
+
+.pass {
+  margin: 0;
+  color: #90ee90;
+  font-weight: 600;
+}
+
+.fail {
+  margin: 0;
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+/**
+ * 手機優先 (375px)
+ */
+@media (max-width: 767px) {
+  .asuraCard {
+    padding: 16px 12px;
+  }
+
+  .asuraHeader h3 {
+    font-size: 18px;
+  }
+
+  .pillarHead {
+    font-size: 13px;
+  }
+
+  .asuraName {
+    gap: 8px;
+  }
+
+  .asuraName strong {
+    font-size: 13px;
+  }
+
+  .statsLine {
+    gap: 12px;
+  }
+}
+
+/**
+ * 平板適配 (768px+)
+ */
+@media (min-width: 768px) {
+  .pillarGroups {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+}
+
+/**
+ * 電腦適配 (1024px+)
+ */
+@media (min-width: 1024px) {
+  .pillarGroups {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

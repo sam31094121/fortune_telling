@@ -7,6 +7,9 @@ import ElementRing from './ElementRing';
 import ShenShaSourceEvidence, { ShenShaComparisonSummary, ShenShaEvidenceLinks } from '@/components/bazi/customer/ShenShaSourceEvidence';
 import { shenShaDisplayCopy, shenShaDisplayNames } from '@/lib/iching-shensha-display-copy'; // imported correctly
 import { IchingShenShaAsuraSection } from '@/components/IchingShenShaAsuraSection';
+import { GhostAsuraCardIndependent } from './GhostAsuraCardIndependent';
+import { GhostAsuraStandaloneCard } from '@/components/GhostAsuraStandaloneCard';
+import type { ShenShaRaw } from '@/lib/ghost-asura-complete';
 
 const order = ['hour', 'day', 'month', 'year'] as const;
 const labels = { hour: '時', day: '日', month: '月', year: '年' };
@@ -409,21 +412,30 @@ export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false
       </TeacherFold>
     )}
 
-    {/* 阿修羅解盤 — 新增卡片 */}
+    {/* 阿修羅解盤 — 獨立卡片版本 */}
     {!printMode && shenshaTab === 'asura' && result.specialStars?.asura?.state === 'READY' && (() => {
-      // 完整度驗證：簡單檢查（詳細驗證在測試層）
       const asuraView = result.specialStars?.asura;
       if (asuraView?.state !== 'READY') return null;
 
-      const backendLineCount = (asuraView.groups ?? []).reduce((sum, g) => sum + (g.lines?.length ?? 0), 0);
-      if (backendLineCount === 0) {
+      // 把後端格式轉換成 ShenShaRaw[]
+      const shenShaData: ShenShaRaw[] = (asuraView.groups ?? []).flatMap(group =>
+        (group.lines ?? []).map(line => ({
+          id: line.id || line.originalName,
+          originalName: line.originalName,
+          matched: (line as any).matched !== false,
+          category: group.pillar,
+          source: 'backend',
+        }))
+      );
+
+      if (shenShaData.length === 0) {
         console.error('🚨 ASURA_FRONTEND_COMPLETENESS_FAILED: 後端無神煞');
         return null;
       }
 
       return (
-        <TeacherFold teacher="asura" summary={<summary><span className={styles.teacherHead}><b>阿修羅解盤</b><small>戰　破局是承諾</small></span><span className={styles.teacherTeaser}>同盤三視角，我是最狠的那個。</span></summary>}>
-          <IchingShenShaAsuraSection view={result.specialStars.asura} />
+        <TeacherFold teacher="asura" summary={<summary><span className={styles.teacherHead}><b>鬼魅阿修羅</b><small>戰　破局是承諾</small></span><span className={styles.teacherTeaser}>命魂戰局 — 同盤三視角</span></summary>}>
+          <GhostAsuraStandaloneCard shenShaData={shenShaData} />
         </TeacherFold>
       );
     })()}
@@ -484,5 +496,8 @@ export default function BaziChart({ result, monochrome = false, language = 'zh',
       </section>
     </div>
     <footer className={styles.reportFooter}>節氣：{core.calendar.solarTerm} {core.calendar.solarTermTime}<br />台灣標準時間 UTC+8 · 年以立春、月以節氣為界 · 晚子時日柱不換日 · 未做真太陽時校正</footer>
-  </div>{!monochrome && !hideShenShaCard && <ShenShaCard result={result} />}</div><section className={styles.screenShenShaNotes} aria-label={language === 'en' ? 'Shensha source status' : '神煞來源狀態'}>{sourceNotes}</section></>;
+  </div>{!monochrome && !hideShenShaCard && <ShenShaCard result={result} />}
+  {/* 🔒 舊卡片已隱藏：2026-09-30 準備用新版本替換 */}
+  {/* {!monochrome && !hideShenShaCard && <GhostAsuraCardIndependent result={result} />} */}
+  </div><section className={styles.screenShenShaNotes} aria-label={language === 'en' ? 'Shensha source status' : '神煞來源狀態'}>{sourceNotes}</section></>;
 }

@@ -999,3 +999,99 @@ details[open] > summary .moreHint::after {
 .printPreview .shenshaAsura {
   display: none;
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   鬼魅阿修羅卡片 — 獨立卡片 | 深紫黑 + 金色光 | 100% 戰神風格
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.ghostAsuraCard {
+  --asura-purple-black: #0D0812;
+  --asura-gold-light: #D4AF37;
+  --asura-gold-dim: #A89860;
+  --asura-text: #F5F5F5;
+  --asura-muted: #888888;
+
+  margin: 24px 0;
+  padding: 20px;
+  border: 2px solid var(--asura-gold-light);
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0D0812 0%, #1A1520 50%, #0A0808 100%);
+  box-shadow:
+    0 0 50px rgba(212, 175, 55, 0.2),
+    inset 0 1px 1px rgba(212, 175, 55, 0.1),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.8);
+  scroll-margin-top: 20px;
+  color: var(--asura-text);
+  overflow-wrap: anywhere;
+}
+
+/* 深色模式加深 */
+@media (prefers-color-scheme: dark) {
+  .ghostAsuraCard {
+    --asura-purple-black: #050203;
+    --asura-gold-light: #F5D547;
+  }
+}
+
+.ghostAsuraHeader {
+  margin: 0 0 20px 0;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--asura-gold-light);
+}
+
+.ghostAsuraHeader h3 {
+  font-size: 24px;
+  font-weight: 900;
+  margin: 0 0 4px;
+  color: var(--asura-gold-light);
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.ghostAsuraSubtitle {
+  font-size: 13px;
+  color: var(--asura-gold-dim);
+  margin: 0;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
+
+.ghostAsuraShare {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  margin: 20px 0 4px;
+  text-align: center;
+  padding-top: 16px;
+  border-top: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.ghostAsuraShareButton {
+  min-height: 48px;
+  padding: 0 24px;
+  border: 2px solid var(--asura-gold-light);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #1A1520, #0D0812);
+  color: var(--asura-gold-light);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ghostAsuraShareButton:hover {
+  background: linear-gradient(180deg, #2A1F30, #1A1520);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+  transform: scale(1.02);
+}
+
+.ghostAsuraShareButton:active {
+  transform: scale(0.98);
+}
+
+.ghostAsuraShare small {
+  font-size: 12px;
+  color: var(--asura-muted);
+  letter-spacing: 0.05em;
+}
