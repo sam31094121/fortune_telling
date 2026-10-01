@@ -88,68 +88,92 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
         </div>
       )}
 
-      <ul className={styles.list} data-asura-list="full">
-        {reading.items.map((item) => {
-          const itemClass =
-            item.sealStatus === 'awakened'
-              ? `${styles.item} ${styles.itemAwakened}`
-              : item.sealStatus === 'dormant'
-                ? `${styles.item} ${styles.itemDormant}`
-                : `${styles.item} ${styles.itemPending}`;
-          const sealClass =
-            item.sealStatus === 'awakened'
-              ? `${styles.seal} ${styles.sealAwakened}`
-              : item.sealStatus === 'dormant'
-                ? `${styles.seal} ${styles.sealDormant}`
-                : `${styles.seal} ${styles.sealPending}`;
+      {/* 按四柱分組排列印記 — 年月日時順序 */}
+      {(() => {
+        const pillarOrder = ['年柱', '月柱', '日柱', '時柱'];
+        const groupedByPillar = new Map<string, typeof reading.items>();
 
-          return (
-            <li
-              key={item.resultId}
-              className={itemClass}
-              data-asura-id={item.resultId}
-              data-seal-status={item.sealStatus}
-              data-display-name={item.displayName}
-            >
-              <div className={styles.itemHead}>
-                <strong className={styles.displayName}>{item.displayName}</strong>
-                <span className={sealClass}>{item.sealLabel}</span>
-              </div>
+        reading.items.forEach((item) => {
+          if (item.pillarLabels.length === 0) return;
+          item.pillarLabels.forEach((pillar) => {
+            if (!groupedByPillar.has(pillar)) {
+              groupedByPillar.set(pillar, []);
+            }
+            groupedByPillar.get(pillar)!.push(item);
+          });
+        });
 
-              {item.pillarLabels.length > 0 && (
-                <div className={styles.pillar}>
-                  落印：{item.pillarLabels.join('、')}
+        return (
+          <>
+            {pillarOrder.map((pillarName) => {
+              const itemsForPillar = groupedByPillar.get(pillarName) || [];
+              if (itemsForPillar.length === 0) return null;
+
+              return (
+                <div key={pillarName} className={styles.pillarGroup}>
+                  <h3 className={styles.pillarGroupTitle}>{pillarName}</h3>
+                  <ul className={styles.list} data-asura-list={pillarName}>
+                    {itemsForPillar.map((item) => {
+                      const itemClass =
+                        item.sealStatus === 'awakened'
+                          ? `${styles.item} ${styles.itemAwakened}`
+                          : item.sealStatus === 'dormant'
+                            ? `${styles.item} ${styles.itemDormant}`
+                            : `${styles.item} ${styles.itemPending}`;
+                      const sealClass =
+                        item.sealStatus === 'awakened'
+                          ? `${styles.seal} ${styles.sealAwakened}`
+                          : item.sealStatus === 'dormant'
+                            ? `${styles.seal} ${styles.sealDormant}`
+                            : `${styles.seal} ${styles.sealPending}`;
+
+                      return (
+                        <li
+                          key={item.resultId}
+                          className={itemClass}
+                          data-asura-id={item.resultId}
+                          data-seal-status={item.sealStatus}
+                          data-display-name={item.displayName}
+                        >
+                          <div className={styles.itemHead}>
+                            <strong className={styles.displayName}>{item.displayName}</strong>
+                            <span className={sealClass}>{item.sealLabel}</span>
+                          </div>
+
+                          {item.sealStatus === 'pending' ? (
+                            <div className={styles.meaning}>
+                              {item.pendingReason ?? GHOST_ASURA_UI.pendingHint}
+                            </div>
+                          ) : (
+                            <>
+                              {item.shortDeclaration && (
+                                <div className={styles.meaning}>
+                                  <div className={styles.meaningStrong}>
+                                    {item.shortDeclaration}
+                                  </div>
+                                  {item.coreMeaning}
+                                </div>
+                              )}
+                              {(item.battleSignificance || item.verdict) && (
+                                <div className={styles.battleLine}>
+                                  <span style={{ color: '#fca5a5' }}>
+                                    {GHOST_ASURA_UI.printClash}｜
+                                  </span>
+                                  {item.battleSignificance} {item.verdict}
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
-              )}
-
-              {item.sealStatus === 'pending' ? (
-                <div className={styles.meaning}>
-                  {item.pendingReason ?? GHOST_ASURA_UI.pendingHint}
-                </div>
-              ) : (
-                <>
-                  {item.shortDeclaration && (
-                    <div className={styles.meaning}>
-                      <div className={styles.meaningStrong}>
-                        {item.shortDeclaration}
-                      </div>
-                      {item.coreMeaning}
-                    </div>
-                  )}
-                  {(item.battleSignificance || item.verdict) && (
-                    <div className={styles.battleLine}>
-                      <span style={{ color: '#fca5a5' }}>
-                        {GHOST_ASURA_UI.printClash}｜
-                      </span>
-                      {item.battleSignificance} {item.verdict}
-                    </div>
-                  )}
-                </>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+              );
+            })}
+          </>
+        );
+      })()}
 
       {reading.dualClashes.length > 0 && (
         <section className={styles.section} data-layer="dual">
