@@ -15,7 +15,7 @@ export default async function GhostAsuraPage() {
   const jar = await cookies();
   return (
     <GhostAsuraPageClient
-      unlocked={true}
+      unlocked={validSession(jar.get(DUAL_COOKIE)?.value)}
       configured={gateConfigured()}
     />
   );
