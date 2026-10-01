@@ -3069,8 +3069,8 @@ export default function HomePage() {
             </div>
           </Link>
 
-          {/* 080-16：鬼魅阿修羅主頁唯一獨立入口 → /ghost-asura */}
-          <GhostAsuraHomeEntry />
+          {/* 080-16：鬼魅阿修羅主頁唯一獨立入口 → /ghost-asura（暫時隱藏，以後再啟用） */}
+          {false && <GhostAsuraHomeEntry />}
 
           <Link
             href="/zodiac"
