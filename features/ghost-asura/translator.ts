@@ -1,58 +1,59 @@
 /**
  * 鬼魅阿修羅 — 轉譯層
  *
- * 逐項轉譯，不運算神煞。未核可名稱 → 待校核（不回退原始名、不隨機命名）。
+ * 逐項轉譯，不運算神煞。
+ * 已核可 → 固定名；未登錄但後端已驗證 → 穩定延伸名。
+ * 禁止回退原始名到使用者主標題；禁止 Math.random。
  */
 
-import { lookupApprovedName, GHOST_ASURA_NAMING_VERSION } from './registry';
+import {
+  collectApprovedDisplayNames,
+  GHOST_ASURA_NAMING_VERSION,
+  resolveDisplayName,
+} from './registry';
 import type { GhostAsuraTranslatedItem, GhostAsuraVerifiedRecord } from './types';
-import { formatPillarLabels } from './uiText';
+import { formatPillarLabels, GHOST_ASURA_UI } from './uiText';
 
-export const GHOST_ASURA_TRANSLATE_VERSION = 'GHOST_ASURA_TRANSLATE_2026_10_01_V1';
+export const GHOST_ASURA_TRANSLATE_VERSION = 'GHOST_ASURA_TRANSLATE_2026_10_01_V2';
+
+function isBlankOriginalName(name: string): boolean {
+  const trimmed = (name || '').trim();
+  return !trimmed || trimmed === '未知神煞' || trimmed === '—' || trimmed === '-';
+}
 
 export function translateVerifiedRecords(
   records: GhostAsuraVerifiedRecord[]
 ): GhostAsuraTranslatedItem[] {
+  const usedNames = collectApprovedDisplayNames();
+
   return records.map((record) => {
-    // 後端未完成判定 → 待校核
+    const resolved = resolveDisplayName(
+      {
+        ruleId: record.ruleId,
+        originalName: isBlankOriginalName(record.originalName)
+          ? ''
+          : record.originalName,
+      },
+      usedNames
+    );
+
+    // 後端未完成判定 → 待校核（仍給安全 displayName，不外洩原始名）
     if (record.matched === null) {
       return {
         resultId: record.resultId,
         ruleId: record.ruleId,
         originalName: record.originalName,
-        displayName: null,
+        displayName: resolved.displayName,
         matched: null,
         sealStatus: 'pending',
         pillars: record.pillars,
         pillarLabels: formatPillarLabels(record.pillars),
-        family: null,
+        family: resolved.family,
         namingApproved: false,
-        namingVersion: null,
+        namingVersion: resolved.namingVersion,
+        namingSource: resolved.namingSource,
         resultBatchId: record.resultBatchId,
-        pendingReason: `後端狀態 ${record.backendStatus}：尚未完成命中驗證`,
-      };
-    }
-
-    const approved = lookupApprovedName({
-      ruleId: record.ruleId,
-      originalName: record.originalName,
-    });
-
-    if (!approved) {
-      return {
-        resultId: record.resultId,
-        ruleId: record.ruleId,
-        originalName: record.originalName,
-        displayName: null,
-        matched: record.matched,
-        sealStatus: 'pending',
-        pillars: record.pillars,
-        pillarLabels: formatPillarLabels(record.pillars),
-        family: null,
-        namingApproved: false,
-        namingVersion: null,
-        resultBatchId: record.resultBatchId,
-        pendingReason: `固定名稱未核可：${record.originalName}（ruleId=${record.ruleId}）`,
+        pendingReason: GHOST_ASURA_UI.pendingBackendHint,
       };
     }
 
@@ -60,14 +61,15 @@ export function translateVerifiedRecords(
       resultId: record.resultId,
       ruleId: record.ruleId,
       originalName: record.originalName,
-      displayName: approved.displayName,
+      displayName: resolved.displayName,
       matched: record.matched,
       sealStatus: record.matched ? 'awakened' : 'dormant',
       pillars: record.pillars,
       pillarLabels: formatPillarLabels(record.pillars),
-      family: approved.family,
-      namingApproved: true,
-      namingVersion: approved.namingVersion || GHOST_ASURA_NAMING_VERSION,
+      family: resolved.family,
+      namingApproved: resolved.namingApproved,
+      namingVersion: resolved.namingVersion || GHOST_ASURA_NAMING_VERSION,
+      namingSource: resolved.namingSource,
       resultBatchId: record.resultBatchId,
     };
   });

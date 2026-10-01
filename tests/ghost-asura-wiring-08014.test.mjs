@@ -251,8 +251,8 @@ console.log('\n【9】合法零項 vs 缺結果');
   console.log('✓ 零項合法；缺結果失敗');
 }
 
-// ── 10. 名稱未核可 ──
-console.log('\n【10】缺少固定名稱／未核可');
+// ── 10. 未登錄但已驗證 → 穩定延伸名（不得待核可標題）──
+console.log('\n【10】未登錄已驗證 → 穩定延伸命名');
 {
   const reading = buildGhostAsuraReading({
     records: [
@@ -264,10 +264,23 @@ console.log('\n【10】缺少固定名稱／未核可');
       }),
     ],
   });
-  assert.strictEqual(reading.items[0].sealStatus, 'pending');
-  assert.strictEqual(reading.items[0].displayName, null);
-  assert.strictEqual(reading.guard.status, 'FAILED');
-  console.log('✓ 未核可 → 待校核 + FAILED');
+  assert.strictEqual(reading.items[0].sealStatus, 'awakened');
+  assert.ok(reading.items[0].displayName, '必須有阿修羅 displayName');
+  assert.notStrictEqual(reading.items[0].displayName, '未登錄神煞甲');
+  assert.notStrictEqual(reading.items[0].displayName, '（名稱待核可）');
+  assert.strictEqual(reading.guard.status, 'PASSED');
+  const again = buildGhostAsuraReading({
+    records: [
+      record({
+        resultId: 'unknownStar',
+        originalName: '未登錄神煞甲',
+        matched: true,
+        pillars: ['day'],
+      }),
+    ],
+  });
+  assert.strictEqual(again.items[0].displayName, reading.items[0].displayName);
+  console.log('✓ 穩定延伸 → 覺醒 + PASSED + 重跑同名');
 }
 
 // ── 11. 相同資料重跑名稱一致 ──
@@ -367,6 +380,88 @@ console.log('\n【額外】有核可組合 → 印記交鋒');
   assert.ok(reading.chains.length >= 1);
   assert.ok(reading.chains[0].memberDisplayNames.includes('五陰纏影'));
   console.log('✓ 三印連鎖依組合依據輸出');
+}
+
+// ── 080-17：coverage 65 全量命名＋禁原始名外洩 ──
+console.log('\n【080-17】coverage 65 全量＋使用者畫面零原始名');
+{
+  const { DUAL_SHENSHA_RULES } = await import(
+    pathToFileURL(path.join(root, 'lib/dual-chart-iching-shensha.ts')).href
+  );
+  const coverageRecords = DUAL_SHENSHA_RULES.map(([id, name], index) =>
+    record({
+      resultId: id,
+      ruleId: id,
+      originalName: name,
+      matched: index % 4 !== 0,
+      pillars: index % 4 !== 0 ? ['day'] : [],
+      resultBatchId: 'COV65',
+    })
+  );
+  const reading = buildGhostAsuraReading({
+    records: coverageRecords,
+    resultBatchId: 'COV65',
+  });
+  assert.strictEqual(reading.items.length, 65);
+  assert.strictEqual(reading.guard.status, 'PASSED', reading.guard.message);
+  assert.ok(reading.items.every((item) => Boolean(item.displayName)));
+  assert.ok(!reading.items.some((item) => item.displayName === '（名稱待核可）'));
+  assert.ok(!reading.items.some((item) => item.displayName === '未知神煞'));
+  assert.strictEqual(reading.pendingCount, 0);
+
+  for (let i = 0; i < coverageRecords.length; i++) {
+    const originalName = coverageRecords[i].originalName;
+    const displayName = reading.items[i].displayName;
+    assert.notStrictEqual(
+      displayName,
+      originalName,
+      `${originalName} 不得原樣當主標題`
+    );
+  }
+
+  const userFacing = JSON.stringify({
+    items: reading.items.map((item) => ({
+      displayName: item.displayName,
+      sealLabel: item.sealLabel,
+      shortDeclaration: item.shortDeclaration,
+      coreMeaning: item.coreMeaning,
+      battleSignificance: item.battleSignificance,
+      verdict: item.verdict,
+      pendingReason: item.pendingReason,
+    })),
+    pendingEntries: reading.pendingEntries,
+    guardMessage: reading.guard.message,
+  });
+  assert.ok(!userFacing.includes('固定名稱未核可'));
+  assert.ok(!userFacing.includes('名稱待核可'));
+  assert.ok(!userFacing.includes('未知神煞'));
+  // 禁止「固定名稱未核可：××」形態把原始名塞進提示
+  assert.ok(!/未核可[:：]/.test(userFacing));
+  console.log('✓ 65 項全有 displayName；guard PASSED；無原始名外洩提示');
+}
+
+console.log('\n【080-17】別名對齊＋缺名穩定延伸');
+{
+  const aliasReading = buildGhostAsuraReading({
+    records: [
+      record({ resultId: 'tiande', originalName: '天德貴人', matched: true, pillars: ['year'] }),
+      record({ resultId: 'wenchang', originalName: '文昌', matched: true, pillars: ['month'] }),
+      record({ resultId: 'tianyi', originalName: '天乙貴人', matched: true, pillars: ['day'] }),
+      record({ resultId: 'taiji', originalName: '太極貴人', matched: true, pillars: ['hour'] }),
+      record({ resultId: 'blankStar', originalName: '未知神煞', matched: true, pillars: ['day'] }),
+    ],
+    resultBatchId: 'ALIAS',
+  });
+  assert.strictEqual(aliasReading.items.find((i) => i.resultId === 'tiande').displayName, '天德護印');
+  assert.strictEqual(aliasReading.items.find((i) => i.resultId === 'wenchang').displayName, '文魂天契');
+  assert.strictEqual(aliasReading.items.find((i) => i.resultId === 'tianyi').displayName, '天乙神印');
+  assert.strictEqual(aliasReading.items.find((i) => i.resultId === 'taiji').displayName, '玄極天印');
+  const blank = aliasReading.items.find((i) => i.resultId === 'blankStar');
+  assert.ok(blank.displayName);
+  assert.notStrictEqual(blank.displayName, '未知神煞');
+  assert.strictEqual(blank.sealStatus, 'awakened');
+  assert.strictEqual(aliasReading.guard.status, 'PASSED');
+  console.log('✓ 別名／缺名皆有阿修羅名且 PASSED');
 }
 
 console.log('\n✅ 080-14 §十二 關鍵案全部執行完畢');

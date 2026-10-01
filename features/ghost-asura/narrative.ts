@@ -36,7 +36,7 @@ export function buildNarratives(
   items: GhostAsuraTranslatedItem[]
 ): GhostAsuraNarrativeItem[] {
   return items.map((item) => {
-    if (item.sealStatus === 'pending' || !item.displayName) {
+    if (item.sealStatus === 'pending') {
       return {
         resultId: item.resultId,
         displayName: item.displayName,
@@ -47,6 +47,7 @@ export function buildNarratives(
         verdict: null,
         wordingVersion: null,
         hasApprovedWording: false,
+        // 中性提示；禁止夾帶原始神煞名
         pendingReason: item.pendingReason ?? GHOST_ASURA_UI.pendingHint,
       };
     }
@@ -68,7 +69,7 @@ export function buildNarratives(
 
     const wording = ASURA_WORDINGS_CORE[item.displayName];
     if (!wording) {
-      // 名稱已核可、命中狀態已驗證：印記狀態維持覺醒；話術缺漏明示不足，不造假文案。
+      // 名稱已就緒、命中已驗證：維持覺醒；話術缺漏用欄位級提示，不打回待核可標題。
       return {
         resultId: item.resultId,
         displayName: item.displayName,
@@ -79,7 +80,7 @@ export function buildNarratives(
         verdict: GHOST_ASURA_UI.noReading,
         wordingVersion: null,
         hasApprovedWording: false,
-        pendingReason: `話術未核可：${item.displayName}`,
+        pendingReason: GHOST_ASURA_UI.wordingGapHint,
       };
     }
 

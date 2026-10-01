@@ -27,6 +27,7 @@ import {
 export * from './types';
 export * from './uiText';
 export * from './registry';
+export * from './extendName';
 export * from './adapter';
 export * from './translator';
 export * from './narrative';
@@ -77,7 +78,7 @@ export function buildGhostAsuraReading(
       pendingEntries: [
         {
           resultId: 'ADAPTER_BLOCKED',
-          originalName: '—',
+          label: GHOST_ASURA_UI.pendingNeutralLabel,
           reason: adapted.blockedReason,
         },
       ],
@@ -115,33 +116,25 @@ export function buildGhostAsuraReading(
     expectedBatchId: adapted.resultBatchId,
   });
 
-  const pendingEntries = [
-    ...translated
-      .filter((item) => item.sealStatus === 'pending')
-      .map((item) => ({
-        resultId: item.resultId,
-        originalName: item.originalName,
-        reason: item.pendingReason ?? GHOST_ASURA_UI.pendingHint,
-      })),
-    ...narratives
-      .filter((row) => row.pendingReason && row.sealStatus !== 'pending')
-      .map((row) => {
-        const source = translated.find((item) => item.resultId === row.resultId);
-        return {
-          resultId: row.resultId,
-          originalName: source?.originalName ?? row.displayName ?? row.resultId,
-          reason: row.pendingReason ?? GHOST_ASURA_UI.pendingHint,
-        };
-      }),
-  ];
+  // 僅後端未驗證（真缺項）進 pendingEntries；話術缺漏改欄位級提示，不進紅條名單
+  const pendingEntries = translated
+    .filter((item) => item.sealStatus === 'pending')
+    .map((item) => ({
+      resultId: item.resultId,
+      label: item.displayName || GHOST_ASURA_UI.pendingNeutralLabel,
+      reason: item.pendingReason ?? GHOST_ASURA_UI.pendingHint,
+    }));
 
-  // 話術缺漏也視為正式完成未過
-  if (narratives.some((row) => row.pendingReason && !row.hasApprovedWording && row.sealStatus === 'awakened')) {
-    if (guard.status === 'PASSED') {
-      guard.status = 'FAILED';
-      guard.message = 'GHOST_ASURA_INCOMPLETE: 話術缺漏';
-    }
-    guard.details.push('覺醒印存在話術未核可條目');
+  // 話術缺漏：欄位已寫「此域暫無可用判讀」；名稱齊＋編號齊時 guard 維持 PASSED
+  if (
+    narratives.some(
+      (row) =>
+        row.pendingReason &&
+        !row.hasApprovedWording &&
+        row.sealStatus === 'awakened'
+    )
+  ) {
+    guard.details.push('覺醒印存在話術未核可條目（欄位級提示，不影響名稱／編號完整度）');
   }
 
   return {

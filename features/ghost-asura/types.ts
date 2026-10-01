@@ -50,8 +50,8 @@ export interface GhostAsuraTranslatedItem {
   resultId: string;
   ruleId: string;
   originalName: string;
-  /** 核可後才有；待校核時為 null */
-  displayName: string | null;
+  /** 固定名或穩定延伸名；使用者主標題只用此欄 */
+  displayName: string;
   matched: boolean | null;
   sealStatus: GhostAsuraSealStatus;
   pillars: GhostAsuraPillarKey[];
@@ -59,13 +59,15 @@ export interface GhostAsuraTranslatedItem {
   family: string | null;
   namingApproved: boolean;
   namingVersion: string | null;
+  /** approved＝母種固定；stable-extension＝延伸語系 */
+  namingSource?: 'approved' | 'stable-extension';
   resultBatchId: string;
   pendingReason?: string;
 }
 
 export interface GhostAsuraNarrativeItem {
   resultId: string;
-  displayName: string | null;
+  displayName: string;
   sealStatus: GhostAsuraSealStatus;
   shortDeclaration: string | null;
   coreMeaning: string | null;
@@ -132,7 +134,7 @@ export interface GhostAsuraGuardReport {
 
 export interface GhostAsuraDisplayItem {
   resultId: string;
-  displayName: string | null;
+  displayName: string;
   sealStatus: GhostAsuraSealStatus;
   sealLabel: string;
   pillarLabels: string[];
@@ -157,6 +159,9 @@ export interface GhostAsuraReading {
   awakenedCount: number;
   dormantCount: number;
   pendingCount: number;
-  /** 待補條目（命名或話術未核可） */
-  pendingEntries: Array<{ resultId: string; originalName: string; reason: string }>;
+  /**
+   * 待補條目（僅後端未驗證等真缺項）。
+   * label 為使用者可見中性標籤；禁止帶原始神煞中文名。
+   */
+  pendingEntries: Array<{ resultId: string; label: string; reason: string }>;
 }

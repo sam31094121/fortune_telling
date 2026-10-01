@@ -88,8 +88,15 @@ export function GhostAsuraCardComplete({
 }: {
   result: DualChartResult;
 }) {
-  // 取得後端神煞
-  const backendShenSha = (result.specialStars?.shenSha || []) as ShenShaItem[];
+  // 取得後端已驗證神煞（coverage；舊欄位 shenSha 已移除）
+  const coverage = result.specialStars?.coverage ?? [];
+  const backendShenSha: ShenShaItem[] = coverage.map((row) => ({
+    id: row.id,
+    originalName: row.name,
+    matched: row.status === 'MATCHED',
+    hitPillar: (row.matchedPillars?.[0] as ShenShaItem['hitPillar']) || undefined,
+    verified: row.status === 'MATCHED' || row.status === 'NOT_MATCHED',
+  }));
 
   // 轉譯全部（規格書第二項）
   const allAsuraItems = translateAllShenSha(backendShenSha);

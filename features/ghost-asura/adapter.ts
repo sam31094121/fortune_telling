@@ -124,13 +124,17 @@ export function adaptVerifiedShenSha(
 
   const nameToRuleId = new Map<string, string>();
   const records: GhostAsuraVerifiedRecord[] = coverage.map((row) => {
-    nameToRuleId.set(row.name, row.id);
+    const rawName = typeof row.name === 'string' ? row.name.trim() : '';
+    // 缺名保留後端編號完整度；稽核層用中性佔位，轉譯層再穩定延伸
+    const originalName = rawName || `未知神煞`;
+    if (rawName) nameToRuleId.set(rawName, row.id);
+    nameToRuleId.set(row.id, row.id);
     const isMatched = row.status === 'MATCHED';
     const isNotMatched = row.status === 'NOT_MATCHED';
     return {
       resultId: row.id,
       ruleId: row.id,
-      originalName: row.name,
+      originalName,
       matched: isMatched ? true : isNotMatched ? false : null,
       pillars: isMatched ? mapPillars(row.matchedPillars) : [],
       resultBatchId,

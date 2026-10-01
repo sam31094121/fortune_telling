@@ -22,8 +22,11 @@ export const GHOST_ASURA_UI = {
   asuraBattle: '修羅戰局',
   asuraChain: '阿修羅連鎖',
   noReading: '此域暫無可用判讀',
-  incompleteBanner: '解盤完整度未通過，請重試或回報。',
-  pendingHint: '此印記尚待命名／話術核可，暫不提供正式解讀。',
+  incompleteBanner: '解盤完整度未通過：編號或筆數不一致，請重試或回報。',
+  pendingHint: '此印記尚待後端驗證，暫不提供正式解讀。',
+  pendingBackendHint: '後端尚未完成命中驗證，此印維持待校核。',
+  pendingNeutralLabel: '印記待校核',
+  wordingGapHint: '此域暫無可用判讀',
 } as const;
 
 export const PILLAR_UI: Record<

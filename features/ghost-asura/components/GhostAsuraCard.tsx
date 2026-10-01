@@ -60,7 +60,7 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
               待補 {reading.pendingEntries.length} 筆：
               {reading.pendingEntries
                 .slice(0, 8)
-                .map((entry) => entry.originalName)
+                .map((entry) => entry.label || entry.resultId)
                 .join('、')}
               {reading.pendingEntries.length > 8 ? '…' : ''}
             </div>
@@ -89,12 +89,10 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
               className={itemClass}
               data-asura-id={item.resultId}
               data-seal-status={item.sealStatus}
-              data-display-name={item.displayName ?? ''}
+              data-display-name={item.displayName}
             >
               <div className={styles.itemHead}>
-                <strong className={styles.displayName}>
-                  {item.displayName ?? '（名稱待核可）'}
-                </strong>
+                <strong className={styles.displayName}>{item.displayName}</strong>
                 <span className={sealClass}>{item.sealLabel}</span>
               </div>
 
