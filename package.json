@@ -116,7 +116,9 @@
     "test:asura-no-fabrication": "node tests/asura-no-fabrication.test.cjs",
     "test:asura-frontend-only": "node tests/asura-frontend-only.test.cjs",
     "test:ghost-asura-completeness": "node tests/ghost-asura-completeness.test.mjs",
-    "test:ghost-asura-frontend-completeness": "node tests/ghost-asura-frontend-completeness.test.mjs"
+    "test:ghost-asura-frontend-completeness": "node tests/ghost-asura-frontend-completeness.test.mjs",
+    "test:ghost-asura-wiring": "npx --yes tsx tests/ghost-asura-wiring-08014.test.mjs",
+    "test:ghost-asura-viewport": "npx --yes tsx tests/ghost-asura-viewport-consistency-08014.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

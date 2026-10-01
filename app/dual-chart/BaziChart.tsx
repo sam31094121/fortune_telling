@@ -6,10 +6,8 @@ import { SharedElementSealPaper } from '@/components/bazi/customer/SharedElement
 import ElementRing from './ElementRing';
 import ShenShaSourceEvidence, { ShenShaComparisonSummary, ShenShaEvidenceLinks } from '@/components/bazi/customer/ShenShaSourceEvidence';
 import { shenShaDisplayCopy, shenShaDisplayNames } from '@/lib/iching-shensha-display-copy'; // imported correctly
-import { IchingShenShaAsuraSection } from '@/components/IchingShenShaAsuraSection';
-import { GhostAsuraCardIndependent } from './GhostAsuraCardIndependent';
-import { GhostAsuraStandaloneCard } from '@/components/GhostAsuraStandaloneCard';
-import type { ShenShaRaw } from '@/lib/ghost-asura-complete';
+import { buildGhostAsuraReading } from '@/features/ghost-asura';
+import { GhostAsuraCard } from '@/features/ghost-asura/components/GhostAsuraCard';
 
 const order = ['hour', 'day', 'month', 'year'] as const;
 const labels = { hour: '時', day: '日', month: '月', year: '年' };
@@ -389,7 +387,7 @@ export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false
       <div className={styles.teacherQuotes}>
         {shenshaTab === 'iching' && <p data-teacher="iching"><b>易經老師</b>{result.specialStars.iching.oneLiner}</p>}
         {shenshaTab === 'ghost' && result.specialStars?.ghost?.state === 'READY' && <p data-teacher="ghost"><b>鬼魅老師</b>{result.specialStars.ghost.oneLiner}</p>}
-        {shenshaTab === 'asura' && result.specialStars?.asura?.state === 'READY' && <p data-teacher="asura"><b>阿修羅</b>破局是我的承諾。</p>}
+        {shenshaTab === 'asura' && result.specialStars?.asura?.state === 'READY' && <p data-teacher="asura"><b>鬼魅阿修羅</b>破局是我的承諾。</p>}
       </div>
     </div>}
     {/* 三位老師卡片 — 按 shenshaTab 狀態切換顯示 */}
@@ -412,30 +410,15 @@ export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false
       </TeacherFold>
     )}
 
-    {/* 阿修羅解盤 — 獨立卡片版本 */}
-    {!printMode && shenshaTab === 'asura' && result.specialStars?.asura?.state === 'READY' && (() => {
-      const asuraView = result.specialStars?.asura;
-      if (asuraView?.state !== 'READY') return null;
-
-      // 把後端格式轉換成 ShenShaRaw[]
-      const shenShaData: ShenShaRaw[] = (asuraView.groups ?? []).flatMap(group =>
-        (group.lines ?? []).map(line => ({
-          id: line.id || line.originalName,
-          originalName: line.originalName,
-          matched: (line as any).matched !== false,
-          category: group.pillar,
-          source: 'backend',
-        }))
-      );
-
-      if (shenShaData.length === 0) {
-        console.error('🚨 ASURA_FRONTEND_COMPLETENESS_FAILED: 後端無神煞');
+    {/* 阿修羅解盤 — 正式解盤接線（080-14：coverage → adapter → … → 卡片） */}
+    {!printMode && shenshaTab === 'asura' && (() => {
+      const reading = buildGhostAsuraReading({ result });
+      if (reading.items.length === 0 && reading.guard.status === 'FAILED' && reading.pendingEntries[0]?.resultId === 'ADAPTER_BLOCKED') {
         return null;
       }
-
       return (
         <TeacherFold teacher="asura" summary={<summary><span className={styles.teacherHead}><b>鬼魅阿修羅</b><small>戰　破局是承諾</small></span><span className={styles.teacherTeaser}>命魂戰局 — 同盤三視角</span></summary>}>
-          <GhostAsuraStandaloneCard shenShaData={shenShaData} />
+          <GhostAsuraCard reading={reading} />
         </TeacherFold>
       );
     })()}

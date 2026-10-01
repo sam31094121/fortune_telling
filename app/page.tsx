@@ -30,6 +30,7 @@ import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import FineDiningServiceProgress from '@/components/FineDiningServiceProgress';
 import TarotEntryCard from '@/features/tarot/components/TarotEntryCard';
 import StarBeastHomeCard from '@/components/StarBeastHomeCard';
+import GhostAsuraHomeEntry from '@/components/GhostAsuraHomeEntry';
 import { markPendingRoute, recoverFromChunkError } from '@/lib/chunk-recovery';
 import { safeJsonFetch } from '@/lib/safe-fetch';
 import { curateExperienceContent } from '@/lib/experience-content-curator';
@@ -3067,6 +3068,9 @@ export default function HomePage() {
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>
+
+          {/* 080-16：鬼魅阿修羅主頁唯一獨立入口 → /ghost-asura */}
+          <GhostAsuraHomeEntry />
 
           <Link
             href="/zodiac"

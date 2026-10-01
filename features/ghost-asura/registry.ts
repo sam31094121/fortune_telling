@@ -1,0 +1,156 @@
+/**
+ * 鬼魅阿修羅 — 固定名稱登錄表（附件 3 §五）
+ *
+ * 51 組為命名母種，不是上限。正式綁定以規則識別碼優先，中文名次之。
+ * 未核可條目不自動冒充通過。
+ */
+
+import type { GhostAsuraRegistryEntry } from './types';
+
+export const GHOST_ASURA_NAMING_VERSION = 'GHOST_ASURA_NAMING_2026_10_01_V1';
+
+/** 規則識別碼 → 核可阿修羅名（對齊 dual-chart coverage.id） */
+export const APPROVED_BY_RULE_ID: Record<string, { displayName: string; family: string }> = {
+  tiandehe: { displayName: '天赦神契', family: 'DIVINE_PROTECTION' },
+  tiande: { displayName: '天德護印', family: 'DIVINE_PROTECTION' },
+  yuede: { displayName: '月德靈契', family: 'DIVINE_PROTECTION' },
+  yima: { displayName: '逐界行者', family: 'MOVEMENT' },
+  gejiao: { displayName: '孤界之門', family: 'ISOLATION' },
+  jinkui: { displayName: '玄金寶庫', family: 'TREASURE' },
+  wugui: { displayName: '五陰纏影', family: 'SHADOW' },
+  muyu: { displayName: '洗魂之境', family: 'TRANSFORMATION' },
+  ripo: { displayName: '裂日之痕', family: 'RUPTURE' },
+  tiangou: { displayName: '噬天之影', family: 'SHADOW' },
+  zaisha: { displayName: '劫境之門', family: 'TRIBULATION' },
+  yuepo: { displayName: '碎月之痕', family: 'RUPTURE' },
+  jiangxing: { displayName: '鎮軍之魂', family: 'POWER' },
+  longde: { displayName: '天龍護命', family: 'DIVINE_PROTECTION' },
+  liue: { displayName: '六劫之關', family: 'TRIBULATION' },
+  yuanchen: { displayName: '幽辰之障', family: 'SHADOW' },
+  yangren: { displayName: '血刃之鋒', family: 'BLADE' },
+  taohua: { displayName: '魅生之印', family: 'CHARM' },
+  waiTaohua: { displayName: '界外魅緣', family: 'CHARM' },
+  tianyi: { displayName: '天乙神印', family: 'DIVINE_PROTECTION' },
+  wenchang: { displayName: '文魂天契', family: 'DIVINE_PROTECTION' },
+  guoyin: { displayName: '鎮國之印', family: 'POWER' },
+  xuetang: { displayName: '靈學之門', family: 'DIVINE_PROTECTION' },
+  tianchu: { displayName: '天饗神庫', family: 'TREASURE' },
+  lushen: { displayName: '玄祿寶印', family: 'TREASURE' },
+  tianyiDoctor: { displayName: '天醫靈契', family: 'DIVINE_PROTECTION' },
+  huagai: { displayName: '孤華幽冠', family: 'ISOLATION' },
+  jiesha: { displayName: '劫魂之刃', family: 'TRIBULATION' },
+  wangshen: { displayName: '亡影幽魂', family: 'SHADOW' },
+  baihu: { displayName: '白虎血印', family: 'BLADE' },
+  sangmen: { displayName: '喪界幽門', family: 'SHADOW' },
+  pima: { displayName: '麻衣冥印', family: 'SHADOW' },
+  guchen: { displayName: '孤辰絕界', family: 'ISOLATION' },
+  guasu: { displayName: '寡宿幽宮', family: 'ISOLATION' },
+  hongyan: { displayName: '緋艷魅魂', family: 'CHARM' },
+  yinyangChacuo: { displayName: '陰陽錯界', family: 'TRANSFORMATION' },
+  shieDabai: { displayName: '十敗劫印', family: 'TRIBULATION' },
+  kuigang: { displayName: '魁罡戰魂', family: 'POWER' },
+  feiren: { displayName: '飛刃血痕', family: 'BLADE' },
+  liuxia: { displayName: '流霞魅痕', family: 'CHARM' },
+  kongwang: { displayName: '虛界空印', family: 'ISOLATION' },
+};
+
+/** 附件 3 中文母種（含母版尚未掛上 dual rule id 的名稱） */
+export const APPROVED_BY_ORIGINAL_NAME: Record<string, { displayName: string; family: string }> = {
+  天德合: { displayName: '天赦神契', family: 'DIVINE_PROTECTION' },
+  天德: { displayName: '天德護印', family: 'DIVINE_PROTECTION' },
+  月德: { displayName: '月德靈契', family: 'DIVINE_PROTECTION' },
+  驛馬: { displayName: '逐界行者', family: 'MOVEMENT' },
+  隔角: { displayName: '孤界之門', family: 'ISOLATION' },
+  金匱: { displayName: '玄金寶庫', family: 'TREASURE' },
+  五鬼: { displayName: '五陰纏影', family: 'SHADOW' },
+  沐浴: { displayName: '洗魂之境', family: 'TRANSFORMATION' },
+  日破: { displayName: '裂日之痕', family: 'RUPTURE' },
+  天狗: { displayName: '噬天之影', family: 'SHADOW' },
+  災煞: { displayName: '劫境之門', family: 'TRIBULATION' },
+  天煞: { displayName: '裂天劫印', family: 'TRIBULATION' },
+  月破: { displayName: '碎月之痕', family: 'RUPTURE' },
+  將星: { displayName: '鎮軍之魂', family: 'POWER' },
+  龍德: { displayName: '天龍護命', family: 'DIVINE_PROTECTION' },
+  六厄: { displayName: '六劫之關', family: 'TRIBULATION' },
+  元辰: { displayName: '幽辰之障', family: 'SHADOW' },
+  羊刃: { displayName: '血刃之鋒', family: 'BLADE' },
+  桃花: { displayName: '魅生之印', family: 'CHARM' },
+  外桃花: { displayName: '界外魅緣', family: 'CHARM' },
+  天乙貴人: { displayName: '天乙神印', family: 'DIVINE_PROTECTION' },
+  天乙: { displayName: '天乙神印', family: 'DIVINE_PROTECTION' },
+  太極貴人: { displayName: '玄極天印', family: 'DIVINE_PROTECTION' },
+  文昌貴人: { displayName: '文魂天契', family: 'DIVINE_PROTECTION' },
+  文昌: { displayName: '文魂天契', family: 'DIVINE_PROTECTION' },
+  福星貴人: { displayName: '福曜護命', family: 'DIVINE_PROTECTION' },
+  國印貴人: { displayName: '鎮國之印', family: 'POWER' },
+  國印: { displayName: '鎮國之印', family: 'POWER' },
+  學堂: { displayName: '靈學之門', family: 'DIVINE_PROTECTION' },
+  詞館: { displayName: '文魄秘殿', family: 'DIVINE_PROTECTION' },
+  天廚: { displayName: '天饗神庫', family: 'TREASURE' },
+  祿神: { displayName: '玄祿寶印', family: 'TREASURE' },
+  天醫: { displayName: '天醫靈契', family: 'DIVINE_PROTECTION' },
+  華蓋: { displayName: '孤華幽冠', family: 'ISOLATION' },
+  劫煞: { displayName: '劫魂之刃', family: 'TRIBULATION' },
+  亡神: { displayName: '亡影幽魂', family: 'SHADOW' },
+  白虎: { displayName: '白虎血印', family: 'BLADE' },
+  喪門: { displayName: '喪界幽門', family: 'SHADOW' },
+  弔客: { displayName: '弔魂之影', family: 'SHADOW' },
+  披麻: { displayName: '麻衣冥印', family: 'SHADOW' },
+  孤辰: { displayName: '孤辰絕界', family: 'ISOLATION' },
+  寡宿: { displayName: '寡宿幽宮', family: 'ISOLATION' },
+  紅鸞: { displayName: '紅鸞魅印', family: 'CHARM' },
+  天喜: { displayName: '天喜緣契', family: 'CHARM' },
+  咸池: { displayName: '魅池情印', family: 'CHARM' },
+  紅艷: { displayName: '緋艷魅魂', family: 'CHARM' },
+  童子: { displayName: '童靈之印', family: 'DIVINE_PROTECTION' },
+  陰差陽錯: { displayName: '陰陽錯界', family: 'TRANSFORMATION' },
+  陰陽差錯: { displayName: '陰陽錯界', family: 'TRANSFORMATION' },
+  十惡大敗: { displayName: '十敗劫印', family: 'TRIBULATION' },
+  魁罡: { displayName: '魁罡戰魂', family: 'POWER' },
+  飛刃: { displayName: '飛刃血痕', family: 'BLADE' },
+  流霞: { displayName: '流霞魅痕', family: 'CHARM' },
+  天羅地網: { displayName: '羅網禁界', family: 'ISOLATION' },
+  血刃: { displayName: '赤血刃印', family: 'BLADE' },
+  勾絞: { displayName: '勾魂絞界', family: 'TRIBULATION' },
+  空亡: { displayName: '虛界空印', family: 'ISOLATION' },
+};
+
+export function lookupApprovedName(input: {
+  ruleId?: string;
+  originalName: string;
+}): GhostAsuraRegistryEntry | null {
+  const byRule = input.ruleId ? APPROVED_BY_RULE_ID[input.ruleId] : undefined;
+  if (byRule) {
+    return {
+      ruleId: input.ruleId,
+      originalName: input.originalName,
+      displayName: byRule.displayName,
+      family: byRule.family,
+      approved: true,
+      namingVersion: GHOST_ASURA_NAMING_VERSION,
+    };
+  }
+
+  const byName = APPROVED_BY_ORIGINAL_NAME[input.originalName];
+  if (byName) {
+    return {
+      ruleId: input.ruleId,
+      originalName: input.originalName,
+      displayName: byName.displayName,
+      family: byName.family,
+      approved: true,
+      namingVersion: GHOST_ASURA_NAMING_VERSION,
+    };
+  }
+
+  return null;
+}
+
+/** 母種筆數（附件 3：51；含別名鍵不重複計 displayName） */
+export function countApprovedSeedDisplayNames(): number {
+  const names = new Set<string>();
+  for (const entry of Object.values(APPROVED_BY_ORIGINAL_NAME)) {
+    names.add(entry.displayName);
+  }
+  return names.size;
+}

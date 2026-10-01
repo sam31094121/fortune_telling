@@ -71,7 +71,7 @@ export const ASURA_WORDINGS_CORE: Record<string, AsuraWording> = {
     shortDeclaration: '五陰纏影已現。',
     coreWarning: '陰氣不是靠近你，是已經纏上命魂。順時，你能先一步嗅出暗流。逆時，疑念、雜音、背後之影，會一層層封住判斷。若再遇亡影、劫境、幽辰同場，整個戰局直接墜入陰域。',
     battleSignificance: '到那時，不是你在看局——是局在吞你。',
-    verdict: '毀滅阿修羅只看一件事：你能不能在陰影徹底合圍之前，先把它們鎮碎。',
+    verdict: '鬼魅阿修羅只看一件事：你能不能在陰影徹底合圍之前，先把它們鎮碎。',
   },
 
   '劫境之門': {
@@ -135,7 +135,7 @@ export const ASURA_WORDINGS_CORE: Record<string, AsuraWording> = {
   '裂天劫印': {
     shortDeclaration: '裂天劫印已開。',
     coreWarning: '劫勢不是等它發生才處理，而是要在它形成以前先看見。不等風暴落下，先布防，先斬斷，先破局。',
-    battleSignificance: '毀滅阿修羅不問你怕不怕。',
+    battleSignificance: '鬼魅阿修羅不問你怕不怕。',
     verdict: '只問——你能不能在劫勢真正成形之前，先讓它消失。',
   },
 
