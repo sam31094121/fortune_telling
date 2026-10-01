@@ -1,1 +1,0 @@
-export { GET, dynamic, revalidate } from '../platform-control-center/route';

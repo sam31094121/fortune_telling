@@ -21,6 +21,31 @@
 .guardian-log.txt
 push-result.txt
 
+# 驗收／暫存產物（agent 截圖、釋出快照、驗證目錄）— 嚴禁進版控
+/tmp/
+/tmp-*/
+/_stickiness-verify/
+/_michelin-verify/
+/.release-verified-ziwei/
+/_agent_lists/
+/output/screenshots/
+/output/pdf/*qa*
+*.bak
+/*-390.png
+/*-desk.png
+/*-mobile*.png
+
+# reports 內驗收截圖／預覽影片（保留 md／json 等文字報告）
+/reports/**/*.png
+/reports/**/*.mp4
+/reports/**/*.jpg
+/reports/**/*.jpeg
+/reports/**/*.webp
+
+# 本機 agent／Multica runtime（不上產品版控）
+/.grok/
+/.multica/
+
 # 環境變數（含 API Key，嚴禁上傳）
 .env.local
 .env*.local
