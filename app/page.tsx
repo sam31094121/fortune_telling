@@ -30,7 +30,6 @@ import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import FineDiningServiceProgress from '@/components/FineDiningServiceProgress';
 import TarotEntryCard from '@/features/tarot/components/TarotEntryCard';
 import StarBeastHomeCard from '@/components/StarBeastHomeCard';
-import GhostAsuraHomeStandalone from '@/components/GhostAsuraHomeStandalone';
 import { markPendingRoute, recoverFromChunkError } from '@/lib/chunk-recovery';
 import { safeJsonFetch } from '@/lib/safe-fetch';
 import { curateExperienceContent } from '@/lib/experience-content-curator';
@@ -3147,8 +3146,6 @@ export default function HomePage() {
           <TarotEntryCard />
           {/* 2026-09-25 star-beast i18n toggle: card extracted to a client component with 中｜EN switch; href="/star-beasts" */}
           <StarBeastHomeCard />
-          {/* 080-11：唯一鬼魅阿修羅入口（080-8 新卡）；禁止加回 /single-shensha indigo 與舊琥珀色重複卡 */}
-          <GhostAsuraHomeStandalone />
           <Link
             href="/3D"
             className="home-feature-launch home-feature-tier-explore order-10 w-full relative group overflow-hidden rounded-3xl border border-violet-300/30 bg-[radial-gradient(circle_at_82%_22%,rgba(167,139,250,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(45,28,74,0.62),rgba(12,18,42,0.98))] p-6 text-left shadow-[0_0_30px_rgba(167,139,250,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-200/70 hover:shadow-[0_0_50px_rgba(167,139,250,0.25)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
