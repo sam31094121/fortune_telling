@@ -28,23 +28,23 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
         </p>
       </header>
 
-      {/* 四柱表格（年月日時）— 從左到右逐層展開 */}
+      {/* 四柱表格（年月日時）— 由上到下垂直層級展開，比例原則遞減 */}
       <div className={styles.pillarsTable}>
-        <div className={styles.pillarColumn}>
-          <div className={styles.pillarLabel}>年柱</div>
-          <div className={styles.pillarValue}>{reading.pillars.year}</div>
+        <div className={`${styles.pillarRow} ${styles.pillarYear}`}>
+          <span className={styles.pillarLabel}>年柱</span>
+          <span className={styles.pillarValue}>{reading.pillars.year}</span>
         </div>
-        <div className={styles.pillarColumn}>
-          <div className={styles.pillarLabel}>月柱</div>
-          <div className={styles.pillarValue}>{reading.pillars.month}</div>
+        <div className={`${styles.pillarRow} ${styles.pillarMonth}`}>
+          <span className={styles.pillarLabel}>月柱</span>
+          <span className={styles.pillarValue}>{reading.pillars.month}</span>
         </div>
-        <div className={styles.pillarColumn}>
-          <div className={styles.pillarLabel}>日柱</div>
-          <div className={styles.pillarValue}>{reading.pillars.day}</div>
+        <div className={`${styles.pillarRow} ${styles.pillarDay}`}>
+          <span className={styles.pillarLabel}>日柱</span>
+          <span className={styles.pillarValue}>{reading.pillars.day}</span>
         </div>
-        <div className={styles.pillarColumn}>
-          <div className={styles.pillarLabel}>時柱</div>
-          <div className={styles.pillarValue}>{reading.pillars.hour}</div>
+        <div className={`${styles.pillarRow} ${styles.pillarHour}`}>
+          <span className={styles.pillarLabel}>時柱</span>
+          <span className={styles.pillarValue}>{reading.pillars.hour}</span>
         </div>
       </div>
 
