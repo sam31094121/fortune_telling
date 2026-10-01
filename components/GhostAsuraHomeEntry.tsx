@@ -52,7 +52,7 @@ export default function GhostAsuraHomeEntry() {
   return (
     <Link
       href="/ghost-asura"
-      className="home-feature-launch home-feature-tier-primary order-9 w-full relative group overflow-hidden rounded-3xl border border-amber-500/65 bg-[radial-gradient(circle_at_18%_28%,rgba(217,119,6,0.25),transparent_34%),radial-gradient(circle_at_84%_18%,rgba(120,53,15,0.22),transparent_30%),linear-gradient(115deg,rgba(20,13,10,0.97),rgba(28,20,15,0.95),rgba(20,13,10,0.97))] p-5 sm:p-6 text-left shadow-[0_0_52px_rgba(217,119,6,0.35)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-400/75 hover:shadow-[0_0_68px_rgba(217,119,6,0.48)] active:scale-[0.99] flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5"
+      className="home-feature-launch home-feature-tier-primary order-9 w-full relative group overflow-hidden rounded-3xl border-2 border-amber-400/80 bg-[radial-gradient(circle_at_18%_28%,rgba(217,119,6,0.3),transparent_34%),radial-gradient(circle_at_84%_18%,rgba(120,53,15,0.28),transparent_30%),linear-gradient(115deg,rgba(20,13,10,0.97),rgba(28,20,15,0.95),rgba(20,13,10,0.97))] p-6 sm:p-7 text-left shadow-[0_0_64px_rgba(217,119,6,0.45)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-300/90 hover:shadow-[0_0_80px_rgba(217,119,6,0.58)] active:scale-[0.99] flex flex-col"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       data-card-type="ghost-asura-home-entry"
@@ -67,9 +67,9 @@ export default function GhostAsuraHomeEntry() {
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-600/12 to-transparent -translate-x-full group-hover:animate-[shimmer_2.4s_infinite] pointer-events-none" />
 
       {/* 表格式網格佈局（借鑒八字命盤） */}
-      <div className="relative w-full">
+      <div className="relative w-full border border-amber-500/25 rounded-2xl overflow-hidden bg-amber-950/10">
         {/* 第一行：圖標、狀態、免費、時間 */}
-        <div className="grid grid-cols-4 gap-0 border-b border-amber-500/30 pb-3">
+        <div className="grid grid-cols-4 gap-0 border-b-2 border-amber-500/35 pb-3.5 px-3 pt-3.5">
           {/* 左：圖標 */}
           <div className="col-span-1 flex items-center justify-center">
             <div
@@ -103,26 +103,26 @@ export default function GhostAsuraHomeEntry() {
         </div>
 
         {/* 第二行：主標題「命魂戰局」跨越全寬 */}
-        <div className="grid grid-cols-1 gap-0 border-b border-amber-500/30 py-3">
-          <h2 className="font-serif text-3xl sm:text-4xl font-black text-amber-50 text-center tracking-tight drop-shadow-lg">
+        <div className="grid grid-cols-1 gap-0 border-b-2 border-amber-500/35 py-4 px-3">
+          <h2 className="font-serif text-4xl sm:text-5xl font-black text-amber-50 text-center tracking-tight drop-shadow-xl" style={{ textShadow: '0 2px 8px rgba(217,119,6,0.6), 0 0 16px rgba(217,119,6,0.3)' }}>
             <HomeTranslatedText text={'命魂戰局'} />
           </h2>
         </div>
 
         {/* 第三行：印記名稱 */}
-        <div className="grid grid-cols-1 gap-0 border-b border-amber-500/30 py-2.5">
-          <p className="text-[12px] sm:text-[13px] font-semibold text-amber-300 text-center">
+        <div className="grid grid-cols-1 gap-0 border-b-2 border-amber-500/35 py-3 px-3">
+          <p className="text-[13px] sm:text-[14px] font-semibold text-amber-300 text-center">
             <HomeTranslatedText text={featuredImpression.title} />
           </p>
         </div>
 
         {/* 第四行：CTA 按鈕 */}
-        <div className="grid grid-cols-1 gap-0 pt-3">
-          <div className="home-feature-cta flex items-center justify-center gap-2.5 rounded-2xl border-2 border-amber-400/75 bg-gradient-to-r from-amber-600/55 to-orange-600/45 px-6 py-4 sm:py-5 text-sm sm:text-base font-bold text-amber-50 shadow-[0_0_28px_rgba(217,119,6,0.4)] transition-all duration-300 group-hover:border-amber-300/90 group-hover:shadow-[0_0_44px_rgba(217,119,6,0.55)] group-hover:bg-gradient-to-r group-hover:from-amber-600/70 group-hover:to-orange-600/60 active:scale-95 active:shadow-[0_0_18px_rgba(217,119,6,0.25)]">
+        <div className="grid grid-cols-1 gap-0 p-3.5">
+          <div className="home-feature-cta flex items-center justify-center gap-2.5 rounded-2xl border-3 border-amber-300/85 bg-gradient-to-r from-amber-600/65 to-orange-600/55 px-6 py-4 sm:py-5 text-sm sm:text-base font-bold text-amber-50 shadow-[0_0_40px_rgba(217,119,6,0.55),inset_0_0_20px_rgba(251,191,36,0.15)] transition-all duration-300 group-hover:border-amber-200/95 group-hover:shadow-[0_0_56px_rgba(217,119,6,0.7),inset_0_0_24px_rgba(251,191,36,0.25)] group-hover:bg-gradient-to-r group-hover:from-amber-600/80 group-hover:to-orange-600/70 active:scale-95 active:shadow-[0_0_28px_rgba(217,119,6,0.35),inset_0_0_12px_rgba(251,191,36,0.1)]">
             <span>
               <HomeTranslatedText text={'開啟秘卷'} />
             </span>
-            <span className="transition-transform duration-300 group-hover:translate-x-2 group-active:translate-x-0">→</span>
+            <span className="transition-transform duration-300 group-hover:translate-x-2.5 group-active:translate-x-0 text-lg">→</span>
           </div>
         </div>
       </div>
