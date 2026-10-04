@@ -19,6 +19,7 @@ import type { DualChartResult } from '@/lib/dual-chart';
 import { dualChartHourStatus } from '@/lib/dual-chart-form';
 import { downloadAsPDF, downloadAsImage, generateFilename } from '@/lib/ghost-asura-download';
 import { getCardRevealAnimation, getImpressionGlowAnimation, getScrollFormationAnimation, getTotalAnimationDuration } from '@/lib/ghost-asura-animation';
+import { initializeAudio, playCardRevealSound, playImpressionGlowSound, playShareSuccessSound, playDownloadSuccessSound } from '@/lib/ghost-asura-audio';
 import styles from './ghost-asura.module.css';
 import brandStyles from '@/components/AsuraBrandTitle.module.css';
 
@@ -75,6 +76,7 @@ export default function GhostAsuraPageClient({
     const success = await navigator.clipboard.writeText(url).catch(() => false);
 
     if (success) {
+      playShareSuccessSound();
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     }
@@ -100,6 +102,7 @@ export default function GhostAsuraPageClient({
         text: '我的阿修羅秘卷已生成！點擊查看你的四柱隱影解盤',
         url,
       });
+      playShareSuccessSound();
     } catch (err) {
       console.log('Share cancelled or failed:', err);
     }
@@ -109,6 +112,9 @@ export default function GhostAsuraPageClient({
     if (!cardRef.current) return;
     setDownloading('pdf');
     const success = await downloadAsPDF(cardRef.current, generateFilename('pdf'));
+    if (success) {
+      playDownloadSuccessSound();
+    }
     setDownloading(null);
   }
 
@@ -116,8 +122,18 @@ export default function GhostAsuraPageClient({
     if (!cardRef.current) return;
     setDownloading('image');
     const success = await downloadAsImage(cardRef.current, generateFilename('image'));
+    if (success) {
+      playDownloadSuccessSound();
+    }
     setDownloading(null);
   }
+
+  // 初始化音效系統
+  useEffect(() => {
+    initializeAudio().catch(() => {
+      console.warn('Audio system initialization skipped');
+    });
+  }, []);
 
   useEffect(() => {
     if (!unlocked) {
@@ -140,12 +156,22 @@ export default function GhostAsuraPageClient({
 
   useEffect(() => {
     if (!result) return;
+
+    // 播放卡片展開音效 + 印記逐個點亮音效
+    playCardRevealSound();
+
+    // 逐個播放印記點亮音效（延遲 200ms 起，每個間隔 100ms）
+    const awakened = reading?.items?.filter((item) => item.sealStatus === 'awakened') ?? [];
+    awakened.forEach((_, index) => {
+      playImpressionGlowSound(index);
+    });
+
     resultRef.current?.focus({ preventScroll: true });
     resultRef.current?.scrollIntoView({
       block: 'start',
       behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
     });
-  }, [result]);
+  }, [result, reading]);
 
   const reading = useMemo(() => {
     if (!result) return null;
