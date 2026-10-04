@@ -71,6 +71,12 @@ export function GhostAsuraCardShell() {
 /** 業主 2026-10-04：標題下小字（副標「本命阿修羅｜命魂戰局｜阿修羅秘卷」）暫不渲染；改 true 即恢復。 */
 const SHOW_HEADER_SUBTITLE = false;
 
+const STAT_TARGET_ID = {
+  pillars: 'asura-pillars',
+  dormant: 'asura-rest-dormant',
+  pending: 'asura-rest-pending',
+} as const;
+
 const TONE_ITEM: Record<AsuraDisplaySeal['tone'], string> = {
   awakened: `${styles.item} ${styles.itemAwakened}`,
   dormant: `${styles.item} ${styles.itemDormant}`,
@@ -86,7 +92,21 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
   const baseDelay =
     animationConfig.cardReveal.delay + animationConfig.cardReveal.duration + animationConfig.impressionGlow.delay;
   const [openKey, setOpenKey] = useState<string | null>(null);
+  const [restOpen, setRestOpen] = useState<Record<string, boolean>>({});
   let glowIndex = 0;
+
+  /** 點統計數字：展開對應清單、捲到該處、把焦點交給它（鍵盤與讀屏也跟得上）。 */
+  const jumpTo = (target: keyof typeof STAT_TARGET_ID) => {
+    if (target !== 'pillars') setRestOpen((current) => ({ ...current, [target]: true }));
+    window.requestAnimationFrame(() => {
+      const el = document.getElementById(STAT_TARGET_ID[target]);
+      if (!el) return;
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      const focusTarget = target === 'pillars' ? el : ((el.querySelector(':scope > summary') as HTMLElement | null) ?? el);
+      focusTarget.focus({ preventScroll: true });
+    });
+  };
   const nextDelay = () => baseDelay + glowIndex++ * animationConfig.impressionGlow.staggerDelay;
 
   return (
@@ -176,6 +196,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
       <p className={styles.scrollHint}>{display.scrollHint}</p>
       <div
         className={styles.pillarScroll}
+        id={STAT_TARGET_ID.pillars}
         role="region"
         aria-label="四有與所屬印記，可左右捲動"
         tabIndex={0}
@@ -249,7 +270,17 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
       </div>
 
       {display.rest.map((group) => (
-        <details key={group.key} className={styles.restGroup} data-asura-rest={group.key}>
+        <details
+          key={group.key}
+          id={`asura-rest-${group.key}`}
+          className={styles.restGroup}
+          data-asura-rest={group.key}
+          open={Boolean(restOpen[group.key])}
+          onToggle={(event) => {
+            const open = (event.currentTarget as HTMLDetailsElement).open;
+            setRestOpen((current) => (current[group.key] === open ? current : { ...current, [group.key]: open }));
+          }}
+        >
           <summary className={styles.restSummary}>{group.heading}</summary>
           <ul className={styles.list} aria-label={group.heading} data-asura-list={group.heading}>
             {group.seals.map((seal) => (
@@ -281,20 +312,45 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
             </span>
           ))}
         </div>
-        <div className={styles.stats} data-asura-stats>
-          {display.stats.map((stat) => (
-            <span key={stat.label}>
-              <b
-                className={
-                  stat.tone === 'awakened' ? styles.awakenedValue : stat.tone === 'pending' ? styles.pendingValue : undefined
-                }
+        <div className={styles.stats} data-asura-stats role="group" aria-label="印記數字說明；點數字可跳到對應清單">
+          {display.stats.map((stat) => {
+            const body = (
+              <>
+                <b
+                  className={
+                    stat.tone === 'awakened' ? styles.awakenedValue : stat.tone === 'pending' ? styles.pendingValue : undefined
+                  }
+                >
+                  {stat.value}
+                </b>
+                <span className={styles.statLabel}>{stat.label}</span>
+                {stat.caption && <small className={styles.statCaption}>{stat.caption}</small>}
+              </>
+            );
+            const target = stat.target;
+            return target ? (
+              <button
+                key={stat.label}
+                type="button"
+                className={styles.statTile}
+                data-asura-stat-target={target}
+                aria-controls={STAT_TARGET_ID[target]}
+                onClick={() => jumpTo(target)}
               >
-                {stat.value}
-              </b>{' '}
-              {stat.label}
-            </span>
-          ))}
-          <small className={styles.statsHint}>{display.statsHint}</small>
+                {body}
+                <span className={styles.statGo} aria-hidden="true">查看清單 ↓</span>
+              </button>
+            ) : (
+              <div key={stat.label} className={styles.statTile} data-asura-stat-static>
+                {body}
+              </div>
+            );
+          })}
+          <div className={styles.statsNotes} data-asura-stats-notes>
+            {display.statsLines.map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+          </div>
         </div>
       </div>
 

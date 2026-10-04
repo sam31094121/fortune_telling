@@ -279,13 +279,21 @@ export function toAsuraDisplay(
     dormantSeals.length === reading.dormantCount &&
     pendingSeals.length === reading.pendingCount &&
     listedDistinct === reading.items.length;
-  const multiPillarRows = columnRows - awakenedListed;
-  const statsHint = [
-    `${reading.items.length} 項 = ${reading.awakenedCount} 覺醒（依柱位列在四柱）＋${reading.dormantCount} 沉眠（列在下方「沉眠印記」）`,
-    reading.pendingCount > 0 ? `＋${reading.pendingCount} 待校核（列在下方「待校核印記」）` : '',
-    '。',
-    multiPillarRows > 0 ? `其中有印記落在多柱，各柱各列一次，四柱共 ${columnRows} 列。` : '',
-  ].join('');
+  const placementsById = new Map<string, number>();
+  for (const column of columns) for (const seal of column.seals) placementsById.set(seal.id, (placementsById.get(seal.id) ?? 0) + 1);
+  const multiPlaceKinds = [...placementsById.values()].filter((n) => n >= 2).length;
+  const total = reading.items.length;
+  const statsLines = [
+    `這次共檢查 ${total} 種印記：${reading.awakenedCount} 種覺醒＋${reading.dormantCount} 種沉眠${reading.pendingCount > 0 ? `＋${reading.pendingCount} 種待校核` : ''}＝${total} 種。`,
+    reading.awakenedCount > 0
+      ? multiPlaceKinds > 0
+        ? `覺醒的 ${reading.awakenedCount} 種，依所在位置列在上方四柱清單。其中 ${multiPlaceKinds} 種同時落在不只一處，所以清單共列 ${columnRows} 處，但仍是 ${reading.awakenedCount} 種，不是 ${columnRows} 種。`
+        : `覺醒的 ${reading.awakenedCount} 種，依所在位置列在上方四柱清單，每種只落在一處。`
+      : '',
+    reading.dormantCount > 0 ? `沉眠的 ${reading.dormantCount} 種沒有落在任何位置，列在「沉眠印記」，點開可逐項查看。` : '',
+    reading.pendingCount > 0 ? `待校核的 ${reading.pendingCount} 種還不能確定有沒有出現，列在「待校核印記」。` : '',
+  ].filter(Boolean);
+  const statsHint = statsLines.join('');
 
   const failed = reading.guard.status === 'FAILED';
   const pendingNames = reading.pendingEntries.slice(0, 8).map((entry) => entry.label || entry.resultId);
@@ -484,12 +492,13 @@ export function toAsuraDisplay(
     columns,
     rest,
     stats: [
-      { value: String(reading.items.length), label: '項印記' },
-      { value: String(reading.awakenedCount), label: GHOST_ASURA_UI.sealAwakened, tone: 'awakened' },
-      { value: String(reading.dormantCount), label: GHOST_ASURA_UI.sealDormant, tone: 'dormant' },
-      { value: String(reading.pendingCount), label: GHOST_ASURA_UI.sealPending, tone: 'pending' },
+      { value: String(total), label: '項印記', caption: '這次逐一檢查的種類', target: 'pillars' as const },
+      { value: String(reading.awakenedCount), label: GHOST_ASURA_UI.sealAwakened, tone: 'awakened', caption: '你的命盤上有出現', ...(reading.awakenedCount > 0 ? { target: 'pillars' as const } : {}) },
+      { value: String(reading.dormantCount), label: GHOST_ASURA_UI.sealDormant, tone: 'dormant', caption: '你的命盤上沒出現', ...(reading.dormantCount > 0 ? { target: 'dormant' as const } : {}) },
+      { value: String(reading.pendingCount), label: GHOST_ASURA_UI.sealPending, tone: 'pending', caption: reading.pendingCount > 0 ? '還在確認中' : '沒有待確認的項目', ...(reading.pendingCount > 0 ? { target: 'pending' as const } : {}) },
     ],
     statsHint,
+    statsLines,
     supplements: [
       {
         key: 'dual' as const,

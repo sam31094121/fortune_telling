@@ -51,6 +51,10 @@ export interface AsuraDisplayStat {
   value: string;
   label: string;
   tone?: AsuraDisplayTone;
+  /** 一句白話：這個數字數的是什麼（單位「種」） */
+  caption?: string;
+  /** 點這個數字要跳去哪份清單；沒有清單可看就不給 */
+  target?: 'pillars' | 'dormant' | 'pending';
 }
 
 export interface AsuraDisplaySupplement {
@@ -149,6 +153,8 @@ export interface AsuraDisplay {
   rest: AsuraDisplayRestGroup[];
   stats: AsuraDisplayStat[];
   statsHint: string;
+  /** 統計怎麼算的逐行白話（同一份數字，前端逐行照印） */
+  statsLines: string[];
   supplements: AsuraDisplaySupplement[];
   battleField: { heading: string; rows: AsuraDisplayEntry[] };
   /** 三格只含「命中＋有真實文案」的印記（後端已挑選）。時間軸：過去＝此印對你過去的說法／現在＝此刻帶來什麼／未來＝接下來；小標新舊並陳：過去（命中神煞）／現在（柱位與封印）／未來（阿修羅判語）（GhostAsuraCard 卡頭下方的原生段落） */
