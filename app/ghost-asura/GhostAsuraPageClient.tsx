@@ -138,7 +138,7 @@ export default function GhostAsuraPageClient({
     // 初始化粒子系統
     if (typeof window !== 'undefined') {
       const mainElement = document.querySelector('main[data-page="ghost-asura"]');
-      if (mainElement) {
+      if (mainElement instanceof HTMLElement) {
         initializeParticleSystem(mainElement);
       }
     }
@@ -412,15 +412,17 @@ export default function GhostAsuraPageClient({
         >
           {reading ? (
             <>
-              {/* 🎬 卡片揭示動畫 + 氣魄衝擊波 */}
-              <div
-                ref={cardRef}
-                className={styles.asuraCardReveal}
-                style={{
-                  animation: `asuraCardReveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
-                }}
-              >
-                <GhostAsuraCard reading={reading} />
+              {/* 🎬 卡片揭示動畫 + 3D 透視 + 氣魄衝擊波 */}
+              <div className={styles.asuraCard3DContainer}>
+                <div
+                  ref={cardRef}
+                  className={styles.asuraCardReveal}
+                  style={{
+                    animation: `asuraCardReveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
+                  }}
+                >
+                  <GhostAsuraCard reading={reading} />
+                </div>
               </div>
 
               {/* 💾 下載秘卷 */}

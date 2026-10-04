@@ -751,6 +751,56 @@
   animation: asuraShadowPulse 3s ease-in-out infinite;
 }
 
+/* ==================== 3D 升級 V2：透視與深度感 ==================== */
+
+.asuraCard3DContainer {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.asuraCardReveal {
+  transform-style: preserve-3d;
+  transform-origin: center center;
+}
+
+/* 卡片浮起深度感 */
+@keyframes asuraCardFloat {
+  0% {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  }
+  100% {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.35);
+  }
+}
+
+.asuraCardReveal {
+  animation: asuraCardFloat 3s ease-in-out infinite;
+}
+
+/* 印記 3D 層級 */
+@keyframes asuraImpressionFloat3D {
+  0% {
+    transform: translateZ(-20px);
+    opacity: 0;
+  }
+  50% {
+    transform: translateZ(15px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateZ(10px);
+    opacity: 1;
+  }
+}
+
+.asuraImpressionGlow {
+  transform-style: preserve-3d;
+  animation: asuraImpressionFloat3D 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
 @media (max-width: 600px) {
   .page { padding: 16px 12px 56px; }
   .header { padding: 24px 4px; }
@@ -780,5 +830,10 @@
   .stepLabel {
     font-size: 11px;
     max-width: 60px;
+  }
+
+  /* 手機版 3D 簡化 */
+  .asuraCard3DContainer {
+    perspective: 800px;
   }
 }
