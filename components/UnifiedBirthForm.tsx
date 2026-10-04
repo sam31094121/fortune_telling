@@ -402,9 +402,9 @@ export function UnifiedBirthForm({
               const isUnknown = birthHourBranch === 'unknown';
               onChange({
                 ...value,
-                birthHourBranch,
+                birthHourBranch: isUnknown ? undefined : birthHourBranch,
                 timeUnknown: isUnknown,
-                birthTime: isUnknown ? '12:00' : hourBranchToBirthTime(birthHourBranch),
+                birthTime: isUnknown ? '' : hourBranchToBirthTime(birthHourBranch),
               });
             }}
           />

@@ -30,6 +30,9 @@ import styles from './ghost-asura.module.css';
 import brandStyles from '@/components/AsuraBrandTitle.module.css';
 
 function asuraHourStatus(profile: BirthProfile) {
+  if (profile.timeUnknown || profile.birthHourBranch === 'unknown') {
+    return { done: false, text: '需補出生時辰', message: '時辰不明時，暫不產生阿修羅秘卷；請確認出生時辰後再排盤。' };
+  }
   const status = dualChartHourStatus(profile);
   return { ...status, message: status.message.replaceAll('神煞易經', '阿修羅秘卷') };
 }

@@ -99,10 +99,12 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
   /** 複製卡片話術或程式碼至剪貼簿（修羅檔案專用） */
   const handleCopyCard = (section: AsuraDisplay['sections'][0], mode: 'narrative' | 'code') => {
     let payload = '';
+    const isPast = section.key === 'hits' || section.heading.includes('過去');
+    const isPresent = section.key === 'pillars' || section.heading.includes('現在');
     const headingBadge =
-      section.key === 'past'
+      isPast
         ? '【過去｜解形成】'
-        : section.key === 'present'
+        : isPresent
         ? '【現在｜解當下】'
         : '【未來｜解趨勢】';
 
@@ -237,9 +239,9 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
               {/* 修羅檔案技能專用操作列：標示時間維度並提供一鍵複製話術與程式碼 */}
               <div className={styles.fnActionBar} data-asura-action-bar>
                 <div className={styles.fnBadgeTag}>
-                  {section.key === 'past' && '【過去｜解形成】'}
-                  {section.key === 'present' && '【現在｜解當下】'}
-                  {section.key === 'future' && '【未來｜解趨勢】'}
+                  {(section.key === 'hits' || section.heading.includes('過去')) && '【過去｜解形成】'}
+                  {(section.key === 'pillars' || section.heading.includes('現在')) && '【現在｜解當下】'}
+                  {(section.key === 'verdict' || section.heading.includes('未來')) && '【未來｜解趨勢】'}
                 </div>
                 <div className={styles.fnBtnGroup}>
                   <button
