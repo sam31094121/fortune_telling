@@ -20,6 +20,7 @@ import { dualChartHourStatus } from '@/lib/dual-chart-form';
 import { downloadAsPDF, downloadAsImage, generateFilename } from '@/lib/ghost-asura-download';
 import { getCardRevealAnimation, getImpressionGlowAnimation, getScrollFormationAnimation, getTotalAnimationDuration } from '@/lib/ghost-asura-animation';
 import { initializeAudio, playCardRevealSound, playImpressionGlowSound, playShareSuccessSound, playDownloadSuccessSound } from '@/lib/ghost-asura-audio';
+import { initializeParticleSystem, getParticleSystem, cleanupParticleSystem } from '@/lib/ghost-asura-particles';
 import styles from './ghost-asura.module.css';
 import brandStyles from '@/components/AsuraBrandTitle.module.css';
 
@@ -128,11 +129,23 @@ export default function GhostAsuraPageClient({
     setDownloading(null);
   }
 
-  // 初始化音效系統
+  // 初始化音效系統 + 粒子系統
   useEffect(() => {
     initializeAudio().catch(() => {
       console.warn('Audio system initialization skipped');
     });
+
+    // 初始化粒子系統
+    if (typeof window !== 'undefined') {
+      const mainElement = document.querySelector('main[data-page="ghost-asura"]');
+      if (mainElement) {
+        initializeParticleSystem(mainElement);
+      }
+    }
+
+    return () => {
+      cleanupParticleSystem();
+    };
   }, []);
 
   useEffect(() => {
@@ -155,16 +168,41 @@ export default function GhostAsuraPageClient({
   }, [unlocked, router]);
 
   useEffect(() => {
-    if (!result) return;
+    if (!result || !cardRef.current) return;
 
-    // 播放卡片展開音效 + 印記逐個點亮音效
+    // 播放卡片展開音效 + 粒子效果
     playCardRevealSound();
+    const particleSystem = getParticleSystem();
+    if (particleSystem) {
+      particleSystem.createCardEnergyFlow(cardRef.current);
+    }
 
-    // 逐個播放印記點亮音效（延遲 200ms 起，每個間隔 100ms）
+    // 逐個播放印記點亮音效 + 粒子（延遲 200ms 起，每個間隔 100ms）
     const awakened = reading?.items?.filter((item) => item.sealStatus === 'awakened') ?? [];
-    awakened.forEach((_, index) => {
+    awakened.forEach((item, index) => {
       playImpressionGlowSound(index);
+
+      // 找到對應的 DOM 元素並創建光粒子
+      setTimeout(() => {
+        const itemElement = document.querySelector(
+          `[data-asura-id="${item.resultId}"]`
+        );
+        if (itemElement && particleSystem) {
+          particleSystem.createImpressionGlow(itemElement as HTMLElement, index);
+        }
+      }, 200 + index * 100);
     });
+
+    // 衝擊波效果（1s 後觸發）
+    setTimeout(() => {
+      const ps = getParticleSystem();
+      if (ps && cardRef.current) {
+        const rect = cardRef.current.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        ps.createShockwave(centerX, centerY, 1.2);
+      }
+    }, 1000);
 
     resultRef.current?.focus({ preventScroll: true });
     resultRef.current?.scrollIntoView({
