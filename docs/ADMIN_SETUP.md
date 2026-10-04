@@ -17,8 +17,8 @@
 ```bash
 # ========== 管理員認證 ==========
 
-# 管理員密碼（設定為 630628）
-ADMIN_MASTER_PASSWORD=630628
+# 管理員密碼（設定為 A7k9$Lm2@Qx8Pn）
+ADMIN_MASTER_PASSWORD=A7k9$Lm2@Qx8Pn
 
 # Session 密鑰（至少 32 個字符的隨機字符串，用於簽署 Session Token）
 # 生成方式：openssl rand -hex 32

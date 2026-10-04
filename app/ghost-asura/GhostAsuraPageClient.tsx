@@ -30,7 +30,10 @@ import styles from './ghost-asura.module.css';
 import brandStyles from '@/components/AsuraBrandTitle.module.css';
 
 function asuraHourStatus(profile: BirthProfile) {
-  if (profile.timeUnknown || profile.birthHourBranch === 'unknown') {
+  if (profile.timeUnknown) {
+    return { done: true, text: '自動子時', message: '' };
+  }
+  if (profile.birthHourBranch === 'unknown') {
     return { done: false, text: '需補出生時辰', message: '時辰不明時，暫不產生阿修羅秘卷；請確認出生時辰後再排盤。' };
   }
   const status = dualChartHourStatus(profile);
@@ -248,6 +251,10 @@ export default function GhostAsuraPageClient({
               : false
       )
     );
+    // 點擊「不知道出生時辰」時自動運算
+    if (profile.timeUnknown && profile.birthDate && profile.gender) {
+      setTimeout(() => calculate(profile), 0);
+    }
   }
 
   async function calculate(profile: BirthProfile) {
