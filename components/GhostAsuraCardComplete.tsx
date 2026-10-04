@@ -52,7 +52,7 @@ export default function GhostAsuraCardComplete({
       {/* ===== 流年三時段 Tab ===== */}
       {activeTab === 'timeline' && timelineData && (
         <div className={styles.tabContent}>
-          {/* 印記統計面板 - A4 */}
+          {/* 印記統計面板 - 新版統一數據 */}
           <div className={styles.statsPanel}>
             <div className={styles.statItem}>
               <span className={styles.statLabel}>項印記</span>
