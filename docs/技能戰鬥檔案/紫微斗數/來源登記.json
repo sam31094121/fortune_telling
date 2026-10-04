@@ -399,7 +399,9 @@
         "lib/ziwei-teacher/palace-context.ts",
         "lib/ziwei-destiny-card.ts",
         "lib/ziwei-presentation-service.ts",
-        "lib/ziwei-star-beast-link.ts"
+        "lib/ziwei-star-beast-link.ts",
+        "lib/asura/ziwei-personality-registry.ts",
+        "lib/ghost-asura-ziwei-engine.ts"
       ],
       "authority_files": [
         "S-ZWDS-QUANSHU",
