@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { DUAL_COOKIE, sameOrigin, validSession } from '@/lib/dual-chart-auth';
+import { DUAL_COOKIE, sameOrigin, validSession, checkAPIRateLimit } from '@/lib/dual-chart-auth';
 import { calculateDualChart } from '@/lib/dual-chart';
 import { recordDualChartAudit } from '@/lib/dual-chart-admin-logger';
 import { createHash } from 'node:crypto';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-const reply = (body: unknown, status = 200) => NextResponse.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
+const reply = (body: unknown, status = 200, headers: Record<string, string> = {}) => NextResponse.json(body, {
+  status,
+  headers: {
+    'Cache-Control': 'no-store',
+    ...headers,
+  }
+});
 
 /**
  * 從响應生成 SHA256 雜湊（用於完整性驗證和審計追蹤）
@@ -18,14 +24,56 @@ function hashResponse(data: unknown): string {
 }
 
 export async function POST(request: NextRequest) {
-  // 2026-10-04：鬼魅阿修羅已移除密碼認證，允許公開訪問
-  // if (!validSession(request.cookies.get(DUAL_COOKIE)?.value)) return reply({ error: '請先輸入密碼，或重新解鎖已到期的工作階段。' }, 401);
+  // ========== 安全防護第一層：速率限制 ==========
+  const rateLimitCheck = checkAPIRateLimit(request);
+  const rateLimitHeaders: Record<string, string> = {
+    'X-RateLimit-Limit': String(10),
+    'X-RateLimit-Remaining': String(rateLimitCheck.remaining),
+    'X-RateLimit-Reset': String(Math.floor(Date.now() / 1000) + rateLimitCheck.resetSeconds),
+  };
+
+  if (!rateLimitCheck.allowed) {
+    return reply(
+      { error: '請求過於頻繁，請稍後再試。' },
+      429,
+      rateLimitHeaders
+    );
+  }
+
+  // ========== 安全防護第二層：同源檢查 ==========
   if (!sameOrigin(request)) return reply({ error: '請從本站開啟。' }, 403);
+
   try {
+    // ========== 安全防護第三層：請求驗證 ==========
+    const contentLength = request.headers.get('content-length');
+    if (contentLength) {
+      const length = parseInt(contentLength, 10);
+      if (isNaN(length) || length <= 0) {
+        return reply({ error: '請求格式不正確。' }, 400);
+      }
+    }
+
     const text = await request.text();
+
+    // 檢查內容長度
     if (text.length > 2048) return reply({ error: '輸入內容過長。' }, 400);
 
-    const input = JSON.parse(text) as Record<string, unknown>;
+    // 檢查內容是否為空
+    if (text.length === 0) return reply({ error: '請求內容不能為空。' }, 400);
+
+    // ========== 安全防護第四層：JSON 驗證 ==========
+    let input: Record<string, unknown>;
+    try {
+      input = JSON.parse(text) as Record<string, unknown>;
+    } catch (err) {
+      return reply({ error: '請求格式不正確（無效的 JSON）。' }, 400);
+    }
+
+    // ========== 安全防護第五層：數據完整性檢查 ==========
+    if (!input.birthDate || typeof input.birthDate !== 'string') {
+      return reply({ error: '缺少必要數據：出生日期。' }, 400);
+    }
+
     const result = calculateDualChart(input);
 
     // ========== 後端審計日誌（客戶不看得見） ==========
@@ -69,6 +117,12 @@ export async function POST(request: NextRequest) {
     // - 使用的演算法細節
     // - 來源或授權信息
     // - 中間計算步驟
-    return reply({ data: result });
-  } catch (error) { return reply({ error: error instanceof Error ? error.message : '出生資料無法排盤。' }, 400); }
+    return reply({ data: result }, 200, rateLimitHeaders);
+  } catch (error) {
+    return reply(
+      { error: error instanceof Error ? error.message : '出生資料無法排盤。' },
+      400,
+      rateLimitHeaders
+    );
+  }
 }
