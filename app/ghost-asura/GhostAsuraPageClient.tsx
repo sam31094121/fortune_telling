@@ -17,6 +17,7 @@ import { GhostAsuraCard } from '@/features/ghost-asura/components/GhostAsuraCard
 import { buildGhostAsuraReading } from '@/features/ghost-asura';
 import type { DualChartResult } from '@/lib/dual-chart';
 import { dualChartHourStatus } from '@/lib/dual-chart-form';
+import { downloadAsPDF, downloadAsImage, generateFilename } from '@/lib/ghost-asura-download';
 import styles from './ghost-asura.module.css';
 import brandStyles from '@/components/AsuraBrandTitle.module.css';
 
@@ -46,7 +47,9 @@ export default function GhostAsuraPageClient({
   const [missing, setMissing] = useState<string[]>([]);
   const [result, setResult] = useState<DualChartResult | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [downloading, setDownloading] = useState<'pdf' | 'image' | null>(null);
   const resultRef = useRef<HTMLElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const calculationRef = useRef<AbortController | null>(null);
 
   function invalidateCalculation() {
@@ -99,6 +102,20 @@ export default function GhostAsuraPageClient({
     } catch (err) {
       console.log('Share cancelled or failed:', err);
     }
+  }
+
+  async function handleDownloadPDF() {
+    if (!cardRef.current) return;
+    setDownloading('pdf');
+    const success = await downloadAsPDF(cardRef.current, generateFilename('pdf'));
+    setDownloading(null);
+  }
+
+  async function handleDownloadImage() {
+    if (!cardRef.current) return;
+    setDownloading('image');
+    const success = await downloadAsImage(cardRef.current, generateFilename('image'));
+    setDownloading(null);
   }
 
   useEffect(() => {
@@ -330,7 +347,42 @@ export default function GhostAsuraPageClient({
         >
           {reading ? (
             <>
-              <GhostAsuraCard reading={reading} />
+              <div ref={cardRef}>
+                <GhostAsuraCard reading={reading} />
+              </div>
+
+              {/* 💾 下載秘卷 */}
+              <div className={styles.downloadSection}>
+                <p className={styles.downloadLabel}>下載你的秘卷</p>
+                <div className={styles.downloadButtons}>
+                  <button
+                    className={styles.downloadButton}
+                    onClick={handleDownloadPDF}
+                    disabled={downloading !== null}
+                    aria-label="下載為 PDF"
+                    title="下載秘卷為 PDF 文檔"
+                  >
+                    <span className={styles.downloadIcon}>📄</span>
+                    <span className={styles.downloadButtonLabel}>PDF</span>
+                  </button>
+                  <button
+                    className={styles.downloadButton}
+                    onClick={handleDownloadImage}
+                    disabled={downloading !== null}
+                    aria-label="下載為圖片"
+                    title="下載秘卷為高清圖片"
+                  >
+                    <span className={styles.downloadIcon}>🖼️</span>
+                    <span className={styles.downloadButtonLabel}>圖片</span>
+                  </button>
+                </div>
+                {downloading && (
+                  <div className={styles.downloadProgress}>
+                    <span className={styles.downloadProgressDot}></span>
+                    正在{downloading === 'pdf' ? '轉換為 PDF' : '生成圖片'}...
+                  </div>
+                )}
+              </div>
 
               {/* 📤 分享秘卷 */}
               <div className={styles.shareSection}>

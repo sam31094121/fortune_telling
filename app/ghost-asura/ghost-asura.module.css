@@ -422,6 +422,103 @@
   animation: fadeOut 0.4s ease-out 1.5s forwards;
 }
 
+/* ==================== 下載功能 ==================== */
+
+.downloadSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.downloadLabel {
+  font-size: 12px;
+  color: #aca19f;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.downloadButtons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.downloadButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 10px 20px;
+  border: 1.5px solid rgba(212, 175, 55, 0.3);
+  border-radius: 8px;
+  background: rgba(212, 175, 55, 0.05);
+  color: #d4af37;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.downloadButton:hover {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: #d4af37;
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.15);
+  transform: translateY(-2px);
+}
+
+.downloadButton:active {
+  transform: translateY(0);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.08);
+}
+
+.downloadButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.downloadIcon {
+  font-size: 14px;
+}
+
+.downloadButtonLabel {
+  white-space: nowrap;
+}
+
+/* 下載進度提示 */
+.downloadProgress {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: rgba(212, 175, 55, 0.15);
+  color: #d4af37;
+  font-size: 12px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.downloadProgressDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d4af37;
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
 @media (max-width: 600px) {
   .shareButtons {
     gap: 10px;
@@ -438,6 +535,24 @@
   }
 
   .shareIcon {
+    font-size: 16px;
+  }
+
+  .downloadButtons {
+    gap: 10px;
+  }
+
+  .downloadButton {
+    min-height: 44px;
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+
+  .downloadButtonLabel {
+    display: none;
+  }
+
+  .downloadIcon {
     font-size: 16px;
   }
 }
