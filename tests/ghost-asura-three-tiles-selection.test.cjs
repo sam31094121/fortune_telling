@@ -115,8 +115,9 @@ async function check(body, ip) {
   }
   assert.equal(data.hourAssumed, body.timeUnknown === true, 'hourAssumed 誠實標示');
   if (data.hourAssumed) {
-    assert.equal(data.assumedHour, '子時');
-    assert.equal(data.hourNote, '時辰未知，以子時排。');
+    // 顯示別名層：術數用語不上畫面（子時→夜半；lib/asura-display-alias.ts）
+    assert.equal(data.assumedHour, '夜半');
+    assert.equal(data.hourNote, '出生時刻未說，我以夜半起算。');
     assert.deepEqual(a.hourDependentNames, a.hourPillarNames, '時辰預設時列出依賴時柱的印記');
   } else {
     assert.equal(data.hourNote, null);

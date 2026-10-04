@@ -32,8 +32,8 @@ interface NarrativeContext {
 export function generateBaziNarrative(bazi: BaziProfessionalResult, userName: string): string {
   // 提取日主
   const dayPillar = bazi.pillars.day;
-  const dayStem = dayPillar.stem;
-  const dayBranch = dayPillar.branch;
+  const dayStem = dayPillar.heavenlyStem;
+  const dayBranch = dayPillar.earthlyBranch;
 
   // 簡化版本（生產環境應更詳細）
   const stemCharacter: Record<string, string> = {
@@ -53,7 +53,7 @@ export function generateBaziNarrative(bazi: BaziProfessionalResult, userName: st
   const yearPillar = bazi.pillars.year;
   const monthPillar = bazi.pillars.month;
 
-  return `${userName}，根據你的八字 ${yearPillar.stem}${yearPillar.branch} ${monthPillar.stem}${monthPillar.branch} ${dayStem}${dayBranch}，你是一個${character}。
+  return `${userName}，根據你的八字 ${yearPillar.heavenlyStem}${yearPillar.earthlyBranch} ${monthPillar.heavenlyStem}${monthPillar.earthlyBranch} ${dayStem}${dayBranch}，你是一個${character}。
 
 你的日主是${dayStem}${dayBranch}，這代表你的內在核心力量。在這個組合中，五行元素相互作用，形成了你獨特的性格特質和人生軌跡。
 

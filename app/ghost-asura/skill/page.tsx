@@ -19,7 +19,13 @@ import AsuraTimeCards from './AsuraTimeCards';
  * 原檔備份：app/ghost-asura/skill/_backup/page.tsx.bak、content.ts.bak。
  */
 const SHOW_SPEC_TEXT = false;
-import {
+import * as RAW_CONTENT from './content';
+import type { SealSection } from './content';
+import { ASURA_TIME_TERMS, asuraDeepScrub } from '@/lib/asura-display-alias';
+
+/** 顯示前一次換字：content.ts 原文不動，術數用語不上畫面（lib/asura-display-alias.ts） */
+const CONTENT = asuraDeepScrub(RAW_CONTENT);
+const {
   BACKEND_LAW,
   CHECKLIST,
   CLOSING,
@@ -27,7 +33,6 @@ import {
   FIXED_COPY,
   FIXED_NAMES,
   NAME_FAMILIES,
-  PILLARS,
   PILLARS_NOTE,
   PROMISES,
   READING_LEVELS,
@@ -41,8 +46,10 @@ import {
   USAGE_RULES,
   VISUAL,
   VOICE,
-  type SealSection,
-} from './content';
+} = CONTENT;
+/** 四時層顯示：時間單位 → 阿修羅語彙（主選） */
+const PILLAR_ROWS: [string, string][] = (['year', 'month', 'day', 'hour'] as const).map((k) => [ASURA_TIME_TERMS[k].unit, ASURA_TIME_TERMS[k].term]);
+
 
 
 export const dynamic = 'force-static';
@@ -50,6 +57,21 @@ export const dynamic = 'force-static';
 export const metadata: Metadata = {
   title: { absolute: '鬼魅阿修羅｜技能檔案' },
   description: '鬼魅阿修羅檔案技能：後端算、前端顯。阿修羅的口吻、鐵律、真名錄與視覺規則。',
+  keywords: ['鬼魅阿修羅', '阿修羅', '業鏡', '四有'],
+  openGraph: {
+    title: '鬼魅阿修羅｜技能檔案',
+    description: '業鏡一照，我已先看過。鬼魅阿修羅的口吻、鐵律與真名錄。',
+    siteName: '鬼魅阿修羅',
+    images: [{ url: '/images/og-taichi-preview.jpg?v=20260817-1', width: 1024, height: 1024, type: 'image/jpeg', alt: '鬼魅阿修羅' }],
+    locale: 'zh_TW',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '鬼魅阿修羅｜技能檔案',
+    description: '業鏡一照，我已先看過。',
+    images: ['/images/og-taichi-preview.jpg?v=20260817-1'],
+  },
 };
 
 function SealCard({ section, children }: { section: SealSection; children: ReactNode }) {
@@ -194,7 +216,7 @@ export default function GhostAsuraSkillPage() {
           <List items={FUNCTION_CARDS.shared} variant="must" />
 
           <details className={styles.details}>
-            <summary>引自《神煞異君》：兩張卡，一神一魔</summary>
+            <summary>引自魔之卷：兩張卡，一神一魔</summary>
             <div className={styles.tableWrap}>
               <table className={styles.table}>
                 <thead>
@@ -324,7 +346,6 @@ export default function GhostAsuraSkillPage() {
               <article key={copy.asura} className={styles.scroll}>
                 <header className={styles.scrollHead}>
                   <strong>{copy.asura}</strong>
-                  <span>（原始神煞：{copy.original}）</span>
                 </header>
                 <CopyLines lines={copy.lines} />
               </article>
@@ -376,12 +397,12 @@ export default function GhostAsuraSkillPage() {
           <p className={styles.note}>{COUNT_LAW.perItem}</p>
           <p className={styles.note}>{COUNT_LAW.notCap}</p>
 
-          <h3 className={styles.subTitle}>新神煞延伸</h3>
+          <h3 className={styles.subTitle}>新印延伸</h3>
           <Flow steps={COUNT_LAW.extend} />
           <p className={styles.note}>{COUNT_LAW.extendNote}</p>
 
           <h3 className={styles.subTitle}>禁止隨機命名</h3>
-          <p className={styles.note}>同一個原始神煞，無論在：</p>
+          <p className={styles.note}>同一個原名，無論在：</p>
           <Chips items={COUNT_LAW.stableDevices} />
           <p className={styles.verdict}>{COUNT_LAW.stableRule}</p>
           <List items={COUNT_LAW.mapping} />
@@ -401,9 +422,9 @@ export default function GhostAsuraSkillPage() {
           </dl>
           <p className={styles.note}>{TERMS_NOTE}</p>
 
-          <h3 className={styles.subTitle}>柱位顯示</h3>
+          <h3 className={styles.subTitle}>四有顯示</h3>
           <dl className={styles.pillars}>
-            {PILLARS.map(([from, to]) => (
+            {PILLAR_ROWS.map(([from, to]) => (
               <div key={from}>
                 <dt>{from}</dt>
                 <dd>{to}</dd>
@@ -417,10 +438,9 @@ export default function GhostAsuraSkillPage() {
         <SealCard section={SECTIONS.names}>
           <p className={styles.note}>工程師規格〈鬼魅阿修羅固定名稱〉逐列照錄。固定名稱不是上限。</p>
           <ol className={styles.nameGrid}>
-            {FIXED_NAMES.map(([original, asura]) => (
-              <li key={original}>
+            {FIXED_NAMES.map(([, asura]) => (
+              <li key={asura}>
                 <strong>{asura}</strong>
-                <span>原：{original}</span>
               </li>
             ))}
           </ol>

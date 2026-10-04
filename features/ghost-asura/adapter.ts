@@ -180,10 +180,25 @@ export function adaptVerifiedShenSha(
     };
   });
 
+  // 同一規則在後端可帶原典全名（例：wenchang 於 coverage 名「文昌」、易經組合用「文昌貴人」）。
+  // 只承接後端自身的 id↔name 配對，且 id 必須已在 coverage 內；不推測、不新增成員，未知名稱仍照常擋下。
+  const coverageIds = new Set(ids);
+  const rawHits = (stars as { raw?: unknown }).raw;
+  const aliasSources: unknown[] = [
+    ...(Array.isArray(rawHits) ? rawHits : []),
+    ...(Array.isArray(stars.iching?.items) ? stars.iching.items : []),
+  ];
+  for (const entry of aliasSources) {
+    const { id, name } = (entry ?? {}) as { id?: unknown; name?: unknown };
+    const alias = typeof name === 'string' ? name.trim() : '';
+    if (typeof id === 'string' && coverageIds.has(id) && alias && !nameToRuleId.has(alias)) nameToRuleId.set(alias, id);
+  }
+
   const combos: GhostAsuraVerifiedCombo[] = [];
   if (stars.iching?.state === 'READY' && Array.isArray(stars.iching.combos)) {
     for (const combo of stars.iching.combos) {
-      if (!combo || !Array.isArray(combo.members) || combo.members.length < 2 ||
+      // 後端組合規則允許單成員（如 de-softens min=1，煞名放在說明文字）；單成員不成對撞／連鎖，battle 層自行略過。
+      if (!combo || !Array.isArray(combo.members) || combo.members.length < 1 ||
           combo.members.some(member => typeof member !== 'string')) return {
         records: [], combos: [], resultBatchId, motherVersion,
         adapterVersion: GHOST_ASURA_ADAPTER_VERSION, blockedReason: '組合資料格式不完整。',

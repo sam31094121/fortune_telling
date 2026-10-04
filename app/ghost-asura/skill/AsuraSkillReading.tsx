@@ -11,6 +11,7 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { GhostAsuraCard, GhostAsuraCardShell } from '@/features/ghost-asura/components/GhostAsuraCard';
 import type { AsuraDisplay } from '@/lib/ghost-asura-display-contract';
+import { asuraScrub } from '@/lib/asura-display-alias';
 import { useAsuraReading } from './AsuraReadingContext';
 import styles from './asura-skill-reading.module.css';
 
@@ -40,7 +41,7 @@ export default function AsuraSkillReading() {
     event.preventDefault();
     if (requestRef.current) return;
     if (!birthDate || (!birthTime && !hourUnknown) || !gender) {
-      setError('生辰未齊。日期、性別必填；時辰不知，勾「不知道時辰」。');
+      setError('生辰未齊。日期、性別必填；出生時刻不知，勾「不知道出生時刻」。');
       return;
     }
     const request = new AbortController();
@@ -69,7 +70,7 @@ export default function AsuraSkillReading() {
       setDisplay(data.data as AsuraDisplay);
     } catch (e) {
       if (requestRef.current !== request) return;
-      setError(e instanceof Error ? e.message : '連線失敗，請稍後再試。');
+      setError(asuraScrub(e instanceof Error ? e.message : '連線失敗，請稍後再試。'));
     } finally {
       if (requestRef.current === request) {
         requestRef.current = null;
@@ -111,7 +112,7 @@ export default function AsuraSkillReading() {
               checked={hourUnknown}
               onChange={(e) => { reset(); setHourUnknown(e.target.checked); }}
             />
-            不知道時辰
+            不知道出生時刻
           </label>
           <div className={styles.field} role="radiogroup" aria-label="性別">
             <span>性別</span>
@@ -131,7 +132,7 @@ export default function AsuraSkillReading() {
             </div>
           </div>
           <button type="submit" className={styles.submit}>
-            {busy ? '排盤中…' : '開啟戰局'}
+            {busy ? '照鏡中…' : '開啟戰局'}
           </button>
         </fieldset>
         {error && <p className={styles.error} role="alert">{error}</p>}

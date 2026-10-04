@@ -177,7 +177,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
       <div
         className={styles.pillarScroll}
         role="region"
-        aria-label="四柱與所屬印記，可左右捲動"
+        aria-label="四有與所屬印記，可左右捲動"
         tabIndex={0}
         data-asura-pillar-scroll
       >
@@ -350,7 +350,7 @@ function LegacyReadingCard({ reading }: { reading: GhostAsuraReading }) {
       <div
         className={styles.pillarScroll}
         role="region"
-        aria-label="四柱與所屬印記，可左右捲動"
+        aria-label="四有與所屬印記，可左右捲動"
         tabIndex={0}
         data-asura-pillar-scroll
       >

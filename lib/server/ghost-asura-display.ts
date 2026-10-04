@@ -13,6 +13,7 @@ import 'server-only';
 import { Solar } from 'lunar-typescript';
 import { calculateDualChart, type DualChartResult } from '@/lib/dual-chart';
 import { buildFlowYearShenSha } from '@/lib/dual-chart-iching-shensha';
+import { asuraDeepScrub } from '@/lib/asura-display-alias';
 import { ASURA_WORDINGS } from '@/features/ghost-asura/wordings';
 import { ASURA_PLAIN, ASURA_TIMELINE, ASURA_VOICE, composeTime, type AsuraPillarKey, type AsuraWhen, voiceLead } from '@/lib/server/ghost-asura-voice';
 import {
@@ -482,5 +483,6 @@ export function computeGhostAsuraDisplay(raw: unknown, now: Date = new Date()): 
   const { hourAssumed, ...engineInput } = normalizeAsuraInput(raw);
   const result = calculateDualChart(engineInput);
   const timeAxis = computeTimeAxis(result, engineInput.gender === 'female' ? 'female' : 'male', now);
-  return toAsuraDisplay(buildGhostAsuraReading({ result }), crossCheckedRuleIds(result), { hourAssumed: hourAssumed === true, timeAxis });
+  // 顯示別名層：運算結果不動，只把要上畫面的字換成阿修羅語彙（lib/asura-display-alias.ts）
+  return asuraDeepScrub(toAsuraDisplay(buildGhostAsuraReading({ result }), crossCheckedRuleIds(result), { hourAssumed: hourAssumed === true, timeAxis }));
 }

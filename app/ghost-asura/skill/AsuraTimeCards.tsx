@@ -1,7 +1,7 @@
 /**
- * 技能頁三張摺疊卡（時間軸）：①過去｜命中神煞 ②現在｜柱位與封印 ③未來｜阿修羅判語。
+ * 技能頁三張摺疊卡（時間軸）：①過去｜命中業果 ②現在｜四有與封印 ③未來｜阿修羅判語。
  * 內容＝與卡頭三格完全相同的後端輸出（同一份 AsuraDisplay.sections），前端只照印：
- * 不排盤、不算神煞、不另篩選。生辰未送出前，三張卡照留，只放一句阿修羅口吻。
+ * 不運算、不另篩選。生辰未送出前，三張卡照留，只放一句阿修羅口吻。
  */
 
 'use client';
@@ -9,13 +9,14 @@
 import { Fragment } from 'react';
 
 import { ASURA_AWAIT_BIRTH } from '@/lib/ghost-asura-display-contract';
+import { asuraScrub } from '@/lib/asura-display-alias';
 import { useAsuraReading } from './AsuraReadingContext';
 import skill from './skill.module.css';
 import styles from './asura-skill-reading.module.css';
 
 const CARD_FRAME = [
-  { key: 'hits', no: '①', heading: '過去', label: '命中神煞' },
-  { key: 'pillars', no: '②', heading: '現在', label: '柱位與封印' },
+  { key: 'hits', no: '①', heading: '過去', label: '命中業果' },
+  { key: 'pillars', no: '②', heading: '現在', label: '四有與封印' },
   { key: 'verdict', no: '③', heading: '未來', label: '阿修羅判語' },
 ] as const;
 
@@ -39,7 +40,7 @@ export default function AsuraTimeCards() {
               <span className={skill.mockLevel}>後端照印</span>
             </summary>
             <div className={skill.mockBody}>
-              {!display && <p className={styles.timeAwait}>{ASURA_AWAIT_BIRTH}</p>}
+              {!display && <p className={styles.timeAwait}>{asuraScrub(ASURA_AWAIT_BIRTH)}</p>}
               {display?.hourNote && <p className={styles.timeHourNote}>{display.hourNote}</p>}
               {section?.lead && <p className={styles.timeLead}>{section.lead}</p>}
               {/* 讀盤逐段照印，每段後緊接該段印記的白話；0 印＝後端不給任何字，卡內只留標題列 */}
