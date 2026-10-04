@@ -253,18 +253,22 @@ export default function GhostAsuraPageClient({
     setError('');
     setResult(null);
     const hour = asuraHourStatus(profile);
+
+    // 如果用戶不知道時辰，自動設定為「子時」
+    const profileWithAutoHour = !hour.done
+      ? { ...profile, birthHourBranch: 'zi', birthTime: '23:30' }
+      : profile;
+
     const fields = [
-      !profile.birthDate && 'birthDate',
-      !profile.gender && 'gender',
-      !hour.done && 'birthHourBranch',
+      !profileWithAutoHour.birthDate && 'birthDate',
+      !profileWithAutoHour.gender && 'gender',
     ].filter(Boolean) as string[];
     setMissing(fields);
     if (fields.length) {
       setError(
         [
-          !profile.birthDate && '請完成出生日期。',
-          !profile.gender && '請選擇性別。',
-          !hour.done && hour.message,
+          !profileWithAutoHour.birthDate && '請完成出生日期。',
+          !profileWithAutoHour.gender && '請選擇性別。',
         ]
           .filter(Boolean)
           .join('')
@@ -282,7 +286,7 @@ export default function GhostAsuraPageClient({
         signal: request.signal,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...profile,
+          ...profileWithAutoHour,
           identityTarget: target,
           calendarType: 'solar',
           timezone: 'Asia/Taipei',
@@ -370,12 +374,10 @@ export default function GhostAsuraPageClient({
               optionalFields={['name']}
               autoFillIdentity={true}
               persistIdentity={true}
-              requireExplicitHourPick
-              requireKnownHour
               hourCompletion={asuraHourStatus(form)}
               copy={{
                 progressTitle: identityTarget === 'guest' ? '完成親友生辰，開啟阿修羅秘卷' : '完成生辰，開啟阿修羅秘卷',
-                unknownHourHint: '阿修羅秘卷需要出生時辰；確認後回來補填，不會替你猜測。',
+                unknownHourHint: '不知道時辰也可以運算：系統將自動用子時，直接為你展開秘卷。',
                 hourPickerHint: '請點選出生時辰，讓四柱各歸其位。',
               }}
               missing={missing}
