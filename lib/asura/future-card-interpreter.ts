@@ -15,6 +15,8 @@
  */
 
 import { AsuraPersonalityProfile } from './personality-fusion-engine';
+import { generateTemperSpeech, createHookDeduplicator } from './time-cards-temper-speech';
+import type { EvidenceLevel } from './asura-temper-engine';
 
 export interface FutureCardInput {
   personality: AsuraPersonalityProfile;
@@ -106,6 +108,26 @@ export function interpretFutureCard(input: FutureCardInput): FutureCardOutput {
 
   // 第10步：TIME_SENSE - 時間感
   const timeSense = generateTimeSense(fortuneLevel, turningPoints);
+
+  // ===== 脾氣強化層 =====
+  // 警告脾氣：未來卡最強警告（Warning = 10）
+
+  // 只在 Evidence Level >= 2 時加入脾氣
+  if (evidenceLevel >= 2) {
+    const temperResult = generateTemperSpeech({
+      cardType: 'FUTURE',
+      evidenceLevel,
+      personalityStyle: personality.archetype,
+      baseSpeech: asuraWarning,
+      pattern: 'NORMAL',
+    });
+
+    if (temperResult.validation.allowed) {
+      if (evidenceLevel >= 3) {
+        (asuraWarning as any) = temperResult.temperized;
+      }
+    }
+  }
 
   return {
     title: '✨ 未來：預判',

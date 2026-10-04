@@ -12,6 +12,8 @@
  */
 
 import { AsuraPersonalityProfile } from './personality-fusion-engine';
+import { generateTemperSpeech, createHookDeduplicator } from './time-cards-temper-speech';
+import type { EvidenceLevel } from './asura-temper-engine';
 
 export interface PastCardInput {
   personality: AsuraPersonalityProfile;
@@ -39,7 +41,7 @@ export function interpretPastCard(input: PastCardInput): PastCardOutput {
   const { personality, evidenceIds, fortuneLevel, evidenceLevel, dominantElement } = input;
 
   // 第1步：FORMATION_CAUSE - 形成原因
-  const formationCause = generateFormationCause(
+  let formationCause = generateFormationCause(
     personality,
     fortuneLevel,
     dominantElement,
@@ -47,37 +49,56 @@ export function interpretPastCard(input: PastCardInput): PastCardOutput {
   );
 
   // 第2步：SURVIVAL_PATTERN - 當時如何反應
-  const survivalPattern = generateSurvivalPattern(
+  let survivalPattern = generateSurvivalPattern(
     personality,
     fortuneLevel
   );
 
   // 第3步：PERSONALITY_TRACE - 性格痕跡
-  const personalityTrace = generatePersonalityTrace(
+  let personalityTrace = generatePersonalityTrace(
     personality.coreTraits,
     personality.shadow,
     personality.dominantVerb
   );
 
   // 第4步：CURRENT_RESIDUE - 現在殘留
-  const currentResidue = generateCurrentResidue(
+  let currentResidue = generateCurrentResidue(
     personality,
     fortuneLevel
   );
 
   // 第5步：ASURA_REVEAL - 揭底
-  const asuraReveal = generateAsuraReveal(
+  let asuraReveal = generateAsuraReveal(
     personality,
     survivalPattern,
     personalityTrace
   );
 
   // 第6步：FINAL_STRIKE - 最後一刀
-  const finalStrike = generateFinalStrike(
+  let finalStrike = generateFinalStrike(
     personality.coreNeed,
     personality.coreFear,
     evidenceLevel
   );
+
+  // ===== 脾氣強化層 =====
+  // 冷脾氣：過去卡最冷（Coldness = 9）
+  const dedup = createHookDeduplicator();
+
+  // 只在 Evidence Level >= 2 時加入脾氣
+  if (evidenceLevel >= 2) {
+    const temperResult = generateTemperSpeech({
+      cardType: 'PAST',
+      evidenceLevel,
+      personalityStyle: personality.archetype,
+      baseSpeech: asuraReveal,
+      pattern: 'NORMAL',
+    });
+
+    if (temperResult.validation.allowed) {
+      asuraReveal = temperResult.temperized;
+    }
+  }
 
   return {
     title: '📜 過去：根源',

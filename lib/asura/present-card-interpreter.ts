@@ -14,6 +14,8 @@
  */
 
 import { AsuraPersonalityProfile } from './personality-fusion-engine';
+import { generateTemperSpeech, createHookDeduplicator } from './time-cards-temper-speech';
+import type { EvidenceLevel } from './asura-temper-engine';
 
 export interface PresentCardInput {
   personality: AsuraPersonalityProfile;
@@ -101,6 +103,31 @@ export function interpretPresentCard(input: PresentCardInput): PresentCardOutput
     personality.coreNeed,
     evidenceLevel
   );
+
+  // ===== 脾氣強化層 =====
+  // 兇脾氣：現在卡最兇（Aggression = 9, Impatience = 9）
+
+  // 只在 Evidence Level >= 2 時加入脾氣
+  if (evidenceLevel >= 2) {
+    // 判斷是否屬於重複模式 / 明知故犯
+    const pattern =
+      evidenceLevel >= 3 ? 'REPETITION' : 'NORMAL';
+
+    const temperResult = generateTemperSpeech({
+      cardType: 'PRESENT',
+      evidenceLevel,
+      personalityStyle: personality.archetype,
+      baseSpeech: asuraDirectHit,
+      pattern,
+    });
+
+    if (temperResult.validation.allowed) {
+      // 只在高等級證據時替換
+      if (evidenceLevel >= 3) {
+        (asuraDirectHit as any) = temperResult.temperized;
+      }
+    }
+  }
 
   return {
     title: '🔥 現在：直擊',
