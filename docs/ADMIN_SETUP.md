@@ -62,7 +62,7 @@ openssl rand -hex 32
 ### 3️⃣ 設定密碼和白名單
 
 ```bash
-ADMIN_MASTER_PASSWORD=630628
+ADMIN_MASTER_PASSWORD=A7k9$Lm2@Qx8Pn
 ADMIN_AUTHORIZED_IPS=203.0.113.45
 ```
 
@@ -83,7 +83,7 @@ ADMIN_AUTHORIZED_IPS=203.0.113.45
 
 3. **輸入管理員密碼**
    ```
-   密碼：630628
+   密碼：A7k9$Lm2@Qx8Pn
    ```
 
 4. **查看日誌**
@@ -202,7 +202,7 @@ DUAL_CHART_PASSWORD=your_client_password
 DUAL_CHART_SESSION_SECRET=your_existing_session_secret_min_32_chars
 
 # 管理員認證
-ADMIN_MASTER_PASSWORD=630628
+ADMIN_MASTER_PASSWORD=A7k9$Lm2@Qx8Pn
 ADMIN_SESSION_SECRET=a3f8c2d1e5b9f4a7c2d1e5b9f4a7c2d1e5b9f4a7c2d1e5b9f4a7c2d1e5b9f4
 ADMIN_AUTHORIZED_IPS=203.0.113.45
 
