@@ -82,10 +82,10 @@ export function fuseStarPersonalities(
   const hidden = signals.find(s => s.role === 'HIDDEN') || null;
 
   // 第二步：取得星曜人格DNA（僅內部）
-  const dominantDNA = dominant ? getStarPersonality(dominant.starKey) : null;
-  const actionDNA = action ? getStarPersonality(action.starKey) : null;
-  const pressureDNA = pressure ? getStarPersonality(pressure.starKey) : null;
-  const hiddenDNA = hidden ? getStarPersonality(hidden.starKey) : null;
+  const dominantDNA: StarPersonalityDNA | null = dominant ? (getStarPersonality(dominant.starKey) ?? null) : null;
+  const actionDNA: StarPersonalityDNA | null = action ? (getStarPersonality(action.starKey) ?? null) : null;
+  const pressureDNA: StarPersonalityDNA | null = pressure ? (getStarPersonality(pressure.starKey) ?? null) : null;
+  const hiddenDNA: StarPersonalityDNA | null = hidden ? (getStarPersonality(hidden.starKey) ?? null) : null;
 
   // 第三步：融合核心特徵
   const allTraits = [

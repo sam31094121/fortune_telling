@@ -20,7 +20,7 @@
 
 export interface AsuraToneProfile {
   speechSpeed: 'SLOW' | 'MEDIUM' | 'FAST';
-  sentenceLength: 'SHORT' | 'MEDIUM' | 'MIXED';
+  sentenceLength: 'SHORT' | 'MEDIUM' | 'MIXED' | 'LONG';
 
   directness: number; // 0-100
   dominance: number; // 0-100

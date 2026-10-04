@@ -102,7 +102,8 @@ function TenGodMapping({ result }: { result: DualChartResult }) {
   // ⚠️ 十神映射表：所有數據由後端計算與提供
   // 前端禁止硬編碼任何紫微宮位術語，只照印後端資料
 
-  const mappingData = result.guide?.tenGodMapping;
+  const guide = (result as { guide?: { tenGodMapping?: Array<{ tenGod: string; baziMeaning: string; synthesis: string }>; comparisonHint?: string } }).guide;
+  const mappingData = guide?.tenGodMapping;
 
   if (!mappingData || !Array.isArray(mappingData)) {
     return null;
@@ -130,7 +131,7 @@ function TenGodMapping({ result }: { result: DualChartResult }) {
         </tbody>
       </table>
       <p className={styles.comparisonHint}>
-        {result.guide?.comparisonHint || '兩套系統搭配看，能更全面理解性格與命運的互動。'}
+        {guide?.comparisonHint || '兩套系統搭配看，能更全面理解性格與命運的互動。'}
       </p>
     </div>
   );

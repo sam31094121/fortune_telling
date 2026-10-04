@@ -86,4 +86,9 @@ export function calculateDualChart(body: unknown, options: { revealSealedGhost?:
   const ziweiProfile = { polarity: STEM_YINYANG[raw.chineseDate[0] as Stem] ?? '', zodiac: raw.zodiac };
   return { bazi: { input: professional.input, professionalChart: dualProfessionalChart, luckCycles: professional.luckCycles }, core: dualCore, specialStars: { ...specialStars, flow, share: buildShenShaShare(specialStars.card, ichingView, flow) }, annual, ziwei, periods, ziweiProfile };
 }
-export type DualChartResult = ReturnType<typeof calculateDualChart>;
+export type DualChartResult = ReturnType<typeof calculateDualChart> & {
+  guide?: {
+    tenGodMapping?: Array<{ tenGod: string; baziMeaning: string; synthesis: string }>;
+    comparisonHint?: string;
+  };
+};
