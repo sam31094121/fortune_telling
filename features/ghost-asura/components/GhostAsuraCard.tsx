@@ -4,6 +4,8 @@
 
 'use client';
 
+import { useMemo } from 'react';
+import { animationConfig } from '@/lib/ghost-asura-animation';
 import type { GhostAsuraReading } from '../types';
 import { GHOST_ASURA_UI } from '../uiText';
 import styles from './GhostAsuraCard.module.css';
@@ -14,6 +16,20 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
     item.sealStatus === 'awakened' && item.pillarLabels.includes(label)).length;
   const pillarLead = (label: string) => reading.items.find(item =>
     item.sealStatus === 'awakened' && item.pillarLabels.includes(label))?.displayName ?? '暫無命中';
+
+  // 計算印記動畫延遲：卡片展開後才逐個亮起
+  const getImpressionAnimationDelay = useMemo(() => {
+    let globalIndex = 0;
+    return () => {
+      const delay =
+        animationConfig.cardReveal.delay +
+        animationConfig.cardReveal.duration +
+        animationConfig.impressionGlow.delay +
+        globalIndex * animationConfig.impressionGlow.staggerDelay;
+      globalIndex++;
+      return delay;
+    };
+  }, []);
 
   return (
     <section
@@ -144,6 +160,14 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
                           data-asura-id={item.resultId}
                           data-seal-status={item.sealStatus}
                           data-display-name={item.displayName}
+                          style={
+                            item.sealStatus === 'awakened'
+                              ? {
+                                  animation: `asuraImpressionGlow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
+                                  animationDelay: `${getImpressionAnimationDelay()}ms`,
+                                }
+                              : {}
+                          }
                         >
                           <details className={styles.itemDetail} data-asura-detail>
                           <summary className={styles.itemHead}>

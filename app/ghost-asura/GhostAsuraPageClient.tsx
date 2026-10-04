@@ -18,6 +18,7 @@ import { buildGhostAsuraReading } from '@/features/ghost-asura';
 import type { DualChartResult } from '@/lib/dual-chart';
 import { dualChartHourStatus } from '@/lib/dual-chart-form';
 import { downloadAsPDF, downloadAsImage, generateFilename } from '@/lib/ghost-asura-download';
+import { getCardRevealAnimation, getImpressionGlowAnimation, getScrollFormationAnimation, getTotalAnimationDuration } from '@/lib/ghost-asura-animation';
 import styles from './ghost-asura.module.css';
 import brandStyles from '@/components/AsuraBrandTitle.module.css';
 
@@ -347,7 +348,14 @@ export default function GhostAsuraPageClient({
         >
           {reading ? (
             <>
-              <div ref={cardRef}>
+              {/* 🎬 卡片揭示動畫 + 氣魄衝擊波 */}
+              <div
+                ref={cardRef}
+                className={styles.asuraCardReveal}
+                style={{
+                  animation: `asuraCardReveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
+                }}
+              >
                 <GhostAsuraCard reading={reading} />
               </div>
 

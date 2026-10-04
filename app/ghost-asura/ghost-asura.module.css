@@ -567,6 +567,127 @@
   to { transform: rotate(360deg); }
 }
 
+/* ==================== 鬼魅阿修羅核心動畫 ==================== */
+
+/* 卡片揭示：從暗到明、鬼魅漸現 */
+@keyframes asuraCardReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+    filter: blur(8px) brightness(0.6);
+  }
+  30% {
+    filter: blur(4px) brightness(0.8);
+  }
+  70% {
+    filter: blur(1px) brightness(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0) brightness(1);
+  }
+}
+
+.asuraCardReveal {
+  animation: asuraCardReveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 印記點亮：逐個閃爍、像被喚醒 */
+@keyframes asuraImpressionGlow {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+    filter: blur(4px);
+    text-shadow: none;
+  }
+  20% {
+    opacity: 0.5;
+    transform: scale(1);
+    filter: blur(2px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+    filter: blur(0);
+    text-shadow: 0 0 12px rgba(212, 175, 55, 0.8);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1);
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    text-shadow: 0 0 4px rgba(212, 175, 55, 0.3);
+  }
+}
+
+.asuraImpressionGlow {
+  animation: asuraImpressionGlow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 秘卷成型：能量匯聚 */
+@keyframes asuraScrollFormation {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) rotateX(10deg);
+  }
+  50% {
+    transform: scale(1.02) rotateX(5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotateX(0deg);
+  }
+}
+
+.asuraScrollFormation {
+  animation: asuraScrollFormation 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 衝擊波：阿修羅的氣魄 */
+@keyframes asuraShockwave {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+  }
+  30% {
+    opacity: 1;
+    box-shadow: 0 0 0 20px rgba(212, 175, 55, 0.3);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 40px rgba(212, 175, 55, 0.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 60px rgba(212, 175, 55, 0);
+  }
+}
+
+.asuraShockwave {
+  animation: asuraShockwave 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 鬼魅陰影效果（卡片邊框）*/
+@keyframes asuraShadowPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.15), 0 0 40px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.25), 0 0 60px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.asuraShadowPulse {
+  animation: asuraShadowPulse 3s ease-in-out infinite;
+}
+
 @media (max-width: 600px) {
   .page { padding: 16px 12px 56px; }
   .header { padding: 24px 4px; }
