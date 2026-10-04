@@ -13,6 +13,12 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
+import IdentitySplitSelector from '@/components/IdentitySplitSelector';
+import {
+  getAnalysisIdentityTarget,
+  IDENTITY_TARGET_UPDATED_EVENT,
+  type AnalysisIdentityTarget,
+} from '@/lib/identity-split-client';
 import { GhostAsuraCard } from '@/features/ghost-asura/components/GhostAsuraCard';
 import type { AsuraDisplay } from '@/lib/ghost-asura-display-contract';
 import { dualChartHourStatus } from '@/lib/dual-chart-form';
@@ -44,6 +50,7 @@ export default function GhostAsuraPageClient({
     country: '台灣',
     city: '台北',
   });
+  const [identityTarget, setIdentityTarget] = useState<AnalysisIdentityTarget | null>(() => getAnalysisIdentityTarget() ?? 'self');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [missing, setMissing] = useState<string[]>([]);
@@ -53,6 +60,15 @@ export default function GhostAsuraPageClient({
   const resultRef = useRef<HTMLElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const calculationRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    const handleTargetUpdate = (event: Event) => {
+      const detail = (event as CustomEvent<{ target?: AnalysisIdentityTarget }>).detail;
+      if (detail?.target) setIdentityTarget(detail.target);
+    };
+    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, handleTargetUpdate);
+    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, handleTargetUpdate);
+  }, []);
 
   function invalidateCalculation() {
     calculationRef.current?.abort();
@@ -259,6 +275,7 @@ export default function GhostAsuraPageClient({
     calculationRef.current = request;
     setBusy(true);
     try {
+      const target = identityTarget ?? getAnalysisIdentityTarget() ?? 'self';
       const response = await fetch('/api/ghost-asura/reading', {
         method: 'POST',
         cache: 'no-store',
@@ -266,6 +283,7 @@ export default function GhostAsuraPageClient({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...profile,
+          identityTarget: target,
           calendarType: 'solar',
           timezone: 'Asia/Taipei',
         }),
@@ -290,6 +308,8 @@ export default function GhostAsuraPageClient({
   }
 
   const progressSteps = [
+    { id: 'target', done: Boolean(identityTarget), label: identityTarget === 'guest' ? '親朋好友' : '我自己' },
+    { id: 'name', done: (form.name ?? '').trim().length >= 2, label: '確認姓名' },
     { id: 'birthDate', done: !!form.birthDate, label: '填寫生辰' },
     { id: 'gender', done: !!form.gender, label: '選擇性別' },
     { id: 'birthHour', done: asuraHourStatus(form).done, label: '確認時辰' },
@@ -332,8 +352,11 @@ export default function GhostAsuraPageClient({
 
       <section className={`${styles.panel} ${styles.inputPanel}`}>
             <p className={styles.note}>
-              填寫生辰資料，立即展開你的阿修羅秘卷。四柱陰影揭示、力量點醒、駕馭之道一次掌握。
+              填寫生辰資料，展開你的阿修羅秘卷。輸入姓名（為自己或親朋好友排盤），鬼魅阿修羅將指名道姓、一語穿透本魂。
             </p>
+            <div className="mb-4">
+              <IdentitySplitSelector compact />
+            </div>
             <fieldset disabled={busy} className={styles.fields}>
             <UnifiedBirthForm
               value={form}
@@ -345,20 +368,20 @@ export default function GhostAsuraPageClient({
                 calendarType: true,
               }}
               optionalFields={['name']}
-              autoFillIdentity={false}
-              persistIdentity={false}
+              autoFillIdentity={true}
+              persistIdentity={true}
               requireExplicitHourPick
               requireKnownHour
               hourCompletion={asuraHourStatus(form)}
               copy={{
-                progressTitle: '完成生辰，開啟阿修羅秘卷',
+                progressTitle: identityTarget === 'guest' ? '完成親友生辰，開啟阿修羅秘卷' : '完成生辰，開啟阿修羅秘卷',
                 unknownHourHint: '阿修羅秘卷需要出生時辰；確認後回來補填，不會替你猜測。',
                 hourPickerHint: '請點選出生時辰，讓四柱各歸其位。',
               }}
               missing={missing}
               disabled={busy}
               isSubmitting={busy}
-              submitLabel="開啟命魂戰局"
+              submitLabel={identityTarget === 'guest' ? '開啟親友命魂戰局' : '開啟命魂戰局'}
               loadingLabel={busy ? '正在排盤⌛' : undefined}
               onChange={(profile) =>
                 updateForm(

@@ -304,12 +304,24 @@ export type PastReading = TimeReading;
 
 const ORDER: AsuraPillarKey[] = ['year', 'month', 'day', 'hour', 'luck', 'flow'];
 
+export interface ComposeTimeOptions {
+  name?: string | null;
+  target?: 'self' | 'guest' | null;
+}
+
 /** 組一段完整、連續的讀盤（過去／現在／未來同一引擎）。0 印回傳 null。 */
-export function composeTime(when: AsuraWhen, marks: readonly TimeMark[]): TimeReading | null {
+export function composeTime(
+  when: AsuraWhen,
+  marks: readonly TimeMark[],
+  options?: ComposeTimeOptions
+): TimeReading | null {
   if (marks.length === 0) return null;
   const tv = TIME_VOICE[when];
   const groups = ORDER.map((pillar) => ({ pillar, marks: marks.filter((m) => m.pillar === pillar) })).filter((g) => g.marks.length > 0);
-  const paragraphs: string[] = [tv.opening[groups[0].pillar]];
+  const rawOpening = tv.opening[groups[0].pillar];
+  const trimmedName = options?.name?.trim();
+  const opening = trimmedName && trimmedName.length >= 2 ? `${trimmedName}。${rawOpening}` : rawOpening;
+  const paragraphs: string[] = [opening];
   const blockIds: string[][] = [[]];
   let lastId: string | null = null;
   for (const [index, group] of groups.entries()) {

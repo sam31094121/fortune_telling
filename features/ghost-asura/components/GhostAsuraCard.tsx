@@ -106,9 +106,13 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
         ? '【現在｜解當下】'
         : '【未來｜解趨勢】';
 
+    const targetLabel = display.targetName
+      ? `【${display.identityTarget === 'guest' ? '親友' : '本人'}：${display.targetName}】`
+      : '';
+
     if (mode === 'narrative') {
       const lines: string[] = [
-        `# 鬼魅阿修羅修羅檔案 ${headingBadge}`,
+        `# 鬼魅阿修羅修羅檔案 ${targetLabel} ${headingBadge}`.trim(),
         '',
         section.lead ? `> ${section.lead}` : '',
         '',
@@ -134,6 +138,8 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
         period: section.key,
         heading: section.heading,
         badge: headingBadge,
+        targetName: display.targetName || null,
+        identityTarget: display.identityTarget || 'self',
         lead: section.lead || '',
         narrativeBlocks: section.blocks || [],
         coda: section.coda || '',
@@ -178,6 +184,11 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
       {/* 橫幅「鬼魅［修羅印］阿修羅」＋下方過去／現在／未來一列三格：點格在下方全寬展開，再點收合。 */}
       <header className={styles.asuraTopRow} data-asura-top-row>
         <AsuraBanner title={display.title} />
+        {display.targetName && (
+          <div className={styles.targetBadge} data-asura-target-badge>
+            〔{display.identityTarget === 'guest' ? '親友' : '本人'}：{display.targetName}〕
+          </div>
+        )}
         {SHOW_HEADER_SUBTITLE && <p className={styles.subtitle}>{display.subtitle}</p>}
         <div className={styles.asuraTiles}>
           {display.sections.map((section) => {
@@ -517,7 +528,7 @@ function LegacyReadingCard({ reading }: { reading: GhostAsuraReading }) {
       <div
         className={styles.pillarScroll}
         role="region"
-        aria-label="四有與所屬印記，可左右捲動"
+        aria-label="四柱與所屬印記，可左右捲動"
         tabIndex={0}
         data-asura-pillar-scroll
       >

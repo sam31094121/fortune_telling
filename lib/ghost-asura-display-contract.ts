@@ -164,6 +164,10 @@ export interface AsuraDisplay {
   /** 稽核計數（前端不顯示） */
   audit: AsuraDisplayAudit;
   scopeNote: string;
+  /** 受測者姓名（功能臺輸入，有填寫時直呼其名） */
+  targetName?: string | null;
+  /** 分析對象：self (我自己) | guest (親朋好友) */
+  identityTarget?: 'self' | 'guest' | null;
 }
 
 /** 技能頁三張摺疊卡：生辰未送出前的一句（阿修羅口吻；無命盤資料，故放在共用合約）。 */

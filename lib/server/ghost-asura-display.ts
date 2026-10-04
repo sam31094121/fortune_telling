@@ -77,6 +77,9 @@ export function normalizeAsuraInput(raw: unknown): Record<string, unknown> {
   }
   if (body.gender === 'male' || body.gender === 'female') input.gender = body.gender;
   if (typeof body.name === 'string') input.name = body.name.slice(0, 60);
+  if (body.identityTarget === 'self' || body.identityTarget === 'guest') input.identityTarget = body.identityTarget;
+  else if (body.analysisTarget === 'self' || body.analysisTarget === 'guest') input.identityTarget = body.analysisTarget;
+  else input.identityTarget = 'self';
   return input;
 }
 
@@ -241,7 +244,7 @@ export function computeTimeAxis(result: DualChartResult, gender: 'male' | 'femal
 export function toAsuraDisplay(
   reading: GhostAsuraReading,
   crossChecked: ReadonlySet<string>,
-  options: { hourAssumed?: boolean; timeAxis?: AsuraTimeAxis | null } = {},
+  options: { hourAssumed?: boolean; timeAxis?: AsuraTimeAxis | null; targetName?: string | null; identityTarget?: 'self' | 'guest' | null } = {},
 ): AsuraDisplay {
   const hourAssumed = options.hourAssumed === true;
   const columns: AsuraDisplayColumn[] = PILLAR_ORDER.map((key) => {
@@ -381,7 +384,7 @@ export function toAsuraDisplay(
     frame: { key: AsuraDisplaySection['key']; heading: string; label: string },
   ): AsuraDisplaySection => {
     const { marks } = perCard[when];
-    const reading = composeTime(when, marks);
+    const reading = composeTime(when, marks, { name: options.targetName, target: options.identityTarget });
     const items: AsuraDisplayEntry[] = marks.map((mark) => ({
       label: mark.name,
       text: '',
@@ -526,14 +529,24 @@ export function toAsuraDisplay(
     glowIds: qualifying.map((item) => item.resultId),
     audit,
     scopeNote: '印記故事用於文化象徵與自我反思，不代表心理診斷或必然發生的預言。',
+    targetName: options.targetName || null,
+    identityTarget: options.identityTarget || 'self',
   };
 }
 
 /** 生辰 → 既有後端排盤 → 既有阿修羅管線 → 顯示契約。錯誤訊息沿用既有後端的中文驗證訊息。 */
 export function computeGhostAsuraDisplay(raw: unknown, now: Date = new Date()): AsuraDisplay {
-  const { hourAssumed, ...engineInput } = normalizeAsuraInput(raw);
+  const { hourAssumed, identityTarget, ...engineInput } = normalizeAsuraInput(raw);
   const result = calculateDualChart(engineInput);
   const timeAxis = computeTimeAxis(result, engineInput.gender === 'female' ? 'female' : 'male', now);
+  const targetName = typeof engineInput.name === 'string' && engineInput.name.trim().length >= 2 ? engineInput.name.trim() : null;
+  const effectiveTarget = (identityTarget === 'guest' ? 'guest' : 'self') as 'self' | 'guest';
+
   // 顯示別名層：運算結果不動，只把要上畫面的字換成阿修羅語彙（lib/asura-display-alias.ts）
-  return asuraDeepScrub(toAsuraDisplay(buildGhostAsuraReading({ result }), crossCheckedRuleIds(result), { hourAssumed: hourAssumed === true, timeAxis }));
+  return asuraDeepScrub(toAsuraDisplay(buildGhostAsuraReading({ result }), crossCheckedRuleIds(result), {
+    hourAssumed: hourAssumed === true,
+    timeAxis,
+    targetName,
+    identityTarget: effectiveTarget,
+  }));
 }

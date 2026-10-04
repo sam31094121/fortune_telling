@@ -101,8 +101,8 @@ export function asuraScrub(text: string): string {
   return out;
 }
 
-/** 不改的欄位：識別鍵、狀態旗標、稽核資料（不顯示） */
-const SKIP_KEYS = new Set(['key', 'id', 'ids', 'contract', 'tone', 'glowIds', 'audit', 'resultId', 'sealStatus']);
+/** 不改的欄位：識別鍵、狀態旗標、稽核資料、姓名與分析對象（不顯示或不置換） */
+const SKIP_KEYS = new Set(['key', 'id', 'ids', 'contract', 'tone', 'glowIds', 'audit', 'resultId', 'sealStatus', 'identityTarget', 'targetName']);
 
 /** 物件內所有顯示字串一次換掉（陣列、巢狀物件皆可；識別鍵不動） */
 export function asuraDeepScrub<T>(value: T): T {
