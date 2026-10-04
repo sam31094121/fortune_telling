@@ -303,7 +303,7 @@ export default function GhostAsuraPageClient({
               disabled={busy}
               isSubmitting={busy}
               submitLabel="開啟命魂戰局"
-              loadingLabel={busy ? <span className={styles.buttonLoading}>正在排盤<span className={styles.loadingDot} /><span className={styles.loadingDot} /><span className={styles.loadingDot} /></span> : '開啟命魂戰局'}
+              loadingLabel={busy ? '正在排盤⌛' : undefined}
               onChange={(profile) =>
                 updateForm(
                   profile.birthHourBranch === 'zi'
