@@ -6,27 +6,27 @@ export const ASURA_CUSTOMER_WORDINGS: Record<string, {
   verdict: string;
 }> = {
   蛻變新生: {
-    shortDeclaration: '卸下舊甲，換一種打法。',
-    coreWarning: '這枚印記以改變與感受為象徵。若你正面對變化，可以先分清哪些值得保留、哪些已不合用；不必為了重來而否定過去。',
-    battleSignificance: '先換一個小步驟，觀察效果，再決定是否向前。',
-    verdict: '新生不是全盤推翻，而是把選擇拿回手裡。',
+    shortDeclaration: '骨肉重塑，換一身鱗甲再戰。',
+    coreWarning: '蛻變不是退回避風港，是把舊皮硬生生撕下。疼痛在哪裡，你的突破就在哪裡。',
+    battleSignificance: '剝落舊態，以新骨正面迎擊下一場惡戰。',
+    verdict: '敢砸碎自己的人，才配在戰局裡重掌生殺。',
   },
   魅力引力: {
-    shortDeclaration: '能吸引目光，也要守住自己。',
-    coreWarning: '這枚印記象徵人際吸引與表達。它不是感情好壞的保證；若你想靠近一個人，坦白表達與尊重界線，比猜測對方更可靠。',
-    battleSignificance: '把魅力用在真誠互動，不用討好換取認同。',
-    verdict: '有人靠近，不代表你必須交出主導權。',
+    shortDeclaration: '氣場已開，引敵入局。',
+    coreWarning: '魅惑是戰場上最利的暗刃。誰靠近你，誰就得按你的陣型走。不要交出刀柄，讓所有人為你的意志所動。',
+    battleSignificance: '目光與心意皆為兵器，兵不血刃亦能制敵。',
+    verdict: '掌控全場氣場，主導權只能握在你手中。',
   },
   界外吸引: {
-    shortDeclaration: '新的人事走近，界線由你把守。',
-    coreWarning: '這枚印記用來反思熟悉圈子之外的吸引與互動，不代表一定會發生外遇或背叛。面對新關係時，可先看清承諾、期待與彼此的界線。',
-    battleSignificance: '先說清楚，再決定靠近；不讓一時的新鮮替你做選擇。',
-    verdict: '開門迎人，也保有說不的力量。',
+    shortDeclaration: '外域風起，獵物自投羅網。',
+    coreWarning: '陣地之外有暗流接近。是借力打力的外援，還是分化你的毒箭？看清本質，該收服的納入麾下，該斬斷的一刀兩斷。',
+    battleSignificance: '不被新鮮迷惑，只把外力化作攻城拔寨的兵馬。',
+    verdict: '開門迎戰，跨界稱雄。',
   },
   逆風破局: {
-    shortDeclaration: '風暴未定，先穩住腳步。',
-    coreWarning: '這枚印記以壓力與應變為象徵，不預告災難。若眼前確有難關，先分辨事實、風險與可控的下一步，不必被想像中的危險牽著走。',
-    battleSignificance: '先守住可控之處，再尋突破；需要支援時可以求助。',
-    verdict: '破局不是硬撐，是知道何時進、何時守。',
+    shortDeclaration: '風暴倒灌，正好借風拔刀。',
+    coreWarning: '天煞壓頂，最懦弱的做法才是畏首畏尾。逆境就是最好的磨刀石，強敵越狂，你出手的速度就要比天雷更快。',
+    battleSignificance: '在混亂殺局中撕開缺口，逆勢奪取生機。',
+    verdict: '狂瀾當前，寸步不讓，直擣中樞。',
   },
 };

@@ -82,46 +82,83 @@ function analyzeTenGods(pillars: BaziPillars): Record<string, number> {
 function generateTenGodDeclaration(tenGodsMap: Record<string, number>): string {
   const declarations: string[] = [];
 
-  if (tenGodsMap['偏官'] >= 2) {
-    declarations.push('我看你身上帶著反叛的氣——偏官在你的命盤裡佔上風。這不是缺點，這是武器。');
+  if (tenGodsMap['偏官'] >= 1) {
+    declarations.push('我看你骨子裡帶著嗜血的殺伐之氣——七殺當道。這不是壞事，這是破陣的重戟。凡來犯者，以戰止戰！');
   }
 
-  if (tenGodsMap['正官'] >= 2) {
-    declarations.push('我看你天生就要統御他人——正官是你的權威。但權威越大，挑戰者越多。');
+  if (tenGodsMap['正官'] >= 1) {
+    declarations.push('我看你生來便要號令三軍——正官是你的帥印。手握權威就得立起鐵血規矩，容不得宵小挑釁。');
   }
 
-  if (tenGodsMap['傷官'] >= 2) {
-    declarations.push('我看你的言論與才華會得罪人——傷官就是這個性質。用這個去戰鬥，不要怕被討厭。');
+  if (tenGodsMap['傷官'] >= 1) {
+    declarations.push('我看你狂傲反骨、專破舊規——傷官是撕裂平庸的利爪。才華不是用來討好人的，是用來讓對手臣服的。');
   }
 
-  if (tenGodsMap['偏財'] >= 2) {
-    declarations.push('我看你對錢有野心，但也容易被錢迷惑——偏財就是投機與冒險。押注前要清楚代價。');
+  if (tenGodsMap['食神'] >= 1) {
+    declarations.push('我看你深藏不露、外圓內剛——食神是暗藏的鋒芒。平時不爭，出招便定大局。');
+  }
+
+  if (tenGodsMap['偏財'] >= 1) {
+    declarations.push('我看你野心滔天、志在掠奪——偏財是豪賭天下的底氣。看準戰機就全軍壓上，打一場漂亮的鯨吞戰！');
+  }
+
+  if (tenGodsMap['正財'] >= 1) {
+    declarations.push('我看你步步為營、寸土必爭——正財是穩如泰山的城池。一城一池吃乾抹淨，絕不給敵人留生機。');
+  }
+
+  if (tenGodsMap['偏印'] >= 1) {
+    declarations.push('我看你眼神極冷、孤絕脫俗——梟印是能照破虛偽的冷眼。別被凡夫俗子牽絆，獨行方能稱雄。');
+  }
+
+  if (tenGodsMap['正印'] >= 1) {
+    declarations.push('我看你身披厚甲、底氣深重——正印是萬軍難破的城牆。但記住，仁慈是給弱者的恩賜，面對強敵唯有揮刀。');
+  }
+
+  if (tenGodsMap['比肩'] >= 1) {
+    declarations.push('我看你戰意如山、寸步不退——比肩是死守陣地的硬骨。想從你手裡奪走地盤，除非從你身上踩過去。');
+  }
+
+  if (tenGodsMap['劫財'] >= 1) {
+    declarations.push('我看你性烈如火、敢搶敢爭——劫財是奪人旗號的兇刃。戰場上沒有客氣，看上的戰略要地親手搶回來！');
   }
 
   if (declarations.length === 0) {
-    declarations.push('我看你的十神組合帶著某種矛盾——這正是有趣的地方。');
+    declarations.push('我看你命格深邃暗藏殺機，這盤局不是凡人能輕易看透的。');
   }
 
-  return declarations.join('  \n');
+  // 取前三強烈特徵
+  return declarations.slice(0, 3).join('  \n');
 }
 
 function generateShiPatternDeclaration(): string {
-  return '你的命格中存在著某種平衡與衝突。一切取決於你怎麼出手。';
+  return '戰局之上，沒有平白無故的安寧。你的命性格局是利刃出鞘之相，主動進攻才是最好的防禦。一切勝負，全憑你出手的剎那！';
 }
 
 function generateConflictForecast(tenGodsMap: Record<string, number>): string {
   const forecasts: string[] = [];
 
   if (tenGodsMap['正官'] > 0 && tenGodsMap['偏官'] > 0) {
-    forecasts.push('你的命盤裡正官和偏官在較勁——這代表你會遇上「權力爭奪戰」。對手是誰？往往是和你一樣強勢的人。');
+    forecasts.push('官殺交鋒，內外皆敵。身邊從來不缺挑戰者，但這正是你立威的最好機會。先斬暗敵，再定陣腳！');
+  }
+
+  if (tenGodsMap['傷官'] > 0 && tenGodsMap['正官'] > 0) {
+    forecasts.push('傷官撞正官，反骨直面鐵律。既然不屑平庸的世俗規則，那就用實力自立陣營，重新定義誰才是主人！');
   }
 
   if (tenGodsMap['正財'] > 0 && tenGodsMap['傷官'] > 0) {
-    forecasts.push('你的命盤裡正財和傷官在衝突——這代表你的理性和你的言論會打架。');
+    forecasts.push('才智與資源在戰局中劇烈激盪。言辭若太過狠辣便會傷及利益，收斂鋒芒，直取實利才是大將之道。');
+  }
+
+  if (tenGodsMap['偏印'] > 0 && tenGodsMap['食神'] > 0) {
+    forecasts.push('梟神奪食，暗流試圖打亂你的節奏。關鍵命脈與資源必須牢牢抓在自己掌心，別輕信外人。');
+  }
+
+  if ((tenGodsMap['比肩'] > 0 || tenGodsMap['劫財'] > 0) && (tenGodsMap['正財'] > 0 || tenGodsMap['偏財'] > 0)) {
+    forecasts.push('群雄爭食之局，周圍窺伺你利益的眼睛太多。把刀亮出來，讓對手知道越界要付出慘痛代價！');
   }
 
   if (forecasts.length === 0) {
-    forecasts.push('你的命盤裡沒有明顯的十神衝突。這代表你的敵人不是命盤決定的，而是你自己吸引來的。');
+    forecasts.push('你的命盤深沉如海，外敵不敢輕易犯境。你最大的對手不是別人，而是自己內心的猶豫與退縮！');
   }
 
   return forecasts.join('  \n');
