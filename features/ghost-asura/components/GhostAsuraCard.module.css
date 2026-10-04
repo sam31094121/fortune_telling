@@ -139,8 +139,8 @@
 .stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  padding: 12px;
+  gap: 6px;
+  padding: 8px;
   font-size: 15px;
   color: #d2c6c3;
   background: #171419;
@@ -154,15 +154,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 2px;
+  gap: 0px;
   min-width: 0;
-  min-height: 44px;
-  padding: 12px 6px;
+  min-height: 40px;
+  padding: 8px 4px;
   font: inherit;
   color: inherit;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid #3f3038;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 button.statTile {
@@ -182,28 +182,28 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 .stats b {
   display: block;
   color: #f5eeea;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  line-height: 1.2;
+  line-height: 1;
 }
 
 .statLabel {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   color: #f2ede4;
-  line-height: 1.4;
+  line-height: 1.2;
 }
 
 .statCaption {
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.2;
   color: #bfc2cc;
 }
 
 .statGo {
-  margin-top: 4px;
-  font-size: 14px;
+  margin-top: 2px;
+  font-size: 11px;
   color: #e6c48f;
   text-decoration: underline;
 }
@@ -497,7 +497,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 
   .summaryFooter { margin: 0 12px 16px; }
   .banner { padding: 14px; font-size: 14px; }
-  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 10px; gap: 8px; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 6px; gap: 5px; }
 
   .scrollHint {
     margin-inline: 12px;
