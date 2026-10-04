@@ -798,6 +798,84 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 }
 .fnPanel[hidden] { display: none; }
 .fnPanel .fnBody { display: grid; gap: 8px; padding: 0; border-top: 0; }
+
+/* 修羅檔案技能專用操作工具列 */
+.fnActionBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 12px;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed rgba(201, 164, 92, 0.28);
+}
+
+.fnBadgeTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(201, 164, 92, 0.45);
+  background: rgba(35, 25, 28, 0.85);
+  color: var(--gold-hi, #f0d0ae);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.6);
+}
+
+.fnBtnGroup {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.fnCopyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 14px;
+  min-height: 34px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #f5eeea;
+  background: linear-gradient(145deg, #3a2228, #1c1418);
+  border: 1px solid #7c4852;
+  border-radius: 6px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: all 160ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fnCopyBtn:hover {
+  background: linear-gradient(145deg, #502e37, #281c22);
+  border-color: #c9a45c;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(201, 164, 92, 0.35);
+  transform: translateY(-1px);
+}
+
+.fnCopyBtn:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.fnCopyBtnCode {
+  background: linear-gradient(145deg, #222934, #12161c);
+  border-color: #435b75;
+  color: #cdd9e5;
+}
+
+.fnCopyBtnCode:hover {
+  background: linear-gradient(145deg, #2d3846, #1a2029);
+  border-color: #6cb6ff;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(108, 182, 255, 0.35);
+}
+
 .fnPanel .fnLead { color: #fbeee4; border-left-color: #c94f5c; }
 .fnPanel .fnNarrative { display: grid; gap: 12px; }
 .fnPanel .fnNarrative p { margin: 0; color: #f3ebe6; font-size: 17px; line-height: 1.85; letter-spacing: 0.02em; }
@@ -834,7 +912,174 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   to { opacity: 1; transform: none; }
 }
 @media (max-width: 640px) {
-  .fnPanel { padding: 16px; }
+  .fnPanel { padding: 16px 14px 20px; }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 響應式適配：360px - 480px 小型手機螢幕
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (max-width: 480px) {
+  /* 縮小面板內邊距，釋放水平空間 */
+  .fnPanel {
+    padding: 14px 12px 18px;
+  }
+
+  /* 操作工具列改為垂直流式佈局，杜絕橫向擠壓溢出 */
+  .fnActionBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+
+  /* 徽章置中全寬展示 */
+  .fnBadgeTag {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  /* 按鈕組自適應兩欄均分 */
+  .fnBtnGroup {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  /* 複製按鈕：緊湊字級與觸控保證（min-height 38px） */
+  .fnCopyBtn {
+    width: 100%;
+    padding: 6px 4px;
+    font-size: 12px;
+    min-height: 38px;
+    gap: 4px;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+
+  /* 話術正文字級微調，避免 360px 螢幕斷字破碎 */
+  .fnPanel .fnLead {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .fnPanel .fnNarrative p {
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  .fnPanel .fnPlainLine {
+    font-size: 12px;
+    padding-left: 8px;
+  }
+
+  .fnPanel .fnCoda {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-top: 12px;
+  }
+
+  /* 360px 三格磚塊微調：防止毛筆字溢出 */
+  .asuraTiles {
+    gap: 6px;
+  }
+
+  .tileSquare {
+    font-size: clamp(22px, 7.5vw, 28px);
+    border-width: 1.5px;
+  }
+}
+
+@media (max-width: 360px) {
+  /* 360px 極窄極端適配：按鈕垂直堆疊以維持足夠觸控與文字排版 */
+  .fnPanel {
+    padding: 12px 8px 16px;
+  }
+
+  .fnBtnGroup {
+    grid-template-columns: 1fr;
+  }
+
+  .fnCopyBtn {
+    min-height: 36px;
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 響應式適配：1024px+ 桌面大螢幕強化
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (min-width: 1024px) {
+  /* 展開面板擴大留白，提升呼吸感 */
+  .fnPanel {
+    padding: 24px 36px 32px;
+  }
+
+  .fnPanel .fnBody {
+    gap: 14px;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  /* 操作工具列兩端貼齊、按鈕適度放大 */
+  .fnActionBar {
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+  }
+
+  .fnBadgeTag {
+    font-size: 14px;
+    padding: 4px 14px;
+  }
+
+  .fnCopyBtn {
+    padding: 8px 18px;
+    font-size: 14px;
+    min-height: 36px;
+  }
+
+  /* 正文話術排版優化 */
+  .fnPanel .fnLead {
+    font-size: 16px;
+    line-height: 1.7;
+    padding-left: 14px;
+    border-left-width: 3px;
+  }
+
+  .fnPanel .fnNarrative {
+    gap: 16px;
+  }
+
+  .fnPanel .fnNarrative p {
+    font-size: 18px;
+    line-height: 1.9;
+  }
+
+  .fnPanel .fnPlainLine {
+    font-size: 14px;
+    line-height: 1.7;
+    padding-left: 14px;
+  }
+
+  .fnPanel .fnCoda {
+    font-size: 21px;
+    line-height: 1.75;
+    margin-top: 20px;
+  }
+
+  /* 磚塊在桌面維持雅緻緊湊比例 */
+  .asuraTiles {
+    max-width: 540px;
+    gap: 14px;
+  }
+
+  .tileSquare {
+    border-radius: 4px;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .tileSquare { transition: none; }

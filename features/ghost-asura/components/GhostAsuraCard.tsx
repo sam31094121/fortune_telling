@@ -93,7 +93,65 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
     animationConfig.cardReveal.delay + animationConfig.cardReveal.duration + animationConfig.impressionGlow.delay;
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [restOpen, setRestOpen] = useState<Record<string, boolean>>({});
+  const [copyStatus, setCopyStatus] = useState<Record<string, boolean>>({});
   let glowIndex = 0;
+
+  /** 複製卡片話術或程式碼至剪貼簿（修羅檔案專用） */
+  const handleCopyCard = (section: AsuraDisplay['sections'][0], mode: 'narrative' | 'code') => {
+    let payload = '';
+    const headingBadge =
+      section.key === 'past'
+        ? '【過去｜解形成】'
+        : section.key === 'present'
+        ? '【現在｜解當下】'
+        : '【未來｜解趨勢】';
+
+    if (mode === 'narrative') {
+      const lines: string[] = [
+        `# 鬼魅阿修羅修羅檔案 ${headingBadge}`,
+        '',
+        section.lead ? `> ${section.lead}` : '',
+        '',
+      ];
+      if (section.blocks) {
+        for (const b of section.blocks) {
+          lines.push(b.text);
+          if (b.plain && b.plain.length > 0) {
+            for (const p of b.plain) {
+              lines.push(`  - 【${p.label}】${p.plain}`);
+            }
+          }
+          lines.push('');
+        }
+      }
+      if (section.coda) {
+        lines.push(`\n**阿修羅判語**：${section.coda}`);
+      }
+      payload = lines.filter(Boolean).join('\n');
+    } else {
+      const codeObject = {
+        cardModel: 'GHOST_ASURA_TIME_CARDS_V1',
+        period: section.key,
+        heading: section.heading,
+        badge: headingBadge,
+        lead: section.lead || '',
+        narrativeBlocks: section.blocks || [],
+        coda: section.coda || '',
+        items: section.items || [],
+      };
+      payload = JSON.stringify(codeObject, null, 2);
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(payload).then(() => {
+        const key = `${section.key}-${mode}`;
+        setCopyStatus((prev) => ({ ...prev, [key]: true }));
+        setTimeout(() => {
+          setCopyStatus((prev) => ({ ...prev, [key]: false }));
+        }, 2000);
+      });
+    }
+  };
 
   /** 點統計數字：展開對應清單、捲到該處、把焦點交給它（鍵盤與讀屏也跟得上）。 */
   const jumpTo = (target: keyof typeof STAT_TARGET_ID) => {
@@ -165,6 +223,33 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
         >
           {openKey === section.key && (
             <div className={styles.fnBody}>
+              {/* 修羅檔案技能專用操作列：標示時間維度並提供一鍵複製話術與程式碼 */}
+              <div className={styles.fnActionBar} data-asura-action-bar>
+                <div className={styles.fnBadgeTag}>
+                  {section.key === 'past' && '【過去｜解形成】'}
+                  {section.key === 'present' && '【現在｜解當下】'}
+                  {section.key === 'future' && '【未來｜解趨勢】'}
+                </div>
+                <div className={styles.fnBtnGroup}>
+                  <button
+                    type="button"
+                    className={styles.fnCopyBtn}
+                    onClick={() => handleCopyCard(section, 'narrative')}
+                    title="複製本卡阿修羅話術 Markdown"
+                  >
+                    {copyStatus[`${section.key}-narrative`] ? '✓ 已複製話術' : '📋 複製修羅話術'}
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.fnCopyBtn} ${styles.fnCopyBtnCode}`}
+                    onClick={() => handleCopyCard(section, 'code')}
+                    title="複製修羅卡片程式碼 JSON"
+                  >
+                    {copyStatus[`${section.key}-code`] ? '✓ 已複製代碼' : '💻 複製卡片代碼'}
+                  </button>
+                </div>
+              </div>
+
               {section.lead && <p className={styles.fnLead}>{section.lead}</p>}
               {/* 讀盤逐段照印，每段後緊接該段印記的白話；0 印＝後端不給任何字，這裡就不印 */}
               {section.blocks && section.blocks.length > 0 && (
@@ -198,7 +283,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
         className={styles.pillarScroll}
         id={STAT_TARGET_ID.pillars}
         role="region"
-        aria-label="四有與所屬印記，可左右捲動"
+        aria-label="四柱與所屬印記，可左右捲動"
         tabIndex={0}
         data-asura-pillar-scroll
       >

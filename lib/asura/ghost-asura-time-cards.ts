@@ -87,7 +87,7 @@ export const STRENGTH_VERDICTS: Record<EvidenceStrengthLevel, string> = {
   1: '這條線有出來，但我先不把話說死。',
   2: '這就不是單一反應了。方向開始出來。',
   3: '這句我敢直接講。因為幾條線已經對上。',
-  4: '這次不用繞。這條線已經很清楚。你現在不一定馬上認同，但事情走到那裡，你會知道我為什麼現在敢講。',
+  4: '這次不用繞。這條線已經很清楚。你現在或許不會馬上認同，但事情走到那裡，你會知道我為什麼現在敢講。',
 };
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -195,7 +195,7 @@ export function buildPresentCard(params: {
   const shadowNarrative = `急於定局的心態會讓盟友跟不上你的節奏，容易把合作夥伴逼成旁觀看戲的局外人。`;
   const costNarrative = `速度過快的代價就是容錯率降為零，稍有偏差就是整盤翻覆。`;
   const finalStrike = `現在先讓子彈飛完全程，看清誰是靶子誰是隊友，再亮底牌。`;
-  const asuraJoke = `別人開會看簡報，你開會看秒錶。嫌全世界太慢，最後累死的只有你自己。`;
+  const asuraJoke = `別人開會看簡報，你開會看秒錶。嫌全世界太慢，最後累垮的始終是你自己。`;
 
   return {
     id: `asura-present-${Date.now()}`,
