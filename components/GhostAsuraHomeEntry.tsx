@@ -51,19 +51,19 @@ export default function GhostAsuraHomeEntry() {
       <div className={styles.content}>
         <span className={styles.emblem} aria-hidden="true">修</span>
         <div className={styles.copy}>
-          <span className={styles.eyebrow}><HomeTranslatedText text="本命阿修羅 · 獨立秘卷" /></span>
+          <span className={styles.eyebrow}><HomeTranslatedText text="本命阿修羅 · 四柱隱影解盤" /></span>
           <h2 className={brandStyles.brush} data-asura-brand-title><HomeTranslatedText text="鬼魅阿修羅" /></h2>
-          <p><HomeTranslatedText text="四柱印記，點開閱讀力量與駕馭之道。" /></p>
+          <p><HomeTranslatedText text="剖析四柱陰影、隱性衝突與內在力量。找到駕馭自己的方式。" /></p>
           <p className={styles.impression}><HomeTranslatedText text={`印記示意：${featuredImpression.title}`} /></p>
         </div>
       </div>
       <div className={styles.meta}>
         <span><HomeTranslatedText text="免費" /></span>
         <span><HomeTranslatedText text="3 分鐘" /></span>
-        <span><HomeTranslatedText text="阿修羅秘卷" /></span>
+        <span><HomeTranslatedText text="立即解盤" /></span>
       </div>
       <div className={`${styles.cta} home-feature-cta`}>
-        <HomeTranslatedText text="開啟秘卷" /><span aria-hidden="true">→</span>
+        <HomeTranslatedText text="立即解盤" /><span aria-hidden="true">→</span>
       </div>
     </Link>
   );

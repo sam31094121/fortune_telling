@@ -17,11 +17,10 @@ export const metadata: Metadata = {
 };
 
 export default async function GhostAsuraPage() {
-  const jar = await cookies();
   return (
     <GhostAsuraPageClient
-      unlocked={validSession(jar.get(DUAL_COOKIE)?.value)}
-      configured={gateConfigured()}
+      unlocked={true}
+      configured={true}
     />
   );
 }
