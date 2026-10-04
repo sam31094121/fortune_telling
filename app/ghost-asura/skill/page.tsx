@@ -9,6 +9,16 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import styles from './skill.module.css';
+import AsuraSkillReading from './AsuraSkillReading';
+import { AsuraReadingProvider } from './AsuraReadingContext';
+import AsuraTimeCards from './AsuraTimeCards';
+
+/**
+ * 三張摺疊卡的原規格文字（FUNCTION_CARDS.cards）保留可還原：
+ * 改為 true 即回到原本的規格說明卡；false＝顯示後端實盤時間軸（與卡頭三格同一份輸出）。
+ * 原檔備份：app/ghost-asura/skill/_backup/page.tsx.bak、content.ts.bak。
+ */
+const SHOW_SPEC_TEXT = false;
 import {
   BACKEND_LAW,
   CHECKLIST,
@@ -209,6 +219,7 @@ export default function GhostAsuraSkillPage() {
             <p className={styles.sourceNote}>{FUNCTION_CARDS.source}</p>
           </details>
 
+          <AsuraReadingProvider>
           <div className={styles.mockStage}>
             <div className={styles.mockTable}>
               <p className={styles.mockTableLabel}>{FUNCTION_CARDS.tableLabel}</p>
@@ -219,34 +230,42 @@ export default function GhostAsuraSkillPage() {
               </ul>
             </div>
 
-            <div className={styles.mockCards}>
-              {FUNCTION_CARDS.cards.map((card) => (
-                <details key={card.era} className={card.href ? styles.mockCard : `${styles.mockCard} ${styles.mockCardSealed}`}>
-                  <summary>
-                    <span className={styles.mockNo}>
-                      {card.no} {card.era}
-                    </span>
-                    <strong>{card.name}</strong>
-                    <span className={styles.mockLevel}>{card.tag}</span>
-                  </summary>
-                  <div className={styles.mockBody}>
-                    <div className={styles.cardVoice}>
-                      {card.voice.map((line) => (
-                        <p key={line}>{line}</p>
-                      ))}
+            {SHOW_SPEC_TEXT ? (
+              <div className={styles.mockCards}>
+                {FUNCTION_CARDS.cards.map((card) => (
+                  <details key={card.era} className={card.href ? styles.mockCard : `${styles.mockCard} ${styles.mockCardSealed}`}>
+                    <summary>
+                      <span className={styles.mockNo}>
+                        {card.no} {card.era}
+                      </span>
+                      <strong>{card.name}</strong>
+                      <span className={styles.mockLevel}>{card.tag}</span>
+                    </summary>
+                    <div className={styles.mockBody}>
+                      <div className={styles.cardVoice}>
+                        {card.voice.map((line) => (
+                          <p key={line}>{line}</p>
+                        ))}
+                      </div>
+                      <List items={card.facts} />
+                      {card.note && <p className={styles.sourceNote}>{card.note}</p>}
+                      {card.href && card.linkLabel && (
+                        <Link href={card.href} className={styles.cardLink}>
+                          {card.linkLabel}
+                        </Link>
+                      )}
                     </div>
-                    <List items={card.facts} />
-                    {card.note && <p className={styles.sourceNote}>{card.note}</p>}
-                    {card.href && card.linkLabel && (
-                      <Link href={card.href} className={styles.cardLink}>
-                        {card.linkLabel}
-                      </Link>
-                    )}
-                  </div>
-                </details>
-              ))}
-            </div>
+                  </details>
+                ))}
+              </div>
+            ) : (
+              <AsuraTimeCards />
+            )}
           </div>
+
+          {/* 新增：生辰 → 後端 /api/ghost-asura/reading → 鬼魅阿修羅卡（過去／現在／未來）；上方三張時間軸卡共用同一份結果 */}
+          <AsuraSkillReading />
+          </AsuraReadingProvider>
         </SealCard>
 
         {/* 肆 話術核心 */}

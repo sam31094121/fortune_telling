@@ -3,18 +3,19 @@
  *
  * 主路徑（/ghost-asura）：`display` 來自 POST /api/ghost-asura/reading，
  * 已在後端分組／篩選／排序；本元件只照印文字，不做任何分組或命理判斷。
- * 卡頭下方三段原生摺疊段（收合只顯示兩字標題）：過去＝命中神煞／現在＝柱位與封印狀態／未來＝阿修羅判語。
+ * 卡頭下方三段原生摺疊段（收合只顯示兩字標題）：時間軸：過去（命中神煞）／現在（柱位與封印）／未來（阿修羅判語）。
  *
  * 舊路徑 `reading`：僅 /dual-chart 阿修羅分頁暫留（尚未遷移），維持原樣不動。
  */
 
 'use client';
 
-import { useMemo } from 'react';
+
+import { Fragment, useMemo, useState } from 'react';
 import { animationConfig } from '@/lib/ghost-asura-animation';
 import type { AsuraDisplay, AsuraDisplaySeal } from '@/lib/ghost-asura-display-contract';
 import type { GhostAsuraReading } from '../types';
-import { GHOST_ASURA_UI } from '../uiText';
+import { GHOST_ASURA_CARD_TITLE, GHOST_ASURA_UI } from '../uiText';
 import styles from './GhostAsuraCard.module.css';
 
 export function GhostAsuraCard({ display, reading }: { display?: AsuraDisplay; reading?: GhostAsuraReading }) {
@@ -22,6 +23,53 @@ export function GhostAsuraCard({ display, reading }: { display?: AsuraDisplay; r
   if (reading) return <LegacyReadingCard reading={reading} />;
   return null;
 }
+
+/**
+ * 卡頭橫幅：標題拆成左右兩組（鬼魅｜阿修羅）貼齊兩端，中間空隙蓋一方「修羅」白文印（純裝飾，aria-hidden）。
+ * 只是排版拆字，標題文字不變（h2 以 aria-label 保留完整標題）；標題若非「鬼魅阿修羅」則整句顯示、不拆。
+ */
+function AsuraBanner({ title }: { title: string }) {
+  const split = title === GHOST_ASURA_CARD_TITLE && title.length > 2;
+  return (
+    <div className={styles.asuraBanner} data-asura-banner>
+      <h2 className={`${styles.title} ${styles.titleBrush} ${styles.bannerTitle}`} aria-label={title}>
+        {split ? (
+          <>
+            <span className={styles.bannerLeft} aria-hidden="true">{title.slice(0, 2)}</span>
+            {/* 印文「修羅」由 CSS 偽元素繪出，不進入標題文字（textContent 仍為「鬼魅阿修羅」） */}
+            <span className={styles.bannerSeal} aria-hidden="true" data-asura-seal>
+              <span className={styles.sealInk} />
+            </span>
+            <span className={styles.bannerRight} aria-hidden="true">{title.slice(2)}</span>
+          </>
+        ) : (
+          title
+        )}
+      </h2>
+    </div>
+  );
+}
+
+/** 尚未送出生辰時的空框：只有標題與三格標題，不可展開、不含任何資料。 */
+export function GhostAsuraCardShell() {
+  return (
+    <section className={styles.card} aria-label={GHOST_ASURA_CARD_TITLE} data-card-type="ghost-asura-reading" data-asura-shell>
+      <header className={styles.asuraTopRow} data-asura-top-row>
+        <AsuraBanner title={GHOST_ASURA_CARD_TITLE} />
+        <div className={styles.asuraTiles}>
+          {(['過去', '現在', '未來'] as const).map((heading) => (
+            <button key={heading} type="button" className={`${styles.tileSquare} ${styles.tileSquareIdle}`} disabled aria-disabled="true">
+              {heading}
+            </button>
+          ))}
+        </div>
+      </header>
+    </section>
+  );
+}
+
+/** 業主 2026-10-04：標題下小字（副標「本命阿修羅｜命魂戰局｜阿修羅秘卷」）暫不渲染；改 true 即恢復。 */
+const SHOW_HEADER_SUBTITLE = false;
 
 const TONE_ITEM: Record<AsuraDisplaySeal['tone'], string> = {
   awakened: `${styles.item} ${styles.itemAwakened}`,
@@ -37,6 +85,7 @@ const TONE_SEAL: Record<AsuraDisplaySeal['tone'], string> = {
 function DisplayCard({ display }: { display: AsuraDisplay }) {
   const baseDelay =
     animationConfig.cardReveal.delay + animationConfig.cardReveal.duration + animationConfig.impressionGlow.delay;
+  const [openKey, setOpenKey] = useState<string | null>(null);
   let glowIndex = 0;
   const nextDelay = () => baseDelay + glowIndex++ * animationConfig.impressionGlow.staggerDelay;
 
@@ -48,11 +97,35 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
       data-guard-status={display.alert ? 'FAILED' : 'PASSED'}
       data-display-contract={display.contract}
     >
-      <header className={styles.header}>
-        <span className={styles.crest} aria-hidden="true">修羅</span>
-        <h2 className={styles.title}>{display.title}</h2>
-        <p className={styles.subtitle}>{display.subtitle}</p>
+      {/* 橫幅「鬼魅［修羅印］阿修羅」＋下方過去／現在／未來一列三格：點格在下方全寬展開，再點收合。 */}
+      <header className={styles.asuraTopRow} data-asura-top-row>
+        <AsuraBanner title={display.title} />
+        {SHOW_HEADER_SUBTITLE && <p className={styles.subtitle}>{display.subtitle}</p>}
+        <div className={styles.asuraTiles}>
+          {display.sections.map((section) => {
+            const open = openKey === section.key;
+            return (
+              <button
+                key={section.key}
+                type="button"
+                className={open ? `${styles.tileSquare} ${styles.tileSquareOn}` : styles.tileSquare}
+                aria-expanded={open}
+                aria-controls={`asura-fn-panel-${section.key}`}
+                data-asura-tile={section.key}
+                onClick={() => setOpenKey(open ? null : section.key)}
+              >
+                {section.heading}
+              </button>
+            );
+          })}
+        </div>
       </header>
+
+      {display.hourNote && (
+        <p className={styles.fnHourNote} data-asura-hour-note>
+          {display.hourNote}
+        </p>
+      )}
 
       {display.alert && (
         <p className={`${styles.failed} ${styles.fnAlert}`} role="alert" data-guard="failed">
@@ -60,30 +133,87 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
         </p>
       )}
 
-      {/* 過去／現在／未來：卡內原生摺疊段，收合時只顯示兩字標題；內容全由後端照印 */}
-      <div className={styles.functions} data-asura-functions>
-        {display.sections.map((section) => (
-          <details key={section.key} className={styles.fnSection} data-asura-function={section.key}>
-            <summary className={styles.fnHead}>
-              <span className={styles.fnTitle}>{section.heading}</span>
-            </summary>
+      {display.sections.map((section) => (
+        <section
+          key={section.key}
+          id={`asura-fn-panel-${section.key}`}
+          className={styles.fnPanel}
+          role="region"
+          aria-label={section.heading}
+          data-asura-function={section.key}
+          hidden={openKey !== section.key}
+        >
+          {openKey === section.key && (
             <div className={styles.fnBody}>
               {section.lead && <p className={styles.fnLead}>{section.lead}</p>}
-              {section.items.length > 0 && (
-                <dl className={styles.fnList}>
-                  {section.items.map((entry, index) => (
-                    <div key={`${entry.label}-${index}`} className={styles.fnRow}>
-                      <dt>{entry.label}</dt>
-                      <dd>{entry.text}</dd>
+              {section.narrative ? (
+                <>
+                  {section.blocks && section.blocks.length > 0 ? (
+                    <div className={styles.fnNarrative} data-asura-narrative data-asura-interleaved>
+                      {section.blocks.map((block, i) => (
+                        <Fragment key={i}>
+                          <p>{block.text}</p>
+                          {block.plain.map((line) => (
+                            <div key={line.label} className={styles.fnPlainLine} data-asura-plain>
+                              <span className={styles.fnPlainTag}>白話</span>
+                              <strong>{line.label}</strong>
+                              {line.plain}
+                            </div>
+                          ))}
+                        </Fragment>
+                      ))}
                     </div>
-                  ))}
-                </dl>
+                  ) : (
+                    <div className={styles.fnNarrative} data-asura-narrative>
+                      {section.narrative.split('\n').map((para, i) => (
+                        <p key={i}>{para}</p>
+                      ))}
+                    </div>
+                  )}
+                  {!section.blocks?.length && section.items.some((entry) => entry.plain) && (
+                    <div className={styles.fnPlainBlock} data-asura-plain-block>
+                      <span className={styles.fnPlainTag}>白話</span>
+                      <ul>
+                        {section.items.filter((entry) => entry.plain).map((entry, index) => (
+                          <li key={`${entry.label}-${index}`} data-asura-plain>
+                            <strong>{entry.label}</strong>
+                            {entry.plain}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {section.coda && (
+                    <p className={styles.fnCoda} data-asura-coda>
+                      {section.coda}
+                    </p>
+                  )}
+                </>
+              ) : (
+                section.items.length > 0 && (
+                  <dl className={styles.fnList}>
+                    {section.items.map((entry, index) => (
+                      <div key={`${entry.label}-${index}`} className={styles.fnRow}>
+                        <dt>{entry.label}</dt>
+                        <dd>
+                          {entry.text}
+                          {entry.plain && (
+                            <span className={styles.fnPlain} data-asura-plain>
+                              <span className={styles.fnPlainTag}>白話</span>
+                              {entry.plain}
+                            </span>
+                          )}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                )
               )}
               {section.emptyText && <p className={styles.fnEmpty}>{section.emptyText}</p>}
             </div>
-          </details>
-        ))}
-      </div>
+          )}
+        </section>
+      ))}
 
       <p className={styles.scrollHint}>{display.scrollHint}</p>
       <div

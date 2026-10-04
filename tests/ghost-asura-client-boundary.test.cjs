@@ -13,6 +13,7 @@ const { options } = ts.parseJsonConfigFileContent(config.config, ts.sys, root);
 const CLIENT_ENTRIES = [
   'app/ghost-asura/GhostAsuraPageClient.tsx',
   'features/ghost-asura/components/GhostAsuraCard.tsx',
+  'app/ghost-asura/skill/AsuraSkillReading.tsx',
 ];
 const FORBIDDEN = [
   /^lib\/bazi\//, /^lib\/bazi-engine/, /^lib\/dual-chart\.ts$/, /^lib\/three-core-engine/,

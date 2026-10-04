@@ -7,12 +7,9 @@
 export const audioAssets = {
   // 卡片展開 - 冷冽鬼魅風
   cardReveal: {
-    url: 'https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js',
-    sound: {
-      src: ['https://assets.example.com/sounds/card-reveal-mystical.mp3'],
-      volume: 0.6,
-      duration: 1200,
-    },
+    src: ['https://assets.example.com/sounds/card-reveal-mystical.mp3'],
+    volume: 0.6,
+    duration: 1200,
   },
 
   // 印記點亮 - 神秘啟動聲

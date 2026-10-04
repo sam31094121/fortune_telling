@@ -1,0 +1,970 @@
+.wrap { display: grid; gap: 16px; min-width: 0; }
+
+.form {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #634249;
+  border-radius: 12px;
+  background: #131115;
+}
+
+.prompt {
+  margin: 0;
+  color: #efc5a1;
+  font: 700 17px/1.6 serif;
+  letter-spacing: 0.14em;
+}
+
+.fields {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.field { display: grid; gap: 6px; min-width: 0; }
+.field > span { color: #c4aaa4; font-size: 13px; letter-spacing: 0.08em; }
+
+.field input[type="date"],
+.field input[type="time"] {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1px solid #674751;
+  border-radius: 8px;
+  background: #211a20;
+  color: #f5eeea;
+  font-size: 16px;
+  color-scheme: dark;
+}
+
+.field input:focus-visible { outline: 2px solid #e3b881; outline-offset: 2px; }
+
+.genders { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.gender {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border: 1px solid #674751;
+  border-radius: 8px;
+  background: #211a20;
+  color: #d6c8c3;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+}
+
+.gender input { position: absolute; opacity: 0; pointer-events: none; }
+.gender:has(input:focus-visible) { outline: 2px solid #e3b881; outline-offset: 2px; }
+.genderOn { border-color: #c09076; background: #34232a; color: #f0d0ae; }
+
+.submit {
+  min-height: 52px;
+  border: 1px solid #9d7e5d;
+  border-radius: 8px;
+  background: #33291f;
+  color: #efd9bc;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  cursor: pointer;
+}
+
+.submit:focus-visible { outline: 2px solid #e3b881; outline-offset: 3px; }
+.fields:disabled .submit { opacity: 0.7; cursor: wait; }
+
+.note { margin: 0; color: #a8999a; font-size: 12px; line-height: 1.6; }
+
+.error {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  border-radius: 8px;
+  background: rgba(127, 29, 29, 0.15);
+  color: #fecaca;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.result { min-width: 0; }
+
+@media (min-width: 640px) {
+  .fields { grid-template-columns: 1fr 1fr; }
+  .fields > :nth-child(3), .submit { grid-column: 1 / -1; }
+}
+
+/* 不知道時辰 */
+.unknownHour {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: #e0d3cd;
+  font-size: 15px;
+  cursor: pointer;
+}
+.unknownHour input { width: 18px; height: 18px; accent-color: #8b1e1e; }
+.hourNote { margin: 0; color: #c9a45c; font-size: 14px; line-height: 1.6; }
+
+/* 三張時間軸摺疊卡（內容＝後端 sections） */
+.timeAwait,
+.timeEmpty { margin: 0; color: #e0d3cd; font: 600 17px/1.75 serif; letter-spacing: 0.06em; }
+.timeHourNote { margin: 0 0 8px; color: #c9a45c; font-size: 14px; line-height: 1.6; }
+.timeLead { margin: 0 0 8px; color: #f6d3a6; font: 600 17px/1.75 serif; }
+.timeList { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.timeItem {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid rgba(201, 164, 92, 0.32);
+  border-left: 2px solid #8b1e1e;
+  border-radius: 4px;
+  background: rgba(13, 11, 10, 0.72);
+}
+.timeName { color: #f6d3a6; font: 700 17px/1.5 serif; letter-spacing: 0.08em; }
+.timeText { margin: 0; color: #f3ebe6; font-size: 17px; line-height: 1.75; white-space: pre-line; }
+.timePlain {
+  margin: 4px 0 0;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(201, 164, 92, 0.28);
+  color: #d9cfc8;
+  font-family: system-ui, -apple-system, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.timePlainTag {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 0 6px;
+  border: 1px solid rgba(201, 164, 92, 0.55);
+  border-radius: 3px;
+  color: #c9a45c;
+  font-size: 12px;
+  line-height: 18px;
+  vertical-align: 1px;
+}
+
+.timeNarrative { display: grid; gap: 12px; }
+.timeNarrative p { margin: 0; color: #f3ebe6; font-size: 17px; line-height: 1.85; }
+.timePlainBlock {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px dashed rgba(201, 164, 92, 0.32);
+  border-radius: 4px;
+  background: rgba(13, 11, 10, 0.55);
+  font-family: system-ui, -apple-system, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+}
+.timePlainBlock ul { display: grid; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.timePlainBlock li { color: #d9cfc8; font-size: 15px; line-height: 1.6; }
+.timePlainBlock li strong { margin-right: 8px; color: #c9a45c; font-weight: 600; }
+.timeCoda {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(201, 164, 92, 0.45);
+  color: #e6c47a;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
+/* ════════════════════════════════════════════════════════════════
+ * 阿修羅視覺（僅技能頁、僅視覺）：近黑底、刀鋒切角、金線如刃、朱紅點鋒、
+ * 水墨暈染＋飛白筆觸。全部 CSS＋極小 inline SVG；無大圖、無持續動畫。
+ * 範圍：生辰表單、生辰前空白卡（GhostAsuraCardShell）、修羅卡、三張時間軸卡。
+ * ════════════════════════════════════════════════════════════════ */
+.wrap,
+.timeCards {
+  --a-ink: #0b0908;
+  --a-ink-2: #14100f;
+  --a-gold: #c9a45c;
+  --a-gold-hi: #e6c47a;
+  --a-gold-dim: rgba(201, 164, 92, 0.42);
+  --a-crimson: #8b1e1e;
+  --a-crimson-glow: rgba(139, 30, 30, 0.38);
+  --a-text: #efe6df;
+  --a-cut: 14px;
+  /* 墨粒（與卡頭四方同一技法） */
+  --a-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  /* 飛白：橫向拉長的乾筆絲紋，作為金線／邊線的遮罩 */
+  --a-dry: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='8' preserveAspectRatio='none'><filter id='d'><feTurbulence type='fractalNoise' baseFrequency='0.012 0.9' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 2.6 -0.9'/></filter><rect width='100%' height='100%' filter='url(%23d)'/></svg>");
+  --a-chamfer: polygon(var(--a-cut) 0, 100% 0, 100% calc(100% - var(--a-cut)), calc(100% - var(--a-cut)) 100%, 0 100%, 0 var(--a-cut));
+  /* 切角處補一道金色刃線（左上、右下） */
+  --a-corner-tl: linear-gradient(135deg, transparent 9.2px, var(--a-gold) 9.2px, var(--a-gold) 10.6px, transparent 10.6px) top left / var(--a-cut) var(--a-cut) no-repeat;
+  --a-corner-br: linear-gradient(315deg, transparent 9.2px, var(--a-gold) 9.2px, var(--a-gold) 10.6px, transparent 10.6px) bottom right / var(--a-cut) var(--a-cut) no-repeat;
+  /* 水墨底：朱紅暈染＋金氣暈＋墨粒＋墨色漸層 */
+  --a-wash:
+    radial-gradient(120% 60% at 100% 0%, var(--a-crimson-glow), transparent 62%),
+    radial-gradient(90% 55% at 0% 100%, rgba(201, 164, 92, 0.09), transparent 70%),
+    radial-gradient(60% 40% at 20% 10%, rgba(0, 0, 0, 0.55), transparent 70%),
+    var(--a-grain),
+    linear-gradient(180deg, var(--a-ink-2), var(--a-ink));
+}
+
+/* 刃線（金、飛白）：用於分隔 */
+.wrap :global([data-asura-coda])::before,
+.timeCards [data-asura-coda]::before,
+.timeCard > div::before {
+  content: '';
+  display: block;
+  height: 2px;
+  margin-bottom: 16px;
+  background: linear-gradient(90deg, transparent, var(--a-gold) 10%, var(--a-gold-hi) 50%, var(--a-crimson) 88%, transparent);
+  -webkit-mask-image: var(--a-dry);
+  mask-image: var(--a-dry);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+/* ── 生辰表單：切角墨底，朱紅刃鈕 ── */
+.wrap .form {
+  border: 1px solid var(--a-gold-dim);
+  border-radius: 0;
+  clip-path: var(--a-chamfer);
+  background: var(--a-corner-tl), var(--a-corner-br), var(--a-wash);
+  padding: 16px;
+}
+.wrap .field > span { color: #cdb38a; letter-spacing: 0.12em; }
+.wrap .field input[type="date"],
+.wrap .field input[type="time"] {
+  border-radius: 2px;
+  border-color: rgba(201, 164, 92, 0.32);
+  background: rgba(11, 9, 8, 0.82);
+}
+.wrap .gender { border-radius: 2px; border-color: rgba(201, 164, 92, 0.3); background: rgba(11, 9, 8, 0.7); }
+.wrap .genderOn { border-color: var(--a-gold); background: linear-gradient(180deg, #3a1313, #240c0c); color: var(--a-gold-hi); }
+.wrap .submit {
+  min-height: 48px;
+  border: 1px solid var(--a-gold);
+  border-radius: 0;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  background:
+    radial-gradient(80% 120% at 50% 0%, rgba(230, 196, 122, 0.22), transparent 60%),
+    linear-gradient(180deg, #a12626, var(--a-crimson) 55%, #5c1212);
+  color: #fbeac6;
+  letter-spacing: 0.32em;
+  text-shadow: 0 1px 0 #0008;
+  transition: filter 160ms ease, transform 160ms ease;
+}
+.wrap .submit:hover { filter: brightness(1.08); }
+.wrap .submit:active { transform: translateY(1px); }
+.wrap .unknownHour input { accent-color: var(--a-crimson); }
+
+/* ── 修羅卡（含生辰前空白卡）：切角、水墨、標題後神光 ── */
+.wrap .result :global([data-card-type="ghost-asura-reading"]) {
+  border: 1px solid var(--a-gold-dim);
+  border-radius: 0;
+  clip-path: var(--a-chamfer);
+  background: var(--a-corner-tl), var(--a-corner-br), var(--a-wash);
+  box-shadow: none;
+}
+.wrap .result :global([data-asura-top-row]) {
+  position: relative;
+  isolation: isolate;
+  background:
+    /* 標題後的光暈（神性張力），靜態 */
+    radial-gradient(150px 150px at calc(100% - 172px) 50%, rgba(230, 196, 122, 0.16), transparent 70%),
+    radial-gradient(70% 90% at 0% 60%, rgba(139, 30, 30, 0.3), transparent 72%),
+    var(--a-grain),
+    linear-gradient(180deg, #120d0c, var(--a-ink));
+  border-bottom: 0;
+}
+/* 頂列下緣：飛白刃線 */
+.wrap .result :global([data-asura-top-row])::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--a-crimson) 8%, var(--a-gold) 40%, var(--a-gold-hi) 70%, transparent);
+  -webkit-mask-image: var(--a-dry);
+  mask-image: var(--a-dry);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  pointer-events: none;
+}
+/* 生辰前空白卡：左側留白改為一筆濃墨暈染（純裝飾，不加任何文字） */
+.wrap .result :global([data-asura-shell]) :global([data-asura-top-row])::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: -24px;
+  top: 50%;
+  width: 62%;
+  height: 120px;
+  transform: translateY(-50%) rotate(-8deg);
+  background:
+    radial-gradient(60% 50% at 40% 50%, rgba(0, 0, 0, 0.85), transparent 72%),
+    radial-gradient(40% 30% at 70% 40%, rgba(139, 30, 30, 0.35), transparent 75%);
+  -webkit-mask-image: var(--a-grain), radial-gradient(closest-side, #000 60%, transparent);
+  mask-image: var(--a-grain), radial-gradient(closest-side, #000 60%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  pointer-events: none;
+}
+.wrap .result :global([data-asura-hour-note]) { color: var(--a-gold); }
+
+/* 展開面板：連續讀盤、白話區、收尾金句 */
+.wrap .result :global([data-asura-function]) { background: transparent; }
+.wrap .result :global([data-asura-narrative]) { gap: 16px; }
+.wrap .result :global([data-asura-narrative] p) { color: var(--a-text); font-size: 17px; line-height: 1.9; }
+.wrap .result :global([data-asura-narrative] p:first-child) {
+  color: var(--a-gold-hi);
+  font-family: 'Noto Serif TC', 'Source Han Serif TC', serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.wrap .result :global([data-asura-narrative] p:last-child) { color: #d6c3a0; letter-spacing: 0.04em; }
+.wrap .result :global([data-asura-plain-block]),
+.timeCards [data-asura-plain-block] {
+  position: relative;
+  border: 0;
+  border-radius: 0;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  background:
+    linear-gradient(90deg, var(--a-gold-dim), transparent 70%) top left / 100% 1px no-repeat,
+    linear-gradient(270deg, var(--a-gold-dim), transparent 70%) bottom right / 100% 1px no-repeat,
+    radial-gradient(80% 100% at 0% 0%, rgba(201, 164, 92, 0.07), transparent 70%),
+    rgba(6, 5, 4, 0.72);
+  padding: 16px;
+}
+.wrap .result :global([data-asura-coda]),
+.timeCards [data-asura-coda] {
+  margin-top: 24px;
+  padding-top: 0;
+  border-top: 0;
+  color: var(--a-gold-hi);
+  font-family: 'Noto Serif TC', 'Source Han Serif TC', serif;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.7;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 14px rgba(201, 164, 92, 0.22);
+}
+
+/* ── 三張時間軸卡：刀鋒切角＋水墨，朱紅編號鋒片 ── */
+.timeCards.timeCards { gap: 16px; }
+.timeCards.timeCards > .timeCard {
+  border: 1px solid var(--a-gold-dim);
+  border-radius: 0;
+  clip-path: var(--a-chamfer);
+  background: var(--a-corner-tl), var(--a-corner-br), var(--a-wash);
+  box-shadow: none;
+  transition: border-color 180ms ease;
+}
+.timeCards.timeCards > .timeCard[open] { border-color: var(--a-gold); }
+.timeCards.timeCards > .timeCard > summary {
+  min-height: 56px;
+  padding: 16px;
+  gap: 8px 12px;
+  align-items: center;
+}
+.timeCards.timeCards > .timeCard > summary > span:first-child {
+  padding: 2px 10px;
+  border: 0;
+  border-radius: 0;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  background: linear-gradient(180deg, #a12626, var(--a-crimson));
+  color: #fbeac6;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+.timeCards.timeCards > .timeCard > summary strong {
+  color: var(--a-gold-hi);
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 12px rgba(201, 164, 92, 0.18);
+}
+.timeCards.timeCards > .timeCard > summary > span:nth-child(3) { color: rgba(201, 164, 92, 0.62); font-size: 13px; letter-spacing: 0.16em; }
+.timeCards.timeCards > .timeCard > summary::after { color: var(--a-gold); letter-spacing: 0.1em; }
+.timeCards.timeCards > .timeCard > div {
+  gap: 16px;
+  padding: 0 16px 24px;
+  border-top: 0;
+}
+.timeCards .timeNarrative { gap: 16px; }
+.timeCards .timeNarrative p { color: var(--a-text); line-height: 1.9; }
+.timeCards .timeNarrative p:first-child {
+  color: var(--a-gold-hi);
+  font-family: 'Noto Serif TC', 'Source Han Serif TC', serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.timeCards .timeNarrative p:last-child { color: #d6c3a0; }
+.timeCards .timeAwait,
+.timeCards .timeEmpty { color: var(--a-gold-hi); letter-spacing: 0.1em; }
+.timeCards .timePlainTag,
+.wrap .result :global([data-asura-plain-block]) > span:first-child {
+  border-radius: 0;
+  border-color: var(--a-gold);
+  background: rgba(139, 30, 30, 0.35);
+  color: var(--a-gold-hi);
+}
+.timeCards .timePlainBlock li strong { color: var(--a-gold); }
+
+@media (prefers-reduced-motion: reduce) {
+  .wrap .submit,
+  .timeCards.timeCards > .timeCard { transition: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+ * 三卡分性格（同一水墨阿修羅系統；共用字體／8px 格線／色族）
+ *   過去＝沉穩厚重：最深墨、2px 暗銅金粗筆、8px 小切角、底部低光
+ *   現在＝中間調：中灰墨、旋流暈染、14px 切角、中心朱紅光、可選 600ms 暈入
+ *   未來＝輕盈上揚：淡墨、飛白破筆邊、右上 22px 大切角、頂部升光、淡亮金
+ * 套用：折疊卡 [data-asura-time-card]、展開面板 [data-asura-function] 內層、卡頭方塊開啟態。
+ * ════════════════════════════════════════════════════════════════ */
+.wrap,
+.timeCards {
+  /* 過去 */
+  --past-ink-a: #0a0807;
+  --past-ink-b: #040303;
+  --past-gold: #8a6a35;
+  --past-gold-text: #c9a45c;
+  --past-glow: rgba(138, 106, 53, 0.2);
+  /* 現在 */
+  --now-ink-a: #1e1c1b;
+  --now-ink-b: #111010;
+  --now-grey: rgba(128, 122, 116, 0.16);
+  --now-gold: rgba(201, 164, 92, 0.62);
+  --now-gold-text: #e6c47a;
+  --now-glow: rgba(139, 30, 30, 0.3);
+  /* 未來 */
+  --fut-ink-a: #26221f;
+  --fut-ink-b: #191614;
+  --fut-gold: #e8d29a;
+  --fut-gold-text: #f1dea8;
+  --fut-glow: rgba(232, 210, 154, 0.2);
+}
+
+/* ── 共用：每卡外框由變數決定 ── */
+.timeCards.timeCards > .timeCard[data-asura-time-card],
+.wrap .result :global([data-asura-function] > div) {
+  position: relative;
+  isolation: isolate;
+  border: var(--c-bw) solid var(--c-border);
+  border-radius: 0;
+  clip-path: var(--c-shape);
+  background: var(--c-corners), var(--c-bg);
+}
+.wrap .result :global([data-asura-function] > div) { padding: 16px; }
+.timeCards.timeCards > .timeCard[data-asura-time-card] > summary strong,
+.wrap .result :global([data-asura-function] [data-asura-narrative] p:first-child) { color: var(--c-title); }
+.timeCards .timeCard[data-asura-time-card] [data-asura-coda],
+.wrap .result :global([data-asura-function] [data-asura-coda]) { color: var(--c-coda); }
+.timeCards.timeCards > .timeCard[data-asura-time-card] > summary > span:first-child {
+  background: var(--c-chip-bg);
+  box-shadow: inset 0 0 0 1px var(--c-chip-bd);
+  color: var(--c-chip-fg);
+}
+
+/* ── 過去：沉穩厚重 ── */
+.timeCards.timeCards > .timeCard[data-asura-time-card="hits"],
+.wrap .result :global([data-asura-function="hits"] > div) {
+  --c-bw: 2px;
+  --c-border: var(--past-gold);
+  --c-shape: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  --c-corners:
+    linear-gradient(135deg, transparent 4.6px, var(--past-gold) 4.6px, var(--past-gold) 7px, transparent 7px) top left / 8px 8px no-repeat,
+    linear-gradient(315deg, transparent 4.6px, var(--past-gold) 4.6px, var(--past-gold) 7px, transparent 7px) bottom right / 8px 8px no-repeat;
+  --c-bg:
+    radial-gradient(110% 45% at 50% 100%, var(--past-glow), transparent 70%),
+    radial-gradient(80% 60% at 20% 20%, rgba(0, 0, 0, 0.7), transparent 70%),
+    var(--a-grain),
+    linear-gradient(180deg, var(--past-ink-a), var(--past-ink-b));
+  --c-title: var(--past-gold-text);
+  --c-coda: var(--past-gold-text);
+  --c-chip-bg: linear-gradient(180deg, #3a2c17, #241a0c);
+  --c-chip-bd: var(--past-gold);
+  --c-chip-fg: #e2c78d;
+}
+.timeCards.timeCards > .timeCard[data-asura-time-card="hits"] > div::before,
+.timeCards .timeCard[data-asura-time-card="hits"] [data-asura-coda]::before,
+.wrap .result :global([data-asura-function="hits"] [data-asura-coda])::before {
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--past-gold) 8%, #a7844a 50%, var(--past-gold) 92%, transparent);
+  -webkit-mask-image: none;
+  mask-image: none;
+  opacity: 0.85;
+}
+
+/* ── 現在：中間調、旋流暈染 ── */
+.timeCards.timeCards > .timeCard[data-asura-time-card="pillars"],
+.wrap .result :global([data-asura-function="pillars"] > div) {
+  --c-bw: 1px;
+  --c-border: var(--now-gold);
+  --c-shape: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  --c-corners:
+    linear-gradient(135deg, transparent 9.2px, var(--a-gold) 9.2px, var(--a-gold) 10.6px, transparent 10.6px) top left / 14px 14px no-repeat,
+    linear-gradient(315deg, transparent 9.2px, var(--a-gold) 9.2px, var(--a-gold) 10.6px, transparent 10.6px) bottom right / 14px 14px no-repeat;
+  --c-bg:
+    radial-gradient(60% 40% at 50% 50%, var(--now-glow), transparent 72%),
+    conic-gradient(from 200deg at 62% 42%, transparent 0deg, rgba(139, 30, 30, 0.16) 70deg, var(--now-grey) 150deg, transparent 230deg, rgba(201, 164, 92, 0.06) 300deg, transparent 360deg),
+    radial-gradient(120% 50% at 0% 100%, var(--now-grey), transparent 70%),
+    var(--a-grain),
+    linear-gradient(160deg, var(--now-ink-a), var(--now-ink-b));
+  --c-title: var(--now-gold-text);
+  --c-coda: var(--now-gold-text);
+  --c-chip-bg: linear-gradient(180deg, #a12626, #8b1e1e);
+  --c-chip-bd: rgba(230, 196, 122, 0.55);
+  --c-chip-fg: #fbeac6;
+}
+.timeCards.timeCards > .timeCard[data-asura-time-card="pillars"][open] > div,
+.wrap .result :global([data-asura-function="pillars"]:not([hidden]) > div) {
+  animation: asuraNowBleed 600ms ease-out both;
+}
+@keyframes asuraNowBleed {
+  from { opacity: 0.2; background-position: 0 0, 30% 30%, 0 0, 0 0, 0 0; }
+  to { opacity: 1; }
+}
+
+/* ── 未來：輕盈上揚、飛白 ── */
+.timeCards.timeCards > .timeCard[data-asura-time-card="verdict"],
+.wrap .result :global([data-asura-function="verdict"] > div) {
+  --c-bw: 1px;
+  --c-border: rgba(232, 210, 154, 0.5);
+  --c-shape: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  --c-corners:
+    linear-gradient(225deg, transparent 14.9px, var(--fut-gold) 14.9px, var(--fut-gold) 16.2px, transparent 16.2px) top right / 22px 22px no-repeat,
+    linear-gradient(45deg, transparent 5px, var(--fut-gold) 5px, var(--fut-gold) 6.3px, transparent 6.3px) bottom left / 8px 8px no-repeat;
+  --c-bg:
+    radial-gradient(90% 45% at 60% 0%, var(--fut-glow), transparent 72%),
+    linear-gradient(0deg, transparent 55%, rgba(232, 210, 154, 0.05)),
+    radial-gradient(70% 40% at 0% 100%, rgba(139, 30, 30, 0.1), transparent 70%),
+    var(--a-grain),
+    linear-gradient(180deg, var(--fut-ink-a), var(--fut-ink-b));
+  --c-title: var(--fut-gold-text);
+  --c-coda: var(--fut-gold-text);
+  --c-chip-bg: transparent;
+  --c-chip-bd: #a33a3a;
+  --c-chip-fg: var(--fut-gold-text);
+}
+/* 飛白破筆外框：在實線上疊一層乾筆遮罩的亮金框 */
+.timeCards.timeCards > .timeCard[data-asura-time-card="verdict"]::after,
+.wrap .result :global([data-asura-function="verdict"] > div)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--fut-gold);
+  -webkit-mask-image: var(--a-dry);
+  mask-image: var(--a-dry);
+  -webkit-mask-size: 160px 100%;
+  mask-size: 160px 100%;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.timeCards.timeCards > .timeCard[data-asura-time-card="verdict"] > div::before,
+.timeCards .timeCard[data-asura-time-card="verdict"] [data-asura-coda]::before,
+.wrap .result :global([data-asura-function="verdict"] [data-asura-coda])::before {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--fut-gold) 20%, #fff3cf 55%, rgba(163, 58, 58, 0.8) 90%, transparent);
+  -webkit-mask-size: 120px 100%;
+  mask-size: 120px 100%;
+}
+
+/* ── 卡頭方塊：開啟態染成各卡色 ── */
+.wrap .result :global([data-asura-top-row] [data-asura-tile][aria-expanded="true"]) { box-shadow: none; }
+.wrap .result :global([data-asura-top-row] [data-asura-tile="hits"][aria-expanded="true"]) {
+  border: 2px solid var(--past-gold);
+  background: #120d08;
+  color: #e2c78d;
+}
+.wrap .result :global([data-asura-top-row] [data-asura-tile="hits"][aria-expanded="true"])::before {
+  background-image: var(--a-grain), radial-gradient(100% 60% at 50% 100%, rgba(138, 106, 53, 0.4), transparent 70%), linear-gradient(180deg, #1a130b, #070504);
+  background-size: 120px 120px, auto, auto;
+}
+.wrap .result :global([data-asura-top-row] [data-asura-tile="pillars"][aria-expanded="true"]) {
+  border: 1px solid var(--a-gold-hi);
+  background: #2a1414;
+  color: var(--a-gold-hi);
+}
+.wrap .result :global([data-asura-top-row] [data-asura-tile="pillars"][aria-expanded="true"])::before {
+  background-image: var(--a-grain), radial-gradient(70% 60% at 50% 50%, rgba(160, 36, 36, 0.75), transparent 75%), conic-gradient(from 200deg at 60% 40%, #2b2725, #5a1a1a, #2b2725);
+  background-size: 120px 120px, auto, auto;
+}
+.wrap .result :global([data-asura-top-row] [data-asura-tile="verdict"][aria-expanded="true"]) {
+  border: 1px solid var(--fut-gold);
+  border-bottom-color: #a33a3a;
+  background: #2a2521;
+  color: #fff1c9;
+}
+.wrap .result :global([data-asura-top-row] [data-asura-tile="verdict"][aria-expanded="true"])::before {
+  background-image: var(--a-grain), radial-gradient(100% 60% at 60% 0%, rgba(232, 210, 154, 0.35), transparent 70%), linear-gradient(180deg, #3a332c, #1f1b18);
+  background-size: 120px 120px, auto, auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timeCards.timeCards > .timeCard[data-asura-time-card="pillars"][open] > div,
+  .wrap .result :global([data-asura-function="pillars"]:not([hidden]) > div) { animation: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+ * 三卡分性格 v2：版型、形狀、視覺重量都不同（只改視覺，內容仍全由後端）
+ *   過去＝最重最滿：墨鋪滿、3px 實線粗框、緊 padding 12px、大字、最高 min-height 560px
+ *   現在＝中量：留白可見、斷框（只留兩組角框）、padding 24px、墨暈緩慢流動（減少動態時關閉）、min-height 400px
+ *   未來＝最輕最疏：紙白負空間、重飛白、小而淡的字、padding 32px、框只剩上與左且漸隱（右下開口）、不設 min-height
+ * ════════════════════════════════════════════════════════════════ */
+
+/* ── 過去 ── */
+.timeCards.timeCards > .timeCard[data-asura-time-card="hits"],
+.wrap .result :global([data-asura-function="hits"] > div) {
+  --c-bw: 3px;
+  background:
+    var(--c-corners),
+    radial-gradient(120% 40% at 50% 100%, rgba(138, 106, 53, 0.24), transparent 70%),
+    radial-gradient(140% 90% at 50% 40%, rgba(0, 0, 0, 0.55), transparent 80%),
+    var(--a-grain),
+    var(--a-grain),
+    linear-gradient(180deg, #080605, #020101);
+  background-size: auto, auto, auto, auto, 60px 60px, auto;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.9), inset 0 0 48px rgba(0, 0, 0, 0.85);
+}
+.timeCards.timeCards > .timeCard[data-asura-time-card="hits"] > summary { padding: 12px; min-height: 152px; align-content: center; }
+/* 過去 的最高 min-height 只在有內容時生效：0 印時卡框自然收合 */
+.timeCards.timeCards > .timeCard[data-asura-time-card="hits"][open]:has([data-asura-coda]),
+.wrap .result :global([data-asura-function="hits"] > div:has([data-asura-coda])) { min-height: 560px; }
+.timeCards.timeCards > .timeCard[data-asura-time-card="hits"] > div { padding: 0 12px 12px; gap: 8px; }
+.wrap .result :global([data-asura-function="hits"] > div) { padding: 12px; gap: 8px; }
+.timeCards .timeCard[data-asura-time-card="hits"] .timeNarrative,
+.wrap .result :global([data-asura-function="hits"] [data-asura-narrative]) { gap: 8px; }
+.timeCards .timeCard[data-asura-time-card="hits"] .timeNarrative p,
+.wrap .result :global([data-asura-function="hits"] [data-asura-narrative] p) { font-size: 18px; line-height: 1.75; font-weight: 500; }
+.timeCards .timeCard[data-asura-time-card="hits"] .timeNarrative p:first-child,
+.wrap .result :global([data-asura-function="hits"] [data-asura-narrative] p:first-child) { font-size: 21px; }
+.timeCards .timeCard[data-asura-time-card="hits"] [data-asura-plain-block],
+.wrap .result :global([data-asura-function="hits"] [data-asura-plain-block]) { padding: 12px; background: rgba(0, 0, 0, 0.6); }
+.timeCards .timeCard[data-asura-time-card="hits"] [data-asura-coda],
+.wrap .result :global([data-asura-function="hits"] [data-asura-coda]) { margin-top: 12px; font-size: 21px; }
+
+/* ── 現在 ── */
+.timeCards.timeCards > .timeCard[data-asura-time-card="pillars"],
+.wrap .result :global([data-asura-function="pillars"] > div) {
+  --c-bw: 0px;
+  overflow: hidden;
+  /* 斷框：左上、右下兩組角框，其餘留空 */
+  background:
+    linear-gradient(var(--a-gold), var(--a-gold)) 14px 0 / 38% 1px no-repeat,
+    linear-gradient(var(--a-gold), var(--a-gold)) 0 14px / 1px 34% no-repeat,
+    linear-gradient(var(--a-gold), var(--a-gold)) calc(100% - 14px) 100% / 38% 1px no-repeat,
+    linear-gradient(var(--a-gold), var(--a-gold)) 100% calc(100% - 14px) / 1px 34% no-repeat,
+    var(--c-corners),
+    radial-gradient(70% 45% at 50% 50%, rgba(139, 30, 30, 0.22), transparent 72%),
+    var(--a-grain),
+    linear-gradient(160deg, #1e1c1b, #121110);
+}
+/* 流動墨暈：獨立圖層只做 transform（合成層，手機不重繪） */
+.timeCards.timeCards > .timeCard[data-asura-time-card="pillars"]::before,
+.wrap .result :global([data-asura-function="pillars"] > div)::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -30% -40%;
+  background:
+    radial-gradient(30% 22% at 35% 45%, rgba(139, 30, 30, 0.28), transparent 70%),
+    radial-gradient(26% 18% at 62% 58%, rgba(128, 122, 116, 0.2), transparent 72%),
+    radial-gradient(18% 14% at 50% 35%, rgba(201, 164, 92, 0.08), transparent 70%);
+  animation: asuraNowDrift 14s ease-in-out infinite alternate;
+  will-change: transform;
+  pointer-events: none;
+}
+@keyframes asuraNowDrift {
+  from { transform: translate3d(-6%, 2%, 0) rotate(-4deg); }
+  to { transform: translate3d(6%, -3%, 0) rotate(5deg); }
+}
+.timeCards.timeCards > .timeCard[data-asura-time-card="pillars"] > summary { padding: 20px 24px 12px; min-height: 64px; }
+.timeCards.timeCards > .timeCard[data-asura-time-card="pillars"] > div { padding: 8px 24px 24px; gap: 16px; }
+.wrap .result :global([data-asura-function="pillars"] > div) { padding: 24px; gap: 16px; }
+.timeCards .timeCard[data-asura-time-card="pillars"] .timeNarrative p,
+.wrap .result :global([data-asura-function="pillars"] [data-asura-narrative] p) { font-size: 17px; line-height: 1.95; }
+
+/* ── 未來 ── */
+.timeCards.timeCards > .timeCard[data-asura-time-card="verdict"],
+.wrap .result :global([data-asura-function="verdict"] > div) {
+  --c-bw: 0px;
+  min-height: 0;
+  /* 框只剩上緣與左緣，往右／往下漸隱；右下開口如未完成的畫 */
+  background:
+    linear-gradient(90deg, var(--fut-gold), rgba(232, 210, 154, 0.35) 45%, transparent 80%) 0 0 / 100% 1px no-repeat,
+    linear-gradient(180deg, var(--fut-gold), rgba(232, 210, 154, 0.3) 40%, transparent 75%) 0 0 / 1px 100% no-repeat,
+    var(--c-corners),
+    radial-gradient(90% 40% at 60% 0%, rgba(232, 210, 154, 0.14), transparent 72%),
+    radial-gradient(120% 80% at 70% 60%, rgba(214, 205, 190, 0.07), transparent 70%),
+    linear-gradient(180deg, #2a2622, #221f1c 60%, #1d1a18);
+}
+/* 重飛白：乾筆遮罩疊在上緣與左緣 */
+.timeCards.timeCards > .timeCard[data-asura-time-card="verdict"]::after,
+.wrap .result :global([data-asura-function="verdict"] > div)::after {
+  inset: 0 30% 40% 0;
+  border: 0;
+  border-top: 4px solid var(--fut-gold);
+  border-left: 3px solid var(--fut-gold);
+  -webkit-mask-image: var(--a-dry), linear-gradient(135deg, #000 30%, transparent 85%);
+  mask-image: var(--a-dry), linear-gradient(135deg, #000 30%, transparent 85%);
+  -webkit-mask-size: 90px 100%, 100% 100%;
+  mask-size: 90px 100%, 100% 100%;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  opacity: 0.7;
+}
+.timeCards.timeCards > .timeCard[data-asura-time-card="verdict"] > summary { padding: 16px 32px 8px; min-height: 52px; }
+.timeCards.timeCards > .timeCard[data-asura-time-card="verdict"] > summary strong { font-size: 18px; font-weight: 600; }
+.timeCards.timeCards > .timeCard[data-asura-time-card="verdict"] > div { padding: 8px 32px 32px; gap: 24px; }
+.wrap .result :global([data-asura-function="verdict"] > div) { padding: 32px; gap: 24px; }
+.timeCards .timeCard[data-asura-time-card="verdict"] .timeNarrative,
+.wrap .result :global([data-asura-function="verdict"] [data-asura-narrative]) { gap: 24px; }
+.timeCards .timeCard[data-asura-time-card="verdict"] .timeNarrative p,
+.wrap .result :global([data-asura-function="verdict"] [data-asura-narrative] p) { font-size: 15px; line-height: 2.05; color: #e4dccb; font-weight: 400; letter-spacing: 0.04em; }
+.timeCards .timeCard[data-asura-time-card="verdict"] .timeNarrative p:first-child,
+.wrap .result :global([data-asura-function="verdict"] [data-asura-narrative] p:first-child) { font-size: 17px; font-weight: 600; }
+.timeCards .timeCard[data-asura-time-card="verdict"] [data-asura-plain-block],
+.wrap .result :global([data-asura-function="verdict"] [data-asura-plain-block]) { background: transparent; padding: 12px 0 0; clip-path: none; }
+.timeCards .timeCard[data-asura-time-card="verdict"] [data-asura-coda],
+.wrap .result :global([data-asura-function="verdict"] [data-asura-coda]) { font-size: 17px; font-weight: 600; text-shadow: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .timeCards.timeCards > .timeCard[data-asura-time-card="pillars"]::before,
+  .wrap .result :global([data-asura-function="pillars"] > div)::before { animation: none; }
+}
+
+/* 卡頭橫幅：標題光暈收斂在印的位置（小半徑、少暈開） */
+.wrap .result :global([data-asura-top-row]) {
+  background:
+    radial-gradient(110px 46px at 50% 44px, rgba(230, 196, 122, 0.12), transparent 72%),
+    radial-gradient(70% 90% at 0% 60%, rgba(139, 30, 30, 0.34), transparent 72%),
+    var(--a-grain),
+    linear-gradient(180deg, #120d0c, var(--a-ink));
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+ * 潑墨 v1：墨是「一瞬間摔上紙」— 衝擊墨團（鋸齒爆邊）＋飛濺墨點＋放射甩痕；靜態 SVG，無模糊濾鏡
+ *   過去＝最大最密（三處衝擊、18 點／處、金屑）｜現在＝中（兩處、朱屑）｜未來＝稀（一處小衝擊、幾點）
+ *   墨在字後（背景層），字色不變；金線維持髮絲
+ * ════════════════════════════════════════════════════════════════ */
+.wrap,
+.timeCards {
+  --splat-past: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 600' preserveAspectRatio='none'><g fill='%23000'><path d='M388 120 L383 132 L364 139 L423 178 L353 156 L349 167 L341 178 L325 175 L315 192 L300 183 L289 172 L277 172 L259 178 L251 168 L234 165 L208 164 L230 141 L218 132 L239 120 L246 112 L246 104 L227 85 L241 79 L258 79 L264 69 L283 82 L290 73 L300 34 L313 61 L317 81 L337 67 L330 91 L361 78 L348 97 L345 107 L363 111Z M386 117 L344 124 L339 131 L351 151 L323 136 L322 158 L309 156 L295 157 L294 138 L278 142 L261 139 L270 125 L232 117 L288 112 L257 92 L264 80 L276 70 L303 99 L309 92 L321 79 L332 83 L343 89 L328 108 L355 106Z M327 79 L372 -11 L320 75Z M309 168 L345 289 L316 166Z M264 153 L183 247 L270 159Z M260 91 L135 19 L256 98Z M260 148 L169 234 L266 156Z M300 170 L323 290 L314 168Z M321 164 L394 266 L332 158Z M156 470 L164 479 L140 483 L149 493 L150 504 L130 500 L134 515 L120 513 L113 518 L102 513 L95 521 L87 503 L76 521 L63 526 L56 518 L57 504 L45 504 L44 496 L-14 511 L53 479 L29 478 L-9 470 L33 463 L30 455 L6 437 L49 447 L42 434 L31 409 L58 424 L70 428 L65 378 L87 433 L94 425 L106 414 L117 414 L117 432 L142 416 L132 438 L149 437 L155 444 L163 452 L138 464Z M126 468 L118 477 L109 483 L99 485 L105 506 L87 495 L78 510 L73 484 L57 499 L32 507 L62 476 L56 473 L15 468 L53 463 L59 459 L65 457 L61 444 L68 436 L78 434 L92 427 L100 438 L107 445 L94 461 L112 461Z M85 430 L66 365 L77 431Z M63 501 L5 593 L71 506Z M62 440 L-26 368 L56 447Z M104 432 L133 309 L97 430Z M128 456 L228 408 L126 450Z M49 475 L-48 511 L53 488Z M56 494 L-9 567 L65 503Z M385 520 L352 524 L356 530 L353 534 L343 531 L349 546 L346 559 L333 544 L327 543 L315 558 L317 539 L305 543 L287 545 L311 527 L304 525 L296 520 L303 515 L308 512 L312 509 L306 498 L320 505 L316 485 L328 502 L333 494 L343 486 L340 506 L352 500 L357 504 L350 513 L358 515Z M352 518 L341 521 L346 526 L353 538 L339 532 L335 537 L329 528 L323 536 L317 535 L308 535 L318 523 L304 523 L297 518 L308 513 L318 513 L322 512 L321 507 L323 500 L329 499 L331 511 L335 509 L343 506 L351 507 L339 516Z M310 517 L256 517 L310 522Z M324 501 L309 472 L321 503Z M344 534 L366 549 L347 530Z M311 516 L263 514 L310 520Z M335 539 L351 568 L341 537Z M350 520 L411 515 L349 517Z M347 530 L406 551 L349 525Z'/><circle cx='377' cy='-19' r='5.0'/><circle cx='347' cy='296' r='4.6'/><circle cx='176' cy='254' r='5.4'/><circle cx='127' cy='14' r='5.4'/><circle cx='161' cy='241' r='6.5'/><circle cx='325' cy='306' r='9.2'/><circle cx='402' cy='277' r='8.1'/><circle cx='245' cy='7' r='3.8'/><circle cx='380' cy='157' r='1.3'/><circle cx='177' cy='112' r='5.6'/><circle cx='184' cy='200' r='6.7'/><circle cx='136' cy='128' r='6.8'/><circle cx='402' cy='107' r='3.8'/><circle cx='198' cy='-5' r='1.1'/><circle cx='353' cy='306' r='5.6'/><circle cx='434' cy='173' r='2.3'/><circle cx='422' cy='151' r='4.2'/><circle cx='397' cy='106' r='1.5'/><circle cx='172' cy='155' r='5.5'/><circle cx='72' cy='93' r='4.6'/><circle cx='439' cy='58' r='3.0'/><circle cx='266' cy='190' r='4.6'/><circle cx='384' cy='156' r='2.7'/><circle cx='362' cy='181' r='3.6'/><circle cx='239' cy='177' r='6.9'/><circle cx='64' cy='357' r='5.2'/><circle cx='-1' cy='602' r='6.5'/><circle cx='-33' cy='362' r='5.8'/><circle cx='135' cy='302' r='4.2'/><circle cx='235' cy='405' r='4.5'/><circle cx='-61' cy='516' r='8.6'/><circle cx='-20' cy='577' r='8.4'/><circle cx='145' cy='315' r='3.2'/><circle cx='34' cy='404' r='4.7'/><circle cx='153' cy='353' r='4.6'/><circle cx='132' cy='623' r='6.1'/><circle cx='227' cy='453' r='5.0'/><circle cx='11' cy='613' r='5.4'/><circle cx='43' cy='525' r='3.1'/><circle cx='-69' cy='426' r='3.3'/><circle cx='260' cy='496' r='1.0'/><circle cx='118' cy='396' r='2.5'/><circle cx='111' cy='398' r='1.4'/><circle cx='-71' cy='456' r='5.3'/><circle cx='19' cy='320' r='3.4'/><circle cx='166' cy='448' r='1.8'/><circle cx='-15' cy='455' r='4.7'/><circle cx='2' cy='381' r='5.3'/><circle cx='-12' cy='436' r='2.7'/><circle cx='194' cy='340' r='1.8'/><circle cx='250' cy='517' r='3.1'/><circle cx='308' cy='469' r='2.0'/><circle cx='371' cy='552' r='3.2'/><circle cx='260' cy='513' r='2.2'/><circle cx='354' cy='575' r='4.0'/><circle cx='414' cy='515' r='2.1'/><circle cx='411' cy='553' r='3.0'/><circle cx='335' cy='475' r='2.0'/><circle cx='270' cy='515' r='2.4'/><circle cx='407' cy='525' r='3.1'/><circle cx='356' cy='568' r='2.8'/><circle cx='292' cy='542' r='1.1'/><circle cx='296' cy='518' r='3.2'/><circle cx='355' cy='458' r='3.1'/><circle cx='290' cy='484' r='2.4'/><circle cx='236' cy='518' r='3.0'/><circle cx='325' cy='596' r='2.8'/><circle cx='345' cy='450' r='1.8'/><circle cx='400' cy='475' r='2.6'/><circle cx='339' cy='452' r='1.8'/><circle cx='324' cy='488' r='1.6'/><circle cx='296' cy='526' r='1.6'/><circle cx='284' cy='473' r='1.3'/><circle cx='400' cy='498' r='1.6'/><circle cx='293' cy='471' r='2.2'/></g><g fill='%23a8843f'><circle cx='160' cy='236' r='1.8'/><circle cx='253' cy='-28' r='2.4'/><circle cx='437' cy='140' r='2.0'/><circle cx='295' cy='235' r='0.9'/><circle cx='338' cy='226' r='1.0'/><circle cx='299' cy='291' r='1.7'/><circle cx='122' cy='111' r='1.7'/><circle cx='441' cy='116' r='2.1'/><circle cx='422' cy='183' r='2.0'/><circle cx='467' cy='169' r='1.1'/></g></svg>");
+  --splat-now: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400' preserveAspectRatio='none'><g fill='%23000'><path d='M420 90 L368 98 L369 106 L377 120 L350 114 L349 124 L350 144 L332 129 L322 133 L309 153 L300 138 L292 129 L282 126 L266 125 L278 108 L229 112 L262 95 L275 86 L248 73 L271 69 L281 65 L269 41 L297 58 L299 41 L312 42 L322 61 L330 55 L343 49 L347 59 L354 63 L391 53 L370 74 L362 83Z M347 99 L331 104 L337 113 L340 125 L331 132 L313 116 L308 152 L303 112 L287 129 L281 121 L271 116 L263 109 L274 99 L269 90 L284 88 L265 64 L298 86 L300 74 L308 80 L320 62 L319 82 L331 80 L337 85 L349 90Z M313 126 L318 204 L325 127Z M284 97 L218 127 L288 108Z M339 58 L378 -47 L329 54Z M286 104 L206 160 L292 114Z M300 60 L256 13 L294 64Z M105 330 L90 332 L95 336 L90 338 L87 340 L83 340 L96 356 L83 348 L79 349 L81 370 L72 348 L67 358 L61 363 L59 352 L55 352 L38 363 L52 343 L43 345 L26 347 L43 337 L35 334 L48 330 L53 328 L53 326 L24 312 L48 317 L51 316 L48 307 L56 311 L60 308 L60 293 L68 307 L72 311 L78 302 L81 307 L84 310 L93 306 L96 311 L86 321 L96 320 L91 325 L103 326Z M88 335 L76 337 L74 338 L81 347 L79 351 L73 354 L67 360 L61 353 L57 348 L48 350 L49 343 L52 338 L48 335 L49 331 L55 329 L40 313 L59 323 L63 324 L67 325 L70 326 L73 325 L86 319 L80 328 L77 332Z M88 325 L120 307 L85 320Z M87 337 L121 341 L88 331Z M54 339 L26 363 L57 343Z M88 334 L144 338 L88 329Z M79 314 L89 286 L75 312Z'/><circle cx='318' cy='217' r='7.6'/><circle cx='206' cy='131' r='7.6'/><circle cx='382' cy='-57' r='6.6'/><circle cx='195' cy='166' r='7.3'/><circle cx='250' cy='7' r='4.8'/><circle cx='193' cy='159' r='3.4'/><circle cx='171' cy='49' r='1.2'/><circle cx='252' cy='27' r='3.4'/><circle cx='366' cy='24' r='5.4'/><circle cx='432' cy='141' r='3.4'/><circle cx='332' cy='197' r='3.0'/><circle cx='183' cy='128' r='0.6'/><circle cx='211' cy='180' r='1.3'/><circle cx='378' cy='36' r='4.1'/><circle cx='373' cy='176' r='2.7'/><circle cx='444' cy='150' r='3.0'/><circle cx='126' cy='304' r='3.9'/><circle cx='127' cy='343' r='3.6'/><circle cx='22' cy='366' r='2.9'/><circle cx='149' cy='338' r='3.2'/><circle cx='91' cy='281' r='2.7'/><circle cx='98' cy='390' r='3.3'/><circle cx='40' cy='337' r='2.3'/><circle cx='68' cy='392' r='1.8'/><circle cx='20' cy='388' r='2.4'/><circle cx='151' cy='322' r='2.6'/><circle cx='124' cy='388' r='2.7'/><circle cx='92' cy='285' r='2.7'/><circle cx='120' cy='309' r='2.5'/><circle cx='146' cy='321' r='0.9'/><circle cx='131' cy='336' r='1.2'/><circle cx='21' cy='276' r='2.7'/></g><g fill='%238b1e1e'><circle cx='278' cy='192' r='1.5'/><circle cx='431' cy='22' r='1.7'/><circle cx='260' cy='187' r='1.2'/><circle cx='263' cy='-13' r='1.7'/><circle cx='428' cy='135' r='1.0'/><circle cx='418' cy='41' r='1.3'/></g></svg>");
+  --splat-future: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300' preserveAspectRatio='none'><g fill='%23000'><path d='M357 40 L358 42 L358 45 L369 51 L353 47 L354 51 L361 62 L350 55 L348 56 L346 62 L342 57 L339 49 L334 63 L334 53 L332 51 L322 58 L324 52 L324 49 L320 48 L330 43 L324 42 L326 40 L327 38 L327 37 L325 34 L331 35 L332 34 L327 27 L333 30 L335 30 L335 22 L339 29 L341 30 L345 22 L346 28 L346 32 L355 24 L351 31 L350 35 L359 33 L356 36 L357 38Z M353 43 L355 46 L347 46 L350 50 L347 50 L345 52 L342 57 L340 49 L338 48 L332 51 L335 46 L335 45 L328 43 L332 41 L331 38 L336 39 L335 34 L339 35 L342 32 L345 32 L347 35 L352 35 L353 37 L349 41Z M351 39 L370 33 L351 36Z M346 31 L356 10 L344 30Z M333 31 L318 15 L332 32Z'/><circle cx='374' cy='32' r='2.5'/><circle cx='357' cy='8' r='1.3'/><circle cx='317' cy='13' r='1.2'/><circle cx='303' cy='73' r='2.3'/><circle cx='309' cy='20' r='0.9'/><circle cx='352' cy='4' r='1.1'/><circle cx='325' cy='68' r='2.2'/><circle cx='337' cy='14' r='1.4'/><circle cx='308' cy='26' r='2.3'/><circle cx='360' cy='62' r='2.3'/><circle cx='348' cy='60' r='2.3'/><circle cx='353' cy='22' r='2.1'/></g><g fill='%23d8c08a'><circle cx='348' cy='18' r='1.2'/><circle cx='359' cy='42' r='1.7'/><circle cx='359' cy='34' r='2.2'/><circle cx='310' cy='44' r='1.9'/></g></svg>");
+  --splat-title: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300' preserveAspectRatio='none'><g fill='%23000'><path d='M82 250 L67 255 L82 265 L96 284 L64 271 L57 274 L57 294 L44 281 L37 276 L31 272 L29 266 L23 265 L-8 278 L-1 265 L10 255 L-16 250 L-2 243 L6 237 L-17 216 L23 234 L29 234 L25 211 L36 218 L44 217 L57 208 L62 219 L66 227 L76 229 L81 235 L70 245Z M67 260 L70 266 L58 268 L59 276 L50 274 L45 277 L40 279 L32 282 L33 269 L11 283 L22 268 L16 265 L5 260 L12 253 L23 252 L6 232 L29 245 L34 243 L40 228 L44 246 L52 242 L61 242 L62 249 L55 256Z M48 227 L55 171 L41 226Z M59 236 L87 208 L56 232Z M59 236 L104 188 L55 231Z M52 271 L81 312 L55 269Z M387 30 L391 33 L386 35 L388 38 L391 45 L380 40 L389 61 L377 48 L373 52 L370 43 L366 44 L359 48 L353 48 L361 37 L350 39 L352 35 L346 32 L356 29 L350 25 L347 19 L353 18 L356 15 L364 18 L363 9 L369 11 L373 16 L377 12 L388 0 L388 12 L387 18 L385 23 L387 25 L394 27Z M389 35 L386 38 L390 43 L393 51 L383 49 L376 45 L373 51 L370 42 L364 47 L362 43 L357 42 L365 36 L360 35 L359 32 L367 32 L368 31 L367 27 L371 28 L373 23 L376 26 L377 29 L387 23 L380 31 L389 31Z M367 15 L350 -18 L364 17Z M387 35 L422 40 L387 31Z M367 16 L356 -3 L364 17Z M387 33 L422 36 L387 31Z'/><circle cx='56' cy='163' r='4.9'/><circle cx='91' cy='205' r='3.1'/><circle cx='110' cy='183' r='4.3'/><circle cx='83' cy='316' r='2.4'/><circle cx='-57' cy='246' r='3.9'/><circle cx='-35' cy='216' r='2.1'/><circle cx='-25' cy='269' r='2.8'/><circle cx='20' cy='210' r='3.0'/><circle cx='110' cy='240' r='3.7'/><circle cx='-1' cy='208' r='2.0'/><circle cx='153' cy='241' r='1.7'/><circle cx='-36' cy='268' r='2.6'/><circle cx='-10' cy='256' r='3.9'/><circle cx='-47' cy='310' r='3.4'/><circle cx='349' cy='-21' r='2.2'/><circle cx='425' cy='41' r='2.3'/><circle cx='355' cy='-6' r='1.8'/><circle cx='424' cy='36' r='1.5'/><circle cx='325' cy='22' r='1.4'/><circle cx='398' cy='86' r='1.7'/><circle cx='416' cy='58' r='2.4'/><circle cx='303' cy='34' r='2.6'/><circle cx='360' cy='9' r='1.6'/><circle cx='337' cy='28' r='1.8'/><circle cx='341' cy='-16' r='2.4'/><circle cx='371' cy='-5' r='2.1'/><circle cx='309' cy='30' r='0.9'/><circle cx='399' cy='76' r='2.3'/></g><g fill='%238b1e1e'><circle cx='50' cy='325' r='2.0'/><circle cx='4' cy='203' r='0.9'/><circle cx='49' cy='325' r='2.3'/><circle cx='58' cy='281' r='1.4'/><circle cx='83' cy='233' r='2.3'/></g></svg>");
+}
+.timeCards.timeCards > .timeCard[data-asura-time-card="hits"],
+.wrap .result :global([data-asura-function="hits"] > div) {
+  background:
+    var(--c-corners),
+    var(--splat-past) 0 0 / 100% 100% no-repeat,
+    linear-gradient(90deg, rgba(201, 164, 92, 0) 0%, rgba(201, 164, 92, 0.9) 50%, rgba(201, 164, 92, 0) 100%) 50% calc(100% - 6px) / 70% 1px no-repeat,
+    var(--a-grain),
+    linear-gradient(180deg, #1e1914, #15110d);
+}
+.timeCards.timeCards > .timeCard[data-asura-time-card="pillars"],
+.wrap .result :global([data-asura-function="pillars"] > div) {
+  background:
+    linear-gradient(90deg, var(--a-gold), rgba(201, 164, 92, 0)) 14px 0 / 38% 1px no-repeat,
+    linear-gradient(180deg, var(--a-gold), rgba(201, 164, 92, 0)) 0 14px / 1px 34% no-repeat,
+    linear-gradient(270deg, var(--a-gold), rgba(201, 164, 92, 0)) calc(100% - 14px) 100% / 38% 1px no-repeat,
+    linear-gradient(0deg, var(--a-gold), rgba(201, 164, 92, 0)) 100% calc(100% - 14px) / 1px 34% no-repeat,
+    var(--c-corners),
+    var(--splat-now) 100% 0 / 100% min(100%, 420px) no-repeat,
+    var(--a-grain),
+    linear-gradient(160deg, #24211f, #191715);
+}
+/* 現在：原本的柔和流動暈染改為硬邊——只留極淡朱影，避免糊 */
+.timeCards.timeCards > .timeCard[data-asura-time-card="pillars"]::before,
+.wrap .result :global([data-asura-function="pillars"] > div)::before { opacity: 0.45; }
+.timeCards.timeCards > .timeCard[data-asura-time-card="verdict"],
+.wrap .result :global([data-asura-function="verdict"] > div) {
+  background:
+    linear-gradient(90deg, var(--fut-gold), rgba(232, 210, 154, 0.35) 45%, transparent 80%) 0 0 / 100% 1px no-repeat,
+    linear-gradient(180deg, var(--fut-gold), rgba(232, 210, 154, 0.3) 40%, transparent 75%) 0 0 / 1px 100% no-repeat,
+    var(--c-corners),
+    var(--splat-future) 100% 0 / 100% 300px no-repeat,
+    linear-gradient(180deg, #2c2824, #24211d 60%, #1f1c19);
+}
+/* 卡頭列：兩端角落各一團摔墨（左下大、右上小，不對稱），光暈收成硬邊小點 */
+.wrap .result :global([data-asura-top-row]) {
+  background:
+    var(--splat-title) 0 0 / 100% 100% no-repeat,
+    radial-gradient(56px 30px at 50% 42px, rgba(230, 196, 122, 0.1), transparent 70%),
+    var(--a-grain),
+    linear-gradient(180deg, #1b1612, #0f0c0a);
+}
+
+/* 0 印的卡：內文區是空的 → 收掉內距，只剩卡框與標題列 */
+.timeCards.timeCards > .timeCard > div:empty { padding: 0; min-height: 0; }
+.wrap .result :global([data-asura-function] > div:empty) { padding: 0; min-height: 0; }
+
+
+/* ════════════════════════════════════════════════════════════════
+ * v12：潑墨加強（近黑墨＋暗金／朱紅描邊，墨點、甩痕在暗底上清楚可見）、白話緊接段落、版面平衡與間距
+ * ════════════════════════════════════════════════════════════════ */
+.wrap,
+.timeCards {
+  --splat-past: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 600'><g fill='%23050404' stroke='%239a7638' stroke-width='1.4' stroke-linejoin='miter'><path d='M398 120 L392 132 L371 140 L440 180 L361 158 L358 170 L352 181 L334 179 L328 198 L310 189 L297 179 L285 181 L268 190 L258 180 L239 181 L211 185 L229 157 L214 150 L233 133 L239 124 L237 116 L209 102 L220 92 L238 88 L240 76 L265 85 L268 74 L259 30 L284 55 L298 74 L310 52 L314 79 L338 55 L335 78 L337 88 L357 85 L423 67 L358 104 L386 108Z M356 111 L321 117 L341 134 L329 141 L320 150 L301 137 L292 150 L277 158 L271 142 L234 159 L272 121 L231 125 L223 111 L225 96 L271 101 L270 93 L267 75 L279 71 L292 69 L299 92 L318 74 L348 66 L321 98 L344 100Z M354 133 L470 137 L355 117Z M331 166 L438 262 L345 153Z M330 166 L414 250 L342 156Z M272 168 L243 262 L287 174Z M300 65 L278 -23 L284 67Z M251 95 L101 50 L246 108Z M245 121 L166 135 L246 131Z M338 159 L446 239 L346 150Z M303 65 L289 -53 L290 66Z'/><circle cx='488' cy='138' r='10.5'/><circle cx='452' cy='277' r='12.0'/><circle cx='426' cy='264' r='10.5'/><circle cx='236' cy='279' r='10.4'/><circle cx='275' cy='-40' r='10.5'/><circle cx='87' cy='45' r='8.8'/><circle cx='155' cy='136' r='6.4'/><circle cx='456' cy='248' r='7.9'/><circle cx='288' cy='-69' r='9.1'/><circle cx='447' cy='35' r='5.3'/><circle cx='414' cy='106' r='5.0'/><circle cx='221' cy='60' r='2.8'/><circle cx='299' cy='30' r='4.4'/><circle cx='299' cy='20' r='1.8'/><circle cx='436' cy='155' r='5.4'/><circle cx='398' cy='175' r='4.7'/><circle cx='408' cy='181' r='1.9'/><circle cx='280' cy='-35' r='8.9'/><circle cx='455' cy='51' r='4.0'/><circle cx='464' cy='47' r='1.6'/><circle cx='492' cy='155' r='1.6'/><circle cx='496' cy='156' r='0.6'/><circle cx='256' cy='212' r='1.6'/><circle cx='255' cy='216' r='0.6'/><circle cx='232' cy='184' r='8.8'/><circle cx='478' cy='280' r='3.8'/><circle cx='484' cy='287' r='1.5'/><circle cx='195' cy='135' r='8.1'/><circle cx='476' cy='149' r='1.1'/><circle cx='231' cy='176' r='1.6'/><circle cx='228' cy='179' r='0.6'/><circle cx='403' cy='198' r='4.5'/><circle cx='411' cy='205' r='1.8'/><circle cx='495' cy='47' r='4.8'/><circle cx='505' cy='43' r='1.9'/><circle cx='123' cy='80' r='5.3'/><circle cx='111' cy='77' r='2.1'/><circle cx='383' cy='163' r='8.9'/><circle cx='401' cy='175' r='3.6'/><circle cx='339' cy='-53' r='5.0'/><circle cx='220' cy='194' r='6.1'/><circle cx='304' cy='-9' r='8.7'/><circle cx='304' cy='-30' r='3.5'/></g><g fill='%23c9a45c'><circle cx='307' cy='255' r='1.3'/><circle cx='173' cy='-22' r='2.0'/><circle cx='333' cy='223' r='1.2'/><circle cx='394' cy='68' r='1.1'/><circle cx='180' cy='284' r='1.0'/><circle cx='498' cy='205' r='2.1'/><circle cx='409' cy='214' r='2.3'/><circle cx='364' cy='5' r='1.7'/><circle cx='216' cy='-37' r='2.2'/><circle cx='213' cy='33' r='2.1'/><circle cx='271' cy='281' r='1.9'/><circle cx='275' cy='245' r='1.9'/></g><g fill='%23050404' stroke='%237a1a1a' stroke-width='1.6' stroke-linejoin='miter'><path d='M134 430 L104 434 L131 445 L124 451 L117 456 L107 458 L105 466 L102 475 L95 482 L90 501 L73 463 L67 458 L59 471 L55 461 L48 461 L41 460 L31 459 L24 456 L-22 466 L6 446 L33 435 L2 430 L32 425 L22 418 L19 410 L31 408 L30 400 L29 388 L36 382 L51 391 L49 354 L65 378 L74 383 L93 347 L95 377 L105 381 L103 396 L103 405 L125 399 L145 400 L118 418 L123 423Z M95 430 L95 433 L113 446 L110 456 L88 444 L84 446 L78 456 L68 463 L60 456 L27 471 L63 437 L57 434 L23 430 L44 422 L51 417 L49 405 L66 412 L71 408 L78 395 L84 412 L99 400 L125 391 L97 421 L110 423Z M34 426 L-64 427 L34 432Z M107 428 L194 406 L105 419Z M86 397 L111 307 L77 394Z M62 394 L38 347 L52 398Z M35 443 L-69 514 L42 454Z M62 466 L55 552 L69 467Z'/><circle cx='-71' cy='427' r='4.2'/><circle cx='204' cy='404' r='6.0'/><circle cx='114' cy='296' r='6.4'/><circle cx='34' cy='337' r='6.6'/><circle cx='-82' cy='521' r='8.4'/><circle cx='54' cy='559' r='4.7'/><circle cx='-72' cy='484' r='6.1'/><circle cx='-86' cy='490' r='2.5'/><circle cx='35' cy='495' r='4.5'/><circle cx='174' cy='524' r='1.1'/><circle cx='176' cy='526' r='0.5'/><circle cx='90' cy='549' r='2.8'/><circle cx='91' cy='555' r='1.1'/><circle cx='16' cy='387' r='5.2'/><circle cx='7' cy='378' r='2.1'/><circle cx='-21' cy='425' r='2.1'/><circle cx='-27' cy='465' r='3.4'/><circle cx='116' cy='491' r='4.6'/><circle cx='-87' cy='405' r='4.5'/><circle cx='86' cy='554' r='5.6'/><circle cx='30' cy='507' r='6.3'/><circle cx='24' cy='520' r='2.5'/><circle cx='234' cy='429' r='1.8'/><circle cx='238' cy='429' r='0.7'/><circle cx='56' cy='353' r='1.6'/><circle cx='-65' cy='491' r='1.7'/><circle cx='-68' cy='493' r='0.7'/></g><g fill='%23050404' stroke='%239a7638' stroke-width='1.4' stroke-linejoin='miter'><path d='M378 540 L353 543 L361 547 L351 548 L354 552 L348 552 L353 561 L348 561 L341 559 L335 554 L335 563 L331 567 L326 569 L325 556 L323 555 L319 556 L313 558 L316 551 L299 559 L309 549 L307 547 L294 546 L302 542 L312 539 L297 534 L308 533 L300 527 L291 517 L314 527 L319 528 L314 517 L317 515 L322 513 L325 504 L331 521 L335 515 L343 508 L339 525 L349 517 L354 518 L348 528 L351 529 L358 530 L360 533 L352 537Z M347 546 L332 548 L334 551 L345 563 L331 556 L327 554 L324 561 L321 555 L319 553 L314 554 L315 550 L315 548 L303 546 L305 542 L308 539 L313 537 L317 537 L320 533 L324 524 L326 539 L331 536 L344 529 L343 537 L337 543Z M348 536 L383 518 L346 530Z M343 527 L370 489 L339 524Z M313 546 L274 567 L314 550Z M314 549 L286 572 L317 553Z'/><circle cx='390' cy='516' r='4.3'/><circle cx='373' cy='485' r='3.4'/><circle cx='270' cy='569' r='2.7'/><circle cx='282' cy='576' r='3.3'/><circle cx='284' cy='544' r='3.9'/><circle cx='330' cy='512' r='3.4'/><circle cx='293' cy='506' r='3.1'/><circle cx='288' cy='500' r='1.2'/><circle cx='309' cy='582' r='2.8'/><circle cx='298' cy='599' r='1.7'/><circle cx='330' cy='603' r='1.1'/><circle cx='330' cy='606' r='0.5'/><circle cx='361' cy='474' r='1.4'/><circle cx='332' cy='601' r='1.2'/><circle cx='332' cy='604' r='0.5'/></g></svg>");
+  --splat-past-2: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 600'><g fill='%23050404' stroke='%239a7638' stroke-width='1.4' stroke-linejoin='miter'><path d='M204 380 L173 388 L199 404 L171 406 L164 414 L171 432 L169 450 L150 449 L128 430 L123 467 L108 425 L96 437 L80 446 L68 440 L79 412 L42 429 L44 414 L58 398 L-20 406 L32 385 L17 374 L40 366 L43 357 L31 339 L43 332 L66 335 L85 345 L83 322 L96 325 L107 318 L119 321 L124 341 L134 339 L192 282 L171 328 L161 348 L195 344 L170 363 L183 370Z M158 367 L143 371 L140 376 L169 405 L144 400 L135 408 L121 407 L111 398 L100 396 L88 393 L84 384 L86 374 L56 367 L66 354 L94 354 L58 315 L107 346 L107 324 L121 342 L137 318 L151 324 L183 316 L158 349 L151 360Z M142 418 L224 482 L151 408Z M131 425 L232 558 L145 416Z M90 335 L40 255 L82 340Z M127 334 L146 216 L114 331Z M75 415 L-4 530 L85 423Z M114 331 L99 218 L99 332Z M155 402 L253 422 L159 386Z M85 337 L7 255 L73 347Z'/><circle cx='235' cy='492' r='8.9'/><circle cx='242' cy='574' r='11.1'/><circle cx='35' cy='246' r='6.2'/><circle cx='149' cy='201' r='8.6'/><circle cx='-13' cy='541' r='8.3'/><circle cx='97' cy='202' r='9.4'/><circle cx='271' cy='428' r='11.0'/><circle cx='-4' cy='241' r='10.5'/><circle cx='94' cy='241' r='1.2'/><circle cx='93' cy='238' r='0.5'/><circle cx='277' cy='405' r='3.0'/><circle cx='285' cy='406' r='1.2'/><circle cx='158' cy='507' r='1.4'/><circle cx='66' cy='190' r='2.9'/><circle cx='64' cy='183' r='1.2'/><circle cx='21' cy='415' r='4.0'/><circle cx='12' cy='419' r='1.6'/><circle cx='-110' cy='310' r='5.8'/><circle cx='-123' cy='305' r='2.3'/><circle cx='211' cy='517' r='2.2'/><circle cx='214' cy='521' r='0.9'/><circle cx='203' cy='399' r='4.1'/><circle cx='212' cy='401' r='1.6'/><circle cx='295' cy='303' r='6.3'/><circle cx='308' cy='296' r='2.5'/><circle cx='83' cy='554' r='6.1'/><circle cx='81' cy='568' r='2.5'/><circle cx='21' cy='316' r='5.5'/><circle cx='27' cy='341' r='3.7'/><circle cx='19' cy='337' r='1.5'/><circle cx='16' cy='520' r='6.4'/><circle cx='8' cy='533' r='2.6'/><circle cx='191' cy='525' r='5.8'/><circle cx='196' cy='537' r='2.3'/><circle cx='162' cy='468' r='5.7'/><circle cx='168' cy='480' r='2.3'/><circle cx='275' cy='432' r='4.4'/><circle cx='207' cy='438' r='8.2'/><circle cx='223' cy='449' r='3.3'/><circle cx='221' cy='249' r='3.2'/><circle cx='245' cy='531' r='3.5'/><circle cx='-13' cy='468' r='6.3'/><circle cx='-25' cy='478' r='2.5'/></g><g fill='%23c9a45c'><circle cx='127' cy='306' r='2.1'/><circle cx='-22' cy='467' r='2.1'/><circle cx='-14' cy='363' r='1.0'/><circle cx='221' cy='468' r='1.4'/><circle cx='115' cy='308' r='2.1'/><circle cx='228' cy='288' r='1.2'/><circle cx='-59' cy='405' r='1.1'/><circle cx='-14' cy='384' r='1.4'/></g><g fill='%23050404' stroke='%237a1a1a' stroke-width='1.6' stroke-linejoin='miter'><path d='M377 120 L363 124 L373 132 L383 143 L362 139 L361 146 L352 146 L344 145 L341 151 L336 160 L329 147 L323 147 L309 165 L315 141 L300 150 L281 156 L292 140 L289 134 L299 126 L299 122 L303 118 L286 111 L304 111 L291 100 L304 101 L312 102 L316 100 L310 77 L324 97 L329 94 L335 83 L337 100 L347 90 L364 80 L358 96 L365 99 L362 106 L363 111 L369 115Z M350 118 L344 122 L354 131 L343 131 L340 136 L336 143 L328 149 L321 137 L314 137 L302 139 L316 124 L315 121 L306 118 L315 115 L305 108 L311 104 L312 96 L321 97 L328 85 L336 94 L338 103 L338 109 L345 110 L349 113Z M318 142 L301 185 L322 144Z M313 101 L242 50 L307 108Z M335 95 L341 9 L329 95Z M319 143 L297 226 L326 145Z M320 97 L302 69 L315 99Z'/><circle cx='299' cy='190' r='3.1'/><circle cx='234' cy='44' r='6.0'/><circle cx='341' cy='2' r='4.0'/><circle cx='295' cy='233' r='4.8'/><circle cx='299' cy='64' r='3.6'/><circle cx='230' cy='129' r='4.4'/><circle cx='291' cy='173' r='4.5'/><circle cx='272' cy='125' r='3.6'/><circle cx='290' cy='160' r='2.6'/><circle cx='390' cy='172' r='4.9'/><circle cx='329' cy='185' r='1.4'/><circle cx='292' cy='84' r='3.2'/><circle cx='265' cy='91' r='2.3'/><circle cx='260' cy='88' r='0.9'/><circle cx='399' cy='119' r='3.1'/><circle cx='407' cy='119' r='1.2'/><circle cx='365' cy='176' r='1.8'/><circle cx='367' cy='180' r='0.7'/></g></svg>");
+  --splat-now: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><g fill='%23050404' stroke='%238b1e1e' stroke-width='1.6' stroke-linejoin='miter'><path d='M415 80 L371 86 L372 93 L380 104 L357 99 L357 107 L361 124 L344 112 L338 116 L330 134 L321 123 L314 116 L306 115 L292 117 L300 101 L260 113 L284 94 L292 85 L267 80 L284 73 L290 68 L273 53 L300 60 L295 46 L305 44 L320 57 L324 50 L330 42 L337 49 L344 49 L366 29 L359 51 L358 61 L358 67 L377 66 L383 72Z M361 81 L360 89 L338 88 L361 112 L330 91 L332 109 L323 107 L314 108 L304 108 L304 97 L295 95 L302 86 L273 81 L308 78 L301 71 L310 71 L304 54 L318 66 L323 59 L330 59 L340 57 L353 57 L345 71 L345 76Z M357 65 L430 0 L351 57Z M323 50 L292 -12 L314 53Z M348 55 L385 -21 L342 51Z M317 108 L302 175 L326 111Z'/><circle cx='439' cy='-7' r='7.0'/><circle cx='288' cy='-22' r='6.2'/><circle cx='389' cy='-28' r='4.4'/><circle cx='299' cy='186' r='6.5'/><circle cx='231' cy='48' r='5.1'/><circle cx='219' cy='44' r='2.0'/><circle cx='272' cy='27' r='3.7'/><circle cx='332' cy='203' r='1.4'/><circle cx='257' cy='63' r='3.7'/><circle cx='248' cy='61' r='1.5'/><circle cx='214' cy='112' r='1.0'/><circle cx='211' cy='113' r='0.4'/><circle cx='345' cy='25' r='5.3'/><circle cx='348' cy='13' r='2.1'/><circle cx='301' cy='26' r='3.2'/><circle cx='298' cy='19' r='1.3'/><circle cx='435' cy='130' r='3.4'/><circle cx='227' cy='58' r='3.6'/><circle cx='218' cy='56' r='1.4'/><circle cx='379' cy='49' r='5.3'/></g><g fill='%23b22a2a'><circle cx='224' cy='82' r='1.9'/><circle cx='277' cy='39' r='1.4'/><circle cx='290' cy='135' r='2.3'/><circle cx='290' cy='143' r='1.5'/><circle cx='363' cy='5' r='1.7'/><circle cx='328' cy='146' r='1.0'/></g><g fill='%23050404' stroke='%238b1e1e' stroke-width='1.4'><path d='M321 64 L300 79 L276 90 L257 108 L238 126 L215 138 L196 155 L174 166 L153 179 L132 190 L112 205 L91 215 L71 228 L50 238 L30 250 L30 250 L53 244 L75 235 L97 227 L119 217 L143 210 L163 197 L187 189 L208 176 L231 166 L252 151 L273 136 L299 130 L320 114 L339 96Z'/><circle cx='3' cy='261' r='1.0'/><circle cx='86' cy='220' r='2.0'/><circle cx='70' cy='237' r='2.8'/><circle cx='101' cy='206' r='1.3'/><circle cx='254' cy='120' r='1.9'/><circle cx='183' cy='166' r='2.9'/><circle cx='142' cy='189' r='2.6'/><circle cx='1' cy='276' r='3.2'/><circle cx='-20' cy='269' r='2.7'/><circle cx='20' cy='245' r='2.6'/><circle cx='55' cy='227' r='1.9'/><circle cx='248' cy='121' r='2.8'/></g></svg>");
+  --splat-future: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'><g fill='%23050404' stroke='%23d8c08a' stroke-width='1.1' stroke-linejoin='miter'><path d='M360 34 L360 35 L360 36 L366 40 L357 38 L358 40 L363 46 L357 42 L355 43 L355 46 L352 43 L350 39 L348 47 L348 42 L347 41 L342 45 L343 42 L342 40 L340 40 L345 36 L341 37 L342 35 L343 34 L342 34 L341 32 L344 32 L345 32 L340 28 L344 30 L346 29 L344 25 L347 28 L348 28 L349 23 L350 27 L351 29 L354 23 L354 28 L354 29 L358 27 L357 29 L358 30 L359 31 L357 32 L356 33Z M354 36 L354 37 L353 38 L354 41 L352 41 L349 39 L348 41 L347 39 L346 39 L343 40 L343 38 L343 37 L338 36 L341 34 L343 34 L343 32 L345 31 L347 31 L348 30 L350 30 L350 33 L357 29 L354 33 L353 35Z M351 40 L357 57 L352 40Z M354 39 L365 47 L356 37Z'/><circle cx='357' cy='58' r='1.0'/><circle cx='367' cy='49' r='1.5'/><circle cx='370' cy='24' r='1.8'/><circle cx='373' cy='22' r='0.7'/><circle cx='357' cy='14' r='1.4'/><circle cx='358' cy='10' r='0.6'/><circle cx='322' cy='35' r='2.0'/><circle cx='317' cy='36' r='0.8'/></g><g fill='%23050404' stroke='%23d8c08a' stroke-width='1.1' stroke-linejoin='miter'><path d='M308 90 L303 90 L305 91 L304 92 L303 92 L303 92 L304 95 L302 94 L301 93 L301 97 L300 93 L299 92 L297 96 L297 94 L298 92 L297 93 L297 92 L297 91 L292 92 L295 90 L294 90 L295 89 L296 89 L296 88 L296 87 L298 88 L298 87 L298 85 L299 86 L300 86 L301 84 L301 87 L301 87 L302 88 L304 87 L304 88 L307 87 L303 89 L305 89Z M304 89 L302 90 L301 90 L303 93 L301 91 L300 92 L299 92 L299 91 L298 92 L296 92 L296 91 L296 90 L296 89 L297 89 L297 88 L296 87 L298 87 L299 88 L299 86 L300 87 L300 88 L301 88 L301 89 L301 89Z M302 88 L309 80 L302 87Z M299 87 L296 84 L298 88Z'/><circle cx='310' cy='79' r='0.7'/><circle cx='295' cy='83' r='0.5'/><circle cx='303' cy='86' r='1.5'/><circle cx='300' cy='98' r='1.6'/><circle cx='308' cy='99' r='1.1'/><circle cx='309' cy='101' r='0.4'/></g><g fill='%23050404' stroke='%23d8c08a' stroke-width='1.1' stroke-linejoin='miter'><path d='M378 120 L375 120 L375 121 L376 122 L375 122 L374 122 L374 123 L373 123 L373 123 L372 124 L371 123 L371 122 L369 124 L370 122 L369 122 L368 122 L369 121 L370 120 L368 120 L370 120 L370 119 L368 118 L370 118 L369 117 L370 117 L371 118 L372 118 L372 117 L373 117 L373 117 L374 118 L375 117 L374 118 L374 119 L374 119 L374 120Z M375 120 L374 120 L375 121 L374 121 L374 121 L373 121 L373 121 L372 121 L372 120 L371 121 L371 120 L371 120 L372 120 L370 119 L371 119 L370 118 L372 118 L372 118 L373 118 L373 118 L373 119 L376 117 L374 119 L375 119Z M371 122 L369 126 L371 122Z M373 118 L377 111 L373 118Z'/><circle cx='369' cy='127' r='0.4'/><circle cx='378' cy='111' r='0.4'/><circle cx='373' cy='117' r='1.3'/><circle cx='374' cy='114' r='0.5'/><circle cx='371' cy='114' r='1.0'/><circle cx='369' cy='123' r='1.7'/></g></svg>");
+}
+.timeCards.timeCards > .timeCard[data-asura-time-card="hits"],
+.wrap .result :global([data-asura-function="hits"] > div) {
+  background:
+    var(--c-corners),
+    var(--splat-past) 0 0 / 100% auto no-repeat,
+    var(--splat-past-2) 0 100% / 100% auto no-repeat,
+    linear-gradient(90deg, rgba(201, 164, 92, 0) 0%, rgba(201, 164, 92, 0.9) 50%, rgba(201, 164, 92, 0) 100%) 50% calc(100% - 6px) / 70% 1px no-repeat,
+    var(--a-grain),
+    linear-gradient(180deg, #221c16, #18130f);
+}
+.timeCards.timeCards > .timeCard[data-asura-time-card="pillars"],
+.wrap .result :global([data-asura-function="pillars"] > div) {
+  background:
+    linear-gradient(90deg, var(--a-gold), rgba(201, 164, 92, 0)) 14px 0 / 38% 1px no-repeat,
+    linear-gradient(180deg, var(--a-gold), rgba(201, 164, 92, 0)) 0 14px / 1px 34% no-repeat,
+    linear-gradient(270deg, var(--a-gold), rgba(201, 164, 92, 0)) calc(100% - 14px) 100% / 38% 1px no-repeat,
+    linear-gradient(0deg, var(--a-gold), rgba(201, 164, 92, 0)) 100% calc(100% - 14px) / 1px 34% no-repeat,
+    var(--c-corners),
+    var(--splat-now) 100% 0 / 100% auto no-repeat,
+    var(--a-grain),
+    linear-gradient(160deg, #26231f, #1b1916);
+}
+.timeCards.timeCards > .timeCard[data-asura-time-card="verdict"],
+.wrap .result :global([data-asura-function="verdict"] > div) {
+  background:
+    linear-gradient(90deg, var(--fut-gold), rgba(232, 210, 154, 0.35) 45%, transparent 80%) 0 0 / 100% 1px no-repeat,
+    linear-gradient(180deg, var(--fut-gold), rgba(232, 210, 154, 0.3) 40%, transparent 75%) 0 0 / 1px 100% no-repeat,
+    var(--c-corners),
+    var(--splat-future) 100% 0 / 100% auto no-repeat,
+    linear-gradient(180deg, #2c2824, #24211d 60%, #1f1c19);
+}
+
+/* 現在：打開時保有中等高度（空卡也只剩卡框＋潑墨，不出字）；過去 560 > 現在 440 > 未來 不設 */
+.timeCards.timeCards > .timeCard[data-asura-time-card="pillars"][open],
+.wrap .result :global([data-asura-function="pillars"] > div) { min-height: 440px; }
+
+/* 白話緊接段落：小一級、退一階，讓主文順下去 */
+.timePlainLine {
+  margin: -4px 0 4px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(201, 164, 92, 0.45);
+  color: #cfc4b6;
+  font-family: system-ui, -apple-system, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+  font-size: 13.5px;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+}
+.timePlainLine strong { margin-right: 6px; color: var(--a-gold); font-weight: 600; }
+.timePlainLine .timePlainTag { margin-right: 6px; padding: 0 4px; font-size: 11px; line-height: 16px; }
+.timeCards .timeCard[data-asura-time-card="verdict"] .timePlainLine { border-left-color: rgba(232, 210, 154, 0.35); font-size: 13px; }
+
+/* 三張時間軸卡之間各自留白（潑墨外溢不相撞） */
+@media (max-width: 640px) {
+  .timeCards.timeCards { row-gap: 48px; gap: 48px; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+ * 比例規則（手機直疊；取代三卡的固定 px 間距／高度）
+ *   收合：過去 : 現在 : 未來 ＝ 4 : 3 : 3（單位 u ＝ 12vw）；兩道間距合計 ≈ 堆疊總高 10%（g ＝ 5u/9 ≈ 6.67vw）
+ *   展開：min-height 同為 4 : 3 : 3（單位 U ＝ 36vw）；內容可再長，空的「現在」就停在 min-height
+ *   左右內距按 vw：過去 3vw／現在 6vw／未來 8vw
+ * ════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .timeCards.timeCards { --u: 12vw; --U: 36vw; row-gap: calc(var(--u) * 5 / 9); gap: calc(var(--u) * 5 / 9); }
+  .timeCards.timeCards > .timeCard > summary { box-sizing: border-box; align-content: center; }
+  .timeCards.timeCards > .timeCard[data-asura-time-card="hits"]:not([open]) > summary { min-height: calc(var(--u) * 4 - 6px); }
+  .timeCards.timeCards > .timeCard[data-asura-time-card="pillars"]:not([open]) > summary { min-height: calc(var(--u) * 3); }
+  .timeCards.timeCards > .timeCard[data-asura-time-card="verdict"]:not([open]) > summary { min-height: calc(var(--u) * 3); }
+  .timeCards.timeCards > .timeCard[data-asura-time-card="hits"][open],
+  .timeCards.timeCards > .timeCard[data-asura-time-card="hits"][open]:has([data-asura-coda]) { min-height: calc(var(--U) * 4); }
+  .timeCards.timeCards > .timeCard[data-asura-time-card="pillars"][open] { min-height: calc(var(--U) * 3); }
+  .timeCards.timeCards > .timeCard[data-asura-time-card="verdict"][open] { min-height: calc(var(--U) * 3); }
+  .timeCards.timeCards > .timeCard[data-asura-time-card="hits"] > summary { padding-left: 3vw; padding-right: 3vw; }
+  .timeCards.timeCards > .timeCard[data-asura-time-card="hits"] > div { padding-left: 3vw; padding-right: 3vw; }
+  .timeCards.timeCards > .timeCard[data-asura-time-card="pillars"] > summary { padding-left: 6vw; padding-right: 6vw; }
+  .timeCards.timeCards > .timeCard[data-asura-time-card="pillars"] > div { padding-left: 6vw; padding-right: 6vw; }
+  .timeCards.timeCards > .timeCard[data-asura-time-card="verdict"] > summary { padding-left: 8vw; padding-right: 8vw; }
+  .timeCards.timeCards > .timeCard[data-asura-time-card="verdict"] > div { padding-left: 8vw; padding-right: 8vw; }
+  .timeCards.timeCards > .timeCard > div:empty { padding: 0; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+ * 最終修飾：刃口外形、標題氣勢、白話／收句分層、內部留白節奏（8／16／24／32）
+ * ════════════════════════════════════════════════════════════════ */
+/* (1) 刃口：過去＝兩道 V 形缺刻（左右錯位，重刀）；現在＝右上一道長斜刃（劍尖）；未來＝上緣一道細缺口＋原右上大斜角 */
+.timeCards.timeCards > .timeCard[data-asura-time-card="hits"],
+.wrap .result :global([data-asura-function="hits"] > div) {
+  clip-path: polygon(8px 0, 100% 0, 100% 36%, calc(100% - 7px) 38.5%, 100% 41%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 72%, 7px 69.5%, 0 67%, 0 8px);
+}
+.timeCards.timeCards > .timeCard[data-asura-time-card="pillars"],
+.wrap .result :global([data-asura-function="pillars"] > div) {
+  clip-path: polygon(14px 0, calc(100% - 56px) 0, 100% 12px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+.timeCards.timeCards > .timeCard[data-asura-time-card="verdict"],
+.wrap .result :global([data-asura-function="verdict"] > div) {
+  clip-path: polygon(0 0, 28% 0, calc(28% + 5px) 5px, calc(28% + 10px) 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+
+/* (2) 標題：厚重襯線、加寬字距；重量依 過去 > 現在 > 未來 */
+.timeCards.timeCards > .timeCard > summary strong {
+  font-family: "Noto Serif TC", "Songti TC", "PMingLiU", var(--asura-kai, serif), serif;
+  letter-spacing: 0.1em;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.85);
+}
+.timeCards.timeCards > .timeCard[data-asura-time-card="hits"] > summary strong { font-size: 24px; font-weight: 900; }
+.timeCards.timeCards > .timeCard[data-asura-time-card="pillars"] > summary strong { font-size: 22px; font-weight: 800; }
+.timeCards.timeCards > .timeCard[data-asura-time-card="verdict"] > summary strong { font-size: 20px; font-weight: 700; letter-spacing: 0.12em; }
+
+/* (4) 節奏：段距 16（未來 24）；白話貼在所屬段落下 8；開場句後多 8；收句前 32 */
+.timeCards .timeCard[data-asura-time-card="hits"] [data-asura-interleaved],
+.timeCards .timeCard[data-asura-time-card="pillars"] [data-asura-interleaved],
+.wrap .result :global([data-asura-function="hits"] [data-asura-interleaved]),
+.wrap .result :global([data-asura-function="pillars"] [data-asura-interleaved]) { gap: 16px; }
+.timeCards .timeCard[data-asura-time-card="verdict"] [data-asura-interleaved],
+.wrap .result :global([data-asura-function="verdict"] [data-asura-interleaved]) { gap: 24px; }
+.timeCards [data-asura-interleaved] > p:first-child,
+.wrap .result :global([data-asura-interleaved] > p:first-child) { margin-bottom: 8px; }
+/* (3) 白話：小一級、灰金、細左線縮排，緊貼段落 */
+.timeCards [data-asura-interleaved] > [data-asura-plain],
+.wrap .result :global([data-asura-interleaved] > [data-asura-plain]) {
+  margin: -8px 0 0;
+  padding: 2px 0 2px 12px;
+  border-left: 1px solid rgba(201, 164, 92, 0.5);
+  color: #bfb4a6;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.timeCards .timeCard[data-asura-time-card="verdict"] [data-asura-interleaved] > [data-asura-plain],
+.wrap .result :global([data-asura-function="verdict"] [data-asura-interleaved] > [data-asura-plain]) { margin-top: -16px; }
+.timeCards [data-asura-interleaved] > [data-asura-plain] + [data-asura-plain],
+.wrap .result :global([data-asura-interleaved] > [data-asura-plain] + [data-asura-plain]) { margin-top: -12px; }
+/* 收句：獨立一塊，上方一道乾筆金線，前留 32 */
+.timeCards .timeCard [data-asura-coda],
+.wrap .result :global([data-asura-function] [data-asura-coda]) {
+  position: relative;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 0;
+}
+.timeCards .timeCard [data-asura-coda]::before,
+.wrap .result :global([data-asura-function] [data-asura-coda])::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 18%;
+  top: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--a-gold-hi), var(--a-gold) 55%, rgba(201, 164, 92, 0));
+  -webkit-mask-image: var(--a-dry);
+  mask-image: var(--a-dry);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  opacity: 1;
+}

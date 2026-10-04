@@ -2,9 +2,9 @@
  * 鬼魅阿修羅 — 獨立解盤頁客戶端（080-16）
  *
  * 流程：UnifiedBirthForm → POST /api/ghost-asura/reading
- * （後端：排盤 → buildGhostAsuraReading → 分組／篩選／排序 → 顯示文字契約）→ GhostAsuraCard 照印
+ * （後端：既有排盤 → 既有阿修羅管線 → 顯示文字契約）→ GhostAsuraCard 照印
  *
- * 八字與神煞只在後端算；本頁不引用任何命理引擎或阿修羅管線，只顯示後端回傳的文字。
+ * 八字與神煞只在後端算；本頁不呼叫命理引擎或阿修羅管線，只顯示後端回傳的文字。
  */
 
 'use client';

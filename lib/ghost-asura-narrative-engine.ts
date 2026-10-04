@@ -8,13 +8,13 @@
  * - 與洋蔥心理學、易經融會貫通
  */
 
-import { BaziCore } from './bazi/types';
+import { BaziProfessionalResult } from './bazi/engine';
 import { ZiweiChart } from './types/ghost-asura-response';
 
 /** 話術生成上下文 */
 interface NarrativeContext {
   userName: string;
-  bazi: BaziCore;
+  bazi: BaziProfessionalResult;
   ziwei?: ZiweiChart;
   shensha?: any;
   iching?: any;
@@ -29,10 +29,11 @@ interface NarrativeContext {
  * 3. 融合十神與五行關係
  * 4. 生成個性分析 + 人生建議
  */
-export function generateBaziNarrative(bazi: BaziCore, userName: string): string {
+export function generateBaziNarrative(bazi: BaziProfessionalResult, userName: string): string {
   // 提取日主
-  const dayStem = bazi.day.charAt(0); // 日天干
-  const dayBranch = bazi.day.charAt(1); // 日地支
+  const dayPillar = bazi.pillars.day;
+  const dayStem = dayPillar.stem;
+  const dayBranch = dayPillar.branch;
 
   // 簡化版本（生產環境應更詳細）
   const stemCharacter: Record<string, string> = {
@@ -49,8 +50,10 @@ export function generateBaziNarrative(bazi: BaziCore, userName: string): string 
   };
 
   const character = stemCharacter[dayStem] || '個性獨特的靈魂';
+  const yearPillar = bazi.pillars.year;
+  const monthPillar = bazi.pillars.month;
 
-  return `${userName}，根據你的八字 ${bazi.year}${bazi.month}${bazi.day}${bazi.hour}，你是一個${character}。
+  return `${userName}，根據你的八字 ${yearPillar.stem}${yearPillar.branch} ${monthPillar.stem}${monthPillar.branch} ${dayStem}${dayBranch}，你是一個${character}。
 
 你的日主是${dayStem}${dayBranch}，這代表你的內在核心力量。在這個組合中，五行元素相互作用，形成了你獨特的性格特質和人生軌跡。
 
@@ -65,7 +68,7 @@ export function generateBaziNarrative(bazi: BaziCore, userName: string): string 
 export function generateZiweiNarrative(
   ziwei: ZiweiChart,
   userName: string,
-  bazi: BaziCore
+  bazi: BaziProfessionalResult
 ): string {
   return `${userName}，你的紫微命盤進一步揭示了命運的層次。
 

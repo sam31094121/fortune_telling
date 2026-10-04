@@ -24,11 +24,14 @@ const COPY = {
   },
   en: {
     label: '28 Lunar Mansions · Four Symbols Collection',
+    badge: '60 Species',
     title: 'Star Mansion Divine Beast Cards',
+    subtitle: 'This month\'s guardian',
     desc: "28 adult forms, 28 young forms, and 4 Four Symbols guardians, 60 divine beasts in all. Browse the cards and meet each one's guardian traits.",
     chips: ['Free to browse', '60 to explore', 'Look before you play'],
     cta: 'View all 60 beasts',
     chipsLabel: 'Verifiable promises',
+    time: '1 minute',
   },
 } as const;
 

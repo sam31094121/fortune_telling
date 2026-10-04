@@ -83,7 +83,7 @@ async function calculateGhostAsuraCard(
       name: input.name,
       birthDate: input.birthDate,
       birthTime: input.birthTime,
-      gender: input.gender,
+      gender: (input.gender as '男' | '女' | '其他' | undefined) || undefined,
     },
 
     bazi: {
@@ -95,7 +95,7 @@ async function calculateGhostAsuraCard(
         palaces: mockZiweiPalaces,
       },
       verification: {
-        status: 'VERIFIED',
+        status: 'VERIFIED' as const,
       },
     },
 
