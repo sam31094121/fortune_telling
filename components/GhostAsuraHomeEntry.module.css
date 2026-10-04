@@ -1,0 +1,65 @@
+.entry.entry {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  padding: 24px !important;
+  min-width: 0;
+  border: 1px solid #95636b;
+  border-radius: 24px;
+  background: linear-gradient(115deg, #25151d, #17131d 75%);
+  color: #f5eae3;
+  text-align: left;
+  box-shadow: 0 8px 24px #14070d33 !important;
+  overflow: hidden;
+}
+.entry.entry::before, .entry.entry::after { display: none !important; }
+.content { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.emblem {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid #a27670;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #4b2830, #271d27);
+  color: #f1cba9;
+  font-family: serif;
+  font-size: 27px;
+  font-weight: 700;
+}
+.copy { min-width: 0; flex: 1; }
+.eyebrow { display: block; color: #d3b29c; font-size: 11px; line-height: 1.7; letter-spacing: .1em; }
+.entry.entry h2 { margin: 5px 0 8px; font-size: 36px; line-height: 1.25; }
+.entry.entry p { display: block; margin: 0; color: #cbb9b8; font-size: 13px !important; line-height: 1.7 !important; overflow: visible; -webkit-line-clamp: unset !important; }
+.entry.entry .impression { margin-top: 4px; color: #ddb6ad; font-size: 12px !important; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.meta > span { padding: 2px 9px; border: 1px solid #73505a; border-radius: 99px; font-size: 11px; color: #d8bcb1; }
+.entry.entry .cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  width: 100%;
+  padding: 10px 16px;
+  border: 1px solid #976a67;
+  border-radius: 12px;
+  background: #37222b;
+  color: #f1d0b7;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.entry.entry:focus-visible { outline: 2px solid #e5bd91; outline-offset: 4px; }
+@media (hover: hover) {
+  .entry.entry:hover { border-color: #e5bd91; }
+  .entry.entry:hover .cta { background: #4a2d35; }
+}
+@media (max-width: 639px) {
+  .entry.entry { padding: 16px !important; gap: 12px !important; }
+  .content { align-items: flex-start; gap: 14px; }
+  .emblem { width: 48px; height: 48px; border-radius: 13px; font-size: 24px; }
+  .entry.entry h2 { font-size: 30px !important; line-height: 1.3 !important; }
+}

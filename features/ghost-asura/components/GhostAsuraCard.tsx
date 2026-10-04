@@ -10,6 +10,10 @@ import styles from './GhostAsuraCard.module.css';
 
 export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
   const failed = reading.guard.status === 'FAILED';
+  const pillarHitCount = (label: string) => reading.items.filter(item =>
+    item.sealStatus === 'awakened' && item.pillarLabels.includes(label)).length;
+  const pillarLead = (label: string) => reading.items.find(item =>
+    item.sealStatus === 'awakened' && item.pillarLabels.includes(label))?.displayName ?? '暫無命中';
 
   return (
     <section
@@ -21,6 +25,7 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
       data-item-count={reading.items.length}
     >
       <header className={styles.header}>
+        <span className={styles.crest} aria-hidden="true">修羅</span>
         <h2 className={styles.title}>{reading.cardTitle}</h2>
         <p className={styles.subtitle}>
           {GHOST_ASURA_UI.natalAsura}｜{GHOST_ASURA_UI.battleField}｜
@@ -28,53 +33,42 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
         </p>
       </header>
 
-      {/* 四柱表格（年月日時）— 水平四列排列 */}
+      <p className={styles.scrollHint}>左右滑動查看四柱，印記依柱對齊。</p>
+      <div
+        className={styles.pillarScroll}
+        role="region"
+        aria-label="四柱與所屬印記，可左右捲動"
+        tabIndex={0}
+        data-asura-pillar-scroll
+      >
+      <div className={styles.pillarReadingGrid} data-asura-pillar-grid>
+      {/* 柱頭與各柱印記共用四欄格線；標語和統計另置於列表下方。 */}
       <div className={styles.pillarsTable}>
-        <div className={styles.pillarColumn}>
+        <div className={styles.pillarColumn} data-asura-pillar-head="year">
           <div className={styles.pillarLabel}>年柱</div>
-          <div className={styles.pillarValue}>{reading.pillars.year}</div>
+          <div className={styles.pillarValue} data-asura-leading>{pillarLead('祖域（年柱）')}</div>
+          <small className={styles.pillarCount}>共 {pillarHitCount('祖域（年柱）')} 枚印記</small>
         </div>
-        <div className={styles.pillarColumn}>
+        <div className={styles.pillarColumn} data-asura-pillar-head="month">
           <div className={styles.pillarLabel}>月柱</div>
-          <div className={styles.pillarValue}>{reading.pillars.month}</div>
+          <div className={styles.pillarValue} data-asura-leading>{pillarLead('命境（月柱）')}</div>
+          <small className={styles.pillarCount}>共 {pillarHitCount('命境（月柱）')} 枚印記</small>
         </div>
-        <div className={styles.pillarColumn}>
+        <div className={styles.pillarColumn} data-asura-pillar-head="day">
           <div className={styles.pillarLabel}>日柱</div>
-          <div className={styles.pillarValue}>{reading.pillars.day}</div>
+          <div className={styles.pillarValue} data-asura-leading>{pillarLead('本魂（日柱）')}</div>
+          <small className={styles.pillarCount}>共 {pillarHitCount('本魂（日柱）')} 枚印記</small>
         </div>
-        <div className={styles.pillarColumn}>
+        <div className={styles.pillarColumn} data-asura-pillar-head="hour">
           <div className={styles.pillarLabel}>時柱</div>
-          <div className={styles.pillarValue}>{reading.pillars.hour}</div>
+          <div className={styles.pillarValue} data-asura-leading>{pillarLead('後界（時柱）')}</div>
+          <small className={styles.pillarCount}>共 {pillarHitCount('後界（時柱）')} 枚印記</small>
         </div>
-      </div>
-
-      <div className={styles.banner}>
-        別人還沒看見風暴，阿修羅先看見。
-        <br />
-        命盤是戰場，不是保護區。你已經站上去了。
-      </div>
-
-      <div className={styles.stats}>
-        <span>
-          <b>{reading.items.length}</b> 項印記
-        </span>
-        <span>
-          <b style={{ color: '#fca5a5' }}>{reading.awakenedCount}</b>{' '}
-          {GHOST_ASURA_UI.sealAwakened}
-        </span>
-        <span>
-          <b>{reading.dormantCount}</b> {GHOST_ASURA_UI.sealDormant}
-        </span>
-        <span>
-          <b style={{ color: '#fde68a' }}>{reading.pendingCount}</b>{' '}
-          {GHOST_ASURA_UI.sealPending}
-        </span>
       </div>
 
       {failed && (
         <div className={styles.failed} role="alert" data-guard="failed">
           {GHOST_ASURA_UI.incompleteBanner}
-          <div>{reading.guard.message}</div>
           {reading.pendingEntries.length > 0 && (
             <div>
               待補 {reading.pendingEntries.length} 筆：
@@ -97,9 +91,12 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
           '後界（時柱）',
         ];
         const pillarNames = ['年柱', '月柱', '日柱', '時柱'];
+        const pillarKeys = ['year', 'month', 'day', 'hour'];
         const groupedByPillar = new Map<string, typeof reading.items>();
 
         reading.items.forEach((item) => {
+          // 客戶列表只顯示後端已命中的印記；統計仍使用完整 reading，不改判定。
+          if (item.sealStatus !== 'awakened') return;
           if (item.pillarLabels.length === 0) return;
           item.pillarLabels.forEach((pillar) => {
             if (!groupedByPillar.has(pillar)) {
@@ -113,12 +110,19 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
           <>
             {pillarOrder.map((fullLabel, idx) => {
               const itemsForPillar = groupedByPillar.get(fullLabel) || [];
-              if (itemsForPillar.length === 0) return null;
 
               return (
-                <div key={fullLabel} className={styles.pillarGroup}>
-                  <h3 className={styles.pillarGroupTitle}>{pillarNames[idx]}</h3>
-                  <ul className={styles.list} data-asura-list={pillarNames[idx]}>
+                <div
+                  key={fullLabel}
+                  className={styles.pillarGroup}
+                  role="group"
+                  aria-label={`${pillarNames[idx]}印記`}
+                  data-asura-column={pillarKeys[idx]}
+                >
+                  {itemsForPillar.length === 0 && (
+                    <p className={styles.pillarEmpty} aria-label={`${pillarNames[idx]}目前沒有對應印記`}>—</p>
+                  )}
+                  <ul className={styles.list} aria-label={`${pillarNames[idx]}印記`} data-asura-list={pillarNames[idx]}>
                     {itemsForPillar.map((item) => {
                       const itemClass =
                         item.sealStatus === 'awakened'
@@ -141,10 +145,12 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
                           data-seal-status={item.sealStatus}
                           data-display-name={item.displayName}
                         >
-                          <div className={styles.itemHead}>
+                          <details className={styles.itemDetail} data-asura-detail>
+                          <summary className={styles.itemHead}>
                             <strong className={styles.displayName}>{item.displayName}</strong>
+                          </summary>
+                          <div className={styles.itemBody}>
                             <span className={sealClass}>{item.sealLabel}</span>
-                          </div>
 
                           {item.sealStatus === 'pending' ? (
                             <div className={styles.meaning}>
@@ -170,6 +176,8 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
                               )}
                             </>
                           )}
+                          </div>
+                          </details>
                         </li>
                       );
                     })}
@@ -180,19 +188,38 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
           </>
         );
       })()}
+      </div>
+      </div>
+
+      <div className={styles.summaryFooter} data-asura-summary-footer>
+        <div className={styles.banner} data-asura-banner>
+          別人還沒看見風暴，阿修羅先看見。
+          <br />
+          命盤是戰場，不是保護區。你已經站上去了。
+        </div>
+        <div className={styles.stats} data-asura-stats>
+          <span><b>{reading.items.length}</b> 項印記</span>
+          <span><b className={styles.awakenedValue}>{reading.awakenedCount}</b> {GHOST_ASURA_UI.sealAwakened}</span>
+          <span><b>{reading.dormantCount}</b> {GHOST_ASURA_UI.sealDormant}</span>
+          <span><b className={styles.pendingValue}>{reading.pendingCount}</b> {GHOST_ASURA_UI.sealPending}</span>
+          <small className={styles.statsHint}>統計為印記種類；同一印記命中多柱時，各柱分別呈現。</small>
+        </div>
+      </div>
 
       {reading.dualClashes.length > 0 && (
         <section className={styles.section} data-layer="dual">
           <h3 className={styles.sectionTitle}>{GHOST_ASURA_UI.printClash}</h3>
           {reading.dualClashes.map((clash) => (
-            <div key={clash.comboId} className={styles.sectionBody}>
+            <details key={clash.comboId} className={styles.supplement} data-asura-supplement="dual">
+              <summary className={styles.supplementHead}>{clash.title}</summary>
+              <div className={styles.sectionBody}>
               <div className={styles.fieldRow}>
-                <span className={styles.fieldLabel}>{clash.title}：</span>
                 {clash.memberDisplayNames.join(' ↔ ')}
                 {clash.pillarLabel ? `｜${clash.pillarLabel}` : ''}
               </div>
               <div>{clash.evidenceText}</div>
-            </div>
+              </div>
+            </details>
           ))}
         </section>
       )}
@@ -201,19 +228,22 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
         <section className={styles.section} data-layer="chain">
           <h3 className={styles.sectionTitle}>{GHOST_ASURA_UI.asuraChain}</h3>
           {reading.chains.map((chain) => (
-            <div key={chain.comboId} className={styles.sectionBody}>
+            <details key={chain.comboId} className={styles.supplement} data-asura-supplement="chain">
+              <summary className={styles.supplementHead}>{chain.title}</summary>
+              <div className={styles.sectionBody}>
               <div className={styles.fieldRow}>
-                <span className={styles.fieldLabel}>{chain.title}：</span>
                 {chain.memberDisplayNames.join('、')}
               </div>
               <div>{chain.evidenceText}</div>
-            </div>
+              </div>
+            </details>
           ))}
         </section>
       )}
 
       <section className={styles.section} data-layer="battlefield">
-        <h3 className={styles.sectionTitle}>{GHOST_ASURA_UI.battleField}</h3>
+        <details className={styles.supplement} data-asura-supplement="battlefield">
+        <summary className={styles.supplementHead}><h3>{GHOST_ASURA_UI.battleField}</h3></summary>
         <div className={styles.sectionBody}>
           {(
             [
@@ -235,7 +265,9 @@ export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
             </div>
           ))}
         </div>
+        </details>
       </section>
+      <p className={styles.scopeNote}>印記故事用於文化象徵與自我反思，不代表心理診斷或必然發生的預言。</p>
     </section>
   );
 }

@@ -35,6 +35,9 @@ export interface GhostAsuraVerifiedRecord {
   backendStatus: string;
   /** 後端原因（稽核） */
   reason?: string;
+  /** Provenance is independent of MATCHED / naming approval. Never promote it. */
+  sourceStatus?: string;
+  referenceMethod?: boolean;
 }
 
 export interface GhostAsuraRegistryEntry {
@@ -146,6 +149,12 @@ export interface GhostAsuraDisplayItem {
 }
 
 export interface GhostAsuraReading {
+  /** Audit only; a transport PASSED is not a source-validity certificate. */
+  provenance: {
+    verifiedRuleIds: string[];
+    referenceRuleIds: string[];
+    unverifiedRuleIds: string[];
+  };
   cardTitle: string;
   resultBatchId: string;
   motherVersion: string;

@@ -1,17 +1,44 @@
 /**
  * 鬼魅阿修羅 — 固定名稱登錄表（附件 3 §五）
  *
- * 51 組為命名母種，不是上限。正式綁定以規則識別碼優先，中文名次之。
+ * 名稱母種不是運算項目上限。正式綁定以規則識別碼為準，無 ID 的工具才以中文名查找。
  * 未登錄但後端已驗證的項走穩定延伸（extendName），禁止顯示原始名當主標題。
  */
 
 import { extendAsuraName, GHOST_ASURA_EXTENSION_VERSION } from './extendName';
 import type { GhostAsuraRegistryEntry } from './types';
 
+// 穩定延伸名稱以此版本作雜湊種子；直白文案更新不得連帶重命名未調整的印記。
 export const GHOST_ASURA_NAMING_VERSION = 'GHOST_ASURA_NAMING_2026_10_01_V2';
 
 /** 規則識別碼 → 核可阿修羅名（對齊 dual-chart coverage.id） */
 export const APPROVED_BY_RULE_ID: Record<string, { displayName: string; family: string }> = {
+  // Freeze the 24 names already emitted by the V4 catalogue. Registration concerns
+  // naming only, not classical-source approval. Never regenerate them per request order.
+  jinyu: { displayName: '祿秘庫', family: 'TREASURE' },
+  tianshe: { displayName: '龍玄契', family: 'DIVINE_PROTECTION' },
+  sanqi: { displayName: '噬暗印', family: 'SHADOW' },
+  guluan: { displayName: '虛幽門', family: 'ISOLATION' },
+  sifei: { displayName: '魂冥魂', family: 'SHADOW' },
+  yuedehe: { displayName: '神護命', family: 'DIVINE_PROTECTION' },
+  jinshen: { displayName: '藏寶匣', family: 'TREASURE' },
+  bazhuan: { displayName: '冥纏影', family: 'SHADOW' },
+  jiuchou: { displayName: '陰幽障', family: 'SHADOW' },
+  liuxiu: { displayName: '幽之影', family: 'SHADOW' },
+  bingfu: { displayName: '噬門暗印', family: 'SHADOW' },
+  suipo: { displayName: '破碎痕', family: 'RUPTURE' },
+  yuekong: { displayName: '陰魂幽障', family: 'SHADOW' },
+  jielu: { displayName: '絕孤境', family: 'ISOLATION' },
+  tianzhuan: { displayName: '冥印纏影', family: 'SHADOW' },
+  dizhuan: { displayName: '幽域之影', family: 'SHADOW' },
+  shiling: { displayName: '幽契之影', family: 'SHADOW' },
+  ride: { displayName: '聖聖印', family: 'DIVINE_PROTECTION' },
+  rigui: { displayName: '玄天印', family: 'DIVINE_PROTECTION' },
+  panan: { displayName: '冥界纏影', family: 'SHADOW' },
+  anlu: { displayName: '寶金宮', family: 'TREASURE' },
+  jinshenDay: { displayName: '魂界冥魂', family: 'SHADOW' },
+  tuishen: { displayName: '幽門之影', family: 'SHADOW' },
+  gonglu: { displayName: '玄寶庫', family: 'TREASURE' },
   tiandehe: { displayName: '天赦神契', family: 'DIVINE_PROTECTION' },
   tiande: { displayName: '天德護印', family: 'DIVINE_PROTECTION' },
   yuede: { displayName: '月德靈契', family: 'DIVINE_PROTECTION' },
@@ -19,19 +46,19 @@ export const APPROVED_BY_RULE_ID: Record<string, { displayName: string; family: 
   gejiao: { displayName: '孤界之門', family: 'ISOLATION' },
   jinkui: { displayName: '玄金寶庫', family: 'TREASURE' },
   wugui: { displayName: '五陰纏影', family: 'SHADOW' },
-  muyu: { displayName: '洗魂之境', family: 'TRANSFORMATION' },
+  muyu: { displayName: '蛻變新生', family: 'TRANSFORMATION' },
   ripo: { displayName: '裂日之痕', family: 'RUPTURE' },
   tiangou: { displayName: '噬天之影', family: 'SHADOW' },
   zaisha: { displayName: '劫境之門', family: 'TRIBULATION' },
-  tiansha: { displayName: '裂天劫印', family: 'TRIBULATION' },
+  tiansha: { displayName: '逆風破局', family: 'TRIBULATION' },
   yuepo: { displayName: '碎月之痕', family: 'RUPTURE' },
   jiangxing: { displayName: '鎮軍之魂', family: 'POWER' },
   longde: { displayName: '天龍護命', family: 'DIVINE_PROTECTION' },
   liue: { displayName: '六劫之關', family: 'TRIBULATION' },
   yuanchen: { displayName: '幽辰之障', family: 'SHADOW' },
   yangren: { displayName: '血刃之鋒', family: 'BLADE' },
-  taohua: { displayName: '魅生之印', family: 'CHARM' },
-  waiTaohua: { displayName: '界外魅緣', family: 'CHARM' },
+  taohua: { displayName: '魅力引力', family: 'CHARM' },
+  waiTaohua: { displayName: '界外吸引', family: 'CHARM' },
   tianyi: { displayName: '天乙神印', family: 'DIVINE_PROTECTION' },
   taiji: { displayName: '玄極天印', family: 'DIVINE_PROTECTION' },
   wenchang: { displayName: '文魂天契', family: 'DIVINE_PROTECTION' },
@@ -78,19 +105,19 @@ export const APPROVED_BY_ORIGINAL_NAME: Record<string, { displayName: string; fa
   隔角: { displayName: '孤界之門', family: 'ISOLATION' },
   金匱: { displayName: '玄金寶庫', family: 'TREASURE' },
   五鬼: { displayName: '五陰纏影', family: 'SHADOW' },
-  沐浴: { displayName: '洗魂之境', family: 'TRANSFORMATION' },
+  沐浴: { displayName: '蛻變新生', family: 'TRANSFORMATION' },
   日破: { displayName: '裂日之痕', family: 'RUPTURE' },
   天狗: { displayName: '噬天之影', family: 'SHADOW' },
   災煞: { displayName: '劫境之門', family: 'TRIBULATION' },
-  天煞: { displayName: '裂天劫印', family: 'TRIBULATION' },
+  天煞: { displayName: '逆風破局', family: 'TRIBULATION' },
   月破: { displayName: '碎月之痕', family: 'RUPTURE' },
   將星: { displayName: '鎮軍之魂', family: 'POWER' },
   龍德: { displayName: '天龍護命', family: 'DIVINE_PROTECTION' },
   六厄: { displayName: '六劫之關', family: 'TRIBULATION' },
   元辰: { displayName: '幽辰之障', family: 'SHADOW' },
   羊刃: { displayName: '血刃之鋒', family: 'BLADE' },
-  桃花: { displayName: '魅生之印', family: 'CHARM' },
-  外桃花: { displayName: '界外魅緣', family: 'CHARM' },
+  桃花: { displayName: '魅力引力', family: 'CHARM' },
+  外桃花: { displayName: '界外吸引', family: 'CHARM' },
   天乙貴人: { displayName: '天乙神印', family: 'DIVINE_PROTECTION' },
   天乙: { displayName: '天乙神印', family: 'DIVINE_PROTECTION' },
   太極貴人: { displayName: '玄極天印', family: 'DIVINE_PROTECTION' },
@@ -144,7 +171,8 @@ export function lookupApprovedName(input: {
   ruleId?: string;
   originalName: string;
 }): GhostAsuraRegistryEntry | null {
-  const byRule = input.ruleId ? APPROVED_BY_RULE_ID[input.ruleId] : undefined;
+  const byRule = input.ruleId && Object.hasOwn(APPROVED_BY_RULE_ID, input.ruleId)
+    ? APPROVED_BY_RULE_ID[input.ruleId] : undefined;
   if (byRule) {
     return {
       ruleId: input.ruleId,
@@ -156,7 +184,9 @@ export function lookupApprovedName(input: {
     };
   }
 
-  const byName = APPROVED_BY_ORIGINAL_NAME[input.originalName];
+  // An explicit, unknown ID must never impersonate another rule through its name.
+  const byName = !input.ruleId && Object.hasOwn(APPROVED_BY_ORIGINAL_NAME, input.originalName)
+    ? APPROVED_BY_ORIGINAL_NAME[input.originalName] : undefined;
   if (byName) {
     return {
       ruleId: input.ruleId,

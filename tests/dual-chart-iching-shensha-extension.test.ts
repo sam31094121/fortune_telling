@@ -1,16 +1,16 @@
 import assert from 'node:assert/strict';
 import { createBaziCore, BRANCHES, type Stem, type BaziProfessionalResult } from '../lib/bazi/engine';
-import { buildDualChartShenSha } from '../lib/dual-chart-shensha';
+import { buildDualChartShenSha } from '../lib/dual-chart-iching-shensha';
 import { getBaziTraditionalOutputGate } from '../lib/bazi-traditional-gate';
 import { calculateDualChart } from '../lib/dual-chart';
-import { buildShenShaIChing } from '../lib/shensha-iching';
-import { SHENSHA_SENSE_PICKS } from '../lib/shensha-char-imagery';
-import { SHENSHA_TEACHER_READINGS, PILLAR_PALACE, PILLAR_LINK } from '../lib/shensha-teacher-readings';
-import { SHENSHA_ONION } from '../lib/shensha-onion';
-import { SHENSHA_COMBO_RULES, findShenShaCombos } from '../lib/shensha-combos';
+import { buildShenShaIChing } from '../lib/iching-shensha-iching';
+import { SHENSHA_SENSE_PICKS } from '../lib/iching-shensha-char-imagery';
+import { SHENSHA_TEACHER_READINGS, PILLAR_PALACE, PILLAR_LINK } from '../lib/iching-shensha-teacher-readings';
+import { SHENSHA_ONION } from '../lib/iching-shensha-onion';
+import { SHENSHA_COMBO_RULES, findShenShaCombos } from '../lib/iching-shensha-combos';
 import { GHOST_TEACHER_PERSONA } from '../lib/ghost-teacher-persona';
-import { DUAL_SHENSHA_RULES, buildFlowYearShenSha, FLOW_TOUCH_IDS, FLOW_SUISHEN } from '../lib/dual-chart-shensha';
-import { buildShenShaFlow } from '../lib/shensha-flow-year';
+import { DUAL_SHENSHA_RULES, buildFlowYearShenSha, FLOW_TOUCH_IDS, FLOW_SUISHEN } from '../lib/dual-chart-iching-shensha';
+import { buildShenShaFlow } from '../lib/iching-shensha-flow-year';
 import fs from 'node:fs';
 
 // Independent transcription: 1937 printed p72, PDF103; 1938 PDF80–81.
@@ -432,7 +432,7 @@ if(ic.state==='READY'){
   assert.deepEqual(calculateDualChart(input).specialStars.iching,ic,'same chart, same hexagram and reading');
   // 字的意境：每一個神煞都有；字義必須是字庫原文（CC BY-ND 禁止改作），且附出處。
   const dictionary=new Map((JSON.parse(fs.readFileSync('data/dictionaries/nameology/characters.json','utf8')) as {normalizedCharacter:string;meanings:string[];element:string}[]).map(e=>[e.normalizedCharacter,e]));
-  const snapshot=JSON.parse(fs.readFileSync('data/shensha-char-imagery.json','utf8'));
+  const snapshot=JSON.parse(fs.readFileSync('data/iching-shensha-char-imagery.json','utf8'));
   for (const [char,entry] of Object.entries(snapshot.entries) as [string,{meanings:string[];element:string}][]) {
     assert.deepEqual(entry.meanings,dictionary.get(char)?.meanings,`snapshot ${char} equals the nameology dictionary`);
     assert.equal(entry.element,dictionary.get(char)?.element);

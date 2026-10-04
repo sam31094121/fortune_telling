@@ -9,7 +9,7 @@ import { buildShenShaGhost, GHOST_SEALED, sealShenShaGhost, type ShenShaGhostVie
 import { buildShenShaAsura, type ShenShaAsuraView } from './iching-shensha-asura';
 
 const sealedGhost = (view: ShenShaGhostView, reveal?: boolean): ShenShaGhostView | ShenShaGhostSealed => GHOST_SEALED && !reveal ? sealShenShaGhost(view) : view;
-import { verifyFourPillars } from './three-in-one';
+import { verifyFourPillars } from './four-pillar-verification';
 import { getBaziTraditionalOutputGate } from './bazi-traditional-gate';
 import { buildDualChartShenSha, buildFlowYearShenSha } from './dual-chart-iching-shensha';
 import { buildShenShaFlow } from './iching-shensha-flow-year';

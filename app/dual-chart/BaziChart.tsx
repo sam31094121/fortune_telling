@@ -339,7 +339,7 @@ export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false
             <span className={styles.summaryTone} data-tone="提醒">提醒 {byTone.提醒}</span></>;
         })()}
       </div>
-      <p className={styles.shenshaSummaryHint}>點下方展開完整四柱對照</p>
+      <p className={styles.shenshaSummaryHint}>以下依年、月、日、時柱顯示本次結果</p>
     </div>}
     {/* 四柱神煞網格表 */}
     {!hideShenShaGrid && card && card.columns.length > 0 && <div id="shensha-grid" className={styles.shenshaPillars}>{card.columns.map(col =>

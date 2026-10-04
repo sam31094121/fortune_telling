@@ -5,10 +5,11 @@
 // 輸出最後一行為 `SHENSHA_DISPLAY_JSON:{...}` 供健檢程式解析。
 // 結束碼：0＝無警告；3＝有警告；1＝檢查本身無法執行。
 const path = require('node:path');
+const fs = require('node:fs');
 const { execFileSync } = require('node:child_process');
 
 const root = path.resolve(__dirname, '..');
-const OUT_DIR = path.join(root, '.dual-chart-iching-shensha-display-build');
+const OUT_DIR = path.join(root, '.tmp', 'dual-chart-iching-shensha-display-build');
 const SAMPLES = [
   { name: '固定命例一', birthDate: '1990-01-01', birthTime: '11:30', gender: 'male' },
   { name: '固定命例二', birthDate: '1974-07-02', birthTime: '04:00', gender: 'female' },
@@ -61,6 +62,17 @@ function inspectShenShaCoverage(result) {
   return warnings;
 }
 
+// 能運算／能顯示，不代表原典已核定。保留本機結果，不把 PENDING_POOL 當作整卡驗收通過。
+function inspectShenShaSourceVerification(result) {
+  return Object.entries(result.specialStars?.rules ?? {}).flatMap(([id, rule]) =>
+    rule.status === 'VERIFIED' ? [] : [`規則 ${id} 來源仍為 ${rule.status ?? '缺失'}；顯示一致不等於原典核定`]);
+}
+
+function inspectShenShaScreenStyles(css) {
+  return /[^{}]*\.shenshaRow\s*\{[^{}]*(?:display\s*:\s*none|visibility\s*:\s*hidden|opacity\s*:\s*0(?:\s|;|}))/i.test(css)
+    ? ['四柱神煞列被螢幕樣式隱藏；HTML 有結果不等於客戶看得到'] : [];
+}
+
 function buildDualChart() {
   const tsc = require.resolve('typescript/bin/tsc', { paths: [root] });
   execFileSync(process.execPath, [tsc, 'lib/dual-chart.ts', '--outDir', OUT_DIR, '--rootDir', '.',
@@ -76,19 +88,19 @@ function loadPillarGrid() {
 
 function inspectShenShaCard(result, html) {
   const warnings = [];
-  if (!html.includes('aria-label="特星神煞"') || !html.includes('data-iching-shensha-card-state="received"')) warnings.push('神煞卡缺失或資料未完整');
-  const blocks = [...html.matchAll(/<div[^>]*data-iching-shensha-column="([^"]+)"[^>]*>([\s\S]*?)<\/div>/g)];
+  if (!html.includes('aria-label="特星神煞"') || !html.includes('data-shensha-card-state="received"')) warnings.push('神煞卡缺失或資料未完整');
+  const blocks = [...html.matchAll(/<div[^>]*data-shensha-column="([^"]+)"[^>]*>([\s\S]*?)<\/div>/g)];
   if (blocks.length !== 4) warnings.push('神煞卡缺少四柱');
   ['year', 'month', 'day', 'hour'].forEach((key, i) => {
     const block = blocks[i];
-    const names = [...(block?.[2] ?? '').matchAll(/<li[^>]*data-iching-shensha-result="([^"]+)"[^>]*>([\s\S]*?)<\/li>/g)].map(m => `${m[1]}:${m[2].replace(/<[^>]+>/g, '')}`).sort();
+    const names = [...(block?.[2] ?? '').matchAll(/<li[^>]*data-shensha-result="([^"]+)"[^>]*>([\s\S]*?)<\/li>/g)].map(m => `${m[1]}:${m[2].replace(/<[^>]+>/g, '')}`).sort();
     const expected = (result.specialStars?.byPillar?.[key] ?? []).map(item => `${item.id}:${item.name}`).sort();
     if (block?.[1] !== key || JSON.stringify(names) !== JSON.stringify(expected)) warnings.push(`神煞卡 ${key} 漏顯、增項、重複或錯柱`);
   });
-  if (/本次未出現|各項判定|data-iching-shensha-rule=/.test(html)) warnings.push('結果卡不應重複列出判定或未命中清單');
+  if (/本次未出現|各項判定|data-shensha-rule=/.test(html)) warnings.push('結果卡不應重複列出判定或未命中清單');
   warnings.push(...inspectShenShaCoverage(result));
   // 四柱神煞表不得被折疊；表之後的「易經老師／鬼魅老師」解盤卡（業主定案 2026-09-28）可以折疊點閱。
-  const firstColumn = html.indexOf('data-iching-shensha-column=');
+  const firstColumn = html.indexOf('data-shensha-column=');
   const firstFold = html.search(/<(?:details|summary)\b/);
   if (firstFold >= 0 && (firstColumn < 0 || firstFold < firstColumn)) warnings.push('神煞卡原有內容不應折疊');
   return warnings;
@@ -203,15 +215,17 @@ function checkShenShaDisplay() {
     const rules = gate && gate.shenShaRules
       ? Object.fromEntries(Object.entries(gate.shenShaRules).map(([id, rule]) => [id, rule.outputStatus ?? (rule.ready ? 'READY' : rule.status)]))
       : {};
-    return { sample: `${sample.name} ${sample.birthDate} ${sample.birthTime}`, rules, expectedByPillar, scopeWarnings: inspectRequestedShenShaScope(result), ...inspected };
+    return { sample: `${sample.name} ${sample.birthDate} ${sample.birthTime}`, rules, expectedByPillar, scopeWarnings: inspectRequestedShenShaScope(result), sourceWarnings: inspectShenShaSourceVerification(result), ...inspected };
   });
-  const deliveryWarnings = samples.flatMap((s) => s.warnings.map((w) => `${s.sample}：${w}`));
+  const deliveryWarnings = [...samples.flatMap((s) => s.warnings.map((w) => `${s.sample}：${w}`)),
+    ...inspectShenShaScreenStyles(fs.readFileSync(path.join(root, 'app/dual-chart/dual-chart.module.css'), 'utf8'))];
   const scopeWarnings = [...new Set(samples.flatMap(s => s.scopeWarnings))];
-  const warnings = [...deliveryWarnings, ...scopeWarnings];
-  return { ok: warnings.length === 0, deliveryOk: deliveryWarnings.length === 0, requestedScopeComplete: scopeWarnings.length === 0, method: 'SSR PillarGrid with real calculateDualChart + real gate; browser layout verified separately', samples, warnings, scopeWarnings };
+  const sourceWarnings = [...new Set(samples.flatMap(s => s.sourceWarnings))];
+  const warnings = [...deliveryWarnings, ...scopeWarnings, ...sourceWarnings];
+  return { ok: warnings.length === 0, deliveryOk: deliveryWarnings.length === 0, requestedScopeComplete: scopeWarnings.length === 0, sourceVerified: sourceWarnings.length === 0, method: 'SSR PillarGrid with real calculateDualChart + real gate; browser layout verified separately', samples, warnings, scopeWarnings, sourceWarnings };
 }
 
-module.exports = { checkShenShaDisplay, inspectShenShaRow, inspectShenShaCoverage, inspectShenShaDelivery, inspectShenShaPlacement, inspectShenShaCard, inspectRequestedShenShaScope };
+module.exports = { checkShenShaDisplay, inspectShenShaRow, inspectShenShaCoverage, inspectShenShaDelivery, inspectShenShaPlacement, inspectShenShaCard, inspectRequestedShenShaScope, inspectShenShaSourceVerification, inspectShenShaScreenStyles };
 
 if (require.main === module) {
   let report;
@@ -232,7 +246,8 @@ if (require.main === module) {
     for (const w of s.warnings) console.log(`  WARNING: ${w}`);
   }
   for (const warning of report.scopeWarnings) console.log(`INCOMPLETE: ${warning}`);
+  for (const warning of report.sourceWarnings) console.log(`SOURCE_PENDING: ${warning}`);
   console.log(`SUMMARY: ${report.samples.length} 個命例，神煞列失敗 ${report.warnings.length} 項（阻斷健康放行）`);
-  console.log(`SHENSHA_DISPLAY_JSON:${JSON.stringify({ ok: report.ok, deliveryOk: report.deliveryOk, requestedScopeComplete: report.requestedScopeComplete, warnings: report.warnings })}`);
+  console.log(`SHENSHA_DISPLAY_JSON:${JSON.stringify({ ok: report.ok, deliveryOk: report.deliveryOk, requestedScopeComplete: report.requestedScopeComplete, sourceVerified: report.sourceVerified, warnings: report.warnings })}`);
   process.exitCode = report.ok ? 0 : 3;
 }

@@ -14,7 +14,7 @@ import {
 import type { GhostAsuraTranslatedItem, GhostAsuraVerifiedRecord } from './types';
 import { formatPillarLabels, GHOST_ASURA_UI } from './uiText';
 
-export const GHOST_ASURA_TRANSLATE_VERSION = 'GHOST_ASURA_TRANSLATE_2026_10_01_V2';
+export const GHOST_ASURA_TRANSLATE_VERSION = 'GHOST_ASURA_TRANSLATE_2026_10_04_V4';
 
 function isBlankOriginalName(name: string): boolean {
   const trimmed = (name || '').trim();

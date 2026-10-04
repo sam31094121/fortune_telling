@@ -13,37 +13,8 @@
  */
 
 import type { DualChartResult } from '@/lib/dual-chart';
-import { translateToAsuraName, validateCounts, validateEachItemPresent } from '@/lib/ghost-asura-translator';
+import { translateToAsuraName, validateCounts } from '@/lib/ghost-asura-translator';
 import styles from '@/app/dual-chart/dual-chart.module.css';
-
-/**
- * 後端傳來的神煞行項結構
- */
-interface AsuraShenShaLine {
-  originalName: string;
-  displayName?: string; // 可能來自後端，也可能由我們轉譯
-  tone?: '福氣' | '動能' | '提醒';
-  narrative?: {
-    breakPoint: string;
-    lockCore: string;
-    severing: string;
-    establish: string;
-    action: string;
-  };
-  matched?: boolean;
-  id?: string;
-  source?: string;
-}
-
-/**
- * 後端傳來的四柱分組
- */
-interface AsuraPillarGroup {
-  pillar: string;
-  label?: string;
-  intro?: string;
-  lines: AsuraShenShaLine[];
-}
 
 /**
  * 柱位映射（規格書第九項）
@@ -109,43 +80,21 @@ export function IchingShenShaAsuraSection({
   const allLines = (view.groups ?? []).flatMap(g => g.lines ?? []);
   const backendCount = allLines.length;
 
-  // 統一轉譯所有神煞
-  const translatedLines = allLines.map(line => {
-    // 優先用後端的 displayName（如果有）
-    if (line.displayName) {
-      return line;
-    }
-    // 否則用轉譯層
-    return {
+  // 沿用後端實際分組與型別，不另造含 id/matched/label 的前端契約。
+  // 同名項目在不同柱可有不同話術，不能先攤平再按名稱跨柱回填。
+  const groupsToRender = view.groups.map(group => ({
+    ...group,
+    lines: group.lines.map(line => ({
       ...line,
-      displayName: translateToAsuraName(line.originalName),
-    };
-  });
+      displayName: line.displayName || translateToAsuraName(line.originalName),
+    })),
+  }));
 
   // 計算實際顯示數量（全部行項）
-  const displayedCount = translatedLines.length;
+  const displayedCount = groupsToRender.reduce((sum, group) => sum + group.lines.length, 0);
 
   // 驗證
   const completeness = checkCompleteness(backendCount, displayedCount);
-
-  /**
-   * ========== 規格書第九項：重組四柱 ==========
-   * 使用阿修羅柱位名稱（祖域、命境、本魂、後界）
-   */
-  const groupedByPillar: Record<string, AsuraShenShaLine[]> = {};
-
-  for (const line of translatedLines) {
-    // 如果原始分組有柱位信息，用那個；否則暫存為 'unknown'
-    const pillarKey = view.groups?.[0]?.pillar ?? 'unknown';
-
-    if (!groupedByPillar[pillarKey]) {
-      groupedByPillar[pillarKey] = [];
-    }
-    groupedByPillar[pillarKey].push(line);
-  }
-
-  // 如果後端已經分組，直接用
-  const groupsToRender = view.groups ?? [];
 
   return (
     <section className={styles.shenshaAsura} aria-label="鬼魅阿修羅解盤">
@@ -164,7 +113,7 @@ export function IchingShenShaAsuraSection({
           {groupsToRender.map(group => {
             // 柱位標籤轉換
             const pillarInfo = PILLAR_MAP[group.pillar as keyof typeof PILLAR_MAP] || {
-              asura: group.label || group.pillar,
+              asura: group.pillar,
               traditional: group.pillar,
             };
 
@@ -189,22 +138,12 @@ export function IchingShenShaAsuraSection({
                 {/* 神煞列表 — 規格書第一項：完整渲染，逐項不漏 */}
                 {group.lines && group.lines.length > 0 ? (
                   <ul className={styles.asuraList}>
-                    {translatedLines
-                      .filter(
-                        line =>
-                          groupsToRender.find(
-                            g => g.pillar === group.pillar
-                          )?.lines?.some(
-                            l => l.originalName === line.originalName
-                          )
-                      )
-                      .map((line, idx) => (
+                    {group.lines.map((line, idx) => (
                         <li
                           key={`${group.pillar}:${line.originalName}:${idx}`}
                           className={styles.asuraItem}
-                          data-shensha-id={line.id}
                           data-shensha-tone={line.tone ?? undefined}
-                          data-matched={line.matched !== false}
+                          data-matched={true}
                         >
                           {/* 可展開的五層敘事 */}
                           {line.narrative ? (
@@ -216,7 +155,7 @@ export function IchingShenShaAsuraSection({
 
                                   {/* 狀態標籤 */}
                                   <span className={styles.status}>
-                                    {line.matched !== false ? '印記覺醒' : '印記沉眠'}
+                                    印記覺醒
                                   </span>
 
                                   <span className={styles.moreHint}>⋮ 五層</span>
@@ -258,7 +197,6 @@ export function IchingShenShaAsuraSection({
                           {process.env.NODE_ENV === 'development' && (
                             <small className={styles.debug}>
                               原始: {line.originalName}
-                              {line.id ? ` | ID: ${line.id}` : ''}
                             </small>
                           )}
                         </li>
@@ -285,7 +223,7 @@ export function IchingShenShaAsuraSection({
                     <b>{formation.title}</b>
                   </summary>
                   <div className={styles.formationContent}>
-                    <p>{formation.content}</p>
+                    <p>{formation.narrative}</p>
                   </div>
                 </details>
               </li>

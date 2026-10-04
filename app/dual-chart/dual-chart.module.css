@@ -149,7 +149,7 @@
 .page:not(.printPreview) .shenshaRow td{height:72px;vertical-align:middle;padding:8px 3px}
 .page:not(.printPreview) .shenshaRow .stack{font-size:13px;line-height:1.45;white-space:nowrap}
 .page:not(.printPreview) .shenshaRow .shenshaSource{display:none}
-@media screen{.page:not(.printPreview) .shenshaRow{display:none}}
+/* 已由後端算出的神煞在原四柱表與下方結果卡同步直顯，不以螢幕樣式隱藏。 */
 /* 《神煞易經》卡：只作用於本卡。三色分類 福氣／動能／提醒 由後端給 data-shensha-tone。 */
 .shenshaCard{--ss-gold:#f2cf7a;--ss-violet:#cdb2ff;--ss-cyan:#93d3ea;--ss-text:#ece6f7;--ss-muted:#b9b2c9;--ss-line:#bba4d033;--ss-panel:#1e1b2d;--ss-panel2:#262138;
   width:100%;min-width:0;box-sizing:border-box;margin:20px 0;padding:18px 16px 20px;border:1px solid #bba4d055;border-radius:18px;

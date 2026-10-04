@@ -56,6 +56,9 @@
 
 import { shichenFromClockHour } from './shichen-engine';
 import { deriveZiweiStarBeastLink } from './ziwei-star-beast-link';
+import { verifyFourPillars, PILLAR_LABELS, type FourPillars, type FourPillarDifference } from './four-pillar-verification';
+// Preserve the existing public API; both paths use the same comparison helper.
+export { verifyFourPillars, PILLAR_LABELS, type FourPillars, type FourPillarDifference, type FourPillarVerification } from './four-pillar-verification';
 import {
   ICHING_RITUAL_STEPS,
   isZiweiCertified,
@@ -174,41 +177,7 @@ export class ThreeInOneStateMachine {
    年、月、日、時逐字完全一致。不是相近、不是三柱、不容錯。
    ──────────────────────────────────────────────────────────────────────────── */
 
-export interface FourPillars {
-  year: string;
-  month: string;
-  day: string;
-  hour: string;
-}
-
-export interface FourPillarDifference {
-  pillar: keyof FourPillars;
-  bazi: string;
-  ziwei: string;
-}
-
-export interface FourPillarVerification {
-  passed: boolean;
-  differences: FourPillarDifference[];
-}
-
-const PILLAR_FIELDS: Array<keyof FourPillars> = ['year', 'month', 'day', 'hour'];
-
-/** 四柱名稱的中文，異常報告要給人看的。 */
-export const PILLAR_LABELS: Record<keyof FourPillars, string> = {
-  year: '年柱',
-  month: '月柱',
-  day: '日柱',
-  hour: '時柱',
-};
-
-export function verifyFourPillars(bazi: FourPillars, ziwei: FourPillars): FourPillarVerification {
-  const differences = PILLAR_FIELDS
-    .filter((field) => bazi[field] !== ziwei[field])
-    .map((field) => ({ pillar: field, bazi: bazi[field], ziwei: ziwei[field] }));
-
-  return { passed: differences.length === 0, differences };
-}
+// Implementation lives in four-pillar-verification.ts, independently of beasts.
 
 /* ────────────────────────────────────────────────────────────────────────────
    四、回傳型別

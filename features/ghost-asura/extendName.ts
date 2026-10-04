@@ -9,9 +9,9 @@ import {
   ASURA_FAMILIES,
   classifyAsuraFamily,
   stableHash,
-} from '@/lib/asura-name-map';
+} from './language';
 
-export const GHOST_ASURA_EXTENSION_VERSION = 'GHOST_ASURA_EXT_2026_10_01_V1';
+export const GHOST_ASURA_EXTENSION_VERSION = 'GHOST_ASURA_EXT_2026_10_04_V2';
 
 const FALLBACK_GLYPHS = ['印', '契', '魂', '痕', '門', '界', '域', '影'] as const;
 
@@ -33,6 +33,17 @@ export function extendAsuraName(input: {
   namingVersion?: string;
   usedNames?: Set<string>;
 }): { displayName: string; family: string } {
+  if (input.ruleId?.trim()) {
+    // New IDs get a stable provisional label, never a borrowed approved meaning.
+    // Two independent hashes reduce collisions; the guard still rejects collisions.
+    // Do not use usedNames/order or editable originalName to determine identity.
+    const key = input.ruleId.trim();
+    const token = stableHash(`${GHOST_ASURA_EXTENSION_VERSION}|${key}`).toString(36)
+      + stableHash(`${key}|${GHOST_ASURA_EXTENSION_VERSION}`).toString(36);
+    const displayName = `玄域之印·${token}`;
+    input.usedNames?.add(displayName);
+    return { displayName, family: 'UNCLASSIFIED' };
+  }
   const seedKey = sanitizeSeedKey(input.originalName, input.ruleId);
   const family = classifyAsuraFamily(seedKey);
   const grammar = ASURA_FAMILIES[family];

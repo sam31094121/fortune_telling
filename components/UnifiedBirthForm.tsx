@@ -54,6 +54,12 @@ export type UnifiedBirthFormFields = {
   calendarType?: boolean;
 };
 
+export type BirthFormCopy = {
+  progressTitle?: string;
+  unknownHourHint?: string;
+  hourPickerHint?: string;
+};
+
 type UnifiedBirthFormProps = {
   value: BirthProfile;
   fields: UnifiedBirthFormFields;
@@ -72,6 +78,8 @@ type UnifiedBirthFormProps = {
   hourCompletion?: { done: boolean; text: string; message: string };
   requireKnownHour?: boolean;
   afterHourPicker?: ReactNode;
+  /** Only changes caller-specific wording; defaults and readiness rules remain unchanged. */
+  copy?: BirthFormCopy;
   /**
    * 呼叫端已經用 CSS 把送出鈕與進度總覽藏起來、改用自己的按鈕時傳 true：
    * 這裡會一併從無障礙樹與 Tab 順序移除，讀屏才不會唸到兩顆同名按鈕。
@@ -160,7 +168,7 @@ function ChoiceButton({ active, alert, children, onClick, tone = 'amber' }: { ac
   );
 }
 
-export function HourBranchSelector({ value, unknown, missing, requireExplicitPick = false, requireKnownHour = false, onChange }: { value?: string; unknown?: boolean; missing?: boolean; requireExplicitPick?: boolean; requireKnownHour?: boolean; onChange: (branch: BirthHourBranch) => void }) {
+export function HourBranchSelector({ value, unknown, missing, requireExplicitPick = false, requireKnownHour = false, copy, onChange }: { value?: string; unknown?: boolean; missing?: boolean; requireExplicitPick?: boolean; requireKnownHour?: boolean; copy?: BirthFormCopy; onChange: (branch: BirthHourBranch) => void }) {
   const knownSelected = Boolean(value && value !== 'unknown' && !unknown);
   /** 面板開著、但客戶還沒點任何一張卡。 */
   const awaitingPick = value === HOUR_BRANCH_PENDING;
@@ -183,7 +191,7 @@ export function HourBranchSelector({ value, unknown, missing, requireExplicitPic
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <ChoiceButton active={Boolean(unknown || value === 'unknown')} alert={missing} onClick={() => onChange('unknown')}>
           <span className="block text-base font-black"><HomeTranslatedText text={"不知道出生時辰"} /></span>
-          <span className="mt-1.5 block text-xs font-semibold leading-5"><HomeTranslatedText text={requireKnownHour ? '神煞易經需要出生時辰；不知道時暫不排盤，確認後可回來補填。' : '不知道也沒關係，先算得出來的部分；之後補上時辰會更完整。'} /></span>
+          <span className="mt-1.5 block text-xs font-semibold leading-5"><HomeTranslatedText text={copy?.unknownHourHint ?? (requireKnownHour ? '神煞易經需要出生時辰；不知道時暫不排盤，確認後可回來補填。' : '不知道也沒關係，先算得出來的部分；之後補上時辰會更完整。')} /></span>
         </ChoiceButton>
         <ChoiceButton active={knownSelected} alert={missing} tone="cyan" onClick={() => onChange((knownSelected ? value : requireExplicitPick ? HOUR_BRANCH_PENDING : 'wu') as BirthHourBranch)}>
           <span className="block text-base font-black"><HomeTranslatedText text={"我知道出生時辰"} /></span>
@@ -201,7 +209,7 @@ export function HourBranchSelector({ value, unknown, missing, requireExplicitPic
             <div className="mb-3 rounded-xl border border-cyan-200/45 bg-cyan-300/12 px-4 py-2.5 text-sm font-black text-cyan-50"><HomeTranslatedText text={"✓ 已選擇："} /><HomeTranslatedText text={selectedItem.label} />（{selectedItem.range}<HomeTranslatedText text={"）——選錯可直接點別張更換"} /></div>
           )}
           {awaitingPick && (
-            <div className="mb-3 rounded-xl border border-amber-200/45 bg-amber-300/12 px-4 py-2.5 text-sm font-black text-amber-50" role="status"><HomeTranslatedText text={requireKnownHour ? '還沒選——請在下面點選出生時辰；不知道時暫不產生神煞易經。' : '還沒選——下面 12 張點一張就好。不確定的話，回上面選「不知道出生時辰」也算得出來。'} /></div>
+            <div className="mb-3 rounded-xl border border-amber-200/45 bg-amber-300/12 px-4 py-2.5 text-sm font-black text-amber-50" role="status"><HomeTranslatedText text={copy?.hourPickerHint ?? (requireKnownHour ? '還沒選——請在下面點選出生時辰；不知道時暫不產生神煞易經。' : '還沒選——下面 12 張點一張就好。不確定的話，回上面選「不知道出生時辰」也算得出來。')} /></div>
           )}
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
             {SHICHEN_LIST.map((item, index) => {
@@ -242,6 +250,7 @@ export function UnifiedBirthForm({
   requireKnownHour = false,
   hourCompletion,
   afterHourPicker,
+  copy,
   hideSubmitChrome = false,
   optionalFields = [],
   autoFillIdentity = true,
@@ -388,6 +397,7 @@ export function UnifiedBirthForm({
             missing={hasMissing(missing, 'birthHourBranch')}
             requireExplicitPick={requireExplicitHourPick}
             requireKnownHour={requireKnownHour}
+            copy={copy}
             onChange={(birthHourBranch) => {
               const isUnknown = birthHourBranch === 'unknown';
               onChange({
@@ -429,7 +439,7 @@ export function UnifiedBirthForm({
       {/* 資料填寫進度總覽：移至送出鈕下方（2026-08-11）——按下開始時直接看到哪裡沒填 */}
       <section aria-hidden={hideSubmitChrome || undefined} className="rounded-[28px] border border-amber-300/25 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.16),rgba(15,23,42,0.78)_58%,rgba(2,6,23,0.94)_100%)] p-5 shadow-[0_0_34px_rgba(251,191,36,0.12)]">
         <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-200"><HomeTranslatedText text={"資料填寫"} /></p>
-        <h2 className="mt-3 text-2xl font-black leading-8 text-amber-50"><HomeTranslatedText text={"依序完成欄位，易經才會開始運算"} /></h2>
+        <h2 className="mt-3 text-2xl font-black leading-8 text-amber-50"><HomeTranslatedText text={copy?.progressTitle ?? '依序完成欄位，易經才會開始運算'} /></h2>
         <div className={`mt-4 grid gap-2 ${completed.length >= 5 ? 'sm:grid-cols-5' : 'sm:grid-cols-4'}`}>
           {completed.map((item) => (
             <div key={item.id} className={`rounded-xl border px-3 py-2 text-xs font-black ${item.done ? 'border-emerald-300/30 bg-emerald-300/10 text-emerald-100' : hasMissing(missing, item.id) ? 'border-rose-300/50 bg-rose-500/15 text-rose-100 shadow-[0_0_18px_rgba(244,63,94,0.22)]' : 'border-white/10 bg-black/15 text-[color:var(--text-sub)]'}`}>

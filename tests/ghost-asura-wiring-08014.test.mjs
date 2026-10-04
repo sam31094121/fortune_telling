@@ -84,8 +84,8 @@ const {
 console.log('\n【0】固定名稱母種計數');
 const seedCount = countApprovedSeedDisplayNames();
 assert.ok(seedCount >= 51, `母種 displayName 應 ≥ 51，實際 ${seedCount}`);
-assert.strictEqual(APPROVED_BY_ORIGINAL_NAME['天煞'].displayName, '裂天劫印');
-console.log(`✓ 母種 displayName ${seedCount}；天煞=裂天劫印`);
+assert.strictEqual(APPROVED_BY_ORIGINAL_NAME['天煞'].displayName, '逆風破局');
+console.log(`✓ 母種 displayName ${seedCount}；本頁直白稱號=逆風破局，原始名稱不變`);
 
 // ── 1. 正常完整結果 ──
 console.log('\n【1】正常完整結果');
@@ -355,7 +355,7 @@ console.log('\n【額外】無組合依據不造雙印／不寫死戰局');
   assert.ok(reading.battleField.mainSoul !== '');
   // 有覺醒印時主戰魂應有值；無組合時宣判不假裝完整組合
   assert.ok(
-    reading.battleField.finalVerdict.includes('組合') ||
+    reading.battleField.finalVerdict.includes('連鎖尚未確認') ||
       reading.battleField.finalVerdict.includes('單印')
   );
   console.log('✓ 戰局有依據才填');

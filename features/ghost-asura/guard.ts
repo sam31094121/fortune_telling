@@ -9,6 +9,7 @@ import type {
   GhostAsuraTranslatedItem,
   GhostAsuraVerifiedRecord,
 } from './types';
+import { formatPillarLabels, normalizePillarKey } from './uiText';
 
 function uniqueSorted(ids: string[]): string[] {
   return [...new Set(ids)].sort();
@@ -101,6 +102,18 @@ export function guardCompleteness(input: {
       (row) => row.resultId === backend.resultId
     );
     if (!translated) continue;
+    if (!backend.resultId?.trim() || !backend.ruleId?.trim() || translated.ruleId !== backend.ruleId) {
+      status = 'FAILED';
+      details.push(`規則編號缺漏或被改寫：${backend.resultId}`);
+    }
+    if ((backend.matched === true && !backend.pillars.length) ||
+        backend.pillars.some(pillar => !normalizePillarKey(pillar))) {
+      status = 'FAILED';
+      details.push(`命中柱位不完整：${backend.resultId}`);
+    } else if (JSON.stringify(translated.pillarLabels) !== JSON.stringify(formatPillarLabels(backend.pillars))) {
+      status = 'FAILED';
+      details.push(`顯示柱位標籤不一致：${backend.resultId}`);
+    }
     if (translated.originalName !== backend.originalName) {
       status = 'FAILED';
       details.push(`原始名稱被改寫：${backend.resultId}`);
@@ -124,6 +137,13 @@ export function guardCompleteness(input: {
       details.push(`結果批次不一致：${backend.resultId}`);
     }
   }
+
+  if (findDuplicates(input.translated.map(row => row.displayName)).length) {
+    status = 'FAILED';
+    details.push('不同編號產生重複稱號，需要固定映射');
+  }
+  const extended = input.translated.filter(row => row.namingSource === 'stable-extension');
+  if (extended.length) details.push(`未登記固定名稱的延伸編號：${extended.map(row => row.ruleId).join(',')}`);
 
   // 待校核不得假裝 PASSED（正式完成狀態）
   if (pendingCount > 0) {

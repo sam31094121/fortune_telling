@@ -22,9 +22,9 @@ export const GHOST_ASURA_UI = {
   asuraBattle: '修羅戰局',
   asuraChain: '阿修羅連鎖',
   noReading: '此域暫無可用判讀',
-  incompleteBanner: '解盤完整度未通過：編號或筆數不一致，請重試或回報。',
-  pendingHint: '此印記尚待後端驗證，暫不提供正式解讀。',
-  pendingBackendHint: '後端尚未完成命中驗證，此印維持待校核。',
+  incompleteBanner: '這份秘卷尚未完整，請重新開啟戰局；若仍有缺漏，請聯絡網站管理員。',
+  pendingHint: '此印記尚待確認，暫不提供正式解讀。',
+  pendingBackendHint: '此印是否覺醒尚未確認，仍維持待校核。',
   pendingNeutralLabel: '印記待校核',
   wordingGapHint: '此域暫無可用判讀',
 } as const;
@@ -56,7 +56,7 @@ const PILLAR_ALIAS: Record<string, GhostAsuraPillarKey> = {
 
 export function normalizePillarKey(raw: string | undefined | null): GhostAsuraPillarKey | null {
   if (!raw) return null;
-  return PILLAR_ALIAS[raw] ?? null;
+  return Object.hasOwn(PILLAR_ALIAS, raw) ? PILLAR_ALIAS[raw] : null;
 }
 
 export function formatPillarLabels(pillars: GhostAsuraPillarKey[]): string[] {

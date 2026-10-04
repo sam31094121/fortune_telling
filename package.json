@@ -118,7 +118,10 @@
     "test:ghost-asura-completeness": "node tests/ghost-asura-completeness.test.mjs",
     "test:ghost-asura-frontend-completeness": "node tests/ghost-asura-frontend-completeness.test.mjs",
     "test:ghost-asura-wiring": "npx --yes tsx tests/ghost-asura-wiring-08014.test.mjs",
-    "test:ghost-asura-viewport": "npx --yes tsx tests/ghost-asura-viewport-consistency-08014.test.mjs"
+    "test:ghost-asura-viewport": "npx --yes tsx tests/ghost-asura-viewport-consistency-08014.test.mjs",
+    "check:ghost-asura:types": "tsc -p tsconfig.ghost-asura.json",
+    "test:ghost-asura-boundary": "node tests/ghost-asura-dependency-boundary.test.cjs",
+    "check:ghost-asura": "npm run check:ghost-asura:types && npm run test:ghost-asura-boundary && node tests/ghost-asura-stability.test.cjs && node tests/ghost-asura-page-flow.test.cjs && node tests/ghost-asura-customer-copy.test.cjs && node tests/ghost-asura-layout.test.cjs && node tests/ghost-asura-home-entry.test.cjs && npm run test:ghost-asura-wiring && npm run test:ghost-asura-viewport"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

@@ -5,11 +5,12 @@
  * 覺醒／沉眠文案分開；沉眠不得寫成「已開／已現」。
  */
 
-import { ASURA_WORDINGS_CORE } from '@/lib/ghost-asura-wordings-core';
+import { ASURA_WORDINGS } from './wordings';
 import type { GhostAsuraNarrativeItem, GhostAsuraTranslatedItem } from './types';
 import { GHOST_ASURA_UI } from './uiText';
+import { createAsuraCustomerCopy } from './customerCopy';
 
-export const GHOST_ASURA_WORDING_VERSION = 'GHOST_ASURA_WORDING_2026_10_01_V1';
+export const GHOST_ASURA_WORDING_VERSION = 'GHOST_ASURA_WORDING_2026_10_04_V2';
 
 /** 本卡範圍內誤字修正（禁止全域取代） */
 function sanitizeCardCopy(text: string): string {
@@ -35,6 +36,7 @@ function dormantFallback(displayName: string): {
 export function buildNarratives(
   items: GhostAsuraTranslatedItem[]
 ): GhostAsuraNarrativeItem[] {
+  const customerCopy = createAsuraCustomerCopy(items);
   return items.map((item) => {
     if (item.sealStatus === 'pending') {
       return {
@@ -67,7 +69,7 @@ export function buildNarratives(
       };
     }
 
-    const wording = ASURA_WORDINGS_CORE[item.displayName];
+    const wording = ASURA_WORDINGS[item.displayName];
     if (!wording) {
       // 名稱已就緒、命中已驗證：維持覺醒；話術缺漏用欄位級提示，不打回待核可標題。
       return {
@@ -88,10 +90,10 @@ export function buildNarratives(
       resultId: item.resultId,
       displayName: item.displayName,
       sealStatus: 'awakened',
-      shortDeclaration: sanitizeCardCopy(wording.shortDeclaration),
-      coreMeaning: sanitizeCardCopy(wording.coreWarning),
-      battleSignificance: sanitizeCardCopy(wording.battleSignificance),
-      verdict: sanitizeCardCopy(wording.verdict),
+      shortDeclaration: customerCopy(sanitizeCardCopy(wording.shortDeclaration)),
+      coreMeaning: customerCopy(sanitizeCardCopy(wording.coreWarning)),
+      battleSignificance: customerCopy(sanitizeCardCopy(wording.battleSignificance)),
+      verdict: customerCopy(sanitizeCardCopy(wording.verdict)),
       wordingVersion: GHOST_ASURA_WORDING_VERSION,
       hasApprovedWording: true,
     };

@@ -1,0 +1,129 @@
+/* Only the private Asura page uses this skin; shared forms retain their defaults. */
+.page {
+  --text-main: #f5eeea;
+  --text-sub: #c4bab7;
+  --text-muted: #aca19f;
+  min-height: 100dvh;
+  padding: 24px max(16px, calc((100% - 1040px) / 2)) 80px;
+  background: radial-gradient(ellipse at 85% 0, #32191d 0, transparent 42rem), #0d0c10;
+  color: var(--text-main);
+  color-scheme: dark;
+}
+
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.nav a, .nav button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #c6b8b4;
+  font-size: 13px;
+}
+.nav button { padding: 0 14px; border: 1px solid #584044; border-radius: 8px; }
+.nav a:hover, .nav button:hover { color: #f4d6b1; }
+.page button:disabled { opacity: .5; cursor: wait; }
+.page :is(a, button, summary):focus-visible { outline: 2px solid #e3b881; outline-offset: 4px; }
+
+.header { padding: 36px 0 30px; }
+.eyebrow { margin: 0; color: #ceaa83; font-size: 12px; letter-spacing: .2em; }
+.header h1 { margin: 10px 0 16px; font-size: clamp(42px, 5vw, 64px); line-height: 1.3; }
+.intro { max-width: 650px; margin: 0; color: #c4bab7; font-size: 15px; line-height: 1.85; }
+.panel {
+  min-width: 0;
+  margin-bottom: 28px;
+  padding: 24px;
+  border: 1px solid #493337;
+  border-radius: 16px;
+  background: #131115;
+  box-shadow: 0 12px 36px #0003;
+}
+.panel h2 { color: #f2d9b9; font-size: 22px; font-weight: 700; line-height: 1.5; }
+.note { margin: 0 0 20px; color: #bdb0ad; font-size: 13px; line-height: 1.8; }
+.fields { min-width: 0; border: 0; padding: 0; margin: 0; }
+.results { scroll-margin-top: 20px; outline: none; }
+.results:focus-visible { outline: 2px solid #e3b881; outline-offset: 5px; border-radius: 16px; }
+.error { margin: 20px 0 0; padding: 16px; border: 1px solid #be6971; border-radius: 12px; background: #381d24; color: #ffdae0; line-height: 1.8; }
+
+.login { display: grid; gap: 16px; max-width: 460px; }
+.login .note { margin: 0; }
+.login label, .zi { color: #eee1dc; font-size: 15px; font-weight: 600; }
+.login input, .zi select { width: 100%; min-height: 52px; padding: 12px; border: 1px solid #745960; border-radius: 8px; background: #0d0c10; color: #f9efea; font-size: 16px; }
+.login > button { min-height: 52px; padding: 12px 20px; background: #d5ae7b; border: 1px solid #e8c99e; border-radius: 10px; color: #251c16; font-weight: 800; }
+.login a { color: #e5bd91; text-decoration: underline; }
+.passwordField { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+.passwordToggle { min-height: 48px; padding: 8px 12px; border: 1px solid #745960; border-radius: 8px; color: #e6cbc0; font-size: 13px; }
+.zi { display: grid; gap: 10px; margin-top: 16px; }
+
+/* Neutralize the site's cyan glow only inside this page's existing form. */
+.page .inputPanel :global(.mega-friendly-form) > section {
+  padding: 18px;
+  border-radius: 12px;
+  background: #1c181d;
+  border-color: #493a40;
+  box-shadow: none;
+}
+.page .inputPanel :global(.mega-friendly-form) > section::before { display: none; }
+.page .inputPanel :global(.mega-friendly-form) label {
+  color: #eee2dc !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  text-shadow: none;
+}
+.page .inputPanel :global(.mega-friendly-form) input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
+.page .inputPanel :global(.mega-friendly-form) select {
+  min-height: 52px;
+  border: 1px solid #84696e !important;
+  border-radius: 8px !important;
+  background: #100e12 !important;
+  color: #f9efea !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+  text-shadow: none;
+}
+.page .inputPanel :global(.mega-friendly-form) input::placeholder { color: #b9aaa7 !important; font-weight: 400 !important; }
+.page .inputPanel :global(.mega-friendly-form) input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):focus,
+.page .inputPanel :global(.mega-friendly-form) select:focus {
+  border-color: #e5bd91 !important;
+  outline: 2px solid #e5bd914d;
+  outline-offset: 3px;
+}
+.inputPanel :global(.mega-friendly-form) button { min-height: 48px; border-radius: 9px; box-shadow: none; text-shadow: none; }
+.inputPanel [class*="text-cyan"], .inputPanel [class*="text-violet"] { color: #edcaba; }
+.inputPanel :is([class*=" bg-cyan-"], [class^="bg-cyan-"], [class*=" bg-violet-"], [class^="bg-violet-"]) { background: #41252b; box-shadow: none; }
+.inputPanel :is([class*=" border-cyan-"], [class^="border-cyan-"], [class*=" border-violet-"], [class^="border-violet-"]) { border-color: #a56770; }
+.inputPanel [class*="text-amber"] { color: #edd0a8; }
+.inputPanel :is([class*=" bg-amber-"], [class^="bg-amber-"]) { background: #372b24; box-shadow: none; }
+.inputPanel :is([class*=" border-amber-"], [class^="border-amber-"]) { border-color: #a18665; }
+.inputPanel [class*="text-green"], .inputPanel [class*="text-emerald"] { color: #b9d1bd; }
+.page .inputPanel :global(.mega-friendly-form) > section:has(:global(.form-missing-alert)) { border-color: #ce7b84; background: #2d1921; }
+.inputPanel :global(.mega-friendly-form) > button[type="submit"] {
+  min-height: 56px;
+  padding: 14px 20px;
+  border: 1px solid #9d7e5d;
+  border-radius: 10px;
+  background: #33291f;
+  color: #efd9bc;
+  font-size: 16px;
+  letter-spacing: .08em;
+  animation: none;
+  transform: none;
+  box-shadow: none;
+}
+.inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready) { background: #d5ae7b; border-color: #efd4ad; color: #251c16; }
+.inputPanel :global(.mega-submit-guide) { color: #e3c39b; font-size: 13px; text-shadow: none; }
+.inputPanel :global(.mega-submit-guide__arrow) { animation: none; }
+.inputPanel :global(.mega-friendly-form) > section:last-child h2 { font-size: 18px; margin-top: 8px; }
+
+@media (hover: hover) {
+  .inputPanel :global(.mega-friendly-form) button:hover { border-color: #deb894; }
+  .inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready):hover { background: #e2bd8d; }
+}
+@media (max-width: 600px) {
+  .page { padding: 16px 12px 56px; }
+  .header { padding: 24px 4px; }
+  .intro { font-size: 14px; }
+  .panel { padding: 14px; }
+  .page .inputPanel :global(.mega-friendly-form) > section { padding: 14px; }
+  .page .inputPanel :global(.mega-friendly-form) :is(input:not([type="checkbox"]), select) { padding-inline: 10px; }
+  .inputPanel :global(.mega-friendly-form) > section[data-field="birthDate"] :global(.grid-cols-3) { gap: 8px; }
+}

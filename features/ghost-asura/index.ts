@@ -38,13 +38,19 @@ export function buildGhostAsuraReading(
   input: GhostAsuraAdapterInput
 ): GhostAsuraReading {
   const adapted = adaptVerifiedShenSha(input);
+  const provenance = {
+    verifiedRuleIds: adapted.records.filter(r => r.sourceStatus === 'VERIFIED' && !r.referenceMethod).map(r => r.ruleId),
+    referenceRuleIds: adapted.records.filter(r => r.referenceMethod).map(r => r.ruleId),
+    unverifiedRuleIds: adapted.records.filter(r => r.sourceStatus !== 'VERIFIED' && !r.referenceMethod).map(r => r.ruleId),
+  };
+  const hourPillar = input.result?.core?.pillars?.hour;
 
   // 提取四柱幹支（年月日時）
   const pillars = {
     year: input.result?.core?.pillars?.year?.ganZhi ?? '',
     month: input.result?.core?.pillars?.month?.ganZhi ?? '',
     day: input.result?.core?.pillars?.day?.ganZhi ?? '',
-    hour: input.result?.core?.pillars?.hour?.ganZhi ?? '',
+    hour: hourPillar && typeof hourPillar === 'object' ? hourPillar.ganZhi : '',
   };
 
   if (adapted.blockedReason) {
@@ -54,6 +60,7 @@ export function buildGhostAsuraReading(
       displayed: [],
     });
     return {
+      provenance,
       cardTitle: GHOST_ASURA_CARD_TITLE,
       resultBatchId: adapted.resultBatchId,
       motherVersion: adapted.motherVersion,
@@ -73,7 +80,7 @@ export function buildGhostAsuraReading(
         treasurePower: GHOST_ASURA_UI.noReading,
         movementPower: GHOST_ASURA_UI.noReading,
         breakthrough: GHOST_ASURA_UI.noReading,
-        finalVerdict: adapted.blockedReason,
+        finalVerdict: GHOST_ASURA_UI.incompleteBanner,
       },
       guard: {
         ...emptyGuard,
@@ -147,6 +154,7 @@ export function buildGhostAsuraReading(
   }
 
   return {
+    provenance,
     cardTitle: GHOST_ASURA_CARD_TITLE,
     resultBatchId: adapted.resultBatchId,
     motherVersion: adapted.motherVersion,

@@ -44,3 +44,18 @@ for (const birthTime of ['23:30', '00:30']) {
 }
 assert.equal(dualChartHourStatus({...base, birthHourBranch:'wu', birthTime:'11:30'}).done, true);
 console.log('PASS: scoped dual-chart readiness and rendered form; unknown defaults preserved, 子時 segment required, corrected alert cleared');
+
+const asuraCopy = {
+  progressTitle: '完成生辰，開啟阿修羅秘卷',
+  unknownHourHint: '阿修羅秘卷需要出生時辰；確認後回來補填，不會替你猜測。',
+  hourPickerHint: '請點選出生時辰，讓四柱各歸其位。',
+};
+const custom = renderToStaticMarkup(React.createElement(UnifiedBirthForm, {
+  value: pending, fields: { birthDate: true, gender: true, birthHourBranch: true },
+  requireKnownHour: true, requireExplicitHourPick: true, copy: asuraCopy,
+  autoFillIdentity: false, persistIdentity: false, onChange() {}, onSubmit() {},
+}));
+for (const text of Object.values(asuraCopy)) assert.ok(custom.includes(text));
+assert.doesNotMatch(custom, /神煞易經|依序完成欄位，易經/);
+assert.match(render(pending, true), /神煞易經|依序完成欄位，易經/, 'Other callers retain their exact default copy');
+console.log('PASS: Asura opt-in wording; shared callers unchanged');

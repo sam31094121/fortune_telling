@@ -39,9 +39,9 @@ assert.equal(login.status, 200, 'Local session login');
 const cookie = login.headers.get('set-cookie')?.split(';')[0];
 assert.ok(cookie);
 const require = createRequire(import.meta.url);
-const loadShenShaUi = require('./helpers/load-shensha-ui.cjs');
+const loadShenShaUi = require('./helpers/load-iching-shensha-ui.cjs');
 const component = loadShenShaUi('app/dual-chart/BaziChart.tsx');
-const { inspectShenShaDelivery, inspectShenShaRow, inspectShenShaPlacement, inspectShenShaCard } = require('../scripts/dual-chart-shensha-display-check.cjs');
+const { inspectShenShaDelivery, inspectShenShaRow, inspectShenShaPlacement, inspectShenShaCard } = require('../scripts/dual-chart-iching-shensha-display-check.cjs');
 
 for (const [birthTime, hour, expected] of fixtures) {
   const response = await req('/api/dual-chart', { birthDate: '1990-01-01', birthTime, gender: 'male', calendarType: 'solar', timezone: 'Asia/Taipei' }, cookie);
@@ -58,9 +58,13 @@ for (const [birthTime, hour, expected] of fixtures) {
   assert.equal(pc.traditionalInterpretationGate.shenShaRules.wenchang.outputStatus, 'READY');
   assert.equal(pc.traditionalInterpretationGate.interpretationReady, false, 'God-name output must not unlock advanced judgments');
   assert.deepEqual(pc.shenSha, data.core.shenSha);
+  assert.deepEqual(data.specialStars.raw, data.core.shenSha, 'same backend result is reused, not regenerated for the card');
   const expectedByPillar = { ...fixedPillars, hour: expected };
   for (const key of ['year', 'month', 'day', 'hour']) {
     assert.deepEqual(data.specialStars.byPillar[key].map(s => s.name), expectedByPillar[key], `${birthTime} ${key} hand-derived names`);
+    const column = data.specialStars.card.columns.find(col => col.pillar === key);
+    assert.deepEqual(column.hits.map(hit => `${hit.id}:${hit.name}`),
+      data.specialStars.byPillar[key].map(hit => `${hit.id}:${hit.name}`), `${birthTime}: card preserves ${key} exactly`);
   }
   assert.equal(data.specialStars.card.state, 'received', `${birthTime}: bazi/ziwei pillars agree and every rule is evaluated`);
   for (const item of data.core.shenSha) {
@@ -97,4 +101,12 @@ assert.ok(contrast.specialStars.byPillar.hour.some(s => s.id === 'taohua'));
 assert.ok(contrast.specialStars.byPillar.hour.some(s => s.id === 'waiTaohua'));
 assert.deepEqual(contrast.core.shenSha, contrast.bazi.professionalChart.shenSha);
 console.log('PASS: 1990-02-18 05:30｜甲寅日丁卯時｜本派桃花不加納音條件，時柱桃花、外桃花命中');
+for (const unknown of [{ timeUnknown: true }, { birthHourBranch: 'unknown' }, { birthHourBranch: 'pending' }, { birthTime: '' }]) {
+  const response = await req('/api/dual-chart', { birthDate: '1990-01-01', birthTime: '05:30', gender: 'male', calendarType: 'solar', timezone: 'Asia/Taipei', ...unknown }, cookie);
+  assert.equal(response.status, 400, 'unknown birth hour cannot create a fabricated chart');
+  const payload = await response.json();
+  assert.ok(payload.error);
+  assert.equal(payload.data, undefined);
+}
+console.log('PASS: 四種未知／缺少時辰輸入均拒絕產生命盤，不回傳假的神煞');
 console.log('PASS: live API and rendered component; browser layout still requires separate visual verification');

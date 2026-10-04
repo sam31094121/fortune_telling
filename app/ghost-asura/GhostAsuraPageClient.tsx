@@ -17,7 +17,13 @@ import { GhostAsuraCard } from '@/features/ghost-asura/components/GhostAsuraCard
 import { buildGhostAsuraReading } from '@/features/ghost-asura';
 import type { DualChartResult } from '@/lib/dual-chart';
 import { dualChartHourStatus } from '@/lib/dual-chart-form';
-import styles from '@/app/dual-chart/dual-chart.module.css';
+import styles from './ghost-asura.module.css';
+import brandStyles from '@/components/AsuraBrandTitle.module.css';
+
+function asuraHourStatus(profile: BirthProfile) {
+  const status = dualChartHourStatus(profile);
+  return { ...status, message: status.message.replaceAll('神煞易經', '阿修羅秘卷') };
+}
 
 export default function GhostAsuraPageClient({
   unlocked,
@@ -42,14 +48,22 @@ export default function GhostAsuraPageClient({
   const [missing, setMissing] = useState<string[]>([]);
   const [result, setResult] = useState<DualChartResult | null>(null);
   const resultRef = useRef<HTMLElement>(null);
+  const calculationRef = useRef<AbortController | null>(null);
+
+  function invalidateCalculation() {
+    calculationRef.current?.abort();
+    calculationRef.current = null;
+    setBusy(false);
+    setResult(null);
+  }
 
   useEffect(() => {
     if (!unlocked) {
-      setResult(null);
+      invalidateCalculation();
       return;
     }
     const recheck = () => {
-      setResult(null);
+      invalidateCalculation();
       router.refresh();
     };
     window.addEventListener('pageshow', recheck);
@@ -57,11 +71,18 @@ export default function GhostAsuraPageClient({
     return () => {
       window.removeEventListener('pageshow', recheck);
       window.clearTimeout(expire);
+      calculationRef.current?.abort();
+      calculationRef.current = null;
     };
   }, [unlocked, router]);
 
   useEffect(() => {
-    if (result) resultRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    if (!result) return;
+    resultRef.current?.focus({ preventScroll: true });
+    resultRef.current?.scrollIntoView({
+      block: 'start',
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    });
   }, [result]);
 
   const reading = useMemo(() => {
@@ -97,6 +118,7 @@ export default function GhostAsuraPageClient({
   }
 
   async function lock() {
+    invalidateCalculation();
     setBusy(true);
     setError('');
     try {
@@ -113,6 +135,7 @@ export default function GhostAsuraPageClient({
   }
 
   function updateForm(profile: BirthProfile) {
+    if (JSON.stringify(profile) !== JSON.stringify(form)) invalidateCalculation();
     setForm(profile);
     setError('');
     setMissing((previous) =>
@@ -129,9 +152,11 @@ export default function GhostAsuraPageClient({
   }
 
   async function calculate(profile: BirthProfile) {
+    // A ref locks synchronously, including two submits before React rerenders.
+    if (!unlocked || calculationRef.current) return;
     setError('');
     setResult(null);
-    const hour = dualChartHourStatus(profile);
+    const hour = asuraHourStatus(profile);
     const fields = [
       !profile.birthDate && 'birthDate',
       !profile.gender && 'gender',
@@ -150,10 +175,14 @@ export default function GhostAsuraPageClient({
       );
       return;
     }
+    const request = new AbortController();
+    calculationRef.current = request;
     setBusy(true);
     try {
       const response = await fetch('/api/dual-chart', {
         method: 'POST',
+        cache: 'no-store',
+        signal: request.signal,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...profile,
@@ -162,14 +191,21 @@ export default function GhostAsuraPageClient({
         }),
       });
       const data = await response.json();
+      // Ignore even a transport that resolved after abort. Only the current request
+      // may publish data, errors or completion; old finally blocks cannot unlock it.
+      if (calculationRef.current !== request) return;
       if (response.status === 401) router.refresh();
       if (!response.ok) throw new Error(data.error);
       setResult(data.data);
     } catch (e) {
+      if (calculationRef.current !== request) return;
       console.error('[GhostAsuraPageClient] calculate failed', e);
       setError(e instanceof Error ? e.message : '連線失敗，請稍後再試。');
     } finally {
-      setBusy(false);
+      if (calculationRef.current === request) {
+        calculationRef.current = null;
+        setBusy(false);
+      }
     }
   }
 
@@ -177,10 +213,6 @@ export default function GhostAsuraPageClient({
     <main
       className={styles.page}
       data-page="ghost-asura"
-      style={{
-        // 深墨 + 金屬 + 暗紅覆寫，與紫色 dual-chart 明顯區隔
-        ['--dual-accent' as string]: '#7f1d1d',
-      }}
     >
       <nav className={styles.nav}>
         <Link href="/">← 返回首頁</Link>
@@ -191,30 +223,17 @@ export default function GhostAsuraPageClient({
         )}
       </nav>
 
-      <header
-        className={styles.header}
-        style={{
-          color: '#f4f4f5',
-          textShadow: '0 2px 10px rgba(127, 29, 29, 0.35)',
-        }}
-      >
-        <p style={{ color: '#a1a1aa', letterSpacing: '0.12em' }}>本命阿修羅 · 獨立秘卷</p>
-        <h1 style={{ color: '#fafafa' }}>鬼魅阿修羅</h1>
-        <p style={{ color: '#d4d4d8' }}>
-          填寫生辰，只讀已驗證神煞，轉譯為命魂戰局。不是紫色「易經 · 三層融會」的附屬分頁。
+      <header className={styles.header}>
+        <p className={styles.eyebrow}>本命阿修羅 · 獨立秘卷</p>
+        <h1 className={brandStyles.brush} data-asura-brand-title>鬼魅阿修羅</h1>
+        <p className={styles.intro}>
+          填寫生辰，展開你的阿修羅秘卷。四柱各守一域，點印記名稱查看其力量與駕馭之道。
         </p>
       </header>
 
       {!unlocked ? (
-        <section
-          className={styles.panel}
-          style={{
-            background:
-              'linear-gradient(135deg, rgba(8,8,10,0.98), rgba(20,12,14,0.96))',
-            borderColor: 'rgba(161,161,170,0.35)',
-          }}
-        >
-          <h2 style={{ color: '#f4f4f5' }}>
+        <section className={styles.panel}>
+          <h2>
             {configured ? '輸入密碼，開啟阿修羅秘卷' : '鬼魅阿修羅暫未開放登入'}
           </h2>
           {!configured ? (
@@ -266,17 +285,11 @@ export default function GhostAsuraPageClient({
         </section>
       ) : (
         <>
-          <section
-            className={`${styles.panel} ${styles.inputPanel}`}
-            style={{
-              background:
-                'linear-gradient(135deg, rgba(8,8,10,0.98), rgba(18,14,16,0.96))',
-              borderColor: 'rgba(127,29,29,0.35)',
-            }}
-          >
+          <section className={`${styles.panel} ${styles.inputPanel}`}>
             <p className={styles.note}>
-              沿用系統萬年曆與正統神煞後端。本頁只顯示鬼魅阿修羅轉譯／四層解盤，不改算法。
+              資料只需填寫一次。修改生辰後請重新開啟戰局，避免將上一份結果當作新結果。
             </p>
+            <fieldset disabled={busy} className={styles.fields}>
             <UnifiedBirthForm
               value={form}
               fields={{
@@ -291,7 +304,12 @@ export default function GhostAsuraPageClient({
               persistIdentity={false}
               requireExplicitHourPick
               requireKnownHour
-              hourCompletion={dualChartHourStatus(form)}
+              hourCompletion={asuraHourStatus(form)}
+              copy={{
+                progressTitle: '完成生辰，開啟阿修羅秘卷',
+                unknownHourHint: '阿修羅秘卷需要出生時辰；確認後回來補填，不會替你猜測。',
+                hourPickerHint: '請點選出生時辰，讓四柱各歸其位。',
+              }}
               missing={missing}
               disabled={busy}
               isSubmitting={busy}
@@ -328,11 +346,13 @@ export default function GhostAsuraPageClient({
                 )
               }
             />
+            </fieldset>
           </section>
 
           {result && (
             <section
               ref={resultRef}
+              tabIndex={-1}
               className={styles.results}
               aria-label="鬼魅阿修羅解盤結果"
               data-ghost-asura-result="ready"
@@ -341,7 +361,7 @@ export default function GhostAsuraPageClient({
                 <GhostAsuraCard reading={reading} />
               ) : (
                 <div className={styles.panel} role="alert">
-                  解盤轉譯失敗。後端結果已取得，但阿修羅轉接層無法組出顯示資料。請稍後再試或回報管理員。
+                  這份秘卷暫時無法展開。請重新開啟戰局；若仍無法顯示，請聯絡網站管理員。
                 </div>
               )}
             </section>

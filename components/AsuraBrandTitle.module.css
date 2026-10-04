@@ -1,0 +1,18 @@
+/* Local, licensed five-glyph subset; never applied to body copy or form fields. */
+@font-face {
+  font-family: 'Asura Brand Brush';
+  src: url('/fonts/asura-brand/yuji-boku-brand.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+4FEE, U+7F85, U+963F, U+9B3C, U+9B45;
+}
+.brush.brush {
+  font-family: 'Asura Brand Brush', serif;
+  font-weight: 400;
+  font-synthesis: none;
+  color: #f2c998;
+  letter-spacing: .055em;
+  text-shadow: 0 2px 0 #491c27, 0 5px 12px #0005;
+  -webkit-text-stroke: .25px currentColor;
+}

@@ -2,6 +2,13 @@
 
 更新日期：2026-09-15
 
+## 2026-10-04 阿修羅顯示查核（非取法認證）
+
+- `node tests/ghost-asura-layout.test.cjs` 核對17項命例的後端ID→轉譯→元件：年3／月4／日4／時6，另測多柱、空柱、漏顯及收合。通過只證資料傳遞。
+- `node tests/ghost-asura-home-entry.test.cjs`、`node tests/ghost-asura-customer-copy.test.cjs`、`node tests/ghost-asura-page-flow.test.cjs` 分別核對入口、顯示轉譯、輸入與結果同步。
+- 本次17項有3項來源登記 VERIFIED、14項參考取法 PENDING_POOL。畫面「待校核0」及顯示守門 PASSED 不等於原典全數核定。
+- 實景、範圍、整站型別／建置失敗及未測項見 `reports/ghost-asura-layout-2026-10-04.md`。不得宣稱全套正統準確，本輪依使用者要求不提交。
+
 ## 定位
 健康檢查是站內**隨時可用**的常駐能力，與功能檔、技能檔、戰鬥素材同級，不是只有例行排程才跑。
 
@@ -48,6 +55,21 @@
 
 ## 技能
 見 Grok Bot 技能「右側螢幕連結健康檢查」。
+
+### 新版阿修羅依賴分離檢查（2026-10-04）
+
+- `npm run check:ghost-asura` 為新版阿修羅專項：涵蓋頁面、首頁入口、共用 API／session、全域 layout 的實際傳遞型別依賴，以及接線、稳定性、文案、呈現與請求生命週期。不是整站建置或發布許可。
+- `test:ghost-asura-boundary` 檢查神獸功能模組不進阿修羅資料链；共用語言層僅容許兩份純字串字典，禁止夾帶邏輯。共用四柱比較工具只有一份，三合一舊匯出保留，不複製算法。
+- 改共用核對接線時，同步跑八字、交叉核對、三合一、輸出可用性及真實 API；各自列通過／失敗，不因阿修羅單項通過而遮蓋整站失敗。
+- 本輪專項與基礎／交叉／整合檢查通過，但全站 build 仍停在神獸首頁字典，舊鬼魅顯示斷言仍失敗；未改發布閘、未推送。範圍、實際畫面及下一步選項見 `reports/ghost-asura-isolation-2026-10-04.md`。
+
+### 2026-10-04 神煞顯示健康補充（取代舊數量快照）
+
+- 當前正式檔名為 `scripts/dual-chart-iching-shensha-display-check.cjs`、`tests/iching-shensha-live-api.test.mjs`、`tests/dual-chart-iching-shensha-output.test.cjs`；DOM契約仍為 `data-shensha-*`，不可把檔名更名推論成DOM屬性也更名。
+- 既有後端目前65個規則，6項來源 `VERIFIED`、59項 `PENDING_POOL` 依參考取法運算；前述八／九項與11項缺項為歷史快照，不能作為目前完成數量。規則數增加不等於來源全部通過。
+- 顯示健康分開回報 `deliveryOk`（結果完整送達）、`requestedScopeComplete`（現有規則有實作並完成判定）、`sourceVerified`（來源核定），不得用前兩者替第三者背書；總體未通過不應阻止使用者查看帶有既有來源標記的本機結果。
+- 檢查須攔截整列被 `display:none`／`visibility:hidden`／`opacity:0` 隱藏的回歸；只有HTML含名字不算可見。仍須實際瀏覽器填表到顯示、不同輸入結果變化、未知時辰不假算，以及手機四寬可見性。
+- 2026-10-04本輪：局部顯示與API實測通過；59項來源待核、其他模組型別及老師頁籤舊測例未過，因此未提交推送。完整證據及未測項見既有神煞驗收報告最新節，不沿用過去的全通過結論。
 
 ### 特星神煞客戶結果卡（2026-09-27）
 

@@ -14,6 +14,7 @@ import type {
   GhostAsuraVerifiedCombo,
 } from './types';
 import { GHOST_ASURA_UI, normalizePillarKey, PILLAR_UI } from './uiText';
+import { createAsuraCustomerCopy } from './customerCopy';
 
 const NO = GHOST_ASURA_UI.noReading;
 
@@ -65,16 +66,17 @@ export function buildDualClashes(
   combos: GhostAsuraVerifiedCombo[]
 ): GhostAsuraDualClash[] {
   const out: GhostAsuraDualClash[] = [];
+  const customerCopy = createAsuraCustomerCopy(items);
   for (const combo of combos) {
     const members = comboMemberDisplays(combo, items);
     if (members.length < 2) continue;
     if (members.length > 2) continue; // 三印以上走連鎖
     out.push({
       comboId: combo.comboId,
-      title: combo.title,
+      title: customerCopy(combo.title),
       memberDisplayNames: members,
       pillarLabel: pillarLabelOf(combo.pillar),
-      evidenceText: combo.evidenceText,
+      evidenceText: customerCopy(combo.evidenceText),
     });
   }
   return out;
@@ -86,14 +88,15 @@ export function buildChains(
   combos: GhostAsuraVerifiedCombo[]
 ): GhostAsuraChain[] {
   const out: GhostAsuraChain[] = [];
+  const customerCopy = createAsuraCustomerCopy(items);
   for (const combo of combos) {
     const members = comboMemberDisplays(combo, items);
     if (members.length < 3) continue;
     out.push({
       comboId: combo.comboId,
-      title: combo.title,
+      title: customerCopy(combo.title),
       memberDisplayNames: members,
-      evidenceText: combo.evidenceText,
+      evidenceText: customerCopy(combo.evidenceText),
     });
   }
   return out;
@@ -160,9 +163,10 @@ export function buildBattleField(
     const members = comboMemberDisplays(combo, items);
     return members.length >= 2;
   });
+  const customerCopy = createAsuraCustomerCopy(items);
 
   const breakthrough = primaryCombo
-    ? `依核可組合「${primaryCombo.title}」布防：先守判斷，再找破口。`
+    ? `循「${customerCopy(primaryCombo.title)}」布防：先守判斷，再找破口。`
     : mainTribulation !== NO
       ? `先辨「${mainTribulation}」再布防。`
       : mainSoul !== NO
@@ -170,10 +174,10 @@ export function buildBattleField(
         : NO;
 
   const finalVerdict = primaryCombo
-    ? primaryCombo.evidenceText
+    ? customerCopy(primaryCombo.evidenceText)
     : awakened.length === 1
-      ? `單印覺醒：${mainSoul}。組合依據不足，不另造戰局宣判。`
-      : `覺醒 ${awakened.length} 印；尚無可用組合依據，戰局宣判暫緩。`;
+      ? `單印覺醒：${mainSoul}。連鎖尚未確認，不作額外推斷。`
+      : `覺醒 ${awakened.length} 印；連鎖尚未確認，戰局宣判暫緩。`;
 
   return {
     mainSoul,

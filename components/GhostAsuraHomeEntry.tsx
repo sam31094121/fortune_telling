@@ -7,11 +7,12 @@
 
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import Link from 'next/link';
 import HomeTranslatedText from '@/components/HomeTranslatedText';
-import HomeTrustEvidence from '@/components/HomeTrustEvidence';
-import { FIXED_ASURA_MAP, stableHash } from '@/lib/asura-name-map';
+import { stableHash } from '@/features/ghost-asura/language';
+import styles from './GhostAsuraHomeEntry.module.css';
+import brandStyles from './AsuraBrandTitle.module.css';
 
 interface AsuraImpression {
   title: string;
@@ -38,98 +39,32 @@ function pickStableFeaturedImpression(): AsuraImpression {
 }
 
 export default function GhostAsuraHomeEntry() {
-  const [isHovered, setIsHovered] = useState(false);
   const featuredImpression = useMemo(() => pickStableFeaturedImpression(), []);
-
-  const featuredIsKnown =
-    Object.values(FIXED_ASURA_MAP).includes(featuredImpression.title) ||
-    ASURA_CORE_IMPRESSIONS.some((item) => item.title === featuredImpression.title);
-
-  if (!featuredIsKnown) {
-    console.error('[GhostAsuraHomeEntry] featured 印記不在固定映射', featuredImpression.title);
-  }
 
   return (
     <Link
       href="/ghost-asura"
-      className="home-feature-launch home-feature-tier-primary order-9 w-full relative group overflow-hidden rounded-3xl border-2 border-amber-400/80 bg-[radial-gradient(circle_at_18%_28%,rgba(217,119,6,0.3),transparent_34%),radial-gradient(circle_at_84%_18%,rgba(120,53,15,0.28),transparent_30%),linear-gradient(115deg,rgba(20,13,10,0.97),rgba(28,20,15,0.95),rgba(20,13,10,0.97))] p-6 sm:p-7 text-left shadow-[0_0_64px_rgba(217,119,6,0.45)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-300/90 hover:shadow-[0_0_80px_rgba(217,119,6,0.58)] active:scale-[0.99] flex flex-col"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className={`${styles.entry} home-feature-launch home-feature-tier-primary order-9 w-full`}
       data-card-type="ghost-asura-home-entry"
       aria-label="鬼魅阿修羅｜開啟阿修羅秘卷"
     >
-      {/* 微霧／金屬邊線 */}
-      <div className="absolute inset-0 pointer-events-none opacity-50 mix-blend-soft-light bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.08),transparent_55%)]" />
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/45 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-amber-700/35 to-transparent" />
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-600/12 to-transparent -translate-x-full group-hover:animate-[shimmer_2.4s_infinite] pointer-events-none" />
-
-      {/* 表格式網格佈局（借鑒八字命盤） */}
-      <div className="relative w-full border border-amber-500/25 rounded-2xl overflow-hidden bg-amber-950/10">
-        {/* 第一行：圖標、狀態、免費、時間 */}
-        <div className="grid grid-cols-4 gap-0 border-b-2 border-amber-500/35 pb-3.5 px-3 pt-3.5">
-          {/* 左：圖標 */}
-          <div className="col-span-1 flex items-center justify-center">
-            <div
-              className="grid h-12 w-12 place-items-center rounded-2xl border border-amber-500/50 bg-gradient-to-br from-amber-700/60 to-orange-900/40 font-serif text-2xl font-black text-amber-100 shadow-[0_0_24px_rgba(217,119,6,0.3)] transition-transform duration-300 group-hover:scale-105 group-active:scale-85"
-              aria-hidden="true"
-            >
-              ⚡
-            </div>
-          </div>
-
-          {/* 中左：狀態標籤 */}
-          <div className="col-span-1 flex items-center pl-2">
-            <span className="text-[10px] font-black tracking-widest text-amber-200">
-              <HomeTranslatedText text={`${featuredImpression.status}`} />
-            </span>
-          </div>
-
-          {/* 中右：免費 */}
-          <div className="col-span-1 flex items-center justify-center">
-            <div className="inline-flex items-center rounded-full bg-amber-950/60 border border-amber-600/50 px-2.5 py-1 text-[8px] font-bold tracking-widest text-amber-200 uppercase">
-              <HomeTranslatedText text={'免費'} />
-            </div>
-          </div>
-
-          {/* 右：時間 */}
-          <div className="col-span-1 flex items-center justify-end">
-            <span className="text-[10px] font-bold text-amber-200/70 px-2.5 py-1 rounded-full border border-amber-400/30 bg-amber-950/40">
-              <HomeTranslatedText text={'3 分鐘'} />
-            </span>
-          </div>
-        </div>
-
-        {/* 第二行：主標題「命魂戰局」跨越全寬 */}
-        <div className="grid grid-cols-1 gap-0 border-b-2 border-amber-500/35 py-4 px-3">
-          <h2 className="font-serif text-4xl sm:text-5xl font-black text-amber-50 text-center tracking-tight drop-shadow-xl" style={{ textShadow: '0 2px 8px rgba(217,119,6,0.6), 0 0 16px rgba(217,119,6,0.3)' }}>
-            <HomeTranslatedText text={'命魂戰局'} />
-          </h2>
-        </div>
-
-        {/* 第三行：印記名稱 */}
-        <div className="grid grid-cols-1 gap-0 border-b-2 border-amber-500/35 py-3 px-3">
-          <p className="text-[13px] sm:text-[14px] font-semibold text-amber-300 text-center">
-            <HomeTranslatedText text={featuredImpression.title} />
-          </p>
-        </div>
-
-        {/* 第四行：CTA 按鈕 */}
-        <div className="grid grid-cols-1 gap-0 p-3.5">
-          <div className="home-feature-cta flex items-center justify-center gap-2.5 rounded-2xl border-3 border-amber-300/85 bg-gradient-to-r from-amber-600/65 to-orange-600/55 px-6 py-4 sm:py-5 text-sm sm:text-base font-bold text-amber-50 shadow-[0_0_40px_rgba(217,119,6,0.55),inset_0_0_20px_rgba(251,191,36,0.15)] transition-all duration-300 group-hover:border-amber-200/95 group-hover:shadow-[0_0_56px_rgba(217,119,6,0.7),inset_0_0_24px_rgba(251,191,36,0.25)] group-hover:bg-gradient-to-r group-hover:from-amber-600/80 group-hover:to-orange-600/70 active:scale-95 active:shadow-[0_0_28px_rgba(217,119,6,0.35),inset_0_0_12px_rgba(251,191,36,0.1)]">
-            <span>
-              <HomeTranslatedText text={'開啟秘卷'} />
-            </span>
-            <span className="transition-transform duration-300 group-hover:translate-x-2.5 group-active:translate-x-0 text-lg">→</span>
-          </div>
+      <div className={styles.content}>
+        <span className={styles.emblem} aria-hidden="true">修</span>
+        <div className={styles.copy}>
+          <span className={styles.eyebrow}><HomeTranslatedText text="本命阿修羅 · 獨立秘卷" /></span>
+          <h2 className={brandStyles.brush} data-asura-brand-title><HomeTranslatedText text="鬼魅阿修羅" /></h2>
+          <p><HomeTranslatedText text="四柱印記，點開閱讀力量與駕馭之道。" /></p>
+          <p className={styles.impression}><HomeTranslatedText text={`印記示意：${featuredImpression.title}`} /></p>
         </div>
       </div>
-
-      {isHovered && (
-        <div className="absolute inset-0 pointer-events-none rounded-3xl bg-gradient-to-t from-amber-600/15 via-transparent to-transparent" />
-      )}
+      <div className={styles.meta}>
+        <span><HomeTranslatedText text="免費" /></span>
+        <span><HomeTranslatedText text="3 分鐘" /></span>
+        <span><HomeTranslatedText text="阿修羅秘卷" /></span>
+      </div>
+      <div className={`${styles.cta} home-feature-cta`}>
+        <HomeTranslatedText text="開啟秘卷" /><span aria-hidden="true">→</span>
+      </div>
     </Link>
   );
 }
