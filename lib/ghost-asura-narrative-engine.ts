@@ -111,23 +111,31 @@ ${warrior.battleCommand}
 業鏡照出的是戰場，不是溫室。這盤棋由你掌刀，想贏，就提刀上陣，直面殘局！`;
 }
 
+import { buildGhostAsuraZiweiNarrative } from './ghost-asura-ziwei-engine';
+
 /**
- * 生成紫微斗數話術
+ * 生成紫微斗數話術（Ghost Asura Ziwei Narrative Engine V2）
+ * 嚴格遵循前端零紫微術語規範，全數轉譯為阿修羅人格與戰場沙盤語言
  */
 export function generateZiweiNarrative(
   ziwei: ZiweiChart,
   userName: string,
-  bazi: BaziProfessionalResult
+  bazi?: BaziProfessionalResult
 ): string {
-  return `${userName}，紫微業鏡已開，十四主星重列陣位。
+  const result = buildGhostAsuraZiweiNarrative(ziwei, userName);
+  return `${userName}，戰場陣位已審定：
 
-戰場陣地剖析：
-• 命宮為帥旗：展現你統御全局的氣場與決斷力。
-• 事業宮為先鋒陣：鋒芒所指，便是攻城拔寨的戰略目標。
-• 財帛宮為補給要塞：掠奪資源、穩固後盾，以雄厚資本支撐征途。
-• 婚姻宮為協作同袍：尋找敢一同背水一戰的戰友，而非拖累戰局的軟弱附庸。
+【核心行事風格】
+${result.corePersonality}
 
-星曜交錯，戰機稍縱即逝。勝負權柄，全在你拔刀的剎那！`;
+【戰略定調與過去積累】
+${result.pastNarrative}
+
+【當前陣地戰術】
+${result.presentNarrative}
+
+【長線戰局抉擇】
+${result.futureNarrative}`;
 }
 
 /**

@@ -22,6 +22,7 @@ const CACHE_MAX = 200;
 const cacheState = globalThis as typeof globalThis & {
   ghostAsuraReadingCache?: Map<string, { at: number; data: AsuraDisplay }>;
 };
+cacheState.ghostAsuraReadingCache?.clear();
 
 function reply(body: unknown, status = 200, headers: Record<string, string> = {}) {
   return NextResponse.json(body, { status, headers: { 'Cache-Control': 'no-store', ...headers } });

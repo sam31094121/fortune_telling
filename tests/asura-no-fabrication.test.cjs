@@ -11,6 +11,9 @@
  * ============================================================================
  */
 
+const fs = require('node:fs');
+const path = require('node:path');
+
 const FORBIDDEN_WORDS = [
   // 宿命論
   '一定',
@@ -103,9 +106,43 @@ if (totalViolations === 0) {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 測試 2：禁止詞列表完整性
+// 測試 2：掃描實戰話術範例庫
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-console.log('【測試 2】禁止詞列表完整性');
+console.log('【測試 2】掃描實戰話術範例庫');
+const scenariosPath = path.resolve(__dirname, '../docs/技能戰鬥檔案/鬼魅阿修羅/實戰話術範例.md');
+let scenariosCount = 0;
+if (fs.existsSync(scenariosPath)) {
+  const content = fs.readFileSync(scenariosPath, 'utf8');
+  const scenarioSections = content.split(/^## 情境/m).slice(1);
+  scenariosCount = scenarioSections.length;
+  console.log(`✓ 載入實戰範例檔：共 ${scenariosCount} 組情境`);
+
+  let scenarioViolations = 0;
+  scenarioSections.forEach((section, index) => {
+    const titleMatch = section.match(/^([^\n]+)/);
+    const title = titleMatch ? titleMatch[1].trim() : `情境 ${index + 1}`;
+    const violations = scanForForbiddenWords(section);
+    if (violations.length > 0) {
+      console.error(`❌ 情境【${title}】包含禁止詞：${violations.join('、')}`);
+      scenarioViolations += violations.length;
+    } else {
+      console.log(`  ✓ 情境【${title}】：0 違規`);
+    }
+  });
+
+  if (scenarioViolations === 0) {
+    console.log(`✓ ${scenariosCount} 組實戰話術範例：全部通過（0 個禁止詞）\n`);
+  } else {
+    throw new Error(`ASURA_FABRICATION_DETECTED: 實戰話術範例發現 ${scenarioViolations} 個禁止詞`);
+  }
+} else {
+  console.log('⚠️ 實戰範例檔不存在，跳過\n');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 測試 3：禁止詞列表完整性與分類一致性自動檢查
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+console.log('【測試 3】禁止詞列表完整性與分類一致性自動檢查');
 
 // 驗證禁止詞列表不為空
 if (FORBIDDEN_WORDS.length === 0) {
@@ -113,24 +150,53 @@ if (FORBIDDEN_WORDS.length === 0) {
 }
 console.log(`✓ 禁止詞列表包含 ${FORBIDDEN_WORDS.length} 個詞\n`);
 
-// 分類檢查
-const categoryCounts = {
-  '宿命論': ['一定', '必定', '必然', '註定', '宿命', '逃脫不了', '躲不過'].length,
-  '恐嚇': ['大凶', '血光', '橫禍', '降頭', '詛咒', '磨難在前'].length,
-  '消除自由意志': ['只能', '只有', '被迫', '無可奈何'].length,
-  '假裝超能力': ['預言', '判定', '算定', '看穿', '洞察', '天命'].length,
+// 定義規範的禁詞分類對應表
+const FORBIDDEN_CATEGORIES = {
+  '宿命論': ['一定', '必定', '必然', '註定', '宿命', '逃脫不了', '躲不過'],
+  '恐嚇': ['大凶', '血光', '橫禍', '降頭', '詛咒', '磨難在前'],
+  '消除自由意志': ['只能', '只有', '被迫', '無可奈何'],
+  '假裝超能力': ['預言', '判定', '算定', '看穿', '洞察', '天命'],
 };
 
-console.log('禁止詞分類覆蓋：');
-for (const [category, count] of Object.entries(categoryCounts)) {
-  console.log(`  ✓ ${category}: ${count} 個`);
+// 雙向完整性與無重複自動校驗
+const categorizedWords = Object.values(FORBIDDEN_CATEGORIES).flat();
+const setFromList = new Set(FORBIDDEN_WORDS);
+const setFromCategories = new Set(categorizedWords);
+
+// 檢查 FORBIDDEN_WORDS 是否有重複項
+if (setFromList.size !== FORBIDDEN_WORDS.length) {
+  const duplicates = FORBIDDEN_WORDS.filter((item, index) => FORBIDDEN_WORDS.indexOf(item) !== index);
+  throw new Error(`FORBIDDEN_WORDS 存在重複詞彙：${duplicates.join('、')}`);
+}
+
+// 檢查分類清單是否有重複項
+if (setFromCategories.size !== categorizedWords.length) {
+  const duplicates = categorizedWords.filter((item, index) => categorizedWords.indexOf(item) !== index);
+  throw new Error(`FORBIDDEN_CATEGORIES 存在跨類別重複詞彙：${duplicates.join('、')}`);
+}
+
+// 檢查 FORBIDDEN_WORDS 中存在但分類清單遺漏的詞彙
+const missingInCategories = FORBIDDEN_WORDS.filter((w) => !setFromCategories.has(w));
+if (missingInCategories.length > 0) {
+  throw new Error(`FORBIDDEN_CATEGORIES 遺漏了 FORBIDDEN_WORDS 中的詞彙：${missingInCategories.join('、')}`);
+}
+
+// 檢查分類清單中存在但 FORBIDDEN_WORDS 遺漏的詞彙
+const missingInList = categorizedWords.filter((w) => !setFromList.has(w));
+if (missingInList.length > 0) {
+  throw new Error(`FORBIDDEN_WORDS 遺漏了分類清單中的詞彙：${missingInList.join('、')}`);
+}
+
+console.log('禁止詞分類覆蓋（自動雙向校驗通過）：');
+for (const [category, words] of Object.entries(FORBIDDEN_CATEGORIES)) {
+  console.log(`  ✓ ${category}: ${words.length} 個（${words.join('、')}）`);
 }
 console.log();
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 測試 3：確認禁止詞掃描邏輯正確
+// 測試 4：確認禁止詞掃描邏輯正確
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-console.log('【測試 3】禁止詞掃描邏輯驗證');
+console.log('【測試 4】禁止詞掃描邏輯驗證');
 
 // 應該檢測到禁止詞
 const violationText = '這是一定會發生的事，註定要遭遇大凶。';
@@ -157,14 +223,14 @@ console.log('═'.repeat(60));
 console.log(`
 禁止詞掃描結果：
 ✓ 樣本話術（3 個神煞 × 5 層結構）無禁止詞
-✓ 禁止詞列表完整（${FORBIDDEN_WORDS.length} 個）
+✓ 實戰話術範例（${scenariosCount} 組客戶情境）無禁止詞
+✓ 禁止詞列表完整且分類 100% 一致（${FORBIDDEN_WORDS.length} 個）
 ✓ 掃描邏輯正確（正面/負面測試均通過）
 
-禁止列表確認：
-✓ 宿命論 — 一定、必定、必然、註定、宿命
-✓ 恐嚇 — 大凶、血光、橫禍、降頭、詛咒
-✓ 消除自由意志 — 只能、只有、被迫、無可奈何
-✓ 假裝超能力 — 預言、判定、算定、看穿、洞察
+禁止列表確認（動態雙向核驗）：
+${Object.entries(FORBIDDEN_CATEGORIES)
+  .map(([cat, words]) => `✓ ${cat} — ${words.join('、')}`)
+  .join('\n')}
 
 阿修羅的承諾：
 ✓ 直面真相，不說預言
