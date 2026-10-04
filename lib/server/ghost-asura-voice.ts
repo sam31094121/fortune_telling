@@ -352,12 +352,6 @@ export function composePast(marks: readonly TimeMark[]): TimeReading | null {
   return composeTime('past', marks);
 }
 
-/** 某格沒有可輸出的印記時，格子照留，只放這一句（阿修羅口吻）。 */
-export const ASURA_EMPTY = {
-  hits: '此段無交叉對上之印。我不多言。',
-  pillars: '今年這一歲，無印可照。我不多言。',
-  verdict: '往後，無印可報。判語不落空處。',
-} as const;
 
 /** 總判（未來 lead）只改寫既有固定句型；其他句子原樣。 */
 export function voiceLead(original: string): string {

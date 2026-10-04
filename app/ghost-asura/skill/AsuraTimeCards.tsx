@@ -42,7 +42,8 @@ export default function AsuraTimeCards() {
               {!display && <p className={styles.timeAwait}>{ASURA_AWAIT_BIRTH}</p>}
               {display?.hourNote && <p className={styles.timeHourNote}>{display.hourNote}</p>}
               {section?.lead && <p className={styles.timeLead}>{section.lead}</p>}
-              {section?.blocks && section.blocks.length > 0 ? (
+              {/* 讀盤逐段照印，每段後緊接該段印記的白話；0 印＝後端不給任何字，卡內只留標題列 */}
+              {section?.blocks && section.blocks.length > 0 && (
                 <div className={styles.timeNarrative} data-asura-narrative data-asura-interleaved>
                   {section.blocks.map((block, i) => (
                     <Fragment key={i}>
@@ -57,34 +58,12 @@ export default function AsuraTimeCards() {
                     </Fragment>
                   ))}
                 </div>
-              ) : (
-                section?.narrative && (
-                  <div className={styles.timeNarrative} data-asura-narrative>
-                    {section.narrative.split('\n').map((para, i) => (
-                      <p key={i}>{para}</p>
-                    ))}
-                  </div>
-                )
-              )}
-              {section && !section.blocks?.length && section.items.some((entry) => entry.plain) && (
-                <div className={styles.timePlainBlock} data-asura-plain-block>
-                  <span className={styles.timePlainTag}>白話</span>
-                  <ul>
-                    {section.items.filter((entry) => entry.plain).map((entry, index) => (
-                      <li key={`${entry.label}-${index}`} data-asura-plain>
-                        <strong>{entry.label}</strong>
-                        {entry.plain}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
               )}
               {section?.coda && (
                 <p className={styles.timeCoda} data-asura-coda>
                   {section.coda}
                 </p>
               )}
-              {section?.emptyText && <p className={styles.timeEmpty}>{section.emptyText}</p>}
             </div>
           </details>
         );

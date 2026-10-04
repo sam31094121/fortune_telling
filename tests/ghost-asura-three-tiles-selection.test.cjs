@@ -13,7 +13,7 @@ const PLACEHOLDERS = ['此域暫無可用判讀', '此印記尚待確認，暫�
 const voiceSrc = fs.readFileSync(path.join(root, 'lib/server/ghost-asura-voice.ts'), 'utf8').replace("import 'server-only';", '');
 const voice = { exports: {} };
 new Function('module', 'exports', ts.transpileModule(voiceSrc, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText)(voice, voice.exports);
-const { ASURA_VOICE, ASURA_EMPTY, ASURA_PLAIN, ASURA_TIMELINE, lintAsuraVoice, lintPlain } = voice.exports;
+const { ASURA_VOICE, ASURA_PLAIN, ASURA_TIMELINE, lintAsuraVoice, lintPlain } = voice.exports;
 for (const [id, tl] of Object.entries(ASURA_TIMELINE)) {
   for (const when of ['past', 'present', 'future']) {
     assert.deepEqual(lintAsuraVoice(tl[when].text), [], `timeline ${id}.${when} violates spec: ${tl[when].text}`);
@@ -51,7 +51,6 @@ for (const [id, tl] of Object.entries(ASURA_TIMELINE)) {
 const awaitLine = fs.readFileSync(path.join(root, 'lib/ghost-asura-display-contract.ts'), 'utf8').match(/ASURA_AWAIT_BIRTH = '([^']+)'/)[1];
 assert.deepEqual(lintAsuraVoice(awaitLine), [], `await-birth line violates spec: ${awaitLine}`);
 for (const [id, text] of Object.entries(ASURA_PLAIN)) assert.deepEqual(lintPlain(text), [], `plain ${id} violates plain lint: ${text}`);
-for (const text of Object.values(ASURA_EMPTY)) assert.deepEqual(lintAsuraVoice(text), [], `empty line violates spec: ${text}`);
 for (const [id, entry] of Object.entries(ASURA_VOICE)) {
   for (const [field, text] of Object.entries(entry)) {
     assert.deepEqual(lintAsuraVoice(text), [], `voice ${id}.${field} violates spec: ${text}`);
@@ -88,7 +87,8 @@ async function check(body, ip) {
   for (const s of data.sections) {
     const empty = s.items.length === 0 && !(s.key === 'verdict' && s.lead);
     // 0 印的卡：後端一個字都不出（無空行、無白話、無收尾、無 lead）；非空卡也不帶空行
-    assert.equal(s.emptyText, null, `${s.key} must not carry an empty line`);
+    assert(!('emptyText' in s), `${s.key} has no empty-line field (removed)`);
+    assert(!JSON.stringify(s).includes('無印可照'), `${s.key} must not carry the old empty line`);
     if (empty) {
       assert(!s.narrative && !s.coda && !s.lead, `empty tile ${s.key} must render nothing`);
       assert(!s.items.some((i) => i.plain), `empty tile ${s.key} has no 白話`);
@@ -111,7 +111,7 @@ async function check(body, ip) {
     } else assert(!s.blocks && !s.narrative && !s.coda, `${s.heading} empty has no narrative/blocks`);
     for (const name of hidden) if (!own.has(name)) assert(!((s.narrative ?? '') + (s.coda ?? '')).includes(name), `${s.heading} mentions a mark it does not show: ${name}`);
     // 區間只在後端：卡面文字不得出現年份
-    assert(!/\d{4}/.test((s.narrative ?? '') + (s.coda ?? '') + (s.emptyText ?? '')), `${s.heading} must not render year ranges`);
+    assert(!/\d{4}/.test((s.narrative ?? '') + (s.coda ?? '')), `${s.heading} must not render year ranges`);
   }
   assert.equal(data.hourAssumed, body.timeUnknown === true, 'hourAssumed 誠實標示');
   if (data.hourAssumed) {
@@ -124,7 +124,7 @@ async function check(body, ip) {
   }
   assert(sections.hits.items.length >= a.emitted, '過去 含本命底盤');
   assert.equal(a.pipelineTotal, a.emitted + a.droppedDormant + a.droppedPending + a.droppedNoPillar + a.droppedNotCrossVerified + a.droppedPlaceholder);
-  return { timeAxis: data.audit.timeAxis, hourAssumed: data.hourAssumed, hourNote: data.hourNote, tiles: data.sections.map((s) => ({ heading: s.heading, label: s.label, lead: s.lead, narrative: s.narrative, blocks: s.blocks, coda: s.coda, items: s.items.map((i) => ({ label: i.label, text: i.text, plain: i.plain })), emptyText: s.emptyText })), lead: sections.verdict.lead, audit: a };
+  return { timeAxis: data.audit.timeAxis, hourAssumed: data.hourAssumed, hourNote: data.hourNote, tiles: data.sections.map((s) => ({ heading: s.heading, label: s.label, lead: s.lead, narrative: s.narrative, blocks: s.blocks, coda: s.coda, items: s.items.map((i) => ({ label: i.label, text: i.text, plain: i.plain })) })), lead: sections.verdict.lead, audit: a };
 }
 
 (async () => {

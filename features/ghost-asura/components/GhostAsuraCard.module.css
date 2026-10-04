@@ -450,99 +450,8 @@
   .supplementHead:hover { background: #34232a; }
 }
 
-/* 只作用於新增的標題列與三格：沿用站內既有字型（品牌毛筆字子集＋系統楷書／Noto Serif TC），不另載入新字檔。 */
-@font-face {
-  font-family: 'Asura Brand Brush';
-  src: url('/fonts/asura-brand/yuji-boku-brand.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-  unicode-range: U+4FEE, U+7F85, U+963F, U+9B3C, U+9B45;
-}
-
-.functions, .titleBrush {
-  --asura-kai: "DFKai-SB", "BiauKai", "STKaiti", "KaiTi", "Noto Serif TC", "Songti TC", "PMingLiU", serif;
-  --asura-serif: "Noto Serif TC", "Songti TC", "PMingLiU", ui-serif, serif;
-}
-
-.titleBrush.titleBrush {
-  font-family: 'Asura Brand Brush', var(--asura-kai);
-  font-size: 38px;
-  font-weight: 400;
-  font-synthesis: none;
-  line-height: 1.2;
-  letter-spacing: 0.12em;
-  color: #f2c998;
-}
-
-/* ── 卡頭下方原生摺疊段：過去／現在／未來（收合只顯示兩字標題；內容由後端 /api/ghost-asura/reading 照印） ── */
-.functions {
-  display: grid;
-  gap: 10px;
-  padding: 20px 24px;
-  background: #151216;
-  border-bottom: 1px solid #45323a;
-}
-
-.headerPlain { padding: 20px 24px; }
-
-.fnIdle { opacity: 0.55; }
-.fnIdle .fnHead { cursor: default; }
-.fnIdle .fnHead::after { content: ''; }
-
+/* 展開面板共用：警示列、總判 lead */
 .fnAlert { margin: 16px 24px 0; }
-
-.fnSection {
-  min-width: 0;
-  border: 1px solid #674751;
-  border-radius: 10px;
-  background: #211a20;
-}
-
-.fnSection[open] { border-color: #c09076; background: #1d171c; }
-
-.fnHead {
-  display: flex;
-  align-items: center;
-  min-height: 60px;
-  padding: 0 18px;
-  cursor: pointer;
-  list-style: none;
-  border-radius: 9px;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.fnHead::-webkit-details-marker { display: none; }
-
-.fnHead::after {
-  content: '＋';
-  margin-left: auto;
-  flex-shrink: 0;
-  color: #e4b99b;
-  font-size: 18px;
-}
-
-.fnSection[open] > .fnHead::after { content: '−'; }
-
-.fnHead:focus-visible { outline: 2px solid #e3b881; outline-offset: 3px; }
-
-.fnTitle {
-  color: #f2c998;
-  font-family: var(--asura-kai);
-  font-size: 26px;
-  font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: 0.3em;
-}
-
-.fnBody {
-  display: grid;
-  gap: 12px;
-  min-width: 0;
-  padding: 14px 16px 16px;
-  border-top: 1px solid #674751;
-}
-
 .fnLead {
   margin: 0;
   padding: 2px 0 2px 14px;
@@ -554,463 +463,25 @@
   line-height: 1.75;
   letter-spacing: 0.04em;
 }
-
-.fnList { display: grid; gap: 8px; margin: 0; }
-
-.fnRow {
-  display: grid;
-  grid-template-columns: 7em minmax(0, 1fr);
-  gap: 4px 14px;
-  align-items: baseline;
-  min-width: 0;
-  padding: 14px 16px;
-  border: 1px solid #3f3038;
-  border-radius: 8px;
-  background: #171318;
-}
-
-.fnRow dt {
-  color: #f2c998;
-  font-family: var(--asura-serif);
-  font-size: 19px;
-  font-weight: 700;
-  line-height: 1.6;
-  letter-spacing: 0.06em;
-}
-
-.fnRow dd {
-  margin: 0;
-  min-width: 0;
-  color: #efe4de;
-  font-size: 18px;
-  line-height: 1.75;
-  letter-spacing: 0.02em;
-  overflow-wrap: anywhere;
-}
-
-.fnEmpty { margin: 0; color: #e0d3cd; font-size: 18px; line-height: 1.75; }
-
 @media (max-width: 420px) {
   .fnAlert { margin: 12px 16px 0; }
-  .headerPlain { padding: 16px; }
-  .functions { gap: 10px; padding: 16px; }
-  .fnHead { padding: 0 16px; }
-  .fnBody { padding: 14px 14px 16px; gap: 10px; }
-  .fnRow { grid-template-columns: minmax(0, 1fr); padding: 12px 14px; }
-  .titleBrush.titleBrush { font-size: 34px; }
 }
 
-@media (hover: hover) {
-  .fnHead:hover { background: #34232a; }
-}
-
-/* ── 新增區精修（只作用於 DisplayCard／Shell 的標題列與三格）：1px 銳邊、≤4px 圓角、8px 格線、克制層次陰影 ── */
-.headerSharp.headerSharp {
-  padding: 24px 88px 16px 24px;
-  background: linear-gradient(110deg, #2a161c 0%, #17131a 70%);
-  border-bottom: 1px solid rgba(192, 144, 118, 0.55);
-  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.6);
-}
-
-.headerSharp .crest { border-radius: 2px; border-color: rgba(201, 122, 110, 0.85); }
-
-.headerSharp .titleBrush {
-  color: #f6d3a6;
-  text-shadow: 0 1px 0 #000, 0 0 1px rgba(246, 211, 166, 0.6);
-}
-
-.functions.functions {
-  gap: 8px;
-  padding: 16px 24px 24px;
-  background: #131015;
-}
-
-.fnSection.fnSection {
-  border: 1px solid #553a42;
-  border-left: 2px solid #8c4b55;
-  border-radius: 4px;
-  background: #19141a;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.03),
-    0 1px 0 rgba(0, 0, 0, 0.5),
-    0 8px 16px -12px rgba(0, 0, 0, 0.9);
-  transition: border-color 180ms ease, background-color 180ms ease;
-}
-
-.fnSection.fnSection[open] {
-  border-color: #b98a70;
-  border-left-color: #d0626e;
-  background: #1c161c;
-}
-
-.fnSection .fnHead {
-  min-height: 56px;
-  padding: 0 16px;
-  border-radius: 3px;
-  border-bottom: 2px solid transparent;
-  transition: background-color 180ms ease, border-color 180ms ease;
-}
-
-.fnSection[open] > .fnHead {
-  border-bottom-color: #c94f5c;
-  border-radius: 3px 3px 0 0;
-  background: linear-gradient(90deg, rgba(201, 79, 92, 0.16), transparent 70%);
-}
-
-.fnSection .fnTitle {
-  color: #ead2b4;
+/* ════════════════════════════════════════════════════════════════
+ * 卡頭（DisplayCard／Shell 共用）＋展開面板：唯一一組規則
+ *   橫幅「鬼魅［修羅印］阿修羅」左右貼齊、一行不換；印＝深朱有機橢圓符印、古風刻印字
+ *   下方過去／現在／未來一列三格（手機 4:5 直幅，桌機正方）；點格在下方全寬展開，再點收合
+ *   水墨：紙紋雜訊、乾筆飛白橫筆、橫幅後一團摔墨（靜態 SVG，無模糊濾鏡）
+ * ════════════════════════════════════════════════════════════════ */
+@font-face {
+  font-family: 'Asura Brand Brush';
+  src: url('/fonts/asura-brand/yuji-boku-brand.woff2') format('woff2');
   font-weight: 400;
-  font-size: 24px;
-  letter-spacing: 0.32em;
-  transition: color 180ms ease;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+4FEE, U+7F85, U+963F, U+9B3C, U+9B45;
 }
-
-.fnSection[open] .fnTitle { color: #fff3e6; }
-
-.fnSection .fnHead::after {
-  color: #c99a7c;
-  font-size: 16px;
-  transition: transform 180ms ease, color 180ms ease;
-}
-
-.fnSection[open] > .fnHead::after { color: #f2c998; }
-
-.fnSection .fnBody {
-  gap: 8px;
-  padding: 16px;
-  border-top: 0;
-}
-
-.fnSection[open] .fnBody { animation: asuraFnReveal 180ms ease-out; }
-
-@keyframes asuraFnReveal {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: none; }
-}
-
-.fnSection .fnRow {
-  padding: 12px 16px;
-  border: 1px solid #3a2c33;
-  border-left: 2px solid #6d3f48;
-  border-radius: 4px;
-  background: #141015;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
-}
-
-.fnSection .fnRow dt { color: #f6d3a6; }
-.fnSection .fnRow dd { color: #f3ebe6; }
-.fnSection .fnLead { color: #fbeee4; border-left-color: #c94f5c; }
-
-.fnIdle.fnIdle { opacity: 0.6; box-shadow: none; }
-
-@media (max-width: 420px) {
-  .headerSharp.headerSharp { padding: 16px 80px 16px 16px; }
-  .functions.functions { padding: 16px; }
-  .fnSection .fnBody { padding: 16px 8px 8px; }
-  .fnSection .fnRow { padding: 12px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .fnSection.fnSection, .fnSection .fnHead, .fnSection .fnTitle, .fnSection .fnHead::after { transition: none; }
-  .fnSection[open] .fnBody { animation: none; }
-}
-
-@media (hover: hover) {
-  .fnSection .fnHead:hover { background: rgba(201, 79, 92, 0.1); }
-}
-
-/* ── 標題方塊＋三方塊靠右（DisplayCard／Shell 卡頭列專用）；點方塊後下方全寬展開 ── */
-.asuraTopRow,
-.fnPanel {
-  --asura-kai: "DFKai-SB", "BiauKai", "STKaiti", "KaiTi", "Noto Serif TC", "Songti TC", "PMingLiU", serif;
-  --asura-serif: "Noto Serif TC", "Songti TC", "PMingLiU", ui-serif, serif;
-}
-
-.asuraTopRow {
-  display: flex;
-  justify-content: flex-end;
-  padding: 16px 24px;
-  background: linear-gradient(110deg, #17131a 0%, #2a161c 100%);
-  border-bottom: 1px solid rgba(192, 144, 118, 0.55);
-  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.6);
-}
-
-.asuraSquares {
-  display: grid;
-  grid-template-columns: repeat(4, 96px);
-  gap: 8px;
-}
-
-.titleSquare,
-.tileSquare {
-  box-sizing: border-box;
-  aspect-ratio: 1;
-  min-width: 44px;
-  min-height: 44px;
-  border-radius: 4px;
-}
-
-.titleSquare {
-  position: relative;
-  display: grid;
-  place-items: center;
-  padding: 8px;
-  border: 1px solid #b98a70;
-  background: linear-gradient(160deg, #2b1820, #160f14);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(0, 0, 0, 0.5), 0 8px 16px -12px #000;
-}
-
-.squareTitle.squareTitle.squareTitle {
-  margin: 0;
-  writing-mode: vertical-rl;
-  font-size: 16px;
-  line-height: 1;
-  letter-spacing: 0.04em;
-  color: #f6d3a6;
-  text-shadow: 0 1px 0 #000, 0 0 1px rgba(246, 211, 166, 0.6);
-}
-
-.squareCrest {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  padding: 2px 1px;
-  border: 1px solid rgba(201, 122, 110, 0.85);
-  border-radius: 2px;
-  color: #edcaba;
-  font: 700 9px/1.2 serif;
-  writing-mode: vertical-rl;
-  letter-spacing: 0.1em;
-}
-
-.tileSquare {
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 1px solid #553a42;
-  border-bottom: 2px solid #8c4b55;
-  background: #19141a;
-  color: #ead2b4;
-  font-family: var(--asura-kai);
-  font-size: 22px;
-  font-weight: 400;
-  letter-spacing: 0.1em;
-  cursor: pointer;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 1px 0 rgba(0, 0, 0, 0.5), 0 8px 16px -12px #000;
-  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.tileSquare:focus-visible { outline: 2px solid #e3b881; outline-offset: 2px; }
-
-.tileSquareOn.tileSquareOn {
-  background: #f2c998;
-  border-color: #f2c998;
-  border-bottom-color: #c94f5c;
-  color: #1a1014;
-  font-weight: 700;
-}
-
-.tileSquareIdle.tileSquareIdle { opacity: 0.55; cursor: default; }
-
-.fnPanel {
-  padding: 16px 24px 24px;
-  background: #131015;
-  border-bottom: 1px solid #45323a;
-  animation: asuraFnReveal 180ms ease-out;
-}
-
-.fnPanel[hidden] { display: none; }
-
-.fnPanel .fnBody { display: grid; gap: 8px; padding: 0; border-top: 0; }
-
-.fnPanel .fnRow {
-  padding: 12px 16px;
-  border: 1px solid #3a2c33;
-  border-left: 2px solid #6d3f48;
-  border-radius: 4px;
-  background: #141015;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
-}
-
-.fnPanel .fnRow dt { color: #f6d3a6; }
-.fnPanel .fnRow dd { color: #f3ebe6; }
-.fnPanel .fnLead { color: #fbeee4; border-left-color: #c94f5c; }
-
-@media (hover: hover) {
-  .tileSquare:not(:disabled):not(.tileSquareOn):hover { background: #2a1c22; border-color: #b98a70; }
-}
-
-/* 390 手機：四方塊排不進右半邊 → 改 2×2，仍靠右（群組寬 ≤ 約 60%） */
-@media (max-width: 640px) {
-  .asuraTopRow { padding: 16px; }
-  .asuraSquares { grid-template-columns: repeat(2, 100px); }
-  .squareTitle.squareTitle.squareTitle { font-size: 18px; }
-  .fnPanel { padding: 16px; }
-  .fnPanel .fnRow { grid-template-columns: minmax(0, 1fr); padding: 12px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tileSquare { transition: none; }
-  .fnPanel { animation: none; }
-}
-
-/* ── 卡頭四方塊精修 v2＋水墨：墨底、啞金髮絲線、朱紅作用態、暈染／潑墨（純 CSS＋內嵌 SVG 雜訊，只作用於卡頭列） ── */
-.asuraTopRow.asuraTopRow {
-  --ink: #0d0b0a;
-  --gold: #c9a45c;
-  --gold-hi: #e6c886;
-  --crimson: #8b1e1e;
-  --ink-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-  align-items: center;
-  padding: 16px 24px;
-  background:
-    radial-gradient(120% 90% at 100% 50%, rgba(60, 54, 50, 0.35), transparent 60%),
-    var(--ink);
-  border-bottom: 1px solid rgba(201, 164, 92, 0.45);
-  box-shadow: inset 0 1px 0 rgba(230, 200, 134, 0.06);
-}
-
-.asuraTopRow .asuraSquares { gap: 8px; align-items: center; }
-
-.asuraTopRow .titleSquare,
-.asuraTopRow .tileSquare {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-}
-
-/* 暈染：墨色由深到淡的漸層＋紙紋雜訊 */
-.asuraTopRow .titleSquare::before,
-.asuraTopRow .tileSquare::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image:
-    var(--ink-grain),
-    radial-gradient(85% 75% at 30% 25%, rgba(120, 112, 104, 0.32), transparent 62%),
-    radial-gradient(70% 60% at 80% 90%, rgba(0, 0, 0, 0.75), transparent 70%),
-    linear-gradient(160deg, #2a2623 0%, #121010 55%, #050404 100%);
-  background-size: 120px 120px, auto, auto, auto;
-  opacity: 0.95;
-}
-
-/* 潑墨：右上角墨點飛白，邊緣以 mask 打散 */
-.asuraTopRow .titleSquare::after,
-.asuraTopRow .tileSquare::after {
-  content: '';
-  position: absolute;
-  top: -14px;
-  right: -14px;
-  width: 46px;
-  height: 46px;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 40% 60%, rgba(0, 0, 0, 0.95) 0 30%, transparent 31%),
-    radial-gradient(circle at 70% 30%, rgba(0, 0, 0, 0.85) 0 16%, transparent 17%),
-    radial-gradient(circle at 15% 20%, rgba(0, 0, 0, 0.8) 0 7%, transparent 8%),
-    radial-gradient(circle at 85% 80%, rgba(0, 0, 0, 0.7) 0 6%, transparent 7%);
-  -webkit-mask-image: var(--ink-grain), radial-gradient(circle, #000 55%, transparent 72%);
-  mask-image: var(--ink-grain), radial-gradient(circle, #000 55%, transparent 72%);
-  -webkit-mask-composite: source-over;
-  opacity: 0.9;
-}
-
-.asuraTopRow .tileSquare:nth-of-type(2n)::after { top: auto; bottom: -14px; right: auto; left: -14px; }
-
-/* 主：朱紅印面＋金色印框（雙線） */
-.asuraTopRow .titleSquare {
-  border: 1px solid var(--gold);
-  background: var(--crimson);
-  box-shadow:
-    inset 0 0 0 3px rgba(139, 30, 30, 0.9),
-    inset 0 0 0 4px rgba(230, 200, 134, 0.8),
-    0 1px 0 rgba(0, 0, 0, 0.6);
-}
-
-.asuraTopRow .titleSquare::before {
-  background-image:
-    var(--ink-grain),
-    radial-gradient(80% 70% at 30% 25%, rgba(190, 60, 50, 0.55), transparent 65%),
-    radial-gradient(75% 65% at 85% 90%, rgba(30, 4, 4, 0.8), transparent 70%),
-    linear-gradient(160deg, #a52a24 0%, #8b1e1e 50%, #4a0d0d 100%);
-  background-size: 120px 120px, auto, auto, auto;
-}
-
-.asuraTopRow .squareTitle.squareTitle.squareTitle {
-  color: var(--gold-hi);
-  letter-spacing: 0.06em;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.8), 0 0 0.6px var(--gold-hi), 0 0 0.6px var(--gold-hi);
-}
-
-.asuraTopRow .squareCrest {
-  top: 6px;
-  left: 6px;
-  border-color: rgba(230, 200, 134, 0.7);
-  color: var(--gold-hi);
-  background: rgba(13, 11, 10, 0.35);
-}
-
-/* 次：墨黑＋金髮絲線（內雙線） */
-.asuraTopRow .tileSquare {
-  border: 1px solid var(--gold);
-  background: var(--ink);
-  color: var(--gold);
-  font-size: 19px;
-  letter-spacing: 0.1em;
-  text-indent: 0.1em;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.9);
-  box-shadow:
-    inset 0 0 0 3px rgba(13, 11, 10, 0.6),
-    inset 0 0 0 4px rgba(201, 164, 92, 0.3);
-  transition: background-color 180ms ease, color 180ms ease, box-shadow 180ms ease, transform 120ms ease;
-}
-
-.asuraTopRow .tileSquare:not(:disabled):active { transform: translateY(1px) scale(0.98); }
-.asuraTopRow .tileSquare:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 2px; }
-
-.asuraTopRow .tileSquareOn.tileSquareOn {
-  border-color: var(--gold-hi);
-  background: var(--crimson);
-  color: var(--gold-hi);
-  font-weight: 700;
-  box-shadow:
-    inset 0 0 0 3px rgba(139, 30, 30, 0.85),
-    inset 0 0 0 4px rgba(230, 200, 134, 0.75),
-    0 0 0 1px rgba(139, 30, 30, 0.6);
-}
-
-.asuraTopRow .tileSquareOn::before {
-  background-image:
-    var(--ink-grain),
-    radial-gradient(80% 70% at 30% 25%, rgba(190, 60, 50, 0.5), transparent 65%),
-    linear-gradient(160deg, #a52a24 0%, #8b1e1e 55%, #4a0d0d 100%);
-  background-size: 120px 120px, auto, auto;
-}
-
-.asuraTopRow .tileSquareIdle.tileSquareIdle { opacity: 0.5; }
-
-@media (hover: hover) {
-  .asuraTopRow .tileSquare:not(:disabled):not(.tileSquareOn):hover {
-    color: var(--gold-hi);
-    box-shadow: inset 0 0 0 3px rgba(13, 11, 10, 0.6), inset 0 0 0 4px rgba(230, 200, 134, 0.55);
-  }
-}
-
-@media (max-width: 640px) {
-  .asuraTopRow.asuraTopRow { padding: 16px; }
-  .asuraTopRow .tileSquare { font-size: 20px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .asuraTopRow .tileSquare { transition: none; }
-  .asuraTopRow .tileSquare:not(:disabled):active { transform: none; }
-}
-
-/* 三方塊字型：與標題同一套 Yuji Boku（OFL）毛筆字，自架 6 字子集（約 3.5KB），不另載網路字型 */
+/* 三格字：Yuji Boku（OFL）6 字子集 */
 @font-face {
   font-family: 'Asura Tiles Brush';
   src: url('/fonts/asura-brand/yuji-boku-asura-tiles.woff2') format('woff2');
@@ -1019,199 +490,65 @@
   font-display: swap;
   unicode-range: U+904E, U+53BB, U+73FE, U+5728, U+672A, U+4F86;
 }
-
-.asuraTopRow .tileSquare,
-.asuraTopRow .tileSquareOn.tileSquareOn {
-  font-family: 'Asura Tiles Brush', 'Asura Brand Brush', var(--asura-kai);
+/* 印文：Zen Antique（OFL 1.1）2 字子集；授權見 public/fonts/asura-brand/LICENSE-zen-antique-seal.md */
+@font-face {
+  font-family: 'Asura Seal Carved';
+  src: url('/fonts/asura-brand/zen-antique-asura-seal.woff2') format('woff2');
   font-weight: 400;
-  font-synthesis: none;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+4FEE, U+7F85;
 }
 
-.asuraTopRow .squareTitle.squareTitle.squareTitle {
-  font-family: 'Asura Brand Brush', var(--asura-kai);
-  font-size: 15px;
-  letter-spacing: 0.02em;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.85), 0 0 0.8px var(--gold-hi), 0 0 0.8px var(--gold-hi), 0 0 0.8px var(--gold-hi);
+.asuraTopRow,
+.fnPanel {
+  --asura-kai: "DFKai-SB", "BiauKai", "STKaiti", "KaiTi", "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  --asura-serif: "Noto Serif TC", "Songti TC", "PMingLiU", ui-serif, serif;
 }
 
-.asuraTopRow .titleSquare { padding: 6px; }
-
-@media (max-width: 640px) {
-  .asuraTopRow .squareTitle.squareTitle.squareTitle { font-size: 16px; }
-  .asuraTopRow .tileSquare { font-size: 24px; }
-}
-@media (min-width: 641px) {
-  .asuraTopRow .tileSquare { font-size: 24px; }
-}
-
-/* 白話：每項最後一行，日常語氣，視覺上退一階（不走阿修羅金字） */
-.fnPanel .fnPlain {
-  display: block;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dashed rgba(201, 164, 92, 0.28);
-  color: #d9cfc8;
-  font-family: system-ui, -apple-system, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
-  font-size: 15px;
-  line-height: 1.6;
-}
-.fnPanel .fnPlainTag {
-  display: inline-block;
-  margin-right: 8px;
-  padding: 0 6px;
-  border: 1px solid rgba(201, 164, 92, 0.55);
-  border-radius: 3px;
-  color: #c9a45c;
-  font-size: 12px;
-  line-height: 18px;
-  vertical-align: 1px;
-}
-
-/* 時辰未知、以子時排：一句誠實註記 */
-.fnHourNote {
-  margin: 8px 16px 0;
-  color: #c9a45c;
-  font-size: 14px;
-  line-height: 1.6;
-  letter-spacing: 0.06em;
-  text-align: right;
-}
-
-/* 過去：三源合一段落，行與行之間保留換行 */
-.fnPanel .fnRow dd { white-space: pre-line; }
-.fnPanel .fnRow dd .fnPlain { white-space: normal; }
-
-/* 三卡連續讀盤 → 白話區 → 收尾金句 */
-.fnPanel .fnNarrative { display: grid; gap: 12px; }
-.fnPanel .fnNarrative p { margin: 0; color: #f3ebe6; font-size: 17px; line-height: 1.85; letter-spacing: 0.02em; }
-.fnPanel .fnPlainBlock {
-  margin-top: 16px;
-  padding: 12px 14px;
-  border: 1px dashed rgba(201, 164, 92, 0.32);
-  border-radius: 4px;
-  background: rgba(13, 11, 10, 0.55);
-  font-family: system-ui, -apple-system, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
-}
-.fnPanel .fnPlainBlock ul { display: grid; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
-.fnPanel .fnPlainBlock li { color: #d9cfc8; font-size: 15px; line-height: 1.6; }
-.fnPanel .fnPlainBlock li strong { margin-right: 8px; color: #c9a45c; font-weight: 600; }
-.fnPanel .fnCoda {
-  margin: 16px 0 0;
-  padding-top: 14px;
-  border-top: 1px solid rgba(201, 164, 92, 0.45);
-  color: #e6c47a;
-  font-size: 19px;
-  font-weight: 700;
-  line-height: 1.7;
-  letter-spacing: 0.04em;
-}
-
-/* ════════════════════════════════════════════════════════════════
- * 卡頭四方塊 v3：放大、加重（只改視覺）
- *   手機 2×2 靠右：100px → 124px，間距 10px；桌機一列：96px → 120px
- *   框：1px → 2px 金框＋內雙線＋外緣朱紅暈染；字：方塊 24px → 34px、標題 16px → 20px
- *   質地：底部一筆乾筆飛白金線＋左緣一筆淡墨直筆（靜態，無動畫）
- * ════════════════════════════════════════════════════════════════ */
-.asuraTopRow.asuraTopRow {
+.asuraTopRow {
+  --ink: #0d0b0a;
+  --gold: #c9a45c;
+  --gold-hi: #e6c886;
+  --crimson: #8b1e1e;
+  --ink-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   --dry-streak: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='12'><filter id='d'><feTurbulence type='fractalNoise' baseFrequency='0.015 0.9' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.85  0 0 0 0 0.7  0 0 0 0 0.42  0 0 0 -2.4 1.45'/></filter><rect width='100%' height='100%' filter='url(%23d)'/></svg>");
-  padding: 20px 16px;
-}
-.asuraTopRow .asuraSquares { grid-template-columns: repeat(4, 120px); gap: 10px; }
-
-.asuraTopRow .titleSquare,
-.asuraTopRow .tileSquare {
-  border-width: 2px;
-  border-radius: 3px;
-}
-
-/* 乾筆飛白：底部金色橫筆、左緣淡墨直筆，以雜訊遮罩打散成飛白 */
-.asuraTopRow .tileSquare::before {
-  background-image:
-    var(--dry-streak),
-    linear-gradient(180deg, transparent 8%, rgba(150, 140, 128, 0.22) 30%, rgba(150, 140, 128, 0.12) 70%, transparent 92%),
-    var(--ink-grain),
-    radial-gradient(85% 75% at 30% 25%, rgba(120, 112, 104, 0.36), transparent 62%),
-    radial-gradient(70% 60% at 80% 90%, rgba(0, 0, 0, 0.8), transparent 70%),
-    linear-gradient(160deg, #2c2724 0%, #121010 55%, #040303 100%);
-  background-size: 64% 3px, 0 0, 120px 120px, auto, auto, auto;
-  background-position: 50% calc(100% - 14px), 0 0, 0 0, 0 0, 0 0, 0 0;
-  background-repeat: no-repeat, no-repeat, repeat, no-repeat, no-repeat, no-repeat;
-}
-
-.asuraTopRow .tileSquare {
-  font-size: 34px;
-  letter-spacing: 0.08em;
-  text-indent: 0.08em;
-  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.9), 0 0 10px rgba(201, 164, 92, 0.18), 0 0 0.8px var(--gold-hi);
-  box-shadow:
-    inset 0 0 0 4px rgba(13, 11, 10, 0.7),
-    inset 0 0 0 5px rgba(201, 164, 92, 0.42),
-    0 0 14px -6px rgba(139, 30, 30, 0.75),
-    0 6px 14px -8px #000;
-}
-.asuraTopRow .tileSquareOn.tileSquareOn {
-  box-shadow:
-    inset 0 0 0 4px rgba(139, 30, 30, 0.85),
-    inset 0 0 0 5px rgba(230, 200, 134, 0.8),
-    0 0 18px -4px rgba(139, 30, 30, 0.85);
-}
-.asuraTopRow .titleSquare {
-  padding: 8px;
-  box-shadow:
-    inset 0 0 0 4px rgba(139, 30, 30, 0.9),
-    inset 0 0 0 5px rgba(230, 200, 134, 0.85),
-    0 0 18px -6px rgba(139, 30, 30, 0.9),
-    0 6px 14px -8px #000;
-}
-.asuraTopRow .squareTitle.squareTitle.squareTitle {
-  font-size: 20px;
-  letter-spacing: 0.04em;
-}
-.asuraTopRow .squareCrest { top: 8px; left: 8px; }
-.asuraTopRow .titleSquare::after,
-.asuraTopRow .tileSquare::after { width: 58px; height: 58px; top: -16px; right: -16px; }
-.asuraTopRow .tileSquare:nth-of-type(2n)::after { top: auto; bottom: -16px; right: auto; left: -16px; }
-
-@media (max-width: 640px) {
-  .asuraTopRow.asuraTopRow { padding: 20px 16px; }
-  .asuraTopRow .asuraSquares { grid-template-columns: repeat(2, 124px); gap: 10px; }
-  .asuraTopRow .tileSquare { font-size: 34px; }
-  .asuraTopRow .squareTitle.squareTitle.squareTitle { font-size: 20px; }
-}
-.asuraTopRow .tileSquareOn.tileSquareOn::before {
-  background-image:
-    var(--dry-streak),
-    var(--ink-grain),
-    radial-gradient(80% 70% at 30% 25%, rgba(190, 60, 50, 0.5), transparent 65%),
-    linear-gradient(160deg, #a52a24 0%, #8b1e1e 55%, #4a0d0d 100%);
-  background-size: 64% 3px, 120px 120px, auto, auto;
-  background-position: 50% calc(100% - 14px), 0 0, 0 0, 0 0;
-  background-repeat: no-repeat, repeat, no-repeat, no-repeat;
-}
-
-/* ════════════════════════════════════════════════════════════════
- * 卡頭 v4：橫幅「鬼魅［修羅印］阿修羅」＋一列三格（取代 2×2 標題方塊；只改視覺）
- *   橫幅：左右兩組貼齊兩端，中間空隙蓋一方深朱白文印；字級隨容器寬縮放（cqi），390 不換行
- *   三格：一列三等分，4:5 直幅，框與飛白沿用 v3
- * ════════════════════════════════════════════════════════════════ */
-.asuraTopRow.asuraTopRow {
   display: grid;
-  gap: 14px;
-  justify-content: stretch;
-  padding: 16px 12px;
+  gap: 24px;
+  padding: 24px 12px;
+  background:
+    radial-gradient(120% 90% at 100% 50%, rgba(60, 54, 50, 0.35), transparent 60%),
+    var(--ink);
+  border-bottom: 1px solid rgba(201, 164, 92, 0.45);
+  box-shadow: inset 0 1px 0 rgba(230, 200, 134, 0.06);
 }
+
+/* 橫幅 */
 .asuraBanner {
+  position: relative;
+  isolation: isolate;
   container-type: inline-size;
   width: 100%;
   max-width: 640px;
   margin: 0 auto;
 }
-.asuraBanner .bannerTitle.bannerTitle {
+.asuraBanner::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -14px -8px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 160' preserveAspectRatio='none'><g fill='%235a1515'><path d='M440 86 L426 93 L418 99 L412 103 L414 112 L397 107 L402 122 L396 127 L383 118 L380 138 L370 120 L365 113 L341 154 L357 108 L342 116 L311 130 L348 99 L324 103 L298 101 L334 89 L337 84 L318 75 L341 75 L323 60 L346 67 L346 60 L357 65 L357 54 L365 56 L370 54 L378 42 L385 49 L394 49 L401 51 L407 56 L399 69 L428 62 L427 71 L429 78Z M411 83 L404 91 L391 94 L392 103 L388 112 L373 97 L368 100 L361 104 L354 103 L330 115 L342 96 L334 91 L329 83 L329 75 L352 76 L341 61 L358 68 L360 57 L368 70 L374 66 L386 58 L390 66 L387 74 L394 78Z M370 55 L358 12 L362 56Z M401 76 L436 53 L397 68Z M351 109 L324 157 L358 114Z M387 113 L452 190 L394 108Z M385 58 L401 -0 L379 56Z M403 85 L476 74 L402 80Z M110 118 L95 121 L98 125 L94 126 L93 130 L91 133 L85 131 L82 135 L78 136 L75 131 L69 134 L66 130 L61 130 L63 124 L62 121 L66 118 L57 114 L64 112 L63 108 L66 105 L73 108 L73 101 L78 102 L82 104 L86 103 L90 104 L94 105 L98 107 L98 111 L94 116Z M93 119 L88 121 L88 122 L92 127 L85 124 L85 128 L82 127 L79 129 L78 125 L67 132 L74 123 L72 122 L75 119 L73 117 L77 117 L68 108 L77 113 L79 110 L82 106 L85 111 L89 109 L94 110 L93 114 L93 117Z M93 116 L131 104 L92 113Z M72 128 L50 159 L73 129Z M89 127 L114 145 L91 125Z M86 129 L108 153 L90 126Z M70 126 L52 146 L72 128Z M75 130 L66 170 L78 131Z M736 44 L728 46 L729 48 L722 48 L722 50 L723 52 L724 56 L721 57 L720 60 L716 58 L713 60 L711 57 L708 58 L705 60 L704 55 L697 59 L698 55 L698 52 L689 53 L700 47 L694 46 L692 44 L696 42 L698 40 L687 34 L701 38 L704 38 L705 37 L705 34 L706 32 L707 27 L711 34 L713 34 L716 30 L716 35 L722 29 L725 30 L723 35 L722 38 L723 40 L723 41 L725 42Z M731 46 L718 47 L720 49 L723 54 L718 54 L715 53 L713 52 L709 57 L709 50 L707 50 L702 50 L705 47 L694 46 L707 44 L706 43 L697 33 L706 36 L709 35 L713 35 L714 41 L717 40 L726 35 L721 41 L722 44Z M702 50 L684 67 L705 53Z M720 52 L741 67 L722 50Z M702 50 L679 74 L705 53Z M701 47 L673 63 L703 50Z M721 51 L752 67 L722 48Z M713 55 L722 84 L716 55Z'/><circle cx='356' cy='3' r='5.3'/><circle cx='445' cy='48' r='5.8'/><circle cx='319' cy='165' r='5.5'/><circle cx='457' cy='197' r='5.4'/><circle cx='403' cy='-6' r='3.7'/><circle cx='482' cy='73' r='3.4'/><circle cx='446' cy='38' r='1.3'/><circle cx='331' cy='122' r='2.4'/><circle cx='462' cy='180' r='3.3'/><circle cx='422' cy='163' r='4.8'/><circle cx='341' cy='20' r='1.8'/><circle cx='234' cy='108' r='1.1'/><circle cx='418' cy='6' r='1.4'/><circle cx='498' cy='41' r='1.4'/><circle cx='269' cy='90' r='3.0'/><circle cx='313' cy='85' r='4.1'/><circle cx='304' cy='159' r='0.7'/><circle cx='335' cy='171' r='3.5'/><circle cx='412' cy='29' r='4.9'/><circle cx='341' cy='-35' r='2.1'/><circle cx='135' cy='103' r='2.2'/><circle cx='48' cy='161' r='1.2'/><circle cx='116' cy='147' r='2.2'/><circle cx='111' cy='156' r='2.6'/><circle cx='50' cy='148' r='1.5'/><circle cx='65' cy='172' r='1.8'/><circle cx='136' cy='106' r='1.8'/><circle cx='76' cy='169' r='1.6'/><circle cx='50' cy='133' r='2.6'/><circle cx='47' cy='119' r='1.6'/><circle cx='113' cy='145' r='1.5'/><circle cx='66' cy='161' r='2.3'/><circle cx='123' cy='121' r='1.2'/><circle cx='128' cy='100' r='1.1'/><circle cx='77' cy='141' r='2.6'/><circle cx='68' cy='155' r='1.6'/><circle cx='52' cy='87' r='2.1'/><circle cx='118' cy='148' r='1.2'/><circle cx='46' cy='112' r='1.2'/><circle cx='41' cy='112' r='1.3'/><circle cx='681' cy='70' r='2.4'/><circle cx='744' cy='69' r='1.8'/><circle cx='676' cy='76' r='2.4'/><circle cx='670' cy='64' r='2.1'/><circle cx='754' cy='69' r='1.8'/><circle cx='723' cy='87' r='1.6'/><circle cx='727' cy='23' r='2.3'/><circle cx='699' cy='5' r='1.3'/><circle cx='707' cy='17' r='1.1'/><circle cx='676' cy='11' r='1.3'/><circle cx='765' cy='54' r='1.0'/><circle cx='721' cy='61' r='0.7'/><circle cx='722' cy='64' r='1.5'/><circle cx='751' cy='30' r='1.2'/><circle cx='685' cy='55' r='2.3'/><circle cx='739' cy='32' r='1.4'/><circle cx='727' cy='77' r='0.7'/><circle cx='746' cy='13' r='1.5'/><circle cx='690' cy='38' r='2.1'/><circle cx='712' cy='8' r='0.7'/></g><g fill='%23c9a45c'><circle cx='426' cy='45' r='2.0'/><circle cx='353' cy='130' r='0.8'/><circle cx='272' cy='114' r='1.0'/><circle cx='387' cy='21' r='1.5'/><circle cx='379' cy='200' r='0.9'/><circle cx='353' cy='4' r='1.9'/><circle cx='292' cy='13' r='1.9'/><circle cx='348' cy='34' r='1.4'/><circle cx='476' cy='132' r='1.5'/></g></svg>") 0 0 / 100% 100% no-repeat;
+  pointer-events: none;
+}
+.bannerTitle {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 4px;
   margin: 0;
+  font-family: 'Asura Brand Brush', var(--asura-kai);
+  font-weight: 400;
+  font-synthesis: none;
   font-size: 10vw;
   font-size: clamp(28px, 13cqi, 64px);
   line-height: 1.1;
@@ -1227,19 +564,18 @@
 .bannerLeft, .bannerRight { display: block; }
 .bannerRight { letter-spacing: 0.04em; }
 
-/* 「修羅」印：深朱底、白文；壓印質地（墨斑、缺角、邊緣不齊）只在底層，印文本身清晰 */
+/* 「修羅」印：有機橢圓（手作抖動外緣＋斷續內圈＋溢墨）、壓印墨斑在底層，印文清晰 */
 .bannerSeal {
   position: relative;
   flex: none;
   display: grid;
   grid-template-rows: 1fr 1fr;
   place-items: center;
-  width: 1.42em;
-  height: 1.42em;
-  padding: 0.1em 0.1em;
   box-sizing: border-box;
-  transform: rotate(-5deg);
-  font-size: 1em;
+  width: 1.24em;
+  height: 1.42em;
+  padding: 0.16em 0 0.12em;
+  transform: rotate(-7deg);
   -webkit-text-fill-color: initial;
   filter: none;
 }
@@ -1247,19 +583,11 @@
   position: absolute;
   inset: 0;
   z-index: 0;
-  background:
-    radial-gradient(40% 30% at 22% 78%, rgba(40, 6, 6, 0.55), transparent 70%),
-    radial-gradient(35% 25% at 80% 18%, rgba(160, 50, 40, 0.45), transparent 70%),
-    #7a1a1a;
-  box-shadow:
-    inset 0 0 0 0.05em #7a1a1a,
-    inset 0 0 0 0.075em rgba(241, 224, 196, 0.85),
-    inset 0 0 0 0.1em #7a1a1a;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 112'><path d='M94.6 48.6 Q96.3 56.0 95.5 63.7 Q94.6 71.5 90.2 77.4 Q85.9 83.3 81.9 88.7 Q78.0 94.2 72.3 96.5 Q66.5 98.8 61.4 103.2 Q56.3 107.5 49.8 109.0 Q43.4 110.4 37.8 106.2 Q32.2 102.1 26.3 99.2 Q20.4 96.3 15.8 90.9 Q11.2 85.5 10.2 77.8 Q9.2 70.2 9.1 63.1 Q8.9 56.0 9.4 49.0 Q9.9 42.1 11.6 35.1 Q13.2 28.1 16.0 20.8 Q18.8 13.5 25.1 10.6 Q31.4 7.8 37.6 6.8 Q43.9 5.8 49.9 6.6 Q55.9 7.4 62.0 8.3 Q68.1 9.2 73.7 12.7 Q79.3 16.1 82.6 22.4 Q85.9 28.7 89.4 34.9 Q92.9 41.1 94.6 48.6Z M92.6 28.9 Q94.5 30.0 92.5 31.0 Q90.5 32.0 89.3 33.2 Q88.0 34.3 86.3 33.6 Q84.5 32.8 84.2 31.4 Q83.8 30.0 83.6 28.2 Q83.4 26.4 85.7 26.5 Q88.0 26.6 89.3 27.2 Q90.7 27.8 92.6 28.9Z M17.4 95.1 Q18.2 96.0 17.3 96.9 Q16.4 97.8 15.2 98.3 Q14.0 98.7 12.6 98.4 Q11.3 98.1 11.0 97.0 Q10.7 96.0 10.5 94.6 Q10.3 93.2 12.2 93.2 Q14.0 93.2 15.2 93.7 Q16.5 94.1 17.4 95.1Z' fill='%237a1a1a'/><path d='M87.6 58.0 Q87.8 65.2 85.4 71.8 Q83.1 78.5 78.3 82.6 Q73.5 86.7 69.1 90.7 Q64.7 94.6 59.5 97.7 Q54.3 100.8 48.4 100.8 Q42.5 100.8 37.1 97.8 Q31.7 94.9 27.3 90.4 Q22.9 86.0 19.5 80.3 Q16.1 74.6 15.4 67.7 Q14.7 60.9 15.3 54.3 Q16.0 47.7 16.8 40.8 Q17.6 34.0 21.0 28.3 Q24.5 22.5 29.1 17.9 Q33.8 13.2 39.7 12.1 Q45.7 10.9 51.4 12.5 Q57.1 14.1 62.5 16.0 Q67.9 17.8 72.3 22.2 Q76.7 26.5 79.4 32.5 Q82.0 38.4 84.7 44.6 Q87.4 50.8 87.6 58.0Z' fill='none' stroke='%23f1e0c4' stroke-width='2.2' stroke-dasharray='38 3 22 5 46 2 30 4' stroke-linecap='round' opacity='0.9'/></svg>") center / 100% 100% no-repeat;
   -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='90'><filter id='v'><feTurbulence type='fractalNoise' baseFrequency='0.11' numOctaves='3' seed='4'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -10 8.2'/></filter><rect width='100%' height='100%' filter='url(%23v)'/></svg>");
   mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='90'><filter id='v'><feTurbulence type='fractalNoise' baseFrequency='0.11' numOctaves='3' seed='4'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -10 8.2'/></filter><rect width='100%' height='100%' filter='url(%23v)'/></svg>");
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
-  border-radius: 2px 3px 2px 4px;
 }
 .bannerSeal::before,
 .bannerSeal::after {
@@ -1267,15 +595,17 @@
   z-index: 1;
   color: #f3e3c6;
   -webkit-text-fill-color: #f3e3c6;
-  font-family: "Noto Serif TC", "Songti TC", "PMingLiU", var(--asura-kai), serif;
-  font-weight: 900;
-  font-size: 0.56em;
+  font-family: 'Asura Seal Carved', "Noto Serif TC", "Songti TC", serif;
+  font-weight: 400;
+  font-synthesis: none;
+  font-size: 0.52em;
   line-height: 1;
   letter-spacing: 0;
 }
 .bannerSeal::before { content: '修'; }
 .bannerSeal::after { content: '羅'; }
 
+/* 三格 */
 .asuraTiles {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1284,66 +614,167 @@
   max-width: 640px;
   margin: 0 auto;
 }
-.asuraTopRow .asuraTiles .tileSquare {
+.tileSquare {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
   width: 100%;
   aspect-ratio: 4 / 5;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 2px solid var(--gold);
+  border-radius: 3px;
+  background: var(--ink);
+  color: var(--gold);
+  font-family: 'Asura Tiles Brush', 'Asura Brand Brush', var(--asura-kai);
+  font-weight: 400;
+  font-synthesis: none;
   font-size: clamp(28px, 9vw, 40px);
+  letter-spacing: 0.08em;
+  text-indent: 0.08em;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.9), 0 0 0.8px var(--gold-hi);
+  box-shadow:
+    inset 0 0 0 4px rgba(13, 11, 10, 0.7),
+    inset 0 0 0 5px rgba(201, 164, 92, 0.42),
+    0 6px 14px -8px #000;
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease, box-shadow 180ms ease, transform 120ms ease;
+  -webkit-tap-highlight-color: transparent;
 }
-@media (min-width: 641px) {
-  .asuraTopRow.asuraTopRow { padding: 20px 24px; gap: 18px; }
-  .asuraTopRow .asuraTiles .tileSquare { aspect-ratio: 1; }
-}
-
-
-/* 潑墨：橫幅後方一團深朱摔墨（衝擊點偏印左、兩端小飛濺，金屑），在字後；無模糊 */
-.asuraBanner { position: relative; isolation: isolate; }
-.asuraBanner::before {
+/* 墨底：乾筆飛白金橫筆＋紙紋＋暈染 */
+.tileSquare::before {
   content: '';
   position: absolute;
+  inset: 0;
   z-index: -1;
-  inset: -14px -8px;
-  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 160' preserveAspectRatio='none'><g fill='%235a1515'><path d='M440 86 L426 93 L418 99 L412 103 L414 112 L397 107 L402 122 L396 127 L383 118 L380 138 L370 120 L365 113 L341 154 L357 108 L342 116 L311 130 L348 99 L324 103 L298 101 L334 89 L337 84 L318 75 L341 75 L323 60 L346 67 L346 60 L357 65 L357 54 L365 56 L370 54 L378 42 L385 49 L394 49 L401 51 L407 56 L399 69 L428 62 L427 71 L429 78Z M411 83 L404 91 L391 94 L392 103 L388 112 L373 97 L368 100 L361 104 L354 103 L330 115 L342 96 L334 91 L329 83 L329 75 L352 76 L341 61 L358 68 L360 57 L368 70 L374 66 L386 58 L390 66 L387 74 L394 78Z M370 55 L358 12 L362 56Z M401 76 L436 53 L397 68Z M351 109 L324 157 L358 114Z M387 113 L452 190 L394 108Z M385 58 L401 -0 L379 56Z M403 85 L476 74 L402 80Z M110 118 L95 121 L98 125 L94 126 L93 130 L91 133 L85 131 L82 135 L78 136 L75 131 L69 134 L66 130 L61 130 L63 124 L62 121 L66 118 L57 114 L64 112 L63 108 L66 105 L73 108 L73 101 L78 102 L82 104 L86 103 L90 104 L94 105 L98 107 L98 111 L94 116Z M93 119 L88 121 L88 122 L92 127 L85 124 L85 128 L82 127 L79 129 L78 125 L67 132 L74 123 L72 122 L75 119 L73 117 L77 117 L68 108 L77 113 L79 110 L82 106 L85 111 L89 109 L94 110 L93 114 L93 117Z M93 116 L131 104 L92 113Z M72 128 L50 159 L73 129Z M89 127 L114 145 L91 125Z M86 129 L108 153 L90 126Z M70 126 L52 146 L72 128Z M75 130 L66 170 L78 131Z M736 44 L728 46 L729 48 L722 48 L722 50 L723 52 L724 56 L721 57 L720 60 L716 58 L713 60 L711 57 L708 58 L705 60 L704 55 L697 59 L698 55 L698 52 L689 53 L700 47 L694 46 L692 44 L696 42 L698 40 L687 34 L701 38 L704 38 L705 37 L705 34 L706 32 L707 27 L711 34 L713 34 L716 30 L716 35 L722 29 L725 30 L723 35 L722 38 L723 40 L723 41 L725 42Z M731 46 L718 47 L720 49 L723 54 L718 54 L715 53 L713 52 L709 57 L709 50 L707 50 L702 50 L705 47 L694 46 L707 44 L706 43 L697 33 L706 36 L709 35 L713 35 L714 41 L717 40 L726 35 L721 41 L722 44Z M702 50 L684 67 L705 53Z M720 52 L741 67 L722 50Z M702 50 L679 74 L705 53Z M701 47 L673 63 L703 50Z M721 51 L752 67 L722 48Z M713 55 L722 84 L716 55Z'/><circle cx='356' cy='3' r='5.3'/><circle cx='445' cy='48' r='5.8'/><circle cx='319' cy='165' r='5.5'/><circle cx='457' cy='197' r='5.4'/><circle cx='403' cy='-6' r='3.7'/><circle cx='482' cy='73' r='3.4'/><circle cx='446' cy='38' r='1.3'/><circle cx='331' cy='122' r='2.4'/><circle cx='462' cy='180' r='3.3'/><circle cx='422' cy='163' r='4.8'/><circle cx='341' cy='20' r='1.8'/><circle cx='234' cy='108' r='1.1'/><circle cx='418' cy='6' r='1.4'/><circle cx='498' cy='41' r='1.4'/><circle cx='269' cy='90' r='3.0'/><circle cx='313' cy='85' r='4.1'/><circle cx='304' cy='159' r='0.7'/><circle cx='335' cy='171' r='3.5'/><circle cx='412' cy='29' r='4.9'/><circle cx='341' cy='-35' r='2.1'/><circle cx='135' cy='103' r='2.2'/><circle cx='48' cy='161' r='1.2'/><circle cx='116' cy='147' r='2.2'/><circle cx='111' cy='156' r='2.6'/><circle cx='50' cy='148' r='1.5'/><circle cx='65' cy='172' r='1.8'/><circle cx='136' cy='106' r='1.8'/><circle cx='76' cy='169' r='1.6'/><circle cx='50' cy='133' r='2.6'/><circle cx='47' cy='119' r='1.6'/><circle cx='113' cy='145' r='1.5'/><circle cx='66' cy='161' r='2.3'/><circle cx='123' cy='121' r='1.2'/><circle cx='128' cy='100' r='1.1'/><circle cx='77' cy='141' r='2.6'/><circle cx='68' cy='155' r='1.6'/><circle cx='52' cy='87' r='2.1'/><circle cx='118' cy='148' r='1.2'/><circle cx='46' cy='112' r='1.2'/><circle cx='41' cy='112' r='1.3'/><circle cx='681' cy='70' r='2.4'/><circle cx='744' cy='69' r='1.8'/><circle cx='676' cy='76' r='2.4'/><circle cx='670' cy='64' r='2.1'/><circle cx='754' cy='69' r='1.8'/><circle cx='723' cy='87' r='1.6'/><circle cx='727' cy='23' r='2.3'/><circle cx='699' cy='5' r='1.3'/><circle cx='707' cy='17' r='1.1'/><circle cx='676' cy='11' r='1.3'/><circle cx='765' cy='54' r='1.0'/><circle cx='721' cy='61' r='0.7'/><circle cx='722' cy='64' r='1.5'/><circle cx='751' cy='30' r='1.2'/><circle cx='685' cy='55' r='2.3'/><circle cx='739' cy='32' r='1.4'/><circle cx='727' cy='77' r='0.7'/><circle cx='746' cy='13' r='1.5'/><circle cx='690' cy='38' r='2.1'/><circle cx='712' cy='8' r='0.7'/></g><g fill='%23c9a45c'><circle cx='426' cy='45' r='2.0'/><circle cx='353' cy='130' r='0.8'/><circle cx='272' cy='114' r='1.0'/><circle cx='387' cy='21' r='1.5'/><circle cx='379' cy='200' r='0.9'/><circle cx='353' cy='4' r='1.9'/><circle cx='292' cy='13' r='1.9'/><circle cx='348' cy='34' r='1.4'/><circle cx='476' cy='132' r='1.5'/></g></svg>") 0 0 / 100% 100% no-repeat;
   pointer-events: none;
+  background-image:
+    var(--dry-streak),
+    var(--ink-grain),
+    radial-gradient(85% 75% at 30% 25%, rgba(120, 112, 104, 0.36), transparent 62%),
+    radial-gradient(70% 60% at 80% 90%, rgba(0, 0, 0, 0.8), transparent 70%),
+    linear-gradient(160deg, #2c2724 0%, #121010 55%, #040303 100%);
+  background-size: 64% 3px, 120px 120px, auto, auto, auto;
+  background-position: 50% calc(100% - 14px), 0 0, 0 0, 0 0, 0 0;
+  background-repeat: no-repeat, repeat, no-repeat, no-repeat, no-repeat;
+}
+/* 潑墨點：角落墨團，雜訊遮罩打散邊緣 */
+.tileSquare::after {
+  content: '';
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  width: 58px;
+  height: 58px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 40% 60%, rgba(0, 0, 0, 0.95) 0 30%, transparent 31%),
+    radial-gradient(circle at 70% 30%, rgba(0, 0, 0, 0.85) 0 16%, transparent 17%),
+    radial-gradient(circle at 15% 20%, rgba(0, 0, 0, 0.8) 0 7%, transparent 8%),
+    radial-gradient(circle at 85% 80%, rgba(0, 0, 0, 0.7) 0 6%, transparent 7%);
+  -webkit-mask-image: var(--ink-grain), radial-gradient(circle, #000 55%, transparent 72%);
+  mask-image: var(--ink-grain), radial-gradient(circle, #000 55%, transparent 72%);
+  opacity: 0.9;
+}
+.tileSquare:nth-of-type(2n)::after { top: auto; bottom: -16px; right: auto; left: -16px; }
+.tileSquare:not(:disabled):active { transform: translateY(1px) scale(0.98); }
+.tileSquare:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 2px; }
+.tileSquareOn {
+  border-color: var(--gold-hi);
+  background: var(--crimson);
+  color: var(--gold-hi);
+  font-weight: 700;
+  box-shadow:
+    inset 0 0 0 4px rgba(139, 30, 30, 0.85),
+    inset 0 0 0 5px rgba(230, 200, 134, 0.8),
+    0 0 18px -4px rgba(139, 30, 30, 0.85);
+}
+.tileSquareOn::before {
+  background-image:
+    var(--dry-streak),
+    var(--ink-grain),
+    radial-gradient(80% 70% at 30% 25%, rgba(190, 60, 50, 0.5), transparent 65%),
+    linear-gradient(160deg, #a52a24 0%, #8b1e1e 55%, #4a0d0d 100%);
+  background-size: 64% 3px, 120px 120px, auto, auto;
+  background-position: 50% calc(100% - 14px), 0 0, 0 0, 0 0;
+  background-repeat: no-repeat, repeat, no-repeat, no-repeat;
+}
+.tileSquareIdle { opacity: 0.5; cursor: default; }
+@media (hover: hover) {
+  .tileSquare:not(:disabled):not(.tileSquareOn):hover {
+    color: var(--gold-hi);
+    box-shadow: inset 0 0 0 4px rgba(13, 11, 10, 0.7), inset 0 0 0 5px rgba(230, 200, 134, 0.6), 0 6px 14px -8px #000;
+  }
+}
+@media (min-width: 641px) {
+  .asuraTopRow { padding: 24px; }
+  .tileSquare { aspect-ratio: 1; }
 }
 
+/* 時辰未知、以子時排：一句誠實註記 */
+.fnHourNote {
+  margin: 8px 16px 0;
+  color: #c9a45c;
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  text-align: right;
+}
 
-/* v12：白話緊接段落（卡頭展開面板）＋卡頭留白 8px 節奏 */
+/* 展開面板：讀盤逐段 → 白話緊接段落 → 收尾金句 */
+.fnPanel {
+  padding: 16px 24px 24px;
+  background: #131015;
+  border-bottom: 1px solid #45323a;
+  animation: asuraFnReveal 180ms ease-out;
+}
+.fnPanel[hidden] { display: none; }
+.fnPanel .fnBody { display: grid; gap: 8px; padding: 0; border-top: 0; }
+.fnPanel .fnLead { color: #fbeee4; border-left-color: #c94f5c; }
+.fnPanel .fnNarrative { display: grid; gap: 12px; }
+.fnPanel .fnNarrative p { margin: 0; color: #f3ebe6; font-size: 17px; line-height: 1.85; letter-spacing: 0.02em; }
 .fnPanel .fnPlainLine {
-  margin: -4px 0 4px;
-  padding-left: 10px;
-  border-left: 1px solid rgba(201, 164, 92, 0.45);
-  color: #cfc4b6;
+  padding-left: 12px;
+  border-left: 1px solid rgba(201, 164, 92, 0.5);
+  color: #bfb4a6;
   font-family: system-ui, -apple-system, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
-  font-size: 13.5px;
+  font-size: 13px;
   line-height: 1.6;
 }
 .fnPanel .fnPlainLine strong { margin-right: 6px; color: #c9a45c; font-weight: 600; }
-.fnPanel .fnPlainLine .fnPlainTag { margin-right: 6px; padding: 0 4px; font-size: 11px; line-height: 16px; }
-.asuraTopRow.asuraTopRow { padding: 24px 12px; gap: 24px; }
-
-/* v12：「修羅」印改為有機橢圓符印（手作抖動外緣＋斷續內圈＋邊緣溢墨），壓印墨斑沿用雜訊遮罩；印文仍清晰 */
-.bannerSeal { width: 1.24em; height: 1.42em; padding: 0.16em 0 0.12em; transform: rotate(-7deg); }
-.sealInk {
-  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 112'><path d='M94.6 48.6 Q96.3 56.0 95.5 63.7 Q94.6 71.5 90.2 77.4 Q85.9 83.3 81.9 88.7 Q78.0 94.2 72.3 96.5 Q66.5 98.8 61.4 103.2 Q56.3 107.5 49.8 109.0 Q43.4 110.4 37.8 106.2 Q32.2 102.1 26.3 99.2 Q20.4 96.3 15.8 90.9 Q11.2 85.5 10.2 77.8 Q9.2 70.2 9.1 63.1 Q8.9 56.0 9.4 49.0 Q9.9 42.1 11.6 35.1 Q13.2 28.1 16.0 20.8 Q18.8 13.5 25.1 10.6 Q31.4 7.8 37.6 6.8 Q43.9 5.8 49.9 6.6 Q55.9 7.4 62.0 8.3 Q68.1 9.2 73.7 12.7 Q79.3 16.1 82.6 22.4 Q85.9 28.7 89.4 34.9 Q92.9 41.1 94.6 48.6Z M92.6 28.9 Q94.5 30.0 92.5 31.0 Q90.5 32.0 89.3 33.2 Q88.0 34.3 86.3 33.6 Q84.5 32.8 84.2 31.4 Q83.8 30.0 83.6 28.2 Q83.4 26.4 85.7 26.5 Q88.0 26.6 89.3 27.2 Q90.7 27.8 92.6 28.9Z M17.4 95.1 Q18.2 96.0 17.3 96.9 Q16.4 97.8 15.2 98.3 Q14.0 98.7 12.6 98.4 Q11.3 98.1 11.0 97.0 Q10.7 96.0 10.5 94.6 Q10.3 93.2 12.2 93.2 Q14.0 93.2 15.2 93.7 Q16.5 94.1 17.4 95.1Z' fill='%237a1a1a'/><path d='M87.6 58.0 Q87.8 65.2 85.4 71.8 Q83.1 78.5 78.3 82.6 Q73.5 86.7 69.1 90.7 Q64.7 94.6 59.5 97.7 Q54.3 100.8 48.4 100.8 Q42.5 100.8 37.1 97.8 Q31.7 94.9 27.3 90.4 Q22.9 86.0 19.5 80.3 Q16.1 74.6 15.4 67.7 Q14.7 60.9 15.3 54.3 Q16.0 47.7 16.8 40.8 Q17.6 34.0 21.0 28.3 Q24.5 22.5 29.1 17.9 Q33.8 13.2 39.7 12.1 Q45.7 10.9 51.4 12.5 Q57.1 14.1 62.5 16.0 Q67.9 17.8 72.3 22.2 Q76.7 26.5 79.4 32.5 Q82.0 38.4 84.7 44.6 Q87.4 50.8 87.6 58.0Z' fill='none' stroke='%23f1e0c4' stroke-width='2.2' stroke-dasharray='38 3 22 5 46 2 30 4' stroke-linecap='round' opacity='0.9'/></svg>") center / 100% 100% no-repeat;
-  box-shadow: none;
-  border-radius: 0;
+.fnPanel .fnPlainTag {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 4px;
+  border: 1px solid rgba(201, 164, 92, 0.55);
+  border-radius: 3px;
+  color: #c9a45c;
+  font-size: 11px;
+  line-height: 16px;
+  vertical-align: 1px;
 }
-.bannerSeal::before,
-.bannerSeal::after { font-size: 0.5em; }
-
-/* 「修羅」印文：古風刻印字（Zen Antique，OFL 1.1，自架 2 字子集約 1.8KB；授權見 public/fonts/asura-brand/LICENSE-zen-antique-seal.md） */
-@font-face {
-  font-family: 'Asura Seal Carved';
-  src: url('/fonts/asura-brand/zen-antique-asura-seal.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-  unicode-range: U+4FEE, U+7F85;
+.fnPanel .fnCoda {
+  margin: 16px 0 0;
+  color: #e6c47a;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: 0.04em;
 }
-.bannerSeal::before,
-.bannerSeal::after {
-  font-family: 'Asura Seal Carved', "Noto Serif TC", "Songti TC", serif;
-  font-weight: 400;
-  font-synthesis: none;
-  font-size: 0.52em;
+@keyframes asuraFnReveal {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+@media (max-width: 640px) {
+  .fnPanel { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tileSquare { transition: none; }
+  .tileSquare:not(:disabled):active { transform: none; }
+  .fnPanel { animation: none; }
 }

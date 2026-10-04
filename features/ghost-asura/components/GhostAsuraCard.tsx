@@ -32,7 +32,7 @@ function AsuraBanner({ title }: { title: string }) {
   const split = title === GHOST_ASURA_CARD_TITLE && title.length > 2;
   return (
     <div className={styles.asuraBanner} data-asura-banner>
-      <h2 className={`${styles.title} ${styles.titleBrush} ${styles.bannerTitle}`} aria-label={title}>
+      <h2 className={styles.bannerTitle} aria-label={title}>
         {split ? (
           <>
             <span className={styles.bannerLeft} aria-hidden="true">{title.slice(0, 2)}</span>
@@ -146,70 +146,28 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
           {openKey === section.key && (
             <div className={styles.fnBody}>
               {section.lead && <p className={styles.fnLead}>{section.lead}</p>}
-              {section.narrative ? (
-                <>
-                  {section.blocks && section.blocks.length > 0 ? (
-                    <div className={styles.fnNarrative} data-asura-narrative data-asura-interleaved>
-                      {section.blocks.map((block, i) => (
-                        <Fragment key={i}>
-                          <p>{block.text}</p>
-                          {block.plain.map((line) => (
-                            <div key={line.label} className={styles.fnPlainLine} data-asura-plain>
-                              <span className={styles.fnPlainTag}>白話</span>
-                              <strong>{line.label}</strong>
-                              {line.plain}
-                            </div>
-                          ))}
-                        </Fragment>
+              {/* 讀盤逐段照印，每段後緊接該段印記的白話；0 印＝後端不給任何字，這裡就不印 */}
+              {section.blocks && section.blocks.length > 0 && (
+                <div className={styles.fnNarrative} data-asura-narrative data-asura-interleaved>
+                  {section.blocks.map((block, i) => (
+                    <Fragment key={i}>
+                      <p>{block.text}</p>
+                      {block.plain.map((line) => (
+                        <div key={line.label} className={styles.fnPlainLine} data-asura-plain>
+                          <span className={styles.fnPlainTag}>白話</span>
+                          <strong>{line.label}</strong>
+                          {line.plain}
+                        </div>
                       ))}
-                    </div>
-                  ) : (
-                    <div className={styles.fnNarrative} data-asura-narrative>
-                      {section.narrative.split('\n').map((para, i) => (
-                        <p key={i}>{para}</p>
-                      ))}
-                    </div>
-                  )}
-                  {!section.blocks?.length && section.items.some((entry) => entry.plain) && (
-                    <div className={styles.fnPlainBlock} data-asura-plain-block>
-                      <span className={styles.fnPlainTag}>白話</span>
-                      <ul>
-                        {section.items.filter((entry) => entry.plain).map((entry, index) => (
-                          <li key={`${entry.label}-${index}`} data-asura-plain>
-                            <strong>{entry.label}</strong>
-                            {entry.plain}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {section.coda && (
-                    <p className={styles.fnCoda} data-asura-coda>
-                      {section.coda}
-                    </p>
-                  )}
-                </>
-              ) : (
-                section.items.length > 0 && (
-                  <dl className={styles.fnList}>
-                    {section.items.map((entry, index) => (
-                      <div key={`${entry.label}-${index}`} className={styles.fnRow}>
-                        <dt>{entry.label}</dt>
-                        <dd>
-                          {entry.text}
-                          {entry.plain && (
-                            <span className={styles.fnPlain} data-asura-plain>
-                              <span className={styles.fnPlainTag}>白話</span>
-                              {entry.plain}
-                            </span>
-                          )}
-                        </dd>
-                      </div>
-                    ))}
-                  </dl>
-                )
+                    </Fragment>
+                  ))}
+                </div>
               )}
-              {section.emptyText && <p className={styles.fnEmpty}>{section.emptyText}</p>}
+              {section.coda && (
+                <p className={styles.fnCoda} data-asura-coda>
+                  {section.coda}
+                </p>
+              )}
             </div>
           )}
         </section>

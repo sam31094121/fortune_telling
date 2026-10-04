@@ -367,8 +367,7 @@ export function toAsuraDisplay(
         : null,
       coda: reading?.coda ?? null,
       items,
-      // 0 印：整段不出字（無空行、無白話、無收尾），前端只留卡框與標題列
-      emptyText: null,
+      // 0 印：narrative／blocks／coda 皆為 null，整段不出字，前端只留卡框與標題列
     };
   };
   const hitsSection = timeSection('past', { key: 'hits', heading: '過去', label: '命中神煞' });
@@ -385,7 +384,6 @@ export function toAsuraDisplay(
   const verdictSection: AsuraDisplaySection = {
     ...futureBase,
     lead: axis ? '' : lead,
-    emptyText: null,
   };
 
   const audit: AsuraDisplayAudit = {

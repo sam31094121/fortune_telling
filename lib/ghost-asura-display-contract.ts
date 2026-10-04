@@ -62,7 +62,6 @@ export interface AsuraDisplaySection {
   label: string;
   lead: string;
   items: AsuraDisplayEntry[];
-  emptyText: string | null;
   /** 「過去」卡：一段連續的阿修羅讀盤（段落以換行分隔）；有值時前端先印這段，再印 items 的白話區 */
   narrative?: string | null;
   /**
