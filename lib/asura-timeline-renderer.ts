@@ -42,65 +42,93 @@ export interface TimelineRenderedText {
 
 /**
  * 主函式：將三時段結果渲染成阿修羅話術
+ *
+ * 核心設計：
+ * - 過去：解剖式分析根源（為什麼會這樣）
+ * - 現在：直白指控陷阱（你現在的真相）
+ * - 未來：絕對預言結局（兩條路，選一條）
+ * 每張卡片零重複、零通用、零模板
  */
 export function renderTimelineWithAsuraVoice(
   timelineData: GhostAsuraTimelineResponse
 ): TimelineRenderedText {
   const { timeline, user, overallTrend } = timelineData;
 
-  // ========== 過去卡片話術 ==========
-  const pastWording = ASURA_WORDINGS['tiandehe'] || {
-    coreDeclaration: '我看你身後有人——暗手相挺的援軍。',
-    pillarExtension: { year: '', month: '', day: '', hour: '' },
-    transformationPath: '那些苦難，都是力量的養分。',
-  };
+  // ========== 過去卡片話術：解剖根源 ==========
+  // 過去不是美麗的回憶，是問題的源頭。阿修羅要挖出為什麼。
+  const pastFortuneLevel = timeline.past.calculation.fortuneLevel || 65;
+  const pastElement = timeline.past.calculation.dominantElement || '木';
+  const pastStar = timeline.past.calculation.chiefStar || '貴人';
+
+  const pastInsight =
+    pastFortuneLevel >= 70 ? '你當時運勢不錯，所以放鬆了警戒。那叫「溫水煮青蛙」。'
+    : pastFortuneLevel >= 50 ? '你當時搖擺不定，既想進也想退。這才是問題的根源。'
+    : '你當時窮途末路，被迫做選擇。有時候，絕望反而是清醒的開始。';
 
   const pastText = {
-    title: `⏰ 過去（${timeline.past.periodName}）`,
-    opening: `你的${timeline.past.periodName}是什麼樣的？我看到${timeline.past.calculation.chiefStar}的氣息。\n\n${pastWording.coreDeclaration}`,
-    insight: `那時候，${timeline.past.calculation.dominantElement}的能量佔據了你的人生舞台。你經歷了...（真實運算結果），但那不是結束，而是序幕。`,
-    lesson: `從${timeline.past.periodName}，你應該明白：${pastWording.transformationPath}`,
+    title: `📜 過去：根源（${timeline.past.periodName}）`,
+    opening: `你的${timeline.past.periodName}？我看得很清楚——根本不是運氣好壞，而是你選擇了什麼。\n\n${pastInsight}`,
+    insight: `${pastElement}元素當時支配你的決策。你選了「${pastStar}」——\n但那個選擇，帶你走到現在的十字路口。\n\n這不是命運，是累積。`,
+    lesson: `該學的功課很簡單：你當時的每一個退縮、每一個妥協，都在給現在的挑戰鋪路。\n\n所以別怨天尤人。過去的你，已經決定了現在的局面。`,
   };
 
-  // ========== 現在卡片話術 ==========
-  const presentWording = ASURA_WORDINGS['tiande'] || {
-    coreDeclaration: '我看你帶著戰鬥的氣度——真正的戰士。',
-    pillarExtension: { year: '', month: '', day: '', hour: '' },
-    transformationPath: '現在，才是真正的決戰時刻。',
-  };
+  // ========== 現在卡片話術：直白陷阱 ==========
+  // 現在不是舞台，是陷阱。阿修羅要指出你在哪裡被騙。
+  const presentFortuneLevel = timeline.present.calculation.fortuneLevel || 78;
+  const presentElement = timeline.present.calculation.dominantElement || '火';
+  const presentStar = timeline.present.calculation.chiefStar || '熱情';
+
+  const presentTrap =
+    presentFortuneLevel >= 75 ? '你現在感覺幸運，所以掉以輕心。這叫「虛假繁榮」。真正的危機，藏在幸運底下。'
+    : presentFortuneLevel >= 60 ? '你現在搖擺，感覺有機會也有風險。這種時候最容易做錯決定，因為你在賭。'
+    : '你現在感覺被逼到角落。好，至少你清醒了。但別自暴自棄——這是逆轉的機會。';
+
+  const presentPower =
+    presentElement === '火' ? '焦躁、急進、容易衝動。這在某些時刻是優勢，在另一些時刻是致命傷。'
+    : presentElement === '木' ? '執著、堅持、難以轉向。你走的路沒錯，但走過頭就要摔跤。'
+    : presentElement === '水' ? '流動、適應、但也容易失去方向。現在你需要的不是柔軟，而是硬度。'
+    : presentElement === '土' ? '穩定、信任、但也容易被困。你被自己的安心所困住。'
+    : '金屬性：切割、決斷、但也容易傷人。小心別砍到自己。';
 
   const presentText = {
-    title: `🔥 現在（${timeline.present.periodName}）`,
-    challenge: `當下，你面對的是什麼？${timeline.present.calculation.chiefStar}在你眼前舞動。\n\n挑戰的幸運指數：${timeline.present.calculation.fortuneLevel}/100\n\n但幸運指數只是數字。真正的力量，在於你怎麼用${timeline.present.calculation.dominantElement}的能量去反抗。`,
-    strength: `你現在擁有：\n- 來自過去的經驗\n- 當下的清醒\n- 對未來的渴望\n\n這三樣加在一起，就是戰鬥的利刃。`,
-    action: `${presentWording.transformationPath}\n\n我的建議很簡單：不要躲。直面${timeline.present.calculation.chiefStar}，把它變成你的武器。`,
+    title: `🔥 現在：陷阱（${timeline.present.periodName}）`,
+    challenge: `你現在面對的${presentStar}？別被表面騙了。\n\n${presentTrap}\n\n我看到的真相是：你在一個分岔路口，而你還沒意識到自己在做選擇。`,
+    strength: `唯一的優勢，就是${presentElement}元素給你的東西——${presentPower}\n\n但優勢也是陷阱。你必須學會在該用的時候用，不該用的時候收起來。\n\n這就是戰士的修為。`,
+    action: `阿修羅不會跟你說「加油」或「相信自己」那種廢話。\n\n我只告訴你：現在就決定。不是「找到更多資訊再決定」，不是「等機會更明朗再決定」。\n\n就是現在。決定，然後承擔後果。`,
   };
 
-  // ========== 未來卡片話術 ==========
-  const futureWording = ASURA_WORDINGS['longde'] || {
-    coreDeclaration: '我看你帶著龍的氣——權威、號召力。',
-    pillarExtension: { year: '', month: '', day: '', hour: '' },
-    transformationPath: '未來的高度，由現在的選擇決定。',
-  };
+  // ========== 未來卡片話術：分岔預言 ==========
+  // 未來不是一條路，是兩條。阿修羅要看透你走哪條。
+  const futureFortuneLevel = timeline.future.calculation.fortuneLevel || 85;
+  const futureElement = timeline.future.calculation.dominantElement || '火';
+  const futureStar = timeline.future.calculation.chiefStar || '機遇';
+
+  const futurePath1 = futureFortuneLevel >= 80
+    ? `如果你現在開始轉化，${timeline.future.periodName}你會遇到${futureStar}。\n那時候，${futureElement}的力量會成為你的利器，而不是絆腳石。\n幸運指數會升到${futureFortuneLevel}/100。`
+    : `如果你現在做對選擇，${timeline.future.periodName}的路會比現在寬敞。\n但「比現在寬敞」不代表坦蕩。挑戰還是挑戰。\n幸運指數${futureFortuneLevel}/100——夠用，但不豐富。`;
+
+  const futurePath2 = futureFortuneLevel >= 80
+    ? `如果你現在選擇逃避或騙自己，${timeline.future.periodName}就會是監獄。\n${futureStar}會變成你的鎖鏈，${futureElement}的力量會反噬你。\n你會後悔，但後悔時已晚。`
+    : `如果你現在什麼都不做，${timeline.future.periodName}你會被動地被改變。\n不是轉化，是摧毀。${futureStar}會變成你無法對抗的力量。`;
 
   const futureText = {
-    title: `🌟 未來（${timeline.future.periodName}）`,
-    opportunity: `${timeline.future.periodName}會來臨什麼？我看到${timeline.future.calculation.chiefStar}的光。\n\n幸運指數會升到${timeline.future.calculation.fortuneLevel}/100。\n\n但別誤會——這不是天上掉下來的禮物。這是你現在每一個選擇的回報。`,
-    warning: `機遇總是伴隨挑戰的。${timeline.future.calculation.dominantElement}的能量會很強。\n\n強到足以改變一切，也強到足以毀滅一切。\n\n取決於你。`,
-    vision: `${futureWording.transformationPath}\n\n如果你現在開始轉化、開始戰鬥，${timeline.future.periodName}就會是你的舞台。\n\n如果你逃避，${timeline.future.periodName}就會變成你的監獄。\n\n選擇权在你。`,
+    title: `✨ 未來：分岔（${timeline.future.periodName}）`,
+    opportunity: `${timeline.future.periodName}有兩條路。\n\n第一條：${futurePath1}`,
+    warning: `\n\n第二條：${futurePath2}\n\n沒有第三條路。沒有「兩者都不選」。你不決定，命運會幫你決定。`,
+    vision: `所以，${user.name}，阿修羅的話很直白：\n\n過去的根源，你改不了。\n現在的陷阱，你要看清。\n未來的分岔，你必須選。\n\n修羅道上，沒有旁觀者。你要麼是戰士，要麼是獵物。\n\n選擇吧。`,
   };
 
-  // ========== 整體趨勢 ==========
+  // ========== 整體趨勢：命運的弧線 ==========
   const trajectoryText =
     overallTrend.trajectory === 'ascending'
-      ? '向上——每一步都在累積力量，每一次轉化都在拔高高度。'
+      ? `向上的弧線——但別被假象迷惑，最陡峭的上升，往往在最深的谷底開始。你現在還在谷底。`
       : overallTrend.trajectory === 'descending'
-        ? '向下——但向下不代表失敗，而是為下一次起跳做準備。'
-        : '循環——在反覆中看清真相，在循環中找到突破口。';
+        ? `向下的弧線——但阿修羅看透了：下降到底，就是反彈的開始。你現在在下坡，但下坡有終點。`
+        : `循環的弧線——最危險的軌跡。因為你會以為「反正會回來」，所以不認真。結果某一圈，你沒回來。`;
 
   const summaryText = {
-    trajectory: `你的人生軌跡是${trajectoryText}`,
-    finalMessage: `${user.name}，我看清了你三時段的命盤。\n\n過去是養分，現在是戰場，未來是舞台。\n\n阿修羅的最後建議：不要等待完美的時刻。最好的時刻，是你決定開始戰鬥的時刻。\n\n修羅道上，只有那些不怕反抗的靈魂，才能走到最後。\n\n而你，已經開始了。`,
+    trajectory: `你的人生軌跡是：${trajectoryText}`,
+    finalMessage: `${user.name}，三時段已讀。\n\n過去養出了你的盲點。\n現在就是你轉身的時刻。\n未來，由你的決定決定。\n\n我不會祝你好運。好運是給被動等待的人。\n\n我只看著你，問一句：你敢嗎？\n\n敢，就開始。不敢，就別怨。\n\n——鬼魅阿修羅`,
   };
 
   return {
