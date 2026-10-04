@@ -168,6 +168,8 @@ export interface AsuraDisplay {
   targetName?: string | null;
   /** 分析對象：self (我自己) | guest (親朋好友) */
   identityTarget?: 'self' | 'guest' | null;
+  /** 性別表達個人化增強層（可選） */
+  personalizedEnhancements?: Record<string, any>;
 }
 
 /** 技能頁三張摺疊卡：生辰未送出前的一句（阿修羅口吻；無命盤資料，故放在共用合約）。 */

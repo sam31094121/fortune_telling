@@ -72,6 +72,7 @@ export function normalizeAsuraInput(raw: unknown): Record<string, unknown> {
     ((time === '' || time.toLowerCase() === 'unknown') && !CONCRETE_BRANCHES.has(branch));
   if (hourUnknown) {
     input.birthTime = ASSUMED_HOUR_TIME;
+    input.birthHourBranch = 'zi';
     input.hourAssumed = true;
   } else {
     if (time) input.birthTime = time.slice(0, 5);
@@ -246,7 +247,7 @@ export function computeTimeAxis(result: DualChartResult, gender: 'male' | 'femal
 export function toAsuraDisplay(
   reading: GhostAsuraReading,
   crossChecked: ReadonlySet<string>,
-  options: { hourAssumed?: boolean; timeAxis?: AsuraTimeAxis | null; targetName?: string | null; identityTarget?: 'self' | 'guest' | null } = {},
+  options: { hourAssumed?: boolean; timeAxis?: AsuraTimeAxis | null; targetName?: string | null; identityTarget?: 'self' | 'guest' | null; declaredSex?: 'MALE' | 'FEMALE' | null } = {},
 ): AsuraDisplay {
   const hourAssumed = options.hourAssumed === true;
   const columns: AsuraDisplayColumn[] = PILLAR_ORDER.map((key) => {
@@ -487,10 +488,9 @@ export function toAsuraDisplay(
   // ====== 性別表達個人化增強層 ======
   // 注入：如有性別與人格數據，生成個人化話術補充卡片
   const personalizedEnhancements: Record<string, any> = {};
-  if (engineInput.gender && result) {
-    const declaredSex = engineInput.gender === 'female' ? 'FEMALE' : 'MALE';
+  if (options.declaredSex) {
     // 預留：未來可在此注入性別表達技能生成的個人化話術
-    personalizedEnhancements.declaredSex = declaredSex;
+    personalizedEnhancements.declaredSex = options.declaredSex;
     personalizedEnhancements.personalizationAvailable = true;
   }
 
@@ -555,11 +555,14 @@ export function computeGhostAsuraDisplay(raw: unknown, now: Date = new Date()): 
   const targetName = typeof engineInput.name === 'string' && engineInput.name.trim().length >= 2 ? engineInput.name.trim() : null;
   const effectiveTarget = (identityTarget === 'guest' ? 'guest' : 'self') as 'self' | 'guest';
 
+  const declaredSex = engineInput.gender === 'female' ? 'FEMALE' : engineInput.gender === 'male' ? 'MALE' : null;
+
   // 顯示別名層：運算結果不動，只把要上畫面的字換成阿修羅語彙（lib/asura-display-alias.ts）
   return asuraDeepScrub(toAsuraDisplay(buildGhostAsuraReading({ result }), crossCheckedRuleIds(result), {
     hourAssumed: hourAssumed === true,
     timeAxis,
     targetName,
     identityTarget: effectiveTarget,
+    declaredSex,
   }));
 }

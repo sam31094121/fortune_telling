@@ -46,6 +46,9 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/ghost-asura/GhostAsur
     clearTimeout: id => timers.delete(id),
     matchMedia: () => ({ matches: true }),
   },
+  document: {
+    querySelector: () => null,
+  },
   fetch: (...args) => { requests++; return send(...args); },
   require(id) {
     if (id === 'react') return hooks;
@@ -53,6 +56,15 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/ghost-asura/GhostAsur
     if (id === 'next/link') return () => null;
     if (id.endsWith('.module.css')) return {};
     if (id === '@/components/UnifiedBirthForm') return { UnifiedBirthForm: BirthForm };
+    if (id === '@/components/IdentitySplitSelector') return { default: () => null };
+    if (id === '@/lib/identity-split-client') return {
+      getAnalysisIdentityTarget: () => 'self',
+      IDENTITY_TARGET_UPDATED_EVENT: 'identity-target-updated',
+    };
+    if (id === '@/lib/ghost-asura-download') return { downloadAsPDF: () => {}, downloadAsImage: () => {}, generateFilename: () => 'asura' };
+    if (id === '@/lib/ghost-asura-animation') return { getCardRevealAnimation: () => ({}), getImpressionGlowAnimation: () => ({}), getScrollFormationAnimation: () => ({}), getTotalAnimationDuration: () => 0 };
+    if (id === '@/lib/ghost-asura-audio') return { initializeAudio: async () => {}, playCardRevealSound: () => {}, playImpressionGlowSound: () => {}, playShareSuccessSound: () => {}, playDownloadSuccessSound: () => {} };
+    if (id === '@/lib/ghost-asura-particles') return { initializeParticleSystem: () => {}, getParticleSystem: () => ({}), cleanupParticleSystem: () => {} };
     if (id === '@/features/ghost-asura/components/GhostAsuraCard') return { GhostAsuraCard: Card };
     if (id === '@/lib/dual-chart-form') return { dualChartHourStatus };
     return require(id);

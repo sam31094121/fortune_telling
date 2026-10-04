@@ -184,19 +184,106 @@ export function calculateStrategyScores(
   };
 }
 
+export interface StrategyDefinition {
+  type: CommunicationType;
+  label: string;
+  name: string;
+  primaryCutIn: string;
+  forbiddenRules: string[];
+  forbiddenPhrases: RegExp[];
+  scores: Record<CommunicationType, number>;
+  activeScore: number;
+  maxScore: number;
+  scoreMargin: number;
+  arbitrationUsed: boolean;
+  competingCandidates: CommunicationType[];
+  tensionPair: [CommunicationType, CommunicationType] | null;
+}
+
+export interface ArbitrationOptions {
+  /** 分差門檻（預設 3.0 分）：最高分與候選分差距在此範圍內視為競爭池 */
+  marginThreshold?: number;
+  /** 激活門檻（預設 50.0 分）：低於此門檻不參與風險優先仲裁，避免弱信號誤觸 */
+  activationFloor?: number;
+  /** 仲裁優先序：高風險冒進 (D) > 強勢獨斷 (A) > 防衛應激 (B) > 分析癱瘓 (C) > 內耗嘴硬 (E) */
+  priorityOrder?: CommunicationType[];
+}
+
+export const DEFAULT_PRIORITY_ORDER: CommunicationType[] = [
+  'TYPE_D', // 衝動／好鬥（防暴走冒進，最高優先）
+  'TYPE_A', // 強勢／直接（防獨斷定局）
+  'TYPE_B', // 敏感／防衛（防過度應激）
+  'TYPE_C', // 過度分析（防推演癱瘓）
+  'TYPE_E', // 嘴硬／傲嬌（防內耗死撐）
+];
+
 export function classifyCommunicationStrategy(
   core: ClientPersonalityCore,
-  behavior: ClientBehaviorProfile
+  behavior: ClientBehaviorProfile,
+  options: ArbitrationOptions = {}
 ): StrategyDefinition {
   const scores = calculateStrategyScores(core, behavior);
+  const marginThreshold = options.marginThreshold ?? 3.0;
+  const activationFloor = options.activationFloor ?? 50.0;
+  const priorityOrder = options.priorityOrder ?? DEFAULT_PRIORITY_ORDER;
 
-  // 排序選出最高分型態
-  const sorted = (Object.entries(scores) as [CommunicationType, number][]).sort(
-    (a, b) => b[1] - a[1]
+  // 1. 找出全域最高分數（整數化比對避免浮點誤差）
+  const scoreValues = Object.values(scores);
+  const maxScore = Math.max(...scoreValues);
+  const maxCents = Math.round(maxScore * 100);
+  const marginCents = Math.round(marginThreshold * 100);
+
+  // 2. 篩選進入高階風險仲裁池之候選型態（分差在門檻內且達到激活門檻）
+  const qualifiedCandidates: CommunicationType[] = (Object.keys(scores) as CommunicationType[]).filter(
+    (type) => {
+      const scoreCents = Math.round(scores[type] * 100);
+      return maxCents - scoreCents <= marginCents && scores[type] >= activationFloor;
+    }
   );
 
-  const dominantType = sorted[0][0];
-  const maxScore = sorted[0][1];
+  let dominantType: CommunicationType;
+  let arbitrationUsed = false;
+  let competingCandidates: CommunicationType[] = [];
+
+  if (qualifiedCandidates.length > 1) {
+    competingCandidates = qualifiedCandidates;
+    // 依 priorityOrder 順位強制仲裁，第一順位存在者勝出
+    dominantType = priorityOrder.find((type) => qualifiedCandidates.includes(type)) ?? qualifiedCandidates[0];
+    
+    // 精準仲裁判定：若勝出者不是唯一最高分（存在分差內逆轉或並列決水），則標記 arbitrationUsed = true
+    const isNaturalSingleWinner = qualifiedCandidates.length === 1 || 
+      (Math.round(scores[dominantType] * 100) === maxCents && 
+       qualifiedCandidates.filter(t => Math.round(scores[t] * 100) === maxCents).length === 1);
+    arbitrationUsed = !isNaturalSingleWinner;
+  } else if (qualifiedCandidates.length === 1) {
+    dominantType = qualifiedCandidates[0];
+    arbitrationUsed = false;
+    competingCandidates = qualifiedCandidates;
+  } else {
+    // 低信號保底（全體 < activationFloor）：先找出所有並列最高分者，並依 priorityOrder 決水，防範鍵序污染
+    const topTiedTypes = (Object.keys(scores) as CommunicationType[]).filter(
+      (t) => Math.round(scores[t] * 100) === maxCents
+    );
+    dominantType = priorityOrder.find((type) => topTiedTypes.includes(type)) ?? topTiedTypes[0];
+    arbitrationUsed = topTiedTypes.length > 1;
+    competingCandidates = topTiedTypes;
+  }
+
+  // 3. 捕捉反差張力對 (Tension Pairs) — 涵蓋常見五大衝突維度
+  let tensionPair: [CommunicationType, CommunicationType] | null = null;
+  const candidatesSet = new Set(competingCandidates);
+
+  if (candidatesSet.has('TYPE_D') && candidatesSet.has('TYPE_C')) {
+    tensionPair = ['TYPE_D', 'TYPE_C']; // 衝動冒進 vs 推演癱瘓
+  } else if (candidatesSet.has('TYPE_A') && candidatesSet.has('TYPE_B')) {
+    tensionPair = ['TYPE_A', 'TYPE_B']; // 強勢主導 vs 敏感防衛
+  } else if (candidatesSet.has('TYPE_A') && candidatesSet.has('TYPE_E')) {
+    tensionPair = ['TYPE_A', 'TYPE_E']; // 強勢定局 vs 嘴硬內耗
+  } else if (candidatesSet.has('TYPE_D') && candidatesSet.has('TYPE_E')) {
+    tensionPair = ['TYPE_D', 'TYPE_E']; // 盲動暴躁 vs 死不認錯
+  } else if (candidatesSet.has('TYPE_B') && candidatesSet.has('TYPE_C')) {
+    tensionPair = ['TYPE_B', 'TYPE_C']; // 畏懼受傷 vs 分析逃避
+  }
 
   const META: Record<
     CommunicationType,
@@ -249,7 +336,12 @@ export function classifyCommunicationStrategy(
     forbiddenRules: currentMeta.rules,
     forbiddenPhrases: currentMeta.phrases,
     scores,
-    activeScore: maxScore,
+    activeScore: scores[dominantType],
+    maxScore,
+    scoreMargin: Number((maxScore - scores[dominantType]).toFixed(2)),
+    arbitrationUsed,
+    competingCandidates,
+    tensionPair,
   };
 }
 
