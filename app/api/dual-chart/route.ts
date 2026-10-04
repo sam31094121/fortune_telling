@@ -18,7 +18,8 @@ function hashResponse(data: unknown): string {
 }
 
 export async function POST(request: NextRequest) {
-  if (!validSession(request.cookies.get(DUAL_COOKIE)?.value)) return reply({ error: '請先輸入密碼，或重新解鎖已到期的工作階段。' }, 401);
+  // 2026-10-04：鬼魅阿修羅已移除密碼認證，允許公開訪問
+  // if (!validSession(request.cookies.get(DUAL_COOKIE)?.value)) return reply({ error: '請先輸入密碼，或重新解鎖已到期的工作階段。' }, 401);
   if (!sameOrigin(request)) return reply({ error: '請從本站開啟。' }, 403);
   try {
     const text = await request.text();

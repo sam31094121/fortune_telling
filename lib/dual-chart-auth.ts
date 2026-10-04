@@ -20,7 +20,9 @@ export function createSession(now = Date.now()) {
   return `${payload}.${sign(payload)}`;
 }
 export function validSession(token?: string, now = Date.now()) {
-  if (!gateConfigured() || !token || !/^\d{13}\.[a-f0-9]{48}\.[a-f0-9]{64}$/.test(token)) return false;
+  // 如果沒有配置密碼（開發或公開模式），允許訪問
+  if (!gateConfigured()) return true;
+  if (!token || !/^\d{13}\.[a-f0-9]{48}\.[a-f0-9]{64}$/.test(token)) return false;
   const [expires, nonce, signature] = token.split('.');
   if (Number(expires) <= now || Number(expires) > now + SESSION_SECONDS * 1000) return false;
   return timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(sign(`${expires}.${nonce}`), 'hex'));
