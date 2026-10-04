@@ -16,6 +16,8 @@ import { buildFlowYearShenSha } from '@/lib/dual-chart-iching-shensha';
 import { asuraDeepScrub } from '@/lib/asura-display-alias';
 import { ASURA_WORDINGS } from '@/features/ghost-asura/wordings';
 import { ASURA_PLAIN, ASURA_TIMELINE, ASURA_VOICE, composeTime, type AsuraPillarKey, type AsuraWhen, voiceLead } from '@/lib/server/ghost-asura-voice';
+import { generatePersonalizedCardSpeech, deriveGenderExpressionProfile } from '@/lib/asura/ghost-asura-gender-expression-skill';
+import { buildClientAsuraPersona } from '@/lib/asura/client-personality-cross-engine';
 import {
   buildGhostAsuraReading,
   GHOST_ASURA_UI,
@@ -482,6 +484,16 @@ export function toAsuraDisplay(
     voiceRewritten: qualifying.filter((item) => ASURA_VOICE[item.resultId] || ASURA_TIMELINE[item.resultId]).length,
   };
 
+  // ====== 性別表達個人化增強層 ======
+  // 注入：如有性別與人格數據，生成個人化話術補充卡片
+  const personalizedEnhancements: Record<string, any> = {};
+  if (engineInput.gender && result) {
+    const declaredSex = engineInput.gender === 'female' ? 'FEMALE' : 'MALE';
+    // 預留：未來可在此注入性別表達技能生成的個人化話術
+    personalizedEnhancements.declaredSex = declaredSex;
+    personalizedEnhancements.personalizationAvailable = true;
+  }
+
   return {
     contract: ASURA_DISPLAY_CONTRACT,
     hourAssumed,
@@ -531,6 +543,7 @@ export function toAsuraDisplay(
     scopeNote: '印記故事用於文化象徵與自我反思，不代表心理診斷或必然發生的預言。',
     targetName: options.targetName || null,
     identityTarget: options.identityTarget || 'self',
+    personalizedEnhancements, // 性別表達個人化層
   };
 }
 
