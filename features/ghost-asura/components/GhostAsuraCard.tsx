@@ -314,7 +314,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
         </div>
         <div className={styles.stats} data-asura-stats role="group" aria-label="印記數字說明；點數字可跳到對應清單">
           {display.stats
-            .filter(stat => !(stat.value === 0 && stat.tone === 'pending'))
+            .filter(stat => !(stat.value === '0' && stat.tone === 'pending'))
             .map((stat) => {
             const body = (
               <>

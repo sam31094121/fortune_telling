@@ -105,6 +105,72 @@ const adopted: Record<string, AsuraWording> = {
     "coreWarning": "缺席不代表幸運。有時候缺席本身，就是一個劫難。什麼該發生卻沒發生，才是真正的問題。",
     "battleSignificance": "虛空之力最難察覺，因為它什麼都沒做。",
     "verdict": "看清空白，才能填補它。"
+  },
+  "天乙神印": {
+    "shortDeclaration": "令旗在手，帥位已定。",
+    "coreWarning": "貴人相助不是讓你躲在身後當懦夫。有人替你掌旗，你就要敢帶隊衝鋒，陣前立威。",
+    "battleSignificance": "援軍只敬重強者。用你的果決換取更大的戰果。",
+    "verdict": "手握令旗，自成一軍。"
+  },
+  "文魂天契": {
+    "shortDeclaration": "謀定後動，殺伐由心。",
+    "coreWarning": "文韜不是書生的酸腐，是統籌三軍的戰略思維。一眼識破陣型死穴，用智慧一擊致命。",
+    "battleSignificance": "智謀如刃，運籌帷幄之中定敵人生死。",
+    "verdict": "筆落如刀，步步奪城。"
+  },
+  "孤華幽冠": {
+    "shortDeclaration": "孤峰立陣，傲視群雄。",
+    "coreWarning": "真正的強者永遠是獨行的。不屑與凡俗為伍，自有一身無人可及的傲骨與絕學。",
+    "battleSignificance": "一人成陣，冷眼俯瞰戰局起落。",
+    "verdict": "無人同路，我自稱王。"
+  },
+  "魁罡戰魂": {
+    "shortDeclaration": "狂烈殺伐，直衝中樞。",
+    "coreWarning": "生來帶著一身鐵骨煞氣。戰場之上容不得軟弱，想奪取陣地，就正面硬碰硬打穿敵陣！",
+    "battleSignificance": "以絕對的剛烈與膽魄，震懾全場宵小。",
+    "verdict": "霸氣沖霄，專斷乾坤。"
+  },
+  "玄極天印": {
+    "shortDeclaration": "陰陽化力，借勢破敵。",
+    "coreWarning": "剛柔相濟方為極致戰法。任敵狂猛如潮，我自順勢化力，反手將對手打入深淵。",
+    "battleSignificance": "以靜制動，在動靜轉換間奪取制勝機先。",
+    "verdict": "萬力歸一，生生不息。"
+  },
+  "福曜護命": {
+    "shortDeclaration": "戰運加身，攻無不克。",
+    "coreWarning": "所謂福運，是敢於揮刀之人的獎賞。別守著運氣不敢出手，乘風破浪，擴大戰果！",
+    "battleSignificance": "氣運在身，每一次衝鋒都比常人更具底氣。",
+    "verdict": "借天時破敵，奪千里勝境。"
+  },
+  "白虎血印": {
+    "shortDeclaration": "猛虎出閘，煞氣逼人。",
+    "coreWarning": "骨子裡的狠勁一旦被激發，就沒有收手的餘地。將這股兇猛化作護衛陣地的鋼鐵獠牙！",
+    "battleSignificance": "以殺止殺，讓對手在膽寒中不敢越雷池一步。",
+    "verdict": "利齒出鞘，誰敢攖鋒。"
+  },
+  "飛刃血痕": {
+    "shortDeclaration": "冷刃暗伏，見血封喉。",
+    "coreWarning": "防備突如其來的暗算，更要隨時備好反手一刀。在邊界處決生死，不留一絲猶豫。",
+    "battleSignificance": "快刃奪命，以極致速度搶先終結對手。",
+    "verdict": "刀鋒所至，立斷糾纏。"
+  },
+  "劫魂之刃": {
+    "shortDeclaration": "凶險在前，正好磨刀。",
+    "coreWarning": "劫難不是來讓你懼怕的，是來逼你拔刀的。越是絕境，越能激發阿修羅骨子裡的無盡狂意！",
+    "battleSignificance": "把劫難踩在腳下，奪取生機方成戰神。",
+    "verdict": "絕境破殺，唯強者生。"
+  },
+  "孤辰絕界": {
+    "shortDeclaration": "割席自立，獨守孤堡。",
+    "coreWarning": "沒有援軍又如何？一人守城，便是一座牢不可破的要塞。斷絕無效社交，專注手裡實力！",
+    "battleSignificance": "不依附任何人，立起屬於自己的絕對領域。",
+    "verdict": "孤軍奮戰，自成一方霸主。"
+  },
+  "寡宿幽宮": {
+    "shortDeclaration": "心冷如鐵，不受凡塵牽絆。",
+    "coreWarning": "情感的羈絆只會鈍了你的刀。學會享受這份冷靜與獨處，在沉默中積蓄撕裂長夜的力量。",
+    "battleSignificance": "無情方能無破綻，冷靜俯瞰全場動向。",
+    "verdict": "寒夜獨坐，蓄勢待發。"
   }
 };
 export const ASURA_WORDINGS: Readonly<Record<string, AsuraWording>> = { ...adopted, ...ASURA_CUSTOMER_WORDINGS };
