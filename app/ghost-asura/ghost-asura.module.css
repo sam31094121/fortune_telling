@@ -271,6 +271,74 @@
   animation: slideInUp 0.5s ease-out;
 }
 
+/* ==================== 快速重新解盤 ==================== */
+
+.quickRetakeSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.quickRetakeLabel {
+  font-size: 12px;
+  color: #aca19f;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.quickRetakeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 12px 28px;
+  border: 2px solid rgba(212, 175, 55, 0.4);
+  border-radius: 10px;
+  background: rgba(212, 175, 55, 0.08);
+  color: #d4af37;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.quickRetakeButton:hover {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: #d4af37;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+  transform: translateY(-2px);
+}
+
+.quickRetakeButton:active {
+  transform: translateY(0);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.1);
+}
+
+.quickRetakeIcon {
+  font-size: 16px;
+  animation: spinSlow 2s linear infinite;
+}
+
+.quickRetakeButton:hover .quickRetakeIcon {
+  animation: spinFast 0.8s linear infinite;
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spinFast {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 @media (max-width: 600px) {
   .page { padding: 16px 12px 56px; }
   .header { padding: 24px 4px; }

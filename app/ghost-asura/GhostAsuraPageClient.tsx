@@ -55,6 +55,16 @@ export default function GhostAsuraPageClient({
     setResult(null);
   }
 
+  function quickRetake() {
+    invalidateCalculation();
+    setError('');
+    setMissing([]);
+    resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 300);
+  }
+
   useEffect(() => {
     if (!unlocked) {
       invalidateCalculation();
@@ -283,7 +293,22 @@ export default function GhostAsuraPageClient({
           data-ghost-asura-result="ready"
         >
           {reading ? (
-            <GhostAsuraCard reading={reading} />
+            <>
+              <GhostAsuraCard reading={reading} />
+
+              {/* 🔄 快速重新解盤 */}
+              <div className={styles.quickRetakeSection}>
+                <p className={styles.quickRetakeLabel}>想調整生辰重新解盤？</p>
+                <button
+                  className={styles.quickRetakeButton}
+                  onClick={quickRetake}
+                  aria-label="快速重新解盤"
+                >
+                  <span className={styles.quickRetakeIcon}>🔄</span>
+                  再占一次
+                </button>
+              </div>
+            </>
           ) : (
             <div className={styles.panel} role="alert">
               這份秘卷暫時無法展開。請重新開啟戰局；若仍無法顯示，請聯絡網站管理員。
