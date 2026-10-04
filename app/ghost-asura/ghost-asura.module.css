@@ -118,6 +118,159 @@
   .inputPanel :global(.mega-friendly-form) button:hover { border-color: #deb894; }
   .inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready):hover { background: #e2bd8d; }
 }
+/* ==================== 進度指引 + 動畫反饋 ==================== */
+
+/* 進度條容器 */
+.progressContainer {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, rgba(212, 175, 55, 0.02) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 12px;
+}
+
+/* 單一步驟 */
+.progressStep {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+/* 步驟圓點 */
+.stepCircle {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(212, 175, 55, 0.3);
+  color: #c4bab7;
+  background: #1c181d;
+}
+
+/* 步驟圓點 - 已完成 */
+.stepCircle.done {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: #d4af37;
+  color: #d4af37;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+}
+
+/* 步驟圓點 - 當前 */
+.stepCircle.active {
+  background: #d4af37;
+  border-color: #d4af37;
+  color: #251c16;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+  animation: progressPulse 1.5s ease-in-out infinite;
+}
+
+/* 步驟文字 */
+.stepLabel {
+  font-size: 12px;
+  color: #aca19f;
+  text-align: center;
+  line-height: 1.4;
+  max-width: 80px;
+  transition: color 0.3s ease;
+}
+
+.stepCircle.done ~ .stepLabel,
+.stepCircle.active ~ .stepLabel {
+  color: #f5eeea;
+  font-weight: 600;
+}
+
+/* 進度條連線 */
+.progressConnector {
+  position: absolute;
+  top: 23px;
+  left: 64px;
+  right: -68px;
+  height: 2px;
+  background: rgba(212, 175, 55, 0.15);
+  transition: background 0.3s ease;
+}
+
+.progressConnector.active {
+  background: #d4af37;
+}
+
+.progressStep:last-child .progressConnector {
+  display: none;
+}
+
+/* ==================== 加載動畫 ==================== */
+
+/* 按鈕加載狀態 */
+.buttonLoading {
+  position: relative;
+  pointer-events: none;
+}
+
+/* 脈動圓點 */
+.loadingDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  margin: 0 3px;
+  animation: loadingPulse 1.4s ease-in-out infinite;
+}
+
+.loadingDot:nth-child(1) { animation-delay: 0s; }
+.loadingDot:nth-child(2) { animation-delay: 0.2s; }
+.loadingDot:nth-child(3) { animation-delay: 0.4s; }
+
+/* 關鍵動畫幀 */
+@keyframes progressPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+  }
+}
+
+@keyframes loadingPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.7);
+  }
+}
+
+/* 秘卷展開動畫（後續用） */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.resultsEnter {
+  animation: slideInUp 0.5s ease-out;
+}
+
 @media (max-width: 600px) {
   .page { padding: 16px 12px 56px; }
   .header { padding: 24px 4px; }
@@ -126,4 +279,26 @@
   .page .inputPanel :global(.mega-friendly-form) > section { padding: 14px; }
   .page .inputPanel :global(.mega-friendly-form) :is(input:not([type="checkbox"]), select) { padding-inline: 10px; }
   .inputPanel :global(.mega-friendly-form) > section[data-field="birthDate"] :global(.grid-cols-3) { gap: 8px; }
+
+  /* 手機版進度條調整 */
+  .progressContainer {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+  }
+  .progressStep {
+    flex: 0 0 calc(33.333% - 8px);
+  }
+  .progressConnector {
+    display: none;
+  }
+  .stepCircle {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+  .stepLabel {
+    font-size: 11px;
+    max-width: 60px;
+  }
 }

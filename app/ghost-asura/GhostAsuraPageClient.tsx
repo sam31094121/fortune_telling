@@ -169,6 +169,14 @@ export default function GhostAsuraPageClient({
     }
   }
 
+  const progressSteps = [
+    { id: 'birthDate', done: !!form.birthDate, label: '填寫生辰' },
+    { id: 'gender', done: !!form.gender, label: '選擇性別' },
+    { id: 'birthHour', done: asuraHourStatus(form).done, label: '確認時辰' },
+  ];
+  const completedSteps = progressSteps.filter(s => s.done).length;
+  const currentStepIndex = Math.min(completedSteps, progressSteps.length - 1);
+
   return (
     <main
       className={styles.page}
@@ -186,6 +194,21 @@ export default function GhostAsuraPageClient({
           點印記名稱查看其力量與駕馭之道。
         </p>
       </header>
+
+      {/* ✨ 進度指引 */}
+      <div className={styles.progressContainer}>
+        {progressSteps.map((step, index) => (
+          <div key={step.id} className={styles.progressStep}>
+            <div className={`${styles.stepCircle} ${step.done ? styles.done : ''} ${index === currentStepIndex && !step.done ? styles.active : ''}`}>
+              {step.done ? '✓' : index + 1}
+            </div>
+            <div className={styles.stepLabel}>{step.label}</div>
+            {index < progressSteps.length - 1 && (
+              <div className={`${styles.progressConnector} ${index < currentStepIndex || (index === currentStepIndex && step.done) ? styles.active : ''}`} />
+            )}
+          </div>
+        ))}
+      </div>
 
       <section className={`${styles.panel} ${styles.inputPanel}`}>
             <p className={styles.note}>
@@ -216,7 +239,7 @@ export default function GhostAsuraPageClient({
               disabled={busy}
               isSubmitting={busy}
               submitLabel="開啟命魂戰局"
-              loadingLabel="正在排盤…"
+              loadingLabel={busy ? <span className={styles.buttonLoading}>正在排盤<span className={styles.loadingDot} /><span className={styles.loadingDot} /><span className={styles.loadingDot} /></span> : '開啟命魂戰局'}
               onChange={(profile) =>
                 updateForm(
                   profile.birthHourBranch === 'zi'
@@ -255,7 +278,7 @@ export default function GhostAsuraPageClient({
         <section
           ref={resultRef}
           tabIndex={-1}
-          className={styles.results}
+          className={`${styles.results} ${styles.resultsEnter}`}
           aria-label="鬼魅阿修羅解盤結果"
           data-ghost-asura-result="ready"
         >
