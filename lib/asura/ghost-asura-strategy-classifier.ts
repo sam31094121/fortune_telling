@@ -84,50 +84,50 @@ export const STRATEGY_VOICE_PACKS: Record<CommunicationType, TypeVoicePack> = {
   TYPE_A: {
     openingStrike: '先講答案。廢話免了。',
     wakeUpCall: '你以為在帶隊突圍。其實只是享受全員看你拍板。',
-    pastFormation: '幾次關鍵轉折，你明明想等。等到最後，主導權全沒了。你骨子裡學會自己先橫推。',
-    presentBlindSpot: '別人還在開會找共識。你心裡已經拍板散會抄傢伙。這不是果斷，是你急於定局。',
-    futureChoice: '大局會把話語權交給敢扛的人。若每一仗都要通吃，彈藥遲早耗盡。門由著它自己關。',
-    asuraJoke: '開會看秒錶。嫌全世界太慢，最後累垮的始終是你自己。',
+    pastFormation: '幾次關鍵轉折。你明明想等。等到最後，主導權沒了。你骨子裡學會自己先橫推。',
+    presentBlindSpot: '別人還在開會找共識。你心裡已散會抄傢伙。這不是果斷，是你急於定局。',
+    futureChoice: '大局交給敢扛的人。想通吃全場，彈藥遲早耗盡。門由著它自己關。',
+    asuraJoke: '開會看秒錶。嫌全世界太慢。最後累垮的，始終是你。',
   },
 
   // TYPE_B：敏感／防衛型（The Defensive Sentinel）
   TYPE_B: {
     openingStrike: '先別急著反駁。我講的是你的反應，不是在否定你。',
-    wakeUpCall: '你看起來雷厲風行。底下其實藏著一件事：你很怕把背後交給別人。',
+    wakeUpCall: '你看起來雷厲風行。底下藏著一件事。你怕把背後交給別人。',
     pastFormation: '有些暗路攔你的不出聲。你摔過之後。警報器調在最高檔位。一有風吹草動，就想拔刀。',
     presentBlindSpot: '環境早就變安全了。你的刀還架在身前。防衛過度。身邊的人，很難走進你的陣地。',
     futureChoice: '看清形成原因。手裡的刀，該放就得放。卸下重甲，路才走得遠。',
-    asuraJoke: '以為這是天生傲骨。其實是以前摔怕了之後，乾脆自己先把地基拆掉。',
+    asuraJoke: '以為這是天生傲骨。以前摔怕了之後。乾脆自己先把地基拆掉。',
   },
 
   // TYPE_C：過度分析型（The Over-Analyzing Deliberator）
   TYPE_C: {
     openingStrike: '資料早就夠了。你缺的不是資訊，是決定。',
-    wakeUpCall: '你現在不是在找最佳解。你是在找一個出事不用負責的藉口。',
-    pastFormation: '過去幾次關鍵變數，你用推演代替出手。算得再細。時間窗口，早已溜走。',
-    presentBlindSpot: '你想找一個百分之百不失控的選項。先認清一件事：這個局裡沒有這種東西。動中才有答案。',
-    futureChoice: '這一段真正要學的是做選擇題。看清哪一扇門有天下。其餘的，連看都別看。',
-    asuraJoke: '別人開會看簡報，你開會做字典。算到最後一兵一卒，結果戰場早就換地方了。',
+    wakeUpCall: '你不是在找最佳解。你是在等出事不用負責的藉口。',
+    pastFormation: '幾次關鍵變數。你用推演代替出手。算得再細。時間早已溜走。',
+    presentBlindSpot: '想找百分之百不失控的選項。先認清一件事。這局裡沒有這種東西。動中才有答案。',
+    futureChoice: '這一段要學做選擇題。看清哪一扇門有天下。其餘的，連看都別看。',
+    asuraJoke: '別人開會看簡報。你開會做字典。算到最後一兵一卒。戰場早就換地方了。',
   },
 
   // TYPE_D：衝動／好鬥型（The Impulsive Vanguard）
   TYPE_D: {
     openingStrike: '手先收回來。局都沒看全，你又準備第一個當靶。',
-    wakeUpCall: '你現在最不缺的就是膽。事情都還沒看完，你又準備第一個衝出去擋子彈。',
-    pastFormation: '過去一路走來全靠一股蠻勁硬撐。看到門就想踹開。久了，刻進骨子裡成了慣性。',
+    wakeUpCall: '你現在最不缺的是膽。事情還沒看完。你又準備第一個出去擋子彈。',
+    pastFormation: '過去一路全靠蠻勁硬撐。看到門就想踹開。久了，刻進骨子裡成了慣性。',
     presentBlindSpot: '執行力全開不是壞事。局勢還沒走完。你已先把退路炸掉。今年，先讓別人把話講完。',
     futureChoice: '下一刀由你先出。但刀要落在要處，不能落空。看準靶心再出鞘，不等被激。',
-    asuraJoke: '別人開車踩煞車，你開車拔煞車。衝得比誰都快，撞牆也是最響的。',
+    asuraJoke: '別人開車踩煞車。你開車拔煞車。衝得比誰都快。撞牆也是最響的。',
   },
 
   // TYPE_E：嘴硬／傲嬌型（The Stubborn Deflector）
   TYPE_E: {
     openingStrike: '嘴巴可以繼續說沒事。但你的選擇已經替你回答了。',
     wakeUpCall: '嘴上一直說隨便。每個選項，你都在半夜反覆翻盤。',
-    pastFormation: '以前暗處吃過虧不願說，習慣用冷臉當盔甲。寧可自己把牙咬碎，也不願在人前示弱。',
+    pastFormation: '以前吃虧不願說。習慣用冷臉當盔甲。寧可咬碎牙。也不在人前示弱。',
     presentBlindSpot: '你不是不在乎。你怕別人拿這個當把柄。死不認錯，自己憋成內傷。',
     futureChoice: '承認艱難不叫認輸。心裡有數，手裡有刃。不必逢人解釋。',
-    asuraJoke: '嘴巴硬得像岩石。心裡翻了八百遍。表面雲淡風輕，背後靴子早磨穿。',
+    asuraJoke: '嘴巴硬得像岩石。心裡翻了八百遍。表面雲淡風輕。背後靴子早磨穿。',
   },
 };
 
