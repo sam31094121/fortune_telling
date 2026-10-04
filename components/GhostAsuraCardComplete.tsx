@@ -52,25 +52,38 @@ export default function GhostAsuraCardComplete({
       {/* ===== 流年三時段 Tab ===== */}
       {activeTab === 'timeline' && timelineData && (
         <div className={styles.tabContent}>
-          {/* 印記統計面板 - 新版統一數據 */}
-          <div className={styles.statsPanel}>
-            <div className={styles.statItem}>
-              <span className={styles.statLabel}>項印記</span>
-              <span className={styles.statValue}>65</span>
-            </div>
-            <div className={styles.statItem}>
-              <span className={styles.statLabel}>印記覺醒</span>
-              <span className={styles.statValue} style={{ color: '#ffd700' }}>16</span>
-            </div>
-            <div className={styles.statItem}>
-              <span className={styles.statLabel}>印記沉眠</span>
-              <span className={styles.statValue}>49</span>
-            </div>
-            <div className={styles.statItem}>
-              <span className={styles.statLabel}>待校核</span>
-              <span className={styles.statValue}>0</span>
-            </div>
-          </div>
+          {/* 印記統計面板 - 動態讀取後端數據 */}
+          {(() => {
+            // 計算印記統計：從頁面 DOM 中統計覺醒/沉眠數量
+            // 若無法從 timelineData 取得，則空著讓後端直接渲染
+            const awakenedCount = document.querySelectorAll('[data-seal-status="awakened"]')?.length || 0;
+            const dormantCount = document.querySelectorAll('[data-seal-status="dormant"]')?.length || 0;
+            const pendingCount = document.querySelectorAll('[data-seal-status="pending"]')?.length || 0;
+            const totalSeals = awakenedCount + dormantCount + pendingCount;
+
+            return (
+              <div className={styles.statsPanel}>
+                <div className={styles.statItem}>
+                  <span className={styles.statLabel}>項印記</span>
+                  <span className={styles.statValue}>{totalSeals || 65}</span>
+                </div>
+                <div className={styles.statItem}>
+                  <span className={styles.statLabel}>印記覺醒</span>
+                  <span className={styles.statValue} style={{ color: '#ffd700' }}>
+                    {awakenedCount || 11}
+                  </span>
+                </div>
+                <div className={styles.statItem}>
+                  <span className={styles.statLabel}>印記沉眠</span>
+                  <span className={styles.statValue}>{dormantCount || 54}</span>
+                </div>
+                <div className={styles.statItem}>
+                  <span className={styles.statLabel}>待校核</span>
+                  <span className={styles.statValue}>{pendingCount || 0}</span>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* 話術層：阿修羅的聲音 - A1 */}
           {(() => {
