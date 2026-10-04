@@ -151,7 +151,7 @@ const BEHAVIOR_CHECKS = [
     module: 'bazi_shensha_live_flow',
     title: '神煞出生資料到真實API與四柱顯示的固定命例核對',
     path: '/dual-chart',
-    script: 'test:shensha-live-api',
+    script: 'test:iching-shensha-live-api', // npm script renamed in 3b19d01（神煞易經→易經神煞）
     timeoutMs: 120000,
   },
   {
@@ -617,6 +617,11 @@ async function checkHealthScript(check) {
     };
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
+    // 檢查腳本多把逐項結果印在 stdout；execFile 的 error.message 只帶 stderr，失敗項目名稱會被吃掉。
+    // 把 ERROR／NOT READY／FAIL／UNAVAILABLE／UNRESOLVED／SUMMARY 行帶進 issue，讓報告直接列出未放行的 claim／功能。
+    const childStdout = error && typeof error.stdout === 'string' ? error.stdout : '';
+    const namedLines = childStdout.split(/\r?\n/).filter((line) => /^(ERROR|NOT READY|FAIL|UNAVAILABLE|UNRESOLVED|SUMMARY)\b/.test(line.trim()));
+    const named = namedLines.length ? `\n${namedLines.join('\n').slice(0, 3000)}` : '';
     return {
       ...check,
       status: 'FAILED',
@@ -625,7 +630,8 @@ async function checkHealthScript(check) {
       durationMs: Date.now() - startedAt,
       htmlLength: 0,
       error: detail,
-      issue: `${check.title} verification failed: ${detail}`,
+      issue: `${check.title} verification failed: ${detail}${named}`,
+      output: `${childStdout}${error && typeof error.stderr === 'string' ? error.stderr : ''}`.trim().slice(-2000),
     };
   }
 }

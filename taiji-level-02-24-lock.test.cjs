@@ -12,15 +12,6 @@ function sha256(file) {
   return createHash('sha256').update(readFileSync(join(root, file))).digest('hex');
 }
 
-// Line-ending-normalized fingerprint: a CRLF->LF checkout/editor conversion must not read as a
-// content change. The LF-normalized hashes are derived from the SAME baseline content (git blobs
-// verified to reproduce baseline.fileHashes); any real content change still fails.
-const lfBaselinePath = join(root, 'reports/taiji-lock/LEVEL_02_TO_24_BASELINE.lf-normalized.json');
-const lfBaseline = existsSync(lfBaselinePath) ? JSON.parse(readFileSync(lfBaselinePath, 'utf8')).lfNormalizedFileHashes || {} : {};
-function sha256Lf(file) {
-  return createHash('sha256').update(readFileSync(join(root, file), 'utf8').replace(/\r\n/g, '\n')).digest('hex');
-}
-
 function mustInclude(source, marker, label) {
   if (!source.includes(marker)) {
     throw new Error(`LEVEL_02-24 lock failed (${label}): missing ${marker}`);
@@ -34,7 +25,7 @@ for (const [file, expected] of Object.entries(baseline.fileHashes)) {
     continue;
   }
   const actual = sha256(file);
-  if (actual !== expected && !(lfBaseline[file] && sha256Lf(file) === lfBaseline[file])) mismatches.push(`${file} hash changed`);
+  if (actual !== expected) mismatches.push(`${file} hash changed`);
   const source = readFileSync(join(root, file), 'utf8');
   for (const token of baseline.interactionConfig.forbiddenLevel01Imports) {
     if (source.includes(token)) mismatches.push(`${file} imported LEVEL_01 token ${token}`);

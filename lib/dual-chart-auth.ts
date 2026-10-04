@@ -72,7 +72,25 @@ function getClientIP(request: Request): string {
   );
 }
 
+// Development-only loopback exemption: next dev receives no proxy headers, so every local client
+// (browser, health monitor, live-API tests) collapsed into one 'unknown' bucket and got 429-blocked.
+// Production (NODE_ENV === 'production') never takes this branch, so production limiting is unchanged.
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
+const LOOPBACK_IPS = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
+function isDevelopmentLoopback(request: Request): boolean {
+  if (process.env.NODE_ENV === 'production') return false;
+  const ip = getClientIP(request);
+  if (LOOPBACK_IPS.has(ip)) return true;
+  if (ip !== 'unknown') return false;
+  let hostname = '';
+  try { hostname = new URL(`http://${request.headers.get('host') ?? new URL(request.url).host}`).hostname; } catch { return false; }
+  return LOOPBACK_HOSTS.has(hostname);
+}
+
 export function checkAPIRateLimit(request: Request): { allowed: boolean; remaining: number; resetSeconds: number } {
+  if (isDevelopmentLoopback(request)) {
+    return { allowed: true, remaining: API_RATE_LIMIT.MAX_REQUESTS, resetSeconds: Math.ceil(API_RATE_LIMIT.WINDOW_MS / 1000) };
+  }
   const ip = getClientIP(request);
   const now = Date.now();
 

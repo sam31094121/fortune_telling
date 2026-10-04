@@ -1,16 +1,225 @@
 /**
- * 鬼魅阿修羅卡片 — 只讀已核可顯示資料
+ * 鬼魅阿修羅卡片 — 只讀後端已核可顯示資料
+ *
+ * 主路徑（/ghost-asura）：`display` 來自 POST /api/ghost-asura/reading，
+ * 已在後端分組／篩選／排序；本元件只照印文字，不做任何分組或命理判斷。
+ * 卡頭下方三段原生摺疊段（收合只顯示兩字標題）：過去＝命中神煞／現在＝柱位與封印狀態／未來＝阿修羅判語。
+ *
+ * 舊路徑 `reading`：僅 /dual-chart 阿修羅分頁暫留（尚未遷移），維持原樣不動。
  */
 
 'use client';
 
 import { useMemo } from 'react';
 import { animationConfig } from '@/lib/ghost-asura-animation';
+import type { AsuraDisplay, AsuraDisplaySeal } from '@/lib/ghost-asura-display-contract';
 import type { GhostAsuraReading } from '../types';
 import { GHOST_ASURA_UI } from '../uiText';
 import styles from './GhostAsuraCard.module.css';
 
-export function GhostAsuraCard({ reading }: { reading: GhostAsuraReading }) {
+export function GhostAsuraCard({ display, reading }: { display?: AsuraDisplay; reading?: GhostAsuraReading }) {
+  if (display) return <DisplayCard display={display} />;
+  if (reading) return <LegacyReadingCard reading={reading} />;
+  return null;
+}
+
+const TONE_ITEM: Record<AsuraDisplaySeal['tone'], string> = {
+  awakened: `${styles.item} ${styles.itemAwakened}`,
+  dormant: `${styles.item} ${styles.itemDormant}`,
+  pending: `${styles.item} ${styles.itemPending}`,
+};
+const TONE_SEAL: Record<AsuraDisplaySeal['tone'], string> = {
+  awakened: `${styles.seal} ${styles.sealAwakened}`,
+  dormant: `${styles.seal} ${styles.sealDormant}`,
+  pending: `${styles.seal} ${styles.sealPending}`,
+};
+
+function DisplayCard({ display }: { display: AsuraDisplay }) {
+  const baseDelay =
+    animationConfig.cardReveal.delay + animationConfig.cardReveal.duration + animationConfig.impressionGlow.delay;
+  let glowIndex = 0;
+  const nextDelay = () => baseDelay + glowIndex++ * animationConfig.impressionGlow.staggerDelay;
+
+  return (
+    <section
+      className={styles.card}
+      aria-label={display.title}
+      data-card-type="ghost-asura-reading"
+      data-guard-status={display.alert ? 'FAILED' : 'PASSED'}
+      data-display-contract={display.contract}
+    >
+      <header className={styles.header}>
+        <span className={styles.crest} aria-hidden="true">修羅</span>
+        <h2 className={styles.title}>{display.title}</h2>
+        <p className={styles.subtitle}>{display.subtitle}</p>
+      </header>
+
+      {display.alert && (
+        <p className={`${styles.failed} ${styles.fnAlert}`} role="alert" data-guard="failed">
+          {display.alert}
+        </p>
+      )}
+
+      {/* 過去／現在／未來：卡內原生摺疊段，收合時只顯示兩字標題；內容全由後端照印 */}
+      <div className={styles.functions} data-asura-functions>
+        {display.sections.map((section) => (
+          <details key={section.key} className={styles.fnSection} data-asura-function={section.key}>
+            <summary className={styles.fnHead}>
+              <span className={styles.fnTitle}>{section.heading}</span>
+            </summary>
+            <div className={styles.fnBody}>
+              {section.lead && <p className={styles.fnLead}>{section.lead}</p>}
+              {section.items.length > 0 && (
+                <dl className={styles.fnList}>
+                  {section.items.map((entry, index) => (
+                    <div key={`${entry.label}-${index}`} className={styles.fnRow}>
+                      <dt>{entry.label}</dt>
+                      <dd>{entry.text}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+              {section.emptyText && <p className={styles.fnEmpty}>{section.emptyText}</p>}
+            </div>
+          </details>
+        ))}
+      </div>
+
+      <p className={styles.scrollHint}>{display.scrollHint}</p>
+      <div
+        className={styles.pillarScroll}
+        role="region"
+        aria-label="四柱與所屬印記，可左右捲動"
+        tabIndex={0}
+        data-asura-pillar-scroll
+      >
+        <div className={styles.pillarReadingGrid} data-asura-pillar-grid>
+          <div className={styles.pillarsTable}>
+            {display.columns.map((column) => (
+              <div key={column.key} className={styles.pillarColumn} data-asura-pillar-head={column.key}>
+                <div className={styles.pillarLabel}>{column.heading}</div>
+                <div className={styles.pillarValue} data-asura-leading>{column.lead}</div>
+                <small className={styles.pillarCount}>{column.countText}</small>
+              </div>
+            ))}
+          </div>
+
+          {display.columns.map((column) => (
+            <div
+              key={column.key}
+              className={styles.pillarGroup}
+              role="group"
+              aria-label={`${column.heading}印記`}
+              data-asura-column={column.key}
+            >
+              {column.seals.length === 0 && (
+                <p className={styles.pillarEmpty} aria-label={`${column.heading}目前沒有對應印記`}>—</p>
+              )}
+              <ul className={styles.list} aria-label={`${column.heading}印記`} data-asura-list={column.heading}>
+                {column.seals.map((seal) => (
+                  <li
+                    key={seal.id}
+                    className={TONE_ITEM[seal.tone]}
+                    data-asura-id={seal.id}
+                    data-seal-status={seal.tone}
+                    data-display-name={seal.name}
+                    style={
+                      seal.tone === 'awakened'
+                        ? {
+                            animation: 'asuraImpressionGlow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+                            animationDelay: `${nextDelay()}ms`,
+                          }
+                        : {}
+                    }
+                  >
+                    <details className={styles.itemDetail} data-asura-detail>
+                      <summary className={styles.itemHead}>
+                        <strong className={styles.displayName}>{seal.name}</strong>
+                      </summary>
+                      <div className={styles.itemBody}>
+                        <span className={TONE_SEAL[seal.tone]}>{seal.sealLabel}</span>
+                        {(seal.declaration || seal.meaning) && (
+                          <div className={styles.meaning}>
+                            {seal.declaration && <div className={styles.meaningStrong}>{seal.declaration}</div>}
+                            {seal.meaning}
+                          </div>
+                        )}
+                        {seal.clash && (
+                          <div className={styles.battleLine}>
+                            <span style={{ color: '#fca5a5' }}>{GHOST_ASURA_UI.printClash}｜</span>
+                            {seal.clash}
+                          </div>
+                        )}
+                      </div>
+                    </details>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.summaryFooter} data-asura-summary-footer>
+        <div className={styles.banner} data-asura-banner>
+          {display.lines.map((line, index) => (
+            <span key={line}>
+              {index > 0 && <br />}
+              {line}
+            </span>
+          ))}
+        </div>
+        <div className={styles.stats} data-asura-stats>
+          {display.stats.map((stat) => (
+            <span key={stat.label}>
+              <b
+                className={
+                  stat.tone === 'awakened' ? styles.awakenedValue : stat.tone === 'pending' ? styles.pendingValue : undefined
+                }
+              >
+                {stat.value}
+              </b>{' '}
+              {stat.label}
+            </span>
+          ))}
+          <small className={styles.statsHint}>{display.statsHint}</small>
+        </div>
+      </div>
+
+      {display.supplements.map((group) => (
+        <section key={group.key} className={styles.section} data-layer={group.key}>
+          <h3 className={styles.sectionTitle}>{group.heading}</h3>
+          {group.entries.map((entry) => (
+            <details key={entry.id} className={styles.supplement} data-asura-supplement={group.key}>
+              <summary className={styles.supplementHead}>{entry.title}</summary>
+              <div className={styles.sectionBody}>
+                <div className={styles.fieldRow}>{entry.members}</div>
+                <div>{entry.text}</div>
+              </div>
+            </details>
+          ))}
+        </section>
+      ))}
+
+      <section className={styles.section} data-layer="battlefield">
+        <details className={styles.supplement} data-asura-supplement="battlefield">
+          <summary className={styles.supplementHead}><h3>{display.battleField.heading}</h3></summary>
+          <div className={styles.sectionBody}>
+            {display.battleField.rows.map((row) => (
+              <div key={row.label} className={styles.fieldRow}>
+                <span className={styles.fieldLabel}>{row.label}：</span>
+                {row.text}
+              </div>
+            ))}
+          </div>
+        </details>
+      </section>
+      <p className={styles.scopeNote}>{display.scopeNote}</p>
+    </section>
+  );
+}
+
+function LegacyReadingCard({ reading }: { reading: GhostAsuraReading }) {
   const failed = reading.guard.status === 'FAILED';
   const pillarHitCount = (label: string) => reading.items.filter(item =>
     item.sealStatus === 'awakened' && item.pillarLabels.includes(label)).length;

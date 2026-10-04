@@ -449,3 +449,118 @@
   .itemAwakened:hover { border-color: #c09076; }
   .supplementHead:hover { background: #34232a; }
 }
+
+/* ── 卡頭下方原生摺疊段：過去／現在／未來（收合只顯示兩字標題；內容由後端 /api/ghost-asura/reading 照印） ── */
+.functions {
+  display: grid;
+  gap: 10px;
+  padding: 20px 24px;
+  background: #151216;
+  border-bottom: 1px solid #45323a;
+}
+
+.fnAlert { margin: 16px 24px 0; }
+
+.fnSection {
+  min-width: 0;
+  border: 1px solid #674751;
+  border-radius: 10px;
+  background: #211a20;
+}
+
+.fnSection[open] { border-color: #c09076; background: #1d171c; }
+
+.fnHead {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 0 16px;
+  cursor: pointer;
+  list-style: none;
+  border-radius: 9px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fnHead::-webkit-details-marker { display: none; }
+
+.fnHead::after {
+  content: '＋';
+  margin-left: auto;
+  flex-shrink: 0;
+  color: #e4b99b;
+  font-size: 18px;
+}
+
+.fnSection[open] > .fnHead::after { content: '−'; }
+
+.fnHead:focus-visible { outline: 2px solid #e3b881; outline-offset: 3px; }
+
+.fnTitle {
+  color: #efc5a1;
+  font: 700 20px/1.3 serif;
+  letter-spacing: 0.24em;
+}
+
+.fnBody {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px 16px 16px;
+  border-top: 1px solid #674751;
+}
+
+.fnLead {
+  margin: 0;
+  padding: 2px 0 2px 12px;
+  border-left: 2px solid #b97a6e;
+  color: #eed3c4;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.8;
+  letter-spacing: 0.04em;
+}
+
+.fnList { display: grid; gap: 8px; margin: 0; }
+
+.fnRow {
+  display: grid;
+  grid-template-columns: 7.5em minmax(0, 1fr);
+  gap: 2px 12px;
+  align-items: baseline;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #3f3038;
+  border-radius: 8px;
+  background: #171318;
+}
+
+.fnRow dt {
+  color: #f0d0ae;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+}
+
+.fnRow dd {
+  margin: 0;
+  min-width: 0;
+  color: #d6c8c3;
+  font-size: 13px;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+
+.fnEmpty { margin: 0; color: #bcb0ae; font-size: 13px; line-height: 1.7; }
+
+@media (max-width: 420px) {
+  .fnAlert { margin: 12px 16px 0; }
+  .functions { gap: 8px; padding: 16px; }
+  .fnHead { padding: 0 14px; }
+  .fnBody { padding: 12px 14px 14px; }
+  .fnRow { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (hover: hover) {
+  .fnHead:hover { background: #34232a; }
+}

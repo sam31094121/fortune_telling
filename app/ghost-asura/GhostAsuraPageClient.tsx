@@ -1,21 +1,20 @@
 /**
  * 鬼魅阿修羅 — 獨立解盤頁客戶端（080-16）
  *
- * 流程：UnifiedBirthForm → /api/dual-chart（只讀已驗證神煞）
- * → buildGhostAsuraReading → GhostAsuraCard
+ * 流程：UnifiedBirthForm → POST /api/ghost-asura/reading
+ * （後端：排盤 → buildGhostAsuraReading → 分組／篩選／排序 → 顯示文字契約）→ GhostAsuraCard 照印
  *
- * 不改八字／神煞算法；不渲染 dual-chart 其他分頁；無密碼認證限制。
+ * 八字與神煞只在後端算；本頁不引用任何命理引擎或阿修羅管線，只顯示後端回傳的文字。
  */
 
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
 import { GhostAsuraCard } from '@/features/ghost-asura/components/GhostAsuraCard';
-import { buildGhostAsuraReading } from '@/features/ghost-asura';
-import type { DualChartResult } from '@/lib/dual-chart';
+import type { AsuraDisplay } from '@/lib/ghost-asura-display-contract';
 import { dualChartHourStatus } from '@/lib/dual-chart-form';
 import { downloadAsPDF, downloadAsImage, generateFilename } from '@/lib/ghost-asura-download';
 import { getCardRevealAnimation, getImpressionGlowAnimation, getScrollFormationAnimation, getTotalAnimationDuration } from '@/lib/ghost-asura-animation';
@@ -48,7 +47,7 @@ export default function GhostAsuraPageClient({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [missing, setMissing] = useState<string[]>([]);
-  const [result, setResult] = useState<DualChartResult | null>(null);
+  const [result, setResult] = useState<AsuraDisplay | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const [downloading, setDownloading] = useState<'pdf' | 'image' | null>(null);
   const resultRef = useRef<HTMLElement>(null);
@@ -167,15 +166,8 @@ export default function GhostAsuraPageClient({
     };
   }, [unlocked, router]);
 
-  const reading = useMemo(() => {
-    if (!result) return null;
-    try {
-      return buildGhostAsuraReading({ result });
-    } catch (err) {
-      console.error('[GhostAsuraPageClient] buildGhostAsuraReading failed', err);
-      return null;
-    }
-  }, [result]);
+  // 後端顯示契約；格式不符時不顯示、不自行補資料。
+  const reading = result?.contract === 'ghost-asura-display/v1' ? result : null;
 
   useEffect(() => {
     if (!result || !cardRef.current) return;
@@ -188,14 +180,14 @@ export default function GhostAsuraPageClient({
     }
 
     // 逐個播放印記點亮音效 + 粒子（延遲 200ms 起，每個間隔 100ms）
-    const awakened = reading?.items?.filter((item) => item.sealStatus === 'awakened') ?? [];
-    awakened.forEach((item, index) => {
+    const glowIds = reading?.glowIds ?? [];
+    glowIds.forEach((id, index) => {
       playImpressionGlowSound(index);
 
       // 找到對應的 DOM 元素並創建光粒子
       setTimeout(() => {
         const itemElement = document.querySelector(
-          `[data-asura-id="${item.resultId}"]`
+          `[data-asura-id="${id}"]`
         );
         if (itemElement && particleSystem) {
           particleSystem.createImpressionGlow(itemElement as HTMLElement, index);
@@ -267,7 +259,7 @@ export default function GhostAsuraPageClient({
     calculationRef.current = request;
     setBusy(true);
     try {
-      const response = await fetch('/api/dual-chart', {
+      const response = await fetch('/api/ghost-asura/reading', {
         method: 'POST',
         cache: 'no-store',
         signal: request.signal,
@@ -421,7 +413,7 @@ export default function GhostAsuraPageClient({
                     animation: `asuraCardReveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
                   }}
                 >
-                  <GhostAsuraCard reading={reading} />
+                  <GhostAsuraCard display={reading} />
                 </div>
               </div>
 

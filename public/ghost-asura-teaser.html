@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鬼魅阿修羅 - 喚醒儀式預告片</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --gold: #d4af37;
+            --dark-purple: #2a1a3f;
+            --red: #e63946;
+            --black: #0d0c10;
+            --light: #f5eeea;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--black) 0%, var(--dark-purple) 50%, var(--black) 100%);
+            color: var(--light);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100vh;
+        }
+
+        #teaser-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .cta-button {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 20px 50px;
+            background: rgba(212, 175, 55, 0.2);
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeInUp 1s ease 170s forwards;
+            z-index: 100;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .cta-button:hover {
+            background: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        .cta-text {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: var(--gold);
+            opacity: 0;
+            animation: fadeIn 1s ease 165s forwards;
+            text-align: center;
+            letter-spacing: 3px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.4); }
+            50% { box-shadow: 0 0 40px rgba(212, 175, 55, 0.8); }
+        }
+
+        .cta-button {
+            animation: fadeInUp 1s ease 170s forwards, glow 2s ease-in-out 170s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="teaser-container">
+        <canvas id="teaser-canvas"></canvas>
+        <div class="cta-text">準備好了嗎？</div>
+        <button class="cta-button" onclick="enterExperience()">進入命魂戰局</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('teaser-canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // 時間追蹤
+        let startTime = Date.now();
+        let currentTime = 0;
+
+        // 粒子系統
+        const particles = [];
+
+        class Particle {
+            constructor(x, y, vx, vy, life, color, size) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.life = life;
+                this.maxLife = life;
+                this.color = color;
+                this.size = size;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.1; // 重力
+                this.life -= 0.015;
+            }
+
+            draw() {
+                const opacity = this.life / this.maxLife;
+                ctx.fillStyle = this.color.replace(')', `, ${opacity})`).replace('rgb', 'rgba');
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function createParticles(x, y, count, color, speed) {
+            for (let i = 0; i < count; i++) {
+                const angle = (i / count) * Math.PI * 2;
+                const v = speed + Math.random() * speed * 0.5;
+                particles.push(new Particle(
+                    x + Math.random() * 20 - 10,
+                    y + Math.random() * 20 - 10,
+                    Math.cos(angle) * v,
+                    Math.sin(angle) * v,
+                    1,
+                    color,
+                    2 + Math.random() * 3
+                ));
+            }
+        }
+
+        function drawText(text, x, y, size, color, opacity, angle = 0) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            ctx.fillStyle = color.replace(')', `, ${opacity})`).replace('rgb', 'rgba');
+            ctx.font = `bold ${size}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, 0, 0);
+            ctx.restore();
+        }
+
+        function drawGlowCircle(x, y, radius, color, opacity) {
+            const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+            gradient.addColorStop(0, color.replace(')', `, ${opacity})`).replace('rgb', 'rgba'));
+            gradient.addColorStop(1, color.replace(')', ', 0)').replace('rgb', 'rgba'));
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawLine(x1, y1, x2, y2, color, opacity, width = 2) {
+            ctx.strokeStyle = color.replace(')', `, ${opacity})`).replace('rgb', 'rgba');
+            ctx.lineWidth = width;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        }
+
+        function animate() {
+            currentTime = (Date.now() - startTime) / 1000;
+
+            // 清空背景
+            ctx.fillStyle = 'rgba(13, 12, 16, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            // === 時間段 0-5 秒：開場黑屏 + 符號逼近 ===
+            if (currentTime < 5) {
+                const progress = currentTime / 5;
+                const symbolSize = 100 + progress * 200;
+                const opacity = Math.min(progress, 1);
+
+                drawGlowCircle(centerX, centerY, symbolSize, 'rgb(212, 175, 55)', opacity * 0.6);
+                drawText('◆', centerX, centerY, symbolSize / 2, 'rgb(212, 175, 55)', opacity);
+            }
+
+            // === 時間段 5-12 秒：品牌名稱出現 ===
+            else if (currentTime < 12) {
+                const progress = (currentTime - 5) / 7;
+                const fontSize = 60 + progress * 40;
+                const opacity = Math.min(progress * 2, 1);
+
+                // 背景光圈
+                const bgRadius = 200 + progress * 150;
+                drawGlowCircle(centerX, centerY, bgRadius, 'rgb(212, 175, 55)', opacity * 0.3);
+
+                // 文字
+                drawText('鬼魅阿修羅', centerX, centerY, fontSize, 'rgb(212, 175, 55)', opacity);
+
+                // 粒子
+                if (Math.random() < 0.3) {
+                    createParticles(centerX + Math.random() * 200 - 100, centerY + Math.random() * 200 - 100, 5, 'rgb(212, 175, 55)', 3);
+                }
+            }
+
+            // === 時間段 12-20 秒：進入結界 ===
+            else if (currentTime < 20) {
+                const progress = (currentTime - 12) / 8;
+                const opacity = Math.min(progress * 1.5, 1);
+
+                // 旋轉的結界線
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i / 6) * Math.PI * 2 + currentTime * 0.5;
+                    const x1 = centerX + Math.cos(angle) * 200;
+                    const y1 = centerY + Math.sin(angle) * 200;
+                    const x2 = centerX + Math.cos(angle + 0.5) * 250;
+                    const y2 = centerY + Math.sin(angle + 0.5) * 250;
+                    drawLine(x1, y1, x2, y2, 'rgb(212, 175, 55)', opacity * 0.6);
+                }
+
+                // 漩渦效果
+                const spiralPoints = 50;
+                for (let i = 0; i < spiralPoints; i++) {
+                    const angle = (i / spiralPoints) * Math.PI * 2 - currentTime * 1.5;
+                    const radius = 150 + (i / spiralPoints) * 100;
+                    const x = centerX + Math.cos(angle) * radius;
+                    const y = centerY + Math.sin(angle) * radius;
+                    ctx.fillStyle = `rgba(212, 175, 55, ${opacity * 0.4})`;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // 粒子增加
+                if (Math.random() < 0.5) {
+                    createParticles(centerX, centerY, 8, 'rgb(230, 57, 70)', 4);
+                }
+            }
+
+            // === 時間段 20-35 秒：四柱出現 ===
+            else if (currentTime < 35) {
+                const progress = (currentTime - 20) / 15;
+                const opacity = Math.min(progress * 2, 1);
+
+                // 四柱能量球
+                const positions = [
+                    { x: centerX, y: centerY - 150, color: 'rgb(212, 175, 55)' }, // 上 年柱
+                    { x: centerX, y: centerY + 150, color: 'rgb(200, 100, 255)' }, // 下 月柱
+                    { x: centerX - 200, y: centerY, color: 'rgb(255, 255, 255)' }, // 左 日柱
+                    { x: centerX + 200, y: centerY, color: 'rgb(230, 57, 70)' }    // 右 時柱
+                ];
+
+                positions.forEach((pos, idx) => {
+                    const scale = 1 + Math.sin(currentTime * 2 + idx) * 0.3;
+                    drawGlowCircle(pos.x, pos.y, 60 * scale * opacity, pos.color, opacity * 0.7);
+                    ctx.fillStyle = pos.color;
+                    ctx.beginPath();
+                    ctx.arc(pos.x, pos.y, 40 * scale * opacity, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // 連接線
+                    drawLine(centerX, centerY, pos.x, pos.y, pos.color, opacity * 0.5, 2);
+                });
+
+                // 粒子從中心向外
+                if (Math.random() < 0.6) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 2 + Math.random() * 3;
+                    const particle = new Particle(
+                        centerX,
+                        centerY,
+                        Math.cos(angle) * speed,
+                        Math.sin(angle) * speed,
+                        1,
+                        'rgb(212, 175, 55)',
+                        2
+                    );
+                    particles.push(particle);
+                }
+            }
+
+            // === 時間段 35-50 秒：印記卡牌展開 ===
+            else if (currentTime < 50) {
+                const progress = (currentTime - 35) / 15;
+                const opacity = Math.min(progress * 1.5, 1);
+
+                // 12 張卡牌環形展開
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i / 12) * Math.PI * 2;
+                    const distance = 200 + progress * 100;
+                    const x = centerX + Math.cos(angle) * distance;
+                    const y = centerY + Math.sin(angle) * distance;
+
+                    // 卡牌背景
+                    ctx.fillStyle = `rgba(212, 175, 55, ${opacity * 0.2})`;
+                    ctx.beginPath();
+                    ctx.rect(x - 30, y - 40, 60, 80);
+                    ctx.fill();
+
+                    // 卡牌邊框
+                    ctx.strokeStyle = `rgba(212, 175, 55, ${opacity * 0.8})`;
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(x - 30, y - 40, 60, 80);
+
+                    // 卡牌光效
+                    drawGlowCircle(x, y, 50, 'rgb(212, 175, 55)', opacity * 0.3);
+                }
+
+                // 中心漩渦
+                drawGlowCircle(centerX, centerY, 100 + progress * 50, 'rgb(230, 57, 70)', opacity * 0.4);
+            }
+
+            // === 時間段 50-80 秒：能量碰撞 + 完整命盤 ===
+            else if (currentTime < 80) {
+                const progress = (currentTime - 50) / 30;
+                const opacity = Math.min(progress * 1.5, 1);
+
+                // 大命盤中心
+                const mandalaRadius = 150 + Math.sin(currentTime * 2) * 20;
+                drawGlowCircle(centerX, centerY, mandalaRadius, 'rgb(212, 175, 55)', opacity * 0.6);
+
+                // 旋轉的八卦圖案
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * Math.PI * 2 + currentTime * 0.8;
+                    const x = centerX + Math.cos(angle) * mandalaRadius;
+                    const y = centerY + Math.sin(angle) * mandalaRadius;
+                    ctx.fillStyle = `rgba(212, 175, 55, ${opacity * 0.5})`;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // 外層環
+                drawLine(centerX - mandalaRadius - 50, centerY, centerX + mandalaRadius + 50, centerY, 'rgb(212, 175, 55)', opacity * 0.4);
+                drawLine(centerX, centerY - mandalaRadius - 50, centerX, centerY + mandalaRadius + 50, 'rgb(212, 175, 55)', opacity * 0.4);
+
+                // 粒子爆發
+                if (Math.random() < 0.8) {
+                    createParticles(centerX, centerY, 10, 'rgb(230, 57, 70)', 5);
+                }
+            }
+
+            // === 時間段 80-100 秒：解讀層展開 ===
+            else if (currentTime < 100) {
+                const progress = (currentTime - 80) / 20;
+                const opacity = Math.min(progress * 1.5, 1);
+
+                // 三層解讀顯示
+                const layers = [
+                    { y: centerY - 100, text: '八字命盤', color: 'rgb(212, 175, 55)' },
+                    { y: centerY, text: '紫微斗數', color: 'rgb(200, 100, 255)' },
+                    { y: centerY + 100, text: '易經卜卦', color: 'rgb(230, 57, 70)' }
+                ];
+
+                layers.forEach((layer, idx) => {
+                    const scale = progress + idx * 0.1;
+                    drawGlowCircle(centerX - 200, layer.y, 50 * scale, layer.color, opacity * 0.5);
+                    drawText(layer.text, centerX, layer.y, 24 * (0.8 + progress * 0.2), layer.color, opacity);
+                    drawLine(centerX - 150, layer.y, centerX - 50, layer.y, layer.color, opacity * 0.5);
+                });
+            }
+
+            // === 時間段 100-120 秒：洋蔥心理學層 ===
+            else if (currentTime < 120) {
+                const progress = (currentTime - 100) / 20;
+                const opacity = Math.min(progress * 1.5, 1);
+
+                // 三層洋蔥
+                const layers = [
+                    { radius: 100, color: 'rgb(150, 150, 150)', text: '殼' },
+                    { radius: 70, color: 'rgb(230, 57, 70)', text: '心' },
+                    { radius: 40, color: 'rgb(212, 175, 55)', text: '禮物' }
+                ];
+
+                layers.forEach((layer, idx) => {
+                    drawGlowCircle(centerX, centerY, layer.radius, layer.color, opacity * 0.4);
+                    ctx.strokeStyle = layer.color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, layer.radius, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    drawText(layer.text, centerX, centerY - layer.radius + 30, 20 * (0.8 + progress * 0.2), layer.color, opacity);
+                });
+
+                // 驗證符號
+                if (progress > 0.5) {
+                    drawText('✓ 交叉比對', centerX - 150, centerY - 180, 16, 'rgb(100, 200, 100)', opacity);
+                    drawText('✓ 科學驗證', centerX, centerY - 180, 16, 'rgb(100, 200, 100)', opacity);
+                    drawText('✓ 權威來源', centerX + 150, centerY - 180, 16, 'rgb(100, 200, 100)', opacity);
+                }
+            }
+
+            // === 時間段 120-155 秒：完整體驗蒙太奇 ===
+            else if (currentTime < 155) {
+                const progress = (currentTime - 120) / 35;
+                const opacity = Math.min(progress * 1.5, 1);
+
+                // 快速閃爍的各個元素
+                const pulse = Math.sin(currentTime * 4) * 0.5 + 0.5;
+
+                // 大爆發
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i / 6) * Math.PI * 2;
+                    const x = centerX + Math.cos(angle) * (200 + pulse * 100);
+                    const y = centerY + Math.sin(angle) * (200 + pulse * 100);
+                    drawGlowCircle(x, y, 60, 'rgb(230, 57, 70)', opacity * pulse * 0.6);
+                }
+
+                // 中心光爆
+                drawGlowCircle(centerX, centerY, 150 + pulse * 100, 'rgb(212, 175, 55)', opacity * 0.5);
+
+                // 大量粒子
+                if (Math.random() < 0.8) {
+                    for (let i = 0; i < 20; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = 5 + Math.random() * 5;
+                        particles.push(new Particle(
+                            centerX + (Math.random() - 0.5) * 100,
+                            centerY + (Math.random() - 0.5) * 100,
+                            Math.cos(angle) * speed,
+                            Math.sin(angle) * speed,
+                            0.8,
+                            'rgb(212, 175, 55)',
+                            3 + Math.random() * 3
+                        ));
+                    }
+                }
+            }
+
+            // === 時間段 155-180 秒：落幕 ===
+            else if (currentTime < 180) {
+                const progress = (currentTime - 155) / 25;
+                const opacity = Math.max(1 - progress, 0);
+
+                // 最後的光團漸弱
+                drawGlowCircle(centerX, centerY, 200, 'rgb(212, 175, 55)', opacity * 0.6);
+                drawText('鬼魅阿修羅', centerX, centerY, 80, 'rgb(212, 175, 55)', opacity);
+            }
+
+            // === 持續的粒子系統 ===
+            particles.forEach((p, idx) => {
+                p.update();
+                p.draw();
+                if (p.life <= 0) {
+                    particles.splice(idx, 1);
+                }
+            });
+
+            // 時間顯示（開發用）
+            ctx.fillStyle = 'rgba(212, 175, 55, 0.3)';
+            ctx.font = '12px Arial';
+            ctx.fillText(`Time: ${currentTime.toFixed(1)}s`, 20, 30);
+
+            requestAnimationFrame(animate);
+        }
+
+        function enterExperience() {
+            window.location.href = '/ghost-asura';
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        animate();
+    </script>
+</body>
+</html>

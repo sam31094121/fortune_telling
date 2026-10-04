@@ -1,0 +1,29 @@
+{
+  "version": "LEVEL_02_TO_24_BASELINE_LF_NORMALIZED",
+  "derivedFrom": "reports/taiji-lock/LEVEL_02_TO_24_BASELINE.json fileHashes (unchanged)",
+  "provenance": "For each file, the git 45b5671 blob was verified to reproduce the original baseline sha256 (raw, or as the CRLF working-tree checkout); the sha256 below is that SAME baseline content with CRLF normalized to LF. Generated 2026-10-04; not a re-baseline to new content.",
+  "lfNormalizedFileHashes": {
+    "lib/taiji-journey-depth.ts": "a01c7287962fb9d648738fea3ec5718d8ca6ee779c90b061fb78e7b14330014b",
+    "lib/taiji24-sound-engine.ts": "470e6e63a091266538ec26f178eb1e9a52cfc8355b07ba9c3fb91b70639e9b25",
+    "lib/taiji-adaptive-stage.ts": "dbab461c4e0f92cbacc444ed815f9606f7a6ce24718e848c26afcc35387a54ca",
+    "lib/taiji-core-engine.ts": "1c45aa21f9e261b2e48c1313efb7cb48ffcac8397d05ce13f399ebcb2ad06f3b",
+    "components/taiji/TaijiQuantumField.tsx": "a101add0437405d4610db2b98435fc1ab7ea925779f8a2cb8e0b650d7f346d0e",
+    "components/taiji/TaijiCellularCore.tsx": "c3c24bf26e37d8577a05e12a50301ba67ca83638a2aac9e4408aa44532eed00f",
+    "components/taiji/TaijiEntanglementCore.tsx": "17e111ed819a994c6117cc76cec057f3ed254f753f7c7178d038783106788832",
+    "components/taiji/TaijiAbyssField.tsx": "d6ddc31401880a7fce64c2d652f603dca08310743a3dcfc6f6f65e07dd4065be",
+    "components/taiji/TaijiCore.tsx": "7ad61ef2cec45fad03caaf4e13282f7c3da92e303c17627eee02098cce7686cf",
+    "components/taiji/TaijiCoreSwitch.tsx": "ffa55c221ceccdbdcf1e7993bb17de14222022f1259aef8e3c1382cea1c18c2a",
+    "components/taiji/TaijiCoreVisual.tsx": "a63ee3ce98907df98ba60bfd1d72e478dd1ee0c5a814256b5aa5a45f3ec78c64",
+    "components/taiji/TaijiCoreVisual.module.css": "fb3c3607bca3635dbfd9d79009b792130313e5e073e4e2505b90cf0384828df5",
+    "components/taiji/v7/taijiCoreState.ts": "33ea56df23837ebd0fb97e534edc982a35d1e2678dc68813e6b370ef0122c9eb",
+    "components/taiji/v7/TaijiCoreV7.tsx": "94e4a037b6c5ff2f331b439b96c5a774536673d17f632377295096e5f036ab37",
+    "components/taiji/v7/TaijiCoreV7.css": "47e5455041766660954790536da9a791c7f7f32eee8326e06a32a666afb849b9",
+    "components/taiji/v7/useTaijiPerformance.ts": "3e9b29800a749f4ca0d688f4533dc4d98b19e0e36a227f94a87d48bb56e0453e",
+    "components/taiji/useTaijiPerformance.ts": "28f11b8ee639d046a1f2a98174dead6876a9ae3f29dd304be248488ce52e9dbd",
+    "components/taiji/taijiMagnifier.ts": "703f0ac56f19ca40fef973a4c2d00435613da39de2467ebc84d4fe749c8258af",
+    "components/taiji/TaijiWebGL3D.tsx": "0415977f9c4e341d75757c5081b45daa683616a259b921321eafb3efa1f3313c",
+    "components/UnifiedTaijiCore.tsx": "24387e173e266bc139362912971aa975cc5fb38fe4780881fb1dd63abbe846ce",
+    "components/UnifiedTaijiCore.module.css": "29aeb7c8afdc73a5c640ee29297360e31ba76c851fe00cf45296a07321cbe984",
+    "components/TaijiSystem.module.css": "fb989232b09aa3cc3657bae22164b556cfb8c8fdab26260dd5479a151b93d3a1"
+  }
+}

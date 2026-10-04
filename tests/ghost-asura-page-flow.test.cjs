@@ -54,7 +54,6 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/ghost-asura/GhostAsur
     if (id.endsWith('.module.css')) return {};
     if (id === '@/components/UnifiedBirthForm') return { UnifiedBirthForm: BirthForm };
     if (id === '@/features/ghost-asura/components/GhostAsuraCard') return { GhostAsuraCard: Card };
-    if (id === '@/features/ghost-asura') return { buildGhostAsuraReading: result => result };
     if (id === '@/lib/dual-chart-form') return { dualChartHourStatus };
     return require(id);
   },
@@ -79,7 +78,7 @@ const tick = () => new Promise(resolve => setImmediate(resolve));
 const ready = { birthDate: '1990-01-01', gender: 'male', birthHourBranch: 'wu', birthTime: '11:30' };
 (async () => {
   form().props.onChange(ready);
-  send = async () => ({ ok: true, status: 200, json: async () => ({ data: { fixture: 'A' } }) });
+  send = async () => ({ ok: true, status: 200, json: async () => ({ data: { contract: 'ghost-asura-display/v1', fixture: 'A' } }) });
   form().props.onSubmit(ready);
   assert.equal(find(render(), item => item.type === 'fieldset').props.disabled, true, 'All choices lock during request');
   await tick();
@@ -111,8 +110,8 @@ const ready = { birthDate: '1990-01-01', gender: 'male', birthHourBranch: 'wu', 
 
   const pending = [];
   send = (url, options) => new Promise((resolve, reject) => pending.push({ resolve, reject, options }));
-  const succeed = (request, fixture) => request.resolve({ ok: true, status: 200, json: async () => ({ data: { fixture } }) });
-  const currentFixture = () => find(render(), x => x.type === Card)?.props.reading.result.fixture;
+  const succeed = (request, fixture) => request.resolve({ ok: true, status: 200, json: async () => ({ data: { contract: 'ghost-asura-display/v1', fixture } }) });
+  const currentFixture = () => find(render(), x => x.type === Card)?.props.display.fixture;
   const submit = form().props.onSubmit;
   const calls = requests;
   submit(ready); submit(ready);

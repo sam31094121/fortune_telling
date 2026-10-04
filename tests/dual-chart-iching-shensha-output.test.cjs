@@ -214,6 +214,15 @@ const { buildShenShaCardView } = loadUi('lib/dual-chart-iching-shensha-card.ts')
 // The card view is computed on the backend; fixtures rebuild it the same way the API does.
 const withCard = value => { value.specialStars.card = buildShenShaCardView(value.specialStars, value.bazi.professionalChart.traditionalInterpretationGate.coreReady === true); return value; };
 const card = value => renderToStaticMarkup(React.createElement(target.exports.ShenShaCard, { result: withCard(value) }));
+// Since ba3603e (2026-09-30) the teacher cards sit behind tabs (易經老師 / 鬼魅 / 阿修羅) and the default tab is
+// 易經老師; the server HTML of the default tab therefore has no ghost section. Static rendering cannot click a
+// tab, so the ghost checks render with the tab's initial state set to the tab a user would select. Product code
+// (default tab, which tab buttons exist) is unchanged.
+const cardOnTab = (value, tab) => {
+  const originalUseState = React.useState;
+  React.useState = (initial, ...rest) => originalUseState(initial === 'iching' ? tab : initial, ...rest);
+  try { return card(value); } finally { React.useState = originalUseState; }
+};
 const cardHtml = card(deliveryFixture);
 assert.deepEqual(inspectShenShaCard(deliveryFixture, cardHtml), []);
 assert.equal(/本次未出現|各項判定|data-shensha-rule=/.test(cardHtml), false, 'customer card shows actual results without the rule-status list');
@@ -288,12 +297,12 @@ console.log('PASS: 分享卡 prints backend labels only');
 const withGhostHook = structuredClone(deliveryFixture);
 withGhostHook.specialStars.ghost = { state: 'READY', ageGate: 'g', teaser: 't', oneLiner: 'o', opening: 'op', decoding: [], closing: 'c', disclaimer: 'd', formations: [],
   groups: [{ pillar: '年柱', intro: 'i', lines: [{ name: '月德', tone: '福氣', hook: '後端鬼魅一句', text: '後端完整鬼語' }, { name: '天狗', tone: '提醒', text: '後端舊版整句' }] }] };
-const ghostHookHtml = card(withGhostHook);
+const ghostHookHtml = cardOnTab(withGhostHook, 'ghost');
 assert.ok(ghostHookHtml.indexOf('後端鬼魅一句') < ghostHookHtml.indexOf('完整鬼語</span></span></summary>') && ghostHookHtml.indexOf('</summary>', ghostHookHtml.indexOf('後端鬼魅一句')) < ghostHookHtml.indexOf('後端完整鬼語'), 'ghost hook is the tap target, full text folded');
 assert.ok(ghostHookHtml.includes('後端舊版整句'), 'legacy ghost line without hook still prints');
 const withFormation = structuredClone(withGhostHook);
 withFormation.specialStars.ghost.formations = [{ title: '後端陣名', text: '後端陣法內容' }];
-const formationHtml = card(withFormation);
+const formationHtml = cardOnTab(withFormation, 'ghost');
 const fi = formationHtml.indexOf('後端陣名');
 assert.ok(fi > 0 && formationHtml.lastIndexOf('<summary', fi) > formationHtml.lastIndexOf('</summary>', fi) && fi < formationHtml.indexOf('後端陣法內容'), 'formation name is the summary; its text is folded under it');
 console.log('PASS: 鬼魅老師 hook first, full ghost wording folded; formations show names first');
@@ -315,11 +324,14 @@ console.log('PASS: 神煞易經 prints the backend chain, hexagram, every deriva
 const withGhost = structuredClone(deliveryFixture);
 withGhost.specialStars.iching = { state: 'BLOCKED', chain: [{ step: '八字', text: 'A' }], reason: '易經擋下' };
 withGhost.specialStars.ghost = { state: 'READY', ageGate: '後端年齡標示', teaser: '後端鬼預告', oneLiner: '後端鬼一句', opening: '後端開壇語', decoding: [{ label: '磁場', text: '後端磁場' }], groups: [{ pillar: '時柱', intro: '後端柱引', lines: [{ name: '桃花', tone: '動能', text: '後端鬼語' }] }], formations: [{ title: '後端陣名', text: '後端陣解' }], closing: '後端收壇', disclaimer: '後端聲明' };
-const ghostHtml = card(withGhost);
-for (const text of ['後端年齡標示', '後端鬼預告', '後端柱引', '易經老師解盤', '鬼魅老師解盤', '後端開壇語', '後端磁場', '後端鬼語', '後端陣名', '後端收壇', '後端聲明']) assert.ok(ghostHtml.includes(text), `prints ${text}`);
-assert.equal((ghostHtml.match(/<details[^>]*data-teacher=/g) || []).length, 2, 'two folded teacher cards');
-assert.ok(ghostHtml.indexOf('data-shensha-column=') < ghostHtml.indexOf('<details'), 'pillar grid stays visible above the folded cards');
+const ghostHtml = cardOnTab(withGhost, 'ghost');
+const ichingTabHtml = card(withGhost); // default tab = 易經老師
+for (const text of ['後端年齡標示', '後端鬼預告', '後端柱引', '鬼魅老師解盤', '後端開壇語', '後端磁場', '後端鬼語', '後端陣名', '後端收壇', '後端聲明']) assert.ok(ghostHtml.includes(text), `ghost tab prints ${text}`);
+assert.ok(ichingTabHtml.includes('易經老師解盤'), 'default tab prints 易經老師解盤');
+assert.equal((ghostHtml.match(/<details[^>]*data-teacher=/g) || []).length + (ichingTabHtml.match(/<details[^>]*data-teacher=/g) || []).length, 2, 'two folded teacher cards (one per tab)');
+for (const html of [ghostHtml, ichingTabHtml]) assert.ok(html.indexOf('data-shensha-column=') < html.indexOf('<details'), 'pillar grid stays visible above the folded cards');
 assert.deepEqual(inspectShenShaCard(withGhost, ghostHtml), [], 'folded teacher cards after the grid pass health');
+assert.deepEqual(inspectShenShaCard(withGhost, ichingTabHtml), [], 'default-tab card after the grid passes health');
 assert.ok(inspectShenShaCard(withGhost, `<details>${ghostHtml}</details>`).length, 'folding the pillar grid still fails health');
 console.log('PASS: 易經老師／鬼魅老師 fold below a visible pillar grid and print backend text only');
 // 後端只負責運算，前端只負責顯示，前端禁止生成（業主定案 2026-09-27）：

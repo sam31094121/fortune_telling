@@ -1,0 +1,110 @@
+/**
+ * Landing Page 樣式
+ * 預告片 + 延伸內容
+ */
+
+.container {
+  width: 100%;
+  background: #0d0c10;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* 預告片 iframe */
+.teaser {
+  width: 100%;
+  height: 100vh;
+  display: block;
+  border: none;
+  background: #0d0c10;
+}
+
+/* 下方延伸區域 */
+.extension {
+  width: 100%;
+  padding: 4rem 2rem;
+  background: linear-gradient(180deg, rgba(42, 26, 63, 0.5) 0%, #0d0c10 100%);
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.extensionContent {
+  max-width: 600px;
+}
+
+.extensionContent h2 {
+  font-size: 2.5rem;
+  color: #d4af37;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+.extensionContent p {
+  font-size: 1.125rem;
+  color: #f5eeea;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+/* CTA 按鈕 */
+.cta {
+  padding: 1rem 3rem;
+  font-size: 1.125rem;
+  color: #0d0c10;
+  background: linear-gradient(135deg, #d4af37 0%, #e6c547 100%);
+  border: 2px solid #d4af37;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.3);
+}
+
+.cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(212, 175, 55, 0.5);
+  background: linear-gradient(135deg, #e6c547 0%, #d4af37 100%);
+}
+
+.cta:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3);
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .extensionContent h2 {
+    font-size: 1.875rem;
+  }
+
+  .extensionContent p {
+    font-size: 1rem;
+  }
+
+  .cta {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+  }
+
+  .extension {
+    padding: 2rem 1rem;
+    min-height: auto;
+  }
+}
+
+/* 無障礙：尊重 prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .cta {
+    transition: none;
+  }
+
+  .cta:hover {
+    transform: none;
+  }
+}

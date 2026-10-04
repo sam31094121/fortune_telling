@@ -3,15 +3,15 @@
   "version": "screen-health-monitor-v1",
   "baseUrl": "http://localhost:8888",
   "port": 8888,
-  "startedAt": "2026-10-04T02:53:24.241Z",
-  "completedAt": "2026-10-04T02:53:42.567Z",
+  "startedAt": "2026-10-04T05:39:17.357Z",
+  "completedAt": "2026-10-04T05:39:49.185Z",
   "mode": "ONCE",
-  "scanProfile": "MOBILE_FIRST",
-  "autoRepair": true,
+  "scanProfile": "STANDARD",
+  "autoRepair": false,
   "summary": {
     "total": 55,
-    "passed": 45,
-    "failed": 10,
+    "passed": 46,
+    "failed": 9,
     "warnings": 0,
     "screenStatus": "UNHEALTHY"
   },
@@ -32,19 +32,19 @@
       "id": "BAZI_SHENSHA_LIVE_FLOW",
       "title": "神煞出生資料到真實API與四柱顯示的固定命例核對",
       "path": "/dual-chart",
-      "issue": "神煞出生資料到真實API與四柱顯示的固定命例核對 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:shensha-live-api\nnpm error Missing script: \"test:shensha-live-api\"\nnpm error\nnpm error Did you mean this?\nnpm error   npm run test:iching-shensha-live-api # run the \"test:iching-shensha-live-api\" package script\nnpm error\nnpm error To see a list of scripts, run:\nnpm error   npm run\nnpm error A complete log of this run can be found in: C:\\Users\\DRAGON\\AppData\\Local\\npm-cache\\_logs\\2026-10-04T02_53_33_182Z-debug-0.log\n"
+      "issue": "神煞出生資料到真實API與四柱顯示的固定命例核對 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:iching-shensha-live-api\nnode:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: unknown birth hour cannot create a fabricated chart\r\n\r\n429 !== 400\r\n\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/tests/iching-shensha-live-api.test.mjs:106:10\r\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: 429,\r\n  expected: 400,\r\n  operator: 'strictEqual',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0\r\n"
     },
     {
       "id": "BAZI_SOURCE_REGISTRY_COMPLETE",
       "title": "八字來源登記完整性（未驗證或缺古籍來源即失敗）",
       "path": "/dual-chart",
-      "issue": "八字來源登記完整性（未驗證或缺古籍來源即失敗） verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:bazi-registry-completeness\n"
+      "issue": "八字來源登記完整性（未驗證或缺古籍來源即失敗） verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:bazi-registry-completeness\n\nERROR: C-BAZI-CLASSICS status=CONFLICT gate=CONFLICT 來源 7 個 | 閘門計算 CONFLICT：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 64，未達 90；D 級來源不得作為交叉依據；有來源版本不可追溯；重大衝突：《三命通會》作者與內容增竄；重大衝突：《淵海子平》《滴天髓》《子平真詮》版本與作者不可追溯 / 登記狀態 CONFLICT（非 VERIFIED）\nERROR: C-BAZI-VALIDITY status=PENDING_POOL gate=PENDING_POOL 來源 4 個 | 閘門計算 PENDING_POOL：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 81，未達 90；有來源版本不可追溯 / 登記狀態 PENDING_POOL（非 VERIFIED）\nERROR: C-RED-LUAN-SHENSHA status=PENDING_POOL gate=PENDING_POOL 來源 3 個 | 閘門計算 PENDING_POOL：缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 83，未達 90；有來源版本不可追溯 / 登記狀態 PENDING_POOL（非 VERIFIED）\nERROR: C-BAZI-FIVE-GODS status=CONFLICT gate=CONFLICT 來源 4 個 | 閘門計算 CONFLICT：缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 46，未達 90；D 級來源不得作為交叉依據；缺原典（或原始研究）來源；有來源版本不可追溯；重大衝突：身弱用印時，喜神取比劫還是取生印的官殺 / 登記狀態 CONFLICT（非 VERIFIED） / 未掛原典（古籍）來源\nERROR: C-SHENSHA-RULE-INTEGRITY status=PENDING_POOL gate=PENDING_POOL 來源 2 個 | 閘門計算 PENDING_POOL：交叉比對來源 2 個，未達 3 個；缺原典（或原始研究）來源 / 登記狀態 PENDING_POOL（非 VERIFIED） / 未掛原典（古籍）來源\nSUMMARY: 16 筆 claim，OK 11，ERROR 5"
     },
     {
       "id": "BAZI_FEATURE_COMPLETE",
       "title": "八字客戶功能完整（排盤、五項神煞、老師判讀、五神、紅鸞皆須放行）",
       "path": "/bazi",
-      "issue": "八字客戶功能完整（排盤、五項神煞、老師判讀、五神、紅鸞皆須放行） verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:bazi-feature-complete\n"
+      "issue": "八字客戶功能完整（排盤、五項神煞、老師判讀、五神、紅鸞皆須放行） verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:bazi-feature-complete\n\nNOT READY: 八字老師進階判讀（格局、旺衰、斷語） — C-BAZI-CLASSICS=CONFLICT、C-BAZI-FIVE-GODS=CONFLICT\nNOT READY: 五神（用神、喜神、忌神、仇神、閒神） — C-BAZI-FIVE-GODS=CONFLICT\nNOT READY: 配對紅鸞 — C-RED-LUAN-SHENSHA=PENDING_POOL\nFAIL: bazi feature complete — 3/10 項未放行：八字老師進階判讀（格局、旺衰、斷語）、五神（用神、喜神、忌神、仇神、閒神）、配對紅鸞"
     },
     {
       "id": "NO_FABRICATED_COUNTERS",
@@ -55,12 +55,6 @@
       "id": "THREE_CORE_TRADITIONAL_DEFECTS",
       "title": "三核心原典缺陷：禁止以流程通過代替算法正確",
       "issue": "三核心原典缺陷：禁止以流程通過代替算法正確 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:three-core-traditional-health\n"
-    },
-    {
-      "id": "ZIWEI_FORM_FILL",
-      "title": "紫微表單手機實填：逐鍵輸入焦點不跑、送出後出三柱",
-      "path": "/insight",
-      "issue": "紫微表單手機實填：逐鍵輸入焦點不跑、送出後出三柱 verification failed: NOT_EXECUTED_UI_CHECK: existing test uses raw Chrome CDP; this session permits UI actions through cua_repl only. This check remains failed/unverified."
     },
     {
       "id": "HOME_TAIJI_LEVEL02_24_LOCK",
@@ -84,8 +78,8 @@
       "path": "/",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 220,
-      "htmlLength": 81584,
+      "durationMs": 287,
+      "htmlLength": 81596,
       "error": null,
       "issue": null
     },
@@ -96,7 +90,7 @@
       "path": "/internal/health/ready",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 174,
+      "durationMs": 288,
       "htmlLength": 95,
       "error": null,
       "issue": null
@@ -108,7 +102,7 @@
       "path": "/nameology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 295,
+      "durationMs": 477,
       "htmlLength": 31043,
       "error": null,
       "issue": null
@@ -120,7 +114,7 @@
       "path": "/beast-game",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 1569,
+      "durationMs": 741,
       "htmlLength": 23296,
       "error": null,
       "issue": null
@@ -132,7 +126,7 @@
       "path": "/star-beasts",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 902,
+      "durationMs": 783,
       "htmlLength": 86661,
       "error": null,
       "issue": null
@@ -144,7 +138,7 @@
       "path": "/insight",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 562,
+      "durationMs": 98,
       "htmlLength": 32735,
       "error": null,
       "issue": null
@@ -156,7 +150,7 @@
       "path": "/numerology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 472,
+      "durationMs": 519,
       "htmlLength": 30292,
       "error": null,
       "issue": null
@@ -168,7 +162,7 @@
       "path": "/match",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 405,
+      "durationMs": 433,
       "htmlLength": 32660,
       "error": null,
       "issue": null
@@ -180,7 +174,7 @@
       "path": "/music",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 465,
+      "durationMs": 447,
       "htmlLength": 41684,
       "error": null,
       "issue": null
@@ -192,7 +186,7 @@
       "path": "/bazi",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 474,
+      "durationMs": 676,
       "htmlLength": 31285,
       "error": null,
       "issue": null
@@ -204,8 +198,8 @@
       "path": "/zodiac",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 338,
-      "htmlLength": 30783,
+      "durationMs": 391,
+      "htmlLength": 30784,
       "error": null,
       "issue": null
     },
@@ -216,8 +210,8 @@
       "path": "/tarot",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 366,
-      "htmlLength": 24547,
+      "durationMs": 408,
+      "htmlLength": 24546,
       "error": null,
       "issue": null
     },
@@ -228,8 +222,8 @@
       "path": "/growth-center",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 401,
-      "htmlLength": 27404,
+      "durationMs": 400,
+      "htmlLength": 27405,
       "error": null,
       "issue": null
     },
@@ -237,10 +231,10 @@
       "id": "HOME_VISUAL_STYLES",
       "module": "home_visual_styles",
       "title": "首頁手機視覺樣式",
-      "path": "/_next/static/css/app/page.css?v=1791082410933",
+      "path": "/_next/static/css/app/page.css?v=1791092363357",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 152,
+      "durationMs": 189,
       "htmlLength": 55725,
       "error": null,
       "issue": null
@@ -266,7 +260,7 @@
       "sourcePath": "components/TodayDirectionQuest.tsx",
       "status": "PASSED",
       "httpStatus": null,
-      "durationMs": 0,
+      "durationMs": 1,
       "htmlLength": 26682,
       "error": null,
       "issue": null
@@ -292,7 +286,7 @@
       "sourcePath": "app/page.tsx",
       "status": "PASSED",
       "httpStatus": null,
-      "durationMs": 0,
+      "durationMs": 1,
       "htmlLength": 216250,
       "error": null,
       "issue": null
@@ -307,7 +301,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1524,
+      "durationMs": 1569,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -322,10 +316,11 @@
       "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1496,
+      "durationMs": 1556,
       "htmlLength": 0,
       "error": "Command failed: cmd.exe /d /s /c npm.cmd run test:bazi-output-availability\nnode:internal/assert/utils:77\r\n    throw err;\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: ghost hook is the tap target, full text folded\r\n    at Object.<anonymous> (C:\\Users\\DRAGON\\Desktop\\命理\\tests\\dual-chart-iching-shensha-output.test.cjs:292:8)\r\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\r\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\r\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\r\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\r\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\r\n    at node:internal/main/run_main_module:33:47 {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: false,\r\n  expected: true,\r\n  operator: '==',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0\r\n",
-      "issue": "八字逐項輸出、進度勾選與校驗範圍一致 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:bazi-output-availability\nnode:internal/assert/utils:77\r\n    throw err;\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: ghost hook is the tap target, full text folded\r\n    at Object.<anonymous> (C:\\Users\\DRAGON\\Desktop\\命理\\tests\\dual-chart-iching-shensha-output.test.cjs:292:8)\r\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\r\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\r\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\r\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\r\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\r\n    at node:internal/main/run_main_module:33:47 {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: false,\r\n  expected: true,\r\n  operator: '==',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0\r\n"
+      "issue": "八字逐項輸出、進度勾選與校驗範圍一致 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:bazi-output-availability\nnode:internal/assert/utils:77\r\n    throw err;\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: ghost hook is the tap target, full text folded\r\n    at Object.<anonymous> (C:\\Users\\DRAGON\\Desktop\\命理\\tests\\dual-chart-iching-shensha-output.test.cjs:292:8)\r\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\r\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\r\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\r\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\r\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\r\n    at node:internal/main/run_main_module:33:47 {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: false,\r\n  expected: true,\r\n  operator: '==',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0\r\n",
+      "output": "elated Bazi capabilities stay isolated\nPASS: verified chart facts render independently; unknown hour and blocked judgments do not leak\nPASS: progress checkmarks follow output eligibility, not merely field presence\nPASS: four-pillar shensha display has independent eligibility and preserves base pillars\nPASS: independent Bazi view discloses partial restrictions without presenting withheld hits\nPASS: bilingual source comparisons distinguish selected-method readiness and require located evidence\nPASS: shensha health baseline detects disconnected, silently reduced and malformed backend results\nPASS: exact raw → per-pillar → visible-name delivery detects omissions, extras, duplicates, stale copies and wrong pillars\nPASS: shensha is one unfolded row under the original four pillars\nPASS: calculated shensha results stay complete and unfolded without repeated rule-status text\nPASS: backend card view drives the card; pending rules only mark the pillars they inspect\nPASS: 流年神煞 prints backend text only, one-liner visible, details folded\nPASS: 分享卡 prints backend labels only\nnode:internal/assert/utils:77\r\n    throw err;\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: ghost hook is the tap target, full text folded\r\n    at Object.<anonymous> (C:\\Users\\DRAGON\\Desktop\\命理\\tests\\dual-chart-iching-shensha-output.test.cjs:292:8)\r\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\r\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\r\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\r\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\r\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\r\n    at node:internal/main/run_main_module:33:47 {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: false,\r\n  expected: true,\r\n  operator: '==',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0"
     },
     {
       "id": "BAZI_SERVICE_AVAILABILITY",
@@ -336,25 +331,27 @@
       "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 497,
+      "durationMs": 493,
       "htmlLength": 0,
       "error": "Command failed: cmd.exe /d /s /c npm.cmd run check:bazi-service-health\n",
-      "issue": "八字神煞、老師判讀與配對補強實際放行狀態 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:bazi-service-health\n"
+      "issue": "八字神煞、老師判讀與配對補強實際放行狀態 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:bazi-service-health\n",
+      "output": "> blood-type-compatibility@0.1.0 check:bazi-service-health\n> node scripts/bazi-functional-health.cjs\n\nAVAILABLE: 基礎排盤來源\nAVAILABLE: 雙命盤四柱神煞\nUNAVAILABLE: 八字老師進階判讀\n  C-BAZI-CLASSICS: 交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 64，未達 90；D 級來源不得作為交叉依據；有來源版本不可追溯；重大衝突：《三命通會》作者與內容增竄；重大衝突：《淵海子平》《滴天髓》《子平真詮》版本與作者不可追溯\n  C-BAZI-FIVE-GODS: 缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 46，未達 90；D 級來源不得作為交叉依據；缺原典（或原始研究）來源；有來源版本不可追溯；重大衝突：身弱用印時，喜神取比劫還是取生印的官殺\nUNAVAILABLE: 喜用與配對五行補強\n  C-BAZI-CLASSICS: 交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 64，未達 90；D 級來源不得作為交叉依據；有來源版本不可追溯；重大衝突：《三命通會》作者與內容增竄；重大衝突：《淵海子平》《滴天髓》《子平真詮》版本與作者不可追溯\n  C-BAZI-FIVE-GODS: 缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 46，未達 90；D 級來源不得作為交叉依據；缺原典（或原始研究）來源；有來源版本不可追溯；重大衝突：身弱用印時，喜神取比劫還是取生印的官殺\nUNAVAILABLE: 配對紅鸞規則\n  C-RED-LUAN-SHENSHA: 缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 83，未達 90；有來源版本不可追溯\n來源與功能放行檢查；不取代本次命盤計算、瀏覽器操作或真機驗收"
     },
     {
       "id": "BAZI_SHENSHA_LIVE_FLOW",
       "module": "bazi_shensha_live_flow",
       "title": "神煞出生資料到真實API與四柱顯示的固定命例核對",
       "path": "/dual-chart",
-      "script": "test:shensha-live-api",
+      "script": "test:iching-shensha-live-api",
       "timeoutMs": 120000,
       "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 270,
+      "durationMs": 3032,
       "htmlLength": 0,
-      "error": "Command failed: cmd.exe /d /s /c npm.cmd run test:shensha-live-api\nnpm error Missing script: \"test:shensha-live-api\"\nnpm error\nnpm error Did you mean this?\nnpm error   npm run test:iching-shensha-live-api # run the \"test:iching-shensha-live-api\" package script\nnpm error\nnpm error To see a list of scripts, run:\nnpm error   npm run\nnpm error A complete log of this run can be found in: C:\\Users\\DRAGON\\AppData\\Local\\npm-cache\\_logs\\2026-10-04T02_53_33_182Z-debug-0.log\n",
-      "issue": "神煞出生資料到真實API與四柱顯示的固定命例核對 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:shensha-live-api\nnpm error Missing script: \"test:shensha-live-api\"\nnpm error\nnpm error Did you mean this?\nnpm error   npm run test:iching-shensha-live-api # run the \"test:iching-shensha-live-api\" package script\nnpm error\nnpm error To see a list of scripts, run:\nnpm error   npm run\nnpm error A complete log of this run can be found in: C:\\Users\\DRAGON\\AppData\\Local\\npm-cache\\_logs\\2026-10-04T02_53_33_182Z-debug-0.log\n"
+      "error": "Command failed: cmd.exe /d /s /c npm.cmd run test:iching-shensha-live-api\nnode:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: unknown birth hour cannot create a fabricated chart\r\n\r\n429 !== 400\r\n\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/tests/iching-shensha-live-api.test.mjs:106:10\r\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: 429,\r\n  expected: 400,\r\n  operator: 'strictEqual',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0\r\n",
+      "issue": "神煞出生資料到真實API與四柱顯示的固定命例核對 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:iching-shensha-live-api\nnode:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: unknown birth hour cannot create a fabricated chart\r\n\r\n429 !== 400\r\n\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/tests/iching-shensha-live-api.test.mjs:106:10\r\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: 429,\r\n  expected: 400,\r\n  operator: 'strictEqual',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0\r\n",
+      "output": "> blood-type-compatibility@0.1.0 test:iching-shensha-live-api\n> node --env-file=.env.local tests/iching-shensha-live-api.test.mjs\n\nPASS: 1990-01-01 05:30｜辛卯｜天狗、災煞、沐浴、桃花、外桃花｜API資料與輸出政策、實際元件一致\nPASS: 1990-01-01 07:30｜壬辰｜月德、隔角、寡宿、病符、截路空亡｜API資料與輸出政策、實際元件一致\nPASS: 1990-01-01 11:30｜甲午｜月破、將星、羊刃｜API資料與輸出政策、實際元件一致\nPASS: 1990-01-01 15:30｜丙申｜天德合、日破、驛馬、文昌貴人、孤辰、亡神、月空、暗祿｜API資料與輸出政策、實際元件一致\nPASS: 1990-01-01 19:30｜戊戌｜元辰、華蓋、空亡｜API資料與輸出政策、實際元件一致\nPASS: 1990-01-01 21:30｜己亥｜驛馬、天乙貴人、空亡、天醫、歲破｜API資料與輸出政策、實際元件一致\nPASS: 1990-02-18 05:30｜甲寅日丁卯時｜本派桃花不加納音條件，時柱桃花、外桃花命中\nnode:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: unknown birth hour cannot create a fabricated chart\r\n\r\n429 !== 400\r\n\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/tests/iching-shensha-live-api.test.mjs:106:10\r\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: 429,\r\n  expected: 400,\r\n  operator: 'strictEqual',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0"
     },
     {
       "id": "BAZI_SOURCE_REGISTRY_COMPLETE",
@@ -365,10 +362,11 @@
       "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 514,
+      "durationMs": 513,
       "htmlLength": 0,
       "error": "Command failed: cmd.exe /d /s /c npm.cmd run check:bazi-registry-completeness\n",
-      "issue": "八字來源登記完整性（未驗證或缺古籍來源即失敗） verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:bazi-registry-completeness\n"
+      "issue": "八字來源登記完整性（未驗證或缺古籍來源即失敗） verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:bazi-registry-completeness\n\nERROR: C-BAZI-CLASSICS status=CONFLICT gate=CONFLICT 來源 7 個 | 閘門計算 CONFLICT：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 64，未達 90；D 級來源不得作為交叉依據；有來源版本不可追溯；重大衝突：《三命通會》作者與內容增竄；重大衝突：《淵海子平》《滴天髓》《子平真詮》版本與作者不可追溯 / 登記狀態 CONFLICT（非 VERIFIED）\nERROR: C-BAZI-VALIDITY status=PENDING_POOL gate=PENDING_POOL 來源 4 個 | 閘門計算 PENDING_POOL：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 81，未達 90；有來源版本不可追溯 / 登記狀態 PENDING_POOL（非 VERIFIED）\nERROR: C-RED-LUAN-SHENSHA status=PENDING_POOL gate=PENDING_POOL 來源 3 個 | 閘門計算 PENDING_POOL：缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 83，未達 90；有來源版本不可追溯 / 登記狀態 PENDING_POOL（非 VERIFIED）\nERROR: C-BAZI-FIVE-GODS status=CONFLICT gate=CONFLICT 來源 4 個 | 閘門計算 CONFLICT：缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 46，未達 90；D 級來源不得作為交叉依據；缺原典（或原始研究）來源；有來源版本不可追溯；重大衝突：身弱用印時，喜神取比劫還是取生印的官殺 / 登記狀態 CONFLICT（非 VERIFIED） / 未掛原典（古籍）來源\nERROR: C-SHENSHA-RULE-INTEGRITY status=PENDING_POOL gate=PENDING_POOL 來源 2 個 | 閘門計算 PENDING_POOL：交叉比對來源 2 個，未達 3 個；缺原典（或原始研究）來源 / 登記狀態 PENDING_POOL（非 VERIFIED） / 未掛原典（古籍）來源\nSUMMARY: 16 筆 claim，OK 11，ERROR 5",
+      "output": "> blood-type-compatibility@0.1.0 check:bazi-registry-completeness\n> node scripts/bazi-registry-completeness.cjs\n\nOK: C-BAZI-CHART status=VERIFIED gate=VERIFIED 來源 7 個\nERROR: C-BAZI-CLASSICS status=CONFLICT gate=CONFLICT 來源 7 個 | 閘門計算 CONFLICT：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 64，未達 90；D 級來源不得作為交叉依據；有來源版本不可追溯；重大衝突：《三命通會》作者與內容增竄；重大衝突：《淵海子平》《滴天髓》《子平真詮》版本與作者不可追溯 / 登記狀態 CONFLICT（非 VERIFIED）\nERROR: C-BAZI-VALIDITY status=PENDING_POOL gate=PENDING_POOL 來源 4 個 | 閘門計算 PENDING_POOL：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 81，未達 90；有來源版本不可追溯 / 登記狀態 PENDING_POOL（非 VERIFIED）\nOK: C-BAZI-PILLAR-SHENSHA status=VERIFIED gate=VERIFIED 來源 3 個\nERROR: C-RED-LUAN-SHENSHA status=PENDING_POOL gate=PENDING_POOL 來源 3 個 | 閘門計算 PENDING_POOL：缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 83，未達 90；有來源版本不可追溯 / 登記狀態 PENDING_POOL（非 VERIFIED）\nERROR: C-BAZI-FIVE-GODS status=CONFLICT gate=CONFLICT 來源 4 個 | 閘門計算 CONFLICT：缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 46，未達 90；D 級來源不得作為交叉依據；缺原典（或原始研究）來源；有來源版本不可追溯；重大衝突：身弱用印時，喜神取比劫還是取生印的官殺 / 登記狀態 CONFLICT（非 VERIFIED） / 未掛原典（古籍）來源\nOK: C-BAZI-SHENSHA-TIANYI status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-BAZI-SHENSHA-WENCHANG status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-BAZI-SHENSHA-TAOHUA status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-BAZI-SHENSHA-YIMA status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-DUAL-SHENSHA-JIANGXING status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-DUAL-SHENSHA-GEJIAO status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-DUAL-SHENSHA-YUANCHEN status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-DUAL-SHENSHA-YANGREN status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-BAZI-SHENSHA-HUAGAI status=VERIFIED gate=VERIFIED 來源 3 個\nERROR: C-SHENSHA-RULE-INTEGRITY status=PENDING_POOL gate=PENDING_POOL 來源 2 個 | 閘門計算 PENDING_POOL：交叉比對來源 2 個，未達 3 個；缺原典（或原始研究）來源 / 登記狀態 PENDING_POOL（非 VERIFIED） / 未掛原典（古籍）來源\nSUMMARY: 16 筆 claim，OK 11，ERROR 5"
     },
     {
       "id": "BAZI_FEATURE_COMPLETE",
@@ -379,10 +377,11 @@
       "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 532,
+      "durationMs": 504,
       "htmlLength": 0,
       "error": "Command failed: cmd.exe /d /s /c npm.cmd run test:bazi-feature-complete\n",
-      "issue": "八字客戶功能完整（排盤、五項神煞、老師判讀、五神、紅鸞皆須放行） verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:bazi-feature-complete\n"
+      "issue": "八字客戶功能完整（排盤、五項神煞、老師判讀、五神、紅鸞皆須放行） verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:bazi-feature-complete\n\nNOT READY: 八字老師進階判讀（格局、旺衰、斷語） — C-BAZI-CLASSICS=CONFLICT、C-BAZI-FIVE-GODS=CONFLICT\nNOT READY: 五神（用神、喜神、忌神、仇神、閒神） — C-BAZI-FIVE-GODS=CONFLICT\nNOT READY: 配對紅鸞 — C-RED-LUAN-SHENSHA=PENDING_POOL\nFAIL: bazi feature complete — 3/10 項未放行：八字老師進階判讀（格局、旺衰、斷語）、五神（用神、喜神、忌神、仇神、閒神）、配對紅鸞",
+      "output": "> blood-type-compatibility@0.1.0 test:bazi-feature-complete\n> node tests/bazi-feature-complete.test.cjs\n\nREADY: 基礎四柱排盤 — C-BAZI-CHART=VERIFIED\nREADY: 四柱神煞・天乙 — C-BAZI-SHENSHA-TIANYI=VERIFIED（跨書差異保留作版本說明；正式輸出固定採用所選版本）\nREADY: 四柱神煞・文昌 — C-BAZI-SHENSHA-WENCHANG=VERIFIED（跨書差異保留作版本說明；正式輸出固定採用所選版本）\nREADY: 四柱神煞・桃花 — C-BAZI-SHENSHA-TAOHUA=VERIFIED\nREADY: 四柱神煞・驛馬 — C-BAZI-SHENSHA-YIMA=VERIFIED\nREADY: 四柱神煞・華蓋 — C-BAZI-SHENSHA-HUAGAI=VERIFIED\nREADY: 四柱神煞整列 — shenShaStatus=VERIFIED\nNOT READY: 八字老師進階判讀（格局、旺衰、斷語） — C-BAZI-CLASSICS=CONFLICT、C-BAZI-FIVE-GODS=CONFLICT\nNOT READY: 五神（用神、喜神、忌神、仇神、閒神） — C-BAZI-FIVE-GODS=CONFLICT\nNOT READY: 配對紅鸞 — C-RED-LUAN-SHENSHA=PENDING_POOL\nFAIL: bazi feature complete — 3/10 項未放行：八字老師進階判讀（格局、旺衰、斷語）、五神（用神、喜神、忌神、仇神、閒神）、配對紅鸞"
     },
     {
       "id": "HOME_TAIJI_LEVEL01_MOTION",
@@ -393,7 +392,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1479,
+      "durationMs": 1329,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -407,7 +406,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 513,
+      "durationMs": 436,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -422,7 +421,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 359,
+      "durationMs": 297,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -436,7 +435,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 531,
+      "durationMs": 482,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -450,7 +449,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 934,
+      "durationMs": 843,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -465,7 +464,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 410,
+      "durationMs": 349,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -480,7 +479,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 569,
+      "durationMs": 499,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -494,7 +493,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 762,
+      "durationMs": 657,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -509,7 +508,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 414,
+      "durationMs": 337,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -524,7 +523,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 448,
+      "durationMs": 373,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -539,7 +538,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 424,
+      "durationMs": 354,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -554,7 +553,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 599,
+      "durationMs": 516,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -569,7 +568,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 457,
+      "durationMs": 358,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -583,10 +582,11 @@
       "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 371,
+      "durationMs": 294,
       "htmlLength": 0,
       "error": "Command failed: cmd.exe /d /s /c npm.cmd run test:no-fake-counters\nnode:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: 顯示數要從真實造訪紀錄推算，不能相信存下來的彙總欄位\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/tests/no-fabricated-counters.test.mjs:88:10\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: false,\r\n  expected: true,\r\n  operator: '==',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0\r\n",
-      "issue": "禁止作假：計數器沒有憑空底數，也不會自己長大 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:no-fake-counters\nnode:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: 顯示數要從真實造訪紀錄推算，不能相信存下來的彙總欄位\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/tests/no-fabricated-counters.test.mjs:88:10\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: false,\r\n  expected: true,\r\n  operator: '==',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0\r\n"
+      "issue": "禁止作假：計數器沒有憑空底數，也不會自己長大 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:no-fake-counters\nnode:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: 顯示數要從真實造訪紀錄推算，不能相信存下來的彙總欄位\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/tests/no-fabricated-counters.test.mjs:88:10\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: false,\r\n  expected: true,\r\n  operator: '==',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0\r\n",
+      "output": "> blood-type-compatibility@0.1.0 test:no-fake-counters\n> node tests/no-fabricated-counters.test.mjs\n\nnode:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: 顯示數要從真實造訪紀錄推算，不能相信存下來的彙總欄位\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/tests/no-fabricated-counters.test.mjs:88:10\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: false,\r\n  expected: true,\r\n  operator: '==',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0"
     },
     {
       "id": "BEAST_REWARD_CLAIM",
@@ -597,7 +597,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 404,
+      "durationMs": 330,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -611,7 +611,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 370,
+      "durationMs": 301,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -625,7 +625,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 586,
+      "durationMs": 503,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -639,7 +639,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 347,
+      "durationMs": 280,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -654,7 +654,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1362,
+      "durationMs": 1151,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -669,7 +669,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1903,
+      "durationMs": 1783,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -684,7 +684,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 3838,
+      "durationMs": 3211,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -698,7 +698,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 380,
+      "durationMs": 293,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -712,7 +712,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1796,
+      "durationMs": 1668,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -726,10 +726,11 @@
       "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 397,
+      "durationMs": 332,
       "htmlLength": 0,
       "error": "Command failed: cmd.exe /d /s /c npm.cmd run check:three-core-traditional-health\n",
-      "issue": "三核心原典缺陷：禁止以流程通過代替算法正確 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:three-core-traditional-health\n"
+      "issue": "三核心原典缺陷：禁止以流程通過代替算法正確 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:three-core-traditional-health\n",
+      "output": "> blood-type-compatibility@0.1.0 check:three-core-traditional-health\n> node scripts/three-core-traditional-health.cjs\n\nUNRESOLVED: MEIHUA_GREGORIAN_SUM — 公曆年月日直接加總與已閱梅花年月日時取數傳本不符\n仍有運算呼叫，尚未完成正式用途停用。\nUNRESOLVED: BAZI_TEXT_HASH_READING — 另以姓名與文案雜湊起卦，未沿用三核心已核對卦象\n目前另有停用條件，不代表算法已修復。\nUNRESOLVED: KARMA_AI_CHART_AND_FIXED_FALLBACK — 讓模型自行推算命宮星曜並提供固定卦象後備，未由已核對命盤提供\n目前另有停用條件，不代表算法已修復。\nUNRESOLVED: ZIWEI_PALACE_HASH — 三核心核對後仍依宮名主星流年文字另起雜湊卦\n仍有運算呼叫，尚未完成正式用途停用。\nUNRESOLVED: GROWTH_WEEK_HASH — 週次與個人種子文字映射未有原典依據\n仍有運算呼叫，尚未完成正式用途停用。\nUNRESOLVED: SOLAR_TERM_HASH — 節氣名稱與年份映射卦象不等於官方曆法或正統起卦\n仍有運算呼叫，尚未完成正式用途停用。\n原典缺陷清單檢查不取代算法、真機或服務可用性驗收。"
     },
     {
       "id": "MEIHUA_ORIGINAL_CASES",
@@ -739,7 +740,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 548,
+      "durationMs": 486,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -752,13 +753,14 @@
       "path": "/insight",
       "script": "test:ziwei-form-fill",
       "timeoutMs": 150000,
-      "status": "FAILED",
+      "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 0,
+      "durationMs": 16285,
       "htmlLength": 0,
-      "error": "NOT_EXECUTED_UI_CHECK: existing test uses raw Chrome CDP; this session permits UI actions through cua_repl only. This check remains failed/unverified.",
-      "issue": "紫微表單手機實填：逐鍵輸入焦點不跑、送出後出三柱 verification failed: NOT_EXECUTED_UI_CHECK: existing test uses raw Chrome CDP; this session permits UI actions through cua_repl only. This check remains failed/unverified."
+      "error": null,
+      "issue": null,
+      "output": "> blood-type-compatibility@0.1.0 test:ziwei-form-fill\n> node tests/ziwei-form-fill.e2e.mjs\n\n\n紫微表單手機實填健檢\n目標：http://localhost:8888/insight\nPASS 靜態：生日欄不得用生日值當 key (32ms)\nPASS 手機寬度開啟 http://localhost:8888/insight (969ms)\nPASS 點「親朋好友」（只做本次分析，不寫入） (1287ms)\nPASS 輸入姓名 (471ms)\nPASS 民國年逐鍵輸入，焦點不跑 (766ms)\nPASS 月份逐鍵輸入，焦點不跑 (742ms)\nPASS 日期打「25」：打到「2」日期就湊齊，焦點仍不得跑 (745ms)\nPASS 填完後改日期（退格改成 28），焦點仍不得跑 (278ms)\nPASS 點性別「女性」 (481ms)\nPASS 點「不知道出生時辰」 (477ms)\nPASS 送出後出現三柱：甲寅年、辛未月、時柱待補 (1367ms)\nPASS 客戶看得到的字沒有內部用語（不知道時辰） (1ms)\nPASS 重新分析，改選寅時，出現易經老師解盤 (4245ms)\nPASS 命宮塔羅牌是後端選好送來的 (1ms)\nPASS 客戶看得到的字沒有內部用語（有時辰） (19ms)\nPASS 鬼魅老師：年齡由後端送來 (3138ms)\nPASS 全程無未捕捉的前端錯誤 (0ms)\nPASS 17 / FAIL 0\nZIWEI_FORM_FILL_CERTIFIED=true"
     },
     {
       "id": "AI_TEACHER_AVAILABILITY",
@@ -769,7 +771,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 779,
+      "durationMs": 780,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -787,7 +789,7 @@
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "> blood-type-compatibility@0.1.0 test:ai-customer-message\n> node tests/ai-customer-message.test.mjs\n\nPASS 月度花費上限 429 原文換成中文\nPASS 金鑰錯誤不外洩\nPASS 網路失敗英文換成中文\nPASS 非 Error 物件給預設中文\nPASS 自己寫的中文訊息保留\nPASS 回給客戶的訊息一定是中文為主\nPASS 6 / FAIL 0\nAI_CUSTOMER_MESSAGE_CERTIFIED=true\n(node:38080) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/lib/ai-error-message.ts is not specified and it doesn't parse as CommonJS.\nReparsing as ES module because module syntax was detected. This incurs a performance overhead.\nTo eliminate this warning, add \"type\": \"module\" to C:\\Users\\DRAGON\\Desktop\\命理\\package.json.\n(Use `node --trace-warnings ...` to show where the warning was created)"
+      "output": "> blood-type-compatibility@0.1.0 test:ai-customer-message\n> node tests/ai-customer-message.test.mjs\n\nPASS 月度花費上限 429 原文換成中文\nPASS 金鑰錯誤不外洩\nPASS 網路失敗英文換成中文\nPASS 非 Error 物件給預設中文\nPASS 自己寫的中文訊息保留\nPASS 回給客戶的訊息一定是中文為主\nPASS 6 / FAIL 0\nAI_CUSTOMER_MESSAGE_CERTIFIED=true\n(node:39260) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/lib/ai-error-message.ts is not specified and it doesn't parse as CommonJS.\nReparsing as ES module because module syntax was detected. This incurs a performance overhead.\nTo eliminate this warning, add \"type\": \"module\" to C:\\Users\\DRAGON\\Desktop\\命理\\package.json.\n(Use `node --trace-warnings ...` to show where the warning was created)"
     },
     {
       "id": "ZIWEI_DISPLAY_ONLY",
@@ -797,7 +799,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 350,
+      "durationMs": 314,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -812,10 +814,11 @@
       "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 511,
+      "durationMs": 490,
       "htmlLength": 0,
       "error": "Command failed: cmd.exe /d /s /c npm.cmd run test:taiji-lock\nC:\\Users\\DRAGON\\Desktop\\命理\\tests\\taiji-level-02-24-lock.test.cjs:36\r\n  throw new Error(`LEVEL_02-24 configuration unchanged failed:\\n${mismatches.join('\\n')}`);\r\n  ^\r\n\r\nError: LEVEL_02-24 configuration unchanged failed:\r\nlib/taiji-journey-depth.ts hash changed\r\ncomponents/taiji/TaijiQuantumField.tsx hash changed\r\ncomponents/taiji/TaijiCoreVisual.tsx hash changed\r\ncomponents/taiji/taijiMagnifier.ts hash changed\r\n    at Object.<anonymous> (C:\\Users\\DRAGON\\Desktop\\命理\\tests\\taiji-level-02-24-lock.test.cjs:36:9)\r\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\r\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\r\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\r\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\r\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\r\n    at node:internal/main/run_main_module:33:47\r\n\r\nNode.js v24.13.0\r\n",
-      "issue": "太極第 2～24 層隔離鎖定 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:taiji-lock\nC:\\Users\\DRAGON\\Desktop\\命理\\tests\\taiji-level-02-24-lock.test.cjs:36\r\n  throw new Error(`LEVEL_02-24 configuration unchanged failed:\\n${mismatches.join('\\n')}`);\r\n  ^\r\n\r\nError: LEVEL_02-24 configuration unchanged failed:\r\nlib/taiji-journey-depth.ts hash changed\r\ncomponents/taiji/TaijiQuantumField.tsx hash changed\r\ncomponents/taiji/TaijiCoreVisual.tsx hash changed\r\ncomponents/taiji/taijiMagnifier.ts hash changed\r\n    at Object.<anonymous> (C:\\Users\\DRAGON\\Desktop\\命理\\tests\\taiji-level-02-24-lock.test.cjs:36:9)\r\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\r\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\r\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\r\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\r\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\r\n    at node:internal/main/run_main_module:33:47\r\n\r\nNode.js v24.13.0\r\n"
+      "issue": "太極第 2～24 層隔離鎖定 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:taiji-lock\nC:\\Users\\DRAGON\\Desktop\\命理\\tests\\taiji-level-02-24-lock.test.cjs:36\r\n  throw new Error(`LEVEL_02-24 configuration unchanged failed:\\n${mismatches.join('\\n')}`);\r\n  ^\r\n\r\nError: LEVEL_02-24 configuration unchanged failed:\r\nlib/taiji-journey-depth.ts hash changed\r\ncomponents/taiji/TaijiQuantumField.tsx hash changed\r\ncomponents/taiji/TaijiCoreVisual.tsx hash changed\r\ncomponents/taiji/taijiMagnifier.ts hash changed\r\n    at Object.<anonymous> (C:\\Users\\DRAGON\\Desktop\\命理\\tests\\taiji-level-02-24-lock.test.cjs:36:9)\r\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\r\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\r\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\r\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\r\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\r\n    at node:internal/main/run_main_module:33:47\r\n\r\nNode.js v24.13.0\r\n",
+      "output": "> blood-type-compatibility@0.1.0 test:taiji-lock\n> node tests/taiji-level-02-24-lock.test.cjs\n\ntaiji-first-screen-scroll ok\nC:\\Users\\DRAGON\\Desktop\\命理\\tests\\taiji-level-02-24-lock.test.cjs:36\r\n  throw new Error(`LEVEL_02-24 configuration unchanged failed:\\n${mismatches.join('\\n')}`);\r\n  ^\r\n\r\nError: LEVEL_02-24 configuration unchanged failed:\r\nlib/taiji-journey-depth.ts hash changed\r\ncomponents/taiji/TaijiQuantumField.tsx hash changed\r\ncomponents/taiji/TaijiCoreVisual.tsx hash changed\r\ncomponents/taiji/taijiMagnifier.ts hash changed\r\n    at Object.<anonymous> (C:\\Users\\DRAGON\\Desktop\\命理\\tests\\taiji-level-02-24-lock.test.cjs:36:9)\r\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\r\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\r\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\r\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\r\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\r\n    at node:internal/main/run_main_module:33:47\r\n\r\nNode.js v24.13.0"
     },
     {
       "id": "DUAL_CHART_SHENSHA_DISPLAY",
@@ -825,7 +828,7 @@
       "status": "FAILED",
       "sourcePath": "app/dual-chart/BaziChart.tsx",
       "httpStatus": null,
-      "durationMs": 2007,
+      "durationMs": 1746,
       "htmlLength": 0,
       "error": "Command failed: C:\\Program Files\\nodejs\\node.exe scripts/dual-chart-iching-shensha-display-check.cjs\n",
       "issue": "規則 taohua 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 waiTaohua 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jiangxing 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 gejiao 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tiande 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yuede 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tiandehe 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 longde 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tiangou 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 wugui 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jinkui 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 zaisha 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 liue 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yuepo 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 ripo 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 muyu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 kuigang 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 kongwang 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jinyu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 xuetang 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 guchen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 guasu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jiesha 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 lushen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tianyiDoctor 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 guoyin 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tianchu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tianshe 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 sanqi 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 wangshen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yinyangChacuo 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 guluan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 shieDabai 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 liuxia 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 sifei 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yuedehe 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 feiren 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jinshen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 bazhuan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jiuchou 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 liuxiu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 sangmen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 baihu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 bingfu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 pima 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 suipo 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yuekong 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jielu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tianzhuan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 dizhuan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 shiling 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 ride 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 rigui 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 panan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 anlu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jinshenDay 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 gonglu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tuishen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 hongyan 來源仍為 PENDING_POOL；顯示一致不等於原典核定",
@@ -893,5 +896,5 @@
       "output": "原典核定\",\"規則 liue 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 yuepo 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 ripo 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 muyu 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 kuigang 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 kongwang 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 jinyu 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 xuetang 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 guchen 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 guasu 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 jiesha 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 lushen 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 tianyiDoctor 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 guoyin 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 tianchu 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 tianshe 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 sanqi 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 wangshen 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 yinyangChacuo 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 guluan 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 shieDabai 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 liuxia 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 sifei 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 yuedehe 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 feiren 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 jinshen 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 bazhuan 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 jiuchou 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 liuxiu 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 sangmen 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 baihu 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 bingfu 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 pima 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 suipo 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 yuekong 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 jielu 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 tianzhuan 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 dizhuan 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 shiling 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 ride 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 rigui 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 panan 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 anlu 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 jinshenDay 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 gonglu 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 tuishen 來源仍為 PENDING_POOL；顯示一致不等於原典核定\",\"規則 hongyan 來源仍為 PENDING_POOL；顯示一致不等於原典核定\"]}"
     }
   ],
-  "recoveryStatus": "NOT_APPLICABLE"
+  "recoveryStatus": "DISABLED"
 }
