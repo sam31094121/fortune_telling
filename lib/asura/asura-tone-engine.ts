@@ -310,7 +310,7 @@ export function generateAsuraToneProfile(
  */
 export function adjustSentenceLength(
   profile: AsuraToneProfile
-): 'short' | 'medium' | 'long' => {
+): 'short' | 'medium' | 'long' {
   if (profile.sentenceLength === 'SHORT') return 'short';
   if (profile.sentenceLength === 'LONG') return 'long';
   return 'medium';

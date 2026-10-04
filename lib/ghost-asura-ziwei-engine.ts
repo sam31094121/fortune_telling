@@ -513,6 +513,25 @@ export const BRIGHTNESS_PATTERNS = {
   STAR_BRIGHTNESS: /(?:主星|煞星|吉星|星曜|本命星)[\s\u200B\-_·]*(?:入[\s\u200B\-_·]*廟|落[\s\u200B\-_·]*陷|廟[\s\u200B\-_·]*旺|平[\s\u200B\-_·]*陷|廟|旺|陷|得地)/g,
 };
 
+// 亮度語境規則清單（提供測試與外部系統動態載入與規則檢查）
+export const BRIGHTNESS_CONTEXT_RULES = [
+  {
+    name: '入廟',
+    pattern: BRIGHTNESS_PATTERNS.INTO_TEMPLE,
+    description: '星曜入廟（支援標點與合法宗教/成語語境豁免）',
+  },
+  {
+    name: '落陷',
+    pattern: BRIGHTNESS_PATTERNS.FALL_INTO_TRAP,
+    description: '星曜落陷（支援標點與合法地質/陷阱語境豁免）',
+  },
+  {
+    name: '星系亮度結構',
+    pattern: BRIGHTNESS_PATTERNS.STAR_BRIGHTNESS,
+    description: '星曜泛稱搭配亮度等級',
+  },
+] as const;
+
 /**
  * 判定「入廟」或「落陷」是否屬於合法日常語境（地質、宗教、成語）
  * 使用上下文窗口分析，容許標點、逗號與副詞隔開，杜絕脆弱的 Lookaround

@@ -298,8 +298,8 @@ function generateCost(
   hidden: StarPersonalityDNA | null
 ): string {
   const costs = [
-    dominant?.shadow ? `${dominant.shadow.join('/')}的代價`,
-    action?.shadow ? `${action.shadow.join('/')}的風險`,
+    dominant?.shadow ? `${dominant.shadow.join('/')}的代價` : '',
+    action?.shadow ? `${action.shadow.join('/')}的風險` : '',
   ].filter(Boolean);
 
   return costs.length > 0

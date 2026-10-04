@@ -33,7 +33,9 @@ const {
   sanitizeZiweiOutput,
   buildGhostAsuraZiweiNarrative,
   FORBIDDEN_ZIWEI_JARGON,
-  FORBIDDEN_FABRICATION_TERMS
+  FORBIDDEN_FABRICATION_TERMS,
+  FORBIDDEN_BRIGHTNESS_TERMS,
+  BRIGHTNESS_CONTEXT_RULES
 } = engineModule.exports;
 
 console.log('🔍 鬼魅阿修羅紫微斗數話術全面阿修羅化引擎 V2 測試\n');
@@ -128,6 +130,16 @@ console.log('✓ 輸出淨化守門：精準攔截原始星曜名、宮位名、
 // 測試 4-B：亮度複合術語安全匹配與一般中文防誤殺檢驗
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 console.log('【測試 4-B】亮度複合術語安全匹配與一般中文防誤殺檢驗');
+
+// 0. 規則載入驗證：BRIGHTNESS_CONTEXT_RULES
+assert(Array.isArray(BRIGHTNESS_CONTEXT_RULES), 'BRIGHTNESS_CONTEXT_RULES 必須為陣列');
+assert.equal(BRIGHTNESS_CONTEXT_RULES.length, 3, 'BRIGHTNESS_CONTEXT_RULES 必須包含 3 組規則');
+for (const rule of BRIGHTNESS_CONTEXT_RULES) {
+  assert(typeof rule.name === 'string' && rule.name.length > 0, `規則名稱不得為空: ${JSON.stringify(rule)}`);
+  assert(rule.pattern instanceof RegExp, `規則 pattern 必須為 RegExp: ${rule.name}`);
+  assert(typeof rule.description === 'string' && rule.description.length > 0, `規則 description 不得為空: ${rule.name}`);
+}
+console.log('✓ 規則清單載入：成功載入 BRIGHTNESS_CONTEXT_RULES（3 組語境規則結構完整）');
 
 // 1. 正面測試：命中各類亮度複合術語與間隔繞過
 const brightnessPositiveCases = [

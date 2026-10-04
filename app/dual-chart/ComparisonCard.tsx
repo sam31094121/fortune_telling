@@ -99,49 +99,38 @@ function ElementComparison({ result }: { result: DualChartResult }) {
 }
 
 function TenGodMapping({ result }: { result: DualChartResult }) {
-  // 十神映射表（靜態資料，待後端完善）
+  // ⚠️ 十神映射表：所有數據由後端計算與提供
+  // 前端禁止硬編碼任何紫微宮位術語，只照印後端資料
+
+  const mappingData = result.guide?.tenGodMapping;
+
+  if (!mappingData || !Array.isArray(mappingData)) {
+    return null;
+  }
 
   return (
     <div className={styles.comparisonSection}>
-      <h4>十神 ↔️ 宮位對應</h4>
+      <h4>十神 ↔️ 綜合對應</h4>
       <table className={styles.mappingTable}>
         <thead>
           <tr>
             <th>十神</th>
             <th>八字含義</th>
-            <th>紫微對應</th>
             <th>綜合解讀</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td><strong>正官</strong></td>
-            <td>管束、規範、責任</td>
-            <td>官祿宮</td>
-            <td>八字官星旺代表有擔當；紫微官祿宮主事業，兩者結合看職涯發展</td>
-          </tr>
-          <tr>
-            <td><strong>正財</strong></td>
-            <td>辛勤所得、穩定收入</td>
-            <td>財帛宮</td>
-            <td>八字財星強代表創財能力；紫微財帛看儲蓄意識，兩者評估理財風格</td>
-          </tr>
-          <tr>
-            <td><strong>正印</strong></td>
-            <td>思想、知識、母親</td>
-            <td>疾厄宮</td>
-            <td>八字印星代表學習力和福報；紫微疾厄也反映心理狀態，結合看身心健康</td>
-          </tr>
-          <tr>
-            <td><strong>食神</strong></td>
-            <td>表達、技藝、緣分</td>
-            <td>福德宮</td>
-            <td>八字食神代表才華展現；紫微福德看享受度，兩者結合看人緣和生活質感</td>
-          </tr>
+          {mappingData.map((row: any, idx: number) => (
+            <tr key={idx}>
+              <td><strong>{row.tenGod}</strong></td>
+              <td>{row.baziMeaning}</td>
+              <td>{row.synthesis}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
       <p className={styles.comparisonHint}>
-        八字十神是「動力系統」，紫微宮位是「人生舞台」。兩套系統搭配看，能更全面理解性格與命運的互動。
+        {result.guide?.comparisonHint || '兩套系統搭配看，能更全面理解性格與命運的互動。'}
       </p>
     </div>
   );

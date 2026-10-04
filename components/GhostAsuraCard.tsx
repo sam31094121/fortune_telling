@@ -69,10 +69,10 @@ export default function GhostAsuraCard({ data, isLoading }: GhostAsuraCardProps)
         </article>
       </section>
 
-      {/* 紫微斗數 */}
+      {/* 第二層：命理融合 */}
       {data.ziwei && (
-        <section className={styles.ziweiSection} aria-label="紫微斗數">
-          <h2 className={styles.sectionTitle}>紫微斗數命盤</h2>
+        <section className={styles.ziweiSection} aria-label="命理融合">
+          <h2 className={styles.sectionTitle}>命理融合層</h2>
           {data.ziwei.verification.status === 'MISMATCH' && (
             <div className={styles.warning} role="alert">
               ⚠️ {data.ziwei.verification.message}

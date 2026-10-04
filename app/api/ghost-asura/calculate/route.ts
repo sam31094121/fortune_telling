@@ -58,11 +58,12 @@ async function calculateGhostAsuraCard(
     { name: '時' as const, stem: '丙', branch: '寅', element: '木' as const, elementColor: '#52c41a' },
   ];
 
-  // 簡化的紫微宮位模擬（實際應使用 lib/ziwei/engine.ts）
+  // ⚠️ 命理融合層（實際應使用 lib/ziwei/engine.ts）
+  // 注意：前端禁止看這些術語名稱，只接收數據欄位
   const mockZiweiPalaces = [
-    { name: '命宮', mainStar: '紫微', secondaryStars: ['左輔', '右弼'] },
-    { name: '財帛宮', mainStar: '天府', secondaryStars: ['天相'] },
-    { name: '官祿宮', mainStar: '天機', secondaryStars: ['巨門'] },
+    { id: 'p1', type: 'primary', focus: '人生方向', primaryStar: 'star_ziwei', secondaryStars: ['star_zuofu', 'star_youbi'] },
+    { id: 'p2', type: 'secondary', focus: '財務與資源', primaryStar: 'star_tianfu', secondaryStars: ['star_tianxiang'] },
+    { id: 'p3', type: 'tertiary', focus: '事業與社會', primaryStar: 'star_tianji', secondaryStars: ['star_jumen'] },
   ];
 
   // 簡化的神煞模擬（實際應使用 lib/iching-shensha-combos.ts）
