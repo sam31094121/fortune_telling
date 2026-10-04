@@ -45,6 +45,7 @@ export default function GhostAsuraPageClient({
   const [error, setError] = useState('');
   const [missing, setMissing] = useState<string[]>([]);
   const [result, setResult] = useState<DualChartResult | null>(null);
+  const [copySuccess, setCopySuccess] = useState(false);
   const resultRef = useRef<HTMLElement>(null);
   const calculationRef = useRef<AbortController | null>(null);
 
@@ -63,6 +64,41 @@ export default function GhostAsuraPageClient({
     window.setTimeout(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 300);
+  }
+
+  async function handleCopyLink() {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    const success = await navigator.clipboard.writeText(url).catch(() => false);
+
+    if (success) {
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    }
+  }
+
+  async function handleLineShare() {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    const message = `我的阿修羅秘卷已生成！\n${url}\n\n點擊查看你的四柱隱影解盤 ✨`;
+    const lineURL = `https://line.me/R/msg/text/${encodeURIComponent(message)}`;
+    window.open(lineURL, '_blank');
+  }
+
+  async function handleSystemShare() {
+    if (!navigator.share) {
+      handleCopyLink();
+      return;
+    }
+
+    try {
+      const url = typeof window !== 'undefined' ? window.location.href : '';
+      await navigator.share({
+        title: '鬼魅阿修羅秘卷',
+        text: '我的阿修羅秘卷已生成！點擊查看你的四柱隱影解盤',
+        url,
+      });
+    } catch (err) {
+      console.log('Share cancelled or failed:', err);
+    }
   }
 
   useEffect(() => {
@@ -295,6 +331,45 @@ export default function GhostAsuraPageClient({
           {reading ? (
             <>
               <GhostAsuraCard reading={reading} />
+
+              {/* 📤 分享秘卷 */}
+              <div className={styles.shareSection}>
+                <p className={styles.shareLabel}>分享你的秘卷</p>
+                <div className={styles.shareButtons}>
+                  <button
+                    className={styles.shareButton}
+                    onClick={handleLineShare}
+                    aria-label="分享到 LINE"
+                    title="分享到 LINE"
+                  >
+                    <span className={styles.shareIcon}>💬</span>
+                    <span className={styles.shareButtonLabel}>LINE</span>
+                  </button>
+                  <button
+                    className={styles.shareButton}
+                    onClick={handleSystemShare}
+                    aria-label="系統分享"
+                    title="分享到其他應用"
+                  >
+                    <span className={styles.shareIcon}>🔗</span>
+                    <span className={styles.shareButtonLabel}>分享</span>
+                  </button>
+                  <button
+                    className={styles.shareButton}
+                    onClick={handleCopyLink}
+                    aria-label="複製連結"
+                    title="複製秘卷連結"
+                  >
+                    <span className={styles.shareIcon}>📋</span>
+                    <span className={styles.shareButtonLabel}>複製</span>
+                  </button>
+                </div>
+                {copySuccess && (
+                  <div className={`${styles.copySuccess} ${copySuccess ? styles.copySuccessFadeOut : ''}`}>
+                    ✓ 已複製到剪貼板
+                  </div>
+                )}
+              </div>
 
               {/* 🔄 快速重新解盤 */}
               <div className={styles.quickRetakeSection}>
