@@ -316,7 +316,7 @@
   margin-bottom: 8px;
   font-family: "Noto Serif TC", "Source Han Serif TC", serif;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
 }
 /* 白話：緊貼所屬段落、灰金、細左線；字級跟著放大但永遠比內文小一級以上 */
 .timeCards [data-asura-interleaved] > [data-asura-plain],
@@ -469,8 +469,8 @@
   opacity: 0.7;
   pointer-events: none;
 }
-.timeCards.timeCards > .timeCard[data-asura-time-card="verdict"] > summary { min-height: calc(var(--u) * 3); padding: 12px 6vw; }
-.timeCards.timeCards > .timeCard[data-asura-time-card="verdict"] > div { padding: 4px 6vw 24px; }
+.timeCards.timeCards > .timeCard[data-asura-time-card="verdict"] > summary { min-height: calc(var(--u) * 3); padding: 12px 5vw; }
+.timeCards.timeCards > .timeCard[data-asura-time-card="verdict"] > div { padding: 4px 5vw 24px; }
 .wrap .result :global([data-asura-function="verdict"] > div) { padding: 22px; }
 .timeCards.timeCards > .timeCard[data-asura-time-card="verdict"][open]:has([data-asura-coda]),
 .wrap .result :global([data-asura-function="verdict"] > div:has([data-asura-coda])) { min-height: calc(var(--U) * 3); }
