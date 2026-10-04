@@ -1,19 +1,25 @@
 'use client';
 
 import { useState } from 'react';
+import { renderTimelineWithAsuraVoice } from '@/lib/asura-timeline-renderer';
+import { GhostAsuraTimelineResponse } from '@/lib/types/ghost-asura-timeline';
 import styles from './GhostAsuraCardComplete.module.css';
 
 /**
  * 鬼魅阿修羅 - 完整卡片（過去 | 現在 | 未來）
- * 
- * 功能：
+ *
+ * 職責：
+ * - 零邏輯：後端已算完，前端只照印
  * - Tab 1: 本命盤（八字四柱）
- * - Tab 2: 流年三時段（過去 | 現在 | 未來）
+ * - Tab 2: 流年三時段（過去 | 現在 | 未來）+ 話術
  */
 export default function GhostAsuraCardComplete({
   userData,
   timelineData,
-}: any) {
+}: {
+  userData?: { name: string };
+  timelineData: GhostAsuraTimelineResponse;
+}) {
   const [activeTab, setActiveTab] = useState<'base' | 'timeline'>('timeline');
 
   return (
@@ -44,8 +50,62 @@ export default function GhostAsuraCardComplete({
       </div>
 
       {/* ===== 流年三時段 Tab ===== */}
-      {activeTab === 'timeline' && (
+      {activeTab === 'timeline' && timelineData && (
         <div className={styles.tabContent}>
+          {/* 印記統計面板 - A4 */}
+          <div className={styles.statsPanel}>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>項印記</span>
+              <span className={styles.statValue}>65</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>印記覺醒</span>
+              <span className={styles.statValue} style={{ color: '#ffd700' }}>17</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>印記沉眠</span>
+              <span className={styles.statValue}>48</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>待校核</span>
+              <span className={styles.statValue}>0</span>
+            </div>
+          </div>
+
+          {/* 話術層：阿修羅的聲音 - A1 */}
+          {(() => {
+            const rendered = renderTimelineWithAsuraVoice(timelineData);
+            return (
+              <div className={styles.narrativeSection}>
+                <div className={styles.narrativeTitle}>
+                  <span className={styles.asuraMarker}>⚔️</span>
+                  <h3>阿修羅的宣告</h3>
+                </div>
+                <div className={styles.narrativeContent}>
+                  <div className={styles.pastNarrative}>
+                    <h4>{rendered.past.title}</h4>
+                    <p>{rendered.past.opening}</p>
+                  </div>
+                  <div className={styles.presentNarrative}>
+                    <h4>{rendered.present.title}</h4>
+                    <p className={styles.challenge}>{rendered.present.challenge}</p>
+                    <p className={styles.strength}>{rendered.present.strength}</p>
+                    <p className={styles.action}>{rendered.present.action}</p>
+                  </div>
+                  <div className={styles.futureNarrative}>
+                    <h4>{rendered.future.title}</h4>
+                    <p>{rendered.future.opportunity}</p>
+                    <p>{rendered.future.warning}</p>
+                  </div>
+                </div>
+                <div className={styles.summary}>
+                  <p className={styles.trajectory}>{rendered.summary.trajectory}</p>
+                  <p className={styles.finalMessage}>{rendered.summary.finalMessage}</p>
+                </div>
+              </div>
+            );
+          })()}
+
           <div className={styles.timelineGrid}>
             {/* 第一張：過去 */}
             <div className={styles.timelineCard} data-period="past">
@@ -144,9 +204,16 @@ export default function GhostAsuraCardComplete({
       )}
 
       {/* 本命盤 Tab */}
-      {activeTab === 'base' && (
+      {activeTab === 'base' && userData && (
         <div className={styles.tabContent}>
-          <div className={styles.baseContent}>本命盤資訊</div>
+          <div className={styles.baseContent}>
+            <h2>{userData.name || '命主'}</h2>
+            <p>出生日期：{timelineData.user.birthDate}</p>
+            {/* 本命盤詳細：八字、十神、大運等 */}
+            <div className={styles.baziDetails}>
+              {/* 四柱圖表將在此呈現 */}
+            </div>
+          </div>
         </div>
       )}
     </div>
