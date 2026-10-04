@@ -167,6 +167,16 @@ export default function GhostAsuraPageClient({
     };
   }, [unlocked, router]);
 
+  const reading = useMemo(() => {
+    if (!result) return null;
+    try {
+      return buildGhostAsuraReading({ result });
+    } catch (err) {
+      console.error('[GhostAsuraPageClient] buildGhostAsuraReading failed', err);
+      return null;
+    }
+  }, [result]);
+
   useEffect(() => {
     if (!result || !cardRef.current) return;
 
@@ -210,16 +220,6 @@ export default function GhostAsuraPageClient({
       behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
     });
   }, [result, reading]);
-
-  const reading = useMemo(() => {
-    if (!result) return null;
-    try {
-      return buildGhostAsuraReading({ result });
-    } catch (err) {
-      console.error('[GhostAsuraPageClient] buildGhostAsuraReading failed', err);
-      return null;
-    }
-  }, [result]);
 
 
   function updateForm(profile: BirthProfile) {
