@@ -248,6 +248,30 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
         </div>
       </div>
 
+      {display.rest.map((group) => (
+        <details key={group.key} className={styles.restGroup} data-asura-rest={group.key}>
+          <summary className={styles.restSummary}>{group.heading}</summary>
+          <ul className={styles.list} aria-label={group.heading} data-asura-list={group.heading}>
+            {group.seals.map((seal) => (
+              <li
+                key={seal.id}
+                className={TONE_ITEM[seal.tone]}
+                data-asura-id={seal.id}
+                data-seal-status={seal.tone}
+                data-display-name={seal.name}
+              >
+                <div className={styles.restHead}>
+                  <strong className={styles.displayName}>{seal.name}</strong>
+                  <span className={TONE_SEAL[seal.tone]}>{seal.sealLabel}</span>
+                </div>
+                <div className={styles.restNote}>{group.note}</div>
+                {seal.declaration && <div className={styles.meaningStrong}>{seal.declaration}</div>}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ))}
+
       <div className={styles.summaryFooter} data-asura-summary-footer>
         <div className={styles.banner} data-asura-banner>
           {display.lines.map((line, index) => (

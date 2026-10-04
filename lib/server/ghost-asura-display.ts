@@ -29,6 +29,7 @@ import {
   type AsuraDisplay,
   type AsuraDisplaySection,
   type AsuraDisplayColumn,
+  type AsuraDisplayRestGroup,
   type AsuraDisplayAudit,
   type AsuraDisplayEntry,
   type AsuraDisplaySeal,
@@ -257,9 +258,40 @@ export function toAsuraDisplay(
     };
   });
 
+  const restOf = (status: 'dormant' | 'pending') => reading.items.filter((item) => item.sealStatus === status).map(toSeal);
+  const dormantSeals = restOf('dormant');
+  const pendingSeals = restOf('pending');
+  const rest: AsuraDisplayRestGroup[] = [
+    { key: 'dormant' as const, heading: `沉眠印記（${dormantSeals.length}項）`, note: '本次無落印柱位', seals: dormantSeals },
+    { key: 'pending' as const, heading: `待校核印記（${pendingSeals.length}項）`, note: '印記待校核', seals: pendingSeals },
+  ].filter((group) => group.seals.length > 0);
+
+  // 上方統計＝下方清單：覺醒依柱位列在四柱（落多柱者各柱各列一次），沉眠與待校核列在「其餘印記」。
+  const columnRows = columns.reduce((sum, column) => sum + column.seals.length, 0);
+  const listedDistinct = new Set([
+    ...columns.flatMap((column) => column.seals.map((seal) => seal.id)),
+    ...dormantSeals.map((seal) => seal.id),
+    ...pendingSeals.map((seal) => seal.id),
+  ]).size;
+  const awakenedListed = new Set(columns.flatMap((column) => column.seals.map((seal) => seal.id))).size;
+  const listingOk =
+    awakenedListed === reading.awakenedCount &&
+    dormantSeals.length === reading.dormantCount &&
+    pendingSeals.length === reading.pendingCount &&
+    listedDistinct === reading.items.length;
+  const multiPillarRows = columnRows - awakenedListed;
+  const statsHint = [
+    `${reading.items.length} 項 = ${reading.awakenedCount} 覺醒（依柱位列在四柱）＋${reading.dormantCount} 沉眠（列在下方「沉眠印記」）`,
+    reading.pendingCount > 0 ? `＋${reading.pendingCount} 待校核（列在下方「待校核印記」）` : '',
+    '。',
+    multiPillarRows > 0 ? `其中有印記落在多柱，各柱各列一次，四柱共 ${columnRows} 列。` : '',
+  ].join('');
+
   const failed = reading.guard.status === 'FAILED';
   const pendingNames = reading.pendingEntries.slice(0, 8).map((entry) => entry.label || entry.resultId);
-  const alert = failed
+  const alert = !failed && !listingOk
+    ? '清單與統計暫時對不上，請重新讀取後再看。'
+    : failed
     ? [
         GHOST_ASURA_UI.incompleteBanner,
         reading.pendingEntries.length > 0
@@ -388,6 +420,15 @@ export function toAsuraDisplay(
   };
 
   const audit: AsuraDisplayAudit = {
+    listing: {
+      total: reading.items.length,
+      awakened: reading.awakenedCount,
+      dormant: reading.dormantCount,
+      pending: reading.pendingCount,
+      columnRows,
+      listedDistinct,
+      ok: listingOk,
+    },
     pipelineTotal: reading.items.length,
     emitted: qualifying.length,
     droppedDormant: dropped.filter((d) => d.reason === 'dormant').length,
@@ -441,13 +482,14 @@ export function toAsuraDisplay(
     alert,
     scrollHint: '左右滑動查看四柱，印記依柱對齊。',
     columns,
+    rest,
     stats: [
       { value: String(reading.items.length), label: '項印記' },
       { value: String(reading.awakenedCount), label: GHOST_ASURA_UI.sealAwakened, tone: 'awakened' },
       { value: String(reading.dormantCount), label: GHOST_ASURA_UI.sealDormant, tone: 'dormant' },
       { value: String(reading.pendingCount), label: GHOST_ASURA_UI.sealPending, tone: 'pending' },
     ],
-    statsHint: '統計為印記種類；同一印記命中多柱時，各柱分別呈現。',
+    statsHint,
     supplements: [
       {
         key: 'dual' as const,

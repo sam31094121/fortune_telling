@@ -29,6 +29,16 @@ export interface AsuraDisplaySeal {
   clash: string | null;
 }
 
+/** 四柱清單以外的印記（沉眠／待校核）：統計有算、清單就要列，讓上下數字一致。 */
+export interface AsuraDisplayRestGroup {
+  key: 'dormant' | 'pending';
+  /** 例：沉眠印記（49項） */
+  heading: string;
+  /** 該群每一項共同的柱位說明，例：本次無落印柱位 */
+  note: string;
+  seals: AsuraDisplaySeal[];
+}
+
 export interface AsuraDisplayColumn {
   key: 'year' | 'month' | 'day' | 'hour';
   heading: string;
@@ -75,6 +85,16 @@ export interface AsuraDisplaySection {
 
 /** 稽核用（不顯示）：三格輸出挑選的誠實計數。 */
 export interface AsuraDisplayAudit {
+  /** 上方統計與下方清單的逐項核對（前端不顯示；不一致時後端會讓 alert 出聲） */
+  listing: {
+    total: number;
+    awakened: number;
+    dormant: number;
+    pending: number;
+    columnRows: number;
+    listedDistinct: number;
+    ok: boolean;
+  };
   pipelineTotal: number;
   emitted: number;
   droppedDormant: number;
@@ -125,6 +145,8 @@ export interface AsuraDisplay {
   alert: string | null;
   scrollHint: string;
   columns: AsuraDisplayColumn[];
+  /** 四柱清單以外的沉眠／待校核印記（統計有算的，這裡全部列出） */
+  rest: AsuraDisplayRestGroup[];
   stats: AsuraDisplayStat[];
   statsHint: string;
   supplements: AsuraDisplaySupplement[];

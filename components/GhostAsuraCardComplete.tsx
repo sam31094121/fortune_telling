@@ -60,11 +60,11 @@ export default function GhostAsuraCardComplete({
             </div>
             <div className={styles.statItem}>
               <span className={styles.statLabel}>印記覺醒</span>
-              <span className={styles.statValue} style={{ color: '#ffd700' }}>17</span>
+              <span className={styles.statValue} style={{ color: '#ffd700' }}>16</span>
             </div>
             <div className={styles.statItem}>
               <span className={styles.statLabel}>印記沉眠</span>
-              <span className={styles.statValue}>48</span>
+              <span className={styles.statValue}>49</span>
             </div>
             <div className={styles.statItem}>
               <span className={styles.statLabel}>待校核</span>

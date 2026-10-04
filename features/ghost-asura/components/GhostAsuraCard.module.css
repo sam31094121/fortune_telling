@@ -778,3 +778,58 @@
   .tileSquare:not(:disabled):active { transform: none; }
   .fnPanel { animation: none; }
 }
+
+/* 其餘印記（沉眠／待校核）：統計有算的，清單就要列；預設收合，展開才看 */
+.restGroup {
+  margin: 0 24px 20px;
+  border: 1px solid #49363d;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  min-width: 0;
+}
+
+.restSummary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  color: #d4d4d8;
+}
+
+.restSummary:focus-visible {
+  outline: 3px solid #bae6fd;
+  outline-offset: 2px;
+}
+
+.restGroup[open] > .restSummary {
+  border-bottom: 1px solid #49363d;
+  color: #f2ede4;
+}
+
+.restGroup > .list {
+  padding: 12px 16px 16px;
+}
+
+.restHead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-bottom: 6px;
+}
+
+.restNote {
+  font-size: 14px;
+  color: #bfc2cc;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 640px) {
+  .restGroup {
+    margin-left: 12px;
+    margin-right: 12px;
+  }
+}
