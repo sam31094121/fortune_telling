@@ -23,18 +23,68 @@ interface AsuraImpression {
   title: string;
   description: string;
   status: string;
+  symbol?: string;
+  backstory?: string;
 }
 
 /** 主頁展示用核心印記（對齊固定映射；非總數上限） */
 const ASURA_CORE_IMPRESSIONS: AsuraImpression[] = [
-  { title: '裂天劫印', description: '破局之力已甦醒，命運從此刻起向上翻轉', status: '力量覺醒' },
-  { title: '五陰纏影', description: '靈魂之敵已現，用阿修羅之力反制與超越', status: '力量覺醒' },
-  { title: '血刃之鋒', description: '行動力爆發，成就與威力俱在此刻', status: '力量覺醒' },
-  { title: '魅生之印', description: '人緣與魅力的覺醒，吸引力進入新紀元', status: '力量覺醒' },
-  { title: '天赦神契', description: '天佑之力護佑，逆轉與救贖同時啟動', status: '力量覺醒' },
-  { title: '逐界行者', description: '超越界限的力量，向新世界展開行進', status: '力量覺醒' },
-  { title: '鎮軍之魂', description: '領導力與號召力同步激活，掌控局勢', status: '力量覺醒' },
-  { title: '虛界空印', description: '虛空的回聲中，重建與新生的機會浮現', status: '力量蟄伏' },
+  {
+    title: '裂天劫印',
+    description: '破局之力已甦醒，命運從此刻起向上翻轉',
+    status: '力量覺醒',
+    symbol: '⚡',
+    backstory: '天劫之力，破開一切迷障，帶來命運的轉機。'
+  },
+  {
+    title: '五陰纏影',
+    description: '靈魂之敵已現，用阿修羅之力反制與超越',
+    status: '力量覺醒',
+    symbol: '🌑',
+    backstory: '五蘊之影糾纏心靈，唯有直面方能超越。'
+  },
+  {
+    title: '血刃之鋒',
+    description: '行動力爆發，成就與威力俱在此刻',
+    status: '力量覺醒',
+    symbol: '🗡️',
+    backstory: '銳利如刃，勇氣化作行動的力量。'
+  },
+  {
+    title: '魅生之印',
+    description: '人緣與魅力的覺醒，吸引力進入新紀元',
+    status: '力量覺醒',
+    symbol: '✨',
+    backstory: '魅力綻放，人心所向，成為中心的力量。'
+  },
+  {
+    title: '天赦神契',
+    description: '天佑之力護佑，逆轉與救贖同時啟動',
+    status: '力量覺醒',
+    symbol: '🙏',
+    backstory: '天意垂憐，眾生得救贖，一切皆有轉機。'
+  },
+  {
+    title: '逐界行者',
+    description: '超越界限的力量，向新世界展開行進',
+    status: '力量覺醒',
+    symbol: '🌍',
+    backstory: '跨越疆界，探索未知，成為冒險家的象徵。'
+  },
+  {
+    title: '鎮軍之魂',
+    description: '領導力與號召力同步激活，掌控局勢',
+    status: '力量覺醒',
+    symbol: '👑',
+    backstory: '掌控全局，領導眾人，成為眾星之王。'
+  },
+  {
+    title: '虛界空印',
+    description: '虛空的回聲中，重建與新生的機會浮現',
+    status: '力量蟄伏',
+    symbol: '🌀',
+    backstory: '空無亦是力量，等待中醞釀重生。'
+  },
 ];
 
 /** 穩定挑選 featured 印記：同環境每次一致，禁止 Math.random */
@@ -133,9 +183,10 @@ export default function GhostAsuraHomeEntry() {
               e.stopPropagation();
               setSelectedImpression(featuredImpression.title);
             }}
-            title={featuredImpression.title}
+            title={featuredImpression.backstory || featuredImpression.title}
             aria-label={`選擇 ${featuredImpression.title}`}
           >
+            <span className={styles.gridSymbol} aria-hidden="true">{featuredImpression.symbol}</span>
             <span className={styles.gridTitle}>{featuredImpression.title.slice(0, 3)}</span>
             <span className={styles.gridStatus}>{featuredImpression.status}</span>
           </button>
@@ -150,9 +201,10 @@ export default function GhostAsuraHomeEntry() {
                 e.stopPropagation();
                 setSelectedImpression(imp.title);
               }}
-              title={imp.title}
+              title={imp.backstory || imp.title}
               aria-label={`選擇 ${imp.title}`}
             >
+              <span className={styles.gridSymbol} aria-hidden="true">{imp.symbol}</span>
               <span className={styles.gridTitle}>{imp.title.slice(0, 3)}</span>
               <span className={styles.gridStatus}>{imp.status}</span>
             </button>
