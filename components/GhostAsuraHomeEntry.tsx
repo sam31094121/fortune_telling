@@ -19,6 +19,50 @@ import { stableHash } from '@/features/ghost-asura/language';
 import styles from './GhostAsuraHomeEntry.module.css';
 import brandStyles from './AsuraBrandTitle.module.css';
 
+// 用戶交互追蹤 (localStorage)
+const STORAGE_KEY = 'asura_impression_analytics';
+
+interface InteractionData {
+  title: string;
+  clicks: number;
+  hovers: number;
+  lastInteraction: number;
+}
+
+function trackInteraction(title: string, type: 'click' | 'hover') {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const data: Record<string, InteractionData> = stored ? JSON.parse(stored) : {};
+
+    if (!data[title]) {
+      data[title] = { title, clicks: 0, hovers: 0, lastInteraction: 0 };
+    }
+
+    if (type === 'click') {
+      data[title].clicks += 1;
+    } else {
+      data[title].hovers += 1;
+    }
+    data[title].lastInteraction = Date.now();
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    // 如果 localStorage 不可用，靜默失敗
+  }
+}
+
+function getInteractionScore(imp: AsuraImpression): number {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const data: Record<string, InteractionData> = stored ? JSON.parse(stored) : {};
+    const record = data[imp.title];
+    if (!record) return 0;
+    return (record.clicks * 3) + (record.hovers * 1); // 點擊權重更高
+  } catch (e) {
+    return 0;
+  }
+}
+
 interface AsuraImpression {
   title: string;
   description: string;
@@ -93,10 +137,20 @@ function pickStableFeaturedImpression(): AsuraImpression {
   return ASURA_CORE_IMPRESSIONS[seed % ASURA_CORE_IMPRESSIONS.length];
 }
 
-/** 取得次要印記（featured 除外） */
+/** 取得次要印記（featured 除外，根據交互頻率排序） */
 function getSecondaryImpressions(featured: AsuraImpression, count: number = 4): AsuraImpression[] {
   const others = ASURA_CORE_IMPRESSIONS.filter(imp => imp.title !== featured.title);
-  return others.slice(0, count);
+
+  // 按交互分數降序排列（個性化推薦）
+  const sorted = [...others].sort((a, b) => {
+    const scoreA = getInteractionScore(a);
+    const scoreB = getInteractionScore(b);
+    if (scoreA !== scoreB) return scoreB - scoreA; // 高分優先
+    // 若分數相同，保持原始順序
+    return ASURA_CORE_IMPRESSIONS.indexOf(a) - ASURA_CORE_IMPRESSIONS.indexOf(b);
+  });
+
+  return sorted.slice(0, count);
 }
 
 export default function GhostAsuraHomeEntry() {
@@ -177,10 +231,14 @@ export default function GhostAsuraHomeEntry() {
           <button
             type="button"
             className={`${styles.gridItem} ${selectedImpression === null || selectedImpression === featuredImpression.title ? styles.active : ''} ${selectedImpression === featuredImpression.title ? styles.clicked : ''}`}
-            onMouseEnter={() => setHoveredSecondary(null)}
+            onMouseEnter={() => {
+              setHoveredSecondary(null);
+              trackInteraction(featuredImpression.title, 'hover');
+            }}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
+              trackInteraction(featuredImpression.title, 'click');
               setSelectedImpression(featuredImpression.title);
             }}
             title={featuredImpression.backstory || featuredImpression.title}
@@ -195,10 +253,14 @@ export default function GhostAsuraHomeEntry() {
               key={imp.title}
               type="button"
               className={`${styles.gridItem} ${selectedImpression === imp.title ? styles.active : ''} ${selectedImpression === imp.title ? styles.clicked : ''}`}
-              onMouseEnter={() => setHoveredSecondary(imp.title)}
+              onMouseEnter={() => {
+                setHoveredSecondary(imp.title);
+                trackInteraction(imp.title, 'hover');
+              }}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                trackInteraction(imp.title, 'click');
                 setSelectedImpression(imp.title);
               }}
               title={imp.backstory || imp.title}
