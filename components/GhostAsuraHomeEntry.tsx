@@ -159,10 +159,46 @@ export default function GhostAsuraHomeEntry() {
           ))}
         </div>
 
-        {/* 印記完整描述 */}
+        {/* 印記完整描述 + 功能層擴展 */}
         <div className={`${styles.descriptionBox} ${selectedImpression || hoveredSecondary ? styles.show : ''}`}>
-          <p className={styles.descriptionTitle}><HomeTranslatedText text={displayedImpression.title} /></p>
+          <div className={styles.descriptionHeader}>
+            <p className={styles.descriptionTitle}><HomeTranslatedText text={displayedImpression.title} /></p>
+            <span className={`${styles.statusBadge} ${displayedImpression.status === '力量覺醒' ? styles.awakened : styles.dormant}`}>
+              <HomeTranslatedText text={displayedImpression.status} />
+            </span>
+          </div>
           <p className={styles.descriptionText}><HomeTranslatedText text={displayedImpression.description} /></p>
+
+          {/* 功能特性預覽 */}
+          <div className={styles.featurePreview}>
+            <div className={styles.featureItem}>
+              <span className={styles.featureIcon}>⚔️</span>
+              <span className={styles.featureLabel}><HomeTranslatedText text="法術特性" /></span>
+            </div>
+            <div className={styles.featureItem}>
+              <span className={styles.featureIcon}>📊</span>
+              <span className={styles.featureLabel}><HomeTranslatedText text="命盤影響" /></span>
+            </div>
+            <div className={styles.featureItem}>
+              <span className={styles.featureIcon}>🎯</span>
+              <span className={styles.featureLabel}><HomeTranslatedText text="轉化方式" /></span>
+            </div>
+          </div>
+
+          {/* 快速行動按鈕 */}
+          <button
+            type="button"
+            className={styles.learnMoreBtn}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              window.location.href = '/ghost-asura';
+            }}
+            aria-label={`深入了解 ${displayedImpression.title}`}
+          >
+            <HomeTranslatedText text="深入解析此印記" />
+            <span aria-hidden="true">→</span>
+          </button>
         </div>
       </div>
 
