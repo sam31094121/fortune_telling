@@ -27,7 +27,7 @@ console.log(`✅ ${sessionSecret}\n`);
 // ========== 步驟 2：提示用户配置 ==========
 console.log('⚙️  需要配置的環境變數：\n');
 console.log('1. ADMIN_MASTER_PASSWORD');
-console.log('   ➜ 設定為：A7k9$Lm2@Qx8Pn\n');
+console.log('   ➜ 設定為：630828\n');
 
 console.log('2. ADMIN_SESSION_SECRET（已生成）');
 console.log(`   ➜ ${sessionSecret}\n`);
@@ -50,7 +50,7 @@ if (existsSync(ENV_FILE)) {
 // ========== 步驟 4：生成配置片段 ==========
 const adminConfig = `
 # ========== 管理員認證 ==========
-ADMIN_MASTER_PASSWORD=A7k9$Lm2@Qx8Pn
+ADMIN_MASTER_PASSWORD=630828
 ADMIN_SESSION_SECRET=${sessionSecret}
 # ⚠️ IMPORTANT: 替換為你的 IP 地址（訪問 /api/admin/ip-check 查詢）
 ADMIN_AUTHORIZED_IPS=YOUR_IP_ADDRESS_HERE
