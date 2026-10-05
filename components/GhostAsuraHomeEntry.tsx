@@ -12,6 +12,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import HomeTranslatedText from '@/components/HomeTranslatedText';
 import { stableHash } from '@/features/ghost-asura/language';
@@ -51,22 +52,60 @@ function getSecondaryImpressions(featured: AsuraImpression, count: number = 4): 
 export default function GhostAsuraHomeEntry() {
   const featuredImpression = useMemo(() => pickStableFeaturedImpression(), []);
   const secondaryImpressions = useMemo(() => getSecondaryImpressions(featuredImpression, 4), [featuredImpression]);
+  const [selectedImpression, setSelectedImpression] = useState<string | null>(null);
   const [hoveredSecondary, setHoveredSecondary] = useState<string | null>(null);
+  const gridRef = React.useRef<HTMLDivElement>(null);
 
-  const displayedImpression = hoveredSecondary
-    ? ASURA_CORE_IMPRESSIONS.find(imp => imp.title === hoveredSecondary) || featuredImpression
-    : featuredImpression;
+  const displayedImpression = selectedImpression
+    ? ASURA_CORE_IMPRESSIONS.find(imp => imp.title === selectedImpression) || featuredImpression
+    : hoveredSecondary
+      ? ASURA_CORE_IMPRESSIONS.find(imp => imp.title === hoveredSecondary) || featuredImpression
+      : featuredImpression;
+
+  // 鍵盤導航（↑↓←→）
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+
+      const allImpressions = [featuredImpression, ...secondaryImpressions];
+      const currentIndex = selectedImpression
+        ? allImpressions.findIndex(imp => imp.title === selectedImpression)
+        : 0;
+
+      let nextIndex = currentIndex;
+      const itemsPerRow = 5;
+
+      if (e.key === 'ArrowRight') {
+        nextIndex = (currentIndex + 1) % allImpressions.length;
+      } else if (e.key === 'ArrowLeft') {
+        nextIndex = (currentIndex - 1 + allImpressions.length) % allImpressions.length;
+      } else if (e.key === 'ArrowDown') {
+        nextIndex = Math.min(currentIndex + itemsPerRow, allImpressions.length - 1);
+      } else if (e.key === 'ArrowUp') {
+        nextIndex = Math.max(currentIndex - itemsPerRow, 0);
+      }
+
+      setSelectedImpression(allImpressions[nextIndex].title);
+    }
+  };
 
   return (
-    <Link
-      href="/ghost-asura"
-      className={`${styles.entry} home-feature-launch home-feature-tier-primary order-9 w-full`}
-      data-card-type="ghost-asura-home-entry"
-      aria-label="鬼魅阿修羅｜開啟阿修羅秘卷"
-      onClick={(e) => {
-        if (hoveredSecondary) e.preventDefault();
-      }}
+    <div
+      className={styles.wrapper}
+      onKeyDown={handleKeyDown}
+      role="region"
+      aria-label="鬼魅阿修羅主頁卡片"
+      tabIndex={0}
     >
+      <Link
+        href="/ghost-asura"
+        className={`${styles.entry} home-feature-launch home-feature-tier-primary order-9 w-full`}
+        data-card-type="ghost-asura-home-entry"
+        aria-label="鬼魅阿修羅｜開啟阿修羅秘卷"
+        onClick={(e) => {
+          if (selectedImpression || hoveredSecondary) e.preventDefault();
+        }}
+      >
       <div className={styles.content}>
         <span className={styles.emblem} aria-hidden="true">修</span>
         <div className={styles.copy}>
@@ -80,18 +119,22 @@ export default function GhostAsuraHomeEntry() {
       </div>
 
       {/* 核心印記快速預覽網格 */}
-      <div className={styles.impressionGrid}>
+      <div className={styles.impressionGrid} ref={gridRef}>
         <div className={styles.gridLabel}>
           <HomeTranslatedText text="核心印記" />
         </div>
-        <div className={styles.gridContainer}>
+        <div className={styles.gridContainer} role="group" aria-label="核心印記選擇">
           <button
             type="button"
-            className={`${styles.gridItem} ${hoveredSecondary === null ? styles.active : ''}`}
+            className={`${styles.gridItem} ${selectedImpression === null || selectedImpression === featuredImpression.title ? styles.active : ''} ${selectedImpression === featuredImpression.title ? styles.clicked : ''}`}
             onMouseEnter={() => setHoveredSecondary(null)}
-            onClick={(e) => e.preventDefault()}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setSelectedImpression(featuredImpression.title);
+            }}
             title={featuredImpression.title}
-            aria-label={`切換至 ${featuredImpression.title}`}
+            aria-label={`選擇 ${featuredImpression.title}`}
           >
             <span className={styles.gridTitle}>{featuredImpression.title.slice(0, 3)}</span>
             <span className={styles.gridStatus}>{featuredImpression.status}</span>
@@ -100,16 +143,26 @@ export default function GhostAsuraHomeEntry() {
             <button
               key={imp.title}
               type="button"
-              className={`${styles.gridItem} ${hoveredSecondary === imp.title ? styles.active : ''}`}
+              className={`${styles.gridItem} ${selectedImpression === imp.title ? styles.active : ''} ${selectedImpression === imp.title ? styles.clicked : ''}`}
               onMouseEnter={() => setHoveredSecondary(imp.title)}
-              onClick={(e) => e.preventDefault()}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setSelectedImpression(imp.title);
+              }}
               title={imp.title}
-              aria-label={`切換至 ${imp.title}`}
+              aria-label={`選擇 ${imp.title}`}
             >
               <span className={styles.gridTitle}>{imp.title.slice(0, 3)}</span>
               <span className={styles.gridStatus}>{imp.status}</span>
             </button>
           ))}
+        </div>
+
+        {/* 印記完整描述 */}
+        <div className={`${styles.descriptionBox} ${selectedImpression || hoveredSecondary ? styles.show : ''}`}>
+          <p className={styles.descriptionTitle}><HomeTranslatedText text={displayedImpression.title} /></p>
+          <p className={styles.descriptionText}><HomeTranslatedText text={displayedImpression.description} /></p>
         </div>
       </div>
 
@@ -121,6 +174,7 @@ export default function GhostAsuraHomeEntry() {
       <div className={`${styles.cta} home-feature-cta`}>
         <HomeTranslatedText text="立即解盤" /><span aria-hidden="true">→</span>
       </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
