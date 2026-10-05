@@ -3,11 +3,15 @@
  *
  * 視覺：深黑墨色、金屬邊、少量暗紅；手機優先。
  * 連結：/ghost-asura（獨立解盤頁，非 dual-chart 附屬分頁）。
+ *
+ * 功能法術融入 · 2026-10-05：核心印記多層展示
+ * - 主要印記：featured 印記完整展示
+ * - 次要印記：網格快速預覽（點擊快速瀏覽）
  */
 
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import HomeTranslatedText from '@/components/HomeTranslatedText';
 import { stableHash } from '@/features/ghost-asura/language';
@@ -38,8 +42,20 @@ function pickStableFeaturedImpression(): AsuraImpression {
   return ASURA_CORE_IMPRESSIONS[seed % ASURA_CORE_IMPRESSIONS.length];
 }
 
+/** 取得次要印記（featured 除外） */
+function getSecondaryImpressions(featured: AsuraImpression, count: number = 4): AsuraImpression[] {
+  const others = ASURA_CORE_IMPRESSIONS.filter(imp => imp.title !== featured.title);
+  return others.slice(0, count);
+}
+
 export default function GhostAsuraHomeEntry() {
   const featuredImpression = useMemo(() => pickStableFeaturedImpression(), []);
+  const secondaryImpressions = useMemo(() => getSecondaryImpressions(featuredImpression, 4), [featuredImpression]);
+  const [hoveredSecondary, setHoveredSecondary] = useState<string | null>(null);
+
+  const displayedImpression = hoveredSecondary
+    ? ASURA_CORE_IMPRESSIONS.find(imp => imp.title === hoveredSecondary) || featuredImpression
+    : featuredImpression;
 
   return (
     <Link
@@ -47,6 +63,9 @@ export default function GhostAsuraHomeEntry() {
       className={`${styles.entry} home-feature-launch home-feature-tier-primary order-9 w-full`}
       data-card-type="ghost-asura-home-entry"
       aria-label="鬼魅阿修羅｜開啟阿修羅秘卷"
+      onClick={(e) => {
+        if (hoveredSecondary) e.preventDefault();
+      }}
     >
       <div className={styles.content}>
         <span className={styles.emblem} aria-hidden="true">修</span>
@@ -54,9 +73,46 @@ export default function GhostAsuraHomeEntry() {
           <span className={styles.eyebrow}><HomeTranslatedText text="本命阿修羅 · 四柱隱影解盤" /></span>
           <h2 className={brandStyles.brush} data-asura-brand-title><HomeTranslatedText text="鬼魅阿修羅" /></h2>
           <p><HomeTranslatedText text="剖析四柱陰影、隱性衝突與內在力量。找到駕馭自己的方式。" /></p>
-          <p className={styles.impression}><HomeTranslatedText text={`印記示意：${featuredImpression.title}`} /></p>
+          <p className={styles.impression}>
+            <HomeTranslatedText text={`印記示意：${displayedImpression.title}`} />
+          </p>
         </div>
       </div>
+
+      {/* 核心印記快速預覽網格 */}
+      <div className={styles.impressionGrid}>
+        <div className={styles.gridLabel}>
+          <HomeTranslatedText text="核心印記" />
+        </div>
+        <div className={styles.gridContainer}>
+          <button
+            type="button"
+            className={`${styles.gridItem} ${hoveredSecondary === null ? styles.active : ''}`}
+            onMouseEnter={() => setHoveredSecondary(null)}
+            onClick={(e) => e.preventDefault()}
+            title={featuredImpression.title}
+            aria-label={`切換至 ${featuredImpression.title}`}
+          >
+            <span className={styles.gridTitle}>{featuredImpression.title.slice(0, 3)}</span>
+            <span className={styles.gridStatus}>{featuredImpression.status}</span>
+          </button>
+          {secondaryImpressions.map((imp) => (
+            <button
+              key={imp.title}
+              type="button"
+              className={`${styles.gridItem} ${hoveredSecondary === imp.title ? styles.active : ''}`}
+              onMouseEnter={() => setHoveredSecondary(imp.title)}
+              onClick={(e) => e.preventDefault()}
+              title={imp.title}
+              aria-label={`切換至 ${imp.title}`}
+            >
+              <span className={styles.gridTitle}>{imp.title.slice(0, 3)}</span>
+              <span className={styles.gridStatus}>{imp.status}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className={styles.meta}>
         <span><HomeTranslatedText text="免費" /></span>
         <span><HomeTranslatedText text="3 分鐘" /></span>

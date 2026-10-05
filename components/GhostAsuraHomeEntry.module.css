@@ -57,9 +57,91 @@
   .entry.entry:hover { border-color: #e5bd91; }
   .entry.entry:hover .cta { background: #4a2d35; }
 }
+.impressionGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gridLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: #d3b29c;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.gridItem {
+  all: unset;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 8px;
+  min-height: 60px;
+  border: 1px solid #73505a;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #2a1820, #1a0f18);
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.gridItem:hover {
+  border-color: #a27670;
+  background: linear-gradient(145deg, #3a2830, #2a1a28);
+}
+
+.gridItem.active {
+  border-color: #e5bd91;
+  background: linear-gradient(145deg, #4b3338, #3a2530);
+  box-shadow: 0 0 12px #e5bd9133;
+}
+
+.gridTitle {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #f1cba9;
+  line-height: 1.2;
+}
+
+.gridStatus {
+  display: block;
+  font-size: 9px;
+  color: #d8bcb1;
+  opacity: 0.7;
+  line-height: 1.2;
+}
+
 @media (max-width: 639px) {
   .entry.entry { padding: 16px !important; gap: 12px !important; }
   .content { align-items: flex-start; gap: 14px; }
   .emblem { width: 48px; height: 48px; border-radius: 13px; font-size: 24px; }
   .entry.entry h2 { font-size: 30px !important; line-height: 1.3 !important; }
+
+  .gridContainer {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+  }
+
+  .gridItem {
+    padding: 8px 6px;
+    min-height: 54px;
+  }
+
+  .gridTitle {
+    font-size: 11px;
+  }
+
+  .gridStatus {
+    font-size: 8px;
+  }
 }
