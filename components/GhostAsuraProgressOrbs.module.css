@@ -95,13 +95,39 @@
 }
 
 .orbWrapper.unlocked:hover .orb {
-  transform: scale(1.15);
+  transform: scale(1.12);
   filter: brightness(1.2);
 }
 
 .orbWrapper.sealed:hover .orb {
   transform: scale(1.05);
   filter: brightness(0.6);
+}
+
+/* 五元素完成狀態 - 色彩漸進 */
+.progressStep:nth-child(1) .orbWrapper.unlocked .orb {
+  background: radial-gradient(circle at 30% 30%, rgba(127, 216, 190, 0.3), currentColor);
+  color: #7FD8BE;
+}
+
+.progressStep:nth-child(2) .orbWrapper.unlocked .orb {
+  background: radial-gradient(circle at 30% 30%, rgba(155, 107, 168, 0.3), currentColor);
+  color: #9B6BA8;
+}
+
+.progressStep:nth-child(3) .orbWrapper.unlocked .orb {
+  background: radial-gradient(circle at 30% 30%, rgba(255, 215, 0, 0.3), currentColor);
+  color: #FFD700;
+}
+
+.progressStep:nth-child(4) .orbWrapper.unlocked .orb {
+  background: radial-gradient(circle at 30% 30%, rgba(255, 143, 163, 0.3), currentColor);
+  color: #FF8FA3;
+}
+
+.progressStep:nth-child(5) .orbWrapper.unlocked .orb {
+  background: radial-gradient(circle at 30% 30%, rgba(124, 159, 216, 0.3), currentColor);
+  color: #7C9FD8;
 }
 
 /* 寶珠內容 */
@@ -262,6 +288,84 @@
 
 .progressConnector.inactive {
   opacity: 0.4;
+}
+
+/* 五元素進度著色 */
+.progressStep:nth-child(1) { --element-color: #7FD8BE; --element-name: '風'; }
+.progressStep:nth-child(2) { --element-color: #9B6BA8; --element-name: '空'; }
+.progressStep:nth-child(3) { --element-color: #FFD700; --element-name: '光'; }
+.progressStep:nth-child(4) { --element-color: #FF8FA3; --element-name: '心'; }
+.progressStep:nth-child(5) { --element-color: #7C9FD8; --element-name: '靈'; }
+
+/* 進度步驟 - 元素色彩著色 */
+.progressStep .orb {
+  box-shadow:
+    0 0 12px rgba(255, 255, 255, 0.2),
+    inset 0 1px 3px rgba(255, 255, 255, 0.15),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.progressStep:nth-child(1) .orb {
+  border-color: #7FD8BE;
+  box-shadow:
+    0 0 12px rgba(127, 216, 190, 0.3),
+    inset 0 1px 3px rgba(127, 216, 190, 0.15),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.3),
+    0 4px 12px rgba(127, 216, 190, 0.15);
+}
+
+.progressStep:nth-child(2) .orb {
+  border-color: #9B6BA8;
+  box-shadow:
+    0 0 12px rgba(155, 107, 168, 0.3),
+    inset 0 1px 3px rgba(155, 107, 168, 0.15),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.3),
+    0 4px 12px rgba(155, 107, 168, 0.15);
+}
+
+.progressStep:nth-child(3) .orb {
+  border-color: #FFD700;
+  box-shadow:
+    0 0 16px rgba(255, 215, 0, 0.4),
+    inset 0 1px 3px rgba(255, 215, 0, 0.2),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.3),
+    0 4px 12px rgba(255, 215, 0, 0.25);
+}
+
+.progressStep:nth-child(4) .orb {
+  border-color: #FF8FA3;
+  box-shadow:
+    0 0 12px rgba(255, 143, 163, 0.3),
+    inset 0 1px 3px rgba(255, 143, 163, 0.15),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.3),
+    0 4px 12px rgba(255, 143, 163, 0.15);
+}
+
+.progressStep:nth-child(5) .orb {
+  border-color: #7C9FD8;
+  box-shadow:
+    0 0 12px rgba(124, 159, 216, 0.3),
+    inset 0 1px 3px rgba(124, 159, 216, 0.15),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.3),
+    0 4px 12px rgba(124, 159, 216, 0.15);
+}
+
+/* 進度連接線 - 五元素漸進 */
+.progressStep:nth-child(1) .progressConnector {
+  background: linear-gradient(90deg, #7FD8BE, #9B6BA8);
+}
+
+.progressStep:nth-child(2) .progressConnector {
+  background: linear-gradient(90deg, #9B6BA8, #FFD700);
+}
+
+.progressStep:nth-child(3) .progressConnector {
+  background: linear-gradient(90deg, #FFD700, #FF8FA3);
+}
+
+.progressStep:nth-child(4) .progressConnector {
+  background: linear-gradient(90deg, #FF8FA3, #7C9FD8);
 }
 
 /* 進度摘要 */
