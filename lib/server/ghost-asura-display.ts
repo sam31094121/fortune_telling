@@ -268,7 +268,8 @@ export function toAsuraDisplay(
   const dormantSeals = restOf('dormant');
   const pendingSeals = restOf('pending');
   const rest: AsuraDisplayRestGroup[] = [
-    { key: 'dormant' as const, heading: `沉眠印記（${dormantSeals.length}項）`, note: '本次無落印柱位', seals: dormantSeals },
+    // 沉眠印記已隱藏（2026-10-06）
+    // { key: 'dormant' as const, heading: `沉眠印記（${dormantSeals.length}項）`, note: '本次無落印柱位', seals: dormantSeals },
     { key: 'pending' as const, heading: `待校核印記（${pendingSeals.length}項）`, note: '印記待校核', seals: pendingSeals },
   ].filter((group) => group.seals.length > 0);
 
@@ -296,7 +297,8 @@ export function toAsuraDisplay(
         ? `覺醒的 ${reading.awakenedCount} 種，依所在位置列在上方四柱清單。其中 ${multiPlaceKinds} 種同時落在不只一處，所以清單共列 ${columnRows} 處，但仍是 ${reading.awakenedCount} 種，不是 ${columnRows} 種。`
         : `覺醒的 ${reading.awakenedCount} 種，依所在位置列在上方四柱清單，每種只落在一處。`
       : '',
-    reading.dormantCount > 0 ? `沉眠的 ${reading.dormantCount} 種沒有落在任何位置，列在「沉眠印記」，點開可逐項查看。` : '',
+    // 沉眠印記說明已隱藏（2026-10-06）
+    // reading.dormantCount > 0 ? `沉眠的 ${reading.dormantCount} 種沒有落在任何位置，列在「沉眠印記」，點開可逐項查看。` : '',
     reading.pendingCount > 0 ? `待校核的 ${reading.pendingCount} 種還不能確定有沒有出現，列在「待校核印記」。` : '',
   ].filter(Boolean);
   const statsHint = statsLines.join('');

@@ -367,7 +367,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
         </div>
       </div>
 
-      {display.rest.map((group) => (
+      {display.rest.filter((group) => group.key !== 'dormant').map((group) => (
         <details
           key={group.key}
           id={`asura-rest-${group.key}`}
