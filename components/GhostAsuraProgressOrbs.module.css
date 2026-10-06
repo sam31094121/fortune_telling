@@ -6,19 +6,26 @@
   gap: 20px;
 }
 
-/* 寶珠序列 */
+/* 寶珠序列 — 3D 透視容器 */
 .orbSequence {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 4px;
   padding: 20px;
-  background: linear-gradient(135deg, rgba(45, 20, 35, 0.3), rgba(61, 30, 41, 0.2));
+  background:
+    linear-gradient(135deg, rgba(45, 20, 35, 0.3), rgba(61, 30, 41, 0.2)),
+    radial-gradient(circle at 50% 0%, rgba(127, 216, 190, 0.05), transparent 60%);
   border-radius: 12px;
   border: 1px solid rgba(162, 118, 112, 0.2);
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.05),
+    inset 0 0 20px rgba(127, 216, 190, 0.05);
 }
 
-/* 進度步驟 */
+/* 進度步驟 — 3D 立體布局 */
 .progressStep {
   display: flex;
   flex-direction: column;
@@ -26,13 +33,32 @@
   flex: 1;
   position: relative;
   gap: 12px;
+  perspective: 1000px;
+  transition: transform 300ms ease-out;
+}
+
+.progressStep:nth-child(1) { animation: stepReveal3D 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 0ms; }
+.progressStep:nth-child(2) { animation: stepReveal3D 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 100ms; }
+.progressStep:nth-child(3) { animation: stepReveal3D 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 200ms; }
+.progressStep:nth-child(4) { animation: stepReveal3D 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 300ms; }
+.progressStep:nth-child(5) { animation: stepReveal3D 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 400ms; }
+
+@keyframes stepReveal3D {
+  from {
+    opacity: 0;
+    transform: translateY(12px) rotateX(-20deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotateX(0);
+  }
 }
 
 .progressStep:last-child .progressConnector {
   display: none;
 }
 
-/* 寶珠包裝器 */
+/* 寶珠包裝器 — 3D 立體 */
 .orbWrapper {
   position: relative;
   width: 80px;
@@ -40,17 +66,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  perspective: 800px;
+  will-change: transform, filter;
+  transition: transform 300ms ease-out, filter 300ms ease-out;
 }
 
 .orbWrapper.sealed {
-  filter: grayscale(1) brightness(0.5) contrast(0.8);
-  opacity: 0.7;
+  filter: grayscale(1) brightness(0.4) contrast(0.7);
+  opacity: 0.6;
+  transform: translateY(2px) scale(0.95);
 }
 
 .orbWrapper.unlocked {
-  animation: orbUnlock 800ms cubic-bezier(0.34, 1.56, 0.64, 1);
-  filter: brightness(1.1);
+  animation: orbUnlock 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: brightness(1.15) saturate(1.1);
   opacity: 1;
+  transform: translateY(-2px);
+}
+
+.orbWrapper.unlocked:hover {
+  transform: translateY(-4px) scale(1.08);
+  filter: brightness(1.25) saturate(1.2);
 }
 
 @keyframes orbUnlock {
@@ -68,7 +104,7 @@
   }
 }
 
-/* 寶珠本體 */
+/* 寶珠本體 — 3D 深度感 */
 .orb {
   width: 100%;
   height: 100%;
@@ -79,9 +115,13 @@
   justify-content: center;
   position: relative;
   overflow: hidden;
-  transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
   backdrop-filter: blur(4px);
+  transform-style: preserve-3d;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+    0 8px 16px -4px rgba(0, 0, 0, 0.4);
 }
 
 .orbWrapper.sealed .orb {
@@ -104,30 +144,55 @@
   filter: brightness(0.6);
 }
 
-/* 五元素完成狀態 - 色彩漸進 */
+/* 五元素完成狀態 - 3D 立體色彩漸進 */
 .progressStep:nth-child(1) .orbWrapper.unlocked .orb {
-  background: radial-gradient(circle at 30% 30%, rgba(127, 216, 190, 0.3), currentColor);
+  background: radial-gradient(circle at 30% 30%, rgba(127, 216, 190, 0.4), rgba(60, 140, 110, 0.9));
   color: #7FD8BE;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+    0 8px 16px -4px rgba(127, 216, 190, 0.35),
+    inset 0 1px 4px rgba(127, 216, 190, 0.2),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .progressStep:nth-child(2) .orbWrapper.unlocked .orb {
-  background: radial-gradient(circle at 30% 30%, rgba(155, 107, 168, 0.3), currentColor);
+  background: radial-gradient(circle at 30% 30%, rgba(155, 107, 168, 0.4), rgba(100, 60, 120, 0.9));
   color: #9B6BA8;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+    0 8px 16px -4px rgba(155, 107, 168, 0.35),
+    inset 0 1px 4px rgba(155, 107, 168, 0.2),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .progressStep:nth-child(3) .orbWrapper.unlocked .orb {
-  background: radial-gradient(circle at 30% 30%, rgba(255, 215, 0, 0.3), currentColor);
+  background: radial-gradient(circle at 30% 30%, rgba(255, 215, 0, 0.5), rgba(180, 140, 0, 0.95));
   color: #FFD700;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.15) inset,
+    0 8px 16px -4px rgba(255, 215, 0, 0.45),
+    inset 0 1px 4px rgba(255, 215, 0, 0.3),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.4);
 }
 
 .progressStep:nth-child(4) .orbWrapper.unlocked .orb {
-  background: radial-gradient(circle at 30% 30%, rgba(255, 143, 163, 0.3), currentColor);
+  background: radial-gradient(circle at 30% 30%, rgba(255, 143, 163, 0.4), rgba(180, 80, 110, 0.9));
   color: #FF8FA3;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+    0 8px 16px -4px rgba(255, 143, 163, 0.35),
+    inset 0 1px 4px rgba(255, 143, 163, 0.2),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .progressStep:nth-child(5) .orbWrapper.unlocked .orb {
-  background: radial-gradient(circle at 30% 30%, rgba(124, 159, 216, 0.3), currentColor);
+  background: radial-gradient(circle at 30% 30%, rgba(124, 159, 216, 0.4), rgba(70, 110, 160, 0.9));
   color: #7C9FD8;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+    0 8px 16px -4px rgba(124, 159, 216, 0.35),
+    inset 0 1px 4px rgba(124, 159, 216, 0.2),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* 寶珠內容 */
@@ -351,21 +416,37 @@
     0 4px 12px rgba(124, 159, 216, 0.15);
 }
 
-/* 進度連接線 - 五元素漸進 */
+/* 進度連接線 — 3D 立體漸進 */
 .progressStep:nth-child(1) .progressConnector {
   background: linear-gradient(90deg, #7FD8BE, #9B6BA8);
+  box-shadow:
+    0 0 8px rgba(127, 216, 190, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 .progressStep:nth-child(2) .progressConnector {
   background: linear-gradient(90deg, #9B6BA8, #FFD700);
+  box-shadow:
+    0 0 8px rgba(155, 107, 168, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 .progressStep:nth-child(3) .progressConnector {
   background: linear-gradient(90deg, #FFD700, #FF8FA3);
+  box-shadow:
+    0 0 10px rgba(255, 215, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 .progressStep:nth-child(4) .progressConnector {
   background: linear-gradient(90deg, #FF8FA3, #7C9FD8);
+  box-shadow:
+    0 0 8px rgba(255, 143, 163, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 /* 進度摘要 */
