@@ -1,11 +1,12 @@
 'use client';
-import { monotonicCount } from '@/lib/trust-counter-floors';
+import { HOME_TRUST_FLOORS, monotonicCount } from '@/lib/trust-counter-floors';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // 米其林穩定化：使用新的 home-trust API（後端直接管理數值）
-const LIKE_INITIAL_COUNT = 714;
-const SUGGESTION_INITIAL_COUNT = 74;
+// 地板值單一來源：lib/trust-counter-floors.ts（資料庫遷移的 CHECK 地板必須一致）。
+const LIKE_INITIAL_COUNT = HOME_TRUST_FLOORS.agree;
+const SUGGESTION_INITIAL_COUNT = HOME_TRUST_FLOORS.disagree;
 const DEVICE_ID_KEY = 'taiji_ai_feedback_device_id_v1';
 const LEGACY_LIKE_DEVICE_ID_KEY = 'taiji_ai_like_device_id_v1';
 const LEGACY_SUGGESTION_DEVICE_ID_KEY = 'taiji_ai_suggestion_device_id_v1';
@@ -229,9 +230,11 @@ async function postFeedbackEvent(endpoint: string, eventId: string, options: { a
         timeoutId = window.setTimeout(() => controller.abort(), FEEDBACK_REQUEST_TIMEOUT_MS);
       }
 
+      // 同一次點擊的所有重試都帶同一個 eventId：伺服器收到重複的只算一次，不同次點擊各算一次。
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId }),
         cache: 'no-store',
         signal: controller?.signal,
       });
@@ -258,7 +261,7 @@ async function postFeedbackEvent(endpoint: string, eventId: string, options: { a
 
   if (options.allowBeacon !== false && typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
     try {
-      if (navigator.sendBeacon(endpoint)) {
+      if (navigator.sendBeacon(endpoint, new Blob([JSON.stringify({ eventId })], { type: 'application/json' }))) {
         return { ok: true, queued: true };
       }
     } catch {
@@ -337,24 +340,45 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
     commitImproveCount(readStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, SUGGESTION_INITIAL_COUNT));
 
     let active = true;
+    let controller: AbortController | null = null;
 
-    fetch('/api/home-trust', { cache: 'no-store' })
-      .then((response) => response.json())
-      .then((data: CounterResponse) => {
-        if (!active) return;
-        if (data?.ok) {
-          if (typeof data.agreeCount === 'number') {
-            commitLikeCount(data.agreeCount);
-          }
-          if (typeof data.disagreeCount === 'number') {
-            commitImproveCount(data.disagreeCount);
-          }
+    async function refreshCounters() {
+      if (!active) return;
+
+      controller?.abort();
+      controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+
+      try {
+        const response = await fetch('/api/home-trust', { cache: 'no-store', signal: controller?.signal });
+        const data = (await response.json()) as CounterResponse;
+        if (!active || !data?.ok) return;
+
+        if (typeof data.agreeCount === 'number') {
+          commitLikeCount(data.agreeCount);
         }
-      })
-      .catch(() => undefined);
+        if (typeof data.disagreeCount === 'number') {
+          commitImproveCount(data.disagreeCount);
+        }
+      } catch {
+        // 取不到就保留畫面上目前的數字：不顯示 0、不倒退。
+      }
+    }
+
+    function refreshWhenVisible() {
+      if (document.visibilityState === 'visible') void refreshCounters();
+    }
+
+    void refreshCounters();
+    window.addEventListener('focus', refreshCounters);
+    window.addEventListener('online', refreshCounters);
+    document.addEventListener('visibilitychange', refreshWhenVisible);
 
     return () => {
       active = false;
+      controller?.abort();
+      window.removeEventListener('focus', refreshCounters);
+      window.removeEventListener('online', refreshCounters);
+      document.removeEventListener('visibilitychange', refreshWhenVisible);
     };
   }, [commitImproveCount, commitLikeCount]);
 

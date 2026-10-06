@@ -7,6 +7,13 @@ export const HOME_VISITOR_FLOOR = 110128;
 export const AI_LIKE_FLOOR = 356;
 export const AI_SUGGESTION_FLOOR = 36;
 
+/**
+ * 首頁信任區（認同／不認同／累計瀏覽次數）的初始地板——業主規格 INITIAL_FLOOR。
+ * 只在資料庫第一次建立時作基準；之後以資料庫為準，絕不用它覆蓋更高的正式數字。
+ * 資料庫遷移（supabase/migrations/20261006170000_*.sql）的 CHECK 地板與種子值必須與此一致。
+ */
+export const HOME_TRUST_FLOORS = { agree: 714, disagree: 74, view: 110397 } as const;
+
 export const VISITOR_FEATURE_FLOORS: Record<string, number> = {
   home: HOME_VISITOR_FLOOR,
   personality: 0,

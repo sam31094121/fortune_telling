@@ -31,6 +31,7 @@ async function run(file, outcome, buttonIndex = 0) {
       if (name === 'react/jsx-runtime') return { jsx, jsxs: jsx };
       if (name === '@/lib/trust-counter-floors') return {
         AI_LIKE_FLOOR: 356, AI_SUGGESTION_FLOOR: 36,
+        HOME_TRUST_FLOORS: { agree: 714, disagree: 74, view: 110397 },
         monotonicCount: (...values) => Math.max(0, ...values),
       };
       throw new Error(`Unexpected dependency: ${name}`);
@@ -45,7 +46,7 @@ async function run(file, outcome, buttonIndex = 0) {
     AbortController, Blob,
     fetch: async () => {
       if (outcome === 'failed' || outcome === 'queued') throw new Error('offline');
-      return { ok: true, json: async () => ({ ok: true, totalCount: 500, didLike: true, didSend: true }) };
+      return { ok: true, json: async () => ({ ok: true, totalCount: 500, agreeCount: 800, disagreeCount: 90, viewCount: 110500, applied: true, didLike: true, didSend: true }) };
     },
   });
   const tree = module.exports.default({});
@@ -75,9 +76,14 @@ async function run(file, outcome, buttonIndex = 0) {
   const failedLike = await run('components/AiLikeFeedback.tsx', 'failed');
   assert.equal(failedLike.states[0], failedLike.before[0]);
   assert.equal(failedLike.states[1], false);
-  for (const file of ['components/AiTrustFeedback.tsx', 'components/AiLikeFeedback.tsx']) {
+  // 首頁信任區讀新 API 的 agreeCount（地板 714，所以用 800 驗證）；AiLikeFeedback 仍讀 totalCount。
+  for (const [file, expected] of [['components/AiTrustFeedback.tsx', 800], ['components/AiLikeFeedback.tsx', 500]]) {
     const result = await run(file, 'confirmed');
-    assert.equal(result.states[0], 500, 'display the acknowledged server total, without adding another vote');
+    assert.equal(result.states[0], expected, 'display the acknowledged server total, without adding another vote');
   }
+  // 不認同按鈕：確認後顯示伺服器回的 disagreeCount，認同數不動。
+  const dislike = await run('components/AiTrustFeedback.tsx', 'confirmed', 1);
+  assert.equal(dislike.states[1], 90, 'dislike shows the acknowledged server total');
+  assert.equal(dislike.states[0], dislike.before[0], 'dislike must not change the like count');
   console.log('PASS: real feedback handlers preserve totals on failure and queued delivery, and display only acknowledged increments');
 })().catch(error => { console.error(error); process.exitCode = 1; });

@@ -308,9 +308,10 @@ export default function FeatureVisitorCounter({
           signal: controller.signal,
         };
 
-        if (!isHomePage) {
-          options.body = JSON.stringify({ featureKey, visitId: visitId.current });
-        }
+        // 首頁瀏覽也帶事件編號：重送或重複觸發時伺服器只算一次。
+        options.body = JSON.stringify(
+          isHomePage ? { eventId: `view_${visitId.current}` } : { featureKey, visitId: visitId.current },
+        );
 
         const response = await fetchVisitorRecord(url, options);
         const data = (await response.json()) as VisitorResponse;
