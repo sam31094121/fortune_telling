@@ -328,8 +328,10 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   border-color: #d4af37;
   background: linear-gradient(135deg, #2b1d24 0%, #362029 100%);
   box-shadow: 0 0 20px rgba(212, 175, 55, 0.25),
-              inset 0 0 15px rgba(212, 175, 55, 0.1);
+              inset 0 0 15px rgba(212, 175, 55, 0.1),
+              0 8px 24px rgba(255, 215, 0, 0.15);
   transform: translateY(-2px) rotateX(5deg);
+  animation: coinFloat 4s ease-in-out infinite, coinGlow 3s ease-in-out infinite;
 }
 
 .itemAwakened:has(details[open])::before {
@@ -987,6 +989,26 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
     opacity: 1;
     transform: rotateX(0) rotateZ(0) translateZ(0);
   }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 金幣 3D 旋轉 — 立體金幣飄浮
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@keyframes coinSpinX {
+  0% { transform: rotateX(0deg) rotateY(0deg); }
+  100% { transform: rotateX(360deg) rotateY(360deg); }
+}
+
+@keyframes coinFloat {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  25% { transform: translateY(-8px) translateX(4px); }
+  50% { transform: translateY(-12px) translateX(0); }
+  75% { transform: translateY(-8px) translateX(-4px); }
+}
+
+@keyframes coinGlow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.4)); }
+  50% { filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.8)); }
 }
 
 @keyframes asuraFnReveal {
