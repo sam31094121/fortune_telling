@@ -70,30 +70,22 @@ export default function GhostAsuraCardComplete({
       {/* ===== 流年三時段 Tab ===== */}
       {activeTab === 'timeline' && timelineData && (
         <div className={styles.tabContent}>
-          {/* 印記統計面板 - 動態讀取 + 功能說明 */}
+          {/* 印記統計面板 - 僅顯示數值 */}
           <div className={styles.statsPanel} data-asura-stats="true">
             <div className={styles.statItem}>
-              <span className={styles.statLabel}>項印記</span>
-              <span className={styles.statValue}>{sealStats.total}</span>
-              <small className={styles.statDesc}>四柱共計的印記種類總數</small>
+              <span className={styles.statValue} title="總計印記">{sealStats.total}</span>
             </div>
             <div className={styles.statItem}>
-              <span className={styles.statLabel}>印記覺醒</span>
-              <span className={styles.statValue} style={{ color: '#ffd700' }}>
+              <span className={styles.statValue} style={{ color: '#ffd700' }} title="印記覺醒">
                 {sealStats.awakened}
               </span>
-              <small className={styles.statDesc}>已發動的力量（四柱顯示）</small>
             </div>
             <div className={styles.statItem}>
-              <span className={styles.statLabel}>印記沉眠</span>
-              <span className={styles.statValue}>{sealStats.dormant}</span>
-              <small className={styles.statDesc}>未啟動的潛力（下方列表）</small>
+              <span className={styles.statValue} title="印記沉眠">{sealStats.dormant}</span>
             </div>
             {sealStats.pending > 0 && (
               <div className={styles.statItem}>
-                <span className={styles.statLabel}>待校核</span>
-                <span className={styles.statValue}>{sealStats.pending}</span>
-                <small className={styles.statDesc}>需驗證的邊界案例</small>
+                <span className={styles.statValue} title="待校核">{sealStats.pending}</span>
               </div>
             )}
           </div>

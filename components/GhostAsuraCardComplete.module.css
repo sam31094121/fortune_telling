@@ -92,6 +92,35 @@
   color: rgba(245, 238, 234, 0.6);
 }
 
+/* ═══════════════ 印記統計面板 ═══════════════ */
+.statsPanel {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.statValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #d4af37;
+  letter-spacing: 1px;
+  min-width: 60px;
+  text-align: center;
+}
+
 /* ═══════════════ 流年三時段網格 ═══════════════ */
 .timelineGrid {
   display: grid;
@@ -226,6 +255,16 @@
   }
 
   .title {
+    font-size: 1.5rem;
+  }
+
+  .statsPanel {
+    gap: 1rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .statValue {
     font-size: 1.5rem;
   }
 
