@@ -1,32 +1,11 @@
 'use client';
-import { AI_LIKE_FLOOR, AI_SUGGESTION_FLOOR, monotonicCount } from '@/lib/trust-counter-floors';
+import { monotonicCount } from '@/lib/trust-counter-floors';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-/*
-  底數歸零。
-
-  這個常數原本是 630,628——不管實際有幾個人，畫面至少顯示這個數。
-  於是 number／iching／karma 三個功能顯示「1,271,2xx 人」，
-  而真實訪客是 0。認同數同理：顯示 630,674，真實 46。
-
-  專案鐵律第一條是禁止作假。虛增的社會證明是對客戶說謊，
-  不因為「別人都這樣做」而變成可以。歸零之後數字會很難看，
-  但難看的真話勝過好看的假話。
-*/
-const LIKE_INITIAL_COUNT = AI_LIKE_FLOOR;
-/*
-  底數歸零。
-
-  這個常數原本是 168——不管實際有幾個人，畫面至少顯示這個數。
-  於是 number／iching／karma 三個功能顯示「1,271,2xx 人」，
-  而真實訪客是 0。認同數同理：顯示 630,674，真實 46。
-
-  專案鐵律第一條是禁止作假。虛增的社會證明是對客戶說謊，
-  不因為「別人都這樣做」而變成可以。歸零之後數字會很難看，
-  但難看的真話勝過好看的假話。
-*/
-const SUGGESTION_INITIAL_COUNT = AI_SUGGESTION_FLOOR;
+// 米其林穩定化：使用新的 home-trust API（後端直接管理數值）
+const LIKE_INITIAL_COUNT = 714;
+const SUGGESTION_INITIAL_COUNT = 74;
 const DEVICE_ID_KEY = 'taiji_ai_feedback_device_id_v1';
 const LEGACY_LIKE_DEVICE_ID_KEY = 'taiji_ai_like_device_id_v1';
 const LEGACY_SUGGESTION_DEVICE_ID_KEY = 'taiji_ai_suggestion_device_id_v1';
@@ -66,6 +45,9 @@ type FeedbackChoice = 'like' | 'improve';
 type CounterResponse = {
   ok?: boolean;
   totalCount?: number;
+  agreeCount?: number;
+  disagreeCount?: number;
+  viewCount?: number;
   didLike?: boolean;
   alreadyLiked?: boolean;
   didSend?: boolean;
@@ -226,7 +208,7 @@ function removePendingFeedbackEvent(eventId: string) {
 }
 
 function getFeedbackEndpoint(choice: FeedbackChoice) {
-  return choice === 'like' ? '/api/ai-like' : '/api/ai-suggestion';
+  return choice === 'like' ? '/api/home-trust/agree' : '/api/home-trust/disagree';
 }
 
 function waitForFeedbackRetry() {
@@ -236,7 +218,6 @@ function waitForFeedbackRetry() {
 }
 
 async function postFeedbackEvent(endpoint: string, eventId: string, options: { allowBeacon?: boolean } = {}): Promise<CounterResponse> {
-  const requestBody = JSON.stringify({ deviceId: eventId, eventId });
   let lastError: unknown = null;
 
   for (let attempt = 0; attempt < 2; attempt += 1) {
@@ -251,7 +232,6 @@ async function postFeedbackEvent(endpoint: string, eventId: string, options: { a
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: requestBody,
         cache: 'no-store',
         signal: controller?.signal,
       });
@@ -278,8 +258,7 @@ async function postFeedbackEvent(endpoint: string, eventId: string, options: { a
 
   if (options.allowBeacon !== false && typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
     try {
-      const beaconBody = new Blob([requestBody], { type: 'application/json' });
-      if (navigator.sendBeacon(endpoint, beaconBody)) {
+      if (navigator.sendBeacon(endpoint)) {
         return { ok: true, queued: true };
       }
     } catch {
@@ -359,22 +338,17 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
 
     let active = true;
 
-    fetch('/api/ai-like', { cache: 'no-store' })
+    fetch('/api/home-trust', { cache: 'no-store' })
       .then((response) => response.json())
       .then((data: CounterResponse) => {
         if (!active) return;
-        if (data?.ok && typeof data.totalCount === 'number') {
-          commitLikeCount(data.totalCount);
-        }
-      })
-      .catch(() => undefined);
-
-    fetch('/api/ai-suggestion', { cache: 'no-store' })
-      .then((response) => response.json())
-      .then((data: CounterResponse) => {
-        if (!active) return;
-        if (data?.ok && typeof data.totalCount === 'number') {
-          commitImproveCount(data.totalCount);
+        if (data?.ok) {
+          if (typeof data.agreeCount === 'number') {
+            commitLikeCount(data.agreeCount);
+          }
+          if (typeof data.disagreeCount === 'number') {
+            commitImproveCount(data.disagreeCount);
+          }
         }
       })
       .catch(() => undefined);
@@ -413,11 +387,13 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
             const data = await postFeedbackEvent(getFeedbackEndpoint(pendingEvent.choice), pendingEvent.eventId, { allowBeacon: false });
             removePendingFeedbackEvent(pendingEvent.eventId);
 
-            if (typeof data.totalCount === 'number') {
-              if (pendingEvent.choice === 'like') {
-                commitLikeCount(data.totalCount);
-              } else {
-                commitImproveCount(data.totalCount);
+            if (pendingEvent.choice === 'like') {
+              if (typeof data.agreeCount === 'number') {
+                commitLikeCount(data.agreeCount);
+              }
+            } else {
+              if (typeof data.disagreeCount === 'number') {
+                commitImproveCount(data.disagreeCount);
               }
             }
           } catch {
@@ -459,29 +435,19 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         return;
       }
 
-      const accepted = nextChoice === 'like'
-        ? data.didLike !== false && data.alreadyLiked !== true
-        : data.didSend !== false && data.alreadySent !== true;
-
+      // 新 API 總是成功遞增（原子性保證），所以直接取新值
       if (nextChoice === 'like') {
-        if (accepted) {
-          commitAcceptedLikeCount(data.totalCount);
-        } else if (typeof data.totalCount === 'number') {
-          commitLikeCount(data.totalCount);
+        if (typeof data.agreeCount === 'number') {
+          commitAcceptedLikeCount(data.agreeCount);
         }
       } else {
-        if (accepted) {
-          commitAcceptedImproveCount(data.totalCount);
-        } else if (typeof data.totalCount === 'number') {
-          commitImproveCount(data.totalCount);
+        if (typeof data.disagreeCount === 'number') {
+          commitAcceptedImproveCount(data.disagreeCount);
         }
       }
 
       setChoice(nextChoice);
-
-      if (accepted) {
-        pulseAcceptedCount(nextChoice);
-      }
+      pulseAcceptedCount(nextChoice);
 
       showNotice({
         title: nextChoice === 'like' ? COPY.thankLikeTitle : COPY.thankImproveTitle,

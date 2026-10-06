@@ -38,6 +38,7 @@ type StoredCounter = {
 interface VisitorResponse {
   ok?: boolean;
   displayCount?: number;
+  viewCount?: number; // 首頁 home-trust 計數器回傳的欄位
 }
 
 function getStorageKey(featureKey: FeatureKey) {
@@ -243,12 +244,16 @@ export default function FeatureVisitorCounter({
       if (document.visibilityState !== 'visible') return;
 
       try {
-        const response = await fetchVisitorRecord(`/api/visitor/record?featureKey=${encodeURIComponent(featureKey)}${permanent ? '&permanent=1' : ''}`, {
+        const url = featureKey === 'home'
+          ? '/api/home-trust'
+          : `/api/visitor/record?featureKey=${encodeURIComponent(featureKey)}${permanent ? '&permanent=1' : ''}`;
+
+        const response = await fetchVisitorRecord(url, {
           cache: 'no-store',
           signal: controller.signal,
         });
         const data = (await response.json()) as VisitorResponse;
-        const nextDisplayCount = data.displayCount;
+        const nextDisplayCount = featureKey === 'home' ? data.viewCount : data.displayCount;
 
         if (response.ok && data.ok && isSafeDisplayCount(nextDisplayCount)) {
           commitDisplayCount(nextDisplayCount);
@@ -294,15 +299,22 @@ export default function FeatureVisitorCounter({
       visitId.current ??= permanent ? getPageLoadVisitId(featureKey) : createVisitId();
 
       try {
-        const response = await fetchVisitorRecord('/api/visitor/record', {
+        const isHomePage = featureKey === 'home';
+        const url = isHomePage ? '/api/home-trust/view' : '/api/visitor/record';
+        const options: RequestInit = {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ featureKey, visitId: visitId.current }),
           cache: 'no-store',
           signal: controller.signal,
-        });
+        };
+
+        if (!isHomePage) {
+          options.body = JSON.stringify({ featureKey, visitId: visitId.current });
+        }
+
+        const response = await fetchVisitorRecord(url, options);
         const data = (await response.json()) as VisitorResponse;
-        const nextDisplayCount = data.displayCount;
+        const nextDisplayCount = isHomePage ? data.viewCount : data.displayCount;
 
         if (response.ok && data.ok && isSafeDisplayCount(nextDisplayCount)) {
           commitDisplayCount(nextDisplayCount);
