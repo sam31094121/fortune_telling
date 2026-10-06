@@ -131,26 +131,18 @@ function ShenShaIChingSection({ view }: { view?: DualChartResult['specialStars']
 }
 
 /**
- * 老師解盤折疊卡：記住這位訪客上次點開哪一張（只存在本機瀏覽器，純個人便利，不影響運算）。
- * 無痕模式或瀏覽器擋住儲存時，讀寫失敗就維持預設收起，不出錯。
+ * 【米其林穩定化 P2-1】老師解盤折疊卡：UI 狀態由組件內部管理，無需 localStorage
+ *
+ * 為什麼移除 localStorage：
+ * - UI 狀態（展開/收起）不是用戶數據，每次頁面重新加載時重置是正常行為
+ * - 後端已完整提供 iching、ghost、asura 視圖，前端無需記住用戶偏好
+ * - 無痕模式下 localStorage 無法使用，用戶已習慣沒有記憶的 UI
+ * - 移除依賴改進代碼簡潔性和米其林穩定性
  */
-const TEACHER_FOLD_KEY = 'shensha-teacher-open';
 function TeacherFold({ teacher, summary, children }: { teacher: 'iching' | 'ghost' | 'asura' | 'flow'; summary: ReactNode; children: ReactNode }) {
   const ref = useRef<HTMLDetailsElement>(null);
-  useEffect(() => {
-    try {
-      const saved = JSON.parse(window.localStorage.getItem(TEACHER_FOLD_KEY) ?? '{}') as Record<string, boolean>;
-      if (ref.current && saved[teacher]) ref.current.open = true;
-    } catch { /* 儲存不可用：維持預設收起 */ }
-  }, [teacher]);
-  const remember = () => {
-    try {
-      const saved = JSON.parse(window.localStorage.getItem(TEACHER_FOLD_KEY) ?? '{}') as Record<string, boolean>;
-      saved[teacher] = Boolean(ref.current?.open);
-      window.localStorage.setItem(TEACHER_FOLD_KEY, JSON.stringify(saved));
-    } catch { /* 儲存不可用：不記住也不影響閱讀 */ }
-  };
-  return <details ref={ref} className={styles.teacherCard} data-teacher={teacher} onToggle={remember}>{summary}{children}</details>;
+  // UI 狀態預設收起，無需持久化
+  return <details ref={ref} className={styles.teacherCard} data-teacher={teacher}>{summary}{children}</details>;
 }
 
 /** 分享卡：把後端 buildShenShaShare 組好的內容畫成一張圖（只排版，不組句、不運算；不含出生資料）。 */
