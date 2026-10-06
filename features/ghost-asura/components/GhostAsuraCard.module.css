@@ -296,17 +296,48 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   border-left-width: 2px;
   border-radius: 8px;
   padding: 8px 12px;
+  animation: itemReveal3D 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
 }
 
 .itemAwakened {
   border-color: #60434b;
   border-left-color: #a46b70;
-  background: #21181e;
+  background: linear-gradient(135deg, #21181e 0%, #2a1f26 100%);
+  position: relative;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 金光閃閃效果 */
+.itemAwakened::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: linear-gradient(45deg,
+    rgba(255, 215, 0, 0) 0%,
+    rgba(255, 215, 0, 0.15) 50%,
+    rgba(255, 215, 0, 0) 100%);
+  pointer-events: none;
+  animation: goldGlimmer 3s ease-in-out infinite;
+  z-index: 1;
 }
 
 .itemAwakened:has(details[open]) {
-  border-color: #c09076;
-  background: #2b1d24;
+  border-color: #d4af37;
+  background: linear-gradient(135deg, #2b1d24 0%, #362029 100%);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.25),
+              inset 0 0 15px rgba(212, 175, 55, 0.1);
+  transform: translateY(-2px) rotateX(5deg);
+}
+
+.itemAwakened:has(details[open])::before {
+  animation: goldGlimmer 2s ease-in-out infinite;
+  background: linear-gradient(45deg,
+    rgba(212, 175, 55, 0.1) 0%,
+    rgba(212, 175, 55, 0.3) 50%,
+    rgba(212, 175, 55, 0.1) 100%);
 }
 
 .itemDormant {
@@ -363,6 +394,15 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   font-weight: 700;
   line-height: 1.6;
   letter-spacing: .03em;
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.4),
+               0 0 16px rgba(212, 175, 55, 0.2);
+}
+
+.itemAwakened .displayName {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6),
+               0 0 20px rgba(255, 215, 0, 0.3),
+               0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .seal {
@@ -907,6 +947,48 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   line-height: 1.7;
   letter-spacing: 0.04em;
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 金光閃閃 — 印記覺醒能量光暈
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@keyframes goldGlimmer {
+  0% {
+    background: linear-gradient(45deg,
+      rgba(255, 215, 0, 0) 0%,
+      rgba(255, 215, 0, 0.05) 50%,
+      rgba(255, 215, 0, 0) 100%);
+    opacity: 0.5;
+  }
+  50% {
+    background: linear-gradient(45deg,
+      rgba(255, 215, 0, 0) 0%,
+      rgba(255, 215, 0, 0.25) 50%,
+      rgba(255, 215, 0, 0) 100%);
+    opacity: 1;
+  }
+  100% {
+    background: linear-gradient(45deg,
+      rgba(255, 215, 0, 0) 0%,
+      rgba(255, 215, 0, 0.05) 50%,
+      rgba(255, 215, 0, 0) 100%);
+    opacity: 0.5;
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 3D 旋轉 — 卡片立體進場
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@keyframes itemReveal3D {
+  from {
+    opacity: 0;
+    transform: rotateX(-30deg) rotateZ(-15deg) translateZ(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: rotateX(0) rotateZ(0) translateZ(0);
+  }
+}
+
 @keyframes asuraFnReveal {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: none; }
