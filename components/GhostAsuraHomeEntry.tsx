@@ -248,9 +248,6 @@ export default function GhostAsuraHomeEntry() {
         data-card-type="ghost-asura-home-entry"
         aria-label="鬼魅阿修羅｜開啟阿修羅秘卷"
         aria-current={selectedImpression ? 'page' : undefined}
-        onClick={(e) => {
-          if (selectedImpression || hoveredSecondary) e.preventDefault();
-        }}
       >
       <div className={styles.content}>
         <span className={styles.emblem} aria-hidden="true">修</span>
