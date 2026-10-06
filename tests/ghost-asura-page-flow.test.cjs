@@ -157,9 +157,39 @@ const ready = { birthDate: '1990-01-01', gender: 'male', birthHourBranch: 'wu', 
   succeed(pending[6], 'locked'); await tick();
   unlocked = true; render();
   assert.equal(result(), undefined, 'Relocking then unlocking never revives a previous request');
+
+  // 時辰由有效值改為 unknown：既有請求被中止、舊結果清除、且不發送新 reading 請求
+  form().props.onChange(ready);
+  form().props.onSubmit(ready);
+  const pendingValid = pending[pending.length - 1];
+  succeed(pendingValid, 'hour-valid-result'); await tick();
+  assert.equal(currentFixture(), 'hour-valid-result', 'Valid hour generates result');
+
+  form().props.onSubmit(ready);
+  const inFlightReq = pending[pending.length - 1];
+  assert.equal(inFlightReq.options.signal.aborted, false, 'In-flight request is pending and not aborted');
+  const reqsBeforeUnknown = requests;
+
+  const changedToUnknown = { ...ready, birthHourBranch: 'unknown', timeUnknown: true };
+  form().props.onChange(changedToUnknown);
+
+  assert.equal(inFlightReq.options.signal.aborted, true, 'Changing hour to unknown aborts in-flight request');
+  assert.equal(result(), undefined, 'Changing hour to unknown clears existing result immediately');
+  assert.equal(requests, reqsBeforeUnknown, 'Changing hour to unknown does not send reading request');
+
+  succeed(inFlightReq, 'late-stale'); await tick();
+  assert.equal(result(), undefined, 'Late response from aborted request cannot restore result');
+
+  form().props.onSubmit(changedToUnknown);
+  await tick();
+  assert.equal(requests, reqsBeforeUnknown, 'Submitting unknown hour never triggers reading API');
+  assert.equal(result(), undefined, 'Result stays undefined when hour is unknown');
+  assert.match(find(render(), item => item.props?.role === 'alert').props.children, /阿修羅秘卷/);
+
+  form().props.onChange(ready);
   form().props.onSubmit(ready);
   effects.forEach(effect => effect?.cleanup?.());
-  succeed(pending[7], 'unmounted'); await tick();
+  succeed(pending[pending.length - 1], 'unmounted'); await tick();
   assert.equal(result(), undefined, 'Unmounted request is invalidated');
-  console.log('PASS: actual page handlers, no-op input, retry, unknown time, double submit, abort-ignoring stale success/error/finally, pageshow, expiry, lock and unmount');
+  console.log('PASS: actual page handlers, no-op input, retry, unknown time, hour abort/clear, double submit, abort-ignoring stale success/error/finally, pageshow, expiry, lock and unmount');
 })().catch(error => { console.error(error); process.exitCode = 1; });
