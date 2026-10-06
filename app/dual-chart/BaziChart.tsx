@@ -13,15 +13,8 @@ const order = ['hour', 'day', 'month', 'year'] as const;
 const labels = { hour: '時', day: '日', month: '月', year: '年' };
 const shenShaLabels = shenShaDisplayNames.zh;
 
-// 【米其林穩定化】後端已預計算，前端直接取用
-function shenShaAvailability(result: DualChartResult) {
-  const { allowed, conflicts, pending } = result.shenShaVisibility;
-  const hasData = Array.isArray(result.core.shenSha);
-  return { allowed, hasData, conflicts, pending };
-}
-
 export function ShenShaRestrictions({ result, language = 'zh' }: { result: DualChartResult; language?: string }) {
-  const { conflicts, pending } = shenShaAvailability(result);
+  const { conflicts, pending } = result.shenShaVisibility;
   const locale = language === 'en' ? 'en' : 'zh';
   const copy = shenShaDisplayCopy[locale];
   const names = (items: string[]) => items.map(name => locale === 'en' ? shenShaDisplayNames.en[Object.keys(shenShaLabels).find(id => shenShaLabels[id as keyof typeof shenShaLabels] === name) as keyof typeof shenShaLabels] : name).join(locale === 'en' ? ', ' : '、');
@@ -31,7 +24,8 @@ export function ShenShaRestrictions({ result, language = 'zh' }: { result: DualC
 export function PillarGrid({ result, compact = false, language = 'zh' }: { result: DualChartResult; compact?: boolean; language?: string }) {
   const { core, bazi } = result;
   const pc = bazi.professionalChart;
-  const { allowed, hasData, conflicts } = shenShaAvailability(result);
+  const { allowed, conflicts } = result.shenShaVisibility;
+  const hasData = Array.isArray(result.core.shenSha);
   const row = (title: string, render: (key: typeof order[number]) => ReactNode, className?: string) => <tr className={className}>{order.map(key => <td key={key}>{render(key)}</td>)}<th scope="row">{title}</th></tr>;
   return <table className={`${styles.pillarGrid} ${compact ? styles.compactGrid : ''}`} aria-label={compact ? '中央八字摘要' : '八字四柱時日月年主表'}>
     <thead><tr>{order.map(key => <th key={key} scope="col">{labels[key]}柱</th>)}<th>項目</th></tr></thead>
@@ -430,7 +424,8 @@ export default function BaziChart({ result, monochrome = false, language = 'zh',
   const { core, bazi, annual } = result;
   const pc = bazi.professionalChart;
   const traditionalGate = pc.traditionalInterpretationGate;
-  const { allowed, hasData } = shenShaAvailability(result);
+  const { allowed } = result.shenShaVisibility;
+  const hasData = Array.isArray(result.core.shenSha);
   const meta = core.daYunMeta;
   const copy = shenShaDisplayCopy[language === 'en' ? 'en' : 'zh'];
   // 來源對照只讀後端保留的原核心規則；本卡採用的參考取法不冒充原典已核對。
