@@ -13,32 +13,38 @@ export const GHOST_ASURA_NAMING_VERSION = 'GHOST_ASURA_NAMING_2026_10_01_V2';
 
 /** 規則識別碼 → 核可阿修羅名（對齊 dual-chart coverage.id） */
 export const APPROVED_BY_RULE_ID: Record<string, { displayName: string; family: string }> = {
-  // Freeze the 24 names already emitted by the V4 catalogue. Registration concerns
-  // naming only, not classical-source approval. Never regenerate them per request order.
-  jinyu: { displayName: '祿秘庫', family: 'TREASURE' },
-  tianshe: { displayName: '龍玄契', family: 'DIVINE_PROTECTION' },
-  sanqi: { displayName: '噬暗印', family: 'SHADOW' },
-  guluan: { displayName: '虛幽門', family: 'ISOLATION' },
-  sifei: { displayName: '魂冥魂', family: 'SHADOW' },
-  yuedehe: { displayName: '神護命', family: 'DIVINE_PROTECTION' },
-  jinshen: { displayName: '藏寶匣', family: 'TREASURE' },
-  bazhuan: { displayName: '冥纏影', family: 'SHADOW' },
-  jiuchou: { displayName: '陰幽障', family: 'SHADOW' },
-  liuxiu: { displayName: '幽之影', family: 'SHADOW' },
-  bingfu: { displayName: '噬門暗印', family: 'SHADOW' },
-  suipo: { displayName: '破碎痕', family: 'RUPTURE' },
-  yuekong: { displayName: '陰魂幽障', family: 'SHADOW' },
-  jielu: { displayName: '絕孤境', family: 'ISOLATION' },
-  tianzhuan: { displayName: '冥印纏影', family: 'SHADOW' },
-  dizhuan: { displayName: '幽域之影', family: 'SHADOW' },
-  shiling: { displayName: '幽契之影', family: 'SHADOW' },
-  ride: { displayName: '聖聖印', family: 'DIVINE_PROTECTION' },
-  rigui: { displayName: '玄天印', family: 'DIVINE_PROTECTION' },
-  panan: { displayName: '冥界纏影', family: 'SHADOW' },
-  anlu: { displayName: '寶金宮', family: 'TREASURE' },
-  jinshenDay: { displayName: '魂界冥魂', family: 'SHADOW' },
-  tuishen: { displayName: '幽門之影', family: 'SHADOW' },
-  gonglu: { displayName: '玄寶庫', family: 'TREASURE' },
+  // 這 24 個是母種以外、後端已驗證的規則，名稱固定、不得依請求順序重新產生；登錄只關乎命名，不代表古籍來源核可。
+  // 2026-10-06 業主要求修正不通順／疊字／撞音的衍生名，一次性改名後重新凍結（規則編號與分類不變）。
+  // 舊→新：jinyu 祿秘庫→金輿寶匣｜tianshe 龍玄契→天恩赦印｜sanqi 噬暗印→三奇幽影｜guluan 虛幽門→孤鸞幽門
+  //   sifei 魂冥魂→四廢冥障｜yuedehe 神護命→月合靈契｜jinshen 藏寶匣→金神藏匣｜bazhuan 冥纏影→八專纏魂
+  //   jiuchou 陰幽障→九醜幽魘｜liuxiu 幽之影→六秀陰影｜bingfu 噬門暗印→符障幽纏｜suipo 破碎痕→斷歲之痕
+  //   yuekong 陰魂幽障→月空幽障｜jielu 絕孤境→截路絕界｜tianzhuan 冥印纏影→天轉冥印｜dizhuan 幽域之影→地轉冥魂
+  //   shiling 幽契之影→十靈魂影｜ride 聖聖印→日德護印｜rigui 玄天印→日貴神印｜panan 冥界纏影→攀鞍魘影
+  //   anlu 寶金宮→暗祿玄藏｜jinshenDay 魂界冥魂→進神幽纏｜tuishen 幽門之影→退神陰障｜gonglu 玄寶庫→拱祿寶匣
+  jinyu: { displayName: '金輿寶匣', family: 'TREASURE' },
+  tianshe: { displayName: '天恩赦印', family: 'DIVINE_PROTECTION' },
+  sanqi: { displayName: '三奇幽影', family: 'SHADOW' },
+  guluan: { displayName: '孤鸞幽門', family: 'ISOLATION' },
+  sifei: { displayName: '四廢冥障', family: 'SHADOW' },
+  yuedehe: { displayName: '月合靈契', family: 'DIVINE_PROTECTION' },
+  jinshen: { displayName: '金神藏匣', family: 'TREASURE' },
+  bazhuan: { displayName: '八專纏魂', family: 'SHADOW' },
+  jiuchou: { displayName: '九醜幽魘', family: 'SHADOW' },
+  liuxiu: { displayName: '六秀陰影', family: 'SHADOW' },
+  bingfu: { displayName: '符障幽纏', family: 'SHADOW' },
+  suipo: { displayName: '斷歲之痕', family: 'RUPTURE' },
+  yuekong: { displayName: '月空幽障', family: 'SHADOW' },
+  jielu: { displayName: '截路絕界', family: 'ISOLATION' },
+  tianzhuan: { displayName: '天轉冥印', family: 'SHADOW' },
+  dizhuan: { displayName: '地轉冥魂', family: 'SHADOW' },
+  shiling: { displayName: '十靈魂影', family: 'SHADOW' },
+  ride: { displayName: '日德護印', family: 'DIVINE_PROTECTION' },
+  rigui: { displayName: '日貴神印', family: 'DIVINE_PROTECTION' },
+  panan: { displayName: '攀鞍魘影', family: 'SHADOW' },
+  anlu: { displayName: '暗祿玄藏', family: 'TREASURE' },
+  jinshenDay: { displayName: '進神幽纏', family: 'SHADOW' },
+  tuishen: { displayName: '退神陰障', family: 'SHADOW' },
+  gonglu: { displayName: '拱祿寶匣', family: 'TREASURE' },
   tiandehe: { displayName: '天赦神契', family: 'DIVINE_PROTECTION' },
   tiande: { displayName: '天德護印', family: 'DIVINE_PROTECTION' },
   yuede: { displayName: '月德靈契', family: 'DIVINE_PROTECTION' },
