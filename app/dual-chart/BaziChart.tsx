@@ -47,7 +47,8 @@ export function PillarGrid({ result, compact = false, language = 'zh' }: { resul
           <span className={styles.shenshaStatus}>{!allowed.size ? conflicts.length ? '取法分歧，暫未提供' : '尚待核對' : '資料待補'}</span>
         </td>)}<th scope="row">特星神煞</th>
       </tr> : row('特星神煞', key => {
-        const hits = result.specialStars?.byPillar[key] ?? (Array.isArray(core.shenSha) ? [...new Map(core.shenSha.filter(s => allowed.has(s.id) && s.evidence.startsWith(key.toUpperCase() + ' ')).map(s => [s.name, s])).values()] : []);
+        // 【米其林穩定化 P1-2】後端已預組織 byPillar，前端直接取用（無 fallback）
+        const hits = result.specialStars?.byPillar?.[key as keyof typeof result.specialStars.byPillar] ?? [];
         return hits.length ? hits.map(hit => <span className={styles.stack} key={hit.name} title={hit.rule}>{hit.name}{hit.source && <a className={styles.shenshaSource} href={hit.source.url} target="_blank" rel="noreferrer" aria-label={`${hit.name}來源：${hit.source.title}，卷上${hit.source.printedPage}頁`}>原典 {hit.source.printedPage}頁</a>}</span>) : null;
       }, styles.shenshaRow))}
     </tbody>
@@ -95,8 +96,8 @@ function openShenShaItem(anchor: string) {
 /** 《神煞易經》第④層：只照印後端 buildShenShaIChing 的結果，不自己組句、不自己算。 */
 function ShenShaIChingSection({ view }: { view?: DualChartResult['specialStars']['iching'] }) {
   if (!view) return null;
-  // 舊版結果沒有 groups 時，整批照原順序顯示，不在前端自己分組。
-  const groups = view.state === 'READY' ? view.groups ?? [{ pillar: '', anchor: 'shensha-items', count: view.items.length, items: view.items }] : [];
+  // 【米其林穩定化 P1-3-2】後端保證 groups 始終存在，前端無需 fallback
+  const groups = view.state === 'READY' && view.groups ? view.groups : [];
   return <section className={styles.shenshaIching} aria-label="神煞易經解盤" data-shensha-iching-state={view.state}>
     <h4 className={styles.shenshaSectionTitle}>衍生鏈</h4>
     <ol className={styles.shenshaChain}>{view.chain.map(item => <li key={item.step}><b>{item.step}</b><span>{item.text}</span></li>)}</ol>

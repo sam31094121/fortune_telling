@@ -14,6 +14,7 @@ import { getBaziTraditionalOutputGate } from './bazi-traditional-gate';
 import { buildDualChartShenSha, buildFlowYearShenSha } from './dual-chart-iching-shensha';
 import { buildShenShaFlow } from './iching-shensha-flow-year';
 import { buildShenShaShare } from './iching-shensha-share';
+import { shenShaDisplayNames } from './iching-shensha-display-copy';
 
 /** revealSealedGhost 只給測試核對後端話術用；對外 API 一律不帶，鬼魅老師封印中只送卡頭。 */
 export function calculateDualChart(body: unknown, options: { revealSealedGhost?: boolean } = {}) {
@@ -96,18 +97,19 @@ export function calculateDualChart(body: unknown, options: { revealSealedGhost?:
              rule?.outputStatus === 'READY';
     })
   );
+  const shenShaNamesZh = shenShaDisplayNames.zh as Record<string, string>;
   const shenShaVisibility = {
     allowed: allowedShenShaIds,
     conflicts: shenShaRuleIds
       .filter(id => !allowedShenShaIds.has(id))
       .filter(id => gate?.shenShaRules![id as keyof typeof gate.shenShaRules]?.status === 'CONFLICT' ||
                     gate?.shenShaRules![id as keyof typeof gate.shenShaRules]?.outputStatus === 'BLOCKED_VARIANT')
-      .map(id => (gate?.shenShaRules![id as keyof typeof gate.shenShaRules]?.name) || id),
+      .map(id => shenShaNamesZh[id] || id),
     pending: shenShaRuleIds
       .filter(id => !allowedShenShaIds.has(id))
       .filter(id => gate?.shenShaRules![id as keyof typeof gate.shenShaRules]?.status !== 'CONFLICT' &&
                     gate?.shenShaRules![id as keyof typeof gate.shenShaRules]?.outputStatus !== 'BLOCKED_VARIANT')
-      .map(id => (gate?.shenShaRules![id as keyof typeof gate.shenShaRules]?.name) || id)
+      .map(id => shenShaNamesZh[id] || id)
   };
 
   // 【米其林穩定層】紫微宮位預關聯周期（消除前端查詢邏輯）
