@@ -912,12 +912,12 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 }
 
 .fnBtnGroup {
-  display: none;
+  display: inline-flex;
   gap: 8px;
 }
 
 .fnCopyBtn {
-  display: none; /* 業主要求：精準隱藏本卡複製話術按鈕 */
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;

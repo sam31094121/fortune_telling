@@ -74,6 +74,9 @@ const SHOW_HEADER_SUBTITLE = false;
 /** 業主 2026-10-06：印記數字統計卡（四個可點數字＋白話說明）暫不渲染；改 true 即恢復。清單與資料不受影響。 */
 const SHOW_STATS_CARD = false;
 
+/** 業主 2026-10-06：卡片話術與程式碼複製列暫不渲染；改 true 即恢復。清單與資料不受影響。 */
+const SHOW_COPY_BUTTONS = false;
+
 const STAT_TARGET_ID = {
   pillars: 'asura-pillars',
   dormant: 'asura-rest-dormant',
@@ -247,28 +250,26 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
                   {(section.key === 'pillars' || section.heading.includes('現在')) && '【現在｜解當下】'}
                   {(section.key === 'verdict' || section.heading.includes('未來')) && '【未來｜解趨勢】'}
                 </div>
-                <div className={styles.fnBtnGroup} aria-hidden="true">
-                  <button
-                    type="button"
-                    className={styles.fnCopyBtn}
-                    onClick={() => handleCopyCard(section, 'narrative')}
-                    title="複製本卡阿修羅話術 Markdown"
-                    tabIndex={-1}
-                    aria-hidden="true"
-                  >
-                    {copyStatus[`${section.key}-narrative`] ? '✓ 已複製話術' : '📋 複製修羅話術'}
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.fnCopyBtn} ${styles.fnCopyBtnCode}`}
-                    onClick={() => handleCopyCard(section, 'code')}
-                    title="複製修羅卡片程式碼 JSON"
-                    tabIndex={-1}
-                    aria-hidden="true"
-                  >
-                    {copyStatus[`${section.key}-code`] ? '✓ 已複製代碼' : '💻 複製卡片代碼'}
-                  </button>
-                </div>
+                {SHOW_COPY_BUTTONS && (
+                  <div className={styles.fnBtnGroup}>
+                    <button
+                      type="button"
+                      className={styles.fnCopyBtn}
+                      onClick={() => handleCopyCard(section, 'narrative')}
+                      title="複製本卡阿修羅話術 Markdown"
+                    >
+                      {copyStatus[`${section.key}-narrative`] ? '✓ 已複製話術' : '📋 複製修羅話術'}
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.fnCopyBtn} ${styles.fnCopyBtnCode}`}
+                      onClick={() => handleCopyCard(section, 'code')}
+                      title="複製修羅卡片程式碼 JSON"
+                    >
+                      {copyStatus[`${section.key}-code`] ? '✓ 已複製代碼' : '💻 複製卡片代碼'}
+                    </button>
+                  </div>
+                )}
               </div>
 
               {section.lead && <p className={styles.fnLead}>{section.lead}</p>}
