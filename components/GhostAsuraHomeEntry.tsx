@@ -235,13 +235,19 @@ export default function GhostAsuraHomeEntry() {
       onKeyDown={handleKeyDown}
       role="region"
       aria-label="鬼魅阿修羅主頁卡片"
+      aria-describedby="asura-description"
       tabIndex={0}
     >
+      <div id="asura-description" className="sr-only">
+        <HomeTranslatedText text="互動式印記探索卡片。使用方向鍵或滑鼠選擇印記，查看詳細法術信息。" />
+      </div>
+
       <Link
         href="/ghost-asura"
         className={`${styles.entry} home-feature-launch home-feature-tier-primary order-9 w-full`}
         data-card-type="ghost-asura-home-entry"
         aria-label="鬼魅阿修羅｜開啟阿修羅秘卷"
+        aria-current={selectedImpression ? 'page' : undefined}
         onClick={(e) => {
           if (selectedImpression || hoveredSecondary) e.preventDefault();
         }}
@@ -263,7 +269,16 @@ export default function GhostAsuraHomeEntry() {
         <div className={styles.gridLabel}>
           <HomeTranslatedText text="核心印記" />
         </div>
-        <div className={styles.gridContainer} role="group" aria-label="核心印記選擇">
+        <div
+          className={styles.gridContainer}
+          role="group"
+          aria-label="核心印記選擇"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <div className="sr-only">
+            <HomeTranslatedText text={`當前選中：${displayedImpression.title}`} />
+          </div>
           <button
             type="button"
             className={`${styles.gridItem} ${selectedImpression === null || selectedImpression === featuredImpression.title ? styles.active : ''} ${selectedImpression === featuredImpression.title ? styles.clicked : ''}`}
@@ -278,8 +293,13 @@ export default function GhostAsuraHomeEntry() {
               setSelectedImpression(featuredImpression.title);
             }}
             title={featuredImpression.backstory || featuredImpression.title}
-            aria-label={`選擇 ${featuredImpression.title}`}
+            aria-label={`${featuredImpression.title}。${featuredImpression.description}`}
+            aria-pressed={selectedImpression === null || selectedImpression === featuredImpression.title}
+            aria-describedby={`description-${featuredImpression.title}`}
           >
+            <span id={`description-${featuredImpression.title}`} className="sr-only">
+              {featuredImpression.backstory}
+            </span>
             <span className={styles.gridSymbol} aria-hidden="true">{featuredImpression.symbol}</span>
             <span className={styles.gridTitle}>{featuredImpression.title.slice(0, 3)}</span>
             <span className={styles.gridStatus}>{featuredImpression.status}</span>
@@ -300,8 +320,13 @@ export default function GhostAsuraHomeEntry() {
                 setSelectedImpression(imp.title);
               }}
               title={imp.backstory || imp.title}
-              aria-label={`選擇 ${imp.title}`}
+              aria-label={`${imp.title}。${imp.description}`}
+              aria-pressed={selectedImpression === imp.title}
+              aria-describedby={`description-${imp.title}`}
             >
+              <span id={`description-${imp.title}`} className="sr-only">
+                {imp.backstory}
+              </span>
               <span className={styles.gridSymbol} aria-hidden="true">{imp.symbol}</span>
               <span className={styles.gridTitle}>{imp.title.slice(0, 3)}</span>
               <span className={styles.gridStatus}>{imp.status}</span>

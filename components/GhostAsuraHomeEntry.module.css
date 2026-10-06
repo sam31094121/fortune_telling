@@ -125,6 +125,11 @@
   opacity: 1;
 }
 
+.gridItem:focus-visible {
+  outline: 2px solid #e5bd91;
+  outline-offset: 2px;
+}
+
 .gridSymbol {
   display: block;
   font-size: 20px;
@@ -369,6 +374,73 @@
 
 .learnMoreBtn:active {
   transform: scale(0.98);
+}
+
+@media (prefers-contrast: more) {
+  .gridItem {
+    border-color: #b8a8c8;
+    color: #ffffff;
+  }
+
+  .gridItem.active {
+    border-color: #ffb882;
+    box-shadow: 0 0 12px #ffb88266;
+  }
+
+  .statusBadge.awakened {
+    color: #ffb882;
+    border: 1.5px solid #ffb882;
+  }
+
+  .statusBadge.dormant {
+    color: #b8a8c8;
+    border: 1.5px solid #b8a8c8;
+  }
+
+  .gridTitle {
+    color: #ffffff;
+  }
+
+  .gridStatus {
+    color: #e0d0e0;
+  }
+
+  .descriptionTitle {
+    color: #ffffff;
+  }
+
+  .learnMoreBtn {
+    border-color: #ffb882;
+    color: #ffffff;
+  }
+
+  .learnMoreBtn:hover {
+    border-color: #ffb882;
+    box-shadow: 0 0 12px #ffb88266;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gridSymbol {
+    animation: none;
+  }
+
+  .gridItem {
+    transition: none;
+  }
+
+  .gridItem:hover::before {
+    opacity: 1;
+    transition: none;
+  }
+
+  .descriptionBox {
+    transition: opacity 0ms ease;
+  }
+
+  .gridItem.clicked {
+    animation: none;
+  }
 }
 
 @media (max-width: 639px) {
