@@ -12,7 +12,8 @@ export const AI_SUGGESTION_FLOOR = 36;
  * 只在資料庫第一次建立時作基準；之後以資料庫為準，絕不用它覆蓋更高的正式數字。
  * 資料庫遷移（supabase/migrations/20261006170000_*.sql）的 CHECK 地板與種子值必須與此一致。
  */
-export const HOME_TRUST_FLOORS = { agree: 714, disagree: 74, view: 110397 } as const;
+// 明確標成 number：若寫成 as const，useState(HOME_TRUST_FLOORS.agree) 會被推斷成只能是 714，累加後的數字編不過。
+export const HOME_TRUST_FLOORS: { agree: number; disagree: number; view: number } = { agree: 714, disagree: 74, view: 110397 };
 
 export const VISITOR_FEATURE_FLOORS: Record<string, number> = {
   home: HOME_VISITOR_FLOOR,
