@@ -71,6 +71,9 @@ export function GhostAsuraCardShell() {
 /** 業主 2026-10-04：標題下小字（副標「本命阿修羅｜命魂戰局｜阿修羅秘卷」）暫不渲染；改 true 即恢復。 */
 const SHOW_HEADER_SUBTITLE = false;
 
+/** 業主 2026-10-06：印記數字統計卡（四個可點數字＋白話說明）暫不渲染；改 true 即恢復。清單與資料不受影響。 */
+const SHOW_STATS_CARD = false;
+
 const STAT_TARGET_ID = {
   pillars: 'asura-pillars',
   dormant: 'asura-rest-dormant',
@@ -233,6 +236,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
           aria-label={section.heading}
           data-asura-function={section.key}
           hidden={openKey !== section.key}
+          tabIndex={-1}
         >
           {openKey === section.key && (
             <div className={styles.fnBody}>
@@ -243,12 +247,14 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
                   {(section.key === 'pillars' || section.heading.includes('現在')) && '【現在｜解當下】'}
                   {(section.key === 'verdict' || section.heading.includes('未來')) && '【未來｜解趨勢】'}
                 </div>
-                <div className={styles.fnBtnGroup}>
+                <div className={styles.fnBtnGroup} aria-hidden="true">
                   <button
                     type="button"
                     className={styles.fnCopyBtn}
                     onClick={() => handleCopyCard(section, 'narrative')}
                     title="複製本卡阿修羅話術 Markdown"
+                    tabIndex={-1}
+                    aria-hidden="true"
                   >
                     {copyStatus[`${section.key}-narrative`] ? '✓ 已複製話術' : '📋 複製修羅話術'}
                   </button>
@@ -257,6 +263,8 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
                     className={`${styles.fnCopyBtn} ${styles.fnCopyBtnCode}`}
                     onClick={() => handleCopyCard(section, 'code')}
                     title="複製修羅卡片程式碼 JSON"
+                    tabIndex={-1}
+                    aria-hidden="true"
                   >
                     {copyStatus[`${section.key}-code`] ? '✓ 已複製代碼' : '💻 複製卡片代碼'}
                   </button>
@@ -410,6 +418,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
             </span>
           ))}
         </div>
+        {SHOW_STATS_CARD && (
         <div className={styles.stats} data-asura-stats role="group" aria-label="印記數字說明；點數字可跳到對應清單">
           {display.stats
             .filter(stat => !(stat.value === '0' && stat.tone === 'pending'))
@@ -452,6 +461,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
             ))}
           </div>
         </div>
+        )}
       </div>
 
       {display.supplements.map((group) => (

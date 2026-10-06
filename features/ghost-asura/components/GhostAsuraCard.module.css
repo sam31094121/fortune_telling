@@ -912,7 +912,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 }
 
 .fnBtnGroup {
-  display: inline-flex;
+  display: none;
   gap: 8px;
 }
 
