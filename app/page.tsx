@@ -268,36 +268,12 @@ interface MatchResponse {
     emotionalArc: string;
     storyTwist: string;
   };
+  // 【米其林穩定化】後端預生成的個人化話術，消除前端業務邏輯
+  practiceAdvice?: string;
 }
 
-function buildPersonalizedPracticeLine(data: MatchResponse) {
-  const personAName = data.displayA.name || '第一位';
-  const personBName = data.displayB.name || '第二位';
-  const karma = data.karmaRelation;
-  const conflictRisk = data.result.conflict_risk;
-  const matchScore = data.result.match_score;
-  const activeName = karma?.activePerson === 'A'
-    ? personAName
-    : karma?.activePerson === 'B'
-      ? personBName
-      : '你們彼此';
-  const needsUnderstandingName = karma?.needsUnderstanding === 'A'
-    ? personAName
-    : karma?.needsUnderstanding === 'B'
-      ? personBName
-      : '彼此';
-  const mainPractice = conflictRisk >= 65
-    ? '先放下爭輸贏的執念，把話說慢、把界線說清楚'
-    : matchScore >= 75
-      ? '把善意落在日常行動裡，讓好的共鳴不只停在感覺'
-      : '先從改過自新做起，願意看見自己在關係裡的慣性';
-  const connectionPractice = (karma?.overallResonance ?? matchScore) >= 70
-    ? '這段緣分已有可貴的相應力'
-    : '這段緣分更需要耐心修正相處節奏';
-  const painPoint = karma?.painPoint ? `，尤其要留意「${karma.painPoint}」` : '';
-
-  return `對${personAName}與${personBName}而言，順天不是硬求結果，而是順著善念修正自己；${connectionPractice}${painPoint}。改命的第一步，是${activeName}願意先跨出「${mainPractice}」的行動，也讓${needsUnderstandingName}被真正理解。當你們願意改過自新、廣結善緣、放下執念，關係就會從消耗走向清明。`;
-}
+// 【米其林穩定化】話術由後端生成，前端不再執行業務邏輯
+// buildPersonalizedPracticeLine 已移至後端，MatchResponse 新增 practiceAdvice 欄位
 
 type StepKey = 'personA-base' | 'personA-shichen' | 'personB-base' | 'personB-shichen' | 'review';
 type SelectionConfirm = { bloodType: boolean; gender: boolean };
@@ -3629,12 +3605,14 @@ export default function HomePage() {
                       </span>
                     </div>
 
-                    <div className="mt-8 border-t border-amber-500/15 pt-6 text-left max-w-xl mx-auto space-y-3.5">
-                      <p className="text-xs uppercase tracking-[0.25em] text-amber-300 font-semibold font-mono">🧬 釋義：天地人因果天宿密碼</p>
-                      <blockquote className="border-l border-amber-500/40 pl-4 text-xs italic text-[color:var(--text-sub)] leading-7">
-                        「{buildPersonalizedPracticeLine(data)}」
-                      </blockquote>
-                    </div>
+                    {data.practiceAdvice && (
+                      <div className="mt-8 border-t border-amber-500/15 pt-6 text-left max-w-xl mx-auto space-y-3.5">
+                        <p className="text-xs uppercase tracking-[0.25em] text-amber-300 font-semibold font-mono">🧬 釋義：天地人因果天宿密碼</p>
+                        <blockquote className="border-l border-amber-500/40 pl-4 text-xs italic text-[color:var(--text-sub)] leading-7">
+                          「{data.practiceAdvice}」
+                        </blockquote>
+                      </div>
+                    )}
                   </div>
 
                   <div className="pt-6">
@@ -3840,9 +3818,11 @@ export default function HomePage() {
                     <p>
                       「菩提本無樹，明鏡亦非台。」關係中的糾纏與痛楚，皆因心有色相、執迷不悟（人有色無空）。當你真正看透這層幻象，學會放下對他人的控制與索求，回歸「善」的本心，這段關係的因果便已在默默中改寫。
                     </p>
-                    <p className="font-semibold text-amber-300">
-                      {buildPersonalizedPracticeLine(data)}
-                    </p>
+                    {data.practiceAdvice && (
+                      <p className="font-semibold text-amber-300">
+                        {data.practiceAdvice}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

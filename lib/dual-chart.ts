@@ -84,7 +84,52 @@ export function calculateDualChart(body: unknown, options: { revealSealedGhost?:
   const flowCheck = { passed: mismatches.length === 0, mismatches };
   const flow = buildShenShaFlow(annual.slice(0, 2).map(a => buildFlowYearShenSha(bazi, professional.professionalChart.traditionalInterpretationGate!, input.gender as 'male' | 'female', flowCheck, { year: a.year, ganZhi: a.ganzhi })));
   const ziweiProfile = { polarity: STEM_YINYANG[raw.chineseDate[0] as Stem] ?? '', zodiac: raw.zodiac };
-  return { bazi: { input: professional.input, professionalChart: dualProfessionalChart, luckCycles: professional.luckCycles }, core: dualCore, specialStars: { ...specialStars, flow, share: buildShenShaShare(specialStars.card, ichingView, flow) }, annual, ziwei, periods, ziweiProfile };
+
+  // 【米其林穩定層】後端預計算的顯示可見性（消除前端 shenShaAvailability 邏輯）
+  const gate = professional.professionalChart.traditionalInterpretationGate;
+  const shenShaRuleIds = gate?.shenShaRules ? Object.keys(gate.shenShaRules) : [];
+  const allowedShenShaIds = new Set(
+    shenShaRuleIds.filter(id => {
+      const rule = gate?.shenShaRules![id as keyof typeof gate.shenShaRules];
+      return gate?.coreReady && rule?.ready &&
+             (rule?.status === 'VERIFIED' || (rule as { referenceMethod?: boolean }).referenceMethod === true) &&
+             rule?.outputStatus === 'READY';
+    })
+  );
+  const shenShaVisibility = {
+    allowed: allowedShenShaIds,
+    conflicts: shenShaRuleIds
+      .filter(id => !allowedShenShaIds.has(id))
+      .filter(id => gate?.shenShaRules![id as keyof typeof gate.shenShaRules]?.status === 'CONFLICT' ||
+                    gate?.shenShaRules![id as keyof typeof gate.shenShaRules]?.outputStatus === 'BLOCKED_VARIANT')
+      .map(id => (gate?.shenShaRules![id as keyof typeof gate.shenShaRules]?.name) || id),
+    pending: shenShaRuleIds
+      .filter(id => !allowedShenShaIds.has(id))
+      .filter(id => gate?.shenShaRules![id as keyof typeof gate.shenShaRules]?.status !== 'CONFLICT' &&
+                    gate?.shenShaRules![id as keyof typeof gate.shenShaRules]?.outputStatus !== 'BLOCKED_VARIANT')
+      .map(id => (gate?.shenShaRules![id as keyof typeof gate.shenShaRules]?.name) || id)
+  };
+
+  // 【米其林穩定層】紫微宮位預關聯周期（消除前端查詢邏輯）
+  const periodsByBranch = new Map(periods.map(p => [p.branch, p]));
+  const ziweiWithPeriods = {
+    ...ziwei,
+    palaces: ziwei.palaces.map(palace => ({
+      ...palace,
+      period: periodsByBranch.get(String(palace.earthlyBranch)) ?? null
+    }))
+  };
+
+  return {
+    bazi: { input: professional.input, professionalChart: dualProfessionalChart, luckCycles: professional.luckCycles },
+    core: dualCore,
+    specialStars: { ...specialStars, flow, share: buildShenShaShare(specialStars.card, ichingView, flow) },
+    annual,
+    ziwei: ziweiWithPeriods,
+    periods,
+    ziweiProfile,
+    shenShaVisibility  // 【新增】米其林層級穩定化
+  };
 }
 export type DualChartResult = ReturnType<typeof calculateDualChart> & {
   guide?: {

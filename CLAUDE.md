@@ -169,3 +169,10 @@ SKIP_PUSH_GATE=1 git push # 真的要跳過（只推文件、或正在救火）
 **立下這種鐵律時，必須同時生出一支 CI 測試**——沒有測試的鐵律等於沒有鐵律。
 以 `npm run test:three-core` 守住：兩張卡的四柱必須一致，
 且紫微卡回應內的 `meta.dayPillar` 與 `ziweiSanFang.bazi.day` 不得矛盾。
+
+## 測試檔案命名與副檔名鐵律
+
+- **含 JSX/TSX 元素之測試**：凡測試檔案中含有 React 元件渲染或 JSX 標籤語法（如 `<Component />`、`render(<Component />)`），副檔名**一律強制使用 `.test.tsx`**（例如 `GhostAsuraHomeEntry.test.tsx`、`GhostAsuraHomeEntry.a11y.test.tsx`、`GhostAsuraHomeEntry.integration.test.tsx`）。
+- **純邏輯與無 JSX 之測試**：純邏輯、演算法、API 呼叫或無 React 標籤渲染之測試，副檔名使用 `.test.ts`。
+- **嚴禁在 `.test.ts` 內書寫 JSX**：TypeScript Lexer/Parser 在 `.ts` 模式下無法解析 JSX，會引發 TS1005 `'>' expected` 與 TS1161 語法層級錯誤，破壞全域型別檢查與語法分析。
+

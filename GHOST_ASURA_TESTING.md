@@ -13,13 +13,13 @@
 ```
 tests/
 ├── components/
-│   ├── GhostAsuraHomeEntry.test.ts          # 單元測試（450+ 行）
-│   └── GhostAsuraHomeEntry.a11y.test.ts     # 無障礙測試（320+ 行）
+│   ├── GhostAsuraHomeEntry.test.tsx          # 單元測試（450+ 行）
+│   └── GhostAsuraHomeEntry.a11y.test.tsx     # 無障礙測試（320+ 行）
 └── integration/
-    └── GhostAsuraHomeEntry.integration.test.ts  # 集成測試（380+ 行）
+    └── GhostAsuraHomeEntry.integration.test.tsx  # 集成測試（380+ 行）
 ```
 
-### 單元測試 (GhostAsuraHomeEntry.test.ts)
+### 單元測試 (GhostAsuraHomeEntry.test.tsx)
 
 **測試覆蓋範圍：**
 
@@ -73,7 +73,7 @@ tests/
 
 **總計：31個單元測試**
 
-### 集成測試 (GhostAsuraHomeEntry.integration.test.ts)
+### 集成測試 (GhostAsuraHomeEntry.integration.test.tsx)
 
 **測試覆蓋範圍：**
 
@@ -110,7 +110,7 @@ tests/
 
 **總計：15個集成測試**
 
-### 無障礙測試 (GhostAsuraHomeEntry.a11y.test.ts)
+### 無障礙測試 (GhostAsuraHomeEntry.a11y.test.tsx)
 
 **使用 jest-axe 進行自動化WCAG 2.1檢查：**
 
@@ -174,9 +174,9 @@ npm install --save-dev @testing-library/react @testing-library/jest-dom @testing
 npm test -- GhostAsuraHomeEntry
 
 # 運行特定測試文件
-npm test -- tests/components/GhostAsuraHomeEntry.test.ts
-npm test -- tests/integration/GhostAsuraHomeEntry.integration.test.ts
-npm test -- tests/components/GhostAsuraHomeEntry.a11y.test.ts
+npm test -- tests/components/GhostAsuraHomeEntry.test.tsx
+npm test -- tests/integration/GhostAsuraHomeEntry.integration.test.tsx
+npm test -- tests/components/GhostAsuraHomeEntry.a11y.test.tsx
 ```
 
 ### 運行帶覆蓋率的測試
@@ -194,7 +194,7 @@ npm test -- --watch GhostAsuraHomeEntry
 ### 調試測試
 
 ```bash
-node --inspect-brk node_modules/.bin/jest --runInBand tests/components/GhostAsuraHomeEntry.test.ts
+node --inspect-brk node_modules/.bin/jest --runInBand tests/components/GhostAsuraHomeEntry.test.tsx
 ```
 
 ## 測試配置 (jest.config.js)
@@ -246,7 +246,15 @@ global.localStorage = localStorageMock as any;
 | 函數覆蓋率 (Functions) | > 85% |
 | 行覆蓋率 (Lines) | > 85% |
 
-## 測試命名約定
+## 測試命名與副檔名規範
+
+### 測試檔案副檔名規範（TypeScript / JSX 鐵律）
+
+- **JSX / TSX 元件渲染測試**：凡測試內容包含 JSX 標籤語法（例如 `<GhostAsuraHomeEntry />`、`render(<Component />)`），副檔名一律強制使用 `.test.tsx`（或 `.integration.test.tsx`、`.a11y.test.tsx`）。
+- **純邏輯與無 JSX 測試**：純演算法、數據轉換、API 呼叫或無 React 標籤渲染之測試，副檔名使用 `.test.ts`。
+- **嚴禁混用**：嚴禁在 `.test.ts` 中直接書寫 JSX 標籤。TypeScript Lexer/Parser 在 `.ts` 模式下不支援 JSX，會將 `<` 視為比較運算子或型別斷言，進而觸發 TS1005 `'>' expected` 與 TS1161 語法層級解析崩潰。
+
+### 測試用例命名約定
 
 所有測試遵循以下命名約定：
 

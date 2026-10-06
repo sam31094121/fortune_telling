@@ -156,7 +156,7 @@
   justify-content: flex-start;
   gap: 0px;
   min-width: 0;
-  min-height: 40px;
+  min-height: 44px;
   padding: 8px 4px;
   font: inherit;
   color: inherit;
@@ -189,21 +189,21 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 }
 
 .statLabel {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: #f2ede4;
   line-height: 1.2;
 }
 
 .statCaption {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.2;
   color: #bfc2cc;
 }
 
 .statGo {
   margin-top: 2px;
-  font-size: 11px;
+  font-size: 14px;
   color: #e6c48f;
   text-decoration: underline;
 }
@@ -221,6 +221,11 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 
 .statsNotes p { margin: 0; overflow-wrap: anywhere; }
 .statsNotes p:first-child { font-weight: 700; color: #f5eeea; }
+
+/* 421px 以上剛好 3 張數字卡：改 3 欄均分，避免右邊固定空出第四欄 */
+@media (min-width: 421px) {
+  .stats:has(> .statTile:nth-child(3):nth-last-child(2)) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 
 .stats .awakenedValue { color: #f1b6ae; }
 .stats .pendingValue { color: #e6c48f; }
@@ -540,6 +545,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   .summaryFooter { margin: 0 12px 16px; }
   .banner { padding: 14px; font-size: 14px; }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 6px; gap: 5px; }
+  .stats > .statTile:nth-last-child(2):nth-child(odd) { grid-column: 1 / -1; }
 
   .scrollHint {
     margin-inline: 12px;

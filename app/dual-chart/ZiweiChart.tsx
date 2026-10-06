@@ -6,11 +6,12 @@ import { PillarGrid, LuckGrid } from './BaziChart';
 
 const positions: Record<string, [number, number]> = { 巳: [1, 1], 午: [1, 2], 未: [1, 3], 申: [1, 4], 辰: [2, 1], 酉: [2, 4], 卯: [3, 1], 戌: [3, 4], 寅: [4, 1], 丑: [4, 2], 子: [4, 3], 亥: [4, 4] };
 export default function ZiweiChart({ result }: { result: DualChartResult }) {
-  const { ziwei, periods } = result;
+  const { ziwei } = result;
   const [selected, setSelected] = useState(ziwei.lifePalace.key);
   const detail = useRef<HTMLElement>(null);
   const palace = ziwei.palaces.find(p => p.key === selected) ?? ziwei.lifePalace;
-  const period = periods.find(p => p.branch === palace.earthlyBranch);
+  // 【米其林穩定化】後端已預關聯周期於宮位物件，前端直接取用
+  const period = 'period' in palace ? palace.period : null;
   return <>
     <p className={`${styles.note} ${styles.interactionHint}`}>點選任一宮位，下方會顯示完整星曜、亮度、四化與大限。</p>
     <div className={styles.ziweiScroll}><div className={styles.chart} aria-label="紫微十二宮傳統方盤">
@@ -27,7 +28,8 @@ export default function ZiweiChart({ result }: { result: DualChartResult }) {
       </div>
       {ziwei.palaces.map(p => {
         const [row, column] = positions[p.earthlyBranch];
-        const cycle = periods.find(period => period.branch === p.earthlyBranch);
+        // 【米其林穩定化】後端已預關聯周期，前端直接取用
+        const cycle = 'period' in p ? p.period : null;
         return <button key={p.key} type="button" aria-label={`查看${p.name}詳情`} aria-pressed={p.key === selected} className={`${styles.cell} ${p.key === 'MING' ? styles.life : ''} ${p.isBodyPalace ? styles.body : ''}`} style={{ gridRow: row, gridColumn: column }} onClick={() => { setSelected(p.key); detail.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }}>
           <span className={styles.cellStars}>{p.majorStarDetails.length ? p.majorStarDetails.map(star => <span key={star.name}>{star.name}{star.brightness && <small className={styles.starBrightness}>{star.brightness}</small>}{star.mutagen && <b className={styles.badge} data-mutagen={star.mutagen}>{star.mutagen}</b>}</span>) : <span className={styles.emptyStar}>空宮</span>}</span>
           <span className={styles.cellMinor}>{p.minorStars.slice(0, 3).map(star => star.name).join(' ')}{p.minorStars.length > 3 ? '…' : ''}</span>
@@ -41,7 +43,9 @@ export default function ZiweiChart({ result }: { result: DualChartResult }) {
     </div></div>
     <section ref={detail} className={styles.palace} aria-live="polite" aria-label="選中宮位詳情">
       <h3>{palace.name} · {palace.heavenlyStem}{palace.earthlyBranch}{palace.isBodyPalace ? ' · 身宮' : ''}</h3>
-      <p>大限：{period?.range.join('–')} 歲 · {period?.stage}<br />小限（虛歲）：{period?.ages.join('、')}<br />博士：{period?.boshi} · 歲前：{period?.suiqian} · 將前：{period?.jiangqian}</p>
+      {period && typeof period === 'object' && 'range' in period ? (
+        <p>大限：{(period as any).range?.join('–')} 歲 · {(period as any).stage}<br />小限（虛歲）：{(period as any).ages?.join('、')}<br />博士：{(period as any).boshi} · 歲前：{(period as any).suiqian} · 將前：{(period as any).jiangqian}</p>
+      ) : null}
       <p className={styles.stars}>{palace.majorStarDetails.length ? palace.majorStarDetails.map(star => `${star.name}${star.brightness ? `（${star.brightness}）` : ''}${star.mutagen ? ` · 化${star.mutagen}` : ''}`).join('、') : '無十四主星（空宮）'}</p>
       <p>輔星與雜曜：{palace.minorStars.map(star => `${star.name}${star.brightness ? `（${star.brightness}）` : ''}${star.mutagen ? ` · 化${star.mutagen}` : ''}`).join('、') || '無'}</p>
     </section>

@@ -12,17 +12,11 @@ import { GhostAsuraCard } from '@/features/ghost-asura/components/GhostAsuraCard
 const order = ['hour', 'day', 'month', 'year'] as const;
 const labels = { hour: '時', day: '日', month: '月', year: '年' };
 const shenShaLabels = shenShaDisplayNames.zh;
+
+// 【米其林穩定化】後端已預計算，前端直接取用
 function shenShaAvailability(result: DualChartResult) {
-  const gate = result.bazi.professionalChart.traditionalInterpretationGate;
-  const allowed = new Set(Object.entries(gate?.shenShaRules ?? {}).filter(([, rule]) => gate?.coreReady && rule.ready && (rule.status === 'VERIFIED' || (rule as { referenceMethod?: boolean }).referenceMethod === true) && rule.outputStatus === 'READY').map(([id]) => id));
+  const { allowed, conflicts, pending } = result.shenShaVisibility;
   const hasData = Array.isArray(result.core.shenSha);
-  const restricted = Object.entries(shenShaLabels).filter(([id]) => !allowed.has(id));
-  const isConflict = (id: string) => {
-    const rule = gate?.shenShaRules?.[id as keyof typeof shenShaLabels];
-    return rule?.status === 'CONFLICT' || rule?.outputStatus === 'BLOCKED_VARIANT';
-  };
-  const conflicts = restricted.filter(([id]) => isConflict(id)).map(([, name]) => name);
-  const pending = restricted.filter(([id]) => !isConflict(id)).map(([, name]) => name);
   return { allowed, hasData, conflicts, pending };
 }
 
