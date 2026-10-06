@@ -19,8 +19,10 @@ import { stableHash } from '@/features/ghost-asura/language';
 import styles from './GhostAsuraHomeEntry.module.css';
 import brandStyles from './AsuraBrandTitle.module.css';
 
-// 用戶交互追蹤 (localStorage)
+// 用戶交互追蹤 + 快取策略 (localStorage)
 const STORAGE_KEY = 'asura_impression_analytics';
+const CACHE_VERSION = 'v1'; // 快取版本控制
+const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 天過期
 
 interface InteractionData {
   title: string;
@@ -29,10 +31,39 @@ interface InteractionData {
   lastInteraction: number;
 }
 
-function trackInteraction(title: string, type: 'click' | 'hover') {
+interface CachedData {
+  version: string;
+  timestamp: number;
+  data: Record<string, InteractionData>;
+}
+
+function getCachedAnalytics(): Record<string, InteractionData> {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    const data: Record<string, InteractionData> = stored ? JSON.parse(stored) : {};
+    if (!stored) return {};
+
+    const cached: CachedData = JSON.parse(stored);
+
+    // 檢查快取版本和過期時間
+    if (cached.version !== CACHE_VERSION) {
+      localStorage.removeItem(STORAGE_KEY);
+      return {};
+    }
+
+    if (Date.now() - cached.timestamp > CACHE_EXPIRY) {
+      localStorage.removeItem(STORAGE_KEY);
+      return {};
+    }
+
+    return cached.data || {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function trackInteraction(title: string, type: 'click' | 'hover') {
+  try {
+    const data = getCachedAnalytics();
 
     if (!data[title]) {
       data[title] = { title, clicks: 0, hovers: 0, lastInteraction: 0 };
@@ -45,7 +76,13 @@ function trackInteraction(title: string, type: 'click' | 'hover') {
     }
     data[title].lastInteraction = Date.now();
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    // 寫回快取
+    const cached: CachedData = {
+      version: CACHE_VERSION,
+      timestamp: Date.now(),
+      data,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cached));
   } catch (e) {
     // 如果 localStorage 不可用，靜默失敗
   }
@@ -53,8 +90,7 @@ function trackInteraction(title: string, type: 'click' | 'hover') {
 
 function getInteractionScore(imp: AsuraImpression): number {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    const data: Record<string, InteractionData> = stored ? JSON.parse(stored) : {};
+    const data = getCachedAnalytics();
     const record = data[imp.title];
     if (!record) return 0;
     return (record.clicks * 3) + (record.hovers * 1); // 點擊權重更高

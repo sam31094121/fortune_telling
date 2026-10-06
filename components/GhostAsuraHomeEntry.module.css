@@ -1,5 +1,8 @@
 .wrapper {
   outline: none;
+  /* GPU 加速 */
+  will-change: auto;
+  contain: layout style paint;
 }
 
 .entry.entry {
@@ -134,10 +137,11 @@
 
 @keyframes symbolFloat {
   0%, 100% {
-    transform: translateY(0) scale(1);
+    transform: translateZ(0) translateY(0) scale(1);
+    will-change: transform;
   }
   50% {
-    transform: translateY(-2px) scale(1.05);
+    transform: translateZ(0) translateY(-2px) scale(1.05);
   }
 }
 
@@ -148,16 +152,30 @@
 
 @keyframes symbolGlow {
   0% {
-    transform: scale(1) rotate(0deg);
-    filter: drop-shadow(0 0 0 rgba(229, 189, 145, 0));
+    transform: translateZ(0) scale(1) rotate(0deg);
+    opacity: 1;
   }
   50% {
-    transform: scale(1.15) rotate(10deg);
-    filter: drop-shadow(0 0 8px rgba(229, 189, 145, 0.8));
+    transform: translateZ(0) scale(1.15) rotate(10deg);
+    opacity: 1;
   }
   100% {
-    transform: scale(1) rotate(0deg);
+    transform: translateZ(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@supports (filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0))) {
+  .gridSymbol {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+
+  .gridItem:hover .gridSymbol {
     filter: drop-shadow(0 0 6px rgba(229, 189, 145, 0.6));
+  }
+
+  .gridItem.active .gridSymbol {
+    filter: drop-shadow(0 0 8px rgba(229, 189, 145, 0.8));
   }
 }
 
@@ -217,7 +235,12 @@
   max-height: 0;
   overflow: hidden;
   opacity: 0;
-  transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* 分離動畫屬性以優化性能 */
+  transition: opacity 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              max-height 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              border-color 300ms ease;
+  will-change: opacity, max-height;
+  contain: layout;
 }
 
 .descriptionBox.show {
