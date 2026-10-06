@@ -161,40 +161,53 @@ tests/
 
 ## 運行測試
 
-### 安裝測試依賴
+### 1. 專案現行內建測試指令（開箱即用，依賴 package.json 現有配置）
+
+目前 `package.json` 已配置鬼魅阿修羅專案完整的自動化守門測試套件，可直接執行：
 
 ```bash
-npm install --save-dev @testing-library/react @testing-library/jest-dom @testing-library/user-event jest-axe
+# 運行全套鬼魅阿修羅 9 大守門測試（型別、邊界、首頁入口、接線、視口等）
+npm run check:ghost-asura
+
+# 運行首頁入口元件專項測試
+node tests/ghost-asura-home-entry.test.cjs
+
+# 運行阿修羅型別檢查
+npm run check:ghost-asura:types
+
+# 運行阿修羅接線與視口一致性測試
+npm run test:ghost-asura-wiring
+npm run test:ghost-asura-viewport
 ```
 
-### 運行所有測試
+### 2. Jest / Testing Library 元件與無障礙測試（擴充執行）
+
+針對包含 DOM 模擬與 jest-axe 的 3 個 `.test.tsx` 檔案（單元、整合、無障礙），因目前 `package.json` 尚未內建 Jest 依賴與 `"test"` 腳本，需先安裝相依套件後以 `npx jest` 執行（避免直接執行 `npm test` 觸發 `Missing script: "test"`）：
 
 ```bash
-# 運行所有Ghost Asura測試
-npm test -- GhostAsuraHomeEntry
+# 安裝測試依賴（若環境尚未安裝）
+npm install --save-dev jest jest-environment-jsdom ts-jest @types/jest @testing-library/react @testing-library/jest-dom @testing-library/user-event jest-axe
+```
+
+安裝後執行指定測試：
+
+```bash
+# 運行所有 Ghost Asura Jest 測試
+npx jest GhostAsuraHomeEntry
 
 # 運行特定測試文件
-npm test -- tests/components/GhostAsuraHomeEntry.test.tsx
-npm test -- tests/integration/GhostAsuraHomeEntry.integration.test.tsx
-npm test -- tests/components/GhostAsuraHomeEntry.a11y.test.tsx
-```
+npx jest tests/components/GhostAsuraHomeEntry.test.tsx
+npx jest tests/integration/GhostAsuraHomeEntry.integration.test.tsx
+npx jest tests/components/GhostAsuraHomeEntry.a11y.test.tsx
 
-### 運行帶覆蓋率的測試
+# 運行帶覆蓋率的測試
+npx jest --coverage GhostAsuraHomeEntry
 
-```bash
-npm test -- --coverage GhostAsuraHomeEntry
-```
+# 監視模式（開發時）
+npx jest --watch GhostAsuraHomeEntry
 
-### 監視模式（開發時）
-
-```bash
-npm test -- --watch GhostAsuraHomeEntry
-```
-
-### 調試測試
-
-```bash
-node --inspect-brk node_modules/.bin/jest --runInBand tests/components/GhostAsuraHomeEntry.test.tsx
+# 調試測試（斷點模式）
+node --inspect-brk ./node_modules/jest/bin/jest.js --runInBand tests/components/GhostAsuraHomeEntry.test.tsx
 ```
 
 ## 測試配置 (jest.config.js)
@@ -332,8 +345,8 @@ expect(results).toHaveNoViolations();
 建議在推送前運行：
 
 ```bash
-# 提交前檢查清單
-npm test -- GhostAsuraHomeEntry --coverage
+# 提交前檢查清單（符合 package.json 實際守門配置）
+npm run check:ghost-asura
 npm run lint -- components/GhostAsuraHomeEntry.tsx
 npm run build
 ```
