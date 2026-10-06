@@ -79,6 +79,53 @@ export const ELEMENT_COLORS: Record<string, ElementColor> = {
   }
 };
 
+/**
+ * 進度寶珠元素（用於進度條卡片）
+ * 風・空・光・心・靈
+ */
+export const PROGRESS_ORBS: Record<string, ElementColor> = {
+  wind: {
+    element: 'wind',
+    hex: '#7FD8BE',
+    rgb: 'rgb(127, 216, 190)',
+    glow: 'rgba(127, 216, 190, 0.8)',
+    name: 'Wind',
+    nameZh: '風'
+  },
+  void: {
+    element: 'void',
+    hex: '#9B6BA8',
+    rgb: 'rgb(155, 107, 168)',
+    glow: 'rgba(155, 107, 168, 0.8)',
+    name: 'Void',
+    nameZh: '空'
+  },
+  light: {
+    element: 'light',
+    hex: '#FFD700',
+    rgb: 'rgb(255, 215, 0)',
+    glow: 'rgba(255, 215, 0, 0.8)',
+    name: 'Light',
+    nameZh: '光'
+  },
+  heart: {
+    element: 'heart',
+    hex: '#FF8FA3',
+    rgb: 'rgb(255, 143, 163)',
+    glow: 'rgba(255, 143, 163, 0.8)',
+    name: 'Heart',
+    nameZh: '心'
+  },
+  soul: {
+    element: 'soul',
+    hex: '#7C9FD8',
+    rgb: 'rgb(124, 159, 216)',
+    glow: 'rgba(124, 159, 216, 0.8)',
+    name: 'Soul',
+    nameZh: '靈'
+  }
+};
+
 export const DEFAULT_ELEMENT_TASKS: ElementTask[] = [
   {
     id: 'explore-impressions',

@@ -1,14 +1,14 @@
 'use client';
 
 import { ReactNode, useMemo } from 'react';
-import { ELEMENT_COLORS } from '@/lib/ghost-asura-elements';
+import { PROGRESS_ORBS } from '@/lib/ghost-asura-elements';
 import HomeTranslatedText from '@/components/HomeTranslatedText';
 import styles from './GhostAsuraProgressOrbs.module.css';
 
 interface ProgressStep {
   label: string;
   completed: boolean;
-  element: 'wood' | 'fire' | 'earth' | 'metal' | 'water';
+  orbElement: 'wind' | 'void' | 'light' | 'heart' | 'soul';
   description?: string;
 }
 
@@ -18,9 +18,10 @@ interface GhostAsuraProgressOrbsProps {
 }
 
 /**
- * 進度條五元素寶珠版
- * 將進度條改造為五行寶珠解封系統
- * 每步完成時，對應的五行寶珠逐個亮起
+ * 進度寶珠版本
+ * 風・空・光・心・靈 五顆寶珠
+ * 未完成 = 暗黑封印
+ * 完成 = 寶珠發亮發光
  */
 export default function GhostAsuraProgressOrbs({
   steps,
@@ -47,7 +48,7 @@ export default function GhostAsuraProgressOrbs({
       {/* 寶珠序列 */}
       <div className={styles.orbSequence}>
         {steps.map((step, index) => {
-          const color = ELEMENT_COLORS[step.element];
+          const orbColor = PROGRESS_ORBS[step.orbElement];
           const isCompleted = step.completed;
           const isActive = index === currentStep;
           const hasConnector = index < steps.length - 1;
@@ -58,16 +59,16 @@ export default function GhostAsuraProgressOrbs({
               <div
                 className={`${styles.orbWrapper} ${isCompleted ? styles.unlocked : styles.sealed}`}
                 role="status"
-                aria-label={`${step.label}${isCompleted ? ' - 已完成' : ' - 未完成'}`}
+                aria-label={`${step.label} - ${orbColor.nameZh}${isCompleted ? ' (已完成)' : ' (未完成)'}`}
               >
                 <div
                   className={styles.orb}
                   style={{
-                    backgroundColor: isCompleted ? color.hex : 'rgba(90, 50, 70, 0.5)',
+                    backgroundColor: isCompleted ? orbColor.hex : '#2a1a2a',
                     boxShadow: isCompleted
-                      ? `0 0 20px ${color.glow}, inset 0 0 15px ${color.glow}`
-                      : 'inset 0 0 8px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(162, 118, 112, 0.3)',
-                    borderColor: isCompleted ? color.hex : 'rgba(162, 118, 112, 0.3)',
+                      ? `0 0 25px ${orbColor.glow}, inset 0 0 15px ${orbColor.glow}`
+                      : 'inset 0 0 8px rgba(0, 0, 0, 0.8), 0 0 0 2px rgba(60, 40, 60, 0.6)',
+                    borderColor: isCompleted ? orbColor.hex : 'rgba(100, 70, 100, 0.4)',
                   }}
                 >
                   {/* 寶珠內容 */}
@@ -75,12 +76,12 @@ export default function GhostAsuraProgressOrbs({
                     {isCompleted ? (
                       <>
                         <span className={styles.orbSymbol} style={{ color: '#ffffff' }}>
-                          {color.nameZh}
+                          {orbColor.nameZh}
                         </span>
                         <span className={styles.orbCheck}>✓</span>
                       </>
                     ) : (
-                      <span className={styles.orbLock}>🔒</span>
+                      <span className={styles.orbLock}>◐</span>
                     )}
                   </div>
 
@@ -89,16 +90,16 @@ export default function GhostAsuraProgressOrbs({
                     <div
                       className={styles.orbGlowRing}
                       style={{
-                        borderColor: color.hex,
-                        boxShadow: `0 0 15px ${color.glow}`,
+                        borderColor: orbColor.hex,
+                        boxShadow: `0 0 20px ${orbColor.glow}, inset 0 0 10px ${orbColor.glow}`,
                       }}
                     />
                   )}
                 </div>
 
-                {/* 解封動畫層 */}
+                {/* 解封漣漪動畫層 */}
                 {isCompleted && (
-                  <div className={styles.orbUnlockEffect} style={{ borderColor: color.hex }} />
+                  <div className={styles.orbUnlockEffect} style={{ borderColor: orbColor.hex }} />
                 )}
               </div>
 
@@ -118,8 +119,8 @@ export default function GhostAsuraProgressOrbs({
                   }`}
                   style={{
                     background: isCompleted
-                      ? `linear-gradient(90deg, ${color.hex}, ${ELEMENT_COLORS[steps[index + 1].element].hex})`
-                      : 'rgba(162, 118, 112, 0.2)',
+                      ? `linear-gradient(90deg, ${orbColor.hex}, ${PROGRESS_ORBS[steps[index + 1].orbElement].hex})`
+                      : 'rgba(100, 70, 100, 0.2)',
                   }}
                   aria-hidden="true"
                 />
@@ -146,7 +147,7 @@ export default function GhostAsuraProgressOrbs({
               className={styles.progressFill}
               style={{
                 width: `${completionPercentage}%`,
-                background: 'linear-gradient(90deg, #4CAF50, #FF6B6B, #FFD700, #E8E8E8, #2196F3)',
+                background: 'linear-gradient(90deg, #7FD8BE, #9B6BA8, #FFD700, #FF8FA3, #7C9FD8)',
               }}
             />
           </div>
@@ -160,7 +161,7 @@ export default function GhostAsuraProgressOrbs({
           <div className={styles.ceremonyContent}>
             <span className={styles.ceremonyIcon}>✨</span>
             <p className={styles.ceremonyText}>
-              <HomeTranslatedText text="五元素寶珠已全部解封，準備好開始解盤了！" />
+              <HomeTranslatedText text="五寶珠已全部點亮，準備開始解盤了！" />
             </p>
           </div>
         </div>
