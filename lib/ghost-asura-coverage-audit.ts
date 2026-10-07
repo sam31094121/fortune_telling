@@ -99,11 +99,17 @@ export class GhostAsuraCoverageAudit {
         const isComplete = GhostAsuraInterpretationResolver.isComplete(entry);
         const validation = GhostAsuraValidationModule.validate(entry);
 
-        const detail = {
+        const detail: {
+          asuraId: string;
+          displayName: string | null;
+          status: 'complete' | 'incomplete' | 'broken';
+          issues: string[];
+          completionPercentage: number;
+        } = {
           asuraId: entry.asuraId,
           displayName: entry.displayName || null,
-          status: 'complete' as const,
-          issues: [] as string[],
+          status: 'complete',
+          issues: [],
           completionPercentage: validation.completionPercentage,
         };
 

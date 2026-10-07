@@ -272,8 +272,8 @@ export class GhostAsuraMasterSkill {
    * 驗證模組是否啟用
    */
   private validateModuleEnabled(moduleId: string): void {
-    const module = GhostAsuraMasterSkill.MODULES.get(moduleId);
-    if (!module || !module.enabled) {
+    const moduleConfig = GhostAsuraMasterSkill.MODULES.get(moduleId);
+    if (!moduleConfig || !moduleConfig.enabled) {
       throw new Error(`Module ${moduleId} is not enabled`);
     }
   }

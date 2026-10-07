@@ -61,7 +61,7 @@ export interface ThreeInOneDiagnostics {
 /**
  * 優化版本的結果（在原始結果外加上指標）
  */
-export interface ThreeInOneOptimizedResult extends ThreeInOneResult {
+export type ThreeInOneOptimizedResult = ThreeInOneResult & {
   /** 性能指標 */
   metrics: ThreeInOneMetrics;
   /** 診斷資訊 */
