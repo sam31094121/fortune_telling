@@ -1,0 +1,283 @@
+/**
+ * 跨設備監控儀表板樣式
+ */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  border-bottom: 2px solid #0f3460;
+  padding-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 2em;
+  margin: 0 0 10px 0;
+  color: #00d4ff;
+}
+
+.header p {
+  margin: 0;
+  color: #a0a0a0;
+}
+
+.deviceInfo {
+  margin-bottom: 30px;
+}
+
+.card {
+  background: rgba(15, 52, 96, 0.5);
+  border: 1px solid #0f3460;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.card h2 {
+  margin: 0 0 15px 0;
+  color: #00d4ff;
+  font-size: 1.2em;
+}
+
+.deviceType {
+  font-size: 2em;
+  margin: 15px 0;
+  color: #00ff88;
+}
+
+.smallText {
+  font-size: 0.85em;
+  color: #a0a0a0;
+  margin: 10px 0 0 0;
+}
+
+.controls {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.button {
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  color: #000;
+  border: none;
+  padding: 12px 30px;
+  font-size: 1em;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid #dc2626;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  color: #fca5a5;
+}
+
+.error h3 {
+  margin: 0 0 10px 0;
+  color: #fca5a5;
+}
+
+.error pre {
+  margin: 0;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.85em;
+}
+
+.results {
+  margin-bottom: 30px;
+}
+
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.statusItem {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #0099cc;
+}
+
+.statusItem .label {
+  display: block;
+  font-size: 0.85em;
+  color: #a0a0a0;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.statusItem .value {
+  display: block;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.statusItem .value.success {
+  color: #00ff88;
+}
+
+.statusItem .value.failure {
+  color: #ff4444;
+}
+
+.statusItem .hash {
+  display: block;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  color: #00d4ff;
+  word-break: break-all;
+}
+
+.inconsistencies {
+  background: rgba(220, 38, 38, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #dc2626;
+  margin-bottom: 20px;
+}
+
+.inconsistencies h3 {
+  margin: 0 0 10px 0;
+  color: #fca5a5;
+}
+
+.inconsistencies ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #fca5a5;
+}
+
+.inconsistencies li {
+  margin: 5px 0;
+}
+
+.formatted {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 15px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85em;
+  color: #00ff88;
+  margin: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.metrics {
+  margin-bottom: 30px;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.metricItem {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 15px;
+  border-radius: 8px;
+  border-top: 3px solid #00d4ff;
+}
+
+.metricLabel {
+  display: block;
+  font-size: 0.8em;
+  color: #a0a0a0;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.metricValue {
+  display: block;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #00ff88;
+}
+
+.devicesList {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #00ff88;
+}
+
+.devicesList p {
+  margin: 0 0 10px 0;
+  color: #a0a0a0;
+  font-size: 0.9em;
+}
+
+.devicesList ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #00ff88;
+}
+
+.devicesList li {
+  margin: 5px 0;
+  font-weight: bold;
+}
+
+.footer {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #0f3460;
+  color: #a0a0a0;
+  font-size: 0.9em;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+
+  .header h1 {
+    font-size: 1.5em;
+  }
+
+  .statusGrid,
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .button {
+    width: 100%;
+  }
+}
