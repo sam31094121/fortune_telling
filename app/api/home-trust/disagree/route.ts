@@ -1,13 +1,38 @@
-import { handleHomeTrustIncrement } from '@/lib/home-trust-counters';
+/**
+ * 首頁信任統計 — 不認同計數 API
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { disagreeAction } from '@/lib/home-trust/counters/counters.service';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 /**
  * POST /api/home-trust/disagree
- * 不認同 +1，由資料庫原子完成；客戶端只能指定動作，不能指定數字。
- * 本文可帶 { "eventId": "<8~100 個英數字、底線、連字號>" }：同一事件重送只 +1 一次。
+ * 不認同計數增加 +1
  */
-export async function POST(request: Request) {
-  return handleHomeTrustIncrement('disagree', request);
+export async function POST(request: NextRequest) {
+  try {
+    const result = await disagreeAction();
+
+    return NextResponse.json({
+      success: true,
+      counters: result.counters,
+      timestamp: result.timestamp,
+      requestId: result.requestId,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[API] POST /api/home-trust/disagree failed:', message);
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: '不認同計數失敗，請重試',
+        timestamp: new Date().toISOString(),
+      },
+      { status: 500 }
+    );
+  }
 }
