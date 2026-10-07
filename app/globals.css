@@ -5117,7 +5117,7 @@ body.app-lite-effects .home-line-share-card::after {
   background: linear-gradient(180deg, rgba(251, 191, 36, 0.1), rgba(15, 23, 42, 0.28));
 }
 
-.home-ai-feedback-stat--improve {
+.home-ai-feedback-stat--disagree {
   border-color: rgba(34, 211, 238, 0.2);
   background: linear-gradient(180deg, rgba(34, 211, 238, 0.09), rgba(15, 23, 42, 0.28));
 }
@@ -5159,7 +5159,7 @@ body.app-lite-effects .home-line-share-card::after {
   color: #fde68a;
 }
 
-.home-ai-feedback-action--improve {
+.home-ai-feedback-action--disagree {
   border-color: rgba(34, 211, 238, 0.25);
   background: rgba(34, 211, 238, 0.1);
   color: #a5f3fc;
@@ -26297,7 +26297,7 @@ a.home-feature-launch::after {
     -webkit-text-fill-color: rgb(252 211 77) !important;
   }
 
-  .home-ai-feedback-stat--improve .top-feedback-count {
+  .home-ai-feedback-stat--disagree .top-feedback-count {
     color: rgb(165 243 252) !important;
     -webkit-text-fill-color: rgb(165 243 252) !important;
   }

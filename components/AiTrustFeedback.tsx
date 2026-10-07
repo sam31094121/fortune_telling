@@ -498,7 +498,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
   const improveButtonLabel = improveSelected ? COPY.improveDoneAction : COPY.improveLabel;
 
   return (
-    <section className={`${className} home-ai-feedback-card`}>
+    <section className={`${className} home-ai-feedback-card home-ai-feedback-card--feedback`}>
       <div className="flex min-w-0 items-center justify-between gap-2">
         <div className="min-w-0 text-left">
           <p className="text-[10px] font-black uppercase leading-none tracking-[0.16em] text-amber-100/95 sm:text-xs">{COPY.title}</p>
@@ -515,31 +515,30 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         )}
       </div>
 
-      <div className="mt-2 grid min-w-0 grid-cols-2 gap-1.5">
+      <div className="mt-2 grid min-w-0 grid-cols-2 gap-1 sm:gap-1.5">
         <div className="home-ai-feedback-stat home-ai-feedback-stat--like">
           <p className="text-[9px] font-bold leading-none text-amber-100/80">{COPY.likeStatLabel}</p>
-          <p className={`top-feedback-count relative mt-1 font-serif text-2xl font-black leading-none tracking-[0.04em] text-amber-100 drop-shadow-[0_0_14px_rgba(251,191,36,0.35)] ${pulseChoice === 'like' ? 'top-feedback-count--bump' : ''}`}>
+          <p className={`top-feedback-count relative mt-1 font-serif text-2xl font-black leading-none tracking-[0.04em] text-amber-100 ${pulseChoice === 'like' ? 'top-feedback-count--bump' : ''}`} style={{ textShadow: '0 0 14px rgba(251, 191, 36, 0.35)' }}>
             {formattedLikeCount}
             {pulseChoice === 'like' && <span className="top-feedback-delta top-feedback-delta--amber">+1</span>}
           </p>
-          <p className="mt-0.5 text-[9px] font-medium leading-none text-[color:var(--text-sub)]">{COPY.likeUnit}</p>
         </div>
 
-        <div className="home-ai-feedback-stat home-ai-feedback-stat--improve">
+        <div className="home-ai-feedback-stat home-ai-feedback-stat--disagree">
           <p className="text-[9px] font-bold leading-none text-cyan-100/80">{COPY.improveStatLabel}</p>
-          <p className={`top-feedback-count relative mt-1 font-serif text-2xl font-black leading-none tracking-[0.04em] text-cyan-100 drop-shadow-[0_0_14px_rgba(34,211,238,0.35)] ${pulseChoice === 'improve' ? 'top-feedback-count--bump' : ''}`}>
+          <p className={`top-feedback-count relative mt-1 font-serif text-2xl font-black leading-none tracking-[0.04em] text-cyan-100 ${pulseChoice === 'improve' ? 'top-feedback-count--bump' : ''}`} style={{ textShadow: '0 0 14px rgba(34, 211, 238, 0.35)' }}>
             {formattedImproveCount}
             {pulseChoice === 'improve' && <span className="top-feedback-delta top-feedback-delta--cyan">+1</span>}
           </p>
-          <p className="mt-0.5 text-[9px] font-medium leading-none text-[color:var(--text-sub)]">{COPY.improveUnit}</p>
         </div>
       </div>
 
-      <div className="mt-2 grid min-w-0 grid-cols-2 gap-1.5">
+      <div className="mt-2 grid min-w-0 grid-cols-2 gap-1 sm:gap-1.5">
         <button
           type="button"
           onClick={() => submitChoice('like')}
           disabled={Boolean(submittingChoice)}
+          aria-label="我認同易經回饋校準"
           className={`home-ai-feedback-action home-ai-feedback-action--like ${likeSelected ? 'home-ai-feedback-action--selected' : ''}`}
         >
           <span aria-hidden="true">{'\u{1F44D}'}</span>
@@ -550,7 +549,8 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
           type="button"
           onClick={() => submitChoice('improve')}
           disabled={Boolean(submittingChoice)}
-          className={`home-ai-feedback-action home-ai-feedback-action--improve ${improveSelected ? 'home-ai-feedback-action--selected' : ''}`}
+          aria-label="我不認同易經回饋校準"
+          className={`home-ai-feedback-action home-ai-feedback-action--disagree ${improveSelected ? 'home-ai-feedback-action--selected' : ''}`}
         >
           <span aria-hidden="true">{'\u{1F44E}'}</span>
           <span>{isSubmittingImprove ? COPY.submitting : improveButtonLabel}</span>
