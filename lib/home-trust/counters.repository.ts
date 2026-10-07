@@ -70,11 +70,12 @@ export async function incrementCounter(
     let newValue: number;
 
     // 決定要更新哪個欄位
-    const updateField = {
+    const updateFieldMap: Record<CounterType, 'agree_count' | 'disagree_count' | 'view_count'> = {
       agree: 'agree_count',
       disagree: 'disagree_count',
       view: 'view_count',
-    }[type];
+    };
+    const updateField = updateFieldMap[type];
 
     // TODO: 實作原子性增量
     // UPDATE home_trust_counters

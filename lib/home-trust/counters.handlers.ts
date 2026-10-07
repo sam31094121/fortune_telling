@@ -15,7 +15,7 @@ import type {
   IncrementError,
 } from './counters.types';
 import { incrementCounter, validateMonotonic } from './counters.repository';
-import { v4 as uuidv4 } from 'crypto';
+import { randomUUID } from 'crypto';
 
 /**
  * 認同計數處理程序
@@ -151,7 +151,7 @@ export async function handleViewIncrement(): Promise<IncrementResult> {
  * 用於追蹤和防止重複
  */
 function generateRequestId(): string {
-  return `req_${Date.now()}_${uuidv4().slice(0, 8)}`;
+  return `req_${Date.now()}_${randomUUID().slice(0, 8)}`;
 }
 
 /**
