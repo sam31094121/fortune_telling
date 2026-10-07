@@ -251,36 +251,30 @@ console.log('\n【9】合法零項 vs 缺結果');
   console.log('✓ 零項合法；缺結果失敗');
 }
 
-// ── 10. 未登錄但已驗證 → 穩定延伸名（不得待核可標題）──
-console.log('\n【10】未登錄已驗證 → 穩定延伸命名');
+// ── 10. 未登錄但已驗證 → 穩定延伸名（命名層）；話術層依 Skill 契約直接擋下 ──
+console.log('\n【10】未登錄已驗證 → 穩定延伸命名＋Skill 缺條目即擋');
 {
-  const reading = buildGhostAsuraReading({
-    records: [
-      record({
-        resultId: 'unknownStar',
-        originalName: '未登錄神煞甲',
-        matched: true,
-        pillars: ['day'],
-      }),
-    ],
+  const unknown = () => record({
+    resultId: 'unknownStar',
+    originalName: '未登錄神煞甲',
+    matched: true,
+    pillars: ['day'],
   });
-  assert.strictEqual(reading.items[0].sealStatus, 'awakened');
-  assert.ok(reading.items[0].displayName, '必須有阿修羅 displayName');
-  assert.notStrictEqual(reading.items[0].displayName, '未登錄神煞甲');
-  assert.notStrictEqual(reading.items[0].displayName, '（名稱待核可）');
-  assert.strictEqual(reading.guard.status, 'PASSED');
-  const again = buildGhostAsuraReading({
-    records: [
-      record({
-        resultId: 'unknownStar',
-        originalName: '未登錄神煞甲',
-        matched: true,
-        pillars: ['day'],
-      }),
-    ],
-  });
-  assert.strictEqual(again.items[0].displayName, reading.items[0].displayName);
-  console.log('✓ 穩定延伸 → 覺醒 + PASSED + 重跑同名');
+  // 命名層：未登錄名稱仍走穩定延伸，不得顯示原始名或待核可標題，重跑同名。
+  const [named] = translateVerifiedRecords([unknown()]);
+  assert.strictEqual(named.sealStatus, 'awakened');
+  assert.ok(named.displayName, '必須有阿修羅 displayName');
+  assert.notStrictEqual(named.displayName, '未登錄神煞甲');
+  assert.notStrictEqual(named.displayName, '（名稱待核可）');
+  const [namedAgain] = translateVerifiedRecords([unknown()]);
+  assert.strictEqual(namedAgain.displayName, named.displayName);
+  // 話術層（2026-10-07 Skill 母版契約）：後端編號沒有 Skill 條目 → 丟 ASURA_SKILL_ENTRY_MISSING，
+  // 不再補「此域暫無可用判讀」。新增後端規則必須先補 Skill 條目（覆蓋率測試會在建置前擋下）。
+  assert.throws(
+    () => buildGhostAsuraReading({ records: [unknown()] }),
+    (error) => error.message === 'ASURA_SKILL_ENTRY_MISSING:unknownStar'
+  );
+  console.log('✓ 穩定延伸命名＋重跑同名；缺 Skill 條目直接丟 ASURA_SKILL_ENTRY_MISSING');
 }
 
 // ── 11. 相同資料重跑名稱一致 ──
@@ -442,24 +436,28 @@ console.log('\n【080-17】coverage 65 全量＋使用者畫面零原始名');
 
 console.log('\n【080-17】別名對齊＋缺名穩定延伸');
 {
-  const aliasReading = buildGhostAsuraReading({
-    records: [
-      record({ resultId: 'tiande', originalName: '天德貴人', matched: true, pillars: ['year'] }),
-      record({ resultId: 'wenchang', originalName: '文昌', matched: true, pillars: ['month'] }),
-      record({ resultId: 'tianyi', originalName: '天乙貴人', matched: true, pillars: ['day'] }),
-      record({ resultId: 'taiji', originalName: '太極貴人', matched: true, pillars: ['hour'] }),
-      record({ resultId: 'blankStar', originalName: '未知神煞', matched: true, pillars: ['day'] }),
-    ],
-    resultBatchId: 'ALIAS',
-  });
-  assert.strictEqual(aliasReading.items.find((i) => i.resultId === 'tiande').displayName, '天德護印');
-  assert.strictEqual(aliasReading.items.find((i) => i.resultId === 'wenchang').displayName, '文魂天契');
-  assert.strictEqual(aliasReading.items.find((i) => i.resultId === 'tianyi').displayName, '天乙神印');
-  assert.strictEqual(aliasReading.items.find((i) => i.resultId === 'taiji').displayName, '玄極天印');
-  const blank = aliasReading.items.find((i) => i.resultId === 'blankStar');
+  const aliasRecords = [
+    record({ resultId: 'tiande', originalName: '天德貴人', matched: true, pillars: ['year'] }),
+    record({ resultId: 'wenchang', originalName: '文昌', matched: true, pillars: ['month'] }),
+    record({ resultId: 'tianyi', originalName: '天乙貴人', matched: true, pillars: ['day'] }),
+    record({ resultId: 'taiji', originalName: '太極貴人', matched: true, pillars: ['hour'] }),
+    record({ resultId: 'blankStar', originalName: '未知神煞', matched: true, pillars: ['day'] }),
+  ];
+  // 命名層：別名對齊、缺名穩定延伸（taiji、blankStar 不是後端 65 個編號之一，只驗命名，不走話術層）。
+  const named = translateVerifiedRecords(aliasRecords);
+  const nameOf = (id) => named.find((i) => i.resultId === id).displayName;
+  assert.strictEqual(nameOf('tiande'), '天德護印');
+  assert.strictEqual(nameOf('wenchang'), '文魂天契');
+  assert.strictEqual(nameOf('tianyi'), '天乙神印');
+  assert.strictEqual(nameOf('taiji'), '玄極天印');
+  const blank = named.find((i) => i.resultId === 'blankStar');
   assert.ok(blank.displayName);
   assert.notStrictEqual(blank.displayName, '未知神煞');
   assert.strictEqual(blank.sealStatus, 'awakened');
+  // 整條讀盤：只放後端確實存在的編號，必須 PASSED 且名稱一致。
+  const aliasReading = buildGhostAsuraReading({ records: aliasRecords.slice(0, 3), resultBatchId: 'ALIAS' });
+  assert.strictEqual(aliasReading.items.find((i) => i.resultId === 'tiande').displayName, '天德護印');
+  assert.strictEqual(aliasReading.items.find((i) => i.resultId === 'tianyi').displayName, '天乙神印');
   assert.strictEqual(aliasReading.guard.status, 'PASSED');
   console.log('✓ 別名／缺名皆有阿修羅名且 PASSED');
 }

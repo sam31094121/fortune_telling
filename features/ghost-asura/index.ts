@@ -13,6 +13,7 @@ import { buildBattleField, buildChains, buildDualClashes } from './battle';
 import { guardCompleteness } from './guard';
 import { buildNarratives } from './narrative';
 import { GHOST_ASURA_NAMING_VERSION } from './registry';
+import { assertAsuraCoverage } from './skill';
 import {
   GHOST_ASURA_TRANSLATE_VERSION,
   translateVerifiedRecords,
@@ -105,6 +106,12 @@ export function buildGhostAsuraReading(
   const narratives = buildNarratives(translated);
   const narrativeById = new Map(narratives.map((row) => [row.resultId, row]));
 
+  // 覺醒命中數必須等於已有完整話術的筆數；不相等直接丟 ASURA_COVERAGE_MISMATCH（附缺漏編號）。
+  assertAsuraCoverage(
+    translated.filter((item) => item.sealStatus === 'awakened').map((item) => item.resultId),
+    narratives.filter((row) => row.sealStatus === 'awakened' && row.hasApprovedWording).map((row) => row.resultId),
+  );
+
   const items: GhostAsuraDisplayItem[] = translated.map((item) => {
     const narrative = narrativeById.get(item.resultId);
     return {
@@ -140,18 +147,6 @@ export function buildGhostAsuraReading(
       label: item.displayName || GHOST_ASURA_UI.pendingNeutralLabel,
       reason: item.pendingReason ?? GHOST_ASURA_UI.pendingHint,
     }));
-
-  // 話術缺漏：欄位已寫「此域暫無可用判讀」；名稱齊＋編號齊時 guard 維持 PASSED
-  if (
-    narratives.some(
-      (row) =>
-        row.pendingReason &&
-        !row.hasApprovedWording &&
-        row.sealStatus === 'awakened'
-    )
-  ) {
-    guard.details.push('覺醒印存在話術未核可條目（欄位級提示，不影響名稱／編號完整度）');
-  }
 
   return {
     provenance,

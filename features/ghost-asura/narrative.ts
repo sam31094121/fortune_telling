@@ -5,7 +5,7 @@
  * 覺醒／沉眠文案分開；沉眠不得寫成「已開／已現」。
  */
 
-import { ASURA_WORDINGS } from './wordings';
+import { resolveAsuraInterpretation } from './skill';
 import type { GhostAsuraNarrativeItem, GhostAsuraTranslatedItem } from './types';
 import { GHOST_ASURA_UI } from './uiText';
 import { createAsuraCustomerCopy } from './customerCopy';
@@ -69,31 +69,17 @@ export function buildNarratives(
       };
     }
 
-    const wording = ASURA_WORDINGS[item.displayName];
-    if (!wording) {
-      // 名稱已就緒、命中已驗證：維持覺醒；話術缺漏用欄位級提示，不打回待核可標題。
-      return {
-        resultId: item.resultId,
-        displayName: item.displayName,
-        sealStatus: 'awakened',
-        shortDeclaration: GHOST_ASURA_UI.noReading,
-        coreMeaning: GHOST_ASURA_UI.noReading,
-        battleSignificance: GHOST_ASURA_UI.noReading,
-        verdict: GHOST_ASURA_UI.noReading,
-        wordingVersion: null,
-        hasApprovedWording: false,
-        pendingReason: GHOST_ASURA_UI.wordingGapHint,
-      };
-    }
-
+    // 話術一律以 asuraId（規則編號）向 Skill 母版查找，不再用顯示名稱當索引。
+    // 找不到或不完整會丟 ASURA_SKILL_ENTRY_MISSING／ASURA_INTERPRETATION_INCOMPLETE，不再填佔位字。
+    const resolved = resolveAsuraInterpretation(item.ruleId || item.resultId, { pillars: item.pillars });
     return {
       resultId: item.resultId,
       displayName: item.displayName,
       sealStatus: 'awakened',
-      shortDeclaration: customerCopy(sanitizeCardCopy(wording.shortDeclaration)),
-      coreMeaning: customerCopy(sanitizeCardCopy(wording.coreWarning)),
-      battleSignificance: customerCopy(sanitizeCardCopy(wording.battleSignificance)),
-      verdict: customerCopy(sanitizeCardCopy(wording.verdict)),
+      shortDeclaration: customerCopy(sanitizeCardCopy(resolved.meaningStrong)),
+      coreMeaning: customerCopy(sanitizeCardCopy(resolved.meaning)),
+      battleSignificance: customerCopy(sanitizeCardCopy(resolved.battleLine)),
+      verdict: customerCopy(sanitizeCardCopy(resolved.advice)),
       wordingVersion: GHOST_ASURA_WORDING_VERSION,
       hasApprovedWording: true,
     };

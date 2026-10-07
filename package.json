@@ -7,6 +7,7 @@
     "dev:optimize": "node scripts/optimize-start.js",
     "dev:safe": "concurrently \"next dev -H 0.0.0.0 -p 8888\" \"node scripts/homepage-guardian.js\"",
     "dev:guardian-only": "node scripts/homepage-guardian.js",
+    "prebuild": "node tests/ghost-asura-skill-coverage.test.cjs",
     "build": "node scripts/build.mjs",
     "start": "next start -H 0.0.0.0 -p 8888",
     "start:mobile": "next start -H 0.0.0.0 -p 8888",
@@ -115,13 +116,14 @@
     "test:asura-narrative-consistency": "node tests/asura-narrative-consistency.test.mjs",
     "test:asura-no-fabrication": "node tests/asura-no-fabrication.test.cjs",
     "test:asura-frontend-only": "node tests/asura-frontend-only.test.cjs",
+    "test:ghost-asura-skill": "node tests/ghost-asura-skill-coverage.test.cjs",
     "test:ghost-asura-completeness": "node tests/ghost-asura-completeness.test.mjs",
     "test:ghost-asura-frontend-completeness": "node tests/ghost-asura-frontend-completeness.test.mjs",
     "test:ghost-asura-wiring": "npx --yes tsx tests/ghost-asura-wiring-08014.test.mjs",
     "test:ghost-asura-viewport": "npx --yes tsx tests/ghost-asura-viewport-consistency-08014.test.mjs",
     "check:ghost-asura:types": "tsc -p tsconfig.ghost-asura.json",
     "test:ghost-asura-boundary": "node tests/ghost-asura-dependency-boundary.test.cjs",
-    "check:ghost-asura": "npm run check:ghost-asura:types && npm run test:ghost-asura-boundary && node tests/ghost-asura-stability.test.cjs && node tests/ghost-asura-page-flow.test.cjs && node tests/ghost-asura-customer-copy.test.cjs && node tests/ghost-asura-layout.test.cjs && node tests/ghost-asura-home-entry.test.cjs && npm run test:ghost-asura-wiring && npm run test:ghost-asura-viewport"
+    "check:ghost-asura": "npm run check:ghost-asura:types && npm run test:ghost-asura-boundary && npm run test:ghost-asura-skill && node tests/ghost-asura-stability.test.cjs && node tests/ghost-asura-page-flow.test.cjs && node tests/ghost-asura-customer-copy.test.cjs && node tests/ghost-asura-layout.test.cjs && node tests/ghost-asura-home-entry.test.cjs && npm run test:ghost-asura-wiring && npm run test:ghost-asura-viewport"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

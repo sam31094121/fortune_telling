@@ -5,9 +5,10 @@ const load = require('./helpers/load-iching-shensha-ui.cjs');
 const { buildGhostAsuraReading, translateVerifiedRecords } = load('features/ghost-asura/index.ts');
 const { createAsuraCustomerCopy } = load('features/ghost-asura/customerCopy.ts');
 const { GhostAsuraCard } = load('features/ghost-asura/components/GhostAsuraCard.tsx');
+// 2026-10-07：Skill 母版以後端 65 個編號為唯一清單；原本的 tiansha（天煞）不在其中，改用後端確實存在的 yangren（羊刃）。
 const names = [
   ['muyu', '沐浴', '蛻變新生'], ['taohua', '桃花', '魅力引力'],
-  ['waiTaohua', '外桃花', '界外吸引'], ['tiansha', '天煞', '逆風破局'],
+  ['waiTaohua', '外桃花', '界外吸引'], ['yangren', '羊刃', '血刃之鋒'],
 ];
 const records = names.map(([ruleId, originalName], i) => ({
   ruleId, resultId: ruleId, originalName, matched: true,
@@ -18,8 +19,8 @@ const combos = [{
   comboId: 'COPY_PAIR', title: '桃花與外桃花', memberRuleIds: ['taohua', 'waiTaohua'],
   memberNames: ['桃花', '外桃花'], pillar: '日柱', evidenceText: '桃花、外桃花的組合尚需留意界線。',
 }, {
-  comboId: 'COPY_CHAIN', title: '沐浴、桃花、天煞', memberRuleIds: ['muyu', 'taohua', 'tiansha'],
-  memberNames: ['沐浴', '桃花', '天煞'], pillar: null, evidenceText: '沐浴、桃花與天煞共同呈現；不代表事件一定發生。',
+  comboId: 'COPY_CHAIN', title: '沐浴、桃花、羊刃', memberRuleIds: ['muyu', 'taohua', 'yangren'],
+  memberNames: ['沐浴', '桃花', '羊刃'], pillar: null, evidenceText: '沐浴、桃花與羊刃共同呈現；不代表事件一定發生。',
 }];
 const before = JSON.stringify({ records, combos });
 const translated = translateVerifiedRecords(records);
@@ -42,7 +43,7 @@ assert.equal(reading.dualClashes.length, 1);
 assert.equal(reading.chains.length, 1);
 const html = renderToStaticMarkup(React.createElement(GhostAsuraCard, { reading }));
 // Includes folded bodies and all lower sections, not only the visible summaries.
-assert.doesNotMatch(html, /沐浴|外桃花|桃花|天煞|易經|後端|coverage/);
+assert.doesNotMatch(html, /沐浴|外桃花|桃花|羊刃|易經|後端|coverage/);
 for (const [, , display] of names) assert.ok(html.includes(display));
 const missing = buildGhostAsuraReading({ result: null });
 const failureHtml = renderToStaticMarkup(React.createElement(GhostAsuraCard, { reading: missing }));

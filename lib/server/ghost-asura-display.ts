@@ -14,7 +14,7 @@ import { Solar } from 'lunar-typescript';
 import { calculateDualChart, type DualChartResult } from '@/lib/dual-chart';
 import { buildFlowYearShenSha } from '@/lib/dual-chart-iching-shensha';
 import { asuraDeepScrub } from '@/lib/asura-display-alias';
-import { ASURA_WORDINGS } from '@/features/ghost-asura/wordings';
+import { AsuraSkillError, asuraPlainLineOf, resolveAsuraInterpretation } from '@/features/ghost-asura/skill';
 import { ASURA_PLAIN, ASURA_TIMELINE, ASURA_VOICE, composeTime, type AsuraPillarKey, type AsuraWhen, voiceLead } from '@/lib/server/ghost-asura-voice';
 import { generatePersonalizedCardSpeech, deriveGenderExpressionProfile } from '@/lib/asura/ghost-asura-gender-expression-skill';
 import { buildClientAsuraPersona } from '@/lib/asura/client-personality-cross-engine';
@@ -342,7 +342,9 @@ export function toAsuraDisplay(
     .filter((item) => !qualifying.includes(item))
     .map((item) => ({ item, reason: dropReason(item, isCrossChecked(item)) }));
 
-  const plainOf = (item: GhostAsuraDisplayItem) => (ASURA_PLAIN[item.resultId] ? { plain: ASURA_PLAIN[item.resultId] } : {});
+  // 白話：既有手寫（ASURA_PLAIN）優先；沒有才用 Skill 母版的固定核心意義。
+  const plainTextOf = (id: string): string | null => ASURA_PLAIN[id] ?? asuraPlainLineOf(id);
+  const plainOf = (item: GhostAsuraDisplayItem) => { const plain = plainTextOf(item.resultId); return plain ? { plain } : {}; };
 
   // 三張卡同一引擎：一段連續讀盤（依柱位人生階段排序、同柱合拍、轉場、收束）→ 白話區（每印一行，對應時間）→ 收尾金句。
   const pillarKeyOf = (item: GhostAsuraDisplayItem): AsuraPillarKey =>
@@ -359,8 +361,16 @@ export function toAsuraDisplay(
   const verifiedId = (id: string) => pipelineVerified.has(id) && crossChecked.has(id);
   const approvedCopy = (item: GhostAsuraDisplayItem): string[] => {
     if (isQualifyingHit(item)) return [realCopy(item.shortDeclaration), realCopy(item.verdict)].filter((t): t is string => Boolean(t));
-    const w = ASURA_WORDINGS[item.displayName];
-    return w ? [realCopy(w.shortDeclaration), realCopy(w.verdict)].filter((t): t is string => Boolean(t)) : [];
+    // 時間觸發的印記：話術一律由 Skill 母版以編號解析（不再用顯示名稱查表）。
+    // 解析失敗只會是 Skill 條目缺漏／不完整；回空陣列讓下方記成 no-copy 稽核項，不寫任何佔位字。
+    try {
+      const pillars = PILLAR_ORDER.filter((key) => item.pillarLabels.includes(PILLAR_UI[key].label));
+      const r = resolveAsuraInterpretation(item.resultId, { pillars });
+      return [realCopy(r.meaningStrong), realCopy(r.advice)].filter((t): t is string => Boolean(t));
+    } catch (error) {
+      if (error instanceof AsuraSkillError) return [];
+      throw error;
+    }
   };
   type TimeDrop = { id: string; name: string; reason: 'not-cross-verified' | 'no-copy' | 'unknown-id' };
   const timeMarks = (when: AsuraWhen, base: typeof natalMarks) => {
@@ -395,8 +405,8 @@ export function toAsuraDisplay(
       text: '',
       ...(ASURA_TIMELINE[mark.resultId]
         ? { plain: ASURA_TIMELINE[mark.resultId][when].plain }
-        : ASURA_PLAIN[mark.resultId]
-          ? { plain: ASURA_PLAIN[mark.resultId] }
+        : plainTextOf(mark.resultId)
+          ? { plain: plainTextOf(mark.resultId) as string }
           : {}),
     }));
     return {
@@ -483,7 +493,7 @@ export function toAsuraDisplay(
           })),
         }
       : null,
-    plainMissingNames: qualifying.filter((item) => !ASURA_TIMELINE[item.resultId] && !ASURA_PLAIN[item.resultId]).map((item) => item.displayName),
+    plainMissingNames: qualifying.filter((item) => !ASURA_TIMELINE[item.resultId] && !plainTextOf(item.resultId)).map((item) => item.displayName),
     voiceRewritten: qualifying.filter((item) => ASURA_VOICE[item.resultId] || ASURA_TIMELINE[item.resultId]).length,
   };
 
