@@ -1,12 +1,15 @@
-﻿import Link from 'next/link';
-import type { Metadata } from 'next';
+﻿'use client';
 
-export const metadata: Metadata = {
-  title: '誠信說明｜天宿命理',
-  description: '我們算什麼、不算什麼，以及資料存在哪裡——給想先確認再玩的人。',
-};
+import Link from 'next/link';
+import { useState } from 'react';
+import HomeTrustCounters from '@/app/components/home-trust/HomeTrustCounters';
+import FeedbackPrompt from '@/app/components/home-trust/FeedbackPrompt';
+import FeedbackForm from '@/app/components/home-trust/FeedbackForm';
 
 export default function TrustHonestyPage() {
+  const [feedbackVote, setFeedbackVote] = useState<'agree' | 'disagree' | null>(null);
+  const [showForm, setShowForm] = useState(false);
+
   return (
     <main className="mx-auto min-h-screen w-full max-w-2xl px-4 py-8 text-slate-100 sm:py-12">
       <p className="text-xs font-black tracking-[0.18em] text-amber-200/90">誠信說明</p>
@@ -46,18 +49,51 @@ export default function TrustHonestyPage() {
         </ul>
       </section>
 
+      {/* 首頁信任統計系統 */}
+      <section className="mt-8" id="home-trust-strip">
+        <h2 className="text-lg font-black text-amber-100">你覺得我們做得怎樣？</h2>
+        <p className="mt-2 text-sm leading-7 text-slate-300">
+          你的意見很重要。無論認同或不認同，都幫助我們持續改善。
+        </p>
+        <div className="mt-4">
+          <HomeTrustCounters
+            onFeedback={(vote) => {
+              setFeedbackVote(vote);
+            }}
+          />
+        </div>
+      </section>
+
+      {/* 回饋對話 */}
+      {feedbackVote && (
+        <FeedbackPrompt
+          vote={feedbackVote as 'agree' | 'disagree'}
+          onOpenForm={() => setShowForm(true)}
+          onClose={() => setFeedbackVote(null)}
+        />
+      )}
+
+      {/* 回饋表單 */}
+      {showForm && feedbackVote && (
+        <FeedbackForm
+          vote={(feedbackVote === 'agree' ? 'AGREE' : 'DISAGREE') as 'AGREE' | 'DISAGREE'}
+          onSubmit={() => {
+            setShowForm(false);
+            setFeedbackVote(null);
+          }}
+          onClose={() => {
+            setShowForm(false);
+            setFeedbackVote(null);
+          }}
+        />
+      )}
+
       <div className="mt-8 flex flex-wrap gap-3">
         <Link
           href="/#today-direction-quest"
           className="inline-flex rounded-full border border-cyan-300/40 bg-cyan-400/15 px-4 py-2 text-sm font-black text-cyan-50"
         >
           回到今日一關
-        </Link>
-        <Link
-          href="/#home-trust-strip"
-          className="inline-flex rounded-full border border-amber-200/35 bg-amber-300/10 px-4 py-2 text-sm font-black text-amber-50"
-        >
-          查看社群數字
         </Link>
       </div>
     </main>
