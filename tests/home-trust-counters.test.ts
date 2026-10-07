@@ -11,8 +11,8 @@ import {
   handleAgreeIncrement,
   handleDisagreeIncrement,
   handleViewIncrement,
-} from '../lib/home-trust/counters.handlers';
-import { getCurrentCounters } from '../lib/home-trust/counters.repository';
+} from '../lib/home-trust/counters/counters.handlers';
+import { getCurrentCounters } from '../lib/home-trust/counters/counters.repository';
 
 console.log('🔴 首頁信任統計 — TDD 測試套件');
 console.log('═'.repeat(60));
