@@ -38,9 +38,10 @@ export async function incrementAgreeCount(): Promise<IncrementResult> {
     // 防止連續點擊
     if (isPending(requestId)) {
       throw {
-        type: 'AGREE_DUPLICATE_REQUEST',
+        type: 'AGREE_INCREMENT_FAILED',
         timestamp: new Date().toISOString(),
         requestId,
+        previousValue: 0,
         reason: 'Request already pending',
       } as IncrementError;
     }

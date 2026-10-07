@@ -42,9 +42,10 @@ export async function incrementViewCount(): Promise<IncrementResult> {
     // 防止極短時間內重複（例如同時開多個標籤）
     if (isPending(requestId)) {
       throw {
-        type: 'VIEW_DUPLICATE_REQUEST',
+        type: 'VIEW_INCREMENT_FAILED',
         timestamp: new Date().toISOString(),
         requestId,
+        previousValue: 0,
         reason: 'View count request already pending',
       } as IncrementError;
     }

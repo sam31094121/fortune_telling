@@ -32,9 +32,10 @@ export async function incrementDisagreeCount(): Promise<IncrementResult> {
   try {
     if (isPending(requestId)) {
       throw {
-        type: 'DISAGREE_DUPLICATE_REQUEST',
+        type: 'DISAGREE_INCREMENT_FAILED',
         timestamp: new Date().toISOString(),
         requestId,
+        previousValue: 0,
         reason: 'Request already pending',
       } as IncrementError;
     }
