@@ -4,7 +4,7 @@
   border: 1px solid #634249;
   border-radius: 16px;
   box-shadow: 0 12px 36px #0003;
-  overflow: hidden;
+  overflow: visible;
   color: #f5eeea;
 }
 
@@ -540,12 +540,31 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 
   .pillarScroll {
     margin: 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .pillarReadingGrid {
+    grid-template-columns: repeat(4, minmax(140px, 1fr));
+    min-width: auto;
+    width: max-content;
   }
 
   .summaryFooter { margin: 0 12px 16px; }
   .banner { padding: 14px; font-size: 14px; }
-  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 6px; gap: 5px; }
-  .stats > .statTile:nth-last-child(2):nth-child(odd) { grid-column: 1 / -1; }
+
+  /* 保留四欄，支持水平滑動 */
+  .stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 6px;
+    gap: 5px;
+    width: max-content;
+    min-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
 
   .scrollHint {
     margin-inline: 12px;
