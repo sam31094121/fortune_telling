@@ -1551,6 +1551,15 @@ export default function HomePage() {
   const scrollFrameRef = useRef<number | null>(null);
   const scrollVisibilityRef = useRef({ top: false, down: false });
   const hasMountedStepGuideRef = useRef(false);
+  const matchRequestRef = useRef<AbortController | null>(null);
+  const matchSubmittingRef = useRef(false);
+
+  useEffect(() => {
+    return () => {
+      matchRequestRef.current?.abort();
+      matchRequestRef.current = null;
+    };
+  }, []);
 
   // 易經論數字 state 與處理函數
   const [fortuneNumber, setFortuneNumber] = useState('');
@@ -2298,11 +2307,15 @@ export default function HomePage() {
     await new Promise(r => setTimeout(r, 1200));
 
     // 5. 模擬提交
+    matchRequestRef.current?.abort();
+    const controller = new AbortController();
+    matchRequestRef.current = controller;
+    matchSubmittingRef.current = true;
+
     setError('');
     setData(null);
     setLoading(true);
     
-    const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 20_000);
     
     const demoA = { name: '天宿乾坤', birthDate: '1998-05-20', bloodType: 'A' as const, gender: 'male' as const, shichen: 2 };
@@ -2316,11 +2329,13 @@ export default function HomePage() {
         body: JSON.stringify({ personA: demoA, personB: demoB }),
       });
       
+      if (matchRequestRef.current !== controller) return;
+
       const json = await response.json();
+      if (matchRequestRef.current !== controller) return;
+
       if (json.error) {
         setError(json.error);
-        setLoading(false);
-        setIsDemoRunning(false);
         return;
       }
       
@@ -2329,10 +2344,12 @@ export default function HomePage() {
 
       // 展示大數據分析結果，等候 2 秒後自動觸發 VIP 解鎖
       await new Promise(r => setTimeout(r, 2000));
+      if (matchRequestRef.current !== controller) return;
 
       // 6. 自動觸發 VIP 解鎖充能
       setUnlocking(true);
       await new Promise(r => setTimeout(r, 2800));
+      if (matchRequestRef.current !== controller) return;
       setUnlocking(false);
       setIsUnlocked(true);
 
@@ -2349,8 +2366,11 @@ export default function HomePage() {
           }),
         });
 
+        if (matchRequestRef.current !== controller) return;
+
         if (karmaResponse.ok) {
           const karmaData = await karmaResponse.json();
+          if (matchRequestRef.current !== controller) return;
           if (karmaData.karma_story) {
             setData(prev => (prev ? { ...prev, karma_story: karmaData.karma_story } : null));
           }
@@ -2359,11 +2379,16 @@ export default function HomePage() {
         console.error(e);
       }
     } catch (e) {
+      if (matchRequestRef.current !== controller) return;
       setError('演示分析發生異常，請重試。');
     } finally {
       window.clearTimeout(timeout);
-      setLoading(false);
-      setIsDemoRunning(false);
+      if (matchRequestRef.current === controller) {
+        matchRequestRef.current = null;
+        matchSubmittingRef.current = false;
+        setLoading(false);
+        setIsDemoRunning(false);
+      }
     }
   };
 
@@ -2509,6 +2534,9 @@ export default function HomePage() {
   }
 
   async function handleSubmit() {
+    // 1. 同步防連擊鎖：手機端快速連點直接阻擋
+    if (matchSubmittingRef.current || loading) return;
+
     const existingDaily = readDailyAnalysis<MatchDailyResult>('match');
     if (existingDaily) {
       restoreMatchDailyRecord(existingDaily);
@@ -2520,14 +2548,19 @@ export default function HomePage() {
       return;
     }
 
+    // 2. 中止前次未完成的舊請求，避免競爭覆蓋
+    matchRequestRef.current?.abort();
+    const controller = new AbortController();
+    matchRequestRef.current = controller;
+    matchSubmittingRef.current = true;
+
     setError('');
     setData(null);
     setLoading(true);
 
-    const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 20_000);
 
-    // 帶重試機制的 fetch
+    // 帶重試機制的 fetch（主動 abort 時不繼續重試）
     async function fetchWithRetry(maxRetries = 2) {
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
@@ -2539,8 +2572,7 @@ export default function HomePage() {
           });
           return response;
         } catch (error) {
-          if (attempt === maxRetries) throw error;
-          // 等待後重試
+          if (controller.signal.aborted || attempt === maxRetries) throw error;
           await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
         }
       }
@@ -2552,7 +2584,11 @@ export default function HomePage() {
         throw new Error('未收到伺服器回應');
       }
 
+      // 3. 守門：若當前請求已被新請求取代，丟棄舊結果
+      if (matchRequestRef.current !== controller) return;
+
       const json = (await response.json()) as MatchResponse & { error?: string };
+      if (matchRequestRef.current !== controller) return;
 
       if (!response.ok) {
         setError(json.error ?? '配對分析失敗，請稍後再試。');
@@ -2567,13 +2603,10 @@ export default function HomePage() {
 
       // 獲得配對結果後，嘗試生成因果故事
       try {
-        const karmaController = new AbortController();
-        const karmaTimeout = window.setTimeout(() => karmaController.abort(), 35_000);
-
         const karmaResponse = await fetch('/api/karma-story-generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          signal: karmaController.signal,
+          signal: controller.signal,
           body: JSON.stringify({
             personA,
             personB,
@@ -2581,10 +2614,11 @@ export default function HomePage() {
           }),
         });
 
-        window.clearTimeout(karmaTimeout);
+        if (matchRequestRef.current !== controller) return;
 
         if (karmaResponse.ok) {
           const karmaData = (await karmaResponse.json()) as { karma_story?: KarmaStory };
+          if (matchRequestRef.current !== controller) return;
           if (karmaData.karma_story) {
             const enriched = { ...json, karma_story: karmaData.karma_story };
             setData(enriched);
@@ -2596,12 +2630,19 @@ export default function HomePage() {
         console.log('[karma-story] generation skipped or failed:', karmaErr);
       }
     } catch (error) {
-      setError(error instanceof DOMException && error.name === 'AbortError'
-        ? '配對分析等候時間過長，請稍後再試。'
-        : '目前無法連線到配對服務，請稍後再試。');
+      if (matchRequestRef.current !== controller) return;
+      if (controller.signal.aborted) {
+        setError('配對分析等候時間過長，請稍後再試。');
+      } else {
+        setError('目前無法連線到配對服務，請稍後再試。');
+      }
     } finally {
       window.clearTimeout(timeout);
-      setLoading(false);
+      if (matchRequestRef.current === controller) {
+        matchRequestRef.current = null;
+        matchSubmittingRef.current = false;
+        setLoading(false);
+      }
     }
   }
 

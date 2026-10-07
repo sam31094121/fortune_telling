@@ -388,6 +388,7 @@ export default function BaziPage() {
   const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<BaziResult> | null>(null);
   const resolvedBirthTime = form.timeUnknown ? '' : form.birthTime;
   const resultSectionRef = useRef<HTMLDivElement>(null);
+  const baziSubmittingRef = useRef(false);
 
   useEffect(() => {
     const clearIdentityError = () => {
@@ -422,6 +423,7 @@ export default function BaziPage() {
   }, [result, loading]);
 
   async function handleSubmit() {
+    if (baziSubmittingRef.current || loading) return;
     const existing = readDailyAnalysis<BaziResult>('bazi');
     if (existing) {
       if (!isCurrentBaziResult(existing.result)) {
@@ -471,6 +473,7 @@ export default function BaziPage() {
       return;
     }
 
+    baziSubmittingRef.current = true;
     setLoading(true);
     setResult(null);
     setCeremonyPhase('processing');
@@ -527,6 +530,7 @@ export default function BaziPage() {
       setCeremonyPhase('gate_failed');
       setGateIssues(['backend request failed']);
     } finally {
+      baziSubmittingRef.current = false;
       setLoading(false);
     }
   }

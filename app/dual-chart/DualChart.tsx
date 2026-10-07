@@ -35,6 +35,14 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
   const [isMobile, setIsMobile] = useState(false);
   const [printSelection, setPrintSelection] = useState({ bazi: true, ziwei: true, shensha: true, iching: true });
   const resultRef = useRef<HTMLElement>(null);
+  const calculateRequestRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      calculateRequestRef.current?.abort();
+      calculateRequestRef.current = null;
+    };
+  }, []);
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -73,25 +81,58 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
     finally { setBusy(false); }
   }
   function updateForm(profile: BirthProfile) {
+    if (calculateRequestRef.current) {
+      calculateRequestRef.current.abort();
+      calculateRequestRef.current = null;
+      setBusy(false);
+    }
     setForm(profile);
     setError('');
     setMissing(previous => previous.filter(field => field === 'birthDate' ? !profile.birthDate : field === 'gender' ? !profile.gender : field === 'birthHourBranch' ? !dualChartHourStatus(profile).done : false));
   }
   async function calculate(profile: BirthProfile) {
+    // 1. 同步防連擊鎖：若已有請求進行中，立即中止舊請求防競態覆蓋
+    calculateRequestRef.current?.abort();
+    const requestController = new AbortController();
+    calculateRequestRef.current = requestController;
+
     setError(''); setResult(null);
     const hour = dualChartHourStatus(profile);
     const fields = [!profile.birthDate && 'birthDate', !profile.gender && 'gender', !hour.done && 'birthHourBranch'].filter(Boolean) as string[];
     setMissing(fields);
-    if (fields.length) { setError([!profile.birthDate && '請完成出生日期。', !profile.gender && '請選擇性別。', !hour.done && hour.message].filter(Boolean).join('')); return; }
+    if (fields.length) {
+      calculateRequestRef.current = null;
+      setError([!profile.birthDate && '請完成出生日期。', !profile.gender && '請選擇性別。', !hour.done && hour.message].filter(Boolean).join(''));
+      return;
+    }
     setBusy(true);
     try {
-      const response = await fetch('/api/dual-chart', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...profile, calendarType: 'solar', timezone: 'Asia/Taipei' }) });
+      const response = await fetch('/api/dual-chart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: requestController.signal,
+        body: JSON.stringify({ ...profile, calendarType: 'solar', timezone: 'Asia/Taipei' }),
+      });
+
+      // 2. 舊請求防覆蓋檢查
+      if (calculateRequestRef.current !== requestController) return;
+
       const data = await response.json();
+      if (calculateRequestRef.current !== requestController) return;
+
       if (response.status === 401) router.refresh();
       if (!response.ok) throw new Error(data.error);
       setResult(data.data);
-    } catch (e) { setError(e instanceof Error ? e.message : '連線失敗，請稍後再試。'); }
-    finally { setBusy(false); }
+    } catch (e) {
+      if (calculateRequestRef.current !== requestController) return;
+      if (e instanceof DOMException && e.name === 'AbortError') return;
+      setError(e instanceof Error ? e.message : '連線失敗，請稍後再試。');
+    } finally {
+      if (calculateRequestRef.current === requestController) {
+        calculateRequestRef.current = null;
+        setBusy(false);
+      }
+    }
   }
   function generatePdfFilename() {
     if (!result) return 'dual-chart.pdf';
