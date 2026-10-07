@@ -98,6 +98,7 @@
     "test:beast-backend-only": "node scripts/beast-build.mjs && node tests/beast-backend-only.test.cjs",
     "test:beast-weapons": "node scripts/beast-build.mjs && node tests/beast-weapons.test.mjs",
     "test:no-fake-counters": "node tests/no-fabricated-counters.test.mjs",
+    "test:home-trust-mobile": "node tests/home-trust-mobile-operations.test.cjs",
     "test:beast-reward": "node scripts/beast-build.mjs && node tests/beast-reward-claim.test.mjs",
     "test:beast-element-concept": "node scripts/beast-build.mjs && node tests/beast-element-concept.test.mjs",
     "test:beast-guardians": "node scripts/beast-build.mjs && node tests/beast-guardians.test.mjs",
@@ -143,6 +144,7 @@
     "tyme4ts": "1.3.9"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@eslint/eslintrc": "^3.3.7",
     "@types/node": "^20.14.0",
     "@types/react": "^19.2.18",
