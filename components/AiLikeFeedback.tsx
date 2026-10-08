@@ -14,9 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
   但難看的真話勝過好看的假話。
 */
 const INITIAL_COUNT = 0;
-const DEVICE_ID_KEY = 'taiji_ai_like_device_id_v1';
 const LIKED_KEY = 'taiji_ai_like_done_v1';
-const HIGHEST_COUNT_KEY = 'taiji_ai_like_highest_count_v1';
 const NOTICE_DURATION_MS = 5200;
 
 const COPY = {
@@ -37,6 +35,7 @@ const COPY = {
 type LikeResponse = {
   ok?: boolean;
   totalCount?: number;
+  agreeCount?: number;
   didLike?: boolean;
   alreadyLiked?: boolean;
   message?: string;
@@ -54,23 +53,6 @@ function createDeviceId() {
   }
 
   return `device_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 14)}`;
-}
-
-function getDeviceId() {
-  try {
-    const existing = window.localStorage.getItem(DEVICE_ID_KEY);
-    if (existing) return existing;
-  } catch {
-    // LINE in-app browser private modes can block storage reads.
-  }
-
-  const next = createDeviceId();
-  try {
-    window.localStorage.setItem(DEVICE_ID_KEY, next);
-  } catch {
-    // The API can still record the temporary device id for this request.
-  }
-  return next;
 }
 
 function readStoredLiked() {
@@ -94,26 +76,6 @@ function normalizeTotalCount(value: unknown) {
   return Number.isSafeInteger(count) && count >= INITIAL_COUNT ? count : INITIAL_COUNT;
 }
 
-function readStoredHighestCount() {
-  if (typeof window === 'undefined') return INITIAL_COUNT;
-
-  try {
-    return normalizeTotalCount(window.localStorage.getItem(HIGHEST_COUNT_KEY));
-  } catch {
-    return INITIAL_COUNT;
-  }
-}
-
-function writeStoredHighestCount(count: number) {
-  if (typeof window === 'undefined') return;
-
-  try {
-    window.localStorage.setItem(HIGHEST_COUNT_KEY, String(normalizeTotalCount(count)));
-  } catch {
-    // LINE in-app browser private modes can block storage; the API still protects the shared count.
-  }
-}
-
 export default function AiLikeFeedback({ className = '' }: { className?: string }) {
   const [totalCount, setTotalCount] = useState(INITIAL_COUNT);
   const [liked, setLiked] = useState(false);
@@ -126,11 +88,8 @@ export default function AiLikeFeedback({ className = '' }: { className?: string 
   const formattedCount = useMemo(() => totalCount.toLocaleString('zh-TW'), [totalCount]);
 
   const commitTotalCount = useCallback((nextCount: unknown) => {
-    setTotalCount((currentCount) => {
-      const permanentCount = Math.max(currentCount, readStoredHighestCount(), normalizeTotalCount(nextCount));
-      writeStoredHighestCount(permanentCount);
-      return permanentCount;
-    });
+    // 與首頁信任卡「認同」同一個數字，伺服器是唯一真相。
+    setTotalCount(normalizeTotalCount(nextCount));
   }, []);
 
   const flashCountIncrease = useCallback(() => {
@@ -157,7 +116,6 @@ export default function AiLikeFeedback({ className = '' }: { className?: string 
   }, []);
 
   useEffect(() => {
-    commitTotalCount(readStoredHighestCount());
   }, [commitTotalCount]);
 
   useEffect(() => {
@@ -165,12 +123,12 @@ export default function AiLikeFeedback({ className = '' }: { className?: string 
 
     setLiked(readStoredLiked());
 
-    fetch('/api/ai-like', { cache: 'no-store' })
+    fetch('/api/home-trust', { cache: 'no-store' })
       .then((response) => response.json())
       .then((data: LikeResponse) => {
         if (!active) return;
-        if (data?.ok && typeof data.totalCount === 'number') {
-          commitTotalCount(data.totalCount);
+        if (data?.ok && typeof data.agreeCount === 'number') {
+          commitTotalCount(data.agreeCount);
         }
       })
       .catch(() => undefined);
@@ -198,10 +156,10 @@ export default function AiLikeFeedback({ className = '' }: { className?: string 
     setNotice(null);
 
     try {
-      const response = await fetch('/api/ai-like', {
+      const response = await fetch('/api/home-trust/agree', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ deviceId: getDeviceId() }),
+        body: JSON.stringify({ eventId: `like_${createDeviceId()}` }),
       });
       const data = await response.json() as LikeResponse;
 
@@ -209,8 +167,8 @@ export default function AiLikeFeedback({ className = '' }: { className?: string 
         throw new Error(data?.message || COPY.sendFailed);
       }
 
-      if (typeof data.totalCount === 'number') {
-        commitTotalCount(data.totalCount);
+      if (typeof data.agreeCount === 'number') {
+        commitTotalCount(data.agreeCount);
       }
 
       flashCountIncrease();

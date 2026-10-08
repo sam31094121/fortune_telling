@@ -29,17 +29,12 @@ async function probe() {
   const v1 = await post(`${base}/api/visitor/record`, { featureKey: 'home', visitId: `test-${Date.now()}-${Math.random()}` });
   assert.ok(v1.ok);
   assert.ok(v1.displayCount >= v0.displayCount, `visitor must not drop ${v0.displayCount} -> ${v1.displayCount}`);
-  const l0 = await get(`${base}/api/ai-like`);
-  const l1 = await post(`${base}/api/ai-like`, {});
-  assert.ok(l1.ok);
-  assert.ok(l1.totalCount >= l0.totalCount, `like must not drop ${l0.totalCount} -> ${l1.totalCount}`);
   const s0 = await get(`${base}/api/ai-suggestion`);
   const s1 = await post(`${base}/api/ai-suggestion`, {});
   assert.ok(s1.ok);
   assert.ok(s1.totalCount >= s0.totalCount, `suggestion must not drop ${s0.totalCount} -> ${s1.totalCount}`);
   console.log(JSON.stringify({
     visitor: { before: v0.displayCount, after: v1.displayCount },
-    like: { before: l0.totalCount, after: l1.totalCount, didLike: l1.didLike },
     improve: { before: s0.totalCount, after: s1.totalCount, didSend: s1.didSend },
   }, null, 2));
   console.log('PASS trust-counter-monotonic');

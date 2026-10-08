@@ -1,5 +1,5 @@
 'use client';
-import { monotonicCount, visitorFloorFor } from '@/lib/trust-counter-floors';
+import { visitorFloorFor } from '@/lib/trust-counter-floors';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -197,9 +197,7 @@ export default function FeatureVisitorCounter({
 
           伺服器才是真相來源。它說多少就是多少——**包括變少**。
         */
-        // owner: UI count only rises
-        const floor = visitorFloorFor(featureKey);
-        const nextCount = monotonicCount(currentBaseCount, safeRequestedCount, floor);
+        const nextCount = safeRequestedCount;
 
         writeStoredDisplayCount(featureKey, nextCount);
         return nextCount;
@@ -207,17 +205,6 @@ export default function FeatureVisitorCounter({
     },
     [featureKey, permanent],
   );
-
-  useEffect(() => {
-    const storedDisplayCount = readStoredDisplayCount(featureKey);
-
-    const floor = visitorFloorFor(featureKey);
-    if (storedDisplayCount !== null) {
-      commitDisplayCount(monotonicCount(storedDisplayCount, floor));
-    } else {
-      commitDisplayCount(floor);
-    }
-  }, [commitDisplayCount, featureKey]);
 
   /*
     這裡原本有一個「自己長大」的計時器：每 7–24 秒把顯示數字 +1，

@@ -1,5 +1,5 @@
 'use client';
-import { HOME_TRUST_FLOORS, monotonicCount } from '@/lib/trust-counter-floors';
+import { HOME_TRUST_FLOORS } from '@/lib/trust-counter-floors';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -10,8 +10,6 @@ const SUGGESTION_INITIAL_COUNT = HOME_TRUST_FLOORS.disagree;
 const DEVICE_ID_KEY = 'taiji_ai_feedback_device_id_v1';
 const LEGACY_LIKE_DEVICE_ID_KEY = 'taiji_ai_like_device_id_v1';
 const LEGACY_SUGGESTION_DEVICE_ID_KEY = 'taiji_ai_suggestion_device_id_v1';
-const LIKE_HIGHEST_COUNT_KEY = 'taiji_ai_like_highest_count_v1';
-const SUGGESTION_HIGHEST_COUNT_KEY = 'taiji_ai_suggestion_highest_count_v1';
 const NOTICE_DURATION_MS = 5200;
 const FEEDBACK_REQUEST_TIMEOUT_MS = 8500;
 const FEEDBACK_RETRY_DELAY_MS = 650;
@@ -145,16 +143,6 @@ function normalizeTotalCount(value: unknown, initialCount: number) {
   return Number.isSafeInteger(count) && count >= initialCount ? count : initialCount;
 }
 
-function readStoredHighestCount(key: string, initialCount: number) {
-  if (typeof window === 'undefined') return initialCount;
-  return normalizeTotalCount(readStorage(key), initialCount);
-}
-
-function writeStoredHighestCount(key: string, count: number, initialCount: number) {
-  if (typeof window === 'undefined') return;
-  writeStorage(key, String(normalizeTotalCount(count, initialCount)));
-}
-
 function createFeedbackEventId() {
   return `event_${createDeviceId()}`;
 }
@@ -285,27 +273,13 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
   const formattedLikeCount = useMemo(() => likeCount.toLocaleString('zh-TW'), [likeCount]);
   const formattedImproveCount = useMemo(() => improveCount.toLocaleString('zh-TW'), [improveCount]);
 
+  // 伺服器是唯一真相：它說多少就顯示多少，不拿瀏覽器存的舊數字去墊高。
   const commitLikeCount = useCallback((nextCount: unknown) => {
-    setLikeCount((currentCount) => {
-      /*
-        原本取「目前值、localStorage 最高值、伺服器值」三者的最大。
-
-        數字只能往上不能往下，於是虛增時期存下的 630,674
-        永遠壓著真實的 46——歸真只對沒看過的人生效。
-        伺服器是真相來源，它說多少就是多少，包括變少。
-      */
-      const permanentCount = monotonicCount(currentCount, normalizeTotalCount(nextCount, LIKE_INITIAL_COUNT), LIKE_INITIAL_COUNT);
-      writeStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, permanentCount, LIKE_INITIAL_COUNT);
-      return permanentCount;
-    });
+    setLikeCount(normalizeTotalCount(nextCount, LIKE_INITIAL_COUNT));
   }, []);
 
   const commitImproveCount = useCallback((nextCount: unknown) => {
-    setImproveCount((currentCount) => {
-      const permanentCount = monotonicCount(currentCount, normalizeTotalCount(nextCount, SUGGESTION_INITIAL_COUNT), SUGGESTION_INITIAL_COUNT);
-      writeStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, permanentCount, SUGGESTION_INITIAL_COUNT);
-      return permanentCount;
-    });
+    setImproveCount(normalizeTotalCount(nextCount, SUGGESTION_INITIAL_COUNT));
   }, []);
 
   // Only the confirmed server total may update the display, including retries.
@@ -336,9 +310,6 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
   }, []);
 
   useEffect(() => {
-    commitLikeCount(readStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, LIKE_INITIAL_COUNT));
-    commitImproveCount(readStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, SUGGESTION_INITIAL_COUNT));
-
     let active = true;
     let controller: AbortController | null = null;
 

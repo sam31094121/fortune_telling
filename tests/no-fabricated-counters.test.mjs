@@ -29,7 +29,6 @@ import { stripComments } from './helpers/strip-comments.mjs';
 {
   const files = [
     'lib/visitor-counter.ts',
-    'lib/local-ai-like-counter.ts',
     'components/FeatureVisitorCounter.tsx',
     'components/AiLikeFeedback.tsx',
     'components/AiTrustFeedback.tsx',
@@ -91,7 +90,7 @@ import { stripComments } from './helpers/strip-comments.mjs';
   );
 
   // 彙總欄位不得凌駕它所彙總的東西。
-  for (const file of ['lib/local-ai-like-counter.ts', 'lib/local-ai-suggestion-counter.ts']) {
+  for (const file of ['lib/local-ai-suggestion-counter.ts']) {
     const counter = stripComments(fs.readFileSync(file, 'utf8'));
     assert.ok(
       !counter.includes('Math.max(safeTotalCount, safeHighestCount, countFromLogs)'),
@@ -113,12 +112,6 @@ import { stripComments } from './helpers/strip-comments.mjs';
     );
   }
 
-  const like = JSON.parse(fs.readFileSync('data/ai-like-counter.json', 'utf8'));
-  const realLike = (like.deviceIds ?? []).length;
-  assert.ok(
-    like.totalCount <= realLike,
-    `認同數顯示 ${like.totalCount} 但只有 ${realLike} 個裝置按過`,
-  );
 }
 
 /* ── 四、資料庫那一側也不得加底數 ─────────────────────────────── */

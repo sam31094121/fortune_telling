@@ -3,8 +3,8 @@
  * 數字只能往前推，不能往後、不能顯示低於地板。
  * 前端／本機檔／API 一律引用這裡，禁止各寫各的。
  */
-export const HOME_VISITOR_FLOOR = 110128;
-export const AI_LIKE_FLOOR = 356;
+export const HOME_VISITOR_FLOOR = 0;
+export const AI_LIKE_FLOOR = 0;
 export const AI_SUGGESTION_FLOOR = 36;
 
 /**
@@ -13,7 +13,7 @@ export const AI_SUGGESTION_FLOOR = 36;
  * 資料庫遷移（supabase/migrations/20261006170000_*.sql）的 CHECK 地板與種子值必須與此一致。
  */
 // 明確標成 number：若寫成 as const，useState(HOME_TRUST_FLOORS.agree) 會被推斷成只能是 714，累加後的數字編不過。
-export const HOME_TRUST_FLOORS: { agree: number; disagree: number; view: number } = { agree: 714, disagree: 74, view: 110397 };
+export const HOME_TRUST_FLOORS: { agree: number; disagree: number; view: number } = { agree: 0, disagree: 0, view: 0 };
 
 export const VISITOR_FEATURE_FLOORS: Record<string, number> = {
   home: HOME_VISITOR_FLOOR,
