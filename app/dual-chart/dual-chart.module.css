@@ -136,6 +136,15 @@
 }
 /* Traditional reference reports: one data-backed DOM for screen and paper. */
 .reportScroll,.ziweiScroll{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+/* The global mobile rules restrict sections and links to pan-y. Restore native
+   two-axis gestures throughout each chart scroller, including interactive cells.
+   Keep this screen-only: the A4 canvas and PDF geometry are unchanged. */
+@media screen{
+ .page .reportScroll,.page .reportScroll *,
+ .page .ziweiScroll,.page .ziweiScroll *,
+ .printPreview .results,.printPreview .results *{touch-action:pan-x pan-y pinch-zoom!important}
+ .page .reportScroll,.page .ziweiScroll,.printPreview .results{overscroll-behavior-y:auto;-webkit-overflow-scrolling:touch}
+}
 .baziReport{min-width:680px;line-height:1.65;font-size:14px}
 .birthBand{display:grid;grid-template-columns:1fr auto;border:1px solid #97879f;margin-bottom:12px;padding:10px;gap:4px 12px;overflow-wrap:anywhere}
 .birthBand>b{font-size:17px}.birthBand>span:nth-last-child(-n+2){grid-column:1/-1}

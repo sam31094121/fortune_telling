@@ -156,3 +156,48 @@
 - 本輪隔離包改為固定對照原遠端 `92bb504`，只用於差異證據，不對現在遠端自動套用；不執行回滚，不撤掉其他工作。
 - 客戶急用：可在本機 `http://localhost:8888/dual-chart` 使用客戶本人的命盤，點「列印專用版」→ 製作／下載 PDF，再由使用者自行傳到手機或平板用閱讀器列印。這條路徑已用合成資料實際驗證；本工作不代傳客戶資料，測試 PDF 不能冒充客戶命盤。
 - 不能保證十分鐘內線上同步；Vercel 排隊／建置和最後正式站驗證尚未完成，且七項健康失敗未解決。可立即使用的是本機 PDF 流程，不是已確認上線的新網站。
+
+## 正式站驗證完成（2026-10-08；取代上節部署待確認狀態）
+
+- GitHub 提交狀態確認 `2a3bb59ed48c314d3f43cf46a56dffd21ef94c49` 的 Vercel 部署成功，時間 `2026-10-08T05:54:23Z`；Production deployment `6928327123` 亦回報 success。後續外部提交 `bfb10fc7694d790385708583ad1973e98785ab02` 只變更報告，產品程式與前次成功部署一致。本工作未執行提交或推送。
+- 已在獨立瀏覽器分頁實際登入正式網址 `https://heaven-earth-humanity-pair.vercel.app/dual-chart`，不是只查 HTTP 狀態或本機頁面，也沒有改動使用者原分頁。
+- 768×1024 平板尺寸：以無姓名合成資料 1995-02-23 女、午時 11:30，填一次並排盤。正式後端結果按時／日／月／年顯示 13／4／2／3 項；新版四卡嵌入與流年年齡字型修正均可見，整頁沒有水平溢出。
+- 正式站實際製作並下載彩色 PDF：`C:/Users/DRAGON/Downloads/神煞易經-19950223-wu點-彩色 (2).pdf`，確認 2 頁 A4（八字＋神煞一頁、紫微一頁）。
+- 390×844 手機尺寸：取消紫微後切換黑白，舊下載連結清除，再製作並下載 `C:/Users/DRAGON/Downloads/神煞易經-19950223-wu點-黑白 (2).pdf`，確認 1 頁 A4；整頁沒有水平溢出。
+- 兩份正式站 PDF 已轉成 PNG 並逐頁目視核對，神煞、8 格大運、15 年流年及頁腳均完整，年齡小字無重疊。證據：`.tmp/shensha-order-qa/production-color-1.png`、`production-color-2.png`、`production-mono.png`、`production-phone-download.png`。最後已重置視窗尺寸。
+- 此為瀏覽器手機／平板尺寸與實際下載檔案驗證，未操作實體手機、平板或印表機。合成 QA 命盤不能當作使用者或客戶命盤。
+- 全站健康檢查仍為 **48/55，7 項失敗**；本次未改來源核定、未修復其他功能，也不以部署成功代替命理準確性或全站健康通過。
+- 客戶可使用上列正式網址，新開分頁或在填資料前重新整理，正常登入後填一次資料，依序點「列印專用版」→ 製作彩色／黑白 A4 PDF → 下載，交由装置 PDF 閱讀器列印。已有未保存資料時先下載／保存，勿直接重新整理造成資料遺失。
+
+## 手機命盤橫滑後續修復（本機已驗證，尚未发布）
+
+### 原因與最小範圍
+
+- 正式站在 390px 下，列印閱讀區 clientWidth=351、scrollWidth=794，確有 443px 局部水平捲動空間；但計算樣式是 `touch-action: pan-y pinch-zoom`。`app/globals.css:7834` 起的全站規則對 section、連結和按鈕使用此限制，命盤內部區塊／神煞連結／紫微宮位均受影響。水平滾輪可以移動，手指方向仍被 CSS 限制；整頁不溢出不代表卡內觸控可用。
+- 產品檔只改 `app/dual-chart/dual-chart.module.css`，新增 9 行 screen-only 樣式：`.page .reportScroll`、`.page .ziweiScroll`、`.printPreview .results` 及各自後代使用 `touch-action: pan-x pan-y pinch-zoom !important`；捲動容器保留縱向連鎖及慣性滾動。瀏覽器計算值會正規化為 `manipulation`。
+- 不修改 globals.css、不注入手勢事件、不用 preventDefault、不改四柱順序／數據／算法／內容／寬度／A4幾何。處理容器全部後代，避免手指從連結或宮位按鈕開始仍被 pan-y 卡住。依據：W3C Pointer Events（https://www.w3.org/TR/pointerevents/latest/）的 touch-action 逐祖先至捲動容器判定。
+- 新增 `tests/dual-chart-touch-scroll.test.cjs`，驗證六個 scoped selector 均允許雙軸＋縮放、優先於全站 important、僅作用於 screen，三個局部容器保留 overflow-x:auto。此為樣式結構回歸，不冒充觸控端對端測試。
+
+### 實際驗證
+
+- 獨立本機 QA 分頁、同一無姓名合成資料，實際填一次生日／性別／時辰並排盤成功。每輪以 innerWidth 核對真實模擬寬度，不用傳入參數冒充已生效尺寸。
+- 原生水平捲動输入（非修改 scrollLeft）：320px 從 0 到 432.86（最大433）；375px 從0到377.71（最大378）；390px 從0到362.86（最大363）；430px 從0到322.86（最大323）。四種尺寸頁面本身無水平溢出，左右端內容可見。所有命盤內後代計算 touch-action 都已允許雙軸。
+- 390px 上下捲動：window.scrollY 3708.29→4003.71，局部水平位置維持245.71。天德合連結可導向完整解讀，回四柱連結可返回。
+- 紫微寬盤：430px 下水平位置0→342.86（最大343），12宮內觸控樣式無限制殘留；點兄弟宮後實際詳情更新為「兄弟宮 · 癸未」。
+- 列印預覽：390px 下水平位置可到442.86（最大443）；768px 下閱讀區寬721、內容794，A4畫布仍793.696×1122.518px。
+- 從修復後頁面實際製作下載彩色 `(3).pdf` 2頁A4、黑白 `(3).pdf` 1頁A4，八字＋神煞一頁、紫微另頁；全部轉PNG目視核對，無截斷。證據 `.tmp/shensha-order-qa/scroll-fix-color-1.png`、`scroll-fix-color-2.png`、`scroll-fix-mono.png`、`mobile-scroll-right.png`。下載位於 `C:/Users/DRAGON/Downloads/神煞易經-19950223-wu點-彩色 (3).pdf` 及對應黑白檔。
+- 環境限制：工具提供滑鼠拖曳／捲動，未提供觸控事件注入；拖曳會選取文字，不能算手指滑動通過。本輪已驗證實際水平滾動及每層 CSS 允許觸控，**尚未真機手指實測**，不宣稱實體手機通過。
+- PASS：正式build、touch-scroll／PDF／柱位3項定向測試、八字81、契約27、三核心交叉104、傳統守門、git diff --check。
+- `health:check` 本輪 2026-10-08T06:03:10Z 仍48/55、7失敗；全專案tsc仍是michelin測試263–264語法問題，輸出可用性仍是既有fixture缺shenShaVisibility。沒有擴修、刪測試或重啟服務。
+
+### 發布決策與可審閱方案
+
+- 最新實際遠端 main 為 `c092dd910fdcd6683ce175f9ac91b18e647e249f`，僅文件更新；本次9行CSS及新測試尚未提交，未包含在正式站。前一輪正式排版上線與本次橫滑修復未上線分開回報。
+- 最小發布候選僅 **2 檔**：上述CSS＋新touch-scroll測試。本驗證報告及最新健康報告為本機證據，不挾帶其他檔案發布；神獸報告僅健康掃描時間戳已還原。
+- 阻擋的使用者規則完整路徑 `C:/Users/DRAGON/Desktop/命理/AGENTS.md`，逐字原文：
+  > 若測試失敗、存在未解衝突、修改範圍或風險尚未釐清，禁止自動更新；先停止並向使用者回報。
+  > 永久採用「完成即自動更新」：每批修改完成、內容確認且相關測試與健康檢查通過後，立即提交並推送到 `origin/main`，不再等待使用者重複確認。
+- 技能 `C:/Users/DRAGON/.codex/skills/dual-chart-card/SKILL.md` 的驗證逐字要求：「`npx tsc --noEmit --pretty false` 與 `git diff --check`。」技能 `C:/Users/DRAGON/.codex/skills/mobile-health-check/SKILL.md`：「Run the project health check, type check, production build, and whitespace/diff check when available.」技能要求執行；明確禁止失敗時自動更新的是AGENTS。
+- 規則沒有載明「既有失敗／純CSS可跳過」例外。現有「提交同步」已授權提交動作，**不等同覆寫失敗門檻**。若要先發布此独立修復，需要使用者明確同意一次性發布門檻例外，接受下列既有風險仍存在；不是重新索取一般提交授權。沒有該指示就保留本機修改，不推送、不跳過pre-push、不改永久規則。
+- 保留7項風險：輸出一致性舊fixture失效；老師／喜用／紅鸞服務未放行；來源登記待核／衝突；功能完整度未達標；真實計數斷言失敗；三核心六項傳統缺陷；神煞來源59項待核。詳細原因沿用本報告上表，不為觸控修復擴大修改。
+- 若取得明確一次性例外：再核對遠端及範圍，只處理上述2檔，沿既有發布流程驗證提交／推送／Vercel成功，最後再確認正式頁觸控樣式和兩端捲動；不得以push成功代替正式站生效。若hook仍阻擋，先回報，不擅自停用。
