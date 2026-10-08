@@ -6,7 +6,7 @@
 - 隱藏嵌入卡內重複柱位標題與占位；保留主表四柱表頭、原始名稱、來源提示、點擊詳情與返回功能。
 - 下方不再重複渲染四卡。後端資料、公式、來源狀態、八字／紫微算法均未修改。
 - A4 只調整列印留白和格內間距；沒有移動大運至左下，也沒有縮放整頁、裁切內容或修改神煞數量。
-- 依本次明確要求不提交、不推送。啟動時 main 已領先 origin/main 9 個提交，本批未產生提交。
+- 初期依要求不提交；後續使用者接受版面並明確要求提交、手機和平板同步使用。啟動時 main 已領先 origin/main 9 個其他工作提交。本批截至以下最終紀錄仍未提交、推送或部署，原因是發布門檻未過與範圍隔離，並非仍在等待重複授權本版排版。
 
 ## 已取得證據
 
@@ -79,6 +79,69 @@
 
 - 現有後端真實運算的合成命例 1995-02-23 女、午時 11:30：時／日／月／年為 13／4／2／3，總 22 項。實際彩色與黑白 PDF 均 1 張 A4，已轉 PNG 目視核對；13 項、四柱、完整 8 格大運及 15 年流年保留。
 - 證據：`C:/Users/DRAGON/Downloads/神煞易經-19950223-wu點-彩色.pdf`、同名黑白 PDF；`.tmp/shensha-order-qa/thirteen-color.png`、`thirteen-mono-1.png`。這不是「單柱最多 13 項」或所有命盤皆一頁的保證。
-- 另測 1991-07-01 女、寅時 03:30：11／5／3／2，總 21 項，與照片類似的單欄長、其他欄短分布。初次實際彩色 PDF 為 1 A4、神煞與 8 格大運完整，但轉圖發現部分流年年齡小字比預覽寬而接近鄰欄，不能僅憑一頁算完整通過；追加列印限定的年齡字型修正，須以重製 PDF 驗證。
+- 另測 1991-07-01 女、寅時 03:30：11／5／3／2，總 21 項，與照片類似的單欄長、其他欄短分布。初次實際彩色 PDF 為 1 A4、神煞與 8 格大運完整，但部分流年年齡小字比預覽寬而接近鄰欄。已限定列印的年齡小字使用 Arial／Microsoft JhengHei、字重 500、零字距，沒有縮小字級或改數值；重製彩色 `(1).pdf` 與黑白 `.pdf` 均 1 A4，轉圖目視確認小字無重疊。黑白版本由 390 px 手機視窗實際製作下載。
 - 「命局合沖刑害破」是右欄大運下方的整張卡；左側已有五行、命身宮等摘要和 15 年流年。上述 21 項測例左欄底部餘約 8 px（約 2 mm），關係卡高約 103 px（約 27 mm）、寬約 457 px；左欄寬約 264 px。直接搬到更窄左欄會增加換行，未必節省整頁高度。沒有另獨立的「命格卡」可以直接搬。
 - 使用者澄清為詢問意見後，未實作左移、未改網頁布局、未刪大運格數；新方案停在評估。
+
+## 最終驗證與發布決策（2026-10-08 13:50，台北時間）
+
+### 可交付部分
+
+- 年齡字型修正後，再用 768×1024 平板視窗實際下載 1995-02-23 午時的 13／4／2／3 項命盤：`C:/Users/DRAGON/Downloads/神煞易經-19950223-wu點-黑白 (1).pdf` 是 1 頁 A4；同名 `彩色 (1).pdf` 是 2 頁 A4（八字＋神煞一頁、紫微一頁）。三頁均已轉 PNG 目視確認：神煞、8 格大運、15 年流年及頁腳完整；黑白圓環及圖例為灰階紋理，彩色保留原色。視窗覆寫已重置，沒有送實體印表機。
+- 最終紙面圖片：`.tmp/shensha-order-qa/thirteen-mono-final.png`、`thirteen-color-final-1.png`、`thirteen-color-final-2.png`；下載介面截圖：`final-tablet-download-screen.png`。皆為合成 QA 命例，不冒充使用者照片那一筆。
+- 正式建置 `npm run build` **成功**，沒有重啟或停止本機服務。
+- 三項排版／PDF／圓環定向測試及 `git diff --check` 通過。
+- 健康檢查的卡片擷取還在讀舊布局：已將 `scripts/dual-chart-iching-shensha-display-check.cjs`、`tests/iching-shensha-live-api.test.mjs` 改為實際嵌入版＋下方不重複四卡的組合，按時日月年及可見 `<li>` 連結名稱核對。不是移除驗證。新增六種反例（漏項、重複、改名稱、改識別、錯柱、折疊）皆會失敗，來源待核仍會失敗。
+- `npm run test:iching-shensha-live-api` **通過**：6 組換時辰、1 組不同生日與 4 種缺失時辰輸入；後端原有結果、預期名稱、柱位及新布局一致。
+
+### 全站門檻：尚不能發布
+
+最新 `npm run screen:health`（standard、no-repair）在 `2026-10-08T05:49:34.908Z` 完成，**48/55 通過、7 失敗**。最初是 47/55；修正上述檢查接點後真實 API 顯示項已通過，未刪任何失敗標準。完整原始報告在 `reports/screen-health/latest.json`。這不是全站手機實測，也不是神煞來源認證。
+
+| 未過項 | 實際原因 | 本輪界線 |
+|---|---|---|
+| BAZI_OUTPUT_CONSISTENCY | `tests/dual-chart-iching-shensha-output.test.cjs:21` 的旧 fixture 缺 `shenShaVisibility`；舊測試仍假設前端從 gate 建結果 | 要把 fixture 接回既有後端 builder，逐條保留原断言並處理已變更的老師頁籤。不是加空物件便能證明全過；本輪未改 |
+| BAZI_SERVICE_AVAILABILITY | 八字老師進階判讀、喜用／配對五行補強、紅鸞尚未放行 | 不在排版工作中解除來源守門 |
+| BAZI_SOURCE_REGISTRY_COMPLETE | 16 個 claim 中 5 個仍 CONFLICT/PENDING_POOL | 不手填 VERIFIED |
+| BAZI_FEATURE_COMPLETE | 10 項中 3 項未放行：進階老師、五神、紅鸞 | 與前兩項重疊，但仍是独立未過檢查 |
+| NO_FABRICATED_COUNTERS | `tests/no-fabricated-counters.test.mjs:88` 的真實紀錄計數斷言失敗 | 涉及九筆其他首頁統計工作，本輪不改 |
+| THREE_CORE_TRADITIONAL_DEFECTS | 六項既有取数／AI 排盤／文字雜湊起卦問題列為 UNRESOLVED | 要另定算法修復範圍，不能用排版發布偷改 |
+| DUAL_CHART_SHENSHA_DISPLAY | 三組逐柱顯示與所需規則接入現在通過；59 項來源仍 PENDING_POOL | `deliveryOk=true`、`requestedScopeComplete=true`、`sourceVerified=false`；顯示成功不等於來源核定 |
+
+另有全專案 `npx tsc --noEmit --pretty false` 失敗：`tests/michelin-stability-comprehensive.test.ts:263-264`。此檔工作目錄／HEAD／最新 origin/main 的 blob 都是 `f66fe7b0d68a0727f06bb7057f6e951d2b3c814f`，不是本輪或九筆本機提交新引入，換乾淨基線也仍存在。
+
+### 舊測試最小修復判斷
+
+- **已安全完成**：神煞健康檢查讀取實際嵌入位置、保留名稱／ID／柱位嚴格比對，補負面反例；沒有更動產品算法或來源狀態。
+- **可以明確列出的機械問題**：michelin 檔末端括號／方法／class 未闭合；正則式 `/??.../` 未跳脫問號。但只補這兩處仍不能讓測試正確執行，因此未作局部修正後宣稱完成。
+- **必須確定測試設計的部分**：該檔把自製 `runAll/testP0` 類別與 Jest `describe/test/expect/beforeAll` 混在一起；呼叫的 `testP1/testP2/testIntegration` **是尚未定義的測試方法，不是已證實缺失的產品方法**。專案沒有對應 Jest runner；也沒有實際啟動該 class。修復須選定既有 node/assert runner 或配置框架，逐項移植斷言、證明所有案例確實執行，不能刪空缺方法／放寬正則式就稱通過。
+- `dual-chart-iching-shensha-output.test.cjs` 需要以真實後端 view builder 建 fixture（包含 visibility、byPillar、card），再逐條保留漏顯／受限／老師頁籤斷言。既有「前端不造句」檢查也可能揭露其他既有文案問題；若遇到，不得為本版排版修改老師功能或刪斷言。
+- 所以「只修兩份測試工具」是可獨立驗收的一批：兩份都真的執行原要求、無刪減 assertion；但即使通過，仍不代表其他來源／計數／三核心缺陷已解決。
+
+### 排版隔離與九筆舊提交
+
+- 最新遠端 `origin/main=92bb504ca4015b6eb241fc379fe33b0968900953`；本機 `HEAD=b2635ba6747a989c1073017af3a72cba886bb915`，領先 9 筆首頁信任統計修改。
+- 本輪產品檔只有 `app/dual-chart/BaziChart.tsx`、`BaziIChingShenShaCard.tsx`、`DualChart.tsx`、`dual-chart.module.css`、`export-pdf.ts`；必要檢查是 `scripts/dual-chart-iching-shensha-display-check.cjs`、`tests/iching-shensha-live-api.test.mjs`、新建的兩份定向測試及本報告。
+- 這些既有路徑在 origin/main→HEAD 沒有差異；本輪沒有新套件需求。九筆提交中的 `@electric-sql/pglite` 及首頁測試指令不屬於排版依賴，不能一起帶上。
+- 可以抽成僅包含本輪檔案的 patch；**不能在目前 main 直接普通 push 並同時排除它的九個祖先提交**。不使用 force push、不重設／遺失他人提交。
+- 隔離發布需要人明確允許一次性基於遠端的臨時 branch/worktree（現行 AGENTS 禁止自行建立），或先完成九筆工作的獨立驗收並允許合併發布；本輪未做任何一種，也未部署未提交目錄。
+
+### 實際阻止更新的規則
+
+- `C:/Users/DRAGON/Desktop/命理/AGENTS.md`：**「若測試失敗、存在未解衝突、修改範圍或風險尚未釐清，禁止自動更新；先停止並向使用者回報。」**
+- 同檔：**「不建立或保留功能分支、整合分支、臨時分支或驗證用 worktree，除非使用者明確要求。」**
+- `C:/Users/DRAGON/.codex/skills/dual-chart-card/SKILL.md` 驗證節要求 **「npx tsc --noEmit --pretty false 與 git diff --check」**；畫面／列印節要求实际瀏覽器與成品 PDF，不以 HTTP 200 代替。
+- `C:/Users/DRAGON/.codex/skills/shensha-rule-integrity/SKILL.md`：**「失敗紀錄不得刪除、弱化或用口頭完成取代。」** 因此不能將來源 pending 改為通過來促成這次發布。
+
+### 正式管線與上線狀態
+
+- `.vercel/project.json` 連結到 Vercel 專案 `heaven-earth-humanity-pair`；專案既有文件列的正式站為 `https://heaven-earth-humanity-pair.vercel.app/`。本次對 `/dual-chart` 唯讀 HEAD 請求回 200、Server=Vercel，只證明現站可連，不證明含本輪修改。
+- `scripts/hooks/pre-push`（以及本機 `.git/hooks/pre-push`）記載 main push 會進 Vercel，腳本先正式 build 再逐項測試。本輪沒有略過它。未取得 Vercel 控制台部署 ID，不能聲稱已核實目前 Git 自動部署綁定或某次部署成功。
+- `.github/workflows/ci.yml` 實際只监听 `develop` 的 push/PR，**不能當作 main 的 CI 已過或已部署證據**。
+- **本輪狀態：本機修復與 PDF 成品已存在；未提交、未推送、未部署。手機／平板若看正式網址仍不是本輪新版本。**
+
+### 最小下一步決策
+
+1. 若只允許本卡排版：保留本輪 patch／PDF，本機可用；正式發布保持停止，不能以部分綠燈忽略上述失敗。
+2. 若要先解除測試工具失效：只授權修復上列兩份測試工具與其 fixture，不改算法／來源／老師文案；驗收為實際執行原斷言並分開列出尚未修復的功能失敗，不承諾因此就能上線。
+3. 排版單獨上線另需允許隔離九筆工作的方法；即使允許一次性隔離，也仍須解決或由業主明確重新界定既有發布政策，不會自動繞過失敗測試與來源門檻。
