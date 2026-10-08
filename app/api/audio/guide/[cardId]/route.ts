@@ -14,9 +14,9 @@ const AUDIO_DIR = path.join(process.cwd(), 'public/audio/guides');
 
 export async function GET(
   request: Request,
-  { params }: { params: { cardId: string } }
+  { params }: { params: Promise<{ cardId: string }> }
 ) {
-  const { cardId } = params;
+  const { cardId } = await params;
 
   // 驗證卡片 ID 格式
   if (!/^[a-f0-9]{12}$/.test(cardId)) {
@@ -87,9 +87,9 @@ function getUniversalAudioGuide() {
  */
 export async function POST(
   request: Request,
-  { params }: { params: { cardId: string } }
+  { params }: { params: Promise<{ cardId: string }> }
 ) {
-  const { cardId } = params;
+  const { cardId } = await params;
 
   try {
     // 記錄掃描事件

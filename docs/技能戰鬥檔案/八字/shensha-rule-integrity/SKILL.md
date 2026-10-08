@@ -5,15 +5,22 @@ description: 維護命理專案四柱神煞的既有後端運算、指定版本�
 
 # 四柱神煞
 
-這是八字神煞的查核與維護技能，不是新運算核心、HTTP 服務或易經算法。維護版在專案 `docs/技能戰鬥檔案/八字/shensha-rule-integrity`；安裝版位於個人 skills 同名目錄。先定位命理專案根目錄，再解析下列專案相對路徑。
+這是八字神煞的查核與維護技能，不是新運算核心、HTTP 服務或易經算法。唯一維護來源為專案 `docs/技能戰鬥檔案/八字/shensha-rule-integrity`；個人 skills 同名目錄是同步安裝副本，不是第二套規範。先改維護版、同步本次變更並核對雜湊；不另建同用途技能、不複製產品引擎。先定位命理專案根目錄，再解析專案相對路徑。
+
+## 現行維護界線（2026-10-08）
+
+- 先讀 [現行接點、行為基準與驗收案例](references/project-map.md)，並遵守專案 `AGENTS.md` 全卡片功能凍結規則。功能、算法、來源政策、欄序、版型與互動變更須由業主指明卡片與範圍解鎖；有可重現證據且不改既定語義的最小穩定性修復仍可依當次授權進行。
+- 四張原神煞卡嵌於八字主表特星神煞四格，左到右時、日、月、年；按柱位鍵對應後端資料，原內容、來源待核標示、連結互動保留，卡內不再重複柱位標題。八字及完整神煞共一張 A4，紫微另頁選項、全部大運、彩色黑白與實際下載頁數保留。移動大運到左側／僅留六格及移動合沖刑害破均非現行需求，不得實施。
+- 把「同輸入同版本的四柱／神煞判定不漂移」與請求稽核 ID、既有隨機話術分開查核；不得因有 hash 或固定範例通過就宣稱全部結果永久一致。任何已知缺口及未測項照實記錄。
+- 下方 2026-09-27／10-04 現況表為歷史盤點，未實作提案不是已上線保障。現行程式接點與本輪發布狀態以 project-map 指向的驗收紀錄及即時 Git／部署證據為準。凍結文件不是技術封鎖，也不是繞過發布門檻的許可。
 
 ## 業主定案（2026-09-27，優先於本檔其他較舊敘述）
 
-- **《神煞易經》**：八字 → 紫微（四柱核對）→ 特星神煞 → 易經，有邏輯地融會貫通。第④層 `lib/shensha-iching.ts` 沿用三合一 `runIChingLayer` 起卦，每一個命中的神煞都逐項延伸（導師話術、柱位、推導、字的意境）；導師話術為本派自撰（`lib/shensha-teacher-readings.ts`），凶煞只講提醒與轉化；來源登記 `C-SHENSHA-ICHING`。
+- **《神煞易經》**：八字 → 紫微（四柱核對）→ 特星神煞 → 易經，有邏輯地融會貫通。第④層現行 `lib/iching-shensha-iching.ts` 沿用三合一 `runIChingLayer` 起卦，每一個命中的神煞都逐項延伸（導師話術、柱位、推導、字的意境）；導師話術為本派自撰（`lib/iching-shensha-teacher-readings.ts`），凶煞只講提醒與轉化；來源登記 `C-SHENSHA-ICHING`。
 - **特星神煞從八字、紫微衍生**：先排八字四柱，再排紫微；兩邊四柱逐字一致才衍生神煞，對不上就停在核對關、原樣列出哪一柱不同，不自動改任何一套。
 - **正式取法為本站自家一派「太極紫微易經派」取法**（客戶資料 → 八字 → 紫微 → 有邏輯地衍生特星神煞）：以業主紙本命盤（1974-06-28 18:00 男，17 項）為標準答案，整張卡用同一套取法；袁本／神峰取法只作來源對照。詳見 [太極紫微易經派取法](references/參考命盤取法.md)。
 - **算出來就顯示並標註**：無原典頁碼者標＊、狀態維持 `PENDING_POOL`＋`referenceMethod`，不得寫成已通過交叉比對；原典頁碼逐項補齊後再改 VERIFIED。
-- **後端運算，前端只顯示**：每柱顯示內容、待確認、說明文字由 `lib/dual-chart-shensha-card.ts` 決定，前端 ShenShaCard 只照印。
+- **後端運算，前端只顯示**：每柱顯示內容、待確認、說明文字由現行 `lib/dual-chart-iching-shensha-card.ts` 決定，前端 ShenShaCard 只照印。
 - **只動這張卡**：八字核心、紫微、共用元件與其他卡片一律不動。
 
 ## 範圍與來源
@@ -65,7 +72,7 @@ description: 維護命理專案四柱神煞的既有後端運算、指定版本�
 
 ### 採用為工程要求（目標標準；標「未實作」者不得宣稱已建置）
 
-1. **範圍**：本技能只處理四柱神煞判定及其來源、顯示與健康檢查；不負責排盤、十神、格局、旺衰、喜用、大運流年、紫微或易經算法（9/27《神煞易經》延伸照既有 `lib/shensha-iching.ts` 維護，不在本技能新造算法）。
+1. **範圍**：本技能只處理四柱神煞判定及其來源、顯示與健康檢查；不負責排盤、十神、格局、旺衰、喜用、大運流年、紫微或易經算法（9/27《神煞易經》延伸照既有、現名 `lib/iching-shensha-iching.ts` 維護，不在本技能新造算法）。
 2. **啟動條件**：只有四柱已驗證（現行為 `coreReady`＋八字／紫微四柱逐字一致）才判定神煞；否則 BLOCKED（現行 `BLOCKED_CORE`）。禁止自行補四柱、改四柱、重排或猜測缺失資料。
 3. **每條規則綁定來源欄位**：`source_master_id`、`source_title`、`source_version`、`source_volume`、`source_location`、`original_text`。缺任何一欄者不得標 VERIFIED（現行沿用 9/27：照算、標＊、維持 PENDING_POOL）。
 4. **古籍轉程式流程**：原文 → 第一人轉譯 → 第二人獨立覆核 → 一致 → 結構化公式 → 測例 → 簽核 → VERIFIED → 發布；需 `reviewer_1`、`reviewer_2`、`review_status`、`approved_at`，`DOUBLE_APPROVED` 才可進正式。兩個 AI 或同一人跑兩次不算兩名人工；沒有真人簽核就留空，不得代填。（未實作）
@@ -75,7 +82,7 @@ description: 維護命理專案四柱神煞的既有後端運算、指定版本�
 8. **啟動完整性檢查**：自檢 SOURCE_MASTER、RULESET_VERSION、EXPECTED_RULE_COUNT、ACTUAL_RULE_COUNT、RULE_HASH、TEST_COUNT、ENGINE_VERSION；數量不符回 `SHENSHA_DATA_INCOMPLETE`。現行只有健康檢查端的範圍比對（`scripts/dual-chart-iching-shensha-display-check.cjs`），不是服務啟動自檢。（未實作）
 9. **每條神煞固定回傳狀態**：MATCHED／NOT_MATCHED／BLOCKED／ERROR，禁止 MAYBE、LIKELY、POSSIBLE、AI_GUESS。現行內部 `coverage` 逐項有狀態（含 `BLOCKED_SOURCE`、`BLOCKED_CORE`、`NOT_MATCHED`），對應方式見 C4。
 10. **完整判定鏈欄位**：shensha_name、anchor_type／anchor_pillar／anchor_value、lookup_values、matched_value／matched_pillar／matched_position、status、source_master_id／source_volume／source_location、rule_version、engine_version、calculation_trace。現行有 `evidence`、`ruleVersion`、柱位；其餘欄位未齊。
-11. **前端零運算**：前端不得有神煞公式、干支查表、判定條件或命中邏輯；只讀後端結果 JSON，負責顯示、展開、分類、排序、說明（說明文字也由後端給，9/27：`lib/dual-chart-shensha-card.ts`）。
+11. **前端零運算**：前端不得有神煞公式、干支查表、判定條件或命中邏輯；只讀後端結果 JSON，負責顯示、展開、分類、排序、說明（說明文字也由後端給，現名：`lib/dual-chart-iching-shensha-card.ts`）。
 12. **AI 隔離**：模型不參與判定；只讀結果 JSON 做白話、老師版、故事化、整理；不得改 status、anchor、lookup、matched_pillar、source、rule_version。
 13. **結果防漂移**：每次計算產生 `input_hash`、`ruleset_hash`、`engine_hash`、`result_hash`；三者相同而結果不同即 `DETERMINISTIC_ERROR`、禁止輸出。設計前先定正規化（曆法、時區、精度、早晚子、排序、編碼，排除時間戳）。（未實作）
 14. **Golden Test 閘門**：固定黃金命盤（現有業主紙本 1974-06-28 18:00 男 17 項）；程式、規則、資料、部署、伺服器變動都要跑，既有 VERIFIED 結果無理由改變即 FAIL、禁止部署。期望值須來自原頁／手算／紙本，不得抄引擎自證。

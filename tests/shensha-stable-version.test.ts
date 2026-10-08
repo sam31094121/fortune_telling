@@ -8,7 +8,8 @@
  * 4. 順序驗證函數正確
  */
 
-import { describe, it, expect } from '@jest/globals';
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
 import {
   getStableOrder,
   sortByShenShaStableOrder,
@@ -22,42 +23,42 @@ describe('神煞易經穩定版本系統', () => {
   describe('版本管理', () => {
     it('應該能加載 v1.2026-10-08 版本', () => {
       const version = SHENSHA_STABLE_VERSIONS['v1.2026-10-08'];
-      expect(version).toBeDefined();
-      expect(version.metadata.totalRules).toBe(66);
+      assert.notEqual(version, undefined);
+      assert.equal(version.metadata.totalRules, 66);
     });
 
     it('版本資訊應該正確', () => {
       const info = getVersionInfo('v1.2026-10-08');
-      expect(info.version).toBe('v1.2026-10-08');
-      expect(info.totalRules).toBe(66);
-      expect(info.frozenAt).toBeDefined();
+      assert.equal(info.version, 'v1.2026-10-08');
+      assert.equal(info.totalRules, 66);
+      assert.notEqual(info.frozenAt, undefined);
     });
 
     it('應該能驗證版本有效性', () => {
-      expect(isVersionValid('v1.2026-10-08')).toBe(true);
-      expect(isVersionValid('v99.9999-99-99')).toBe(false);
+      assert.equal(isVersionValid('v1.2026-10-08'), true);
+      assert.equal(isVersionValid('v99.9999-99-99'), false);
     });
   });
 
   describe('規則順序穩定性', () => {
     it('順序映射應該有 66 項規則', () => {
       const order = getStableOrder('v1.2026-10-08');
-      expect(order.size).toBe(66);
+      assert.equal(order.size, 66);
     });
 
     it('規則順序應該連續從 1 到 66', () => {
       const order = getStableOrder('v1.2026-10-08');
       for (let i = 1; i <= 66; i++) {
         const rulesWithOrder = Array.from(order.entries()).filter(([, o]) => o === i);
-        expect(rulesWithOrder.length).toBe(1, `順序 ${i} 應該只有一條規則`);
+        assert.equal(rulesWithOrder.length, 1, `順序 ${i} 應該只有一條規則`);
       }
     });
 
     it('關鍵規則順序應該符合預期', () => {
       const order = getStableOrder('v1.2026-10-08');
-      expect(order.get('tianyi')).toBe(1); // 天乙貴人第一
-      expect(order.get('tiande')).toBe(2); // 天德第二
-      expect(order.get('yuede')).toBe(3); // 月德第三
+      assert.equal(order.get('tianyi'), 1); // 天乙貴人第一
+      assert.equal(order.get('tiande'), 2); // 天德第二
+      assert.equal(order.get('yuede'), 3); // 月德第三
     });
   });
 
@@ -71,9 +72,9 @@ describe('神煞易經穩定版本系統', () => {
 
       const sorted = sortByShenShaStableOrder(unsorted);
 
-      expect(sorted[0].id).toBe('tianyi');
-      expect(sorted[1].id).toBe('yuede');
-      expect(sorted[2].id).toBe('taohua');
+      assert.equal(sorted[0].id, 'tianyi');
+      assert.equal(sorted[1].id, 'yuede');
+      assert.equal(sorted[2].id, 'taohua');
     });
 
     it('排序不應修改原陣列', () => {
@@ -85,7 +86,7 @@ describe('神煞易經穩定版本系統', () => {
 
       sortByShenShaStableOrder(original);
 
-      expect(original.map(x => x.id)).toEqual(originalIds);
+      assert.deepEqual(original.map(x => x.id), originalIds);
     });
   });
 
@@ -98,8 +99,8 @@ describe('神煞易經穩定版本系統', () => {
       ];
 
       const result = validateShenShaOrder(correct);
-      expect(result.valid).toBe(true);
-      expect(result.issues.length).toBe(0);
+      assert.equal(result.valid, true);
+      assert.equal(result.issues.length, 0);
     });
 
     it('應該檢測出錯誤的順序', () => {
@@ -110,8 +111,8 @@ describe('神煞易經穩定版本系統', () => {
       ];
 
       const result = validateShenShaOrder(incorrect);
-      expect(result.valid).toBe(false);
-      expect(result.issues.length).toBeGreaterThan(0);
+      assert.equal(result.valid, false);
+      assert.ok(result.issues.length > 0);
     });
 
     it('應該報告具體的不符位置', () => {
@@ -121,7 +122,7 @@ describe('神煞易經穩定版本系統', () => {
       ];
 
       const result = validateShenShaOrder(incorrect);
-      expect(result.issues[0]).toContain('位置 0');
+      assert.ok(result.issues[0].includes('位置 0'));
     });
   });
 
@@ -131,14 +132,14 @@ describe('神煞易經穩定版本系統', () => {
       const order1 = getStableOrder(version);
       const order2 = getStableOrder(version);
 
-      expect(order1).toEqual(order2);
+      assert.deepEqual(order1, order2);
     });
 
     it('應該支持多個版本共存', () => {
       // 未來可能有 v2, v3 等版本
       // 此時驗證可以指定使用舊版本
       const order = getStableOrder('v1.2026-10-08');
-      expect(order.size).toBeGreaterThan(0);
+      assert.ok(order.size > 0);
     });
   });
 });

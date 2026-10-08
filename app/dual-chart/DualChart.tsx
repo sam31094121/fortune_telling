@@ -53,9 +53,18 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
   useEffect(() => { setPdfUrl(''); setPdfPageCount(0); }, [result, language, monochrome, printSelection]);
   useEffect(() => { if (result) resultRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, [result]);
   useEffect(() => {
-    if (!unlocked) { setResult(null); setPrintMode(false); return; }
+    const invalidateChart = () => {
+      calculateRequestRef.current?.abort();
+      calculateRequestRef.current = null;
+      setBusy(false);
+      setResult(null);
+      setPrintMode(false);
+      setPdfUrl('');
+      setPdfPageCount(0);
+    };
+    if (!unlocked) { invalidateChart(); return; }
     // Revalidate the server gate on focus/back navigation; never persist charts.
-    const recheck = () => { setResult(null); router.refresh(); };
+    const recheck = () => { invalidateChart(); router.refresh(); };
     window.addEventListener('pageshow', recheck);
     const expire = window.setTimeout(recheck, 30 * 60_000);
     return () => { window.removeEventListener('pageshow', recheck); window.clearTimeout(expire); };
@@ -86,6 +95,11 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
       calculateRequestRef.current = null;
       setBusy(false);
     }
+    // A completed chart belongs to the submitted profile, not the next edit.
+    setResult(null);
+    setPrintMode(false);
+    setPdfUrl('');
+    setPdfPageCount(0);
     setForm(profile);
     setError('');
     setMissing(previous => previous.filter(field => field === 'birthDate' ? !profile.birthDate : field === 'gender' ? !profile.gender : field === 'birthHourBranch' ? !dualChartHourStatus(profile).done : false));
@@ -102,6 +116,7 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
     setMissing(fields);
     if (fields.length) {
       calculateRequestRef.current = null;
+      setBusy(false);
       setError([!profile.birthDate && '請完成出生日期。', !profile.gender && '請選擇性別。', !hour.done && hour.message].filter(Boolean).join(''));
       return;
     }

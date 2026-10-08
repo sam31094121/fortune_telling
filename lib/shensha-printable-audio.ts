@@ -8,7 +8,6 @@
  * 4. 永久使用：版本號幫助查詢引導內容
  */
 
-import QRCode from 'qrcode';
 import crypto from 'crypto';
 
 export interface PrintableCardOptions {

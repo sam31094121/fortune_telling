@@ -442,6 +442,91 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
     };
   }, [commitImproveCount, commitLikeCount]);
 
+  /**
+   * 全球實時同步 - WebSocket 監聽其他用戶的投票
+   *
+   * 流程：
+   * 1. 用戶 A 投票 → 發送到後端
+   * 2. 後端廣播到所有 WebSocket 連接
+   * 3. 用戶 B、C、D 接收推送 → 自動更新計數
+   * 4. 播放脈衝動畫 → 視覺化實時更新
+   */
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    let active = true;
+    let ws: WebSocket | null = null;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
+    const baseDelay = 3000; // 3 秒
+
+    function connect() {
+      if (!active || ws?.readyState === WebSocket.OPEN) return;
+
+      try {
+        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        const host = window.location.host;
+        ws = new WebSocket(`${protocol}://${host}/api/trust-feedback/ws`);
+
+        ws.onopen = () => {
+          console.log('✓ WebSocket 實時同步已連接');
+          reconnectAttempts = 0;
+        };
+
+        ws.onmessage = (event) => {
+          if (!active) return;
+
+          try {
+            const data = JSON.parse(event.data) as { type: 'like' | 'disagree'; agreeCount?: number; disagreeCount?: number };
+
+            // 接收其他用戶的投票推送
+            if (data.type === 'like' && typeof data.agreeCount === 'number') {
+              commitLikeCount(data.agreeCount);
+              pulseAcceptedCount('like');
+              console.log(`📡 全球同步 - 認同: ${data.agreeCount}`);
+            } else if (data.type === 'disagree' && typeof data.disagreeCount === 'number') {
+              commitImproveCount(data.disagreeCount);
+              pulseAcceptedCount('improve');
+              console.log(`📡 全球同步 - 不認同: ${data.disagreeCount}`);
+            }
+          } catch (error) {
+            console.error('WebSocket 消息解析失敗:', error);
+          }
+        };
+
+        ws.onerror = (error) => {
+          console.warn('⚠️ WebSocket 連接錯誤 (降級到輪詢模式):', error);
+        };
+
+        ws.onclose = () => {
+          if (!active) return;
+          console.log('WebSocket 已斷開，嘗試重新連接...');
+
+          // 指數退避重新連接
+          if (reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts++;
+            const delay = baseDelay * Math.pow(2, reconnectAttempts - 1);
+            setTimeout(connect, delay);
+          } else {
+            console.warn('⚠️ WebSocket 重連次數已達上限，使用輪詢模式');
+          }
+        };
+      } catch (error) {
+        console.warn('WebSocket 連接失敗:', error);
+      }
+    }
+
+    // 立即嘗試連接
+    connect();
+
+    return () => {
+      active = false;
+      if (ws) {
+        ws.close();
+      }
+    };
+  }, [commitLikeCount, commitImproveCount, pulseAcceptedCount]);
+
   async function submitChoice(nextChoice: FeedbackChoice) {
     if (submittingChoice) return;
 

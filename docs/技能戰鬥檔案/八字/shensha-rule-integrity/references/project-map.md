@@ -1,6 +1,30 @@
 # 真實接點與驗證
 
-以下皆為命理專案根目錄相對路徑；不把程式複製到技能成為第二套來源。換電腦使用時先取得對應專案，再核對檔案/版本是否存在。2026-09-27盤點，不作永遠有效的完成宣告。
+以下皆為命理專案根目錄相對路徑；不把程式複製到技能成為第二套來源。唯一維護入口為專案 `docs/技能戰鬥檔案/八字/shensha-rule-integrity`，個人 skills 同名目錄只同步安裝；修改後兩份對應檔須相同。日期化的 reports 是證據快照，不是另一份技能或算法。
+
+## 2026-10-08 現行接點與固定行為
+
+1. 共用輸入：`app/dual-chart/DualChart.tsx` → `components/UnifiedBirthForm.tsx`。一次填表，既有國農曆轉換；不改共用表單、不猜時辰。
+2. 後端：`POST /api/dual-chart` → `lib/dual-chart.ts:calculateDualChart` → `lib/three-core-engine.ts:runBaziLayer` → `lib/bazi/engine.ts:createBaziCore`；紫微維持自己規則，核對四柱後才衍生神煞。
+3. 神煞唯一現行延伸：`lib/dual-chart-iching-shensha.ts:buildDualChartShenSha`；檢視由 `lib/dual-chart-iching-shensha-card.ts:buildShenShaCardView` 產生 `specialStars.byPillar/card.columns/coverage`。API 傳同份結果；`lib/dual-chart-shensha.ts`、`lib/dual-chart-shensha-card.ts` 是舊檔名，不能另建回來。
+4. 前端 `app/dual-chart/BaziChart.tsx:PillarGrid/ShenShaPillarCard` 按 `column.pillar` 對應時／日／月／年；不按陣列位置、不重算。四張原卡放在八字表特星神煞四格，保留內容、來源標示、點閱，僅略去卡內重複柱位標題。下方不重複四張卡。
+5. `app/dual-chart/BaziIChingShenShaCard.tsx` 保留融合容器；`app/dual-chart/export-pdf.ts` 讀同一 A4 DOM，不重算命盤。八字＋完整神煞一頁，紫微另頁選項保留；全部大運保留。黑白／彩色、實際 PDF 頁數與高密度內容都要核對，不能用預覽或固定 2 頁文案代替。
+6. 手機八字／紫微／列印預覽保留局部左右平移、頁面上下滑動及點卡。既有九行 screen-only CSS 修復需依 Git 及部署查證是否交付，不能因上一份報告寫未發布就回退。
+7. 凍結行為、不凍結故障：不改功能的必要修錯依授權處理；新增功能、變更公式／版型等須明確解鎖。禁止順手移大運、刪成六格、移合沖刑害破或另造前端算法。
+
+## 維護必測基準
+
+- 有修改本卡時先跑 `node --test tests/dual-chart-request-lifecycle.test.cjs`：重送、JSON 延遲、改表單、pageshow、會話到期／失效、未知／缺資料、卸載、API 失敗。它執行真實元件處理函式並控制網路時序，不是實機觸控／bfcache 測試。
+- `node tests/dual-chart-recalculation-stability.test.cjs`：八組真後端同輸入重算，含早晚子；比較四柱、規則命中、柱位、coverage 及卡片。稽核 ID 與既有阿修羅隨機結語不屬此通過範圍；不可宣稱整份 JSON 都相同。
+- `node tests/dual-chart-shensha-column-order.test.cjs`：時日月年、依鍵對柱、不改後端物件；反例包含漏項、重複、改名、錯識別、錯柱與折疊，來源待核仍失敗。
+- `node --env-file=.env.local tests/iching-shensha-live-api.test.mjs`：限本機已授權秘密，七組 API 到真實元件、四種缺少時辰；不得输出密碼。這不代替瀏覽器驗收。
+- `npm run test:bazi`、`npm run test:bazi-contract`、`npm run test:bazi-ziwei-cross`、`npm run test:bazi-output-availability`，保留所有失敗。依實際改動加建置與型別檢查；純技能歸檔只驗文件／引用／雜湊，不反覆重跑全站。
+- UI／列印修改加 `node tests/dual-chart-touch-scroll.test.cjs`、`node tests/dual-chart-pdf-export.test.cjs`，以及獨立測試頁 320／375／390／430 手機、768 平板；左右平移同時不能吞垂直滑動或點擊。下載實際彩色黑白 PDF 逐頁核對，含合成 1995-02-23 女午時 11:30（時13／日4／月2／年3，共22項）高密度案例，八字完整神煞及全部大運不得裁切。實體印表機及真觸控沒測就明示。
+- 每次區分「已算正確送達」「來源是否全部核定」「實際 UI/PDF」「發布」；不得把七項健康失敗刪掉、縮小或改成全綠。重現缺陷與本輪證據記於 `reports/dual-chart/card-function-freeze-2026-10-08.md`；先前布局、手機/PDF與發布紀錄在 `reports/dual-chart/shensha-card-placement-2026-10-08.md`。
+
+## 歷史盤點（2026-09-27，以下不是現行支援數或檔名）
+
+保留舊接點與當時測試範圍作追溯；不得依此重建舊引擎、宣稱只支援八項，或把舊測試結果當本輪驗收。當前檔案以上節為準。
 
 ## 必讀接點
 

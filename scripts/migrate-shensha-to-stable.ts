@@ -144,7 +144,7 @@ async function migrateAllCards(): Promise<{
 /**
  * 生成遷移報告
  */
-function generateMigrationReport(report: ReturnType<typeof migrateAllCards>): string {
+function generateMigrationReport(report: Awaited<ReturnType<typeof migrateAllCards>>): string {
   const versionInfo = getVersionInfo(STABLE_VERSION);
 
   return `
