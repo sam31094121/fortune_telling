@@ -533,7 +533,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
   /**
    * 廣播事件監聽 - 實時接收其他設備的投票更新
    *
-   * 優先級高於輪詢：當收到廣播事件時立即更新，無需等待 500ms 輪詢
+   * 使用短輪詢（200ms）替代長連接，改善連接穩定性
    */
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -549,6 +549,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         const response = await fetch(`/api/trust-feedback/ws?clientId=${encodeURIComponent(clientId)}&since=${lastEventTimestamp}`, {
           method: 'GET',
           cache: 'no-store',
+          signal: AbortSignal.timeout(5000), // 5 秒超時而不是 30 秒
         });
 
         if (!response.ok || !active) return;
@@ -577,10 +578,13 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
           }
         }
       } catch (error) {
-        console.warn('⚠️ 廣播監聽失敗，重試中...', error);
+        // 超時或錯誤時靜默處理，100ms 後重試
+        if (active) {
+          console.debug('廣播監聽超時或出錯，100ms 後重試');
+        }
       }
 
-      // 持續監聽廣播（30 秒超時自動重連）
+      // 短輪詢：100ms 一次（比 500ms 輪詢更快，但不過度頻繁）
       if (active) {
         setTimeout(pollBroadcastUpdates, 100);
       }
@@ -637,8 +641,9 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
       }
 
       // 📡 立即廣播投票事件給所有客戶端（異步，不阻塞 UI）
+      // 注意：後端投票端點已經廣播，這是二次廣播以確保所有客戶端收到
       if (typeof finalAgreeCount === 'number' || typeof finalDisagreeCount === 'number') {
-        fetch('/api/trust-feedback/ws', {
+        void fetch('/api/trust-feedback/ws', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
