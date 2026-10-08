@@ -33,9 +33,9 @@ let lastVoteEvent: {
 } | null = null;
 
 /**
- * 廣播投票更新給所有監聽的客戶端
+ * 廣播投票更新給所有監聽的客戶端（內部函數，不導出）
  */
-export function broadcastTrustFeedbackVote(data: {
+function broadcastTrustFeedbackVote(data: {
   type: 'like' | 'disagree';
   agreeCount?: number;
   disagreeCount?: number;
@@ -79,7 +79,7 @@ function cleanupExpiredQueues() {
  * 3. 如果有新投票，立即返回
  * 4. 否則等待 30 秒後超時返回空
  */
-export async function GET(request: Request) {
+export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
   const clientId = url.searchParams.get('clientId') || `client_${Date.now()}_${Math.random()}`;
   const sinceTimestamp = parseInt(url.searchParams.get('since') || '0', 10);
@@ -110,7 +110,7 @@ export async function GET(request: Request) {
   }
 
   // 長輪詢：等待新事件或超時
-  return new Promise((resolve) => {
+  return new Promise<Response>((resolve) => {
     let resolved = false;
     const timeoutId = setTimeout(() => {
       resolved = true;

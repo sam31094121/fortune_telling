@@ -336,8 +336,15 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
   }, []);
 
   useEffect(() => {
-    commitLikeCount(readStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, LIKE_INITIAL_COUNT));
-    commitImproveCount(readStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, SUGGESTION_INITIAL_COUNT));
+    // 🔧 初始化優先級：後端真值 > localStorage 緩存 > 預設值
+    // 這確保手機用戶即使清除 localStorage 也能同步到最新值
+
+    const storedAgree = readStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, LIKE_INITIAL_COUNT);
+    const storedDisagree = readStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, SUGGESTION_INITIAL_COUNT);
+
+    // 先用緩存值展示，然後立即從後端更新真值
+    commitLikeCount(storedAgree);
+    commitImproveCount(storedDisagree);
 
     let active = true;
     let controller: AbortController | null = null;
@@ -353,14 +360,18 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         const data = (await response.json()) as CounterResponse;
         if (!active || !data?.ok) return;
 
+        // 📥 後端真值校準：使用後端返回的計數（確保全球一致）
         if (typeof data.agreeCount === 'number') {
           commitLikeCount(data.agreeCount);
+          console.log(`✅ 初始化認同計數：${data.agreeCount}（來自後端）`);
         }
         if (typeof data.disagreeCount === 'number') {
           commitImproveCount(data.disagreeCount);
+          console.log(`✅ 初始化不認同計數：${data.disagreeCount}（來自後端）`);
         }
-      } catch {
-        // 取不到就保留畫面上目前的數字：不顯示 0、不倒退。
+      } catch (error) {
+        // 網路失敗時保留 localStorage 緩存值：不顯示 0、不倒退
+        console.warn('⚠️ 初始化無法連接後端，使用緩存值', error);
       }
     }
 
@@ -368,6 +379,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
       if (document.visibilityState === 'visible') void refreshCounters();
     }
 
+    // 立即嘗試從後端獲取最新值
     void refreshCounters();
     window.addEventListener('focus', refreshCounters);
     window.addEventListener('online', refreshCounters);
@@ -443,95 +455,158 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
   }, [commitImproveCount, commitLikeCount]);
 
   /**
-   * 全球實時同步 - WebSocket 監聽其他用戶的投票
+   * 全球原子性同步 - 高頻輪詢確保全球即時一致
    *
-   * 流程：
-   * 1. 用戶 A 投票 → 發送到後端
-   * 2. 後端廣播到所有 WebSocket 連接
-   * 3. 用戶 B、C、D 接收推送 → 自動更新計數
-   * 4. 播放脈衝動畫 → 視覺化實時更新
+   * 設計原則（業主要求）：
+   * 1. 數字只能往前 ↑ 不能往後 ↓
+   * 2. 往後 = 異常，需要告警
+   * 3. 前端立即 +1（樂觀更新）
+   * 4. 後端廣播給全球 → 所有設備同時更新
+   * 5. 高頻同步（500ms 週期）確保全球一致性
    */
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     let active = true;
-    let ws: WebSocket | null = null;
-    let reconnectAttempts = 0;
-    const maxReconnectAttempts = 5;
-    const baseDelay = 3000; // 3 秒
+    let lastKnownAgree = likeCount;
+    let lastKnownDisagree = improveCount;
 
-    function connect() {
-      if (!active || ws?.readyState === WebSocket.OPEN) return;
+    async function pollForGlobalUpdates() {
+      if (!active) return;
 
       try {
-        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        const host = window.location.host;
-        ws = new WebSocket(`${protocol}://${host}/api/trust-feedback/ws`);
+        const response = await fetch('/api/home-trust', {
+          method: 'GET',
+          cache: 'no-store',
+        });
 
-        ws.onopen = () => {
-          console.log('✓ WebSocket 實時同步已連接');
-          reconnectAttempts = 0;
+        if (!response.ok || !active) return;
+
+        const data = (await response.json()) as {
+          agreeCount?: number;
+          disagreeCount?: number;
         };
 
-        ws.onmessage = (event) => {
-          if (!active) return;
+        // 🔴 檢測異常：數字往後
+        if (typeof data.agreeCount === 'number' && data.agreeCount < lastKnownAgree) {
+          console.error(`🚨 【異常告警】認同計數往後：${lastKnownAgree} → ${data.agreeCount}`);
+          // TODO: 發送告警到監控系統
+        }
 
-          try {
-            const data = JSON.parse(event.data) as { type: 'like' | 'disagree'; agreeCount?: number; disagreeCount?: number };
+        if (typeof data.disagreeCount === 'number' && data.disagreeCount < lastKnownDisagree) {
+          console.error(`🚨 【異常告警】不認同計數往後：${lastKnownDisagree} → ${data.disagreeCount}`);
+          // TODO: 發送告警到監控系統
+        }
 
-            // 接收其他用戶的投票推送
-            if (data.type === 'like' && typeof data.agreeCount === 'number') {
-              commitLikeCount(data.agreeCount);
-              pulseAcceptedCount('like');
-              console.log(`📡 全球同步 - 認同: ${data.agreeCount}`);
-            } else if (data.type === 'disagree' && typeof data.disagreeCount === 'number') {
-              commitImproveCount(data.disagreeCount);
-              pulseAcceptedCount('improve');
-              console.log(`📡 全球同步 - 不認同: ${data.disagreeCount}`);
-            }
-          } catch (error) {
-            console.error('WebSocket 消息解析失敗:', error);
-          }
-        };
+        // ✅ 檢測正常更新：計數往前 → 全球同步
+        if (typeof data.agreeCount === 'number' && data.agreeCount > lastKnownAgree) {
+          commitLikeCount(data.agreeCount);
+          setPulseChoice('like');
+          console.log(`🌍 【全球同步】認同: ${lastKnownAgree} → ${data.agreeCount} ✨ 全世界一起加一`);
+          lastKnownAgree = data.agreeCount;
+        }
 
-        ws.onerror = (error) => {
-          console.warn('⚠️ WebSocket 連接錯誤 (降級到輪詢模式):', error);
-        };
-
-        ws.onclose = () => {
-          if (!active) return;
-          console.log('WebSocket 已斷開，嘗試重新連接...');
-
-          // 指數退避重新連接
-          if (reconnectAttempts < maxReconnectAttempts) {
-            reconnectAttempts++;
-            const delay = baseDelay * Math.pow(2, reconnectAttempts - 1);
-            setTimeout(connect, delay);
-          } else {
-            console.warn('⚠️ WebSocket 重連次數已達上限，使用輪詢模式');
-          }
-        };
+        if (typeof data.disagreeCount === 'number' && data.disagreeCount > lastKnownDisagree) {
+          commitImproveCount(data.disagreeCount);
+          setPulseChoice('improve');
+          console.log(`🌍 【全球同步】不認同: ${lastKnownDisagree} → ${data.disagreeCount} ✨ 全世界一起加一`);
+          lastKnownDisagree = data.disagreeCount;
+        }
       } catch (error) {
-        console.warn('WebSocket 連接失敗:', error);
+        console.warn('⚠️ 全球同步失敗，重試中...', error);
+      }
+
+      // 高頻同步：500ms 一次 → 確保全球即時一致
+      if (active) {
+        setTimeout(pollForGlobalUpdates, 500);
       }
     }
 
-    // 立即嘗試連接
-    connect();
+    // 立即開始全球同步
+    pollForGlobalUpdates();
 
     return () => {
       active = false;
-      if (ws) {
-        ws.close();
-      }
     };
-  }, [commitLikeCount, commitImproveCount, pulseAcceptedCount]);
+  }, [commitLikeCount, commitImproveCount]);
+
+  /**
+   * 廣播事件監聽 - 實時接收其他設備的投票更新
+   *
+   * 優先級高於輪詢：當收到廣播事件時立即更新，無需等待 500ms 輪詢
+   */
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    let active = true;
+    let clientId = `client_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    let lastEventTimestamp = Date.now();
+
+    async function pollBroadcastUpdates() {
+      if (!active) return;
+
+      try {
+        const response = await fetch(`/api/trust-feedback/ws?clientId=${encodeURIComponent(clientId)}&since=${lastEventTimestamp}`, {
+          method: 'GET',
+          cache: 'no-store',
+        });
+
+        if (!response.ok || !active) return;
+
+        const data = (await response.json()) as {
+          event?: {
+            type: 'like' | 'disagree';
+            agreeCount?: number;
+            disagreeCount?: number;
+            timestamp: number;
+          };
+        };
+
+        // 📡 收到廣播事件 → 立即更新（優先於輪詢）
+        if (data.event) {
+          lastEventTimestamp = Math.max(lastEventTimestamp, data.event.timestamp);
+
+          if (data.event.type === 'like' && typeof data.event.agreeCount === 'number') {
+            commitLikeCount(data.event.agreeCount);
+            console.log(`📡 【廣播同步】認同: ${data.event.agreeCount} ✨ 立即更新`);
+          }
+
+          if (data.event.type === 'disagree' && typeof data.event.disagreeCount === 'number') {
+            commitImproveCount(data.event.disagreeCount);
+            console.log(`📡 【廣播同步】不認同: ${data.event.disagreeCount} ✨ 立即更新`);
+          }
+        }
+      } catch (error) {
+        console.warn('⚠️ 廣播監聽失敗，重試中...', error);
+      }
+
+      // 持續監聽廣播（30 秒超時自動重連）
+      if (active) {
+        setTimeout(pollBroadcastUpdates, 100);
+      }
+    }
+
+    // 立即開始監聽廣播
+    pollBroadcastUpdates();
+
+    return () => {
+      active = false;
+    };
+  }, [commitLikeCount, commitImproveCount]);
 
   async function submitChoice(nextChoice: FeedbackChoice) {
     if (submittingChoice) return;
 
     setSubmittingChoice(nextChoice);
     setNotice(null);
+
+    // 🚀 【樂觀更新】立即 +1，不等待後端
+    // 前端立即跳升，用戶立刻看到反饋
+    if (nextChoice === 'like') {
+      commitAcceptedLikeCount(likeCount + 1);
+    } else {
+      commitAcceptedImproveCount(improveCount + 1);
+    }
 
     const eventId = createFeedbackEventId();
 
@@ -544,15 +619,36 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         return;
       }
 
-      // 新 API 總是成功遞增（原子性保證），所以直接取新值
+      // ✅ 【伺服器真值】用後端計數確保全球一致
+      // 如果後端返回更新的計數，使用它確保一致性
+      let finalAgreeCount = data.agreeCount;
+      let finalDisagreeCount = data.disagreeCount;
+
       if (nextChoice === 'like') {
-        if (typeof data.agreeCount === 'number') {
+        if (typeof data.agreeCount === 'number' && data.agreeCount > likeCount) {
           commitAcceptedLikeCount(data.agreeCount);
+          finalAgreeCount = data.agreeCount;
         }
       } else {
-        if (typeof data.disagreeCount === 'number') {
+        if (typeof data.disagreeCount === 'number' && data.disagreeCount > improveCount) {
           commitAcceptedImproveCount(data.disagreeCount);
+          finalDisagreeCount = data.disagreeCount;
         }
+      }
+
+      // 📡 立即廣播投票事件給所有客戶端（異步，不阻塞 UI）
+      if (typeof finalAgreeCount === 'number' || typeof finalDisagreeCount === 'number') {
+        fetch('/api/trust-feedback/ws', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: nextChoice === 'like' ? 'like' : 'disagree',
+            agreeCount: finalAgreeCount,
+            disagreeCount: finalDisagreeCount,
+          }),
+        }).catch(() => {
+          // 廣播失敗不應該中斷投票流程
+        });
       }
 
       setChoice(nextChoice);
