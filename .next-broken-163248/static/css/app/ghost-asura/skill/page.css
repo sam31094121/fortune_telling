@@ -1,0 +1,2686 @@
+/*!*****************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./features/ghost-asura/components/GhostAsuraCard.module.css ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************************************/
+.GhostAsuraCard_card__khDCa {
+  min-width: 0;
+  background: #131115;
+  border: 1px solid #634249;
+  border-radius: 16px;
+  box-shadow: 0 12px 36px #0003;
+  overflow: visible;
+  color: #f5eeea;
+}
+
+.GhostAsuraCard_header___mJt6 {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(110deg, #2f1a20, #19151b);
+  border-bottom: 1px solid #634249;
+  padding: 26px 86px 24px 24px;
+}
+
+.GhostAsuraCard_crest__gpqfH {
+  position: absolute;
+  right: 22px;
+  top: 24px;
+  writing-mode: vertical-rl;
+  padding: 8px 5px;
+  border: 1px solid #b97a6e;
+  color: #edcaba;
+  font: 700 15px/1.5 serif;
+  letter-spacing: .16em;
+  transform: rotate(-5deg);
+}
+
+.GhostAsuraCard_title__9ubUz {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #f5eeea;
+}
+
+.GhostAsuraCard_subtitle__O2Ju0 {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #c4aaa4;
+  letter-spacing: 0.05em;
+}
+
+.GhostAsuraCard_scrollHint__A2LOF {
+  margin: 16px 24px 0;
+  color: #bcb0ae;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* 窄螢幕只在卡內平移；柱頭與印記始終共用四條欄線。 */
+.GhostAsuraCard_pillarScroll__hd_og {
+  container-type: inline-size;
+  margin: 20px 24px 24px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border: 1px solid #49363d;
+  border-radius: 12px;
+  scrollbar-color: #8c5b62 #1c171c;
+  scrollbar-width: thin;
+}
+
+.GhostAsuraCard_pillarScroll__hd_og:focus-visible {
+  outline: 2px solid #fca5a5;
+  outline-offset: 3px;
+}
+
+.GhostAsuraCard_pillarReadingGrid__Ap2_g {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  min-width: 800px;
+  padding: 12px;
+  box-sizing: border-box;
+  align-items: start;
+  background: #100e12;
+}
+
+.GhostAsuraCard_pillarsTable__xkegS {
+  display: contents;
+}
+
+/* 錯誤資訊在卡內平移時仍可讀；一般標語統計已移至捲動區外。 */
+.GhostAsuraCard_failed__ndJg3 {
+  position: sticky;
+  left: 12px;
+  max-width: calc(100cqi - 24px);
+  box-sizing: border-box;
+}
+
+.GhostAsuraCard_pillarColumn__LDvBF {
+  border: 1px solid #74515a;
+  border-top: 2px solid #c09076;
+  border-radius: 8px;
+  background: linear-gradient(160deg, #362029, #20181e);
+  padding: 18px 10px 14px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.GhostAsuraCard_pillarLabel__PB59W {
+  font-size: 12px;
+  font-weight: 700;
+  color: #d0b9b3;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.GhostAsuraCard_pillarValue__Rb1aF {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f0d0ae;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+}
+
+.GhostAsuraCard_pillarCount__xU42F {
+  color: #bfa9a5;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.GhostAsuraCard_banner__avv9w {
+  background: #21171c;
+  border-left: 3px solid #b97a6e;
+  padding: 18px;
+  font-size: 15px;
+  color: #eed3c4;
+  line-height: 1.9;
+  font-weight: 600;
+}
+
+.GhostAsuraCard_stats__5zyT8 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  padding: 8px;
+  font-size: 15px;
+  color: #d2c6c3;
+  background: #171419;
+  border: 1px solid #3f3038;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.GhostAsuraCard_statTile__dwl7F {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 4px;
+  font: inherit;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #3f3038;
+  border-radius: 6px;
+}
+
+button.GhostAsuraCard_statTile__dwl7F {
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: border-color 200ms ease, background-color 200ms ease;
+}
+
+button.GhostAsuraCard_statTile__dwl7F:hover { border-color: #c09076; background: rgba(193, 144, 118, 0.1); }
+button.GhostAsuraCard_statTile__dwl7F:active { background: rgba(193, 144, 118, 0.18); }
+button.GhostAsuraCard_statTile__dwl7F:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  button.GhostAsuraCard_statTile__dwl7F { transition: none; }
+}
+
+.GhostAsuraCard_stats__5zyT8 b {
+  display: block;
+  color: #f5eeea;
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.GhostAsuraCard_statLabel__40yiM {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f2ede4;
+  line-height: 1.2;
+}
+
+.GhostAsuraCard_statCaption__vog43 {
+  font-size: 14px;
+  line-height: 1.2;
+  color: #bfc2cc;
+}
+
+.GhostAsuraCard_statGo__9Hdue {
+  margin-top: 2px;
+  font-size: 14px;
+  color: #e6c48f;
+  text-decoration: underline;
+}
+
+.GhostAsuraCard_statsNotes__zvq1b {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 6px;
+  padding: 4px 4px 0;
+  text-align: left;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #e4e4e7;
+}
+
+.GhostAsuraCard_statsNotes__zvq1b p { margin: 0; overflow-wrap: anywhere; }
+.GhostAsuraCard_statsNotes__zvq1b p:first-child { font-weight: 700; color: #f5eeea; }
+
+/* 421px 以上剛好 3 張數字卡：改 3 欄均分，避免右邊固定空出第四欄 */
+@media (min-width: 421px) {
+  .GhostAsuraCard_stats__5zyT8:has(> .GhostAsuraCard_statTile__dwl7F:nth-child(3):nth-last-child(2)) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.GhostAsuraCard_stats__5zyT8 .GhostAsuraCard_awakenedValue__5K6Di { color: #f1b6ae; }
+.GhostAsuraCard_stats__5zyT8 .GhostAsuraCard_pendingValue__72j8R { color: #e6c48f; }
+.GhostAsuraCard_summaryFooter__hMb3Q { margin: 0 24px 24px; display: grid; gap: 12px; min-width: 0; }
+
+.GhostAsuraCard_statsHint__PvQUM {
+  grid-column: 1 / -1;
+  line-height: 1.7;
+  font-size: 14px;
+  color: #bfc2cc;
+  text-align: left;
+}
+
+.GhostAsuraCard_scopeNote__1GwWX {
+  margin: 0;
+  padding: 16px 24px 24px;
+  color: #baaca9;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.GhostAsuraCard_failed__ndJg3 {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  border-radius: 8px;
+  background: rgba(127, 29, 29, 0.15);
+  color: #fecaca;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* 四柱分組容器 */
+.GhostAsuraCard_pillarGroup__hwUcn {
+  min-width: 0;
+  align-self: stretch;
+  background: transparent;
+}
+
+.GhostAsuraCard_pillarEmpty__DLWlG {
+  padding: 20px 0;
+  margin: 0;
+  text-align: center;
+  color: #a1a1aa;
+}
+
+.GhostAsuraCard_pillarGroupTitle__XzaYF {
+  margin: 0;
+  padding: 16px 20px 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fca5a5;
+  letter-spacing: 0.06em;
+  background: rgba(127, 29, 29, 0.16);
+  text-transform: none;
+}
+
+.GhostAsuraCard_list__bPt_X {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.GhostAsuraCard_item__YD3Rm {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(161, 161, 170, 0.18);
+  border-left-width: 2px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  animation: GhostAsuraCard_itemReveal3D__8Zh9U 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+.GhostAsuraCard_itemAwakened__lHROn {
+  border-color: #60434b;
+  border-left-color: #a46b70;
+  background: linear-gradient(135deg, #21181e 0%, #2a1f26 100%);
+  position: relative;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 金光閃閃效果 */
+.GhostAsuraCard_itemAwakened__lHROn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: linear-gradient(45deg,
+    rgba(255, 215, 0, 0) 0%,
+    rgba(255, 215, 0, 0.15) 50%,
+    rgba(255, 215, 0, 0) 100%);
+  pointer-events: none;
+  animation: GhostAsuraCard_goldGlimmer__1AfzH 3s ease-in-out infinite;
+  z-index: 1;
+}
+
+.GhostAsuraCard_itemAwakened__lHROn:has(details[open]) {
+  border-color: #d4af37;
+  background: linear-gradient(135deg, #2b1d24 0%, #362029 100%);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.25),
+              inset 0 0 15px rgba(212, 175, 55, 0.1),
+              0 8px 24px rgba(255, 215, 0, 0.15);
+  transform: translateY(-2px) rotateX(5deg);
+  animation: GhostAsuraCard_coinFloat__qVST4 4s ease-in-out infinite, GhostAsuraCard_coinGlow__cFFRC 3s ease-in-out infinite;
+}
+
+.GhostAsuraCard_itemAwakened__lHROn:has(details[open])::before {
+  animation: GhostAsuraCard_goldGlimmer__1AfzH 2s ease-in-out infinite;
+  background: linear-gradient(45deg,
+    rgba(212, 175, 55, 0.1) 0%,
+    rgba(212, 175, 55, 0.3) 50%,
+    rgba(212, 175, 55, 0.1) 100%);
+}
+
+.GhostAsuraCard_itemDormant___x8Sb {
+  border-color: rgba(161, 161, 170, 0.18);
+  border-left-color: #52525b;
+}
+
+.GhostAsuraCard_itemPending__OMnew {
+  border-color: rgba(234, 179, 8, 0.35);
+  border-left-color: #ca8a04;
+}
+
+.GhostAsuraCard_itemHead__5U_Xt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+  border-radius: 3px;
+}
+
+.GhostAsuraCard_itemHead__5U_Xt::-webkit-details-marker { display: none; }
+
+.GhostAsuraCard_itemHead__5U_Xt::after {
+  content: '＋';
+  margin-left: auto;
+  flex-shrink: 0;
+  color: #e4b99b;
+  font-size: 18px;
+}
+
+.GhostAsuraCard_itemDetail__IdJUl[open] > .GhostAsuraCard_itemHead__5U_Xt::after { content: '−'; }
+
+.GhostAsuraCard_itemHead__5U_Xt:focus-visible {
+  outline: 2px solid #fca5a5;
+  outline-offset: 3px;
+}
+
+.GhostAsuraCard_itemBody__HZAeV {
+  padding: 12px 0 8px;
+  border-top: 1px solid #684550;
+}
+
+.GhostAsuraCard_itemBody__HZAeV > .GhostAsuraCard_seal__SqrTr {
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.GhostAsuraCard_displayName__echq9 {
+  min-width: 0;
+  color: #f5eeea;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: .03em;
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.4),
+               0 0 16px rgba(212, 175, 55, 0.2);
+}
+
+.GhostAsuraCard_itemAwakened__lHROn .GhostAsuraCard_displayName__echq9 {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6),
+               0 0 20px rgba(255, 215, 0, 0.3),
+               0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.GhostAsuraCard_seal__SqrTr {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.GhostAsuraCard_sealAwakened__7Mx9r {
+  background: rgba(127, 29, 29, 0.25);
+  color: #fecaca;
+}
+
+.GhostAsuraCard_sealDormant__HzsMz {
+  background: rgba(63, 63, 70, 0.45);
+  color: #a1a1aa;
+}
+
+.GhostAsuraCard_sealPending__x_pxH {
+  background: rgba(202, 138, 4, 0.2);
+  color: #fde68a;
+}
+
+.GhostAsuraCard_pillar__xh161 {
+  font-size: 12px;
+  color: #a1a1aa;
+  margin-bottom: 6px;
+}
+
+.GhostAsuraCard_meaning__Q8YoC {
+  font-size: 13px;
+  color: #d6c8c3;
+  line-height: 1.85;
+  margin-bottom: 12px;
+}
+
+.GhostAsuraCard_meaningStrong__BhvIo {
+  font-weight: 600;
+  color: #f0d0ae;
+  margin-bottom: 8px;
+}
+
+.GhostAsuraCard_battleLine__F91La {
+  font-size: 13px;
+  color: #cbbab5;
+  line-height: 1.85;
+}
+
+.GhostAsuraCard_section__9t2xt {
+  padding: 24px;
+  background: #171318;
+  border-top: 1px solid #45323a;
+}
+
+.GhostAsuraCard_sectionTitle__G_tMf {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #efc5a1;
+  letter-spacing: .08em;
+}
+
+.GhostAsuraCard_sectionBody__tGnUS {
+  padding: 16px;
+  background: #211a20;
+  border: 1px solid #49343e;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #d6c8c3;
+  line-height: 1.85;
+}
+
+.GhostAsuraCard_sectionBody__tGnUS + .GhostAsuraCard_sectionBody__tGnUS { margin-top: 12px; }
+
+.GhostAsuraCard_supplement__bnVvy {
+  min-width: 0;
+  border: 1px solid #674751;
+  border-radius: 10px;
+  background: #211a20;
+}
+.GhostAsuraCard_supplement__bnVvy + .GhostAsuraCard_supplement__bnVvy { margin-top: 12px; }
+.GhostAsuraCard_supplementHead__uSsU5 {
+  min-height: 56px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  list-style: none;
+  cursor: pointer;
+  color: #efc5a1;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.65;
+  border-radius: 9px;
+}
+.GhostAsuraCard_supplementHead__uSsU5 h3 { margin: 0; font: inherit; }
+.GhostAsuraCard_supplementHead__uSsU5::-webkit-details-marker { display: none; }
+.GhostAsuraCard_supplementHead__uSsU5::after { content: '＋'; margin-left: auto; flex-shrink: 0; font-size: 18px; }
+.GhostAsuraCard_supplement__bnVvy[open] > .GhostAsuraCard_supplementHead__uSsU5::after { content: '−'; }
+.GhostAsuraCard_supplement__bnVvy[open] { border-color: #c09076; }
+.GhostAsuraCard_supplementHead__uSsU5:focus-visible { outline: 2px solid #e3b881; outline-offset: 4px; }
+.GhostAsuraCard_supplement__bnVvy > .GhostAsuraCard_sectionBody__tGnUS { border: 0; border-top: 1px solid #674751; border-radius: 0 0 9px 9px; }
+
+.GhostAsuraCard_fieldRow__UFgc7 {
+  margin-bottom: 8px;
+}
+
+.GhostAsuraCard_fieldLabel__iWlrH {
+  color: #efc5a1;
+  font-weight: 600;
+}
+
+@media (max-width: 420px) {
+  .GhostAsuraCard_title__9ubUz {
+    font-size: 20px;
+  }
+
+  .GhostAsuraCard_section__9t2xt {
+    padding: 16px;
+  }
+
+  .GhostAsuraCard_header___mJt6 { padding: 16px 76px 16px 16px; }
+  .GhostAsuraCard_crest__gpqfH { right: 18px; top: 16px; }
+
+  .GhostAsuraCard_pillarScroll__hd_og {
+    margin: 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .GhostAsuraCard_pillarReadingGrid__Ap2_g {
+    grid-template-columns: repeat(4, minmax(140px, 1fr));
+    min-width: auto;
+    width: -moz-max-content;
+    width: max-content;
+  }
+
+  .GhostAsuraCard_summaryFooter__hMb3Q { margin: 0 12px 16px; }
+  .GhostAsuraCard_banner__avv9w { padding: 14px; font-size: 14px; }
+
+  /* 保留四欄，支持水平滑動 */
+  .GhostAsuraCard_stats__5zyT8 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 6px;
+    gap: 5px;
+    width: -moz-max-content;
+    width: max-content;
+    min-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .GhostAsuraCard_scrollHint__A2LOF {
+    margin-inline: 12px;
+  }
+}
+
+@media (min-width: 900px) {
+  .GhostAsuraCard_scrollHint__A2LOF { display: none; }
+}
+
+@media (hover: hover) {
+  .GhostAsuraCard_itemAwakened__lHROn:hover { border-color: #c09076; }
+  .GhostAsuraCard_supplementHead__uSsU5:hover { background: #34232a; }
+}
+
+/* 展開面板共用：警示列、總判 lead */
+.GhostAsuraCard_fnAlert__fDFry { margin: 16px 24px 0; }
+.GhostAsuraCard_fnLead__2Igjq {
+  margin: 0;
+  padding: 2px 0 2px 14px;
+  border-left: 3px solid #b97a6e;
+  color: #f7e6da;
+  font-family: var(--asura-serif);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.75;
+  letter-spacing: 0.04em;
+}
+@media (max-width: 420px) {
+  .GhostAsuraCard_fnAlert__fDFry { margin: 12px 16px 0; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+ * 卡頭（DisplayCard／Shell 共用）＋展開面板：唯一一組規則
+ *   橫幅「鬼魅［修羅印］阿修羅」左右貼齊、一行不換；印＝深朱有機橢圓符印、古風刻印字
+ *   下方過去／現在／未來一列三格（手機 4:5 直幅，桌機正方）；點格在下方全寬展開，再點收合
+ *   水墨：紙紋雜訊、乾筆飛白橫筆、橫幅後一團摔墨（靜態 SVG，無模糊濾鏡）
+ * ════════════════════════════════════════════════════════════════ */
+@font-face {
+  font-family: 'Asura Brand Brush';
+  src: url('/fonts/asura-brand/yuji-boku-brand.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+4FEE, U+7F85, U+963F, U+9B3C, U+9B45;
+}
+/* 三格字：Yuji Boku（OFL）6 字子集 */
+@font-face {
+  font-family: 'Asura Tiles Brush';
+  src: url('/fonts/asura-brand/yuji-boku-asura-tiles.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+904E, U+53BB, U+73FE, U+5728, U+672A, U+4F86;
+}
+/* 印文：Zen Antique（OFL 1.1）2 字子集；授權見 public/fonts/asura-brand/LICENSE-zen-antique-seal.md */
+@font-face {
+  font-family: 'Asura Seal Carved';
+  src: url('/fonts/asura-brand/zen-antique-asura-seal.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+4FEE, U+7F85;
+}
+
+.GhostAsuraCard_asuraTopRow__zZD8x,
+.GhostAsuraCard_fnPanel__qlcpz {
+  --asura-kai: "DFKai-SB", "BiauKai", "STKaiti", "KaiTi", "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  --asura-serif: "Noto Serif TC", "Songti TC", "PMingLiU", ui-serif, serif;
+}
+
+.GhostAsuraCard_asuraTopRow__zZD8x {
+  --ink: #0d0b0a;
+  --gold: #c9a45c;
+  --gold-hi: #e6c886;
+  --crimson: #8b1e1e;
+  --ink-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --dry-streak: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='12'><filter id='d'><feTurbulence type='fractalNoise' baseFrequency='0.015 0.9' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.85  0 0 0 0 0.7  0 0 0 0 0.42  0 0 0 -2.4 1.45'/></filter><rect width='100%' height='100%' filter='url(%23d)'/></svg>");
+  display: grid;
+  gap: 24px;
+  padding: 24px 12px;
+  background:
+    radial-gradient(120% 90% at 100% 50%, rgba(60, 54, 50, 0.35), transparent 60%),
+    radial-gradient(circle at 50% 0%, rgba(139, 30, 30, 0.15), transparent 50%),
+    var(--ink);
+  border-bottom: 1px solid rgba(201, 164, 92, 0.45);
+  box-shadow:
+    inset 0 1px 0 rgba(230, 200, 134, 0.06),
+    inset 0 0 30px rgba(139, 30, 30, 0.15),
+    0 6px 20px rgba(139, 30, 30, 0.15);
+}
+
+/* 橫幅 — 光影流動效果 */
+.GhostAsuraCard_asuraBanner__dBZcZ {
+  position: relative;
+  isolation: isolate;
+  container-type: inline-size;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  transition: filter 300ms ease, transform 300ms ease;
+}
+
+.GhostAsuraCard_asuraBanner__dBZcZ:hover {
+  transform: translateY(-4px);
+  filter:
+    drop-shadow(0 12px 24px rgba(139, 30, 30, 0.35))
+    drop-shadow(0 0 20px rgba(230, 200, 134, 0.25));
+}
+.GhostAsuraCard_asuraBanner__dBZcZ::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -14px -8px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 160' preserveAspectRatio='none'><g fill='%235a1515'><path d='M440 86 L426 93 L418 99 L412 103 L414 112 L397 107 L402 122 L396 127 L383 118 L380 138 L370 120 L365 113 L341 154 L357 108 L342 116 L311 130 L348 99 L324 103 L298 101 L334 89 L337 84 L318 75 L341 75 L323 60 L346 67 L346 60 L357 65 L357 54 L365 56 L370 54 L378 42 L385 49 L394 49 L401 51 L407 56 L399 69 L428 62 L427 71 L429 78Z M411 83 L404 91 L391 94 L392 103 L388 112 L373 97 L368 100 L361 104 L354 103 L330 115 L342 96 L334 91 L329 83 L329 75 L352 76 L341 61 L358 68 L360 57 L368 70 L374 66 L386 58 L390 66 L387 74 L394 78Z M370 55 L358 12 L362 56Z M401 76 L436 53 L397 68Z M351 109 L324 157 L358 114Z M387 113 L452 190 L394 108Z M385 58 L401 -0 L379 56Z M403 85 L476 74 L402 80Z M110 118 L95 121 L98 125 L94 126 L93 130 L91 133 L85 131 L82 135 L78 136 L75 131 L69 134 L66 130 L61 130 L63 124 L62 121 L66 118 L57 114 L64 112 L63 108 L66 105 L73 108 L73 101 L78 102 L82 104 L86 103 L90 104 L94 105 L98 107 L98 111 L94 116Z M93 119 L88 121 L88 122 L92 127 L85 124 L85 128 L82 127 L79 129 L78 125 L67 132 L74 123 L72 122 L75 119 L73 117 L77 117 L68 108 L77 113 L79 110 L82 106 L85 111 L89 109 L94 110 L93 114 L93 117Z M93 116 L131 104 L92 113Z M72 128 L50 159 L73 129Z M89 127 L114 145 L91 125Z M86 129 L108 153 L90 126Z M70 126 L52 146 L72 128Z M75 130 L66 170 L78 131Z M736 44 L728 46 L729 48 L722 48 L722 50 L723 52 L724 56 L721 57 L720 60 L716 58 L713 60 L711 57 L708 58 L705 60 L704 55 L697 59 L698 55 L698 52 L689 53 L700 47 L694 46 L692 44 L696 42 L698 40 L687 34 L701 38 L704 38 L705 37 L705 34 L706 32 L707 27 L711 34 L713 34 L716 30 L716 35 L722 29 L725 30 L723 35 L722 38 L723 40 L723 41 L725 42Z M731 46 L718 47 L720 49 L723 54 L718 54 L715 53 L713 52 L709 57 L709 50 L707 50 L702 50 L705 47 L694 46 L707 44 L706 43 L697 33 L706 36 L709 35 L713 35 L714 41 L717 40 L726 35 L721 41 L722 44Z M702 50 L684 67 L705 53Z M720 52 L741 67 L722 50Z M702 50 L679 74 L705 53Z M701 47 L673 63 L703 50Z M721 51 L752 67 L722 48Z M713 55 L722 84 L716 55Z'/><circle cx='356' cy='3' r='5.3'/><circle cx='445' cy='48' r='5.8'/><circle cx='319' cy='165' r='5.5'/><circle cx='457' cy='197' r='5.4'/><circle cx='403' cy='-6' r='3.7'/><circle cx='482' cy='73' r='3.4'/><circle cx='446' cy='38' r='1.3'/><circle cx='331' cy='122' r='2.4'/><circle cx='462' cy='180' r='3.3'/><circle cx='422' cy='163' r='4.8'/><circle cx='341' cy='20' r='1.8'/><circle cx='234' cy='108' r='1.1'/><circle cx='418' cy='6' r='1.4'/><circle cx='498' cy='41' r='1.4'/><circle cx='269' cy='90' r='3.0'/><circle cx='313' cy='85' r='4.1'/><circle cx='304' cy='159' r='0.7'/><circle cx='335' cy='171' r='3.5'/><circle cx='412' cy='29' r='4.9'/><circle cx='341' cy='-35' r='2.1'/><circle cx='135' cy='103' r='2.2'/><circle cx='48' cy='161' r='1.2'/><circle cx='116' cy='147' r='2.2'/><circle cx='111' cy='156' r='2.6'/><circle cx='50' cy='148' r='1.5'/><circle cx='65' cy='172' r='1.8'/><circle cx='136' cy='106' r='1.8'/><circle cx='76' cy='169' r='1.6'/><circle cx='50' cy='133' r='2.6'/><circle cx='47' cy='119' r='1.6'/><circle cx='113' cy='145' r='1.5'/><circle cx='66' cy='161' r='2.3'/><circle cx='123' cy='121' r='1.2'/><circle cx='128' cy='100' r='1.1'/><circle cx='77' cy='141' r='2.6'/><circle cx='68' cy='155' r='1.6'/><circle cx='52' cy='87' r='2.1'/><circle cx='118' cy='148' r='1.2'/><circle cx='46' cy='112' r='1.2'/><circle cx='41' cy='112' r='1.3'/><circle cx='681' cy='70' r='2.4'/><circle cx='744' cy='69' r='1.8'/><circle cx='676' cy='76' r='2.4'/><circle cx='670' cy='64' r='2.1'/><circle cx='754' cy='69' r='1.8'/><circle cx='723' cy='87' r='1.6'/><circle cx='727' cy='23' r='2.3'/><circle cx='699' cy='5' r='1.3'/><circle cx='707' cy='17' r='1.1'/><circle cx='676' cy='11' r='1.3'/><circle cx='765' cy='54' r='1.0'/><circle cx='721' cy='61' r='0.7'/><circle cx='722' cy='64' r='1.5'/><circle cx='751' cy='30' r='1.2'/><circle cx='685' cy='55' r='2.3'/><circle cx='739' cy='32' r='1.4'/><circle cx='727' cy='77' r='0.7'/><circle cx='746' cy='13' r='1.5'/><circle cx='690' cy='38' r='2.1'/><circle cx='712' cy='8' r='0.7'/></g><g fill='%23c9a45c'><circle cx='426' cy='45' r='2.0'/><circle cx='353' cy='130' r='0.8'/><circle cx='272' cy='114' r='1.0'/><circle cx='387' cy='21' r='1.5'/><circle cx='379' cy='200' r='0.9'/><circle cx='353' cy='4' r='1.9'/><circle cx='292' cy='13' r='1.9'/><circle cx='348' cy='34' r='1.4'/><circle cx='476' cy='132' r='1.5'/></g></svg>") 0 0 / 100% 100% no-repeat;
+  pointer-events: none;
+  filter:
+    drop-shadow(0 4px 12px rgba(139, 30, 30, 0.4))
+    drop-shadow(0 -2px 8px rgba(0, 0, 0, 0.3));
+}
+.GhostAsuraCard_bannerTitle__bS1af {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin: 0;
+  font-family: 'Asura Brand Brush', var(--asura-kai);
+  font-weight: 400;
+  font-synthesis: none;
+  font-size: 10vw;
+  font-size: clamp(28px, 13cqi, 64px);
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: #d9b56a;
+  background: linear-gradient(180deg, #f0d79a 0%, #c9a45c 55%, #8f6b2f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter:
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))
+    drop-shadow(0 4px 12px rgba(139, 30, 30, 0.35))
+    drop-shadow(0 0 16px rgba(230, 200, 134, 0.15));
+  will-change: filter;
+  transition: filter 300ms ease;
+}
+.GhostAsuraCard_bannerLeft__iYqyA, .GhostAsuraCard_bannerRight__F_hew { display: block; }
+.GhostAsuraCard_bannerRight__F_hew { letter-spacing: 0.04em; }
+
+/* 「修羅」印：有機橢圓（手作抖動外緣＋斷續內圈＋溢墨）、壓印墨斑在底層，印文清晰 */
+.GhostAsuraCard_bannerSeal__ZVUv1 {
+  position: relative;
+  flex: none;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  place-items: center;
+  box-sizing: border-box;
+  width: 1.24em;
+  height: 1.42em;
+  padding: 0.16em 0 0.12em;
+  transform: rotate(-7deg);
+  -webkit-text-fill-color: initial;
+  filter: none;
+}
+.GhostAsuraCard_sealInk___J9Fb {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 112'><path d='M94.6 48.6 Q96.3 56.0 95.5 63.7 Q94.6 71.5 90.2 77.4 Q85.9 83.3 81.9 88.7 Q78.0 94.2 72.3 96.5 Q66.5 98.8 61.4 103.2 Q56.3 107.5 49.8 109.0 Q43.4 110.4 37.8 106.2 Q32.2 102.1 26.3 99.2 Q20.4 96.3 15.8 90.9 Q11.2 85.5 10.2 77.8 Q9.2 70.2 9.1 63.1 Q8.9 56.0 9.4 49.0 Q9.9 42.1 11.6 35.1 Q13.2 28.1 16.0 20.8 Q18.8 13.5 25.1 10.6 Q31.4 7.8 37.6 6.8 Q43.9 5.8 49.9 6.6 Q55.9 7.4 62.0 8.3 Q68.1 9.2 73.7 12.7 Q79.3 16.1 82.6 22.4 Q85.9 28.7 89.4 34.9 Q92.9 41.1 94.6 48.6Z M92.6 28.9 Q94.5 30.0 92.5 31.0 Q90.5 32.0 89.3 33.2 Q88.0 34.3 86.3 33.6 Q84.5 32.8 84.2 31.4 Q83.8 30.0 83.6 28.2 Q83.4 26.4 85.7 26.5 Q88.0 26.6 89.3 27.2 Q90.7 27.8 92.6 28.9Z M17.4 95.1 Q18.2 96.0 17.3 96.9 Q16.4 97.8 15.2 98.3 Q14.0 98.7 12.6 98.4 Q11.3 98.1 11.0 97.0 Q10.7 96.0 10.5 94.6 Q10.3 93.2 12.2 93.2 Q14.0 93.2 15.2 93.7 Q16.5 94.1 17.4 95.1Z' fill='%237a1a1a'/><path d='M87.6 58.0 Q87.8 65.2 85.4 71.8 Q83.1 78.5 78.3 82.6 Q73.5 86.7 69.1 90.7 Q64.7 94.6 59.5 97.7 Q54.3 100.8 48.4 100.8 Q42.5 100.8 37.1 97.8 Q31.7 94.9 27.3 90.4 Q22.9 86.0 19.5 80.3 Q16.1 74.6 15.4 67.7 Q14.7 60.9 15.3 54.3 Q16.0 47.7 16.8 40.8 Q17.6 34.0 21.0 28.3 Q24.5 22.5 29.1 17.9 Q33.8 13.2 39.7 12.1 Q45.7 10.9 51.4 12.5 Q57.1 14.1 62.5 16.0 Q67.9 17.8 72.3 22.2 Q76.7 26.5 79.4 32.5 Q82.0 38.4 84.7 44.6 Q87.4 50.8 87.6 58.0Z' fill='none' stroke='%23f1e0c4' stroke-width='2.2' stroke-dasharray='38 3 22 5 46 2 30 4' stroke-linecap='round' opacity='0.9'/></svg>") center / 100% 100% no-repeat;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='90'><filter id='v'><feTurbulence type='fractalNoise' baseFrequency='0.11' numOctaves='3' seed='4'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -10 8.2'/></filter><rect width='100%' height='100%' filter='url(%23v)'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='90'><filter id='v'><feTurbulence type='fractalNoise' baseFrequency='0.11' numOctaves='3' seed='4'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -10 8.2'/></filter><rect width='100%' height='100%' filter='url(%23v)'/></svg>");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+.GhostAsuraCard_bannerSeal__ZVUv1::before,
+.GhostAsuraCard_bannerSeal__ZVUv1::after {
+  position: relative;
+  z-index: 1;
+  color: #f3e3c6;
+  -webkit-text-fill-color: #f3e3c6;
+  font-family: 'Asura Seal Carved', "Noto Serif TC", "Songti TC", serif;
+  font-weight: 400;
+  font-synthesis: none;
+  font-size: 0.52em;
+  line-height: 1;
+  letter-spacing: 0;
+}
+.GhostAsuraCard_bannerSeal__ZVUv1::before { content: '修'; }
+.GhostAsuraCard_bannerSeal__ZVUv1::after { content: '羅'; }
+
+/* 三格 */
+.GhostAsuraCard_asuraTiles__moniU {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.GhostAsuraCard_tileSquare__UBQL4 {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 2px solid var(--gold);
+  border-radius: 3px;
+  background:
+    /* 頂部高光反射 */
+    radial-gradient(circle at 35% 25%, rgba(255, 245, 150, 0.25), transparent 25%),
+    /* 次級反射 */
+    radial-gradient(circle at 65% 70%, rgba(201, 164, 92, 0.08), transparent 20%),
+    /* 主色背景 */
+    var(--ink);
+  color: var(--gold);
+  font-family: 'Asura Tiles Brush', 'Asura Brand Brush', var(--asura-kai);
+  font-weight: 400;
+  font-synthesis: none;
+  font-size: clamp(28px, 9vw, 40px);
+  letter-spacing: 0.08em;
+  text-indent: 0.08em;
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 0 8px rgba(201, 164, 92, 0.3),
+    0 0 16px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    /* 邊框光澤 */
+    0 0 0 1px rgba(255, 255, 255, 0.15) inset,
+    /* 頂部亮邊 */
+    inset -1px -1px 2px rgba(255, 245, 150, 0.12),
+    /* 下方深陰 */
+    inset 1px 2px 4px rgba(0, 0, 0, 0.45),
+    /* 外部投影 */
+    0 8px 16px -4px rgba(201, 164, 92, 0.25),
+    /* 環境色 */
+    0 0 0 3px rgba(0, 0, 0, 0.1) inset;
+  cursor: pointer;
+  will-change: transform, box-shadow, border-color;
+  transition: transform 240ms ease-out, box-shadow 240ms ease-out, border-color 240ms ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 五元素按鈕色彩 — 過去/現在/未來 */
+.GhostAsuraCard_tileSquare__UBQL4:nth-child(1) {
+  --btn-color: #7FD8BE;
+  --btn-glow: rgba(127, 216, 190, 0.25);
+}
+
+.GhostAsuraCard_tileSquare__UBQL4:nth-child(2) {
+  --btn-color: #FFD700;
+  --btn-glow: rgba(255, 215, 0, 0.35);
+}
+
+.GhostAsuraCard_tileSquare__UBQL4:nth-child(3) {
+  --btn-color: #7C9FD8;
+  --btn-glow: rgba(124, 159, 216, 0.25);
+}
+
+.GhostAsuraCard_tileSquare__UBQL4:not(:disabled):hover {
+  transform: translateY(-4px);
+  border-color: var(--gold-hi);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.15) inset,
+    inset -1px -1px 2px rgba(255, 245, 150, 0.12),
+    inset 1px 2px 4px rgba(0, 0, 0, 0.45),
+    0 0 16px var(--btn-glow),
+    0 12px 24px -4px var(--btn-glow),
+    0 0 0 3px rgba(0, 0, 0, 0.1) inset;
+}
+/* 墨底：乾筆飛白金橫筆＋紙紋＋暈染 */
+.GhostAsuraCard_tileSquare__UBQL4::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    var(--dry-streak),
+    var(--ink-grain),
+    radial-gradient(85% 75% at 30% 25%, rgba(120, 112, 104, 0.36), transparent 62%),
+    radial-gradient(70% 60% at 80% 90%, rgba(0, 0, 0, 0.8), transparent 70%),
+    linear-gradient(160deg, #2c2724 0%, #121010 55%, #040303 100%);
+  background-size: 64% 3px, 120px 120px, auto, auto, auto;
+  background-position: 50% calc(100% - 14px), 0 0, 0 0, 0 0, 0 0;
+  background-repeat: no-repeat, repeat, no-repeat, no-repeat, no-repeat;
+}
+/* 潑墨點：角落墨團，雜訊遮罩打散邊緣 */
+.GhostAsuraCard_tileSquare__UBQL4::after {
+  content: '';
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  width: 58px;
+  height: 58px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 40% 60%, rgba(0, 0, 0, 0.95) 0 30%, transparent 31%),
+    radial-gradient(circle at 70% 30%, rgba(0, 0, 0, 0.85) 0 16%, transparent 17%),
+    radial-gradient(circle at 15% 20%, rgba(0, 0, 0, 0.8) 0 7%, transparent 8%),
+    radial-gradient(circle at 85% 80%, rgba(0, 0, 0, 0.7) 0 6%, transparent 7%);
+  -webkit-mask-image: var(--ink-grain), radial-gradient(circle, #000 55%, transparent 72%);
+  mask-image: var(--ink-grain), radial-gradient(circle, #000 55%, transparent 72%);
+  opacity: 0.9;
+}
+.GhostAsuraCard_tileSquare__UBQL4:nth-of-type(2n)::after { top: auto; bottom: -16px; right: auto; left: -16px; }
+.GhostAsuraCard_tileSquare__UBQL4:not(:disabled):active {
+  transform: translateY(2px) scale(0.97);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.15) inset,
+    inset -1px -1px 2px rgba(255, 245, 150, 0.12),
+    inset 1px 2px 4px rgba(0, 0, 0, 0.5),
+    0 0 12px var(--btn-glow),
+    0 4px 12px -2px var(--btn-glow),
+    0 0 0 3px rgba(0, 0, 0, 0.15) inset;
+}
+.GhostAsuraCard_tileSquare__UBQL4:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 2px; }
+.GhostAsuraCard_tileSquareOn__JHakl {
+  border-color: var(--gold-hi);
+  background: var(--crimson);
+  color: var(--gold-hi);
+  font-weight: 700;
+  box-shadow:
+    inset 0 0 0 4px rgba(139, 30, 30, 0.85),
+    inset 0 0 0 5px rgba(230, 200, 134, 0.8),
+    inset 0 0 20px rgba(230, 200, 134, 0.1),
+    0 0 16px rgba(139, 30, 30, 0.6),
+    0 4px 16px rgba(139, 30, 30, 0.3);
+}
+.GhostAsuraCard_tileSquareOn__JHakl::before {
+  background-image:
+    var(--dry-streak),
+    var(--ink-grain),
+    radial-gradient(80% 70% at 30% 25%, rgba(190, 60, 50, 0.5), transparent 65%),
+    linear-gradient(160deg, #a52a24 0%, #8b1e1e 55%, #4a0d0d 100%);
+  background-size: 64% 3px, 120px 120px, auto, auto;
+  background-position: 50% calc(100% - 14px), 0 0, 0 0, 0 0;
+  background-repeat: no-repeat, repeat, no-repeat, no-repeat;
+}
+.GhostAsuraCard_tileSquareIdle__G1exK { opacity: 0.5; cursor: default; }
+@media (hover: hover) {
+  .GhostAsuraCard_tileSquare__UBQL4:not(:disabled):not(.GhostAsuraCard_tileSquareOn__JHakl):hover {
+    color: var(--gold-hi);
+    box-shadow: inset 0 0 0 4px rgba(13, 11, 10, 0.7), inset 0 0 0 5px rgba(230, 200, 134, 0.6), 0 6px 14px -8px #000;
+  }
+}
+@media (min-width: 641px) {
+  .GhostAsuraCard_asuraTopRow__zZD8x { padding: 24px; }
+  .GhostAsuraCard_tileSquare__UBQL4 { aspect-ratio: 1; }
+}
+
+/* 時辰未知、以子時排：一句誠實註記 */
+.GhostAsuraCard_fnHourNote__bbJMq {
+  margin: 8px 16px 0;
+  color: #c9a45c;
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  text-align: right;
+}
+
+/* 展開面板：讀盤逐段 → 白話緊接段落 → 收尾金句 */
+.GhostAsuraCard_fnPanel__qlcpz {
+  padding: 16px 24px 24px;
+  background: #131015;
+  border-bottom: 1px solid #45323a;
+  animation: GhostAsuraCard_asuraFnReveal__Cc4US 180ms ease-out;
+}
+.GhostAsuraCard_fnPanel__qlcpz[hidden] { display: none; }
+.GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnBody__yKv28 { display: grid; gap: 8px; padding: 0; border-top: 0; }
+
+/* 修羅檔案技能專用操作工具列 */
+.GhostAsuraCard_fnActionBar__Q1N1W {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 12px;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed rgba(201, 164, 92, 0.28);
+}
+
+.GhostAsuraCard_fnBadgeTag__QXoOI {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(201, 164, 92, 0.45);
+  background: rgba(35, 25, 28, 0.85);
+  color: var(--gold-hi, #f0d0ae);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.6);
+}
+
+.GhostAsuraCard_fnBtnGroup__NMtzD {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.GhostAsuraCard_fnCopyBtn__zitvJ {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 14px;
+  min-height: 34px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #f5eeea;
+  background: linear-gradient(145deg, #3a2228, #1c1418);
+  border: 1px solid #7c4852;
+  border-radius: 6px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: all 160ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.GhostAsuraCard_fnCopyBtn__zitvJ:hover {
+  background: linear-gradient(145deg, #502e37, #281c22);
+  border-color: #c9a45c;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(201, 164, 92, 0.35);
+  transform: translateY(-1px);
+}
+
+.GhostAsuraCard_fnCopyBtn__zitvJ:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.GhostAsuraCard_fnCopyBtnCode__ZNtM1 {
+  background: linear-gradient(145deg, #222934, #12161c);
+  border-color: #435b75;
+  color: #cdd9e5;
+}
+
+.GhostAsuraCard_fnCopyBtnCode__ZNtM1:hover {
+  background: linear-gradient(145deg, #2d3846, #1a2029);
+  border-color: #6cb6ff;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(108, 182, 255, 0.35);
+}
+
+.GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnLead__2Igjq { color: #fbeee4; border-left-color: #c94f5c; }
+.GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnNarrative__QCNyH { display: grid; gap: 12px; }
+.GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnNarrative__QCNyH p { margin: 0; color: #f3ebe6; font-size: 17px; line-height: 1.85; letter-spacing: 0.02em; }
+.GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnPlainLine__yE22l {
+  padding-left: 12px;
+  border-left: 1px solid rgba(201, 164, 92, 0.5);
+  color: #bfb4a6;
+  font-family: system-ui, -apple-system, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnPlainLine__yE22l strong { margin-right: 6px; color: #c9a45c; font-weight: 600; }
+.GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnPlainTag__hsjvU {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 4px;
+  border: 1px solid rgba(201, 164, 92, 0.55);
+  border-radius: 3px;
+  color: #c9a45c;
+  font-size: 11px;
+  line-height: 16px;
+  vertical-align: 1px;
+}
+.GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnCoda__qTdIR {
+  margin: 16px 0 0;
+  color: #e6c47a;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: 0.04em;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 金光閃閃 — 印記覺醒能量光暈
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@keyframes GhostAsuraCard_goldGlimmer__1AfzH {
+  0% {
+    background: linear-gradient(45deg,
+      rgba(255, 215, 0, 0) 0%,
+      rgba(255, 215, 0, 0.05) 50%,
+      rgba(255, 215, 0, 0) 100%);
+    opacity: 0.5;
+  }
+  50% {
+    background: linear-gradient(45deg,
+      rgba(255, 215, 0, 0) 0%,
+      rgba(255, 215, 0, 0.25) 50%,
+      rgba(255, 215, 0, 0) 100%);
+    opacity: 1;
+  }
+  100% {
+    background: linear-gradient(45deg,
+      rgba(255, 215, 0, 0) 0%,
+      rgba(255, 215, 0, 0.05) 50%,
+      rgba(255, 215, 0, 0) 100%);
+    opacity: 0.5;
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 3D 旋轉 — 卡片立體進場
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@keyframes GhostAsuraCard_itemReveal3D__8Zh9U {
+  from {
+    opacity: 0;
+    transform: rotateX(-30deg) rotateZ(-15deg) translateZ(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: rotateX(0) rotateZ(0) translateZ(0);
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 金幣 3D 旋轉 — 立體金幣飄浮
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@keyframes GhostAsuraCard_coinSpinX__1RrHo {
+  0% { transform: rotateX(0deg) rotateY(0deg); }
+  100% { transform: rotateX(360deg) rotateY(360deg); }
+}
+
+@keyframes GhostAsuraCard_coinFloat__qVST4 {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  25% { transform: translateY(-8px) translateX(4px); }
+  50% { transform: translateY(-12px) translateX(0); }
+  75% { transform: translateY(-8px) translateX(-4px); }
+}
+
+@keyframes GhostAsuraCard_coinGlow__cFFRC {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.4)); }
+  50% { filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.8)); }
+}
+
+@keyframes GhostAsuraCard_asuraFnReveal__Cc4US {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+@media (max-width: 640px) {
+  .GhostAsuraCard_fnPanel__qlcpz { padding: 16px 14px 20px; }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 響應式適配：360px - 480px 小型手機螢幕
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (max-width: 480px) {
+  /* 縮小面板內邊距，釋放水平空間 */
+  .GhostAsuraCard_fnPanel__qlcpz {
+    padding: 14px 12px 18px;
+  }
+
+  /* 操作工具列改為垂直流式佈局，杜絕橫向擠壓溢出 */
+  .GhostAsuraCard_fnActionBar__Q1N1W {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+
+  /* 徽章置中全寬展示 */
+  .GhostAsuraCard_fnBadgeTag__QXoOI {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  /* 按鈕組自適應兩欄均分 */
+  .GhostAsuraCard_fnBtnGroup__NMtzD {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  /* 複製按鈕：緊湊字級與觸控保證（min-height 38px） */
+  .GhostAsuraCard_fnCopyBtn__zitvJ {
+    width: 100%;
+    padding: 6px 4px;
+    font-size: 12px;
+    min-height: 38px;
+    gap: 4px;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+
+  /* 話術正文字級微調，避免 360px 螢幕斷字破碎 */
+  .GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnLead__2Igjq {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnNarrative__QCNyH p {
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  .GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnPlainLine__yE22l {
+    font-size: 12px;
+    padding-left: 8px;
+  }
+
+  .GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnCoda__qTdIR {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-top: 12px;
+  }
+
+  /* 360px 三格磚塊微調：防止毛筆字溢出 */
+  .GhostAsuraCard_asuraTiles__moniU {
+    gap: 6px;
+  }
+
+  .GhostAsuraCard_tileSquare__UBQL4 {
+    font-size: clamp(22px, 7.5vw, 28px);
+    border-width: 1.5px;
+  }
+}
+
+@media (max-width: 360px) {
+  /* 360px 極窄極端適配：按鈕垂直堆疊以維持足夠觸控與文字排版 */
+  .GhostAsuraCard_fnPanel__qlcpz {
+    padding: 12px 8px 16px;
+  }
+
+  .GhostAsuraCard_fnBtnGroup__NMtzD {
+    grid-template-columns: 1fr;
+  }
+
+  .GhostAsuraCard_fnCopyBtn__zitvJ {
+    min-height: 36px;
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 響應式適配：1024px+ 桌面大螢幕強化
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (min-width: 1024px) {
+  /* 展開面板擴大留白，提升呼吸感 */
+  .GhostAsuraCard_fnPanel__qlcpz {
+    padding: 24px 36px 32px;
+  }
+
+  .GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnBody__yKv28 {
+    gap: 14px;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  /* 操作工具列兩端貼齊、按鈕適度放大 */
+  .GhostAsuraCard_fnActionBar__Q1N1W {
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+  }
+
+  .GhostAsuraCard_fnBadgeTag__QXoOI {
+    font-size: 14px;
+    padding: 4px 14px;
+  }
+
+  .GhostAsuraCard_fnCopyBtn__zitvJ {
+    padding: 8px 18px;
+    font-size: 14px;
+    min-height: 36px;
+  }
+
+  /* 正文話術排版優化 */
+  .GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnLead__2Igjq {
+    font-size: 16px;
+    line-height: 1.7;
+    padding-left: 14px;
+    border-left-width: 3px;
+  }
+
+  .GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnNarrative__QCNyH {
+    gap: 16px;
+  }
+
+  .GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnNarrative__QCNyH p {
+    font-size: 18px;
+    line-height: 1.9;
+  }
+
+  .GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnPlainLine__yE22l {
+    font-size: 14px;
+    line-height: 1.7;
+    padding-left: 14px;
+  }
+
+  .GhostAsuraCard_fnPanel__qlcpz .GhostAsuraCard_fnCoda__qTdIR {
+    font-size: 21px;
+    line-height: 1.75;
+    margin-top: 20px;
+  }
+
+  /* 磚塊在桌面維持雅緻緊湊比例 */
+  .GhostAsuraCard_asuraTiles__moniU {
+    max-width: 540px;
+    gap: 14px;
+  }
+
+  .GhostAsuraCard_tileSquare__UBQL4 {
+    border-radius: 4px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .GhostAsuraCard_tileSquare__UBQL4 { transition: none; }
+  .GhostAsuraCard_tileSquare__UBQL4:not(:disabled):active { transform: none; }
+  .GhostAsuraCard_fnPanel__qlcpz { animation: none; }
+}
+
+/* 其餘印記（沉眠／待校核）：統計有算的，清單就要列；預設收合，展開才看 */
+.GhostAsuraCard_restGroup__EDoXn {
+  margin: 0 24px 20px;
+  border: 1px solid #49363d;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  min-width: 0;
+}
+
+.GhostAsuraCard_restSummary__q4He8 {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  color: #d4d4d8;
+}
+
+.GhostAsuraCard_restSummary__q4He8:focus-visible {
+  outline: 3px solid #bae6fd;
+  outline-offset: 2px;
+}
+
+.GhostAsuraCard_restGroup__EDoXn[open] > .GhostAsuraCard_restSummary__q4He8 {
+  border-bottom: 1px solid #49363d;
+  color: #f2ede4;
+}
+
+.GhostAsuraCard_restGroup__EDoXn > .GhostAsuraCard_list__bPt_X {
+  padding: 12px 16px 16px;
+}
+
+.GhostAsuraCard_restHead__pFdDa {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-bottom: 6px;
+}
+
+.GhostAsuraCard_restNote__YzaXW {
+  font-size: 14px;
+  color: #bfc2cc;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 640px) {
+  .GhostAsuraCard_restGroup__EDoXn {
+    margin-left: 12px;
+    margin-right: 12px;
+  }
+}
+
+/* 受測者名牌標籤（直呼其名，到位） */
+.GhostAsuraCard_targetBadge__D7hys {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: -8px auto 0;
+  padding: 4px 18px;
+  background: radial-gradient(circle at center, rgba(139, 30, 30, 0.35), rgba(13, 11, 10, 0.9));
+  border: 1px solid rgba(201, 164, 92, 0.6);
+  border-radius: 9999px;
+  font-family: var(--asura-kai);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #fde68a;
+  box-shadow:
+    0 0 16px rgba(201, 164, 92, 0.22),
+    inset 0 -2px 8px rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(139, 30, 30, 0.3);
+  perspective: 600px;
+  transform: translateZ(0);
+  transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+/*!************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./app/ghost-asura/skill/asura-skill-reading.module.css ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************************/
+.asura-skill-reading_wrap__K3UM0 { display: grid; gap: 16px; min-width: 0; }
+
+.asura-skill-reading_form__WQM4H {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #634249;
+  border-radius: 12px;
+  background: #131115;
+}
+
+.asura-skill-reading_prompt__dFpTe {
+  margin: 0;
+  color: #efc5a1;
+  font: 700 17px/1.6 serif;
+  letter-spacing: 0.14em;
+}
+
+.asura-skill-reading_fields__C9K0D {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.asura-skill-reading_field__Xm4bL { display: grid; gap: 6px; min-width: 0; }
+.asura-skill-reading_field__Xm4bL > span { color: #c4aaa4; font-size: 13px; letter-spacing: 0.08em; }
+
+.asura-skill-reading_field__Xm4bL input[type="date"],
+.asura-skill-reading_field__Xm4bL input[type="time"] {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1px solid #674751;
+  border-radius: 8px;
+  background: #211a20;
+  color: #f5eeea;
+  font-size: 16px;
+  color-scheme: dark;
+}
+
+.asura-skill-reading_field__Xm4bL input:focus-visible { outline: 2px solid #e3b881; outline-offset: 2px; }
+
+.asura-skill-reading_genders__Sfm_m { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.asura-skill-reading_gender__xXOaf {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border: 1px solid #674751;
+  border-radius: 8px;
+  background: #211a20;
+  color: #d6c8c3;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+}
+
+.asura-skill-reading_gender__xXOaf input { position: absolute; opacity: 0; pointer-events: none; }
+.asura-skill-reading_gender__xXOaf:has(input:focus-visible) { outline: 2px solid #e3b881; outline-offset: 2px; }
+.asura-skill-reading_genderOn__cgjl2 { border-color: #c09076; background: #34232a; color: #f0d0ae; }
+
+.asura-skill-reading_submit__f35G9 {
+  min-height: 52px;
+  border: 1px solid #9d7e5d;
+  border-radius: 8px;
+  background: #33291f;
+  color: #efd9bc;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  cursor: pointer;
+}
+
+.asura-skill-reading_submit__f35G9:focus-visible { outline: 2px solid #e3b881; outline-offset: 3px; }
+.asura-skill-reading_fields__C9K0D:disabled .asura-skill-reading_submit__f35G9 { opacity: 0.7; cursor: wait; }
+
+.asura-skill-reading_note__sAx0e { margin: 0; color: #a8999a; font-size: 12px; line-height: 1.6; }
+
+.asura-skill-reading_error___rTCn {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  border-radius: 8px;
+  background: rgba(127, 29, 29, 0.15);
+  color: #fecaca;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.asura-skill-reading_result__T6DeA { min-width: 0; }
+
+@media (min-width: 640px) {
+  .asura-skill-reading_fields__C9K0D { grid-template-columns: 1fr 1fr; }
+  .asura-skill-reading_fields__C9K0D > :nth-child(3), .asura-skill-reading_submit__f35G9 { grid-column: 1 / -1; }
+}
+
+/* 不知道時辰 */
+.asura-skill-reading_unknownHour__9VC55 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: #e0d3cd;
+  font-size: 15px;
+  cursor: pointer;
+}
+.asura-skill-reading_unknownHour__9VC55 input { width: 18px; height: 18px; accent-color: #8b1e1e; }
+.asura-skill-reading_hourNote__gO4Hh { margin: 0; color: #c9a45c; font-size: 14px; line-height: 1.6; }
+
+
+/* ════════════════════════════════════════════════════════════════
+ * 阿修羅視覺（僅技能頁、僅視覺）：近黑底、刀鋒刃口、金線如刃、朱紅點鋒、潑墨＋飛白。
+ * 全部 CSS＋極小 inline SVG；無大圖、無持續動畫。
+ * 範圍：生辰表單、修羅卡卡頭列與展開面板、三張時間軸卡。
+ *   過去＝最重最滿（最密潑墨、粗暗金框、兩道 V 形缺刻）
+ *   現在＝中量（摔墨＋方向甩痕、斷框角線、右上長斜刃）
+ *   未來＝最輕最疏（稀疏墨點、上／左漸隱框、上緣細缺口＋右上大斜角）
+ * ════════════════════════════════════════════════════════════════ */
+
+/* ── 色票、紋理、潑墨 ── */
+.asura-skill-reading_wrap__K3UM0,
+.asura-skill-reading_timeCards__uJzD_ {
+  --a-ink: #0b0908;
+  --a-ink-2: #14100f;
+  --a-gold: #c9a45c;
+  --a-gold-hi: #e6c47a;
+  --a-gold-dim: rgba(201, 164, 92, 0.42);
+  --a-crimson: #8b1e1e;
+  --a-crimson-glow: rgba(139, 30, 30, 0.38);
+  --a-text: #efe6df;
+  --a-cut: 14px;
+  /* 墨粒（與卡頭四方同一技法） */
+  --a-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  /* 飛白：橫向拉長的乾筆絲紋，作為金線／邊線的遮罩 */
+  --a-dry: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='8' preserveAspectRatio='none'><filter id='d'><feTurbulence type='fractalNoise' baseFrequency='0.012 0.9' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 2.6 -0.9'/></filter><rect width='100%' height='100%' filter='url(%23d)'/></svg>");
+  --a-chamfer: polygon(var(--a-cut) 0, 100% 0, 100% calc(100% - var(--a-cut)), calc(100% - var(--a-cut)) 100%, 0 100%, 0 var(--a-cut));
+  /* 切角處補一道金色刃線（左上、右下） */
+  --a-corner-tl: linear-gradient(135deg, transparent 9.2px, var(--a-gold) 9.2px, var(--a-gold) 10.6px, transparent 10.6px) top left / var(--a-cut) var(--a-cut) no-repeat;
+  --a-corner-br: linear-gradient(315deg, transparent 9.2px, var(--a-gold) 9.2px, var(--a-gold) 10.6px, transparent 10.6px) bottom right / var(--a-cut) var(--a-cut) no-repeat;
+  /* 水墨底：朱紅暈染＋金氣暈＋墨粒＋墨色漸層 */
+  --a-wash:
+    radial-gradient(120% 60% at 100% 0%, var(--a-crimson-glow), transparent 62%),
+    radial-gradient(90% 55% at 0% 100%, rgba(201, 164, 92, 0.09), transparent 70%),
+    radial-gradient(60% 40% at 20% 10%, rgba(0, 0, 0, 0.55), transparent 70%),
+    var(--a-grain),
+    linear-gradient(180deg, var(--a-ink-2), var(--a-ink));
+  /* 三卡色族 */
+  --past-gold: #8a6a35;
+  --past-gold-text: #c9a45c;
+  --now-gold: rgba(201, 164, 92, 0.62);
+  --now-gold-text: #e6c47a;
+  --fut-gold: #e8d29a;
+  --fut-gold-text: #f1dea8;
+  /* 潑墨（靜態 SVG，近黑墨＋暗金／朱紅描邊；生成器 splat/gen2.py） */
+  --splat-past: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 600'><g fill='%23050404' stroke='%239a7638' stroke-width='1.4' stroke-linejoin='miter'><path d='M398 120 L392 132 L371 140 L440 180 L361 158 L358 170 L352 181 L334 179 L328 198 L310 189 L297 179 L285 181 L268 190 L258 180 L239 181 L211 185 L229 157 L214 150 L233 133 L239 124 L237 116 L209 102 L220 92 L238 88 L240 76 L265 85 L268 74 L259 30 L284 55 L298 74 L310 52 L314 79 L338 55 L335 78 L337 88 L357 85 L423 67 L358 104 L386 108Z M356 111 L321 117 L341 134 L329 141 L320 150 L301 137 L292 150 L277 158 L271 142 L234 159 L272 121 L231 125 L223 111 L225 96 L271 101 L270 93 L267 75 L279 71 L292 69 L299 92 L318 74 L348 66 L321 98 L344 100Z M354 133 L470 137 L355 117Z M331 166 L438 262 L345 153Z M330 166 L414 250 L342 156Z M272 168 L243 262 L287 174Z M300 65 L278 -23 L284 67Z M251 95 L101 50 L246 108Z M245 121 L166 135 L246 131Z M338 159 L446 239 L346 150Z M303 65 L289 -53 L290 66Z'/><circle cx='488' cy='138' r='10.5'/><circle cx='452' cy='277' r='12.0'/><circle cx='426' cy='264' r='10.5'/><circle cx='236' cy='279' r='10.4'/><circle cx='275' cy='-40' r='10.5'/><circle cx='87' cy='45' r='8.8'/><circle cx='155' cy='136' r='6.4'/><circle cx='456' cy='248' r='7.9'/><circle cx='288' cy='-69' r='9.1'/><circle cx='447' cy='35' r='5.3'/><circle cx='414' cy='106' r='5.0'/><circle cx='221' cy='60' r='2.8'/><circle cx='299' cy='30' r='4.4'/><circle cx='299' cy='20' r='1.8'/><circle cx='436' cy='155' r='5.4'/><circle cx='398' cy='175' r='4.7'/><circle cx='408' cy='181' r='1.9'/><circle cx='280' cy='-35' r='8.9'/><circle cx='455' cy='51' r='4.0'/><circle cx='464' cy='47' r='1.6'/><circle cx='492' cy='155' r='1.6'/><circle cx='496' cy='156' r='0.6'/><circle cx='256' cy='212' r='1.6'/><circle cx='255' cy='216' r='0.6'/><circle cx='232' cy='184' r='8.8'/><circle cx='478' cy='280' r='3.8'/><circle cx='484' cy='287' r='1.5'/><circle cx='195' cy='135' r='8.1'/><circle cx='476' cy='149' r='1.1'/><circle cx='231' cy='176' r='1.6'/><circle cx='228' cy='179' r='0.6'/><circle cx='403' cy='198' r='4.5'/><circle cx='411' cy='205' r='1.8'/><circle cx='495' cy='47' r='4.8'/><circle cx='505' cy='43' r='1.9'/><circle cx='123' cy='80' r='5.3'/><circle cx='111' cy='77' r='2.1'/><circle cx='383' cy='163' r='8.9'/><circle cx='401' cy='175' r='3.6'/><circle cx='339' cy='-53' r='5.0'/><circle cx='220' cy='194' r='6.1'/><circle cx='304' cy='-9' r='8.7'/><circle cx='304' cy='-30' r='3.5'/></g><g fill='%23c9a45c'><circle cx='307' cy='255' r='1.3'/><circle cx='173' cy='-22' r='2.0'/><circle cx='333' cy='223' r='1.2'/><circle cx='394' cy='68' r='1.1'/><circle cx='180' cy='284' r='1.0'/><circle cx='498' cy='205' r='2.1'/><circle cx='409' cy='214' r='2.3'/><circle cx='364' cy='5' r='1.7'/><circle cx='216' cy='-37' r='2.2'/><circle cx='213' cy='33' r='2.1'/><circle cx='271' cy='281' r='1.9'/><circle cx='275' cy='245' r='1.9'/></g><g fill='%23050404' stroke='%237a1a1a' stroke-width='1.6' stroke-linejoin='miter'><path d='M134 430 L104 434 L131 445 L124 451 L117 456 L107 458 L105 466 L102 475 L95 482 L90 501 L73 463 L67 458 L59 471 L55 461 L48 461 L41 460 L31 459 L24 456 L-22 466 L6 446 L33 435 L2 430 L32 425 L22 418 L19 410 L31 408 L30 400 L29 388 L36 382 L51 391 L49 354 L65 378 L74 383 L93 347 L95 377 L105 381 L103 396 L103 405 L125 399 L145 400 L118 418 L123 423Z M95 430 L95 433 L113 446 L110 456 L88 444 L84 446 L78 456 L68 463 L60 456 L27 471 L63 437 L57 434 L23 430 L44 422 L51 417 L49 405 L66 412 L71 408 L78 395 L84 412 L99 400 L125 391 L97 421 L110 423Z M34 426 L-64 427 L34 432Z M107 428 L194 406 L105 419Z M86 397 L111 307 L77 394Z M62 394 L38 347 L52 398Z M35 443 L-69 514 L42 454Z M62 466 L55 552 L69 467Z'/><circle cx='-71' cy='427' r='4.2'/><circle cx='204' cy='404' r='6.0'/><circle cx='114' cy='296' r='6.4'/><circle cx='34' cy='337' r='6.6'/><circle cx='-82' cy='521' r='8.4'/><circle cx='54' cy='559' r='4.7'/><circle cx='-72' cy='484' r='6.1'/><circle cx='-86' cy='490' r='2.5'/><circle cx='35' cy='495' r='4.5'/><circle cx='174' cy='524' r='1.1'/><circle cx='176' cy='526' r='0.5'/><circle cx='90' cy='549' r='2.8'/><circle cx='91' cy='555' r='1.1'/><circle cx='16' cy='387' r='5.2'/><circle cx='7' cy='378' r='2.1'/><circle cx='-21' cy='425' r='2.1'/><circle cx='-27' cy='465' r='3.4'/><circle cx='116' cy='491' r='4.6'/><circle cx='-87' cy='405' r='4.5'/><circle cx='86' cy='554' r='5.6'/><circle cx='30' cy='507' r='6.3'/><circle cx='24' cy='520' r='2.5'/><circle cx='234' cy='429' r='1.8'/><circle cx='238' cy='429' r='0.7'/><circle cx='56' cy='353' r='1.6'/><circle cx='-65' cy='491' r='1.7'/><circle cx='-68' cy='493' r='0.7'/></g><g fill='%23050404' stroke='%239a7638' stroke-width='1.4' stroke-linejoin='miter'><path d='M378 540 L353 543 L361 547 L351 548 L354 552 L348 552 L353 561 L348 561 L341 559 L335 554 L335 563 L331 567 L326 569 L325 556 L323 555 L319 556 L313 558 L316 551 L299 559 L309 549 L307 547 L294 546 L302 542 L312 539 L297 534 L308 533 L300 527 L291 517 L314 527 L319 528 L314 517 L317 515 L322 513 L325 504 L331 521 L335 515 L343 508 L339 525 L349 517 L354 518 L348 528 L351 529 L358 530 L360 533 L352 537Z M347 546 L332 548 L334 551 L345 563 L331 556 L327 554 L324 561 L321 555 L319 553 L314 554 L315 550 L315 548 L303 546 L305 542 L308 539 L313 537 L317 537 L320 533 L324 524 L326 539 L331 536 L344 529 L343 537 L337 543Z M348 536 L383 518 L346 530Z M343 527 L370 489 L339 524Z M313 546 L274 567 L314 550Z M314 549 L286 572 L317 553Z'/><circle cx='390' cy='516' r='4.3'/><circle cx='373' cy='485' r='3.4'/><circle cx='270' cy='569' r='2.7'/><circle cx='282' cy='576' r='3.3'/><circle cx='284' cy='544' r='3.9'/><circle cx='330' cy='512' r='3.4'/><circle cx='293' cy='506' r='3.1'/><circle cx='288' cy='500' r='1.2'/><circle cx='309' cy='582' r='2.8'/><circle cx='298' cy='599' r='1.7'/><circle cx='330' cy='603' r='1.1'/><circle cx='330' cy='606' r='0.5'/><circle cx='361' cy='474' r='1.4'/><circle cx='332' cy='601' r='1.2'/><circle cx='332' cy='604' r='0.5'/></g></svg>");
+  --splat-past-2: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 600'><g fill='%23050404' stroke='%239a7638' stroke-width='1.4' stroke-linejoin='miter'><path d='M204 380 L173 388 L199 404 L171 406 L164 414 L171 432 L169 450 L150 449 L128 430 L123 467 L108 425 L96 437 L80 446 L68 440 L79 412 L42 429 L44 414 L58 398 L-20 406 L32 385 L17 374 L40 366 L43 357 L31 339 L43 332 L66 335 L85 345 L83 322 L96 325 L107 318 L119 321 L124 341 L134 339 L192 282 L171 328 L161 348 L195 344 L170 363 L183 370Z M158 367 L143 371 L140 376 L169 405 L144 400 L135 408 L121 407 L111 398 L100 396 L88 393 L84 384 L86 374 L56 367 L66 354 L94 354 L58 315 L107 346 L107 324 L121 342 L137 318 L151 324 L183 316 L158 349 L151 360Z M142 418 L224 482 L151 408Z M131 425 L232 558 L145 416Z M90 335 L40 255 L82 340Z M127 334 L146 216 L114 331Z M75 415 L-4 530 L85 423Z M114 331 L99 218 L99 332Z M155 402 L253 422 L159 386Z M85 337 L7 255 L73 347Z'/><circle cx='235' cy='492' r='8.9'/><circle cx='242' cy='574' r='11.1'/><circle cx='35' cy='246' r='6.2'/><circle cx='149' cy='201' r='8.6'/><circle cx='-13' cy='541' r='8.3'/><circle cx='97' cy='202' r='9.4'/><circle cx='271' cy='428' r='11.0'/><circle cx='-4' cy='241' r='10.5'/><circle cx='94' cy='241' r='1.2'/><circle cx='93' cy='238' r='0.5'/><circle cx='277' cy='405' r='3.0'/><circle cx='285' cy='406' r='1.2'/><circle cx='158' cy='507' r='1.4'/><circle cx='66' cy='190' r='2.9'/><circle cx='64' cy='183' r='1.2'/><circle cx='21' cy='415' r='4.0'/><circle cx='12' cy='419' r='1.6'/><circle cx='-110' cy='310' r='5.8'/><circle cx='-123' cy='305' r='2.3'/><circle cx='211' cy='517' r='2.2'/><circle cx='214' cy='521' r='0.9'/><circle cx='203' cy='399' r='4.1'/><circle cx='212' cy='401' r='1.6'/><circle cx='295' cy='303' r='6.3'/><circle cx='308' cy='296' r='2.5'/><circle cx='83' cy='554' r='6.1'/><circle cx='81' cy='568' r='2.5'/><circle cx='21' cy='316' r='5.5'/><circle cx='27' cy='341' r='3.7'/><circle cx='19' cy='337' r='1.5'/><circle cx='16' cy='520' r='6.4'/><circle cx='8' cy='533' r='2.6'/><circle cx='191' cy='525' r='5.8'/><circle cx='196' cy='537' r='2.3'/><circle cx='162' cy='468' r='5.7'/><circle cx='168' cy='480' r='2.3'/><circle cx='275' cy='432' r='4.4'/><circle cx='207' cy='438' r='8.2'/><circle cx='223' cy='449' r='3.3'/><circle cx='221' cy='249' r='3.2'/><circle cx='245' cy='531' r='3.5'/><circle cx='-13' cy='468' r='6.3'/><circle cx='-25' cy='478' r='2.5'/></g><g fill='%23c9a45c'><circle cx='127' cy='306' r='2.1'/><circle cx='-22' cy='467' r='2.1'/><circle cx='-14' cy='363' r='1.0'/><circle cx='221' cy='468' r='1.4'/><circle cx='115' cy='308' r='2.1'/><circle cx='228' cy='288' r='1.2'/><circle cx='-59' cy='405' r='1.1'/><circle cx='-14' cy='384' r='1.4'/></g><g fill='%23050404' stroke='%237a1a1a' stroke-width='1.6' stroke-linejoin='miter'><path d='M377 120 L363 124 L373 132 L383 143 L362 139 L361 146 L352 146 L344 145 L341 151 L336 160 L329 147 L323 147 L309 165 L315 141 L300 150 L281 156 L292 140 L289 134 L299 126 L299 122 L303 118 L286 111 L304 111 L291 100 L304 101 L312 102 L316 100 L310 77 L324 97 L329 94 L335 83 L337 100 L347 90 L364 80 L358 96 L365 99 L362 106 L363 111 L369 115Z M350 118 L344 122 L354 131 L343 131 L340 136 L336 143 L328 149 L321 137 L314 137 L302 139 L316 124 L315 121 L306 118 L315 115 L305 108 L311 104 L312 96 L321 97 L328 85 L336 94 L338 103 L338 109 L345 110 L349 113Z M318 142 L301 185 L322 144Z M313 101 L242 50 L307 108Z M335 95 L341 9 L329 95Z M319 143 L297 226 L326 145Z M320 97 L302 69 L315 99Z'/><circle cx='299' cy='190' r='3.1'/><circle cx='234' cy='44' r='6.0'/><circle cx='341' cy='2' r='4.0'/><circle cx='295' cy='233' r='4.8'/><circle cx='299' cy='64' r='3.6'/><circle cx='230' cy='129' r='4.4'/><circle cx='291' cy='173' r='4.5'/><circle cx='272' cy='125' r='3.6'/><circle cx='290' cy='160' r='2.6'/><circle cx='390' cy='172' r='4.9'/><circle cx='329' cy='185' r='1.4'/><circle cx='292' cy='84' r='3.2'/><circle cx='265' cy='91' r='2.3'/><circle cx='260' cy='88' r='0.9'/><circle cx='399' cy='119' r='3.1'/><circle cx='407' cy='119' r='1.2'/><circle cx='365' cy='176' r='1.8'/><circle cx='367' cy='180' r='0.7'/></g></svg>");
+  --splat-now: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><g fill='%23050404' stroke='%238b1e1e' stroke-width='1.6' stroke-linejoin='miter'><path d='M415 80 L371 86 L372 93 L380 104 L357 99 L357 107 L361 124 L344 112 L338 116 L330 134 L321 123 L314 116 L306 115 L292 117 L300 101 L260 113 L284 94 L292 85 L267 80 L284 73 L290 68 L273 53 L300 60 L295 46 L305 44 L320 57 L324 50 L330 42 L337 49 L344 49 L366 29 L359 51 L358 61 L358 67 L377 66 L383 72Z M361 81 L360 89 L338 88 L361 112 L330 91 L332 109 L323 107 L314 108 L304 108 L304 97 L295 95 L302 86 L273 81 L308 78 L301 71 L310 71 L304 54 L318 66 L323 59 L330 59 L340 57 L353 57 L345 71 L345 76Z M357 65 L430 0 L351 57Z M323 50 L292 -12 L314 53Z M348 55 L385 -21 L342 51Z M317 108 L302 175 L326 111Z'/><circle cx='439' cy='-7' r='7.0'/><circle cx='288' cy='-22' r='6.2'/><circle cx='389' cy='-28' r='4.4'/><circle cx='299' cy='186' r='6.5'/><circle cx='231' cy='48' r='5.1'/><circle cx='219' cy='44' r='2.0'/><circle cx='272' cy='27' r='3.7'/><circle cx='332' cy='203' r='1.4'/><circle cx='257' cy='63' r='3.7'/><circle cx='248' cy='61' r='1.5'/><circle cx='214' cy='112' r='1.0'/><circle cx='211' cy='113' r='0.4'/><circle cx='345' cy='25' r='5.3'/><circle cx='348' cy='13' r='2.1'/><circle cx='301' cy='26' r='3.2'/><circle cx='298' cy='19' r='1.3'/><circle cx='435' cy='130' r='3.4'/><circle cx='227' cy='58' r='3.6'/><circle cx='218' cy='56' r='1.4'/><circle cx='379' cy='49' r='5.3'/></g><g fill='%23b22a2a'><circle cx='224' cy='82' r='1.9'/><circle cx='277' cy='39' r='1.4'/><circle cx='290' cy='135' r='2.3'/><circle cx='290' cy='143' r='1.5'/><circle cx='363' cy='5' r='1.7'/><circle cx='328' cy='146' r='1.0'/></g><g fill='%23050404' stroke='%238b1e1e' stroke-width='1.4'><path d='M321 64 L300 79 L276 90 L257 108 L238 126 L215 138 L196 155 L174 166 L153 179 L132 190 L112 205 L91 215 L71 228 L50 238 L30 250 L30 250 L53 244 L75 235 L97 227 L119 217 L143 210 L163 197 L187 189 L208 176 L231 166 L252 151 L273 136 L299 130 L320 114 L339 96Z'/><circle cx='3' cy='261' r='1.0'/><circle cx='86' cy='220' r='2.0'/><circle cx='70' cy='237' r='2.8'/><circle cx='101' cy='206' r='1.3'/><circle cx='254' cy='120' r='1.9'/><circle cx='183' cy='166' r='2.9'/><circle cx='142' cy='189' r='2.6'/><circle cx='1' cy='276' r='3.2'/><circle cx='-20' cy='269' r='2.7'/><circle cx='20' cy='245' r='2.6'/><circle cx='55' cy='227' r='1.9'/><circle cx='248' cy='121' r='2.8'/></g></svg>");
+  --splat-future: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'><g fill='%23050404' stroke='%23d8c08a' stroke-width='1.1' stroke-linejoin='miter'><path d='M360 34 L360 35 L360 36 L366 40 L357 38 L358 40 L363 46 L357 42 L355 43 L355 46 L352 43 L350 39 L348 47 L348 42 L347 41 L342 45 L343 42 L342 40 L340 40 L345 36 L341 37 L342 35 L343 34 L342 34 L341 32 L344 32 L345 32 L340 28 L344 30 L346 29 L344 25 L347 28 L348 28 L349 23 L350 27 L351 29 L354 23 L354 28 L354 29 L358 27 L357 29 L358 30 L359 31 L357 32 L356 33Z M354 36 L354 37 L353 38 L354 41 L352 41 L349 39 L348 41 L347 39 L346 39 L343 40 L343 38 L343 37 L338 36 L341 34 L343 34 L343 32 L345 31 L347 31 L348 30 L350 30 L350 33 L357 29 L354 33 L353 35Z M351 40 L357 57 L352 40Z M354 39 L365 47 L356 37Z'/><circle cx='357' cy='58' r='1.0'/><circle cx='367' cy='49' r='1.5'/><circle cx='370' cy='24' r='1.8'/><circle cx='373' cy='22' r='0.7'/><circle cx='357' cy='14' r='1.4'/><circle cx='358' cy='10' r='0.6'/><circle cx='322' cy='35' r='2.0'/><circle cx='317' cy='36' r='0.8'/></g><g fill='%23050404' stroke='%23d8c08a' stroke-width='1.1' stroke-linejoin='miter'><path d='M308 90 L303 90 L305 91 L304 92 L303 92 L303 92 L304 95 L302 94 L301 93 L301 97 L300 93 L299 92 L297 96 L297 94 L298 92 L297 93 L297 92 L297 91 L292 92 L295 90 L294 90 L295 89 L296 89 L296 88 L296 87 L298 88 L298 87 L298 85 L299 86 L300 86 L301 84 L301 87 L301 87 L302 88 L304 87 L304 88 L307 87 L303 89 L305 89Z M304 89 L302 90 L301 90 L303 93 L301 91 L300 92 L299 92 L299 91 L298 92 L296 92 L296 91 L296 90 L296 89 L297 89 L297 88 L296 87 L298 87 L299 88 L299 86 L300 87 L300 88 L301 88 L301 89 L301 89Z M302 88 L309 80 L302 87Z M299 87 L296 84 L298 88Z'/><circle cx='310' cy='79' r='0.7'/><circle cx='295' cy='83' r='0.5'/><circle cx='303' cy='86' r='1.5'/><circle cx='300' cy='98' r='1.6'/><circle cx='308' cy='99' r='1.1'/><circle cx='309' cy='101' r='0.4'/></g><g fill='%23050404' stroke='%23d8c08a' stroke-width='1.1' stroke-linejoin='miter'><path d='M378 120 L375 120 L375 121 L376 122 L375 122 L374 122 L374 123 L373 123 L373 123 L372 124 L371 123 L371 122 L369 124 L370 122 L369 122 L368 122 L369 121 L370 120 L368 120 L370 120 L370 119 L368 118 L370 118 L369 117 L370 117 L371 118 L372 118 L372 117 L373 117 L373 117 L374 118 L375 117 L374 118 L374 119 L374 119 L374 120Z M375 120 L374 120 L375 121 L374 121 L374 121 L373 121 L373 121 L372 121 L372 120 L371 121 L371 120 L371 120 L372 120 L370 119 L371 119 L370 118 L372 118 L372 118 L373 118 L373 118 L373 119 L376 117 L374 119 L375 119Z M371 122 L369 126 L371 122Z M373 118 L377 111 L373 118Z'/><circle cx='369' cy='127' r='0.4'/><circle cx='378' cy='111' r='0.4'/><circle cx='373' cy='117' r='1.3'/><circle cx='374' cy='114' r='0.5'/><circle cx='371' cy='114' r='1.0'/><circle cx='369' cy='123' r='1.7'/></g></svg>");
+  --splat-title: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300' preserveAspectRatio='none'><g fill='%23000'><path d='M82 250 L67 255 L82 265 L96 284 L64 271 L57 274 L57 294 L44 281 L37 276 L31 272 L29 266 L23 265 L-8 278 L-1 265 L10 255 L-16 250 L-2 243 L6 237 L-17 216 L23 234 L29 234 L25 211 L36 218 L44 217 L57 208 L62 219 L66 227 L76 229 L81 235 L70 245Z M67 260 L70 266 L58 268 L59 276 L50 274 L45 277 L40 279 L32 282 L33 269 L11 283 L22 268 L16 265 L5 260 L12 253 L23 252 L6 232 L29 245 L34 243 L40 228 L44 246 L52 242 L61 242 L62 249 L55 256Z M48 227 L55 171 L41 226Z M59 236 L87 208 L56 232Z M59 236 L104 188 L55 231Z M52 271 L81 312 L55 269Z M387 30 L391 33 L386 35 L388 38 L391 45 L380 40 L389 61 L377 48 L373 52 L370 43 L366 44 L359 48 L353 48 L361 37 L350 39 L352 35 L346 32 L356 29 L350 25 L347 19 L353 18 L356 15 L364 18 L363 9 L369 11 L373 16 L377 12 L388 0 L388 12 L387 18 L385 23 L387 25 L394 27Z M389 35 L386 38 L390 43 L393 51 L383 49 L376 45 L373 51 L370 42 L364 47 L362 43 L357 42 L365 36 L360 35 L359 32 L367 32 L368 31 L367 27 L371 28 L373 23 L376 26 L377 29 L387 23 L380 31 L389 31Z M367 15 L350 -18 L364 17Z M387 35 L422 40 L387 31Z M367 16 L356 -3 L364 17Z M387 33 L422 36 L387 31Z'/><circle cx='56' cy='163' r='4.9'/><circle cx='91' cy='205' r='3.1'/><circle cx='110' cy='183' r='4.3'/><circle cx='83' cy='316' r='2.4'/><circle cx='-57' cy='246' r='3.9'/><circle cx='-35' cy='216' r='2.1'/><circle cx='-25' cy='269' r='2.8'/><circle cx='20' cy='210' r='3.0'/><circle cx='110' cy='240' r='3.7'/><circle cx='-1' cy='208' r='2.0'/><circle cx='153' cy='241' r='1.7'/><circle cx='-36' cy='268' r='2.6'/><circle cx='-10' cy='256' r='3.9'/><circle cx='-47' cy='310' r='3.4'/><circle cx='349' cy='-21' r='2.2'/><circle cx='425' cy='41' r='2.3'/><circle cx='355' cy='-6' r='1.8'/><circle cx='424' cy='36' r='1.5'/><circle cx='325' cy='22' r='1.4'/><circle cx='398' cy='86' r='1.7'/><circle cx='416' cy='58' r='2.4'/><circle cx='303' cy='34' r='2.6'/><circle cx='360' cy='9' r='1.6'/><circle cx='337' cy='28' r='1.8'/><circle cx='341' cy='-16' r='2.4'/><circle cx='371' cy='-5' r='2.1'/><circle cx='309' cy='30' r='0.9'/><circle cx='399' cy='76' r='2.3'/></g><g fill='%238b1e1e'><circle cx='50' cy='325' r='2.0'/><circle cx='4' cy='203' r='0.9'/><circle cx='49' cy='325' r='2.3'/><circle cx='58' cy='281' r='1.4'/><circle cx='83' cy='233' r='2.3'/></g></svg>");
+}
+
+/* ── 生辰表單：切角墨底，朱紅刃鈕 ── */
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_form__WQM4H {
+  border: 1px solid var(--a-gold-dim);
+  border-radius: 0;
+  clip-path: var(--a-chamfer);
+  background: var(--a-corner-tl), var(--a-corner-br), var(--a-wash);
+  padding: 16px;
+}
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_field__Xm4bL > span { color: #cdb38a; letter-spacing: 0.12em; }
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_field__Xm4bL input[type="date"],
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_field__Xm4bL input[type="time"] {
+  border-radius: 2px;
+  border-color: rgba(201, 164, 92, 0.32);
+  background: rgba(11, 9, 8, 0.82);
+}
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_gender__xXOaf { border-radius: 2px; border-color: rgba(201, 164, 92, 0.3); background: rgba(11, 9, 8, 0.7); }
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_genderOn__cgjl2 { border-color: var(--a-gold); background: linear-gradient(180deg, #3a1313, #240c0c); color: var(--a-gold-hi); }
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_submit__f35G9 {
+  min-height: 48px;
+  border: 1px solid var(--a-gold);
+  border-radius: 0;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  background:
+    radial-gradient(80% 120% at 50% 0%, rgba(230, 196, 122, 0.22), transparent 60%),
+    linear-gradient(180deg, #a12626, var(--a-crimson) 55%, #5c1212);
+  color: #fbeac6;
+  letter-spacing: 0.32em;
+  text-shadow: 0 1px 0 #0008;
+  transition: filter 160ms ease, transform 160ms ease;
+}
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_submit__f35G9:hover { filter: brightness(1.08); }
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_submit__f35G9:active { transform: translateY(1px); }
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_unknownHour__9VC55 input { accent-color: var(--a-crimson); }
+
+/* ── 修羅卡：切角墨底；卡頭列＝兩端摔墨＋印位小光點；下緣飛白刃線 ── */
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-card-type="ghost-asura-reading"] {
+  border: 1px solid var(--a-gold-dim);
+  border-radius: 0;
+  clip-path: var(--a-chamfer);
+  background: var(--a-corner-tl), var(--a-corner-br), var(--a-wash);
+  box-shadow: none;
+}
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-top-row] {
+  position: relative;
+  isolation: isolate;
+  border-bottom: 0;
+  background:
+    var(--splat-title) 0 0 / 100% 100% no-repeat,
+    radial-gradient(56px 30px at 50% 42px, rgba(230, 196, 122, 0.1), transparent 70%),
+    var(--a-grain),
+    linear-gradient(180deg, #1b1612, #0f0c0a);
+}
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-top-row]::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--a-crimson) 8%, var(--a-gold) 40%, var(--a-gold-hi) 70%, transparent);
+  -webkit-mask-image: var(--a-dry);
+  mask-image: var(--a-dry);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  pointer-events: none;
+}
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-hour-note] { color: var(--a-gold); }
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function] { background: transparent; }
+
+/* 卡頭方塊：開啟態染成各卡色 */
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-top-row] [data-asura-tile][aria-expanded="true"] { box-shadow: none; }
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-top-row] [data-asura-tile="hits"][aria-expanded="true"] { border: 2px solid var(--past-gold); background: #120d08; color: #e2c78d; }
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-top-row] [data-asura-tile="hits"][aria-expanded="true"]::before {
+  background-image: var(--a-grain), radial-gradient(100% 60% at 50% 100%, rgba(138, 106, 53, 0.4), transparent 70%), linear-gradient(180deg, #1a130b, #070504);
+  background-size: 120px 120px, auto, auto;
+}
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-top-row] [data-asura-tile="pillars"][aria-expanded="true"] { border: 1px solid var(--a-gold-hi); background: #2a1414; color: var(--a-gold-hi); }
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-top-row] [data-asura-tile="pillars"][aria-expanded="true"]::before {
+  background-image: var(--a-grain), radial-gradient(70% 60% at 50% 50%, rgba(160, 36, 36, 0.75), transparent 75%), conic-gradient(from 200deg at 60% 40%, #2b2725, #5a1a1a, #2b2725);
+  background-size: 120px 120px, auto, auto;
+}
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-top-row] [data-asura-tile="verdict"][aria-expanded="true"] { border: 1px solid var(--fut-gold); border-bottom-color: #a33a3a; background: #2a2521; color: #fff1c9; }
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-top-row] [data-asura-tile="verdict"][aria-expanded="true"]::before {
+  background-image: var(--a-grain), radial-gradient(100% 60% at 60% 0%, rgba(232, 210, 154, 0.35), transparent 70%), linear-gradient(180deg, #3a332c, #1f1b18);
+  background-size: 120px 120px, auto, auto;
+}
+
+/* ════════════════════════════════════════════════════════════════
+ * 三張時間軸卡＋卡頭展開面板（同一份後端 sections；兩處共用每卡外觀）
+ *   字：標題、內文、白話、收句全部放大；內文行高 2.0–2.1；白話仍小一級、灰金、細左線
+ *   殼：收合 4:3:3（u）、展開 min-height 4:3:3（U）、間距 44–48px 等效（按 vw）
+ * ════════════════════════════════════════════════════════════════ */
+.asura-skill-reading_wrap__K3UM0,
+.asura-skill-reading_timeCards__uJzD_ { --u: 10.5vw; --U: 32vw; }
+@media (min-width: 641px) {
+  .asura-skill-reading_wrap__K3UM0,
+  .asura-skill-reading_timeCards__uJzD_ { --u: 44px; --U: 140px; }
+}
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ { gap: clamp(44px, 12vw, 48px); }
+
+/* 外殼（共用） */
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV,
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function] > div {
+  position: relative;
+  isolation: isolate;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV { transition: filter 180ms ease; }
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[open] { filter: brightness(1.04); }
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV > summary {
+  box-sizing: border-box;
+  align-content: center;
+  align-items: center;
+  gap: 6px 12px;
+}
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV > summary > span:first-child {
+  padding: 2px 10px;
+  border: 0;
+  border-radius: 0;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV > summary strong {
+  font-family: "Noto Serif TC", "Songti TC", "PMingLiU", var(--asura-kai, serif), serif;
+  line-height: 1.3;
+  letter-spacing: 0.1em;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.85);
+}
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV > summary > span:nth-child(3) { color: rgba(201, 164, 92, 0.62); font-size: 13px; letter-spacing: 0.16em; }
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV > summary::after { color: var(--a-gold); letter-spacing: 0.1em; }
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV > div { gap: 12px; border-top: 0; }
+/* 0 印：後端不給字 → 內文區收掉，只剩卡框、標題列與潑墨 */
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV > div:empty,
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function] > div:empty { padding: 0; min-height: 0; }
+
+/* 文字（共用） */
+.asura-skill-reading_timeAwait__gwahE { margin: 0; color: var(--a-gold-hi); font: 600 18px/1.9 serif; letter-spacing: 0.08em; }
+.asura-skill-reading_timeHourNote__42sDL { margin: 0 0 8px; color: var(--a-gold); font-size: 15px; line-height: 1.7; }
+.asura-skill-reading_timeLead__5eTcQ { margin: 0 0 8px; color: #f6d3a6; font: 600 18px/1.9 serif; }
+.asura-skill-reading_timeCards__uJzD_ [data-asura-interleaved],
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-interleaved] { display: grid; gap: 16px; }
+.asura-skill-reading_timeCards__uJzD_ [data-asura-interleaved] > p,
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-interleaved] > p { margin: 0; color: var(--a-text); }
+.asura-skill-reading_timeCards__uJzD_ [data-asura-interleaved] > p:first-child,
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-interleaved] > p:first-child {
+  margin-bottom: 8px;
+  font-family: "Noto Serif TC", "Source Han Serif TC", serif;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+/* 白話：緊貼所屬段落、灰金、細左線；字級跟著放大但永遠比內文小一級以上 */
+.asura-skill-reading_timeCards__uJzD_ [data-asura-interleaved] > [data-asura-plain],
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-interleaved] > [data-asura-plain] {
+  margin: -8px 0 0;
+  padding: 2px 0 2px 12px;
+  border-left: 1px solid rgba(201, 164, 92, 0.5);
+  color: #bfb4a6;
+  font-family: system-ui, -apple-system, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+  letter-spacing: 0.02em;
+}
+.asura-skill-reading_timeCards__uJzD_ [data-asura-interleaved] > [data-asura-plain] + [data-asura-plain],
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-interleaved] > [data-asura-plain] + [data-asura-plain] { margin-top: -10px; }
+.asura-skill-reading_timePlainLine__0Xy3q strong,
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-plain] strong { margin-right: 6px; color: var(--a-gold); font-weight: 600; }
+.asura-skill-reading_timePlainTag__LS8jV,
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-plain] > span:first-child {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 5px;
+  border: 1px solid var(--a-gold);
+  border-radius: 0;
+  background: rgba(139, 30, 30, 0.35);
+  color: var(--a-gold-hi);
+  font-size: 12px;
+  line-height: 18px;
+  vertical-align: 1px;
+}
+/* 收句：獨立一塊，上方一道乾筆金線 */
+.asura-skill-reading_timeCards__uJzD_ [data-asura-coda],
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function] [data-asura-coda] {
+  position: relative;
+  margin: 28px 0 0;
+  padding-top: 18px;
+  border-top: 0;
+  font-family: "Noto Serif TC", "Source Han Serif TC", serif;
+  line-height: 1.75;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 14px rgba(201, 164, 92, 0.22);
+}
+.asura-skill-reading_timeCards__uJzD_ [data-asura-coda]::before,
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function] [data-asura-coda]::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 18%;
+  top: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--a-gold-hi), var(--a-gold) 55%, rgba(201, 164, 92, 0));
+  -webkit-mask-image: var(--a-dry);
+  mask-image: var(--a-dry);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+/* ── 過去：最重最滿 ── */
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="hits"],
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="hits"] > div {
+  --c-corners:
+    linear-gradient(135deg, transparent 4.6px, var(--past-gold) 4.6px, var(--past-gold) 7px, transparent 7px) top left / 8px 8px no-repeat,
+    linear-gradient(315deg, transparent 4.6px, var(--past-gold) 4.6px, var(--past-gold) 7px, transparent 7px) bottom right / 8px 8px no-repeat;
+  clip-path: polygon(8px 0, 100% 0, 100% 36%, calc(100% - 7px) 38.5%, 100% 41%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 72%, 7px 69.5%, 0 67%, 0 8px);
+  background:
+    var(--c-corners),
+    var(--splat-past) 0 0 / 100% auto no-repeat,
+    var(--splat-past-2) 0 100% / 100% auto no-repeat,
+    linear-gradient(90deg, rgba(201, 164, 92, 0), rgba(201, 164, 92, 0.9) 50%, rgba(201, 164, 92, 0)) 50% calc(100% - 6px) / 70% 1px no-repeat,
+    var(--a-grain),
+    linear-gradient(180deg, #221c16, #18130f);
+  box-shadow: inset 0 0 0 3px var(--past-gold), inset 0 0 0 4px rgba(0, 0, 0, 0.9);
+}
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="hits"] > summary { min-height: calc(var(--u) * 4); padding: 10px 2.5vw; }
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="hits"] > div { padding: 0 2.5vw 16px; }
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="hits"] > div { padding: 12px; }
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="hits"][open]:has([data-asura-coda]),
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="hits"] > div:has([data-asura-coda]) { min-height: calc(var(--U) * 4); }
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="hits"] > summary > span:first-child { background: linear-gradient(180deg, #3a2c17, #241a0c); box-shadow: inset 0 0 0 1px var(--past-gold); color: #e2c78d; }
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="hits"] > summary strong { color: var(--past-gold-text); font-size: 27px; font-weight: 900; }
+.asura-skill-reading_timeCards__uJzD_ .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="hits"] [data-asura-interleaved] > p,
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="hits"] [data-asura-interleaved] > p { font-size: 19px; line-height: 2; font-weight: 500; }
+.asura-skill-reading_timeCards__uJzD_ .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="hits"] [data-asura-interleaved] > p:first-child,
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="hits"] [data-asura-interleaved] > p:first-child { color: var(--past-gold-text); font-size: 22px; font-weight: 800; line-height: 1.8; }
+.asura-skill-reading_timeCards__uJzD_ .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="hits"] [data-asura-plain],
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="hits"] [data-asura-plain] { font-size: 15px; line-height: 1.75; }
+.asura-skill-reading_timeCards__uJzD_ .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="hits"] [data-asura-coda],
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="hits"] [data-asura-coda] { color: var(--past-gold-text); font-size: 23px; font-weight: 800; }
+
+/* ── 現在：中量、摔墨甩痕 ── */
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="pillars"],
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="pillars"] > div {
+  --c-corners:
+    linear-gradient(135deg, transparent 9.2px, var(--a-gold) 9.2px, var(--a-gold) 10.6px, transparent 10.6px) top left / 14px 14px no-repeat,
+    linear-gradient(315deg, transparent 9.2px, var(--a-gold) 9.2px, var(--a-gold) 10.6px, transparent 10.6px) bottom right / 14px 14px no-repeat;
+  overflow: hidden;
+  clip-path: polygon(14px 0, calc(100% - 56px) 0, 100% 12px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  background:
+    linear-gradient(90deg, var(--a-gold), rgba(201, 164, 92, 0)) 14px 0 / 38% 1px no-repeat,
+    linear-gradient(180deg, var(--a-gold), rgba(201, 164, 92, 0)) 0 14px / 1px 34% no-repeat,
+    linear-gradient(270deg, var(--a-gold), rgba(201, 164, 92, 0)) calc(100% - 14px) 100% / 38% 1px no-repeat,
+    linear-gradient(0deg, var(--a-gold), rgba(201, 164, 92, 0)) 100% calc(100% - 14px) / 1px 34% no-repeat,
+    var(--c-corners),
+    var(--splat-now) 100% 0 / 100% auto no-repeat,
+    var(--a-grain),
+    linear-gradient(160deg, #26231f, #1b1916);
+}
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="pillars"] > summary { min-height: calc(var(--u) * 3); padding: 12px 4.5vw; }
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="pillars"] > div { padding: 4px 4.5vw 20px; }
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="pillars"] > div { padding: 18px; }
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="pillars"][open],
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="pillars"] > div { min-height: calc(var(--U) * 3); }
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="pillars"] > summary > span:first-child { background: linear-gradient(180deg, #a12626, #8b1e1e); box-shadow: inset 0 0 0 1px rgba(230, 196, 122, 0.55); color: #fbeac6; }
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="pillars"] > summary strong { color: var(--now-gold-text); font-size: 25px; font-weight: 800; }
+.asura-skill-reading_timeCards__uJzD_ .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="pillars"] [data-asura-interleaved] > p,
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="pillars"] [data-asura-interleaved] > p { font-size: 18.5px; line-height: 2; }
+.asura-skill-reading_timeCards__uJzD_ .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="pillars"] [data-asura-interleaved] > p:first-child,
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="pillars"] [data-asura-interleaved] > p:first-child { color: var(--now-gold-text); font-size: 21px; line-height: 1.85; }
+.asura-skill-reading_timeCards__uJzD_ .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="pillars"] [data-asura-plain],
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="pillars"] [data-asura-plain] { font-size: 14.5px; line-height: 1.75; }
+.asura-skill-reading_timeCards__uJzD_ .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="pillars"] [data-asura-coda],
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="pillars"] [data-asura-coda] { color: var(--now-gold-text); font-size: 22px; font-weight: 800; }
+
+/* ── 未來：最輕最疏、飛白 ── */
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="verdict"],
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="verdict"] > div {
+  --c-corners:
+    linear-gradient(225deg, transparent 14.9px, var(--fut-gold) 14.9px, var(--fut-gold) 16.2px, transparent 16.2px) top right / 22px 22px no-repeat,
+    linear-gradient(45deg, transparent 5px, var(--fut-gold) 5px, var(--fut-gold) 6.3px, transparent 6.3px) bottom left / 8px 8px no-repeat;
+  clip-path: polygon(0 0, 28% 0, calc(28% + 5px) 5px, calc(28% + 10px) 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  background:
+    linear-gradient(90deg, var(--fut-gold), rgba(232, 210, 154, 0.35) 45%, transparent 80%) 0 0 / 100% 1px no-repeat,
+    linear-gradient(180deg, var(--fut-gold), rgba(232, 210, 154, 0.3) 40%, transparent 75%) 0 0 / 1px 100% no-repeat,
+    var(--c-corners),
+    var(--splat-future) 100% 0 / 100% auto no-repeat,
+    linear-gradient(180deg, #2c2824, #24211d 60%, #1f1c19);
+}
+/* 重飛白：乾筆遮罩疊在上緣與左緣 */
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="verdict"]::after,
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="verdict"] > div::after {
+  content: '';
+  position: absolute;
+  inset: 0 30% 40% 0;
+  border-top: 4px solid var(--fut-gold);
+  border-left: 3px solid var(--fut-gold);
+  -webkit-mask-image: var(--a-dry), linear-gradient(135deg, #000 30%, transparent 85%);
+  mask-image: var(--a-dry), linear-gradient(135deg, #000 30%, transparent 85%);
+  -webkit-mask-size: 90px 100%, 100% 100%;
+  mask-size: 90px 100%, 100% 100%;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  opacity: 0.7;
+  pointer-events: none;
+}
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="verdict"] > summary { min-height: calc(var(--u) * 3); padding: 12px 5vw; }
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="verdict"] > div { padding: 4px 5vw 24px; }
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="verdict"] > div { padding: 22px; }
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="verdict"][open]:has([data-asura-coda]),
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="verdict"] > div:has([data-asura-coda]) { min-height: calc(var(--U) * 3); }
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="verdict"] > summary > span:first-child { background: transparent; box-shadow: inset 0 0 0 1px #a33a3a; color: var(--fut-gold-text); }
+.asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="verdict"] > summary strong { color: var(--fut-gold-text); font-size: 23px; font-weight: 700; letter-spacing: 0.12em; }
+.asura-skill-reading_timeCards__uJzD_ .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="verdict"] [data-asura-interleaved],
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="verdict"] [data-asura-interleaved] { gap: 22px; }
+.asura-skill-reading_timeCards__uJzD_ .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="verdict"] [data-asura-interleaved] > p,
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="verdict"] [data-asura-interleaved] > p { color: #e4dccb; font-size: 18px; line-height: 2.1; font-weight: 400; letter-spacing: 0.04em; }
+.asura-skill-reading_timeCards__uJzD_ .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="verdict"] [data-asura-interleaved] > p:first-child,
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="verdict"] [data-asura-interleaved] > p:first-child { color: var(--fut-gold-text); font-size: 20px; font-weight: 600; line-height: 1.9; }
+.asura-skill-reading_timeCards__uJzD_ .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="verdict"] [data-asura-plain],
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="verdict"] [data-asura-plain] { margin-top: -14px; border-left-color: rgba(232, 210, 154, 0.35); font-size: 14.5px; line-height: 1.8; }
+.asura-skill-reading_timeCards__uJzD_ .asura-skill-reading_timeCard__ofmLV[data-asura-time-card="verdict"] [data-asura-coda],
+.asura-skill-reading_wrap__K3UM0 .asura-skill-reading_result__T6DeA [data-asura-function="verdict"] [data-asura-coda] { color: var(--fut-gold-text); font-size: 21px; font-weight: 700; text-shadow: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .asura-skill-reading_wrap__K3UM0 .asura-skill-reading_submit__f35G9,
+  .asura-skill-reading_timeCards__uJzD_.asura-skill-reading_timeCards__uJzD_ > .asura-skill-reading_timeCard__ofmLV { transition: none; }
+}
+
+/*!**********************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./app/ghost-asura/skill/skill.module.css ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************/
+/* 鬼魅阿修羅｜技能檔案 — 只作用於 /ghost-asura/skill。
+   色票取自 app/ghost-asura/ghost-asura.module.css（複製數值，不引用）。 */
+
+.skill_page__GI9Eh {
+  --ink: #0d0c10;
+  --ink-2: #131115;
+  --ink-3: #1c181d;
+  --text-main: #f5eeea;
+  --text-sub: #c4bab7;
+  --text-muted: #aca19f;
+  --gold: #d4af37;
+  --gold-soft: #e5bd91;
+  --gold-title: #f2d9b9;
+  --gold-line: rgba(212, 175, 55, 0.3);
+  --gold-faint: rgba(212, 175, 55, 0.12);
+  --ember: #be6971;
+  --ember-deep: #32191d;
+  --ember-bg: #2d1921;
+  --border: #493337;
+  --serif: 'Noto Serif TC', 'Source Han Serif TC', 'Songti TC', 'PMingLiU', 'MingLiU', serif;
+
+  position: relative;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  padding: 20px 16px 72px;
+  background:
+    radial-gradient(ellipse at 85% 0, var(--ember-deep) 0, transparent 34rem),
+    radial-gradient(ellipse at 0 100%, #1a1418 0, transparent 30rem),
+    var(--ink);
+  color: var(--text-main);
+  color-scheme: dark;
+  font-size: 16px;
+  line-height: 1.85;
+}
+
+.skill_page__GI9Eh :where(h1, h2, h3, p, ul, ol, dl, dd, blockquote, figure) { margin: 0; }
+.skill_page__GI9Eh :where(ul, ol) { padding: 0; list-style: none; }
+.skill_page__GI9Eh :is(a, summary):focus-visible { outline: 2px solid #e3b881; outline-offset: 4px; }
+
+/* 微霧：極慢漂移，低亮度 */
+.skill_mist__cwyX_ {
+  position: fixed;
+  inset: -20% -20%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 40% 22% at 30% 30%, rgba(196, 186, 183, 0.05), transparent 70%),
+    radial-gradient(ellipse 36% 20% at 70% 65%, rgba(196, 186, 183, 0.04), transparent 70%),
+    radial-gradient(ellipse 30% 18% at 50% 90%, rgba(190, 105, 113, 0.035), transparent 70%);
+  animation: skill_drift__alr04 48s ease-in-out infinite alternate;
+}
+
+@keyframes skill_drift__alr04 {
+  from { transform: translate3d(-2%, 0, 0); }
+  to { transform: translate3d(2%, -2%, 0); }
+}
+
+.skill_inner__XKw4K {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 30px;
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+/* ── 首屏：只有名字 ── */
+.skill_hero__hYfgF {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100svh;
+  margin: -20px -16px 0;
+  overflow: hidden;
+}
+.skill_hero__hYfgF::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(120vw, 760px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(190, 105, 113, 0.15) 0, rgba(190, 105, 113, 0.05) 30%, transparent 60%);
+  animation: skill_breathe__jtZNk 12s ease-in-out infinite;
+  pointer-events: none;
+}
+.skill_heroName___40Vw {
+  position: relative;
+  font-family: var(--serif);
+  font-size: clamp(54px, 16vw, 124px);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: 0.12em;
+  padding-left: 0.12em;
+  white-space: nowrap;
+  color: transparent;
+  background: linear-gradient(180deg, #fff6e6 0%, var(--gold-title) 38%, var(--gold) 72%, #8a6a2a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 2px 0 #000) drop-shadow(0 0 18px rgba(190, 105, 113, 0.3));
+  animation: skill_emerge__PiL72 2.8s ease-out both;
+}
+.skill_heroName___40Vw::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -0.32em;
+  width: 3.6em;
+  height: 1px;
+  transform: translateX(-50%) scaleX(0);
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0.7;
+  animation: skill_blade__lC6K4 2.4s 1.2s ease-out forwards;
+}
+
+.skill_eyebrow__1Ovvr {
+  color: #ceaa83;
+  font-size: 14px;
+  letter-spacing: 0.4em;
+}
+
+.skill_skillName__KW7ZC {
+  font-family: var(--serif);
+  font-size: clamp(24px, 7vw, 36px);
+  font-weight: 800;
+  line-height: 1.4;
+  letter-spacing: 0.1em;
+  color: var(--gold-title);
+}
+
+.skill_command__Ty5xX {
+  margin: 6px 0 0;
+  text-align: center;
+  padding: 16px 14px;
+  border-top: 1px solid var(--gold-line);
+  border-bottom: 1px solid var(--gold-line);
+}
+
+.skill_commandLabel__HbC9O {
+  display: block;
+  color: var(--text-muted);
+  font-size: 14px;
+  letter-spacing: 0.4em;
+}
+
+.skill_commandWord__Qjt7t {
+  display: block;
+  margin: 4px 0 6px;
+  font-family: var(--serif);
+  font-size: 26px;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+}
+
+.skill_commandNote__B9u_n { color: var(--text-sub); font-size: 15px; }
+
+.skill_facts__ewyVb {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 6px;
+  text-align: left;
+}
+
+.skill_fact__lC_EB {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--ink);
+}
+
+.skill_fact__lC_EB dt { color: var(--text-muted); font-size: 13px; letter-spacing: 0.1em; }
+.skill_fact__lC_EB dd { color: var(--text-main); font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+.skill_fact__lC_EB:last-child { grid-column: 1 / -1; }
+
+.skill_manifesto__G8Yhn {
+  margin-top: 6px !important;
+  padding: 14px 16px;
+  border-left: 3px solid var(--ember);
+  background: rgba(190, 105, 113, 0.07);
+  text-align: left;
+  font-family: var(--serif);
+  font-size: 16px;
+}
+
+/* ── 印卡 ── */
+.skill_card__82033 {
+  position: relative;
+  padding: 22px 18px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background:
+    linear-gradient(180deg, rgba(212, 175, 55, 0.035), transparent 30%),
+    var(--ink-2);
+  box-shadow: 0 12px 36px #0005;
+  animation: skill_rise__5xBBj 1.6s ease-out both;
+}
+
+/* 金屬感角框 */
+.skill_card__82033::before,
+.skill_card__82033::after {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 0 solid var(--gold);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.skill_card__82033::before { top: -1px; left: -1px; border-top-width: 2px; border-left-width: 2px; }
+.skill_card__82033::after { right: -1px; bottom: -1px; border-right-width: 2px; border-bottom-width: 2px; }
+
+.skill_cardHead__QwlnI {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--gold-faint);
+}
+
+.skill_seal__D4snd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 6px;
+  border: 1.5px solid var(--ember);
+  border-radius: 3px;
+  color: #ffdae0;
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 800;
+  background: rgba(190, 105, 113, 0.1);
+}
+
+.skill_cardTitle__f_tyl {
+  font-family: var(--serif);
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.45;
+  color: var(--gold-title);
+  letter-spacing: 0.08em;
+}
+
+.skill_lead__7GBzr {
+  margin-top: 10px !important;
+  letter-spacing: 0.1em;
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.7;
+  color: var(--text-main);
+}
+
+.skill_cardBody__5zA9s { display: grid; gap: 12px; color: var(--text-sub); font-size: 16px; }
+
+.skill_subTitle__6_3eO {
+  margin-top: 8px !important;
+  padding-left: 10px;
+  border-left: 2px solid var(--gold);
+  color: var(--gold-soft);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.skill_miniHead__HUQMA { color: var(--gold-soft); font-size: 15px; font-weight: 700; }
+
+.skill_note__wVuga { color: var(--text-sub); font-size: 15px; }
+
+.skill_motto__PwXBj {
+  padding: 12px 14px;
+  border: 1px solid var(--gold-line);
+  border-radius: 4px;
+  background: var(--gold-faint);
+  color: var(--gold-title);
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.skill_verdict__zNmAM {
+  color: #ffdae0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.skill_code__q1L8T {
+  justify-self: start;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--gold-soft);
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 15px;
+  word-break: break-all;
+}
+
+/* 最高鐵律 */
+.skill_ironRules__s5Duc { display: grid; gap: 8px; counter-reset: iron; }
+.skill_ironRules__s5Duc li {
+  counter-increment: iron;
+  position: relative;
+  padding: 12px 14px 12px 50px;
+  border: 1px solid rgba(190, 105, 113, 0.45);
+  border-radius: 4px;
+  background: var(--ember-bg);
+  color: var(--text-main);
+  font-size: 16px;
+  font-weight: 700;
+}
+.skill_ironRules__s5Duc li::before {
+  content: counter(iron);
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--ember);
+  border-radius: 2px;
+  color: #ffdae0;
+  font-size: 14px;
+}
+
+/* 流程 */
+.skill_flow__UO4Zv { display: grid; gap: 0; }
+.skill_flow__UO4Zv li {
+  position: relative;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--text-main);
+  font-size: 15px;
+  text-align: center;
+}
+.skill_flow__UO4Zv li + li { margin-top: 22px; }
+.skill_flow__UO4Zv li + li::before {
+  content: '↓';
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--gold);
+  font-size: 15px;
+  line-height: 22px;
+}
+.skill_flow__UO4Zv li:last-child { border-color: var(--gold-line); color: var(--gold-title); font-weight: 700; }
+
+.skill_division__THdl7 { display: grid; gap: 8px; }
+.skill_division__THdl7 div,
+.skill_creed__hIkN8 div {
+  display: grid;
+  grid-template-columns: 4.5em minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--ink);
+}
+.skill_division__THdl7 dt { color: var(--gold); font-weight: 800; }
+.skill_division__THdl7 dd { color: var(--text-main); }
+.skill_creed__hIkN8 div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+.skill_creed__hIkN8 { display: grid; gap: 8px; }
+.skill_creed__hIkN8 dt { color: var(--gold-title); font-family: var(--serif); font-size: 17px; font-weight: 800; }
+.skill_creed__hIkN8 dd { color: var(--text-sub); font-size: 15px; }
+
+.skill_twoCol__n4PJN { display: grid; gap: 12px; }
+.skill_twoCol__n4PJN > div { display: grid; gap: 10px; align-content: start; }
+
+/* 列表 */
+.skill_list__M50GS, .skill_listMust__uYvEh, .skill_listDeny__Z1_ly { display: grid; gap: 6px; }
+.skill_list__M50GS li, .skill_listMust__uYvEh li, .skill_listDeny__Z1_ly li {
+  position: relative;
+  padding-left: 24px;
+  color: var(--text-main);
+  font-size: 15px;
+  line-height: 1.75;
+}
+.skill_list__M50GS li::before, .skill_listMust__uYvEh li::before, .skill_listDeny__Z1_ly li::before {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: 800;
+}
+.skill_list__M50GS li::before { content: '◆'; color: var(--gold); font-size: 11px; top: 6px; }
+.skill_listMust__uYvEh li::before { content: '✓'; color: #b9d1bd; }
+.skill_listDeny__Z1_ly li::before { content: '✕'; color: #e38c95; }
+
+.skill_chips__XAD6A, .skill_chipsEmber__PcwQU { display: flex; flex-wrap: wrap; gap: 8px; }
+.skill_chips__XAD6A li, .skill_chipsEmber__PcwQU li {
+  padding: 4px 12px;
+  border: 1px solid var(--gold-line);
+  border-radius: 999px;
+  background: var(--gold-faint);
+  color: var(--gold-title);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.skill_chipsEmber__PcwQU li { border-color: rgba(190, 105, 113, 0.5); background: rgba(190, 105, 113, 0.12); color: #ffdae0; }
+
+/* 話術核心 */
+.skill_coreLines__LMby7 { display: grid; gap: 10px; }
+.skill_coreLines__LMby7 li {
+  padding: 12px 14px;
+  border-left: 3px solid var(--gold);
+  background: linear-gradient(90deg, var(--gold-faint), transparent);
+  color: var(--text-main);
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.65;
+}
+
+.skill_persona__ccSCu {
+  padding: 12px 14px;
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  color: var(--text-sub);
+  font-size: 15px;
+}
+
+/* 三層 */
+.skill_layers__4XL1Z { display: grid; gap: 8px; }
+.skill_layers__4XL1Z li {
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--ink);
+}
+.skill_layers__4XL1Z strong { color: var(--gold-title); font-family: var(--serif); font-size: 17px; }
+.skill_layers__4XL1Z span { color: var(--text-sub); font-size: 15px; }
+
+.skill_showcase__h46gi { display: grid; gap: 14px; }
+.skill_scroll__9KKbM {
+  padding: 18px 16px;
+  border: 1px solid rgba(190, 105, 113, 0.4);
+  border-radius: 4px;
+  background:
+    radial-gradient(ellipse at 50% 0, rgba(190, 105, 113, 0.14), transparent 70%),
+    #0a090c;
+  box-shadow: inset 0 0 30px #000a;
+}
+.skill_scrollHead__ADgHF {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(190, 105, 113, 0.3);
+}
+.skill_scrollHead__ADgHF strong { color: #ffdae0; font-family: var(--serif); font-size: 22px; letter-spacing: 0.1em; }
+.skill_scrollHead__ADgHF span { color: var(--text-muted); font-size: 14px; }
+.skill_scrollText__cmacj p { color: var(--text-main); font-family: var(--serif); font-size: 17px; line-height: 1.8; }
+.skill_scrollText__cmacj p:first-child { color: var(--gold-title); font-weight: 800; }
+.skill_gap__01AU9 { display: block; height: 10px; }
+
+/* 數量鐵律 */
+.skill_formula__cjVtc {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border: 1px solid var(--gold-line);
+  border-radius: 4px;
+  background: var(--ink);
+  text-align: center;
+}
+.skill_formulaRow__uRnLR { display: grid; gap: 4px; }
+.skill_formulaTerm__u7uaE { color: var(--gold-title); font-family: var(--serif); font-size: 17px; font-weight: 800; }
+.skill_eq__lSTvA { color: var(--ember); font-size: 20px; font-weight: 800; line-height: 1.2; }
+
+.skill_tableWrap__7_zmc { overflow-x: auto; }
+.skill_table__iRm4d { width: 100%; border-collapse: collapse; font-size: 15px; }
+.skill_table__iRm4d th, .skill_table__iRm4d td { padding: 8px 6px; border-bottom: 1px solid var(--border); text-align: center; white-space: nowrap; }
+.skill_table__iRm4d th { color: var(--gold-soft); font-weight: 700; }
+.skill_table__iRm4d td { color: var(--text-main); }
+
+/* 用語對照 */
+.skill_pairs__GO4gf, .skill_pillars__LpEg4 { display: grid; gap: 8px; }
+.skill_pairs__GO4gf div, .skill_pillars__LpEg4 div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--ink);
+}
+.skill_pairs__GO4gf dt, .skill_pillars__LpEg4 dt { color: var(--text-muted); font-size: 15px; text-decoration: line-through; text-decoration-color: rgba(190, 105, 113, 0.6); }
+.skill_pairs__GO4gf dt::after, .skill_pillars__LpEg4 dt::after { content: ' →'; color: var(--gold); text-decoration: none; display: inline-block; margin-left: 6px; }
+.skill_pairs__GO4gf dd, .skill_pillars__LpEg4 dd { color: var(--gold-title); font-family: var(--serif); font-size: 17px; font-weight: 800; }
+.skill_pillars__LpEg4 dt { text-decoration: none; }
+
+/* 真名錄 */
+.skill_nameGrid__KN513 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  counter-reset: name;
+}
+.skill_nameGrid__KN513 li {
+  counter-increment: name;
+  position: relative;
+  display: grid;
+  gap: 0;
+  padding: 9px 10px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--ink);
+}
+.skill_nameGrid__KN513 li::after {
+  content: counter(name);
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  color: #6f6265;
+  font-size: 11px;
+  line-height: 1;
+}
+.skill_nameGrid__KN513 strong { color: var(--gold-title); font-family: var(--serif); font-size: 17px; font-weight: 800; line-height: 1.5; }
+.skill_nameGrid__KN513 span { color: var(--text-muted); font-size: 14px; line-height: 1.5; }
+
+.skill_details__Mw_vk {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--ink);
+}
+.skill_details__Mw_vk summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  color: var(--gold-soft);
+  font-size: 16px;
+  font-weight: 700;
+  list-style: none;
+}
+.skill_details__Mw_vk summary::-webkit-details-marker { display: none; }
+.skill_details__Mw_vk summary::before { content: '▸'; margin-right: 8px; color: var(--gold); transition: transform 0.2s ease; }
+.skill_details__Mw_vk[open] summary::before { transform: rotate(90deg); }
+.skill_details__Mw_vk > :not(summary) { margin: 0 14px 14px !important; }
+
+.skill_families__mZopJ { display: grid; gap: 8px; }
+.skill_families__mZopJ div { padding: 8px 10px; border-left: 2px solid var(--gold-line); }
+.skill_families__mZopJ dt { color: var(--gold-title); font-size: 15px; font-weight: 700; }
+.skill_families__mZopJ dd { color: var(--text-sub); font-size: 15px; }
+
+/* 四層解盤 */
+.skill_levels__DlBW6 { display: grid; gap: 12px; }
+.skill_levels__DlBW6 li {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--ink);
+}
+.skill_levels__DlBW6 li:last-child { border-color: rgba(190, 105, 113, 0.5); box-shadow: 0 0 22px rgba(190, 105, 113, 0.1); }
+.skill_levelHead__NxiRM { display: flex; align-items: baseline; gap: 10px; }
+.skill_levelHead__NxiRM span { color: var(--text-muted); font-size: 14px; letter-spacing: 0.1em; }
+.skill_levelHead__NxiRM strong { color: var(--gold-title); font-family: var(--serif); font-size: 19px; }
+
+/* 承諾 */
+.skill_promises__5qIPe { display: grid; gap: 12px; counter-reset: promise; }
+.skill_promises__5qIPe > li {
+  counter-increment: promise;
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--gold-line);
+  border-radius: 4px;
+  background: linear-gradient(180deg, var(--gold-faint), transparent 60%), var(--ink);
+}
+.skill_promiseTitle__b88hv { color: var(--gold-title); font-family: var(--serif); font-size: 18px; font-weight: 800; }
+.skill_promiseTitle__b88hv::before { content: counter(promise, cjk-ideographic) '、'; color: var(--ember); }
+
+/* 驗收清單 */
+.skill_checklist__kLbBP { display: grid; gap: 4px; }
+.skill_checklist__kLbBP li { position: relative; padding-left: 24px; color: var(--text-main); font-size: 15px; }
+.skill_checklist__kLbBP li::before { content: '✓'; position: absolute; left: 0; color: #b9d1bd; font-weight: 800; }
+
+/* 收尾 */
+.skill_closing__hQ9j3 {
+  padding: 64px 18px 24px;
+  text-align: center;
+}
+.skill_closingVoice__GaKOs {
+  font-family: var(--serif);
+  letter-spacing: 0.14em;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.7;
+  color: var(--text-main);
+}
+.skill_signature__uaLud {
+  margin-top: 14px !important;
+  color: var(--gold);
+  font-family: var(--serif);
+  font-size: 17px;
+  letter-spacing: 0.08em;
+}
+.skill_status__i7Tk2 { margin-top: 6px !important; color: var(--text-muted); font-size: 14px; }
+
+@keyframes skill_rise__5xBBj {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes skill_emerge__PiL72 {
+  from { opacity: 0; filter: blur(6px); }
+  to { opacity: 1; }
+}
+
+@keyframes skill_breathe__jtZNk {
+  0%, 100% { opacity: 0.65; }
+  50% { opacity: 1; }
+}
+
+@keyframes skill_blade__lC6K4 {
+  to { transform: translateX(-50%) scaleX(1); }
+}
+
+@keyframes skill_ember__Mcu8X {
+  0%, 100% { box-shadow: 0 0 14px rgba(190, 105, 113, 0.16); }
+  50% { box-shadow: 0 0 24px rgba(190, 105, 113, 0.3); }
+}
+
+@media (min-width: 640px) {
+  .skill_page__GI9Eh { padding: 32px 24px 96px; }
+  .skill_hero__hYfgF { margin: -32px -24px 0; }
+  .skill_card__82033 { padding: 28px 28px; }
+  .skill_facts__ewyVb { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .skill_fact__lC_EB:last-child { grid-column: auto; }
+  .skill_twoCol__n4PJN { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .skill_nameGrid__KN513 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .skill_showcase__h46gi { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .skill_pairs__GO4gf { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .skill_pillars__LpEg4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .skill_checklist__kLbBP { grid-template-columns: repeat(2, minmax(0, 1fr)); -moz-column-gap: 20px; column-gap: 20px; }
+}
+
+@media (min-width: 900px) {
+  .skill_nameGrid__KN513 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skill_mist__cwyX_, .skill_card__82033, .skill_heroName___40Vw, .skill_hero__hYfgF::before { animation: none; }
+  .skill_heroName___40Vw::after { animation: none; transform: translateX(-50%); }
+  .skill_details__Mw_vk summary::before { transition: none; }
+}
+
+@media print {
+  .skill_page__GI9Eh { background: #fff; color: #000; }
+  .skill_mist__cwyX_ { display: none; }
+  .skill_card__82033 { box-shadow: none; background: #fff; animation: none; }
+  .skill_hero__hYfgF { min-height: auto; }
+}
+
+/* ── 兩張功能卡（版型示意） ── */
+.skill_sourceNote__Jn_YS { color: var(--text-muted); font-size: 14px; line-height: 1.7; word-break: break-all; }
+.skill_table__iRm4d th[scope="row"] { color: var(--gold-soft); }
+.skill_details__Mw_vk .skill_table__iRm4d td, .skill_details__Mw_vk .skill_table__iRm4d th { white-space: normal; text-align: left; min-width: 4em; }
+
+.skill_mockStage__hv_Mk {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  margin-top: 6px;
+  padding: 14px 12px;
+  border: 1px dashed var(--gold-line);
+  border-radius: 6px;
+  background:
+    repeating-linear-gradient(135deg, rgba(212, 175, 55, 0.025) 0 10px, transparent 10px 20px),
+    #0a090c;
+}
+.skill_mockBadge__kHgv7 {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  padding: 0 10px;
+  border: 1px solid var(--gold-line);
+  border-radius: 999px;
+  color: var(--gold-soft);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  background: var(--ink);
+}
+.skill_mockTable__CBiv1 {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--ink-2);
+}
+.skill_mockTableLabel__9F_va { color: var(--text-main); font-size: 15px; font-weight: 700; }
+.skill_mockPillars__vTq4C { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 8px !important; }
+.skill_mockPillars__vTq4C li {
+  padding: 6px 4px;
+  border: 1px solid var(--gold-faint);
+  border-radius: 3px;
+  color: var(--gold-title);
+  font-size: 14px;
+  text-align: center;
+}
+.skill_mockCards__fUj2Z { display: grid; gap: 12px; align-items: start; }
+.skill_mockCard__7qjEa {
+  border: 1px solid var(--gold-line);
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(190, 105, 113, 0.1), transparent 50%), var(--ink-2);
+  box-shadow: 0 10px 28px #0007;
+}
+.skill_mockCard__7qjEa[open] { border-color: rgba(212, 175, 55, 0.5); }
+.skill_mockCard__7qjEa summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  min-height: 52px;
+  padding: 12px 14px;
+}
+.skill_mockCard__7qjEa summary::-webkit-details-marker { display: none; }
+.skill_mockCard__7qjEa summary::after { content: '展開 ▾'; margin-left: auto; color: var(--text-muted); font-size: 13px; }
+.skill_mockCard__7qjEa[open] summary::after { content: '收合 ▴'; }
+.skill_mockCard__7qjEa summary strong { color: var(--gold-title); font-family: var(--serif); font-size: 19px; font-weight: 800; }
+.skill_mockNo__APKHs {
+  padding: 0 8px;
+  border: 1.5px solid var(--ember);
+  border-radius: 3px;
+  color: #ffdae0;
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 800;
+}
+.skill_mockLevel___9i5G { color: var(--text-sub); font-size: 14px; }
+.skill_mockBody___lWJD { display: grid; gap: 10px; padding: 0 14px 14px; border-top: 1px solid var(--gold-faint); padding-top: 12px; }
+.skill_mockFields__xm5vs { display: grid; gap: 10px; counter-reset: field; }
+.skill_mockFields__xm5vs > div { counter-increment: field; display: grid; gap: 4px; }
+.skill_mockFields__xm5vs dt { color: var(--gold-soft); font-size: 14px; font-weight: 700; letter-spacing: 0.08em; }
+.skill_mockFields__xm5vs dt::before {
+  content: counter(field);
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  border: 1px solid var(--gold-line);
+  border-radius: 2px;
+  color: var(--gold);
+  font-size: 12px;
+}
+.skill_mockFields__xm5vs dd { color: var(--text-main); font-size: 15px; }
+.skill_mockFields__xm5vs > div:first-child dd { color: #ffdae0; font-family: var(--serif); font-size: 22px; font-weight: 800; letter-spacing: 0.1em; }
+.skill_mockSteps__ULLCT { display: grid; gap: 12px; }
+.skill_mockSteps__ULLCT > li { display: grid; gap: 8px; }
+.skill_mockSteps__ULLCT > li + li { padding-top: 10px; border-top: 1px solid var(--gold-faint); }
+.skill_mockStepName___no_V { color: var(--gold-title); font-family: var(--serif); font-size: 17px; font-weight: 800; }
+.skill_mockStepName___no_V::before { content: '◆ '; color: var(--ember); font-size: 12px; }
+
+@media (min-width: 900px) {
+  .skill_mockCards__fUj2Z { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 640px) {
+  .skill_mockPillars__vTq4C { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .skill_mockStage__hv_Mk { padding: 18px; }
+}
+
+.skill_cardVoice__HN6KF { display: grid; gap: 6px; padding: 12px 14px; border-left: 3px solid var(--ember); background: rgba(190, 105, 113, 0.07); }
+.skill_cardVoice__HN6KF p { color: var(--text-main); font-family: var(--serif); font-size: 17px; font-weight: 700; line-height: 1.75; letter-spacing: 0.1em; }
+.skill_cardVoice__HN6KF p:first-child { color: var(--gold-title); font-weight: 800; }
+.skill_sampleSeal__e7vfD { padding: 12px; border: 1px solid rgba(190, 105, 113, 0.4); border-radius: 4px; background: #0a090c; }
+.skill_sampleName__okuqd { margin-bottom: 8px !important; color: #ffdae0; font-family: var(--serif); font-size: 22px; font-weight: 800; letter-spacing: 0.12em; }
+.skill_cardLink__PKf3o {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 10px 16px;
+  border: 1px solid #9d7e5d;
+  border-radius: 6px;
+  background: #33291f;
+  color: #efd9bc;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  transition: background 0.6s ease, border-color 0.6s ease;
+}
+.skill_cardLink__PKf3o:hover { background: #41342a; border-color: #deb894; }
+.skill_cardLink__PKf3o:focus-visible { outline: 2px solid #e3b881; outline-offset: 4px; }
+.skill_mockCardSealed__j7ujI { border-style: dashed; background: repeating-linear-gradient(135deg, rgba(196, 186, 183, 0.03) 0 8px, transparent 8px 16px), var(--ink-2); }
+.skill_mockCardSealed__j7ujI summary strong { color: var(--text-sub); }
+

@@ -1,0 +1,2167 @@
+/*!***************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./app/dual-chart-entry.module.css ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************/
+/* Keep this entry readable despite the shared compact mobile card rules. */
+.dual-chart-entry_entry__TcGWZ.dual-chart-entry_entry__TcGWZ p {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset !important;
+  font-size: 14px !important;
+  line-height: 1.65 !important;
+}
+
+.dual-chart-entry_entry__TcGWZ.dual-chart-entry_entry__TcGWZ > span {
+  min-height: 48px;
+  white-space: normal;
+  line-height: 1.6;
+}
+
+/*!******************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./components/taiji/TaijiFormlessField.module.css ***!
+  \******************************************************************************************************************************************************************************************************************************************************************************************/
+/*
+  無極場 · 3D 未掛載時的太極（2026-09-04 依業主指示）
+
+  業主定調：「太極是要一種神秘感的遊戲，所以無形勝有形。」
+
+  原本這裡是一張 /taiji.png——平的、邊緣是硬的、外面還包一個圓角方框。
+  那是最「有形」的作法：把太極一次講死，客戶一眼看完就沒有了；
+  而且和首頁早先拿掉外框的決定（粒子與光子連宇宙都框不住）互相矛盾。
+
+  改成無極場：陰陽本體用漸層堆出來，S 界不畫線，讓它在光暗相接處自己浮出來；
+  外面再罩一層反向緩推的氣與呼吸的暈。看得出是太極，卻抓不到邊。
+
+  全部是 CSS 漸層與變換，不碰 WebGL、不載圖檔，
+  所以 iPhone 在 chunk 掉、GL context 被回收、記憶體吃緊時一樣顯示得出來。
+  依太極憲章，這是「擴充退路」，不是把核心換掉：3D 能掛時仍然掛 3D。
+*/
+
+.TaijiFormlessField_field__NtVSg {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(52vw, 200px);
+  height: min(52vw, 200px);
+  isolation: isolate;
+}
+
+/*
+  content 只能給偽元素。Chrome 支援在一般元素上用 content 做「元素替換」，
+  span 一旦吃到 content: '' 就被替換成空內容，整層背景不繪製——實測畫面全黑。
+  所以偽元素與實體元素拆成兩條規則，不共用。
+*/
+.TaijiFormlessField_field__NtVSg::after {
+  content: '';
+}
+
+.TaijiFormlessField_field__NtVSg::after,
+.TaijiFormlessField_figure__wry5F,
+.TaijiFormlessField_veil__i6oxi,
+.TaijiFormlessField_haze__JwPK_ {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/*
+  陰陽本體。由下往上疊（CSS 背景是先列先蓋）：
+    conic 主體  右陽左陰
+    上方暗圓    陽中之陰，把 S 的上半弧推出來
+    下方亮圓    陰中之陽，推出下半弧
+    兩顆極點
+  最後整層 blur——所有交界一次全部化開，畫面上找不到任何一條線。
+*/
+.TaijiFormlessField_figure__wry5F {
+  background:
+    radial-gradient(ellipse 6% 6% at 50% 25%, rgba(255, 250, 232, 0.72) 0%, rgba(255, 250, 232, 0) 100%),
+    radial-gradient(ellipse 6% 6% at 50% 75%, rgba(10, 8, 24, 0.72) 0%, rgba(10, 8, 24, 0) 100%),
+    radial-gradient(ellipse 25% 25% at 50% 75%, rgba(255, 247, 224, 0.8) 0%, rgba(255, 247, 224, 0.78) 84%, rgba(255, 247, 224, 0) 100%),
+    radial-gradient(ellipse 25% 25% at 50% 25%, rgba(10, 8, 24, 0.62) 0%, rgba(10, 8, 24, 0.6) 84%, rgba(10, 8, 24, 0) 100%),
+    conic-gradient(
+      from 0deg,
+      rgba(255, 247, 224, 0.8) 0deg 180deg,
+      rgba(10, 8, 24, 0.62) 180deg 360deg
+    );
+  filter: blur(9px) drop-shadow(0 0 18px rgba(196, 186, 255, 0.28));
+  opacity: 0.88;
+  animation: TaijiFormlessField_taijiTurn__XLx_A 26s linear infinite;
+}
+
+/*
+  氣。與本體反向緩推，週期刻意錯開，兩者永遠不會回到同一個相位——
+  盯著看會覺得它一直在變，卻說不出哪裡變了。
+*/
+.TaijiFormlessField_veil__i6oxi {
+  background: conic-gradient(
+    from 200deg,
+    rgba(255, 255, 255, 0) 0deg,
+    rgba(226, 232, 255, 0.26) 58deg,
+    rgba(255, 255, 255, 0) 132deg,
+    rgba(255, 255, 255, 0) 214deg,
+    rgba(178, 164, 255, 0.2) 282deg,
+    rgba(255, 255, 255, 0) 352deg
+  );
+  filter: blur(13px);
+  mix-blend-mode: screen;
+  animation: TaijiFormlessField_taijiTurn__XLx_A 71s linear infinite reverse;
+}
+
+/* 外圍呼吸的暈：讓它有「還在動」的感覺，但抓不到形狀 */
+.TaijiFormlessField_haze__JwPK_ {
+  inset: -20%;
+  background: radial-gradient(
+    circle,
+    rgba(148, 163, 255, 0.28) 0%,
+    rgba(148, 163, 255, 0.11) 40%,
+    rgba(148, 163, 255, 0) 68%
+  );
+  filter: blur(15px);
+  animation: TaijiFormlessField_taijiBreath__gVOhW 7.5s ease-in-out infinite;
+}
+
+/* 邊際不收邊：最外圈再化開一次，讓圓周本身也沒有可指認的界線 */
+.TaijiFormlessField_field__NtVSg::after {
+  background: radial-gradient(
+    circle,
+    rgba(7, 6, 15, 0) 0%,
+    rgba(7, 6, 15, 0) 76%,
+    rgba(7, 6, 15, 0.55) 100%
+  );
+  filter: blur(9px);
+}
+
+/* 還在等 3D 進場時整團場再淡一點，讀起來像「將起未起」 */
+.TaijiFormlessField_loading__htmdI .TaijiFormlessField_figure__wry5F,
+.TaijiFormlessField_loading__htmdI .TaijiFormlessField_veil__i6oxi,
+.TaijiFormlessField_loading__htmdI .TaijiFormlessField_haze__JwPK_ {
+  opacity: 0.74;
+}
+
+@keyframes TaijiFormlessField_taijiTurn__XLx_A {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes TaijiFormlessField_taijiBreath__gVOhW {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/*
+  客戶要求減少動態時：氣停下來，但太極不消失。
+  依太極憲章，核心在任何情況下都必須在場。
+*/
+@media (prefers-reduced-motion: reduce) {
+  .TaijiFormlessField_figure__wry5F,
+  .TaijiFormlessField_veil__i6oxi,
+  .TaijiFormlessField_haze__JwPK_,
+  .TaijiFormlessField_field__NtVSg::after {
+    animation: none;
+  }
+  .TaijiFormlessField_haze__JwPK_ {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+
+/*!******************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./components/bazi/customer/SharedElementSealPaper.module.css ***!
+  \******************************************************************************************************************************************************************************************************************************************************************************************************/
+.SharedElementSealPaper_paper__LGzvq {
+  color: #a3281b;
+  background:
+    repeating-linear-gradient(96deg, rgba(107, 65, 12, .06) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(3deg, rgba(255, 244, 193, .12) 0 1px, transparent 1px 8px),
+    linear-gradient(100deg, #bd852b 0%, #e8bd61 13%, #f6dc94 48%, #e2b35a 84%, #ae7224 100%);
+  border-color: rgba(130, 71, 19, .72);
+}
+.SharedElementSealPaper_paper__LGzvq::before { display: none; }
+.SharedElementSealPaper_ink__JD8R0 {
+  position: absolute;
+  inset: 5% 10% 6%;
+  width: 80%;
+  height: 89%;
+  overflow: visible;
+  opacity: .94;
+  mix-blend-mode: multiply;
+  filter: drop-shadow(.35px .25px 0 rgba(119, 27, 12, .2));
+}
+
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./components/bazi/customer/ElementTreasureOrb.module.css ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************/
+/* Reuse the reference's full visual material; the seal is an independent layer. */
+.ElementTreasureOrb_orb__NTPNl.ElementTreasureOrb_orb__NTPNl {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: block;
+  border-radius: 50%;
+  isolation: isolate;
+  overflow: visible;
+  pointer-events: none;
+  animation: ElementTreasureOrb_elementalFloat__z3fRM var(--orb-float-duration) ease-in-out var(--orb-pulse-delay) infinite;
+}
+/* Move the whole sealed sphere so the paper stays attached to it. */
+.ElementTreasureOrb_orb__NTPNl > div { height: 100%; animation: none; transition: filter 1.2s ease, transform 1.2s ease; }
+.ElementTreasureOrb_orb__NTPNl[data-animated='false'], .ElementTreasureOrb_orb__NTPNl[data-animated='false']::before, .ElementTreasureOrb_orb__NTPNl[data-animated='false'] * { animation: none !important; }
+.ElementTreasureOrb_orb__NTPNl[data-state='sealed'] > div { filter: brightness(.82) saturate(1.18); transform: scale(.94); }
+.ElementTreasureOrb_orb__NTPNl[data-state='sealed'] { --orb-float-distance: 2px !important; }
+.ElementTreasureOrb_orb__NTPNl::before, .ElementTreasureOrb_orb__NTPNl::after {
+  content: ''; position: absolute; inset: -16%; border-radius: 50%;
+  pointer-events: none; opacity: 0; transition: opacity 1.2s ease, transform 1.2s ease;
+}
+.ElementTreasureOrb_orb__NTPNl::before {
+  border: 1px solid var(--orb-ring);
+  box-shadow: 0 0 18px rgba(var(--orb-glow-rgb), .55), inset 0 0 12px rgba(var(--orb-glow-rgb), .25);
+  transform: scale(.72);
+}
+.ElementTreasureOrb_orb__NTPNl::after {
+  inset: 8%;
+  background: radial-gradient(ellipse at 30% 23%, #fff 0%, rgba(255,255,255,.65) 4%, transparent 19%), radial-gradient(ellipse at 68% 78%, rgba(var(--orb-glow-rgb), .7), transparent 48%);
+  mix-blend-mode: screen;
+}
+.ElementTreasureOrb_orb__NTPNl[data-state='released']::before { opacity: .7; transform: scale(1); }
+.ElementTreasureOrb_orb__NTPNl[data-state='released']::after { opacity: .85; }
+.ElementTreasureOrb_orb__NTPNl[data-state='opening']::before { animation: ElementTreasureOrb_releaseWave__DM95G 3s ease-out infinite; }
+@keyframes ElementTreasureOrb_releaseWave__DM95G {
+  from { opacity: .85; transform: scale(.72); }
+  to { opacity: 0; transform: scale(1.35); }
+}
+@keyframes ElementTreasureOrb_elementalFloat__z3fRM {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(calc(-1 * var(--orb-float-distance))); }
+}
+/* Keep complete static glow with reduced motion. The existing ritual timer
+   removes the paper at completion; it never depends on animationend. */
+@media (prefers-reduced-motion: reduce) {
+  .ElementTreasureOrb_orb__NTPNl, .ElementTreasureOrb_orb__NTPNl::before, .ElementTreasureOrb_orb__NTPNl::after, .ElementTreasureOrb_orb__NTPNl *, .ElementTreasureOrb_orb__NTPNl *::before, .ElementTreasureOrb_orb__NTPNl *::after { animation: none !important; transition: none !important; }
+  .ElementTreasureOrb_orb__NTPNl[data-state='opening']::before { opacity: .5; transform: scale(.85); }
+  .ElementTreasureOrb_orb__NTPNl .space-seal-ash { display: none; }
+}
+
+/*!***********************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./components/battlefield/ElementOrbDisplay.module.css ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************************/
+.ElementOrbDisplay_orbContainer__trMIS {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.ElementOrbDisplay_orbStage__vKI6g { position: relative; display: block; width: var(--orb-size); height: var(--orb-size); }
+
+/* 統一比例系統（黃金比例 1.33× 遞增） */
+.ElementOrbDisplay_orbContainer__trMIS[data-size='tiny'] {
+  --orb-size: 24px;
+  --orb-scale: 0.6;
+}
+
+.ElementOrbDisplay_orbContainer__trMIS[data-size='mini'] {
+  --orb-size: 32px;
+  --orb-scale: 0.8;
+}
+
+.ElementOrbDisplay_orbContainer__trMIS[data-size='small'] {
+  --orb-size: 40px;
+  --orb-scale: 1;
+}
+
+.ElementOrbDisplay_orbContainer__trMIS[data-size='medium'] {
+  --orb-size: 60px;
+  --orb-scale: 1.5;
+}
+
+.ElementOrbDisplay_orbContainer__trMIS[data-size='large'] {
+  --orb-size: 80px;
+  --orb-scale: 2;
+}
+
+/* 寶珠視覺容器 */
+.ElementOrbDisplay_orbVisual__jPmOP {
+  position: relative;
+  width: var(--orb-size);
+  height: var(--orb-size);
+  border-radius: 50%;
+  perspective: 1000px;
+  animation: ElementOrbDisplay_orbFloat__SHply 3s ease-in-out infinite;
+}
+
+.ElementOrbDisplay_orbContainer__trMIS[data-animated='false'] .ElementOrbDisplay_orbVisual__jPmOP {
+  animation: none;
+}
+
+@keyframes ElementOrbDisplay_orbFloat__SHply {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* 寶珠外環光（Ring） - 依尺寸調整 */
+.ElementOrbDisplay_orbRing__ghX0W {
+  position: absolute;
+  inset: calc(-2px * var(--orb-scale));
+  border-radius: 50%;
+  border: max(0.5px, calc(1px * var(--orb-scale))) solid var(--orb-ring);
+  opacity: 0.7;
+  animation: ElementOrbDisplay_orbRingSpin__k9VEL 4s linear infinite;
+}
+
+.ElementOrbDisplay_orbContainer__trMIS[data-animated='false'] .ElementOrbDisplay_orbRing__ghX0W {
+  animation: none;
+}
+
+@keyframes ElementOrbDisplay_orbRingSpin__k9VEL {
+  from {
+    transform: rotateZ(0deg);
+  }
+  to {
+    transform: rotateZ(360deg);
+  }
+}
+
+/* 中心發光球 - 高質感漸層系統 */
+.ElementOrbDisplay_orbCore__Qs3nZ {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  /* 多層漸層：光點→核心→過渡→邊緣 */
+  background:
+    radial-gradient(
+      circle at 25% 25%,
+      rgba(255, 255, 255, 0.8) 0%,
+      rgba(255, 255, 255, 0.3) 15%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 30% 30%,
+      var(--orb-glow) 0%,
+      rgba(var(--orb-glow-rgb, 222, 216, 255), 0.6) 20%,
+      rgba(var(--orb-glow-rgb, 222, 216, 255), 0.3) 50%,
+      rgba(var(--orb-glow-rgb, 222, 216, 255), 0.1) 85%,
+      transparent 100%
+    );
+  box-shadow:
+    /* 外部光暈 */
+    0 0 calc(24px * var(--orb-scale)) var(--orb-glow),
+    0 0 calc(48px * var(--orb-scale)) rgba(var(--orb-glow-rgb, 222, 216, 255), 0.4),
+    /* 內部深度 */
+    0 0 calc(60px * var(--orb-scale)) rgba(var(--orb-glow-rgb, 222, 216, 255), 0.3) inset,
+    0 0 calc(30px * var(--orb-scale)) rgba(var(--orb-glow-rgb, 222, 216, 255), 0.6) inset,
+    /* 外環光 */
+    0 0 calc(12px * var(--orb-scale)) var(--orb-ring),
+    /* 投影陰影 */
+    0 calc(3px * var(--orb-scale)) calc(12px * var(--orb-scale)) rgba(0, 0, 0, 0.4),
+    inset 0 calc(-2px * var(--orb-scale)) calc(8px * var(--orb-scale)) rgba(0, 0, 0, 0.3);
+  animation: ElementOrbDisplay_orbPulse__yissl var(--orb-pulse-duration, 2s) ease-in-out var(--orb-pulse-delay, 0s) infinite;
+}
+
+.ElementOrbDisplay_orbContainer__trMIS[data-animated='false'] .ElementOrbDisplay_orbCore__Qs3nZ {
+  animation: none;
+}
+
+@keyframes ElementOrbDisplay_orbPulse__yissl {
+  0%, 100% {
+    box-shadow:
+      0 0 calc(24px * var(--orb-scale)) var(--orb-glow),
+      0 0 calc(48px * var(--orb-scale)) rgba(var(--orb-glow-rgb, 222, 216, 255), 0.4),
+      0 0 calc(60px * var(--orb-scale)) rgba(var(--orb-glow-rgb, 222, 216, 255), 0.3) inset,
+      0 0 calc(30px * var(--orb-scale)) rgba(var(--orb-glow-rgb, 222, 216, 255), 0.6) inset,
+      0 0 calc(12px * var(--orb-scale)) var(--orb-ring),
+      0 calc(3px * var(--orb-scale)) calc(12px * var(--orb-scale)) rgba(0, 0, 0, 0.4),
+      inset 0 calc(-2px * var(--orb-scale)) calc(8px * var(--orb-scale)) rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 calc(32px * var(--orb-scale)) var(--orb-glow),
+      0 0 calc(64px * var(--orb-scale)) rgba(var(--orb-glow-rgb, 222, 216, 255), 0.5),
+      0 0 calc(80px * var(--orb-scale)) rgba(var(--orb-glow-rgb, 222, 216, 255), 0.4) inset,
+      0 0 calc(40px * var(--orb-scale)) rgba(var(--orb-glow-rgb, 222, 216, 255), 0.7) inset,
+      0 0 calc(16px * var(--orb-scale)) var(--orb-ring),
+      0 calc(4px * var(--orb-scale)) calc(16px * var(--orb-scale)) rgba(0, 0, 0, 0.5),
+      inset 0 calc(-3px * var(--orb-scale)) calc(12px * var(--orb-scale)) rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* 邊緣Fresnel光（高品質3D邊框亮度） */
+.ElementOrbDisplay_orbEdge__0z4RC {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    /* 上左高光 */
+    radial-gradient(
+      ellipse 60% 60% at 25% 25%,
+      rgba(255, 255, 255, 0.6) 0%,
+      rgba(255, 255, 255, 0.2) 40%,
+      transparent 70%
+    ),
+    /* 邊框反光 */
+    radial-gradient(
+      circle at 50% 50%,
+      transparent 0%,
+      transparent 60%,
+      rgba(255, 255, 255, 0.15) 85%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+  pointer-events: none;
+}
+
+/* 內部漸層 */
+.ElementOrbDisplay_orbInner__5iqXZ {
+  position: absolute;
+  inset: 20%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* 寶珠標籤 */
+.ElementOrbDisplay_orbLabel__PnICf {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--orb-glow, #eee9ff);
+  text-shadow: 0 0 8px var(--orb-glow);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* 元素特定色彩覆蓋 */
+.ElementOrbDisplay_orbContainer__trMIS[data-element='空'] .ElementOrbDisplay_orbRing__ghX0W,
+.ElementOrbDisplay_orbContainer__trMIS[data-element='空'] .ElementOrbDisplay_orbLabel__PnICf {
+  --orb-glow-rgb: 223, 216, 255;
+}
+
+.ElementOrbDisplay_orbContainer__trMIS[data-element='風'] .ElementOrbDisplay_orbRing__ghX0W,
+.ElementOrbDisplay_orbContainer__trMIS[data-element='風'] .ElementOrbDisplay_orbLabel__PnICf {
+  --orb-glow-rgb: 141, 255, 205;
+}
+
+.ElementOrbDisplay_orbContainer__trMIS[data-element='水'] .ElementOrbDisplay_orbRing__ghX0W,
+.ElementOrbDisplay_orbContainer__trMIS[data-element='水'] .ElementOrbDisplay_orbLabel__PnICf {
+  --orb-glow-rgb: 96, 237, 255;
+}
+
+.ElementOrbDisplay_orbContainer__trMIS[data-element='火'] .ElementOrbDisplay_orbRing__ghX0W,
+.ElementOrbDisplay_orbContainer__trMIS[data-element='火'] .ElementOrbDisplay_orbLabel__PnICf {
+  --orb-glow-rgb: 255, 159, 197;
+}
+
+.ElementOrbDisplay_orbContainer__trMIS[data-element='地'] .ElementOrbDisplay_orbRing__ghX0W,
+.ElementOrbDisplay_orbContainer__trMIS[data-element='地'] .ElementOrbDisplay_orbLabel__PnICf {
+  --orb-glow-rgb: 255, 225, 152;
+}
+
+/* 手機版 - 比例一致 */
+@media (max-width: 480px) {
+  .ElementOrbDisplay_orbContainer__trMIS[data-size='tiny'] {
+    --orb-size: 20px;
+  }
+
+  .ElementOrbDisplay_orbContainer__trMIS[data-size='mini'] {
+    --orb-size: 26px;
+  }
+
+  .ElementOrbDisplay_orbContainer__trMIS[data-size='small'] {
+    --orb-size: 32px;
+  }
+
+  .ElementOrbDisplay_orbContainer__trMIS[data-size='medium'] {
+    --orb-size: 48px;
+  }
+
+  .ElementOrbDisplay_orbContainer__trMIS[data-size='large'] {
+    --orb-size: 64px;
+  }
+
+  .ElementOrbDisplay_orbLabel__PnICf {
+    font-size: 10px;
+  }
+}
+
+/*!*************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./components/TodayDirectionQuest.module.css ***!
+  \*************************************************************************************************************************************************************************************************************************************************************************************/
+.TodayDirectionQuest_orbCard__tC5SG {
+  width: 100%;
+  aspect-ratio: 1;
+  min-width: 0;
+  justify-self: center;
+  align-self: center;
+  overflow: hidden;
+  border-radius: 0;
+  background: transparent;
+}
+.TodayDirectionQuest_orbCardTrigger__BXdJ_ {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.TodayDirectionQuest_orbCardTrigger__BXdJ_:disabled { cursor: default; opacity: 1; }
+.TodayDirectionQuest_orbCardTrigger__BXdJ_:focus-visible { outline: 3px solid #a7f3d0; outline-offset: -5px; border-radius: 22px; }
+.TodayDirectionQuest_orbCardStage__xzV43 { position: relative; width: 64%; aspect-ratio: 1; height: auto; }
+.TodayDirectionQuest_intro__ihShq:has(.TodayDirectionQuest_orbCard__tC5SG) {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 0 !important;
+  align-items: center;
+}
+.TodayDirectionQuest_intro__ihShq:has(.TodayDirectionQuest_orbCard__tC5SG) .TodayDirectionQuest_primaryButton__EmgT4 { width: 100%; padding-inline: 0.6rem; }
+.TodayDirectionQuest_intro__ihShq:has(.TodayDirectionQuest_orbCard__tC5SG) .TodayDirectionQuest_promiseRow__YH8LC { flex-wrap: wrap; }
+.TodayDirectionQuest_intro__ihShq:has(.TodayDirectionQuest_orbCard__tC5SG) h2 { text-wrap: balance; }
+.TodayDirectionQuest_intro__ihShq:has(.TodayDirectionQuest_orbCard__tC5SG) .TodayDirectionQuest_orbCard__tC5SG { width: 100%; }
+
+.TodayDirectionQuest_quest__95bGU {
+  position: relative;
+  width: 100%;
+  margin: 0 0 1.5rem;
+  overflow: hidden;
+  border: 1px solid rgba(186, 230, 253, 0.25);
+  border-radius: 30px;
+  outline: none;
+  background:
+    radial-gradient(circle at 86% 14%, rgba(56, 189, 248, 0.2), transparent 30%),
+    radial-gradient(circle at 8% 100%, rgba(251, 191, 36, 0.12), transparent 38%),
+    linear-gradient(135deg, rgba(7, 18, 38, 0.98), rgba(16, 20, 51, 0.97) 52%, rgba(7, 31, 42, 0.96));
+  box-shadow:
+    0 24px 70px rgba(2, 6, 23, 0.46),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  isolation: isolate;
+  color-scheme: dark;
+  font-family: var(--font-sans), "Microsoft JhengHei", "PingFang TC", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.TodayDirectionQuest_quest__95bGU:focus-visible {
+  box-shadow:
+    0 0 0 3px rgba(125, 211, 252, 0.55),
+    0 24px 70px rgba(2, 6, 23, 0.46);
+}
+
+.TodayDirectionQuest_windLine__1SMOK {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.24;
+  background:
+    repeating-linear-gradient(118deg, transparent 0 46px, rgba(125, 211, 252, 0.12) 47px 48px, transparent 49px 96px);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
+
+.TodayDirectionQuest_windGlow__fPbRk {
+  position: absolute;
+  top: -70%;
+  right: -18%;
+  z-index: -1;
+  width: 54%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  border-radius: 50%;
+  box-shadow: 0 0 95px rgba(56, 189, 248, 0.2), inset 0 0 70px rgba(56, 189, 248, 0.1);
+  animation: TodayDirectionQuest_quest-breathe__dfLRw 6s ease-in-out infinite;
+}
+
+.TodayDirectionQuest_content___arHF {
+  padding: clamp(1.1rem, 4vw, 2rem);
+}
+
+.TodayDirectionQuest_topline__c4cIg {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.TodayDirectionQuest_topStatus__FCKd0 {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.TodayDirectionQuest_collectedMini__i6IhN {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: rgba(167, 243, 208, 0.92);
+  font-size: 0.66rem;
+  font-weight: 950;
+}
+
+.TodayDirectionQuest_eyebrow__U_ETS,
+.TodayDirectionQuest_progressText__F42f2,
+.TodayDirectionQuest_kicker__nPeXT {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 950;
+  letter-spacing: 0.18em;
+}
+
+.TodayDirectionQuest_eyebrow__U_ETS {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.85rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  border-radius: 999px;
+  background: rgba(14, 116, 144, 0.14);
+  color: rgba(207, 250, 254, 0.92);
+}
+
+.TodayDirectionQuest_progressText__F42f2 {
+  color: rgba(254, 243, 199, 0.9);
+  letter-spacing: 0.08em;
+}
+
+.TodayDirectionQuest_progressTrack__0sh6_ {
+  height: 0.3rem;
+  margin-top: 0.85rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.TodayDirectionQuest_progressTrack__0sh6_ span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #67e8f9, #fbbf24);
+  box-shadow: 0 0 16px rgba(103, 232, 249, 0.42);
+  transition: width 420ms ease;
+}
+
+.TodayDirectionQuest_intro__ihShq {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1.45rem;
+}
+
+.TodayDirectionQuest_introCopy__rfP7L,
+.TodayDirectionQuest_introAction__o9xa8,
+.TodayDirectionQuest_step__TonpD,
+.TodayDirectionQuest_reward__G_o08 {
+  min-width: 0;
+}
+
+.TodayDirectionQuest_kicker__nPeXT {
+  color: rgba(253, 230, 138, 0.9);
+}
+
+.TodayDirectionQuest_intro__ihShq h2,
+.TodayDirectionQuest_step__TonpD h2,
+.TodayDirectionQuest_reward__G_o08 h2 {
+  margin: 0.55rem 0 0;
+  color: #f8fafc;
+  font-family: var(--font-sans), "Microsoft JhengHei", "PingFang TC", sans-serif;
+  font-size: clamp(1.75rem, 7vw, 3.2rem);
+  font-weight: 950;
+  line-height: 1.12;
+  letter-spacing: 0;
+  font-kerning: normal;
+  text-shadow: 0 2px 18px rgba(2, 6, 23, 0.72);
+  text-wrap: balance;
+}
+
+.TodayDirectionQuest_lead__FiVtS,
+.TodayDirectionQuest_stepLead__klwYT,
+.TodayDirectionQuest_rewardLead___rRv4 {
+  margin: 0.7rem 0 0;
+  color: rgba(224, 242, 254, 0.85);
+  font-size: clamp(0.92rem, 2.3vw, 1.05rem);
+  font-weight: 750;
+  line-height: 1.75;
+}
+
+.TodayDirectionQuest_promiseRow__YH8LC {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.TodayDirectionQuest_promiseRow__YH8LC span {
+  padding: 0.36rem 0.65rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.5);
+  color: rgba(226, 232, 240, 0.88);
+  font-size: 0.7rem;
+  font-weight: 850;
+}
+
+.TodayDirectionQuest_introAction__o9xa8 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.85rem;
+}
+
+.TodayDirectionQuest_lockPreview__ehosf {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 4.8rem;
+  padding: 0.85rem;
+  border: 1px solid rgba(103, 232, 249, 0.19);
+  border-radius: 20px;
+  background: rgba(8, 47, 73, 0.28);
+}
+
+.TodayDirectionQuest_introOrbStage__dTo32 {
+  width: 3.45rem;
+  height: 3.45rem;
+  flex: 0 0 auto;
+  transform: scale(0.92);
+}
+
+.TodayDirectionQuest_lockPreview__ehosf small,
+.TodayDirectionQuest_lockPreview__ehosf strong {
+  display: block;
+}
+
+.TodayDirectionQuest_lockPreview__ehosf small {
+  color: rgba(148, 163, 184, 0.9);
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+}
+
+.TodayDirectionQuest_lockPreview__ehosf strong {
+  margin-top: 0.3rem;
+  color: rgba(236, 254, 255, 0.96);
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.TodayDirectionQuest_primaryButton__EmgT4 {
+  display: inline-flex;
+  width: 100%;
+  min-height: 3.35rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.15rem;
+  border: 1px solid rgba(254, 243, 199, 0.62);
+  border-radius: 999px;
+  background: linear-gradient(115deg, #fde68a, #67e8f9);
+  color: #07111f;
+  font-size: 0.92rem;
+  font-weight: 950;
+  text-align: center;
+  box-shadow: 0 0 28px rgba(103, 232, 249, 0.2);
+  transition: transform 180ms ease, filter 180ms ease, box-shadow 180ms ease;
+}
+
+.TodayDirectionQuest_primaryButton__EmgT4:hover {
+  filter: brightness(1.08) saturate(1.06);
+  box-shadow: 0 0 38px rgba(103, 232, 249, 0.3);
+  transform: translateY(-1px);
+}
+
+.TodayDirectionQuest_primaryButton__EmgT4:active {
+  transform: scale(0.985);
+}
+
+.TodayDirectionQuest_secondaryButton__G_uKq {
+  display: inline-flex;
+  width: 100%;
+  min-height: 3.35rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 1.15rem;
+  border: 1px solid rgba(103, 232, 249, 0.38);
+  border-radius: 999px;
+  background: rgba(14, 116, 144, 0.2);
+  color: #e0f2fe;
+  font-size: 0.92rem;
+  font-weight: 950;
+}
+
+.TodayDirectionQuest_feedbackGrid__uI72g {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.TodayDirectionQuest_feedbackGrid__uI72g .TodayDirectionQuest_quietButton__5SwXh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.35rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.45);
+  color: rgba(226, 232, 240, 0.95);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.TodayDirectionQuest_checkinOrb__DYb1o {
+  display: flex;
+  max-width: 21rem;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 1.1rem auto;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  border-radius: 20px;
+  background: rgba(6, 78, 59, 0.2);
+  text-align: left;
+}
+
+.TodayDirectionQuest_checkinOrb__DYb1o small,
+.TodayDirectionQuest_checkinOrb__DYb1o strong {
+  display: block;
+}
+
+.TodayDirectionQuest_checkinOrb__DYb1o small {
+  color: rgba(167, 243, 208, 0.78);
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.TodayDirectionQuest_checkinOrb__DYb1o strong {
+  margin-top: 0.25rem;
+  color: #ecfdf5;
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.TodayDirectionQuest_checkinPromise__j4vhR,
+.TodayDirectionQuest_returnNote__vwvOC,
+.TodayDirectionQuest_tomorrowClue__AEON9 {
+  margin: 0.85rem 0 0;
+  color: rgba(167, 243, 208, 0.86);
+  font-size: 0.8rem;
+  font-weight: 850;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.TodayDirectionQuest_returnNote__vwvOC {
+  padding: 0.7rem 0.85rem;
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  border-radius: 14px;
+  background: rgba(6, 78, 59, 0.16);
+}
+
+.TodayDirectionQuest_tomorrowClue__AEON9 {
+  color: rgba(254, 243, 199, 0.9);
+}
+
+.TodayDirectionQuest_step__TonpD,
+.TodayDirectionQuest_reward__G_o08 {
+  margin: 1.3rem auto 0;
+  max-width: 46rem;
+}
+
+.TodayDirectionQuest_areaGrid__fJP0K {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1.2rem;
+}
+
+.TodayDirectionQuest_choiceButton__zjocX,
+.TodayDirectionQuest_pathButton__lPhjE {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.62);
+  color: #f8fafc;
+  text-align: left;
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.TodayDirectionQuest_choiceButton__zjocX {
+  gap: 0.78rem;
+  min-height: 5rem;
+  padding: 0.8rem;
+  border-radius: 20px;
+}
+
+.TodayDirectionQuest_choiceButton__zjocX:hover,
+.TodayDirectionQuest_pathButton__lPhjE:hover {
+  border-color: rgba(103, 232, 249, 0.52);
+  background: rgba(14, 116, 144, 0.18);
+  transform: translateY(-1px);
+}
+
+.TodayDirectionQuest_choiceGlyph__SeFYP {
+  display: grid;
+  width: 3.1rem;
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(253, 230, 138, 0.34);
+  border-radius: 16px;
+  background: rgba(251, 191, 36, 0.09);
+  color: #fde68a;
+  font-family: var(--font-serif), serif;
+  font-size: 1.15rem;
+  font-weight: 950;
+}
+
+.TodayDirectionQuest_choiceButton__zjocX > span:nth-child(2) {
+  min-width: 0;
+  flex: 1;
+}
+
+.TodayDirectionQuest_choiceButton__zjocX strong,
+.TodayDirectionQuest_choiceButton__zjocX small {
+  display: block;
+}
+
+.TodayDirectionQuest_choiceButton__zjocX strong {
+  font-size: 1rem;
+  font-weight: 950;
+  letter-spacing: 0.015em;
+}
+
+.TodayDirectionQuest_choiceButton__zjocX small {
+  margin-top: 0.25rem;
+  color: rgba(148, 163, 184, 0.9);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.TodayDirectionQuest_choiceArrow__Gafbo {
+  color: rgba(103, 232, 249, 0.86);
+  font-size: 1.15rem;
+}
+
+.TodayDirectionQuest_pathList__4_cQV {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1.2rem;
+}
+
+.TodayDirectionQuest_pathButton__lPhjE {
+  gap: 0.8rem;
+  min-height: 4.2rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 16px;
+}
+
+.TodayDirectionQuest_pathButton__lPhjE > span:first-child {
+  color: rgba(103, 232, 249, 0.86);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.TodayDirectionQuest_pathButton__lPhjE strong {
+  min-width: 0;
+  flex: 1;
+  font-size: 0.88rem;
+  font-weight: 900;
+  line-height: 1.5;
+}
+
+.TodayDirectionQuest_pathButton__lPhjE > span:last-child {
+  color: rgba(253, 230, 138, 0.8);
+}
+
+.TodayDirectionQuest_stepActions__BfIb5 {
+  display: flex;
+  justify-content: center;
+  gap: 0.45rem 1rem;
+  margin-top: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.TodayDirectionQuest_quietButton__5SwXh {
+  display: block;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin: 0.9rem auto 0;
+  padding: 0.45rem 0.6rem;
+  border: 0;
+  background: transparent;
+  color: rgba(186, 230, 253, 0.72);
+  font-size: 0.73rem;
+  font-weight: 850;
+  text-decoration: underline;
+  text-decoration-color: rgba(186, 230, 253, 0.25);
+  text-underline-offset: 0.25rem;
+}
+
+.TodayDirectionQuest_stepActions__BfIb5 .TodayDirectionQuest_quietButton__5SwXh {
+  margin: 0;
+}
+
+.TodayDirectionQuest_quietButton__5SwXh:hover {
+  color: #e0f2fe;
+}
+
+.TodayDirectionQuest_reflectionCard__46GRn,
+.TodayDirectionQuest_actionCard__oSseA,
+.TodayDirectionQuest_nextClue__skIwR {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+}
+
+.TodayDirectionQuest_reflectionCard__46GRn {
+  border: 1px solid rgba(125, 211, 252, 0.18);
+  background: rgba(8, 47, 73, 0.22);
+}
+
+.TodayDirectionQuest_actionCard__oSseA {
+  margin-bottom: 1rem;
+  border: 1px solid rgba(253, 230, 138, 0.34);
+  background: rgba(120, 53, 15, 0.15);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.TodayDirectionQuest_reflectionCard__46GRn span,
+.TodayDirectionQuest_actionCard__oSseA span,
+.TodayDirectionQuest_nextClue__skIwR span {
+  display: block;
+  color: rgba(148, 163, 184, 0.92);
+  font-size: 0.66rem;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+}
+
+.TodayDirectionQuest_reflectionCard__46GRn p,
+.TodayDirectionQuest_actionCard__oSseA p {
+  margin: 0.5rem 0 0;
+  color: rgba(248, 250, 252, 0.94);
+  font-size: 0.94rem;
+  font-weight: 800;
+  line-height: 1.75;
+}
+
+.TodayDirectionQuest_reward__G_o08 {
+  text-align: center;
+}
+
+.TodayDirectionQuest_rewardOrb__cGaPQ {
+  width: 6.6rem;
+  height: 6.6rem;
+  margin: 0 auto 1.15rem;
+  filter:
+    drop-shadow(0 5px 8px rgba(2, 6, 23, 0.25));
+  transform: translateY(0.3rem);
+}
+
+.TodayDirectionQuest_rewardOrb__cGaPQ canvas {
+  filter: brightness(0.48) saturate(0.92) contrast(1.16);
+}
+
+.TodayDirectionQuest_sealedPreview__hcQd_ {
+  max-width: 22rem;
+  margin: -0.35rem auto 1rem;
+}
+
+.TodayDirectionQuest_sealedPreview__hcQd_ > span {
+  display: block;
+  color: rgba(148, 163, 184, 0.72);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.TodayDirectionQuest_sealedPreview__hcQd_ > div {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.55rem;
+}
+
+.TodayDirectionQuest_sealedOrb__gpmOk {
+  width: 3.35rem;
+  height: 3.35rem;
+  margin-inline: auto;
+  filter: none;
+}
+
+.TodayDirectionQuest_sealedOrb__gpmOk small {
+  position: absolute;
+  z-index: 4;
+  right: -0.18rem;
+  bottom: -0.18rem;
+  display: grid;
+  width: 1.25rem;
+  height: 1.25rem;
+  place-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 50%;
+  background: rgba(2, 6, 23, 0.88);
+  color: rgba(226, 232, 240, 0.78);
+  font-size: 0.56rem;
+  font-weight: 950;
+}
+
+.TodayDirectionQuest_orbLoading__H_gNf {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  border: 1px solid rgba(110, 231, 183, 0.35);
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 30%, rgba(167, 243, 208, 0.56), rgba(6, 78, 59, 0.88) 68%);
+  color: #d1fae5;
+  font-family: var(--font-serif), serif;
+  font-size: 1.8rem;
+  font-weight: 950;
+  box-shadow: 0 0 24px rgba(52, 211, 153, 0.22);
+}
+
+.TodayDirectionQuest_ritualProgress__WoyC0 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+  max-width: 24rem;
+  margin: 1.1rem auto 0;
+}
+
+.TodayDirectionQuest_ritualProgress__WoyC0 span {
+  height: 0.38rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  transition: background 300ms ease, box-shadow 300ms ease;
+}
+
+.TodayDirectionQuest_ritualProgress__WoyC0 span[data-active='true'] {
+  background: linear-gradient(90deg, #34d399, #a7f3d0);
+  box-shadow: 0 0 16px rgba(52, 211, 153, 0.5);
+}
+
+.TodayDirectionQuest_ritualWait__thFMm {
+  margin: 0.85rem 0 0;
+  color: rgba(167, 243, 208, 0.76);
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+.TodayDirectionQuest_nextClue__skIwR {
+  margin-bottom: 1rem;
+  border: 1px dashed rgba(253, 230, 138, 0.36);
+  background: rgba(251, 191, 36, 0.07);
+  text-align: left;
+}
+
+.TodayDirectionQuest_nextClue__skIwR strong {
+  display: block;
+  margin-top: 0.45rem;
+  color: rgba(254, 243, 199, 0.96);
+  font-size: 0.9rem;
+  font-weight: 900;
+  line-height: 1.5;
+}
+
+.TodayDirectionQuest_disclaimer__UqQ8V {
+  margin: 1.1rem 0 0;
+  color: rgba(148, 163, 184, 0.7);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.55;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .TodayDirectionQuest_intro__ihShq {
+    grid-template-columns: minmax(0, 1.4fr) minmax(15rem, 0.72fr);
+    align-items: end;
+  }
+
+  .TodayDirectionQuest_areaGrid__fJP0K {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .TodayDirectionQuest_choiceButton__zjocX {
+    align-items: flex-start;
+  }
+
+  .TodayDirectionQuest_choiceArrow__Gafbo {
+    display: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .TodayDirectionQuest_quest__95bGU {
+    margin-bottom: 1rem;
+    border-radius: 22px;
+  }
+
+  .TodayDirectionQuest_content___arHF {
+    padding: 1rem;
+  }
+
+  .TodayDirectionQuest_topline__c4cIg {
+    gap: 0.5rem;
+  }
+
+  .TodayDirectionQuest_topStatus__FCKd0 {
+    gap: 0.35rem;
+  }
+
+  .TodayDirectionQuest_collectedMini__i6IhN {
+    font-size: 0.7rem;
+  }
+
+  .TodayDirectionQuest_eyebrow__U_ETS,
+  .TodayDirectionQuest_progressText__F42f2 {
+    font-size: 0.72rem;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+  }
+
+  .TodayDirectionQuest_intro__ihShq {
+    margin-top: 1.1rem;
+  }
+
+  .TodayDirectionQuest_intro__ihShq h2,
+  .TodayDirectionQuest_step__TonpD h2,
+  .TodayDirectionQuest_reward__G_o08 h2 {
+    font-size: clamp(1.9rem, 8.8vw, 2.35rem);
+    font-weight: 950;
+    line-height: 1.18;
+    text-shadow: 0 2px 16px rgba(2, 6, 23, 0.82);
+  }
+
+  .TodayDirectionQuest_lead__FiVtS,
+  .TodayDirectionQuest_stepLead__klwYT,
+  .TodayDirectionQuest_rewardLead___rRv4 {
+    font-size: 1rem;
+    font-weight: 850;
+    line-height: 1.7;
+  }
+
+  .TodayDirectionQuest_kicker__nPeXT {
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+  }
+
+  .TodayDirectionQuest_promiseRow__YH8LC {
+    gap: 0.38rem;
+  }
+
+  .TodayDirectionQuest_promiseRow__YH8LC span {
+    font-size: 0.76rem;
+    font-weight: 900;
+  }
+
+  .TodayDirectionQuest_lockPreview__ehosf small {
+    font-size: 0.75rem;
+  }
+
+  .TodayDirectionQuest_lockPreview__ehosf strong {
+    font-size: 1rem;
+    font-weight: 950;
+  }
+
+  .TodayDirectionQuest_primaryButton__EmgT4 {
+    min-height: 3.7rem;
+    font-size: 1rem;
+    font-weight: 950;
+  }
+
+  .TodayDirectionQuest_secondaryButton__G_uKq {
+    min-height: 3.55rem;
+    font-size: 0.96rem;
+  }
+
+  .TodayDirectionQuest_choiceButton__zjocX strong {
+    font-size: 1.02rem;
+  }
+
+  .TodayDirectionQuest_choiceButton__zjocX small {
+    font-size: 0.78rem;
+    font-weight: 850;
+  }
+
+  .TodayDirectionQuest_choiceButton__zjocX,
+  .TodayDirectionQuest_pathButton__lPhjE,
+  .TodayDirectionQuest_primaryButton__EmgT4,
+  .TodayDirectionQuest_secondaryButton__G_uKq {
+    max-width: 100%;
+  }
+
+  .TodayDirectionQuest_pathButton__lPhjE strong {
+    font-size: 0.96rem;
+    font-weight: 950;
+    line-height: 1.55;
+  }
+
+  .TodayDirectionQuest_reflectionCard__46GRn p,
+  .TodayDirectionQuest_actionCard__oSseA p {
+    font-size: 1rem;
+    font-weight: 850;
+    line-height: 1.72;
+  }
+
+  .TodayDirectionQuest_quietButton__5SwXh {
+    font-size: 0.8rem;
+    font-weight: 900;
+  }
+
+  .TodayDirectionQuest_nextClue__skIwR strong {
+    font-size: 0.98rem;
+  }
+
+  .TodayDirectionQuest_ritualWait__thFMm {
+    font-size: 0.8rem;
+  }
+
+  .TodayDirectionQuest_disclaimer__UqQ8V {
+    font-size: 0.74rem;
+    font-weight: 750;
+  }
+
+  .TodayDirectionQuest_windGlow__fPbRk {
+    top: -22%;
+    right: -36%;
+    width: 92%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .TodayDirectionQuest_windGlow__fPbRk {
+    animation: none;
+  }
+
+  .TodayDirectionQuest_progressTrack__0sh6_ span,
+  .TodayDirectionQuest_ritualProgress__WoyC0 span,
+  .TodayDirectionQuest_choiceButton__zjocX,
+  .TodayDirectionQuest_pathButton__lPhjE,
+  .TodayDirectionQuest_primaryButton__EmgT4 {
+    transition: none;
+  }
+}
+
+@keyframes TodayDirectionQuest_quest-breathe__dfLRw {
+  0%, 100% { opacity: 0.58; transform: scale(0.96); }
+  50% { opacity: 0.9; transform: scale(1.04); }
+}
+
+
+/* stickiness 2026-09-23: secondary area chips + primary quest lift */
+.TodayDirectionQuest_areaChipRow__rRNol {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0 0 0.85rem;
+}
+.TodayDirectionQuest_areaChipHint__5jaCv {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: rgba(226, 232, 240, 0.72);
+}
+.TodayDirectionQuest_areaChips__FFFud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.TodayDirectionQuest_areaChip__vqABx,
+.TodayDirectionQuest_areaChipActive__Y5QQO {
+  min-height: 44px;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.55);
+  color: rgba(226, 232, 240, 0.92);
+  font-size: 0.82rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.TodayDirectionQuest_areaChipActive__Y5QQO {
+  border-color: rgba(125, 211, 252, 0.75);
+  background: rgba(14, 116, 144, 0.28);
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.18);
+}
+.TodayDirectionQuest_quest__95bGU.TodayDirectionQuest_home-primary-quest__LDiP3,
+.home-primary-quest.TodayDirectionQuest_quest__95bGU {
+  position: relative;
+  z-index: 2;
+}
+
+
+/* stickiness upgrade 2026-09-23b: return + compact first screen */
+.TodayDirectionQuest_returnPromise__cbCyr,
+.TodayDirectionQuest_returnSoft__dMw6W {
+  margin: 0.7rem 0 0;
+  color: rgba(186, 230, 253, 0.88);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+}
+.TodayDirectionQuest_returnSoft__dMw6W {
+  margin-top: 0.45rem;
+  color: rgba(253, 230, 138, 0.82);
+  font-size: 0.74rem;
+  font-weight: 750;
+}
+@media (max-width: 900px), (pointer: coarse) {
+  .TodayDirectionQuest_intro__ihShq {
+    margin-top: 0.55rem;
+    gap: 0.75rem;
+  }
+  .TodayDirectionQuest_intro__ihShq h2 {
+    font-size: clamp(1.35rem, 6.2vw, 1.75rem) !important;
+    line-height: 1.25 !important;
+  }
+  .TodayDirectionQuest_lead__FiVtS {
+    font-size: 0.88rem !important;
+    line-height: 1.5 !important;
+  }
+  .TodayDirectionQuest_introAction__o9xa8 {
+    gap: 0.65rem;
+  }
+  .TodayDirectionQuest_lockPreview__ehosf {
+    min-height: 3.6rem;
+    padding: 0.55rem 0.7rem;
+  }
+  .TodayDirectionQuest_primaryButton__EmgT4 {
+    min-height: 3.15rem !important;
+    box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.35), 0 10px 28px rgba(34, 211, 238, 0.22);
+  }
+  .TodayDirectionQuest_promiseRow__YH8LC span {
+    font-size: 0.68rem !important;
+  }
+}
+
+
+/* michelin-mobile start-peek 2026-09-23c */
+@media (max-width: 900px), (pointer: coarse) {
+  .TodayDirectionQuest_intro__ihShq {
+    margin-top: 0.35rem !important;
+    gap: 0.55rem !important;
+  }
+  .TodayDirectionQuest_intro__ihShq h2 {
+    font-size: clamp(1.28rem, 6vw, 1.62rem) !important;
+    line-height: 1.22 !important;
+  }
+  .TodayDirectionQuest_lead__FiVtS {
+    margin-top: 0.35rem !important;
+    font-size: 0.84rem !important;
+    line-height: 1.45 !important;
+  }
+  .TodayDirectionQuest_returnPromise__cbCyr {
+    display: none; /* 首屏先讓「開始」浮上來；回訪承諾改在開始後再說 */
+  }
+  .TodayDirectionQuest_lockPreview__ehosf {
+    min-height: 3.1rem !important;
+    padding: 0.45rem 0.65rem !important;
+  }
+  .TodayDirectionQuest_primaryButton__EmgT4 {
+    min-height: 3.35rem !important;
+    font-size: 1.02rem !important;
+    box-shadow:
+      0 0 0 1px rgba(253, 230, 138, 0.45),
+      0 12px 32px rgba(34, 211, 238, 0.28) !important;
+  }
+}
+
+
+/* gate1 bridge 2026-09-23 */
+.TodayDirectionQuest_growthBridge__PREQJ {
+  margin: 0.55rem 0 0;
+  color: rgba(165, 243, 252, 0.88);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.55;
+}
+
+
+.TodayDirectionQuest_streakChip__XPOll {
+  display: inline-flex;
+  align-items: center;
+  margin: 0.35rem 0 0;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  background: rgba(251, 191, 36, 0.08);
+  color: #fcd34d;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.TodayDirectionQuest_intro__ihShq .TodayDirectionQuest_returnNote__vwvOC {
+  margin: 0.45rem 0 0;
+  color: rgba(186, 230, 253, 0.92);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+
+/* 第四段：結果可帶走卡片 */
+.TodayDirectionQuest_takeawayCard__VXIwL {
+  margin: 0.85rem 0 0.35rem;
+  padding: 0.9rem 0.95rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  background: linear-gradient(165deg, rgba(15, 23, 42, 0.92), rgba(2, 6, 23, 0.78));
+  text-align: left;
+  box-shadow: 0 10px 28px rgba(2, 6, 23, 0.28);
+}
+
+.TodayDirectionQuest_takeawayMeta__KbDdg {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: rgba(253, 230, 138, 0.92);
+}
+
+.TodayDirectionQuest_takeawayTitle__9NMOc {
+  margin: 0.45rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 900;
+  line-height: 1.35;
+  color: #f8fafc;
+}
+
+.TodayDirectionQuest_takeawayReflection__pwgt6 {
+  margin: 0.45rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: rgba(226, 232, 240, 0.92);
+}
+
+.TodayDirectionQuest_takeawayAction__BKvdr {
+  margin-top: 0.7rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.TodayDirectionQuest_takeawayAction__BKvdr span {
+  display: block;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: rgba(165, 243, 252, 0.9);
+}
+
+.TodayDirectionQuest_takeawayAction__BKvdr strong {
+  display: block;
+  margin-top: 0.28rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.5;
+  color: #ecfeff;
+}
+
+/* ===== B1 return visual 2026-09-23f — returnNote/streakChip only ===== */
+/* 回訪提示：一眼可讀、暗底青／金、不搶主 CTA；不動流程 */
+.TodayDirectionQuest_returnNote__vwvOC {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0.55rem 0 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 211, 238, 0.28);
+  background:
+    linear-gradient(180deg, rgba(8, 47, 73, 0.42), rgba(2, 6, 23, 0.55));
+  color: rgba(186, 230, 253, 0.94);
+  font-size: 0.8rem;
+  font-weight: 750;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+  text-align: center;
+  text-wrap: balance;
+  box-shadow:
+    inset 0 1px 0 rgba(165, 243, 252, 0.08),
+    0 6px 18px rgba(2, 6, 23, 0.28);
+}
+
+.TodayDirectionQuest_intro__ihShq .TodayDirectionQuest_returnNote__vwvOC {
+  margin: 0.4rem 0 0;
+  color: rgba(186, 230, 253, 0.94);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.TodayDirectionQuest_streakChip__XPOll {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.4rem auto 0;
+  padding: 0.22rem 0.62rem;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  background: rgba(120, 53, 15, 0.28);
+  color: #fde68a;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  box-shadow: inset 0 1px 0 rgba(253, 230, 138, 0.12);
+}
+
+@media (max-width: 900px), (pointer: coarse) {
+  .TodayDirectionQuest_returnNote__vwvOC {
+    margin-top: 0.45rem;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+  .TodayDirectionQuest_streakChip__XPOll {
+    margin-top: 0.32rem;
+    font-size: 0.68rem;
+  }
+  /* tension／area 階段：提示貼進度條下，壓縮垂直佔位，避免擠主選項 */
+  .TodayDirectionQuest_progressBlock__1F9Zh + .TodayDirectionQuest_returnNote__vwvOC,
+  .TodayDirectionQuest_questHead__y1mCn + .TodayDirectionQuest_returnNote__vwvOC {
+    margin-top: 0.4rem;
+  }
+}
+
+
+/*!***********************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./components/StarBeastHomeCard.module.css ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************/
+/* 2026-09-25 star-beast i18n toggle — scoped styles for the homepage 星宿神獸 card wrapper. */
+
+/* The inner <a> keeps .home-feature-tier-explore and is hidden by the site's collapse rule;
+   hide the wrapper too so the language toggle never floats alone when the stack is collapsed. */
+@media (max-width: 900px), (pointer: coarse) {
+  .home-feature-stack--collapsed .StarBeastHomeCard_wrap__cXV0f {
+    display: none;
+  }
+}
+
+/* Keep the label pill clear of the absolutely positioned 中｜EN toggle (top-right). */
+.StarBeastHomeCard_label__K33eS {
+  margin-right: 5.5rem;
+}
+
+@media (min-width: 640px) {
+  .StarBeastHomeCard_label__K33eS {
+    margin-right: 0;
+  }
+}
+
+/*!*************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./components/GhostAsuraHomeEntry.module.css ***!
+  \*************************************************************************************************************************************************************************************************************************************************************************************/
+.GhostAsuraHomeEntry_wrapper__FJCYB {
+  outline: none;
+  /* GPU 加速 */
+  will-change: auto;
+  contain: layout style paint;
+}
+
+.GhostAsuraHomeEntry_entry__krBQY.GhostAsuraHomeEntry_entry__krBQY {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  padding: 24px !important;
+  min-width: 0;
+  border: 1px solid #95636b;
+  border-radius: 24px;
+  background: linear-gradient(115deg, #25151d, #17131d 75%);
+  color: #f5eae3;
+  text-align: left;
+  box-shadow: 0 8px 24px #14070d33 !important;
+  overflow: hidden;
+}
+.GhostAsuraHomeEntry_entry__krBQY.GhostAsuraHomeEntry_entry__krBQY::before, .GhostAsuraHomeEntry_entry__krBQY.GhostAsuraHomeEntry_entry__krBQY::after { display: none !important; }
+.GhostAsuraHomeEntry_content__RUK2r { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.GhostAsuraHomeEntry_emblem__V2vPx {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid #a27670;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #4b2830, #271d27);
+  color: #f1cba9;
+  font-family: serif;
+  font-size: 27px;
+  font-weight: 700;
+}
+.GhostAsuraHomeEntry_copy__1tQ4Y { min-width: 0; flex: 1; }
+.GhostAsuraHomeEntry_eyebrow__Db1Hc { display: block; color: #d3b29c; font-size: 11px; line-height: 1.7; letter-spacing: .1em; }
+.GhostAsuraHomeEntry_entry__krBQY.GhostAsuraHomeEntry_entry__krBQY h2 { margin: 5px 0 8px; font-size: 36px; line-height: 1.25; }
+.GhostAsuraHomeEntry_entry__krBQY.GhostAsuraHomeEntry_entry__krBQY p { display: block; margin: 0; color: #cbb9b8; font-size: 13px !important; line-height: 1.7 !important; overflow: visible; -webkit-line-clamp: unset !important; }
+.GhostAsuraHomeEntry_entry__krBQY.GhostAsuraHomeEntry_entry__krBQY .GhostAsuraHomeEntry_impression__IPc5o { margin-top: 4px; color: #ddb6ad; font-size: 12px !important; }
+.GhostAsuraHomeEntry_meta__tJadb { display: flex; flex-wrap: wrap; gap: 6px; }
+.GhostAsuraHomeEntry_meta__tJadb > span { padding: 2px 9px; border: 1px solid #73505a; border-radius: 99px; font-size: 11px; color: #d8bcb1; }
+.GhostAsuraHomeEntry_entry__krBQY.GhostAsuraHomeEntry_entry__krBQY .GhostAsuraHomeEntry_cta__s9oNz {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  width: 100%;
+  padding: 10px 16px;
+  border: 1px solid #976a67;
+  border-radius: 12px;
+  background: #37222b;
+  color: #f1d0b7;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.GhostAsuraHomeEntry_entry__krBQY.GhostAsuraHomeEntry_entry__krBQY:focus-visible { outline: 2px solid #e5bd91; outline-offset: 4px; }
+@media (hover: hover) {
+  .GhostAsuraHomeEntry_entry__krBQY.GhostAsuraHomeEntry_entry__krBQY:hover { border-color: #e5bd91; }
+  .GhostAsuraHomeEntry_entry__krBQY.GhostAsuraHomeEntry_entry__krBQY:hover .GhostAsuraHomeEntry_cta__s9oNz { background: #4a2d35; }
+}
+.GhostAsuraHomeEntry_impressionGrid__DhJqS {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.GhostAsuraHomeEntry_gridLabel__7A7Rp {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: #d3b29c;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.GhostAsuraHomeEntry_gridContainer__sFCCr {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.GhostAsuraHomeEntry_gridItem__pAm2F {
+  all: unset;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 8px;
+  min-height: 60px;
+  border: 1px solid #73505a;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #2a1820, #1a0f18);
+  cursor: pointer;
+  transition: all 200ms ease;
+  perspective: 1000px;
+  position: relative;
+  overflow: hidden;
+}
+
+.GhostAsuraHomeEntry_gridItem__pAm2F::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(229, 189, 145, 0.2), transparent 70%);
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+.GhostAsuraHomeEntry_gridItem__pAm2F:hover {
+  border-color: #a27670;
+  background: linear-gradient(145deg, #3a2830, #2a1a28);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(162, 118, 112, 0.2);
+}
+
+.GhostAsuraHomeEntry_gridItem__pAm2F:hover::before {
+  opacity: 1;
+}
+
+.GhostAsuraHomeEntry_gridItem__pAm2F:focus-visible {
+  outline: 2px solid #e5bd91;
+  outline-offset: 2px;
+}
+
+.GhostAsuraHomeEntry_gridSymbol__Lv_vs {
+  display: block;
+  font-size: 20px;
+  line-height: 1;
+  margin-bottom: 2px;
+  transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center;
+  animation: GhostAsuraHomeEntry_symbolFloat__d8gA2 2s ease-in-out infinite;
+}
+
+@keyframes GhostAsuraHomeEntry_symbolFloat__d8gA2 {
+  0%, 100% {
+    transform: translateZ(0) translateY(0) scale(1);
+    will-change: transform;
+  }
+  50% {
+    transform: translateZ(0) translateY(-2px) scale(1.05);
+  }
+}
+
+.GhostAsuraHomeEntry_gridItem__pAm2F:hover .GhostAsuraHomeEntry_gridSymbol__Lv_vs {
+  animation: GhostAsuraHomeEntry_symbolGlow__aIehc 400ms ease;
+  filter: drop-shadow(0 0 6px rgba(229, 189, 145, 0.6));
+}
+
+@keyframes GhostAsuraHomeEntry_symbolGlow__aIehc {
+  0% {
+    transform: translateZ(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateZ(0) scale(1.15) rotate(10deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateZ(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@supports (filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0))) {
+  .GhostAsuraHomeEntry_gridSymbol__Lv_vs {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+
+  .GhostAsuraHomeEntry_gridItem__pAm2F:hover .GhostAsuraHomeEntry_gridSymbol__Lv_vs {
+    filter: drop-shadow(0 0 6px rgba(229, 189, 145, 0.6));
+  }
+
+  .GhostAsuraHomeEntry_gridItem__pAm2F.GhostAsuraHomeEntry_active__gm2gp .GhostAsuraHomeEntry_gridSymbol__Lv_vs {
+    filter: drop-shadow(0 0 8px rgba(229, 189, 145, 0.8));
+  }
+}
+
+.GhostAsuraHomeEntry_gridItem__pAm2F.GhostAsuraHomeEntry_active__gm2gp {
+  border-color: #e5bd91;
+  background: linear-gradient(145deg, #4b3338, #3a2530);
+  box-shadow: 0 0 12px #e5bd9133;
+  transform: translateY(-2px);
+}
+
+.GhostAsuraHomeEntry_gridItem__pAm2F.GhostAsuraHomeEntry_active__gm2gp .GhostAsuraHomeEntry_gridSymbol__Lv_vs {
+  animation: GhostAsuraHomeEntry_symbolGlow__aIehc 400ms ease;
+  filter: drop-shadow(0 0 8px rgba(229, 189, 145, 0.8));
+}
+
+.GhostAsuraHomeEntry_gridItem__pAm2F.GhostAsuraHomeEntry_clicked__91j80 {
+  animation: GhostAsuraHomeEntry_impressionPulse__j_wrF 400ms ease-out;
+}
+
+@keyframes GhostAsuraHomeEntry_impressionPulse__j_wrF {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 12px #e5bd9133;
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 20px #e5bd91cc;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 12px #e5bd9133;
+  }
+}
+
+.GhostAsuraHomeEntry_gridTitle__EYJcA {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #f1cba9;
+  line-height: 1.2;
+}
+
+.GhostAsuraHomeEntry_gridStatus__Njm9o {
+  display: block;
+  font-size: 9px;
+  color: #d8bcb1;
+  opacity: 0.7;
+  line-height: 1.2;
+}
+
+.GhostAsuraHomeEntry_descriptionBox__jvnMr {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(61, 30, 41, 0.6);
+  border: 1px solid #73505a;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  /* 分離動畫屬性以優化性能 */
+  transition: opacity 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              max-height 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              border-color 300ms ease;
+  will-change: opacity, max-height;
+  contain: layout;
+}
+
+.GhostAsuraHomeEntry_descriptionBox__jvnMr.GhostAsuraHomeEntry_show__AzduJ {
+  max-height: 320px;
+  opacity: 1;
+  padding: 12px 14px;
+  border-color: #a27670;
+  background: rgba(61, 30, 41, 0.9);
+  overflow-y: auto;
+}
+
+.GhostAsuraHomeEntry_descriptionTitle__K4b1i {
+  display: block;
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #f1cba9;
+  line-height: 1.4;
+}
+
+.GhostAsuraHomeEntry_descriptionText__kBXEf {
+  display: block;
+  margin: 0;
+  font-size: 12px;
+  color: #cbb9b8;
+  line-height: 1.6;
+  opacity: 0.95;
+}
+
+.GhostAsuraHomeEntry_descriptionHeader___BGZO {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.GhostAsuraHomeEntry_statusBadge__QSvWO {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+}
+
+.GhostAsuraHomeEntry_statusBadge__QSvWO.GhostAsuraHomeEntry_awakened__rpK_G {
+  background: linear-gradient(135deg, rgba(255, 184, 130, 0.25), rgba(255, 140, 90, 0.15));
+  color: #ffb882;
+  border: 1px solid rgba(255, 184, 130, 0.4);
+}
+
+.GhostAsuraHomeEntry_statusBadge__QSvWO.GhostAsuraHomeEntry_dormant__hlCEV {
+  background: linear-gradient(135deg, rgba(150, 130, 150, 0.25), rgba(120, 100, 120, 0.15));
+  color: #b8a8c8;
+  border: 1px solid rgba(150, 130, 150, 0.4);
+}
+
+.GhostAsuraHomeEntry_featurePreview__tpwMu {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0;
+  justify-content: space-around;
+}
+
+.GhostAsuraHomeEntry_featureItem___PePw {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(90, 50, 70, 0.4);
+  border: 1px solid rgba(162, 118, 112, 0.3);
+  cursor: default;
+  transition: all 200ms ease;
+}
+
+.GhostAsuraHomeEntry_featureItem___PePw:hover {
+  background: rgba(90, 50, 70, 0.6);
+  border-color: rgba(162, 118, 112, 0.5);
+}
+
+.GhostAsuraHomeEntry_featureIcon__rv44I {
+  display: block;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.GhostAsuraHomeEntry_featureLabel__AV7nq {
+  display: block;
+  font-size: 10px;
+  color: #d3b29c;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.GhostAsuraHomeEntry_learnMoreBtn__uVC8N {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px 12px;
+  border: 1px solid #a27670;
+  border-radius: 8px;
+  background: linear-gradient(145deg, rgba(58, 28, 40, 0.8), rgba(45, 20, 35, 0.9));
+  color: #f1cba9;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.GhostAsuraHomeEntry_learnMoreBtn__uVC8N:hover {
+  border-color: #e5bd91;
+  background: linear-gradient(145deg, rgba(75, 35, 55, 0.9), rgba(58, 28, 40, 1));
+  box-shadow: 0 0 12px rgba(229, 189, 145, 0.2);
+}
+
+.GhostAsuraHomeEntry_learnMoreBtn__uVC8N:active {
+  transform: scale(0.98);
+}
+
+@media (prefers-contrast: more) {
+  .GhostAsuraHomeEntry_gridItem__pAm2F {
+    border-color: #b8a8c8;
+    color: #ffffff;
+  }
+
+  .GhostAsuraHomeEntry_gridItem__pAm2F.GhostAsuraHomeEntry_active__gm2gp {
+    border-color: #ffb882;
+    box-shadow: 0 0 12px #ffb88266;
+  }
+
+  .GhostAsuraHomeEntry_statusBadge__QSvWO.GhostAsuraHomeEntry_awakened__rpK_G {
+    color: #ffb882;
+    border: 1.5px solid #ffb882;
+  }
+
+  .GhostAsuraHomeEntry_statusBadge__QSvWO.GhostAsuraHomeEntry_dormant__hlCEV {
+    color: #b8a8c8;
+    border: 1.5px solid #b8a8c8;
+  }
+
+  .GhostAsuraHomeEntry_gridTitle__EYJcA {
+    color: #ffffff;
+  }
+
+  .GhostAsuraHomeEntry_gridStatus__Njm9o {
+    color: #e0d0e0;
+  }
+
+  .GhostAsuraHomeEntry_descriptionTitle__K4b1i {
+    color: #ffffff;
+  }
+
+  .GhostAsuraHomeEntry_learnMoreBtn__uVC8N {
+    border-color: #ffb882;
+    color: #ffffff;
+  }
+
+  .GhostAsuraHomeEntry_learnMoreBtn__uVC8N:hover {
+    border-color: #ffb882;
+    box-shadow: 0 0 12px #ffb88266;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .GhostAsuraHomeEntry_gridSymbol__Lv_vs {
+    animation: none;
+  }
+
+  .GhostAsuraHomeEntry_gridItem__pAm2F {
+    transition: none;
+  }
+
+  .GhostAsuraHomeEntry_gridItem__pAm2F:hover::before {
+    opacity: 1;
+    transition: none;
+  }
+
+  .GhostAsuraHomeEntry_descriptionBox__jvnMr {
+    transition: opacity 0ms ease;
+  }
+
+  .GhostAsuraHomeEntry_gridItem__pAm2F.GhostAsuraHomeEntry_clicked__91j80 {
+    animation: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .GhostAsuraHomeEntry_entry__krBQY.GhostAsuraHomeEntry_entry__krBQY { padding: 16px !important; gap: 12px !important; }
+  .GhostAsuraHomeEntry_content__RUK2r { align-items: flex-start; gap: 14px; }
+  .GhostAsuraHomeEntry_emblem__V2vPx { width: 48px; height: 48px; border-radius: 13px; font-size: 24px; }
+  .GhostAsuraHomeEntry_entry__krBQY.GhostAsuraHomeEntry_entry__krBQY h2 { font-size: 30px !important; line-height: 1.3 !important; }
+
+  .GhostAsuraHomeEntry_gridContainer__sFCCr {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+  }
+
+  .GhostAsuraHomeEntry_gridItem__pAm2F {
+    padding: 8px 6px;
+    min-height: 54px;
+  }
+
+  .GhostAsuraHomeEntry_gridTitle__EYJcA {
+    font-size: 11px;
+  }
+
+  .GhostAsuraHomeEntry_gridStatus__Njm9o {
+    font-size: 8px;
+  }
+}
+
+/*!*********************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./components/AsuraBrandTitle.module.css ***!
+  \*********************************************************************************************************************************************************************************************************************************************************************************/
+/* Local, licensed five-glyph subset; never applied to body copy or form fields. */
+@font-face {
+  font-family: 'Asura Brand Brush';
+  src: url('/fonts/asura-brand/yuji-boku-brand.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+4FEE, U+7F85, U+963F, U+9B3C, U+9B45;
+}
+.AsuraBrandTitle_brush__R7sqs.AsuraBrandTitle_brush__R7sqs {
+  font-family: 'Asura Brand Brush', serif;
+  font-weight: 400;
+  font-synthesis: none;
+  color: #f2c998;
+  letter-spacing: .055em;
+  text-shadow: 0 2px 0 #491c27, 0 5px 12px #0005;
+  -webkit-text-stroke: .25px currentColor;
+}
+

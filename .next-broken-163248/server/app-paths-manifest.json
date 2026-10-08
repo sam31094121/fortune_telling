@@ -1,0 +1,5 @@
+{
+  "/api/home-trust/route": "app/api/home-trust/route.js",
+  "/ghost-asura/skill/page": "app/ghost-asura/skill/page.js",
+  "/page": "app/page.js"
+}

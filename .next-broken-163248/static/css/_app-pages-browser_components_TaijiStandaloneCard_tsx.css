@@ -1,0 +1,933 @@
+/*!***************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./components/taiji/TaijiCoreVisual.module.css ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************************/
+.TaijiCoreVisual_svg__UpNcv {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+  aspect-ratio: 1 / 1;
+  -o-object-fit: contain;
+     object-fit: contain;
+  contain: paint;
+  transform-origin: center;
+}
+
+.TaijiCoreVisual_auraRings__KP3su,
+.TaijiCoreVisual_elementOrbit__ZkYYB,
+.TaijiCoreVisual_fishOrbit__sAFUu,
+.TaijiCoreVisual_fish__klg2L,
+.TaijiCoreVisual_fourSymbolItem__9PQEe,
+.TaijiCoreVisual_baguaItem__Apa3b {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.TaijiCoreVisual_auraRings__KP3su {
+  opacity: 0.64;
+  pointer-events: none;
+}
+
+.TaijiCoreVisual_outerHalo__vwYjb,
+.TaijiCoreVisual_middleHalo__cadLZ,
+.TaijiCoreVisual_innerOrbit__k9D3V,
+.TaijiCoreVisual_outerRing__9C9tB {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.TaijiCoreVisual_outerHalo__vwYjb {
+  stroke: rgba(34, 211, 238, 0.16);
+  stroke-width: 1;
+  stroke-dasharray: 2 12;
+}
+
+.TaijiCoreVisual_middleHalo__cadLZ {
+  stroke: rgba(253, 230, 138, 0.2);
+  stroke-width: 1.2;
+  stroke-dasharray: 36 18;
+}
+
+.TaijiCoreVisual_innerOrbit__k9D3V {
+  stroke: rgba(255, 255, 255, 0.22);
+  stroke-width: 1;
+}
+
+.TaijiCoreVisual_outerRing__9C9tB {
+  stroke: url(#tdhTaijiRingGradient);
+  stroke-width: 3;
+  opacity: 0.98;
+}
+
+.TaijiCoreVisual_elementOrbit__ZkYYB {
+  opacity: 0;
+  transition: opacity 520ms ease;
+  pointer-events: none;
+}
+
+.TaijiCoreVisual_elementOrbitVisible__qruBf {
+  opacity: 1;
+}
+
+.TaijiCoreVisual_elementGem___XN93 {
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 440ms ease, transform 520ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.TaijiCoreVisual_elementOrbitVisible__qruBf .TaijiCoreVisual_elementGem___XN93 {
+  opacity: 0.92;
+  transform: scale(1);
+}
+
+.TaijiCoreVisual_elementGem___XN93 circle:first-child {
+  fill: currentColor;
+  opacity: 0.28;
+  stroke: rgba(255, 255, 255, 0.48);
+  stroke-width: 1.1;
+  vector-effect: non-scaling-stroke;
+}
+
+.TaijiCoreVisual_elementGemCore__cwbZk {
+  fill: #fff;
+  opacity: 0.86;
+}
+
+.TaijiCoreVisual_elementGemHighlight__oF2It {
+  opacity: 1;
+  filter: drop-shadow(0 0 7px currentColor);
+}
+
+.TaijiCoreVisual_gemSpace__Q9N4_ { color: #d8b4fe; }
+.TaijiCoreVisual_gemFire__P7Cch { color: #fb7185; }
+.TaijiCoreVisual_gemAir__zL8Au { color: #67e8f9; }
+.TaijiCoreVisual_gemWater__dBA5r { color: #60a5fa; }
+.TaijiCoreVisual_gemEarth__AIgDI { color: #facc15; }
+
+
+/* Three-layer proportion contract: core, five-star orbit, outer field never fight. */
+.TaijiCoreVisual_stageIdle__VEg5p .TaijiCoreVisual_auraRings__KP3su,
+.TaijiCoreVisual_stageTaiji__FVFwi .TaijiCoreVisual_auraRings__KP3su {
+  opacity: 0.38;
+}
+
+.TaijiCoreVisual_stageIdle__VEg5p .TaijiCoreVisual_elementOrbit__ZkYYB,
+.TaijiCoreVisual_stageTaiji__FVFwi .TaijiCoreVisual_elementOrbit__ZkYYB,
+.TaijiCoreVisual_stageLiangyi__Imser .TaijiCoreVisual_fourSymbols__92sB1,
+.TaijiCoreVisual_stageLiangyi__Imser .TaijiCoreVisual_baguaGroup__0i27p,
+.TaijiCoreVisual_stageSixiang__iHrqX .TaijiCoreVisual_baguaGroup__0i27p {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.TaijiCoreVisual_stageTaiji__FVFwi .TaijiCoreVisual_fishOrbit__sAFUu,
+.TaijiCoreVisual_stageIdle__VEg5p .TaijiCoreVisual_fishOrbit__sAFUu {
+  animation: none;
+}
+
+.TaijiCoreVisual_stageLiangyi__Imser .TaijiCoreVisual_auraRings__KP3su {
+  opacity: 0.46;
+}
+
+.TaijiCoreVisual_stageLiangyi__Imser .TaijiCoreVisual_elementOrbitVisible__qruBf .TaijiCoreVisual_elementGem___XN93 {
+  opacity: 0.96;
+  transform: scale(1);
+}
+
+.TaijiCoreVisual_stageSixiang__iHrqX .TaijiCoreVisual_auraRings__KP3su {
+  opacity: 0.58;
+}
+
+.TaijiCoreVisual_stageSixiang__iHrqX .TaijiCoreVisual_elementOrbitVisible__qruBf .TaijiCoreVisual_elementGem___XN93 {
+  opacity: 0.62;
+  transform: scale(0.84);
+}
+
+.TaijiCoreVisual_stageSixiang__iHrqX .TaijiCoreVisual_fourSymbolsVisible__Hdnlp .TaijiCoreVisual_fourSymbolItem__9PQEe {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.TaijiCoreVisual_stageSixiang__iHrqX .TaijiCoreVisual_fish__klg2L {
+  opacity: 1;
+}
+
+.TaijiCoreVisual_stageBagua__B9ktb .TaijiCoreVisual_auraRings__KP3su {
+  opacity: 0.74;
+}
+
+.TaijiCoreVisual_stageBagua__B9ktb .TaijiCoreVisual_elementOrbitVisible__qruBf .TaijiCoreVisual_elementGem___XN93 {
+  opacity: 0.46;
+  transform: scale(0.72);
+}
+
+.TaijiCoreVisual_stageBagua__B9ktb .TaijiCoreVisual_fourSymbolsVisible__Hdnlp .TaijiCoreVisual_fourSymbolItem__9PQEe {
+  opacity: 0.72;
+  transform: scale(0.82);
+}
+
+.TaijiCoreVisual_stageBagua__B9ktb .TaijiCoreVisual_baguaGroupVisible__MZeiO .TaijiCoreVisual_baguaItem__Apa3b {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.TaijiCoreVisual_stageBagua__B9ktb .TaijiCoreVisual_fish__klg2L {
+  opacity: 1;
+}
+.TaijiCoreVisual_fishOrbit__sAFUu {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+
+.TaijiCoreVisual_svg__UpNcv.TaijiCoreVisual_active__p5Ok6 .TaijiCoreVisual_fishOrbit__sAFUu {
+  will-change: transform;
+}
+
+.TaijiCoreVisual_fish__klg2L {
+  transition: transform 980ms cubic-bezier(0.22, 0.82, 0.24, 1), opacity 420ms ease;
+}
+
+.TaijiCoreVisual_fishBody__rIpdk,
+.TaijiCoreVisual_fishEdgeDark__CAqod,
+.TaijiCoreVisual_fishEdgeLight__EiEiS {
+  vector-effect: non-scaling-stroke;
+}
+
+.TaijiCoreVisual_fishEdgeDark__CAqod,
+.TaijiCoreVisual_fishEdgeLight__EiEiS {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.TaijiCoreVisual_fishEdgeDark__CAqod {
+  stroke: rgba(230, 236, 248, 0.42);
+}
+
+.TaijiCoreVisual_fishEdgeLight__EiEiS {
+  stroke: rgba(43, 28, 10, 0.4);
+}
+
+.TaijiCoreVisual_yinFish__OX0Nl {
+  transform: translateX(0) scale(1);
+}
+
+.TaijiCoreVisual_yangFish__OEGli {
+  transform: translateX(0) scale(1);
+}
+
+.TaijiCoreVisual_yinFish__OX0Nl .TaijiCoreVisual_fishBody__rIpdk {
+  fill: #050505 !important;
+}
+
+.TaijiCoreVisual_yangFish__OEGli .TaijiCoreVisual_fishBody__rIpdk {
+  fill: #ffffff !important;
+}
+
+.TaijiCoreVisual_taijiDotLight__x_IcO,
+.TaijiCoreVisual_taijiDotDark__Mo7YZ,
+.TaijiCoreVisual_eyeGlintOnLightDot__g3q7R,
+.TaijiCoreVisual_eyeGlintOnDarkDot__s_zNR {
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  filter: none;
+}
+
+/* 白眼（黑魚中的白點）：深色描邊 + 落影，做出立體珠眼的浮起感 */
+.TaijiCoreVisual_taijiDotLight__x_IcO {
+  display: inline !important;
+  opacity: 1 !important;
+  fill: #ffffff !important;
+  stroke: rgba(2, 6, 23, 0.7);
+  filter: drop-shadow(0 2px 3px rgba(2, 6, 23, 0.55));
+}
+
+/* 黑眼（白魚中的黑點）：淺色描邊 + 落影，亮面上輪廓清楚且有立體感 */
+.TaijiCoreVisual_taijiDotDark__Mo7YZ {
+  display: inline !important;
+  opacity: 1 !important;
+  fill: #000000 !important;
+  stroke: rgba(255, 255, 255, 0.7);
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
+}
+
+.TaijiCoreVisual_eyeGlintOnLightDot__g3q7R,
+.TaijiCoreVisual_eyeGlintOnDarkDot__s_zNR {
+  display: inline !important;
+  opacity: 1 !important;
+  fill: rgba(255, 255, 255, 0.86);
+  stroke: rgba(255, 255, 255, 0.22);
+  pointer-events: none;
+}
+
+.TaijiCoreVisual_eyeGlintOnDarkDot__s_zNR {
+  fill: rgba(255, 255, 255, 0.72);
+  stroke: rgba(255, 255, 255, 0.18);
+}
+
+.TaijiCoreVisual_fourSymbols__92sB1 {
+  opacity: 0;
+  transition: opacity 500ms ease;
+  pointer-events: none;
+}
+
+.TaijiCoreVisual_fourSymbolsVisible__Hdnlp {
+  opacity: 1;
+}
+
+.TaijiCoreVisual_fourSymbolItem__9PQEe {
+  opacity: 0;
+  transform: scale(0.62);
+  transition: opacity 420ms ease, transform 460ms cubic-bezier(0.34, 1.32, 0.64, 1);
+}
+
+.TaijiCoreVisual_fourSymbolsVisible__Hdnlp .TaijiCoreVisual_fourSymbolItem__9PQEe {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.TaijiCoreVisual_symbolCircle__a9rUE {
+  fill: rgba(5, 10, 22, 0.72);
+  stroke: rgba(103, 232, 249, 0.36);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.TaijiCoreVisual_fourSymbolMark___J8jo rect,
+.TaijiCoreVisual_trigramLines__UJ5Np rect {
+  fill: rgba(253, 230, 138, 0.9);
+  filter: none;
+}
+
+.TaijiCoreVisual_baguaGroup__0i27p {
+  opacity: 0;
+  transition: opacity 520ms ease;
+  pointer-events: none;
+}
+
+.TaijiCoreVisual_baguaGroupVisible__MZeiO {
+  opacity: 1;
+}
+
+.TaijiCoreVisual_baguaItem__Apa3b {
+  opacity: 0;
+  transform: scale(0.68);
+  transition: opacity 420ms ease, transform 460ms cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+.TaijiCoreVisual_baguaGroupVisible__MZeiO .TaijiCoreVisual_baguaItem__Apa3b {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.TaijiCoreVisual_baguaCircle__e2aoA {
+  fill: rgba(3, 7, 18, 0.72);
+  stroke: rgba(253, 230, 138, 0.42);
+  stroke-width: 1.1;
+  vector-effect: non-scaling-stroke;
+}
+
+.TaijiCoreVisual_baguaItemHighlight__ADr_d .TaijiCoreVisual_baguaCircle__e2aoA {
+  stroke: rgba(251, 113, 133, 0.82);
+  stroke-width: 1.8;
+  animation: TaijiCoreVisual_taijiBaguaPulse__sLb2H 1800ms ease-in-out infinite;
+}
+
+@keyframes TaijiCoreVisual_taijiFishOrbit__1I4_T {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes TaijiCoreVisual_taijiBaguaPulse__sLb2H {
+  0%, 100% { opacity: 0.72; }
+  50% { opacity: 1; }
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+  .TaijiCoreVisual_elementGemHighlight__oF2It,
+  .TaijiCoreVisual_baguaItemHighlight__ADr_d .TaijiCoreVisual_baguaCircle__e2aoA {
+    filter: none;
+  }
+
+  .TaijiCoreVisual_surfaceShade__hsE5e {
+    opacity: 0.12;
+    mix-blend-mode: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .TaijiCoreVisual_fishOrbit__sAFUu,
+  .TaijiCoreVisual_baguaItemHighlight__ADr_d .TaijiCoreVisual_baguaCircle__e2aoA {
+    animation: none;
+  }
+}
+
+/*!**********************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./components/UnifiedTaijiCore.module.css ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************/
+.UnifiedTaijiCore_scene__Rd4zP {
+  --taiji-step: 1;
+  --taiji-progress: 0.0417;
+  position: relative;
+  display: grid;
+  width: min(24rem, 100%);
+  min-height: min(24rem, calc(100vw - 2rem));
+  place-items: center;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 24px;
+  /* 健康醒目版：深邃宇宙底 + 明亮光源，讓黑白太極高對比跳出來（不再灰白泛白） */
+  background:
+    radial-gradient(circle at 28% 16%, rgba(255, 255, 255, 0.3), transparent 22%),
+    radial-gradient(circle at 52% 34%, rgba(255, 247, 205, 0.26), transparent 38%),
+    radial-gradient(circle at 78% 82%, rgba(34, 211, 238, 0.18), transparent 46%),
+    linear-gradient(150deg, #1b2450 0%, #131a3d 38%, #0a0f26 72%, #060a1a 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    inset 0 -32px 62px rgba(14, 116, 144, 0.22),
+    inset 0 22px 48px rgba(255, 247, 205, 0.1),
+    0 22px 54px rgba(2, 6, 23, 0.55);
+  contain: layout paint;
+  perspective: 1300px;
+  transform-style: preserve-3d;
+}
+
+.UnifiedTaijiCore_spaceField__7sChW,
+.UnifiedTaijiCore_spaceField__7sChW span,
+.UnifiedTaijiCore_universe__5vFt4,
+.UnifiedTaijiCore_elementSystem__mJfb8,
+.UnifiedTaijiCore_elementOrbit__ydvaa,
+.UnifiedTaijiCore_fourSymbolRing__6GS0_,
+.UnifiedTaijiCore_baguaRing__8nbJM,
+.UnifiedTaijiCore_taijiButton__BXLpV,
+.UnifiedTaijiCore_taijiHalo__ZIaAp,
+.UnifiedTaijiCore_coreShell__tDcnM,
+.UnifiedTaijiCore_touchRipple__P4xAA,
+.UnifiedTaijiCore_finalUnlock__BBrzV {
+  position: absolute;
+  pointer-events: none;
+}
+
+.UnifiedTaijiCore_spaceField__7sChW {
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.UnifiedTaijiCore_sunField__e72a_ {
+  inset: -24% -22% auto auto;
+  width: 72%;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.9) 0 4%, rgba(255, 247, 205, 0.48) 6% 20%, rgba(125, 211, 252, 0.2) 28%, transparent 64%);
+  filter: blur(1px);
+  opacity: 0.82;
+}
+
+.UnifiedTaijiCore_depthOne__p2oR5 {
+  inset: 9% 7% 12%;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 45%, transparent 0 28%, rgba(255, 247, 205, 0.22) 29% 30%, transparent 38%),
+    repeating-radial-gradient(ellipse at 50% 70%, rgba(8, 145, 178, 0.18) 0 1px, transparent 2px 22px);
+  transform: rotateX(66deg) translateY(18%) translateZ(-170px);
+  opacity: 0.74;
+}
+
+.UnifiedTaijiCore_depthTwo__OMjn8 {
+  inset: 56% 0 1%;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.24), rgba(255, 247, 205, 0.18), transparent),
+    repeating-linear-gradient(90deg, transparent 0 17px, rgba(8, 145, 178, 0.2) 18px 19px),
+    radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.28), transparent 54%);
+  transform: rotateX(72deg) translateZ(-210px) scaleX(1.28);
+  opacity: 0.82;
+}
+
+.UnifiedTaijiCore_particles__yo5_L {
+  inset: 0;
+  opacity: 0.55;
+  background:
+    radial-gradient(circle at 15% 22%, rgba(255, 255, 255, 0.72) 0 1px, transparent 2px),
+    radial-gradient(circle at 76% 18%, rgba(255, 247, 205, 0.66) 0 1px, transparent 2px),
+    radial-gradient(circle at 85% 54%, rgba(34, 211, 238, 0.62) 0 1px, transparent 2px),
+    radial-gradient(circle at 19% 72%, rgba(187, 247, 208, 0.58) 0 1px, transparent 2px),
+    radial-gradient(circle at 48% 86%, rgba(255, 255, 255, 0.58) 0 1px, transparent 2px);
+  animation: UnifiedTaijiCore_particlesFloat__fPAFV 8s ease-in-out infinite;
+}
+
+.UnifiedTaijiCore_universe__5vFt4 {
+  inset: 7%;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  transform-style: preserve-3d;
+}
+
+.UnifiedTaijiCore_elementSystem__mJfb8 {
+  inset: 0;
+  z-index: 3;
+  transform-style: preserve-3d;
+}
+
+.UnifiedTaijiCore_elementOrbit__ydvaa {
+  left: 50%;
+  top: 50%;
+  border: 1px solid rgba(8, 145, 178, 0.17);
+  border-radius: 999px;
+  transform-style: preserve-3d;
+  transform-origin: center;
+  animation: UnifiedTaijiCore_elementOrbit__ydvaa var(--element-duration) linear infinite;
+  animation-delay: var(--element-delay);
+}
+
+.UnifiedTaijiCore_orbit1__Iibtr {
+  width: 61%;
+  height: 61%;
+}
+
+.UnifiedTaijiCore_orbit2__ZCZyR {
+  width: 68%;
+  height: 68%;
+}
+
+.UnifiedTaijiCore_orbit3__Pl6l0 {
+  width: 75%;
+  height: 75%;
+}
+
+.UnifiedTaijiCore_orbit4__1W3Pb {
+  width: 82%;
+  height: 82%;
+}
+
+.UnifiedTaijiCore_orbit5__FslGS {
+  width: 89%;
+  height: 89%;
+}
+
+.UnifiedTaijiCore_elementPlanet__dL9Yf {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  width: clamp(1.2rem, 4.4vw, 1.55rem);
+  height: clamp(1.2rem, 4.4vw, 1.55rem);
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  color: #0f172a;
+  font-size: clamp(0.68rem, 2.1vw, 0.78rem);
+  font-weight: 800;
+  line-height: 1;
+  box-shadow:
+    inset 4px 4px 7px rgba(255, 255, 255, 0.62),
+    inset -6px -7px 10px rgba(15, 23, 42, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.2),
+    0 10px 18px rgba(15, 23, 42, 0.22),
+    0 0 22px currentColor;
+  transform:
+    rotate(var(--element-angle))
+    translateX(var(--orbit-radius, 1px))
+    rotate(var(--element-counter-angle))
+    translate(-50%, -50%)
+    translateZ(44px);
+}
+
+.UnifiedTaijiCore_elementPlanet__dL9Yf span {
+  transform: translateY(-0.02em);
+}
+
+.UnifiedTaijiCore_orbit1__Iibtr .UnifiedTaijiCore_elementPlanet__dL9Yf { --orbit-radius: clamp(5.2rem, 25vw, 6.55rem); }
+.UnifiedTaijiCore_orbit2__ZCZyR .UnifiedTaijiCore_elementPlanet__dL9Yf { --orbit-radius: clamp(5.9rem, 28vw, 7.3rem); }
+.UnifiedTaijiCore_orbit3__Pl6l0 .UnifiedTaijiCore_elementPlanet__dL9Yf { --orbit-radius: clamp(6.55rem, 31vw, 8.05rem); }
+.UnifiedTaijiCore_orbit4__1W3Pb .UnifiedTaijiCore_elementPlanet__dL9Yf { --orbit-radius: clamp(7.2rem, 34vw, 8.85rem); }
+.UnifiedTaijiCore_orbit5__FslGS .UnifiedTaijiCore_elementPlanet__dL9Yf { --orbit-radius: clamp(7.85rem, 37vw, 9.6rem); }
+
+.UnifiedTaijiCore_wood__xDQZ4 {
+  color: rgba(34, 197, 94, 0.78);
+  background:
+    radial-gradient(circle at 30% 24%, #ffffff 0 14%, transparent 29%),
+    radial-gradient(circle, #bbf7d0 0 48%, #16a34a 92%);
+}
+
+.UnifiedTaijiCore_fire__C4Dqf {
+  color: rgba(249, 115, 22, 0.78);
+  background:
+    radial-gradient(circle at 30% 24%, #ffffff 0 14%, transparent 29%),
+    radial-gradient(circle, #fed7aa 0 45%, #f97316 92%);
+}
+
+.UnifiedTaijiCore_earth__XLRTS {
+  color: rgba(234, 179, 8, 0.8);
+  background:
+    radial-gradient(circle at 30% 24%, #ffffff 0 14%, transparent 29%),
+    radial-gradient(circle, #fef3c7 0 48%, #ca8a04 92%);
+}
+
+.UnifiedTaijiCore_metal__MAQ8d {
+  color: rgba(148, 163, 184, 0.88);
+  background:
+    radial-gradient(circle at 30% 24%, #ffffff 0 14%, transparent 29%),
+    radial-gradient(circle, #f8fafc 0 44%, #94a3b8 92%);
+}
+
+.UnifiedTaijiCore_water__KRl09 {
+  color: rgba(14, 165, 233, 0.78);
+  background:
+    radial-gradient(circle at 30% 24%, #ffffff 0 14%, transparent 29%),
+    radial-gradient(circle, #bae6fd 0 48%, #0284c7 92%);
+}
+
+.UnifiedTaijiCore_fourSymbolRing__6GS0_,
+.UnifiedTaijiCore_baguaRing__8nbJM {
+  left: 50%;
+  top: 50%;
+  z-index: 4;
+  width: 74%;
+  height: 74%;
+  margin: -37% 0 0 -37%;
+  border-radius: 999px;
+  opacity: 0;
+  transform: translateZ(70px) scale(0.92);
+  transition: opacity 420ms ease, transform 520ms cubic-bezier(0.22, 0.82, 0.24, 1);
+}
+
+.UnifiedTaijiCore_fourSymbolRing__6GS0_ span,
+.UnifiedTaijiCore_baguaRing__8nbJM span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  transform:
+    rotate(var(--ring-angle))
+    translateY(-50%)
+    translateY(-7.25rem)
+    rotate(var(--ring-counter-angle));
+}
+
+.UnifiedTaijiCore_fourSymbolRing__6GS0_ span {
+  width: 2.45rem;
+  height: 1.15rem;
+  margin: -0.58rem 0 0 -1.22rem;
+  background: rgba(255, 255, 255, 0.66);
+  color: #0f172a;
+  font-size: 0.68rem;
+  font-weight: 700;
+  box-shadow: 0 0 18px rgba(255, 247, 205, 0.3);
+}
+
+.UnifiedTaijiCore_baguaRing__8nbJM {
+  width: 88%;
+  height: 88%;
+  margin: -44% 0 0 -44%;
+  transform: translateZ(86px) scale(0.92);
+}
+
+.UnifiedTaijiCore_baguaRing__8nbJM span {
+  width: 1.9rem;
+  height: 1.9rem;
+  margin: -0.95rem 0 0 -0.95rem;
+  background: rgba(15, 23, 42, 0.54);
+  color: #fef9c3;
+  font-size: 1.08rem;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.26),
+    0 0 18px rgba(34, 211, 238, 0.22);
+}
+
+.UnifiedTaijiCore_sixiangOn__2Jal8 .UnifiedTaijiCore_fourSymbolRing__6GS0_,
+.UnifiedTaijiCore_baguaOn__Nwl1_ .UnifiedTaijiCore_baguaRing__8nbJM {
+  opacity: 1;
+  transform: translateZ(90px) scale(1);
+}
+
+.UnifiedTaijiCore_taijiButton__BXLpV {
+  left: 50%;
+  top: 50%;
+  z-index: 8;
+  display: grid;
+  width: clamp(9.4rem, 43vw, 12.2rem);
+  height: clamp(9.4rem, 43vw, 12.2rem);
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) translateZ(150px);
+  transform-style: preserve-3d;
+}
+
+.UnifiedTaijiCore_taijiButton__BXLpV:focus-visible {
+  outline: 3px solid rgba(14, 165, 233, 0.8);
+  outline-offset: 0.45rem;
+}
+
+.UnifiedTaijiCore_taijiButton__BXLpV:hover .UnifiedTaijiCore_coreShell__tDcnM {
+  transform: translateZ(34px) scale(1.035);
+}
+
+.UnifiedTaijiCore_taijiButton__BXLpV:active .UnifiedTaijiCore_coreShell__tDcnM {
+  transform: translateZ(30px) scale(0.985);
+}
+
+.UnifiedTaijiCore_taijiHalo__ZIaAp {
+  inset: -18%;
+  z-index: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle, rgba(255, 250, 225, 0.55), transparent 46%),
+    radial-gradient(circle, rgba(34, 211, 238, 0.26), transparent 64%);
+  opacity: calc(0.66 + var(--taiji-progress) * 0.3);
+  filter: blur(2px);
+  animation: UnifiedTaijiCore_haloBreathe__GYLeF 5.8s ease-in-out infinite;
+}
+
+.UnifiedTaijiCore_coreShell__tDcnM {
+  inset: 5%;
+  z-index: 1;
+  display: block;
+  border-radius: 999px;
+  filter:
+    drop-shadow(0 18px 30px rgba(2, 6, 23, 0.5))
+    drop-shadow(0 0 34px rgba(255, 250, 225, 0.55))
+    drop-shadow(0 0 60px rgba(34, 211, 238, 0.28));
+  transition: transform 240ms ease;
+  transform: translateZ(32px);
+  transform-style: preserve-3d;
+  animation: UnifiedTaijiCore_coreFloat__TI_Jd 7.4s ease-in-out infinite;
+}
+
+.UnifiedTaijiCore_coreVisual__5GCT7 {
+  width: 100%;
+  height: 100%;
+}
+
+.UnifiedTaijiCore_touchRipple__P4xAA {
+  inset: -8%;
+  z-index: 2;
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  border-radius: inherit;
+  box-shadow:
+    0 0 22px rgba(255, 247, 205, 0.42),
+    0 0 34px rgba(34, 211, 238, 0.28);
+  animation: UnifiedTaijiCore_touchRipple__P4xAA 620ms ease-out both;
+}
+
+.UnifiedTaijiCore_finalUnlock__BBrzV {
+  inset: -38%;
+  z-index: 3;
+  border-radius: inherit;
+  background:
+    conic-gradient(from 0deg, transparent 0 7%, rgba(255, 255, 255, 0.86) 8% 9%, transparent 10% 19%, rgba(255, 247, 205, 0.8) 20% 21%, transparent 22% 34%, rgba(34, 211, 238, 0.74) 35% 36%, transparent 37% 100%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.32), transparent 62%);
+  mix-blend-mode: screen;
+  animation: UnifiedTaijiCore_finalUnlock__BBrzV 1.35s ease-out both;
+}
+
+.UnifiedTaijiCore_caption__xsz_i {
+  position: absolute;
+  left: 50%;
+  bottom: 0.8rem;
+  z-index: 12;
+  display: flex;
+  max-width: calc(100% - 2rem);
+  translate: -50% 0;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  color: #0f172a;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.UnifiedTaijiCore_caption__xsz_i small {
+  font-size: 0.72rem;
+  font-weight: 700;
+  opacity: 0.74;
+}
+
+.UnifiedTaijiCore_stage1__4ukGC {}
+.UnifiedTaijiCore_stage2__TxEnN {}
+.UnifiedTaijiCore_stage3__SiPGB {}
+.UnifiedTaijiCore_stage4__K_SXV {}
+.UnifiedTaijiCore_stage5__C_wFk {}
+.UnifiedTaijiCore_stage6___J2nv {}
+.UnifiedTaijiCore_stage7__NZRKK {}
+.UnifiedTaijiCore_stage8__SB7ls {}
+.UnifiedTaijiCore_stage9__4JZs3 {}
+.UnifiedTaijiCore_stage10__GJWAl {}
+.UnifiedTaijiCore_stage11__1RZ75 {}
+.UnifiedTaijiCore_stage12__c9ghj {}
+.UnifiedTaijiCore_stage13__LWQYZ {}
+.UnifiedTaijiCore_stage14__FeaqP {}
+.UnifiedTaijiCore_stage15__zgObz {}
+.UnifiedTaijiCore_stage16__6KRIw {}
+.UnifiedTaijiCore_stage17__ICVuX {}
+.UnifiedTaijiCore_stage18__mp1GP {}
+.UnifiedTaijiCore_stage19__UygkH {}
+.UnifiedTaijiCore_stage20__8t_Cw {}
+.UnifiedTaijiCore_stage21__sZuBS {}
+.UnifiedTaijiCore_stage22__fpypb {}
+.UnifiedTaijiCore_stage23__o53tj {}
+.UnifiedTaijiCore_stage24__p3zn6 {}
+
+.UnifiedTaijiCore_liangyiOn__SjoCF .UnifiedTaijiCore_taijiHalo__ZIaAp {
+  opacity: calc(0.58 + var(--taiji-progress) * 0.28);
+}
+
+.UnifiedTaijiCore_finalOn__p5ncW {
+  background:
+    radial-gradient(circle at 28% 18%, rgba(255, 255, 255, 0.42), transparent 18%),
+    radial-gradient(circle at 50% 36%, rgba(255, 247, 205, 0.34), transparent 33%),
+    linear-gradient(145deg, rgba(248, 250, 252, 0.96), rgba(125, 211, 252, 0.38) 46%, rgba(234, 179, 8, 0.18));
+}
+
+@keyframes UnifiedTaijiCore_elementOrbit__ydvaa {
+  from { transform: translate(-50%, -50%) rotateX(18deg) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotateX(18deg) rotate(360deg); }
+}
+
+@keyframes UnifiedTaijiCore_particlesFloat__fPAFV {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.48; }
+  50% { transform: translate3d(0, -0.35rem, 0); opacity: 0.68; }
+}
+
+@keyframes UnifiedTaijiCore_haloBreathe__GYLeF {
+  0%, 100% { transform: scale(0.98); }
+  50% { transform: scale(1.04); }
+}
+
+@keyframes UnifiedTaijiCore_coreFloat__TI_Jd {
+  0%, 100% { transform: translateZ(32px) translateY(0); }
+  50% { transform: translateZ(40px) translateY(-0.24rem); }
+}
+
+@keyframes UnifiedTaijiCore_touchRipple__P4xAA {
+  from { opacity: 0.72; transform: scale(0.82); }
+  to { opacity: 0; transform: scale(1.32); }
+}
+
+@keyframes UnifiedTaijiCore_finalUnlock__BBrzV {
+  from { opacity: 0; transform: scale(0.62) rotate(0deg); }
+  26% { opacity: 0.94; }
+  to { opacity: 0; transform: scale(1.3) rotate(48deg); }
+}
+
+@media (max-width: 640px) {
+  .UnifiedTaijiCore_scene__Rd4zP {
+    width: min(21.5rem, 100%);
+    min-height: min(21.5rem, calc(100vw - 1.5rem));
+    border-radius: 20px;
+  }
+
+  .UnifiedTaijiCore_sunField__e72a_ {
+    inset: -16% 2% auto auto;
+    width: 48%;
+  }
+
+  .UnifiedTaijiCore_depthOne__p2oR5 {
+    inset: 10% 8% 13%;
+  }
+
+  .UnifiedTaijiCore_depthTwo__OMjn8 {
+    inset: 58% 4% 3%;
+    transform: rotateX(72deg) translateZ(-170px) scaleX(1.08);
+  }
+
+  /* 手機版：太極放大更醒目，避免小而灰、看不清楚 */
+  .UnifiedTaijiCore_taijiButton__BXLpV {
+    width: clamp(9.5rem, 52vw, 11.5rem);
+    height: clamp(9.5rem, 52vw, 11.5rem);
+  }
+
+  .UnifiedTaijiCore_orbit1__Iibtr .UnifiedTaijiCore_elementPlanet__dL9Yf { --orbit-radius: clamp(4.25rem, 25vw, 5.35rem); }
+  .UnifiedTaijiCore_orbit2__ZCZyR .UnifiedTaijiCore_elementPlanet__dL9Yf { --orbit-radius: clamp(4.8rem, 28vw, 5.9rem); }
+  .UnifiedTaijiCore_orbit3__Pl6l0 .UnifiedTaijiCore_elementPlanet__dL9Yf { --orbit-radius: clamp(5.35rem, 31vw, 6.45rem); }
+  .UnifiedTaijiCore_orbit4__1W3Pb .UnifiedTaijiCore_elementPlanet__dL9Yf { --orbit-radius: clamp(5.85rem, 34vw, 7rem); }
+  .UnifiedTaijiCore_orbit5__FslGS .UnifiedTaijiCore_elementPlanet__dL9Yf { --orbit-radius: clamp(6.4rem, 37vw, 7.55rem); }
+
+  .UnifiedTaijiCore_fourSymbolRing__6GS0_ span,
+  .UnifiedTaijiCore_baguaRing__8nbJM span {
+    transform:
+      rotate(var(--ring-angle))
+      translateY(-50%)
+      translateY(-6.1rem)
+      rotate(var(--ring-counter-angle));
+  }
+}
+
+@media (max-width: 374px) {
+  .UnifiedTaijiCore_scene__Rd4zP {
+    width: min(20rem, 100%);
+    min-height: min(20rem, calc(100vw - 1.25rem));
+  }
+
+  .UnifiedTaijiCore_sunField__e72a_ {
+    inset: -13% 3% auto auto;
+    width: 44%;
+  }
+
+  .UnifiedTaijiCore_depthTwo__OMjn8 {
+    inset-inline: 7%;
+    transform: rotateX(72deg) translateZ(-150px) scaleX(1);
+  }
+
+  .UnifiedTaijiCore_taijiButton__BXLpV {
+    width: clamp(8.6rem, 48vw, 9.9rem);
+    height: clamp(8.6rem, 48vw, 9.9rem);
+  }
+
+  .UnifiedTaijiCore_elementPlanet__dL9Yf {
+    width: clamp(1rem, 4vw, 1.22rem);
+    height: clamp(1rem, 4vw, 1.22rem);
+    font-size: 0.62rem;
+  }
+
+  .UnifiedTaijiCore_orbit1__Iibtr .UnifiedTaijiCore_elementPlanet__dL9Yf { --orbit-radius: clamp(3.95rem, 24vw, 4.72rem); }
+  .UnifiedTaijiCore_orbit2__ZCZyR .UnifiedTaijiCore_elementPlanet__dL9Yf { --orbit-radius: clamp(4.45rem, 27vw, 5.18rem); }
+  .UnifiedTaijiCore_orbit3__Pl6l0 .UnifiedTaijiCore_elementPlanet__dL9Yf { --orbit-radius: clamp(4.92rem, 30vw, 5.64rem); }
+  .UnifiedTaijiCore_orbit4__1W3Pb .UnifiedTaijiCore_elementPlanet__dL9Yf { --orbit-radius: clamp(5.38rem, 33vw, 6.1rem); }
+  .UnifiedTaijiCore_orbit5__FslGS .UnifiedTaijiCore_elementPlanet__dL9Yf { --orbit-radius: clamp(5.84rem, 36vw, 6.58rem); }
+
+  .UnifiedTaijiCore_fourSymbolRing__6GS0_ span {
+    width: 2.08rem;
+    height: 1rem;
+    font-size: 0.58rem;
+    transform:
+      rotate(var(--ring-angle))
+      translateY(-50%)
+      translateY(-5.38rem)
+      rotate(var(--ring-counter-angle));
+  }
+
+  .UnifiedTaijiCore_baguaRing__8nbJM span {
+    width: 1.55rem;
+    height: 1.55rem;
+    font-size: 0.92rem;
+    transform:
+      rotate(var(--ring-angle))
+      translateY(-50%)
+      translateY(-5.72rem)
+      rotate(var(--ring-counter-angle));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .UnifiedTaijiCore_particles__yo5_L,
+  .UnifiedTaijiCore_elementOrbit__ydvaa,
+  .UnifiedTaijiCore_taijiHalo__ZIaAp,
+  .UnifiedTaijiCore_coreShell__tDcnM {
+    animation: none;
+  }
+}
+

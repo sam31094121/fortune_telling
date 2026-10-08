@@ -1,0 +1,925 @@
+/*!****************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./components/taiji/level-01/level01.module.css ***!
+  \****************************************************************************************************************************************************************************************************************************************************************************************/
+/* 疊寫自身類別提高特異度：共用的 .sphereWrapper > div{position:relative} 特異度較高，
+   會把本層壓成 0x0。共用檔屬 LEVEL_02～24 領域不得修改，只能在此拉高特異度。 */
+.level01_overlay__bSfVh.level01_overlay__bSfVh {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  aspect-ratio: 1;
+  contain: layout paint style;
+}
+
+/* LEVEL_01 ONLY: the sensor trigger reads as the taiji ball's live ground shadow,
+   not as a separate instrument. Its variables are written from filtered physics. */
+.level01_balanceWell__9wpsv {
+  --shadow-shift-x: 0px;
+  --shadow-shift-y: 0px;
+  --shadow-spread: 1;
+  --shadow-opacity: 0.72;
+  --shadow-glow: 0.42;
+  --shadow-angle: 0deg;
+  --particle-drift-x: 0px;
+  --particle-drift-y: 0px;
+  --particle-opacity: 0.3;
+  --pair-gap: 8px;
+  --pair-angle: 0deg;
+  --shadow-rise: 0px;
+  --shadow-depth: 1;
+  position: absolute;
+  left: 50%;
+  bottom: 7.5%;
+  width: 154px;
+  height: 34px;
+  transform: translate3d(calc(-50% + var(--shadow-shift-x)), calc(var(--shadow-shift-y) + var(--shadow-rise)), 0) scaleX(var(--shadow-spread)) scaleY(var(--shadow-depth));
+  transform-origin: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  padding: 0;
+  pointer-events: none;
+  isolation: isolate;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.level01_balanceWell__9wpsv::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse 34% 58% at 50% 54%, rgba(1, 4, 14, 0.76) 0%, rgba(3, 7, 21, 0.46) 48%, transparent 100%),
+    radial-gradient(ellipse 72% 78% at 50% 50%, rgba(4, 8, 24, 0.34) 0%, rgba(15, 23, 42, 0.11) 58%, transparent 100%),
+    radial-gradient(ellipse at 50% 58%, rgba(250, 204, 21, 0.16), transparent 54%);
+  opacity: var(--shadow-opacity);
+  transform: rotateZ(var(--shadow-angle));
+  pointer-events: none;
+  z-index: -2;
+}
+
+.level01_balanceWell__9wpsv::after {
+  content: '';
+  position: absolute;
+  inset: -9px -22px;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at center, rgba(253, 230, 138, 0.12) 0%, rgba(250, 204, 21, 0.045) 40%, transparent 74%);
+  opacity: calc(var(--shadow-glow) * 0.58);
+  transform: rotateZ(var(--shadow-angle));
+  animation: level01_level01FocusBreath__8D1WB 5.4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -3;
+}
+
+.level01_shadowGlow__LMQdR {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 52%;
+  height: 56%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(253, 230, 138, 0.3), rgba(251, 191, 36, 0.08) 48%, transparent 74%);
+  transform: translate3d(-50%, -50%, 0);
+  opacity: var(--shadow-glow);
+  pointer-events: none;
+  z-index: -1;
+  animation: level01_level01FocusGlow__579ZS 5.4s ease-in-out infinite;
+}
+
+/* A quiet resting breath keeps the first view grounded.  The same shadow gets
+   one brief, non-verbal acknowledgement when a real point strike begins. */
+.level01_overlay__bSfVh[data-taiji-interacting='true'] .level01_balanceWell__9wpsv::after {
+  animation: level01_level01FirstStrikeGroundFlash__nZP7e 680ms cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.level01_overlay__bSfVh[data-taiji-interacting='true'] .level01_shadowGlow__LMQdR {
+  animation: level01_level01FirstStrikeGlow__14CNy 680ms cubic-bezier(.16, 1, .3, 1) both;
+}
+
+@keyframes level01_level01FocusBreath__8D1WB {
+  0%, 100% { opacity: calc(var(--shadow-glow) * 0.48); }
+  50% { opacity: calc(var(--shadow-glow) * 0.7); }
+}
+
+@keyframes level01_level01FocusGlow__579ZS {
+  0%, 100% { opacity: calc(var(--shadow-glow) * 0.78); transform: translate3d(-50%, -50%, 0) scale(.97); }
+  50% { opacity: var(--shadow-glow); transform: translate3d(-50%, -50%, 0) scale(1.035); }
+}
+
+@keyframes level01_level01FirstStrikeGroundFlash__nZP7e {
+  0% { opacity: calc(var(--shadow-glow) * 0.58); }
+  28% { opacity: calc(var(--shadow-glow) * 1.22); }
+  100% { opacity: calc(var(--shadow-glow) * 0.58); }
+}
+
+@keyframes level01_level01FirstStrikeGlow__14CNy {
+  0% { opacity: var(--shadow-glow); transform: translate3d(-50%, -50%, 0) scale(1); }
+  28% { opacity: calc(var(--shadow-glow) * 1.42); transform: translate3d(-50%, -50%, 0) scale(1.11); }
+  100% { opacity: var(--shadow-glow); transform: translate3d(-50%, -50%, 0) scale(1); }
+}
+
+/* A paired photon marker is part of the shadow, not a separate meter. Its
+   distance and angle gently follow the same filtered balance physics. */
+.level01_particlePair__4Ohal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1px;
+  height: 1px;
+  transform: translate3d(calc(-50% + var(--particle-drift-x)), calc(-50% + var(--particle-drift-y)), 0) rotateZ(var(--pair-angle));
+  opacity: var(--particle-opacity);
+  pointer-events: none;
+  z-index: -1;
+  will-change: transform, opacity;
+}
+
+.level01_particlePair__4Ohal span {
+  position: absolute;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fffdf2 0%, #fde68a 44%, rgba(217, 119, 6, 0.58) 100%);
+  box-shadow: 0 0 7px rgba(253, 230, 138, 0.75);
+  animation: level01_shadowPhotonDrift__JnP53 2.9s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.level01_particlePair__4Ohal span:first-child { left: calc(-1 * var(--pair-gap)); transform: translate3d(-50%, -50%, 0); }
+.level01_particlePair__4Ohal span:last-child { left: var(--pair-gap); transform: translate3d(-50%, -50%, 0); animation-delay: -1.45s; }
+
+@keyframes level01_shadowPhotonDrift__JnP53 {
+  0%, 100% { margin-top: 2px; opacity: 0.34; }
+  50% { margin-top: -3px; opacity: 0.9; }
+}
+
+.level01_balanceBubble__v3Twr {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fffdf2 0%, #fde68a 40%, rgba(217, 119, 6, 0.75) 100%);
+  box-shadow: 0 0 8px rgba(253, 230, 138, 0.62);
+  transform: translate3d(-50%, -50%, 0);
+  left: 50%;
+  top: 50%;
+  /* Kept as the physics anchor; the visible indicator is the paired photons. */
+  opacity: 0;
+  will-change: transform;
+}
+
+.level01_balanceWell__9wpsv:focus-visible { outline: 2px solid #fde68a; outline-offset: 3px; }
+
+.level01_chaseField__1SY6E {
+  position: absolute;
+  inset: 4%;
+  z-index: 6;
+  border-radius: 50%;
+  perspective: 520px;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.level01_chaseLight__VtObO {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fffbea;
+  box-shadow: 0 0 4px rgba(255,255,255,.98), 0 0 10px rgba(253,224,71,.56), 3px -2px 18px rgba(125,211,252,.18);
+  transform: translate(-50%, -50%);
+  animation: level01_chaseLightArrive__dRb9x .34s cubic-bezier(.16,.9,.24,1) both, level01_chaseLightBreathe__P1xqf 1.15s calc(.34s + var(--core-phase, 0s)) ease-in-out infinite;
+}
+
+/* 白色核心：集中光子，不顯示預告線或移動軌跡。 */
+.level01_chaseLight__VtObO::before,
+.level01_chaseLight__VtObO::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  pointer-events: none;
+}
+
+.level01_chaseLight__VtObO::before {
+  display: none;
+}
+
+.level01_chaseLight__VtObO::after {
+  display: none;
+}
+
+.level01_chaseCounterLight__zzVcD {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  transform: translate(-50%, -50%);
+  border: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 46% 42%, #000 0 42%, #020712 62%, rgba(12,29,54,.9) 76%, transparent 86%);
+  box-shadow: 0 0 7px 3px rgba(0,0,0,.82), 0 0 15px rgba(38,74,122,.58), 0 0 24px rgba(21,36,65,.46);
+  opacity: 1;
+  animation: level01_chaseLightArrive__dRb9x .34s cubic-bezier(.16,.9,.24,1) both, level01_chaseCounterLightBreathe__A97Jg 1.15s calc(.34s + var(--core-phase, 0s)) ease-in-out infinite;
+}
+
+/* 黑色核心：暗粒子聚散，以密度呈現力量，不加亮色框線。 */
+.level01_chaseCounterLight__zzVcD::before,
+.level01_chaseCounterLight__zzVcD::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.level01_chaseCounterLight__zzVcD::before {
+  display: none;
+}
+
+.level01_chaseCounterLight__zzVcD::after {
+  display: none;
+}
+
+/* 第一層四核心循環：正上光子 → 正右粒子 → 正下光子 → 正左粒子。
+   SINGLE_CORE_LOCK：四顆只用錯相呼吸傳遞能量，不畫衛星、圓框或預告軌跡。 */
+/* SHADOW_PHOTON_DEPTH_LOCK：南側光子落在既有影子的中心深度，
+   不改影子本身，也不再讓兩者看起來像前後分離的兩個物件。 */
+.level01_chaseField__1SY6E .level01_chaseLight__VtObO { left: 50%; top: 90%; --core-phase: -.575s; }
+.level01_chaseField__1SY6E .level01_chaseCounterLight__zzVcD { left: 3%; top: 50%; --core-phase: -.8625s; }
+.level01_chaseField__1SY6E .level01_chasePhotonNorth__Bzxec { left: 50%; top: 3%; --core-phase: 0s; }
+.level01_chaseField__1SY6E .level01_chaseParticleEast__2X0yz { left: 97%; top: 50%; --core-phase: -.2875s; }
+
+/* The four existing cardinal dots stay visually and spatially unchanged. These
+   transparent, generously-sized controls make each one a real touch entry for
+   a strike without turning the resting scene into a moving control panel. */
+.level01_strikeEntry__ynqzU {
+  position: absolute;
+  z-index: 8;
+  width: 28px;
+  height: 28px;
+  margin: -14px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.level01_strikeEntryN__2Sk4J { left: 50%; top: 3%; }
+.level01_strikeEntryE__u0rOs { left: 97%; top: 50%; }
+.level01_strikeEntryS__QF_mK { left: 50%; top: 90%; }
+.level01_strikeEntryW__sX4_7 { left: 3%; top: 50%; }
+.level01_strikeEntry__ynqzU:focus-visible { outline: 2px solid rgba(253, 230, 138, .94); outline-offset: 4px; }
+
+.level01_overlay__bSfVh[data-taiji-interacting='true'] .level01_chaseLight__VtObO,
+.level01_overlay__bSfVh[data-taiji-interacting='true'] .level01_chaseCounterLight__zzVcD {
+  animation: level01_weaponCoreDischarge__XvmO4 .52s cubic-bezier(.12,.72,.2,1) both;
+}
+
+@keyframes level01_weaponCoreDischarge__XvmO4 {
+  0% { transform: translate(-50%, -50%) scale(.82); filter: brightness(.82); }
+  9% { transform: translate(-50%, -50%) scale(1.62); filter: brightness(2); }
+  22% { transform: translate(-50%, -50%) scale(.92); filter: brightness(.9); }
+  42% { transform: translate(-50%, -50%) scale(1.3); filter: brightness(1.55); }
+  100% { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+}
+
+.level01_chaseField__1SY6E small {
+  position: absolute;
+  left: 50%;
+  top: 14%;
+  transform: translateX(-50%);
+  color: rgba(255, 248, 220, .68);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-shadow: 0 2px 7px rgba(2, 6, 23, .94);
+}
+
+/* 每次雷擊都留下看得見的收穫；它是太極本體的浮層，不另開儀表板。 */
+.level01_strikeFeedback__5k5jJ {
+  position: absolute;
+  right: 8%;
+  top: 10%;
+  z-index: 9;
+  width: min(42vw, 148px);
+  display: grid;
+  gap: 5px;
+  padding: 8px 10px;
+  border: 1px solid rgba(191, 219, 254, .34);
+  border-radius: 13px;
+  background: linear-gradient(135deg, rgba(8, 18, 48, .76), rgba(14, 10, 37, .62));
+  box-shadow: 0 8px 24px rgba(2, 6, 23, .34), inset 0 1px 0 rgba(255, 255, 255, .08);
+  color: rgba(248, 250, 252, .94);
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+}
+
+.level01_strikeFeedbackHeading__tHxGu {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.level01_strikeFeedbackHeading__tHxGu strong {
+  color: #fde68a;
+  font-size: 12px;
+}
+
+.level01_strikeMeter___MWzy {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.level01_strikeMeter___MWzy i {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, .34);
+  transition: background-color .22s ease, box-shadow .22s ease, transform .22s ease;
+}
+
+.level01_strikeMeter___MWzy i[data-filled='true'] {
+  background: linear-gradient(90deg, #7dd3fc, #fde68a);
+  box-shadow: 0 0 8px rgba(125, 211, 252, .68);
+  transform: scaleY(1.35);
+}
+
+.level01_strikeFeedback__5k5jJ small {
+  color: rgba(226, 232, 240, .78);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* Clear, gesture-driven audio consent: it never plays on mount. The first tap
+   unlocks Web Audio and provides a bounded thunder confirmation; later taps
+   mute it. */
+.level01_audioControl__e4pKr {
+  position: absolute;
+  left: 8%;
+  top: 10%;
+  z-index: 10;
+  min-height: 32px;
+  max-width: min(44vw, 170px);
+  padding: 7px 10px;
+  border: 1px solid rgba(191, 219, 254, .42);
+  border-radius: 999px;
+  background: rgba(8, 18, 48, .78);
+  box-shadow: 0 7px 20px rgba(2, 6, 23, .34), inset 0 1px 0 rgba(255,255,255,.08);
+  color: rgba(248, 250, 252, .96);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .03em;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.level01_audioControl__e4pKr[aria-pressed='true'] { border-color: rgba(125, 211, 252, .86); color: #dff7ff; }
+.level01_audioControl__e4pKr:focus-visible { outline: 2px solid #fde68a; outline-offset: 3px; }
+
+/* The first-layer Taiji remains an uncluttered visual object. These controls
+   and live status messages stay available to assistive technology and retain
+   their handlers, but no longer occupy the scene as dashboard chrome. */
+.level01_screenReaderOnly__Tk82p {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes level01_chaseLightArrive__dRb9x {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(.3); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes level01_chaseLightBreathe__P1xqf {
+  0%, 100% { opacity: .72; filter: brightness(.92); }
+  50% { opacity: 1; filter: brightness(1.28); }
+}
+
+@keyframes level01_chaseCounterLightBreathe__A97Jg {
+  0%, 100% { opacity: .72; box-shadow: 0 0 6px 2px rgba(0,0,0,.58), -2px 2px 11px rgba(30,58,95,.3); }
+  50% { opacity: 1; box-shadow: 0 0 10px 4px rgba(0,0,0,.76), -2px 2px 17px rgba(30,58,95,.52); }
+}
+
+@keyframes level01_photonGather__T_p8s {
+  0%, 100% { opacity: .38; transform: translate(-50%, -50%) rotate(0deg) scale(.82); }
+  50% { opacity: .96; transform: translate(-50%, -50%) rotate(28deg) scale(1.08); }
+}
+
+@keyframes level01_darkParticleOrbit__I2IZl {
+  0%, 100% { opacity: .5; transform: translate(-50%, -50%) rotate(0deg) scale(1.08); }
+  50% { opacity: .92; transform: translate(-50%, -50%) rotate(-32deg) scale(.76); }
+}
+
+@keyframes level01_darkParticleGather__bXO9S {
+  0%, 100% { opacity: .36; transform: translate(-50%, -50%) rotate(18deg) scale(1.16); }
+  50% { opacity: .86; transform: translate(-50%, -50%) rotate(-16deg) scale(.7); }
+}
+
+.level01_pointerSurface__cYZxq {
+  position: absolute;
+  inset: 4%;
+  z-index: 5;
+  border-radius: 50%;
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+}
+
+.level01_pointerSurface__cYZxq:active { cursor: grabbing; }
+
+/* 純動作手感：只縮放 3D 畫布，不移動下方既有影子。 */
+.level01_taijiCanvas__pfKAX {
+  transform-origin: 50% 50%;
+  transition: transform 150ms cubic-bezier(.2, .75, .25, 1);
+}
+
+.level01_taijiCanvasPressed___k2BD {
+  transform: scale(.965) translateY(2px);
+  transition-duration: 95ms;
+}
+
+.level01_taijiCanvasRebound__f2kvi {
+  animation: level01_taijiTouchRebound__cmyni 500ms cubic-bezier(.16, .9, .22, 1) both;
+}
+
+@keyframes level01_taijiTouchRebound__cmyni {
+  0% { transform: scale(.965) translateY(2px); }
+  38% { transform: scale(1.045) translateY(-3px); }
+  68% { transform: scale(.992) translateY(1px); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+.level01_completeCard__Hpnp8 {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 12;
+  min-width: 178px;
+  transform: translate(-50%, -50%);
+  display: grid;
+  gap: 5px;
+  padding: 14px 18px;
+  border: 1px solid rgba(253,230,138,.58);
+  border-radius: 18px;
+  background: rgba(2,6,23,.82);
+  color: #fff8dc;
+  text-align: center;
+  box-shadow: 0 12px 38px rgba(2,6,23,.54), 0 0 24px rgba(250,204,21,.14);
+  pointer-events: auto;
+}
+
+.level01_completeCard__Hpnp8 span { color: #fde68a; font-size: 12px; }
+
+.level01_completeCard__Hpnp8 button {
+  min-height: 38px;
+  margin-top: 5px;
+  padding: 8px 15px;
+  border: 1px solid rgba(253, 230, 138, .7);
+  border-radius: 999px;
+  background: linear-gradient(145deg, rgba(120, 77, 10, .86), rgba(15, 23, 42, .94));
+  color: #fff8dc;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.level01_qualityBadge__mNL8O {
+  position: absolute;
+  right: 7%;
+  bottom: 7%;
+  z-index: 7;
+  color: rgba(255,255,255,.34);
+  font-size: 8px;
+  pointer-events: none;
+}
+
+.level01_errorFallback__uh1le {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  place-items: center;
+  color: #fef3c7;
+  font-size: 12px;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* V3 降級優先順序：先砍 Particle，再降 Blur，最後才動 Shadow/Glow；
+   感測、物理、震動、音效邏輯完全不受畫質影響，只有這些裝飾效果會降級。 */
+.level01_overlay__bSfVh[data-level01-quality='HIGH'] .level01_particlePair__4Ohal { opacity: calc(var(--particle-opacity) * .6); }
+.level01_overlay__bSfVh[data-level01-quality='BALANCED'] .level01_particlePair__4Ohal { display: none; }
+.level01_overlay__bSfVh[data-level01-quality='LOW'] .level01_particlePair__4Ohal { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .level01_chaseLight__VtObO, .level01_chaseCounterLight__zzVcD { animation: none; }
+  .level01_chaseLight__VtObO::before, .level01_chaseLight__VtObO::after,
+  .level01_chaseCounterLight__zzVcD::before, .level01_chaseCounterLight__zzVcD::after { animation: none; }
+  .level01_overlay__bSfVh[data-taiji-interacting='true'] .level01_chaseLight__VtObO,
+  .level01_overlay__bSfVh[data-taiji-interacting='true'] .level01_chaseCounterLight__zzVcD { animation: none; }
+  .level01_balanceWell__9wpsv::after, .level01_shadowGlow__LMQdR { animation: none; }
+  .level01_taijiCanvasPressed___k2BD { transform: scale(.985); }
+  .level01_taijiCanvasRebound__f2kvi { animation: none; }
+  .level01_balanceWell__9wpsv {
+    transform: translate3d(-50%, 0, 0);
+    will-change: auto;
+  }
+
+  .level01_balanceBubble__v3Twr {
+    transition: none;
+  }
+
+  .level01_particlePair__4Ohal { display: none; }
+
+  .level01_particlePair__4Ohal span {
+    animation: none;
+    opacity: 0.42;
+    will-change: auto;
+  }
+
+}
+
+/*!*****************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./components/TaijiSystem.module.css ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************/
+/* ====================== 太極演化系統 V2（依業主規格補齊完整版） ====================== */
+
+.TaijiSystem_root__7loP6 {
+  --energy-color: var(--theme-primary, #ffd700);
+  --glow-color: var(--theme-glow, rgba(255, 215, 0, 0.38));
+  --theme-secondary: #7dd3fc;
+  --theme-soft: rgba(255, 215, 0, 0.18);
+  --combo-opacity: 0;
+  --completion-opacity: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 8px 8px 10px;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  perspective: 1200px;
+  width: 100%;
+  min-height: min(92vw, 390px);
+  box-sizing: border-box;
+}
+
+/* ====================== 3D 球體包裹 ====================== */
+.TaijiSystem_sphereWrapper__OeGKn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(86vw, 360px);
+  height: min(86vw, 360px);
+  transform-style: preserve-3d;
+  isolation: isolate;
+  touch-action: none;
+  cursor: grab;
+  animation: TaijiSystem_sphereFloat__JiAkG 18s ease-in-out infinite;
+  will-change: transform, filter;
+  contain: layout paint style;
+  backface-visibility: hidden;
+  overscroll-behavior: contain;
+  transition: filter 180ms ease;
+  margin-inline: auto;
+  /* 陰影由場景內的 ContactShadows 統一計算，避免畫布外框投出不合球體的長條黑影。 */
+  filter: none;
+}
+
+.TaijiSystem_sphereWrapperTouching__L0_XG {
+  cursor: grabbing;
+  filter: drop-shadow(0 0 7px var(--glow-color));
+}
+
+@keyframes TaijiSystem_sphereFloat__JiAkG {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+/* 卡片級空間霧光：偏心、疊層的光霧，避免形成可辨識的同心圓。 */
+.TaijiSystem_sphereWrapper__OeGKn::before {
+  content: '';
+  position: absolute;
+  inset: -74px;
+  border-radius: 48% 52% 46% 54% / 54% 45% 55% 46%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 54% 42% at 50% 48%, rgba(255, 244, 216, 0.16) 0%, rgba(226, 190, 122, 0.07) 48%, transparent 100%),
+    radial-gradient(ellipse 38% 52% at 53% 54%, rgba(177, 128, 55, 0.075) 0%, transparent 100%),
+    radial-gradient(ellipse 44% 30% at 49% 68%, rgba(255, 224, 166, 0.05) 0%, transparent 100%);
+  filter: blur(16px);
+  opacity: 0.56;
+  transition: opacity 0.9s ease;
+  z-index: 0;
+  transform: translateZ(-1px) scale(1.04);
+}
+
+.TaijiSystem_stage_taiji__w6mR5 .TaijiSystem_sphereWrapper__OeGKn::before { opacity: 0.5; }
+.TaijiSystem_stage_liangyi__o4915 .TaijiSystem_sphereWrapper__OeGKn::before { opacity: 0.54; }
+.TaijiSystem_stage_sixiang__3lvIk .TaijiSystem_sphereWrapper__OeGKn::before { opacity: 0.58; }
+.TaijiSystem_stage_bagua__FG5rG .TaijiSystem_sphereWrapper__OeGKn::before { opacity: 0.56; }
+
+/* 第 13 層起，卡片本身也進入深場：金光更深，但仍保持低調、沒有軌道線。 */
+.TaijiSystem_root__7loP6[data-deep-field='true'] .TaijiSystem_sphereWrapper__OeGKn::before {
+  background:
+    radial-gradient(ellipse 56% 46% at 39% 42%, rgba(218, 239, 255, 0.2) 0%, rgba(92, 132, 184, 0.12) 52%, transparent 100%),
+    radial-gradient(ellipse 44% 55% at 66% 63%, rgba(25, 35, 74, 0.16) 0%, transparent 100%),
+    radial-gradient(ellipse 34% 28% at 53% 76%, rgba(255, 208, 109, 0.09) 0%, transparent 100%);
+  filter: blur(22px);
+  opacity: 0.9;
+}
+
+.TaijiSystem_sphereWrapper__OeGKn > div {
+  position: relative;
+  z-index: 1;
+}
+
+/* ====================== 遊戲留客機制（2026-08-14） ====================== */
+
+/* 進度環（2026-08-16 依指示隱藏）：最外圍的圈收起，球體獨佔舞台；要恢復移除 display:none */
+.TaijiSystem_journeyRing___KHS2 {
+  display: none;
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    repeating-conic-gradient(from -90deg, rgba(255,255,255,0.18) 0deg 2deg, transparent 2deg 15deg),
+    conic-gradient(from -90deg, var(--energy-color) var(--journey-deg, 0deg), rgba(255, 255, 255, 0.055) var(--journey-deg, 0deg));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3.5px), #000 calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3.5px), #000 calc(100% - 3px));
+  filter: drop-shadow(0 0 7px var(--glow-color));
+  transition: background 0.35s ease;
+}
+
+.TaijiSystem_energyVeil__g6aKf {
+  /* 外圍旋轉光紋不屬於太極核心，且與「乾淨、沒有軌道與繞線」規格衝突。 */
+  display: none;
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 39%, var(--theme-soft) 40%, transparent 44%),
+    conic-gradient(from 18deg, transparent 0deg, var(--theme-soft) 12deg, transparent 34deg, transparent 72deg, var(--glow-color) 90deg, transparent 118deg, transparent 360deg);
+  opacity: 0.075;
+  filter: blur(0.7px) drop-shadow(0 0 4px var(--glow-color));
+  mix-blend-mode: screen;
+  animation: TaijiSystem_energyVeilTurn__F80av 48s linear infinite, TaijiSystem_energyVeilBreath__E7HoX 14s ease-in-out infinite;
+}
+
+.TaijiSystem_visualPulse__GJdRg {
+  position: absolute;
+  inset: -18px;
+  pointer-events: none;
+  z-index: 3;
+  background:
+    radial-gradient(ellipse 34% 26% at 35% 47%, var(--theme-soft) 0%, transparent 100%),
+    radial-gradient(ellipse 25% 38% at 66% 55%, var(--glow-color) 0%, transparent 100%),
+    radial-gradient(ellipse 30% 22% at 52% 74%, color-mix(in srgb, var(--energy-color) 26%, transparent) 0%, transparent 100%);
+  filter: blur(15px);
+  opacity: 0;
+  animation: TaijiSystem_visualPulseOut__aBFGv 1300ms ease-out forwards;
+}
+
+.TaijiSystem_completionHalo__eXuVX {
+  display: none; /* 2026-08-16 依指示：最外圍圓滿環一併收起 */
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    repeating-conic-gradient(from -90deg, var(--energy-color) 0deg 1.2deg, transparent 1.2deg 15deg),
+    radial-gradient(circle, transparent 64%, var(--glow-color) 69%, transparent 74%);
+  opacity: calc(var(--completion-opacity) * 0.55);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px), #000 calc(100% - 4px), transparent calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px), #000 calc(100% - 4px), transparent calc(100% - 3px));
+  filter: drop-shadow(0 0 10px var(--glow-color));
+  animation: TaijiSystem_completionBreath__fKe0T 4.2s ease-in-out infinite;
+  transition: opacity 0.45s ease;
+}
+
+/* 球體下方唯一的投影：水平扁橢圓、最深處在接觸點，向外自然消散。 */
+.TaijiSystem_groundShadow__pk1tW {
+  position: absolute;
+  left: 50%;
+  bottom: 7.5%;
+  width: 56%;
+  height: 8%;
+  pointer-events: none;
+  z-index: 0;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(3, 6, 18, 0.42) 0%, rgba(4, 7, 20, 0.24) 38%, rgba(7, 9, 29, 0.08) 66%, transparent 100%);
+  filter: blur(7px);
+  opacity: 0.9;
+}
+
+/* 暫時的 24 層人工檢視器：固定在太極正下方，不遮擋球體以便逐層核對。 */
+.TaijiSystem_layerReviewPanel__I79L_ {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 248px);
+  margin-top: 10px;
+  padding: 8px 10px 7px;
+  border: 1px solid rgba(226, 232, 240, 0.24);
+  border-radius: 14px;
+  background: rgba(8, 15, 37, 0.88);
+  box-shadow: 0 12px 28px rgba(2, 6, 23, 0.38);
+  backdrop-filter: blur(12px);
+  color: rgba(241, 245, 249, 0.94);
+}
+
+.TaijiSystem_layerReviewHeading__aj2bU,
+.TaijiSystem_layerReviewEnds__vM3MF {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.TaijiSystem_layerReviewHeading__aj2bU {
+  margin-bottom: 6px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.TaijiSystem_layerReviewHeading__aj2bU output {
+  color: #fde68a;
+  font-variant-numeric: tabular-nums;
+}
+
+.TaijiSystem_layerReviewGrid__l_ypS {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+}
+
+.TaijiSystem_layerReviewButton__gTpJr,
+.TaijiSystem_layerReviewButtonActive__xVu1n {
+  min-height: 21px;
+  border: 1px solid rgba(226, 232, 240, 0.18);
+  border-radius: 6px;
+  background: rgba(148, 163, 184, 0.1);
+  color: rgba(226, 232, 240, 0.9);
+  font-size: 9px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.TaijiSystem_layerReviewButton__gTpJr:hover {
+  border-color: rgba(253, 230, 138, 0.7);
+  background: rgba(253, 230, 138, 0.14);
+}
+
+.TaijiSystem_layerReviewButtonActive__xVu1n {
+  border-color: rgba(253, 230, 138, 0.9);
+  background: rgba(217, 119, 6, 0.32);
+  color: #fffbeb;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.24);
+}
+
+.TaijiSystem_sphereWrapper__OeGKn::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    radial-gradient(ellipse 20% 36% at 23% 39%, var(--theme-secondary) 0%, transparent 100%),
+    radial-gradient(ellipse 32% 20% at 74% 66%, var(--energy-color) 0%, transparent 100%),
+    radial-gradient(ellipse 17% 24% at 56% 18%, var(--glow-color) 0%, transparent 100%);
+  opacity: calc(var(--combo-opacity) * 0.2);
+  filter: blur(18px);
+  animation: TaijiSystem_comboMistDrift__lhCQ5 9.2s ease-in-out infinite;
+}
+
+.TaijiSystem_sphereWrapperTouching__L0_XG::after {
+  opacity: 0.34;
+}
+
+@keyframes TaijiSystem_energyVeilTurn__F80av {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes TaijiSystem_energyVeilBreath__E7HoX {
+  0%, 100% { opacity: 0.045; }
+  50% { opacity: 0.085; }
+}
+
+/* 手機與低效能情境優先讓出合成器資源：核心畫面保留，非必要的漂浮與濾鏡停止。 */
+.app-lite-effects .TaijiSystem_sphereWrapper__OeGKn,
+.app-scrolling .TaijiSystem_sphereWrapper__OeGKn,
+.app-page-hidden .TaijiSystem_sphereWrapper__OeGKn {
+  animation: none;
+  will-change: auto;
+  filter: none;
+}
+
+.app-lite-effects .TaijiSystem_sphereWrapper__OeGKn::before,
+.app-scrolling .TaijiSystem_sphereWrapper__OeGKn::before,
+.app-page-hidden .TaijiSystem_sphereWrapper__OeGKn::before {
+  opacity: 0.34;
+  filter: none;
+}
+
+@keyframes TaijiSystem_visualPulseOut__aBFGv {
+  0% { opacity: 0.34; transform: scale(0.84) translate(-2%, 2%); }
+  55% { opacity: 0.13; transform: scale(1.02) translate(2%, -1%); }
+  100% { opacity: 0; transform: scale(1.18) translate(-3%, 3%); }
+}
+
+@keyframes TaijiSystem_completionBreath__fKe0T {
+  0%, 100% { transform: scale(0.985) rotate(0deg); filter: drop-shadow(0 0 14px var(--glow-color)); }
+  50% { transform: scale(1.015) rotate(8deg); filter: drop-shadow(0 0 28px var(--glow-color)); }
+}
+
+@keyframes TaijiSystem_comboMistDrift__lhCQ5 {
+  0%, 100% { transform: translate3d(-1.5%, 1%, 0) scale(0.98); }
+  50% { transform: translate3d(2%, -1.5%, 0) scale(1.05); }
+}
+
+/* ====================== 低效能環境降級 ====================== */
+@media (prefers-reduced-motion: reduce) {
+  .TaijiSystem_sphereWrapper__OeGKn {
+    animation: none;
+  }
+  .TaijiSystem_energyVeil__g6aKf,
+  .TaijiSystem_visualPulse__GJdRg,
+  .TaijiSystem_completionHalo__eXuVX,
+  .TaijiSystem_sphereWrapper__OeGKn::after {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .TaijiSystem_root__7loP6 {
+    padding: 6px 4px 8px;
+    perspective: 900px;
+  }
+
+  .TaijiSystem_sphereWrapper__OeGKn {
+    width: min(92vw, 390px);
+    height: min(92vw, 390px);
+    max-height: 68vh;
+    /* 2026-08-16 手機減負：大半徑 drop-shadow 是手機 GPU 最貴的濾鏡之一，
+       縮小模糊半徑（視覺幾乎相同、成本大降）；視覺語言不變。 */
+    filter: none;
+  }
+
+  .TaijiSystem_sphereWrapperTouching__L0_XG {
+    filter: drop-shadow(0 0 6px var(--glow-color));
+  }
+
+  .TaijiSystem_energyVeil__g6aKf {
+    /* blur 濾鏡在手機逐幀重算：拿掉 0.7px 微模糊（肉眼無差），保留光暈 */
+    filter: drop-shadow(0 0 4px var(--glow-color));
+  }
+
+  .TaijiSystem_sphereWrapper__OeGKn::before {
+    inset: -18px;
+  }
+
+  .TaijiSystem_groundShadow__pk1tW {
+    bottom: 8%;
+    width: 54%;
+    height: 7%;
+    filter: blur(5px);
+  }
+
+  .TaijiSystem_layerReviewPanel__I79L_ {
+    width: min(100%, 224px);
+    margin-top: 8px;
+    padding: 7px 8px 6px;
+  }
+
+  .TaijiSystem_layerReviewHeading__aj2bU {
+    margin-bottom: 5px;
+    font-size: 10px;
+  }
+}
+
