@@ -1,15 +1,11 @@
 // Capture the existing A4 DOM on the user's device. No birth data leaves the
 // browser, and there is no second chart template or server PDF endpoint.
-export async function createDualChartPdf(root: HTMLElement, monochrome = false, selection?: { bazi: boolean; ziwei: boolean; iching: boolean }): Promise<Blob> {
+export async function createDualChartPdf(root: HTMLElement, monochrome = false): Promise<{ blob: Blob; pageCount: number }> {
   const [{ toCanvas }, { jsPDF }] = await Promise.all([import('html-to-image'), import('jspdf')]);
   await document.fonts.ready;
-  const allPages = Array.from(root.querySelectorAll<HTMLElement>(':scope > article'));
-  const pages = selection ? allPages.filter((_, index) => {
-    if (index === 0) return selection.bazi;
-    if (index === 1) return selection.ziwei;
-    if (index === 2) return selection.iching;
-    return false;
-  }) : allPages;
+  // The print view has already applied the selection. Filtering again by index
+  // drops Ziwei-only output and counts fused sections as separate pages.
+  const pages = Array.from(root.querySelectorAll<HTMLElement>(':scope > article'));
   if (pages.length < 1) throw new Error('請至少選擇一張卡片進行列印。');
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
   const selectedCount = pages.length;
@@ -25,5 +21,5 @@ export async function createDualChartPdf(root: HTMLElement, monochrome = false, 
     // Release the large 300dpi canvas before capturing the next page on phones.
     canvas.width = 1; canvas.height = 1;
   }
-  return pdf.output('blob');
+  return { blob: pdf.output('blob'), pageCount: pdf.getNumberOfPages() };
 }

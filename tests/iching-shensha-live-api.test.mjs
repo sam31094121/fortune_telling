@@ -72,13 +72,14 @@ for (const [birthTime, hour, expected] of fixtures) {
     if (item.source) assert.ok(item.source.printedPage && item.source.url);
     else assert.equal(item.ruleVersion, 'REFERENCE_CHART_1974_V1');
   }
-  const html = renderToStaticMarkup(React.createElement(component.PillarGrid, { result: data }));
+  const html = renderToStaticMarkup(React.createElement(component.PillarGrid, { result: data, shenshaCards: true }));
   assert.deepEqual(inspectShenShaDelivery(data, inspectShenShaRow(html)), [], `${birthTime}: API data reaches the original four pillars exactly`);
   assert.deepEqual(inspectShenShaPlacement(html), [], `${birthTime}: results appear directly below the pillars without folding`);
-  assert.deepEqual(inspectShenShaCard(data, renderToStaticMarkup(React.createElement(component.ShenShaCard, { result: data }))), [], `${birthTime}: all original card content is directly visible`);
+  const remainingCard = renderToStaticMarkup(React.createElement(component.ShenShaCard, { result: data, hidePillarCards: true }));
+  const cardHtml = html + remainingCard;
+  assert.deepEqual(inspectShenShaCard(data, cardHtml), [], `${birthTime}: all original card content is directly visible in the embedded layout`);
   assert.equal(html.includes('暫未提供'), false);
   const displayed = expected;
-  const cardHtml = renderToStaticMarkup(React.createElement(component.ShenShaCard, { result: data }));
   assert.equal(html.includes('天乙貴人'), expected.includes('天乙貴人'), 'Tianyi follows the selected edition');
   assert.equal(html.includes('文昌貴人'), expected.includes('文昌貴人'), 'Wenchang follows the selected edition');
   for (const name of displayed) assert.ok(html.includes(name), `${birthTime}: API data reaches the actual PillarGrid component`);

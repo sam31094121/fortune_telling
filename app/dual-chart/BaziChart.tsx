@@ -21,7 +21,7 @@ export function ShenShaRestrictions({ result, language = 'zh' }: { result: DualC
   return <>{conflicts.length > 0 && <span data-shensha-restriction="conflict">{locale === 'en' ? copy.compactConflict : copy.conflict}{names(conflicts)}{locale === 'en' ? '. ' : '。'}<ShenShaEvidenceLinks rules={result.bazi.professionalChart.traditionalInterpretationGate?.shenShaRules} ids={Object.entries(shenShaLabels).filter(([, name]) => conflicts.includes(name)).map(([id]) => id)} language={language} /> </span>}{pending.length > 0 && <span data-shensha-restriction="pending">{copy.pending}{names(pending)}{locale === 'en' ? '. ' : '。'}</span>}</>;
 }
 
-export function PillarGrid({ result, compact = false, language = 'zh' }: { result: DualChartResult; compact?: boolean; language?: string }) {
+export function PillarGrid({ result, compact = false, language = 'zh', shenshaCards = false }: { result: DualChartResult; compact?: boolean; language?: string; shenshaCards?: boolean }) {
   const { core, bazi } = result;
   const pc = bazi.professionalChart;
   const { allowed, conflicts } = result.shenShaVisibility;
@@ -36,7 +36,11 @@ export function PillarGrid({ result, compact = false, language = 'zh' }: { resul
       {row('藏干', key => pc.hiddenStemStructure[key].map(h => h.stem).join('　'))}
       {row('副星', key => pc.hiddenStemStructure[key].map(h => <span className={styles.stack} key={h.stem}>{h.tenGod}</span>))}
       {row('十二運', key => core.twelveStages[key])}
-      {!compact && (!allowed.size || !hasData ? <tr className={styles.shenshaRow}>
+      {!compact && (shenshaCards && result.specialStars?.card?.columns.length ? <tr id="shensha-grid" className={`${styles.shenshaRow} ${styles.embeddedShenShaRow}`}>
+        {order.map(key => <td key={key} data-shensha-pillar={key}><div className={styles.shenshaPillars}>
+          {result.specialStars.card.columns.filter(col => col.pillar === key).map(col => <ShenShaPillarCard key={col.pillar} column={col} showHeading={false} />)}
+        </div></td>)}<th scope="row">特星神煞</th>
+      </tr> : !allowed.size || !hasData ? <tr className={styles.shenshaRow}>
         {order.map(key => <td key={key} data-shensha-pillar={key} data-shensha-state={!allowed.size ? conflicts.length ? 'restricted' : 'pending' : 'unavailable'}>
           <span className={styles.shenshaStatus}>{!allowed.size ? conflicts.length ? '取法分歧，暫未提供' : '尚待核對' : '資料待補'}</span>
         </td>)}<th scope="row">特星神煞</th>
@@ -297,8 +301,17 @@ function openShenShaItemCard(anchor: string) {
 }
 
 /** Independent card. The pillar grid is always visible; the three teacher readings fold. Every word comes from the backend. */
-export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false }: { result: DualChartResult; printMode?: boolean; hideShenShaGrid?: boolean }) {
+function ShenShaPillarCard({ column: col, showHeading = true }: { column: DualChartResult['specialStars']['card']['columns'][number]; showHeading?: boolean }) {
+  return <div data-shensha-column={col.pillar} data-shensha-column-state={col.state}>{showHeading && <h4>{col.label}</h4>}
+    {col.hits.length > 0 && <ul aria-label={`${col.label}神煞`}>{col.hits.map(hit => <li key={`${hit.id}:${hit.name}`} data-shensha-result={hit.id} data-shensha-method={hit.reference ? 'reference' : 'source'} data-shensha-tone={hit.tone ?? undefined} aria-label={hit.tone ? `${hit.name}（${hit.tone}）` : undefined} title={`${hit.name}${hit.tone ? `（${hit.tone}）` : ''}｜${hit.rule}｜${hit.sourceLabel}`}>{hit.anchor ? <a href={`#${hit.anchor}`} onClick={event => { if (openShenShaItemCard(hit.anchor)) event.preventDefault(); }}>{hit.name}</a> : hit.name}</li>)}</ul>}
+    {col.emptyText && <span className={styles.shenshaEmpty} aria-label={col.state === 'PENDING' ? `結果尚未完整：${col.pendingNames.join('、')}` : '本次未命中本站既有規則'}>{col.emptyText}</span>}
+    {col.note && <small className={styles.shenshaPillarNote}>{col.note}</small>}
+  </div>;
+}
+
+export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false, hidePillarCards = false }: { result: DualChartResult; printMode?: boolean; hideShenShaGrid?: boolean; hidePillarCards?: boolean }) {
   const card = result.specialStars?.card;
+  const columns = printMode ? card?.columns : card?.columns.slice().sort((a, b) => order.indexOf(a.pillar) - order.indexOf(b.pillar));
   const state = card?.state ?? 'unavailable';
   const [shenshaTab, setShenShaTab] = useState<'iching' | 'ghost' | 'asura'>('iching'); // 三卡選擇：易經老師 / 鬼魅 / 阿修羅
   return <section className={styles.shenshaCard} aria-label="特星神煞" data-screen-arrow-target="dual-chart-special-stars" data-shensha-card-state={state}>
@@ -323,12 +336,7 @@ export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false
       <p className={styles.shenshaSummaryHint}>以下依年、月、日、時柱顯示本次結果</p>
     </div>}
     {/* 四柱神煞網格表 */}
-    {!hideShenShaGrid && card && card.columns.length > 0 && <div id="shensha-grid" className={styles.shenshaPillars}>{card.columns.map(col =>
-      <div key={col.pillar} data-shensha-column={col.pillar} data-shensha-column-state={col.state}><h4>{col.label}</h4>
-        {col.hits.length > 0 && <ul aria-label={`${col.label}神煞`}>{col.hits.map(hit => <li key={`${hit.id}:${hit.name}`} data-shensha-result={hit.id} data-shensha-method={hit.reference ? 'reference' : 'source'} data-shensha-tone={hit.tone ?? undefined} aria-label={hit.tone ? `${hit.name}（${hit.tone}）` : undefined} title={`${hit.name}${hit.tone ? `（${hit.tone}）` : ''}｜${hit.rule}｜${hit.sourceLabel}`}>{hit.anchor ? <a href={`#${hit.anchor}`} onClick={event => { if (openShenShaItemCard(hit.anchor)) event.preventDefault(); }}>{hit.name}</a> : hit.name}</li>)}</ul>}
-        {col.emptyText && <span className={styles.shenshaEmpty} aria-label={col.state === 'PENDING' ? `結果尚未完整：${col.pendingNames.join('、')}` : '本次未命中本站既有規則'}>{col.emptyText}</span>}
-        {col.note && <small className={styles.shenshaPillarNote}>{col.note}</small>}
-      </div>)}</div>}
+    {!hideShenShaGrid && !hidePillarCards && card && card.columns.length > 0 && <div id="shensha-grid" className={styles.shenshaPillars}>{columns?.map(col => <ShenShaPillarCard key={col.pillar} column={col} />)}</div>}
     {!hideShenShaGrid && card && card.columns.length > 0 && <p className={styles.shenshaLegend} aria-label="圖例"><span data-shensha-tone="福氣">福氣</span><span data-shensha-tone="動能">動能</span><span data-shensha-tone="提醒">提醒</span><span>＊ 本派取法</span></p>}
     {!printMode && card?.notice && <p role="status">{card.notice}</p>}
     {!printMode && !card && <p role="status">神煞資料尚未完整，暫不能判斷有無結果。</p>}
@@ -453,7 +461,7 @@ export default function BaziChart({ result, monochrome = false, language = 'zh',
         <p className={styles.micro}>上列依次為干支、干十神、支主氣十神；立春換年。流年神煞未提供。</p>
       </aside>
       <section className={styles.baziMain}>
-        <PillarGrid result={result} language={language} />
+        <PillarGrid result={result} language={language} shenshaCards />
         <div className={styles.startLuck}>{typeof meta === 'object' ? `出生後 ${meta.startAgeYears} 年 ${meta.startAgeMonths} 月 ${meta.startAgeDays} 天起運 · ${meta.direction === 'FORWARD' ? '順行' : '逆行'}` : '起運資料未提供'}</div>
         <LuckGrid result={result} />
         <section className={styles.relations} data-density={core.interactions.length > 6 ? 'dense' : core.interactions.length > 4 ? 'compact' : 'regular'}><h3>命局合沖刑害破</h3>{core.interactions.length ? core.interactions.map((r, index) => <p key={index}><b>{r.interactionType}</b><span className={styles.relationParticipants}>{r.participants.join('、')}</span><small>{r.affectedPillars.map(key => ({ YEAR: '年柱', MONTH: '月柱', DAY: '日柱', HOUR: '時柱' })[key] ?? key).join('、')}</small></p>) : <p>本系統規則未命中</p>}</section>
@@ -461,7 +469,7 @@ export default function BaziChart({ result, monochrome = false, language = 'zh',
       </section>
     </div>
     <footer className={styles.reportFooter}>節氣：{core.calendar.solarTerm} {core.calendar.solarTermTime}<br />台灣標準時間 UTC+8 · 年以立春、月以節氣為界 · 晚子時日柱不換日 · 未做真太陽時校正</footer>
-  </div>{!monochrome && !hideShenShaCard && <ShenShaCard result={result} />}
+  </div>{!monochrome && !hideShenShaCard && <ShenShaCard result={result} hidePillarCards />}
   {/* 🔒 舊卡片已隱藏：2026-09-30 準備用新版本替換 */}
   {/* {!monochrome && !hideShenShaCard && <GhostAsuraCardIndependent result={result} />} */}
   </div><section className={styles.screenShenShaNotes} aria-label={language === 'en' ? 'Shensha source status' : '神煞來源狀態'}>{sourceNotes}</section></>;

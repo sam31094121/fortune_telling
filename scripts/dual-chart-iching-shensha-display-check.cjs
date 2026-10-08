@@ -91,7 +91,7 @@ function inspectShenShaCard(result, html) {
   if (!html.includes('aria-label="特星神煞"') || !html.includes('data-shensha-card-state="received"')) warnings.push('神煞卡缺失或資料未完整');
   const blocks = [...html.matchAll(/<div[^>]*data-shensha-column="([^"]+)"[^>]*>([\s\S]*?)<\/div>/g)];
   if (blocks.length !== 4) warnings.push('神煞卡缺少四柱');
-  ['year', 'month', 'day', 'hour'].forEach((key, i) => {
+  ['hour', 'day', 'month', 'year'].forEach((key, i) => {
     const block = blocks[i];
     const names = [...(block?.[2] ?? '').matchAll(/<li[^>]*data-shensha-result="([^"]+)"[^>]*>([\s\S]*?)<\/li>/g)].map(m => `${m[1]}:${m[2].replace(/<[^>]+>/g, '')}`).sort();
     const expected = (result.specialStars?.byPillar?.[key] ?? []).map(item => `${item.id}:${item.name}`).sort();
@@ -131,8 +131,13 @@ function inspectShenShaRow(html) {
     const text = stripTags(m[2]);
     // Compare visible names, not substring presence: e.g. 外桃花 must not satisfy 桃花.
     // Source links are supplementary text, not a second shensha result.
-    const names = [...m[2].matchAll(/<span\b[^>]*>([\s\S]*?)<\/span>/g)]
-      .map(match => stripTags(match[1].replace(/<a\b[^>]*>[\s\S]*?<\/a>/g, '')));
+    // The interactive cards now live in the table cells. Read their visible
+    // result labels (including linked names), never a tooltip or source label.
+    const names = m[2].includes('data-shensha-column=')
+      ? [...m[2].matchAll(/<li\b[^>]*data-shensha-result="[^"]+"[^>]*>([\s\S]*?)<\/li>/g)]
+        .map(match => stripTags(match[1]))
+      : [...m[2].matchAll(/<span\b[^>]*>([\s\S]*?)<\/span>/g)]
+        .map(match => stripTags(match[1].replace(/<a\b[^>]*>[\s\S]*?<\/a>/g, '')));
     return { pillar: span ? '四柱合併' : labels[i] ?? `第${i + 1}格`, text, names };
   });
   const warnings = [];
@@ -192,12 +197,13 @@ function checkShenShaDisplay() {
   const samples = SAMPLES.map((sample) => {
     const result = calculateDualChart({ ...sample, calendarType: 'solar', timezone: 'Asia/Taipei' });
     const gate = result.bazi.professionalChart.traditionalInterpretationGate;
-    const html = renderToStaticMarkup(React.createElement(PillarGrid, { result }));
+    const html = renderToStaticMarkup(React.createElement(PillarGrid, { result, shenshaCards: true }));
     const inspected = inspectShenShaRow(html);
     inspected.warnings.push(...inspectShenShaCoverage(result));
     inspected.warnings.push(...inspectShenShaDelivery(result, inspected));
     inspected.warnings.push(...inspectShenShaPlacement(html));
-    inspected.warnings.push(...inspectShenShaCard(result, renderToStaticMarkup(React.createElement(ShenShaCard, { result }))));
+    const remainingCard = renderToStaticMarkup(React.createElement(ShenShaCard, { result, hidePillarCards: true }));
+    inspected.warnings.push(...inspectShenShaCard(result, html + remainingCard));
     const pillarKeys = ['hour', 'day', 'month', 'year'];
     const expectedByPillar = Object.fromEntries(pillarKeys.map((key) => [
       key,

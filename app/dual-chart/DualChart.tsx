@@ -27,10 +27,10 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
   const [result, setResult] = useState<DualChartResult | null>(null);
   const [printMode, setPrintMode] = useState(false);
   const [pdfUrl, setPdfUrl] = useState('');
+  const [pdfPageCount, setPdfPageCount] = useState(0);
   const [pdfBusy, setPdfBusy] = useState(false);
   const [pdfProgress, setPdfProgress] = useState(0);
   const [monochrome, setMonochrome] = useState(false);
-  const pdfCacheRef = useRef<{ [key: string]: string }>({});
   const [chartTab, setChartTab] = useState<'bazi' | 'ziwei' | 'comparison'>('bazi');
   const [isMobile, setIsMobile] = useState(false);
   const [printSelection, setPrintSelection] = useState({ bazi: true, ziwei: true, shensha: true, iching: true });
@@ -50,7 +50,7 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   useEffect(() => () => { if (pdfUrl) URL.revokeObjectURL(pdfUrl); }, [pdfUrl]);
-  useEffect(() => { setPdfUrl(''); }, [result, language]);
+  useEffect(() => { setPdfUrl(''); setPdfPageCount(0); }, [result, language, monochrome, printSelection]);
   useEffect(() => { if (result) resultRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, [result]);
   useEffect(() => {
     if (!unlocked) { setResult(null); setPrintMode(false); return; }
@@ -146,28 +146,23 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
   }
   async function exportPdf() {
     if (!resultRef.current || pdfBusy || !result) return;
-    const cacheKey = `${monochrome}_${JSON.stringify(printSelection)}`;
-    if (pdfCacheRef.current[cacheKey]) {
-      setPdfUrl(pdfCacheRef.current[cacheKey]);
-      return;
-    }
     const exportLanguage = language;
     setPdfBusy(true); setPdfProgress(10); setError('');
     try {
       const { createDualChartPdf } = await import('./export-pdf');
       setPdfProgress(30);
-      const blob = await createDualChartPdf(resultRef.current, monochrome, printSelection);
+      const { blob, pageCount } = await createDualChartPdf(resultRef.current, monochrome);
       setPdfProgress(80);
       if (languageRef.current !== exportLanguage) { setError('語言已變更，請重新製作 PDF。'); return; }
       const url = URL.createObjectURL(blob);
-      pdfCacheRef.current[cacheKey] = url;
+      setPdfPageCount(pageCount);
       setPdfUrl(url);
       setPdfProgress(100);
     } catch (e) { setError(e instanceof Error ? e.message : 'PDF 製作失敗，請再試一次。'); }
     finally { setPdfBusy(false); setPdfProgress(0); }
   }
   return <main className={`${styles.page} ${printMode ? styles.printPreview : ''} ${printMode && monochrome ? styles.monochrome : ''}`}>
-    {printMode && <nav className={styles.printTools} aria-label="列印專用版操作"><button disabled={pdfBusy} onClick={() => setPrintMode(false)}>← 返回命盤</button><strong>列印專用版</strong><div className={styles.selectionPanel} role="group" aria-label="選擇列印面盤"><label><input type="checkbox" checked={printSelection.bazi} onChange={e => setPrintSelection({...printSelection, bazi: e.target.checked})} disabled={pdfBusy} /> 八字命盤</label><label><input type="checkbox" checked={printSelection.ziwei} onChange={e => setPrintSelection({...printSelection, ziwei: e.target.checked})} disabled={pdfBusy} /> 紫微斗數</label><label><input type="checkbox" checked={printSelection.iching} onChange={e => setPrintSelection({...printSelection, iching: e.target.checked})} disabled={pdfBusy} /> 易經神煞</label></div><div className={styles.outputChoice} role="group" aria-label="輸出色彩">{[false, true].map(value => <button key={String(value)} disabled={pdfBusy} aria-pressed={monochrome === value} onClick={() => { setMonochrome(value); setPdfUrl(''); setPdfProgress(0); }}>{value ? '黑白日常版' : '彩色客戶版'}</button>)}</div><button disabled={pdfBusy} onClick={() => void exportPdf()}>{pdfBusy ? pdfProgress > 0 && pdfProgress < 100 ? `正在排版…${pdfProgress}%` : '正在製作 PDF…' : `製作${monochrome ? '黑白' : '彩色'} A4 PDF`}</button>{pdfBusy && pdfProgress > 0 && <div className={styles.progressBar} role="progressbar" aria-valuenow={pdfProgress} aria-valuemin={0} aria-valuemax={100}><div className={styles.progressFill} style={{ width: `${pdfProgress}%` }}></div></div>}<button disabled={pdfBusy} onClick={() => window.print()}>瀏覽器列印</button>{pdfUrl && <a className={styles.pdfDownload} href={pdfUrl} download={generatePdfFilename()}>下載{monochrome ? '黑白' : '彩色'} PDF（{Object.values(printSelection).filter(Boolean).length} 頁）</a>}<p className={styles.printHint}>若瀏覽器未開啟列印視窗，請先製作並下載 PDF，再用 PDF 閱讀器列印。A4 {monochrome ? '黑白' : '彩色'} · 手機可左右滑動紙張查看；瀏覽器列印請選 A4、100% 比例並關閉頁首頁尾。</p></nav>}
+    {printMode && <nav className={styles.printTools} aria-label="列印專用版操作"><button disabled={pdfBusy} onClick={() => setPrintMode(false)}>← 返回命盤</button><strong>列印專用版</strong><div className={styles.selectionPanel} role="group" aria-label="選擇列印面盤"><label><input type="checkbox" checked={printSelection.bazi} onChange={e => setPrintSelection({...printSelection, bazi: e.target.checked})} disabled={pdfBusy} /> 八字命盤</label><label><input type="checkbox" checked={printSelection.ziwei} onChange={e => setPrintSelection({...printSelection, ziwei: e.target.checked})} disabled={pdfBusy} /> 紫微斗數</label><label><input type="checkbox" checked={printSelection.iching} onChange={e => setPrintSelection({...printSelection, iching: e.target.checked})} disabled={pdfBusy} /> 易經神煞</label></div><div className={styles.outputChoice} role="group" aria-label="輸出色彩">{[false, true].map(value => <button key={String(value)} disabled={pdfBusy} aria-pressed={monochrome === value} onClick={() => { setMonochrome(value); setPdfUrl(''); setPdfProgress(0); }}>{value ? '黑白日常版' : '彩色客戶版'}</button>)}</div><button disabled={pdfBusy} onClick={() => void exportPdf()}>{pdfBusy ? pdfProgress > 0 && pdfProgress < 100 ? `正在排版…${pdfProgress}%` : '正在製作 PDF…' : `製作${monochrome ? '黑白' : '彩色'} A4 PDF`}</button>{pdfBusy && pdfProgress > 0 && <div className={styles.progressBar} role="progressbar" aria-valuenow={pdfProgress} aria-valuemin={0} aria-valuemax={100}><div className={styles.progressFill} style={{ width: `${pdfProgress}%` }}></div></div>}<button disabled={pdfBusy} onClick={() => window.print()}>瀏覽器列印</button>{pdfUrl && <a className={styles.pdfDownload} href={pdfUrl} download={generatePdfFilename()}>下載{monochrome ? '黑白' : '彩色'} PDF（{pdfPageCount} 頁）</a>}<p className={styles.printHint}>若瀏覽器未開啟列印視窗，請先製作並下載 PDF，再用 PDF 閱讀器列印。A4 {monochrome ? '黑白' : '彩色'} · 手機可左右滑動紙張查看；瀏覽器列印請選 A4、100% 比例並關閉頁首頁尾。</p></nav>}
     <nav className={styles.nav}><Link href="/">← 返回首頁</Link>{unlocked && <button disabled={busy} onClick={() => void lock()}>鎖定離開</button>}</nav>
     <header className={styles.header}><p>生辰排盤 · 密碼保護</p><h1>神煞易經</h1><p>填寫一份出生資料，查看三張命盤：八字、紫微斗數、易經神煞。</p></header>
     {!unlocked ? <section className={styles.panel}>
@@ -202,28 +197,28 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
             <h3 style={{ marginBottom: '1rem' }}>選擇要列印的神煞易經命盤</h3>
             <div style={{ display: 'grid', gap: '0.75rem' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={printSelection.bazi} onChange={e => setPrintSelection({ ...printSelection, bazi: e.target.checked })} />
+                <input type="checkbox" disabled={pdfBusy} checked={printSelection.bazi} onChange={e => setPrintSelection({ ...printSelection, bazi: e.target.checked })} />
                 <span>八字命盤</span>
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={printSelection.ziwei} onChange={e => setPrintSelection({ ...printSelection, ziwei: e.target.checked })} />
+                <input type="checkbox" disabled={pdfBusy} checked={printSelection.ziwei} onChange={e => setPrintSelection({ ...printSelection, ziwei: e.target.checked })} />
                 <span>紫微斗數命盤</span>
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={printSelection.shensha} onChange={e => setPrintSelection({ ...printSelection, shensha: e.target.checked })} />
+                <input type="checkbox" disabled={pdfBusy} checked={printSelection.shensha} onChange={e => setPrintSelection({ ...printSelection, shensha: e.target.checked })} />
                 <span>特星神煞</span>
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={printSelection.iching} onChange={e => setPrintSelection({ ...printSelection, iching: e.target.checked })} />
+                <input type="checkbox" disabled={pdfBusy} checked={printSelection.iching} onChange={e => setPrintSelection({ ...printSelection, iching: e.target.checked })} />
                 <span>易經神煞</span>
               </label>
             </div>
-            <button type="button" onClick={() => setPrintMode(false)} style={{ marginTop: '1rem', padding: '0.5rem 1rem', backgroundColor: 'transparent', border: '1px solid rgba(139, 92, 246, 0.5)', borderRadius: '0.5rem', color: '#e9d5ff', cursor: 'pointer' }}>返回檢視</button>
+            <button type="button" disabled={pdfBusy} onClick={() => setPrintMode(false)} style={{ marginTop: '1rem', padding: '0.5rem 1rem', backgroundColor: 'transparent', border: '1px solid rgba(139, 92, 246, 0.5)', borderRadius: '0.5rem', color: '#e9d5ff', cursor: 'pointer' }}>返回檢視</button>
           </div>
         )}
-        {(!isMobile || chartTab === 'bazi') && (printMode ? printSelection.bazi : true) && <BaziIChingShenShaCard result={result} language={language} />}
+        {(printMode || !isMobile || chartTab === 'bazi') && (printMode ? printSelection.bazi : true) && <BaziIChingShenShaCard result={result} language={language} monochrome={printMode && monochrome} />}
         {!printMode && !isMobile && <div className={styles.chartDivider} />}
-        {(!isMobile || chartTab === 'ziwei') && (printMode ? printSelection.ziwei : true) && <article className={styles.panel}><h2>紫微斗數命盤</h2>
+        {(printMode || !isMobile || chartTab === 'ziwei') && (printMode ? printSelection.ziwei : true) && <article className={styles.panel}><h2>紫微斗數命盤</h2>
           <ZiweiChart key={JSON.stringify(result.ziwei.birthInput)} result={result} />
         </article>}
         {(!isMobile || chartTab === 'comparison') && (printMode ? false : true) && <article className={styles.panel}><ComparisonCard result={result} /></article>}

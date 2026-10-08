@@ -151,16 +151,17 @@
 .page:not(.printPreview) .shenshaRow .shenshaSource{display:none}
 /* 已由後端算出的神煞在原四柱表與下方結果卡同步直顯，不以螢幕樣式隱藏。 */
 /* 《神煞易經》卡：只作用於本卡。三色分類 福氣／動能／提醒 由後端給 data-shensha-tone。 */
-.shenshaCard{--ss-gold:#f2cf7a;--ss-violet:#cdb2ff;--ss-cyan:#93d3ea;--ss-text:#ece6f7;--ss-muted:#b9b2c9;--ss-line:#bba4d033;--ss-panel:#1e1b2d;--ss-panel2:#262138;
+.shenshaCard,.embeddedShenShaRow{--ss-gold:#f2cf7a;--ss-violet:#cdb2ff;--ss-cyan:#93d3ea;--ss-text:#ece6f7;--ss-muted:#b9b2c9;--ss-line:#bba4d033;--ss-panel:#1e1b2d;--ss-panel2:#262138}
+.shenshaCard{
   width:100%;min-width:0;box-sizing:border-box;margin:20px 0;padding:18px 16px 20px;border:1px solid #bba4d055;border-radius:18px;
   background:radial-gradient(120% 60% at 50% 0%,#2e2748 0%,#1b1929 55%,#161524 100%);scroll-margin-top:20px;box-shadow:0 10px 32px #0807114d}
 .shenshaHeader{text-align:center;margin:0 0 14px}
 .shenshaHeader h3{margin:0;font-size:24px;font-weight:800;letter-spacing:.18em;color:#f4e6ff}
 .shenshaHeader .shenshaSubtitle{margin:6px 0 0;font-size:13px;letter-spacing:.06em;color:var(--ss-muted)}
 .shenshaCard>p{font-size:13px;line-height:1.6;color:#ffe1a7;margin:0 0 10px}
-.shenshaCard [data-shensha-tone="福氣"]{--ss-tone:var(--ss-gold)}
-.shenshaCard [data-shensha-tone="動能"]{--ss-tone:var(--ss-violet)}
-.shenshaCard [data-shensha-tone="提醒"]{--ss-tone:var(--ss-cyan)}
+.shenshaCard [data-shensha-tone="福氣"],.embeddedShenShaRow [data-shensha-tone="福氣"]{--ss-tone:var(--ss-gold)}
+.shenshaCard [data-shensha-tone="動能"],.embeddedShenShaRow [data-shensha-tone="動能"]{--ss-tone:var(--ss-violet)}
+.shenshaCard [data-shensha-tone="提醒"],.embeddedShenShaRow [data-shensha-tone="提醒"]{--ss-tone:var(--ss-cyan)}
 #shensha-grid{margin-top:18px;margin-bottom:12px;padding-top:18px;border-top:1px solid rgba(167,151,173,0.2)}
 .shenshaPillars{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .shenshaPillars>div{min-width:0;padding:10px 4px 12px;text-align:center;border:1px solid var(--ss-line);border-radius:12px;background:linear-gradient(180deg,#2a2440,#1f1c2f)}
@@ -545,6 +546,16 @@ details[open]>summary .moreHint::after{content:' ▴'}
 /* 客人審查第三輪：格子點擊高度 28px → 40px（長輩好點） */
 .shenshaPillars ul{gap:0}
 .shenshaPillars li a{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 2px;line-height:1.3}
+/* Move the existing interactive pillar cards into their matching table cells. */
+.embeddedShenShaRow .shenshaPillars{display:block}
+.page:not(.printPreview) .embeddedShenShaRow td{vertical-align:top}
+.printPreview .baziMain>.pillarGrid .embeddedShenShaRow td{height:auto;vertical-align:top;padding:4px 3px}
+.printPreview .embeddedShenShaRow .shenshaPillars>div{padding:4px 2px;border-radius:4px}
+.printPreview .embeddedShenShaRow .shenshaPillars ul{gap:0}
+.printPreview .embeddedShenShaRow .shenshaPillars li a{min-height:0;padding:0;line-height:1.5;border-bottom:0}
+.printPreview .embeddedShenShaRow .shenshaPillars li{font-size:12.5px;line-height:1.5}
+.printPreview.monochrome .embeddedShenShaRow .shenshaPillars li[data-shensha-method=reference]::after{color:#555}
+.printPreview .shenshaIchingFused{display:none}
 /* 鬼魅老師封印：貼現有封印符（SharedElementSealPaper），卡頭仍透出、點不開 */
 .ghostSealed{position:relative;overflow:visible;cursor:not-allowed;user-select:none}
 .ghostSealedHead{padding:14px 16px;opacity:.55;filter:saturate(.6)}
@@ -560,7 +571,15 @@ details[open]>summary .moreHint::after{content:' ▴'}
 /* Print mode for fused chart */
 .printPreview .fusedChart{padding:14mm 12mm}
 .printPreview .fusedChart h2{font-size:23px;margin-bottom:8px}
-.printPreview .fusedSubtitle{font-size:12px;margin-bottom:14px}
+.printPreview .fusedSubtitle{font-size:12px;margin-bottom:8px}
+/* Keep all four embedded cards on the Bazi A4 sheet without shrinking text. */
+.printPreview .fusedChart .birthBand>span:nth-last-child(-n+2){grid-column:auto}
+.printPreview .fusedChart .baziMain>.pillarGrid th,.printPreview .fusedChart .baziMain>.pillarGrid td{padding-top:2px;padding-bottom:2px}
+.printPreview .fusedChart .baziMain>.pillarGrid .largeGlyph td{padding-top:5px;padding-bottom:5px}
+.printPreview .fusedChart .startLuck{padding-top:5px;padding-bottom:5px;margin-top:6px}
+.printPreview .fusedChart .reportFooter{margin-top:6px;padding-top:5px}
+/* Keep annual ages legible in the raster PDF's font fallback as well as the preview. */
+.printPreview .baziSidebar .annualGrid th small{font-family:Arial,"Microsoft JhengHei",sans-serif;font-weight:500;letter-spacing:0}
 .printPreview .shenshaIchingFused{margin-top:16px;padding-top:14px;border-top:1.5px solid rgba(0,0,0,.1)}
 
 /* ════════════════════════════════════════════════════════════════════════════
