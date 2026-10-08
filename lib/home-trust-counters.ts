@@ -5,12 +5,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { getVisitorSupabaseClient } from '@/lib/visitor-counter';
 import { HOME_TRUST_FLOORS } from '@/lib/trust-counter-floors';
 
-// 內存中的備份計數系統（當 Supabase 不可用時使用）
-const memoryCounters = {
-  agree: HOME_TRUST_FLOORS.agree,
-  disagree: HOME_TRUST_FLOORS.disagree,
-  view: HOME_TRUST_FLOORS.view,
-};
+
 
 /*
   首頁信任區（認同／不認同／累計瀏覽次數）的伺服器端單一入口。
@@ -138,17 +133,7 @@ export async function incrementHomeTrust(
   eventId: string | null,
   client: SupabaseClient | null = getVisitorSupabaseClient(),
 ): Promise<IncrementResult> {
-  // Supabase 不可用時使用內存計數
-  if (!client) {
-    console.warn(`[home-trust] 資料庫不可用，使用內存計數（臨時備份）`);
-    memoryCounters[kind]++;
-    return {
-      agreeCount: memoryCounters.agree,
-      disagreeCount: memoryCounters.disagree,
-      viewCount: memoryCounters.view,
-      applied: true,
-    };
-  }
+  if (!client) throw new HomeTrustUnavailableError('資料庫尚未設定。');
 
   const primary = await client.rpc('home_trust_increment', { p_kind: kind, p_event_id: eventId });
   let data: unknown = primary.data;
@@ -173,17 +158,8 @@ export async function incrementHomeTrust(
 
 export async function readHomeTrust(
   client: SupabaseClient | null = getVisitorSupabaseClient(),
-): Promise<HomeTrustCounters & { source: 'database' | 'floor' | 'memory' }> {
-  // Supabase 不可用時使用內存計數
-  if (!client) {
-    console.warn('[home-trust] 資料庫不可用，返回內存計數（臨時備份）');
-    return {
-      agreeCount: memoryCounters.agree,
-      disagreeCount: memoryCounters.disagree,
-      viewCount: memoryCounters.view,
-      source: 'memory',
-    };
-  }
+): Promise<HomeTrustCounters & { source: 'database' | 'floor' }> {
+  if (!client) throw new HomeTrustUnavailableError('資料庫尚未設定。');
 
   const { data, error } = await client
     .from('home_trust_counters')

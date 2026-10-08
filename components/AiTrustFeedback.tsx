@@ -19,7 +19,7 @@ const PENDING_FEEDBACK_QUEUE_KEY = 'taiji_ai_feedback_pending_events_v2';
 const MAX_PENDING_FEEDBACK_EVENTS = 20;
 
 const COPY = {
-  title: '\u6613\u7d93 \u56de\u994b\u6821\u6e96',
+  title: '回饋校準',
   subtitle: '\u8a8d\u540c\u6216\u4e0d\u8a8d\u540c\uff0c\u64c7\u4e00\u9001\u51fa\u5373\u53ef',
   likeLabel: '\u6211\u8a8d\u540c',
   improveLabel: '\u6211\u4e0d\u8a8d\u540c',
@@ -31,9 +31,9 @@ const COPY = {
   selectedLike: '\u611f\u8b1d\u8a8d\u540c',
   selectedImprove: '\u611f\u8b1d\u56de\u994b',
   thankLikeTitle: '\u611f\u8b1d\u60a8\u7684\u652f\u6301\uff01',
-  thankLikeBody: '\u60a8\u7684\u8a8d\u540c\u5df2\u6210\u529f\u9001\u51fa\u3002\u6211\u5011\u6703\u6301\u7e8c\u63d0\u4f9b\u66f4\u597d\u7684\u6613\u7d93\u535c\u5366\u5206\u6790\u54c1\u8cea\u3002',
+  thankLikeBody: '您的認同已成功送出。我們會持續提供更好的品質與體驗。',
   thankImproveTitle: '\u611f\u8b1d\u60a8\u7684\u5bf6\u8cb4\u56de\u994b\uff01',
-  thankImproveBody: '\u60a8\u7684\u5efa\u8b70\u5df2\u6210\u529f\u6536\u5230\u3002\u6211\u5011\u6703\u6301\u7e8c\u512a\u5316\u6613\u7d93\u535c\u5366\u5206\u6790\u54c1\u8cea\u3002',
+  thankImproveBody: '您的建議已成功收到。我們會持續優化產品與服務品質。',
   errorTitle: '\u76ee\u524d\u7121\u6cd5\u9001\u51fa',
   errorBody: '\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002',
   note: '\u6bcf\u6b21\u9ede\u9078\u90fd\u6703\u7d2f\u52a0\uff1b\u6578\u5b57\u53ea\u589e\u4e0d\u6e1b',
@@ -336,15 +336,8 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
   }, []);
 
   useEffect(() => {
-    // 🔧 初始化優先級：後端真值 > localStorage 緩存 > 預設值
-    // 這確保手機用戶即使清除 localStorage 也能同步到最新值
-
-    const storedAgree = readStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, LIKE_INITIAL_COUNT);
-    const storedDisagree = readStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, SUGGESTION_INITIAL_COUNT);
-
-    // 先用緩存值展示，然後立即從後端更新真值
-    commitLikeCount(storedAgree);
-    commitImproveCount(storedDisagree);
+    commitLikeCount(readStoredHighestCount(LIKE_HIGHEST_COUNT_KEY, LIKE_INITIAL_COUNT));
+    commitImproveCount(readStoredHighestCount(SUGGESTION_HIGHEST_COUNT_KEY, SUGGESTION_INITIAL_COUNT));
 
     let active = true;
     let controller: AbortController | null = null;
@@ -360,18 +353,14 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         const data = (await response.json()) as CounterResponse;
         if (!active || !data?.ok) return;
 
-        // 📥 後端真值校準：使用後端返回的計數（確保全球一致）
         if (typeof data.agreeCount === 'number') {
           commitLikeCount(data.agreeCount);
-          console.log(`✅ 初始化認同計數：${data.agreeCount}（來自後端）`);
         }
         if (typeof data.disagreeCount === 'number') {
           commitImproveCount(data.disagreeCount);
-          console.log(`✅ 初始化不認同計數：${data.disagreeCount}（來自後端）`);
         }
-      } catch (error) {
-        // 網路失敗時保留 localStorage 緩存值：不顯示 0、不倒退
-        console.warn('⚠️ 初始化無法連接後端，使用緩存值', error);
+      } catch {
+        // 取不到就保留畫面上目前的數字：不顯示 0、不倒退。
       }
     }
 
@@ -379,7 +368,6 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
       if (document.visibilityState === 'visible') void refreshCounters();
     }
 
-    // 立即嘗試從後端獲取最新值
     void refreshCounters();
     window.addEventListener('focus', refreshCounters);
     window.addEventListener('online', refreshCounters);
@@ -454,163 +442,11 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
     };
   }, [commitImproveCount, commitLikeCount]);
 
-  /**
-   * 全球原子性同步 - 高頻輪詢確保全球即時一致
-   *
-   * 設計原則（業主要求）：
-   * 1. 數字只能往前 ↑ 不能往後 ↓
-   * 2. 往後 = 異常，需要告警
-   * 3. 前端立即 +1（樂觀更新）
-   * 4. 後端廣播給全球 → 所有設備同時更新
-   * 5. 高頻同步（500ms 週期）確保全球一致性
-   */
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    let active = true;
-    let lastKnownAgree = likeCount;
-    let lastKnownDisagree = improveCount;
-
-    async function pollForGlobalUpdates() {
-      if (!active) return;
-
-      try {
-        const response = await fetch('/api/home-trust', {
-          method: 'GET',
-          cache: 'no-store',
-        });
-
-        if (!response.ok || !active) return;
-
-        const data = (await response.json()) as {
-          agreeCount?: number;
-          disagreeCount?: number;
-        };
-
-        // 🔴 檢測異常：數字往後
-        if (typeof data.agreeCount === 'number' && data.agreeCount < lastKnownAgree) {
-          console.error(`🚨 【異常告警】認同計數往後：${lastKnownAgree} → ${data.agreeCount}`);
-          // TODO: 發送告警到監控系統
-        }
-
-        if (typeof data.disagreeCount === 'number' && data.disagreeCount < lastKnownDisagree) {
-          console.error(`🚨 【異常告警】不認同計數往後：${lastKnownDisagree} → ${data.disagreeCount}`);
-          // TODO: 發送告警到監控系統
-        }
-
-        // ✅ 檢測正常更新：計數往前 → 全球同步
-        if (typeof data.agreeCount === 'number' && data.agreeCount > lastKnownAgree) {
-          commitLikeCount(data.agreeCount);
-          setPulseChoice('like');
-          console.log(`🌍 【全球同步】認同: ${lastKnownAgree} → ${data.agreeCount} ✨ 全世界一起加一`);
-          lastKnownAgree = data.agreeCount;
-        }
-
-        if (typeof data.disagreeCount === 'number' && data.disagreeCount > lastKnownDisagree) {
-          commitImproveCount(data.disagreeCount);
-          setPulseChoice('improve');
-          console.log(`🌍 【全球同步】不認同: ${lastKnownDisagree} → ${data.disagreeCount} ✨ 全世界一起加一`);
-          lastKnownDisagree = data.disagreeCount;
-        }
-      } catch (error) {
-        console.warn('⚠️ 全球同步失敗，重試中...', error);
-      }
-
-      // 高頻同步：500ms 一次 → 確保全球即時一致
-      if (active) {
-        setTimeout(pollForGlobalUpdates, 500);
-      }
-    }
-
-    // 立即開始全球同步
-    pollForGlobalUpdates();
-
-    return () => {
-      active = false;
-    };
-  }, [commitLikeCount, commitImproveCount]);
-
-  /**
-   * 廣播事件監聽 - 實時接收其他設備的投票更新
-   *
-   * 使用短輪詢（200ms）替代長連接，改善連接穩定性
-   */
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    let active = true;
-    let clientId = `client_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-    let lastEventTimestamp = Date.now();
-
-    async function pollBroadcastUpdates() {
-      if (!active) return;
-
-      try {
-        const response = await fetch(`/api/trust-feedback/ws?clientId=${encodeURIComponent(clientId)}&since=${lastEventTimestamp}`, {
-          method: 'GET',
-          cache: 'no-store',
-          signal: AbortSignal.timeout(5000), // 5 秒超時而不是 30 秒
-        });
-
-        if (!response.ok || !active) return;
-
-        const data = (await response.json()) as {
-          event?: {
-            type: 'like' | 'disagree';
-            agreeCount?: number;
-            disagreeCount?: number;
-            timestamp: number;
-          };
-        };
-
-        // 📡 收到廣播事件 → 立即更新（優先於輪詢）
-        if (data.event) {
-          lastEventTimestamp = Math.max(lastEventTimestamp, data.event.timestamp);
-
-          if (data.event.type === 'like' && typeof data.event.agreeCount === 'number') {
-            commitLikeCount(data.event.agreeCount);
-            console.log(`📡 【廣播同步】認同: ${data.event.agreeCount} ✨ 立即更新`);
-          }
-
-          if (data.event.type === 'disagree' && typeof data.event.disagreeCount === 'number') {
-            commitImproveCount(data.event.disagreeCount);
-            console.log(`📡 【廣播同步】不認同: ${data.event.disagreeCount} ✨ 立即更新`);
-          }
-        }
-      } catch (error) {
-        // 超時或錯誤時靜默處理，100ms 後重試
-        if (active) {
-          console.debug('廣播監聽超時或出錯，100ms 後重試');
-        }
-      }
-
-      // 短輪詢：100ms 一次（比 500ms 輪詢更快，但不過度頻繁）
-      if (active) {
-        setTimeout(pollBroadcastUpdates, 100);
-      }
-    }
-
-    // 立即開始監聽廣播
-    pollBroadcastUpdates();
-
-    return () => {
-      active = false;
-    };
-  }, [commitLikeCount, commitImproveCount]);
-
   async function submitChoice(nextChoice: FeedbackChoice) {
     if (submittingChoice) return;
 
     setSubmittingChoice(nextChoice);
     setNotice(null);
-
-    // 🚀 【樂觀更新】立即 +1，不等待後端
-    // 前端立即跳升，用戶立刻看到反饋
-    if (nextChoice === 'like') {
-      commitAcceptedLikeCount(likeCount + 1);
-    } else {
-      commitAcceptedImproveCount(improveCount + 1);
-    }
 
     const eventId = createFeedbackEventId();
 
@@ -623,37 +459,15 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         return;
       }
 
-      // ✅ 【伺服器真值】用後端計數確保全球一致
-      // 如果後端返回更新的計數，使用它確保一致性
-      let finalAgreeCount = data.agreeCount;
-      let finalDisagreeCount = data.disagreeCount;
-
+      // 新 API 總是成功遞增（原子性保證），所以直接取新值
       if (nextChoice === 'like') {
-        if (typeof data.agreeCount === 'number' && data.agreeCount > likeCount) {
+        if (typeof data.agreeCount === 'number') {
           commitAcceptedLikeCount(data.agreeCount);
-          finalAgreeCount = data.agreeCount;
         }
       } else {
-        if (typeof data.disagreeCount === 'number' && data.disagreeCount > improveCount) {
+        if (typeof data.disagreeCount === 'number') {
           commitAcceptedImproveCount(data.disagreeCount);
-          finalDisagreeCount = data.disagreeCount;
         }
-      }
-
-      // 📡 立即廣播投票事件給所有客戶端（異步，不阻塞 UI）
-      // 注意：後端投票端點已經廣播，這是二次廣播以確保所有客戶端收到
-      if (typeof finalAgreeCount === 'number' || typeof finalDisagreeCount === 'number') {
-        void fetch('/api/trust-feedback/ws', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: nextChoice === 'like' ? 'like' : 'disagree',
-            agreeCount: finalAgreeCount,
-            disagreeCount: finalDisagreeCount,
-          }),
-        }).catch(() => {
-          // 廣播失敗不應該中斷投票流程
-        });
       }
 
       setChoice(nextChoice);
@@ -724,7 +538,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
           type="button"
           onClick={() => submitChoice('like')}
           disabled={Boolean(submittingChoice)}
-          aria-label="我認同易經回饋校準"
+          aria-label="我認同"
           className={`home-ai-feedback-action home-ai-feedback-action--like ${likeSelected ? 'home-ai-feedback-action--selected' : ''}`}
         >
           <span aria-hidden="true">{'\u{1F44D}'}</span>
@@ -735,7 +549,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
           type="button"
           onClick={() => submitChoice('improve')}
           disabled={Boolean(submittingChoice)}
-          aria-label="我不認同易經回饋校準"
+          aria-label="我不認同"
           className={`home-ai-feedback-action home-ai-feedback-action--disagree ${improveSelected ? 'home-ai-feedback-action--selected' : ''}`}
         >
           <span aria-hidden="true">{'\u{1F44E}'}</span>
