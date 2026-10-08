@@ -33,6 +33,8 @@ sample.bazi.professionalChart.traditionalInterpretationGate.shenShaReady = true;
 assert.equal(render().includes('天乙貴人'), false, 'aggregate flag cannot unlock unverified individual rules');
 sample.bazi.professionalChart.traditionalInterpretationGate.shenShaReady = false;
 sample.bazi.professionalChart.traditionalInterpretationGate.shenShaRules = { tianyi: { ready: true, status: 'VERIFIED', outputStatus: 'READY' }, taohua: { ready: false, status: 'PENDING_POOL' } };
+sample.shenShaVisibility.allowed = new Set(['天乙貴人']);
+sample.specialStars = { byPillar: { day: [{ name: '天乙貴人', rule: 'DAY 支丑' }], hour: [], month: [], year: [] } };
 assert.equal((render().match(/天乙貴人/g) || []).length, 1, 'verified names are deduplicated per pillar');
 assert.equal(render().includes('桃花'), false, 'a pending rule neither leaks nor blocks a verified sibling');
 assert.equal(render().includes('未命中'), false, 'checked non-hits remain empty');
