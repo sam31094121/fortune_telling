@@ -17,6 +17,7 @@ const sample = {
     twelveStages: Object.fromEntries(pillars.map(p => [p, '沐浴'])),
     shenSha: [{ id: 'tianyi', name: '天乙貴人', evidence: 'DAY 支丑' }, { id: 'tianyi', name: '天乙貴人', evidence: 'DAY 支丑' }, { id: 'taohua', name: '桃花', evidence: 'DAY 支丑' }],
   },
+  shenShaVisibility: { allowed: new Set(), conflicts: [], pending: [] },
 };
 const render = () => renderToStaticMarkup(React.createElement(target.exports.PillarGrid, { result: sample }));
 const blocked = render();
