@@ -401,7 +401,9 @@
         "lib/ziwei-presentation-service.ts",
         "lib/ziwei-star-beast-link.ts",
         "lib/asura/ziwei-personality-registry.ts",
-        "lib/ghost-asura-ziwei-engine.ts"
+        "lib/ghost-asura-ziwei-engine.ts",
+        "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紫微-十四主星-權威來源.json",
+        "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紫微-武曲七殺-權威來源.md"
       ],
       "authority_files": [
         "S-ZWDS-QUANSHU",
