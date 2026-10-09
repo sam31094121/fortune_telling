@@ -25,6 +25,7 @@ import HomeTrustReceipt from '@/components/HomeTrustReceipt';
 import HomeTrustEvidence from '@/components/HomeTrustEvidence';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
+import { withShareVersion } from '@/lib/share-preview';
 import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import FineDiningServiceProgress from '@/components/FineDiningServiceProgress';
@@ -1688,7 +1689,7 @@ export default function HomePage() {
     };
   }, []);
   const handleLineShare = async () => {
-    const shareUrl = 'https://heaven-earth-humanity-pair.vercel.app/';
+    const shareUrl = withShareVersion('https://heaven-earth-humanity-pair.vercel.app/');
     const shareData = {
       title: '☯ 太極命理 易經',
       text: '用 易經探索靈魂配對、人格能量與數字好壞，看看天、地、人之間的共鳴。',

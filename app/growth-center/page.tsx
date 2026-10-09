@@ -22,6 +22,7 @@ import { deriveUnlockedMansions } from '@/lib/beast-growth-rewards';
 import { COLLECTION_UPDATED } from '@/lib/beast-collection';
 import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
 import { trackEvent } from '@/lib/analytics';
+import { withShareVersion } from '@/lib/share-preview';
 
 type ApiResult = GrowthCenterResult & { requestId?: string };
 type CheckInHistory = Record<string, string>;
@@ -421,7 +422,7 @@ export default function GrowthCenterPage() {
     if (!data) return;
     trackEvent('growth_share', { streak: weeklyStreak, orb_count: collectedOrbCount, beast_count: unlockedCards.length });
     const shareText = `我在太極命理 易經的成長中心完成了 ${lifetimeCheckInCount} 天小任務，收集了 ${collectedOrbCount} 顆寶珠、取得了 ${unlockedCards.length} 組星宿羈絆。`;
-    const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/growth-center` : '/growth-center';
+    const shareUrl = withShareVersion(typeof window !== 'undefined' ? `${window.location.origin}/growth-center` : '/growth-center');
     try {
       if (typeof navigator !== 'undefined' && navigator.share) {
         await navigator.share({ title: '☯ 太極命理 易經｜我的成長進度', text: shareText, url: shareUrl });

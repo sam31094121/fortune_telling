@@ -26,6 +26,7 @@ import { downloadAsPDF, downloadAsImage, generateFilename } from '@/lib/ghost-as
 import { getCardRevealAnimation, getImpressionGlowAnimation, getScrollFormationAnimation, getTotalAnimationDuration } from '@/lib/ghost-asura-animation';
 import { initializeAudio, playCardRevealSound, playImpressionGlowSound, playShareSuccessSound, playDownloadSuccessSound } from '@/lib/ghost-asura-audio';
 import { initializeParticleSystem, getParticleSystem, cleanupParticleSystem } from '@/lib/ghost-asura-particles';
+import { withShareVersion } from '@/lib/share-preview';
 import styles from './ghost-asura.module.css';
 import brandStyles from '@/components/AsuraBrandTitle.module.css';
 
@@ -91,7 +92,7 @@ export default function GhostAsuraPageClient({
   }
 
   async function handleCopyLink() {
-    const url = typeof window !== 'undefined' ? window.location.href : '';
+    const url = withShareVersion(typeof window !== 'undefined' ? window.location.href : '');
     const success = await navigator.clipboard.writeText(url).catch(() => false);
 
     if (success) {
@@ -102,7 +103,7 @@ export default function GhostAsuraPageClient({
   }
 
   async function handleLineShare() {
-    const url = typeof window !== 'undefined' ? window.location.href : '';
+    const url = withShareVersion(typeof window !== 'undefined' ? window.location.href : '');
     const message = `我的阿修羅秘卷已生成！\n${url}\n\n點擊查看你的四柱隱影解盤 ✨`;
     const lineURL = `https://line.me/R/msg/text/${encodeURIComponent(message)}`;
     window.open(lineURL, '_blank');
@@ -115,7 +116,7 @@ export default function GhostAsuraPageClient({
     }
 
     try {
-      const url = typeof window !== 'undefined' ? window.location.href : '';
+      const url = withShareVersion(typeof window !== 'undefined' ? window.location.href : '');
       await navigator.share({
         title: '鬼魅阿修羅秘卷',
         text: '我的阿修羅秘卷已生成！點擊查看你的四柱隱影解盤',
