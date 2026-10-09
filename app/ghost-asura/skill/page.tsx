@@ -8,6 +8,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { SHARE_DESCRIPTION, SHARE_OG_IMAGES, SHARE_TITLE, SHARE_TWITTER_IMAGES } from '@/lib/share-preview';
 import styles from './skill.module.css';
 import AsuraSkillReading from './AsuraSkillReading';
 import { AsuraReadingProvider } from './AsuraReadingContext';
@@ -59,18 +60,18 @@ export const metadata: Metadata = {
   description: '鬼魅阿修羅檔案技能：後端算、前端顯。阿修羅的口吻、鐵律、真名錄與視覺規則。',
   keywords: ['鬼魅阿修羅', '阿修羅', '業鏡', '四有'],
   openGraph: {
-    title: '鬼魅阿修羅｜技能檔案',
-    description: '業鏡一照，我已先看過。鬼魅阿修羅的口吻、鐵律與真名錄。',
+    title: SHARE_TITLE,
+    description: SHARE_DESCRIPTION,
     siteName: '鬼魅阿修羅',
-    images: [{ url: '/images/og-taichi-preview.jpg?v=20260817-1', width: 1024, height: 1024, type: 'image/jpeg', alt: '鬼魅阿修羅' }],
+    images: SHARE_OG_IMAGES,
     locale: 'zh_TW',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: '鬼魅阿修羅｜技能檔案',
-    description: '業鏡一照，我已先看過。',
-    images: ['/images/og-taichi-preview.jpg?v=20260817-1'],
+    title: SHARE_TITLE,
+    description: SHARE_DESCRIPTION,
+    images: SHARE_TWITTER_IMAGES,
   },
 };
 

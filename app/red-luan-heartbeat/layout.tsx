@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SHARE_DESCRIPTION, SHARE_OG_IMAGES, SHARE_TITLE, SHARE_TWITTER_IMAGES } from '@/lib/share-preview';
 
 /**
  * 這張卡自己的分享中繼資料。
@@ -16,18 +17,18 @@ export const metadata: Metadata = {
   description: '用八字與紫微算出下一次紅鸞、天喜、桃花或貴人落在哪一個月，還有會跟你來電的是哪一型的人。不知道出生時辰也算得出來。',
   alternates: { canonical: '/red-luan-heartbeat' },
   openGraph: {
-    title: '下一次紅鸞心動，是哪個月？',
-    description: '八字＋紫微算出月份，易經起卦告訴你會碰到哪一型的人。',
+    title: SHARE_TITLE,
+    description: SHARE_DESCRIPTION,
     url: '/red-luan-heartbeat',
     type: 'article',
     locale: 'zh_TW',
-    images: [{ url: '/images/og-taichi-preview.jpg', width: 1024, height: 1024, alt: '桃花・紅鸞心動' }],
+    images: SHARE_OG_IMAGES,
   },
   twitter: {
     card: 'summary_large_image',
-    title: '下一次紅鸞心動，是哪個月？',
-    description: '八字＋紫微算出月份，易經起卦告訴你會碰到哪一型的人。',
-    images: ['/images/og-taichi-preview.jpg'],
+    title: SHARE_TITLE,
+    description: SHARE_DESCRIPTION,
+    images: SHARE_TWITTER_IMAGES,
   },
 };
 
