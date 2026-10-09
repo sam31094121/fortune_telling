@@ -4,7 +4,7 @@
  * 換圖時記得同步更新 SHARE_IMAGE_VERSION，否則 Facebook、LINE 會繼續顯示快取的舊圖。
  */
 
-export const SHARE_IMAGE_VERSION = '20261009-1';
+export const SHARE_IMAGE_VERSION = '2';
 export const SHARE_IMAGE = `/images/og-tiandiren.jpg?v=${SHARE_IMAGE_VERSION}`;
 export const SHARE_IMAGE_WIDTH = 1200;
 export const SHARE_IMAGE_HEIGHT = 630;
