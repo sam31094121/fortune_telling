@@ -17,6 +17,7 @@ import type { AsuraDisplay, AsuraDisplaySeal } from '@/lib/ghost-asura-display-c
 import type { GhostAsuraReading } from '../types';
 import { GHOST_ASURA_CARD_TITLE, GHOST_ASURA_UI } from '../uiText';
 import styles from './GhostAsuraCard.module.css';
+import { AsuraNatureCard } from './AsuraNatureCard';
 
 export function GhostAsuraCard({ display, reading }: { display?: AsuraDisplay; reading?: GhostAsuraReading }) {
   if (display) return <DisplayCard display={display} />;
@@ -70,6 +71,9 @@ export function GhostAsuraCardShell() {
 
 /** 業主 2026-10-04：標題下小字（副標「本命阿修羅｜命魂戰局｜阿修羅秘卷」）暫不渲染；改 true 即恢復。 */
 const SHOW_HEADER_SUBTITLE = false;
+
+/** 業主 2026-10-09：〔本人：名字〕名牌升級為本性卡（三格之上，點開見本性／優勢／弱點／風險）。有名字就顯示（無本性資料＝四段空位）；沒填名字＝不顯示；改 false 即全回舊名牌。 */
+const SHOW_NATURE_CARD = true;
 
 /** 業主 2026-10-06：印記數字統計卡（四個可點數字＋白話說明）暫不渲染；改 true 即恢復。清單與資料不受影響。 */
 const SHOW_STATS_CARD = false;
@@ -192,10 +196,15 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
       {/* 橫幅「鬼魅［修羅印］阿修羅」＋下方過去／現在／未來一列三格：點格在下方全寬展開，再點收合。 */}
       <header className={styles.asuraTopRow} data-asura-top-row>
         <AsuraBanner title={display.title} />
-        {display.targetName && (
-          <div className={styles.targetBadge} data-asura-target-badge>
-            〔{display.identityTarget === 'guest' ? '親友' : '本人'}：{display.targetName}〕
-          </div>
+        {/* 本性卡：原〔本人：名字〕名牌的位置與結構升級成這張卡；有名字就顯示（後端無本性資料時四段留空位）；沒名字＝不顯示 */}
+        {SHOW_NATURE_CARD && display.targetName ? (
+          <AsuraNatureCard name={display.targetName} identityTarget={display.identityTarget} nature={display.nature} />
+        ) : (
+          display.targetName && (
+            <div className={styles.targetBadge} data-asura-target-badge>
+              〔{display.identityTarget === 'guest' ? '親友' : '本人'}：{display.targetName}〕
+            </div>
+          )
         )}
         {SHOW_HEADER_SUBTITLE && <p className={styles.subtitle}>{display.subtitle}</p>}
         <div className={styles.asuraTiles}>
@@ -243,6 +252,8 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
         >
           {openKey === section.key && (
             <div className={styles.fnBody}>
+              {/* 故事線（新增 story 欄）：承接本性卡，同一翻譯層；舊資料無此欄＝不畫 */}
+              {section.story && <p className={styles.fnStory} data-asura-story={section.key}>{section.story}</p>}
               {/* 修羅檔案技能專用操作列：標示時間維度並提供一鍵複製話術與程式碼 */}
               <div className={styles.fnActionBar} data-asura-action-bar>
                 <div className={styles.fnBadgeTag}>

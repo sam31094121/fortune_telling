@@ -18,6 +18,9 @@ import { AsuraSkillError, asuraPlainLineOf, resolveAsuraInterpretation } from '@
 import { ASURA_PLAIN, ASURA_TIMELINE, ASURA_VOICE, composeTime, type AsuraPillarKey, type AsuraWhen, voiceLead } from '@/lib/server/ghost-asura-voice';
 import { generatePersonalizedCardSpeech, deriveGenderExpressionProfile } from '@/lib/asura/ghost-asura-gender-expression-skill';
 import { buildClientAsuraPersona } from '@/lib/asura/client-personality-cross-engine';
+import { analyzePersona, runNatureGates } from '@/lib/server/ghost-asura-persona';
+import { asuraLinkStory, asuraTranslateDisplay, toPublic, translateAsNature } from '@/lib/server/ghost-asura-translation-layer';
+import type { AsuraNatureCardServer } from '@/lib/ghost-asura-nature-contract';
 import {
   buildGhostAsuraReading,
   GHOST_ASURA_UI,
@@ -570,11 +573,29 @@ export function computeGhostAsuraDisplay(raw: unknown, now: Date = new Date()): 
   const declaredSex = engineInput.gender === 'female' ? 'FEMALE' : engineInput.gender === 'male' ? 'MALE' : null;
 
   // 顯示別名層：運算結果不動，只把要上畫面的字換成阿修羅語彙（lib/asura-display-alias.ts）
-  return asuraDeepScrub(toAsuraDisplay(buildGhostAsuraReading({ result }), crossCheckedRuleIds(result), {
+  const display = asuraDeepScrub(toAsuraDisplay(buildGhostAsuraReading({ result }), crossCheckedRuleIds(result), {
     hourAssumed: hourAssumed === true,
     timeAxis,
     targetName,
     identityTarget: effectiveTarget,
     declaredSex,
   }));
+  // 本性卡：四道關 → 人格解析層（主證據）→ 阿修羅翻譯層（只翻譯）→ toPublic；瀏覽器只拿 AsuraNatureCardPublic（零術語）。
+  // 三卡：同一翻譯層只換字＋依 natureKey／riskKeys 加一句故事線（新增 story 欄），篩選與項目不動。
+  const nature = computeNatureCard(engineInput, hourAssumed === true);
+  return { ...asuraLinkStory(asuraTranslateDisplay(display), nature), nature: nature ? toPublic(nature) : null };
+}
+
+/** 生辰 → 四道關 → analyzePersona → translateAsNature（後端完整版，含 natureKey／riskKeys／evidence）；任一關未過＝null。 */
+export function computeNatureCard(engineInput: Record<string, unknown>, hourAssumed: boolean): AsuraNatureCardServer | null {
+  const { birthDate, birthTime, gender } = engineInput;
+  if (typeof birthDate !== 'string' || typeof birthTime !== 'string' || (gender !== 'male' && gender !== 'female')) return null;
+  const run = runNatureGates({ birthDate, birthTime, gender, hourAssumed });
+  const evidence = analyzePersona(run.gates, run.materials);
+  if (!evidence) return null;
+  try {
+    return translateAsNature(evidence);
+  } catch {
+    return null;
+  }
 }

@@ -1,0 +1,779 @@
+{
+ "data": {
+  "contract": "ghost-asura-display/v1",
+  "hourAssumed": false,
+  "assumedHour": null,
+  "hourNote": null,
+  "title": "鬼魅阿修羅",
+  "subtitle": "本命阿修羅｜命魂戰局｜阿修羅秘卷",
+  "lines": [
+   "別人還沒看見風暴，阿修羅先看見。",
+   "業鏡照出的是戰場，不是保護區。你已經站上去了。"
+  ],
+  "alert": null,
+  "scrollHint": "左右滑過四有，印記各歸其位。",
+  "columns": [
+   {
+    "key": "year",
+    "heading": "千歲壽",
+    "lead": "天赦神契",
+    "countText": "共 4 枚印記",
+    "seals": [
+     {
+      "id": "tiandehe",
+      "name": "天赦神契",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "有人替你開門。",
+      "meaning": "進去後的仗還得自己打。別被福氣寵壞了。有人幫你，不是叫你還債，而是叫你去贏。",
+      "clash": "每贏一場，都是在擴大那支援軍的勢力。 用優勢去戰鬥，不是躺著享受。"
+     },
+     {
+      "id": "yima",
+      "name": "逐界行者",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "永遠在移動。但別理解成逃離，那是進攻。",
+      "meaning": "不穩定的人，往往是最難被困住的人。每一個停靠點都是一個陣地。你是巡迴式的征服者。",
+      "clash": "移動是為了進攻，不是為了逃避。 在移動中也能精準出手。"
+     },
+     {
+      "id": "kongwang",
+      "name": "虛界空印",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "虛界空印就是虛界，該來的沒來。",
+      "meaning": "缺席不代表幸運。有時候缺席本身，就是一個劫難。什麼該發生卻沒發生，才是真正的問題。",
+      "clash": "虛空之力最難察覺，因為它什麼都沒做。 看清空白，才能填補它。"
+     },
+     {
+      "id": "lushen",
+      "name": "玄祿寶印",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "自己掙來的祿。",
+      "meaning": "靠自己的本事就有飯吃，衣食有根基。落在千歲壽、一剎那，這股氣多半先從家族、長輩或別人對你的第一印象裡顯現。像自家田裡的稻穗，不是天上掉下來的，是一季一季自己種出來的。",
+      "clash": "「自己掙來的祿」是你的底牌：先認得它，再決定何時亮出來。 專心把一技之長磨深；你的祿在手上，越用心經營，越豐厚。"
+     }
+    ]
+   },
+   {
+    "key": "month",
+    "heading": "障月",
+    "lead": "玄金寶庫",
+    "countText": "共 4 枚印記",
+    "seals": [
+     {
+      "id": "jinkui",
+      "name": "玄金寶庫",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "有本錢才有話語權。",
+      "meaning": "囤積資源而不出手，那不是智慧，是懦弱。資源在手，才能用來做大事。",
+      "clash": "有底氣的人敢出手。存底越多，能打的仗就越大。 存著不打，那不是保護，是逃避。"
+     },
+     {
+      "id": "wugui",
+      "name": "五陰纏影",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "五陰纏影已現。",
+      "meaning": "陰氣不是靠近你，是已經纏上命魂。順時，你能先一步嗅出暗流。逆時，疑念、雜音、背後之影，會一層層封住判斷。若再遇亡影、劫境、幽辰同場，整個戰局直接墜入陰域。",
+      "clash": "到那時，不是你在看局——是局在吞你。 鬼魅阿修羅只看一件事：你能不能在陰影徹底合圍之前，先把它們鎮碎。"
+     },
+     {
+      "id": "gejiao",
+      "name": "孤界之門",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "隔著一道牆。",
+      "meaning": "與這一面的人事隔著一道牆，要有人先敲門。像羅盤上的四個轉角，路沒有斷，只是得轉個身才看得見對方；也像兩個房間只隔一面牆，彼此聽得見聲音，卻要有人先敲門。落在障月，這股氣多半在工作、同儕與成長的環境裡被看見。",
+      "clash": "「隔著一道牆」不是判決，是提醒：先預備，再出手。 主動敲那扇門：先問候、先釋出善意；牆不會自己倒，但門一直都在。"
+     },
+     {
+      "id": "hongyan",
+      "name": "緋艷魅魂",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "自帶的浪漫魅力。",
+      "meaning": "自身散發浪漫魅力，容易被欣賞、被喜歡。像一朵正紅的花開在綠葉裡，不用說話，目光就落在它身上。落在障月，這股氣多半在工作、同儕與成長的環境裡被看見。",
+      "clash": "「自帶的浪漫魅力」在戰局裡主動出擊，出手之前先看清方向。 魅力是天賦也是責任；在感情裡真誠清楚，把吸引力留給值得的人。"
+     }
+    ]
+   },
+   {
+    "key": "day",
+    "heading": "障日",
+    "lead": "金輿寶匣",
+    "countText": "共 4 枚印記",
+    "seals": [
+     {
+      "id": "jinyu",
+      "name": "金輿寶匣",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "有人載你一程。",
+      "meaning": "生活有依靠、出入有助力，常得身邊人的資源相挺。落在障日，這股氣最貼近你自己，也最常在親密關係裡感受到。像一輛穩當的車停在門口，要去遠方時，不必一個人走。",
+      "clash": "「有人載你一程」是你的底牌：先認得它，再決定何時亮出來。 接受別人的助力不丟臉；把資源用在讓自己走更遠的地方，也記得回頭載別人一程。"
+     },
+     {
+      "id": "shieDabai",
+      "name": "十敗劫印",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "理財要有紀律。",
+      "meaning": "錢來得快也容易去得快，要有理財的紀律。落在障日，這股氣最貼近你自己，也最常在親密關係裡感受到。像一只沒綁緊的錢袋，路上走得太急，零錢就一路掉。",
+      "clash": "「理財要有紀律」是這一局要先看清的地方：看清了是防線，看不清才會變破口。 投資前先設停損、分散；每月固定存一筆，用紀律把財留住。"
+     },
+     {
+      "id": "sangmen",
+      "name": "喪界幽門",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "告別與新章。",
+      "meaning": "常伴隨結束與轉換，舊的一頁翻過，新的一章才開始。落在障日，這股氣最貼近你自己，也最常在親密關係裡感受到。像秋天落葉，不是樹的終點，是為了春天騰出位置。",
+      "clash": "「告別與新章」是這一局要先看清的地方：看清了是防線，看不清才會變破口。 遇到結束或離別，允許自己好好道別；把感謝說完，再往下一段路走。"
+     },
+     {
+      "id": "shiling",
+      "name": "十靈魂影",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "靈敏的直覺。",
+      "meaning": "直覺敏銳、反應靈活，常有一點就通的悟性。落在障日，這股氣最貼近你自己，也最常在親密關係裡感受到。像山中的泉水，清澈又靈動，一碰到石頭就知道怎麼轉彎。",
+      "clash": "「靈敏的直覺」是你的底牌：先認得它，再決定何時亮出來。 相信你的直覺，也給它一點時間驗證；靈感記下來，常常就是答案。"
+     }
+    ]
+   },
+   {
+    "key": "hour",
+    "heading": "一剎那",
+    "lead": "天赦神契",
+    "countText": "共 5 枚印記",
+    "seals": [
+     {
+      "id": "tiandehe",
+      "name": "天赦神契",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "有人替你開門。",
+      "meaning": "進去後的仗還得自己打。別被福氣寵壞了。有人幫你，不是叫你還債，而是叫你去贏。",
+      "clash": "每贏一場，都是在擴大那支援軍的勢力。 用優勢去戰鬥，不是躺著享受。"
+     },
+     {
+      "id": "yuede",
+      "name": "月德靈契",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "月光是冷的，不是溫柔的。",
+      "meaning": "它照亮黑夜，卻不是為了讓你舒服，而是讓你看清敵人在哪。用這股冷光去看清戰局，不是躲在光下。",
+      "clash": "被看見的第一步，是去看清自己想要什麼。 以月光為劍，在黑暗裡戰鬥。"
+     },
+     {
+      "id": "yima",
+      "name": "逐界行者",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "永遠在移動。但別理解成逃離，那是進攻。",
+      "meaning": "不穩定的人，往往是最難被困住的人。每一個停靠點都是一個陣地。你是巡迴式的征服者。",
+      "clash": "移動是為了進攻，不是為了逃避。 在移動中也能精準出手。"
+     },
+     {
+      "id": "kongwang",
+      "name": "虛界空印",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "虛界空印就是虛界，該來的沒來。",
+      "meaning": "缺席不代表幸運。有時候缺席本身，就是一個劫難。什麼該發生卻沒發生，才是真正的問題。",
+      "clash": "虛空之力最難察覺，因為它什麼都沒做。 看清空白，才能填補它。"
+     },
+     {
+      "id": "lushen",
+      "name": "玄祿寶印",
+      "tone": "awakened",
+      "sealLabel": "印記覺醒",
+      "declaration": "自己掙來的祿。",
+      "meaning": "靠自己的本事就有飯吃，衣食有根基。落在千歲壽、一剎那，這股氣多半先從家族、長輩或別人對你的第一印象裡顯現。像自家田裡的稻穗，不是天上掉下來的，是一季一季自己種出來的。",
+      "clash": "「自己掙來的祿」是你的底牌：先認得它，再決定何時亮出來。 專心把一技之長磨深；你的祿在手上，越用心經營，越豐厚。"
+     }
+    ]
+   }
+  ],
+  "rest": [],
+  "stats": [
+   {
+    "value": "65",
+    "label": "項印記",
+    "caption": "這次逐一檢查的種類",
+    "target": "pillars"
+   },
+   {
+    "value": "13",
+    "label": "印記覺醒",
+    "tone": "awakened",
+    "caption": "你的業鏡上有出現",
+    "target": "pillars"
+   },
+   {
+    "value": "52",
+    "label": "印記沉眠",
+    "tone": "dormant",
+    "caption": "你的業鏡上沒出現",
+    "target": "dormant"
+   },
+   {
+    "value": "0",
+    "label": "待校核",
+    "tone": "pending",
+    "caption": "沒有待確認的項目"
+   }
+  ],
+  "statsHint": "這次共檢查 65 種印記：13 種覺醒＋52 種沉眠＝65 種。覺醒的 13 種，依所在位置列在上方四有清單。其中 4 種同時落在不只一處，所以清單共列 17 處，但仍是 13 種，不是 17 種。",
+  "statsLines": [
+   "這次共檢查 65 種印記：13 種覺醒＋52 種沉眠＝65 種。",
+   "覺醒的 13 種，依所在位置列在上方四有清單。其中 4 種同時落在不只一處，所以清單共列 17 處，但仍是 13 種，不是 17 種。"
+  ],
+  "supplements": [
+   {
+    "key": "dual",
+    "heading": "印記交鋒",
+    "entries": [
+     {
+      "id": "noble-pair",
+      "title": "貴人相逢",
+      "members": "天赦神契 ↔ 月德靈契",
+      "text": "天赦神契、月德靈契一起出現：貴人星不只一顆，遇到困難時常有人伸手。平常多結善緣、守信用，貴人記得的是你的為人。"
+     },
+     {
+      "id": "de-softens",
+      "title": "德星化煞",
+      "members": "天赦神契 ↔ 月德靈契｜千歲壽、一剎那",
+      "text": "千歲壽的天赦神契護著虛界空印；一剎那的天赦神契、月德靈契護著虛界空印：本派讀作「有德護身」，這幾位的關卡雖然存在，但都有德星在旁，常有轉圜的餘地。守住善念與分寸，就是最好的化解。"
+     }
+    ]
+   },
+   {
+    "key": "chain",
+    "heading": "阿修羅連鎖",
+    "entries": [
+     {
+      "id": "livelihood",
+      "title": "衣食有底",
+      "members": "玄祿寶印、玄金寶庫、金輿寶匣",
+      "text": "玄祿寶印、玄金寶庫、金輿寶匣一起出現：衣食與資源有根基，靠自己的本事就能站穩。你的財不是來得快，而是留得住；先存再花，底氣會越來越厚。"
+     }
+    ]
+   }
+  ],
+  "battleField": {
+   "heading": "命魂戰局",
+   "rows": [
+    {
+     "label": "主戰魂",
+     "text": "天赦神契"
+    },
+    {
+     "label": "主要護印",
+     "text": "天赦神契"
+    },
+    {
+     "label": "主要劫印",
+     "text": "十敗劫印"
+    },
+    {
+     "label": "主要陰影",
+     "text": "五陰纏影"
+    },
+    {
+     "label": "魅緣力量",
+     "text": "緋艷魅魂"
+    },
+    {
+     "label": "權勢力量",
+     "text": "此域暫無可用判讀"
+    },
+    {
+     "label": "財庫力量",
+     "text": "玄金寶庫"
+    },
+    {
+     "label": "移動力量",
+     "text": "逐界行者"
+    },
+    {
+     "label": "突破口",
+     "text": "循「貴人相逢」布防：先守判斷，再找破口。"
+    },
+    {
+     "label": "戰局宣判",
+     "text": "天赦神契、月德靈契一起出現：貴人星不只一顆，遇到困難時常有人伸手。平常多結善緣、守信用，貴人記得的是你的為人。"
+    }
+   ]
+  },
+  "sections": [
+   {
+    "key": "hits",
+    "heading": "過去",
+    "label": "命中業果",
+    "lead": "",
+    "narrative": "你的路，早在祖上那一域就起了。\n千歲壽中，逐界行者已醒。你停不下來，一路換地方走。沒有哪一處，困得住你。動中出手，一擊必中。\n走過的那幾個十年裡，也有動靜。這十年裡，天乙神印曾醒。最大的貴人。平常多結善緣、守信用；貴人記得的，是你平時的為人。\n走過的那些年裡，也有動靜。這些年歲裡，血刃之鋒曾醒。你從不缺那股衝勁。刀，一直在手。有刃，便先出手。同一處，孤華幽冠曾醒。靈性與才藝。留時間給自己的興趣與修行；孤獨不是缺點，是你充電與創作的方式。同一處，文魂天契曾醒。文思與學習。給自己一個學習目標或證照；把想法寫下來、說出來，文昌的光就有地方照。\n這些，都已過去。那時我就在，你沒看見。",
+    "blocks": [
+     {
+      "text": "你的路，早在祖上那一域就起了。",
+      "plain": []
+     },
+     {
+      "text": "千歲壽中，逐界行者已醒。你停不下來，一路換地方走。沒有哪一處，困得住你。動中出手，一擊必中。",
+      "plain": [
+       {
+        "label": "逐界行者",
+        "plain": "過去你常搬動、換環境，沒被一個地方綁住。"
+       }
+      ]
+     },
+     {
+      "text": "走過的那幾個十年裡，也有動靜。這十年裡，天乙神印曾醒。最大的貴人。平常多結善緣、守信用；貴人記得的，是你平時的為人。",
+      "plain": [
+       {
+        "label": "天乙神印",
+        "plain": "命中最重要的貴人，遇到困難時常有人伸手相助。"
+       }
+      ]
+     },
+     {
+      "text": "走過的那些年裡，也有動靜。這些年歲裡，血刃之鋒曾醒。你從不缺那股衝勁。刀，一直在手。有刃，便先出手。同一處，孤華幽冠曾醒。靈性與才藝。留時間給自己的興趣與修行；孤獨不是缺點，是你充電與創作的方式。同一處，文魂天契曾醒。文思與學習。給自己一個學習目標或證照；把想法寫下來、說出來，文昌的光就有地方照。",
+      "plain": [
+       {
+        "label": "血刃之鋒",
+        "plain": "過去的你衝勁很強，常靠一股爆發力撐過去。"
+       },
+       {
+        "label": "孤華幽冠",
+        "plain": "才華與哲思兼備，也帶一份愛獨處的孤高。"
+       },
+       {
+        "label": "文魂天契",
+        "plain": "學得快、表達有條理，文思清楚。"
+       }
+      ]
+     },
+     {
+      "text": "這些，都已過去。那時我就在，你沒看見。",
+      "plain": []
+     }
+    ],
+    "coda": "這些事，已經落在你身上：換環境、在外奔波；非得先出手的局面。",
+    "items": [
+     {
+      "label": "逐界行者",
+      "text": "",
+      "plain": "過去你常搬動、換環境，沒被一個地方綁住。"
+     },
+     {
+      "label": "天乙神印",
+      "text": "",
+      "plain": "命中最重要的貴人，遇到困難時常有人伸手相助。"
+     },
+     {
+      "label": "血刃之鋒",
+      "text": "",
+      "plain": "過去的你衝勁很強，常靠一股爆發力撐過去。"
+     },
+     {
+      "label": "孤華幽冠",
+      "text": "",
+      "plain": "才華與哲思兼備，也帶一份愛獨處的孤高。"
+     },
+     {
+      "label": "文魂天契",
+      "text": "",
+      "plain": "學得快、表達有條理，文思清楚。"
+     }
+    ]
+   },
+   {
+    "key": "pillars",
+    "heading": "現在",
+    "label": "四有與封印",
+    "lead": "",
+    "narrative": null,
+    "blocks": null,
+    "coda": null,
+    "items": []
+   },
+   {
+    "key": "verdict",
+    "heading": "未來",
+    "label": "阿修羅判語",
+    "lead": "",
+    "narrative": "往後那個十年，已在前方。\n這十年裡，天乙神印將醒。最大的貴人。平常多結善緣、守信用；貴人記得的，是你平時的為人。\n往後的年歲裡，還有動靜。這些年歲裡，逐界行者將醒。下一站已在前方。那條路，我已先走過一遍。下一站，由你先到。同一處，血刃之鋒將醒。下一刀，由你先出。刀落在要處，不落空。該出手時，不等。同一處，孤華幽冠將醒。靈性與才藝。留時間給自己的興趣與修行；孤獨不是缺點，是你充電與創作的方式。\n往後的路，我先看過了。你只管走。",
+    "blocks": [
+     {
+      "text": "往後那個十年，已在前方。",
+      "plain": []
+     },
+     {
+      "text": "這十年裡，天乙神印將醒。最大的貴人。平常多結善緣、守信用；貴人記得的，是你平時的為人。",
+      "plain": [
+       {
+        "label": "天乙神印",
+        "plain": "命中最重要的貴人，遇到困難時常有人伸手相助。"
+       }
+      ]
+     },
+     {
+      "text": "往後的年歲裡，還有動靜。這些年歲裡，逐界行者將醒。下一站已在前方。那條路，我已先走過一遍。下一站，由你先到。同一處，血刃之鋒將醒。下一刀，由你先出。刀落在要處，不落空。該出手時，不等。同一處，孤華幽冠將醒。靈性與才藝。留時間給自己的興趣與修行；孤獨不是缺點，是你充電與創作的方式。",
+      "plain": [
+       {
+        "label": "逐界行者",
+        "plain": "接下來的機會，多半出現在移動和變動裡。"
+       },
+       {
+        "label": "血刃之鋒",
+        "plain": "接下來該出手時就出手，力氣用在關鍵處。"
+       },
+       {
+        "label": "孤華幽冠",
+        "plain": "才華與哲思兼備，也帶一份愛獨處的孤高。"
+       }
+      ]
+     },
+     {
+      "text": "往後的路，我先看過了。你只管走。",
+      "plain": []
+     }
+    ],
+    "coda": "這些事，必然來到：換環境、在外奔波；非得先出手的局面。",
+    "items": [
+     {
+      "label": "天乙神印",
+      "text": "",
+      "plain": "命中最重要的貴人，遇到困難時常有人伸手相助。"
+     },
+     {
+      "label": "逐界行者",
+      "text": "",
+      "plain": "接下來的機會，多半出現在移動和變動裡。"
+     },
+     {
+      "label": "血刃之鋒",
+      "text": "",
+      "plain": "接下來該出手時就出手，力氣用在關鍵處。"
+     },
+     {
+      "label": "孤華幽冠",
+      "text": "",
+      "plain": "才華與哲思兼備，也帶一份愛獨處的孤高。"
+     }
+    ]
+   }
+  ],
+  "glowIds": [
+   "yima"
+  ],
+  "audit": {
+   "listing": {
+    "total": 65,
+    "awakened": 13,
+    "dormant": 52,
+    "pending": 0,
+    "columnRows": 17,
+    "listedDistinct": 65,
+    "ok": true
+   },
+   "pipelineTotal": 65,
+   "emitted": 1,
+   "droppedDormant": 52,
+   "droppedDormantNames": [
+    "天德護印",
+    "天龍護命",
+    "噬天之影",
+    "劫境之門",
+    "六劫之關",
+    "蛻變新生",
+    "碎月之痕",
+    "裂日之痕",
+    "鎮軍之魂",
+    "幽辰之障",
+    "血刃之鋒",
+    "魅力引力",
+    "界外吸引",
+    "天乙神印",
+    "文魂天契",
+    "孤華幽冠",
+    "魁罡戰魂",
+    "靈學之門",
+    "天醫靈契",
+    "劫魂之刃",
+    "孤辰絕界",
+    "寡宿幽宮",
+    "鎮國之印",
+    "天饗神庫",
+    "天恩赦印",
+    "三奇幽影",
+    "亡影幽魂",
+    "陰陽錯界",
+    "孤鸞幽門",
+    "流霞魅痕",
+    "四廢冥障",
+    "月合靈契",
+    "飛刃血痕",
+    "金神藏匣",
+    "八專纏魂",
+    "九醜幽魘",
+    "六秀陰影",
+    "白虎血印",
+    "符障幽纏",
+    "麻衣冥印",
+    "斷歲之痕",
+    "月空幽障",
+    "截路絕界",
+    "天轉冥印",
+    "地轉冥魂",
+    "日德護印",
+    "日貴神印",
+    "攀鞍魘影",
+    "暗祿玄藏",
+    "進神幽纏",
+    "退神陰障",
+    "拱祿寶匣"
+   ],
+   "droppedPendingNames": [],
+   "droppedNoPillarNames": [],
+   "timelineMissingNames": [],
+   "verdictNoCopyNames": [],
+   "droppedPending": 0,
+   "droppedNoPillar": 0,
+   "droppedNotCrossVerified": 12,
+   "droppedNotCrossVerifiedNames": [
+    "天赦神契",
+    "月德靈契",
+    "玄金寶庫",
+    "五陰纏影",
+    "孤界之門",
+    "虛界空印",
+    "金輿寶匣",
+    "緋艷魅魂",
+    "玄祿寶印",
+    "十敗劫印",
+    "喪界幽門",
+    "十靈魂影"
+   ],
+   "droppedPlaceholder": 0,
+   "droppedPlaceholderNames": [],
+   "leadHidden": true,
+   "hourPillarNames": [
+    "逐界行者"
+   ],
+   "hourDependentNames": [],
+   "timeAxis": {
+    "todayTaipei": "2026-10-09",
+    "flowYear": 2026,
+    "flowGanZhi": "丙午",
+    "ageShi": 52,
+    "ageXu": 53,
+    "cards": [
+     {
+      "when": "past",
+      "luck": [
+       "辛未（1976–1985）",
+       "壬申（1986–1995）",
+       "癸酉（1996–2005）",
+       "甲戌（2006–2015）",
+       "乙亥（2016–2025）"
+      ],
+      "flowYears": [
+       1974,
+       2025
+      ],
+      "triggered": [
+       "tianyi",
+       "yuedehe",
+       "yima",
+       "suipo",
+       "yuekong",
+       "liue",
+       "taohua",
+       "liuxia",
+       "feiren",
+       "ripo",
+       "guoyin",
+       "tiande",
+       "xuetang",
+       "jiesha",
+       "anlu",
+       "tiandehe",
+       "kongwang",
+       "lushen",
+       "yangren",
+       "yuede",
+       "huagai",
+       "jinyu",
+       "wenchang",
+       "tianyiDoctor",
+       "guchen",
+       "tianchu",
+       "wangshen",
+       "jinkui",
+       "gejiao",
+       "hongyan",
+       "zaisha",
+       "yuepo",
+       "jiangxing",
+       "guasu",
+       "panan"
+      ],
+      "shown": [
+       "逐界行者",
+       "天乙神印",
+       "血刃之鋒",
+       "孤華幽冠",
+       "文魂天契"
+      ],
+      "dropped": [
+       "月合靈契：not-cross-verified",
+       "斷歲之痕：not-cross-verified",
+       "月空幽障：not-cross-verified",
+       "六劫之關：not-cross-verified",
+       "魅力引力：not-cross-verified",
+       "流霞魅痕：not-cross-verified",
+       "飛刃血痕：not-cross-verified",
+       "裂日之痕：not-cross-verified",
+       "鎮國之印：not-cross-verified",
+       "天德護印：not-cross-verified",
+       "靈學之門：not-cross-verified",
+       "劫魂之刃：not-cross-verified",
+       "暗祿玄藏：not-cross-verified",
+       "天赦神契：not-cross-verified",
+       "虛界空印：not-cross-verified",
+       "玄祿寶印：not-cross-verified",
+       "月德靈契：not-cross-verified",
+       "金輿寶匣：not-cross-verified",
+       "天醫靈契：not-cross-verified",
+       "孤辰絕界：not-cross-verified",
+       "天饗神庫：not-cross-verified",
+       "亡影幽魂：not-cross-verified",
+       "玄金寶庫：not-cross-verified",
+       "孤界之門：not-cross-verified",
+       "緋艷魅魂：not-cross-verified",
+       "劫境之門：not-cross-verified",
+       "碎月之痕：not-cross-verified",
+       "鎮軍之魂：not-cross-verified",
+       "寡宿幽宮：not-cross-verified",
+       "攀鞍魘影：not-cross-verified"
+      ]
+     },
+     {
+      "when": "present",
+      "luck": [
+       "丙子（2026–2035）"
+      ],
+      "flowYears": [
+       2026,
+       2026
+      ],
+      "triggered": [
+       "yuede",
+       "zaisha",
+       "yuepo",
+       "jiangxing",
+       "jinkui",
+       "gejiao",
+       "hongyan"
+      ],
+      "shown": [],
+      "dropped": [
+       "月德靈契：not-cross-verified",
+       "劫境之門：not-cross-verified",
+       "碎月之痕：not-cross-verified",
+       "鎮軍之魂：not-cross-verified",
+       "玄金寶庫：not-cross-verified",
+       "孤界之門：not-cross-verified",
+       "緋艷魅魂：not-cross-verified"
+      ]
+     },
+     {
+      "when": "future",
+      "luck": [
+       "丙子（2026–2035）",
+       "丁丑（2036–2045）"
+      ],
+      "flowYears": [
+       2027,
+       2036
+      ],
+      "triggered": [
+       "yuede",
+       "zaisha",
+       "yuepo",
+       "jiangxing",
+       "tianyi",
+       "guasu",
+       "panan",
+       "yima",
+       "suipo",
+       "liue",
+       "taohua",
+       "liuxia",
+       "feiren",
+       "ripo",
+       "guoyin",
+       "tiande",
+       "xuetang",
+       "jiesha",
+       "yuedehe",
+       "anlu",
+       "yuekong",
+       "tiandehe",
+       "kongwang",
+       "lushen",
+       "yangren",
+       "huagai",
+       "jinyu"
+      ],
+      "shown": [
+       "天乙神印",
+       "逐界行者",
+       "血刃之鋒",
+       "孤華幽冠"
+      ],
+      "dropped": [
+       "月德靈契：not-cross-verified",
+       "劫境之門：not-cross-verified",
+       "碎月之痕：not-cross-verified",
+       "鎮軍之魂：not-cross-verified",
+       "寡宿幽宮：not-cross-verified",
+       "攀鞍魘影：not-cross-verified",
+       "斷歲之痕：not-cross-verified",
+       "六劫之關：not-cross-verified",
+       "魅力引力：not-cross-verified",
+       "流霞魅痕：not-cross-verified",
+       "飛刃血痕：not-cross-verified",
+       "裂日之痕：not-cross-verified",
+       "鎮國之印：not-cross-verified",
+       "天德護印：not-cross-verified",
+       "靈學之門：not-cross-verified",
+       "劫魂之刃：not-cross-verified",
+       "月合靈契：not-cross-verified",
+       "暗祿玄藏：not-cross-verified",
+       "月空幽障：not-cross-verified",
+       "天赦神契：not-cross-verified",
+       "虛界空印：not-cross-verified",
+       "玄祿寶印：not-cross-verified",
+       "金輿寶匣：not-cross-verified"
+      ]
+     }
+    ]
+   },
+   "plainMissingNames": [],
+   "voiceRewritten": 1
+  },
+  "scopeNote": "印記故事用於文化象徵與自我反思，不代表心理診斷或必然發生的預言。",
+  "targetName": null,
+  "identityTarget": "self",
+  "personalizedEnhancements": {
+   "declaredSex": "MALE",
+   "personalizationAvailable": true
+  }
+ }
+}

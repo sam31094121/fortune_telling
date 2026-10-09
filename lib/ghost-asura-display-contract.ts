@@ -6,7 +6,12 @@
  * 本檔只有型別；前端一律以 `import type` 引用，不會打包任何命理邏輯。
  */
 
+import type { AsuraNatureCardPublic } from '@/lib/ghost-asura-nature-contract';
+
 export const ASURA_DISPLAY_CONTRACT = 'ghost-asura-display/v1' as const;
+
+/** 本性卡送往瀏覽器的部分（nature-final：AsuraNatureCardPublic，零術語）。natureKey／riskKeys／evidence 只存後端。 */
+export type AsuraNatureView = AsuraNatureCardPublic;
 
 /** 純樣式用的語氣標記（決定顏色），不是可運算的命理資料。 */
 export type AsuraDisplayTone = 'awakened' | 'dormant' | 'pending';
@@ -85,6 +90,8 @@ export interface AsuraDisplaySection {
   blocks?: AsuraNarrativeBlock[] | null;
   /** 「過去」卡收尾：「你以前就是這樣的人。……」（白話區之後，金色、略大） */
   coda?: string | null;
+  /** 新增（2026-10-09，只增不改）：依本性卡 natureKey／riskKeys 由阿修羅翻譯層加的一句故事線；舊資料無此欄＝不畫。 */
+  story?: string | null;
 }
 
 /** 稽核用（不顯示）：三格輸出挑選的誠實計數。 */
@@ -170,6 +177,11 @@ export interface AsuraDisplay {
   identityTarget?: 'self' | 'guest' | null;
   /** 性別表達個人化增強層（可選） */
   personalizedEnhancements?: Record<string, any>;
+  /**
+   * 本性卡（新增欄位；舊資料沒有此欄＝不畫）。四道關（八字→紫微→易經→命宮）全過才有值，否則 null。
+   * 規格：lib/ghost-asura-nature-contract.ts；前端只印名牌＋四段（本性／優勢／弱點／風險）。
+   */
+  nature?: AsuraNatureView | null;
 }
 
 /** 技能頁三張摺疊卡：生辰未送出前的一句（阿修羅口吻；無命盤資料，故放在共用合約）。 */

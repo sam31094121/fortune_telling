@@ -1,0 +1,2002 @@
+{
+ "meta": {
+  "title": "紫微斗數十四主星 權威來源（武曲、七殺優先）",
+  "retrieved": "2026-10-09（UTC+8）",
+  "rules": "只收實際抓取頁面中的文字；查不到者標 unverified；現代有版權來源只存短轉述＋出處",
+  "primary_edition_note": "《紫微斗數全書》用維基文庫錄本（清代刻本系統，wikitext 簡繁混排，引文照錄原字，未改繁）。ctext.org 拒絕自動抓取，未使用。《紫微斗數全集》、〈武曲星諸宮問答〉〈七殺星諸宮問答〉未找到可公開檢索之全文，一律 unverified。"
+ },
+ "licensing": {
+  "紫微斗數全書（維基文庫）": "公有領域古籍",
+  "道藏經文（維基文庫）": "公有領域古籍",
+  "封神演義（維基文庫）": "公有領域古典小說",
+  "維基百科": "CC BY-SA 4.0（現代整理，僅轉述）",
+  "xingge.tw / shunshi.ai / ziweitai.com / getastralium.com": "現代著作，有版權；僅短轉述＋出處"
+ },
+ "fengshen_question": [
+  {
+   "item": "北斗七星名（道藏）",
+   "text": "北斗第一陽明貪狼太星君。　北斗第二陰精巨門元星君。　北斗第五丹元簾貞網星君。　北斗第六北極武曲紀星君。　北斗第七天關破軍關星君。",
+   "source": "《太上玄靈北斗本命延生真經》（維基文庫題「正統道藏」本）",
+   "url": "https://zh.wikisource.org/wiki/%E5%A4%AA%E4%B8%8A%E7%8E%84%E9%9D%88%E5%8C%97%E6%96%97%E6%9C%AC%E5%91%BD%E5%BB%B6%E7%94%9F%E7%9C%9F%E7%B6%93",
+   "retrieved": true,
+   "type": "classical",
+   "license": "公有領域"
+  },
+  {
+   "item": "北斗經總述",
+   "text": "大魁貪狼。巨門祿存。文曲廉貞。武曲破軍。高上玉皇。紫微帝君。",
+   "source": "《太上玄靈北斗本命延生真經》",
+   "url": "https://zh.wikisource.org/wiki/%E5%A4%AA%E4%B8%8A%E7%8E%84%E9%9D%88%E5%8C%97%E6%96%97%E6%9C%AC%E5%91%BD%E5%BB%B6%E7%94%9F%E7%9C%9F%E7%B6%93",
+   "retrieved": true,
+   "type": "classical",
+   "license": "公有領域"
+  },
+  {
+   "item": "南斗六星名（道藏）",
+   "text": "南斗第一天府司命上相鎮國真君。　南斗第二天相司錄上相鎮嶽真君。　南斗第三天梁延壽保命真君。　南斗第四天同益算保生真君。　南斗第五天樞度厄文昌鍊魂真君。　南斗第六天機上生監簿大理真君。",
+   "source": "《太上說南斗六司延壽度人妙經》（維基文庫題「正統道藏」本）",
+   "url": "https://zh.wikisource.org/wiki/%E5%A4%AA%E4%B8%8A%E8%AA%AA%E5%8D%97%E6%96%97%E5%85%AD%E5%8F%B8%E5%BB%B6%E5%A3%BD%E5%BA%A6%E4%BA%BA%E5%A6%99%E7%B6%93",
+   "retrieved": true,
+   "type": "classical",
+   "license": "公有領域"
+  },
+  {
+   "item": "注意：七殺在全書與南斗經不一致",
+   "text": "《全書》作「七殺南斗第六星也」；南斗經第六是天機、第五是天樞，**南斗經六星中沒有七殺**。",
+   "source": "《紫微斗數全書》卷一〈問七殺〉／南斗經",
+   "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80 ; https://zh.wikisource.org/wiki/%E5%A4%AA%E4%B8%8A%E8%AA%AA%E5%8D%97%E6%96%97%E5%85%AD%E5%8F%B8%E5%BB%B6%E5%A3%BD%E5%BA%A6%E4%BA%BA%E5%A6%99%E7%B6%93",
+   "retrieved": true,
+   "type": "classical（本報告比對）",
+   "license": "公有領域"
+  },
+  {
+   "item": "全書羅洪先序年代",
+   "text": "時嘉靖庚戌春三月既望之吉 賜進士及第吉水羅洪先撰",
+   "source": "《紫微斗數全書》卷一〈羅序〉（嘉靖庚戌＝1550）",
+   "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+   "retrieved": true,
+   "type": "classical",
+   "license": "公有領域"
+  },
+  {
+   "item": "紫微斗數年代（現代整理）",
+   "text": "轉述：傳說是陳摶所創（宋初）；「紫微斗數」之名最早可考是《紫微斗數捷覽》（萬曆九年，1581）；全書羅序署 1550 年，但現存刻本晚於捷覽，仍待考。",
+   "source": "維基百科〈紫微斗數〉",
+   "url": "https://zh.wikipedia.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8",
+   "retrieved": true,
+   "type": "modern",
+   "license": "CC BY-SA"
+  },
+  {
+   "item": "封神演義年代（現代整理）",
+   "text": "轉述：約成書於明隆慶、萬曆年間；現存最早的是萬曆年間金閶舒載陽刊本（日本內閣文庫藏）。",
+   "source": "維基百科〈封神演义〉",
+   "url": "https://zh.wikipedia.org/wiki/%E5%B0%81%E7%A5%9E%E6%BC%94%E4%B9%89",
+   "retrieved": true,
+   "type": "modern",
+   "license": "CC BY-SA"
+  },
+  {
+   "item": "第99回 北斗星官條",
+   "text": "北斗星官　黃諱天祥（天罡）　　比干（文曲） ／ 竇　諱榮（武曲）　　韓諱昇（左輔） ／ 韓　諱變（右弼）　　蘇諱全忠（破軍） ／ 鄂　諱順（貪狼）　　郭　諱宸（巨門）",
+   "source": "《封神演義》第99回〈姜子牙歸國封神〉",
+   "url": "https://zh.wikisource.org/wiki/%E5%B0%81%E7%A5%9E%E6%BC%94%E7%BE%A9/%E5%8D%B7099",
+   "retrieved": true,
+   "type": "classical（小說）",
+   "license": "公有領域"
+  },
+  {
+   "item": "第99回 其他同名星",
+   "text": "中天北極紫微大帝　　　姬諱伯邑考 ／ 太陽星　徐　諱蓋　太陰星　姜氏（紂后） ／ 天機星　蘆　諱昌 ／ 黑殺星　高諱繼能　　七殺星　張　諱奎",
+   "source": "《封神演義》第99回",
+   "url": "https://zh.wikisource.org/wiki/%E5%B0%81%E7%A5%9E%E6%BC%94%E7%BE%A9/%E5%8D%B7099",
+   "retrieved": true,
+   "type": "classical（小說）",
+   "license": "公有領域"
+  },
+  {
+   "item": "坊間說法「紂王＝破軍」",
+   "text": "與原文不符：第99回原文是「天喜星　紂王天子」，破軍是「蘇諱全忠（破軍）」。",
+   "source": "《封神演義》第99回",
+   "url": "https://zh.wikisource.org/wiki/%E5%B0%81%E7%A5%9E%E6%BC%94%E7%BE%A9/%E5%8D%B7099",
+   "retrieved": true,
+   "type": "本報告比對",
+   "license": "—"
+  },
+  {
+   "item": "坊間說法「妲己＝貪狼」",
+   "text": "與原文不符：第99回全回沒有「妲己」二字；貪狼是「鄂　諱順（貪狼）」。",
+   "source": "《封神演義》第99回",
+   "url": "https://zh.wikisource.org/wiki/%E5%B0%81%E7%A5%9E%E6%BC%94%E7%BE%A9/%E5%8D%B7099",
+   "retrieved": true,
+   "type": "本報告比對",
+   "license": "—"
+  },
+  {
+   "item": "坊間說法「伯邑考＝紫微」",
+   "text": "跟原文一致：「中天北極紫微大帝　　　姬諱伯邑考」。",
+   "source": "《封神演義》第99回",
+   "url": "https://zh.wikisource.org/wiki/%E5%B0%81%E7%A5%9E%E6%BC%94%E7%BE%A9/%E5%8D%B7099",
+   "retrieved": true,
+   "type": "本報告比對",
+   "license": "—"
+  },
+  {
+   "item": "天同、天府、天相、天梁、廉貞",
+   "text": "第99回錄文中，找不到以這五個名字受封的星官（已全文檢索）；坊間對應人物 unverified。",
+   "source": "《封神演義》第99回",
+   "url": "https://zh.wikisource.org/wiki/%E5%B0%81%E7%A5%9E%E6%BC%94%E7%BE%A9/%E5%8D%B7099",
+   "retrieved": true,
+   "type": "本報告比對",
+   "license": "—"
+  }
+ ],
+ "brightness": {
+  "classical": [
+   {
+    "text": "|   |庙       |旺       |得地     |利益     |平和     |不得地   |落陷     |",
+    "source": "《紫微斗數全書》卷二〈安身命例〉（wikitext 第517行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "卷二廟旺表表頭（七級）"
+   },
+   {
+    "text": "申酉金乃西方太白之氣，武曲居申而好生，擎羊在酉而用殺",
+    "source": "《紫微斗數全書》卷一〈星垣論〉（wikitext 第105行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "星垣論（亮度的五行根據，例：申酉金）"
+   },
+   {
+    "text": "科星居於陷地，燈火辛勤。",
+    "source": "《紫微斗數全書》卷一〈斗數發微論〉（wikitext 第139行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "太微賦/發微論系：科星陷地"
+   },
+   {
+    "text": "若臨陷弱之宮，為殘較減。",
+    "source": "《紫微斗數全書》卷一〈問七殺星所主若何？〉（wikitext 第342行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "問七殺（陷宮）"
+   },
+   {
+    "text": "七殺居陷地，沉吟福不生是也。",
+    "source": "《紫微斗數全書》卷一〈問七殺星所主若何？〉（wikitext 第343行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "問七殺・希夷（祕經）"
+   },
+   {
+    "text": "女命旺地，財權服眾，志過丈夫。",
+    "source": "《紫微斗數全書》卷一〈問七殺星所主若何？〉（wikitext 第343行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "問七殺・希夷（女命旺地）"
+   },
+   {
+    "text": "怕受制入陷，喜祿存而同政。",
+    "source": "《紫微斗數全書》卷一〈問武曲星所主為何？〉（wikitext 第281行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "問武曲・希夷（入陷）"
+   },
+   {
+    "text": "武曲 庙辰戌丑未 旺子午 平巳亥 无失陷",
+    "source": "《紫微斗數全書》卷三〈论诸星同垣各司所宜分别富贵贫贱夭寿〉（wikitext 第437行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "卷三 武曲廟旺注（未列卯酉）"
+   },
+   {
+    "text": "七杀 庙辰戌丑未寅申 旺子午卯酉 平巳亥 无陷",
+    "source": "《紫微斗數全書》卷三〈论诸星同垣各司所宜分别富贵贫贱夭寿〉（wikitext 第511行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "卷三 七殺廟旺注"
+   }
+  ],
+  "modern_paraphrase": [
+   {
+    "source": "星格 xingge.tw〈星曜亮度〉",
+    "url": "https://xingge.tw/zh-hans/glossary/liangdu",
+    "paraphrase": "亮度指一顆星坐某地支時「發揮順不順」，非分數；七級名稱出自《全書》卷二廟旺表（廟、旺、得地、利益、平和、不得地、落陷）；廟最順、旺很順、得與利尚可、平普通、不與陷較彆扭。（已由本報告比對卷二表頭屬實）",
+    "type": "modern",
+    "license": "copyrighted"
+   },
+   {
+    "source": "順時 shunshi.ai〈廟旺利陷〉",
+    "url": "https://shunshi.ai/zh-tw/wiki/ziwei/miaowang/brightness",
+    "paraphrase": "亮度本質是星與宮位地支的五行生克關係（引〈星垣論〉為據），描述星性能否發揮，不等於吉凶；凶星入廟反而「凶性被安放得住」。",
+    "type": "modern",
+    "license": "copyrighted"
+   },
+   {
+    "source": "紫微台 ziweitai.com",
+    "url": "https://www.ziweitai.com/detail/256",
+    "paraphrase": "廟旺＝星的正面能量大、優點常發揮；陷＝能量弱、缺點較突出。（該站另附分數換算，屬現代發明，本報告不採）",
+    "type": "modern",
+    "license": "copyrighted"
+   },
+   {
+    "source": "Astralium 學堂",
+    "url": "https://getastralium.com/learn/ziwei/stars/brightness",
+    "paraphrase": "狀態字是條件不是吉凶結論；各傳本與排盤軟體的廟旺表偶有出入，引用前須確認版本。",
+    "type": "modern",
+    "license": "copyrighted"
+   }
+  ]
+ },
+ "huake": {
+  "classical": [
+   {
+    "text": "甲廉破武阳为伴，乙机梁紫月交侵，丙同机昌廉贞位，丁月同机巨门寻，",
+    "source": "《紫微斗數全書》卷二〈安身命例〉（wikitext 第78行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "四化訣（十干）"
+   },
+   {
+    "text": "戊贪月弼机为主，己武贪梁曲最平，庚日武阴同为首，辛巨阳曲昌至临，",
+    "source": "《紫微斗數全書》卷二〈安身命例〉（wikitext 第80行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "四化訣（十干，續）"
+   },
+   {
+    "text": "壬梁紫府武宿是，癸破巨阴贪狼停。",
+    "source": "《紫微斗數全書》卷二〈安身命例〉（wikitext 第82行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "四化訣（十干，續）"
+   },
+   {
+    "text": "如甲生人廉贞化禄、破军化权、武曲化科、太阳化忌是也，余仿此。",
+    "source": "《紫微斗數全書》卷二〈安身命例〉（wikitext 第84行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "四化訣舉例（甲年武曲化科）"
+   },
+   {
+    "text": "化科属水喜会魁钺",
+    "source": "《紫微斗數全書》卷二〈安身命例〉（wikitext 第261行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "化科屬性"
+   },
+   {
+    "text": "科星上界应试，主掌文墨之星。守身命权禄相逢宰臣之贵。如逢恶曜亦为文章秀士，可作群英师范。女命吉拱，主贵封赠。虽四杀冲破，亦为富贵。与科星拱照冲同论。",
+    "source": "《紫微斗數全書》卷一〈问化科星所主若何？〉（wikitext 第431行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "問化科星所主若何？"
+   },
+   {
+    "text": "科权禄拱名誉昭彰",
+    "source": "《紫微斗數全書》卷一〈斗数骨髓赋〉（wikitext 第552行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "骨髓賦"
+   },
+   {
+    "text": "科明禄暗位列三台",
+    "source": "《紫微斗數全書》卷一〈斗数骨髓赋〉（wikitext 第553行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "骨髓賦"
+   },
+   {
+    "text": "科權祿拱，定為扳桂之高人",
+    "source": "《紫微斗數全書》卷一〈增補太微賦〉（wikitext 第206行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "增補太微賦"
+   },
+   {
+    "text": "科權陷於凶鄉功名蹭蹬。",
+    "source": "《紫微斗數全書》卷一〈斗數發微論〉（wikitext 第134行）",
+    "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+    "retrieved": true,
+    "type": "classical",
+    "license": "公有領域",
+    "item": "發微論"
+   }
+  ],
+  "note": "武曲化科＝甲年干（全書四化訣）；癸年化科＝太陰。1974甲寅年→武曲化科。",
+  "school_variants": {
+   "source": "https://zh.wikipedia.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8",
+   "paraphrase": "甲干全集全書一致；庚、壬兩干不同"
+  }
+ },
+ "stars": [
+  {
+   "star": "武曲",
+   "brightness_juan2_table": {
+    "子": "旺",
+    "丑": "廟",
+    "寅": "得地",
+    "卯": "利益",
+    "辰": "廟",
+    "巳": "平和",
+    "午": "旺",
+    "未": "廟",
+    "申": "得地",
+    "酉": "利益",
+    "戌": "廟",
+    "亥": "平和"
+   },
+   "items": [
+    {
+     "item": "人格核心（古典，逐字）",
+     "text": "武曲性刚果决，心直无毒，形小声高而量大，有毛发之异。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "諸星問答論",
+     "text": "答曰：武曲北斗第六星，屬金，乃財帛宮主。與天府同宮有壽，其施權於十二宮分，其臨地有廟、旺、陷宮。主於人，性剛果決，有喜有怒，可福可災。若陷囚會於震宮，必為破主淹留之舉。與祿馬交馳，發財於遠郡。若貪狼同度，慳吝之人。破軍同財鄉，財到手而成空。諸凶聚而作禍，吉集以成祥。 希夷先生曰：武曲屬金，在天司壽，在數司財。怕受制入陷，喜祿存而同政。與太陰以互權，天府、天相為佐貳之星，財帛田宅為專司之所。惡殺耗囚會於震宮，必見木壓雷震。破軍貪狼會於坎宮，必主投河溺水。會祿馬則發財遠郡。貪狼會則少年不利。所謂武曲守命福非輕，貪狼不發少年郎是也。廟樂桃花同宮，利己損人。七殺火星同宮，因財被劫。遇羊陀則孤克，遇破軍難顯貴。若與破軍同位，更臨二限之中，定主是非之撓。蓋武曲守命，主人剛強果斷，甲己生人福厚，出將入相。更得貪火沖破，定為貴格。喜西北生人，東南生人平常，不守祖業。四殺沖破孤貧不一，破相延年。女人吉多為貴婦，加殺沖破孤克。",
+     "source": "《紫微斗數全書》卷一〈諸星問答論〉問武曲星所主為何？",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷二 命宮 星性與坐宮",
+     "text": "武曲金，北斗化财，为财帛主。武曲性刚果决，心直无毒，形小声高而量大，有毛发之异。 最喜甲己生人福厚，入庙与昌曲同行，则出将入相，武职最旺，文人多学多能。 会贪遇火化吉为上格，丙丁庚辛壬癸中格断。 与府相梁月禄马会主贵，西北生人为福，东南生人平常。 陷地巧艺之人及僧道，更遇廉贞破军羊忌空劫冲破下局，破家败祖。 女命入庙权贵，陷地值杀孤单，刑夫克子兼且不正。 子午宫旺地，与天府同度，丁己庚生人财官格。 卯酉宫利益，与七杀同度，乙辛生人财官格。 寅申宫得地，与天相同度，丁己甲庚生人财官格。 巳亥宫和平，与破军同度，壬戊生人财官格。 辰戌宫入庙，甲乙生人财官格。 丑未宫入庙，与贪狼同度，戊辛生人大贵财官格。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉（wikitext 第660行起）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "形性賦",
+     "text": "武曲乃至要至緊之操，心性果決。 貪狼同武曲形小聲高而量大，天同如陀忌肥滿而目眇。",
+     "source": "《紫微斗數全書》卷一〈形性賦〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "廟旺表（卷二表格，依地支）",
+     "text": "子:旺；丑:廟；寅:得地；卯:利益；辰:廟；巳:平和；午:旺；未:廟；申:得地；酉:利益；戌:廟；亥:平和",
+     "source": "《紫微斗數全書》卷二〈安身命例〉後之廟旺表（表頭：廟／旺／得地／利益／平和／不得地／落陷；表中簡稱「武」）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical（表格由本報告解析整理，非逐字）",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷三 廟旺注",
+     "text": "武曲 庙辰戌丑未 旺子午 平巳亥 无失陷",
+     "source": "《紫微斗數全書》卷三〈論諸星同垣各司所宜分別富貴貧賤夭壽〉（wikitext 第437行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "text": "武曲属金北斗化财为财帛主",
+     "source": "《紫微斗數全書》卷二〈安身命例〉（wikitext 第236行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "星性屬性"
+    },
+    {
+     "text": "武曲乃至要至緊之操，心性果決。",
+     "source": "《紫微斗數全書》卷一〈形性賦〉（wikitext 第66行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "形性賦"
+    },
+    {
+     "text": "貪狼同武曲形小聲高而量大",
+     "source": "《紫微斗數全書》卷一〈形性賦〉（wikitext 第90行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "形性賦（同武曲）"
+    },
+    {
+     "text": "文曲武曲为人多学多能",
+     "source": "《紫微斗數全書》卷一〈斗数骨髓赋〉（wikitext 第547行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "骨髓賦"
+    },
+    {
+     "text": "科权禄拱名誉昭彰，武曲庙垣威名赫奕。",
+     "source": "《紫微斗數全書》卷一〈斗数骨髓赋〉（wikitext 第552行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "骨髓賦"
+    },
+    {
+     "text": "武曲闲宫多手艺",
+     "source": "《紫微斗數全書》卷一〈斗数骨髓赋〉（wikitext 第590行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "骨髓賦"
+    },
+    {
+     "text": "武曲守垣 武守命卯宫是也，余不是。",
+     "source": "《紫微斗數全書》卷一〈定贵局〉（wikitext 第838行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "定貴局「武曲守垣」（注：限卯宮）"
+    },
+    {
+     "text": "卯宫机巨武曲逢，辛乙生人福气隆",
+     "source": "《紫微斗數全書》卷一〈十二宫诸星得地合格诀〉（wikitext 第759行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "十二宮諸星得地合格訣（卯）"
+    },
+    {
+     "text": "武职论 如武曲七杀坐命庙旺宫又得三台八座加化权禄及天魁天钺并拱主为武职",
+     "source": "《紫微斗數全書》卷一〈定富贵贫贱十等论〉（wikitext 第746行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "定富貴貧賤十等論・武職論"
+    },
+    {
+     "text": "威勇论 如武曲文昌擎羊七杀坐命宫得权禄三方又得紫微天府左右拱照主人威勇",
+     "source": "《紫微斗數全書》卷一〈定富贵贫贱十等论〉（wikitext 第744行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "定富貴貧賤十等論・威勇論"
+    },
+    {
+     "text": "武曲守命化为权，吉曜来临福寿全，志气峥嵘多出众，超凡入圣向人前。",
+     "source": "《紫微斗數全書》卷二〈一 命宫〉（wikitext 第676行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "武曲入男命吉凶訣"
+    },
+    {
+     "text": "武曲之星守命宫，吉星守照始荣昌，若加耗杀来冲破，任是财多毕竟空。",
+     "source": "《紫微斗數全書》卷二〈一 命宫〉（wikitext 第677行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "武曲入男命吉凶訣"
+    },
+    {
+     "text": "武曲庙垣威名赫奕  辰戍丑未生人安命在辰戍宫为四墓，若但在丑未次之。",
+     "source": "《紫微斗數全書》卷三〈论诸星同垣各司所宜分别富贵贫贱夭寿〉（wikitext 第439行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "卷三 同垣注"
+    },
+    {
+     "text": "武曲之星为寡宿",
+     "source": "《紫微斗數全書》卷三〈论诸星同垣各司所宜分别富贵贫贱夭寿〉（wikitext 第451行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "卷三 同垣注"
+    },
+    {
+     "text": "武曲之宿为寡宿。",
+     "source": "《紫微斗數全書》卷一〈女命骨髓赋〉（wikitext 第629行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "女命骨髓賦"
+    },
+    {
+     "text": "卯酉宫利益，与七杀同度，乙辛生人财官格。",
+     "source": "《紫微斗數全書》卷二〈一 命宫〉（wikitext 第668行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "武曲在卯酉（卷二 命宮・武曲坐宮）"
+    },
+    {
+     "text": "卯酉宫旺地，与武曲同度，乙辛生人福厚财官格。",
+     "source": "《紫微斗數全書》卷二〈一 命宫〉（wikitext 第934行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "七殺在卯酉（卷二 命宮・七殺坐宮）"
+    },
+    {
+     "text": "七殺火星同宮，因財被劫。",
+     "source": "《紫微斗數全書》卷一〈問武曲星所主為何？〉（wikitext 第281行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "問武曲・希夷（七殺火星同宮）"
+    },
+    {
+     "text": "其臨地有廟、旺、陷宮。",
+     "source": "《紫微斗數全書》卷一〈問武曲星所主為何？〉（wikitext 第280行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "問武曲・答曰（亮度三分）"
+    },
+    {
+     "item": "道藏星名",
+     "text": "北斗第六北極武曲紀星君。",
+     "source": "《太上玄靈北斗本命延生真經》",
+     "url": "https://zh.wikisource.org/wiki/%E5%A4%AA%E4%B8%8A%E7%8E%84%E9%9D%88%E5%8C%97%E6%96%97%E6%9C%AC%E5%91%BD%E5%BB%B6%E7%94%9F%E7%9C%9F%E7%B6%93",
+     "retrieved": true,
+     "type": "classical（道教經典）",
+     "license": "公有領域"
+    },
+    {
+     "item": "封神演義第99回同名星官（小說，非斗數來源）",
+     "text": "竇　諱榮（武曲）",
+     "source": "《封神演義》第99回",
+     "url": "https://zh.wikisource.org/wiki/%E5%B0%81%E7%A5%9E%E6%BC%94%E7%BE%A9/%E5%8D%B7099",
+     "retrieved": true,
+     "type": "classical（小說）",
+     "license": "公有領域"
+    },
+    {
+     "item": "人格核心（現代詮釋，轉述）",
+     "text": "（轉述）現代讀法：武殺同宮像「管錢的將軍」，適合要果斷又要算帳的位置（財務、金融、工程管理）；遇羊陀火鈴須防因錢起衝突。並提醒全書對武殺評價兩面（「乙辛生人福厚財官格」對比「七殺火星同宮，因財被劫」）。",
+     "source": "星格 xingge.tw〈七殺星性情〉",
+     "url": "https://xingge.tw/zh-hant/quanshu/xingqing-qisha",
+     "retrieved": true,
+     "type": "modern",
+     "license": "有版權，只轉述"
+    },
+    {
+     "item": "人格核心（現代詮釋，轉述）",
+     "text": "（轉述）七殺恆在天府對宮；「朝斗」指七殺在寅申子午、對宮紫府或武府；七殺雖凶而全書常給高評價，因對面恆坐穩重的令星。",
+     "source": "星格 xingge.tw〈論諸星同垣：七殺〉",
+     "url": "https://xingge.tw/zh-hant/quanshu/tongyuan-qisha",
+     "retrieved": true,
+     "type": "modern",
+     "license": "有版權，只轉述"
+    }
+   ]
+  },
+  {
+   "star": "七殺",
+   "brightness_juan2_table": {
+    "子": "旺",
+    "丑": "廟",
+    "寅": "廟",
+    "卯": "旺",
+    "辰": "廟",
+    "巳": "平和",
+    "午": "旺",
+    "未": "廟",
+    "申": "廟",
+    "酉": "旺",
+    "戌": "廟",
+    "亥": "平和"
+   },
+   "items": [
+    {
+     "item": "人格核心（古典，逐字）",
+     "text": "为人目大性急，喜怒无常，作事进退沈吟。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "諸星問答論",
+     "text": "答曰：七殺南斗第六星也，屬火、金。乃斗中之上將，實成敗之孤辰。在斗司斗柄，主於風憲。其威作金之靈，其性若清涼之狀。主於數則宜僧道，主於身定歷艱辛。在命宮若限不扶夭折，在官祿得地，化禍為祥。在子息，而子息孤單；居夫婦而鴛衾半冷。會刑囚於田宅、父母，刑傷父母，產業難留。逢刑忌殺於遷移、疾厄，終身殘疾，縱使一身孤獨，也應壽年不長。與囚於身命，折肱傷股，又主癆傷。會囚耗於遷移，死於道路。若臨陷弱之宮，為殘較減。若值正陰之宮，作禍憂深。流年殺曜莫教逢，身殺星辰戌迭並，身殺逢惡曜於要地，命逢殺曜於三方，流殺又迭並，二限之中又逢，主陣亡掠死。合太陽巨門會帝旺之鄉則吉，處空亡犯刑殺遭禍不輕。大小二限合身命逢殺，雖帝制也無功。三合對沖，雖祿亦無力。蓋世英雄為殺制，此時一夢南柯。此乃倒限之地，所主務要仔細推詳，乃數中之惡曜，實非善星也。 希夷先生曰：七殺斗中上將，遇紫微則化權降福，遇火鈴則長其殺威。遇凶曜於生鄉定為屠宰，會昌曲於要地，情性頑囂。祕經云：七殺居陷地，沉吟福不生是也。身命二宮逢之定歷艱辛，二限逢之遭殃破敗。遇帝祿而可解，遭流殺而逢凶。守身命作事進退，喜怒不常。左右昌曲入廟拱照，掌生殺之權，富貴出眾。若四殺忌星沖破，巧藝平常之人，陷地殘疾。女命旺地，財權服眾，志過丈夫。四殺沖破刑克不潔，僧道宜之，若殺湊飄蕩，流移還俗。 歌曰 七殺寅申子午宮，四夷拱手服英雄，魁鉞左右文昌會，權祿名高食萬鍾， 殺居陷地不堪言，凶禍猶如抱虎眠，若是殺強無制伏，少年惡死到黃泉。",
+     "source": "《紫微斗數全書》卷一〈諸星問答論〉問七殺星所主若何？",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷二 命宮 星性與坐宮",
+     "text": "七杀火金，南斗将星，遇帝为权，其余诸宫皆杀。为人目大性急，喜怒无常，作事进退沈吟。 庙旺有谋略，遇紫微掌生杀之权，武职最利。加左右昌曲魁钺会合，位至极品。落空亡无威力。 遇凶曜于生乡，定为屠宰，会刑囚伤克。 安命寅亥子午宫，丁己生人合局，不喜壬癸午戌生人，六丙六戊生人中平。 辰宫安命六庚生人吉利，羊陀火铃冲会，又在陷地残疾下局，虽富贵不耐久。 女人入庙加权禄，旺夫益子，陷地遇羊火，则以伤克下贱论。 子午宫旺地，丁己甲生人财官格。 卯酉宫旺地，与武曲同度，乙辛生人福厚财官格。 辰戌宫入庙，加吉星财官格。 丑未宫入庙，与廉贞同度，加吉星财官格。 寅申宫入庙，甲庚丁己生人财官格。 巳亥宫和平，与紫微同度，丙戊壬生人财官格。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉（wikitext 第926行起）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "形性賦",
+     "text": "七殺如子路暴虎馮河，火鈴似豫讓吞炭裝啞。",
+     "source": "《紫微斗數全書》卷一〈形性賦〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "廟旺表（卷二表格，依地支）",
+     "text": "子:旺；丑:廟；寅:廟；卯:旺；辰:廟；巳:平和；午:旺；未:廟；申:廟；酉:旺；戌:廟；亥:平和",
+     "source": "《紫微斗數全書》卷二〈安身命例〉後之廟旺表（表頭：廟／旺／得地／利益／平和／不得地／落陷；表中簡稱「杀」）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical（表格由本報告解析整理，非逐字）",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷三 廟旺注",
+     "text": "七杀 庙辰戌丑未寅申 旺子午卯酉 平巳亥 无陷",
+     "source": "《紫微斗數全書》卷三〈論諸星同垣各司所宜分別富貴貧賤夭壽〉（wikitext 第511行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "text": "七杀属火金南斗降星遇帝为权",
+     "source": "《紫微斗數全書》卷二〈安身命例〉（wikitext 第243行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "星性屬性"
+    },
+    {
+     "text": "紫微天府全依輔弼之功，七殺破軍專依羊鈴之虐。",
+     "source": "《紫微斗數全書》卷一〈太微賦〉（wikitext 第27行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "太微賦"
+    },
+    {
+     "text": "七殺臨於身命加惡殺，必定死亡。",
+     "source": "《紫微斗數全書》卷一〈太微賦〉（wikitext 第55行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "太微賦"
+    },
+    {
+     "text": "七殺如子路暴虎馮河，火鈴似豫讓吞炭裝啞。",
+     "source": "《紫微斗數全書》卷一〈形性賦〉（wikitext 第70行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "形性賦"
+    },
+    {
+     "text": "暴虎馮河兮目太凶狠",
+     "source": "《紫微斗數全書》卷一〈形性賦〉（wikitext 第71行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "形性賦"
+    },
+    {
+     "text": "七杀朝斗爵禄荣昌，紫府同宫终身福厚。",
+     "source": "《紫微斗數全書》卷一〈斗数骨髓赋〉（wikitext 第550行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "骨髓賦「七殺朝斗」"
+    },
+    {
+     "text": "七杀寅申子午一生爵禄荣昌  为七杀朝斗格。",
+     "source": "《紫微斗數全書》卷三〈论诸星同垣各司所宜分别富贵贫贱夭寿〉（wikitext 第513行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "卷三 七殺朝斗定義（限寅申子午）"
+    },
+    {
+     "text": "七杀破军宜出外",
+     "source": "《紫微斗數全書》卷一〈斗数骨髓赋〉（wikitext 第560行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "骨髓賦"
+    },
+    {
+     "text": "七杀守身终是夭",
+     "source": "《紫微斗數全書》卷一〈斗数骨髓赋〉（wikitext 第612行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "骨髓賦"
+    },
+    {
+     "text": "帝降七殺為權",
+     "source": "《紫微斗數全書》卷一〈問紫微所主若何？〉（wikitext 第227行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "紫微所主（化權）"
+    },
+    {
+     "text": "女命愁逢七杀星，作事果断又聪明，气高志大无男女，不免刑夫历苦辛。",
+     "source": "《紫微斗數全書》卷二〈一 命宫〉（wikitext 第948行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "七殺入女命吉凶訣"
+    },
+    {
+     "text": "二限虽然逢七杀，从容和缓家道发，对宫天府正来朝，仕宦逢之名显达。",
+     "source": "《紫微斗數全書》卷二〈一 命宫〉（wikitext 第953行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "七殺入限吉凶訣"
+    },
+    {
+     "text": "然七杀逢吉曜众亦转凶化吉，不可一概论凶。",
+     "source": "《紫微斗數全書》卷三〈论七杀重逢〉（wikitext 第127行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "論七殺重逢"
+    },
+    {
+     "text": "七杀沉吟福不荣  男有威权，女无所施。",
+     "source": "《紫微斗數全書》卷三〈论诸星同垣各司所宜分别富贵贫贱夭寿〉（wikitext 第524行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "卷三 同垣注"
+    },
+    {
+     "text": "七杀守照岁限擎羊午生人命安卯西宫主凶亡",
+     "source": "《紫微斗數全書》卷三〈论诸星同垣各司所宜分别富贵贫贱夭寿〉（wikitext 第523行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "卷三 同垣注（卯酉擎羊）"
+    },
+    {
+     "item": "封神演義第99回同名星官（小說，非斗數來源）",
+     "text": "七殺星　張　諱奎",
+     "source": "《封神演義》第99回",
+     "url": "https://zh.wikisource.org/wiki/%E5%B0%81%E7%A5%9E%E6%BC%94%E7%BE%A9/%E5%8D%B7099",
+     "retrieved": true,
+     "type": "classical（小說）",
+     "license": "公有領域"
+    },
+    {
+     "item": "人格核心（現代詮釋，轉述）",
+     "text": "（轉述）現代讀法：武殺同宮像「管錢的將軍」，適合要果斷又要算帳的位置（財務、金融、工程管理）；遇羊陀火鈴須防因錢起衝突。並提醒全書對武殺評價兩面（「乙辛生人福厚財官格」對比「七殺火星同宮，因財被劫」）。",
+     "source": "星格 xingge.tw〈七殺星性情〉",
+     "url": "https://xingge.tw/zh-hant/quanshu/xingqing-qisha",
+     "retrieved": true,
+     "type": "modern",
+     "license": "有版權，只轉述"
+    },
+    {
+     "item": "人格核心（現代詮釋，轉述）",
+     "text": "（轉述）七殺恆在天府對宮；「朝斗」指七殺在寅申子午、對宮紫府或武府；七殺雖凶而全書常給高評價，因對面恆坐穩重的令星。",
+     "source": "星格 xingge.tw〈論諸星同垣：七殺〉",
+     "url": "https://xingge.tw/zh-hant/quanshu/tongyuan-qisha",
+     "retrieved": true,
+     "type": "modern",
+     "license": "有版權，只轉述"
+    }
+   ]
+  },
+  {
+   "star": "紫微",
+   "brightness_juan2_table": {
+    "子": "平和",
+    "丑": "廟",
+    "寅": "旺",
+    "卯": "旺",
+    "辰": "得地",
+    "巳": "旺",
+    "午": "廟",
+    "未": "廟",
+    "申": "旺",
+    "酉": "旺",
+    "戌": "得地",
+    "亥": "旺"
+   },
+   "items": [
+    {
+     "item": "人格核心（古典，逐字）",
+     "text": "为人忠厚老成，谦恭耿直，其威制七杀降火铃。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "諸星問答論",
+     "text": "答曰：紫微屬土，乃中天之尊星為帝座，主掌造化樞機，人生主宰。仗五行育萬物，以人命為之立定數。 安星纏各根所司，處年數內常掌爵祿。諸宮降福能消百惡。 須看三臺，蓋紫微守命是中臺，前一位是上臺，後一位是下臺。俱看在廟旺之鄉否，有何吉凶之守照。如廟旺化吉甚妙，陷又化凶甚凶。 吉限不為美，凶限則凶也。 人之身命若值祿存同宮，日月三合相照，貴不可言。 無輔弼同行則為孤君，雖美玉不足。更與諸殺同宮，或諸吉合照，君子在野，小人在位。 主人奸詐假善，平生惡積。與囚同居，無左右相佐，定為胥吏。 如落疾厄、兄弟、奴僕、相貌、四陷宮，主人勞碌作事無成，雖得助亦不為福。更宜詳細宮度，應究星纏之論。 若居官祿身命，三宮最要左右守衛。天相祿馬交馳，不落空亡，更坐生鄉，可為貴論。 如魁鉞三臺星會吉星。則三臺八座矣。帝會文昌拱照，又得美限扶，必文選之職。 帝降七殺為權，有吉同位，則帝相有氣。諸吉咸集，作武官之職。 財帛田宅有左右守衛，又與太陰武曲同度，不見惡星，必為財賦之官。更與武曲祿存同宮，身命中尤為奇特。 男女宮得祥佐吉星，主生貴子。若獨守無相佐，則子息孤單。 妻宮會吉，男女得貴美夫婦諧老，亦要無破殺。 遷移雖是強宮，更要相佐，有吉星照命，則因人之貴。福德男為陷地，女為廟樂，逢吉則吉，逢凶則凶。 希夷先生曰：紫微為帝座，在諸宮能降福消災，解諸星之惡虛。能制火鈴為善，能降七殺為權。 若得府相左右昌曲吉集，無有不貴。不然亦主巨富。縱有四殺沖破亦作中局。 若遇破軍在辰戌丑未，主為臣不忠，為子不孝之論。女命逢之作貴婦斷。加殺沖破，亦作平常不為下賤。 歌曰 紫微原屬土，官祿宮主星，有相為有用，無相為孤君，諸宮皆降福，逢凶福自申， 文昌發科甲，文曲受皇恩，僧道有師號，快樂度春秋，眾星皆拱照，為吏協公平， 女人會帝座，遇吉事貴人，若與桃花會，飄蕩落風塵，擎羊火鈴聚，鼠竊狗偷群， 三方有吉拱，方作貴人評，若還無輔弼，諸惡共飲凌，帝為無道主，考究要知因， 二限若遇帝，喜氣自然新。 玉蟾先生曰：紫微乃中天星主，為眾星之樞紐，為造化也。大抵為人命之主宰，掌五行育萬物，各有所司。 以左輔右弼為相，以天相昌曲為從，以魁鉞為傳令，以日月為分司，以祿馬為掌爵之司，以天府為帑藏之主，身命逢之，不勝其吉。 如遇四殺（羊陀火鈴）、劫空機梁沖破，定是僧道。此星在命，為人厚重，面紫色，專作吉斷。",
+     "source": "《紫微斗數全書》卷一〈諸星問答論〉問紫微所主若何？",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷二 命宮 星性與坐宮",
+     "text": "紫微土，南北斗化帝座，为官禄主。紫微面紫色或白青，腰背肥满，为人忠厚老成，谦恭耿直，其威制七杀降火铃。 若与府相左右日月昌曲三合嘉会极急，食禄千锺巨富大贵。 与禄存同奇特，不入庙无左右为孤君，亦清闲僧道。与破军同为胥吏。 与羊陀火铃冲合吉多亦发财，常庶人吉。女命会吉清秀旺夫益子。 子宫喜丁己庚生人贵格，壬癸生人不耐久。 午宫入庙喜甲丁己生人财官格，丙戊生人成败带疾。 卯酉宫贪狼同度，乙辛甲庚生人贵不耐久。 寅申宫旺地与天府同度，甲庚丁己生人财官格。 巳亥宫旺地与七杀同度，乙戊生人财官格。 辰戌宫得地与天相同度，乙己甲庚癸生人财官格。 丑未宫入庙与破军同度，乙己甲庚丁壬生人财官格。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉（wikitext 第570行起）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "形性賦",
+     "text": "原夫紫微帝座，生為厚重之容。 紫微肥滿，天府精神。",
+     "source": "《紫微斗數全書》卷一〈形性賦〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "廟旺表（卷二表格，依地支）",
+     "text": "子:平和；丑:廟；寅:旺；卯:旺；辰:得地；巳:旺；午:廟；未:廟；申:旺；酉:旺；戌:得地；亥:旺",
+     "source": "《紫微斗數全書》卷二〈安身命例〉後之廟旺表（表頭：廟／旺／得地／利益／平和／不得地／落陷；表中簡稱「紫」）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical（表格由本報告解析整理，非逐字）",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷三 廟旺注",
+     "text": "紫微 庙丑未午 旺寅申卯酉巳亥 平子 无陷",
+     "source": "《紫微斗數全書》卷三〈論諸星同垣各司所宜分別富貴貧賤夭壽〉（wikitext 第297行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "道藏星名",
+     "text": "高上玉皇。紫微帝君。",
+     "source": "《太上玄靈北斗本命延生真經》",
+     "url": "https://zh.wikisource.org/wiki/%E5%A4%AA%E4%B8%8A%E7%8E%84%E9%9D%88%E5%8C%97%E6%96%97%E6%9C%AC%E5%91%BD%E5%BB%B6%E7%94%9F%E7%9C%9F%E7%B6%93",
+     "retrieved": true,
+     "type": "classical（道教經典）",
+     "license": "公有領域"
+    },
+    {
+     "item": "封神演義第99回同名星官（小說，非斗數來源）",
+     "text": "中天北極紫微大帝　　　姬諱伯邑考",
+     "source": "《封神演義》第99回",
+     "url": "https://zh.wikisource.org/wiki/%E5%B0%81%E7%A5%9E%E6%BC%94%E7%BE%A9/%E5%8D%B7099",
+     "retrieved": true,
+     "type": "classical（小說）",
+     "license": "公有領域"
+    },
+    {
+     "item": "人格核心（現代詮釋）",
+     "text": "unverified：這顆星這次沒有檢索現代權威的詮釋",
+     "source": "—",
+     "url": "—",
+     "retrieved": false,
+     "type": "modern",
+     "license": "—"
+    }
+   ]
+  },
+  {
+   "star": "天機",
+   "brightness_juan2_table": {
+    "子": "廟",
+    "丑": "落陷",
+    "寅": "得地",
+    "卯": "旺",
+    "辰": "利益",
+    "巳": "平和",
+    "午": "廟",
+    "未": "落陷",
+    "申": "得地",
+    "酉": "旺",
+    "戌": "利益",
+    "亥": "平和"
+   },
+   "items": [
+    {
+     "item": "人格核心（古典，逐字）",
+     "text": "性急心慈，机谋多变。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "諸星問答論",
+     "text": "答曰：天機屬木，南斗第三益算之善星也。後化氣曰善，又得地合之行事，解諸星之順逆。定數於人命，逢諸吉咸集，則萬事皆善。勤於禮佛，敬乎六親，利於林泉，宜於僧道。無惡虐不仁之心，有靈機應變之志。淵魚察見，作事有方。女命遇之為福，逢吉為吉，遇凶為凶。或守於身，更逢天梁，必有高藝隨身。習者宜詳玩之。 希夷先生曰：天機益壽之星，若守身命，主人異常。與天梁、左右、昌曲交會，文為清顯，武為忠良。若居陷地，四殺沖破，是為下局，當為僧道之清閑。凡入二限逢之，興家創業更改。女人吉星拱照，主旺夫益子。有權祿則為貴婦。落局羊陀火忌沖破，主下賤殘疾刑克。 歌曰 天機兄弟主，南斗正曜星，作事有操略，稟性最高明，所為最好尚，亦可作群英 會吉主享福，入格居翰林，巨門同一位，武職壓邊庭，亦要權逢殺，方可立功名 天梁星同位，定作道與僧，女人若逢此，性巧必淫奔，天同與昌曲，聚拱主華榮 辰戌子午地，入廟有功名，若在寅卯位，四殺並破軍，羊陀及火鈴，若與諸殺會， 災患有虛驚，武暗廉破會，兩目少光明，二限臨此宿，事必有變更。 玉蟾先生曰：天機南斗善星，故化氣曰善。佐帝令以行事，解諸凶之逆節。定數於人命之中，若逢吉聚則為富貴，若逢沖殺亦必好善。孝義六親，勤於禮佛，無不仁不義之為，有靈通變達之志。女命逢之，多主福壽。其在廟旺有力，陷地無力。",
+     "source": "《紫微斗數全書》卷一〈諸星問答論〉問天機所主如何？",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷二 命宮 星性與坐宮",
+     "text": "天机属木，南斗化善星，为兄弟主。入庙身长肥胖，性急心慈，机谋多变。 与天梁会合善谈兵，乙丙丁生人遇之入庙化吉，得左右昌曲魁钺太阴凑合，坐于巳酉丑亥卯未宫，权禄不小，文武皆大贵极品。 加巨门羊陀火铃忌，巳酉丑亥为下局，孤穷，纵有财官贵显亦不耐久，只宜经商巧艺之辈耳。 女命入庙性刚有权柄，持家助夫益子。 天梁太阴巨门见羊陀火铃忌冲合财帛，淫贱偏房娼婢，否则伤夫克子。 子午宫入庙，丁己癸甲庚壬生人财官格。 卯酉宫旺地与巨门同度，乙辛戊癸生人财官格。 寅申宫得地与太阴同度，丁己癸甲庚壬生人财官格。 巳亥宫和平，丙壬戊生人合局不耐久。 辰戌宫利益与天梁同度，壬庚丁生人为福。 丑未宫陷地，丙戊丁壬生人财官格，乙壬生人禄合格。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉（wikitext 第600行起）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "形性賦",
+     "text": "天機為不長不短之姿，情懷好善。",
+     "source": "《紫微斗數全書》卷一〈形性賦〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "廟旺表（卷二表格，依地支）",
+     "text": "子:廟；丑:落陷；寅:得地；卯:旺；辰:利益；巳:平和；午:廟；未:落陷；申:得地；酉:旺；戌:利益；亥:平和",
+     "source": "《紫微斗數全書》卷二〈安身命例〉後之廟旺表（表頭：廟／旺／得地／利益／平和／不得地／落陷；表中簡稱「机」）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical（表格由本報告解析整理，非逐字）",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷三 廟旺注",
+     "text": "天机 庙子午 旺辰酉 陷丑未",
+     "source": "《紫微斗數全書》卷三〈論諸星同垣各司所宜分別富貴貧賤夭壽〉（wikitext 第363行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "道藏星名",
+     "text": "南斗第六天機上生監簿大理真君。",
+     "source": "《太上說南斗六司延壽度人妙經》",
+     "url": "https://zh.wikisource.org/wiki/%E5%A4%AA%E4%B8%8A%E8%AA%AA%E5%8D%97%E6%96%97%E5%85%AD%E5%8F%B8%E5%BB%B6%E5%A3%BD%E5%BA%A6%E4%BA%BA%E5%A6%99%E7%B6%93",
+     "retrieved": true,
+     "type": "classical（道教經典）",
+     "license": "公有領域"
+    },
+    {
+     "item": "封神演義第99回同名星官（小說，非斗數來源）",
+     "text": "天機星　蘆　諱昌",
+     "source": "《封神演義》第99回",
+     "url": "https://zh.wikisource.org/wiki/%E5%B0%81%E7%A5%9E%E6%BC%94%E7%BE%A9/%E5%8D%B7099",
+     "retrieved": true,
+     "type": "classical（小說）",
+     "license": "公有領域"
+    },
+    {
+     "item": "人格核心（現代詮釋）",
+     "text": "unverified：這顆星這次沒有檢索現代權威的詮釋",
+     "source": "—",
+     "url": "—",
+     "retrieved": false,
+     "type": "modern",
+     "license": "—"
+    }
+   ]
+  },
+  {
+   "star": "太陽",
+   "brightness_juan2_table": {
+    "子": "落陷",
+    "丑": "不得地",
+    "寅": "旺",
+    "卯": "廟",
+    "辰": "旺",
+    "巳": "旺",
+    "午": "旺",
+    "未": "得地",
+    "申": "得地",
+    "酉": "平和",
+    "戌": "不得地",
+    "亥": "落陷"
+   },
+   "items": [
+    {
+     "item": "人格核心（古典，逐字）",
+     "text": "心慈面紫色，好济施。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "諸星問答論",
+     "text": "答曰：太陽星屬火，日之精也。乃造化之表儀，在數主人有貴氣，能為文為武。諸吉集則降禎祥，處黑星則勞心費力。若隨身命之中，居於廟樂之地。為數中之至曜，乃官祿之樞機。後化貴化祿，最宜在官祿宮。男作父星，女為夫主。命逢諸吉守照，更得太陰同照，富貴全美。若身居之，逢吉聚，則可在貴人門下客，否則公卿走卒。夫妻亦為強宮，男為諸吉聚，可因妻得貴。陷地加殺，傷妻不吉。男女宮得八座，加吉星在廟旺地，主生貴子，權柄不小。若財帛宮於旺地，會吉相助，不怕巨門纏，其富貴綿遠矣！若旺相無空劫，一生主富。居田宅，得祖父蔭澤。若左右諸吉星皆至，大小二限俱到，必有驟興之喜。若限不扶，不可以三合論議，恐應小差。女命逢之，限旺亦可共享。與鈴刑忌集限，目下有憂，或生剋父母。刑殺聚限，有傷官之憂，常人有官非之撓。與羊陀聚則有疾病，與火鈴合其苦楚不少。推而至此，禍福了然。遷移宮其福與身命不同，難招祖業，移根換葉，出祖為家。限步逢之，決要動移。女命逢之不吉，若福德宮有相佐，招賢明之夫。父母宮男子單作父星，有輝則吉，無輝克父。 希夷先生曰：太陽星周天曆度輸轉無窮。喜輔弼而佐君象，以祿存而助福。所忌者，巨暗遭逢。所樂者，太陰相旺。諸宮會吉則吉、黑道遇之則勞。守人身命，主人忠鯁，不較是非。若居廟旺，化祿化權，允為貴論。若得左右、昌曲、魁鉺三合拱照財官二宮，富貴極品。加四殺，亦主飽暖，僧道有師號。女人廟旺，主旺夫益子，加權祿封贈，加殺主平常。 歌曰 太陽原屬火，正主官祿星，若居身命位，稟性最聰明，慈愛量寬大，福壽享遐齡， 若與太陰會，驟發貴無倫，有輝照身命，平步入金門，巨門不相犯，升殿承君恩， 偏垣逢暗度，貧賤不可言，男人必克父，女命夫不全，火鈴逢若定，羊陀眼目昏， 二限若值此，必定賣田園。 玉蟾先生曰：太陽司權貴為文，遇天刑為武。在寅卯為初升，在辰巳為升殿。在午為日麗中天，主大富貴。在未申為偏垣，作事先勤後惰。在酉為西沒，貴而不顯，秀而不實。在戌亥子為失輝，更逢巨暗一生勞碌貧忙。更主眼目有傷，與人寡合招非。女命逢之，夫星不美，遇耗則非禮成婚。若與祿存同宮，雖主財帛，亦辛苦不閑。若與左右同宮則為貴論。又嫌火鈴、刑忌，未免先克其父。此星男得之為父星，女得之為夫星。",
+     "source": "《紫微斗數全書》卷一〈諸星問答論〉問太陽所主若何？",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷二 命宮 星性與坐宮",
+     "text": "太阳火，南北斗化贵，为官禄主。太阳入庙形貌堂堂，雄壮面方圆满，夜生陷日生庙旺，心慈面紫色，好济施。 若会左右昌曲魁钺太阴禄存守照官禄，财官昭著，极品之论，文武皆宜之。 身逢吉聚贵人门下客，否则公卿走卒，六庚生人命坐卯宫，第一庙所，六壬次之。 命在亥，申生人下局，否则夭寿贫穷，虽发不耐久。 庙旺终身富贵，陷地虽化权禄也凶，官禄亦不显，先勤终懒，成败不一，出外离祖可吉。 与羊陀冲破又陷下局，横发横破不耐久，若经商巧艺，辛苦劳力而祸轻延生矣，加凶杀带疾，化忌目疾。 女命入庙旺夫益子，若陷地又见羊陀火铃忌劫，贫贱残疾，亦为贞洁之妇，僧道亦清洁。 子宫陷午宫旺，丁己生人财官格，壬丙戊生人悔吝。 卯宫庙酉宫和平，乙辛生人财官格，甲庚生人困。 寅宫旺申宫得地与巨门同度，丁己甲庚生人财官格。 巳宫旺财官格。亥宫陷逢杀孤寡贫穷。 辰宫旺财官格。戌宫陷反背孤寡。 丑宫陷未宫得地与太阴同度，加吉星财官格。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉（wikitext 第628行起）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "text": "金烏圓滿，玉兔清奇。",
+     "source": "《紫微斗數全書》卷一〈形性賦〉（wikitext 第65行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "形性賦（金烏＝日、玉兔＝月）"
+    },
+    {
+     "item": "廟旺表（卷二表格，依地支）",
+     "text": "子:落陷；丑:不得地；寅:旺；卯:廟；辰:旺；巳:旺；午:旺；未:得地；申:得地；酉:平和；戌:不得地；亥:落陷",
+     "source": "《紫微斗數全書》卷二〈安身命例〉後之廟旺表（表頭：廟／旺／得地／利益／平和／不得地／落陷；表中簡稱「日」）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical（表格由本報告解析整理，非逐字）",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷三 廟旺注",
+     "text": "太阳 庙卯 旺寅辰巳午 陷子",
+     "source": "《紫微斗數全書》卷三〈論諸星同垣各司所宜分別富貴貧賤夭壽〉（wikitext 第375行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "封神演義第99回同名星官（小說，非斗數來源）",
+     "text": "太陽星　徐　諱蓋",
+     "source": "《封神演義》第99回",
+     "url": "https://zh.wikisource.org/wiki/%E5%B0%81%E7%A5%9E%E6%BC%94%E7%BE%A9/%E5%8D%B7099",
+     "retrieved": true,
+     "type": "classical（小說）",
+     "license": "公有領域"
+    },
+    {
+     "item": "人格核心（現代詮釋）",
+     "text": "unverified：這顆星這次沒有檢索現代權威的詮釋",
+     "source": "—",
+     "url": "—",
+     "retrieved": false,
+     "type": "modern",
+     "license": "—"
+    }
+   ]
+  },
+  {
+   "star": "天同",
+   "brightness_juan2_table": {
+    "子": "旺",
+    "丑": "不得地",
+    "寅": "利益",
+    "卯": "平和",
+    "辰": "平和",
+    "巳": "廟",
+    "午": "落陷",
+    "未": "不得地",
+    "申": "旺",
+    "酉": "平和",
+    "戌": "平和",
+    "亥": "廟"
+   },
+   "items": [
+    {
+     "item": "人格核心（古典，逐字）",
+     "text": "仁慈耿直。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "諸星問答論",
+     "text": "答曰：天同星屬水，乃南方第四星也，為福德宮之主宰。復云：化福最喜遇吉曜，助福添祥，為人廉潔，貌稟清奇。有機樞無亢激，不怕七殺相侵，不怕諸殺同纏。限若逢之，一生得地，十二宮中皆曰福，無破定為祥。 希夷先生曰：天同南斗益算保生之星，化祿為善，逢吉為祥，身命值之，主為人謙遜，稟性溫和。必慈鯁直，文墨精通，有奇志無凶激。不忌七殺相侵，不畏諸凶同度，十二宮中皆為福論。遇左右昌梁貴顯，喜壬乙丙生人，巳亥得地。不宜六庚生人居酉地，終身不守。會四殺居巳亥為陷，殘疾孤克。女人逢殺沖破，刑夫克子。梁月沖破，合作偏房，僧道宜之，主享福。",
+     "source": "《紫微斗數全書》卷一〈諸星問答論〉問天同星所主若何？",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷二 命宮 星性與坐宮",
+     "text": "天同水，南斗化福，为福德主。天同入庙肥满清明，仁慈耿直。 与天梁左右嘉会丙生人于巳亥酉宫安命，财官双美，福非小可，未宫次之，午宫陷，丁生人宜之。 若在亥地庚生人下局，更遇羊陀火铃忌冲合，则孤单破相目疾。 女命会吉星作命妇，旺夫益子极贤能，若居巳亥虽美而淫。 子宫旺地午宫陷，丁己癸辛生人财官格。 卯酉宫和平，乙丙辛生人财官格。 寅宫利申宫旺，与天梁同度，乙甲丁生人福厚。 巳亥宫入庙，壬丙戊生人财官格。 辰戌宫和平，丙丁生人利达，庚癸生人福不耐久。 丑未宫不得地，与巨门同度，乙壬甲辛庚生人财官格。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉（wikitext 第690行起）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "形性賦",
+     "text": "天同肥滿，目秀清奇。 貪狼同武曲形小聲高而量大，天同如陀忌肥滿而目眇。",
+     "source": "《紫微斗數全書》卷一〈形性賦〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "廟旺表（卷二表格，依地支）",
+     "text": "子:旺；丑:不得地；寅:利益；卯:平和；辰:平和；巳:廟；午:落陷；未:不得地；申:旺；酉:平和；戌:平和；亥:廟",
+     "source": "《紫微斗數全書》卷二〈安身命例〉後之廟旺表（表頭：廟／旺／得地／利益／平和／不得地／落陷；表中簡稱「同」）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical（表格由本報告解析整理，非逐字）",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷三 廟旺注",
+     "text": "天同 庙巳亥 旺子申 陷午",
+     "source": "《紫微斗數全書》卷三〈論諸星同垣各司所宜分別富貴貧賤夭壽〉（wikitext 第355行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "道藏星名",
+     "text": "南斗第四天同益算保生真君。",
+     "source": "《太上說南斗六司延壽度人妙經》",
+     "url": "https://zh.wikisource.org/wiki/%E5%A4%AA%E4%B8%8A%E8%AA%AA%E5%8D%97%E6%96%97%E5%85%AD%E5%8F%B8%E5%BB%B6%E5%A3%BD%E5%BA%A6%E4%BA%BA%E5%A6%99%E7%B6%93",
+     "retrieved": true,
+     "type": "classical（道教經典）",
+     "license": "公有領域"
+    },
+    {
+     "item": "人格核心（現代詮釋）",
+     "text": "unverified：這顆星這次沒有檢索現代權威的詮釋",
+     "source": "—",
+     "url": "—",
+     "retrieved": false,
+     "type": "modern",
+     "license": "—"
+    }
+   ]
+  },
+  {
+   "star": "廉貞",
+   "brightness_juan2_table": {
+    "子": "平和",
+    "丑": "利益",
+    "寅": "廟",
+    "卯": "平和",
+    "辰": "利益",
+    "巳": "落陷",
+    "午": "平和",
+    "未": "利益",
+    "申": "廟",
+    "酉": "平和",
+    "戌": "利益",
+    "亥": "落陷"
+   },
+   "items": [
+    {
+     "item": "人格核心（古典，逐字）",
+     "text": "性硬浮荡，好忿争。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "諸星問答論",
+     "text": "答曰：廉貞屬火，北斗第五星也。在斗司品秩，在數司權令。不臨廟旺，更犯官符，故曰化囚為殺。觸之不可解其禍，逢之不可測其祥。主人心狠性狂，不習禮義。逢帝座執威權，遇祿存主富貴，遇文昌好禮樂，遇殺曜顯武職，在官祿有威權，在身命為次桃花。若居旺宮，則賭博迷花而致訟。限逢巨門於陷地，則是非起於官司。逢財星耗合祖業必破，遇刑忌則膿血不免。遇白虎則刑杖難逃，遇武曲於受制之鄉，恐木壓蛇傷。同火曜於陷空之地，主投河自縊。破軍與日月以濟行，目疾而不免。限逢至此，災不可攘。只宜官祿身命之位，遇吉福映，逢凶則不慈。若在他宮，禍福宜詳。 歌曰 廉貪巳亥宮，遇吉福盈豐，應過三旬後，須防不善終。",
+     "source": "《紫微斗數全書》卷一〈諸星問答論〉問廉貞所主若何？",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷二 命宮 星性與坐宮",
+     "text": "廉贞属火，北斗化次桃花杀、囚星，为官禄主。为人身长体壮，眼露神光，眉毛中大克骨亦露，性硬浮荡，好忿争。 入庙武职贵，遇府相左右有科权禄存同宫富贵。逢昌曲七杀立武功。与擎羊同是非日有。破军火铃同，狗悻狼心。 巳亥陷宫弃祖孤单，巧艺僧道军旅之流。 六甲生人命坐寅申者上格，丁己生人次之。 六丙生人命坐子午卯酉，横发横破不耐久。 六甲生人命坐四墓宫，财官格，若丙戊生人招非有成败。 若与昌曲忌星同在巳亥宫，六丙生人有祸，六甲生人亦不宜也。 未申生人命居未申宫，化禄逢吉富贵必矣。若在诸宫逢羊陀火铃化忌冲破，主残疾。 女命三合吉拱主封赠，虽恶杀冲破不为下局， 若入庙逢化禄刚烈机巧，清秀，旺夫益子。僧道加吉拱，有师号，此星最喜天相同宫能化其恶。 子午宫和平，与天相同度，丁己甲生人财官格。 卯酉宫和平，与破军同度，乙辛癸生人吉。 寅宫和平，甲庚己生人贵格。申宫入庙甲庚戊生人贵格，丙生人次之。 巳亥宫陷地，甲己丙戊生人福不耐久。 辰戌宫利益，与天府同度，甲庚生人财官格。 丑未宫利益，与七杀同度，加吉星财官格。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉（wikitext 第718行起）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "形性賦",
+     "text": "廉貞眉寬，口闊面橫，為人性暴，好忿好爭。 暗合廉貞為貪濫之曹吏。",
+     "source": "《紫微斗數全書》卷一〈形性賦〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "廟旺表（卷二表格，依地支）",
+     "text": "子:平和；丑:利益；寅:廟；卯:平和；辰:利益；巳:落陷；午:平和；未:利益；申:廟；酉:平和；戌:利益；亥:落陷",
+     "source": "《紫微斗數全書》卷二〈安身命例〉後之廟旺表（表頭：廟／旺／得地／利益／平和／不得地／落陷；表中簡稱「廉」）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical（表格由本報告解析整理，非逐字）",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷三 廟旺注",
+     "text": "廉贞 庙寅申 利辰戌丑未 陷巳亥",
+     "source": "《紫微斗數全書》卷三〈論諸星同垣各司所宜分別富貴貧賤夭壽〉（wikitext 第474行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "道藏星名",
+     "text": "北斗第五丹元簾貞網星君。",
+     "source": "《太上玄靈北斗本命延生真經》（經文作「簾貞」）",
+     "url": "https://zh.wikisource.org/wiki/%E5%A4%AA%E4%B8%8A%E7%8E%84%E9%9D%88%E5%8C%97%E6%96%97%E6%9C%AC%E5%91%BD%E5%BB%B6%E7%94%9F%E7%9C%9F%E7%B6%93",
+     "retrieved": true,
+     "type": "classical（道教經典）",
+     "license": "公有領域"
+    },
+    {
+     "item": "人格核心（現代詮釋）",
+     "text": "unverified：這顆星這次沒有檢索現代權威的詮釋",
+     "source": "—",
+     "url": "—",
+     "retrieved": false,
+     "type": "modern",
+     "license": "—"
+    }
+   ]
+  },
+  {
+   "star": "天府",
+   "brightness_juan2_table": {
+    "子": "廟",
+    "丑": "廟",
+    "寅": "廟",
+    "卯": "得地",
+    "辰": "廟",
+    "巳": "得地",
+    "午": "旺",
+    "未": "廟",
+    "申": "得地",
+    "酉": "旺",
+    "戌": "廟",
+    "亥": "得地"
+   },
+   "items": [
+    {
+     "item": "人格核心（古典，逐字）",
+     "text": "心性温和，聪明俊秀，博学机变，能解一切灾厄。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "諸星問答論",
+     "text": "答曰：天府屬土，南斗主令第一星也。為財帛之主宰，在斗司福權之宿，會吉皆為富貴之基，定作文昌之論。 希夷先生曰：天府乃南斗延壽解厄之星，又曰司命。上相鎮國之星，在斗司權，在數則職掌財帛、田宅、衣祿之神。為帝之佐貳，能制羊陀為從，能化火鈴為福。主人相貌清奇，稟性溫良端雅。與昌曲會，必登首選。逢祿存武曲，必有巨萬之富。祕云：天府為祿庫，命逢終是富是也。不喜四殺沖破，雖無官貴，亦主財田富足。以田宅財帛為廟樂，以奴僕相貌為陷弱。以兄弟為平常，命逢之得相佐，主夫妻子女不缺。若值空亡是為孤立，不可一例而推斷，大抵此星多主吉。又曰：此星不論諸宮皆吉，女命得之清正機巧，旺夫益子，雖見沖破，亦以善論，僧道宜之有師號。 歌曰 天府為祿庫，入命終是富，萬頃置田莊，家資無論數，女命坐香閨，男人食天祿， 此是福吉星，四外無不足。",
+     "source": "《紫微斗數全書》卷一〈諸星問答論〉問天府所主若何？",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷二 命宮 星性與坐宮",
+     "text": "天府土，南斗化令星，为财帛主。为人面方圆，容红齿白，心性温和，聪明俊秀，博学机变，能解一切灾厄。 喜紫微昌曲左右禄存魁钺权禄，居庙旺必中高第。羊陀火铃会合好诈。 命坐寅午戌亥卯未，六己生人贵格。 若居巳酉丑宫，乙丙戊辛生人，文武财官格，如亥卯未辰酉宫安命者，甲庚生人不贵，先大后小，有始无终。 女命清白机巧，旺夫益子，遇紫微左右同垣极美，作命妇论。 子午宫与武曲同度，丁己癸生人为福，财官格。 卯宫入庙，酉宫旺地，乙丙辛生人财官格。 寅宫入庙，申宫得地，与紫微同度，丁己生人财官格。 巳亥宫得地，乙丙戊辛生人财官格。 辰戌宫入庙，与廉贞同度，甲庚壬生人财官格。 丑未宫入庙加吉星财官格。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉（wikitext 第752行起）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "形性賦",
+     "text": "天府尊星，也作純和之體。 紫微肥滿，天府精神。",
+     "source": "《紫微斗數全書》卷一〈形性賦〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "廟旺表（卷二表格，依地支）",
+     "text": "子:廟；丑:廟；寅:廟；卯:得地；辰:廟；巳:得地；午:旺；未:廟；申:得地；酉:旺；戌:廟；亥:得地",
+     "source": "《紫微斗數全書》卷二〈安身命例〉後之廟旺表（表頭：廟／旺／得地／利益／平和／不得地／落陷；表中簡稱「府」）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical（表格由本報告解析整理，非逐字）",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷三 廟旺注",
+     "text": "天府 庙子丑未寅辰戌 旺午酉 地卯巳申亥 无陷",
+     "source": "《紫微斗數全書》卷三〈論諸星同垣各司所宜分別富貴貧賤夭壽〉（wikitext 第325行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "道藏星名",
+     "text": "南斗第一天府司命上相鎮國真君。",
+     "source": "《太上說南斗六司延壽度人妙經》（正統道藏）",
+     "url": "https://zh.wikisource.org/wiki/%E5%A4%AA%E4%B8%8A%E8%AA%AA%E5%8D%97%E6%96%97%E5%85%AD%E5%8F%B8%E5%BB%B6%E5%A3%BD%E5%BA%A6%E4%BA%BA%E5%A6%99%E7%B6%93",
+     "retrieved": true,
+     "type": "classical（道教經典）",
+     "license": "公有領域"
+    },
+    {
+     "item": "人格核心（現代詮釋）",
+     "text": "unverified：這顆星這次沒有檢索現代權威的詮釋",
+     "source": "—",
+     "url": "—",
+     "retrieved": false,
+     "type": "modern",
+     "license": "—"
+    }
+   ]
+  },
+  {
+   "star": "太陰",
+   "brightness_juan2_table": {
+    "子": "廟",
+    "丑": "廟",
+    "寅": "旺",
+    "卯": "落陷",
+    "辰": "落陷",
+    "巳": "落陷",
+    "午": "不得地",
+    "未": "不得地",
+    "申": "利益",
+    "酉": "旺",
+    "戌": "旺",
+    "亥": "廟"
+   },
+   "items": [
+    {
+     "item": "人格核心（古典，逐字）",
+     "text": "心性温和，清秀耿直聪明，花酒文章，博学横立功名。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "諸星問答論",
+     "text": "答曰：太陰乃水之精，為田宅主，化富，與日為配。天儀表有上弦下弦之用，黃到黑到分勢尚好，虧數定廟樂。其為人也聰明俊秀，其稟性也端雅純祥。上弦為要之機，下弦減威之論。所值不以所見無妨，若相生坐於太陽，日在卯，月在酉，俱為旺地，為富貴之基。命坐銀輝之宮，諸吉咸集，為享福之論。若居陷地，則落弱之名。若上弦下弦，仍以不逢巨門為佳。身若居之，則有隨娘繼拜，或離祖過房。身命若見惡殺交沖，必作傷殘之論。除非僧道，反獲禎祥。決禍福最為要緊，不可參差。又或與文曲同居身命，定是九流術士。男為妻宿，又作母星。 希夷先生曰：太陰化祿與日為配，以卯辰巳午未為陷地，以酉戌亥子丑為得垣。酉為西山之門，為東潛之所。嫌巨曜以來纏，怕羊陀以同度，廉囚相犯，七殺相沖，恐非得意之垣，定作傷殘之論。此星屬水，為田宅宮主，有輝為福，失陷必凶。男女得之，皆為母星，又作妻宿。若在身命廟樂，吉集主富貴。在疾厄遇陀暗為目疾，遇火鈴為災，值貪殺損目。在父母，如陷地失輝，遇流年白虎太歲，主母有災。此雖純和之星，但失輝受制則不吉。若逢白虎、喪門、弔客，妻亦慎之。",
+     "source": "《紫微斗數全書》卷一〈諸星問答論〉問太陰星所主若何？",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷二 命宮 星性與坐宮",
+     "text": "太阴水，南北斗化富，为母宿，又为妻星，为田宅主。 太阴居命面方圆，心性温和，清秀耿直聪明，花酒文章，博学横立功名。 身若逢之则随娘继拜，陷地化吉科权禄，反以凶论，出外离祖则吉。 更遇羊陀火铃，酒色邪淫，下贱夭折。 最喜六壬戊生人，在亥卯未宫立命合局，乙庚戊生人居亥宫立命上格， 六丁生人次之，六乙生人合格，六丁六戊生人，化科权禄吉。 女命会太阳入庙，封赠夫人，若陷地伤夫克子，妾妓之流。 子丑寅宫入庙，丁戊生人财官格。 卯辰巳宫陷地，乙壬戊生人孤寡不耐久。 午宫陷未申宫利益，丁庚甲入生人财官格。 酉戌亥宫入庙，丙丁生人财官格，吉星众大贵。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉（wikitext 第780行起）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "text": "金烏圓滿，玉兔清奇。",
+     "source": "《紫微斗數全書》卷一〈形性賦〉（wikitext 第65行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域",
+     "item": "形性賦（金烏＝日、玉兔＝月）"
+    },
+    {
+     "item": "廟旺表（卷二表格，依地支）",
+     "text": "子:廟；丑:廟；寅:旺；卯:落陷；辰:落陷；巳:落陷；午:不得地；未:不得地；申:利益；酉:旺；戌:旺；亥:廟",
+     "source": "《紫微斗數全書》卷二〈安身命例〉後之廟旺表（表頭：廟／旺／得地／利益／平和／不得地／落陷；表中簡稱「月」）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical（表格由本報告解析整理，非逐字）",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷三 廟旺注",
+     "text": "太阴 庙亥子丑 旺寅酉戌 陷卯辰巳",
+     "source": "《紫微斗數全書》卷三〈論諸星同垣各司所宜分別富貴貧賤夭壽〉（wikitext 第384行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "封神演義第99回同名星官（小說，非斗數來源）",
+     "text": "太陰星　姜氏（紂后）",
+     "source": "《封神演義》第99回",
+     "url": "https://zh.wikisource.org/wiki/%E5%B0%81%E7%A5%9E%E6%BC%94%E7%BE%A9/%E5%8D%B7099",
+     "retrieved": true,
+     "type": "classical（小說）",
+     "license": "公有領域"
+    },
+    {
+     "item": "人格核心（現代詮釋）",
+     "text": "unverified：這顆星這次沒有檢索現代權威的詮釋",
+     "source": "—",
+     "url": "—",
+     "retrieved": false,
+     "type": "modern",
+     "license": "—"
+    }
+   ]
+  },
+  {
+   "star": "貪狼",
+   "brightness_juan2_table": {
+    "子": "旺",
+    "丑": "廟",
+    "寅": "平和",
+    "卯": "利益",
+    "辰": "廟",
+    "巳": "落陷",
+    "午": "旺",
+    "未": "廟",
+    "申": "平和",
+    "酉": "利益",
+    "戌": "廟",
+    "亥": "落陷"
+   },
+   "items": [
+    {
+     "item": "人格核心（古典，逐字）",
+     "text": "性格不常，心多计较，作事急速不耐静，作巧反拙，好赌博花酒。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "諸星問答論",
+     "text": "答曰：貪狼北斗解厄之神，第一星也。屬水，化氣為桃花，為標準，乃主禍福之神。受善惡定奸詐瞞人，授學神仙之術。又好高吟浮蕩，作巧成拙。入廟樂之宮，可為祥可為禍。會破軍迷花戀酒而喪命，同祿存可吉。遇耗因以虛花，遇廉貞也不潔，見七殺或配以遭刑。遇羊陀主痔疾，逢刑忌有斑痕，二限為禍非輕。與七殺同守身命，男有穿窬之體，女有偷香之態。諸吉壓不能為福，眾凶聚愈藏其奸。以事藏機，虛花無實。與人交厚者薄，而薄者又厚。故云：七殺守身終是夭，貪狼入廟必為娼。若身命與破軍同居，更居三合之鄉生旺之地，男好飲而賭博遊蕩，好女無媒而自嫁，淫奔私竊，輕則隨客奔馳，重則遊於歌妓。喜見空亡，返主端正。若與武曲同度，為人諂佞奸貪，每存肥己之心，並無濟人之意。與貞同，公庭必定遭刑。四殺同，定為屠宰。羊陀交並，必作風流之鬼。昌曲同度，必多虛而少實。與七殺同纏，男女淫邪虛花。巨門交戰，口舌是非常有。若犯帝座，無制便為無益之人。得輔弼昌曲夾制，則無此論。陷地逢生又生祥瑞，雖家顛也發一時之財。惟會火鈴能富貴，美在財帛與武曲太陰同，終非所自發，則為淫佚。在兄弟子息，俱為陷地。在田宅則破蕩祖業，先富後貧。奴僕居於廟旺，必因奴僕所破。夫妻宮男女俱不得美，疾厄與羊陀暗殺交並，酒色之病。遷移若坐火鄉，破軍暗殺並，流年歲殺迭並，則主遭兵火賊盜相侵。總而言之，男女非得地之星，不見尤妙。 希夷先生曰：貪狼為北斗解厄之神，陟明之星，其氣屬木，體屬水，故化氣為桃花。乃主禍福之神，在數則樂為放蕩之事。遇吉則主富貴，遇凶則主虛浮。主人矮小，性剛猛威，機深謀遠，隨波逐浪，愛憎難定。居廟旺遇火星武職權貴，戊己生人合局。遇天相延壽，會廉武巧藝，得祿存僧道宜之。破殺相沖，飄蓬度日。女人刑克不潔，遇太陰則主淫佚。",
+     "source": "《紫微斗數全書》卷一〈諸星問答論〉問貪狼所主若何？",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷二 命宮 星性與坐宮",
+     "text": "贪狼属木，化桃花杀。贪狼入庙长耸肥胖，陷宫形小声高而量大，性格不常，心多计较，作事急速不耐静，作巧反拙，好赌博花酒。 陷地加羊陀化忌，则孤贫破相残疾，斑痕疤痣。入庙多居武艺之中，遇火铃喜戊己生人合局，不喜六癸生人，不耐久长。 女命平常，若居陷地伤夫克子且不正，大多为娼婢，僧道亦不清洁。 子午宫旺地，丁己生人福厚，丙戊庚生寅申人下局。 卯酉宫利益，与紫微同度，见火星贵，乙辛己生人宜之，财官格。 寅申宫和平，庚生人财官格。 巳亥宫陷地，与廉贞同度，丙戊壬生人为福不耐久。 辰戌宫入庙，戊己生人财官格。 丑未宫入庙，与武曲同度，见火星，戊己庚生人贵格。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉（wikitext 第811行起）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "形性賦",
+     "text": "貪狼為善惡之星，入廟必應長聳，出垣必定頑囂。 祿逢梁蔭抱私財益與他人，耗遇貪狼浽淫情於井底。 貪狼同武曲形小聲高而量大，天同如陀忌肥滿而目眇。",
+     "source": "《紫微斗數全書》卷一〈形性賦〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "廟旺表（卷二表格，依地支）",
+     "text": "子:旺；丑:廟；寅:平和；卯:利益；辰:廟；巳:落陷；午:旺；未:廟；申:平和；酉:利益；戌:廟；亥:落陷",
+     "source": "《紫微斗數全書》卷二〈安身命例〉後之廟旺表（表頭：廟／旺／得地／利益／平和／不得地／落陷；表中簡稱「贪」）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical（表格由本報告解析整理，非逐字）",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷三 廟旺注",
+     "text": "卷三錄本全頁檢索，找不到貪狼的廟旺注行（未見，不推）",
+     "source": "《紫微斗數全書》卷三〈論諸星同垣各司所宜分別富貴貧賤夭壽〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": false,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "道藏星名",
+     "text": "北斗第一陽明貪狼太星君。",
+     "source": "《太上玄靈北斗本命延生真經》（正統道藏）",
+     "url": "https://zh.wikisource.org/wiki/%E5%A4%AA%E4%B8%8A%E7%8E%84%E9%9D%88%E5%8C%97%E6%96%97%E6%9C%AC%E5%91%BD%E5%BB%B6%E7%94%9F%E7%9C%9F%E7%B6%93",
+     "retrieved": true,
+     "type": "classical（道教經典）",
+     "license": "公有領域"
+    },
+    {
+     "item": "封神演義第99回同名星官（小說，非斗數來源）",
+     "text": "鄂　諱順（貪狼）",
+     "source": "《封神演義》第99回",
+     "url": "https://zh.wikisource.org/wiki/%E5%B0%81%E7%A5%9E%E6%BC%94%E7%BE%A9/%E5%8D%B7099",
+     "retrieved": true,
+     "type": "classical（小說）",
+     "license": "公有領域"
+    },
+    {
+     "item": "人格核心（現代詮釋）",
+     "text": "unverified：這顆星這次沒有檢索現代權威的詮釋",
+     "source": "—",
+     "url": "—",
+     "retrieved": false,
+     "type": "modern",
+     "license": "—"
+    }
+   ]
+  },
+  {
+   "star": "巨門",
+   "brightness_juan2_table": {
+    "子": "旺",
+    "丑": "不得地",
+    "寅": "廟",
+    "卯": "廟",
+    "辰": "落陷",
+    "巳": "旺",
+    "午": "旺",
+    "未": "不得地",
+    "申": "廟",
+    "酉": "廟",
+    "戌": "落陷",
+    "亥": "旺"
+   },
+   "items": [
+    {
+     "item": "人格核心（古典，逐字）",
+     "text": "作事进退，多疑且多学少精，与人寡合，多是多非，奔波劳碌。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "諸星問答論",
+     "text": "答曰：巨門屬水、金。北斗第二星也，為陰精之星，化氣為暗。在身命一生招口舌之非；在兄弟則骨肉參商；在夫妻主於隔角，生離死別，縱夫妻有對，不免汙名失節；在子息損後方招，雖有而無；在財帛有爭競之意；在疾厄遇刑忌，眼目之災，殺臨主殘疾；在遷移則招是非；在奴僕則多怨逆；在官祿主招刑杖；在田宅則破蕩祖業；在福德其禍稍輕；在父母則遭棄擲。 希夷先生曰：巨門在天，司品萬物。在數則掌執是非，主於暗昧，疑是多非，欺瞞天地，進退兩難。其性則面是背非，六親寡合，交人初善終惡。十二宮中若無廟樂照臨，到處為災，奔波勞碌。至亥寅巳申，雖富貴亦不耐久。會太陽則吉凶相半，逢七殺則主殺傷。貪耗同行，因好徒配。遇帝座則制其強。逢祿存則解其厄，值羊陀男盜女娼。對宮遇火鈴、白虎，無帝壓制，決配千里。三合殺湊，必遭火厄，此乃孤獨之數，刻剝之神。除為僧道九流，方免勞神偃蹇，限逢凶曜災難不輕。",
+     "source": "《紫微斗數全書》卷一〈諸星問答論〉問巨門所主若何？",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷二 命宮 星性與坐宮",
+     "text": "巨门水，北斗化暗，主是非。入庙身长肥胖敦厚清秀，不入庙五短瘦小，作事进退，多疑且多学少精，与人寡合，多是多非，奔波劳碌。 喜左右禄存六癸六辛生人，命坐子卯合局。六庚六丁生人，辰戌安命却不富贵。 子午宫安命，丙戊生人孤寡夭折。六甲生人居卯宫虽入庙，与擎羊同度破局平常论。 身命居子午宫为石中隐玉格，更会科权禄，终身福厚，会羊陀火铃化忌，若不夭折，男盗女娼。 女命入庙，六癸六辛生人享福，陷地伤夫克子，丁人遇极淫，此星在女命多有瑕玷。 子午宫旺地，丁己癸辛生人福厚，丙戊生人主困。 卯酉宫入庙，与天机同度，乙辛己丙生人财官格，丁戊生人有成败。 寅申宫入庙，与太阳同度，庚癸辛生人财官格。 巳亥旺宫单守，癸辛丙生人财官格。 辰戌宫和平，癸辛生人主贵，丁生人困。 丑未宫不得地，癸辛丙生人财官格。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉（wikitext 第840行起）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "形性賦",
+     "text": "巨門乃是非之曜，在廟敦厚溫良。",
+     "source": "《紫微斗數全書》卷一〈形性賦〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "廟旺表（卷二表格，依地支）",
+     "text": "子:旺；丑:不得地；寅:廟；卯:廟；辰:落陷；巳:旺；午:旺；未:不得地；申:廟；酉:廟；戌:落陷；亥:旺",
+     "source": "《紫微斗數全書》卷二〈安身命例〉後之廟旺表（表頭：廟／旺／得地／利益／平和／不得地／落陷；表中簡稱「巨」）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical（表格由本報告解析整理，非逐字）",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷三 廟旺注",
+     "text": "巨门 庙寅申卯酉 旺子午巳亥 陷辰戌",
+     "source": "《紫微斗數全書》卷三〈論諸星同垣各司所宜分別富貴貧賤夭壽〉（wikitext 第490行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "道藏星名",
+     "text": "北斗第二陰精巨門元星君。",
+     "source": "《太上玄靈北斗本命延生真經》",
+     "url": "https://zh.wikisource.org/wiki/%E5%A4%AA%E4%B8%8A%E7%8E%84%E9%9D%88%E5%8C%97%E6%96%97%E6%9C%AC%E5%91%BD%E5%BB%B6%E7%94%9F%E7%9C%9F%E7%B6%93",
+     "retrieved": true,
+     "type": "classical（道教經典）",
+     "license": "公有領域"
+    },
+    {
+     "item": "封神演義第99回同名星官（小說，非斗數來源）",
+     "text": "郭　諱宸（巨門）",
+     "source": "《封神演義》第99回",
+     "url": "https://zh.wikisource.org/wiki/%E5%B0%81%E7%A5%9E%E6%BC%94%E7%BE%A9/%E5%8D%B7099",
+     "retrieved": true,
+     "type": "classical（小說）",
+     "license": "公有領域"
+    },
+    {
+     "item": "人格核心（現代詮釋）",
+     "text": "unverified：這顆星這次沒有檢索現代權威的詮釋",
+     "source": "—",
+     "url": "—",
+     "retrieved": false,
+     "type": "modern",
+     "license": "—"
+    }
+   ]
+  },
+  {
+   "star": "天相",
+   "brightness_juan2_table": {
+    "子": "廟",
+    "丑": "廟",
+    "寅": "廟",
+    "卯": "落陷",
+    "辰": "得地",
+    "巳": "得地",
+    "午": "廟",
+    "未": "得地",
+    "申": "廟",
+    "酉": "落陷",
+    "戌": "得地",
+    "亥": "得地"
+   },
+   "items": [
+    {
+     "item": "人格核心（古典，逐字）",
+     "text": "为人相貌敦厚持重，清白好酒食，衣禄丰足。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "諸星問答論",
+     "text": "答曰：天相屬水，南斗第五星也。為司爵之宿，為福善，化氣曰印，是為官祿文星，佐帝之位。若人命逢之，言語誠實，事不虛偽。見人難，有惻隱之心；見人惡，抱不平之氣。官祿得之則顯榮，帝座合之則爭權。佐日月之光，兼化廉貞之惡。身命得之而榮耀；子息得之而嗣續昌，十二宮中皆為祥福，不隨惡而變志，不因殺而改移。限步逢之，富不可量。此星若臨生旺之鄉，雖不逢帝座，若得左右，則職掌威權。或居閑弱之地，也作吉利，二限逢之主富貴。 希夷先生曰：天相南斗司爵之星，化氣為印。主人衣食豐足，昌曲左右相會，位至公卿。陷地貪廉武破羊陀殺湊，巧藝安身。火鈴沖破殘疾，女人主聰明端莊，志過丈夫。三方吉拱封贈論，若昌曲沖破侍妾，在僧道主清高。 歌曰 天相原屬水，化印主官祿，身命二宮逢，定主多財福，形體又肥滿，語言不輕瀆， 出仕主飛騰，居家主財穀，二限若逢之，百事看充足。",
+     "source": "《紫微斗數全書》卷一〈諸星問答論〉問天相星所主若何？",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷二 命宮 星性與坐宮",
+     "text": "天相水，南斗化印，为官禄主。为人相貌敦厚持重，清白好酒食，衣禄丰足。 紫府左右昌曲日月嘉会，财官双美，位至三公。 与武破羊陀同行则为巧艺，更加火铃巨机，则伤刑不善终，天相又能化廉贞之恶。 女命入庙性温和，衣禄遂心，僧道屯吉。 子午宫入庙，与廉贞同度，丁己癸甲生人财官格。 卯酉宫陷地，乙辛生人吉。甲庚生人主困。 辰戌宫得地，与紫微同度，财官格。 丑宫入庙未宫得地，加吉星财官格。 寅申宫入庙，与武曲同度，丁甲庚生人财官格。 巳亥宫得地，丙戊壬生人为福。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉（wikitext 第871行起）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "形性賦",
+     "text": "天相精神，天梁穩重，心事玉潔冰清。",
+     "source": "《紫微斗數全書》卷一〈形性賦〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "廟旺表（卷二表格，依地支）",
+     "text": "子:廟；丑:廟；寅:廟；卯:落陷；辰:得地；巳:得地；午:廟；未:得地；申:廟；酉:落陷；戌:得地；亥:得地",
+     "source": "《紫微斗數全書》卷二〈安身命例〉後之廟旺表（表頭：廟／旺／得地／利益／平和／不得地／落陷；表中簡稱「相」）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical（表格由本報告解析整理，非逐字）",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷三 廟旺注",
+     "text": "天相 庙子午丑寅申 地辰戌巳亥未 陷卯酉",
+     "source": "《紫微斗數全書》卷三〈論諸星同垣各司所宜分別富貴貧賤夭壽〉（wikitext 第335行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "道藏星名",
+     "text": "南斗第二天相司錄上相鎮嶽真君。",
+     "source": "《太上說南斗六司延壽度人妙經》",
+     "url": "https://zh.wikisource.org/wiki/%E5%A4%AA%E4%B8%8A%E8%AA%AA%E5%8D%97%E6%96%97%E5%85%AD%E5%8F%B8%E5%BB%B6%E5%A3%BD%E5%BA%A6%E4%BA%BA%E5%A6%99%E7%B6%93",
+     "retrieved": true,
+     "type": "classical（道教經典）",
+     "license": "公有領域"
+    },
+    {
+     "item": "人格核心（現代詮釋）",
+     "text": "unverified：這顆星這次沒有檢索現代權威的詮釋",
+     "source": "—",
+     "url": "—",
+     "retrieved": false,
+     "type": "modern",
+     "license": "—"
+    }
+   ]
+  },
+  {
+   "star": "天梁",
+   "brightness_juan2_table": {
+    "子": "廟",
+    "丑": "旺",
+    "寅": "廟",
+    "卯": "廟",
+    "辰": "廟",
+    "巳": "落陷",
+    "午": "廟",
+    "未": "旺",
+    "申": "落陷",
+    "酉": "得地",
+    "戌": "廟",
+    "亥": "落陷"
+   },
+   "items": [
+    {
+     "item": "人格核心（古典，逐字）",
+     "text": "厚重清秀，聪明耿直，心无私曲好济施，有寿。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "諸星問答論",
+     "text": "答曰：天梁屬土，南斗第二星也。司壽化氣為蔭為福壽，乃父母之主命化暴戾為祥和。於人命則性情磊落，於相貌則厚重溫謙，循直無私。臨事果決，蔭於身福及子孫。遇昌曲於財宮，逢太陽於福德三合，乃萬全聲名。顯於王室職位，臨於風憲。若逢耗曜，更逢天機及殺，宜僧道，亦受王家制誥。逢貪巨同度而亂禮亂家。居奴僕、疾厄、相貌作豐餘之論。見廉貞刑忌，必無災厄克激之虞；遇火鈴刑暗，亦無征戰之撓。太歲沖而為福，白虎臨而無殃。論而至此，數決窮通之論也。命或對宮有天梁主有壽，乃極吉之星。 希夷先生又曰：天梁南斗司壽之星，化氣為蔭為壽。佐上帝威權，為父母主，生人清秀溫和，形神穩重，性情磊落，善識兵法。得昌曲左右加會，位至臺省。在父母宮則厚重威嚴，會太陽於福德，極品之貴。戊己生人合局，若四殺沖破則苗而不秀，逢天機耗曜，僧道清閑。於貪巨同度，則敗倫亂俗。在奴僕疾厄作豐餘之論。廉貞刑忌見之，必無克敵之虞。火鈴刑暗遇之，亦無征戰之撓。太歲沖而為福，白虎會而無災。奏書會則有意外之榮，青龍動則有文書之喜。小耗大耗交遇所幹無成，病符官符相侵不為災論。女人吉星入廟，旺夫益子，昌曲左右扶持封贈，羊陀火忌沖破，刑克招非不潔，僧道宜之。 歌曰 天梁原屬土，南斗最吉星，化蔭名延壽，父母宮主星，田宅兄弟內，得之福自生， 形神自持重，心性更和平，生來無災患，文章有聲名，六親更和睦，仕宦居王庭， 巨門若相會，勞碌歷艱辛，若逢天機照，僧道享山林，二星在辰戌，福壽不須論。",
+     "source": "《紫微斗數全書》卷一〈諸星問答論〉問天梁星所主若何？",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷二 命宮 星性與坐宮",
+     "text": "天梁属土，南斗化荫，主寿星。厚重清秀，聪明耿直，心无私曲好济施，有寿。 与天机同行居翰苑，善谈兵。左右昌曲嘉会，则出将入相。要入庙方富贵，陷地遇火羊破局，则下贱孤寡夭折。 逢天机耗杀清闲，僧道受制诰，六壬生人，亥卯未宫安命者，富贵双全。 女命有男子之志，入庙富贵，陷地加杀伤夫克子又淫贱。 子午宫入庙，丁己癸生人福厚财格。 卯宫入庙酉宫得地，与太阳同度，乙壬辛生人财官格。 辰戌宫入庙，与天机同度，丁己壬庚生人财官格。 丑未宫入庙，壬乙生人财官格，六戊生人大贵。 寅宫入庙申宫陷地，与天同同度，丁己甲庚生人财官格。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉（wikitext 第901行起）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "形性賦",
+     "text": "天相精神，天梁穩重，心事玉潔冰清。",
+     "source": "《紫微斗數全書》卷一〈形性賦〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "廟旺表（卷二表格，依地支）",
+     "text": "子:廟；丑:旺；寅:廟；卯:廟；辰:廟；巳:落陷；午:廟；未:旺；申:落陷；酉:得地；戌:廟；亥:落陷",
+     "source": "《紫微斗數全書》卷二〈安身命例〉後之廟旺表（表頭：廟／旺／得地／利益／平和／不得地／落陷；表中簡稱「梁」）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical（表格由本報告解析整理，非逐字）",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷三 廟旺注",
+     "text": "天梁 庙子午寅卯辰戌 旺丑未 地酉 陷申巳亥",
+     "source": "《紫微斗數全書》卷三〈論諸星同垣各司所宜分別富貴貧賤夭壽〉（wikitext 第341行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "道藏星名",
+     "text": "南斗第三天梁延壽保命真君。",
+     "source": "《太上說南斗六司延壽度人妙經》",
+     "url": "https://zh.wikisource.org/wiki/%E5%A4%AA%E4%B8%8A%E8%AA%AA%E5%8D%97%E6%96%97%E5%85%AD%E5%8F%B8%E5%BB%B6%E5%A3%BD%E5%BA%A6%E4%BA%BA%E5%A6%99%E7%B6%93",
+     "retrieved": true,
+     "type": "classical（道教經典）",
+     "license": "公有領域"
+    },
+    {
+     "item": "人格核心（現代詮釋）",
+     "text": "unverified：這顆星這次沒有檢索現代權威的詮釋",
+     "source": "—",
+     "url": "—",
+     "retrieved": false,
+     "type": "modern",
+     "license": "—"
+    }
+   ]
+  },
+  {
+   "star": "破軍",
+   "brightness_juan2_table": {
+    "子": "廟",
+    "丑": "旺",
+    "寅": "得地",
+    "卯": "落陷",
+    "辰": "旺",
+    "巳": "平和",
+    "午": "廟",
+    "未": "旺",
+    "申": "得地",
+    "酉": "落陷",
+    "戌": "旺",
+    "亥": "平和"
+   },
+   "items": [
+    {
+     "item": "人格核心（古典，逐字）",
+     "text": "性刚寡合，好争强。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "諸星問答論",
+     "text": "答曰：破軍屬水，北斗第七星也，司夫妻、子息、奴僕之神。居子午入廟，在天為殺氣，在數為耗星，故化氣曰耗。主人暴凶狡詐，其性奸猾，與人寡合，動輒損人。不成人之善，善助人之惡。虐視六親如寇讎，處骨肉無仁義，惟六癸六甲生人合格主富貴。陷地加殺沖破，巧藝殘疾，不守祖業，僧道宜之。女人沖破淫蕩無恥。此星居紫微則失威權；逢天府則作奸偽；會紫貪則鼠竊狗盜。與廉貞火鈴同度則決起官非；與巨門同度則口舌爭鬥；與刑忌同度，則終身殘疾。與武曲入財位則東傾西敗；與文星守命一生貧士。遇諸凶結黨破敗，遇陷地其禍不輕。惟天梁可制其惡，天祿可解其狂。若逢流殺交並，家業蕩空。與文曲入於水域，殘疾、離鄉。遇文昌於震宮，遇吉可貴。若女命逢之，無媒自嫁，喪節飄流。凡坐人身命居子午，貪狼七殺相拱則威震華夷。或與武曲同居巳宮，貪狼拱亦居臺閣。但看惡星何如？甲癸生人入格，到老亦不全美也。在身命陷地，棄祖離宗；在兄弟骨肉參商；在夫妻不正，主婚姻進退；在子息先損後成；在財帛如湯澆雪；在疾厄致尪羸之疾；在遷移奔走無力；在奴僕謗怨逃走；在官祿主清貧；在田宅陷度，祖基破蕩；在福德多災；在父母破相刑克。",
+     "source": "《紫微斗數全書》卷一〈諸星問答論〉問破軍所主若何？",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷二 命宮 星性與坐宮",
+     "text": "破军水，北斗化耗星，主妻子、奴仆。体型五短背厚眉宽腰斜，性刚寡合，好争强。弃祖发福，好博禽捕猎。 喜紫微有威权，天梁天府能制其恶，与文曲同度一生贫士，更入水乡残疾，虽富不久、夭折。 六癸甲生人，坐子午宫者位至三公。若丙戊寅生人命坐子午宫，则孤单残疾，虽富贵不久、夭折。 丙戊生人，命坐辰戌丑未，与紫微同垣或对居，富贵不小。遇廉贞羊陀火铃于陷宫，争斗疾病。僧道宜之，女命 子午入庙，陷地加杀则残疾下贱淫欲。 子午宫入庙，丁己癸生人福厚，丙戊生人主困。 卯酉宫陷地与廉贞同度，乙辛癸生人利，甲庚丙生人不耐久。 辰戌宫旺地，甲癸生人为福。 丑未宫旺地与紫微同度，丙戊乙生人财官格。 寅申宫得地，甲庚丁己生人财官格。 巳亥宫与武曲同度，戊生人福厚。",
+     "source": "《紫微斗數全書》卷二〈一 命宮〉（wikitext 第956行起）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "形性賦",
+     "text": "破軍不仁，背重眉寬，行坐腰斜姦詐好行驚險。",
+     "source": "《紫微斗數全書》卷一〈形性賦〉",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%80",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "廟旺表（卷二表格，依地支）",
+     "text": "子:廟；丑:旺；寅:得地；卯:落陷；辰:旺；巳:平和；午:廟；未:旺；申:得地；酉:落陷；戌:旺；亥:平和",
+     "source": "《紫微斗數全書》卷二〈安身命例〉後之廟旺表（表頭：廟／旺／得地／利益／平和／不得地／落陷；表中簡稱「破」）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%BA%8C",
+     "retrieved": true,
+     "type": "classical（表格由本報告解析整理，非逐字）",
+     "license": "公有領域"
+    },
+    {
+     "item": "卷三 廟旺注",
+     "text": "破军 庙子午 旺辰戌丑未 陷卯酉",
+     "source": "《紫微斗數全書》卷三〈論諸星同垣各司所宜分別富貴貧賤夭壽〉（wikitext 第528行）",
+     "url": "https://zh.wikisource.org/wiki/%E7%B4%AB%E5%BE%AE%E6%96%97%E6%95%B8%E5%85%A8%E6%9B%B8/%E5%8D%B7%E4%B8%89",
+     "retrieved": true,
+     "type": "classical",
+     "license": "公有領域"
+    },
+    {
+     "item": "道藏星名",
+     "text": "北斗第七天關破軍關星君。",
+     "source": "《太上玄靈北斗本命延生真經》",
+     "url": "https://zh.wikisource.org/wiki/%E5%A4%AA%E4%B8%8A%E7%8E%84%E9%9D%88%E5%8C%97%E6%96%97%E6%9C%AC%E5%91%BD%E5%BB%B6%E7%94%9F%E7%9C%9F%E7%B6%93",
+     "retrieved": true,
+     "type": "classical（道教經典）",
+     "license": "公有領域"
+    },
+    {
+     "item": "封神演義第99回同名星官（小說，非斗數來源）",
+     "text": "蘇諱全忠（破軍）",
+     "source": "《封神演義》第99回",
+     "url": "https://zh.wikisource.org/wiki/%E5%B0%81%E7%A5%9E%E6%BC%94%E7%BE%A9/%E5%8D%B7099",
+     "retrieved": true,
+     "type": "classical（小說）",
+     "license": "公有領域"
+    },
+    {
+     "item": "人格核心（現代詮釋）",
+     "text": "unverified：這顆星這次沒有檢索現代權威的詮釋",
+     "source": "—",
+     "url": "—",
+     "retrieved": false,
+     "type": "modern",
+     "license": "—"
+    }
+   ]
+  }
+ ]
+}

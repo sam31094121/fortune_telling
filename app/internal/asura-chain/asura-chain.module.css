@@ -1,0 +1,21 @@
+/* 內部唯讀檢視頁（mobile-first，390 寬為基準） */
+.page { box-sizing: border-box; max-width: 860px; margin: 0 auto; padding: 16px 14px 64px; background: #0f1117; color: #e8e6e3; font-size: 15px; line-height: 1.7; word-break: break-word; overflow-wrap: anywhere; }
+.meta { border: 1px solid #3a3f4b; border-radius: 10px; padding: 10px 12px; margin-bottom: 16px; font-size: 13px; color: #b9bcc4; }
+.meta p { margin: 4px 0; }
+.readonly { color: #ffcf70; font-weight: 700; }
+.doc h1 { font-size: 20px; line-height: 1.4; margin: 12px 0; }
+.doc h2 { font-size: 18px; line-height: 1.45; margin: 28px 0 10px; padding-top: 10px; border-top: 1px solid #2c303a; }
+.doc h3 { font-size: 16px; margin: 22px 0 8px; color: #ffd9a0; }
+.doc h4 { font-size: 15px; margin: 18px 0 6px; color: #f0c48a; }
+.doc p { margin: 8px 0; }
+.doc a { color: #8ab4ff; }
+.doc code { font-size: 12.5px; background: #1d212b; padding: 1px 4px; border-radius: 4px; }
+.pre { white-space: pre-wrap; background: #1d212b; padding: 10px; border-radius: 8px; font-size: 12.5px; }
+.tableWrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 10px 0; border: 1px solid #2c303a; border-radius: 8px; }
+.table { border-collapse: collapse; font-size: 13px; min-width: 100%; }
+.table th, .table td { border-bottom: 1px solid #2c303a; padding: 6px 8px; vertical-align: top; text-align: left; min-width: 7em; max-width: 22em; }
+.table th { background: #1a1e27; color: #ffd9a0; position: sticky; top: 0; }
+.quote { margin: 10px 0; padding: 8px 12px; border-left: 3px solid #c0392b; background: #1a1418; }
+.quote p { margin: 2px 0; }
+.list { padding-left: 1.3em; margin: 8px 0; }
+.badge { display: inline-block; margin-right: 6px; padding: 0 7px; border-radius: 999px; background: #1f6b3a; color: #fff; font-size: 11.5px; font-weight: 700; line-height: 1.7; white-space: nowrap; vertical-align: 1px; }

@@ -106,3 +106,8 @@ t12
 /.dual-chart-shensha-extension-build/
 /.bazi-traditional-gate-build/
 /.five-element-orb-test-build/
+
+# Asura local backups / screenshots (never commit)
+/.asura-backup/
+/.asura-shots/
+/.backup-asura/
