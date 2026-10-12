@@ -34,6 +34,8 @@ function asuraHourStatus(profile: BirthProfile) {
   if (profile.birthHourBranch === 'unknown') {
     return { done: false, text: '需補出生時辰', message: '時辰不明時，暫不產生阿修羅秘卷；請確認出生時辰後再排盤。' };
   }
+  // 阿修羅頁的伺服器端會把「時辰不確定」以子時排並標註（見 lib/server/ghost-asura-display.ts），所以這一頁允許。
+  if (profile.timeUnknown) return { done: true, text: '不確定', message: '' };
   const status = dualChartHourStatus(profile);
   return { ...status, message: status.message.replaceAll('神煞易經', '阿修羅秘卷') };
 }

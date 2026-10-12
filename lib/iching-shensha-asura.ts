@@ -33,6 +33,8 @@ export interface ShenShaAsuraLine {
 export type ShenShaAsuraView =
   | {
       state: 'READY';
+      /** 一句話（卡片頁籤上方的引言）— 由後端提供，前端只照印 */
+      oneLiner: string;
       /** 開場宣言 — 阿修羅本人的第一句 */
       opening: string;
       /** 四柱神煞組 */
@@ -106,6 +108,7 @@ export function buildShenShaAsura(view: ShenShaIChingView, hexagram: IChingReadi
 
   return {
     state: 'READY',
+    oneLiner: '破局是我的承諾。',
     opening,
     groups,
     formations,

@@ -17,7 +17,11 @@ function scenario({ ready = true, ziweiPassed = true, mismatch = false, sourceRe
   const module = { exports: {} };
   const deps = {
     './bazi/engine': {},
-    './three-core-engine': { runBaziLayer: () => { calls.push('bazi'); return { core }; } },
+    // 通過所有上游關卡之後的第一步（神煞衍生鏈從 runZiweiLayer 開始）＝「到達輸出」；之前任何一關失敗都必須停住。
+    './three-core-engine': {
+      runBaziLayer: () => { calls.push('bazi'); return { core }; },
+      runZiweiLayer: () => { calls.push('output'); throw new Error('OUTPUT_REACHED'); },
+    },
     './bazi-traditional-gate': { getBaziTraditionalOutputGate: () => ({ coreReady: true }) },
     './ziwei/engine': {
       hourToTimeIndex: () => 5,

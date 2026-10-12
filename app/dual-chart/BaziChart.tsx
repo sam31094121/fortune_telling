@@ -376,7 +376,7 @@ export function ShenShaCard({ result, printMode = false, hideShenShaGrid = false
       <div className={styles.teacherQuotes}>
         {shenshaTab === 'iching' && <p data-teacher="iching"><b>易經老師</b>{result.specialStars.iching.oneLiner}</p>}
         {shenshaTab === 'ghost' && result.specialStars?.ghost?.state === 'READY' && <p data-teacher="ghost"><b>鬼魅老師</b>{result.specialStars.ghost.oneLiner}</p>}
-        {shenshaTab === 'asura' && result.specialStars?.asura?.state === 'READY' && <p data-teacher="asura"><b>鬼魅阿修羅</b>破局是我的承諾。</p>}
+        {shenshaTab === 'asura' && result.specialStars?.asura?.state === 'READY' && <p data-teacher="asura"><b>鬼魅阿修羅</b>{result.specialStars.asura.oneLiner}</p>}
       </div>
     </div>}
     {/* 三位老師卡片 — 按 shenshaTab 狀態切換顯示 */}

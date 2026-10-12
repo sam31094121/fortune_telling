@@ -19,7 +19,12 @@ const sample = {
   },
   shenShaVisibility: { allowed: new Set(), conflicts: [], pending: [] },
 };
-const render = () => renderToStaticMarkup(React.createElement(target.exports.PillarGrid, { result: sample }));
+const { buildShenShaVisibility } = loadUi('lib/dual-chart-shensha-visibility.ts');
+// 「放行哪些神煞」由後端函式 buildShenShaVisibility 依 gate 算好（前端只照印）；autoVisibility 打開後，每次渲染前都由後端函式重算，
+// 這樣改 gate 的狀態就等於驗證「後端判斷＋前端畫面」整條路。
+let autoVisibility = false;
+const syncVisibility = () => { sample.shenShaVisibility = buildShenShaVisibility(sample.bazi.professionalChart.traditionalInterpretationGate); };
+const render = () => { if (autoVisibility) syncVisibility(); return renderToStaticMarkup(React.createElement(target.exports.PillarGrid, { result: sample })); };
 const blocked = render();
 assert.equal(blocked.includes('未校驗'), false);
 assert.equal(blocked.includes('天乙貴人'), false, 'advanced interpretation cannot unlock shensha');
@@ -32,7 +37,9 @@ assert.ok(blocked.includes('甲'));
 sample.bazi.professionalChart.traditionalInterpretationGate.shenShaReady = true;
 assert.equal(render().includes('天乙貴人'), false, 'aggregate flag cannot unlock unverified individual rules');
 sample.bazi.professionalChart.traditionalInterpretationGate.shenShaReady = false;
-sample.bazi.professionalChart.traditionalInterpretationGate.shenShaRules = { tianyi: { ready: true, status: 'VERIFIED', outputStatus: 'READY' }, taohua: { ready: false, status: 'PENDING_POOL' } };
+sample.bazi.professionalChart.traditionalInterpretationGate.shenShaRules = { tianyi: { ready: true, status: 'VERIFIED', outputStatus: 'READY' }, taohua: { ready: false, status: 'PENDING_POOL' },
+  // 完整規則清單（後端的 pending 名單只列 gate 裡真的有的規則）：尚未完成核對的三條
+  wenchang: { ready: false, status: 'PENDING_POOL' }, yima: { ready: false, status: 'PENDING_POOL' }, huagai: { ready: false, status: 'PENDING_POOL' } };
 sample.shenShaVisibility.allowed = new Set(['天乙貴人']);
 sample.specialStars = { byPillar: { day: [{ name: '天乙貴人', rule: 'DAY 支丑' }], hour: [], month: [], year: [] } };
 assert.equal((render().match(/天乙貴人/g) || []).length, 1, 'verified names are deduplicated per pillar');
@@ -42,6 +49,9 @@ assert.equal(render().includes('尚待核對'), false);
 const activeRow = render().match(/<tr[^>]*>(?:(?!<tr)[\s\S])*?<th scope="row">特星神煞<\/th><\/tr>/)?.[0];
 assert.ok(activeRow, 'special-star row is visible below twelve stages');
 assert.match(activeRow, /<td><\/td><td>[\s\S]*天乙貴人[\s\S]*<\/td><td><\/td><td><\/td>/, 'day evidence stays in second column (hour/day/month/year)');
+// 2026-10-06 起「放行哪些神煞」由後端函式 buildShenShaVisibility 算好，前端只照 allowed／conflicts／pending 顯示。
+// 以下改成「後端函式＋前端畫面」整條路驗證，原本每一條安全規則都保留。
+autoVisibility = true;
 delete sample.bazi.professionalChart.traditionalInterpretationGate.shenShaRules.tianyi.outputStatus;
 assert.equal(render().includes('天乙貴人'), false, 'old results without effective output policy cannot unlock rules');
 sample.bazi.professionalChart.traditionalInterpretationGate.shenShaRules.tianyi.outputStatus = 'READY';
@@ -51,9 +61,13 @@ assert.ok(render().includes('資料待補'));
 assert.equal(render().includes('未命中'), false, 'missing data is not a negative result');
 sample.core.shenSha = [];
 assert.equal(render().includes('未命中'), false);
+// 命中名單由後端組好放在 specialStars.byPillar（前端只照印）；「沒有命中」＝後端給四柱全空。
+const backendSpecialStars = sample.specialStars;
+sample.specialStars = { byPillar: { day: [], hour: [], month: [], year: [] } };
 assert.equal((render().match(/<td><\/td>/g) || []).length, 4, 'all four shensha cells stay empty for no hits');
+sample.specialStars = backendSpecialStars;
 sample.core.shenSha = hits;
-const restrictions = () => renderToStaticMarkup(React.createElement(target.exports.ShenShaRestrictions, { result: sample }));
+const restrictions = () => { syncVisibility(); return renderToStaticMarkup(React.createElement(target.exports.ShenShaRestrictions, { result: sample })); };
 sample.bazi.professionalChart.traditionalInterpretationGate.shenShaRules.taohua.status = 'CONFLICT';
 assert.ok(restrictions().includes('部分神煞因取法分歧暫不提供：桃花。'));
 assert.ok(restrictions().includes('以下神煞尚待完成來源與取法核對：文昌、驛馬、華蓋。'));
@@ -262,6 +276,8 @@ const withIching = structuredClone(deliveryFixture);
 withIching.specialStars.iching = { state: 'READY', chain: [{ step: '八字', text: 'A' }, { step: '紫微', text: 'B' }, { step: '特星神煞', text: 'C' }, { step: '易經', text: 'D' }],
   hexagram: { name: '測試卦', glyph: '䷀', kingWen: 1, changingLine: 2, changingLabel: '後端爻位文字', essence: 'e', advice: 'a' }, items: [{ id: 'taohua', name: '桃花', pillar: '時柱', derivation: '後端推導原文', reference: true, teacher: { theme: '後端主題', tone: '福氣', text: '後端導師話術' }, onion: { layers: [{ layer: '殼', label: '後端殼標', text: '後端殼層' }, { layer: '心', label: '後端心標', text: '後端心層' }, { layer: '禮物', label: '後端禮標', text: '後端禮物層' }], term: { name: '後端名詞', link: '後端連結句', citation: '後端出處' } }, imagery: { name: '桃花', chars: [{ char: '桃', element: '水', sense: null, source: null, senseText: '後端無字義說明' }, { char: '花', element: '金', sense: '後端字義原文', source: 'MOE', senseText: '後端字義原文' }], line: '' } }],
   distribution: [], summary: '後端總評', focusLine: '後端集中柱位解讀', highlights: [{ tone: '福氣', title: '後端重點標題', names: ['桃花'], text: '後端重點內容' }], combos: [{ id: 'charm-trio', title: '後端組合標題', members: ['桃花'], pillar: '時柱', text: '後端組合解讀' }], reading: ['後端解盤第一句'], credibility: { status: 'PENDING_POOL', line: '神煞易經解盤：仍在查證中' }, imageryAttribution: '後端出處說明', onionCredibility: { status: 'PENDING_POOL', line: '後端洋蔥公信力' } };
+// 2026-10-06 起逐項導師解盤由後端分好柱位（groups，與 lib/iching-shensha-iching.ts 的組法同形），前端只照印、不再自己分組。
+withIching.specialStars.iching.groups = [{ pillar: '時柱', anchor: 'shensha-hour', count: 1, palace: '後端宮位說明。', toneLine: '福氣 1', items: withIching.specialStars.iching.items }];
 const ichingHtml = card(withIching);
 assert.ok(ichingHtml.includes('>神煞易經</h3>'));
 for (const text of ['後端解盤第一句', '後端推導原文', '桃花＊', '測試卦', '仍在查證中', '後端字義原文', '後端出處說明', '後端導師話術', '福氣｜後端主題', '後端爻位文字', '後端無字義說明', '後端殼層', '後端心層', '後端禮物層', '後端名詞', '後端出處', '後端洋蔥公信力', '後端組合標題', '後端組合解讀', '後端總評', '後端重點標題', '後端重點內容', '後端集中柱位解讀']) assert.ok(ichingHtml.includes(text), `prints backend text: ${text}`);
@@ -313,7 +329,7 @@ console.log('PASS: 鬼魅老師 hook first, full ghost wording folded; formation
 const withSeal = structuredClone(withGhostHook);
 withSeal.specialStars.iching = withIching.specialStars.iching.state === 'READY' ? withIching.specialStars.iching : { state: 'READY', oneLiner: '後端易經一句', teaser: 't' };
 withSeal.specialStars.ghost = { state: 'SEALED', ageGate: '後端年齡標示', teaser: '後端封印摘要', sealNotice: '後端封印說明' };
-const sealHtml = card(withSeal);
+const sealHtml = cardOnTab(withSeal, 'ghost');
 for (const text of ['鬼魅老師解盤', '後端封印摘要', '後端封印說明', 'data-sealed="true"', 'data-seal-resource="shared-vector-1080p-plus"']) assert.ok(sealHtml.includes(text), `sealed ghost shows ${text}`);
 assert.ok(!/<details[^>]*data-teacher="ghost"/.test(sealHtml), 'sealed ghost card cannot be opened');
 assert.ok(!sealHtml.includes('後端鬼魅一句') && !sealHtml.includes('<p data-teacher="ghost">'), 'no ghost wording leaks while sealed');
