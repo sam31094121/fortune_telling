@@ -467,3 +467,77 @@
     font-size: 8px;
   }
 }
+
+/* ==========================================================================
+   2026-10-12 「修」字墨印：毛筆字體（與標題「鬼魅阿修羅」同一款專案已授權字體，已含「修」）、
+   黑紅墨底、金屬金邊、金字帶朱紅落影，像蓋在卡片上的一枚印。只動這顆小印章，不改尺寸與版面。
+   ========================================================================== */
+.emblem {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background:
+    linear-gradient(160deg, #3a1219 0%, #14090c 58%, #070505 100%) padding-box,
+    linear-gradient(135deg, #fcea86 0%, #c48a29 42%, #8b1e1e 100%) border-box;
+  color: #f8dc8c;
+  font-family: 'Asura Brand Brush', 'Yuji Boku', 'DFKai-SB', 'BiauKai', 'STKaiti', 'KaiTi', serif;
+  font-weight: 400;
+  font-synthesis: none;
+  font-size: 40px;
+  line-height: 1;
+  letter-spacing: 0;
+  text-indent: 0;
+  padding-bottom: 2px;
+  text-shadow:
+    0 2px 0 #6b1b26,
+    0 0 12px rgba(252, 234, 134, 0.5),
+    0 4px 10px rgba(0, 0, 0, 0.75);
+  -webkit-text-stroke: 0.7px currentColor;
+  box-shadow:
+    inset 0 0 0 1px rgba(252, 234, 134, 0.28),
+    inset 0 -10px 16px rgba(139, 30, 30, 0.4),
+    0 6px 14px -4px rgba(139, 30, 30, 0.7),
+    0 0 14px rgba(252, 234, 134, 0.2);
+  transition: box-shadow 240ms ease, transform 240ms ease;
+}
+/* 墨暈高光：左上一抹金光，右下一抹朱紅 */
+.emblem::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 60% at 28% 22%, rgba(252, 234, 134, 0.22), transparent 62%),
+    radial-gradient(60% 50% at 88% 92%, rgba(190, 30, 45, 0.5), transparent 70%);
+}
+/* 飛白與潑墨點：下緣一道乾筆橫掃、右上角兩點墨 */
+.emblem::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent 0, rgba(252, 234, 134, 0.55) 18%, rgba(252, 234, 134, 0.1) 62%, transparent 100%) 50% calc(100% - 6px) / 62% 2px no-repeat,
+    radial-gradient(circle at 86% 16%, rgba(0, 0, 0, 0.85) 0 7%, transparent 8%),
+    radial-gradient(circle at 74% 8%, rgba(0, 0, 0, 0.7) 0 3.5%, transparent 4.5%);
+}
+.entry:hover .emblem,
+.entry:focus-visible .emblem {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 1px rgba(252, 234, 134, 0.4),
+    inset 0 -10px 16px rgba(139, 30, 30, 0.45),
+    0 8px 18px -4px rgba(139, 30, 30, 0.8),
+    0 0 20px rgba(252, 234, 134, 0.38);
+}
+@media (max-width: 640px) {
+  .emblem { font-size: 35px; border-radius: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .emblem { transition: none; }
+  .entry:hover .emblem, .entry:focus-visible .emblem { transform: none; }
+}
