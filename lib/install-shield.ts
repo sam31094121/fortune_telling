@@ -35,9 +35,41 @@ export function detectPlatform(ua: string, maxTouchPoints = 0): InstallPlatform 
   return 'other';
 }
 
-/** 加上 openExternalBrowser=1（LINE 官方參數），保留其他參數與 hash。 */
+export type DesktopBrowser = 'chromium' | 'safari-mac' | 'other';
+
+/** 桌機瀏覽器：Chrome / Edge（含 beforeinstallprompt）、macOS Safari（檔案 → 加入 Dock）、其他（加書籤）。 */
+export function detectDesktopBrowser(ua: string): DesktopBrowser {
+  if (/Edg\/|Chrome\/|Chromium\//.test(ua) && !/OPR\/|Firefox\//.test(ua)) return 'chromium';
+  if (/Macintosh/.test(ua) && /Version\/[\d.]+.*Safari\//.test(ua)) return 'safari-mac';
+  return 'other';
+}
+
+export function isIPad(ua: string, maxTouchPoints = 0): boolean {
+  return /iPad/.test(ua) || (/Macintosh/.test(ua) && maxTouchPoints > 1);
+}
+
+/** 加上 openExternalBrowser=1（LINE 官方參數）與 installShield=open（到了真正的瀏覽器自動打開說明），保留其他參數與 hash。 */
 export function withOpenExternalBrowser(href: string): string {
   const url = new URL(href);
   url.searchParams.set('openExternalBrowser', '1');
+  url.searchParams.set('installShield', 'open');
+  return url.toString();
+}
+
+/** 是否是從 LINE 轉跳過來、應該自動打開說明。 */
+export function wantsInstallSheet(search: string): boolean {
+  return new URLSearchParams(search).get('installShield') === 'open';
+}
+
+/** 已經帶過 openExternalBrowser=1 還停在 App 內建瀏覽器 → LINE 沒有轉開，改教使用者手動開。 */
+export function externalOpenFailed(search: string, inApp: InAppBrowser): boolean {
+  return inApp !== null && new URLSearchParams(search).get('openExternalBrowser') === '1';
+}
+
+/** 移除轉跳用的參數（保留其他參數與 hash）。 */
+export function stripInstallParams(href: string): string {
+  const url = new URL(href);
+  url.searchParams.delete('openExternalBrowser');
+  url.searchParams.delete('installShield');
   return url.toString();
 }
