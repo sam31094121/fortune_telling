@@ -69,7 +69,7 @@ export default function StarBeastHomeCard() {
 
   // Wrapper is flex-col so the <a> stays a blockified flex item like before (desktop collapse rule sets `display: revert` on it).
   return (
-    <div className={`${styles.wrap} order-9 w-full relative flex flex-col`}>
+    <div className={`${styles.wrap} order-[14] w-full relative flex flex-col`}>
       <Link
         href="/star-beasts"
         lang={isZh ? 'zh-Hant' : 'en'}

@@ -26891,3 +26891,89 @@ a.home-feature-launch::after {
   }
 }
 
+
+/* 2026-10-12 home polish: shield-gold accent + eight-card type/spacing scale (visual only) */
+:root {
+  --shield-gold: #f8c758;
+  --shield-gold-light: #fcea86;
+  --shield-gold-dark: #c48a29;
+  --shield-gold-deep: #975905;
+  --shield-080: #f9c851; /* median of the two '0' digit strokes */
+  --shield-080-eight: #fb9e08; /* median warm tone of the rainbow '8' */
+}
+#home-eight-card-route > div > .home-feature-launch {
+  padding: 20px 16px !important;
+  border-radius: 22px !important;
+}
+#home-eight-card-route .home-feature-launch h2 {
+  font-size: 19px !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0.03em !important;
+}
+#home-eight-card-route .home-feature-launch h2 ~ p {
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+}
+#home-eight-card-route .home-feature-more-toggle {
+  border-color: rgba(248, 199, 88, 0.45) !important;
+  color: var(--shield-gold-light) !important;
+}
+#home-eight-card-route .home-feature-launch:focus-visible,
+#home-eight-card-route .home-feature-more-toggle:focus-visible {
+  outline: 2px solid var(--shield-gold) !important;
+  outline-offset: 3px !important;
+}
+@media (min-width: 640px) {
+  #home-eight-card-route > div > .home-feature-launch { padding: 24px !important; border-radius: 24px !important; }
+  #home-eight-card-route .home-feature-launch h2 { font-size: 22px !important; }
+  #home-eight-card-route .home-feature-launch h2 ~ p { font-size: 14px !important; }
+}
+@media (min-width: 1024px) {
+  #home-eight-card-route .home-feature-launch h2 { font-size: 24px !important; }
+}
+#home-eight-card-route .home-feature-launch[class*="GhostAsura"] h2 { font-size: 19px !important; }
+@media (min-width: 640px) { #home-eight-card-route .home-feature-launch[class*="GhostAsura"] h2 { font-size: 22px !important; } }
+@media (min-width: 1024px) { #home-eight-card-route .home-feature-launch[class*="GhostAsura"] h2 { font-size: 19px !important; } }
+#home-eight-card-route .home-feature-more-toggle:hover,
+#home-eight-card-route .home-feature-more-toggle[aria-expanded="true"] { border-color: var(--shield-080-eight) !important; color: var(--shield-080) !important; }
+
+/* per-card motifs (decorative pseudo-elements, no DOM/text change) */
+#home-eight-card-route .home-feature-launch::after { content: ""; display: block; position: absolute; top: 10px; right: 10px; width: 64px; height: 64px; pointer-events: none; opacity: .16; background: no-repeat center/contain; }
+#home-eight-card-route a.home-feature-launch[href="/match"]::after { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='%23f8c758' stroke-width='2'><circle cx='28' cy='36' r='16'/><circle cx='44' cy='36' r='16'/></svg>"); }
+#home-eight-card-route a.home-feature-launch[href="/music"]::after { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='%23f8c758' stroke-width='2'><path d='M6 30q10-12 20 0t20 0t20 0M6 44q10-12 20 0t20 0t20 0'/></svg>"); }
+#home-eight-card-route a.home-feature-launch[href="/nameology"]::after { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='%23f8c758' stroke-width='2'><rect x='14' y='14' width='44' height='44' rx='4'/><rect x='22' y='22' width='28' height='28' rx='2'/></svg>"); }
+#home-eight-card-route a.home-feature-launch[href="/numerology"]::after { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='%23f8c758' stroke-width='2'><path d='M14 18h44M14 30h18M40 30h18M14 42h44M14 54h18M40 54h18'/></svg>"); }
+#home-eight-card-route a.home-feature-launch[href="/bazi"]::after { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='%23f8c758' stroke-width='2'><path d='M18 12v48M30 12v48M42 12v48M54 12v48' stroke-dasharray='6 4'/></svg>"); }
+#home-eight-card-route a.home-feature-launch[href="/dual-chart"]::after { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='%23f8c758' stroke-width='2'><circle cx='36' cy='36' r='24'/><path d='M36 12a12 12 0 0 1 0 24a12 12 0 0 0 0 24'/></svg>"); }
+#home-eight-card-route a.home-feature-launch[href="/zodiac"]::after { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='%23f8c758' stroke-width='2'><path d='M36 8l4 12 12 0-10 8 4 12-10-8-10 8 4-12-10-8h12zM58 46l2 6 6 0-5 4 2 6-5-4-5 4 2-6-5-4h6z'/></svg>"); }
+#home-eight-card-route a.home-feature-launch[href="/red-luan-heartbeat"]::after { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='%23f8c758' stroke-width='2'><path d='M4 38h18l6-14 8 28 8-22 4 8h20'/></svg>"); }
+#home-eight-card-route a.home-feature-launch[href="/star-beasts"]::after { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='%23f8c758' stroke-width='2'><path d='M12 60L36 10l24 50M20 44h32'/></svg>"); }
+#home-eight-card-route a.home-feature-launch[href="/3D"]::after { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='%23f8c758' stroke-width='2'><path d='M36 8l24 14v28L36 64 12 50V22zM36 36v28M12 22l24 14 24-14'/></svg>"); }
+#home-eight-card-route .tarot-entry-card::after { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='%23f8c758' stroke-width='2'><path d='M14 64V32a22 22 0 0 1 44 0v32M24 64V34a12 12 0 0 1 24 0v30'/></svg>"); }
+#home-eight-card-route .home-feature-launch[class*="GhostAsura"]::after { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='%23f8c758' stroke-width='2'><path d='M36 6c8 14-6 18 4 30c6-10 14-4 12 8c-2 12-12 20-16 22c-4-2-14-10-16-22c-2-12 6-18 12-8c10-12-4-16 4-30z'/></svg>"); }
+
+/* unified frame: identical size/radius/border/padding; per-card gold+080 color combos */
+#home-eight-card-route > div > .home-feature-launch { --c-border: var(--shield-gold); --c-angle: 135deg; --c-tint: rgba(248,199,88,.12); border-width: 1px !important; border-style: solid !important; border-color: color-mix(in srgb, var(--c-border) 55%, transparent) !important; background: linear-gradient(var(--c-angle), var(--c-tint), rgba(7,11,31,0) 62%), #080a1a !important; box-shadow: 0 0 22px color-mix(in srgb, var(--c-border) 14%, transparent) !important; min-height: var(--home-card-h, 0px) !important; }
+#home-eight-card-route { --home-card-h: 300px; }
+@media (min-width: 640px) { #home-eight-card-route { --home-card-h: 270px; } }
+@media (min-width: 1024px) { #home-eight-card-route { --home-card-h: 275px; } }
+#home-eight-card-route > div > a.home-feature-launch[href="/match"] { --c-border: var(--shield-gold); --c-angle: 135deg; --c-tint: rgba(248,199,88,.16); }
+#home-eight-card-route > div > a.home-feature-launch[href="/music"] { --c-border: var(--shield-080-eight); --c-angle: 135deg; --c-tint: rgba(251,158,8,.16); }
+#home-eight-card-route > div > a.home-feature-launch[href="/nameology"] { --c-border: var(--shield-gold-light); --c-angle: 180deg; --c-tint: rgba(248,199,88,.12); }
+#home-eight-card-route > div > a.home-feature-launch[href="/numerology"] { --c-border: var(--shield-080-eight); --c-angle: 90deg; --c-tint: rgba(248,199,88,.12); }
+#home-eight-card-route > div > a.home-feature-launch[href="/bazi"] { --c-border: var(--shield-gold-dark); --c-angle: 45deg; --c-tint: rgba(251,158,8,.14); }
+#home-eight-card-route > div > a.home-feature-launch[href="/dual-chart"] { --c-border: var(--shield-gold); --c-angle: 225deg; --c-tint: rgba(251,158,8,.10); }
+#home-eight-card-route > div > a.home-feature-launch[href="/zodiac"] { --c-border: var(--shield-gold-dark); --c-angle: 315deg; --c-tint: rgba(248,199,88,.18); }
+#home-eight-card-route > div > a.home-feature-launch[href="/red-luan-heartbeat"] { --c-border: var(--shield-080-eight); --c-angle: 0deg; --c-tint: rgba(252,234,134,.12); }
+#home-eight-card-route > div > a.home-feature-launch[href="/3D"] { --c-border: var(--shield-gold-light); --c-angle: 270deg; --c-tint: rgba(251,158,8,.12); }
+#home-eight-card-route > div > .tarot-entry-card { --c-border: var(--shield-080); --c-angle: 160deg; --c-tint: rgba(248,199,88,.14); }
+#home-eight-card-route > div > .home-feature-launch[class*="GhostAsura"] { --c-border: var(--shield-080-eight); --c-angle: 200deg; --c-tint: rgba(251,158,8,.18); }
+#home-eight-card-route > div > [class*="StarBeastHomeCard_wrap"] { min-height: var(--home-card-h) !important; border-radius: 22px; overflow: hidden; }
+@media (min-width: 640px) { #home-eight-card-route > div > [class*="StarBeastHomeCard_wrap"] { border-radius: 24px; } }
+/* spacing rhythm (4/8px) */
+#home-eight-card-route > div > .home-feature-launch { row-gap: 16px !important; column-gap: 16px !important; }
+#home-eight-card-route .home-feature-launch h2 { margin-top: 8px !important; }
+#home-eight-card-route .home-feature-launch h2 ~ p { margin-top: 8px !important; }
+@media (min-width: 640px) { #home-eight-card-route > div > .home-feature-launch { row-gap: 16px !important; column-gap: 24px !important; } }
+@media (min-width: 640px) { #home-eight-card-route { --home-card-h: 276px; } #home-eight-card-route .home-feature-launch[class*="GhostAsura"] h2 { font-size: 22px !important; } }
+@media (min-width: 1024px) { #home-eight-card-route { --home-card-h: 276px; } #home-eight-card-route .home-feature-launch[class*="GhostAsura"] h2 { font-size: 24px !important; } }

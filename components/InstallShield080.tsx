@@ -39,6 +39,9 @@ export default function InstallShield080() {
   const swiped = useRef(false);
   const sheetStartY = useRef<number | null>(null);
   const [sheetDy, setSheetDy] = useState(0);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const [avoid, setAvoid] = useState({ lift: 0, hide: false });
+  const avoidRef = useRef({ lift: 0, hide: false });
 
   useEffect(() => {
     let dismissed = false;
@@ -127,12 +130,63 @@ export default function InstallShield080() {
     setSheet(platform === 'ios' ? 'ios' : 'android-manual');
   }, [inApp, deferred, platform]);
 
+  // 避讓：盾牌是固定位置、阿修羅卡片的按鈕會隨頁面捲動；按鈕快要跑到盾牌底下時，
+  // 先把盾牌往上推開，推不開（會跑太高）就淡出且不攔截點擊，等按鈕離開再回來。
+  useEffect(() => {
+    if (!ready) return;
+    const GAP = 8;
+    const MIN_TOP = 96;
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      const root = rootRef.current;
+      if (!root) return;
+      const targets = Array.from(
+        document.querySelectorAll<HTMLElement>('[class*="GhostAsuraHomeEntry_cta"], a[href="/ghost-asura"] .home-feature-cta'),
+      );
+      const r = root.getBoundingClientRect();
+      // 量到的是目前位置，扣回目前的上推量得到基準位置
+      const baseTop = r.top + avoidRef.current.lift;
+      const baseBottom = r.bottom + avoidRef.current.lift;
+      let lift = 0;
+      let hide = false;
+      for (const el of targets) {
+        const c = el.getBoundingClientRect();
+        if (c.width === 0 || c.height === 0) continue;
+        const hOverlap = c.left < r.right + GAP && c.right > r.left - GAP;
+        const vOverlap = c.top < baseBottom + GAP && c.bottom > baseTop - GAP;
+        if (!hOverlap || !vOverlap) continue;
+        const need = baseBottom - (c.top - GAP);
+        if (baseTop - need < MIN_TOP) hide = true;
+        else lift = Math.max(lift, need);
+      }
+      if (hide) lift = 0;
+      if (lift !== avoidRef.current.lift || hide !== avoidRef.current.hide) {
+        avoidRef.current = { lift, hide };
+        setAvoid({ lift, hide });
+      }
+    };
+    const schedule = () => {
+      if (!raf) raf = window.requestAnimationFrame(measure);
+    };
+    schedule();
+    const timer = window.setInterval(schedule, 600);
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    return () => {
+      if (raf) window.cancelAnimationFrame(raf);
+      window.clearInterval(timer);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+    };
+  }, [ready]);
+
   if (!ready) return null;
 
   return (
     <>
       <style>{`
-        .taiji-install-shield{transition:transform .22s ease,opacity .22s ease;position:fixed;left:max(14px,env(safe-area-inset-left));bottom:calc(18px + env(safe-area-inset-bottom));z-index:2147483000;display:flex;flex-direction:column;align-items:center;gap:2px;}
+        .taiji-install-shield{transition:transform .22s ease,opacity .22s ease,bottom .18s ease;position:fixed;left:max(14px,env(safe-area-inset-left));bottom:calc(96px + env(safe-area-inset-bottom));z-index:2147483000;display:flex;flex-direction:column;align-items:center;gap:2px;}
         .taiji-install-shield button.main{display:flex;flex-direction:column;align-items:center;gap:2px;width:auto;min-width:0;min-height:0;height:auto;margin:0;padding:4px 5px 4px;border-radius:14px;border:1px solid rgba(248,199,88,.55);background:rgba(7,11,31,.9);box-shadow:0 4px 14px rgba(0,0,0,.55);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:none!important;user-select:none;-webkit-user-select:none;}
         .taiji-install-shield button.main img{width:${SHIELD_SIZE_PX}px;height:${SHIELD_SIZE_PX}px;object-fit:contain;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));}
         .taiji-install-shield .label{font-size:11px;line-height:1.1;color:#fcea86;text-shadow:0 1px 2px #000;letter-spacing:.05em;}
@@ -147,11 +201,14 @@ export default function InstallShield080() {
         @media (min-width:768px){.taiji-install-shield,.taiji-install-sheet-bg{display:none!important;}}
       `}</style>
       <div
+        ref={rootRef}
         className="taiji-install-shield"
         data-install-shield="080"
         style={{
           transform: leaving === 'left' ? 'translateX(-140px)' : leaving === 'down' ? 'translateY(140px)' : `translate(${drag.x}px, ${drag.y}px)`,
-          opacity: leaving ? 0 : 1,
+          opacity: leaving || avoid.hide ? 0 : 1,
+          pointerEvents: avoid.hide ? 'none' : undefined,
+          bottom: avoid.lift ? `calc(96px + env(safe-area-inset-bottom) + ${Math.round(avoid.lift)}px)` : undefined,
           transition: dragStart.current ? 'none' : undefined,
         }}
       >
