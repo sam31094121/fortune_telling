@@ -1543,6 +1543,12 @@ export default function HomePage() {
   const [growthCompletedModules, setGrowthCompletedModules] = useState<string[]>([]);
   const [growthJustUnlocked, setGrowthJustUnlocked] = useState(false);
   const [showMoreFeatures, setShowMoreFeatures] = useState(false);
+  // ios-active-touch: iOS Safari only applies :active on touch when a touchstart listener exists (pressed colour on 請點我開啟 buttons).
+  useEffect(() => {
+    const noop = () => {};
+    document.addEventListener('touchstart', noop, { passive: true });
+    return () => document.removeEventListener('touchstart', noop);
+  }, []);
   const previousGrowthCountRef = useRef(0);
   const [ziweiOpening, setZiweiOpening] = useState(false);
   const ziweiNavLockRef = useRef(false);
