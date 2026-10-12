@@ -1969,7 +1969,7 @@ body.app-lite-effects .taiji-light-orbit--violet .taiji-light-orbit__head {
   input,
   select,
   textarea {
-    touch-action: pan-y pinch-zoom;
+    touch-action: manipulation;
   }
 
   button,
@@ -5145,7 +5145,7 @@ body.app-lite-effects .home-line-share-card::after {
   letter-spacing: 0;
   color: rgba(255, 255, 255, 0.9);
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
-  touch-action: pan-y pinch-zoom;
+  touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -5302,7 +5302,7 @@ body.app-lite-effects .home-line-share-card::after {
   box-shadow: 0 12px 30px rgba(2, 6, 23, 0.3), 0 0 22px rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  touch-action: pan-y pinch-zoom;
+  touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease, box-shadow 160ms ease;
 }
@@ -6001,7 +6001,7 @@ body {
 .form-input,
 .glass-input {
   -webkit-tap-highlight-color: transparent;
-  touch-action: pan-y pinch-zoom;
+  touch-action: manipulation;
 }
 
 .home-feature-launch,
@@ -7154,7 +7154,7 @@ body.app-touching .home-trust-card::after {
 .home-feature-launch,
 .home-music-cta {
   pointer-events: auto !important;
-  touch-action: pan-y pinch-zoom !important;
+  touch-action: manipulation !important;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -7831,12 +7831,13 @@ body.app-scrolling .modal-taiji-button {
   }
 }
 
-/* Mobile scroll unlock: cards must allow vertical finger scrolling across the whole screen. */
+/* Mobile scroll unlock: vertical scrolling stays free, and since 2026-10-12 pinch-zoom plus horizontal panning
+   are free too (the old pan-y-only rule made a zoomed page impossible to drag sideways). */
 html,
 body {
   overflow-y: auto;
   overscroll-behavior-y: auto;
-  touch-action: pan-y pinch-zoom;
+  touch-action: auto;
 }
 
 body.app-mobile-device,
@@ -7859,7 +7860,7 @@ section,
 .voice-song-consent-card,
 .taiji-standalone-card,
 [data-visitor-counter] {
-  touch-action: pan-y pinch-zoom !important;
+  touch-action: auto !important;
 }
 
 a,
@@ -7875,14 +7876,14 @@ textarea,
 .home-ai-feedback-action,
 .modal-taiji-button,
 .music-start-button {
-  touch-action: pan-y pinch-zoom !important;
+  touch-action: manipulation !important;
 }
 
 .number-fortune-panel,
 .max-h-\[90vh\].overflow-y-auto {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: auto;
-  touch-action: pan-y pinch-zoom !important;
+  touch-action: manipulation !important;
 }
 
 
@@ -27091,3 +27092,40 @@ body:has(#home-eight-card-route) main .home-feature-launch .home-feature-cta:act
 #home-eight-card-route .home-feature-launch .home-feature-cta { margin-left: 0 !important; margin-right: 0 !important; }
 #home-eight-card-route [class*="StarBeastHomeCard_wrap"] .home-feature-launch { padding: 20px 16px !important; }
 @media (min-width: 640px) { #home-eight-card-route [class*="StarBeastHomeCard_wrap"] .home-feature-launch { padding: 24px !important; } }
+
+/* ==========================================================================
+   2026-10-12 手機首頁字體放大（客戶與業主都反映字太小、看不清楚）
+   量測（390px 手機）：9–11px 的字約 760 字、13px 約 710 字——遠低於可讀下限。
+   做法：只在首頁、窄螢幕；把過小的字提到可讀大小，版面照舊往下延伸，不改文字內容。
+   最小字 13px、說明文 15–16px、卡片標題 22px。放大後仍可捏合縮放並上下左右拖動（見上方 touch-action 修正）。
+   ========================================================================== */
+@media (max-width: 640px) {
+  /* 卡片：標題與說明 */
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch h2 { font-size: 22px !important; line-height: 1.35 !important; }
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch[class*="GhostAsura"] h2 { font-size: 24px !important; }
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch h2 ~ p { font-size: 16px !important; line-height: 1.7 !important; display: block !important; overflow: visible !important; -webkit-line-clamp: unset !important; max-height: none !important; }
+  body:has(#home-eight-card-route) #home-eight-card-route [class*="StarBeastHomeCard_wrap"] p { font-size: 15px !important; line-height: 1.65 !important; }
+  /* 卡片：說明文、標籤、徽章（原本 9–13px） */
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch :is(p, span, small, em, li):not(.home-feature-cta *) { font-size: max(1em, 14px); }
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch .text-\[9px\],
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch .text-\[10px\],
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch .text-\[11px\] { font-size: 13px !important; line-height: 1.5 !important; }
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch .text-xs { font-size: 15px !important; line-height: 1.65 !important; }
+  /* 全首頁：過小的 Tailwind 字級一律提高 */
+  body:has(#home-eight-card-route) main .text-\[9px\],
+  body:has(#home-eight-card-route) main .text-\[10px\],
+  body:has(#home-eight-card-route) main .text-\[11px\] { font-size: 13px !important; line-height: 1.5 !important; }
+  body:has(#home-eight-card-route) main .text-\[12px\] { font-size: 14px !important; }
+  body:has(#home-eight-card-route) main .text-\[13px\] { font-size: 15px !important; }
+  body:has(#home-eight-card-route) main .text-xs { font-size: 15px !important; line-height: 1.65 !important; }
+  body:has(#home-eight-card-route) main .text-sm { font-size: 16px !important; line-height: 1.7 !important; }
+  /* 成長中心模組列、收合按鈕 */
+  body:has(#home-eight-card-route) .growth-module-route__label { font-size: 16px; }
+  body:has(#home-eight-card-route) .growth-module-route__helper { font-size: 14px; line-height: 1.55; }
+  body:has(#home-eight-card-route) .growth-module-route__status { font-size: 13px; padding: 0.3rem 0.6rem; }
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-more-toggle { font-size: 16px; }
+  body:has(#home-eight-card-route) main [class*="TodayDirectionQuest_"] :is(span, small, p, em) { font-size: max(1em, 13px); }
+  /* 今日定向關卡、成長進度等模組的小字 */
+  body:has(#home-eight-card-route) main [class*="TodayDirectionQuest_"]:is(p, span, small, div) { font-size: max(1em, 15px); }
+  body:has(#home-eight-card-route) main small { font-size: max(1em, 13px); }
+}

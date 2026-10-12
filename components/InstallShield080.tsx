@@ -339,7 +339,7 @@ export default function InstallShield080() {
           .taiji-install-inline{display:block;margin:10px 16px 6px;color:#f3ead2;font-size:15px;line-height:1.6;}
           .taiji-install-inline .tap{display:flex;flex-direction:column;align-items:center;gap:2px;width:auto;min-width:0;min-height:0;height:auto;margin:0;padding:4px 5px;border-radius:14px;border:1px solid rgba(248,199,88,.55);background:rgba(7,11,31,.9);box-shadow:0 4px 14px rgba(0,0,0,.55);cursor:pointer;-webkit-tap-highlight-color:transparent;font:inherit;}
           .taiji-install-inline img{width:${INLINE_SHIELD_PX}px;height:${INLINE_SHIELD_PX}px;object-fit:contain;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));}
-          .taiji-install-inline .t{display:block;font-size:11px;line-height:1.1;color:#fcea86;letter-spacing:.05em;}
+          .taiji-install-inline .t{display:block;font-size:13px;line-height:1.15;color:#fcea86;letter-spacing:.05em;}
           .taiji-install-inline .panel{margin-top:10px;padding:18px 16px 16px;border:1px solid rgba(248,199,88,.55);border-radius:16px;background:#0b0d1f;text-align:center;}
           .taiji-install-inline .panel h3{margin:0 0 4px;font-size:18px;font-weight:800;color:#fcea86;}
           .taiji-install-inline .panel .lead{margin:0 0 12px;font-size:14px;color:#d9cfb4;}

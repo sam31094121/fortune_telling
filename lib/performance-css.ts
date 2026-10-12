@@ -30,7 +30,7 @@
     input,
     select,
     textarea {
-      touch-action: pan-y pinch-zoom;
+      touch-action: manipulation;
     }
 
     input,
@@ -197,7 +197,7 @@
     }
     .home-feature-direct-link {
       cursor: pointer;
-      touch-action: pan-y pinch-zoom;
+      touch-action: manipulation;
       content-visibility: visible !important;
       contain: layout paint !important;
       pointer-events: auto !important;
@@ -352,7 +352,7 @@
       content-visibility: visible !important;
       contain: layout paint !important;
       cursor: pointer;
-      touch-action: pan-y pinch-zoom;
+      touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
       -webkit-user-select: none;
@@ -519,7 +519,7 @@ body.app-social-browser [data-visitor-counter],
 body.app-social-browser .home-ai-feedback-action {
   content-visibility: visible !important;
   pointer-events: auto !important;
-  touch-action: pan-y pinch-zoom;
+  touch-action: manipulation;
 }
 
 body.app-mobile-device .home-feature-launch::before,
