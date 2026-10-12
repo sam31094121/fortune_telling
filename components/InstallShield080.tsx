@@ -26,6 +26,7 @@ import {
 
 // 尺寸與網站 080 金盾牌 logo 一致（量測值，見報告）。
 const SHIELD_SIZE_PX = 44;
+const BIG_SHIELD_PX = 112; // 展開後的大盾牌：長輩好按、一眼看到「按這裡」
 const INLINE_SHIELD_PX = 44; // 手機頁面內小盾牌按鈕：與頁尾 080 金盾牌 logo 在 390px 的實際尺寸 44×44 相同
 
 type BeforeInstallPromptEvent = Event & {
@@ -63,6 +64,7 @@ export default function InstallShield080() {
   const [guide, setGuide] = useState<MobileGuide>('chrome-android');
   const [inlineOpen, setInlineOpen] = useState(false);
   const [installed, setInstalled] = useState(false);
+  const [nudge, setNudge] = useState(false);
   const pathname = usePathname();
   const hostRef = useRef<HTMLElement | null>(null);
 
@@ -295,11 +297,23 @@ export default function InstallShield080() {
     window.location.href = withOpenExternalBrowser(window.location.href);
   }, []);
 
-  const onInlineTap = useCallback(async () => {
+  // 第一次按小盾牌：只展開引導面板（安裝擺第一，不直接跳系統視窗，客戶先看到大盾牌與白話說明）。
+  const onInlineTap = useCallback(() => {
     if (installed) return;
-    if (guide !== 'inapp' && deferred && (await runPrompt())) return;
+    setNudge(false);
     setInlineOpen((v) => !v);
-  }, [installed, guide, inApp, deferred, runPrompt]);
+  }, [installed]);
+
+  // 第二次按大盾牌：能一鍵安裝就直接跳系統安裝視窗；不能就把下面的步驟閃一下提醒客戶照著做。
+  const onBigShieldTap = useCallback(async () => {
+    if (guide === 'inapp' && canAutoOpenBrowser) {
+      openInBrowser();
+      return;
+    }
+    if (guide !== 'inapp' && deferred && (await runPrompt())) return;
+    setNudge(true);
+    window.setTimeout(() => setNudge(false), 1800);
+  }, [guide, canAutoOpenBrowser, openInBrowser, deferred, runPrompt]);
 
   if (!ready) return null;
 
@@ -324,26 +338,43 @@ export default function InstallShield080() {
           .taiji-install-inline .tap{display:flex;flex-direction:column;align-items:center;gap:2px;width:auto;min-width:0;min-height:0;height:auto;margin:0;padding:4px 5px;border-radius:14px;border:1px solid rgba(248,199,88,.55);background:rgba(7,11,31,.9);box-shadow:0 4px 14px rgba(0,0,0,.55);cursor:pointer;-webkit-tap-highlight-color:transparent;font:inherit;}
           .taiji-install-inline img{width:${INLINE_SHIELD_PX}px;height:${INLINE_SHIELD_PX}px;object-fit:contain;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));}
           .taiji-install-inline .t{display:block;font-size:11px;line-height:1.1;color:#fcea86;letter-spacing:.05em;}
-          .taiji-install-inline .panel{margin-top:10px;padding:12px 16px;border:1px solid rgba(248,199,88,.55);border-radius:16px;background:#0b0d1f;}
-          .taiji-install-inline ol{margin:12px 0 6px;padding-left:1.3em;}
-          .taiji-install-inline .hint{margin:0;font-size:12px;color:#bfb497;}
-          .taiji-install-inline .open-browser{display:block;width:100%;min-height:48px;margin:12px 0 4px;border-radius:12px;border:1px solid #fcea86;background:linear-gradient(135deg,#fcea86,#f8c758 50%,#c48a29);color:#1a1205;font-weight:800;font-size:15px;}
+          .taiji-install-inline .panel{margin-top:10px;padding:18px 16px 16px;border:1px solid rgba(248,199,88,.55);border-radius:16px;background:#0b0d1f;text-align:center;}
+          .taiji-install-inline .panel h3{margin:0 0 4px;font-size:18px;font-weight:800;color:#fcea86;}
+          .taiji-install-inline .panel .lead{margin:0 0 12px;font-size:14px;color:#d9cfb4;}
+          .taiji-install-inline .big{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;min-height:48px;margin:0 auto 14px;padding:14px 12px;border-radius:18px;border:1px solid #fcea86;background:linear-gradient(135deg,rgba(252,234,134,.18),rgba(196,138,41,.12));box-shadow:0 0 22px rgba(248,199,88,.35);color:#fcea86;cursor:pointer;-webkit-tap-highlight-color:transparent;font:inherit;}
+          .taiji-install-inline .big img{width:${BIG_SHIELD_PX}px;height:${BIG_SHIELD_PX}px;}
+          .taiji-install-inline .big .go{font-size:18px;font-weight:800;}
+          .taiji-install-inline .big .sub{font-size:13px;color:#d9cfb4;}
+          .taiji-install-inline ol.steps{margin:0;padding:0;list-style:none;text-align:left;counter-reset:s;}
+          .taiji-install-inline ol.steps li{counter-increment:s;display:flex;gap:10px;align-items:flex-start;margin:0 0 8px;padding:10px 12px;border-radius:12px;background:rgba(248,199,88,.07);font-size:16px;line-height:1.5;}
+          .taiji-install-inline ol.steps li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:#f8c758;color:#1a1205;font-weight:800;font-size:15px;line-height:26px;text-align:center;}
+          .taiji-install-inline ol.steps.nudge li{animation:taijiInstallFlash .6s ease 3;}
+          @keyframes taijiInstallFlash{50%{background:rgba(248,199,88,.4);}}
+          .taiji-install-inline .hint{margin:8px 0 0;font-size:13px;color:#bfb497;text-align:left;}
+          @media (prefers-reduced-motion:reduce){.taiji-install-inline ol.steps.nudge li{animation:none;background:rgba(248,199,88,.3);}}
         `}</style>
         <button type="button" className="tap" onClick={onInlineTap} aria-expanded={inlineOpen} aria-label={installed ? '已存到桌面' : '儲存本站到主畫面'}>
           <img src="/pwa/save-shield-080.png" alt="080 金盾牌" width={INLINE_SHIELD_PX} height={INLINE_SHIELD_PX} />
           <span className="t">{installed ? '已存到桌面' : '存到桌面'}</span>
         </button>
         {inlineOpen && !installed ? (
-          <div className="panel">
-            <p className="hint">
+          <div className="panel" role="region" aria-label="安裝說明">
+            <h3>把太極命理放到手機主畫面</h3>
+            <p className="lead">
               {guide === 'inapp'
-                ? 'LINE／Facebook／Instagram 裡的內建瀏覽器不能加到主畫面，請先用手機的瀏覽器打開這一頁：'
-                : '這個瀏覽器沒有提供一鍵安裝，網頁本身無法自己加到主畫面，最後一步請在瀏覽器的選單完成：'}
+                ? '這裡是 LINE／臉書等 App 內建的瀏覽器，不能直接安裝，要先換到手機瀏覽器。'
+                : deferred
+                  ? '只要按一下，下次點主畫面的金盾牌就能直接進站，不用再找連結。'
+                  : '照下面幾步做，主畫面就會出現金盾牌，下次一點就進站。'}
             </p>
-            {guide === 'inapp' && canAutoOpenBrowser ? (
-              <button type="button" className="open-browser" onClick={openInBrowser}>用瀏覽器開啟</button>
-            ) : null}
-            <ol>{steps.map((t) => <li key={t}>{t}</li>)}</ol>
+            <button type="button" className="big" onClick={onBigShieldTap} aria-label={guide === 'inapp' && canAutoOpenBrowser ? '用瀏覽器開啟' : deferred ? '立即安裝到主畫面' : '查看安裝步驟'}>
+              <img src="/pwa/save-shield-080.png" alt="080 金盾牌" width={BIG_SHIELD_PX} height={BIG_SHIELD_PX} />
+              <span className="go">
+                {guide === 'inapp' && canAutoOpenBrowser ? '按這裡，用瀏覽器開啟' : deferred ? '按這裡，立即安裝' : '按這裡，看安裝步驟'}
+              </span>
+              <span className="sub">{deferred ? '會跳出安裝視窗，按「安裝」就完成' : '約 10 秒就完成'}</span>
+            </button>
+            <ol className={`steps${nudge ? ' nudge' : ''}`}>{steps.map((t) => <li key={t}>{t}</li>)}</ol>
             {guide === 'samsung' || guide === 'chrome-android' ? (
               <p className="hint">三星手機加不上去時：到「設定 → 主畫面」關掉「鎖定主畫面版面配置」。</p>
             ) : null}
