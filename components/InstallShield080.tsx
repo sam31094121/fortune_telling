@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   INSTALL_SHIELD_DISMISS_KEY,
   INSTALL_SHIELD_LEGACY_KEYS,
@@ -13,6 +14,9 @@ import {
   wantsInstallSheet,
   externalOpenFailed,
   stripInstallParams,
+  isPhoneLayout,
+  mobileGuideFor,
+  type MobileGuide,
   type DesktopBrowser,
   withOpenExternalBrowser,
   type InAppBrowser,
@@ -20,7 +24,8 @@ import {
 } from '@/lib/install-shield';
 
 // 尺寸與網站 080 金盾牌 logo 一致（量測值，見報告）。
-const SHIELD_SIZE_PX = 44; // = 頁尾 080 金盾牌 logo 在 390px 的實際尺寸 44×44
+const SHIELD_SIZE_PX = 44;
+const INLINE_SHIELD_PX = 64; // 手機頁面內區塊的盾牌尺寸 // = 頁尾 080 金盾牌 logo 在 390px 的實際尺寸 44×44
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -52,6 +57,11 @@ export default function InstallShield080() {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [avoid, setAvoid] = useState({ lift: 0, hide: false });
   const avoidRef = useRef({ lift: 0, hide: false });
+  // 手機：頁面內（in-flow）區塊，不浮動、不拖曳、不避讓。
+  const [phoneHost, setPhoneHost] = useState<HTMLElement | null>(null);
+  const [guide, setGuide] = useState<MobileGuide>('chrome-android');
+  const [inlineOpen, setInlineOpen] = useState(false);
+  const [installed, setInstalled] = useState(false);
 
   useEffect(() => {
     let dismissed = false;
@@ -62,8 +72,25 @@ export default function InstallShield080() {
     } catch {
       /* 私密模式等情況忽略 */
     }
-    if (dismissed || isStandalone()) return;
     const ua = window.navigator.userAgent;
+    const platNow = detectPlatform(ua, window.navigator.maxTouchPoints);
+    const phone = isPhoneLayout(platNow, isIPad(ua, window.navigator.maxTouchPoints), window.innerWidth);
+    let host: HTMLElement | null = null;
+    if (phone) {
+      // 掛在 body 最後面（頁面內容之後），是一般排版元素，不是 fixed。
+      host = document.createElement('div');
+      host.setAttribute('data-install-shield-inline-host', '080');
+      document.body.appendChild(host);
+      setPhoneHost(host);
+      setGuide(mobileGuideFor(ua, platNow, detectInAppBrowser(ua)));
+      if (isStandalone()) {
+        setInstalled(true);
+        setReady(true);
+        return () => host?.remove();
+      }
+      const nav = window.navigator as Navigator & { getInstalledRelatedApps?: () => Promise<unknown[]> };
+      nav.getInstalledRelatedApps?.().then((apps) => { if (apps.length) setInstalled(true); }).catch(() => {});
+    } else if (dismissed || isStandalone()) return;
     setPlatform(detectPlatform(ua, window.navigator.maxTouchPoints));
     setDesktop(detectDesktopBrowser(ua));
     setIpad(isIPad(ua, window.navigator.maxTouchPoints));
@@ -90,12 +117,13 @@ export default function InstallShield080() {
       e.preventDefault();
       setDeferred(e as BeforeInstallPromptEvent);
     };
-    const onInstalled = () => setReady(false);
+    const onInstalled = () => (phone ? setInstalled(true) : setReady(false));
     window.addEventListener('beforeinstallprompt', onPrompt);
     window.addEventListener('appinstalled', onInstalled);
     return () => {
       window.removeEventListener('beforeinstallprompt', onPrompt);
       window.removeEventListener('appinstalled', onInstalled);
+      host?.remove();
     };
   }, []);
 
@@ -202,7 +230,7 @@ export default function InstallShield080() {
   // 避讓：盾牌是固定位置、阿修羅卡片的按鈕會隨頁面捲動；按鈕快要跑到盾牌底下時，
   // 先把盾牌往上推開，推不開（會跑太高）就淡出且不攔截點擊，等按鈕離開再回來。
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || phoneHost) return;
     const GAP = 8;
     const MIN_TOP = 96;
     let raf = 0;
@@ -249,9 +277,60 @@ export default function InstallShield080() {
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
     };
-  }, [ready]);
+  }, [ready, phoneHost]);
+
+  const onInlineTap = useCallback(async () => {
+    if (installed) return;
+    if (guide === 'inapp' && inApp === 'line' && !externalOpenFailed(window.location.search, inApp)) {
+      window.location.href = withOpenExternalBrowser(window.location.href);
+      return;
+    }
+    if (guide !== 'inapp' && deferred && (await runPrompt())) return;
+    setInlineOpen((v) => !v);
+  }, [installed, guide, inApp, deferred, runPrompt]);
 
   if (!ready) return null;
+
+  if (phoneHost) {
+    const steps: string[] =
+      guide === 'samsung'
+        ? ['點右下角「≡」選單', '選「加入頁面至」→「主畫面」', '或點網址列的「＋」／下載圖示']
+        : guide === 'ios'
+          ? ['點下方的「分享」按鈕（方框加向上箭頭；iOS 版 Chrome 在右上角）', '往下滑', '點「加入主畫面」，再按右上角「新增」']
+          : guide === 'inapp'
+            ? ['點右上角「⋮」或「⋯」', '選「用瀏覽器開啟」（Chrome／三星網際網路／Safari）', '到瀏覽器後再點一次這面 080 金盾牌']
+            : ['點右上角「⋮」選單', '選「加到主畫面」或「安裝應用程式」'];
+    return createPortal(
+      <section className="taiji-install-inline" data-install-shield-inline="080" aria-label="存到桌面">
+        <style>{`
+          .taiji-install-inline{display:block;margin:24px 16px calc(24px + env(safe-area-inset-bottom));padding:14px 16px;border:1px solid rgba(248,199,88,.55);border-radius:16px;background:#0b0d1f;color:#f3ead2;font-size:15px;line-height:1.6;}
+          .taiji-install-inline .tap{display:flex;align-items:center;gap:14px;width:100%;margin:0;padding:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;font:inherit;}
+          .taiji-install-inline img{width:${INLINE_SHIELD_PX}px;height:${INLINE_SHIELD_PX}px;flex:none;object-fit:contain;display:block;}
+          .taiji-install-inline .t{display:block;font-size:17px;font-weight:700;color:#fcea86;}
+          .taiji-install-inline .s{display:block;font-size:13px;color:#d9cfb4;}
+          .taiji-install-inline ol{margin:12px 0 6px;padding-left:1.3em;}
+          .taiji-install-inline .hint{margin:0;font-size:12px;color:#bfb497;}
+        `}</style>
+        <button type="button" className="tap" onClick={onInlineTap} aria-expanded={inlineOpen} aria-label={installed ? '已存到桌面' : '儲存本站到主畫面'}>
+          <img src="/pwa/save-shield-080.png" alt="080 金盾牌" width={INLINE_SHIELD_PX} height={INLINE_SHIELD_PX} />
+          <span>
+            <span className="t">{installed ? '已存到桌面' : '存到桌面'}</span>
+            <span className="s">{installed ? '請從主畫面的 080 金盾牌開啟' : '把太極命理放到手機主畫面，一點就進站'}</span>
+          </span>
+        </button>
+        {inlineOpen && !installed ? (
+          <>
+            <p className="hint">這個瀏覽器沒有提供一鍵安裝，網頁本身無法自己加到主畫面，最後一步請在瀏覽器的選單完成：</p>
+            <ol>{steps.map((t) => <li key={t}>{t}</li>)}</ol>
+            {guide === 'samsung' || guide === 'chrome-android' ? (
+              <p className="hint">三星手機加不上去時：到「設定 → 主畫面」關掉「鎖定主畫面版面配置」。</p>
+            ) : null}
+          </>
+        ) : null}
+      </section>,
+      phoneHost,
+    );
+  }
 
   return (
     <>

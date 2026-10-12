@@ -73,3 +73,25 @@ export function stripInstallParams(href: string): string {
   url.searchParams.delete('installShield');
   return url.toString();
 }
+
+/** 三星網際網路（Samsung Internet）。 */
+export function isSamsungInternet(ua: string): boolean {
+  return /SamsungBrowser\//.test(ua);
+}
+
+/** 手機版面（不含 iPad、平板寬度）：存到桌面改成頁面內區塊，不用浮動盾牌。 */
+export function isPhoneLayout(platform: InstallPlatform, ipad: boolean, width: number): boolean {
+  if (platform === 'ios') return !ipad;
+  if (platform === 'android') return width < 768;
+  return false;
+}
+
+export type MobileGuide = 'inapp' | 'ios' | 'samsung' | 'chrome-android';
+
+/** 手機上點了沒有安裝視窗時，要顯示哪一種步驟。 */
+export function mobileGuideFor(ua: string, platform: InstallPlatform, inApp: InAppBrowser): MobileGuide {
+  if (inApp) return 'inapp';
+  if (platform === 'ios') return 'ios';
+  if (isSamsungInternet(ua)) return 'samsung';
+  return 'chrome-android';
+}
