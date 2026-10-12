@@ -42,8 +42,13 @@ yes(!/data-pinch-zoomed/.test(read('components/TaijiSystem.module.css')), '太�
 
 // 5. 手機字體：全站基準放大，且過小的固定像素字有下限
 const css = read('app/globals.css');
-const scaleBlock = css.slice(css.indexOf('手機全站字體等比例放大'));
-yes(/html\s*\{\s*font-size:\s*112\.5%/.test(scaleBlock), '手機基準字級要放大到 112.5%');
-yes(/text-\\\[10px\\\][^}]*font-size:\s*13px/.test(scaleBlock.replace(/\n/g, ' ')), '10px 小字下限 13px');
+const typeStart = css.indexOf('手機字體（唯一一份');
+yes(typeStart > 0, '手機字體只留一份規則區塊');
+yes(css.indexOf('手機字體（唯一一份', typeStart + 1) === -1, '手機字體規則不得重複出現第二份');
+yes(!css.includes('手機首頁字體放大') && !css.includes('手機全站字體等比例放大'), '舊版分開寫的字體規則已移除');
+const scaleBlock = css.slice(typeStart, css.indexOf('客戶用兩指放大之後'));
+yes(scaleBlock.includes('html { font-size: 125%; }'), '手機基準字級要放大到 125%');
+yes(scaleBlock.includes('.text-\\[10px\\],') && scaleBlock.includes('.text-\\[11px\\] { font-size: 15px !important;'), '9–11px 的小字下限 15px');
+yes(scaleBlock.includes('.text-\\[12px\\] { font-size: 16px !important;'), '12px 的小字下限 16px');
 
 console.log(`mobile-zoom-pan: ${checks} checks passed`);

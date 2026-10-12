@@ -1123,3 +1123,9 @@ details[open] > summary .moreHint::after {
   color: var(--asura-muted);
   letter-spacing: 0.05em;
 }
+
+/* 手機字體再加大一階（2026-10-12 真手機回報：字太小）。與 globals.css 的「手機字體（唯一一份）」一起使用。 */
+@media (max-width: 640px) {
+  .header p, .note { font-size: 16px; }
+  .passwordToggle { font-size: 15px; }
+}

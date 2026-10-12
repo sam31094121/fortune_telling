@@ -27094,60 +27094,48 @@ body:has(#home-eight-card-route) main .home-feature-launch .home-feature-cta:act
 @media (min-width: 640px) { #home-eight-card-route [class*="StarBeastHomeCard_wrap"] .home-feature-launch { padding: 24px !important; } }
 
 /* ==========================================================================
-   2026-10-12 手機首頁字體放大（客戶與業主都反映字太小、看不清楚）
-   量測（390px 手機）：9–11px 的字約 760 字、13px 約 710 字——遠低於可讀下限。
-   做法：只在首頁、窄螢幕；把過小的字提到可讀大小，版面照舊往下延伸，不改文字內容。
-   最小字 13px、說明文 15–16px、卡片標題 22px。放大後仍可捏合縮放並上下左右拖動（見上方 touch-action 修正）。
+   2026-10-12 手機字體（唯一一份；取代先前分開寫的「首頁字體放大」與「全站等比例放大」）
+   客戶與業主在真手機上反映：一進去字就很小。量測（390px 手機）：舊版約 1500 字小於 13px；
+   第二版基準 18px 之後仍有 34% 的字小於 15px。
+   比例原則：手機把全站基準字級放大到 20px（125%）。凡是以 rem 計的字級與間距（Tailwind 的 text-xs、text-sm、
+   p-4、gap-3…）一起等比例變大，版面比例不變；以固定像素寫死的小字另外提高下限（最小 15px）。
+   只在窄螢幕（640px 以下）；電腦版不動。放大後仍可捏合縮放、上下左右拖動。
    ========================================================================== */
 @media (max-width: 640px) {
-  /* 卡片：標題與說明 */
-  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch h2 { font-size: 22px !important; line-height: 1.35 !important; }
-  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch[class*="GhostAsura"] h2 { font-size: 24px !important; }
-  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch h2 ~ p { font-size: 16px !important; line-height: 1.7 !important; display: block !important; overflow: visible !important; -webkit-line-clamp: unset !important; max-height: none !important; }
-  body:has(#home-eight-card-route) #home-eight-card-route [class*="StarBeastHomeCard_wrap"] p { font-size: 15px !important; line-height: 1.65 !important; }
-  /* 卡片：說明文、標籤、徽章（原本 9–13px） */
-  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch :is(p, span, small, em, li):not(.home-feature-cta *) { font-size: max(1em, 14px); }
-  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch .text-\[9px\],
-  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch .text-\[10px\],
-  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch .text-\[11px\] { font-size: 13px !important; line-height: 1.5 !important; }
-  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch .text-xs { font-size: 15px !important; line-height: 1.65 !important; }
-  /* 全首頁：過小的 Tailwind 字級一律提高 */
-  body:has(#home-eight-card-route) main .text-\[9px\],
-  body:has(#home-eight-card-route) main .text-\[10px\],
-  body:has(#home-eight-card-route) main .text-\[11px\] { font-size: 13px !important; line-height: 1.5 !important; }
-  body:has(#home-eight-card-route) main .text-\[12px\] { font-size: 14px !important; }
-  body:has(#home-eight-card-route) main .text-\[13px\] { font-size: 15px !important; }
-  body:has(#home-eight-card-route) main .text-xs { font-size: 15px !important; line-height: 1.65 !important; }
-  body:has(#home-eight-card-route) main .text-sm { font-size: 16px !important; line-height: 1.7 !important; }
-  /* 成長中心模組列、收合按鈕 */
-  body:has(#home-eight-card-route) .growth-module-route__label { font-size: 16px; }
-  body:has(#home-eight-card-route) .growth-module-route__helper { font-size: 14px; line-height: 1.55; }
-  body:has(#home-eight-card-route) .growth-module-route__status { font-size: 13px; padding: 0.3rem 0.6rem; }
-  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-more-toggle { font-size: 16px; }
-  body:has(#home-eight-card-route) main [class*="TodayDirectionQuest_"] :is(span, small, p, em) { font-size: max(1em, 13px); }
-  /* 今日定向關卡、成長進度等模組的小字 */
-  body:has(#home-eight-card-route) main [class*="TodayDirectionQuest_"]:is(p, span, small, div) { font-size: max(1em, 15px); }
-  body:has(#home-eight-card-route) main small { font-size: max(1em, 13px); }
-}
-
-/* ==========================================================================
-   2026-10-12 手機全站字體等比例放大（客戶與業主實測：手機上字小到看不清楚）
-   比例原則：手機把全站基準字級放大一階（16px → 18px）。凡是以 rem 計的字級與間距（Tailwind 的 text-xs、text-sm、
-   p-4、gap-3…）會一起等比例變大，版面比例不變；以固定像素寫死的過小字（9–13px）另外提高下限。
-   只在窄螢幕；電腦版不動。放大後仍可捏合縮放、上下左右拖動。
-   ========================================================================== */
-@media (max-width: 640px) {
-  html { font-size: 112.5%; }
+  html { font-size: 125%; }
+  /* 全站：固定像素的小字下限 */
+  .text-\[8px\],
   .text-\[9px\],
   .text-\[10px\],
-  .text-\[11px\] { font-size: 13px !important; line-height: 1.5 !important; }
-  .text-\[12px\] { font-size: 14px !important; }
-  .text-\[13px\] { font-size: 15px !important; }
-  .text-\[8px\] { font-size: 12px !important; }
-  /* 各頁面自訂的小標籤（原本 11–12px） */
-  .taiji-mobile-play-hint { font-size: 14px !important; }
-  .music-landing-eyebrow { font-size: 13px !important; }
-  .zodiac-brand-hero { font-size: 14px !important; }
+  .text-\[11px\] { font-size: 15px !important; line-height: 1.5 !important; }
+  .text-\[12px\] { font-size: 16px !important; line-height: 1.55 !important; }
+  .text-\[13px\] { font-size: 17px !important; line-height: 1.6 !important; }
+  /* 各頁面自訂的小標籤 */
+  .taiji-mobile-play-hint { font-size: 16px !important; }
+  .music-landing-eyebrow { font-size: 15px !important; }
+  .zodiac-brand-hero { font-size: 16px !important; }
+
+  /* 首頁卡片：標題、說明、標籤 */
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch h2 { font-size: 24px !important; line-height: 1.35 !important; }
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch[class*="GhostAsura"] h2 { font-size: 26px !important; }
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch h2 ~ p { font-size: 18px !important; line-height: 1.7 !important; display: block !important; overflow: visible !important; -webkit-line-clamp: unset !important; max-height: none !important; }
+  body:has(#home-eight-card-route) #home-eight-card-route [class*="StarBeastHomeCard_wrap"] p { font-size: 17px !important; line-height: 1.65 !important; }
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch :is(p, span, small, em, li):not(.home-feature-cta *) { font-size: max(1em, 16px); }
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch .text-\[9px\],
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch .text-\[10px\],
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch .text-\[11px\] { font-size: 15px !important; line-height: 1.5 !important; }
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch .text-xs { font-size: 17px !important; line-height: 1.65 !important; }
+  /* 首頁其餘區塊 */
+  body:has(#home-eight-card-route) main .text-xs { font-size: 17px !important; line-height: 1.65 !important; }
+  body:has(#home-eight-card-route) main .text-sm { font-size: 18px !important; line-height: 1.7 !important; }
+  /* 成長中心模組列、收合按鈕、今日定向關卡 */
+  body:has(#home-eight-card-route) .growth-module-route__label { font-size: 18px; }
+  body:has(#home-eight-card-route) .growth-module-route__helper { font-size: 16px; line-height: 1.55; }
+  body:has(#home-eight-card-route) .growth-module-route__status { font-size: 15px; padding: 0.3rem 0.6rem; }
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-more-toggle { font-size: 18px; }
+  body:has(#home-eight-card-route) main [class*="TodayDirectionQuest_"] :is(span, small, p, em) { font-size: max(1em, 15px); }
+  body:has(#home-eight-card-route) main [class*="TodayDirectionQuest_"]:is(p, span, small, div) { font-size: max(1em, 16px); }
+  body:has(#home-eight-card-route) main small { font-size: max(1em, 15px); }
 }
 
 /* 客戶用兩指放大之後：首頁太極球（TaijiSystem 的 sphereWrapper 設了 touch-action: none）不再吃掉拖動與縮放，
