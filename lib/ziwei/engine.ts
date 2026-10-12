@@ -235,11 +235,9 @@ function normalizePalace(rawPalace: IFunctionalPalace): ZiweiPalaceResult {
     const starName = normalizeStarName((rawStar as { name?: unknown }).name);
     if (!isMajorStarName(starName)) continue;
     const brightness = (rawStar as { brightness?: unknown }).brightness;
-    // 主星亮度以《紫微斗數全書》卷二廟旺表為準（iztro 在酉宮有三處與古籍不同），查不到才用 iztro。
-    const quanshu = quanshuBrightness(starName, String(rawPalace.earthlyBranch ?? ''));
     majorStarDetails.push({
       name: starName,
-      brightness: quanshu ?? (typeof brightness === 'string' && brightness ? brightness : undefined),
+      brightness: typeof brightness === 'string' && brightness ? brightness : undefined,
       mutagen: normalizeMutagen((rawStar as { mutagen?: unknown }).mutagen),
     });
   }
