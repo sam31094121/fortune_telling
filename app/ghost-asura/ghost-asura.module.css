@@ -1019,5 +1019,6 @@
 @media (max-width: 600px) {
   .progressContainer { flex-wrap: nowrap; gap: 2px; padding: 16px 6px 12px; }
   .progressStep { flex: 1 1 0; min-width: 0; }
-  .stepLabel { font-size: 11px; max-width: 100%; letter-spacing: 0; }
+  .stepLabel { font-size: 13px; max-width: 100%; letter-spacing: 0; }
+  .eyebrow { font-size: 14px; }
 }

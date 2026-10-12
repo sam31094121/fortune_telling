@@ -27129,3 +27129,27 @@ body:has(#home-eight-card-route) main .home-feature-launch .home-feature-cta:act
   body:has(#home-eight-card-route) main [class*="TodayDirectionQuest_"]:is(p, span, small, div) { font-size: max(1em, 15px); }
   body:has(#home-eight-card-route) main small { font-size: max(1em, 13px); }
 }
+
+/* ==========================================================================
+   2026-10-12 手機全站字體等比例放大（客戶與業主實測：手機上字小到看不清楚）
+   比例原則：手機把全站基準字級放大一階（16px → 18px）。凡是以 rem 計的字級與間距（Tailwind 的 text-xs、text-sm、
+   p-4、gap-3…）會一起等比例變大，版面比例不變；以固定像素寫死的過小字（9–13px）另外提高下限。
+   只在窄螢幕；電腦版不動。放大後仍可捏合縮放、上下左右拖動。
+   ========================================================================== */
+@media (max-width: 640px) {
+  html { font-size: 112.5%; }
+  .text-\[9px\],
+  .text-\[10px\],
+  .text-\[11px\] { font-size: 13px !important; line-height: 1.5 !important; }
+  .text-\[12px\] { font-size: 14px !important; }
+  .text-\[13px\] { font-size: 15px !important; }
+  .text-\[8px\] { font-size: 12px !important; }
+  /* 各頁面自訂的小標籤（原本 11–12px） */
+  .taiji-mobile-play-hint { font-size: 14px !important; }
+  .music-landing-eyebrow { font-size: 13px !important; }
+  .zodiac-brand-hero { font-size: 14px !important; }
+}
+
+/* 客戶用兩指放大之後：首頁太極球（TaijiSystem 的 sphereWrapper 設了 touch-action: none）不再吃掉拖動與縮放，
+   放大的畫面可以上下左右移動。旗標 data-pinch-zoomed 由 useTaijiFirstScreenScroll 設定；太極核心檔案本身（有雜湊鎖）不動。 */
+html[data-pinch-zoomed] [class*="TaijiSystem_sphereWrapper"] { touch-action: auto !important; }
