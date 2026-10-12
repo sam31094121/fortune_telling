@@ -95,6 +95,7 @@
     "test:model-lab-4d-audit": "node scripts/model-lab-4d-audit.mjs 8 20000",
     "test:true-solar-time": "node tests/true-solar-time.test.mjs",
     "test:iching-sources": "node tests/iching-source-gate.test.mjs",
+    "test:share-version": "node tests/share-version.test.cjs",
     "test:beast-backend-only": "node scripts/beast-build.mjs && node tests/beast-backend-only.test.cjs",
     "test:beast-weapons": "node scripts/beast-build.mjs && node tests/beast-weapons.test.mjs",
     "test:no-fake-counters": "node tests/no-fabricated-counters.test.mjs",

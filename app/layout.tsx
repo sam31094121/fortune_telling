@@ -5,6 +5,12 @@ import AppStabilityGuard from '@/components/AppStabilityGuard';
 import { InterfaceLanguageProvider } from '@/components/InterfaceLanguage';
 import ScreenArrowReview from '@/components/ScreenArrowReview';
 import { TAROT_CARD_BACK_CSS_IMAGE } from '@/features/tarot/constants/cardBack';
+import {
+  SHARE_DESCRIPTION,
+  SHARE_OG_IMAGES,
+  SHARE_TITLE,
+  SHARE_TWITTER_IMAGES,
+} from '@/lib/share-preview';
 import './globals.css';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
@@ -13,7 +19,6 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
     ? `https://${process.env.VERCEL_URL}`
     : 'http://localhost:8888';
 
-const shareImage = '/images/og-taichi-preview.jpg?v=20260817-1';
 const rootStyle = { '--tarot-card-back-image': TAROT_CARD_BACK_CSS_IMAGE } as CSSProperties;
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 const gaMeasurementId = process.env.NEXT_PUBLIC_GA_ID;
@@ -56,28 +61,19 @@ export const metadata: Metadata = {
     ? { verification: { google: googleSiteVerification } }
     : {}),
   openGraph: {
-    title: '☯ 太極命理 易經｜智慧命理分析平台',
-    description: '輸入出生資料，立即體驗 易經紫微斗數、八字、易經論數字與天地人智慧分析。',
+    title: SHARE_TITLE,
+    description: SHARE_DESCRIPTION,
     url: siteUrl,
     siteName: '太極命理 易經',
-    images: [
-      {
-        url: shareImage,
-        secureUrl: shareImage,
-        width: 1024,
-        height: 1024,
-        type: 'image/jpeg',
-        alt: '太極命理 易經智慧分析系統',
-      },
-    ],
+    images: SHARE_OG_IMAGES,
     locale: 'zh_TW',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: '☯ 太極命理 易經',
-    description: '易經紫微斗數｜八字｜易經論數字｜天地人智慧分析',
-    images: [shareImage],
+    title: SHARE_TITLE,
+    description: SHARE_DESCRIPTION,
+    images: SHARE_TWITTER_IMAGES,
   },
 };
 

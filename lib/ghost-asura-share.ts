@@ -3,6 +3,8 @@
  * 將秘卷轉為可分享的精美圖片
  */
 
+import { withShareVersion } from './share-preview';
+
 export interface ShareCardData {
   title: string;           // 秘卷標題（鬼魅阿修羅）
   subtitle: string;        // 副標題（本命阿修羅 | 命魂戰局）
@@ -247,7 +249,7 @@ export function getShareURL(baseURL: string, params: Record<string, string>): st
   Object.entries(params).forEach(([key, value]) => {
     url.searchParams.set(key, value);
   });
-  return url.toString();
+  return withShareVersion(url.toString());
 }
 
 /**

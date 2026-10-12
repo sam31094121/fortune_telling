@@ -10,7 +10,8 @@ import FriendlyChoiceCard from '@/components/FriendlyChoiceCard';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT, setAnalysisIdentityTarget } from '@/lib/identity-split-client';
- import { buildRedLuanShareText, redLuanCalendarDraft, exportRedLuanReminder, RED_LUAN_SHARE_MARK, shareRedLuanReading, type RedLuanReminder, type RedLuanReminderMonth } from '@/lib/red-luan-followup';
+ import { withShareVersion } from '@/lib/share-preview';
+import { buildRedLuanShareText, redLuanCalendarDraft, exportRedLuanReminder, RED_LUAN_SHARE_MARK, shareRedLuanReading, type RedLuanReminder, type RedLuanReminderMonth } from '@/lib/red-luan-followup';
 import { buildRedLuanReturnLine, readRedLuanReturnVisit, saveRedLuanReturnVisit, taipeiToday, type RedLuanReturnVisit } from '@/lib/red-luan-return-visit';
 import { readCanonicalBirthProfile, saveCanonicalBirthProfile } from '@/lib/canonical-birth-profile-client';
 import { fromUnifiedBirthProfile, toUnifiedBirthProfile } from '@/lib/canonical-birth-profile';
@@ -409,7 +410,7 @@ function reminderOf(reading: Reading): RedLuanReminder {
     daysAway: encounter?.daysAway ?? 0,
     topCandidate: reading.affinity.candidates?.[0]?.career ?? '',
     hexagramLocked: reading.ichingReading === null,
-    url: typeof window === 'undefined' ? '' : `${window.location.origin}/red-luan-heartbeat`,
+    url: typeof window === 'undefined' ? '' : withShareVersion(`${window.location.origin}/red-luan-heartbeat`),
   };
 }
 
