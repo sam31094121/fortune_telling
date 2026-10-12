@@ -38,8 +38,6 @@ function normalizeCounter(value: unknown): StoredAiSuggestionCounter {
   }
 
   const stored = value as Partial<StoredAiSuggestionCounter>;
-  const totalCount = Number(stored.totalCount);
-  const highestCount = Number(stored.highestCount);
   const deviceIds = Array.isArray(stored.deviceIds)
     ? Array.from(new Set(stored.deviceIds.filter((item): item is string => typeof item === 'string')))
     : [];
@@ -51,20 +49,12 @@ function normalizeCounter(value: unknown): StoredAiSuggestionCounter {
     : [];
   const loggedDeviceCount = new Set(logs.map((log) => log.deviceId)).size;
   const countFromLogs = AI_SUGGESTION_INITIAL_COUNT + Math.max(deviceIds.length, loggedDeviceCount);
-  const safeTotalCount = Number.isSafeInteger(totalCount) && totalCount >= AI_SUGGESTION_INITIAL_COUNT
-    ? totalCount
-    : AI_SUGGESTION_INITIAL_COUNT;
-  const safeHighestCount = Number.isSafeInteger(highestCount) && highestCount >= AI_SUGGESTION_INITIAL_COUNT
-    ? highestCount
-    : AI_SUGGESTION_INITIAL_COUNT;
   /*
     以真實紀錄為準，不以存下來的彙總欄位為準。
     存的 totalCount 一旦被灌過，Math.max 會讓它永遠贏，
     而且每次寫回檔案就再固化一次——改資料檔沒有用。
   */
   const permanentCount = countFromLogs;
-  void safeTotalCount;
-  void safeHighestCount;
 
   return {
     totalCount: permanentCount,
@@ -105,9 +95,9 @@ async function persistCounter(counter: StoredAiSuggestionCounter) {
 }
 
 export function readLocalAiSuggestionCount(): Promise<number> {
+  // 純讀取：不寫檔。以前讀一次就整份重寫，沒有人按建議時檔案也會一直被改動。
   const operation = writeQueue.then(async () => {
     const counter = await readCounter();
-    await persistCounter(counter);
     return counter.totalCount;
   });
 

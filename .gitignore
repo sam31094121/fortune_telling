@@ -50,6 +50,12 @@ push-result.txt
 .env.local
 .env*.local
 
+# Local fallback AI suggestion counter (runtime data from local clicks, not source; holds a hashed IP).
+/data/ai-suggestion-counter.json
+/data/ai-suggestion-counter.backup.json
+/data/ai-suggestion-counter.json.tmp
+/data/ai-suggestion-counter.backup.json.tmp
+
 # Local fallback visitor counters (created when Supabase is not configured).
 /data/visitor-counters.json
 /data/visitor-counters.backup.json
