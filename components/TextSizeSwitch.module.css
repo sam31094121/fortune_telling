@@ -1,36 +1,58 @@
-/* 字體大小開關：只在手機顯示；按鈕自己的字用固定像素，不隨選擇縮放，任何一檔都按得到、看得清。 */
-.bar {
+/* 首頁手機工具列：左「存到桌面」金盾牌、右「字體大小」，同一個金邊底、同一組間距，看起來是一個整體。
+   只在手機顯示（電腦版字級沒動，盾牌維持浮動位置）。按鈕自己的字用固定像素，不隨字體選擇縮放，任何一檔都按得到、看得清。 */
+.wrap {
   display: none;
 }
 @media (max-width: 640px) {
+  .wrap {
+    display: block;
+    margin: 0 0 16px;
+  }
   .bar {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin: 0 0 14px;
-    padding: 10px 12px;
+    align-items: stretch;
+    gap: 0;
+    padding: 12px;
     border: 1px solid transparent;
-    border-radius: 16px;
+    border-radius: 18px;
     background:
       linear-gradient(180deg, #1c1c1a, #131311) padding-box,
       linear-gradient(135deg, #fcea86 0%, #c48a29 45%, #975905 70%, #f8c758 100%) border-box;
-    box-shadow: inset 0 1px 0 rgba(252, 234, 134, 0.14), 0 4px 14px -6px rgba(0, 0, 0, 0.6);
+    box-shadow: inset 0 1px 0 rgba(252, 234, 134, 0.14), 0 6px 18px -8px rgba(0, 0, 0, 0.7);
+  }
+  /* 左：盾牌。裡面沒有盾牌（例如已經存好、或這支瀏覽器不顯示）就整格收起，工具列只剩字體大小 */
+  .shieldSlot {
+    flex: none;
+    display: flex;
+    align-items: center;
+    padding-right: 12px;
+    margin-right: 12px;
+    border-right: 1px solid rgba(248, 199, 88, 0.28);
+  }
+  .shieldSlot:empty {
+    display: none;
+  }
+  /* 右：字體大小 */
+  .sizeGroup {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
   }
   .label {
-    flex: none;
     color: #fcea86;
     font-size: 16px;
     font-weight: 800;
     letter-spacing: 0.08em;
+    line-height: 1.2;
     white-space: nowrap;
   }
   .options {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px;
-    flex: 1;
-    max-width: 260px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
   }
   .option {
     min-height: 48px;
@@ -41,16 +63,15 @@
     color: #f4efe4;
     font-weight: 800;
     line-height: 1;
+    white-space: nowrap;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     transition: background 0.15s ease, transform 0.12s ease;
   }
-  .option { white-space: nowrap; }
   .option:active { transform: scale(0.96); }
   .option:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
   /* 每顆按鈕的字大小就是它代表的大小，一眼看懂 */
-  .size_small { font-size: 15px; }
   .size_medium { font-size: 17px; }
   .size_large { font-size: 19px; }
   .size_xlarge { font-size: 21px; }
@@ -60,11 +81,18 @@
     color: #1a1205;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 0 12px rgba(248, 199, 88, 0.45);
   }
+  /* 安裝說明：展開時在工具列正下方，用整條寬度；沒展開就不佔位置 */
+  .panelSlot:empty {
+    display: none;
+  }
+  .panelSlot {
+    margin-top: 10px;
+  }
 }
-/* 很窄的手機：標題在上、四顆按鈕在下一整排，「特大」不會被擠成兩行 */
-@media (max-width: 380px) {
-  .bar { flex-wrap: wrap; justify-content: center; gap: 8px; }
-  .options { flex: 1 1 100%; max-width: none; }
+/* 很窄的手機：盾牌與字體大小上下分開，各自一整排，不擠 */
+@media (max-width: 340px) {
+  .bar { flex-direction: column; gap: 10px; }
+  .shieldSlot { padding-right: 0; margin-right: 0; padding-bottom: 10px; border-right: 0; border-bottom: 1px solid rgba(248, 199, 88, 0.28); justify-content: center; }
 }
 @media (prefers-reduced-motion: reduce) {
   .option { transition: none; }

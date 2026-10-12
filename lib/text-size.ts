@@ -1,25 +1,25 @@
 /**
  * 手機字體大小（客戶自選）。2026-10-12 業主定案：客戶可在首頁自己選字體大小，
  * 「中」＝當天上線的放大版基準字級（手機 125%），是預設標準。
+ * 最小的一檔（原「小」，90%）已於 2026-10-12 拿掉：字太小，沒有人會看。
  *
  * 唯一一份設定：開關元件、頁面載入前的套用腳本、守門測試都讀這裡；CSS 在 app/globals.css「手機字體（唯一一份）」。
  * 每一檔的根字級與倍率（--ts）必須和 CSS 一致，測試會核對。
  */
 export const TEXT_SIZE_STORAGE_KEY = 'tdh_text_size_v1';
 
-export type TextSizeId = 'small' | 'medium' | 'large' | 'xlarge';
+export type TextSizeId = 'medium' | 'large' | 'xlarge';
 
 export const TEXT_SIZE_DEFAULT: TextSizeId = 'medium';
 
 export const TEXT_SIZE_OPTIONS: ReadonlyArray<{ id: TextSizeId; label: string; rootPercent: number; scale: number }> = [
-  { id: 'small', label: '小', rootPercent: 112.5, scale: 0.9 },
   { id: 'medium', label: '中', rootPercent: 125, scale: 1 },
   { id: 'large', label: '大', rootPercent: 143.75, scale: 1.15 },
   { id: 'xlarge', label: '特大', rootPercent: 162.5, scale: 1.3 },
 ];
 
 export function isTextSizeId(value: unknown): value is TextSizeId {
-  return value === 'small' || value === 'medium' || value === 'large' || value === 'xlarge';
+  return value === 'medium' || value === 'large' || value === 'xlarge';
 }
 
 /** 讀客戶先前的選擇；讀不到、私密模式、值不合法一律回預設「中」。 */
@@ -49,4 +49,4 @@ export function saveTextSize(id: TextSizeId) {
 }
 
 /** 放在 <head> 的小腳本：頁面畫出來之前就套用，不會先閃一下標準大小再變大。 */
-export const TEXT_SIZE_INIT_SCRIPT = `try{var s=window.localStorage.getItem('${TEXT_SIZE_STORAGE_KEY}');if(s==='small'||s==='large'||s==='xlarge'){document.documentElement.setAttribute('data-text-size',s)}}catch(e){}`;
+export const TEXT_SIZE_INIT_SCRIPT = `try{var s=window.localStorage.getItem('${TEXT_SIZE_STORAGE_KEY}');if(s==='large'||s==='xlarge'){document.documentElement.setAttribute('data-text-size',s)}}catch(e){}`;

@@ -54,7 +54,9 @@ yes(scaleBlock.includes('.text-\\[12px\\] { font-size: calc(16px * var(--ts, 1))
 // 6. 客戶自選字體大小：設定只有一份（lib/text-size.ts），CSS 四檔與設定一致，開關接在首頁與載入前腳本
 const ts = read('lib/text-size.ts');
 const options = [...ts.matchAll(/\{ id: '(\w+)', label: '([^']+)', rootPercent: ([\d.]+), scale: ([\d.]+) \}/g)].map((m) => ({ id: m[1], label: m[2], rootPercent: m[3], scale: m[4] }));
-yes(options.length === 4, '字體大小四檔：小、中、大、特大');
+yes(options.length === 3 && options.map((o) => o.label).join('') === '中大特大', '字體大小三檔：中、大、特大（最小的一檔已拿掉，字太小沒有人會看）');
+yes(!/'small'/.test(ts) && !scaleBlock.includes('data-text-size="small"'), '不得再出現「小」這一檔');
+yes(options.every((o) => Number(o.scale) >= 1), '每一檔都不得比標準小');
 yes(/TEXT_SIZE_DEFAULT: TextSizeId = 'medium'/.test(ts), '預設標準是「中」');
 const medium = options.find((o) => o.id === 'medium');
 yes(medium.rootPercent === '125' && medium.scale === '1', '「中」必須等於上線的放大版基準字級（125%、倍率 1）');
@@ -73,5 +75,13 @@ for (const f of ['app/ghost-asura/ghost-asura.module.css', 'app/dual-chart/dual-
   const tail = read(f).slice(read(f).lastIndexOf('手機字體再加大一階'));
   yes(!/font-size:\s*\d+px/.test(tail), f + ' 的手機字級要隨倍率（calc … var(--ts)）');
 }
+
+// 7. 首頁工具列：盾牌與字體大小是同一個整體（盾牌認領工具列的兩個位置，其他頁維持原位）
+const bar = read('components/TextSizeSwitch.tsx');
+yes(bar.includes('data-install-shield-slot') && bar.includes('data-install-panel-slot'), '工具列要留盾牌按鈕與安裝說明兩個位置');
+yes(bar.includes("'tdh:install-slots'"), '工具列掛好後要通知盾牌來認領');
+const shield = read('components/InstallShield080.tsx');
+yes(shield.includes("[data-install-shield-slot]") && shield.includes("[data-install-panel-slot]") && shield.includes("'tdh:install-slots'"), '盾牌元件要認領工具列的兩個位置');
+yes(shield.includes('if (slots) {') && shield.includes('slots.tap') && shield.includes('slots.panel') && shield.includes('document.body.insertBefore(host, document.body.firstChild)'), '找不到工具列時盾牌仍放回整頁最上方，不會不見');;
 
 console.log(`mobile-zoom-pan: ${checks} checks passed`);
