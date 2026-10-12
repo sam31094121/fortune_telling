@@ -1513,3 +1513,182 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   letter-spacing: 0.04em;
   overflow-wrap: anywhere;
 }
+
+/* ==========================================================================
+   2026-10-12 盾牌彩色功能卡（只動顏色與質感，不改結構、文字與尺寸）
+   取自盾牌：黑色金屬底、金框四段漸層、8 字的彩虹色帶（橘 #fd722a、琥珀 #fdb303、青 #019999、藍 #0677cd）。
+   目標：客戶一眼看出「這是可以按的功能」——彩色按鈕、有「點開／收合」提示、展開面板與按鈕同色、印記列有圓形按鈕。
+   ========================================================================== */
+.card {
+  --sh-gold-light: #fcea86;
+  --sh-gold: #f8c758;
+  --sh-gold-dark: #c48a29;
+  --sh-rainbow: conic-gradient(from 210deg, #d22536, #e7570d, #f2d42d, #2ab65a, #0677cd, #a225b4, #d22536);
+  border: 1px solid transparent;
+  background:
+    linear-gradient(180deg, #1b1b19, #121210) padding-box,
+    linear-gradient(135deg, #fcea86 0%, #c48a29 38%, #975905 62%, #f8c758 100%) border-box;
+  color: #f4efe4;
+}
+
+/* —— 過去／現在／未來：三顆彩色功能鍵 —— */
+.asuraTiles .tileSquare {
+  --t-top: #ffc25a; --t-bot: #f5821f; --t-glow: rgba(253, 114, 42, 0.55);
+  border: 2px solid rgba(255, 248, 214, 0.85);
+  border-radius: 14px;
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.55) 0, rgba(255, 255, 255, 0) 38%),
+    linear-gradient(165deg, var(--t-top), var(--t-bot));
+  color: #1a1205;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+  padding-bottom: 18px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.22),
+    0 6px 18px -4px var(--t-glow),
+    0 2px 0 rgba(0, 0, 0, 0.5);
+}
+.asuraTiles .tileSquare:nth-child(1) { --t-top: #ffc25a; --t-bot: #f5821f; --t-glow: rgba(253, 114, 42, 0.6); }
+.asuraTiles .tileSquare:nth-child(2) { --t-top: #fcea86; --t-bot: #e0a93a; --t-glow: rgba(248, 199, 88, 0.65); }
+.asuraTiles .tileSquare:nth-child(3) { --t-top: #6fe0e0; --t-bot: #3aa7e8; --t-glow: rgba(1, 153, 153, 0.6); }
+/* 原本的墨團、飛白改成「點開／收合」提示，讓人知道可以按 */
+.asuraTiles .tileSquare::before { display: none; }
+.asuraTiles .tileSquare:nth-of-type(n)::after {
+  content: '點開 ▾';
+  position: absolute;
+  top: auto; right: auto; left: 0; bottom: 8px;
+  width: 100%; height: auto;
+  z-index: 0;
+  background: none;
+  -webkit-mask-image: none; mask-image: none;
+  opacity: 1;
+  font: 700 12px/1 system-ui, -apple-system, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+  letter-spacing: 0.08em;
+  color: rgba(26, 18, 5, 0.78);
+  text-shadow: none;
+}
+.asuraTiles .tileSquareOn:nth-of-type(n)::after { content: '收合 ▴'; }
+.asuraTiles .tileSquare:not(:disabled):hover {
+  transform: translateY(-3px);
+  border-color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.2),
+    0 0 18px var(--t-glow),
+    0 10px 22px -4px var(--t-glow),
+    0 2px 0 rgba(0, 0, 0, 0.5);
+}
+.asuraTiles .tileSquare:not(:disabled):active { transform: translateY(1px) scale(0.97); }
+.asuraTiles .tileSquare:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+/* 已展開：外框換成盾牌 8 字的彩虹色帶 */
+.asuraTiles .tileSquareOn {
+  border: 3px solid transparent;
+  color: #1a1205;
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.5) 0, rgba(255, 255, 255, 0) 38%) padding-box,
+    linear-gradient(165deg, var(--t-top), var(--t-bot)) padding-box,
+    var(--sh-rainbow) border-box;
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.22),
+    0 0 22px var(--t-glow),
+    0 8px 20px -4px var(--t-glow);
+}
+@media (hover: hover) {
+  .asuraTiles .tileSquare:not(:disabled):not(.tileSquareOn):hover { color: #1a1205; }
+}
+
+/* —— 展開面板：邊框、標籤、按鈕與上面按下的那顆同色 —— */
+.fnPanel { --p-color: #f5821f; --p-soft: rgba(245, 130, 31, 0.14); background: linear-gradient(180deg, var(--p-soft), #121210 140px); border-top: 3px solid var(--p-color); border-bottom: 1px solid rgba(248, 199, 88, 0.3); }
+.fnPanel[data-asura-function="hits"] { --p-color: #f5821f; --p-soft: rgba(245, 130, 31, 0.16); }
+.fnPanel[data-asura-function="pillars"] { --p-color: #f8c758; --p-soft: rgba(248, 199, 88, 0.16); }
+.fnPanel[data-asura-function="verdict"] { --p-color: #3aa7e8; --p-soft: rgba(58, 167, 232, 0.16); }
+.fnPanel .fnLead { border-left-color: var(--p-color); color: #f4efe4; }
+.fnPanel .fnBadgeTag { background: var(--p-color); border-color: transparent; color: #1a1205; box-shadow: none; }
+.fnPanel .fnActionBar { border-bottom-color: color-mix(in srgb, var(--p-color) 45%, transparent); }
+.fnCopyBtn,
+.fnCopyBtnCode {
+  color: #1a1205;
+  background: linear-gradient(180deg, #fcea86 0%, #f8c758 45%, #c48a29 100%);
+  border: 1px solid #fcea86;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+.fnCopyBtn:hover,
+.fnCopyBtnCode:hover { background: linear-gradient(180deg, #fff4b0 0%, #fcd36b 45%, #d29a35 100%); color: #1a1205; border-color: #fff; box-shadow: 0 0 12px rgba(248, 199, 88, 0.55); }
+.fnPanel .fnPlainLine { border-left-color: color-mix(in srgb, var(--p-color) 70%, transparent); }
+
+/* —— 逐柱卡片：四根柱子各一色（取自盾牌 8 字） —— */
+.pillarsTable > .pillarColumn { --pc: #fd722a; border: 1px solid rgba(248, 199, 88, 0.35); border-top: 4px solid var(--pc); background: linear-gradient(180deg, color-mix(in srgb, var(--pc) 22%, #1b1b19) 0%, #1b1b19 70%); }
+.pillarsTable > .pillarColumn:nth-child(1) { --pc: #fd722a; }
+.pillarsTable > .pillarColumn:nth-child(2) { --pc: #fdb303; }
+.pillarsTable > .pillarColumn:nth-child(3) { --pc: #19b5a5; }
+.pillarsTable > .pillarColumn:nth-child(4) { --pc: #4aa8e8; }
+.pillarLabel { color: #fcea86; }
+.pillarValue { color: #fff4cf; }
+.pillarCount { color: #d9d2bd; }
+.pillarReadingGrid > .pillarGroup:nth-child(2) { --pc: #fd722a; }
+.pillarReadingGrid > .pillarGroup:nth-child(3) { --pc: #fdb303; }
+.pillarReadingGrid > .pillarGroup:nth-child(4) { --pc: #19b5a5; }
+.pillarReadingGrid > .pillarGroup:nth-child(5) { --pc: #4aa8e8; }
+
+/* —— 印記列：金屬底、柱色左邊條、圓形「＋／−」按鈕、已覺醒的金色徽章 —— */
+.pillarGroup .item,
+.pillarGroup .itemAwakened,
+.item,
+.itemAwakened {
+  background: linear-gradient(135deg, #262522 0%, #1a1917 100%);
+  border: 1px solid rgba(248, 199, 88, 0.4);
+  border-left: 4px solid var(--pc, #fdb303);
+  box-shadow: inset 0 1px 0 rgba(252, 234, 134, 0.1);
+}
+.itemAwakened::before { background: linear-gradient(45deg, rgba(252, 234, 134, 0) 0%, rgba(252, 234, 134, 0.14) 50%, rgba(252, 234, 134, 0) 100%); }
+.itemAwakened:has(details[open]) {
+  border-color: #fcea86;
+  border-left-color: var(--pc, #fdb303);
+  background: linear-gradient(135deg, #2d2b27 0%, #1f1e1b 100%);
+  box-shadow: 0 0 18px rgba(248, 199, 88, 0.3), inset 0 0 12px rgba(248, 199, 88, 0.08);
+}
+.itemAwakened .displayName,
+.displayName { color: #fcea86; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6); }
+.itemHead::after {
+  content: '＋';
+  display: grid; place-items: center;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  color: #1a1205;
+  font: 700 18px/1 system-ui, sans-serif;
+  background: linear-gradient(180deg, #fcea86, #c48a29);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+.itemDetail[open] > .itemHead::after { content: '−'; }
+.itemBody { border-top-color: rgba(248, 199, 88, 0.35); }
+.seal { font-weight: 700; }
+.sealAwakened { background: linear-gradient(135deg, #fcea86, #c48a29); color: #1a1205; }
+.sealDormant { background: #34322e; color: #cfc8b4; }
+.sealPending { background: rgba(253, 179, 3, 0.2); color: #ffe59a; border: 1px solid rgba(253, 179, 3, 0.5); }
+.meaning { color: #e4ddc9; }
+.meaningStrong { color: #fcea86; }
+.battleLine { color: #e0d8c0; }
+
+/* —— 其他區塊：同一套黑金 —— */
+.section { background: #151513; border-top: 1px solid rgba(248, 199, 88, 0.3); }
+.sectionTitle { color: #fcea86; }
+.sectionBody { background: #1e1d1a; border-color: rgba(248, 199, 88, 0.3); color: #e4ddc9; }
+.supplement { border-color: rgba(248, 199, 88, 0.4); background: #1e1d1a; }
+.supplementHead { color: #fcea86; }
+.supplementHead::after { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; color: #1a1205; background: linear-gradient(180deg, #fcea86, #c48a29); font: 700 17px/1 system-ui, sans-serif; }
+.supplement[open] { border-color: #fcea86; }
+.supplement > .sectionBody { border-top-color: rgba(248, 199, 88, 0.3); }
+.scrollHint { color: #d9d2bd; }
+
+@media (prefers-reduced-motion: reduce) {
+  .asuraTiles .tileSquare, .asuraTiles .tileSquareOn { transition: none; transform: none; }
+}
+
+/* 三卡故事線：左框與底色跟著面板顏色（原本是固定朱紅） */
+.fnPanel .fnStory {
+  border-left-color: var(--p-color);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--p-color) 24%, transparent), transparent 85%);
+  color: #fff4cf;
+}
