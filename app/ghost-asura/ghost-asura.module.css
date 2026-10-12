@@ -968,3 +968,56 @@
   .login > button:hover,
   .inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready):hover { filter: brightness(1.06); }
 }
+
+/* ==========================================================================
+   2026-10-12 進度五顆寶珠：原本打勾的圓圈，改成全站共用的五元素寶珠（空・風・水・火・地）。
+   完成＝該元素的顏色發亮發光；未完成＝封印著、不發光。顏色只讀 elementOrbPalette，不另建色表。
+   ========================================================================== */
+.progressStep { --step-glow: #fcea86; }
+.stepOrb {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex: none;
+  border-radius: 50%;
+  transition: filter 0.5s ease, transform 0.5s ease;
+}
+.stepOrb[data-lit='false'] { filter: grayscale(0.35) brightness(0.8); }
+.stepOrb[data-lit='true'] { filter: drop-shadow(0 0 10px var(--step-glow)); transform: scale(1.04); }
+/* 目前輪到的那一顆：外圈輕輕呼吸，提示「下一個填這裡」 */
+.stepOrbActive::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px dashed var(--step-glow);
+  opacity: 0.85;
+  animation: stepOrbBreath 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes stepOrbBreath {
+  0%, 100% { transform: scale(0.96); opacity: 0.45; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+.stepOrb[data-lit='true'] ~ .stepLabel {
+  color: #f4efe4;
+  font-weight: 700;
+  text-shadow: 0 0 10px var(--step-glow);
+}
+.progressConnector { top: 25px; }
+.progressConnector.active { background: var(--step-glow); box-shadow: 0 0 8px var(--step-glow); }
+@media (max-width: 600px) {
+  .stepOrb { width: 44px; height: 44px; }
+  .progressConnector { top: 21px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stepOrbActive::after { animation: none; }
+  .stepOrb { transition: none; }
+}
+
+/* 手機：五顆寶珠排成一列（原本三顆＋兩顆兩排，像一串珠子才對） */
+@media (max-width: 600px) {
+  .progressContainer { flex-wrap: nowrap; gap: 2px; padding: 16px 6px 12px; }
+  .progressStep { flex: 1 1 0; min-width: 0; }
+  .stepLabel { font-size: 11px; max-width: 100%; letter-spacing: 0; }
+}

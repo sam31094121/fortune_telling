@@ -9,7 +9,7 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
@@ -27,7 +27,12 @@ import { getCardRevealAnimation, getImpressionGlowAnimation, getScrollFormationA
 import { initializeAudio, playCardRevealSound, playImpressionGlowSound, playShareSuccessSound, playDownloadSuccessSound } from '@/lib/ghost-asura-audio';
 import { initializeParticleSystem, getParticleSystem, cleanupParticleSystem } from '@/lib/ghost-asura-particles';
 import { withShareVersion } from '@/lib/share-preview';
+import { ElementTreasureOrb } from '@/components/bazi/customer/ElementTreasureOrb';
+import { ORB_MATERIAL, type ProductElement } from '@/components/bazi/customer/elementOrbPalette';
 import styles from './ghost-asura.module.css';
+
+// 進度的五個步驟對應五顆寶珠（顏色只讀全站唯一的寶珠色盤，不另建色表）。
+const STEP_ORBS: readonly ProductElement[] = ['空', '風', '水', '火', '地'];
 import brandStyles from '@/components/AsuraBrandTitle.module.css';
 
 function asuraHourStatus(profile: BirthProfile) {
@@ -344,9 +349,16 @@ export default function GhostAsuraPageClient({
       {/* ✨ 進度指引 */}
       <div className={styles.progressContainer}>
         {progressSteps.map((step, index) => (
-          <div key={step.id} className={styles.progressStep}>
-            <div className={`${styles.stepCircle} ${step.done ? styles.done : ''} ${index === currentStepIndex && !step.done ? styles.active : ''}`}>
-              {step.done ? '✓' : index + 1}
+          <div key={step.id} className={styles.progressStep} style={{ '--step-glow': ORB_MATERIAL[STEP_ORBS[index]].light } as CSSProperties}>
+            {/* 五顆寶珠（全站共用的五元素寶珠）：完成＝寶珠亮起發光，未完成＝封印；不再打勾 */}
+            <div
+              className={`${styles.stepOrb} ${index === currentStepIndex && !step.done ? styles.stepOrbActive : ''}`}
+              role="img"
+              aria-label={`${step.label}，寶珠${step.done ? '已亮起' : '尚未亮起'}`}
+              data-step-orb={STEP_ORBS[index]}
+              data-lit={step.done}
+            >
+              <ElementTreasureOrb element={STEP_ORBS[index]} released={step.done} preview animated={step.done} />
             </div>
             <div className={styles.stepLabel}>{step.label}</div>
             {index < progressSteps.length - 1 && (

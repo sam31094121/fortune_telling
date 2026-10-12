@@ -68,6 +68,8 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/ghost-asura/GhostAsur
     if (id === '@/features/ghost-asura/components/GhostAsuraCard') return { GhostAsuraCard: Card };
     if (id === '@/lib/dual-chart-form') return { dualChartHourStatus };
     if (id === '@/lib/share-preview') return { withShareVersion: url => url };
+    if (id === '@/components/bazi/customer/ElementTreasureOrb') return { ElementTreasureOrb: () => null };
+    if (id === '@/components/bazi/customer/elementOrbPalette') return { ORB_MATERIAL: { 空: { light: '#dfd8ff' }, 風: { light: '#8dffcd' }, 水: { light: '#60edff' }, 火: { light: '#ff9fc5' }, 地: { light: '#ffe198' } } };
     return require(id);
   },
 });
