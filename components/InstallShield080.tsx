@@ -297,12 +297,14 @@ export default function InstallShield080() {
     window.location.href = withOpenExternalBrowser(window.location.href);
   }, []);
 
-  // 第一次按小盾牌：只展開引導面板（安裝擺第一，不直接跳系統視窗，客戶先看到大盾牌與白話說明）。
-  const onInlineTap = useCallback(() => {
+  // 第一次按小盾牌：Android Chrome 有安裝事件就直接跳系統安裝視窗（客戶按一下就完成）；
+  // 按掉或沒有安裝事件（iPhone、三星、LINE 內建瀏覽器）才展開引導面板，裡面有大盾牌與步驟。
+  const onInlineTap = useCallback(async () => {
     if (installed) return;
     setNudge(false);
+    if (!inlineOpen && guide !== 'inapp' && deferred && (await runPrompt())) return;
     setInlineOpen((v) => !v);
-  }, [installed]);
+  }, [installed, inlineOpen, guide, deferred, runPrompt]);
 
   // 第二次按大盾牌：能一鍵安裝就直接跳系統安裝視窗；不能就把下面的步驟閃一下提醒客戶照著做。
   const onBigShieldTap = useCallback(async () => {
