@@ -1,3 +1,4 @@
+import { lockedCardGuard } from '@/lib/dual-chart-auth';
 import { NextResponse } from 'next/server';
 import { generateMusicReport, generateFusionSong, generateSongDrafts, generateAiProductionPlan } from '@/lib/gemini';
 import { PersonalityMatrixEngine } from '@/lib/personality-matrix-engine';
@@ -399,6 +400,9 @@ function repairMojibakeDeep<T>(value: T): T {
 }
 
 export async function POST(request: Request) {
+  // 上鎖卡片（人格音樂）：沒有輸入密碼就不能呼叫。見 lib/locked-cards.ts
+  const locked = lockedCardGuard(request);
+  if (locked) return locked;
   const requestId = createRequestId();
   const now = Date.now();
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';

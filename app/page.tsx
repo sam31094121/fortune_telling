@@ -2944,7 +2944,7 @@ export default function HomePage() {
 
             <HomeTrustEvidence items={["免費生成", "依生辰", "可重聽"]} />
             <div className="home-feature-cta home-music-cta flex items-center gap-2 rounded-xl border border-violet-500/40 bg-violet-950/30 px-5 py-3 text-xs font-bold text-violet-200 transition group-hover:bg-violet-500/25">
-              <span><HomeTranslatedText text={"請點我開啟"} /></span>
+              <span><HomeTranslatedText text="輸入密碼" /></span>
               <span className="transition-transform group-hover:translate-x-1.5">{"\u279c"}</span>
             </div>
           </Link>

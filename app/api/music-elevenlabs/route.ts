@@ -1,3 +1,4 @@
+import { lockedCardGuard } from '@/lib/dual-chart-auth';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -186,6 +187,9 @@ function validateServicePackage(servicePackage: unknown) {
 }
 
 export async function POST(request: Request) {
+  // 上鎖卡片（人格音樂）：沒有輸入密碼就不能呼叫。見 lib/locked-cards.ts
+  const locked = lockedCardGuard(request);
+  if (locked) return locked;
   let body: ElevenLabsShellRequest;
 
   try {

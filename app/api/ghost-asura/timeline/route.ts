@@ -7,6 +7,7 @@
  * 輸出：過去/現在/未來三時段數據
  */
 
+import { lockedCardGuard } from "@/lib/dual-chart-auth";
 import { NextRequest, NextResponse } from 'next/server';
 import {
   calculateGhostAsuraTimeline,
@@ -45,6 +46,8 @@ export async function GET() {
 
 /** POST 方法：計算流年 */
 export async function POST(request: NextRequest) {
+  const locked = lockedCardGuard(request);
+  if (locked) return locked as NextResponse;
   try {
     const body = await request.json();
 

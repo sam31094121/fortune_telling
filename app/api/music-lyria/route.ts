@@ -1,3 +1,4 @@
+import { lockedCardGuard } from '@/lib/dual-chart-auth';
 import { googleGenerationKey } from '@/lib/teacher-provider';
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
@@ -386,6 +387,9 @@ function mapLyriaError(message: string, status = '') {
 }
 
 export async function POST(request: Request) {
+  // 上鎖卡片（人格音樂）：沒有輸入密碼就不能呼叫。見 lib/locked-cards.ts
+  const locked = lockedCardGuard(request);
+  if (locked) return locked;
   const requestId = createRequestId();
   const apiKey = googleGenerationKey();
   if (!apiKey) {

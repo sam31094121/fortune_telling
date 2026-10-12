@@ -42,6 +42,7 @@
     "audit:red-luan": "tsc tools/red-luan-engineering-audit.ts lib/red-luan-engineering-audit.ts lib/red-luan-heartbeat-engine.ts lib/bazi/engine.ts lib/ziwei/engine.ts --outDir .red-luan-audit-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .red-luan-audit-build/tools/red-luan-engineering-audit.js",
     "test:red-luan-audit": "tsc tests/red-luan-engineering-audit.test.ts lib/red-luan-engineering-audit.ts lib/red-luan-heartbeat-engine.ts lib/bazi/engine.ts lib/ziwei/engine.ts --outDir .red-luan-audit-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck && node .red-luan-audit-test-build/tests/red-luan-engineering-audit.test.js",
     "test:mobile-zoom-pan": "node tests/mobile-zoom-pan.test.cjs",
+    "test:locked-cards": "node tests/locked-cards.test.cjs",
     "test:ziwei-quanshu": "node tests/ziwei-brightness-quanshu.test.cjs && node tests/ziwei-quanshu-reference.test.cjs && node tests/ziwei-single-version.test.cjs",
     "test:ziwei-unknown-time": "node tests/ziwei-unknown-time.test.cjs",
     "test:ziwei-form-fill": "node tests/ziwei-form-fill.e2e.mjs",

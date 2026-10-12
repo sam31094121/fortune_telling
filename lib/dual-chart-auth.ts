@@ -27,6 +27,27 @@ export function validSession(token?: string, now = Date.now()) {
   if (Number(expires) <= now || Number(expires) > now + SESSION_SECONDS * 1000) return false;
   return timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(sign(`${expires}.${nonce}`), 'hex'));
 }
+/**
+ * 上鎖卡片的 API 守門（2026-10-12）：與「易經神煞」同一組密碼、同一個 cookie，輸入一次，所有上鎖卡片 30 分鐘內都開。
+ * 沒有設定密碼（開發或公開模式）時 validSession 會放行，行為與頁面一致。回傳 null＝放行，否則回傳要直接送出的 401。
+ * 只鎖畫面不鎖後端的話，鎖是形式上的；所以上鎖卡片的 API 一律先呼叫這個。
+ */
+export function sessionFromRequest(request: Request): string | undefined {
+  const raw = request.headers.get('cookie') ?? '';
+  for (const part of raw.split(';')) {
+    const [name, ...rest] = part.trim().split('=');
+    if (name === DUAL_COOKIE) return rest.join('=');
+  }
+  return undefined;
+}
+export function lockedCardGuard(request: Request): Response | null {
+  if (validSession(sessionFromRequest(request))) return null;
+  return new Response(JSON.stringify({ error: '請先輸入密碼，才能使用這個功能。', locked: true }), {
+    status: 401,
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
+  });
+}
+
 // Single-process gate: a shared budget cannot be bypassed with spoofed IP headers.
 // Multi-instance hosting must replace this with an atomic shared limiter.
 const state = globalThis as typeof globalThis & { dualChartAttempts?: { count: number; until: number } };
