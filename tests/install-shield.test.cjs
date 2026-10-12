@@ -1,0 +1,22 @@
+// 執行：npx tsc lib/install-shield.ts --outDir .install-shield-test-build --module commonjs --target es2020 --skipLibCheck && node tests/install-shield.test.cjs
+const assert = require('node:assert');
+const m = require('../.install-shield-test-build/install-shield.js');
+const LINE_IOS = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Safari Line/14.9.0';
+const LINE_AND = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Mobile Safari/537.36 Line/14.9.0/IAB';
+const SAFARI = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
+const FB = 'Mozilla/5.0 (iPhone) Mobile/15E148 [FBAN/FBIOS;FBAV/470.0]';
+const IG = 'Mozilla/5.0 (iPhone) Mobile/15E148 Instagram 350.0';
+assert.strictEqual(m.detectInAppBrowser(LINE_IOS), 'line');
+assert.strictEqual(m.detectInAppBrowser(LINE_AND), 'line');
+assert.strictEqual(m.detectInAppBrowser(SAFARI), null);
+assert.strictEqual(m.detectInAppBrowser('Mozilla/5.0 Online/1.0'), null);
+assert.strictEqual(m.detectInAppBrowser(FB), 'facebook');
+assert.strictEqual(m.detectInAppBrowser(IG), 'instagram');
+assert.strictEqual(m.detectPlatform(LINE_IOS), 'ios');
+assert.strictEqual(m.detectPlatform(LINE_AND), 'android');
+assert.strictEqual(m.detectPlatform('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15)', 5), 'ios');
+assert.strictEqual(m.detectPlatform('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15)', 0), 'other');
+assert.strictEqual(m.withOpenExternalBrowser('https://a.tw/'), 'https://a.tw/?openExternalBrowser=1');
+assert.strictEqual(m.withOpenExternalBrowser('https://a.tw/bazi?x=1&y=%E5%A4%AA#top'), 'https://a.tw/bazi?x=1&y=%E5%A4%AA&openExternalBrowser=1#top');
+assert.strictEqual(m.withOpenExternalBrowser('https://a.tw/?openExternalBrowser=1&a=2'), 'https://a.tw/?openExternalBrowser=1&a=2');
+console.log('install-shield tests: 13 passed');

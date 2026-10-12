@@ -111,3 +111,8 @@ t12
 /.asura-backup/
 /.asura-shots/
 /.backup-asura/
+
+# local backups / caches
+.next-bak*/
+.install-shield-test-build/
+*.bak-*

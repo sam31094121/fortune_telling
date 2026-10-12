@@ -3,6 +3,7 @@
 import { useMemo, useState, useDeferredValue, useEffect, useRef, type CSSProperties } from 'react';
 import { FRONTEND_COPY } from '@/lib/credibility-phrases';
 import Link from 'next/link';
+import Image from 'next/image';
 import HomeTranslatedText from '@/components/HomeTranslatedText';
 import { InterfaceLanguagePicker, useInterfaceLanguage } from '@/components/InterfaceLanguage';
 import dualChartEntryStyles from './dual-chart-entry.module.css';
@@ -3909,8 +3910,16 @@ export default function HomePage() {
         {/* 底部 LINE 好友入口 */}
         <LineVipShareCard friendHref={lineFriendHref} onShare={handleLineShare} />
 
-        <div className="pb-2 text-center text-[10px] font-semibold tracking-[0.32em] text-[color:var(--text-muted)] opacity-45">
-          080
+        <div className="flex justify-center pb-2" aria-hidden="true">
+          <Image
+            src="/scroll-top-080-shield.png"
+            alt=""
+            width={44}
+            height={44}
+            sizes="44px"
+            className="h-11 w-11 object-contain"
+            draggable={false}
+          />
         </div>
       </main>
 
@@ -3925,11 +3934,18 @@ export default function HomePage() {
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-50 flex h-12 w-12 flex-col items-center justify-center gap-0.5 rounded-full border border-amber-500/30 bg-slate-950/80 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all duration-300 hover:scale-110 hover:border-amber-400 hover:text-amber-200 active:scale-95"
+          className="fixed bottom-[calc(env(safe-area-inset-bottom)+1.5rem)] right-6 z-50 flex h-12 w-12 items-center justify-center border-0 bg-transparent p-0 transition-transform duration-300 hover:scale-110 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400"
           aria-label="回到頂部"
         >
-          <span className="text-[11px] leading-none">▲</span>
-          <span className="text-[8px] font-black leading-none tracking-0">{'\u5146\u6ac3'}</span>
+          <Image
+            src="/scroll-top-080-shield-up.png"
+            alt=""
+            width={48}
+            height={48}
+            sizes="48px"
+            className="h-full w-full object-contain"
+            draggable={false}
+          />
         </button>
       )}
 

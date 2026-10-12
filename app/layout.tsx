@@ -4,6 +4,8 @@ import Script from 'next/script';
 import AppStabilityGuard from '@/components/AppStabilityGuard';
 import { InterfaceLanguageProvider } from '@/components/InterfaceLanguage';
 import ScreenArrowReview from '@/components/ScreenArrowReview';
+import InstallShield080 from '@/components/InstallShield080';
+import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
 import { TAROT_CARD_BACK_CSS_IMAGE } from '@/features/tarot/constants/cardBack';
 import {
   SHARE_DESCRIPTION,
@@ -42,6 +44,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+  appleWebApp: { capable: true, title: '太極命理', statusBarStyle: 'black-translucent' },
+  icons: { apple: '/pwa/apple-icon-180.png' },
   title: '☯ 太極命理 易經｜天地人智慧分析系統',
   description: '易經紫微斗數、八字、易經論數字、天地人智慧分析，一站式命理智慧平台。',
   keywords: ['太極命理', '紫微斗數', '八字', '易經論數字', '古老塔羅牌', '命理分析', '天地人智慧'],
@@ -113,6 +117,8 @@ export default function RootLayout({
         ) : null}
         <AppStabilityGuard />
         <ScreenArrowReview />
+        <ServiceWorkerRegister />
+        <InstallShield080 />
         <InterfaceLanguageProvider>{children}</InterfaceLanguageProvider>
       </body>
     </html>
