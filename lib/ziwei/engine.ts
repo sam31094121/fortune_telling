@@ -378,7 +378,8 @@ export function createZiweiCore(input: ZiweiBirthInput): ZiweiCoreResult {
 
   const coreWithoutValidation = {
     engine: 'iztro' as const,
-    engineVersion: 'iztro@2.5.8',
+    // 版本字串含古籍對齊日期：老師分析的快取鍵用它，舊版（七殺廟）算過的結果不會被沿用。
+    engineVersion: 'iztro@2.5.8+quanshu-20261012',
     birthInput: input,
     raw: {
       solarDate: String(astrolabe.solarDate ?? ''),

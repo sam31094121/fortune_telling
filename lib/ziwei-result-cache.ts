@@ -15,7 +15,9 @@
 
 // v2（2026-09-15）：老師合盤、命宮塔羅、年齡改由後端送來。v1 的舊結果沒有這些欄位，
 // 還原後會把有時辰的人誤顯示成「補上時辰」，所以舊的直接不讀，重新分析一次就好。
-const ZIWEI_RESULT_STORAGE_KEY = 'tdh_ziwei_last_result_v2';
+// v3（2026-10-12）：星曜亮度、壬干化科、解神改採《紫微斗數全書》。v2 是舊引擎算的結果（例如七殺在酉宮顯示廟），
+// 客戶手機裡 24 小時內還活著，直接不讀，重新分析一次就是古籍版本。
+const ZIWEI_RESULT_STORAGE_KEY = 'tdh_ziwei_last_result_v3';
 const ZIWEI_RESULT_TTL_MS = 24 * 60 * 60 * 1000;
 /** localStorage 通常只有 5MB，且整站共用。超過就不存，寧可不還原也不要擠掉別人的資料。 */
 const ZIWEI_RESULT_MAX_BYTES = 900_000;

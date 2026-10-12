@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import type { DualChartResult } from '@/lib/dual-chart';
 import styles from './dual-chart.module.css';
 import { PillarGrid, LuckGrid } from './BaziChart';
+import quanshuCoverage from '@/data/ziwei/quanshu-coverage.json';
 
 const positions: Record<string, [number, number]> = { 巳: [1, 1], 午: [1, 2], 未: [1, 3], 申: [1, 4], 辰: [2, 1], 酉: [2, 4], 卯: [3, 1], 戌: [3, 4], 寅: [4, 1], 丑: [4, 2], 子: [4, 3], 亥: [4, 4] };
 export default function ZiweiChart({ result }: { result: DualChartResult }) {
@@ -50,6 +51,7 @@ export default function ZiweiChart({ result }: { result: DualChartResult }) {
       <p>輔星與雜曜：{palace.minorStars.map(star => `${star.name}${star.brightness ? `（${star.brightness}）` : ''}${star.mutagen ? ` · 化${star.mutagen}` : ''}`).join('、') || '無'}</p>
     </section>
     <div className={styles.printLegend}><span>命宮：實線框 · 身宮：虛線框</span><span>四化：{['祿', '權', '科', '忌'].map(value => <b key={value} className={styles.badge} data-mutagen={value}>{value}</b>)}</span><span>亮度依《紫微斗數全書》卷二廟旺表：廟、旺、得、利、平、不、陷；無標記表示引擎未提供。</span></div>
-    <p className={styles.note}>排盤核心：{ziwei.engineVersion}。大限為引擎的虛歲區間；以所填出生日期、時辰排盤。</p>
+    <p className={styles.note}>排盤核心：{ziwei.engineVersion}。星曜亮度、壬干化科、解神依《紫微斗數全書》；大限為引擎的虛歲區間；以所填出生日期、時辰排盤。</p>
+    <p className={styles.note}>雜曜中的{quanshuCoverage.noQuanshuVerse.join('、')}，《紫微斗數全書》查無安星口訣，依後世排盤軟體，僅供參考。</p>
   </>;
 }
