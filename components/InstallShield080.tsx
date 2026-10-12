@@ -73,6 +73,7 @@ export default function InstallShield080() {
       /* 私密模式等情況忽略 */
     }
     const ua = window.navigator.userAgent;
+    const search = window.location.search;
     const platNow = detectPlatform(ua, window.navigator.maxTouchPoints);
     const phone = isPhoneLayout(platNow, isIPad(ua, window.navigator.maxTouchPoints), window.innerWidth);
     let host: HTMLElement | null = null;
@@ -83,6 +84,8 @@ export default function InstallShield080() {
       document.body.appendChild(host);
       setPhoneHost(host);
       setGuide(mobileGuideFor(ua, platNow, detectInAppBrowser(ua)));
+      // 從 LINE 轉開（或轉開失敗）帶著 installShield=open 回來：直接展開步驟，不受「收起過」影響。
+      if (wantsInstallSheet(search) || externalOpenFailed(search, detectInAppBrowser(ua))) setInlineOpen(true);
       if (isStandalone()) {
         setInstalled(true);
         setReady(true);
@@ -90,7 +93,7 @@ export default function InstallShield080() {
       }
       const nav = window.navigator as Navigator & { getInstalledRelatedApps?: () => Promise<unknown[]> };
       nav.getInstalledRelatedApps?.().then((apps) => { if (apps.length) setInstalled(true); }).catch(() => {});
-    } else if (dismissed || isStandalone()) return;
+    } else if ((dismissed && !wantsInstallSheet(search)) || isStandalone()) return;
     setPlatform(detectPlatform(ua, window.navigator.maxTouchPoints));
     setDesktop(detectDesktopBrowser(ua));
     setIpad(isIPad(ua, window.navigator.maxTouchPoints));
@@ -99,7 +102,6 @@ export default function InstallShield080() {
     setInApp(inAppNow);
     setReady(true);
     // 從 LINE 轉跳回來：自動打開說明；若仍在 LINE 裡（沒轉開成功）就教使用者手動用瀏覽器開。
-    const search = window.location.search;
     if (externalOpenFailed(search, inAppNow)) {
       setSheet('inapp-manual');
     } else if (!inAppNow && wantsInstallSheet(search)) {
@@ -199,12 +201,8 @@ export default function InstallShield080() {
       return;
     }
     if (inApp) {
-      if (inApp === 'line' && !externalOpenFailed(window.location.search, inApp)) {
-        // LINE 內建瀏覽器不能加入主畫面：用官方參數改開 Safari / Chrome，到了之後自動打開說明。
-        window.location.href = withOpenExternalBrowser(window.location.href);
-      } else {
-        setSheet('inapp-manual');
-      }
+      // 點盾牌一律只打開說明，不自動換網址；要轉開瀏覽器由客戶自己按「用瀏覽器開啟」。
+      setSheet('inapp-manual');
       return;
     }
     if (deferred && (await runPrompt())) return;
@@ -240,7 +238,7 @@ export default function InstallShield080() {
       if (!root) return;
       if (pressing.current || Date.now() < guardUntil.current) return; // 按住時不移動，避免點到底下的卡片
       const targets = Array.from(
-        document.querySelectorAll<HTMLElement>('[class*="GhostAsuraHomeEntry_cta"], a[href="/ghost-asura"] .home-feature-cta'),
+        document.querySelectorAll<HTMLElement>('[class*="GhostAsuraHomeEntry_cta"], a[href="/ghost-asura"]'),
       );
       const r = root.getBoundingClientRect();
       // 量到的是目前位置，扣回目前的上推量得到基準位置
@@ -279,12 +277,14 @@ export default function InstallShield080() {
     };
   }, [ready, phoneHost]);
 
+  // 只有客戶明確按「用瀏覽器開啟」才換網址（LINE 官方參數轉開預設瀏覽器）。
+  const canAutoOpenBrowser = inApp === 'line';
+  const openInBrowser = useCallback(() => {
+    window.location.href = withOpenExternalBrowser(window.location.href);
+  }, []);
+
   const onInlineTap = useCallback(async () => {
     if (installed) return;
-    if (guide === 'inapp' && inApp === 'line' && !externalOpenFailed(window.location.search, inApp)) {
-      window.location.href = withOpenExternalBrowser(window.location.href);
-      return;
-    }
     if (guide !== 'inapp' && deferred && (await runPrompt())) return;
     setInlineOpen((v) => !v);
   }, [installed, guide, inApp, deferred, runPrompt]);
@@ -298,7 +298,12 @@ export default function InstallShield080() {
         : guide === 'ios'
           ? ['點下方的「分享」按鈕（方框加向上箭頭；iOS 版 Chrome 在右上角）', '往下滑', '點「加入主畫面」，再按右上角「新增」']
           : guide === 'inapp'
-            ? ['點右上角「⋮」或「⋯」', '選「用瀏覽器開啟」（Chrome／三星網際網路／Safari）', '到瀏覽器後再點一次這面 080 金盾牌']
+            ? [
+                ...(canAutoOpenBrowser ? ['按上面的「用瀏覽器開啟」；沒反應的話：'] : []),
+                '點右上角「⋮」或「⋯」',
+                '選「用瀏覽器開啟」（Chrome／三星網際網路／Safari）',
+                '到瀏覽器後再點一次這面 080 金盾牌',
+              ]
             : ['點右上角「⋮」選單', '選「加到主畫面」或「安裝應用程式」'];
     return createPortal(
       <section className="taiji-install-inline" data-install-shield-inline="080" aria-label="存到桌面">
@@ -310,6 +315,7 @@ export default function InstallShield080() {
           .taiji-install-inline .s{display:block;font-size:13px;color:#d9cfb4;}
           .taiji-install-inline ol{margin:12px 0 6px;padding-left:1.3em;}
           .taiji-install-inline .hint{margin:0;font-size:12px;color:#bfb497;}
+          .taiji-install-inline .open-browser{display:block;width:100%;min-height:48px;margin:12px 0 4px;border-radius:12px;border:1px solid #fcea86;background:linear-gradient(135deg,#fcea86,#f8c758 50%,#c48a29);color:#1a1205;font-weight:800;font-size:15px;}
         `}</style>
         <button type="button" className="tap" onClick={onInlineTap} aria-expanded={inlineOpen} aria-label={installed ? '已存到桌面' : '儲存本站到主畫面'}>
           <img src="/pwa/save-shield-080.png" alt="080 金盾牌" width={INLINE_SHIELD_PX} height={INLINE_SHIELD_PX} />
@@ -320,7 +326,14 @@ export default function InstallShield080() {
         </button>
         {inlineOpen && !installed ? (
           <>
-            <p className="hint">這個瀏覽器沒有提供一鍵安裝，網頁本身無法自己加到主畫面，最後一步請在瀏覽器的選單完成：</p>
+            <p className="hint">
+              {guide === 'inapp'
+                ? 'LINE／Facebook／Instagram 裡的內建瀏覽器不能加到主畫面，請先用手機的瀏覽器打開這一頁：'
+                : '這個瀏覽器沒有提供一鍵安裝，網頁本身無法自己加到主畫面，最後一步請在瀏覽器的選單完成：'}
+            </p>
+            {guide === 'inapp' && canAutoOpenBrowser ? (
+              <button type="button" className="open-browser" onClick={openInBrowser}>用瀏覽器開啟</button>
+            ) : null}
             <ol>{steps.map((t) => <li key={t}>{t}</li>)}</ol>
             {guide === 'samsung' || guide === 'chrome-android' ? (
               <p className="hint">三星手機加不上去時：到「設定 → 主畫面」關掉「鎖定主畫面版面配置」。</p>
@@ -419,6 +432,11 @@ export default function InstallShield080() {
                   )}
                   <li>到瀏覽器後再點一次左下角的 080 金盾牌</li>
                 </ol>
+                {canAutoOpenBrowser ? (
+                  <p style={{ margin: '0 0 12px' }}>
+                    <button type="button" className="taiji-install-now" onClick={openInBrowser}>用瀏覽器開啟</button>
+                  </p>
+                ) : null}
               </>
             ) : sheet === 'desktop' ? (
               desktop === 'chromium' ? (

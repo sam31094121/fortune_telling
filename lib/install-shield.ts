@@ -21,6 +21,8 @@ export function wantsShieldReset(search: string): boolean {
 }
 
 export function detectInAppBrowser(ua: string): InAppBrowser {
+  // 三星網際網路是真正的瀏覽器，不算 App 內建瀏覽器。
+  if (/SamsungBrowser\//.test(ua)) return null;
   if (/\sLine\//i.test(ua)) return 'line';
   if (/FBAN|FBAV|FB_IAB/i.test(ua)) return 'facebook';
   if (/Instagram/i.test(ua)) return 'instagram';
