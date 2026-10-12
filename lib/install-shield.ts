@@ -8,7 +8,8 @@ export const INSTALL_SHIELD_LEGACY_KEYS = ['taiji-install-shield-dismissed-v1'];
 
 /** 判斷是否為「明確的滑掉」：往左或往下、夠遠、方向明確、夠快。 */
 export function isDismissFlick(dx: number, dy: number, ms: number): boolean {
-  if (ms > 700) return false;
+  // ms 以觸控事件本身的時間戳記計算；1.5 秒內完成才算「滑掉」，慢慢拖不算。
+  if (ms > 1500) return false;
   const left = dx <= -60 && Math.abs(dx) >= 2 * Math.abs(dy);
   const down = dy >= 70 && dy >= 2 * Math.abs(dx);
   return left || down;

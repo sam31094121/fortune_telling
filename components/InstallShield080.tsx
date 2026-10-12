@@ -80,7 +80,7 @@ export default function InstallShield080() {
 
   // 「滑掉」：往左或往下滑超過 40px 就收起並記住。
   const onPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
-    dragStart.current = { x: e.clientX, y: e.clientY, id: e.pointerId, t: Date.now() };
+    dragStart.current = { x: e.clientX, y: e.clientY, id: e.pointerId, t: e.timeStamp };
     swiped.current = false;
     e.currentTarget.setPointerCapture?.(e.pointerId);
   };
@@ -98,7 +98,7 @@ export default function InstallShield080() {
     if (!s) return;
     const dx = e.clientX - s.x;
     const dy = e.clientY - s.y;
-    if (isDismissFlick(dx, dy, Date.now() - s.t)) {
+    if (isDismissFlick(dx, dy, e.timeStamp - s.t)) {
       swiped.current = true;
       setLeaving(dx < 0 && -dx >= dy ? 'left' : 'down');
       window.setTimeout(dismiss, 220);
@@ -133,9 +133,9 @@ export default function InstallShield080() {
     <>
       <style>{`
         .taiji-install-shield{transition:transform .22s ease,opacity .22s ease;position:fixed;left:max(14px,env(safe-area-inset-left));bottom:calc(18px + env(safe-area-inset-bottom));z-index:2147483000;display:flex;flex-direction:column;align-items:center;gap:2px;}
-        .taiji-install-shield button.main{display:flex;flex-direction:column;align-items:center;gap:2px;width:auto;min-width:0;min-height:0;height:auto;margin:0;padding:4px 5px 4px;border-radius:14px;border:1px solid rgba(245,210,122,.45);background:rgba(5,6,18,.86);box-shadow:0 4px 14px rgba(0,0,0,.55);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:none!important;user-select:none;-webkit-user-select:none;}
+        .taiji-install-shield button.main{display:flex;flex-direction:column;align-items:center;gap:2px;width:auto;min-width:0;min-height:0;height:auto;margin:0;padding:4px 5px 4px;border-radius:14px;border:1px solid rgba(248,199,88,.55);background:rgba(7,11,31,.9);box-shadow:0 4px 14px rgba(0,0,0,.55);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:none!important;user-select:none;-webkit-user-select:none;}
         .taiji-install-shield button.main img{width:${SHIELD_SIZE_PX}px;height:${SHIELD_SIZE_PX}px;object-fit:contain;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));}
-        .taiji-install-shield .label{font-size:10px;line-height:1;color:#f5d27a;text-shadow:0 1px 2px #000;letter-spacing:.05em;}
+        .taiji-install-shield .label{font-size:11px;line-height:1.1;color:#fcea86;text-shadow:0 1px 2px #000;letter-spacing:.05em;}
         .taiji-install-sheet-bg{position:fixed;inset:0;z-index:2147483001;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;}
         .taiji-install-sheet{width:100%;background:#0b0d1f;color:#f3ead2;border-top:1px solid #c9a227;border-radius:18px 18px 0 0;padding:18px 20px calc(20px + env(safe-area-inset-bottom));font-size:15px;line-height:1.6;}
         .taiji-install-sheet h2{margin:0 0 10px;font-size:17px;color:#f5d27a;}
