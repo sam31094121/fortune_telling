@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   INSTALL_SHIELD_DISMISS_KEY,
+  INSTALL_SHIELD_LEGACY_KEYS,
+  isDismissFlick,
+  wantsShieldReset,
   detectInAppBrowser,
   detectPlatform,
   withOpenExternalBrowser,
@@ -32,7 +35,7 @@ export default function InstallShield080() {
   const [sheet, setSheet] = useState<'ios' | 'android-manual' | null>(null);
   const [drag, setDrag] = useState({ x: 0, y: 0 });
   const [leaving, setLeaving] = useState<null | 'left' | 'down'>(null);
-  const dragStart = useRef<{ x: number; y: number; id: number } | null>(null);
+  const dragStart = useRef<{ x: number; y: number; id: number; t: number } | null>(null);
   const swiped = useRef(false);
   const sheetStartY = useRef<number | null>(null);
   const [sheetDy, setSheetDy] = useState(0);
@@ -40,6 +43,8 @@ export default function InstallShield080() {
   useEffect(() => {
     let dismissed = false;
     try {
+      INSTALL_SHIELD_LEGACY_KEYS.forEach((k) => window.localStorage.removeItem(k));
+      if (wantsShieldReset(window.location.search)) window.localStorage.removeItem(INSTALL_SHIELD_DISMISS_KEY);
       dismissed = window.localStorage.getItem(INSTALL_SHIELD_DISMISS_KEY) === '1';
     } catch {
       /* 私密模式等情況忽略 */
@@ -75,7 +80,7 @@ export default function InstallShield080() {
 
   // 「滑掉」：往左或往下滑超過 40px 就收起並記住。
   const onPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
-    dragStart.current = { x: e.clientX, y: e.clientY, id: e.pointerId };
+    dragStart.current = { x: e.clientX, y: e.clientY, id: e.pointerId, t: Date.now() };
     swiped.current = false;
     e.currentTarget.setPointerCapture?.(e.pointerId);
   };
@@ -93,9 +98,9 @@ export default function InstallShield080() {
     if (!s) return;
     const dx = e.clientX - s.x;
     const dy = e.clientY - s.y;
-    if (dx < -40 || dy > 40) {
+    if (isDismissFlick(dx, dy, Date.now() - s.t)) {
       swiped.current = true;
-      setLeaving(dx < -40 && -dx >= dy ? 'left' : 'down');
+      setLeaving(dx < 0 && -dx >= dy ? 'left' : 'down');
       window.setTimeout(dismiss, 220);
     } else {
       setDrag({ x: 0, y: 0 });
@@ -128,8 +133,8 @@ export default function InstallShield080() {
     <>
       <style>{`
         .taiji-install-shield{transition:transform .22s ease,opacity .22s ease;position:fixed;left:max(14px,env(safe-area-inset-left));bottom:calc(18px + env(safe-area-inset-bottom));z-index:2147483000;display:flex;flex-direction:column;align-items:center;gap:2px;}
-        .taiji-install-shield button.main{width:${SHIELD_SIZE_PX}px;height:${SHIELD_SIZE_PX}px;padding:0;border:0;background:transparent;filter:drop-shadow(0 3px 8px rgba(0,0,0,.55));cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:none!important;user-select:none;-webkit-user-select:none;}
-        .taiji-install-shield button.main img{width:100%;height:100%;object-fit:contain;display:block;}
+        .taiji-install-shield button.main{display:flex;flex-direction:column;align-items:center;gap:2px;width:auto;min-width:0;min-height:0;height:auto;margin:0;padding:4px 5px 4px;border-radius:14px;border:1px solid rgba(245,210,122,.45);background:rgba(5,6,18,.86);box-shadow:0 4px 14px rgba(0,0,0,.55);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:none!important;user-select:none;-webkit-user-select:none;}
+        .taiji-install-shield button.main img{width:${SHIELD_SIZE_PX}px;height:${SHIELD_SIZE_PX}px;object-fit:contain;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));}
         .taiji-install-shield .label{font-size:10px;line-height:1;color:#f5d27a;text-shadow:0 1px 2px #000;letter-spacing:.05em;}
         .taiji-install-sheet-bg{position:fixed;inset:0;z-index:2147483001;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;}
         .taiji-install-sheet{width:100%;background:#0b0d1f;color:#f3ead2;border-top:1px solid #c9a227;border-radius:18px 18px 0 0;padding:18px 20px calc(20px + env(safe-area-inset-bottom));font-size:15px;line-height:1.6;}
@@ -161,8 +166,9 @@ export default function InstallShield080() {
           aria-label={inApp ? '用瀏覽器開啟以儲存本站' : '儲存本站到主畫面'}
         >
           <img src="/pwa/save-shield-080.png" alt="080 金盾牌" width={SHIELD_SIZE_PX} height={SHIELD_SIZE_PX} />
+        
+          <span className="label">{inApp ? '開瀏覽器' : '存到桌面'}</span>
         </button>
-        <span className="label">{inApp ? '開瀏覽器' : '存到桌面'}</span>
       </div>
       {sheet ? (
         <div className="taiji-install-sheet-bg" role="dialog" aria-modal="true" onClick={() => setSheet(null)}>

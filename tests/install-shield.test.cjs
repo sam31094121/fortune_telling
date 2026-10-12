@@ -19,4 +19,16 @@ assert.strictEqual(m.detectPlatform('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_1
 assert.strictEqual(m.withOpenExternalBrowser('https://a.tw/'), 'https://a.tw/?openExternalBrowser=1');
 assert.strictEqual(m.withOpenExternalBrowser('https://a.tw/bazi?x=1&y=%E5%A4%AA#top'), 'https://a.tw/bazi?x=1&y=%E5%A4%AA&openExternalBrowser=1#top');
 assert.strictEqual(m.withOpenExternalBrowser('https://a.tw/?openExternalBrowser=1&a=2'), 'https://a.tw/?openExternalBrowser=1&a=2');
-console.log('install-shield tests: 13 passed');
+assert.strictEqual(m.INSTALL_SHIELD_DISMISS_KEY, 'taiji-install-shield-dismissed-v2');
+assert.ok(m.INSTALL_SHIELD_LEGACY_KEYS.includes('taiji-install-shield-dismissed-v1'));
+assert.strictEqual(m.isDismissFlick(-80, 10, 200), true);
+assert.strictEqual(m.isDismissFlick(0, 90, 200), true);
+assert.strictEqual(m.isDismissFlick(-45, 0, 200), false);
+assert.strictEqual(m.isDismissFlick(-70, 50, 200), false);
+assert.strictEqual(m.isDismissFlick(30, 90, 200), true);
+assert.strictEqual(m.isDismissFlick(50, 80, 200), false);
+assert.strictEqual(m.isDismissFlick(0, -200, 200), false);
+assert.strictEqual(m.isDismissFlick(-100, 0, 1200), false);
+assert.strictEqual(m.wantsShieldReset('?resetShield=1&a=2'), true);
+assert.strictEqual(m.wantsShieldReset('?a=2'), false);
+console.log('install-shield tests: 25 passed');

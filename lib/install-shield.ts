@@ -2,7 +2,22 @@
 export type InAppBrowser = 'line' | 'facebook' | 'instagram' | null;
 export type InstallPlatform = 'ios' | 'android' | 'other';
 
-export const INSTALL_SHIELD_DISMISS_KEY = 'taiji-install-shield-dismissed-v1';
+// v2：舊版 v1（有 × 的版本、或誤滑）留下的收起紀錄一律作廢，讓盾牌重新出現。
+export const INSTALL_SHIELD_DISMISS_KEY = 'taiji-install-shield-dismissed-v2';
+export const INSTALL_SHIELD_LEGACY_KEYS = ['taiji-install-shield-dismissed-v1'];
+
+/** 判斷是否為「明確的滑掉」：往左或往下、夠遠、方向明確、夠快。 */
+export function isDismissFlick(dx: number, dy: number, ms: number): boolean {
+  if (ms > 700) return false;
+  const left = dx <= -60 && Math.abs(dx) >= 2 * Math.abs(dy);
+  const down = dy >= 70 && dy >= 2 * Math.abs(dx);
+  return left || down;
+}
+
+/** 網址帶 ?resetShield=1 時清除收起紀錄。 */
+export function wantsShieldReset(search: string): boolean {
+  return new URLSearchParams(search).get('resetShield') === '1';
+}
 
 export function detectInAppBrowser(ua: string): InAppBrowser {
   if (/\sLine\//i.test(ua)) return 'line';
