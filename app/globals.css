@@ -27000,3 +27000,52 @@ a.home-feature-launch::after {
 #home-eight-card-route a[href="/ghost-asura"]:active [class*="GhostAsuraHomeEntry_cta"] {
   filter: brightness(0.96) !important;
 }
+
+/* 2026-10-12 homepage shield-080 gold theme (COLOR ONLY, scoped to / via body:has(#home-eight-card-route)) */
+body:has(#home-eight-card-route) {
+  --home-accent: var(--shield-080);
+  --home-base: #08070d;
+  --home-card-base: #0e0c14;
+  --home-ink: #1a1205;
+  --text-main: #f3ead3;
+  --text-sub: #cfc4a8;
+  --text-muted: #a3977a;
+  --earth-gold: var(--shield-080);
+  --home-gold-btn: linear-gradient(135deg, var(--shield-gold-light) 0%, var(--shield-080) 50%, var(--shield-gold-dark) 100%);
+  background-color: var(--home-base) !important;
+  color: var(--text-main);
+}
+body:has(#home-eight-card-route) :is(header, main) :is(h1, h2, h3):not(.home-hero-stage *) {
+  color: var(--shield-gold-light) !important;
+}
+body:has(#home-eight-card-route) :is(header, main) :is(section, .rounded-3xl, .rounded-2xl):not(.home-hero-stage *):not([class*="emerald"]):not([class*="red-"]):not(.home-feature-cta):not(button) {
+  border-color: color-mix(in srgb, var(--home-accent) 30%, transparent) !important;
+}
+body:has(#home-eight-card-route) main :is(hr, [class*="divide-"] > *) {
+  border-color: color-mix(in srgb, var(--home-accent) 22%, transparent) !important;
+}
+body:has(#home-eight-card-route) main :is(span, div)[class*="rounded-full"][class*="text-["]:not(.home-hero-stage *):not([class*="emerald"]):not([class*="red-"]):not(button *) {
+  border-color: color-mix(in srgb, var(--home-accent) 38%, transparent) !important;
+  background-color: color-mix(in srgb, var(--home-accent) 9%, transparent) !important;
+  color: var(--shield-gold-light) !important;
+}
+body:has(#home-eight-card-route) .home-feature-launch {
+  border-color: color-mix(in srgb, var(--home-accent) 55%, transparent) !important;
+}
+#home-eight-card-route > div > .home-feature-launch,
+#home-eight-card-route [class*="StarBeastHomeCard_wrap"] .home-feature-launch {
+  background: linear-gradient(var(--c-angle, 135deg), var(--c-tint, rgba(249,200,81,.12)), rgba(14,12,20,0) 62%), var(--home-card-base) !important;
+  border-color: color-mix(in srgb, var(--home-accent) 60%, var(--c-border, var(--home-accent)) 40%) !important;
+}
+#home-eight-card-route .home-feature-launch h2 ~ p { color: var(--text-sub) !important; }
+body:has(#home-eight-card-route) main .home-feature-launch:not([class*="GhostAsura"]) .home-feature-cta,
+body:has(#home-eight-card-route) .home-feature-more-toggle[aria-expanded="true"] {
+  background: var(--home-gold-btn) !important;
+  border-color: var(--shield-gold-dark) !important;
+  color: var(--home-ink) !important;
+  text-shadow: none !important;
+}
+body:has(#home-eight-card-route) main .home-feature-launch:not([class*="GhostAsura"]) .home-feature-cta * { color: inherit !important; }/* typography fixes (genuine issues only): heading balance, paragraph orphans, CJK punctuation breaks, star-beast body floor */
+#home-eight-card-route .home-feature-launch :is(h2, h3) { text-wrap: balance; line-break: strict; }
+#home-eight-card-route .home-feature-launch p { text-wrap: pretty; line-break: strict; }
+#home-eight-card-route [class*="StarBeastHomeCard_wrap"] p { font-size: 12px !important; line-height: 1.5 !important; }
