@@ -2882,7 +2882,7 @@ export default function HomePage() {
 
             <HomeTrustEvidence items={["免費試算","需兩人資料","免登入"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 px-5 py-3 text-xs font-bold text-rose-200 transition group-hover:bg-rose-500/25">
-              <span><HomeTranslatedText text={"立即開啟配對"} /></span>
+              <span><HomeTranslatedText text={"請點我開啟"} /></span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>
@@ -2919,7 +2919,7 @@ export default function HomePage() {
 
             <HomeTrustEvidence items={["免費生成", "依生辰", "可重聽"]} />
             <div className="home-feature-cta home-music-cta flex items-center gap-2 rounded-xl border border-violet-500/40 bg-violet-950/30 px-5 py-3 text-xs font-bold text-violet-200 transition group-hover:bg-violet-500/25">
-              <span><HomeTranslatedText text={"立即生成歌曲"} /></span>
+              <span><HomeTranslatedText text={"請點我開啟"} /></span>
               <span className="transition-transform group-hover:translate-x-1.5">{"\u279c"}</span>
             </div>
           </Link>
@@ -2951,7 +2951,7 @@ export default function HomePage() {
 
             <HomeTrustEvidence items={["免費","需姓名","免登入"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-950/30 px-5 py-3 text-xs font-bold text-amber-200 transition group-hover:bg-amber-500/25">
-              <span><HomeTranslatedText text={"開啟姓名決策"} /></span>
+              <span><HomeTranslatedText text={"請點我開啟"} /></span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>
@@ -2983,7 +2983,7 @@ export default function HomePage() {
             
             <HomeTrustEvidence items={["免費","約 30 秒","只需數字"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-950/30 px-5 py-3 text-xs font-bold text-cyan-200 transition group-hover:bg-cyan-500/25">
-              <span><HomeTranslatedText text={"立即開始"} /></span>
+              <span><HomeTranslatedText text={"請點我開啟"} /></span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>
@@ -3019,7 +3019,7 @@ export default function HomePage() {
 
             <HomeTrustEvidence items={["需生辰","看長期方向","免登入"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-indigo-500/40 bg-indigo-950/30 px-5 py-3 text-xs font-bold text-indigo-200 transition group-hover:bg-indigo-500/25">
-              <span>{ziweiOpening ? '正在開啟紫微…' : '立即開啟紫微'}</span>
+              <span>{ziweiOpening ? '正在開啟紫微…' : <HomeTranslatedText text="請點我開啟" />}</span>
               <span className={`transition-transform ${ziweiOpening ? 'animate-pulse' : 'group-hover:translate-x-1.5'}`}>→</span>
             </div>
           </Link>
@@ -3056,7 +3056,7 @@ export default function HomePage() {
 
             <HomeTrustEvidence items={["需生辰","正統排盤","免登入"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-950/30 px-5 py-3 text-xs font-bold text-emerald-200 transition group-hover:bg-emerald-500/25">
-              <span><HomeTranslatedText text={"立即開啟命盤"} /></span>
+              <span><HomeTranslatedText text={"請點我開啟"} /></span>
               <span className="transition-transform group-hover:translate-x-1.5">{'\u279c'}</span>
             </div>
           </Link>
@@ -3083,7 +3083,7 @@ export default function HomePage() {
             </div>
 
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-violet-500/40 bg-violet-950/30 px-5 py-3 text-xs font-bold text-violet-200 transition group-hover:bg-violet-500/25">
-              <span>{readingCopy.enter}</span>
+              <span><HomeTranslatedText text="請點我開啟" /></span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>
@@ -3124,7 +3124,7 @@ export default function HomePage() {
 
             <HomeTrustEvidence items={["免費", "需生日", "約 20 秒"]} />
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-fuchsia-400/40 bg-fuchsia-950/30 px-5 py-3 text-xs font-bold text-fuchsia-100 transition group-hover:bg-fuchsia-500/20">
-              <span><HomeTranslatedText text={"開始星座分析"} /></span>
+              <span><HomeTranslatedText text={"請點我開啟"} /></span>
               <span className="transition-transform group-hover:translate-x-1.5">{'\u279c'}</span>
             </div>
           </Link>
@@ -3162,7 +3162,7 @@ export default function HomePage() {
               </div>
               <HomeTrustEvidence items={["免費","一抽即見","免登入"]} />
             <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-rose-100/45 bg-rose-200/12 px-5 py-3 text-xs font-bold text-rose-50 transition group-hover:bg-rose-200/22">
-                <span><HomeTranslatedText text={"抽出我的心動月份"} /></span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
+                <span><HomeTranslatedText text={"請點我開啟"} /></span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
               </div>
             </Link>
           )}
@@ -3217,7 +3217,7 @@ export default function HomePage() {
             </div>
             <HomeTrustEvidence items={["免費體驗", "可旋轉", "非付費牆"]} />
             <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-violet-200/40 bg-violet-300/15 px-5 py-3 text-xs font-bold text-violet-50 transition group-hover:bg-violet-300/25">
-              <span><HomeTranslatedText text={"打開模型工作室"} /></span>
+              <span><HomeTranslatedText text={"請點我開啟"} /></span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>

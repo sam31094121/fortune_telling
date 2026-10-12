@@ -26900,6 +26900,8 @@ a.home-feature-launch::after {
   --shield-gold-deep: #975905;
   --shield-080: #f9c851; /* median of the two '0' digit strokes */
   --shield-080-eight: #fb9e08; /* median warm tone of the rainbow '8' */
+  /* rainbow '8' sampled top->bottom in 6 bands; 60% stop lightened from #1e626f for AA with #1a1205 */
+  --shield-080-eight-gradient: linear-gradient(180deg, #909c00 0%, #fd722a 20%, #fdb303 40%, #5d8c96 60%, #019999 80%, #fcac01 100%);
 }
 #home-eight-card-route > div > .home-feature-launch {
   padding: 20px 16px !important;
@@ -27048,4 +27050,42 @@ body:has(#home-eight-card-route) .home-feature-more-toggle[aria-expanded="true"]
 body:has(#home-eight-card-route) main .home-feature-launch:not([class*="GhostAsura"]) .home-feature-cta * { color: inherit !important; }/* typography fixes (genuine issues only): heading balance, paragraph orphans, CJK punctuation breaks, star-beast body floor */
 #home-eight-card-route .home-feature-launch :is(h2, h3) { text-wrap: balance; line-break: strict; }
 #home-eight-card-route .home-feature-launch p { text-wrap: pretty; line-break: strict; }
-#home-eight-card-route [class*="StarBeastHomeCard_wrap"] p { font-size: 12px !important; line-height: 1.5 !important; }
+#home-eight-card-route [class*="StarBeastHomeCard_wrap"] p { font-size: 12px !important; line-height: 1.5 !important; }/* 2026-10-12 unified card CTA (請點我開啟): 48px, same font/padding, pinned to card bottom; hover/active = shield '8' tone */
+#home-eight-card-route .home-feature-launch:not([class*="GhostAsura"]) {
+  display: flex !important;
+  flex-direction: column !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+}
+#home-eight-card-route .home-feature-launch:not([class*="GhostAsura"]) .home-feature-cta {
+  box-sizing: border-box !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin-top: auto !important;
+  align-self: stretch !important;
+  flex: 0 0 auto !important;
+  justify-content: center !important;
+  padding: 0 20px !important;
+  font-size: 15px !important;
+  line-height: 1 !important;
+  border-radius: 14px !important;
+  transition: background .15s ease, transform .12s ease, box-shadow .15s ease !important;
+}
+@media (min-width: 640px) {
+  #home-eight-card-route .home-feature-launch:not([class*="GhostAsura"]) .home-feature-cta { width: 280px !important; align-self: flex-start !important; }
+}
+body:has(#home-eight-card-route) main .home-feature-launch:not([class*="GhostAsura"]):is(:hover, :active, :focus-visible) .home-feature-cta,
+body:has(#home-eight-card-route) main .home-feature-launch:not([class*="GhostAsura"]) .home-feature-cta:is(:hover, :active, :focus-visible) {
+  background: var(--shield-080-eight-gradient) !important;
+  color: var(--home-ink) !important;
+  text-shadow: 0 0 2px rgba(255,255,255,.35) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--shield-080-eight) 45%, transparent) !important;
+}
+body:has(#home-eight-card-route) main .home-feature-launch:not([class*="GhostAsura"]):active .home-feature-cta,
+body:has(#home-eight-card-route) main .home-feature-launch:not([class*="GhostAsura"]) .home-feature-cta:active { transform: scale(.98); }#home-eight-card-route .home-feature-launch:not([class*="GhostAsura"]) .home-feature-cta { white-space: nowrap !important; overflow: hidden !important; }
+#home-eight-card-route .home-feature-launch:not([class*="GhostAsura"]) .home-feature-cta > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#home-eight-card-route .home-feature-launch:not([class*="GhostAsura"]) .home-feature-cta { margin-left: 0 !important; margin-right: 0 !important; }
+#home-eight-card-route [class*="StarBeastHomeCard_wrap"] .home-feature-launch { padding: 20px 16px !important; }
+@media (min-width: 640px) { #home-eight-card-route [class*="StarBeastHomeCard_wrap"] .home-feature-launch { padding: 24px !important; } }

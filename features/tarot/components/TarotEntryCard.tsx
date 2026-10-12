@@ -39,7 +39,7 @@ export default function TarotEntryCard() {
 
       <HomeTrustEvidence items={["免費", "親手抽牌", "免登入"]} />
       <div className="tarot-entry-cta home-feature-cta relative flex items-center gap-2 rounded-xl border border-cyan-200/45 bg-cyan-950/30 px-5 py-3 text-xs font-bold text-cyan-50 transition group-hover:bg-cyan-300/20">
-        <span><HomeTranslatedText text={"觸碰抽牌"} /></span>
+        <span><HomeTranslatedText text={"請點我開啟"} /></span>
         <span className="tarot-entry-cta__icon transition-transform group-hover:translate-x-1.5">→</span>
       </div>
     </Link>
