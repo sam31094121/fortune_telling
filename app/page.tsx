@@ -3106,7 +3106,7 @@ export default function HomePage() {
             </div>
 
             <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-violet-500/40 bg-violet-950/30 px-5 py-3 text-xs font-bold text-violet-200 transition group-hover:bg-violet-500/25">
-              <span><HomeTranslatedText text="請點我開啟" /></span>
+              <span><HomeTranslatedText text="輸入密碼" /></span>
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>
