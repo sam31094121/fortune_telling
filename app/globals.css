@@ -27077,6 +27077,7 @@ body:has(#home-eight-card-route) main .home-feature-launch .home-feature-cta * {
   #home-eight-card-route .home-feature-launch .home-feature-cta { width: 280px !important; align-self: flex-start !important; }
 }
 body:has(#home-eight-card-route) main .home-feature-launch:is(:hover, :active, :focus-visible) .home-feature-cta,
+body:has(#home-eight-card-route) main .home-feature-launch.is-pressed .home-feature-cta,
 body:has(#home-eight-card-route) main .home-feature-launch .home-feature-cta:is(:hover, :active, :focus-visible) {
   background: var(--shield-080-eight-gradient) !important;
   color: var(--home-ink) !important;
@@ -27084,6 +27085,7 @@ body:has(#home-eight-card-route) main .home-feature-launch .home-feature-cta:is(
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--shield-080-eight) 45%, transparent) !important;
 }
 body:has(#home-eight-card-route) main .home-feature-launch:active .home-feature-cta,
+body:has(#home-eight-card-route) main .home-feature-launch.is-pressed .home-feature-cta,
 body:has(#home-eight-card-route) main .home-feature-launch .home-feature-cta:active { transform: scale(.98); }#home-eight-card-route .home-feature-launch .home-feature-cta { white-space: nowrap !important; overflow: hidden !important; }
 #home-eight-card-route .home-feature-launch .home-feature-cta > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #home-eight-card-route .home-feature-launch .home-feature-cta { margin-left: 0 !important; margin-right: 0 !important; }

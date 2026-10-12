@@ -1545,9 +1545,26 @@ export default function HomePage() {
   const [showMoreFeatures, setShowMoreFeatures] = useState(false);
   // ios-active-touch: iOS Safari only applies :active on touch when a touchstart listener exists (pressed colour on 請點我開啟 buttons).
   useEffect(() => {
-    const noop = () => {};
-    document.addEventListener('touchstart', noop, { passive: true });
-    return () => document.removeEventListener('touchstart', noop);
+    // Also mark the touched card so its CTA shows the pressed colour on every touch device.
+    let pressed: Element | null = null;
+    const release = () => { pressed?.classList.remove('is-pressed'); pressed = null; };
+    const press = (e: Event) => {
+      const card = (e.target as Element | null)?.closest?.('#home-eight-card-route .home-feature-launch');
+      if (!card) return;
+      release();
+      pressed = card;
+      card.classList.add('is-pressed');
+    };
+    document.addEventListener('touchstart', press, { passive: true });
+    document.addEventListener('touchend', release, { passive: true });
+    document.addEventListener('touchcancel', release, { passive: true });
+    window.addEventListener('scroll', release, { passive: true });
+    return () => {
+      document.removeEventListener('touchstart', press);
+      document.removeEventListener('touchend', release);
+      document.removeEventListener('touchcancel', release);
+      window.removeEventListener('scroll', release);
+    };
   }, []);
   const previousGrowthCountRef = useRef(0);
   const [ziweiOpening, setZiweiOpening] = useState(false);
