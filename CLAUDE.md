@@ -98,6 +98,7 @@ id 唯一、圖片存在、元素合法、數值合法、技能存在、平衡�
 - `來源登記.json`：走同一個來源閘門 `lib/iching-source-gate.ts`、同一份規格 `易經/來源治理.md`；狀態由程式算，外部條款未人工確認一律「待查核」。
 - 公信力鐵律：紫微斗數可以有古籍權威與排盤正確性，**不得寫成科學已證實**；排盤結果以三合一交叉核對為準（四柱來自 `lib/bazi/engine.ts`）。
 - 守門：`npm run test:iching-sources`（兩份登記表都檢查；名稱含 ziwei／紫微 的檔案沒登記就擋）、`npm run test:ziwei`、`npm run test:three-core`。
+- **古籍為準、交叉精準（業主定案 2026-10-12）**：星曜位置、亮度、四化一律以《紫微斗數全書》為準，iztro 只提供計算；與古籍不同處在 `lib/ziwei/engine.ts` 的 `createZiweiAstrolabe` 源頭改正，只留一個版本。口訣存檔 `data/ziwei/quanshu-rules.md`，每顆星的依據分類 `data/ziwei/quanshu-coverage.json`（古籍查無口訣者不得宣稱出自古籍）。**沒有國家級認證機構，禁止宣稱國家認證。** 守門：`node tests/ziwei-brightness-quanshu.test.cjs`、`node tests/ziwei-quanshu-reference.test.cjs`。
 
 ## 口令：《易經神煞》／「特星神煞」
 

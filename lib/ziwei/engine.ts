@@ -1,4 +1,5 @@
 import { astro } from 'iztro';
+import { quanshuBrightness } from './brightness-quanshu';
 import type { IFunctionalAstrolabe } from 'iztro/lib/astro/FunctionalAstrolabe';
 import type { IFunctionalPalace } from 'iztro/lib/astro/FunctionalPalace';
 import type { IFunctionalSurpalaces } from 'iztro/lib/astro/FunctionalSurpalaces';
@@ -234,9 +235,11 @@ function normalizePalace(rawPalace: IFunctionalPalace): ZiweiPalaceResult {
     const starName = normalizeStarName((rawStar as { name?: unknown }).name);
     if (!isMajorStarName(starName)) continue;
     const brightness = (rawStar as { brightness?: unknown }).brightness;
+    // 主星亮度以《紫微斗數全書》卷二廟旺表為準（iztro 在酉宮有三處與古籍不同），查不到才用 iztro。
+    const quanshu = quanshuBrightness(starName, String(rawPalace.earthlyBranch ?? ''));
     majorStarDetails.push({
       name: starName,
-      brightness: typeof brightness === 'string' && brightness ? brightness : undefined,
+      brightness: quanshu ?? (typeof brightness === 'string' && brightness ? brightness : undefined),
       mutagen: normalizeMutagen((rawStar as { mutagen?: unknown }).mutagen),
     });
   }
@@ -278,14 +281,52 @@ function normalizeSurrounded(surrounded: IFunctionalSurpalaces) {
   };
 }
 
+// 單一版本：排盤結果一律對齊《紫微斗數全書》。在排盤源頭改正，所有讀取者（含直接讀原始盤的）拿到同一份。
+//  1. 十四主星亮度 → 卷二廟旺表（iztro 在酉宮有三處不同）
+//  2. 壬干化科 → 天府（〈安祿權科忌四星變化詁〉「壬梁紫府武」；iztro 預設取左輔，屬另一流派）
+// 其餘（十二宮次序、命宮身宮、五行局、十四主星與輔星位置、命主身主、大限、長生起點、博士十二神）與古籍逐盤核對一致，維持 iztro 輸出。守門：tests/ziwei-brightness-quanshu.test.cjs
+const BRANCH_ORDER = '子丑寅卯辰巳午未申酉戌亥';
+
+function alignAstrolabeToQuanshu(astrolabe: IFunctionalAstrolabe): IFunctionalAstrolabe {
+  type Mutable = { name?: unknown; brightness?: string; mutagen?: string };
+  for (const palace of astrolabe.palaces) {
+    const branch = String(palace.earthlyBranch ?? '');
+    for (const star of (palace.majorStars ?? []) as Mutable[]) {
+      const fixed = quanshuBrightness(normalizeStarName(star.name), branch);
+      if (fixed) star.brightness = fixed;
+    }
+  }
+  const stars = astrolabe.palaces.flatMap((palace) => [...(palace.majorStars ?? []), ...(palace.minorStars ?? [])] as Mutable[]);
+  const zuofu = stars.find((star) => normalizeStarName(star.name) === '左輔' && normalizeMutagen(star.mutagen) === '科');
+  const tianfu = stars.find((star) => normalizeStarName(star.name) === '天府');
+  if (zuofu && tianfu) {
+    zuofu.mutagen = undefined;
+    tianfu.mutagen = '科';
+  }
+  // 3. 解神 → 〈安解神〉「解神從戌上起子，逆數至當生年太歲上是也」（以生年地支定位；iztro 另採他法）
+  const yearBranch = BRANCH_ORDER.indexOf(String(astrolabe.chineseDate ?? '').split(' ')[0]?.[1] ?? '');
+  if (yearBranch >= 0) {
+    const targetBranch = BRANCH_ORDER[(((10 - yearBranch) % 12) + 12) % 12];
+    let moved: unknown;
+    for (const palace of astrolabe.palaces) {
+      const list = palace.adjectiveStars as Mutable[];
+      const at = list.findIndex((star) => normalizeStarName(star.name) === '解神');
+      if (at >= 0) moved = list.splice(at, 1)[0];
+    }
+    const target = astrolabe.palaces.find((palace) => String(palace.earthlyBranch) === targetBranch);
+    if (moved && target) (target.adjectiveStars as unknown[]).push(moved);
+  }
+  return astrolabe;
+}
+
 export function createZiweiAstrolabe(input: ZiweiBirthInput): IFunctionalAstrolabe {
   assertValidZiweiTimeIndex(input.timeIndex);
 
   if (input.calendarType === 'solar') {
-    return astro.bySolar(input.date, input.timeIndex, input.gender, input.fixLeap ?? true, 'zh-TW');
+    return alignAstrolabeToQuanshu(astro.bySolar(input.date, input.timeIndex, input.gender, input.fixLeap ?? true, 'zh-TW'));
   }
 
-  return astro.byLunar(input.date, input.timeIndex, input.gender, input.isLeapMonth ?? false, input.fixLeap ?? true, 'zh-TW');
+  return alignAstrolabeToQuanshu(astro.byLunar(input.date, input.timeIndex, input.gender, input.isLeapMonth ?? false, input.fixLeap ?? true, 'zh-TW'));
 }
 
 export function extractMajorStars(palaces: ZiweiPalaceResult[]): ZiweiMajorStarPosition[] {

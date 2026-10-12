@@ -2,8 +2,8 @@
   "id": "ziwei",
   "name": "紫微斗數",
   "title": "紫微斗數技能正式檔",
-  "version": "1.0.0",
-  "updatedAt": "2026-09-16T00:00:00+08:00",
+  "version": "1.1.0",
+  "updatedAt": "2026-10-12T00:00:00+08:00",
   "sourceOfTruth": "docs/技能戰鬥檔案/紫微斗數/紫微斗數.json",
   "newbieDoc": "docs/技能戰鬥檔案/紫微斗數/新人檔案.md",
   "sourceGovernance": "docs/技能戰鬥檔案/易經/來源治理.md",
@@ -14,7 +14,7 @@
     "chart": {
       "entry": "lib/ziwei/chartEngine.ts",
       "core": "lib/ziwei/engine.ts",
-      "note": "排盤呼叫 iztro 的 astro；不得自行推算四柱"
+      "note": "排盤呼叫 iztro 的 astro 計算；星曜亮度、壬干化科、解神三項在 createZiweiAstrolabe 源頭改採《紫微斗數全書》；不得自行推算四柱"
     },
     "sanfang": {
       "entry": "lib/ziwei-sanfang-engine.ts",
@@ -25,7 +25,16 @@
       "lib/ziwei-teacher-synthesis.ts",
       "lib/ziwei-teacher/consensus.ts",
       "lib/ziwei-teacher/teachers.ts"
-    ]
+    ],
+    "quanshu": {
+      "authority": "《紫微斗數全書》卷一至卷三（古籍，公有領域）",
+      "reference": "lib/ziwei/quanshu-reference.ts（依口訣獨立計算，不依賴 iztro）",
+      "brightness": "lib/ziwei/brightness-quanshu.ts",
+      "rules": "data/ziwei/quanshu-rules.md",
+      "brightnessTable": "data/ziwei/quanshu-brightness-table.txt",
+      "coverage": "data/ziwei/quanshu-coverage.json",
+      "note": "每顆星的古籍依據分四類：口訣逐盤一致／口訣含糊但位置一致／古籍無口訣／書內矛盾；古籍無口訣者不得宣稱出自古籍"
+    }
   },
   "software": [
     {
@@ -33,7 +42,7 @@
       "version": "2.5.8",
       "license": "MIT",
       "repository": "https://github.com/SylarLong/iztro",
-      "role": "紫微斗數排盤（命盤、宮位、星曜、四化）"
+      "role": "紫微斗數排盤計算（命盤、宮位、星曜、四化）；星曜亮度、壬干化科、解神三項已由 lib/ziwei 以《紫微斗數全書》覆蓋"
     },
     {
       "package": "lunar-lite",
@@ -65,7 +74,7 @@
     }
   ],
   "verification": {
-    "measuredAt": "2026-09-16",
+    "measuredAt": "2026-10-12",
     "tests": [
       {
         "script": "npm run test:ziwei",
@@ -73,11 +82,11 @@
       },
       {
         "script": "npm run test:three-core",
-        "result": "三核心交叉驗證（八字→紫微→易經）PASS 103 / FAIL 0"
+        "result": "三核心交叉驗證（八字→紫微→易經）PASS 104 / FAIL 0"
       },
       {
         "script": "npm run test:three-in-one",
-        "result": "三合一整合層 PASS 136 / FAIL 0"
+        "result": "三合一整合層 PASS 142 / FAIL 0"
       },
       {
         "script": "npm run test:ziwei-unknown-time",
@@ -90,6 +99,14 @@
       {
         "script": "npm run test:true-solar-time",
         "result": "40 筆與原套件逐毫秒相同；已無 @ziweijs/core 相依（推送閘內）"
+      },
+      {
+        "script": "node tests/ziwei-brightness-quanshu.test.cjs",
+        "result": "亮度與四化對齊古籍：5303 項、244 盤、十個天干、240 條亮度逐條對照 PASS"
+      },
+      {
+        "script": "node tests/ziwei-quanshu-reference.test.cjs",
+        "result": "獨立計算對照引擎：67971 項、944 盤；十二宮、十四主星、36 顆有口訣的星、命主身主、大限、博士十二神 PASS"
       }
     ],
     "lockedSample": "1974-07-02 03:30 女 → 甲寅／庚午／甲辰／丙寅（八字與紫微四柱逐字一致）"
@@ -100,6 +117,8 @@
     "沒有出生時辰就不排紫微命盤（UNAVAILABLE_BIRTH_TIME_REQUIRED），不代填時辰",
     "前端不得自己編結論、自己算數字",
     "公信力分三件事講：古籍權威、排盤正確性、科學效度；紫微斗數不得寫成科學已證實",
-    "外部書目、網站條款、館藏數字未經人工確認，一律「待查核」"
+    "外部書目、網站條款、館藏數字未經人工確認，一律「待查核」",
+    "星曜位置、亮度、四化一律以《紫微斗數全書》為準，iztro 只提供計算；與古籍不同處以古籍改正，只留一個版本",
+    "古籍查無安星口訣的星（見 data/ziwei/quanshu-coverage.json 的 noQuanshuVerse）不得對客戶宣稱出自古籍；紫微斗數沒有國家級認證機構，不得宣稱國家認證"
   ]
 }

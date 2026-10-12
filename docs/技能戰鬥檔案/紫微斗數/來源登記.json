@@ -340,6 +340,109 @@
       "edition": "Journal of Consciousness Studies 10(6–7)，2003",
       "trust": "A",
       "note": "出生相差不到 5 分鐘的「時間雙胞胎」無相似性；40 餘項對照研究中占星師不優於機率（出版社頁 403，細節來自搜尋摘要，樣本數待查核）。"
+    },
+    {
+      "source_id": "S-TEST-ZIWEI-BRIGHTNESS",
+      "author": "本站",
+      "locator": "tests/ziwei-brightness-quanshu.test.cjs",
+      "data_type": "主星亮度守門測試（引擎輸出必須等於古籍卷二廟旺表）",
+      "kind": "測試",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "本站自有",
+      "accessed_at": "2026-10-12",
+      "trust": "A",
+      "edition": "1.0.0（2026-10-12）",
+      "tracked_path": "tests/ziwei-brightness-quanshu.test.cjs"
+    },
+    {
+      "source_id": "S-ZWDS-QUANSHU-TABLE",
+      "author": "題宋・陳摶（希夷）撰；明・潘希尹補輯（維基文庫數位錄文）",
+      "locator": "《紫微斗數全書》卷二〈安身命例〉廟旺表 https://zh.wikisource.org/wiki/紫微斗數全書/卷二",
+      "data_type": "紫微斗數古籍廟旺表（十四主星×十二宮）",
+      "kind": "原典",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "古籍原文屬公有領域；維基文庫錄文版面授權 CC BY-SA 4.0，條款未經人工確認，待查核",
+      "accessed_at": "2026-10-12",
+      "edition": "維基文庫錄文（2026-10-12 逐字核對 168 個主星×宮位條目）",
+      "trust": "A",
+      "note": "本站未向任何官方機關申請認證；紫微斗數沒有國家級認證機構，公信力僅來自古籍原典與可重現的逐條核對。"
+    },
+    {
+      "source_id": "S-QUANSHU-REFERENCE",
+      "author": "本站",
+      "locator": "lib/ziwei/quanshu-reference.ts",
+      "data_type": "依古籍口訣的獨立計算器（不依賴 iztro）",
+      "kind": "正式檔",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "本站自有",
+      "accessed_at": "2026-10-12",
+      "trust": "A",
+      "edition": "1.0.0（2026-10-12）",
+      "tracked_path": "lib/ziwei/quanshu-reference.ts"
+    },
+    {
+      "source_id": "S-ZIWEI-COVERAGE",
+      "author": "本站",
+      "locator": "data/ziwei/quanshu-coverage.json",
+      "data_type": "每顆星的古籍依據分類（verified／口訣含糊／古籍無口訣／書內矛盾）",
+      "kind": "正式檔",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "本站自有",
+      "accessed_at": "2026-10-12",
+      "trust": "A",
+      "edition": "1.0.0（2026-10-12）",
+      "tracked_path": "data/ziwei/quanshu-coverage.json"
+    },
+    {
+      "source_id": "S-TEST-ZIWEI-REFERENCE",
+      "author": "本站",
+      "locator": "tests/ziwei-quanshu-reference.test.cjs",
+      "data_type": "引擎對照古籍獨立計算守門測試（944 盤）",
+      "kind": "測試",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "本站自有",
+      "accessed_at": "2026-10-12",
+      "trust": "A",
+      "edition": "1.0.0（2026-10-12）",
+      "tracked_path": "tests/ziwei-quanshu-reference.test.cjs"
+    },
+    {
+      "source_id": "S-ZWDS-QUANSHU-RULES",
+      "author": "題宋・陳摶（希夷）撰；明・潘希尹補輯（維基文庫數位錄文）",
+      "locator": "data/ziwei/quanshu-rules.md（《紫微斗數全書》卷二安星口訣逐字存檔）",
+      "data_type": "紫微斗數古籍安星口訣",
+      "kind": "原典",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "古籍原文屬公有領域；維基文庫錄文版面 CC BY-SA 4.0，條款未經人工確認，待查核",
+      "accessed_at": "2026-10-12",
+      "edition": "維基文庫錄文（2026-10-12）",
+      "trust": "A",
+      "tracked_path": "data/ziwei/quanshu-rules.md",
+      "note": "逐字存檔供獨立核對；錄文簡體，第二行「甲戊」為「甲戌」之誤。"
     }
   ],
   "claims": [
@@ -380,7 +483,7 @@
           ],
           "difference": "iztro 明言不同流派四化與亮度有差異，提供 default／中州派；@ziweijs/core 為北派且壬干化科取左輔",
           "weight_note": "兩者皆 C 級軟體；本站未以第二套引擎逐盤對照",
-          "adopted": "本站採 iztro 預設流派，客戶畫面須標明流派，不宣稱「唯一正確盤」",
+          "adopted": "主星亮度與四化改採《紫微斗數全書》（見 C-ZIWEI-BRIGHTNESS），iztro 與古籍不同處已在排盤源頭改正；其餘維持 iztro 計算",
           "reason": "七張鎖定盤是 iztro 自身輸出的回歸鎖，缺第二引擎或曆法權威逐盤獨立對照，差異未解"
         }
       ],
@@ -468,6 +571,117 @@
       "conflicts": [],
       "status": "PENDING_POOL",
       "note": "找不到專門檢驗紫微斗數的同儕審查期刊論文；現有對照檢驗（Carlson 1985、Dean & Kelly 2003 為西洋占星；張惠清 2018 碩論、林聖軒研討會）皆未發現超越機率的效果。客戶文字只可定位為傳統與文化詮釋。"
+    },
+    {
+      "claim_id": "C-ZIWEI-BRIGHTNESS",
+      "title": "紫微斗數主星亮度與四化以《紫微斗數全書》為準（單一版本）",
+      "domain": "紫微斗數排盤",
+      "files": [
+        "lib/ziwei/brightness-quanshu.ts",
+        "lib/ziwei/engine.ts",
+        "data/ziwei/quanshu-brightness-table.txt",
+        "tests/ziwei-brightness-quanshu.test.cjs"
+      ],
+      "authority_files": [
+        "S-ZWDS-QUANSHU-TABLE",
+        "S-ZWDS-QUANSHU"
+      ],
+      "big_data_sources": [
+        "S-TEST-ZIWEI-BRIGHTNESS"
+      ],
+      "cross_references": [
+        "S-ZWDS-QUANSHU",
+        "S-IZTRO",
+        "S-TEST-ZIWEI-BRIGHTNESS"
+      ],
+      "conflicts": [
+        {
+          "topic": "iztro 2.5.8 與古籍在酉宮三處亮度不同",
+          "sources": [
+            "S-ZWDS-QUANSHU-TABLE",
+            "S-IZTRO"
+          ],
+          "difference": "168 個主星×宮位條目中 165 個一致；七殺@酉 古籍旺／iztro 廟；太陰@酉 古籍旺／iztro 不；太陽@酉 古籍平／iztro 陷",
+          "weight_note": "古籍原典（A）高於軟體（C）；iztro 是社群套件，非權威出版",
+          "adopted": "三處一律採古籍；其餘條目兩者一致，維持 iztro 輸出",
+          "reason": "2026-10-12 逐條核對卷二表格；錯誤版本（iztro 三處）已由 lib/ziwei/brightness-quanshu.ts 覆蓋，不再顯示給客戶"
+        },
+        {
+          "topic": "壬干化科：古籍天府／iztro 左輔",
+          "sources": [
+            "S-ZWDS-QUANSHU-TABLE",
+            "S-IZTRO"
+          ],
+          "difference": "古籍卷二〈安祿權科忌四星變化詁〉「壬梁紫府武」＝壬干 祿天梁 權紫微 科天府 忌武曲；iztro 預設壬干化科取左輔（另一流派）。其餘九干與古籍一致",
+          "weight_note": "古籍原典（A）高於軟體（C）",
+          "adopted": "採古籍：壬干化科＝天府",
+          "reason": "本站只留一個版本；在 lib/ziwei/engine.ts createZiweiAstrolabe 源頭改正，所有讀取者一致"
+        }
+      ],
+      "status": "CONFLICT",
+      "note": "亮度與四化一律以古籍為準，排盤源頭改正；守門 node tests/ziwei-brightness-quanshu.test.cjs（逐星對照古籍表，244 盤實排、十個天干四化）。"
+    },
+    {
+      "claim_id": "C-ZIWEI-PLACEMENT",
+      "title": "紫微斗數十二宮、十四主星、輔星小星安星位置以《紫微斗數全書》口訣為準（獨立計算逐盤交叉）",
+      "domain": "紫微斗數排盤",
+      "files": [
+        "lib/ziwei/engine.ts",
+        "lib/ziwei/quanshu-reference.ts",
+        "data/ziwei/quanshu-rules.md",
+        "data/ziwei/quanshu-coverage.json",
+        "tests/ziwei-quanshu-reference.test.cjs"
+      ],
+      "authority_files": [
+        "S-ZWDS-QUANSHU",
+        "S-ZWDS-QUANSHU-RULES"
+      ],
+      "big_data_sources": [
+        "S-TEST-ZIWEI-REFERENCE"
+      ],
+      "cross_references": [
+        "S-ZWDS-QUANSHU",
+        "S-QUANSHU-REFERENCE",
+        "S-IZTRO",
+        "S-LUNAR-TYPESCRIPT",
+        "S-TEST-ZIWEI-REFERENCE"
+      ],
+      "conflicts": [
+        {
+          "topic": "解神位置：古籍以生年太歲定位／iztro 另採他法",
+          "sources": [
+            "S-ZWDS-QUANSHU-RULES",
+            "S-IZTRO"
+          ],
+          "difference": "古籍〈安解神〉「戌上起子逆數至生年太歲」；iztro 在 944 盤中多數與古籍不同",
+          "weight_note": "古籍原典（A）高於軟體（C）",
+          "adopted": "採古籍，於 createZiweiAstrolabe 源頭改正",
+          "reason": "本站只留一個版本"
+        },
+        {
+          "topic": "長生十二神方向：古籍書內不一致",
+          "sources": [
+            "S-ZWDS-QUANSHU-RULES"
+          ],
+          "difference": "字面「男命順數、女命逆數」；同書大限、博士十二神為「陽男陰女順」",
+          "weight_note": "同一部原典內部矛盾，無法以原典自身裁定",
+          "adopted": "暫採陽男陰女順（與書內另兩處一致、通行讀法）",
+          "reason": "待業主裁定；不宣稱此項已與古籍一致"
+        },
+        {
+          "topic": "古籍卷一至卷三查無安星口訣的雜曜",
+          "sources": [
+            "S-ZWDS-QUANSHU-RULES",
+            "S-IZTRO"
+          ],
+          "difference": "孤辰、寡宿、咸池、華蓋、恩光、天貴、天官、天福、天才、天壽、破碎、天月、陰煞、天巫、年解、天德、月德、天廚、蜚廉（雜曜）、天空（雜曜）共 20 顆",
+          "weight_note": "非古籍全書所載，來自後世文獻或軟體",
+          "adopted": "目前仍由 iztro 提供；不得對客戶宣稱出自《紫微斗數全書》",
+          "reason": "去留待業主裁定（見 data/ziwei/quanshu-coverage.json）"
+        }
+      ],
+      "status": "CONFLICT",
+      "note": "十二宮次序、命宮、身宮、五行局、十四主星、36 顆有口訣的星逐盤一致（944 盤、67971 項）；10 顆口訣含糊者位置一致並於 coverage 標註。"
     }
   ]
 }

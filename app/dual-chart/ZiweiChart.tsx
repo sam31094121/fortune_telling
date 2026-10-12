@@ -49,7 +49,7 @@ export default function ZiweiChart({ result }: { result: DualChartResult }) {
       <p className={styles.stars}>{palace.majorStarDetails.length ? palace.majorStarDetails.map(star => `${star.name}${star.brightness ? `（${star.brightness}）` : ''}${star.mutagen ? ` · 化${star.mutagen}` : ''}`).join('、') : '無十四主星（空宮）'}</p>
       <p>輔星與雜曜：{palace.minorStars.map(star => `${star.name}${star.brightness ? `（${star.brightness}）` : ''}${star.mutagen ? ` · 化${star.mutagen}` : ''}`).join('、') || '無'}</p>
     </section>
-    <div className={styles.printLegend}><span>命宮：實線框 · 身宮：虛線框</span><span>四化：{['祿', '權', '科', '忌'].map(value => <b key={value} className={styles.badge} data-mutagen={value}>{value}</b>)}</span><span>亮度：廟、旺、得、利、平、不、陷；無標記表示引擎未提供。</span></div>
+    <div className={styles.printLegend}><span>命宮：實線框 · 身宮：虛線框</span><span>四化：{['祿', '權', '科', '忌'].map(value => <b key={value} className={styles.badge} data-mutagen={value}>{value}</b>)}</span><span>亮度依《紫微斗數全書》卷二廟旺表：廟、旺、得、利、平、不、陷；無標記表示引擎未提供。</span></div>
     <p className={styles.note}>排盤核心：{ziwei.engineVersion}。大限為引擎的虛歲區間；以所填出生日期、時辰排盤。</p>
   </>;
 }

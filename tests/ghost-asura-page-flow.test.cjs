@@ -67,6 +67,7 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/ghost-asura/GhostAsur
     if (id === '@/lib/ghost-asura-particles') return { initializeParticleSystem: () => {}, getParticleSystem: () => ({}), cleanupParticleSystem: () => {} };
     if (id === '@/features/ghost-asura/components/GhostAsuraCard') return { GhostAsuraCard: Card };
     if (id === '@/lib/dual-chart-form') return { dualChartHourStatus };
+    if (id === '@/lib/share-preview') return { withShareVersion: url => url };
     return require(id);
   },
 });
