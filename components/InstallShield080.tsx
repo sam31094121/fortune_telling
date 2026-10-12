@@ -361,7 +361,7 @@ export default function InstallShield080() {
         </button>
         {inlineOpen && !installed ? (
           <div className="panel" role="region" aria-label="安裝說明">
-            <h3>把太極命理放到手機主畫面</h3>
+            <h3>天地人和，一切隨緣</h3>
             <p className="lead">
               {guide === 'inapp'
                 ? '這裡是 LINE／臉書等 App 內建的瀏覽器，不能直接安裝，要先換到手機瀏覽器。'
