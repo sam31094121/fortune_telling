@@ -31,6 +31,7 @@ import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import FineDiningServiceProgress from '@/components/FineDiningServiceProgress';
 import TarotEntryCard from '@/features/tarot/components/TarotEntryCard';
+import TextSizeSwitch from '@/components/TextSizeSwitch';
 import StarBeastHomeCard from '@/components/StarBeastHomeCard';
 import GhostAsuraHomeEntry from '@/components/GhostAsuraHomeEntry';
 import { markPendingRoute, recoverFromChunkError } from '@/lib/chunk-recovery';
@@ -2721,6 +2722,7 @@ export default function HomePage() {
         </div>
 
                 <div className="home-first-screen-stack" data-home-order="1-3-taiji-quest">
+<TextSizeSwitch />
 <section
           aria-label="首頁箴言木板卡"
           data-home-step="1"

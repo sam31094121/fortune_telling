@@ -47,8 +47,31 @@ yes(typeStart > 0, '手機字體只留一份規則區塊');
 yes(css.indexOf('手機字體（唯一一份', typeStart + 1) === -1, '手機字體規則不得重複出現第二份');
 yes(!css.includes('手機首頁字體放大') && !css.includes('手機全站字體等比例放大'), '舊版分開寫的字體規則已移除');
 const scaleBlock = css.slice(typeStart, css.indexOf('客戶用兩指放大之後'));
-yes(scaleBlock.includes('html { font-size: 125%; }'), '手機基準字級要放大到 125%');
-yes(scaleBlock.includes('.text-\\[10px\\],') && scaleBlock.includes('.text-\\[11px\\] { font-size: 15px !important;'), '9–11px 的小字下限 15px');
-yes(scaleBlock.includes('.text-\\[12px\\] { font-size: 16px !important;'), '12px 的小字下限 16px');
+yes(scaleBlock.includes('html { font-size: 125%; --ts: 1; }'), '預設「中」：手機基準字級 125%、倍率 1');
+yes(scaleBlock.includes('.text-\\[10px\\],') && scaleBlock.includes('.text-\\[11px\\] { font-size: calc(15px * var(--ts, 1)) !important;'), '9–11px 的小字下限 15px（隨倍率）');
+yes(scaleBlock.includes('.text-\\[12px\\] { font-size: calc(16px * var(--ts, 1)) !important;'), '12px 的小字下限 16px（隨倍率）');
+
+// 6. 客戶自選字體大小：設定只有一份（lib/text-size.ts），CSS 四檔與設定一致，開關接在首頁與載入前腳本
+const ts = read('lib/text-size.ts');
+const options = [...ts.matchAll(/\{ id: '(\w+)', label: '([^']+)', rootPercent: ([\d.]+), scale: ([\d.]+) \}/g)].map((m) => ({ id: m[1], label: m[2], rootPercent: m[3], scale: m[4] }));
+yes(options.length === 4, '字體大小四檔：小、中、大、特大');
+yes(/TEXT_SIZE_DEFAULT: TextSizeId = 'medium'/.test(ts), '預設標準是「中」');
+const medium = options.find((o) => o.id === 'medium');
+yes(medium.rootPercent === '125' && medium.scale === '1', '「中」必須等於上線的放大版基準字級（125%、倍率 1）');
+for (const o of options.filter((x) => x.id !== 'medium')) {
+  const pct = o.rootPercent;
+  yes(scaleBlock.includes('html[data-text-size="' + o.id + '"] { font-size: ' + pct + '%; --ts: ' + o.scale + '; }'), '檔位 ' + o.id + ' 的根字級與倍率要和設定一致');
+}
+yes(read('app/page.tsx').includes('<TextSizeSwitch />'), '首頁要放字體大小開關');
+yes(read('app/layout.tsx').includes('TEXT_SIZE_INIT_SCRIPT'), '載入前腳本要接在 layout，避免先閃標準大小');
+yes(read('app/layout.tsx').includes('<html lang="zh-Hant" suppressHydrationWarning>'), '<html> 要加 suppressHydrationWarning，載入前腳本加的屬性才不會造成 hydration 警告');
+yes(ts.includes("setAttribute('data-text-size'") && ts.includes("removeAttribute('data-text-size')"), '預設「中」不加屬性，其餘三檔才加');
+const switchSource = read('components/TextSizeSwitch.tsx');
+yes(switchSource.includes('aria-pressed') && switchSource.includes('saveTextSize'), '開關要標示目前選擇並記住');
+// 頁面自己寫死像素的手機字級也要隨倍率
+for (const f of ['app/ghost-asura/ghost-asura.module.css', 'app/dual-chart/dual-chart.module.css']) {
+  const tail = read(f).slice(read(f).lastIndexOf('手機字體再加大一階'));
+  yes(!/font-size:\s*\d+px/.test(tail), f + ' 的手機字級要隨倍率（calc … var(--ts)）');
+}
 
 console.log(`mobile-zoom-pan: ${checks} checks passed`);

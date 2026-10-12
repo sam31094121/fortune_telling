@@ -6,6 +6,7 @@ import { InterfaceLanguageProvider } from '@/components/InterfaceLanguage';
 import ScreenArrowReview from '@/components/ScreenArrowReview';
 import InstallShield080 from '@/components/InstallShield080';
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
+import { TEXT_SIZE_INIT_SCRIPT } from '@/lib/text-size';
 import { TAROT_CARD_BACK_CSS_IMAGE } from '@/features/tarot/constants/cardBack';
 import {
   SHARE_DESCRIPTION,
@@ -86,9 +87,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // suppressHydrationWarning：載入前腳本會在 <html> 加 data-text-size（客戶自選字體大小），React 不必為這個屬性報不一致。
   return (
-    <html lang="zh-Hant">
+    <html lang="zh-Hant" suppressHydrationWarning>
       <head>
+        {/* 客戶自選的手機字體大小：頁面畫出來之前就套用，不會先閃一下標準大小。設定見 lib/text-size.ts */}
+        <script dangerouslySetInnerHTML={{ __html: TEXT_SIZE_INIT_SCRIPT }} />
         {/* 古老符咒毛筆字體：只用來畫魔珠封印上的「封」字，營造邪氣靈異的神秘感。 */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

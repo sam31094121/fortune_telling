@@ -1,0 +1,71 @@
+/* 字體大小開關：只在手機顯示；按鈕自己的字用固定像素，不隨選擇縮放，任何一檔都按得到、看得清。 */
+.bar {
+  display: none;
+}
+@media (max-width: 640px) {
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    background:
+      linear-gradient(180deg, #1c1c1a, #131311) padding-box,
+      linear-gradient(135deg, #fcea86 0%, #c48a29 45%, #975905 70%, #f8c758 100%) border-box;
+    box-shadow: inset 0 1px 0 rgba(252, 234, 134, 0.14), 0 4px 14px -6px rgba(0, 0, 0, 0.6);
+  }
+  .label {
+    flex: none;
+    color: #fcea86;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+  .options {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    flex: 1;
+    max-width: 260px;
+  }
+  .option {
+    min-height: 48px;
+    padding: 0 4px;
+    border: 1px solid rgba(248, 199, 88, 0.5);
+    border-radius: 12px;
+    background: #24231f;
+    color: #f4efe4;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: background 0.15s ease, transform 0.12s ease;
+  }
+  .option { white-space: nowrap; }
+  .option:active { transform: scale(0.96); }
+  .option:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+  /* 每顆按鈕的字大小就是它代表的大小，一眼看懂 */
+  .size_small { font-size: 15px; }
+  .size_medium { font-size: 17px; }
+  .size_large { font-size: 19px; }
+  .size_xlarge { font-size: 21px; }
+  .option[aria-pressed='true'] {
+    border-color: #fcea86;
+    background: linear-gradient(180deg, #fcea86 0%, #f8c758 45%, #c48a29 100%);
+    color: #1a1205;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 0 12px rgba(248, 199, 88, 0.45);
+  }
+}
+/* 很窄的手機：標題在上、四顆按鈕在下一整排，「特大」不會被擠成兩行 */
+@media (max-width: 380px) {
+  .bar { flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .options { flex: 1 1 100%; max-width: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .option { transition: none; }
+}

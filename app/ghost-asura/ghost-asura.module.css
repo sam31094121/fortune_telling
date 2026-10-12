@@ -1025,10 +1025,10 @@
 
 /* 手機字體再加大一階（2026-10-12 真手機回報：一進去字還是太小）。與 globals.css 的「手機字體（唯一一份）」一起使用。 */
 @media (max-width: 640px) {
-  .intro { font-size: 17px; }
-  .note { font-size: 16px; }
-  .eyebrow { font-size: 15px; }
-  .nav a, .nav button { font-size: 15px; }
-  .stepLabel { font-size: 14px; }
-  .inputPanel :global(.mega-submit-guide) { font-size: 15px; }
+  .intro { font-size: calc(17px * var(--ts, 1)); }
+  .note { font-size: calc(16px * var(--ts, 1)); }
+  .eyebrow { font-size: calc(15px * var(--ts, 1)); }
+  .nav a, .nav button { font-size: calc(15px * var(--ts, 1)); }
+  .stepLabel { font-size: calc(14px * var(--ts, 1)); }
+  .inputPanel :global(.mega-submit-guide) { font-size: calc(15px * var(--ts, 1)); }
 }

@@ -54,4 +54,5 @@ export const homeEnglishCopy: Record<string, string> = {
   '約 20 秒': 'About 20 seconds', '免費瀏覽': 'Free to browse', '60 種可看': '60 creatures', '先看再玩': 'Browse, then play',
   '請點我開啟': 'Tap here to open',
   '輸入密碼': 'Enter password',
+  '字體大小': 'Text size', '小': 'S', '中': 'M', '大': 'L', '特大': 'XL',
 };
