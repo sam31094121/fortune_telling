@@ -10,48 +10,9 @@
 const fs = require('fs');
 const path = require('path');
 
-// 簡單的測試斷言助手
-const assert = (condition, message) => {
-  if (!condition) throw new Error(`❌ ${message}`);
-  console.log(`  ✓ ${message}`);
-};
-
-const assertMatch = (text, regex, message) => {
-  if (!regex.test(text)) throw new Error(`❌ ${message}`);
-  console.log(`  ✓ ${message}`);
-};
-
-const assertNotMatch = (text, regex, message) => {
-  if (regex.test(text)) throw new Error(`❌ ${message}`);
-  console.log(`  ✓ ${message}`);
-};
-
-// 測試套件
-class MichelinStabilityTest {
-  runAll() {
-    console.log('\n🏆 米其林穩定性 - 完整守門測試\n');
-
-    try {
-      this.testP0();
-      this.testP1();
-      this.testP2();
-      this.testIntegration();
-
-      console.log('\n✅ 全部測試通過！米其林穩定性 95/100\n');
-    } catch (error) {
-      console.error('\n❌ 測試失敗：\n', error.message, '\n');
-      process.exit(1);
-    }
-  }
-
-  testP0() {
-    console.log('【P0 級：後端業務邏輯完整性】');
-
-    const dualChartPath = path.join(process.cwd(), 'lib', 'dual-chart.ts');
-    const baziChartPath = path.join(process.cwd(), 'app', 'dual-chart', 'BaziChart.tsx');
-
-    const dualChartCode = fs.readFileSync(dualChartPath, 'utf-8');
-    const baziChartCode = fs.readFileSync(baziChartPath, 'utf-8');
+// 16:12 修正：原第 13–54 行是半成品的 class 包裝（MichelinStabilityTest.runAll／testP0 未收尾、testP1/testP2/testIntegration 不存在），
+// 造成第 263 行語法錯誤、擋住整個專案的 tsc。測試本意是下方 describe/test/expect 四組守門，故改回外層 describe 包住四組，斷言一字不動。
+describe('米其林穩定性 - 綜合守門測試', () => {
   // ========== P0 級：後端責任完整性 ==========
   describe('P0 - 後端業務邏輯完整性', () => {
     let dualChartCode: string;
@@ -216,7 +177,7 @@ class MichelinStabilityTest {
       expect(p0Ready).toBe(true);
 
       // P1：前端無 fallback
-      const p1Ready = !baziChartCode.match(/??.*\w+\s*\?\s*{[\s\S]*?:\s*\[.*\]/);
+      const p1Ready = !baziChartCode.match(/\?\?.*\w+\s*\?\s*{[\s\S]*?:\s*\[.*\]/);
       expect(p1Ready).toBe(true);
 
       // P2：無 localStorage 依賴

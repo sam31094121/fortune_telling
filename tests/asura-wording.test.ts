@@ -119,7 +119,7 @@ describe('🔥 鬼魅阿修羅話術層測試', () => {
         '../app/single-shensha/IchingShenShaCard.tsx'
       );
       if (fs.existsSync(cardPath)) {
-        const cardContent = fs.readFileSync(cardContent, 'utf-8');
+        const cardContent = fs.readFileSync(cardPath, 'utf-8');
         // 找出所有可能自撰的中文句子（簡化檢查）
         const chinesePatterns = /['"`][一-龥]+[。，；]['"`]/g;
         const matches = cardContent.match(chinesePatterns) || [];
