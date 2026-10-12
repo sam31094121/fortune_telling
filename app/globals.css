@@ -27142,6 +27142,12 @@ body:has(#home-eight-card-route) main .home-feature-launch .home-feature-cta:act
   body:has(#home-eight-card-route) main small { font-size: max(1em, calc(15px * var(--ts, 1))); }
 }
 
+/* 電腦、平板（641px 以上）的字體大小：「中」＝原本的樣子（不加屬性、不放大），選「大」「特大」才放大。設定見 lib/text-size.ts。 */
+@media (min-width: 641px) {
+  html[data-text-size="large"] { font-size: 112.5%; }
+  html[data-text-size="xlarge"] { font-size: 125%; }
+}
+
 /* 客戶用兩指放大之後：首頁太極球（TaijiSystem 的 sphereWrapper 設了 touch-action: none）不再吃掉拖動與縮放，
    放大的畫面可以上下左右移動。旗標 data-pinch-zoomed 由 useTaijiFirstScreenScroll 設定；太極核心檔案本身（有雜湊鎖）不動。 */
 html[data-pinch-zoomed] [class*="TaijiSystem_sphereWrapper"] { touch-action: auto !important; }

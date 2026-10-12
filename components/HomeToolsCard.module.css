@@ -1,0 +1,106 @@
+/* 首頁工具卡片：一張卡片、一個金邊底、一組間距。
+   上排語言；下排左「存到桌面」金盾牌、右「字體大小」。手機、平板、電腦都顯示。
+   按鈕自己的字用固定像素，不隨字體選擇縮放，任何一檔都按得到、看得清。 */
+.wrap {
+  display: block;
+  width: 100%;
+  margin: 0 0 14px;
+}
+.card {
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, #1c1c1a, #131311) padding-box,
+    linear-gradient(135deg, #fcea86 0%, #c48a29 45%, #975905 70%, #f8c758 100%) border-box;
+  box-shadow: inset 0 1px 0 rgba(252, 234, 134, 0.14), 0 6px 18px -8px rgba(0, 0, 0, 0.7);
+}
+/* 上排：語言。與下排之間一條細分隔線 */
+.langRow {
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(248, 199, 88, 0.28);
+}
+/* 下排：左盾牌、右字體大小 */
+.bar {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+/* 盾牌格：裡面沒有盾牌（客戶按過「不再提醒」、或已經存好）就整格收起，下排只剩字體大小 */
+.shieldSlot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding-right: 12px;
+  margin-right: 12px;
+  border-right: 1px solid rgba(248, 199, 88, 0.28);
+}
+.shieldSlot:empty {
+  display: none;
+}
+.sizeGroup {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+.label {
+  color: #fcea86;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  max-width: 420px; /* 電腦的寬卡片上，三顆按鈕不要被拉得太長 */
+}
+.option {
+  min-height: 48px;
+  padding: 0 4px;
+  border: 1px solid rgba(248, 199, 88, 0.5);
+  border-radius: 12px;
+  background: #24231f;
+  color: #f4efe4;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+.option:hover { border-color: #fcea86; }
+.option:active { transform: scale(0.96); }
+.option:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+/* 每顆按鈕的字大小就是它代表的大小，一眼看懂 */
+.size_medium { font-size: 17px; }
+.size_large { font-size: 19px; }
+.size_xlarge { font-size: 21px; }
+.option[aria-pressed='true'] {
+  border-color: #fcea86;
+  background: linear-gradient(180deg, #fcea86 0%, #f8c758 45%, #c48a29 100%);
+  color: #1a1205;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 0 12px rgba(248, 199, 88, 0.45);
+}
+/* 安裝說明：展開時在卡片正下方，用整條寬度；沒展開就不佔位置 */
+.panelSlot:empty {
+  display: none;
+}
+.panelSlot {
+  margin-top: 10px;
+}
+/* 很窄的手機：盾牌與字體大小上下分開，各自一整排，不擠 */
+@media (max-width: 340px) {
+  .bar { flex-direction: column; gap: 10px; }
+  .shieldSlot { padding-right: 0; margin-right: 0; padding-bottom: 10px; border-right: 0; border-bottom: 1px solid rgba(248, 199, 88, 0.28); justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .option { transition: none; }
+}

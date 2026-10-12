@@ -5,7 +5,7 @@ import { FRONTEND_COPY } from '@/lib/credibility-phrases';
 import Link from 'next/link';
 import Image from 'next/image';
 import HomeTranslatedText from '@/components/HomeTranslatedText';
-import { InterfaceLanguagePicker, useInterfaceLanguage } from '@/components/InterfaceLanguage';
+import { useInterfaceLanguage } from '@/components/InterfaceLanguage';
 import dualChartEntryStyles from './dual-chart-entry.module.css';
 import dynamic from 'next/dynamic';
 import { injectPerformanceCSS } from '@/lib/performance-css';
@@ -31,7 +31,7 @@ import { enforceAiCopywritingTone } from '@/lib/ai-copywriting-style-center';
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import FineDiningServiceProgress from '@/components/FineDiningServiceProgress';
 import TarotEntryCard from '@/features/tarot/components/TarotEntryCard';
-import TextSizeSwitch from '@/components/TextSizeSwitch';
+import HomeToolsCard from '@/components/HomeToolsCard';
 import StarBeastHomeCard from '@/components/StarBeastHomeCard';
 import GhostAsuraHomeEntry from '@/components/GhostAsuraHomeEntry';
 import { markPendingRoute, recoverFromChunkError } from '@/lib/chunk-recovery';
@@ -2722,7 +2722,6 @@ export default function HomePage() {
         </div>
 
                 <div className="home-first-screen-stack" data-home-order="1-3-taiji-quest">
-<TextSizeSwitch />
 <section
           aria-label="首頁箴言木板卡"
           data-home-step="1"
@@ -2869,7 +2868,8 @@ export default function HomePage() {
               className="mb-4"
             />
           )}
-          <InterfaceLanguagePicker />
+          {/* 工具卡片：語言＋存到桌面＋字體大小，一張卡片，在「今日定向關卡」下面、「古老塔羅牌」上面 */}
+          <HomeToolsCard />
           <div className={`home-feature-stack flex w-full flex-col gap-3 sm:gap-4 ${showMoreFeatures ? 'home-feature-stack--expanded' : 'home-feature-stack--collapsed'}`}>
           <button
             type="button"
