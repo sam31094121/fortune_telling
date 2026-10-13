@@ -453,7 +453,7 @@ function buildLocalStructureResult(context: PalaceAnalysisContext): StructureTea
       ...p.supportingStars.slice(0, 2).map((s) => `輔星${s.name}：加分，讓這一宮更撐得住。`),
       ...p.maleficStars.slice(0, 2).map((s) => `煞曜${s.name}：扣分，是分數被拉低的原因。`),
     ],
-    structuralStrength: `最能撐住你的是${strongest.palaceName}（${Math.max(scores.A, scores.B, scores.O)} 分），配合主星${majorText(p)}，在「${guide.topic}」上有一再用得上的底氣，像${guide.lifeScenes}這類場合，最先靠得住的就是這一塊。`,
+    structuralStrength: `最能撐住你的是${strongest.palaceName}（${Math.max(scores.A, scores.B, scores.O)} 分），配合主星${majorText(p)}，在「${guide.topic}」上有一再用得上的底氣。`,
     structuralPressure: `壓力集中在${weakest.palaceName}（${Math.min(scores.A, scores.B, scores.O)} 分）${jiList.length > 0 ? `，且${jiList[0].starName}化忌落在本宮，` : '，'}這裡決定了這一宮最低會掉到哪裡；遇到${guide.lifeScenes}這類時刻，這裡最容易先出現摩擦。`,
     pastStructure: `此宮長期容易養成「${guide.topic}」上的固定慣性：能量高時傾向多承接、能量低時傾向遞延處理；這是盤面推論，不指涉具體經歷。`,
     // 流年主題是一整段話，塞進「」會變成引號套引號的長句；主題留在命盤依據裡回查即可。
