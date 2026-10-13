@@ -15,6 +15,7 @@ import { googleGenerationKey } from '@/lib/teacher-provider';
 import { GoogleGenAI, Type } from '@google/genai';
 import { castHexagram, formatHexagramLine } from '@/lib/iching-engine';
 import { formatGhostDecoding, patternNameOf } from '@/lib/iching-psychology';
+import { renderAuthorityBlock } from '@/lib/ziwei/wording-authority';
 import type {
   LifeTeacherResult,
   NarrativeTeacherResult,
@@ -120,6 +121,11 @@ function renderPalaceBlock(label: string, palace: PalaceAnalysisContext['selecte
   return `【${label}：${palace.palaceName}】\n主星：${major}\n輔星：${supporting}\n煞曜：${malefic}\n四化：${trans}`;
 }
 
+/** 引用依據表：每顆星標上《紫微斗數全書》核對等級，限制話術能引用到多大（lib/ziwei/wording-authority.ts）。 */
+function renderAuthority(context: PalaceAnalysisContext): string {
+  return renderAuthorityBlock([context.selectedPalace, context.threeHarmony.harmonyA, context.threeHarmony.harmonyB, context.threeHarmony.opposite]);
+}
+
 function renderContext(context: PalaceAnalysisContext): string {
   return [
     renderPalaceBlock('本宮', context.selectedPalace),
@@ -176,6 +182,16 @@ const RULE_PREFACE = `你只能解讀以下已由正式紫微斗數引擎驗證�
 禁止：新增星曜、新增宮位、改四化、猜三方四正、保證未來事件、把規則推論宣稱為科學定論。
 如果提供的資料不足以回答，必須明確回傳 "${INSUFFICIENT_DATA}"，不得補故事假裝完整。`;
 
+/**
+ * 說服力規則（docs/技能戰鬥檔案/紫微斗數/話術強化.md）：三位老師各取適用的幾條，不得互相越界。
+ * 命盤解析老師不給人生建議、鬼魅老師不給行動方向，所以規則④只給危機老師。
+ */
+const PERSUASION_SCENES = `①講具體場景：不寫「事業有變動」這類空話，改寫成讀者能對號入座的現實情境（例如搬家、轉職、出差、對帳、等訊息）；但場景只能出自本宮實際星曜與情境錨點，不得捏造客戶經歷。`;
+const PERSUASION_TWO_SIDES = `②兩面都說：每個傾向都要同時交代好處與代價（配得好會怎樣、配不好會怎樣），只報喜或只報憂都會讓人不信。`;
+const PERSUASION_NO_OVERCLAIM = `③不超額宣稱：星曜與雜曜只是描述盤面的形容詞，走勢要看整張盤的星曜組合、亮度、四化與三方四正；不得把任何一顆星寫成單獨決定命運，不得說出自《紫微斗數全書》（除非資料明載）。`;
+const PERSUASION_AUTHORITY = `⑤有依據才引用：只要上方「引用依據表」標了古籍等級，就主動用那一級允許的說法替結論背書（例如「這顆星的位置依《紫微斗數全書》口訣排出」），讓讀者知道盤不是亂排的；沒標古籍口訣的星曜，只能說「通行排盤體系的讀法」。依據只證明位置排得對，不證明預測準，不得把兩者混為一談。`;
+const PERSUASION_NEXT_STEP = `④給一個可做的下一步：結尾落在一個今天就能做的具體小動作，不收在宿命或空泛鼓勵。`;
+
 /** 「鬼魅解盤」（LIFE_MASTER 恐怖段 + NARRATIVE_MASTER 鬼魅段）共用的五大元素規格：這是恐怖片等級的沉浸遊戲，五者缺一不可，但全部必須是本宮真實星曜/煞曜/四化的電影化再現，不能脫離命盤另外編故事。 */
 const GHOST_READING_FIVE_ELEMENTS = `【五大元素・本局遊戲強制規格】這是恐怖片等級的沉浸式命盤劇情，同一段內容必須同時命中以下五個類型元素，缺一不可；但五者都只能是本宮實際星曜、煞曜、四化與情境錨點的電影化再現，禁止脫離命盤證據另外編造情節：
 ①恐怖（壓迫）：貫穿全場的逼近感與倒數感，讓讀者感覺代價正在逼近，不是溫和提醒。
@@ -221,10 +237,16 @@ function buildStructurePrompt(context: PalaceAnalysisContext): string {
 你是「命盤解析老師」，核心動作是「解析命盤」——只看結構，不談人生建議、不說故事、不寫畫面比喻。
 固定判讀順序：本宮 → 主星組合 → 三方四正 → 四化 → 重要輔煞 → 格局總判。
 語氣：理性、精準、專業、結論先行。禁止出現任何人生雞湯或勵志語句。
+【說服力】${PERSUASION_SCENES}（本老師只用在欄位措辭，不寫故事）
+${PERSUASION_TWO_SIDES}
+${PERSUASION_NO_OVERCLAIM}
+${PERSUASION_AUTHORITY}
 時間線規則：pastStructure 只描述命盤顯示的既有慣性，不能說成已發生的具體事件；futureTendency 必須用「若／當／容易」描述結合流年的可能走向，不得預言或保證。
 當下情境規則：必須使用隱藏的當下情境層校正「現在」的描述，但不得把時間、上午、中午、晚上或半夜直接寫進客戶內容。
 
 ${renderContext(context)}
+
+${renderAuthority(context)}
 
 ${renderTimeContext(context)}
 
@@ -278,9 +300,16 @@ fearScene 的第一句必須用白話先點出「這一宮在談什麼」，例�
 pastPattern 只寫此宮長期容易重複的傾向，不得說客戶過去「已經發生」什麼；futureRiskWindow 要結合當下年齡、流年和查看時段，寫未來一段時間在何種條件下壓力會升高。它是戲劇化的風險窗口，不是恐嚇式預言。
 當下畫面必須服從隱藏的當下情境層：正午只能寫大太陽、刺眼光線、曝曬、空曠、孤獨或無處躲藏的壓力；深夜才可寫門縫、微弱光源、走廊回聲等幽暗畫面。不得把日間寫成夜晚，也不得把這個時間規則直接說給客戶。
 最後的 practicalDirection 必須是道德收束：讓讀者知道恐懼不是為了操控，而是提醒其停止傷害自己或他人的模式、建立界線、誠實面對選擇，並提出一個量力可行的善意行動，例如修復承諾、幫助需要的人、志工服務或依能力布施。不得強迫捐款、捐血或任何具有健康、金錢壓力的行動；捐血只能在身體狀況與正式資格都合適時，作為自願選項提及。
+【說服力】${PERSUASION_SCENES}
+${PERSUASION_TWO_SIDES}
+${PERSUASION_NO_OVERCLAIM}
+${PERSUASION_AUTHORITY}
+${PERSUASION_NEXT_STEP}
 禁止談論命盤結構術語本身，禁止寫成故事或畫面比喻。
 
 ${renderContext(context)}
+
+${renderAuthority(context)}
 
 ${renderTimeContext(context)}
 
@@ -336,9 +365,15 @@ pastEcho 是舊場景留下的象徵，不得冒充客戶真實經歷；futureSh
 場景的光線、聲音與空間必須服從隱藏的當下情境層：正午要用大太陽下的孤獨、白亮壓力或反常安靜；夜晚與深夜才可使用夜色、門縫或低光源。禁止把這條時間規則直接寫出來。
 finalMetaphor 是全片的道德結尾：可以陰暗、有餘韻，但最後要把鏡頭帶回人的選擇、誠實、界線、責任或量力行善；不讓恐懼成為威脅、操控、募款或醫療建議。
 你只能用畫面、場景、人物、隱喻說話。每一個象徵都必須能回查到命盤裡實際存在的星曜或四化（填進 symbols 的 sourceRef）；至少產出四個不同象徵，分別連回本宮與三方四正，不能只換名詞重複同一個意象。
+【說服力】${PERSUASION_SCENES}
+${PERSUASION_TWO_SIDES}（鬼魅老師用象徵呈現：畫面裡要同時有壓力與一道出口）
+${PERSUASION_NO_OVERCLAIM}
+${PERSUASION_AUTHORITY}
 範例語氣（命宮七殺×紫微）：「城牆上的燈只亮半盞。統帥沒有回頭，卻知道身後那座城仍在等一個命令。」
 
 ${renderContext(context)}
+
+${renderAuthority(context)}
 
 ${renderTimeContext(context)}
 
@@ -418,12 +453,12 @@ function buildLocalStructureResult(context: PalaceAnalysisContext): StructureTea
       ...p.supportingStars.slice(0, 2).map((s) => `輔星${s.name}：加分，讓這一宮更撐得住。`),
       ...p.maleficStars.slice(0, 2).map((s) => `煞曜${s.name}：扣分，是分數被拉低的原因。`),
     ],
-    structuralStrength: `最能撐住你的是${strongest.palaceName}（${Math.max(scores.A, scores.B, scores.O)} 分），配合主星${majorText(p)}，在「${guide.topic}」上有一再用得上的底氣。`,
-    structuralPressure: `壓力集中在${weakest.palaceName}（${Math.min(scores.A, scores.B, scores.O)} 分）${jiList.length > 0 ? `，且${jiList[0].starName}化忌落在本宮，` : '，'}這裡決定了這一宮最低會掉到哪裡。`,
+    structuralStrength: `最能撐住你的是${strongest.palaceName}（${Math.max(scores.A, scores.B, scores.O)} 分），配合主星${majorText(p)}，在「${guide.topic}」上有一再用得上的底氣，像${guide.lifeScenes}這類場合，最先靠得住的就是這一塊。`,
+    structuralPressure: `壓力集中在${weakest.palaceName}（${Math.min(scores.A, scores.B, scores.O)} 分）${jiList.length > 0 ? `，且${jiList[0].starName}化忌落在本宮，` : '，'}這裡決定了這一宮最低會掉到哪裡；遇到${guide.lifeScenes}這類時刻，這裡最容易先出現摩擦。`,
     pastStructure: `此宮長期容易養成「${guide.topic}」上的固定慣性：能量高時傾向多承接、能量低時傾向遞延處理；這是盤面推論，不指涉具體經歷。`,
     // 流年主題是一整段話，塞進「」會變成引號套引號的長句；主題留在命盤依據裡回查即可。
     futureTendency: `${context.timeContext.annualYear} 年這一年，若${weakest.palaceName}的牽制沒有處理，分數容易往下掉；反過來把那裡補上，${structureType}結構就有機會再往上走。`,
-    conclusion: `結論：${p.palaceName}為${structureType}結構（${score}/100）。易經同步起卦得「${castPalaceHexagram(context).hexagramName}」印證：${castPalaceHexagram(context).advice}優先處理${weakest.palaceName}的牽制、善用${strongest.palaceName}的支撐，是這張盤最省力的走法。`,
+    conclusion: `結論：${p.palaceName}為${structureType}結構（${score}/100）。易經同步起卦得「${castPalaceHexagram(context).hexagramName}」印證：${castPalaceHexagram(context).advice}優先處理${weakest.palaceName}的牽制、善用${strongest.palaceName}的支撐，是這張盤最省力的走法。提醒一句：星曜只是描述盤面的形容詞，走勢要看整張盤的星曜組合、亮度、四化與三方四正一起怎麼配，不是單一顆星說了算。`,
     evidenceRefs: buildEvidenceRefs(context),
   };
 }
@@ -440,12 +475,12 @@ function buildLocalLifeResult(context: PalaceAnalysisContext): LifeTeacherResult
 
   const raw: Omit<LifeTeacherResult, 'teacherId' | 'evidenceRefs'> = {
     fearScene: `這一宮談的是${guide.topic}。${img.light}，${img.sound}。真正逼近的不是畫面，是${pressurePoint}在${guide.topic}上累積的代價：${guide.lifeScenes}裡的每一次遞延，都會讓你付出的成本再墊高一層；若持續忽視，這股壓力容易從單點擴大成整片。`,
-    lifeMeaning: `本宮壓力核心：${pressurePoint}。它讓「${guide.topic}」的每個決定都帶著隱形利息，越晚面對，本金越大。`,
+    lifeMeaning: `本宮壓力核心：${pressurePoint}。它讓「${guide.topic}」的每個決定都帶著隱形利息，越晚面對，本金越大；好處是這種壓力有跡可循，早一點處理，成本就小一點。`,
     pastPattern: `此宮長期容易重複的模式：在${guide.lifeScenes}的場景中先扛下、後消化；這是盤面傾向的推論，不是已發生事件。`,
     futureRiskWindow: `${context.timeContext.annualYear} 年這一年${context.timeContext.currentAge !== null ? `、${context.timeContext.currentAge} 歲的這一段` : ''}，當${pressurePoint}與截止壓力疊加時，是需要提高警覺的窗口；條件不成立時，壓力不會自動引爆。`,
     strengthInReality: `可用的力量是${mainStar}帶來的承載力（結構分數 ${score}/100）；但它失控時會反噬成「什麼都自己扛」，反而把${guide.topic}的界線推垮。`,
     repeatedPattern: `一開始：你告訴自己再撐一下。接著：${guide.lifeScenes}裡的訊號被合理化。最後代價：壓力放大成整個結構發出聲響的規模——這是象徵畫面，提醒失控的方向，不是命定結局。`,
-    blindSpot: `最容易被合理化的盲點：把「還沒出事」當成「沒有事」。${pressurePoint}的耗損是複利式的，安靜不等於安全。`,
+    blindSpot: `最容易被合理化的盲點：把「還沒出事」當成「沒有事」。${pressurePoint}的耗損是複利式的，安靜不等於安全；但這個盲點看得見，就有得處理，單一星曜不會替你決定結果。`,
     decisionStyle: `壓力下的決策傾向：${mainStar}式的先斬後奏或先扛再說；證據就在本宮星曜配置——快，但容易把代價往後挪。`,
     relationshipWithEnvironment: `對外互動的摩擦點：${context.threeHarmony.opposite.palaceName}（${majorText(context.threeHarmony.opposite)}）的對照顯示，外界回應的節奏與你的預期存在落差，容易演變為單向消耗。`,
     practicalDirection: `易經為此宮起卦得「${castPalaceHexagram(context).hexagramName}」，${castPalaceHexagram(context).advice}止損動作只有一個：本週為「${guide.topic}」設一條明確界線（一句話能說完的那種），並向一位相關的人說出口。行有餘力，把省下的力氣拿去幫一個真正需要的人。`,
@@ -476,7 +511,7 @@ function buildLocalNarrativeResult(context: PalaceAnalysisContext): NarrativeTea
     mainCharacter: `畫面中央是這個人。這個人伸手又收回，做了一個沒有說破的動作：把${props[1] ?? '那件事'}往旁邊挪了一格，假裝它不存在。`,
     symbols,
     story: `${mainStar}的光落在${props[0] ?? '門口'}，一切看起來如常。直到${props[2] ?? '走廊盡頭'}傳來一下不該有的聲響——這個人回頭，發現${props[1] ?? '時鐘'}不知何時已經停了。就在此刻，整個空間的燈忽然一暗，像要把${guide.topic}裡拖延的一切一次收走；黑下來的不是房間，是選項。${harmonyStar}在遠處仍亮著一盞燈，提示這條線還有支撐——但得有人先動。`,
-    pastEcho: `舊畫面的殘影：同樣的${props[0] ?? '物件'}、同樣被放回原位的手。這是命盤慣性的映照，不是真實往事。`,
+    pastEcho: `舊畫面的殘影：同樣的${props[0] ?? '物件'}、同樣被放回原位的手。這是命盤慣性的映照，不是真實往事，更不是判決；畫面怎麼走，還要看整張盤與你接下來的選擇。`,
     futureShadow: `${context.timeContext.annualYear} 年的光線斜過來時，若這個人仍把${props[1] ?? '該面對的事'}往旁邊挪，影子會比現在長一倍；若伸手拆開它，畫面就換場。這是條件式的暗影，不是預言。`,
     finalMetaphor: `牆上有人用舊墨寫過一卦：「${castPalaceHexagram(context).hexagramName}」。午夜的低語只說一句：燈一直都在，門也沒有鎖——誠實地伸手，比任何咒語都靈。`,
   };

@@ -5,6 +5,7 @@
   "version": "1.1.0",
   "updatedAt": "2026-10-12T00:00:00+08:00",
   "sourceOfTruth": "docs/技能戰鬥檔案/紫微斗數/紫微斗數.json",
+  "wordingDoc": "docs/技能戰鬥檔案/紫微斗數/話術強化.md",
   "newbieDoc": "docs/技能戰鬥檔案/紫微斗數/新人檔案.md",
   "sourceGovernance": "docs/技能戰鬥檔案/易經/來源治理.md",
   "sourceRegistry": "docs/技能戰鬥檔案/紫微斗數/來源登記.json",

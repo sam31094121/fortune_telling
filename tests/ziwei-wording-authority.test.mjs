@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import { authorityOf, renderAuthorityBlock, AUTHORITY_PHRASE } from '../lib/ziwei/wording-authority.ts';
+import fs from 'node:fs';
+let n = 0; const ok = (c, m) => { assert.ok(c, m); n++; };
+const cov = JSON.parse(fs.readFileSync('data/ziwei/quanshu-coverage.json', 'utf8'));
+for (const s of cov.verified) ok(authorityOf(s) === 'QUANSHU_VERSE', `${s} 應為古籍口訣`);
+for (const s of Object.keys(cov.verifiedWithNote)) ok(authorityOf(s) === 'QUANSHU_NOTE', `${s} 應為古籍＋通行讀法`);
+for (const s of cov.noQuanshuVerse) ok(authorityOf(s) === 'NO_VERSE', `${s} 古籍無口訣，不得宣稱出自古籍`);
+ok(authorityOf('不存在的星') === 'UNKNOWN', '未登記的星不得引用出處');
+ok(/不得說出自古籍/.test(AUTHORITY_PHRASE.NO_VERSE), '無口訣者的話術上限必須擋住「出自古籍」');
+const block = renderAuthorityBlock([{ palaceName: '命宮', majorStars: [{ name: '紫微' }], supportingStars: [{ name: '孤辰' }], maleficStars: [{ name: '擎羊' }] }]);
+ok(block.includes('紫微【古籍口訣】') && block.includes('孤辰【古籍無口訣】'), '依據表要標出等級');
+ok(/不得說「國家認證」/.test(block) && /不得說「科學已證實」/.test(block), '依據表必須帶紅線');
+console.log(`ziwei-wording-authority: ${n} checks passed`);

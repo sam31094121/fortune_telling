@@ -443,6 +443,24 @@
       "trust": "A",
       "tracked_path": "data/ziwei/quanshu-rules.md",
       "note": "逐字存檔供獨立核對；錄文簡體，第二行「甲戊」為「甲戌」之誤。"
+    },
+    {
+      "source_id": "S-ZIWEI-WORDING",
+      "author": "本站（素材：業主 2026-10-13 提供，D 級）",
+      "locator": "docs/技能戰鬥檔案/紫微斗數/話術強化.md",
+      "data_type": "紫微話術說服力規範（借八字神煞整理的說話方法，不改星曜位置）",
+      "kind": "正式檔",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "本站自有",
+      "accessed_at": "2026-10-13",
+      "trust": "D",
+      "edition": "1.0.0（2026-10-13）",
+      "tracked_path": "docs/技能戰鬥檔案/紫微斗數/話術強化.md",
+      "note": "D 級候選資料，只借說話方法與現代場景；星曜位置、亮度、四化一律以古籍與排盤引擎為準。"
     }
   ],
   "claims": [
@@ -554,7 +572,9 @@
       "files": [
         "lib/ziwei-teacher/entertainment.ts",
         "lib/ziwei-teacher/entertainment-types.ts",
-        "docs/技能戰鬥檔案/紫微斗數/新人檔案.md"
+        "docs/技能戰鬥檔案/紫微斗數/新人檔案.md",
+        "docs/技能戰鬥檔案/紫微斗數/話術強化.md",
+        "lib/ziwei/wording-authority.ts"
       ],
       "authority_files": [
         "S-CARLSON-1985"
