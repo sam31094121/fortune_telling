@@ -12,3 +12,8 @@ const block = renderAuthorityBlock([{ palaceName: '命宮', majorStars: [{ name:
 ok(block.includes('紫微【古籍口訣】') && block.includes('孤辰【古籍無口訣】'), '依據表要標出等級');
 ok(/不得說「國家認證」/.test(block) && /不得說「科學已證實」/.test(block), '依據表必須帶紅線');
 console.log(`ziwei-wording-authority: ${n} checks passed`);
+import { authoritySummary } from '../lib/ziwei/wording-authority.ts';
+const sum = authoritySummary({ palaceName: '命宮', majorStars: [{ name: '紫微' }], supportingStars: [{ name: '天魁' }], maleficStars: [{ name: '孤辰' }] });
+assert.ok(sum.includes('共 3 顆星') && sum.includes('1 顆的位置依《紫微斗數全書》口訣') && sum.includes('古籍查無口訣') && sum.includes('不等於預測保證'), '依據說明要算對數量並帶紅線');
+assert.equal(authoritySummary({ palaceName: '命宮', majorStars: [], supportingStars: [], maleficStars: [] }), '', '無星不輸出');
+console.log('ziwei-wording-authority: authoritySummary checks passed');

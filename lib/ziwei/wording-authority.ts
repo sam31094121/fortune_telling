@@ -61,3 +61,21 @@ export function renderAuthorityBlock(palaces: PalaceStars[]): string {
     .join('\n');
   return `【引用依據表（後端依《紫微斗數全書》逐條核對）】\n${rows}\n${rules}\n共通：沒有國家級認證機構，不得說「國家認證」；不得說「科學已證實」；有依據的星曜可以用依據增加可信度，但依據只證明「位置排得對」，不證明「預測準」。`;
 }
+
+/**
+ * 一句可直接給客戶看的依據說明（後端算出，備援與模型話術共用）。
+ * 只陳述「位置排得對的依據」，不談預測準不準；數字由查表即時算，不手寫。
+ */
+export function authoritySummary(palace: PalaceStars): string {
+  const names = [...palace.majorStars, ...palace.supportingStars, ...palace.maleficStars].map((s) => s.name);
+  if (names.length === 0) return '';
+  const levels = names.map(authorityOf);
+  const verse = levels.filter((l) => l === 'QUANSHU_VERSE').length;
+  const note = levels.filter((l) => l === 'QUANSHU_NOTE').length;
+  const rest = names.length - verse - note;
+  const parts: string[] = [];
+  if (verse > 0) parts.push(`${verse} 顆的位置依《紫微斗數全書》口訣，已用獨立計算核對一致`);
+  if (note > 0) parts.push(`${note} 顆與古籍一致、細部分法採通行讀法`);
+  if (rest > 0) parts.push(`${rest} 顆屬通行排盤體系的讀法（古籍查無口訣）`);
+  return `依據說明：${palace.palaceName}共 ${names.length} 顆星，${parts.join('；')}。這說明星位排得有憑有據，不等於預測保證。`;
+}

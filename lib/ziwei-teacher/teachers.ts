@@ -15,7 +15,7 @@ import { googleGenerationKey } from '@/lib/teacher-provider';
 import { GoogleGenAI, Type } from '@google/genai';
 import { castHexagram, formatHexagramLine } from '@/lib/iching-engine';
 import { formatGhostDecoding, patternNameOf } from '@/lib/iching-psychology';
-import { renderAuthorityBlock } from '@/lib/ziwei/wording-authority';
+import { authoritySummary, renderAuthorityBlock } from '@/lib/ziwei/wording-authority';
 import type {
   LifeTeacherResult,
   NarrativeTeacherResult,
@@ -458,7 +458,7 @@ function buildLocalStructureResult(context: PalaceAnalysisContext): StructureTea
     pastStructure: `此宮長期容易養成「${guide.topic}」上的固定慣性：能量高時傾向多承接、能量低時傾向遞延處理；這是盤面推論，不指涉具體經歷。`,
     // 流年主題是一整段話，塞進「」會變成引號套引號的長句；主題留在命盤依據裡回查即可。
     futureTendency: `${context.timeContext.annualYear} 年這一年，若${weakest.palaceName}的牽制沒有處理，分數容易往下掉；反過來把那裡補上，${structureType}結構就有機會再往上走。`,
-    conclusion: `結論：${p.palaceName}為${structureType}結構（${score}/100）。易經同步起卦得「${castPalaceHexagram(context).hexagramName}」印證：${castPalaceHexagram(context).advice}優先處理${weakest.palaceName}的牽制、善用${strongest.palaceName}的支撐，是這張盤最省力的走法。提醒一句：星曜只是描述盤面的形容詞，走勢要看整張盤的星曜組合、亮度、四化與三方四正一起怎麼配，不是單一顆星說了算。`,
+    conclusion: `${authoritySummary(p)}結論：${p.palaceName}為${structureType}結構（${score}/100）。易經同步起卦得「${castPalaceHexagram(context).hexagramName}」印證：${castPalaceHexagram(context).advice}優先處理${weakest.palaceName}的牽制、善用${strongest.palaceName}的支撐，是這張盤最省力的走法。提醒一句：星曜只是描述盤面的形容詞，走勢要看整張盤的星曜組合、亮度、四化與三方四正一起怎麼配，不是單一顆星說了算。`,
     evidenceRefs: buildEvidenceRefs(context),
   };
 }
