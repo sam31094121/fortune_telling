@@ -85,7 +85,7 @@ export const COMPLETE_ASURA_DICTIONARY = {
   // === 力量印記 ===
   '鎮軍之魂': {
     meaningStrong: '天生指揮官，你不是跟隨者。',
-    coreMeaning: '領導力像刀沒錯，但刀是用來砍敵人的，不是用來自己反省的。掉隊的人註定要掉隊。',
+    coreMeaning: '領導力像刀沒錯，但刀是用來砍敵人的，不是用來自己反省的。跟不上的人就留在原地。',
     battleSignificance: '你的責任不是去撿，而是帶著願意跟的人去更遠的地方。',
     advice: '讓隊伍知道你想要什麼，然後為之奮戰。',
   },
