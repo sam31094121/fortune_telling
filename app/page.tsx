@@ -32,6 +32,7 @@ import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import FineDiningServiceProgress from '@/components/FineDiningServiceProgress';
 import TarotEntryCard from '@/features/tarot/components/TarotEntryCard';
 import HomeToolsCard from '@/components/HomeToolsCard';
+import HomeInstallCard from '@/components/HomeInstallCard';
 import StarBeastHomeCard from '@/components/StarBeastHomeCard';
 import GhostAsuraHomeEntry from '@/components/GhostAsuraHomeEntry';
 import { markPendingRoute, recoverFromChunkError } from '@/lib/chunk-recovery';
@@ -3934,6 +3935,9 @@ export default function HomePage() {
 
         {/* 底部 LINE 好友入口 */}
         <LineVipShareCard friendHref={lineFriendHref} onShare={handleLineShare} />
+
+        {/* 底部安裝入口：一鍵安裝到手機桌面（PWA） */}
+        <HomeInstallCard />
 
         <div className="flex justify-center pb-2" aria-hidden="true">
           <Image
