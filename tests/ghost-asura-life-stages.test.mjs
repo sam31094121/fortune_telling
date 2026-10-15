@@ -148,6 +148,9 @@ ok(!/completedAge|tenseOf|LIFE_STAGE_DEFS|buildLifeStageView/.test(tsx), '前端
 ok(tsx.includes('life.tenseLabel') && tsx.includes('life.ageText') && tsx.includes('life.headline') && tsx.includes('life.note') && tsx.includes('life.pointer'), '前端要照印時態、歲數、一句話、指向句、收合區與說明');
 // 「這一役的來歷」收合面板已隱藏（業主 2026-10-15：沒有用途）。原碼保留但不得顯示；歲數說明改為常駐一行，避免歲數被誤讀成古籍定論。
 ok(/const SHOW_LIFE_ORIGIN = false as boolean;/.test(tsx), '來歷面板開關必須維持 false，未經明說不得再顯示');
+// 標題卡下面的三行字（一句話、指向、歲數說明）業主 2026-10-15 要求隱藏：上面的標題卡已經有了。
+ok(/const SHOW_LIFE_TEXT = false as boolean;/.test(tsx), '標題卡下面的字開關必須維持 false，未經明說不得再顯示');
+for (const field of ['headline', 'pointer', 'note']) ok(new RegExp(`\\{SHOW_LIFE_TEXT && column\\.life && column\\.life\\.${field} &&`).test(tsx), `${field} 必須掛在隱藏開關後面`);
 ok(/\{SHOW_LIFE_ORIGIN && column\.life && \(\s*<details[^>]*lifeDetail/.test(tsx), '來歷面板必須掛在開關後面（原碼保留但不顯示）');
 ok(/column\.life\.note &&/.test(tsx.split('{SHOW_LIFE_ORIGIN && column.life')[0]), '歲數說明要常駐顯示在面板之前');
 

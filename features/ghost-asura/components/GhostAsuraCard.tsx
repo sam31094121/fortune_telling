@@ -22,6 +22,9 @@ import { AsuraNatureCard } from './AsuraNatureCard';
 /** 「這一役的來歷」收合面板：業主 2026-10-15 要求隱藏（沒有用途）。保持 false；未經明說叫醒不得改成 true。 */
 const SHOW_LIFE_ORIGIN = false as boolean;
 
+/** 四張卡標題列下面的三行字（阿修羅一句話、指向底下印記、歲數說明）：業主 2026-10-15 要求隱藏（上面的標題卡已經有了，這些字沒有意義）。保持 false；未經明說叫醒不得改成 true。資料仍由後端組好。 */
+const SHOW_LIFE_TEXT = false as boolean;
+
 export function GhostAsuraCard({ display, reading }: { display?: AsuraDisplay; reading?: GhostAsuraReading }) {
   if (display) return <DisplayCard display={display} />;
   if (reading) return <LegacyReadingCard reading={reading} />;
@@ -348,11 +351,11 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
               aria-label={`${column.heading}印記`}
               data-asura-column={column.key}
             >
-              {column.life && column.life.headline && <p className={styles.lifeHeadline}>{column.life.headline}</p>}
-              {column.life && column.life.pointer && <p className={styles.lifePointer}>{column.life.pointer}</p>}
+              {SHOW_LIFE_TEXT && column.life && column.life.headline && <p className={styles.lifeHeadline}>{column.life.headline}</p>}
+              {SHOW_LIFE_TEXT && column.life && column.life.pointer && <p className={styles.lifePointer}>{column.life.pointer}</p>}
               {/* 「這一役的來歷」收合面板已隱藏（2026-10-15，業主：沒有用途）。原碼保留，未經明說叫醒不得再顯示；
                   資料仍由後端組好（life.lines），只是前端不畫。歲數說明 life.note 改成常駐的一行小字，避免歲數被誤讀成古籍定論。 */}
-              {column.life && column.life.note && <p className={styles.lifeBasis}>{column.life.note}</p>}
+              {SHOW_LIFE_TEXT && column.life && column.life.note && <p className={styles.lifeBasis}>{column.life.note}</p>}
               {SHOW_LIFE_ORIGIN && column.life && (
                 <details className={styles.lifeDetail} data-asura-life={column.key}>
                   <summary className={styles.lifeSummary}>{GHOST_ASURA_UI.lifeSummary}</summary>
