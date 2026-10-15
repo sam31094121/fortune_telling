@@ -103,6 +103,13 @@ function pick<T>(templates: readonly T[], evidence: AsuraEvidence): T {
   return templates[index % templates.length];
 }
 
+/** 依編號挑句型：同一編號永遠同一句（可重現），不同編號分散到不同句型，46 張生成印記不再讀起來一樣。 */
+function pickByAsuraId<T>(templates: readonly T[], asuraId: string): T {
+  let hash = 0;
+  for (const ch of asuraId) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return templates[hash % templates.length];
+}
+
 function generate(entry: AsuraSkillEntry, evidence: AsuraEvidence): AsuraInterpretation {
   return {
     asuraId: entry.asuraId,
@@ -112,7 +119,7 @@ function generate(entry: AsuraSkillEntry, evidence: AsuraEvidence): AsuraInterpr
     meaning: pick(entry.interpretationTemplates, evidence).replace('{pillar}', pillarSentence(evidence)),
     advice: pick(entry.adviceTemplates, evidence),
     warning: pick(entry.warningTemplates, evidence),
-    battleLine: pick(entry.battleTemplates, evidence),
+    battleLine: pickByAsuraId(entry.battleTemplates, entry.asuraId),
     source: 'generated',
     skillVersion: ASURA_SKILL_VERSION,
   };
