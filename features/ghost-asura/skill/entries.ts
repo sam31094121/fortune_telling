@@ -12,6 +12,7 @@ import { SHENSHA_TEACHER_READINGS } from '@/lib/iching-shensha-teacher-readings'
 import { APPROVED_BY_RULE_ID } from '../registry';
 import { ASURA_CHAR_GLOSSARY } from './charGlossary';
 import { ASURA_SEEDS, type AsuraPolarity } from './seeds';
+import { ASURA_SEAL_VOICE } from './sealVoice';
 import { ASURA_SKILL_VERSION } from './version';
 
 export type { AsuraPolarity } from './seeds';
@@ -100,22 +101,25 @@ function buildEntry(asuraId: string): AsuraSkillEntry {
   const theme = reading?.theme ?? '';
   const imagery = reading?.imagery ?? '';
   const action = reading?.action ?? '';
+  // 逐印記的阿修羅話術（sealVoice.ts）優先；還沒寫到的印記才用下面的極性模板。
+  const voice = ASURA_SEAL_VOICE[asuraId];
+  const core = voice?.core ?? seed.coreMeaning;
   return {
     asuraId,
     sourceId: asuraId,
     displayName,
     characterMeaning: characterMeaningOf(displayName),
-    coreMeaning: seed.coreMeaning,
+    coreMeaning: core,
     domain: [...seed.domain],
     polarity: seed.polarity,
     keywords: [...seed.keywords],
-    declarationTemplates: theme ? [DECLARATION_BY_POLARITY[seed.polarity](theme)] : [],
+    declarationTemplates: voice ? [voice.declaration] : theme ? [DECLARATION_BY_POLARITY[seed.polarity](theme)] : [],
     interpretationTemplates: imagery
-      ? [`${seed.coreMeaning}{pillar}${imagery}`, `${seed.coreMeaning}${imagery}{pillar}`]
+      ? [`${core}{pillar}${imagery}`, `${core}${imagery}{pillar}`]
       : [],
-    adviceTemplates: action ? [action] : [],
+    adviceTemplates: voice ? [voice.advice] : action ? [action] : [],
     warningTemplates: WARNING_BY_POLARITY[seed.polarity],
-    battleTemplates: theme ? BATTLE_BY_POLARITY[seed.polarity](theme) : [],
+    battleTemplates: voice ? [voice.battle] : theme ? BATTLE_BY_POLARITY[seed.polarity](theme) : [],
     allowedEvidence: ['matched', 'pillars'],
     version: ASURA_SKILL_VERSION,
   };

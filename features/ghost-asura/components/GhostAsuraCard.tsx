@@ -346,6 +346,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
               data-asura-column={column.key}
             >
               {column.life && column.life.headline && <p className={styles.lifeHeadline}>{column.life.headline}</p>}
+              {column.life && column.life.pointer && <p className={styles.lifePointer}>{column.life.pointer}</p>}
               {column.life && (
                 <details className={styles.lifeDetail} data-asura-life={column.key}>
                   <summary className={styles.lifeSummary}>{GHOST_ASURA_UI.lifeSummary}</summary>

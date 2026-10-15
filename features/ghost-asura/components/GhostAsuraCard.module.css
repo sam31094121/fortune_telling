@@ -309,9 +309,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   border-left-color: #a46b70;
   background: linear-gradient(135deg, #21181e 0%, #2a1f26 100%);
   position: relative;
-  perspective: 1000px;
-  transform-style: preserve-3d;
-  transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: border-color 400ms ease, background 400ms ease, box-shadow 400ms ease;
 }
 
 /* 金光閃閃效果 */
@@ -335,8 +333,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   box-shadow: 0 0 20px rgba(212, 175, 55, 0.25),
               inset 0 0 15px rgba(212, 175, 55, 0.1),
               0 8px 24px rgba(255, 215, 0, 0.15);
-  transform: translateY(-2px) rotateX(5deg);
-  animation: coinFloat 4s ease-in-out infinite, coinGlow 3s ease-in-out infinite;
+  /* 打開後不得再有 3D 傾斜或持續浮動：這兩個會讓整張卡（含標題列）點不到，客戶打開後就收不回去。 */
 }
 
 .itemAwakened:has(details[open])::before {
@@ -1698,6 +1695,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 .lifeTense { font-size: 12px; font-weight: 700; color: #1b1b19; background: #fcea86; border-radius: 999px; padding: 2px 10px; line-height: 1.6; }
 .lifeAge { font-size: 13px; font-weight: 700; color: #fff4cf; line-height: 1.6; }
 .lifeHeadline { margin: 0 0 10px; padding: 0 4px; font-size: 15px; font-weight: 700; line-height: 1.8; color: #fff4cf; letter-spacing: 0.04em; }
+.lifePointer { margin: 0 0 10px; padding: 0 4px; font-size: 14px; line-height: 1.8; color: #fcea86; }
 .lifeDetail { margin: 0 0 10px; border: 1px solid rgba(248, 199, 88, 0.3); border-radius: 10px; background: rgba(255, 255, 255, 0.04); }
 .lifeSummary { cursor: pointer; list-style: none; padding: 10px 12px; font-size: 14px; font-weight: 700; color: #fcea86; min-height: 44px; display: flex; align-items: center; }
 .lifeSummary::-webkit-details-marker { display: none; }

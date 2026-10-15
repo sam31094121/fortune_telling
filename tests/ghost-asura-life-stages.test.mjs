@@ -100,6 +100,24 @@ ok(!/晚年/.test(allText), '古籍沒有把時柱對應晚年，不得硬寫');
 const none = buildLifeStageView('day', undefined, now);
 ok(none.tenseLabel === '' && none.headline === '' && none.ageText.length > 0 && none.lines.length === 2, '沒有生日不猜時態');
 
+// ---- 指向底下印記卡：這張卡只講這一段人生，細項由底下的印記分析 ----
+const pointers = new Set();
+for (const k of keys) for (const n of [0, 1, 3, 9]) for (let d = 1; d <= 20; d += 1) {
+  const v = buildLifeStageView(k, `1980-03-${String(d).padStart(2, '0')}`, now, n);
+  ok(v.pointer.trim().length > 0, `${k} 有數量時要給指向底下的一句話`);
+  ok(!v.pointer.includes('{N}'), `${k} 枚數沒換進去`);
+  ok(n === 0 ? !/[0-9]/.test(v.pointer) : v.pointer.includes(String(n)), `${k} 枚數要如實帶出：${v.pointer}`);
+  pointers.add(v.pointer);
+}
+for (const t of pointers) {
+  const problems = lintAsuraVoice(t);
+  ok(problems.length === 0, `指向句不合阿修羅話術規範（${problems.join('、')}）：${t}`);
+  ok(!BAD.test(t), `指向句含禁字：${t}`);
+  for (const j of JARGON) ok(!t.includes(j), `指向句出現術數用語「${j}」：${t}`);
+}
+ok(buildLifeStageView('day', '1980-03-05', now).pointer === '', '沒給枚數就不編指向句');
+ok(new Set([...pointers].filter((t) => !/[0-9]/.test(t))).size >= 2 && new Set([...pointers].filter((t) => /[0-9]/.test(t))).size >= 3, '指向句要有變化');
+
 // ---- 4. 變化 ----
 // 同一個人的四張卡：不得重複同一句
 for (const { b, n, cards } of allViews) {
@@ -127,7 +145,7 @@ ok(JSON.stringify(buildLifeStageView('month', '1974-06-28', now)) === JSON.strin
 // ---- 5. 前端不得自己組句或算歲數 ----
 const tsx = fs.readFileSync('features/ghost-asura/components/GhostAsuraCard.tsx', 'utf8');
 ok(!/completedAge|tenseOf|LIFE_STAGE_DEFS|buildLifeStageView/.test(tsx), '前端不得匯入或呼叫人生階段運算');
-ok(tsx.includes('life.tenseLabel') && tsx.includes('life.ageText') && tsx.includes('life.headline') && tsx.includes('life.lines') && tsx.includes('life.note'), '前端要照印時態、歲數、一句話、收合區與說明');
+ok(tsx.includes('life.tenseLabel') && tsx.includes('life.ageText') && tsx.includes('life.headline') && tsx.includes('life.lines') && tsx.includes('life.note') && tsx.includes('life.pointer'), '前端要照印時態、歲數、一句話、指向句、收合區與說明');
 ok(/<details[^>]*lifeDetail/.test(tsx), '來歷用可收合的卡片，讓客戶自己往下看');
 
 console.log(`ghost-asura-life-stages: ${checks} checks passed`);

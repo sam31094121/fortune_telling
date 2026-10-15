@@ -265,7 +265,7 @@ export function toAsuraDisplay(
       lead: seals[0]?.name ?? '暫無命中',
       countText: `共 ${seals.length} 枚印記`,
       seals,
-      life: buildLifeStageView(key, options.birthDate, options.now ?? new Date()),
+      life: buildLifeStageView(key, options.birthDate, options.now ?? new Date(), seals.length),
     };
   });
 

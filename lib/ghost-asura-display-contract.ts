@@ -51,6 +51,8 @@ export interface AsuraDisplayLifeStage {
   tenseLabel: string;
   /** 阿修羅對這一段的一句話，常駐顯示；沒有出生日期時為空字串。 */
   headline: string;
+  /** 指向底下印記卡的一句話（這張卡只講這一段人生，細項在印記卡）；沒有數據時為空字串。 */
+  pointer: string;
   /** 收合區：古籍對應與背景。 */
   lines: string[];
   /** 收合區最後一句。 */

@@ -218,13 +218,27 @@ export interface AsuraLifeStageView {
   tenseLabel: string;
   /** 阿修羅對這一段的一句話（常駐顯示）。沒有出生日期時為空字串。 */
   headline: string;
+  /** 指向底下的印記卡：這張卡只講這一段人生本身，細項由底下的印記分析，這句只負責把人帶下去看。 */
+  pointer: string;
   /** 收合區：古籍對應、心理學與政府統計的背景，全是阿修羅口氣。 */
   lines: string[];
   /** 收合區最後一句：歲數是後人的線（每段說法不同）；時柱那段另加「不是預言」。 */
   note: string;
 }
 
-export function buildLifeStageView(key: LifePillarKey, birthDate: string | undefined, now: Date): AsuraLifeStageView {
+/** 指向底下印記卡的小品（有印記／沒印記各 3 種）。{N} 會換成印記枚數。 */
+const POINTER_WITH: readonly string[] = [
+  '這一段，落了 {N} 枚印記。往下，一枚一枚看。',
+  '底下 {N} 枚印記，是這一段的細帳。',
+  '細的，在下面。{N} 枚印記，自己翻。',
+];
+const POINTER_NONE: readonly string[] = [
+  '這一段，沒有落印。路，全靠你自己。',
+  '這一段是空的。刀，你得自己磨。',
+  '這一段沒有印記。你說了算。',
+];
+
+export function buildLifeStageView(key: LifePillarKey, birthDate: string | undefined, now: Date, sealCount?: number): AsuraLifeStageView {
   const def = LIFE_STAGE_DEFS[key];
   const voice = VOICE[key];
   const age = typeof birthDate === 'string' ? completedAge(birthDate, now) : null;
@@ -234,6 +248,7 @@ export function buildLifeStageView(key: LifePillarKey, birthDate: string | undef
     ageText: def.ageText,
     tenseLabel: tense ?? '',
     headline: tense ? choose(voice.headline[tense], `${seed}|h`) : '',
+    pointer: sealCount === undefined ? '' : sealCount > 0 ? choose(POINTER_WITH, `${seed}|p`).replace('{N}', String(sealCount)) : choose(POINTER_NONE, `${seed}|p`),
     // 傳統對應 1 句＋背景 1 句；背景有心理學與統計時，依生日挑一種，避免每張卡都塞同樣的東西
     lines: [choose(voice.role, `${seed}|r`), choose(voice.facts, `${seed}|f`)],
     note: voice.age,
