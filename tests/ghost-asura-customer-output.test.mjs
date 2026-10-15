@@ -26,6 +26,8 @@ Module._resolveFilename = function patched(request, ...rest) {
 
 const { computeGhostAsuraDisplay, normalizeAsuraInput } = await import('../lib/server/ghost-asura-display.ts');
 const { ASURA_WORDINGS } = await import('../features/ghost-asura/wordings.ts');
+const { ASURA_WORDINGS_CORE } = await import('../lib/ghost-asura-wordings-core.ts');
+const { COMPLETE_ASURA_DICTIONARY } = await import('../lib/ghost-asura-complete-dictionary.ts');
 
 const BAD_WORDS = /必定|一定會|註定|大凶|血光|死/;
 const PLACEHOLDER = /此域暫無可用判讀|尚待確認|待校核|undefined|null|\[object/;
@@ -81,5 +83,29 @@ for (const [name, w] of Object.entries(ASURA_WORDINGS)) {
     ok(!bad, `話術庫 ${name}.${key} 含禁字「${bad?.[0]}」`);
   }
 }
+
+// 一份來源：features/ghost-asura/wordings.ts 是客戶頁話術的正本；core（雙命盤頁卡片用）與 dictionary（技能層用）
+// 凡是同名的條目，四欄必須逐字一致，不許各改各的（2026-10-15 同步 13 條後立下）。
+for (const [name, w] of Object.entries(ASURA_WORDINGS)) {
+  const core = ASURA_WORDINGS_CORE[name];
+  if (core) for (const k of ['shortDeclaration', 'coreWarning', 'battleSignificance', 'verdict']) ok(core[k] === w[k], `core 與正本不一致：${name}.${k}`);
+  const dict = COMPLETE_ASURA_DICTIONARY[name];
+  if (dict) {
+    ok(dict.meaningStrong === w.shortDeclaration, `dictionary 與正本不一致：${name}.meaningStrong`);
+    ok(dict.coreMeaning === w.coreWarning, `dictionary 與正本不一致：${name}.coreMeaning`);
+    ok(dict.battleSignificance === w.battleSignificance, `dictionary 與正本不一致：${name}.battleSignificance`);
+    ok(dict.advice === w.verdict, `dictionary 與正本不一致：${name}.advice`);
+  }
+}
+
+// 翻譯層引用「core 檔第幾行有這個詞」，改文字不能讓被引用的詞消失。
+const coreLines = fs.readFileSync('lib/ghost-asura-wordings-core.ts', 'utf8').replace(/\r\n/g, '\n').split('\n');
+const layer = fs.readFileSync('lib/server/ghost-asura-translation-layer.ts', 'utf8');
+let cited = 0;
+for (const m of layer.matchAll(/word: '([^']+)', wordSource: 'lib\/ghost-asura-wordings-core\.ts:(\d+)'/g)) {
+  cited += 1;
+  ok((coreLines[Number(m[2]) - 1] ?? '').includes(m[1]), `翻譯層引用失效：「${m[1]}」不在 core 第 ${m[2]} 行`);
+}
+ok(cited > 0, '應至少有一筆引用（避免正則失效而空轉）');
 
 console.log(`ghost-asura-customer-output: ${checks} checks passed（${CASES.length} 張鎖定命盤＋話術庫，免登入）`);
