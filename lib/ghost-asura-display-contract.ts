@@ -44,15 +44,17 @@ export interface AsuraDisplayRestGroup {
   seals: AsuraDisplaySeal[];
 }
 
-/** 這一段人生的歲數與背景（後端組好的字串，前端只照印；見 lib/ghost-asura-life-stages.ts）。 */
+/** 這一段人生（阿修羅口氣，後端組好的字串，前端只照印；見 lib/ghost-asura-life-stages.ts）。 */
 export interface AsuraDisplayLifeStage {
   ageText: string;
   /** 過去／現在／未來；沒有可驗證的出生日期時為空字串。 */
   tenseLabel: string;
-  roleText: string;
-  basisText: string;
-  contextLines: string[];
-  disclaimer: string;
+  /** 阿修羅對這一段的一句話，常駐顯示；沒有出生日期時為空字串。 */
+  headline: string;
+  /** 收合區：古籍對應與背景。 */
+  lines: string[];
+  /** 收合區最後一句。 */
+  note: string;
 }
 
 export interface AsuraDisplayColumn {

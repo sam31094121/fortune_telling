@@ -345,16 +345,15 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
               aria-label={`${column.heading}印記`}
               data-asura-column={column.key}
             >
+              {column.life && column.life.headline && <p className={styles.lifeHeadline}>{column.life.headline}</p>}
               {column.life && (
                 <details className={styles.lifeDetail} data-asura-life={column.key}>
                   <summary className={styles.lifeSummary}>{GHOST_ASURA_UI.lifeSummary}</summary>
                   <div className={styles.lifeBody}>
-                    <p>{column.life.roleText}</p>
-                    {column.life.contextLines.map((line) => (
+                    {column.life.lines.map((line) => (
                       <p key={line}>{line}</p>
                     ))}
-                    <p className={styles.lifeBasis}>{column.life.basisText}</p>
-                    <p className={styles.lifeBasis}>{column.life.disclaimer}</p>
+                    <p className={styles.lifeBasis}>{column.life.note}</p>
                   </div>
                 </details>
               )}

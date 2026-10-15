@@ -13,7 +13,7 @@ export const GHOST_ASURA_UI = {
   battleField: '命魂戰局',
   secretScroll: '阿修羅秘卷',
   printClash: '印記交鋒',
-  lifeSummary: '這段人生的背景與依據',
+  lifeSummary: '這一役的來歷',
   lifeScrollHint: '往下看這一段的印記',
   sealAwakened: '印記覺醒',
   sealDormant: '印記沉眠',
