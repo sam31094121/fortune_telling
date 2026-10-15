@@ -145,7 +145,10 @@ ok(JSON.stringify(buildLifeStageView('month', '1974-06-28', now)) === JSON.strin
 // ---- 5. 前端不得自己組句或算歲數 ----
 const tsx = fs.readFileSync('features/ghost-asura/components/GhostAsuraCard.tsx', 'utf8');
 ok(!/completedAge|tenseOf|LIFE_STAGE_DEFS|buildLifeStageView/.test(tsx), '前端不得匯入或呼叫人生階段運算');
-ok(tsx.includes('life.tenseLabel') && tsx.includes('life.ageText') && tsx.includes('life.headline') && tsx.includes('life.lines') && tsx.includes('life.note') && tsx.includes('life.pointer'), '前端要照印時態、歲數、一句話、指向句、收合區與說明');
-ok(/<details[^>]*lifeDetail/.test(tsx), '來歷用可收合的卡片，讓客戶自己往下看');
+ok(tsx.includes('life.tenseLabel') && tsx.includes('life.ageText') && tsx.includes('life.headline') && tsx.includes('life.note') && tsx.includes('life.pointer'), '前端要照印時態、歲數、一句話、指向句、收合區與說明');
+// 「這一役的來歷」收合面板已隱藏（業主 2026-10-15：沒有用途）。原碼保留但不得顯示；歲數說明改為常駐一行，避免歲數被誤讀成古籍定論。
+ok(/const SHOW_LIFE_ORIGIN = false as boolean;/.test(tsx), '來歷面板開關必須維持 false，未經明說不得再顯示');
+ok(/\{SHOW_LIFE_ORIGIN && column\.life && \(\s*<details[^>]*lifeDetail/.test(tsx), '來歷面板必須掛在開關後面（原碼保留但不顯示）');
+ok(/column\.life\.note &&/.test(tsx.split('{SHOW_LIFE_ORIGIN && column.life')[0]), '歲數說明要常駐顯示在面板之前');
 
 console.log(`ghost-asura-life-stages: ${checks} checks passed`);

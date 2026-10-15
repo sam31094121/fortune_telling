@@ -1703,4 +1703,4 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 .lifeDetail[open] > .lifeSummary::after { content: '−'; }
 .lifeBody { padding: 0 12px 12px; font-size: 14px; line-height: 1.85; color: #eadfc8; }
 .lifeBody p { margin: 0 0 8px; }
-.lifeBasis { font-size: 13px; color: #bfa9a5; }
+.lifeBasis { margin: 0 0 10px; padding: 0 4px; font-size: 13px; line-height: 1.7; color: #bfa9a5; }
