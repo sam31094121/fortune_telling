@@ -9,6 +9,7 @@
  * features/ghost-asura 本身仍被 node 測試直接載入，故不在那裡加 server-only，改由本包裝層守門。
  */
 
+import { buildLifeStageView } from '@/lib/ghost-asura-life-stages';
 import 'server-only';
 import { Solar } from 'lunar-typescript';
 import { calculateDualChart, type DualChartResult } from '@/lib/dual-chart';
@@ -250,7 +251,7 @@ export function computeTimeAxis(result: DualChartResult, gender: 'male' | 'femal
 export function toAsuraDisplay(
   reading: GhostAsuraReading,
   crossChecked: ReadonlySet<string>,
-  options: { hourAssumed?: boolean; timeAxis?: AsuraTimeAxis | null; targetName?: string | null; identityTarget?: 'self' | 'guest' | null; declaredSex?: 'MALE' | 'FEMALE' | null } = {},
+  options: { hourAssumed?: boolean; timeAxis?: AsuraTimeAxis | null; targetName?: string | null; identityTarget?: 'self' | 'guest' | null; declaredSex?: 'MALE' | 'FEMALE' | null; birthDate?: string; now?: Date } = {},
 ): AsuraDisplay {
   const hourAssumed = options.hourAssumed === true;
   const columns: AsuraDisplayColumn[] = PILLAR_ORDER.map((key) => {
@@ -264,6 +265,7 @@ export function toAsuraDisplay(
       lead: seals[0]?.name ?? '暫無命中',
       countText: `共 ${seals.length} 枚印記`,
       seals,
+      life: buildLifeStageView(key, options.birthDate, options.now ?? new Date()),
     };
   });
 
@@ -579,6 +581,8 @@ export function computeGhostAsuraDisplay(raw: unknown, now: Date = new Date()): 
     targetName,
     identityTarget: effectiveTarget,
     declaredSex,
+    birthDate: typeof engineInput.birthDate === 'string' ? engineInput.birthDate : undefined,
+    now,
   }));
   // 本性卡：四道關 → 人格解析層（主證據）→ 阿修羅翻譯層（只翻譯）→ toPublic；瀏覽器只拿 AsuraNatureCardPublic（零術語）。
   // 三卡：同一翻譯層只換字＋依 natureKey／riskKeys 加一句故事線（新增 story 欄），篩選與項目不動。

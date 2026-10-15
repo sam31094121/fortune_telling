@@ -1692,3 +1692,16 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   background: linear-gradient(90deg, color-mix(in srgb, var(--p-color) 24%, transparent), transparent 85%);
   color: #fff4cf;
 }
+
+/* —— 人生階段：歲數與過去／現在／未來標籤（標題列），背景與依據預設收合，讓客戶自己往下看卡片 —— */
+.lifeHead { display: flex; justify-content: center; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+.lifeTense { font-size: 12px; font-weight: 700; color: #1b1b19; background: #fcea86; border-radius: 999px; padding: 2px 10px; line-height: 1.6; }
+.lifeAge { font-size: 13px; font-weight: 700; color: #fff4cf; line-height: 1.6; }
+.lifeDetail { margin: 0 0 10px; border: 1px solid rgba(248, 199, 88, 0.3); border-radius: 10px; background: rgba(255, 255, 255, 0.04); }
+.lifeSummary { cursor: pointer; list-style: none; padding: 10px 12px; font-size: 14px; font-weight: 700; color: #fcea86; min-height: 44px; display: flex; align-items: center; }
+.lifeSummary::-webkit-details-marker { display: none; }
+.lifeSummary::after { content: '+'; margin-left: auto; color: #fcea86; }
+.lifeDetail[open] > .lifeSummary::after { content: '−'; }
+.lifeBody { padding: 0 12px 12px; font-size: 14px; line-height: 1.85; color: #eadfc8; }
+.lifeBody p { margin: 0 0 8px; }
+.lifeBasis { font-size: 13px; color: #bfa9a5; }

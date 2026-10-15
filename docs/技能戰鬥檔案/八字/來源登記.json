@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-09-27",
+  "updatedAt": "2026-10-15",
   "rule": "八字沿用《易經》來源治理（docs/技能戰鬥檔案/易經/來源治理.md）：交叉比對的來源、權威性的檔案、大數據的來源；狀態由 lib/iching-source-gate.ts 計算，不得手填 VERIFIED。",
   "sources": [
     {
@@ -8,10 +8,15 @@
       "author": "張楠；秦慎安校勘",
       "locator": "https://upload.wikimedia.org/wikipedia/commons/d/d1/NLC511-027032013020556-10361_神峰通考_第2卷.pdf",
       "data_type": "國家圖書館民國文獻掃描；卷四印頁14隔角（第二冊PDF16）",
-      "kind": "原典", "can_cite": "PASS", "can_reproduce": "PASS",
-      "bulk_extraction": "待查核", "automated_crawl": "待查核", "training_use": "待查核",
+      "kind": "原典",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
       "license_terms": "Commons標示公有領域古籍機械掃描；僅引用少量已核原頁，不移除館藏浮水印。",
-      "accessed_at": "2026-09-27", "edition": "中華書局／文明書局1929年11月秦慎安校勘本，第二冊",
+      "accessed_at": "2026-09-27",
+      "edition": "中華書局／文明書局1929年11月秦慎安校勘本，第二冊",
       "trust": "A",
       "note": "已目視原頁：以日時上起，日與時隔一字；丑卯、辰午、未酉、戌子四例。只支持日支順移二支查時，不能放到年柱。PDF SHA256 CCB21CF1215A1E487FE79497839F9343534AF42A2E3AF6C1E7DD04F3FAEA9289；SHA1與Commons公布值相符。"
     },
@@ -20,22 +25,34 @@
       "author": "Wikimedia Commons／中國國家圖書館館藏元資料",
       "locator": "https://commons.wikimedia.org/wiki/File:NLC511-027032013020556-10361_神峰通考_第2卷.pdf",
       "data_type": "公開館藏書目、1929年月版本、頁數與檔案指紋",
-      "kind": "研究圖書館書目", "can_cite": "PASS", "can_reproduce": "PASS",
-      "bulk_extraction": "待查核", "automated_crawl": "待查核", "training_use": "待查核",
+      "kind": "研究圖書館書目",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
       "license_terms": "Commons公開館藏元資料；結構化資料CC0，文字遵其頁面授權。本項只記書目事實。",
-      "accessed_at": "2026-09-27", "edition": "Commons檔案頁oldid=1155656407；1929年11月本",
-      "trust": "A", "note": "只核版本及追溯，不是獨立公式、官方準確性認證或大量命例。"
+      "accessed_at": "2026-09-27",
+      "edition": "Commons檔案頁oldid=1155656407；1929年11月本",
+      "trust": "A",
+      "note": "只核版本及追溯，不是獨立公式、官方準確性認證或大量命例。"
     },
     {
       "source_id": "S-SHENFENG-WIKISOURCE-GEJIAO",
       "author": "張楠原著；維基文庫公開轉錄",
       "locator": "https://zh.wikisource.org/zh-hant/神峰通考",
       "data_type": "隔角段公開轉錄；與1929掃描逐字核對取主、查柱及四例",
-      "kind": "公開數位文本", "can_cite": "PASS", "can_reproduce": "PASS",
-      "bulk_extraction": "待查核", "automated_crawl": "待查核", "training_use": "待查核",
+      "kind": "公開數位文本",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
       "license_terms": "原著為公有領域；維基文庫文字依其CC BY-SA條款，保留連結及署名；本項僅核短段。",
-      "accessed_at": "2026-09-27", "edition": "2026-09-27讀取的隔角段；僅取與1929卷四14頁完全一致的文字",
-      "trust": "B", "note": "轉錄不能單獨核定其他條目或出版版本；與掃描屬同一原著，不冒充不同古籍共識。"
+      "accessed_at": "2026-09-27",
+      "edition": "2026-09-27讀取的隔角段；僅取與1929卷四14頁完全一致的文字",
+      "trust": "B",
+      "note": "轉錄不能單獨核定其他條目或出版版本；與掃描屬同一原著，不冒充不同古籍共識。"
     },
     {
       "source_id": "S-TAIJIN-V6-ZJLIB-SCAN",
@@ -626,6 +643,108 @@
       "trust": "A",
       "tracked_path": "docs/技能戰鬥檔案/八字/shensha-rule-integrity/references/特星神煞擴充.md",
       "note": "本站衍生特星神煞的擴充記錄；自 2026-09-27 起列八項本派規則、十項流年神煞進度追蹤與對應閘門。"
+    },
+    {
+      "source_id": "S-YUANHAI-WIKISOURCE",
+      "author": "（題）徐大升編；維基文庫轉錄",
+      "locator": "https://zh.wikisource.org/wiki/淵海子平",
+      "data_type": "《淵海子平》〈詳解定真論〉〈看命入式〉〈論月令〉〈六親總篇〉：四柱對應祖上、父母、自身（日支妻妾）、子息；三節皆無具體歲數",
+      "kind": "公開數位文本",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "accessed_at": "2026-10-15",
+      "license_terms": "維基文庫文字依頁面授權；本項只引用章節名稱與柱位對應關係，不複製原文。",
+      "edition": "維基文庫現行版（頁面標示「未完成」，部分原文尚未收錄），2026-10-15 讀取；非可追溯的刊本",
+      "trust": "C",
+      "note": "2026-10-15 上網查證：古籍把年月日時分給親屬（祖上、父母、自身、子息），〈論月令〉只說年對應早年；沒有出現「1–16、17–32、33–48、49 歲」之類的歲數。這組歲數是後世通行簡化，不是此書原文。"
+    },
+    {
+      "source_id": "S-MOI-FIRSTBIRTH-109",
+      "author": "內政部統計處",
+      "locator": "https://www.moi.gov.tw/cp.aspx?n=11698",
+      "data_type": "官方統計：108 年生育第 1 胎之生母平均年齡 31 歲（內政統計通報 109 年第 20 週）",
+      "kind": "原始研究",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "accessed_at": "2026-10-15",
+      "license_terms": "政府網站公開資料；大量取用與再散布條款待查核。本項只引用單一數字並標明出處。",
+      "edition": "內政統計通報 109 年第 20 週（頁面更新日期 109-06-23），108 年資料；頁面未說明按發生日期或登記日期",
+      "trust": "B",
+      "note": "2026-10-15 讀取原頁。只作「這個年齡階段多數人面對什麼」的統計背景，不是對個人的預測。"
+    },
+    {
+      "source_id": "S-MOL-LABOR-SURVEY-114",
+      "author": "勞動部統計處",
+      "locator": "https://www.mol.gov.tw/1607/1632/1633/87690/",
+      "data_type": "官方統計：114 年勞工生活及就業狀況調查，已規劃退休者平均規劃 60.9 歲（占 14.6%；82% 尚未規劃；有效樣本 4,029 份）",
+      "kind": "原始研究",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "accessed_at": "2026-10-15",
+      "license_terms": "政府網站公開資料；大量取用與再散布條款待查核。本項只引用單一數字並標明出處。",
+      "edition": "114 年勞工生活及就業狀況調查統計結果新聞稿，2026-01-23；有效樣本 4,029 份",
+      "trust": "B",
+      "note": "2026-10-15 讀取原頁。60.9 歲是已規劃者的「規劃值」，不是全體勞工的實際退休年齡；本站話術已同時寫出 14.6% 的占比。"
+    },
+    {
+      "source_id": "S-ARNETT-2000",
+      "author": "Jeffrey J. Arnett",
+      "locator": "https://doi.org/10.1037/0003-066X.55.5.469",
+      "data_type": "成年初顯期（emerging adulthood）：十八歲到二十多歲的身分探索、不穩定、可能性",
+      "kind": "原始研究",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "accessed_at": "2026-10-15",
+      "license_terms": "期刊論文受著作權保護；本站只引用概念名稱與年齡範圍，不複製原文。",
+      "edition": "American Psychologist 55(5), 469–480（2000）；書目待查核，本站未逐頁核對原文（本次只讀到二手整理）",
+      "trust": "A",
+      "note": "原文以 18–25 歲為主，後續著作通行 18–29 歲；本站話術採「約 18 到 29 歲」，屬二手整理，頁碼待查證。"
+    },
+    {
+      "source_id": "S-ERIKSON-1950",
+      "author": "Erik H. Erikson",
+      "locator": "https://wwnorton.com/books/9780393310689",
+      "data_type": "心理社會發展八階段（信任、勤勉、認同、親密、傳承、整合）及各階段約略年齡",
+      "kind": "學術出版",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "accessed_at": "2026-10-15",
+      "license_terms": "圖書受著作權保護；本站只引用階段名稱與約略年齡，不複製原文。",
+      "edition": "Childhood and Society（1950，W. W. Norton）；版次與頁碼待查核，本站未逐頁核對原文（本次只讀到二手整理）",
+      "trust": "B",
+      "note": "各二手來源的年齡分界不一致（例如親密期 18–40 或 19–25），話術一律用「約」；Erikson 本人也說時程會因人與文化而異。"
+    },
+    {
+      "source_id": "S-LEVINSON-1978",
+      "author": "Daniel J. Levinson",
+      "locator": "https://en.wikipedia.org/wiki/Daniel_Levinson",
+      "data_type": "成人發展分期與中年轉換期（約 40–45 歲）",
+      "kind": "學術出版",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "accessed_at": "2026-10-15",
+      "license_terms": "圖書受著作權保護；本站只引用概念名稱與約略年齡，不複製原文。",
+      "edition": "The Seasons of a Man's Life（1978，Knopf）；版次與頁碼待查核，本站未逐頁核對原文（本次只讀到二手整理）",
+      "trust": "B",
+      "note": "研究對象為 35–45 歲的 40 位男性訪談，分期歲數被視為其理論中最具爭議的部分；話術只取「約 40 歲前後的轉換期」。"
     }
   ],
   "claims": [
@@ -1059,10 +1178,22 @@
       "claim_id": "C-DUAL-SHENSHA-JIANGXING",
       "title": "雙命盤將星｜增訂命理探原日支查年月時指定取法",
       "domain": "八字知識",
-      "files": ["lib/dual-chart-iching-shensha.ts", "tests/dual-chart-iching-shensha-extension.test.ts"],
-      "authority_files": ["S-MINGLI-TANYUAN-1937-SCAN", "S-MINGLI-TANYUAN-1938-EDITION"],
-      "big_data_sources": ["S-NCL-MINGLI-TANYUAN-CATALOG"],
-      "cross_references": ["S-MINGLI-TANYUAN-1937-SCAN", "S-MINGLI-TANYUAN-1938-EDITION", "S-NCL-MINGLI-TANYUAN-CATALOG"],
+      "files": [
+        "lib/dual-chart-iching-shensha.ts",
+        "tests/dual-chart-iching-shensha-extension.test.ts"
+      ],
+      "authority_files": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION"
+      ],
+      "big_data_sources": [
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
+      "cross_references": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
       "conflicts": [],
       "status": "VERIFIED",
       "note": "只採袁樹珊1937訂正本明文的日支取主、查年／月／時法；日柱只作取主，不列回日柱。參考照片把將星列於日柱，與本指定版本不符，標記為照片方法受限，不為配圖擴大規則。",
@@ -1081,10 +1212,21 @@
       "claim_id": "C-DUAL-SHENSHA-GEJIAO",
       "title": "雙命盤隔角｜神峰通考1929本日時取法",
       "domain": "八字知識",
-      "files": ["lib/dual-chart-iching-shensha.ts", "tests/dual-chart-iching-shensha-extension.test.ts"],
-      "authority_files": ["S-SHENFENG-1929-V2-SCAN"],
-      "big_data_sources": ["S-SHENFENG-1929-CATALOG"],
-      "cross_references": ["S-SHENFENG-1929-V2-SCAN", "S-SHENFENG-1929-CATALOG", "S-SHENFENG-WIKISOURCE-GEJIAO"],
+      "files": [
+        "lib/dual-chart-iching-shensha.ts",
+        "tests/dual-chart-iching-shensha-extension.test.ts"
+      ],
+      "authority_files": [
+        "S-SHENFENG-1929-V2-SCAN"
+      ],
+      "big_data_sources": [
+        "S-SHENFENG-1929-CATALOG"
+      ],
+      "cross_references": [
+        "S-SHENFENG-1929-V2-SCAN",
+        "S-SHENFENG-1929-CATALOG",
+        "S-SHENFENG-WIKISOURCE-GEJIAO"
+      ],
       "conflicts": [],
       "status": "VERIFIED",
       "note": "2026-09-27使用者授權補充本卡缺項來源。僅此新增項採神峰通考，不更換原八项公式或四柱核心。狀態由來源守門重算，不信此欄。三個記錄分别是原頁、版本書目、轉錄對读，並非三部獨立原典或大數據命例驗證。",
@@ -1103,10 +1245,22 @@
       "claim_id": "C-DUAL-SHENSHA-YUANCHEN",
       "title": "雙命盤元辰｜太黅卷六年起查時指定取法",
       "domain": "八字知識",
-      "files": ["lib/dual-chart-iching-shensha.ts", "tests/dual-chart-iching-shensha-extension.test.ts"],
-      "authority_files": ["S-TAIJIN-V6-ZJLIB-SCAN", "S-SANMING-TONGHUI-1926-YUANCHEN"],
-      "big_data_sources": ["S-TAIJIN-V6-COMMONS-CATALOG"],
-      "cross_references": ["S-TAIJIN-V6-ZJLIB-SCAN", "S-SANMING-TONGHUI-1926-YUANCHEN", "S-TAIJIN-V6-COMMONS-CATALOG"],
+      "files": [
+        "lib/dual-chart-iching-shensha.ts",
+        "tests/dual-chart-iching-shensha-extension.test.ts"
+      ],
+      "authority_files": [
+        "S-TAIJIN-V6-ZJLIB-SCAN",
+        "S-SANMING-TONGHUI-1926-YUANCHEN"
+      ],
+      "big_data_sources": [
+        "S-TAIJIN-V6-COMMONS-CATALOG"
+      ],
+      "cross_references": [
+        "S-TAIJIN-V6-ZJLIB-SCAN",
+        "S-SANMING-TONGHUI-1926-YUANCHEN",
+        "S-TAIJIN-V6-COMMONS-CATALOG"
+      ],
       "conflicts": [],
       "status": "VERIFIED",
       "note": "只採《太黅》卷六明文可追溯的本命年支起算、男女陰陽方向及時柱查找；不擴為月日年全查，不接運勢，不併入《三命通會》正／半元辰或七煞異說。",
@@ -1125,10 +1279,22 @@
       "claim_id": "C-DUAL-SHENSHA-YANGREN",
       "title": "雙命盤羊刃｜增訂命理探原指定十干取法",
       "domain": "八字知識",
-      "files": ["lib/dual-chart-iching-shensha.ts", "tests/dual-chart-iching-shensha-extension.test.ts"],
-      "authority_files": ["S-MINGLI-TANYUAN-1937-SCAN", "S-MINGLI-TANYUAN-1938-EDITION"],
-      "big_data_sources": ["S-NCL-MINGLI-TANYUAN-CATALOG"],
-      "cross_references": ["S-MINGLI-TANYUAN-1937-SCAN", "S-MINGLI-TANYUAN-1938-EDITION", "S-NCL-MINGLI-TANYUAN-CATALOG"],
+      "files": [
+        "lib/dual-chart-iching-shensha.ts",
+        "tests/dual-chart-iching-shensha-extension.test.ts"
+      ],
+      "authority_files": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION"
+      ],
+      "big_data_sources": [
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
+      "cross_references": [
+        "S-MINGLI-TANYUAN-1937-SCAN",
+        "S-MINGLI-TANYUAN-1938-EDITION",
+        "S-NCL-MINGLI-TANYUAN-CATALOG"
+      ],
       "conflicts": [],
       "status": "VERIFIED",
       "note": "只用於雙命盤特星神煞擴充，不改其他卡片。1937掃描PDF103／印頁72與1938再版PDF80–81羊刃段已目視對讀。原文：甲日羊刃在卯，乙日羊刃在辰，丙戊日羊刃在午，丁己日羊刃在未，庚日羊刃在酉，辛日羊刃在戌，壬日羊刃在子，癸日羊刃在丑。如甲日見卯年卯月卯時皆是。依既有来源治理的原典、版本、書目三類核對，不冒充三個獨立研究或雙人簽核。只證指定十干表與取主/查柱，非全流派共識；不含飛刃、吉凶斷語。",
@@ -1141,13 +1307,15 @@
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:NLC416-07jh011647-5318_命理探源.pdf?page=103#file",
         "printedPage": "72"
       },
-      "comparisons": [{
-        "status": "MATCHED_SCOPE",
-        "title": "1938再版本：羊刃十干表與查柱範圍",
-        "detail": "與1937訂正本的十干表及甲日見卯年/月/時例相同；這是同書版本對讀，不是跨書共識。",
-        "sourceUrl": "https://taiwanebook.ncl.edu.tw/zh-tw/book/NCL-9910006747",
-        "locator": "1938再版PDF80–81，羊刃段"
-      }]
+      "comparisons": [
+        {
+          "status": "MATCHED_SCOPE",
+          "title": "1938再版本：羊刃十干表與查柱範圍",
+          "detail": "與1937訂正本的十干表及甲日見卯年/月/時例相同；這是同書版本對讀，不是跨書共識。",
+          "sourceUrl": "https://taiwanebook.ncl.edu.tw/zh-tw/book/NCL-9910006747",
+          "locator": "1938再版PDF80–81，羊刃段"
+        }
+      ]
     },
     {
       "claim_id": "C-BAZI-SHENSHA-HUAGAI",
@@ -1220,6 +1388,45 @@
         "summary": "八字為核心，衍生紫微，再衍生特星神煞；客戶填寫資料 → 八字運算 → 紫微排盤 → 特星神煞。"
       },
       "comparisons": []
+    },
+    {
+      "claim_id": "C-ASURA-LIFE-STAGES",
+      "title": "鬼魅阿修羅四張卡的人生階段與歲數：傳統對應、統計背景與公信力定位",
+      "domain": "八字知識",
+      "files": [
+        "lib/ghost-asura-life-stages.ts",
+        "tests/ghost-asura-life-stages.test.mjs"
+      ],
+      "authority_files": [
+        "S-YUANHAI-WIKISOURCE",
+        "S-ARNETT-2000"
+      ],
+      "big_data_sources": [
+        "S-MOI-FIRSTBIRTH-109",
+        "S-MOL-LABOR-SURVEY-114"
+      ],
+      "cross_references": [
+        "S-YUANHAI-WIKISOURCE",
+        "S-ARNETT-2000",
+        "S-ERIKSON-1950",
+        "S-LEVINSON-1978",
+        "S-MOI-FIRSTBIRTH-109",
+        "S-MOL-LABOR-SURVEY-114"
+      ],
+      "conflicts": [
+        {
+          "topic": "四柱對應歲數：古籍無歲數，後世分界不一",
+          "sources": [
+            "S-YUANHAI-WIKISOURCE"
+          ],
+          "difference": "《淵海子平》把四柱分給祖上、父母、自身、子息，沒有寫歲數；「約 1–16／17–32／33–48／49 歲以後」是現代命理網站的通行簡化，各家分界略有不同，也沒有找到同儕審查研究或統計證明某一柱會在某歲數應驗某事。",
+          "weight_note": "古籍（C 級公開數位文本、頁面未完成）對歲數沉默；現代網站為二手轉述。",
+          "adopted": "歲數只標「約」，並在畫面明示「後世通行的簡化分法，不是古籍原文」；傳統對應只寫古籍有的親屬關係，不把「晚年」硬掛給時柱；統計與心理學只當背景，不當預測。",
+          "reason": "來源對「歲數」一事沒有一致且可追溯的依據。"
+        }
+      ],
+      "note": "客戶畫面不得宣稱「大數據證實」「科學證實」或「國家認證」；統計數字必須同時標機關、年度與口徑。",
+      "status": "CONFLICT"
     }
   ]
 }

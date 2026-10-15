@@ -44,12 +44,24 @@ export interface AsuraDisplayRestGroup {
   seals: AsuraDisplaySeal[];
 }
 
+/** 這一段人生的歲數與背景（後端組好的字串，前端只照印；見 lib/ghost-asura-life-stages.ts）。 */
+export interface AsuraDisplayLifeStage {
+  ageText: string;
+  /** 過去／現在／未來；沒有可驗證的出生日期時為空字串。 */
+  tenseLabel: string;
+  roleText: string;
+  basisText: string;
+  contextLines: string[];
+  disclaimer: string;
+}
+
 export interface AsuraDisplayColumn {
   key: 'year' | 'month' | 'day' | 'hour';
   heading: string;
   lead: string;
   countText: string;
   seals: AsuraDisplaySeal[];
+  life?: AsuraDisplayLifeStage;
 }
 
 export interface AsuraDisplayStat {

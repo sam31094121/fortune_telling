@@ -327,6 +327,12 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
                 <div className={styles.pillarLabel}>{column.heading}</div>
                 <div className={styles.pillarValue} data-asura-leading>{column.lead}</div>
                 <small className={styles.pillarCount}>{column.countText}</small>
+                {column.life && (
+                  <div className={styles.lifeHead}>
+                    {column.life.tenseLabel && <span className={styles.lifeTense}>{column.life.tenseLabel}</span>}
+                    <span className={styles.lifeAge}>{column.life.ageText}</span>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -339,6 +345,19 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
               aria-label={`${column.heading}印記`}
               data-asura-column={column.key}
             >
+              {column.life && (
+                <details className={styles.lifeDetail} data-asura-life={column.key}>
+                  <summary className={styles.lifeSummary}>{GHOST_ASURA_UI.lifeSummary}</summary>
+                  <div className={styles.lifeBody}>
+                    <p>{column.life.roleText}</p>
+                    {column.life.contextLines.map((line) => (
+                      <p key={line}>{line}</p>
+                    ))}
+                    <p className={styles.lifeBasis}>{column.life.basisText}</p>
+                    <p className={styles.lifeBasis}>{column.life.disclaimer}</p>
+                  </div>
+                </details>
+              )}
               {column.seals.length === 0 && (
                 <p className={styles.pillarEmpty} aria-label={`${column.heading}目前沒有對應印記`}>—</p>
               )}

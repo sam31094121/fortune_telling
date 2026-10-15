@@ -122,6 +122,7 @@
     "test:asura-narrative-consistency": "node tests/asura-narrative-consistency.test.mjs",
     "test:asura-no-fabrication": "node tests/asura-no-fabrication.test.cjs",
     "test:asura-frontend-only": "node tests/asura-frontend-only.test.cjs",
+    "test:ghost-asura-life-stages": "npx --yes tsx tests/ghost-asura-life-stages.test.mjs",
     "test:ghost-asura-customer-output": "npx --yes tsx tests/ghost-asura-customer-output.test.mjs",
     "test:ghost-asura-skill": "node tests/ghost-asura-skill-coverage.test.cjs",
     "test:ghost-asura-completeness": "node tests/ghost-asura-completeness.test.mjs",

@@ -51,7 +51,7 @@ fi
 
 # 二、守門測試。命理三核心是招牌，神獸是目前主要施工面。
 FAILED=""
-for t in test:three-core test:three-in-one test:taiji-ios test:ghost-asura-skill test:ghost-asura-customer-output \
+for t in test:three-core test:three-in-one test:taiji-ios test:ghost-asura-skill test:ghost-asura-customer-output test:ghost-asura-life-stages \
          test:beast-game test:beast-ritual test:beast-clip test:beast-voice \
          test:beast-battlefield test:beast-bridge test:beast-interactive:full \
          test:beast-difficulty test:iching-sources test:ziwei-quanshu test:ziwei-wording-authority test:mobile-zoom-pan test:locked-cards test:share-version test:beast-backend-only \
