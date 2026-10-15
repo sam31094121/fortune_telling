@@ -33,8 +33,8 @@ const { resolveAsuraInterpretation } = await import('../features/ghost-asura/ski
 const { lintAsuraVoice } = await import('../lib/server/ghost-asura-voice.ts');
 const { ASURA_FORBIDDEN_TERMS } = await import('../lib/asura-display-alias.ts');
 
-/** 分批施工：每完成一批就把這個數字往上調。第一批＝出現率前 12 名。 */
-const COVERED_AT_LEAST = 12;
+/** 分批施工：每完成一批就把這個數字往上調。46 條全部有逐印記話術（第一批前 12 名、第二批 13～24 名、第三批最後 22 條）。 */
+const COVERED_AT_LEAST = 46;
 
 let checks = 0;
 const ok = (cond, msg) => { assert.ok(cond, msg); checks += 1; };
