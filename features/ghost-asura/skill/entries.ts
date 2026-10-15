@@ -47,6 +47,17 @@ const WARNING_BY_POLARITY: Record<AsuraPolarity, string[]> = {
 };
 
 /**
+ * 開場攻心句（客戶打開頁面第一眼讀到的粗體標題）：原本只是名詞，例如「隔著一道牆。」，
+ * 沒有「你」、沒有懸念、沒有價值。規範見 docs/技能戰鬥檔案/鬼魅阿修羅/實戰話術範例.md〈〇〉。
+ * 規則：直指「你」＋一個懸念或反差＋一句價值；短；不恐嚇、不下斷言。
+ */
+const DECLARATION_BY_POLARITY: Record<AsuraPolarity, (theme: string) => string> = {
+  positive: (t) => `「${t}」在你這邊：這是本錢，別讓它閒著。`,
+  dynamic: (t) => `「${t}」在你身上發力：用對了就是武器。`,
+  caution: (t) => `有一處你得先看清：「${t}」。`,
+};
+
+/**
  * 戰局句：每個極性 5 種句型（原本只有 2 種，46 張自動生成的印記讀起來像同一張）。
  * 風格規則與手寫話術一致：兩面並陳（好處與代價一起說）、不超額宣稱（說明它只是整體條件的一部分）、
  * 結尾動作句型不重複。解析器依編號挑句型（resolver.ts 的 pickByAsuraId），同一編號永遠得到同一句。
@@ -98,7 +109,7 @@ function buildEntry(asuraId: string): AsuraSkillEntry {
     domain: [...seed.domain],
     polarity: seed.polarity,
     keywords: [...seed.keywords],
-    declarationTemplates: theme ? [`${theme}。`] : [],
+    declarationTemplates: theme ? [DECLARATION_BY_POLARITY[seed.polarity](theme)] : [],
     interpretationTemplates: imagery
       ? [`${seed.coreMeaning}{pillar}${imagery}`, `${seed.coreMeaning}${imagery}{pillar}`]
       : [],

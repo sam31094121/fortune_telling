@@ -20,7 +20,7 @@ import { assertThreeInOnePassed, runThreeInOne } from '@/lib/three-in-one';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const PROMPT_VERSION = 'teacher-v17-persuasion-authority';
+const PROMPT_VERSION = 'teacher-v18-persuasion-hook';
 
 type RouteContext = { params: Promise<{ analysisId: string }> };
 

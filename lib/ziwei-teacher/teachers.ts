@@ -190,6 +190,7 @@ const PERSUASION_SCENES = `①講具體場景：不寫「事業有變動」這�
 const PERSUASION_TWO_SIDES = `②兩面都說：每個傾向都要同時交代好處與代價（配得好會怎樣、配不好會怎樣），只報喜或只報憂都會讓人不信。`;
 const PERSUASION_NO_OVERCLAIM = `③不超額宣稱：星曜與雜曜只是描述盤面的形容詞，走勢要看整張盤的星曜組合、亮度、四化與三方四正；不得把任何一顆星寫成單獨決定命運，不得說出自《紫微斗數全書》（除非資料明載）。`;
 const PERSUASION_AUTHORITY = `⑤有依據才引用：只要上方「引用依據表」標了古籍等級，就主動用那一級允許的說法替結論背書（例如「這顆星的位置依《紫微斗數全書》口訣排出」），讓讀者知道盤不是亂排的；沒標古籍口訣的星曜，只能說「通行排盤體系的讀法」。依據只證明位置排得對，不證明預測準，不得把兩者混為一談。`;
+const PERSUASION_HOOK = `⑥開場攻心力：第一句要直指「你」，並同時帶一個具體的反差或懸念（例如「不是…是…」），讓讀者想讀下一句，也要讓人感覺讀完能帶走一個看見；但不得用恐嚇或斷言開場，且仍須遵守本老師對第一句的既有規定。`;
 const PERSUASION_NEXT_STEP = `④給一個可做的下一步：結尾落在一個今天就能做的具體小動作，不收在宿命或空泛鼓勵。`;
 
 /** 「鬼魅解盤」（LIFE_MASTER 恐怖段 + NARRATIVE_MASTER 鬼魅段）共用的五大元素規格：這是恐怖片等級的沉浸遊戲，五者缺一不可，但全部必須是本宮真實星曜/煞曜/四化的電影化再現，不能脫離命盤另外編故事。 */
@@ -305,6 +306,7 @@ ${PERSUASION_TWO_SIDES}
 ${PERSUASION_NO_OVERCLAIM}
 ${PERSUASION_AUTHORITY}
 ${PERSUASION_NEXT_STEP}
+${PERSUASION_HOOK}
 禁止談論命盤結構術語本身，禁止寫成故事或畫面比喻。
 
 ${renderContext(context)}
@@ -369,6 +371,7 @@ finalMetaphor 是全片的道德結尾：可以陰暗、有餘韻，但最後要
 ${PERSUASION_TWO_SIDES}（鬼魅老師用象徵呈現：畫面裡要同時有壓力與一道出口）
 ${PERSUASION_NO_OVERCLAIM}
 ${PERSUASION_AUTHORITY}
+${PERSUASION_HOOK}
 範例語氣（命宮七殺×紫微）：「城牆上的燈只亮半盞。統帥沒有回頭，卻知道身後那座城仍在等一個命令。」
 
 ${renderContext(context)}
