@@ -66,6 +66,7 @@ for (const body of CASES) {
   }
   const { audit, ...shown } = out; // audit 是稽核資料，不上畫面
   for (const text of collectStrings(shown)) {
+    ok(!/兵不赤/.test(text), `${label}：成語被名稱替換改壞：${text.slice(0, 60)}`);
     const bad = BAD_WORDS.exec(text);
     ok(!bad, `${label}：畫面出現禁字「${bad?.[0]}」：${text.slice(0, 60)}`);
     // 這兩句單獨成一個字串，是畫面上刻意保留的誠實狀態字（stats.label、戰場分域查無證據時），不是佔位字外洩；
@@ -107,5 +108,16 @@ for (const m of layer.matchAll(/word: '([^']+)', wordSource: 'lib\/ghost-asura-w
   ok((coreLines[Number(m[2]) - 1] ?? '').includes(m[1]), `翻譯層引用失效：「${m[1]}」不在 core 第 ${m[2]} 行`);
 }
 ok(cited > 0, '應至少有一筆引用（避免正則失效而空轉）');
+
+// 成語保護：原名（血刃…）整段替換會把成語弄成錯字（曾把「兵不血刃」顯示成「兵不赤血刃印」）。
+const { createAsuraCustomerCopy, PROTECTED_IDIOMS } = await import('../features/ghost-asura/customerCopy.ts');
+const copy = createAsuraCustomerCopy([]);
+for (const idiom of PROTECTED_IDIOMS) ok(copy(idiom) === idiom, `成語被改壞：${idiom} → ${copy(idiom)}`);
+ok(copy('目光與心意皆為兵器，兵不血刃亦能制敵。') === '目光與心意皆為兵器，兵不血刃亦能制敵。', '魅力引力的成語要原樣');
+ok(copy('這一刀是血刃。') !== '這一刀是血刃。', '成語以外的原名仍要正常替換（保護不能放過頭）');
+const everyWording = JSON.stringify(Object.values(ASURA_WORDINGS));
+ok(!everyWording.includes('兵不赤血刃印'), '話術庫裡不得有被改壞的成語');
+// 客戶實際看到的每個字也不得出現這個錯字（4 張鎖定命盤都已掃過，這裡用字面再擋一次）
+ok(PROTECTED_IDIOMS.every((i) => !i.includes('赤')), '成語表本身不得含替換後的名稱');
 
 console.log(`ghost-asura-customer-output: ${checks} checks passed（${CASES.length} 張鎖定命盤＋話術庫，免登入）`);
