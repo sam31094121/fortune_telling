@@ -2897,7 +2897,7 @@ export default function HomePage() {
                 <span className="home-oracle-3d-emblem__glyph">緣</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-block rounded-full bg-rose-500/10 border border-rose-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-rose-300 uppercase animate-pulse"><HomeTranslatedText text={"易經 · 靈魂雙星配對"} /></span>
+                <span className="hidden rounded-full bg-rose-500/10 border border-rose-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-rose-300 uppercase animate-pulse"><HomeTranslatedText text={"易經 · 靈魂雙星配對"} /></span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-rose-100 tracking-wide flex items-center gap-2">
                   <span><HomeTranslatedText text={"易經靈魂配對"} /></span>
                   <span className="text-xs font-sans text-rose-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 雙人命盤 · 相處節奏 · 互補點分析"} /></span>
@@ -2928,7 +2928,7 @@ export default function HomePage() {
                 <span className="home-oracle-3d-emblem__glyph">生</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-flex max-w-full rounded-full bg-violet-500/10 border border-violet-500/25 px-3 py-1 text-[10px] font-bold leading-none tracking-[0.12em] text-violet-300 uppercase animate-pulse">
+                <span className="hidden max-w-full rounded-full bg-violet-500/10 border border-violet-500/25 px-3 py-1 text-[10px] font-bold leading-none tracking-[0.12em] text-violet-300 uppercase animate-pulse">
                   <HomeTranslatedText text={"易經聲音歌曲"} />
                 </span>
                 <h2 className="home-music-title mt-2 font-serif font-black text-violet-100">
@@ -2966,7 +2966,7 @@ export default function HomePage() {
                 <span className="home-oracle-3d-emblem__glyph">名</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-block rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-300 uppercase animate-pulse"><HomeTranslatedText text={"易經 · 姓名決策系統"} /></span>
+                <span className="hidden rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-300 uppercase animate-pulse"><HomeTranslatedText text={"易經 · 姓名決策系統"} /></span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-amber-100 tracking-wide flex items-center gap-2">
                   <span><HomeTranslatedText text={"易經姓名學"} /></span>
                   <span className="text-xs font-sans text-amber-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 臺灣字典 · 取名意境 · 易經卜卦判定"} /></span>
@@ -2998,7 +2998,7 @@ export default function HomePage() {
                 <span className="number-fortune-auspicious-emblem__glyph">吉</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-block rounded-full bg-cyan-500/10 border border-cyan-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-300 uppercase animate-pulse"><HomeTranslatedText text={"CARD 01 · 數字好壞速測"} /></span>
+                <span className="hidden rounded-full bg-cyan-500/10 border border-cyan-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-300 uppercase animate-pulse"><HomeTranslatedText text={"CARD 01 · 數字好壞速測"} /></span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-cyan-100 tracking-wide flex items-center gap-2">
                   <span><HomeTranslatedText text={"易經論數字"} /></span>
                   <span className="text-xs font-sans text-cyan-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 4 / 6 / 8 / 10 碼 · 即時判定"} /></span>
@@ -3034,7 +3034,7 @@ export default function HomePage() {
                 <span className="ziwei-dou-3d-emblem__glyph">紫</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-block rounded-full bg-indigo-500/10 border border-indigo-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-indigo-300 uppercase animate-pulse"><HomeTranslatedText text={"易經 · 紫微斗數命盤"} /></span>
+                <span className="hidden rounded-full bg-indigo-500/10 border border-indigo-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-indigo-300 uppercase animate-pulse"><HomeTranslatedText text={"易經 · 紫微斗數命盤"} /></span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-indigo-100 tracking-wide flex items-center gap-2">
                   <span><HomeTranslatedText text={"易經紫微斗數"} /></span>
                   <span className="text-xs font-sans text-indigo-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 命宮主軸 · 三方四正 · 年度方向"} /></span>
@@ -3065,7 +3065,7 @@ export default function HomePage() {
                 <span className="home-oracle-3d-emblem__glyph">辰</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-block rounded-full bg-emerald-500/10 border border-emerald-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-emerald-300 uppercase animate-pulse">
+                <span className="hidden rounded-full bg-emerald-500/10 border border-emerald-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-emerald-300 uppercase animate-pulse">
                   <HomeTranslatedText text={"易經 · 八字命盤"} />
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-emerald-100 tracking-wide flex items-center gap-2">
@@ -3100,7 +3100,7 @@ export default function HomePage() {
                 <span className="home-oracle-3d-emblem__glyph">易</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-block rounded-full bg-violet-500/10 border border-violet-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-violet-300 uppercase animate-pulse">易經 · 三層融會</span>
+                <span className="hidden rounded-full bg-violet-500/10 border border-violet-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-violet-300 uppercase animate-pulse">易經 · 三層融會</span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-violet-100 tracking-wide">{readingCopy.dual}</h2>
                 <p className="mt-1 text-xs font-bold text-violet-200/85">{readingCopy.systems}</p>
                 <p className="mt-1.5 text-xs text-[color:var(--text-sub)] leading-relaxed">{readingCopy.description}</p>
@@ -3133,7 +3133,7 @@ export default function HomePage() {
                 <span className="home-oracle-3d-emblem__glyph">星</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-block rounded-full bg-fuchsia-500/10 border border-fuchsia-400/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-fuchsia-200 uppercase animate-pulse">
+                <span className="hidden rounded-full bg-fuchsia-500/10 border border-fuchsia-400/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-fuchsia-200 uppercase animate-pulse">
                   <HomeTranslatedText text={"易經 · 星空人格"} />
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-fuchsia-100 tracking-wide flex items-center gap-2">
@@ -3236,7 +3236,7 @@ export default function HomePage() {
                 </svg>
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-block rounded-full border border-violet-200/30 bg-violet-300/10 px-2.5 py-0.5 text-[10px] font-bold tracking-widest text-violet-100"><HomeTranslatedText text={"四維 · 超立方"} /></span>
+                <span className="hidden rounded-full border border-violet-200/30 bg-violet-300/10 px-2.5 py-0.5 text-[10px] font-bold tracking-widest text-violet-100"><HomeTranslatedText text={"四維 · 超立方"} /></span>
                 <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-violet-50 sm:text-2xl"><HomeTranslatedText text={"立體太極模型工作室"} /></h2>
                 <p className="mt-1 text-sm text-slate-200"><HomeTranslatedText text={"空心太極包方形核心，方圓緊貼，進入四維。"} /></p>
               </div>

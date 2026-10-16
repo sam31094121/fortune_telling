@@ -28,7 +28,7 @@ export default function TarotEntryCard() {
           <span className="tarot-entry-emblem__core" />
         </div>
         <div className="min-w-0 flex-1">
-          <span className="inline-block rounded-full bg-cyan-300/10 border border-cyan-200/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-100 uppercase"><HomeTranslatedText text={"CARD 01 · 古老塔羅牌"} /></span>
+          <span className="hidden rounded-full bg-cyan-300/10 border border-cyan-200/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-100 uppercase"><HomeTranslatedText text={"CARD 01 · 古老塔羅牌"} /></span>
           <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-cyan-50 tracking-wide flex items-center gap-2">
             <span><HomeTranslatedText text={"古老塔羅牌"} /></span>
             <span className="text-xs font-sans text-cyan-100 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 78 張牌庫 · 真洗牌 · 親手抽牌"} /></span>
