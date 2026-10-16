@@ -1156,7 +1156,7 @@ details[open] > summary .moreHint::after {
 .printPreview .baziSidebar .elementReading>div:nth-child(3n){border-right:0}
 .printPreview .baziSidebar .elementReading dd{font-size:13.5px;line-height:1.4;margin:0}
 .printPreview .elementReading+.subheading{margin:10px 0 6px}
-.printPreview .results>article>h2{font-size:24px;letter-spacing:3px;line-height:1.4;margin:0 0 10px;padding-bottom:8px}
+.printPreview .results>article>h2{font-size:18pt;letter-spacing:3px;line-height:1.4;margin:0 0 10px;padding-bottom:8px}
 /* 五行與命盤摘要：列印／預覽字級統一（2026-10-16 客戶要求）。
    標籤（dt）與內容（dd）同字級、同字體、同行高，只靠顏色與粗細分主從；格子等寬，最後一列不足就把最後一格撐滿。 */
 .printPreview .elementReading,
