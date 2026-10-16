@@ -1173,9 +1173,8 @@ details[open] > summary .moreHint::after {
   grid-template-columns:minmax(0,1fr);
   justify-items:center;
   align-content:center;
-  gap:3px;
-  min-height:46px;
-  padding:6px 4px;
+  gap:2px;
+  padding:4px 4px;
   text-align:center;
   line-height:1.5;
   border-right:1px solid #a697ad;

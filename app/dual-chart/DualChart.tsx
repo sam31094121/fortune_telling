@@ -50,6 +50,28 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
   }, []);
   useEffect(() => () => { if (pdfUrl) URL.revokeObjectURL(pdfUrl); }, [pdfUrl]);
   useEffect(() => { setPdfUrl(''); setPdfPageCount(0); }, [result, language, monochrome, printSelection]);
+  // 列印：命盤內容比一張 A4 高時，整張等比例縮到剛好一頁，避免最下面一行字被擠到第二張空白紙。字級彼此維持同比例。
+  useEffect(() => {
+    if (!printMode) return;
+    const A4_HEIGHT_PX = (297 / 25.4) * 96;
+    const fit = () => {
+      document.querySelectorAll<HTMLElement>('[data-print-fit]').forEach((sheet) => {
+        // 先拿掉最小高度與縮放，量「真實內容高度」（最小高度會讓內容看起來永遠有一整頁高）
+        sheet.style.setProperty('zoom', '1');
+        sheet.style.setProperty('min-height', '0');
+        const natural = sheet.scrollHeight;
+        sheet.style.removeProperty('min-height');
+        // 0.97：留 3% 的邊，列印與螢幕的換行、進位有些微差異，不留邊會又擠出最後一行
+        if (natural > A4_HEIGHT_PX * 0.97) sheet.style.setProperty('zoom', String(Math.floor((A4_HEIGHT_PX / natural) * 0.97 * 1000) / 1000));
+      });
+    };
+    fit();
+    window.addEventListener('beforeprint', fit);
+    return () => {
+      window.removeEventListener('beforeprint', fit);
+      document.querySelectorAll<HTMLElement>('[data-print-fit]').forEach((sheet) => sheet.style.removeProperty('zoom'));
+    };
+  }, [printMode, result, printSelection, monochrome, language]);
   useEffect(() => { if (result) resultRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, [result]);
   useEffect(() => {
     const invalidateChart = () => {

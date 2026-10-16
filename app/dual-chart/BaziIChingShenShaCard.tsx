@@ -11,7 +11,7 @@ import styles from './dual-chart.module.css';
  */
 export default function BaziIChingShenShaCard({ result, language = 'zh', monochrome = false }: { result: DualChartResult; language?: string; monochrome?: boolean }) {
   return (
-    <article className={`${styles.panel} ${styles.fusedChart}`} data-card="bazi-iching-shensha">
+    <article className={`${styles.panel} ${styles.fusedChart}`} data-card="bazi-iching-shensha" data-print-fit>
       <h2>八字易經神煞命盤</h2>
       <p className={styles.fusedSubtitle}>八字 → 特星神煞 → 易經 · 完全融合一體</p>
 
