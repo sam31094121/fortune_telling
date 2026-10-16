@@ -230,7 +230,7 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
         )}
         {(printMode || !isMobile || chartTab === 'bazi') && (printMode ? printSelection === 'bazi' : true) && <BaziIChingShenShaCard result={result} language={language} monochrome={printMode && monochrome} />}
         {!printMode && !isMobile && <div className={styles.chartDivider} />}
-        {(printMode || !isMobile || chartTab === 'ziwei') && (printMode ? printSelection === 'ziwei' : true) && <article className={`${styles.panel} ${styles.ziweiPrintSheet}`}><h2>紫微斗數命盤</h2>
+        {(printMode || !isMobile || chartTab === 'ziwei') && (printMode ? printSelection === 'ziwei' : true) && <article className={`${styles.panel} ${styles.ziweiPrintSheet}`} data-print-fit><h2>紫微斗數命盤</h2>
           <ZiweiChart key={JSON.stringify(result.ziwei.birthInput)} result={result} />
         </article>}
         {(!isMobile || chartTab === 'comparison') && (printMode ? false : true) && <article className={styles.panel}><ComparisonCard result={result} /></article>}
