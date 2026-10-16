@@ -1163,7 +1163,7 @@ details[open] > summary .moreHint::after {
 .printPreview .baziSidebar .elementReading{
   grid-template-columns:repeat(3,minmax(0,1fr));
   margin:8px 0 0;
-  font-size:13px;
+  font-size:9.75pt;
   line-height:1.5;
   font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif;
   letter-spacing:.02em;
@@ -1185,7 +1185,7 @@ details[open] > summary .moreHint::after {
 .printPreview .elementReading dd,
 .printPreview .baziSidebar .elementReading dd,
 .printPreview .elementReading>div[data-reading] dd{
-  font-size:13px;
+  font-size:9.75pt;
   line-height:1.5;
   margin:0;
   letter-spacing:.02em;
