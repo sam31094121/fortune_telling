@@ -22,5 +22,4 @@ export interface LockedCard {
 export const LOCKED_CARDS: readonly LockedCard[] = [
   { route: '/dual-chart', apis: ['dual-chart'], title: '輸入密碼，開啟易經神煞' },
   { route: '/music', apis: ['music-generate', 'music-elevenlabs', 'music-lyria'], title: '輸入密碼，開啟人格音樂' },
-  { route: '/ghost-asura', apis: ['ghost-asura/reading', 'ghost-asura/timeline', 'ghost-asura/validate-consistency'], title: '輸入密碼，開啟鬼魅阿修羅' },
 ];

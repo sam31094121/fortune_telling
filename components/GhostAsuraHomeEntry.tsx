@@ -68,7 +68,7 @@ export default function GhostAsuraHomeEntry() {
         <span><HomeTranslatedText text="阿修羅秘卷" /></span>
       </div>
       <div className={`${styles.cta} home-feature-cta`}>
-        <HomeTranslatedText text="輸入密碼" /><span aria-hidden="true">→</span>
+        <HomeTranslatedText text="請點我開啟" /><span aria-hidden="true">→</span>
       </div>
     </Link>
   );

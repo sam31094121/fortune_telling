@@ -8,7 +8,6 @@
  * 同一 IP 重送「相同生辰」時直接回短期快取，不重算、不扣額度（同 IP 友善）。
  */
 
-import { lockedCardGuard } from "@/lib/dual-chart-auth";
 import { createHash } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { checkAPIRateLimit, sameOrigin } from '@/lib/dual-chart-auth';
@@ -60,8 +59,6 @@ function writeCache(key: string, data: AsuraDisplay) {
 }
 
 export async function POST(request: NextRequest) {
-  const locked = lockedCardGuard(request);
-  if (locked) return locked as NextResponse;
   if (!sameOrigin(request)) return reply({ error: '請從本站開啟。' }, 403);
 
   const text = await request.text().catch(() => '');

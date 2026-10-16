@@ -7,7 +7,6 @@
  * 規範 #30-33：三端驗證
  */
 
-import { lockedCardGuard } from "@/lib/dual-chart-auth";
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import {
@@ -57,8 +56,6 @@ function validateRequest(body: unknown): body is ValidationRequest {
  * 驗證三端資料一致性
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const locked = lockedCardGuard(request);
-  if (locked) return locked as NextResponse;
   try {
     const contentType = request.headers.get('content-type');
     if (!contentType?.includes('application/json')) {
