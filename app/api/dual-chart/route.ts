@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { DUAL_COOKIE, sameOrigin, validSession, checkAPIRateLimit } from '@/lib/dual-chart-auth';
+import { lockedCardGuard, sameOrigin, checkAPIRateLimit } from '@/lib/dual-chart-auth';
 import { calculateDualChart } from '@/lib/dual-chart';
 import { recordDualChartAudit } from '@/lib/dual-chart-admin-logger';
 import { createHash } from 'node:crypto';
@@ -42,6 +42,10 @@ export async function POST(request: NextRequest) {
 
   // ========== 安全防護第二層：同源檢查 ==========
   if (!sameOrigin(request)) return reply({ error: '請從本站開啟。' }, 403);
+
+  // ========== 安全防護第二點五層：密碼 session（與頁面同一組，沒輸入密碼就不能直接呼叫） ==========
+  const locked = lockedCardGuard(request);
+  if (locked) return locked as NextResponse;
 
   try {
     // ========== 安全防護第三層：請求驗證 ==========

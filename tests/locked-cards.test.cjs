@@ -32,8 +32,7 @@ for (const card of cards) {
     yes(page.includes("dynamic = 'force-dynamic'"), `${pagePath} 要是動態頁，不能被快取成已解鎖的畫面`);
   }
   // 2. API：每支都要先過守衛
-  // 易經神煞既有的 API 另有速率限制與同源檢查；本守門只管新加的「鎖號碼」卡片
-  for (const api of card.route === '/dual-chart' ? [] : card.apis) {
+  for (const api of card.apis) {
     const routePath = `app/api/${api}/route.ts`;
     const code = read(routePath);
     yes(code.includes('lockedCardGuard(request)') || code.includes('validSession('), `${routePath} 要先檢查密碼 session`);
