@@ -1200,3 +1200,13 @@ details[open] > summary .moreHint::after {
 .printPreview .baziSidebar .elementReading>div:last-child:nth-child(3n+1){grid-column:1/-1;border-right:0}
 .printPreview .elementReading>div:last-child:nth-child(3n+2),
 .printPreview .baziSidebar .elementReading>div:last-child:nth-child(3n+2){grid-column:span 2;border-right:0}
+/* 紫微斗數列印版：最下端的說明字客戶沒有需求，只隱藏、不刪（網頁與資料仍保留）。
+   隱藏的是：亮度出處那句、排盤核心那段、雜曜查無口訣那段；命宮／身宮、四化圖例照舊。 */
+.printPreview .ziweiPrintSheet .printLegend>span:nth-child(3),
+.printPreview .ziweiPrintSheet .ziweiScroll~.note{display:none!important}
+/* 紫微斗數列印版：說明字隱藏後，把騰出的高度平均分給四排宮格，讓整張 A4 飽滿、不留一截空白，圖例貼在最下面。
+   用等分（1fr）而不是固定加高：內容多的宮格照樣撐開，不會因此擠出第二張。 */
+.printPreview .results>.ziweiPrintSheet{display:flex;flex-direction:column}
+.printPreview .ziweiPrintSheet .ziweiScroll{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+.printPreview .ziweiPrintSheet .ziweiScroll>.chart{flex:1 1 auto;grid-template-rows:repeat(4,minmax(204px,1fr))}
+.printPreview .ziweiPrintSheet .printLegend{margin-top:12px;padding-top:9px;font-size:9pt;justify-content:center;gap:6px 22px}
