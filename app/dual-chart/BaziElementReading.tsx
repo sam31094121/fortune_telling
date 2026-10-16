@@ -18,6 +18,9 @@ export default function BaziElementReading({ chart, core, tianYun, zodiac }: { c
       ['命宮', core.mingGong], ['身宮', core.shenGong],
       ['胎元', core.taiYuan], ['胎息', core.taiXi],
       ['年空', core.kongWang.yearXunKong], ['日空', core.kongWang.dayXunKong],
-    ].filter(([, input]) => Boolean(input)).map(([label, input]) => <div key={label} data-reading={['強弱', '喜用神', '忌神', '格局', '天運五行', '星座'].includes(label) || undefined}><dt>{label}</dt><dd>{input}</dd></div>)}
+    ].filter(([, input]) => Boolean(input))
+      // 版面整齊：整格字數少的排上面、最多的排最下面；字數相同維持原順序（Array.sort 為穩定排序）
+      .sort((x, y) => (x[0].length + String(x[1]).length) - (y[0].length + String(y[1]).length))
+      .map(([label, input]) => <div key={label} data-reading={['強弱', '喜用神', '忌神', '格局', '天運五行', '星座'].includes(label) || undefined}><dt>{label}</dt><dd>{input}</dd></div>)}
   </dl>;
 }
