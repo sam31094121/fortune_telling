@@ -451,11 +451,14 @@ export default function TodayDirectionQuest() {
                 <span aria-hidden="true">→</span>
               </button>
               <p className={styles.lead}>先走一步，讓明天開始改變。</p>
+              {/* 業主定案 2026-10-16：免費／90 秒／免填資料 小標籤隱藏（沒意義、佔空間）；要恢復把 false && 拿掉 */}
+              {false && (
               <div className={styles.promiseRow} aria-label="遊戲說明">
                 <span>免費</span>
                 <span>90 秒</span>
                 <span>免填資料</span>
               </div>
+              )}
               <p className={styles.returnPromise}>每天一件事，明天回來繼續；進度會幫你留著。</p>
               {returnNote && <p className={styles.returnNote} aria-live="polite">{returnNote}</p>}
               {streakDays > 1 && (

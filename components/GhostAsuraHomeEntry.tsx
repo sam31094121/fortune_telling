@@ -62,11 +62,14 @@ export default function GhostAsuraHomeEntry() {
           <p className={styles.impression}><HomeTranslatedText text={`印記示意：${featuredImpression.title}`} /></p>
         </div>
       </div>
+      {/* 業主定案 2026-10-16：免費／3 分鐘／阿修羅秘卷 小標籤隱藏；要恢復把 false && 拿掉 */}
+      {false && (
       <div className={styles.meta}>
         <span><HomeTranslatedText text="免費" /></span>
         <span><HomeTranslatedText text="3 分鐘" /></span>
         <span><HomeTranslatedText text="阿修羅秘卷" /></span>
       </div>
+      )}
       <div className={`${styles.cta} home-feature-cta`}>
         <HomeTranslatedText text="請點我開啟" /><span aria-hidden="true">→</span>
       </div>
