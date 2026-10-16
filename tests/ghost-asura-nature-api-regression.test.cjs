@@ -33,7 +33,7 @@ function compareText(where, before, after) {
     const fixture = JSON.parse(fs.readFileSync(path.join(__dirname, `fixtures/ghost-asura-nature/baseline-${name}.json`), 'utf8')).data;
     const res = await fetch(`${base}/api/ghost-asura/reading`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Origin: base, 'x-forwarded-for': `10.18.${Date.now() % 250}.${i}` },
+      headers: { ...(process.env.ASURA_COOKIE ? { Cookie: process.env.ASURA_COOKIE } : {}), 'Content-Type': 'application/json', Origin: base, 'x-forwarded-for': `10.18.${Date.now() % 250}.${i}` },
       body: JSON.stringify({ ...input, calendarType: 'solar', timezone: 'Asia/Taipei' }),
     });
     assert.equal(res.status, 200, `${name} status`);

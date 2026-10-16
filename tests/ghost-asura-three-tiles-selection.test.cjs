@@ -60,7 +60,7 @@ for (const [id, entry] of Object.entries(ASURA_VOICE)) {
 async function check(body, ip) {
   const res = await fetch(`${base}/api/ghost-asura/reading`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Origin: base, 'X-Forwarded-For': ip },
+    headers: { ...(process.env.ASURA_COOKIE ? { Cookie: process.env.ASURA_COOKIE } : {}), 'Content-Type': 'application/json', Origin: base, 'X-Forwarded-For': ip },
     body: JSON.stringify({ ...body, calendarType: 'solar', timezone: 'Asia/Taipei' }),
   });
   assert.equal(res.status, 200);

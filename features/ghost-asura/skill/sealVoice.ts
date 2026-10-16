@@ -36,7 +36,7 @@ export const ASURA_SEAL_VOICE: Readonly<Record<string, SealVoice>> = {
   // ===================== 第一批：出現率前 12 名 =====================
   tianyi: {
     declaration: '難關前有人提燈。你不是一個人走。',
-    core: '命裡最大的貴人。專挑你卡住時現身。他伸手，你要接得住。',
+    core: '命裡最大的貴人。專挑你卡住時現身。你要接得住。',
     battle: '貴人只開門。進去之後，是你的仗。',
     advice: '平日守信，貴人才記得你。這週，先回覆一個你拖著的人。',
   },
@@ -60,7 +60,7 @@ export const ASURA_SEAL_VOICE: Readonly<Record<string, SealVoice>> = {
   },
   yuekong: {
     declaration: '空處生光。你的話，有人在聽。',
-    core: '你腦子清明，有文采。想法寫下來，說出來，就有人賞識。',
+    core: '你腦子清明，有文采。想法一寫一說，就有人賞識。',
     battle: '想法不寫下來，只是念頭。寫下來，才是籌碼。',
     advice: '挑一個想法。整理成一頁字。交給一個人看。',
   },
@@ -163,7 +163,7 @@ export const ASURA_SEAL_VOICE: Readonly<Record<string, SealVoice>> = {
   },
   wangshen: {
     declaration: '夜裡的風，不大。卻讓人睡不安穩。',
-    core: '心裡有不安，容易多想，計較得失。也容易被流言牽著走。',
+    core: '心裡有不安，容易多想計較。也容易被流言牽著走。',
     battle: '聲音在外面，不安在裡面。先安裡面的。',
     advice: '不安時，把事寫下來。能做的放一邊，該放下的放另一邊。',
   },

@@ -56,6 +56,8 @@ async function withPage(fn) {
   try {
     await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable');
     await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+    // 測試登入（由 tests/run-asura-live.mjs 提供）：ASURA_COOKIE 格式為 name=value
+    if (process.env.ASURA_COOKIE) { const [name, ...rest] = process.env.ASURA_COOKIE.split('='); await send('Network.setCookie', { name, value: rest.join('='), url: BASE }); }
     return await fn({ send, evalJs, waitFor, shot, exceptions, responses });
   } finally { ws.close(); edge.kill(); }
 }

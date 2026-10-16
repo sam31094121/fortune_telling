@@ -4,6 +4,7 @@
 # next.js
 /.next/
 /.next-production/
+/.next-e2e/
 /.next-review/
 /.next-contact-ribs-check/
 /.next-production-verify/

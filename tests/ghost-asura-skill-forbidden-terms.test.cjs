@@ -63,7 +63,7 @@ assert.deepEqual(Object.values(ASURA_TIME_TERMS).map((t) => t.unit), ['å¹´', 'æœ
     { birthDate: '1974-06-28', birthTime: '18:00', gender: 'male' },
     { birthDate: '1974-06-28', timeUnknown: true, gender: 'male' },
   ]) {
-    const res = await fetch(`${base}/api/ghost-asura/reading`, { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: base, 'X-Forwarded-For': '10.77.1.9' }, body: JSON.stringify({ ...body, calendarType: 'solar', timezone: 'Asia/Taipei' }) });
+    const res = await fetch(`${base}/api/ghost-asura/reading`, { method: 'POST', headers: { ...(process.env.ASURA_COOKIE ? { Cookie: process.env.ASURA_COOKIE } : {}), 'Content-Type': 'application/json', Origin: base, 'X-Forwarded-For': '10.77.1.9' }, body: JSON.stringify({ ...body, calendarType: 'solar', timezone: 'Asia/Taipei' }) });
     const json = await res.json();
     assert(json?.data?.contract, `reading ok ${JSON.stringify(body)}`);
     const { audit, ...shown } = json.data;

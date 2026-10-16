@@ -61,6 +61,8 @@ for (const id of ids) {
     ok(!seen[f].has(t), `${id}.${f} 與 ${seen[f].get(t)} 重複同一句`);
     seen[f].set(t, id);
   }
+  // core 同時是白話區那一行（asuraPlainLineOf），白話規範上限 25 字（2026-10-15 被登入後的真實測試抓到天乙 27 字）
+  ok([...v.core].length <= 25, `${id}.core 超過白話上限 25 字（${[...v.core].length} 字）：${v.core}`);
   // 真的被解析器用在客戶話術裡（不是寫了沒接上）
   const r = resolveAsuraInterpretation(id, { pillars: ['day'] });
   ok(r.source === 'generated', `${id} 應走生成層`);

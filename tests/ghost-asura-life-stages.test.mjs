@@ -149,6 +149,7 @@ ok(tsx.includes('life.tenseLabel') && tsx.includes('life.ageText') && tsx.includ
 // 「這一役的來歷」收合面板已隱藏（業主 2026-10-15：沒有用途）。原碼保留但不得顯示；歲數說明改為常駐一行，避免歲數被誤讀成古籍定論。
 ok(/const SHOW_LIFE_ORIGIN = false as boolean;/.test(tsx), '來歷面板開關必須維持 false，未經明說不得再顯示');
 // 標題卡下面的三行字（一句話、指向、歲數說明）業主 2026-10-15 要求隱藏：上面的標題卡已經有了。
+ok(/const SHOW_SCROLL_HINT = false as boolean;/.test(tsx) && /\{SHOW_SCROLL_HINT && <p className=\{styles\.scrollHint\}>\{display\.scrollHint\}<\/p>\}/.test(tsx), '三張卡下面的滑動提示必須維持隱藏，未經明說不得再顯示');
 ok(/const SHOW_LIFE_TEXT = false as boolean;/.test(tsx), '標題卡下面的字開關必須維持 false，未經明說不得再顯示');
 for (const field of ['headline', 'pointer', 'note']) ok(new RegExp(`\\{SHOW_LIFE_TEXT && column\\.life && column\\.life\\.${field} &&`).test(tsx), `${field} 必須掛在隱藏開關後面`);
 ok(/\{SHOW_LIFE_ORIGIN && column\.life && \(\s*<details[^>]*lifeDetail/.test(tsx), '來歷面板必須掛在開關後面（原碼保留但不顯示）');

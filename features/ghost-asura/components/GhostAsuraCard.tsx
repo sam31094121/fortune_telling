@@ -25,6 +25,9 @@ const SHOW_LIFE_ORIGIN = false as boolean;
 /** 四張卡標題列下面的三行字（阿修羅一句話、指向底下印記、歲數說明）：業主 2026-10-15 要求隱藏（上面的標題卡已經有了，這些字沒有意義）。保持 false；未經明說叫醒不得改成 true。資料仍由後端組好。 */
 const SHOW_LIFE_TEXT = false as boolean;
 
+/** 過去／現在／未來三張卡下面那行「左右滑過四有，印記各歸其位。」：業主 2026-10-15 要求隱藏。保持 false；未經明說叫醒不得改成 true。 */
+const SHOW_SCROLL_HINT = false as boolean;
+
 export function GhostAsuraCard({ display, reading }: { display?: AsuraDisplay; reading?: GhostAsuraReading }) {
   if (display) return <DisplayCard display={display} />;
   if (reading) return <LegacyReadingCard reading={reading} />;
@@ -317,7 +320,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
         </section>
       ))}
 
-      <p className={styles.scrollHint}>{display.scrollHint}</p>
+      {SHOW_SCROLL_HINT && <p className={styles.scrollHint}>{display.scrollHint}</p>}
       <div
         className={styles.pillarScroll}
         id={STAT_TARGET_ID.pillars}

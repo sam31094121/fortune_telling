@@ -51,13 +51,17 @@ fi
 
 # 二、守門測試。命理三核心是招牌，神獸是目前主要施工面。
 FAILED=""
+# 真實瀏覽器點擊＋登入後的真實伺服器測試（約 3～4 分鐘，需要本機 Edge）：預設不跑，PUSH_E2E=1 git push 才跑；
+# 推送前一律手動先跑 npm run test:pre-push-e2e（2026-10-15 起的固定流程）。
+E2E_TESTS=""
+if [ -n "${PUSH_E2E:-}" ]; then E2E_TESTS="test:e2e-asura test:asura-live"; fi
 for t in test:three-core test:three-in-one test:taiji-ios test:ghost-asura-skill test:ghost-asura-customer-output test:ghost-asura-life-stages test:ghost-asura-seal-voice test:ghost-asura-card-toggle \
          test:beast-game test:beast-ritual test:beast-clip test:beast-voice \
          test:beast-battlefield test:beast-bridge test:beast-interactive:full \
          test:beast-difficulty test:iching-sources test:ziwei-quanshu test:ziwei-wording-authority test:mobile-zoom-pan test:locked-cards test:share-version test:beast-backend-only \
          test:true-solar-time test:credibility-wording test:soul-match \
          test:model-lab-lattice test:taiji-square-cavity \
-         test:model-lab-projection test:model-lab-multiverse test:taiji-4d-cells test:taiji-contact-ribs test:model-lab-equal-edge test:taiji-hollow-squares test:model-lab-4d-audit; do
+         test:model-lab-projection test:model-lab-multiverse test:taiji-4d-cells test:taiji-contact-ribs test:model-lab-equal-edge test:taiji-hollow-squares test:model-lab-4d-audit $E2E_TESTS; do
   # 不印「進行中」—— 在管線或 CI 記錄裡不會清行，會留下半截字。
   if npm run "$t" >"$LOG" 2>&1; then
     echo "   ✓ $t"
