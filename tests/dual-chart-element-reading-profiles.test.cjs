@@ -1,0 +1,36 @@
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const { execFileSync } = require('node:child_process');
+const React = require('react');
+const { renderToStaticMarkup } = require('react-dom/server');
+const load = require('./helpers/load-iching-shensha-ui.cjs');
+const output=path.resolve('.tmp/element-reading-profiles');
+execFileSync(process.execPath,[require.resolve('typescript/bin/tsc'),'lib/dual-chart.ts','--outDir',output,'--rootDir','.','--module','commonjs','--target','es2022','--moduleResolution','node','--resolveJsonModule','--esModuleInterop','--types','node','--skipLibCheck'],{stdio:'pipe',windowsHide:true});
+const {calculateDualChart}=require(path.join(output,'lib/dual-chart.js'));
+const Reading=load('app/dual-chart/BaziElementReading.tsx').default;
+const rows=[];
+for(const [birthDate,birthTime,gender] of [['1974-06-28','18:00','male'],['1995-02-23','11:30','female'],['1990-05-20','21:30','female'],['1988-11-03','07:30','male']]){
+ const input={birthDate,birthTime,gender,calendarType:'solar',timezone:'Asia/Taipei'};
+ const a=calculateDualChart(input),b=calculateDualChart(input);
+ const pc=a.bazi.professionalChart;
+ const read=p=>({strength:p.strengthAnalysis.verdict,joy:p.gods.joyGod,useful:p.gods.usefulGod,avoid:p.gods.avoidGod,pattern:p.structurePattern.primaryPattern});
+ assert.deepEqual(read(pc),read(b.bazi.professionalChart));
+ const html=renderToStaticMarkup(React.createElement(Reading,{chart:pc,core:a.core,tianYun:a.tianYun,zodiac:a.zodiac}));
+ assert(!html.includes('未提供'));
+ assert(html.includes(`<dd>${pc.gods.joyGod}、${pc.gods.usefulGod}</dd>`));
+ assert(html.includes(`<dt>忌神</dt><dd>${pc.gods.avoidGod}</dd>`));
+ assert(html.includes(`<dt>強弱</dt><dd>${pc.strengthAnalysis.verdict}</dd>`));
+ assert(html.includes(`<dt>格局</dt><dd>${pc.structurePattern.primaryPattern}</dd>`));
+ const expected={ '1974-06-28':['巨蟹座','水'], '1995-02-23':['雙魚座','火'], '1990-05-20':['金牛座','土'], '1988-11-03':['天蠍座','木'] }[birthDate];
+ assert.deepEqual([a.zodiac,a.tianYun.element],expected);
+ assert.equal(a.tianYun.yearPillar,a.core.pillars.year.ganZhi);
+ assert.deepEqual(a.tianYun,b.tianYun);
+ rows.push({birthDate,birthTime,...read(pc),zodiac:a.zodiac,tianYun:a.tianYun,allowed:pc.traditionalInterpretationGate.interpretationReady});
+}
+assert.deepEqual([rows[0].strength,rows[0].joy,rows[0].useful,rows[0].avoid],['偏弱','金','土','木'],'Matches the supplied reference for these fields, not universal source validation');
+assert.deepEqual([rows[2].useful,rows[2].joy,rows[2].avoid],['水','木','金'],'Existing soul-match regression case');
+assert.deepEqual([rows[3].useful,rows[3].joy,rows[3].avoid],['金','水','土'],'Existing soul-match regression case');
+console.log(JSON.stringify(rows,null,2));
+const beforeLiChun=calculateDualChart({birthDate:'1990-01-01',birthTime:'11:30',gender:'male',calendarType:'solar',timezone:'Asia/Taipei'});
+assert.equal(beforeLiChun.tianYun.yearPillar,'己巳');assert.equal(beforeLiChun.tianYun.element,'木');
+console.log('PASS: four real-backend profiles repeat consistently and render their own six summary values; source gate remains unchanged (not VERIFIED)');

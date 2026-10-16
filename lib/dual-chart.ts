@@ -1,5 +1,6 @@
 import { calculateTenGod, HIDDEN_STEM_DICTIONARY, STEM_YINYANG, type Stem, type Branch, type BaziShenShaItem } from './bazi/engine';
-import { Solar } from 'lunar-typescript';
+import { Solar, LunarUtil } from 'lunar-typescript';
+import { getZodiacSign } from './zodiac';
 import { createZiweiCore, createZiweiAstrolabe, hourToTimeIndex } from './ziwei/engine';
 import { analyzeBazi } from './bazi-engine';
 import { attachBaziProfessionalCoreV5, type BaziRuntimeInput } from './bazi-professional-result-v5';
@@ -108,7 +109,14 @@ export function calculateDualChart(body: unknown, options: { revealSealedGhost?:
     ziwei: ziweiWithPeriods,
     periods,
     ziweiProfile,
-    shenShaVisibility  // 【新增】米其林層級穩定化
+    shenShaVisibility,  // 【新增】米其林層級穩定化
+    zodiac: getZodiacSign(professional.input.birthDate),
+    tianYun: {
+      yearPillar: baziPillars.year,
+      naYin: LunarUtil.NAYIN[baziPillars.year] ?? '',
+      element: (LunarUtil.NAYIN[baziPillars.year] ?? '').slice(-1),
+      method: 'YEAR_PILLAR_NAYIN' as const,
+    },
   };
 }
 export type DualChartResult = ReturnType<typeof calculateDualChart> & {

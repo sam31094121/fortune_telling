@@ -90,6 +90,13 @@
 - 原表格與新增卡的SSR驗證通過，只算傳遞通過；仍須獨立合成資料實測填表到結果、320／375／390／430px可見性，以及列印預覽返回。實際PDF與實體列印未測則明列未測，不藉HTTP或單元測試通過背書。
 
 
+## 2026-10-16 神煞易經單張列印
+
+- 八字／紫微每次單選一張A4，保留彩色／黑白及五行圓環／圖例；操作提示不得印入。
+- 回歸：`node tests/dual-chart-pdf-export.test.cjs`、`node tests/dual-chart-ring.test.cjs`、`node tests/dual-chart-touch-scroll.test.cjs`，實際瀏覽器與下載PDF用 `tests/dual-chart-single-print.e2e.cjs`（授權本機登入，注意限流）。
+- 六項摘要依本輪明確授權接既有本站取法，核心未就緒不造值；來源狀態不變。換人、重算及國農曆等值以 `tests/dual-chart-element-switch.e2e.cjs` 驗證。
+- 本輪證據、最終21份合成PDF、六項來源追溯、長姓名案例、既有型別失敗與早期登入429詳見 `reports/dual-chart/single-chart-print-2026-10-16.md`。不把單張列印通過視為全卡片來源或功能全通過；原有健康失敗保留。
+
 ## Michelin polish 2026-09-15
 - BaziTeacherModes mobile: touch targets min-h 52px, full-width fallback notices (13px + aria-live), treasure scale 1.35 on phone, overflow-x-hidden.
 - Teacher APIs still local-fallback when Gemini Spend capped; UI must show notice (not blank).

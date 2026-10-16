@@ -4,6 +4,7 @@ import type { ShenShaFlowYear } from '@/lib/iching-shensha-flow-year';
 import styles from './dual-chart.module.css';
 import { SharedElementSealPaper } from '@/components/bazi/customer/SharedElementSealPaper';
 import ElementRing from './ElementRing';
+import BaziElementReading from './BaziElementReading';
 import ShenShaSourceEvidence, { ShenShaComparisonSummary, ShenShaEvidenceLinks } from '@/components/bazi/customer/ShenShaSourceEvidence';
 import { shenShaDisplayCopy, shenShaDisplayNames } from '@/lib/iching-shensha-display-copy'; // imported correctly
 import { buildGhostAsuraReading } from '@/features/ghost-asura';
@@ -449,10 +450,7 @@ export default function BaziChart({ result, monochrome = false, language = 'zh',
     <div className={styles.baziColumns}>
       <aside className={styles.baziSidebar}>
         <ElementRing percentages={pc.elementStatistics.percentages} monochrome={monochrome} />
-        <dl className={styles.summaryGrid}>
-          {Object.entries({ 日主: `${core.dayMaster.stem}${core.dayMaster.element}（${core.dayMaster.yinYang}）`, 命宮: core.mingGong, 身宮: core.shenGong, 胎元: core.taiYuan, 胎息: core.taiXi, 年空: core.kongWang.yearXunKong, 日空: core.kongWang.dayXunKong }).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
-        </dl>
-        <p className={styles.micro}>{traditionalGate?.customerMessage ?? '傳統解釋守門尚未完成，本次不作格局、旺衰與喜用定論。'}</p>
+        <BaziElementReading chart={pc} core={core} tianYun={result.tianYun} zodiac={result.zodiac} />
         <h3 className={styles.subheading}>流年 · {annual[0].year}–{annual.at(-1)?.year}</h3>
         {[0, 5, 10].map(start => <table key={start} className={styles.annualGrid} aria-label={`流年 ${annual[start].year} 年起`}><tbody>
           <tr>{annual.slice(start, start + 5).reverse().map(a => <th key={a.year}>{a.year}<small>{a.age}虛歲</small></th>)}</tr>

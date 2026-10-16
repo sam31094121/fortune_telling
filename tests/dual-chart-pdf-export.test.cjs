@@ -41,7 +41,7 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/dual-chart/export-pdf
 const root = pages => ({ querySelectorAll(selector) { assert.equal(selector, ':scope > article'); return pages; } });
 const page = (name, height = 1122.52) => ({ name, getBoundingClientRect: () => ({ width: 793.70, height }) });
 (async () => {
-  for (const names of [['bazi-with-shensha'], ['ziwei'], ['bazi-with-shensha', 'ziwei']]) {
+  for (const names of [['bazi-with-shensha'], ['ziwei']]) {
     for (const monochrome of [false, true]) {
       captured = [];
       const pages = names.map(name => page(name));
@@ -55,8 +55,11 @@ const page = (name, height = 1122.52) => ({ name, getBoundingClientRect: () => (
     }
   }
   await assert.rejects(() => target.exports.createDualChartPdf(root([])), /請至少選擇/);
+  await assert.rejects(() => target.exports.createDualChartPdf(root([page('bazi'), page('ziwei')])), /每次只印一張/);
   captured = [];
-  await assert.rejects(() => target.exports.createDualChartPdf(root([page('too-tall', 1200)])), /超出 A4/);
+  await assert.rejects(() => target.exports.createDualChartPdf(root([page('too-tall', 1200)])), /超出一張 A4/);
+  await assert.rejects(() => target.exports.createDualChartPdf(root([{ ...page('wide-content'), scrollWidth: 900 }])), /超出一張 A4/);
+  await assert.rejects(() => target.exports.createDualChartPdf(root([{ ...page('hidden-overflow'), scrollHeight: 1300 }])), /超出一張 A4/);
   assert.equal(captured.length, 0, 'Never rasterize/crop an oversized page');
-  console.log('PASS: fused monochrome forwarding, 1/2 actual PDF pages, Ziwei-only selection, empty/oversize guards');
+  console.log('PASS: fused monochrome forwarding, one PDF page, Ziwei-only selection, empty/multiple/oversize guards');
 })().catch(error => { console.error(error); process.exitCode = 1; });

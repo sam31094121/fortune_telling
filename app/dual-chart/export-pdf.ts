@@ -7,6 +7,7 @@ export async function createDualChartPdf(root: HTMLElement, monochrome = false):
   // drops Ziwei-only output and counts fused sections as separate pages.
   const pages = Array.from(root.querySelectorAll<HTMLElement>(':scope > article'));
   if (pages.length < 1) throw new Error('請至少選擇一張卡片進行列印。');
+  if (pages.length !== 1) throw new Error('每次只印一張，請選擇八字或紫微後再試。');
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
   const selectedCount = pages.length;
   pdf.setProperties({ title: `神煞易經（${selectedCount}張） · ${monochrome ? '黑白' : '彩色'} A4`, subject: '八字與紫微斗數命盤' });
@@ -14,7 +15,7 @@ export async function createDualChartPdf(root: HTMLElement, monochrome = false):
     const page = pages[index];
     const { width, height } = page.getBoundingClientRect();
     // Refuse clipping or shrinking a taller layout into an unreadable single page.
-    if (height > width * 297 / 210 + 2) throw new Error('目前內容超出 A4 紙張，請使用瀏覽器列印分頁；PDF 未輸出，避免裁切命盤。');
+    if (height > width * 297 / 210 + 2 || page.scrollWidth > width + 2 || page.scrollHeight > height + 2) throw new Error('目前內容超出一張 A4，請返回命盤並回報此問題；PDF 未輸出，避免裁切命盤。');
     const canvas = await toCanvas(page, { pixelRatio: 3.125, skipFonts: true, backgroundColor: monochrome ? '#ffffff' : '#fffefb', style: { margin: '0', boxShadow: 'none' } });
     if (index) pdf.addPage('a4', 'portrait');
     pdf.addImage(canvas, 'PNG', 0, 0, 210, 297, undefined, 'FAST');
