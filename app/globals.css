@@ -27219,3 +27219,5 @@ body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack [cla
   --emblem-hot: 253, 186, 116;
   --emblem-deep: 131, 24, 67;
 }
+/* 電腦版卡片標題旁的「// 雙人命盤 · 相處節奏…」小字隱藏（手機版本來就不顯示），與其他說明小字一致 */
+.home-feature-stack a h2 > span.font-sans { display: none !important; }

@@ -1306,3 +1306,19 @@
 @media (prefers-reduced-motion: reduce) {
   .intro:has(.orbCard) .orbCardTrigger::before { animation: none; opacity: 0.6; }
 }
+
+/* 電腦／平板：說明文字隱藏後，卡片只剩按鈕與寶珠，寶珠不能再撐滿整個右欄（原本外框 500px、整張卡近 600px 高）。
+   寶珠限制在 260px 內置中，按鈕靠左欄垂直置中，整張卡變成緊湊的一排。 */
+@media (min-width: 640px) {
+  .intro:has(.orbCard) {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) !important;
+    gap: 1.5rem !important;
+    align-items: center;
+  }
+  .intro:has(.orbCard) .orbCard {
+    width: min(100%, 260px);
+    justify-self: center;
+  }
+  .intro:has(.orbCard) .introCopy { align-self: center; }
+  .intro:has(.orbCard) .primaryButton { max-width: 520px; margin-inline: auto; }
+}
