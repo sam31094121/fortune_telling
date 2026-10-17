@@ -6,7 +6,7 @@ export function isInterfaceLanguage(value: unknown): value is InterfaceLanguage 
 export const interfaceCopy = {
   'zh-Hant': {
     more: '更多探索（可稍後）', less: '收合更多探索', deeper: '深入命盤', explore: '繼續探索',
-    language: '閱讀語言', scope: '目前切換首頁易經神煞入口與導覽提示；其他內容保留原文。',
+    language: '閱讀語言', scope: '本站原文為繁體中文。切換英文、日文、韓文時，目前主要翻譯首頁功能卡片的標題與按鈕；其他內容（包含成長中心與命盤解讀）保留繁體中文原文。簡體中文目前只轉換這個選單與易經神煞入口。',
     dual: '易經神煞', systems: '八字 × 紫微斗數 × 易經卜卦',
     description: '一份出生資料，查看三層命盤。以易經為綱、神煞為用，融會貫通。可切換彩色／黑白 A4 預覽與下載。',
     password: '需使用已取得的進入密碼', enter: '輸入密碼，開啟易經神煞 →',
@@ -16,7 +16,7 @@ export const interfaceCopy = {
   },
   'zh-Hans': {
     more: '更多探索（可稍后）', less: '收起更多探索', deeper: '深入命盘', explore: '继续探索',
-    language: '阅读语言', scope: '目前切换首页易经神煞入口与导航提示；其他内容保留原文。',
+    language: '阅读语言', scope: '目前仅这个语言菜单与首页易经神煞入口显示为简体中文；其他内容（包含命盘解读）暂时保留繁体中文原文。',
     dual: '易经神煞', systems: '八字 × 紫微斗数 × 易经卜卦',
     description: '一份出生资料，查看三层命盘。以易经为纲、神煞为用，融会贯通。可切换彩色／黑白 A4 预览与下载。',
     password: '需使用已取得的访问密码', enter: '输入密码，打开易经神煞 →',
@@ -26,7 +26,7 @@ export const interfaceCopy = {
   },
   en: {
     more: 'Explore more', less: 'Show fewer features', deeper: 'Explore your charts', explore: 'Keep exploring',
-    language: 'Reading language', scope: 'Currently translates the home I-Ching ShenSha entry and this guide. Other content remains in its original language.',
+    language: 'Reading language', scope: 'English currently covers mainly the home page feature-card titles and buttons. Everything else, including the Growth Center and chart readings, stays in the original Traditional Chinese.',
     dual: 'I-Ching ShenSha', systems: 'Ba Zi × Zi Wei Dou Shu × I-Ching Divination',
     description: 'Use one set of birth details to view three integrated charts. I-Ching as framework, ShenSha as application. Preview or download in color or black and white on A4.',
     password: 'Your existing access password is required.', enter: 'Enter password to view ShenSha →',
@@ -36,7 +36,7 @@ export const interfaceCopy = {
   },
   ko: {
     more: '더 보기', less: '접기', deeper: '명반 자세히 보기', explore: '계속 둘러보기',
-    language: '표시 언어', scope: '현재는 홈의 이경신살 입구와 이 안내만 번역됩니다. 다른 내용은 원문으로 표시됩니다.',
+    language: '표시 언어', scope: '현재 한국어는 주로 홈 화면 기능 카드의 제목과 버튼에 적용됩니다. 그 밖의 내용(성장 센터와 명반 해석 포함)은 번체 중국어 원문으로 표시됩니다.',
     dual: '이경신살', systems: '사주팔자 × 자미두수 × 이경점술',
     description: '한 번 입력한 출생 정보로 세 가지 명반을 확인하세요. 이경을 체계로, 신살을 응용으로 합니다. 컬러 또는 흑백 A4 미리보기와 다운로드를 지원합니다.',
     password: '발급받은 접속 비밀번호가 필요합니다.', enter: '비밀번호를 입력하여 신살 보기 →',
@@ -46,7 +46,7 @@ export const interfaceCopy = {
   },
   ja: {
     more: 'もっと見る', less: '折りたたむ', deeper: '命盤を詳しく見る', explore: 'さらに探索',
-    language: '表示言語', scope: '現在はホームの易経神殺入口とこの案内のみ切り替わります。その他の内容は原文で表示されます。',
+    language: '表示言語', scope: '現在、日本語に切り替わるのは主にホーム画面の機能カードの見出しとボタンです。その他の内容（成長センターや命盤の解釈を含む）は繁体字中国語の原文のまま表示されます。',
     dual: '易経神殺', systems: '八字 × 紫微斗数 × 易経占卜',
     description: '一組の出生情報から3種類の命盤を確認できます。易経を枠組みとし、神殺を応用とします。カラー・白黒のA4プレビューとダウンロードに対応しています。',
     password: '取得済みのアクセスパスワードが必要です。', enter: 'パスワードを入力して神殺を開く →',
