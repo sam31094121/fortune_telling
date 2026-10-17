@@ -13,3 +13,23 @@
     min-height: 201px !important;
   }
 }
+
+/*
+  2026-10-17 無障礙（對比）：咒語句中間的「＝」原本是半透明紅（約 0.85×0.7 透明度），
+  在深紅底上實測只有 2.1–2.9:1（字色其實由外層的刻字漸層決定）。改成金色、呼吸動畫最低透明度 0.92，加深色描邊，
+  在原本的底色上達到 4.5:1 以上；字形、大小、位置與動畫節奏不變。
+*/
+.home-top-ward-seal--curse .home-top-ward-seal__eq {
+  color: #fde68a;
+  /* 外層 __script 用 background-clip:text＋透明填色畫出刻字漸層；這裡要自己填色，金色才看得到。 */
+  -webkit-text-fill-color: #fde68a;
+  text-shadow: 0 0 2px rgba(20, 6, 4, 0.95), 0 0 8px rgba(20, 6, 4, 0.7);
+  animation: home-ward-eq-breathe-a11y 3.8s ease-in-out infinite;
+}
+@keyframes home-ward-eq-breathe-a11y {
+  0%, 100% { opacity: 0.92; transform: translateY(1px) scale(1); }
+  50% { opacity: 1; transform: translateY(0) scale(1.04); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-top-ward-seal--curse .home-top-ward-seal__eq { animation: none !important; }
+}

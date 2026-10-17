@@ -1426,7 +1426,8 @@ function VipGrowthUnlockCard({ completed, completedModules, total, justUnlocked,
               <span className="growth-lock-3d-emblem__glyph">{unlocked ? '\uD83D\uDD13' : '\uD83D\uDD12'}</span>
             </span>
             <div className="min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200/85">Growth Center</p>
+              {/* 2026-10-17：原本固定英文「Growth Center」，改成跟著閱讀語言（顯示層翻譯）；字色改不透明，對比 ≥ 4.5:1。 */}
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-amber-200">成長中心</p>
             </div>
           </div>
           <p className="mt-4 text-sm font-black leading-7 text-[color:var(--text-main)]">{headline}</p>
@@ -3965,7 +3966,7 @@ export default function HomePage() {
           </div>
         )}
 
-        <section className="mt-10 pb-5 sm:mt-14 sm:pb-8" aria-label="Home trust counters">
+        <section className="mt-10 pb-5 sm:mt-14 sm:pb-8" aria-label="回饋與瀏覽次數">
           <div className="mx-auto max-w-3xl">
             <div id="home-trust-strip" data-home-step="6" className="home-trust-strip home-trust-strip--footer grid scroll-mt-6 grid-cols-1 items-stretch gap-2 sm:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
               <AiTrustFeedback className="home-trust-card flex min-h-[108px] min-w-0 flex-col justify-center overflow-hidden rounded-xl border border-amber-300/25 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.15),rgba(34,211,238,0.1)_38%,rgba(15,23,42,0.76)_64%,rgba(2,6,23,0.93)_100%)] px-3 py-2.5 text-center shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl" />
