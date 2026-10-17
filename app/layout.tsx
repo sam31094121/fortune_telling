@@ -5,6 +5,7 @@ import AppStabilityGuard from '@/components/AppStabilityGuard';
 import { InterfaceLanguageProvider } from '@/components/InterfaceLanguage';
 import ScreenArrowReview from '@/components/ScreenArrowReview';
 import InstallShield080 from '@/components/InstallShield080';
+import ViewportZoomReset from '@/components/ViewportZoomReset';
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
 import { TEXT_SIZE_INIT_SCRIPT } from '@/lib/text-size';
 import { TAROT_CARD_BACK_CSS_IMAGE } from '@/features/tarot/constants/cardBack';
@@ -123,6 +124,7 @@ export default function RootLayout({
         <ScreenArrowReview />
         <ServiceWorkerRegister />
         <InstallShield080 />
+        <ViewportZoomReset />
         <InterfaceLanguageProvider>{children}</InterfaceLanguageProvider>
       </body>
     </html>

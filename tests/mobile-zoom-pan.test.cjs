@@ -107,4 +107,11 @@ const card = read('components/HomeToolsCard.tsx');
 yes(card.includes('<InterfaceLanguagePicker variant="card" />') && card.includes('data-install-shield-slot') && card.includes('data-text-size-option'), '一張卡片裡要同時有語言、盾牌位置、字體大小');
 yes(read('components/InterfaceLanguage.tsx').includes("variant = 'standalone'"), '語言選擇要有 card 版本（無自己的外框，與卡片融為一體）');
 
+// 10. 換頁還原放大倍率：首頁放大後點進其他頁，新頁面不得停在放大狀態（2026-10-17 客戶回報）；只還原、不禁止放大
+const resetSrc = read('components/ViewportZoomReset.tsx');
+yes(read('app/layout.tsx').includes('<ViewportZoomReset />'), '全站 layout 要掛換頁還原倍率');
+yes(resetSrc.includes('usePathname') && resetSrc.includes('visualViewport') && resetSrc.includes('pageshow'), '換頁與返回頁面時都要檢查放大倍率');
+yes(resetSrc.includes("setAttribute('content', original)"), '暫時鎖 1 倍之後必須還原 viewport 原內容，不能永久禁止放大');
+yes(!/maximum-scale|user-scalable/.test(read('app/layout.tsx')), 'layout 本身仍不得寫死 maximum-scale／user-scalable');
+
 console.log(`mobile-zoom-pan: ${checks} checks passed`);
