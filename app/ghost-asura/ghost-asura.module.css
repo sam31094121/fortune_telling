@@ -1065,3 +1065,9 @@
     box-shadow: 0 -14px 26px -10px rgba(0, 0, 0, 0.7), 0 10px 26px -8px rgba(248, 199, 88, 0.45);
   }
 }
+/* 第 6 項（頁面層）：下載、分享、重新解盤的小標題下限 13px，跟著字體大小倍率 */
+@media (max-width: 640px) {
+  .downloadLabel,
+  .shareLabel,
+  .quickRetakeLabel { font-size: calc(13px * var(--ts, 1)) !important; }
+}

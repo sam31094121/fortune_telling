@@ -1725,3 +1725,34 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
     linear-gradient(165deg, rgba(255, 255, 255, 0.26) 0, rgba(255, 255, 255, 0) 40%),
     linear-gradient(165deg, var(--t-top), var(--t-bot));
 }
+
+/* 2026-10-17「阿修羅升級」第 4 項：四根柱子的橫向捲動區原本沒有任何提示（第三欄被切一半，客戶不知道能滑）。
+   用「捲動驅動」的邊緣淡出當暗示：還有內容的那一側會淡出，滑到頭那一側就消失；不加任何文字（文字提示已被業主要求隱藏）。
+   只在支援 animation-timeline 的瀏覽器啟用；不支援的瀏覽器維持原樣，什麼都不會壞。 */
+@property --pf-l { syntax: '<length>'; inherits: false; initial-value: 0px; }
+@property --pf-r { syntax: '<length>'; inherits: false; initial-value: 28px; }
+@supports (animation-timeline: scroll(self inline)) {
+  .pillarScroll {
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--pf-l), #000 calc(100% - var(--pf-r)), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 var(--pf-l), #000 calc(100% - var(--pf-r)), transparent 100%);
+    animation: pillarEdgeFade linear both;
+    animation-timeline: scroll(self inline);
+  }
+  @keyframes pillarEdgeFade {
+    0% { --pf-l: 0px; --pf-r: 28px; }
+    6% { --pf-l: 28px; }
+    94% { --pf-r: 28px; }
+    100% { --pf-l: 28px; --pf-r: 0px; }
+  }
+}
+
+/* 第 6 項：手機上殘留的 11～12px 小字，下限提到 13px（乘上首頁字體大小倍率）。不影響電腦與平板。 */
+@media (max-width: 640px) {
+  .fnPlainTag,
+  .pillarCount,
+  .fnBadgeTag,
+  .fnPlainLine strong,
+  .pillarLabel,
+  .lifeTense,
+  .scopeNote { font-size: calc(13px * var(--ts, 1)) !important; }
+}
