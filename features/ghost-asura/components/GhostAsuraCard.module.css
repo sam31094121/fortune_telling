@@ -1835,3 +1835,14 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   .item, .supplement, .itemHead::after, .supplementHead::after { transition: none; }
   .itemHead:hover::after, .supplementHead:hover::after, .itemHead:active::after, .supplementHead:active::after { transform: none; }
 }
+
+/* 2026-10-17 修正：手機（≤420px）點開任何一張印記卡，整排四欄被撐爆（643px → 2944px）。
+   原因：格線是「四欄 1fr、寬度取內容最大值」，開啟後的內文很長，最寬那欄被撐到 721px，而 1fr 讓四欄全都變一樣寬；
+   結果開啟的卡比畫面寬（339px），內文被切在右邊，第一欄標題卡跑到畫面外變成一塊空白。
+   改成四欄固定 200px：點開時內文在自己那一欄內換行，其他欄不會被撐大。其他寬度原本就有固定寬度，不受影響。 */
+@media (max-width: 420px) {
+  .pillarReadingGrid {
+    grid-template-columns: repeat(4, 200px);
+    width: max-content;
+  }
+}
