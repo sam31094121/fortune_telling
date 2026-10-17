@@ -1760,3 +1760,14 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   .lifeTense,
   .scopeNote { font-size: calc(13px * var(--ts, 1)) !important; }
 }
+
+/* 平板小字放大（續）：結果卡的柱名、時期標籤、印記數量、白話標籤、說明 */
+@media screen and (min-width: 641px) and (max-width: 1180px) {
+  .fnPlainTag,
+  .pillarCount,
+  .fnBadgeTag,
+  .fnPlainLine strong,
+  .pillarLabel,
+  .lifeTense,
+  .scopeNote { font-size: 0.8125rem !important; }
+}

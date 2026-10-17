@@ -1071,3 +1071,16 @@
   .shareLabel,
   .quickRetakeLabel { font-size: calc(13px * var(--ts, 1)) !important; }
 }
+/* 平板小字放大（2026-10-17「平板阿修羅小字也要放大」）：平板（641～1180px）畫面版原本有約 75 處 10～12px 的字，
+   集中在填表區、進度標籤、頁首小標與頁尾的下載／分享標題；提到 13～14px。用 rem：跟著首頁選的字體大小一起放大。
+   手機另有自己的規則（calc × 倍率），電腦不動。 */
+@media screen and (min-width: 641px) and (max-width: 1180px) {
+  .eyebrow,
+  .stepLabel,
+  .downloadLabel,
+  .shareLabel,
+  .quickRetakeLabel { font-size: 0.8125rem !important; }
+  .inputPanel :global(.mega-friendly-form) :global(.text-xs) { font-size: 0.875rem !important; }
+  .inputPanel :global(.mega-friendly-form) [class*="text-[11px]"],
+  .inputPanel :global(.mega-friendly-form) [class*="text-[10px]"] { font-size: 0.8125rem !important; }
+}
