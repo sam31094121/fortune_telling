@@ -1143,3 +1143,23 @@
   }
 }
 
+
+/* 手機：文字整行、寶珠移到下面（2026-10-17）。
+   原本文字與寶珠左右並排，文字欄只剩約 129px，字體「大／特大」時被擠成一個字寬、主按鈕被擠成圓球。
+   改成上下排列：文字佔滿一整行，主按鈕是一條寬按鈕，寶珠縮小置中放在下面。電腦版不受影響。 */
+@media (max-width: 639px) {
+  .intro:has(.orbCard) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.9rem !important;
+    align-items: start;
+  }
+  .intro:has(.orbCard) .primaryButton {
+    width: 100%;
+    padding-inline: 1rem;
+    justify-content: center;
+  }
+  .intro:has(.orbCard) .orbCard {
+    width: min(58%, 200px);
+    justify-self: center;
+  }
+}

@@ -16,8 +16,8 @@ export const TEXT_SIZE_DEFAULT: TextSizeId = 'medium';
 // 電腦的「中」＝原本的 100%（沒有改動），客戶選「大」「特大」才放大。
 export const TEXT_SIZE_OPTIONS: ReadonlyArray<{ id: TextSizeId; label: string; rootPercent: number; scale: number; desktopRootPercent: number }> = [
   { id: 'medium', label: '中', rootPercent: 125, scale: 1, desktopRootPercent: 100 },
-  { id: 'large', label: '大', rootPercent: 143.75, scale: 1.15, desktopRootPercent: 112.5 },
-  { id: 'xlarge', label: '特大', rootPercent: 162.5, scale: 1.3, desktopRootPercent: 125 },
+  { id: 'large', label: '大', rootPercent: 156.25, scale: 1.25, desktopRootPercent: 112.5 },
+  { id: 'xlarge', label: '特大', rootPercent: 187.5, scale: 1.5, desktopRootPercent: 125 },
 ];
 
 export function isTextSizeId(value: unknown): value is TextSizeId {

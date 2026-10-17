@@ -27105,8 +27105,8 @@ body:has(#home-eight-card-route) main .home-feature-launch .home-feature-cta:act
   /* 客戶可在首頁選字體大小（中／大／特大）；「中」＝預設標準＝125%。--ts 是各檔相對「中」的倍率，下面所有固定像素字都乘它。
      選擇存在 html[data-text-size]（預設「中」不加屬性）；檔位與倍率的唯一設定在 lib/text-size.ts，測試會核對兩邊一致。 */
   html { font-size: 125%; --ts: 1; }
-  html[data-text-size="large"] { font-size: 143.75%; --ts: 1.15; }
-  html[data-text-size="xlarge"] { font-size: 162.5%; --ts: 1.3; }
+  html[data-text-size="large"] { font-size: 156.25%; --ts: 1.25; }
+  html[data-text-size="xlarge"] { font-size: 187.5%; --ts: 1.5; }
   /* 全站：固定像素的小字下限 */
   .text-\[8px\],
   .text-\[9px\],
