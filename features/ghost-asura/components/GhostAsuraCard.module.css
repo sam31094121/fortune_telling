@@ -1733,6 +1733,10 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 @property --pf-r { syntax: '<length>'; inherits: false; initial-value: 28px; }
 @supports (animation-timeline: scroll(self inline)) {
   .pillarScroll {
+    /* 預設不淡出：內容放得下、不能捲動時（電腦、橫式平板）捲動動畫不會啟動，就維持這個預設，邊緣不會被無謂淡掉。
+       能捲動時由下面的動畫接手，帶出左右淡出。 */
+    --pf-l: 0px;
+    --pf-r: 0px;
     -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--pf-l), #000 calc(100% - var(--pf-r)), transparent 100%);
     mask-image: linear-gradient(to right, transparent 0, #000 var(--pf-l), #000 calc(100% - var(--pf-r)), transparent 100%);
     animation: pillarEdgeFade linear both;
