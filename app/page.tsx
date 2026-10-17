@@ -3974,7 +3974,8 @@ export default function HomePage() {
         </div>
       )}
 
-      {showScrollTop && (
+      {/* 業主定案 2026-10-17：右下角「回到頂部」盾牌小卡隱藏；原碼與避讓邏輯保留，要恢復把 false && 拿掉 */}
+      {false && showScrollTop && (
         <button
           ref={scrollTopButtonRef}
           onClick={scrollToTop}

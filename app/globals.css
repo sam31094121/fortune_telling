@@ -27231,3 +27231,10 @@ body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack [cla
     overflow-y: visible !important;
   }
 }
+/* 語言選擇卡裡的長說明「本站原文為繁體中文…」隱藏（2026-10-17，業主要求）。
+   只隱藏、不刪：文字與 id 都還在，輔助科技仍可透過 aria-describedby 讀到；要恢復把這段刪掉即可。
+   精準：只針對語言卡裡的 notice 段落（InterfaceLanguage 模組的 notice 類別），不影響其他任何文字。 */
+p[class*="InterfaceLanguage_notice"] { display: none !important; }
+/* 語言選擇卡裡的短免責句「本站內容僅供文化參考與娛樂，不構成醫療、法律或投資建議。」隱藏（2026-10-17，業主要求）。
+   只隱藏、不刪：文字與 id 都還在；要恢復把這段刪掉即可。精準：只針對語言卡的 disclaimer 段落。 */
+p[class*="InterfaceLanguage_disclaimer"] { display: none !important; }

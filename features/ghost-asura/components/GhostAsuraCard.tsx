@@ -11,13 +11,27 @@
 'use client';
 
 
-import { Fragment, useMemo, useState } from 'react';
+import { Fragment, useMemo, useState, type SyntheticEvent } from 'react';
 import { animationConfig } from '@/lib/ghost-asura-animation';
 import type { AsuraDisplay, AsuraDisplaySeal } from '@/lib/ghost-asura-display-contract';
 import type { GhostAsuraReading } from '../types';
 import { GHOST_ASURA_CARD_TITLE, GHOST_ASURA_UI } from '../uiText';
 import styles from './GhostAsuraCard.module.css';
 import { AsuraNatureCard } from './AsuraNatureCard';
+
+/** 點開印記卡後，捲到視線中央（卡片比畫面高就把標題對齊畫面上方，確保標題看得到）。
+ *  等展開動畫（約 0.24 秒）跑完再算位置；使用者開了「減少動態」就不用平滑捲動。純畫面行為，不碰任何資料。 */
+function focusOpenedDetail(event: SyntheticEvent<HTMLDetailsElement>) {
+  const el = event.currentTarget;
+  if (!el.open) return;
+  const card = el.closest('li') ?? el;
+  window.setTimeout(() => {
+    if (!el.open) return;
+    const fits = card.getBoundingClientRect().height <= window.innerHeight * 0.88;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    card.scrollIntoView({ block: fits ? 'center' : 'start', inline: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+  }, 280);
+}
 
 /** 「這一役的來歷」收合面板：業主 2026-10-15 要求隱藏（沒有用途）。保持 false；未經明說叫醒不得改成 true。 */
 const SHOW_LIFE_ORIGIN = false as boolean;
@@ -390,7 +404,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
                         : {}
                     }
                   >
-                    <details className={styles.itemDetail} data-asura-detail>
+                    <details className={styles.itemDetail} data-asura-detail name={`asura-col-${column.key}`} onToggle={focusOpenedDetail}>
                       <summary className={styles.itemHead}>
                         <strong className={styles.displayName}>{seal.name}</strong>
                       </summary>
@@ -699,7 +713,7 @@ function LegacyReadingCard({ reading }: { reading: GhostAsuraReading }) {
                               : {}
                           }
                         >
-                          <details className={styles.itemDetail} data-asura-detail>
+                          <details className={styles.itemDetail} data-asura-detail name={`asura-col-${pillarKeys[idx]}`} onToggle={focusOpenedDetail}>
                           <summary className={styles.itemHead}>
                             <strong className={styles.displayName}>{item.displayName}</strong>
                           </summary>

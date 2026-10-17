@@ -1846,3 +1846,45 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
     width: max-content;
   }
 }
+
+/* 2026-10-17「點開效果」第 1 項：印記卡與補充卡展開／收合改成順順的高度動畫（原本瞬間彈開）。
+   只有一次性的高度＋淡入，不做持續浮動或傾斜（上面註解：卡片會動，客戶會點不到）。
+   用較新的瀏覽器功能 ::details-content；不支援的瀏覽器維持原本的瞬間開合，什麼都不會壞。 */
+@supports selector(::details-content) {
+  .itemDetail,
+  .supplement { interpolate-size: allow-keywords; }
+  .itemDetail::details-content,
+  .supplement::details-content {
+    height: 0;
+    overflow: clip;
+    opacity: 0;
+    transition: height 240ms ease, opacity 200ms ease, content-visibility 240ms allow-discrete;
+  }
+  .itemDetail[open]::details-content,
+  .supplement[open]::details-content {
+    height: auto;
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .itemDetail::details-content,
+    .supplement::details-content { transition: none; }
+  }
+}
+
+/* 2026-10-17「點開效果」第 3 項：展開後的內文放鬆。
+   量到行距其實已有 1.85 倍，真正擠的是「段落之間」與「字距」：行距提到約 1.95、段落之間留 10px、字距微放 0.03em、
+   上方內距加大。窄欄（手機 200px）裡的中文讀起來比較不累。 */
+.itemBody {
+  padding-top: 16px;
+  letter-spacing: 0.03em;
+}
+.itemBody .meaning,
+.itemBody .battleLine {
+  line-height: 1.95 !important;
+}
+.itemBody .meaning,
+.itemBody .meaning + .battleLine,
+.itemBody .battleLine + .battleLine {
+  margin-top: 10px;
+}
+.itemBody > :first-child { margin-top: 0; }
