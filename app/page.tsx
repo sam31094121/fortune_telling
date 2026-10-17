@@ -3166,7 +3166,7 @@ export default function HomePage() {
               <div className="relative mx-auto grid h-16 w-16 place-items-center rounded-full border border-rose-100/35 bg-rose-200/[0.08] font-serif text-3xl font-black text-rose-100/90 shadow-[0_0_30px_rgba(251,113,133,0.20)]" aria-hidden="true">
                 <span className="absolute inset-1.5 rounded-full border border-amber-100/15" />
                 <span className="absolute -inset-2 rounded-full border border-rose-100/10" />
-                <span>鸞</span>
+                <span>桃</span>
                 <span className="absolute -bottom-1 rounded-full border border-amber-100/25 bg-[#351020] px-2 py-0.5 text-[9px] font-black tracking-[0.18em] text-amber-50/80">封</span>
               </div>
               <h2 className="relative mt-4 font-serif text-xl font-black tracking-wide text-rose-50 sm:text-2xl">{RED_LUAN_ARCHIVE_COPY.title}</h2>
@@ -3180,7 +3180,13 @@ export default function HomePage() {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-100/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
               <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
-                <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-rose-100/40 bg-rose-200/10 font-serif text-3xl font-black text-rose-100 shadow-[0_0_28px_rgba(251,113,133,0.24)]" aria-hidden="true">鸞</div>
+                <div className="home-oracle-3d-emblem home-oracle-3d-emblem--peach" aria-hidden="true">
+                  <span className="home-oracle-3d-emblem__aura" />
+                  <span className="home-oracle-3d-emblem__bevel" />
+                  <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
+                  <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
+                  <span className="home-oracle-3d-emblem__glyph">桃</span>
+                </div>
                 <div className="min-w-0 flex-1">
                   <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-rose-50 sm:text-2xl"><HomeTranslatedText text={"桃花・紅鸞心動"} /></h2>
                   <p className="mt-1 text-xs leading-5 text-rose-50/75"><HomeTranslatedText text={"抽出心動月份、對象類型與相遇提示。"} /></p>

@@ -27170,3 +27170,52 @@ body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack > * 
 body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack > [class*="StarBeastHomeCard_wrap"] { min-height: 0 !important; }
 /* 首頁上半部間距（2026-10-17）：太極球 → 今日定向關卡 → 工具卡片 → 卡片列，統一約 14px 的節奏 */
 body:has(#home-eight-card-route) .home-primary-quest-wrap { margin-top: 14px !important; margin-bottom: 14px !important; }
+/* 首頁卡片圖示統一（業主定案 2026-10-17「全部統一美化」）：
+   每張卡片左邊的圖示框原本大小 48～70px、圓角 13～21px 不一，現在統一 64px 方框、圓角 20px、字 30px，
+   顏色與光暈仍各自保留；只統一尺寸與形狀。 */
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack :is(
+  .home-oracle-3d-emblem, .number-fortune-auspicious-emblem, .ziwei-dou-3d-emblem, .tarot-entry-emblem,
+  [class*="GhostAsuraHomeEntry_emblem"], div[class*="h-14"][class*="w-14"], div[class*="h-12"][class*="w-12"]
+) {
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  flex: none !important;
+  border-radius: 20px !important;
+}
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack :is(div[class*="h-14"][class*="w-14"], div[class*="h-12"][class*="w-12"]):not(:has(svg)) {
+  font-size: 30px !important;
+}
+/* 「探索層」卡片原本被刻意調淡（圖示縮 0.9、整張透明度 0.9、飽和度降低），現在全部卡片平等，一律同樣的圖示姿態與亮度 */
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack .home-feature-tier-explore { opacity: 1 !important; filter: none !important; }
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack .home-feature-tier-explore :is(.home-oracle-3d-emblem, .number-fortune-auspicious-emblem, .ziwei-dou-3d-emblem) {
+  transform: perspective(420px) rotateX(6deg) rotateY(-8deg) translateY(-1px) translateZ(0) !important;
+}
+/* 首頁卡片整體統一（業主定案 2026-10-17）：
+   只統一尺寸：圓角、卡片內距、間距、最小高度；顏色保留各卡片自己的變化（背景、邊框、光暈都不動）。標題字級、塔羅牌的圓形箭頭一併拉齊。 */
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack > a.home-feature-launch,
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack > [class*="StarBeastHomeCard_wrap"] > a.home-feature-launch {
+  border-radius: 22px !important;
+  padding: 20px 16px !important;
+  gap: 16px !important;
+  min-height: 176px !important;
+}
+body:has(#home-eight-card-route) #home-eight-card-route .tarot-entry-cta__icon {
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  width: auto !important;
+  height: auto !important;
+  color: inherit !important;
+}
+@media (max-width: 640px) {
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack > a h2,
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack [class*="StarBeastHomeCard_wrap"] h2 { font-size: 1.2rem !important; }
+}
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack [class*="StarBeastHomeCard_wrap"] > a > div.pt-2 { padding-top: 0 !important; }
+/* 桃花・紅鸞的圖示改用與其他卡片相同的 3D 立體圖示，顏色用桃粉＋蜜桃橘，與「緣」的玫紅區分 */
+.home-oracle-3d-emblem--peach {
+  --emblem-main: 251, 113, 133;
+  --emblem-hot: 253, 186, 116;
+  --emblem-deep: 131, 24, 67;
+}
