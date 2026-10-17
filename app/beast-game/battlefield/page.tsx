@@ -278,7 +278,7 @@ function BattlefieldScreen() {
       setOutcome(null); setSettlement(null); setBattleStake(representative?.cardId || null);
       setBattleVoiceId(crypto.randomUUID());
       setInspection(null);
-      setAutomatic(true);
+      setAutomatic(false); // 2026-10-17 業主：開戰預設手動，客戶按「自動」才自動連擊
       if (!stakeCardIds.length) { setMatch(next); return; }
       setSettling(true);
       // Reserve the actual copy before combat. The shared transaction settles once or releases on interruption.
@@ -577,7 +577,7 @@ function BattlefieldScreen() {
                         <li><strong>點一次就完成佈陣</strong><p>第一張直接成為主戰，接著依序補入後備，不必重複點擊。</p></li>
                         <li><strong>陣容滿了再精準換位</strong><p>點已上場的卡即可選位置調整；查看能力不會出招。</p></li>
                         <li><strong>押 1～{MAX_STAKE_CARDS} 張就能開戰</strong><p>{isTrial ? '本場免押注，不發卡、不沒收。' : `輸少贏多：贏了押注卡全保留，至少再得同樣張數，打得越漂亮越多，最多 ${MAX_REWARD_CARDS} 張；輸了只扣本場押注。`}</p></li>
-                        <li><strong>開戰後自動一路連擊</strong><p>自動替你出手直到分出勝負；想自己選攻擊、技能或換卡，就按「暫停」。</p></li>
+                        <li><strong>開戰後由你自己出手</strong><p>預設手動：自己選攻擊、技能或換卡；想讓它自動連擊到分出勝負，就按「自動」。</p></li>
                       </ol>
                       <button type="button" className={styles.restart} onClick={() => reviewStep(guidance.currentStep)}>回到目前步驟</button>
                       <details className={styles.details}><summary>重新準備</summary>

@@ -47,6 +47,8 @@ function BeastTurnGameScreen() {
   const [inspection, setInspection] = useState<{ cardId: string; side: 'player' | 'opponent' } | null>(null);
   const pending = useRef(false);
   const accountRevisionRef = useRef(0);
+  /** 後端簽名的戰局票：手動多回合時帶回去，換了一台機器也能接續（見 /api/beast-game/turns）。 */
+  const ticketRef = useRef<string | null>(null);
   const scroll = useRef<HTMLDivElement>(null);
   const match = account?.match;
   useEffect(() => {
@@ -72,7 +74,7 @@ function BeastTurnGameScreen() {
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error ?? '卡池讀取失敗');
       if (signal?.aborted) return;
-      setCards(data.cards); setAccount(data.account); setBattleView(data.view ?? null); setError('');
+      ticketRef.current = data.ticket ?? null; setCards(data.cards); setAccount(data.account); setBattleView(data.view ?? null); setError('');
     } catch (cause) {
       if (!signal?.aborted) setError(cause instanceof Error ? cause.message : '連線中斷，請重新載入。');
     }
@@ -93,28 +95,22 @@ function BeastTurnGameScreen() {
     const post = async (bodyType: 'START' | 'ACTION' | 'LEAVE' | 'AUTO_FINISH' | 'AUTO_STEP', bodyExtra: Record<string, unknown>, revision: number) => {
       const res = await fetch('/api/beast-game/turns', {
         method: 'POST', signal: AbortSignal.timeout(60000), headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: bodyType, revision, requestId: crypto.randomUUID(), ...bodyExtra }),
+        body: JSON.stringify({ type: bodyType, revision, requestId: crypto.randomUUID(), ticket: ticketRef.current, ...bodyExtra }),
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error ?? '戰鬥操作未完成');
+      ticketRef.current = data.ticket ?? null;
       return data as { ok: true; account: Account & { match: Match | null; revision: number }; view: BattleView | null };
     };
 
     try {
-      let data = await post(type, extra, accountRevisionRef.current);
+      const data = await post(type, extra, accountRevisionRef.current);
       accountRevisionRef.current = data.account.revision;
       setAccount(data.account); setBattleView(data.view ?? null);
 
-      // Free battle opens in auto mode: finish in one server lock to avoid
-      // multi-turn /tmp races on multi-instance hosts (live Vercel Michelin P0).
-      if (type === 'START' && data.account.match?.status === 'PLAYING') {
-        setAutomatic(true);
-        data = await post('AUTO_FINISH', {}, accountRevisionRef.current);
-        accountRevisionRef.current = data.account.revision;
-        setAccount(data.account); setBattleView(data.view ?? null);
-        if (data.account.match) playRound(data.account.match);
-        else resetPlayback();
-      } else if ((type === 'ACTION' || type === 'AUTO_STEP') && data.account.match) {
+      // 2026-10-17 業主：開戰預設手動，客戶按「自動」才自動連擊（原本開戰就一次自動打完）。
+      // 多回合手動的穩定性由後端簽名戰局票負責（換機器也能接續），不再需要「一次打完」。
+      if ((type === 'ACTION' || type === 'AUTO_STEP') && data.account.match) {
         playRound(data.account.match);
       } else {
         resetPlayback();
@@ -135,6 +131,7 @@ function BeastTurnGameScreen() {
           const data = await res.json();
           if (res.ok && data.ok) {
             accountRevisionRef.current = data.account.revision;
+            ticketRef.current = data.ticket ?? null;
             setAccount(data.account); setBattleView(data.view ?? null);
             if (data.account.match?.status === 'FINISHED') {
               setError('');
@@ -290,7 +287,7 @@ function BeastTurnGameScreen() {
               : selected.length === 2 ? '再選後備 2 (2/3)'
               : '三張齊了・按下方開始'}
           </p>
-          <p className={styles.prepareRule}>開戰後由系統一次演算整場（較穩、較快）；完成後可看結果再戰。</p>
+          <p className={styles.prepareRule}>開戰後由你自己出招；想讓它自動連擊，按「自動」。</p>
           {/*
             三卡免費戰場「不押收藏、不發押卡獎勵」（技能檔案〈十一〉）。
             這裡原本整塊嵌了收藏押注面板（最多押 20 張、輸了沒收），跟標題「不扣收藏卡」互相矛盾，
@@ -317,7 +314,7 @@ function BeastTurnGameScreen() {
             const card = cards.find(c => c.id === id)!;
             return <div key={id} className={styles.card}><p className={styles.selectionCount}>{i === 0 ? '先出場' : '後備 ' + i}</p><BeastCardTile card={card} onOpen={() => setDetail(card)} /><p className={styles.confirmName}>{card.name}</p></div>;
           })}</div>
-          <p className={styles.muted}>開戰後由系統一次演算整場（較穩、較快）；完成後可看結果再戰。</p>
+          <p className={styles.muted}>開戰後由你自己出招；想讓它自動連擊，按「自動」。</p>
           <details className={styles.muted}><summary>對戰方式</summary><p>與易經各派三張，擊倒對方三隻即獲勝。六十張皆可用，本模式免押卡。</p></details>
         </>}
       </section>

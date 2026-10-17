@@ -114,8 +114,8 @@ console.log('PASS: 逐張交替揭牌、素材真的存在、音效有紀律、�
 /* ── 六、翻牌：預設自動連揭，可切手動（慵懶／長輩友善） ───────────────────────────────── */
 {
   const ritual = read('components/BeastDuelRitual.tsx');
-  assert.ok(/const \[autoFlip, setAutoFlip\] = useState\(true\)/.test(ritual),
-    '翻牌必須預設自動連揭——可切回自己一張一張翻');
+  assert.ok(/const \[autoFlip, setAutoFlip\] = useState\(false\)/.test(ritual),
+    '翻牌必須預設手動（2026-10-17 業主：自動要客戶自己按）——按「自動翻牌」才切自動');
   assert.ok(ritual.includes('data-flip-next'), '要有「翻下一張」的手動按鈕');
   assert.ok(ritual.includes('data-auto-flip'), '要有切換自動／手動翻牌');
   assert.ok(/if \(!autoFlip\) return;/.test(ritual),

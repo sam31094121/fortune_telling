@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 import { advance, chooseAI, interactiveCatalog, newMatch, profile, type Action, type Difficulty, type Match } from '@/lib/beast-game/interactive';
 import { TURNS_START_DEFAULT_DIFFICULTY } from '@/lib/beast-game/iching-skill-archive';
 import { battleViewFor } from '@/lib/beast-game/battle-view';
+import { openBattleSession, signBattleSession } from '@/lib/beast-game/battle-session';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -25,7 +26,8 @@ async function transact(req:Request, mutate?:(a:Account)=>void){
     try{a=JSON.parse(await readFile(file,'utf8'));}catch(e){if((e as NodeJS.ErrnoException).code!=='ENOENT')throw e;a={owned:pick(3),experience:{},match:null,summonDay:null,imported:false,revision:0,lastRequest:null,awardedRevision:null};}
     mutate?.(a);
     const temp=file+'.tmp';await writeFile(temp,JSON.stringify(a));await rename(temp,file);
-    const res=NextResponse.json({ok:true,account:a,view:a.match?battleViewFor(a.match):null,cards:catalog,rules:{energyStart:2,energyCap:6,energyPerRound:1,maxRounds:80,summonProbability:'每張 1/60',storage:'此伺服器與目前瀏覽器識別；尚未連接登入帳號。'}},{headers:{'Cache-Control':'no-store'}});
+    const ticket=a.match?signBattleSession({v:1,match:a.match,stakeCardId:null,stakeCount:0,issuedAt:Date.now()}):null;
+    const res=NextResponse.json({ok:true,account:a,ticket,view:a.match?battleViewFor(a.match):null,cards:catalog,rules:{energyStart:2,energyCap:6,energyPerRound:1,maxRounds:80,summonProbability:'每張 1/60',storage:'此伺服器與目前瀏覽器識別；尚未連接登入帳號。'}},{headers:{'Cache-Control':'no-store'}});
     res.cookies.set(cookie,id,{httpOnly:true,sameSite:'strict',secure:new URL(req.url).protocol==='https:',path:'/',maxAge:31536000});return res;
   }catch(e){return NextResponse.json({ok:false,error:e instanceof Error?e.message:'無法保存，請稍後重試。'},{status:400});}
   finally{await rm(lock,{recursive:true,force:true});}
@@ -35,10 +37,22 @@ export async function POST(req:Request){
   const origin=req.headers.get('origin');
   if(origin){let valid=false;try{valid=new URL(origin).host===(req.headers.get('host')??new URL(req.url).host);}catch{/* malformed origin */}
     if(!valid)return NextResponse.json({ok:false,error:'來源不符。'},{status:403});}
-  let b:{type:string;revision:number;requestId:string;lineup?:string[];action?:Action;cardId?:string;legacyIds?:string[];autoFinish?:boolean;difficulty?:Difficulty};
+  let b:{type:string;revision:number;requestId:string;lineup?:string[];action?:Action;cardId?:string;legacyIds?:string[];autoFinish?:boolean;difficulty?:Difficulty;ticket?:string};
   try{b=await req.json();}catch{return NextResponse.json({ok:false,error:'資料格式無效。'},{status:400});}
   if(!b||typeof b.requestId!=='string'||b.requestId.length>80||!Number.isInteger(b.revision))return NextResponse.json({ok:false,error:'請重新載入遊戲。'},{status:400});
   return transact(req,a=>{
+    /*
+      手動多回合的穩定性（2026-10-17，業主要求開戰預設手動）：
+      Vercel 每台機器的暫存區各一份，連續出招可能打到沒有這場存檔的機器。
+      每次回應都附一張後端簽名的戰局票；出招時帶回來，若這台機器的存檔缺少或落後，就用驗過章的票接續。
+      簽名擋得住竄改血量與勝負；擋不住拿舊票悔棋（免費練習戰，沒有押注，可接受）。
+    */
+    if(b.type==='ACTION'||b.type==='AUTO_STEP'||b.type==='AUTO_FINISH'){
+      const restored=openBattleSession(b.ticket);
+      if(restored&&restored.stakeCardId===null&&restored.stakeCount===0&&restored.match.status==='PLAYING'&&(!a.match||a.match.revision<restored.match.revision)){
+        a.match=restored.match;a.revision=b.revision;a.awardedRevision=null;a.lastRequest=null;
+      }
+    }
     if(a.lastRequest===b.requestId)return;
     if(a.revision!==b.revision)throw new Error('另一個操作已更新戰局，請重新載入後再試。');
     switch(b.type){
