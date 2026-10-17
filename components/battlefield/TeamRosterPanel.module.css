@@ -234,3 +234,8 @@
     font-size: 16px;
   }
 }
+
+/* 2026-10-17：後備卡的卡名、血量原本 9～11px，提到 11～12px。 */
+.count { font-size: 12px !important; }
+.cardName { font-size: 12px !important; }
+.hpText { font-size: 11px !important; }

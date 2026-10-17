@@ -872,3 +872,12 @@
 @media (max-width: 900px) {
   .sideSwapLabel { display: none; } /* 窄螢幕靠底部入口；標籤留給寬螢幕 */
 }
+
+/* 2026-10-17 質感與可讀性：戰場上最重要的讀數（生命、氣、護盾、受傷）原本只有 12px，提到 14px；
+   血條加粗並加內光，數字用等寬字，傷害／護盾變化一眼看得到。格線行高同步加高，不會互相擠壓。 */
+.arenaVital { grid-template-rows: 20px 10px 20px 20px; row-gap: 3px; }
+.liveName, .arenaEnergy, .liveChange { font-size: 14px; line-height: 20px; font-variant-numeric: tabular-nums; }
+.liveName { font-weight: 700; letter-spacing: .03em; }
+.arenaEnergy { text-shadow: 0 0 8px rgba(0, 229, 255, .45); }
+.fighterVitals .liveChange { font-size: 13px; min-height: 18px; line-height: 18px; }
+.arenaHpBar { height: 10px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .2), 0 1px 4px rgba(0, 0, 0, .55); }

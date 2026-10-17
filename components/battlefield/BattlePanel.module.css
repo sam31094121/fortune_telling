@@ -608,3 +608,8 @@
     flex: 1 1 100%;
   }
 }
+
+/* 2026-10-17：提示句與按鈕下方的小說明原本 10～11px，提到 12～13px，顏色也調亮。 */
+.activeHint { font-size: 13px !important; line-height: 19px !important; color: #d4e6f2 !important; }
+.primaryActions small { font-size: 12px !important; line-height: 16px !important; opacity: .9 !important; }
+.result small { font-size: 12px !important; }

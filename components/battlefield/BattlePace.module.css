@@ -84,3 +84,21 @@
     font-size: 10px;
   }
 }
+
+/* 2026-10-17 質感與可用性：「自動／暫停」是預設手動後客戶最常按的鍵，原本只有 28px 高、11px 字。
+   提到 44px 可按高度、15px 粗字；狀態字也加大。 */
+.pace { height: 44px !important; padding: 0 6px 0 10px !important; gap: 8px !important; border-radius: 10px !important; }
+.heading { gap: 8px !important; }
+.heading strong { font-size: 13px !important; }
+.heading button {
+  min-width: 64px !important;
+  min-height: 44px !important;
+  padding: 0 12px !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  border-radius: 8px !important;
+}
+@media (max-width: 480px) {
+  .pace { padding: 0 4px 0 8px !important; gap: 6px !important; }
+  .heading strong { font-size: 12px !important; }
+}
