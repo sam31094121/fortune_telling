@@ -319,18 +319,21 @@ export default function InstallShield080() {
         setAvoid({ lift, hide });
       }
     };
+    // 2026-10-17 穩定性：分頁在背景時不量；切回來立刻重量一次（避讓規則不變）。
     const schedule = () => {
-      if (!raf) raf = window.requestAnimationFrame(measure);
+      if (!raf && document.visibilityState !== 'hidden') raf = window.requestAnimationFrame(measure);
     };
     schedule();
     const timer = window.setInterval(schedule, 600);
     window.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', schedule);
+    document.addEventListener('visibilitychange', schedule);
     return () => {
       if (raf) window.cancelAnimationFrame(raf);
       window.clearInterval(timer);
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
+      document.removeEventListener('visibilitychange', schedule);
     };
   }, [ready, phoneHost, deskSlot]);
 

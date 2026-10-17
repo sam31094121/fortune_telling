@@ -46,6 +46,8 @@ const THUNDER_PROFILES: readonly ThunderProfile[] = [
   { sourceIndex: 4, maxDuration: 1.28, playbackRate: .78, gain: .8, lowpassHz: 3600, tailSeconds: .2, tailMix: .14 },
 ] as const;
 
+let sharedThunderBytes: Promise<(ArrayBuffer | null)[]> | null = null;
+
 const ORIGIN_PAN: Record<Level01StrikeOrigin, number> = {
   N: 0,
   E: .72,
@@ -70,9 +72,39 @@ export class Level01SoundEngine {
   private paused = false;
   private lastLightningAt = -Infinity;
   private lightningVariantIndex = 0;
+  private cancelDeferredPreload: (() => void) | null = null;
 
   constructor() {
-    this.preloadThunderBytes();
+    // 2026-10-17 穩定性：七段雷聲約 1.3 MB，原本一建立就下載，手機網路下會跟首屏搶頻寬。
+    // 改成：使用者第一次觸碰／按鍵時才開始下載；網路夠快且沒開省流量時，頁面載入完、閒置後再預先下載。
+    // 播放流程不變：armFromUserGesture → decodeThunderAssets 仍會在需要時呼叫 preloadThunderBytes。
+    this.scheduleDeferredPreload();
+  }
+
+  private scheduleDeferredPreload() {
+    if (typeof window === 'undefined') return;
+    let timer = 0;
+    const cancel = () => {
+      window.removeEventListener('pointerdown', start, true);
+      window.removeEventListener('keydown', start, true);
+      window.removeEventListener('load', idle);
+      if (timer) window.clearTimeout(timer);
+    };
+    const start = () => {
+      cancel();
+      this.preloadThunderBytes();
+    };
+    this.cancelDeferredPreload = cancel;
+    window.addEventListener('pointerdown', start, { capture: true, once: true, passive: true });
+    window.addEventListener('keydown', start, { capture: true, once: true });
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+    function idle() {
+      const ric = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+      timer = window.setTimeout(() => (ric ? ric(start, { timeout: 4000 }) : start()), 2500);
+    }
+    if (connection?.saveData || /(^|-)(2g|3g)$/.test(connection?.effectiveType ?? '')) return;
+    if (document.readyState === 'complete') idle();
+    else window.addEventListener('load', idle, { once: true });
   }
 
   setReducedMotion(_value: boolean) {
@@ -247,12 +279,20 @@ export class Level01SoundEngine {
   }
 
   dispose() {
+    this.cancelDeferredPreload?.();
+    this.cancelDeferredPreload = null;
     this.disposeGraph();
   }
 
   private preloadThunderBytes() {
     if (this.thunderBytesPromise || typeof window === 'undefined' || typeof window.fetch !== 'function') return;
-    this.thunderBytesPromise = Promise.all(THUNDER_SOURCES.map(async ({ path }) => {
+    // 同一頁可能同時有好幾個引擎（例如 React 開發模式重掛載）：共用同一份下載，不重複抓 1.3 MB。
+    // 解碼時用 data.slice(0) 複製，所以共用的原始位元組不會被改到。
+    if (sharedThunderBytes) {
+      this.thunderBytesPromise = sharedThunderBytes;
+      return;
+    }
+    this.thunderBytesPromise = sharedThunderBytes = Promise.all(THUNDER_SOURCES.map(async ({ path }) => {
       try {
         const response = await window.fetch(path, { cache: 'force-cache' });
         if (!response.ok) return null;
@@ -261,6 +301,10 @@ export class Level01SoundEngine {
         return null;
       }
     }));
+    // 全部失敗（例如當下斷線）就不要把失敗結果留給之後新建的引擎，讓它們可以重抓。
+    void sharedThunderBytes.then((list) => {
+      if (list.every((item) => !item)) sharedThunderBytes = null;
+    });
   }
 
   private async decodeThunderAssets() {

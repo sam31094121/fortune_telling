@@ -56,18 +56,21 @@ export function useFloatingAvoid(
         setAvoid(current.current);
       }
     };
-    const schedule = () => { if (!raf) raf = window.requestAnimationFrame(measure); };
+    // 分頁在背景時不量（省電、長時間停留不累積工作）；切回來會因 visibilitychange 立刻重量一次。
+    const schedule = () => { if (!raf && document.visibilityState !== 'hidden') raf = window.requestAnimationFrame(measure); };
     schedule();
     const timer = window.setInterval(schedule, 600);
     window.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', schedule);
     document.addEventListener('click', schedule, true);
+    document.addEventListener('visibilitychange', schedule);
     return () => {
       if (raf) window.cancelAnimationFrame(raf);
       window.clearInterval(timer);
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
       document.removeEventListener('click', schedule, true);
+      document.removeEventListener('visibilitychange', schedule);
     };
   }, [ref, targetSelector, enabled, gap, minTop]);
 

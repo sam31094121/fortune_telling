@@ -1545,9 +1545,36 @@ export default function HomePage() {
   // 回到頂部的 080 盾牌是 fixed 在右下角：首頁工具卡片（語言、存到桌面、字體大小「中／大／特大」）捲到它底下時先往上讓開、讓不開就淡出（不攔截點擊）。
   const scrollTopAvoid = useFloatingAvoid(
     scrollTopButtonRef,
-    '[data-home-tools-card] button, [data-home-tools-card] [role="option"], [data-home-tools-card] a, [data-install-shield-panel]',
+    // 語言選單打開時，選單下方的翻譯範圍說明也要讓開（2026-10-17 審查發現被盾牌蓋住），所以把整個語言選單區塊也列為目標。
+    '[data-home-tools-card] button, [data-home-tools-card] [role="option"], [data-home-tools-card] a, [data-home-tools-card] [data-language-picker], [data-install-shield-panel]',
     showScrollTop,
   );
+  // 2026-10-17 穩定性：「易經個人成長中心」展開狀態在同一次瀏覽內記住（重新整理、返回上一頁都維持），新分頁仍從收合開始。
+  useEffect(() => {
+    const KEY = 'home-growth-disclosure-open-v1';
+    let el: HTMLDetailsElement | null = null;
+    let tries = 0;
+    let timer = 0;
+    const onToggle = () => {
+      try { if (el) window.sessionStorage.setItem(KEY, el.open ? '1' : '0'); } catch {}
+    };
+    const attach = () => {
+      el = document.querySelector<HTMLDetailsElement>('details[data-home-growth-disclosure]');
+      if (!el) {
+        if (tries++ < 20) timer = window.setTimeout(attach, 300);
+        return;
+      }
+      try {
+        if (window.sessionStorage.getItem(KEY) === '1') el.open = true;
+      } catch {}
+      el.addEventListener('toggle', onToggle);
+    };
+    attach();
+    return () => {
+      window.clearTimeout(timer);
+      el?.removeEventListener('toggle', onToggle);
+    };
+  }, []);
   const [showScrollDown, setShowScrollDown] = useState(false);
   const [growthCompletedCount, setGrowthCompletedCount] = useState(0);
   const [growthCompletedModules, setGrowthCompletedModules] = useState<string[]>([]);

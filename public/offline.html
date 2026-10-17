@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>目前沒有網路連線</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #0b1020; color: #f5ecd7; font: 18px/1.7 system-ui, -apple-system, "PingFang TC", "Noto Sans TC", "Hiragino Sans", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+  main { width: min(100%, 440px); border: 1px solid rgba(251, 191, 36, 0.45); border-radius: 20px; padding: 24px 20px; background: #141a2e; }
+  h1 { margin: 0 0 8px; font-size: 22px; color: #fde68a; }
+  p { margin: 0 0 16px; color: #e8e2d0; }
+  .other p { font-size: 15px; color: #cfc8b4; margin-bottom: 8px; }
+  button { width: 100%; min-height: 48px; border: 0; border-radius: 14px; background: #fbbf24; color: #1a1205; font: 700 18px/1 inherit; cursor: pointer; margin: 4px 0 18px; }
+  button:focus-visible { outline: 3px solid #fde68a; outline-offset: 3px; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="t">目前沒有網路連線</h1>
+  <p id="d">連上網路後會自動重新載入，也可以按下方按鈕重試。</p>
+  <button id="b" type="button">重新載入</button>
+  <div class="other" id="o"></div>
+</main>
+<script>
+(function () {
+  var C = {
+    'zh-Hant': ['目前沒有網路連線', '連上網路後會自動重新載入，也可以按下方按鈕重試。', '重新載入'],
+    'zh-Hans': ['目前没有网络连接', '连上网络后会自动重新加载，也可以点下方按钮重试。', '重新加载'],
+    'en': ["You're offline", "This page will reload on its own once you're back online. You can also tap the button below to try again.", 'Try again'],
+    'ja': ['現在オフラインです', '接続が戻ると自動で再読み込みします。下のボタンから再試行することもできます。', '再読み込み'],
+    'ko': ['지금 인터넷에 연결되어 있지 않습니다', '다시 연결되면 자동으로 새로 고침됩니다. 아래 버튼을 눌러 다시 시도할 수도 있습니다.', '다시 시도']
+  };
+  var lang = 'zh-Hant';
+  try { var v = localStorage.getItem('interface-reading-language-v1'); if (C[v]) lang = v; } catch (e) {}
+  document.documentElement.lang = lang;
+  document.title = C[lang][0];
+  document.getElementById('t').textContent = C[lang][0];
+  document.getElementById('d').textContent = C[lang][1];
+  document.getElementById('b').textContent = C[lang][2];
+  var o = document.getElementById('o');
+  Object.keys(C).forEach(function (k) { if (k === lang) return; var p = document.createElement('p'); p.lang = k; p.textContent = C[k][0] + ' — ' + C[k][1]; o.appendChild(p); });
+  function go() { location.reload(); }
+  document.getElementById('b').addEventListener('click', go);
+  window.addEventListener('online', go);
+})();
+</script>
+</body>
+</html>

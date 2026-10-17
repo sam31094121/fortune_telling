@@ -49,10 +49,17 @@ const nextConfig = {
       { key: 'Cache-Control', value: 'no-store, max-age=0, must-revalidate' },
     ];
 
+    // 2026-10-17 穩定性：首頁改 no-cache（每次仍向伺服器確認是否有新版，不會留舊畫面），
+    // 但不再用 no-store，讓「返回上一頁」可以用瀏覽器的前進後退快取（bfcache）瞬間還原、狀態不丟。
+    const homePageHeaders = [
+      ...securityHeaders,
+      { key: 'Cache-Control', value: 'no-cache, max-age=0, must-revalidate' },
+    ];
+
     return [
       {
         source: '/',
-        headers: noStorePageHeaders,
+        headers: homePageHeaders,
       },
       {
         source: '/insight',

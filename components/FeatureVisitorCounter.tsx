@@ -156,6 +156,63 @@ async function fetchVisitorRecord(url: string, options: RequestInit = {}) {
   }
 }
 
+/*
+  2026-10-17 穩定性外層（不改計數規則）：
+  網路慢、斷線或伺服器暫時失敗時，同一個請求最多再試 3 次（2 秒、5 秒、12 秒後）；
+  斷線時先等網路恢復再送。首頁瀏覽與功能瀏覽都帶同一個事件／造訪編號，
+  伺服器依編號只算一次，所以重試不會多算。
+*/
+const RETRY_DELAYS_MS = [2_000, 5_000, 12_000];
+
+function waitMs(ms: number, signal?: AbortSignal | null) {
+  return new Promise<void>((resolve) => {
+    if (signal?.aborted) return resolve();
+    const id = window.setTimeout(done, ms);
+    function done() {
+      window.clearTimeout(id);
+      signal?.removeEventListener('abort', done);
+      resolve();
+    }
+    signal?.addEventListener('abort', done, { once: true });
+  });
+}
+
+function waitForOnline(signal?: AbortSignal | null, maxMs = 60_000) {
+  return new Promise<void>((resolve) => {
+    if (signal?.aborted || typeof navigator === 'undefined' || navigator.onLine !== false) return resolve();
+    const id = window.setTimeout(done, maxMs);
+    function done() {
+      window.clearTimeout(id);
+      window.removeEventListener('online', done);
+      signal?.removeEventListener('abort', done);
+      resolve();
+    }
+    window.addEventListener('online', done, { once: true });
+    signal?.addEventListener('abort', done, { once: true });
+  });
+}
+
+async function fetchVisitorRecordWithRetry(url: string, options: RequestInit = {}) {
+  const signal = options.signal;
+  let lastError: unknown = null;
+  let lastResponse: Response | null = null;
+  for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt += 1) {
+    if (attempt > 0) await waitMs(RETRY_DELAYS_MS[attempt - 1], signal);
+    await waitForOnline(signal);
+    if (signal?.aborted) break;
+    try {
+      const response = await fetchVisitorRecord(url, options);
+      if (response.status < 500) return response;
+      lastResponse = response;
+    } catch (error) {
+      if (signal?.aborted) throw error;
+      lastError = error;
+    }
+  }
+  if (lastResponse) return lastResponse;
+  throw lastError ?? new Error('visitor record request aborted');
+}
+
 export default function FeatureVisitorCounter({
   featureKey,
   className = '',
@@ -206,6 +263,16 @@ export default function FeatureVisitorCounter({
     [featureKey, permanent],
   );
 
+  // 2026-10-17 穩定性：還沒拿到伺服器數字時（慢網路、斷線、API 失敗），
+  // 先顯示這台裝置上次從伺服器確認過的數字，不會一直停在「載入中」或變成 0；
+  // 伺服器一回應就照原本規則以伺服器為準（commitDisplayCount 不變）。
+  useEffect(() => {
+    if (hiddenCounter) return;
+    const stored = readStoredDisplayCount(featureKey);
+    if (stored === null) return;
+    setDisplayCount((current) => (current === null ? stored : current));
+  }, [featureKey, hiddenCounter]);
+
   /*
     這裡原本有一個「自己長大」的計時器：每 7–24 秒把顯示數字 +1，
     切回分頁還會依離開時間補算，最多一次補 30。
@@ -235,7 +302,7 @@ export default function FeatureVisitorCounter({
           ? '/api/home-trust'
           : `/api/visitor/record?featureKey=${encodeURIComponent(featureKey)}${permanent ? '&permanent=1' : ''}`;
 
-        const response = await fetchVisitorRecord(url, {
+        const response = await fetchVisitorRecordWithRetry(url, {
           cache: 'no-store',
           signal: controller.signal,
         });
@@ -264,9 +331,11 @@ export default function FeatureVisitorCounter({
       startSync();
     }
     window.addEventListener('focus', syncDisplayCount);
+    window.addEventListener('online', syncDisplayCount);
 
     return () => {
       mounted = false;
+      window.removeEventListener('online', syncDisplayCount);
       controller.abort();
       if (startTimerId !== undefined) window.clearTimeout(startTimerId);
       if (intervalId !== undefined) window.clearInterval(intervalId);
@@ -300,7 +369,7 @@ export default function FeatureVisitorCounter({
           isHomePage ? { eventId: `view_${visitId.current}` } : { featureKey, visitId: visitId.current },
         );
 
-        const response = await fetchVisitorRecord(url, options);
+        const response = await fetchVisitorRecordWithRetry(url, options);
         const data = (await response.json()) as VisitorResponse;
         const nextDisplayCount = isHomePage ? data.viewCount : data.displayCount;
 

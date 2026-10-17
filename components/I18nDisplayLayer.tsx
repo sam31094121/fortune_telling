@@ -5,6 +5,9 @@ import { useInterfaceLanguage } from '@/components/InterfaceLanguage';
 import { startDomTranslation } from '@/lib/i18n-dom-layer';
 import { loadDisplayTranslator } from '@/lib/i18n-dom-dictionaries';
 
+// 與 InterfaceLanguageProvider、layout 開頁腳本同一個儲存鍵。
+const READING_LANGUAGE_STORAGE_KEY = 'interface-reading-language-v1';
+
 /**
  * 全站顯示層翻譯開關（放在 InterfaceLanguageProvider 裡，畫面上不輸出任何東西）。
  *  - 简体中文：全站文字轉简体字形＋大陸用語（含命盤解讀；只換字形，不改內容）。
@@ -14,12 +17,26 @@ import { loadDisplayTranslator } from '@/lib/i18n-dom-dictionaries';
  */
 export default function I18nDisplayLayer() {
   const { language } = useInterfaceLanguage();
+  // 2026-10-17 穩定性：<html data-reading-lang> 由 layout 的開頁腳本先標上（畫面畫出來前），
+  // 讓首頁依閱讀語言先預留版面、翻譯換上時不跳動；之後切換語言時在這裡同步。
+  // 剛載入時 language 還是預設的繁中、但裝置上存的是別的語言 → 不要把開頁腳本標好的值拿掉。
+  useEffect(() => {
+    const root = document.documentElement;
+    if (language === 'zh-Hant') {
+      let stored: string | null = null;
+      try { stored = window.localStorage.getItem(READING_LANGUAGE_STORAGE_KEY); } catch {}
+      if (stored && stored !== 'zh-Hant' && root.hasAttribute('data-reading-lang')) return;
+      root.removeAttribute('data-reading-lang');
+      root.setAttribute('lang', 'zh-Hant');
+      return;
+    }
+    root.setAttribute('data-reading-lang', language);
+    // <html lang> 跟著目前閱讀語言（螢幕閱讀器用來選發音）；元件裡仍是繁中原文的句子各自標 lang="zh-Hant"。
+    root.setAttribute('lang', language);
+  }, [language]);
   useEffect(() => {
     if (language === 'zh-Hant') return;
-    // 简体是整頁轉換，<html lang> 跟著標成 zh-Hans；英日韓只翻部分文字，維持原文 lang，已翻譯的區塊各自標 lang。
-    const root = document.documentElement;
-    const previousLang = root.getAttribute('lang');
-    if (language === 'zh-Hans') root.setAttribute('lang', 'zh-Hans');
+    // <html lang> 由上面的效果統一同步（2026-10-17 起各語言都標，不再只有简体）。
     let cancelled = false;
     let stop: (() => void) | undefined;
     loadDisplayTranslator(language)
@@ -28,7 +45,6 @@ export default function I18nDisplayLayer() {
     return () => {
       cancelled = true;
       stop?.();
-      if (language === 'zh-Hans' && root.getAttribute('lang') === 'zh-Hans' && previousLang) root.setAttribute('lang', previousLang);
     };
   }, [language]);
   return null;
