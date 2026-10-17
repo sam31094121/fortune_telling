@@ -1210,3 +1210,62 @@ details[open] > summary .moreHint::after {
 .printPreview .ziweiPrintSheet .ziweiScroll{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
 .printPreview .ziweiPrintSheet .ziweiScroll>.chart{flex:1 1 auto;grid-template-rows:repeat(4,minmax(204px,1fr))}
 .printPreview .ziweiPrintSheet .printLegend{margin-top:12px;padding-top:9px;font-size:9pt;justify-content:center;gap:6px 22px}
+/* 平板畫面版小字放大（2026-10-17「平板面板小字幫我放大」）：
+   平板（641～1180px）上命盤格子裡的字原本只有 10～12.5px，太小；放大到 12～16px。
+   只動「畫面版」（排除 .printPreview，A4 列印版面完全不變）；手機另有自己的字級規則，不在這裡。
+   用 rem：跟著客戶在首頁選的字體大小（中／大／特大）一起放大。 */
+@media screen and (min-width: 641px) and (max-width: 1180px) {
+  .page:not(.printPreview) .ageStrip,
+  .page:not(.printPreview) .ageValues { font-size: 0.8rem !important; }
+  .page:not(.printPreview) .starBrightness { font-size: 0.75rem !important; }
+  .page:not(.printPreview) .badge { font-size: 0.78rem !important; }
+  .page:not(.printPreview) .palaceCycles { font-size: 0.8125rem !important; }
+  .page:not(.printPreview) .cellTitle { font-size: 1rem !important; }
+  .page:not(.printPreview) .cellBranch { font-size: 0.875rem !important; }
+  .page:not(.printPreview) .cellPeriod,
+  .page:not(.printPreview) .cellMinor { font-size: 0.8125rem !important; }
+  .page:not(.printPreview) .printStars { font-size: 0.875rem !important; }
+  .page:not(.printPreview) .metaLabel { font-size: 0.8125rem !important; }
+  .page:not(.printPreview) .chartClass { font-size: 0.875rem !important; }
+  .page:not(.printPreview) .luckGrid,
+  .page:not(.printPreview) .pillarGrid,
+  .page:not(.printPreview) .stack { font-size: 0.875rem !important; }
+  .page:not(.printPreview) .summaryGrid { font-size: 0.875rem !important; }
+  .page:not(.printPreview) .startLuck { font-size: 0.9rem !important; }
+  .page:not(.printPreview) .micro,
+  .page:not(.printPreview) .elementLegend { font-size: 0.8125rem !important; }
+  .page:not(.printPreview) .shenshaLegend,
+  .page:not(.printPreview) .teacherHead,
+  .page:not(.printPreview) .teacherTeaser,
+  .page:not(.printPreview) .shenshaItemHead,
+  .page:not(.printPreview) .shareCard { font-size: 0.84375rem !important; }
+}
+/* 平板畫面版（續）：巢狀小字與填寫表單的說明小字 */
+@media screen and (min-width: 641px) and (max-width: 1180px) {
+  .page:not(.printPreview) .elementLegend small,
+  .page:not(.printPreview) .printStars small,
+  .page:not(.printPreview) .annualGrid small { font-size: 0.8125rem !important; }
+  .page:not(.printPreview) .teacherHead small,
+  .page:not(.printPreview) .shareCard small,
+  .page:not(.printPreview) .shenshaItemHead em { font-size: 0.84375rem !important; }
+  .page:not(.printPreview) .summaryGrid dt { font-size: 0.875rem !important; }
+  .page:not(.printPreview) .starBrightness,
+  .page:not(.printPreview) .starBrightness small { font-size: 0.8rem !important; }
+  .page:not(.printPreview) .badge { font-size: 0.8125rem !important; }
+  .page:not(.printPreview) :global(.mega-friendly-form) :global(.text-xs) { font-size: 0.875rem !important; }
+  .page:not(.printPreview) :global(.mega-friendly-form) [class*="text-[11px]"] { font-size: 0.8125rem !important; }
+}
+@media screen and (min-width: 641px) and (max-width: 1180px) {
+  .page:not(.printPreview) .pillarGrid td span,
+  .page:not(.printPreview) .pillarGrid td small,
+  .page:not(.printPreview) .luckGrid td span,
+  .page:not(.printPreview) .luckGrid td small { font-size: 0.8125rem !important; }
+  .page:not(.printPreview) :global(.mega-friendly-form) [class*="text-[10px]"] { font-size: 0.8125rem !important; }
+}
+@media screen and (min-width: 641px) and (max-width: 1180px) {
+  .page:not(.printPreview) .annualGrid td span,
+  .page:not(.printPreview) .annualGrid th span { font-size: 0.8125rem !important; }
+}
+@media screen and (min-width: 641px) and (max-width: 1180px) {
+  .page:not(.printPreview) .cellTitle b { font-size: 0.8125rem !important; }
+}
