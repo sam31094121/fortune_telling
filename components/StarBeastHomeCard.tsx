@@ -78,8 +78,11 @@ export default function StarBeastHomeCard() {
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
         {/* 【年柱 — 上層】視覺識別 */}
-        <div className="relative w-full grid grid-cols-2 gap-3 sm:gap-4 items-center">
-          <div className="justify-self-start grid h-12 w-12 place-items-center rounded-2xl border border-amber-100/35 bg-amber-200/10 font-serif text-2xl font-black text-amber-100 shadow-[0_0_24px_rgba(251,191,36,0.15)]" aria-hidden="true">宿</div>
+        <div className="relative w-full flex items-center gap-3 sm:gap-4">
+          <div className="shrink-0 grid h-12 w-12 place-items-center rounded-2xl border border-amber-100/35 bg-amber-200/10 font-serif text-2xl font-black text-amber-100 shadow-[0_0_24px_rgba(251,191,36,0.15)]" aria-hidden="true">宿</div>
+          <h2 className="min-w-0 flex-1 font-serif text-lg sm:text-xl font-black text-amber-50 tracking-tight text-left">
+            <span className={fade}>{text(t.title)}</span>
+          </h2>
           {/* 業主定案 2026-10-17：首頁卡片小字隱藏（徽章、標籤、副標、時間）；要恢復把 false && 拿掉 */}
           {false && (
           <div className="justify-self-end inline-block rounded-full border border-amber-200/25 bg-amber-300/10 px-2.5 py-1 text-[9px] font-bold tracking-widest text-amber-100">
@@ -88,17 +91,12 @@ export default function StarBeastHomeCard() {
           )}
         </div>
 
-        {/* 【月柱 — 上中層】名稱層 */}
-        <div className="relative w-full grid grid-cols-2 gap-3 sm:gap-4 items-center pt-1">
-          {false && (
-          <div className="justify-self-start">
-            <span className={`${styles.label} text-[10px] font-bold tracking-widest text-amber-100`}><span className={fade}>{text(t.label)}</span></span>
-          </div>
-          )}
-          <h2 className="col-span-2 justify-self-start font-serif text-lg sm:text-xl font-black text-amber-50 tracking-tight text-left">
-            <span className={fade}>{text(t.title)}</span>
-          </h2>
+        {/* 【月柱】名稱已併入上層與圖示同一排；標籤小字隱藏 */}
+        {false && (
+        <div className="relative w-full pt-1">
+          <span className={`${styles.label} text-[10px] font-bold tracking-widest text-amber-100`}><span className={fade}>{text(t.label)}</span></span>
         </div>
+        )}
 
         {/* 【日柱 — 下中層】動態內容（隱藏） */}
         {false && (
@@ -120,6 +118,9 @@ export default function StarBeastHomeCard() {
         </div>
       </Link>
 
+      {/* 業主定案 2026-10-17：卡片右上角「中｜EN」語言小卡隱藏；要恢復把 false && 拿掉 */}
+      {false && (
+      <>
       {/* Sibling of the <a>, not nested: clicking only switches language, never navigates. */}
       <div
         role="group"
@@ -145,6 +146,8 @@ export default function StarBeastHomeCard() {
           );
         })}
       </div>
+      </>
+      )}
     </div>
   );
 }

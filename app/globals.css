@@ -27159,7 +27159,12 @@ html[data-pinch-zoomed] [class*="TaijiSystem_sphereWrapper"] { touch-action: aut
 /* 上面那條會被「h2 ~ p { display:block !important }」壓過（權重較高），所以補一條權重更高的 */
 body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch :is(p, p.home-music-copy, .home-music-copy) { display: none !important; }
 /* 說明小字隱藏後，卡片不再撐著原本的最小高度，標題與按鈕之間不留一大塊空白 */
-body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch { min-height: 0 !important; }
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch { min-height: 176px !important; } /* 每張卡片最小同高，高低差不超過幾像素 */
 /* 「更多探索（可稍後）」按鈕隱藏（業主定案 2026-10-17）：不需要這張卡。只隱藏、不刪；卡片展開狀態不受影響。 */
 body:has(#home-eight-card-route) #home-eight-card-route .home-feature-more-toggle,
 .home-feature-more-toggle { display: none !important; }
+/* 首頁卡片間距統一（業主定案 2026-10-17「首頁全部美化空間」）：
+   每張卡片之間只用卡片列的固定間距，不再各自帶額外外距（易經神煞原本多 15px）；
+   星宿神獸卡片的外框不再撐 300px 最小高度，與其他卡片同高。 */
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack > * { margin-top: 0 !important; margin-bottom: 0 !important; }
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack > [class*="StarBeastHomeCard_wrap"] { min-height: 0 !important; }
