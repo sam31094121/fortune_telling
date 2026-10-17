@@ -997,6 +997,9 @@ function InsightActionCard({
  * 卡片只在驗證清單裡寫了一句「本次判定準確度評估完成 ✓」——宣稱看得到，證據看不到，
  * 對信任來說剛好是反的。這一區把證據補上，並且刻意不把分數包裝成「算命準確率」。
  */
+// 2026-10-17 使用者要求隱藏「可回查｜這份判定怎麼來的」卡片，改 true 即恢復。
+const SHOW_VERIFIABLE_BASIS_CARD = false;
+
 function InsightTrustCard({
   analysis,
   meta,
@@ -5299,13 +5302,16 @@ export default function InsightPage() {
             />
 
             {/* 信任核心：把四柱、資料品質、公式與逐項算式攤開讓客戶自己核對。 */}
-            <InsightTrustCard
-              analysis={result?.ziweiSanFang}
-              meta={result?.meta}
-              breakdown={result?.accuracyBreakdown}
-              methodology={result?.scoreMethodology}
-              metrics={result?.statisticalAnalysis}
-            />
+            {/* 2026-10-17 使用者要求隱藏「可回查｜這份判定怎麼來的」卡片，改 true 即恢復。 */}
+            {SHOW_VERIFIABLE_BASIS_CARD && (
+              <InsightTrustCard
+                analysis={result?.ziweiSanFang}
+                meta={result?.meta}
+                breakdown={result?.accuracyBreakdown}
+                methodology={result?.scoreMethodology}
+                metrics={result?.statisticalAnalysis}
+              />
+            )}
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <button
