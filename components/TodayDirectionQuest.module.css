@@ -1163,3 +1163,19 @@
     justify-self: center;
   }
 }
+
+/* 手機：首頁第一張卡的節奏（2026-10-17「首頁上半部距離」）。
+   文字區用固定間距分段，不再貼在一起；最後一句平衡斷行，不留孤字；寶珠縮小，整張卡變矮。 */
+@media (max-width: 639px) {
+  .intro:has(.orbCard) .introCopy {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.7rem;
+  }
+  .intro:has(.orbCard) .introCopy > * { margin: 0 !important; }
+  .intro:has(.orbCard) .introCopy .primaryButton { margin-top: 0.3rem !important; }
+  .intro:has(.orbCard) .growthBridge,
+  .intro:has(.orbCard) .lead { text-wrap: balance; }
+  .intro:has(.orbCard) .orbCard { width: min(46%, 168px); margin-top: 0.2rem; }
+}

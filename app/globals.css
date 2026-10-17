@@ -27168,3 +27168,5 @@ body:has(#home-eight-card-route) #home-eight-card-route .home-feature-more-toggl
    星宿神獸卡片的外框不再撐 300px 最小高度，與其他卡片同高。 */
 body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack > * { margin-top: 0 !important; margin-bottom: 0 !important; }
 body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack > [class*="StarBeastHomeCard_wrap"] { min-height: 0 !important; }
+/* 首頁上半部間距（2026-10-17）：太極球 → 今日定向關卡 → 工具卡片 → 卡片列，統一約 14px 的節奏 */
+body:has(#home-eight-card-route) .home-primary-quest-wrap { margin-top: 14px !important; margin-bottom: 14px !important; }
