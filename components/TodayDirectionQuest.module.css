@@ -1259,12 +1259,50 @@
 /* 首頁寶珠美化（2026-10-17）：寶珠的光暈被外框（142px 方形、overflow:hidden）硬切，看起來像後面墊了一塊比卡片亮的方塊。
    對外框加放射狀遮罩，讓光暈往外自然淡出；上方多留一點呼吸空間。 */
 .intro:has(.orbCard) .orbCard {
-  -webkit-mask-image: radial-gradient(circle closest-side, #000 58%, transparent 100%);
-  mask-image: radial-gradient(circle closest-side, #000 58%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle closest-side, #000 74%, transparent 100%);
+  mask-image: radial-gradient(circle closest-side, #000 74%, transparent 100%);
 }
 @media (max-width: 639px) {
   .intro:has(.orbCard) { gap: 1.15rem !important; }
 }
 @media (max-width: 639px) {
   .intro:has(.orbCard) .orbCard { width: min(54%, 200px); margin-top: 0; }
+}
+
+/* 寶珠質感（2026-10-17「優化寶珠，提升美感」）：
+   1. 寶珠放大到外框的 70%，更有存在感
+   2. 一圈暖金色光環緩慢呼吸（只用不透明度與縮放，很省效能），不靠文字就讓人知道它是活的、能點
+   3. 下方一道柔和的落地陰影，讓寶珠像浮在卡片上；光環用中性暖金，任何元素顏色的寶珠都適用
+   減少動態的使用者設定下，光環不動，維持靜態微光。 */
+.intro:has(.orbCard) .orbCardStage { width: 70%; }
+.intro:has(.orbCard) .orbCardTrigger { position: relative; }
+.intro:has(.orbCard) .orbCardTrigger::before {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 60%, rgba(255, 238, 168, 0.34) 68%, rgba(255, 238, 168, 0) 78%);
+  opacity: 0.6;
+  pointer-events: none;
+  animation: orbHalo 3.8s ease-in-out infinite;
+}
+.intro:has(.orbCard) .orbCardTrigger::after {
+  content: "";
+  position: absolute;
+  left: 26%;
+  right: 26%;
+  bottom: 9%;
+  height: 9%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0) 70%);
+  filter: blur(3px);
+  pointer-events: none;
+}
+.intro:has(.orbCard) .orbCardStage [class*="orbVisual"] { filter: brightness(0.94) saturate(1.2) !important; }
+@keyframes orbHalo {
+  0%, 100% { opacity: 0.35; transform: scale(0.94); }
+  50% { opacity: 0.95; transform: scale(1.05); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro:has(.orbCard) .orbCardTrigger::before { animation: none; opacity: 0.6; }
 }
