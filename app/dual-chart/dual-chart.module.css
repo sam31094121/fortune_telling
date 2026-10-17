@@ -1269,3 +1269,21 @@ details[open] > summary .moreHint::after {
 @media screen and (min-width: 641px) and (max-width: 1180px) {
   .page:not(.printPreview) .cellTitle b { font-size: 0.8125rem !important; }
 }
+/* 手機畫面版小字下限 13px（2026-10-17）：流年表、大運表、五行圖例、神煞說明原本 10～12.5px。
+   用 calc(13px * --ts)：跟著首頁「中／大／特大」一起放大；排除列印版（A4 不動）。 */
+@media screen and (max-width: 640px) {
+  .page:not(.printPreview) .elementLegend small,
+  .page:not(.printPreview) .annualGrid small,
+  .page:not(.printPreview) .annualGrid td span,
+  .page:not(.printPreview) .annualGrid th span,
+  .page:not(.printPreview) .micro,
+  .page:not(.printPreview) .luckGrid td,
+  .page:not(.printPreview) .luckGrid th,
+  .page:not(.printPreview) .luckGrid td span,
+  .page:not(.printPreview) .shenshaLegend,
+  .page:not(.printPreview) .teacherHead small,
+  .page:not(.printPreview) .teacherTeaser,
+  .page:not(.printPreview) .shareCard small,
+  .page:not(.printPreview) .shenshaItemHead em,
+  .page:not(.printPreview) .summaryGrid dt { font-size: calc(13px * var(--ts, 1)) !important; }
+}
