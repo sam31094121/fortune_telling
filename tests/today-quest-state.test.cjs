@@ -72,7 +72,7 @@ test('UI uses production restore, hydration write guard, one start CTA and expli
   assert.ok(source.includes('restoreQuestState(input, QUEST_AREAS)'));
   assert.ok(source.includes('if (!hydrated) return;'));
   assert.equal((source.match(/data-quest-action="start"/g) || []).length, 1);
-  assert.ok(source.includes('找到今天的一步'));
+  assert.ok(source.includes('免費使用，一切隨緣'));
   assert.ok(source.includes("completeQuest('started')")); assert.ok(source.includes("completeQuest('done')"));
   assert.ok(source.includes('smaller ? path.smallerAction : path.action'));
 });

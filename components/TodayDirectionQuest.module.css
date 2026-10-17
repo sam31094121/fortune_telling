@@ -1179,3 +1179,92 @@
   .intro:has(.orbCard) .lead { text-wrap: balance; }
   .intro:has(.orbCard) .orbCard { width: min(46%, 168px); margin-top: 0.2rem; }
 }
+
+/* 業主定案 2026-10-17：「今日定向關卡」卡片裡的說明文字全部隱藏（先成一再生二、今天只做好一件事、先走一步…、
+   每天一件事…、走完這一關…）。只隱藏、不刪；標題仍留在頁面上供讀屏軟體命名。
+   「找到今天的一步」是啟動關卡的按鈕，不是說明文字，保留。要恢復把這段刪掉即可。 */
+.introCopy > .kicker,
+.introCopy > h2,
+.introCopy > .lead,
+.introCopy > .returnPromise,
+.introCopy > .growthBridge {
+  display: none !important;
+}
+
+/* 業主定案 2026-10-17：左上角「今日定向關卡」標籤隱藏（只隱藏、不刪）；要恢復把這段刪掉即可。 */
+.topline .eyebrow { display: none !important; }
+
+/* 首頁主按鈕美化（2026-10-17）：與首頁卡片按鈕同一套金色，立體高光、柔和光暈；
+   文字置中加寬字距，箭頭放進深色圓章靠右，滑過時往前推一點。只影響首頁這顆「開始」按鈕。 */
+.intro:has(.orbCard) .primaryButton {
+  position: relative;
+  min-height: 3.75rem !important;
+  padding: 12px 50px !important; /* px：字體放大時邊距不跟著放大，文字才有空間 */
+  gap: 0 !important;
+  justify-content: center !important;
+  border: 1px solid rgba(255, 238, 168, 0.9) !important;
+  background: linear-gradient(180deg, #fff3b0 0%, #fcd96a 46%, #d99a2b 100%) !important;
+  color: #2a1a04 !important;
+  font-size: 1rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.05em;
+  text-wrap: balance;
+  line-height: 1.35;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -2px 0 rgba(120, 70, 5, 0.28),
+    0 12px 28px -10px rgba(248, 199, 88, 0.6),
+    0 0 0 1px rgba(0, 0, 0, 0.3) !important;
+}
+.intro:has(.orbCard) .primaryButton:hover {
+  filter: brightness(1.05) !important;
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -2px 0 rgba(120, 70, 5, 0.28),
+    0 16px 34px -10px rgba(248, 199, 88, 0.75),
+    0 0 0 1px rgba(0, 0, 0, 0.3) !important;
+}
+.intro:has(.orbCard) .primaryButton > span:first-child {
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.intro:has(.orbCard) .primaryButton > span:last-child {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #2a1a04;
+  color: #fcea86;
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: 0;
+  transform: translateY(-50%);
+  transition: transform 180ms ease;
+}
+.intro:has(.orbCard) .primaryButton:hover > span:last-child {
+  transform: translate(3px, -50%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro:has(.orbCard) .primaryButton,
+  .intro:has(.orbCard) .primaryButton > span:last-child { transition: none; }
+  .intro:has(.orbCard) .primaryButton:hover,
+  .intro:has(.orbCard) .primaryButton:hover > span:last-child { transform: translateY(-50%); }
+  .intro:has(.orbCard) .primaryButton:hover { transform: none; }
+}
+
+/* 首頁寶珠美化（2026-10-17）：寶珠的光暈被外框（142px 方形、overflow:hidden）硬切，看起來像後面墊了一塊比卡片亮的方塊。
+   對外框加放射狀遮罩，讓光暈往外自然淡出；上方多留一點呼吸空間。 */
+.intro:has(.orbCard) .orbCard {
+  -webkit-mask-image: radial-gradient(circle closest-side, #000 58%, transparent 100%);
+  mask-image: radial-gradient(circle closest-side, #000 58%, transparent 100%);
+}
+@media (max-width: 639px) {
+  .intro:has(.orbCard) { gap: 1.15rem !important; }
+}
+@media (max-width: 639px) {
+  .intro:has(.orbCard) .orbCard { width: min(54%, 200px); margin-top: 0; }
+}

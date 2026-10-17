@@ -447,7 +447,7 @@ export default function TodayDirectionQuest() {
               <p className={styles.kicker}>先成一，再生二</p>
               <h2 id="today-direction-title">今天，只做好一件事。</h2>
               <button type="button" className={styles.primaryButton} onClick={beginQuest} data-quest-action="start">
-                <span>{collectedToday ? '再選一條路' : '找到今天的一步'}</span>
+                <span>{collectedToday ? '再選一條路' : '免費使用，一切隨緣'}</span>
                 <span aria-hidden="true">→</span>
               </button>
               <p className={styles.lead}>先走一步，讓明天開始改變。</p>
