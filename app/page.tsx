@@ -36,6 +36,7 @@ import HomeInstallCard from '@/components/HomeInstallCard';
 import StarBeastHomeCard from '@/components/StarBeastHomeCard';
 import GhostAsuraHomeEntry from '@/components/GhostAsuraHomeEntry';
 import { markPendingRoute, recoverFromChunkError } from '@/lib/chunk-recovery';
+import { useFloatingAvoid } from '@/lib/use-floating-avoid';
 import { safeJsonFetch } from '@/lib/safe-fetch';
 import { curateExperienceContent } from '@/lib/experience-content-curator';
 import { evaluateExperienceQualityGate, getFriendlyQualityGateError } from '@/lib/experience-quality-gate';
@@ -1540,6 +1541,13 @@ export default function HomePage() {
   const [unlocking, setUnlocking] = useState(false);
   const [isDemoRunning, setIsDemoRunning] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const scrollTopButtonRef = useRef<HTMLButtonElement>(null);
+  // 回到頂部的 080 盾牌是 fixed 在右下角：首頁工具卡片（語言、存到桌面、字體大小「中／大／特大」）捲到它底下時先往上讓開、讓不開就淡出（不攔截點擊）。
+  const scrollTopAvoid = useFloatingAvoid(
+    scrollTopButtonRef,
+    '[data-home-tools-card] button, [data-home-tools-card] [role="option"], [data-home-tools-card] a, [data-install-shield-panel]',
+    showScrollTop,
+  );
   const [showScrollDown, setShowScrollDown] = useState(false);
   const [growthCompletedCount, setGrowthCompletedCount] = useState(0);
   const [growthCompletedModules, setGrowthCompletedModules] = useState<string[]>([]);
@@ -3968,7 +3976,16 @@ export default function HomePage() {
 
       {showScrollTop && (
         <button
+          ref={scrollTopButtonRef}
           onClick={scrollToTop}
+          data-scroll-top-shield
+          style={{
+            bottom: scrollTopAvoid.lift ? `calc(env(safe-area-inset-bottom) + 1.5rem + ${Math.round(scrollTopAvoid.lift)}px)` : undefined,
+            opacity: scrollTopAvoid.hide ? 0 : undefined,
+            pointerEvents: scrollTopAvoid.hide ? 'none' : undefined,
+          }}
+          aria-hidden={scrollTopAvoid.hide || undefined}
+          tabIndex={scrollTopAvoid.hide ? -1 : undefined}
           className="fixed bottom-[calc(env(safe-area-inset-bottom)+1.5rem)] right-6 z-50 flex h-12 w-12 items-center justify-center border-0 bg-transparent p-0 transition-transform duration-300 hover:scale-110 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400"
           aria-label="回到頂部"
         >

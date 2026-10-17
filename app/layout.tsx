@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import AppStabilityGuard from '@/components/AppStabilityGuard';
 import { InterfaceLanguageProvider } from '@/components/InterfaceLanguage';
+import I18nDisplayLayer from '@/components/I18nDisplayLayer';
 import ScreenArrowReview from '@/components/ScreenArrowReview';
 import InstallShield080 from '@/components/InstallShield080';
 import ViewportZoomReset from '@/components/ViewportZoomReset';
@@ -125,7 +126,7 @@ export default function RootLayout({
         <ServiceWorkerRegister />
         <InstallShield080 />
         <ViewportZoomReset />
-        <InterfaceLanguageProvider>{children}</InterfaceLanguageProvider>
+        <InterfaceLanguageProvider><I18nDisplayLayer />{children}</InterfaceLanguageProvider>
       </body>
     </html>
   );

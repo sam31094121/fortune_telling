@@ -15,5 +15,5 @@ export function useDisplayText() {
 export default function HomeTranslatedText({ text }: { text: string }) {
   const { language } = useInterfaceLanguage();
   const translated = language === 'en' ? formEnglishCopy[text] ?? homeEnglishCopy[text] ?? resultEnglishCopy[text] : language === 'ja' ? homeJapaneseCopy[text] : language === 'ko' ? koreanCopy[text] : undefined;
-  return <span lang={translated ? language : 'zh-Hant'}>{translated ?? text}</span>;
+  return <span lang={translated ? language : language === 'zh-Hans' ? 'zh-Hans' : 'zh-Hant'}>{translated ?? text}</span>;
 }
