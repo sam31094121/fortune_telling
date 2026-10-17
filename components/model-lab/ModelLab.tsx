@@ -202,7 +202,7 @@ export default function ModelLab() {
     <div className={styles.lab} style={inside || entrance ? { visibility: 'hidden', pointerEvents: 'none' } : undefined} aria-hidden={inside || entrance || undefined} inert={inside || entrance || undefined}>
       <aside className={styles.panel}>
         <header className={styles.head}>
-          <h1 className={styles.title}>3D 模型工作室</h1>
+          <h1 className={styles.title}>立體太極模型</h1>
           <p className={styles.sub}>獨立工作區。影片逐幀對位 → 建模 → 對照 → 輸出。</p>
         </header>
 
