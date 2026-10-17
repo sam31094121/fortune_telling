@@ -40,7 +40,7 @@ export const homeEnglishCopy: Record<string, string> = {
   '28 星宿・四象收藏': '28 lunar mansions · Four celestial symbols', '星宿神獸卡片': 'Celestial creature cards',
   '二十八星宿分類各有本體與幼子形態，另有四隻四象守護獸。瀏覽卡片，認識各自的守護特質。': 'Each of the 28 lunar mansion categories has an adult and a young form, alongside four separate celestial guardians. Browse the cards and discover their guardian traits.',
   '查看 60 種神獸': 'Explore 60 creatures', '四維 · 超立方': 'Four dimensions · Hypercube',
-  '立體太極模型工作室': '3D Tai Chi model studio', '空心太極包方形核心，方圓緊貼，進入四維。': 'Explore a hollow Tai Chi form surrounding a square core, where circles meet squares in a four-dimensional visualization.',
+  '立體太極模型工作室': '3D Tai Chi model studio', '立體太極模型': '3D Tai Chi model', '空心太極包方形核心，方圓緊貼，進入四維。': 'Explore a hollow Tai Chi form surrounding a square core, where circles meet squares in a four-dimensional visualization.',
   '打開模型工作室': 'Open the model studio',
   '分享給朋友': 'Share with a friend', 'LINE 好友支持': 'Connect on LINE',
   '加 LINE 好友，免費立即體驗 VIP': 'Add us on LINE for a free VIP trial',

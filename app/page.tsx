@@ -3237,7 +3237,7 @@ export default function HomePage() {
               </div>
               <div className="min-w-0 flex-1">
                 <span className="hidden rounded-full border border-violet-200/30 bg-violet-300/10 px-2.5 py-0.5 text-[10px] font-bold tracking-widest text-violet-100"><HomeTranslatedText text={"四維 · 超立方"} /></span>
-                <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-violet-50 sm:text-2xl"><HomeTranslatedText text={"立體太極模型工作室"} /></h2>
+                <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-violet-50 sm:text-2xl"><HomeTranslatedText text={"立體太極模型"} /></h2>
                 <p className="mt-1 text-sm text-slate-200"><HomeTranslatedText text={"空心太極包方形核心，方圓緊貼，進入四維。"} /></p>
               </div>
             </div>
