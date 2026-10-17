@@ -1704,3 +1704,24 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 .lifeBody { padding: 0 12px 12px; font-size: 14px; line-height: 1.85; color: #eadfc8; }
 .lifeBody p { margin: 0 0 8px; }
 .lifeBasis { margin: 0 0 10px; padding: 0 4px; font-size: 13px; line-height: 1.7; color: #bfa9a5; }
+
+/* 2026-10-17「阿修羅升級」：過去／現在／未來三顆功能鍵，由粉嫩漸層改成深色寶石色（琺瑯質感），
+   跟整頁金黑調性一致；三色的辨識與展開面板的對應色不變。字改奶油金，對比更高。 */
+.asuraTiles .tileSquare {
+  border-color: rgba(252, 234, 134, 0.78);
+  color: #fff4cf;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.7);
+}
+.asuraTiles .tileSquare:nth-child(1) { --t-top: #cf6a22; --t-bot: #7e3308; --t-glow: rgba(240, 120, 40, 0.5); }
+.asuraTiles .tileSquare:nth-child(2) { --t-top: #c99a2a; --t-bot: #6e4a0c; --t-glow: rgba(248, 199, 88, 0.5); }
+.asuraTiles .tileSquare:nth-child(3) { --t-top: #2f7fbf; --t-bot: #17426c; --t-glow: rgba(58, 167, 232, 0.5); }
+.asuraTiles .tileSquare:nth-of-type(n)::after { color: rgba(255, 244, 207, 0.85); }
+.asuraTiles .tileSquareOn { color: #fff4cf; }
+@media (hover: hover) {
+  .asuraTiles .tileSquare:not(:disabled):not(.tileSquareOn):hover { color: #fff4cf; }
+}
+.asuraTiles .tileSquare:not(.tileSquareOn) {
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.26) 0, rgba(255, 255, 255, 0) 40%),
+    linear-gradient(165deg, var(--t-top), var(--t-bot));
+}

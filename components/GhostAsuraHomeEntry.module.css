@@ -541,3 +541,22 @@
   .emblem { transition: none; }
   .entry:hover .emblem, .entry:focus-visible .emblem { transform: none; }
 }
+
+/* 2026-10-17「阿修羅升級」：與其他首頁卡片對齊。保留毛筆「修」印記與毛筆標題（招牌），
+   只拉齊：標題起點與垂直位置、圖示的立體姿態、右上角淡淡的裝飾浮水印。 */
+.entry.entry { position: relative; overflow: hidden; }
+.entry.entry .content { align-items: center !important; gap: 20px !important; }
+.entry.entry .copy { padding-top: 2px; }
+.entry.entry h2 { margin: 0 !important; }
+.emblem { transform: perspective(420px) rotateX(6deg) rotateY(-8deg) translateY(-1px) translateZ(0); }
+.entry.entry .watermark {
+  position: absolute;
+  right: 16px;
+  top: 8px;
+  font-family: 'Asura Brand Brush', 'Yuji Boku', serif;
+  font-size: 4.4rem !important;
+  line-height: 1 !important;
+  color: rgba(248, 199, 88, 0.1) !important;
+  pointer-events: none;
+  user-select: none;
+}

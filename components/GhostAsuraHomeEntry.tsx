@@ -53,6 +53,7 @@ export default function GhostAsuraHomeEntry() {
       data-card-type="ghost-asura-home-entry"
       aria-label="鬼魅阿修羅｜開啟阿修羅秘卷"
     >
+      <span className={styles.watermark} aria-hidden="true">修</span>
       <div className={styles.content}>
         <span className={styles.emblem} aria-hidden="true">修</span>
         <div className={styles.copy}>
@@ -72,7 +73,7 @@ export default function GhostAsuraHomeEntry() {
       </div>
       )}
       <div className={`${styles.cta} home-feature-cta`}>
-        <HomeTranslatedText text="請點我開啟" /><span aria-hidden="true">→</span>
+        <HomeTranslatedText text="請點我開啟" /><span aria-hidden="true">➜</span>
       </div>
     </Link>
   );

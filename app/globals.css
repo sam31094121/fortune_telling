@@ -27221,3 +27221,13 @@ body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack [cla
 }
 /* 電腦版卡片標題旁的「// 雙人命盤 · 相處節奏…」小字隱藏（手機版本來就不顯示），與其他說明小字一致 */
 .home-feature-stack a h2 > span.font-sans { display: none !important; }
+/* 阿修羅頁手機「黏在底部的送出鈕」要能生效（2026-10-17）：全站 html／body 都是 overflow-x:hidden，body 因此變成捲動容器，
+   sticky 就黏不住。只在阿修羅這一頁（以頁面主容器的 class 判斷）改成 overflow-x:clip：一樣裁掉橫向溢出，但不建立捲動容器。
+   放在全站樣式檔，不放進阿修羅頁面樣式檔（那邊有測試禁止碰 html／body）。 */
+@media (max-width: 640px) {
+  html:has(main[class*="ghost-asura_page"]),
+  body:has(main[class*="ghost-asura_page"]) {
+    overflow-x: clip !important;
+    overflow-y: visible !important;
+  }
+}
