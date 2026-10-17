@@ -1544,7 +1544,7 @@ export default function HomePage() {
   const [growthCompletedCount, setGrowthCompletedCount] = useState(0);
   const [growthCompletedModules, setGrowthCompletedModules] = useState<string[]>([]);
   const [growthJustUnlocked, setGrowthJustUnlocked] = useState(false);
-  const [showMoreFeatures, setShowMoreFeatures] = useState(false);
+  const [showMoreFeatures, setShowMoreFeatures] = useState(true);
   // ios-active-touch: iOS Safari only applies :active on touch when a touchstart listener exists (pressed colour on 請點我開啟 buttons).
   useEffect(() => {
     // Also mark the touched card so its CTA shows the pressed colour on every touch device.

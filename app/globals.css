@@ -27151,3 +27151,15 @@ body:has(#home-eight-card-route) main .home-feature-launch .home-feature-cta:act
 /* 客戶用兩指放大之後：首頁太極球（TaijiSystem 的 sphereWrapper 設了 touch-action: none）不再吃掉拖動與縮放，
    放大的畫面可以上下左右移動。旗標 data-pinch-zoomed 由 useTaijiFirstScreenScroll 設定；太極核心檔案本身（有雜湊鎖）不動。 */
 html[data-pinch-zoomed] [class*="TaijiSystem_sphereWrapper"] { touch-action: auto !important; }
+
+/* 首頁卡片的說明小字隱藏（業主定案 2026-10-17）：每張卡片只留標題與按鈕，說明文字沒有意義、佔空間。
+   只隱藏、不刪：文字與程式都還在，要恢復把這一段刪掉即可。 */
+.home-feature-stack a p,
+.home-feature-stack a .home-music-copy { display: none !important; }
+/* 上面那條會被「h2 ~ p { display:block !important }」壓過（權重較高），所以補一條權重更高的 */
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch :is(p, p.home-music-copy, .home-music-copy) { display: none !important; }
+/* 說明小字隱藏後，卡片不再撐著原本的最小高度，標題與按鈕之間不留一大塊空白 */
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch { min-height: 0 !important; }
+/* 「更多探索（可稍後）」按鈕隱藏（業主定案 2026-10-17）：不需要這張卡。只隱藏、不刪；卡片展開狀態不受影響。 */
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-more-toggle,
+.home-feature-more-toggle { display: none !important; }

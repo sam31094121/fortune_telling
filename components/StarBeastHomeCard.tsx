@@ -80,22 +80,28 @@ export default function StarBeastHomeCard() {
         {/* 【年柱 — 上層】視覺識別 */}
         <div className="relative w-full grid grid-cols-2 gap-3 sm:gap-4 items-center">
           <div className="justify-self-start grid h-12 w-12 place-items-center rounded-2xl border border-amber-100/35 bg-amber-200/10 font-serif text-2xl font-black text-amber-100 shadow-[0_0_24px_rgba(251,191,36,0.15)]" aria-hidden="true">宿</div>
+          {/* 業主定案 2026-10-17：首頁卡片小字隱藏（徽章、標籤、副標、時間）；要恢復把 false && 拿掉 */}
+          {false && (
           <div className="justify-self-end inline-block rounded-full border border-amber-200/25 bg-amber-300/10 px-2.5 py-1 text-[9px] font-bold tracking-widest text-amber-100">
             <span className={fade}>{text(t.badge)}</span>
           </div>
+          )}
         </div>
 
         {/* 【月柱 — 上中層】名稱層 */}
         <div className="relative w-full grid grid-cols-2 gap-3 sm:gap-4 items-center pt-1">
+          {false && (
           <div className="justify-self-start">
             <span className={`${styles.label} text-[10px] font-bold tracking-widest text-amber-100`}><span className={fade}>{text(t.label)}</span></span>
           </div>
-          <h2 className="justify-self-end font-serif text-lg sm:text-xl font-black text-amber-50 tracking-tight text-right">
+          )}
+          <h2 className="col-span-2 justify-self-start font-serif text-lg sm:text-xl font-black text-amber-50 tracking-tight text-left">
             <span className={fade}>{text(t.title)}</span>
           </h2>
         </div>
 
-        {/* 【日柱 — 下中層】動態內容 */}
+        {/* 【日柱 — 下中層】動態內容（隱藏） */}
+        {false && (
         <div className="relative w-full grid grid-cols-2 gap-3 sm:gap-4 items-center pt-1">
           <p className="justify-self-start text-[11px] font-semibold text-amber-200">
             <span className={fade}>{text(t.subtitle)}</span>
@@ -104,6 +110,7 @@ export default function StarBeastHomeCard() {
             <span className={fade}>{text(t.time)}</span>
           </span>
         </div>
+        )}
 
         {/* 【時柱 — 下層】行動層 */}
         <div className="relative w-full pt-2">
