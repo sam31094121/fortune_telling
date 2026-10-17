@@ -4,11 +4,12 @@
   譯文要等 JS 載入後才換上，換上那一刻整頁會往下推 68px（實測 CLS 約 0.17–0.18）。
   這裡依 layout 開頁腳本標好的 <html data-reading-lang> 先把木板高度預留好。
   只在手機寬度、標準字級生效（大字級高度不同，不硬猜）；不改任何顏色、字型或排版。
+  globals.css 對這塊有 !important 的 min-height（約 82px），所以這裡也要 !important 才生效（2026-10-17 上線實測）。
 */
 @media (max-width: 480px) {
   html[data-reading-lang='en']:not([data-text-size]) .home-top-motto-link--display,
   html[data-reading-lang='ja']:not([data-text-size]) .home-top-motto-link--display,
   html[data-reading-lang='ko']:not([data-text-size]) .home-top-motto-link--display {
-    min-height: 201px;
+    min-height: 201px !important;
   }
 }
