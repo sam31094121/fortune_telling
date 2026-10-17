@@ -1771,3 +1771,67 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   .lifeTense,
   .scopeNote { font-size: 0.8125rem !important; }
 }
+
+/* ===== 2026-10-17「點閱引導」：結果頁裡「能點開」的小卡片，讓客戶看得出、摸得到 =====
+   做法只用「變色、光暈、＋號縮放」，不給整張卡位移或傾斜（上面有註解：卡片會動，客戶會點不到、打開後收不回去）。
+   1. 整張印記卡都算點擊範圍（只在收合時；展開後只剩標題列可點，內容文字可以安心選取）
+   2. 滑過（有滑鼠）：邊框亮金、底色微亮、＋號放大發光
+   3. 按下去（手機觸摸）：整張卡亮一下金色、＋號縮小，像按到實體按鍵
+   4. 展開後：不論甦醒或蟄伏，邊框都換成金色，一眼看出哪張是打開的
+   補充卡（德星化煞等）同一套。 */
+.itemDetail:not([open]) > .itemHead::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+.item {
+  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.itemHead,
+.supplementHead {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.itemHead::after,
+.supplementHead::after {
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+.supplement {
+  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+@media (hover: hover) {
+  .item:has(.itemDetail:not([open])):hover {
+    border-color: #fcea86;
+    background: linear-gradient(135deg, #36332c 0%, #25231f 100%);
+    box-shadow: 0 0 14px rgba(248, 199, 88, 0.3), inset 0 1px 0 rgba(252, 234, 134, 0.18);
+  }
+  .itemHead:hover::after,
+  .supplementHead:hover::after {
+    transform: scale(1.14);
+    box-shadow: 0 0 10px rgba(252, 234, 134, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  }
+  .supplement:not([open]):hover {
+    border-color: #fcea86;
+    background: #282621;
+    box-shadow: 0 0 12px rgba(248, 199, 88, 0.28);
+  }
+}
+.item:has(.itemHead:active) {
+  border-color: #fff4b0;
+  background: linear-gradient(135deg, #4b4326 0%, #302b18 100%);
+  box-shadow: inset 0 0 0 1px rgba(252, 234, 134, 0.35), 0 0 16px rgba(248, 199, 88, 0.45);
+}
+.supplement:has(.supplementHead:active) {
+  border-color: #fff4b0;
+  background: #332e1c;
+  box-shadow: inset 0 0 0 1px rgba(252, 234, 134, 0.3), 0 0 14px rgba(248, 199, 88, 0.4);
+}
+.itemHead:active::after,
+.supplementHead:active::after { transform: scale(0.88); }
+.item:has(details[open]) { border-color: #fcea86; }
+@media (prefers-reduced-motion: reduce) {
+  .item, .supplement, .itemHead::after, .supplementHead::after { transition: none; }
+  .itemHead:hover::after, .supplementHead:hover::after, .itemHead:active::after, .supplementHead:active::after { transform: none; }
+}
