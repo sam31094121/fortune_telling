@@ -1,0 +1,62 @@
+/* 修羅斷語：手機優先、字夠大（長輩友善）、對比 ≥ 4.5:1、不橫向溢出 */
+.voice {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 720px;
+  margin: 20px auto 0;
+  padding: 18px 16px 16px;
+  border: 1px solid rgba(214, 170, 90, 0.45);
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(34, 18, 20, 0.94), rgba(16, 12, 22, 0.94));
+  color: #f4ead8;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 220, 160, 0.06);
+  overflow-wrap: anywhere;
+}
+.heading {
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #f1c978;
+}
+.lines { display: grid; gap: 12px; margin: 0; }
+.line {
+  display: grid;
+  grid-template-columns: 4.2em minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed rgba(214, 170, 90, 0.25);
+}
+.line:last-child { border-bottom: 0; padding-bottom: 0; }
+.label {
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #e7a4a4;
+  white-space: nowrap;
+}
+.text {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.85;
+  letter-spacing: 0.02em;
+  color: #fbf3e4;
+}
+.note {
+  margin: 14px 0 0;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: #cdbfa6;
+}
+@media (max-width: 480px) {
+  .voice { padding: 16px 14px 14px; }
+  .line { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .voice { animation: asuraVoiceIn 0.6s ease-out both; }
+}
+@keyframes asuraVoiceIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
