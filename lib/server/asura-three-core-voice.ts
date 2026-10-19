@@ -1,12 +1,13 @@
 /**
- * 鬼魅阿修羅 — 三核心修羅口吻（八字 → 紫微 → 易經，一個聲音）
+ * 鬼魅阿修羅 — 修羅斷語（八字日干、易經卦象，翻成同一個修羅口吻；紫微命宮交給本性卡）
  * ============================================================================
- * 業主定案 2026-10-19：只針對阿修羅這張卡。後端把八字、紫微斗數、易經三層「事實」算完，
- * 全部翻成同一個修羅的口吻；前端只照印，不編句、不運算。
+ * 業主定案 2026-10-19：只針對阿修羅這張卡。八字、易經的「事實」由後端算完，翻成修羅口吻；前端只照印。
+ *
+ * 命宮與十四主星、小星（強弱、空宮借對宮）——不在這裡：那一整套只由阿修羅「本性」卡走一條證據鏈
+ * （lib/server/ghost-asura-persona.ts → 翻譯層），本檔不再另寫第二套命宮話術，避免兩個聲音說同一件事。
  *
  * 事實來源（只讀，不另算）：calculateDualChart 的同一條鏈
  *   八字日干      ← result.core.pillars.day.heavenlyStem
- *   紫微命宮主星  ← result.ziwei.palaces（key === 'MING'）
  *   易經卦與動位  ← result.specialStars.iching（四柱核對通過且起卦成功才有）
  *   覺醒印記分布  ← 阿修羅頁自己算好的欄位（computeGhostAsuraDisplay 的 columns），與頁面清單同一個集合
  * 四柱核對沒過或易經未起卦：整段回 null（停在核對關，不拿不完整的盤下結論）。
@@ -30,7 +31,7 @@ export interface AsuraThreeCoreVoice {
 }
 
 /** 測試與稽核用：這段話術依據了哪些事實。不經 API 送出。 */
-export interface AsuraVoiceFacts { dayStem: string; lifeStars: string[]; lifeBrightness: string | null; kingWen: number; changingLine: number; awakenedKinds: number; focusHeads: string[] }
+export interface AsuraVoiceFacts { dayStem: string; kingWen: number; changingLine: number; awakenedKinds: number; focusHeads: string[] }
 
 // ── 八字：日干 → 修羅本色 ──────────────────────────────────────────
 export const ASURA_STEM_VOICE: Readonly<Record<string, string>> = {
@@ -45,28 +46,6 @@ export const ASURA_STEM_VOICE: Readonly<Record<string, string>> = {
   壬: '奔流的大江。擋你的，終會被你繞過去。',
   癸: '雨後的深泉。靜，卻藏著最深的力。',
 };
-
-// ── 紫微：命宮主星 → 修羅鋒芒 ──────────────────────────────────────
-export const ASURA_LIFE_STAR_VOICE: Readonly<Record<string, string>> = {
-  紫微: '你習慣站在最上面的位置，也扛最重的名。',
-  天機: '腦子比刀快。你先算三步，才動手。',
-  太陽: '光往外走。你給得多，也被看得見。',
-  武曲: '財與決斷握在手裡。話少，結果硬。',
-  天同: '不爭不是弱。你守住自己的節奏，誰也拖不動。',
-  廉貞: '情與刃是一體。愛恨分明，不演，也不裝。',
-  天府: '庫在你手上。守得住，才放得出。',
-  太陰: '心事藏得深，感受卻最細。你靜靜看，什麼都沒漏。',
-  貪狼: '慾望是你的燃料。敢要，也敢闖，只差一個方向。',
-  巨門: '話是你的刃。說準了能破局，說重了也會傷人。',
-  天相: '你替人定規矩，也替人收尾。印在你手上。',
-  天梁: '你習慣先扛，替別人擋風。肩膀是你練出來的。',
-  七殺: '先鋒。你天生往前衝，不等任何人點頭。',
-  破軍: '破舊立新。該拆的，你比誰都先動手。',
-};
-const BRIGHT = new Set(['廟', '旺']);
-const DULL = new Set(['陷', '不']);
-const brightnessTail = (b: string | null): string => (b && BRIGHT.has(b) ? '鋒芒本來就亮。' : b && DULL.has(b) ? '鋒芒還鈍，靠磨才亮，別急。' : '鋒芒怎麼亮，看你怎麼磨。');
-const NO_STAR_VOICE = '命位沒有一顆星坐鎮。你不靠單一的星，靠整盤借力。';
 
 // ── 易經：卦 → 修羅斷語（王家序 1–64，名稱只用於測試對照，不輸出）──────────
 export const HEXAGRAM_NAMES: readonly string[] = ['乾為天', '坤為地', '水雷屯', '山水蒙', '水天需', '天水訟', '地水師', '水地比', '風天小畜', '天澤履', '地天泰', '天地否', '天火同人', '火天大有', '地山謙', '雷地豫', '澤雷隨', '山風蠱', '地澤臨', '風地觀', '火雷噬嗑', '山火賁', '山地剝', '地雷復', '天雷無妄', '山天大畜', '山雷頤', '澤風大過', '坎為水', '離為火', '澤山咸', '雷風恆', '天山遯', '雷天大壯', '火地晉', '地火明夷', '風火家人', '火澤睽', '水山蹇', '雷水解', '山澤損', '風雷益', '澤天夬', '天風姤', '澤地萃', '地風升', '澤水困', '水風井', '澤火革', '火風鼎', '震為雷', '艮為山', '風山漸', '雷澤歸妹', '雷火豐', '火山旅', '巽為風', '兌為澤', '風水渙', '水澤節', '風澤中孚', '雷山小過', '水火既濟', '火水未濟'];
@@ -153,13 +132,11 @@ interface IChingViewLike {
   state?: string;
   hexagram?: { kingWen?: number; changingLine?: number };
 }
-interface ZiweiPalaceLike { key?: string; majorStars?: string[]; majorStarDetails?: Array<{ name: string; brightness?: string }> }
 
 /** 取事實；任何一層不成立回 null。純讀取，不改任何命盤資料。 */
 export function deriveAsuraVoiceFacts(result: DualChartResult, display: Pick<AsuraDisplay, 'columns'>): AsuraVoiceFacts | null {
   const r = result as unknown as {
     core?: { pillars?: { day?: { heavenlyStem?: string } | 'UNKNOWN' } };
-    ziwei?: { palaces?: ZiweiPalaceLike[] };
     specialStars?: { iching?: IChingViewLike };
   };
   const iching = r.specialStars?.iching;
@@ -167,10 +144,6 @@ export function deriveAsuraVoiceFacts(result: DualChartResult, display: Pick<Asu
   const day = r.core?.pillars?.day;
   const dayStem = day && day !== 'UNKNOWN' ? day.heavenlyStem : undefined;
   if (!dayStem || !(dayStem in ASURA_STEM_VOICE)) return null;
-  const ming = r.ziwei?.palaces?.find((p) => p.key === 'MING');
-  if (!ming) return null;
-  const lifeStars = (ming.majorStars ?? []).filter((s) => s in ASURA_LIFE_STAR_VOICE);
-  const lifeBrightness = ming.majorStarDetails?.find((d) => d.name === lifeStars[0])?.brightness ?? null;
   const kingWen = iching.hexagram?.kingWen;
   const changingLine = iching.hexagram?.changingLine;
   if (!Number.isInteger(kingWen) || kingWen! < 1 || kingWen! > 64) return null;
@@ -180,7 +153,7 @@ export function deriveAsuraVoiceFacts(result: DualChartResult, display: Pick<Asu
   const kinds = new Set(columns.flatMap((col) => col.seals.map((seal) => seal.id)));
   const max = Math.max(0, ...columns.map((col) => col.seals.length));
   const focusHeads = max > 0 ? columns.filter((col) => col.seals.length === max).map((col) => col.heading) : [];
-  return { dayStem, lifeStars, lifeBrightness, kingWen: kingWen!, changingLine: changingLine!, awakenedKinds: kinds.size, focusHeads };
+  return { dayStem, kingWen: kingWen!, changingLine: changingLine!, awakenedKinds: kinds.size, focusHeads };
 }
 
 function battleLine(f: AsuraVoiceFacts): string {
@@ -189,15 +162,11 @@ function battleLine(f: AsuraVoiceFacts): string {
 }
 
 export function composeAsuraThreeCoreVoice(f: AsuraVoiceFacts, options: { hourAssumed?: boolean } = {}): AsuraThreeCoreVoice {
-  const star = f.lifeStars.length
-    ? `${f.lifeStars.slice(0, 2).map((s) => ASURA_LIFE_STAR_VOICE[s]).join('')}${brightnessTail(f.lifeBrightness)}`
-    : NO_STAR_VOICE;
   return {
     contract: ASURA_VOICE_CONTRACT,
     heading: '修羅斷語',
     lines: [
       { label: '本色', text: ASURA_STEM_VOICE[f.dayStem] },
-      { label: '鋒芒', text: star },
       { label: '斷語', text: `${ASURA_HEXAGRAM_VOICE[f.kingWen - 1]}${ASURA_CHANGING_LINE_VOICE[f.changingLine - 1]}` },
       { label: '戰局', text: battleLine(f) },
     ],
