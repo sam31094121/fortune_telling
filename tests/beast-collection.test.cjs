@@ -131,6 +131,16 @@ async function main() {
     assert.match(text, /獲得 ＋3 張/);
     assert.match(text, /你多了 3 張「亢金龍」/);
   });
+  check('mixed reward headline reports receipt kinds instead of naming every reward as one card', () => {
+    const mixed = { ...won.settlement, receipt: { ...won.settlement.receipt, gainedCount: 3, total: won.settlement.receipt.total + 2,
+      cardChanges: [{ cardId: b, gained: 2, lost: 0, before: 0, after: 2 }, { cardId: y, gained: 1, lost: 0, before: 0, after: 1 }] } };
+    const text = renderToStaticMarkup(React.createElement(Panel, { ...props, outcome: { ...props.outcome, verdict: 'WON', gainedCardName: '亢金龍', forfeitedCardName: null }, settlement: mixed }));
+    assert.match(text, /你多了 3 張神獸卡（2 種）/);
+    assert.doesNotMatch(text, /你多了 3 張「亢金龍」/);
+    assert.match(text, /獲得 ＋3 張/);
+    assert.match(text, /贏得 2 張/);
+    assert.match(text, /贏得 1 張/);
+  });
   const ledger = h.load('lib/beast-collection-ledger.ts');
   const reserved = ledger.reserveCard(ledger.grantGrowthCards({ cards: [], history: [] }, [a], '2026-09-05'), a, 'mismatch', '2026-09-05');
   check('mismatched or absent reserved copy cannot be falsely confiscated', () => {
@@ -144,8 +154,9 @@ async function main() {
     assert.equal(r.beforeTotal - r.total, 1);
     assert.deepEqual(JSON.parse(JSON.stringify(r.cardChanges)), [{ cardId:a, before:2, after:1, gained:0, lost:1 }]);
   });
-  for (const n of [1, 2, 3, 5]) for (const winner of ['PLAYER', 'OPPONENT', 'DRAW']) {
-    const initial = { cards: Array.from({length:6}, (_, i) => ({ id:`copy:${i}`, cardId:i<3?a:y, at:'2026-09-07', source:'DUEL_WIN' })), history:[] };
+  for (const n of [1, 2, 3, 5, 20]) for (const winner of ['PLAYER', 'OPPONENT', 'DRAW']) {
+    const initialCount = Math.max(6, n + 1);
+    const initial = { cards: Array.from({length:initialCount}, (_, i) => ({ id:`copy:${i}`, cardId:i<3?a:y, at:'2026-09-07', source:'DUEL_WIN' })), history:[] };
     const entries = initial.cards.slice(0,n).map(({id,cardId})=>({id,cardId}));
     const out = { ...rules.resolveStake({playerStake:a,opponentStake:b,winner}), selectedEntries:entries, forfeitedEntryIds:winner==='OPPONENT'?entries.map(e=>e.id):[] };
     const reserved = ledger.reserveOwnedStakes(initial,entries.map(e=>e.id),`multi:${n}:${winner}`,'now');
@@ -154,8 +165,8 @@ async function main() {
       assert.equal(settled.receipt.stakedCount,n);
       assert.equal(settled.receipt.lostCount,winner==='OPPONENT'?n:0);
       assert.equal(settled.receipt.gainedCount,winner==='PLAYER'?n:0,'輸少贏多：贏了至少得回押注張數');
-      assert.equal(settled.receipt.beforeTotal,6);
-      assert.equal(settled.receipt.total,6+(winner==='PLAYER'?n:winner==='OPPONENT'?-n:0));
+      assert.equal(settled.receipt.beforeTotal,initialCount);
+      assert.equal(settled.receipt.total,initialCount+(winner==='PLAYER'?n:winner==='OPPONENT'?-n:0));
       const again=ledger.settleCard(settled.collection,reserved.pending.id,out,'later');
       assert.equal(again.duplicate,true); assert.equal(again.receipt,settled.receipt);
       const named=h.load('lib/beast-stake-presentation.ts').namedStakeOutcome(out,id=>id===a?'角木蛟':id===y?'角木蛟・幼子':'亢金龍');
@@ -178,7 +189,7 @@ async function main() {
         const remainingText = change.after > 0 ? `剩餘 ${change.after} 張` : '已無剩餘';
         assert.match(text,new RegExp(`持有 ${change.before} → ${change.after} 張（${remainingText}）`));
       }
-      assert.equal(initial.cards.length,6);
+      assert.equal(initial.cards.length,initialCount);
     });
   }
   check('failed and replay results never mount reward speech',()=>{

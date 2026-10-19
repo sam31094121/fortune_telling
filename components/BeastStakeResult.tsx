@@ -29,6 +29,7 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
   for (const label of stakes) counts.set(label, (counts.get(label) ?? 0) + 1);
   const stakeNames = [...counts].map(([label, count]) => `${label} ×${count}`).join('、');
   const changes = receipt?.cardChanges;
+  const gainedKinds = new Set(changes?.filter(change => change.gained > 0).map(change => change.cardId)).size;
   const movement = changes?.map(change => `${nameOf(change.cardId)}${change.gained ? `贏得 ${change.gained} 張` : `輸掉 ${change.lost} 張`}，${change.after > 0 ? `剩餘 ${change.after} 張` : '已無剩餘'}`).join('；');
   const retained = summary && !lost ? `原押注卡保留 ${summary.retained} 張。` : '';
   const spoken = summary ? `${won ? '恭喜獲勝！' : lost ? '本場易經獲勝。' : '本場平手。'}你押了 ${summary.staked} 張，贏得 ${summary.gained} 張，輸掉 ${summary.lost} 張。${movement || (won ? `獎賞是${name}。` : `押注卡${stakeNames}。`)}${retained}結算已保存，共持有 ${summary.total} 張。${lost ? '可以先查看相剋，再調整陣容。' : ''}` : '';
@@ -48,7 +49,7 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
         </p>
         <h3 className="mt-1.5 text-sm font-black break-words">
           {isReplay ? '觀看原場戰果' : !summary ? '結算尚未保存'
-            : won ? `你多了 ${summary.gained} 張「${name}」` : lost ? `本場押注卡已扣除 ${summary.lost} 張` : `原押注 ${summary.staked} 張全部保留`}
+            : won ? gainedKinds > 1 ? `你多了 ${summary.gained} 張神獸卡（${gainedKinds} 種）` : `你多了 ${summary.gained} 張「${name}」` : lost ? `本場押注卡已扣除 ${summary.lost} 張` : `原押注 ${summary.staked} 張全部保留`}
         </h3>
         <p className="mt-1 text-sm leading-6 text-white/80">
           {isReplay ? '本次不發獎，也不扣卡。贏得 0 張・輸掉 0 張。'
