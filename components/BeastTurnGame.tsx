@@ -181,9 +181,21 @@ function BeastTurnGameScreen({ preparationEntry = false }: { preparationEntry?: 
               {errorNotice}
               {inspection && <BattleCardGuide cardId={inspection.cardId} live={Boolean(inspected)} liveGuide={battleView?.guides[inspection.side][inspection.cardId] ?? null} enemyGuide={battleView?.guides[inspection.side === 'player' ? 'opponent' : 'player'][other.team[other.active].cardId] ?? null} opponentElement={other.team[other.active].element} onClose={() => { setInspection(null); scroll.current?.scrollTo({ top: 0 }); }} />}
               <div hidden={Boolean(inspection) || (Boolean(error) && match.status === 'PLAYING')}>
+                <div className={styles.easyUtility}>
                 <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} canAct={Boolean(battleView?.legal.length)} onAutomatic={setAutomatic} onAuto={autoStep} />
+                <button type="button" className={styles.easyAbility} aria-label="查看主戰能力" title="查看主戰能力" disabled={busy || playing} onClick={() => inspect(match.player.team[match.player.active].cardId, 'player')}>
+                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <path d="M12 21 25 3l4-1-1 5-14 16Z" fill="#b8d9e7" stroke="#effaff" strokeLinejoin="round" />
+                    <path d="M14 21 27 4 20 18Z" fill="#53748c" />
+                    <path d="m8 19 9 7 2-3-9-7Z" fill="#d8b565" stroke="#fff0b7" />
+                    <path d="m10 22-5 6 3 2 5-6" fill="#4d6576" stroke="#d8b565" />
+                    <circle cx="6" cy="29" r="2" fill="#ebcf83" />
+                  </svg>
+                </button>
+                </div>
                 {match.status === 'PLAYING' && !busy && !playing && Boolean(battleView?.legal.length) && <p className={styles.pickHint} role="status" data-easy-play-hint>{easyHint}</p>}
                 <EasyFirstMatchup matchup={battleView?.guides.matchup} turn={`${match.seed}:${match.round}`} enabled={match.status === 'PLAYING' && !busy && !playing} className={styles.pickHint} />
+
                 <BattlePanel match={match} view={battleView} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
                 {/* 預覽用寶珠面板：魔珠與暴怒已由戰鬥引擎結算並顯示在戰場右欄，這裡隱藏。 */}
                 {(false as boolean) && match.status === 'PLAYING' && (() => {

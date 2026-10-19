@@ -57,7 +57,7 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
     : null), [playing, playerAction, castTier, playerFighter]);
 
   return (
-    <section className={styles.arena} aria-label="戰鬥畫面" data-battle-visual data-playback={playing ? 'acting' : 'ready'} data-battle-revision={match?.revision} data-battle-venue="cards">
+    <section className={styles.arena} aria-label="戰鬥畫面" data-easy-cards={tapToAttack || undefined} data-battle-visual data-playback={playing ? 'acting' : 'ready'} data-battle-revision={match?.revision} data-battle-venue="cards">
       <RageComboEffect
         active={playing && playerAction === 'RAGE' && !castTier}
         element={strikeElement}
@@ -126,7 +126,6 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
                     <img src={card.thumbnail} alt={card.name} width={256} height={384} decoding="async" draggable={false} />
                   ) : <span className={styles.empty}>{side === 'player' ? '◎' : '☯'}</span>}
                 </button>
-                {tapToAttack && side === 'player' && card && <button type="button" className={styles.easyInspect} disabled={playing} onClick={() => onInspect(card.id, side)} aria-label={`查看${card.name}的卡面與能力`}>能力</button>}
                 {action && <span className={styles.actionCue} role="status" aria-label={action === 'RAGE' ? '暴怒合體' : action === 'SKILL' ? '技能' : action === 'ATTACK' ? '攻擊' : action === 'SKIP' ? '受控' : action === 'REPLACEMENT' ? '接替' : '換卡'}>{action === 'RAGE' ? '🔥' : action === 'SKILL' ? '✦' : action === 'ATTACK' ? '⚔' : action === 'SKIP' ? '⊘' : action === 'REPLACEMENT' ? '⇄' : '⇌'}</span>}
               </div>
               {fighter && match && team && (() => {
@@ -179,7 +178,7 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
         return (
           <div className={styles.orbColumn}>
             {mine && foe && (
-              <MatchupSummary
+              tapToAttack ? <details><summary>相剋</summary><MatchupSummary playerElement={mine.element as BeastElement} opponentElement={foe.element as BeastElement} /></details> : <MatchupSummary
                 playerElement={mine.element as BeastElement}
                 opponentElement={foe.element as BeastElement}
               />

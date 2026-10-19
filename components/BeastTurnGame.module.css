@@ -94,3 +94,38 @@
 /* Easy-mode selection only: larger cards without changing shared battle layouts. */
 .prepareContent .easyPickGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 @media(min-width:640px){.prepareContent .easyPickGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* Easy mobile controls must remain reachable without covering the fighter. */
+.easyAbility{min-height:44px;padding:6px 12px;margin-bottom:6px;border:1px solid #9bc9e0;border-radius:10px;background:#152536;color:#f2e1b9}
+@media(max-width:600px){
+.calmBattle{height:auto;min-height:100dvh;overflow:visible}
+.calmBattle>div{height:auto;min-height:100dvh}
+.calmBattle [data-battle-split]:not([data-inspecting='true']){grid-template-rows:minmax(320px,calc(100svh - 350px)) auto}
+.calmBattle [data-battle-visual]{min-height:0!important}
+.calmBattle [data-battle-controls]{min-height:290px}
+.calmBattle [data-control-scroll]{overflow:visible;padding-bottom:12px}
+.calmBattle [data-inspecting='true'] [data-control-scroll]{overflow:auto}
+.calmBattle [data-easy-play-hint]{font-size:13px;padding:4px 6px;margin-bottom:4px}
+}
+
+.calmBattle [aria-label='戰鬥節奏']{position:static;transform:none;width:fit-content;height:auto;min-height:44px;margin-bottom:6px}
+.calmBattle [aria-label='戰鬥節奏'] button{min-height:44px}
+.calmBattle .easyAbility{float:right}
+.calmBattle [aria-label='本回合指令']{clear:both}
+
+.calmBattle .easyAbility{width:52px;height:48px;display:grid;place-items:center;padding:6px;background:linear-gradient(145deg,#32465a,#101b29);box-shadow:inset 0 1px 0 #d7ebff55,0 2px 5px #0006;border-color:#bca46d}
+.calmBattle .easyAbility:focus-visible{outline:3px solid #ffe1a0;outline-offset:2px}
+.calmBattle .easyAbility:disabled{opacity:.45}
+
+/* Owner request: hide the install shortcut while choosing or playing easy mode. */
+:global(body):has(.calmBattle) :global(.taiji-install-shield),
+:global(body):has(.preparation) :global(.taiji-install-shield){display:none!important}
+
+.easyUtility{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.calmBattle .easyUtility .easyAbility{float:none;margin:0;flex-shrink:0}
+.calmBattle .easyUtility [aria-label='戰鬥節奏']{margin:0}
+.calmBattle [aria-label='本回合指令']{gap:8px;margin-top:8px}
+.calmBattle [data-easy-play-hint]{margin-bottom:8px}
+
+:global(body):has(.calmBattle) :global([data-install-shield-inline='080']),
+:global(body):has(.preparation) :global([data-install-shield-inline='080']){display:none!important}

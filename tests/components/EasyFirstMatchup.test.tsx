@@ -13,7 +13,7 @@ test('first real matchup uses server text once; neutral, animation, later turns 
   rerender(<EasyFirstMatchup matchup={advantage} turn="1:2" enabled={false} />);
   expect(screen.queryByRole('status')).toBeNull();
   rerender(<EasyFirstMatchup matchup={advantage} turn="1:2" enabled />);
-  expect(screen.getByRole('status')).toHaveTextContent(advantage.headline);
+  expect(screen.getByRole('status').textContent).toBe(advantage.headline);
   rerender(<EasyFirstMatchup matchup={advantage} turn="1:3" enabled />);
   expect(screen.queryByRole('status')).toBeNull();
   unmount();
@@ -24,7 +24,7 @@ test('first real matchup uses server text once; neutral, animation, later turns 
 test('unavailable storage does not break the battle or repeat the hint every turn', () => {
   jest.spyOn(Storage.prototype,'getItem').mockImplementation(()=>{throw new Error('blocked');});
   const { rerender } = render(<EasyFirstMatchup matchup={advantage} turn="1:1" enabled />);
-  expect(screen.getByRole('status')).toHaveTextContent(advantage.headline);
+  expect(screen.getByRole('status').textContent).toBe(advantage.headline);
   rerender(<EasyFirstMatchup matchup={advantage} turn="1:2" enabled />);
   expect(screen.queryByRole('status')).toBeNull();
 });
