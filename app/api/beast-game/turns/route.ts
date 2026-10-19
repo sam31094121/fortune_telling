@@ -12,8 +12,13 @@ export const dynamic='force-dynamic';
 // Vercel read-only filesystem: fall back to /tmp (ephemeral but writable; fine for free-play sessions)
 const root=process.env.BEAST_DATA_DIR??(process.env.VERCEL?'/tmp/beast-turn-accounts':path.join(process.cwd(),'data','beast-turn-accounts'));
 const cookie='beast_turn_account';
-type Account={owned:string[]; experience:Record<string,number>; match:Match|null; summonDay:string|null; imported:boolean; revision:number; lastRequest:string|null; awardedRevision:number|null};
+type Account={owned:string[]; experience:Record<string,number>; match:Match|null; summonDay:string|null; imported:boolean; revision:number; lastRequest:string|null; awardedRevision:number|null; awardedBattles?:string[]};
 const catalog=interactiveCatalog();const ids=catalog.map(c=>c.id);
+// Idempotent settlement key per battle: the same battle can never award growth twice (reload, replayed ticket, rematch).
+const battleKey=(m:Match)=>`${m.seed}:${m.player.team.map(f=>f.cardId).join(',')}:${m.opponent.team.map(f=>f.cardId).join(',')}`;
+function awardOnce(a:Account){if(!a.match||a.match.status!=='FINISHED'||a.awardedRevision!==null)return;const key=battleKey(a.match),done=a.awardedBattles??[];
+  if(!done.includes(key)){for(const f of a.match.player.team)a.experience[f.cardId]=(a.experience[f.cardId]??0)+1;a.awardedBattles=[...done,key].slice(-200);}
+  a.awardedRevision=a.match.revision;}
 const pick=(count:number)=>{const pool=[...ids],out:string[]=[];while(out.length<count)out.push(pool.splice(randomInt(pool.length),1)[0]);return out;};
 function accountId(req:Request){const raw=req.headers.get('cookie')?.split(';').map(s=>s.trim()).find(s=>s.startsWith(cookie+'='))?.slice(cookie.length+1);return raw&&/^[a-f0-9-]{36}$/.test(raw)?raw:null;}
 async function transact(req:Request, mutate?:(a:Account)=>void){
@@ -50,7 +55,7 @@ export async function POST(req:Request){
     */
     if(b.type==='ACTION'||b.type==='AUTO_STEP'||b.type==='AUTO_FINISH'){
       const restored=openBattleSession(b.ticket);
-      if(restored&&restored.stakeCardId===null&&restored.stakeCount===0&&restored.match.status==='PLAYING'&&(!a.match||a.match.revision<restored.match.revision)){
+      if(restored&&restored.stakeCardId===null&&restored.stakeCount===0&&restored.match.status==='PLAYING'&&!(a.awardedBattles??[]).includes(battleKey(restored.match))&&(!a.match||a.match.revision<restored.match.revision)){
         a.match=restored.match;a.revision=b.revision;a.awardedRevision=null;a.lastRequest=null;
       }
     }
@@ -83,20 +88,20 @@ export async function POST(req:Request){
       case 'ACTION':
         if(!a.match||!b.action)throw new Error('請先組隊開戰。');
         a.match=advance(a.match,b.action);
-        if(a.match.status==='FINISHED'&&a.awardedRevision===null){for(const f of a.match.player.team)a.experience[f.cardId]=(a.experience[f.cardId]??0)+1;a.awardedRevision=a.match.revision;}
+        awardOnce(a);
         break;
       case 'AUTO_STEP':
         // 自動連擊的下一招由後端依基礎規則決定（業主定調：前端只負責顯示）。
         if(!a.match||a.match.status!=='PLAYING')throw new Error('請先組隊開戰。');
         a.match=advance(a.match,chooseAI(a.match,'player'));
-        if(a.match.status==='FINISHED'&&a.awardedRevision===null){for(const f of a.match.player.team)a.experience[f.cardId]=(a.experience[f.cardId]??0)+1;a.awardedRevision=a.match.revision;}
+        awardOnce(a);
         break;
       case 'AUTO_FINISH':{
         // One-shot resolve for automatic play — avoids multi-turn /tmp races on multi-instance hosts (Vercel).
         if(!a.match||a.match.status!=='PLAYING')throw new Error('請先組隊開戰。');
         for(let i=0;i<200&&a.match.status==='PLAYING';i++)a.match=advance(a.match,chooseAI(a.match,'player'));
         if(a.match.status!=='FINISHED')throw new Error('自動對戰未完成，請改手動或再試一次。');
-        if(a.awardedRevision===null){for(const f of a.match.player.team)a.experience[f.cardId]=(a.experience[f.cardId]??0)+1;a.awardedRevision=a.match.revision;}
+        awardOnce(a);
         break;}
       case 'LEAVE':a.match=null;break;
       case 'SUMMON':{

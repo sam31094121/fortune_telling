@@ -134,6 +134,13 @@ export async function POST(request: Request) {
       return reply({ v: 1, match, stakeCardId: stakeCount > 0 ? stakeCardId : null, stakeCount, issuedAt: Date.now() });
     }
 
+    if (body.type === 'RESUME') {
+      // 重新整理後接續：只驗章、原樣回傳這一場（不出招、不改任何數值）；打完的場次一併附上同一份戰果。
+      const session = openBattleSession(body.token);
+      if (!session) return fail('戰局憑證無效或已過期，押注卡未扣除；請重新開戰。', 410);
+      return reply(session);
+    }
+
     if (body.type === 'ACTION' || body.type === 'AUTO') {
       const session = openBattleSession(body.token);
       if (!session) return fail('戰局憑證無效或已過期，押注卡未扣除；請重新開戰。');

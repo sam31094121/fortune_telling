@@ -37,7 +37,7 @@ import { canStartBattle, fieldTeam } from '@/lib/beast-game/battle-bridge';
 import type { Action, Match } from '@/lib/beast-game/interactive';
 import type { BattleView } from '@/lib/beast-game/battle-view';
 import StakeSlot, { type StakeCard } from '@/components/battlefield/StakeSlot';
-import { readCollection, runOwnedStakesDuel, countByCard, subscribeCollection, retryStakeSettlement, recoverPendingDuel, type Settlement } from '@/lib/beast-collection';
+import { readCollection, runOwnedStakesDuel, countByCard, subscribeCollection, retryStakeSettlement, recoverPendingDuel, resumeOwnedStakesDuel, releaseLiveBattle, saveLiveBattle, updateLiveBattleToken, BATTLE_HELD, type LiveBattle, type Settlement } from '@/lib/beast-collection';
 import type { StakeOutcome } from '@/lib/beast-collection-ledger';
 import { namedStakeOutcome } from '@/lib/beast-stake-presentation';
 import BeastStakeResult from '@/components/BeastStakeResult';
@@ -117,6 +117,11 @@ function BattlefieldScreen() {
   const alive = useRef(true);
   const starting = useRef(false);
   const pendingBattle = useRef<{ resolve: (value: { ok: true; stake: StakeOutcome }) => void; reject: (reason: Error) => void } | null>(null);
+  /** 押注戰進行中的 matchId：每招回來把最新戰局票存起來，重新整理才能接續。 */
+  const liveMatchId = useRef<string | null>(null);
+  /** 已接續上一場：之後到的發牌結果不可蓋掉戰局。 */
+  const resumedBattle = useRef(false);
+  const [resumeNotice, setResumeNotice] = useState('');
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [inspection, setInspection] = useState<{ cardId: string; side: 'player' | 'opponent' } | null>(null);
   const controlScroll = useRef<HTMLDivElement>(null);
@@ -178,6 +183,7 @@ function BattlefieldScreen() {
     const timer = setTimeout(() => {
       void recoverPendingDuel<{ ok: boolean; stake?: StakeOutcome }>().then(recovered => {
         if (!alive.current) return;
+        if (recovered.liveBattle) { void resumeLive(recovered.liveBattle); return; }
         if (recovered.result?.stake) setOutcome(recovered.result.stake);
         if (recovered.settlement) setSettlement(recovered.settlement);
         if (recovered.interrupted) setMovement('上一場已中斷，押注卡未扣除。請重新選卡。');
@@ -186,7 +192,9 @@ function BattlefieldScreen() {
     }, 0);
     return () => {
       alive.current = false; clearTimeout(timer);
-      pendingBattle.current?.reject(new Error('本場中斷，押注卡未扣除。'));
+      // 押注戰進行中離開頁面：押注卡繼續押著，回到戰場接續原戰局（不能靠離開來逃避輸的結算）。
+      const held = Object.assign(new Error('本場保留中，回到戰場即可接續。'), { name: BATTLE_HELD });
+      pendingBattle.current?.reject(liveMatchId.current ? held : new Error('本場中斷，押注卡未扣除。'));
       pendingBattle.current = null;
     };
   }, []);
@@ -229,7 +237,7 @@ function BattlefieldScreen() {
     let disposed = false;
     void callBattle<DealReply>({ type: 'DEAL', playerDeckIds: playerDeckRef.current, previousOpening: previousOpening.current })
       .then((dealt) => {
-        if (disposed) return;
+        if (disposed || resumedBattle.current) return;
         // 2026-10-17 beast card：回覆缺欄位時不要讓 .join 當掉、也不要把英文錯誤原文給客人看；改成友善訊息＋下方「重新載入卡池」重試。
         if (!Array.isArray(dealt?.deckIds) || !dealt.table || !Array.isArray(dealt.opening?.player) || !Array.isArray(dealt.opening?.opponent)) throw new Error(DEAL_RETRY_MESSAGE);
         tableToken.current = dealt.tableToken;
@@ -289,6 +297,11 @@ function BattlefieldScreen() {
       // Reserve the actual copy before combat. The shared transaction settles once or releases on interruption.
       const completed = await runOwnedStakesDuel(stakeCardIds, entries => new Promise<{ ok: true; stake: StakeOutcome }>((resolve, reject) => {
         if (!alive.current) { reject(new Error('本場中斷，押注卡未扣除。')); return; }
+        const matchId = readCollection().pending?.id ?? null;
+        if (matchId) {
+          try { saveLiveBattle({ matchId, token: opened.token, startedAt: Date.now(), stakeCardId: representative?.cardId ?? null, table: state }); liveMatchId.current = matchId; }
+          catch { /* 存不進去時，重新整理仍照舊退回押注卡。 */ }
+        }
         pendingBattle.current = {
           resolve: result => resolve({ ok: true, stake: {
             ...result.stake,
@@ -299,15 +312,62 @@ function BattlefieldScreen() {
         };
         setMatch(next);
       }));
+      liveMatchId.current = null;
       if (alive.current && completed.result.stake) { setOutcome(completed.result.stake); setSettlement(completed.settlement); }
     } catch (cause) {
+      if (!(cause instanceof Error && cause.name === BATTLE_HELD)) liveMatchId.current = null;
       if (alive.current) setStakeError(cause instanceof Error ? cause.message : '還不能開戰，押注卡未扣除。');
     } finally { starting.current = false; if (alive.current) setSettling(false); }
   }, [state, stakeCardIds, ownedStake, recovering, settlement]);
 
+  /**
+   * 重新整理後接續上一場（2026-10-19 業主定調）：同一張押注保留、同一場戰局，不重押、不先退回。
+   * 票過期或驗章失敗才照舊退回押注卡；連不上就先保留，重新整理再試。
+   */
+  const resumeLive = useCallback(async (live: LiveBattle) => {
+    let reply: BattleReply;
+    try {
+      const res = await fetch('/api/beast-game/battlefield', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'RESUME', token: live.token }), signal: AbortSignal.timeout(20000) });
+      const data = await res.json().catch(() => null) as (BattleReply | { ok: false; error?: string } | null);
+      if (res.status === 410 || res.status === 400) {
+        await releaseLiveBattle(live.matchId);
+        if (alive.current) setMovement('上一場已中斷，押注卡未扣除。請重新選卡。');
+        return;
+      }
+      if (!res.ok || !data || !data.ok) throw new Error('fetch');
+      reply = data;
+    } catch {
+      if (alive.current) setStakeError('暫時連不上戰場，上一場仍保留；請稍後重新整理接續。');
+      return;
+    } finally { if (alive.current) setRecovering(false); }
+    if (!alive.current) return;
+    resumedBattle.current = true;
+    liveMatchId.current = live.matchId;
+    if (live.table && typeof live.table === 'object') setState(live.table as BattleState);
+    battleToken.current = reply.token; setLegal(reply.legal); setLiveNotice(reply.notice); setBattleView(reply.view);
+    setOutcome(null); setSettlement(null); setBattleStake(live.stakeCardId); setBattleVoiceId(crypto.randomUUID());
+    setAutomatic(false); setInspection(null);
+    setResumeNotice(`已接續上一場・第 ${reply.match.round} 回合・押注卡仍押著`);
+    setMatch(reply.match);
+    setSettling(true);
+    try {
+      const completed = await resumeOwnedStakesDuel(live.matchId, entries => new Promise<{ ok: true; stake: StakeOutcome }>((resolve, reject) => {
+        const wrap = (stake: StakeOutcome) => resolve({ ok: true, stake: { ...stake, selectedEntries: entries, forfeitedEntryIds: stake.verdict === 'LOST' ? entries.map(entry => entry.id) : [] } });
+        if (reply.outcome) { wrap(reply.outcome); return; }
+        pendingBattle.current = { resolve: result => wrap(result.stake), reject };
+      }));
+      liveMatchId.current = null;
+      if (alive.current && completed.result.stake) { setOutcome(completed.result.stake); setSettlement(completed.settlement); }
+    } catch (cause) {
+      if (!(cause instanceof Error && cause.name === BATTLE_HELD)) liveMatchId.current = null;
+      if (alive.current) setStakeError(cause instanceof Error ? cause.message : '上一場暫時無法接續，押注卡仍保留。');
+    } finally { if (alive.current) setSettling(false); }
+  }, []);
+
   /** 套用後端回傳：戰局、票、可出招清單、首領提示；押注戰打完連戰果一起交給收藏帳本。 */
   const applyReply = useCallback((reply: BattleReply) => {
     battleToken.current = reply.token; setLegal(reply.legal); setLiveNotice(reply.notice); setBattleView(reply.view);
+    if (liveMatchId.current) updateLiveBattleToken(liveMatchId.current, reply.token);
     setMatch(reply.match); playRound(reply.match);
     controlScroll.current?.scrollTo({ top: 0 });
     if (reply.outcome && pendingBattle.current) {
@@ -427,6 +487,7 @@ function BattlefieldScreen() {
   };
   const redeal = () => {
     if (settling || settlement?.saved === false) return;
+    resumedBattle.current = false; setResumeNotice('');
     setSettlement(null); setOutcome(null); setBattleStake(null); setMovement(''); setStakeError('');
     replayPreferences.current = match?.status === 'FINISHED' && state ? { active: state.player.active, bench: [...state.player.bench], stakes: [...stakeCardIds] } : null;
     setSeed(secureSeed()); setError(null);
@@ -549,10 +610,11 @@ function BattlefieldScreen() {
                     {liveNotice && <p role="status" aria-live="polite" className={`${styles.notice} ${styles.bossLive}`} data-boss-live>🐉 {liveNotice}</p>}
                     <BattlePace match={match} automatic={automatic} blocked={playing || Boolean(inspection)} canAct={legal.length > 0} onAutomatic={setAutomatic} onAuto={autoStep} />
                     <BattlePanel match={match} view={battleView} onAction={act} busy={playing} compact cards={cards} />
+                    {resumeNotice && match.status === 'PLAYING' && <p role="status" className={styles.notice} data-battle-resumed>↻ {resumeNotice}</p>}
                     {match.status === 'PLAYING' && <p className={styles.notice} data-battle-stake>{battleStake
                       ? `💎 押注：${cards.find(card => card.id === battleStake)?.name}`
                       : '🎮 體驗戰'}</p>}
-                    {match.status === 'PLAYING' && <details className={styles.details}><summary>離開本場</summary><p>回首頁會中斷本局，押卡不扣除。</p><Link href="/">回首頁</Link></details>}
+                    {match.status === 'PLAYING' && <details className={styles.details}><summary>離開本場</summary><p>{battleStake ? '回首頁會保留本局與押注卡，回到戰場即可接續。' : '回首頁會中斷本局，押卡不扣除。'}</p><Link href="/">回首頁</Link></details>}
                     {match.status === 'FINISHED' && !playing && isTrial && (
                       <p role="status" className={styles.notice} data-battle-result={match.winner}>體驗戰結束：押注 0 張・贏得 0 張・輸掉 0 張。</p>
                     )}
