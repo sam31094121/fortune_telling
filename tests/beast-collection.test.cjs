@@ -91,6 +91,39 @@ async function main() {
   check('cross-tab concurrent start/recovery cannot consume reserved card', () => assert.equal(ps.readCollection().cards.length, 2));
   await assert.rejects(ps.runOwnedDuel(a, async () => { throw new Error('offline'); }), /offline/);
   check('connection failure releases reservation without confiscation', () => { assert.equal(ps.readCollection().pending, null); assert.equal(ps.readCollection().cards.length, 2); });
+  for (const multi of [false, true]) for (const winner of ['PLAYER', 'OPPONENT', 'DRAW']) {
+    const fault = harness(new Map([[MODULES, '["number"]']]));
+    const fsStore = fault.load('lib/beast-collection.ts');
+    fault.data.set(KEY, JSON.stringify(fsStore.readCollection()));
+    const initialCards = JSON.stringify(fsStore.readCollection().cards);
+    const entries = fsStore.readCollection().cards.map(({id,cardId})=>({id,cardId}));
+    const response = result(winner);
+    if (multi) Object.assign(response.stake, { selectedEntries: entries, forfeitedEntryIds: winner === 'OPPONENT' ? entries.map(e=>e.id) : [] });
+    let requested = 0;
+    const run = (play) => multi ? fsStore.runOwnedStakesDuel(entries.map(e=>e.id), play) : fsStore.runOwnedDuel(a, play);
+    await assert.rejects(run(async()=>{requested++; throw new Error('response lost after server computed outcome');}), /response lost/);
+    assert.equal(JSON.stringify(fsStore.readCollection().cards), initialCards);
+    assert.equal(fsStore.readCollection().pending, null);
+    fault.failWrites((key,value)=>key===KEY && JSON.parse(value).pending===null);
+    const failedWrite = await run(async()=>{requested++; return response;});
+    assert.equal(failedWrite.settlement.saved, false);
+    assert.equal((await fsStore.retryStakeSettlement(failedWrite.settlement.matchId,response.stake)).saved,false);
+    assert.equal(JSON.stringify(fsStore.readCollection().cards), initialCards);
+    fault.failWrites(()=>false);
+    const restored = await harness(fault.data).load('lib/beast-collection.ts').recoverPendingDuel();
+    assert.equal(restored.settlement.saved,true);
+    const savedBytes = fault.data.get(KEY);
+    await fsStore.retryStakeSettlement(failedWrite.settlement.matchId,response.stake);
+    await fsStore.retryStakeSettlement(failedWrite.settlement.matchId,response.stake);
+    check(`${multi?'multi':'single'} ${winner}: lost response, repeated failed save, reload recovery and duplicate retries settle once`,()=>{
+      assert.equal(fault.data.get(KEY),savedBytes);
+      assert.equal(requested,2,'saving/recovery must never play another battle');
+      assert.equal(Object.keys(fsStore.readCollection().receipts).length,1);
+      const n=multi?2:1;
+      assert.equal(fsStore.readCollection().cards.length,2+(winner==='PLAYER'?n:winner==='OPPONENT'?-n:0));
+      assert.equal(fault.data.has('tdh_beast_duel_pending_v1'),false);
+    });
+  }
   for (let i = 0; i < 65; i++) await ps.runOwnedDuel(a, async () => result('DRAW'));
   await ps.retryStakeSettlement((await first).settlement.matchId, result('DRAW').stake);
   check('receipt deduplication survives visible history truncation', () => assert.equal(ps.readCollection().history.length, 60));
