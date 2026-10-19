@@ -2,7 +2,7 @@
 .voice {
   box-sizing: border-box;
   width: 100%;
-  max-width: 720px;
+  /* 與上方主卡同寬：不設自己的上限，跟著同一個容器走，主卡寬度改了這裡自動跟著改 */
   margin: 20px auto 0;
   padding: 18px 16px 16px;
   border: 1px solid rgba(214, 170, 90, 0.45);
@@ -48,6 +48,14 @@
   font-size: 0.85rem;
   line-height: 1.7;
   color: #cdbfa6;
+}
+/* 電腦寬螢幕：斷語（長）與戰局（短）左右兩欄，單行不會拉到過長 */
+@media (min-width: 900px) {
+  .voice { padding: 22px 28px 20px; }
+  .lines { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 0; align-items: start; }
+  .line { grid-template-columns: minmax(0, 1fr); gap: 6px; padding: 0 24px 0 0; border-bottom: 0; }
+  .line + .line { padding: 0 0 0 24px; border-left: 1px dashed rgba(214, 170, 90, 0.35); }
+  .text { max-width: 36em; }
 }
 @media (max-width: 480px) {
   .voice { padding: 16px 14px 14px; }
