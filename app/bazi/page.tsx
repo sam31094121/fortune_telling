@@ -85,6 +85,7 @@ type BaziElementPriority = {
   count: number;
   needScore: number;
   judgementLevel: 'primary' | 'secondary' | 'supporting';
+  judgementLabel: string;
   professionalBasis: string[];
   reason: string;
 };

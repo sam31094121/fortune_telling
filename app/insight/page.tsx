@@ -435,7 +435,7 @@ function ChoiceCard({
   attention?: boolean;
 }) {
   const attentionClass = attention && !active
-    ? 'border-rose-400/85 bg-rose-500/12 text-rose-50 shadow-[0_0_24px_rgba(244,63,94,0.24)]'
+    ? 'border-rose-400/85 bg-rose-500/[0.12] text-rose-50 shadow-[0_0_24px_rgba(244,63,94,0.24)]'
     : '';
 
   const tones = {
@@ -501,7 +501,7 @@ function NameologyResultPanel({ analysis }: { analysis?: InsightResult['nameolog
   return (
     <section className="fortune-card relative overflow-hidden p-5 sm:p-8">
       <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-amber-200/70 to-transparent" />
-      <div className="pointer-events-none absolute left-1/2 top-[-5rem] h-56 w-56 -translate-x-1/2 rounded-full bg-amber-300/12 blur-3xl" />
+      <div className="pointer-events-none absolute left-1/2 top-[-5rem] h-56 w-56 -translate-x-1/2 rounded-full bg-amber-300/[0.12] blur-3xl" />
       <div className="pointer-events-none absolute bottom-[-4rem] right-[-4rem] h-44 w-44 rounded-full bg-cyan-300/10 blur-3xl" />
 
       <div className="relative grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
@@ -518,7 +518,7 @@ function NameologyResultPanel({ analysis }: { analysis?: InsightResult['nameolog
           </p>
         </div>
 
-        <div className="mx-auto w-full max-w-[12rem] rounded-3xl border border-amber-300/30 bg-amber-300/12 px-5 py-5 text-center shadow-[0_18px_42px_rgba(2,6,23,0.28)] lg:mx-0">
+        <div className="mx-auto w-full max-w-[12rem] rounded-3xl border border-amber-300/30 bg-amber-300/[0.12] px-5 py-5 text-center shadow-[0_18px_42px_rgba(2,6,23,0.28)] lg:mx-0">
           <p className="text-xs text-amber-100/75">姓名學分數</p>
           <p className="mt-1 text-6xl font-black text-amber-100">{analysis.score}</p>
           <p className="mt-1 text-sm font-semibold text-amber-200">{analysis.level}</p>
@@ -528,7 +528,7 @@ function NameologyResultPanel({ analysis }: { analysis?: InsightResult['nameolog
       {(composition || crossCheck) && (
         <div className="relative mt-6 grid gap-3 lg:grid-cols-2">
           {composition && (
-            <article className="rounded-3xl border border-cyan-300/20 bg-cyan-400/8 p-5">
+            <article className="rounded-3xl border border-cyan-300/20 bg-cyan-400/[0.08] p-5">
               <p className="text-xs font-semibold tracking-[0.24em] text-cyan-200">姓名結構</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
@@ -547,7 +547,7 @@ function NameologyResultPanel({ analysis }: { analysis?: InsightResult['nameolog
           )}
 
           {crossCheck && (
-            <article className="rounded-3xl border border-emerald-300/20 bg-emerald-400/8 p-5">
+            <article className="rounded-3xl border border-emerald-300/20 bg-emerald-400/[0.08] p-5">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs font-semibold tracking-[0.24em] text-emerald-200">資料交叉校正</p>
                 <span className="rounded-full border border-emerald-200/25 bg-emerald-300/10 px-3 py-1 text-xs font-bold text-emerald-100">{crossCheck.alignmentLabel}</span>
@@ -565,7 +565,7 @@ function NameologyResultPanel({ analysis }: { analysis?: InsightResult['nameolog
         <div className="relative mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {characters.map((item) => (
             <article key={`hero-${item.position}-${item.char}`} className="rounded-3xl border border-amber-200/20 bg-black/20 p-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-              <div className="mx-auto grid h-20 w-20 place-items-center rounded-3xl border border-amber-200/35 bg-amber-200/12 font-serif text-5xl font-black text-amber-100 sm:h-24 sm:w-24 sm:text-6xl">
+              <div className="mx-auto grid h-20 w-20 place-items-center rounded-3xl border border-amber-200/35 bg-amber-200/[0.12] font-serif text-5xl font-black text-amber-100 sm:h-24 sm:w-24 sm:text-6xl">
                 {item.char}
               </div>
               <p className="mt-3 text-sm font-bold text-[color:var(--text-main)]">{item.role}</p>
@@ -576,7 +576,7 @@ function NameologyResultPanel({ analysis }: { analysis?: InsightResult['nameolog
       )}
 
       {topTendencies.length > 0 && (
-        <div className="relative mt-6 rounded-3xl border border-amber-300/20 bg-amber-400/8 p-5">
+        <div className="relative mt-6 rounded-3xl border border-amber-300/20 bg-amber-400/[0.08] p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-semibold tracking-[0.24em] text-amber-200">24 性情主軸</p>
@@ -600,7 +600,7 @@ function NameologyResultPanel({ analysis }: { analysis?: InsightResult['nameolog
           </div>
         </div>
       )}
-      <div className="relative mt-6 rounded-3xl border border-cyan-300/20 bg-cyan-400/8 p-5">
+      <div className="relative mt-6 rounded-3xl border border-cyan-300/20 bg-cyan-400/[0.08] p-5">
         <p className="text-xs font-semibold tracking-[0.24em] text-cyan-200">取名意境</p>
         <p className="mt-3 text-sm leading-7 text-cyan-50/90">{namingIntent}</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -636,7 +636,7 @@ function NameologyResultPanel({ analysis }: { analysis?: InsightResult['nameolog
               </div>
               <p className="mt-3 text-xs leading-6 text-[color:var(--text-sub)]">{item.imagery}</p>
               {item.glyph && (
-                <div className="mt-3 rounded-2xl border border-amber-300/15 bg-amber-300/8 p-3">
+                <div className="mt-3 rounded-2xl border border-amber-300/15 bg-amber-300/[0.08] p-3">
                   <div className="flex flex-wrap gap-2 text-[11px] font-semibold text-amber-100/90">
                     <span className="rounded-full border border-amber-200/20 px-2 py-1">部首：{item.glyph.radical}</span>
                     <span className="rounded-full border border-amber-200/20 px-2 py-1">拆字：{item.glyph.parts.join('＋')}</span>
@@ -693,19 +693,19 @@ function NameologyResultPanel({ analysis }: { analysis?: InsightResult['nameolog
       )}
 
       <div className="relative mt-7 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-emerald-300/20 bg-emerald-400/8 p-4">
+        <div className="rounded-2xl border border-emerald-300/20 bg-emerald-400/[0.08] p-4">
           <p className="text-xs font-semibold tracking-[0.2em] text-emerald-200">主要優勢</p>
           <ul className="mt-3 space-y-2 text-xs leading-6 text-emerald-50/85">
             {analysis.strengths.slice(0, 3).map((item) => <li key={item}>• {item}</li>)}
           </ul>
         </div>
-        <div className="rounded-2xl border border-amber-300/20 bg-amber-400/8 p-4">
+        <div className="rounded-2xl border border-amber-300/20 bg-amber-400/[0.08] p-4">
           <p className="text-xs font-semibold tracking-[0.2em] text-amber-200">需要留意</p>
           <ul className="mt-3 space-y-2 text-xs leading-6 text-amber-50/85">
             {analysis.cautions.slice(0, 3).map((item) => <li key={item}>• {item}</li>)}
           </ul>
         </div>
-        <div className="rounded-2xl border border-cyan-300/20 bg-cyan-400/8 p-4">
+        <div className="rounded-2xl border border-cyan-300/20 bg-cyan-400/[0.08] p-4">
           <p className="text-xs font-semibold tracking-[0.2em] text-cyan-200">補強建議</p>
           <ul className="mt-3 space-y-2 text-xs leading-6 text-cyan-50/85">
             {analysis.recommendations.slice(0, 3).map((item) => <li key={item}>• {item}</li>)}
@@ -997,6 +997,9 @@ function InsightActionCard({
  * 卡片只在驗證清單裡寫了一句「本次判定準確度評估完成 ✓」——宣稱看得到，證據看不到，
  * 對信任來說剛好是反的。這一區把證據補上，並且刻意不把分數包裝成「算命準確率」。
  */
+// 2026-10-17 使用者要求隱藏「可回查｜這份判定怎麼來的」卡片，改 true 即恢復。
+const SHOW_VERIFIABLE_BASIS_CARD = false;
+
 function InsightTrustCard({
   analysis,
   meta,
@@ -1090,7 +1093,7 @@ function InsightTrustCard({
       )}
 
       {(metrics?.length ?? 0) > 0 && (
-        <details className="group mt-6 rounded-2xl border border-white/12 bg-black/20">
+        <details className="group mt-6 rounded-2xl border border-white/[0.12] bg-black/20">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4 [&::-webkit-details-marker]:hidden">
             <span className="text-sm font-black text-white">每一個分數的算式（{metrics?.length} 項）</span>
             <span className="shrink-0 text-xs font-black text-white/50">
@@ -1212,7 +1215,7 @@ function NoHourTrendCard({
         <p className="text-sm font-black text-white">補上時辰才算得出來的部分</p>
         <div className="mt-3 flex flex-wrap gap-1.5">
           {['命宮與十二宮', '三方四正', '主星與四化', '命盤格局', '稱骨重量', '兩位老師解盤', '命宮塔羅'].map((item) => (
-            <span key={item} className="rounded-full border border-white/12 bg-white/[0.04] px-2.5 py-1 text-xs font-bold text-white/60">
+            <span key={item} className="rounded-full border border-white/[0.12] bg-white/[0.04] px-2.5 py-1 text-xs font-bold text-white/60">
               🔒 {item}
             </span>
           ))}
@@ -1220,7 +1223,7 @@ function NoHourTrendCard({
         <button
           type="button"
           onClick={onFillHour}
-          className="mt-4 w-full rounded-2xl border border-cyan-300/55 bg-cyan-400/18 px-4 py-4 text-sm font-black text-cyan-50 transition hover:bg-cyan-400/28"
+          className="mt-4 w-full rounded-2xl border border-cyan-300/55 bg-cyan-400/[0.18] px-4 py-4 text-sm font-black text-cyan-50 transition hover:bg-cyan-400/[0.28]"
         >
           補上出生時辰，解鎖完整命盤 →
         </button>
@@ -1275,10 +1278,10 @@ function SanFangSummaryCard({ analysis, plainSummary, meta, starBeasts, threeInO
     CAI_BO: { name: '財帛宮', role: '財富輸出', glyph: '財', index: '04' },
   } as const;
   const beastVisualTone = {
-    spring: { panel: 'from-emerald-400/20 via-cyan-950/28 to-slate-950/88', line: 'via-emerald-200/70', glow: 'bg-emerald-300/20', text: 'text-emerald-100' },
-    summer: { panel: 'from-rose-400/20 via-orange-950/28 to-slate-950/88', line: 'via-rose-200/70', glow: 'bg-rose-300/20', text: 'text-rose-100' },
-    autumn: { panel: 'from-amber-300/20 via-violet-950/28 to-slate-950/88', line: 'via-amber-100/75', glow: 'bg-amber-300/20', text: 'text-amber-100' },
-    winter: { panel: 'from-sky-300/20 via-indigo-950/28 to-slate-950/88', line: 'via-sky-100/75', glow: 'bg-sky-300/20', text: 'text-sky-100' },
+    spring: { panel: 'from-emerald-400/20 via-cyan-950/[0.28] to-slate-950/[0.88]', line: 'via-emerald-200/70', glow: 'bg-emerald-300/20', text: 'text-emerald-100' },
+    summer: { panel: 'from-rose-400/20 via-orange-950/[0.28] to-slate-950/[0.88]', line: 'via-rose-200/70', glow: 'bg-rose-300/20', text: 'text-rose-100' },
+    autumn: { panel: 'from-amber-300/20 via-violet-950/[0.28] to-slate-950/[0.88]', line: 'via-amber-100/75', glow: 'bg-amber-300/20', text: 'text-amber-100' },
+    winter: { panel: 'from-sky-300/20 via-indigo-950/[0.28] to-slate-950/[0.88]', line: 'via-sky-100/75', glow: 'bg-sky-300/20', text: 'text-sky-100' },
   } as const;
   const palaceTone = {
     MING: { card: 'border-cyan-300/35 bg-[linear-gradient(145deg,rgba(8,145,178,0.18),rgba(8,15,35,0.82)_60%)]', text: 'text-cyan-100', chip: 'border-cyan-200/30 bg-cyan-300/10 text-cyan-50', brightness: 'bg-cyan-200/15 text-cyan-100' },
@@ -1430,7 +1433,7 @@ function SanFangSummaryCard({ analysis, plainSummary, meta, starBeasts, threeInO
                 </div>
                 {link ? (
                   <div className="relative mt-4 grid min-h-[144px] grid-cols-2 overflow-hidden rounded-2xl border border-white/15 bg-black/20">
-                    <div className="relative min-w-0 overflow-hidden border-r border-white/12">
+                    <div className="relative min-w-0 overflow-hidden border-r border-white/[0.12]">
                       <div aria-hidden="true" className={`absolute inset-0 ${visual?.glow} blur-2xl`} />
                       <StarBeastLineageReveal
                         beast={link.beast}
@@ -2391,7 +2394,7 @@ function ZiweiProfessionalTeacherMode({
         <div>
           <p className="text-[11px] font-black tracking-[0.24em] text-amber-200">老師模式</p>
           <h4 className="mt-2 font-serif text-2xl font-black text-amber-50 sm:text-3xl">老師模式｜完整命盤檢核</h4>
-          <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-amber-50/76">
+          <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-amber-50/[0.76]">
             第一層先呈現專業命盤：十二宮、十四主星、輔星、生年四化與宮干地支。易經只讀取此命盤，不自行亂排、不跳過排盤。
           </p>
         </div>
@@ -2404,14 +2407,14 @@ function ZiweiProfessionalTeacherMode({
           ].map((item) => (
             <div key={item.label} className="rounded-2xl border border-white/10 bg-black/20 px-3 py-3">
               <p className="font-mono text-2xl font-black text-cyan-100">{item.value}</p>
-              <p className="mt-1 font-black tracking-[0.16em] text-amber-100/72">{item.label}</p>
+              <p className="mt-1 font-black tracking-[0.16em] text-amber-100/[0.72]">{item.label}</p>
             </div>
           ))}
         </div>
       </div>
 
       <div className="mt-5 grid gap-3 lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="rounded-[22px] border border-white/10 bg-black/18 p-4">
+        <div className="rounded-[22px] border border-white/10 bg-black/[0.18] p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h5 className="font-serif text-xl font-black text-cyan-50">十四主星歸位表</h5>
             {missingMajorStars.length > 0 && (
@@ -2437,7 +2440,7 @@ function ZiweiProfessionalTeacherMode({
           </div>
         </div>
 
-        <div className="rounded-[22px] border border-white/10 bg-black/18 p-4">
+        <div className="rounded-[22px] border border-white/10 bg-black/[0.18] p-4">
           <h5 className="font-serif text-xl font-black text-cyan-50">輔星與四化專業素材</h5>
           <div className="mt-3 grid gap-2">
             {supportPreview.map((star) => (
@@ -2452,7 +2455,7 @@ function ZiweiProfessionalTeacherMode({
           </div>
           <div className="mt-4 grid gap-2">
             {ZIWEI_PROFESSIONAL_TRANSFORMATIONS.map((item) => (
-              <div key={item.name} className="rounded-2xl border border-amber-200/15 bg-amber-300/8 px-3 py-2 text-xs leading-5 text-amber-50/82">
+              <div key={item.name} className="rounded-2xl border border-amber-200/15 bg-amber-300/[0.08] px-3 py-2 text-xs leading-5 text-amber-50/[0.82]">
                 <span className="font-black text-amber-100">{item.name}</span>：{item.role}
               </div>
             ))}
@@ -2460,13 +2463,13 @@ function ZiweiProfessionalTeacherMode({
         </div>
       </div>
 
-      <div className="mt-5 rounded-[22px] border border-cyan-200/18 bg-cyan-300/8 p-4">
+      <div className="mt-5 rounded-[22px] border border-cyan-200/[0.18] bg-cyan-300/[0.08] p-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-[11px] font-black tracking-[0.22em] text-cyan-200">十二宮排盤表</p>
             <h5 className="mt-1 font-serif text-xl font-black text-cyan-50">十二宮完整排盤</h5>
           </div>
-          <p className="text-xs font-bold leading-6 text-cyan-100/72">排盤版本：{analysis.methodVersion}｜流年：{annual?.year ?? new Date().getFullYear()}</p>
+          <p className="text-xs font-bold leading-6 text-cyan-100/[0.72]">排盤版本：{analysis.methodVersion}｜流年：{annual?.year ?? new Date().getFullYear()}</p>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {palaces.map((palace) => {
@@ -2477,7 +2480,7 @@ function ZiweiProfessionalTeacherMode({
               ? palace.transformations.map(getZiweiProfessionalTransformationLabel).join('、')
               : '本宮無生年四化落點';
             return (
-              <article key={palace.key} className="rounded-[20px] border border-white/10 bg-slate-950/42 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+              <article key={palace.key} className="rounded-[20px] border border-white/10 bg-slate-950/[0.42] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
                 <div className="flex items-center justify-between gap-2">
                   <h6 className="font-serif text-xl font-black text-cyan-50">{palaceName}</h6>
                   <span className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[11px] font-black text-cyan-100">
@@ -2569,7 +2572,7 @@ function ZiweiTeacherEvidenceRefs({ refs }: { refs: string[] }) {
   return (
     <div className="mt-3 flex flex-wrap gap-2">
       {refs.map((ref, index) => (
-        <span key={index} className="rounded-2xl border border-white/10 bg-black/18 px-2.5 py-1 text-xs font-bold leading-5 text-white/70">{ref}</span>
+        <span key={index} className="rounded-2xl border border-white/10 bg-black/[0.18] px-2.5 py-1 text-xs font-bold leading-5 text-white/70">{ref}</span>
       ))}
     </div>
   );
@@ -2915,12 +2918,12 @@ function ZiweiTeacherTarotBridgePanel({ cards }: { cards: ZiweiTeacherTarotSlot[
               <p className="text-[11px] font-black leading-5 text-amber-200">{item.slotTitle}</p>
               <h5 className="mt-2 break-words font-serif text-xl font-black leading-tight text-amber-50">{item.cardName}</h5>
               <p className="mt-1 text-xs font-bold text-cyan-100/75">{item.cardNameEn}</p>
-              <p className="mt-3 rounded-xl border border-white/10 bg-black/18 px-3 py-2 text-xs font-black leading-5 text-[color:var(--text-main)]">
+              <p className="mt-3 rounded-xl border border-white/10 bg-black/[0.18] px-3 py-2 text-xs font-black leading-5 text-[color:var(--text-main)]">
                 {item.palaceName} · {item.starBasis}
               </p>
               <p className="mt-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{item.role}</p>
               <p className="mt-2 text-xs font-semibold leading-6 text-amber-100/85">{item.chainText}</p>
-              <details className="mt-3 rounded-xl border border-white/10 bg-black/18 p-3">
+              <details className="mt-3 rounded-xl border border-white/10 bg-black/[0.18] p-3">
                 <summary className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 text-xs font-black text-cyan-100">{'\u9078\u724c\u4f9d\u64da'}<span aria-hidden="true" className="shrink-0 text-xs font-bold opacity-70">點開 ▾</span></summary>
                 <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{item.reason}</p>
               </details>
@@ -3110,7 +3113,7 @@ function ZiweiTeacherSynthesisPanel({
         <button
           type="button"
           onClick={() => document.getElementById('ziwei-twelve-palaces')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-          className="rounded-full border border-cyan-200/30 bg-cyan-300/10 px-3 py-1.5 text-xs font-black text-cyan-100 transition hover:border-cyan-200/60 hover:bg-cyan-300/18"
+          className="rounded-full border border-cyan-200/30 bg-cyan-300/10 px-3 py-1.5 text-xs font-black text-cyan-100 transition hover:border-cyan-200/60 hover:bg-cyan-300/[0.18]"
         >
           返回十二宮
         </button>
@@ -3118,7 +3121,7 @@ function ZiweiTeacherSynthesisPanel({
           <button
             type="button"
             onClick={() => setTimeRefresh((value) => value + 1)}
-            className="rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1.5 text-xs font-black text-amber-100 transition hover:border-amber-200/60 hover:bg-amber-300/18"
+            className="rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1.5 text-xs font-black text-amber-100 transition hover:border-amber-200/60 hover:bg-amber-300/[0.18]"
           >
             更新今年流年解讀
           </button>
@@ -3130,7 +3133,7 @@ function ZiweiTeacherSynthesisPanel({
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {ZIWEI_TEACHERS.map((teacher) => {
               const active = activeTeacher === teacher.id;
-              return <button key={teacher.id} type="button" onClick={() => { setTeacherError(null); setActiveTeacher(teacher.id); }} aria-pressed={active} className={`min-h-[72px] rounded-xl border px-3 py-2.5 text-left transition ${active ? 'border-amber-200/55 bg-amber-300/14 text-amber-50' : 'border-white/10 bg-black/15 text-purple-100 hover:border-purple-200/40 hover:bg-purple-300/10'}`}><span className="block text-sm font-black">{teacher.name}</span><span className="mt-1 block text-[11px] font-semibold leading-4 text-white/60">{teacher.note}</span></button>;
+              return <button key={teacher.id} type="button" onClick={() => { setTeacherError(null); setActiveTeacher(teacher.id); }} aria-pressed={active} className={`min-h-[72px] rounded-xl border px-3 py-2.5 text-left transition ${active ? 'border-amber-200/55 bg-amber-300/[0.14] text-amber-50' : 'border-white/10 bg-black/15 text-purple-100 hover:border-purple-200/40 hover:bg-purple-300/10'}`}><span className="block text-sm font-black">{teacher.name}</span><span className="mt-1 block text-[11px] font-semibold leading-4 text-white/60">{teacher.note}</span></button>;
             })}
           </div>
 
@@ -3164,7 +3167,7 @@ function ZiweiTeacherSynthesisPanel({
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {ZIWEI_ENTERTAINMENT_TEACHERS.map((teacher) => {
               const active = activeEntertainer === teacher.id;
-              return <button key={teacher.id} type="button" onClick={() => setActiveEntertainer(teacher.id)} aria-pressed={active} className={`min-h-[72px] rounded-xl border px-3 py-2.5 text-left transition ${active ? 'border-red-400/55 bg-red-500/14 text-red-50' : 'border-white/10 bg-black/15 text-red-200/80 hover:border-red-400/40 hover:bg-red-500/10'}`}><span className="block text-sm font-black">{teacher.name}</span><span className="mt-1 block text-[11px] font-semibold leading-4 text-white/60">{teacher.note}</span></button>;
+              return <button key={teacher.id} type="button" onClick={() => setActiveEntertainer(teacher.id)} aria-pressed={active} className={`min-h-[72px] rounded-xl border px-3 py-2.5 text-left transition ${active ? 'border-red-400/55 bg-red-500/[0.14] text-red-50' : 'border-white/10 bg-black/15 text-red-200/80 hover:border-red-400/40 hover:bg-red-500/10'}`}><span className="block text-sm font-black">{teacher.name}</span><span className="mt-1 block text-[11px] font-semibold leading-4 text-white/60">{teacher.note}</span></button>;
             })}
           </div>
 
@@ -3193,7 +3196,7 @@ function ZiweiTeacherSynthesisPanel({
 
       {showTarotBridge && <ZiweiTeacherTarotBridgePanel cards={synthesis.tarotBridge} />}
 
-      <details className="mt-4 rounded-xl border border-white/10 bg-black/18 p-3">
+      <details className="mt-4 rounded-xl border border-white/10 bg-black/[0.18] p-3">
         <summary className="flex min-h-[48px] cursor-pointer items-center justify-between gap-3 text-sm font-black text-purple-100">本宮與主星<span aria-hidden="true" className="shrink-0 text-xs font-bold text-purple-200/75">點開 ▾</span></summary>
         <p className="mt-2 text-base font-semibold leading-7 text-[color:var(--text-main)]">{synthesis.harmonyTexts[0]?.text ?? ''}</p>
         <details className="mt-2 rounded-lg border border-white/10 bg-white/[0.03] p-2.5">
@@ -3204,7 +3207,7 @@ function ZiweiTeacherSynthesisPanel({
         </details>
       </details>
 
-      <details className="mt-3 rounded-xl border border-white/10 bg-black/18 p-3">
+      <details className="mt-3 rounded-xl border border-white/10 bg-black/[0.18] p-3">
         <summary className="flex min-h-[48px] cursor-pointer items-center justify-between gap-3 text-sm font-black text-purple-100">三方四正<span aria-hidden="true" className="shrink-0 text-xs font-bold text-purple-200/75">點開 ▾</span></summary>
         <div className="mt-2 grid gap-2">
           {synthesis.harmonyTexts.map((item) => (
@@ -3223,7 +3226,7 @@ function ZiweiTeacherSynthesisPanel({
         )}
       </details>
 
-      <details className="mt-3 rounded-xl border border-white/10 bg-black/18 p-3">
+      <details className="mt-3 rounded-xl border border-white/10 bg-black/[0.18] p-3">
         <summary className="flex min-h-[48px] cursor-pointer items-center justify-between gap-3 text-sm font-black text-purple-100">四化與輔星<span aria-hidden="true" className="shrink-0 text-xs font-bold text-purple-200/75">點開 ▾</span></summary>
         <div className="mt-2 grid gap-1.5">
           {synthesis.transformationEffects.length ? (
@@ -3242,7 +3245,7 @@ function ZiweiTeacherSynthesisPanel({
         </div>
       </details>
 
-      <details className="mt-3 rounded-xl border border-white/10 bg-black/18 p-3">
+      <details className="mt-3 rounded-xl border border-white/10 bg-black/[0.18] p-3">
         <summary className="flex min-h-[48px] cursor-pointer items-center justify-between gap-3 text-sm font-black text-purple-100">大限／流年<span aria-hidden="true" className="shrink-0 text-xs font-bold text-purple-200/75">點開 ▾</span></summary>
         <div className="mt-2 grid gap-2.5">
           <p className="text-base font-semibold leading-7 text-[color:var(--text-main)]">
@@ -3386,7 +3389,7 @@ function ZiweiDestinyCardView({
                     <p className="text-[11px] font-black tracking-[0.22em] text-amber-100/80">命宮塔羅 · {card.palace.name}</p>
                     <span className="rounded-full border border-amber-200/30 bg-amber-300/10 px-2 py-0.5 text-[11px] font-black text-amber-100">78 張現成牌庫</span>
                   </div>
-                  <div className="mt-3 flex-1 overflow-hidden rounded-2xl border border-white/12 bg-black/30">
+                  <div className="mt-3 flex-1 overflow-hidden rounded-2xl border border-white/[0.12] bg-black/30">
                     {destinyTarot && (<img                      src={destinyTarot.imageUrl}                      alt={`命宮塔羅 ${destinyTarot.cardNameZh}`}                      loading="lazy"                      className="mx-auto h-full w-full object-contain object-center"                    />)}
                   </div>
                   <div className="mt-3 text-center">
@@ -3401,7 +3404,7 @@ function ZiweiDestinyCardView({
         </button>
 
         <div className="space-y-4">
-          <article className="hidden rounded-[24px] border border-cyan-300/18 bg-cyan-950/18 p-4 sm:p-5" aria-hidden="true">
+          <article className="hidden rounded-[24px] border border-cyan-300/[0.18] bg-cyan-950/[0.18] p-4 sm:p-5" aria-hidden="true">
             <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-200">看圖說義</p>
             <p className="mt-3 text-sm font-bold leading-7 text-[color:var(--text-main)]">{card.customerCopy.direction}</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -3434,7 +3437,7 @@ function ZiweiDestinyCardView({
             </div>
           </article>
 
-          <details className="rounded-[24px] border border-white/10 bg-black/18 p-4">
+          <details className="rounded-[24px] border border-white/10 bg-black/[0.18] p-4">
             <summary className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 text-sm font-black text-cyan-100">查看命盤依據<span aria-hidden="true" className="shrink-0 text-xs font-bold opacity-70">點開 ▾</span></summary>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <p className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs font-semibold leading-6 text-[color:var(--text-main)]">主宮位：{card.evidence.palace}</p>
@@ -3444,7 +3447,7 @@ function ZiweiDestinyCardView({
             </div>
           </details>
 
-          <section className="rounded-[24px] border-2 border-purple-200/25 bg-purple-950/18 p-4" aria-label="兩位老師解盤">
+          <section className="rounded-[24px] border-2 border-purple-200/25 bg-purple-950/[0.18] p-4" aria-label="兩位老師解盤">
             <p className="text-[11px] font-black tracking-[0.18em] text-purple-100">兩位老師解盤</p>
             {teacherSynthesis && analysisId ? (
               <ZiweiTeacherSynthesisPanel
@@ -3512,7 +3515,7 @@ function ZiweiTwelvePalaceCards({
         <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-[color:var(--text-sub)]">
           目前只顯示不需要時辰的結果，不替你猜時辰。
         </p>
-        <section className="mt-5 rounded-[24px] border-2 border-purple-200/25 bg-purple-950/18 p-4" aria-label="兩位老師解盤">
+        <section className="mt-5 rounded-[24px] border-2 border-purple-200/25 bg-purple-950/[0.18] p-4" aria-label="兩位老師解盤">
           <p className="text-[11px] font-black tracking-[0.18em] text-purple-100">兩位老師解盤</p>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             <article className="rounded-2xl border border-amber-200/35 bg-amber-300/10 p-3">
@@ -3619,7 +3622,7 @@ function ZiweiTwelvePalaceCards({
           <div className="min-w-0">
             <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-200">ZIWEI CHART TRUST</p>
             <h2 className="mt-2 break-words font-serif text-2xl font-black leading-tight text-cyan-50 sm:text-4xl">完整命盤先確認</h2>
-            <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-cyan-100/82">
+            <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-cyan-100/[0.82]">
               閱讀順序：先看命工卡，再看命宮與完整十二宮，接著看 易經解讀；視覺只負責說明，不取代命盤。
             </p>
             <p className="mt-2 text-xs font-black tracking-wide text-amber-100/85">主星亮度：廟、旺、得地、利益、平和、不得地、落陷</p>
@@ -3638,12 +3641,12 @@ function ZiweiTwelvePalaceCards({
         </div>
 
         <div className="mt-4">
-          <article className="hidden rounded-2xl border border-amber-200/18 bg-amber-300/[0.07] p-4" aria-hidden="true">
+          <article className="hidden rounded-2xl border border-amber-200/[0.18] bg-amber-300/[0.07] p-4" aria-hidden="true">
             <p className="text-[11px] font-black tracking-[0.18em] text-amber-100/70">星曜排列</p>
             <h3 className="mt-1 font-serif text-xl font-black leading-tight text-amber-50">{formatStars(allMajorStars, '主星待確認')}</h3>
-            <p className="mt-2 text-xs font-semibold leading-6 text-amber-100/82">{dataStatus}</p>
+            <p className="mt-2 text-xs font-semibold leading-6 text-amber-100/[0.82]">{dataStatus}</p>
           </article>
-          <article className="rounded-2xl border border-emerald-200/18 bg-emerald-300/[0.06] p-4">
+          <article className="rounded-2xl border border-emerald-200/[0.18] bg-emerald-300/[0.06] p-4">
             <p className="text-[11px] font-black tracking-[0.18em] text-emerald-100/75">易經最終方向</p>
             <h3 className="mt-1 text-sm font-black leading-6 text-emerald-50">{coreAction}</h3>
             <p className="mt-2 text-xs font-semibold leading-6 text-emerald-100/75">{coreTitle}：{coreReason}</p>
@@ -3656,8 +3659,8 @@ function ZiweiTwelvePalaceCards({
         <h3 className="mt-3 font-serif text-2xl font-black text-cyan-50">{primaryStory.name} 的字義核心</h3>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           <p className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold leading-7 text-[color:var(--text-main)]">{primaryStory.word}</p>
-          <p className="rounded-2xl border border-emerald-200/18 bg-emerald-300/[0.07] px-4 py-3 text-sm font-black leading-7 text-emerald-50">{primaryStory.intent}</p>
-          <p className="rounded-2xl border border-white/10 bg-black/16 px-4 py-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">小星、煞星、吉星與四化是證據層，完整資料放在老師模式展開；第一屏由命工卡負責建立信任。</p>
+          <p className="rounded-2xl border border-emerald-200/[0.18] bg-emerald-300/[0.07] px-4 py-3 text-sm font-black leading-7 text-emerald-50">{primaryStory.intent}</p>
+          <p className="rounded-2xl border border-white/10 bg-black/[0.16] px-4 py-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">小星、煞星、吉星與四化是證據層，完整資料放在老師模式展開；第一屏由命工卡負責建立信任。</p>
         </div>
       </article>
 
@@ -3688,7 +3691,7 @@ function ZiweiTwelvePalaceCards({
         </div>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {sortedPalaces.map((palace) => {
-            const visual = palaceVisual[palace.key] ?? { glyph: normalizeZiweiPalaceName(palace.name).slice(0, 1), tone: 'border-white/12 bg-[linear-gradient(145deg,rgba(30,41,59,0.7),rgba(2,6,23,0.95))]', chip: 'border-white/15 bg-white/[0.06] text-white/85', accent: 'text-amber-50' };
+            const visual = palaceVisual[palace.key] ?? { glyph: normalizeZiweiPalaceName(palace.name).slice(0, 1), tone: 'border-white/[0.12] bg-[linear-gradient(145deg,rgba(30,41,59,0.7),rgba(2,6,23,0.95))]', chip: 'border-white/15 bg-white/[0.06] text-white/85', accent: 'text-amber-50' };
             const palaceName = normalizeZiweiPalaceName(palace.name);
             const brightnessByStar = new Map((palace.majorStarDetails ?? []).map((item) => [item.name, item.brightness]));
             const normalizeBrightness = (value?: string) => {
@@ -3808,14 +3811,14 @@ function ZiweiTwelvePalaceCards({
         </div>
       )}
 
-      <details className="hidden mt-4 rounded-2xl border border-white/10 bg-black/18 p-4" aria-hidden="true">
+      <details className="hidden mt-4 rounded-2xl border border-white/10 bg-black/[0.18] p-4" aria-hidden="true">
         <summary className="cursor-pointer text-sm font-black text-cyan-100">老師模式：十四主星看字說意境</summary>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {starStories.map((star) => (
             <article key={star.name} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
               <h4 className="font-serif text-lg font-black text-amber-50">{star.name}</h4>
               <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-main)]">{star.word}</p>
-              <p className="mt-2 text-xs font-bold leading-6 text-cyan-100/78">{star.intent}</p>
+              <p className="mt-2 text-xs font-bold leading-6 text-cyan-100/[0.78]">{star.intent}</p>
             </article>
           ))}
         </div>
@@ -3923,42 +3926,42 @@ function ZiweiPalaceStoryPanel({
         </div>
 
         <div className="mt-4 grid gap-3 lg:grid-cols-3">
-          <article className="rounded-2xl border border-cyan-200/18 bg-cyan-950/18 p-4">
+          <article className="rounded-2xl border border-cyan-200/[0.18] bg-cyan-950/[0.18] p-4">
             <p className="text-[11px] font-black uppercase tracking-[0.2em] text-cyan-200">Layer 1</p>
             <h5 className="mt-2 text-base font-black text-cyan-50">專業命盤底盤</h5>
             <p className="mt-2 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{palaceBlueprint.layerOne}</p>
             <div className="mt-3 grid gap-2">
               {majorStarMaterials.map((star) => (
-                <div key={star.name} className="rounded-xl border border-white/10 bg-black/18 px-3 py-2">
+                <div key={star.name} className="rounded-xl border border-white/10 bg-black/[0.18] px-3 py-2">
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-black text-cyan-50">{star.name}</p>
                     <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-2 py-0.5 text-[11px] font-black text-amber-100">{star.element}</span>
                   </div>
                   <p className="mt-1 text-xs font-semibold leading-5 text-[color:var(--text-sub)]">{star.role}</p>
-                  <p className="mt-1 text-[11px] font-bold text-cyan-100/72">{star.keywords.join(' / ')}</p>
+                  <p className="mt-1 text-[11px] font-bold text-cyan-100/[0.72]">{star.keywords.join(' / ')}</p>
                 </div>
               ))}
             </div>
-            <p className="mt-3 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold leading-6 text-cyan-50/82">{supportStarProfessionalText}</p>
+            <p className="mt-3 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold leading-6 text-cyan-50/[0.82]">{supportStarProfessionalText}</p>
           </article>
 
-          <article className="rounded-2xl border border-violet-200/18 bg-violet-950/18 p-4">
+          <article className="rounded-2xl border border-violet-200/[0.18] bg-violet-950/[0.18] p-4">
             <p className="text-[11px] font-black uppercase tracking-[0.2em] text-violet-200">Layer 2</p>
             <h5 className="mt-2 text-base font-black text-violet-50">易經白話故事解讀</h5>
             <p className="mt-2 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{palaceBlueprint.layerTwo}</p>
-            <p className="mt-3 rounded-xl border border-white/10 bg-black/18 px-3 py-2 text-xs font-bold leading-6 text-violet-50/84">
+            <p className="mt-3 rounded-xl border border-white/10 bg-black/[0.18] px-3 py-2 text-xs font-bold leading-6 text-violet-50/[0.84]">
               第二層只讀第一層：{palaceName}主星「{mainStars}」、輔佐星「{supportStars || '未集中顯示'}」、三方四正與年度訊號，轉成使用者看得懂的故事，不重新排盤。
             </p>
           </article>
 
-          <article className="rounded-2xl border border-amber-200/20 bg-amber-950/18 p-4">
+          <article className="rounded-2xl border border-amber-200/20 bg-amber-950/[0.18] p-4">
             <p className="text-[11px] font-black uppercase tracking-[0.2em] text-amber-200">Layer 3</p>
             <h5 className="mt-2 text-base font-black text-amber-50">易經五元素補強排序</h5>
             <p className="mt-2 text-xs font-bold leading-6 text-[color:var(--text-sub)]">{palaceBlueprint.layerThree}</p>
             <div className="mt-3 grid gap-2">
               {elementPriorities.map((item) => (
-                <div key={item.label} className="rounded-xl border border-white/10 bg-black/18 px-3 py-2">
-                  <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/72">{item.label}</p>
+                <div key={item.label} className="rounded-xl border border-white/10 bg-black/[0.18] px-3 py-2">
+                  <p className="text-[11px] font-black tracking-[0.16em] text-amber-100/[0.72]">{item.label}</p>
                   <p className="mt-1 text-lg font-black text-amber-50">{item.element}</p>
                   <p className="mt-1 text-xs font-bold leading-5 text-[color:var(--text-sub)]">{item.detail}</p>
                 </div>
@@ -3986,7 +3989,7 @@ function ZiweiPalaceStoryPanel({
             const stars = item.majorStars.length > 0 ? item.majorStars.join('、') : '未定主星';
 
             return (
-              <div key={key} className="min-h-[116px] rounded-[18px] border border-white/10 bg-black/18 px-3 py-3">
+              <div key={key} className="min-h-[116px] rounded-[18px] border border-white/10 bg-black/[0.18] px-3 py-3">
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-[11px] font-semibold tracking-[0.18em] text-cyan-100/60">{label.role}</p>
                   {itemAnnual && <span className="rounded-full bg-white/[0.08] px-2 py-0.5 text-[11px] font-semibold text-cyan-100/80">{itemAnnual.score} 分</span>}
@@ -4710,7 +4713,9 @@ export default function InsightPage() {
         });
 
         if (!response.ok) {
-          const json = (await response.json()) as { error?: string };
+          // 2026-10-17 insight QA：伺服器回 HTML 錯誤頁時 response.json() 直接丟英文 SyntaxError，
+          // 客戶看到「分析出錯：Unexpected token '<'…」，而且 500 的自動重試被跳過。先安全解析。
+          const json = (await response.json().catch(() => null)) as { error?: string } | null;
 
           // 某些錯誤可以重試
           if (response.status >= 500 && retries < MAX_RETRIES) {
@@ -4719,11 +4724,15 @@ export default function InsightPage() {
             return attemptAnalysis();
           }
 
-          setError(json.error || `分析失敗（${response.status}），請稍後再試。`);
+          setError(json?.error || `分析暫時沒有完成（代碼 ${response.status}），請稍後再按一次；你填的資料都還在。`);
           return;
         }
 
-        const json = (await response.json()) as InsightResult;
+        const json = (await response.json().catch(() => null)) as InsightResult | null;
+        if (!json || typeof json !== 'object') {
+          setError('這次的分析結果沒有完整傳回來，請再按一次「開始紫微斗數分析」；你填的資料都還在。');
+          return;
+        }
         setResult(json);
         // 兩支 AI 跑十六秒才有的東西，不能只活在記憶體裡：重新整理或手機回收分頁就沒了。
         saveZiweiResult<InsightResult, InsightData>(json, input);
@@ -4746,8 +4755,11 @@ export default function InsightPage() {
             return attemptAnalysis();
           }
           setError('網路連線中斷，請檢查網路後重試。');
-        } else if (err instanceof Error) {
+        } else if (err instanceof Error && /[一-鿿]/.test(err.message)) {
           setError(`分析出錯：${err.message}`);
+        } else if (err instanceof Error) {
+          // 瀏覽器層的英文錯誤原文對客戶沒有意義。
+          setError('分析暫時沒有完成，請再按一次；你填的資料都還在。');
         } else {
           setError('未知錯誤，請稍後再試。');
         }
@@ -4778,7 +4790,7 @@ export default function InsightPage() {
           <>
             <section className="mb-2 flex justify-center sm:mb-4">
               <div className="hidden">
-                <div className="mb-4 inline-block rounded-full border border-cyan-400/20 bg-cyan-400/8 px-4 py-1 text-xs tracking-[0.35em] text-cyan-300">
+                <div className="mb-4 inline-block rounded-full border border-cyan-400/20 bg-cyan-400/[0.08] px-4 py-1 text-xs tracking-[0.35em] text-cyan-300">
                   易經紫微斗數
                 </div>
                 <h1 className="mystic-title mb-3 font-serif text-3xl leading-tight sm:text-5xl">
@@ -4853,7 +4865,7 @@ export default function InsightPage() {
                 />
 
               <div>
-                <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
+                <label htmlFor="ziwei-name-input" className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
                   1. 姓名 {input.name.trim().length >= 2 && <span className="text-green-400">✓</span>}
                 </label>
                 <input
@@ -5051,7 +5063,7 @@ export default function InsightPage() {
                           type="button"
                           onClick={() => setInput({ ...input, birthCityId: city.id })}
                           disabled={loading}
-                          className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-left text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-cyan-200/35 hover:bg-cyan-300/8 hover:text-[color:var(--text-main)]"
+                          className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-left text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-cyan-200/35 hover:bg-cyan-300/[0.08] hover:text-[color:var(--text-main)]"
                         >
                           {city.name}<span className="ml-1 text-xs text-[color:var(--text-muted)]">（{city.country}）</span>
                         </button>
@@ -5066,7 +5078,7 @@ export default function InsightPage() {
               </div>
 
               {error && (
-                <div ref={errorBannerRef} className="rounded-2xl border-l-4 border-l-rose-400 border border-rose-400/20 bg-rose-950/30 p-4 text-sm text-rose-300 animate-pulse">
+                <div ref={errorBannerRef} role="alert" aria-live="assertive" className="rounded-2xl border-l-4 border-l-rose-400 border border-rose-400/20 bg-rose-950/30 p-4 text-sm text-rose-300 animate-pulse">
                   <p className="font-semibold">⚠ {error}</p>
                 </div>
               )}
@@ -5299,13 +5311,16 @@ export default function InsightPage() {
             />
 
             {/* 信任核心：把四柱、資料品質、公式與逐項算式攤開讓客戶自己核對。 */}
-            <InsightTrustCard
-              analysis={result?.ziweiSanFang}
-              meta={result?.meta}
-              breakdown={result?.accuracyBreakdown}
-              methodology={result?.scoreMethodology}
-              metrics={result?.statisticalAnalysis}
-            />
+            {/* 2026-10-17 使用者要求隱藏「可回查｜這份判定怎麼來的」卡片，改 true 即恢復。 */}
+            {SHOW_VERIFIABLE_BASIS_CARD && (
+              <InsightTrustCard
+                analysis={result?.ziweiSanFang}
+                meta={result?.meta}
+                breakdown={result?.accuracyBreakdown}
+                methodology={result?.scoreMethodology}
+                metrics={result?.statisticalAnalysis}
+              />
+            )}
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <button

@@ -132,7 +132,7 @@ const width = Number(process.env.BEAST_TEST_WIDTH || 390);
           shieldLost+=Math.max(0,change.shieldBefore-change.shieldAfter);shieldGained+=Math.max(0,change.shieldAfter-change.shieldBefore);
         }
         const visibleChange = await page.locator(`[data-combat-change="${side}"]`).innerText();
-        for(const [amount,label] of [[lost,'受傷 −'],[healed,'回復 ＋'],[shieldLost,'護盾 −'],[shieldGained,'護盾 ＋']]) if(amount) assert.ok(visibleChange.includes(label+amount),'Damage and shields match actual recorded changes');
+        for(const [amount,label] of [[lost,'受傷 −'],[healed,'回復 ＋'],[shieldLost,'盾被打掉 '],[shieldGained,'獲得護盾 ']]) if(amount) assert.ok(visibleChange.includes(label+amount),'Damage and shields match actual recorded changes');
         const actualAttack = data.account.match.log.some(entry => entry.side === side && entry.text.includes(' × 元素'));
         const cue = page.locator(`[data-fighter="${side}"] [data-rush]`);
         assert.equal(await cue.getAttribute('data-rush'), String(actualAttack), 'Both visual attacks follow actual engine logs, including skipped turns and replacements');

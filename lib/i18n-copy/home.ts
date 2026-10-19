@@ -253,6 +253,8 @@ export const homeCopy: Record<HomeCopyLocale, Record<string, string>> = {
     "我不認同": "I disagree",
     "每次點選都會累加；數字只增不減": "Every tap is added to the total; the numbers only go up, never down.",
     "累計瀏覽次數": "Total views",
+    // 2026-10-17 vote guard：回饋計數／瀏覽次數讀不到時的文字
+    "暫時無法取得": "Temporarily unavailable",
     "等待確認": "Waiting for confirmation",
     "尚未確認保存成功，已保留操作供重試；原有數字不變。": "We couldn't confirm it was saved yet, so your action is kept for a retry. The existing numbers are unchanged.",
     "您的認同已成功送出。我們會持續提供更好的品質與體驗。": "Your agreement has been sent. We'll keep working to improve quality and your experience.",
@@ -504,6 +506,8 @@ export const homeCopy: Record<HomeCopyLocale, Record<string, string>> = {
     "我不認同": "共感しない",
     "每次點選都會累加；數字只增不減": "タップするたびに加算され、数字は増えるだけで減りません。",
     "累計瀏覽次數": "累計閲覧数",
+    // 2026-10-17 vote guard：回饋計數／瀏覽次數讀不到時的文字
+    "暫時無法取得": "一時的に取得できません",
     "等待確認": "確認を待っています",
     "尚未確認保存成功，已保留操作供重試；原有數字不變。": "保存できたかまだ確認できていないため、再試行できるよう操作を保持しています。これまでの数字は変わりません。",
     "您的認同已成功送出。我們會持續提供更好的品質與體驗。": "共感を送信しました。これからも品質と体験の向上に努めます。",
@@ -600,6 +604,8 @@ export const homeCopy: Record<HomeCopyLocale, Record<string, string>> = {
     "我不認同": "공감하지 않아요",
     "每次點選都會累加；數字只增不減": "누를 때마다 누적되며, 숫자는 늘기만 하고 줄지 않습니다.",
     "累計瀏覽次數": "누적 조회 수",
+    // 2026-10-17 vote guard：回饋計數／瀏覽次數讀不到時的文字
+    "暫時無法取得": "일시적으로 불러올 수 없음",
     "您的認同已成功送出。我們會持續提供更好的品質與體驗。": "공감이 전송되었습니다. 앞으로도 더 나은 품질과 경험을 제공하겠습니다.",
     "您的建議已成功收到。我們會持續優化產品與服務品質。": "의견을 잘 받았습니다. 앞으로도 제품과 서비스 품질을 계속 개선하겠습니다.",
     "使用 LINE 分享免費體驗給朋友": "LINE으로 무료 체험을 친구에게 공유하기",

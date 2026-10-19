@@ -311,7 +311,7 @@ export default function TarotPageClient() {
                     </div>
                   )}
                   {error && (
-                    <p className="mt-4 rounded-2xl border border-rose-300/30 bg-rose-950/25 px-4 py-3 text-sm font-bold leading-7 text-rose-100">
+                    <p role="alert" className="mt-4 rounded-2xl border border-rose-300/30 bg-rose-950/25 px-4 py-3 text-sm font-bold leading-7 text-rose-100">
                       {error}
                     </p>
                   )}

@@ -15,6 +15,9 @@ const FEEDBACK_REQUEST_TIMEOUT_MS = 8500;
 const FEEDBACK_RETRY_DELAY_MS = 650;
 const PENDING_FEEDBACK_QUEUE_KEY = 'taiji_ai_feedback_pending_events_v2';
 const MAX_PENDING_FEEDBACK_EVENTS = 20;
+// 2026-10-17 vote guard：計數讀不到（非 200、斷線、壞 JSON、逾時）時，數字位置改顯示這段字，不再顯示 0／0。
+const COUNTER_FETCH_TIMEOUT_MS = 8000;
+const COUNTS_UNAVAILABLE_TEXT = '\u66ab\u6642\u7121\u6cd5\u53d6\u5f97';
 
 const COPY = {
   title: '回饋校準',
@@ -53,6 +56,7 @@ type CounterResponse = {
   alreadySent?: boolean;
   message?: string;
   queued?: boolean;
+  rateLimited?: boolean;
 };
 
 type FeedbackNotice = {
@@ -196,6 +200,34 @@ function removePendingFeedbackEvent(eventId: string) {
   writePendingFeedbackEvents(readPendingFeedbackEvents().filter((item) => item.eventId !== eventId));
 }
 
+/**
+ * 2026-10-17 vote guard：讀不到計數時的文字。外層數字元素完全不動；
+ * 裡面留一個看不見的「0」撐住和平常一模一樣的行高，文字疊在同一格裡，排版不會跳。
+ */
+function CountsUnavailableText() {
+  return (
+    <>
+      <span aria-hidden="true" style={{ visibility: 'hidden' }}>0</span>
+      <span
+        style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '0.45em',
+          lineHeight: 1.05,
+          letterSpacing: 'normal',
+          textAlign: 'center',
+          pointerEvents: 'none',
+        }}
+      >
+        {COUNTS_UNAVAILABLE_TEXT}
+      </span>
+    </>
+  );
+}
+
 function getFeedbackEndpoint(choice: FeedbackChoice) {
   return choice === 'like' ? '/api/home-trust/agree' : '/api/home-trust/disagree';
 }
@@ -226,6 +258,11 @@ async function postFeedbackEvent(endpoint: string, eventId: string, options: { a
         cache: 'no-store',
         signal: controller?.signal,
       });
+
+      // 2026-10-17 vote guard：伺服器說太頻繁（429）就安靜放棄這一次，不重試、不走 sendBeacon。
+      if (response.status === 429) {
+        return { ok: false, rateLimited: true };
+      }
 
       const data = await response.json().catch(() => null) as CounterResponse | null;
 
@@ -267,6 +304,11 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
   const [submittingChoice, setSubmittingChoice] = useState<FeedbackChoice | null>(null);
   const [pulseChoice, setPulseChoice] = useState<FeedbackChoice | null>(null);
   const [notice, setNotice] = useState<FeedbackNotice | null>(null);
+  // 2026-10-17 vote guard：同一瞬間的多次點擊，React state 還來不及更新，用 ref 同步擋住。
+  const submitInFlightRef = useRef(false);
+  // 2026-10-17 vote guard：從沒拿到伺服器數字又讀取失敗時才顯示「暫時無法取得」；拿到過就保留最後確認的數字。
+  const [countsUnavailable, setCountsUnavailable] = useState(false);
+  const countsConfirmedRef = useRef(false);
   const noticeTimerRef = useRef<number | null>(null);
   const pulseTimerRef = useRef<number | null>(null);
 
@@ -276,10 +318,14 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
   // 伺服器是唯一真相：它說多少就顯示多少，不拿瀏覽器存的舊數字去墊高。
   const commitLikeCount = useCallback((nextCount: unknown) => {
     setLikeCount(normalizeTotalCount(nextCount, LIKE_INITIAL_COUNT));
+    countsConfirmedRef.current = true;
+    setCountsUnavailable(false);
   }, []);
 
   const commitImproveCount = useCallback((nextCount: unknown) => {
     setImproveCount(normalizeTotalCount(nextCount, SUGGESTION_INITIAL_COUNT));
+    countsConfirmedRef.current = true;
+    setCountsUnavailable(false);
   }, []);
 
   // Only the confirmed server total may update the display, including retries.
@@ -313,16 +359,32 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
     let active = true;
     let controller: AbortController | null = null;
 
+    function markCountsUnavailable() {
+      if (active && !countsConfirmedRef.current) setCountsUnavailable(true);
+    }
+
     async function refreshCounters() {
       if (!active) return;
 
       controller?.abort();
-      controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      const requestController = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      controller = requestController;
+      let timedOut = false;
+      const timeoutId = window.setTimeout(() => {
+        timedOut = true;
+        requestController?.abort();
+        markCountsUnavailable();
+      }, COUNTER_FETCH_TIMEOUT_MS);
 
       try {
-        const response = await fetch('/api/home-trust', { cache: 'no-store', signal: controller?.signal });
+        const response = await fetch('/api/home-trust', { cache: 'no-store', signal: requestController?.signal });
         const data = (await response.json()) as CounterResponse;
-        if (!active || !data?.ok) return;
+        if (!active) return;
+
+        if (!response.ok || !data?.ok || (typeof data.agreeCount !== 'number' && typeof data.disagreeCount !== 'number')) {
+          markCountsUnavailable();
+          return;
+        }
 
         if (typeof data.agreeCount === 'number') {
           commitLikeCount(data.agreeCount);
@@ -331,7 +393,12 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
           commitImproveCount(data.disagreeCount);
         }
       } catch {
-        // 取不到就保留畫面上目前的數字：不顯示 0、不倒退。
+        // 被下一次刷新或卸載中止的不算失敗；斷線、壞 JSON、逾時才算。
+        // 拿到過數字就保留畫面上最後確認的數字：不顯示 0、不倒退。
+        if (requestController?.signal.aborted && !timedOut) return;
+        markCountsUnavailable();
+      } finally {
+        window.clearTimeout(timeoutId);
       }
     }
 
@@ -380,6 +447,8 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
 
           try {
             const data = await postFeedbackEvent(getFeedbackEndpoint(pendingEvent.choice), pendingEvent.eventId, { allowBeacon: false });
+            // 2026-10-17 vote guard：被節流就留在佇列，下次再補送。
+            if (data.rateLimited) break;
             removePendingFeedbackEvent(pendingEvent.eventId);
 
             if (pendingEvent.choice === 'like') {
@@ -414,7 +483,8 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
   }, [commitImproveCount, commitLikeCount]);
 
   async function submitChoice(nextChoice: FeedbackChoice) {
-    if (submittingChoice) return;
+    if (submitInFlightRef.current || submittingChoice) return;
+    submitInFlightRef.current = true;
 
     setSubmittingChoice(nextChoice);
     setNotice(null);
@@ -423,6 +493,9 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
 
     try {
       const data = await postFeedbackEvent(getFeedbackEndpoint(nextChoice), eventId);
+
+      // 2026-10-17 vote guard：被伺服器節流就安靜忽略，畫面維持原樣。
+      if (data.rateLimited) return;
 
       if (data.queued) {
         queuePendingFeedbackEvent(nextChoice, eventId);
@@ -457,6 +530,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         tone: 'error',
       });
     } finally {
+      submitInFlightRef.current = false;
       setSubmittingChoice(null);
     }
   }
@@ -490,7 +564,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         <div className="home-ai-feedback-stat home-ai-feedback-stat--like">
           <p className="text-[9px] font-bold leading-none text-amber-100/80">{COPY.likeStatLabel}</p>
           <p className={`top-feedback-count relative mt-1 font-serif text-2xl font-black leading-none tracking-[0.04em] text-amber-100 ${pulseChoice === 'like' ? 'top-feedback-count--bump' : ''}`} style={{ textShadow: '0 0 14px rgba(251, 191, 36, 0.35)' }}>
-            {formattedLikeCount}
+            {countsUnavailable ? <CountsUnavailableText /> : formattedLikeCount}
             {pulseChoice === 'like' && <span className="top-feedback-delta top-feedback-delta--amber">+1</span>}
           </p>
         </div>
@@ -498,7 +572,7 @@ export default function AiTrustFeedback({ className = '' }: { className?: string
         <div className="home-ai-feedback-stat home-ai-feedback-stat--disagree">
           <p className="text-[9px] font-bold leading-none text-cyan-100/80">{COPY.improveStatLabel}</p>
           <p className={`top-feedback-count relative mt-1 font-serif text-2xl font-black leading-none tracking-[0.04em] text-cyan-100 ${pulseChoice === 'improve' ? 'top-feedback-count--bump' : ''}`} style={{ textShadow: '0 0 14px rgba(34, 211, 238, 0.35)' }}>
-            {formattedImproveCount}
+            {countsUnavailable ? <CountsUnavailableText /> : formattedImproveCount}
             {pulseChoice === 'improve' && <span className="top-feedback-delta top-feedback-delta--cyan">+1</span>}
           </p>
         </div>

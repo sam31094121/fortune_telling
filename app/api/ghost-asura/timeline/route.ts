@@ -46,7 +46,8 @@ export async function GET() {
 /** POST 方法：計算流年 */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    // 2026-10-17 stability：壞掉的 JSON 當成輸入格式錯誤（下方回 400），不再落到 catch 回 500；計算邏輯不動。
+    const body: unknown = await request.json().catch(() => null);
 
     // 驗證輸入
     if (!validateInput(body)) {

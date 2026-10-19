@@ -258,9 +258,11 @@
 .strikeEntry {
   position: absolute;
   z-index: 8;
-  width: 28px;
-  height: 28px;
-  margin: -14px;
+  /* 2026-10-17 無障礙：觸控範圍 44×44（原 28px）；按鈕本身透明，畫面上的四個點不變。 */
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  margin: -22px;
   padding: 0;
   border: 0;
   border-radius: 50%;

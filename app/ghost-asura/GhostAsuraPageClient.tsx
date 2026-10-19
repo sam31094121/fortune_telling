@@ -35,6 +35,19 @@ import styles from './ghost-asura.module.css';
 const STEP_ORBS: readonly ProductElement[] = ['空', '風', '水', '火', '地'];
 import brandStyles from '@/components/AsuraBrandTitle.module.css';
 
+const READING_TIMEOUT_MS = 30_000;
+const DOWNLOAD_TIMEOUT_MS = 25_000;
+const DOWNLOAD_FAILED_MESSAGE = '這次下載沒有完成。可以先用手機截圖保存秘卷，或稍後再按一次。';
+const hasChinese = (text: unknown): text is string => typeof text === 'string' && /[\u4e00-\u9fff]/.test(text);
+
+/** 下載程式庫從外部載入；載不到或卡住時不能讓按鈕一直停在「正在…」。 */
+function withDownloadTimeout(task: Promise<boolean>) {
+  return Promise.race([
+    task.catch(() => false),
+    new Promise<boolean>((resolve) => window.setTimeout(() => resolve(false), DOWNLOAD_TIMEOUT_MS)),
+  ]);
+}
+
 function asuraHourStatus(profile: BirthProfile) {
   if (profile.birthHourBranch === 'unknown') {
     return { done: false, text: '需補出生時辰', message: '時辰不明時，暫不產生阿修羅秘卷；請確認出生時辰後再排盤。' };
@@ -68,6 +81,7 @@ export default function GhostAsuraPageClient({
   const [result, setResult] = useState<AsuraDisplay | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const [downloading, setDownloading] = useState<'pdf' | 'image' | null>(null);
+  const [actionMessage, setActionMessage] = useState('');
   const resultRef = useRef<HTMLElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const calculationRef = useRef<AbortController | null>(null);
@@ -100,18 +114,24 @@ export default function GhostAsuraPageClient({
 
   async function handleCopyLink() {
     const url = withShareVersion(typeof window !== 'undefined' ? window.location.href : '');
-    const success = await navigator.clipboard.writeText(url).catch(() => false);
+    // writeText 成功時回傳 undefined，不能拿回傳值判斷成功與否（否則永遠不會顯示「已複製」）
+    const success = await (navigator.clipboard?.writeText(url) ?? Promise.reject(new Error('no clipboard')))
+      .then(() => true, () => false);
 
     if (success) {
+      setActionMessage('');
       playShareSuccessSound();
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
+    } else {
+      setActionMessage(`這台裝置不允許自動複製，請長按複製這個網址：${url}`);
     }
   }
 
   async function handleLineShare() {
     const url = withShareVersion(typeof window !== 'undefined' ? window.location.href : '');
-    const message = `我的阿修羅秘卷已生成！\n${url}\n\n點擊查看你的四柱隱影解盤 ✨`;
+    // 分享的是頁面網址，不含個人結果；文案不能讓朋友以為點開就看得到你的秘卷
+    const message = `我剛展開了自己的阿修羅秘卷！\n${url}\n\n你也來排一張四柱隱影解盤 ✨`;
     const lineURL = `https://line.me/R/msg/text/${encodeURIComponent(message)}`;
     window.open(lineURL, '_blank');
   }
@@ -126,7 +146,7 @@ export default function GhostAsuraPageClient({
       const url = withShareVersion(typeof window !== 'undefined' ? window.location.href : '');
       await navigator.share({
         title: '鬼魅阿修羅秘卷',
-        text: '我的阿修羅秘卷已生成！點擊查看你的四柱隱影解盤',
+        text: '我剛展開了自己的阿修羅秘卷！你也來排一張四柱隱影解盤',
         url,
       });
       playShareSuccessSound();
@@ -136,21 +156,27 @@ export default function GhostAsuraPageClient({
   }
 
   async function handleDownloadPDF() {
-    if (!cardRef.current) return;
+    if (!cardRef.current || downloading) return;
+    setActionMessage('');
     setDownloading('pdf');
-    const success = await downloadAsPDF(cardRef.current, generateFilename('pdf'));
+    const success = await withDownloadTimeout(downloadAsPDF(cardRef.current, generateFilename('pdf')));
     if (success) {
       playDownloadSuccessSound();
+    } else {
+      setActionMessage(DOWNLOAD_FAILED_MESSAGE);
     }
     setDownloading(null);
   }
 
   async function handleDownloadImage() {
-    if (!cardRef.current) return;
+    if (!cardRef.current || downloading) return;
+    setActionMessage('');
     setDownloading('image');
-    const success = await downloadAsImage(cardRef.current, generateFilename('image'));
+    const success = await withDownloadTimeout(downloadAsImage(cardRef.current, generateFilename('image')));
     if (success) {
       playDownloadSuccessSound();
+    } else {
+      setActionMessage(DOWNLOAD_FAILED_MESSAGE);
     }
     setDownloading(null);
   }
@@ -285,6 +311,11 @@ export default function GhostAsuraPageClient({
     const request = new AbortController();
     calculationRef.current = request;
     setBusy(true);
+    let timedOut = false;
+    const timeout = window.setTimeout(() => {
+      timedOut = true;
+      request.abort();
+    }, READING_TIMEOUT_MS);
     try {
       const target = identityTarget ?? getAnalysisIdentityTarget() ?? 'self';
       const response = await fetch('/api/ghost-asura/reading', {
@@ -299,18 +330,29 @@ export default function GhostAsuraPageClient({
           timezone: 'Asia/Taipei',
         }),
       });
-      const data = await response.json();
+      // 伺服器錯誤或閘道逾時可能回 HTML：不能直接 .json()，否則客人會看到英文 SyntaxError
+      const data = (await response.json().catch(() => null)) as { data?: AsuraDisplay; error?: unknown } | null;
       // Ignore even a transport that resolved after abort. Only the current request
       // may publish data, errors or completion; old finally blocks cannot unlock it.
       if (calculationRef.current !== request) return;
       if (response.status === 401) router.refresh();
-      if (!response.ok) throw new Error(data.error);
-      setResult(data.data);
+      if (!response.ok || !data) {
+        throw new Error(hasChinese(data?.error) ? data.error : `排盤暫時沒有完成（代碼 ${response.status}），請稍後再按一次；你填的資料都還在。`);
+      }
+      setResult(data.data ?? null);
     } catch (e) {
       if (calculationRef.current !== request) return;
       console.error('[GhostAsuraPageClient] calculate failed', e);
-      setError(e instanceof Error ? e.message : '連線失敗，請稍後再試。');
+      const message = (e as { message?: unknown } | null)?.message;
+      setError(
+        timedOut
+          ? '排盤等太久了，已先停止等待；你填的資料都還在，請稍後再按一次。'
+          : hasChinese(message)
+            ? message
+            : '連線失敗：網路不穩，這次沒有排盤成功；請確認連線後再按一次，你填的資料都還在。',
+      );
     } finally {
+      window.clearTimeout(timeout);
       if (calculationRef.current === request) {
         calculationRef.current = null;
         setBusy(false);
@@ -529,6 +571,12 @@ export default function GhostAsuraPageClient({
                   </div>
                 )}
               </div>
+
+              {actionMessage && (
+                <p className={styles.error} role="status" aria-live="polite">
+                  {actionMessage}
+                </p>
+              )}
 
               {/* 🔄 快速重新解盤 */}
               <div className={styles.quickRetakeSection}>

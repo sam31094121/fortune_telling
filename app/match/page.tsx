@@ -390,30 +390,71 @@ function ScoreRow({ label, score, tone }: { label: string; score: number; tone: 
 
 function OracleHint({ text }: { text: string }) {
   const [open, setOpen] = useState(false);
+  // 2026-10-17 soul-match QA：手機 390px 上說明框會被左右裁掉、點卡片外也關不掉；
+  // 這裡只修顯示：量一次位置把框推回畫面內，點外面或按 Esc 會關閉。文案不變。
+  const [shift, setShift] = useState(0);
+  const wrapRef = useRef<HTMLSpanElement>(null);
+  const popRef = useRef<HTMLSpanElement>(null);
+  const display = useDisplayText();
+  useEffect(() => {
+    if (!open) {
+      setShift(0);
+      return;
+    }
+    const pop = popRef.current;
+    if (pop) {
+      const rect = pop.getBoundingClientRect();
+      const margin = 12;
+      const viewport = window.innerWidth || document.documentElement.clientWidth;
+      if (rect.left < margin) setShift(margin - rect.left);
+      else if (rect.right > viewport - margin) setShift(viewport - margin - rect.right);
+    }
+    const close = (event: PointerEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(event.target as Node)) setOpen(false);
+    };
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('pointerdown', close);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', close);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
   return (
-    <span className="relative inline-block ml-2 align-middle z-20 font-sans">
+    <span ref={wrapRef} className="relative inline-block ml-2 align-middle z-20 font-sans">
       <button
         type="button"
+        aria-label={display('查看說明')}
+        aria-expanded={open}
         onClick={(e) => {
+          e.preventDefault();
           e.stopPropagation();
           setOpen(!open);
         }}
-        className="flex h-5 w-5 items-center justify-center rounded-full border border-cyan-400/30 bg-cyan-500/10 text-xs font-bold text-cyan-300 shadow-[0_0_8px_rgba(34,211,238,0.2)] hover:bg-cyan-500/25 transition-all focus:outline-none"
+        className="flex h-5 w-5 items-center justify-center rounded-full border border-cyan-400/30 bg-cyan-500/10 text-xs font-bold text-cyan-300 shadow-[0_0_8px_rgba(34,211,238,0.2)] hover:bg-cyan-500/25 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70"
       >
         ?
       </button>
       {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <span className="absolute bottom-7 left-1/2 -translate-x-1/2 z-50 w-56 rounded-xl border border-cyan-400/30 bg-slate-950/95 p-3.5 text-xs leading-5 text-cyan-100 shadow-[0_0_15px_rgba(34,211,238,0.25)] animate-fade-in font-sans">
-            <HomeTranslatedText text={text} />
-            <button 
-              type="button" 
-              className="block mt-2 text-xs font-bold text-cyan-400 text-right w-full hover:underline"
-              onClick={() => setOpen(false)}
-            ><HomeTranslatedText text={"我知道了 ✗"} /></button>
-          </span>
-        </>
+        <span
+          ref={popRef}
+          role="tooltip"
+          style={shift ? { marginLeft: shift } : undefined}
+          className="absolute bottom-7 left-1/2 -translate-x-1/2 z-50 w-56 max-w-[calc(100vw-1.5rem)] rounded-xl border border-cyan-400/30 bg-slate-950/95 p-3.5 text-xs leading-5 text-cyan-100 shadow-[0_0_15px_rgba(34,211,238,0.25)] animate-fade-in font-sans"
+        >
+          <HomeTranslatedText text={text} />
+          <button
+            type="button"
+            className="block mt-2 text-xs font-bold text-cyan-400 text-right w-full hover:underline"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setOpen(false);
+            }}
+          ><HomeTranslatedText text={"我知道了 ✗"} /></button>
+        </span>
       )}
     </span>
   );
@@ -456,6 +497,14 @@ function PersonStep({
   const [showBloodOptions, setShowBloodOptions] = useState(value.bloodType !== 'unknown');
   const showMissingGender = showValidation && !selectionConfirm.gender;
   const [showShichenOptions, setShowShichenOptions] = useState(Boolean(value.birthHourBranch && value.birthHourBranch !== 'unknown'));
+  // 2026-10-17 soul-match QA：上次填過的血型／時辰是在掛載後才從本機帶回，選項卡要跟著顯示「我知道」並展開，
+  // 不然畫面兩個都沒選、送出時卻帶著舊的血型。只同步顯示，不改資料。
+  useEffect(() => {
+    if (value.bloodType !== 'unknown') setShowBloodOptions(true);
+  }, [value.bloodType]);
+  useEffect(() => {
+    if (value.birthHourBranch && value.birthHourBranch !== 'unknown') setShowShichenOptions(true);
+  }, [value.birthHourBranch]);
   return (
     <div className="fortune-card p-5 sm:p-7">
       <div className="max-w-2xl">
@@ -475,7 +524,10 @@ function PersonStep({
             value={value.name}
             onChange={updateName}
             placeholder={display("請輸入姓名，至少 2 個字")}
-            className={`form-input w-full text-base neon-input-focus neon-card-hover glass-input ${accent === 'violet' ? 'glass-input-cyan' : ''} ${showMissingName ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}`}
+            aria-label={display("請輸入姓名，至少 2 個字")}
+            aria-invalid={showMissingName || undefined}
+            autoComplete="off"
+            className={`form-input w-full text-base placeholder:text-sm neon-input-focus neon-card-hover glass-input ${accent === 'violet' ? 'glass-input-cyan' : ''} ${showMissingName ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}`}
           />
           {showMissingName && (
             <p className="form-missing-alert"><HomeTranslatedText text={"⚠️ 請填寫姓名，至少 2 個字。"} /></p>
@@ -670,7 +722,7 @@ function BaziBeastPairCards({
                   : 'border-amber-200/35 bg-[linear-gradient(145deg,rgba(146,64,14,0.28),rgba(15,23,42,0.94)_72%)]'
               }`}
             >
-              <p className={`truncate text-xs font-black tracking-[0.12em] ${isViolet ? 'text-violet-100/85' : 'text-amber-100/85'}`}>{resultUi.t(label)}</p>
+              <p className={`break-words text-xs font-black leading-5 tracking-[0.12em] ${isViolet ? 'text-violet-100/85' : 'text-amber-100/85'}`}>{resultUi.t(label)}</p>
               <p className="mt-1 truncate text-sm font-black text-[color:var(--text-main)]">{name}{age === null ? '' : resultUi.en ? EN_TPL.age(age) : `・${age}歲`}</p>
 
               <div className="relative mt-2 aspect-[1.04] overflow-hidden rounded-[17px] border border-white/14 bg-black/25">
@@ -1373,10 +1425,11 @@ export default function MatchPage() {
           throw new Error('未收到伺服器回應');
         }
 
-        const json = (await response.json()) as MatchResponse & { error?: string };
+        // 2026-10-17 soul-match QA：伺服器回 HTML 錯誤頁（502/500）時不要誤說成「無法連線」。
+        const json = (await response.json().catch(() => null)) as (MatchResponse & { error?: string }) | null;
 
-        if (!response.ok) {
-          setError(json.error ?? '配對分析失敗，請稍後再試。');
+        if (!response.ok || !json?.result) {
+          setError(json?.error ?? '配對服務暫時無法完成分析，請稍後再試。');
           return;
         }
 
@@ -1510,7 +1563,7 @@ export default function MatchPage() {
             )}
 
             {error && (
-              <div className="rounded-2xl border border-rose-400/20 bg-rose-950/20 p-4 text-sm text-rose-300">
+              <div role="alert" aria-live="assertive" className="rounded-2xl border border-rose-400/20 bg-rose-950/20 p-4 text-sm text-rose-300">
                 <HomeTranslatedText text={error} />
               </div>
             )}

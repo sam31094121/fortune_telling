@@ -15,6 +15,11 @@ export type AnalysisJobPublic = {
   errorMessage?: string | null;
 };
 
+/** 伺服器回的訊息若不是中文（例如英文例外），改用中文預設句，避免技術字串外露。 */
+function customerMessage(...candidates: Array<string | null | undefined>) {
+  return candidates.find((text) => typeof text === 'string' && /[\u4e00-\u9fff]/.test(text));
+}
+
 type ApiResponse<T> = { ok: boolean; success?: boolean; data?: T; result?: unknown; message?: string; error?: string; code?: string };
 
 async function safeJson<T>(url: string, init: RequestInit | undefined, timeoutMs: number): Promise<{ status: number; body: T }> {
@@ -22,11 +27,18 @@ async function safeJson<T>(url: string, init: RequestInit | undefined, timeoutMs
   const timer = window.setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(url, { ...init, signal: controller.signal });
-    const body = (await response.json()) as T;
+    // 伺服器錯誤或閘道逾時常回 HTML：直接 .json() 會把英文 SyntaxError 丟給客人
+    const body = (await response.json().catch(() => null)) as T | null;
+    if (body === null) {
+      throw new Error(`分析暫時沒有完成（代碼 ${response.status}），請稍後再按一次；你填的資料都還在。`);
+    }
     return { status: response.status, body };
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
       throw new Error('\u5206\u6790\u66ab\u6642\u5931\u6557\uff1a\u7cfb\u7d71\u8d85\u904e\u6642\u9593\u9650\u5236\u6c92\u6709\u5b8c\u6210\u56de\u61c9\uff0c\u8acb\u91cd\u65b0\u5617\u8a66\u3002');
+    }
+    if (error instanceof TypeError) {
+      throw new Error('網路連線不穩，這次沒有送出成功；請確認連線後再按一次，你填的資料都還在。');
     }
     throw error;
   } finally {
@@ -67,7 +79,7 @@ export async function runAnalysisJobClient<TResult>(options: {
     }, remaining());
 
     if (!created.body.ok || !created.body.data?.jobId) {
-      throw new Error(created.body.message || created.body.error || '\u76ee\u524d\u7121\u6cd5\u5efa\u7acb\u5206\u6790\u4efb\u52d9\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002');
+      throw new Error(customerMessage(created.body.message, created.body.error) || '\u76ee\u524d\u7121\u6cd5\u5efa\u7acb\u5206\u6790\u4efb\u52d9\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002');
     }
 
     return { job: created.body.data, result: created.body.result as TResult | undefined };
@@ -98,10 +110,10 @@ export async function runAnalysisJobClient<TResult>(options: {
         options.onJob?.(job);
         continue;
       }
-      throw new Error(result.body.message || result.body.error || '\u5206\u6790\u7d50\u679c\u5c1a\u672a\u5b8c\u6210\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002');
+      throw new Error(customerMessage(result.body.message, result.body.error) || '\u5206\u6790\u7d50\u679c\u5c1a\u672a\u5b8c\u6210\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002');
     }
     if (job.status === 'FAILED' || job.status === 'TIMEOUT' || job.status === 'CANCELLED') {
-      throw new Error(job.errorMessage || job.message || '\u76ee\u524d\u7121\u6cd5\u5b8c\u6210\u5206\u6790\u3002');
+      throw new Error(customerMessage(job.errorMessage, job.message) || '\u76ee\u524d\u7121\u6cd5\u5b8c\u6210\u5206\u6790\u3002');
     }
 
     await new Promise((resolve) => window.setTimeout(resolve, pollIntervalMs));
@@ -115,7 +127,7 @@ export async function runAnalysisJobClient<TResult>(options: {
         options.onJob?.(job);
         continue;
       }
-      throw new Error(next.body.message || next.body.error || '\u76ee\u524d\u7121\u6cd5\u8b80\u53d6\u5206\u6790\u72c0\u614b\u3002');
+      throw new Error(customerMessage(next.body.message, next.body.error) || '\u76ee\u524d\u7121\u6cd5\u8b80\u53d6\u5206\u6790\u72c0\u614b\u3002');
     }
     job = next.body.data;
     options.onJob?.(job);

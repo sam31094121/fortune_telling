@@ -20,6 +20,8 @@ export class ParticleSystem {
   private particles: Particle[] = [];
   private animationId: number | null = null;
   private isRunning = false;
+  /** 2026-10-17 stability：記住 ResizeObserver，destroy() 時解除，避免離開頁面後仍持有容器與畫布。 */
+  private resizeObserver: ResizeObserver | null = null;
 
   constructor(container: HTMLElement) {
     this.canvas = document.createElement('canvas');
@@ -50,6 +52,7 @@ export class ParticleSystem {
       this.resizeCanvas();
     });
     observer.observe(container);
+    this.resizeObserver = observer; // 2026-10-17 stability
   }
 
   /**
@@ -222,6 +225,12 @@ export class ParticleSystem {
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
     }
+    // 2026-10-17 stability：解除 ResizeObserver、清掉粒子與迴圈狀態（原本只停動畫，觀察器一直留著）。
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
+    this.animationId = null;
+    this.isRunning = false;
+    this.particles = [];
     this.canvas.remove();
   }
 }

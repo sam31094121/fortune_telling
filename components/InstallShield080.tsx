@@ -378,6 +378,9 @@ export default function InstallShield080() {
   if (!ready) return null;
 
   if (phoneHost) {
+    // 2026-10-17 shield installed hide：手機偵測到已安裝（standalone／getInstalledRelatedApps／appinstalled）就整個不顯示，
+    // 跟電腦、平板一樣；不再顯示「已存到桌面」。首頁工具列的盾牌格子是 :empty 就隱藏，頁尾掛載點沒有內容就是 0 高，不留空白。
+    if (installed) return null;
     const steps: string[] =
       guide === 'samsung'
         ? ['點右下角「≡」選單', '選「加入頁面至」→「主畫面」', '或點網址列的「＋」／下載圖示']

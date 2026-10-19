@@ -9,6 +9,8 @@ type CardLang = 'zh' | 'en';
 
 const STORAGE_KEY = 'starBeastCardLang';
 const FADE_MS = 200;
+/** 2026-10-17 stability：右上角「中｜EN」小卡是否顯示（目前業主定案隱藏，見下方 false &&）。 */
+const CARD_TOGGLE_VISIBLE = false;
 
 const COPY = {
   zh: {
@@ -42,6 +44,9 @@ export default function StarBeastHomeCard() {
   const timer = useRef<number | null>(null);
 
   useEffect(() => {
+    // 2026-10-17 stability：卡片「中｜EN」切換鍵目前隱藏（業主定案），若照舊還原以前存的 'en'，
+    // 客人會卡在英文卡片且沒有按鈕切回；切換鍵隱藏期間不還原，卡片跟著全站閱讀語言走。切換鍵恢復時把 CARD_TOGGLE_VISIBLE 改回 true。
+    if (!CARD_TOGGLE_VISIBLE) return () => { if (timer.current) window.clearTimeout(timer.current); };
     try {
       if (localStorage.getItem(STORAGE_KEY) === 'en') setLang('en');
     } catch { /* storage unavailable: stay Chinese */ }

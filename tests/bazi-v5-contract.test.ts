@@ -90,6 +90,18 @@ const partialInput: BaziRuntimeInput = {
   check('PARTIAL_BAZI mingGong data condition', pc.fieldTrace.find((trace: any) => trace.field === 'mingGong')?.professionalResult, 'OPTIONAL_NOT_AVAILABLE');
 }
 
+// 客人看得到的文字不得出現後端英文列舉（primary／secondary／supporting）：後端送中文標籤，前端只照印。
+{
+  const result = attachBaziProfessionalCoreV5(analyzeBazi(fullInput), fullInput);
+  const priority = (result.aiDeepAnalysis?.elementPriority ?? []) as any[];
+  check('elementPriority 有內容', priority.length > 0, true);
+  check('elementPriority 每項都有純中文 judgementLabel', priority.every((item) => /^[一-鿿]+$/.test(String(item.judgementLabel))), true);
+  check('elementPriority 第一名標籤＝用神', priority[0]?.judgementLabel, '用神');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const table = require('node:fs').readFileSync('components/bazi/customer/ProfessionalBaziTable.tsx', 'utf8');
+  check('ProfessionalBaziTable 不得印英文 judgementLevel', /\{[\w.?]*judgementLevel\}/.test(table), false);
+}
+
 console.log(`\nBAZI V5 CONTRACT — PASS ${pass} / FAIL ${fail}`);
 if (fail > 0) process.exit(1);
 console.log('BAZI_V5_CONTRACT_CERTIFIED=true');

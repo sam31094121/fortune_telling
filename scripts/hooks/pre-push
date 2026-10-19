@@ -55,7 +55,7 @@ FAILED=""
 # 推送前一律手動先跑 npm run test:pre-push-e2e（2026-10-15 起的固定流程）。
 E2E_TESTS=""
 if [ -n "${PUSH_E2E:-}" ]; then E2E_TESTS="test:e2e-asura test:asura-live"; fi
-for t in test:three-core test:three-in-one test:taiji-ios test:ghost-asura-skill test:ghost-asura-customer-output test:ghost-asura-life-stages test:ghost-asura-seal-voice test:ghost-asura-card-toggle \
+for t in test:three-core test:three-in-one test:bazi-contract test:taiji-ios test:ghost-asura-skill test:ghost-asura-customer-output test:ghost-asura-life-stages test:ghost-asura-seal-voice test:ghost-asura-card-toggle \
          test:beast-game test:beast-ritual test:beast-clip test:beast-voice \
          test:beast-battlefield test:beast-bridge test:beast-interactive:full \
          test:beast-difficulty test:iching-sources test:ziwei-quanshu test:ziwei-wording-authority test:mobile-zoom-pan test:locked-cards test:share-version test:beast-backend-only \

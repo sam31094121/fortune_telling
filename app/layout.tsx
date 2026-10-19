@@ -17,7 +17,6 @@ import {
   SHARE_TWITTER_IMAGES,
 } from '@/lib/share-preview';
 import './globals.css';
-import './home-prepaint.css';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
   ? process.env.NEXT_PUBLIC_SITE_URL
@@ -25,12 +24,6 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
     ? `https://${process.env.VERCEL_URL}`
     : 'http://localhost:8888';
 
-// 2026-10-17 穩定性：畫面畫出來之前先把裝置上存的閱讀語言標在 <html data-reading-lang>，
-// 首頁依此先預留譯文版面（app/home-prepaint.css），翻譯換上時整頁不往下跳。
-const READING_LANG_INIT_SCRIPT = `try{var v=window.localStorage.getItem('interface-reading-language-v1');if(v==='zh-Hans'||v==='en'||v==='ja'||v==='ko'){document.documentElement.setAttribute('data-reading-lang',v);document.documentElement.setAttribute('lang',v)}}catch(e){}`;
-const BRUSH_FONT_CSS = 'https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap';
-// 由腳本插入的樣式表不會擋住首次繪製；重複執行也只插一次。
-const BRUSH_FONT_LOADER = `(function(){try{if(document.querySelector('link[data-brush-font]'))return;var l=document.createElement('link');l.rel='stylesheet';l.href=${JSON.stringify(BRUSH_FONT_CSS)};l.setAttribute('data-brush-font','');document.head.appendChild(l);}catch(e){}})();`;
 const rootStyle = { '--tarot-card-back-image': TAROT_CARD_BACK_CSS_IMAGE } as CSSProperties;
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 const gaMeasurementId = process.env.NEXT_PUBLIC_GA_ID;
@@ -55,7 +48,8 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   appleWebApp: { capable: true, title: '太極命理', statusBarStyle: 'black-translucent' },
-  icons: { apple: '/pwa/apple-icon-180.png' },
+  // 2026-10-17 stability：補上網頁圖示，瀏覽器不再每頁去抓不存在的 /favicon.ico（主控台 404）。
+  icons: { icon: '/pwa/icon-192.png', apple: '/pwa/apple-icon-180.png' },
   title: '☯ 太極命理 易經｜天地人智慧分析系統',
   description: '易經紫微斗數、八字、易經論數字、天地人智慧分析，一站式命理智慧平台。',
   keywords: ['太極命理', '紫微斗數', '八字', '易經論數字', '古老塔羅牌', '命理分析', '天地人智慧'],
@@ -102,14 +96,10 @@ export default function RootLayout({
       <head>
         {/* 客戶自選的手機字體大小：頁面畫出來之前就套用，不會先閃一下標準大小。設定見 lib/text-size.ts */}
         <script dangerouslySetInnerHTML={{ __html: TEXT_SIZE_INIT_SCRIPT }} />
-        <script dangerouslySetInnerHTML={{ __html: READING_LANG_INIT_SCRIPT }} />
         {/* 古老符咒毛筆字體：只用來畫魔珠封印上的「封」字，營造邪氣靈異的神秘感。 */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* 2026-10-17 穩定性：毛筆字樣式表改成「不擋畫面」載入（preload＋由腳本插入），手機網路下首屏不再等 Google 字型；字型到了才換上（display=swap，與原本相同）。 */}
-        <link rel="preload" as="style" href={BRUSH_FONT_CSS} />
-        <script dangerouslySetInnerHTML={{ __html: BRUSH_FONT_LOADER }} />
-        <noscript><link rel="stylesheet" href={BRUSH_FONT_CSS} /></noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

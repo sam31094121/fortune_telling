@@ -944,6 +944,18 @@ function readNameologyFormSnapshot(form: FormState, selectionConfirm: SelectionC
   };
 }
 
+const NAMEOLOGY_REQUEST_TIMEOUT_MS = 30000;
+const CJK_TEXT = /[\u3400-\u9fff]/;
+
+function nameologyCustomerError(err: unknown, timedOut: boolean) {
+  if (timedOut) return '這次分析等了太久沒有回應，請再按一次「開始姓名學分析」；你填的資料都還在。';
+  const name = typeof (err as { name?: unknown })?.name === 'string' ? (err as { name: string }).name : '';
+  const message = typeof (err as { message?: unknown })?.message === 'string' ? (err as { message: string }).message : '';
+  if (name === 'TypeError') return '網路連線不穩，這次沒有送出成功；請確認連線後再按一次，你填的資料都還在。';
+  if (message && CJK_TEXT.test(message)) return message;
+  return '目前無法完成可靠的姓名分析，請稍後重新嘗試；你填的資料都還在。';
+}
+
 export default function NameologyPage() {
   const [showShichen, setShowShichen] = useState(false);
   const [form, setForm] = useState<FormState>(initialForm);
@@ -1200,6 +1212,8 @@ export default function NameologyPage() {
     const requestInputKey = nameologyInputKey(snapshot.form);
     const controller = new AbortController();
     requestAbortRef.current = controller;
+    let timedOut = false;
+    const timeoutId = window.setTimeout(() => { timedOut = true; controller.abort(); }, NAMEOLOGY_REQUEST_TIMEOUT_MS);
     try {
       const response = await fetch('/api/nameology-analyze', {
         method: 'POST',
@@ -1207,8 +1221,9 @@ export default function NameologyPage() {
         body: JSON.stringify({ ...snapshot.form, analysisTarget: getAnalysisIdentityTarget() }),
         signal: controller.signal,
       });
-      const data = await response.json();
+      const data = await response.json().catch(() => null);
       if (requestVersion !== requestVersionRef.current || requestInputKey !== nameologyInputKey(formRef.current)) return;
+      if (!data || typeof data !== 'object') throw new Error(`姓名學分析暫時沒有完成（代碼 ${response.status}），請稍後再按一次；你填的資料都還在。`);
       if (!response.ok || !data?.analysis || !data?.fiveElement || !data?.verification?.readyForFrontend) throw new Error(data?.message || data?.error || '目前無法完成可靠的姓名分析，請稍後重新嘗試。');
       const nextResult = {
         analysis: (data as NameologyResponse).analysis,
@@ -1240,8 +1255,9 @@ export default function NameologyPage() {
       window.setTimeout(() => document.getElementById('nameology-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
     } catch (err) {
       if (requestVersion !== requestVersionRef.current) return;
-      setError(err instanceof Error ? err.message : '目前無法完成可靠的姓名分析，請稍後重新嘗試。');
+      setError(nameologyCustomerError(err, timedOut));
     } finally {
+      window.clearTimeout(timeoutId);
       if (requestVersion === requestVersionRef.current) {
         requestAbortRef.current = null;
         setIsLoading(false);
@@ -1291,10 +1307,11 @@ export default function NameologyPage() {
 
           <div className="mt-7 grid gap-7">
             <div>
-              <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
+              <label htmlFor="nameology-name-input" className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
                 1. 姓名 {form.name.trim().length >= 2 && <span className="text-green-400">✓</span>}
               </label>
               <input
+                id="nameology-name-input"
                 type="text"
                 value={form.name}
                 onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
@@ -1379,7 +1396,7 @@ export default function NameologyPage() {
             </section>
 
             {(error || validationMessage) && !result && (
-              <p className={`rounded-2xl border px-4 py-3 text-sm ${error ? 'border-rose-400/25 bg-rose-950/20 text-rose-100' : 'border-amber-400/20 bg-amber-950/15 text-amber-100'}`}>
+              <p role={error ? 'alert' : 'status'} className={`rounded-2xl border px-4 py-3 text-sm ${error ? 'border-rose-400/25 bg-rose-950/20 text-rose-100' : 'border-amber-400/20 bg-amber-950/15 text-amber-100'}`}>
                 {error || validationMessage}
               </p>
             )}
@@ -1400,7 +1417,7 @@ export default function NameologyPage() {
                   {progressItems.map((item) => (
                     <span
                       key={item.label}
-                      className={`rounded-full border px-3 py-1 text-xs font-semibold ${item.done ? 'border-green-400/30 bg-green-500/20 text-green-300' : 'border-white/10 bg-white/8 text-[color:var(--text-muted)]'}`}
+                      className={`rounded-full border px-3 py-1 text-xs font-semibold ${item.done ? 'border-green-400/30 bg-green-500/20 text-green-300' : 'border-white/10 bg-white/[0.08] text-[color:var(--text-muted)]'}`}
                     >
                       {item.done ? '✓' : '○'} {item.label} {item.value}
                     </span>

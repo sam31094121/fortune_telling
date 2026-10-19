@@ -168,16 +168,16 @@ const GENRE_NAMES: Record<string, string> = {
   modern_dance_pop: '\u73fe\u4ee3\u6d41\u884c\u821e\u66f2',
   emotional_pop: '\u60c5\u7dd2\u6d41\u884c',
   club_edm_pop: '\u6d3e\u5c0d\u96fb\u97f3',
-  cinematic_pop: '?餃蔣瘚?',
-  acoustic_pop: '?刻釭瘚?',
-  indie_folk: '?函?瘞?',
-  alternative_rock: '?阡??遝',
-  electronic_pop: '?餃?瘚?',
-  experimental_electronic: '撖阡??餃?',
-  avant_garde: '??瘞?',
-  ambient_electronic: '?啣??餃?',
-  psychedelic_rock: '餈瑕劂?遝',
-  classical_ambient: '?文瘞?',
+  cinematic_pop: '電影流行',
+  acoustic_pop: '木質流行',
+  indie_folk: '獨立民謠',
+  alternative_rock: '另類搖滾',
+  electronic_pop: '電子流行',
+  experimental_electronic: '實驗電子',
+  avant_garde: '前衛氛圍',
+  ambient_electronic: '環境電子',
+  psychedelic_rock: '迷幻搖滾',
+  classical_ambient: '古典氛圍',
 };
 
 const GENRE_EMOJI: Record<string, string> = {
@@ -739,7 +739,7 @@ function createPlayableSongDemo(
   const duration = totalBeats * beat;
   const buffer = new Float32Array(Math.ceil(duration * sampleRate));
   const root = getRootFrequency(musicParameters.key);
-  const isMinor = /minor|撠矽/i.test(musicParameters.key);
+  const isMinor = /minor|小調/i.test(musicParameters.key);
   const scale = isMinor ? [0, 2, 3, 5, 7, 8, 10, 12] : [0, 2, 4, 5, 7, 9, 11, 12];
   const progression = isMinor ? [0, 6, 3, 5] : [0, 5, 3, 4];
   const englishSeed = lyricSeed(songDrafts?.english.lyrics ?? fusionSong.fusion_lyrics.slice(0, 5));
@@ -775,27 +775,27 @@ function createPlayableSongDemo(
   const shortDurations = [0.62, 0.62, 0.9, 1.1];
   const verseDurations = [0.78, 0.72, 0.95, 0.62, 0.78, 0.72, 1.1, 0.55];
 
-  // 0-8 beats嚗old Hook嚗???唾??園??湔銝靘????脤??湔?隤?
+  // 0-8 beats：Cold Hook，英文高音記憶點直接丟出來，像舞曲開場標誌
   addChordProgression(buffer, sampleRate, root, scale, beat, 0, 2, progression, 0.05, 'bell');
   addPatternedMelody(buffer, sampleRate, root, beat, 0, englishHook, straightEight, [0.6, 0.6, 0.78, 1.05], 0.14, 'bell', 1);
   addPatternedMelody(buffer, sampleRate, root, beat, 4, sharedHook, straightEight.slice(0, 4), [0.78, 0.78, 0.92, 1.1], 0.1, 'pluck', 0);
   addDanceRiser(buffer, sampleRate, root, beat, 4, 6, 0.035);
 
-  // 8-24 beats嚗?隤蜓甇??? Kick 雿撥摨阡脣嚗蜓??靽?皜?
+  // 8-24 beats：國語主歌，四拍 Kick 低強度進場，主旋律保持清楚
   addChordProgression(buffer, sampleRate, root, scale, beat, 2, 4, progression, 0.062, 'pluck');
   addDanceBassLine(buffer, sampleRate, root, scale, beat, 8, 4, progression, 0.075);
   addPatternedMelody(buffer, sampleRate, root, beat, 8, mandarinVerse, verseRhythm, verseDurations, 0.17, 'pluck', 0);
   addPatternedMelody(buffer, sampleRate, root, beat, 16, sharedHook, straightEight, shortDurations, 0.08, 'bell', 1);
   addDanceDrums(buffer, sampleRate, beat, 8, 16, 0.58, 'build');
 
-  // 24-32 beats嚗re-drop嚗??餌?急???其?????望? Hook ??隤蜓???亥絲靘?
+  // 24-32 beats：Pre-drop，低頻短暫收掉，用上升音效把英文 Hook 與國語主旋律接起來
   addChordProgression(buffer, sampleRate, root, scale, beat, 6, 2, progression.slice(1), 0.06, 'soft');
   addPatternedMelody(buffer, sampleRate, root, beat, 24, mandarinPreChorus, straightEight, [0.72, 0.72, 0.92, 1.08], 0.14, 'soft', 0);
   addPatternedMelody(buffer, sampleRate, root, beat, 28, englishHook.slice(0, 4), [0, 1.5, 3, 5], [0.55, 0.62, 0.76, 0.96], 0.06, 'bell', 1);
   addDanceRiser(buffer, sampleRate, root, beat, 26, 10, 0.05);
   addNoiseHit(buffer, sampleRate, 31.75 * beat, beat * 0.2, 0.12);
 
-  // 32-64 beats嚗ance Drop嚗?????頝?Bass??隤?Hook ???抵憚
+  // 32-64 beats：Dance Drop，四拍鼓、彈跳 Bass、雙語 Hook 重複兩輪
   addChordProgression(buffer, sampleRate, root, scale, beat, 8, 8, progression, 0.09, 'soft');
   addDanceBassLine(buffer, sampleRate, root, scale, beat, 32, 8, progression, 0.135);
   addPatternedMelody(buffer, sampleRate, root, beat, 32, chorusMotif, chorusRhythm, shortDurations, 0.18, 'pluck', 0);
@@ -807,7 +807,7 @@ function createPlayableSongDemo(
   addDanceDrums(buffer, sampleRate, beat, 32, 32, 1, 'drop');
   addGlobalTrendPulse(buffer, sampleRate, beat, 32, 32, 0.36);
 
-  // 64-80 beats嚗洵鈭憚瘣 Hook嚗????脫?脖?皜??啣?蝝?霈?敺摰寞?閮?
+  // 64-80 beats：第二輪洗腦 Hook，保持舞曲推進但減少新元素，讓旋律更容易記住
   addChordProgression(buffer, sampleRate, root, scale, beat, 16, 4, progression, 0.083, 'pluck');
   addDanceBassLine(buffer, sampleRate, root, scale, beat, 64, 4, progression, 0.12);
   addPatternedMelody(buffer, sampleRate, root, beat, 64, sharedHook, straightEight, [0.62, 0.62, 0.82, 1.02], 0.14, 'pluck', 0);
@@ -815,7 +815,7 @@ function createPlayableSongDemo(
   addPatternedMelody(buffer, sampleRate, root, beat, 72, mandarinPreChorus, straightEight, [0.68, 0.68, 0.86, 1.08], 0.105, 'soft', 0);
   addDanceDrums(buffer, sampleRate, beat, 64, 16, 0.88, 'drop');
 
-  // 80-96 beats嚗ngineer Stop Cut嚗郊?嗆?嚗????銝餅?敺偏撌湛??嫣噶敺??交迤撘犖??
+  // 80-96 beats：Engineer Stop Cut，逐步收掉，只留下國語主旋律尾巴，方便後續接正式人聲
   addChordProgression(buffer, sampleRate, root, scale, beat, 20, 4, progression, 0.06, 'bell');
   addDanceBassLine(buffer, sampleRate, root, scale, beat, 80, 2, progression, 0.075);
   addPatternedMelody(buffer, sampleRate, root, beat, 80, sharedHook.slice(0, 6), [0, 1, 2, 4, 6, 8], [0.72, 0.72, 0.9, 1.1], 0.1, 'soft', 0);
@@ -1089,15 +1089,17 @@ function IntegratedSongMaker({
           voiceProfile,
         }),
       });
-      const data = await response.json() as LyriaGenerateResponse;
+      // 逾時或閘道錯誤時伺服器回的是 HTML，不能直接 .json()
+      const data = (await response.json().catch(() => null)) as (LyriaGenerateResponse & { locked?: boolean }) | null;
 
-      if (!response.ok || !data.audioBase64) {
-        setLyriaError([
-          data.error || 'Lyria 30 秒 MP3 生成失敗，請稍後再試。',
-          data.googleStatus ? `狀態：${data.googleStatus}` : '',
-          data.detail ? `細節：${data.detail}` : '',
-        ].filter(Boolean).join('\n'));
-        setLyriaPromptPreview(data.promptPreview || '');
+      if (!response.ok || !data?.audioBase64) {
+        const serverMessage = typeof data?.error === 'string' && /[\u4e00-\u9fff]/.test(data.error) ? data.error : '';
+        setLyriaError(
+          response.status === 401 && data?.locked
+            ? '進入密碼已過期（每次 30 分鐘）。請重新整理這一頁、再輸入一次密碼後重新生成。'
+            : serverMessage || '這次 MP3 沒有生成完成（可能是服務忙碌或等太久），請稍後再按一次；歌曲資料都還在。',
+        );
+        setLyriaPromptPreview(data?.promptPreview || '');
         return;
       }
 
@@ -1110,7 +1112,7 @@ function IntegratedSongMaker({
       setLyriaPromptPreview(data.promptPreview || '');
       setLyriaLyricsText(data.lyricsText || '');
     } catch {
-      setLyriaError('目前無法連線到 Lyria 生成服務，請稍後再試。');
+      setLyriaError('網路連線不穩，這次 MP3 沒有生成；請確認連線後再按一次，歌曲資料都還在。');
     } finally {
       setLyriaLoading(false);
     }
@@ -1229,10 +1231,10 @@ function IntegratedSongMaker({
           Your Personal Theme Song
         </p>
         <h3 className="hidden mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
-          雿?撠惇鈭箸銝駁??脤?閬?
+          你的專屬人格主題曲預覽
         </h3>
         <p className="hidden mx-auto mt-3 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
-          ??甇?雿??????憪??渡??箸?敺??銝銝??閬惇?潔??璅?閬賬?
+          這首歌依你的生日、血型與姓名整理出旋律方向。點一下，先聽見屬於你的音樂預覽。
         </p>
       </div>
 
@@ -1278,7 +1280,7 @@ function IntegratedSongMaker({
               {lyriaLoading ? '正在生成磁性聲音 MP3...' : lyriaAudioUrl ? '重新生成磁性聲音 MP3' : '生成磁性聲音 MP3'}
             </button>
             {lyriaError && (
-              <div className="mt-3 whitespace-pre-wrap rounded-2xl border border-rose-400/20 bg-rose-950/20 p-3 text-xs leading-6 text-rose-200">
+              <div role="alert" aria-live="assertive" className="mt-3 whitespace-pre-wrap rounded-2xl border border-rose-400/20 bg-rose-950/20 p-3 text-xs leading-6 text-rose-200">
                 {lyriaError}
               </div>
             )}
@@ -1484,7 +1486,7 @@ export default function PersonalityMusicReport({
   name,
   onReset,
 }: PersonalityMusicReportProps) {
-  // ?????芸?閮曹?擐??冽嚗????曉???箄鈭銵?
+  // 同一時間只允許一首歌在播，避免多個播放器同時出聲互相衝突
   const [openPlayer, setOpenPlayer] = useState<'english' | 'mandarin' | 'taiwanese' | null>(null);
   const [songMakerStarted, setSongMakerStarted] = useState(false);
   const [showAdvancedDetails] = useState(false);
@@ -1502,7 +1504,7 @@ export default function PersonalityMusicReport({
   return (
     <div className="space-y-6">
       <div className="fortune-card overflow-hidden">
-        <div className="flex flex-wrap items-center gap-2 border-b border-white/8 px-6 py-4 sm:px-8">
+        <div className="flex flex-wrap items-center gap-2 border-b border-white/[0.08] px-6 py-4 sm:px-8">
           {metaChips.map((chip) => (
             <span
               key={chip.label}
@@ -1542,24 +1544,24 @@ export default function PersonalityMusicReport({
             </div>
           )}
 
-          {/* ?? 憭扳?絞閮飛?亙??瑕戊甇????Ｘ */}
+          {/* 📊 大數據統計學知名男女歌手指標面板 */}
           {showAdvancedDetails && (musicReport.famous_singers_mandarin || musicReport.famous_singers_english || musicReport.famous_singers_taiwanese) && (
             <div className="mt-6 border-t border-white/10 pt-6">
               <p className="text-xs uppercase tracking-[0.3em] text-violet-300/70 mb-4">
-                ?? ?函?瘚?憭扳??繚 隞?”?瑕戊甇?蝯梯?摮詨?璅?
+                📊 全球流行大數據 · 代表男女歌手統計學對標
               </p>
               <div className="grid gap-4 sm:grid-cols-3">
                 {musicReport.famous_singers_english && (
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4 relative overflow-hidden">
                     <span className="absolute top-1 right-2 text-[8px] text-violet-400/40 font-mono">GLOBAL</span>
                     <p className="text-[10px] font-mono text-[color:var(--text-muted)] tracking-wider">
-                      [憭拙惜] ?梯?憭扳??璅?
+                      [天層] 英語大數據指標
                     </p>
                     <p className="mt-2 text-sm font-bold text-[color:var(--text-main)]">
                       {musicReport.famous_singers_english}
                     </p>
                     <p className="mt-1 text-[9px] text-[color:var(--text-sub)]">
-                      ?函?瘚?蝯梯?摮豢?蝡?
+                      全球流行統計學標竿
                     </p>
                   </div>
                 )}
@@ -1567,13 +1569,13 @@ export default function PersonalityMusicReport({
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4 relative overflow-hidden">
                     <span className="absolute top-1 right-2 text-[8px] text-amber-400/40 font-mono">MANDARIN</span>
                     <p className="text-[10px] font-mono text-[color:var(--text-muted)] tracking-wider">
-                      [?啣惜] ??憭扳??璅?
+                      [地層] 國語大數據指標
                     </p>
                     <p className="mt-2 text-sm font-bold text-[color:var(--text-main)]">
                       {musicReport.famous_singers_mandarin}
                     </p>
                     <p className="mt-1 text-[9px] text-[color:var(--text-sub)]">
-                      ?航?瘚?蝯梯?摮豢?蝡?
+                      華語流行統計學標竿
                     </p>
                   </div>
                 )}
@@ -1581,19 +1583,19 @@ export default function PersonalityMusicReport({
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4 relative overflow-hidden">
                     <span className="absolute top-1 right-2 text-[8px] text-cyan-400/40 font-mono">TAIWANESE</span>
                     <p className="text-[10px] font-mono text-[color:var(--text-muted)] tracking-wider">
-                      [鈭箏惜] ??憭扳??璅?
+                      [人層] 國語大數據指標
                     </p>
                     <p className="mt-2 text-sm font-bold text-[color:var(--text-main)]">
                       {musicReport.famous_singers_taiwanese}
                     </p>
                     <p className="mt-1 text-[9px] text-[color:var(--text-sub)]">
-                      ?砍?瘞?蝯梯?摮豢?蝡?
+                      本土民謠統計學標竿
                     </p>
                   </div>
                 )}
               </div>
               <p className="mt-3 text-[10px] text-[color:var(--text-muted)] italic leading-relaxed">
-                * ?酉嚗之?豢?甇?撠??臬?潭?犖?潮璅惇?扯??誨???孵噩嚗????銵之?豢??亙?摨血虜??雿?蝞?敺???瑚誨銵冽抒憟單??芋??靘雿憸冽隤????璅?
+                * 備註：大數據歌手對標是基於您的人格音樂屬性與時代旋律特徵，結合全球流行大數據知名度常態分佈計算所得的最具代表性男女歌手模型，供您作為風格認知的參考指標。
               </p>
             </div>
           )}
@@ -1605,13 +1607,13 @@ export default function PersonalityMusicReport({
         <div className="fortune-card px-6 py-8 sm:px-8">
           <div className="mb-6 text-center">
             <p className="text-xs uppercase tracking-[0.4em] text-cyan-300/70">
-              憭拙鈭箸??脩??繚 蝚砌??挾
+              天地人歌曲矩陣 · 第一階段
             </p>
             <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
-              ?梁??乓??????????惜
+              由生日、血型、姓名生成三個素材層
             </h3>
             <p className="mx-auto mt-3 max-w-2xl text-xs leading-7 text-[color:var(--text-sub)]">
-              ?ㄐ???Ｙ??單?嚗?銝??銝?甇?蝟餌絞?芸遣蝡予撅扎撅扎犖撅支????惜嚗?敺甇??撘?頛詨銝擐?撅砍予?唬犖鈭箸甇??
+              這裡先不產生音檔，也不是生成三首歌；系統只建立天層、地層、人層三個素材層，最後由歌曲融合引擎輸出一首專屬天地人人格歌曲。
             </p>
           </div>
 
@@ -1627,10 +1629,10 @@ export default function PersonalityMusicReport({
         <div className="vip-gold-card rounded-[24px] px-6 py-8 sm:px-8">
           <div className="mb-6 text-center">
             <p className="text-xs uppercase tracking-[0.4em] text-amber-300/70">
-              易經鋆賭?蝮賜 繚 ?芸??芸???
+              易經製作總監 · 自動優化分配
             </p>
             <h3 className="mt-3 font-serif text-2xl text-[color:var(--text-main)] sm:text-3xl">
-              ?予?唬犖蝝?撅方ˊ雿?銝擐犖?潔蜓憿
+              把天地人素材層製作成一首人格主題曲
             </h3>
             <p className="mx-auto mt-3 max-w-3xl text-sm leading-8 text-[color:var(--text-sub)]">
               {productionPlan.producer_summary}
@@ -1870,9 +1872,9 @@ export default function PersonalityMusicReport({
               <div key={key} className="space-y-2">
                 <div className="flex items-baseline justify-between gap-3">
                   <span className="text-xs tracking-widest text-[color:var(--text-muted)]">{label}</span>
-                  <span className="text-xs font-semibold text-[color:var(--text-sub)]">{word} 繚 {score}</span>
+                  <span className="text-xs font-semibold text-[color:var(--text-sub)]">{word} · {score}</span>
                 </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-white/8">
+                <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
                   <div className="h-full rounded-full" style={{ width: `${score}%`, background: barColor }} />
                 </div>
               </div>
@@ -1893,7 +1895,7 @@ export default function PersonalityMusicReport({
                     <span className="text-xs tracking-widest text-[color:var(--text-muted)]">{label}</span>
                     <span className="text-xs font-semibold text-cyan-200">{score}</span>
                   </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-white/8">
+                  <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
                     <div
                       className="h-full rounded-full"
                       style={{ width: `${score}%`, background: 'linear-gradient(90deg, #22d3ee, #67e8f9)' }}

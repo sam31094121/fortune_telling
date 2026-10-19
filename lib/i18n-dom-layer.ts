@@ -47,6 +47,12 @@ export function startDomTranslation(root: HTMLElement, translate: Translate, tar
     if (++writes % 1000) return;
     for (const node of texts.keys()) if (!node.isConnected) texts.delete(node);
     for (const el of attrs.keys()) if (!el.isConnected) attrs.delete(el);
+    for (const el of langMarked.keys()) if (!el.isConnected) langMarked.delete(el); // 2026-10-17 stability：換頁後移除的元素也放掉
+  };
+
+  // 2026-10-17 stability：字典／轉換出錯時只跳過這一段（保留原文），不讓例外中斷整批 MutationObserver 紀錄。
+  const safeTranslate = (text: string): string | undefined => {
+    try { return translate(text); } catch { return undefined; }
   };
 
   const markLang = (el: Element | null) => {
@@ -61,7 +67,7 @@ export function startDomTranslation(root: HTMLElement, translate: Translate, tar
     if (record) texts.delete(node);
     if (!HAS_CJK.test(value) || blocked(node.parentElement)) return;
     const { lead, core, trail } = split(value);
-    const out = translate(core);
+    const out = safeTranslate(core);
     if (out === undefined || out === core) return;
     const written = lead + out + trail;
     texts.set(node, { original: value, written });
@@ -79,7 +85,7 @@ export function startDomTranslation(root: HTMLElement, translate: Translate, tar
     if (record) map!.delete(name);
     if (!HAS_CJK.test(value) || blocked(el, true)) return;
     const { lead, core, trail } = split(value);
-    const out = translate(core);
+    const out = safeTranslate(core);
     if (out === undefined || out === core) return;
     const written = lead + out + trail;
     (map ?? attrs.set(el, new Map()).get(el)!).set(name, { original: value, written });

@@ -11,7 +11,8 @@ export function combatChanges(match: Match, side: Side, cardId: string): string 
     shieldGained += Math.max(0, change.shieldAfter - change.shieldBefore);
   }
   return [lost ? `受傷 −${lost}` : '', healed ? `回復 ＋${healed}` : '',
-    shieldLost ? `護盾 −${shieldLost}` : '', shieldGained ? `護盾 ＋${shieldGained}` : ''].filter(Boolean).join('・');
+    // 2026-10-17 客戶實玩：「護盾 −16」看起來像「我扣了護盾」，其實是對手打掉了我的護盾。寫清楚誰對誰。
+    shieldLost ? `盾被打掉 ${shieldLost}` : '', shieldGained ? `獲得護盾 ${shieldGained}` : ''].filter(Boolean).join('・');
 }
 
 /** Shorten the existing engine log for the live view; never calculate a result. */

@@ -55,7 +55,7 @@ const ZODIAC_TRACE_TEMPLATE: ZodiacTraceStep[] = [
   { id: 'received', label: '收到資料', status: 'pending' },
   { id: 'sign', label: '判定星座', status: 'pending' },
   { id: 'blood', label: '判定血型', status: 'pending' },
-  { id: 'prompt', label: '建立 Prompt', status: 'pending' },
+  { id: 'prompt', label: '整理解讀條件', status: 'pending' },
   { id: 'ai', label: '易經卜卦分析', status: 'pending' },
   { id: 'element', label: '五元素整合', status: 'pending' },
   { id: 'write', label: '資料寫入分流', status: 'pending' },
@@ -285,11 +285,18 @@ async function safeJson<T>(url: string, init?: RequestInit, timeoutMs = ZODIAC_A
   const timer = window.setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(url, { ...init, signal: controller.signal });
-    const body = (await response.json()) as T;
+    // 伺服器錯誤或閘道逾時常回 HTML；直接 .json() 會把英文 SyntaxError 丟給客人
+    const body = (await response.json().catch(() => null)) as T | null;
+    if (body === null) {
+      throw new Error(`分析暫時沒有完成（代碼 ${response.status}），請稍後再按一次；你填的資料都還在。`);
+    }
     return { status: response.status, body };
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      throw new Error('分析暫時失敗：系統超過 15 秒沒有完成回應，請重新嘗試。');
+      throw new Error('分析暫時失敗：系統超過 45 秒沒有完成回應，請重新嘗試；你填的資料都還在。');
+    }
+    if (error instanceof TypeError) {
+      throw new Error('網路連線不穩，這次沒有送出成功；請確認連線後再按一次，你填的資料都還在。');
     }
     throw error;
   } finally {
@@ -318,7 +325,7 @@ async function requestZodiacAnalysis(
 
   async function createJob(attempt: number) {
     const requestBody = buildRequestBody(attempt);
-    updateTraceStep(onTrace, 'received', 'running', attempt > 0 ? '分拆任務中斷，已用同一份資料自動重新送出。' : `收到 ${input.analysisTarget === 'self' ? 'SELF' : 'OTHER'} 分析資料。`);
+    updateTraceStep(onTrace, 'received', 'running', attempt > 0 ? '分拆任務中斷，已用同一份資料自動重新送出。' : `收到${input.analysisTarget === 'self' ? '本人' : '親友'}的分析資料。`);
     console.info('[ZODIAC][REQUEST_BODY]', { ...requestBody, inputData: { ...input, nameLength: input.name.trim().length, name: undefined } });
 
     const created = await safeJson<ApiResponse<AnalysisJob>>('/api/analysis/jobs', {
@@ -339,8 +346,8 @@ async function requestZodiacAnalysis(
 
     const nextJob = created.body.data;
     onJob(nextJob);
-    updateTraceStep(onTrace, 'received', 'done', `HTTP ${created.status} / ${nextJob.jobId}`);
-    updateTraceStep(onTrace, 'sign', nextJob.status === 'PROCESSING' || nextJob.status === 'FINALIZING' || nextJob.status === 'COMPLETED' ? 'done' : 'running', nextJob.progressStage);
+    updateTraceStep(onTrace, 'received', 'done', '資料已送達。');
+    updateTraceStep(onTrace, 'sign', nextJob.status === 'PROCESSING' || nextJob.status === 'FINALIZING' || nextJob.status === 'COMPLETED' ? 'done' : 'running');
     return { job: nextJob };
   }
 
@@ -400,23 +407,23 @@ async function requestZodiacAnalysis(
     onJob(job);
     if (job.progressStage === 'VALIDATING_INPUT') updateTraceStep(onTrace, 'received', 'done', '資料格式已確認。');
     if (job.progressStage === 'RUNNING_ENGINE') {
-      updateTraceStep(onTrace, 'sign', 'done', 'Zodiac Engine 已啟動。');
-      updateTraceStep(onTrace, 'blood', 'done', input.bloodType || '未填血型。');
-      updateTraceStep(onTrace, 'prompt', 'done', 'AI Prompt 已建立。');
+      updateTraceStep(onTrace, 'sign', 'done', '星座引擎已啟動。');
+      updateTraceStep(onTrace, 'blood', 'done', input.bloodType ? `${input.bloodType} 型` : '未填血型。');
+      updateTraceStep(onTrace, 'prompt', 'done', '解讀條件已整理完成。');
       updateTraceStep(onTrace, 'ai', 'running', '正在生成西洋星座分析。');
     }
     if (job.progressStage === 'BUILDING_RESULT') updateTraceStep(onTrace, 'element', 'running', '正在整合五元素資料。');
   }
 
-  updateTraceStep(onTrace, 'ai', 'error', '45 秒 timeout');
+  updateTraceStep(onTrace, 'ai', 'error', '超過 45 秒仍未完成');
   throw new Error('分析暫時失敗：系統超過時間限制沒有完成回應，請重新嘗試。');
 }
 function LoadingPanel({ job, traceSteps }: { job: AnalysisJob | null; traceSteps: ZodiacTraceStep[] }) {
   const statusClass: Record<ZodiacTraceStatus, string> = {
     pending: 'border-white/10 bg-white/[0.04] text-[color:var(--text-muted)]',
-    running: 'border-cyan-200/45 bg-cyan-300/12 text-cyan-50 shadow-[0_0_18px_rgba(34,211,238,0.14)]',
-    done: 'border-emerald-200/40 bg-emerald-300/12 text-emerald-50',
-    error: 'border-rose-300/55 bg-rose-500/12 text-rose-50',
+    running: 'border-cyan-200/45 bg-cyan-300/[0.12] text-cyan-50 shadow-[0_0_18px_rgba(34,211,238,0.14)]',
+    done: 'border-emerald-200/40 bg-emerald-300/[0.12] text-emerald-50',
+    error: 'border-rose-300/55 bg-rose-500/[0.12] text-rose-50',
   };
   const statusMark: Record<ZodiacTraceStatus, string> = { pending: '○', running: '●', done: '✓', error: '!' };
 
@@ -424,10 +431,10 @@ function LoadingPanel({ job, traceSteps }: { job: AnalysisJob | null; traceSteps
     <section className="fortune-card border-cyan-300/25 bg-cyan-300/[0.06] p-5" role="status" aria-live="polite" aria-busy="true">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-200">I-CHING ZODIAC DEBUG TRACE</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-200">I-CHING ZODIAC</p>
           <h2 className="mt-3 text-xl font-black text-cyan-50">{job?.message || '西洋星座分析流程已啟動。'}</h2>
         </div>
-        <p className="text-xs font-semibold text-[color:var(--text-sub)]">45 秒保護 / {job?.progressStage || 'READY'}</p>
+        <p className="text-xs font-semibold text-[color:var(--text-sub)]">最長等待 45 秒</p>
       </div>
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
         {traceSteps.map((step, index) => (
@@ -445,7 +452,7 @@ function LoadingPanel({ job, traceSteps }: { job: AnalysisJob | null; traceSteps
 }
 function SignBadge({ label, sign }: { label: string; sign: ZodiacSignSummary }) {
   return (
-    <div className="rounded-2xl border border-fuchsia-300/20 bg-fuchsia-300/8 px-4 py-3">
+    <div className="rounded-2xl border border-fuchsia-300/20 bg-fuchsia-300/[0.08] px-4 py-3">
       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-200">{label}</p>
       <p className="mt-1 text-lg font-black text-[color:var(--text-main)]">{sign.symbol} {sign.name}</p>
       <p className="mt-0.5 text-xs font-semibold text-[color:var(--text-sub)]">{ELEMENT_LABEL[sign.element]}｜{sign.dateRange}</p>
@@ -509,7 +516,7 @@ function ProfessionalZodiacLayer({ result }: { result: ZodiacResult }) {
   const polarityItems = Object.entries(chart.polarityDistribution) as Array<[ZodiacPolarity, number]>;
 
   return (
-    <section className="fortune-card overflow-hidden border-fuchsia-300/24 bg-[radial-gradient(circle_at_top_left,rgba(217,70,239,0.16),rgba(34,211,238,0.07)_42%,rgba(15,23,42,0.72)_100%)] p-5 sm:p-6">
+    <section className="fortune-card overflow-hidden border-fuchsia-300/[0.24] bg-[radial-gradient(circle_at_top_left,rgba(217,70,239,0.16),rgba(34,211,238,0.07)_42%,rgba(15,23,42,0.72)_100%)] p-5 sm:p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
           <p className="text-[11px] font-black uppercase tracking-[0.24em] text-fuchsia-200">PROFESSIONAL ZODIAC CHART</p>
@@ -591,7 +598,7 @@ function DeepZodiacAnalysisLayer({ result }: { result: ZodiacResult }) {
 
       <div className="mt-5 grid gap-3 lg:grid-cols-3">
         {analysis.pointReadings.map((item) => (
-          <article key={item.role} className="min-w-0 rounded-2xl border border-cyan-200/16 bg-white/[0.04] p-4">
+          <article key={item.role} className="min-w-0 rounded-2xl border border-cyan-200/[0.16] bg-white/[0.04] p-4">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-200">{item.roleLabel}</p>
             <h3 className="mt-2 break-words text-lg font-black text-[color:var(--text-main)]">{item.title}</h3>
             <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{item.interpretation}</p>
@@ -601,7 +608,7 @@ function DeepZodiacAnalysisLayer({ result }: { result: ZodiacResult }) {
       </div>
 
       <div className="mt-5 grid gap-3 lg:grid-cols-2">
-        <div className="rounded-2xl border border-amber-200/18 bg-amber-300/[0.06] p-4">
+        <div className="rounded-2xl border border-amber-200/[0.18] bg-amber-300/[0.06] p-4">
           <p className="text-xs font-black text-amber-100">{'\u4ea4\u53c9\u5224\u8b80'}</p>
           <p className="mt-2 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{analysis.dominantInterpretation}</p>
           <div className="mt-3 space-y-2">
@@ -610,7 +617,7 @@ function DeepZodiacAnalysisLayer({ result }: { result: ZodiacResult }) {
             ))}
           </div>
         </div>
-        <div className="rounded-2xl border border-emerald-200/18 bg-emerald-300/[0.06] p-4">
+        <div className="rounded-2xl border border-emerald-200/[0.18] bg-emerald-300/[0.06] p-4">
           <p className="text-xs font-black text-emerald-100">{'\u9032\u5316\u7d20\u6750'}</p>
           <div className="mt-3 space-y-2">
             {analysis.growthOpportunities.map((item) => (
@@ -629,7 +636,7 @@ function ZodiacReinforcementPlanLayer({ result }: { result: ZodiacResult }) {
   if (!plan) return null;
 
   return (
-    <section className="fortune-card border-amber-300/24 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.15),rgba(217,70,239,0.07)_44%,rgba(15,23,42,0.74)_100%)] p-5 sm:p-6">
+    <section className="fortune-card border-amber-300/[0.24] bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.15),rgba(217,70,239,0.07)_44%,rgba(15,23,42,0.74)_100%)] p-5 sm:p-6">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
           <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">I-CHING REINFORCEMENT LAYER</p>
@@ -643,7 +650,7 @@ function ZodiacReinforcementPlanLayer({ result }: { result: ZodiacResult }) {
 
       <div className="mt-5 grid gap-3 lg:grid-cols-3">
         {plan.priorities.map((item) => (
-          <article key={item.element} className="min-w-0 rounded-2xl border border-amber-200/18 bg-white/[0.04] p-4">
+          <article key={item.element} className="min-w-0 rounded-2xl border border-amber-200/[0.18] bg-white/[0.04] p-4">
             <div className="flex items-center justify-between gap-3">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200">PRIORITY {item.rank}</p>
               <span className="rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-xs font-black text-amber-100">{item.needScore}</span>
@@ -679,14 +686,14 @@ function ResultPanel({ result, onReset }: { result: ZodiacResult; onReset: () =>
       <DeepZodiacAnalysisLayer result={result} />
       <ZodiacReinforcementPlanLayer result={result} />
       {/* 優勢卡片依需求提到最上面，排在分析完成標題卡之前 */}
-      <article className="fortune-card overflow-hidden p-5 sm:p-7 border-cyan-300/25 bg-cyan-500/8 shadow-[0_0_30px_rgba(34,211,238,0.12)]">
+      <article className="fortune-card overflow-hidden p-5 sm:p-7 border-cyan-300/25 bg-cyan-500/[0.08] shadow-[0_0_30px_rgba(34,211,238,0.12)]">
         <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-200">第二眼</p>
         <h3 className="mt-2 text-xl font-black leading-tight text-[color:var(--text-main)]">優勢</h3>
         <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">這些能力是本次星座分析最明確的支持點。</p>
         <div className="mt-4">
           <div className="grid gap-2 sm:grid-cols-3">
             {result.strengths.map((item) => (
-              <div key={item} className="rounded-2xl border border-cyan-300/20 bg-cyan-300/8 px-4 py-3 text-sm font-black text-cyan-50">{item}</div>
+              <div key={item} className="rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.08] px-4 py-3 text-sm font-black text-cyan-50">{item}</div>
             ))}
           </div>
         </div>
@@ -726,7 +733,7 @@ function ResultPanel({ result, onReset }: { result: ZodiacResult; onReset: () =>
             children: (
               <div className="grid gap-2 sm:grid-cols-3">
                 {result.blindSpots.map((item) => (
-                  <div key={item} className="rounded-2xl border border-amber-300/20 bg-amber-300/8 px-4 py-3 text-sm font-black text-amber-50">{item}</div>
+                  <div key={item} className="rounded-2xl border border-amber-300/20 bg-amber-300/[0.08] px-4 py-3 text-sm font-black text-amber-50">{item}</div>
                 ))}
               </div>
             ),
@@ -873,14 +880,17 @@ export default function ZodiacPage() {
           birthCityId,
           birthTimezone: birthCityId ? findCityById(birthCityId)?.timezone ?? null : null,
         });
-        updateTrace('write', 'done', 'SELF：已寫入會員、易經成長中心與 Integration Layer。');
+        updateTrace('write', 'done', '本人：已存入你的易經成長中心。');
       } else {
-        updateTrace('write', 'done', 'OTHER：只保留本次單次分析，不寫入會員資料。');
+        updateTrace('write', 'done', '親友：只保留這次分析，不存入你的資料。');
       }
     } catch (caught) {
       console.error('[ZODIAC][ERROR]', caught);
-      updateTrace('done', 'error', caught instanceof Error ? caught.message : '分析失敗');
-      setError(caught instanceof Error ? caught.message : '目前無法完成西洋星座分析。');
+      const friendly = caught instanceof Error && /[\u4e00-\u9fff]/.test(caught.message)
+        ? caught.message
+        : '目前無法完成西洋星座分析，請稍後再按一次；你填的資料都還在。';
+      updateTrace('done', 'error', friendly);
+      setError(friendly);
     } finally {
       setSubmitting(false);
     }
@@ -944,8 +954,9 @@ export default function ZodiacPage() {
             <section className="fortune-card zodiac-form-card p-5 sm:p-7">
               <div className="space-y-6">
                 <div>
-                  <label className="mb-3 block text-sm font-black text-[color:var(--text-main)]">1. 姓名（可選填）</label>
+                  <label htmlFor="zodiac-name-input" className="mb-3 block text-sm font-black text-[color:var(--text-main)]">1. 姓名（可選填）</label>
                   <input
+                    id="zodiac-name-input"
                     value={form.name}
                     onChange={(event) => setForm({ ...form, name: event.target.value })}
                     maxLength={20}
@@ -1038,6 +1049,7 @@ export default function ZodiacPage() {
                   ) : (
                     <>
                       <input
+                        aria-label="搜尋出生城市"
                         value={citySearch}
                         onChange={(event) => setCitySearch(event.target.value)}
                         disabled={submitting}
@@ -1051,7 +1063,7 @@ export default function ZodiacPage() {
                             type="button"
                             onClick={() => setForm({ ...form, birthCityId: city.id })}
                             disabled={submitting}
-                            className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-left text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-fuchsia-200/35 hover:bg-fuchsia-300/8 hover:text-[color:var(--text-main)]"
+                            className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-left text-sm font-semibold text-[color:var(--text-sub)] transition hover:border-fuchsia-200/35 hover:bg-fuchsia-300/[0.08] hover:text-[color:var(--text-main)]"
                           >
                             {city.name}<span className="ml-1 text-xs text-[color:var(--text-muted)]">（{city.country}）</span>
                           </button>
@@ -1082,7 +1094,7 @@ export default function ZodiacPage() {
                   <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">血型會與星座交叉判定，用來補強平台統一的五元素結果，不影響星座本身的判定。</p>
                 </div>
 
-                {error && <p className="form-missing-alert">{error}</p>}
+                {error && <p className="form-missing-alert" role="alert" aria-live="assertive">{error}</p>}
                 {missingIdentity && <p className="text-xs font-semibold leading-6 text-amber-100">先選擇「自己」或「親朋好友」，資料就不會混在一起。</p>}
 
                 <div className="flex flex-col gap-3 sm:flex-row">
@@ -1101,7 +1113,7 @@ export default function ZodiacPage() {
                   )}
                 </div>
 
-                <div className="rounded-2xl border border-fuchsia-300/18 bg-fuchsia-300/8 p-4">
+                <div className="rounded-2xl border border-fuchsia-300/[0.18] bg-fuchsia-300/[0.08] p-4">
                   <p className="text-xs font-black uppercase tracking-[0.24em] text-fuchsia-200">資料確認</p>
                   <div className="zodiac-progress-grid mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
                     {completedItems.map((item) => (

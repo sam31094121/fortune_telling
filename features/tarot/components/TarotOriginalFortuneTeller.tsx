@@ -533,8 +533,9 @@ export default function TarotOriginalFortuneTeller({
 
               {aiReading.interpretation.cardAnswers?.map((answer, index) => (
                 <article key={`${answer.positionLabel}-${answer.cardName}`} className="rounded-[24px] border border-cyan-200/25 bg-slate-950/70 p-5">
-                  <header className="flex items-center justify-between gap-3">
-                    <p className="text-[11px] font-black uppercase tracking-[0.2em] text-cyan-200">
+                  {/* 2026-10-17 tarot QA：手機上機率膠囊太寬，標題被擠成每行兩個字；改成放不下時膠囊換到下一行。 */}
+                  <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+                    <p className="w-full text-[11px] font-black uppercase tracking-[0.2em] text-cyan-200 sm:w-auto">
                       第{['一', '二', '三'][index] ?? index + 1}張・{answer.positionLabel}｜{answer.cardName}{answer.orientation === 'upright' ? '正位' : '逆位'}
                     </p>
                     <p className="shrink-0 rounded-full border border-cyan-200/30 bg-cyan-400/10 px-3 py-1 text-sm font-black text-cyan-100">

@@ -112,8 +112,12 @@ export async function GET(request: Request): Promise<Response> {
   // 長輪詢：等待新事件或超時
   return new Promise<Response>((resolve) => {
     let resolved = false;
+    // 2026-10-17 stability：逾時回應時一併停掉 100ms 輪詢（原本逾時後 setInterval 永遠不清，每個長輪詢請求都在伺服器留下一個計時器）；
+    // 客戶端中途斷線也立刻清掉。
+    let checkInterval: ReturnType<typeof setInterval> | undefined;
     const timeoutId = setTimeout(() => {
       resolved = true;
+      if (checkInterval) clearInterval(checkInterval);
       resolve(
         NextResponse.json({
           clientId,
@@ -123,10 +127,18 @@ export async function GET(request: Request): Promise<Response> {
     }, queueTimeout);
 
     // 監控最後一次事件的更新
-    const checkInterval = setInterval(() => {
+    request.signal?.addEventListener('abort', () => {
+      if (resolved) return;
+      resolved = true;
+      if (checkInterval) clearInterval(checkInterval);
+      clearTimeout(timeoutId);
+      resolve(new Response(null, { status: 499 }));
+    }, { once: true });
+
+    checkInterval = setInterval(() => {
       if (!resolved && lastVoteEvent && lastVoteEvent.timestamp > sinceTimestamp) {
         resolved = true;
-        clearInterval(checkInterval);
+        if (checkInterval) clearInterval(checkInterval);
         clearTimeout(timeoutId);
         resolve(
           NextResponse.json({
@@ -144,13 +156,14 @@ export async function GET(request: Request): Promise<Response> {
  */
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as {
+    // 2026-10-17 stability：壞掉的 JSON 回 400（原本進 catch 回 500），body 為 null 也不會在 body.type 炸掉。
+    const body = (await request.json().catch(() => null)) as {
       type: 'like' | 'disagree';
       agreeCount?: number;
       disagreeCount?: number;
-    };
+    } | null;
 
-    if (!body.type || !['like', 'disagree'].includes(body.type)) {
+    if (!body || !body.type || !['like', 'disagree'].includes(body.type)) {
       return NextResponse.json(
         { error: '無效的投票類型' },
         { status: 400 }

@@ -91,6 +91,22 @@
 .prepareFooter>.nextStepLink{flex:1;min-height:52px;display:flex;align-items:center;justify-content:center;padding:0 12px;border-radius:12px;background:#ffe1a0;color:#241c0b;font-weight:800;white-space:nowrap;text-decoration:none;box-shadow:0 0 20px rgba(255,225,160,.3)}
 .prepareFooter>.nextStepLink:focus-visible{outline:3px solid #9fdef2;outline-offset:2px}
 
+/* 2026-10-17 beast card：三選一手機觸感與流暢度。外框光暈改用 opacity 呼吸（原本每一格都在重畫 box-shadow）；
+   按下有回饋、鍵盤有清楚焦點框；觸控裝置不靠 hover 放大；三張依序淡入；減少動態時全部靜止。 */
+.freeEntryBtn{position:relative;isolation:isolate;animation:none;transition:transform .14s cubic-bezier(.2,.7,.2,1),border-color .14s;-webkit-tap-highlight-color:transparent}
+.freeEntryBtn::after{content:"";position:absolute;inset:-2px;border-radius:inherit;box-shadow:0 0 30px rgba(255,200,60,.45),inset 0 0 8px rgba(255,200,60,.15);opacity:0;pointer-events:none;z-index:-1;animation:freeEntryGlow 2.8s ease-in-out infinite}
+@keyframes freeEntryGlow{0%,100%{opacity:0}50%{opacity:1}}
+.freeEntryBtn:active{transform:scale(.985)}
+.modeCard{transition:transform .14s cubic-bezier(.2,.7,.2,1),border-color .14s;-webkit-tap-highlight-color:transparent;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.modeCard:hover{transform:none}
+@media (hover:hover){.modeCard:hover{border-color:rgba(246,206,114,.55)}}
+.modeCard:active{transform:scale(.985);border-color:rgba(246,206,114,.75)}
+.freeEntryBtn:focus-visible,.modeCard:focus-visible{outline:3px solid #f6ce72;outline-offset:3px}
+@keyframes modeIn{from{opacity:0;transform:translate3d(0,8px,0)}to{opacity:1;transform:none}}
+.modeCards>*{animation-name:modeIn;animation-duration:.3s;animation-timing-function:cubic-bezier(.2,.7,.2,1);animation-fill-mode:both}
+.modeCards>*:nth-child(2){animation-delay:.05s}.modeCards>*:nth-child(3){animation-delay:.1s}
+@media (prefers-reduced-motion:reduce){.freeEntryBtn::after{animation:none;opacity:.5}.modeCards>*{animation:none}.freeEntryBtn,.modeCard{transition:none}.freeEntryBtn:active,.modeCard:active{transform:none}}
+
 /* Easy-mode selection only: larger cards without changing shared battle layouts. */
 .prepareContent .easyPickGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 @media(min-width:640px){.prepareContent .easyPickGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
@@ -164,3 +180,11 @@
 
 /* Replacement choices must never be clipped by the compact action dock. */
 @media(max-width:600px){.calmBattle [data-battle-controls]{display:block;min-height:0}.calmBattle [data-control-scroll]{overflow:visible}.calmBattle [aria-label='選擇接替主戰的後備']{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.calmBattle [aria-label='選擇接替主戰的後備']>button{min-width:0;min-height:64px;white-space:normal}.calmBattle [aria-label='選擇接替主戰的後備']~*{min-width:0}}
+
+/* Desktop easy mode: reserve enough height for the full command row. */
+@media(min-width:601px) and (min-height:541px){.calmBattle [data-battle-split]:not([data-inspecting='true']):not([data-finished='true']){grid-template-rows:minmax(0,1fr) 160px}.calmBattle [data-battle-controls]{min-height:160px}}
+
+@media(min-width:601px){.calmBattle [data-battle-controls]{grid-template-rows:minmax(0,1fr)}.calmBattle [data-control-scroll]{padding:8px 10px}}
+
+/* Keep the compact command row to icon and action name; details stay in help. */
+.calmBattle [aria-label='本回合指令'] small{display:none}

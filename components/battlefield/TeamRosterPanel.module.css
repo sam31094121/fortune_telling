@@ -239,3 +239,7 @@
 .count { font-size: 12px !important; }
 .cardName { font-size: 12px !important; }
 .hpText { font-size: 11px !important; }
+
+/* 2026-10-17 客戶實玩：後備卡區整片暗淡像「不能用」。卡片底色與邊框提亮一階，文字對比不變。 */
+.rosterCard { background: rgba(59, 130, 246, 0.18); border-color: #6f8bb0; }
+.rosterCard[data-active="true"] { background: rgba(255, 225, 160, 0.16); }

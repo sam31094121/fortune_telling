@@ -380,10 +380,11 @@ function mapLyriaError(message: string, status = '') {
     lower.includes('allowlist') ||
     lower.includes('access')
   ) {
-    return 'Lyria 模型目前不可用，請確認 Gemini API / billing / model access。';
+    // 原因（權限／帳務／模型存取）只寫進伺服器 log，不顯示給客人
+    return '歌曲音訊服務暫時無法使用，現有歌曲資料仍可查看；請稍後再試。';
   }
 
-  return 'Lyria 30 秒 MP3 生成失敗，請稍後再試。';
+  return '這次 30 秒 MP3 沒有生成完成，請稍後再按一次；歌曲資料都還在。';
 }
 
 export async function POST(request: Request) {

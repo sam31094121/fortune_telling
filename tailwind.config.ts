@@ -1,7 +1,8 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
-  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
+  // 2026-10-17 tarot QA：塔羅元件放在 features/，沒掃到會讓那裡用到的 Tailwind class 不產生（例如機率條的綠色）。
+  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}', './features/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {

@@ -29,6 +29,8 @@ export type FeatureKey = (typeof FEATURE_KEYS)[keyof typeof FEATURE_KEYS];
 const MINIMUM_DISPLAY_COUNT = 0;
 const BACKEND_SYNC_INTERVAL_MS = 60_000;
 const VISITOR_FETCH_TIMEOUT_MS = 8_000;
+// 2026-10-17 vote guard：讀不到次數（非 200、斷線、壞 JSON、逾時）時，「載入中」改成這段字。
+const VISITOR_UNAVAILABLE_TEXT = '\u66ab\u6642\u7121\u6cd5\u53d6\u5f97';
 
 type StoredCounter = {
   displayCount: number;
@@ -156,61 +158,32 @@ async function fetchVisitorRecord(url: string, options: RequestInit = {}) {
   }
 }
 
-/*
-  2026-10-17 穩定性外層（不改計數規則）：
-  網路慢、斷線或伺服器暫時失敗時，同一個請求最多再試 3 次（2 秒、5 秒、12 秒後）；
-  斷線時先等網路恢復再送。首頁瀏覽與功能瀏覽都帶同一個事件／造訪編號，
-  伺服器依編號只算一次，所以重試不會多算。
-*/
-const RETRY_DELAYS_MS = [2_000, 5_000, 12_000];
-
-function waitMs(ms: number, signal?: AbortSignal | null) {
-  return new Promise<void>((resolve) => {
-    if (signal?.aborted) return resolve();
-    const id = window.setTimeout(done, ms);
-    function done() {
-      window.clearTimeout(id);
-      signal?.removeEventListener('abort', done);
-      resolve();
-    }
-    signal?.addEventListener('abort', done, { once: true });
-  });
-}
-
-function waitForOnline(signal?: AbortSignal | null, maxMs = 60_000) {
-  return new Promise<void>((resolve) => {
-    if (signal?.aborted || typeof navigator === 'undefined' || navigator.onLine !== false) return resolve();
-    const id = window.setTimeout(done, maxMs);
-    function done() {
-      window.clearTimeout(id);
-      window.removeEventListener('online', done);
-      signal?.removeEventListener('abort', done);
-      resolve();
-    }
-    window.addEventListener('online', done, { once: true });
-    signal?.addEventListener('abort', done, { once: true });
-  });
-}
-
-async function fetchVisitorRecordWithRetry(url: string, options: RequestInit = {}) {
-  const signal = options.signal;
-  let lastError: unknown = null;
-  let lastResponse: Response | null = null;
-  for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt += 1) {
-    if (attempt > 0) await waitMs(RETRY_DELAYS_MS[attempt - 1], signal);
-    await waitForOnline(signal);
-    if (signal?.aborted) break;
-    try {
-      const response = await fetchVisitorRecord(url, options);
-      if (response.status < 500) return response;
-      lastResponse = response;
-    } catch (error) {
-      if (signal?.aborted) throw error;
-      lastError = error;
-    }
-  }
-  if (lastResponse) return lastResponse;
-  throw lastError ?? new Error('visitor record request aborted');
+/**
+ * 2026-10-17 vote guard：讀不到次數時的文字。外層次數元素不動；看不見的「0」撐住平常的行高，
+ * 文字疊在同一格（以外層卡片為定位基準，和次數同一行置中），排版不會跳。
+ */
+function VisitorUnavailableText() {
+  return (
+    <span style={{ position: 'relative', display: 'block', width: '100%' }}>
+      <span aria-hidden="true" style={{ visibility: 'hidden' }}>0</span>
+      <span
+        style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '0.6em',
+          lineHeight: 1.05,
+          letterSpacing: 'normal',
+          textAlign: 'center',
+          pointerEvents: 'none',
+        }}
+      >
+        {VISITOR_UNAVAILABLE_TEXT}
+      </span>
+    </span>
+  );
 }
 
 export default function FeatureVisitorCounter({
@@ -233,6 +206,9 @@ export default function FeatureVisitorCounter({
     return floor > 0 ? floor : null;
   });
   const cardRef = useRef<HTMLElement>(null);
+  // 2026-10-17 vote guard：從沒拿到伺服器次數又失敗才顯示「暫時無法取得」；拿到過就保留最後確認的次數。
+  const [countUnavailable, setCountUnavailable] = useState(false);
+  const countConfirmedRef = useRef(false);
   const didRecord = useRef(false);
   const visitId = useRef<string | null>(null);
   const hiddenCounter = isHiddenClassName(className);
@@ -259,19 +235,11 @@ export default function FeatureVisitorCounter({
         writeStoredDisplayCount(featureKey, nextCount);
         return nextCount;
       });
+      countConfirmedRef.current = true;
+      setCountUnavailable(false);
     },
     [featureKey, permanent],
   );
-
-  // 2026-10-17 穩定性：還沒拿到伺服器數字時（慢網路、斷線、API 失敗），
-  // 先顯示這台裝置上次從伺服器確認過的數字，不會一直停在「載入中」或變成 0；
-  // 伺服器一回應就照原本規則以伺服器為準（commitDisplayCount 不變）。
-  useEffect(() => {
-    if (hiddenCounter) return;
-    const stored = readStoredDisplayCount(featureKey);
-    if (stored === null) return;
-    setDisplayCount((current) => (current === null ? stored : current));
-  }, [featureKey, hiddenCounter]);
 
   /*
     這裡原本有一個「自己長大」的計時器：每 7–24 秒把顯示數字 +1，
@@ -294,6 +262,10 @@ export default function FeatureVisitorCounter({
     let intervalId: number | undefined;
     let startTimerId: number | undefined;
 
+    function markCountUnavailable() {
+      if (mounted && !controller.signal.aborted && !countConfirmedRef.current) setCountUnavailable(true);
+    }
+
     async function syncDisplayCount() {
       if (document.visibilityState !== 'visible') return;
 
@@ -302,7 +274,7 @@ export default function FeatureVisitorCounter({
           ? '/api/home-trust'
           : `/api/visitor/record?featureKey=${encodeURIComponent(featureKey)}${permanent ? '&permanent=1' : ''}`;
 
-        const response = await fetchVisitorRecordWithRetry(url, {
+        const response = await fetchVisitorRecord(url, {
           cache: 'no-store',
           signal: controller.signal,
         });
@@ -311,10 +283,18 @@ export default function FeatureVisitorCounter({
 
         if (response.ok && data.ok && isSafeDisplayCount(nextDisplayCount)) {
           commitDisplayCount(nextDisplayCount);
+        } else {
+          markCountUnavailable();
         }
       } catch {
-        // The in-browser timer keeps the counter visibly moving even when a sync request fails.
+        // 斷線、壞 JSON、8 秒逾時都會到這裡；卸載造成的中止不算失敗。
+        markCountUnavailable();
       }
+    }
+
+    // 2026-10-17 vote guard：網路恢復時重新讀一次。
+    function syncWhenOnline() {
+      void syncDisplayCount();
     }
 
     function startSync() {
@@ -331,15 +311,15 @@ export default function FeatureVisitorCounter({
       startSync();
     }
     window.addEventListener('focus', syncDisplayCount);
-    window.addEventListener('online', syncDisplayCount);
+    window.addEventListener('online', syncWhenOnline);
 
     return () => {
       mounted = false;
-      window.removeEventListener('online', syncDisplayCount);
       controller.abort();
       if (startTimerId !== undefined) window.clearTimeout(startTimerId);
       if (intervalId !== undefined) window.clearInterval(intervalId);
       window.removeEventListener('focus', syncDisplayCount);
+      window.removeEventListener('online', syncWhenOnline);
     };
   }, [commitDisplayCount, deferMs, featureKey, hiddenCounter, permanent]);
 
@@ -369,7 +349,7 @@ export default function FeatureVisitorCounter({
           isHomePage ? { eventId: `view_${visitId.current}` } : { featureKey, visitId: visitId.current },
         );
 
-        const response = await fetchVisitorRecordWithRetry(url, options);
+        const response = await fetchVisitorRecord(url, options);
         const data = (await response.json()) as VisitorResponse;
         const nextDisplayCount = isHomePage ? data.viewCount : data.displayCount;
 
@@ -419,13 +399,17 @@ export default function FeatureVisitorCounter({
       ref={cardRef}
       data-visitor-counter={featureKey}
       className={`inline-flex w-fit flex-col border border-amber-300/30 bg-white/[0.08] text-[color:var(--text-main)] shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl ${compact ? 'items-center justify-center rounded-xl px-2.5 py-2 text-center' : 'rounded-2xl px-[18px] py-[14px]'} ${className}`}
-      aria-label={displayCount === null ? '\u7d2f\u8a08\u700f\u89bd\u6b21\u6578\uff0c\u6b63\u5728\u8a08\u7b97' : `\u7d2f\u8a08\u700f\u89bd\u6b21\u6578 ${Math.trunc(displayCount)}`}
+      aria-label={displayCount === null
+        ? (countUnavailable ? `\u7d2f\u8a08\u700f\u89bd\u6b21\u6578\uff0c${VISITOR_UNAVAILABLE_TEXT}` : '\u7d2f\u8a08\u700f\u89bd\u6b21\u6578\uff0c\u6b63\u5728\u8a08\u7b97')
+        : `\u7d2f\u8a08\u700f\u89bd\u6b21\u6578 ${Math.trunc(displayCount)}`}
     >
       <div className={`visitor-counter-label ${compact ? 'text-[13px] leading-tight sm:text-[14px]' : 'text-[14px]'} font-bold text-[color:var(--text-main)] opacity-90`}>{'\u7d2f\u8a08\u700f\u89bd\u6b21\u6578'}</div>
       <div data-visitor-counter-count className={`top-feedback-count visitor-counter-count ${compact ? 'mt-1 font-serif text-2xl leading-none' : 'mt-1 text-2xl'} font-black tracking-[0.04em] text-amber-300 drop-shadow-[0_0_14px_rgba(251,191,36,0.28)]`} aria-live="polite">
-        {displayCount === null ? '\u8f09\u5165\u4e2d' : String(Math.trunc(displayCount))}
+        {displayCount === null
+          ? (countUnavailable ? <VisitorUnavailableText /> : '\u8f09\u5165\u4e2d')
+          : String(Math.trunc(displayCount))}
       </div>
-      {compact && displayCount === null && (
+      {compact && displayCount === null && !countUnavailable && (
         <div className="visitor-counter-footnote mt-1 text-[12px] font-semibold leading-tight text-[color:var(--text-sub)] sm:text-[13px]">
           {'\u6b63\u5728\u8a08\u7b97\u6b21\u6578\u2026'}
         </div>

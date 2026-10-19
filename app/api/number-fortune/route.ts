@@ -201,6 +201,14 @@ export async function POST(request: Request) {
     );
   }
 
+  // 2026-10-17 numerology QA：請求內容是 JSON 的 null 或純數字時，讀 body.value 會直接丟例外變成空白 500。
+  if (!body || typeof body !== 'object') {
+    return NextResponse.json(
+      { ok: false, requestId, code: 'INVALID_JSON', message: '請提供有效的 JSON 請求資料。', ruleVersion: NUMBER_CORE_ENGINE_VERSION },
+      { status: 400, headers: { 'Cache-Control': 'no-store' } },
+    );
+  }
+
   const validation = validateNumberCoreInput(body.value);
   if (typeof validation !== 'string') {
     return NextResponse.json({ ...validation, requestId, code: 'INVALID_INPUT' }, { status: 400, headers: { 'Cache-Control': 'no-store' } });

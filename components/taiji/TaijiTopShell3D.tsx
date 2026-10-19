@@ -99,7 +99,11 @@ export default function TaijiTopShell3D({
   useEffect(() => {
     try {
       const canvas = document.createElement('canvas');
-      const webgl = Boolean(canvas.getContext('webgl2') ?? canvas.getContext('webgl'));
+      // 2026-10-17 stability：偵測用的 WebGL context 用完立刻釋放，避免每次回到首頁多佔一個 context
+      // （瀏覽器同時約 16 個上限，滿了會讓正在畫的太極畫布被 Context Lost）。只改釋放，不改判定。
+      const probe = canvas.getContext('webgl2') ?? canvas.getContext('webgl');
+      const webgl = Boolean(probe);
+      try { probe?.getExtension('WEBGL_lose_context')?.loseContext(); } catch { /* 釋放失敗不影響判定 */ }
       const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
 
       /*

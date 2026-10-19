@@ -485,6 +485,9 @@ const RITUAL_LINES = [
   '先靜下來，慢慢呼吸。心靜了，才看得清自己。',
   '卦成了。',
 ];
+/** 前兩句演完、結果還沒回來時的那一句（不能先說「卦成了」）。 */
+const RITUAL_WAITING_STEP = RITUAL_LINES.length;
+const RITUAL_WAITING_LINE = '還在核對你的命盤，網路比較慢時會多等幾秒……';
 
 function Fold({
   title,
@@ -508,7 +511,7 @@ function Fold({
 }) {
   const isOpen = opened.includes(foldKey);
   return (
-    <section id={anchorId} className="scroll-mt-5 overflow-hidden rounded-2xl border border-white/12 bg-black/20">
+    <section id={anchorId} className="scroll-mt-5 overflow-hidden rounded-2xl border border-white/[0.12] bg-black/20">
       <button
         type="button"
         aria-expanded={isOpen}
@@ -532,7 +535,7 @@ function Fold({
 function CalculationEvidence({ result }: { result: Reading['result'] }) {
   return (
     <div className="mt-4 space-y-4">
-      <section className="rounded-2xl border border-white/12 bg-slate-950/70 p-4"><EvidenceList title="本命・紅鸞／天喜／咸池桃花" items={result.bazi.natalEvidence} empty="本命四柱中未見這些規則現位；這不代表關係好或不好。" /><div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-sm font-black text-white/80">來源</p>{result.bazi.sources.map((source) => <p key={source.title} className="mt-2 text-xs leading-5 text-white/75">{source.title}：{source.reference}</p>)}</div></section>
+      <section className="rounded-2xl border border-white/[0.12] bg-slate-950/70 p-4"><EvidenceList title="本命・紅鸞／天喜／咸池桃花" items={result.bazi.natalEvidence} empty="本命四柱中未見這些規則現位；這不代表關係好或不好。" /><div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-sm font-black text-white/80">來源</p>{result.bazi.sources.map((source) => <p key={source.title} className="mt-2 text-xs leading-5 text-white/75">{source.title}：{source.reference}</p>)}</div></section>
       <section className="rounded-2xl border border-rose-200/20 bg-rose-400/[0.06] p-4"><h3 className="text-lg font-black text-white">未來 {result.annualRhythm.length} 年</h3><p className="mt-2 text-sm leading-7 text-white/65">紅鸞、天喜、咸池桃花、天乙貴人與日支六合／六沖分開列證；沒有權重分數。</p><div className="mt-4 space-y-3">{result.annualRhythm.map((year) => <article key={year.year} className="rounded-2xl border border-white/10 bg-black/15 p-4"><div className="flex items-center justify-between gap-3"><h4 className="font-black text-white">{year.year} 年・{year.annualBranch}年</h4><span className={`rounded-full border px-2.5 py-1 text-xs font-black ${year.status === 'RULE_HIT' ? 'border-rose-200/30 bg-rose-300/10 text-rose-100' : 'border-white/10 text-white/75'}`}>{year.status === 'RULE_HIT' ? '有規則命中' : '無本組規則命中'}</span></div>{year.evidence.length > 0 ? <ul className="mt-3 space-y-3">{year.evidence.map((item) => <li key={`${year.year}-${item.ruleId}-${item.evidence}`} data-rule-id={item.ruleId} data-rule-version={item.ruleVersion} className="text-sm leading-6 text-white/75"><span className="font-black text-rose-100">{item.label}</span>　{item.evidence}<span className="mt-1 block text-xs text-white/75">{ruleIdentifierLabel(item.ruleId)}｜{ruleVersionLabel(item.ruleVersion)}｜證據 {item.evidenceBranches.join('・')}｜{item.source}</span></li>)}</ul> : <p className="mt-3 text-sm text-white/75">本年度未命中目前已驗證的規則；這不等於沒有關係機會。</p>}<p className="mt-3 text-xs leading-5 text-white/75">精度：年度地支。{year.limitation}</p></article>)}</div></section>
       <section className="rounded-2xl border border-amber-200/20 bg-amber-300/[0.06] p-4">
         <p className="text-xs font-black tracking-[0.18em] text-amber-200">月份節奏・{result.monthlyRhythm.year} 年十二節氣月</p>
@@ -666,6 +669,9 @@ function RedLuanHeartbeatExperience() {
 
   /** 從結果區跳回時辰欄位，並把 12 張時辰卡打開、不預先選任何一張。 */
   function jumpToHourPicker() {
+    // 2026-10-17 red-luan QA：拿到結果後表單已收成一行摘要，時辰欄位根本不在畫面上，
+    // 以前按「補上時辰」只會往上捲一段、什麼都沒打開。先把表單展開再捲過去。
+    setEditingBirth(true);
     setForm((current) => ({ ...current, birthHourBranch: HOUR_BRANCH_PENDING, timeUnknown: false, birthTime: undefined }));
     scrollToTarget(() => document.querySelector('[data-field="birthHourBranch"]'), 'center');
   }
@@ -795,18 +801,26 @@ function RedLuanHeartbeatExperience() {
     let ritualLive = true;
     // 回訪的人不必再從第一句聽起，但也不能一句都不演——1.5 秒的收尾就夠。
     const ritualFrom = returningName !== null ? 1 : 0;
+    // 2026-10-17 red-luan QA：最後一句「卦成了。」以前在 2.4 秒時就打出來，網路慢時
+    // 結果還沒回來，畫面卻停在「卦成了」十幾秒。改成前面的句子先演，等結果真的回來才說「卦成了」；
+    // 還在等的時候換一句「還在核對」。網路快時總長度不變。
     const ritual = mode === 'initial'
       ? (async () => {
-        for (let step = ritualFrom; step < RITUAL_LINES.length; step += 1) {
+        for (let step = ritualFrom; step < RITUAL_LINES.length - 1; step += 1) {
           if (!ritualLive) return;
           setRitualStep(step);
-          await new Promise((resolve) => { setTimeout(resolve, step === RITUAL_LINES.length - 1 ? 700 : 850); });
+          await new Promise((resolve) => { setTimeout(resolve, 850); });
         }
+        if (ritualLive) setRitualStep(RITUAL_WAITING_STEP);
       })()
       : Promise.resolve();
+    // 沒有期限時，伺服器卡住客戶就永遠停在儀式畫面；45 秒後明說，並保留「再試一次」。
+    const controller = new AbortController();
+    const deadline = window.setTimeout(() => controller.abort(), 45000);
     try {
       const response = await fetch('/api/red-luan-heartbeat', {
         method: 'POST',
+        signal: controller.signal,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: (profile.name ?? '').trim(),
@@ -823,10 +837,18 @@ function RedLuanHeartbeatExperience() {
           partnerGender: effectivePartnerGender(profile.gender),
         }),
       });
-      const payload = await response.json() as Reading & { error?: string; message?: string };
-      if (!response.ok) throw new Error(payload.error || payload.message || '目前無法完成核對，請稍後再試。');
+      // 2026-10-17 red-luan QA：伺服器回 500 HTML 時 response.json() 會丟英文 SyntaxError，
+      // 客戶看到的是「網路好像斷了」——網路明明好好的。先安全解析，再給對的說法。
+      const payload = await response.json().catch(() => null) as (Reading & { error?: string; message?: string }) | null;
+      if (!response.ok || !payload?.result) {
+        throw new Error(payload?.error || payload?.message || '紅鸞推算服務暫時沒有完成，請稍後再按一次「再試一次」；你填的資料都還在。');
+      }
       // 結果先回來也要把儀式演完，不然畫面會閃一下就跳走，反而像出錯。
       await ritual;
+      if (mode === 'initial') {
+        setRitualStep(RITUAL_LINES.length - 1);
+        await new Promise((resolve) => { setTimeout(resolve, 700); });
+      }
       setReading(payload);
       setEditingBirth(false);
       setAppliedContext(submittedContext);
@@ -854,9 +876,12 @@ function RedLuanHeartbeatExperience() {
       scrollToTarget(() => document.getElementById(anchor));
     } catch (requestError) {
       ritualLive = false;
-      setError(friendlyRequestError(requestError));
+      setError(controller.signal.aborted
+        ? '這次推算等太久了，可能是網路或伺服器比較慢。再按一次「再試一次」就好，你填的資料都還在。'
+        : friendlyRequestError(requestError));
       setRetryMode(mode);
     } finally {
+      window.clearTimeout(deadline);
       ritualLive = false;
       submitLock.current = false;
       setRitualStep(-1);
@@ -941,7 +966,7 @@ function RedLuanHeartbeatExperience() {
         <p className="mt-3 text-xs leading-6 text-rose-100/80" role="status">{loading ? '正在核對資料，結果完成後才會解鎖。' : reading ? '已產生的結果可點選查看，其他項目會標示暫無結果。' : '填好生日與性別，選擇時辰或「不知道」，再按「抽出我的心動月份」。'}</p>
       </header>
 
-      <section className="red-luan-unified-flow mt-5 rounded-3xl border border-white/12 bg-slate-950/70 p-5 shadow-[0_18px_48px_rgba(2,6,23,0.35)]">
+      <section className="red-luan-unified-flow mt-5 rounded-3xl border border-white/[0.12] bg-slate-950/70 p-5 shadow-[0_18px_48px_rgba(2,6,23,0.35)]">
         <div className="mb-5 flex items-center justify-between gap-3"><div><p className="text-xs font-black tracking-[0.16em] text-amber-200">只要生日和時辰</p><h2 className="mt-1 text-xl font-black text-white">你的出生資料</h2></div><span className="rounded-full border border-white/15 px-3 py-1 text-xs font-bold text-white/70">只填一位</span></div>
         {/*
           回訪辨識：出生資料早就存著，表單也會自動帶入，但客戶回來時
@@ -1033,11 +1058,11 @@ function RedLuanHeartbeatExperience() {
               {[0, 1, 2, 3, 4, 5].map((line) => (
                 <span
                   key={line}
-                  className={`h-1.5 w-16 rounded-full transition-all duration-500 ${line <= ritualStep * 2 + 1 ? 'bg-rose-200/80' : 'bg-white/10'}`}
+                  className={`h-1.5 w-16 rounded-full transition-all duration-500 ${line <= (ritualStep === RITUAL_WAITING_STEP ? 4 : ritualStep * 2 + 1) ? 'bg-rose-200/80' : 'bg-white/10'}`}
                 />
               ))}
             </div>
-            <p className="mt-4 text-sm font-bold leading-7 text-rose-50">{RITUAL_LINES[ritualStep]}</p>
+            <p className="mt-4 text-sm font-bold leading-7 text-rose-50">{ritualStep === RITUAL_WAITING_STEP ? RITUAL_WAITING_LINE : RITUAL_LINES[ritualStep]}</p>
           </div>
         )}
         <p className="mt-3 text-center text-xs leading-5 text-white/75">其他問題結果出來再問，想跳過也可以。</p>
@@ -1113,7 +1138,7 @@ function RedLuanHeartbeatExperience() {
             <p className="mt-2 text-3xl font-black leading-tight text-rose-50">{reading.affinity.typeHeadline}</p>
             <div className="mt-4 space-y-2">
               {(reading.affinity.candidates ?? []).map((candidate) => (
-                <div key={candidate.rank} className="flex items-start gap-3 rounded-2xl border border-white/12 bg-black/25 p-3">
+                <div key={candidate.rank} className="flex items-start gap-3 rounded-2xl border border-white/[0.12] bg-black/25 p-3">
                   <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-rose-300/25 text-xs font-black text-rose-50">{candidate.rank}</span>
                   <span className="min-w-0">
                     <span className="block text-base font-black text-white">{candidate.career}</span>
@@ -1130,7 +1155,7 @@ function RedLuanHeartbeatExperience() {
             也讓被行事曆叫回來的人知道下一次在哪，不必重算。
           */}
           {(reading.nextEncounters?.upcoming?.length ?? 0) > 0 && (
-            <div className="mt-4 rounded-2xl border border-white/12 bg-black/25 p-4">
+            <div className="mt-4 rounded-2xl border border-white/[0.12] bg-black/25 p-4">
               <p className="text-sm font-black text-white">接下來一年，你有 {reading.nextEncounters.upcoming.filter((item) => item.withinYear).length} 次機會</p>
               <div className="mt-3 space-y-1.5">
                 {reading.nextEncounters.upcoming.filter((item) => item.withinYear).map((item) => (
@@ -1162,7 +1187,7 @@ function RedLuanHeartbeatExperience() {
                     toggleFoldOpen('teachers');
                     scrollToTarget(() => document.getElementById('red-luan-teachers'));
                   }}
-                  className={`rounded-2xl border px-4 py-4 text-left transition ${teacherKey === teacher.key ? 'border-violet-100/70 bg-violet-300/25 text-violet-50 shadow-[0_0_22px_rgba(167,139,250,0.22)]' : 'border-white/12 bg-white/[0.05] text-white/70'}`}
+                  className={`rounded-2xl border px-4 py-4 text-left transition ${teacherKey === teacher.key ? 'border-violet-100/70 bg-violet-300/25 text-violet-50 shadow-[0_0_22px_rgba(167,139,250,0.22)]' : 'border-white/[0.12] bg-white/[0.05] text-white/70'}`}
                 >
                   <span className="block text-lg font-black">{teacher.name}</span>
                   <span className="mt-1 block text-xs leading-4 opacity-75">{teacher.preview}</span>
@@ -1237,7 +1262,7 @@ function RedLuanHeartbeatExperience() {
             <Fold title="為什麼會是你？" badge="越後面越深" teaser={reading.ichingReading.onion?.[0]?.point} foldKey="psych" opened={openedFolds} onToggle={toggleFold}>
               <div className="space-y-2">
                 {(reading.ichingReading.onion ?? []).map((layer) => (
-                  <article key={layer.step} className="rounded-2xl border border-white/10 bg-black/22 p-4">
+                  <article key={layer.step} className="rounded-2xl border border-white/10 bg-black/[0.22] p-4">
                     <p className="text-xs font-black tracking-[0.14em] text-cyan-100">第 {layer.step} 層・{layer.layer}</p>
                     <p className="mt-2 text-sm leading-7 text-white/85">{layer.point}</p>
                     {layer.term && <p className="mt-1 text-xs leading-5 text-white/75">{layer.term}</p>}
@@ -1267,7 +1292,7 @@ function RedLuanHeartbeatExperience() {
               </div>
               {peeled < (reading.affinity.onionLayers ?? []).length - 1 && (
                 // 跟老師鈕同一類問題：剝開的那一層在畫面外，不捲過去就像沒反應。
-                <button type="button" onClick={() => { setPeeled((current) => current + 1); scrollToTarget(() => document.getElementById(`red-luan-onion-${peeled + 1}`), 'center'); }} className="mt-3 w-full rounded-2xl border border-cyan-200/35 bg-cyan-300/12 px-4 py-3 text-sm font-black text-cyan-50 transition">再剝一層 →</button>
+                <button type="button" onClick={() => { setPeeled((current) => current + 1); scrollToTarget(() => document.getElementById(`red-luan-onion-${peeled + 1}`), 'center'); }} className="mt-3 w-full rounded-2xl border border-cyan-200/35 bg-cyan-300/[0.12] px-4 py-3 text-sm font-black text-cyan-50 transition">再剝一層 →</button>
               )}
               {reading.affinity.selfReportedType !== 'UNSPECIFIED' && (
                 <p className="mt-3 text-xs leading-6 text-white/75">你填的是「{reading.affinity.selfReportedLabel}」，放在這裡跟命盤方向對照，不參與運算。</p>
@@ -1285,7 +1310,7 @@ function RedLuanHeartbeatExperience() {
               </div>
               <div className="mt-3 space-y-2">
                 {[reading.ichingReading.spark.heaven, reading.ichingReading.spark.human, reading.ichingReading.spark.earth, reading.ichingReading.spark.fire].map((line) => (
-                  <p key={line.slice(0, 12)} className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm leading-7 text-white/78">{line}</p>
+                  <p key={line.slice(0, 12)} className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm leading-7 text-white/[0.78]">{line}</p>
                 ))}
               </div>
               <p className="mt-3 text-xs leading-5 text-white/75">起卦依據：{reading.ichingReading.seedText}（梅花易數生辰起卦，同一生辰永遠同一卦，可回查驗算）。</p>
@@ -1293,7 +1318,7 @@ function RedLuanHeartbeatExperience() {
 
 
             <Fold title={reading.ichingReading.karmicBond.title} badge="因果" teaser={reading.ichingReading.karmicBond.owed} foldKey="karmic" opened={openedFolds} onToggle={toggleFold}>
-              <p className="text-sm leading-7 text-white/78">{reading.ichingReading.karmicBond.owed}</p>
+              <p className="text-sm leading-7 text-white/[0.78]">{reading.ichingReading.karmicBond.owed}</p>
               <p className="mt-2 text-sm leading-7 text-amber-100">{reading.ichingReading.karmicBond.lesson}</p>
               <p className="mt-2 rounded-2xl border border-rose-200/20 bg-rose-300/[0.08] p-4 text-sm leading-7 text-rose-50">{reading.ichingReading.karmicBond.reunion}</p>
               <p className="mt-3 text-xs leading-5 text-white/75">{reading.ichingReading.karmicBond.note}</p>
@@ -1313,11 +1338,11 @@ function RedLuanHeartbeatExperience() {
                 if (!teacher) return null;
                 return (
                   <div className="mt-4 space-y-2">
-                    {teacher.opening.split('\n').filter(Boolean).map((line) => <p key={line.slice(0, 14)} className="text-sm leading-7 text-white/78">{line}</p>)}
+                    {teacher.opening.split('\n').filter(Boolean).map((line) => <p key={line.slice(0, 14)} className="text-sm leading-7 text-white/[0.78]">{line}</p>)}
                     {teacher.sections.map((section) => (
-                      <article key={section.title} className="rounded-2xl border border-white/10 bg-black/22 p-4">
+                      <article key={section.title} className="rounded-2xl border border-white/10 bg-black/[0.22] p-4">
                         <p className="text-xs font-black tracking-[0.14em] text-violet-100">{section.title}</p>
-                        <p className="mt-2 text-sm leading-7 text-white/78">{section.text}</p>
+                        <p className="mt-2 text-sm leading-7 text-white/[0.78]">{section.text}</p>
                       </article>
                     ))}
                     {teacher.closing.split('\n').filter(Boolean).map((line) => <p key={line.slice(0, 14)} className="rounded-2xl border border-emerald-200/15 bg-emerald-300/[0.06] p-4 text-sm leading-7 text-emerald-50">{line}</p>)}
@@ -1434,7 +1459,7 @@ function RedLuanHeartbeatExperience() {
           {reading.ichingReading && <section className="rounded-3xl border border-rose-200/20 bg-rose-400/[0.07] p-5">
             <p className="text-xs font-black tracking-[0.18em] text-rose-200">易經卜卦・{reading.ichingReading.patternName}</p>
             {reading.ichingReading.ritualOpening.split('\n').filter(Boolean).map((line) => (
-              <p key={line.slice(0, 14)} className="mt-3 text-sm leading-7 text-white/78">{line}</p>
+              <p key={line.slice(0, 14)} className="mt-3 text-sm leading-7 text-white/[0.78]">{line}</p>
             ))}
             <div className="mt-4 space-y-2">
               {(reading.ichingReading.onion ?? []).map((step) => (
@@ -1552,7 +1577,7 @@ function RedLuanHeartbeatExperience() {
           type="button"
           onClick={() => scrollToTarget(() => document.getElementById('red-luan-when'))}
           aria-label={`回到你的紅鸞月・${jumpPillLabel}`}
-          className="fixed bottom-4 right-4 z-40 inline-flex min-h-11 items-center gap-1.5 rounded-full border border-rose-100/45 bg-[#2b0f1d]/92 px-4 py-2.5 text-xs font-black text-rose-50 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur transition hover:border-rose-100/70"
+          className="fixed bottom-4 right-4 z-40 inline-flex min-h-11 items-center gap-1.5 rounded-full border border-rose-100/45 bg-[#2b0f1d]/[0.92] px-4 py-2.5 text-xs font-black text-rose-50 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur transition hover:border-rose-100/70"
         >
           <span aria-hidden="true">鸞</span>
           <span>{jumpPillLabel}</span>

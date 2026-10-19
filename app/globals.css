@@ -27238,3 +27238,12 @@ p[class*="InterfaceLanguage_notice"] { display: none !important; }
 /* 語言選擇卡裡的短免責句「本站內容僅供文化參考與娛樂，不構成醫療、法律或投資建議。」隱藏（2026-10-17，業主要求）。
    只隱藏、不刪：文字與 id 都還在；要恢復把這段刪掉即可。精準：只針對語言卡的 disclaimer 段落。 */
 p[class*="InterfaceLanguage_disclaimer"] { display: none !important; }
+
+/* 2026-10-17 tarot QA：手機上問題框聚焦時被共用規則壓成 64px 高、失焦又長回 11.5rem，
+   打完字直接點「我自己／親朋好友」時按鈕會往下跳約 40px，第一下點空。只把塔羅問題框聚焦時的高度固定成跟未聚焦一樣。 */
+@media (max-width: 720px) {
+  .fortune-card .tarot-question-entry textarea.tarot-question-entry__textarea:focus,
+  .fortune-card .tarot-question-entry textarea.tarot-question-entry__textarea:focus-visible {
+    min-height: 11.5rem !important;
+  }
+}

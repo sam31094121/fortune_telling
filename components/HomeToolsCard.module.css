@@ -29,7 +29,9 @@
 }
 /* 盾牌格：裡面沒有盾牌（客戶按過「不再提醒」、或已經存好）就整格收起，下排只剩字體大小 */
 .shieldSlot {
-  flex: none;
+  /* 2026-10-17：盾牌字較長的語言（英文）可以換行收窄，讓右邊三顆字體按鈕都保有 44px 寬 */
+  flex: 0 1 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
   padding-right: 12px;
@@ -41,7 +43,7 @@
 }
 .sizeGroup {
   flex: 1;
-  min-width: 0;
+  min-width: 148px; /* 3 × 44px 觸控寬 + 2 × 8px 間距 */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -57,7 +59,7 @@
 }
 .options {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(44px, 1fr));
   gap: 8px;
   max-width: 420px; /* 電腦的寬卡片上，三顆按鈕不要被拉得太長 */
 }

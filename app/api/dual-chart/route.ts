@@ -70,7 +70,10 @@ export async function POST(request: NextRequest) {
     try {
       input = JSON.parse(text) as Record<string, unknown>;
     } catch (err) {
-      return reply({ error: '請求格式不正確（無效的 JSON）。' }, 400);
+      return reply({ error: '資料格式無法讀取，請重新送出一次。' }, 400);
+    }
+    if (!input || typeof input !== 'object' || Array.isArray(input)) {
+      return reply({ error: '資料格式無法讀取，請重新送出一次。' }, 400);
     }
 
     // ========== 安全防護第五層：數據完整性檢查 ==========
@@ -123,10 +126,11 @@ export async function POST(request: NextRequest) {
     // - 中間計算步驟
     return reply({ data: result }, 200, rateLimitHeaders);
   } catch (error) {
-    return reply(
-      { error: error instanceof Error ? error.message : '出生資料無法排盤。' },
-      400,
-      rateLimitHeaders
-    );
+    // calculateDualChart 的輸入檢查都是中文訊息（客人可修正 → 400）；
+    // 其他（程式或套件丟出的英文例外）屬系統問題 → 500，不把技術字串給客人。
+    const message = typeof (error as { message?: unknown })?.message === 'string' ? (error as { message: string }).message : '';
+    if (message && /[\u3400-\u9fff]/.test(message)) return reply({ error: message }, 400, rateLimitHeaders);
+    console.error('[dual-chart] calculation failed', message || String(error));
+    return reply({ error: '命盤暫時沒有排出來，請稍後再試一次。' }, 500, rateLimitHeaders);
   }
 }

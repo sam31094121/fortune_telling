@@ -44,7 +44,7 @@ function validateNameologyRequest(body: unknown): string | null {
   if (req.name.trim().length > 20) return '姓名長度不可超過 20 個字。';
   if (!isValidBirthday(req.birthDate)) return '生日不是有效日期。';
   try { normalizeNameologyShichen(req.shichen); } catch { return '出生時辰請選擇十二時辰之一，或選擇不知道。'; }
-  if (typeof req.gender !== 'string' || !VALID_GENDERS.includes(req.gender as Gender)) return '性別只能是 male 或 female。';
+  if (typeof req.gender !== 'string' || !VALID_GENDERS.includes(req.gender as Gender)) return '請選擇性別（男性或女性）。';
 
   return null;
 }
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as NameologyRequest;
   } catch {
-    return friendlyErrorResponse(requestId, 'INVALID_JSON', '請傳入有效的 JSON。', 400);
+    return friendlyErrorResponse(requestId, 'INVALID_JSON', '資料格式無法讀取，請重新送出一次。', 400);
   }
 
   const errorMsg = validateNameologyRequest(body);
@@ -79,10 +79,16 @@ export async function POST(request: Request) {
   };
 
   if (hasSimplifiedNameCharacter(normalized.name)) {
-    return friendlyErrorResponse(requestId, 'NON_TRADITIONAL_NAME_INPUT', '目前無法完成可靠的姓名分析，請稍後重新嘗試。', 422);
+    return friendlyErrorResponse(requestId, 'NON_TRADITIONAL_NAME_INPUT', '姓名請用繁體（正體）字輸入，例如「張」而不是「张」，再送出一次。', 422);
   }
 
-  const dictionarySnapshot = await loadLocalNameologyDictionary();
+  let dictionarySnapshot: Awaited<ReturnType<typeof loadLocalNameologyDictionary>>;
+  try {
+    dictionarySnapshot = await loadLocalNameologyDictionary();
+  } catch (err) {
+    console.error('[nameology-analyze] dictionary load failed', requestId, err instanceof Error ? err.message : String(err));
+    return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '姓名學系統正在重新同步，請稍候再試。', 502);
+  }
   const cacheKey = getCacheKey(normalized, dictionarySnapshot.version);
   const cached = analysisCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION_MS) {
@@ -99,7 +105,15 @@ export async function POST(request: Request) {
     });
     if (!analysis.standardOutput.verification.readyForFrontend) {
       console.warn('[nameology-analyze] blocked unreliable result', requestId, analysis.standardOutput.verification);
-      return friendlyErrorResponse(requestId, 'NAME_RULES_NOT_READY', '目前無法完成可靠的姓名分析，請稍後重新嘗試。', 422);
+      const missingChars = analysis.dictionaryStatus.estimatedCharacters > 0 || Array.from(normalized.name).some((char) => !/\p{Script=Han}/u.test(char));
+      return friendlyErrorResponse(
+        requestId,
+        'NAME_RULES_NOT_READY',
+        missingChars
+          ? '這個名字裡有字典還沒收錄的字（或不是中文字），目前無法完成可靠的姓名分析；請確認是正體中文姓名後再送出。'
+          : '目前無法完成可靠的姓名分析，請稍後重新嘗試。',
+        422,
+      );
     }
     analysis.baziCrossCheck = buildNameologyBaziCrossCheck(normalized, analysis.characters);
     const fiveElement = buildNameologyFiveElementResult(analysis);

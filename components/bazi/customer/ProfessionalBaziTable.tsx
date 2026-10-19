@@ -257,7 +257,7 @@ export function ProfessionalBaziTable({ result, hourUnknown, chartOnly = false }
         <div className="mt-3 space-y-1 text-sm font-semibold leading-6 text-white/55">
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {(result.aiDeepAnalysis?.elementPriority ?? []).map((item: any) => (
-            <p key={item.rank}>{item.rank}. {item.displayName}（{item.judgementLevel}｜{item.needScore}）{item.reason ? `：${item.reason}` : ''}</p>
+            <p key={item.rank}>{item.rank}. {item.displayName}（{item.judgementLabel}｜{item.needScore}）{item.reason ? `：${item.reason}` : ''}</p>
           ))}
         </div>
       </section>

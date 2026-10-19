@@ -12,6 +12,24 @@ import ComparisonCard from './ComparisonCard';
 import { useInterfaceLanguage } from '@/components/InterfaceLanguage';
 import { dualChartHourStatus } from '@/lib/dual-chart-form';
 
+const CALCULATE_TIMEOUT_MS = 30000;
+const CJK_TEXT = /[\u3400-\u9fff]/;
+/** 只讓中文的伺服器／程式訊息直達客人；英文技術訊息（Failed to fetch、Unexpected token…）一律換成白話。 */
+function customerError(e: unknown, fallback: string) {
+  const name = typeof (e as { name?: unknown })?.name === 'string' ? (e as { name: string }).name : '';
+  const message = typeof (e as { message?: unknown })?.message === 'string' ? (e as { message: string }).message : '';
+  if (name === 'TypeError') return '網路連線不穩，這次沒有送出成功；請確認連線後再按一次，你填的資料都還在。';
+  return message && CJK_TEXT.test(message) ? message : fallback;
+}
+async function readJson(response: Response): Promise<{ error?: unknown; data?: unknown } | null> {
+  const data = await response.json().catch(() => null);
+  return data && typeof data === 'object' ? data as { error?: unknown; data?: unknown } : null;
+}
+function serverError(data: { error?: unknown } | null, status: number, fallback: string) {
+  const text = typeof data?.error === 'string' ? data.error : '';
+  return new Error(text && CJK_TEXT.test(text) ? text : `${fallback}（代碼 ${status}）。`);
+}
+
 export default function DualChart({ unlocked, configured }: { unlocked: boolean; configured: boolean }) {
   const router = useRouter();
   const { language } = useInterfaceLanguage();
@@ -95,10 +113,10 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
     try {
       const response = await fetch('/api/dual-chart/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
       setPassword(''); setShowPassword(false);
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
+      const data = await readJson(response);
+      if (!response.ok) throw serverError(data, response.status, '目前無法驗證密碼，請稍後再試');
       router.refresh();
-    } catch (e) { setError(e instanceof Error ? e.message : '連線失敗，請稍後再試。'); }
+    } catch (e) { setError(customerError(e, '連線失敗，請稍後再試。')); }
     finally { setBusy(false); }
   }
   async function lock() {
@@ -107,7 +125,7 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
       const response = await fetch('/api/dual-chart/session', { method: 'DELETE' });
       if (!response.ok) throw new Error('暫時無法鎖定，請再試一次。');
       setResult(null); setForm({}); router.refresh();
-    } catch (e) { setError(e instanceof Error ? e.message : '連線失敗。'); }
+    } catch (e) { setError(customerError(e, '連線失敗，請稍後再試。')); }
     finally { setBusy(false); }
   }
   function updateForm(profile: BirthProfile) {
@@ -142,6 +160,8 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
       return;
     }
     setBusy(true);
+    let timedOut = false;
+    const timeoutId = window.setTimeout(() => { timedOut = true; requestController.abort(); }, CALCULATE_TIMEOUT_MS);
     try {
       const response = await fetch('/api/dual-chart', {
         method: 'POST',
@@ -153,17 +173,20 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
       // 2. 舊請求防覆蓋檢查
       if (calculateRequestRef.current !== requestController) return;
 
-      const data = await response.json();
+      const data = await readJson(response);
       if (calculateRequestRef.current !== requestController) return;
 
       if (response.status === 401) router.refresh();
-      if (!response.ok) throw new Error(data.error);
-      setResult(data.data);
+      if (!response.ok) throw serverError(data, response.status, '命盤暫時沒有排出來，請稍後再按一次；你填的資料都還在');
+      if (!data || data.data === undefined) throw new Error(`命盤暫時沒有排出來（代碼 ${response.status}），請稍後再按一次；你填的資料都還在。`);
+      setResult(data.data as DualChartResult);
     } catch (e) {
       if (calculateRequestRef.current !== requestController) return;
-      if (e instanceof DOMException && e.name === 'AbortError') return;
-      setError(e instanceof Error ? e.message : '連線失敗，請稍後再試。');
+      if (timedOut) { setError('排盤等了太久沒有回應，請再按一次；你填的資料都還在。'); return; }
+      if ((e as { name?: unknown })?.name === 'AbortError') return;
+      setError(customerError(e, '命盤暫時沒有排出來，請稍後再按一次；你填的資料都還在。'));
     } finally {
+      window.clearTimeout(timeoutId);
       if (calculateRequestRef.current === requestController) {
         calculateRequestRef.current = null;
         setBusy(false);
@@ -194,7 +217,7 @@ export default function DualChart({ unlocked, configured }: { unlocked: boolean;
       setPdfPageCount(pageCount);
       setPdfUrl(url);
       setPdfProgress(100);
-    } catch (e) { setError(e instanceof Error ? e.message : 'PDF 製作失敗，請再試一次。'); }
+    } catch (e) { setError(customerError(e, 'PDF 製作失敗，請再試一次。')); }
     finally { setPdfBusy(false); setPdfProgress(0); }
   }
   return <main className={`${styles.page} ${printMode ? styles.printPreview : ''} ${printMode && monochrome ? styles.monochrome : ''}`}>

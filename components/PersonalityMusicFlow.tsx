@@ -486,6 +486,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
             ))}
           </div>
           <textarea
+            aria-label="想補充的一句心裡話（可不填）"
             value={form.lifeGoalNote}
             maxLength={120}
             placeholder="可以補一句心裡話，例如：我想把撐了很久的自己唱出來。"
@@ -542,7 +543,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                     type="button"
                     onClick={() => selectMagneticVoiceType(archetype.key)}
                     aria-pressed={active}
-                    className={`rounded-[20px] border p-4 text-left transition-all ${active ? 'border-amber-300/75 bg-amber-300/12 shadow-[0_0_26px_rgba(251,191,36,0.18)]' : 'border-white/10 bg-white/[0.04] hover:border-amber-200/35 hover:bg-white/[0.07]'}`}
+                    className={`rounded-[20px] border p-4 text-left transition-all ${active ? 'border-amber-300/75 bg-amber-300/[0.12] shadow-[0_0_26px_rgba(251,191,36,0.18)]' : 'border-white/10 bg-white/[0.04] hover:border-amber-200/35 hover:bg-white/[0.07]'}`}
                   >
                     <span className="flex items-center justify-between gap-2">
                       <span className="text-[11px] font-black tracking-[0.16em] text-amber-100/80">{archetype.badge}</span>
@@ -565,7 +566,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
               return (
                 <article
                   key={option.key}
-                  className={`rounded-[22px] border p-4 transition-all ${active ? 'border-amber-300/70 bg-amber-300/12 shadow-[0_0_28px_rgba(251,191,36,0.18)]' : showMissingVoice ? 'border-rose-400/80 bg-rose-500/10' : 'border-white/10 bg-white/[0.04] hover:border-cyan-200/35'}`}
+                  className={`rounded-[22px] border p-4 transition-all ${active ? 'border-amber-300/70 bg-amber-300/[0.12] shadow-[0_0_28px_rgba(251,191,36,0.18)]' : showMissingVoice ? 'border-rose-400/80 bg-rose-500/10' : 'border-white/10 bg-white/[0.04] hover:border-cyan-200/35'}`}
                 >
                   <button
                     type="button"
@@ -591,7 +592,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                       selectVoice(option);
                       playVoicePreview(option);
                     }}
-                    className="mt-4 w-full rounded-full border border-cyan-200/25 bg-cyan-300/10 px-4 py-3 text-xs font-black text-cyan-100 transition hover:border-cyan-200/55 hover:bg-cyan-300/16"
+                    className="mt-4 w-full rounded-full border border-cyan-200/25 bg-cyan-300/10 px-4 py-3 text-xs font-black text-cyan-100 transition hover:border-cyan-200/55 hover:bg-cyan-300/[0.16]"
                   >
                     試聽這個聲線
                   </button>
@@ -652,6 +653,8 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
             <p className="mb-4 text-sm leading-6 text-[color:var(--text-sub)]">姓名會被轉成歌曲的核心稱呼與情緒記憶點。</p>
             <input
               type="text"
+              aria-label="姓名"
+              aria-invalid={showMissingName || undefined}
               value={form.name}
               maxLength={20}
               placeholder="請輸入姓名"
@@ -698,7 +701,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
               setForm((prev) => ({ ...prev, shichen: 'unknown' }));
               clearValidation();
             }}
-            className={`w-full rounded-2xl border px-5 py-4 text-left transition-all ${form.shichen === 'unknown' ? 'border-emerald-400 bg-emerald-400/15' : showMissingShichen ? 'border-rose-400/85 bg-rose-500/12 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : 'border-white/15 bg-white/5 hover:border-white/25'}`}
+            className={`w-full rounded-2xl border px-5 py-4 text-left transition-all ${form.shichen === 'unknown' ? 'border-emerald-400 bg-emerald-400/15' : showMissingShichen ? 'border-rose-400/85 bg-rose-500/[0.12] shadow-[0_0_22px_rgba(244,63,94,0.22)]' : 'border-white/15 bg-white/5 hover:border-white/25'}`}
           >
             <p className={`text-base font-bold ${form.shichen === 'unknown' ? 'text-emerald-300' : 'text-[color:var(--text-main)]'}`}>不確定出生時辰</p>
             <p className="mt-1 text-xs leading-6 text-[color:var(--text-muted)]">易經會以已知資料生成，不會卡住流程。</p>
@@ -720,7 +723,7 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
                     setForm((prev) => ({ ...prev, shichen: s.branchIndex }));
                     clearValidation();
                   }}
-                  className={`rounded-2xl border px-3 py-3 text-left transition-all ${selected ? 'border-cyan-400 bg-cyan-400/15' : showMissingShichen ? 'border-rose-400/85 bg-rose-500/12 shadow-[0_0_18px_rgba(244,63,94,0.18)]' : 'border-white/10 bg-white/5 hover:border-white/20'}`}
+                  className={`rounded-2xl border px-3 py-3 text-left transition-all ${selected ? 'border-cyan-400 bg-cyan-400/15' : showMissingShichen ? 'border-rose-400/85 bg-rose-500/[0.12] shadow-[0_0_18px_rgba(244,63,94,0.18)]' : 'border-white/10 bg-white/5 hover:border-white/20'}`}
                 >
                   <p className={`text-base font-bold ${selected ? 'text-cyan-300' : 'text-[color:var(--text-main)]'}`}>{s.label}</p>
                   <p className="mt-0.5 text-xs font-semibold text-[color:var(--text-sub)]">{s.range}</p>

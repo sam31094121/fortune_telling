@@ -29,7 +29,7 @@ type Card = ReturnType<typeof interactiveCatalog>[number];
 type Account = { owned: string[]; match: Match | null; revision: number };
 const labels: Record<string, string> = { SPACE: '空', AIR: '風', WATER: '水', FIRE: '火', EARTH: '地' };
 
-function BeastTurnGameScreen({ preparationEntry = false }: { preparationEntry?: boolean }) {
+function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }: { initialStep?: 'mode' | 'select'; preparationEntry?: boolean }) {
   const [preparingExisting, setPreparingExisting] = useState(preparationEntry);
   const [cards, setCards] = useState<Card[]>([]);
   const [account, setAccount] = useState<Account | null>(null);
@@ -40,7 +40,21 @@ function BeastTurnGameScreen({ preparationEntry = false }: { preparationEntry?: 
   const [busy, setBusy] = useState(false);
   const [automatic, setAutomatic] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
-  const [prepareStep, setPrepareStep] = useState<'mode' | 'select' | 'confirm'>('mode');
+  const [prepareStep, setPrepareStep] = useState<'mode' | 'select' | 'confirm'>(initialStep);
+  // 2026-10-17 beast card：「簡單」有自己的網址（?mode=easy）。手機按返回會回到三選一，不會整頁跳出；從星宿神獸頁點「簡單」也直接進選卡。
+  useEffect(() => {
+    const sync = () => {
+      const easy = new URLSearchParams(window.location.search).get('mode') === 'easy';
+      setPrepareStep((step) => (easy ? (step === 'mode' ? 'select' : step) : 'mode'));
+    };
+    window.addEventListener('popstate', sync);
+    return () => window.removeEventListener('popstate', sync);
+  }, []);
+  const enterEasy = useCallback(() => {
+    if (new URLSearchParams(window.location.search).get('mode') !== 'easy') window.history.pushState(null, '', '?mode=easy');
+    setPrepareStep('select');
+    setError('');
+  }, []);
   const [starterPackClaimed, setStarterPackClaimed] = useState<boolean | null>(null);
   /** 回來就知道下一步：這台裝置真的持有幾種卡、上一場結果。沒有就不顯示，不編數字。 */
   const [progress, setProgress] = useState<{ kinds: number; last: CollectionHistoryItem | null } | null>(null);
@@ -274,7 +288,7 @@ function BeastTurnGameScreen({ preparationEntry = false }: { preparationEntry?: 
           })()}
           <p className={styles.modeNavLabel} role="status">請先選難度（三選一）</p>
           <div className={styles.modeCards} role="list" aria-label="難度選擇">
-            <button type="button" role="listitem" className={styles.freeEntryBtn} onClick={() => { setPrepareStep('select'); setError(''); }} data-difficulty="easy">
+            <button type="button" role="listitem" className={styles.freeEntryBtn} onClick={enterEasy} data-difficulty="easy">
               <span className={styles.freeEntryStep}>① 簡單</span>
               <span className={styles.freeEntryIcon}>⚡</span>
               <strong>簡單・三卡免費戰場</strong>
@@ -353,12 +367,12 @@ function BeastTurnGameScreen({ preparationEntry = false }: { preparationEntry?: 
       <footer className={styles.prepareFooter}>
         {prepareStep === 'mode' ? (starterPackClaimed && progress && progress.kinds > 0 ? <>
           {/* 回頭客（首戰贈卡已領、這台裝置真的有收藏卡）：主按鈕給下一步「中等」，簡單留作練習。新客人與資料未讀到時維持簡單。 */}
-          <button className={styles.advancedBtn} onClick={() => { setPrepareStep('select'); setError(''); }}>① 簡單練習</button>
+          <button className={styles.advancedBtn} onClick={enterEasy}>① 簡單練習</button>
           <Link href="/beast-game/lineup" className={styles.nextStepLink} data-returning-next>② 帶著卡去中等押注 →</Link>
         </> : <>
-          <button className={styles.startBattle} onClick={() => { setPrepareStep('select'); setError(''); }}>① 進入簡單・選 3 張卡</button>
+          <button className={styles.startBattle} onClick={enterEasy}>① 進入簡單・選 3 張卡</button>
         </>) : prepareStep === 'select' ? <>
-          <button className={styles.advancedBtn} onClick={() => { setPrepareStep('mode'); setSelected([]); setError(''); }}>進階玩法 ▸</button>
+          <button className={styles.advancedBtn} onClick={() => { if (window.location.search) window.history.replaceState(null, '', window.location.pathname); setPrepareStep('mode'); setSelected([]); setError(''); }}>進階玩法 ▸</button>
           <button className={styles.startBattle} disabled={busy || selected.length !== 3 || (preparingExisting && match?.status === 'PLAYING')} onClick={() => { void send('START', { lineup: selected, difficulty: 'NORMAL' }); }} style={selected.length === 3 ? { boxShadow: '0 0 20px rgba(59, 130, 246, 0.35)' } : {}}>
             {busy ? '正在準備戰場…' : selected.length === 3 ? '✨ 開始對戰！' : `選滿 ${selected.length}/3 張`}
           </button>
@@ -373,7 +387,7 @@ function BeastTurnGameScreen({ preparationEntry = false }: { preparationEntry?: 
 }
 
 /** 相剋戰力手冊由後端算好；外層載入一次，交給所有戰鬥元件照印。 */
-export default function BeastTurnGame({ preparationEntry }: { preparationEntry?: boolean } = {}) {
+export default function BeastTurnGame({ initialStep, preparationEntry }: { initialStep?: 'mode' | 'select'; preparationEntry?: boolean } = {}) {
   const guideBook = useFetchedGuideBook();
-  return <GuideBookProvider value={guideBook}><BeastTurnGameScreen preparationEntry={preparationEntry} /></GuideBookProvider>;
+  return <GuideBookProvider value={guideBook}><BeastTurnGameScreen initialStep={initialStep} preparationEntry={preparationEntry} /></GuideBookProvider>;
 }

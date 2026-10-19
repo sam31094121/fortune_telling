@@ -24,9 +24,26 @@ export async function downloadAsPDF(element: HTMLElement, filename: string): Pro
           jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' },
         };
 
-        // @ts-ignore - html2pdf is loaded dynamically
-        window.html2pdf().set(opt).from(element).save();
-        resolve(true);
+        // html2pdf 會先在頁面蓋一層透明 overlay；轉檔失敗（例如遇到它不支援的 CSS 顏色）時
+        // overlay 不會移除，整頁變成點不動。所以要等轉檔結果，失敗就清掉 overlay 並回報失敗。
+        const cleanup = () => {
+          document.querySelectorAll('.html2pdf__overlay, .html2pdf__container').forEach((node) => node.remove());
+        };
+        try {
+          // @ts-ignore - html2pdf is loaded dynamically
+          Promise.resolve(window.html2pdf().set(opt).from(element).save()).then(
+            () => resolve(true),
+            (err: unknown) => {
+              console.error('PDF download failed:', err);
+              cleanup();
+              resolve(false);
+            },
+          );
+        } catch (err) {
+          console.error('PDF download failed:', err);
+          cleanup();
+          resolve(false);
+        }
       };
 
       script.onerror = () => {

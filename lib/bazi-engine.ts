@@ -192,6 +192,8 @@ export type BaziElementPriority = {
   needScore: number;
   source: 'professional_chart';
   judgementLevel: 'primary' | 'secondary' | 'supporting';
+  /** 給客人看的中文標籤（用神／喜神／閒神／忌神／仇神／其他），由後端依喜用忌判定組好；前端只照印，不印英文 judgementLevel。 */
+  judgementLabel: string;
   professionalBasis: string[];
   reason: string;
 };
@@ -531,6 +533,7 @@ function buildElementPriority(chart: BaziProfessionalChart): BaziElementPriority
     const needScore = Math.min(clampScore(100 - (percent / maxPercent) * 54 + godBonus + rootNeed - avoidPenalty), notATarget ? NOT_A_REINFORCEMENT_TARGET_CEILING : 100, ceiling);
     ceiling = needScore;
     const judgementLevel = index === 0 ? 'primary' : index === 1 ? 'secondary' : 'supporting';
+    const judgementLabel = element === chart.gods.usefulGod ? '用神' : element === chart.gods.joyGod ? '喜神' : element === chart.gods.neutralGod ? '閒神' : element === chart.gods.avoidGod ? '忌神' : element === chart.gods.enemyGod ? '仇神' : '其他';
     const professionalBasis = [
       '第一層五行比例：' + element + '佔 ' + percent + '%，原始權重 ' + count + '。',
       element === chart.gods.usefulGod ? '第一層喜用忌判定：此元素為用神。' : element === chart.gods.joyGod ? '第一層喜用忌判定：此元素為喜神。' : element === chart.gods.neutralGod ? '第一層喜用忌判定：此元素為閒神，可作後續穩定。' : '第一層五行排序列入後續補強觀察。',
@@ -545,6 +548,7 @@ function buildElementPriority(chart: BaziProfessionalChart): BaziElementPriority
       needScore,
       source: 'professional_chart',
       judgementLevel,
+      judgementLabel,
       professionalBasis,
       reason: '第二層讀取第一層命盤後判定：' + display.displayName + '補強分數為 ' + needScore + '，依五行比例、喜用忌與日主旺衰排序。',
     };

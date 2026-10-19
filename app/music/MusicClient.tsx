@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type PointerEvent } from 'react';
+import { useEffect, useRef, useState, type PointerEvent, type RefObject } from 'react';
 import Link from 'next/link';
 import PersonalityMusicFlow, { type MusicFormData } from '@/components/PersonalityMusicFlow';
 import PersonalityMusicReport from '@/components/PersonalityMusicReport';
@@ -166,6 +166,9 @@ type PageState = 'landing' | 'form' | 'result';
 type MusicDailyResult = { result: MusicGenerateResponse; submittedName: string };
 
 const MUSIC_GENERATION_FRIENDLY_FAILURE = '目前暫時無法完成歌曲生成。\n請稍後再試。\n造成您的不便，敬請見諒。';
+const MUSIC_GENERATION_TIMEOUT_MS = 45_000;
+const MUSIC_GENERATION_TIMEOUT_MESSAGE = '這次歌曲生成等太久了，已先停止等待。\n你選好的主題與資料都還在，請稍後再按一次「開始生成」。';
+const MUSIC_SESSION_EXPIRED_MESSAGE = '進入密碼已過期（每次 30 分鐘）。\n請重新整理這一頁、再輸入一次密碼後重新生成。';
 
 const VOICE_PROMISES = [
   { title: '先聽見聲音', body: '進入後先選催淚女聲或深情男聲，客戶能立刻感覺到方向。' },
@@ -177,10 +180,14 @@ function LandingHero({
   onStart,
   dailyRecord,
   identityTarget,
+  errorMsg,
+  alertRef,
 }: {
   onStart: () => void;
   dailyRecord: DailyAnalysisRecord<MusicDailyResult> | null;
   identityTarget: AnalysisIdentityTarget | null;
+  errorMsg: string;
+  alertRef: RefObject<HTMLDivElement | null>;
 }) {
   const lastStartTouchRef = useRef(0);
 
@@ -221,7 +228,14 @@ function LandingHero({
             </p>
           </section>
         ) : (
-          <IdentitySplitSelector className="mb-5 w-full max-w-2xl text-left" />
+          <>
+            {errorMsg && (
+              <div ref={alertRef} role="alert" aria-live="assertive" className="mb-3 w-full max-w-2xl rounded-2xl border border-rose-400/40 bg-rose-950/40 px-4 py-3 text-left text-sm font-semibold leading-6 text-rose-100">
+                {errorMsg}
+              </div>
+            )}
+            <IdentitySplitSelector className="mb-5 w-full max-w-2xl text-left" />
+          </>
         )}
 
         <MegaInputGuide
@@ -248,7 +262,7 @@ function LandingHero({
         {/* 三步驟卡已隱藏（2026-08-13 依指示）：先藏起來以後再說，恢復時把 hidden 移除即可 */}
         <section className="mt-5 hidden w-full max-w-3xl gap-3 text-left sm:grid-cols-3" aria-label="易經生命歌曲三步驟">
           {VOICE_PROMISES.map((item, index) => (
-            <article key={item.title} className="rounded-[22px] border border-violet-300/18 bg-white/[0.045] p-4 shadow-[0_14px_34px_rgba(2,6,23,0.22)]">
+            <article key={item.title} className="rounded-[22px] border border-violet-300/[0.18] bg-white/[0.045] p-4 shadow-[0_14px_34px_rgba(2,6,23,0.22)]">
               <p className="text-[11px] font-black tracking-[0.22em] text-amber-100">第 {index + 1} 道</p>
               <h2 className="mt-2 text-base font-black leading-6 text-violet-50">{item.title}</h2>
               <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{item.body}</p>
@@ -345,6 +359,8 @@ export default function MusicSystemPage() {
   const [identityTarget, setIdentityTarget] = useState<AnalysisIdentityTarget | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
+  const landingAlertRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const syncIdentityTarget = () => {
@@ -366,9 +382,15 @@ export default function MusicSystemPage() {
   }, []);
 
   useEffect(() => {
-    if (pageState === 'result' || loading || errorMsg) {
+    if (pageState === 'result') {
       mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
     }
+    if (!loading && !errorMsg) return;
+    // 生成中的進度與錯誤訊息都在表單下方：捲到訊息本身，而不是頁面頂端（否則客人看不到）
+    const target = pageState === 'landing' ? landingAlertRef.current : statusRef.current;
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    else mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [pageState, loading, errorMsg]);
 
   async function handleSubmit(data: MusicFormData) {
@@ -392,7 +414,7 @@ export default function MusicSystemPage() {
     setSubmittedName(data.name.trim());
 
     const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 45_000);
+    const timeout = window.setTimeout(() => controller.abort(), MUSIC_GENERATION_TIMEOUT_MS);
 
     try {
       const targetMode = getAnalysisIdentityTarget();
@@ -425,10 +447,16 @@ export default function MusicSystemPage() {
         }),
       });
 
-      const json = await response.json();
+      // 伺服器逾時或閘道錯誤時會回 HTML，不能直接 .json()，否則客人只會看到籠統失敗
+      const json = (await response.json().catch(() => null)) as (MusicGenerateResponse & { error?: string; locked?: boolean }) | null;
 
-      if (!response.ok) {
-        setErrorMsg(json.error || MUSIC_GENERATION_FRIENDLY_FAILURE);
+      if (!response.ok || !json) {
+        if (response.status === 401 && json?.locked) {
+          setErrorMsg(MUSIC_SESSION_EXPIRED_MESSAGE);
+          return;
+        }
+        const serverMessage = typeof json?.error === 'string' && /[\u4e00-\u9fff]/.test(json.error) ? json.error : '';
+        setErrorMsg(serverMessage || MUSIC_GENERATION_FRIENDLY_FAILURE);
         return;
       }
 
@@ -439,7 +467,8 @@ export default function MusicSystemPage() {
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
     } catch (error) {
       console.error('[music] generate failed', error);
-      setErrorMsg(MUSIC_GENERATION_FRIENDLY_FAILURE);
+      const aborted = error instanceof DOMException && error.name === 'AbortError';
+      setErrorMsg(aborted ? MUSIC_GENERATION_TIMEOUT_MESSAGE : MUSIC_GENERATION_FRIENDLY_FAILURE);
     } finally {
       window.clearTimeout(timeout);
       setLoading(false);
@@ -500,7 +529,7 @@ export default function MusicSystemPage() {
         </div>
       )}
 
-      {pageState === 'landing' && <LandingHero onStart={handleStart} dailyRecord={dailyRecord} identityTarget={identityTarget} />}
+      {pageState === 'landing' && <LandingHero onStart={handleStart} dailyRecord={dailyRecord} identityTarget={identityTarget} errorMsg={errorMsg} alertRef={landingAlertRef} />}
 
       {pageState === 'form' && (
         <main ref={formRef} className="relative z-10 mx-auto max-w-6xl px-4 pb-10 pt-5 sm:px-6 lg:px-8 lg:pb-14 lg:pt-8">
@@ -530,17 +559,19 @@ export default function MusicSystemPage() {
 
               <PersonalityMusicFlow onSubmit={handleSubmit} loading={loading} />
 
-              {loading && (
-                <div className="mt-6">
-                  <MusicAnalyticalConsole name={submittedName} />
-                </div>
-              )}
+              <div ref={statusRef}>
+                {loading && (
+                  <div className="mt-6" aria-live="polite">
+                    <MusicAnalyticalConsole name={submittedName} />
+                  </div>
+                )}
 
-              {errorMsg && (
-                <div className="mt-4 rounded-2xl border border-rose-400/20 bg-rose-950/20 p-4 text-sm text-rose-300">
-                  {errorMsg}
-                </div>
-              )}
+                {errorMsg && (
+                  <div role="alert" aria-live="assertive" className="mt-4 whitespace-pre-line rounded-2xl border border-rose-400/20 bg-rose-950/20 p-4 text-sm text-rose-300">
+                    {errorMsg}
+                  </div>
+                )}
+              </div>
             </div>
           </section>
         </main>

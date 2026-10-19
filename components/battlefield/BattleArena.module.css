@@ -882,6 +882,11 @@
 .fighterVitals .liveChange { font-size: 13px; min-height: 18px; line-height: 18px; }
 .arenaHpBar { height: 10px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .2), 0 1px 4px rgba(0, 0, 0, .55); }
 
+/* 2026-10-17 客戶實玩：右側五顆帶符紙的寶珠沒有標示，客戶不知道是什麼。上方加常駐小標「魔珠 2/5」。 */
+.orbCaption { align-self: flex-end; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(251, 191, 36, .45); background: rgba(40, 20, 6, .72); color: #fde68a; font-size: 12px; font-weight: 800; letter-spacing: .04em; line-height: 16px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* 左側後備卡區原本整片 85% 透明、底色偏暗，看起來像不能用。提亮到 100%。 */
+.rosterLeft { opacity: 1; }
+
 @media(max-width:600px){.arena[data-easy-cards='true']{grid-template-columns:minmax(40px,.6fr) minmax(0,2fr) minmax(44px,.6fr)}}
 
 /* Easy mode: smaller readable vitals give the card art more room. */

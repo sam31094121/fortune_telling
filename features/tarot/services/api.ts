@@ -164,6 +164,8 @@ async function requestWithDeadline<T>(path: string, input: unknown, timeoutMs: n
     // Diagnostic metadata only: never log questions, birth data, or session IDs.
     console.warn('[tarot-request]', { path, elapsedMs: Date.now() - startedAt, reason: controller.signal.aborted ? 'timeout' : 'request-failed' });
     if (controller.signal.aborted) throw new Error('連線等待逾時，請再試一次；目前輸入與已抽出的牌會保留。');
+    // 2026-10-17 tarot QA：斷網時瀏覽器只給英文「Failed to fetch」，改成客戶看得懂的中文；伺服器回的中文訊息照舊。
+    if (caught instanceof TypeError) throw new Error('目前連不上塔羅服務，請確認網路後再試一次；你輸入的問題會保留。');
     throw caught;
   } finally {
     clearTimeout(timer);

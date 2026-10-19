@@ -61,6 +61,9 @@ type DealReply = { ok: true; table: BattleState; deckIds: string[]; opening: { p
  * 困難戰場的運算全部在後端 /api/beast-game/battlefield（2026-09-15 業主定調：前端只負責顯示易經）。
  * 這裡只送出佈陣與出招，拿回結果顯示；不自己算勝負、易經判斷或押注。
  */
+/** 2026-10-17 beast card：發牌失敗時給客人看的固定說明（不顯示程式錯誤原文）。 */
+const DEAL_RETRY_MESSAGE = '發牌暫時沒有完成，請點下方「重新載入卡池」再試一次。押注卡與收藏不受影響。';
+
 async function callBattle<T = BattleReply>(body: Record<string, unknown>, timeoutMs = 30000): Promise<T> {
   const res = await fetch('/api/beast-game/battlefield', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(timeoutMs),
@@ -227,6 +230,8 @@ function BattlefieldScreen() {
     void callBattle<DealReply>({ type: 'DEAL', playerDeckIds: playerDeckRef.current, previousOpening: previousOpening.current })
       .then((dealt) => {
         if (disposed) return;
+        // 2026-10-17 beast card：回覆缺欄位時不要讓 .join 當掉、也不要把英文錯誤原文給客人看；改成友善訊息＋下方「重新載入卡池」重試。
+        if (!Array.isArray(dealt?.deckIds) || !dealt.table || !Array.isArray(dealt.opening?.player) || !Array.isArray(dealt.opening?.opponent)) throw new Error(DEAL_RETRY_MESSAGE);
         tableToken.current = dealt.tableToken;
         if (dealt.deckIds.join(',') !== playerDeckRef.current.join(',')) { setPlayerDeckIds(dealt.deckIds); setDeckDraft(dealt.deckIds); }
         previousOpening.current = { player: dealt.opening.player, opponent: dealt.opening.opponent };
@@ -259,7 +264,7 @@ function BattlefieldScreen() {
         setGuideRequest(null);
         setPrepareView('formation');
       })
-      .catch((cause) => { if (!disposed) setError(cause instanceof Error ? cause.message : '發牌暫時無法連線，請點下方按鈕再試一次。'); });
+      .catch((cause) => { if (!disposed) setError(cause instanceof Error && cause.name === 'Error' ? cause.message : DEAL_RETRY_MESSAGE); });
     return () => { disposed = true; };
   }, [cards, seed]);
 

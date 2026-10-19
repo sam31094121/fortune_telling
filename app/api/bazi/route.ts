@@ -35,21 +35,46 @@ function normalizeInput(body: BaziApiBody): BaziRuntimeInput {
   };
 }
 
+const FIELD_LABELS: Record<string, string> = { birthDate: '出生日期', gender: '性別', birthTime: '出生時間' };
+const NO_STORE = { 'Cache-Control': 'no-store' };
+
+/** 只有輸入格式錯誤算 400；其餘（引擎例外等）是伺服器端問題，回 500，且不把英文例外訊息丟給客人。 */
+function isInputError(message: string) {
+  return /BAZI_INPUT_/.test(message) || /\bwrong (year|month|day|hour|minute|second)\b/i.test(message);
+}
+
 export async function POST(request: Request) {
+  let body: BaziApiBody;
   try {
-    const body = await request.json() as BaziApiBody;
+    body = await request.json() as BaziApiBody;
+  } catch {
+    return NextResponse.json({ success: false, ok: false, code: 'INVALID_JSON', error: '資料格式無法讀取，請重新送出一次。' }, { status: 400, headers: NO_STORE });
+  }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return NextResponse.json({ success: false, ok: false, code: 'INVALID_JSON', error: '資料格式無法讀取，請重新送出一次。' }, { status: 400, headers: NO_STORE });
+  }
+  try {
     const input = normalizeInput(body);
     const missing = ['birthDate', 'gender'].filter((field) => !input[field as keyof BaziAnalysisInput]);
     if (!input.timeUnknown && !input.birthTime) missing.push('birthTime');
     if (missing.length > 0) {
-      return NextResponse.json({ success: false, ok: false, error: missing.join(', ') + ' is required' }, { status: 400 });
+      return NextResponse.json({
+        success: false,
+        ok: false,
+        code: 'MISSING_FIELDS',
+        missing,
+        error: `請補上：${missing.map((field) => FIELD_LABELS[field] ?? field).join('、')}。`,
+      }, { status: 400, headers: NO_STORE });
     }
 
     const result = attachBaziProfessionalCoreV5(analyzeBazi(input), input);
     return NextResponse.json({ success: true, ok: true, data: result }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
-    const message = error instanceof Error ? error.message : '八字命盤目前無法完成。';
+    const message = typeof (error as { message?: unknown })?.message === 'string' ? (error as { message: string }).message : String(error);
     console.error('[bazi] request failed', message);
-    return NextResponse.json({ success: false, ok: false, error: message }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
+    if (isInputError(message)) {
+      return NextResponse.json({ success: false, ok: false, code: 'INVALID_INPUT', error: '出生日期或時間不正確，請確認後再送出一次。' }, { status: 400, headers: NO_STORE });
+    }
+    return NextResponse.json({ success: false, ok: false, code: 'BAZI_FAILED', error: '八字命盤目前無法完成，請稍後再試一次。' }, { status: 500, headers: NO_STORE });
   }
 }

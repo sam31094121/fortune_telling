@@ -65,32 +65,38 @@
 .chevronOpen {
   transform: rotate(180deg);
 }
+/* 2026-10-17 language card：手機 2 欄、第 5 個占滿一排；640px 以上 5 欄一排。全部直接看得到，不用左右滑。 */
 .list {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
   margin: 8px 0 0;
   padding: 0;
-  list-style: none;
 }
-@media (min-width: 640px) {
-  .list {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  }
+.list[hidden] {
+  display: none;
+}
+.list > .option:last-child {
+  grid-column: 1 / -1;
 }
 .option {
+  position: relative;
   display: flex;
   min-width: 0;
   min-height: 48px;
   align-items: center;
   gap: 10px;
   padding: 6px 12px;
-  border: 1px solid color-mix(in srgb, var(--shield-gold, #f8c758) 35%, transparent);
+  border: 1px solid color-mix(in srgb, var(--shield-gold, #f8c758) 40%, transparent);
   border-radius: 12px;
-  background: #1f1e1a;
+  background: #24231f;
   color: #f4efe4;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 .option:hover {
   border-color: var(--shield-gold-light, #fcea86);
@@ -99,9 +105,10 @@
   background: #2c281c;
 }
 .optionSelected {
-  border-color: var(--shield-gold-light, #fcea86);
-  background: linear-gradient(180deg, #3a3320, #2a2516);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--shield-gold-light, #fcea86) 25%, transparent);
+  border: 2px solid var(--shield-gold-light, #fcea86);
+  padding: 5px 11px;
+  background: linear-gradient(180deg, #4a3f1f, #2f2814);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--shield-gold-light, #fcea86) 30%, transparent), 0 0 12px rgba(248, 199, 88, 0.3);
 }
 .optionText {
   display: flex;
@@ -120,7 +127,7 @@
 }
 .optionRegion {
   overflow: hidden;
-  color: color-mix(in srgb, var(--shield-gold-light, #fcea86) 72%, transparent);
+  color: color-mix(in srgb, var(--shield-gold-light, #fcea86) 78%, transparent);
   font-size: 12px;
   line-height: 1.2;
   text-overflow: ellipsis;
@@ -133,9 +140,75 @@
   font-weight: 800;
   text-align: center;
 }
+.optionSelected .check {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--shield-gold-light, #fcea86);
+  color: #1a1205;
+  font-size: 12px;
+  line-height: 1;
+}
+@media (min-width: 640px) {
+  .list {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .list > .option:last-child {
+    grid-column: auto;
+  }
+  /* 5 欄時每格較窄：國旗在上、文字置中，勾勾放右上角 */
+  .option {
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 6px;
+    text-align: center;
+  }
+  .optionSelected {
+    padding: 7px 5px;
+  }
+  .optionText {
+    width: 100%;
+    flex: none;
+    align-items: center;
+  }
+  .optionLabel,
+  .optionRegion {
+    max-width: 100%;
+  }
+  .check {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+  }
+}
+/* 2026-10-17 language card：翻譯範圍說明與免責提醒，一直看得到，跟著目前語言。 */
 .notice {
   margin: 8px 2px 0;
-  color: rgba(244, 239, 228, 0.72);
+  color: rgba(244, 239, 228, 0.82);
   font-size: 13px;
   line-height: 1.5;
+}
+.disclaimer {
+  margin: 4px 2px 0;
+  color: rgba(244, 239, 228, 0.68);
+  font-size: 12px;
+  line-height: 1.5;
+}
+/* 2026-10-17 language card r2：手機右下角固定的 080「回到頂部」盾牌（right 24px、圖示含光暈約 60px 寬）
+   捲到這裡時會蓋住說明與免責聲明的行尾；手機寬度下右側留出盾牌的位置，盾牌照常可按。 */
+@media (max-width: 639px) {
+  .notice,
+  .disclaimer {
+    padding-inline-end: 64px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trigger,
+  .option,
+  .chevron {
+    transition: none;
+  }
 }

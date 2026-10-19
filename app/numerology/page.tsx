@@ -56,6 +56,17 @@ type SavedNumberReflection = {
 };
 
 const VALID_LENGTHS = new Set([2, 3, 4, 5, 6, 7, 8, 9, 10]);
+const NUMBER_REQUEST_TIMEOUT_MS = 30000;
+
+/**
+ * 2026-10-17 numerology QA：收藏卡寫著「不保存完整輸入數字」，但短號碼（例如 1688）後端不遮罩，
+ * valueMasked 就是原號碼，結果被原樣存進瀏覽器、下次還印出來。只有真的遮罩過才用它。
+ */
+function reflectionLabelOf(result: Pick<NumberResult, 'value' | 'valueMasked'>) {
+  return result.valueMasked && result.valueMasked !== result.value
+    ? result.valueMasked
+    : `已分析的${result.value.length}碼數字`;
+}
 const SAVED_NUMBER_REFLECTION_KEY = 'numerology-last-reflection-v1';
 
 function readSavedNumberReflection(): SavedNumberReflection | null {
@@ -175,7 +186,7 @@ function EnergyLine({ tier }: { tier: NumerologyDisplayTier }) {
               className={`h-1.5 w-full rounded-full ${step.tone} transition-all duration-500 ${active ? `opacity-100 ${FORTUNE_TIER_GLOW[step.label] ?? ''}` : 'opacity-25'}`}
             />
             <span
-              className={`flex h-12 items-center justify-center font-mono text-[10px] font-black leading-tight tracking-[0.08em] transition-all duration-500 ${active ? `${step.labelTone} opacity-100` : 'text-white/32 opacity-80'}`}
+              className={`flex h-12 items-center justify-center font-mono text-[10px] font-black leading-tight tracking-[0.08em] transition-all duration-500 ${active ? `${step.labelTone} opacity-100` : 'text-white/[0.32] opacity-80'}`}
               style={{ writingMode: 'vertical-rl' }}
             >
               {step.label}
@@ -207,34 +218,34 @@ function getLevel(score: number) {
     return {
       label: '結構較順',
       tone: '這組排列較容易形成連貫節奏，可挑一件事穩定推進。',
-      className: 'border-emerald-200/35 bg-emerald-300/12 text-emerald-50',
+      className: 'border-emerald-200/35 bg-emerald-300/[0.12] text-emerald-50',
     };
   }
   if (score >= 68) {
     return {
       label: '節奏可用',
       tone: '這組排列有可運用的地方，先把重點放在穩定與清楚。',
-      className: 'border-cyan-200/35 bg-cyan-300/12 text-cyan-50',
+      className: 'border-cyan-200/35 bg-cyan-300/[0.12] text-cyan-50',
     };
   }
   if (score >= 55) {
     return {
       label: '需要安排',
       tone: '這組排列提醒你先安排節奏，再決定要不要往前推進。',
-      className: 'border-amber-200/40 bg-amber-300/12 text-amber-50',
+      className: 'border-amber-200/40 bg-amber-300/[0.12] text-amber-50',
     };
   }
   if (score >= 40) {
     return {
       label: '先整理節奏',
       tone: '先把訊息、時間或資源整理清楚，再做下一個選擇。',
-      className: 'border-orange-200/40 bg-orange-300/12 text-orange-50',
+      className: 'border-orange-200/40 bg-orange-300/[0.12] text-orange-50',
     };
   }
   return {
     label: '先從簡單處開始',
     tone: '不急著放大這組數字的意義，先回到一個可完成的小步驟。',
-    className: 'border-rose-200/40 bg-rose-300/12 text-rose-50',
+    className: 'border-rose-200/40 bg-rose-300/[0.12] text-rose-50',
   };
 }
 
@@ -326,15 +337,24 @@ export default function NumerologyPage() {
     setError('');
     setResult(null);
 
+    // 2026-10-17 numerology QA：斷網時客戶看到英文「Failed to fetch」，伺服器回 HTML 錯誤頁時看到
+    // 「Unexpected token '<' … is not valid JSON」。改成安全解析＋中文說明，並加 30 秒期限，避免按鈕一直轉。
+    const controller = new AbortController();
+    const deadline = window.setTimeout(() => controller.abort(), NUMBER_REQUEST_TIMEOUT_MS);
     try {
       const response = await fetch('/api/number-fortune', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: cleanValue, purpose }),
+        signal: controller.signal,
+      }).catch((caught: unknown) => {
+        if (controller.signal.aborted) throw new Error('這次判定等太久了，請再按一次；你輸入的數字還在。');
+        if (caught instanceof TypeError) throw new Error('目前連不上數字分析服務，請確認網路後再按一次；你輸入的數字還在。');
+        throw caught;
       });
-      const json = await response.json();
+      const json = await response.json().catch(() => null);
       if (!response.ok || !json?.ok) {
-        throw new Error(json?.message || '數字分析暫時無法完成，請再試一次。');
+        throw new Error(json?.message || '數字分析暫時無法完成，請再按一次；你輸入的數字還在。');
       }
       setResult(json as NumberResult);
       markGrowthModuleCompleted('number');
@@ -344,6 +364,7 @@ export default function NumerologyPage() {
     } catch (event) {
       setError(event instanceof Error ? event.message : '數字分析暫時無法完成，請再試一次。');
     } finally {
+      window.clearTimeout(deadline);
       setLoading(false);
     }
   }
@@ -363,7 +384,7 @@ export default function NumerologyPage() {
     if (identityTarget !== 'self' || !result || !crossVerdictComplete || !result.iching) return;
     const next: SavedNumberReflection = {
       savedAt: new Date().toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' }),
-      numberLabel: result.valueMasked ?? `已分析的${result.value.length}碼數字`,
+      numberLabel: reflectionLabelOf(result),
       verdict: overallTier.label,
       takeaway: result.iching.verdictLine,
     };
@@ -388,9 +409,9 @@ export default function NumerologyPage() {
             <div className="min-w-0">
               <p className="text-[10px] font-black tracking-[0.2em] text-amber-200/85">數字文化解讀</p>
               <h1 className="mt-2 font-serif text-3xl font-black leading-tight text-amber-50">易經論數字</h1>
-              <p className="mt-2 text-sm font-bold leading-6 text-amber-50/82">免費輸入一組數字，30 秒看它的節奏訊號。</p>
+              <p className="mt-2 text-sm font-bold leading-6 text-amber-50/[0.82]">免費輸入一組數字，30 秒看它的節奏訊號。</p>
             </div>
-            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-amber-200/35 bg-amber-300/12 font-serif text-3xl font-black text-amber-100 shadow-[0_0_24px_rgba(251,191,36,0.2)]">
+            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-amber-200/35 bg-amber-300/[0.12] font-serif text-3xl font-black text-amber-100 shadow-[0_0_24px_rgba(251,191,36,0.2)]">
               數
             </div>
           </div>
@@ -407,7 +428,7 @@ export default function NumerologyPage() {
                   className={`rounded-2xl border px-3 py-2.5 ${
                     passed
                       ? 'border-emerald-200/30 bg-emerald-300/10 text-emerald-100'
-                      : 'border-white/10 bg-white/[0.035] text-white/58'
+                      : 'border-white/10 bg-white/[0.035] text-white/[0.58]'
                   }`}
                 >
                   <p className="text-[10px] font-black tracking-[0.14em]">S0{index + 1}</p>
@@ -435,7 +456,7 @@ export default function NumerologyPage() {
           </section>
         )}
 
-        <section className="rounded-[26px] border border-white/12 bg-[linear-gradient(160deg,rgba(12,15,22,0.98),rgba(18,29,32,0.92),rgba(8,10,16,0.98))] p-4 shadow-[0_18px_55px_rgba(0,0,0,0.28)] sm:p-5">
+        <section className="rounded-[26px] border border-white/[0.12] bg-[linear-gradient(160deg,rgba(12,15,22,0.98),rgba(18,29,32,0.92),rgba(8,10,16,0.98))] p-4 shadow-[0_18px_55px_rgba(0,0,0,0.28)] sm:p-5">
           {/* 「請填阿拉伯數字」引導卡已隱藏（2026-08-11）：依指示不顯示 */}
           {false && (
             <MegaInputGuide
@@ -470,17 +491,17 @@ export default function NumerologyPage() {
                   type="button"
                   onClick={() => { setPurpose(option.id); setResult(null); }}
                   aria-pressed={purpose === option.id}
-                  className={`min-h-[72px] rounded-xl border px-2.5 py-2 text-left transition ${purpose === option.id ? 'border-2 border-amber-100 bg-amber-300/22 text-amber-50 shadow-[0_0_28px_rgba(251,191,36,0.38)]' : 'border-white/12 bg-black/15 text-white/62 hover:border-cyan-100/40 hover:text-cyan-50'} ${purpose === 'general' && option.id === 'general' ? 'animate-[pulse_1.6s_ease-in-out_infinite] ring-2 ring-amber-200/50 ring-offset-2 ring-offset-[#112026]' : ''}`}
+                  className={`min-h-[72px] rounded-xl border px-2.5 py-2 text-left transition ${purpose === option.id ? 'border-2 border-amber-100 bg-amber-300/[0.22] text-amber-50 shadow-[0_0_28px_rgba(251,191,36,0.38)]' : 'border-white/[0.12] bg-black/15 text-white/[0.62] hover:border-cyan-100/40 hover:text-cyan-50'} ${purpose === 'general' && option.id === 'general' ? 'animate-[pulse_1.6s_ease-in-out_infinite] ring-2 ring-amber-200/50 ring-offset-2 ring-offset-[#112026]' : ''}`}
                 >
                   <span className="flex items-center justify-between gap-2 text-[11px] font-black"><span>{option.label}</span>{option.id === 'general' && <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[8px] tracking-[0.12em] text-slate-950">預設推薦</span>}</span>
                   <span className="mt-1 block text-[9px] font-bold leading-4 opacity-75">{option.detail}</span>
                 </button>
               ))}
             </div>
-            <p className="mt-2 text-[11px] font-bold text-white/58">目前：{purposeOption.label}。依輸入位數與組合進行判定。</p>
+            <p className="mt-2 text-[11px] font-bold text-white/[0.58]">目前：{purposeOption.label}。依輸入位數與組合進行判定。</p>
           </details>
 
-          <p className="mt-3 text-center text-[12px] font-black text-amber-50/88">
+          <p className="mt-3 text-center text-[12px] font-black text-amber-50/[0.88]">
             直接輸入 0–9，例如 2559
           </p>
 
@@ -498,7 +519,7 @@ export default function NumerologyPage() {
             placeholder="1688"
             aria-label="輸入數字"
             style={numberInputDigitStyle}
-            className="fortune-number-max-input mt-3 min-h-[96px] w-full rounded-[24px] border-2 border-amber-100 bg-black/55 px-2 py-5 text-center font-mono font-black leading-none text-amber-50 shadow-[inset_0_0_42px_rgba(251,191,36,0.16),0_0_44px_rgba(251,191,36,0.32)] outline-none transition placeholder:text-white/24 ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#112026] focus:shadow-[inset_0_0_42px_rgba(251,191,36,0.2),0_0_52px_rgba(251,191,36,0.4)] sm:min-h-[112px]"
+            className="fortune-number-max-input mt-3 min-h-[96px] w-full rounded-[24px] border-2 border-amber-100 bg-black/55 px-2 py-5 text-center font-mono font-black leading-none text-amber-50 shadow-[inset_0_0_42px_rgba(251,191,36,0.16),0_0_44px_rgba(251,191,36,0.32)] outline-none transition placeholder:text-white/[0.24] ring-2 ring-amber-200/45 ring-offset-2 ring-offset-[#112026] focus:shadow-[inset_0_0_42px_rgba(251,191,36,0.2),0_0_52px_rgba(251,191,36,0.4)] sm:min-h-[112px]"
           />
 
           {/* 範例說明已依指示隱藏；客戶只需看上方的位數引導後直接輸入。 */}
@@ -520,7 +541,7 @@ export default function NumerologyPage() {
             ))}
           </div>
 
-          {error && <p className="mt-3 rounded-2xl border border-rose-200/35 bg-rose-300/10 p-3 text-sm font-bold leading-6 text-rose-100">{error}</p>}
+          {error && <p role="alert" aria-live="assertive" className="mt-3 rounded-2xl border border-rose-200/35 bg-rose-300/10 p-3 text-sm font-bold leading-6 text-rose-100">{error}</p>}
 
           <div className="mt-4 flex gap-2">
             <button
@@ -531,7 +552,7 @@ export default function NumerologyPage() {
             >
               {loading ? '易經正在完成判定' : '30 秒看數字訊號'}
             </button>
-            <button type="button" onClick={clearNumerologyInput} disabled={loading} className="min-h-[58px] shrink-0 rounded-2xl border border-white/25 bg-white/[0.06] px-4 py-4 text-sm font-black text-white/82 transition hover:border-cyan-100/55 hover:bg-cyan-200/[0.1] active:scale-[0.98] disabled:opacity-50">清除</button>
+            <button type="button" onClick={clearNumerologyInput} disabled={loading} className="min-h-[58px] shrink-0 rounded-2xl border border-white/25 bg-white/[0.06] px-4 py-4 text-sm font-black text-white/[0.82] transition hover:border-cyan-100/55 hover:bg-cyan-200/[0.1] active:scale-[0.98] disabled:opacity-50">清除</button>
           </div>
         </section>
 
@@ -557,7 +578,7 @@ export default function NumerologyPage() {
                 <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
                   <div>
                     <p className="font-serif text-3xl font-black leading-none text-amber-100">{level!.label}</p>
-                    <p className="mt-2 text-xs font-bold text-white/58">{MODE_LABEL[result!.mode]} · 固定規則的結構提示</p>
+                    <p className="mt-2 text-xs font-bold text-white/[0.58]">{MODE_LABEL[result!.mode]} · 固定規則的結構提示</p>
                   </div>
                   <span className={`rounded-full border px-4 py-2 text-sm font-black ${level!.className}`}>文化參考</span>
                 </div>
@@ -578,7 +599,7 @@ export default function NumerologyPage() {
                       第 {result.iching.kingWen} 卦「{result.iching.hexagramName}」・主題「{result.iching.patternName}」
                     </h3>
                   </div>
-                  <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-amber-200/35 bg-amber-300/12 font-serif text-4xl font-black text-amber-100" aria-hidden="true">
+                  <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-amber-200/35 bg-amber-300/[0.12] font-serif text-4xl font-black text-amber-100" aria-hidden="true">
                     {String.fromCodePoint(0x4dc0 + result.iching.kingWen - 1)}
                   </span>
                 </div>
@@ -612,7 +633,7 @@ export default function NumerologyPage() {
             {result.googleExplanation && (
               <details className="rounded-2xl border border-blue-200/25 bg-blue-300/[0.07] p-4">
                 <summary className="cursor-pointer text-sm font-black text-blue-100">深入看延伸解說</summary>
-                <p className="mt-3 text-sm font-bold leading-7 text-white/82">{result.googleExplanation}</p>
+                <p className="mt-3 text-sm font-bold leading-7 text-white/[0.82]">{result.googleExplanation}</p>
               </details>
             )}
 
@@ -625,7 +646,7 @@ export default function NumerologyPage() {
                     {bestTier && <span className="rounded-full border border-emerald-200/30 bg-emerald-300/15 px-2 py-0.5 text-[10px] font-black text-emerald-100">{bestTier!.label}</span>}
                   </div>
                   <h3 className="mt-2 text-base font-black text-emerald-50">{purposeCopy.goodHeading}</h3>
-                  <p className="mt-2 text-sm font-bold leading-7 text-white/76">
+                  <p className="mt-2 text-sm font-bold leading-7 text-white/[0.76]">
                     {bestPoint ? `${DIMENSION_LABELS[bestPoint[0]] ?? bestPoint[0]}較可運用，${purposeCopy.good}` : `${purposeOption.shortLabel}仍有可用的支持點。`}
                   </p>
                   {bestTier && <p className="mt-2 text-[11px] font-semibold leading-5 text-emerald-100/75">{bestTier!.psychology}{purposeCopy.psychologyContext}</p>}
@@ -636,7 +657,7 @@ export default function NumerologyPage() {
                     {weakTier && <span className="rounded-full border border-rose-200/30 bg-rose-300/15 px-2 py-0.5 text-[10px] font-black text-rose-100">{weakTier!.label}</span>}
                   </div>
                   <h3 className="mt-2 text-base font-black text-rose-50">{purposeCopy.riskHeading}</h3>
-                  <p className="mt-2 text-sm font-bold leading-7 text-white/76">
+                  <p className="mt-2 text-sm font-bold leading-7 text-white/[0.76]">
                     {weakPoint ? `${DIMENSION_LABELS[weakPoint[0]] ?? weakPoint[0]}是本次優先安排的面向，${purposeCopy.risk}` : `${purposeOption.shortLabel}目前沒有明顯優先安排處，但仍可保留檢查節奏。`}
                   </p>
                   {weakTier && <p className="mt-2 text-[11px] font-semibold leading-5 text-rose-100/75">{weakTier!.psychology}{purposeCopy.psychologyContext}</p>}
@@ -655,7 +676,7 @@ export default function NumerologyPage() {
                   <div key={order} className={`px-2 py-3 ${index < 2 ? 'border-r border-white/10' : ''}`}>
                     <p className="font-mono text-[10px] font-black text-amber-200/85">{order}</p>
                     <p className="mt-1 text-xs font-black text-cyan-50">{title}</p>
-                    <p className="mt-1 text-[10px] font-semibold leading-4 text-white/48">{caption}</p>
+                    <p className="mt-1 text-[10px] font-semibold leading-4 text-white/[0.48]">{caption}</p>
                   </div>
                 ))}
               </div>
@@ -665,10 +686,10 @@ export default function NumerologyPage() {
               <div className={`numerology-verdict-panel numerology-verdict-panel--${extremeVisual ?? 'standard'} mt-4 rounded-2xl border border-violet-200/25 bg-violet-300/[0.08] p-4`} aria-label={`${overallTier.label}判定；${extremeVisual ? '已啟用極位文化反思提示' : '一般判定'}`}>
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-200">融會貫通・單一判定</p>
                 <p className={`mt-2 text-2xl font-black ${overallTier.labelTone}`}>{purposeOption.shortLabel}論吉凶：{overallTier.label}</p>
-                {extremeCopy && <p className="numerology-extreme-copy mt-3 rounded-xl px-3 py-2 text-xs font-black leading-5 text-white/82">{extremeCopy}</p>}
+                {extremeCopy && <p className="numerology-extreme-copy mt-3 rounded-xl px-3 py-2 text-xs font-black leading-5 text-white/[0.82]">{extremeCopy}</p>}
                 {overallTier.label === '大凶' && (
                   <div className="mt-3 rounded-xl border border-rose-200/25 bg-black/20 p-3">
-                    <p className="text-xs font-bold leading-5 text-white/72">想換一組數字重新探索嗎？這是數字結構的文化解讀，不代表改變命運或避免任何現實事件。</p>
+                    <p className="text-xs font-bold leading-5 text-white/[0.72]">想換一組數字重新探索嗎？這是數字結構的文化解讀，不代表改變命運或避免任何現實事件。</p>
                     <button type="button" onClick={retryWithAnotherNumber} className="mt-2 min-h-[44px] rounded-xl border border-rose-200/60 bg-rose-300/20 px-4 text-sm font-black text-rose-50">換一個號碼再試</button>
                   </div>
                 )}
@@ -697,16 +718,16 @@ export default function NumerologyPage() {
               </details>
               {/* 技術性校準說明對客戶沒意義，已依指示隱藏；保留程式碼供之後需要時叫醒。 */}
               {false && (
-                <p className="mt-3 text-[11px] font-bold leading-5 text-white/54">金錢、感情兩個中軸各自融合 4 個面向的平均分數，共用同一條八階能量線，最高「大吉」、最低「大凶」。能量線保留大吉、大吉帶吉、吉、半吉、凶帶吉、凶、大凶帶凶、大凶八個位置，呈現分數落點的細微差異；但最終判定只會落在大吉、大吉帶吉、吉、凶、大凶帶凶、大凶六種標籤：55 至 59 分會跳至「吉」，50 至 54 分會跳至「凶」，所以「半吉」與「凶帶吉」只作為視覺刻度、不會成為判定落點。原始分數與 8 個面向的計算依據完整保留。分級門檻依這套固定規則實際算出的分數範圍校準，不是機率統計或人生保證。</p>
+                <p className="mt-3 text-[11px] font-bold leading-5 text-white/[0.54]">金錢、感情兩個中軸各自融合 4 個面向的平均分數，共用同一條八階能量線，最高「大吉」、最低「大凶」。能量線保留大吉、大吉帶吉、吉、半吉、凶帶吉、凶、大凶帶凶、大凶八個位置，呈現分數落點的細微差異；但最終判定只會落在大吉、大吉帶吉、吉、凶、大凶帶凶、大凶六種標籤：55 至 59 分會跳至「吉」，50 至 54 分會跳至「凶」，所以「半吉」與「凶帶吉」只作為視覺刻度、不會成為判定落點。原始分數與 8 個面向的計算依據完整保留。分級門檻依這套固定規則實際算出的分數範圍校準，不是機率統計或人生保證。</p>
               )}
               <p className="mt-3 text-[11px] font-semibold leading-5 text-white/50">這不是在幫你貼標籤，是想讓你先看懂自己此刻站在哪一階；易經懂你走到這裡的不容易，才知道下一步怎麼走最順。</p>
             </section>
 
             {identityTarget === 'self' && <section className="rounded-2xl border border-cyan-200/25 bg-cyan-300/[0.06] p-4" aria-label="收藏這次解讀">
               <p className="text-[10px] font-black tracking-[0.18em] text-cyan-100">留給下次的自己</p>
-              <p className="mt-2 text-sm font-bold leading-6 text-white/82">收藏本次重點；下次開啟時會先顯示這句提醒，不保存完整輸入數字。</p>
+              <p className="mt-2 text-sm font-bold leading-6 text-white/[0.82]">收藏本次重點；下次開啟時會先顯示這句提醒，不保存完整輸入數字。</p>
               <button type="button" onClick={saveCurrentReflection} className="mt-3 min-h-[46px] w-full rounded-xl border border-cyan-200/55 bg-cyan-200 px-4 text-sm font-black text-slate-950">
-                {savedReflection?.numberLabel === (result.valueMasked ?? `已分析的${result.value.length}碼數字`) ? '已收藏這次解讀' : '收藏本次重點'}
+                {savedReflection?.numberLabel === reflectionLabelOf(result) && savedReflection?.takeaway === result.iching?.verdictLine ? '已收藏這次解讀' : '收藏本次重點'}
               </button>
             </section>}
 
@@ -715,22 +736,22 @@ export default function NumerologyPage() {
               <details className="rounded-2xl border border-cyan-200/15 bg-cyan-300/[0.045] p-4">
                 <summary className="cursor-pointer text-sm font-black text-cyan-100">補充：結構重點</summary>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <article className="rounded-2xl border border-white/10 bg-black/18 p-3">
+                  <article className="rounded-2xl border border-white/10 bg-black/[0.18] p-3">
                     <p className="text-xs font-black text-emerald-100">較可運用</p>
                     <div className="mt-2 space-y-2">
                       {topStrengths.map(([key, itemScore]) => (
-                        <p key={key} className="flex items-center justify-between gap-3 text-sm font-bold text-white/76">
+                        <p key={key} className="flex items-center justify-between gap-3 text-sm font-bold text-white/[0.76]">
                           <span>{DIMENSION_LABELS[key] ?? key}</span>
                           <span className="text-emerald-100">{getNumerologyDisplayTier(itemScore).label}<span className="ml-1 text-[10px] text-emerald-100/50">{itemScore}</span></span>
                         </p>
                       ))}
                     </div>
                   </article>
-                  <article className="rounded-2xl border border-white/10 bg-black/18 p-3">
+                  <article className="rounded-2xl border border-white/10 bg-black/[0.18] p-3">
                     <p className="text-xs font-black text-rose-100">先留意</p>
                     <div className="mt-2 space-y-2">
                       {topRisks.map(([key, itemScore]) => (
-                        <p key={key} className="flex items-center justify-between gap-3 text-sm font-bold text-white/76">
+                        <p key={key} className="flex items-center justify-between gap-3 text-sm font-bold text-white/[0.76]">
                           <span>{DIMENSION_LABELS[key] ?? key}</span>
                           <span className="text-rose-100">{getNumerologyDisplayTier(itemScore).label}<span className="ml-1 text-[10px] text-rose-100/50">{itemScore}</span></span>
                         </p>
@@ -747,12 +768,12 @@ export default function NumerologyPage() {
                 <summary className="cursor-pointer text-sm font-black text-amber-100">老師模式：完整指標</summary>
                 <div className="mt-4 grid gap-2 sm:grid-cols-2">
                   {Object.entries(result!.indexes).map(([key, itemScore]) => (
-                    <p key={key} className="rounded-xl border border-white/10 bg-black/18 px-3 py-2 text-xs font-bold text-white/58">
+                    <p key={key} className="rounded-xl border border-white/10 bg-black/[0.18] px-3 py-2 text-xs font-bold text-white/[0.58]">
                       {DIMENSION_LABELS[key] ?? key}：<span className="text-cyan-100">{itemScore}</span>
                     </p>
                   ))}
                 </div>
-                <p className="mt-3 text-xs font-semibold leading-6 text-white/44">
+                <p className="mt-3 text-xs font-semibold leading-6 text-white/[0.44]">
                   老師模式只保留後端運算指標，給需要細看的人展開；一般客戶先看上方三句判定即可。
                 </p>
               </details>

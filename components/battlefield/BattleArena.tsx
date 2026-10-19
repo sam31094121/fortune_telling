@@ -191,6 +191,8 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
               <span className={styles.fusionProgressText}>{guide.used ? '已合體' : guide.current.skillName}</span>
               <small>怒 {guide.rage}</small>
             </button>
+            {/* 客戶實玩：五顆寶珠沒有任何標示，不知道是什麼。加一行常駐小字，數字與下方 aria-label 同一份。 */}
+            <span className={styles.orbCaption} aria-hidden="true">魔珠 {unsealed}/{ELEMENTS.length}</span>
             <div className={styles.orbRow}>
             <span className={styles.rageMeter} role="meter" aria-label={`暴怒 ${guide.rage}/100`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={guide.rage}>
               <span style={{ height: `${guide.rage}%` }} />

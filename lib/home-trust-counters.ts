@@ -4,6 +4,13 @@ import { NextResponse } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getVisitorSupabaseClient } from '@/lib/visitor-counter';
 import { HOME_TRUST_FLOORS } from '@/lib/trust-counter-floors';
+import {
+  checkVoteRateLimit,
+  getClientIp,
+  markVoteEventApplied,
+  releaseVoteEvent,
+  VOTE_MIN_INTERVAL_MS,
+} from '@/lib/home-trust-vote-limiter';
 
 
 
@@ -192,10 +199,34 @@ export async function handleHomeTrustIncrement(
     return NextResponse.json({ ok: false, message: '事件編號格式不正確。' }, { status: 400, headers: NO_STORE });
   }
 
+  // 2026-10-17 vote guard：只節流認同／不認同；瀏覽次數不受影響。被擋下的請求不碰資料庫、不 +1。
+  const isVote = kind === 'agree' || kind === 'disagree';
+  const voteDecision = isVote ? checkVoteRateLimit(getClientIp(request), eventId) : 'allow';
+
+  if (voteDecision === 'limited') {
+    return NextResponse.json(
+      { ok: false, rateLimited: true, message: '操作太頻繁，請稍後再試。' },
+      { status: 429, headers: { ...NO_STORE, 'Retry-After': String(Math.ceil(VOTE_MIN_INTERVAL_MS / 1000)) } },
+    );
+  }
+
+  if (voteDecision === 'duplicate') {
+    // 同一事件已確認寫入：只回目前數字，不再 +1。
+    try {
+      const current = await readHomeTrust(client);
+      return NextResponse.json({ ok: true, ...current, applied: false }, { headers: NO_STORE });
+    } catch (error) {
+      console.error(`[home-trust/${kind}] 讀取失敗：`, error);
+      return NextResponse.json({ ok: false, message: FAILURE_MESSAGE[kind] }, { status: 503, headers: NO_STORE });
+    }
+  }
+
   try {
     const result = await incrementHomeTrust(kind, eventId, client);
+    if (isVote) markVoteEventApplied(eventId);
     return NextResponse.json({ ok: true, ...result }, { headers: NO_STORE });
   } catch (error) {
+    if (isVote && voteDecision === 'allow') releaseVoteEvent(eventId);
     console.error(`[home-trust/${kind}] 累加失敗：`, error);
     return NextResponse.json({ ok: false, message: FAILURE_MESSAGE[kind] }, { status: 503, headers: NO_STORE });
   }
