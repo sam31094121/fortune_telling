@@ -563,7 +563,7 @@ export default function BeastGamePage() {
         <p className="mt-1.5 text-xs leading-6 text-white/60">
           選三張出戰、押一張收藏卡。三局取多勝，輸了只扣本場押的一張。
         </p>
-        <nav aria-label="戰鬥模式"><Link href="/beast-game/battlefield">卡片戰場</Link><Link href="/beast-game">自由組隊</Link></nav>
+        <nav aria-label="戰鬥模式"><Link href="/beast-game/battlefield">卡片戰場</Link><Link href="/beast-game/prepare">選擇遊戲</Link></nav>
         {!dueling && stakeSaved !== false && <Link href="/" className="inline-flex min-h-11 items-center rounded-xl border border-white/30 px-4 text-sm">回首頁</Link>}
       </header>
 

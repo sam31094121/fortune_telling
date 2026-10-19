@@ -22,10 +22,11 @@ async function transact(req:Request, mutate?:(a:Account)=>void){
   try{const s=await stat(lock);if(Date.now()-s.mtimeMs>10000)await rm(lock,{recursive:true,force:true});}catch{/* no lock yet */}
   try{await mkdir(lock);}catch{return NextResponse.json({ok:false,error:'資料正在保存，請稍後重試。'},{status:409});}
   try{
-    let a:Account;
-    try{a=JSON.parse(await readFile(file,'utf8'));}catch(e){if((e as NodeJS.ErrnoException).code!=='ENOENT')throw e;a={owned:pick(3),experience:{},match:null,summonDay:null,imported:false,revision:0,lastRequest:null,awardedRevision:null};}
+    let a:Account;let created=false;
+    try{a=JSON.parse(await readFile(file,'utf8'));}catch(e){if((e as NodeJS.ErrnoException).code!=='ENOENT')throw e;created=true;a={owned:pick(3),experience:{},match:null,summonDay:null,imported:false,revision:0,lastRequest:null,awardedRevision:null};}
     mutate?.(a);
-    const temp=file+'.tmp';await writeFile(temp,JSON.stringify(a));await rename(temp,file);
+    // Navigation must not rewrite an existing customer's battle record.
+    if(created||mutate){const temp=file+'.tmp';await writeFile(temp,JSON.stringify(a));await rename(temp,file);}
     const ticket=a.match?signBattleSession({v:1,match:a.match,stakeCardId:null,stakeCount:0,issuedAt:Date.now()}):null;
     const res=NextResponse.json({ok:true,account:a,ticket,view:a.match?battleViewFor(a.match):null,cards:catalog,rules:{energyStart:2,energyCap:6,energyPerRound:1,maxRounds:80,summonProbability:'每張 1/60',storage:'此伺服器與目前瀏覽器識別；尚未連接登入帳號。'}},{headers:{'Cache-Control':'no-store'}});
     res.cookies.set(cookie,id,{httpOnly:true,sameSite:'strict',secure:new URL(req.url).protocol==='https:',path:'/',maxAge:31536000});return res;

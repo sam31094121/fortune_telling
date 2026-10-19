@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import BeastPageDock from '@/components/BeastPageDock';
 import { SHARE_DESCRIPTION, SHARE_OG_IMAGES, SHARE_TITLE, SHARE_TWITTER_IMAGES } from '@/lib/share-preview';
 
 /** Game-only metadata and visual boundary; accounting stays in its existing services. */
@@ -23,5 +24,5 @@ export const metadata: Metadata = {
 };
 
 export default function BeastGameLayout({ children }: { children: React.ReactNode }) {
-  return <div data-game-mode="battle" className="min-h-dvh bg-slate-950 font-sans text-slate-100">{children}</div>;
+  return <div data-game-mode="battle" className="min-h-dvh bg-slate-950 font-sans text-slate-100">{children}<BeastPageDock /></div>;
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import GrowthStakeSlots from './GrowthStakeSlots';
 import StarterPackBanner from './StarterPackBanner';
+import BeastPageDock from './BeastPageDock';
 import BeastTechCard, {type TechCardData} from './BeastTechCard';
 import { COLLECTION_STORAGE_NOTICE, countByCard, readCollection, subscribeCollection, type BeastCollection } from '@/lib/beast-collection';
 
@@ -60,7 +61,7 @@ export default function DuelCollectionShelf({ revision = 0 }: { revision?: numbe
         <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {(showAll?[...pool.keys()]:[...counts.keys()]).map(cardId=>{const card=pool.get(cardId);return <li key={cardId} data-collected-card={counts.has(cardId)?cardId:undefined}>{card?<BeastTechCard card={card} count={counts.get(cardId)??0}/>:<p className="text-sm">{loaded?'圖片待載':'載入中'} · {cardId}</p>}</li>;})}
         </ul>
-        <Link href="/beast-game" className="mt-3 flex min-h-11 items-center justify-center rounded-xl bg-amber-200 px-4 text-sm font-black text-slate-950">選一張收藏卡去對戰</Link>
+        <Link href="/beast-game/prepare" className="mt-3 flex min-h-11 items-center justify-center rounded-xl bg-amber-200 px-4 text-sm font-black text-slate-950">選擇遊戲・再選出戰卡</Link>
       </>}
     {loaded && pool.size === 0 && <button type="button" onClick={() => setRetry((value) => value + 1)} className="mt-2 min-h-11 text-sm text-amber-200 underline">重新載入卡片圖片與名稱</button>}
     {collection.history.length > 0 && <details className="mt-3" open>
@@ -73,5 +74,6 @@ export default function DuelCollectionShelf({ revision = 0 }: { revision?: numbe
       </ul>
     </details>}
     <p className="mt-3 text-[10px] leading-4 text-white/50">{COLLECTION_STORAGE_NOTICE}</p>
+    <BeastPageDock />
   </section>;
 }

@@ -29,7 +29,8 @@ type Card = ReturnType<typeof interactiveCatalog>[number];
 type Account = { owned: string[]; match: Match | null; revision: number };
 const labels: Record<string, string> = { SPACE: '空', AIR: '風', WATER: '水', FIRE: '火', EARTH: '地' };
 
-function BeastTurnGameScreen() {
+function BeastTurnGameScreen({ preparationEntry = false }: { preparationEntry?: boolean }) {
+  const [preparingExisting, setPreparingExisting] = useState(preparationEntry);
   const [cards, setCards] = useState<Card[]>([]);
   const [account, setAccount] = useState<Account | null>(null);
   /** 後端送來的可出招清單與暴怒判斷（前端只顯示）。 */
@@ -56,8 +57,7 @@ function BeastTurnGameScreen() {
   }, [account]);
   const { playing, begin: beginPlayback, play: playRound, reset: resetPlayback } = useCombatPlayback();
 
-  // Keep completion accounting invisible to the battle interface.
-  useEffect(() => { if (match?.status === 'FINISHED') recordBeastGameCompleted('battlefield'); }, [match?.status]);
+  // Merely revisiting a result must not rewrite its completion receipt.
   useEffect(() => {
     const refresh = () => {
       const collection = readCollection();
@@ -75,8 +75,8 @@ function BeastTurnGameScreen() {
       if (!res.ok || !data.ok) throw new Error(data.error ?? '卡池讀取失敗');
       if (signal?.aborted) return;
       ticketRef.current = data.ticket ?? null; setCards(data.cards); setAccount(data.account); setBattleView(data.view ?? null); setError('');
-    } catch (cause) {
-      if (!signal?.aborted) setError(cause instanceof Error ? cause.message : '連線中斷，請重新載入。');
+    } catch {
+      if (!signal?.aborted) setError('戰況暫時無法讀取，請按「重新載入」再試。');
     }
   }
   useEffect(() => {
@@ -105,6 +105,8 @@ function BeastTurnGameScreen() {
 
     try {
       const data = await post(type, extra, accountRevisionRef.current);
+      if (type === 'START') setPreparingExisting(false);
+      if (account.match?.status === 'PLAYING' && data.account.match?.status === 'FINISHED') recordBeastGameCompleted('battlefield');
       accountRevisionRef.current = data.account.revision;
       setAccount(data.account); setBattleView(data.view ?? null);
 
@@ -152,7 +154,7 @@ function BeastTurnGameScreen() {
 
   const errorNotice = error && <p role="alert" className={styles.error}>{error} <button type="button" disabled={busy} onClick={() => void load()}>重新載入戰況</button></p>;
 
-  if (match) {
+  if (match && !preparingExisting) {
     const inspected = inspection ? match[inspection.side].team.find(f => f.cardId === inspection.cardId) : undefined;
     const other = inspection?.side === 'opponent' ? match.player : match.opponent;
     const inspect = (cardId: string, side: 'player' | 'opponent') => { setAutomatic(false); setInspection({ cardId, side }); scroll.current?.scrollTo({ top: 0 }); };
@@ -221,8 +223,14 @@ function BeastTurnGameScreen() {
       <p>{prepareStep === 'mode' ? '點選：簡單／中等／困難' : prepareStep === 'select' ? '選 3 張卡開戰，不扣收藏卡。' : '準備好了嗎？'}</p>
     </header>
     {errorNotice}
-    {!account ? <section className={styles.prepareContent} aria-busy="true" aria-live="polite"><p className={styles.pickHint}>正在讀取戰鬥卡…</p><button type="button" className={styles.startBattle} disabled={busy} onClick={() => void load()}>重新載入</button>{errorNotice}</section> : <>
+    {!account ? <section className={styles.prepareContent} aria-busy={!error} aria-live="polite"><p className={styles.pickHint}>{error ? '尚未取得戰況。' : '正在讀取戰鬥卡…'}</p><button type="button" className={styles.startBattle} disabled={busy} onClick={() => void load()}>重新載入</button></section> : <>
       <section className={styles.prepareContent} aria-label={prepareStep === 'mode' ? '選擇模式' : prepareStep === 'select' ? '選擇神獸卡' : '檢查陣容'}>
+        {preparingExisting && match && <aside className={styles.pickHint} aria-label="保留的對戰">
+          <p>既有對戰保留・選卡不會清除紀錄</p>
+          <Link href="/beast-game">{match.status === 'PLAYING' ? '返回目前對戰' : '查看上場結果'}</Link>
+          {prepareStep !== 'mode' && match.status === 'PLAYING' && <p>請先返回完成目前對戰，再開始新局。</p>}
+          {prepareStep !== 'mode' && match.status === 'FINISHED' && <details><summary>開始新局的紀錄說明</summary><p>開始新對戰會依原流程取代目前戰局；查看選卡不會取代。</p></details>}
+        </aside>}
         {prepareStep === 'mode' ? <>
           {progress && progress.kinds > 0 && (() => {
             const last = progress.last;
@@ -327,7 +335,7 @@ function BeastTurnGameScreen() {
           <button className={styles.startBattle} onClick={() => { setPrepareStep('select'); setError(''); }}>① 進入簡單・選 3 張卡</button>
         </>) : prepareStep === 'select' ? <>
           <button className={styles.advancedBtn} onClick={() => { setPrepareStep('mode'); setSelected([]); setError(''); }}>進階玩法 ▸</button>
-          <button className={styles.startBattle} disabled={busy || selected.length !== 3} onClick={() => { void send('START', { lineup: selected, difficulty: 'NORMAL' }); }} style={selected.length === 3 ? { boxShadow: '0 0 20px rgba(59, 130, 246, 0.35)' } : {}}>
+          <button className={styles.startBattle} disabled={busy || selected.length !== 3 || (preparingExisting && match?.status === 'PLAYING')} onClick={() => { void send('START', { lineup: selected, difficulty: 'NORMAL' }); }} style={selected.length === 3 ? { boxShadow: '0 0 20px rgba(59, 130, 246, 0.35)' } : {}}>
             {busy ? '正在準備戰場…' : selected.length === 3 ? '✨ 開始對戰！' : `選滿 ${selected.length}/3 張`}
           </button>
         </> : <>
@@ -341,7 +349,7 @@ function BeastTurnGameScreen() {
 }
 
 /** 相剋戰力手冊由後端算好；外層載入一次，交給所有戰鬥元件照印。 */
-export default function BeastTurnGame() {
+export default function BeastTurnGame({ preparationEntry }: { preparationEntry?: boolean } = {}) {
   const guideBook = useFetchedGuideBook();
-  return <GuideBookProvider value={guideBook}><BeastTurnGameScreen /></GuideBookProvider>;
+  return <GuideBookProvider value={guideBook}><BeastTurnGameScreen preparationEntry={preparationEntry} /></GuideBookProvider>;
 }

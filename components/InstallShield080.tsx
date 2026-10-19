@@ -169,8 +169,8 @@ export default function InstallShield080() {
     const host = hostRef.current;
     if (!host || !phoneHost) return;
     const claim = () => {
-      const tap = pathname === '/' ? document.querySelector<HTMLElement>('[data-install-shield-slot]') : null;
-      const panel = pathname === '/' ? document.querySelector<HTMLElement>('[data-install-panel-slot]') : null;
+      const tap = pathname === '/' ? document.querySelector<HTMLElement>('[data-install-shield-slot]') : document.querySelector<HTMLElement>('[data-beast-install-slot]');
+      const panel = pathname === '/' ? document.querySelector<HTMLElement>('[data-install-panel-slot]') : document.querySelector<HTMLElement>('[data-beast-install-panel]');
       if (tap && panel) {
         setSlots({ tap, panel });
         host.style.display = 'none';
@@ -343,7 +343,7 @@ export default function InstallShield080() {
       setDeskSlot(null);
       return;
     }
-    const claim = () => setDeskSlot(pathname === '/' ? document.querySelector<HTMLElement>('[data-install-shield-slot]') : null);
+    const claim = () => setDeskSlot(pathname === '/' ? document.querySelector<HTMLElement>('[data-install-shield-slot]') : document.querySelector<HTMLElement>('[data-beast-install-slot]'));
     claim();
     window.addEventListener('tdh:install-slots', claim);
     return () => window.removeEventListener('tdh:install-slots', claim);

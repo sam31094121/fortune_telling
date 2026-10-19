@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "test:jest": "jest --runInBand",
     "dev": "next dev -H 0.0.0.0 -p 8888",
     "dev:optimize": "node scripts/optimize-start.js",
     "dev:safe": "concurrently \"next dev -H 0.0.0.0 -p 8888\" \"node scripts/homepage-guardian.js\"",
@@ -158,6 +159,11 @@
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
     "@eslint/eslintrc": "^3.3.7",
+    "@jest/globals": "30.5.2",
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/user-event": "14.6.8",
+    "@types/jest-axe": "3.5.9",
     "@types/node": "^20.14.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
@@ -165,6 +171,9 @@
     "concurrently": "^10.0.3",
     "eslint": "^9.39.5",
     "eslint-config-next": "^15.5.25",
+    "jest": "30.5.2",
+    "jest-axe": "10.0.0",
+    "jest-environment-jsdom": "30.5.2",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.6",
     "typescript": "^5.5.3"

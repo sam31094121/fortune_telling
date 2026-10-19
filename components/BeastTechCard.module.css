@@ -6,7 +6,7 @@
 .role{font-size:12px;line-height:1.7;color:#a5f3fc}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:12px;margin-top:8px}
 .stats span{padding:4px;background:#ffffff08;border-bottom:1px solid #22d3ee33}
-.detail{margin-top:8px;border-top:1px solid #67e8f933;font-size:13px;line-height:1.7}
+.detail{margin-top:8px;border-top:1px solid #67e8f933;font-size:14px;line-height:1.7}
 .detail summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:#fde68a;font-weight:700}
 .detail summary:focus-visible{outline:2px solid #67e8f9;outline-offset:2px}
 .detail p{margin-bottom:8px}.owned{font-size:12px;color:#cbd5e1;margin-top:6px}
