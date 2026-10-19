@@ -17,6 +17,8 @@ export type AsuraNatureView = AsuraNatureCardPublic;
 export type AsuraDisplayTone = 'awakened' | 'dormant' | 'pending';
 
 export interface AsuraDisplayEntry {
+  /** Optional stable navigation identity; never infer it from the visible label. */
+  id?: string;
   label: string;
   text: string;
   /** 白話：一句日常中文（≤25 字、無術語），顯示在該項最後。 */
@@ -90,6 +92,11 @@ export interface AsuraNarrativeBlock {
 }
 
 export interface AsuraDisplaySection {
+  /** Server-selected navigation only; absent means no suggested navigation. */
+  guidance?: {
+    stage?: { key: AsuraDisplayColumn['key']; ageText: string; seals: Array<{ id: string; name: string }> };
+    related: Array<{ columnKey: AsuraDisplayColumn['key']; ageText: string; id: string; name: string }>;
+  };
   key: 'hits' | 'pillars' | 'verdict';
   /** 段落主標：過去／現在／未來 */
   heading: string;

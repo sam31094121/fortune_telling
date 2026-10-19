@@ -20,6 +20,7 @@ import {
   type AnalysisIdentityTarget,
 } from '@/lib/identity-split-client';
 import { GhostAsuraCard } from '@/features/ghost-asura/components/GhostAsuraCard';
+import { AsuraVoiceCard } from '@/features/ghost-asura/components/AsuraVoiceCard';
 import type { AsuraDisplay } from '@/lib/ghost-asura-display-contract';
 import { dualChartHourStatus } from '@/lib/dual-chart-form';
 import { downloadAsPDF, downloadAsImage, generateFilename } from '@/lib/ghost-asura-download';
@@ -79,6 +80,8 @@ export default function GhostAsuraPageClient({
   const [error, setError] = useState('');
   const [missing, setMissing] = useState<string[]>([]);
   const [result, setResult] = useState<AsuraDisplay | null>(null);
+  // 修羅斷語（八字、紫微、易經一個口吻）：只存「送去後端的同一份生辰」，話術由後端組好
+  const [voiceBody, setVoiceBody] = useState<Record<string, unknown> | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const [downloading, setDownloading] = useState<'pdf' | 'image' | null>(null);
   const [actionMessage, setActionMessage] = useState('');
@@ -100,6 +103,7 @@ export default function GhostAsuraPageClient({
     calculationRef.current = null;
     setBusy(false);
     setResult(null);
+    setVoiceBody(null);
   }
 
   function quickRetake() {
@@ -289,6 +293,7 @@ export default function GhostAsuraPageClient({
     if (!unlocked || calculationRef.current) return;
     setError('');
     setResult(null);
+    setVoiceBody(null);
     const hour = asuraHourStatus(profile);
     const fields = [
       !profile.birthDate && 'birthDate',
@@ -339,6 +344,7 @@ export default function GhostAsuraPageClient({
       if (!response.ok || !data) {
         throw new Error(hasChinese(data?.error) ? data.error : `排盤暫時沒有完成（代碼 ${response.status}），請稍後再按一次；你填的資料都還在。`);
       }
+      setVoiceBody({ ...profile, identityTarget: target, calendarType: 'solar', timezone: 'Asia/Taipei' });
       setResult(data.data ?? null);
     } catch (e) {
       if (calculationRef.current !== request) return;
@@ -499,6 +505,9 @@ export default function GhostAsuraPageClient({
                   <GhostAsuraCard display={reading} />
                 </div>
               </div>
+
+              {/* 修羅斷語：八字、紫微、易經翻成同一個修羅口吻（後端組句，這裡只照印） */}
+              <AsuraVoiceCard body={voiceBody} />
 
               {/* 💾 下載秘卷 */}
               <div className={styles.downloadSection}>

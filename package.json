@@ -130,6 +130,7 @@
     "test:ghost-asura-card-toggle": "node tests/ghost-asura-card-toggle.test.mjs",
     "test:ghost-asura-life-stages": "npx --yes tsx tests/ghost-asura-life-stages.test.mjs",
     "test:ghost-asura-customer-output": "npx --yes tsx tests/ghost-asura-customer-output.test.mjs",
+    "test:ghost-asura-three-core-voice": "npx --yes tsx tests/ghost-asura-three-core-voice.test.mjs",
     "test:ghost-asura-skill": "node tests/ghost-asura-skill-coverage.test.cjs",
     "test:ghost-asura-completeness": "node tests/ghost-asura-completeness.test.mjs",
     "test:ghost-asura-frontend-completeness": "node tests/ghost-asura-frontend-completeness.test.mjs",

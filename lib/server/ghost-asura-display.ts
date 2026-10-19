@@ -11,6 +11,7 @@
 
 import { buildLifeStageView } from '@/lib/ghost-asura-life-stages';
 import 'server-only';
+import { buildReadingGuidance } from './asura-reading-guidance';
 import { Solar } from 'lunar-typescript';
 import { calculateDualChart, type DualChartResult } from '@/lib/dual-chart';
 import { buildFlowYearShenSha } from '@/lib/dual-chart-iching-shensha';
@@ -406,6 +407,7 @@ export function toAsuraDisplay(
     const { marks } = perCard[when];
     const reading = composeTime(when, marks, { name: options.targetName, target: options.identityTarget });
     const items: AsuraDisplayEntry[] = marks.map((mark) => ({
+      id: mark.resultId,
       label: mark.name,
       text: '',
       ...(ASURA_TIMELINE[mark.resultId]
@@ -416,6 +418,7 @@ export function toAsuraDisplay(
     }));
     return {
       key: frame.key,
+      guidance: buildReadingGuidance(columns, reading?.blocks.flatMap(block => block.ids) ?? [], when === 'present'),
       heading: frame.heading,
       label: frame.label,
       lead: '',

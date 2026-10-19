@@ -11,13 +11,15 @@
 'use client';
 
 
-import { Fragment, useMemo, useState, type SyntheticEvent } from 'react';
+import { Fragment, useMemo, useState, type SyntheticEvent, type CSSProperties } from 'react';
 import { animationConfig } from '@/lib/ghost-asura-animation';
 import type { AsuraDisplay, AsuraDisplaySeal } from '@/lib/ghost-asura-display-contract';
 import type { GhostAsuraReading } from '../types';
 import { GHOST_ASURA_CARD_TITLE, GHOST_ASURA_UI } from '../uiText';
 import styles from './GhostAsuraCard.module.css';
 import { AsuraNatureCard } from './AsuraNatureCard';
+import { SealMotion } from './SealMotion';
+import { PresentGuide, COLUMN_ACCENTS } from './PresentGuide';
 
 /** 點開印記卡後，捲到視線中央（卡片比畫面高就把標題對齊畫面上方，確保標題看得到）。
  *  等展開動畫（約 0.24 秒）跑完再算位置；使用者開了「減少動態」就不用平滑捲動。純畫面行為，不碰任何資料。 */
@@ -26,7 +28,18 @@ function focusOpenedDetail(event: SyntheticEvent<HTMLDetailsElement>) {
   if (!el.open) return;
   const card = el.closest('li') ?? el;
   window.setTimeout(() => {
-    if (!el.open) return;
+    if (!el.open || !el.isConnected) return;
+    // Modern reader: keep the tapped heading in place whenever it is already visible.
+    // Recentring every opened card makes the phone page jump during reading.
+    if (el.closest('[data-display-contract]')) {
+      const heading = el.querySelector('summary');
+      if (!heading) return;
+      const rect = heading.getBoundingClientRect();
+      if (rect.top >= 8 && rect.bottom <= window.innerHeight - 8) return;
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      heading.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+      return;
+    }
     const fits = card.getBoundingClientRect().height <= window.innerHeight * 0.88;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     card.scrollIntoView({ block: fits ? 'center' : 'start', inline: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
@@ -122,6 +135,7 @@ const TONE_SEAL: Record<AsuraDisplaySeal['tone'], string> = {
 };
 
 function DisplayCard({ display }: { display: AsuraDisplay }) {
+  const currentColumn = display.sections.find(section => section.key === 'pillars')?.guidance?.stage;
   const baseDelay =
     animationConfig.cardReveal.delay + animationConfig.cardReveal.duration + animationConfig.impressionGlow.delay;
   const [openKey, setOpenKey] = useState<string | null>(null);
@@ -238,6 +252,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
                 key={section.key}
                 type="button"
                 className={open ? `${styles.tileSquare} ${styles.tileSquareOn}` : styles.tileSquare}
+                style={section.key === 'pillars' && currentColumn ? { '--tab-accent': COLUMN_ACCENTS[currentColumn.key] } as CSSProperties : undefined}
                 aria-expanded={open}
                 aria-controls={`asura-fn-panel-${section.key}`}
                 data-asura-tile={section.key}
@@ -329,6 +344,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
                   {section.coda}
                 </p>
               )}
+              {(section.key === 'pillars' || section.key === 'verdict') && <PresentGuide display={display} sectionKey={section.key} />}
             </div>
           )}
         </section>
@@ -346,7 +362,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
         <div className={styles.pillarReadingGrid} data-asura-pillar-grid>
           <div className={styles.pillarsTable}>
             {display.columns.map((column) => (
-              <div key={column.key} className={styles.pillarColumn} data-asura-pillar-head={column.key}>
+              <div key={column.key} className={styles.pillarColumn} data-asura-pillar-head={column.key} data-current-stage={column.key === currentColumn?.key || undefined} style={{ '--pc': COLUMN_ACCENTS[column.key] } as CSSProperties}>
                 <div className={styles.pillarLabel}>{column.heading}</div>
                 <div className={styles.pillarValue} data-asura-leading>{column.lead}</div>
                 <small className={styles.pillarCount}>{column.countText}</small>
@@ -367,6 +383,8 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
               role="group"
               aria-label={`${column.heading}印記`}
               data-asura-column={column.key}
+              data-current-stage={column.key === currentColumn?.key || undefined}
+              style={{ '--pc': COLUMN_ACCENTS[column.key] } as CSSProperties}
             >
               {SHOW_LIFE_TEXT && column.life && column.life.headline && <p className={styles.lifeHeadline}>{column.life.headline}</p>}
               {SHOW_LIFE_TEXT && column.life && column.life.pointer && <p className={styles.lifePointer}>{column.life.pointer}</p>}
@@ -407,6 +425,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
                     <details className={styles.itemDetail} data-asura-detail name={`asura-col-${column.key}`} onToggle={focusOpenedDetail}>
                       <summary className={styles.itemHead}>
                         <strong className={styles.displayName}>{seal.name}</strong>
+                        <SealMotion id={seal.id} />
                       </summary>
                       <div className={styles.itemBody}>
                         <span className={TONE_SEAL[seal.tone]}>{seal.sealLabel}</span>

@@ -337,11 +337,9 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 }
 
 .itemAwakened:has(details[open])::before {
-  animation: goldGlimmer 2s ease-in-out infinite;
-  background: linear-gradient(45deg,
-    rgba(212, 175, 55, 0.1) 0%,
-    rgba(212, 175, 55, 0.3) 50%,
-    rgba(212, 175, 55, 0.1) 100%);
+  /* 展開後保持靜止，讓客戶閱讀；收合時沿用原提示。 */
+  animation: none;
+  background: none;
 }
 
 .itemDormant {
@@ -1888,3 +1886,190 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   margin-top: 10px;
 }
 .itemBody > :first-child { margin-top: 0; }
+
+/* Each modern seal has its own illustration; only the illustration moves. */
+.itemHead:has(.sealMotion) { position: relative; }
+.sealMotion { display: none; position: absolute; right: 28px; top: 50%; width: 28px; height: 28px; margin-top: -14px; color: #f8d88c; pointer-events: none; }
+.itemDetail[open] > .itemHead .sealMotion { display: block; animation: sealSceneOnce 800ms ease-out both; }
+.sealMotion svg { filter: drop-shadow(0 0 2px #d6a44388); }
+.itemDetail[open] .sealMotion path { stroke-dasharray: 1; animation: sealDraw 480ms ease-out both; }
+.itemDetail[open] .sealMotion[data-seal-motion='unfold'] svg { animation: sealUnfold 650ms ease-out both; }
+.itemDetail[open] .sealMotion[data-seal-motion='fall'] svg { animation: sealFall 650ms ease-out both; }
+.itemDetail[open] .sealMotion[data-seal-motion='orbit'] svg { animation: sealOrbit 700ms ease-out both; }
+.itemDetail[open] .sealMotion[data-seal-motion='rise'] svg { animation: sealRise 650ms ease-out both; }
+.itemDetail[open] .sealMotion[data-seal-motion='drift'] svg { animation: sealDrift 650ms ease-out both; }
+.itemDetail[open] .sealMotion[data-seal-motion='split'] svg { animation: sealSplit 700ms ease-out both; }
+.itemDetail[open] .sealMotion[data-seal-motion='slash'] svg { animation: sealSlash 550ms ease-out both; }
+@keyframes sealSceneOnce { 0% { opacity: 0; } 18%, 72% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes sealDraw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes sealUnfold { from { transform: scaleX(.12); } to { transform: scaleX(1); } }
+@keyframes sealFall { 0% { transform: translateY(-7px) scale(1.2); } 55% { transform: translateY(1px) scale(.95); } 100% { transform: none; } }
+@keyframes sealOrbit { from { transform: rotate(-65deg) scale(.7); } to { transform: rotate(0) scale(1); } }
+@keyframes sealRise { from { transform: translateY(8px) scale(.7); } to { transform: none; } }
+@keyframes sealDrift { from { transform: translateX(-8px) rotate(-8deg); } to { transform: none; } }
+@keyframes sealSplit { 0% { transform: scale(.65); } 65% { transform: scale(1.05); } 100% { transform: scale(1.12); } }
+@keyframes sealSlash { from { transform: translate(-6px,6px) rotate(-15deg); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .itemDetail[open] > .itemHead .sealMotion { display: none; animation: none; }
+  .itemDetail[open] .sealMotion svg, .itemDetail[open] .sealMotion path { animation: none; }
+}
+
+/* Owner-approved finish, scoped to the modern Asura display only. */
+.card[data-display-contract] .item {
+  border-color: rgba(197,166,102,.28);
+  border-left-color: color-mix(in srgb, var(--pc, #d7ad57) 65%, #514a3b);
+  background: linear-gradient(145deg,#25231f,#191917);
+  box-shadow: inset 0 1px 0 #ffffff08,0 2px 5px #0002;
+  border-radius: 10px;
+}
+.card[data-display-contract] .item:has(details[open]) {
+  border-color: #a88c57;
+  border-left-color: color-mix(in srgb, var(--pc, #d7ad57) 65%, #514a3b);
+  background: linear-gradient(145deg,#282620,#1d1d1a);
+  box-shadow: inset 0 1px 0 #ffffff0a,0 4px 10px #0003;
+}
+.card[data-display-contract] .displayName { color:#ead39a; text-shadow:none; letter-spacing:.035em; }
+.card[data-display-contract] .itemHead { min-height:44px; }
+.card[data-display-contract] .itemHead::after { background:linear-gradient(#d8bf84,#ac8a4f); box-shadow:inset 0 1px 0 #fff4; }
+.card[data-display-contract] .itemBody { border-top-color:#c5a66630; padding-top:16px; padding-bottom:12px; }
+.card[data-display-contract] .meaningStrong { color:#f0deb1; font-weight:650; margin-bottom:12px; }
+.card[data-display-contract] .itemBody .meaning { color:#e1ded4; line-height:1.85!important; }
+.card[data-display-contract] .itemBody .battleLine { color:#c9c6bc; line-height:1.85!important; margin-top:18px; }
+.card[data-display-contract] .sealAwakened { color:#e5c98a; background:#a88c5719; border:1px solid #c5a66640; }
+/* Keep the install action available in document flow, outside the reading surface. */
+:global(body):has(.card[data-display-contract]) :global(.taiji-install-shield) {
+  position:static!important; transform:none!important; opacity:1!important;
+  width:fit-content; margin:20px auto; z-index:auto;
+}
+
+/* Modern Asura cover: restrained lacquer, engraved gold, three matching tabs. */
+.card[data-display-contract] .asuraBanner {
+  padding:18px 8px; border-block:1px solid #b99a5b55;
+  background:radial-gradient(ellipse at 50% 45%,#60312430,transparent 70%),linear-gradient(135deg,#211c18,#151513);
+  box-shadow:inset 0 1px 0 #f5dfa00c,inset 0 -1px 0 #0008;
+}
+.card[data-display-contract] .asuraBanner:hover { transform:none; filter:none; }
+.card[data-display-contract] .asuraBanner::before { inset:0; opacity:.24; }
+.card[data-display-contract] .bannerTitle { margin:0; filter:drop-shadow(0 2px 1px #0008); }
+.card[data-display-contract] .bannerSeal { filter:drop-shadow(0 2px 3px #0007); }
+.card[data-display-contract] .asuraTiles { gap:10px; }
+.card[data-display-contract] .asuraTiles .tileSquare {
+  --tab-accent:#c28c5c; border:1px solid color-mix(in srgb,var(--tab-accent) 65%,#39332a);
+  border-radius:10px; color:#f1e2bd; text-shadow:0 1px 1px #0008;
+  background:linear-gradient(165deg,#ffffff09,transparent 40%),linear-gradient(145deg,color-mix(in srgb,var(--tab-accent) 22%,#25231f),#191917);
+  box-shadow:inset 0 1px 0 #ffffff10,0 3px 7px #0004; transform:none;
+}
+.card[data-display-contract] .asuraTiles .tileSquare:nth-child(2) { --tab-accent:#c5ab65; }
+.card[data-display-contract] .asuraTiles .tileSquare:nth-child(3) { --tab-accent:#7aa9b8; }
+.card[data-display-contract] .asuraTiles .tileSquare:nth-of-type(n)::after { color:#ddd1b4; font-weight:500; }
+.card[data-display-contract] .asuraTiles .tileSquareOn {
+  border-color:var(--tab-accent); background:linear-gradient(145deg,color-mix(in srgb,var(--tab-accent) 33%,#25231f),#24221d);
+  box-shadow:inset 0 -3px 0 var(--tab-accent),inset 0 1px 0 #ffffff15,0 3px 7px #0004;
+}
+.card[data-display-contract] .asuraTiles .tileSquare:not(:disabled):hover { color:#fff0cd; transform:none; border-color:var(--tab-accent); box-shadow:inset 0 1px 0 #ffffff20,0 3px 7px #0004; }
+.card[data-display-contract] .asuraTiles .tileSquare:not(:disabled):active { transform:translateY(1px); }
+.card[data-display-contract] .asuraTiles .tileSquare:focus-visible { outline:2px solid #f3d891; outline-offset:3px; }
+
+/* Header-only brush ink: a single quiet reveal, never a reading loop. */
+.card[data-display-contract] .asuraBanner { overflow:hidden; }
+.card[data-display-contract] .asuraBanner::before {
+  inset:5px 0; z-index:-1; opacity:.6; pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 160'%3E%3Cg fill='%2366382c'%3E%3Cpath d='M25 103L45 80 96 76 139 60 211 57 257 35 312 44 365 29 432 48 496 43 575 68 546 79 580 88 502 95 455 112 385 108 324 129 263 113 194 128 150 110 85 121 34 111 100 99 162 91 218 96 279 79 341 87 414 72 480 79 522 69 440 65 373 57 303 65 231 57 172 77 113 81Z'/%3E%3Cpath d='M47 126L167 114 244 128 347 118 423 124 552 99 474 127 374 135 285 133 210 141 136 125Z' opacity='.45'/%3E%3Ccircle cx='35' cy='65' r='3'/%3E%3Ccircle cx='551' cy='119' r='2'/%3E%3Ccircle cx='525' cy='36' r='3'/%3E%3C/g%3E%3Cg stroke='%23191714' stroke-width='2' opacity='.65'%3E%3Cpath d='M83 92L238 67M128 104L271 88M322 99L491 67M362 112L517 86'/%3E%3C/g%3E%3C/svg%3E") center/100% 100% no-repeat;
+  animation:asuraInkReveal 900ms ease-out both;
+}
+.card[data-display-contract] .bannerTitle { position:relative; z-index:1; }
+@keyframes asuraInkReveal {
+  from { opacity:0; clip-path:inset(0 100% 0 0); }
+  to { opacity:.6; clip-path:inset(0 0 0 0); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .card[data-display-contract] .asuraBanner::before { animation:none; clip-path:none; }
+}
+
+/* Make the three story tiles unmistakably actionable on phones. */
+.card[data-display-contract] .asuraTiles .tileSquare {
+  cursor:pointer; padding-bottom:30px;
+  border-color:color-mix(in srgb,var(--tab-accent) 85%,#e6d6ac);
+  box-shadow:inset 0 1px 0 #ffffff1f,inset 0 -3px 0 #0005,0 3px 7px #0004;
+}
+.card[data-display-contract] .asuraTiles .tileSquare:nth-of-type(n)::after {
+  content:'點開查看 ▾'; bottom:9px; left:4px; width:calc(100% - 8px);
+  font-size:12px; line-height:18px; font-weight:650; letter-spacing:0;
+  color:#f3e6c7; background:#ffffff08; border-radius:4px;
+}
+.card[data-display-contract] .asuraTiles .tileSquareOn:nth-of-type(n)::after { content:'收合 ▴'; }
+
+/* A brief touch glow, not a repeating animation. */
+.card[data-display-contract] .asuraTiles .tileSquare { transition:border-color 140ms ease,box-shadow 140ms ease,transform 140ms ease; }
+.card[data-display-contract] .asuraTiles .tileSquare:not(:disabled):active,
+.card[data-display-contract] .asuraTiles .tileSquare:focus-visible {
+  border-color:#efdeb4;
+  box-shadow:inset 0 0 9px #f2d99b19,0 0 10px color-mix(in srgb,var(--tab-accent) 30%,transparent);
+}
+@media(prefers-reduced-motion:reduce) { .card[data-display-contract] .asuraTiles .tileSquare { transition:none; } }
+
+/* Raised story tiles: a restrained resting halo and a small touch lift. */
+.card[data-display-contract] .asuraTiles .tileSquare {
+  box-shadow:inset 0 1px 0 #fff4,inset 0 -2px 0 #0005,0 5px 9px #0006,0 0 7px color-mix(in srgb,var(--tab-accent) 15%,transparent);
+}
+.card[data-display-contract] .asuraTiles .tileSquare:not(:disabled):active,
+.card[data-display-contract] .asuraTiles .tileSquare:focus-visible {
+  transform:translateY(-2px); border-color:#efdeb4;
+  box-shadow:inset 0 1px 0 #fff5,inset 0 0 9px #f2d99b19,0 7px 12px #0006,0 0 12px color-mix(in srgb,var(--tab-accent) 30%,transparent);
+}
+@media(hover:hover) {
+  .card[data-display-contract] .asuraTiles .tileSquare:not(:disabled):hover { transform:translateY(-2px); box-shadow:inset 0 1px 0 #fff4,0 7px 12px #0006,0 0 10px color-mix(in srgb,var(--tab-accent) 25%,transparent); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .card[data-display-contract] .asuraTiles .tileSquare:not(:disabled):active,
+  .card[data-display-contract] .asuraTiles .tileSquare:not(:disabled):hover,
+  .card[data-display-contract] .asuraTiles .tileSquare:focus-visible { transform:none; }
+}
+
+/* Personal nameplate: one fine border, a small seal, generous readable name. */
+.card[data-display-contract] .natureCard {
+  margin:0 auto; clip-path:none; border:1px solid #b89b604d; border-radius:8px;
+  background:linear-gradient(120deg,#2b221e,#1b1917 55%,#161614);
+  box-shadow:inset 0 1px 0 #ffffff08,0 3px 8px #0003;
+}
+.card[data-display-contract] .natureCard::before { opacity:.22; }
+.card[data-display-contract] .natureHead { grid-template-columns:34px minmax(0,1fr) 16px; gap:12px; min-height:100px; padding:16px 14px; }
+.card[data-display-contract] .natureSeal { width:34px; height:56px; font-size:16px; background:linear-gradient(145deg,#76382e,#4e231f); box-shadow:inset 0 0 0 1px #d6b78055,inset 0 0 0 3px #351b1844; }
+.card[data-display-contract] .natureName { font-size:24px; line-height:1.35; letter-spacing:.08em; color:#f0ddb2; text-shadow:0 1px 1px #0006; white-space:normal; overflow-wrap:anywhere; }
+.card[data-display-contract] .natureNameBlock { gap:8px; }
+.card[data-display-contract] .natureLegend { font-size:13px; line-height:1.5; letter-spacing:.08em; gap:7px; padding-top:7px; color:#bcb09a; border-top-color:#b89b6026; }
+.card[data-display-contract] .natureChevron { width:9px; height:9px; border-color:#baa16b; }
+.card[data-display-contract] .naturePanel { padding:0 14px 16px; gap:14px; }
+.card[data-display-contract] .sectionTitle { color:#dfcca2; }
+.card[data-display-contract] .summaryFooter { border-top-color:#b89b6030; }
+@media(max-width:380px) { .card[data-display-contract] .natureName { font-size:22px; } }
+
+/* Modern reader rhythm: settle quickly; no moving text or repeated effects. */
+.card[data-display-contract] .natureChevron { transition:transform 220ms ease-out; }
+.card[data-display-contract] .naturePanel:not([hidden]),
+.card[data-display-contract] .fnPanel:not([hidden]) { animation:asuraReadingReveal 220ms ease-out; }
+@keyframes asuraReadingReveal { from { opacity:.45; } to { opacity:1; } }
+@supports selector(::details-content) {
+  .card[data-display-contract] .itemDetail::details-content,
+  .card[data-display-contract] .supplement::details-content {
+    transition:height 220ms ease-out,opacity 220ms ease-out,content-visibility 220ms allow-discrete;
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  .card[data-display-contract] .natureChevron,
+  .card[data-display-contract] .itemDetail::details-content,
+  .card[data-display-contract] .supplement::details-content { transition:none; }
+  .card[data-display-contract] .naturePanel:not([hidden]),
+  .card[data-display-contract] .fnPanel:not([hidden]) { animation:none; }
+}
+
+.presentGuide { display:grid; gap:20px; margin-top:22px; padding-top:18px; border-top:1px solid #b89b6040; }
+.presentGuide section { --guide-accent:#c5ab65; min-width:0; }
+.presentGuide strong { color:#efddb5; font-size:15px; }
+.presentGuide p { color:#cec7b7; font-size:14px; line-height:1.7; margin:8px 0 12px; }
+.presentGuide button { min-height:44px; padding:9px 12px; border:1px solid color-mix(in srgb,var(--guide-accent) 65%,#544c3d); border-left:3px solid var(--guide-accent); border-radius:8px; background:color-mix(in srgb,var(--guide-accent) 9%,#201e1a); color:#eee1c4; text-align:left; font-size:14px; line-height:1.5; cursor:pointer; }
+.presentGuide button:focus-visible { outline:2px solid #f0dca2; outline-offset:3px; }
+.guideLinks { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+.card[data-display-contract] [data-current-stage='true'][data-asura-pillar-head] { border-color:var(--pc); }
+.card[data-display-contract] [data-asura-pillar-head]:focus,
+.card[data-display-contract] [data-asura-column] summary:focus { outline:2px solid var(--pc); outline-offset:2px; scroll-margin-top:16px; }
