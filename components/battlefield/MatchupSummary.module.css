@@ -187,3 +187,7 @@
     font-size: 16px;
   }
 }
+
+/* 2026-10-17 客戶實玩：右欄「相生相剋 +20%」小晶片 10～11px 太小，提到 12～13px。 */
+.label { font-size: 12px !important; }
+.percent { font-size: 13px !important; font-weight: 800; }

@@ -271,13 +271,13 @@ assert.equal(combatChanges(countered,'player','beast_a01'),'受傷 −10','Count
 const shield = impactMatch(); shield.opponent.team[0].shield = 70;
 const shielded = advance(shield,{type:'ATTACK'},{type:'ATTACK'});
 assert.equal(shielded.opponent.team[0].hp,shield.opponent.team[0].hp);
-assert.match(combatChanges(shielded,'opponent','beast_a02'),/^護盾 −\d+$/);
+assert.match(combatChanges(shielded,'opponent','beast_a02'),/^盾被打掉 \d+$/);
 const heal = impactMatch('beast_a04'); heal.player.team[0].hp=150;
 const healed = advance(heal,{type:'SKILL'},{type:'ATTACK'});
 assert.match(combatChanges(healed,'player','beast_a04'),/回復 ＋10/,'Healing is capped at actual maximum');
 const guard = impactMatch('beast_a03'); guard.player.team[0].shield=60;
 const guarded = advance(guard,{type:'SKILL'},{type:'ATTACK'});
-assert.match(combatChanges(guarded,'player','beast_a03'),/護盾 ＋10/,'Shield gain reflects the actual cap');
+assert.match(combatChanges(guarded,'player','beast_a03'),/獲得護盾 10/,'Shield gain reflects the actual cap');
 assert.equal(combatChanges(replaced,'player',replaced.player.team[0].cardId),'','Replacement has no fabricated hit');
 const legacyLog = structuredClone(killed); legacyLog.log.forEach(entry=>delete entry.changes);
 assert.equal(combatChanges(legacyLog,'opponent','beast_a02'),'','Old saved matches never infer damage from formulas');
