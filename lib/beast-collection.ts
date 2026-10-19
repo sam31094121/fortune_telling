@@ -9,6 +9,19 @@ const JOURNAL_KEY = 'tdh_beast_duel_pending_v1';
 export const COLLECTION_UPDATED = 'tdh-beast-collection-updated';
 export const COLLECTION_STORAGE_NOTICE = '收藏保存在此瀏覽器；換手機或清除網站資料不會保留。';
 const LOCK = 'tdh-beast-collection';
+/*
+  困難戰場「進行中的一場」（2026-10-19 業主定調：重新整理後接續原戰局，押注卡繼續押著）。
+  存 localStorage，不用 sessionStorage：iOS／LINE 內建瀏覽器關掉分頁或被系統回收後 sessionStorage 會消失，
+  那等於「關掉重開就能把押注卡拿回來」。押注保留（pending）本來就在 localStorage，兩者放在同一處才一致。
+  後端簽名票才是真相；這裡只是把票帶回去。過期或驗章失敗才照舊退回押注卡。
+*/
+const LIVE_BATTLE_KEY = 'tdh_beast_field_live_v1';
+/** 與後端 BATTLE_SESSION_MAX_AGE_MS 相同（12 小時）；後端仍會再驗一次。 */
+export const LIVE_BATTLE_MAX_AGE_MS = 12 * 60 * 60 * 1000;
+export interface LiveBattle { v: 1; matchId: string; token: string; startedAt: number; savedAt: number; stakeCardId: string | null; table: unknown }
+/** 頁面離開（非結算）時用這個錯誤中斷等待：押注卡繼續押著，回來接續。 */
+export const BATTLE_HELD = 'BATTLE_HELD';
+const isHeld = (error: unknown) => error instanceof Error && error.name === BATTLE_HELD;
 const EMPTY: BeastCollection = { cards: [], history: [], granted: [], receipts: {} };
 const now = () => new Date().toISOString();
 
@@ -52,6 +65,31 @@ async function exclusive<T>(action: () => Promise<T> | T): Promise<T> {
     if (!lock) throw new Error('另一個分頁正在處理這場對戰，請稍後再試。');
     return action();
   });
+}
+
+export function readLiveBattle(now = Date.now()): LiveBattle | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const value = readJson(LIVE_BATTLE_KEY, null) as LiveBattle | null;
+    if (!value || value.v !== 1 || typeof value.matchId !== 'string' || typeof value.token !== 'string' || typeof value.startedAt !== 'number') return null;
+    return now - value.startedAt > LIVE_BATTLE_MAX_AGE_MS ? null : value;
+  } catch { return null; }
+}
+export function saveLiveBattle(battle: Omit<LiveBattle, 'v' | 'savedAt'>): void {
+  window.localStorage.setItem(LIVE_BATTLE_KEY, JSON.stringify({ v: 1, ...battle, savedAt: Date.now() }));
+}
+/** 每一招回來就換成最新的票；只更新同一場。 */
+export function updateLiveBattleToken(matchId: string, token: string): void {
+  try {
+    const current = readJson(LIVE_BATTLE_KEY, null) as LiveBattle | null;
+    if (current?.matchId === matchId) window.localStorage.setItem(LIVE_BATTLE_KEY, JSON.stringify({ ...current, token, savedAt: Date.now() }));
+  } catch { /* 存不進去時，重新整理就退回現行做法（押注卡未扣除）。 */ }
+}
+export function clearLiveBattle(matchId?: string): void {
+  try {
+    const current = readJson(LIVE_BATTLE_KEY, null) as LiveBattle | null;
+    if (!matchId || !current || current.matchId === matchId) window.localStorage.removeItem(LIVE_BATTLE_KEY);
+  } catch { window.localStorage.removeItem(LIVE_BATTLE_KEY); }
 }
 
 type AwardResult = { ok: boolean; isReplay?: boolean; stake?: StakeOutcome; error?: string };
@@ -98,24 +136,53 @@ export async function runOwnedStakesDuel(entryIds:string[],play:(entries:Array<{
   const matchId=crypto.randomUUID();const reserved=reserveOwnedStakes(readStrict(),entryIds,matchId,now());write(reserved);
   let result:AwardResult;
   try{result=await play(reserved.pending!.entries!);if(!result.ok||!result.stake||result.isReplay)throw new Error(result.error??'沒有有效戰果，沒有扣卡。');}
-  catch(e){const current=readStrict();if(current.pending?.id===matchId)write({...current,pending:null});throw e;}
+  catch(e){if(isHeld(e))throw e;const current=readStrict();if(current.pending?.id===matchId)write({...current,pending:null});clearLiveBattle(matchId);throw e;}
   try{window.localStorage.setItem(JOURNAL_KEY,JSON.stringify({matchId,result}));}catch{/* Ledger write still attempted; no saved claim on failure. */}
-  return {result,settlement:applyStakeOutcome(matchId,result.stake!)};
+  const settlement=applyStakeOutcome(matchId,result.stake!);if(settlement.saved)clearLiveBattle(matchId);
+  return {result,settlement};
  });
 }
 
+/**
+ * 重新整理後接續同一場：沿用原本的押注保留（同一個 matchId），不重新押、不先退回。
+ * 結算一樣走 receipts[matchId]，所以同一場最多結算一次。
+ */
+export async function resumeOwnedStakesDuel(matchId:string,play:(entries:Array<{id:string;cardId:string}>)=>Promise<AwardResult>):Promise<{result:AwardResult;settlement:Settlement}>{
+ return exclusive(async()=>{
+  const current=readStrict();
+  if(!current.pending||current.pending.id!==matchId||!current.pending.entries)throw new Error('押注紀錄不一致，無法接續上一場。');
+  const result=await play(current.pending.entries);
+  if(!result.ok||!result.stake)throw new Error(result.error??'沒有有效戰果，押注卡仍保留。');
+  try{window.localStorage.setItem(JOURNAL_KEY,JSON.stringify({matchId,result}));}catch{/* Ledger write still attempted. */}
+  const settlement=applyStakeOutcome(matchId,result.stake);if(settlement.saved)clearLiveBattle(matchId);
+  return {result,settlement};
+ });
+}
+
+/** 戰局票過期或驗章失敗：照舊退回押注卡（未扣除）。 */
+export async function releaseLiveBattle(matchId:string):Promise<void>{
+ await exclusive(()=>{const current=readStrict();if(current.pending?.id===matchId)write({...current,pending:null});clearLiveBattle(matchId);});
+}
+
 /** An interrupted request without a received outcome never confiscates a customer's card. */
-export async function recoverPendingDuel<T extends AwardResult>(): Promise<{ result?: T; settlement?: Settlement; interrupted?: boolean }> {
+export async function recoverPendingDuel<T extends AwardResult>(): Promise<{ result?: T; settlement?: Settlement; interrupted?: boolean; liveBattle?: LiveBattle }> {
   return exclusive(() => {
     const current = readStrict();
     const journal = readJson(JOURNAL_KEY, null) as { matchId: string; result: T } | null;
     if (journal?.result?.stake) {
-      return { result: journal.result, settlement: applyStakeOutcome(journal.matchId, journal.result.stake) };
+      const settlement = applyStakeOutcome(journal.matchId, journal.result.stake);
+      if (settlement.saved) clearLiveBattle(journal.matchId);
+      return { result: journal.result, settlement };
     }
+    // 困難戰場還在打的那一場：押注卡繼續押著，交給戰場頁接續（不退回、不重押）。
+    const live = readLiveBattle();
+    if (current.pending && live && live.matchId === current.pending.id && current.pending.entries) return { liveBattle: live };
     if (current.pending) {
       write({ ...current, pending: null });
+      clearLiveBattle();
       return { interrupted: true };
     }
+    clearLiveBattle();
     return {};
   });
 }
