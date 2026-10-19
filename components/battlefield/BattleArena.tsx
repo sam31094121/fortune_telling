@@ -26,12 +26,14 @@ import TeamRosterPanel from './TeamRosterPanel';
 
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
 /** Both fighters stay above the controls. All displayed combat values come from Match. */
-export default function BattleArena({ state, cards, match, view, onInspect, onSwap, onSkill, playing = false }: {
+export default function BattleArena({ state, cards, match, view, onInspect, onAttack, tapToAttack = false, onSwap, onSkill, playing = false }: {
   playing?: boolean; cards: BattlefieldCardArt[]; onInspect: (id: string, side: 'player' | 'opponent') => void;
   /** 後端送來的可出招清單與合體教學；畫面照印。 */
   view?: BattleView | null;
   quietNote?: boolean;
   onAttack?: (() => void) | null;
+  /** Only the easy mode opts into tapping its fighter to attack. */
+  tapToAttack?: boolean;
   onSwap?: ((action: Action) => void) | null;
   onSkill?: ((action: Action) => void) | null;
 } & ({ match: Match; state?: BattleState } | { match: Match | null; state: BattleState })) {
@@ -117,13 +119,14 @@ export default function BattleArena({ state, cards, match, view, onInspect, onSw
                   intensity={action === 'RAGE' ? 'heavy' : action === 'SKILL' ? 'medium' : 'light'}
                   isSkill={action === 'SKILL' || action === 'RAGE'}
                 />
-                <button type="button" disabled={!card || playing} aria-label={card ? `查看${card.name}的卡面與能力` : '等待主戰卡上場'} onClick={() => { if (card) onInspect(card.id, side); }}
+                <button type="button" disabled={!card || playing || (tapToAttack && side === 'player' && !onAttack)} aria-label={card ? tapToAttack && side === 'player' ? `讓${card.name}普通攻擊` : `查看${card.name}的卡面與能力` : '等待主戰卡上場'} onClick={() => { if (card) { if (tapToAttack && side === 'player') onAttack?.(); else onInspect(card.id, side); } }}
                   className={`${styles.art} ${fighter?.defeated ? styles.defeated : ''}`}>
                   {card ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={card.thumbnail} alt={card.name} width={256} height={384} decoding="async" draggable={false} />
                   ) : <span className={styles.empty}>{side === 'player' ? '◎' : '☯'}</span>}
                 </button>
+                {tapToAttack && side === 'player' && card && <button type="button" className={styles.easyInspect} disabled={playing} onClick={() => onInspect(card.id, side)} aria-label={`查看${card.name}的卡面與能力`}>能力</button>}
                 {action && <span className={styles.actionCue} role="status" aria-label={action === 'RAGE' ? '暴怒合體' : action === 'SKILL' ? '技能' : action === 'ATTACK' ? '攻擊' : action === 'SKIP' ? '受控' : action === 'REPLACEMENT' ? '接替' : '換卡'}>{action === 'RAGE' ? '🔥' : action === 'SKILL' ? '✦' : action === 'ATTACK' ? '⚔' : action === 'SKIP' ? '⊘' : action === 'REPLACEMENT' ? '⇄' : '⇌'}</span>}
               </div>
               {fighter && match && team && (() => {

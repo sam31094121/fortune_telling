@@ -23,6 +23,7 @@ import { useCombatPlayback } from './battlefield/useCombatPlayback';
 import BattleHelpPanel from './battlefield/BattleHelpPanel';
 import VictoryAnimation from './battlefield/VictoryAnimation';
 import StarterPackAfterBattle from './StarterPackAfterBattle';
+import EasyFirstMatchup from './battlefield/EasyFirstMatchup';
 
 type Card = ReturnType<typeof interactiveCatalog>[number];
 // Account progression remains on the server; this screen reads only battle data.
@@ -160,12 +161,18 @@ function BeastTurnGameScreen({ preparationEntry = false }: { preparationEntry?: 
     const inspect = (cardId: string, side: 'player' | 'opponent') => { setAutomatic(false); setInspection({ cardId, side }); scroll.current?.scrollTo({ top: 0 }); };
     const attackAction = match.status === 'PLAYING' && !busy && !playing && !error ? battleView?.legal.find(a => a.type === 'ATTACK') : undefined;
     const onAttack = attackAction ? () => act(attackAction) : null;
+    const easyHint = match.player.team[match.player.active].defeated
+      ? '主戰休息了，點一張後備接著上場。'
+      : automatic ? '正在自動出招；想自己試，先按「暫停」。'
+        : battleView?.legal.some(action => action.type === 'SKILL')
+          ? '點自己的神獸攻擊，也可以試試亮起的技能。'
+          : '點自己的神獸攻擊；技能亮起時就能用。';
     return <main className={`${battleStyles.page} ${styles.calmBattle}`} data-mobile-battle>
       <VictoryAnimation show={match.status === 'FINISHED' && !playing} winner={match.winner === 'player' ? 'player' : null} />
       <div className={battleStyles.shell}>
         <header className={battleStyles.header}><h1>三卡免費戰場</h1><div className={styles.headerActions}><Link href="/" onClick={() => setAutomatic(false)} title="本場進度保留，回來可繼續">回首頁</Link><BattleHelpPanel onOpen={() => setAutomatic(false)} /></div></header>
         <div className={battleStyles.split} data-battle-split data-inspecting={Boolean(inspection)} data-finished={match.status === 'FINISHED' && !playing}>
-          <BattleArena match={match} view={battleView} cards={cards} onInspect={inspect} onAttack={onAttack} playing={playing}
+          <BattleArena match={match} view={battleView} cards={cards} onInspect={inspect} onAttack={automatic ? null : onAttack} tapToAttack playing={playing}
             onSwap={match.status === 'PLAYING' && !busy && !playing && !error ? (action) => act(action) : null}
             onSkill={match.status === 'PLAYING' && !busy && !playing && !error ? (action) => act(action) : null} />
           <section className={battleStyles.controls} aria-label="手部操控" data-battle-controls>
@@ -175,6 +182,8 @@ function BeastTurnGameScreen({ preparationEntry = false }: { preparationEntry?: 
               {inspection && <BattleCardGuide cardId={inspection.cardId} live={Boolean(inspected)} liveGuide={battleView?.guides[inspection.side][inspection.cardId] ?? null} enemyGuide={battleView?.guides[inspection.side === 'player' ? 'opponent' : 'player'][other.team[other.active].cardId] ?? null} opponentElement={other.team[other.active].element} onClose={() => { setInspection(null); scroll.current?.scrollTo({ top: 0 }); }} />}
               <div hidden={Boolean(inspection) || (Boolean(error) && match.status === 'PLAYING')}>
                 <BattlePace match={match} automatic={automatic} blocked={busy || playing || Boolean(error) || Boolean(inspection)} canAct={Boolean(battleView?.legal.length)} onAutomatic={setAutomatic} onAuto={autoStep} />
+                {match.status === 'PLAYING' && !busy && !playing && Boolean(battleView?.legal.length) && <p className={styles.pickHint} role="status" data-easy-play-hint>{easyHint}</p>}
+                <EasyFirstMatchup matchup={battleView?.guides.matchup} turn={`${match.seed}:${match.round}`} enabled={match.status === 'PLAYING' && !busy && !playing} className={styles.pickHint} />
                 <BattlePanel match={match} view={battleView} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
                 {/* 預覽用寶珠面板：魔珠與暴怒已由戰鬥引擎結算並顯示在戰場右欄，這裡隱藏。 */}
                 {(false as boolean) && match.status === 'PLAYING' && (() => {
@@ -198,6 +207,7 @@ function BeastTurnGameScreen({ preparationEntry = false }: { preparationEntry?: 
                 })()}
                 {match.status === 'FINISHED' && !playing ? <>
                   <p className={styles.prepareRule} data-free-card-balance>本場押注 0 張、輸掉 0 張。免費戰鬥不發押卡獎勵；首戰贈卡另計。</p>
+                  <p className={styles.pickHint} data-easy-replay-hint>想再試一次？選「同陣容再戰」直接開始；想換伙伴，就選「更換陣容」。</p>
                   <BeastBattleVoice id={`free:${match.seed}:${account?.revision}`} text={`${match.winner === 'player' ? '恭喜獲勝！' : match.winner === 'opponent' ? '本場易經獲勝。' : '本場平手。'}可以更換陣容再挑戰。`} />
                   <StarterPackAfterBattle completed="battlefield" />
                 </> : <details className={battleStyles.details} onToggle={event => { if (event.currentTarget.open) setAutomatic(false); }}>
@@ -295,14 +305,14 @@ function BeastTurnGameScreen({ preparationEntry = false }: { preparationEntry?: 
               : selected.length === 2 ? '再選後備 2 (2/3)'
               : '三張齊了・按下方開始'}
           </p>
-          <p className={styles.prepareRule}>開戰後由你自己出招；想讓它自動連擊，按「自動」。</p>
+          <p className={styles.prepareRule}>第一張先上場，另外兩張當後備。開戰後點自己的神獸攻擊，技能亮起再試；想輕鬆看對戰，按「自動」。</p>
           {/*
             三卡免費戰場「不押收藏、不發押卡獎勵」（技能檔案〈十一〉）。
             這裡原本整塊嵌了收藏押注面板（最多押 20 張、輸了沒收），跟標題「不扣收藏卡」互相矛盾，
             還把卡片推到三屏半之後。2026-09-15 依指示隱藏，程式碼保留；押注請走中等／困難入口。
           */}
           <div className={styles.filters} aria-label="元素篩選">{['全部', ...Object.keys(labels)].map(element => <button key={element} aria-pressed={filter === element} onClick={() => setFilter(element)}>{labels[element] ?? element}</button>)}</div>
-          <div className={styles.grid}>{cards.filter(c => filter === '全部' || c.element === filter).map(card => <div className={`${styles.card} ${styles.pickCard}`} key={card.id}>
+          <div className={`${styles.grid} ${styles.easyPickGrid}`}>{cards.filter(c => filter === '全部' || c.element === filter).map(card => <div className={`${styles.card} ${styles.pickCard}`} key={card.id}>
             {selected.includes(card.id) && <span className={styles.pickOrder}>第 {selected.indexOf(card.id) + 1} 張</span>}
             <BeastCardTile card={card} selected={selected.includes(card.id)} onOpen={() => {
               if (selected.includes(card.id)) {
