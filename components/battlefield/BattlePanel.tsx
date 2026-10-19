@@ -279,13 +279,14 @@ export function BattleLog({ match }: { match: Match }) {
 }
 
 const BattlePanel = memo(function BattlePanel({
-  match, view, onAction, busy, compact, swapOnSide, cards, relaxed, onBrowse,
+  match, view, onAction, busy, compact, swapOnSide, cards, relaxed, onBrowse, showLog = true,
 }: {
   match: Match;
   view?: BattleView | null;
   onAction: (action: Action) => void;
   busy?: boolean;
   compact?: boolean;
+  showLog?: boolean;
   attackOnCard?: boolean;
   swapOnSide?: boolean;
   cards?: BattlefieldCardArt[];
@@ -435,7 +436,7 @@ const BattlePanel = memo(function BattlePanel({
         <BattleActionBar match={match} view={view} onAction={onAction} busy={busy} compact={compact} attackOnCard={false} swapOnSide={swapOnSide} cards={cards} relaxed={relaxed} onBrowse={onBrowse} />
       )}
 
-      {compact ? <details className={styles.battleDetails} onToggle={event => { if (event.currentTarget.open) onBrowse?.(); }}><summary>本回合戰報{match.log.length ? `・${match.log.length} 則` : ''}</summary><BattleLog match={match} /></details> : <BattleLog match={match} />}
+      {showLog && (compact ? <details className={styles.battleDetails} onToggle={event => { if (event.currentTarget.open) onBrowse?.(); }}><summary>本回合戰報{match.log.length ? `・${match.log.length} 則` : ''}</summary><BattleLog match={match} /></details> : <BattleLog match={match} />)}
     </section>
   );
 });

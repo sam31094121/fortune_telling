@@ -129,3 +129,38 @@
 
 :global(body):has(.calmBattle) :global([data-install-shield-inline='080']),
 :global(body):has(.preparation) :global([data-install-shield-inline='080']){display:none!important}
+
+/* Owner refinement: more battlefield, compact but touchable controls. */
+.calmBattle [aria-label='本回合指令']>button{height:56px;min-height:56px}
+.calmBattle .easyUtility{margin-bottom:6px}
+.calmBattle .easyAbility{width:46px;height:44px}
+@media(max-width:600px){.calmBattle [data-battle-split]:not([data-inspecting='true']){grid-template-rows:minmax(320px,calc(100svh - 280px)) auto}.calmBattle [data-battle-controls]{min-height:220px}}
+
+/* Top-centred pace; the main field stays clear of overlays. */
+.calmBattle{position:relative}
+.calmBattle>div{grid-template-rows:88px minmax(0,1fr)}
+.calmBattle>div>header{padding-top:44px}
+.calmBattle .easyUtility [aria-label='戰鬥節奏']{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:10}
+.calmBattle .easyUtility{justify-content:flex-end;gap:8px}
+.calmBattle [data-next-action]{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(max-width:600px){.calmBattle [data-battle-split]:not([data-inspecting='true']){grid-template-rows:minmax(320px,calc(100svh - 240px)) auto}.calmBattle [data-battle-controls]{min-height:140px}}
+
+/* Final mobile spacing: full action row remains inside the viewport. */
+.calmBattle [data-battle-controls]{grid-template-rows:0 minmax(0,1fr) auto}
+.calmBattle [data-battle-controls]>div:first-child{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.calmBattle [aria-label='本回合指令']>button{padding:4px 3px;overflow:hidden;border-radius:12px}
+.calmBattle [aria-label='本回合指令'] strong{font-size:12px;line-height:15px}
+.calmBattle [aria-label='本回合指令'] small{font-size:10px;line-height:12px}
+.calmBattle .easyUtility{margin-bottom:4px}
+@media(max-width:600px){.calmBattle [data-battle-split]:not([data-inspecting='true']){grid-template-rows:minmax(280px,calc(100svh - 270px)) auto}.calmBattle [data-battle-controls]{min-height:124px}.calmBattle [data-control-scroll]{padding:8px}.calmBattle [aria-label='本回合指令']{margin-top:4px}}
+
+/* Single top row: title, centred pace, navigation. */
+.calmBattle>div{grid-template-rows:44px minmax(0,1fr)}
+.calmBattle>div>header{padding-top:0}
+.calmBattle>div>header h1{font-size:12px;max-width:100px;white-space:nowrap}
+.calmBattle .headerActions{gap:3px}
+.calmBattle .headerActions a{font-size:12px}
+@media(max-width:600px){.calmBattle [data-battle-split]:not([data-inspecting='true']){grid-template-rows:minmax(280px,calc(100svh - 226px)) auto}}
+
+/* Replacement choices must never be clipped by the compact action dock. */
+@media(max-width:600px){.calmBattle [data-battle-controls]{display:block;min-height:0}.calmBattle [data-control-scroll]{overflow:visible}.calmBattle [aria-label='選擇接替主戰的後備']{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.calmBattle [aria-label='選擇接替主戰的後備']>button{min-width:0;min-height:64px;white-space:normal}.calmBattle [aria-label='選擇接替主戰的後備']~*{min-width:0}}

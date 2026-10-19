@@ -9,7 +9,7 @@ import type { BattleView } from '@/lib/beast-game/battle-view';
 import type { interactiveCatalog, Match, Action } from '@/lib/beast-game/interactive';
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
 import BattleArena from './battlefield/BattleArena';
-import BattlePanel from './battlefield/BattlePanel';
+import BattlePanel, { BattleLog } from './battlefield/BattlePanel';
 import FusionOrbHud from './battlefield/FusionOrbHud';
 import BeastBattleVoice from './BeastBattleVoice';
 import BattleCardGuide from './battlefield/BattleCardGuide';
@@ -23,7 +23,6 @@ import { useCombatPlayback } from './battlefield/useCombatPlayback';
 import BattleHelpPanel from './battlefield/BattleHelpPanel';
 import VictoryAnimation from './battlefield/VictoryAnimation';
 import StarterPackAfterBattle from './StarterPackAfterBattle';
-import EasyFirstMatchup from './battlefield/EasyFirstMatchup';
 
 type Card = ReturnType<typeof interactiveCatalog>[number];
 // Account progression remains on the server; this screen reads only battle data.
@@ -40,6 +39,7 @@ function BeastTurnGameScreen({ preparationEntry = false }: { preparationEntry?: 
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [automatic, setAutomatic] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [prepareStep, setPrepareStep] = useState<'mode' | 'select' | 'confirm'>('mode');
   const [starterPackClaimed, setStarterPackClaimed] = useState<boolean | null>(null);
   /** 回來就知道下一步：這台裝置真的持有幾種卡、上一場結果。沒有就不顯示，不編數字。 */
@@ -192,11 +192,10 @@ function BeastTurnGameScreen({ preparationEntry = false }: { preparationEntry?: 
                     <circle cx="6" cy="29" r="2" fill="#ebcf83" />
                   </svg>
                 </button>
+                  <button type="button" className={styles.easyAbility} aria-label="戰鬥說明與戰報" aria-expanded={helpOpen} onClick={() => { setHelpOpen(open => !open); setAutomatic(false); }}>ⓘ</button>
                 </div>
-                {match.status === 'PLAYING' && !busy && !playing && Boolean(battleView?.legal.length) && <p className={styles.pickHint} role="status" data-easy-play-hint>{easyHint}</p>}
-                <EasyFirstMatchup matchup={battleView?.guides.matchup} turn={`${match.seed}:${match.round}`} enabled={match.status === 'PLAYING' && !busy && !playing} className={styles.pickHint} />
 
-                <BattlePanel match={match} view={battleView} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
+                <BattlePanel showLog={false} match={match} view={battleView} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
                 {/* 預覽用寶珠面板：魔珠與暴怒已由戰鬥引擎結算並顯示在戰場右欄，這裡隱藏。 */}
                 {(false as boolean) && match.status === 'PLAYING' && (() => {
                   const active = match.player.team[match.player.active];
@@ -222,11 +221,14 @@ function BeastTurnGameScreen({ preparationEntry = false }: { preparationEntry?: 
                   <p className={styles.pickHint} data-easy-replay-hint>想再試一次？選「同陣容再戰」直接開始；想換伙伴，就選「更換陣容」。</p>
                   <BeastBattleVoice id={`free:${match.seed}:${account?.revision}`} text={`${match.winner === 'player' ? '恭喜獲勝！' : match.winner === 'opponent' ? '本場易經獲勝。' : '本場平手。'}可以更換陣容再挑戰。`} />
                   <StarterPackAfterBattle completed="battlefield" />
-                </> : <details className={battleStyles.details} onToggle={event => { if (event.currentTarget.open) setAutomatic(false); }}>
-                  <summary>說明</summary>
+                </> : null}
+                {helpOpen && <section className={battleStyles.details} aria-label="戰鬥說明與戰報">
+                  <BattleLog match={match} />
+                  {match.status === 'PLAYING' && <p data-easy-play-hint>{easyHint}</p>}
+                  {battleView?.guides.matchup && <p>{battleView.guides.matchup.headline}</p>}
                   <p>切換先攻；同速隨機；最多 80 回；擊倒三隻獲勝。回首頁會保留進度；選「離開本場」則結束這場，兩者都不扣收藏卡。</p>
                   <button type="button" className={battleStyles.restart} disabled={busy} onClick={() => void send('LEAVE')}>離開本場</button>
-                </details>}
+                </section>}
               </div>
             </div>
             {match.status === 'FINISHED' && !playing && !inspection && <div className={battleStyles.footer} data-free-result-actions><div className={styles.resultActions}><button type="button" className={battleStyles.start} style={{ animation: 'none' }} disabled={busy} onClick={() => void send('START', { lineup: match.player.team.map(f => f.cardId) })}>同陣容再戰</button><button type="button" className={battleStyles.restart} disabled={busy} onClick={() => void send('LEAVE')}>更換陣容</button></div><Link href="/" className={styles.homeLink}>回首頁</Link></div>}

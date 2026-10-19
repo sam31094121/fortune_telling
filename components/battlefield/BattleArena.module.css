@@ -883,3 +883,14 @@
 .arenaHpBar { height: 10px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .2), 0 1px 4px rgba(0, 0, 0, .55); }
 
 @media(max-width:600px){.arena[data-easy-cards='true']{grid-template-columns:minmax(40px,.6fr) minmax(0,2fr) minmax(44px,.6fr)}}
+
+/* Easy mode: smaller readable vitals give the card art more room. */
+.arena[data-easy-cards='true'] .arenaVital{max-width:150px;grid-template-rows:14px 6px 14px auto;row-gap:3px}
+.arena[data-easy-cards='true'] .arenaHpBar{height:6px;width:88%;justify-self:center}
+.arena[data-easy-cards='true'] .liveName{font-size:11px;line-height:14px}
+.arena[data-easy-cards='true'] .arenaEnergy{font-size:11px;line-height:14px;text-shadow:none;color:#e7f2fb}
+.arena[data-easy-cards='true'] .vitalChanges:empty{display:none}
+.arena[data-easy-cards='true'] .liveChange{font-size:11px;line-height:14px}
+
+.arena[data-easy-cards='true'] .arenaHpBar.critical{outline:1px solid #ff788c;box-shadow:0 0 6px #fb718580}
+.arena[data-easy-cards='true'] .arenaHpBar.critical>span{min-width:3px}
