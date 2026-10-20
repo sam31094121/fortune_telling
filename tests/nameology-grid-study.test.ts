@@ -6,7 +6,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {
-  buildGridLinkage, buildGridReadings, buildGridStudy, buildGridCredibility, buildStrokeConcept,
+  buildGridLinkage, buildGridReadings, buildGridStudy, buildGridCredibility, buildStrokeConcept, buildGridCrossLink,
   elementOfNumber, gridFormulaFor, normalizeGridNumber,
 } from '../lib/nameology-number-reading';
 import { STATUS_WORDING } from '../lib/credibility-phrases';
@@ -193,6 +193,41 @@ check('前端只照印：元件裡不得出現含「，。；」的中文句子�
   const offenders = code.split('\n').filter((line) => /[一-鿿]/.test(line) && /[，。；]/.test(line));
   assert.deepEqual(offenders, [], '前端不得自己組句：' + offenders.join(' | '));
   assert.ok(!/Math\.random/.test(code), '不得使用亂數');
+});
+
+check('貫通：五格五行接上既有的八字對照與易經卦（結構對照，不判喜用神、不說已交叉驗證）', () => {
+  const study = buildGridStudy([...SAMPLE], CHARS);
+  const cross = {
+    chartMode: 'PARTIAL_BAZI', dayMaster: { stem: '乙', element: '木' }, limitation: '這是姓名字義五行與命盤五行的結構對照，不以缺少某元素直接判定喜用神或改名吉凶。',
+    comparison: [
+      { element: '木', nameCharacters: ['美'], baziCount: 3 }, { element: '火', nameCharacters: [], baziCount: 0 },
+      { element: '土', nameCharacters: ['黃'], baziCount: 1 }, { element: '金', nameCharacters: [], baziCount: 2 }, { element: '水', nameCharacters: [], baziCount: 0 },
+    ],
+  };
+  const link = buildGridCrossLink(study, cross, { hexagramName: '山火賁', method: 'name-date-symbolic' });
+  assert.ok(link);
+  assert.equal(link.nodes.length, 5);
+  const byEl = Object.fromEntries(link.nodes.map((n) => [n.element, n]));
+  assert.equal(byEl['火'].baziLabel, '八字 0');
+  assert.equal(byEl['金'].baziCount, 2);
+  assert.ok(link.badgeLegend.includes('八字裡這個五行的個數'));
+  assert.deepEqual(byEl['火'].gridLabels, ['天格13']);
+  assert.ok(byEl['火'].relation.includes('八字裡沒有出現火，名字裡有'));
+  assert.ok(byEl['木'].relation.includes('八字與名字都有木'));
+  assert.equal(byEl['水'].relation, '八字與名字都沒有出現水。');
+  assert.equal(link.steps.length, 3);
+  assert.ok(link.steps[0].text.includes('天格火→人格木→地格土'), '三才走向要接在五格步驟');
+  assert.ok(link.steps[1].text.includes('年月日三柱，時柱不推定') && link.steps[1].text.includes('木3、火0、土1、金2、水0'));
+  assert.ok(link.steps[2].text.includes('山火賁') && link.steps[2].text.includes('不是生辰卦'));
+  assert.ok(link.limitation.includes('不是互相證明') && link.limitation.includes('不宣稱已交叉驗證'));
+  const texts = [...link.nodes.map((n) => n.relation), ...link.steps.map((s) => s.text)];
+  for (const text of texts) {
+    assert.ok(!text.includes('喜用神'), '不得判喜用神');
+    for (const word of FORBIDDEN) assert.ok(!text.includes(word), `含「${word}」`);
+  }
+  assert.equal(buildGridCrossLink(study, null, null), undefined, '沒有八字對照就不硬湊');
+  const noIching = buildGridCrossLink(study, cross, null);
+  assert.ok(noIching?.steps[2].text.includes('尚未產生'));
 });
 
 check('融入既有卡片：五格內容放在「姓名總格神獸」卡裡面（embedded），頁面上不得另外多一張獨立卡片；包裝用固定標籤，不在渲染裡定義元件', () => {

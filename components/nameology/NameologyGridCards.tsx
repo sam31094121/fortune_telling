@@ -270,6 +270,14 @@ export default function NameologyGridCards({ study, embedded = false }: { study:
                 <circle cx={point.x} cy={point.y} r={22.5} fill={`url(#${uid}-orb-${node.element})`} fillOpacity={node.present ? 1 : 0.4} stroke="rgba(255,255,255,.4)" strokeWidth="1" />
                 <ellipse cx={point.x - 7} cy={point.y - 9} rx={8} ry={4.5} fill="#fff" fillOpacity={node.present ? 0.38 : 0.15} transform={`rotate(-28 ${point.x - 7} ${point.y - 9})`} />
                 <text x={point.x} y={point.y + 7} textAnchor="middle" fontSize="20" fontWeight="900" fontFamily="serif" fill="#fff" fillOpacity={node.present ? 1 : 0.6} style={{ paintOrder: 'stroke', stroke: 'rgba(8,10,22,.6)', strokeWidth: 2 }}>{node.element}</text>
+                {study.crossLink && (
+                  <g aria-hidden="true">
+                    <circle cx={point.x + 19} cy={point.y - 19} r={9.5} fill="#14102a" stroke="#f2cf7a" strokeWidth="1.4" />
+                    <text x={point.x + 19} y={point.y - 15.2} textAnchor="middle" fontSize="11" fontWeight="900" fill="#f8e6ae">
+                      {study.crossLink.nodes.find((item) => item.element === node.element)?.baziCount}
+                    </text>
+                  </g>
+                )}
                 {node.grids.map((grid, index) => (
                   <text
                     key={grid.key}
@@ -291,12 +299,63 @@ export default function NameologyGridCards({ study, embedded = false }: { study:
           <span className="inline-flex items-center gap-1.5"><span aria-hidden="true" className="inline-block h-[3px] w-5 rounded bg-amber-300" />{linkage.legend.chain}</span>
         </div>
 
+        {study.crossLink && (
+          <p className="mt-1.5 flex items-center justify-center gap-1.5 text-[11px] font-semibold text-violet-100/80">
+            <span aria-hidden="true" className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-amber-300 bg-[#14102a] text-[9px] font-black text-amber-100">3</span>
+            {study.crossLink.badgeLegend}
+          </p>
+        )}
         <p className="mt-3 text-center text-xs font-black text-violet-100">{linkage.summary}</p>
         <ul className="mt-2 space-y-2">
           {linkage.chain.map((step) => (
             <li key={`${step.from.label}-${step.to.label}`} className="rounded-xl border border-amber-200/25 bg-gradient-to-r from-amber-200/[0.10] to-amber-200/[0.03] px-3 py-2 text-xs font-semibold leading-6 text-amber-50/95">{step.text}</li>
           ))}
         </ul>
+
+        {study.crossLink && (
+          <div className="mt-5 rounded-2xl border border-amber-200/25 bg-gradient-to-b from-amber-200/[0.08] via-violet-300/[0.04] to-transparent p-3 sm:p-4">
+            <p className="text-center text-[11px] font-black tracking-[0.35em] text-amber-100/90">貫通</p>
+            <div className="mx-auto mt-1 h-px w-20 bg-gradient-to-r from-transparent via-amber-300/70 to-transparent" />
+            <ol className="mt-3 grid gap-2 sm:grid-cols-3">
+              {study.crossLink.steps.map((step) => (
+                <li key={step.order} className="relative rounded-xl border border-white/10 bg-black/30 px-3 py-2.5">
+                  <p className="flex items-center gap-2 text-[11px] font-black text-amber-100">
+                    <span aria-hidden="true" className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-amber-200/50 bg-amber-200/10 text-[10px]">{step.order}</span>
+                    {step.title}
+                  </p>
+                  <p className="mt-1.5 break-words text-[11px] font-semibold leading-5 text-violet-100/90">{step.text}</p>
+                </li>
+              ))}
+            </ol>
+            <ul className="mt-3 space-y-1.5" aria-label="五行逐項對照">
+              {study.crossLink.nodes.map((node) => {
+                const color = ELEMENT_COLOR[node.element];
+                return (
+                  <li key={node.element} className="flex items-start gap-2.5 rounded-xl border border-white/10 bg-black/25 px-2.5 py-2">
+                    <span
+                      aria-hidden="true"
+                      className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-serif text-sm font-black text-white shadow-[0_0_12px_var(--g)]"
+                      style={{ background: `radial-gradient(circle at 34% 28%, ${color.light}, ${color.fill} 55%, #0d1020)`, ['--g' as string]: color.glow }}
+                    >{node.element}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="flex flex-wrap items-center gap-1">
+                        <span className="rounded border border-white/15 bg-white/[0.05] px-1.5 text-[10px] font-black leading-4 text-amber-100">{node.baziLabel}</span>
+                        {node.gridLabels.map((label) => (
+                          <span key={label} className="rounded border px-1.5 text-[10px] font-black leading-4" style={{ borderColor: color.fill, color: color.text }}>{label}</span>
+                        ))}
+                        {node.nameChars.map((char) => (
+                          <span key={char} className="rounded border border-violet-200/30 px-1.5 font-serif text-[11px] font-black leading-4 text-violet-50">{char}</span>
+                        ))}
+                      </span>
+                      <span className="mt-1 block break-words text-[11px] font-semibold leading-5 text-violet-100/85">{node.relation}</span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="mt-3 break-words text-[10.5px] font-semibold leading-5 text-violet-200/70">{study.crossLink.limitation}</p>
+          </div>
+        )}
       </div>
 
       <details className="mt-5 rounded-2xl border border-white/10 bg-black/25 p-3">

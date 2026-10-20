@@ -111,8 +111,19 @@ export interface NameologyGridCredibility {
   sources: { id: string; label: string; citation: string; trust: 'A' | 'B' | 'C' | 'D' }[];
 }
 
+/** 貫通：五格五行 × 姓名字義五行 × 八字五行 × 易經卦（接在既有的 baziCrossCheck、iching 後面，不另算一套） */
+export interface NameologyGridCrossLink {
+  nodes: { element: GridElement; baziCount: number; baziLabel: string; gridLabels: string[]; nameChars: string[]; relation: string }[];
+  /** 圖上圓形徽章的說明 */
+  badgeLegend: string;
+  steps: { order: number; title: string; text: string }[];
+  limitation: string;
+}
+
 export interface NameologyGridStudy {
   ruleVersion: 'nameology-grid-study-v2';
+  /** 由 API 在八字對照與易經卦都完成後補上；舊結果或缺資料時沒有 */
+  crossLink?: NameologyGridCrossLink;
   /** 筆畫是什麼、這個名字的筆畫明細、本站用哪一套筆畫 */
   strokeConcept: NameologyStrokeConcept;
   readings: NameologyGridReading[];
@@ -387,5 +398,55 @@ export function buildGridStudy(grids: GridInput[], characters: StrokeChar[] = []
     readings: buildGridReadings(grids, characters, STATUS_WORDING[credibility.status]),
     linkage: buildGridLinkage(grids),
     credibility,
+  };
+}
+
+/** 與 nameology-bazi-crosscheck、nameology-iching-presentation 的輸出對得上的最小形狀（這裡不重算八字，也不重新起卦）。 */
+export interface CrossCheckInput {
+  chartMode: string;
+  dayMaster: { stem: string; element: string };
+  comparison: { element: string; nameCharacters: string[]; baziCount: number }[];
+  limitation: string;
+}
+export interface IChingInput { hexagramName: string; method: string }
+
+const ICHING_METHOD_LABEL: Record<string, string> = {
+  'birth-date-hour': '生辰起卦（有出生時辰）',
+  'name-date-symbolic': '姓名象徵參考（沒有時辰，不是生辰卦）',
+};
+
+/**
+ * 貫通：把五格的五行接上既有的「姓名字義五行 → 八字五行 → 易經卦」這條線。
+ * 只做結構對照：不以缺少某個五行直接判定喜用神、改名或吉凶（沿用 docs/nameology-hexagram-spec.md）。
+ */
+export function buildGridCrossLink(study: NameologyGridStudy, crossCheck: CrossCheckInput | null | undefined, iching: IChingInput | null | undefined): NameologyGridCrossLink | undefined {
+  if (!crossCheck || !Array.isArray(crossCheck.comparison)) return undefined;
+  const nodes = GRID_ELEMENT_ORDER.map((element) => {
+    const row = crossCheck.comparison.find((item) => item.element === element);
+    const gridLabels = study.readings.filter((item) => item.element === element).map((item) => `${item.label}${item.value}`);
+    const nameChars = row?.nameCharacters ?? [];
+    const baziCount = row?.baziCount ?? 0;
+    const inName = gridLabels.length > 0 || nameChars.length > 0;
+    let relation: string;
+    if (inName && baziCount > 0) relation = `八字與名字都有${element}，彼此呼應。`;
+    else if (inName) relation = `八字裡沒有出現${element}，名字裡有，結構上是名字多出來的一塊。`;
+    else if (baziCount > 0) relation = `八字有${element}，名字裡沒有出現。`;
+    else relation = `八字與名字都沒有出現${element}。`;
+    return { element, baziCount, baziLabel: `八字 ${baziCount}`, gridLabels, nameChars, relation };
+  });
+
+  const gridElements = [...new Set(study.readings.map((item) => item.element))];
+  const chain = study.linkage.chain.map((step) => `${step.from.label}${step.from.element}`).concat(study.linkage.chain.length ? [`${study.linkage.chain[study.linkage.chain.length - 1].to.label}${study.linkage.chain[study.linkage.chain.length - 1].to.element}`] : []);
+  const counts = crossCheck.comparison.map((item) => `${item.element}${item.baziCount}`).join('、');
+  const steps = [
+    { order: 1, title: '姓名五格', text: `五格的五行落在${gridElements.join('、')}${chain.length ? `；三才走向是${chain.join('→')}` : ''}。` },
+    { order: 2, title: '八字對照', text: `八字（${crossCheck.chartMode === 'FULL_BAZI' ? '完整四柱' : '年月日三柱，時柱不推定'}）日主${crossCheck.dayMaster.stem}${crossCheck.dayMaster.element}，五行計數是${counts}。` },
+    { order: 3, title: '易經卦', text: iching ? `${iching.hexagramName}，${ICHING_METHOD_LABEL[iching.method] ?? iching.method}；卦義只作文化解說，不更改五格與八字。` : '易經卦資料尚未產生。' },
+  ];
+  return {
+    nodes,
+    badgeLegend: '圓形徽章＝八字裡這個五行的個數',
+    steps,
+    limitation: `${crossCheck.limitation} 姓名為主、八字為輔，三者是各自算出來再並排對照，不是互相證明，也不宣稱已交叉驗證。`,
   };
 }

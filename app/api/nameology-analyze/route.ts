@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { buildGridCrossLink } from '@/lib/nameology-number-reading';
 import { buildNameologyBaziCrossCheck, normalizeNameologyShichen } from '@/lib/nameology-bazi-crosscheck';
 import { buildNameologyAnalysis, type NameologySubjectType } from '@/lib/nameology-engine';
 import { castHexagram, castHexagramFromBirth, formatHexagramLine } from '@/lib/iching-engine';
@@ -150,6 +151,8 @@ export async function POST(request: Request) {
         : castHexagramFromBirth(normalized.birthDate, normalized.shichen as number))
       : castHexagram(normalized.name, normalized.birthDate, '姓名象徵參考');
     analysis.iching = presentNameologyIChing(gua, normalized.shichen != null);
+    // 貫通：五格五行接上既有的八字對照與易經卦（結構對照，不另算一套）
+    analysis.gridStudy.crossLink = buildGridCrossLink(analysis.gridStudy, analysis.baziCrossCheck, analysis.iching);
     // 易經心理學共感層：與姓名卦同一顆卦（剝洋蔥＋我懂你＋核心脆弱性），有溫度的輸出
     const empathic = buildEmpathicFromHexagram(normalized.name, gua);
     analysis.corePersonality = `${analysis.corePersonality}${formatHexagramLine(gua)}：${gua.essence}——${gua.advice}\n${empathic.specialYou}\n${empathic.absolution}`;
