@@ -1416,3 +1416,11 @@ details[open] > summary .moreHint::after {
   .printPreview.monochrome .summaryGrid.elementReading{background:#fff!important}
   .printPreview.monochrome .summaryGrid.elementReading>div[data-reading]{background:#f1f1f1!important}
 }
+
+/* 八字列印「一次一張、不超出 A4」收邊（2026-10-20）：
+   八字左欄（五行圖＋摘要卡＋流年表）自然高度會讓整張比 A4 比例多出約 12px，PDF 檢查（export-pdf.ts）因此拒絕輸出。
+   只收緊左欄的上下間距共約 18px：摘要卡每列 padding 4→3px、流年小標題與說明小字的上下 margin；
+   不改字級、不改內容、不改欄寬，dt／dd 仍同字級同行高。 */
+.printPreview .baziSidebar .summaryGrid.elementReading>div{padding:3px 4px}
+.printPreview .baziSidebar .elementReading+.subheading{margin:8px 0 4px}
+.printPreview .baziSidebar .elementSummary .micro{margin:2px 0}
