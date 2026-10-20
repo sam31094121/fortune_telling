@@ -100,6 +100,7 @@
     "test:model-lab-4d-audit": "node scripts/model-lab-4d-audit.mjs 8 20000",
     "test:true-solar-time": "node tests/true-solar-time.test.mjs",
     "test:iching-sources": "node tests/iching-source-gate.test.mjs",
+    "test:nameology-grids": "tsc lib/nameology-number-reading.ts tests/nameology-grid-study.test.ts --outDir .nameology-grid-build --module commonjs --target es2020 --moduleResolution node --resolveJsonModule --esModuleInterop --types node --skipLibCheck && node .nameology-grid-build/tests/nameology-grid-study.test.js",
     "test:share-version": "node tests/share-version.test.cjs",
     "test:beast-backend-only": "node scripts/beast-build.mjs && node tests/beast-backend-only.test.cjs",
     "test:beast-weapons": "node scripts/beast-build.mjs && node tests/beast-weapons.test.mjs",

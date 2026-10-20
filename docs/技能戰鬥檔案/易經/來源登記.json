@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-09-17",
+  "updatedAt": "2026-10-20",
   "rule": "凡有「易經」兩個字，都要有交叉比對的來源、權威性的檔案、大數據的來源；狀態由 lib/iching-source-gate.ts 計算，不得手填 VERIFIED。",
   "sources": [
     {
@@ -1442,6 +1442,58 @@
       "edition": "JPSP 74(1):86–101",
       "trust": "A",
       "note": "統合分析：激發提升吸引力，但較支持自動歷程，而非原始的錯誤歸因解釋。"
+    },
+    {
+      "source_id": "S-KUMAZAKI-NDL-1939",
+      "author": "熊崎健翁（1881–1961）著；婦女界社（東京）",
+      "locator": "《最新姓名学：開運の礎》昭和14年（1939）318p。日本國立國會圖書館典藏，請求記號「特235-160」，NDLBibID 000000651672，https://ndlsearch.ndl.go.jp/books/R100000002-I000000651672",
+      "data_type": "姓名學（五格剖象法、八十一數理）著作的書目紀錄",
+      "kind": "研究圖書館書目",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "書目資訊可供引用查證；書中內容未取得，著作權與可否轉載待查核",
+      "accessed_at": "2026-10-20（僅開啟書目紀錄頁確認書名、作者、出版者、年份、頁數與館藏；未取得書籍內文）",
+      "edition": "昭和14年（1939）婦女界社初版（版次待查核）",
+      "trust": "A",
+      "note": "目前能追到的最可靠出處是這筆書目紀錄；書內八十一數理逐條原文尚未取得，故本站數理話術為流派意象的白話改寫，不是原文。網路上「1918 年創立」「十八世紀末」等說法彼此矛盾且無圖書館佐證，不採用。"
+    },
+    {
+      "source_id": "S-CHUNQIU-FANLU-WUXING",
+      "author": "漢・董仲舒",
+      "locator": "《春秋繁露》〈五行相生〉〈五行相勝〉（章名依通行本，頁碼與底本待人工查核）",
+      "data_type": "古籍原典：五行相生相剋的次序",
+      "kind": "原典",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "古籍原文屬公有領域；實際取用之影印／排印本權利待查核",
+      "accessed_at": "未存取（待人工查核）；中國哲學書電子化計劃頁面設有防自動擷取，未自動抓取",
+      "edition": "待查核（通行本，底本未定）",
+      "trust": "A",
+      "note": "只用來支持「木生火、火生土、土生金、金生水、水生木」與相剋次序這類五行關係，不支持任何數字五行配法。"
+    },
+    {
+      "source_id": "S-SITE-NAMEOLOGY-81",
+      "author": "本站整理",
+      "locator": "data/nameology-81-numbers.json",
+      "data_type": "八十一數理的特質與提醒白話改寫",
+      "kind": "本站整理",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "本站自行改寫，無第三方著作權",
+      "accessed_at": "2026-10-20",
+      "edition": "nameology-81-numbers-v1",
+      "trust": "C",
+      "tracked_path": "data/nameology-81-numbers.json",
+      "note": "本站依流派常見意象改寫，未逐條對照原書；不是古籍原文、不作吉凶定論。"
     }
   ],
   "claims": [
@@ -1804,6 +1856,31 @@
       "conflicts": [],
       "status": "PENDING_POOL",
       "note": "業主定案 2026-09-27：神煞洋蔥心理學為本派自撰話術；心理學名詞只掛已登記 A 級原始文獻、且概念確實對得上的神煞（10 項），出處由程式從本登記表讀出。刻意不用自我耗竭（S-BAUMEISTER-1998 與 S-HAGGER-2016 重大衝突）。不作診斷。"
+    },
+    {
+      "claim_id": "C-NAMEOLOGY-GRIDS",
+      "title": "易經姓名學：五格數理（天格、人格、地格、外格、總格）話術與五行連線",
+      "domain": "姓名學知識",
+      "files": [
+        "data/nameology-81-numbers.json",
+        "lib/nameology-number-reading.ts"
+      ],
+      "authority_files": [
+        "S-KUMAZAKI-NDL-1939",
+        "S-CHUNQIU-FANLU-WUXING"
+      ],
+      "big_data_sources": [
+        "S-NCL-RBOOK",
+        "S-WORLDCAT"
+      ],
+      "cross_references": [
+        "S-KUMAZAKI-NDL-1939",
+        "S-CHUNQIU-FANLU-WUXING",
+        "S-SITE-NAMEOLOGY-81"
+      ],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "五格與八十一數理屬姓名學流派約定，不是易經經典，也不是科學證實。可追到的一手出處為熊崎健翁《最新姓名学》（NDL 書目紀錄），書內逐條原文尚未取得，本站話術是白話改寫。數字五行採姓名學慣用「1·2木、3·4火、5·6土、7·8金、9·0水」，與河圖「一六水、二七火、三八木、四九金、五十土」是兩套不同配法，彼此不互為來源。五行相生相剋次序以《春秋繁露》為原典（授權與底本待查核）。"
     }
   ]
 }

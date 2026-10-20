@@ -1,4 +1,4 @@
-import starBeastsData from '@/data/star-beasts.json';
+import starBeastsData from '../data/star-beasts.json';
 
 type NameologyElement = '木' | '火' | '土' | '金' | '水';
 type Season = 'spring' | 'summer' | 'autumn' | 'winter';
@@ -34,7 +34,7 @@ function elementOfBeast(beast: StarBeast): NameologyElement | null {
  * 姓名學神獸橋接：總格五行先鎖定同元素四宿，再以各字筆畫的順序簽章固定四象位置。
  * 這是可重算的產品呈現規則，不宣稱為傳統姓名學原典。
  */
-export function deriveNameologyTotalBeast(totalGrid: { value: number; element: NameologyElement }, characterStrokes: number[]) {
+export function deriveNameologyTotalBeast(totalGrid: { value: number; element: NameologyElement }, characterStrokes: number[], avoidIds: number[] = []) {
   const candidates = SEASON_ORDER
     .map((season) => BEASTS.find((beast) => beast.season === season && elementOfBeast(beast) === totalGrid.element))
     .filter((beast): beast is StarBeast => Boolean(beast));
@@ -44,7 +44,14 @@ export function deriveNameologyTotalBeast(totalGrid: { value: number; element: N
     totalGrid.value,
   );
   const index = Math.abs(strokeSignature - 1) % candidates.length;
-  const beast = candidates[index] ?? BEASTS[0];
+  let beast = candidates[index] ?? BEASTS[0];
+  // 五格同五行時避免配到同一隻：只在呼叫端帶入 avoidIds 才會順位往後找（預設不影響總格神獸卡）。
+  if (avoidIds.includes(beast.id)) {
+    for (let step = 1; step < candidates.length; step += 1) {
+      const alt = candidates[(index + step) % candidates.length];
+      if (alt && !avoidIds.includes(alt.id)) { beast = alt; break; }
+    }
+  }
 
   return {
     beast,

@@ -54,7 +54,7 @@ function subjectTypeFromTarget(target: NameologyRequest['analysisTarget']): Name
 }
 
 function getCacheKey(body: NameologyRequest, dictionaryVersion: string) {
-  return hashedCacheKey([body.name.trim(), body.birthDate, body.gender, String(normalizeNameologyShichen(body.shichen) ?? 'unknown'), subjectTypeFromTarget(body.analysisTarget), dictionaryVersion, 'nameology-ultimate-v4-bazi-hour-iching-v1']);
+  return hashedCacheKey([body.name.trim(), body.birthDate, body.gender, String(normalizeNameologyShichen(body.shichen) ?? 'unknown'), subjectTypeFromTarget(body.analysisTarget), dictionaryVersion, 'nameology-ultimate-v4-bazi-hour-iching-v1-grid-study-v1']);
 }
 
 export async function POST(request: Request) {

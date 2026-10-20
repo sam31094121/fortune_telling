@@ -6,6 +6,7 @@ import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import FriendlyChoiceCard from '@/components/FriendlyChoiceCard';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
+import NameologyGridCards from '@/components/nameology/NameologyGridCards';
 import type { Gender } from '@/lib/types';
 import type { NameologyAnalysis, NameologyProfessionalCharacter, NameologyRitualStep } from '@/lib/nameology-engine';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
@@ -900,6 +901,7 @@ function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; f
           <p className="mt-3 text-xs leading-6 text-cyan-100/70">{analysis.baziCrossCheck.limitation}</p>
         </details>
       )}
+      {analysis.gridStudy && <NameologyGridCards study={analysis.gridStudy} />}
       <NameologyProfessionalStructureDetails analysis={analysis} />
     </section>
   );

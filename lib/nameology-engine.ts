@@ -1,4 +1,5 @@
 import type { DimensionScores, Gender } from './types';
+import { buildGridStudy, type NameologyGridStudy } from './nameology-number-reading';
 import { getNameologyRadicalProfile } from './nameology-radical-dictionary';
 import type { NameologyBaziCrossCheck } from './nameology-bazi-crosscheck';
 
@@ -435,6 +436,8 @@ export type NameologyAnalysis = {
   ultimateDecision: NameologyUltimateDecision;
   standardOutput: NameologyStandardOutput;
   grids: NameologyGridItem[];
+  /** 五格數理話術、五行連線、來源公信力（後端算好，前端照印） */
+  gridStudy: NameologyGridStudy;
   elementFlow: {
     from: string;
     to: string;
@@ -1742,6 +1745,7 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
     ultimateDecision,
     standardOutput,
     grids,
+    gridStudy: buildGridStudy(grids.map((item) => ({ key: item.key, label: item.label, value: item.value })), characters.map((item) => item.strokeCount)),
     elementFlow,
     temperamentProfile,
     corePersonality: `人格主軸落在${personGrid?.value ?? 0}畫${personGrid?.element ?? '土'}氣，名字呈現的是${dominantTheme.strength}；24性情矩陣顯示，最明顯訊號為${topTemperaments}。${composition.givenName ? `名字「${composition.givenName}」是主要意境來源。` : ''}${mainChars ? `前三個字的核心訊號為${mainChars}。` : ''}`,

@@ -123,3 +123,4 @@ t12
 .next-bak*/
 .install-shield-test-build/
 *.bak-*
+.nameology-grid-build
