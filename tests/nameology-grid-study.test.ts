@@ -6,9 +6,10 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {
-  buildGridLinkage, buildGridReadings, buildGridStudy, buildGridCredibility,
-  elementOfNumber, normalizeGridNumber,
+  buildGridLinkage, buildGridReadings, buildGridStudy, buildGridCredibility, buildStrokeConcept,
+  elementOfNumber, gridFormulaFor, normalizeGridNumber,
 } from '../lib/nameology-number-reading';
+import { STATUS_WORDING } from '../lib/credibility-phrases';
 import { evaluateClaim, indexSources, type SourceRegistry } from '../lib/iching-source-gate';
 import { deriveNameologyTotalBeast } from '../lib/nameology-total-beast';
 
@@ -55,6 +56,9 @@ check('超過 81 取餘：81 不換算、82 看 2、161 看 1', () => {
   assert.deepEqual(normalizeGridNumber(161), { numberUsed: 1, wrapped: true });
   assert.deepEqual(normalizeGridNumber(0), { numberUsed: 1, wrapped: false });
 });
+
+/** 業主範例：姓 12 畫、名 9 畫與 16 畫 → 天13 人21 地25 外17 總37 */
+const CHARS = [{ char: '黃', strokes: 12 }, { char: '美', strokes: 9 }, { char: '燕', strokes: 16 }];
 
 const SAMPLE = [
   { key: 'sky', label: '天格', value: 13 }, { key: 'person', label: '人格', value: 21 }, { key: 'earth', label: '地格', value: 25 },
@@ -123,9 +127,53 @@ check('來源登記真實可查：NDL 書目紀錄的書名、作者、館藏與
   for (const id of data.sources) assert.ok(registry.sources.some((s) => s.source_id === id), `登記表缺 ${id}`);
 });
 
+check('筆畫概念：每個格都說明怎麼算（用這個名字實際的字與筆畫）、代表什麼、白話意思', () => {
+  const readings = buildGridReadings([...SAMPLE], CHARS);
+  const byKey = Object.fromEntries(readings.map((r) => [r.key, r]));
+  assert.equal(byKey.sky.formula, '姓「黃」12畫 ＋ 1 ＝ 13畫');
+  assert.equal(byKey.person.formula, '姓「黃」12畫 ＋ 名首字「美」9畫 ＝ 21畫');
+  assert.equal(byKey.earth.formula, '名 「美」9畫 ＋ 「燕」16畫 ＝ 25畫');
+  assert.equal(byKey.outer.formula, '總格37畫 − 人格21畫 ＋ 1 ＝ 17畫');
+  assert.equal(byKey.total.formula, '全名 「黃」12畫 ＋ 「美」9畫 ＋ 「燕」16畫 ＝ 37畫');
+  for (const r of readings) {
+    assert.ok(r.role.title && r.role.text.length >= 20, `${r.label} 缺角色說明`);
+    assert.ok(r.plainTalk.startsWith(`${r.label}${r.value}畫的意思：「${r.keyword}」`), `${r.label} 白話說明格式`);
+    for (const word of FORBIDDEN) assert.ok(!r.role.text.includes(word) && !r.plainTalk.includes(word), `${r.label} 含「${word}」`);
+  }
+  assert.equal(byKey.sky.plainTalk.includes('才智巧思'), true, '天格13的白話說明要講到意象');
+});
+
+check('筆畫公式自我核對：公式算出的數字和引擎給的不一致時不硬說（回傳空字串）；單名補1、外格最少取2照實寫', () => {
+  assert.equal(gridFormulaFor('sky', 99, CHARS), '');
+  assert.equal(gridFormulaFor('sky', 13, [CHARS[0]]), '');
+  const single = [{ char: '王', strokes: 4 }, { char: '安', strokes: 6 }];
+  assert.equal(gridFormulaFor('earth', 7, single), '名「安」6畫 ＋ 1（單名補 1）＝ 7畫');
+  assert.equal(gridFormulaFor('outer', 2, single), '總格10畫 − 人格10畫 ＋ 1 ＝ 1畫，外格最少取 2 畫，所以是 2畫');
+});
+
+check('筆畫概念說明與來源：說清楚用哪一套筆畫、與康熙字典可能差一到三畫，且每格四項依據都對得上登記表', () => {
+  const concept = buildStrokeConcept(CHARS);
+  assert.equal(concept.total, 37);
+  assert.ok(concept.paragraphs.some((p) => p.includes('黃12畫、美9畫、燕16畫') && p.includes('37')));
+  assert.ok(concept.strokeNote.includes('CNS11643') && concept.strokeNote.includes('康熙字典') && concept.strokeNote.includes('沒有做康熙筆畫換算'));
+  assert.deepEqual(concept.characters.map((c) => c.part), ['姓', '名', '名']);
+  const study = buildGridStudy([...SAMPLE], CHARS);
+  assert.equal(study.strokeConcept.total, 37);
+  for (const r of study.readings) {
+    assert.equal(r.evidence.length, 4);
+    for (const e of r.evidence) {
+      assert.ok(e.sourceIds.length >= 1 && e.sourceLabels.length === e.sourceIds.length);
+      for (const id of e.sourceIds) assert.ok(registry.sources.some((s) => s.source_id === id), `登記表缺 ${id}`);
+      assert.equal(e.statusLine, STATUS_WORDING[study.credibility.status], '依據的狀態必須等於閘門狀態的標準說法');
+    }
+  }
+  const cns = registry.sources.find((s) => s.source_id === 'S-CNS11643-OPENDATA');
+  assert.ok(cns && cns.trust === 'A' && cns.note?.includes('沒有做康熙筆畫換算'));
+});
+
 check('星宿神獸：與該格同五行、圖檔存在、五格不重複，且總格與「姓名總格神獸」卡是同一隻', () => {
-  const strokes = [12, 9, 16];
-  const readings = buildGridReadings([...SAMPLE], strokes);
+  const strokes = CHARS.map((item) => item.strokes);
+  const readings = buildGridReadings([...SAMPLE], CHARS);
   for (const r of readings) {
     assert.ok(r.beast.name.includes(r.element), `${r.label} 神獸 ${r.beast.name} 五行應為${r.element}`);
     assert.ok(r.beast.imageUrl.startsWith('/star-beasts/adult-divine-v2/'));
@@ -136,7 +184,7 @@ check('星宿神獸：與該格同五行、圖檔存在、五格不重複，且�
   const total = readings.find((r) => r.key === 'total');
   const same = deriveNameologyTotalBeast({ value: 37, element: '金' }, strokes);
   assert.equal(total?.beast.id, same.beast.id, '總格神獸必須與總格神獸卡一致');
-  assert.deepEqual(buildGridReadings([...SAMPLE], strokes).map((r) => r.beast.id), readings.map((r) => r.beast.id), '同輸入必須同結果（不使用亂數）');
+  assert.deepEqual(buildGridReadings([...SAMPLE], CHARS).map((r) => r.beast.id), readings.map((r) => r.beast.id), '同輸入必須同結果（不使用亂數）');
 });
 
 check('前端只照印：元件裡不得出現含「，。；」的中文句子（句子一律由後端組好）', () => {
@@ -147,9 +195,18 @@ check('前端只照印：元件裡不得出現含「，。；」的中文句子�
   assert.ok(!/Math\.random/.test(code), '不得使用亂數');
 });
 
+check('舊版結果相容：元件對版本不符或欄位缺漏的舊結果直接不顯示，不得讓整頁當掉（瀏覽器會保留舊結果）', () => {
+  const raw = fs.readFileSync('components/nameology/NameologyGridCards.tsx', 'utf8');
+  assert.ok(raw.includes("study?.ruleVersion === 'nameology-grid-study-v2'"), '缺版本檢查');
+  assert.ok(raw.includes('if (!current || !compatible) return null'), '缺相容保護');
+  assert.ok(raw.includes('study?.readings ?? []'), '讀取 readings 要容許舊格式');
+  const lib = fs.readFileSync('lib/nameology-number-reading.ts', 'utf8');
+  assert.ok(lib.includes("ruleVersion: 'nameology-grid-study-v2'"), '資料版本要與元件檢查一致');
+});
+
 check('整合輸出 buildGridStudy：五格＋連線＋公信力三件齊全且版本固定', () => {
   const study = buildGridStudy([...SAMPLE]);
-  assert.equal(study.ruleVersion, 'nameology-grid-study-v1');
+  assert.equal(study.ruleVersion, 'nameology-grid-study-v2');
   assert.equal(study.readings.length, 5);
   assert.equal(study.linkage.chain.length, 2);
   assert.ok(study.credibility.sources.length >= 3);

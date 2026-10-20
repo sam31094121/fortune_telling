@@ -44,9 +44,13 @@ function trimmed(from: GridElement, to: GridElement, gap: number) {
 
 export default function NameologyGridCards({ study }: { study: NameologyGridStudy }) {
   const uid = useId().replace(/:/g, '');
-  const [selected, setSelected] = useState(study.readings.find((item) => item.key === 'person')?.key ?? study.readings[0]?.key);
-  const current = study.readings.find((item) => item.key === selected) ?? study.readings[0];
-  if (!current) return null;
+  const readings = study?.readings ?? [];
+  const [selected, setSelected] = useState(readings.find((item) => item.key === 'person')?.key ?? readings[0]?.key);
+  const current = readings.find((item) => item.key === selected) ?? readings[0];
+  // 瀏覽器可能留著舊版格式的結果（沒有筆畫概念與依據欄位）：格式不符就先不顯示，重新分析後就會出現，不讓整頁當掉。
+  const compatible = study?.ruleVersion === 'nameology-grid-study-v2' && Boolean(study.strokeConcept) && Boolean(study.linkage) && Boolean(study.credibility)
+    && readings.every((item) => Boolean(item.role) && Array.isArray(item.evidence));
+  if (!current || !compatible) return null;
   const { linkage, credibility } = study;
   const currentColor = ELEMENT_COLOR[current.element];
 
@@ -66,6 +70,35 @@ export default function NameologyGridCards({ study }: { study: NameologyGridStud
         <h3 className="mt-1 text-xl font-black tracking-[0.12em] text-violet-50">天人地外總</h3>
         <div className="mx-auto mt-2 h-px w-24 bg-gradient-to-r from-transparent via-amber-300/70 to-transparent" />
       </header>
+
+      <details className="mt-4 rounded-2xl border border-violet-200/20 bg-black/25 p-3" open>
+        <summary className="min-h-[40px] cursor-pointer list-none text-xs font-black leading-6 text-violet-100">
+          <span className="mr-2 inline-block rounded-full border border-violet-200/40 px-2 py-0.5 text-[10px]">概念</span>
+          {study.strokeConcept.title}
+        </summary>
+        {study.strokeConcept.characters.length > 0 && (
+          <ul className="mt-2 flex flex-wrap items-center justify-center gap-2" aria-label="筆畫明細">
+            {study.strokeConcept.characters.map((item, index) => (
+              <li key={`${item.char}-${index}`} className="min-w-[64px] rounded-xl border border-amber-200/30 bg-amber-200/[0.07] px-3 py-1.5 text-center">
+                <span className="block text-[10px] font-black text-amber-200/80">{item.part}</span>
+                <span className="block font-serif text-2xl font-black leading-none text-violet-50">{item.char}</span>
+                <span className="mt-0.5 block text-[11px] font-bold text-violet-100/85">{item.strokes}畫</span>
+              </li>
+            ))}
+            <li className="min-w-[64px] rounded-xl border border-violet-200/30 bg-violet-200/[0.07] px-3 py-1.5 text-center">
+              <span className="block text-[10px] font-black text-violet-200/80">全名</span>
+              <span className="block text-2xl font-black leading-none text-violet-50">{study.strokeConcept.total}</span>
+              <span className="mt-0.5 block text-[11px] font-bold text-violet-100/85">畫</span>
+            </li>
+          </ul>
+        )}
+        <div className="mt-3 space-y-2">
+          {study.strokeConcept.paragraphs.map((text) => (
+            <p key={text} className="break-words text-xs font-semibold leading-6 text-violet-100/90">{text}</p>
+          ))}
+        </div>
+        <p className="mt-3 rounded-xl border border-amber-200/25 bg-amber-200/[0.06] px-3 py-2 text-[11px] font-semibold leading-5 text-amber-50/95">{study.strokeConcept.strokeNote}</p>
+      </details>
 
       <div className="mt-5 grid grid-cols-5 gap-1 sm:gap-3" role="group" aria-label="選擇一個格看含義">
         {study.readings.map((item) => {
@@ -101,12 +134,47 @@ export default function NameologyGridCards({ study }: { study: NameologyGridStud
       >
         <p className="text-[11px] font-black tracking-[0.2em]" style={{ color: currentColor.text }}>{current.keyword}　{current.beast.name}・{current.beast.direction}</p>
         <p className="mt-1 break-words text-sm font-black leading-7 text-violet-50">{current.headline}</p>
-        <p className="mt-2 break-words text-sm font-semibold leading-7 text-violet-50/95">{current.reading}</p>
+
+        {current.formula && (
+          <div className="mt-3 rounded-xl border border-white/10 bg-black/25 p-3">
+            <p className="text-[11px] font-black tracking-[0.15em] text-amber-200/90">怎麼算</p>
+            <p className="mt-1 break-words text-xs font-bold leading-6 text-violet-50">{current.formula}</p>
+          </div>
+        )}
+
+        <div className="mt-3 rounded-xl border border-white/10 bg-black/25 p-3">
+          <p className="text-[11px] font-black tracking-[0.15em] text-amber-200/90">這個格代表　{current.role.title}</p>
+          <p className="mt-1 break-words text-xs font-semibold leading-6 text-violet-100/90">{current.role.text}</p>
+        </div>
+
+        <p className="mt-3 break-words text-sm font-semibold leading-7 text-violet-50/95">{current.plainTalk}</p>
+
         <div className="mt-3 rounded-xl border border-white/10 bg-black/25 p-3">
           <p className="text-[11px] font-black text-amber-200/90">小提醒</p>
           <p className="mt-1 break-words text-xs font-semibold leading-6 text-violet-100/90">{current.caution}</p>
         </div>
         {current.wrapNote && <p className="mt-2 break-words text-[11px] font-semibold leading-5 text-violet-200/70">{current.wrapNote}</p>}
+
+        <details className="mt-3 rounded-xl border border-amber-200/20 bg-amber-200/[0.05] p-3">
+          <summary className="min-h-[40px] cursor-pointer list-none text-[11px] font-black leading-6 text-amber-100">
+            <span className="mr-2 inline-block rounded-full border border-amber-200/40 px-2 py-0.5 text-[10px]">依據</span>
+            這段話從哪裡來
+          </summary>
+          <ul className="mt-2 space-y-2">
+            {current.evidence.map((item) => (
+              <li key={item.topic} className="rounded-lg border border-white/10 bg-black/25 px-3 py-2">
+                <p className="text-[11px] font-black text-violet-50">{item.topic}</p>
+                <p className="mt-0.5 break-words text-[11px] font-semibold leading-5 text-violet-100/85">{item.basis}</p>
+                <p className="mt-1 flex flex-wrap gap-1">
+                  {item.sourceLabels.map((label) => (
+                    <span key={label} className="rounded border border-white/15 bg-white/[0.05] px-1.5 py-0.5 text-[10px] font-bold leading-4 text-violet-100/90">{label}</span>
+                  ))}
+                </p>
+                <p className="mt-1 text-[10.5px] font-bold text-amber-100/80">{item.statusLine}</p>
+              </li>
+            ))}
+          </ul>
+        </details>
       </article>
 
       <div className="mt-6">

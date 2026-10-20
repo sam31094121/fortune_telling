@@ -1494,6 +1494,24 @@
       "trust": "C",
       "tracked_path": "data/nameology-81-numbers.json",
       "note": "本站依流派常見意象改寫，未逐條對照原書；不是古籍原文、不作吉凶定論。"
+    },
+    {
+      "source_id": "S-CNS11643-OPENDATA",
+      "author": "臺灣政府「中文標準交換碼全字庫」（CNS11643）",
+      "locator": "全字庫開放資料 Properties.zip、MapingTables.zip（https://www.cns11643.gov.tw/opendata/）；專案字典 data/dictionaries/nameology/manifest.json 記載匯入 27,503 字的部首、總筆畫、字形組件、筆順",
+      "data_type": "漢字總筆畫、部首、筆順的官方開放資料",
+      "kind": "學術資料庫",
+      "can_cite": "PASS",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "政府資料開放授權條款第1版（依專案字典 manifest 記載）；條款全文與各欄位細項待人工查核",
+      "accessed_at": "2026-08-05（專案字典 manifest 記載的匯入日期）；2026-10-20 本次未重新開啟該網站",
+      "edition": "nameology_dictionary_zh_tw_authority_v2.1.0（manifest 版本）",
+      "trust": "A",
+      "tracked_path": "data/dictionaries/nameology/manifest.json",
+      "note": "本站姓名學的「筆畫」就是這份資料的總筆畫。傳統五格流派多以《康熙字典》筆畫計，部首變形的字（例如三點水、草字頭、示字旁）可能與本站差一兩畫；本站沒有做康熙筆畫換算，不宣稱與康熙字典一致。"
     }
   ],
   "claims": [
@@ -1863,7 +1881,8 @@
       "domain": "姓名學知識",
       "files": [
         "data/nameology-81-numbers.json",
-        "lib/nameology-number-reading.ts"
+        "lib/nameology-number-reading.ts",
+        "data/dictionaries/nameology/manifest.json"
       ],
       "authority_files": [
         "S-KUMAZAKI-NDL-1939",
@@ -1876,11 +1895,12 @@
       "cross_references": [
         "S-KUMAZAKI-NDL-1939",
         "S-CHUNQIU-FANLU-WUXING",
-        "S-SITE-NAMEOLOGY-81"
+        "S-SITE-NAMEOLOGY-81",
+        "S-CNS11643-OPENDATA"
       ],
       "conflicts": [],
       "status": "PENDING_POOL",
-      "note": "五格與八十一數理屬姓名學流派約定，不是易經經典，也不是科學證實。可追到的一手出處為熊崎健翁《最新姓名学》（NDL 書目紀錄），書內逐條原文尚未取得，本站話術是白話改寫。數字五行採姓名學慣用「1·2木、3·4火、5·6土、7·8金、9·0水」，與河圖「一六水、二七火、三八木、四九金、五十土」是兩套不同配法，彼此不互為來源。五行相生相剋次序以《春秋繁露》為原典（授權與底本待查核）。"
+      "note": "五格與八十一數理屬姓名學流派約定，不是易經經典，也不是科學證實。可追到的一手出處為熊崎健翁《最新姓名学》（NDL 書目紀錄），書內逐條原文尚未取得，本站話術是白話改寫。數字五行採姓名學慣用「1·2木、3·4火、5·6土、7·8金、9·0水」，與河圖「一六水、二七火、三八木、四九金、五十土」是兩套不同配法，彼此不互為來源。五行相生相剋次序以《春秋繁露》為原典（授權與底本待查核）。 筆畫採 CNS11643 全字庫總筆畫（臺灣政府開放資料），與傳統流派常用的《康熙字典》筆畫可能差一兩畫，本站未換算。五格各格的角色說法（天格＝先天底色、人格＝主運、地格＝前運、外格＝副運、總格＝後運）為流派常見說法，來自通俗整理，尚未逐條對照原書。"
     }
   ]
 }
