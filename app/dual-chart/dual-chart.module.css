@@ -1304,3 +1304,29 @@ details[open] > summary .moreHint::after {
 .printPreview.monochrome .summaryGrid.elementReading>div{border-bottom-color:#aaa;border-right-color:#aaa}
 .printPreview.monochrome .summaryGrid.elementReading>div[data-reading]{background:#f1f1f1}
 .printPreview.monochrome .summaryGrid.elementReading dt,.printPreview.monochrome .summaryGrid.elementReading>div[data-reading] dd{color:#000!important}
+
+/* 畫面版（手機＋筆電）八字易經神煞命盤質感美化（2026-10-20，只改顏色、邊框、底色、字距、圓角；
+   不改字級、不改排版、不改資料與運算；列印版 .printPreview 不受影響） */
+.page:not(.printPreview) .fusedChart h2{letter-spacing:.14em;text-shadow:0 1px 18px rgba(217,190,245,.28)}
+.page:not(.printPreview) .fusedSubtitle{letter-spacing:.12em;color:#c7b8d8}
+.page:not(.printPreview) .baziReport{font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif;letter-spacing:.02em}
+.page:not(.printPreview) .baziReport .birthBand{border:1px solid rgba(201,169,97,.55);border-radius:10px;background:linear-gradient(135deg,rgba(201,169,97,.10),rgba(188,160,232,.06));box-shadow:inset 0 2px 0 rgba(201,169,97,.7)}
+.page:not(.printPreview) .baziReport .birthBand>b{letter-spacing:.14em;color:#f6e3b8}
+.page:not(.printPreview) .baziReport :is(.pillarGrid,.luckGrid,.annualGrid) :is(th,td){border-color:rgba(166,151,173,.38)}
+.page:not(.printPreview) .baziReport :is(.pillarGrid,.luckGrid,.annualGrid) th{background:linear-gradient(180deg,#54446a,#3f3252);color:#f3e8ff;letter-spacing:.1em}
+.page:not(.printPreview) .baziReport .pillarGrid td{background:rgba(255,255,255,.015)}
+.page:not(.printPreview) .baziReport .largeGlyph td{color:#f6e3b8;text-shadow:0 0 14px rgba(246,227,184,.22)}
+.page:not(.printPreview) .baziReport .summaryGrid.elementReading{border:1px solid rgba(166,151,173,.5);border-radius:10px;overflow:hidden;box-shadow:inset 0 2px 0 rgba(201,169,97,.7)}
+.page:not(.printPreview) .baziReport .summaryGrid.elementReading>div{border-color:rgba(166,151,173,.28)}
+.page:not(.printPreview) .baziReport .summaryGrid.elementReading dt{letter-spacing:.14em}
+.page:not(.printPreview) .baziReport .summaryGrid.elementReading dd{letter-spacing:.06em;font-weight:700}
+.page:not(.printPreview) .baziReport .summaryGrid.elementReading>div[data-reading]{background:linear-gradient(90deg,rgba(214,176,98,.14),rgba(214,176,98,0))}
+.page:not(.printPreview) .baziReport .summaryGrid.elementReading>div[data-reading] dd{color:#f1d9a0}
+.page:not(.printPreview) .baziReport .elementLegend>span{display:inline-flex;align-items:center;padding:0 8px;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(194,183,205,.35)}
+.page:not(.printPreview) .baziReport .relations{border:1px solid rgba(166,151,173,.45);border-radius:10px;background:rgba(255,255,255,.02)}
+.page:not(.printPreview) .baziReport .reportFooter{border-top:1px solid rgba(201,169,97,.4);color:#cfc5dd}
+.page:not(.printPreview) .shenshaIchingFused{border-top:2px solid rgba(201,169,97,.35)}
+.page:not(.printPreview) .shenshaIchingFused .shenshaCard h3{letter-spacing:.2em;color:#f1dcff}
+.page:not(.printPreview) .shenshaSummary{border-color:rgba(233,196,106,.45);box-shadow:inset 0 2px 0 rgba(233,196,106,.55)}
+.page:not(.printPreview) .teacherCard{box-shadow:0 6px 22px rgba(0,0,0,.28)}
+.page:not(.printPreview) .flowStrip{border-color:rgba(201,169,97,.38);box-shadow:inset 0 2px 0 rgba(201,169,97,.5)}
