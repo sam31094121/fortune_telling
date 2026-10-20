@@ -42,7 +42,8 @@ function trimmed(from: GridElement, to: GridElement, gap: number) {
   return { x1: a.x + ux * gap, y1: a.y + uy * gap, x2: b.x - ux * (gap + 5), y2: b.y - uy * (gap + 5) };
 }
 
-export default function NameologyGridCards({ study }: { study: NameologyGridStudy }) {
+/** embedded＝放進既有卡片（姓名總格神獸卡）裡面，不另外多一張卡。 */
+export default function NameologyGridCards({ study, embedded = false }: { study: NameologyGridStudy; embedded?: boolean }) {
   const uid = useId().replace(/:/g, '');
   const readings = study?.readings ?? [];
   const [selected, setSelected] = useState(readings.find((item) => item.key === 'person')?.key ?? readings[0]?.key);
@@ -51,11 +52,17 @@ export default function NameologyGridCards({ study }: { study: NameologyGridStud
   const compatible = study?.ruleVersion === 'nameology-grid-study-v2' && Boolean(study.strokeConcept) && Boolean(study.linkage) && Boolean(study.credibility)
     && readings.every((item) => Boolean(item.role) && Array.isArray(item.evidence));
   if (!current || !compatible) return null;
+  // 用固定的標籤名稱，不在渲染裡定義元件（否則每次點選都會整塊重建，展開狀態與動畫會被重置）
+  const Tag: 'div' | 'section' = embedded ? 'div' : 'section';
   const { linkage, credibility } = study;
   const currentColor = ELEMENT_COLOR[current.element];
 
   return (
-    <section className="fortune-card overflow-hidden border-violet-300/25 bg-gradient-to-b from-[#1a1530]/80 to-[#0d1020]/80 p-4 sm:p-6" aria-label="五格數理與五行連線">
+    <Tag
+      className={embedded ? 'relative mt-6 border-t border-violet-200/25 pt-5' : 'fortune-card overflow-hidden border-violet-300/25 bg-gradient-to-b from-[#1a1530]/80 to-[#0d1020]/80 p-4 sm:p-6'}
+      role={embedded ? 'group' : undefined}
+      aria-label="五格數理與五行連線"
+    >
       <style>{`
         @keyframes ${uid}-flow { to { stroke-dashoffset: -28; } }
         @keyframes ${uid}-pulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
@@ -311,6 +318,6 @@ export default function NameologyGridCards({ study }: { study: NameologyGridStud
           ))}
         </ul>
       </details>
-    </section>
+    </Tag>
   );
 }

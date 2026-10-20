@@ -671,6 +671,7 @@ function NameologyTotalBeastCard({ analysis }: { analysis: NameologyAnalysis }) 
           <p className="mt-3 rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] font-bold leading-5 text-violet-100/85">總格先定五行，再由姓名各字筆畫順序固定選卡。</p>
         </div>
       </div>
+      {analysis.gridStudy && <NameologyGridCards study={analysis.gridStudy} embedded />}
     </section>
   );
 }
@@ -901,7 +902,6 @@ function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; f
           <p className="mt-3 text-xs leading-6 text-cyan-100/70">{analysis.baziCrossCheck.limitation}</p>
         </details>
       )}
-      {analysis.gridStudy && <NameologyGridCards study={analysis.gridStudy} />}
       <NameologyProfessionalStructureDetails analysis={analysis} />
     </section>
   );

@@ -195,6 +195,18 @@ check('前端只照印：元件裡不得出現含「，。；」的中文句子�
   assert.ok(!/Math\.random/.test(code), '不得使用亂數');
 });
 
+check('融入既有卡片：五格內容放在「姓名總格神獸」卡裡面（embedded），頁面上不得另外多一張獨立卡片；包裝用固定標籤，不在渲染裡定義元件', () => {
+  const page = fs.readFileSync('app/nameology/page.tsx', 'utf8');
+  const mounts = page.match(/<NameologyGridCards[^>]*>/g) ?? [];
+  assert.equal(mounts.length, 1, '五格內容只能掛一處');
+  assert.ok(mounts[0].includes('embedded'), '必須是 embedded（放進既有卡片）');
+  const beastCard = page.slice(page.indexOf('function NameologyTotalBeastCard'), page.indexOf('function NameologyTarotBridgeCard'));
+  assert.ok(beastCard.includes('<NameologyGridCards'), '必須在姓名總格神獸卡裡面');
+  const comp = fs.readFileSync('components/nameology/NameologyGridCards.tsx', 'utf8');
+  assert.ok(comp.includes("const Tag: 'div' | 'section'"), '包裝要用固定標籤');
+  assert.ok(!/const Wrapper\s*=/.test(comp), '不得在渲染裡定義元件（每次點選會整塊重建）');
+});
+
 check('舊版結果相容：元件對版本不符或欄位缺漏的舊結果直接不顯示，不得讓整頁當掉（瀏覽器會保留舊結果）', () => {
   const raw = fs.readFileSync('components/nameology/NameologyGridCards.tsx', 'utf8');
   assert.ok(raw.includes("study?.ruleVersion === 'nameology-grid-study-v2'"), '缺版本檢查');
