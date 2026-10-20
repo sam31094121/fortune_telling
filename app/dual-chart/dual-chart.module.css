@@ -1399,3 +1399,20 @@ details[open] > summary .moreHint::after {
 .printPreview:not(.monochrome) .ziweiPrintSheet .center{background:radial-gradient(circle at 50% 28%,#fffdf8,#f6f0e6)!important;border-color:#d9c69c;box-shadow:inset 0 0 0 1px #efe3c6}
 .printPreview:not(.monochrome) .ziweiPrintSheet .center strong{border-bottom-color:#c9a961}
 .printPreview:not(.monochrome) .ziweiPrintSheet .printLegend{border-top-color:#d8c8a0}
+
+/* 真實列印（Ctrl+P／手機列印／存 PDF）補強（2026-10-20）：
+   app/globals.css 的 @media print 對全站寫了 body *{background-image:none!important;box-shadow:none!important;…}，
+   會把前面幾輪列印美化的「陰影金線」與沒加 !important 的底色全清掉，所以螢幕預覽有、紙上沒有。
+   這裡在 @media print 內用較高權重加 !important 重新宣告；只改顏色、陰影、底色，不改字級、尺寸、排版、資料與運算。 */
+@media print{
+  .printPreview:not(.monochrome) .results>article>h2{box-shadow:0 2px 0 #d8c08a!important}
+  .printPreview:not(.monochrome) .baziReport .birthBand{box-shadow:inset 0 2px 0 #c9a961!important}
+  .printPreview:not(.monochrome) .baziReport .relations{box-shadow:inset 0 2px 0 #c9a961!important}
+  .printPreview:not(.monochrome) .ziweiPrintSheet .chart{box-shadow:0 0 0 1px #e4d3a6!important}
+  .printPreview:not(.monochrome) .ziweiPrintSheet .center{box-shadow:inset 0 0 0 1px #efe3c6!important}
+  .printPreview:not(.monochrome) .summaryGrid.elementReading{background:#fbf8fc!important;box-shadow:inset 0 2px 0 #c9a961!important}
+  .printPreview:not(.monochrome) .summaryGrid.elementReading>div[data-reading]{background:linear-gradient(180deg,#f8f0de,#fcf7ec)!important}
+  .printPreview:not(.monochrome) .elementLegend>span{box-shadow:inset 0 0 0 1px #d2c5db!important}
+  .printPreview.monochrome .summaryGrid.elementReading{background:#fff!important}
+  .printPreview.monochrome .summaryGrid.elementReading>div[data-reading]{background:#f1f1f1!important}
+}
