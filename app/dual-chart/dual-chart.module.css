@@ -1330,3 +1330,31 @@ details[open] > summary .moreHint::after {
 .page:not(.printPreview) .shenshaSummary{border-color:rgba(233,196,106,.45);box-shadow:inset 0 2px 0 rgba(233,196,106,.55)}
 .page:not(.printPreview) .teacherCard{box-shadow:0 6px 22px rgba(0,0,0,.28)}
 .page:not(.printPreview) .flowStrip{border-color:rgba(201,169,97,.38);box-shadow:inset 0 2px 0 rgba(201,169,97,.5)}
+
+/* 畫面版（手機＋筆電）紫微斗數命盤與對比分頁質感美化（2026-10-20，只改顏色、邊框、底色、陰影、字距、圓角；
+   不改字級、尺寸、排版、資料與運算；列印版 .printPreview 不受影響） */
+.page:not(.printPreview) .chart{border-color:rgba(201,169,97,.42);background:rgba(172,142,197,.34);box-shadow:0 10px 30px rgba(0,0,0,.32),inset 0 0 0 1px rgba(255,255,255,.04)}
+.page:not(.printPreview) .cell{background:linear-gradient(180deg,#1e2335,#181c2b)}
+.page:not(.printPreview) .cell.life{background:linear-gradient(180deg,#432a50,#331f3e)}
+.page:not(.printPreview) .cell.body{background:linear-gradient(180deg,#1a4944,#143733)}
+.page:not(.printPreview) .center{background:radial-gradient(circle at 50% 30%,#232338,#14141f);box-shadow:inset 0 0 0 1px rgba(201,169,97,.22)}
+.page:not(.printPreview) .center strong{letter-spacing:.14em;text-shadow:0 0 16px rgba(246,214,156,.25)}
+.page:not(.printPreview) .cellTitle{letter-spacing:.06em}
+.page:not(.printPreview) .cellStars{letter-spacing:.04em;text-shadow:0 0 10px rgba(255,225,169,.18)}
+.page:not(.printPreview) .badge{border-radius:4px;background:linear-gradient(180deg,#83509a,#6a3e7e);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.page:not(.printPreview) .palace{background:linear-gradient(135deg,rgba(255,255,255,.035),rgba(255,255,255,.01));border-color:rgba(201,169,97,.32);box-shadow:inset 0 2px 0 rgba(201,169,97,.5)}
+.page:not(.printPreview) .palace h3{letter-spacing:.1em}
+.page:not(.printPreview) .chartTabNav{border-bottom-color:rgba(201,169,97,.3)}
+.page:not(.printPreview) .chartTabNav button{letter-spacing:.12em}
+.page:not(.printPreview) .chartTabNav button[aria-selected=true],.page:not(.printPreview) .chartTabNav button.active{border-bottom-color:#c9a961;text-shadow:0 0 14px rgba(217,190,245,.35)}
+.page:not(.printPreview) .comparisonHeader h3{letter-spacing:.12em}
+.page:not(.printPreview) .comparisonSection{background:linear-gradient(135deg,#1d2234,#171b2a);border-color:rgba(201,169,97,.28);box-shadow:inset 0 2px 0 rgba(201,169,97,.45)}
+.page:not(.printPreview) .comparisonSection h4{letter-spacing:.1em}
+.page:not(.printPreview) .mappingTable th{background:linear-gradient(180deg,#352d4d,#2a2540);letter-spacing:.08em}
+.page:not(.printPreview) .mappingTable td{border-bottom-color:rgba(188,160,232,.22)}
+.page:not(.printPreview) .barContainer{border-color:rgba(201,169,97,.35);box-shadow:inset 0 1px 3px rgba(0,0,0,.5)}
+.page:not(.printPreview) .barFill{background:linear-gradient(90deg,#c9a961,#d9bef5)}
+.page:not(.printPreview) .comparisonHint{border:1px solid rgba(188,160,232,.18)}
+.page:not(.printPreview) .comparisonFooter{background:linear-gradient(135deg,#2c2745,#231f38);border-color:rgba(201,169,97,.3)}
+.page:not(.printPreview) .shenshaExtendedList li{box-shadow:0 3px 12px rgba(0,0,0,.25)}
+.page:not(.printPreview) .shenshaItemHead span{border:1px solid rgba(188,160,232,.2)}
