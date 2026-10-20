@@ -12,7 +12,7 @@
  * 數字五行採姓名學慣用「1·2木、3·4火、5·6土、7·8金、9·0水」，
  * 與河圖「一六水、二七火…」是兩套不同配法，彼此不互為來源（與 nameology-engine 的 elementFromNumber 一致，測試會核對）。
  */
-import numbersData from '../data/nameology-81-numbers.json';
+import { NAMEOLOGY_ARCHIVE, type InputTierId, type Provenance } from './nameology-skill-archive';
 import registryData from '../docs/技能戰鬥檔案/易經/來源登記.json';
 import { evaluateClaim, indexSources, type SourceRegistry } from './iching-source-gate';
 import { deriveNameologyTotalBeast } from './nameology-total-beast';
@@ -26,7 +26,8 @@ const GENERATES: Record<GridElement, GridElement> = { 木: '火', 火: '土', �
 const CONTROLS: Record<GridElement, GridElement> = { 木: '土', 土: '水', 水: '火', 火: '金', 金: '木' };
 
 interface NumberEntry { n: number; keyword: string; reading: string; caution: string }
-const NUMBERS = (numbersData as { numbers: NumberEntry[] }).numbers;
+/** 話術只來自技能檔案（docs/技能戰鬥檔案/姓名學/姓名學.json）：81 數理、角色、筆畫概念、依據、公信力說明都在檔案裡，程式不自己寫。 */
+const NUMBERS: NumberEntry[] = NAMEOLOGY_ARCHIVE.numbers.items;
 
 export interface GridInput { key: GridKey; label: string; value: number }
 
@@ -50,10 +51,12 @@ export interface NameologyGridReading {
   beast: { id: number; name: string; imageUrl: string; direction: string; meaning: string };
   /** 這個格是怎麼算出來的（用這個名字實際的字與筆畫，後端組好） */
   formula: string;
-  /** 這個格在流派裡代表什麼（流派說法，不是經典，也不是科學證實） */
-  role: { title: string; text: string };
+  /** 這個格在流派裡代表什麼（流派說法，不是經典，也不是科學證實）；出處標籤＝出處層級・閘門狀態 */
+  role: { title: string; text: string; provenanceLabel: string };
   /** 白話說明：這個筆畫數代表什麼（簡單說） */
   plainTalk: string;
+  /** 白話說明的出處標籤 */
+  meaningProvenanceLabel: string;
   /** 這段話的依據：每個說法對得上哪一份來源 */
   evidence: NameologyGridEvidence[];
 }
@@ -61,6 +64,8 @@ export interface NameologyGridReading {
 export interface NameologyGridEvidence {
   topic: string;
   basis: string;
+  /** 出處層級・閘門狀態 */
+  provenanceLabel: string;
   sourceIds: string[];
   sourceLabels: string[];
   /** 這個說法目前的來源狀態（與閘門狀態一致，不說得比閘門更滿） */
@@ -71,9 +76,10 @@ export interface StrokeChar { char: string; strokes: number }
 
 export interface NameologyStrokeConcept {
   title: string;
-  paragraphs: string[];
+  /** 每段都帶出處標籤（來自技能檔案的標層級・狀態；筆畫明細是算出來的事實，標「由字典筆畫算出」） */
+  paragraphs: { text: string; provenanceLabel: string }[];
   /** 筆畫採用哪一套、與傳統差在哪（照實說明） */
-  strokeNote: string;
+  strokeNote: { text: string; provenanceLabel: string };
   characters: { char: string; strokes: number; part: '姓' | '名' }[];
   total: number;
 }
@@ -113,15 +119,18 @@ export interface NameologyGridCredibility {
 
 /** 貫通：五格五行 × 姓名字義五行 × 八字五行 × 易經卦（接在既有的 baziCrossCheck、iching 後面，不另算一套） */
 export interface NameologyGridCrossLink {
-  nodes: { element: GridElement; baziCount: number; baziLabel: string; gridLabels: string[]; nameChars: string[]; relation: string }[];
-  /** 圖上圓形徽章的說明 */
+  /** 這份結果用了哪些輸入（姓名＋性別即可運算；生日、時辰選填）；說明文字來自技能檔案 */
+  tier: { id: InputTierId; label: string; note: string; provenanceLabel: string };
+  /** baziCount 為 null＝沒有提供出生日期，沒有八字可對照 */
+  nodes: { element: GridElement; baziCount: number | null; baziLabel: string; gridLabels: string[]; nameChars: string[]; relation: string }[];
+  /** 圖上圓形徽章的說明（沒有八字時為空字串） */
   badgeLegend: string;
-  steps: { order: number; title: string; text: string }[];
+  steps: { order: number; title: string; text: string; locked: boolean }[];
   limitation: string;
 }
 
 export interface NameologyGridStudy {
-  ruleVersion: 'nameology-grid-study-v2';
+  ruleVersion: 'nameology-grid-study-v3';
   /** 由 API 在八字對照與易經卦都完成後補上；舊結果或缺資料時沒有 */
   crossLink?: NameologyGridCrossLink;
   /** 筆畫是什麼、這個名字的筆畫明細、本站用哪一套筆畫 */
@@ -152,14 +161,8 @@ export function numberEntryFor(numberUsed: number): NumberEntry {
   return NUMBERS[numberUsed - 1];
 }
 
-/** 五格各自代表什麼：流派說法（人格＝主運、地格＝前運、總格＝後運等通俗整理），不是經典，也不是科學證實。 */
-const GRID_ROLES: Record<GridKey, { title: string; text: string }> = {
-  sky: { title: '先天底色', text: '由姓氏算出，象徵家族與先天的底色；流派多把它看成不能自己改變的部分，影響比較間接。' },
-  person: { title: '核心個性（主運）', text: '由姓與名的第一字相連而成，是整個名字的中心；流派常拿它看個性核心與主要的運勢。' },
-  earth: { title: '基礎與前期（前運）', text: '由名字本身算出，流派常用來看成長與打基礎的階段，也牽涉與晚輩、部屬的互動。' },
-  outer: { title: '外在人際（副運）', text: '用總格扣掉人格再加一，流派常用來看人際互動，以及外界帶給你的機會。' },
-  total: { title: '整體與後期（後運）', text: '把全名的筆畫加總，流派常用來看整體的走向與中後期的累積。' },
-};
+/** 出處標籤：出處層級＋閘門狀態的標準說法（例如「流派意象改寫・仍在查證中，僅作自我反思參考」），不說得比閘門更滿。 */
+export const provenanceLabel = (provenance: Provenance, statusLine: string) => `${provenance}・${statusLine}`;
 
 const quote = (item: StrokeChar) => `「${item.char}」${item.strokes}畫`;
 
@@ -204,31 +207,35 @@ export function gridFormulaFor(key: GridKey, value: number, chars: StrokeChar[])
   return result === value ? text : '';
 }
 
+/** 四項依據全部來自技能檔案的 evidence；後端只負責附上來源標籤與閘門狀態。 */
 export function buildGridEvidence(statusLine: string): NameologyGridEvidence[] {
-  const item = (topic: string, basis: string, sourceIds: string[]): NameologyGridEvidence => ({
-    topic, basis, sourceIds, sourceLabels: sourceIds.map((id) => SOURCE_LABELS[id] ?? id), statusLine,
-  });
-  return [
-    item('筆畫從哪來', '每個字的筆畫採臺灣 CNS11643 全字庫的總筆畫（政府開放資料）。', ['S-CNS11643-OPENDATA']),
-    item('這個格怎麼算、代表什麼', '算法與各格角色屬於熊崎氏五格剖象法的流派約定。可追到的一手出處是熊崎健翁著作的國立國會圖書館書目紀錄，角色說法來自通俗整理，尚未逐條對照原書。', ['S-KUMAZAKI-NDL-1939']),
-    item('這個數字的意思', '本站依流派常見意象做的白話改寫，只講特質與提醒，不是古籍原文，也不下吉凶定論。', ['S-SITE-NAMEOLOGY-81']),
-    item('五行與相生相剋', '數字尾數配五行採姓名學慣用法，與河圖數是兩套不同配法；木火土金水的相生相剋次序以《春秋繁露》為原典。', ['S-CHUNQIU-FANLU-WUXING']),
-  ];
+  return NAMEOLOGY_ARCHIVE.evidence.map((entry) => ({
+    topic: entry.topic,
+    basis: entry.text,
+    provenanceLabel: provenanceLabel(entry.provenance, statusLine),
+    sourceIds: entry.source_ids,
+    sourceLabels: entry.source_ids.map((id) => NAMEOLOGY_ARCHIVE.sourceLabels[id] ?? id),
+    statusLine,
+  }));
 }
 
-export function buildStrokeConcept(chars: StrokeChar[]): NameologyStrokeConcept {
+/**
+ * 筆畫概念：說明文字全部來自技能檔案；只有「你的名字筆畫明細」是用字典筆畫算出來的事實（標「由字典筆畫算出」），不是解讀。
+ */
+export function buildStrokeConcept(chars: StrokeChar[], statusLine: string = STATUS_WORDING.PENDING_POOL): NameologyStrokeConcept {
   const total = chars.reduce((sum, item) => sum + item.strokes, 0);
+  const archive = NAMEOLOGY_ARCHIVE.strokeConcept;
+  const fromArchive = (index: number) => ({ text: archive.paragraphs[index].text, provenanceLabel: provenanceLabel(archive.paragraphs[index].provenance, statusLine) });
+  const computed = {
+    text: chars.length >= 2
+      ? `你的名字筆畫明細：${chars.map((item) => `${item.char}${item.strokes}畫`).join('、')}，全名共 ${total} 畫。`
+      : '名字資料不足，暫時無法列出筆畫明細。',
+    provenanceLabel: '由字典筆畫算出',
+  };
   return {
-    title: '筆畫是什麼',
-    paragraphs: [
-      '姓名學把名字每個字的筆畫數，依固定公式合成五個格的數字，再用 1 到 81 的數理與木火土金水去看。',
-      chars.length >= 2
-        ? `你的名字筆畫明細：${chars.map((item) => `${item.char}${item.strokes}畫`).join('、')}，全名共 ${total} 畫。`
-        : '名字資料不足，暫時無法列出筆畫明細。',
-      '五個格各看一個面向：天格看先天底色，人格看核心個性，地格看基礎與前期，外格看外在人際，總格看整體與後期。這是流派說法。',
-      '筆畫數字大不代表比較好，數字只是一個象徵入口；它描述的是特質與提醒，不是命運定論。',
-    ],
-    strokeNote: '本站每個字的筆畫採臺灣 CNS11643 全字庫的總筆畫。傳統五格流派多半以《康熙字典》的筆畫計算，部首變形的字（例如三點水、草字頭、示字旁）有時會差一到三畫，本站沒有做康熙筆畫換算；若你慣用康熙筆畫，數字可能略有不同。',
+    title: archive.title,
+    paragraphs: [fromArchive(0), computed, fromArchive(1), fromArchive(2)],
+    strokeNote: { text: archive.strokeNote.text, provenanceLabel: provenanceLabel(archive.strokeNote.provenance, statusLine) },
     characters: chars.map((item, index) => ({ char: item.char, strokes: item.strokes, part: index === 0 ? '姓' as const : '名' as const })),
     total,
   };
@@ -270,8 +277,9 @@ export function buildGridReadings(grids: GridInput[], characters: StrokeChar[] =
         meaning: picked.beast.coreMeaning,
       },
       formula: gridFormulaFor(grid.key, grid.value, characters),
-      role: GRID_ROLES[grid.key],
+      role: { title: NAMEOLOGY_ARCHIVE.gridRoles[grid.key].title, text: NAMEOLOGY_ARCHIVE.gridRoles[grid.key].text, provenanceLabel: provenanceLabel(NAMEOLOGY_ARCHIVE.gridRoles[grid.key].provenance, statusLine) },
       plainTalk: `${grid.label}${grid.value}畫的意思：「${entry.keyword}」。${entry.reading}`,
+      meaningProvenanceLabel: provenanceLabel(NAMEOLOGY_ARCHIVE.numbers.provenance, statusLine),
       evidence: buildGridEvidence(statusLine),
     };
   });
@@ -358,13 +366,6 @@ export function buildGridLinkage(grids: GridInput[]): NameologyGridLinkage {
   };
 }
 
-const SOURCE_LABELS: Record<string, string> = {
-  'S-KUMAZAKI-NDL-1939': '熊崎健翁《最新姓名学：開運の礎》（1939）— 日本國立國會圖書館書目紀錄',
-  'S-CHUNQIU-FANLU-WUXING': '董仲舒《春秋繁露》〈五行相生〉〈五行相勝〉— 五行相生相剋次序',
-  'S-SITE-NAMEOLOGY-81': '本站整理：八十一數理的特質與提醒白話改寫',
-  'S-CNS11643-OPENDATA': '臺灣 CNS11643 全字庫開放資料：每個字的總筆畫',
-};
-
 export function buildGridCredibility(): NameologyGridCredibility {
   const registry = registryData as unknown as SourceRegistry;
   const claim = registry.claims.find((c) => c.claim_id === 'C-NAMEOLOGY-GRIDS');
@@ -376,15 +377,12 @@ export function buildGridCredibility(): NameologyGridCredibility {
   const sources = [...new Set([...claim.authority_files, ...claim.cross_references])]
     .map((id) => index[id])
     .filter(Boolean)
-    .map((s) => ({ id: s.source_id, label: SOURCE_LABELS[s.source_id] ?? s.author, citation: s.locator, trust: s.trust }));
+    .map((s) => ({ id: s.source_id, label: NAMEOLOGY_ARCHIVE.sourceLabels[s.source_id] ?? s.author, citation: s.locator, trust: s.trust }));
   const headline = gate.status === 'VERIFIED'
     ? '已通過來源交叉比對。'
     : '來源整理中：尚未通過全部閘門，內容僅供自我反思參考。';
   const lines = [
-    '五格與八十一數理屬姓名學流派的約定，不是易經經典，也不是科學已證實的預測。',
-    '可追到的一手出處是熊崎健翁著作的國立國會圖書館書目紀錄；書內逐條原文尚未取得，本站話術是依流派意象的白話改寫。',
-    '數字五行採姓名學慣用「1·2木、3·4火、5·6土、7·8金、9·0水」，與河圖數是兩套不同配法。',
-    '每個字的筆畫採臺灣 CNS11643 全字庫的總筆畫；傳統流派多用《康熙字典》筆畫，部首變形的字可能差一到三畫，本站沒有換算。',
+    ...NAMEOLOGY_ARCHIVE.credibilityLines.map((entry) => entry.text),
     ...(gate.status === 'VERIFIED' ? [] : gate.reasons.slice(0, 3)),
   ];
   return { status: gate.status, headline, lines, sources };
@@ -393,8 +391,8 @@ export function buildGridCredibility(): NameologyGridCredibility {
 export function buildGridStudy(grids: GridInput[], characters: StrokeChar[] = []): NameologyGridStudy {
   const credibility = buildGridCredibility();
   return {
-    ruleVersion: 'nameology-grid-study-v2',
-    strokeConcept: buildStrokeConcept(characters),
+    ruleVersion: 'nameology-grid-study-v3',
+    strokeConcept: buildStrokeConcept(characters, STATUS_WORDING[credibility.status]),
     readings: buildGridReadings(grids, characters, STATUS_WORDING[credibility.status]),
     linkage: buildGridLinkage(grids),
     credibility,
@@ -419,34 +417,62 @@ const ICHING_METHOD_LABEL: Record<string, string> = {
  * 貫通：把五格的五行接上既有的「姓名字義五行 → 八字五行 → 易經卦」這條線。
  * 只做結構對照：不以缺少某個五行直接判定喜用神、改名或吉凶（沿用 docs/nameology-hexagram-spec.md）。
  */
-export function buildGridCrossLink(study: NameologyGridStudy, crossCheck: CrossCheckInput | null | undefined, iching: IChingInput | null | undefined): NameologyGridCrossLink | undefined {
-  if (!crossCheck || !Array.isArray(crossCheck.comparison)) return undefined;
+export function buildGridCrossLink(
+  study: NameologyGridStudy,
+  crossCheck: CrossCheckInput | null | undefined,
+  iching: IChingInput | null | undefined,
+  nameChars: { char: string; element: string }[] = [],
+): NameologyGridCrossLink {
+  const hasBirth = Boolean(crossCheck && Array.isArray(crossCheck.comparison));
+  const hasHour = hasBirth && crossCheck?.chartMode === 'FULL_BAZI';
+  const tierId: InputTierId = hasHour ? 'FULL' : hasBirth ? 'NAME_GENDER_BIRTH' : 'NAME_GENDER';
+  const tiers = NAMEOLOGY_ARCHIVE.inputTiers;
+  const statusLine = study.readings[0]?.meaningProvenanceLabel.split('・')[1] ?? STATUS_WORDING.PENDING_POOL;
+  const tier = {
+    id: tierId,
+    label: tiers[tierId].label,
+    note: tiers[tierId].note.text,
+    provenanceLabel: provenanceLabel(tiers[tierId].note.provenance, statusLine),
+  };
+
   const nodes = GRID_ELEMENT_ORDER.map((element) => {
-    const row = crossCheck.comparison.find((item) => item.element === element);
+    const row = hasBirth ? crossCheck!.comparison.find((item) => item.element === element) : undefined;
     const gridLabels = study.readings.filter((item) => item.element === element).map((item) => `${item.label}${item.value}`);
-    const nameChars = row?.nameCharacters ?? [];
+    const chars = row ? row.nameCharacters : nameChars.filter((item) => item.element === element).map((item) => item.char);
+    const inName = gridLabels.length > 0 || chars.length > 0;
+    if (!hasBirth) {
+      return { element, baziCount: null, baziLabel: '未提供生日', gridLabels, nameChars: chars, relation: inName ? `名字裡有${element}。` : `名字裡沒有出現${element}。` };
+    }
     const baziCount = row?.baziCount ?? 0;
-    const inName = gridLabels.length > 0 || nameChars.length > 0;
     let relation: string;
     if (inName && baziCount > 0) relation = `八字與名字都有${element}，彼此呼應。`;
     else if (inName) relation = `八字裡沒有出現${element}，名字裡有，結構上是名字多出來的一塊。`;
     else if (baziCount > 0) relation = `八字有${element}，名字裡沒有出現。`;
     else relation = `八字與名字都沒有出現${element}。`;
-    return { element, baziCount, baziLabel: `八字 ${baziCount}`, gridLabels, nameChars, relation };
+    return { element, baziCount, baziLabel: `八字 ${baziCount}`, gridLabels, nameChars: chars, relation };
   });
 
   const gridElements = [...new Set(study.readings.map((item) => item.element))];
-  const chain = study.linkage.chain.map((step) => `${step.from.label}${step.from.element}`).concat(study.linkage.chain.length ? [`${study.linkage.chain[study.linkage.chain.length - 1].to.label}${study.linkage.chain[study.linkage.chain.length - 1].to.element}`] : []);
-  const counts = crossCheck.comparison.map((item) => `${item.element}${item.baziCount}`).join('、');
-  const steps = [
-    { order: 1, title: '姓名五格', text: `五格的五行落在${gridElements.join('、')}${chain.length ? `；三才走向是${chain.join('→')}` : ''}。` },
-    { order: 2, title: '八字對照', text: `八字（${crossCheck.chartMode === 'FULL_BAZI' ? '完整四柱' : '年月日三柱，時柱不推定'}）日主${crossCheck.dayMaster.stem}${crossCheck.dayMaster.element}，五行計數是${counts}。` },
-    { order: 3, title: '易經卦', text: iching ? `${iching.hexagramName}，${ICHING_METHOD_LABEL[iching.method] ?? iching.method}；卦義只作文化解說，不更改五格與八字。` : '易經卦資料尚未產生。' },
-  ];
+  const last = study.linkage.chain[study.linkage.chain.length - 1];
+  const chain = study.linkage.chain.map((step) => `${step.from.label}${step.from.element}`).concat(last ? [`${last.to.label}${last.to.element}`] : []);
+  const step1 = { order: 1, title: '姓名五格', locked: false, text: `五格的五行落在${gridElements.join('、')}${chain.length ? `；三才走向是${chain.join('→')}` : ''}。` };
+  const counts = hasBirth ? crossCheck!.comparison.map((item) => `${item.element}${item.baziCount}`).join('、') : '';
+  const step2 = hasBirth
+    ? { order: 2, title: '八字對照', locked: false, text: `八字（${hasHour ? '完整四柱' : '年月日三柱，時柱不推定'}）日主${crossCheck!.dayMaster.stem}${crossCheck!.dayMaster.element}，五行計數是${counts}。` }
+    : { order: 2, title: '八字對照', locked: true, text: tiers.locked.bazi.text };
+  const step3 = iching
+    ? { order: 3, title: '易經卦', locked: false, text: `${iching.hexagramName}，${ICHING_METHOD_LABEL[iching.method] ?? iching.method}；卦義只作文化解說，不更改五格與八字。` }
+    : hasBirth
+      ? { order: 3, title: '易經卦', locked: false, text: '易經卦資料尚未產生。' }
+      : { order: 3, title: '易經卦', locked: true, text: tiers.locked.iching.text };
+
   return {
+    tier,
     nodes,
-    badgeLegend: '圓形徽章＝八字裡這個五行的個數',
-    steps,
-    limitation: `${crossCheck.limitation} 姓名為主、八字為輔，三者是各自算出來再並排對照，不是互相證明，也不宣稱已交叉驗證。`,
+    badgeLegend: hasBirth ? '圓形徽章＝八字裡這個五行的個數' : '',
+    steps: [step1, step2, step3],
+    limitation: hasBirth
+      ? `${crossCheck!.limitation} 姓名為主、八字為輔，三者是各自算出來再並排對照，不是互相證明，也不宣稱已交叉驗證。`
+      : '姓名為主：這份結果只用姓名與性別，不涉及八字與易經卦，也不宣稱已交叉驗證。',
   };
 }

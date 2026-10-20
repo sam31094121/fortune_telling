@@ -953,7 +953,18 @@ function buildCrossCheck(
           : '女性資料交叉：名字陰陽接近，適合用柔中帶剛的方式發揮。'
       : '性別未提供，先以姓名本身的陰陽訊號判讀。';
 
-  const birthday = birthdayLens(context?.birthDate);
+  // 沒有出生日期就不做生日節奏校正：不得把空的月份當成某個五行來編一句話（禁止造假）。
+  if (!context?.birthDate || !/^\d{4}-\d{2}-\d{2}/.test(context.birthDate)) {
+    const noBirthdayLens = '未提供出生日期：這份結果沒有做生日節奏校正。';
+    return {
+      genderLens,
+      birthdayLens: noBirthdayLens,
+      alignmentLabel: '只用姓名與性別',
+      summary: '未提供出生日期：這份結果只用姓名與性別交叉，沒有生日節奏校正；補上出生日期才會多一層對照。',
+      corrections: [genderLens, noBirthdayLens],
+    };
+  }
+  const birthday = birthdayLens(context.birthDate);
   const topKeys = temperamentProfile.topTendencies.slice(0, 6).map((item) => item.key);
   const birthdayHits = birthday.keys.filter((key) => topKeys.includes(key));
   const alignmentScore = birthdayHits.length + (Math.abs(masculine - feminine) <= 12 ? 1 : 0);
@@ -1720,7 +1731,7 @@ export function buildNameologyAnalysis(name: string, nameScores: DimensionScores
   const relationScore = elementFlow.reduce((sum, item) => sum + (item.relation === '相生' ? 8 : item.relation === '比和' ? 4 : -6), 62);
   const topScores = Object.entries(nameScores).sort((a, b) => b[1] - a[1]).slice(0, 3);
   const averageTop = topScores.reduce((sum, [, value]) => sum + value, 0) / Math.max(1, topScores.length);
-  const crossBonus = crossCheck.alignmentLabel === '交叉高度一致' ? 5 : crossCheck.alignmentLabel === '交叉可互補' ? 2 : -3;
+  const crossBonus = crossCheck.alignmentLabel === '交叉高度一致' ? 5 : crossCheck.alignmentLabel === '交叉可互補' ? 2 : crossCheck.alignmentLabel === '只用姓名與性別' ? 0 : -3;
   const score = clampScore(relationScore * 0.42 + averageTop * 0.33 + (temperamentProfile.topTendencies[0]?.score ?? 60) * 0.2 + crossBonus);
   const dominantElement = totalGrid?.element ?? characters[0]?.element ?? '土';
   const dominantTheme = ELEMENT_THEME[dominantElement];

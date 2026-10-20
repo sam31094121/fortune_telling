@@ -1480,7 +1480,7 @@
     {
       "source_id": "S-SITE-NAMEOLOGY-81",
       "author": "本站整理",
-      "locator": "data/nameology-81-numbers.json",
+      "locator": "docs/技能戰鬥檔案/姓名學/姓名學.json（numbers 段）",
       "data_type": "八十一數理的特質與提醒白話改寫",
       "kind": "本站整理",
       "can_cite": "PASS",
@@ -1490,9 +1490,9 @@
       "training_use": "PASS",
       "license_terms": "本站自行改寫，無第三方著作權",
       "accessed_at": "2026-10-20",
-      "edition": "nameology-81-numbers-v1",
+      "edition": "nameology-skill 1.0.0（81 數理 流派意象改寫）",
       "trust": "C",
-      "tracked_path": "data/nameology-81-numbers.json",
+      "tracked_path": "docs/技能戰鬥檔案/姓名學/姓名學.json",
       "note": "本站依流派常見意象改寫，未逐條對照原書；不是古籍原文、不作吉凶定論。"
     },
     {
@@ -1880,9 +1880,10 @@
       "title": "易經姓名學：五格數理（天格、人格、地格、外格、總格）話術與五行連線",
       "domain": "姓名學知識",
       "files": [
-        "data/nameology-81-numbers.json",
+        "docs/技能戰鬥檔案/姓名學/姓名學.json",
         "lib/nameology-number-reading.ts",
-        "data/dictionaries/nameology/manifest.json"
+        "data/dictionaries/nameology/manifest.json",
+        "lib/nameology-skill-archive.ts"
       ],
       "authority_files": [
         "S-KUMAZAKI-NDL-1939",

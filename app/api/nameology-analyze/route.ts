@@ -28,7 +28,8 @@ function hasSimplifiedNameCharacter(name: string) {
 }
 type NameologyRequest = {
   name: string;
-  birthDate: string;
+  /** 選填：不填也能算（輸入姓名＋性別就可以開始運算）；填了才多解鎖八字對照與易經卦 */
+  birthDate?: string;
   gender: Gender;
   shichen?: number | null;
   analysisTarget?: 'self' | 'guest';
@@ -43,7 +44,8 @@ function validateNameologyRequest(body: unknown): string | null {
 
   if (typeof req.name !== 'string' || req.name.trim().length < 2) return '姓名至少需要 2 個字。';
   if (req.name.trim().length > 20) return '姓名長度不可超過 20 個字。';
-  if (!isValidBirthday(req.birthDate)) return '生日不是有效日期。';
+  const birth = typeof req.birthDate === 'string' ? req.birthDate.trim() : '';
+  if (birth && !isValidBirthday(birth)) return '生日不是有效日期。';
   try { normalizeNameologyShichen(req.shichen); } catch { return '出生時辰請選擇十二時辰之一，或選擇不知道。'; }
   if (typeof req.gender !== 'string' || !VALID_GENDERS.includes(req.gender as Gender)) return '請選擇性別（男性或女性）。';
 
@@ -55,7 +57,7 @@ function subjectTypeFromTarget(target: NameologyRequest['analysisTarget']): Name
 }
 
 function getCacheKey(body: NameologyRequest, dictionaryVersion: string) {
-  return hashedCacheKey([body.name.trim(), body.birthDate, body.gender, String(normalizeNameologyShichen(body.shichen) ?? 'unknown'), subjectTypeFromTarget(body.analysisTarget), dictionaryVersion, 'nameology-ultimate-v4-bazi-hour-iching-v1-grid-study-v1']);
+  return hashedCacheKey([body.name.trim(), body.birthDate ?? '', body.gender, String(normalizeNameologyShichen(body.shichen) ?? 'unknown'), subjectTypeFromTarget(body.analysisTarget), dictionaryVersion, 'nameology-ultimate-v4-bazi-hour-iching-v1-grid-study-v1']);
 }
 
 export async function POST(request: Request) {
@@ -73,7 +75,7 @@ export async function POST(request: Request) {
 
   const normalized: NameologyRequest = {
     name: body.name.trim(),
-    birthDate: body.birthDate,
+    birthDate: typeof body.birthDate === 'string' && body.birthDate.trim() ? body.birthDate.trim() : undefined,
     gender: body.gender,
     shichen: normalizeNameologyShichen(body.shichen),
     analysisTarget: body.analysisTarget === 'guest' ? 'guest' : 'self',
@@ -96,6 +98,17 @@ export async function POST(request: Request) {
     return NextResponse.json(cached.result, { status: 200, headers: { 'X-Cache': 'HIT' } });
   }
 
+  const finish = (result: unknown) => {
+    analysisCache.set(cacheKey, { result, timestamp: Date.now() });
+    if (analysisCache.size > 100) {
+      const now = Date.now();
+      for (const [key, value] of analysisCache.entries()) {
+        if (now - value.timestamp > CACHE_DURATION_MS) analysisCache.delete(key);
+      }
+    }
+    return NextResponse.json(result, { status: 200, headers: { 'X-Cache': 'MISS' } });
+  };
+
   try {
     const nameScores = getNamePersonalityScores(normalized.name);
     const analysis = buildNameologyAnalysis(normalized.name, nameScores, {
@@ -116,7 +129,14 @@ export async function POST(request: Request) {
         422,
       );
     }
-    analysis.baziCrossCheck = buildNameologyBaziCrossCheck(normalized, analysis.characters);
+    if (!normalized.birthDate) {
+      // 業主定案（2026-10-20）：輸入姓名＋性別就可以開始運算（例如幫小孩取名字），出生日期與時辰選填。
+      // 沒有出生日期就沒有八字、三合一與易經卦：不補造、不預設；貫通區照實顯示「補上就解鎖」（說法來自技能檔案 inputTiers）。
+      analysis.gridStudy.crossLink = buildGridCrossLink(analysis.gridStudy, null, null, analysis.characters.map((item) => ({ char: item.char, element: item.element })));
+      const fiveElementNameOnly = buildNameologyFiveElementResult(analysis);
+      return finish({ ok: true, mode: 'nameology', tier: 'NAME_GENDER', analysis, nameScores, fiveElement: fiveElementNameOnly, standardOutput: analysis.standardOutput, verification: analysis.standardOutput.verification });
+    }
+    analysis.baziCrossCheck = buildNameologyBaziCrossCheck({ ...normalized, birthDate: normalized.birthDate }, analysis.characters);
     const fiveElement = buildNameologyFiveElementResult(analysis);
     // 易經起卦：有生日用梅花易數生辰起卦，沒有生日就以姓名起卦，附進姓名學結論
     // 未知時辰不可在生辰起卦中補午時；此時僅保留明示的字串象徵起卦。
@@ -152,21 +172,13 @@ export async function POST(request: Request) {
       : castHexagram(normalized.name, normalized.birthDate, '姓名象徵參考');
     analysis.iching = presentNameologyIChing(gua, normalized.shichen != null);
     // 貫通：五格五行接上既有的八字對照與易經卦（結構對照，不另算一套）
-    analysis.gridStudy.crossLink = buildGridCrossLink(analysis.gridStudy, analysis.baziCrossCheck, analysis.iching);
+    analysis.gridStudy.crossLink = buildGridCrossLink(analysis.gridStudy, analysis.baziCrossCheck, analysis.iching, analysis.characters.map((item) => ({ char: item.char, element: item.element })));
     // 易經心理學共感層：與姓名卦同一顆卦（剝洋蔥＋我懂你＋核心脆弱性），有溫度的輸出
     const empathic = buildEmpathicFromHexagram(normalized.name, gua);
     analysis.corePersonality = `${analysis.corePersonality}${formatHexagramLine(gua)}：${gua.essence}——${gua.advice}\n${empathic.specialYou}\n${empathic.absolution}`;
     const result = { ok: true, mode: 'nameology', threeInOne, analysis, nameScores, fiveElement, standardOutput: analysis.standardOutput, verification: analysis.standardOutput.verification, iching: { line: formatHexagramLine(gua), essence: gua.essence, advice: gua.advice }, empathicReading: formatEmpathicReading(empathic), ghostDecoding: buildGhostDecoding(gua) };
 
-    analysisCache.set(cacheKey, { result, timestamp: Date.now() });
-    if (analysisCache.size > 100) {
-      const now = Date.now();
-      for (const [key, value] of analysisCache.entries()) {
-        if (now - value.timestamp > CACHE_DURATION_MS) analysisCache.delete(key);
-      }
-    }
-
-    return NextResponse.json(result, { status: 200, headers: { 'X-Cache': 'MISS' } });
+    return finish(result);
   } catch (err) {
     console.error('[nameology-analyze] request failed', requestId, err instanceof Error ? err.message : String(err));
     return friendlyErrorResponse(requestId, 'TEMPORARILY_UNAVAILABLE', '姓名學系統正在重新同步，請稍候再試。', 502);

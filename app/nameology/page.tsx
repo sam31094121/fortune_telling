@@ -907,9 +907,11 @@ function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; f
   );
 }
 
+/** 入口規則：姓名＋性別就可以開始運算；生日與時辰選填，有填才多解鎖八字對照、完整四柱與生辰卦（說明文字見技能檔案 inputTiers）。 */
+const BIRTHDAY_OPTIONAL_HINT = '不填也能算：只用姓名與性別算出筆畫、五格與五行；填了出生日期，會多一層八字對照。';
+
 function buildValidationMessage(form: FormState, selectionConfirm: SelectionConfirm) {
   if (form.name.trim().length < 2) return '請先輸入完整姓名，至少 2 個字。';
-  if (!form.birthDate) return '請先完成生日萬年曆推算。';
   if (!selectionConfirm.gender) return '請點選性別，系統才會套用外在呈現校正。';
   return '';
 }
@@ -1147,11 +1149,10 @@ export default function NameologyPage() {
   }, [validationMessage]);
   const showMissingFields = Boolean(error) && !result;
   const showMissingName = showMissingFields && form.name.trim().length < 2;
-  const showMissingBirthDate = showMissingFields && !form.birthDate;
   const showMissingGender = showMissingFields && !selectionConfirm.gender;
   const progressItems = [
     { label: '姓名', done: form.name.trim().length >= 2, value: form.name.trim().length > 0 ? `${form.name.trim().length}字` : '未填' },
-    { label: '生日', done: Boolean(form.birthDate), value: form.birthDate ? '已推算' : '未填' },
+    { label: '生日（選填）', done: Boolean(form.birthDate), value: form.birthDate ? '已推算' : '不填也能算' },
     { label: '性別', done: selectionConfirm.gender, value: selectionConfirm.gender ? (form.gender === 'male' ? '男性' : '女性') : '未選' },
   ];
 
@@ -1301,7 +1302,7 @@ export default function NameologyPage() {
 
           <MegaInputGuide
             title="請先填完整姓名"
-            steps={['姓名至少 2 個字', '再完成生日資料', '最後確認性別']}
+            steps={['姓名至少 2 個字', '確認性別', '生日與時辰選填，有填才多解鎖']}
             example="王小明，或你的真實姓名"
             tone="amber"
             className="mt-6"
@@ -1336,7 +1337,7 @@ export default function NameologyPage() {
 
             <div>
               <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
-                2. 出生日期（民國年）{form.birthDate && <span className="text-green-400">✓</span>}
+                2. 出生日期（選填）{form.birthDate && <span className="text-green-400">✓</span>}
               </label>
               <LunarBirthdayInput
                 key={birthInputVersion}
@@ -1345,9 +1346,7 @@ export default function NameologyPage() {
                 accent="amber"
                 label="出生日期（萬年曆）"
               />
-              {showMissingBirthDate && (
-                <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u5148\u5b8c\u6210\u751f\u65e5\u8cc7\u6599\u3002"}</p>
-              )}
+              {!form.birthDate && <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">{BIRTHDAY_OPTIONAL_HINT}</p>}
               {form.birthDate && <p className="mt-2 text-xs text-green-400">✓ 西元 {form.birthDate}</p>}
             </div>
 

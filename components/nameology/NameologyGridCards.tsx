@@ -49,12 +49,13 @@ export default function NameologyGridCards({ study, embedded = false }: { study:
   const [selected, setSelected] = useState(readings.find((item) => item.key === 'person')?.key ?? readings[0]?.key);
   const current = readings.find((item) => item.key === selected) ?? readings[0];
   // 瀏覽器可能留著舊版格式的結果（沒有筆畫概念與依據欄位）：格式不符就先不顯示，重新分析後就會出現，不讓整頁當掉。
-  const compatible = study?.ruleVersion === 'nameology-grid-study-v2' && Boolean(study.strokeConcept) && Boolean(study.linkage) && Boolean(study.credibility)
+  const compatible = study?.ruleVersion === 'nameology-grid-study-v3' && Boolean(study.strokeConcept) && Boolean(study.linkage) && Boolean(study.credibility)
     && readings.every((item) => Boolean(item.role) && Array.isArray(item.evidence));
   if (!current || !compatible) return null;
   // 用固定的標籤名稱，不在渲染裡定義元件（否則每次點選都會整塊重建，展開狀態與動畫會被重置）
   const Tag: 'div' | 'section' = embedded ? 'div' : 'section';
   const { linkage, credibility } = study;
+  const badgeCountOf = (element: GridElement) => study.crossLink?.nodes.find((item) => item.element === element)?.baziCount ?? null;
   const currentColor = ELEMENT_COLOR[current.element];
 
   return (
@@ -100,11 +101,17 @@ export default function NameologyGridCards({ study, embedded = false }: { study:
           </ul>
         )}
         <div className="mt-3 space-y-2">
-          {study.strokeConcept.paragraphs.map((text) => (
-            <p key={text} className="break-words text-xs font-semibold leading-6 text-violet-100/90">{text}</p>
+          {study.strokeConcept.paragraphs.map((item) => (
+            <div key={item.text}>
+              <p className="break-words text-xs font-semibold leading-6 text-violet-100/90">{item.text}</p>
+              <p className="mt-0.5 text-[10px] font-bold text-amber-100/70">{item.provenanceLabel}</p>
+            </div>
           ))}
         </div>
-        <p className="mt-3 rounded-xl border border-amber-200/25 bg-amber-200/[0.06] px-3 py-2 text-[11px] font-semibold leading-5 text-amber-50/95">{study.strokeConcept.strokeNote}</p>
+        <div className="mt-3 rounded-xl border border-amber-200/25 bg-amber-200/[0.06] px-3 py-2">
+          <p className="text-[11px] font-semibold leading-5 text-amber-50/95">{study.strokeConcept.strokeNote.text}</p>
+          <p className="mt-0.5 text-[10px] font-bold text-amber-100/70">{study.strokeConcept.strokeNote.provenanceLabel}</p>
+        </div>
       </details>
 
       <div className="mt-5 grid grid-cols-5 gap-1 sm:gap-3" role="group" aria-label="選擇一個格看含義">
@@ -152,9 +159,13 @@ export default function NameologyGridCards({ study, embedded = false }: { study:
         <div className="mt-3 rounded-xl border border-white/10 bg-black/25 p-3">
           <p className="text-[11px] font-black tracking-[0.15em] text-amber-200/90">這個格代表　{current.role.title}</p>
           <p className="mt-1 break-words text-xs font-semibold leading-6 text-violet-100/90">{current.role.text}</p>
+          <p className="mt-0.5 text-[10px] font-bold text-amber-100/70">{current.role.provenanceLabel}</p>
         </div>
 
-        <p className="mt-3 break-words text-sm font-semibold leading-7 text-violet-50/95">{current.plainTalk}</p>
+        <div className="mt-3">
+          <p className="break-words text-sm font-semibold leading-7 text-violet-50/95">{current.plainTalk}</p>
+          <p className="text-[10px] font-bold text-amber-100/70">{current.meaningProvenanceLabel}</p>
+        </div>
 
         <div className="mt-3 rounded-xl border border-white/10 bg-black/25 p-3">
           <p className="text-[11px] font-black text-amber-200/90">小提醒</p>
@@ -177,7 +188,7 @@ export default function NameologyGridCards({ study, embedded = false }: { study:
                     <span key={label} className="rounded border border-white/15 bg-white/[0.05] px-1.5 py-0.5 text-[10px] font-bold leading-4 text-violet-100/90">{label}</span>
                   ))}
                 </p>
-                <p className="mt-1 text-[10.5px] font-bold text-amber-100/80">{item.statusLine}</p>
+                <p className="mt-1 text-[10.5px] font-bold text-amber-100/80">{item.provenanceLabel}</p>
               </li>
             ))}
           </ul>
@@ -270,11 +281,11 @@ export default function NameologyGridCards({ study, embedded = false }: { study:
                 <circle cx={point.x} cy={point.y} r={22.5} fill={`url(#${uid}-orb-${node.element})`} fillOpacity={node.present ? 1 : 0.4} stroke="rgba(255,255,255,.4)" strokeWidth="1" />
                 <ellipse cx={point.x - 7} cy={point.y - 9} rx={8} ry={4.5} fill="#fff" fillOpacity={node.present ? 0.38 : 0.15} transform={`rotate(-28 ${point.x - 7} ${point.y - 9})`} />
                 <text x={point.x} y={point.y + 7} textAnchor="middle" fontSize="20" fontWeight="900" fontFamily="serif" fill="#fff" fillOpacity={node.present ? 1 : 0.6} style={{ paintOrder: 'stroke', stroke: 'rgba(8,10,22,.6)', strokeWidth: 2 }}>{node.element}</text>
-                {study.crossLink && (
+                {badgeCountOf(node.element) !== null && (
                   <g aria-hidden="true">
                     <circle cx={point.x + 19} cy={point.y - 19} r={9.5} fill="#14102a" stroke="#f2cf7a" strokeWidth="1.4" />
                     <text x={point.x + 19} y={point.y - 15.2} textAnchor="middle" fontSize="11" fontWeight="900" fill="#f8e6ae">
-                      {study.crossLink.nodes.find((item) => item.element === node.element)?.baziCount}
+                      {badgeCountOf(node.element)}
                     </text>
                   </g>
                 )}
@@ -299,7 +310,7 @@ export default function NameologyGridCards({ study, embedded = false }: { study:
           <span className="inline-flex items-center gap-1.5"><span aria-hidden="true" className="inline-block h-[3px] w-5 rounded bg-amber-300" />{linkage.legend.chain}</span>
         </div>
 
-        {study.crossLink && (
+        {study.crossLink && study.crossLink.badgeLegend && (
           <p className="mt-1.5 flex items-center justify-center gap-1.5 text-[11px] font-semibold text-violet-100/80">
             <span aria-hidden="true" className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-amber-300 bg-[#14102a] text-[9px] font-black text-amber-100">3</span>
             {study.crossLink.badgeLegend}
@@ -316,12 +327,16 @@ export default function NameologyGridCards({ study, embedded = false }: { study:
           <div className="mt-5 rounded-2xl border border-amber-200/25 bg-gradient-to-b from-amber-200/[0.08] via-violet-300/[0.04] to-transparent p-3 sm:p-4">
             <p className="text-center text-[11px] font-black tracking-[0.35em] text-amber-100/90">貫通</p>
             <div className="mx-auto mt-1 h-px w-20 bg-gradient-to-r from-transparent via-amber-300/70 to-transparent" />
+            <p className="mt-3 text-center text-xs font-black text-violet-100">{study.crossLink.tier.label}</p>
+            <p className="mt-1 break-words text-center text-[11px] font-semibold leading-5 text-violet-100/85">{study.crossLink.tier.note}</p>
+            <p className="mt-0.5 text-center text-[10px] font-bold text-amber-100/70">{study.crossLink.tier.provenanceLabel}</p>
             <ol className="mt-3 grid gap-2 sm:grid-cols-3">
               {study.crossLink.steps.map((step) => (
-                <li key={step.order} className="relative rounded-xl border border-white/10 bg-black/30 px-3 py-2.5">
+                <li key={step.order} className={`relative rounded-xl border px-3 py-2.5 ${step.locked ? 'border-dashed border-white/20 bg-black/15' : 'border-white/10 bg-black/30'}`}>
                   <p className="flex items-center gap-2 text-[11px] font-black text-amber-100">
                     <span aria-hidden="true" className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-amber-200/50 bg-amber-200/10 text-[10px]">{step.order}</span>
                     {step.title}
+                    {step.locked && <span className="rounded border border-white/20 px-1.5 text-[10px] font-bold leading-4 text-violet-200/80">待解鎖</span>}
                   </p>
                   <p className="mt-1.5 break-words text-[11px] font-semibold leading-5 text-violet-100/90">{step.text}</p>
                 </li>
@@ -339,7 +354,7 @@ export default function NameologyGridCards({ study, embedded = false }: { study:
                     >{node.element}</span>
                     <span className="min-w-0 flex-1">
                       <span className="flex flex-wrap items-center gap-1">
-                        <span className="rounded border border-white/15 bg-white/[0.05] px-1.5 text-[10px] font-black leading-4 text-amber-100">{node.baziLabel}</span>
+                        {node.baziCount !== null && <span className="rounded border border-white/15 bg-white/[0.05] px-1.5 text-[10px] font-black leading-4 text-amber-100">{node.baziLabel}</span>}
                         {node.gridLabels.map((label) => (
                           <span key={label} className="rounded border px-1.5 text-[10px] font-black leading-4" style={{ borderColor: color.fill, color: color.text }}>{label}</span>
                         ))}

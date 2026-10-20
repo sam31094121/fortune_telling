@@ -10,13 +10,15 @@ import {
   elementOfNumber, gridFormulaFor, normalizeGridNumber,
 } from '../lib/nameology-number-reading';
 import { STATUS_WORDING } from '../lib/credibility-phrases';
+import { NAMEOLOGY_ARCHIVE, listArchiveSentences, validateNameologyArchive } from '../lib/nameology-skill-archive';
 import { evaluateClaim, indexSources, type SourceRegistry } from '../lib/iching-source-gate';
 import { deriveNameologyTotalBeast } from '../lib/nameology-total-beast';
 
 let passed = 0;
 function check(name: string, fn: () => void) { fn(); passed += 1; console.log(`  ✓ ${name}`); }
 
-const data = JSON.parse(fs.readFileSync('data/nameology-81-numbers.json', 'utf8')) as { numbers: { n: number; keyword: string; reading: string; caution: string }[]; sources: string[] };
+const archiveRaw = JSON.parse(fs.readFileSync('docs/技能戰鬥檔案/姓名學/姓名學.json', 'utf8')) as { numbers: { items: { n: number; keyword: string; reading: string; caution: string }[]; source_ids: string[] } };
+const data = { numbers: archiveRaw.numbers.items, sources: archiveRaw.numbers.source_ids };
 const registry = JSON.parse(fs.readFileSync('docs/技能戰鬥檔案/易經/來源登記.json', 'utf8')) as SourceRegistry;
 const FORBIDDEN = ['必定', '註定', '大凶', '血光', '剋夫', '剋妻', '短命', '災難', '兇', '凶', '大吉', '絕症', '橫禍'];
 
@@ -127,6 +129,39 @@ check('來源登記真實可查：NDL 書目紀錄的書名、作者、館藏與
   for (const id of data.sources) assert.ok(registry.sources.some((s) => s.source_id === id), `登記表缺 ${id}`);
 });
 
+check('技能檔案驗收：每一句都有出處層級與來源編號、來源在登記表找得到、引自來源必須有頁碼、無吉凶定論與恐嚇字', () => {
+  const problems = validateNameologyArchive(registry.sources.map((s) => s.source_id));
+  assert.deepEqual(problems, []);
+  const sentences = listArchiveSentences();
+  assert.ok(sentences.length > 250, '技能檔案句數異常');
+  assert.ok(sentences.every((s) => s.provenance !== '引自來源'), '目前沒有任何一句取得原書原文，不得標引自來源（要升級先補 page_ref 與來源）');
+  const bad = JSON.parse(JSON.stringify(NAMEOLOGY_ARCHIVE));
+  bad.gridRoles.sky.source_ids = [];
+  bad.evidence[0].provenance = '引自來源';
+  const issues = validateNameologyArchive(registry.sources.map((s) => s.source_id), bad);
+  assert.ok(issues.some((x) => x.includes('沒有來源編號')) && issues.some((x) => x.includes('沒有頁碼')), '驗收要能抓出沒有來源與冒充原文的句子');
+});
+
+check('話術只來自技能檔案：後端輸出的角色、數理、筆畫概念、依據、公信力說明都等於技能檔案，程式碼裡不得再寫一份', () => {
+  const study = buildGridStudy([...SAMPLE], CHARS);
+  const roles = NAMEOLOGY_ARCHIVE.gridRoles;
+  for (const r of study.readings) {
+    assert.equal(r.role.text, roles[r.key].text);
+    assert.equal(r.role.title, roles[r.key].title);
+    const item = NAMEOLOGY_ARCHIVE.numbers.items[r.numberUsed - 1];
+    assert.equal(r.keyword, item.keyword); assert.equal(r.reading, item.reading); assert.equal(r.caution, item.caution);
+    assert.deepEqual(r.evidence.map((e) => e.basis), NAMEOLOGY_ARCHIVE.evidence.map((e) => e.text));
+    assert.ok(r.role.provenanceLabel.includes('・') && r.meaningProvenanceLabel.startsWith('流派意象改寫・'));
+  }
+  assert.deepEqual(study.credibility.lines.slice(0, NAMEOLOGY_ARCHIVE.credibilityLines.length), NAMEOLOGY_ARCHIVE.credibilityLines.map((e) => e.text));
+  assert.equal(study.strokeConcept.title, NAMEOLOGY_ARCHIVE.strokeConcept.title);
+  const lib = fs.readFileSync('lib/nameology-number-reading.ts', 'utf8');
+  const interpretive = listArchiveSentences().map((s) => s.text).filter((text) => text.length >= 10);
+  const leaked = interpretive.filter((text) => lib.includes(text));
+  assert.deepEqual(leaked, [], '這些解說句子出現在程式碼裡，必須只留在技能檔案：' + leaked.slice(0, 3).join(' | '));
+  assert.ok(fs.existsSync('docs/技能戰鬥檔案/姓名學/姓名學.json') && !fs.existsSync('data/nameology-81-numbers.json'), '81 數理只有一份：在技能檔案裡');
+});
+
 check('筆畫概念：每個格都說明怎麼算（用這個名字實際的字與筆畫）、代表什麼、白話意思', () => {
   const readings = buildGridReadings([...SAMPLE], CHARS);
   const byKey = Object.fromEntries(readings.map((r) => [r.key, r]));
@@ -154,8 +189,9 @@ check('筆畫公式自我核對：公式算出的數字和引擎給的不一致�
 check('筆畫概念說明與來源：說清楚用哪一套筆畫、與康熙字典可能差一到三畫，且每格四項依據都對得上登記表', () => {
   const concept = buildStrokeConcept(CHARS);
   assert.equal(concept.total, 37);
-  assert.ok(concept.paragraphs.some((p) => p.includes('黃12畫、美9畫、燕16畫') && p.includes('37')));
-  assert.ok(concept.strokeNote.includes('CNS11643') && concept.strokeNote.includes('康熙字典') && concept.strokeNote.includes('沒有做康熙筆畫換算'));
+  assert.ok(concept.paragraphs.some((p) => p.text.includes('黃12畫、美9畫、燕16畫') && p.text.includes('37') && p.provenanceLabel === '由字典筆畫算出'));
+  assert.ok(concept.strokeNote.text.includes('CNS11643') && concept.strokeNote.text.includes('康熙字典') && concept.strokeNote.text.includes('沒有做康熙筆畫換算'));
+  assert.ok(concept.strokeNote.provenanceLabel.startsWith('本站自撰・'), '筆畫採用說明要標出處層級');
   assert.deepEqual(concept.characters.map((c) => c.part), ['姓', '名', '名']);
   const study = buildGridStudy([...SAMPLE], CHARS);
   assert.equal(study.strokeConcept.total, 37);
@@ -225,9 +261,46 @@ check('貫通：五格五行接上既有的八字對照與易經卦（結構對�
     assert.ok(!text.includes('喜用神'), '不得判喜用神');
     for (const word of FORBIDDEN) assert.ok(!text.includes(word), `含「${word}」`);
   }
-  assert.equal(buildGridCrossLink(study, null, null), undefined, '沒有八字對照就不硬湊');
+  assert.equal(link.tier.id, 'NAME_GENDER_BIRTH');
+  assert.ok(link.steps.every((s) => s.locked === false));
   const noIching = buildGridCrossLink(study, cross, null);
   assert.ok(noIching?.steps[2].text.includes('尚未產生'));
+});
+
+check('分層入口：輸入姓名＋性別就能運算，沒有生日就沒有八字與易經卦，照實告知「補上就解鎖」，不編造生日節奏、不預設', () => {
+  const study = buildGridStudy([...SAMPLE], CHARS);
+  const only = buildGridCrossLink(study, null, null, [{ char: '黃', element: '土' }, { char: '美', element: '水' }]);
+  assert.equal(only.tier.id, 'NAME_GENDER');
+  assert.equal(only.tier.note, NAMEOLOGY_ARCHIVE.inputTiers.NAME_GENDER.note.text);
+  assert.ok(only.tier.provenanceLabel.startsWith('本站自撰・'));
+  assert.equal(only.steps[0].locked, false);
+  assert.deepEqual(only.steps.slice(1).map((s) => s.locked), [true, true]);
+  assert.equal(only.steps[1].text, NAMEOLOGY_ARCHIVE.inputTiers.locked.bazi.text);
+  assert.equal(only.steps[2].text, NAMEOLOGY_ARCHIVE.inputTiers.locked.iching.text);
+  assert.ok(only.nodes.every((n) => n.baziCount === null && n.baziLabel === '未提供生日'));
+  assert.equal(only.badgeLegend, '');
+  assert.ok(only.nodes.find((n) => n.element === '土')?.nameChars.includes('黃'), '字義五行照實列出');
+  const texts = [...only.nodes.map((n) => n.relation), ...only.steps.map((s) => s.text), only.limitation, only.tier.note];
+  for (const text of texts) {
+    assert.ok(!text.includes('喜用神') || text.includes('不判喜用神'), '不得判喜用神');
+    assert.ok(!/月份|節奏|八字 d|日主/.test(text), '沒有生日就不得出現生日節奏或八字數字：' + text);
+    for (const word of FORBIDDEN) assert.ok(!text.includes(word), '含「' + word + '」');
+  }
+  assert.ok(only.limitation.includes('不涉及八字與易經卦'));
+  const full = buildGridCrossLink(study, { chartMode: 'FULL_BAZI', dayMaster: { stem: '乙', element: '木' }, limitation: 'x', comparison: [{ element: '木', nameCharacters: [], baziCount: 1 }] }, { hexagramName: '山火賁', method: 'birth-date-hour' });
+  assert.equal(full.tier.id, 'FULL');
+  // 入口規則落在程式裡：API 生日選填、頁面不再要求生日、引擎沒有生日不編造生日節奏
+  const route = fs.readFileSync('app/api/nameology-analyze/route.ts', 'utf8');
+  assert.ok(route.includes('if (birth && !isValidBirthday(birth))') && route.includes('if (!normalized.birthDate)'), 'API 要接受沒有生日');
+  assert.ok(route.includes("tier: 'NAME_GENDER'"));
+  assert.ok(route.includes("typeof req.gender !== 'string'"), '性別仍是必填');
+  const page = fs.readFileSync('app/nameology/page.tsx', 'utf8');
+  assert.ok(!page.includes('請先完成生日萬年曆推算'), '頁面不得再擋住沒有生日的送出');
+  assert.ok(page.includes('確認性別') && page.includes('2. 出生日期（選填）'));
+  const engine = fs.readFileSync('lib/nameology-engine.ts', 'utf8');
+  assert.ok(engine.includes("alignmentLabel: '只用姓名與性別'") && engine.includes('不得把空的月份當成某個五行來編一句話'), '引擎沒有生日不得編造生日節奏');
+  assert.ok(engine.includes("'只用姓名與性別' ? 0 : -3"), '只用姓名與性別不得被扣分');
+  assert.ok(engine.includes('/^\\d{4}-\\d{2}-\\d{2}/.test(context.birthDate)'), '生日格式判斷式必須是正確的正規表示式（有生日時才做生日節奏校正）');
 });
 
 check('融入既有卡片：五格內容放在「姓名總格神獸」卡裡面（embedded），頁面上不得另外多一張獨立卡片；包裝用固定標籤，不在渲染裡定義元件', () => {
@@ -244,16 +317,16 @@ check('融入既有卡片：五格內容放在「姓名總格神獸」卡裡面�
 
 check('舊版結果相容：元件對版本不符或欄位缺漏的舊結果直接不顯示，不得讓整頁當掉（瀏覽器會保留舊結果）', () => {
   const raw = fs.readFileSync('components/nameology/NameologyGridCards.tsx', 'utf8');
-  assert.ok(raw.includes("study?.ruleVersion === 'nameology-grid-study-v2'"), '缺版本檢查');
+  assert.ok(raw.includes("study?.ruleVersion === 'nameology-grid-study-v3'"), '缺版本檢查');
   assert.ok(raw.includes('if (!current || !compatible) return null'), '缺相容保護');
   assert.ok(raw.includes('study?.readings ?? []'), '讀取 readings 要容許舊格式');
   const lib = fs.readFileSync('lib/nameology-number-reading.ts', 'utf8');
-  assert.ok(lib.includes("ruleVersion: 'nameology-grid-study-v2'"), '資料版本要與元件檢查一致');
+  assert.ok(lib.includes("ruleVersion: 'nameology-grid-study-v3'"), '資料版本要與元件檢查一致');
 });
 
 check('整合輸出 buildGridStudy：五格＋連線＋公信力三件齊全且版本固定', () => {
   const study = buildGridStudy([...SAMPLE]);
-  assert.equal(study.ruleVersion, 'nameology-grid-study-v2');
+  assert.equal(study.ruleVersion, 'nameology-grid-study-v3');
   assert.equal(study.readings.length, 5);
   assert.equal(study.linkage.chain.length, 2);
   assert.ok(study.credibility.sources.length >= 3);
