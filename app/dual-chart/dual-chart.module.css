@@ -1358,3 +1358,21 @@ details[open] > summary .moreHint::after {
 .page:not(.printPreview) .comparisonFooter{background:linear-gradient(135deg,#2c2745,#231f38);border-color:rgba(201,169,97,.3)}
 .page:not(.printPreview) .shenshaExtendedList li{box-shadow:0 3px 12px rgba(0,0,0,.25)}
 .page:not(.printPreview) .shenshaItemHead span{border:1px solid rgba(188,160,232,.2)}
+
+/* 畫面版（手機＋平板＋筆電）第四輪質感美化（2026-10-20，只改顏色、陰影、字距、行距、圓角；
+   不改字級、尺寸、排版、資料與運算；列印版 .printPreview 不受影響） */
+.page:not(.printPreview) .header h1{letter-spacing:.16em;text-shadow:0 2px 22px rgba(217,190,245,.3)}
+.page:not(.printPreview) .header p{letter-spacing:.04em}
+.page:not(.printPreview) .panel{border-color:rgba(201,169,97,.28);box-shadow:0 14px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05)}
+.page:not(.printPreview) .panel h2{letter-spacing:.1em}
+.page:not(.printPreview) .printButton{background:linear-gradient(180deg,#e6d2fb,#cbaeed);border-color:rgba(201,169,97,.55);box-shadow:0 4px 14px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.5);letter-spacing:.1em}
+.page:not(.printPreview) .printButton:active{filter:brightness(.94)}
+.page:not(.printPreview) .shenshaComment,.page:not(.printPreview) .comparisonHint,.page:not(.printPreview) .comparisonFooter p{line-height:1.85}
+.page:not(.printPreview) .shenshaExtendedList li{border-radius:12px;background:linear-gradient(135deg,#0d1018,#0a0d14)}
+.page:not(.printPreview) .shenshaItemHead b{letter-spacing:.1em}
+.page:not(.printPreview) .elementBar label{letter-spacing:.08em}
+.page:not(.printPreview) .elementBar .barValue,.page:not(.printPreview) .barValue{font-variant-numeric:tabular-nums}
+.page:not(.printPreview) .chartDivider::after{color:#c9a961;opacity:.7}
+.page:not(.printPreview) .teacherCard>summary b{letter-spacing:.16em}
+.page:not(.printPreview) .shenshaGroup h5{letter-spacing:.22em}
+.page:not(.printPreview) .shenshaMore>summary{border-color:rgba(201,169,97,.35)}
