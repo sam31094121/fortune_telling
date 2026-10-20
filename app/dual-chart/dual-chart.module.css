@@ -1376,3 +1376,26 @@ details[open] > summary .moreHint::after {
 .page:not(.printPreview) .teacherCard>summary b{letter-spacing:.16em}
 .page:not(.printPreview) .shenshaGroup h5{letter-spacing:.22em}
 .page:not(.printPreview) .shenshaMore>summary{border-color:rgba(201,169,97,.35)}
+
+/* 列印版（八字、紫微）整張質感美化（2026-10-20，只改顏色、漸層、細線色、陰影、圓角；
+   不改字級、字距、padding、border 粗細、排版、資料與運算，A4 高度不增加；
+   黑白列印 .monochrome 不套用，維持原本的純黑白對比） */
+.printPreview:not(.monochrome) .results>article>h2{color:#4a2d63!important;box-shadow:0 2px 0 #d8c08a}
+.printPreview:not(.monochrome) .fusedSubtitle{color:#7a6a88!important}
+.printPreview:not(.monochrome) .baziReport .birthBand{border-color:#c9a961;border-radius:6px;background:linear-gradient(135deg,#fbf6ea,#f7f0f9)!important;box-shadow:inset 0 2px 0 #c9a961}
+.printPreview:not(.monochrome) .baziReport .birthBand>b{color:#5a3f12!important}
+.printPreview:not(.monochrome) .baziReport :is(.pillarGrid,.luckGrid,.annualGrid) :is(th,td){border-color:#cfc2d6}
+.printPreview:not(.monochrome) .baziReport :is(.pillarGrid,.luckGrid,.annualGrid) th{background:linear-gradient(180deg,#f3eaf8,#e6dbee)!important;color:#52325f!important}
+.printPreview:not(.monochrome) .baziReport .largeGlyph td{color:#4a2d63!important}
+.printPreview:not(.monochrome) .baziMain>.pillarGrid{outline-color:#b9a6c4}
+.printPreview:not(.monochrome) .baziReport .relations{border-color:#cdbfd6;border-radius:6px;background:#fcfaf6!important;box-shadow:inset 0 2px 0 #c9a961}
+.printPreview:not(.monochrome) .baziReport .reportFooter{border-top-color:#c9a961;color:#6b6275!important}
+.printPreview:not(.monochrome) .shenshaPillars>div{border-color:#c9bdd2;border-radius:6px;background:linear-gradient(180deg,#fffdf9,#faf6ef)!important}
+.printPreview:not(.monochrome) .shenshaPillars h4{color:#5a3a6a!important;border-bottom-color:#d8c8e0}
+.printPreview:not(.monochrome) .ziweiPrintSheet .chart{background:#bfb1c8!important;border-color:#c9a961!important;box-shadow:0 0 0 1px #e4d3a6}
+.printPreview:not(.monochrome) .ziweiPrintSheet .cell{background:linear-gradient(180deg,#fffdf9,#faf6ef)!important;border-color:#e3dbe8}
+.printPreview:not(.monochrome) .ziweiPrintSheet .cell.life{background:linear-gradient(180deg,#f9f0fe,#efe2f8)!important}
+.printPreview:not(.monochrome) .ziweiPrintSheet .cell.body{background:linear-gradient(180deg,#eefaf3,#e2f3ea)!important}
+.printPreview:not(.monochrome) .ziweiPrintSheet .center{background:radial-gradient(circle at 50% 28%,#fffdf8,#f6f0e6)!important;border-color:#d9c69c;box-shadow:inset 0 0 0 1px #efe3c6}
+.printPreview:not(.monochrome) .ziweiPrintSheet .center strong{border-bottom-color:#c9a961}
+.printPreview:not(.monochrome) .ziweiPrintSheet .printLegend{border-top-color:#d8c8a0}
