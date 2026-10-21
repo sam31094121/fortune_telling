@@ -227,7 +227,7 @@ export function CardDetailSheet({
       <button type="button" className={styles.backdrop} aria-label="關閉卡片詳情" onClick={onClose} />
       <section className={styles.sheet} role="dialog" aria-modal="true" aria-label={`${card.name} 詳細資料`} data-card-sheet>
         <div className={styles.sheetHead}>
-          <div className={`${styles.sheetArt} ${frame.card}`}>
+          <div className={`${styles.sheetArt} ${frame.card} ${frame.metal}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className={frame.art} src={card.thumbnail} alt="" />
           </div>

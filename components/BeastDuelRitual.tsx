@@ -330,11 +330,11 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
             data-flipping={flipping ? 'yes' : 'no'}
             style={flipping && glow ? { boxShadow: `0 0 0 2px ${glow}, 0 0 26px ${glow}` } : undefined}
           >
-            <div className={styles.face} aria-hidden={open}>
+            <div className={`${styles.face} ${frameStyles.metal}`} aria-hidden={open}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {card && <img src="/beast-game/card-back.webp" alt={`${side === 'player' ? '你' : '易經'}的${position}牌背`} />}
             </div>
-            <div className={`${styles.face} ${styles.front}`} aria-hidden={!open}>
+            <div className={`${styles.face} ${styles.front} ${frameStyles.metal}`} aria-hidden={!open}>
               {card && <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={card.thumbnail} alt={open ? card.name : ''} />

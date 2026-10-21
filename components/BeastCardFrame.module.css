@@ -101,3 +101,44 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/*
+  金屬卡框（標準卡質感的小卡版）
+  ============================================================================
+  業主批准標準卡質感（2026-10-21）後，六十張卡所有露面的地方都要同一副框：
+  選卡頁用完整版（BeastCardTile 的 .std*，含名字、武器、技能）；揭牌、出戰席、
+  賭注、放大預覽這些卡太小、放不下字的地方，用這一個 class。
+
+  做法是疊在卡面上的一圈拉絲黃銅環（::after，用遮罩挖空中間）加一條內緣墨線（::before），
+  **不佔版面、不改尺寸、不動點擊**，所以不會讓任何既有版面跳動，
+  六十張的比例仍然由 .card 的 63/88 決定。
+  要求：套用的元素必須已是 position（.card 本身 relative，揭牌 .face 是 absolute）。
+*/
+.metal::after,
+.metal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.metal::after {
+  z-index: 4;
+  padding: clamp(2px, 3.2%, 7px);
+  background: linear-gradient(135deg, #8a6c33 0%, #d8bd7e 18%, #a98543 36%, #e7d29a 52%, #a58140 68%, #d8bd7e 86%, #8a6c33 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  /* 金屬環的外緣暗線與內緣亮線，做出壓印的立體邊 */
+  filter: drop-shadow(0 0 0.5px rgba(48, 34, 12, 0.9));
+}
+
+.metal::before {
+  z-index: 3;
+  inset: clamp(2px, 3.2%, 7px);
+  border-radius: 3px;
+  box-shadow:
+    0 0 0 1px rgba(42, 34, 24, 0.85),
+    inset 0 0 0 1px rgba(255, 246, 225, 0.3);
+}
