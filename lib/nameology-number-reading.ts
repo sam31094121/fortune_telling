@@ -305,7 +305,7 @@ function relationText(fromLabel: string, from: GridElement, toLabel: string, to:
 }
 
 /** 先生後剋的固定十條邊（五行相生、相剋次序；原典：《春秋繁露》〈五行相生〉〈五行相勝〉）。 */
-function staticEdges(): { from: GridElement; to: GridElement; kind: '生' | '剋' }[] {
+export function staticEdges(): { from: GridElement; to: GridElement; kind: '生' | '剋' }[] {
   return [
     ...GRID_ELEMENT_ORDER.map((el) => ({ from: el, to: GENERATES[el], kind: '生' as const })),
     ...GRID_ELEMENT_ORDER.map((el) => ({ from: el, to: CONTROLS[el], kind: '剋' as const })),

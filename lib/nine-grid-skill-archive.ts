@@ -102,6 +102,7 @@ export interface NineGridArchive {
   evidence: (ArchiveEntry & { topic: string })[];
   credibilityLines: ArchiveEntry[];
   luoshu: LuoshuArchive;
+  fiveStar: { title: string; mapping: ArchiveEntry; linkRule: ArchiveEntry; scope: ArchiveEntry };
 }
 
 export const NINEGRID_ARCHIVE = archiveJson as unknown as NineGridArchive;
@@ -134,6 +135,9 @@ export function listNineGridSentences(archive: NineGridArchive = NINEGRID_ARCHIV
   archive.evidence.forEach((e) => add(`依據:${e.topic}`, e));
   archive.credibilityLines.forEach((e, i) => add(`公信力說明#${i + 1}`, e));
 
+  add('五行連線:配法', archive.fiveStar.mapping);
+  add('五行連線:連線規則', archive.fiveStar.linkRule);
+  add('五行連線:範圍', archive.fiveStar.scope);
   const lu = archive.luoshu;
   lu.intro.forEach((e, i) => add(`洛書:簡介#${i + 1}`, e));
   add('洛書:排法說明', lu.layout.note);

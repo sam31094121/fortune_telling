@@ -8,6 +8,7 @@
  */
 import registryData from '../docs/技能戰鬥檔案/易經/來源登記.json';
 import { evaluateClaim, indexSources, type SourceRegistry } from './iching-source-gate';
+import { elementOfNumber, staticEdges, GRID_ELEMENT_ORDER, type GridElement } from './nameology-number-reading';
 import { STATUS_WORDING } from './credibility-phrases';
 import { NINEGRID_ARCHIVE, type ArchiveEntry, type Provenance } from './nine-grid-skill-archive';
 
@@ -70,6 +71,21 @@ export interface NineGridStudy {
   credibility: NineGridCredibility;
   /** 洛書九宮（古籍版，正本）：不依生日而變，來自古籍排法與出處 */
   luoshu: LuoshuStudy;
+  /** 五行寶珠連線：生日數字依姓名學慣用法配五行，與易經姓名學的五星連線同一套畫法 */
+  fiveStar: FiveStarStudy;
+}
+
+export interface FiveStarStudy {
+  title: string;
+  mapping: TextWithLabel;
+  linkRule: TextWithLabel;
+  scope: TextWithLabel;
+  nodes: { element: GridElement; digits: number[]; count: number; present: boolean }[];
+  edges: { from: GridElement; to: GridElement; kind: '生' | '剋'; active: boolean }[];
+  /** 算出來的事實：哪些五行有數字、哪些沒有 */
+  summary: string;
+  legend: { generate: string; control: string };
+  elementOfDigit: Record<number, GridElement>;
 }
 
 export interface LuoshuStudy {
@@ -200,7 +216,24 @@ export function buildNineGridStudy(parsed: Extract<ParsedBirthDate, { ok: true }
     })),
     credibility,
     luoshu: buildLuoshuStudy(),
+    fiveStar: buildFiveStarStudy(counts, withLabel),
   };
+}
+
+export function buildFiveStarStudy(counts: Map<number, number>, withLabel: (e: { text: string; provenance: Provenance }) => TextWithLabel): FiveStarStudy {
+  const fs = NINEGRID_ARCHIVE.fiveStar;
+  const elementOfDigit: Record<number, GridElement> = {};
+  for (let d = 1; d <= 9; d += 1) elementOfDigit[d] = elementOfNumber(d);
+  const nodes = GRID_ELEMENT_ORDER.map((element) => {
+    const digits = Object.keys(elementOfDigit).map(Number).filter((d) => elementOfDigit[d] === element && (counts.get(d) ?? 0) > 0);
+    return { element, digits, count: digits.reduce((sum, d) => sum + (counts.get(d) ?? 0), 0), present: digits.length > 0 };
+  });
+  const present = new Set(nodes.filter((n) => n.present).map((n) => n.element));
+  const edges = staticEdges().map((edge) => ({ ...edge, active: present.has(edge.from) && present.has(edge.to) }));
+  const have = nodes.filter((n) => n.present).map((n) => n.element);
+  const lack = nodes.filter((n) => !n.present).map((n) => n.element);
+  const summary = `生日數字落在 ${have.length ? have.join('、') : '無'} 五行；沒有數字落到的是 ${lack.length ? lack.join('、') : '無'}；亮起 ${edges.filter((e) => e.active).length} 條連線。`;
+  return { title: fs.title, mapping: withLabel(fs.mapping), linkRule: withLabel(fs.linkRule), scope: withLabel(fs.scope), nodes, edges, summary, legend: { generate: '實線＝相生', control: '虛線＝相剋' }, elementOfDigit };
 }
 
 /** 洛書九宮（古籍版）：每一句都來自技能檔案，狀態由來源閘門算。 */

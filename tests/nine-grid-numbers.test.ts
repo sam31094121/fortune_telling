@@ -204,4 +204,16 @@ check('洛書九宮（古籍版）：和為 15 的幻方、引文都能在登記
   assert.ok(buildNineGridStudy(ok('1987-06-23')).luoshu.palaces.length === 9);
 });
 
+check('五行寶珠連線：數字配五行與姓名學同一套（1·2木…9水）、十條邊與姓名學一致、前端只照印不組句', () => {
+  const st = buildNineGridStudy(ok('1987-06-23'));
+  assert.deepEqual(st.fiveStar.elementOfDigit, { 1: '木', 2: '木', 3: '火', 4: '火', 5: '土', 6: '土', 7: '金', 8: '金', 9: '水' });
+  assert.equal(st.fiveStar.edges.length, 10);
+  assert.deepEqual(st.fiveStar.nodes.find((n) => n.element === '金')?.digits, [7, 8]);
+  const none = buildNineGridStudy(ok('2001-01-01'));
+  assert.equal(none.fiveStar.nodes.find((n) => n.element === '水')?.present, false, '沒出現 9 就沒有水');
+  const src = fs.readFileSync('components/nine-grid/FiveStarLink.tsx', 'utf8');
+  assert.ok(!/[\u4e00-\u9fff][^\n]*[，。；][^\n]*[\u4e00-\u9fff]/.test(src.replace(/\/\*[\s\S]*?\*\//g, '')), '前端不得組含「，。；」的句子');
+  assert.ok(!src.includes('Math.random'));
+});
+
 console.log(`\n九宮格靈動數字守門 ${passed} 項全過`);

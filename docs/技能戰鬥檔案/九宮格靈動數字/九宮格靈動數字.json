@@ -76,7 +76,9 @@
     "S-SHUSHU-JIYI-WIKISOURCE": "《數術記遺》「九宮算」條（漢・徐岳撰，相傳北周・甄鸞注）— 維基文庫電子文本，底本待查核",
     "S-SHUOGUA-WIKISOURCE": "《易傳》〈說卦〉第五章、第七章 — 維基文庫電子文本，底本待查核",
     "S-GUANCHENG-SHUOJI-27": "清・徐文靖《管城碩記》卷二十七（四庫全書本）— 轉引相傳為鄭玄的《易乾鑿度》注",
-    "S-NCL-RBOOK": "國家圖書館「古籍與特藏文獻資源」入口頁（已核對授權；單筆館藏紀錄未查到）"
+    "S-NCL-RBOOK": "國家圖書館「古籍與特藏文獻資源」入口頁（已核對授權；單筆館藏紀錄未查到）",
+    "S-KUMAZAKI-NDL-1939": "熊崎健翁著作書目紀錄（國立國會圖書館）",
+    "S-CHUNQIU-FANLU-WUXING": "《春秋繁露》五行相生相勝"
   },
   "guidance": {
     "title": {
@@ -945,5 +947,30 @@
       "claimId": "C-NINEGRID-NUMBERS",
       "note": "華語地區通行的生日數字九宮格；素材為 D 級待驗證"
     }
-  ]
+  ],
+  "fiveStar": {
+    "title": "五行寶珠連線",
+    "mapping": {
+      "text": "數字配五行採姓名學慣用「1·2木、3·4火、5·6土、7·8金、9·0水」，與河圖數是兩套不同配法。",
+      "provenance": "本站自撰",
+      "source_ids": [
+        "S-KUMAZAKI-NDL-1939"
+      ]
+    },
+    "linkRule": {
+      "text": "木火土金水的相生相剋次序以《春秋繁露》為原典；實線是相生、虛線是相剋，生日數字落到的五行會亮起來。",
+      "provenance": "本站自撰",
+      "source_ids": [
+        "S-CHUNQIU-FANLU-WUXING"
+      ]
+    },
+    "scope": {
+      "text": "這張圖和易經姓名學的五星連線是同一套畫法，只呈現生日數字落在哪些五行，不是對個性或運勢的解讀。",
+      "provenance": "本站自撰",
+      "source_ids": [
+        "S-KUMAZAKI-NDL-1939",
+        "S-CHUNQIU-FANLU-WUXING"
+      ]
+    }
+  }
 }

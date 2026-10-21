@@ -8,6 +8,7 @@
 import { useId, useState } from 'react';
 import type { NineGridStudy } from '@/lib/nine-grid-numbers';
 import LuoshuCard from './LuoshuCard';
+import FiveStarLink, { ELEMENT_GEM } from './FiveStarLink';
 import gem from './NineGridGem.module.css';
 
 const CELL = 100;
@@ -90,6 +91,9 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
                       <span key={index} className="inline-block h-1.5 w-1.5 rounded-full bg-amber-200 shadow-[0_0_6px_rgba(253,230,138,0.9)]" />
                     ))}
                   </span>
+                )}
+                {study.fiveStar && (
+                  <span aria-hidden="true" className="absolute bottom-1.5 left-1.5 inline-block h-2.5 w-2.5 rounded-full" style={{ background: ELEMENT_GEM[study.fiveStar.elementOfDigit[cell.digit]].light, boxShadow: `0 0 8px ${ELEMENT_GEM[study.fiveStar.elementOfDigit[cell.digit]].glow}` }} />
                 )}
                 {cell.count > 0 && (
                   <span aria-hidden="true" className="absolute right-1.5 top-1.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full border border-amber-200/70 bg-[#14102a] px-1 text-[10px] font-black text-amber-100">{cell.count}</span>
@@ -188,6 +192,8 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
           <p className="text-[10px] font-bold text-amber-100/70">{study.layout.note.provenanceLabel}</p>
         </div>
       </div>
+
+      {study.fiveStar && <FiveStarLink fiveStar={study.fiveStar} />}
 
       <details className="mt-5 rounded-2xl border border-white/10 bg-black/25 p-3">
         <summary className="min-h-[44px] cursor-pointer list-none text-xs font-black leading-6 text-violet-100">
