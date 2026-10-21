@@ -8,6 +8,7 @@
 import { useId, useState } from 'react';
 import type { NineGridStudy } from '@/lib/nine-grid-numbers';
 import LuoshuCard from './LuoshuCard';
+import gem from './NineGridGem.module.css';
 
 const CELL = 100;
 
@@ -19,10 +20,10 @@ function cellCenter(study: NineGridStudy, digit: number) {
 }
 
 function levelClass(count: number) {
-  if (count === 0) return 'border-dashed border-white/15 bg-white/[0.03] text-white/35';
-  if (count === 1) return 'border-violet-300/50 bg-gradient-to-br from-violet-400/25 to-indigo-900/40 text-violet-50 shadow-[0_0_14px_rgba(167,139,250,0.28)]';
-  if (count === 2) return 'border-amber-300/60 bg-gradient-to-br from-amber-300/30 to-violet-900/40 text-amber-50 shadow-[0_0_20px_rgba(251,191,36,0.38)]';
-  return 'border-amber-200/80 bg-gradient-to-br from-amber-200/45 to-amber-700/30 text-white shadow-[0_0_28px_rgba(252,211,77,0.55)]';
+  if (count === 0) return gem.porcelain;
+  if (count === 1) return gem.indigo;
+  if (count === 2) return gem.gold;
+  return gem.ruby;
 }
 
 export default function NineGridCard({ study }: { study: NineGridStudy }) {
@@ -79,7 +80,7 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
                 aria-pressed={active}
                 aria-label={reading ? `${cell.title} ${cell.digit} ${reading.countNote}` : String(cell.digit)}
                 onClick={() => setSelection({ kind: 'digit', digit: cell.digit })}
-                className={`relative flex min-h-[84px] flex-col items-center justify-center rounded-2xl border-2 px-1 text-center transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${levelClass(cell.count)} ${active ? 'scale-[1.04] ring-2 ring-amber-200/90' : ''} ${cell.count > 0 ? `${uid}-breath` : ''}`}
+                className={`${gem.tile} relative flex min-h-[84px] flex-col items-center justify-center px-1 text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${levelClass(cell.count)} ${active ? `${gem.selected} ring-2 ring-amber-200/90` : ''} ${cell.count > 0 ? `${uid}-breath` : ''}`}
               >
                 <span className="font-serif text-4xl font-black leading-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.65)] sm:text-5xl">{cell.digit}</span>
                 <span className="mt-1 text-[11px] font-bold tracking-[0.1em] opacity-90">{cell.title}</span>

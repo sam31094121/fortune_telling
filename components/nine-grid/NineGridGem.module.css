@@ -1,0 +1,86 @@
+/* 九宮格靈動數字：寶珠＋青花瓷質感（純視覺，不代表任何解讀）
+   配色沿用既有素材：八字四柱卡的金色／靛藍寶石（FourPillarsCard.module.css）、姓名學五格的五行寶珠色（NameologyGridCards.tsx） */
+
+.tile {
+  position: relative;
+  border-radius: 18px;
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 300ms ease;
+  overflow: hidden;
+}
+
+/* 瓷面：釉光＋細冰裂紋（固定圖樣，不使用亂數） */
+.tile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.16) 46%, transparent 54%),
+    repeating-linear-gradient(62deg, transparent 0 17px, rgba(255, 255, 255, 0.045) 17px 18px),
+    repeating-linear-gradient(-28deg, transparent 0 23px, rgba(255, 255, 255, 0.035) 23px 24px);
+}
+
+/* 空白：素胎白瓷，虛線邊 */
+.porcelain {
+  border: 2px dashed rgba(226, 232, 240, 0.28);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.14), transparent 30%),
+    linear-gradient(135deg, rgba(226, 232, 240, 0.06), rgba(148, 163, 184, 0.05));
+  color: rgba(226, 232, 240, 0.5);
+}
+
+/* 靛藍寶石（青花）：出現 1 次，或洛書未選中 */
+.indigo {
+  border: 2px solid #7c9fd8;
+  background:
+    radial-gradient(circle at 35% 25%, rgba(180, 210, 240, 0.34), transparent 26%),
+    radial-gradient(circle at 65% 72%, rgba(124, 159, 216, 0.14), transparent 22%),
+    linear-gradient(135deg, rgba(124, 159, 216, 0.16), rgba(40, 70, 120, 0.3));
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.2) inset,
+    inset 1px 2px 4px rgba(0, 0, 0, 0.35),
+    0 10px 20px -8px rgba(124, 159, 216, 0.4);
+  color: #e8f1ff;
+}
+
+/* 金色寶石：出現 2 次，或洛書選中 */
+.gold {
+  border: 2px solid #d4af37;
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 245, 150, 0.4), transparent 26%),
+    radial-gradient(circle at 65% 72%, rgba(212, 175, 55, 0.16), transparent 22%),
+    linear-gradient(135deg, rgba(212, 175, 55, 0.22), rgba(150, 110, 0, 0.3));
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.25) inset,
+    inset 1px 2px 4px rgba(0, 0, 0, 0.4),
+    0 12px 24px -6px rgba(212, 175, 55, 0.45),
+    0 0 22px rgba(212, 175, 55, 0.3);
+  color: #fff7d1;
+}
+
+/* 紅寶石（火色寶珠）：出現 3 次以上 */
+.ruby {
+  border: 2px solid #ffb1a4;
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 200, 190, 0.42), transparent 26%),
+    radial-gradient(circle at 65% 72%, rgba(224, 98, 82, 0.2), transparent 22%),
+    linear-gradient(135deg, rgba(224, 98, 82, 0.28), rgba(120, 30, 30, 0.38));
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.22) inset,
+    inset 1px 2px 4px rgba(0, 0, 0, 0.4),
+    0 12px 26px -6px rgba(224, 98, 82, 0.5),
+    0 0 26px rgba(224, 98, 82, 0.35);
+  color: #ffe9e4;
+}
+
+.tile:hover { transform: translateY(-3px); }
+.selected { transform: scale(1.04); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tile, .tile:hover, .selected { transition: none; transform: none; }
+}
+
+@media print {
+  .tile::before { display: none; }
+}

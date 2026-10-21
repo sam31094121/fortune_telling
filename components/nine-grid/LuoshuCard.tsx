@@ -7,6 +7,7 @@
  */
 import { useState } from 'react';
 import type { LuoshuStudy } from '@/lib/nine-grid-numbers';
+import gem from './NineGridGem.module.css';
 
 export default function LuoshuCard({ luoshu }: { luoshu: LuoshuStudy }) {
   const [digit, setDigit] = useState(5);
@@ -46,7 +47,7 @@ export default function LuoshuCard({ luoshu }: { luoshu: LuoshuStudy }) {
                   type="button"
                   aria-pressed={active}
                   onClick={() => setDigit(d)}
-                  className={`flex min-h-[84px] flex-col items-center justify-center rounded-2xl border-2 px-1 text-center transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${active ? 'scale-[1.04] border-amber-200/90 bg-amber-300/25 ring-2 ring-amber-200/90' : 'border-amber-300/40 bg-white/[0.04]'}`}
+                  className={`${gem.tile} flex min-h-[84px] flex-col items-center justify-center px-1 text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${active ? `${gem.gold} ${gem.selected} ring-2 ring-amber-200/90` : gem.indigo}`}
                 >
                   <span className="font-serif text-4xl font-black leading-none text-amber-50">{d}</span>
                   <span className="mt-1 text-[11px] font-bold tracking-[0.08em] text-amber-100/90">{palace?.palace}</span>
