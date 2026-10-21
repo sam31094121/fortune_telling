@@ -35,46 +35,16 @@ function signals(over) {
 assert.strictEqual(looksLikePhoneScreen(390, 844), true);
 assert.strictEqual(looksLikePhoneScreen(768, 1024), false);
 
-assert.strictEqual(shouldForcePhoneLayout(signals()), false, '瀏覽器裡已經是手機寬，不必改');
+const desk = { innerWidth: 980, visualWidth: 980 };
+const desktopSiteUa = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120 Safari/537.36';
 
-assert.strictEqual(
-  shouldForcePhoneLayout(signals({
-    innerWidth: 980,
-    visualWidth: 390,
-    standalone: true,
-    userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/120 Safari/537.36',
-  })),
-  true,
-  'PWA 被開成電腦版（Android 去掉 Mobile、viewport 980）要鎖回手機',
-);
-
-assert.strictEqual(
-  shouldForcePhoneLayout(signals({
-    innerWidth: 1280,
-    screenWidth: 390,
-    screenHeight: 844,
-    visualWidth: 390,
-    standalone: true,
-    userAgent: 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/120 Mobile Safari/537.36',
-  })),
-  true,
-  '加到主畫面後 innerWidth 變桌面寬，要鎖回手機',
-);
-
-assert.strictEqual(
-  shouldForcePhoneLayout(signals({
-    innerWidth: 1440,
-    screenWidth: 1440,
-    screenHeight: 900,
-    visualWidth: 1440,
-    maxTouchPoints: 0,
-    pointerCoarse: false,
-    standalone: false,
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120 Safari/537.36',
-  })),
-  false,
-  '真的電腦不要鎖',
-);
+assert.strictEqual(shouldForcePhoneLayout(signals()), false, '已經是手機寬，不必改');
+assert.strictEqual(shouldForcePhoneLayout(signals(desk)), true, '手機 UA 被拉成 980，要鎖');
+assert.strictEqual(shouldForcePhoneLayout(signals({ ...desk, userAgent: desktopSiteUa })), true, '手機開了電腦版網站（UA 變電腦、觸控＋手機螢幕），要鎖');
+assert.strictEqual(shouldForcePhoneLayout(signals({ ...desk, standalone: true })), true, '加到主畫面／APK 也要鎖');
+assert.strictEqual(shouldForcePhoneLayout(signals(desk), true), false, '使用者自己勾了電腦版才放行');
+assert.strictEqual(shouldForcePhoneLayout(signals({ innerWidth: 1440, screenWidth: 1440, screenHeight: 900, visualWidth: 1440, maxTouchPoints: 0, pointerCoarse: false, userAgent: desktopSiteUa })), false, '真的電腦不要鎖');
+assert.strictEqual(shouldForcePhoneLayout(signals({ innerWidth: 1024, screenWidth: 768, screenHeight: 1024, visualWidth: 1024, userAgent: desktopSiteUa })), false, '平板不鎖');
 
 assert.strictEqual(guessPhoneCssWidth(signals({ visualWidth: 412, innerWidth: 980 })), 412);
 

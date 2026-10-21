@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import {
+  DESKTOP_OPT_IN_KEY,
   guessPhoneCssWidth,
   phoneViewportContent,
   shouldForcePhoneLayout,
@@ -23,7 +24,9 @@ function readSignals(): PhoneLayoutSignals {
 }
 
 function applyViewport(signals: PhoneLayoutSignals) {
-  if (!shouldForcePhoneLayout(signals)) return;
+  let wantsDesktop = false;
+  try { wantsDesktop = window.localStorage.getItem(DESKTOP_OPT_IN_KEY) === '1'; } catch { /* 讀不到就當沒勾 */ }
+  if (!shouldForcePhoneLayout(signals, wantsDesktop)) return;
   document.documentElement.setAttribute('data-force-phone', '1');
   const meta = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
   if (!meta) return;

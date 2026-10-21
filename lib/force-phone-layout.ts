@@ -16,7 +16,6 @@ export type PhoneLayoutSignals = {
 };
 
 const PHONE_CSS_MAX = 540;
-const DESKTOP_SPOOF_MIN = 800;
 const DEFAULT_PHONE_WIDTH = 390;
 
 export function isStandaloneDisplay(matchesStandalone: boolean, iosStandalone: boolean): boolean {
@@ -33,26 +32,21 @@ export function isTouchPhone(signals: PhoneLayoutSignals): boolean {
   return signals.maxTouchPoints > 0 || signals.pointerCoarse;
 }
 
-/**
- * UA 被改成電腦、或 layout 被拉成 980，但裝置仍是手機。
- * 已經是手機寬（innerWidth ≤ 540）時不必改 viewport，避免和捏合還原打架。
- */
-export function shouldForcePhoneLayout(signals: PhoneLayoutSignals): boolean {
-  if (!isTouchPhone(signals)) return false;
-  const ua = signals.userAgent || '';
-  const iphone = /iPhone|iPod/i.test(ua);
-  const androidMobile = /Android/i.test(ua) && /Mobile/i.test(ua);
-  const androidDesktopSite = /Android/i.test(ua) && !/Mobile/i.test(ua);
-  const phoneScreen = looksLikePhoneScreen(signals.screenWidth, signals.screenHeight);
-  const visualIsPhone = signals.visualWidth > 0 && signals.visualWidth <= PHONE_CSS_MAX;
-  const layoutIsDesktop = signals.innerWidth >= DESKTOP_SPOOF_MIN;
+/** 使用者自己勾選「我要電腦版」才會寫入；沒勾就一律手機版。 */
+export const DESKTOP_OPT_IN_KEY = 'tdh-want-desktop-layout';
 
-  if ((iphone || androidMobile) && layoutIsDesktop) return true;
-  if (!layoutIsDesktop) return false;
-  if (androidDesktopSite && (phoneScreen || visualIsPhone || signals.standalone)) return true;
-  if (signals.standalone && (phoneScreen || visualIsPhone)) return true;
-  if (phoneScreen && visualIsPhone) return true;
-  return false;
+/**
+ * 預設：只要是手機（手機 UA，或觸控＋手機大小螢幕）就鎖手機版，
+ * 不管網址、加到主畫面或 APK；真的電腦（沒觸控）不動。
+ * 唯一例外：使用者自己勾了「我要電腦版」。
+ */
+export function shouldForcePhoneLayout(signals: PhoneLayoutSignals, wantsDesktop = false): boolean {
+  if (wantsDesktop) return false;
+  const ua = signals.userAgent || '';
+  const phoneUa = /iPhone|iPod/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
+  const touchPhoneScreen = isTouchPhone(signals) && looksLikePhoneScreen(signals.screenWidth, signals.screenHeight);
+  if (!phoneUa && !touchPhoneScreen) return false;
+  return signals.innerWidth > PHONE_CSS_MAX;
 }
 
 export function guessPhoneCssWidth(signals: PhoneLayoutSignals): number {
@@ -67,5 +61,5 @@ export function phoneViewportContent(width: number): string {
   return `width=${width}, initial-scale=1, viewport-fit=cover`;
 }
 
-/** 頁面畫出前執行，避免先閃電腦版再縮回來。 */
-export const FORCE_PHONE_LAYOUT_INIT_SCRIPT = `(function(){try{var t=navigator.maxTouchPoints||0;var ua=navigator.userAgent||'';var st=window.matchMedia('(display-mode: standalone)').matches||!!navigator.standalone;var coarse=window.matchMedia('(pointer: coarse)').matches;var sw=screen.width||0,sh=screen.height||0;var vw=(window.visualViewport&&visualViewport.width)||0;var iw=window.innerWidth||0;var touch=t>0||coarse;if(!touch)return;var phoneScreen=Math.min(sw,sh)<=540;var visualPhone=vw>0&&vw<=540;var layoutDesk=iw>=800;var iphone=/iPhone|iPod/i.test(ua);var andMob=/Android/i.test(ua)&&/Mobile/i.test(ua);var andDesk=/Android/i.test(ua)&&!/Mobile/i.test(ua);var force=false;if((iphone||andMob)&&layoutDesk)force=true;else if(layoutDesk&&((andDesk&&(phoneScreen||visualPhone||st))||(st&&(phoneScreen||visualPhone))||(phoneScreen&&visualPhone)))force=true;if(!force)return;document.documentElement.setAttribute('data-force-phone','1');var w=Math.round(vw);if(!(w>=320&&w<=540)){w=Math.round(Math.min(sw,sh));if(!(w>=320&&w<=540))w=390;}var meta=document.querySelector('meta[name="viewport"]');if(!meta){meta=document.createElement('meta');meta.setAttribute('name','viewport');document.head.appendChild(meta);}meta.setAttribute('content','width='+w+', initial-scale=1, viewport-fit=cover');}catch(e){}})();`;
+/** 頁面畫出前執行，避免先閃電腦版再縮回來。判斷條件與 shouldForcePhoneLayout 一致。 */
+export const FORCE_PHONE_LAYOUT_INIT_SCRIPT = `(function(){try{try{if(localStorage.getItem('${DESKTOP_OPT_IN_KEY}')==='1')return;}catch(e){}var ua=navigator.userAgent||'';var touch=(navigator.maxTouchPoints||0)>0||window.matchMedia('(pointer: coarse)').matches;var sw=screen.width||0,sh=screen.height||0;var minSide=Math.min(sw,sh);var phoneUa=/iPhone|iPod/i.test(ua)||(/Android/i.test(ua)&&/Mobile/i.test(ua));var phoneScreen=touch&&minSide>0&&minSide<=${PHONE_CSS_MAX};if(!phoneUa&&!phoneScreen)return;if((window.innerWidth||0)<=${PHONE_CSS_MAX})return;document.documentElement.setAttribute('data-force-phone','1');var vw=Math.round((window.visualViewport&&visualViewport.width)||0);var w=(vw>=320&&vw<=${PHONE_CSS_MAX})?vw:Math.round(minSide);if(!(w>=320&&w<=${PHONE_CSS_MAX}))w=${DEFAULT_PHONE_WIDTH};var meta=document.querySelector('meta[name="viewport"]');if(!meta){meta=document.createElement('meta');meta.setAttribute('name','viewport');document.head.appendChild(meta);}meta.setAttribute('content','width='+w+', initial-scale=1, viewport-fit=cover');}catch(e){}})();`;
