@@ -1,0 +1,224 @@
+{
+  "id": "ninegrid",
+  "name": "九宮格靈動數字",
+  "title": "九宮格靈動數字技能正式檔（西元生日 → 九宮格、數字特質、靈動連線）",
+  "version": "1.0.0",
+  "updatedAt": "2026-10-21",
+  "sourceOfTruth": "docs/技能戰鬥檔案/九宮格靈動數字/九宮格靈動數字.json",
+  "newbieDoc": "docs/技能戰鬥檔案/九宮格靈動數字/新人檔案.md",
+  "materials": [
+    "docs/技能戰鬥檔案/九宮格靈動數字/參考/素材一.md",
+    "docs/技能戰鬥檔案/九宮格靈動數字/參考/素材二.md"
+  ],
+  "engine": "lib/nine-grid-numbers.ts",
+  "loader": "lib/nine-grid-skill-archive.ts",
+  "sourceGovernance": "docs/技能戰鬥檔案/易經/來源治理.md",
+  "sourceRegistry": "docs/技能戰鬥檔案/易經/來源登記.json",
+  "sourceGate": "lib/iching-source-gate.ts",
+  "claimId": "C-NINEGRID-NUMBERS",
+  "pipeline": ["檔案", "技能", "話術", "後端運算", "前端美化"],
+  "principle": "客人讀得到的每一句解說只能來自本檔，程式不得自己寫解說；每一句都要標出處層級（provenance）與來源編號（source_ids），來源要在登記表裡找得到，狀態由來源閘門算，不得手填。禁止造假：素材宣稱的「全世界最權威」「兩千五百年前創立」查不到歷史文獻佐證，不得寫進客人看的內容。後端負責運算與組句，前端只負責美化、引導與照印。",
+  "computedFactTemplates": "只描述「算出來的事實」的樣板（例如「生日數字裡 5 出現 2 次」「1-4-7 三個數字都有出現」）留在後端程式，因為內容完全由生日數字算出，不含對個性或命運的解讀。",
+  "provenanceLevels": {
+    "引自來源": {
+      "meaning": "直接引用有出處的原文或書目事實，必須附頁碼或可追溯位置（page_ref）",
+      "requires": ["page_ref"],
+      "note": "目前沒有任何一句達到這一層：兩份素材都是 AI 彙整的華語媒體內容，沒有逐條核對原網頁。"
+    },
+    "流派意象改寫": {
+      "meaning": "依華語地區流行的生命靈數九宮格說法所做的白話改寫，不是原文，尚未逐條核對原始來源",
+      "requires": [],
+      "note": "畫面必須照實標示，不得寫成權威原文或已通過交叉比對。"
+    },
+    "本站自撰": {
+      "meaning": "本站自己寫的說明、界線與使用引導，不主張是流派或古籍的說法",
+      "requires": [],
+      "note": "只用來說明資料來源、排法選擇與使用界線，不用來解讀個性或命運。"
+    }
+  },
+  "forbiddenWords": ["必定", "註定", "大凶", "血光", "剋夫", "剋妻", "短命", "災難", "兇", "凶", "大吉", "絕症", "橫禍"],
+  "forbiddenClaims": ["全世界最權威", "全世界最有名", "最具公信力", "最具權威", "兩千五百年前", "畢達哥拉斯創立", "精準剖析"],
+  "sourceLabels": {
+    "S-NINEGRID-MATERIAL-1": "業主提供素材一（AI 彙整的華語媒體內容，D 級，未逐條核對）",
+    "S-NINEGRID-MATERIAL-2": "業主提供素材二（AI 彙整的華語媒體內容，D 級，未逐條核對）",
+    "S-DUDLEY-NUMEROLOGY-1997": "Underwood Dudley《Numerology, or What Pythagoras Wrought》（Mathematical Association of America，1997）— 以批判角度檢視數字學的書，本站只引用書目事實"
+  },
+  "guidance": {
+    "title": {
+      "text": "輸入西元出生年月日，畫出你的九宮格",
+      "provenance": "本站自撰",
+      "source_ids": ["S-NINEGRID-MATERIAL-1"]
+    },
+    "steps": [
+      { "text": "選你習慣的日期寫法：國曆、農曆都可以，系統會自動換成西元", "provenance": "本站自撰", "source_ids": ["S-NINEGRID-MATERIAL-1"] },
+      { "text": "填好年、月、日；年份可以打民國年，也可以直接打西元", "provenance": "本站自撰", "source_ids": ["S-NINEGRID-MATERIAL-1"] },
+      { "text": "按下開始，九宮格就會亮起來", "provenance": "本站自撰", "source_ids": ["S-NINEGRID-MATERIAL-1"] }
+    ],
+    "inputHint": {
+      "text": "只需要出生年月日，不需要姓名、性別與出生時辰，也不用登入",
+      "provenance": "本站自撰",
+      "source_ids": ["S-NINEGRID-MATERIAL-1"]
+    },
+    "resultIntro": {
+      "text": "亮起來的數字越多次，代表這項特質在生日數字裡越被強調；點任何一格可以看它的意思",
+      "provenance": "本站自撰",
+      "source_ids": ["S-NINEGRID-MATERIAL-1"]
+    }
+  },
+  "input": {
+    "label": "西元出生年月日",
+    "rule": {
+      "text": "用西元出生年月日的每一個數字填入九宮格，0 不計。",
+      "provenance": "流派意象改寫",
+      "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+    }
+  },
+  "layout": {
+    "rows": [[3, 6, 9], [2, 5, 8], [1, 4, 7]],
+    "note": {
+      "text": "兩份素材的九宮格排法不同，沒有公認的標準版面。本站採「由左至右、由下至上填入 1 到 9」的排法，也就是上排 3 6 9、中排 2 5 8、下排 1 4 7。",
+      "provenance": "本站自撰",
+      "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+    }
+  },
+  "reading": {
+    "countRule": {
+      "text": "同一個數字出現的次數越多，代表這項特質越被強調。",
+      "provenance": "流派意象改寫",
+      "source_ids": ["S-NINEGRID-MATERIAL-1"]
+    },
+    "lineRule": {
+      "text": "同一條線上的三個數字都有出現，這條線就算亮起來。",
+      "provenance": "流派意象改寫",
+      "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+    }
+  },
+  "digits": [
+    {
+      "digit": 1, "title": "領導數", "keywords": "領導・獨立",
+      "trait": "獨立、有主見、敢帶頭，做事大膽又留心細節。",
+      "caution": "容易太以自己為中心。",
+      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+    },
+    {
+      "digit": 2, "title": "溝通數", "keywords": "溝通・美感",
+      "trait": "心思細、肯配合、有美感，擅長溝通與照顧氣氛。",
+      "caution": "內心比較敏感，容易受傷。",
+      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+    },
+    {
+      "digit": 3, "title": "創意數", "keywords": "創意・表達",
+      "trait": "聰明、點子多、愛嘗鮮，表達力強。",
+      "caution": "容易開頭熱、後勁不足。",
+      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+    },
+    {
+      "digit": 4, "title": "執行數", "keywords": "實際・組織",
+      "trait": "務實、重安全感、做事有條理。",
+      "caution": "容易過於保守，不太敢變動。",
+      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+    },
+    {
+      "digit": 5, "title": "自由數", "keywords": "核心・自由",
+      "trait": "有舞台魅力、膽子大、重視自由。",
+      "caution": "不太喜歡被規矩約束。",
+      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+    },
+    {
+      "digit": 6, "title": "奉獻數", "keywords": "關懷・奉獻",
+      "trait": "善解人意、有責任感、重視愛與關懷。",
+      "caution": "容易承擔過頭，忘了照顧自己。",
+      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+    },
+    {
+      "digit": 7, "title": "靈性數", "keywords": "靈性・直覺",
+      "trait": "分析力強、直覺敏銳，喜歡追問真相與道理。",
+      "caution": "容易對自己的看法太有把握。",
+      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+    },
+    {
+      "digit": 8, "title": "權威數", "keywords": "權威・財富",
+      "trait": "想把事情做成、有商業頭腦、想掌握全局。",
+      "caution": "容易心氣太高，不太願意低頭。",
+      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+    },
+    {
+      "digit": 9, "title": "大愛數", "keywords": "理想・智慧",
+      "trait": "重視和平，有智慧也有理想。",
+      "caution": "容易逃避現實的麻煩。",
+      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+    }
+  ],
+  "lines": [
+    {
+      "id": "L147", "digits": [1, 4, 7], "name": "物質執行線",
+      "text": "行動力強又務實，願意為財富與社會成就持續努力。",
+      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+    },
+    {
+      "id": "L258", "digits": [2, 5, 8], "name": "心智表達線",
+      "text": "擅長表達，溝通有魅力，在人群中容易受到注意。",
+      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+    },
+    {
+      "id": "L369", "digits": [3, 6, 9], "name": "創意智慧線",
+      "text": "思考深入，能跳出框架，想法有創意也有智慧。",
+      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+    },
+    {
+      "id": "L789", "digits": [7, 8, 9], "name": "貴人權力線",
+      "text": "與貴人運和管理能力有關，善於整合資源、掌握大局。",
+      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+    },
+    {
+      "id": "L159", "digits": [1, 5, 9], "name": "事業執著線",
+      "text": "意志堅定，認定的目標會做到底。",
+      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+    }
+  ],
+  "pendingLines": [
+    { "id": "L123", "digits": [1, 2, 3], "name": "藝術感官線", "only_in": "素材二", "note": "只有素材二提到，等第二份來源再加入；目前後端不使用。" },
+    { "id": "L456", "digits": [4, 5, 6], "name": "組織規劃線", "only_in": "素材二", "note": "只有素材二提到，等第二份來源再加入；目前後端不使用。" },
+    { "id": "L357", "digits": [3, 5, 7], "name": "人緣溝通線", "only_in": "素材二", "note": "只有素材二提到，等第二份來源再加入；目前後端不使用。" }
+  ],
+  "notAdopted": [
+    { "item": "主命數、天賦數", "reason": "素材二提到，但沒有給計算公式；不編公式，等有來源再加。" },
+    { "item": "素材宣稱的「全世界最權威」「兩千五百年前由畢達哥拉斯創立」", "reason": "查不到歷史文獻佐證，不寫進客人看的內容。" },
+    { "item": "沒有出現的數字（缺數）的意義", "reason": "兩份素材都沒有說明，不編；畫面只照實列出「這些數字沒有出現」。" }
+  ],
+  "evidence": [
+    {
+      "topic": "九宮格排法",
+      "text": "兩份素材的排法不同，本站選用由左至右、由下至上填入 1 到 9 的排法；這是本站的選擇，不是公認標準。",
+      "provenance": "本站自撰", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+    },
+    {
+      "topic": "數字的特質",
+      "text": "九個數字的特質是依華語媒體整理的說法所做的白話改寫，只有素材一提供，尚未逐條核對原網頁。",
+      "provenance": "本站自撰", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+    },
+    {
+      "topic": "靈動連線",
+      "text": "只使用兩份素材都提到的 5 條連線；只有一份素材提到的連線先不採用。",
+      "provenance": "本站自撰", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+    }
+  ],
+  "credibilityLines": [
+    {
+      "text": "生命靈數九宮格是流行於華語地區的西方數字學，屬文化與自我反思用途，不是科學證實的預測。",
+      "provenance": "本站自撰", "source_ids": ["S-DUDLEY-NUMEROLOGY-1997"]
+    },
+    {
+      "text": "把九宮格歸給古希臘畢達哥拉斯的說法，本站查不到歷史文獻佐證，現代數字學多被追溯到二十世紀初，所以不採用「歷史悠久、公信力最高」這類宣稱。",
+      "provenance": "本站自撰", "source_ids": ["S-DUDLEY-NUMEROLOGY-1997"]
+    },
+    {
+      "text": "目前的說明是依華語媒體整理的內容所做的白話改寫，來源尚待逐條核實；本站找不到任何官方或公權力機構對數字學背書。",
+      "provenance": "本站自撰", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+    },
+    {
+      "text": "兩份素材的排法與連線數量不同，本站採上排 3 6 9、中排 2 5 8、下排 1 4 7，並只使用兩份素材都有的 5 條連線。",
+      "provenance": "本站自撰", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+    }
+  ]
+}

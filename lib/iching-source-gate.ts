@@ -17,7 +17,7 @@
 export type TrustLevel = 'A' | 'B' | 'C' | 'D';
 export type Permission = 'PASS' | 'FAIL' | '待查核';
 export type GateStatus = 'VERIFIED' | 'CONFLICT' | 'PENDING_POOL';
-export type ClaimDomain = '易經知識' | '易經洋蔥心理學' | '易經對手智能' | '紫微斗數排盤' | '紫微斗數知識' | '八字排盤' | '八字知識' | '姓名學知識';
+export type ClaimDomain = '易經知識' | '易經洋蔥心理學' | '易經對手智能' | '紫微斗數排盤' | '紫微斗數知識' | '八字排盤' | '八字知識' | '姓名學知識' | '數字學知識';
 
 /**
  * 工程判斷類（不是古籍知識）改用工程證據標準：權威檔 ≥ 1、大數據 ≥ 1（至少一份進版控）、交叉 ≥ 3、授權全 PASS、衝突 0。

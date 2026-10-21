@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-10-20",
+  "updatedAt": "2026-10-21",
   "rule": "凡有「易經」兩個字，都要有交叉比對的來源、權威性的檔案、大數據的來源；狀態由 lib/iching-source-gate.ts 計算，不得手填 VERIFIED。",
   "sources": [
     {
@@ -1512,6 +1512,59 @@
       "trust": "A",
       "tracked_path": "data/dictionaries/nameology/manifest.json",
       "note": "本站姓名學的「筆畫」就是這份資料的總筆畫。傳統五格流派多以《康熙字典》筆畫計，部首變形的字（例如三點水、草字頭、示字旁）可能與本站差一兩畫；本站沒有做康熙筆畫換算，不宣稱與康熙字典一致。"
+    },
+    {
+      "source_id": "S-NINEGRID-MATERIAL-1",
+      "author": "業主提供素材一（AI 彙整文字，文中引用 Vogue Taiwan、intelliverse.tw、blog.udn.com 等華語網頁）",
+      "locator": "docs/技能戰鬥檔案/九宮格靈動數字/參考/素材一.md",
+      "data_type": "九宮格排法、數字特質、靈動連線的華語媒體整理（二手）",
+      "kind": "本站整理",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "業主提供的內部參考素材，本站改寫後使用；素材引用的原網頁（Vogue Taiwan 等）著作權與可否轉載未核對",
+      "accessed_at": "2026-10-21（業主貼入；本站未逐一開啟素材所引用的原網頁，Vogue 網站拒絕自動讀取）",
+      "edition": "素材一（2026-10-21 版）",
+      "trust": "D",
+      "tracked_path": "docs/技能戰鬥檔案/九宮格靈動數字/參考/素材一.md",
+      "note": "D 級：只作為整理技能檔案的參考，不得當成已驗證來源或交叉來源。素材自稱的「全世界最權威、兩千五百年前創立」查不到歷史文獻佐證，不採用。素材一的排法註明與它畫的排法對不上。"
+    },
+    {
+      "source_id": "S-NINEGRID-MATERIAL-2",
+      "author": "業主提供素材二（AI 彙整文字，文中引用 Vogue Taiwan、intelliverse.tw、blog.udn.com 等華語網頁）",
+      "locator": "docs/技能戰鬥檔案/九宮格靈動數字/參考/素材二.md",
+      "data_type": "九宮格排法、數字特質、靈動連線的華語媒體整理（二手）",
+      "kind": "本站整理",
+      "can_cite": "PASS",
+      "can_reproduce": "PASS",
+      "bulk_extraction": "PASS",
+      "automated_crawl": "PASS",
+      "training_use": "PASS",
+      "license_terms": "業主提供的內部參考素材，本站改寫後使用；素材引用的原網頁（Vogue Taiwan 等）著作權與可否轉載未核對",
+      "accessed_at": "2026-10-21（業主貼入；本站未逐一開啟素材所引用的原網頁，Vogue 網站拒絕自動讀取）",
+      "edition": "素材二（2026-10-21 版）",
+      "trust": "D",
+      "tracked_path": "docs/技能戰鬥檔案/九宮格靈動數字/參考/素材二.md",
+      "note": "D 級：只作為整理技能檔案的參考，不得當成已驗證來源或交叉來源。排法與連線數量和素材一不同；只有素材二提到的 3 條連線與「主命數、天賦數」本站不採用。"
+    },
+    {
+      "source_id": "S-DUDLEY-NUMEROLOGY-1997",
+      "author": "Underwood Dudley；Mathematical Association of America（華盛頓特區）",
+      "locator": "《Numerology, or What Pythagoras Wrought》，Mathematical Association of America，1997；本站看到的是書評頁（https://articles.skeptics.nz/2000/05/01/numerology-or-what-pythagoras-wrought）對書目的記載",
+      "data_type": "以批判角度檢視數字學與畢達哥拉斯歸屬說法的學術出版書籍（書目事實）",
+      "kind": "學術出版",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "書目資訊可供引用查證；書內內容未取得，著作權與可否轉載待查核",
+      "accessed_at": "2026-10-21（僅看到書評頁對書名、作者、出版者與年份的記載；未取得書內內容，也未開啟圖書館書目紀錄）",
+      "edition": "1997 初版（版次待查核）",
+      "trust": "B",
+      "note": "本站只引用書目事實，用來說明「數字學有學者以批判角度檢視，不是科學證實」。書內內容尚未取得，不得宣稱書中說了什麼。"
     }
   ],
   "claims": [
@@ -1902,6 +1955,28 @@
       "conflicts": [],
       "status": "PENDING_POOL",
       "note": "五格與八十一數理屬姓名學流派約定，不是易經經典，也不是科學證實。可追到的一手出處為熊崎健翁《最新姓名学》（NDL 書目紀錄），書內逐條原文尚未取得，本站話術是白話改寫。數字五行採姓名學慣用「1·2木、3·4火、5·6土、7·8金、9·0水」，與河圖「一六水、二七火、三八木、四九金、五十土」是兩套不同配法，彼此不互為來源。五行相生相剋次序以《春秋繁露》為原典（授權與底本待查核）。 筆畫採 CNS11643 全字庫總筆畫（臺灣政府開放資料），與傳統流派常用的《康熙字典》筆畫可能差一兩畫，本站未換算。五格各格的角色說法（天格＝先天底色、人格＝主運、地格＝前運、外格＝副運、總格＝後運）為流派常見說法，來自通俗整理，尚未逐條對照原書。"
+    },
+    {
+      "claim_id": "C-NINEGRID-NUMBERS",
+      "title": "九宮格靈動數字：西元生日 → 九宮格、數字特質、靈動連線",
+      "domain": "數字學知識",
+      "files": [
+        "docs/技能戰鬥檔案/九宮格靈動數字/九宮格靈動數字.json",
+        "lib/nine-grid-skill-archive.ts",
+        "lib/nine-grid-numbers.ts"
+      ],
+      "authority_files": [
+        "S-DUDLEY-NUMEROLOGY-1997"
+      ],
+      "big_data_sources": [],
+      "cross_references": [
+        "S-NINEGRID-MATERIAL-1",
+        "S-NINEGRID-MATERIAL-2",
+        "S-DUDLEY-NUMEROLOGY-1997"
+      ],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "兩份素材都是 AI 彙整的華語媒體內容（D 級，未逐條核對），排法與連線數量不同；本站採上排 3 6 9、中排 2 5 8、下排 1 4 7，只用兩份素材都有的 5 條連線。素材自稱「全世界最權威、兩千五百年前由畢達哥拉斯創立」查不到歷史文獻佐證，不採用；本站也找不到任何官方或公權力機構對數字學背書。學術面只有 Dudley（MAA，1997）的書目事實（批判立場）。狀態由閘門算，目前留在待驗證資料池；要升級需要可核對的書籍或學術來源。"
     }
   ]
 }

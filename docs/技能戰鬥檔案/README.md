@@ -16,6 +16,8 @@
 
 易經姓名學的技能檔案另見 [姓名學](姓名學/新人檔案.md)：筆畫與五格怎麼算、各格話術、五星連線、來源與公信力。來源登記共用 `易經/來源登記.json` 的 `C-NAMEOLOGY-GRIDS`，守門 `npm run test:nameology-grids`。
 
+九宮格靈動數字的技能檔案另見 [九宮格靈動數字](九宮格靈動數字/新人檔案.md)：西元生日填入 3×3 九宮格、數字特質、靈動連線、來源與公信力（素材為 D 級待驗證，如實標示）。來源登記共用 `易經/來源登記.json` 的 `C-NINEGRID-NUMBERS`，守門 `npm run test:nine-grid`。
+
 四柱神煞的參考查核技能另見 [四柱神煞](八字/shensha-rule-integrity/SKILL.md) 與 [參考審核](八字/shensha-rule-integrity/references/參考審核.md)。歸屬八字，不是易經核心或神獸執行期技能；使用者原稿存為 untrusted-reference，不構成公式驗證或發布授權。
 
 ## 二、神獸卡執行期技能資料（三戰兩勝）

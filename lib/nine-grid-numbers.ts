@@ -1,0 +1,194 @@
+/**
+ * 九宮格靈動數字：西元生日 → 九宮格、數字特質、靈動連線
+ * ============================================================================
+ *
+ * 後端運算、前端只顯示：每一句解說都來自技能檔案（docs/技能戰鬥檔案/九宮格靈動數字/九宮格靈動數字.json），
+ * 程式只負責「算出來的事實」（數字出現幾次、哪些線亮起）與標出處標籤，不自己寫解說。
+ * 來源與公信力：登記 C-NINEGRID-NUMBERS（docs/技能戰鬥檔案/易經/來源登記.json），狀態由 lib/iching-source-gate.ts 算。
+ */
+import registryData from '../docs/技能戰鬥檔案/易經/來源登記.json';
+import { evaluateClaim, indexSources, type SourceRegistry } from './iching-source-gate';
+import { STATUS_WORDING } from './credibility-phrases';
+import { NINEGRID_ARCHIVE, type Provenance } from './nine-grid-skill-archive';
+
+export type NineGridStatus = 'VERIFIED' | 'CONFLICT' | 'PENDING_POOL';
+
+export interface TextWithLabel { text: string; provenanceLabel: string }
+
+export interface NineGridCell {
+  digit: number;
+  row: number;
+  col: number;
+  count: number;
+  title: string;
+  keywords: string;
+}
+
+export interface NineGridDigitReading {
+  digit: number;
+  title: string;
+  keywords: string;
+  count: number;
+  /** 算出來的事實：這個數字在生日裡出現幾次 */
+  countNote: string;
+  trait: string;
+  caution: string;
+  provenanceLabel: string;
+}
+
+export interface NineGridLineReading {
+  id: string;
+  digits: [number, number, number];
+  name: string;
+  lit: boolean;
+  /** 算出來的事實：這條線三個數字有沒有都出現、缺哪一個 */
+  fact: string;
+  missing: number[];
+  text: string;
+  provenanceLabel: string;
+}
+
+export interface NineGridCredibility {
+  status: NineGridStatus;
+  headline: string;
+  lines: string[];
+  sources: { id: string; label: string; citation: string; trust: 'A' | 'B' | 'C' | 'D' }[];
+}
+
+export interface NineGridStudy {
+  ruleVersion: 'nine-grid-v1';
+  input: { birthDate: string; digits: number[]; zeroCount: number; label: string; rule: TextWithLabel };
+  layout: { rows: number[][]; note: TextWithLabel };
+  cells: NineGridCell[];
+  digits: NineGridDigitReading[];
+  lines: NineGridLineReading[];
+  reading: { countRule: TextWithLabel; lineRule: TextWithLabel };
+  /** 算出來的事實摘要（不含解讀） */
+  summary: { dominant: number[]; maxCount: number; missing: number[]; litLines: number; text: string };
+  guidance: { title: TextWithLabel; steps: TextWithLabel[]; inputHint: TextWithLabel; resultIntro: TextWithLabel };
+  evidence: { topic: string; basis: string; provenanceLabel: string; sourceLabels: string[] }[];
+  credibility: NineGridCredibility;
+}
+
+export const provenanceLabel = (provenance: Provenance, statusLine: string) => `${provenance}・${statusLine}`;
+
+export type ParsedBirthDate = { ok: true; birthDate: string; digits: number[]; zeroCount: number } | { ok: false; message: string };
+
+/** 西元生日 YYYY-MM-DD（月日可不補 0）。必須是真實存在的日期、不早於 1900、不晚於今天。 */
+export function parseBirthDate(input: unknown, today: Date = new Date()): ParsedBirthDate {
+  if (typeof input !== 'string' || !input.trim()) return { ok: false, message: '請先填出生年月日。' };
+  const match = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(input.trim());
+  if (!match) return { ok: false, message: '出生日期的格式不對，請重新選一次。' };
+  const year = Number(match[1]); const month = Number(match[2]); const day = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return { ok: false, message: '這一天不存在，請檢查年月日。' };
+  if (year < 1900) return { ok: false, message: '出生年份請填 1900 年以後。' };
+  const todayUtc = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+  if (date.getTime() > todayUtc) return { ok: false, message: '出生日期不能是未來的日子。' };
+  const normalized = `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  const all = normalized.replace(/-/g, '').split('').map(Number);
+  return { ok: true, birthDate: normalized, digits: all.filter((d) => d !== 0), zeroCount: all.filter((d) => d === 0).length };
+}
+
+export function buildNineGridCredibility(): NineGridCredibility {
+  const registry = registryData as unknown as SourceRegistry;
+  const claim = registry.claims.find((c) => c.claim_id === NINEGRID_ARCHIVE.claimId);
+  if (!claim) return { status: 'PENDING_POOL', headline: '來源登記尚未建立，僅供自我反思參考。', lines: [], sources: [] };
+  const index = indexSources(registry);
+  const gate = evaluateClaim(claim, index);
+  const sources = [...new Set([...claim.authority_files, ...claim.cross_references])]
+    .map((id) => index[id])
+    .filter(Boolean)
+    .map((s) => ({ id: s.source_id, label: NINEGRID_ARCHIVE.sourceLabels[s.source_id] ?? s.author, citation: s.locator, trust: s.trust }));
+  return {
+    status: gate.status,
+    headline: gate.status === 'VERIFIED' ? STATUS_WORDING.VERIFIED : STATUS_WORDING.PENDING_POOL,
+    lines: [...NINEGRID_ARCHIVE.credibilityLines.map((entry) => entry.text), ...(gate.status === 'VERIFIED' ? [] : gate.reasons.slice(0, 3))],
+    sources,
+  };
+}
+
+export function buildNineGridStudy(parsed: Extract<ParsedBirthDate, { ok: true }>): NineGridStudy {
+  const credibility = buildNineGridCredibility();
+  const statusLine = STATUS_WORDING[credibility.status];
+  const label = (p: Provenance) => provenanceLabel(p, statusLine);
+  const withLabel = (entry: { text: string; provenance: Provenance }): TextWithLabel => ({ text: entry.text, provenanceLabel: label(entry.provenance) });
+
+  const counts = new Map<number, number>();
+  for (let d = 1; d <= 9; d += 1) counts.set(d, 0);
+  for (const d of parsed.digits) counts.set(d, (counts.get(d) ?? 0) + 1);
+
+  const archive = NINEGRID_ARCHIVE;
+  const cells: NineGridCell[] = archive.layout.rows.flatMap((row, r) => row.map((digit, c) => {
+    const entry = archive.digits[digit - 1];
+    return { digit, row: r, col: c, count: counts.get(digit) ?? 0, title: entry.title, keywords: entry.keywords };
+  }));
+
+  const digits: NineGridDigitReading[] = archive.digits.map((entry) => {
+    const count = counts.get(entry.digit) ?? 0;
+    return {
+      digit: entry.digit,
+      title: entry.title,
+      keywords: entry.keywords,
+      count,
+      countNote: count > 0 ? `生日數字裡 ${entry.digit} 出現 ${count} 次。` : `生日數字裡沒有出現 ${entry.digit}。`,
+      trait: entry.trait,
+      caution: entry.caution,
+      provenanceLabel: label(entry.provenance),
+    };
+  });
+
+  const lines: NineGridLineReading[] = archive.lines.map((line) => {
+    const missing = line.digits.filter((d) => (counts.get(d) ?? 0) === 0);
+    const lit = missing.length === 0;
+    return {
+      id: line.id,
+      digits: line.digits,
+      name: line.name,
+      lit,
+      fact: lit ? `${line.digits.join('-')} 三個數字都有出現，這條線亮起。` : `${line.digits.join('-')} 少了 ${missing.join('、')}，這條線沒有亮起。`,
+      missing,
+      text: line.text,
+      provenanceLabel: label(line.provenance),
+    };
+  });
+
+  const maxCount = Math.max(...counts.values());
+  const dominant = [...counts.entries()].filter(([, n]) => n === maxCount && n > 0).map(([d]) => d);
+  const missingDigits = [...counts.entries()].filter(([, n]) => n === 0).map(([d]) => d);
+  const litLines = lines.filter((l) => l.lit).length;
+  const summaryText = `生日 ${parsed.birthDate} 的數字（0 不計）共 ${parsed.digits.length} 個；出現最多次的是 ${dominant.join('、')}（${maxCount} 次）；沒有出現的是 ${missingDigits.length ? missingDigits.join('、') : '無'}；亮起 ${litLines} 條連線。`;
+
+  return {
+    ruleVersion: 'nine-grid-v1',
+    input: { birthDate: parsed.birthDate, digits: parsed.digits, zeroCount: parsed.zeroCount, label: archive.input.label, rule: withLabel(archive.input.rule) },
+    layout: { rows: archive.layout.rows, note: withLabel(archive.layout.note) },
+    cells,
+    digits,
+    lines,
+    reading: { countRule: withLabel(archive.reading.countRule), lineRule: withLabel(archive.reading.lineRule) },
+    summary: { dominant, maxCount, missing: missingDigits, litLines, text: summaryText },
+    guidance: {
+      title: withLabel(archive.guidance.title),
+      steps: archive.guidance.steps.map(withLabel),
+      inputHint: withLabel(archive.guidance.inputHint),
+      resultIntro: withLabel(archive.guidance.resultIntro),
+    },
+    evidence: archive.evidence.map((entry) => ({
+      topic: entry.topic,
+      basis: entry.text,
+      provenanceLabel: label(entry.provenance),
+      sourceLabels: entry.source_ids.map((id) => archive.sourceLabels[id] ?? id),
+    })),
+    credibility,
+  };
+}
+
+/** 前端在送出前先拿到的引導文字（不需要生日），同樣來自技能檔案。 */
+export function buildNineGridGuidance(): NineGridStudy['guidance'] & { credibility: NineGridCredibility } {
+  const credibility = buildNineGridCredibility();
+  const statusLine = STATUS_WORDING[credibility.status];
+  const withLabel = (entry: { text: string; provenance: Provenance }): TextWithLabel => ({ text: entry.text, provenanceLabel: provenanceLabel(entry.provenance, statusLine) });
+  const g = NINEGRID_ARCHIVE.guidance;
+  return { title: withLabel(g.title), steps: g.steps.map(withLabel), inputHint: withLabel(g.inputHint), resultIntro: withLabel(g.resultIntro), credibility };
+}
