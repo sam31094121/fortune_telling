@@ -639,6 +639,13 @@
             "S-SHUOGUA-WIKISOURCE"
           ],
           "page_ref": "《易傳》〈說卦〉第五章"
+        },
+        "speech": {
+          "text": "數字 1 是坎宮，在最下面（北）。說卦傳說坎是水、是正北方的卦；性情寫的是「陷」。",
+          "provenance": "本站自撰",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ]
         }
       },
       {
@@ -657,6 +664,13 @@
         "direction": null,
         "directionNote": {
           "text": "說卦傳沒有直接寫坤的方位，本站不補寫。",
+          "provenance": "本站自撰",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ]
+        },
+        "speech": {
+          "text": "數字 2 是坤宮，在右上角。說卦傳說坤是地；性情寫的是「順」；它的方位原文沒有寫，本站不補。",
           "provenance": "本站自撰",
           "source_ids": [
             "S-SHUOGUA-WIKISOURCE"
@@ -683,6 +697,13 @@
             "S-SHUOGUA-WIKISOURCE"
           ],
           "page_ref": "《易傳》〈說卦〉第五章"
+        },
+        "speech": {
+          "text": "數字 3 是震宮，在左邊（東）。說卦傳說震是東方；性情寫的是「動」。",
+          "provenance": "本站自撰",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ]
         }
       },
       {
@@ -705,6 +726,13 @@
             "S-SHUOGUA-WIKISOURCE"
           ],
           "page_ref": "《易傳》〈說卦〉第五章"
+        },
+        "speech": {
+          "text": "數字 4 是巽宮，在左上角。說卦傳說巽是東南；性情寫的是「入」。",
+          "provenance": "本站自撰",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ]
         }
       },
       {
@@ -727,6 +755,14 @@
             "S-GUANCHENG-SHUOJI-27"
           ],
           "page_ref": "清・徐文靖《管城碩記》卷二十七引鄭康成注《易乾鑿度》"
+        },
+        "speech": {
+          "text": "數字 5 是中宮，在正中央。數術記遺的口訣說「五居中央」；說卦傳沒有給中宮八卦。",
+          "provenance": "本站自撰",
+          "source_ids": [
+            "S-SHUSHU-JIYI-WIKISOURCE",
+            "S-SHUOGUA-WIKISOURCE"
+          ]
         }
       },
       {
@@ -749,6 +785,13 @@
             "S-SHUOGUA-WIKISOURCE"
           ],
           "page_ref": "《易傳》〈說卦〉第五章"
+        },
+        "speech": {
+          "text": "數字 6 是乾宮，在右下角。說卦傳說乾是西北的卦；性情寫的是「健」。",
+          "provenance": "本站自撰",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ]
         }
       },
       {
@@ -778,6 +821,13 @@
           "source_ids": [
             "S-SHUOGUA-WIKISOURCE"
           ]
+        },
+        "speech": {
+          "text": "數字 7 是兌宮，在右邊（西）。說卦傳只寫兌是「正秋」；性情寫的是「說」（悅）。",
+          "provenance": "本站自撰",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ]
         }
       },
       {
@@ -800,6 +850,13 @@
             "S-SHUOGUA-WIKISOURCE"
           ],
           "page_ref": "《易傳》〈說卦〉第五章"
+        },
+        "speech": {
+          "text": "數字 8 是艮宮，在左下角。說卦傳說艮是東北的卦；性情寫的是「止」。",
+          "provenance": "本站自撰",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ]
         }
       },
       {
@@ -822,6 +879,13 @@
             "S-SHUOGUA-WIKISOURCE"
           ],
           "page_ref": "《易傳》〈說卦〉第五章"
+        },
+        "speech": {
+          "text": "數字 9 是離宮，在最上面（南）。說卦傳說離是南方的卦；性情寫的是「麗」。",
+          "provenance": "本站自撰",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ]
         }
       }
     ],

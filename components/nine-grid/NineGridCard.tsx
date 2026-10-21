@@ -41,16 +41,15 @@ function cellStyle(study: NineGridStudy, cell: { digit: number; count: number })
 
 export default function NineGridCard({ study }: { study: NineGridStudy }) {
   const uid = useId().replace(/:/g, '');
-  const firstDigit = study?.summary?.dominant?.[0] ?? 1;
   const [edition, setEdition] = useState<'luoshu' | 'shengming'>('luoshu');
   const [showControl, setShowControl] = useState(false);
-  const [selection, setSelection] = useState<Selection>({ kind: 'digit', digit: firstDigit });
+  const [selection, setSelection] = useState<Selection | null>(null);
   // 瀏覽器可能留著舊版格式的結果：格式不符就不顯示，不讓整頁當掉
   const compatible = study?.ruleVersion === 'nine-grid-v2' && Array.isArray(study.cells) && study.cells.length === 9 && Array.isArray(study.digits) && Array.isArray(study.lines) && Boolean(study.credibility);
   if (!compatible) return null;
 
-  const selectedDigit = selection.kind === 'digit' ? study.digits.find((item) => item.digit === selection.digit) : undefined;
-  const selectedLine = selection.kind === 'line' ? study.lines.find((item) => item.id === selection.id) : undefined;
+  const selectedDigit = selection?.kind === 'digit' ? study.digits.find((item) => item.digit === selection.digit) : undefined;
+  const selectedLine = selection?.kind === 'line' ? study.lines.find((item) => item.id === selection.id) : undefined;
   const litLines = study.lines.filter((line) => line.lit);
 
   const tabs = [{ id: 'luoshu' as const, label: '洛書九宮・古籍版' }, { id: 'shengming' as const, label: '生命靈數' }];
@@ -85,7 +84,7 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
       <div className="relative mx-auto mt-5 w-full max-w-[380px]">
         <div className="relative z-10 grid aspect-square grid-cols-3 gap-2 sm:gap-3" role="group" aria-label="九宮格">
           {study.cells.map((cell) => {
-            const active = selection.kind === 'digit' && selection.digit === cell.digit;
+            const active = selection?.kind === 'digit' && selection.digit === cell.digit;
             const reading = study.digits.find((item) => item.digit === cell.digit);
             return (
               <button
@@ -156,7 +155,7 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
           {litLines.map((line) => {
             const a = cellCenter(study, line.digits[0]);
             const b = cellCenter(study, line.digits[2]);
-            const chosen = selection.kind === 'line' && selection.id === line.id;
+            const chosen = selection?.kind === 'line' && selection.id === line.id;
             return (
               <g key={line.id}>
                 <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="rgba(253,230,138,.22)" strokeWidth={chosen ? 14 : 9} strokeLinecap="round" />
@@ -182,11 +181,10 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
         </div>
       )}
 
-      <p className="mx-auto mt-4 max-w-[420px] break-words text-center text-xs font-bold leading-6 text-violet-100">{study.summary.text}</p>
 
       <div className="mt-4 flex flex-wrap justify-center gap-2" role="group" aria-label="靈動連線">
         {study.lines.map((line) => {
-          const chosen = selection.kind === 'line' && selection.id === line.id;
+          const chosen = selection?.kind === 'line' && selection.id === line.id;
           return (
             <button
               key={line.id}
@@ -201,16 +199,16 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
         })}
       </div>
 
-      <article className="mt-4 rounded-2xl border border-violet-200/25 bg-gradient-to-br from-violet-400/10 to-black/40 p-4" aria-live="polite">
+      {selection && <article className="mt-4 rounded-2xl border border-violet-200/25 bg-gradient-to-br from-violet-400/10 to-black/40 p-4" aria-live="polite">
         {selectedDigit && (
           <>
             <p className="text-[11px] font-black tracking-[0.2em] text-amber-200/90">{selectedDigit.title}　{selectedDigit.keywords}</p>
             <p className="mt-1 break-words text-sm font-black leading-7 text-violet-50">{selectedDigit.countNote}</p>
             <p className="mt-2 break-words text-sm font-semibold leading-7 text-violet-50/95">{selectedDigit.trait}</p>
-            <div className="mt-3 rounded-xl border border-white/10 bg-black/25 p-3">
-              <p className="text-[11px] font-black text-amber-200/90">小提醒</p>
-              <p className="mt-1 break-words text-xs font-semibold leading-6 text-violet-100/90">{selectedDigit.caution}</p>
-            </div>
+            <details className="mt-3 rounded-xl border border-white/10 bg-black/25 p-3">
+              <summary className="min-h-[44px] cursor-pointer list-none text-[12px] font-black leading-[44px] text-amber-200/90">小提醒</summary>
+              <p className="break-words text-xs font-semibold leading-6 text-violet-100/90">{selectedDigit.caution}</p>
+            </details>
             <p className="mt-2 text-[10px] font-bold text-amber-100/70">{selectedDigit.provenanceLabel}</p>
           </>
         )}
@@ -222,9 +220,12 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
             <p className="mt-2 text-[10px] font-bold text-amber-100/70">{selectedLine.provenanceLabel}</p>
           </>
         )}
-      </article>
+      </article>}
 
-      <div className="mt-4 space-y-2">
+      <details className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-3">
+        <summary className="min-h-[44px] cursor-pointer list-none text-xs font-black leading-[44px] text-violet-100">讀法說明</summary>
+        <p className="mb-2 break-words text-xs font-bold leading-6 text-violet-100">{study.summary.text}</p>
+      <div className="space-y-2">
         <div>
           <p className="break-words text-[11px] font-semibold leading-5 text-violet-100/85">{study.reading.countRule.text}</p>
           <p className="text-[10px] font-bold text-amber-100/70">{study.reading.countRule.provenanceLabel}</p>
@@ -238,6 +239,7 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
           <p className="text-[10px] font-bold text-amber-100/70">{study.layout.note.provenanceLabel}</p>
         </div>
       </div>
+      </details>
 
       {study.fiveStar && <FiveStarLink fiveStar={study.fiveStar} />}
 

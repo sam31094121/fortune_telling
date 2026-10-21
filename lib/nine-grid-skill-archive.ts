@@ -57,6 +57,8 @@ export interface PalaceEntry {
   palace: string;
   trigram: string | null;
   order: number;
+  /** 點宮位時先顯示的白話話術（只複述已核對的原文） */
+  speech: ArchiveEntry;
   nature: ArchiveEntry | null;
   natureNote?: ArchiveEntry;
   direction: ArchiveEntry | null;
@@ -149,6 +151,7 @@ export function listNineGridSentences(archive: NineGridArchive = NINEGRID_ARCHIV
     add(`洛書古籍:${c.id}:白話`, c.gloss);
   }
   for (const p of lu.palaces) {
+    add(`洛書宮${p.digit}:話術`, p.speech);
     if (p.nature) add(`洛書宮${p.digit}:性情`, p.nature);
     if (p.natureNote) add(`洛書宮${p.digit}:性情說明`, p.natureNote);
     if (p.direction) add(`洛書宮${p.digit}:方位`, p.direction);

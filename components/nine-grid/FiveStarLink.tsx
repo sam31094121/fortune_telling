@@ -101,9 +101,11 @@ export default function FiveStarLink({ fiveStar }: { fiveStar: FiveStarStudy }) 
       </svg>
 
       <p className="mt-1 text-center text-[11px] font-bold text-violet-100/80">{fiveStar.legend.generate}　{fiveStar.legend.control}</p>
-      <p className="mx-auto mt-2 max-w-[420px] break-words text-center text-xs font-bold leading-6 text-violet-100">{fiveStar.summary}</p>
+      <details className="mt-3 rounded-xl border border-white/10 bg-black/25 p-3">
+      <summary className="min-h-[44px] cursor-pointer list-none text-xs font-black leading-[44px] text-violet-100">五行說明</summary>
+      <p className="break-words text-xs font-bold leading-6 text-violet-100">{fiveStar.summary}</p>
 
-      <div className="mt-3 space-y-1.5">
+      <div className="mt-2 space-y-1.5">
         {[fiveStar.mapping, fiveStar.linkRule, fiveStar.scope].map((item) => (
           <div key={item.text}>
             <p className="break-words text-[11px] font-semibold leading-5 text-violet-100/85">{item.text}</p>
@@ -111,6 +113,7 @@ export default function FiveStarLink({ fiveStar }: { fiveStar: FiveStarStudy }) 
           </div>
         ))}
       </div>
+      </details>
 
       <Link href="/nameology" className="mt-4 flex min-h-[44px] items-center justify-center rounded-full border border-amber-300/60 bg-amber-300/15 px-4 text-[13px] font-black tracking-[0.08em] text-amber-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200">
         前往易經姓名學五星連線
