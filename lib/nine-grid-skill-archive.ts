@@ -59,6 +59,10 @@ export interface PalaceEntry {
   order: number;
   /** 點宮位時先顯示的白話話術（只複述已核對的原文） */
   speech: ArchiveEntry;
+  /** 延伸話術：依來源原文的白話，只複述不另解讀 */
+  story: ArchiveEntry;
+  /** 延伸話術所依的原文，逐字 */
+  scene?: ArchiveEntry;
   /** 說卦傳第十一章的取象（乾為天…），原文逐字 */
   image?: ArchiveEntry;
   /** 卦畫：由下往上三爻，1 陽 0 陰 */
@@ -157,6 +161,8 @@ export function listNineGridSentences(archive: NineGridArchive = NINEGRID_ARCHIV
   }
   for (const p of lu.palaces) {
     add(`洛書宮${p.digit}:話術`, p.speech);
+    add(`洛書宮${p.digit}:延伸話術`, p.story);
+    if (p.scene) add(`洛書宮${p.digit}:延伸原文`, p.scene);
     if (p.image) add(`洛書宮${p.digit}:取象`, p.image);
     if (p.nature) add(`洛書宮${p.digit}:性情`, p.nature);
     if (p.natureNote) add(`洛書宮${p.digit}:性情說明`, p.natureNote);

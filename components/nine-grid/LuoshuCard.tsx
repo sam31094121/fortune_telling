@@ -111,6 +111,17 @@ export default function LuoshuCard({ luoshu }: { luoshu: LuoshuStudy }) {
           )}
           <p className="mt-2 break-words text-sm font-semibold leading-7 text-amber-50/95">{selected.speech.text}</p>
           <p className="text-[10px] font-bold text-amber-100/70">{selected.speech.provenanceLabel}</p>
+          <details className="mt-3 rounded-xl border border-amber-200/20 bg-amber-200/[0.04] p-3">
+            <summary className="min-h-[44px] cursor-pointer list-none text-xs font-black leading-[44px] text-amber-100">延伸</summary>
+            <p className="break-words text-sm font-semibold leading-7 text-amber-50/95">{selected.story.text}</p>
+            <p className="text-[10px] font-bold text-amber-100/70">{selected.story.provenanceLabel}</p>
+            {selected.scene && (
+              <div className="mt-2 rounded-lg border border-white/10 bg-black/25 p-2">
+                <p className="break-words font-serif text-[13px] font-semibold leading-6 text-amber-100">{selected.scene.text}</p>
+                <p className="text-[10px] font-bold text-amber-100/70">{selected.scene.pageRef}</p>
+              </div>
+            )}
+          </details>
           <details className="mt-3 rounded-xl border border-white/10 bg-black/25 p-3">
             <summary className="min-h-[44px] cursor-pointer list-none text-xs font-black leading-[44px] text-amber-100">原文</summary>
             {selected.image && (

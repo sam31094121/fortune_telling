@@ -224,4 +224,12 @@ check('易經取象：八卦取象原文逐字在登記表、8 種卦畫互異�
   for (const pal of lu.palaces.filter((x) => x.trigram)) assert.ok(registryNotes['S-SHUOGUA-WIKISOURCE'].includes(pal.image!.text), pal.trigram + ' 取象要能逐字找到');
 });
 
+check('延伸話術：每宮都有、延伸原文逐字在登記表、不含對個性或運勢的解讀字眼', () => {
+  const lu = NINEGRID_ARCHIVE.luoshu;
+  assert.equal(lu.palaces.filter((p) => p.story?.text).length, 9);
+  assert.equal(lu.palaces.filter((p) => p.scene).length, 8, '中宮沒有說卦傳原文，不編');
+  for (const p of lu.palaces) if (p.scene) assert.ok(registryNotes[p.scene.source_ids[0]].includes(p.scene.text), p.palace + ' 延伸原文要逐字找到');
+  for (const p of lu.palaces) assert.ok(!/(運勢|個性|命運|適合你|你會)/.test(p.story.text), p.palace + ' 不得推到個性或運勢');
+});
+
 console.log(`\n九宮格靈動數字守門 ${passed} 項全過`);
