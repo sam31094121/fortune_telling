@@ -17,7 +17,7 @@ export default function LuoshuCard({ luoshu }: { luoshu: LuoshuStudy }) {
   const [walking, setWalking] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
-  if (!luoshu || !Array.isArray(luoshu.layout?.rows) || luoshu.layout.rows.length !== 3) return null;
+  if (!luoshu || !Array.isArray(luoshu.layout?.rows) || luoshu.layout.rows.length !== 3 || !luoshu.palaces.every((p) => p.speech && p.story)) return null;
 
   const palaceOf = (d: number) => luoshu.palaces.find((p) => p.digit === d);
   const selected = digit === null ? undefined : palaceOf(digit);
