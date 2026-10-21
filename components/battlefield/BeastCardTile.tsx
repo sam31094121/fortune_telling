@@ -40,6 +40,16 @@ import type { BeastElement } from '@/lib/beast-game/elements';
  */
 export const STANDARD_STYLE_IDS: ReadonlySet<string> = new Set(['beast_y06']);
 
+/** 業主 2026-10-21 批准標準卡質感，六十張全部換上。 */
+export function usesStandardStyle(_cardId: string): boolean {
+  return true;
+}
+
+/** 四象沒有設計武器（part 會落到預設值），業主未定名稱前卡面不印武器列，不自行編名。 */
+function hasDesignedWeapon(weapon: { part: string }): boolean {
+  return weapon.part !== '四象本體';
+}
+
 export interface BeastTileCard {
   id: string;
   name: string;
@@ -75,7 +85,7 @@ export function BeastCardTile({
   owned?: boolean;
   onOpen: () => void;
 }) {
-  if (STANDARD_STYLE_IDS.has(card.id)) return <StandardTile card={card} selected={selected} owned={owned} onOpen={onOpen} />;
+  if (usesStandardStyle(card.id)) return <StandardTile card={card} selected={selected} owned={owned} onOpen={onOpen} />;
   return (
     <button
       type="button"
@@ -141,7 +151,7 @@ function StandardTile({
       type="button"
       className={[styles.tile, styles.stdTile, selected ? styles.stdSelected : ''].filter(Boolean).join(' ')}
       onClick={onOpen}
-      aria-label={`${card.name}，${elementLabel}，武器${weapon.name}${shortSkill ? `，技能${shortSkill}` : ''}${selected ? '，已選取' : ''}`}
+      aria-label={`${card.name}，${elementLabel}${hasDesignedWeapon(weapon) ? `，武器${weapon.name}` : ''}${shortSkill ? `，技能${shortSkill}` : ''}${selected ? '，已選取' : ''}`}
       aria-pressed={selected}
       data-card-style="standard"
       style={{ '--std-el': ELEMENT_INK[element] } as React.CSSProperties}
@@ -165,11 +175,13 @@ function StandardTile({
               decoding="async"
             />
           </span>
-          <span className={styles.stdWeapon}>
-            <span className={styles.stdTag}>武器</span>
-            <span className={styles.stdWeaponName}>{weapon.name}</span>
-            <span className={styles.stdWeaponPart}>{weapon.part}</span>
-          </span>
+          {hasDesignedWeapon(weapon) && (
+            <span className={styles.stdWeapon}>
+              <span className={styles.stdTag}>武器</span>
+              <span className={styles.stdWeaponName}>{weapon.name}</span>
+              <span className={styles.stdWeaponPart}>{weapon.part}</span>
+            </span>
+          )}
           {shortSkill && skillText && (
             <span className={styles.stdSkill}>
               <span className={styles.stdSkillHead}>
@@ -239,8 +251,9 @@ export function CardDetailSheet({
 
         {note && <p className={styles.block}><strong>狀態</strong>{note}</p>}
 
-        {STANDARD_STYLE_IDS.has(card.id) && (() => {
+        {usesStandardStyle(card.id) && (() => {
           const weapon = weaponFor(card.id, card.name, (card.element in ELEMENT_LABEL ? card.element : 'SPACE') as BeastElement);
+          if (!hasDesignedWeapon(weapon)) return null;
           return (
             <p className={styles.block} data-card-weapon>
               <strong>武器・{weapon.name}（{weapon.part}・{weapon.weaponClass}）</strong>
