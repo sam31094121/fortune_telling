@@ -96,7 +96,9 @@ export interface LuoshuStudy {
   intro: TextWithLabel[];
   layout: { rows: number[][]; axes: { top: string; bottom: string; left: string; right: string }; note: TextWithLabel; mirrorNote: TextWithLabel; sumRule: TextWithLabel; sum: number };
   classics: { id: string; title: string; quote: string; annotation?: string; pageRef: string; gloss: TextWithLabel; sourceLabels: string[] }[];
-  palaces: { digit: number; palace: string; trigram: string | null; order: number; speech: TextWithLabel; story: TextWithLabel; scene: (TextWithLabel & { pageRef: string }) | null; image: (TextWithLabel & { pageRef: string }) | null; yao: number[] | null; nature: TextWithLabel | null; natureNote: TextWithLabel | null; direction: TextWithLabel | null; directionNote: TextWithLabel | null }[];
+  /** 算出來的事實：生日數字落在洛書各宮的情形（沒有填生日時為 null） */
+  birthOverlay: { birthDate: string; summary: string } | null;
+  palaces: { digit: number; count: number; palace: string; trigram: string | null; order: number; speech: TextWithLabel; story: TextWithLabel; scene: (TextWithLabel & { pageRef: string }) | null; image: (TextWithLabel & { pageRef: string }) | null; yao: number[] | null; nature: TextWithLabel | null; natureNote: TextWithLabel | null; direction: TextWithLabel | null; directionNote: TextWithLabel | null }[];
   orderNote: TextWithLabel;
   yaoNote: string;
   crossCheck: TextWithLabel[];
@@ -218,7 +220,7 @@ export function buildNineGridStudy(parsed: Extract<ParsedBirthDate, { ok: true }
       sourceLabels: entry.source_ids.map((id) => archive.sourceLabels[id] ?? id),
     })),
     credibility,
-    luoshu: buildLuoshuStudy(),
+    luoshu: buildLuoshuStudy(counts, parsed.birthDate),
     fiveStar: buildFiveStarStudy(counts, withLabel),
   };
 }
@@ -254,8 +256,14 @@ export function buildFiveStarStudy(counts: Map<number, number>, withLabel: (e: {
   return { title: fs.title, mapping: withLabel(fs.mapping), linkRule: withLabel(fs.linkRule), scope: withLabel(fs.scope), nodes, edges, summary, legend: { generate: '實線＝相生', control: '虛線＝相剋' }, elementOfDigit, cellLinks };
 }
 
+function luoshuSummary(palaces: { digit: number; palace: string }[], counts: Map<number, number>, birthDate: string) {
+  const hit = palaces.filter((p) => (counts.get(p.digit) ?? 0) > 0).map((p) => `${p.palace}${counts.get(p.digit)}`);
+  const miss = palaces.filter((p) => (counts.get(p.digit) ?? 0) === 0).map((p) => p.palace);
+  return `生日 ${birthDate} 的數字（0 不計）落在洛書的 ${hit.join('、')}；沒有數字的宮是 ${miss.length ? miss.join('、') : '無'}。`;
+}
+
 /** 洛書九宮（古籍版）：每一句都來自技能檔案，狀態由來源閘門算。 */
-export function buildLuoshuStudy(): LuoshuStudy {
+export function buildLuoshuStudy(counts?: Map<number, number>, birthDate?: string): LuoshuStudy {
   const lu = NINEGRID_ARCHIVE.luoshu;
   const credibility = buildNineGridCredibility(lu.claimId, lu.credibilityLines, lu.sourceLabels);
   const statusLine = STATUS_WORDING[credibility.status];
@@ -269,7 +277,8 @@ export function buildLuoshuStudy(): LuoshuStudy {
     intro: lu.intro.map(wl),
     layout: { rows, axes: lu.layout.axes, note: wl(lu.layout.note), mirrorNote: wl(lu.layout.mirrorNote), sumRule: wl(lu.layout.sumRule), sum: rows[0][0] + rows[0][1] + rows[0][2] },
     classics: lu.classics.map((c) => ({ id: c.id, title: c.title, quote: c.quote, annotation: c.annotation, pageRef: c.page_ref, gloss: wl(c.gloss), sourceLabels: labelsOf(c.source_ids) })),
-    palaces: lu.palaces.map((p) => ({ digit: p.digit, palace: p.palace, trigram: p.trigram, order: p.order, speech: wl(p.speech), story: wl(p.story), scene: p.scene ? { ...wl(p.scene), pageRef: p.scene.page_ref ?? '' } : null, image: p.image ? { ...wl(p.image), pageRef: p.image.page_ref ?? '' } : null, yao: p.yao ?? null, nature: opt(p.nature), natureNote: opt(p.natureNote), direction: opt(p.direction), directionNote: opt(p.directionNote) })),
+    birthOverlay: counts && birthDate ? { birthDate, summary: luoshuSummary(lu.palaces, counts, birthDate) } : null,
+    palaces: lu.palaces.map((p) => ({ digit: p.digit, count: counts?.get(p.digit) ?? 0, palace: p.palace, trigram: p.trigram, order: p.order, speech: wl(p.speech), story: wl(p.story), scene: p.scene ? { ...wl(p.scene), pageRef: p.scene.page_ref ?? '' } : null, image: p.image ? { ...wl(p.image), pageRef: p.image.page_ref ?? '' } : null, yao: p.yao ?? null, nature: opt(p.nature), natureNote: opt(p.natureNote), direction: opt(p.direction), directionNote: opt(p.directionNote) })),
     orderNote: wl(lu.orderNote),
     yaoNote: lu.yaoNote,
     crossCheck: lu.crossCheck.map(wl),

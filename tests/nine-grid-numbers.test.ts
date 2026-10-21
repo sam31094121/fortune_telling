@@ -232,4 +232,11 @@ check('延伸話術：每宮都有、延伸原文逐字在登記表、不含對�
   for (const p of lu.palaces) assert.ok(!/(運勢|個性|命運|適合你|你會)/.test(p.story.text), p.palace + ' 不得推到個性或運勢');
 });
 
+check('洛書九宮疊上生日數字：各宮次數等於生日數字出現次數（1987-06-23 手算）、沒填生日時不顯示', () => {
+  const lu = buildNineGridStudy(ok('1987-06-23')).luoshu;
+  assert.deepEqual(lu.palaces.map((p) => p.count), [1, 1, 1, 0, 0, 1, 1, 1, 1]);
+  assert.ok(lu.birthOverlay && lu.birthOverlay.summary.includes('沒有數字的宮是 巽宮、中宮'));
+  assert.equal(buildLuoshuStudy().birthOverlay, null);
+});
+
 console.log(`\n九宮格靈動數字守門 ${passed} 項全過`);

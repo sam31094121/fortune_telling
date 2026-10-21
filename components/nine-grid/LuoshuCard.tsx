@@ -58,6 +58,8 @@ export default function LuoshuCard({ luoshu }: { luoshu: LuoshuStudy }) {
         <div className="mx-auto mt-2 h-px w-24 bg-gradient-to-r from-transparent via-amber-300/70 to-transparent" />
       </header>
 
+      {luoshu.birthOverlay && <p className="mt-3 text-center font-serif text-lg font-black tracking-[0.12em] text-amber-50">{luoshu.birthOverlay.birthDate}</p>}
+
       <div className="mx-auto mt-5 w-full max-w-[380px]">
         <p className="text-center text-[11px] font-black text-amber-200/90">{axes.top}</p>
         <div className="flex items-stretch gap-2">
@@ -82,6 +84,8 @@ export default function LuoshuCard({ luoshu }: { luoshu: LuoshuStudy }) {
                     <span className="font-serif text-4xl font-black leading-none">{d}</span>
                     <span className="mt-1 text-[11px] font-bold tracking-[0.08em] opacity-90">{seen ? palace?.palace : '？'}</span>
                     {seen && palace?.trigram && <span className="text-[11px] font-bold opacity-80">{palace.trigram}</span>}
+                    {palace && palace.count > 0 && <span aria-hidden="true" className="absolute right-1.5 top-1.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full border border-amber-200/70 bg-[#14102a] px-1 text-[10px] font-black text-amber-100">{palace.count}</span>}
+                    {palace && luoshu.birthOverlay && palace.count > 0 && <span aria-hidden="true" className="absolute bottom-1.5 h-1.5 w-1.5 rounded-full bg-amber-200 shadow-[0_0_6px_rgba(253,230,138,0.9)]" />}
                   </button>
                 );
               })}
@@ -143,7 +147,7 @@ export default function LuoshuCard({ luoshu }: { luoshu: LuoshuStudy }) {
       <details className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-3">
         <summary className="min-h-[44px] cursor-pointer list-none text-xs font-black leading-[44px] text-amber-100">排法說明</summary>
         <div className="space-y-2">
-          {[{ text: luoshu.yaoNote, provenanceLabel: '' }, ...luoshu.intro, luoshu.layout.note, luoshu.layout.mirrorNote, luoshu.layout.sumRule, luoshu.orderNote, ...luoshu.crossCheck].map((item) => (
+          {[...(luoshu.birthOverlay ? [{ text: luoshu.birthOverlay.summary, provenanceLabel: '' }] : []), { text: luoshu.yaoNote, provenanceLabel: '' }, ...luoshu.intro, luoshu.layout.note, luoshu.layout.mirrorNote, luoshu.layout.sumRule, luoshu.orderNote, ...luoshu.crossCheck].map((item) => (
             <div key={item.text}>
               <p className="break-words text-[11px] font-semibold leading-5 text-amber-50/85">{item.text}</p>
               <p className="text-[10px] font-bold text-amber-100/70">{item.provenanceLabel}</p>
