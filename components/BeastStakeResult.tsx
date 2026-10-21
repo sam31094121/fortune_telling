@@ -38,7 +38,7 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
   return <section data-stake-result data-stake-verdict={outcome.verdict} data-settlement-saved={saved ? 'yes' : 'no'} aria-label="押注卡片結算"
     className={`mt-3 rounded-2xl border-2 p-3 ${lost ? 'border-rose-300/50 bg-rose-300/[0.06]' : 'border-amber-300/50 bg-amber-300/[0.06]'}`}>
     <div className="flex items-center gap-3" data-stake-headline role="status">
-      {card && <div className={`${frameStyles.card} relative w-16 shrink-0 overflow-hidden border border-white/20`}>
+      {card && <div className={`${frameStyles.card} ${frameStyles.metal} relative w-16 shrink-0 overflow-hidden border border-white/20`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={card.thumbnail} alt={card.name} className={`${frameStyles.art} ${saved && lost ? 'opacity-40 grayscale' : ''}`} />
         {saved && lost && <span className="absolute inset-0 grid place-items-center text-2xl font-black text-rose-200" aria-hidden="true">✕</span>}

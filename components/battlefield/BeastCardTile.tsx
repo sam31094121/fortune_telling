@@ -29,7 +29,7 @@ import BattlePowerAnalysis from './BattlePowerAnalysis';
 import ElementOrbDisplay from './ElementOrbDisplay';
 // 正統比例與圖窗的唯一來源。這裡不重新定義，只疊手感與狀態。
 import frame from '@/components/BeastCardFrame.module.css';
-import { weaponFor } from '@/lib/beast-game/weapons';
+import { weaponFor, isTopTierWeapon } from '@/lib/beast-game/weapons';
 import type { BeastElement } from '@/lib/beast-game/elements';
 
 /**
@@ -39,6 +39,16 @@ import type { BeastElement } from '@/lib/beast-game/elements';
  * 目前只開給標準卡「尾火虎・幼子」。業主確認後，把 id 加進來（或改成全部）即可整副換上。
  */
 export const STANDARD_STYLE_IDS: ReadonlySet<string> = new Set(['beast_y06']);
+
+/** 業主 2026-10-21 批准標準卡質感，六十張全部換上。 */
+export function usesStandardStyle(_cardId: string): boolean {
+  return true;
+}
+
+/** 對不到宿位也不在四象表內的未知卡才不印武器列（現有 60 張都有）。 */
+function hasDesignedWeapon(weapon: { part: string }): boolean {
+  return weapon.part !== '四象本體';
+}
 
 export interface BeastTileCard {
   id: string;
@@ -75,7 +85,7 @@ export function BeastCardTile({
   owned?: boolean;
   onOpen: () => void;
 }) {
-  if (STANDARD_STYLE_IDS.has(card.id)) return <StandardTile card={card} selected={selected} owned={owned} onOpen={onOpen} />;
+  if (usesStandardStyle(card.id)) return <StandardTile card={card} selected={selected} owned={owned} onOpen={onOpen} />;
   return (
     <button
       type="button"
@@ -141,7 +151,7 @@ function StandardTile({
       type="button"
       className={[styles.tile, styles.stdTile, selected ? styles.stdSelected : ''].filter(Boolean).join(' ')}
       onClick={onOpen}
-      aria-label={`${card.name}，${elementLabel}，武器${weapon.name}${shortSkill ? `，技能${shortSkill}` : ''}${selected ? '，已選取' : ''}`}
+      aria-label={`${card.name}，${elementLabel}${hasDesignedWeapon(weapon) ? `，武器${weapon.name}` : ''}${shortSkill ? `，技能${shortSkill}` : ''}${selected ? '，已選取' : ''}`}
       aria-pressed={selected}
       data-card-style="standard"
       style={{ '--std-el': ELEMENT_INK[element] } as React.CSSProperties}
@@ -165,11 +175,13 @@ function StandardTile({
               decoding="async"
             />
           </span>
-          <span className={styles.stdWeapon}>
-            <span className={styles.stdTag}>武器</span>
-            <span className={styles.stdWeaponName}>{weapon.name}</span>
-            <span className={styles.stdWeaponPart}>{weapon.part}</span>
-          </span>
+          {hasDesignedWeapon(weapon) && (
+            <span className={styles.stdWeapon}>
+              <span className={`${styles.stdTag} ${isTopTierWeapon(card.id) ? styles.stdTagTop : ''}`}>{isTopTierWeapon(card.id) ? '至尊' : '武器'}</span>
+              <span className={styles.stdWeaponName}>{weapon.name}</span>
+              <span className={styles.stdWeaponPart}>{weapon.part}</span>
+            </span>
+          )}
           {shortSkill && skillText && (
             <span className={styles.stdSkill}>
               <span className={styles.stdSkillHead}>
@@ -215,7 +227,7 @@ export function CardDetailSheet({
       <button type="button" className={styles.backdrop} aria-label="關閉卡片詳情" onClick={onClose} />
       <section className={styles.sheet} role="dialog" aria-modal="true" aria-label={`${card.name} 詳細資料`} data-card-sheet>
         <div className={styles.sheetHead}>
-          <div className={`${styles.sheetArt} ${frame.card}`}>
+          <div className={`${styles.sheetArt} ${frame.card} ${frame.metal}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className={frame.art} src={card.thumbnail} alt="" />
           </div>
@@ -239,8 +251,9 @@ export function CardDetailSheet({
 
         {note && <p className={styles.block}><strong>狀態</strong>{note}</p>}
 
-        {STANDARD_STYLE_IDS.has(card.id) && (() => {
+        {usesStandardStyle(card.id) && (() => {
           const weapon = weaponFor(card.id, card.name, (card.element in ELEMENT_LABEL ? card.element : 'SPACE') as BeastElement);
+          if (!hasDesignedWeapon(weapon)) return null;
           return (
             <p className={styles.block} data-card-weapon>
               <strong>武器・{weapon.name}（{weapon.part}・{weapon.weaponClass}）</strong>

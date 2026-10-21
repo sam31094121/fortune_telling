@@ -175,6 +175,29 @@ export const MANSION_WEAPON: Record<string, { part: string; core: string }> = {
   軫水蚓: { part: '朱雀尾端', core: '軸' },
 };
 
+/**
+ * 四象的武器部位。
+ *
+ * 四象是七宿之總，不是單一部位，所以部位寫「全身」，核心字取該象最可辨識的本體特徵：
+ * 龍鱗、虎爪、雀羽、龜甲。與二十八宿同一條邏輯（武器＝神獸自己的部位，不外掛），
+ * 與二十八宿的核心字互不重複；級數字尾沿用 tierSuffix（四象＝天樞）。
+ * 業主 2026-10-21 授權依邏輯推定；要改名只改這張表。
+ */
+export const GUARDIAN_WEAPON: Record<string, { part: string; core: string }> = {
+  青龍: { part: '蒼龍全身', core: '鱗' },
+  白虎: { part: '白虎全身', core: '爪' },
+  朱雀: { part: '朱雀全身', core: '羽' },
+  玄武: { part: '玄武全身', core: '甲' },
+};
+
+/**
+ * 四象的武器是全副最強（業主 2026-10-21）：級數字尾「天樞」高於成獸「暴雷」、幼子「初鋒」。
+ * 這只是名稱與卡面標示的等級，不進任何傷害公式（規格第十二條，守門測試擋數字）。
+ */
+export function isTopTierWeapon(cardId: string): boolean {
+  return /^beast_g_/.test(cardId);
+}
+
 /** 形態決定武器的級數字尾。幼子的武裝還沒成形，四象是完整體。 */
 function tierSuffix(cardId: string): string {
   if (/^beast_g_/.test(cardId)) return '天樞';
@@ -195,7 +218,7 @@ export function weaponFor(cardId: string, cardName: string, element: BeastElemen
   const base = BY_ELEMENT[element] ?? BY_ELEMENT.SPACE;
   // 卡名可能是「角木蛟・幼子」，取「・」前面那三個字對表。
   const mansion = cardName.split('・')[0].trim();
-  const entry = MANSION_WEAPON[mansion];
+  const entry = MANSION_WEAPON[mansion] ?? GUARDIAN_WEAPON[mansion];
   const core = entry?.core ?? mansion.charAt(0) ?? '鋒';
   return {
     ...base,

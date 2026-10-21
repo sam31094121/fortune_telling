@@ -316,12 +316,14 @@
   display: block;
   /* 百分比內距看的是按鈕寬度（cqw 在這一層會看到外層、不是卡片自己），框寬才會跟卡一起縮放 */
   padding: 3.2%;
-  /* 素面黃銅：一層平色＋極淡的上亮下暗，像金屬卡框的反光，不是霓虹 */
+  /* 拉絲黃銅金屬框：斜向多段亮暗（反光帶）模擬金屬，不靠發光；
+     外緣暗線＋內緣亮線＝斜切的立體邊，像寶可夢卡的壓印框 */
   background:
-    linear-gradient(180deg, rgba(255, 248, 228, 0.18), rgba(0, 0, 0, 0.1)),
-    var(--std-brass);
+    linear-gradient(135deg, #8a6c33 0%, var(--std-brass-hi) 18%, #a98543 36%, #e7d29a 52%, #a58140 68%, var(--std-brass-hi) 86%, #8a6c33 100%);
   box-shadow:
-    inset 0 0 0 1px rgba(60, 44, 18, 0.55),
+    inset 0 0 0 1px rgba(48, 34, 12, 0.7),
+    inset 0 1.5px 0 1px rgba(255, 246, 214, 0.55),
+    inset 0 -1.5px 0 1px rgba(60, 42, 14, 0.45),
     0 3px 8px rgba(0, 0, 0, 0.45);
   transition: box-shadow 120ms ease, transform 120ms ease;
 }
@@ -336,7 +338,10 @@
   border-radius: 2.6cqw;
   background-color: var(--std-paper);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .28 0 0 0 0 .18 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
-  box-shadow: inset 0 0 0 1px rgba(60, 44, 18, 0.35);
+  /* 紙面凹進金框：頂部內陰影＝凹槽深度 */
+  box-shadow:
+    inset 0 0 0 1px rgba(60, 44, 18, 0.45),
+    inset 0 2px 4px rgba(60, 44, 18, 0.22);
   color: var(--std-ink);
   text-align: left;
 }
@@ -394,7 +399,12 @@
   overflow: hidden;
   border-radius: 1.2cqw;
   background: #2a2218;
-  box-shadow: 0 0 0 1px rgba(42, 34, 24, 0.7);
+  /* 圖窗金屬滾邊：墨線＋亮金細框＋外側投影，圖像像嵌在框裡 */
+  box-shadow:
+    0 0 0 1px rgba(42, 34, 24, 0.85),
+    0 0 0 2.5px var(--std-brass),
+    0 0 0 3.5px rgba(48, 34, 12, 0.6),
+    0 2px 3px 3.5px rgba(60, 44, 18, 0.18);
 }
 
 .stdWindow::after {
@@ -402,8 +412,21 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  box-shadow: inset 0 0 0 1px rgba(255, 246, 225, 0.35);
-  background: radial-gradient(ellipse 78% 72% at 50% 52%, transparent 62%, rgba(20, 14, 6, 0.32) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 246, 225, 0.4),
+    inset 0 3px 6px rgba(0, 0, 0, 0.35);
+  /* 全息箔光：一條斜向淡色反光帶（靜態、低透明、soft-light），hover 時才微微位移；
+     只加在圖窗上，不蓋住字 */
+  background:
+    linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.16) 44%, rgba(190, 230, 255, 0.12) 50%, rgba(255, 220, 190, 0.12) 56%, transparent 70%) 0 0 / 220% 100% no-repeat,
+    radial-gradient(ellipse 78% 72% at 50% 52%, transparent 62%, rgba(20, 14, 6, 0.32) 100%);
+  background-position: 30% 0, 0 0;
+  mix-blend-mode: soft-light;
+  transition: background-position 600ms ease;
+}
+
+@media (hover: hover) {
+  .stdTile:hover .stdWindow::after { background-position: 75% 0, 0 0; }
 }
 
 .stdArt {
@@ -439,6 +462,12 @@
   line-height: 1.35;
 }
 
+/* 四象武器最強：標籤換成黃銅金底，其餘不變 */
+.stdTagTop {
+  background: linear-gradient(135deg, #8a6c33, #d8bd7e 50%, #8a6c33);
+  color: #2a2218;
+}
+
 .stdWeaponName {
   flex: none;
   font-size: clamp(10px, 6.8cqw, 14px);
@@ -454,9 +483,17 @@
   color: var(--std-ink-soft);
 }
 
+/* 技能框：壓凹的淺色資訊槽，與上方圖窗、武器列分出三層 */
 .stdSkill {
   display: grid;
   gap: 0.6cqw;
+  padding: 1.6cqw 2cqw;
+  border-radius: 1.4cqw;
+  background: linear-gradient(180deg, rgba(120, 96, 52, 0.12), rgba(255, 252, 240, 0.35));
+  box-shadow:
+    inset 0 0 0 1px rgba(60, 44, 18, 0.25),
+    inset 0 1.5px 2px rgba(60, 44, 18, 0.18),
+    0 1px 0 rgba(255, 252, 240, 0.7);
 }
 
 .stdSkillHead {

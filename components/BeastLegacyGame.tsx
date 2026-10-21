@@ -632,7 +632,7 @@ export default function BeastGamePage() {
                   aria-label={`${SLOT_META[index].name}${card ? `：${card.name}` : '：空格'}`}
                   className={`${frameStyles.card} relative flex w-full flex-col items-center justify-center overflow-hidden border-2 transition
                     ${card
-                      ? `border-solid bg-black/40 ${ELEMENT_TONE[card.element]}`
+                      ? `${frameStyles.metal} border-solid bg-black/40 ${ELEMENT_TONE[card.element]}`
                       : 'border-dashed border-white/25 bg-white/[0.03] text-white/45'}
                     ${isActive ? 'ring-2 ring-cyan-300/70' : ''}`}
                 >
@@ -755,7 +755,7 @@ export default function BeastGamePage() {
                 <div
                   data-stake-target
                   data-stake-filled={stakeCard ? 'yes' : 'no'}
-                  className={`${frameStyles.card} w-16 shrink-0 overflow-hidden border-2 ${
+                  className={`${frameStyles.card} ${frameStyles.metal} w-16 shrink-0 overflow-hidden border-2 ${
                     stakeCard ? 'border-solid border-amber-300/60' : 'border-dashed border-amber-200/40'
                   }`}
                 >
@@ -807,7 +807,7 @@ export default function BeastGamePage() {
                         aria-pressed={chosen}
                         data-owned-card={cardId}
                         data-chosen={chosen ? 'yes' : 'no'}
-                        className={`${frameStyles.card} relative w-full overflow-hidden border-2 ${
+                        className={`${frameStyles.card} ${frameStyles.metal} relative w-full overflow-hidden border-2 ${
                           chosen ? 'border-amber-300' : 'border-white/15'
                         }`}
                       >
@@ -997,7 +997,7 @@ export default function BeastGamePage() {
                   aria-label={`選擇${card.name}，${ELEMENT_LABEL[card.element]}，${card.cost}氣`}
                   data-card-id={card.id}
                   data-placed={placed ? 'yes' : 'no'}
-                  className={`${frameStyles.card} relative w-full overflow-hidden border bg-black/40 text-left transition
+                  className={`${frameStyles.card} ${frameStyles.metal} relative w-full overflow-hidden border bg-black/40 text-left transition
                     ${placed ? 'border-cyan-300/80 opacity-55' : `${ELEMENT_TONE[card.element]}`}`}
                 >
                   {/* 手牌與卡池一律只載縮圖（規格第十四條）。 */}
@@ -1043,7 +1043,7 @@ export default function BeastGamePage() {
         <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="確認放入神獸" className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/85 px-5 py-4">
           <div className="max-h-[90dvh] w-full max-w-sm overflow-y-auto rounded-3xl border border-amber-200/40 bg-slate-950 p-5 text-center shadow-2xl">
             <p className="mb-3 text-sm font-bold text-amber-100">{candidate.name}・{slotLabel(activeSlot)}</p>
-            <div className={`${frameStyles.card} ${frameStyles.preview}`}>
+            <div className={`${frameStyles.card} ${frameStyles.preview} ${frameStyles.metal}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <CardFaceImg front={candidate.front} thumb={candidate.thumbnail} name={candidate.name} className={frameStyles.art} />
             </div>
@@ -1069,7 +1069,7 @@ export default function BeastGamePage() {
             className="max-h-[85vh] w-full overflow-y-auto rounded-t-3xl bg-slate-950 p-4 sm:max-w-md sm:rounded-3xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className={`${frameStyles.card} ${frameStyles.preview}`}>
+            <div className={`${frameStyles.card} ${frameStyles.preview} ${frameStyles.metal}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <CardFaceImg front={detail.front} thumb={detail.thumbnail} name={detail.name} className={frameStyles.art} />
             </div>
