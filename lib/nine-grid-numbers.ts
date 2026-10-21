@@ -86,6 +86,8 @@ export interface FiveStarStudy {
   summary: string;
   legend: { generate: string; control: string };
   elementOfDigit: Record<number, GridElement>;
+  /** 五行連線落到九宮格：每條亮起的五行邊，取兩種五行裡距離最近的一對格子（同距取數字小的），前端直接畫在九宮格上 */
+  cellLinks: { kind: '生' | '剋'; fromElement: GridElement; toElement: GridElement; fromDigit: number; toDigit: number }[];
 }
 
 export interface LuoshuStudy {
@@ -233,7 +235,22 @@ export function buildFiveStarStudy(counts: Map<number, number>, withLabel: (e: {
   const have = nodes.filter((n) => n.present).map((n) => n.element);
   const lack = nodes.filter((n) => !n.present).map((n) => n.element);
   const summary = `生日數字落在 ${have.length ? have.join('、') : '無'} 五行；沒有數字落到的是 ${lack.length ? lack.join('、') : '無'}；亮起 ${edges.filter((e) => e.active).length} 條連線。`;
-  return { title: fs.title, mapping: withLabel(fs.mapping), linkRule: withLabel(fs.linkRule), scope: withLabel(fs.scope), nodes, edges, summary, legend: { generate: '實線＝相生', control: '虛線＝相剋' }, elementOfDigit };
+  const rows = NINEGRID_ARCHIVE.layout.rows;
+  const where = new Map<number, [number, number]>();
+  rows.forEach((row, r) => row.forEach((digit, c) => where.set(digit, [r, c])));
+  const cellLinks: FiveStarStudy['cellLinks'] = [];
+  for (const edge of edges.filter((e) => e.active)) {
+    const fromDigits = nodes.find((n) => n.element === edge.from)!.digits;
+    const toDigits = nodes.find((n) => n.element === edge.to)!.digits;
+    let best: { a: number; b: number; d: number } | null = null;
+    for (const a of fromDigits) for (const b of toDigits) {
+      const [ar, ac] = where.get(a)!; const [br, bc] = where.get(b)!;
+      const d = (ar - br) ** 2 + (ac - bc) ** 2;
+      if (!best || d < best.d || (d === best.d && a + b < best.a + best.b)) best = { a, b, d };
+    }
+    if (best) cellLinks.push({ kind: edge.kind, fromElement: edge.from, toElement: edge.to, fromDigit: best.a, toDigit: best.b });
+  }
+  return { title: fs.title, mapping: withLabel(fs.mapping), linkRule: withLabel(fs.linkRule), scope: withLabel(fs.scope), nodes, edges, summary, legend: { generate: '實線＝相生', control: '虛線＝相剋' }, elementOfDigit, cellLinks };
 }
 
 /** 洛書九宮（古籍版）：每一句都來自技能檔案，狀態由來源閘門算。 */

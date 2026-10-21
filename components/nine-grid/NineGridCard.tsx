@@ -5,7 +5,7 @@
  * 後端運算、前端只顯示：所有解說、算出來的事實與來源說明都來自 /api/nine-grid 的 study
  * （lib/nine-grid-numbers.ts，解說全部來自技能檔案），這裡只負責排版、配色、連線畫面與選取狀態，不組任何結論句子。
  */
-import { useId, useState } from 'react';
+import { useId, useState, type CSSProperties } from 'react';
 import type { NineGridStudy } from '@/lib/nine-grid-numbers';
 import LuoshuCard from './LuoshuCard';
 import FiveStarLink, { ELEMENT_GEM } from './FiveStarLink';
@@ -27,10 +27,23 @@ function levelClass(count: number) {
   return gem.ruby;
 }
 
+function cellStyle(study: NineGridStudy, cell: { digit: number; count: number }): CSSProperties | undefined {
+  if (!study.fiveStar || cell.count === 0) return undefined;
+  const g = ELEMENT_GEM[study.fiveStar.elementOfDigit[cell.digit]];
+  const strength = Math.min(cell.count, 3);
+  return {
+    border: `2px solid ${g.light}`,
+    background: `radial-gradient(circle at 35% 25%, rgba(255,255,255,0.38), transparent 28%), linear-gradient(135deg, ${g.light}33, ${g.fill}${strength === 1 ? '88' : strength === 2 ? 'bb' : 'ee'})`,
+    boxShadow: `0 0 0 1px rgba(255,255,255,0.22) inset, inset 1px 2px 4px rgba(0,0,0,0.35), 0 10px ${14 + strength * 6}px -6px ${g.glow}`,
+    color: '#ffffff',
+  };
+}
+
 export default function NineGridCard({ study }: { study: NineGridStudy }) {
   const uid = useId().replace(/:/g, '');
   const firstDigit = study?.summary?.dominant?.[0] ?? 1;
   const [edition, setEdition] = useState<'luoshu' | 'shengming'>('luoshu');
+  const [showControl, setShowControl] = useState(false);
   const [selection, setSelection] = useState<Selection>({ kind: 'digit', digit: firstDigit });
   // 瀏覽器可能留著舊版格式的結果：格式不符就不顯示，不讓整頁當掉
   const compatible = study?.ruleVersion === 'nine-grid-v2' && Array.isArray(study.cells) && study.cells.length === 9 && Array.isArray(study.digits) && Array.isArray(study.lines) && Boolean(study.credibility);
@@ -81,7 +94,8 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
                 aria-pressed={active}
                 aria-label={reading ? `${cell.title} ${cell.digit} ${reading.countNote}` : String(cell.digit)}
                 onClick={() => setSelection({ kind: 'digit', digit: cell.digit })}
-                className={`${gem.tile} relative flex min-h-[84px] flex-col items-center justify-center px-1 text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${levelClass(cell.count)} ${active ? `${gem.selected} ring-2 ring-amber-200/90` : ''} ${cell.count > 0 ? `${uid}-breath` : ''}`}
+                style={cellStyle(study, cell)}
+                className={`${gem.tile} relative flex min-h-[84px] flex-col items-center justify-center px-1 text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${study.fiveStar ? (cell.count === 0 ? gem.porcelain : '') : levelClass(cell.count)} ${active ? `${gem.selected} ring-2 ring-amber-200/90` : ''} ${cell.count > 0 ? `${uid}-breath` : ''}`}
               >
                 <span className="font-serif text-4xl font-black leading-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.65)] sm:text-5xl">{cell.digit}</span>
                 <span className="mt-1 text-[11px] font-bold tracking-[0.1em] opacity-90">{cell.title}</span>
@@ -93,6 +107,9 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
                   </span>
                 )}
                 {study.fiveStar && (
+                  <span aria-hidden="true" className="absolute left-1.5 top-1 text-[11px] font-black" style={{ color: ELEMENT_GEM[study.fiveStar.elementOfDigit[cell.digit]].text }}>{study.fiveStar.elementOfDigit[cell.digit]}</span>
+                )}
+                {false && study.fiveStar && (
                   <span aria-hidden="true" className="absolute bottom-1.5 left-1.5 inline-block h-2.5 w-2.5 rounded-full" style={{ background: ELEMENT_GEM[study.fiveStar.elementOfDigit[cell.digit]].light, boxShadow: `0 0 8px ${ELEMENT_GEM[study.fiveStar.elementOfDigit[cell.digit]].glow}` }} />
                 )}
                 {cell.count > 0 && (
@@ -113,7 +130,29 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
               <feGaussianBlur stdDeviation="3" result="b" />
               <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
             </filter>
+            <marker id={`${uid}-gen`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#7be0b5" /></marker>
+            <marker id={`${uid}-ctl`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#ff9aa8" /></marker>
           </defs>
+          {study.fiveStar?.cellLinks.filter((link) => showControl || link.kind === '生').map((link) => {
+            const a = cellCenter(study, link.fromDigit);
+            const b = cellCenter(study, link.toDigit);
+            const length = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+            const ux = (b.x - a.x) / length; const uy = (b.y - a.y) / length;
+            const gen = link.kind === '生';
+            return (
+              <g key={`${link.fromElement}-${link.toElement}-${link.kind}`}>
+                <line
+                  className={`${uid}-flow`}
+                  x1={a.x + ux * 30} y1={a.y + uy * 30} x2={b.x - ux * 30} y2={b.y - uy * 30}
+                  stroke={gen ? '#7be0b5' : '#ff9aa8'}
+                  strokeWidth="2.6"
+                  strokeDasharray={gen ? '10 6' : '4 5'}
+                  strokeLinecap="round"
+                  markerEnd={`url(#${uid}-${gen ? 'gen' : 'ctl'})`}
+                />
+              </g>
+            );
+          })}
           {litLines.map((line) => {
             const a = cellCenter(study, line.digits[0]);
             const b = cellCenter(study, line.digits[2]);
@@ -135,6 +174,13 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
           })}
         </svg>
       </div>
+
+      {study.fiveStar && (
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+          <span className="text-[11px] font-bold text-violet-100/80">{study.fiveStar.legend.generate}</span>
+          <button type="button" aria-pressed={showControl} onClick={() => setShowControl((v) => !v)} className={`min-h-[44px] rounded-full border px-3.5 text-[12px] font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${showControl ? 'border-rose-300/70 bg-rose-300/15 text-rose-50' : 'border-white/20 bg-white/[0.03] text-white/60'}`}>{study.fiveStar.legend.control}</button>
+        </div>
+      )}
 
       <p className="mx-auto mt-4 max-w-[420px] break-words text-center text-xs font-bold leading-6 text-violet-100">{study.summary.text}</p>
 
