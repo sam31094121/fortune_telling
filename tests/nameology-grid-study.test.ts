@@ -296,7 +296,9 @@ check('分層入口：輸入姓名＋性別就能運算，沒有生日就沒有�
   assert.ok(route.includes("typeof req.gender !== 'string'"), '性別仍是必填');
   const page = fs.readFileSync('app/nameology/page.tsx', 'utf8');
   assert.ok(!page.includes('請先完成生日萬年曆推算'), '頁面不得再擋住沒有生日的送出');
-  assert.ok(page.includes('確認性別') && page.includes('2. 出生日期（選填）'));
+  assert.ok(page.includes('確認性別') && page.includes('2. 出生日期'), '八字那張卡要有出生日期');
+  assert.ok(page.includes("get('mode') === 'bazi'") && page.includes('{baziMode && <div>'), '生日與時辰只在「姓名學 × 八字」那張卡出現；預設只填姓名與性別');
+  assert.ok(page.includes('buildValidationMessage(form, selectionConfirm, baziMode)'), '八字那張卡生日必填、預設那張不要求');
   const engine = fs.readFileSync('lib/nameology-engine.ts', 'utf8');
   assert.ok(engine.includes("alignmentLabel: '只用姓名與性別'") && engine.includes('不得把空的月份當成某個五行來編一句話'), '引擎沒有生日不得編造生日節奏');
   assert.ok(engine.includes("'只用姓名與性別' ? 0 : -3"), '只用姓名與性別不得被扣分');

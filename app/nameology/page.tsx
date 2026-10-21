@@ -910,9 +910,10 @@ function ResultPanel({ analysis, fiveElement }: { analysis: NameologyAnalysis; f
 /** 入口規則：姓名＋性別就可以開始運算；生日與時辰選填，有填才多解鎖八字對照、完整四柱與生辰卦（說明文字見技能檔案 inputTiers）。 */
 const BIRTHDAY_OPTIONAL_HINT = '不填也能算：只用姓名與性別算出筆畫、五格與五行；填了出生日期，會多一層八字對照。';
 
-function buildValidationMessage(form: FormState, selectionConfirm: SelectionConfirm) {
+function buildValidationMessage(form: FormState, selectionConfirm: SelectionConfirm, requireBirth = false) {
   if (form.name.trim().length < 2) return '請先輸入完整姓名，至少 2 個字。';
   if (!selectionConfirm.gender) return '請點選性別，系統才會套用外在呈現校正。';
+  if (requireBirth && !form.birthDate) return '請先填出生日期，八字才排得出來。';
   return '';
 }
 
@@ -961,6 +962,13 @@ function nameologyCustomerError(err: unknown, timedOut: boolean) {
 }
 
 export default function NameologyPage() {
+  /** 兩張卡、兩種用法：預設只填姓名與性別；網址帶 ?mode=bazi 才是「姓名學 × 八字」，要填生日與時辰、連到八字。同一份核心，不另開第二套。 */
+  const [baziMode, setBaziMode] = useState(false);
+  const [modeChecked, setModeChecked] = useState(false);
+  useEffect(() => {
+    setBaziMode(new URLSearchParams(window.location.search).get('mode') === 'bazi');
+    setModeChecked(true);
+  }, []);
   const [showShichen, setShowShichen] = useState(false);
   const [form, setForm] = useState<FormState>(initialForm);
   const [selectionConfirm, setSelectionConfirm] = useState<SelectionConfirm>(initialSelectionConfirm);
@@ -1142,7 +1150,14 @@ export default function NameologyPage() {
     showRitualCompleteImmediately(record.result.analysis.ritualSteps);
   }, []);
 
-  const validationMessage = useMemo(() => buildValidationMessage(form, selectionConfirm) || (showShichen && form.shichen == null ? '請選擇出生時辰，或改選不知道。' : ''), [form, selectionConfirm, showShichen]);
+  useEffect(() => {
+    if (modeChecked && !baziMode && (form.birthDate || form.shichen != null)) {
+      setForm((prev) => ({ ...prev, birthDate: '', shichen: null }));
+      setShowShichen(false);
+    }
+  }, [modeChecked, baziMode, form.birthDate, form.shichen]);
+
+  const validationMessage = useMemo(() => buildValidationMessage(form, selectionConfirm, baziMode) || (showShichen && form.shichen == null ? '請選擇出生時辰，或改選不知道。' : ''), [form, selectionConfirm, showShichen, baziMode]);
   const canSubmit = validationMessage === '';
   useEffect(() => {
     setError(previous => previous.startsWith('請先') || previous.startsWith('請選擇出生時辰') ? validationMessage : previous);
@@ -1152,7 +1167,7 @@ export default function NameologyPage() {
   const showMissingGender = showMissingFields && !selectionConfirm.gender;
   const progressItems = [
     { label: '姓名', done: form.name.trim().length >= 2, value: form.name.trim().length > 0 ? `${form.name.trim().length}字` : '未填' },
-    { label: '生日（選填）', done: Boolean(form.birthDate), value: form.birthDate ? '已推算' : '不填也能算' },
+    ...(baziMode ? [{ label: '生日', done: Boolean(form.birthDate), value: form.birthDate ? '已推算' : '未填' }] : []),
     { label: '性別', done: selectionConfirm.gender, value: selectionConfirm.gender ? (form.gender === 'male' ? '男性' : '女性') : '未選' },
   ];
 
@@ -1189,7 +1204,7 @@ export default function NameologyPage() {
     if (isLoading) return;
 
     const snapshot = readNameologyFormSnapshot(form, selectionConfirm);
-    const submitValidationMessage = buildValidationMessage(snapshot.form, snapshot.selectionConfirm) || (showShichen && snapshot.form.shichen == null ? '請選擇出生時辰，或改選不知道。' : '');
+    const submitValidationMessage = buildValidationMessage(snapshot.form, snapshot.selectionConfirm, baziMode) || (showShichen && snapshot.form.shichen == null ? '請選擇出生時辰，或改選不知道。' : '');
     if (submitValidationMessage) {
       setForm(snapshot.form);
       setSelectionConfirm(snapshot.selectionConfirm);
@@ -1302,7 +1317,7 @@ export default function NameologyPage() {
 
           <MegaInputGuide
             title="請先填完整姓名"
-            steps={['姓名至少 2 個字', '確認性別', '生日與時辰選填，有填才多解鎖']}
+            steps={baziMode ? ['姓名至少 2 個字', '確認性別', '填出生日期與時辰，連到八字'] : ['姓名至少 2 個字', '確認性別']}
             example="王小明，或你的真實姓名"
             tone="amber"
             className="mt-6"
@@ -1335,9 +1350,9 @@ export default function NameologyPage() {
               )}
             </div>
 
-            <div>
+            {baziMode && <div>
               <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
-                2. 出生日期（選填）{form.birthDate && <span className="text-green-400">✓</span>}
+                2. 出生日期{form.birthDate && <span className="text-green-400">✓</span>}
               </label>
               <LunarBirthdayInput
                 key={birthInputVersion}
@@ -1346,13 +1361,13 @@ export default function NameologyPage() {
                 accent="amber"
                 label="出生日期（萬年曆）"
               />
-              {!form.birthDate && <p className="mt-2 text-xs leading-6 text-[color:var(--text-sub)]">{BIRTHDAY_OPTIONAL_HINT}</p>}
+              
               {form.birthDate && <p className="mt-2 text-xs text-green-400">✓ 西元 {form.birthDate}</p>}
-            </div>
+            </div>}
 
             <div>
               <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
-                3. 性別 {selectionConfirm.gender && <span className="text-green-400">✓</span>}
+                {baziMode ? '3' : '2'}. 性別 {selectionConfirm.gender && <span className="text-green-400">✓</span>}
               </label>
               {showMissingGender && (
                 <p className="form-missing-alert">{"\u26a0\ufe0f \u8acb\u9ede\u9078\u6027\u5225\uff0c\u9019\u6b04\u9084\u6c92\u6709\u78ba\u8a8d\u3002"}</p>
@@ -1383,7 +1398,7 @@ export default function NameologyPage() {
               </div>
             </div>
 
-            <section aria-label="出生時辰選填" className="space-y-3">
+            {baziMode && <section aria-label="出生時辰選填" className="space-y-3">
               <h3 className="text-sm font-semibold">4. 出生時辰（選填）</h3>
               <p className="text-xs text-[color:var(--text-muted)]">依臺灣標準時間。未知仍可分析姓名與三柱；知道時辰可加入時柱，資料更完整。</p>
               <div className="grid grid-cols-2 gap-3">
@@ -1394,7 +1409,7 @@ export default function NameologyPage() {
               {showShichen && <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {SHICHEN_LIST.map(item => <button key={item.branchIndex} type="button" aria-pressed={form.shichen === item.branchIndex} onClick={() => setForm(prev => ({ ...prev, shichen: item.branchIndex }))} className={`rounded-xl border p-3 text-sm ${form.shichen === item.branchIndex ? 'border-amber-300 bg-amber-900/40' : 'border-white/15'}`}>{item.label}<br /><span className="text-xs">{item.range}</span></button>)}
               </div>}
-            </section>
+            </section>}
 
             {(error || validationMessage) && !result && (
               <p role={error ? 'alert' : 'status'} className={`rounded-2xl border px-4 py-3 text-sm ${error ? 'border-rose-400/25 bg-rose-950/20 text-rose-100' : 'border-amber-400/20 bg-amber-950/15 text-amber-100'}`}>

@@ -3019,6 +3019,36 @@ export default function HomePage() {
           </Link>
 
           <Link
+            href="/nameology?mode=bazi"
+            className="home-feature-launch home-feature-amber home-feature-tier-explore order-12 w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+
+            <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
+              <div className="home-oracle-3d-emblem home-oracle-3d-emblem--amber" aria-hidden="true">
+                <span className="home-oracle-3d-emblem__aura" />
+                <span className="home-oracle-3d-emblem__bevel" />
+                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
+                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
+                <span className="home-oracle-3d-emblem__glyph">合</span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-amber-100 tracking-wide flex items-center gap-2">
+                  <span><HomeTranslatedText text={"姓名學 × 八字"} /></span>
+                  <span className="text-xs font-sans text-amber-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 姓名 · 生日時辰 · 八字融會貫通"} /></span>
+                </h2>
+                <p className="mt-1 text-xs text-[color:var(--text-sub)]"><HomeTranslatedText text={"填姓名、性別、出生日期與時辰，姓名五格連到八字五行，兩邊一起對照。"} /></p>
+              </div>
+            </div>
+
+            <HomeTrustEvidence items={["免費","需姓名與生日","免登入"]} />
+            <div className="home-feature-cta flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-950/30 px-5 py-3 text-xs font-bold text-amber-200 transition group-hover:bg-amber-500/25">
+              <span><HomeTranslatedText text={"請點我開啟"} /></span>
+              <span className="transition-transform group-hover:translate-x-1.5">➜</span>
+            </div>
+          </Link>
+
+          <Link
             href="/numerology"
             prefetch
             className="home-feature-launch home-feature-cyan home-feature-tier-primary order-2 w-full relative group overflow-hidden rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-950 via-cyan-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
