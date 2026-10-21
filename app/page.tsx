@@ -3308,7 +3308,7 @@ export default function HomePage() {
               <div className="min-w-0 flex-1">
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-amber-100 tracking-wide flex items-center gap-2">
                   <span><HomeTranslatedText text={"九宮格靈動數字"} /></span>
-                  <span className="text-xs font-sans text-amber-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 西元生日 · 數字連線"} /></span>
+                  <span className="text-xs font-sans text-amber-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 生命靈數 · 洛書九宮"} /></span>
                 </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]"><HomeTranslatedText text={"輸入西元出生年月日，畫出你的九宮格，看哪些數字與連線亮起來。"} /></p>
               </div>

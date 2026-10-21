@@ -54,7 +54,7 @@ export const homeEnglishCopy: Record<string, string> = {
   '約 20 秒': 'About 20 seconds', '免費瀏覽': 'Free to browse', '60 種可看': '60 creatures', '先看再玩': 'Browse, then play',
   '請點我開啟': 'Tap here to open',
   '九宮格靈動數字': 'Nine-Grid Number Chart',
-  '// 西元生日 · 數字連線': '// Birth date · number lines',
+  '// 生命靈數 · 洛書九宮': '// Life path numbers · Luoshu nine palaces',
   '輸入西元出生年月日，畫出你的九宮格，看哪些數字與連線亮起來。': 'Enter your birth date to draw your nine-grid and see which numbers and lines light up.',
   '輸入密碼': 'Enter password',
   '字體大小': 'Text size', '中': 'M', '大': 'L', '特大': 'XL',

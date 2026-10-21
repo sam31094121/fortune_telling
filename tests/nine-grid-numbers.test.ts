@@ -5,7 +5,7 @@
  */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { buildNineGridStudy, buildNineGridCredibility, buildNineGridGuidance, parseBirthDate } from '../lib/nine-grid-numbers';
+import { buildLuoshuStudy, buildNineGridStudy, buildNineGridCredibility, buildNineGridGuidance, parseBirthDate } from '../lib/nine-grid-numbers';
 import { NINEGRID_ARCHIVE, listNineGridSentences, validateNineGridArchive } from '../lib/nine-grid-skill-archive';
 import { evaluateClaim, indexSources, type SourceRegistry } from '../lib/iching-source-gate';
 import { STATUS_WORDING } from '../lib/credibility-phrases';
@@ -15,15 +15,17 @@ function check(name: string, fn: () => void) { fn(); passed += 1; console.log(` 
 
 const registry = JSON.parse(fs.readFileSync('docs/技能戰鬥檔案/易經/來源登記.json', 'utf8')) as SourceRegistry;
 const registryIds = registry.sources.map((s) => s.source_id);
+const registryNotes = Object.fromEntries(registry.sources.map((s) => [s.source_id, String(s.note ?? '')]));
 const TODAY = new Date(2026, 9, 21);
 const ok = (input: string) => { const p = parseBirthDate(input, TODAY); assert.equal(p.ok, true, input); return p as Extract<ReturnType<typeof parseBirthDate>, { ok: true }>; };
 
 console.log('九宮格靈動數字守門');
 
 check('技能檔案驗收：每一句都有出處層級與來源編號、來源在登記表找得到、無吉凶定論、無查不到佐證的行銷說法、排法與連線自洽', () => {
-  assert.deepEqual(validateNineGridArchive(registryIds), []);
-  assert.equal(listNineGridSentences().length, 63, '句數異常（引導 6、規則與排法 4、數字 9×4、連線 5×2、依據 3、公信力 4）');
-  assert.ok(listNineGridSentences().every((s) => s.provenance !== '引自來源'), '目前沒有任何一句取得原文，不得標引自來源');
+  assert.deepEqual(validateNineGridArchive(registryNotes), []);
+  assert.ok(listNineGridSentences().length >= 63, '句數不得少於通行版原有的 63 句');
+  assert.ok(listNineGridSentences().filter((s) => s.where.startsWith('洛書')).some((s) => s.provenance === '引自來源'), '洛書古籍版要有引自來源的原文');
+  assert.ok(listNineGridSentences().filter((s) => !s.where.startsWith('洛書')).every((s) => s.provenance !== '引自來源'), '通行版沒有取得原文，不得標引自來源');
   const bad = JSON.parse(JSON.stringify(NINEGRID_ARCHIVE));
   bad.digits[0].source_ids = [];
   bad.lines[0].digits = [1, 2, 9];
@@ -159,10 +161,10 @@ check('前端只照印：結果卡片裡不得出現含「，。；」的中文�
   const offenders = code.split('\n').filter((line) => /[一-鿿]/.test(line) && /[，。；]/.test(line));
   assert.deepEqual(offenders, [], '前端不得自己組句：' + offenders.join(' | '));
   assert.ok(!/Math\.random/.test(code), '不得使用亂數');
-  assert.ok(raw.includes("study?.ruleVersion === 'nine-grid-v1'") && raw.includes('if (!compatible) return null'));
+  assert.ok(raw.includes("study?.ruleVersion === 'nine-grid-v2'") && raw.includes('if (!compatible) return null'));
   assert.ok(raw.includes('prefers-reduced-motion'), '動畫要尊重減少動態設定');
   const lib = fs.readFileSync('lib/nine-grid-numbers.ts', 'utf8');
-  assert.ok(lib.includes("ruleVersion: 'nine-grid-v1'"), '資料版本要與元件檢查一致');
+  assert.ok(lib.includes("ruleVersion: 'nine-grid-v2'"), '資料版本要與元件檢查一致');
 });
 
 check('首頁入口：卡片在功能卡片最下方、樣式沿用易經姓名學卡、連到 /nine-grid；英日韓文字齊全', () => {
@@ -178,6 +180,28 @@ check('首頁入口：卡片在功能卡片最下方、樣式沿用易經姓名�
     const text = fs.readFileSync(file, 'utf8');
     assert.ok(text.includes("'九宮格靈動數字'"), `${file} 缺卡片名稱翻譯`);
   }
+});
+
+
+check('洛書九宮（古籍版）：和為 15 的幻方、引文都能在登記表逐字找到、狀態等於閘門、不編造坤方位與兌「西」', () => {
+  const lu = NINEGRID_ARCHIVE.luoshu;
+  assert.deepEqual(lu.layout.rows, [[4, 9, 2], [3, 5, 7], [8, 1, 6]]);
+  const bad = JSON.parse(JSON.stringify(NINEGRID_ARCHIVE));
+  bad.luoshu.classics[0].quote = '本站自己編的一句古文';
+  assert.ok(validateNineGridArchive(registryNotes, bad).some((x) => x.includes('找不到')), '編造的引文要被抓出來');
+  const bad2 = JSON.parse(JSON.stringify(NINEGRID_ARCHIVE));
+  bad2.luoshu.layout.rows = [[4, 9, 2], [3, 5, 7], [8, 6, 1]];
+  assert.ok(validateNineGridArchive(registryNotes, bad2).some((x) => x.includes('幻方')), '不是幻方要被抓出來');
+  const kun = lu.palaces.find((p) => p.palace.includes('坤'));
+  assert.ok(kun && kun.direction === null && kun.directionNote, '坤在說卦傳沒有寫方位，不得編造');
+  const dui = lu.palaces.find((p) => p.trigram === '兌');
+  assert.ok(dui && !(dui.direction?.text ?? '').includes('西'), '兌只寫正秋，不得補成西');
+  const study = buildLuoshuStudy();
+  const claim = registry.claims.find((c) => c.claim_id === lu.claimId)!;
+  assert.equal(study.credibility.status, evaluateClaim(claim, indexSources(registry)).status, '狀態只能由閘門算');
+  assert.notEqual(study.credibility.status, 'VERIFIED', '底本尚未核對，不得顯示已通過交叉比對');
+  assert.equal(study.layout.sum, 15);
+  assert.ok(buildNineGridStudy(ok('1987-06-23')).luoshu.palaces.length === 9);
 });
 
 console.log(`\n九宮格靈動數字守門 ${passed} 項全過`);

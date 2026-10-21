@@ -9,7 +9,7 @@
 import registryData from '../docs/技能戰鬥檔案/易經/來源登記.json';
 import { evaluateClaim, indexSources, type SourceRegistry } from './iching-source-gate';
 import { STATUS_WORDING } from './credibility-phrases';
-import { NINEGRID_ARCHIVE, type Provenance } from './nine-grid-skill-archive';
+import { NINEGRID_ARCHIVE, type ArchiveEntry, type Provenance } from './nine-grid-skill-archive';
 
 export type NineGridStatus = 'VERIFIED' | 'CONFLICT' | 'PENDING_POOL';
 
@@ -56,7 +56,7 @@ export interface NineGridCredibility {
 }
 
 export interface NineGridStudy {
-  ruleVersion: 'nine-grid-v1';
+  ruleVersion: 'nine-grid-v2';
   input: { birthDate: string; digits: number[]; zeroCount: number; label: string; rule: TextWithLabel };
   layout: { rows: number[][]; note: TextWithLabel };
   cells: NineGridCell[];
@@ -67,6 +67,24 @@ export interface NineGridStudy {
   summary: { dominant: number[]; maxCount: number; missing: number[]; litLines: number; text: string };
   guidance: { title: TextWithLabel; steps: TextWithLabel[]; inputHint: TextWithLabel; resultIntro: TextWithLabel };
   evidence: { topic: string; basis: string; provenanceLabel: string; sourceLabels: string[] }[];
+  credibility: NineGridCredibility;
+  /** 洛書九宮（古籍版，正本）：不依生日而變，來自古籍排法與出處 */
+  luoshu: LuoshuStudy;
+}
+
+export interface LuoshuStudy {
+  name: string;
+  role: string;
+  intro: TextWithLabel[];
+  layout: { rows: number[][]; axes: { top: string; bottom: string; left: string; right: string }; note: TextWithLabel; mirrorNote: TextWithLabel; sumRule: TextWithLabel; sum: number };
+  classics: { id: string; title: string; quote: string; annotation?: string; pageRef: string; gloss: TextWithLabel; sourceLabels: string[] }[];
+  palaces: { digit: number; palace: string; trigram: string | null; order: number; nature: TextWithLabel | null; natureNote: TextWithLabel | null; direction: TextWithLabel | null; directionNote: TextWithLabel | null }[];
+  orderNote: TextWithLabel;
+  crossCheck: TextWithLabel[];
+  evidence: { topic: string; basis: string; provenanceLabel: string; sourceLabels: string[] }[];
+  notAdopted: { item: string; reason: string }[];
+  verifiedAt: string;
+  verifiedHow: string;
   credibility: NineGridCredibility;
 }
 
@@ -90,20 +108,20 @@ export function parseBirthDate(input: unknown, today: Date = new Date()): Parsed
   return { ok: true, birthDate: normalized, digits: all.filter((d) => d !== 0), zeroCount: all.filter((d) => d === 0).length };
 }
 
-export function buildNineGridCredibility(): NineGridCredibility {
+export function buildNineGridCredibility(claimId: string = NINEGRID_ARCHIVE.claimId, lines: ArchiveEntry[] = NINEGRID_ARCHIVE.credibilityLines, labels: Record<string, string> = NINEGRID_ARCHIVE.sourceLabels): NineGridCredibility {
   const registry = registryData as unknown as SourceRegistry;
-  const claim = registry.claims.find((c) => c.claim_id === NINEGRID_ARCHIVE.claimId);
+  const claim = registry.claims.find((c) => c.claim_id === claimId);
   if (!claim) return { status: 'PENDING_POOL', headline: '來源登記尚未建立，僅供自我反思參考。', lines: [], sources: [] };
   const index = indexSources(registry);
   const gate = evaluateClaim(claim, index);
   const sources = [...new Set([...claim.authority_files, ...claim.cross_references])]
     .map((id) => index[id])
     .filter(Boolean)
-    .map((s) => ({ id: s.source_id, label: NINEGRID_ARCHIVE.sourceLabels[s.source_id] ?? s.author, citation: s.locator, trust: s.trust }));
+    .map((s) => ({ id: s.source_id, label: labels[s.source_id] ?? s.author, citation: s.locator, trust: s.trust }));
   return {
     status: gate.status,
     headline: gate.status === 'VERIFIED' ? STATUS_WORDING.VERIFIED : STATUS_WORDING.PENDING_POOL,
-    lines: [...NINEGRID_ARCHIVE.credibilityLines.map((entry) => entry.text), ...(gate.status === 'VERIFIED' ? [] : gate.reasons.slice(0, 3))],
+    lines: [...lines.map((entry) => entry.text), ...(gate.status === 'VERIFIED' ? [] : gate.reasons.slice(0, 3))],
     sources,
   };
 }
@@ -160,7 +178,7 @@ export function buildNineGridStudy(parsed: Extract<ParsedBirthDate, { ok: true }
   const summaryText = `生日 ${parsed.birthDate} 的數字（0 不計）共 ${parsed.digits.length} 個；出現最多次的是 ${dominant.join('、')}（${maxCount} 次）；沒有出現的是 ${missingDigits.length ? missingDigits.join('、') : '無'}；亮起 ${litLines} 條連線。`;
 
   return {
-    ruleVersion: 'nine-grid-v1',
+    ruleVersion: 'nine-grid-v2',
     input: { birthDate: parsed.birthDate, digits: parsed.digits, zeroCount: parsed.zeroCount, label: archive.input.label, rule: withLabel(archive.input.rule) },
     layout: { rows: archive.layout.rows, note: withLabel(archive.layout.note) },
     cells,
@@ -180,6 +198,33 @@ export function buildNineGridStudy(parsed: Extract<ParsedBirthDate, { ok: true }
       provenanceLabel: label(entry.provenance),
       sourceLabels: entry.source_ids.map((id) => archive.sourceLabels[id] ?? id),
     })),
+    credibility,
+    luoshu: buildLuoshuStudy(),
+  };
+}
+
+/** 洛書九宮（古籍版）：每一句都來自技能檔案，狀態由來源閘門算。 */
+export function buildLuoshuStudy(): LuoshuStudy {
+  const lu = NINEGRID_ARCHIVE.luoshu;
+  const credibility = buildNineGridCredibility(lu.claimId, lu.credibilityLines, lu.sourceLabels);
+  const statusLine = STATUS_WORDING[credibility.status];
+  const wl = (entry: { text: string; provenance: Provenance }): TextWithLabel => ({ text: entry.text, provenanceLabel: provenanceLabel(entry.provenance, statusLine) });
+  const opt = (entry?: ArchiveEntry | null) => (entry ? wl(entry) : null);
+  const labelsOf = (ids: string[]) => ids.map((id) => lu.sourceLabels[id] ?? id);
+  const rows = lu.layout.rows;
+  return {
+    name: lu.name,
+    role: lu.role,
+    intro: lu.intro.map(wl),
+    layout: { rows, axes: lu.layout.axes, note: wl(lu.layout.note), mirrorNote: wl(lu.layout.mirrorNote), sumRule: wl(lu.layout.sumRule), sum: rows[0][0] + rows[0][1] + rows[0][2] },
+    classics: lu.classics.map((c) => ({ id: c.id, title: c.title, quote: c.quote, annotation: c.annotation, pageRef: c.page_ref, gloss: wl(c.gloss), sourceLabels: labelsOf(c.source_ids) })),
+    palaces: lu.palaces.map((p) => ({ digit: p.digit, palace: p.palace, trigram: p.trigram, order: p.order, nature: opt(p.nature), natureNote: opt(p.natureNote), direction: opt(p.direction), directionNote: opt(p.directionNote) })),
+    orderNote: wl(lu.orderNote),
+    crossCheck: lu.crossCheck.map(wl),
+    evidence: lu.evidence.map((e) => ({ topic: e.topic, basis: e.text, provenanceLabel: provenanceLabel(e.provenance, statusLine), sourceLabels: labelsOf(e.source_ids) })),
+    notAdopted: lu.notAdopted,
+    verifiedAt: lu.verifiedAt,
+    verifiedHow: lu.verifiedHow,
     credibility,
   };
 }

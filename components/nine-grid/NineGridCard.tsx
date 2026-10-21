@@ -7,6 +7,7 @@
  */
 import { useId, useState } from 'react';
 import type { NineGridStudy } from '@/lib/nine-grid-numbers';
+import LuoshuCard from './LuoshuCard';
 
 const CELL = 100;
 
@@ -27,16 +28,29 @@ function levelClass(count: number) {
 export default function NineGridCard({ study }: { study: NineGridStudy }) {
   const uid = useId().replace(/:/g, '');
   const firstDigit = study?.summary?.dominant?.[0] ?? 1;
+  const [edition, setEdition] = useState<'luoshu' | 'shengming'>('luoshu');
   const [selection, setSelection] = useState<Selection>({ kind: 'digit', digit: firstDigit });
   // 瀏覽器可能留著舊版格式的結果：格式不符就不顯示，不讓整頁當掉
-  const compatible = study?.ruleVersion === 'nine-grid-v1' && Array.isArray(study.cells) && study.cells.length === 9 && Array.isArray(study.digits) && Array.isArray(study.lines) && Boolean(study.credibility);
+  const compatible = study?.ruleVersion === 'nine-grid-v2' && Array.isArray(study.cells) && study.cells.length === 9 && Array.isArray(study.digits) && Array.isArray(study.lines) && Boolean(study.credibility);
   if (!compatible) return null;
 
   const selectedDigit = selection.kind === 'digit' ? study.digits.find((item) => item.digit === selection.digit) : undefined;
   const selectedLine = selection.kind === 'line' ? study.lines.find((item) => item.id === selection.id) : undefined;
   const litLines = study.lines.filter((line) => line.lit);
 
+  const tabs = [{ id: 'luoshu' as const, label: '洛書九宮・古籍版' }, { id: 'shengming' as const, label: '生命靈數' }];
+  const tabBar = (
+    <div className="mb-3 flex flex-wrap justify-center gap-2" role="tablist" aria-label="版本">
+      {tabs.map((tab) => (
+        <button key={tab.id} type="button" role="tab" aria-selected={edition === tab.id} onClick={() => setEdition(tab.id)} className={`min-h-[44px] rounded-full border px-4 text-[13px] font-black tracking-[0.06em] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${edition === tab.id ? 'border-amber-200/80 bg-amber-300/20 text-amber-50' : 'border-white/20 bg-white/[0.03] text-white/60'}`}>{tab.label}</button>
+      ))}
+    </div>
+  );
+  if (edition === 'luoshu' && study.luoshu) return <div>{tabBar}<LuoshuCard luoshu={study.luoshu} /></div>;
+
   return (
+    <div>
+    {tabBar}
     <section className="fortune-card overflow-hidden border-violet-300/25 bg-gradient-to-b from-[#1a1530]/85 to-[#0d1020]/85 p-4 sm:p-6" aria-label="九宮格靈動數字結果">
       <style>{`
         @keyframes ${uid}-flow { to { stroke-dashoffset: -24; } }
@@ -203,5 +217,6 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
         </ul>
       </details>
     </section>
+    </div>
   );
 }

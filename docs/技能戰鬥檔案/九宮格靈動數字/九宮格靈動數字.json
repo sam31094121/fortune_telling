@@ -1,8 +1,8 @@
 {
   "id": "ninegrid",
   "name": "九宮格靈動數字",
-  "title": "九宮格靈動數字技能正式檔（西元生日 → 九宮格、數字特質、靈動連線）",
-  "version": "1.0.0",
+  "title": "九宮格靈動數字技能正式檔（洛書九宮古籍版＋生命靈數通行版）",
+  "version": "2.0.0",
   "updatedAt": "2026-10-21",
   "sourceOfTruth": "docs/技能戰鬥檔案/九宮格靈動數字/九宮格靈動數字.json",
   "newbieDoc": "docs/技能戰鬥檔案/九宮格靈動數字/新人檔案.md",
@@ -16,13 +16,21 @@
   "sourceRegistry": "docs/技能戰鬥檔案/易經/來源登記.json",
   "sourceGate": "lib/iching-source-gate.ts",
   "claimId": "C-NINEGRID-NUMBERS",
-  "pipeline": ["檔案", "技能", "話術", "後端運算", "前端美化"],
+  "pipeline": [
+    "檔案",
+    "技能",
+    "話術",
+    "後端運算",
+    "前端美化"
+  ],
   "principle": "客人讀得到的每一句解說只能來自本檔，程式不得自己寫解說；每一句都要標出處層級（provenance）與來源編號（source_ids），來源要在登記表裡找得到，狀態由來源閘門算，不得手填。禁止造假：素材宣稱的「全世界最權威」「兩千五百年前創立」查不到歷史文獻佐證，不得寫進客人看的內容。後端負責運算與組句，前端只負責美化、引導與照印。",
   "computedFactTemplates": "只描述「算出來的事實」的樣板（例如「生日數字裡 5 出現 2 次」「1-4-7 三個數字都有出現」）留在後端程式，因為內容完全由生日數字算出，不含對個性或命運的解讀。",
   "provenanceLevels": {
     "引自來源": {
       "meaning": "直接引用有出處的原文或書目事實，必須附頁碼或可追溯位置（page_ref）",
-      "requires": ["page_ref"],
+      "requires": [
+        "page_ref"
+      ],
       "note": "目前沒有任何一句達到這一層：兩份素材都是 AI 彙整的華語媒體內容，沒有逐條核對原網頁。"
     },
     "流派意象改寫": {
@@ -36,33 +44,84 @@
       "note": "只用來說明資料來源、排法選擇與使用界線，不用來解讀個性或命運。"
     }
   },
-  "forbiddenWords": ["必定", "註定", "大凶", "血光", "剋夫", "剋妻", "短命", "災難", "兇", "凶", "大吉", "絕症", "橫禍"],
-  "forbiddenClaims": ["全世界最權威", "全世界最有名", "最具公信力", "最具權威", "兩千五百年前", "畢達哥拉斯創立", "精準剖析"],
+  "forbiddenWords": [
+    "必定",
+    "註定",
+    "大凶",
+    "血光",
+    "剋夫",
+    "剋妻",
+    "短命",
+    "災難",
+    "兇",
+    "凶",
+    "大吉",
+    "絕症",
+    "橫禍"
+  ],
+  "forbiddenClaims": [
+    "全世界最權威",
+    "全世界最有名",
+    "最具公信力",
+    "最具權威",
+    "兩千五百年前",
+    "畢達哥拉斯創立",
+    "精準剖析"
+  ],
   "sourceLabels": {
     "S-NINEGRID-MATERIAL-1": "業主提供素材一（AI 彙整的華語媒體內容，D 級，未逐條核對）",
     "S-NINEGRID-MATERIAL-2": "業主提供素材二（AI 彙整的華語媒體內容，D 級，未逐條核對）",
-    "S-DUDLEY-NUMEROLOGY-1997": "Underwood Dudley《Numerology, or What Pythagoras Wrought》（Mathematical Association of America，1997）— 以批判角度檢視數字學的書，本站只引用書目事實"
+    "S-DUDLEY-NUMEROLOGY-1997": "Underwood Dudley《Numerology, or What Pythagoras Wrought》（Mathematical Association of America，1997）— 以批判角度檢視數字學的書，本站只引用書目事實",
+    "S-DADAI-LIJI-MINGTANG": "《大戴禮記》〈明堂第六十七〉（漢・戴德編）— 維基文庫電子文本，底本待查核",
+    "S-SHUSHU-JIYI-WIKISOURCE": "《數術記遺》「九宮算」條（漢・徐岳撰，相傳北周・甄鸞注）— 維基文庫電子文本，底本待查核",
+    "S-SHUOGUA-WIKISOURCE": "《易傳》〈說卦〉第五章、第七章 — 維基文庫電子文本，底本待查核",
+    "S-GUANCHENG-SHUOJI-27": "清・徐文靖《管城碩記》卷二十七（四庫全書本）— 轉引相傳為鄭玄的《易乾鑿度》注",
+    "S-NCL-RBOOK": "國家圖書館「古籍與特藏文獻資源」入口頁（已核對授權；單筆館藏紀錄未查到）"
   },
   "guidance": {
     "title": {
       "text": "輸入西元出生年月日，畫出你的九宮格",
       "provenance": "本站自撰",
-      "source_ids": ["S-NINEGRID-MATERIAL-1"]
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1"
+      ]
     },
     "steps": [
-      { "text": "選你習慣的日期寫法：國曆、農曆都可以，系統會自動換成西元", "provenance": "本站自撰", "source_ids": ["S-NINEGRID-MATERIAL-1"] },
-      { "text": "填好年、月、日；年份可以打民國年，也可以直接打西元", "provenance": "本站自撰", "source_ids": ["S-NINEGRID-MATERIAL-1"] },
-      { "text": "按下開始，九宮格就會亮起來", "provenance": "本站自撰", "source_ids": ["S-NINEGRID-MATERIAL-1"] }
+      {
+        "text": "選你習慣的日期寫法：國曆、農曆都可以，系統會自動換成西元",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-NINEGRID-MATERIAL-1"
+        ]
+      },
+      {
+        "text": "填好年、月、日；年份可以打民國年，也可以直接打西元",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-NINEGRID-MATERIAL-1"
+        ]
+      },
+      {
+        "text": "按下開始，九宮格就會亮起來",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-NINEGRID-MATERIAL-1"
+        ]
+      }
     ],
     "inputHint": {
       "text": "只需要出生年月日，不需要姓名、性別與出生時辰，也不用登入",
       "provenance": "本站自撰",
-      "source_ids": ["S-NINEGRID-MATERIAL-1"]
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1"
+      ]
     },
     "resultIntro": {
       "text": "亮起來的數字越多次，代表這項特質在生日數字裡越被強調；點任何一格可以看它的意思",
       "provenance": "本站自撰",
-      "source_ids": ["S-NINEGRID-MATERIAL-1"]
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1"
+      ]
     }
   },
   "input": {
@@ -70,155 +129,821 @@
     "rule": {
       "text": "用西元出生年月日的每一個數字填入九宮格，0 不計。",
       "provenance": "流派意象改寫",
-      "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1",
+        "S-NINEGRID-MATERIAL-2"
+      ]
     }
   },
   "layout": {
-    "rows": [[3, 6, 9], [2, 5, 8], [1, 4, 7]],
+    "rows": [
+      [
+        3,
+        6,
+        9
+      ],
+      [
+        2,
+        5,
+        8
+      ],
+      [
+        1,
+        4,
+        7
+      ]
+    ],
     "note": {
       "text": "兩份素材的九宮格排法不同，沒有公認的標準版面。本站採「由左至右、由下至上填入 1 到 9」的排法，也就是上排 3 6 9、中排 2 5 8、下排 1 4 7。",
       "provenance": "本站自撰",
-      "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1",
+        "S-NINEGRID-MATERIAL-2"
+      ]
     }
   },
   "reading": {
     "countRule": {
       "text": "同一個數字出現的次數越多，代表這項特質越被強調。",
       "provenance": "流派意象改寫",
-      "source_ids": ["S-NINEGRID-MATERIAL-1"]
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1"
+      ]
     },
     "lineRule": {
       "text": "同一條線上的三個數字都有出現，這條線就算亮起來。",
       "provenance": "流派意象改寫",
-      "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1",
+        "S-NINEGRID-MATERIAL-2"
+      ]
     }
   },
   "digits": [
     {
-      "digit": 1, "title": "領導數", "keywords": "領導・獨立",
+      "digit": 1,
+      "title": "領導數",
+      "keywords": "領導・獨立",
       "trait": "獨立、有主見、敢帶頭，做事大膽又留心細節。",
       "caution": "容易太以自己為中心。",
-      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+      "provenance": "流派意象改寫",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1"
+      ]
     },
     {
-      "digit": 2, "title": "溝通數", "keywords": "溝通・美感",
+      "digit": 2,
+      "title": "溝通數",
+      "keywords": "溝通・美感",
       "trait": "心思細、肯配合、有美感，擅長溝通與照顧氣氛。",
       "caution": "內心比較敏感，容易受傷。",
-      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+      "provenance": "流派意象改寫",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1"
+      ]
     },
     {
-      "digit": 3, "title": "創意數", "keywords": "創意・表達",
+      "digit": 3,
+      "title": "創意數",
+      "keywords": "創意・表達",
       "trait": "聰明、點子多、愛嘗鮮，表達力強。",
       "caution": "容易開頭熱、後勁不足。",
-      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+      "provenance": "流派意象改寫",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1"
+      ]
     },
     {
-      "digit": 4, "title": "執行數", "keywords": "實際・組織",
+      "digit": 4,
+      "title": "執行數",
+      "keywords": "實際・組織",
       "trait": "務實、重安全感、做事有條理。",
       "caution": "容易過於保守，不太敢變動。",
-      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+      "provenance": "流派意象改寫",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1"
+      ]
     },
     {
-      "digit": 5, "title": "自由數", "keywords": "核心・自由",
+      "digit": 5,
+      "title": "自由數",
+      "keywords": "核心・自由",
       "trait": "有舞台魅力、膽子大、重視自由。",
       "caution": "不太喜歡被規矩約束。",
-      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+      "provenance": "流派意象改寫",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1"
+      ]
     },
     {
-      "digit": 6, "title": "奉獻數", "keywords": "關懷・奉獻",
+      "digit": 6,
+      "title": "奉獻數",
+      "keywords": "關懷・奉獻",
       "trait": "善解人意、有責任感、重視愛與關懷。",
       "caution": "容易承擔過頭，忘了照顧自己。",
-      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+      "provenance": "流派意象改寫",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1"
+      ]
     },
     {
-      "digit": 7, "title": "靈性數", "keywords": "靈性・直覺",
+      "digit": 7,
+      "title": "靈性數",
+      "keywords": "靈性・直覺",
       "trait": "分析力強、直覺敏銳，喜歡追問真相與道理。",
       "caution": "容易對自己的看法太有把握。",
-      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+      "provenance": "流派意象改寫",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1"
+      ]
     },
     {
-      "digit": 8, "title": "權威數", "keywords": "權威・財富",
+      "digit": 8,
+      "title": "權威數",
+      "keywords": "權威・財富",
       "trait": "想把事情做成、有商業頭腦、想掌握全局。",
       "caution": "容易心氣太高，不太願意低頭。",
-      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+      "provenance": "流派意象改寫",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1"
+      ]
     },
     {
-      "digit": 9, "title": "大愛數", "keywords": "理想・智慧",
+      "digit": 9,
+      "title": "大愛數",
+      "keywords": "理想・智慧",
       "trait": "重視和平，有智慧也有理想。",
       "caution": "容易逃避現實的麻煩。",
-      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+      "provenance": "流派意象改寫",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1"
+      ]
     }
   ],
   "lines": [
     {
-      "id": "L147", "digits": [1, 4, 7], "name": "物質執行線",
+      "id": "L147",
+      "digits": [
+        1,
+        4,
+        7
+      ],
+      "name": "物質執行線",
       "text": "行動力強又務實，願意為財富與社會成就持續努力。",
-      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+      "provenance": "流派意象改寫",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1",
+        "S-NINEGRID-MATERIAL-2"
+      ]
     },
     {
-      "id": "L258", "digits": [2, 5, 8], "name": "心智表達線",
+      "id": "L258",
+      "digits": [
+        2,
+        5,
+        8
+      ],
+      "name": "心智表達線",
       "text": "擅長表達，溝通有魅力，在人群中容易受到注意。",
-      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+      "provenance": "流派意象改寫",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1",
+        "S-NINEGRID-MATERIAL-2"
+      ]
     },
     {
-      "id": "L369", "digits": [3, 6, 9], "name": "創意智慧線",
+      "id": "L369",
+      "digits": [
+        3,
+        6,
+        9
+      ],
+      "name": "創意智慧線",
       "text": "思考深入，能跳出框架，想法有創意也有智慧。",
-      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+      "provenance": "流派意象改寫",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1",
+        "S-NINEGRID-MATERIAL-2"
+      ]
     },
     {
-      "id": "L789", "digits": [7, 8, 9], "name": "貴人權力線",
+      "id": "L789",
+      "digits": [
+        7,
+        8,
+        9
+      ],
+      "name": "貴人權力線",
       "text": "與貴人運和管理能力有關，善於整合資源、掌握大局。",
-      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+      "provenance": "流派意象改寫",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1",
+        "S-NINEGRID-MATERIAL-2"
+      ]
     },
     {
-      "id": "L159", "digits": [1, 5, 9], "name": "事業執著線",
+      "id": "L159",
+      "digits": [
+        1,
+        5,
+        9
+      ],
+      "name": "事業執著線",
       "text": "意志堅定，認定的目標會做到底。",
-      "provenance": "流派意象改寫", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+      "provenance": "流派意象改寫",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1",
+        "S-NINEGRID-MATERIAL-2"
+      ]
     }
   ],
   "pendingLines": [
-    { "id": "L123", "digits": [1, 2, 3], "name": "藝術感官線", "only_in": "素材二", "note": "只有素材二提到，等第二份來源再加入；目前後端不使用。" },
-    { "id": "L456", "digits": [4, 5, 6], "name": "組織規劃線", "only_in": "素材二", "note": "只有素材二提到，等第二份來源再加入；目前後端不使用。" },
-    { "id": "L357", "digits": [3, 5, 7], "name": "人緣溝通線", "only_in": "素材二", "note": "只有素材二提到，等第二份來源再加入；目前後端不使用。" }
+    {
+      "id": "L123",
+      "digits": [
+        1,
+        2,
+        3
+      ],
+      "name": "藝術感官線",
+      "only_in": "素材二",
+      "note": "只有素材二提到，等第二份來源再加入；目前後端不使用。"
+    },
+    {
+      "id": "L456",
+      "digits": [
+        4,
+        5,
+        6
+      ],
+      "name": "組織規劃線",
+      "only_in": "素材二",
+      "note": "只有素材二提到，等第二份來源再加入；目前後端不使用。"
+    },
+    {
+      "id": "L357",
+      "digits": [
+        3,
+        5,
+        7
+      ],
+      "name": "人緣溝通線",
+      "only_in": "素材二",
+      "note": "只有素材二提到，等第二份來源再加入；目前後端不使用。"
+    }
   ],
   "notAdopted": [
-    { "item": "主命數、天賦數", "reason": "素材二提到，但沒有給計算公式；不編公式，等有來源再加。" },
-    { "item": "素材宣稱的「全世界最權威」「兩千五百年前由畢達哥拉斯創立」", "reason": "查不到歷史文獻佐證，不寫進客人看的內容。" },
-    { "item": "沒有出現的數字（缺數）的意義", "reason": "兩份素材都沒有說明，不編；畫面只照實列出「這些數字沒有出現」。" }
+    {
+      "item": "主命數、天賦數",
+      "reason": "素材二提到，但沒有給計算公式；不編公式，等有來源再加。"
+    },
+    {
+      "item": "素材宣稱的「全世界最權威」「兩千五百年前由畢達哥拉斯創立」",
+      "reason": "查不到歷史文獻佐證，不寫進客人看的內容。"
+    },
+    {
+      "item": "沒有出現的數字（缺數）的意義",
+      "reason": "兩份素材都沒有說明，不編；畫面只照實列出「這些數字沒有出現」。"
+    }
   ],
   "evidence": [
     {
       "topic": "九宮格排法",
       "text": "兩份素材的排法不同，本站選用由左至右、由下至上填入 1 到 9 的排法；這是本站的選擇，不是公認標準。",
-      "provenance": "本站自撰", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+      "provenance": "本站自撰",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1",
+        "S-NINEGRID-MATERIAL-2"
+      ]
     },
     {
       "topic": "數字的特質",
       "text": "九個數字的特質是依華語媒體整理的說法所做的白話改寫，只有素材一提供，尚未逐條核對原網頁。",
-      "provenance": "本站自撰", "source_ids": ["S-NINEGRID-MATERIAL-1"]
+      "provenance": "本站自撰",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1"
+      ]
     },
     {
       "topic": "靈動連線",
       "text": "只使用兩份素材都提到的 5 條連線；只有一份素材提到的連線先不採用。",
-      "provenance": "本站自撰", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+      "provenance": "本站自撰",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1",
+        "S-NINEGRID-MATERIAL-2"
+      ]
     }
   ],
   "credibilityLines": [
     {
       "text": "生命靈數九宮格是流行於華語地區的西方數字學，屬文化與自我反思用途，不是科學證實的預測。",
-      "provenance": "本站自撰", "source_ids": ["S-DUDLEY-NUMEROLOGY-1997"]
+      "provenance": "本站自撰",
+      "source_ids": [
+        "S-DUDLEY-NUMEROLOGY-1997"
+      ]
     },
     {
       "text": "把九宮格歸給古希臘畢達哥拉斯的說法，本站查不到歷史文獻佐證，現代數字學多被追溯到二十世紀初，所以不採用「歷史悠久、公信力最高」這類宣稱。",
-      "provenance": "本站自撰", "source_ids": ["S-DUDLEY-NUMEROLOGY-1997"]
+      "provenance": "本站自撰",
+      "source_ids": [
+        "S-DUDLEY-NUMEROLOGY-1997"
+      ]
     },
     {
       "text": "目前的說明是依華語媒體整理的內容所做的白話改寫，來源尚待逐條核實；本站找不到任何官方或公權力機構對數字學背書。",
-      "provenance": "本站自撰", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+      "provenance": "本站自撰",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1",
+        "S-NINEGRID-MATERIAL-2"
+      ]
     },
     {
       "text": "兩份素材的排法與連線數量不同，本站採上排 3 6 9、中排 2 5 8、下排 1 4 7，並只使用兩份素材都有的 5 條連線。",
-      "provenance": "本站自撰", "source_ids": ["S-NINEGRID-MATERIAL-1", "S-NINEGRID-MATERIAL-2"]
+      "provenance": "本站自撰",
+      "source_ids": [
+        "S-NINEGRID-MATERIAL-1",
+        "S-NINEGRID-MATERIAL-2"
+      ]
+    }
+  ],
+  "luoshu": {
+    "name": "洛書九宮（古籍版）",
+    "role": "正本",
+    "claimId": "C-LUOSHU-JIUGONG",
+    "verifiedAt": "2026-10-21",
+    "verifiedHow": "逐頁開啟維基文庫的電子文本核對（頁面未標示底本）；國家圖書館入口頁已核對，但查不到單筆館藏紀錄",
+    "intro": [
+      {
+        "text": "洛書九宮是把 1 到 9 排成 3×3 的古老排法，傳統上和「洛書」「九宮」「明堂九室」連在一起。",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-DADAI-LIJI-MINGTANG",
+          "S-SHUSHU-JIYI-WIKISOURCE"
+        ]
+      },
+      {
+        "text": "這一版只呈現古籍裡找得到的內容：數字排法、宮位順序、八卦的方位與性情；不從中推算個性或運勢。",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-SHUSHU-JIYI-WIKISOURCE",
+          "S-SHUOGUA-WIKISOURCE"
+        ]
+      },
+      {
+        "text": "你的生日數字放進這個九宮格時，本站只標出生日裡有哪些數字、各出現幾次（算出來的事實）；古籍沒有說生日數字落在哪一宮代表什麼，本站不編。",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-SHUSHU-JIYI-WIKISOURCE"
+        ]
+      }
+    ],
+    "layout": {
+      "rows": [
+        [
+          4,
+          9,
+          2
+        ],
+        [
+          3,
+          5,
+          7
+        ],
+        [
+          8,
+          1,
+          6
+        ]
+      ],
+      "axes": {
+        "top": "南",
+        "bottom": "北",
+        "left": "東",
+        "right": "西"
+      },
+      "note": {
+        "text": "本站依《數術記遺》的口訣畫成 4 9 2／3 5 7／8 1 6：九在上、一在下、三在左、七在右，二與四在上面兩個角，六與八在下面兩個角，五在正中央。上南下北、左東右西，是依九屬離（南）、一屬坎（北）、三屬震（東）推得的畫法。",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-SHUSHU-JIYI-WIKISOURCE",
+          "S-SHUOGUA-WIKISOURCE"
+        ]
+      },
+      "mirrorNote": {
+        "text": "《大戴禮記》〈明堂〉只給數字序列「二九四七五三六一八」，沒有說方向；由左至右、由上到下讀是 2 9 4／7 5 3／6 1 8，和上面的畫法左右相反，是同一個幻方。",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-DADAI-LIJI-MINGTANG",
+          "S-SHUSHU-JIYI-WIKISOURCE"
+        ]
+      },
+      "sumRule": {
+        "text": "這個排法的每一行、每一列、兩條對角線，三個數字加起來都是 15。這是算出來的事實，不是古籍原文。",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-SHUSHU-JIYI-WIKISOURCE"
+        ]
+      }
+    },
+    "classics": [
+      {
+        "id": "shushu",
+        "title": "《數術記遺》「九宮算」條",
+        "quote": "九宫者即二四为肩六八为足左三右七戴九履一五居中央",
+        "provenance": "引自來源",
+        "source_ids": [
+          "S-SHUSHU-JIYI-WIKISOURCE"
+        ],
+        "page_ref": "《數術記遺》「九宮算」條（維基文庫修訂 oldid=2026646，頁面字形為簡體）",
+        "gloss": {
+          "text": "這句用位置說明九宮：九在上方、一在下方、三在左、七在右，二與四是兩個肩，六與八是兩隻腳，五在正中央。",
+          "provenance": "本站自撰",
+          "source_ids": [
+            "S-SHUSHU-JIYI-WIKISOURCE"
+          ]
+        }
+      },
+      {
+        "id": "dadai",
+        "title": "《大戴禮記》〈明堂〉",
+        "quote": "二九四七五三六一八",
+        "annotation": "記用九室，謂法龜文，故取此數，以明其制也",
+        "provenance": "引自來源",
+        "source_ids": [
+          "S-DADAI-LIJI-MINGTANG"
+        ],
+        "page_ref": "《大戴禮記》〈明堂第六十七〉（維基文庫修訂 oldid=2706471；注者頁面未標示）",
+        "gloss": {
+          "text": "《大戴禮記》在談明堂時給了這組數字；注文說，這裡用九室，是仿效龜文（龜背上的紋路），所以取這組數字來說明明堂的規制。",
+          "provenance": "本站自撰",
+          "source_ids": [
+            "S-DADAI-LIJI-MINGTANG"
+          ]
+        }
+      },
+      {
+        "id": "shuogua",
+        "title": "《易傳》〈說卦〉第五章",
+        "quote": "帝出乎震，齊乎巽，相見乎離，致役乎坤，說言乎兌，戰乎乾，勞乎坎，成言乎艮",
+        "provenance": "引自來源",
+        "source_ids": [
+          "S-SHUOGUA-WIKISOURCE"
+        ],
+        "page_ref": "《易傳》〈說卦〉第五章（維基文庫修訂 oldid=2614055）",
+        "gloss": {
+          "text": "說卦傳依「震、巽、離、坤、兌、乾、坎、艮」的次序講八卦，後面接著說明各卦的方位與意思。",
+          "provenance": "本站自撰",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ]
+        }
+      },
+      {
+        "id": "guancheng",
+        "title": "《管城碩記》卷二十七引鄭康成注《易乾鑿度》",
+        "quote": "太乙下行九宫從坎宫起自此而從於坤宫而震宫而㢲宫所行半矣還息於中央之宫既又自此而從於乾宫而兊宫而艮宫而離宫行則周矣",
+        "provenance": "引自來源",
+        "source_ids": [
+          "S-GUANCHENG-SHUOJI-27"
+        ],
+        "page_ref": "清・徐文靖《管城碩記》卷二十七（四庫全書本，維基文庫頁面字形：㢲＝巽、兊＝兌）；轉引相傳為鄭玄的注",
+        "gloss": {
+          "text": "相傳為鄭玄所注的說法：太乙（北辰之神）從坎宮出發，依序經過坤、震、巽，走到一半回到中央休息，再依序經過乾、兌、艮、離，走完一圈。",
+          "provenance": "本站自撰",
+          "source_ids": [
+            "S-GUANCHENG-SHUOJI-27"
+          ]
+        }
+      }
+    ],
+    "palaces": [
+      {
+        "digit": 1,
+        "palace": "坎宮",
+        "trigram": "坎",
+        "order": 1,
+        "nature": {
+          "text": "坎，陷也",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第七章"
+        },
+        "direction": {
+          "text": "坎者，水也，正北方之卦也",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第五章"
+        }
+      },
+      {
+        "digit": 2,
+        "palace": "坤宮",
+        "trigram": "坤",
+        "order": 2,
+        "nature": {
+          "text": "坤，順也",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第七章"
+        },
+        "direction": null,
+        "directionNote": {
+          "text": "說卦傳沒有直接寫坤的方位，本站不補寫。",
+          "provenance": "本站自撰",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ]
+        }
+      },
+      {
+        "digit": 3,
+        "palace": "震宮",
+        "trigram": "震",
+        "order": 3,
+        "nature": {
+          "text": "震，動也",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第七章"
+        },
+        "direction": {
+          "text": "萬物出乎震，震，東方也",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第五章"
+        }
+      },
+      {
+        "digit": 4,
+        "palace": "巽宮",
+        "trigram": "巽",
+        "order": 4,
+        "nature": {
+          "text": "巽，入也",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第七章"
+        },
+        "direction": {
+          "text": "齊乎巽，巽，東南也",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第五章"
+        }
+      },
+      {
+        "digit": 5,
+        "palace": "中宮",
+        "trigram": null,
+        "order": 5,
+        "nature": null,
+        "natureNote": {
+          "text": "中宮不屬於八卦，說卦傳沒有寫它的性情。",
+          "provenance": "本站自撰",
+          "source_ids": [
+            "S-GUANCHENG-SHUOJI-27"
+          ]
+        },
+        "direction": {
+          "text": "還息於中央之宫",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-GUANCHENG-SHUOJI-27"
+          ],
+          "page_ref": "清・徐文靖《管城碩記》卷二十七引鄭康成注《易乾鑿度》"
+        }
+      },
+      {
+        "digit": 6,
+        "palace": "乾宮",
+        "trigram": "乾",
+        "order": 6,
+        "nature": {
+          "text": "乾，健也",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第七章"
+        },
+        "direction": {
+          "text": "乾，西北之卦也",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第五章"
+        }
+      },
+      {
+        "digit": 7,
+        "palace": "兌宮",
+        "trigram": "兌",
+        "order": 7,
+        "nature": {
+          "text": "兌，說也",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第七章"
+        },
+        "direction": {
+          "text": "兌，正秋也",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第五章"
+        },
+        "directionNote": {
+          "text": "說卦傳只寫兌是正秋，沒有直接寫方位；本站不補寫。",
+          "provenance": "本站自撰",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ]
+        }
+      },
+      {
+        "digit": 8,
+        "palace": "艮宮",
+        "trigram": "艮",
+        "order": 8,
+        "nature": {
+          "text": "艮，止也",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第七章"
+        },
+        "direction": {
+          "text": "艮，東北之卦也",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第五章"
+        }
+      },
+      {
+        "digit": 9,
+        "palace": "離宮",
+        "trigram": "離",
+        "order": 9,
+        "nature": {
+          "text": "離，麗也",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第七章"
+        },
+        "direction": {
+          "text": "離也者，明也，萬物皆相見，南方之卦也",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第五章"
+        }
+      }
+    ],
+    "orderNote": {
+      "text": "宮位的數字，是依太乙行九宮的順序（坎、坤、震、巽、中宮、乾、兌、艮、離）數下來的：坎一、坤二、震三、巽四、中五、乾六、兌七、艮八、離九。這是數出來的結果，古籍引文本身沒有逐字寫出這些數字。",
+      "provenance": "本站自撰",
+      "source_ids": [
+        "S-GUANCHENG-SHUOJI-27",
+        "S-SHUSHU-JIYI-WIKISOURCE"
+      ]
+    },
+    "crossCheck": [
+      {
+        "text": "三份文獻放在一起對得起來：《數術記遺》說九在上、一在下、三在左；《說卦傳》說離是南方之卦、坎是正北方之卦、震是東方；《管城碩記》引的太乙行九宮從坎出發、到離結束。所以九屬離（南）在上，一屬坎（北）在下，三屬震（東）在左。",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-SHUSHU-JIYI-WIKISOURCE",
+          "S-SHUOGUA-WIKISOURCE",
+          "S-GUANCHENG-SHUOJI-27"
+        ]
+      }
+    ],
+    "evidence": [
+      {
+        "topic": "數字排法",
+        "text": "口訣出自《數術記遺》，《大戴禮記》的明堂數字序列與它是同一個幻方的左右鏡像；兩處都是維基文庫電子文本，底本待查核。",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-SHUSHU-JIYI-WIKISOURCE",
+          "S-DADAI-LIJI-MINGTANG"
+        ]
+      },
+      {
+        "topic": "宮位順序",
+        "text": "順序出自《管城碩記》轉引相傳為鄭玄的注，是清代的轉引，不是《易乾鑿度》原書。",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-GUANCHENG-SHUOJI-27"
+        ]
+      },
+      {
+        "topic": "八卦的方位與性情",
+        "text": "出自《易傳》〈說卦〉第五章與第七章；說卦傳沒有直接寫坤的方位，兌只寫正秋。",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-SHUOGUA-WIKISOURCE"
+        ]
+      }
+    ],
+    "notAdopted": [
+      {
+        "item": "後天八卦配五行、九宮飛星（流年飛佈）、本命卦等後世術數用法",
+        "reason": "本次沒有核對到可引用的古籍原文，不採用。"
+      },
+      {
+        "item": "河圖洛書的傳說（龍馬負圖、神龜負書、大禹）",
+        "reason": "本次沒有逐頁核對，不採用。"
+      },
+      {
+        "item": "坤的方位、兌的「西」",
+        "reason": "說卦傳沒有直接寫出，不補寫。"
+      },
+      {
+        "item": "生日數字落在哪一宮代表什麼",
+        "reason": "古籍沒有這樣的說法，不編。"
+      }
+    ],
+    "credibilityLines": [
+      {
+        "text": "洛書九宮（古籍版）只呈現古籍裡找得到的內容：數字排法、宮位順序與八卦方位；不包含對個性或運勢的解讀，也沒有科學證實。",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-SHUSHU-JIYI-WIKISOURCE"
+        ]
+      },
+      {
+        "text": "引用的四段古籍文字，是 2026 年 10 月 21 日逐頁開啟維基文庫的電子文本核對的；頁面沒有標示底本，所以底本與用字還沒有對照國家圖書館的古籍影像。",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-DADAI-LIJI-MINGTANG",
+          "S-SHUSHU-JIYI-WIKISOURCE",
+          "S-SHUOGUA-WIKISOURCE",
+          "S-GUANCHENG-SHUOJI-27"
+        ]
+      },
+      {
+        "text": "國家圖書館「古籍與特藏文獻資源」的入口頁已核對（影像採姓名標示、非商業性、禁止改作授權），但這次查不到單筆館藏紀錄，所以沒有登記館藏版本。",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-NCL-RBOOK"
+        ]
+      },
+      {
+        "text": "《數術記遺》的作者歸屬有爭議；《管城碩記》是清代的轉引，只標為相傳鄭玄注；《大戴禮記》的注者頁面沒有標示。",
+        "provenance": "本站自撰",
+        "source_ids": [
+          "S-SHUSHU-JIYI-WIKISOURCE",
+          "S-GUANCHENG-SHUOJI-27",
+          "S-DADAI-LIJI-MINGTANG"
+        ]
+      }
+    ],
+    "sourceLabels": {
+      "S-DADAI-LIJI-MINGTANG": "《大戴禮記》〈明堂第六十七〉（漢・戴德編）— 維基文庫電子文本，底本待查核",
+      "S-SHUSHU-JIYI-WIKISOURCE": "《數術記遺》「九宮算」條（漢・徐岳撰，相傳北周・甄鸞注）— 維基文庫電子文本，底本待查核",
+      "S-SHUOGUA-WIKISOURCE": "《易傳》〈說卦〉第五章、第七章 — 維基文庫電子文本，底本待查核",
+      "S-GUANCHENG-SHUOJI-27": "清・徐文靖《管城碩記》卷二十七（四庫全書本）— 轉引相傳為鄭玄的《易乾鑿度》注",
+      "S-NCL-RBOOK": "國家圖書館「古籍與特藏文獻資源」入口頁（已核對授權；單筆館藏紀錄未查到）"
+    }
+  },
+  "editions": [
+    {
+      "id": "luoshu",
+      "name": "洛書九宮（古籍版）",
+      "role": "正本",
+      "claimId": "C-LUOSHU-JIUGONG",
+      "note": "只呈現古籍裡找得到的內容；來源狀態由閘門算"
+    },
+    {
+      "id": "shengming",
+      "name": "生命靈數九宮格（通行版）",
+      "role": "通行版，維持",
+      "claimId": "C-NINEGRID-NUMBERS",
+      "note": "華語地區通行的生日數字九宮格；素材為 D 級待驗證"
     }
   ]
 }
