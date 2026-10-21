@@ -7,8 +7,10 @@ import I18nDisplayLayer from '@/components/I18nDisplayLayer';
 import ScreenArrowReview from '@/components/ScreenArrowReview';
 import InstallShield080 from '@/components/InstallShield080';
 import ViewportZoomReset from '@/components/ViewportZoomReset';
+import ForcePhoneLayout from '@/components/ForcePhoneLayout';
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
 import { TEXT_SIZE_INIT_SCRIPT } from '@/lib/text-size';
+import { FORCE_PHONE_LAYOUT_INIT_SCRIPT } from '@/lib/force-phone-layout';
 import { TAROT_CARD_BACK_CSS_IMAGE } from '@/features/tarot/constants/cardBack';
 import {
   SHARE_DESCRIPTION,
@@ -96,6 +98,8 @@ export default function RootLayout({
       <head>
         {/* 客戶自選的手機字體大小：頁面畫出來之前就套用，不會先閃一下標準大小。設定見 lib/text-size.ts */}
         <script dangerouslySetInnerHTML={{ __html: TEXT_SIZE_INIT_SCRIPT }} />
+        {/* 手機加到主畫面後 Chrome 有時用電腦版 viewport（約 980px）；畫出來前先鎖回手機寬。 */}
+        <script dangerouslySetInnerHTML={{ __html: FORCE_PHONE_LAYOUT_INIT_SCRIPT }} />
         {/* 古老符咒毛筆字體：只用來畫魔珠封印上的「封」字，營造邪氣靈異的神秘感。 */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -127,6 +131,7 @@ export default function RootLayout({
         <ServiceWorkerRegister />
         <InstallShield080 />
         <ViewportZoomReset />
+        <ForcePhoneLayout />
         <InterfaceLanguageProvider><I18nDisplayLayer />{children}</InterfaceLanguageProvider>
       </body>
     </html>
