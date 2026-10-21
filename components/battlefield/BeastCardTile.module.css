@@ -462,6 +462,12 @@
   line-height: 1.35;
 }
 
+/* 四象武器最強：標籤換成黃銅金底，其餘不變 */
+.stdTagTop {
+  background: linear-gradient(135deg, #8a6c33, #d8bd7e 50%, #8a6c33);
+  color: #2a2218;
+}
+
 .stdWeaponName {
   flex: none;
   font-size: clamp(10px, 6.8cqw, 14px);

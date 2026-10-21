@@ -29,7 +29,7 @@ import BattlePowerAnalysis from './BattlePowerAnalysis';
 import ElementOrbDisplay from './ElementOrbDisplay';
 // 正統比例與圖窗的唯一來源。這裡不重新定義，只疊手感與狀態。
 import frame from '@/components/BeastCardFrame.module.css';
-import { weaponFor } from '@/lib/beast-game/weapons';
+import { weaponFor, isTopTierWeapon } from '@/lib/beast-game/weapons';
 import type { BeastElement } from '@/lib/beast-game/elements';
 
 /**
@@ -45,7 +45,7 @@ export function usesStandardStyle(_cardId: string): boolean {
   return true;
 }
 
-/** 四象沒有設計武器（part 會落到預設值），業主未定名稱前卡面不印武器列，不自行編名。 */
+/** 對不到宿位也不在四象表內的未知卡才不印武器列（現有 60 張都有）。 */
 function hasDesignedWeapon(weapon: { part: string }): boolean {
   return weapon.part !== '四象本體';
 }
@@ -177,7 +177,7 @@ function StandardTile({
           </span>
           {hasDesignedWeapon(weapon) && (
             <span className={styles.stdWeapon}>
-              <span className={styles.stdTag}>武器</span>
+              <span className={`${styles.stdTag} ${isTopTierWeapon(card.id) ? styles.stdTagTop : ''}`}>{isTopTierWeapon(card.id) ? '至尊' : '武器'}</span>
               <span className={styles.stdWeaponName}>{weapon.name}</span>
               <span className={styles.stdWeaponPart}>{weapon.part}</span>
             </span>
