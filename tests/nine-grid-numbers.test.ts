@@ -216,4 +216,12 @@ check('五行寶珠連線：數字配五行與姓名學同一套（1·2木…9�
   assert.ok(!src.includes('Math.random'));
 });
 
+check('易經取象：八卦取象原文逐字在登記表、8 種卦畫互異、乾坤震巽坎離艮兌卦畫正確、中宮不編八卦', () => {
+  const lu = NINEGRID_ARCHIVE.luoshu;
+  const yao = Object.fromEntries(lu.palaces.filter((p) => p.trigram).map((p) => [p.trigram, (p.yao ?? []).join('')]));
+  assert.deepEqual(yao, { 坎: '010', 坤: '000', 震: '100', 巽: '011', 乾: '111', 兌: '110', 艮: '001', 離: '101' });
+  assert.equal(lu.palaces.find((p) => p.digit === 5)?.image, undefined);
+  for (const pal of lu.palaces.filter((x) => x.trigram)) assert.ok(registryNotes['S-SHUOGUA-WIKISOURCE'].includes(pal.image!.text), pal.trigram + ' 取象要能逐字找到');
+});
+
 console.log(`\n九宮格靈動數字守門 ${passed} 項全過`);

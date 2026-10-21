@@ -100,10 +100,25 @@ export default function LuoshuCard({ luoshu }: { luoshu: LuoshuStudy }) {
       {selected && (
         <article className="mt-4 rounded-2xl border border-amber-200/25 bg-black/30 p-4" aria-live="polite">
           <p className="text-[11px] font-black tracking-[0.2em] text-amber-200/90">{selected.digit}　{selected.palace}{selected.trigram ? `　${selected.trigram}` : ''}</p>
+          {selected.yao && (
+            <svg viewBox="0 0 60 48" className="mx-auto mt-3 h-14 w-[70px]" role="img" aria-label={selected.trigram ?? ''}>
+              {[...selected.yao].reverse().map((line, i) => (
+                line === 1
+                  ? <rect key={i} x="4" y={6 + i * 16} width="52" height="7" rx="3.5" fill="#f2cf7a" />
+                  : <g key={i}><rect x="4" y={6 + i * 16} width="22" height="7" rx="3.5" fill="#8fb4ff" /><rect x="34" y={6 + i * 16} width="22" height="7" rx="3.5" fill="#8fb4ff" /></g>
+              ))}
+            </svg>
+          )}
           <p className="mt-2 break-words text-sm font-semibold leading-7 text-amber-50/95">{selected.speech.text}</p>
           <p className="text-[10px] font-bold text-amber-100/70">{selected.speech.provenanceLabel}</p>
           <details className="mt-3 rounded-xl border border-white/10 bg-black/25 p-3">
             <summary className="min-h-[44px] cursor-pointer list-none text-xs font-black leading-[44px] text-amber-100">原文</summary>
+            {selected.image && (
+              <div className="mt-2">
+                <p className="break-words font-serif text-[13px] font-semibold leading-6 text-amber-100">{selected.image.text}</p>
+                <p className="text-[10px] font-bold text-amber-100/70">{selected.image.pageRef}</p>
+              </div>
+            )}
             {[selected.nature, selected.natureNote, selected.direction, selected.directionNote].map((item) => item && (
               <div key={item.text} className="mt-2">
                 <p className="break-words text-[12px] font-semibold leading-6 text-amber-50/90">{item.text}</p>
@@ -117,7 +132,7 @@ export default function LuoshuCard({ luoshu }: { luoshu: LuoshuStudy }) {
       <details className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-3">
         <summary className="min-h-[44px] cursor-pointer list-none text-xs font-black leading-[44px] text-amber-100">排法說明</summary>
         <div className="space-y-2">
-          {[...luoshu.intro, luoshu.layout.note, luoshu.layout.mirrorNote, luoshu.layout.sumRule, luoshu.orderNote, ...luoshu.crossCheck].map((item) => (
+          {[{ text: luoshu.yaoNote, provenanceLabel: '' }, ...luoshu.intro, luoshu.layout.note, luoshu.layout.mirrorNote, luoshu.layout.sumRule, luoshu.orderNote, ...luoshu.crossCheck].map((item) => (
             <div key={item.text}>
               <p className="break-words text-[11px] font-semibold leading-5 text-amber-50/85">{item.text}</p>
               <p className="text-[10px] font-bold text-amber-100/70">{item.provenanceLabel}</p>

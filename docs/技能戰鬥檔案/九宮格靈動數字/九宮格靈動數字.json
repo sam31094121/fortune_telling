@@ -646,7 +646,20 @@
           "source_ids": [
             "S-SHUOGUA-WIKISOURCE"
           ]
-        }
+        },
+        "image": {
+          "text": "坎為水",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第十一章"
+        },
+        "yao": [
+          0,
+          1,
+          0
+        ]
       },
       {
         "digit": 2,
@@ -675,7 +688,20 @@
           "source_ids": [
             "S-SHUOGUA-WIKISOURCE"
           ]
-        }
+        },
+        "image": {
+          "text": "坤為地",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第十一章"
+        },
+        "yao": [
+          0,
+          0,
+          0
+        ]
       },
       {
         "digit": 3,
@@ -704,7 +730,20 @@
           "source_ids": [
             "S-SHUOGUA-WIKISOURCE"
           ]
-        }
+        },
+        "image": {
+          "text": "震為雷",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第十一章"
+        },
+        "yao": [
+          1,
+          0,
+          0
+        ]
       },
       {
         "digit": 4,
@@ -733,7 +772,20 @@
           "source_ids": [
             "S-SHUOGUA-WIKISOURCE"
           ]
-        }
+        },
+        "image": {
+          "text": "巽為木、為風",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第十一章"
+        },
+        "yao": [
+          0,
+          1,
+          1
+        ]
       },
       {
         "digit": 5,
@@ -792,7 +844,20 @@
           "source_ids": [
             "S-SHUOGUA-WIKISOURCE"
           ]
-        }
+        },
+        "image": {
+          "text": "乾為天",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第十一章"
+        },
+        "yao": [
+          1,
+          1,
+          1
+        ]
       },
       {
         "digit": 7,
@@ -828,7 +893,20 @@
           "source_ids": [
             "S-SHUOGUA-WIKISOURCE"
           ]
-        }
+        },
+        "image": {
+          "text": "兌為澤",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第十一章"
+        },
+        "yao": [
+          1,
+          1,
+          0
+        ]
       },
       {
         "digit": 8,
@@ -857,7 +935,20 @@
           "source_ids": [
             "S-SHUOGUA-WIKISOURCE"
           ]
-        }
+        },
+        "image": {
+          "text": "艮為山",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第十一章"
+        },
+        "yao": [
+          0,
+          0,
+          1
+        ]
       },
       {
         "digit": 9,
@@ -886,7 +977,20 @@
           "source_ids": [
             "S-SHUOGUA-WIKISOURCE"
           ]
-        }
+        },
+        "image": {
+          "text": "離為火",
+          "provenance": "引自來源",
+          "source_ids": [
+            "S-SHUOGUA-WIKISOURCE"
+          ],
+          "page_ref": "《易傳》〈說卦〉第十一章"
+        },
+        "yao": [
+          1,
+          0,
+          1
+        ]
       }
     ],
     "orderNote": {
@@ -994,7 +1098,8 @@
       "S-SHUOGUA-WIKISOURCE": "《易傳》〈說卦〉第五章、第七章 — 維基文庫電子文本，底本待查核",
       "S-GUANCHENG-SHUOJI-27": "清・徐文靖《管城碩記》卷二十七（四庫全書本）— 轉引相傳為鄭玄的《易乾鑿度》注",
       "S-NCL-RBOOK": "國家圖書館「古籍與特藏文獻資源」入口頁（已核對授權；單筆館藏紀錄未查到）"
-    }
+    },
+    "yaoNote": "卦畫由下往上數三爻，1 是陽爻（實線）、0 是陰爻（斷線）；這是八卦通行的畫法，本站只用來畫圖，不另作解讀。"
   },
   "editions": [
     {

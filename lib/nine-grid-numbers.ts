@@ -96,8 +96,9 @@ export interface LuoshuStudy {
   intro: TextWithLabel[];
   layout: { rows: number[][]; axes: { top: string; bottom: string; left: string; right: string }; note: TextWithLabel; mirrorNote: TextWithLabel; sumRule: TextWithLabel; sum: number };
   classics: { id: string; title: string; quote: string; annotation?: string; pageRef: string; gloss: TextWithLabel; sourceLabels: string[] }[];
-  palaces: { digit: number; palace: string; trigram: string | null; order: number; speech: TextWithLabel; nature: TextWithLabel | null; natureNote: TextWithLabel | null; direction: TextWithLabel | null; directionNote: TextWithLabel | null }[];
+  palaces: { digit: number; palace: string; trigram: string | null; order: number; speech: TextWithLabel; image: (TextWithLabel & { pageRef: string }) | null; yao: number[] | null; nature: TextWithLabel | null; natureNote: TextWithLabel | null; direction: TextWithLabel | null; directionNote: TextWithLabel | null }[];
   orderNote: TextWithLabel;
+  yaoNote: string;
   crossCheck: TextWithLabel[];
   evidence: { topic: string; basis: string; provenanceLabel: string; sourceLabels: string[] }[];
   notAdopted: { item: string; reason: string }[];
@@ -268,8 +269,9 @@ export function buildLuoshuStudy(): LuoshuStudy {
     intro: lu.intro.map(wl),
     layout: { rows, axes: lu.layout.axes, note: wl(lu.layout.note), mirrorNote: wl(lu.layout.mirrorNote), sumRule: wl(lu.layout.sumRule), sum: rows[0][0] + rows[0][1] + rows[0][2] },
     classics: lu.classics.map((c) => ({ id: c.id, title: c.title, quote: c.quote, annotation: c.annotation, pageRef: c.page_ref, gloss: wl(c.gloss), sourceLabels: labelsOf(c.source_ids) })),
-    palaces: lu.palaces.map((p) => ({ digit: p.digit, palace: p.palace, trigram: p.trigram, order: p.order, speech: wl(p.speech), nature: opt(p.nature), natureNote: opt(p.natureNote), direction: opt(p.direction), directionNote: opt(p.directionNote) })),
+    palaces: lu.palaces.map((p) => ({ digit: p.digit, palace: p.palace, trigram: p.trigram, order: p.order, speech: wl(p.speech), image: p.image ? { ...wl(p.image), pageRef: p.image.page_ref ?? '' } : null, yao: p.yao ?? null, nature: opt(p.nature), natureNote: opt(p.natureNote), direction: opt(p.direction), directionNote: opt(p.directionNote) })),
     orderNote: wl(lu.orderNote),
+    yaoNote: lu.yaoNote,
     crossCheck: lu.crossCheck.map(wl),
     evidence: lu.evidence.map((e) => ({ topic: e.topic, basis: e.text, provenanceLabel: provenanceLabel(e.provenance, statusLine), sourceLabels: labelsOf(e.source_ids) })),
     notAdopted: lu.notAdopted,

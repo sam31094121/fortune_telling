@@ -59,6 +59,10 @@ export interface PalaceEntry {
   order: number;
   /** 點宮位時先顯示的白話話術（只複述已核對的原文） */
   speech: ArchiveEntry;
+  /** 說卦傳第十一章的取象（乾為天…），原文逐字 */
+  image?: ArchiveEntry;
+  /** 卦畫：由下往上三爻，1 陽 0 陰 */
+  yao?: [number, number, number];
   nature: ArchiveEntry | null;
   natureNote?: ArchiveEntry;
   direction: ArchiveEntry | null;
@@ -76,6 +80,7 @@ export interface LuoshuArchive {
   classics: ClassicEntry[];
   palaces: PalaceEntry[];
   orderNote: ArchiveEntry;
+  yaoNote: string;
   crossCheck: ArchiveEntry[];
   evidence: (ArchiveEntry & { topic: string })[];
   notAdopted: { item: string; reason: string }[];
@@ -152,6 +157,7 @@ export function listNineGridSentences(archive: NineGridArchive = NINEGRID_ARCHIV
   }
   for (const p of lu.palaces) {
     add(`洛書宮${p.digit}:話術`, p.speech);
+    if (p.image) add(`洛書宮${p.digit}:取象`, p.image);
     if (p.nature) add(`洛書宮${p.digit}:性情`, p.nature);
     if (p.natureNote) add(`洛書宮${p.digit}:性情說明`, p.natureNote);
     if (p.direction) add(`洛書宮${p.digit}:方位`, p.direction);
@@ -222,6 +228,8 @@ export function validateNineGridArchive(registry: string[] | Record<string, stri
   const lu = archive.luoshu;
   if (magicSum(lu.layout.rows) !== 15) problems.push('洛書九宮必須是每行每列每斜線和為 15 的 3×3 幻方');
   if (lu.palaces.length !== 9 || lu.palaces.some((p, i) => p.digit !== i + 1 || p.order !== i + 1)) problems.push('洛書宮位必須是 1 到 9 共 9 筆，且順序數字等於宮位數字');
+  const yaoSet = new Set(lu.palaces.filter((p) => p.yao).map((p) => (p.yao as number[]).join('')));
+  if (yaoSet.size !== 8 || lu.palaces.some((p) => p.yao && p.yao.some((y) => y !== 0 && y !== 1))) problems.push('八卦卦畫必須是 8 種不同的三爻');
   const nonCenter = lu.palaces.filter((p) => p.digit !== 5);
   if (nonCenter.some((p) => !p.trigram || !p.nature)) problems.push('除中宮外，每一宮都要有八卦與說卦傳的性情');
   if (!lu.classics.length || lu.classics.some((c) => c.provenance !== '引自來源' || !c.page_ref)) problems.push('洛書古籍引文必須標引自來源並附篇章');
