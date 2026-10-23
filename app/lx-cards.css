@@ -42,3 +42,7 @@ body:not(:has(.home-feature-stack)) main :is(.rounded-2xl, .rounded-3xl)[class*=
 /* 5) 深色 fortune-card 內的 muted 說明字 → 霧灰（/nameology 資料進度 3.55 → 7.4） */
 main .fortune-card [class*="text-[color:var(--text-muted)]"] { color: var(--lx-muted) !important; }
 
+
+/* 7) 姓名學五行徽章：土、金底色壓深（白字 ≥4.5:1，保留土黃／金紫灰色相） */
+main li > span[aria-hidden="true"][style*="160, 123, 56"] { background: radial-gradient(circle at 34% 28%, #957234, #664b1f 55%, #0d1020) !important; }
+main li > span[aria-hidden="true"][style*="138, 122, 166"] { background: radial-gradient(circle at 34% 28%, #857a9f, #564a70 55%, #0d1020) !important; }
