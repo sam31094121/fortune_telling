@@ -7,6 +7,7 @@ import Image from 'next/image';
 import HomeTranslatedText from '@/components/HomeTranslatedText';
 import { useInterfaceLanguage } from '@/components/InterfaceLanguage';
 import dualChartEntryStyles from './dual-chart-entry.module.css';
+import './home-leather.css';
 import dynamic from 'next/dynamic';
 import { injectPerformanceCSS } from '@/lib/performance-css';
 import AiTrustFeedback from '@/components/AiTrustFeedback';

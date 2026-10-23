@@ -1,0 +1,182 @@
+/* 2026-10-23 step5：首頁「低調奢華・皮革吃色」色彩／質感層（只改顏色與質感，不動版面、文字、功能）。
+   範圍：只套在首頁（.app-bg 內含 .home-feature-stack 的頁面）；
+   不套用：15 張功能卡（.home-feature-stack 內）、8 步進度列（.growth-module-route）、各功能頁。 */
+.app-bg:has(.home-feature-stack) {
+  /* 深色 */
+  --lx-base: #0c0b10;      /* 墨夜 */
+  --lx-surface: #15131a;   /* 煙墨 */
+  --lx-surface-2: #1d1a21; /* 皮革深 */
+  --lx-raise: #2a2430;     /* 皮革受光 */
+  --lx-gunmetal: #2b2c33;
+  --lx-violet: #4a4159;    /* 煙紫（暈染） */
+  --lx-rust: #6e3d2f;      /* 鏽紅（暈染） */
+  --lx-hairline: #3a3342;
+  --lx-shadow: #07060a;
+  /* 淺色／文字 */
+  --lx-title: #e6dccb;     /* 象牙 */
+  --lx-body: #c9bfae;      /* 骨白 */
+  --lx-muted: #a9a39b;     /* 霧白 */
+  --lx-moon: #b9bac0;      /* 月光白：只做 1px 高光 */
+  --lx-label: #cdb991;     /* 羊皮紙金：標籤／連結 */
+  --lx-curse: #c07a62;     /* 鏽陶：取代正紅 */
+  --lx-on-seal: #1b140b;
+  /* 焦點：蠟封暗金 */
+  --lx-seal-deep: #5a3f22;
+  --lx-seal: #9a7a45;
+  --lx-seal-lit: #c4a46a;
+  /* 皮革紋理（SVG 擾動雜訊）＋柔光 */
+  --lx-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .5 0 0 0 0 .46 0 0 0 .075 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --lx-pores: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='360'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='turbulence' baseFrequency='.018 .03' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .26 0 0 0 0 .32 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+  --lx-edge: inset 0 1px 0 rgba(185, 186, 192, 0.16), inset 0 -1px 0 rgba(7, 6, 10, 0.7), 0 0 0 1px rgba(58, 51, 66, 0.9), 0 18px 36px -24px rgba(7, 6, 10, 0.95);
+  background-color: var(--lx-base) !important;
+  background-image:
+    var(--lx-grain),
+    var(--lx-pores),
+    radial-gradient(120% 60% at 50% -10%, rgba(74, 65, 89, 0.42), transparent 62%),
+    radial-gradient(70% 45% at 100% 38%, rgba(110, 61, 47, 0.16), transparent 70%),
+    radial-gradient(80% 50% at 0% 72%, rgba(43, 44, 51, 0.55), transparent 72%),
+    linear-gradient(180deg, #0f0d13 0%, var(--lx-base) 55%, #0a090d 100%) !important;
+  background-attachment: scroll !important;
+}
+body:has(.home-feature-stack) { background: #0c0b10 !important; }
+
+/* —— 首屏：木匾 → 皮革壓印 —— */
+.app-bg:has(.home-feature-stack) .home-top-motto-link {
+  background-color: var(--lx-surface-2) !important;
+  background-image: var(--lx-grain), radial-gradient(90% 120% at 18% 0%, rgba(74, 65, 89, 0.38), transparent 60%), radial-gradient(80% 120% at 100% 100%, rgba(110, 61, 47, 0.22), transparent 66%), linear-gradient(165deg, #231f28, #17151c) !important;
+  border-color: rgba(58, 51, 66, 0.95) !important;
+  box-shadow: var(--lx-edge) !important;
+}
+.app-bg:has(.home-feature-stack) .home-top-brush-gratitude,
+.app-bg:has(.home-feature-stack) .home-top-brush-gratitude__heart,
+.app-bg:has(.home-feature-stack) .home-top-brush-gratitude__lead {
+  background-image: linear-gradient(180deg, #e6dccb 0%, #cdb991 58%, #a98d5f 100%) !important;
+  -webkit-background-clip: text !important; background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: none !important;
+  filter: drop-shadow(0 1px 0 rgba(7, 6, 10, 0.8)) !important;
+}
+.app-bg:has(.home-feature-stack) .home-top-ward-seal__script,
+.app-bg:has(.home-feature-stack) .home-top-ward-seal__curse {
+  background-image: linear-gradient(180deg, #d09684 0%, #c07a62 52%, #a3624f 100%) !important;
+  -webkit-background-clip: text !important; background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: none !important;
+}
+.app-bg:has(.home-feature-stack) .home-top-ward-seal__eq { color: var(--lx-muted) !important; -webkit-text-fill-color: var(--lx-muted) !important; }
+.app-bg:has(.home-feature-stack) .home-top-ward-seal__pulse { background: radial-gradient(circle, rgba(110, 61, 47, 0.34), transparent 68%) !important; }
+.app-bg:has(.home-feature-stack) .home-top-ward-seal [class*="SharedElementSealPaper_paper"] { filter: saturate(0.55) brightness(0.82) sepia(0.18) !important; }
+
+/* —— 太極提示 —— */
+.app-bg:has(.home-feature-stack) .taiji-mobile-play-hint {
+  background: rgba(21, 19, 26, 0.78) !important; border-color: rgba(154, 122, 69, 0.32) !important; color: var(--lx-body) !important;
+}
+
+/* —— 今日定向關卡：皮革面板 —— */
+.app-bg:has(.home-feature-stack) .home-primary-quest {
+  background-color: var(--lx-surface) !important;
+  background-image: var(--lx-grain), radial-gradient(85% 60% at 86% 8%, rgba(74, 65, 89, 0.4), transparent 64%), radial-gradient(70% 55% at 6% 100%, rgba(110, 61, 47, 0.18), transparent 70%), linear-gradient(170deg, #1d1a21, #121016) !important;
+  border-color: rgba(58, 51, 66, 0.95) !important;
+  box-shadow: var(--lx-edge) !important;
+}
+.app-bg:has(.home-feature-stack) .home-primary-quest [class*="TodayDirectionQuest_windGlow"] { border-color: rgba(185, 186, 192, 0.1) !important; box-shadow: none !important; }
+.app-bg:has(.home-feature-stack) .home-primary-quest [class*="TodayDirectionQuest_windLine"] { opacity: 0.45 !important; }
+/* 唯一焦點：主按鈕＝蠟封壓印（色彩吃進皮革、由內發光） */
+.app-bg:has(.home-feature-stack) main [class*="TodayDirectionQuest_primaryButton"][class*="TodayDirectionQuest_primaryButton"] {
+  background-color: var(--lx-seal) !important;
+  background-image:
+    var(--lx-grain),
+    radial-gradient(60% 120% at 50% 40%, rgba(196, 164, 106, 0.55), transparent 70%),
+    radial-gradient(30% 70% at 18% 30%, rgba(90, 63, 34, 0.28), transparent 70%),
+    radial-gradient(28% 60% at 82% 76%, rgba(90, 63, 34, 0.26), transparent 70%),
+    linear-gradient(180deg, #b39260 0%, #9e7e4a 55%, #9a7a45 100%) !important;
+  border-color: rgba(196, 164, 106, 0.55) !important;
+  color: var(--lx-on-seal) !important;
+  box-shadow: inset 0 1px 0 rgba(230, 220, 203, 0.32), inset 0 -2px 4px rgba(90, 63, 34, 0.55), inset 0 0 18px rgba(90, 63, 34, 0.35), 0 0 0 1px rgba(58, 51, 66, 0.9), 0 10px 26px -12px rgba(154, 122, 69, 0.38) !important;
+  text-shadow: 0 1px 0 rgba(230, 220, 203, 0.28) !important;
+}
+.app-bg:has(.home-feature-stack) main [class*="TodayDirectionQuest_primaryButton"][class*="TodayDirectionQuest_primaryButton"] * { color: var(--lx-on-seal) !important; }
+.app-bg:has(.home-feature-stack) main [class*="TodayDirectionQuest_primaryButton"][class*="TodayDirectionQuest_primaryButton"] > span:last-child { background-color: #2a2017 !important; color: var(--lx-seal-lit) !important; }
+.app-bg:has(.home-feature-stack) .home-primary-quest [class*="ElementOrbDisplay_orbRing"] { border-color: rgba(185, 186, 192, 0.3) !important; box-shadow: 0 0 22px rgba(74, 65, 89, 0.4) !important; }
+.app-bg:has(.home-feature-stack) .home-primary-quest [class*="ElementOrbDisplay_orbCore"],
+.app-bg:has(.home-feature-stack) .home-primary-quest [class*="ElementOrbDisplay_orbEdge"] { filter: saturate(0.3) brightness(0.8) !important; }
+
+/* —— 工具卡／安裝卡（首頁自身卡面，非 15 張功能卡） —— */
+.app-bg:has(.home-feature-stack) [class*="HomeToolsCard_card"],
+.app-bg:has(.home-feature-stack) [class*="HomeInstallCard_card"] {
+  background-image: var(--lx-grain), radial-gradient(80% 70% at 0% 0%, rgba(74, 65, 89, 0.3), transparent 66%), linear-gradient(170deg, #1d1a21, #141218) !important;
+  box-shadow: var(--lx-edge) !important;
+}
+.app-bg:has(.home-feature-stack) [class*="HomeToolsCard_option"][class*="size_medium"],
+.app-bg:has(.home-feature-stack) [class*="HomeInstallCard_button"] {
+  background-image: linear-gradient(180deg, #3a3342, #2a2430) !important;
+  color: var(--lx-title) !important; border-color: rgba(205, 185, 145, 0.42) !important;
+}
+.app-bg:has(.home-feature-stack) [class*="HomeToolsCard_option"]:not([class*="size_medium"]),
+.app-bg:has(.home-feature-stack) [class*="InterfaceLanguage_trigger"],
+.app-bg:has(.home-feature-stack) [class*="HomeToolsCard_card"] .tap {
+  background: #1d1a21 !important; border-color: rgba(205, 185, 145, 0.3) !important; color: var(--lx-body) !important;
+}
+.app-bg:has(.home-feature-stack) [class*="HomeInstallCard_icon"] { background: var(--lx-base) !important; border-color: rgba(205, 185, 145, 0.35) !important; }
+
+/* —— 信任區／分享卡 —— */
+.app-bg:has(.home-feature-stack) .home-trust-card,
+.app-bg:has(.home-feature-stack) .home-line-share-card {
+  background-color: var(--lx-surface) !important;
+  background-image: var(--lx-grain), radial-gradient(80% 70% at 0% 0%, rgba(74, 65, 89, 0.32), transparent 66%), linear-gradient(170deg, #1b1820, #131117) !important;
+  border-color: rgba(58, 51, 66, 0.95) !important;
+  box-shadow: var(--lx-edge) !important;
+}
+.app-bg:has(.home-feature-stack) .home-trust-strip { border-color: rgba(58, 51, 66, 0.8) !important; }
+.app-bg:has(.home-feature-stack) .home-ai-feedback-stat,
+.app-bg:has(.home-feature-stack) .home-ai-feedback-action {
+  background: rgba(42, 36, 48, 0.6) !important; border-color: rgba(185, 186, 192, 0.16) !important;
+}
+.app-bg:has(.home-feature-stack) .home-line-share-card p[class*="rounded-full"] { background: rgba(42, 36, 48, 0.7) !important; border-color: rgba(205, 185, 145, 0.28) !important; color: var(--lx-label) !important; }
+.app-bg:has(.home-feature-stack) .home-line-share-button {
+  background-image: linear-gradient(180deg, #3a3342, #2a2430) !important; background-color: #2a2430 !important;
+  color: var(--lx-title) !important; border-color: rgba(205, 185, 145, 0.38) !important;
+  box-shadow: inset 0 1px 0 rgba(185, 186, 192, 0.14) !important;
+}
+.app-bg:has(.home-feature-stack) .home-line-share-button * { color: var(--lx-title) !important; }
+.app-bg:has(.home-feature-stack) .home-line-share-button span[class*="bg-slate-950"] { background: var(--lx-base) !important; color: var(--lx-label) !important; }
+
+/* —— 首頁自身文字色系（不進入功能卡與進度列） —— */
+.app-bg:has(.home-feature-stack) :is(.home-top-motto-link, .home-primary-quest, [class*="HomeToolsCard_card"], [class*="HomeInstallCard_card"], .home-trust-card, .home-line-share-card) :is(h1, h2, h3, strong) { color: var(--lx-title) !important; }
+.app-bg:has(.home-feature-stack) :is(.home-primary-quest, [class*="HomeToolsCard_card"], [class*="HomeInstallCard_card"], .home-trust-card, .home-line-share-card) p:not([class*="rounded-full"]) { color: var(--lx-body) !important; }
+.app-bg:has(.home-feature-stack) :is(.home-trust-card, .home-line-share-card) :is([class*="text-amber-"], [class*="text-cyan-"], [class*="text-emerald-"], [class*="text-rose-"], [class*="text-sky-"]) { color: var(--lx-label) !important; }
+.app-bg:has(.home-feature-stack) main [class*="TodayDirectionQuest_primaryButton"][class*="TodayDirectionQuest_primaryButton"]:hover {
+  filter: brightness(1.04) !important;
+  box-shadow: inset 0 1px 0 rgba(230, 220, 203, 0.36), inset 0 -2px 4px rgba(90, 63, 34, 0.55), inset 0 0 18px rgba(90, 63, 34, 0.3), 0 0 0 1px rgba(58, 51, 66, 0.9), 0 14px 30px -12px rgba(154, 122, 69, 0.45) !important;
+}
+
+/* —— 首頁 16 張功能卡片（同一套皮革規格）：只改色彩／質感 —— */
+.app-bg:has(.home-feature-stack) .home-feature-stack .home-feature-launch.home-feature-launch {
+  background-color: var(--lx-surface) !important;
+  background-image:
+    var(--lx-grain),
+    radial-gradient(42% 70% at 12% 50%, rgba(154, 122, 69, 0.16), transparent 72%),
+    radial-gradient(110% 80% at 20% 0%, rgba(74, 65, 89, 0.34), transparent 62%),
+    radial-gradient(80% 90% at 100% 100%, rgba(110, 61, 47, 0.16), transparent 68%),
+    linear-gradient(165deg, #1d1a21 0%, #15131a 100%) !important;
+  border-color: rgba(58, 51, 66, 0.95) !important;
+  box-shadow: var(--lx-edge) !important;
+  color: var(--lx-body) !important;
+}
+.app-bg:has(.home-feature-stack) .home-feature-stack .home-feature-launch.home-feature-launch:hover {
+  border-color: rgba(154, 122, 69, 0.55) !important;
+  box-shadow: inset 0 1px 0 rgba(185, 186, 192, 0.2), inset 0 -1px 0 rgba(7, 6, 10, 0.7), 0 0 0 1px rgba(154, 122, 69, 0.4), 0 20px 40px -24px rgba(7, 6, 10, 0.95) !important;
+}
+/* 吃色：卡內原本各自的色相統一壓到低飽和 */
+.app-bg:has(.home-feature-stack) .home-feature-stack .home-feature-launch > :not(.absolute) { filter: saturate(0.38) !important; }
+.app-bg:has(.home-feature-stack) .home-feature-stack .home-feature-launch > .absolute.inset-0 { background: linear-gradient(90deg, transparent, rgba(205, 185, 145, 0.06), transparent) !important; }
+/* 文字層級 */
+.app-bg:has(.home-feature-stack) .home-feature-stack .home-feature-launch :is(h2, h3, strong) { color: var(--lx-title) !important; -webkit-text-fill-color: var(--lx-title) !important; }
+.app-bg:has(.home-feature-stack) .home-feature-stack .home-feature-launch p { color: var(--lx-body) !important; }
+.app-bg:has(.home-feature-stack) .home-feature-stack .home-feature-launch :is([class*="text-rose-"], [class*="text-violet-"], [class*="text-amber-"], [class*="text-cyan-"], [class*="text-indigo-"], [class*="text-emerald-"], [class*="text-fuchsia-"], [class*="text-pink-"], [class*="text-sky-"], [class*="text-teal-"], [class*="text-purple-"], [class*="text-yellow-"], [class*="text-orange-"]) { color: var(--lx-label) !important; }
+.app-bg:has(.home-feature-stack) .home-feature-stack .home-feature-launch [class*="text-slate-"], .app-bg:has(.home-feature-stack) .home-feature-stack .home-feature-launch [class*="text-gray-"] { color: var(--lx-muted) !important; }
+/* 唯一焦點：左側徽章＝蠟封印（顏色吃進皮革、由內透光） */
+.app-bg:has(.home-feature-stack) .home-feature-stack .home-oracle-3d-emblem {
+  filter: saturate(0.2) sepia(0.55) brightness(0.92) !important;
+  box-shadow: inset 0 0 14px rgba(90, 63, 34, 0.55), 0 0 22px rgba(154, 122, 69, 0.14) !important;
+}
