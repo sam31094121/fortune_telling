@@ -27,8 +27,39 @@
 - 出生資料只正規化一次，國農曆、時區、精確時間或時辰精度保持可追溯。四柱唯一來源為 `lib/bazi/engine.ts`；紫微、配對、老師與其他卡片不得自己重算另一套四柱。
 - 八字與紫微核對共用資料；保留各自傳統排盤規則，不把紫微的年界強改成八字立春年界，也不以兩者看似一致代替獨立驗證。
 - 易經表達層只使用前兩層已核對的資料，不增加無依據的生辰事實、神煞、喜用或結論；未知時辰不代填，不能以一個核心通過替其他項目背書。
-- 生成前由後端依原始出生資料完成八字 → 紫微 → 年月日時四柱核對 → 易經，再驗證三核心內容、命盤指紋與執行順序；未通過禁止 AI／本機易經解讀及舊快取輸出。不得相信前端成功標記，不得讓 AI 自排四柱或星曜，不得以姓名與文案另起卦替代已核對的生辰卦。
+- 生成前由後端依原始出生資料完成八字 → 紫微 → 年月日時四柱核對 → 易經，再驗證三核心內容、命盤指紋與執行順序；未通過則顯示「暫時無法取得」；通過後也只依鬼滅阿修羅方法：專案技能檔為唯一權威，後端依真實命盤計算，前端只顯示，永不使用 AI 解讀或舊快取輸出（2026-10-23 ai-to-asura）。不得相信前端成功標記，不得讓 AI 自排四柱或星曜，不得以姓名與文案另起卦替代已核對的生辰卦。
 - 神煞、紅鸞、格局旺衰、五神與老師判讀必須按實際適用範圍核對，不把不同主張綁在同一放行條件；尚未核對的項目不冒充正統已驗證。
 - 進度勾選、結果顯示與後端放行一致。資料欄位存在不等於內容已驗證，守門測試通過不等於客戶功能可用。
 - 修改相關鏈路需執行八字基本測試、八字與紫微交叉測試及輸出可用性回歸；健康檢查須另外列出不可用功能，不得僅憑 HTTP 200 宣稱全部正常。
 
+## 後端運算、前端只顯示（2026-10-23 backend-only，業主確認）
+
+> Backend owns all computation; frontend is display-only; no AI-generated or placeholder content.
+
+1. **後端負責所有運算**，包含十二宮解盤邏輯與來源查詢（出處、條文、連結）。Backend owns all computation, including 12-palace reading logic and source lookup.
+2. **前端只負責顯示**：字型、版面、視覺。不做任何運算、排盤、挑句或內容生成。Frontend is display-only (fonts, layout, visuals); no computation or content generation.
+3. **不得顯示 AI 生成或空白佔位內容**；每個顯示值都必須來自後端真實運算結果。後端無結果時，顯示明確的中文狀態（如「暫時無法取得」），不得以假內容、預設文案或 fallback 文字頂替。Every displayed value must come from a real backend result; when none exists, show an explicit Chinese status such as 「暫時無法取得」, never fake/fallback copy.
+
+- 適用於所有人與 AI 代理的後續工作；完整規則見 `.cursor/rules/backend-owns-computation.mdc`。
+- 本規則不授權修改既有凍結卡片；既有違規由業主指定範圍後才修正（見上方「全卡片功能凍結」）。
+
+## 全面禁止 AI 生成（2026-10-23 backend-only，業主確認，永久）
+
+> AI generation is banned project-wide, permanently, for every component and every future feature.
+
+1. 全專案、所有元件與日後所有新功能，**永久禁止 AI 生成內容**（不得呼叫任何 AI／LLM 產生顯示文字）。
+2. 所有內容一律採「阿修羅方法」產出：以專案既有技能檔為權威來源 → 後端依實際命盤／輸入運算 → 前端只負責顯示。All content follows the 阿修羅 method: project skill files as authority, backend-computed from the actual chart/input, frontend display-only.
+3. 技能檔沒有對應內容時，顯示明確的中文狀態（如「暫時無法取得」），**不得**以 AI 文字或佔位文字頂替。Where no skill-file content exists, show an explicit Chinese status, never AI or placeholder text.
+
+### 🔒 鎖定規則：後端五種方式（不得增減或改名）（2026-10-23 five-methods，業主定義）
+
+後端計算只有以下五種方式，名稱固定、順序固定：
+1. 八字命盤（填入出生資料）— 專屬技能檔 `docs/技能戰鬥檔案/八字/八字.json`（另 `來源登記.json`）
+2. 紫微斗數命盤 — 專屬技能檔 `docs/技能戰鬥檔案/紫微斗數/紫微斗數.json`（另 `來源登記.json`）
+3. 易經姓名學 — 專屬技能檔 `docs/技能戰鬥檔案/姓名學/姓名學.json`
+4. 易經卜卦 — 專屬技能檔 `docs/技能戰鬥檔案/易經/易經.json`（另 `來源登記.json`、`梅花年月日時原典算例.json`）
+5. 鬼滅阿修羅 — 專屬技能檔 `docs/技能戰鬥檔案/鬼魅阿修羅/`（`SKILL_LOCK.md`、`權威來源/`）
+
+每種方式各有自己的技能檔；五種方式可整合、互相交叉驗證，但每一筆輸出都必須追溯到這五種方式之一；永久禁止 AI 生成內容。本規則取代任何先前「四種方式」的說法。LOCKED: backend has exactly these five methods; every output must trace to one of them; no AI generation.
+
+🔒 用語定義：當業主說「阿修羅」或「技能檔案阿修羅」，一律指五種方式（1) 八字命盤 2) 紫微斗數命盤 3) 易經姓名學 4) 易經卜卦 5) 鬼滅阿修羅）融合、交叉對照作為產生話術的後端；阿修羅技能檔（docs/技能戰鬥檔案/鬼魅阿修羅/SKILL_LOCK.md L335-345）是前端，以五種為後援來源。適用於所有未來要求。永久禁止 AI 生成。（2026-10-23 asura-term）
