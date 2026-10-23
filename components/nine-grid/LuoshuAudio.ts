@@ -90,3 +90,76 @@ export function stopLuoshuBed() {
   bed?.stop();
   bed = null;
 }
+
+export const CLINK_GAIN = 0.018; // 金石碰撞：非常輕
+export const RESONANCE_GAIN = 0.03; // 靈動連線低頻共鳴
+
+/** 只在使用者已經互動過（點擊／輸入）之後才發聲，避免自動播放 */
+function gestureReady() {
+  if (typeof navigator === 'undefined') return false;
+  const ua = (navigator as Navigator & { userActivation?: { hasBeenActive: boolean } }).userActivation;
+  return ua ? ua.hasBeenActive : ctx !== null;
+}
+
+/** 金石輕碰：兩個非諧波正弦＋極短雜訊起音，快速衰減 */
+export function playLuoshuClink() {
+  if (luoshuSoundMuted() || !gestureReady()) return;
+  const c = context();
+  if (!c) return;
+  const now = c.currentTime;
+  const out = c.createGain();
+  out.gain.value = 1;
+  out.connect(c.destination);
+  [[2793, 1, 0.32], [4187, 0.55, 0.18], [6010, 0.25, 0.09]].forEach(([f, amp, dur]) => {
+    const o = c.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, now);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(CLINK_GAIN * amp, now + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    o.connect(g).connect(out);
+    o.start(now);
+    o.stop(now + dur + 0.02);
+  });
+  const len = Math.floor(c.sampleRate * 0.02);
+  const buf = c.createBuffer(1, len, c.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i += 1) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+  const n = c.createBufferSource();
+  n.buffer = buf;
+  const hp = c.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.value = 3000;
+  const ng = c.createGain();
+  ng.gain.value = CLINK_GAIN * 0.4;
+  n.connect(hp).connect(ng).connect(out);
+  n.start(now);
+}
+
+/** 靈動連線亮起：低頻共鳴（基音＋五度，慢起慢收，低通） */
+export function playLuoshuResonance() {
+  if (luoshuSoundMuted() || !gestureReady()) return;
+  const c = context();
+  if (!c) return;
+  const now = c.currentTime;
+  const lp = c.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 260;
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, now);
+  g.gain.exponentialRampToValueAtTime(RESONANCE_GAIN, now + 0.25);
+  g.gain.exponentialRampToValueAtTime(0.0001, now + 2.2);
+  lp.connect(g).connect(c.destination);
+  [73.4, 110, 146.8].forEach((f, i) => {
+    const o = c.createOscillator();
+    o.type = 'sine';
+    o.frequency.value = f;
+    o.detune.value = i === 1 ? 4 : 0;
+    const og = c.createGain();
+    og.gain.value = [1, 0.5, 0.2][i];
+    o.connect(og).connect(lp);
+    o.start(now);
+    o.stop(now + 2.3);
+  });
+}

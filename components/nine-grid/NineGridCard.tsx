@@ -11,7 +11,7 @@ import LuoshuCard from './LuoshuCard';
 import FiveStarLink, { ELEMENT_GEM } from './FiveStarLink';
 import gem from './NineGridGem.module.css';
 import { NAME_OVERLAY_LABEL, NINE_GRID_DROP_HINT, NINE_GRID_LAYOUT_LINE, NINE_GRID_SITE_ONLY, NINE_GRID_SOURCE_NOTES, type NineGridNameOverlay, type NineGridSourceKey } from '@/lib/nine-grid-name-overlay';
-import { playLuoshuRustle } from './LuoshuAudio';
+import { playLuoshuClink, playLuoshuResonance } from './LuoshuAudio';
 
 const NAME_DROP_MS = 520;
 
@@ -20,7 +20,7 @@ function SourceTip({ k, open, onToggle }: { k: NineGridSourceKey; open: boolean;
   const note = NINE_GRID_SOURCE_NOTES[k];
   return (
     <button type="button" aria-expanded={open} aria-label={`${note.title}的來源`} onClick={(e) => { e.stopPropagation(); onToggle(k); }}
-      className={`relative ml-1 inline-flex h-5 shrink-0 items-center rounded-full border px-1.5 align-middle text-[10px] font-bold leading-none tracking-[0.08em] before:absolute before:-inset-x-2 before:-inset-y-3 before:content-[''] focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200 ${open ? 'border-amber-200/70 bg-amber-200/15 text-amber-50' : 'border-white/15 text-white/45'}`}>
+      className={`relative ml-1 inline-flex h-5 shrink-0 items-center rounded-full border px-1.5 align-middle text-[10px] font-bold leading-none tracking-[0.08em] before:absolute before:-inset-x-2 before:-inset-y-3 before:content-[''] focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200 ${open ? 'border-amber-200/70 bg-amber-200/15 text-amber-50' : 'border-white/20 text-white/60'}`}>
       {note.tier === 'site' ? '本站' : '來源'}
     </button>
   );
@@ -89,7 +89,8 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
     if (reduce) { setNameStep(overlay.drop.length); return; }
     const t = window.setTimeout(() => {
       const step = overlay.drop[nameStep];
-      if (step.digit > 0) playLuoshuRustle();
+      if (step.digit > 0) playLuoshuClink();
+      if (step.linesLit.length) playLuoshuResonance();
       if (step.linesLit.length) setLineNote(step.linesLit[step.linesLit.length - 1]);
       setNameStep((n) => n + 1);
     }, NAME_DROP_MS);
@@ -133,7 +134,7 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
   return (
     <div>
     {tabBar}
-    <section className="fortune-card overflow-hidden border-violet-300/25 bg-gradient-to-b from-[#1a1530]/85 to-[#0d1020]/85 p-4 sm:p-6" aria-label="九宮格靈動數字結果">
+    <section className={`fortune-card ${gem.inkwash} overflow-hidden border-violet-300/25 p-4 sm:p-6`} aria-label="九宮格靈動數字結果">
       <style>{`
         @keyframes ${uid}-flow { to { stroke-dashoffset: -24; } }
         @keyframes ${uid}-breath { 0%,100% { opacity: .75; } 50% { opacity: 1; } }
@@ -237,9 +238,9 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
                 aria-label={reading ? `${cell.title} ${cell.digit} ${reading.countNote}` : String(cell.digit)}
                 onClick={() => setSelection({ kind: 'digit', digit: cell.digit })}
                 style={cellStyle(study, cell)}
-                className={`${gem.tile} relative flex min-h-[84px] flex-col items-center justify-center px-1 text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${study.fiveStar ? (cell.count === 0 ? gem.porcelain : '') : levelClass(cell.count)} ${active ? `${gem.selected} ring-2 ring-amber-200/90` : ''} ${cell.count > 0 ? `${uid}-breath` : ''} ${nameDone && overlay?.doubleEmphasis.includes(cell.digit) ? 'ring-[3px] ring-fuchsia-200 shadow-[0_0_22px_rgba(232,121,249,0.75)]' : ''}`}
+                className={`${gem.tile} ${gem.ripple} relative flex min-h-[84px] flex-col items-center justify-center px-1 text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${study.fiveStar ? (cell.count === 0 ? gem.porcelain : '') : levelClass(cell.count)} ${active ? `${gem.selected} ring-2 ring-amber-200/90` : ''} ${cell.count > 0 ? `${uid}-breath` : ''} ${nameDone && overlay?.doubleEmphasis.includes(cell.digit) ? 'ring-[3px] ring-fuchsia-200 shadow-[0_0_22px_rgba(232,121,249,0.75)]' : ''}`}
               >
-                <span className="font-serif text-4xl font-black leading-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.65)] sm:text-5xl">{cell.digit}</span>
+                <span data-digit={cell.digit} className={`${gem.floatDigit} font-serif text-4xl font-black leading-none sm:text-5xl`}>{cell.digit}</span>
                 <span className="mt-1 text-[11px] font-bold tracking-[0.1em] opacity-90">{cell.title}</span>
                 {cell.count > 0 && (
                   <span className="mt-1 flex flex-wrap items-center justify-center gap-0.5" aria-hidden="true">

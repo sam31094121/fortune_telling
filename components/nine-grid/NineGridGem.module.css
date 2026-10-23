@@ -27,7 +27,7 @@
   background:
     radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.14), transparent 30%),
     linear-gradient(135deg, rgba(226, 232, 240, 0.06), rgba(148, 163, 184, 0.05));
-  color: rgba(226, 232, 240, 0.5);
+  color: rgba(226, 232, 240, 0.72);
 }
 
 /* 靛藍寶石（青花）：出現 1 次，或洛書未選中 */
@@ -83,4 +83,77 @@
 
 @media print {
   .tile::before { display: none; }
+}
+
+/* ── 淡墨暈染背景＋水面浮字（純視覺；無圖片，SVG 雜訊為內嵌 data URI） ── */
+.inkwash {
+  position: relative;
+  isolation: isolate;
+  background-color: #07070f;
+  background-image:
+    radial-gradient(ellipse 70% 45% at 18% 12%, rgba(120, 110, 160, 0.16), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 85% 38%, rgba(70, 80, 120, 0.14), transparent 72%),
+    radial-gradient(ellipse 80% 40% at 40% 88%, rgba(90, 80, 130, 0.12), transparent 70%),
+    radial-gradient(circle at 60% 60%, rgba(0, 0, 0, 0.5), transparent 60%),
+    linear-gradient(180deg, #0c0b18 0%, #06060c 100%);
+}
+.inkwash::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.14;
+  mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .02' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 .75 0 0 0 0 .74 0 0 0 0 .85 0 0 0 1.1 -.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 440px 440px;
+}
+
+/* 數字浮在水上：倒影（attr 複製數字、上下翻轉、漸隱）＋輕微漂浮 */
+.floatDigit {
+  position: relative;
+  display: inline-block;
+  text-shadow: 0 0 10px currentColor, 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+.floatDigit::after {
+  content: attr(data-digit);
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 88%;
+  transform: scaleY(-0.55);
+  transform-origin: top;
+  opacity: 0.22;
+  filter: blur(0.6px);
+  -webkit-mask-image: linear-gradient(to top, transparent 15%, #000 100%);
+  mask-image: linear-gradient(to top, transparent 15%, #000 100%);
+  pointer-events: none;
+}
+
+/* 水紋微光：格內一條斜向光帶慢慢掃過＋底部漣漪 */
+.ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse 60% 14% at 50% 82%, rgba(255, 255, 255, 0.1), transparent 70%),
+    linear-gradient(100deg, transparent 40%, rgba(255, 255, 255, 0.07) 50%, transparent 60%);
+  background-size: 100% 100%, 260% 100%;
+  background-position: 0 0, 120% 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .floatDigit { animation: ngFloat 4.6s ease-in-out infinite; }
+  .ripple::after { animation: ngShimmer 6.5s ease-in-out infinite; }
+}
+@keyframes ngFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes ngShimmer {
+  0%, 100% { background-position: 0 0, 120% 0; background-size: 100% 100%, 260% 100%; }
+  50% { background-position: 0 0, -20% 0; background-size: 108% 100%, 260% 100%; }
+}
+
+@media print {
+  .inkwash::before, .ripple::after, .floatDigit::after { display: none; }
 }
