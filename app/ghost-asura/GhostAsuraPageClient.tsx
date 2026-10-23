@@ -12,7 +12,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
+import { UnifiedBirthForm, hourBranchToBirthTime, type BirthProfile } from '@/components/UnifiedBirthForm';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import {
   getAnalysisIdentityTarget,
@@ -47,6 +47,13 @@ function withDownloadTimeout(task: Promise<boolean>) {
     task.catch(() => false),
     new Promise<boolean>((resolve) => window.setTimeout(() => resolve(false), DOWNLOAD_TIMEOUT_MS)),
   ]);
+}
+
+// 還原的舊資料有時辰地支卻缺 birthTime：畫面顯示已選、排盤端卻視為未選。由地支補齊（與點選時辰同一張對照表）。
+function withRestoredHourTime(profile: BirthProfile): BirthProfile {
+  if (profile.birthTime || profile.timeUnknown) return profile;
+  const time = hourBranchToBirthTime(profile.birthHourBranch);
+  return time ? { ...profile, birthTime: time } : profile;
 }
 
 function asuraHourStatus(profile: BirthProfile) {
@@ -457,7 +464,7 @@ export default function GhostAsuraPageClient({
                         birthTime:
                           form.birthHourBranch === 'zi' ? form.birthTime : '',
                       }
-                    : profile
+                    : withRestoredHourTime(profile)
                 )
               }
               onSubmit={(profile) => void calculate(profile)}

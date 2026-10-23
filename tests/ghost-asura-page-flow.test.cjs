@@ -55,7 +55,7 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/ghost-asura/GhostAsur
     if (id === 'next/navigation') return { useRouter: () => router };
     if (id === 'next/link') return () => null;
     if (id.endsWith('.module.css')) return {};
-    if (id === '@/components/UnifiedBirthForm') return { UnifiedBirthForm: BirthForm };
+    if (id === '@/components/UnifiedBirthForm') return { UnifiedBirthForm: BirthForm, hourBranchToBirthTime: (b) => (b && b !== 'unknown' ? ({ wu: '11:30' })[b] : undefined) };
     if (id === '@/components/IdentitySplitSelector') return { default: () => null };
     if (id === '@/lib/identity-split-client') return {
       getAnalysisIdentityTarget: () => 'self',
