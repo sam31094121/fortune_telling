@@ -2634,6 +2634,35 @@ const ZIWEI_TREASURE_RITUALS: Record<FiveElementKey, { title: string; scenes: [s
   },
 };
 
+/** 老師解讀請求：20 秒逾時、非 JSON 回應或網路錯誤一律回友善繁體中文訊息；只轉送後端結果，不編內容。 */
+async function postTeacherJson<T>(url: string, body: unknown, failMessage: string): Promise<T> {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), 20_000);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    let json: { ok?: boolean; message?: string; data?: unknown } | null = null;
+    try {
+      json = await res.json();
+    } catch {
+      json = null;
+    }
+    if (!json) throw new Error('伺服器暫時沒有回應正確的資料，請按「重試」。');
+    if (!res.ok || !json.ok) throw new Error(json.message || failMessage);
+    return json.data as T;
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') throw new Error('讀取逾時，請按「重試」。');
+    if (err instanceof TypeError) throw new Error('網路暫時連不上，請按「重試」。');
+    throw err;
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
 /**
  * 紫微的恐怖與鬼魅不是兩套互相矛盾的結論。
  * LIFE_MASTER 提供命盤壓力與現實脈絡；NARRATIVE_MASTER 只把同一批星曜證據轉成象徵畫面。
@@ -2984,16 +3013,15 @@ function ZiweiTeacherSynthesisPanel({
   const [mode, setMode] = useState<'PROFESSIONAL' | 'ENTERTAINMENT'>('PROFESSIONAL');
   const [activeTeacher, setActiveTeacher] = useState<ZiweiTeacherId>('STRUCTURE_MASTER');
   const [teacherCache, setTeacherCache] = useState<Record<string, ZiweiTeacherApiResult>>({});
-  const [teacherLoading, setTeacherLoading] = useState(false);
-  const [teacherError, setTeacherError] = useState<string | null>(null);
-  const [narrativeLoading, setNarrativeLoading] = useState(false);
+  // 每一宮（cacheKey）各自的讀取／錯誤狀態，避免前一宮較早回來把這一宮的轉圈關掉
+  const [loadingKeys, setLoadingKeys] = useState<Record<string, boolean>>({});
+  const [errorKeys, setErrorKeys] = useState<Record<string, string>>({});
+  const [retryTick, setRetryTick] = useState(0);
   const [timeRefresh, setTimeRefresh] = useState(0);
   const fetchedKeysRef = useRef<Set<string>>(new Set());
 
   const [activeEntertainer, setActiveEntertainer] = useState<EntertainmentTeacherId>('HORROR');
   const [entertainmentCache, setEntertainmentCache] = useState<Record<string, EntertainmentTeacherResult>>({});
-  const [entertainmentLoading, setEntertainmentLoading] = useState(false);
-  const [entertainmentError, setEntertainmentError] = useState<string | null>(null);
   const fetchedEntertainmentKeysRef = useRef<Set<string>>(new Set());
 
   const palaceId = ZIWEI_TEACHER_PALACE_ID_MAP[originKey] ?? 'LIFE';
@@ -3003,6 +3031,21 @@ function ZiweiTeacherSynthesisPanel({
   const combinedNarrativeResult = teacherCache[combinedNarrativeCacheKey];
   const entertainmentCacheKey = `${analysisId}|${palaceId}|${activeEntertainer}`;
   const activeEntertainmentResult = entertainmentCache[entertainmentCacheKey];
+  const teacherLoading = !!loadingKeys[cacheKey];
+  const narrativeLoading = !!loadingKeys[combinedNarrativeCacheKey];
+  const teacherError = errorKeys[cacheKey] ?? errorKeys[combinedNarrativeCacheKey] ?? null;
+  const entertainmentLoading = !!loadingKeys[entertainmentCacheKey];
+  const entertainmentError = errorKeys[entertainmentCacheKey] ?? null;
+  const setKeyLoading = (key: string, value: boolean) => setLoadingKeys((prev) => ({ ...prev, [key]: value }));
+  const setKeyError = (key: string, message: string | null) => setErrorKeys((prev) => {
+    const next = { ...prev };
+    if (message === null) delete next[key]; else next[key] = message;
+    return next;
+  });
+  const retryCurrent = (keys: string[]) => {
+    keys.forEach((key) => { fetchedKeysRef.current.delete(key); fetchedEntertainmentKeysRef.current.delete(key); setKeyError(key, null); });
+    setRetryTick((value) => value + 1);
+  };
   const activeLifeResult = activeResult && activeResult !== 'INSUFFICIENT_DATA' && activeResult.teacherId === 'LIFE_MASTER' ? activeResult : undefined;
   const activeNarrativeResult = combinedNarrativeResult && combinedNarrativeResult !== 'INSUFFICIENT_DATA' && combinedNarrativeResult.teacherId === 'NARRATIVE_MASTER' ? combinedNarrativeResult : undefined;
   const isHorrorGhostMode = mode === 'PROFESSIONAL' && activeTeacher === 'LIFE_MASTER';
@@ -3026,83 +3069,59 @@ function ZiweiTeacherSynthesisPanel({
     if (!analysisId) return;
     if (fetchedKeysRef.current.has(cacheKey)) return;
     fetchedKeysRef.current.add(cacheKey);
-    setTeacherLoading(true);
-    setTeacherError(null);
-    fetch(`/api/ziwei/${analysisId}/teacher-analysis`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ palaceId, teacherId: activeTeacher, birthInput }),
-    })
-      .then(async (res) => {
-        const json = await res.json();
-        if (!res.ok || !json.ok) throw new Error(json.message || '老師解讀失敗，請稍後再試。');
-        return json.data as ZiweiTeacherApiResult;
-      })
+    const key = cacheKey;
+    setKeyLoading(key, true);
+    setKeyError(key, null);
+    postTeacherJson<ZiweiTeacherApiResult>(`/api/ziwei/${analysisId}/teacher-analysis`, { palaceId, teacherId: activeTeacher, birthInput }, '老師解讀失敗，請稍後再試。')
       .then((data) => {
-        setTeacherCache((prev) => ({ ...prev, [cacheKey]: data }));
+        setTeacherCache((prev) => ({ ...prev, [key]: data }));
       })
       .catch((err) => {
-        fetchedKeysRef.current.delete(cacheKey);
-        setTeacherError(err instanceof Error ? err.message : '老師解讀失敗，請稍後再試。');
+        fetchedKeysRef.current.delete(key);
+        setKeyError(key, err instanceof Error ? err.message : '老師解讀失敗，請稍後再試。');
       })
       .finally(() => {
-        setTeacherLoading(false);
+        setKeyLoading(key, false);
       });
-  }, [mode, analysisId, palaceId, activeTeacher, cacheKey, birthInput]);
+  }, [mode, analysisId, palaceId, activeTeacher, cacheKey, birthInput, retryTick]);
 
   useEffect(() => {
     if (mode !== 'PROFESSIONAL' || activeTeacher !== 'LIFE_MASTER' || !analysisId) return;
     if (fetchedKeysRef.current.has(combinedNarrativeCacheKey)) return;
     fetchedKeysRef.current.add(combinedNarrativeCacheKey);
-    setNarrativeLoading(true);
-    fetch(`/api/ziwei/${analysisId}/teacher-analysis`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ palaceId, teacherId: 'NARRATIVE_MASTER', birthInput }),
-    })
-      .then(async (res) => {
-        const json = await res.json();
-        if (!res.ok || !json.ok) throw new Error(json.message || '鬼魅段落生成失敗，請稍後再試。');
-        return json.data as ZiweiTeacherApiResult;
-      })
-      .then((data) => setTeacherCache((prev) => ({ ...prev, [combinedNarrativeCacheKey]: data })))
+    const key = combinedNarrativeCacheKey;
+    setKeyLoading(key, true);
+    postTeacherJson<ZiweiTeacherApiResult>(`/api/ziwei/${analysisId}/teacher-analysis`, { palaceId, teacherId: 'NARRATIVE_MASTER', birthInput }, '鬼魅段落生成失敗，請稍後再試。')
+      .then((data) => setTeacherCache((prev) => ({ ...prev, [key]: data })))
       .catch((err) => {
-        fetchedKeysRef.current.delete(combinedNarrativeCacheKey);
-        setTeacherError(err instanceof Error ? err.message : '鬼魅段落暫時無法整理，請稍後再試。');
+        fetchedKeysRef.current.delete(key);
+        setKeyError(key, err instanceof Error ? err.message : '鬼魅段落暫時無法整理，請稍後再試。');
       })
       .finally(() => {
-        setNarrativeLoading(false);
+        setKeyLoading(key, false);
       });
-  }, [mode, analysisId, palaceId, activeTeacher, combinedNarrativeCacheKey, birthInput]);
+  }, [mode, analysisId, palaceId, activeTeacher, combinedNarrativeCacheKey, birthInput, retryTick]);
 
   useEffect(() => {
     if (mode !== 'ENTERTAINMENT') return;
     if (!analysisId) return;
     if (fetchedEntertainmentKeysRef.current.has(entertainmentCacheKey)) return;
     fetchedEntertainmentKeysRef.current.add(entertainmentCacheKey);
-    setEntertainmentLoading(true);
-    setEntertainmentError(null);
-    fetch(`/api/ziwei/${analysisId}/entertainment-analysis`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ palaceId, teacherId: activeEntertainer, birthInput }),
-    })
-      .then(async (res) => {
-        const json = await res.json();
-        if (!res.ok || !json.ok) throw new Error(json.message || '老師故事生成失敗，請稍後再試。');
-        return json.data as EntertainmentTeacherResult;
-      })
+    const key = entertainmentCacheKey;
+    setKeyLoading(key, true);
+    setKeyError(key, null);
+    postTeacherJson<EntertainmentTeacherResult>(`/api/ziwei/${analysisId}/entertainment-analysis`, { palaceId, teacherId: activeEntertainer, birthInput }, '老師故事生成失敗，請稍後再試。')
       .then((data) => {
-        setEntertainmentCache((prev) => ({ ...prev, [entertainmentCacheKey]: data }));
+        setEntertainmentCache((prev) => ({ ...prev, [key]: data }));
       })
       .catch((err) => {
-        fetchedEntertainmentKeysRef.current.delete(entertainmentCacheKey);
-        setEntertainmentError(err instanceof Error ? err.message : '老師故事生成失敗，請稍後再試。');
+        fetchedEntertainmentKeysRef.current.delete(key);
+        setKeyError(key, err instanceof Error ? err.message : '老師故事生成失敗，請稍後再試。');
       })
       .finally(() => {
-        setEntertainmentLoading(false);
+        setKeyLoading(key, false);
       });
-  }, [mode, analysisId, palaceId, activeEntertainer, entertainmentCacheKey, birthInput]);
+  }, [mode, analysisId, palaceId, activeEntertainer, entertainmentCacheKey, birthInput, retryTick]);
 
   return (
     <div className="mt-4 rounded-2xl border border-purple-300/25 bg-[linear-gradient(160deg,rgba(88,28,135,0.28),rgba(15,23,42,0.9)_60%,rgba(2,6,23,0.96))] p-4 sm:p-5">
@@ -3133,7 +3152,7 @@ function ZiweiTeacherSynthesisPanel({
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {ZIWEI_TEACHERS.map((teacher) => {
               const active = activeTeacher === teacher.id;
-              return <button key={teacher.id} type="button" onClick={() => { setTeacherError(null); setActiveTeacher(teacher.id); }} aria-pressed={active} className={`min-h-[72px] rounded-xl border px-3 py-2.5 text-left transition ${active ? 'border-amber-200/55 bg-amber-300/[0.14] text-amber-50' : 'border-white/10 bg-black/15 text-purple-100 hover:border-purple-200/40 hover:bg-purple-300/10'}`}><span className="block text-sm font-black">{teacher.name}</span><span className="mt-1 block text-[11px] font-semibold leading-4 text-white/60">{teacher.note}</span></button>;
+              return <button key={teacher.id} type="button" onClick={() => setActiveTeacher(teacher.id)} aria-pressed={active} className={`min-h-[72px] rounded-xl border px-3 py-2.5 text-left transition ${active ? 'border-amber-200/55 bg-amber-300/[0.14] text-amber-50' : 'border-white/10 bg-black/15 text-purple-100 hover:border-purple-200/40 hover:bg-purple-300/10'}`}><span className="block text-sm font-black">{teacher.name}</span><span className="mt-1 block text-[11px] font-semibold leading-4 text-white/60">{teacher.note}</span></button>;
             })}
           </div>
 
@@ -3145,7 +3164,10 @@ function ZiweiTeacherSynthesisPanel({
             />
           )}
           {teacherError && !activeResult && !isGhostNarrativePending && (
-            <p className="mt-4 text-sm font-semibold text-rose-200">{teacherError}</p>
+            <div className="mt-4">
+              <p className="text-sm font-semibold text-rose-200">{teacherError}</p>
+              <button type="button" onClick={() => retryCurrent([cacheKey, combinedNarrativeCacheKey])} className="mt-2 min-h-[44px] min-w-[88px] rounded-full border border-rose-200/50 bg-rose-300/10 px-4 text-sm font-black text-rose-100 transition hover:bg-rose-300/20">重試</button>
+            </div>
           )}
           {activeResult === 'INSUFFICIENT_DATA' && (
             <p className="mt-4 text-sm font-semibold text-amber-200">本宮資料不足，老師暫不勉強生成判讀，不補故事假裝完整。</p>
@@ -3179,7 +3201,10 @@ function ZiweiTeacherSynthesisPanel({
             />
           )}
           {entertainmentError && !activeEntertainmentResult && (
-            <p className="mt-4 text-sm font-semibold text-rose-200">{entertainmentError}</p>
+            <div className="mt-4">
+              <p className="text-sm font-semibold text-rose-200">{entertainmentError}</p>
+              <button type="button" onClick={() => retryCurrent([entertainmentCacheKey])} className="mt-2 min-h-[44px] min-w-[88px] rounded-full border border-rose-200/50 bg-rose-300/10 px-4 text-sm font-black text-rose-100 transition hover:bg-rose-300/20">重試</button>
+            </div>
           )}
           {activeEntertainmentResult && <ZiweiEntertainmentResultView result={activeEntertainmentResult} />}
         </>
