@@ -112,6 +112,8 @@ export interface LifeTeacherResult {
   practicalDirection: string;
 
   evidenceRefs: string[];
+  /** 2026-10-23 ghost-asura：後端依本宮實際主星選出的古籍條文（阿修羅語氣）；前端只顯示。 */
+  ghostAsura?: import('./ghost-asura-lines').GhostAsuraReading;
 }
 
 export interface NarrativeTeacherResult {

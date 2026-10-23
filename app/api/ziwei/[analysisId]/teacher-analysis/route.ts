@@ -20,7 +20,7 @@ import { assertThreeInOnePassed, runThreeInOne } from '@/lib/three-in-one';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const PROMPT_VERSION = 'teacher-v18-persuasion-hook';
+const PROMPT_VERSION = 'teacher-v19-ghost-asura'; // 2026-10-23 ghost-asura：換版以免舊快取回傳無古籍條文的結果
 
 type RouteContext = { params: Promise<{ analysisId: string }> };
 

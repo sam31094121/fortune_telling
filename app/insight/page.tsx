@@ -2634,6 +2634,43 @@ const ZIWEI_TREASURE_RITUALS: Record<FiveElementKey, { title: string; scenes: [s
   },
 };
 
+/** 2026-10-23 ghost-asura：鬼魅老師十二宮解盤只顯示後端選好的古籍條文；前端不選句、不補文。 */
+function ZiweiGhostAsuraLinesView({ reading }: { reading: NonNullable<LifeTeacherResult['ghostAsura']> }) {
+  return (
+    <section data-ghost-asura="lines" className="mt-4 rounded-2xl border border-rose-300/35 bg-[linear-gradient(145deg,rgba(69,10,10,0.55),rgba(30,27,75,0.6))] p-4">
+      <p className="text-[11px] font-black tracking-[0.18em] text-rose-100">鬼魅老師解盤｜{reading.palaceName}</p>
+      {reading.borrowedFromOpposite && (
+        <p className="mt-2 text-xs font-bold text-amber-100/85">本宮無十四主星，依古法借對宮{reading.oppositePalaceName}主星論。</p>
+      )}
+      {reading.status === 'NO_MAJOR_STAR' && (
+        <p data-ghost-asura="gap" className="mt-3 text-sm font-semibold text-amber-200">本宮與對宮皆無十四主星，此組合古籍暫無條文。</p>
+      )}
+      <ul className="mt-3 space-y-3">
+        {reading.lines.map((line) => (
+          <li key={line.star} className="rounded-xl border border-white/10 bg-black/20 p-3">
+            <p className="text-xs font-black text-rose-100/80">{line.star}</p>
+            {line.sourced ? (
+              <>
+                {line.lines.map((text, index) => (
+                  <p key={index} data-ghost-asura="sourced" className="mt-1 text-sm font-bold leading-6 text-rose-50">{text}</p>
+                ))}
+                {line.source && (
+                  <p className="mt-2 text-[11px] font-semibold leading-5 text-white/55">
+                    出處：{line.sourceLink ? <a href={line.sourceLink} target="_blank" rel="noreferrer" className="underline">{line.source}</a> : line.source}
+                    {line.original ? `（原文：${line.original}）` : ''}
+                  </p>
+                )}
+              </>
+            ) : (
+              <p data-ghost-asura="gap" className="mt-1 text-sm font-semibold text-amber-200">此組合古籍暫無條文。</p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 /** 老師解讀請求：20 秒逾時、非 JSON 回應或網路錯誤一律回友善繁體中文訊息；只轉送後端結果，不編內容。 */
 async function postTeacherJson<T>(url: string, body: unknown, failMessage: string): Promise<T> {
   const controller = new AbortController();
@@ -3051,6 +3088,7 @@ function ZiweiTeacherSynthesisPanel({
   const isHorrorGhostMode = mode === 'PROFESSIONAL' && activeTeacher === 'LIFE_MASTER';
   const hasGhostNarrativeResponse = combinedNarrativeResult !== undefined;
   const isGhostNarrativePending = isHorrorGhostMode && !hasGhostNarrativeResponse && !teacherError;
+  const ghostAsura = activeLifeResult?.ghostAsura; // 2026-10-23 ghost-asura
 
   // 當下時段是恐怖鬼魅場景的隱藏推理依據；跨整點後自動重新讀盤，
   // 讓正午、傍晚、夜晚不會沿用先前時段的畫面。
@@ -3156,7 +3194,7 @@ function ZiweiTeacherSynthesisPanel({
             })}
           </div>
 
-          {(teacherLoading || (isHorrorGhostMode && (isGhostNarrativePending || narrativeLoading))) && (
+          {(teacherLoading || (isHorrorGhostMode && !ghostAsura && (isGhostNarrativePending || narrativeLoading))) && (
             <ZiweiReadingScanState
               tone="violet"
               title={isHorrorGhostMode ? '鬼魅老師正在整理這一宮的故事線' : '老師正在掃描這一宮的命盤依據'}
@@ -3173,7 +3211,8 @@ function ZiweiTeacherSynthesisPanel({
             <p className="mt-4 text-sm font-semibold text-amber-200">本宮資料不足，老師暫不勉強生成判讀，不補故事假裝完整。</p>
           )}
           {activeTeacher !== 'LIFE_MASTER' && activeResult && activeResult !== 'INSUFFICIENT_DATA' && <ZiweiTeacherResultView result={activeResult} />}
-          {activeTeacher === 'LIFE_MASTER' && activeLifeResult && !isGhostNarrativePending && !narrativeLoading && (
+          {activeTeacher === 'LIFE_MASTER' && ghostAsura && <ZiweiGhostAsuraLinesView reading={ghostAsura} />}
+          {activeTeacher === 'LIFE_MASTER' && activeLifeResult && !ghostAsura && !isGhostNarrativePending && !narrativeLoading && (
             <ZiweiHorrorGhostMovieView
               life={activeLifeResult}
               narrative={activeNarrativeResult}

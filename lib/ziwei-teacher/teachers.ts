@@ -25,6 +25,7 @@ import type {
   TeacherId,
 } from './types';
 import { INSUFFICIENT_DATA } from './types';
+import { selectGhostAsuraLines } from './ghost-asura-lines'; // 2026-10-23 ghost-asura
 
 const MODEL_NAME = 'gemini-2.5-flash';
 const TEACHER_TIMEOUT_MS = 20000;
@@ -321,8 +322,10 @@ ${renderSituationAnchor(context)}
 }
 
 export async function runLifeTeacher(context: PalaceAnalysisContext): Promise<LifeTeacherResult | typeof INSUFFICIENT_DATA> {
-  if (!hasUsableData(context)) return INSUFFICIENT_DATA;
-  return buildLocalLifeResult(context);
+  // 2026-10-23 ghost-asura：鬼魅老師改為後端決定性選句（古籍條文表），不呼叫 AI；本宮無主星時借對宮主星。
+  const ghostAsura = selectGhostAsuraLines(context);
+  if (!hasUsableData(context) && ghostAsura.status === 'NO_MAJOR_STAR') return INSUFFICIENT_DATA;
+  return { ...buildLocalLifeResult(context), ghostAsura };
 }
 
 /* ==================== 老師 3｜鬼魅型老師 NARRATIVE_MASTER ==================== */

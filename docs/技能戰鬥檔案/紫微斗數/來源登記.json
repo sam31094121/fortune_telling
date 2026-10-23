@@ -461,6 +461,24 @@
       "edition": "1.0.0（2026-10-13）",
       "tracked_path": "docs/技能戰鬥檔案/紫微斗數/話術強化.md",
       "note": "D 級候選資料，只借說話方法與現代場景；星曜位置、亮度、四化一律以古籍與排盤引擎為準。"
+    },
+    {
+      "source_id": "S-ZWDS-QUANSHU-JUAN2-TEXT",
+      "author": "題宋・陳摶（希夷）撰；明・潘希尹補輯（維基文庫數位錄文）",
+      "locator": "《紫微斗數全書》卷二十二宮星曜條文；專案存檔 docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紫微斗數全書-卷二-維基文庫錄文.txt；原頁 https://zh.wikisource.org/wiki/紫微斗數全書/卷二",
+      "data_type": "紫微斗數古籍十二宮星曜條文（專案內逐字存檔，附行號，供話術表引用）",
+      "kind": "原典",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "古籍原文屬公有領域；維基文庫頁面文字採 CC BY-SA 4.0，轉載須標示來源與授權（見同資料夾說明檔），條款未經人工確認，待查核",
+      "accessed_at": "2026-10-23",
+      "edition": "維基文庫頁面存檔（2026-10-23）；頁面未標示底本，底本待查核；簡體字形",
+      "trust": "C",
+      "tracked_path": "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紫微斗數全書-卷二-維基文庫錄文.txt",
+      "note": "電子文本，非底本；狀態只能是仍在查證中。話術表以「本檔路徑:行號」引用，2026-10-23 逐格核對 151 格（簡繁字形差異不算不同）。"
     }
   ],
   "claims": [
@@ -518,6 +536,10 @@
         "lib/ziwei-teacher/teachers.ts",
         "lib/ziwei-teacher/types.ts",
         "lib/ziwei-teacher/palace-context.ts",
+        "lib/ziwei-teacher/ghost-asura-lines.ts",
+        "lib/ziwei-teacher/ghost-palace-lines.ts",
+        "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紫微斗數全書-卷二-維基文庫錄文.txt",
+        "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紫微斗數全書-卷二-維基文庫錄文.說明.md",
         "lib/ziwei-destiny-card.ts",
         "lib/ziwei-presentation-service.ts",
         "lib/ziwei-star-beast-link.ts",
@@ -537,7 +559,8 @@
         "S-ZWDS-QUANSHU",
         "S-ZWDS-JIELAN",
         "S-DAOZANG-ZWDS",
-        "S-IZTRO"
+        "S-IZTRO",
+        "S-ZWDS-QUANSHU-JUAN2-TEXT"
       ],
       "conflicts": [
         {
