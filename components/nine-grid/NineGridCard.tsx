@@ -11,7 +11,7 @@ import LuoshuCard from './LuoshuCard';
 import FiveStarLink, { ELEMENT_GEM } from './FiveStarLink';
 import gem from './NineGridGem.module.css';
 import { NAME_OVERLAY_LABEL, NINE_GRID_DROP_HINT, NINE_GRID_LAYOUT_LINE, NINE_GRID_SITE_ONLY, NINE_GRID_SOURCE_NOTES, type NineGridNameOverlay, type NineGridSourceKey } from '@/lib/nine-grid-name-overlay';
-import { playLuoshuClink, playLuoshuResonance } from './LuoshuAudio';
+import { playLuoshuClink, playLuoshuPluck, playLuoshuResonance } from './LuoshuAudio';
 
 const NAME_DROP_MS = 520;
 
@@ -125,7 +125,7 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
   const tabBar = (
     <div className="mb-3 flex flex-wrap justify-center gap-2" role="tablist" aria-label="版本">
       {tabs.map((tab) => (
-        <button key={tab.id} type="button" role="tab" aria-selected={edition === tab.id} onClick={() => setEdition(tab.id)} className={`min-h-[44px] rounded-full border px-4 text-[13px] font-black tracking-[0.06em] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${edition === tab.id ? 'border-amber-200/80 bg-amber-300/20 text-amber-50' : 'border-white/20 bg-white/[0.03] text-white/60'}`}>{tab.label}</button>
+        <button key={tab.id} type="button" role="tab" aria-selected={edition === tab.id} onClick={() => { if (edition !== tab.id) playLuoshuPluck(); setEdition(tab.id); }} className={`min-h-[44px] rounded-full border px-4 text-[13px] font-black tracking-[0.06em] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${edition === tab.id ? 'border-amber-200/80 bg-amber-300/20 text-amber-50' : 'border-white/20 bg-white/[0.03] text-white/60'}`}>{tab.label}</button>
       ))}
     </div>
   );

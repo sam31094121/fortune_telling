@@ -146,14 +146,34 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .floatDigit { animation: ngFloat 4.6s ease-in-out infinite; }
+  /* 水下光暈：數字下方一團很淡的暖光，7 秒慢慢呼吸、左右輕晃（在數字後方，不蓋字） */
+  .floatDigit::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 78%;
+    width: 1.5em;
+    height: 0.5em;
+    z-index: -1;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(253, 230, 138, 0.16), rgba(253, 230, 138, 0.05) 55%, transparent 72%);
+    filter: blur(3px);
+    pointer-events: none;
+    transform: translateX(-50%);
+    animation: ngHalo 7s ease-in-out infinite;
+  }
   .ripple::after { animation: ngShimmer 6.5s ease-in-out infinite; }
 }
 @keyframes ngFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes ngHalo {
+  0%, 100% { opacity: 0.45; transform: translateX(-56%) scale(0.92, 0.9); }
+  50% { opacity: 1; transform: translateX(-44%) scale(1.08, 1.1); }
+}
 @keyframes ngShimmer {
   0%, 100% { background-position: 0 0, 120% 0; background-size: 100% 100%, 260% 100%; }
   50% { background-position: 0 0, -20% 0; background-size: 108% 100%, 260% 100%; }
 }
 
 @media print {
-  .inkwash::before, .ripple::after, .floatDigit::after { display: none; }
+  .inkwash::before, .ripple::after, .floatDigit::before, .floatDigit::after { display: none; }
 }

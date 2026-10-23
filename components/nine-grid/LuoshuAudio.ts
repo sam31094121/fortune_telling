@@ -163,3 +163,43 @@ export function playLuoshuResonance() {
     o.stop(now + 2.3);
   });
 }
+
+export const PLUCK_GAIN = 0.028; // 切換卡片：極輕的撥弦＋風鈴尾音（峰值上限）
+
+/** 卡片切換：短促撥弦（三角波快速衰減）加兩顆高音風鈴點，總長約 0.6 秒 */
+export function playLuoshuPluck() {
+  if (luoshuSoundMuted() || !gestureReady()) return;
+  const c = context();
+  if (!c) return;
+  const now = c.currentTime;
+  const out = c.createGain();
+  out.gain.value = 1;
+  out.connect(c.destination);
+  const lp = c.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.setValueAtTime(3200, now);
+  lp.frequency.exponentialRampToValueAtTime(900, now + 0.3);
+  lp.connect(out);
+  const pluck = c.createOscillator();
+  pluck.type = 'triangle';
+  pluck.frequency.setValueAtTime(587.3, now);
+  const pg = c.createGain();
+  pg.gain.setValueAtTime(0.0001, now);
+  pg.gain.exponentialRampToValueAtTime(PLUCK_GAIN, now + 0.006);
+  pg.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+  pluck.connect(pg).connect(lp);
+  pluck.start(now);
+  pluck.stop(now + 0.37);
+  [[1760, 0.06, 0.45], [2349.3, 0.12, 0.4]].forEach(([f, at, dur]) => {
+    const o = c.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, now + at);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, now + at);
+    g.gain.exponentialRampToValueAtTime(PLUCK_GAIN * 0.35, now + at + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + at + dur);
+    o.connect(g).connect(out);
+    o.start(now + at);
+    o.stop(now + at + dur + 0.02);
+  });
+}
