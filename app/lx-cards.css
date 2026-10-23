@@ -46,3 +46,12 @@ main .fortune-card [class*="text-[color:var(--text-muted)]"] { color: var(--lx-m
 /* 7) 姓名學五行徽章：土、金底色壓深（白字 ≥4.5:1，保留土黃／金紫灰色相） */
 main li > span[aria-hidden="true"][style*="160, 123, 56"] { background: radial-gradient(circle at 34% 28%, #957234, #664b1f 55%, #0d1020) !important; }
 main li > span[aria-hidden="true"][style*="138, 122, 166"] { background: radial-gradient(circle at 34% 28%, #857a9f, #564a70 55%, #0d1020) !important; }
+
+/* 8. Gated forms + ghost-asura: violet/cyan text tiers -> leather palette (colour only) */
+body [class*="text-[color:var(--text-sub)]"] { color: var(--lx-body) !important; }
+body [class*="text-[color:var(--text-muted)]"] { color: #b8b0a4 !important; }
+body p.text-white\/40 { color: #b8b0a4 !important; }
+body .text-cyan-200 { color: var(--lx-label) !important; }
+body .bg-cyan-400\/15 { background-color: rgba(201, 164, 92, 0.16) !important; border-color: rgba(201, 164, 92, 0.45) !important; }
+body .text-cyan-100 { color: var(--lx-title) !important; }
+body [class*="skill_mockLevel"] { color: var(--lx-label) !important; }
