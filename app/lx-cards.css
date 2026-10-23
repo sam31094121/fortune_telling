@@ -55,3 +55,43 @@ body .text-cyan-200 { color: var(--lx-label) !important; }
 body .bg-cyan-400\/15 { background-color: rgba(201, 164, 92, 0.16) !important; border-color: rgba(201, 164, 92, 0.45) !important; }
 body .text-cyan-100 { color: var(--lx-title) !important; }
 body [class*="skill_mockLevel"] { color: var(--lx-label) !important; }
+
+/* 9. Site-wide leftover old colours -> leather / wax-seal palette (colour only).
+   Fenced: homepage, Taiji/TodayDirectionQuest, trust counters, beast cards & battlefield. */
+body:not(:has(.home-feature-stack, .counter-button, [class*="TodayDirectionQuest"], [class*="BeastCard"], [class*="BeastTechCard"], [class*="BattleCardGuide"], [class*="attlefield"], [class*="BeastTurnGame"], [class*="GrowthStakeSlots"])) .app-bg {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(201, 164, 92, 0.12), transparent 32%),
+    radial-gradient(circle at 100% 100%, rgba(122, 92, 60, 0.12), transparent 22%),
+    var(--bg-main) !important;
+}
+body:not(:has(.home-feature-stack, .counter-button, [class*="TodayDirectionQuest"], [class*="BeastCard"], [class*="BeastTechCard"], [class*="BattleCardGuide"], [class*="attlefield"], [class*="BeastTurnGame"], [class*="GrowthStakeSlots"])) main [class*="text-white\/"]:not(.identity-split-selector *, .identity-split-selector__button) { color: var(--lx-body) !important; }
+body:not(:has(.home-feature-stack, .counter-button, [class*="TodayDirectionQuest"], [class*="BeastCard"], [class*="BeastTechCard"], [class*="BattleCardGuide"], [class*="attlefield"], [class*="BeastTurnGame"], [class*="GrowthStakeSlots"])) main .text-white:not(.identity-split-selector *, .identity-split-selector__button) { color: var(--lx-title) !important; }
+body:not(:has(.home-feature-stack, .counter-button, [class*="TodayDirectionQuest"], [class*="BeastCard"], [class*="BeastTechCard"], [class*="BattleCardGuide"], [class*="attlefield"], [class*="BeastTurnGame"], [class*="GrowthStakeSlots"])) main :is(.text-amber-300, [class*="text-amber-300\/"], [class*="text-amber-200"]) { color: var(--lx-label) !important; }
+body:not(:has(.home-feature-stack, .counter-button, [class*="TodayDirectionQuest"], [class*="BeastCard"], [class*="BeastTechCard"], [class*="BattleCardGuide"], [class*="attlefield"], [class*="BeastTurnGame"], [class*="GrowthStakeSlots"])) main .text-green-400 { color: #a7bf93 !important; }
+body:not(:has(.home-feature-stack, .counter-button, [class*="TodayDirectionQuest"], [class*="BeastCard"], [class*="BeastTechCard"], [class*="BattleCardGuide"], [class*="attlefield"], [class*="BeastTurnGame"], [class*="GrowthStakeSlots"])) main :is([class*="border-amber-300"], [class*="border-amber-400"]) { border-color: rgba(201, 164, 92, 0.3) !important; }
+body:not(:has(.home-feature-stack, .counter-button, [class*="TodayDirectionQuest"], [class*="BeastCard"], [class*="BeastTechCard"], [class*="BattleCardGuide"], [class*="attlefield"], [class*="BeastTurnGame"], [class*="GrowthStakeSlots"])) main :is([class*="border-cyan-"], .feature-home-link--cyan) { border-color: rgba(166, 150, 128, 0.32) !important; }
+body:not(:has(.home-feature-stack, .counter-button, [class*="TodayDirectionQuest"], [class*="BeastCard"], [class*="BeastTechCard"], [class*="BattleCardGuide"], [class*="attlefield"], [class*="BeastTurnGame"], [class*="GrowthStakeSlots"])) :is(.feature-home-link--cyan) { border-color: rgba(166, 150, 128, 0.32) !important; }
+body:not(:has(.home-feature-stack, .counter-button, [class*="TodayDirectionQuest"], [class*="BeastCard"], [class*="BeastTechCard"], [class*="BattleCardGuide"], [class*="attlefield"], [class*="BeastTurnGame"], [class*="GrowthStakeSlots"])) main [class*="text-cyan-"]:not(.identity-split-selector *, .identity-split-selector__button) { color: var(--lx-label) !important; }
+body:not(:has(.home-feature-stack, .counter-button, [class*="TodayDirectionQuest"], [class*="BeastCard"], [class*="BeastTechCard"], [class*="BattleCardGuide"], [class*="attlefield"], [class*="BeastTurnGame"], [class*="GrowthStakeSlots"])) main .bg-cyan-300 { background-color: #b08f52 !important; }
+body:not(:has(.home-feature-stack, .counter-button, [class*="TodayDirectionQuest"], [class*="BeastCard"], [class*="BeastTechCard"], [class*="BattleCardGuide"], [class*="attlefield"], [class*="BeastTurnGame"], [class*="GrowthStakeSlots"])) main [class*="from-cyan-"] { --tw-gradient-from: #8a6d3e var(--tw-gradient-from-position) !important; }
+body:not(:has(.home-feature-stack, .counter-button, [class*="TodayDirectionQuest"], [class*="BeastCard"], [class*="BeastTechCard"], [class*="BattleCardGuide"], [class*="attlefield"], [class*="BeastTurnGame"], [class*="GrowthStakeSlots"])) main [class*="bg-gradient-to-r"][class*="to-amber-"] { --tw-gradient-to: rgba(201, 164, 92, 0.55) var(--tw-gradient-to-position) !important; }
+body:not(:has(.home-feature-stack, .counter-button, [class*="TodayDirectionQuest"], [class*="BeastCard"], [class*="BeastTechCard"], [class*="BattleCardGuide"], [class*="attlefield"], [class*="BeastTurnGame"], [class*="GrowthStakeSlots"])) main .bg-amber-300 { background-color: #c9a45c !important; }
+body:not(:has(.home-feature-stack, .counter-button, [class*="TodayDirectionQuest"], [class*="BeastCard"], [class*="BeastTechCard"], [class*="BattleCardGuide"], [class*="attlefield"], [class*="BeastTurnGame"], [class*="GrowthStakeSlots"])) main .from-rose-50 { --tw-gradient-from: #e6dccb var(--tw-gradient-from-position) !important; }
+body:not(:has(.home-feature-stack, .counter-button, [class*="TodayDirectionQuest"], [class*="BeastCard"], [class*="BeastTechCard"], [class*="BattleCardGuide"], [class*="attlefield"], [class*="BeastTurnGame"], [class*="GrowthStakeSlots"])) main .via-white { --tw-gradient-via: #efe7d8 var(--tw-gradient-via-position) !important; }
+body:not(:has(.home-feature-stack, .counter-button, [class*="TodayDirectionQuest"], [class*="BeastCard"], [class*="BeastTechCard"], [class*="BattleCardGuide"], [class*="attlefield"], [class*="BeastTurnGame"], [class*="GrowthStakeSlots"])) main .to-rose-50 { --tw-gradient-to: #e6dccb var(--tw-gradient-to-position) !important; }
+
+/* 10. /music landing card body -> leather (single gold focus stays on the CTA) */
+.music-landing-stack > .rounded-2xl.border-2 {
+  background-color: var(--lx-surface) !important;
+  background-image: var(--lx-card-bg) !important;
+  border-color: var(--lx-hairline) !important;
+  box-shadow: var(--lx-card-edge) !important;
+}
+.music-landing-stack > .rounded-2xl.border-2 button.rounded-xl { background-color: rgba(230, 220, 203, 0.04) !important; border-color: var(--lx-hairline) !important; }
+
+.music-landing-stack > .rounded-2xl.border-2 [class*="text-cyan-"] { color: var(--lx-label) !important; }
+
+/* 11. /nameology wood/fire/water badges darkened, hue kept (white glyph >= 4.5:1) */
+main li > span[aria-hidden="true"][style*="47, 122, 92"] { background: radial-gradient(circle at 34% 28%, #4f8a6e, #24533f 55%, #0d1020) !important; }
+main li > span[aria-hidden="true"][style*="176, 74, 63"] { background: radial-gradient(circle at 34% 28%, #a05a50, #6e332c 55%, #0d1020) !important; }
+main li > span[aria-hidden="true"][style*="59, 116, 160"] { background: radial-gradient(circle at 34% 28%, #567c9c, #2a4e6b 55%, #0d1020) !important; }
