@@ -2,6 +2,7 @@
  * 卡面數值（自研卡框 v1 用）：直接讀 cards/beasts/*.ts 的原始 cost / stats。
  * 不經 fighter() 或戰鬥正規化，只讀不改。
  */
+import { getSkill } from '@/cards/skills';
 import c_bi_shui_yu from '@/cards/beasts/bi-shui-yu';
 import c_bi_shui_yu_young from '@/cards/beasts/bi-shui-yu-young';
 import c_bi_yue_wu from '@/cards/beasts/bi-yue-wu';
@@ -67,4 +68,15 @@ const ALL = [c_bi_shui_yu, c_bi_shui_yu_young, c_bi_yue_wu, c_bi_yue_wu_young, c
 
 export const CARD_FACE_STATS: Record<string, { hp: number; attack: number; cost: number }> = Object.fromEntries(
   ALL.map((c) => [c.id, { hp: c.stats.hp, attack: c.stats.attack, cost: c.cost }]),
+);
+
+/**
+ * 幼子卡面技能（2026-10-24 使用者核可）：讀卡檔 skills[0] 對應 cards/skills 的名稱與說明，
+ * 取代圖鑑共用技能名。只影響顯示文字，不動任何數值。
+ */
+export const CARD_FACE_SKILL: Record<string, { name: string; description: string }> = Object.fromEntries(
+  ALL.filter((c) => c.form === 'YOUNG')
+    .map((c) => [c.id, getSkill(c.skills[0])] as const)
+    .filter((e): e is readonly [string, NonNullable<ReturnType<typeof getSkill>>] => !!e[1])
+    .map(([id, s]) => [id, { name: s.name, description: s.description }]),
 );

@@ -33,7 +33,7 @@ import { weaponFor, isTopTierWeapon } from '@/lib/beast-game/weapons';
 import type { BeastElement } from '@/lib/beast-game/elements';
 // 自研卡框 v1：卡面數值取卡檔原始 stats（與詳情頁 /api/beast-game 的 card.stats 同源），
 // 不用 interactiveCatalog 的對戰正規化值（fighter() 會把 hp 壓成 160±、attack 43/46）。
-import { CARD_FACE_STATS } from '@/lib/beast-game/card-face-stats';
+import { CARD_FACE_STATS, CARD_FACE_SKILL } from '@/lib/beast-game/card-face-stats';
 
 /**
  * 標準卡樣式（2026-10-19 業主定調：先選一張最完美的當統一標準，確認後其他 59 張對齊）。
@@ -208,9 +208,9 @@ const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
     front: '/beast-game/front/adult-02.v2.webp?v=11',
   },
   beast_a03: {
-    thumb: '/beast-game/thumb/adult-03.v2.webp?v=11',
-    mid: '/beast-game/thumb/adult-03.v2-480.webp?v=11',
-    front: '/beast-game/front/adult-03.v2.webp?v=11',
+    thumb: '/beast-game/thumb/adult-03.v2.webp?v=12',
+    mid: '/beast-game/thumb/adult-03.v2-480.webp?v=12',
+    front: '/beast-game/front/adult-03.v2.webp?v=12',
   },
   beast_a04: {
     thumb: '/beast-game/thumb/adult-04.v2.webp?v=11',
@@ -263,9 +263,9 @@ const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
     front: '/beast-game/front/adult-13.v2.webp?v=11',
   },
   beast_a14: {
-    thumb: '/beast-game/thumb/adult-14.v2.webp?v=11',
-    mid: '/beast-game/thumb/adult-14.v2-480.webp?v=11',
-    front: '/beast-game/front/adult-14.v2.webp?v=11',
+    thumb: '/beast-game/thumb/adult-14.v2.webp?v=12',
+    mid: '/beast-game/thumb/adult-14.v2-480.webp?v=12',
+    front: '/beast-game/front/adult-14.v2.webp?v=12',
   },
   beast_a15: {
     thumb: '/beast-game/thumb/adult-15.v2.webp?v=11',
@@ -288,9 +288,9 @@ const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
     front: '/beast-game/front/adult-18.v2.webp?v=11',
   },
   beast_a19: {
-    thumb: '/beast-game/thumb/adult-19.v2.webp?v=11',
-    mid: '/beast-game/thumb/adult-19.v2-480.webp?v=11',
-    front: '/beast-game/front/adult-19.v2.webp?v=11',
+    thumb: '/beast-game/thumb/adult-19.v2.webp?v=12',
+    mid: '/beast-game/thumb/adult-19.v2-480.webp?v=12',
+    front: '/beast-game/front/adult-19.v2.webp?v=12',
   },
   beast_a20: {
     thumb: '/beast-game/thumb/adult-20.v2.webp?v=11',
@@ -313,9 +313,9 @@ const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
     front: '/beast-game/front/adult-23.v2.webp?v=11',
   },
   beast_a24: {
-    thumb: '/beast-game/thumb/adult-24.v2.webp?v=11',
-    mid: '/beast-game/thumb/adult-24.v2-480.webp?v=11',
-    front: '/beast-game/front/adult-24.v2.webp?v=11',
+    thumb: '/beast-game/thumb/adult-24.v2.webp?v=12',
+    mid: '/beast-game/thumb/adult-24.v2-480.webp?v=12',
+    front: '/beast-game/front/adult-24.v2.webp?v=12',
   },
   beast_a25: {
     thumb: '/beast-game/thumb/adult-25.v2.webp?v=11',
@@ -323,9 +323,9 @@ const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
     front: '/beast-game/front/adult-25.v2.webp?v=11',
   },
   beast_a26: {
-    thumb: '/beast-game/thumb/adult-26.v2.webp?v=11',
-    mid: '/beast-game/thumb/adult-26.v2-480.webp?v=11',
-    front: '/beast-game/front/adult-26.v2.webp?v=11',
+    thumb: '/beast-game/thumb/adult-26.v2.webp?v=12',
+    mid: '/beast-game/thumb/adult-26.v2-480.webp?v=12',
+    front: '/beast-game/front/adult-26.v2.webp?v=12',
   },
   beast_a27: {
     thumb: '/beast-game/thumb/adult-27.v2.webp?v=11',
@@ -478,8 +478,10 @@ function FrameV1Tile({
   const art = ART_V2[card.id];
   // 只讀卡檔原始值；查不到就不顯示（不退回對戰正規化值）。
   const stats = CARD_FILE_STATS[card.id];
-  const skillName = card.skillName ?? guide?.skill.name;
-  const skillText = card.description ?? guide?.skill.description;
+  // 幼子：顯示卡檔自己的技能（skills[0]）名稱與說明；成獸／四象維持原樣。
+  const ownSkill = CARD_FACE_SKILL[card.id];
+  const skillName = ownSkill?.name ?? card.skillName ?? guide?.skill.name;
+  const skillText = ownSkill?.description ?? card.description ?? guide?.skill.description;
   const cost = CARD_FILE_STATS[card.id]?.cost; // 卡檔原始 cost，不用對戰正規化值
   const shortSkill = skillName?.split('・').pop();
   const wx = guide?.wuxing;
