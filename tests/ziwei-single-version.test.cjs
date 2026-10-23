@@ -61,10 +61,14 @@ checks += 1;
 
 // 5. 舊版錯誤寫法不得再出現
 const stale = [];
+// 豁免（2026-10-24 業主批准）：這個檔案是《紫微斗數全書》條文的逐字引用存檔，福德宮七殺那格原文就是「七殺入廟享福」
+// （卷二第 1610 行）。守門要擋的是「自己寫出」的舊版錯誤廟旺寫法，不是古籍引文；其他檔案一律照擋。
+const QUOTED_CLASSICS_STORE = new Set(['lib/ziwei-teacher/ghost-palace-lines.ts']);
 for (const dir of ['docs/技能戰鬥檔案', 'lib', 'app', 'components', 'features', 'data']) {
   const base = path.join(root, dir);
   if (!fs.existsSync(base)) continue;
   for (const f of walk(base)) {
+    if (QUOTED_CLASSICS_STORE.has(rel(f))) continue;
     const text = fs.readFileSync(f, 'utf8');
     if (/七殺[（(]廟[）)]|七殺入廟/.test(text)) stale.push(rel(f));
   }
