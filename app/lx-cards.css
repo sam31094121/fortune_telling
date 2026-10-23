@@ -35,3 +35,6 @@ body:not(:has(.home-feature-stack)) main :is(.rounded-2xl, .rounded-3xl)[class*=
 /* 3) 文字層級（先於其他色彩）：標題象牙、內文骨白、次要霧灰 */
 body:not(:has(.home-feature-stack)) main :is(.rounded-2xl, .rounded-3xl)[class*="bg-"][class*="border"]:not(button, a, form):not(:has(input, textarea, select)):not([class*="bg-white"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="-300"]):not([class*="bg-gradient"]) :is(h2, h3):not([class*="bg-clip-text"]) { color: var(--lx-title) !important; }
 body:not(:has(.home-feature-stack)) main :is(.rounded-2xl, .rounded-3xl)[class*="bg-"][class*="border"]:not(button, a, form):not(:has(input, textarea, select)):not([class*="bg-white"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="-300"]):not([class*="bg-gradient"]) :is([class*="text-slate-"], [class*="text-gray-"], [class*="text-zinc-"], [class*="text-neutral-"]) { color: var(--lx-body) !important; }
+
+/* 4) 主題變數色字（text-[color:var(--text-…)]）在皮革卡內統一為霧灰 #a9a39b（7.37:1） */
+body:not(:has(.home-feature-stack)) main :is(.rounded-2xl, .rounded-3xl)[class*="bg-"][class*="border"]:not(button, a, form):not(:has(input, textarea, select)):not([class*="bg-white"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="-300"]):not([class*="bg-gradient"]) [class*="text-[color:var(--text-"] { color: var(--lx-muted) !important; }
