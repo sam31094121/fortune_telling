@@ -1490,7 +1490,7 @@ export default function NameologyPage() {
                     <p className="mt-2">規則版本：{result.iching.ruleVersion}。卦義沿用專案既有資料；本服務提供文化解讀與自我反思，並非心理診斷或確定預測。</p>
                   </details>
                 </details>
-              ) : <p role="status" className="rounded-xl border border-amber-300/20 p-4">這份舊結果尚未包含卦象，請重新分析以取得後端卦象資料。</p>}
+              ) : baziMode ? <p role="status" className="rounded-xl border border-amber-300/20 p-4">這份舊結果尚未包含卦象，請重新分析以取得後端卦象資料。</p> : null}
             </div>
           )}
         </div>
