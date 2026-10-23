@@ -11,6 +11,8 @@ import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NineGridCard from '@/components/nine-grid/NineGridCard';
 import type { NineGridStudy } from '@/lib/nine-grid-numbers';
+import { NINE_GRID_GUIDE } from '@/lib/i18n-copy/nine-grid-guide';
+import mystic from '@/components/nine-grid/LuoshuMystic.module.css';
 
 type Guidance = NineGridStudy['guidance'];
 
@@ -22,6 +24,7 @@ export default function NineGridPage() {
   const [study, setStudy] = useState<NineGridStudy | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [guideOff, setGuideOff] = useState(false);
   const resultRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -119,6 +122,13 @@ export default function NineGridPage() {
                 <span>西元 {birthDate}</span>
               </p>
             )}
+            {birthDate && !study && !guideOff && (
+              <div className={`${mystic.guide} mt-3 flex items-center gap-2 rounded-xl border border-amber-200/25 bg-black/40 py-1 pl-3 pr-1`} role="status">
+                <span aria-hidden="true" className="text-amber-200">✦</span>
+                <p className="flex-1 break-words text-[12px] font-semibold leading-5 text-amber-50">{NINE_GRID_GUIDE['zh-TW'].birthEntered.text}</p>
+                <button type="button" onClick={() => setGuideOff(true)} aria-label="關閉提示" className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-amber-100">×</button>
+              </div>
+            )}
             {guidance && !birthDate && (
               <p className="mt-3 break-words text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{guidance.inputHint.text}</p>
             )}
@@ -140,7 +150,7 @@ export default function NineGridPage() {
 
         <div ref={resultRef} className="scroll-mt-4">
           {study && (
-            <div className="mt-5 space-y-3">
+            <div key={study.luoshu?.birthOverlay?.birthDate ?? 'study'} className={`${mystic.resultIn} mt-5 space-y-3`}>
               {guidance && <p className="px-1 text-center text-sm font-bold leading-7 text-violet-100/90">{guidance.resultIntro.text}</p>}
               <NineGridCard study={study} />
             </div>

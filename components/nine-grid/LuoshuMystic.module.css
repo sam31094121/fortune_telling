@@ -1,0 +1,78 @@
+/* 洛書九宮古籍版：神秘感視覺層（純裝飾＋動畫，不帶任何內容或運算） */
+.card { position: relative; isolation: isolate; }
+.card::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 30%, rgba(212,175,55,.10), transparent 60%), radial-gradient(ellipse at 50% 100%, rgba(80,90,180,.14), transparent 55%); }
+
+.inscribe { animation: inscribe 900ms ease-out both; letter-spacing: .18em; text-shadow: 0 0 14px rgba(253,230,138,.35); }
+@keyframes inscribe { from { opacity: 0; letter-spacing: .5em; filter: blur(4px); } to { opacity: 1; letter-spacing: .18em; filter: blur(0); } }
+
+.stage { position: relative; padding: 6px 0; }
+.ring { position: absolute; left: 50%; top: 50%; width: 118%; aspect-ratio: 1; transform: translate(-50%,-50%); pointer-events: none; z-index: 0; opacity: .5; }
+.ringSpin { transform-origin: 50% 50%; animation: spin 120s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.rim { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 26px; padding: 0 4px; border-radius: 999px;
+  border: 1px solid rgba(253,230,138,.45); background: linear-gradient(180deg, #2a1f12, #120d1c);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -2px 4px rgba(0,0,0,.5), 0 0 10px rgba(212,175,55,.18);
+  color: #fde68a; font-family: serif; font-size: 12px; font-weight: 900; text-shadow: 0 1px 0 rgba(0,0,0,.8); }
+
+.grid { position: relative; z-index: 1; }
+
+.tile { transition: transform 160ms ease, box-shadow 300ms ease, filter 300ms ease; -webkit-tap-highlight-color: transparent; }
+.tile:active { transform: scale(.94); }
+/* 未翻開：封印 */
+.sealed { background: radial-gradient(circle at 50% 50%, rgba(212,175,55,.10), transparent 62%), linear-gradient(160deg, #1d1828, #0f0c18) !important; border: 1px solid rgba(253,230,138,.28) !important; color: #e8dcc0 !important; }
+.sealed::after { content: ''; position: absolute; inset: 22%; border-radius: 50%; pointer-events: none;
+  border: 1px solid rgba(253,230,138,.18); box-shadow: 0 0 0 6px rgba(253,230,138,.04), inset 0 0 12px rgba(212,175,55,.12);
+  background: conic-gradient(from 0deg, transparent 0 40deg, rgba(253,230,138,.10) 45deg, transparent 50deg 130deg, rgba(253,230,138,.10) 135deg, transparent 140deg 220deg, rgba(253,230,138,.10) 225deg, transparent 230deg 310deg, rgba(253,230,138,.10) 315deg, transparent 320deg); }
+/* 翻開：墨光擴散＋破封 */
+.reveal::after { content: ''; position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(255,240,190,.75), rgba(212,175,55,.25) 45%, transparent 70%); transform: translate(-50%,-50%) scale(0); opacity: 0; animation: ink 700ms ease-out; }
+@keyframes ink { 0% { transform: translate(-50%,-50%) scale(0); opacity: .95; } 100% { transform: translate(-50%,-50%) scale(18); opacity: 0; } }
+.reveal > span:first-child { animation: settle 500ms ease-out; }
+@keyframes settle { from { transform: scale(1.25); filter: blur(2px); } to { transform: none; filter: none; } }
+/* 生日喚醒：依序亮起（延遲由 style 帶入） */
+.wake { animation: wake 900ms ease-out both; }
+@keyframes wake { 0% { box-shadow: 0 0 0 rgba(253,230,138,0); } 45% { box-shadow: 0 0 26px 4px rgba(253,230,138,.55); filter: brightness(1.35); } 100% { } }
+
+.thread { filter: drop-shadow(0 0 4px rgba(253,230,138,.9)) drop-shadow(0 0 10px rgba(212,175,55,.6)); }
+.threadFlow { animation: flow 1.2s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -28; } }
+.node { animation: nodePop 400ms ease-out both; }
+@keyframes nodePop { from { r: 0; } }
+
+.progress { transform: rotate(-90deg); transform-origin: 50% 50%; }
+.progressArc { transition: stroke-dashoffset 500ms ease; }
+.complete { animation: complete 1400ms ease-out; }
+@keyframes complete { 0% { filter: none; } 30% { filter: drop-shadow(0 0 18px rgba(253,230,138,.7)); } 100% { filter: none; } }
+
+.panel { position: relative; border-color: rgba(253,230,138,.45) !important; box-shadow: 0 0 24px -6px rgba(212,175,55,.45), inset 0 1px 0 rgba(255,255,255,.06); animation: panelIn 360ms ease-out; }
+.notch { position: absolute; top: -8px; width: 14px; height: 14px; transform: translateX(-50%) rotate(45deg); background: #17121a; border-left: 1px solid rgba(253,230,138,.45); border-top: 1px solid rgba(253,230,138,.45); transition: left 300ms ease; }
+@keyframes panelIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+.guide { animation: panelIn 400ms ease-out; }
+
+.mote { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: rgba(253,230,138,.7); box-shadow: 0 0 6px rgba(253,230,138,.8); pointer-events: none; z-index: 0; animation: drift 9s ease-in-out infinite; opacity: 0; }
+@keyframes drift { 0% { opacity: 0; transform: translateY(8px); } 30% { opacity: .8; } 100% { opacity: 0; transform: translateY(-40px); } }
+
+.resultIn { animation: resultIn 700ms ease-out both; }
+@keyframes resultIn { from { opacity: 0; transform: translateY(16px); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .inscribe, .ringSpin, .reveal::after, .reveal > span:first-child, .wake, .threadFlow, .node, .complete, .panel, .guide, .resultIn { animation: none !important; }
+  .mote { display: none; }
+  .tile, .tile:active, .progressArc, .notch { transition: none; transform: none; }
+  .notch { transform: translateX(-50%) rotate(45deg); }
+}
+@media print { .ring, .mote { display: none; } }
+
+/* 生日數字落宮：從刻字處落到同號宮格中心 */
+.drop { position: absolute; left: 50%; top: -48px; z-index: 20; pointer-events: none; transform: translate(-50%,-50%);
+  font-family: serif; font-size: 30px; font-weight: 900; color: #fff7d1; text-shadow: 0 0 10px rgba(253,230,138,.95), 0 0 22px rgba(212,175,55,.7);
+  animation: drop 240ms cubic-bezier(.5,0,.75,1) forwards; }
+@keyframes drop { from { left: 50%; top: -48px; opacity: .2; transform: translate(-50%,-50%) scale(1.4); } 70% { opacity: 1; } to { left: var(--tx); top: var(--ty); opacity: 0; transform: translate(-50%,-50%) scale(.8); } }
+.dropZero { animation: dropZero 240ms ease-out forwards; }
+@keyframes dropZero { from { opacity: 1; filter: blur(0); } to { opacity: 0; top: -70px; filter: blur(5px); } }
+.tick { animation: tick 300ms ease-out; }
+@keyframes tick { 0% { transform: scale(1.8); box-shadow: 0 0 12px rgba(253,230,138,.9); } 100% { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .drop, .dropZero, .tick { animation: none !important; display: none; } }

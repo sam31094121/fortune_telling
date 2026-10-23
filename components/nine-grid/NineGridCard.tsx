@@ -5,11 +5,15 @@
  * 後端運算、前端只顯示：所有解說、算出來的事實與來源說明都來自 /api/nine-grid 的 study
  * （lib/nine-grid-numbers.ts，解說全部來自技能檔案），這裡只負責排版、配色、連線畫面與選取狀態，不組任何結論句子。
  */
-import { useId, useState, type CSSProperties } from 'react';
+import { useEffect, useId, useState, type CSSProperties, type FormEvent } from 'react';
 import type { NineGridStudy } from '@/lib/nine-grid-numbers';
 import LuoshuCard from './LuoshuCard';
 import FiveStarLink, { ELEMENT_GEM } from './FiveStarLink';
 import gem from './NineGridGem.module.css';
+import { NAME_OVERLAY_LABEL, type NineGridNameOverlay } from '@/lib/nine-grid-name-overlay';
+import { playLuoshuRustle } from './LuoshuAudio';
+
+const NAME_DROP_MS = 420;
 
 const CELL = 100;
 
@@ -44,15 +48,52 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
   const [edition, setEdition] = useState<'luoshu' | 'shengming'>('luoshu');
   const [showControl, setShowControl] = useState(false);
   const [selection, setSelection] = useState<Selection | null>(null);
+  // B：靈動數字＋姓名學（姓名五格由後端姓名學引擎算出；前端只播放後端給的落點與亮線）
+  const [nameInput, setNameInput] = useState('');
+  const [overlay, setOverlay] = useState<NineGridNameOverlay | null>(null);
+  const [nameBusy, setNameBusy] = useState(false);
+  const [nameError, setNameError] = useState('');
+  const [nameStep, setNameStep] = useState(0);
+  const [lineNote, setLineNote] = useState<string | null>(null);
+  const nameDropping = Boolean(overlay) && nameStep < (overlay?.drop.length ?? 0);
+  useEffect(() => {
+    if (!overlay || nameStep >= overlay.drop.length) return;
+    const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { setNameStep(overlay.drop.length); return; }
+    const t = window.setTimeout(() => {
+      const step = overlay.drop[nameStep];
+      if (step.digit > 0) playLuoshuRustle();
+      if (step.linesLit.length) setLineNote(step.linesLit[step.linesLit.length - 1]);
+      setNameStep((n) => n + 1);
+    }, NAME_DROP_MS);
+    return () => window.clearTimeout(t);
+  }, [overlay, nameStep]);
+  async function submitName(event: FormEvent) {
+    event.preventDefault();
+    setNameBusy(true); setNameError('');
+    try {
+      const res = await fetch('/api/nine-grid', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ birthDate: study.input.birthDate, name: nameInput }) });
+      const json = await res.json();
+      if (!json.ok || !json.nameOverlay) { setNameError(json.message || '姓名對照暫時無法使用'); return; }
+      setOverlay(json.nameOverlay); setNameStep(0); setLineNote(null);
+    } catch { setNameError('連線中斷 請再試一次'); } finally { setNameBusy(false); }
+  }
   // 瀏覽器可能留著舊版格式的結果：格式不符就不顯示，不讓整頁當掉
   const compatible = study?.ruleVersion === 'nine-grid-v2' && Array.isArray(study.cells) && study.cells.length === 9 && Array.isArray(study.digits) && Array.isArray(study.lines) && Boolean(study.credibility);
   if (!compatible) return null;
 
   const selectedDigit = selection?.kind === 'digit' ? study.digits.find((item) => item.digit === selection.digit) : undefined;
   const selectedLine = selection?.kind === 'line' ? study.lines.find((item) => item.id === selection.id) : undefined;
-  const litLines = study.lines.filter((line) => line.lit);
+  const shownSteps = overlay ? overlay.drop.slice(0, nameStep) : [];
+  const nameLitIds = new Set(shownSteps.flatMap((step) => step.linesLit));
+  const isLineLit = (line: { id: string; lit: boolean }) => line.lit || nameLitIds.has(line.id);
+  const litLines = study.lines.filter(isLineLit);
+  const nameCountShown = (digit: number) => shownSteps.filter((step) => step.digit === digit).length;
+  const nameDone = Boolean(overlay) && !nameDropping;
+  const flying = overlay && nameDropping ? overlay.drop[nameStep] : undefined;
+  const noteLine = lineNote ? study.lines.find((line) => line.id === lineNote) : undefined;
 
-  const tabs = [{ id: 'luoshu' as const, label: '洛書九宮・古籍版' }, { id: 'shengming' as const, label: '生命靈數' }];
+  const tabs = [{ id: 'luoshu' as const, label: '洛書九宮・古籍版' }, { id: 'shengming' as const, label: '靈動數字＋姓名學' }];
   const tabBar = (
     <div className="mb-3 flex flex-wrap justify-center gap-2" role="tablist" aria-label="版本">
       {tabs.map((tab) => (
@@ -81,6 +122,34 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
         <div className="mx-auto mt-2 h-px w-24 bg-gradient-to-r from-transparent via-amber-300/70 to-transparent" />
       </header>
 
+      <form onSubmit={submitName} className="mx-auto mt-4 w-full max-w-[380px] rounded-2xl border border-violet-300/30 bg-violet-950/40 p-3" aria-label="加入姓名對照">
+        <div className="flex items-center justify-between gap-2">
+          <label htmlFor={`${uid}-name`} className="text-[13px] font-black tracking-[0.08em] text-violet-50">姓名五格（選填）</label>
+          <span className="rounded-full border border-violet-200/50 px-2 py-0.5 text-[11px] font-bold text-violet-100">{NAME_OVERLAY_LABEL}</span>
+        </div>
+        <div className="mt-2 flex gap-2">
+          <input id={`${uid}-name`} value={nameInput} onChange={(e) => setNameInput(e.target.value)} maxLength={6} autoComplete="off" placeholder="例如：王小明" className="min-h-[44px] min-w-0 flex-1 rounded-xl border border-white/25 bg-[#0d0b1f] px-3 text-[15px] text-white placeholder:text-white/55 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200" />
+          <button type="submit" disabled={nameBusy || !nameInput.trim()} className="min-h-[44px] shrink-0 rounded-xl border border-violet-200/70 bg-violet-400/25 px-3 text-[13px] font-black text-violet-50 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200">{nameBusy ? '對照中…' : '落入九宮'}</button>
+        </div>
+        {nameError && <p role="alert" className="mt-2 text-[12px] font-bold text-rose-200">{nameError}</p>}
+        {overlay && (
+          <div className="mt-2">
+            <ul className="flex flex-wrap gap-1.5" aria-label="姓名五格">
+              {overlay.grids.map((g) => (
+                <li key={g.key} className="rounded-lg border border-violet-200/40 bg-violet-400/10 px-2 py-1 text-[12px] font-bold text-violet-50">{g.label} <span className="font-black text-white">{g.value}</span></li>
+              ))}
+            </ul>
+            <p className="mt-1.5 text-[11px] leading-relaxed text-violet-100/85">{overlay.note}</p>
+            <div className="mt-1.5 flex flex-wrap gap-3 text-[11px] font-bold text-violet-100/90" aria-hidden="true">
+              <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-full bg-amber-200 align-middle" />生日數字</span>
+              <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-full bg-violet-300 align-middle" />姓名數字</span>
+              <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-full border-2 border-fuchsia-200 align-middle" />兩者都落到</span>
+            </div>
+            {nameDropping && <button type="button" onClick={() => setNameStep(overlay.drop.length)} className="mt-2 min-h-[44px] rounded-full border border-white/25 px-4 text-[12px] font-black text-white/85">略過</button>}
+          </div>
+        )}
+      </form>
+
       <div className="relative mx-auto mt-5 w-full max-w-[380px]">
         <div className="relative z-10 grid aspect-square grid-cols-3 gap-2 sm:gap-3" role="group" aria-label="九宮格">
           {study.cells.map((cell) => {
@@ -94,7 +163,7 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
                 aria-label={reading ? `${cell.title} ${cell.digit} ${reading.countNote}` : String(cell.digit)}
                 onClick={() => setSelection({ kind: 'digit', digit: cell.digit })}
                 style={cellStyle(study, cell)}
-                className={`${gem.tile} relative flex min-h-[84px] flex-col items-center justify-center px-1 text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${study.fiveStar ? (cell.count === 0 ? gem.porcelain : '') : levelClass(cell.count)} ${active ? `${gem.selected} ring-2 ring-amber-200/90` : ''} ${cell.count > 0 ? `${uid}-breath` : ''}`}
+                className={`${gem.tile} relative flex min-h-[84px] flex-col items-center justify-center px-1 text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${study.fiveStar ? (cell.count === 0 ? gem.porcelain : '') : levelClass(cell.count)} ${active ? `${gem.selected} ring-2 ring-amber-200/90` : ''} ${cell.count > 0 ? `${uid}-breath` : ''} ${nameDone && overlay?.doubleEmphasis.includes(cell.digit) ? 'ring-[3px] ring-fuchsia-200 shadow-[0_0_22px_rgba(232,121,249,0.75)]' : ''}`}
               >
                 <span className="font-serif text-4xl font-black leading-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.65)] sm:text-5xl">{cell.digit}</span>
                 <span className="mt-1 text-[11px] font-bold tracking-[0.1em] opacity-90">{cell.title}</span>
@@ -113,6 +182,9 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
                 )}
                 {cell.count > 0 && (
                   <span aria-hidden="true" className="absolute right-1.5 top-1.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full border border-amber-200/70 bg-[#14102a] px-1 text-[10px] font-black text-amber-100">{cell.count}</span>
+                )}
+                {nameCountShown(cell.digit) > 0 && (
+                  <span aria-label={`姓名數字 ${nameCountShown(cell.digit)} 次`} className="absolute bottom-1.5 right-1.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full border border-violet-200 bg-[#24104a] px-1 text-[10px] font-black text-violet-50">名{nameCountShown(cell.digit)}</span>
                 )}
               </button>
             );
@@ -172,7 +244,23 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
             );
           })}
         </svg>
+        {flying && (() => {
+          const at = flying.digit > 0 ? cellCenter(study, flying.digit) : { x: 150, y: 150 };
+          return (
+            <span key={nameStep} aria-hidden="true" className={`pointer-events-none absolute z-20 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-violet-100 bg-violet-500/85 font-serif text-xl font-black text-white shadow-[0_0_18px_rgba(196,181,253,0.9)] motion-safe:animate-bounce ${flying.digit === 0 ? 'opacity-40' : ''}`} style={{ left: `${at.x / 3}%`, top: `${at.y / 3}%` }}>{flying.digit}</span>
+          );
+        })()}
       </div>
+      {noteLine && (
+        <div role="status" className="mx-auto mt-3 w-full max-w-[380px] rounded-xl border border-amber-200/50 bg-amber-300/10 p-3">
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-[13px] font-black text-amber-50">{noteLine.digits.join('-')} {noteLine.name} 連起來了</p>
+            <button type="button" aria-label="關閉" onClick={() => setLineNote(null)} className="-m-2 h-11 w-11 shrink-0 text-lg font-black text-amber-50">×</button>
+          </div>
+          <p className="text-[12px] leading-relaxed text-amber-50/90">{noteLine.text}</p>
+          <p className="mt-1 text-[11px] font-bold text-amber-100/85">{noteLine.provenanceLabel}・{NAME_OVERLAY_LABEL}</p>
+        </div>
+      )}
 
       {study.fiveStar && (
         <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
@@ -191,7 +279,7 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
               type="button"
               aria-pressed={chosen}
               onClick={() => setSelection({ kind: 'line', id: line.id })}
-              className={`min-h-[44px] rounded-full border px-3.5 py-1.5 text-[12px] font-black tracking-[0.06em] transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${line.lit ? 'border-amber-300/70 bg-amber-300/15 text-amber-50 shadow-[0_0_14px_rgba(251,191,36,0.3)]' : 'border-dashed border-white/20 bg-white/[0.03] text-white/45'} ${chosen ? 'ring-2 ring-amber-200/90' : ''}`}
+              className={`min-h-[44px] rounded-full border px-3.5 py-1.5 text-[12px] font-black tracking-[0.06em] transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${isLineLit(line) ? 'border-amber-300/70 bg-amber-300/15 text-amber-50 shadow-[0_0_14px_rgba(251,191,36,0.3)]' : 'border-dashed border-white/20 bg-white/[0.03] text-white/45'} ${chosen ? 'ring-2 ring-amber-200/90' : ''}`}
             >
               {line.digits.join('-')}　{line.name}
             </button>
