@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     if (!analysis.standardOutput.verification.readyForFrontend) {
       return NextResponse.json({ ok: false, code: 'NAME_RULES_NOT_READY', message: '這個名字有字還查不到可靠筆畫，暫時無法對照。' }, { status: 422 });
     }
-    return NextResponse.json({ ok: true, study, nameOverlay: buildNineGridNameOverlay(study, name, analysis.grids) });
+    return NextResponse.json({ ok: true, study, nameOverlay: buildNineGridNameOverlay(study, name, analysis.grids, analysis.characters) });
   } catch (error) {
     console.error('[nine-grid] name overlay failed', error instanceof Error ? error.message : String(error));
     return NextResponse.json({ ok: false, code: 'TEMPORARILY_UNAVAILABLE', message: '姓名對照正在重新同步，請稍候再試。' }, { status: 502 });

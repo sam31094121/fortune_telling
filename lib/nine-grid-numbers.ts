@@ -196,7 +196,7 @@ export function buildNineGridStudy(parsed: Extract<ParsedBirthDate, { ok: true }
   const dominant = [...counts.entries()].filter(([, n]) => n === maxCount && n > 0).map(([d]) => d);
   const missingDigits = [...counts.entries()].filter(([, n]) => n === 0).map(([d]) => d);
   const litLines = lines.filter((l) => l.lit).length;
-  const summaryText = `生日 ${parsed.birthDate} 的數字（0 不計）共 ${parsed.digits.length} 個；出現最多次的是 ${dominant.join('、')}（${maxCount} 次）；沒有出現的是 ${missingDigits.length ? missingDigits.join('、') : '無'}；亮起 ${litLines} 條連線。`;
+  const summaryText = `生日 ${parsed.birthDate} 的數字（0 不計）共 ${parsed.digits.length} 個；${maxCount === 1 ? '每個出現的數字都只出現 1 次' : `出現最多次的是 ${dominant.join('、')}（${maxCount} 次）`}；沒有出現的是 ${missingDigits.length ? missingDigits.join('、') : '無'}；亮起 ${litLines} 條連線。`;
 
   return {
     ruleVersion: 'nine-grid-v2',

@@ -10,10 +10,34 @@ import type { NineGridStudy } from '@/lib/nine-grid-numbers';
 import LuoshuCard from './LuoshuCard';
 import FiveStarLink, { ELEMENT_GEM } from './FiveStarLink';
 import gem from './NineGridGem.module.css';
-import { NAME_OVERLAY_LABEL, type NineGridNameOverlay } from '@/lib/nine-grid-name-overlay';
+import { NAME_OVERLAY_LABEL, NINE_GRID_DROP_HINT, NINE_GRID_LAYOUT_LINE, NINE_GRID_SITE_ONLY, NINE_GRID_SOURCE_NOTES, type NineGridNameOverlay, type NineGridSourceKey } from '@/lib/nine-grid-name-overlay';
 import { playLuoshuRustle } from './LuoshuAudio';
 
-const NAME_DROP_MS = 420;
+const NAME_DROP_MS = 520;
+
+/** 「來源」小標：預設只露一個小字，點開才顯示這一則出處（一次一則）；可點範圍向外擴到 44px */
+function SourceTip({ k, open, onToggle }: { k: NineGridSourceKey; open: boolean; onToggle: (k: NineGridSourceKey) => void }) {
+  const note = NINE_GRID_SOURCE_NOTES[k];
+  return (
+    <button type="button" aria-expanded={open} aria-label={`${note.title}的來源`} onClick={(e) => { e.stopPropagation(); onToggle(k); }}
+      className={`relative ml-1 inline-flex h-5 shrink-0 items-center rounded-full border px-1.5 align-middle text-[10px] font-bold leading-none tracking-[0.08em] before:absolute before:-inset-x-2 before:-inset-y-3 before:content-[''] focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200 ${open ? 'border-amber-200/70 bg-amber-200/15 text-amber-50' : 'border-white/15 text-white/45'}`}>
+      {note.tier === 'site' ? '本站' : '來源'}
+    </button>
+  );
+}
+
+function SourcePanel({ k }: { k: NineGridSourceKey }) {
+  const note = NINE_GRID_SOURCE_NOTES[k];
+  return (
+    <div role="note" className="mt-1.5 rounded-lg border border-amber-200/30 bg-black/35 px-2.5 py-2 text-left">
+      <p className="break-words text-[11px] font-semibold leading-5 text-violet-50/90">{note.text}</p>
+      {note.cites.length ? note.cites.map((c) => (
+        <p key={c.id} className="mt-0.5 break-words text-[10px] font-bold leading-4 text-amber-100/80">— {c.label}（{c.trust} 級）</p>
+      )) : <p className="mt-0.5 text-[10px] font-bold text-fuchsia-100/85">{NINE_GRID_SITE_ONLY}</p>}
+    </div>
+  );
+}
+
 
 const CELL = 100;
 
@@ -55,6 +79,9 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
   const [nameError, setNameError] = useState('');
   const [nameStep, setNameStep] = useState(0);
   const [lineNote, setLineNote] = useState<string | null>(null);
+  const [openSource, setOpenSource] = useState<NineGridSourceKey | null>(null);
+  const [showLinks, setShowLinks] = useState(false);
+  const toggleSource = (k: NineGridSourceKey) => setOpenSource((cur) => (cur === k ? null : k));
   const nameDropping = Boolean(overlay) && nameStep < (overlay?.drop.length ?? 0);
   useEffect(() => {
     if (!overlay || nameStep >= overlay.drop.length) return;
@@ -110,15 +137,24 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
       <style>{`
         @keyframes ${uid}-flow { to { stroke-dashoffset: -24; } }
         @keyframes ${uid}-breath { 0%,100% { opacity: .75; } 50% { opacity: 1; } }
+        @keyframes ${uid}-fly { from { left: 50%; top: -8%; opacity: .2; transform: translate(-50%,-50%) scale(.6); } to { left: var(--tx); top: var(--ty); opacity: 1; transform: translate(-50%,-50%) scale(1); } }
+        @keyframes ${uid}-split { 0% { letter-spacing: 0; } 100% { letter-spacing: .35em; } }
         @media (prefers-reduced-motion: no-preference) {
           .${uid}-flow { animation: ${uid}-flow 1.8s linear infinite; }
           .${uid}-breath { animation: ${uid}-breath 3s ease-in-out infinite; }
+          .${uid}-fly { animation: ${uid}-fly .46s cubic-bezier(.2,.7,.3,1) both; }
+          .${uid}-split { animation: ${uid}-split .4s ease-out both; }
         }
       `}</style>
 
       <header className="text-center">
         <p className="text-[11px] font-black tracking-[0.3em] text-amber-200/90">{study.input.label}</p>
         <h2 className="mt-1 font-serif text-2xl font-black tracking-[0.12em] text-violet-50">{study.input.birthDate}</h2>
+        <p className="mt-1 text-[12px] font-bold tracking-[0.12em] text-amber-100/80">
+          → {study.input.digits.join('·')}{study.input.zeroCount > 0 ? `（${study.input.zeroCount} 個 0 不計）` : ''}
+          <SourceTip k="birthDigits" open={openSource === 'birthDigits'} onToggle={toggleSource} />
+        </p>
+        {openSource === 'birthDigits' && <div className="mx-auto max-w-[380px]"><SourcePanel k="birthDigits" /></div>}
         <div className="mx-auto mt-2 h-px w-24 bg-gradient-to-r from-transparent via-amber-300/70 to-transparent" />
       </header>
 
@@ -134,12 +170,36 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
         {nameError && <p role="alert" className="mt-2 text-[12px] font-bold text-rose-200">{nameError}</p>}
         {overlay && (
           <div className="mt-2">
-            <ul className="flex flex-wrap gap-1.5" aria-label="姓名五格">
-              {overlay.grids.map((g) => (
-                <li key={g.key} className="rounded-lg border border-violet-200/40 bg-violet-400/10 px-2 py-1 text-[12px] font-bold text-violet-50">{g.label} <span className="font-black text-white">{g.value}</span></li>
-              ))}
-            </ul>
-            <p className="mt-1.5 text-[11px] leading-relaxed text-violet-100/85">{overlay.note}</p>
+            <ol className="space-y-1.5" aria-label="姓名落格流程">
+              <li className="flex flex-wrap items-center gap-1.5 text-[12px] font-bold text-violet-100/90">
+                <span className="w-[4.5em] shrink-0 text-[11px] tracking-[0.1em] text-violet-200/70">一・名字</span>
+                <span className="font-serif text-[15px] font-black tracking-[0.2em] text-white">{overlay.name}</span>
+              </li>
+              {overlay.chars.length > 0 && (
+                <li className="flex flex-wrap items-center gap-1.5 text-[12px] font-bold text-violet-100/90">
+                  <span className="w-[4.5em] shrink-0 text-[11px] tracking-[0.1em] text-violet-200/70">二・筆畫</span>
+                  {overlay.chars.map((c, i) => <span key={i} className="rounded-md bg-white/[0.06] px-1.5 py-0.5">{c.char}<span className="ml-0.5 font-black text-white">{c.strokes}</span></span>)}
+                  <SourceTip k="strokes" open={openSource === 'strokes'} onToggle={toggleSource} />
+                </li>
+              )}
+              {openSource === 'strokes' && <SourcePanel k="strokes" />}
+              <li className="flex flex-wrap items-center gap-1.5 text-[12px] font-bold text-violet-100/90">
+                <span className="w-[4.5em] shrink-0 text-[11px] tracking-[0.1em] text-violet-200/70">三・五格</span>
+                {overlay.grids.map((g) => <span key={g.key} className="rounded-md border border-violet-200/30 bg-violet-400/10 px-1.5 py-0.5">{g.label.slice(0, 1)}<span className="ml-0.5 font-black text-white">{g.value}</span></span>)}
+                <SourceTip k="grids" open={openSource === 'grids'} onToggle={toggleSource} />
+              </li>
+              {openSource === 'grids' && <SourcePanel k="grids" />}
+              <li className="flex flex-wrap items-center gap-1.5 text-[12px] font-bold text-violet-100/90">
+                <span className="w-[4.5em] shrink-0 text-[11px] tracking-[0.1em] text-violet-200/70">四・拆數</span>
+                {overlay.split.map((g) => <span key={g.key} className="rounded-md bg-white/[0.06] px-1.5 py-0.5 font-black text-violet-50">{g.digits.join('·')}</span>)}
+                <SourceTip k="split" open={openSource === 'split'} onToggle={toggleSource} />
+              </li>
+              {openSource === 'split' && <SourcePanel k="split" />}
+              <li className="flex flex-wrap items-center gap-1.5 text-[12px] font-bold text-violet-100/90">
+                <span className="w-[4.5em] shrink-0 text-[11px] tracking-[0.1em] text-violet-200/70">五・落格</span>
+                <span>{NINE_GRID_DROP_HINT}</span>
+              </li>
+            </ol>
             <div className="mt-1.5 flex flex-wrap gap-3 text-[11px] font-bold text-violet-100/90" aria-hidden="true">
               <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-full bg-amber-200 align-middle" />生日數字</span>
               <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-full bg-violet-300 align-middle" />姓名數字</span>
@@ -150,6 +210,20 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
         )}
       </form>
 
+      {overlay && flying && (() => {
+        const g = overlay.split.find((x) => x.key === flying.gridKey);
+        if (!g) return null;
+        const firstIdx = overlay.drop.findIndex((d) => d.gridKey === g.key);
+        const pos = nameStep - firstIdx;
+        return (
+          <div aria-live="polite" className="mx-auto mt-4 flex w-full max-w-[380px] items-center justify-center gap-2 font-serif text-violet-50">
+            <span className="text-[13px] font-bold tracking-[0.12em] text-violet-200/80">{g.label}</span>
+            <span className={`${uid}-split text-2xl font-black`}>{g.value}</span>
+            <span className="text-violet-200/60">→</span>
+            {g.digits.map((d, i) => <span key={i} className={`inline-flex h-8 w-8 items-center justify-center rounded-full border text-lg font-black ${i === pos ? 'border-violet-100 bg-violet-500/70 text-white' : i < pos ? 'border-white/15 text-white/35' : 'border-violet-200/40 text-violet-100'} ${d === 0 ? 'line-through opacity-50' : ''}`}>{d}</span>)}
+          </div>
+        );
+      })()}
       <div className="relative mx-auto mt-5 w-full max-w-[380px]">
         <div className="relative z-10 grid aspect-square grid-cols-3 gap-2 sm:gap-3" role="group" aria-label="九宮格">
           {study.cells.map((cell) => {
@@ -204,7 +278,7 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
             <marker id={`${uid}-gen`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#7be0b5" /></marker>
             <marker id={`${uid}-ctl`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#ff9aa8" /></marker>
           </defs>
-          {study.fiveStar?.cellLinks.filter((link) => showControl || link.kind === '生').map((link) => {
+          {showLinks && study.fiveStar?.cellLinks.filter((link) => showControl || link.kind === '生').map((link) => {
             const a = cellCenter(study, link.fromDigit);
             const b = cellCenter(study, link.toDigit);
             const length = Math.hypot(b.x - a.x, b.y - a.y) || 1;
@@ -246,11 +320,17 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
         </svg>
         {flying && (() => {
           const at = flying.digit > 0 ? cellCenter(study, flying.digit) : { x: 150, y: 150 };
+          const vars = { left: `${at.x / 3}%`, top: `${at.y / 3}%`, '--tx': `${at.x / 3}%`, '--ty': `${at.y / 3}%` } as CSSProperties;
           return (
-            <span key={nameStep} aria-hidden="true" className={`pointer-events-none absolute z-20 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-violet-100 bg-violet-500/85 font-serif text-xl font-black text-white shadow-[0_0_18px_rgba(196,181,253,0.9)] motion-safe:animate-bounce ${flying.digit === 0 ? 'opacity-40' : ''}`} style={{ left: `${at.x / 3}%`, top: `${at.y / 3}%` }}>{flying.digit}</span>
+            <span key={nameStep} aria-hidden="true" className={`${uid}-fly pointer-events-none absolute z-20 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-violet-100 bg-violet-500/85 font-serif text-xl font-black text-white shadow-[0_0_18px_rgba(196,181,253,0.9)] ${flying.digit === 0 ? 'opacity-40' : ''}`} style={vars}>{flying.digit}</span>
           );
         })()}
       </div>
+      <p className="mx-auto mt-2 flex w-full max-w-[380px] flex-wrap items-center justify-center text-center text-[11px] font-bold tracking-[0.06em] text-violet-100/70">
+        {NINE_GRID_LAYOUT_LINE}
+        <SourceTip k="layout" open={openSource === 'layout'} onToggle={toggleSource} />
+      </p>
+      {openSource === 'layout' && <div className="mx-auto w-full max-w-[380px]"><SourcePanel k="layout" /></div>}
       {noteLine && (
         <div role="status" className="mx-auto mt-3 w-full max-w-[380px] rounded-xl border border-amber-200/50 bg-amber-300/10 p-3">
           <div className="flex items-start justify-between gap-2">
@@ -264,11 +344,11 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
 
       {study.fiveStar && (
         <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-          <span className="text-[11px] font-bold text-violet-100/80">{study.fiveStar.legend.generate}</span>
-          <button type="button" aria-pressed={showControl} onClick={() => setShowControl((v) => !v)} className={`min-h-[44px] rounded-full border px-3.5 text-[12px] font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${showControl ? 'border-rose-300/70 bg-rose-300/15 text-rose-50' : 'border-white/20 bg-white/[0.03] text-white/60'}`}>{study.fiveStar.legend.control}</button>
+          <button type="button" aria-pressed={showLinks} onClick={() => setShowLinks((v) => !v)} className={`min-h-[44px] rounded-full border px-3.5 text-[12px] font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${showLinks ? 'border-emerald-300/70 bg-emerald-300/15 text-emerald-50' : 'border-white/20 bg-white/[0.03] text-white/60'}`}>{showLinks ? '收起相生相剋' : '顯示相生相剋'}</button>
+          {showLinks && <span className="text-[11px] font-bold text-violet-100/80">{study.fiveStar.legend.generate}</span>}
+          {showLinks && <button type="button" aria-pressed={showControl} onClick={() => setShowControl((v) => !v)} className={`min-h-[44px] rounded-full border px-3.5 text-[12px] font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${showControl ? 'border-rose-300/70 bg-rose-300/15 text-rose-50' : 'border-white/20 bg-white/[0.03] text-white/60'}`}>{study.fiveStar.legend.control}</button>}
         </div>
       )}
-
 
       <div className="mt-4 flex flex-wrap justify-center gap-2" role="group" aria-label="靈動連線">
         {study.lines.map((line) => {
@@ -292,6 +372,12 @@ export default function NineGridCard({ study }: { study: NineGridStudy }) {
           <>
             <p className="text-[11px] font-black tracking-[0.2em] text-amber-200/90">{selectedDigit.title}　{selectedDigit.keywords}</p>
             <p className="mt-1 break-words text-sm font-black leading-7 text-violet-50">{selectedDigit.countNote}</p>
+            {selectedDigit.count > 0 && <p className="break-words text-[12px] font-bold leading-6 text-amber-100/90">生日 {study.input.birthDate} 給了 {selectedDigit.count} 個 {selectedDigit.digit}</p>}
+            {nameDone && overlay?.contributors.find((c) => c.digit === selectedDigit.digit)?.text && (
+              <p className="break-words text-[12px] font-bold leading-6 text-violet-100">
+                <span className="mr-1 rounded border border-violet-200/50 px-1 text-[10px]">名</span>{overlay.contributors.find((c) => c.digit === selectedDigit.digit)?.text}
+              </p>
+            )}
             <p className="mt-2 break-words text-sm font-semibold leading-7 text-violet-50/95">{selectedDigit.trait}</p>
             <details className="mt-3 rounded-xl border border-white/10 bg-black/25 p-3">
               <summary className="min-h-[44px] cursor-pointer list-none text-[12px] font-black leading-[44px] text-amber-200/90">小提醒</summary>

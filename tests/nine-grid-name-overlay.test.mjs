@@ -6,6 +6,8 @@ import { buildNameologyAnalysis } from '../lib/nameology-engine.ts';
 import { getNamePersonalityScores } from '../lib/name-model-db.ts';
 import { loadLocalNameologyDictionary } from '../lib/nameology-dictionary-loader.ts';
 import { POST } from '../app/api/nine-grid/route.ts';
+import { NINE_GRID_SOURCE_NOTES } from '../lib/nine-grid-name-overlay.ts';
+import { readFileSync } from 'node:fs';
 
 let passed = 0;
 const check = async (n, fn) => { await fn(); passed += 1; console.log(`  ✓ ${n}`); };
@@ -29,7 +31,7 @@ for (const name of ['王小明', '陳怡君', '林志玲']) {
     const study = buildNineGridStudy(p);
     const before = JSON.stringify(study);
     const analysis = buildNameologyAnalysis(name, getNamePersonalityScores(name), { birthDate: '1974-06-28', dictionarySnapshot: dict });
-    const ov = buildNineGridNameOverlay(study, name, analysis.grids);
+    const ov = buildNineGridNameOverlay(study, name, analysis.grids, analysis.characters);
     assert.equal(JSON.stringify(study), before, 'study 不得被改動');
     assert.deepEqual(ov.grids.map((g) => [g.key, g.value]), analysis.grids.map((g) => [g.key, g.value]));
     const digits = analysis.grids.flatMap((g) => String(g.value).split('').map(Number));
@@ -54,5 +56,29 @@ for (const name of ['王小明', '陳怡君', '林志玲']) {
 await check('不收主命數／天賦數／八十一靈動數', async () => {
   const ov = buildNineGridNameOverlay(buildNineGridStudy(parseBirthDate('1974-06-28')), '王小明', [{ key: 'sky', label: '天格', value: 5 }]);
   assert.ok(!/主命數|天賦數|八十一/.test(JSON.stringify(ov)));
+});
+await check('曾威燕／1974-06-28：每字筆畫、拆數、來源格子都來自引擎', async () => {
+  const study = buildNineGridStudy(parseBirthDate('1974-06-28'));
+  const analysis = buildNameologyAnalysis('曾威燕', getNamePersonalityScores('曾威燕'), { birthDate: '1974-06-28', dictionarySnapshot: dict });
+  const ov = buildNineGridNameOverlay(study, '曾威燕', analysis.grids, analysis.characters);
+  assert.deepEqual(ov.chars.map((c) => c.strokes), analysis.characters.map((c) => c.strokeCount));
+  for (const g of ov.split) assert.equal(Number(g.digits.join('')), g.value);
+  for (const c of ov.contributors) assert.equal(c.from.length, ov.palaces.find((p) => p.digit === c.digit).nameCount);
+  assert.ok(!/出現最多次的是 .*（1 次）/.test(study.summary.text), '每個數字只出現一次時不得寫「出現最多次…（1 次）」');
+  console.log('    ', ov.chars.map((c) => c.char + c.strokes).join(' '), ov.grids.map((g) => g.label + g.value).join(' '), ov.contributors.find((c) => c.digit === 1).text);
+});
+await check('每個來源標記都對得到登記表與技能檔標籤', async () => {
+  const reg = JSON.parse(readFileSync(new URL('../docs/技能戰鬥檔案/易經/來源登記.json', import.meta.url), 'utf8'));
+  const labels = { ...JSON.parse(readFileSync(new URL('../docs/技能戰鬥檔案/九宮格靈動數字/九宮格靈動數字.json', import.meta.url), 'utf8')).sourceLabels, ...JSON.parse(readFileSync(new URL('../docs/技能戰鬥檔案/姓名學/姓名學.json', import.meta.url), 'utf8')).sourceLabels };
+  for (const note of Object.values(NINE_GRID_SOURCE_NOTES)) {
+    if (note.tier === 'site') { assert.equal(note.cites.length, 0); continue; }
+    assert.ok(note.cites.length > 0, note.key);
+    for (const c of note.cites) {
+      const entry = reg.sources.find((s) => s.source_id === c.id);
+      assert.ok(entry, `${c.id} 不在來源登記`);
+      assert.equal(c.trust, entry.trust, `${c.id} 等級不符`);
+      assert.equal(c.label, labels[c.id], `${c.id} 標籤與技能檔不一致`);
+    }
+  }
 });
 console.log(`九宮格姓名對照：${passed} 項通過`);
