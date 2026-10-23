@@ -31,6 +31,9 @@ import ElementOrbDisplay from './ElementOrbDisplay';
 import frame from '@/components/BeastCardFrame.module.css';
 import { weaponFor, isTopTierWeapon } from '@/lib/beast-game/weapons';
 import type { BeastElement } from '@/lib/beast-game/elements';
+// 自研卡框 v1：卡面數值取卡檔原始 stats（與詳情頁 /api/beast-game 的 card.stats 同源），
+// 不用 interactiveCatalog 的對戰正規化值（fighter() 會把 hp 壓成 160±、attack 43/46）。
+import { CARD_FACE_STATS } from '@/lib/beast-game/card-face-stats';
 
 /**
  * 標準卡樣式（2026-10-19 業主定調：先選一張最完美的當統一標準，確認後其他 59 張對齊）。
@@ -52,77 +55,77 @@ export function usesStandardStyle(_cardId: string): boolean {
  */
 
 /** v2 每張圖的垂直取景（依主體外框量測，使主體在圖窗內上下置中） */
-const ART_V2_POS: Record<string, number> = {"beast_y01":69.1,"beast_y02":79.4,"beast_y03":70.5,"beast_y04":48.4,"beast_y05":74.8,"beast_y06":69.4,"beast_y07":60,"beast_y08":77.4,"beast_y09":67,"beast_y10":56.6,"beast_y11":60,"beast_y12":78.2,"beast_y13":64.2,"beast_y14":56.8,"beast_y15":72.4,"beast_y16":60.4,"beast_y17":79.7,"beast_y18":60,"beast_y19":71.6,"beast_y20":66.6,"beast_y21":60,"beast_y22":60.5,"beast_y23":60.4,"beast_y24":58,"beast_y25":65.1,"beast_y26":60.5,"beast_y27":63.6,"beast_y28":66.1,"beast_a01":50,"beast_a02":50,"beast_a03":55,"beast_a04":30,"beast_a05":50,"beast_a06":50,"beast_a07":50,"beast_a08":50,"beast_a09":50,"beast_a10":50,"beast_a11":50,"beast_a12":50,"beast_a13":50,"beast_a14":50,"beast_a15":50,"beast_a16":50,"beast_a17":50,"beast_a18":50,"beast_a19":50,"beast_a20":50,"beast_a21":50,"beast_a22":50,"beast_a23":50,"beast_a24":50,"beast_a25":50,"beast_a26":50,"beast_a27":50,"beast_a28":50,"beast_g_qinglong":50,"beast_g_zhuque":50,"beast_g_baihu":50,"beast_g_xuanwu":50};
+const ART_V2_POS: Record<string, number> = {"beast_y01":50,"beast_y02":50,"beast_y03":50,"beast_y04":50,"beast_y05":50,"beast_y06":50,"beast_y07":50,"beast_y08":50,"beast_y09":50,"beast_y10":50,"beast_y11":50,"beast_y12":50,"beast_y13":50,"beast_y14":50,"beast_y15":72.4,"beast_y16":60.4,"beast_y17":79.7,"beast_y18":60,"beast_y19":71.6,"beast_y20":66.6,"beast_y21":60,"beast_y22":60.5,"beast_y23":60.4,"beast_y24":58,"beast_y25":65.1,"beast_y26":60.5,"beast_y27":63.6,"beast_y28":66.1,"beast_a01":50,"beast_a02":50,"beast_a03":55,"beast_a04":30,"beast_a05":50,"beast_a06":50,"beast_a07":50,"beast_a08":50,"beast_a09":50,"beast_a10":50,"beast_a11":50,"beast_a12":50,"beast_a13":50,"beast_a14":50,"beast_a15":50,"beast_a16":50,"beast_a17":50,"beast_a18":50,"beast_a19":50,"beast_a20":50,"beast_a21":50,"beast_a22":50,"beast_a23":50,"beast_a24":50,"beast_a25":50,"beast_a26":50,"beast_a27":50,"beast_a28":50,"beast_g_qinglong":50,"beast_g_zhuque":50,"beast_g_baihu":50,"beast_g_xuanwu":50};
 const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
   beast_y01: {
-    thumb: '/beast-game/thumb/young-01.v2.webp?v=5',
-    mid: '/beast-game/thumb/young-01.v2-480.webp?v=5',
-    front: '/beast-game/front/young-01.v2.webp?v=5',
+    thumb: '/beast-game/thumb/young-01.v2.webp?v=7',
+    mid: '/beast-game/thumb/young-01.v2-480.webp?v=7',
+    front: '/beast-game/front/young-01.v2.webp?v=7',
   },
   beast_y02: {
-    thumb: '/beast-game/thumb/young-02.v2.webp?v=5',
-    mid: '/beast-game/thumb/young-02.v2-480.webp?v=5',
-    front: '/beast-game/front/young-02.v2.webp?v=5',
+    thumb: '/beast-game/thumb/young-02.v2.webp?v=6',
+    mid: '/beast-game/thumb/young-02.v2-480.webp?v=6',
+    front: '/beast-game/front/young-02.v2.webp?v=6',
   },
   beast_y03: {
-    thumb: '/beast-game/thumb/young-03.v2.webp?v=5',
-    mid: '/beast-game/thumb/young-03.v2-480.webp?v=5',
-    front: '/beast-game/front/young-03.v2.webp?v=5',
+    thumb: '/beast-game/thumb/young-03.v2.webp?v=6',
+    mid: '/beast-game/thumb/young-03.v2-480.webp?v=6',
+    front: '/beast-game/front/young-03.v2.webp?v=6',
   },
   beast_y04: {
-    thumb: '/beast-game/thumb/young-04.v2.webp?v=5',
-    mid: '/beast-game/thumb/young-04.v2-480.webp?v=5',
-    front: '/beast-game/front/young-04.v2.webp?v=5',
+    thumb: '/beast-game/thumb/young-04.v2.webp?v=6',
+    mid: '/beast-game/thumb/young-04.v2-480.webp?v=6',
+    front: '/beast-game/front/young-04.v2.webp?v=6',
   },
   beast_y05: {
-    thumb: '/beast-game/thumb/young-05.v2.webp?v=5',
-    mid: '/beast-game/thumb/young-05.v2-480.webp?v=5',
-    front: '/beast-game/front/young-05.v2.webp?v=5',
+    thumb: '/beast-game/thumb/young-05.v2.webp?v=6',
+    mid: '/beast-game/thumb/young-05.v2-480.webp?v=6',
+    front: '/beast-game/front/young-05.v2.webp?v=6',
   },
   beast_y06: {
-    thumb: '/beast-game/thumb/young-06.v2.webp?v=5',
-    mid: '/beast-game/thumb/young-06.v2-480.webp?v=5',
-    front: '/beast-game/front/young-06.v2.webp?v=5',
+    thumb: '/beast-game/thumb/young-06.v2.webp?v=7',
+    mid: '/beast-game/thumb/young-06.v2-480.webp?v=7',
+    front: '/beast-game/front/young-06.v2.webp?v=7',
   },
   beast_y07: {
-    thumb: '/beast-game/thumb/young-07.v2.webp?v=5',
-    mid: '/beast-game/thumb/young-07.v2-480.webp?v=5',
-    front: '/beast-game/front/young-07.v2.webp?v=5',
+    thumb: '/beast-game/thumb/young-07.v2.webp?v=6',
+    mid: '/beast-game/thumb/young-07.v2-480.webp?v=6',
+    front: '/beast-game/front/young-07.v2.webp?v=6',
   },
   beast_y08: {
-    thumb: '/beast-game/thumb/young-08.v2.webp?v=5',
-    mid: '/beast-game/thumb/young-08.v2-480.webp?v=5',
-    front: '/beast-game/front/young-08.v2.webp?v=5',
+    thumb: '/beast-game/thumb/young-08.v2.webp?v=6',
+    mid: '/beast-game/thumb/young-08.v2-480.webp?v=6',
+    front: '/beast-game/front/young-08.v2.webp?v=6',
   },
   beast_y09: {
-    thumb: '/beast-game/thumb/young-09.v2.webp?v=5',
-    mid: '/beast-game/thumb/young-09.v2-480.webp?v=5',
-    front: '/beast-game/front/young-09.v2.webp?v=5',
+    thumb: '/beast-game/thumb/young-09.v2.webp?v=6',
+    mid: '/beast-game/thumb/young-09.v2-480.webp?v=6',
+    front: '/beast-game/front/young-09.v2.webp?v=6',
   },
   beast_y10: {
-    thumb: '/beast-game/thumb/young-10.v2.webp?v=5',
-    mid: '/beast-game/thumb/young-10.v2-480.webp?v=5',
-    front: '/beast-game/front/young-10.v2.webp?v=5',
+    thumb: '/beast-game/thumb/young-10.v2.webp?v=6',
+    mid: '/beast-game/thumb/young-10.v2-480.webp?v=6',
+    front: '/beast-game/front/young-10.v2.webp?v=6',
   },
   beast_y11: {
-    thumb: '/beast-game/thumb/young-11.v2.webp?v=5',
-    mid: '/beast-game/thumb/young-11.v2-480.webp?v=5',
-    front: '/beast-game/front/young-11.v2.webp?v=5',
+    thumb: '/beast-game/thumb/young-11.v2.webp?v=6',
+    mid: '/beast-game/thumb/young-11.v2-480.webp?v=6',
+    front: '/beast-game/front/young-11.v2.webp?v=6',
   },
   beast_y12: {
-    thumb: '/beast-game/thumb/young-12.v2.webp?v=5',
-    mid: '/beast-game/thumb/young-12.v2-480.webp?v=5',
-    front: '/beast-game/front/young-12.v2.webp?v=5',
+    thumb: '/beast-game/thumb/young-12.v2.webp?v=6',
+    mid: '/beast-game/thumb/young-12.v2-480.webp?v=6',
+    front: '/beast-game/front/young-12.v2.webp?v=6',
   },
   beast_y13: {
-    thumb: '/beast-game/thumb/young-13.v2.webp?v=5',
-    mid: '/beast-game/thumb/young-13.v2-480.webp?v=5',
-    front: '/beast-game/front/young-13.v2.webp?v=5',
+    thumb: '/beast-game/thumb/young-13.v2.webp?v=6',
+    mid: '/beast-game/thumb/young-13.v2-480.webp?v=6',
+    front: '/beast-game/front/young-13.v2.webp?v=6',
   },
   beast_y14: {
-    thumb: '/beast-game/thumb/young-14.v2.webp?v=5',
-    mid: '/beast-game/thumb/young-14.v2-480.webp?v=5',
-    front: '/beast-game/front/young-14.v2.webp?v=5',
+    thumb: '/beast-game/thumb/young-14.v2.webp?v=6',
+    mid: '/beast-game/thumb/young-14.v2-480.webp?v=6',
+    front: '/beast-game/front/young-14.v2.webp?v=6',
   },
   beast_y15: {
     thumb: '/beast-game/thumb/young-15.v2.webp?v=5',
@@ -396,6 +399,7 @@ export function BeastCardTile({
   owned?: boolean;
   onOpen: () => void;
 }) {
+  if (usesFrameV1(card.id)) return <FrameV1Tile card={card} selected={selected} owned={owned} onOpen={onOpen} />;
   if (usesStandardStyle(card.id)) return <StandardTile card={card} selected={selected} owned={owned} onOpen={onOpen} />;
   return (
     <button
@@ -438,6 +442,118 @@ export function BeastCardTile({
 const ELEMENT_INK: Record<string, string> = {
   SPACE: '#6b6478', AIR: '#4f7f52', WATER: '#2f6f8f', FIRE: '#b4462f', EARTH: '#9a7432',
 };
+
+
+/**
+ * 自研卡框 v1（2026-10-23，ref: fused benchmark — 現代全幅插畫卡 × 早期典藏卡的象牙邊金線）。
+ * 體／攻 = 卡檔 cards/beasts/*.ts 的原始 stats，與詳情頁相同。
+ * 我們自己的設計語彙：五行圖示取代屬性符號、四象／二十八宿紋飾、中文字體名稱、自訂稀有度記號。
+ * 只顯示既有資料（stats、guide.wuxing、skill），不新增數值、不改規則。
+ * 範圍：目前只開給四象守護（業主看過後再決定是否擴到成獸）。
+ */
+const CARD_FILE_STATS = CARD_FACE_STATS;
+const WX_SHENG_NEXT: Record<string, string> = { 木: '火', 火: '土', 土: '金', 金: '水', 水: '木' };
+const WX_KE_NEXT: Record<string, string> = { 木: '土', 土: '水', 水: '火', 火: '金', 金: '木' };
+const WX_INK: Record<string, string> = { 木: '#3f7a4a', 火: '#b0412c', 土: '#9a7432', 金: '#a88a3c', 水: '#2c5f86' };
+function wxGeneratedBy(w: string): string | undefined {
+  return Object.keys(WX_SHENG_NEXT).find((k) => WX_SHENG_NEXT[k] === w);
+}
+export function usesFrameV1(cardId: string): boolean {
+  // 2026-10-23 業主批准：以四象卡框為基準，套到 56 張星宿神獸（成獸＋幼子）。
+  return /^beast_(g_[a-z]+|[ay]\d{2})$/.test(cardId);
+}
+const FV1_STAGE: Record<string, string> = { GUARDIAN: '四象', ADULT: '成獸', YOUNG: '幼子' };
+const FV1_MARK: Record<string, string> = { GUARDIAN: '◆◆◆', ADULT: '◆◆', YOUNG: '◆' };
+
+function FrameV1Tile({
+  card, selected, owned, onOpen,
+}: {
+  card: BeastTileCard;
+  selected?: boolean;
+  owned?: boolean;
+  onOpen: () => void;
+}) {
+  const book = useGuideBook();
+  const guide = book?.cards[card.id];
+  const art = ART_V2[card.id];
+  // 只讀卡檔原始值；查不到就不顯示（不退回對戰正規化值）。
+  const stats = CARD_FILE_STATS[card.id];
+  const skillName = card.skillName ?? guide?.skill.name;
+  const skillText = card.description ?? guide?.skill.description;
+  const cost = CARD_FILE_STATS[card.id]?.cost; // 卡檔原始 cost，不用對戰正規化值
+  const shortSkill = skillName?.split('・').pop();
+  const wx = guide?.wuxing;
+  const ke = wx ? WX_KE_NEXT[wx] : undefined;
+  const genBy = wx ? wxGeneratedBy(wx) : undefined;
+  const role = card.role ?? guide?.role;
+  const tier = tierOf(card.id);
+  const isGuardian = tier === 'GUARDIAN';
+  const group = guardianOf(card.id);
+  const faceName = card.name.replace(/・幼子$/, '');
+  const src = art ? art.thumb : card.thumbnail;
+  const srcSet = art ? `${art.thumb} 256w, ${art.mid} 480w, ${art.front} 720w` : undefined;
+  return (
+    <button
+      type="button"
+      className={[styles.tile, styles.stdTile, styles.fv1Tile, selected ? styles.stdSelected : ''].filter(Boolean).join(' ')}
+      onClick={onOpen}
+      aria-label={`${card.name}${stats ? `，體力${stats.hp}，攻擊${stats.attack}` : ''}${wx ? `，五行${wx}` : ''}${shortSkill ? `，技能${shortSkill}` : ''}${selected ? '，已選取' : ''}`}
+      aria-pressed={selected}
+      data-card-style="standard"
+      data-art={art ? 'v2' : undefined}
+      data-frame="v1"
+      style={{ '--fv1-wx': wx ? WX_INK[wx] : '#8a7a5a' } as React.CSSProperties}
+    >
+      <span className={`${frame.card} ${styles.fv1Card}`}>
+        <span className={styles.fv1Inner}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className={styles.fv1Back} src={src} srcSet={srcSet} sizes="(max-width: 480px) 46vw, 200px" alt="" aria-hidden="true" loading="lazy" decoding="async" />
+          <span className={styles.fv1Head}>
+            <span className={styles.fv1Stage}>{FV1_STAGE[tier]}</span>
+            <span className={styles.fv1Name}>{faceName}</span>
+            {stats && <span className={styles.fv1Hp}><small>體</small>{stats.hp}</span>}
+            {wx && <span className={styles.fv1Wx} aria-hidden="true">{wx}</span>}
+            {owned && <span className={styles.stdOwned}>藏</span>}
+          </span>
+          <span className={styles.fv1Window}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className={styles.stdArt}
+              style={ART_V2_POS[card.id] != null ? { objectPosition: `center ${ART_V2_POS[card.id]}%` } : undefined}
+              src={src}
+              srcSet={srcSet}
+              sizes="(max-width: 480px) 46vw, 200px"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+          </span>
+          <span className={styles.fv1Panel}>
+            {shortSkill && (
+              <span className={styles.fv1Atk}>
+                {typeof cost === 'number' && <span className={styles.fv1Cost} aria-hidden="true">{cost}</span>}
+                <span className={styles.fv1SkillName}>{shortSkill}</span>
+                {stats && <span className={styles.fv1Dmg}><small>攻</small>{stats.attack}</span>}
+              </span>
+            )}
+            {skillText && <span className={styles.fv1Text}>{skillText}</span>}
+            {wx && (
+              <span className={styles.fv1Rel}>
+                {ke && <span>剋<b style={{ color: WX_INK[ke] }}>{ke}</b></span>}
+                {genBy && <span>生我<b style={{ color: WX_INK[genBy] }}>{genBy}</b></span>}
+              </span>
+            )}
+            <span className={styles.fv1Foot}>
+              <span className={styles.fv1Rarity} aria-label={TIER_LABEL[tier]}>{FV1_MARK[tier]}</span>
+              {role && <span>{role}</span>}
+              <span>{isGuardian ? (group?.direction ?? '') : (group?.name ?? '')}</span>
+            </span>
+          </span>
+        </span>
+      </span>
+    </button>
+  );
+}
 
 function StandardTile({
   card, selected, owned, onOpen,

@@ -696,3 +696,117 @@
   opacity: 0.55;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .42 0 0 0 0 .3 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
 }
+
+/* ==========================================================================
+ * 自研卡框 v1（2026-10-23）— ref: fused benchmark
+ * 象牙外邊＋金色細線＋深色全幅底；五行圖示、四象方位、自訂稀有度記號。
+ * 全部 CSS（無點陣圖），任何 DPR 都銳利；質感只用極淡噪紋與壓紋，不發光。
+ * 目前只套四象守護（data-frame="v1"）。
+ * ========================================================================== */
+.fv1Tile.fv1Tile.fv1Tile { padding: 0; background: none; border: 0; container-type: inline-size; }
+.fv1Tile .fv1Card {
+  position: relative;
+  display: block;
+  padding: 2.6cqw;
+  border-radius: 4.2cqw;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .38 0 0 0 0 .25 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='80' height='80' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(160deg, #f6efdf 0%, #ebe1c9 55%, #f3ead6 100%);
+  box-shadow: inset 0 0 0 1px rgba(120, 96, 52, 0.35), 0 1px 3px rgba(30, 20, 8, 0.25);
+  transition: transform 0.18s ease;
+}
+.fv1Inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 2.4cqw;
+  background: #15120e;
+  /* 金色細線（兩道：外亮內暗，形成壓紋而非光暈） */
+  box-shadow: 0 0 0 0.5px #c9a85a, 0 0 0 1.5px #8a6d2e;
+  isolation: isolate;
+}
+.fv1Back {
+  position: absolute; inset: -8%;
+  width: 116%; height: 116%;
+  object-fit: cover;
+  filter: blur(6px) brightness(0.42) saturate(0.85);
+  z-index: -2;
+}
+/* 壓紋質感：極淡斜向細紋，蓋全卡，不發光 */
+.fv1Inner::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 3;
+  background: repeating-linear-gradient(135deg, rgba(255,248,230,0.035) 0 1px, transparent 1px 3px);
+  mix-blend-mode: soft-light;
+}
+.fv1Head {
+  display: flex; align-items: center; gap: 1.6cqw;
+  padding: 2.4cqw 3cqw 1.8cqw;
+  font-family: 'Noto Serif TC', 'Songti TC', 'PMingLiU', serif;
+  color: #f3ead6;
+}
+.fv1Stage {
+  flex: none; font-size: 5.4cqw; line-height: 1; padding: 0.8cqw 1.4cqw;
+  border: 1px solid #b8954a; border-radius: 1cqw; color: #e6cf94; letter-spacing: 0.05em;
+}
+.fv1Name {
+  flex: 1; min-width: 0; font-size: 10.5cqw; font-weight: 900; line-height: 1.05; letter-spacing: 0.06em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  -webkit-text-stroke: 0.35cqw #1a140c; paint-order: stroke fill;
+  text-shadow: 0 0.4cqw 0 rgba(0,0,0,0.55);
+}
+.fv1Hp {
+  flex: none; font-size: 9cqw; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums;
+  -webkit-text-stroke: 0.3cqw #1a140c; paint-order: stroke fill;
+}
+.fv1Hp small, .fv1Dmg small { font-size: 0.5em; margin-right: 0.15em; font-weight: 700; color: #d9c48e; -webkit-text-stroke: 0; }
+.fv1Wx {
+  flex: none; display: inline-grid; place-items: center;
+  width: 9cqw; height: 9cqw; border-radius: 50%;
+  font-size: 5.6cqw; font-weight: 900; color: #fbf4e2;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--fv1-wx) 70%, #fff) 0%, var(--fv1-wx) 70%);
+  box-shadow: 0 0 0 1px #d6b86a, inset 0 -0.6cqw 0 rgba(0,0,0,0.25);
+}
+.fv1Window {
+  position: relative; display: block; flex: none;
+  aspect-ratio: 4 / 3; overflow: hidden;
+  margin: 0 2cqw;
+  box-shadow: 0 0 0 1px #b8954a, 0 0 0 2px rgba(20,14,6,0.8);
+}
+.fv1Window .stdArt { position: relative; z-index: 0; }
+.fv1Panel {
+  flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 1.4cqw;
+  margin: 2.2cqw 2cqw 2cqw; padding: 2.4cqw 3cqw 2cqw;
+  border-radius: 1.6cqw;
+  background: linear-gradient(180deg, rgba(22,18,12,0.72), rgba(14,11,7,0.86));
+  backdrop-filter: blur(3px);
+  box-shadow: inset 0 0 0 1px rgba(201,168,90,0.45);
+  color: #efe5cc;
+  font-family: 'Noto Serif TC', 'Songti TC', 'PMingLiU', serif;
+}
+.fv1Atk { display: flex; align-items: center; gap: 1.8cqw; }
+.fv1Cost {
+  flex: none; display: inline-grid; place-items: center; width: 6.6cqw; height: 6.6cqw; border-radius: 50%;
+  font-size: 4.6cqw; font-weight: 800; color: #1a140c; background: #e2c983; box-shadow: 0 0 0 1px #8a6d2e;
+}
+.fv1SkillName { flex: 1; min-width: 0; font-size: 7.4cqw; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fv1Dmg { flex: none; font-size: 10cqw; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; color: #fbf4e2;
+  -webkit-text-stroke: 0.3cqw #1a140c; paint-order: stroke fill; }
+.fv1Text {
+  font-size: 5cqw; line-height: 1.4; color: #dcd0b2;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.fv1Rel {
+  margin-top: auto; display: flex; gap: 4cqw; padding-top: 1.4cqw;
+  border-top: 1px solid rgba(201,168,90,0.35);
+  font-size: 5cqw; color: #cdbf9c;
+}
+.fv1Rel b {
+  display: inline-grid; place-items: center; margin-left: 1cqw; width: 6cqw; height: 6cqw; border-radius: 50%;
+  background: #f1e7cf; font-weight: 900; font-size: 4.4cqw;
+}
+.fv1Foot { display: flex; justify-content: space-between; align-items: center; font-size: 4.4cqw; color: #a99a76; letter-spacing: 0.08em; }
+.fv1Rarity { color: #d6b86a; letter-spacing: 0.1em; font-size: 4cqw; }
+@media (hover: hover) { .fv1Tile:hover .fv1Card { transform: translateY(-2px); } }
+.fv1Tile.stdSelected .fv1Card { box-shadow: inset 0 0 0 1px rgba(120,96,52,0.35), 0 0 0 2px #8a6d2e; }
