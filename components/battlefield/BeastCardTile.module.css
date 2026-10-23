@@ -438,7 +438,7 @@
   /* 原圖內建一圈裝飾金框，放大 8% 推出圖窗外，避免「框中框」 */
   transform: scale(1.08);
   /* 提亮、略收飽和：原圖偏暗、偏濃的 AI 色調收回到印刷色 */
-  filter: brightness(1.06) contrast(1.05) saturate(0.92);
+  filter: brightness(1.0) contrast(1.05) saturate(0.92);
 }
 
 .stdWeapon {
@@ -561,4 +561,138 @@
 @media (prefers-reduced-motion: reduce) {
   .stdCard { transition: none; }
   .stdTile:hover .stdCard { transform: none; }
+}
+
+/* ===== 印刷質感 v2（2026-10-23，只作用在 data-art="v2" 的重繪卡；目前僅尾火虎・幼子樣本） =====
+   原則：疊加在既有標準樣式上、不降級；全部靠印刷/金屬/紙的物理質感，不用任何發光。 */
+
+/* 黃銅：在原拉絲斜光上再疊一層極細拉絲紋＋兩道雕刻線（暗刻線＋亮倒角），像沖壓雕版 */
+.stdTile[data-art='v2'] .stdCard {
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 244, 210, 0.07) 0 1px, rgba(70, 50, 18, 0.06) 1px 2px),
+    linear-gradient(135deg, #876931 0%, var(--std-brass-hi) 18%, #a68240 36%, #e2cc93 52%, #a27e3e 68%, var(--std-brass-hi) 86%, #876931 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(40, 28, 10, 0.8),
+    inset 0 0 0 2px rgba(255, 240, 200, 0.35),
+    inset 0 1.5px 0 2px rgba(255, 246, 214, 0.45),
+    inset 0 -1.5px 0 2px rgba(56, 38, 12, 0.5),
+    0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+/* 紙：細纖維雜訊＋低頻紙漿雲紋（兩層），加毛邊感的內緣（不規則淡暗邊），更像手抄紙 */
+.stdTile[data-art='v2'] .stdPaper {
+  background-color: #f1e8d5;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .33 0 0 0 0 .26 0 0 0 0 .16 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.018' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .36 0 0 0 0 .2 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23m)'/%3E%3C/svg%3E");
+  box-shadow:
+    inset 0 0 0 1px rgba(60, 44, 18, 0.5),
+    inset 0 0 2px 1.5px rgba(120, 90, 44, 0.28),
+    inset 0 2px 4px rgba(60, 44, 18, 0.24);
+}
+
+/* 墨色字：暖黑＋極淡墨暈（0.4px 同色暈開，像墨滲進紙），不是光暈 */
+.stdTile[data-art='v2'] .stdName,
+.stdTile[data-art='v2'] .stdWeaponName,
+.stdTile[data-art='v2'] .stdSkillName {
+  color: #22190f;
+  text-shadow: 0 0 0.4px rgba(34, 25, 15, 0.7), 0.3px 0.2px 0 rgba(90, 62, 30, 0.18);
+}
+.stdTile[data-art='v2'] .stdSkillText,
+.stdTile[data-art='v2'] .stdWeaponPart {
+  color: #4a3b29;
+  text-shadow: 0 0 0.3px rgba(60, 44, 24, 0.5);
+}
+
+/* 圖窗：更銳利的印刷嵌框——墨線、黃銅、刻線三層 1px 級，去掉軟投影 */
+.stdTile[data-art='v2'] .stdWindow {
+  border-radius: 0.8cqw;
+  box-shadow:
+    0 0 0 1px #2a2016,
+    0 0 0 2px #c9ab68,
+    0 0 0 2.5px #6e5426,
+    0 0 0 3.5px rgba(241, 232, 213, 0.9),
+    0 0 0 4px rgba(60, 44, 18, 0.45);
+}
+/* 箔光帶收掉（易讀成發光），只留紙面壓印暗角與 1px 內緣 */
+.stdTile[data-art='v2'] .stdWindow::after {
+  background: radial-gradient(ellipse 80% 75% at 50% 50%, transparent 66%, rgba(30, 20, 8, 0.22) 100%);
+  mix-blend-mode: multiply;
+  box-shadow: inset 0 0 0 1px rgba(255, 246, 225, 0.35), inset 0 2px 4px rgba(0, 0, 0, 0.22);
+}
+/* 重繪圖本身沒有內建框，不需放大推框；色調已是印刷色，不再套濾鏡 */
+.stdTile[data-art='v2'] .stdArt {
+  transform: none;
+  object-position: center 60%;
+  filter: none;
+}
+
+/* ===== v3：雕版花紋內框（只作用在 data-art="v2"） =====
+   金框上疊一層連續卷草紋（暗刻線＋右下亮邊＝雕刻凹槽的光影），紙張會蓋住中間，只露在金框上；
+   紙張外緣再刻一道細內框線。全部是壓暗的刻線，不發光。 */
+.stdTile[data-art='v2'] .stdCard {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M0 6c1.6-3 4.4-3 6 0s4.4 3 6 0' stroke='%23fff3cf' stroke-opacity='.45' stroke-width='.9' transform='translate(.45 .5)'/%3E%3Cpath d='M0 6c1.6-3 4.4-3 6 0s4.4 3 6 0' stroke='%234a3410' stroke-opacity='.78' stroke-width='.9'/%3E%3Cpath d='M3 4.2c-.9-1.4.2-2.6 1.3-1.9M9 7.8c.9 1.4-.2 2.6-1.3 1.9' stroke='%234a3410' stroke-opacity='.65' stroke-width='.7'/%3E%3C/g%3E%3Ccircle cx='3' cy='9.4' r='.75' fill='%234a3410' fill-opacity='.6'/%3E%3Ccircle cx='9' cy='2.6' r='.75' fill='%234a3410' fill-opacity='.6'/%3E%3C/svg%3E") 0 0 / 9px 9px,
+    repeating-linear-gradient(90deg, rgba(255, 244, 210, 0.07) 0 1px, rgba(70, 50, 18, 0.06) 1px 2px),
+    linear-gradient(135deg, #876931 0%, var(--std-brass-hi) 18%, #a68240 36%, #e2cc93 52%, #a27e3e 68%, var(--std-brass-hi) 86%, #876931 100%);
+}
+/* 紙緣刻線：暗線＋外側一道亮倒角，把花紋帶和紙面清楚分開 */
+.stdTile[data-art='v2'] .stdPaper {
+  box-shadow:
+    0 0 0 1px rgba(60, 40, 12, 0.85),
+    0 0 0 1.8px rgba(255, 240, 200, 0.55),
+    inset 0 0 0 1px rgba(60, 44, 18, 0.5),
+    inset 0 0 2px 1.5px rgba(120, 90, 44, 0.28),
+    inset 0 2px 4px rgba(60, 44, 18, 0.24);
+}
+
+/* v2 鎖定間距：技能說明固定兩行高，圖窗高度不再隨文字長短漂移（所有 v2 卡同一組尺寸） */
+.stdTile[data-art='v2'] .stdSkillText {
+  height: calc(2 * 1.4em);
+  min-height: calc(2 * 1.4em);
+}
+.stdTile[data-art='v2'] .stdWeapon,
+.stdTile[data-art='v2'] .stdHead { flex: none; }
+.stdTile[data-art='v2'] .stdSkill { flex: none; }
+
+/* ===== v4 質感強化（2026-10-23，只作用在 data-art="v2"）：紙纖維、墨色深度、黃銅刻工；全部壓暗/紙面物理質感，不發光 ===== */
+/* 紙：再疊一層長纖維（拉長的低頻雜訊＝紙漿纖維）＋極淡簾紋（手抄紙的竹簾橫紋） */
+.stdTile[data-art='v2'] .stdPaper {
+  background-color: #efe4cd;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9 .045' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .28 0 0 0 0 .15 0 0 0 .5 -.24'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23f)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(110, 84, 44, 0.045) 0 1px, transparent 1px 5px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .33 0 0 0 0 .26 0 0 0 0 .16 0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.018' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .36 0 0 0 0 .2 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23m)'/%3E%3C/svg%3E");
+}
+/* 墨：名字用更深的松煙墨（偏冷黑），說明文字加深一階，對比更沉 */
+.stdTile[data-art='v2'] .stdName,
+.stdTile[data-art='v2'] .stdWeaponName,
+.stdTile[data-art='v2'] .stdSkillName {
+  color: #17110a;
+  text-shadow: 0 0 0.35px rgba(23, 17, 10, 0.8), 0.25px 0.25px 0 rgba(80, 55, 25, 0.2);
+}
+.stdTile[data-art='v2'] .stdSkillText,
+.stdTile[data-art='v2'] .stdWeaponPart { color: #3d3020; }
+/* 黃銅：外緣加一道鏨刻暗線與內倒角，四邊更像整塊鑄銅（只用暗線與內陰影） */
+.stdTile[data-art='v2'] .stdCard {
+  box-shadow:
+    inset 0 0 0 1px rgba(32, 22, 8, 0.9),
+    inset 0 0 0 2px rgba(255, 240, 200, 0.32),
+    inset 0 0 0 3px rgba(74, 52, 16, 0.35),
+    inset 0 1.5px 0 2px rgba(255, 246, 214, 0.4),
+    inset 0 -1.5px 0 2px rgba(56, 38, 12, 0.55),
+    0 3px 8px rgba(0, 0, 0, 0.45);
+}
+/* 圖窗：把畫面「印」在紙上——極淡紙紋以 multiply 疊在畫上，消除數位平滑感 */
+.stdTile[data-art='v2'] .stdWindow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .42 0 0 0 0 .3 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
 }

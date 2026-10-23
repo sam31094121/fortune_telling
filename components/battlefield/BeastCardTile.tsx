@@ -45,6 +45,317 @@ export function usesStandardStyle(_cardId: string): boolean {
   return true;
 }
 
+/**
+ * 重繪卡面（2026-10-23 業主批准：先重繪標準卡一張當樣本）。
+ * 原圖不覆蓋，備份在 public/beast-game/_orig-20261023/；這裡只把卡面指到新檔。
+ * 有登記的卡同時開「印刷質感 v2」（data-art="v2"），其他卡維持現狀。
+ */
+
+/** v2 每張圖的垂直取景（依主體外框量測，使主體在圖窗內上下置中） */
+const ART_V2_POS: Record<string, number> = {"beast_y01":69.1,"beast_y02":79.4,"beast_y03":70.5,"beast_y04":48.4,"beast_y05":74.8,"beast_y06":69.4,"beast_y07":60,"beast_y08":77.4,"beast_y09":67,"beast_y10":56.6,"beast_y11":60,"beast_y12":78.2,"beast_y13":64.2,"beast_y14":56.8,"beast_y15":72.4,"beast_y16":60.4,"beast_y17":79.7,"beast_y18":60,"beast_y19":71.6,"beast_y20":66.6,"beast_y21":60,"beast_y22":60.5,"beast_y23":60.4,"beast_y24":58,"beast_y25":65.1,"beast_y26":60.5,"beast_y27":63.6,"beast_y28":66.1,"beast_a01":50,"beast_a02":50,"beast_a03":55,"beast_a04":30,"beast_a05":50,"beast_a06":50,"beast_a07":50,"beast_a08":50,"beast_a09":50,"beast_a10":50,"beast_a11":50,"beast_a12":50,"beast_a13":50,"beast_a14":50,"beast_a15":50,"beast_a16":50,"beast_a17":50,"beast_a18":50,"beast_a19":50,"beast_a20":50,"beast_a21":50,"beast_a22":50,"beast_a23":50,"beast_a24":50,"beast_a25":50,"beast_a26":50,"beast_a27":50,"beast_a28":50,"beast_g_qinglong":50,"beast_g_zhuque":50,"beast_g_baihu":50,"beast_g_xuanwu":50};
+const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
+  beast_y01: {
+    thumb: '/beast-game/thumb/young-01.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-01.v2-480.webp?v=5',
+    front: '/beast-game/front/young-01.v2.webp?v=5',
+  },
+  beast_y02: {
+    thumb: '/beast-game/thumb/young-02.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-02.v2-480.webp?v=5',
+    front: '/beast-game/front/young-02.v2.webp?v=5',
+  },
+  beast_y03: {
+    thumb: '/beast-game/thumb/young-03.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-03.v2-480.webp?v=5',
+    front: '/beast-game/front/young-03.v2.webp?v=5',
+  },
+  beast_y04: {
+    thumb: '/beast-game/thumb/young-04.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-04.v2-480.webp?v=5',
+    front: '/beast-game/front/young-04.v2.webp?v=5',
+  },
+  beast_y05: {
+    thumb: '/beast-game/thumb/young-05.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-05.v2-480.webp?v=5',
+    front: '/beast-game/front/young-05.v2.webp?v=5',
+  },
+  beast_y06: {
+    thumb: '/beast-game/thumb/young-06.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-06.v2-480.webp?v=5',
+    front: '/beast-game/front/young-06.v2.webp?v=5',
+  },
+  beast_y07: {
+    thumb: '/beast-game/thumb/young-07.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-07.v2-480.webp?v=5',
+    front: '/beast-game/front/young-07.v2.webp?v=5',
+  },
+  beast_y08: {
+    thumb: '/beast-game/thumb/young-08.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-08.v2-480.webp?v=5',
+    front: '/beast-game/front/young-08.v2.webp?v=5',
+  },
+  beast_y09: {
+    thumb: '/beast-game/thumb/young-09.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-09.v2-480.webp?v=5',
+    front: '/beast-game/front/young-09.v2.webp?v=5',
+  },
+  beast_y10: {
+    thumb: '/beast-game/thumb/young-10.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-10.v2-480.webp?v=5',
+    front: '/beast-game/front/young-10.v2.webp?v=5',
+  },
+  beast_y11: {
+    thumb: '/beast-game/thumb/young-11.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-11.v2-480.webp?v=5',
+    front: '/beast-game/front/young-11.v2.webp?v=5',
+  },
+  beast_y12: {
+    thumb: '/beast-game/thumb/young-12.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-12.v2-480.webp?v=5',
+    front: '/beast-game/front/young-12.v2.webp?v=5',
+  },
+  beast_y13: {
+    thumb: '/beast-game/thumb/young-13.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-13.v2-480.webp?v=5',
+    front: '/beast-game/front/young-13.v2.webp?v=5',
+  },
+  beast_y14: {
+    thumb: '/beast-game/thumb/young-14.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-14.v2-480.webp?v=5',
+    front: '/beast-game/front/young-14.v2.webp?v=5',
+  },
+  beast_y15: {
+    thumb: '/beast-game/thumb/young-15.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-15.v2-480.webp?v=5',
+    front: '/beast-game/front/young-15.v2.webp?v=5',
+  },
+  beast_y16: {
+    thumb: '/beast-game/thumb/young-16.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-16.v2-480.webp?v=5',
+    front: '/beast-game/front/young-16.v2.webp?v=5',
+  },
+  beast_y17: {
+    thumb: '/beast-game/thumb/young-17.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-17.v2-480.webp?v=5',
+    front: '/beast-game/front/young-17.v2.webp?v=5',
+  },
+  beast_y18: {
+    thumb: '/beast-game/thumb/young-18.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-18.v2-480.webp?v=5',
+    front: '/beast-game/front/young-18.v2.webp?v=5',
+  },
+  beast_y19: {
+    thumb: '/beast-game/thumb/young-19.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-19.v2-480.webp?v=5',
+    front: '/beast-game/front/young-19.v2.webp?v=5',
+  },
+  beast_y20: {
+    thumb: '/beast-game/thumb/young-20.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-20.v2-480.webp?v=5',
+    front: '/beast-game/front/young-20.v2.webp?v=5',
+  },
+  beast_y21: {
+    thumb: '/beast-game/thumb/young-21.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-21.v2-480.webp?v=5',
+    front: '/beast-game/front/young-21.v2.webp?v=5',
+  },
+  beast_y22: {
+    thumb: '/beast-game/thumb/young-22.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-22.v2-480.webp?v=5',
+    front: '/beast-game/front/young-22.v2.webp?v=5',
+  },
+  beast_y23: {
+    thumb: '/beast-game/thumb/young-23.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-23.v2-480.webp?v=5',
+    front: '/beast-game/front/young-23.v2.webp?v=5',
+  },
+  beast_y24: {
+    thumb: '/beast-game/thumb/young-24.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-24.v2-480.webp?v=5',
+    front: '/beast-game/front/young-24.v2.webp?v=5',
+  },
+  beast_y25: {
+    thumb: '/beast-game/thumb/young-25.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-25.v2-480.webp?v=5',
+    front: '/beast-game/front/young-25.v2.webp?v=5',
+  },
+  beast_y26: {
+    thumb: '/beast-game/thumb/young-26.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-26.v2-480.webp?v=5',
+    front: '/beast-game/front/young-26.v2.webp?v=5',
+  },
+  beast_y27: {
+    thumb: '/beast-game/thumb/young-27.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-27.v2-480.webp?v=5',
+    front: '/beast-game/front/young-27.v2.webp?v=5',
+  },
+  beast_y28: {
+    thumb: '/beast-game/thumb/young-28.v2.webp?v=5',
+    mid: '/beast-game/thumb/young-28.v2-480.webp?v=5',
+    front: '/beast-game/front/young-28.v2.webp?v=5',
+  },
+  beast_a01: {
+    thumb: '/beast-game/thumb/adult-01.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-01.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-01.v2.webp?v=11',
+  },
+  beast_a02: {
+    thumb: '/beast-game/thumb/adult-02.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-02.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-02.v2.webp?v=11',
+  },
+  beast_a03: {
+    thumb: '/beast-game/thumb/adult-03.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-03.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-03.v2.webp?v=11',
+  },
+  beast_a04: {
+    thumb: '/beast-game/thumb/adult-04.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-04.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-04.v2.webp?v=11',
+  },
+  beast_a05: {
+    thumb: '/beast-game/thumb/adult-05.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-05.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-05.v2.webp?v=11',
+  },
+  beast_a06: {
+    thumb: '/beast-game/thumb/adult-06.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-06.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-06.v2.webp?v=11',
+  },
+  beast_a07: {
+    thumb: '/beast-game/thumb/adult-07.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-07.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-07.v2.webp?v=11',
+  },
+  beast_a08: {
+    thumb: '/beast-game/thumb/adult-08.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-08.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-08.v2.webp?v=11',
+  },
+  beast_a09: {
+    thumb: '/beast-game/thumb/adult-09.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-09.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-09.v2.webp?v=11',
+  },
+  beast_a10: {
+    thumb: '/beast-game/thumb/adult-10.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-10.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-10.v2.webp?v=11',
+  },
+  beast_a11: {
+    thumb: '/beast-game/thumb/adult-11.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-11.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-11.v2.webp?v=11',
+  },
+  beast_a12: {
+    thumb: '/beast-game/thumb/adult-12.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-12.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-12.v2.webp?v=11',
+  },
+  beast_a13: {
+    thumb: '/beast-game/thumb/adult-13.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-13.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-13.v2.webp?v=11',
+  },
+  beast_a14: {
+    thumb: '/beast-game/thumb/adult-14.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-14.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-14.v2.webp?v=11',
+  },
+  beast_a15: {
+    thumb: '/beast-game/thumb/adult-15.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-15.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-15.v2.webp?v=11',
+  },
+  beast_a16: {
+    thumb: '/beast-game/thumb/adult-16.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-16.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-16.v2.webp?v=11',
+  },
+  beast_a17: {
+    thumb: '/beast-game/thumb/adult-17.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-17.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-17.v2.webp?v=11',
+  },
+  beast_a18: {
+    thumb: '/beast-game/thumb/adult-18.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-18.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-18.v2.webp?v=11',
+  },
+  beast_a19: {
+    thumb: '/beast-game/thumb/adult-19.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-19.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-19.v2.webp?v=11',
+  },
+  beast_a20: {
+    thumb: '/beast-game/thumb/adult-20.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-20.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-20.v2.webp?v=11',
+  },
+  beast_a21: {
+    thumb: '/beast-game/thumb/adult-21.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-21.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-21.v2.webp?v=11',
+  },
+  beast_a22: {
+    thumb: '/beast-game/thumb/adult-22.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-22.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-22.v2.webp?v=11',
+  },
+  beast_a23: {
+    thumb: '/beast-game/thumb/adult-23.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-23.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-23.v2.webp?v=11',
+  },
+  beast_a24: {
+    thumb: '/beast-game/thumb/adult-24.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-24.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-24.v2.webp?v=11',
+  },
+  beast_a25: {
+    thumb: '/beast-game/thumb/adult-25.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-25.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-25.v2.webp?v=11',
+  },
+  beast_a26: {
+    thumb: '/beast-game/thumb/adult-26.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-26.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-26.v2.webp?v=11',
+  },
+  beast_a27: {
+    thumb: '/beast-game/thumb/adult-27.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-27.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-27.v2.webp?v=11',
+  },
+  beast_a28: {
+    thumb: '/beast-game/thumb/adult-28.v2.webp?v=11',
+    mid: '/beast-game/thumb/adult-28.v2-480.webp?v=11',
+    front: '/beast-game/front/adult-28.v2.webp?v=11',
+  },
+  beast_g_qinglong: {
+    thumb: '/beast-game/thumb/guardian-qinglong.v2.webp?v=11',
+    mid: '/beast-game/thumb/guardian-qinglong.v2-480.webp?v=11',
+    front: '/beast-game/front/guardian-qinglong.v2.webp?v=11',
+  },
+  beast_g_zhuque: {
+    thumb: '/beast-game/thumb/guardian-zhuque.v2.webp?v=11',
+    mid: '/beast-game/thumb/guardian-zhuque.v2-480.webp?v=11',
+    front: '/beast-game/front/guardian-zhuque.v2.webp?v=11',
+  },
+  beast_g_baihu: {
+    thumb: '/beast-game/thumb/guardian-baihu.v2.webp?v=11',
+    mid: '/beast-game/thumb/guardian-baihu.v2-480.webp?v=11',
+    front: '/beast-game/front/guardian-baihu.v2.webp?v=11',
+  },
+  beast_g_xuanwu: {
+    thumb: '/beast-game/thumb/guardian-xuanwu.v2.webp?v=11',
+    mid: '/beast-game/thumb/guardian-xuanwu.v2-480.webp?v=11',
+    front: '/beast-game/front/guardian-xuanwu.v2.webp?v=11',
+  },
+};
+
 /** 對不到宿位也不在四象表內的未知卡才不印武器列（現有 60 張都有）。 */
 function hasDesignedWeapon(weapon: { part: string }): boolean {
   return weapon.part !== '四象本體';
@@ -146,6 +457,7 @@ function StandardTile({
   // 「尾火虎・破陣」→ 卡面只印招式名「破陣」，全名在詳情裡。
   const shortSkill = skillName?.split('・').pop();
   const elementLabel = ELEMENT_LABEL[card.element] ?? card.element;
+  const art = ART_V2[card.id];
   return (
     <button
       type="button"
@@ -154,6 +466,7 @@ function StandardTile({
       aria-label={`${card.name}，${elementLabel}${hasDesignedWeapon(weapon) ? `，武器${weapon.name}` : ''}${shortSkill ? `，技能${shortSkill}` : ''}${selected ? '，已選取' : ''}`}
       aria-pressed={selected}
       data-card-style="standard"
+      data-art={art ? 'v2' : undefined}
       style={{ '--std-el': ELEMENT_INK[element] } as React.CSSProperties}
     >
       <span className={`${frame.card} ${styles.stdCard}`}>
@@ -167,8 +480,9 @@ function StandardTile({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               className={styles.stdArt}
-              src={card.thumbnail}
-              srcSet={card.front ? `${card.thumbnail} 256w, ${card.front} 720w` : undefined}
+              style={art && ART_V2_POS[card.id] != null ? { objectPosition: `center ${ART_V2_POS[card.id]}%` } : undefined}
+              src={art ? art.thumb : card.thumbnail}
+              srcSet={art ? `${art.thumb} 256w, ${art.mid} 480w, ${art.front} 720w` : card.front ? `${card.thumbnail} 256w, ${card.front} 720w` : undefined}
               sizes="(max-width: 480px) 46vw, 200px"
               alt=""
               loading="lazy"
@@ -229,7 +543,7 @@ export function CardDetailSheet({
         <div className={styles.sheetHead}>
           <div className={`${styles.sheetArt} ${frame.card} ${frame.metal}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className={frame.art} src={card.thumbnail} alt="" />
+            <img className={frame.art} src={ART_V2[card.id]?.thumb ?? card.thumbnail} alt="" />
           </div>
           <div className={styles.sheetTitle}>
             <strong>{card.name}</strong>
