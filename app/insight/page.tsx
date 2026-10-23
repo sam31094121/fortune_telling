@@ -2637,7 +2637,7 @@ const ZIWEI_TREASURE_RITUALS: Record<FiveElementKey, { title: string; scenes: [s
 /** 2026-10-23 ghost-asura：鬼魅老師十二宮解盤只顯示後端選好的古籍條文；前端不選句、不補文。 */
 function ZiweiGhostAsuraLinesView({ reading }: { reading: NonNullable<LifeTeacherResult['ghostAsura']> }) {
   return (
-    <section data-ghost-asura="lines" className="mt-4 rounded-2xl border border-rose-300/35 bg-[linear-gradient(145deg,rgba(69,10,10,0.55),rgba(30,27,75,0.6))] p-4">
+    <section data-ghost-asura="lines" className="mt-3 rounded-xl border border-rose-300/35 bg-[linear-gradient(145deg,rgba(69,10,10,0.55),rgba(30,27,75,0.6))] p-2">
       <p className="text-[11px] font-black tracking-[0.18em] text-rose-100">鬼魅老師解盤｜{reading.palaceName}</p>
       {reading.borrowedFromOpposite && (
         <p className="mt-2 text-xs font-bold text-amber-100/85">本宮無十四主星，依古法借對宮{reading.oppositePalaceName}主星論。</p>
@@ -2645,17 +2645,17 @@ function ZiweiGhostAsuraLinesView({ reading }: { reading: NonNullable<LifeTeache
       {reading.status === 'NO_MAJOR_STAR' && (
         <p data-ghost-asura="gap" className="mt-3 text-sm font-semibold text-amber-200">本宮與對宮皆無十四主星，此組合古籍暫無條文。</p>
       )}
-      <ul className="mt-3 space-y-3">
+      <ul className="mt-2 space-y-2">
         {reading.lines.map((line) => (
-          <li key={line.star} className="rounded-xl border border-white/10 bg-black/20 p-3">
+          <li key={line.star} className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5">
             <p className="text-xs font-black text-rose-100/80">{line.star}</p>
             {line.sourced ? (
               <>
                 {line.lines.map((text, index) => (
-                  <p key={index} data-ghost-asura="sourced" className="mt-1 text-sm font-bold leading-6 text-rose-50">{text}</p>
+                  <p key={index} data-ghost-asura="sourced" className="mt-1 break-words text-[13px] font-bold leading-6 text-rose-50">{text}</p>
                 ))}
                 {line.source && (
-                  <p className="mt-2 text-[11px] font-semibold leading-5 text-white/55">
+                  <p className="mt-1.5 break-words text-[11px] font-semibold leading-[18px] text-white/60">
                     出處：{line.sourceLink ? <a href={line.sourceLink} target="_blank" rel="noreferrer" className="underline">{line.source}</a> : line.source}
                     {line.original ? `（原文：${line.original}）` : ''}
                   </p>
