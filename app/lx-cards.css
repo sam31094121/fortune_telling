@@ -1,0 +1,37 @@
+/* 全站卡片皮革層（step6）：只改色彩／質感，不改版面、文字、邏輯。首頁另由 home-leather.css 處理。 */
+:root {
+  --lx-base: #0c0b10; --lx-surface: #15131a; --lx-surface-2: #1d1a21; --lx-raise: #2a2430;
+  --lx-violet: #4a4159; --lx-rust: #6e3d2f; --lx-hairline: #3a3342; --lx-shadow: #07060a;
+  --lx-title: #e6dccb; --lx-body: #c9bfae; --lx-muted: #a9a39b; --lx-label: #cdb991;
+  --lx-seal-deep: #5a3f22; --lx-seal: #9a7a45; --lx-seal-lit: #c4a46a; --lx-on-seal: #1b140b;
+  --lx-card-bg:
+    radial-gradient(110% 80% at 15% 0%, rgba(74, 65, 89, 0.30), transparent 62%),
+    radial-gradient(80% 90% at 100% 100%, rgba(110, 61, 47, 0.14), transparent 68%),
+    linear-gradient(165deg, #1d1a21 0%, #15131a 100%);
+  --lx-card-edge: inset 0 1px 0 rgba(185, 186, 192, 0.14), inset 0 -1px 0 rgba(7, 6, 10, 0.7), 0 0 0 1px rgba(58, 51, 66, 0.9), 0 18px 36px -24px rgba(7, 6, 10, 0.95);
+}
+
+/* 1) 具名卡片模組（CSS module） */
+body:not(:has(.home-feature-stack)) :is(
+  [class*="BeastTechCard_card"], [class*="BeastCardFrame_card"], [class*="BeastCardTile_tile"],
+  [class*="BattleCardGuide_guide"], [class*="FourPillarsCard_pillarCard"],
+  [class*="GhostAsuraTimelineCard_container"], [class*="GhostAsuraTimeCardsDisplay_container"],
+  [class*="GhostAsuraCardComplete_container"]
+) {
+  background-color: var(--lx-surface) !important;
+  background-image: var(--lx-card-bg) !important;
+  border-color: var(--lx-hairline) !important;
+  box-shadow: var(--lx-card-edge) !important;
+}
+
+/* 2) 功能頁內嵌的深色面板（Tailwind rounded + bg + border）；淺底卡、按鈕、含輸入框的表單（密碼門）一律排除 */
+body:not(:has(.home-feature-stack)) main :is(.rounded-2xl, .rounded-3xl)[class*="bg-"][class*="border"]:not(button, a, input, form, [role="button"]):not(:has(input, textarea, select)):not([class*="bg-white"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="-300"]):not([class*="bg-gradient"]) {
+  background-color: var(--lx-surface) !important;
+  background-image: var(--lx-card-bg) !important;
+  border-color: var(--lx-hairline) !important;
+  box-shadow: var(--lx-card-edge) !important;
+}
+
+/* 3) 文字層級（先於其他色彩）：標題象牙、內文骨白、次要霧灰 */
+body:not(:has(.home-feature-stack)) main :is(.rounded-2xl, .rounded-3xl)[class*="bg-"][class*="border"]:not(button, a, form):not(:has(input, textarea, select)):not([class*="bg-white"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="-300"]):not([class*="bg-gradient"]) :is(h2, h3):not([class*="bg-clip-text"]) { color: var(--lx-title) !important; }
+body:not(:has(.home-feature-stack)) main :is(.rounded-2xl, .rounded-3xl)[class*="bg-"][class*="border"]:not(button, a, form):not(:has(input, textarea, select)):not([class*="bg-white"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="-300"]):not([class*="bg-gradient"]) :is([class*="text-slate-"], [class*="text-gray-"], [class*="text-zinc-"], [class*="text-neutral-"]) { color: var(--lx-body) !important; }

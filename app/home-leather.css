@@ -180,3 +180,15 @@ body:has(.home-feature-stack) { background: #0c0b10 !important; }
   filter: saturate(0.2) sepia(0.55) brightness(0.92) !important;
   box-shadow: inset 0 0 14px rgba(90, 63, 34, 0.55), 0 0 22px rgba(154, 122, 69, 0.14) !important;
 }
+
+/* 卡內 CTA 條：退為皮革壓紋，讓左側徽章成為唯一焦點；文字象牙色保可讀 */
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch .home-feature-cta.home-feature-cta {
+  background: linear-gradient(180deg, #2a2430 0%, #1d1a21 100%) !important;
+  border: 1px solid rgba(154, 122, 69, 0.38) !important;
+  box-shadow: inset 0 1px 0 rgba(185, 186, 192, 0.12), inset 0 -1px 0 rgba(7, 6, 10, 0.6) !important;
+  color: #e6dccb !important;
+  -webkit-text-fill-color: #e6dccb !important;
+  text-shadow: none !important;
+}
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch .home-feature-cta.home-feature-cta * { color: #e6dccb !important; -webkit-text-fill-color: #e6dccb !important; text-shadow: none !important; }
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch:hover .home-feature-cta.home-feature-cta { border-color: rgba(196, 164, 106, 0.6) !important; }

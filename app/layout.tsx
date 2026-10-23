@@ -19,6 +19,7 @@ import {
   SHARE_TWITTER_IMAGES,
 } from '@/lib/share-preview';
 import './globals.css';
+import './lx-cards.css';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
   ? process.env.NEXT_PUBLIC_SITE_URL
