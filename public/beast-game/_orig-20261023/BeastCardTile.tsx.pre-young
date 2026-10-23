@@ -1,0 +1,298 @@
+'use client';
+
+/**
+ * 神獸卡片框架
+ * ============================================================================
+ *
+ * 業主定調：「把卡片的主軸卡片顯示出來就好，剩下的說明都把它折起來，
+ * 客戶需要看的時候再點閱……簡單、簡潔、有力，乾淨俐落，
+ * 每一張卡片都一樣，用這種高規格、科技感。」
+ *
+ * 【一個元件，六十張長得一樣】
+ *
+ * 尺寸、比例、圓角、邊框、名字位置都在這裡決定。
+ * 任何地方要顯示神獸卡就用它，不另外排一套版——
+ * 「每一張都一樣」靠的是只有一份實作，不是靠每次都記得對齊。
+ *
+ * 【格子裡只有卡面與名字】
+ *
+ * 元素、階級、角色、技能、數值全部收進底部詳情。
+ * 原本每格底下掛四段小字，六十格排下來是一面字牆，卡面被擠成配角。
+ * 想知道的人點一下就有；不想知道的人不必先讀完才看得到圖。
+ */
+
+import { useEffect } from 'react';
+import styles from './BeastCardTile.module.css';
+import { guardianOf, tierOf, TIER_LABEL } from '@/lib/beast-guardians';
+import { useGuideBook } from './GuideBookContext';
+import BattlePowerAnalysis from './BattlePowerAnalysis';
+import ElementOrbDisplay from './ElementOrbDisplay';
+// 正統比例與圖窗的唯一來源。這裡不重新定義，只疊手感與狀態。
+import frame from '@/components/BeastCardFrame.module.css';
+import { weaponFor, isTopTierWeapon } from '@/lib/beast-game/weapons';
+import type { BeastElement } from '@/lib/beast-game/elements';
+
+/**
+ * 標準卡樣式（2026-10-19 業主定調：先選一張最完美的當統一標準，確認後其他 59 張對齊）。
+ *
+ * 樣式本身寫成一組 token（BeastCardTile.module.css 的 .std*），不是一張一張硬改；
+ * 目前只開給標準卡「尾火虎・幼子」。業主確認後，把 id 加進來（或改成全部）即可整副換上。
+ */
+export const STANDARD_STYLE_IDS: ReadonlySet<string> = new Set(['beast_y06']);
+
+/** 業主 2026-10-21 批准標準卡質感，六十張全部換上。 */
+export function usesStandardStyle(_cardId: string): boolean {
+  return true;
+}
+
+/**
+ * 重繪卡面（2026-10-23 業主批准：先重繪標準卡一張當樣本）。
+ * 原圖不覆蓋，備份在 public/beast-game/_orig-20261023/；這裡只把卡面指到新檔。
+ * 有登記的卡同時開「印刷質感 v2」（data-art="v2"），其他卡維持現狀。
+ */
+const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
+  beast_y06: {
+    thumb: '/beast-game/thumb/young-06.v2.webp',
+    mid: '/beast-game/thumb/young-06.v2-480.webp',
+    front: '/beast-game/front/young-06.v2.webp',
+  },
+};
+
+/** 對不到宿位也不在四象表內的未知卡才不印武器列（現有 60 張都有）。 */
+function hasDesignedWeapon(weapon: { part: string }): boolean {
+  return weapon.part !== '四象本體';
+}
+
+export interface BeastTileCard {
+  id: string;
+  name: string;
+  thumbnail: string;
+  element: string;
+  /** 以下都是「折起來」的內容，格子上不顯示。 */
+  role?: string;
+  tier?: string;
+  skillName?: string;
+  description?: string;
+  passive?: string;
+  story?: string;
+  stats?: { hp: number; attack: number; defense: number; speed: number };
+  /** 高解析卡面。標準卡在高密度螢幕上用它，避免 256px 縮圖被放大而糊掉。 */
+  front?: string;
+  /** 技能耗氣（來自戰鬥核心 profile，只照印）。 */
+  cost?: number;
+}
+
+const ELEMENT_COLOR: Record<string, string> = {
+  SPACE: '#e2e8f0', AIR: '#6ee7b7', WATER: '#7dd3fc', FIRE: '#fda4af', EARTH: '#fcd34d',
+};
+const ELEMENT_LABEL: Record<string, string> = {
+  SPACE: '空', AIR: '風', WATER: '水', FIRE: '火', EARTH: '地',
+};
+
+/** 一格卡片。只有卡面、名字、一枚元素色點。 */
+export function BeastCardTile({
+  card, selected, owned, onOpen,
+}: {
+  card: BeastTileCard;
+  selected?: boolean;
+  owned?: boolean;
+  onOpen: () => void;
+}) {
+  if (usesStandardStyle(card.id)) return <StandardTile card={card} selected={selected} owned={owned} onOpen={onOpen} />;
+  return (
+    <button
+      type="button"
+      className={[styles.tile, selected ? styles.selected : ''].filter(Boolean).join(' ')}
+      onClick={onOpen}
+      aria-label={`${card.name}，${ELEMENT_LABEL[card.element] ?? card.element}${selected ? '，已選取' : ''}`}
+      aria-pressed={selected}
+    >
+      {/*
+        卡身用正統卡框（63 × 88，撲克牌形）。比例、圖窗、名字條都來自
+        BeastCardFrame——那是被 test:beast-card-spec 鎖住的唯一來源。
+        這裡只多一層手感：厚度、投影、按下去的回饋。
+      */}
+      <span className={`${frame.card} ${styles.body}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className={frame.art} src={card.thumbnail} alt="" loading="lazy" decoding="async" />
+        <div className={styles.orbIndicator} aria-hidden="true">
+          <ElementOrbDisplay element={card.element as any} size="small" animated />
+        </div>
+        {owned && <span className={styles.owned}>藏</span>}
+        {/* 名字條高度固定，六十張並排時底部一定對齊。 */}
+        <span className={`${frame.nameBar} ${styles.name}`} style={{ display: 'block' }}>{card.name}</span>
+      </span>
+    </button>
+  );
+}
+
+/**
+ * 標準卡面（集換式卡牌版式）。
+ *
+ * 由上到下：名字列 → 圖窗 → 武器列 → 技能列。像一張正規的實體卡：
+ * 外框是一圈素面黃銅，裡面是米白卡紙，字用墨色——不靠發光撐質感。
+ *
+ * 【武器與技能】
+ * 武器名取自 lib/beast-game/weapons.ts（宿位部位＋級數），那份檔案明定武器只是演出、
+ * 不進傷害公式（規格第十二條）。所以卡面上真正「有作用」的那一行是技能：
+ * 名稱、耗氣、效果全部照戰鬥核心 profile 印出，不在這裡改數字、也不另寫效果。
+ */
+const ELEMENT_INK: Record<string, string> = {
+  SPACE: '#6b6478', AIR: '#4f7f52', WATER: '#2f6f8f', FIRE: '#b4462f', EARTH: '#9a7432',
+};
+
+function StandardTile({
+  card, selected, owned, onOpen,
+}: {
+  card: BeastTileCard;
+  selected?: boolean;
+  owned?: boolean;
+  onOpen: () => void;
+}) {
+  const book = useGuideBook();
+  const element = (card.element in ELEMENT_INK ? card.element : 'SPACE') as BeastElement;
+  const weapon = weaponFor(card.id, card.name, element);
+  const guide = book?.cards[card.id];
+  const skillName = card.skillName ?? guide?.skill.name;
+  const skillText = card.description ?? guide?.skill.description;
+  const cost = card.cost ?? guide?.skill.cost;
+  // 「尾火虎・破陣」→ 卡面只印招式名「破陣」，全名在詳情裡。
+  const shortSkill = skillName?.split('・').pop();
+  const elementLabel = ELEMENT_LABEL[card.element] ?? card.element;
+  const art = ART_V2[card.id];
+  return (
+    <button
+      type="button"
+      className={[styles.tile, styles.stdTile, selected ? styles.stdSelected : ''].filter(Boolean).join(' ')}
+      onClick={onOpen}
+      aria-label={`${card.name}，${elementLabel}${hasDesignedWeapon(weapon) ? `，武器${weapon.name}` : ''}${shortSkill ? `，技能${shortSkill}` : ''}${selected ? '，已選取' : ''}`}
+      aria-pressed={selected}
+      data-card-style="standard"
+      data-art={art ? 'v2' : undefined}
+      style={{ '--std-el': ELEMENT_INK[element] } as React.CSSProperties}
+    >
+      <span className={`${frame.card} ${styles.stdCard}`}>
+        <span className={styles.stdPaper}>
+          <span className={styles.stdHead}>
+            <span className={styles.stdSeal} aria-hidden="true">{elementLabel}</span>
+            <span className={styles.stdName}>{card.name}</span>
+            {owned && <span className={styles.stdOwned}>藏</span>}
+          </span>
+          <span className={styles.stdWindow}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className={styles.stdArt}
+              src={art ? art.thumb : card.thumbnail}
+              srcSet={art ? `${art.thumb} 256w, ${art.mid} 480w, ${art.front} 720w` : card.front ? `${card.thumbnail} 256w, ${card.front} 720w` : undefined}
+              sizes="(max-width: 480px) 46vw, 200px"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+          </span>
+          {hasDesignedWeapon(weapon) && (
+            <span className={styles.stdWeapon}>
+              <span className={`${styles.stdTag} ${isTopTierWeapon(card.id) ? styles.stdTagTop : ''}`}>{isTopTierWeapon(card.id) ? '至尊' : '武器'}</span>
+              <span className={styles.stdWeaponName}>{weapon.name}</span>
+              <span className={styles.stdWeaponPart}>{weapon.part}</span>
+            </span>
+          )}
+          {shortSkill && skillText && (
+            <span className={styles.stdSkill}>
+              <span className={styles.stdSkillHead}>
+                {typeof cost === 'number' && <span className={styles.stdCost} aria-hidden="true">{cost}</span>}
+                <span className={styles.stdSkillName}>{shortSkill}</span>
+              </span>
+              <span className={styles.stdSkillText}>{skillText}</span>
+            </span>
+          )}
+        </span>
+      </span>
+    </button>
+  );
+}
+
+/**
+ * 底部詳情。
+ *
+ * 從下方升起，蓋住一部分畫面但不整頁跳走——客戶還看得到自己剛才在哪裡。
+ * Esc 與點背景都能關；手機沒有 Esc，所以背景一定要能點。
+ */
+export function CardDetailSheet({
+  card, owned, note, actionLabel, onAction, onClose,
+}: {
+  card: BeastTileCard;
+  owned?: boolean;
+  /** 額外一行狀態，例如成長進度。沒有就不顯示。 */
+  note?: string;
+  /** 主要動作，例如「選入隊伍」。沒有就只顯示關閉。 */
+  actionLabel?: string;
+  onAction?: () => void;
+  onClose: () => void;
+}) {
+  const book = useGuideBook();
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <>
+      <button type="button" className={styles.backdrop} aria-label="關閉卡片詳情" onClick={onClose} />
+      <section className={styles.sheet} role="dialog" aria-modal="true" aria-label={`${card.name} 詳細資料`} data-card-sheet>
+        <div className={styles.sheetHead}>
+          <div className={`${styles.sheetArt} ${frame.card} ${frame.metal}`}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className={frame.art} src={ART_V2[card.id]?.thumb ?? card.thumbnail} alt="" />
+          </div>
+          <div className={styles.sheetTitle}>
+            <strong>{card.name}</strong>
+            <span>
+              {/*
+                《四大神獸》歸屬：二十八宿本來就每七宿屬一象，
+                不是新編的分組，資料裡的 season 就記著。
+              */}
+              {guardianOf(card.id)?.name ?? ''}
+              {' · '}
+              {ELEMENT_LABEL[card.element] ?? card.element}
+              {' · '}
+              {TIER_LABEL[tierOf(card.id)]}
+              {card.role ? ` · ${card.role}` : ''}
+              {owned ? ' · 已收藏' : ''}
+            </span>
+          </div>
+        </div>
+
+        {note && <p className={styles.block}><strong>狀態</strong>{note}</p>}
+
+        {usesStandardStyle(card.id) && (() => {
+          const weapon = weaponFor(card.id, card.name, (card.element in ELEMENT_LABEL ? card.element : 'SPACE') as BeastElement);
+          if (!hasDesignedWeapon(weapon)) return null;
+          return (
+            <p className={styles.block} data-card-weapon>
+              <strong>武器・{weapon.name}（{weapon.part}・{weapon.weaponClass}）</strong>
+              {weapon.motion}武器是出招時的外觀演出，實際效果以下方技能為準。
+            </p>
+          );
+        })()}
+        <BattlePowerAnalysis cardId={card.id} />
+        {(() => { const guide = book?.cards[card.id]; return guide ? <p className={styles.block}><strong>{guide.skill.name}・耗氣 {guide.skill.cost}</strong>{guide.skill.description}</p> : null; })()}
+
+        {actionLabel && onAction && (
+          <button
+            type="button"
+            className={styles.close}
+            style={{ background: '#ffdfa4', color: '#302113', borderColor: 'transparent' }}
+            onClick={() => { onAction(); onClose(); }}
+          >
+            {actionLabel}
+          </button>
+        )}
+        <button type="button" className={styles.close} onClick={onClose}>關閉</button>
+      </section>
+    </>
+  );
+}
+
+export default BeastCardTile;

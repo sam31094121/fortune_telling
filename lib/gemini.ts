@@ -1,114 +1,14 @@
-import { googleGenerationKey } from '@/lib/teacher-provider';
-import { GoogleGenAI, Type } from '@google/genai';
-import { getBirthPersonalityScores, getBirthZodiac } from './birth-model-db';
-import { getBloodTypeDescription, getBloodTypePersonalityScores } from './blood-model-db';
-import { generateGenderAdjustments, getGenderCorrectionExplanation } from './gender-corrector';
+// 2026-10-23 ai-to-asura：本檔不再呼叫任何 AI；人格分析與預分析只回本地決定性分數，ai_* 文字欄位留空（前端以本地文字呈現）。
+import { getBirthPersonalityScores } from './birth-model-db';
+import { getBloodTypePersonalityScores } from './blood-model-db';
+import { generateGenderAdjustments } from './gender-corrector';
 import { computeMusicProfile } from './music-engine';
-import { getNameDescription, getNamePersonalityScores } from './name-model-db';
+import { getNamePersonalityScores } from './name-model-db';
 import { enrichAnalysis, enrichPreview } from './personality-engine';
-import { buildAiCopywritingInstruction, enforceAiCopywritingTone } from './ai-copywriting-style-center';
-import {
-  buildMagneticVoiceDirectiveZh,
-  buildMagneticVoiceDirectiveEn,
-  getMagneticLyricRuleZh,
-  type MagneticVoiceType,
-} from './magnetic-voice';
-import {
-  aggregatePersonalityScore,
-  fusePersonalityV5,
-  fusePreviewPersonalityV5,
-  subtractScores,
-} from './weight-engine';
-import {
-  DIMENSION_KEYS,
-  type AnalysisResult,
-  type DimensionAdjustments,
-  type DimensionScores,
-  type PersonInput,
-  type PreviewAnalysisResult,
-} from './types';
 
-const MODEL_NAME = 'gemini-2.5-flash';
-const GEMINI_TIMEOUT_MS = 15000;
-
-const RESPONSE_SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    ai_skeleton_summary: { type: Type.STRING, description: '生日骨架摘要，80 字內。' },
-    ai_behavior_summary: { type: Type.STRING, description: '血型補充摘要，80 字內。' },
-    ai_individuality_summary: { type: Type.STRING, description: '姓名校正摘要，80 字內。' },
-    ai_final_summary: { type: Type.STRING, description: '最終總結，150 字內。' },
-    ai_wisdom_perspective: { type: Type.STRING, description: '善念與修為視角的結語，200 字內。' },
-  },
-  required: [
-    'ai_skeleton_summary',
-    'ai_behavior_summary',
-    'ai_individuality_summary',
-    'ai_final_summary',
-    'ai_wisdom_perspective',
-  ],
-};
-
-const PREVIEW_RESPONSE_SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    ai_skeleton_summary: { type: Type.STRING, description: '生日骨架摘要，80 字內。' },
-    ai_behavior_summary: { type: Type.STRING, description: '血型補充摘要，80 字內。' },
-    ai_preview_summary: { type: Type.STRING, description: '天地預分析摘要，120 字內。' },
-  },
-  required: ['ai_skeleton_summary', 'ai_behavior_summary', 'ai_preview_summary'],
-};
-
-function scoreBlock(scores: DimensionScores) {
-  return JSON.stringify(scores, null, 2);
-}
-
-function extractJsonText(text: string) {
-  const trimmed = text.trim();
-  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-  return (fenced?.[1] ?? trimmed).trim();
-}
-
-function safeJsonParse<T>(text: string): T {
-  return JSON.parse(extractJsonText(text)) as T;
-}
-
-function cleanAiText(value: unknown) {
-  if (typeof value !== 'string') return '';
-
-  return value
-    .replace(/[\u0000-\u001F]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .replace(/^["'「」]+|["'「」]+$/g, '')
-    .trim();
-}
-
-function applyCopywritingTone<T extends Record<string, string>>(payload: T): T {
-  return Object.fromEntries(
-    Object.entries(payload).map(([key, value]) => [key, enforceAiCopywritingTone(value)]),
-  ) as T;
-}
-
-function normalizeStructuredFields<T extends object>(payload: T): T {
-  return Object.fromEntries(
-    Object.entries(payload).map(([key, value]) => [key, typeof value === 'string' ? cleanAiText(value) : value]),
-  ) as T;
-}
-
-async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-
-  try {
-    return await Promise.race([
-      promise,
-      new Promise<T>((_, reject) => {
-        timer = setTimeout(() => reject(new Error(message)), timeoutMs);
-      }),
-    ]);
-  } finally {
-    if (timer) clearTimeout(timer);
-  }
-}
+import { buildMagneticVoiceDirectiveZh, buildMagneticVoiceDirectiveEn, type MagneticVoiceType } from './magnetic-voice';
+import { aggregatePersonalityScore, fusePersonalityV5, fusePreviewPersonalityV5, subtractScores } from './weight-engine';
+import { DIMENSION_KEYS, type AnalysisResult, type DimensionAdjustments, type DimensionScores, type PersonInput, type PreviewAnalysisResult } from './types';
 
 function clampScore(value: number) {
   return Math.max(0, Math.min(100, Math.round(value)));
@@ -118,140 +18,7 @@ function mapAdjustments(scores: DimensionScores, base: DimensionScores): Dimensi
   return subtractScores(scores, base);
 }
 
-function buildAnalysisPrompt(
-  person: PersonInput,
-  birthScores: DimensionScores,
-  bloodScores: DimensionScores,
-  nameScores: DimensionScores,
-  finalScores: DimensionScores,
-  bloodAdjustments: DimensionAdjustments,
-  nameAdjustments: DimensionAdjustments,
-) {
-  const zodiac = getBirthZodiac(person.birthday);
-  const genderLabel = person.gender === 'male' ? '男性' : '女性';
-
-  return `
-你是「天地人 易經人格解碼系統」的高級分析顧問，請只負責寫出肯定、明確、彼此一致、不可互相否定的繁體中文摘要。
-
-${buildAiCopywritingInstruction('天地人 易經人格解碼系統')}
-
-鐵律：
-1. 生日是人格骨架，血型只能補充生日，姓名只能深化天地，性別只能修飾外在呈現。
-2. 任何後面的分析都不得推翻前面的分析。
-3. 用詞只能使用「補充、深化、校正、細化、調和」，不可使用「相反、推翻、其實不是、完全改變」。
-4. 語氣要肯定、直接、有力量，用「命格判定」「人格分析」開頭的斷言句，不可浮誇、不可搞笑、不可模糊。本次沒有卦象，禁止使用「易經卜卦判定」「卦象顯示」這類把結論掛在卦上的說法。
-5. 最後結語必須帶到「以善為本、多行善能讓命運更順」的價值，但不要說教。
-
-易經卦象：本次不提供。
-這條分析只有出生日期、血型、姓名與性別，沒有出生時辰；生辰卦一定要有時辰才起得出來，
-系統不會用預設時辰替客戶決定，所以這次不起卦。
-你也不可以自己編一個卦、卦名、爻辭或卦義——沒有卦就不要提卦。
-如果要談「補上出生時辰可以解鎖完整卦象」，可以，但只能當成邀請，不能當成已經算出來的結論。
-
-人物資料：
-- 姓名：${person.name}
-- 生日：${person.birthday}
-- 星座：${zodiac}
-- 血型：${person.bloodType}
-- 性別：${genderLabel}
-
-結構化依據：
-- 生日骨架：${scoreBlock(birthScores)}
-- 血型層：${scoreBlock(bloodScores)}
-- 姓名層：${scoreBlock(nameScores)}
-- 血型修正：${JSON.stringify(bloodAdjustments)}
-- 姓名修正：${JSON.stringify(nameAdjustments)}
-- 最終融合：${scoreBlock(finalScores)}
-- 血型描述：${getBloodTypeDescription(person.bloodType)}
-- 姓名描述：${getNameDescription(person.name)}
-- 性別修飾：${getGenderCorrectionExplanation(person.gender, Object.entries(nameAdjustments).map(([key, value]) => ({ key, value })))}
-
-請輸出 JSON，欄位為：
-- ai_skeleton_summary
-- ai_behavior_summary
-- ai_individuality_summary
-- ai_final_summary
-- ai_wisdom_perspective
-`.trim();
-}
-
-function buildPreviewPrompt(
-  birthday: string,
-  bloodType: Exclude<PersonInput['bloodType'], ''>,
-  birthScores: DimensionScores,
-  bloodScores: DimensionScores,
-  previewScores: DimensionScores,
-  bloodAdjustments: DimensionAdjustments,
-) {
-  const zodiac = getBirthZodiac(birthday);
-
-  return `
-你是「天地人 易經人格解碼系統」的免費天地預分析顧問。
-
-${buildAiCopywritingInstruction('天地人 易經人格解碼系統')}
-
-規則：
-1. 只能描述生日骨架與血型補充。
-2. 不可假裝已經分析姓名或最終命運。
-3. 血型只能補充，不能推翻生日。
-4. 語氣要肯定、直接、有力量，用「命格判定」「人格分析」開頭的斷言句，不可浮誇、不可模糊。本次沒有卦象，禁止使用「易經卜卦判定」「卦象顯示」這類把結論掛在卦上的說法。
-
-人物資料：
-- 生日：${birthday}
-- 星座：${zodiac}
-- 血型：${bloodType}
-
-結構化依據：
-- 生日骨架：${scoreBlock(birthScores)}
-- 血型層：${scoreBlock(bloodScores)}
-- 血型修正：${JSON.stringify(bloodAdjustments)}
-- 天地融合：${scoreBlock(previewScores)}
-- 血型描述：${getBloodTypeDescription(bloodType)}
-
-請輸出 JSON，欄位為：
-- ai_skeleton_summary
-- ai_behavior_summary
-- ai_preview_summary
-`.trim();
-}
-
-async function generateStructuredText<T>(
-  apiKey: string,
-  prompt: string,
-  schema: T,
-  maxOutputTokens = 900,
-): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey });
-
-  const response = await withTimeout(
-    ai.models.generateContent({
-      model: MODEL_NAME,
-      contents: prompt,
-      config: {
-        responseMimeType: 'application/json',
-        responseSchema: schema as never,
-        temperature: 0.2,
-        maxOutputTokens,
-        thinkingConfig: { thinkingBudget: 0 },
-      },
-    }),
-    GEMINI_TIMEOUT_MS,
-    'Gemini 回應逾時。',
-  );
-
-  if (!response.text) {
-    throw new Error('Gemini 沒有回傳可解析的內容。');
-  }
-
-  return response.text;
-}
-
 export async function analyzeDestiny(person: PersonInput): Promise<AnalysisResult> {
-  const apiKey = googleGenerationKey();
-  if (!apiKey) {
-    throw new Error('外部生成目前暫停，請使用易經老師解讀。');
-  }
-
   const birthScores = getBirthPersonalityScores(person.birthday);
   const bloodScores = getBloodTypePersonalityScores(person.bloodType);
   const nameScores = getNamePersonalityScores(person.name);
@@ -274,23 +41,13 @@ export async function analyzeDestiny(person: PersonInput): Promise<AnalysisResul
     ai_wisdom_perspective: string;
   };
 
-  try {
-    const text = await generateStructuredText(
-      apiKey,
-      buildAnalysisPrompt(person, birthScores, bloodScores, nameScores, finalScores, bloodAdjustments, nameAdjustments),
-      RESPONSE_SCHEMA,
-    );
-    aiData = applyCopywritingTone(normalizeStructuredFields(safeJsonParse(text)));
-  } catch (error) {
-    console.error('[gemini] analysis failed, fallback to local summaries', error);
-    aiData = {
-      ai_skeleton_summary: '',
-      ai_behavior_summary: '',
-      ai_individuality_summary: '',
-      ai_final_summary: '',
-      ai_wisdom_perspective: '',
-    };
-  }
+  aiData = {
+    ai_skeleton_summary: '',
+    ai_behavior_summary: '',
+    ai_individuality_summary: '',
+    ai_final_summary: '',
+    ai_wisdom_perspective: '',
+  };
 
   return enrichAnalysis({
     resonance_score: aggregatePersonalityScore(finalScores),
@@ -471,213 +228,13 @@ function createLocalMusicReport(input: MusicReportInput): MusicReportOutput {
   };
 }
 
-const MUSIC_REPORT_SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    music_narrative: {
-      type: Type.STRING,
-      description: '描述這個人的音樂靈魂，語調如命理詩人，200字內，繁體中文。',
-    },
-    song_title_suggestion: {
-      type: Type.STRING,
-      description: '建議的專屬歌曲名稱，繁體中文，4-10字。',
-    },
-    lyric_opening: {
-      type: Type.STRING,
-      description: '開場歌詞兩句，有詩意、有力量，繁體中文。',
-    },
-    music_message: {
-      type: Type.STRING,
-      description: '這首歌想對使用者說的一段話，溫暖、真實，100字內，繁體中文。',
-    },
-    wisdom_note: {
-      type: Type.STRING,
-      description: '以善念為核心的結語，不說教，80字內，繁體中文。',
-    },
-    english_song_reason: {
-      type: Type.STRING,
-      description: '說明為何這首英文參考音樂適合作為天層音樂格局錨點，70字內，繁體中文。',
-    },
-    mandarin_song_reason: {
-      type: Type.STRING,
-      description: '說明為何這首國語參考音樂適合作為地層情緒與唱腔錨點，70字內，繁體中文。',
-    },
-    taiwanese_song_reason: {
-      type: Type.STRING,
-      description: '說明為何這首國語參考音樂適合作為人層故事與情感錨點，70字內，繁體中文。',
-    },
-    famous_singers_mandarin: {
-      type: Type.STRING,
-      description: '大數據統計學男女歌手：同風格(如Pop/R&B/Rock)、同年代中全球華人知名度最高、最具代表性、家喻戶曉的男女歌手，格式為："男歌手名 / 女歌手名"。',
-    },
-    famous_singers_english: {
-      type: Type.STRING,
-      description: '大數據統計學男女歌手：同風格、同年代英文知名度最高、最具代表性的全球歌手或樂團代表，格式為："男歌手/樂團名 / 女歌手/樂團名"。',
-    },
-    famous_singers_taiwanese: {
-      type: Type.STRING,
-      description: '大數據統計學男女歌手：同風格、同年代國語知名度最高、家喻戶曉的台灣男女歌手代表，格式為："男歌手名 / 女歌手名"。',
-    },
-  },
-  required: [
-    'music_narrative',
-    'song_title_suggestion',
-    'lyric_opening',
-    'music_message',
-    'wisdom_note',
-    'english_song_reason',
-    'mandarin_song_reason',
-    'taiwanese_song_reason',
-    'famous_singers_mandarin',
-    'famous_singers_english',
-    'famous_singers_taiwanese',
-  ],
-};
-
-function buildMusicReportPrompt(input: MusicReportInput): string {
-  const genderLabel = input.gender === 'male' ? '男性' : '女性';
-  const vocalPreferenceLabel = input.magneticVoice
-    ? buildMagneticVoiceDirectiveZh(input.magneticVoiceType, input.vocalGenderPreference)
-    : input.vocalGenderPreference === 'male'
-      ? '偏好男聲主唱'
-      : input.vocalGenderPreference === 'female'
-        ? '偏好女聲主唱'
-        : '未指定，請依人格音樂與曲風自動配置主唱聲線';
-  const d = input.destinyContext;
-  const p = input.psychologyContext;
-  const languageGuidance = getSongLanguageGuidance(input.preferredSongLanguage);
-  const voiceProfileInstructionBlock = input.voiceProfile?.workflowStatus === 'AI_VOICE_READY'
-    ? `AI vocal generation: do not ask the user to record. Automatically choose a suitable AI singing voice from the personality matrix, life-song goal, five-element priority, style, and language. Voice traits=${input.voiceProfile.sample?.inferredCharacteristics.join(', ') || 'ai_voice_auto'}. The song should feel personal without claiming to use the user's recorded voice.`
-    : 'AI vocal generation: automatically choose a suitable singing voice from personality data, life-song goal, five-element priority, style, and language. Do not request microphone recording.';
-  const languageInstructionBlock = `歌曲語言主軸：${languageGuidance.label}
-語言生成規則：${languageGuidance.prompt}
-語言比例建議：${languageGuidance.distribution}`;
-  const lifeSong = input.lifeSongContext;
-  const lifeSongInstructionBlock = lifeSong
-    ? `生命歌曲目標：${lifeSong.goal}
-使用者補充：${lifeSong.goalNote || '未補充'}
-創作風格：${lifeSong.creativeStyle}
-成長中心整合：${lifeSong.growthSummary}
-歌曲世界觀：${lifeSong.worldView}
-歌曲主題：${lifeSong.theme}
-歌曲情境：${lifeSong.scene}`
-    : '生命歌曲目標：療癒與陪伴';
-
-  return `
-${languageInstructionBlock}
-${voiceProfileInstructionBlock}
-${lifeSongInstructionBlock}
-
-你是「天地人 易經人格音樂系統」的靈魂音樂顧問，同時精通命理學與深層心理學。
-根據以下四層數據——使用者當前目標、天地人命理架構、心理學原型、音樂矩陣——寫出一份深刻的人格音樂報告。
-
-系統鐵律：
-1. 生命目標、命理、心理學、音樂四個視角必須互相呼應，不可矛盾。
-2. 語氣如命理詩人：有深度、有詩意、有人性溫度，不浮誇不說教。
-3. 五行、生肖、榮格原型等概念要自然融入敘事，不要硬塞術語。
-4. 陰影面（Shadow）要輕描淡寫地提及，不是批評，而是提醒。
-5. 結語必須自然帶到「心存善念，命運才能更順」的智慧。
-6. 【歌曲與原唱歌手一致性】：在分析與解釋提及的參考錨點歌曲時，其原唱歌手名字必須與系統提供的一模一樣，絕對禁止張冠李戴（例如《Yesterday》原唱是 The Beatles，不能寫成貓王或其他歌手；《月亮代表我的心》原唱是鄧麗君，不能寫成王菲或周杰倫等；《吻別》原唱是張學友，不能寫成周杰倫）。所有歌曲與歌手必須 100% 正確匹配，絕不能產生任何人為矛盾。
-7. 【大數據歌手年代一致性】：在 'famous_singers_mandarin'、'famous_singers_english' 與 'famous_singers_taiwanese' 推薦的歌手，其發跡、巔峰或代表作品之年代，**必須 100% 與使用者的音樂年代（${input.era}）完全相同！** 絕對不准在舊年代的大數據指標中推薦新年代的歌手，反之亦然。這是一致性鐵律，絕不准產生任何年代與歌手矛盾！
-
-━━━ 生命歌曲創作任務 ━━━
-${lifeSongInstructionBlock}
-
-━━━ 易經卦象：本次不提供 ━━━
-音樂報告的輸入只有出生日期，沒有出生時辰。生辰卦一定要有時辰才起得出來，
-系統不會用預設時辰替客戶決定，所以這次不起卦。
-music_narrative 與 wisdom_note 請就人物命格、血型、聲線與年代本身書寫，
-不可自己編卦名、爻辭、卦義或鬼魅拆卦素材——沒有卦就不要提卦。
-
-━━━ 人物命格 ━━━
-姓名：${input.name}
-生日：${input.birthDate}（${input.zodiac}）
-血型：${input.bloodType} 型 · 性別：${genderLabel}
-主唱聲線偏好：${vocalPreferenceLabel}
-${input.magneticVoice ? `磁性聲線歌詞規則（人層歌詞需與此聲線綁定，一起催淚）：${getMagneticLyricRuleZh(input.magneticVoiceType)}` : ''}
-音樂年代：${input.era}
-
-━━━ 命理層（天）━━━
-天干：${d?.heavenlyStem ?? '—'} · 五行：${d?.wuxing ?? '—'}
-五行氣質：${d?.wuxingDescription ?? '—'}
-生肖：${d?.chineseZodiac ?? '—'} · 特質：${d?.zodiacTrait ?? '—'}
-音樂傾向：${d?.zodiacMusicTrait ?? '—'}
-
-━━━ 心理學層（人）━━━
-主原型：${p?.archetypePrimary ?? '—'}（${p?.archetypeDescription ?? '—'}）
-核心天賦：${p?.archetypeCoreGift ?? '—'}
-此生課題：${p?.archetypeLifeLesson ?? '—'}
-核心傷：${p?.archetypeCoreWound ?? '—'}
-音樂人格：${p?.archetypeMusicPersona ?? '—'}
-陰影面：${p?.archetypeShadow ?? '—'}
-輔助原型：${p?.archetypeSecondary ?? '—'}
-OCEAN 特質：${p?.oceanHighlight ?? '—'}
-
-━━━ 人格音樂矩陣（0-100）━━━
-${JSON.stringify(input.personalityMatrix, null, 2)}
-
-━━━ 生成音樂參數 ━━━
-BPM：${input.musicParameters.bpm} · 音調：${input.musicParameters.key}
-風格：${input.musicParameters.genre}
-氛圍：${input.musicParameters.mood.join(', ')}
-唱腔：${input.musicParameters.vocal_style}
-樂器：${input.musicParameters.instrument.join(', ')}
-歌詞主題：${input.musicParameters.lyric_theme.join(', ')}
-
-━━━ 大數據選歌引擎已挑出的三個參考錨點 ━━━
-天層英文音樂錨點：《${input.selectedSongs?.english.title ?? '—'}》— ${input.selectedSongs?.english.artist ?? '—'}
-地層國語情緒錨點：《${input.selectedSongs?.mandarin.title ?? '—'}》— ${input.selectedSongs?.mandarin.artist ?? '—'}
-人層國語故事錨點：《${input.selectedSongs?.taiwanese?.title ?? '—'}》— ${input.selectedSongs?.taiwanese?.artist ?? '—'}
-（這三個只是資料庫參考錨點，不是要生成三首歌；請勿更換歌曲，只需說明為何契合各素材層。）
-
-請輸出 JSON，欄位為：
-- music_narrative：融合命理與心理學的人格音樂靈魂敘述，200字內
-- song_title_suggestion：有命理感的建議歌名，繁中，4-10字
-- lyric_opening：開場歌詞兩句，要有五行/命理意象，繁中
-- music_message：這首歌想對使用者說的話，溫暖且有深度，100字內
-- wisdom_note：以善念、因果、命運為核心的結語，80字內
-- english_song_reason：為何上方英文錨點適合作為天層音樂格局，70字內
-- mandarin_song_reason：為何上方國語錨點適合作為地層情緒與唱腔，70字內
-- taiwanese_song_reason：為何上方國語錨點適合作為人層故事與情感，70字內
-- famous_singers_mandarin：大數據同年代、同風格(如Pop/R&B/Rock等)之華語流行乐坛知名度最高、最具代表性的男女歌手代表，例如："周杰倫 / 蔡依林" 或 "張學友 / 王菲"
-- famous_singers_english：大數據同年代、同風格英文最知名、最具代表性的全球男女歌手/樂團代表，例如："Michael Jackson / Taylor Swift"
-- famous_singers_taiwanese：大數據同年代、同風格之國語最知名、家喻戶曉的台灣男女歌手代表，例如："洪榮宏 / 江蕙"
-`.trim();
-}
-
 export async function generateMusicReport(input: MusicReportInput): Promise<MusicReportOutput> {
-  const apiKey = googleGenerationKey();
-  if (!apiKey) return createLocalMusicReport(input);
-
-  try {
-    const text = await generateStructuredText(
-      apiKey,
-      buildMusicReportPrompt(input),
-      MUSIC_REPORT_SCHEMA,
-      1500,
-    );
-    return normalizeStructuredFields(safeJsonParse<MusicReportOutput>(text)) as unknown as MusicReportOutput;
-  } catch (error) {
-    console.error('[gemini] music report failed', error);
-    return createLocalMusicReport(input);
-  }
+  return createLocalMusicReport(input);
 }
 
 // ────────────────────────────────────────────────────────────
 // 天地人歌曲矩陣（第一階段：天 / 地 / 人素材層）
 // ────────────────────────────────────────────────────────────
-
-const TIANDIREN_SONG_MATRIX_RULES = `
-天地人歌曲矩陣鐵律：
-- 最終只能生成一首「天地人人格歌曲」，不是英文歌 + 國語歌 + 國語歌硬湊。
-- 天 35%（出生日期）：只決定英文音樂感、主旋律方向、年代感、BPM、情緒色彩、空間感；天不能寫歌詞。
-- 地 35%（血型）：只決定國語流行唱腔、節奏、鼓點、和聲、編曲厚度、副歌情緒；地不能推翻天的曲風。
-- 人 30%（姓名 + 性別 + 名字性格男/女/中性）：只決定國語歌詞語感、姓名氣質、個人故事、歌詞核心句、記憶點、情感落點；人不能亂改編曲。
-- 天只決定音樂靈魂，地只決定音樂身體，人只決定音樂故事。
-- 三者不能互相推翻，所有結果都必須進入同一個歌曲矩陣。
-- 易經不能各自生成三套最終歌曲；english / mandarin / taiwanese 欄位只是素材層，不是三首正式歌。
-- 若規則衝突，停止擴寫，以歌曲矩陣為唯一輸出。
-`.trim();
 
 export interface OriginalSongDraft {
   language_label: string;
@@ -693,48 +250,6 @@ export interface OriginalSongDraftsOutput {
   mandarin: OriginalSongDraft;
   taiwanese: OriginalSongDraft;
 }
-
-const SONG_DRAFT_SCHEMA_ITEM = {
-  type: Type.OBJECT,
-  properties: {
-    language_label: {
-      type: Type.STRING,
-      description: '素材層標籤，例如 天層 English 音樂藍圖、地層國語唱腔、人格國語故事。',
-    },
-    title: {
-      type: Type.STRING,
-      description: '素材層標題。這不是正式三首歌，而是同一首歌的素材名稱。',
-    },
-    concept: {
-      type: Type.STRING,
-      description: '此素材層在天地人歌曲矩陣中的分工，繁體中文，60 字內。',
-    },
-    lyrics: {
-      type: Type.ARRAY,
-      items: { type: Type.STRING },
-      description: '素材文字，每個元素一行，6-10 行。天層不可寫完整歌詞，只能給旋律/音色/Hook 音節；地層給國語唱腔與情緒句；人層給國語歌詞核心句。',
-    },
-    style: {
-      type: Type.STRING,
-      description: '此素材層允許負責的曲風、BPM、樂器或情緒設定，繁體中文，80 字內。',
-    },
-    vocal_direction: {
-      type: Type.STRING,
-      description: '此素材層允許負責的人聲/唱腔方向，繁體中文，40 字內。',
-    },
-  },
-  required: ['language_label', 'title', 'concept', 'lyrics', 'style', 'vocal_direction'],
-};
-
-const SONG_DRAFTS_SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    english: SONG_DRAFT_SCHEMA_ITEM,
-    mandarin: SONG_DRAFT_SCHEMA_ITEM,
-    taiwanese: SONG_DRAFT_SCHEMA_ITEM,
-  },
-  required: ['english', 'mandarin', 'taiwanese'],
-};
 
 function createLocalSongDrafts(input: MusicReportInput): OriginalSongDraftsOutput {
   const mood = input.musicParameters.mood.slice(0, 3).join('、') || '溫暖、堅定、真摯';
@@ -791,114 +306,8 @@ function createLocalSongDrafts(input: MusicReportInput): OriginalSongDraftsOutpu
   };
 }
 
-function buildSongDraftsPrompt(input: MusicReportInput): string {
-  const genderLabel = input.gender === 'male' ? '男性' : '女性';
-  const vocalPreferenceLabel = input.magneticVoice
-    ? buildMagneticVoiceDirectiveZh(input.magneticVoiceType, input.vocalGenderPreference)
-    : input.vocalGenderPreference === 'male'
-      ? '偏好男聲主唱'
-      : input.vocalGenderPreference === 'female'
-        ? '偏好女聲主唱'
-        : '未指定，請依人格音樂與曲風自動配置主唱聲線';
-  const d = input.destinyContext;
-  const languageGuidance = getSongLanguageGuidance(input.preferredSongLanguage);
-  const languageInstructionBlock = `歌曲語言主軸：${languageGuidance.label}
-語言生成規則：${languageGuidance.prompt}
-語言比例建議：${languageGuidance.distribution}`;
-  const lifeSong = input.lifeSongContext;
-  const lifeSongInstructionBlock = lifeSong
-    ? `生命歌曲目標：${lifeSong.goal}
-使用者補充：${lifeSong.goalNote || '未補充'}
-創作風格：${lifeSong.creativeStyle}
-歌曲世界觀：${lifeSong.worldView}
-歌曲主題：${lifeSong.theme}
-歌曲情境：${lifeSong.scene}`
-    : '生命歌曲目標：療癒與陪伴';
-
-  return `
-${languageInstructionBlock}
-
-你是「天地人歌曲矩陣」的第一階段素材層生成器。
-請根據使用者的生命歌曲目標、生日、血型、姓名、命理資料與音樂參數，先產生三個素材層：天層、地層、人層。
-★ 重要：每次生成必須是完全新的創意表達，不要重複之前任何的組合或歌詞。確保這首歌獨一無二地反映此人的特質。
-
-${TIANDIREN_SONG_MATRIX_RULES}
-
-非常重要：
-1. 這一步只產生文字資料，不產生音檔、不產生 YouTube 連結。
-2. 不是生成三首歌，而是生成同一首歌的三個資料層。
-3. 所有素材必須原創，不可引用、改寫、模仿任何已存在歌曲的歌詞或旋律。
-4. 參考曲只可作為年代與情緒錨點，不可模仿歌手、不可抄歌詞。
-5. 天層不能寫完整歌詞；地層不能推翻天層曲風；人層不能亂改編曲。
-6. 文字要短、清楚、可進入同一個歌曲矩陣，避免太長。
-7. 每次生成都要展現新的創意視角——用不同的比喻、不同的情緒切入點、不同的故事角度。
-
-━━━ 生命歌曲創作任務 ━━━
-${lifeSongInstructionBlock}
-
-━━━ 使用者資料 ━━━
-姓名：${input.name}
-生日：${input.birthDate}（${input.zodiac}）
-血型：${input.bloodType} 型 · 性別：${genderLabel}
-主唱聲線偏好：${vocalPreferenceLabel}
-${input.magneticVoice ? `磁性聲線歌詞規則（人層歌詞需與此聲線綁定，一起催淚）：${getMagneticLyricRuleZh(input.magneticVoiceType)}` : ''}
-音樂年代：${input.era}
-
-━━━ 命理資料 ━━━
-天干：${d?.heavenlyStem ?? '—'} · 五行：${d?.wuxing ?? '—'} · 生肖：${d?.chineseZodiac ?? '—'}
-五行氣質：${d?.wuxingDescription ?? '—'}
-生肖音樂傾向：${d?.zodiacMusicTrait ?? '—'}
-
-━━━ 人格音樂矩陣 ━━━
-${JSON.stringify(input.personalityMatrix, null, 2)}
-
-━━━ 音樂參數 ━━━
-BPM：${input.musicParameters.bpm} · 音調：${input.musicParameters.key}
-風格：${input.musicParameters.genre}
-氛圍：${input.musicParameters.mood.join(', ')}
-唱腔：${input.musicParameters.vocal_style}
-樂器：${input.musicParameters.instrument.join(', ')}
-歌詞主題：${input.musicParameters.lyric_theme.join(', ')}
-
-━━━ 參考曲（只作情緒錨點，不可模仿）━━━
-英文參考：《${input.selectedSongs?.english.title ?? '—'}》— ${input.selectedSongs?.english.artist ?? '—'}
-國語參考：《${input.selectedSongs?.mandarin.title ?? '—'}》— ${input.selectedSongs?.mandarin.artist ?? '—'}
-國語參考：《${input.selectedSongs?.taiwanese?.title ?? '—'}》— ${input.selectedSongs?.taiwanese?.artist ?? '—'}
-
-請輸出 JSON：
-- english：天層素材（英文音樂格局、主旋律方向、年代感、BPM、情緒色彩、空間感；不可寫完整歌詞）
-- mandarin：地層素材（國語唱腔、節奏、鼓點、和聲、編曲厚度、副歌情緒；不可推翻天層曲風）
-- taiwanese：人層素材（國語歌詞語感、姓名氣質、個人故事、核心句、記憶點、情感落點；不可亂改編曲）
-
-每個素材層包含：
-- language_label
-- title
-- concept
-- lyrics：6-10 行素材文字；天層不可寫完整歌詞，地層給唱腔/節奏句，人層給國語故事核心句
-- style
-- vocal_direction
-`.trim();
-}
-
 export async function generateSongDrafts(input: MusicReportInput): Promise<OriginalSongDraftsOutput> {
-  const apiKey = googleGenerationKey();
-  if (!apiKey) {
-    console.warn('[generateSongDrafts] 無 API key，使用本地 fallback');
-    return createLocalSongDrafts(input);
-  }
-
-  try {
-    const text = await generateStructuredText(
-      apiKey,
-      buildSongDraftsPrompt(input),
-      SONG_DRAFTS_SCHEMA,
-      3200,
-    );
-    return safeJsonParse<OriginalSongDraftsOutput>(text);
-  } catch (error) {
-    console.error('[gemini] song drafts failed，使用本地 fallback:', error);
-    return createLocalSongDrafts(input);
-  }
+  return createLocalSongDrafts(input);
 }
 
 // ────────────────────────────────────────────────────────────
@@ -1059,31 +468,6 @@ export interface FusionSongOutput {
   fusion_style: string;
 }
 
-const FUSION_SONG_SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    fusion_title: {
-      type: Type.STRING,
-      description: '這首天地人人格歌曲的歌名，繁體中文，4-12 字，有記憶點。',
-    },
-    fusion_concept: {
-      type: Type.STRING,
-      description: '一句話說明這首歌如何用英文音樂格局、國語情緒、國語故事融合成一首歌，60 字內，繁體中文。',
-    },
-    fusion_lyrics: {
-      type: Type.ARRAY,
-      items: { type: Type.STRING },
-      description:
-        '原創歌詞，以字串陣列回傳，「每個元素為一行」。段落標記（如 [主歌]、[副歌]、[橋段]）各自獨立成一個元素。以國語為主要可唱敘事，人層國語只放核心句與情感落點，天層英文只可作短 Hook 或音色記憶點。共 12-18 個元素，每行精煉。',
-    },
-    fusion_style: {
-      type: Type.STRING,
-      description: '融合曲風設定：描述天層音樂靈魂、地層歌曲身體、人層故事落點如何成為同一首歌，80 字內，繁體中文。',
-    },
-  },
-  required: ['fusion_title', 'fusion_concept', 'fusion_lyrics', 'fusion_style'],
-};
-
 function createLocalFusionSong(input: FusionSongInput): FusionSongOutput {
   const heavenLayerTitle = input.songDrafts?.english.title ?? input.englishSong.title;
   const earthLayerTitle = input.songDrafts?.mandarin.title ?? input.mandarinSong.title;
@@ -1104,104 +488,14 @@ function createLocalFusionSong(input: FusionSongInput): FusionSongOutput {
   };
 }
 
-function buildFusionSongPrompt(input: FusionSongInput): string {
-  const tw = input.taiwaneseSong
-    ? `國語素材：《${input.taiwaneseSong.title}》— ${input.taiwaneseSong.artist}`
-    : '國語素材：（無，可省略國語段落或少量點綴）';
-  const languageGuidance = getSongLanguageGuidance(input.preferredSongLanguage);
-  const languageInstructionBlock = `歌曲語言主軸：${languageGuidance.label}
-語言生成規則：${languageGuidance.prompt}
-語言比例建議：${languageGuidance.distribution}`;
-  const drafts = input.songDrafts
-    ? `
-━━━ 第一階段 易經已生成的天地人素材層（這才是主要融合素材）━━━
-天層素材：《${input.songDrafts.english.title}》
-概念：${input.songDrafts.english.concept}
-素材文字：
-${input.songDrafts.english.lyrics.join('\n')}
-
-地層素材：《${input.songDrafts.mandarin.title}》
-概念：${input.songDrafts.mandarin.concept}
-素材文字：
-${input.songDrafts.mandarin.lyrics.join('\n')}
-
-人層素材：《${input.songDrafts.taiwanese.title}》
-概念：${input.songDrafts.taiwanese.concept}
-素材文字：
-${input.songDrafts.taiwanese.lyrics.join('\n')}
-`.trim()
-    : '';
-
-  return `
-${languageInstructionBlock}
-
-你是「歌曲融合引擎」，擅長把天、地、人三個素材層統一成一首動人的原創人格歌曲。
-請為「${input.name}」量身打造「一首」全新的天地人人格歌曲。
-★ 重要：每次融合都要用完全不同的創意角度、情緒切入和故事表達方式。確保這首歌獨特到不會與任何其他人的歌重複。
-
-${TIANDIREN_SONG_MATRIX_RULES}
-
-系統鐵律：
-1. 這是「一首歌」，不是三首拼貼；要融合貫通、自然流暢，副歌要有記憶點。
-2. 天層只給英文音樂格局、旋律方向、年代感與空間，不可寫完整歌詞。
-3. 地層只給國語唱腔、節奏、鼓點、和聲、編曲厚度與副歌情緒，不可推翻天層曲風。
-4. 人層只給國語歌詞語感、姓名故事、核心句、記憶點與情感落點，不可亂改編曲。
-5. 歌詞要呼應此人的人格特質，溫暖、有畫面、不浮誇。
-6. 優先融合「易經已生成的天地人素材層」，參考曲只作年代/情緒輔助，不可搶主導。
-7. 每次融合都要展現新的創意組合——用不同的和聲安排、不同的節奏組織、不同的故事線索。
-
-${drafts}
-
-━━━ 參考曲（只作情緒錨點，不可模仿）━━━
-英文素材：《${input.englishSong.title}》— ${input.englishSong.artist}
-國語素材：《${input.mandarinSong.title}》— ${input.mandarinSong.artist}
-${tw}
-
-━━━ 此人的人格音樂矩陣（0-100）━━━
-${JSON.stringify(input.personalityMatrix, null, 2)}
-
-━━━ 音樂參數參考 ━━━
-曲風：${input.genre ?? '抒情流行'} · BPM：${input.bpm ?? 90} · 氛圍：${(input.mood ?? []).join(', ') || '溫暖、真摯'}
-主唱聲線：${input.magneticVoice ? buildMagneticVoiceDirectiveZh(input.magneticVoiceType, input.vocalGenderPreference) : input.vocalGenderPreference === 'male' ? '男聲' : input.vocalGenderPreference === 'female' ? '女聲' : '未指定，依歌曲人格自動配置'}
-${input.magneticVoice ? `磁性聲線歌詞規則（聲音與歌詞綁定，一起催淚）：${getMagneticLyricRuleZh(input.magneticVoiceType)}` : ''}
-請輸出 JSON，欄位為：
-- fusion_title：原創歌名（繁中，4-12 字）
-- fusion_concept：一句話說明天地人如何融合成一首歌（60 字內）
-- fusion_lyrics：一首天地人人格歌曲的原創歌詞，「字串陣列」每元素一行（[主歌]/[副歌] 各自一行，12-18 行；國語為主線，英文只能短 Hook，國語作核心落點）
-- fusion_style：天地人歌曲矩陣的融合曲風設定（80 字內）
-`.trim();
-}
-
 export async function generateFusionSong(input: FusionSongInput): Promise<FusionSongOutput> {
-  const apiKey = googleGenerationKey();
-  if (!apiKey) {
-    console.warn('[generateFusionSong] 無 API key，使用本地 fallback');
-    return createLocalFusionSong(input);
-  }
-
-  try {
-    const text = await generateStructuredText(
-      apiKey,
-      buildFusionSongPrompt(input),
-      FUSION_SONG_SCHEMA,
-      3000,
-    );
-    return normalizeStructuredFields(safeJsonParse<FusionSongOutput>(text)) as unknown as FusionSongOutput;
-  } catch (error) {
-    console.error('[gemini] fusion song failed，使用本地 fallback:', error);
-    return createLocalFusionSong(input);
-  }
+  return createLocalFusionSong(input);
 }
 
 export async function analyzePreview(input: {
   birthday: string;
   bloodType: Exclude<PersonInput['bloodType'], ''>;
 }): Promise<PreviewAnalysisResult> {
-  const apiKey = googleGenerationKey();
-  if (!apiKey) {
-    throw new Error('外部生成目前暫停，請使用易經老師解讀。');
-  }
-
   const birthScores = getBirthPersonalityScores(input.birthday);
   const bloodScores = getBloodTypePersonalityScores(input.bloodType);
   const previewScores = fusePreviewPersonalityV5(birthScores, bloodScores);
@@ -1213,21 +507,11 @@ export async function analyzePreview(input: {
     ai_preview_summary: string;
   };
 
-  try {
-    const text = await generateStructuredText(
-      apiKey,
-      buildPreviewPrompt(input.birthday, input.bloodType, birthScores, bloodScores, previewScores, bloodAdjustments),
-      PREVIEW_RESPONSE_SCHEMA,
-    );
-    aiData = applyCopywritingTone(normalizeStructuredFields(safeJsonParse(text)));
-  } catch (error) {
-    console.error('[gemini] preview failed, fallback to local summaries', error);
-    aiData = {
-      ai_skeleton_summary: '',
-      ai_behavior_summary: '',
-      ai_preview_summary: '',
-    };
-  }
+  aiData = {
+    ai_skeleton_summary: '',
+    ai_behavior_summary: '',
+    ai_preview_summary: '',
+  };
 
   const year = Number.parseInt(input.birthday.slice(0, 4), 10);
   const peakMusicYear = year + 17;

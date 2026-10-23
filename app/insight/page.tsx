@@ -2317,23 +2317,26 @@ function getZiweiPalaceThreeLayerMaterial(
   };
 }
 
+// 2026-10-23 ai-to-asura：無宮位故事素材時不自編文字，一律顯示明確狀態「暫時無法取得」。
 function buildZiweiFallbackStory(palaceName: string): ZiweiPalaceStoryMaterial {
+  const unavailable = '暫時無法取得';
   return {
-    subtitle: palaceName + '主題分析',
+    subtitle: palaceName,
     icon: palaceName.slice(0, 1) || '宮',
-    professionalMeaning: palaceName + '用來觀察此宮位對人生主題的影響。',
-    sanFangRole: '此宮位需與命宮、財帛宮、官祿宮、遷移宮共同交叉判讀。',
-    storyFocus: '此宮位是命盤故事中的一個專門場景。',
-    story: palaceName + '呈現此人生領域的主要節奏、資源與壓力。',
-    opportunity: '先找出此宮位目前最有利的可用資源。',
-    pressure: '需要留意此領域是否出現過度消耗或責任不清。',
-    action: '把此宮位主題拆成可執行的小步驟。',
-    likely: '近期容易在此宮位主題上出現需要處理的變化。',
-    repair: '以穩定節奏與清楚邊界修復此領域。',
-    encouragement: '此宮位不是限制，而是可被整理與運用的訊號。',
+    professionalMeaning: unavailable,
+    sanFangRole: unavailable,
+    storyFocus: unavailable,
+    story: unavailable,
+    opportunity: unavailable,
+    pressure: unavailable,
+    action: unavailable,
+    likely: unavailable,
+    repair: unavailable,
+    encouragement: unavailable,
     tone: 'border-white/10 bg-white/5 text-[color:var(--text-main)]',
   };
 }
+
 
 function getZiweiProfessionalPalaceName(palace: ZiweiFullPalace) {
   return ZIWEI_PROFESSIONAL_PALACE_LABELS[palace.key] ?? palace.name;
@@ -2634,39 +2637,36 @@ const ZIWEI_TREASURE_RITUALS: Record<FiveElementKey, { title: string; scenes: [s
   },
 };
 
-/** 2026-10-23 ghost-asura：鬼魅老師十二宮解盤只顯示後端選好的古籍條文；前端不選句、不補文。 */
+/** 2026-10-23 ghost-asura：鬼魅老師十二宮解盤只顯示後端選好的古籍條文；前端不選句、不補文。
+ *  2026-10-23 ai-to-asura：只渲染有條文的星，不再為無條文的星畫空白提示格；整宮無條文時只顯示一則狀態提示。 */
 function ZiweiGhostAsuraLinesView({ reading }: { reading: NonNullable<LifeTeacherResult['ghostAsura']> }) {
   return (
     <section data-ghost-asura="lines" className="mt-3 rounded-xl border border-rose-300/35 bg-[linear-gradient(145deg,rgba(69,10,10,0.55),rgba(30,27,75,0.6))] p-2">
       <p className="text-[11px] font-black tracking-[0.18em] text-rose-100">鬼魅老師解盤｜{reading.palaceName}</p>
-      {reading.borrowedFromOpposite && (
+      {reading.borrowedFromOpposite && reading.lines.length > 0 && (
         <p className="mt-2 text-xs font-bold text-amber-100/85">本宮無十四主星，依古法借對宮{reading.oppositePalaceName}主星論。</p>
       )}
-      {reading.status === 'NO_MAJOR_STAR' && (
-        <p data-ghost-asura="gap" className="mt-3 text-sm font-semibold text-amber-200">本宮與對宮皆無十四主星，此組合古籍暫無條文。</p>
+      {reading.status !== 'OK' && (
+        <p data-ghost-asura="status" className="mt-3 text-sm font-semibold text-amber-200">此組合古籍暫無條文。</p>
       )}
-      <ul className="mt-2 space-y-2">
-        {reading.lines.map((line) => (
-          <li key={line.star} className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5">
-            <p className="text-xs font-black text-rose-100/80">{line.star}</p>
-            {line.sourced ? (
-              <>
-                {line.lines.map((text, index) => (
-                  <p key={index} data-ghost-asura="sourced" className="mt-1 break-words text-[13px] font-bold leading-6 text-rose-50">{text}</p>
-                ))}
-                {line.source && (
-                  <p className="mt-1.5 break-words text-[11px] font-semibold leading-[18px] text-white/60">
-                    出處：{line.sourceLink ? <a href={line.sourceLink} target="_blank" rel="noreferrer" className="underline">{line.source}</a> : line.source}
-                    {line.original ? `（原文：${line.original}）` : ''}
-                  </p>
-                )}
-              </>
-            ) : (
-              <p data-ghost-asura="gap" className="mt-1 text-sm font-semibold text-amber-200">此組合古籍暫無條文。</p>
-            )}
-          </li>
-        ))}
-      </ul>
+      {reading.lines.length > 0 && (
+        <ul className="mt-2 space-y-2">
+          {reading.lines.map((line) => (
+            <li key={line.star} className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5">
+              <p className="text-xs font-black text-rose-100/80">{line.star}</p>
+              {line.lines.map((text, index) => (
+                <p key={index} data-ghost-asura="sourced" className="mt-1 break-words text-[13px] font-bold leading-6 text-rose-50">{text}</p>
+              ))}
+              {line.source && (
+                <p className="mt-1.5 break-words text-[11px] font-semibold leading-[18px] text-white/60">
+                  出處：{line.sourceLink ? <a href={line.sourceLink} target="_blank" rel="noreferrer" className="underline">{line.source}</a> : line.source}
+                  {line.original ? `（原文：${line.original}）` : ''}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

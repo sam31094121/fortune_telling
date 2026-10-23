@@ -1,5 +1,4 @@
-import { googleGenerationKey } from '@/lib/teacher-provider';
-import { GoogleGenAI, Type } from '@google/genai';
+// 2026-10-23 ai-to-asura：深度洞察不再呼叫 AI，解說一律由 buildLocalInsightNarrative（本地命盤決定性）供稿。
 import { castHexagramFromBirth, formatHexagramLine, type IChingReading } from '@/lib/iching-engine';
 import { buildEmpathicReading, formatEmpathicReading, formatGhostDecoding } from '@/lib/iching-psychology';
 import { getBirthPersonalityScores, getBirthZodiac } from './birth-model-db';
@@ -8,28 +7,16 @@ import { buildNameologyAnalysis, type NameologyAnalysis } from './nameology-engi
 import { buildInsightFiveElementResult, type FiveElementIntegrationResult } from './five-element-engine';
 import { DIMENSION_META } from './personality';
 import { computeShichenProfile } from './shichen-engine';
-import {
-  DIMENSION_KEYS,
-  type DimensionKey,
-  type DimensionScores,
-  type InsightRequest,
-} from './types';
-import { solarToLunarParts } from './lunar-calendar';
-import { buildAiCopywritingInstruction, enforceAiCopywritingTone } from './ai-copywriting-style-center';
+import { DIMENSION_KEYS, type DimensionKey, type DimensionScores, type InsightRequest } from './types';
+
+import { enforceAiCopywritingTone } from './ai-copywriting-style-center';
 import { calculateZiweiSanFang, type ZiweiSanFangAnalysis } from './ziwei-sanfang-engine';
 import { calculateAnnualFortune, type AnnualFortuneAnalysis } from './annual-fortune-engine';
 import { buildZiweiDestinyCard, type ZiweiDestinyCard } from './ziwei-destiny-card';
-import {
-  buildZiweiPresentationBundle,
-  resolveZiweiAnalysisId,
-  type ZiweiPresentationBundle,
-} from './ziwei-presentation-service';
+import { buildZiweiPresentationBundle, resolveZiweiAnalysisId, type ZiweiPresentationBundle } from './ziwei-presentation-service';
 import { createZiweiCore } from './ziwei/engine';
 import { saveVerifiedZiweiChart } from './ziwei-chart-store';
 import { runThreeInOne, type ThreeInOneResult } from './three-in-one';
-
-const MODEL_NAME = 'gemini-2.5-flash';
-const GEMINI_TIMEOUT_MS = 20000;
 
 export const INSIGHT_RITUAL_STEP_IDS = [
   'TIME_RESOLVED',
@@ -332,60 +319,7 @@ function buildLocalInsightNarrative(input: {
   return { psychology_insights, recommendations, summary };
 }
 
-const INSIGHT_RESPONSE_SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    psychology_insights: {
-      type: Type.ARRAY,
-      items: {
-        type: Type.OBJECT,
-        properties: {
-          title: { type: Type.STRING },
-          description: { type: Type.STRING },
-          confidence: { type: Type.INTEGER },
-        },
-      },
-      description: '心理學洞察，3-5 項，信心度 0-100',
-    },
-    recommendations: {
-      type: Type.ARRAY,
-      items: { type: Type.STRING },
-      description: '個性化建議，3-5 項',
-    },
-    summary: { type: Type.STRING, description: '完整摘要，200-300 字' },
-    plain_summary: { type: Type.STRING, description: '給「白話重點」卡的四行固定格式摘要。每行只能一個完整句子，依序為【現在重點】、【工作與錢】、【人際與機會】、【下一步】。每行 22-38 字，以台灣生活語言寫，禁用 易經卜卦判定、五行不足、日主、格局、星曜等術語。' },
-  },
-  required: [
-    'psychology_insights',
-    'recommendations',
-    'summary',
-  ],
-};
-
 // 誤差函數的近似實現
-function computeErf(x: number): number {
-  // 誤差函數的近似值 (Abramowitz and Stegun)
-  const a1 = 0.254829592;
-  const a2 = -0.284496736;
-  const a3 = 1.421413741;
-  const a4 = -1.453152027;
-  const a5 = 1.061405429;
-  const p = 0.3275911;
-
-  const sign = x < 0 ? -1 : 1;
-  const absX = Math.abs(x);
-
-  const t = 1.0 / (1.0 + p * absX);
-  const y = 1.0 - (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t) * Math.exp(-absX * absX);
-
-  return sign * y;
-}
-
-function calculateGlobalPercentile(score: number): number {
-  // No validated population dataset is connected to this product.
-  void score;
-  return 0;
-}
 
 const SCORE_WEIGHTS = {
   birth: 50,
@@ -397,15 +331,6 @@ const SCORE_FORMULA = '生日人格骨架 50% + 姓名個體校正 40% + 真實�
 
 function clampPercentage(value: number): number {
   return Math.max(0, Math.min(100, Math.round(value)));
-}
-
-function stableHash(input: string): number {
-  let hash = 2166136261;
-  for (let index = 0; index < input.length; index += 1) {
-    hash ^= input.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  return hash >>> 0;
 }
 
 function dimensionLabel(key: DimensionKey): string {
@@ -435,15 +360,6 @@ function sampleSizeForDimension(total: number, key: DimensionKey, index: number,
   void index;
   void request;
   return 0;
-}
-
-function uniquenessOffsetOrder(seed: number): number[] {
-  const offsets = [0];
-  for (let distance = 1; distance <= 100; distance += 1) {
-    const positiveFirst = (seed + distance) % 2 === 0;
-    offsets.push(positiveFirst ? distance : -distance, positiveFirst ? -distance : distance);
-  }
-  return offsets;
 }
 
 function buildStatisticalAnalysis(
@@ -554,82 +470,6 @@ function withUniqueConfidence(
   });
 }
 
-function buildBigDataInsights(
-  statisticalAnalysis: InsightAnalysisResponse['statisticalAnalysis'],
-): InsightAnalysisResponse['bigDataInsights'] {
-  const top = statisticalAnalysis[0];
-  const second = statisticalAnalysis[1];
-  const bottom = statisticalAnalysis[statisticalAnalysis.length - 1];
-  const middle = statisticalAnalysis[Math.floor(statisticalAnalysis.length / 2)];
-
-  return [
-    {
-      category: '最明顯優勢',
-      finding: `你的「${top.dimension}」這次算出 ${top.score} 分，是整份報告最突出的一項。`,
-      sampleSize: top.sampleSize,
-      scoreBasis: top.sourceSummary,
-    },
-    {
-      category: '第二強訊號',
-      finding: `「${second.dimension}」為 ${second.score} 分，和最高指標形成主要人格組合，可作為行動與決策風格的輔助判讀。`,
-      sampleSize: second.sampleSize,
-      scoreBasis: second.sourceSummary,
-    },
-    {
-      category: '中位平衡點',
-      finding: `「${middle.dimension}」位於 ${middle.score} 分，代表這個面向不是弱點，而是會依環境調整的彈性區。`,
-      sampleSize: middle.sampleSize,
-      scoreBasis: middle.sourceSummary,
-    },
-    {
-      category: '需要留意',
-      finding: `「${bottom.dimension}」目前為 ${bottom.score} 分，是相對較保守或消耗感較高的區域，適合用小步驟補強。`,
-      sampleSize: bottom.sampleSize,
-      scoreBasis: bottom.sourceSummary,
-    },
-  ];
-}
-
-async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-
-  try {
-    return await Promise.race([
-      promise,
-      new Promise<T>((_, reject) => {
-        timer = setTimeout(() => {
-          reject(new Error(message));
-        }, timeoutMs);
-      }),
-    ]);
-  } catch (error) {
-    // 確保超時被正確捕獲
-    throw error;
-  } finally {
-    if (timer) clearTimeout(timer);
-  }
-}
-
-function extractJsonText(text: string): string {
-  const trimmed = text.trim();
-  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-  return (fenced?.[1] ?? trimmed).trim();
-}
-
-function safeJsonParse<T>(text: string): T {
-  const jsonText = extractJsonText(text);
-  try {
-    return JSON.parse(jsonText) as T;
-  } catch (error) {
-    // 多半是輸出被 token 上限截斷，導致 JSON 不完整
-    const isTruncated = !jsonText.trimEnd().endsWith('}');
-    const reason = isTruncated
-      ? '易經回應內容過長被截斷，請稍後再試。'
-      : '易經回應格式異常，無法解析。';
-    throw new Error(reason);
-  }
-}
-
 /** 流年主題是一整句話；接在別的句子裡時先拿掉句尾標點，避免出現「…。」。 */
 function themeClause(theme: string): string {
   return theme.trim().replace(/[。．.！!？?]+$/u, '');
@@ -639,7 +479,6 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
   // 與專案其他模組一致使用 GEMINI_API_KEY，並保留舊名稱作為後備。
   // 金鑰缺失或 易經呼叫失敗都不再讓整個紫微分析掛掉——命盤是本地排的，
   // 解說文字會改用 buildLocalInsightNarrative 的免費離線後備。
-  const apiKey = googleGenerationKey();
 
   // 獲取基本人格分數
   const birthScores = getBirthPersonalityScores(request.birthDate);
@@ -708,103 +547,6 @@ export async function generateInsightAnalysis(request: InsightRequest): Promise<
     : null;
 
   // 構建分析提示
-  const analysisPrompt = `
-你是一個專業紫微斗數與八字輔助分析顧問，熟悉命盤格局、三方四正、流年運勢與五行語言，但不可把規則推論宣稱為真實大數據或科學定論。
-請根據以下天地人資料進行深度洞察分析：
-
-【基本資料】
-- 姓名: ${request.name}
-- 生日: ${request.birthDate} (星座: ${birthZodiac})
-- 性別: ${request.gender === 'female' ? '女性' : '男性'}
-
-${empathic
-    ? `【易經心理學・我最懂你（後端已運算的共感層；心靈捕手式知己口吻＋剝洋蔥層層深入核心脆弱性）】
-${formatEmpathicReading(empathic)}
-共感層使用規則：整份解讀的語氣要像上面這位「最懂他的密友」——不是老師對學生，是知己對知己；plain_summary 與 summary 開頭要能讓他感覺「你真的懂我」，可自然呼應上述心理學名詞（${empathic.psychologyTerms.join('、')}），但不可推翻其中的判定，也不可重複整段照抄。`
-    : '【易經心理學・我最懂你】本次不提供：共感層以生辰卦為底，沒有時辰就沒有卦。語氣仍要像知己，但不可引用任何卦象。'}
-
-${iching
-    ? `【易經卦象（後端已決定性起卦，請在分析中引用印證，不可自行改卦）】
-- 本卦：${iching.hexagramName}（上${iching.upper.nature}${iching.upper.symbol}・下${iching.lower.nature}${iching.lower.symbol}）
-- 動爻：第${iching.changingLine}爻
-- 卦義：${iching.judgment}
-- 卦示行動：${iching.advice}`
-    : '【易經卦象】本次不提供。客戶沒有填出生時辰，生辰卦起不出來，系統也不會用預設時辰代填。你不可以自己編卦名、爻辭或卦義——沒有卦就不要提卦；可以邀請他補上時辰來解鎖。'}
-
-【八字時辰（人 30% 子層，供八字與紫微斗數分析）】
-  - 出生時間: ${selectedHour} · ${shichen.shichen.label}（${shichen.shichen.range}）
-- 八字日柱: ${shichen.dayPillar} · 時柱: ${shichen.hourPillar.ganzhi}
-- 時辰五行: ${shichen.wuxing}
-
-【姓名學輔助資料：後端固定產生，僅作人格文字參考】
-- 姓名學分數: ${nameology.score}
-- 姓名學等級: ${nameology.level}
-- 核心人格: ${nameology.corePersonality}
-- 形象偏好: ${nameology.imageAndPreference}
-- 24性情矩陣: ${nameology.temperamentProfile.topTendencies.map((item) => `${item.label}${item.score}分/${item.tone}`).join('；')}
-- 明確性情方向: ${nameology.temperamentProfile.clearDirection}
-- 姓名結構: ${nameology.composition.surnameSummary} ${nameology.composition.givenNameSummary} ${nameology.composition.combinedIntent}
-- 交叉校正: ${nameology.crossCheck.alignmentLabel}；${nameology.crossCheck.genderLens}；${nameology.crossCheck.birthdayLens}
-- 每字拆解: ${nameology.characters.map((item) => `${item.char}${item.strokeCount}畫/${item.element}${item.yinYang}/${item.role}/部首${item.glyph.radical}/拆字${item.glyph.parts.join('+')}/象意${item.glyph.meaning}/取名意圖${item.glyph.namingIntent}/性情${item.tendencies.slice(0, 3).map((tendency) => tendency.label).join('、')}`).join('；')}
-- 五格: ${nameology.grids.map((item) => `${item.label}${item.value}畫${item.element}`).join('；')}
-- 相生相剋: ${nameology.elementFlow.map((item) => `${item.from}->${item.to}/${item.relation}`).join('；')}
-
-【紫微命財官遷規則：本頁主軸，易經不可改分數】
-- \u3010\u4e94\u5143\u7d20\u88dc\u5f37\u7d50\u8ad6\u3011: ${fiveElement.summary}
-- \u3010\u552f\u4e00\u4e3b\u88dc\u5224\u5b9a\u3011: ${fiveElement.decision.conclusion}
-- \u3010\u624b\u93c8\u4e3b\u88dc\u65b9\u6848\u3011: ${fiveElement.productRecommendation.title}
-- \u3010\u88dc\u4e86\u5148\u6539\u8b8a\u4ec0\u9ebc\u3011: ${fiveElement.decision.changeTarget}
-- \u3010\u5546\u54c1\u914d\u5c0d\u539f\u56e0\u3011: ${fiveElement.productMatch.matchReason.join('\uFF1B')}
-- \u88dc\u5f37\u539f\u56e0: ${fiveElement.reasons.join('\uFF1B')}
-- \u7acb\u5373\u884c\u52d5: ${fiveElement.recommendedActions.join('\uFF1B')}
-- \u3010\u7981\u6b62\u77db\u76fe\u3011: AI \u4e0d\u5f97\u6539\u5beb\u4e3b\u88dc\u5143\u7d20\uff0c\u4e0d\u5f97\u628a\u7b2c\u4e8c\u9806\u4f4d\u6216\u8f03\u5f37\u5143\u7d20\u5beb\u6210\u672c\u6b21\u4e3b\u88dc\u3002
-
-- 四柱: ${ziweiSanFang.bazi.year} ${ziweiSanFang.bazi.month} ${ziweiSanFang.bazi.day} ${ziweiSanFang.bazi.hour}
-- 日主: ${ziweiSanFang.bazi.dayMaster}
-- 命、財帛、官祿、遷移宮: ${ziweiSanFang.timeConfidence === 'exact' ? ziweiSanFang.palaces.map((palace) => `${palace.name}(${palace.majorStars.join('、') || '無主星'})`).join('；') : '時辰未確認，不提供單一命宮或格局'}
-  - 時辰可靠度: ${ziweiSanFang.timeConfidence === 'exact' ? '使用者已提供時辰' : '未提供；沒有使用預設時辰，需要時辰的內容不得輸出'}
-
-【已由後端固定計算的今年流年運勢：只講今年，不是終身本命】
-- 年份: ${annualFortune.year} ${annualFortune.ganzhi}年
-- 流年五行: ${annualFortune.yearElement}
-- 整體分數: ${annualFortune.overallScore}
-- 等級: ${annualFortune.level}
-- 主題: ${annualFortune.annualTheme}
-- 今年命盤三方四正重點: ${annualFortune.sanFangFourZheng.map((item) => `今年${item.palaceName}${item.score}分/${item.trend}/${item.focus}`).join('；')}
-
-【個性特質分數】(0-100)
-生日骨架:
-${JSON.stringify(birthScores, null, 2)}
-
-姓名校正:
-${JSON.stringify(nameScores, null, 2)}
-
-【後端已固定計算的規則模型訊號，非人群統計，易經不可改寫】
-${JSON.stringify(statisticalAnalysis.map((item) => ({
-  dimension: item.dimension,
-  score: item.score,
-  sourceSummary: item.sourceSummary,
-})), null, 2)}
-
-請只根據以上固定分數進行文字分析，包括：
-1. 紫微斗數洞察（3-5項），必須以命盤格局、三方四正、今年流年運勢、命財官遷為主，不可自行創造新分數。
-2. 個性化建議（3-5項）。
-3. 完整分析摘要。
-4. plain_summary：嚴格輸出四行，格式固定為「【現在重點】...\n【工作與錢】...\n【人際與機會】...\n【下一步】...」。第一行只根據命宮，第二行必須同時根據官祿宮與財帛宮，第三行只根據遷移宮，第四行必須承接今年流年主題。這是使用者最先閱讀的卡片：直接講生活處境和行動，不解釋術語、不重複資料、不寫「易經卜卦判定／易經卜卦指引」、不宣稱統計結論。
-
-${buildAiCopywritingInstruction('天地人 易經紫微洞察系統')}
-
-分析要求：
-- 紫微斗數是主軸，姓名學只作輔助人格參考；你只能引用上方已給定的宮位、四柱、三方四正與今年流年資料，不可自行推導、補充或改寫星曜。
-- 今年流年運勢、今年命盤三方四正年度分數與年度建議已由後端固定產生；你只能呼應今年，不可自行改分數、改宮位，也不可把今年運勢寫成終身本命。
-- 語氣應具體、有建設性，避免宿命論、恐嚇、鐵口直斷或過度保證。
-- 每一項「心理學洞察」與「建議」必須有完全不同的切入點與獨特話術，展現高智商、邏輯嚴密且不可複刻的專業性。
-- 若時辰未確認，只能使用「趨勢參考」的措辭，不可宣稱精準定盤。
-- 不要輸出任何具體的分數、百分位或樣本數（這些後端會自動渲染）。
-- 統一繁體中文，言字有物、精準犀利。
-- plain_summary 必須使用台灣日常用語；例如以「工作上先把責任和進度講清楚」取代「官祿宮受星曜影響」，以「主動約人談合作或投履歷」取代「補強火元素」。
-
-返回結構化的 JSON 格式。`;
 
   let aiAnalysis: {
     psychology_insights: Array<{ title: string; description: string; confidence: number }>;
@@ -812,51 +554,12 @@ ${buildAiCopywritingInstruction('天地人 易經紫微洞察系統')}
     summary: string;
     plain_summary?: string;
   };
-  try {
-    if (!apiKey) {
-      throw new Error('未設定 GEMINI_API_KEY 環境變數。');
-    }
-    const ai = new GoogleGenAI({ apiKey });
-    const response = await withTimeout(
-      ai.models.generateContent({
-        model: MODEL_NAME,
-        contents: analysisPrompt,
-        config: {
-          responseSchema: INSIGHT_RESPONSE_SCHEMA as never,
-          responseMimeType: 'application/json',
-          temperature: 1,
-          topP: 0.95,
-          topK: 40,
-          // gemini-2.5-flash 為思考型模型，思考 tokens 會佔用輸出額度。
-          // 關閉思考並提高上限，避免中文 JSON 被截斷導致解析失敗。
-          thinkingConfig: { thinkingBudget: 0 },
-          maxOutputTokens: 8192,
-        },
-      }),
-      GEMINI_TIMEOUT_MS,
-      '深度洞察分析超時，請稍後再試。'
-    );
-
-    const textStr = response.text || '';
-    if (!textStr) {
-      throw new Error('易經未返回有效回應。');
-    }
-
-    aiAnalysis = safeJsonParse<typeof aiAnalysis>(textStr);
-  } catch (error) {
-    // Gemini 不可用（額度 429、逾時、金鑰缺失、回應異常）→ 免費本地後備接手，
-    // 客戶照樣拿到完整命盤與解說，功能不中斷。
-    console.error(
-      '[insight-engine] 易經解說暫不可用，改用本地命盤解說後備：',
-      error instanceof Error ? error.message : String(error)
-    );
-    aiAnalysis = buildLocalInsightNarrative({
-      analysis: ziweiSanFang,
-      annual: annualFortune,
-      isTimeKnown: shichen.isKnown,
-      iching,
-    });
-  }
+  aiAnalysis = buildLocalInsightNarrative({
+    analysis: ziweiSanFang,
+    annual: annualFortune,
+    isTimeKnown: shichen.isKnown,
+    iching,
+  });
 
   // 易經心理學「我最懂你」共感層（lib/iching-psychology.ts 技能檔案）：
   // 永遠置頂顯示——不論 AI 或本地後備哪條路。

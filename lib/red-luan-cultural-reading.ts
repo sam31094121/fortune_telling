@@ -1,5 +1,5 @@
-import { googleGenerationKey } from './teacher-provider';
-import { GoogleGenAI } from '@google/genai';
+// 2026-10-23 ai-to-asura：紅鸞文化解讀不再呼叫 AI；只附技能檔（易經神煞／神煞異君）含「紅鸞」的原句與出處，查無則明確回「暫時無法取得」。
+import { ASURA_UNAVAILABLE_MESSAGE, findSkillLines, type SourcedSkillLine } from './asura/sourced-lines';
 import type { SingleRedLuanHeartbeatResult } from './red-luan-heartbeat-engine';
 
 export type RedLuanCulturalReading = {
@@ -15,6 +15,9 @@ export type RedLuanCulturalReading = {
   summary?: string;
   yearlyGuidance?: Array<{ year: number; theme: string; reflection: string; action: string }>;
   limitations: string[];
+  /** 2026-10-23 ai-to-asura：技能檔原句（逐字）與檔名行號 */
+  sourcedLines?: SourcedSkillLine[];
+  message?: string;
 };
 
 type AiPayload = {
@@ -31,6 +34,9 @@ type AiPayload = {
     goldenCases: string;
   };
   limitations: string[];
+  /** 2026-10-23 ai-to-asura：技能檔原句（逐字）與檔名行號 */
+  sourcedLines?: SourcedSkillLine[];
+  message?: string;
 };
 
 const FORBIDDEN_CERTAINTY = /(一定|必然|保證|百分之百|會結婚|遇到真愛|命中注定|確定會|準確率|神諭|通靈|感應到|宇宙告訴你)/;
@@ -131,48 +137,12 @@ async function withTimeout<T>(task: Promise<T>, timeoutMs: number) {
 export async function generateRedLuanCulturalReading(result: SingleRedLuanHeartbeatResult): Promise<RedLuanCulturalReading> {
   const gate = inspectRedLuanAiGate(result);
   const limitations = [
-    'AI 只負責把已通過門控的年度規則證據轉成文化性反思與行動參考，不參與排盤或規則命中。',
+    '文化解讀只引用技能檔原句，不呼叫 AI、不參與排盤或規則命中。',
     result.monthlyRhythm.limitation,
   ];
   if (gate.status !== 'PASSED') return { status: 'BLOCKED_BY_VALIDATION', provider: 'none', gate, limitations };
 
-  const apiKey = googleGenerationKey();
-  if (!apiKey) return { status: 'UNAVAILABLE_AI_NOT_CONFIGURED', provider: 'none', gate, limitations };
-
-  const payload = buildRedLuanAiEvidencePayload(result);
-  const allowedYears = new Set(payload.verifiedEvidence.map((item) => item.year));
-  const prompt = `你是「桃花・紅鸞心動」的易經文化解讀助手。後端已完成確定性八字規則計算與品質門控。你只能讀取下列已驗證的年度證據與限制，不能重新排盤、不能新增星曜、卦象、月份、分數或事件。
-
-請用繁體中文輸出 JSON：
-{
-  "summary": "80到160字的文化性總結",
-  "yearlyGuidance": [
-    { "year": 只可使用證據中存在的年份, "theme": "關係發展訊號名稱", "reflection": "條件式文化反思", "action": "具體且低風險的社交或溝通行動" }
-  ]
-}
-
-限制：
-1. 不得使用「一定、必然、保證、會結婚、遇到真愛、命中注定、準確率」等確定性語句。
-2. 不得推測人格、心理狀態、創傷或當事人未提供的感受。
-3. 沒有月份規則，禁止輸出月份；沒有易經起卦規則，禁止生成卦象。
-4. 可使用「關係發展訊號、相遇與社交機會參考、可留意、適合」等條件式語氣。
-5. AI 只是文化文字的表達層，不得自稱易經權威、神諭、通靈者或能感應當事人；不得暗示已知道當事人的心理狀態。
-
-後端證據：${JSON.stringify(payload)}`;
-
-  try {
-    const ai = new GoogleGenAI({ apiKey });
-    const response = await withTimeout(ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      config: { responseMimeType: 'application/json', temperature: 0.2, maxOutputTokens: 1200, thinkingConfig: { thinkingBudget: 0 } },
-    }), 10_000);
-    const text = response.text?.trim();
-    if (!text) throw new Error('RED_LUAN_AI_EMPTY');
-    const parsed = parseAiReading(text, allowedYears);
-    return { status: 'READY', provider: 'google', gate, ...parsed, limitations };
-  } catch (error) {
-    console.info('[red-luan-heartbeat] cultural reading unavailable', error instanceof Error ? error.message : String(error));
-    return { status: 'TEMPORARILY_UNAVAILABLE', provider: 'none', gate, limitations };
-  }
+  const picked = findSkillLines(['易經神煞', '神煞異君'], ['紅鸞']);
+  if (!picked.sourced) return { status: 'TEMPORARILY_UNAVAILABLE', provider: 'none', gate, limitations, message: ASURA_UNAVAILABLE_MESSAGE };
+  return { status: 'READY', provider: 'none', gate, sourcedLines: picked.lines, limitations };
 }

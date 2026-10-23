@@ -1,6 +1,6 @@
 {
   "version": "platform-core-v6-audit-v1",
-  "generatedAt": "2026-08-21T09:32:16.172Z",
+  "generatedAt": "2026-10-23T09:26:59.425Z",
   "rule": "No COMPLETED_AND_VERIFIED without project code, fresh build, full tests, mobile evidence, and clean post-test state.",
   "coreContracts": [
     {
@@ -489,7 +489,7 @@
     {
       "name": "build",
       "exists": true,
-      "command": "next build"
+      "command": "node scripts/build.mjs"
     },
     {
       "name": "auto-qa",
@@ -510,16 +510,16 @@
     "autoQa": {
       "reportPath": "reports/auto-qa/latest.json",
       "exists": true,
-      "ok": false,
-      "completedAt": "2026-08-21T09:32:15.780Z",
+      "ok": true,
+      "completedAt": "2026-08-22T09:52:09.398Z",
       "version": "tiandiren-auto-qa-v1.2"
     },
     "screenHealth": {
       "reportPath": "reports/screen-health/latest.json",
       "exists": true,
-      "ok": true,
-      "completedAt": "2026-08-21T09:21:13.813Z",
-      "screenStatus": "HEALTHY",
+      "ok": false,
+      "completedAt": "2026-10-23T09:26:56.554Z",
+      "screenStatus": "UNHEALTHY",
       "version": "screen-health-monitor-v1"
     },
     "mobileE2E": {
@@ -543,15 +543,23 @@
   },
   "git": {
     "dirtyFiles": [
-      "m .release-verified-ziwei-v2",
-      "M reports/auto-qa/latest.json"
+      "M components/battlefield/BeastCardTile.module.css",
+      "M components/battlefield/BeastCardTile.tsx",
+      "M reports/beast-production/release-summary.json",
+      "M reports/platform-core-v6/latest.json",
+      "M reports/platform-core-v6/latest.md",
+      "M reports/screen-health/latest.json",
+      "?? public/beast-game/_orig-20261023/",
+      "?? public/beast-game/front/young-06.v2.webp",
+      "?? public/beast-game/thumb/young-06.v2-480.webp",
+      "?? public/beast-game/thumb/young-06.v2.webp"
     ],
     "unavailable": false,
     "unavailableReason": null
   },
   "finalStatus": "NOT_COMPLETED",
   "blockers": [
-    "Full nine-card Auto QA evidence is missing or failing.",
+    "Screen health evidence is missing or failing.",
     "Real mobile E2E evidence is not attached to this audit.",
     "Working tree has uncommitted or untracked changes; fresh regression evidence must be produced after these changes."
   ],

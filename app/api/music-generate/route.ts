@@ -1,5 +1,9 @@
 import { lockedCardGuard } from '@/lib/dual-chart-auth';
 import { NextResponse } from 'next/server';
+import { ASURA_UNAVAILABLE_MESSAGE } from '@/lib/asura/sourced-lines';
+
+/** 2026-10-23 ai-to-asura：音樂生成停用開關。 */
+const MUSIC_GENERATION_DISABLED: boolean = true;
 import { generateMusicReport, generateFusionSong, generateSongDrafts, generateAiProductionPlan } from '@/lib/gemini';
 import { PersonalityMatrixEngine } from '@/lib/personality-matrix-engine';
 import { MusicParameterGenerator } from '@/lib/music-parameter-generator';
@@ -404,6 +408,10 @@ export async function POST(request: Request) {
   const locked = lockedCardGuard(request);
   if (locked) return locked;
   const requestId = createRequestId();
+  // 2026-10-23 ai-to-asura：音樂報告／歌詞沒有技能檔來源，停用生成，固定回明確狀態「暫時無法取得」。
+  if (MUSIC_GENERATION_DISABLED) {
+    return NextResponse.json({ ok: false, requestId, code: 'TEMPORARILY_UNAVAILABLE', message: ASURA_UNAVAILABLE_MESSAGE }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
+  }
   const now = Date.now();
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
   

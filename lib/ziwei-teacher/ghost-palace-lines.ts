@@ -1,7 +1,7 @@
 /**
  * 2026-10-23 ghost-asura：鬼魅老師（阿修羅語氣）十二宮×十四主星古籍條文表。
  * 資料來源：/workspace/ziwei-palace-copy-1023/palace-star-matrix.json（ghost_asura 欄），逐字複製，未改寫；
- * sourced:false 代表古籍暫無對應條文，前端只能顯示提示，不得補寫。
+ * 2026-10-23 ai-to-asura：已移除所有 sourced:false 佔位條目；表內只剩有古籍出處的宮星條文，查不到的組合由選句器回 NO_SOURCED_LINES 狀態。
  */
 import type { PalaceId } from './types';
 
@@ -305,14 +305,6 @@ export const GHOST_PALACE_LINES: Record<PalaceId, Record<string, GhostPalaceLine
    "sourceLine": "《紫微斗數全書》卷二〈二兄弟〉 raw 第 1333 行",
    "original": "天梁廟旺二人和順",
    "skillSource": "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紫微斗數全書-卷二-維基文庫錄文.txt:1333"
-  },
-  "七殺": {
-   "sourced": false,
-   "gap": "卷二本條「七殺主孤剋」、卷一「在子息…孤單」皆屬刑剋孤斷語（排除項），其餘為人數"
-  },
-  "破軍": {
-   "sourced": false,
-   "gap": "卷二「陷地加殺孤單」與卷一「在兄弟骨肉參商」皆為負面定論；嚴格標準下不得自行軟化，其餘為人數"
   }
  },
  "SPOUSE": {
@@ -371,10 +363,6 @@ export const GHOST_PALACE_LINES: Record<PalaceId, Record<string, GhostPalaceLine
    "original": "天同遲娶諧老",
    "skillSource": "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紫微斗數全書-卷二-維基文庫錄文.txt:1352"
   },
-  "廉貞": {
-   "sourced": false,
-   "gap": "本條「三度作新郎」為婚變定論；卷一廉貞條無夫妻斷語；不得軟化"
-  },
   "天府": {
    "sourced": true,
    "lines": [
@@ -396,10 +384,6 @@ export const GHOST_PALACE_LINES: Record<PalaceId, Record<string, GhostPalaceLine
    "sourceLine": "《紫微斗數全書》卷二〈三妻妾〉 raw 第 1355 行",
    "original": "太陰入廟男女皆貴美夫婦，加昌曲極美",
    "skillSource": "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紫微斗數全書-卷二-維基文庫錄文.txt:1355"
-  },
-  "貪狼": {
-   "sourced": false,
-   "gap": "卷二「男女不得美」、卷一「夫妻宮男女俱不得美」皆負面定論，不得軟化"
   },
   "巨門": {
    "sourced": true,
@@ -433,14 +417,6 @@ export const GHOST_PALACE_LINES: Record<PalaceId, Record<string, GhostPalaceLine
    "sourceLine": "《紫微斗數全書》卷二〈三妻妾〉 raw 第 1359 行",
    "original": "天同同和氣",
    "skillSource": "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紫微斗數全書-卷二-維基文庫錄文.txt:1359"
-  },
-  "七殺": {
-   "sourced": false,
-   "gap": "本條「七殺早剋」屬刑剋（排除項）；卷一「鴛衾半冷」亦負面"
-  },
-  "破軍": {
-   "sourced": false,
-   "gap": "本條「剋別聚主生離」屬刑剋；卷一「在夫妻不正」亦負面"
   }
  },
  "CHILDREN": {
@@ -454,10 +430,6 @@ export const GHOST_PALACE_LINES: Record<PalaceId, Record<string, GhostPalaceLine
    "sourceLine": "《紫微斗數全書》卷一〈問紫微所主若何？〉 raw 第 229 行",
    "original": "男女宮得祥佐吉星，主生貴子",
    "skillSource": "C:\\Users\\DRAGON\\Desktop\\命理\\docs\\技能戰鬥檔案\\鬼魅阿修羅\\權威來源\\紫微-十四主星-權威來源.json:892"
-  },
-  "天機": {
-   "sourced": false,
-   "gap": "卷二本條全為人數；卷一問天機無子女宮斷語；先前用交互引用不符單一條文標準"
   },
   "太陽": {
    "sourced": true,
@@ -557,14 +529,6 @@ export const GHOST_PALACE_LINES: Record<PalaceId, Record<string, GhostPalaceLine
    "sourceLine": "《紫微斗數全書》卷一〈問天相星所主若何？〉 raw 第 321 行",
    "original": "子息得之而嗣續昌",
    "skillSource": "C:\\Users\\DRAGON\\Desktop\\命理\\docs\\技能戰鬥檔案\\鬼魅阿修羅\\權威來源\\紫微-十四主星-權威來源.json:1747"
-  },
-  "天梁": {
-   "sourced": false,
-   "gap": "卷二本條全為人數（「天同同加昌曲左右吉星有三人」只有人數）；卷一「蔭於身福及子孫」非子女宮條，不採"
-  },
-  "七殺": {
-   "sourced": false,
-   "gap": "卷二只有人數與「強橫敗家」；卷一「子息孤單」屬孤斷；皆不可用"
   },
   "破軍": {
    "sourced": true,
@@ -745,26 +709,6 @@ export const GHOST_PALACE_LINES: Record<PalaceId, Record<string, GhostPalaceLine
    "sourceLine": "《紫微斗數全書》卷二〈六疾厄〉 raw 第 1442 行",
    "original": "紫微災少",
    "skillSource": "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紫微斗數全書-卷二-維基文庫錄文.txt:1442"
-  },
-  "天機": {
-   "sourced": false,
-   "gap": "本條「襁褓多災」為病災定論，不得自行改寫為保養建議"
-  },
-  "太陽": {
-   "sourced": false,
-   "gap": "本條「頭風」僅病症名；改寫為保養建議屬添加"
-  },
-  "武曲": {
-   "sourced": false,
-   "gap": "本條「手足頭面有傷」屬傷殘類（排除項）"
-  },
-  "巨門": {
-   "sourced": false,
-   "gap": "本條「少年膿血之厄」為病症定論"
-  },
-  "七殺": {
-   "sourced": false,
-   "gap": "本條「幼年多災」為病災定論；卷一「終身殘疾」屬排除項"
   },
   "天同": {
    "sourced": true,
@@ -1154,10 +1098,6 @@ export const GHOST_PALACE_LINES: Record<PalaceId, Record<string, GhostPalaceLine
    "sourceLine": "《紫微斗數全書》卷二〈八奴僕〉 raw 第 1507 行",
    "original": "破軍入廟得力",
    "skillSource": "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紫微斗數全書-卷二-維基文庫錄文.txt:1507"
-  },
-  "七殺": {
-   "sourced": false,
-   "gap": "本條「七殺欺主有剛強之僕」核心為「欺主」，截取「剛強之僕」會改變原意，故不採"
   }
  },
  "CAREER": {
@@ -1662,10 +1602,6 @@ export const GHOST_PALACE_LINES: Record<PalaceId, Record<string, GhostPalaceLine
    "original": "父母宮男子單作父星，有輝則吉",
    "skillSource": "C:\\Users\\DRAGON\\Desktop\\命理\\docs\\技能戰鬥檔案\\鬼魅阿修羅\\權威來源\\紫微-十四主星-權威來源.json:1092"
   },
-  "武曲": {
-   "sourced": false,
-   "gap": "本條「武曲剋早」屬刑剋（排除項），不得軟化"
-  },
   "天同": {
    "sourced": true,
    "lines": [
@@ -1676,10 +1612,6 @@ export const GHOST_PALACE_LINES: Record<PalaceId, Record<string, GhostPalaceLine
    "sourceLine": "《紫微斗數全書》卷二〈十二父母〉 raw 第 1637 行",
    "original": "天同獨守廟旺無刑",
    "skillSource": "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紫微斗數全書-卷二-維基文庫錄文.txt:1637"
-  },
-  "廉貞": {
-   "sourced": false,
-   "gap": "本條「難為父母」為負面定論，嚴格標準下不得改寫為建議"
   },
   "天府": {
    "sourced": true,

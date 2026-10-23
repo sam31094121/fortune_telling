@@ -1,4 +1,4 @@
-import { googleGenerationKey } from '@/lib/teacher-provider';
+// 2026-10-23 ai-to-asura：三位老師全部走後端決定性內容，已移除 Google AI SDK 與未使用的 prompt／schema。
 /**
  * 三位 易經老師（2026-08-22）｜規格「二、三、八、九、十、二十」
  *
@@ -12,23 +12,12 @@ import { googleGenerationKey } from '@/lib/teacher-provider';
  * （規格「十一」的自動語意相似度檢查列入 Phase 2）。
  */
 
-import { GoogleGenAI, Type } from '@google/genai';
-import { castHexagram, formatHexagramLine } from '@/lib/iching-engine';
-import { formatGhostDecoding, patternNameOf } from '@/lib/iching-psychology';
-import { authoritySummary, renderAuthorityBlock } from '@/lib/ziwei/wording-authority';
-import type {
-  LifeTeacherResult,
-  NarrativeTeacherResult,
-  PalaceAnalysisContext,
-  PalaceId,
-  StructureTeacherResult,
-  TeacherId,
-} from './types';
-import { INSUFFICIENT_DATA } from './types';
-import { selectGhostAsuraLines } from './ghost-asura-lines'; // 2026-10-23 ghost-asura
+import { castHexagram } from '@/lib/iching-engine';
 
-const MODEL_NAME = 'gemini-2.5-flash';
-const TEACHER_TIMEOUT_MS = 20000;
+import { authoritySummary } from '@/lib/ziwei/wording-authority';
+import type { LifeTeacherResult, NarrativeTeacherResult, PalaceAnalysisContext, PalaceId, StructureTeacherResult, TeacherId } from './types';
+import { INSUFFICIENT_DATA } from './types';
+import { selectGhostAsuraLines } from './ghost-asura-lines';
 
 /**
  * TeacherModelRouter（Phase 1 精簡版，規格「十九」）：老師角色不綁死模型品牌——
@@ -36,105 +25,14 @@ const TEACHER_TIMEOUT_MS = 20000;
  * 目前三位老師都指向同一個 Gemini 模型，但各自有獨立的 config 物件，
  * 之後要換不同供應商，只需要改這裡，不用動 prompt 或 UI。
  */
-const TEACHER_MODEL_ROUTE: Record<TeacherId, { model: string; temperature: number }> = {
-  STRUCTURE_MASTER: { model: MODEL_NAME, temperature: 0.4 }, // 理性精準，低溫度
-  LIFE_MASTER: { model: MODEL_NAME, temperature: 0.7 },
-  NARRATIVE_MASTER: { model: MODEL_NAME, temperature: 1.0 }, // 象徵敘事，高溫度才有畫面感
-};
-
-async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  try {
-    return await Promise.race([
-      promise,
-      new Promise<T>((_, reject) => {
-        timer = setTimeout(() => reject(new Error(message)), timeoutMs);
-      }),
-    ]);
-  } finally {
-    if (timer) clearTimeout(timer);
-  }
-}
-
-function safeJsonParse<T>(text: string): T {
-  const fenced = text.trim().replace(/^```json\s*/i, '').replace(/```\s*$/i, '');
-  return JSON.parse(fenced) as T;
-}
 
 /** 客戶看到前，將危機敘事拉回「有條件的風險」，不能把命盤推論寫成命定事件。 */
-function normalizeRiskLanguage(text: string): string {
-  return text
-    .replaceAll('最終會', '若持續忽視，容易')
-    .replaceAll('將導致', '容易演變為')
-    .replaceAll('必然', '高度需要警覺的')
-    .replaceAll('無法挽回', '難以收拾')
-    .replaceAll('明確指出', '顯示出')
-    .replaceAll('一定會', '容易會');
-}
-
-function normalizeLifeResult(result: Omit<LifeTeacherResult, 'teacherId' | 'evidenceRefs'>): Omit<LifeTeacherResult, 'teacherId' | 'evidenceRefs'> {
-  return Object.fromEntries(
-    Object.entries(result).map(([key, value]) => [key, typeof value === 'string' ? normalizeRiskLanguage(value) : value]),
-  ) as Omit<LifeTeacherResult, 'teacherId' | 'evidenceRefs'>;
-}
 
 /** 鬼魅老師沒有客戶性別資料可讀；人物稱呼一律保持中性，不能自行指定性別或身份。 */
-function normalizeNarrativeIdentity(text: string): string {
-  return text
-    .replaceAll('男主角', '這個人')
-    .replaceAll('女主角', '這個人')
-    .replaceAll('男人', '這個人')
-    .replaceAll('女人', '這個人')
-    .replaceAll('男子', '這個人')
-    .replaceAll('女子', '這個人')
-    .replaceAll('他們', '那些人')
-    .replaceAll('她們', '那些人')
-    .replaceAll('他', '這個人')
-    .replaceAll('她', '這個人');
-}
-
-function normalizeNarrativeResult(result: Omit<NarrativeTeacherResult, 'teacherId' | 'evidenceRefs'>): Omit<NarrativeTeacherResult, 'teacherId' | 'evidenceRefs'> {
-  return {
-    ...result,
-    visualTitle: normalizeNarrativeIdentity(result.visualTitle),
-    scene: normalizeNarrativeIdentity(result.scene),
-    mainCharacter: normalizeNarrativeIdentity(result.mainCharacter),
-    story: normalizeNarrativeIdentity(result.story),
-    pastEcho: normalizeNarrativeIdentity(result.pastEcho),
-    futureShadow: normalizeNarrativeIdentity(result.futureShadow),
-    finalMetaphor: normalizeNarrativeIdentity(result.finalMetaphor),
-    symbols: (result.symbols ?? []).map((symbol) => ({
-      ...symbol,
-      symbol: normalizeNarrativeIdentity(symbol.symbol),
-      meaning: normalizeNarrativeIdentity(symbol.meaning),
-      sourceRef: normalizeNarrativeIdentity(symbol.sourceRef),
-    })),
-  };
-}
 
 /* ---------------- 共用：把 Context 序列化成老師能讀的固定格式文字 ---------------- */
 
-function renderPalaceBlock(label: string, palace: PalaceAnalysisContext['selectedPalace']) {
-  const major = palace.majorStars.map((s) => s.name).join('、') || '（無主星）';
-  const supporting = palace.supportingStars.map((s) => s.name).join('、') || '無';
-  const malefic = palace.maleficStars.map((s) => s.name).join('、') || '無';
-  const trans = palace.transformations.map((t) => `${t.starName}化${{ LU: '祿', QUAN: '權', KE: '科', JI: '忌' }[t.type]}`).join('、') || '無';
-  return `【${label}：${palace.palaceName}】\n主星：${major}\n輔星：${supporting}\n煞曜：${malefic}\n四化：${trans}`;
-}
-
 /** 引用依據表：每顆星標上《紫微斗數全書》核對等級，限制話術能引用到多大（lib/ziwei/wording-authority.ts）。 */
-function renderAuthority(context: PalaceAnalysisContext): string {
-  return renderAuthorityBlock([context.selectedPalace, context.threeHarmony.harmonyA, context.threeHarmony.harmonyB, context.threeHarmony.opposite]);
-}
-
-function renderContext(context: PalaceAnalysisContext): string {
-  return [
-    renderPalaceBlock('本宮', context.selectedPalace),
-    renderPalaceBlock('三合宮 A', context.threeHarmony.harmonyA),
-    renderPalaceBlock('三合宮 B', context.threeHarmony.harmonyB),
-    renderPalaceBlock('對宮', context.threeHarmony.opposite),
-  ].join('\n\n');
-}
 
 /** 每一宮的易經卦象：以宮名＋主星＋流年決定性起卦，三位老師（含鬼魅老師）共用同一卦。 */
 function castPalaceHexagram(context: PalaceAnalysisContext) {
@@ -143,16 +41,6 @@ function castPalaceHexagram(context: PalaceAnalysisContext) {
     context.selectedPalace.majorStars.map((s) => s.name).join(','),
     context.timeContext.annualYear,
   );
-}
-
-function renderIChing(context: PalaceAnalysisContext): string {
-  const gua = castPalaceHexagram(context);
-  return `【易經卦象（後端已決定性起卦，解讀時必須引用印證，不可自行改卦）】\n${formatHexagramLine(gua)}\n此盤此宮的解讀格局名稱（引用時必須一字不差，禁止改名、縮寫或自創別名）：「${patternNameOf(gua)}」\n卦義：${gua.judgment}\n卦示行動：${gua.advice}\n卜卦規則（硬性要求，違反即不合格）：三位老師必須共用上方同一個正式卦象，禁止另起第二卦、改卦或自行補卦。客戶可讀內容只需自然呈現一次卦名「${gua.hexagramName}」與格局名稱「${patternNameOf(gua)}」；其餘內容直接解讀本宮、主星、三方四正與四化，不得重複儀式句或宣稱此格局全球唯一。`;
-}
-
-function renderTimeContext(context: PalaceAnalysisContext): string {
-  const time = context.timeContext;
-  return `【隱藏的當下情境層：僅供推理，不得逐字展示給客戶】\n目前年齡：${time.currentAge === null ? '資料不足' : `${time.currentAge} 歲`}\n流年：${time.annualYear}${time.annualLevel ? `・${time.annualLevel}` : ''}${time.annualTheme ? `\n流年主題：${time.annualTheme}` : ''}\n當下時段類型：${time.sceneMoment}\n畫面規則：${time.sceneCue}\n要求：把這個時段轉化成合適的情境與畫面，但禁止在回答中直接說出時刻、時段類型、上午、中午、晚上或半夜。`;
 }
 
 /**
@@ -174,25 +62,10 @@ const PALACE_SITUATION_GUIDES: Record<PalaceId, { topic: string; lifeScenes: str
   PARENTS: { topic: '長輩、權威、原生期待、支持與壓力', lifeScenes: '被期待的選擇、規則、傳承、需要交代或被看見的時刻', narrativeSet: '舊照片、餐桌、沒有說完的叮嚀、長廊盡頭的門', forbidden: '不得捏造親人死亡、疾病、衝突或具體家庭悲劇' },
 };
 
-function renderSituationAnchor(context: PalaceAnalysisContext): string {
-  const guide = PALACE_SITUATION_GUIDES[context.selectedPalace.palaceId];
-  return `【本宮專屬情境錨點】\n宮位主題：${guide.topic}\n白話遊戲開場：這一宮正在談「${guide.topic}」，所有恐怖與鬼魅情節只能圍繞此主題。\n可用現實場景：${guide.lifeScenes}\n可用電影空間／物件：${guide.narrativeSet}\n禁止偏題：${guide.forbidden}\n規則：只能在這個宮位主題內創作；再以命盤裡實際存在的主星、煞曜、四化與當下時間層把場景具體化。`;
-}
-
-const RULE_PREFACE = `你只能解讀以下已由正式紫微斗數引擎驗證過的命盤資料。
-禁止：新增星曜、新增宮位、改四化、猜三方四正、保證未來事件、把規則推論宣稱為科學定論。
-如果提供的資料不足以回答，必須明確回傳 "${INSUFFICIENT_DATA}"，不得補故事假裝完整。`;
-
 /**
  * 說服力規則（docs/技能戰鬥檔案/紫微斗數/話術強化.md）：三位老師各取適用的幾條，不得互相越界。
  * 命盤解析老師不給人生建議、鬼魅老師不給行動方向，所以規則④只給危機老師。
  */
-const PERSUASION_SCENES = `①講具體場景：不寫「事業有變動」這類空話，改寫成讀者能對號入座的現實情境（例如搬家、轉職、出差、對帳、等訊息）；但場景只能出自本宮實際星曜與情境錨點，不得捏造客戶經歷。`;
-const PERSUASION_TWO_SIDES = `②兩面都說：每個傾向都要同時交代好處與代價（配得好會怎樣、配不好會怎樣），只報喜或只報憂都會讓人不信。`;
-const PERSUASION_NO_OVERCLAIM = `③不超額宣稱：星曜與雜曜只是描述盤面的形容詞，走勢要看整張盤的星曜組合、亮度、四化與三方四正；不得把任何一顆星寫成單獨決定命運，不得說出自《紫微斗數全書》（除非資料明載）。`;
-const PERSUASION_AUTHORITY = `⑤有依據才引用：只要上方「引用依據表」標了古籍等級，就主動用那一級允許的說法替結論背書（例如「這顆星的位置依《紫微斗數全書》口訣排出」），讓讀者知道盤不是亂排的；沒標古籍口訣的星曜，只能說「通行排盤體系的讀法」。依據只證明位置排得對，不證明預測準，不得把兩者混為一談。`;
-const PERSUASION_HOOK = `⑥開場攻心力：第一句要直指「你」，並同時帶一個具體的反差或懸念（例如「不是…是…」），讓讀者想讀下一句，也要讓人感覺讀完能帶走一個看見；但不得用恐嚇或斷言開場，且仍須遵守本老師對第一句的既有規定。`;
-const PERSUASION_NEXT_STEP = `④給一個可做的下一步：結尾落在一個今天就能做的具體小動作，不收在宿命或空泛鼓勵。`;
 
 /** 「鬼魅解盤」（LIFE_MASTER 恐怖段 + NARRATIVE_MASTER 鬼魅段）共用的五大元素規格：這是恐怖片等級的沉浸遊戲，五者缺一不可，但全部必須是本宮真實星曜/煞曜/四化的電影化再現，不能脫離命盤另外編故事。 */
 const GHOST_READING_FIVE_ELEMENTS = `【五大元素・本局遊戲強制規格】這是恐怖片等級的沉浸式命盤劇情，同一段內容必須同時命中以下五個類型元素，缺一不可；但五者都只能是本宮實際星曜、煞曜、四化與情境錨點的電影化再現，禁止脫離命盤證據另外編造情節：
@@ -208,59 +81,7 @@ function hasUsableData(context: PalaceAnalysisContext): boolean {
   return context.selectedPalace.majorStars.length > 0 || context.selectedPalace.supportingStars.length > 0;
 }
 
-function apiKey(): string {
-  const key = googleGenerationKey();
-  if (!key) throw new Error('未設定 GEMINI_API_KEY 環境變數。');
-  return key;
-}
-
 /* ==================== 老師 1｜格局老師 STRUCTURE_MASTER ==================== */
-
-const STRUCTURE_SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    corePattern: { type: Type.STRING, description: '只寫這個宮位形成的紫微結構，一句話結論先行；不得自行起卦、寫卦名或另創格局名稱' },
-    primaryStarSynthesis: { type: Type.STRING, description: '本宮主星組合的結構意涵' },
-    threeHarmonySynthesis: { type: Type.STRING, description: '三方四正如何呼應或牽制本宮' },
-    transformationEffect: { type: Type.STRING, description: '四化對這個結構造成的具體效果' },
-    importantSupportingStars: { type: Type.ARRAY, items: { type: Type.STRING }, description: '值得點名的輔星/煞曜，各一句話' },
-    structuralStrength: { type: Type.STRING, description: '這個結構的強項' },
-    structuralPressure: { type: Type.STRING, description: '這個結構的壓力/弱項' },
-    pastStructure: { type: Type.STRING, description: '過去已養成的結構傾向；只能做盤面推論，不能捏造具體經歷' },
-    futureTendency: { type: Type.STRING, description: '未來一段時間的條件式走向，必須結合流年與年齡，不得斷言事件' },
-    conclusion: { type: Type.STRING, description: '格局總判，理性收尾' },
-  },
-  required: ['corePattern', 'primaryStarSynthesis', 'threeHarmonySynthesis', 'transformationEffect', 'structuralStrength', 'structuralPressure', 'pastStructure', 'futureTendency', 'conclusion'],
-};
-
-function buildStructurePrompt(context: PalaceAnalysisContext): string {
-  return `${RULE_PREFACE}
-
-你是「命盤解析老師」，核心動作是「解析命盤」——只看結構，不談人生建議、不說故事、不寫畫面比喻。
-固定判讀順序：本宮 → 主星組合 → 三方四正 → 四化 → 重要輔煞 → 格局總判。
-語氣：理性、精準、專業、結論先行。禁止出現任何人生雞湯或勵志語句。
-【說服力】${PERSUASION_SCENES}（本老師只用在欄位措辭，不寫故事）
-${PERSUASION_TWO_SIDES}
-${PERSUASION_NO_OVERCLAIM}
-${PERSUASION_AUTHORITY}
-時間線規則：pastStructure 只描述命盤顯示的既有慣性，不能說成已發生的具體事件；futureTendency 必須用「若／當／容易」描述結合流年的可能走向，不得預言或保證。
-當下情境規則：必須使用隱藏的當下情境層校正「現在」的描述，但不得把時間、上午、中午、晚上或半夜直接寫進客戶內容。
-
-${renderContext(context)}
-
-${renderAuthority(context)}
-
-${renderTimeContext(context)}
-
-請依上述固定順序輸出 JSON。`;
-}
-
-function stripModelHexagramClaims(value: string): string {
-  return value
-    .replace(/(?:此宮)?起卦得[^。！？]*[。！？]?/gu, '')
-    .replace(/六十四格[^。！？]*[。！？]?/gu, '')
-    .trim();
-}
 
 export async function runStructureTeacher(context: PalaceAnalysisContext): Promise<StructureTeacherResult | typeof INSUFFICIENT_DATA> {
   if (!hasUsableData(context)) return INSUFFICIENT_DATA;
@@ -268,58 +89,6 @@ export async function runStructureTeacher(context: PalaceAnalysisContext): Promi
 }
 
 /* ==================== 老師 2｜恐怖型老師 LIFE_MASTER ==================== */
-
-const LIFE_SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    fearScene: { type: Type.STRING, description: '最多兩句話帶過場景與觸發徵兆，第三句起必須直接講出這一宮真正的壓力代價是什麼；資料中提供的易經卦名與格局名稱必須在本欄以壓迫感的方式各出現一次（如倒數中浮現的符號）。禁止整段停留在環境描寫，帶血色質地與一次驚悚轉折但要為主題服務。必須只談本宮議題，且是戲劇化風險情境，不是已發生事實或事件預告。' },
-    lifeMeaning: { type: Type.STRING, description: '冷峻地指出本宮真正的壓力核心，必須點名一項命盤證據' },
-    pastPattern: { type: Type.STRING, description: '這個宮位過去容易形成的模式；只作命盤傾向推論，不捏造已發生事件' },
-    futureRiskWindow: { type: Type.STRING, description: '結合目前年齡、流年與日夜情境的未來風險窗口；條件式描述，不作預言' },
-    strengthInReality: { type: Type.STRING, description: '保留可用力量，但說清楚它失去控制時會反噬成什麼，必須點名證據' },
-    repeatedPattern: { type: Type.STRING, description: '以「一開始—接著—最後代價」描述會重複的失控循環，最後代價可放大成災難級的象徵畫面（結構崩裂、停電吞沒空間），象徵性、非命定斷言' },
-    blindSpot: { type: Type.STRING, description: '直接點出最容易被合理化、被拖延的一個盲點與累積代價' },
-    decisionStyle: { type: Type.STRING, description: '描述人在壓力下如何做錯決策，並點出對應的盤內證據' },
-    relationshipWithEnvironment: { type: Type.STRING, description: '描述外部互動中的摩擦、失衡或被動模式，並點出證據' },
-    practicalDirection: { type: Type.STRING, description: '恐怖段結尾的道德收束：一句可執行的止損或界線動作；不使用空泛安慰或預言' },
-  },
-  required: ['fearScene', 'lifeMeaning', 'pastPattern', 'futureRiskWindow', 'strengthInReality', 'repeatedPattern', 'blindSpot', 'decisionStyle', 'relationshipWithEnvironment', 'practicalDirection'],
-};
-
-function buildLifePrompt(context: PalaceAnalysisContext): string {
-  return `${RULE_PREFACE}
-
-${GHOST_READING_FIVE_ELEMENTS}
-
-你是「恐怖型老師」，核心動作是「危機解盤」——只從正式命盤裡已存在的煞曜、化忌、壓力結構與三方牽制，指出使用者最不願面對卻需要正視的風險。
-禁止重複解釋「某星曜代表什麼」（那是命盤解析老師的工作），禁止把災難、死亡、疾病、靈異寫成已經發生或保證發生的事實——它們只能以上方五大元素規格中的「象徵意象」出現。
-語氣要有壓迫感、冷峻、直指代價：像在昏暗的監控室裡，逐一指出正在累積的裂縫。不要用「可能有點」、「建議注意」這類緩衝語；每一段都要清楚寫出「若繼續忽視，代價會怎麼擴大」，但不能把推論寫成已經發生的事或命定結果。禁止使用「一定、必然、最終會、無法挽回、注定」等把風險寫死的語句。
-第一欄 fearScene 是本宮專屬的恐怖電影開場，但不是氣氛散文：開場最多兩句話用一個現實空間＋一個觸發徵兆把讀者拋進畫面，可用電影化的暗紅光、冷光、倒數聲等意象；從第三句開始必須直接切入這一宮真正的壓力代價是什麼、會如何擴大——不能整段都在鋪陳場景、音樂、光影、窗外天氣這類裝飾細節卻遲遲不講重點，讀完要能明確知道「所以這一宮的風險是什麼」，不是只留下一個嚇人的畫面。不得描述真實人物受傷、死亡、血腥暴力，也不得說客戶曾真實遭遇此事。它是依命盤推導的戲劇化風險情境，不是事實指控或預言。
-敘述一律直接用「你」把讀者帶入畫面，像鏡頭正跟著你；不能寫成旁觀式摘要、冷笑話、可愛比喻或通用勵志故事。恐怖感來自這張盤的具體壓力如何在本宮議題中逼近，而不是胡亂加上怪物或災難。
-其餘欄位把壓力落在可辨識的工作、金錢、關係、溝通或決策現場，寫出一個觸發徵兆、一個當下反應，以及一個逐步累積的後果。每個欄位必須至少點名一項本宮或三方四正的實際證據，並給出一個具體、可執行的避險動作。
-十二宮的現實議題必須完全分開：只能依「本宮專屬情境錨點」寫該宮的生活壓力，不能把財帛宮寫成手足糾紛、把兄弟宮寫成金錢損失、把遷移宮寫成家中事件。壓迫感要像恐怖片的逼近鏡頭：一個可辨識的觸發徵兆、一次錯誤反應、逐步累積的心理或現實代價；它是風險推演，不是事件預告。
-fearScene 的第一句必須用白話先點出「這一宮在談什麼」，例如財帛宮說現金、收入、資源與付款壓力；命宮或身宮說自己、界線與行動選擇。再進入恐怖畫面，讓客戶一眼知道自己正在玩哪一種宮位劇情。
-pastPattern 只寫此宮長期容易重複的傾向，不得說客戶過去「已經發生」什麼；futureRiskWindow 要結合當下年齡、流年和查看時段，寫未來一段時間在何種條件下壓力會升高。它是戲劇化的風險窗口，不是恐嚇式預言。
-當下畫面必須服從隱藏的當下情境層：正午只能寫大太陽、刺眼光線、曝曬、空曠、孤獨或無處躲藏的壓力；深夜才可寫門縫、微弱光源、走廊回聲等幽暗畫面。不得把日間寫成夜晚，也不得把這個時間規則直接說給客戶。
-最後的 practicalDirection 必須是道德收束：讓讀者知道恐懼不是為了操控，而是提醒其停止傷害自己或他人的模式、建立界線、誠實面對選擇，並提出一個量力可行的善意行動，例如修復承諾、幫助需要的人、志工服務或依能力布施。不得強迫捐款、捐血或任何具有健康、金錢壓力的行動；捐血只能在身體狀況與正式資格都合適時，作為自願選項提及。
-【說服力】${PERSUASION_SCENES}
-${PERSUASION_TWO_SIDES}
-${PERSUASION_NO_OVERCLAIM}
-${PERSUASION_AUTHORITY}
-${PERSUASION_NEXT_STEP}
-${PERSUASION_HOOK}
-禁止談論命盤結構術語本身，禁止寫成故事或畫面比喻。
-
-${renderContext(context)}
-
-${renderAuthority(context)}
-
-${renderTimeContext(context)}
-
-${renderSituationAnchor(context)}
-
-請輸出 JSON。`;
-}
 
 export async function runLifeTeacher(context: PalaceAnalysisContext): Promise<LifeTeacherResult | typeof INSUFFICIENT_DATA> {
   // 2026-10-23 ghost-asura：鬼魅老師改為後端決定性選句（古籍條文表），不呼叫 AI；本宮無主星時借對宮主星。
@@ -329,64 +98,6 @@ export async function runLifeTeacher(context: PalaceAnalysisContext): Promise<Li
 }
 
 /* ==================== 老師 3｜鬼魅型老師 NARRATIVE_MASTER ==================== */
-
-const NARRATIVE_SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    visualTitle: { type: Type.STRING, description: '像一部幽暗電影片段的短標題，不使用勵志字眼' },
-    scene: { type: Type.STRING, description: '以至少一個光源、一種聲音、一個空間與一處不對勁細節寫成幽微場景；須帶血色／暗紅質地做出血腥視覺張力，不宣稱真實靈異或真實傷害' },
-    mainCharacter: { type: Type.STRING, description: '畫面裡的主角與一個未被說破的動作或選擇' },
-    symbols: {
-      type: Type.ARRAY,
-      items: { type: Type.OBJECT, properties: { symbol: { type: Type.STRING }, meaning: { type: Type.STRING }, sourceRef: { type: Type.STRING } } },
-      description: '至少四個彼此不同的象徵物件；每一個都要對應命盤裡的星曜、四化或四宮位置',
-    },
-    story: { type: Type.STRING, description: '一段帶懸念的幽微敘事，中段須有一次驚悚轉折／意外發現，並讓壓力在某一刻放大成毀滅級的災難意象（停電、崩裂、暴雨吞沒空間），象徵性、非事實陳述；資料中提供的易經卦名必須化為場景中隱隱發光的神祕符號出現一次、格局名稱必須由低語說出一次；讓各象徵自然連結，禁止改寫成白話建議' },
-    pastEcho: { type: Type.STRING, description: '像舊畫面殘留的過去迴聲；只能映照命盤慣性，不能捏造客戶真實往事' },
-    futureShadow: { type: Type.STRING, description: '結合年齡、流年與當下時段的未來暗影；使用條件式象徵，不是預言' },
-    finalMetaphor: { type: Type.STRING, description: '恐怖鬼魅段的道德結尾：像一句午夜低語般收尾，保留餘韻但回到誠實、界線、負責任的選擇；不作預言或威脅' },
-  },
-  required: ['visualTitle', 'scene', 'mainCharacter', 'symbols', 'story', 'pastEcho', 'futureShadow', 'finalMetaphor'],
-};
-
-function buildNarrativePrompt(context: PalaceAnalysisContext): string {
-  return `${RULE_PREFACE}
-
-${GHOST_READING_FIVE_ELEMENTS}
-
-你是「鬼魅型老師」，核心動作是「鬼魅解盤」——把宮位、星曜、三方四正、四化轉成幽微的象徵、場景、人物與命盤故事。
-鬼魅三大核心（缺一不可）：①神秘口氣（外衣）②真實邏輯推理（骨架：干擾有起點、有因果鏈，不是隨機嚇人）③當下實際感受（錨點：至少一處把讀者此刻真實的身體感受說中，讓讀者點頭「對，我最近就是這樣」）。
-【鬼魅拆卦素材（後端已運算，拆解卦象＝磁場／干擾／因果；神秘語言底下綁著真實心理機制，取用時融進場景，不可照抄）】
-${formatGhostDecoding(castPalaceHexagram(context))}
-回答的問題是：如果把這個宮位畫成一幅圖，它正在說什麼故事？
-禁止直接給結構分析（那是命盤解析老師的工作），禁止直接給危機建議或行動方向（那是恐怖型老師的工作）。
-語氣要像午夜時分有人在門外低聲講述一段不能直說的往事：克制、幽暗、帶有停頓與餘韻，而不是溫和的勵志寓言。真實感來自日常空間被輕微扭轉：例如辦公室最後一盞燈、手機螢幕未讀的訊息、無人回應的走廊、桌上被翻到同一頁的文件。場景必須有明確的光源、聲音、空間感與一個未被說破的異樣細節；讓讀者感到詭譎，但不得宣稱有真實靈異事件或威脅。
-鬼魅片的視覺感必須比一般故事更強：允許電影化的深紅光、像血色的反光、斑駁污漬、破碎陰影與不合時宜的聲響，讓畫面有陰森、戲劇化的張力；但不得描述真實人物受傷、肢解、死亡、血腥暴力或把這些畫面當成客戶將會遭遇的事實。
-故事中的人物必須做一個符合該宮位議題的真實選擇或逃避動作，並在結尾留下尚未解開的心理懸念；不要用空泛的「希望、成長、風雨、旅程」當收尾。人物一律使用中性稱呼「這個人／此人」，絕對不能自行寫成男人、女人、男主角、女主角、他或她，也不能替客戶捏造職業、外貌、年齡或身份。
-你現在是鬼魅解盤的後半段：視角改為直接對讀者說「你」，使讀者置身畫面；避免搞笑、可愛、勵志、冒險遊戲感。場景可詭異、壓迫、戲劇化，但它仍是命盤象徵，不得冒充真實靈異或實際傷害。
-十二宮的電影類型必須各自不同：只能依「本宮專屬情境錨點」創作。財帛宮只做資源與帳目壓力的驚悚，兄弟宮只做手足／同儕間的沉默與失衡，遷移宮只做外出與陌生環境的壓迫；其餘宮位同理。不可把任何宮位都寫成辦公室、伴侶或同一個泛用驚悚劇本。
-scene 的第一句要用白話交代這一宮正在談的生活主題，再進入鬼魅畫面；不得只丟出抽象氣氛，讓客戶看不出是財帛、關係、外出或自我哪一種遊戲關卡。
-pastEcho 是舊場景留下的象徵，不得冒充客戶真實經歷；futureShadow 必須呼應目前年齡、流年與查看時段，描寫「若延續此選擇，畫面可能怎麼推進」，不得寫成必定發生。
-場景的光線、聲音與空間必須服從隱藏的當下情境層：正午要用大太陽下的孤獨、白亮壓力或反常安靜；夜晚與深夜才可使用夜色、門縫或低光源。禁止把這條時間規則直接寫出來。
-finalMetaphor 是全片的道德結尾：可以陰暗、有餘韻，但最後要把鏡頭帶回人的選擇、誠實、界線、責任或量力行善；不讓恐懼成為威脅、操控、募款或醫療建議。
-你只能用畫面、場景、人物、隱喻說話。每一個象徵都必須能回查到命盤裡實際存在的星曜或四化（填進 symbols 的 sourceRef）；至少產出四個不同象徵，分別連回本宮與三方四正，不能只換名詞重複同一個意象。
-【說服力】${PERSUASION_SCENES}
-${PERSUASION_TWO_SIDES}（鬼魅老師用象徵呈現：畫面裡要同時有壓力與一道出口）
-${PERSUASION_NO_OVERCLAIM}
-${PERSUASION_AUTHORITY}
-${PERSUASION_HOOK}
-範例語氣（命宮七殺×紫微）：「城牆上的燈只亮半盞。統帥沒有回頭，卻知道身後那座城仍在等一個命令。」
-
-${renderContext(context)}
-
-${renderAuthority(context)}
-
-${renderTimeContext(context)}
-
-${renderSituationAnchor(context)}
-
-請輸出 JSON。`;
-}
 
 export async function runNarrativeTeacher(context: PalaceAnalysisContext): Promise<NarrativeTeacherResult | typeof INSUFFICIENT_DATA> {
   if (!hasUsableData(context)) return INSUFFICIENT_DATA;
@@ -430,6 +141,55 @@ function momentImagery(moment: PalaceAnalysisContext['timeContext']['sceneMoment
     case 'MIDNIGHT':
     default: return { light: '門縫下漏進一線微弱的光', sound: '靜止的空間裡有什麼輕輕動了一下' };
   }
+}
+
+function normalizeRiskLanguage(text: string): string {
+  return text
+    .replaceAll('最終會', '若持續忽視，容易')
+    .replaceAll('將導致', '容易演變為')
+    .replaceAll('必然', '高度需要警覺的')
+    .replaceAll('無法挽回', '難以收拾')
+    .replaceAll('明確指出', '顯示出')
+    .replaceAll('一定會', '容易會');
+}
+
+function normalizeNarrativeIdentity(text: string): string {
+  return text
+    .replaceAll('男主角', '這個人')
+    .replaceAll('女主角', '這個人')
+    .replaceAll('男人', '這個人')
+    .replaceAll('女人', '這個人')
+    .replaceAll('男子', '這個人')
+    .replaceAll('女子', '這個人')
+    .replaceAll('他們', '那些人')
+    .replaceAll('她們', '那些人')
+    .replaceAll('他', '這個人')
+    .replaceAll('她', '這個人');
+}
+
+function normalizeLifeResult(result: Omit<LifeTeacherResult, 'teacherId' | 'evidenceRefs'>): Omit<LifeTeacherResult, 'teacherId' | 'evidenceRefs'> {
+  return Object.fromEntries(
+    Object.entries(result).map(([key, value]) => [key, typeof value === 'string' ? normalizeRiskLanguage(value) : value]),
+  ) as Omit<LifeTeacherResult, 'teacherId' | 'evidenceRefs'>;
+}
+
+function normalizeNarrativeResult(result: Omit<NarrativeTeacherResult, 'teacherId' | 'evidenceRefs'>): Omit<NarrativeTeacherResult, 'teacherId' | 'evidenceRefs'> {
+  return {
+    ...result,
+    visualTitle: normalizeNarrativeIdentity(result.visualTitle),
+    scene: normalizeNarrativeIdentity(result.scene),
+    mainCharacter: normalizeNarrativeIdentity(result.mainCharacter),
+    story: normalizeNarrativeIdentity(result.story),
+    pastEcho: normalizeNarrativeIdentity(result.pastEcho),
+    futureShadow: normalizeNarrativeIdentity(result.futureShadow),
+    finalMetaphor: normalizeNarrativeIdentity(result.finalMetaphor),
+    symbols: (result.symbols ?? []).map((symbol) => ({
+      ...symbol,
+      symbol: normalizeNarrativeIdentity(symbol.symbol),
+      meaning: normalizeNarrativeIdentity(symbol.meaning),
+      sourceRef: normalizeNarrativeIdentity(symbol.sourceRef),
+    })),
+  };
 }
 
 function buildLocalStructureResult(context: PalaceAnalysisContext): StructureTeacherResult {

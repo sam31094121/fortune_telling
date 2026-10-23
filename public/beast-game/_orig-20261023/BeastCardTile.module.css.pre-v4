@@ -1,0 +1,656 @@
+/*
+  神獸卡片框架・手感層
+  ============================================================================
+
+  業主定調：「把它用成更標準的遊戲卡框架（遊戲牌的框架），不用多出來空間，
+  剛剛好就可以……我要正統的、更標準的，有大數據、現有的素材拿來使用就好，
+  要有手感的感覺，長方形或撲克牌形。」
+
+  【比例不在這裡定】
+
+  正統規格是 components/BeastCardFrame.module.css 的 63 × 88
+  （實體集換式卡牌／撲克牌的通用尺寸），而且它被 test:beast-card-spec
+  鎖成唯一來源。這一份**不重新定義比例**，只疊上手感與狀態——
+  兩個地方各寫一套比例，遲早對不齊。
+
+  【手感從哪裡來】
+
+  真的卡片有三件事：厚度、邊、按下去會動。
+    厚度 —— 內縮一圈亮邊，像印刷卡的白邊
+    邊   —— 外緣一道暗影，卡片浮在桌面上而不是貼在螢幕上
+    回饋 —— 按下去縮一點點並壓深，手指離開才彈回
+
+  刻意不做傾斜與 3D 翻轉：那在手機上會誤觸，而且六十張一起動很暈。
+  手感是「按得出來」，不是「動得多」。
+*/
+
+.tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  /* 按下去縮一點點。100ms 是手指還沒離開就看得到的最短時間。 */
+  transition: transform 100ms ease;
+}
+
+.tile:active { transform: scale(0.97); }
+
+/* 卡身：厚度與邊。比例由 BeastCardFrame 提供，這裡只加質感。 */
+.body {
+  /*
+    一定要 block。這是一個 <span>，預設 inline——
+    而 aspect-ratio 對 inline 元素無效，卡片會被內容撐成細長條，
+    名字還會擠成直排。實測踩過：比例變成 0.43，不是 0.716。
+  */
+  display: block;
+  position: relative;
+  overflow: hidden;
+  /*
+    低調奢華的金，靠三層薄的，不靠一層厚的：
+
+      外框   一條細金線（0.5px 級的視覺重量），不是粗描邊
+      內緣   一圈更暗的金，做出「燙金印在深色卡紙上」的厚度
+      外暈   極淡的金色光暈，只在邊緣一兩個像素看得見
+
+    刻意不用飽和的黃：那會變成廉價的塑膠感。
+    用偏灰的暖金（#c9a961 系）配深底，才是壓得住的貴氣。
+  */
+  border: 1px solid rgba(201, 169, 97, 0.62);
+  box-shadow:
+    /* 燙金的內緣厚度 */
+    inset 0 0 0 1px rgba(201, 169, 97, 0.22),
+    /* 卡紙的高光，很淡 */
+    inset 0 1px 0 rgba(255, 245, 220, 0.14),
+    /* 金色光芒：小半徑、低透明度，是光暈不是霓虹 */
+    0 0 8px rgba(201, 169, 97, 0.16),
+    /* 浮在桌面上的深影 */
+    0 4px 12px rgba(0, 0, 0, 0.55);
+  background: #0d1018;
+}
+
+/* 按下去：光暈收掉、影子壓扁，像卡片真的被按進桌面。 */
+.tile:active .body {
+  box-shadow:
+    inset 0 0 0 1px rgba(201, 169, 97, 0.3),
+    inset 0 2px 10px rgba(0, 0, 0, 0.6),
+    0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* 選取：金邊。卡片本身不變形，只有邊變。 */
+/* 選取：金線變亮、光暈放大一點。仍然不刺眼——奢華是克制的。 */
+.selected .body {
+  border-color: rgba(240, 209, 138, 0.95);
+  box-shadow:
+    inset 0 0 0 1px rgba(240, 209, 138, 0.35),
+    0 0 0 1px rgba(240, 209, 138, 0.55),
+    0 0 14px rgba(201, 169, 97, 0.34),
+    0 4px 14px rgba(0, 0, 0, 0.55);
+}
+
+/* 元素寶珠放在左上角，跟著卡寬走，六十張並排時位置一致。 */
+.orbIndicator {
+  position: absolute;
+  top: 2cqw;
+  left: 2cqw;
+  z-index: 10;
+}
+
+/* 收藏角標。用既有卡框的 corner 尺度，不另訂一套。 */
+.owned {
+  position: absolute;
+  top: 3.5cqw;
+  right: 3.5cqw;
+  padding: 0.5cqw 2cqw;
+  border-radius: 999px;
+  background: rgba(255, 223, 164, 0.92);
+  font-size: clamp(8px, 7cqw, 11px);
+  font-weight: 900;
+  line-height: 1.5;
+  color: #302113;
+}
+
+/* 卡框裡的角標與名字條都是 span，同樣要 block 才吃得到定位與省略。 */
+.dot, .owned { display: block; }
+
+/*
+  名字條的比例。
+
+  正統卡框給的漸層高度是為了大卡設計的；在這種小卡上實測佔了 23%，
+  卡面只剩四分之三，比例就不對了。**這裡只調自己這一層的內距**，
+  不去動 BeastCardFrame——那是四個介面共用的唯一來源，
+  為了一個地方好看去改它，另外三個就跟著歪。
+
+  收到約 18%：名字讀得完，卡面仍然是主角。
+  字用暖白帶金，不用純白——純白在深色卡上會跳出來搶戲。
+*/
+.name {
+  padding-top: 5.5cqw;
+  padding-bottom: 2.5cqw;
+  font-size: clamp(9px, 9cqw, 13px);
+  color: #f0e2c4;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile { transition: none; }
+  .tile:active { transform: none; }
+}
+
+/* ── 底部詳情 ─────────────────────────────────────────────────── */
+
+.sheet {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 60;
+  max-height: 78vh;
+  overflow-y: auto;
+  padding: 14px 16px calc(16px + env(safe-area-inset-bottom));
+  border-radius: 20px 20px 0 0;
+  border-top: 1px solid rgba(125, 211, 252, 0.3);
+  background: #0b1524;
+  box-shadow: 0 -18px 48px rgba(0, 0, 0, 0.55);
+  overscroll-behavior: contain;
+  animation: rise 220ms ease-out;
+}
+
+@keyframes rise {
+  from { transform: translateY(14px); opacity: 0; }
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 59;
+  border: 0;
+  padding: 0;
+  background: rgba(2, 6, 14, 0.62);
+}
+
+.sheetHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 比例由 frame.card 決定（63×88），這裡只給寬度與圓角。 */
+.sheetArt {
+  flex: none;
+  width: 68px;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.sheetArt img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.sheetTitle {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sheetTitle strong {
+  font-size: 16px;
+  font-weight: 900;
+  color: #ffdfa4;
+}
+
+.sheetTitle span {
+  font-size: 11px;
+  line-height: 17px;
+  color: #93a4c0;
+}
+
+/* 數值排成儀表，等寬對齊——讀數要穩。 */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.stat {
+  display: grid;
+  gap: 6px;
+  padding: 8px 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  text-align: center;
+}
+
+.statValue {
+  font-size: 14px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: #ffdfa4;
+}
+
+.statLabel {
+  font-size: 10px;
+  color: #7c8aa3;
+  margin-bottom: 2px;
+}
+
+.statBar {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.statBarFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffc857, #ffe4a6);
+  transition: width 300ms ease;
+}
+
+.block {
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 20px;
+  color: #b9c5d9;
+}
+
+.block strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: #7dd3fc;
+}
+
+.close {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 14px;
+  font-weight: 900;
+  color: #e6edf8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet { animation: none; }
+}
+
+/* ── 標準卡樣式 token（2026-10-19，標準卡：尾火虎・幼子） ─────────────────
+   參考正規集換式卡牌的版式：素面外框、米白卡紙、名字在上、圖窗、
+   下方一行武器、一行技能。刻意的取捨（去 AI 感）：
+     - 不用外發光、不用彩虹漸層、不用對稱特效；質感來自紙紋與印刷線。
+     - 顏色收斂成三個：黃銅框、米白紙、墨色字，元素只用一個低彩度色點。
+     - 神獸放在圖窗中央、不放大到出框，跟名字、武器、技能是同一張卡上的平衡。
+   之後要整副換上，只要把卡 id 加進 STANDARD_STYLE_IDS，這組 token 不必再改。 */
+
+.stdTile {
+  --std-brass: #b89752;
+  --std-brass-hi: #d8bd7e;
+  --std-paper: #f2ebdc;
+  --std-ink: #2a2218;
+  --std-ink-soft: #5e5242;
+  --std-rule: rgba(42, 34, 24, 0.22);
+}
+
+/* 頁面的 `.page button` 會替所有按鈕加內距、底色與邊框，
+   卡片因此被包在一個方框裡（卡中卡）。這裡把卡片按鈕歸零，
+   三個 class 疊起來的權重高過 `.page button[aria-pressed=true]`。 */
+.stdTile.stdTile.stdTile {
+  padding: 0;
+  border: 0;
+  border-radius: clamp(6px, 5cqw, 14px);
+  background: transparent;
+  outline: none;
+  min-height: 0;
+}
+
+.stdTile.stdTile.stdTile:focus-visible {
+  outline: 3px solid #9fdef2;
+  outline-offset: 3px;
+}
+
+.stdCard {
+  display: block;
+  /* 百分比內距看的是按鈕寬度（cqw 在這一層會看到外層、不是卡片自己），框寬才會跟卡一起縮放 */
+  padding: 3.2%;
+  /* 拉絲黃銅金屬框：斜向多段亮暗（反光帶）模擬金屬，不靠發光；
+     外緣暗線＋內緣亮線＝斜切的立體邊，像寶可夢卡的壓印框 */
+  background:
+    linear-gradient(135deg, #8a6c33 0%, var(--std-brass-hi) 18%, #a98543 36%, #e7d29a 52%, #a58140 68%, var(--std-brass-hi) 86%, #8a6c33 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(48, 34, 12, 0.7),
+    inset 0 1.5px 0 1px rgba(255, 246, 214, 0.55),
+    inset 0 -1.5px 0 1px rgba(60, 42, 14, 0.45),
+    0 3px 8px rgba(0, 0, 0, 0.45);
+  transition: box-shadow 120ms ease, transform 120ms ease;
+}
+
+/* 卡紙：米白＋極淡紙纖維紋（SVG 雜訊，約 5% 透明），印刷品的手感就在這裡 */
+.stdPaper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8cqw;
+  height: 100%;
+  padding: 2.4cqw 2.6cqw 2.8cqw;
+  border-radius: 2.6cqw;
+  background-color: var(--std-paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .28 0 0 0 0 .18 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* 紙面凹進金框：頂部內陰影＝凹槽深度 */
+  box-shadow:
+    inset 0 0 0 1px rgba(60, 44, 18, 0.45),
+    inset 0 2px 4px rgba(60, 44, 18, 0.22);
+  color: var(--std-ink);
+  text-align: left;
+}
+
+.stdHead {
+  display: flex;
+  align-items: center;
+  gap: 1.8cqw;
+  min-width: 0;
+}
+
+/* 元素印章：平塗的低彩度圓章，取代會發光的寶珠 */
+.stdSeal {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 9.5cqw;
+  height: 9.5cqw;
+  border-radius: 50%;
+  background: var(--std-el, #6b6478);
+  color: #fbf6ea;
+  font-size: clamp(9px, 6cqw, 12px);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.stdName {
+  min-width: 0;
+  flex: 1;
+  font-size: clamp(11px, 8cqw, 16px);
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stdOwned {
+  flex: none;
+  padding: 0.4cqw 1.8cqw;
+  border: 1px solid var(--std-ink-soft);
+  border-radius: 999px;
+  font-size: clamp(9px, 6cqw, 11px);
+  font-weight: 900;
+  color: var(--std-ink-soft);
+}
+
+/* 圖窗：細墨線＋內側淡暗角，把視線收到中央的神獸，不靠發光 */
+.stdWindow {
+  position: relative;
+  display: block;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 1.2cqw;
+  background: #2a2218;
+  /* 圖窗金屬滾邊：墨線＋亮金細框＋外側投影，圖像像嵌在框裡 */
+  box-shadow:
+    0 0 0 1px rgba(42, 34, 24, 0.85),
+    0 0 0 2.5px var(--std-brass),
+    0 0 0 3.5px rgba(48, 34, 12, 0.6),
+    0 2px 3px 3.5px rgba(60, 44, 18, 0.18);
+}
+
+.stdWindow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 246, 225, 0.4),
+    inset 0 3px 6px rgba(0, 0, 0, 0.35);
+  /* 全息箔光：一條斜向淡色反光帶（靜態、低透明、soft-light），hover 時才微微位移；
+     只加在圖窗上，不蓋住字 */
+  background:
+    linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.16) 44%, rgba(190, 230, 255, 0.12) 50%, rgba(255, 220, 190, 0.12) 56%, transparent 70%) 0 0 / 220% 100% no-repeat,
+    radial-gradient(ellipse 78% 72% at 50% 52%, transparent 62%, rgba(20, 14, 6, 0.32) 100%);
+  background-position: 30% 0, 0 0;
+  mix-blend-mode: soft-light;
+  transition: background-position 600ms ease;
+}
+
+@media (hover: hover) {
+  .stdTile:hover .stdWindow::after { background-position: 75% 0, 0 0; }
+}
+
+.stdArt {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 58%;
+  /* 原圖內建一圈裝飾金框，放大 8% 推出圖窗外，避免「框中框」 */
+  transform: scale(1.08);
+  /* 提亮、略收飽和：原圖偏暗、偏濃的 AI 色調收回到印刷色 */
+  filter: brightness(1.06) contrast(1.05) saturate(0.92);
+}
+
+.stdWeapon {
+  display: flex;
+  align-items: baseline;
+  gap: 1.6cqw;
+  min-width: 0;
+  padding-bottom: 1.4cqw;
+  border-bottom: 1px solid var(--std-rule);
+  white-space: nowrap;
+}
+
+.stdTag {
+  flex: none;
+  padding: 0.3cqw 1.4cqw;
+  border-radius: 0.8cqw;
+  background: var(--std-ink);
+  color: var(--std-paper);
+  font-size: clamp(9px, 5.4cqw, 11px);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+/* 四象武器最強：標籤換成黃銅金底，其餘不變 */
+.stdTagTop {
+  background: linear-gradient(135deg, #8a6c33, #d8bd7e 50%, #8a6c33);
+  color: #2a2218;
+}
+
+.stdWeaponName {
+  flex: none;
+  font-size: clamp(10px, 6.8cqw, 14px);
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.stdWeaponPart {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: clamp(9px, 5.6cqw, 12px);
+  color: var(--std-ink-soft);
+}
+
+/* 技能框：壓凹的淺色資訊槽，與上方圖窗、武器列分出三層 */
+.stdSkill {
+  display: grid;
+  gap: 0.6cqw;
+  padding: 1.6cqw 2cqw;
+  border-radius: 1.4cqw;
+  background: linear-gradient(180deg, rgba(120, 96, 52, 0.12), rgba(255, 252, 240, 0.35));
+  box-shadow:
+    inset 0 0 0 1px rgba(60, 44, 18, 0.25),
+    inset 0 1.5px 2px rgba(60, 44, 18, 0.18),
+    0 1px 0 rgba(255, 252, 240, 0.7);
+}
+
+.stdSkillHead {
+  display: flex;
+  align-items: center;
+  gap: 1.4cqw;
+}
+
+/* 耗氣：實心小圓，數字取自戰鬥核心 */
+.stdCost {
+  display: grid;
+  place-items: center;
+  width: 6.6cqw;
+  height: 6.6cqw;
+  border-radius: 50%;
+  background: var(--std-el, #6b6478);
+  color: #fbf6ea;
+  font-size: clamp(8px, 4.8cqw, 10px);
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stdSkillName {
+  font-size: clamp(10px, 6.8cqw, 14px);
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.stdSkillText {
+  font-size: clamp(10px, 6.4cqw, 13px);
+  line-height: 1.4;
+  color: var(--std-ink-soft);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 互動狀態：只動框，不動卡面 */
+@media (hover: hover) {
+  .stdTile:hover .stdCard {
+    transform: translateY(-2px);
+    box-shadow: inset 0 0 0 1px rgba(60, 44, 18, 0.55), 0 6px 14px rgba(0, 0, 0, 0.5);
+  }
+}
+
+.stdTile:active .stdCard {
+  transform: none;
+  box-shadow: inset 0 0 0 1px rgba(60, 44, 18, 0.6), 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* 選取：框換成亮金＋一圈外框線，清楚但不發光 */
+.stdSelected .stdCard {
+  --std-brass: var(--std-brass-hi);
+  box-shadow:
+    inset 0 0 0 1px rgba(60, 44, 18, 0.6),
+    0 0 0 2px #f6d98f,
+    0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+.stdTile:disabled { cursor: not-allowed; }
+.stdTile:disabled .stdCard { filter: grayscale(0.7); opacity: 0.55; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stdCard { transition: none; }
+  .stdTile:hover .stdCard { transform: none; }
+}
+
+/* ===== 印刷質感 v2（2026-10-23，只作用在 data-art="v2" 的重繪卡；目前僅尾火虎・幼子樣本） =====
+   原則：疊加在既有標準樣式上、不降級；全部靠印刷/金屬/紙的物理質感，不用任何發光。 */
+
+/* 黃銅：在原拉絲斜光上再疊一層極細拉絲紋＋兩道雕刻線（暗刻線＋亮倒角），像沖壓雕版 */
+.stdTile[data-art='v2'] .stdCard {
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 244, 210, 0.07) 0 1px, rgba(70, 50, 18, 0.06) 1px 2px),
+    linear-gradient(135deg, #876931 0%, var(--std-brass-hi) 18%, #a68240 36%, #e2cc93 52%, #a27e3e 68%, var(--std-brass-hi) 86%, #876931 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(40, 28, 10, 0.8),
+    inset 0 0 0 2px rgba(255, 240, 200, 0.35),
+    inset 0 1.5px 0 2px rgba(255, 246, 214, 0.45),
+    inset 0 -1.5px 0 2px rgba(56, 38, 12, 0.5),
+    0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+/* 紙：細纖維雜訊＋低頻紙漿雲紋（兩層），加毛邊感的內緣（不規則淡暗邊），更像手抄紙 */
+.stdTile[data-art='v2'] .stdPaper {
+  background-color: #f1e8d5;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .33 0 0 0 0 .26 0 0 0 0 .16 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.018' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .36 0 0 0 0 .2 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23m)'/%3E%3C/svg%3E");
+  box-shadow:
+    inset 0 0 0 1px rgba(60, 44, 18, 0.5),
+    inset 0 0 2px 1.5px rgba(120, 90, 44, 0.28),
+    inset 0 2px 4px rgba(60, 44, 18, 0.24);
+}
+
+/* 墨色字：暖黑＋極淡墨暈（0.4px 同色暈開，像墨滲進紙），不是光暈 */
+.stdTile[data-art='v2'] .stdName,
+.stdTile[data-art='v2'] .stdWeaponName,
+.stdTile[data-art='v2'] .stdSkillName {
+  color: #22190f;
+  text-shadow: 0 0 0.4px rgba(34, 25, 15, 0.7), 0.3px 0.2px 0 rgba(90, 62, 30, 0.18);
+}
+.stdTile[data-art='v2'] .stdSkillText,
+.stdTile[data-art='v2'] .stdWeaponPart {
+  color: #4a3b29;
+  text-shadow: 0 0 0.3px rgba(60, 44, 24, 0.5);
+}
+
+/* 圖窗：更銳利的印刷嵌框——墨線、黃銅、刻線三層 1px 級，去掉軟投影 */
+.stdTile[data-art='v2'] .stdWindow {
+  border-radius: 0.8cqw;
+  box-shadow:
+    0 0 0 1px #2a2016,
+    0 0 0 2px #c9ab68,
+    0 0 0 2.5px #6e5426,
+    0 0 0 3.5px rgba(241, 232, 213, 0.9),
+    0 0 0 4px rgba(60, 44, 18, 0.45);
+}
+/* 箔光帶收掉（易讀成發光），只留紙面壓印暗角與 1px 內緣 */
+.stdTile[data-art='v2'] .stdWindow::after {
+  background: radial-gradient(ellipse 80% 75% at 50% 50%, transparent 66%, rgba(30, 20, 8, 0.22) 100%);
+  mix-blend-mode: multiply;
+  box-shadow: inset 0 0 0 1px rgba(255, 246, 225, 0.35), inset 0 2px 4px rgba(0, 0, 0, 0.22);
+}
+/* 重繪圖本身沒有內建框，不需放大推框；色調已是印刷色，不再套濾鏡 */
+.stdTile[data-art='v2'] .stdArt {
+  transform: none;
+  object-position: center 60%;
+  filter: none;
+}
+
+/* ===== v3：雕版花紋內框（只作用在 data-art="v2"） =====
+   金框上疊一層連續卷草紋（暗刻線＋右下亮邊＝雕刻凹槽的光影），紙張會蓋住中間，只露在金框上；
+   紙張外緣再刻一道細內框線。全部是壓暗的刻線，不發光。 */
+.stdTile[data-art='v2'] .stdCard {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M0 6c1.6-3 4.4-3 6 0s4.4 3 6 0' stroke='%23fff3cf' stroke-opacity='.45' stroke-width='.9' transform='translate(.45 .5)'/%3E%3Cpath d='M0 6c1.6-3 4.4-3 6 0s4.4 3 6 0' stroke='%234a3410' stroke-opacity='.78' stroke-width='.9'/%3E%3Cpath d='M3 4.2c-.9-1.4.2-2.6 1.3-1.9M9 7.8c.9 1.4-.2 2.6-1.3 1.9' stroke='%234a3410' stroke-opacity='.65' stroke-width='.7'/%3E%3C/g%3E%3Ccircle cx='3' cy='9.4' r='.75' fill='%234a3410' fill-opacity='.6'/%3E%3Ccircle cx='9' cy='2.6' r='.75' fill='%234a3410' fill-opacity='.6'/%3E%3C/svg%3E") 0 0 / 9px 9px,
+    repeating-linear-gradient(90deg, rgba(255, 244, 210, 0.07) 0 1px, rgba(70, 50, 18, 0.06) 1px 2px),
+    linear-gradient(135deg, #876931 0%, var(--std-brass-hi) 18%, #a68240 36%, #e2cc93 52%, #a27e3e 68%, var(--std-brass-hi) 86%, #876931 100%);
+}
+/* 紙緣刻線：暗線＋外側一道亮倒角，把花紋帶和紙面清楚分開 */
+.stdTile[data-art='v2'] .stdPaper {
+  box-shadow:
+    0 0 0 1px rgba(60, 40, 12, 0.85),
+    0 0 0 1.8px rgba(255, 240, 200, 0.55),
+    inset 0 0 0 1px rgba(60, 44, 18, 0.5),
+    inset 0 0 2px 1.5px rgba(120, 90, 44, 0.28),
+    inset 0 2px 4px rgba(60, 44, 18, 0.24);
+}
+
+/* v2 鎖定間距：技能說明固定兩行高，圖窗高度不再隨文字長短漂移（所有 v2 卡同一組尺寸） */
+.stdTile[data-art='v2'] .stdSkillText {
+  height: calc(2 * 1.4em);
+  min-height: calc(2 * 1.4em);
+}
+.stdTile[data-art='v2'] .stdWeapon,
+.stdTile[data-art='v2'] .stdHead { flex: none; }
+.stdTile[data-art='v2'] .stdSkill { flex: none; }

@@ -1,10 +1,10 @@
 # Platform Core V6 Audit Report
 
 Final status: NOT_COMPLETED
-Generated at: 2026-08-21T09:32:16.172Z
+Generated at: 2026-10-23T09:26:59.425Z
 
 ## Blockers
-- Full nine-card Auto QA evidence is missing or failing.
+- Screen health evidence is missing or failing.
 - Real mobile E2E evidence is not attached to this audit.
 - Working tree has uncommitted or untracked changes; fresh regression evidence must be produced after these changes.
 
