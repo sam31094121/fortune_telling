@@ -119,12 +119,23 @@ try {
       ok((await stateOf(i)) === false, `第 ${i} 張卡打開後真實點擊收不回（第 ${round} 輪）；點擊落點：${JSON.stringify(p)}`);
     }
   }
-  // 兩張同時打開，各自能收
-  const [a, b] = [0, 2];
-  for (const i of [a, b]) { const p = await centerOf('[data-asura-detail] > summary', i); await realClickAt(p.x, p.y); await sleep(500); }
-  ok((await stateOf(a)) === true && (await stateOf(b)) === true, '兩張卡應可同時打開');
-  for (const i of [b, a]) { const p = await centerOf('[data-asura-detail] > summary', i); await realClickAt(p.x, p.y); await sleep(500); }
+  // 同欄一次只開一張（f3594fc，<details name="asura-col-…">）；不同欄可同時打開、各自能收
+  const names = await evalJs(`[...document.querySelectorAll('[data-asura-detail]')].map(d => d.getAttribute('name') || '')`);
+  const clickDetail = async (i) => { const p = await centerOf('[data-asura-detail] > summary', i); await realClickAt(p.x, p.y); await sleep(500); };
+  const a = 0;
+  const b = names.findIndex((n) => n !== names[a]);
+  ok(b > 0, `找不到不同欄的印記卡（欄名：${[...new Set(names)].join(',')}）`);
+  for (const i of [a, b]) await clickDetail(i);
+  ok((await stateOf(a)) === true && (await stateOf(b)) === true, '不同欄的兩張卡應可同時打開');
+  for (const i of [b, a]) await clickDetail(i);
   ok((await stateOf(a)) === false && (await stateOf(b)) === false, '同時打開的兩張卡應各自能收');
+  const c = names.findIndex((n, i) => i !== a && n === names[a] && n !== '');
+  if (c > 0) {
+    await clickDetail(a); await clickDetail(c);
+    ok((await stateOf(c)) === true && (await stateOf(a)) === false, '同欄打開第二張時，第一張應自動收起');
+    await clickDetail(c);
+    ok((await stateOf(c)) === false, '同欄第二張應能收起');
+  }
 
   ok(exceptions.length === 0, `頁面有執行期錯誤：${exceptions.join(' | ').slice(0, 300)}`);
   console.log(`ghost-asura-card-clicks e2e: ${checks} checks passed（真實 Edge、真實滑鼠點擊、測試登入；印記卡 ${total} 張，抽測 ${sample.length} 張×2 輪）`);

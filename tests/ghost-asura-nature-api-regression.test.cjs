@@ -50,7 +50,7 @@ function compareText(where, before, after) {
     assert.deepEqual(now.sections.map((s) => s.key), fixture.sections.map((s) => s.key));
     now.sections.forEach((s, si) => {
       const b = fixture.sections[si];
-      assert.deepEqual(Object.keys(s).filter((k) => k !== 'story'), Object.keys(b), `${name}.${s.key} fields (only story may be added)`);
+      assert.deepEqual(Object.keys(s).filter((k) => k !== 'story' && k !== 'guidance'), Object.keys(b), `${name}.${s.key} fields (only story / guidance may be added)`);
       if (s.story !== undefined) assert.deepEqual(count(s.story, tl.ASURA_CARD_FORBIDDEN_TERMS), [], `${name}.${s.key}.story terms`);
       if (!sameYear) return;
       for (const f of ['heading', 'label', 'lead', 'narrative', 'coda']) compareText(`${name}.${s.key}.${f}`, b[f], s[f]);
