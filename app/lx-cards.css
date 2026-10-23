@@ -38,3 +38,7 @@ body:not(:has(.home-feature-stack)) main :is(.rounded-2xl, .rounded-3xl)[class*=
 
 /* 4) 主題變數色字（text-[color:var(--text-…)]）在皮革卡內統一為霧灰 #a9a39b（7.37:1） */
 body:not(:has(.home-feature-stack)) main :is(.rounded-2xl, .rounded-3xl)[class*="bg-"][class*="border"]:not(button, a, form):not(:has(input, textarea, select)):not([class*="bg-white"]):not([class*="-50"]):not([class*="-100"]):not([class*="-200"]):not([class*="-300"]):not([class*="bg-gradient"]) [class*="text-[color:var(--text-"] { color: var(--lx-muted) !important; }
+
+/* 5) 深色 fortune-card 內的 muted 說明字 → 霧灰（/nameology 資料進度 3.55 → 7.4） */
+main .fortune-card [class*="text-[color:var(--text-muted)]"] { color: var(--lx-muted) !important; }
+
