@@ -1,0 +1,1514 @@
+{
+  "meta": {
+    "title": "鬼魅阿修羅｜話術含金量候選 100 句",
+    "date": "2026-10-24",
+    "status": "CANDIDATE（未併入正本、未接後端、待業主審）",
+    "structure": "10 日元 × 10 構面；每句依客戶資料觸發，一人一句",
+    "rules": "照 lintAsuraVoice：句長≤16、不發問、不驚嘆、不預言、不威嚇、不用空洞誇詞；不超過證據上限",
+    "evidenceFile": "權威來源/話術含金量-說服與溝通心理學-權威來源.md",
+    "notWired": "尚未登記進來源登記、尚未併入 features/ghost-asura/wordings.ts；SKILL_LOCK.md 未動",
+    "backendTodo": "各構面觸發條件（月令得力、五行偏旺、流年關係等）須確認後端已提供欄位，未提供者不得顯示該句"
+  },
+  "entries": [
+    {
+      "id": "AS100-001",
+      "stem": "甲",
+      "stemTitle": "參天戰矛・鑿陣先鋒",
+      "dimension": "NATURE",
+      "dimensionName": "日元本性",
+      "trigger": "出生日的日柱天干＝該日元",
+      "line": "參天之矛，不與盆景比高。只攻最硬那一件。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-002",
+      "stem": "甲",
+      "stemTitle": "參天戰矛・鑿陣先鋒",
+      "dimension": "MONTH_STRONG",
+      "dimensionName": "月令得力",
+      "trigger": "月柱對日元有生扶",
+      "line": "生的時節托著你，這是本錢。本錢閒著，便是死錢。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-003",
+      "stem": "甲",
+      "stemTitle": "參天戰矛・鑿陣先鋒",
+      "dimension": "MONTH_WEAK",
+      "dimensionName": "月令不得力",
+      "trigger": "月柱對日元無生扶",
+      "line": "生的時節不托你，矛更要磨。先削尖一處，再出手。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-004",
+      "stem": "甲",
+      "stemTitle": "參天戰矛・鑿陣先鋒",
+      "dimension": "HOUR_KNOWN",
+      "dimensionName": "時辰已填",
+      "trigger": "客戶填了出生時辰",
+      "line": "時辰已給，資料齊全。這一局，我照實看。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-005",
+      "stem": "甲",
+      "stemTitle": "參天戰矛・鑿陣先鋒",
+      "dimension": "HOUR_UNKNOWN",
+      "dimensionName": "時辰未填",
+      "trigger": "客戶未填時辰（顯示管線暫以夜半起算，句子須與卡片「我以夜半起算」一致）",
+      "line": "時辰未給，暫以夜半起算。矛先出鞘，細處待補。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-006",
+      "stem": "甲",
+      "stemTitle": "參天戰矛・鑿陣先鋒",
+      "dimension": "ELEMENT_EXCESS",
+      "dimensionName": "五行偏旺",
+      "trigger": "某五行佔比明顯偏高",
+      "line": "一股性子太旺，鋒芒外露。收三分，留給關鍵時刻。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-007",
+      "stem": "甲",
+      "stemTitle": "參天戰矛・鑿陣先鋒",
+      "dimension": "ELEMENT_MISSING",
+      "dimensionName": "五行缺一",
+      "trigger": "四柱某五行為零",
+      "line": "少了一股力，矛尖不全。只補一個小動作。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-008",
+      "stem": "甲",
+      "stemTitle": "參天戰矛・鑿陣先鋒",
+      "dimension": "AUSPICIOUS_STAR",
+      "dimensionName": "吉類神煞命中",
+      "trigger": "後端已驗證命中吉類神煞",
+      "line": "命裡有人幫襯，這是本錢。開口求一次，別硬扛。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-009",
+      "stem": "甲",
+      "stemTitle": "參天戰矛・鑿陣先鋒",
+      "dimension": "WARNING_STAR",
+      "dimensionName": "提醒類神煞命中",
+      "trigger": "後端已驗證命中提醒類神煞",
+      "line": "有一處要留意。它不是判決，是一處要補的缺口。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-010",
+      "stem": "甲",
+      "stemTitle": "參天戰矛・鑿陣先鋒",
+      "dimension": "FLOW_YEAR",
+      "dimensionName": "今年流年",
+      "trigger": "今年流年干支與日元的關係",
+      "line": "今年這一局，矛要換節奏。先穩三步，再衝一步。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-011",
+      "stem": "乙",
+      "stemTitle": "嗜血藤蔓・絕地絞殺",
+      "dimension": "NATURE",
+      "dimensionName": "日元本性",
+      "trigger": "出生日的日柱天干＝該日元",
+      "line": "藤纏巨石，慢，但不放。選一點，纏到底。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-012",
+      "stem": "乙",
+      "stemTitle": "嗜血藤蔓・絕地絞殺",
+      "dimension": "MONTH_STRONG",
+      "dimensionName": "月令得力",
+      "trigger": "月柱對日元有生扶",
+      "line": "生的時節托著你，根已入土。順勢借力，只推一寸。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-013",
+      "stem": "乙",
+      "stemTitle": "嗜血藤蔓・絕地絞殺",
+      "dimension": "MONTH_WEAK",
+      "dimensionName": "月令不得力",
+      "trigger": "月柱對日元無生扶",
+      "line": "生的時節不托，藤先低伏。借一堵牆，往上爬一格。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-014",
+      "stem": "乙",
+      "stemTitle": "嗜血藤蔓・絕地絞殺",
+      "dimension": "HOUR_KNOWN",
+      "dimensionName": "時辰已填",
+      "trigger": "客戶填了出生時辰",
+      "line": "時辰已給，藤見全貌。這一局，我照實纏。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-015",
+      "stem": "乙",
+      "stemTitle": "嗜血藤蔓・絕地絞殺",
+      "dimension": "HOUR_UNKNOWN",
+      "dimensionName": "時辰未填",
+      "trigger": "客戶未填時辰（顯示管線暫以夜半起算，句子須與卡片「我以夜半起算」一致）",
+      "line": "這格空著，我先以夜半起算。藤先扎根，細節再纏。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-016",
+      "stem": "乙",
+      "stemTitle": "嗜血藤蔓・絕地絞殺",
+      "dimension": "ELEMENT_EXCESS",
+      "dimensionName": "五行偏旺",
+      "trigger": "某五行佔比明顯偏高",
+      "line": "一股性子太旺，藤纏得太緊。鬆一手，留條活路。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-017",
+      "stem": "乙",
+      "stemTitle": "嗜血藤蔓・絕地絞殺",
+      "dimension": "ELEMENT_MISSING",
+      "dimensionName": "五行缺一",
+      "trigger": "四柱某五行為零",
+      "line": "少了一股力，根有空處。補一個習慣，不求快。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-018",
+      "stem": "乙",
+      "stemTitle": "嗜血藤蔓・絕地絞殺",
+      "dimension": "AUSPICIOUS_STAR",
+      "dimensionName": "吉類神煞命中",
+      "trigger": "後端已驗證命中吉類神煞",
+      "line": "命裡有人幫襯，藤有牆可攀。開口借力，不算低頭。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-019",
+      "stem": "乙",
+      "stemTitle": "嗜血藤蔓・絕地絞殺",
+      "dimension": "WARNING_STAR",
+      "dimensionName": "提醒類神煞命中",
+      "trigger": "後端已驗證命中提醒類神煞",
+      "line": "有一處要留意，藤在暗處打結。理一處，結便開。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-020",
+      "stem": "乙",
+      "stemTitle": "嗜血藤蔓・絕地絞殺",
+      "dimension": "FLOW_YEAR",
+      "dimensionName": "今年流年",
+      "trigger": "今年流年干支與日元的關係",
+      "line": "今年這一局，藤不硬撞。順水推舟，擇一處生根。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-021",
+      "stem": "丙",
+      "stemTitle": "天劫烈陽・焚天破陣",
+      "dimension": "NATURE",
+      "dimensionName": "日元本性",
+      "trigger": "出生日的日柱天干＝該日元",
+      "line": "烈陽不躲雲，雲自會散。把話說到亮處。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-022",
+      "stem": "丙",
+      "stemTitle": "天劫烈陽・焚天破陣",
+      "dimension": "MONTH_STRONG",
+      "dimensionName": "月令得力",
+      "trigger": "月柱對日元有生扶",
+      "line": "出生的時節添火，陽光有本。開口，聲勢站在你這邊。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-023",
+      "stem": "丙",
+      "stemTitle": "天劫烈陽・焚天破陣",
+      "dimension": "MONTH_WEAK",
+      "dimensionName": "月令不得力",
+      "trigger": "月柱對日元無生扶",
+      "line": "出生的時節不添火，陽也得自燃。先點亮一件小事。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-024",
+      "stem": "丙",
+      "stemTitle": "天劫烈陽・焚天破陣",
+      "dimension": "HOUR_KNOWN",
+      "dimensionName": "時辰已填",
+      "trigger": "客戶填了出生時辰",
+      "line": "時辰已給，天光齊備。這一局，我照實照。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-025",
+      "stem": "丙",
+      "stemTitle": "天劫烈陽・焚天破陣",
+      "dimension": "HOUR_UNKNOWN",
+      "dimensionName": "時辰未填",
+      "trigger": "客戶未填時辰（顯示管線暫以夜半起算，句子須與卡片「我以夜半起算」一致）",
+      "line": "時刻沒填，暫從夜半排起。光先亮著，細處再補。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-026",
+      "stem": "丙",
+      "stemTitle": "天劫烈陽・焚天破陣",
+      "dimension": "ELEMENT_EXCESS",
+      "dimensionName": "五行偏旺",
+      "trigger": "某五行佔比明顯偏高",
+      "line": "一股性子太旺，火太烈會灼人。收一分光，聽人說完。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-027",
+      "stem": "丙",
+      "stemTitle": "天劫烈陽・焚天破陣",
+      "dimension": "ELEMENT_MISSING",
+      "dimensionName": "五行缺一",
+      "trigger": "四柱某五行為零",
+      "line": "少了一股力，光有暗角。去暗角點一盞燈。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-028",
+      "stem": "丙",
+      "stemTitle": "天劫烈陽・焚天破陣",
+      "dimension": "AUSPICIOUS_STAR",
+      "dimensionName": "吉類神煞命中",
+      "trigger": "後端已驗證命中吉類神煞",
+      "line": "命裡有人幫襯，光不獨行。讓一個人替你說話。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-029",
+      "stem": "丙",
+      "stemTitle": "天劫烈陽・焚天破陣",
+      "dimension": "WARNING_STAR",
+      "dimensionName": "提醒類神煞命中",
+      "trigger": "後端已驗證命中提醒類神煞",
+      "line": "有一處要留意，過熱易傷。降半度，再亮相。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-030",
+      "stem": "丙",
+      "stemTitle": "天劫烈陽・焚天破陣",
+      "dimension": "FLOW_YEAR",
+      "dimensionName": "今年流年",
+      "trigger": "今年流年干支與日元的關係",
+      "line": "今年這一局，陽要走遠路。先曬透根基，再登高。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-031",
+      "stem": "丁",
+      "stemTitle": "九幽冥火・索命暗芒",
+      "dimension": "NATURE",
+      "dimensionName": "日元本性",
+      "trigger": "出生日的日柱天干＝該日元",
+      "line": "暗火不吵，只燒一點。收束力氣，燒穿那處。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-032",
+      "stem": "丁",
+      "stemTitle": "九幽冥火・索命暗芒",
+      "dimension": "MONTH_STRONG",
+      "dimensionName": "月令得力",
+      "trigger": "月柱對日元有生扶",
+      "line": "生的時節添薪，暗火有底。靜靜加一把柴。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-033",
+      "stem": "丁",
+      "stemTitle": "九幽冥火・索命暗芒",
+      "dimension": "MONTH_WEAK",
+      "dimensionName": "月令不得力",
+      "trigger": "月柱對日元無生扶",
+      "line": "生的時節不添薪，火要省著燒。只守一處。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-034",
+      "stem": "丁",
+      "stemTitle": "九幽冥火・索命暗芒",
+      "dimension": "HOUR_KNOWN",
+      "dimensionName": "時辰已填",
+      "trigger": "客戶填了出生時辰",
+      "line": "時辰已給，幽光齊備。這一局，我照實看。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-035",
+      "stem": "丁",
+      "stemTitle": "九幽冥火・索命暗芒",
+      "dimension": "HOUR_UNKNOWN",
+      "dimensionName": "時辰未填",
+      "trigger": "客戶未填時辰（顯示管線暫以夜半起算，句子須與卡片「我以夜半起算」一致）",
+      "line": "時辰缺席，姑且依夜半排。暗火先燒，細處待添。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-036",
+      "stem": "丁",
+      "stemTitle": "九幽冥火・索命暗芒",
+      "dimension": "ELEMENT_EXCESS",
+      "dimensionName": "五行偏旺",
+      "trigger": "某五行佔比明顯偏高",
+      "line": "一股性子太旺，火勢難收。先熄一處，留下餘燼。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-037",
+      "stem": "丁",
+      "stemTitle": "九幽冥火・索命暗芒",
+      "dimension": "ELEMENT_MISSING",
+      "dimensionName": "五行缺一",
+      "trigger": "四柱某五行為零",
+      "line": "少了一味，火少一股勁。補一點涼意，別硬撐。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-038",
+      "stem": "丁",
+      "stemTitle": "九幽冥火・索命暗芒",
+      "dimension": "AUSPICIOUS_STAR",
+      "dimensionName": "吉類神煞命中",
+      "trigger": "後端已驗證命中吉類神煞",
+      "line": "命裡有人幫襯，暗火有人添薪。開口一次。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-039",
+      "stem": "丁",
+      "stemTitle": "九幽冥火・索命暗芒",
+      "dimension": "WARNING_STAR",
+      "dimensionName": "提醒類神煞命中",
+      "trigger": "後端已驗證命中提醒類神煞",
+      "line": "有一處要留意，暗火易灼自己。歇半日，火才長。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-040",
+      "stem": "丁",
+      "stemTitle": "九幽冥火・索命暗芒",
+      "dimension": "FLOW_YEAR",
+      "dimensionName": "今年流年",
+      "trigger": "今年流年干支與日元的關係",
+      "line": "今年這一局，火在暗處走。穩穩燒，不爭亮。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-041",
+      "stem": "戊",
+      "stemTitle": "萬仞重塞・不動如山",
+      "dimension": "NATURE",
+      "dimensionName": "日元本性",
+      "trigger": "出生日的日柱天干＝該日元",
+      "line": "山不追人，人自會靠近。守住底線，寸步不讓。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-042",
+      "stem": "戊",
+      "stemTitle": "萬仞重塞・不動如山",
+      "dimension": "MONTH_STRONG",
+      "dimensionName": "月令得力",
+      "trigger": "月柱對日元有生扶",
+      "line": "生的時節築基，山有根。在原地多站一刻。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-043",
+      "stem": "戊",
+      "stemTitle": "萬仞重塞・不動如山",
+      "dimension": "MONTH_WEAK",
+      "dimensionName": "月令不得力",
+      "trigger": "月柱對日元無生扶",
+      "line": "生的時節無基，山先紮根。把一件舊事收乾淨。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-044",
+      "stem": "戊",
+      "stemTitle": "萬仞重塞・不動如山",
+      "dimension": "HOUR_KNOWN",
+      "dimensionName": "時辰已填",
+      "trigger": "客戶填了出生時辰",
+      "line": "時辰已給，山形完整。這一局，我照實量。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-045",
+      "stem": "戊",
+      "stemTitle": "萬仞重塞・不動如山",
+      "dimension": "HOUR_UNKNOWN",
+      "dimensionName": "時辰未填",
+      "trigger": "客戶未填時辰（顯示管線暫以夜半起算，句子須與卡片「我以夜半起算」一致）",
+      "line": "時辰沒給，暫按夜半起算。山先立穩，細處再量。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-046",
+      "stem": "戊",
+      "stemTitle": "萬仞重塞・不動如山",
+      "dimension": "ELEMENT_EXCESS",
+      "dimensionName": "五行偏旺",
+      "trigger": "某五行佔比明顯偏高",
+      "line": "一股性子太旺，山太重難動。挪一步，換個視野。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-047",
+      "stem": "戊",
+      "stemTitle": "萬仞重塞・不動如山",
+      "dimension": "ELEMENT_MISSING",
+      "dimensionName": "五行缺一",
+      "trigger": "四柱某五行為零",
+      "line": "少了一股力，山有缺口。補一處，別全修。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-048",
+      "stem": "戊",
+      "stemTitle": "萬仞重塞・不動如山",
+      "dimension": "AUSPICIOUS_STAR",
+      "dimensionName": "吉類神煞命中",
+      "trigger": "後端已驗證命中吉類神煞",
+      "line": "命裡有人幫襯，山下有路。讓人上山一次。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-049",
+      "stem": "戊",
+      "stemTitle": "萬仞重塞・不動如山",
+      "dimension": "WARNING_STAR",
+      "dimensionName": "提醒類神煞命中",
+      "trigger": "後端已驗證命中提醒類神煞",
+      "line": "有一處要留意，山重易僵。鬆動一處，別全拆。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-050",
+      "stem": "戊",
+      "stemTitle": "萬仞重塞・不動如山",
+      "dimension": "FLOW_YEAR",
+      "dimensionName": "今年流年",
+      "trigger": "今年流年干支與日元的關係",
+      "line": "今年這一局，山不追浪。守住已有，再擴一寸。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-051",
+      "stem": "己",
+      "stemTitle": "流沙陷陣・納勢吞敵",
+      "dimension": "NATURE",
+      "dimensionName": "日元本性",
+      "trigger": "出生日的日柱天干＝該日元",
+      "line": "流沙不爭，吞得最深。先收，不急著亮。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-052",
+      "stem": "己",
+      "stemTitle": "流沙陷陣・納勢吞敵",
+      "dimension": "MONTH_STRONG",
+      "dimensionName": "月令得力",
+      "trigger": "月柱對日元有生扶",
+      "line": "生的時節托底，沙有岸。把一個人，納進你的局。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-053",
+      "stem": "己",
+      "stemTitle": "流沙陷陣・納勢吞敵",
+      "dimension": "MONTH_WEAK",
+      "dimensionName": "月令不得力",
+      "trigger": "月柱對日元無生扶",
+      "line": "生的時節無岸，沙易散。先立一條界線。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-054",
+      "stem": "己",
+      "stemTitle": "流沙陷陣・納勢吞敵",
+      "dimension": "HOUR_KNOWN",
+      "dimensionName": "時辰已填",
+      "trigger": "客戶填了出生時辰",
+      "line": "時辰已給，沙紋清楚。這一局，我照實納。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-055",
+      "stem": "己",
+      "stemTitle": "流沙陷陣・納勢吞敵",
+      "dimension": "HOUR_UNKNOWN",
+      "dimensionName": "時辰未填",
+      "trigger": "客戶未填時辰（顯示管線暫以夜半起算，句子須與卡片「我以夜半起算」一致）",
+      "line": "那格空著，沙暫以夜半鋪。先成局，細處再收。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-056",
+      "stem": "己",
+      "stemTitle": "流沙陷陣・納勢吞敵",
+      "dimension": "ELEMENT_EXCESS",
+      "dimensionName": "五行偏旺",
+      "trigger": "某五行佔比明顯偏高",
+      "line": "一股性子太旺，沙過沉，反困自己。放一處出去。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-057",
+      "stem": "己",
+      "stemTitle": "流沙陷陣・納勢吞敵",
+      "dimension": "ELEMENT_MISSING",
+      "dimensionName": "五行缺一",
+      "trigger": "四柱某五行為零",
+      "line": "少了一股勁，沙不成團。做一件需要勁的小事。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-058",
+      "stem": "己",
+      "stemTitle": "流沙陷陣・納勢吞敵",
+      "dimension": "AUSPICIOUS_STAR",
+      "dimensionName": "吉類神煞命中",
+      "trigger": "後端已驗證命中吉類神煞",
+      "line": "命裡有人幫襯，沙有水可聚。與一人好好談。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-059",
+      "stem": "己",
+      "stemTitle": "流沙陷陣・納勢吞敵",
+      "dimension": "WARNING_STAR",
+      "dimensionName": "提醒類神煞命中",
+      "trigger": "後端已驗證命中提醒類神煞",
+      "line": "有一處要留意，沙吞太多會滯。清掉一件舊物。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-060",
+      "stem": "己",
+      "stemTitle": "流沙陷陣・納勢吞敵",
+      "dimension": "FLOW_YEAR",
+      "dimensionName": "今年流年",
+      "trigger": "今年流年干支與日元的關係",
+      "line": "今年這一局，沙不露聲色。慢慢收網，不急一時。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-061",
+      "stem": "庚",
+      "stemTitle": "百鍊陌刀・肅殺破軍",
+      "dimension": "NATURE",
+      "dimensionName": "日元本性",
+      "trigger": "出生日的日柱天干＝該日元",
+      "line": "刀不問情面，只問該不該斷。斷一件拖著的事。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-062",
+      "stem": "庚",
+      "stemTitle": "百鍊陌刀・肅殺破軍",
+      "dimension": "MONTH_STRONG",
+      "dimensionName": "月令得力",
+      "trigger": "月柱對日元有生扶",
+      "line": "生的時節磨刃，鋒有本。出一刀，不補第二刀。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-063",
+      "stem": "庚",
+      "stemTitle": "百鍊陌刀・肅殺破軍",
+      "dimension": "MONTH_WEAK",
+      "dimensionName": "月令不得力",
+      "trigger": "月柱對日元無生扶",
+      "line": "生的時節不磨，刃先歸鞘。只磨，不出手。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-064",
+      "stem": "庚",
+      "stemTitle": "百鍊陌刀・肅殺破軍",
+      "dimension": "HOUR_KNOWN",
+      "dimensionName": "時辰已填",
+      "trigger": "客戶填了出生時辰",
+      "line": "時辰已給，刃口齊整。這一局，我照實斬。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-065",
+      "stem": "庚",
+      "stemTitle": "百鍊陌刀・肅殺破軍",
+      "dimension": "HOUR_UNKNOWN",
+      "dimensionName": "時辰未填",
+      "trigger": "客戶未填時辰（顯示管線暫以夜半起算，句子須與卡片「我以夜半起算」一致）",
+      "line": "時辰未填，暫依夜半起算。刀先磨著，細處再斬。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-066",
+      "stem": "庚",
+      "stemTitle": "百鍊陌刀・肅殺破軍",
+      "dimension": "ELEMENT_EXCESS",
+      "dimensionName": "五行偏旺",
+      "trigger": "某五行佔比明顯偏高",
+      "line": "一股性子太旺，刀太利易傷人。收三分，仍然鋒利。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-067",
+      "stem": "庚",
+      "stemTitle": "百鍊陌刀・肅殺破軍",
+      "dimension": "ELEMENT_MISSING",
+      "dimensionName": "五行缺一",
+      "trigger": "四柱某五行為零",
+      "line": "少了一股力，刃有缺。補一次，別硬劈。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-068",
+      "stem": "庚",
+      "stemTitle": "百鍊陌刀・肅殺破軍",
+      "dimension": "AUSPICIOUS_STAR",
+      "dimensionName": "吉類神煞命中",
+      "trigger": "後端已驗證命中吉類神煞",
+      "line": "命裡有人幫襯，刀有護鞘。借一次力，再出鞘。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-069",
+      "stem": "庚",
+      "stemTitle": "百鍊陌刀・肅殺破軍",
+      "dimension": "WARNING_STAR",
+      "dimensionName": "提醒類神煞命中",
+      "trigger": "後端已驗證命中提醒類神煞",
+      "line": "有一處要留意，鋒太直易折。繞半步，仍能破局。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-070",
+      "stem": "庚",
+      "stemTitle": "百鍊陌刀・肅殺破軍",
+      "dimension": "FLOW_YEAR",
+      "dimensionName": "今年流年",
+      "trigger": "今年流年干支與日元的關係",
+      "line": "今年這一局，刀要慢出。看準一處，一刀定。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-071",
+      "stem": "辛",
+      "stemTitle": "淬毒玄匕・一瞬決殺",
+      "dimension": "NATURE",
+      "dimensionName": "日元本性",
+      "trigger": "出生日的日柱天干＝該日元",
+      "line": "玄匕只出一刀，毫釐定局。挑一處要害，只動它。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-072",
+      "stem": "辛",
+      "stemTitle": "淬毒玄匕・一瞬決殺",
+      "dimension": "MONTH_STRONG",
+      "dimensionName": "月令得力",
+      "trigger": "月柱對日元有生扶",
+      "line": "生的時節藏鋒，匕有本。不聲張，直取核心。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-073",
+      "stem": "辛",
+      "stemTitle": "淬毒玄匕・一瞬決殺",
+      "dimension": "MONTH_WEAK",
+      "dimensionName": "月令不得力",
+      "trigger": "月柱對日元無生扶",
+      "line": "生的時節不藏，匕要靜磨。先看清，再動手。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-074",
+      "stem": "辛",
+      "stemTitle": "淬毒玄匕・一瞬決殺",
+      "dimension": "HOUR_KNOWN",
+      "dimensionName": "時辰已填",
+      "trigger": "客戶填了出生時辰",
+      "line": "時辰已給，毫釐不差。這一局，我照實算。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-075",
+      "stem": "辛",
+      "stemTitle": "淬毒玄匕・一瞬決殺",
+      "dimension": "HOUR_UNKNOWN",
+      "dimensionName": "時辰未填",
+      "trigger": "客戶未填時辰（顯示管線暫以夜半起算，句子須與卡片「我以夜半起算」一致）",
+      "line": "時辰缺一格，暫從夜半起。匕先藏著，細處待定。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-076",
+      "stem": "辛",
+      "stemTitle": "淬毒玄匕・一瞬決殺",
+      "dimension": "ELEMENT_EXCESS",
+      "dimensionName": "五行偏旺",
+      "trigger": "某五行佔比明顯偏高",
+      "line": "一股性子太旺，匕過銳易斷。留一寸餘地。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-077",
+      "stem": "辛",
+      "stemTitle": "淬毒玄匕・一瞬決殺",
+      "dimension": "ELEMENT_MISSING",
+      "dimensionName": "五行缺一",
+      "trigger": "四柱某五行為零",
+      "line": "少了一味，鋒不夠細。補一個細節，別求全。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-078",
+      "stem": "辛",
+      "stemTitle": "淬毒玄匕・一瞬決殺",
+      "dimension": "AUSPICIOUS_STAR",
+      "dimensionName": "吉類神煞命中",
+      "trigger": "後端已驗證命中吉類神煞",
+      "line": "命裡有人幫襯，匕有指路人。問一人要害在哪。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-079",
+      "stem": "辛",
+      "stemTitle": "淬毒玄匕・一瞬決殺",
+      "dimension": "WARNING_STAR",
+      "dimensionName": "提醒類神煞命中",
+      "trigger": "後端已驗證命中提醒類神煞",
+      "line": "有一處要留意，鋒薄易傷。少糾纏，只做決定。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-080",
+      "stem": "辛",
+      "stemTitle": "淬毒玄匕・一瞬決殺",
+      "dimension": "FLOW_YEAR",
+      "dimensionName": "今年流年",
+      "trigger": "今年流年干支與日元的關係",
+      "line": "今年這一局，匕在暗處。位置對了，只出一刀。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-081",
+      "stem": "壬",
+      "stemTitle": "倒海狂瀾・吞天怒潮",
+      "dimension": "NATURE",
+      "dimensionName": "日元本性",
+      "trigger": "出生日的日柱天干＝該日元",
+      "line": "怒潮不聽人勸，只聽勢。把格局放大一倍。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-082",
+      "stem": "壬",
+      "stemTitle": "倒海狂瀾・吞天怒潮",
+      "dimension": "MONTH_STRONG",
+      "dimensionName": "月令得力",
+      "trigger": "月柱對日元有生扶",
+      "line": "生的時節送水，潮有源。開口要大，不要碎。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-083",
+      "stem": "壬",
+      "stemTitle": "倒海狂瀾・吞天怒潮",
+      "dimension": "MONTH_WEAK",
+      "dimensionName": "月令不得力",
+      "trigger": "月柱對日元無生扶",
+      "line": "生的時節無源，潮先蓄勢。存一點，別全放。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-084",
+      "stem": "壬",
+      "stemTitle": "倒海狂瀾・吞天怒潮",
+      "dimension": "HOUR_KNOWN",
+      "dimensionName": "時辰已填",
+      "trigger": "客戶填了出生時辰",
+      "line": "時辰已給，潮圖完整。這一局，我照實湧。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-085",
+      "stem": "壬",
+      "stemTitle": "倒海狂瀾・吞天怒潮",
+      "dimension": "HOUR_UNKNOWN",
+      "dimensionName": "時辰未填",
+      "trigger": "客戶未填時辰（顯示管線暫以夜半起算，句子須與卡片「我以夜半起算」一致）",
+      "line": "這格沒填，暫按夜半起潮。先蓄勢，細處再湧。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-086",
+      "stem": "壬",
+      "stemTitle": "倒海狂瀾・吞天怒潮",
+      "dimension": "ELEMENT_EXCESS",
+      "dimensionName": "五行偏旺",
+      "trigger": "某五行佔比明顯偏高",
+      "line": "一股性子太旺，潮易氾濫。築一道閘，再奔流。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-087",
+      "stem": "壬",
+      "stemTitle": "倒海狂瀾・吞天怒潮",
+      "dimension": "ELEMENT_MISSING",
+      "dimensionName": "五行缺一",
+      "trigger": "四柱某五行為零",
+      "line": "少了一道岸，潮無邊界。定一個邊界。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-088",
+      "stem": "壬",
+      "stemTitle": "倒海狂瀾・吞天怒潮",
+      "dimension": "AUSPICIOUS_STAR",
+      "dimensionName": "吉類神煞命中",
+      "trigger": "後端已驗證命中吉類神煞",
+      "line": "命裡有人幫襯，潮有河道。讓人替你引路。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-089",
+      "stem": "壬",
+      "stemTitle": "倒海狂瀾・吞天怒潮",
+      "dimension": "WARNING_STAR",
+      "dimensionName": "提醒類神煞命中",
+      "trigger": "後端已驗證命中提醒類神煞",
+      "line": "有一處要留意，潮過猛會淹己。退半步，再湧。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-090",
+      "stem": "壬",
+      "stemTitle": "倒海狂瀾・吞天怒潮",
+      "dimension": "FLOW_YEAR",
+      "dimensionName": "今年流年",
+      "trigger": "今年流年干支與日元的關係",
+      "line": "今年這一局，潮要走深。先蓄水，後衝堤。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-091",
+      "stem": "癸",
+      "stemTitle": "玄冥寒煞・無孔不入",
+      "dimension": "NATURE",
+      "dimensionName": "日元本性",
+      "trigger": "出生日的日柱天干＝該日元",
+      "line": "寒氣無聲，滲入每道縫。先看，後動，不出聲。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-092",
+      "stem": "癸",
+      "stemTitle": "玄冥寒煞・無孔不入",
+      "dimension": "MONTH_STRONG",
+      "dimensionName": "月令得力",
+      "trigger": "月柱對日元有生扶",
+      "line": "生的時節送水，寒氣有源。靜靜把一件事做滿。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-093",
+      "stem": "癸",
+      "stemTitle": "玄冥寒煞・無孔不入",
+      "dimension": "MONTH_WEAK",
+      "dimensionName": "月令不得力",
+      "trigger": "月柱對日元無生扶",
+      "line": "生的時節無源，寒氣要省。只觀察，不表態。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-094",
+      "stem": "癸",
+      "stemTitle": "玄冥寒煞・無孔不入",
+      "dimension": "HOUR_KNOWN",
+      "dimensionName": "時辰已填",
+      "trigger": "客戶填了出生時辰",
+      "line": "時辰已給，寒氣布滿。這一局，我照實滲。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-095",
+      "stem": "癸",
+      "stemTitle": "玄冥寒煞・無孔不入",
+      "dimension": "HOUR_UNKNOWN",
+      "dimensionName": "時辰未填",
+      "trigger": "客戶未填時辰（顯示管線暫以夜半起算，句子須與卡片「我以夜半起算」一致）",
+      "line": "時辰不明，暫以夜半起算。寒氣先潛，細處再滲。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-096",
+      "stem": "癸",
+      "stemTitle": "玄冥寒煞・無孔不入",
+      "dimension": "ELEMENT_EXCESS",
+      "dimensionName": "五行偏旺",
+      "trigger": "某五行佔比明顯偏高",
+      "line": "一股性子太旺，寒氣太重。見一次人，曬一點光。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-097",
+      "stem": "癸",
+      "stemTitle": "玄冥寒煞・無孔不入",
+      "dimension": "ELEMENT_MISSING",
+      "dimensionName": "五行缺一",
+      "trigger": "四柱某五行為零",
+      "line": "少了一點暖，寒氣有空。補一個暖處。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-098",
+      "stem": "癸",
+      "stemTitle": "玄冥寒煞・無孔不入",
+      "dimension": "AUSPICIOUS_STAR",
+      "dimensionName": "吉類神煞命中",
+      "trigger": "後端已驗證命中吉類神煞",
+      "line": "命裡有人幫襯，寒氣有路。讓一個人看見你。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-099",
+      "stem": "癸",
+      "stemTitle": "玄冥寒煞・無孔不入",
+      "dimension": "WARNING_STAR",
+      "dimensionName": "提醒類神煞命中",
+      "trigger": "後端已驗證命中提醒類神煞",
+      "line": "有一處要留意，寒氣滯而不動。開一扇窗。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "AS100-100",
+      "stem": "癸",
+      "stemTitle": "玄冥寒煞・無孔不入",
+      "dimension": "FLOW_YEAR",
+      "dimensionName": "今年流年",
+      "trigger": "今年流年干支與日元的關係",
+      "line": "今年這一局，寒氣不爭。藏鋒於無形，一舉掌局。",
+      "source": [
+        "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
+        "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
+      ],
+      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "status": "CANDIDATE"
+    }
+  ]
+}

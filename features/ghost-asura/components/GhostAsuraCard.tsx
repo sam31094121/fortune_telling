@@ -271,6 +271,13 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
         </p>
       )}
 
+      {display.goldWording && (
+        <p className={styles.goldWording} data-asura-gold-wording>
+          <small>{display.goldWording.label}</small>
+          <strong>{display.goldWording.text}</strong>
+        </p>
+      )}
+
       {display.alert && (
         <p className={`${styles.failed} ${styles.fnAlert}`} role="alert" data-guard="failed">
           {display.alert}

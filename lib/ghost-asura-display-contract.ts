@@ -205,6 +205,16 @@ export interface AsuraDisplay {
    * 規格：lib/ghost-asura-nature-contract.ts；前端只印名牌＋四段（本性／優勢／弱點／風險）。
    */
   nature?: AsuraNatureView | null;
+  /**
+   * 話術含金量一句（新增欄位，只增不改；舊資料沒有此欄＝不畫）。
+   * 後端依客戶資料從句庫挑出一句（lib/ghost-asura-gold-wording.ts）；查無資料時 text 為明確中文狀態。前端只照印。
+   */
+  goldWording?: AsuraGoldWordingView | null;
+}
+
+export interface AsuraGoldWordingView {
+  label: string;
+  text: string;
 }
 
 /** 技能頁三張摺疊卡：生辰未送出前的一句（阿修羅口吻；無命盤資料，故放在共用合約）。 */

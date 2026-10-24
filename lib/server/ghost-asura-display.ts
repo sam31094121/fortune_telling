@@ -23,6 +23,7 @@ import { buildClientAsuraPersona } from '@/lib/asura/client-personality-cross-en
 import { analyzePersona, runNatureGates } from '@/lib/server/ghost-asura-persona';
 import { asuraLinkStory, asuraTranslateDisplay, toPublic, translateAsNature } from '@/lib/server/ghost-asura-translation-layer';
 import type { AsuraNatureCardServer } from '@/lib/ghost-asura-nature-contract';
+import { goldWordingViewFor } from '@/lib/ghost-asura-gold-wording';
 import {
   buildGhostAsuraReading,
   GHOST_ASURA_UI,
@@ -590,7 +591,9 @@ export function computeGhostAsuraDisplay(raw: unknown, now: Date = new Date()): 
   // 本性卡：四道關 → 人格解析層（主證據）→ 阿修羅翻譯層（只翻譯）→ toPublic；瀏覽器只拿 AsuraNatureCardPublic（零術語）。
   // 三卡：同一翻譯層只換字＋依 natureKey／riskKeys 加一句故事線（新增 story 欄），篩選與項目不動。
   const nature = computeNatureCard(engineInput, hourAssumed === true);
-  return { ...asuraLinkStory(asuraTranslateDisplay(display), nature), nature: nature ? toPublic(nature) : null };
+  // 話術含金量一句：後端依客戶資料從句庫挑一句，前端只照印（新增欄位，只增不改）。
+  const goldWording = goldWordingViewFor(engineInput, hourAssumed === true);
+  return { ...asuraLinkStory(asuraTranslateDisplay(display), nature), nature: nature ? toPublic(nature) : null, goldWording };
 }
 
 /** 生辰 → 四道關 → analyzePersona → translateAsNature（後端完整版，含 natureKey／riskKeys／evidence）；任一關未過＝null。 */
