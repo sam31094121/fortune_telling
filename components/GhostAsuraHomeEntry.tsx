@@ -55,7 +55,7 @@ export default function GhostAsuraHomeEntry() {
     >
       <span className={styles.watermark} aria-hidden="true">修</span>
       <div className={styles.content}>
-        <span className={styles.emblem} aria-hidden="true">修</span>
+        <span data-home-entry-icon className={styles.emblem} aria-hidden="true">修</span>
         <div className={styles.copy}>
           {/* 業主定案 2026-10-17：「本命阿修羅 · 獨立秘卷」小字隱藏；要恢復把 false && 拿掉 */}
           {false && <span className={styles.eyebrow}><HomeTranslatedText text="本命阿修羅 · 獨立秘卷" /></span>}

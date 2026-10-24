@@ -27247,3 +27247,73 @@ p[class*="InterfaceLanguage_disclaimer"] { display: none !important; }
     min-height: 11.5rem !important;
   }
 }
+
+/* 2026-10-24: homepage icon containers only. Interior artwork, entry text,
+   entry backgrounds and buttons remain unchanged; artwork refinement is deferred. */
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack .home-feature-launch [data-home-entry-icon] {
+  position: relative;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  max-width: 64px !important;
+  aspect-ratio: 1;
+  flex: 0 0 64px !important;
+  padding: 8px !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  /* Border color and background intentionally retain each emblem source palette. */
+  border-radius: 20px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), inset 0 -1px 0 rgba(0, 0, 0, .24), 0 3px 8px rgba(0, 0, 0, .2) !important;
+  overflow: hidden;
+  transform: none !important;
+}
+
+/* 2026-10-24 alignment follow-up: all fifteen icon/title rows, including
+   the separate Asura component and the 3D SVG entry. No entry color/copy changes. */
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack .home-feature-launch :has(> [data-home-entry-icon]) {
+  display: grid !important;
+  grid-template-columns: 64px minmax(0, 1fr) !important;
+  align-items: center !important;
+  align-self: flex-start !important;
+  gap: 16px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 64px !important;
+  flex: 0 0 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack .home-feature-launch [data-home-entry-icon] + div {
+  min-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  align-self: center !important;
+}
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack .home-feature-launch :has(> [data-home-entry-icon]) h2 {
+  margin: 0 !important;
+  max-width: 100%;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+}
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack .home-feature-launch [data-home-entry-icon] {
+  outline: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  outline-offset: -5px;
+}
+/* Existing Asura palette/brush glyph; normalize visible frame and glyph scale. */
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack .home-feature-launch[href='/ghost-asura'] [data-home-entry-icon] {
+  border-color: #a27670 !important;
+  font-size: 30px !important;
+  line-height: 1 !important;
+}
+/* Keep the existing taiji/cube paths; only give their drawing the shared inset. */
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack .home-feature-launch[href='/3D'] [data-home-entry-icon] {
+  border-color: rgba(237, 233, 254, .35) !important;
+}
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack .home-feature-launch [data-home-entry-icon] > svg {
+  width: 36px !important;
+  height: 36px !important;
+  display: block;
+}

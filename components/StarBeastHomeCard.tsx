@@ -84,7 +84,7 @@ export default function StarBeastHomeCard() {
 
         {/* 【年柱 — 上層】視覺識別 */}
         <div className="relative w-full flex items-center gap-3 sm:gap-4">
-          <div className="home-oracle-3d-emblem home-oracle-3d-emblem--indigo" aria-hidden="true">
+          <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--indigo" aria-hidden="true">
             <span className="home-oracle-3d-emblem__aura" />
             <span className="home-oracle-3d-emblem__bevel" />
             <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />

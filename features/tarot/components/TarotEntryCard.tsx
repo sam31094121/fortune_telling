@@ -18,7 +18,7 @@ export default function TarotEntryCard() {
 
       <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
         {/* 2026-08-16 依指示改版：金字塔頂端低調訊號徽章。只服務塔羅入口卡，不影響其他卡片。 */}
-        <div className="tarot-entry-emblem" aria-hidden="true">
+        <div data-home-entry-icon className="tarot-entry-emblem" aria-hidden="true">
           <span className="tarot-entry-emblem__halo" />
           <span className="tarot-entry-emblem__pyramid">
             <span className="tarot-entry-emblem__capstone" />

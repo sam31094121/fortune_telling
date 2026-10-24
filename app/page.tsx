@@ -2926,7 +2926,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="home-oracle-3d-emblem home-oracle-3d-emblem--rose" aria-hidden="true">
+              <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--rose" aria-hidden="true">
                 <span className="home-oracle-3d-emblem__aura" />
                 <span className="home-oracle-3d-emblem__bevel" />
                 <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
@@ -2957,7 +2957,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="home-oracle-3d-emblem home-oracle-3d-emblem--violet" aria-hidden="true">
+              <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--violet" aria-hidden="true">
                 <span className="home-oracle-3d-emblem__aura" />
                 <span className="home-oracle-3d-emblem__bevel" />
                 <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
@@ -2995,7 +2995,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="home-oracle-3d-emblem home-oracle-3d-emblem--amber" aria-hidden="true">
+              <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--amber" aria-hidden="true">
                 <span className="home-oracle-3d-emblem__aura" />
                 <span className="home-oracle-3d-emblem__bevel" />
                 <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
@@ -3026,7 +3026,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="home-oracle-3d-emblem home-oracle-3d-emblem--amber" aria-hidden="true">
+              <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--amber" aria-hidden="true">
                 <span className="home-oracle-3d-emblem__aura" />
                 <span className="home-oracle-3d-emblem__bevel" />
                 <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
@@ -3058,7 +3058,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
             
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="number-fortune-auspicious-emblem" aria-hidden="true">
+              <div data-home-entry-icon className="number-fortune-auspicious-emblem" aria-hidden="true">
                 <span className="number-fortune-auspicious-emblem__halo" />
                 <span className="number-fortune-auspicious-emblem__ring" />
                 <span className="number-fortune-auspicious-emblem__shine" />
@@ -3093,7 +3093,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="ziwei-dou-3d-emblem pointer-events-none" aria-hidden="true">
+              <div data-home-entry-icon className="ziwei-dou-3d-emblem pointer-events-none" aria-hidden="true">
                 <span className="ziwei-dou-3d-emblem__aura" />
                 <span className="ziwei-dou-3d-emblem__bevel" />
                 <span className="ziwei-dou-3d-emblem__star ziwei-dou-3d-emblem__star--one" />
@@ -3124,7 +3124,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="home-oracle-3d-emblem home-oracle-3d-emblem--emerald" aria-hidden="true">
+              <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--emerald" aria-hidden="true">
                 <span className="home-oracle-3d-emblem__aura" />
                 <span className="home-oracle-3d-emblem__bevel" />
                 <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
@@ -3159,7 +3159,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="home-oracle-3d-emblem home-oracle-3d-emblem--violet" aria-hidden="true">
+              <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--violet" aria-hidden="true">
                 <span className="home-oracle-3d-emblem__aura" />
                 <span className="home-oracle-3d-emblem__bevel" />
                 <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
@@ -3192,7 +3192,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-fuchsia-400/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="home-oracle-3d-emblem home-oracle-3d-emblem--fuchsia" aria-hidden="true">
+              <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--fuchsia" aria-hidden="true">
                 <span className="home-oracle-3d-emblem__aura" />
                 <span className="home-oracle-3d-emblem__bevel" />
                 <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
@@ -3247,7 +3247,7 @@ export default function HomePage() {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-100/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
               <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
-                <div className="home-oracle-3d-emblem home-oracle-3d-emblem--peach" aria-hidden="true">
+                <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--peach" aria-hidden="true">
                   <span className="home-oracle-3d-emblem__aura" />
                   <span className="home-oracle-3d-emblem__bevel" />
                   <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
@@ -3282,7 +3282,7 @@ export default function HomePage() {
               </svg>
             </div>
             <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
-              <div className="relative grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-violet-100/35 bg-violet-200/10 shadow-[0_0_28px_rgba(167,139,250,0.18)]" aria-hidden="true">
+              <div data-home-entry-icon className="relative grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-violet-100/35 bg-violet-200/10 shadow-[0_0_28px_rgba(167,139,250,0.18)]" aria-hidden="true">
                 <svg viewBox="0 0 64 64" className="h-11 w-11">
                   <defs>
                     <linearGradient id="tj4d-shell" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -3329,7 +3329,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div className="home-oracle-3d-emblem home-oracle-3d-emblem--amber" aria-hidden="true">
+              <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--amber" aria-hidden="true">
                 <span className="home-oracle-3d-emblem__aura" />
                 <span className="home-oracle-3d-emblem__bevel" />
                 <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
