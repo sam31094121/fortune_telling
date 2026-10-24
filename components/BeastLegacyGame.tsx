@@ -23,6 +23,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import BeastDuelRitual from '@/components/BeastDuelRitual';
 import BeastStakeResult from '@/components/BeastStakeResult';
+import { BeastCardFace, BeastThumb } from '@/components/battlefield/BeastCardTile';
+import { GuideBookProvider, useFetchedGuideBook } from '@/components/battlefield/GuideBookContext';
 import StarterPackAfterBattle from '@/components/StarterPackAfterBattle';
 import { selectRitualHighlights } from '@/lib/beast-ritual';
 import frameStyles from '@/components/BeastCardFrame.module.css';
@@ -213,7 +215,13 @@ function recommendLineup(cards: Card[]): { lineup: string[]; reason: string } {
   };
 }
 
+/** 新卡面要印技能與五行，這些由後端手冊提供；中等模式也要載一次（前端不自己算）。 */
 export default function BeastGamePage() {
+  const guideBook = useFetchedGuideBook();
+  return <GuideBookProvider value={guideBook}><BeastGameScreen /></GuideBookProvider>;
+}
+
+function BeastGameScreen() {
   const [cards, setCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -630,30 +638,12 @@ export default function BeastGamePage() {
                   data-slot={index}
                   data-slot-filled={card ? 'yes' : 'no'}
                   aria-label={`${SLOT_META[index].name}${card ? `：${card.name}` : '：空格'}`}
-                  className={`${frameStyles.card} relative flex w-full flex-col items-center justify-center overflow-hidden border-2 transition
-                    ${card
-                      ? `${frameStyles.metal} border-solid bg-black/40 ${ELEMENT_TONE[card.element]}`
-                      : 'border-dashed border-white/25 bg-white/[0.03] text-white/45'}
-                    ${isActive ? 'ring-2 ring-cyan-300/70' : ''}`}
+                  className={card
+                    ? `relative block w-full rounded-xl transition ${isActive ? 'ring-2 ring-cyan-300/70' : ''}`
+                    : `${frameStyles.card} relative flex w-full flex-col items-center justify-center overflow-hidden border-2 border-dashed border-white/25 bg-white/[0.03] text-white/45 transition ${isActive ? 'ring-2 ring-cyan-300/70' : ''}`}
                 >
                   {card ? (
-                    <>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={card.thumbnail}
-                        alt=""
-                        aria-hidden="true"
-                        loading="lazy"
-                        decoding="async"
-                        className={`${frameStyles.art} absolute inset-0 opacity-70`}
-                      />
-                      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent px-1.5 pb-1.5 pt-6 text-[11px] font-black leading-4">
-                        {card.name}
-                      </span>
-                      <span className="absolute left-1.5 top-1.5 rounded-full bg-black/70 px-1.5 py-0.5 text-[10px] font-black">
-                        {card.cost} 氣
-                      </span>
-                    </>
+                    <BeastCardFace card={card} />
                   ) : (
                     <>
                       <span className="text-2xl leading-none">＋</span>
@@ -755,13 +745,13 @@ export default function BeastGamePage() {
                 <div
                   data-stake-target
                   data-stake-filled={stakeCard ? 'yes' : 'no'}
-                  className={`${frameStyles.card} ${frameStyles.metal} w-16 shrink-0 overflow-hidden border-2 ${
+                  className={`${frameStyles.card} w-16 shrink-0 overflow-hidden border-2 ${
                     stakeCard ? 'border-solid border-amber-300/60' : 'border-dashed border-amber-200/40'
                   }`}
                 >
                   {stakeCard ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={stakeCard.thumbnail} alt="" aria-hidden="true" className={frameStyles.art} />
+                    <BeastThumb id={stakeCard.id} thumbnail={stakeCard.thumbnail} />
                   ) : (
                     <span className="grid h-full w-full place-items-center text-xs font-bold text-amber-100/85">
                       選一張
@@ -807,14 +797,11 @@ export default function BeastGamePage() {
                         aria-pressed={chosen}
                         data-owned-card={cardId}
                         data-chosen={chosen ? 'yes' : 'no'}
-                        className={`${frameStyles.card} ${frameStyles.metal} relative w-full overflow-hidden border-2 ${
-                          chosen ? 'border-amber-300' : 'border-white/15'
-                        }`}
+                        className={`relative block w-full rounded-xl ${chosen ? 'ring-2 ring-amber-300' : ''}`}
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={card.thumbnail} alt={card.name} loading="lazy" className={frameStyles.art} />
+                        <BeastCardFace card={card} />
                         {(
-                          <span className="absolute right-0.5 top-0.5 rounded-full bg-black/80 px-1 text-[9px] font-black">
+                          <span className="absolute right-1 top-1 z-10 rounded-full bg-black/80 px-1 text-[9px] font-black">
                             持有 {count} 張
                           </span>
                         )}
@@ -997,33 +984,14 @@ export default function BeastGamePage() {
                   aria-label={`選擇${card.name}，${ELEMENT_LABEL[card.element]}，${card.cost}氣`}
                   data-card-id={card.id}
                   data-placed={placed ? 'yes' : 'no'}
-                  className={`${frameStyles.card} ${frameStyles.metal} relative w-full overflow-hidden border bg-black/40 text-left transition
-                    ${placed ? 'border-cyan-300/80 opacity-55' : `${ELEMENT_TONE[card.element]}`}`}
+                  className={`relative block w-full rounded-xl text-left transition ${placed ? 'opacity-55 ring-2 ring-cyan-300/80' : ''}`}
                 >
-                  {/* 手牌與卡池一律只載縮圖（規格第十四條）。 */}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={card.thumbnail}
-                    alt=""
-                    aria-hidden="true"
-                    loading="lazy"
-                    decoding="async"
-                    className={`${frameStyles.art} absolute inset-0`}
-                  />
-                  <span className="absolute left-1 top-1 rounded-full bg-black/75 px-1.5 py-0.5 text-[10px] font-black">
-                    {card.cost}
-                  </span>
-                  <span className="absolute right-1 top-1 rounded-full bg-black/75 px-1.5 py-0.5 text-[9px] font-black">
-                    {ELEMENT_LABEL[card.element]}
-                  </span>
+                  <BeastCardFace card={card} />
                   {placed && (
-                    <span className="absolute inset-0 grid place-items-center bg-cyan-300/20 text-[11px] font-black">
+                    <span className="absolute inset-0 z-10 grid place-items-center rounded-xl bg-cyan-300/20 text-[11px] font-black">
                       已上陣
                     </span>
                   )}
-                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 to-transparent px-1 pb-1 pt-5 text-[10px] font-black leading-3">
-                    {card.name}
-                  </span>
                 </button>
                 <button
                   type="button"
@@ -1043,10 +1011,7 @@ export default function BeastGamePage() {
         <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="確認放入神獸" className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/85 px-5 py-4">
           <div className="max-h-[90dvh] w-full max-w-sm overflow-y-auto rounded-3xl border border-amber-200/40 bg-slate-950 p-5 text-center shadow-2xl">
             <p className="mb-3 text-sm font-bold text-amber-100">{candidate.name}・{slotLabel(activeSlot)}</p>
-            <div className={`${frameStyles.card} ${frameStyles.preview} ${frameStyles.metal}`}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <CardFaceImg front={candidate.front} thumb={candidate.thumbnail} name={candidate.name} className={frameStyles.art} />
-            </div>
+            <div className="mx-auto w-[min(72%,240px)]"><BeastCardFace card={candidate} /></div>
             <button type="button" disabled={dueling || stakeSaved === false} onClick={() => place(candidate)} className="mt-5 min-h-12 w-full rounded-2xl bg-gradient-to-r from-amber-200 to-amber-400 px-4 text-sm font-black text-slate-950">
               放入{slotLabel(activeSlot)}
             </button>
@@ -1069,10 +1034,7 @@ export default function BeastGamePage() {
             className="max-h-[85vh] w-full overflow-y-auto rounded-t-3xl bg-slate-950 p-4 sm:max-w-md sm:rounded-3xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className={`${frameStyles.card} ${frameStyles.preview} ${frameStyles.metal}`}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <CardFaceImg front={detail.front} thumb={detail.thumbnail} name={detail.name} className={frameStyles.art} />
-            </div>
+            <div className="mx-auto w-[min(72%,240px)]"><BeastCardFace card={detail} /></div>
             <h3 className="mt-3 text-xl font-black">{detail.name}</h3>
             <p className="mt-1 text-xs text-white/55">
               {FORM_LABEL[detail.form]}・{ELEMENT_LABEL[detail.element]}・{detail.rarity}・{detail.cost} 氣
@@ -1120,24 +1082,6 @@ export default function BeastGamePage() {
   );
 }
 
-
-function CardFaceImg({ front, thumb, name, className }: { front: string; thumb?: string; name: string; className?: string }) {
-  const [src, setSrc] = useState(front || thumb || '');
-  useEffect(() => { setSrc(front || thumb || ''); }, [front, thumb]);
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src || thumb || ''}
-      alt={name}
-      className={className}
-      loading="eager"
-      decoding="async"
-      onError={() => {
-        if (thumb && src !== thumb) setSrc(thumb);
-      }}
-    />
-  );
-}
 
 function FilterRow<T extends string | number>({ label, value, onChange, options }: {
   label: string;

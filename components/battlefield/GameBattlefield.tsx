@@ -22,6 +22,7 @@
 
 import { useMemo } from 'react';
 import styles from './Battlefield.module.css';
+import { BeastThumb } from './BeastCardTile';
 import {
   BENCH_SIZE,
   legalDestinations,
@@ -89,7 +90,7 @@ export function CardSlot({
         <span className={styles.pileBack} aria-hidden="true">☯</span>
       ) : card ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={card.thumbnail} alt={card.name} loading="lazy" decoding="async" draggable={false} />
+        <BeastThumb id={card.id} thumbnail={card.thumbnail} alt={card.name} draggable={false} />
       ) : (
         <span className={styles.slotMark} aria-hidden="true">＋</span>
       )}
@@ -219,7 +220,7 @@ export function DiscardPile({
       <div className={styles.slot} role="img" aria-label={`${label}棄牌，共 ${discard.length} 張`}>
         {top ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={top.thumbnail} alt="" loading="lazy" decoding="async" />
+          <BeastThumb id={top.id} thumbnail={top.thumbnail} />
         ) : (
           <span className={styles.slotMark} aria-hidden="true">－</span>
         )}

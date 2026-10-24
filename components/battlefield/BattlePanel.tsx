@@ -18,6 +18,7 @@
  */
 
 import styles from './BattlePanel.module.css';
+import { BeastThumb } from './BeastCardTile';
 import { memo, useEffect, useRef, useState } from 'react';
 import type { BattlefieldCardArt } from './GameBattlefield';
 import ElementOrbDisplay from './ElementOrbDisplay';
@@ -169,7 +170,7 @@ export function BattleActionBar({
           const art = cards.find(card => card.id === fighter.cardId);
           return <button type="button" key={fighter.instanceId} className={styles.reserveCard} disabled={busy}
             aria-label={`換上 ${fighter.name}`} onClick={() => { setCommandView(null); onAction(action); }}>
-            {art && <img src={art.thumbnail} alt="" draggable={false} /> /* eslint-disable-line @next/next/no-img-element */}
+            {art && <BeastThumb id={art.id} thumbnail={art.thumbnail} draggable={false} />}
             <strong>{fighter.name}</strong><span>點此換上・{fighter.hp}/{fighter.maxHp}</span>
           </button>;
         })}
@@ -224,7 +225,7 @@ export function BattleActionBar({
               <button key={fighter.instanceId} type="button" disabled={busy || !action}
                 className={styles.reserveCard} aria-label={`${index === match.player.active ? '目前主戰' : fighter.defeated ? '已倒下' : '換上'} ${fighter.name}`}
                 onClick={() => { if (action) { setCommandView(null); onAction(action); } }}>
-                {art && <img src={art.thumbnail} alt="" draggable={false} /> /* eslint-disable-line @next/next/no-img-element */}
+                {art && <BeastThumb id={art.id} thumbnail={art.thumbnail} draggable={false} />}
                 <strong>{fighter.name}</strong>
                 <span>{index === match.player.active ? '主戰' : fighter.defeated ? '已倒下' : '點卡換上'}・{fighter.hp}/{fighter.maxHp}</span>
               </button>

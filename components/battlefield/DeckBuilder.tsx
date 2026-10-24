@@ -2,6 +2,7 @@
 
 import type { BattlefieldCardArt } from './GameBattlefield';
 import styles from './BattleScreen.module.css';
+import { BeastCardFace } from './BeastCardTile';
 
 interface DeckBuilderProps {
   cards: BattlefieldCardArt[];
@@ -38,9 +39,7 @@ export default function DeckBuilder({ cards, selectedIds, open, onOpen, onToggle
             <button key={card.id} type="button" aria-pressed={active} disabled={unavailable}
               aria-label={`${card.name}${active ? '，已加入牌庫' : '，加入牌庫'}`}
               onClick={() => onToggle(card.id)}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={card.thumbnail} alt="" loading="lazy" />
-              <span>{card.name}</span>
+              <BeastCardFace card={card} />
               <small>{active ? '已選' : '選取'}</small>
             </button>
           );

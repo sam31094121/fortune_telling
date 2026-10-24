@@ -13,7 +13,7 @@ import BattlePanel, { BattleLog } from './battlefield/BattlePanel';
 import FusionOrbHud from './battlefield/FusionOrbHud';
 import BeastBattleVoice from './BeastBattleVoice';
 import BattleCardGuide from './battlefield/BattleCardGuide';
-import BeastCardTile, { CardDetailSheet } from './battlefield/BeastCardTile';
+import BeastCardTile, { CardDetailSheet, BeastThumb } from './battlefield/BeastCardTile';
 import styles from './BeastTurnGame.module.css';
 import battleStyles from './battlefield/BattleScreen.module.css';
 import venueStyles from './battlefield/BattleVenue.module.css';
@@ -278,7 +278,7 @@ function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }:
             return <Link href="/beast-game/lineup" className={styles.progressCard} data-player-progress>
               {/* 卡圖沿用現有縮圖素材，不另產圖。 */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              {lastCard && <img src={lastCard.thumbnail} alt="" aria-hidden="true" />}
+              {lastCard && <BeastThumb id={lastCard.id} thumbnail={lastCard.thumbnail} />}
               <span className={styles.progressText}>
                 <strong>你已收藏 {progress.kinds} 種神獸卡</strong>
                 {lastText && <span>{lastText}</span>}
@@ -320,7 +320,7 @@ function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }:
                   onClick={() => { if (selected[i]) setSelected(s => s.filter((_, idx) => idx !== i)); }}>
                   {card
                     // eslint-disable-next-line @next/next/no-img-element
-                    ? <img src={card.thumbnail} alt={card.name} />
+                    ? <BeastThumb id={card.id} thumbnail={card.thumbnail} alt={card.name} />
                     : <span className={styles.slotNum}>{i + 1}</span>}
                   <small>{i === 0 ? '先出場' : `後備 ${i}`}</small>
                 </button>

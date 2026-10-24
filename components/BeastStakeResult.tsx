@@ -1,13 +1,14 @@
 'use client';
 
 import frameStyles from './BeastCardFrame.module.css';
+import { cardArtThumb } from './battlefield/BeastCardTile';
 import { COLLECTION_STORAGE_NOTICE, type Settlement } from '@/lib/beast-collection';
 import { stakeReceiptSummary, type NamedStakeOutcome } from '@/lib/beast-stake-presentation';
 import BeastBattleVoice from './BeastBattleVoice';
 
 type Props = {
   outcome: NamedStakeOutcome;
-  card?: { name: string; thumbnail: string };
+  card?: { id?: string; name: string; thumbnail: string };
   cards?: Array<{ id: string; name: string; thumbnail: string }>;
   settlement: Settlement | null;
   isReplay: boolean;
@@ -40,7 +41,7 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
     <div className="flex items-center gap-3" data-stake-headline role="status">
       {card && <div className={`${frameStyles.card} ${frameStyles.metal} relative w-16 shrink-0 overflow-hidden border border-white/20`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={card.thumbnail} alt={card.name} className={`${frameStyles.art} ${saved && lost ? 'opacity-40 grayscale' : ''}`} />
+        <img src={cardArtThumb(card.id ?? '', card.thumbnail)} alt={card.name} className={`${frameStyles.art} ${saved && lost ? 'opacity-40 grayscale' : ''}`} />
         {saved && lost && <span className="absolute inset-0 grid place-items-center text-2xl font-black text-rose-200" aria-hidden="true">✕</span>}
       </div>}
       <div className="min-w-0">

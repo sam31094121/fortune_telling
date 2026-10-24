@@ -15,6 +15,7 @@ import { ELEMENTS, ELEMENT_LABEL, type BeastElement } from '@/lib/beast-game/ele
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
 import { COMBAT_BEAT_MS } from '@/lib/beast-game/combat-presentation';
 import styles from './BattleArena.module.css';
+import { BeastThumb, BeastCardFace } from './BeastCardTile';
 import { ELEMENT_FX, type BattleElement } from '@/lib/beast-battle-fx';
 import { performedAction, isDamagingAction } from '@/lib/beast-game/combat-presentation';
 import { combatChanges } from '@/lib/beast-game/combat-feedback';
@@ -123,7 +124,7 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
                   className={`${styles.art} ${fighter?.defeated ? styles.defeated : ''}`}>
                   {card ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={card.thumbnail} alt={card.name} width={256} height={384} decoding="async" draggable={false} />
+                    <BeastCardFace card={card} />
                   ) : <span className={styles.empty}>{side === 'player' ? '◎' : '☯'}</span>}
                 </button>
                 {action && <span className={styles.actionCue} role="status" aria-label={action === 'RAGE' ? '暴怒合體' : action === 'SKILL' ? '技能' : action === 'ATTACK' ? '攻擊' : action === 'SKIP' ? '受控' : action === 'REPLACEMENT' ? '接替' : '換卡'}>{action === 'RAGE' ? '🔥' : action === 'SKILL' ? '✦' : action === 'ATTACK' ? '⚔' : action === 'SKIP' ? '⊘' : action === 'REPLACEMENT' ? '⇄' : '⇌'}</span>}
@@ -273,7 +274,7 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
                   onClick={() => { if (onSwap) onSwap(action); }}>
                   <em className={styles.swapTag} aria-hidden="true">換</em>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {art && <img src={art.thumbnail} alt="" draggable={false} />}
+                  {art && <BeastThumb id={art.id} thumbnail={art.thumbnail} draggable={false} />}
                   <span>{fighter.name}</span>
                   <small>{fighter.hp}/{fighter.maxHp}</small>
                 </button>

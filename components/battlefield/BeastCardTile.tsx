@@ -33,7 +33,7 @@ import { weaponFor, isTopTierWeapon } from '@/lib/beast-game/weapons';
 import type { BeastElement } from '@/lib/beast-game/elements';
 // 自研卡框 v1：卡面數值取卡檔原始 stats（與詳情頁 /api/beast-game 的 card.stats 同源），
 // 不用 interactiveCatalog 的對戰正規化值（fighter() 會把 hp 壓成 160±、attack 43/46）。
-import { CARD_FACE_STATS } from '@/lib/beast-game/card-face-stats';
+import { CARD_FACE_STATS, CARD_FACE_SKILL } from '@/lib/beast-game/card-face-stats';
 
 /**
  * 標準卡樣式（2026-10-19 業主定調：先選一張最完美的當統一標準，確認後其他 59 張對齊）。
@@ -208,9 +208,9 @@ const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
     front: '/beast-game/front/adult-02.v2.webp?v=11',
   },
   beast_a03: {
-    thumb: '/beast-game/thumb/adult-03.v2.webp?v=11',
-    mid: '/beast-game/thumb/adult-03.v2-480.webp?v=11',
-    front: '/beast-game/front/adult-03.v2.webp?v=11',
+    thumb: '/beast-game/thumb/adult-03.v2.webp?v=12',
+    mid: '/beast-game/thumb/adult-03.v2-480.webp?v=12',
+    front: '/beast-game/front/adult-03.v2.webp?v=12',
   },
   beast_a04: {
     thumb: '/beast-game/thumb/adult-04.v2.webp?v=11',
@@ -263,9 +263,9 @@ const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
     front: '/beast-game/front/adult-13.v2.webp?v=11',
   },
   beast_a14: {
-    thumb: '/beast-game/thumb/adult-14.v2.webp?v=11',
-    mid: '/beast-game/thumb/adult-14.v2-480.webp?v=11',
-    front: '/beast-game/front/adult-14.v2.webp?v=11',
+    thumb: '/beast-game/thumb/adult-14.v2.webp?v=12',
+    mid: '/beast-game/thumb/adult-14.v2-480.webp?v=12',
+    front: '/beast-game/front/adult-14.v2.webp?v=12',
   },
   beast_a15: {
     thumb: '/beast-game/thumb/adult-15.v2.webp?v=11',
@@ -288,9 +288,9 @@ const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
     front: '/beast-game/front/adult-18.v2.webp?v=11',
   },
   beast_a19: {
-    thumb: '/beast-game/thumb/adult-19.v2.webp?v=11',
-    mid: '/beast-game/thumb/adult-19.v2-480.webp?v=11',
-    front: '/beast-game/front/adult-19.v2.webp?v=11',
+    thumb: '/beast-game/thumb/adult-19.v2.webp?v=12',
+    mid: '/beast-game/thumb/adult-19.v2-480.webp?v=12',
+    front: '/beast-game/front/adult-19.v2.webp?v=12',
   },
   beast_a20: {
     thumb: '/beast-game/thumb/adult-20.v2.webp?v=11',
@@ -313,9 +313,9 @@ const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
     front: '/beast-game/front/adult-23.v2.webp?v=11',
   },
   beast_a24: {
-    thumb: '/beast-game/thumb/adult-24.v2.webp?v=11',
-    mid: '/beast-game/thumb/adult-24.v2-480.webp?v=11',
-    front: '/beast-game/front/adult-24.v2.webp?v=11',
+    thumb: '/beast-game/thumb/adult-24.v2.webp?v=12',
+    mid: '/beast-game/thumb/adult-24.v2-480.webp?v=12',
+    front: '/beast-game/front/adult-24.v2.webp?v=12',
   },
   beast_a25: {
     thumb: '/beast-game/thumb/adult-25.v2.webp?v=11',
@@ -323,9 +323,9 @@ const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
     front: '/beast-game/front/adult-25.v2.webp?v=11',
   },
   beast_a26: {
-    thumb: '/beast-game/thumb/adult-26.v2.webp?v=11',
-    mid: '/beast-game/thumb/adult-26.v2-480.webp?v=11',
-    front: '/beast-game/front/adult-26.v2.webp?v=11',
+    thumb: '/beast-game/thumb/adult-26.v2.webp?v=12',
+    mid: '/beast-game/thumb/adult-26.v2-480.webp?v=12',
+    front: '/beast-game/front/adult-26.v2.webp?v=12',
   },
   beast_a27: {
     thumb: '/beast-game/thumb/adult-27.v2.webp?v=11',
@@ -465,21 +465,54 @@ export function usesFrameV1(cardId: string): boolean {
 const FV1_STAGE: Record<string, string> = { GUARDIAN: '四象', ADULT: '成獸', YOUNG: '幼子' };
 const FV1_MARK: Record<string, string> = { GUARDIAN: '◆◆◆', ADULT: '◆◆', YOUNG: '◆' };
 
+/**
+ * 新卡面（自研卡框 v1）的「非按鈕版」。
+ * 選卡頁以外的畫面（牌庫挑選、手牌、出戰席、賭注…）要放同一張新卡面，
+ * 但那些地方本身已是按鈕，按鈕不能包按鈕，所以用這個純顯示版嵌進去——
+ * 資料、字型、金框、技能列全部與 FrameV1Tile 同一份實作，不另寫第二套。
+ */
+export function BeastCardFace({ card, owned }: { card: Omit<BeastTileCard, 'element'> & { element?: string }; owned?: boolean }) {
+  return <FrameV1Tile card={{ ...card, element: card.element ?? '' }} owned={owned} onOpen={() => undefined} face />;
+}
+
+/** 小卡（約 70px 以下）放不下字時用：回傳新版卡圖路徑，搭配 .metal 金框。查不到才退回原圖。 */
+export function cardArtThumb(cardId: string, fallback: string): string {
+  return ART_V2[cardId]?.thumb ?? fallback;
+}
+
+/**
+ * 小卡縮圖（新版）：用新版卡圖加 .metal 金框。給放不下整張新卡面（名字、體力、技能）的小格子用，
+ * 讓六十張卡在所有畫面都是同一副金框與同一版卡圖。查不到新版圖才退回原圖。
+ */
+export function BeastThumb({ id, thumbnail, alt = '', className, draggable, loading = 'lazy' }: {
+  id: string; thumbnail: string; alt?: string; className?: string; draggable?: boolean; loading?: 'lazy' | 'eager';
+}) {
+  return (
+    <span className={frame.metal} style={{ position: 'relative', display: 'block', width: '100%', height: '100%', borderRadius: 'inherit', overflow: 'hidden' }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className={className} src={cardArtThumb(id, thumbnail)} alt={alt} loading={loading} decoding="async" draggable={draggable} />
+    </span>
+  );
+}
+
 function FrameV1Tile({
-  card, selected, owned, onOpen,
+  card, selected, owned, onOpen, face,
 }: {
   card: BeastTileCard;
   selected?: boolean;
   owned?: boolean;
   onOpen: () => void;
+  face?: boolean;
 }) {
   const book = useGuideBook();
   const guide = book?.cards[card.id];
   const art = ART_V2[card.id];
   // 只讀卡檔原始值；查不到就不顯示（不退回對戰正規化值）。
   const stats = CARD_FILE_STATS[card.id];
-  const skillName = card.skillName ?? guide?.skill.name;
-  const skillText = card.description ?? guide?.skill.description;
+  // 幼子：顯示卡檔自己的技能（skills[0]）名稱與說明；成獸／四象維持原樣。
+  const ownSkill = CARD_FACE_SKILL[card.id];
+  const skillName = ownSkill?.name ?? card.skillName ?? guide?.skill.name;
+  const skillText = ownSkill?.description ?? card.description ?? guide?.skill.description;
   const cost = CARD_FILE_STATS[card.id]?.cost; // 卡檔原始 cost，不用對戰正規化值
   const shortSkill = skillName?.split('・').pop();
   const wx = guide?.wuxing;
@@ -492,14 +525,20 @@ function FrameV1Tile({
   const faceName = card.name.replace(/・幼子$/, '');
   const src = art ? art.thumb : card.thumbnail;
   const srcSet = art ? `${art.thumb} 256w, ${art.mid} 480w, ${art.front} 720w` : undefined;
+  const Root = (face ? 'span' : 'button') as 'button';
+  const rootProps = face
+    ? { className: [styles.fv1Tile, styles.fv1Face].join(' ') }
+    : {
+        type: 'button' as const,
+        className: [styles.tile, styles.stdTile, styles.fv1Tile, selected ? styles.stdSelected : ''].filter(Boolean).join(' '),
+        onClick: onOpen,
+        'aria-label': `${card.name}${stats ? `，體力${stats.hp}，攻擊${stats.attack}` : ''}${wx ? `，五行${wx}` : ''}${shortSkill ? `，技能${shortSkill}` : ''}${selected ? '，已選取' : ''}`,
+        'aria-pressed': selected,
+        'data-card-style': 'standard',
+      };
   return (
-    <button
-      type="button"
-      className={[styles.tile, styles.stdTile, styles.fv1Tile, selected ? styles.stdSelected : ''].filter(Boolean).join(' ')}
-      onClick={onOpen}
-      aria-label={`${card.name}${stats ? `，體力${stats.hp}，攻擊${stats.attack}` : ''}${wx ? `，五行${wx}` : ''}${shortSkill ? `，技能${shortSkill}` : ''}${selected ? '，已選取' : ''}`}
-      aria-pressed={selected}
-      data-card-style="standard"
+    <Root
+      {...rootProps}
       data-art={art ? 'v2' : undefined}
       data-frame="v1"
       style={{ '--fv1-wx': wx ? WX_INK[wx] : '#8a7a5a' } as React.CSSProperties}
@@ -551,7 +590,7 @@ function FrameV1Tile({
           </span>
         </span>
       </span>
-    </button>
+    </Root>
   );
 }
 

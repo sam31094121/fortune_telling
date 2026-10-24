@@ -12,6 +12,7 @@ import type { StakeOutcome } from '@/lib/beast-collection-ledger';
 import BeastElementRitual from './BeastElementRitual';
 import styles from './GrowthStakeSlots.module.css';
 import frameStyles from './BeastCardFrame.module.css';
+import { cardArtThumb } from './battlefield/BeastCardTile';
 import { recordBeastGameCompleted } from '@/lib/growth-center-client';
 import BeastStakeResult from './BeastStakeResult';
 import { namedStakeOutcome } from '@/lib/beast-stake-presentation';
@@ -259,7 +260,7 @@ export default function GrowthStakeSlots({
               </p>
               <div className={`${styles.slot} ${lost ? styles.lost : ''}`}>
                 {card ? (
-                  <span className={`${frameStyles.card} ${frameStyles.metal}`} style={{ display: "block", height: "100%" }}><img className={frameStyles.art} src={card.thumbnail} alt={card.name} /></span>
+                  <span className={`${frameStyles.card} ${frameStyles.metal}`} style={{ display: "block", height: "100%" }}><img className={frameStyles.art} src={cardArtThumb(card.id, card.thumbnail)} alt={card.name} /></span>
                 ) : (
                   <button
                     type="button"
@@ -299,7 +300,7 @@ export default function GrowthStakeSlots({
           <p>獎勵卡格</p>
           <div className={`${styles.slot} ${won ? styles.won : ''}`}>
             {won && reward ? (
-              <span className={`${frameStyles.card} ${frameStyles.metal}`} style={{ display: "block", height: "100%" }}><img className={frameStyles.art} src={reward.thumbnail} alt={`已入庫獎勵：${reward.name}`} /></span>
+              <span className={`${frameStyles.card} ${frameStyles.metal}`} style={{ display: "block", height: "100%" }}><img className={frameStyles.art} src={cardArtThumb(reward.id, reward.thumbnail)} alt={`已入庫獎勵：${reward.name}`} /></span>
             ) : (
               <span>{busy ? '結算中…' : lost ? '本場沒有獎勵' : '獲勝入庫後亮起'}</span>
             )}

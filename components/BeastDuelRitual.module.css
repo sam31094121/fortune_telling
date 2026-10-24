@@ -33,7 +33,7 @@
 .slot > .card { overflow: visible; }
 .card.revealed { transform: rotateY(180deg); }
 .face { position: absolute; inset: 0; overflow: hidden; border-radius: 10px; border: 1px solid #d4b67688; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: #13121d; }
-.face img { width: 100%; height: 100%; object-fit: contain; object-position: center; }
+.face img { width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
 .front { transform: rotateY(180deg); box-shadow: 0 0 18px #ead19735; }
 .front small { position: absolute; top: 5px; right: 5px; padding: 2px 5px; background: #000c; border-radius: 8px; font-size: 10px; color: #fce9b8; }
 .caption { margin-top: 4px; text-align: center; }

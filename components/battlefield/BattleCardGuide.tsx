@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { BeastCardFace } from './BeastCardTile';
 import type { CombatGuide } from '@/lib/beast-game/guide-book';
 import { useGuideBook } from './GuideBookContext';
 import { ELEMENTS, ELEMENT_LABEL, type BeastElement } from '@/lib/beast-game/elements';
@@ -44,9 +45,8 @@ export default function BattleCardGuide({ cardId, liveGuide = null, enemyGuide =
             </span>
             <strong>生命 {guide.stats.hp}/{guide.stats.maxHp}</strong>
           </div>
-          {/* Only the inspected card loads full-size art; hands retain lightweight thumbnails. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={guide.front} alt={`${guide.name}完整卡面`} width={720} height={1080} decoding="async" className={styles.portrait} />
+          {/* 查看卡面：與選卡頁同一張新卡面（BeastCardFace），不再顯示舊的整張卡圖。 */}
+          <div style={{ width: 'min(78%, 300px)', margin: '0 auto' }}><BeastCardFace card={{ id: cardId, name: guide.name, thumbnail: guide.front }} /></div>
           <div className={styles.cardCaption}>
             <strong>{guide.name}</strong><span>{guide.guardian}・{guide.form}</span>
           </div>

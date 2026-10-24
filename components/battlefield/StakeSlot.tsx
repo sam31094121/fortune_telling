@@ -33,6 +33,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './StakeSlot.module.css';
+import { BeastThumb, BeastCardFace } from './BeastCardTile';
 import { createSoundPlayer, CLASH_FX } from '@/lib/beast-battle-fx';
 import { MAX_STAKE_CARDS, MAX_REWARD_CARDS, describeStakeOdds } from '@/lib/beast-game/stake-rules';
 
@@ -158,7 +159,7 @@ export default function StakeSlot({
             return <span className={styles.stakeCell} key={card?.id ?? `empty-${index}`}>
               {card ? <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={card.thumbnail} alt={card.name} loading="lazy" decoding="async" />
+                <BeastThumb id={card.cardId} thumbnail={card.thumbnail} alt={card.name} />
               </> : <span aria-hidden="true">{index + 1}</span>}
             </span>;
           })}
@@ -237,9 +238,7 @@ export default function StakeSlot({
                 // footer show the result without a delayed scroll interrupting touch input.
               }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={card.thumbnail} alt={card.name} loading="lazy" decoding="async" draggable={false} />
-              <strong>{card.name}</strong>
+              <BeastCardFace card={{ id: card.cardId, name: card.name, thumbnail: card.thumbnail }} />
               <span>第 {card.copy}/{card.count} 張</span>
               <span>{selectedIds.includes(card.id) ? '已選・取消' : selectedIds.length < 5 ? '選這張' : '已選滿五張'}</span>
             </button>

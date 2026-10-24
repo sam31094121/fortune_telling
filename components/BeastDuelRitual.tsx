@@ -17,6 +17,7 @@ import { releasedChargeFor } from '@/lib/beast-charge-release';
 const BeastClash3D = dynamic(() => import('./BeastClash3D'), { ssr: false });
 import type { ClashSide } from './BeastClash3D';
 import frameStyles from './BeastCardFrame.module.css';
+import { cardArtThumb } from './battlefield/BeastCardTile';
 import BeastLayeredPuppet, { probePuppetManifest } from './BeastLayeredPuppet';
 import {
   ELEMENT_FX,
@@ -337,7 +338,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
             <div className={`${styles.face} ${styles.front} ${frameStyles.metal}`} aria-hidden={!open}>
               {card && <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={card.thumbnail} alt={open ? card.name : ''} />
+                <img src={cardArtThumb(card.id, card.thumbnail)} alt={open ? card.name : ''} />
                 {open && <small>{ELEMENTS[card.element]}</small>}
               </>}
             </div>
@@ -427,12 +428,12 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
             return <>
               <div className={styles.waitingOpponent} key="opponent">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={oCard && isRevealed('opponent', previewIndex) ? oCard.thumbnail : '/beast-game/card-back.webp'} alt="" />
+                <img src={oCard && isRevealed('opponent', previewIndex) ? cardArtThumb(oCard.id, oCard.thumbnail) : '/beast-game/card-back.webp'} alt="" />
                 <span>易經卦象・{POSITIONS[previewIndex]}</span>
               </div>
               <div className={styles.waitingPlayer} key="player">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={pCard && isRevealed('player', previewIndex) ? pCard.thumbnail : '/beast-game/card-back.webp'} alt="" />
+                <img src={pCard && isRevealed('player', previewIndex) ? cardArtThumb(pCard.id, pCard.thumbnail) : '/beast-game/card-back.webp'} alt="" />
                 <span>客戶（你）・{POSITIONS[previewIndex]}</span>
               </div>
             </>;
@@ -476,8 +477,8 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
         )}
         {clashCards && (
           <BeastClash3D
-            playerArt={clashCards.me.thumbnail}
-            opponentArt={clashCards.foe.thumbnail}
+            playerArt={cardArtThumb(clashCards.me.id, clashCards.me.thumbnail)}
+            opponentArt={cardArtThumb(clashCards.foe.id, clashCards.foe.thumbnail)}
             playerSpirit={spiritArtFor(clashCards.me.id)}
             opponentSpirit={spiritArtFor(clashCards.foe.id)}
             attacker={clashCards.attacker}

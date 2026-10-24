@@ -126,7 +126,8 @@
 .metal::after {
   z-index: 4;
   padding: clamp(2px, 3.2%, 7px);
-  background: linear-gradient(135deg, #8a6c33 0%, #d8bd7e 18%, #a98543 36%, #e7d29a 52%, #a58140 68%, #d8bd7e 86%, #8a6c33 100%);
+  /* 與新卡面（自研卡框 v1）同一組金色：#e2c47a／#b8924a／#d6b467 */
+  background: linear-gradient(160deg, #e2c47a 0%, #b8924a 50%, #d6b467 100%);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
@@ -139,6 +140,6 @@
   inset: clamp(2px, 3.2%, 7px);
   border-radius: 3px;
   box-shadow:
-    0 0 0 1px rgba(42, 34, 24, 0.85),
-    inset 0 0 0 1px rgba(255, 246, 225, 0.3);
+    0 0 0 0.5px #c9a85a,
+    0 0 0 1.5px rgba(138, 109, 46, 0.9);
 }

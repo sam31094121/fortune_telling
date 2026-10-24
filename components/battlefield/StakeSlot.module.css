@@ -210,9 +210,9 @@
 }
 
 .pick img { display: block; width: 100%; aspect-ratio: 63 / 88; object-fit: cover; }
-.pick strong, .pick span { display: block; padding: 2px 4px; font-size: 12px; line-height: 18px; }
-.pick strong { min-height: 40px; }
-.pick span:last-child { background: #ffdfa419; color: #ffdfa4; }
+.pick > strong, .pick > span { display: block; padding: 2px 4px; font-size: 12px; line-height: 18px; }
+.pick > strong { min-height: 40px; }
+.pick > span:last-child { background: #ffdfa419; color: #ffdfa4; }
 .movement { margin: 0; font-size: 12px; line-height: 20px; color: #e6edf8; }
 
 .picked {
@@ -255,12 +255,12 @@
     flex: 0 0 88px;
     border-radius: 8px;
   }
-  .pick strong, .pick span {
+  .pick > strong, .pick > span {
     font-size: 12px;
     padding: 2px 3px;
     line-height: 18px;
   }
-  .pick strong {
+  .pick > strong {
     min-height: 32px;
   }
   .movement {
@@ -270,6 +270,6 @@
 }
 
 /* Readable selection labels; keep the card strip native-scrollable. */
-.pick strong, .pick span { font-size: 14px; line-height: 20px; }
+.pick > strong, .pick > span { font-size: 14px; line-height: 20px; }
 .movement { font-size: 14px; line-height: 21px; }
 .movement summary { min-height: 44px; align-content: center; cursor: pointer; }
