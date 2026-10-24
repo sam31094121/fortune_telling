@@ -38,9 +38,15 @@ try {
     assert.equal(result.teacherId,id);
     assert.ok(result.evidenceRefs.some(s => s.startsWith('易經：')));
     assert.equal(JSON.stringify(result),JSON.stringify(await teachers.runTeacher(id,context)));
-    const empty = {...context,selectedPalace:{...p,majorStars:[]}};
+    const noStars = {...p,majorStars:[]};
+    const empty = {...context,selectedPalace:noStars,threeHarmony:{harmonyA:noStars,harmonyB:noStars,opposite:noStars}};
     assert.equal(await teachers.runTeacher(id,empty),load('lib/ziwei-teacher/types.ts').INSUFFICIENT_DATA);
   }
+  const borrowed = await teachers.runTeacher('LIFE_MASTER',{...context,selectedPalace:{...p,majorStars:[]}});
+  assert.equal(borrowed.ghostAsura.status,'OK');
+  assert.equal(borrowed.ghostAsura.borrowedFromOpposite,true);
+  assert.equal(borrowed.ghostAsura.lines[0].star,'紫微');
+  assert.ok(borrowed.ghostAsura.lines.every(line => line.sourced && line.source && line.original && line.lines.length));
   for (const mode of ['google','horror']) {
     const {POST} = load(`app/api/bazi/${mode}-reading/route.ts`);
     const response = await POST({json:async()=>({dayMaster:'甲',structure:'正官格',shortName:'測試'})});

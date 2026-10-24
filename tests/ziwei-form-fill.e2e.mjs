@@ -357,10 +357,16 @@ async function runFlow(cdp, exceptions) {
 
     await step('客戶看得到的字沒有內部用語（有時辰）', async () => assertNoInternalWords(cdp));
 
-    await step('鬼魅老師：年齡由後端送來', async () => {
+    await step('鬼魅老師：顯示後端有原典來源的條文', async () => {
       await tap(cdp, `[...document.querySelectorAll('button')].find((b) => b.textContent.includes('鬼魅老師解盤') && b.textContent.includes('恐怖'))`, '鬼魅老師解盤');
-      const text = await waitFor(cdp, `(() => { const t = document.body.innerText; return t.includes('第三幕') ? t : ''; })()`, '鬼魅老師劇情出現', PAGE_TIMEOUT_MS);
-      if (!/你現在 \d+ 歲/.test(text)) throw new Error('鬼魅老師沒有顯示後端送來的年齡');
+      const sourced = await waitFor(cdp, `(() => {
+        const panel = document.querySelector('[data-ghost-asura="lines"]');
+        const lines = [...(panel?.querySelectorAll('[data-ghost-asura="sourced"]') ?? [])];
+        return lines.length ? lines.map(p => ({text:p.textContent.trim(),source:p.closest('li')?.textContent ?? ''})) : null;
+      })()`, '鬼魅老師古籍條文出現', PAGE_TIMEOUT_MS);
+      if (!sourced.every(line => line.text && line.source.includes('出處：') && line.source.includes('原文：'))) {
+        throw new Error('鬼魅老師條文缺內容、出處或原文');
+      }
       await assertNoInternalWords(cdp);
     });
 

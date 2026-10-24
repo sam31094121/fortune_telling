@@ -141,10 +141,24 @@ function codeOnly(source) {
     !gemini.includes('全部使用「易經卜卦判定」'),
     '沒有卦時不得要求 AI 用「易經卜卦判定」開頭，那會逼它自己編卦',
   );
-  assert.ok(
-    gemini.includes('禁止使用「易經卜卦判定」'),
-    '必須明文禁止 AI 把結論掛在不存在的卦上',
-  );
+  // 2026-10-23 起 AI 已全面移除：驗證可執行碼，不要求已刪除的提示詞。
+  const parsed = ts.createSourceFile('gemini.ts', gemini, ts.ScriptTarget.Latest, true);
+  let blankAiFields = 0;
+  function verifyNoGeneration(node) {
+    if (ts.isImportDeclaration(node)) {
+      assert.ok(node.moduleSpecifier.text.startsWith('.'), '此本地分析入口不得重新引入 AI 或網路 SDK');
+    }
+    if (ts.isCallExpression(node) || ts.isNewExpression(node)) {
+      assert.doesNotMatch(node.expression.getText(parsed), /generateContent|generateText|GoogleGenAI|OpenAI|Anthropic|fetch|axios|require|import/, '不得透過 AI 或網路編造無來源卦象');
+    }
+    if (ts.isPropertyAssignment(node) && /^ai_/.test(node.name.getText(parsed)) && ts.isStringLiteral(node.initializer)) {
+      assert.equal(node.initializer.text, '', 'AI 文字來源必須停用，不能改成預設假卦');
+      blankAiFields++;
+    }
+    ts.forEachChild(node, verifyNoGeneration);
+  }
+  verifyNoGeneration(parsed);
+  assert.equal(blankAiFields, 8, '完整／預覽分析的 8 個 AI 文字輸入必須維持停用');
 }
 
 /* ── 五、時辰未知時，畫面要給補時辰的出路，不是死路 ───────────────── */

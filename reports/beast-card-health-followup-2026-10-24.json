@@ -1,0 +1,46 @@
+{
+  "completedAt": "2026-10-24T07:56:12.251Z",
+  "summary": {
+    "total": 55,
+    "passed": 49,
+    "failed": 6,
+    "warnings": 0,
+    "screenStatus": "UNHEALTHY"
+  },
+  "failedRoutes": [
+    {
+      "id": "BAZI_SERVICE_AVAILABILITY",
+      "title": "八字神煞、老師判讀與配對補強實際放行狀態",
+      "path": "/bazi",
+      "issue": "八字神煞、老師判讀與配對補強實際放行狀態 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:bazi-service-health\n\nUNAVAILABLE: 八字老師進階判讀\nUNAVAILABLE: 喜用與配對五行補強\nUNAVAILABLE: 配對紅鸞規則"
+    },
+    {
+      "id": "BAZI_SOURCE_REGISTRY_COMPLETE",
+      "title": "八字來源登記完整性（未驗證或缺古籍來源即失敗）",
+      "path": "/dual-chart",
+      "issue": "八字來源登記完整性（未驗證或缺古籍來源即失敗） verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:bazi-registry-completeness\n\nERROR: C-BAZI-CLASSICS status=CONFLICT gate=CONFLICT 來源 7 個 | 閘門計算 CONFLICT：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 64，未達 90；D 級來源不得作為交叉依據；有來源版本不可追溯；重大衝突：《三命通會》作者與內容增竄；重大衝突：《淵海子平》《滴天髓》《子平真詮》版本與作者不可追溯 / 登記狀態 CONFLICT（非 VERIFIED）\nERROR: C-BAZI-VALIDITY status=PENDING_POOL gate=PENDING_POOL 來源 4 個 | 閘門計算 PENDING_POOL：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 81，未達 90；有來源版本不可追溯 / 登記狀態 PENDING_POOL（非 VERIFIED）\nERROR: C-RED-LUAN-SHENSHA status=PENDING_POOL gate=PENDING_POOL 來源 3 個 | 閘門計算 PENDING_POOL：缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 83，未達 90；有來源版本不可追溯 / 登記狀態 PENDING_POOL（非 VERIFIED）\nERROR: C-BAZI-FIVE-GODS status=CONFLICT gate=CONFLICT 來源 4 個 | 閘門計算 CONFLICT：缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 46，未達 90；D 級來源不得作為交叉依據；缺原典（或原始研究）來源；有來源版本不可追溯；重大衝突：身弱用印時，喜神取比劫還是取生印的官殺 / 登記狀態 CONFLICT（非 VERIFIED） / 未掛原典（古籍）來源\nERROR: C-SHENSHA-RULE-INTEGRITY status=PENDING_POOL gate=PENDING_POOL 來源 2 個 | 閘門計算 PENDING_POOL：交叉比對來源 2 個，未達 3 個；缺原典（或原始研究）來源 / 登記狀態 PENDING_POOL（非 VERIFIED） / 未掛原典（古籍）來源\nERROR: C-ASURA-LIFE-STAGES status=CONFLICT gate=CONFLICT 來源 6 個 | 閘門計算 CONFLICT：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 83，未達 90；有來源版本不可追溯；重大衝突：四柱對應歲數：古籍無歲數，後世分界不一 / 登記狀態 CONFLICT（非 VERIFIED）\nSUMMARY: 17 筆 claim，OK 11，ERROR 6"
+    },
+    {
+      "id": "BAZI_FEATURE_COMPLETE",
+      "title": "八字客戶功能完整（排盤、五項神煞、老師判讀、五神、紅鸞皆須放行）",
+      "path": "/bazi",
+      "issue": "八字客戶功能完整（排盤、五項神煞、老師判讀、五神、紅鸞皆須放行） verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:bazi-feature-complete\n\nNOT READY: 八字老師進階判讀（格局、旺衰、斷語） — C-BAZI-CLASSICS=CONFLICT、C-BAZI-FIVE-GODS=CONFLICT\nNOT READY: 五神（用神、喜神、忌神、仇神、閒神） — C-BAZI-FIVE-GODS=CONFLICT\nNOT READY: 配對紅鸞 — C-RED-LUAN-SHENSHA=PENDING_POOL\nFAIL: bazi feature complete — 3/10 項未放行：八字老師進階判讀（格局、旺衰、斷語）、五神（用神、喜神、忌神、仇神、閒神）、配對紅鸞"
+    },
+    {
+      "id": "NO_FABRICATED_COUNTERS",
+      "title": "禁止作假：計數器沒有憑空底數，也不會自己長大",
+      "issue": "禁止作假：計數器沒有憑空底數，也不會自己長大 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:no-fake-counters\nnode:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: 顯示數要從真實造訪紀錄推算，不能相信存下來的彙總欄位\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/tests/no-fabricated-counters.test.mjs:87:10\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: false,\r\n  expected: true,\r\n  operator: '==',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0\r\n"
+    },
+    {
+      "id": "THREE_CORE_TRADITIONAL_DEFECTS",
+      "title": "三核心原典缺陷：禁止以流程通過代替算法正確",
+      "issue": "三核心原典缺陷：禁止以流程通過代替算法正確 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:three-core-traditional-health\n\nUNRESOLVED: MEIHUA_GREGORIAN_SUM — 公曆年月日直接加總與已閱梅花年月日時取數傳本不符\nUNRESOLVED: BAZI_TEXT_HASH_READING — 另以姓名與文案雜湊起卦，未沿用三核心已核對卦象\nUNRESOLVED: KARMA_AI_CHART_AND_FIXED_FALLBACK — 讓模型自行推算命宮星曜並提供固定卦象後備，未由已核對命盤提供\nUNRESOLVED: ZIWEI_PALACE_HASH — 三核心核對後仍依宮名主星流年文字另起雜湊卦\nUNRESOLVED: GROWTH_WEEK_HASH — 週次與個人種子文字映射未有原典依據\nUNRESOLVED: SOLAR_TERM_HASH — 節氣名稱與年份映射卦象不等於官方曆法或正統起卦"
+    },
+    {
+      "id": "DUAL_CHART_SHENSHA_DISPLAY",
+      "title": "雙命盤四柱神煞後端運算到前端顯示",
+      "path": "/dual-chart",
+      "issue": "規則 taohua 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 waiTaohua 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jiangxing 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 gejiao 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tiande 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yuede 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tiandehe 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 longde 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tiangou 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 wugui 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jinkui 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 zaisha 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 liue 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yuepo 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 ripo 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 muyu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 kuigang 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 kongwang 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jinyu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 xuetang 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 guchen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 guasu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jiesha 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 lushen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tianyiDoctor 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 guoyin 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tianchu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tianshe 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 sanqi 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 wangshen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yinyangChacuo 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 guluan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 shieDabai 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 liuxia 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 sifei 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yuedehe 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 feiren 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jinshen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 bazhuan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jiuchou 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 liuxiu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 sangmen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 baihu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 bingfu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 pima 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 suipo 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yuekong 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jielu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tianzhuan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 dizhuan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 shiling 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 ride 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 rigui 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 panan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 anlu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jinshenDay 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 gonglu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tuishen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 hongyan 來源仍為 PENDING_POOL；顯示一致不等於原典核定"
+    }
+  ]
+}
