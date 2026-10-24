@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import modeStyles from './GameModes.module.css';
 import CatalogBeastCard from '@/components/battlefield/CatalogBeastCard';
 import starBeastsData from '@/data/star-beasts.json';
 import SelfStarBeastEntry from '@/components/SelfStarBeastEntry';
@@ -93,11 +94,10 @@ const FORM_LABELS: Record<Form, string> = {
 
 // 2026-10-17 beast card：進到這頁就看到三種玩法，點一下直接開始；沿用既有三個遊戲入口，不新增遊戲邏輯。
 const GAME_MODES = [
-  { id: 'easy', step: '① 簡單', icon: '⚡', title: '三卡免費戰場', desc: '選 3 張卡開戰，不扣收藏卡', href: '/beast-game?mode=easy', tone: 'border-amber-200/60 bg-amber-300/[0.12]' },
-  { id: 'medium', step: '② 中度', icon: '🎯', title: '單卡押注', desc: '押 1 張收藏卡；輸了失去 1 張', href: '/beast-game/lineup', tone: 'border-cyan-100/35 bg-cyan-300/[0.07]' },
-  { id: 'hard', step: '③ 困難', icon: '⚔️', title: '五卡押注戰場', desc: `押 1～${MAX_STAKE_CARDS} 張收藏卡；輸了只失去押上的卡`, href: '/beast-game/battlefield', tone: 'border-rose-200/35 bg-rose-300/[0.07]' },
+  { id: 'easy', step: '① 簡單', iconPath: 'M13 2 4 14h7l-1 8 10-13h-7l1-7Z', title: '三卡免費戰場', desc: '選 3 張卡開戰，不扣收藏卡', href: '/beast-game?mode=easy' },
+  { id: 'medium', step: '② 中度', iconPath: 'M20 12a8 8 0 1 1-8-8 M16 12a4 4 0 1 1-4-4 M12 12l9-9 M16 3h5v5', title: '單卡押注', desc: '押 1 張收藏卡；輸了失去 1 張', href: '/beast-game/lineup' },
+  { id: 'hard', step: '③ 困難', iconPath: 'm4 3 3 1 12 13-2 2L4 6 4 3Z M3 17l4 4 M5 19l-2 2 M17 3l3 1-1 3-5 5 M10 15l-3 4 M17 17l4 4 M17 21l4-4', title: '五卡押注戰場', desc: `押 1～${MAX_STAKE_CARDS} 張收藏卡；輸了只失去押上的卡`, href: '/beast-game/battlefield' },
 ] as const;
-const GAME_MODE_CSS = '@keyframes beastModeIn{from{opacity:0;transform:translate3d(0,8px,0)}to{opacity:1;transform:none}}.beast-mode-item{animation:beastModeIn .32s cubic-bezier(.2,.7,.2,1) both}@media (prefers-reduced-motion:reduce){.beast-mode-item{animation:none}}';
 
 export default function StarBeastsPage() {
   const [season, setSeason] = useState<Season>('all');
@@ -151,19 +151,20 @@ export default function StarBeastsPage() {
           <p className="mt-4 text-sm text-slate-300">二十八星宿分類，各有本體與幼子形態；另有四隻四象守護獸。</p>
           {/* 2026-10-17 beast card：原本的「開始 →」換成三選一並放在「找出我的本體神獸」上面，手機第一屏就看得到三個選項，客人不用再多點一層。 */}
           <nav className="mt-5" aria-label="選擇遊戲難度" data-beast-chooser>
-            <style>{GAME_MODE_CSS}</style>
             <p className="text-xs font-black tracking-[0.22em] text-amber-200/85">選一種玩法開始</p>
-            <ul className="mt-3 grid gap-3 sm:grid-cols-3">
-              {GAME_MODES.map((mode, index) => (
-                <li key={mode.id} className="beast-mode-item" style={{ animationDelay: `${index * 50}ms` }}>
-                  <Link href={mode.href} data-difficulty-choice={mode.id} className={`group flex min-h-[72px] w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] [-webkit-tap-highlight-color:transparent] transition-[transform,border-color,background-color] duration-150 ease-out active:scale-[0.98] active:border-amber-100/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 motion-reduce:transition-none motion-reduce:active:scale-100 ${mode.tone}`}>
-                    <span aria-hidden="true" className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/10 bg-slate-950/60 text-xl">{mode.icon}</span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-[11px] font-black tracking-[0.16em] text-amber-200/90">{mode.step}</span>
-                      <strong className="mt-0.5 block font-serif text-base font-black tracking-wide text-white">{mode.title}</strong>
-                      <span className="mt-0.5 block text-xs leading-5 text-slate-300">{mode.desc}</span>
+            <ul className={modeStyles.list}>
+              {GAME_MODES.map((mode) => (
+                <li key={mode.id} className={modeStyles.item}>
+                  <Link href={mode.href} data-difficulty-choice={mode.id} className={modeStyles.card}>
+                    <span aria-hidden="true" className={modeStyles.emblem}>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" focusable="false"><path d={mode.iconPath} /></svg>
                     </span>
-                    <span aria-hidden="true" className="text-lg font-black text-amber-100/80 transition-transform duration-150 group-active:translate-x-0.5">→</span>
+                    <span className={modeStyles.content}>
+                      <span className={modeStyles.level}>{mode.step}</span>
+                      <strong className={modeStyles.title}>{mode.title}</strong>
+                      <span className={modeStyles.description}>{mode.desc}</span>
+                    </span>
+                    <span aria-hidden="true" className={modeStyles.arrow}>↗</span>
                   </Link>
                 </li>
               ))}
