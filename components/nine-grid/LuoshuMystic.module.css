@@ -67,12 +67,57 @@
 @media print { .ring, .mote { display: none; } }
 
 /* 生日數字落宮：從刻字處落到同號宮格中心 */
-.drop { position: absolute; left: 50%; top: -48px; z-index: 20; pointer-events: none; transform: translate(-50%,-50%);
-  font-family: serif; font-size: 30px; font-weight: 900; color: #fff7d1; text-shadow: 0 0 10px rgba(253,230,138,.95), 0 0 22px rgba(212,175,55,.7);
-  animation: drop 240ms cubic-bezier(.5,0,.75,1) forwards; }
-@keyframes drop { from { left: 50%; top: -48px; opacity: .2; transform: translate(-50%,-50%) scale(1.4); } 70% { opacity: 1; } to { left: var(--tx); top: var(--ty); opacity: 0; transform: translate(-50%,-50%) scale(.8); } }
-.dropZero { animation: dropZero 240ms ease-out forwards; }
-@keyframes dropZero { from { opacity: 1; filter: blur(0); } to { opacity: 0; top: -70px; filter: blur(5px); } }
+.drop { position: absolute; left: var(--sx, 50%); top: var(--sy, -48px); z-index: 30; pointer-events: none;
+  display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 50%;
+  border: 2px solid #fff1af; background: #271f13; box-shadow: 0 0 20px rgba(253,230,138,.55);
+  transform: translate(-50%,-50%); font-family: serif; font-size: 32px; font-weight: 900; color: #fff7d1;
+  animation: drop 1500ms linear both; }
+.drop::before { content: ''; position: absolute; left: 50%; bottom: 100%; width: 2px; height: 24px; background: linear-gradient(transparent, #fde68a); opacity: .55; }
+.nameDrop { border-color: #ede9fe; background: #281c47; color: #fff; box-shadow: 0 0 20px rgba(196,181,253,.6); }
+.target { outline: 2px solid rgba(253,230,138,.65); outline-offset: 3px; }
+.landing { outline: 2px solid #fff1af; outline-offset: 3px; filter: brightness(1.18); }
+.awakened { box-shadow: inset 0 0 18px rgba(253,230,138,.18), 0 0 20px rgba(212,175,55,.25); }
+.dropProgress { appearance: none; border: 0; border-radius: 999px; overflow: hidden; background: #302a22; }
+.dropProgress::-webkit-progress-bar { background: #302a22; }
+.dropProgress::-webkit-progress-value { background: linear-gradient(90deg, #92723b, #fde68a); }
+.dropProgress::-moz-progress-bar { background: #fde68a; }
+.playbackArena { width: min(100%, 340px, max(180px, calc(100svh - 230px))); margin: 16px auto 0; scroll-margin-top: 12px; }
+.playbackCard { content-visibility: visible !important; contain: none !important; }
+.playbackSource { min-height: 72px; padding: 4px 0; color: #fff4d7; text-align: center; }
+.playbackExplanation { margin-top: 12px; border-top: 1px solid rgba(196,181,253,.25); color: #fff4d7; }
+.original { border-color: #e0c77d !important; background: linear-gradient(140deg,#514326,#1d1926) !important; color: #fff5d6 !important; }
+.added { border: 2px solid #c4b5fd !important; background: linear-gradient(140deg,#63458b,#231a3d) !important; color: #fff !important; }
+.missing { border: 1px dashed #766d83 !important; background: #16121f !important; color: #c8c1cf !important; }
+.fixedLabels { position: absolute; inset: 0; z-index: 60; pointer-events: none; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+.fixedLabels > span { position: relative; }
+.fixedLabels b { position: absolute; top: 6px; left: 7px; border-radius: 5px; padding: 0 3px; background: #171321; color: #fff !important; font: 900 24px/28px serif; opacity: 1 !important; visibility: visible !important; text-shadow: none; }
+@media (min-width:640px) { .fixedLabels { gap: 12px; } }
+@keyframes drop {
+  0%, 20% { left: var(--sx); top: var(--sy); opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  76.667% { left: var(--tx); top: var(--ty); opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  84% { left: var(--tx); top: var(--ty); opacity: 1; transform: translate(-50%,-50%) scale(.96); }
+  100% { left: var(--tx); top: var(--ty); opacity: 0; transform: translate(-50%,-50%) scale(.72); }
+}
+.dropZero { animation: dropZero 1500ms linear both; }
+.dropZero::before { display: none; }
+@keyframes dropZero { 0%,20% { opacity: 1; } 76.667%,100% { opacity: 0; } }
 .tick { animation: tick 300ms ease-out; }
-@keyframes tick { 0% { transform: scale(1.8); box-shadow: 0 0 12px rgba(253,230,138,.9); } 100% { transform: none; } }
-@media (prefers-reduced-motion: reduce) { .drop, .dropZero, .tick { animation: none !important; display: none; } }
+@keyframes tick { 0% { transform: scale(1.18); box-shadow: 0 0 8px rgba(253,230,138,.5); } 100% { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .drop, .dropZero { animation: none !important; display: none; } .tick { animation: none !important; } }
+
+/* 落地柔光僅在落點出現，與固定宮位號碼分層。 */
+.landingHalo { position: absolute; left: var(--tx); top: var(--ty); z-index: 25; pointer-events: none; width: 54px; height: 54px; border-radius: 50%; border: 1px solid #fff1af; box-shadow: 0 0 9px rgba(253,230,138,.35), inset 0 0 8px rgba(253,230,138,.18); animation: landingHalo 350ms ease-out both; }
+.nameHalo { border-color: #ddd6fe; box-shadow: 0 0 9px rgba(196,181,253,.4), inset 0 0 8px rgba(196,181,253,.2); }
+@keyframes landingHalo { from { transform: translate(-50%,-50%) scale(.65); opacity: .8; } to { transform: translate(-50%,-50%) scale(1.35); opacity: 0; } }
+.original, .added { box-shadow: inset 0 1px 0 rgba(255,255,255,.13), inset 0 -10px 18px rgba(5,3,15,.25); }
+.summaryPanel { margin-top: 12px; padding: 10px 12px; border: 1px solid rgba(196,181,253,.24); border-radius: 12px; background: linear-gradient(135deg,rgba(89,67,119,.18),rgba(15,12,24,.72)); font-size: 12px; line-height: 1.8; }
+@media (prefers-reduced-motion: reduce) { .landingHalo { display: none; animation: none; } }
+
+/* 同色來源/落點提示；只描邊，不在飛行通道新增元素。 */
+.namePalette { --cue-color: #c4b5fd; }
+.cueSource { border-color: var(--cue-color,#fde68a) !important; box-shadow: 0 0 0 2px var(--cue-color,#fde68a), 0 0 12px rgba(220,204,170,.22); }
+.target { outline-color: var(--cue-color,#fde68a); box-shadow: inset 0 0 0 1px var(--cue-color,#fde68a), 0 0 12px rgba(220,204,170,.18); }
+.finishFrame { position: absolute; inset: -5px; z-index: 40; pointer-events: none; border: 1px solid var(--cue-color,#fde68a); border-radius: 18px; box-shadow: 0 0 16px rgba(220,204,170,.24); opacity: 0; animation: finishFrame 600ms ease-out both; }
+@keyframes finishFrame { 0% { opacity: 0; } 35% { opacity: .6; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .finishFrame { display: none; animation: none; } }
+@media print { .finishFrame { display: none; } }

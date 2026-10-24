@@ -9,6 +9,7 @@
  * 沒有出處的步驟 sourceIds 為空、tier 為 'site'，畫面照實標「本站交叉對照（非古法）」。
  */
 import type { NineGridStudy } from './nine-grid-numbers';
+import { buildPlaybackGuide, type PlaybackGuide } from './nine-grid-playback';
 
 export interface NameGridValue { key: string; label: string; value: number }
 export interface NameCharStroke { char: string; strokeCount: number }
@@ -67,6 +68,7 @@ export const NINE_GRID_SOURCE_NOTES: Record<NineGridSourceKey, NineGridSourceNot
 };
 
 export interface NineGridNameOverlay {
+  playback: PlaybackGuide;
   name: string;
   label: string;
   note: string;
@@ -121,6 +123,7 @@ export function buildNineGridNameOverlay(study: NineGridStudy, name: string, gri
   }
 
   return {
+    playback: buildPlaybackGuide(study.cells, grids.map((g) => ({ label: g.label, value: String(g.value), digits: String(g.value).split('').map(Number) })), study.input.birthDate),
     name,
     label: NAME_OVERLAY_LABEL,
     note: NAME_OVERLAY_NOTE,

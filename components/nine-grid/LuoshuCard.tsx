@@ -6,41 +6,61 @@
  * 這裡只負責排版、動畫與點選狀態，不組任何結論句子。平常只看得到九宮與數字，點宮位才展開話術與原文。
  * 視覺層（星盤環、羅盤刻字、封印、墨光、光線、引導一句話）在 LuoshuMystic.module.css；引導話術在 lib/i18n-copy/nine-grid-guide.ts。
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { LuoshuStudy } from '@/lib/nine-grid-numbers';
 import { NINE_GRID_GUIDE, type NineGridGuideMoment } from '@/lib/i18n-copy/nine-grid-guide';
 import gem from './NineGridGem.module.css';
 import m from './LuoshuMystic.module.css';
+import { useDropPlayback } from './useDropPlayback';
+import { usePlaybackFinish } from './usePlaybackFinish';
+import { PlaybackControls, PlaybackResult, PlaybackSource } from './PlaybackPresentation';
+import { usePlaybackViewport } from './usePlaybackViewport';
 import { luoshuSoundMuted, playLuoshuRustle, setLuoshuSoundMuted, startLuoshuBed, stopLuoshuBed } from './LuoshuAudio';
 
 const STEP_MS = 650;
 const WAKE_MS = 220;
-const DROP_MS = 250;
+
 const MOTES = [[12, 18, 0], [86, 26, 2.4], [22, 78, 4.1], [74, 84, 1.3], [50, 6, 5.6], [6, 52, 3.2], [94, 60, 6.8]] as const;
 
-export default function LuoshuCard({ luoshu }: { luoshu: LuoshuStudy }) {
+export default function LuoshuCard({ luoshu, birthDigits = [] }: { luoshu: LuoshuStudy; birthDigits?: number[] }) {
   const [digit, setDigit] = useState<number | null>(null);
   const [opened, setOpened] = useState<number[]>([]);
   const [walking, setWalking] = useState(false);
   const [guide, setGuide] = useState<NineGridGuideMoment | null>(luoshu?.birthOverlay ? 'awaken' : null);
   const [dismissed, setDismissed] = useState<NineGridGuideMoment[]>([]);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  /** 生日數字落宮動畫：順序只取自畫面上的日期字串（純呈現），落完的格數必須等於後端 palace.count，不符就不播 */
-  const dropSeq = (luoshu?.birthOverlay?.birthDate ?? '').replace(/\D/g, '').split('').map(Number);
-  const dropOk = Boolean(luoshu?.birthOverlay) && Array.isArray(luoshu?.palaces) && luoshu.palaces.every((p) => dropSeq.filter((n) => n === p.digit).length === p.count);
-  const [dropped, setDropped] = useState(dropOk ? 0 : dropSeq.length);
-  const dropTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const dropping = dropped < dropSeq.length;
-  useEffect(() => {
-    if (!dropping) return;
-    if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) { setDropped(dropSeq.length); return; }
-    dropTimer.current = setTimeout(() => setDropped((n) => n + 1), dropped === 0 ? 700 : DROP_MS);
-    return () => { if (dropTimer.current) clearTimeout(dropTimer.current); };
-  }, [dropped, dropping, dropSeq.length]);
+  /** 日期字元只用於播放來源；最終宮位次數仍以後端為準。 */
+  const playback = luoshu?.birthOverlay?.playback;
+  const dropSeq = playback?.frames.map((frame) => frame.digit) ?? [];
+  const dropOk = Boolean(luoshu?.birthOverlay) && birthDigits.length > 0;
+  const gridStage = useRef<HTMLDivElement>(null);
+  const playbackRegion = useRef<HTMLDivElement>(null);
+  const [playRequest, setPlayRequest] = useState(0);
+  const inView = usePlaybackViewport(playbackRegion, playRequest, dropOk, gridStage);
+  const player = useDropPlayback(dropSeq.length, dropOk && inView);
+  const { step: dropped, setStep: setDropped, shown: landedCount, landed, flightVisible: dropping } = player;
+  const dropDone = dropped >= dropSeq.length;
+  const ending = usePlaybackFinish(dropOk && dropDone, player.animateFinish, player.run);
+  const frame = playback?.frames[Math.min(dropped, dropSeq.length - 1)];
+  const sourceRail = useRef<HTMLDivElement>(null);
+
+  const palaceNodes = useRef(new Map<number, HTMLButtonElement>());
+  const [origin, setOrigin] = useState({ x: 0, y: -48, tx: 0, ty: -48 });
+  useLayoutEffect(() => {
+    const measure = () => {
+      const source = sourceRail.current?.children[dropped]?.getBoundingClientRect();
+      const grid = gridStage.current?.getBoundingClientRect();
+      const target = palaceNodes.current.get(dropSeq[dropped])?.getBoundingClientRect() ?? source;
+      if (source && grid && target) setOrigin({ x: source.left + source.width / 2 - grid.left, y: source.top + source.height / 2 - grid.top, tx: target.left + target.width / 2 - grid.left, ty: target.top + target.height / 2 - grid.top });
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [dropped, inView]);
   const skipDrop = () => setDropped(dropSeq.length);
   const [muted, setMuted] = useState(true);
   useEffect(() => { setMuted(luoshuSoundMuted()); startLuoshuBed(); return () => stopLuoshuBed(); }, []);
-  useEffect(() => { if (dropping && dropped > 0) playLuoshuRustle(); }, [dropped, dropping]);
+  useEffect(() => { if (landed && dropSeq[dropped] !== 0) playLuoshuRustle(); }, [dropped, landed]);
   const toggleSound = () => { const next = !muted; setLuoshuSoundMuted(next); setMuted(next); if (!next) startLuoshuBed(); };
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
   useEffect(() => { if (opened.length === 9) setGuide('allOpen'); }, [opened.length]);
@@ -58,7 +78,7 @@ export default function LuoshuCard({ luoshu }: { luoshu: LuoshuStudy }) {
     setOpened((list) => (list.includes(d) ? list : [...list, d]));
   };
   const tap = (d: number) => {
-    if (dropping) { skipDrop(); return; }
+    player.setPaused(true);
     if (opened.length === 0) showGuide('firstFlip');
     pick(d);
   };
@@ -90,20 +110,26 @@ export default function LuoshuCard({ luoshu }: { luoshu: LuoshuStudy }) {
   const full = opened.length === 9;
 
   return (
-    <section className={`fortune-card ${m.card} overflow-hidden border-amber-300/30 bg-gradient-to-b from-[#241a12]/85 to-[#0d1020]/85 p-4 sm:p-6`} aria-label="洛書九宮古籍版">
+    <section className={`fortune-card ${m.playbackCard} ${m.card} overflow-hidden border-amber-300/30 bg-gradient-to-b from-[#241a12]/85 to-[#0d1020]/85 p-4 sm:p-6`} aria-label="洛書九宮古籍版">
       {MOTES.map(([x, y, delay]) => <span key={`${x}-${y}`} aria-hidden="true" className={m.mote} style={{ left: `${x}%`, top: `${y}%`, animationDelay: `${delay}s` }} />)}
       <button type="button" onClick={toggleSound} aria-pressed={!muted} aria-label={muted ? '開啟聲音' : '關閉聲音'} className="absolute right-2 top-2 z-30 inline-flex h-11 w-11 items-center justify-center rounded-full border border-amber-200/30 bg-black/40 text-amber-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200">
         <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" stroke="none" />{muted ? <path d="M17 9l5 6M22 9l-5 6" /> : <path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" />}</svg>
       </button>
       <header className="text-center">
         <p className="text-[11px] font-black tracking-[0.3em] text-amber-200/90">{luoshu.role}</p>
-        <h2 className="mt-1 font-serif text-2xl font-black tracking-[0.12em] text-amber-50">{luoshu.name}</h2>
+        <h2 className="mt-1 font-serif text-lg font-black tracking-[0.04em] text-amber-50 sm:text-2xl">{luoshu.name}</h2>
         <div className="mx-auto mt-2 h-px w-24 bg-gradient-to-r from-transparent via-amber-300/70 to-transparent" />
       </header>
 
       {luoshu.birthOverlay && <p className={`${m.inscribe} mt-3 text-center font-serif text-lg font-black text-amber-50`}>{luoshu.birthOverlay.birthDate}</p>}
 
-      <div className={`${m.stage} ${full ? m.complete : ''} mx-auto mt-5 w-full max-w-[380px]`}>
+      <div ref={playbackRegion} className={m.playbackArena} data-testid="birth-playback">
+      {dropOk && <div className={m.playbackSource}>
+        <p className="text-xs">生日 {luoshu.birthOverlay?.birthDate}</p>
+        <div ref={sourceRail} className="mt-2 grid grid-cols-8 gap-1" aria-label="生日逐位數字">{dropSeq.map((n, i) => <span key={i} data-cue-source={i === dropped && !landed ? n : undefined} className={`rounded-md border py-1 font-black ${i === dropped && !landed ? m.cueSource : ''} ${i === dropped ? 'border-amber-100 bg-amber-200/30' : i < dropped ? 'border-amber-200/30 text-amber-100/80' : 'border-white/20'}`}>{n}</span>)}</div>
+      </div>}
+
+      <div className={`${m.stage} ${full ? m.complete : ''} mx-auto mt-2 w-full`}>
         <svg viewBox="0 0 200 200" className={m.ring} aria-hidden="true">
           <g className={m.ringSpin} fill="none" stroke="rgba(253,230,138,.35)">
             <circle cx="100" cy="100" r="96" strokeWidth=".6" />
@@ -122,7 +148,8 @@ export default function LuoshuCard({ luoshu }: { luoshu: LuoshuStudy }) {
         <p className="relative z-[1] text-center"><span className={m.rim}>{axes.top}</span></p>
         <div className="flex items-stretch gap-2">
           <span className="flex items-center"><span className={m.rim}>{axes.left}</span></span>
-          <div className={`${m.grid} relative flex-1`}>
+          <div ref={gridStage} className={`${m.grid} relative flex-1`}>
+            {ending.closing && <span aria-hidden="true" data-playback-closing="birth" className={m.finishFrame} />}
             <svg viewBox="0 0 300 300" className="pointer-events-none absolute inset-0 z-10 h-full w-full" aria-hidden="true">
               {routeLine.length > 1 && <polyline className={`${m.thread} ${m.threadFlow}`} points={pts} fill="none" stroke="rgba(253,230,138,.9)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="10 4" />}
               {routeLine.length > 1 && routeLine.map((d) => { const { r, c } = posOf(d); return <circle key={d} className={m.node} cx={c * 100 + 50} cy={r * 100 + 50} r="4" fill="#fde68a" />; })}
@@ -133,19 +160,21 @@ export default function LuoshuCard({ luoshu }: { luoshu: LuoshuStudy }) {
                 const active = d === digit;
                 const seen = opened.includes(d);
                 const wakeAt = dropping || dropOk ? -1 : lit.indexOf(d);
-                const shown = dropping ? dropSeq.slice(0, dropped).filter((n) => n === d).length : palace?.count ?? 0;
-                const justFilled = dropping && dropped > 0 && dropSeq[dropped - 1] === d;
+                const shown = playback?.states[landedCount]?.find((cell) => cell.digit === d)?.count ?? palace?.count ?? 0;
+                const justFilled = landed && dropSeq[dropped] === d;
                 return (
                   <button
                     key={d}
+                    ref={(node) => { if (node) palaceNodes.current.set(d, node); else palaceNodes.current.delete(d); }}
+                    data-cue-target={!dropDone && !landed && dropSeq[dropped] === d ? d : undefined}
                     type="button"
                     aria-pressed={active}
                     onClick={() => tap(d)}
                     style={wakeAt >= 0 && !seen ? { animationDelay: `${400 + wakeAt * WAKE_MS}ms` } : undefined}
-                    className={`${gem.tile} ${m.tile} flex min-h-[84px] flex-col items-center justify-center px-1 text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${active ? `${gem.gold} ${gem.selected} ring-2 ring-amber-200/90` : seen ? gem.indigo : `${gem.porcelain} ${m.sealed}`} ${seen ? m.reveal : ''} ${wakeAt >= 0 && !seen ? m.wake : ''}`}
+                    className={`${gem.tile} ${m.tile} ${dropOk ? (shown > 0 ? m.original : m.missing) : ''} flex min-h-[44px] aspect-square flex-col items-center justify-center px-1 text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${active ? `${gem.gold} ${gem.selected} ring-2 ring-amber-200/90` : shown > 0 ? `${gem.gold} ${m.awakened}` : seen ? gem.indigo : `${gem.porcelain} ${m.sealed}`} ${!dropDone && dropSeq[dropped] === d ? (landed ? (dropping ? m.landing : '') : m.target) : ''} ${seen ? m.reveal : ''} ${wakeAt >= 0 && !seen ? m.wake : ''}`}
                   >
-                    <span className="relative z-[1] font-serif text-4xl font-black leading-none">{d}</span>
-                    <span className="relative z-[1] mt-1 text-[11px] font-bold tracking-[0.08em] opacity-90">{seen ? palace?.palace : '？'}</span>
+                    <span key={`tokens-${shown}`} className="sr-only" aria-label={`生日數字 ${d}，已落入 ${shown} 個`}>{d}</span>
+                    <span className="relative z-[1] mt-1 text-[11px] font-bold tracking-[0.08em] opacity-90">{dropOk ? (shown > 0 ? '已填入' : '尚缺') : seen ? palace?.palace : shown > 0 ? '已填入' : '尚缺'}</span>
                     {seen && palace?.trigram && <span className="relative z-[1] text-[11px] font-bold opacity-80">{palace.trigram}</span>}
                     {palace && shown > 0 && <span key={shown} aria-hidden="true" className={`${justFilled ? m.tick : ''} absolute right-1.5 top-1.5 z-[2] inline-flex h-5 min-w-[20px] items-center justify-center rounded-full border border-amber-200/70 bg-[#14102a] px-1 text-[10px] font-black text-amber-100`}>{shown}</span>}
                     {palace && luoshu.birthOverlay && shown > 0 && <span aria-hidden="true" className="absolute bottom-1.5 z-[2] h-1.5 w-1.5 rounded-full bg-amber-200 shadow-[0_0_6px_rgba(253,230,138,0.9)]" />}
@@ -153,10 +182,10 @@ export default function LuoshuCard({ luoshu }: { luoshu: LuoshuStudy }) {
                 );
               })}
             </div>
-            {dropping && dropped > 0 && (() => {
-              const n = dropSeq[dropped - 1];
-              const at = n === 0 ? null : posOf(n);
-              return <span key={dropped} aria-hidden="true" className={`${m.drop} ${n === 0 ? m.dropZero : ''}`} style={at ? { ['--tx' as string]: `${at.c * 33.33 + 16.66}%`, ['--ty' as string]: `${at.r * 33.33 + 16.66}%` } : undefined}>{n}</span>;
+            <div className={m.fixedLabels} style={{ gap: 8 }} aria-hidden="true">{flat.map((d) => <span key={d}><b data-fixed-digit={d}>{d}</b></span>)}</div>
+            {dropping && (() => {
+              const n = dropSeq[dropped];
+              return <><span key={dropped} data-flight="birth" data-flight-step={dropped} data-phase={landed ? 'landed' : 'flying'} aria-hidden="true" className={`${m.drop} ${n === 0 ? m.dropZero : ''}`} style={{ animationPlayState: player.playing ? 'running' : 'paused', ['--sx' as string]: `${origin.x}px`, ['--sy' as string]: `${origin.y}px`, ['--tx' as string]: `${origin.tx}px`, ['--ty' as string]: `${origin.ty}px` }}>{n}</span>{landed && player.playing && n !== 0 && <span aria-hidden="true" data-landing-halo="birth" className={m.landingHalo} style={{ ['--tx' as string]: `${origin.tx}px`, ['--ty' as string]: `${origin.ty}px` }} />}</>;
             })()}
           </div>
           <span className="flex items-center"><span className={m.rim}>{axes.right}</span></span>
@@ -164,11 +193,20 @@ export default function LuoshuCard({ luoshu }: { luoshu: LuoshuStudy }) {
         <p className="relative z-[1] text-center"><span className={m.rim}>{axes.bottom}</span></p>
       </div>
 
-      {dropping && (
-        <div className="mt-2 flex justify-center">
-          <button type="button" onClick={skipDrop} className="min-h-[44px] rounded-full border border-white/20 px-4 text-[12px] font-black text-amber-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200">略過</button>
-        </div>
-      )}
+      {dropOk && <div className="mt-3 flex items-center gap-2">
+ <button type="button" onClick={() => { setDropped(0); setPlayRequest((n) => n + 1); }} className="min-h-[48px] flex-1 rounded-xl border border-amber-100 bg-amber-200 px-4 text-base font-black text-slate-950">再看一次</button>
+ {!dropDone && <button type="button" onClick={skipDrop} className="min-h-[48px] rounded-xl border border-white/30 px-3 text-sm font-bold text-white">略過動畫</button>}
+ </div>}
+ {dropOk && <PlaybackControls player={player} done={dropDone} onPosition={() => setPlayRequest((n) => n + 1)} />}
+ {dropOk && <div className={m.playbackExplanation}>
+        <progress aria-label="生日落格進度" value={landedCount} max={dropSeq.length} className={`${m.dropProgress} mt-2 h-1.5 w-full`} />
+        <p role="status" className="mt-1 text-xs">{!dropDone ? dropSeq[dropped] === 0 ? '0 不入宮' : `${dropSeq[dropped]} → ${dropSeq[dropped]} 宮` : '落格完成'} · {landedCount} / {dropSeq.length}</p>
+        <div className="min-h-[44px] text-center text-xs leading-5 text-amber-100"><p>{dropDone ? '生日數字已逐位對照完成' : frame?.cue}</p><p>{!dropDone && !landed ? '落地後：' : ''}{frame?.landing}</p></div>
+      </div>}
+      {dropOk && ending.showResult && playback && <PlaybackResult guide={playback} />}
+      {digit !== null && <PlaybackSource guide={playback} digit={digit} onClose={() => setDigit(null)} />}
+
+      </div>
       <div className="mt-3 flex items-center justify-center gap-3">
         <span className="relative inline-flex h-12 w-12 items-center justify-center" aria-label="已翻開宮位">
           <svg viewBox="0 0 48 48" className={`${m.progress} absolute inset-0 h-full w-full`} aria-hidden="true">

@@ -23,6 +23,7 @@ export default function NineGridPage() {
   const [guidance, setGuidance] = useState<Guidance | null>(null);
   const [study, setStudy] = useState<NineGridStudy | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resultRun, setResultRun] = useState(0);
   const [error, setError] = useState('');
   const [guideOff, setGuideOff] = useState(false);
   const resultRef = useRef<HTMLDivElement | null>(null);
@@ -55,7 +56,8 @@ export default function NineGridPage() {
         return;
       }
       setStudy(data.study);
-      window.setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+      setResultRun((run) => run + 1);
+
     } catch {
       setError('網路連線不穩，這次沒有送出成功，請確認連線後再按一次');
     } finally {
@@ -73,7 +75,7 @@ export default function NineGridPage() {
       <div className="mx-auto max-w-3xl">
         <Link href="/" className="inline-flex min-h-[44px] items-center gap-1 text-sm font-bold text-violet-200/90 hover:text-violet-50">← 返回首頁</Link>
 
-        <section id="nine-grid-input" className="fortune-card mt-3 overflow-hidden p-5 sm:p-8">
+        <section id="nine-grid-input" className={`fortune-card ${mystic.playbackCard} mt-3 overflow-hidden p-5 sm:p-8`}>
           <div className="flex items-center justify-center gap-3 text-center">
             <span className="h-px w-12 bg-gradient-to-r from-transparent to-amber-300/80" aria-hidden="true" />
             <p className="text-[11px] font-black tracking-[0.34em] text-amber-300/90">生命靈數</p>
@@ -150,7 +152,7 @@ export default function NineGridPage() {
 
         <div ref={resultRef} className="scroll-mt-4">
           {study && (
-            <div key={study.luoshu?.birthOverlay?.birthDate ?? 'study'} className={`${mystic.resultIn} mt-5 space-y-3`}>
+            <div key={resultRun} className="mt-5 space-y-3">
               {guidance && <p className="px-1 text-center text-sm font-bold leading-7 text-violet-100/90">{guidance.resultIntro.text}</p>}
               <NineGridCard study={study} />
             </div>
