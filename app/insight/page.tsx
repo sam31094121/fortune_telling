@@ -1399,7 +1399,7 @@ function SanFangSummaryCard({ analysis, plainSummary, meta, starBeasts, threeInO
               <p className="text-[11px] font-black tracking-[0.16em] text-cyan-100">紫微斗數 × 二十八宿神獸</p>
               <p className="mt-1 text-[11px] font-semibold leading-5 text-white/55">四張宮位先看本宮主星；空宮才依三方四正借星，固定對應一張二十八宿收藏卡。</p>
             </div>
-            <Link href="/star-beasts" className="rounded-full border border-cyan-100/25 px-3 py-1.5 text-[11px] font-black text-cyan-50">查看 28 張神獸</Link>
+            <Link href="/star-beasts" className="inline-flex min-h-[44px] items-center rounded-full border border-cyan-100/25 px-3 py-1.5 text-[11px] font-black text-cyan-50">查看 28 張神獸</Link>
           </div>
           <p className="mt-2 text-[11px] font-semibold leading-4 text-white/40">這是依正式紫微資料建立的遊戲收藏連結，不宣稱為傳統紫微斗數既有的二十八宿定盤規則。</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -1441,7 +1441,7 @@ function SanFangSummaryCard({ analysis, plainSummary, meta, starBeasts, threeInO
                         className="relative h-full min-h-[144px]"
                         imageClassName="h-full min-h-[144px] w-full object-cover object-center shadow-[0_16px_30px_rgba(0,0,0,0.38)]"
                         overlayClassName="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-transparent px-2 pb-2 pt-8"
-                        buttonClassName="mt-1 rounded-full border border-white/20 bg-slate-950/75 px-2 py-1 text-[11px] font-black text-cyan-50 transition hover:border-cyan-100/60"
+                        buttonClassName="mt-1 min-h-[44px] rounded-full border border-white/20 bg-slate-950/75 px-2 py-1 text-[11px] font-black text-cyan-50 transition hover:border-cyan-100/60"
                       />
                     </div>
                     <div className="min-w-0 p-3">
@@ -3170,7 +3170,7 @@ function ZiweiTeacherSynthesisPanel({
         <button
           type="button"
           onClick={() => document.getElementById('ziwei-twelve-palaces')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-          className="rounded-full border border-cyan-200/30 bg-cyan-300/10 px-3 py-1.5 text-xs font-black text-cyan-100 transition hover:border-cyan-200/60 hover:bg-cyan-300/[0.18]"
+          className="min-h-[44px] rounded-full border border-cyan-200/30 bg-cyan-300/10 px-3 py-1.5 text-xs font-black text-cyan-100 transition hover:border-cyan-200/60 hover:bg-cyan-300/[0.18]"
         >
           返回十二宮
         </button>
@@ -3178,7 +3178,7 @@ function ZiweiTeacherSynthesisPanel({
           <button
             type="button"
             onClick={() => setTimeRefresh((value) => value + 1)}
-            className="rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1.5 text-xs font-black text-amber-100 transition hover:border-amber-200/60 hover:bg-amber-300/[0.18]"
+            className="min-h-[44px] rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1.5 text-xs font-black text-amber-100 transition hover:border-amber-200/60 hover:bg-amber-300/[0.18]"
           >
             更新今年流年解讀
           </button>
