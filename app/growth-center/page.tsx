@@ -666,7 +666,7 @@ export default function GrowthCenterPage() {
                 <img src={nextCard.youngDivineImage} alt="下一組神獸幼子" className="h-16 w-11 rounded-md object-cover opacity-70" />
                 <p className="text-sm font-bold leading-6 text-slate-200">下一組羈絆：<span className="text-amber-100">{nextCard.name}</span><br /><span className="text-xs text-slate-400">完成每日一步，收下本體神獸與神獸幼子。</span></p>
               </div>}
-              <Link href="/star-beasts" className="mt-4 inline-flex rounded-full border border-amber-200/35 px-4 py-2 text-xs font-black text-amber-100 transition hover:bg-amber-300/10">查看完整神獸圖鑑</Link>
+              <Link href="/star-beasts" className="mt-4 inline-flex min-h-[44px] items-center rounded-full border border-amber-200/35 px-4 py-2 text-xs font-black text-amber-100 transition hover:bg-amber-300/10">查看完整神獸圖鑑</Link>
             </section>
             {bondDetail && (
               <BeastBondDetail
@@ -769,7 +769,7 @@ export default function GrowthCenterPage() {
               <blockquote className="mt-4 font-serif text-2xl font-black leading-9 text-emerald-50">「{data.weeklyInspiration.quote}」</blockquote>
               <p className="mt-3 text-sm font-bold text-emerald-100">{data.weeklyInspiration.author} · {data.weeklyInspiration.role}</p>
               <p className="mt-3 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{data.weeklyInspiration.fit}</p>
-              <details className="growth-detail-drawer mt-3"><summary>公開來源</summary><a href={data.weeklyInspiration.sourceUrl} target="_blank" rel="noreferrer">{data.weeklyInspiration.sourceName}</a></details>
+              <details className="growth-detail-drawer mt-3"><summary>公開來源</summary><a className="inline-flex min-h-[44px] items-center" href={data.weeklyInspiration.sourceUrl} target="_blank" rel="noreferrer">{data.weeklyInspiration.sourceName}</a></details>
             </section>
 
             <details className="growth-detail-drawer growth-detail-drawer--major">
