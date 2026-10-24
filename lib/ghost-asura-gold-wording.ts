@@ -54,7 +54,7 @@ export type FourPillarGate =
   | { status: 'ZIWEI_UNAVAILABLE'; reason: string }
   | { status: 'ERROR'; reason: string };
 
-export const GATE_BLOCK_MESSAGE = '四柱核對未通過，暫不顯示';
+export const GATE_BLOCK_MESSAGE = '資料核對未通過，暫不顯示';
 
 export function crossCheckFourPillars(input: { birthDate: string; gender: 'male' | 'female'; birthTime?: string | null }): FourPillarGate {
   if (!input.birthTime) return { status: 'TIME_UNKNOWN' };
@@ -95,7 +95,7 @@ export type GoldWordingResult =
     }
   | { status: 'UNAVAILABLE'; message: string; gate?: FourPillarGate };
 
-const UNAVAILABLE_MESSAGE = '技能檔無此資料，暫不顯示';
+export const UNAVAILABLE_MESSAGE = '暫時無法取得';
 
 /**
  * 依客戶資料算出命中的構面。優先序＝「越少人命中的越在前」，這樣挑出的句子最像他本人，

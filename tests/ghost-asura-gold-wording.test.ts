@@ -8,10 +8,11 @@ import library from '../docs/技能戰鬥檔案/鬼魅阿修羅/候選話術-100
 import { createBaziCore, type BaziBirthInput } from '../lib/bazi/engine';
 import {
   pickGoldWording, matchDimensions, WIRED_DIMENSIONS, EXCESS_SHARE_THRESHOLD,
-  crossCheckFourPillars, GATE_BLOCK_MESSAGE,
+  crossCheckFourPillars, GATE_BLOCK_MESSAGE, UNAVAILABLE_MESSAGE, goldWordingViewFor,
 } from '../lib/ghost-asura-gold-wording';
 import { ASURA_CHAIN, WORDING_COMPOSITION, credibilityTier } from '../lib/ghost-asura-order';
 import { CORE_ORDER } from '../lib/credibility-phrases';
+import { coreCredibility } from '../lib/credibility-wording';
 
 let pass = 0;
 const ok = (label: string, fn: () => void) => { fn(); pass++; console.log(`  ✓ ${label}`); };
@@ -163,11 +164,38 @@ ok('公信力等級：核對沒過＝擋；沒填時辰或來源衝突＝弱；�
   assert.equal(credibilityTier({ fourPillars: 'MISMATCH', timeKnown: true, claimStatus: 'VERIFIED', inputConfirmed: true }), 'BLOCKED');
 });
 
-ok('每句附事實依據 factBasis；依神煞的句子標明來源待核、力道最高到中', () => {
-  for (const e of entries as Array<{ id: string; dimension: string; factBasis?: string }>) assert.ok(e.factBasis && e.factBasis.length > 0, e.id);
-  for (const e of entries as Array<{ dimension: string; factBasis?: string }>) {
-    if (e.dimension === 'AUSPICIOUS_STAR') assert.ok(e.factBasis!.includes('PENDING_POOL') && e.factBasis!.includes('最高到中'));
+ok('每句附事實依據 factBasis；來源狀態不寫死在文字裡，一律以閘門重算為準', () => {
+  for (const e of entries as Array<{ id: string; factBasis?: string }>) {
+    assert.ok(e.factBasis && e.factBasis.length > 0, e.id);
+    assert.ok(!/(PENDING_POOL|最高到中|只有兩項)/.test(e.factBasis!), `${e.id} factBasis 不得寫死來源狀態：${e.factBasis}`);
   }
+  const star = (entries as Array<{ dimension: string; factBasis?: string }>).find((e) => e.dimension === 'AUSPICIOUS_STAR')!;
+  assert.ok(star.factBasis!.includes('以閘門重算為準'));
+});
+
+ok('技能檔不得再寫死過時的 VERIFIED 數量；並確認吉類神煞（天乙、文昌）在閘門重算下的實際狀態有登記', () => {
+  assert.ok(!DOC.includes('只有兩項 VERIFIED') && !DOC.includes('神煞等多數規則仍是 PENDING_POOL'));
+  assert.ok(DOC.includes('一律以閘門重算為準'));
+  const bazi = coreCredibility('八字');
+  for (const name of ['天乙', '文昌']) {
+    const claim = bazi.claims.find((c) => c.claimId === (name === '天乙' ? 'C-BAZI-SHENSHA-TIANYI' : 'C-BAZI-SHENSHA-WENCHANG'));
+    assert.ok(claim, `來源登記找不到 ${name}`);
+    assert.ok(['VERIFIED', 'CONFLICT', 'PENDING_POOL'].includes(claim!.status));
+  }
+});
+
+ok('客戶看得到的提示（核對沒過、查無資料、標題）不得含命理術語或內部用語', () => {
+  const JARGON = /(月令|五行|貴人|印記|命盤|命格|八字|四柱|十神|神煞|煞|盤上|天干|地支|年柱|月柱|日柱|時柱|紫微|命宮|技能檔|閘門|後端|核對關)/;
+  const view = goldWordingViewFor({}, false);
+  for (const text of [GATE_BLOCK_MESSAGE, UNAVAILABLE_MESSAGE, view.label, view.text]) assert.ok(!JARGON.test(text), `客戶可見的字含術語：${text}`);
+  assert.equal(view.text, UNAVAILABLE_MESSAGE);
+});
+
+ok('心理學整理已降為附錄：橫幅在、〈一〉不再定義含金量', () => {
+  const psych = readFileSync(new URL('../docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/話術含金量-說服與溝通心理學-權威來源.md', import.meta.url), 'utf8');
+  assert.ok(psych.startsWith('# 說服與溝通心理學權威來源（附錄參考，不是含金量判準）'));
+  assert.ok(psych.includes('降級說明（業主更正 2026-10-24）'));
+  assert.ok(!psych.includes('## 一、含金量怎麼定義'));
 });
 
 ok('技能檔寫明個性授權與轉化承諾界線：事實說死結果不說死、錢不進本站、不借運、不承諾結果', () => {
@@ -277,7 +305,7 @@ ok('分布守門：1500 組固定隨機生辰，任一構面不得獨占超過 3
 
 ok('查無資料時回明確中文狀態，不用別句頂替', () => {
   const r = pickGoldWording({ dayMaster: undefined } as never);
-  assert.deepEqual(r, { status: 'UNAVAILABLE', message: '技能檔無此資料，暫不顯示' });
+  assert.deepEqual(r, { status: 'UNAVAILABLE', message: UNAVAILABLE_MESSAGE });
 });
 
 console.log(`\n通過 ${pass} 組\n`);

@@ -135,7 +135,7 @@
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
       "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
-      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
+      "factBasis": "吉類神煞命中（天乙、文昌；八字引擎 computeShenSha；來源狀態以閘門重算為準，不寫死）",
       "status": "CANDIDATE"
     },
     {
@@ -295,7 +295,7 @@
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
       "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
-      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
+      "factBasis": "吉類神煞命中（天乙、文昌；八字引擎 computeShenSha；來源狀態以閘門重算為準，不寫死）",
       "status": "CANDIDATE"
     },
     {
@@ -455,7 +455,7 @@
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
       "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
-      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
+      "factBasis": "吉類神煞命中（天乙、文昌；八字引擎 computeShenSha；來源狀態以閘門重算為準，不寫死）",
       "status": "CANDIDATE"
     },
     {
@@ -615,7 +615,7 @@
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
       "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
-      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
+      "factBasis": "吉類神煞命中（天乙、文昌；八字引擎 computeShenSha；來源狀態以閘門重算為準，不寫死）",
       "status": "CANDIDATE"
     },
     {
@@ -775,7 +775,7 @@
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
       "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
-      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
+      "factBasis": "吉類神煞命中（天乙、文昌；八字引擎 computeShenSha；來源狀態以閘門重算為準，不寫死）",
       "status": "CANDIDATE"
     },
     {
@@ -935,7 +935,7 @@
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
       "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
-      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
+      "factBasis": "吉類神煞命中（天乙、文昌；八字引擎 computeShenSha；來源狀態以閘門重算為準，不寫死）",
       "status": "CANDIDATE"
     },
     {
@@ -1095,7 +1095,7 @@
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
       "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
-      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
+      "factBasis": "吉類神煞命中（天乙、文昌；八字引擎 computeShenSha；來源狀態以閘門重算為準，不寫死）",
       "status": "CANDIDATE"
     },
     {
@@ -1255,7 +1255,7 @@
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
       "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
-      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
+      "factBasis": "吉類神煞命中（天乙、文昌；八字引擎 computeShenSha；來源狀態以閘門重算為準，不寫死）",
       "status": "CANDIDATE"
     },
     {
@@ -1415,7 +1415,7 @@
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
       "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
-      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
+      "factBasis": "吉類神煞命中（天乙、文昌；八字引擎 computeShenSha；來源狀態以閘門重算為準，不寫死）",
       "status": "CANDIDATE"
     },
     {
@@ -1575,7 +1575,7 @@
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
       "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
-      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
+      "factBasis": "吉類神煞命中（天乙、文昌；八字引擎 computeShenSha；來源狀態以閘門重算為準，不寫死）",
       "status": "CANDIDATE"
     },
     {
