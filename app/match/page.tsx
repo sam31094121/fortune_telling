@@ -433,9 +433,9 @@ function OracleHint({ text }: { text: string }) {
           e.stopPropagation();
           setOpen(!open);
         }}
-        className="flex h-5 w-5 items-center justify-center rounded-full border border-cyan-400/30 bg-cyan-500/10 text-xs font-bold text-cyan-300 shadow-[0_0_8px_rgba(34,211,238,0.2)] hover:bg-cyan-500/25 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70"
+        className="group -m-[calc((44px-1.25rem)/2)] flex h-[44px] w-[44px] !max-w-none items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70"
       >
-        ?
+        <span aria-hidden="true" className="flex h-5 w-5 items-center justify-center rounded-full border border-cyan-400/30 bg-cyan-500/10 text-xs font-bold text-cyan-300 shadow-[0_0_8px_rgba(34,211,238,0.2)] group-hover:bg-cyan-500/25 transition-all">?</span>
       </button>
       {open && (
         <span
