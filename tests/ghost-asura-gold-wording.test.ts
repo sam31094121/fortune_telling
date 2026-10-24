@@ -119,6 +119,18 @@ ok('技能檔寫明證據上限：〈5.1〉〈5.2〉〈5.4〉存在，且不得�
   for (const w of OVERCLAIM) assert.ok(claims.includes(w), `技能檔〈5.2〉未列出禁語：${w}`);
 });
 
+ok('技能檔寫明個性授權與轉化承諾界線：事實說死結果不說死、錢不進本站、不借運、不承諾結果', () => {
+  const doc = readFileSync(
+    new URL('../docs/技能戰鬥檔案/鬼魅阿修羅/話術含金量技能.md', import.meta.url),
+    'utf8',
+  );
+  for (const h of ['## 六之三、阿修羅的個性與授權', '## 六之四、轉化承諾']) assert.ok(doc.includes(h), `技能檔缺 ${h}`);
+  const six3 = doc.slice(doc.indexOf('## 六之三'), doc.indexOf('## 六之四'));
+  assert.ok(six3.includes('事實就說死') && six3.includes('結果就不說死'));
+  const six4 = doc.slice(doc.indexOf('## 六之四'), doc.indexOf('## 七、'));
+  for (const w of ['錢不進本站', '不借運', '承諾行動，不承諾結果', '不得說「你會倒楣」']) assert.ok(six4.includes(w), `〈六之四〉缺：${w}`);
+});
+
 ok('句子不隨日期變，不得寫「今日」', () => {
   for (const e of entries) assert.ok(!e.line.includes('今日'), `${e.id} ${e.line}`);
 });
