@@ -22,8 +22,8 @@ const card: BeastCard = {
   skills: ['skill_103', 'skill_108'],
   passive: [],
   art: {
-    thumbnail: '/beast-game/thumb/adult-12.webp',
-    front: '/beast-game/front/adult-12.webp',
+    thumbnail: '/beast-game/thumb/adult-12.v2.webp?v=11',
+    front: '/beast-game/front/adult-12.v2.webp?v=11',
     high: '/star-beasts/adult-divine-v2/12.png',
     back: '/beast-game/card-back.webp',
   },

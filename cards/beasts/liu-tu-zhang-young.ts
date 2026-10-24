@@ -22,8 +22,8 @@ const card: BeastCard = {
   skills: ['skill_205'],
   passive: ['skill_206'],
   art: {
-    thumbnail: '/beast-game/thumb/young-24.webp',
-    front: '/beast-game/front/young-24.webp',
+    thumbnail: '/beast-game/thumb/young-24.v2.webp?v=5',
+    front: '/beast-game/front/young-24.v2.webp?v=5',
     high: '/star-beasts/summer/24-liu-tu-zhang-young-divine.png',
     back: '/beast-game/card-back.webp',
   },

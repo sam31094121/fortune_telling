@@ -22,8 +22,8 @@ const card: BeastCard = {
   skills: ['skill_302', 'skill_104'],
   passive: ['skill_113'],
   art: {
-    thumbnail: '/beast-game/thumb/guardian-zhuque.webp',
-    front: '/beast-game/front/guardian-zhuque.webp',
+    thumbnail: '/beast-game/thumb/guardian-zhuque.v2.webp?v=11',
+    front: '/beast-game/front/guardian-zhuque.v2.webp?v=11',
     high: '/star-beasts/four-guardians/zhuque.png',
     back: '/beast-game/card-back.webp',
   },

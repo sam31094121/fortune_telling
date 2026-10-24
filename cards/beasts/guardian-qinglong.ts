@@ -22,8 +22,8 @@ const card: BeastCard = {
   skills: ['skill_301', 'skill_101'],
   passive: ['skill_111'],
   art: {
-    thumbnail: '/beast-game/thumb/guardian-qinglong.webp',
-    front: '/beast-game/front/guardian-qinglong.webp',
+    thumbnail: '/beast-game/thumb/guardian-qinglong.v2.webp?v=11',
+    front: '/beast-game/front/guardian-qinglong.v2.webp?v=11',
     high: '/star-beasts/four-guardians/qinglong.png',
     back: '/beast-game/card-back.webp',
   },

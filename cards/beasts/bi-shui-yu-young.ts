@@ -22,8 +22,8 @@ const card: BeastCard = {
   skills: ['skill_201'],
   passive: [],
   art: {
-    thumbnail: '/beast-game/thumb/young-14.webp',
-    front: '/beast-game/front/young-14.webp',
+    thumbnail: '/beast-game/thumb/young-14.v2.webp?v=6',
+    front: '/beast-game/front/young-14.v2.webp?v=6',
     high: '/star-beasts/winter/14-bi-shui-yu-young-divine.png',
     back: '/beast-game/card-back.webp',
   },

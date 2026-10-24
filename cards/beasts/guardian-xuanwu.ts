@@ -22,8 +22,8 @@ const card: BeastCard = {
   skills: ['skill_304', 'skill_103'],
   passive: ['skill_112'],
   art: {
-    thumbnail: '/beast-game/thumb/guardian-xuanwu.webp',
-    front: '/beast-game/front/guardian-xuanwu.webp',
+    thumbnail: '/beast-game/thumb/guardian-xuanwu.v2.webp?v=11',
+    front: '/beast-game/front/guardian-xuanwu.v2.webp?v=11',
     high: '/star-beasts/four-guardians/xuanwu.png',
     back: '/beast-game/card-back.webp',
   },

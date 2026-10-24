@@ -112,8 +112,8 @@ function codeWithoutComments(source: string): string {
 }
 
 const root = process.cwd();
-const assetExists = (p: string) => fs.existsSync(path.join(root, 'public', p.replace(/^\//, '')));
-const sizeOf = (p: string) => fs.statSync(path.join(root, 'public', p.replace(/^\//, ''))).size;
+const assetExists = (p: string) => fs.existsSync(path.join(root, 'public', p.split('?')[0].replace(/^\//, '')));
+const sizeOf = (p: string) => fs.statSync(path.join(root, 'public', p.split('?')[0].replace(/^\//, ''))).size;
 
 console.log('\n【一】卡片登錄中心：六十張，不合格的不准進正式牌庫');
 const registry = buildRegistry({ assetExists });

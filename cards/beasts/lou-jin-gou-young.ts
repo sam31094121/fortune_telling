@@ -22,8 +22,8 @@ const card: BeastCard = {
   skills: ['skill_204'],
   passive: ['skill_206'],
   art: {
-    thumbnail: '/beast-game/thumb/young-16.webp',
-    front: '/beast-game/front/young-16.webp',
+    thumbnail: '/beast-game/thumb/young-16.v2.webp?v=5',
+    front: '/beast-game/front/young-16.v2.webp?v=5',
     high: '/star-beasts/autumn/16-lou-jin-gou-young-divine.png',
     back: '/beast-game/card-back.webp',
   },
