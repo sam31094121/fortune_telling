@@ -8,6 +8,7 @@ import library from '../docs/技能戰鬥檔案/鬼魅阿修羅/候選話術-100
 import { createBaziCore, type BaziBirthInput } from '../lib/bazi/engine';
 import {
   pickGoldWording, matchDimensions, WIRED_DIMENSIONS, EXCESS_SHARE_THRESHOLD,
+  crossCheckFourPillars, GATE_BLOCK_MESSAGE,
 } from '../lib/ghost-asura-gold-wording';
 
 let pass = 0;
@@ -139,6 +140,53 @@ ok('後端無欄位的構面（提醒類神煞、流年）不外流', () => {
   for (const [, input] of cases) {
     const r = pickGoldWording(createBaziCore(input));
     assert.ok(r.status === 'OK' && WIRED_DIMENSIONS.includes(r.dimension));
+  }
+});
+
+ok('第 3 步：已知時辰的客戶，八字×紫微四柱逐字核對通過', () => {
+  for (const [label, input] of cases) {
+    if (!input.birthTimeKnown) continue;
+    const gate = crossCheckFourPillars({ birthDate: input.birthDate, gender: input.gender, birthTime: input.birthTime });
+    assert.deepEqual(gate, { status: 'PASSED' }, label);
+  }
+});
+
+ok('第 3 步：沒填時辰＝無紫微可核對，不當成通過，仍照「時辰未填」句', () => {
+  const gate = crossCheckFourPillars({ birthDate: '1990-3-15', gender: 'male', birthTime: null });
+  assert.deepEqual(gate, { status: 'TIME_UNKNOWN' });
+  const r = pickGoldWording(createBaziCore(cases[1][1]), gate);
+  assert.ok(r.status === 'OK' && r.dimension === 'HOUR_UNKNOWN');
+});
+
+ok('第 3 步：核對沒過就停在核對關，不挑句、不補別句，兩邊差異原封不動', () => {
+  const core = createBaziCore(cases[0][1]);
+  const mismatch = { status: 'MISMATCH' as const, differences: [{ pillar: 'hour' as const, bazi: '辛未', ziwei: '壬申' }] };
+  const r1 = pickGoldWording(core, mismatch);
+  assert.deepEqual(r1, { status: 'UNAVAILABLE', message: GATE_BLOCK_MESSAGE, gate: mismatch });
+  assert.deepEqual((r1 as { gate: typeof mismatch }).gate.differences, [{ pillar: 'hour', bazi: '辛未', ziwei: '壬申' }]);
+  for (const gate of [{ status: 'ZIWEI_UNAVAILABLE' as const, reason: 'x' }, { status: 'ERROR' as const, reason: 'y' }]) {
+    const r = pickGoldWording(core, gate);
+    assert.ok(r.status === 'UNAVAILABLE' && r.message === GATE_BLOCK_MESSAGE);
+  }
+});
+
+ok('第 3 步：核對只用三合一同一份比較函式，不另寫第二套、不改任一邊', () => {
+  const src = readFileSync(new URL('../lib/ghost-asura-gold-wording.ts', import.meta.url), 'utf8');
+  assert.ok(src.includes("from './four-pillar-verification'") && src.includes("from './three-core-engine'"));
+  assert.ok(!/ziwei\.analysis\.bazi\.\w+\s*=[^=]/.test(src) && !/bazi\.(year|month|day|hour)\s*=[^=]/.test(src), '核對關不得改寫任一邊');
+});
+
+ok('第 3 步：150 組隨機已知時辰生辰，核對全數通過（有不同就是真實的四柱分歧，要查）', () => {
+  let seed = 98765;
+  const rnd = () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
+  for (let i = 0; i < 150; i++) {
+    const input = {
+      birthDate: `${1950 + Math.floor(rnd() * 70)}-${1 + Math.floor(rnd() * 12)}-${1 + Math.floor(rnd() * 28)}`,
+      gender: (rnd() > 0.5 ? 'male' : 'female') as 'male' | 'female',
+      birthTime: `${String(Math.floor(rnd() * 24)).padStart(2, '0')}:${String(Math.floor(rnd() * 60)).padStart(2, '0')}`,
+    };
+    const gate = crossCheckFourPillars(input);
+    assert.equal(gate.status, 'PASSED', `${JSON.stringify(input)} → ${JSON.stringify(gate)}`);
   }
 });
 

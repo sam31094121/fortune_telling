@@ -7,6 +7,8 @@
  */
 
 import { createBaziCore, type BaziProfessionalResult } from './bazi/engine';
+import { isZiweiCertified, runBaziLayer, runZiweiLayer, type ThreeCoreInput } from './three-core-engine';
+import { verifyFourPillars, type FourPillarDifference } from './four-pillar-verification';
 import library from '../docs/技能戰鬥檔案/鬼魅阿修羅/候選話術-100句.json';
 
 export type GoldDimension =
@@ -39,6 +41,43 @@ export const EXCESS_SHARE_THRESHOLD = 0.45;
 /** 本引擎 computeShenSha 輸出中屬吉類（貴人）的規則編號。 */
 const AUSPICIOUS_IDS = new Set(['tianyi', 'wenchang']);
 
+/**
+ * 第 3 步：八字 × 紫微 四柱逐字核對（沿用三合一的 runBaziLayer／runZiweiLayer／verifyFourPillars，不另寫第二套）。
+ * 鐵律：對不上就停在核對關，不挑句；**不自動把任一邊改成另一邊**；哪一柱不同、兩邊各是什麼原封不動留在 differences。
+ */
+export type FourPillarGate =
+  | { status: 'PASSED' }
+  /** 沒填時辰：紫微不排，沒有東西可核對。沿用「時辰未填」句，不當成核對通過。 */
+  | { status: 'TIME_UNKNOWN' }
+  | { status: 'MISMATCH'; differences: FourPillarDifference[] }
+  | { status: 'ZIWEI_UNAVAILABLE'; reason: string }
+  | { status: 'ERROR'; reason: string };
+
+export const GATE_BLOCK_MESSAGE = '四柱核對未通過，暫不顯示';
+
+export function crossCheckFourPillars(input: { birthDate: string; gender: 'male' | 'female'; birthTime?: string | null }): FourPillarGate {
+  if (!input.birthTime) return { status: 'TIME_UNKNOWN' };
+  try {
+    // 三核心層只收補零的 YYYY-MM-DD；這裡只補零，不改任何日期內容
+    const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(input.birthDate.trim());
+    const birthDate = m ? `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}` : input.birthDate;
+    const coreInput: ThreeCoreInput = { birthDate, gender: input.gender, birthTime: input.birthTime };
+    const { core, bazi } = runBaziLayer(coreInput);
+    if (!core.verification.readyForInterpretation) return { status: 'ERROR', reason: '八字驗證閘未通過' };
+    const ziwei = runZiweiLayer(coreInput, core);
+    if (ziwei.status !== 'READY' || !isZiweiCertified(ziwei)) {
+      return { status: 'ZIWEI_UNAVAILABLE', reason: ziwei.status === 'READY' ? '紫微未定盤' : ziwei.reason };
+    }
+    const verification = verifyFourPillars(
+      { year: bazi.year, month: bazi.month, day: bazi.day, hour: bazi.hour ?? '' },
+      { year: ziwei.analysis.bazi.year, month: ziwei.analysis.bazi.month, day: ziwei.analysis.bazi.day, hour: ziwei.analysis.bazi.hour },
+    );
+    return verification.passed ? { status: 'PASSED' } : { status: 'MISMATCH', differences: verification.differences };
+  } catch (error) {
+    return { status: 'ERROR', reason: error instanceof Error ? error.message : String(error) };
+  }
+}
+
 export type GoldWordingResult =
   | {
       status: 'OK';
@@ -52,7 +91,7 @@ export type GoldWordingResult =
       /** 命中的全部構面（依優先序）；只顯示第一個，其餘留作稽核 */
       matchedDimensions: GoldDimension[];
     }
-  | { status: 'UNAVAILABLE'; message: string };
+  | { status: 'UNAVAILABLE'; message: string; gate?: FourPillarGate };
 
 const UNAVAILABLE_MESSAGE = '技能檔無此資料，暫不顯示';
 
@@ -99,14 +138,19 @@ export function goldWordingViewFor(engineInput: Record<string, unknown>, hourAss
       birthTime: known ? (birthTime as string) : undefined,
       timezone: typeof engineInput.timezone === 'string' ? engineInput.timezone : undefined,
     });
-    const r = pickGoldWording(core);
+    const gate = crossCheckFourPillars({ birthDate, gender, birthTime: known ? (birthTime as string) : null });
+    const r = pickGoldWording(core, gate);
     return { label, text: r.status === 'OK' ? r.line : r.message };
   } catch {
     return { label, text: UNAVAILABLE_MESSAGE };
   }
 }
 
-export function pickGoldWording(core: BaziProfessionalResult): GoldWordingResult {
+export function pickGoldWording(core: BaziProfessionalResult, gate?: FourPillarGate): GoldWordingResult {
+  // 核對關沒過就停在這裡：不挑句、不補別句、也不改任何一邊
+  if (gate && (gate.status === 'MISMATCH' || gate.status === 'ZIWEI_UNAVAILABLE' || gate.status === 'ERROR')) {
+    return { status: 'UNAVAILABLE', message: GATE_BLOCK_MESSAGE, gate };
+  }
   const stem = core.dayMaster?.stem;
   if (!stem) return { status: 'UNAVAILABLE', message: UNAVAILABLE_MESSAGE };
 
