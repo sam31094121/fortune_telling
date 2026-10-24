@@ -482,9 +482,9 @@
 .rageGuide strong { color: #ffe2a4; }
 .reserveCards { display: flex; gap: 8px; overflow-x: auto; padding: 3px; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: #58728c transparent; }
 .reserveCard { display: grid; grid-template-columns: 44px minmax(0, 1fr); grid-template-rows: auto auto; align-items: center; gap: 2px 7px; flex: 0 0 156px; min-height: 60px; padding: 7px; text-align: left; border: 1px solid #7caaca; border-radius: 12px; background: #23374e; touch-action: manipulation; }
-.reserveCard img { grid-row: 1 / 3; width: 44px; height: 44px; border-radius: 8px; object-fit: cover; }
+.reserveCard > [data-card-thumbnail] { grid-row: 1 / 3; width: 44px; height: auto; border-radius: 8px; object-fit: cover; }
 .reserveCard strong { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.reserveCard span { font-size: 10px; color: #b9d1e5; }
+.reserveCard > span:not([data-card-thumbnail]) { font-size: 10px; color: #b9d1e5; }
 .reserveCard:disabled { border-color: #43566c; background: #142338; color: #9badc1; }
 .battleDetails { font-size: 12px; color: #b9d1e5; }
 .battleDetails summary { min-height: 44px; align-content: center; cursor: pointer; }
@@ -533,7 +533,7 @@
 .activeHint { font-size: 10px; line-height: 14px; color: #7a99b8; }
 .primaryActions small { font-size: 10px; line-height: 13px; opacity: .72; }
 .reserveCard strong { font-size: 13px; }
-.reserveCard span { font-size: 11px; }
+.reserveCard > span:not([data-card-thumbnail]) { font-size: 11px; }
 .actionButton:disabled, .skillButton:disabled { opacity: 1; background: #243449; color: #c3d0df; border-color: #526178; box-shadow: none; }
 /* 攻擊按鈕：元素光暈（--element-glow 由 TSX 注入） */
 .actionButton[style] { border-color: var(--element-glow, rgba(255,255,255,0.25)); box-shadow: 0 0 12px var(--element-glow, transparent), 0 4px 12px rgba(0,0,0,0.3); }

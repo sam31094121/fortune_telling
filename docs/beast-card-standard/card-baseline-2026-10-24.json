@@ -1,0 +1,746 @@
+{
+  "captured": "2026-10-24",
+  "root": "C:\\Users\\DRAGON\\Desktop\\命理",
+  "baseline": "/beast-game?mode=easy",
+  "component": "BeastCardFace / FrameV1Tile",
+  "sources": [
+    {
+      "path": "components/battlefield/BeastCardTile.tsx",
+      "sha256": "7fc8b6c7f421872e4656b613e19c7556cb9fa5ba8862ae24a49caa826ca9ba9c"
+    },
+    {
+      "path": "components/battlefield/BeastCardTile.module.css",
+      "sha256": "4a047c69b553ff261c30796041f580f754fc3575504a3132b07061a012873b27"
+    },
+    {
+      "path": "components/BeastCardFrame.module.css",
+      "sha256": "aa359c5114949aeaffb7e1e80c4bb8176b6b52d0b8bcdd638a39a1297b468009"
+    },
+    {
+      "path": "lib/beast-game/card-face-stats.ts",
+      "sha256": "a6f3450faadc13660eb561d24a723049d5e29a9e2de1d36eeec3cef5b30810c0"
+    }
+  ],
+  "assets": [
+    {
+      "path": "public/beast-game/thumb/young-01.v2.webp",
+      "sha256": "6207f137be27e5ae9279cb9d10561b33e78d6efb5d68cfeeaf41a2ea6d6a7827"
+    },
+    {
+      "path": "public/beast-game/thumb/young-01.v2-480.webp",
+      "sha256": "dcf3cdd4537823e94f70b2bd753f721cefc1491c77765682a928b36c457e07ea"
+    },
+    {
+      "path": "public/beast-game/front/young-01.v2.webp",
+      "sha256": "eed5b8f52ea537bd141e349ed8a302c8775b882cf1c02e3bf074062273efa7a3"
+    },
+    {
+      "path": "public/beast-game/thumb/young-02.v2.webp",
+      "sha256": "8a9f83381fb5fbecef4df8b254c7ee8828e358b9f6f0ffaf849eafb91393e653"
+    },
+    {
+      "path": "public/beast-game/thumb/young-02.v2-480.webp",
+      "sha256": "87be10ac386426fa108b86817331514309f9b5a6ee54f2ba756784d9c08dbc04"
+    },
+    {
+      "path": "public/beast-game/front/young-02.v2.webp",
+      "sha256": "7191ec14618e200efcd57f7e8a9e9c55ee0a74a539291ac27234a45e822d4155"
+    },
+    {
+      "path": "public/beast-game/thumb/young-03.v2.webp",
+      "sha256": "86d0f1075eba8d7bd25f35f8d8e640bdba9cccf149e269060e6d1474e0657399"
+    },
+    {
+      "path": "public/beast-game/thumb/young-03.v2-480.webp",
+      "sha256": "db14629474fa072f88e0fed84de627adf2d04774fa02bfc503c6ca5e5e52079e"
+    },
+    {
+      "path": "public/beast-game/front/young-03.v2.webp",
+      "sha256": "891a22dfedd3b5d73bb0a189d8e4f497ac851e2847a7794184499a0f36acb803"
+    },
+    {
+      "path": "public/beast-game/thumb/young-04.v2.webp",
+      "sha256": "83c564fc93cfd527faf50925675580b695df532dfdc13763c1a1f204c77ab020"
+    },
+    {
+      "path": "public/beast-game/thumb/young-04.v2-480.webp",
+      "sha256": "0d494024b34b7d3685a60f0b32c147d98eae313df72398e5904dbe2d3a5513ca"
+    },
+    {
+      "path": "public/beast-game/front/young-04.v2.webp",
+      "sha256": "a194aeef0b51c33d50b050c2f3ba0bf7d67f531d5d25a11b40db6c3f9a19f967"
+    },
+    {
+      "path": "public/beast-game/thumb/young-05.v2.webp",
+      "sha256": "71250631fa23040186f8b1de4740892b2b111d6c6205ab35f39a94a20fd2a8f6"
+    },
+    {
+      "path": "public/beast-game/thumb/young-05.v2-480.webp",
+      "sha256": "3f00cd5904b9426c47ffda1ec6702bc634991daf8003bcbebda73e6194554b77"
+    },
+    {
+      "path": "public/beast-game/front/young-05.v2.webp",
+      "sha256": "21a10ce94c8687ba0753d38f587b9b5117d4828831399801d8454c7be5263511"
+    },
+    {
+      "path": "public/beast-game/thumb/young-06.v2.webp",
+      "sha256": "17a0c899988ea8b5cf668e4fdc142772c7866999c8212d26d8943176e819ce7d"
+    },
+    {
+      "path": "public/beast-game/thumb/young-06.v2-480.webp",
+      "sha256": "5ac9a1fe08d1b7463411164afe88780150f15328e2eca29c239426a85256875b"
+    },
+    {
+      "path": "public/beast-game/front/young-06.v2.webp",
+      "sha256": "48ea20912d2803e2003ab69aec9024fdd5e6d4e05508ceeab2b06260786e0c2f"
+    },
+    {
+      "path": "public/beast-game/thumb/young-07.v2.webp",
+      "sha256": "0cae45d612971db0ad047ac2746b6e1cc7b2ce9260a0793b99c779afb50e9e37"
+    },
+    {
+      "path": "public/beast-game/thumb/young-07.v2-480.webp",
+      "sha256": "0cddca1c1ac163a1bafbe7516e32b14ac534c1274353e086e2f155aa87c7d222"
+    },
+    {
+      "path": "public/beast-game/front/young-07.v2.webp",
+      "sha256": "c131a14dd20e6f22e134de7379e8317ac7a1adb385b93d7920bb56799696d2a0"
+    },
+    {
+      "path": "public/beast-game/thumb/young-08.v2.webp",
+      "sha256": "e18b975426d169dc89f269a720308146272e3ca31db05001741d8206e7aa8689"
+    },
+    {
+      "path": "public/beast-game/thumb/young-08.v2-480.webp",
+      "sha256": "1194771ca003f1abbf3a4765c48def47a6872140e9f16c924b6e241e2ba601f0"
+    },
+    {
+      "path": "public/beast-game/front/young-08.v2.webp",
+      "sha256": "fd71f4e46d53e72016f6d28c337e62797fc129e9750c6b7b40eeb92657274c3a"
+    },
+    {
+      "path": "public/beast-game/thumb/young-09.v2.webp",
+      "sha256": "dd0b4ee418a4907314e11dfc8678e1a9ae7f48569abb0b0b785ee32cd8d91dde"
+    },
+    {
+      "path": "public/beast-game/thumb/young-09.v2-480.webp",
+      "sha256": "fc13422a08b843f2ce65254eff3606d7dbe392b523b0a0a330e23bfb006fea1b"
+    },
+    {
+      "path": "public/beast-game/front/young-09.v2.webp",
+      "sha256": "4a9f0bee5773a58adc319f45e46de040bb7b2c47c9c03ccc7502f1173e5cf51d"
+    },
+    {
+      "path": "public/beast-game/thumb/young-10.v2.webp",
+      "sha256": "60b2936811782b251d3b4f93f6f4908b06396460931116289f495a82a7196922"
+    },
+    {
+      "path": "public/beast-game/thumb/young-10.v2-480.webp",
+      "sha256": "86a13c3c8c55ea6508303fb01a63829af644c71c116142ae15ddf071f56f5812"
+    },
+    {
+      "path": "public/beast-game/front/young-10.v2.webp",
+      "sha256": "e5724cd804a0690c7d3578f17d8590478a9b3a07a8f86b6f53d93abbc69881aa"
+    },
+    {
+      "path": "public/beast-game/thumb/young-11.v2.webp",
+      "sha256": "918a71c2bdc6cfc278455ea7a33003f6d2060bf4b2a5dc8a7be488c25d896f59"
+    },
+    {
+      "path": "public/beast-game/thumb/young-11.v2-480.webp",
+      "sha256": "55d77643f84c1b7cb55723ad72ef93cc84cf5c57f7300239bf817a239d26740d"
+    },
+    {
+      "path": "public/beast-game/front/young-11.v2.webp",
+      "sha256": "9a74281f87a9d8fcac89be02fb814327deb217c4e0c30e83746349ba770ef576"
+    },
+    {
+      "path": "public/beast-game/thumb/young-12.v2.webp",
+      "sha256": "ddd6095e2b507398bd198ca5890b2ee500e03453b9239f73744933beb87f16f6"
+    },
+    {
+      "path": "public/beast-game/thumb/young-12.v2-480.webp",
+      "sha256": "b52c90cc4d599884758993d244160d8e389864eb77f544cd7c83a216c73fe7f4"
+    },
+    {
+      "path": "public/beast-game/front/young-12.v2.webp",
+      "sha256": "ed1d198e9fc81df71da26449357c9ad43c7f69e155d39be9c2b2f67998121998"
+    },
+    {
+      "path": "public/beast-game/thumb/young-13.v2.webp",
+      "sha256": "fb94696c032e39146d8657328e7dab2496f8aed5ddcaa41c4475b49315f314ae"
+    },
+    {
+      "path": "public/beast-game/thumb/young-13.v2-480.webp",
+      "sha256": "092a41a760c0411c70c3d2cdd8c8e3b5b273f3f76a0027b302d1a8f0a4019e09"
+    },
+    {
+      "path": "public/beast-game/front/young-13.v2.webp",
+      "sha256": "f75ff8bd1bc74833644af7a1cdc7b2ed7b2c44d1130851d27d56a46d6872a459"
+    },
+    {
+      "path": "public/beast-game/thumb/young-14.v2.webp",
+      "sha256": "9c1aaefe85aa9eaf696bb912722682f69f96c3c773702af3b3164b2bd689bafb"
+    },
+    {
+      "path": "public/beast-game/thumb/young-14.v2-480.webp",
+      "sha256": "84f4da20c6e33f4e9d7960bc135a937ee2ec9c1b061a7e762745b200ca375276"
+    },
+    {
+      "path": "public/beast-game/front/young-14.v2.webp",
+      "sha256": "6cb009a832f333d5399c924b55dbdbe6b1a162c41c0000f65af29849ee3c1f66"
+    },
+    {
+      "path": "public/beast-game/thumb/young-15.v2.webp",
+      "sha256": "753c33f127adadbc251834b3ca56bb76a9adcb667bed4d134ce1a5203628b1ac"
+    },
+    {
+      "path": "public/beast-game/thumb/young-15.v2-480.webp",
+      "sha256": "b04e025421e016832de45f21796e953fafdcfd5f7f2d83ec88dd2db0cb76d3d1"
+    },
+    {
+      "path": "public/beast-game/front/young-15.v2.webp",
+      "sha256": "fd61e3f6dd3ef9706967f3bda0df5ce88e44733375e7e0e4e8f24633b8076545"
+    },
+    {
+      "path": "public/beast-game/thumb/young-16.v2.webp",
+      "sha256": "fa988407616745fb9c9d980f313f2f5f5879f004018f40c73106e6ceccb16c47"
+    },
+    {
+      "path": "public/beast-game/thumb/young-16.v2-480.webp",
+      "sha256": "1cb9ef82fa14535051c0857655028eea15d14bac93ae09e2a1f6ae99bc66ccf5"
+    },
+    {
+      "path": "public/beast-game/front/young-16.v2.webp",
+      "sha256": "36c78d0b017174f7d2873a67a3066a54dfa9b01a7bc63f98d2c796a142aaee52"
+    },
+    {
+      "path": "public/beast-game/thumb/young-17.v2.webp",
+      "sha256": "7e36ea24eed3f9902266032d4b4f7a1a5f8cd8d8e93255cfe35b5fef284a50fd"
+    },
+    {
+      "path": "public/beast-game/thumb/young-17.v2-480.webp",
+      "sha256": "287bcedd655b64edc0bb764927dc2092535a1ef34818455941990fe4804c0bd0"
+    },
+    {
+      "path": "public/beast-game/front/young-17.v2.webp",
+      "sha256": "99cf88037a3a0799ca5c7b0e086f9e8d639842fc0967fe4a0d7cf17745127f42"
+    },
+    {
+      "path": "public/beast-game/thumb/young-18.v2.webp",
+      "sha256": "c9d58da2d2d15fe18f2e771d518ab2b2a155b4070c9da4eef38dd6466afe90c7"
+    },
+    {
+      "path": "public/beast-game/thumb/young-18.v2-480.webp",
+      "sha256": "c88a8bb75e95583cfce0198a9dbd3f88041a9c33988cfd01fc1b240518d9ee40"
+    },
+    {
+      "path": "public/beast-game/front/young-18.v2.webp",
+      "sha256": "b7eeaa41dac46808576938fb73f66b7fc7831dcc70b965180ca264ef8fd7955f"
+    },
+    {
+      "path": "public/beast-game/thumb/young-19.v2.webp",
+      "sha256": "d88d811756f0c4f016764a7403bc78e7f308eda838e1f705ad85918d3a666bc8"
+    },
+    {
+      "path": "public/beast-game/thumb/young-19.v2-480.webp",
+      "sha256": "aae7df0e52aa4b2941e5d8578c9362cd1d768457df96721726fdb3101cca582a"
+    },
+    {
+      "path": "public/beast-game/front/young-19.v2.webp",
+      "sha256": "119395b137671610f52e3d6b055851af5bd537ae3c11fa34aca0a9d8d48f16ee"
+    },
+    {
+      "path": "public/beast-game/thumb/young-20.v2.webp",
+      "sha256": "c297c684e98e6b98209bc700688493612f837a9b0708cb7a483d98ec8749c8cf"
+    },
+    {
+      "path": "public/beast-game/thumb/young-20.v2-480.webp",
+      "sha256": "e010fc831dbebb46848ec45abd077b06dd4e9a8614a95ca97e93fd15d02acd52"
+    },
+    {
+      "path": "public/beast-game/front/young-20.v2.webp",
+      "sha256": "44ca98a513ab3d9f1116fa128755c5b161f2259ec3094866f2f4834362ac7b93"
+    },
+    {
+      "path": "public/beast-game/thumb/young-21.v2.webp",
+      "sha256": "1d52b69cdb47a73cb73534da9a531f175b797e9bdd70bb3113913ccfa6a3d5ed"
+    },
+    {
+      "path": "public/beast-game/thumb/young-21.v2-480.webp",
+      "sha256": "4ff34b17e49e9d01b541716608601b5b47da3a2b27f1047aa9e47004a14f965f"
+    },
+    {
+      "path": "public/beast-game/front/young-21.v2.webp",
+      "sha256": "df100c6c43185e86f9ea958d4b93f0c2c727ef3580c3a0559ffe9f2b6192b025"
+    },
+    {
+      "path": "public/beast-game/thumb/young-22.v2.webp",
+      "sha256": "390ac1715826bbd35f4f829cd707bc1dbaea6cbe3f59b572d9cd03211940fd5d"
+    },
+    {
+      "path": "public/beast-game/thumb/young-22.v2-480.webp",
+      "sha256": "9a45635b2a413e90d8578507409da54520545457782751bc9ac459e4d8c71ba3"
+    },
+    {
+      "path": "public/beast-game/front/young-22.v2.webp",
+      "sha256": "6ecebff2f36661bd23a7a89d49891de204be1a1693390d57ebafe8308b7e4f9b"
+    },
+    {
+      "path": "public/beast-game/thumb/young-23.v2.webp",
+      "sha256": "63a4664f69dfe8ebf111260f4442dfe5a4d35c3dc74e349a5260fd67e1bea462"
+    },
+    {
+      "path": "public/beast-game/thumb/young-23.v2-480.webp",
+      "sha256": "68e4dd382c8fc80e1ade1f52175fd7a6acd3ee6ad6f7f0313e8a9fa1039bc33b"
+    },
+    {
+      "path": "public/beast-game/front/young-23.v2.webp",
+      "sha256": "91cc9ca081e493303d2e59eb2d63fec49355c8c0ebd513481f2a1b98ea7b7232"
+    },
+    {
+      "path": "public/beast-game/thumb/young-24.v2.webp",
+      "sha256": "c6814f308052c5a027a9c9dbee4857d58b45bdf75b94970df79b94d8cfe498b3"
+    },
+    {
+      "path": "public/beast-game/thumb/young-24.v2-480.webp",
+      "sha256": "34fd5b28e699f6505facbd466b39a90b20d0404b08a7430f4d1638348265b801"
+    },
+    {
+      "path": "public/beast-game/front/young-24.v2.webp",
+      "sha256": "b61705600f86750180d970d7f74c2fcf7660f02a319a4cd3521a5f3cb37edd9f"
+    },
+    {
+      "path": "public/beast-game/thumb/young-25.v2.webp",
+      "sha256": "f2c04c3db4120cd60299540731b417fac73a38808b0fbeb86660f93701b4fdaa"
+    },
+    {
+      "path": "public/beast-game/thumb/young-25.v2-480.webp",
+      "sha256": "83ca9e3b10004db75d675584f1766bc54a665230e800ed25bd09993c5b92649c"
+    },
+    {
+      "path": "public/beast-game/front/young-25.v2.webp",
+      "sha256": "e45c7190dc5e3f9cd2749723030b942dfe7c790b1bbe65bae98aa433250993db"
+    },
+    {
+      "path": "public/beast-game/thumb/young-26.v2.webp",
+      "sha256": "fc7f3392931512c46deee551836147172c975963eb11cc890edd92f0caee5bf1"
+    },
+    {
+      "path": "public/beast-game/thumb/young-26.v2-480.webp",
+      "sha256": "d4610918ced008c9f1eaf975e0d59dad4575b1384b44a115534f44bf9b6c1eff"
+    },
+    {
+      "path": "public/beast-game/front/young-26.v2.webp",
+      "sha256": "35f5e942938376f2674a99cc48f1b268c966bddf67f05be2f2b7dfac88dbd6c1"
+    },
+    {
+      "path": "public/beast-game/thumb/young-27.v2.webp",
+      "sha256": "1513e051abceb584bdb82191dafe53e07d260ba29e8826731858b401279e9be8"
+    },
+    {
+      "path": "public/beast-game/thumb/young-27.v2-480.webp",
+      "sha256": "ac6e6a233b3b2ed02b40b05eeacc960291efd0c3533b584542bb46d7e952c15c"
+    },
+    {
+      "path": "public/beast-game/front/young-27.v2.webp",
+      "sha256": "f27821da5febec4b2348b8f5f2aee6fe5c3ff7ab557c2478f53c579b8a535acc"
+    },
+    {
+      "path": "public/beast-game/thumb/young-28.v2.webp",
+      "sha256": "758a7bd8b502ad21481eddd2043a385170d4840d97dbd5c809915f3f7d3cb646"
+    },
+    {
+      "path": "public/beast-game/thumb/young-28.v2-480.webp",
+      "sha256": "03dfaa10ebc03bfd4db3e6fb23c4d811be9f97f047ddb5f480b8f6b277fcb05a"
+    },
+    {
+      "path": "public/beast-game/front/young-28.v2.webp",
+      "sha256": "ffdc2fb1330b916458e0519b841d05d18cc96f2de9f8b61317542bbca5fe37a7"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-01.v2.webp",
+      "sha256": "47f80d9155517b5f2126dc5fdeb9ee0da51e5448297992afe05308af1ebda19f"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-01.v2-480.webp",
+      "sha256": "9298e21343226a41cd78c55a66678c1643ebd3e907c28f8b9edff4c7c7a6e278"
+    },
+    {
+      "path": "public/beast-game/front/adult-01.v2.webp",
+      "sha256": "b07b42a5b17ab4283b5e46454f9c67fdcbdba3125c9aec4bfe1a32041fc2fec3"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-02.v2.webp",
+      "sha256": "efecb89fd7734f89e3bf23082b11631a28b091a5f472be66a6ed6723ccc128e0"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-02.v2-480.webp",
+      "sha256": "d12a9af6402a3de32abdf83b4dd24ffefc57bd01394f5b84e20577c8b1d9e318"
+    },
+    {
+      "path": "public/beast-game/front/adult-02.v2.webp",
+      "sha256": "9ebd19c2f60e75e13a8fe6daf1c49a8c5c8e524eeda53a9929063be0b5efe5fa"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-03.v2.webp",
+      "sha256": "c6e0ebbccd5681887bc95cded1fda3218b9368c3aa104ee352f848dc4ddc62b6"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-03.v2-480.webp",
+      "sha256": "b09e8ca501588a93258d0c89cccbe44b62dc1380329c8ff780b54a10ae77a9b8"
+    },
+    {
+      "path": "public/beast-game/front/adult-03.v2.webp",
+      "sha256": "907c1f1f370d06ac7b78bd51234086b0507375b70c98ee86605278022330a0b6"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-04.v2.webp",
+      "sha256": "85cd000920b9c4b960ac148f4a742abe6d3ae3e30ff629820fc2ecc4eae0aa4f"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-04.v2-480.webp",
+      "sha256": "f81e52e6ffd665c8db49be2f170fbad33e833140a134e88e4f84251a0d4a5941"
+    },
+    {
+      "path": "public/beast-game/front/adult-04.v2.webp",
+      "sha256": "c71eb510258e37b2ae7a634e9a15edebc5a8a82a9c4f02ac18f9d6bd79b35e29"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-05.v2.webp",
+      "sha256": "f0dfa11f7d92395da036df12bfe18d0e447da62ca24f98673c20c3f20d927382"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-05.v2-480.webp",
+      "sha256": "cb33ca4f57feebfaf592cc4c736cee0e8f2543c0ad0762facea209c47da4ce19"
+    },
+    {
+      "path": "public/beast-game/front/adult-05.v2.webp",
+      "sha256": "7daf27fb1153c745e951405255ef6ea026785d78ab470df2d0a3c6abd3eb1767"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-06.v2.webp",
+      "sha256": "59915bb810ed5ded069aa09ba11863c24ca64c1af1c500467e052a751643f3a6"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-06.v2-480.webp",
+      "sha256": "514a10ddb2851bda72628175f803569d3b5df015ec57d655cd1cd9d53c317ed3"
+    },
+    {
+      "path": "public/beast-game/front/adult-06.v2.webp",
+      "sha256": "aad477c1a5b4e191203ef139db4b4cfc2f57954bf197d1530c5f8c758be60104"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-07.v2.webp",
+      "sha256": "9cdd12d843d12061b80c492dca6e39737808486afa0198e511d3adca44638893"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-07.v2-480.webp",
+      "sha256": "c5cffa414d0a9c9aed9bf1e79334e96a8444653dab07be4fbd1f8ac6686c1906"
+    },
+    {
+      "path": "public/beast-game/front/adult-07.v2.webp",
+      "sha256": "edffa3f94cbf25aff9df671e4b9e48a4b1c80f8be5eca4f45d5fba49589da47b"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-08.v2.webp",
+      "sha256": "efb02d321e0cdb53b68bc5d292a8f0d0ca2aa3b565f9e3452d48bbb0b2b084a2"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-08.v2-480.webp",
+      "sha256": "882849c27d0d072be6b3664948465ba003d5d7e4505e6be94eb6dde97f05e0f9"
+    },
+    {
+      "path": "public/beast-game/front/adult-08.v2.webp",
+      "sha256": "02a24e6faad71c28dd6f113b6778c7f6b219d455a9eb73378a00c119975ac4a0"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-09.v2.webp",
+      "sha256": "009753ae129534c7d342845336753100ae2ff99ff7ff8f880abdd633a2f4de35"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-09.v2-480.webp",
+      "sha256": "cb5b6c77e03980aadac46d6211b2f9f165cf4665606569487d342d85a463dad3"
+    },
+    {
+      "path": "public/beast-game/front/adult-09.v2.webp",
+      "sha256": "3da781184047b72d85c83875bc0d2cd9b0a9252c3b8e0c7a073ff7ebb37a9ba5"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-10.v2.webp",
+      "sha256": "236812463bdc7c5b83f6c58d26a7ce58c5830360b3943625d49a01bd06a39c95"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-10.v2-480.webp",
+      "sha256": "c36d2c013af98140cc00eb0ba1d9970de79fc80b926be685381dc2efd25ebabb"
+    },
+    {
+      "path": "public/beast-game/front/adult-10.v2.webp",
+      "sha256": "feca0017e7c9d88f6fec89bee9f625043af20bbd56c91e2a851980e7895292b3"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-11.v2.webp",
+      "sha256": "6b80b63a650c3afdf9e959a3996dcee9acbd3400d3f70b3ca3050b71728dcd4a"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-11.v2-480.webp",
+      "sha256": "0cfd8773fc13255dd5523feae03a0bdeb3bc85ece9f2fc4707ede6afb881ef69"
+    },
+    {
+      "path": "public/beast-game/front/adult-11.v2.webp",
+      "sha256": "4591be6e38022a013048c0e69ca63caa3cbb35a3e2455faaec5053f9bdb47c7d"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-12.v2.webp",
+      "sha256": "d909a720a6317aec9370d18628f0a85ef34c210b8c771602d3c280796441f804"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-12.v2-480.webp",
+      "sha256": "f1e8bd0912129492e03564d6e0822bc16758d3cb582926ed3382045b2d4aee02"
+    },
+    {
+      "path": "public/beast-game/front/adult-12.v2.webp",
+      "sha256": "f74f885a4c61c5fcf1ac91034c83236f3c98f7a66e0a3bc2cc873bfe878fa1b6"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-13.v2.webp",
+      "sha256": "9f78e50c201f0b0b8e4b727b03401bce9da6f37f2e6c6f330d715b68e9312056"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-13.v2-480.webp",
+      "sha256": "99d90e602eb87c319c99ca3834b26293cf38d3d87076a5e4888fbae1d8559191"
+    },
+    {
+      "path": "public/beast-game/front/adult-13.v2.webp",
+      "sha256": "3218fcaf44788aaebc94f705c8d61057128703243e82aeef8365f3e1b9ec3258"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-14.v2.webp",
+      "sha256": "1b7fc173a7817542d3276ec93e445bb4c13c91ba3266543c11446a358d144f3b"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-14.v2-480.webp",
+      "sha256": "95445b855ac4106e2df31a8b6c57371594a11a6c59cce33235247d4d175c5b09"
+    },
+    {
+      "path": "public/beast-game/front/adult-14.v2.webp",
+      "sha256": "39f6e680b191064f0bf23978d6971c83d90f8004ab2cc4fb79029a84e8b1c099"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-15.v2.webp",
+      "sha256": "e49edd805c8fee7f29d7bf3f2b78bdf5534aa472e3ab7a9ca9c96d1b1d82c442"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-15.v2-480.webp",
+      "sha256": "588998b725f62db2c76fdad77dcc0eee347df4fc51057a245acfcf9ec467e909"
+    },
+    {
+      "path": "public/beast-game/front/adult-15.v2.webp",
+      "sha256": "1051d2759b6054760f35f48d2d0307cf54a0bbe670e6f34bcc8da80f734be483"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-16.v2.webp",
+      "sha256": "97f8e230546eecbc484a62f1215231d6fdd3ed90599d7faa04ce3294842918b5"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-16.v2-480.webp",
+      "sha256": "21cbd86cb3f6cc09f66563e2c627708e103bd3425dec24f91a0275088d98bd3a"
+    },
+    {
+      "path": "public/beast-game/front/adult-16.v2.webp",
+      "sha256": "a8e50c9af2676dedef0468945fe49a1f25b75f78bce4e162a3781ca7d10f32e8"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-17.v2.webp",
+      "sha256": "56d479b8bd4ab33f02e4c5007192670043bb11cff622b6fbaa1ed9c2c0e160d5"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-17.v2-480.webp",
+      "sha256": "b0617c44bf411f09e3f3698c91dc313007e9d25509801fdfe40ff6c7380146ac"
+    },
+    {
+      "path": "public/beast-game/front/adult-17.v2.webp",
+      "sha256": "b456a1c86899747b9b20cc13d592d15ca5d625f084f6d37ee5ea33d40bcf9277"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-18.v2.webp",
+      "sha256": "02c99918bf3912c1dbf1e966dc5bb33e96e5025059ef6aee0ace1823a2e253b2"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-18.v2-480.webp",
+      "sha256": "3ac15ba628e3c218b9711a47638e42e61919cd5ed13b2641be5ecd3fe2b6fff2"
+    },
+    {
+      "path": "public/beast-game/front/adult-18.v2.webp",
+      "sha256": "2030d74cc856913872a7008e6a4d233be1284af7ddc050d1c3626eb48790b7b9"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-19.v2.webp",
+      "sha256": "e8414f1ed983bc5b21cfc99879f07f57ed17fb82c26fa1fa2b7f57f7002ecf9f"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-19.v2-480.webp",
+      "sha256": "daed208c5120287b887f3efad8bc2bea23f5bf1c5177b8f03e30c421feb4a305"
+    },
+    {
+      "path": "public/beast-game/front/adult-19.v2.webp",
+      "sha256": "6d78ba88c5e3ef171d22b2e02200afa5ccc1a9a269d81c28d257cd69fd924f43"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-20.v2.webp",
+      "sha256": "5f649fa9e1578ab74125702c310869483c71bf01dc91e21b36b3f6ad40ef8614"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-20.v2-480.webp",
+      "sha256": "89fdc6caf7f1f1a465c1f93cd3abd939c16c540d2809aa69d1f2a010d6660c8d"
+    },
+    {
+      "path": "public/beast-game/front/adult-20.v2.webp",
+      "sha256": "f09a20edb2a82afeb1f1fd834a3c154cd84d710d0f768548db6d253da66a391c"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-21.v2.webp",
+      "sha256": "499bb49b28a4aa7067c7ff5035456f684697f45ef4389554286c5fecc855bd8c"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-21.v2-480.webp",
+      "sha256": "5458ccf352faf0c5cdc7439047b72a08914d28f3067e0f65258d9c91a2ec8deb"
+    },
+    {
+      "path": "public/beast-game/front/adult-21.v2.webp",
+      "sha256": "cb9e64d4aadaaa1b09ffd615b96b6c1f296d985e76b5468f369011592e68aa2b"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-22.v2.webp",
+      "sha256": "50f61d737cc1b06e4c1c80199ac1fea8b6f8fb62b836e3c05a5823306594dab2"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-22.v2-480.webp",
+      "sha256": "dea89e5089af8b60d0c5893e9828f9c3154902f8486cd409e78a7a01ca3f735d"
+    },
+    {
+      "path": "public/beast-game/front/adult-22.v2.webp",
+      "sha256": "cc34e208a6138780793ddf6c6d159db0ecf5b2cfbf1fff943abd59c57aa472fb"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-23.v2.webp",
+      "sha256": "8f410d63dedcb78097ccc0a20207da1303bfeff21e9a8e37ccb4feb95e45bd3e"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-23.v2-480.webp",
+      "sha256": "96f42f571358ab381d15d955f5a71dbb85fa64ac5e887569f6f4bba1ebcf9835"
+    },
+    {
+      "path": "public/beast-game/front/adult-23.v2.webp",
+      "sha256": "0f1e187fa5f7a0ab73c205ee027387bfa523668c3048a4cad9624095a54b5403"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-24.v2.webp",
+      "sha256": "4013256d988d758aef4d82040e5e60b3cb54ebbfb0be79bdfe89ac1e720bd1b0"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-24.v2-480.webp",
+      "sha256": "31a2c2e2d94b1cebe0b8e30428ddfaae0ca422b1af1ed95b1cd401d432f1b346"
+    },
+    {
+      "path": "public/beast-game/front/adult-24.v2.webp",
+      "sha256": "acaa839ce8ad4237191e7862e05c4e76ceddcd073371e47aa1ae581ca873da13"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-25.v2.webp",
+      "sha256": "c263f846f6895abfa9d7d1ca6740cf21db3dde6f32b20b18835dc76238d5bc53"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-25.v2-480.webp",
+      "sha256": "e100b73d215da64f170dbaccc6b49278aff6c66e78177070a3851018db06a0f5"
+    },
+    {
+      "path": "public/beast-game/front/adult-25.v2.webp",
+      "sha256": "2d81d90a421747f45e4913dfd08c3a66b8d4a664b983fd57796a0027d1894902"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-26.v2.webp",
+      "sha256": "7e0c77a67581bdb2646c04439a4742a0b923fe4d4739d5dfcdf8742334f194e7"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-26.v2-480.webp",
+      "sha256": "9779deb408defa966f4f81a41ea1347daf50a2e843bf3fc5c35ee9e33c40552e"
+    },
+    {
+      "path": "public/beast-game/front/adult-26.v2.webp",
+      "sha256": "e0897fce331ea9b56bab3821e10e766403f0503a1faf767c87e13ba1ce835bdd"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-27.v2.webp",
+      "sha256": "465feddddd9ae305712c05dab3a00215d834664939251d0765ec843e3a70d711"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-27.v2-480.webp",
+      "sha256": "e37309b584395500effcc6830c0adeae3628af9a57ef106b5a58e0c88fe4c4ab"
+    },
+    {
+      "path": "public/beast-game/front/adult-27.v2.webp",
+      "sha256": "0602d75ae31abf1a3f6c4ace9ac133ad3b0c05ddabfbda75ac288086629fd213"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-28.v2.webp",
+      "sha256": "84559117dd9ea07c59ed798ad54edf7e6bb51c105132bf54f6f05569b6cc9fd7"
+    },
+    {
+      "path": "public/beast-game/thumb/adult-28.v2-480.webp",
+      "sha256": "afe04159c3f756fd11f08bf2211b233d44eac99d44c37ca22b1a740bab66a521"
+    },
+    {
+      "path": "public/beast-game/front/adult-28.v2.webp",
+      "sha256": "5885b0f553c5a0114300d9be9e8c9b8996b8414230b377f5e9a0b49f47eccce3"
+    },
+    {
+      "path": "public/beast-game/thumb/guardian-qinglong.v2.webp",
+      "sha256": "837f2cc5010f90d918327cae364a84e8cfee921d1af86b99bc351148bc789600"
+    },
+    {
+      "path": "public/beast-game/thumb/guardian-qinglong.v2-480.webp",
+      "sha256": "829c1ab6a840d749cd270e275c23b9f599c2a8b9c9c4b66284cdaaaaa07dbb08"
+    },
+    {
+      "path": "public/beast-game/front/guardian-qinglong.v2.webp",
+      "sha256": "1dab8819ab3f8ef42397e450bbcb24a7a69617d8cb64bd340363122336e77699"
+    },
+    {
+      "path": "public/beast-game/thumb/guardian-zhuque.v2.webp",
+      "sha256": "16828f14f76e8670ea5575ab10b957ad8dc10931ea6ad5c61bfb07ebd545fae7"
+    },
+    {
+      "path": "public/beast-game/thumb/guardian-zhuque.v2-480.webp",
+      "sha256": "41e9ff104e64bdd4cc21e114ccce8cbe1d2a95a03010b04450d9954698f30e1d"
+    },
+    {
+      "path": "public/beast-game/front/guardian-zhuque.v2.webp",
+      "sha256": "40c405ecb734c6f6bdff79378e8020d5c718f48ce63c161096c0834490baf787"
+    },
+    {
+      "path": "public/beast-game/thumb/guardian-baihu.v2.webp",
+      "sha256": "9261ab45150d1c3612f77e4d2a6a079cfadc5ffda7d991e517d68356c498cbe7"
+    },
+    {
+      "path": "public/beast-game/thumb/guardian-baihu.v2-480.webp",
+      "sha256": "87bd08c78b3d908ac9f55435e1d2692cd9ff8f64d1c1a2238922258a369c05c0"
+    },
+    {
+      "path": "public/beast-game/front/guardian-baihu.v2.webp",
+      "sha256": "f7b4bba225f1c06663dbc7287e7c9ed29879dc2b129c4fea417c6f5ff1d55c58"
+    },
+    {
+      "path": "public/beast-game/thumb/guardian-xuanwu.v2.webp",
+      "sha256": "56a99f9b197b495baeb484bd5bbf4615702dd4baaaba8de9c5f1fd77c80f7ec3"
+    },
+    {
+      "path": "public/beast-game/thumb/guardian-xuanwu.v2-480.webp",
+      "sha256": "3607859f81a331b3c763e584b67abc69e3895fe02de50e945f98c06a1aba3701"
+    },
+    {
+      "path": "public/beast-game/front/guardian-xuanwu.v2.webp",
+      "sha256": "e95f0ca1405e6dcd0dc54c058ad83c8fca7e1f993f607a54c874b534569de803"
+    }
+  ]
+}

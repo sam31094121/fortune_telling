@@ -1,4 +1,5 @@
 'use client';
+import CatalogBeastCard from './battlefield/CatalogBeastCard';
 
 /**
  * 羈絆解鎖・慶祝時刻
@@ -57,9 +58,9 @@ export default function BeastBondCelebration({
             </div>
             <div className={`${styles.face} ${styles.front}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={beast.image} alt={`${beast.name}本體神獸`} />
+              <CatalogBeastCard name={beast.name} />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className={styles.young} src={beast.youngDivineImage} alt={`${beast.name}神獸幼子`} />
+              <CatalogBeastCard name={beast.name} young className={styles.young} />
             </div>
           </div>
         </div>

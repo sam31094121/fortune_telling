@@ -31,6 +31,7 @@ import { WaterTreasureOrb } from '@/components/bazi/customer/WaterTreasureOrb';
 import { useElementTreasureRitual } from '@/components/five-elements/useElementTreasureRitual';
 import type { ThreeInOneResult, ZiweiStarBeastCard } from '@/lib/three-in-one';
 import StarBeastLineageReveal from '@/components/StarBeastLineageReveal';
+import CatalogBeastCard from '@/components/battlefield/CatalogBeastCard';
 // 老師合盤、命宮塔羅、年齡由後端算好送來；這裡只拿顯示用的字典與型別。
 import {
   ZIWEI_DESTINY_ELEMENT_LABELS,
@@ -1421,7 +1422,7 @@ function SanFangSummaryCard({ analysis, plainSummary, meta, starBeasts, threeInO
             const visual = link ? beastVisualTone[link.season] : null;
             return (
               <article key={`${key}-star-beast`} className={`relative min-h-[280px] overflow-hidden rounded-[26px] border p-4 shadow-[0_18px_42px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.14)] ${link ? `bg-gradient-to-br ${visual?.panel}` : tone.card}`}>
-                {link && <img src={link.beast.image} alt="" aria-hidden="true" loading="lazy" decoding="async" className="pointer-events-none absolute -right-7 -top-8 h-[220px] w-[156px] opacity-[0.16] blur-[1px] object-cover" />}
+                {link && <CatalogBeastCard name={link.beast.name} className="pointer-events-none absolute -right-7 -top-8 w-[156px] opacity-[0.16] blur-[1px]" />}
                 {link && <div aria-hidden="true" className={`pointer-events-none absolute -right-16 top-20 h-44 w-44 rounded-full blur-3xl ${visual?.glow}`} />}
                 <span className={`pointer-events-none absolute -right-1 -top-7 font-serif text-[104px] font-black opacity-[0.08] ${tone.text}`}>{label.glyph}</span>
                 <div className="relative flex items-start justify-between gap-3">

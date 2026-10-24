@@ -278,7 +278,7 @@ function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }:
             return <Link href="/beast-game/lineup" className={styles.progressCard} data-player-progress>
               {/* 卡圖沿用現有縮圖素材，不另產圖。 */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              {lastCard && <BeastThumb id={lastCard.id} thumbnail={lastCard.thumbnail} />}
+              {lastCard && <BeastThumb id={lastCard.id} thumbnail={lastCard.thumbnail} alt={lastCard.name} />}
               <span className={styles.progressText}>
                 <strong>你已收藏 {progress.kinds} 種神獸卡</strong>
                 {lastText && <span>{lastText}</span>}

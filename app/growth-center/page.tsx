@@ -1,4 +1,5 @@
 'use client';
+import CatalogBeastCard from '@/components/battlefield/CatalogBeastCard';
 
 import { useEffect, useMemo, useState } from 'react';
 import { FRONTEND_COPY } from '@/lib/credibility-phrases';
@@ -632,8 +633,8 @@ export default function GrowthCenterPage() {
                 <div className="mt-4 rounded-2xl border border-amber-200/30 bg-black/25 p-4">
                   <div className="flex items-center gap-4">
                     <div className="grid shrink-0 grid-cols-2 gap-1">
-                      <img src={nextCard.image} alt={`${nextCard.name}本體神獸`} className="h-28 w-16 rounded-xl border border-amber-200/30 object-cover" />
-                      <img src={nextCard.youngDivineImage} alt={`${nextCard.name}神獸幼子`} className="h-28 w-16 rounded-xl border border-cyan-200/30 object-cover" />
+                      <CatalogBeastCard name={nextCard.name} className="w-16 shrink-0" />
+                      <CatalogBeastCard name={nextCard.name} young className="w-16 shrink-0" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-black text-amber-200">{nextCard.name}羈絆・{beastBondStage}</p>
@@ -654,8 +655,8 @@ export default function GrowthCenterPage() {
               <div className="mt-4 grid grid-cols-7 gap-2 sm:grid-cols-9" role="group" aria-label="二十八組星宿羈絆，點任一格看詳情">
                 {STAR_BEASTS.map((beast) => {
                   const unlocked = unlockedCardIds.includes(beast.id);
-                  return <button type="button" key={beast.id} onClick={() => setBondDetailId(beast.id)} className={`relative aspect-[275/480] overflow-hidden rounded-lg border p-0 transition active:scale-95 ${unlocked ? 'border-amber-200/45 bg-slate-950' : 'border-white/10 bg-slate-950/55'}`} aria-label={unlocked ? `${beast.name}・已解鎖，點開看能做什麼` : '尚未解鎖，點開看怎麼解'}>
-                    {unlocked ? <><img src={beast.image} alt={`${beast.name}本體神獸`} className="h-full w-full object-cover" /><img src={beast.youngDivineImage} alt={`${beast.name}神獸幼子`} className="absolute bottom-1 right-1 h-[42%] w-[42%] rounded border border-cyan-100/50 object-cover shadow-lg" /></> : <span className="grid h-full place-items-center text-xs font-black text-white/35">？</span>}
+                  return <button type="button" key={beast.id} onClick={() => setBondDetailId(beast.id)} className={`relative grid grid-cols-1 gap-1 overflow-hidden rounded-lg border p-0 transition active:scale-95 ${unlocked ? 'border-amber-200/45 bg-slate-950' : 'border-white/10 bg-slate-950/55'}`} aria-label={unlocked ? `${beast.name}・已解鎖，點開看能做什麼` : '尚未解鎖，點開看怎麼解'}>
+                    {unlocked ? <><CatalogBeastCard name={beast.name} /><CatalogBeastCard name={beast.name} young /></> : <span className="grid h-full place-items-center text-xs font-black text-white/35">？</span>}
                   </button>;
                 })}
               </div>
@@ -663,7 +664,7 @@ export default function GrowthCenterPage() {
                 點任何一格：<span className="text-amber-100">亮的</span>看牠能替你打什麼仗，<span className="text-white/70">暗的</span>看怎麼把牠帶回家。每一組解鎖都是真的發卡，可押注出戰——贏再得一張、輸會被沒收。
               </p>
               {nextCard && <div className="mt-4 flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-3">
-                <img src={nextCard.youngDivineImage} alt="下一組神獸幼子" className="h-16 w-11 rounded-md object-cover opacity-70" />
+                <CatalogBeastCard name={nextCard.name} young className="w-11 opacity-70" />
                 <p className="text-sm font-bold leading-6 text-slate-200">下一組羈絆：<span className="text-amber-100">{nextCard.name}</span><br /><span className="text-xs text-slate-400">完成每日一步，收下本體神獸與神獸幼子。</span></p>
               </div>}
               <Link href="/star-beasts" className="mt-4 inline-flex min-h-[44px] items-center rounded-full border border-amber-200/35 px-4 py-2 text-xs font-black text-amber-100 transition hover:bg-amber-300/10">查看完整神獸圖鑑</Link>

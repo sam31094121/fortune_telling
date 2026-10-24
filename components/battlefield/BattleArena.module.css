@@ -169,7 +169,7 @@
 .destination button { min-width: 44px; min-height: 44px; border-radius: 10px; }
 .preparation [role='group'] { padding: 3px; gap: 8px; }
 .preparation [role='group'] > div { flex-basis: 60px; width: 60px; }
-.preparation [role='group'] button { aspect-ratio: 2 / 3; }
+.preparation [role='group'] button { aspect-ratio: 63 / 88; }
 .preparation [role='group'] button img, .destination button img { object-fit: contain; }
 .preparation[data-needs-main='true'] [role='group'] > div:first-child > button { outline: 2px solid #ffe4a6; outline-offset: 1px; }
 .preparation button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
@@ -778,9 +778,9 @@
   transform: scale(1.05);
 }
 .swapCard:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
-.swapCard img { width: 34px; height: 48px; object-fit: contain; border-radius: 5px; pointer-events: none; }
-.swapCard span { font-size: 9px; font-weight: 700; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 46px; color: #bae6fd; }
-.swapCard small { font-size: 8px; color: #38bdf8; line-height: 1; font-weight: 700; }
+.swapCard > [data-card-thumbnail] { width: 34px; height: auto; object-fit: contain; border-radius: 5px; pointer-events: none; }
+.swapCard > span:not([data-card-thumbnail]) { font-size: 9px; font-weight: 700; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 46px; color: #bae6fd; }
+.swapCard > small { font-size: 8px; color: #38bdf8; line-height: 1; font-weight: 700; }
 
 .sideSwapLabel {
   margin: 0 0 2px;
@@ -889,15 +889,15 @@
 /* 左側後備卡區原本整片 85% 透明、底色偏暗，看起來像不能用。提亮到 100%。 */
 .rosterLeft { opacity: 1; }
 
-@media(max-width:600px){.arena[data-easy-cards='true']{grid-template-columns:minmax(40px,.6fr) minmax(0,2fr) minmax(44px,.6fr)}}
+@media(max-width:600px){.arena[data-card-presentation='shared']{grid-template-columns:minmax(40px,.6fr) minmax(0,2fr) minmax(44px,.6fr)}}
 
-/* Easy mode: smaller readable vitals give the card art more room. */
-.arena[data-easy-cards='true'] .arenaVital{max-width:150px;grid-template-rows:14px 6px 14px auto;row-gap:3px}
-.arena[data-easy-cards='true'] .arenaHpBar{height:6px;width:88%;justify-self:center}
-.arena[data-easy-cards='true'] .liveName{font-size:11px;line-height:14px}
-.arena[data-easy-cards='true'] .arenaEnergy{font-size:11px;line-height:14px;text-shadow:none;color:#e7f2fb}
-.arena[data-easy-cards='true'] .vitalChanges:empty{display:none}
-.arena[data-easy-cards='true'] .liveChange{font-size:11px;line-height:14px}
+/* Shared card presentation across difficulties; tap-to-attack remains mode-specific. */
+.arena[data-card-presentation='shared'] .arenaVital{max-width:150px;grid-template-rows:14px 6px 14px auto;row-gap:3px}
+.arena[data-card-presentation='shared'] .arenaHpBar{height:6px;width:88%;justify-self:center}
+.arena[data-card-presentation='shared'] .liveName{font-size:11px;line-height:14px}
+.arena[data-card-presentation='shared'] .arenaEnergy{font-size:11px;line-height:14px;text-shadow:none;color:#e7f2fb}
+.arena[data-card-presentation='shared'] .vitalChanges:empty{display:none}
+.arena[data-card-presentation='shared'] .liveChange{font-size:11px;line-height:14px}
 
-.arena[data-easy-cards='true'] .arenaHpBar.critical{outline:1px solid #ff788c;box-shadow:0 0 6px #fb718580}
-.arena[data-easy-cards='true'] .arenaHpBar.critical>span{min-width:3px}
+.arena[data-card-presentation='shared'] .arenaHpBar.critical{outline:1px solid #ff788c;box-shadow:0 0 6px #fb718580}
+.arena[data-card-presentation='shared'] .arenaHpBar.critical>span{min-width:3px}

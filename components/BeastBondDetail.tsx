@@ -1,4 +1,5 @@
 'use client';
+import CatalogBeastCard from './battlefield/CatalogBeastCard';
 
 /**
  * 羈絆詳情彈窗・把「一幅畫」變成「一份資產」
@@ -96,12 +97,12 @@ export default function BeastBondDetail({
         <div className="mt-3 grid grid-cols-3 gap-2">
           <div className="col-span-2 overflow-hidden rounded-xl border border-amber-200/40">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={beast.image} alt={`${beast.name}本體神獸`} className="aspect-[275/480] h-auto w-full object-cover" loading="lazy" decoding="async" />
+            <CatalogBeastCard name={beast.name} />
           </div>
           <div className="grid content-start gap-1">
             <div className="overflow-hidden rounded-xl border border-cyan-100/40">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={beast.youngDivineImage} alt={`${beast.name}神獸幼子`} className="aspect-[275/480] h-auto w-full object-cover" loading="lazy" decoding="async" />
+              <CatalogBeastCard name={beast.name} young />
             </div>
             <p className="text-center text-[10px] font-bold text-cyan-100/70">幼子</p>
           </div>

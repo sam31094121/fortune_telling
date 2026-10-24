@@ -18,9 +18,9 @@
 /* Vertical preview: computer on top, customer at bottom (mobile-first). */
 .waitingCards { position: absolute; inset: 8% 22% 20%; z-index: 1; display: flex; flex-direction: column; gap: 8px; justify-content: space-between; align-items: center; pointer-events: none; }
 .waitingCards > div { min-width: 0; width: min(48%, 132px); height: 44%; display: grid; grid-template-rows: minmax(0, 1fr) 22px; text-align: center; font-size: 12px; }
-.waitingOpponent span { color: #fca5a5; font-weight: 700; }
-.waitingPlayer span { color: #7dd3fc; font-weight: 700; }
-.waitingCards img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 5px 10px #0009); }
+.waitingOpponent > span { color: #fca5a5; font-weight: 700; }
+.waitingPlayer > span { color: #7dd3fc; font-weight: 700; }
+.waitingFace > img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 5px 10px #0009); }
 .topline { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 10px; }
 .topline h2 { font-size: 16px; color: #ffe4a4; font-weight: 800; }
 .close { min-height: 44px; padding: 6px 10px; color: #bac1d0; font-size: 12px; }
@@ -33,9 +33,9 @@
 .slot > .card { overflow: visible; }
 .card.revealed { transform: rotateY(180deg); }
 .face { position: absolute; inset: 0; overflow: hidden; border-radius: 10px; border: 1px solid #d4b67688; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: #13121d; }
-.face img { width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
+.face > img { width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
 .front { transform: rotateY(180deg); box-shadow: 0 0 18px #ead19735; }
-.front small { position: absolute; top: 5px; right: 5px; padding: 2px 5px; background: #000c; border-radius: 8px; font-size: 10px; color: #fce9b8; }
+.front > small { position: absolute; top: 5px; right: 5px; padding: 2px 5px; background: #000c; border-radius: 8px; font-size: 10px; color: #fce9b8; }
 .caption { margin-top: 4px; text-align: center; }
 .caption strong { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; line-height: 16px; color: #e5dfcf; }
 .dealing .card { animation: deal .65s both; }
@@ -190,3 +190,8 @@
   .arena { transition: none; }
   .arenaRing { animation: none; }
 }
+
+/* Use the same full card face as the free battlefield without stretching its art. */
+.waitingFace { min-height: 0; display: flex; justify-content: center; }
+.waitingFace > :not(img) { height: 100%; width: auto; max-width: 100%; aspect-ratio: 63 / 88; }
+.front > :not(small) { width: 100%; height: 100%; }

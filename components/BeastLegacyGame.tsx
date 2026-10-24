@@ -751,7 +751,7 @@ function BeastGameScreen() {
                 >
                   {stakeCard ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <BeastThumb id={stakeCard.id} thumbnail={stakeCard.thumbnail} />
+                    <BeastThumb id={stakeCard.id} thumbnail={stakeCard.thumbnail} alt={stakeCard.name} />
                   ) : (
                     <span className="grid h-full w-full place-items-center text-xs font-bold text-amber-100/85">
                       選一張

@@ -58,7 +58,7 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
     : null), [playing, playerAction, castTier, playerFighter]);
 
   return (
-    <section className={styles.arena} aria-label="戰鬥畫面" data-easy-cards={tapToAttack || undefined} data-battle-visual data-playback={playing ? 'acting' : 'ready'} data-battle-revision={match?.revision} data-battle-venue="cards">
+    <section className={styles.arena} aria-label="戰鬥畫面" data-card-presentation="shared" data-battle-visual data-playback={playing ? 'acting' : 'ready'} data-battle-revision={match?.revision} data-battle-venue="cards">
       <RageComboEffect
         active={playing && playerAction === 'RAGE' && !castTier}
         element={strikeElement}
@@ -138,7 +138,7 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
                     <div className={`${styles.arenaHpBar}${isCritical ? ` ${styles.critical}` : ''}`}>
                       <span style={{ width: `${hpPct}%` }} />
                     </div>
-                    <span className={styles.arenaEnergy} aria-label={`生命 ${fighter.hp}/${fighter.maxHp}，氣 ${team.energy}`}>{tapToAttack ? `${fighter.hp}/${fighter.maxHp}` : <>生命 {fighter.hp}/{fighter.maxHp}・氣 {team.energy}</>}</span>
+                    <span className={styles.arenaEnergy} aria-label={`生命 ${fighter.hp}/${fighter.maxHp}，氣 ${team.energy}`}>{fighter.hp}/{fighter.maxHp}</span>
                     <span className={styles.vitalChanges}>
                       {fighter.shield > 0 && <span className={styles.liveChange}>護盾 {fighter.shield}</span>}
                       {change && <span className={styles.liveChange} data-combat-change>{change}</span>}
@@ -274,7 +274,7 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
                   onClick={() => { if (onSwap) onSwap(action); }}>
                   <em className={styles.swapTag} aria-hidden="true">換</em>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {art && <BeastThumb id={art.id} thumbnail={art.thumbnail} draggable={false} />}
+                  {art && <BeastThumb id={art.id} thumbnail={art.thumbnail} alt={art.name} draggable={false} />}
                   <span>{fighter.name}</span>
                   <small>{fighter.hp}/{fighter.maxHp}</small>
                 </button>

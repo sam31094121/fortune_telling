@@ -1,4 +1,5 @@
 'use client';
+import CatalogBeastCard from '@/components/battlefield/CatalogBeastCard';
 
 import HomeTranslatedText from '@/components/HomeTranslatedText';
 import type { CustomerPillar } from './adapter';
@@ -42,7 +43,7 @@ export function FourPillarsCard({ pillars, hourUnknown, elementOf }: {
                   <p className={`${styles.tenGodText} ${isDay ? styles.isDay : styles.isHour}`}>{isDay ? '日主' : p.stemTenGod}</p>
                   {beastLink && (
                     <div className={`${styles.beastSection} ${isDay ? styles.isDay : styles.isHour}`}>
-                      <img src={beastLink.beast.image} alt={`${p.label}${beastLink.beast.name}`} className={styles.beastImage} />
+                      <CatalogBeastCard name={beastLink.beast.name} className={styles.beastImage} />
                       <p className={styles.beastName}>{beastLink.beast.name}</p>
                     </div>
                   )}

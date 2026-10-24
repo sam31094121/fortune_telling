@@ -17,7 +17,7 @@ import { releasedChargeFor } from '@/lib/beast-charge-release';
 const BeastClash3D = dynamic(() => import('./BeastClash3D'), { ssr: false });
 import type { ClashSide } from './BeastClash3D';
 import frameStyles from './BeastCardFrame.module.css';
-import { cardArtThumb } from './battlefield/BeastCardTile';
+import { BeastCardFace, cardArtThumb } from './battlefield/BeastCardTile';
 import BeastLayeredPuppet, { probePuppetManifest } from './BeastLayeredPuppet';
 import {
   ELEMENT_FX,
@@ -335,10 +335,10 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {card && <img src="/beast-game/card-back.webp" alt={`${side === 'player' ? '你' : '易經'}的${position}牌背`} />}
             </div>
-            <div className={`${styles.face} ${styles.front} ${frameStyles.metal}`} aria-hidden={!open}>
+            <div className={`${styles.face} ${styles.front}`} aria-hidden={!open}>
               {card && <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={cardArtThumb(card.id, card.thumbnail)} alt={open ? card.name : ''} />
+                <BeastCardFace card={card} />
                 {open && <small>{ELEMENTS[card.element]}</small>}
               </>}
             </div>
@@ -428,12 +428,12 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
             return <>
               <div className={styles.waitingOpponent} key="opponent">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={oCard && isRevealed('opponent', previewIndex) ? cardArtThumb(oCard.id, oCard.thumbnail) : '/beast-game/card-back.webp'} alt="" />
+                <div className={styles.waitingFace}>{oCard && isRevealed('opponent', previewIndex) ? <BeastCardFace card={oCard} /> : <img src="/beast-game/card-back.webp" alt="" />}</div>
                 <span>易經卦象・{POSITIONS[previewIndex]}</span>
               </div>
               <div className={styles.waitingPlayer} key="player">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={pCard && isRevealed('player', previewIndex) ? cardArtThumb(pCard.id, pCard.thumbnail) : '/beast-game/card-back.webp'} alt="" />
+                <div className={styles.waitingFace}>{pCard && isRevealed('player', previewIndex) ? <BeastCardFace card={pCard} /> : <img src="/beast-game/card-back.webp" alt="" />}</div>
                 <span>客戶（你）・{POSITIONS[previewIndex]}</span>
               </div>
             </>;
@@ -477,8 +477,8 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
         )}
         {clashCards && (
           <BeastClash3D
-            playerArt={cardArtThumb(clashCards.me.id, clashCards.me.thumbnail)}
-            opponentArt={cardArtThumb(clashCards.foe.id, clashCards.foe.thumbnail)}
+            playerArt={cardArtThumb(clashCards.me.id)}
+            opponentArt={cardArtThumb(clashCards.foe.id)}
             playerSpirit={spiritArtFor(clashCards.me.id)}
             opponentSpirit={spiritArtFor(clashCards.foe.id)}
             attacker={clashCards.attacker}

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import CatalogBeastCard from '@/components/battlefield/CatalogBeastCard';
 import starBeastsData from '@/data/star-beasts.json';
 import SelfStarBeastEntry from '@/components/SelfStarBeastEntry';
 import { MAX_STAKE_CARDS } from '@/lib/beast-game/stake-rules';
@@ -26,10 +27,10 @@ type StarBeast = {
 const BEASTS = starBeastsData.items as StarBeast[];
 
 const FOUR_GUARDIANS = [
-  { name: '青龍', direction: '東', season: '春', element: '木', image: '/star-beasts/four-guardians/qinglong.png', accent: 'text-emerald-100' },
-  { name: '朱雀', direction: '南', season: '夏', element: '火', image: '/star-beasts/four-guardians/zhuque.png', accent: 'text-rose-100' },
-  { name: '白虎', direction: '西', season: '秋', element: '金', image: '/star-beasts/four-guardians/baihu.png', accent: 'text-amber-100' },
-  { name: '玄武', direction: '北', season: '冬', element: '水', image: '/star-beasts/four-guardians/xuanwu.png', accent: 'text-cyan-100' },
+  { name: '青龍', direction: '東', season: '春', element: '木', accent: 'text-emerald-100' },
+  { name: '朱雀', direction: '南', season: '夏', element: '火', accent: 'text-rose-100' },
+  { name: '白虎', direction: '西', season: '秋', element: '金', accent: 'text-amber-100' },
+  { name: '玄武', direction: '北', season: '冬', element: '水', accent: 'text-cyan-100' },
 ] as const;
 
 const ELEMENT_RULES: Record<Element, { generates: Element; overcomes: Element }> = {
@@ -130,7 +131,6 @@ export default function StarBeastsPage() {
     setSelectedId(null);
   };
 
-  const cardImage = (beast: StarBeast, targetForm = form) => targetForm === 'young' ? beast.youngDivineImage : beast.image;
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#050612] px-4 pb-16 pt-5 text-white sm:px-6 sm:pt-8">
@@ -187,8 +187,8 @@ export default function StarBeastsPage() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {FOUR_GUARDIANS.map((guardian) => (
               <article key={guardian.name} className="group overflow-hidden rounded-2xl border border-amber-200/20 bg-slate-950/70 shadow-lg">
-                <div className="aspect-[2/3] overflow-hidden bg-black">
-                  <img src={guardian.image} alt={`${guardian.name}・${guardian.direction}方守護神`} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.025]" />
+                <div className="aspect-[63/88] overflow-hidden bg-black">
+                  <CatalogBeastCard name={guardian.name} />
                 </div>
                 <div className="flex items-center justify-between gap-2 px-3 py-3">
                   <h3 className={`font-serif text-lg font-black ${guardian.accent}`}>{guardian.name}</h3>
@@ -236,53 +236,12 @@ export default function StarBeastsPage() {
           </div>
 
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
-            {visibleBeasts.map((beast) => {
-              const hasLeatherCardSurface = form === 'awakened';
-              // 第 28 張來源圖比例較窄；只在本命網格內下移影像，避免頭部被固定內框裁掉。
-              const hasLoweredBeastImage = hasLeatherCardSurface && beast.id === 28;
-
-              return (
-                <button
-                  key={beast.id}
-                  type="button"
-                  onClick={() => setSelectedId(beast.id)}
-                  data-card-surface={hasLeatherCardSurface ? 'leather' : undefined}
-                  data-card-interior={hasLeatherCardSurface ? 'leather-layered' : undefined}
-                  className={`group relative overflow-hidden rounded-2xl border text-left shadow-lg transition duration-300 hover:-translate-y-1 hover:border-amber-200/55 hover:shadow-[0_14px_35px_rgba(0,0,0,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200 ${hasLeatherCardSurface
-                    ? 'border-[#bb8854]/75 bg-[radial-gradient(ellipse_at_18%_12%,rgba(255,224,174,0.18),transparent_34%),radial-gradient(circle_at_80%_92%,rgba(32,15,9,0.35),transparent_42%),repeating-linear-gradient(105deg,rgba(255,255,255,0.035)_0_1px,transparent_1px_5px),linear-gradient(135deg,#5a3825,#2e1b16_50%,#68442a)] p-1 shadow-[0_16px_32px_rgba(0,0,0,0.5),inset_0_0_0_1px_rgba(255,229,184,0.2)]'
-                    : 'border-white/10 bg-slate-900/70'}`}
-                >
-                  <div className={hasLeatherCardSurface ? 'relative overflow-hidden rounded-[0.72rem] border border-[#704329]/80 bg-[#100f19] shadow-[inset_0_0_0_1px_rgba(35,17,10,0.85)]' : ''}>
-                    <div data-card-image-frame={hasLeatherCardSurface ? 'leather-cropped' : undefined} className={hasLeatherCardSurface ? 'relative m-[3px] aspect-[53/79] overflow-hidden rounded-[0.5rem] bg-[#24140d] p-[2px] ring-1 ring-inset ring-[#9a6238]/75 shadow-[inset_0_0_0_1px_rgba(20,10,6,0.75)]' : 'relative aspect-[53/79] overflow-hidden bg-slate-950'}>
-                      <div className={hasLeatherCardSurface ? 'relative h-full overflow-hidden rounded-[0.32rem] bg-slate-950' : 'h-full'}>
-                        <img src={cardImage(beast)} alt={`${beast.name}${FORM_LABELS[form]}神獸卡`} className={`h-full w-full object-cover object-center transition duration-500 ${hasLeatherCardSurface ? `scale-[1.42] group-hover:scale-[1.455]${hasLoweredBeastImage ? ' translate-y-[6%]' : ''}` : 'object-contain group-hover:scale-[1.035]'}`} />
-                      </div>
-                      {!hasLeatherCardSurface && (
-                        <span data-card-season-accent="young" className={`absolute left-2 top-2 h-1.5 w-8 rounded-full bg-gradient-to-r ${SEASON_ACCENTS[beast.season]}`} />
-                      )}
-                      {!hasLeatherCardSurface && (
-                        <span className="absolute right-2 top-2 rounded-full bg-slate-950/75 px-2 py-1 text-[10px] font-black text-white backdrop-blur">{String(beast.id).padStart(2, '0')}</span>
-                      )}
-                      {!hasLeatherCardSurface && (
-                        <span data-card-form-overlay="young" className="absolute bottom-2 left-2 rounded-full border border-white/15 bg-slate-950/75 px-2 py-1 text-[10px] font-black text-amber-100 backdrop-blur">{FORM_LABELS[form]}</span>
-                      )}
-                    </div>
-                    <div className={hasLeatherCardSurface ? 'relative mx-[3px] mb-[3px] rounded-b-[0.5rem] border border-[#e8bd7a]/35 border-t-[#e8bd7a]/55 bg-[linear-gradient(100deg,rgba(92,56,35,0.95),rgba(36,20,17,0.98),rgba(91,56,35,0.95))] p-2 shadow-[inset_0_1px_0_rgba(255,229,184,0.1)] sm:p-2.5' : 'p-2 sm:p-2.5'}>
-                      {hasLeatherCardSurface ? (
-                        <div className="flex items-center gap-1 whitespace-nowrap text-[10px] font-bold leading-4 text-amber-100/65">
-                          <span data-card-info-number className="text-[#f2ca83]">{String(beast.id).padStart(2, '0')}</span>
-                          <p>{SEASON_NAMES[beast.season].split('・')[0]}</p>
-                        </div>
-                      ) : (
-                        <p className="text-[10px] font-bold text-slate-400">{SEASON_NAMES[beast.season].split('・')[0]}</p>
-                      )}
-                      <h3 className="mt-0.5 font-serif text-base font-black text-white sm:text-lg">{beast.name}</h3>
-                      <p className="mt-0.5 truncate text-[11px] text-amber-100/80">{beast.coreMeaning}</p>
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
+            {visibleBeasts.map((beast) => (
+              <button key={beast.id} type="button" onClick={() => setSelectedId(beast.id)} className="group relative text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200">
+                <CatalogBeastCard id={`beast_${form === 'young' ? 'y' : 'a'}${String(beast.id).padStart(2, '0')}`} />
+                <p className="mt-1 truncate text-[11px] text-amber-100/80">{beast.coreMeaning}</p>
+              </button>
+            ))}
           </div>
         </section>
       </div>
@@ -297,7 +256,7 @@ export default function StarBeastsPage() {
             </div>
             <div className="grid gap-6 p-5 sm:grid-cols-[minmax(230px,0.8fr)_minmax(0,1.2fr)] sm:p-7">
               <div className="mx-auto w-full max-w-[330px] overflow-hidden rounded-2xl border border-amber-200/25 bg-slate-950 shadow-[0_18px_45px_rgba(0,0,0,0.38)]">
-                <img src={cardImage(selected)} alt={`${selected.name}${FORM_LABELS[form]}神獸卡完整圖`} className="block h-auto w-full" />
+                <CatalogBeastCard id={`beast_${form === 'young' ? 'y' : 'a'}${String(selected.id).padStart(2, '0')}`} />
               </div>
               <div className="flex min-w-0 flex-col justify-center">
                 <p className="text-sm font-bold text-slate-400">{selected.animal}・{selected.symbolicPart}</p>

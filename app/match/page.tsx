@@ -725,7 +725,7 @@ function BaziBeastPairCards({
               <p className={`break-words text-xs font-black leading-5 tracking-[0.12em] ${isViolet ? 'text-violet-100/85' : 'text-amber-100/85'}`}>{resultUi.t(label)}</p>
               <p className="mt-1 truncate text-sm font-black text-[color:var(--text-main)]">{name}{age === null ? '' : resultUi.en ? EN_TPL.age(age) : `・${age}歲`}</p>
 
-              <div className="relative mt-2 aspect-[1.04] overflow-hidden rounded-[17px] border border-white/14 bg-black/25">
+              <div className="relative mt-2 overflow-hidden rounded-[17px] border border-white/14 bg-black/25">
                 <StarBeastLineageReveal
                   beast={beast}
                   context={resultUi.t('八字配對神獸卡')}

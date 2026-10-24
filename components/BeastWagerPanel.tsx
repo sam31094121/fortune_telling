@@ -1,4 +1,5 @@
 'use client';
+import { GuideBookProvider, useFetchedGuideBook } from './battlefield/GuideBookContext';
 
 import {useEffect, useMemo, useState} from 'react';
 import {readCollection, subscribeCollection} from '@/lib/beast-collection';
@@ -8,7 +9,7 @@ import {MAX_REWARD_CARDS, MAX_STAKE_CARDS} from '@/lib/beast-game/stake-rules';
 
 type WagerCard = {id: string; name: string; thumbnail: string};
 
-export default function BeastWagerPanel({mode}: {mode: '簡單' | '中等'}) {
+function BeastWagerPanelContent({mode}: {mode: '簡單' | '中等'}) {
   const [collection, setCollection] = useState<BeastCollection | null>(null);
   const [cards, setCards] = useState<WagerCard[]>([]);
 
@@ -42,4 +43,8 @@ export default function BeastWagerPanel({mode}: {mode: '簡單' | '中等'}) {
       <GrowthStakeSlots collection={collection} pool={pool} />
     </section>
   );
+}
+export default function BeastWagerPanel(props: Parameters<typeof BeastWagerPanelContent>[0]) {
+ const book = useFetchedGuideBook();
+ return <GuideBookProvider value={book}><BeastWagerPanelContent {...props} /></GuideBookProvider>;
 }

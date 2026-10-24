@@ -1,4 +1,5 @@
 'use client';
+import { GuideBookProvider, useFetchedGuideBook } from './battlefield/GuideBookContext';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -11,7 +12,7 @@ import { COLLECTION_STORAGE_NOTICE, countByCard, readCollection, subscribeCollec
 type PoolCard = TechCardData;
 const ELEMENT_LABEL: Record<string, string> = { SPACE: '空', AIR: '風', WATER: '水', FIRE: '火', EARTH: '地' };
 
-export default function DuelCollectionShelf({ revision = 0 }: { revision?: number }) {
+function DuelCollectionShelfContent({ revision = 0 }: { revision?: number }) {
   const [collection, setCollection] = useState<BeastCollection>({ cards: [], history: [] });
   const [pool, setPool] = useState<Map<string, PoolCard>>(new Map());
   const [loaded, setLoaded] = useState(false);
@@ -76,4 +77,9 @@ export default function DuelCollectionShelf({ revision = 0 }: { revision?: numbe
     <p className="mt-3 text-[10px] leading-4 text-white/50">{COLLECTION_STORAGE_NOTICE}</p>
     <BeastPageDock />
   </section>;
+}
+
+export default function DuelCollectionShelf(props: Parameters<typeof DuelCollectionShelfContent>[0]) {
+ const book = useFetchedGuideBook();
+ return <GuideBookProvider value={book}><DuelCollectionShelfContent {...props} /></GuideBookProvider>;
 }

@@ -184,7 +184,7 @@
   border-radius: 10px;
 }
 
-.sheetArt img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.sheetArt > img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 .sheetTitle {
   display: grid;
@@ -815,3 +815,5 @@
 /* 新卡面的「非按鈕版」：嵌進別的按鈕或格子時，自己當 cqw 的容器，字級與內距才跟著卡寬走 */
 .fv1Face { display: block; width: 100%; aspect-ratio: 63 / 88; container-type: inline-size; }
 .fv1Face .fv1Card { display: block; }
+
+.fullFaceThumb { display: block; width: 100%; aspect-ratio: 63 / 88; }

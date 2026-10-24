@@ -220,7 +220,7 @@ export function DiscardPile({
       <div className={styles.slot} role="img" aria-label={`${label}棄牌，共 ${discard.length} 張`}>
         {top ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <BeastThumb id={top.id} thumbnail={top.thumbnail} />
+          <BeastThumb id={top.id} thumbnail={top.thumbnail} alt={top.name} />
         ) : (
           <span className={styles.slotMark} aria-hidden="true">－</span>
         )}

@@ -26,7 +26,11 @@ function harness(data = new Map()) {
   function load(rel) {
     let file = path.resolve(root, rel);
     if (file.endsWith('.json')) return JSON.parse(fs.readFileSync(file, 'utf8'));
-    if (!path.extname(file)) file += fs.existsSync(file + '.ts') ? '.ts' : '.tsx';
+    if (!path.extname(file)) {
+      const resolved = [file + '.ts', file + '.tsx', path.join(file, 'index.ts'), path.join(file, 'index.tsx')].find(candidate => fs.existsSync(candidate));
+      if (!resolved) throw new Error('Unresolved test module: ' + file);
+      file = resolved;
+    }
     if (cache.has(file)) return cache.get(file).exports;
     const mod = { exports: {} }; cache.set(file, mod);
     const source = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText;

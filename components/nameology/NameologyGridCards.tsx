@@ -1,4 +1,5 @@
 'use client';
+import CatalogBeastCard from '@/components/battlefield/CatalogBeastCard';
 
 /**
  * 易經姓名學：五格按鈕卡＋五星連線圖
@@ -133,7 +134,7 @@ export default function NameologyGridCards({ study, embedded = false }: { study:
               <p className={`${styles.tenGodText} ${tone}`}>{item.keyword}</p>
               <div className={`${styles.beastSection} ${tone}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className={styles.beastImage} alt={`${item.label}${item.beast.name}`} src={item.beast.imageUrl} loading="lazy" />
+                <CatalogBeastCard name={item.beast.name} className={styles.beastImage} />
                 <p className={styles.beastName}>{item.beast.name}</p>
               </div>
             </button>

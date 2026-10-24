@@ -103,14 +103,14 @@
   font-size: 11px;
   font-weight: 900;
 }
-.stakeCell img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.stakeCell > img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 .slot {
   position: relative;
   flex: none;
   width: clamp(84px, 24vw, 112px);
   /* 與戰場卡槽同一個比例，不另立一套。 */
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 63 / 88;
   overflow: hidden;
   border: 1px solid rgba(125, 211, 252, 0.4);
   border-radius: 14px;
@@ -118,7 +118,7 @@
   touch-action: manipulation;
 }
 
-.slot img {
+.slot > img {
   display: block;
   width: 100%;
   height: 100%;
@@ -209,10 +209,10 @@
   touch-action: manipulation !important;
 }
 
-.pick img { display: block; width: 100%; aspect-ratio: 63 / 88; object-fit: cover; }
-.pick > strong, .pick > span { display: block; padding: 2px 4px; font-size: 12px; line-height: 18px; }
+.pick > img { display: block; width: 100%; aspect-ratio: 63 / 88; object-fit: cover; }
+.pick > strong, .pick > span:not([data-frame]) { display: block; padding: 2px 4px; font-size: 12px; line-height: 18px; }
 .pick > strong { min-height: 40px; }
-.pick > span:last-child { background: #ffdfa419; color: #ffdfa4; }
+.pick > span:not([data-frame]):last-child { background: #ffdfa419; color: #ffdfa4; }
 .movement { margin: 0; font-size: 12px; line-height: 20px; color: #e6edf8; }
 
 .picked {
@@ -255,7 +255,7 @@
     flex: 0 0 88px;
     border-radius: 8px;
   }
-  .pick > strong, .pick > span {
+  .pick > strong, .pick > span:not([data-frame]) {
     font-size: 12px;
     padding: 2px 3px;
     line-height: 18px;
@@ -270,6 +270,6 @@
 }
 
 /* Readable selection labels; keep the card strip native-scrollable. */
-.pick > strong, .pick > span { font-size: 14px; line-height: 20px; }
+.pick > strong, .pick > span:not([data-frame]) { font-size: 14px; line-height: 20px; }
 .movement { font-size: 14px; line-height: 21px; }
 .movement summary { min-height: 44px; align-content: center; cursor: pointer; }

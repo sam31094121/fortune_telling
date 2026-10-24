@@ -1,4 +1,5 @@
 'use client';
+import CatalogBeastCard from './battlefield/CatalogBeastCard';
 
 import { useEffect, useState } from 'react';
 
@@ -49,15 +50,8 @@ export default function StarBeastLineageReveal({
 
   return (
     <div className={`relative ${className}`} aria-live="polite">
-      <img
-        src={isAdult ? beast.image : beast.youngDivineImage}
-        alt={`${beast.name}${label}${context}`}
-        // 神獸原圖每張約 3MB，排在結果頁下半部；滑到才載，手機不必一進頁就下載十幾 MB。
-        loading="lazy"
-        decoding="async"
-        className={imageClassName}
-      />
-      <div className={overlayClassName}>
+      <CatalogBeastCard name={beast.name} young={!isAdult} />
+      <div className="relative bg-slate-950/90 p-3">
         <p className="text-xs font-black tracking-[0.14em] text-amber-100/90">{label}</p>
         {showName && <p className="mt-0.5 text-xs font-black text-white">{beast.name}</p>}
         <button
