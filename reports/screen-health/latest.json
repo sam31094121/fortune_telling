@@ -3,15 +3,15 @@
   "version": "screen-health-monitor-v1",
   "baseUrl": "http://localhost:8888",
   "port": 8888,
-  "startedAt": "2026-10-19T07:25:44.992Z",
-  "completedAt": "2026-10-19T07:26:21.537Z",
+  "startedAt": "2026-10-24T09:08:40.842Z",
+  "completedAt": "2026-10-24T09:09:28.920Z",
   "mode": "ONCE",
   "scanProfile": "MOBILE_FIRST",
   "autoRepair": true,
   "summary": {
     "total": 55,
-    "passed": 48,
-    "failed": 7,
+    "passed": 49,
+    "failed": 6,
     "warnings": 0,
     "screenStatus": "UNHEALTHY"
   },
@@ -33,11 +33,6 @@
       "title": "八字客戶功能完整（排盤、五項神煞、老師判讀、五神、紅鸞皆須放行）",
       "path": "/bazi",
       "issue": "八字客戶功能完整（排盤、五項神煞、老師判讀、五神、紅鸞皆須放行） verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:bazi-feature-complete\n\nNOT READY: 八字老師進階判讀（格局、旺衰、斷語） — C-BAZI-CLASSICS=CONFLICT、C-BAZI-FIVE-GODS=CONFLICT\nNOT READY: 五神（用神、喜神、忌神、仇神、閒神） — C-BAZI-FIVE-GODS=CONFLICT\nNOT READY: 配對紅鸞 — C-RED-LUAN-SHENSHA=PENDING_POOL\nFAIL: bazi feature complete — 3/10 項未放行：八字老師進階判讀（格局、旺衰、斷語）、五神（用神、喜神、忌神、仇神、閒神）、配對紅鸞"
-    },
-    {
-      "id": "BEAST_RELEASE_AUDIT",
-      "title": "釋出稽核：技能檔庫與實際檔案逐張對得上",
-      "issue": "釋出稽核：技能檔庫與實際檔案逐張對得上 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:beast-releases\nnode:fs:2427\r\n    return binding.writeFileUtf8(\r\n                   ^\r\n\r\nError: UNKNOWN: unknown error, open 'C:\\Users\\DRAGON\\Desktop\\命理\\reports\\beast-production\\release-summary.json'\r\n    at Object.writeFileSync (node:fs:2427:20)\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/scripts/check-beast-releases.mjs:57:4 {\r\n  errno: -4094,\r\n  code: 'UNKNOWN',\r\n  syscall: 'open',\r\n  path: 'C:\\\\Users\\\\DRAGON\\\\Desktop\\\\命理\\\\reports\\\\beast-production\\\\release-summary.json'\r\n}\r\n\r\nNode.js v24.13.0\r\n"
     },
     {
       "id": "NO_FABRICATED_COUNTERS",
@@ -65,8 +60,8 @@
       "path": "/",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 170,
-      "htmlLength": 85472,
+      "durationMs": 324,
+      "htmlLength": 92241,
       "error": null,
       "issue": null
     },
@@ -77,7 +72,7 @@
       "path": "/internal/health/ready",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 28,
+      "durationMs": 1563,
       "htmlLength": 95,
       "error": null,
       "issue": null
@@ -89,8 +84,8 @@
       "path": "/nameology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 70,
-      "htmlLength": 34215,
+      "durationMs": 1777,
+      "htmlLength": 33918,
       "error": null,
       "issue": null
     },
@@ -101,8 +96,8 @@
       "path": "/beast-game",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 83,
-      "htmlLength": 26827,
+      "durationMs": 2300,
+      "htmlLength": 29310,
       "error": null,
       "issue": null
     },
@@ -113,8 +108,8 @@
       "path": "/star-beasts",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 1413,
-      "htmlLength": 94514,
+      "durationMs": 2664,
+      "htmlLength": 45936,
       "error": null,
       "issue": null
     },
@@ -125,8 +120,8 @@
       "path": "/insight",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 1059,
-      "htmlLength": 35852,
+      "durationMs": 1096,
+      "htmlLength": 38337,
       "error": null,
       "issue": null
     },
@@ -137,8 +132,8 @@
       "path": "/numerology",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 520,
-      "htmlLength": 33407,
+      "durationMs": 714,
+      "htmlLength": 35933,
       "error": null,
       "issue": null
     },
@@ -149,8 +144,8 @@
       "path": "/match",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 751,
-      "htmlLength": 36276,
+      "durationMs": 612,
+      "htmlLength": 39540,
       "error": null,
       "issue": null
     },
@@ -161,8 +156,8 @@
       "path": "/music",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 1864,
-      "htmlLength": 25199,
+      "durationMs": 1098,
+      "htmlLength": 27724,
       "error": null,
       "issue": null
     },
@@ -173,8 +168,8 @@
       "path": "/bazi",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 136,
-      "htmlLength": 34374,
+      "durationMs": 1299,
+      "htmlLength": 36859,
       "error": null,
       "issue": null
     },
@@ -185,8 +180,8 @@
       "path": "/zodiac",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 766,
-      "htmlLength": 33887,
+      "durationMs": 1376,
+      "htmlLength": 36412,
       "error": null,
       "issue": null
     },
@@ -197,8 +192,8 @@
       "path": "/tarot",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 685,
-      "htmlLength": 27594,
+      "durationMs": 878,
+      "htmlLength": 30121,
       "error": null,
       "issue": null
     },
@@ -209,8 +204,8 @@
       "path": "/growth-center",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 1045,
-      "htmlLength": 30746,
+      "durationMs": 2396,
+      "htmlLength": 33231,
       "error": null,
       "issue": null
     },
@@ -218,11 +213,11 @@
       "id": "HOME_VISUAL_STYLES",
       "module": "home_visual_styles",
       "title": "首頁手機視覺樣式",
-      "path": "/_next/static/css/app/page.css?v=1792394753650",
+      "path": "/_next/static/css/app/page.css?v=1792832939057",
       "status": "PASSED",
       "httpStatus": 200,
-      "durationMs": 186,
-      "htmlLength": 93454,
+      "durationMs": 363,
+      "htmlLength": 109791,
       "error": null,
       "issue": null
     },
@@ -234,7 +229,7 @@
       "sourcePath": "components/TaijiSystem.tsx",
       "status": "PASSED",
       "httpStatus": null,
-      "durationMs": 1,
+      "durationMs": 2,
       "htmlLength": 130195,
       "error": null,
       "issue": null
@@ -247,7 +242,7 @@
       "sourcePath": "components/TodayDirectionQuest.tsx",
       "status": "PASSED",
       "httpStatus": null,
-      "durationMs": 0,
+      "durationMs": 1,
       "htmlLength": 26810,
       "error": null,
       "issue": null
@@ -261,7 +256,7 @@
       "status": "PASSED",
       "httpStatus": null,
       "durationMs": 1,
-      "htmlLength": 225310,
+      "htmlLength": 230638,
       "error": null,
       "issue": null
     },
@@ -273,8 +268,8 @@
       "sourcePath": "app/page.tsx",
       "status": "PASSED",
       "httpStatus": null,
-      "durationMs": 1,
-      "htmlLength": 225310,
+      "durationMs": 2,
+      "htmlLength": 230638,
       "error": null,
       "issue": null
     },
@@ -288,11 +283,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1577,
+      "durationMs": 1705,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "三核心交叉驗證（八字 → 紫微 → 易經）— PASS 104 / FAIL 0\nTHREE_CORE_CROSS_CERTIFIED=true"
+      "output": "> blood-type-compatibility@0.1.0 test:bazi-ziwei-cross\n> tsc tests/bazi-ziwei-cross.test.ts lib/bazi/engine.ts lib/ziwei-sanfang-engine.ts lib/shichen-engine.ts lib/iching-engine.ts lib/iching-psychology.ts lib/three-core-engine.ts --outDir .bazi-ziwei-cross-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --resolveJsonModule --types node --skipLibCheck --resolveJsonModule && node .bazi-ziwei-cross-build/tests/bazi-ziwei-cross.test.js\n\n\n三核心交叉驗證（八字 → 紫微 → 易經）— PASS 104 / FAIL 0\nTHREE_CORE_CROSS_CERTIFIED=true"
     },
     {
       "id": "BAZI_OUTPUT_CONSISTENCY",
@@ -303,11 +298,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1650,
+      "durationMs": 1765,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: availability failures are visible and unrelated Bazi capabilities stay isolated\nPASS: verified chart facts render independently; unknown hour and blocked judgments do not leak\nPASS: progress checkmarks follow output eligibility, not merely field presence\nPASS: four-pillar shensha display has independent eligibility and preserves base pillars\nPASS: independent Bazi view discloses partial restrictions without presenting withheld hits\nPASS: bilingual source comparisons distinguish selected-method readiness and require located evidence\nPASS: shensha health baseline detects disconnected, silently reduced and malformed backend results\nPASS: exact raw → per-pillar → visible-name delivery detects omissions, extras, duplicates, stale copies and wrong pillars\nPASS: shensha is one unfolded row under the original four pillars\nPASS: calculated shensha results stay complete and unfolded without repeated rule-status text\nPASS: backend card view drives the card; pending rules only mark the pillars they inspect\nPASS: 流年神煞 prints backend text only, one-liner visible, details folded\nPASS: 分享卡 prints backend labels only\nPASS: 鬼魅老師 hook first, full ghost wording folded; formations show names first\nPASS: 鬼魅老師 sealed with the shared talisman, header only\nPASS: 神煞易經 prints the backend chain, hexagram, every derivation and blocked reasons verbatim\nPASS: 易經老師／鬼魅老師 fold below a visible pillar grid and print backend text only\nPASS: 神煞易經 frontend only prints backend text (no generated sentences)\nPASS: full-card health remains blocked while requested calculations are missing"
+      "output": "> blood-type-compatibility@0.1.0 test:bazi-output-availability\n> node tests/bazi-functional-health.test.cjs && node tests/bazi-basic-reading.test.cjs && node tests/bazi-progress-availability.test.cjs && node tests/dual-chart-iching-shensha-output.test.cjs\n\nPASS: availability failures are visible and unrelated Bazi capabilities stay isolated\nPASS: verified chart facts render independently; unknown hour and blocked judgments do not leak\nPASS: progress checkmarks follow output eligibility, not merely field presence\nPASS: four-pillar shensha display has independent eligibility and preserves base pillars\nPASS: independent Bazi view discloses partial restrictions without presenting withheld hits\nPASS: bilingual source comparisons distinguish selected-method readiness and require located evidence\nPASS: shensha health baseline detects disconnected, silently reduced and malformed backend results\nPASS: exact raw → per-pillar → visible-name delivery detects omissions, extras, duplicates, stale copies and wrong pillars\nPASS: shensha is one unfolded row under the original four pillars\nPASS: calculated shensha results stay complete and unfolded without repeated rule-status text\nPASS: backend card view drives the card; pending rules only mark the pillars they inspect\nPASS: 流年神煞 prints backend text only, one-liner visible, details folded\nPASS: 分享卡 prints backend labels only\nPASS: 鬼魅老師 hook first, full ghost wording folded; formations show names first\nPASS: 鬼魅老師 sealed with the shared talisman, header only\nPASS: 神煞易經 prints the backend chain, hexagram, every derivation and blocked reasons verbatim\nPASS: 易經老師／鬼魅老師 fold below a visible pillar grid and print backend text only\nPASS: 神煞易經 frontend only prints backend text (no generated sentences)\nPASS: full-card health remains blocked while requested calculations are missing"
     },
     {
       "id": "BAZI_SERVICE_AVAILABILITY",
@@ -318,11 +313,11 @@
       "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 481,
+      "durationMs": 519,
       "htmlLength": 0,
       "error": "Command failed: cmd.exe /d /s /c npm.cmd run check:bazi-service-health\n",
       "issue": "八字神煞、老師判讀與配對補強實際放行狀態 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:bazi-service-health\n\nUNAVAILABLE: 八字老師進階判讀\nUNAVAILABLE: 喜用與配對五行補強\nUNAVAILABLE: 配對紅鸞規則",
-      "output": "AVAILABLE: 基礎排盤來源\nAVAILABLE: 雙命盤四柱神煞\nUNAVAILABLE: 八字老師進階判讀\n  C-BAZI-CLASSICS: 交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 64，未達 90；D 級來源不得作為交叉依據；有來源版本不可追溯；重大衝突：《三命通會》作者與內容增竄；重大衝突：《淵海子平》《滴天髓》《子平真詮》版本與作者不可追溯\n  C-BAZI-FIVE-GODS: 缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 46，未達 90；D 級來源不得作為交叉依據；缺原典（或原始研究）來源；有來源版本不可追溯；重大衝突：身弱用印時，喜神取比劫還是取生印的官殺\nUNAVAILABLE: 喜用與配對五行補強\n  C-BAZI-CLASSICS: 交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 64，未達 90；D 級來源不得作為交叉依據；有來源版本不可追溯；重大衝突：《三命通會》作者與內容增竄；重大衝突：《淵海子平》《滴天髓》《子平真詮》版本與作者不可追溯\n  C-BAZI-FIVE-GODS: 缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 46，未達 90；D 級來源不得作為交叉依據；缺原典（或原始研究）來源；有來源版本不可追溯；重大衝突：身弱用印時，喜神取比劫還是取生印的官殺\nUNAVAILABLE: 配對紅鸞規則\n  C-RED-LUAN-SHENSHA: 缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 83，未達 90；有來源版本不可追溯\n來源與功能放行檢查；不取代本次命盤計算、瀏覽器操作或真機驗收"
+      "output": "> blood-type-compatibility@0.1.0 check:bazi-service-health\n> node scripts/bazi-functional-health.cjs\n\nAVAILABLE: 基礎排盤來源\nAVAILABLE: 雙命盤四柱神煞\nUNAVAILABLE: 八字老師進階判讀\n  C-BAZI-CLASSICS: 交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 64，未達 90；D 級來源不得作為交叉依據；有來源版本不可追溯；重大衝突：《三命通會》作者與內容增竄；重大衝突：《淵海子平》《滴天髓》《子平真詮》版本與作者不可追溯\n  C-BAZI-FIVE-GODS: 缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 46，未達 90；D 級來源不得作為交叉依據；缺原典（或原始研究）來源；有來源版本不可追溯；重大衝突：身弱用印時，喜神取比劫還是取生印的官殺\nUNAVAILABLE: 喜用與配對五行補強\n  C-BAZI-CLASSICS: 交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 64，未達 90；D 級來源不得作為交叉依據；有來源版本不可追溯；重大衝突：《三命通會》作者與內容增竄；重大衝突：《淵海子平》《滴天髓》《子平真詮》版本與作者不可追溯\n  C-BAZI-FIVE-GODS: 缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 46，未達 90；D 級來源不得作為交叉依據；缺原典（或原始研究）來源；有來源版本不可追溯；重大衝突：身弱用印時，喜神取比劫還是取生印的官殺\nUNAVAILABLE: 配對紅鸞規則\n  C-RED-LUAN-SHENSHA: 缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 83，未達 90；有來源版本不可追溯\n來源與功能放行檢查；不取代本次命盤計算、瀏覽器操作或真機驗收"
     },
     {
       "id": "BAZI_SHENSHA_LIVE_FLOW",
@@ -334,11 +329,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 3239,
+      "durationMs": 5135,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: 1990-01-01 05:30｜辛卯｜天狗、災煞、沐浴、桃花、外桃花｜API資料與輸出政策、實際元件一致\nPASS: 1990-01-01 07:30｜壬辰｜月德、隔角、寡宿、病符、截路空亡｜API資料與輸出政策、實際元件一致\nPASS: 1990-01-01 11:30｜甲午｜月破、將星、羊刃｜API資料與輸出政策、實際元件一致\nPASS: 1990-01-01 15:30｜丙申｜天德合、日破、驛馬、文昌貴人、孤辰、亡神、月空、暗祿｜API資料與輸出政策、實際元件一致\nPASS: 1990-01-01 19:30｜戊戌｜元辰、華蓋、空亡｜API資料與輸出政策、實際元件一致\nPASS: 1990-01-01 21:30｜己亥｜驛馬、天乙貴人、空亡、天醫、歲破｜API資料與輸出政策、實際元件一致\nPASS: 1990-02-18 05:30｜甲寅日丁卯時｜本派桃花不加納音條件，時柱桃花、外桃花命中\nPASS: 四種未知／缺少時辰輸入均拒絕產生命盤，不回傳假的神煞\nPASS: live API and rendered component; browser layout still requires separate visual verification"
+      "output": "> blood-type-compatibility@0.1.0 test:iching-shensha-live-api\n> node --env-file=.env.local tests/iching-shensha-live-api.test.mjs\n\nPASS: 1990-01-01 05:30｜辛卯｜天狗、災煞、沐浴、桃花、外桃花｜API資料與輸出政策、實際元件一致\nPASS: 1990-01-01 07:30｜壬辰｜月德、隔角、寡宿、病符、截路空亡｜API資料與輸出政策、實際元件一致\nPASS: 1990-01-01 11:30｜甲午｜月破、將星、羊刃｜API資料與輸出政策、實際元件一致\nPASS: 1990-01-01 15:30｜丙申｜天德合、日破、驛馬、文昌貴人、孤辰、亡神、月空、暗祿｜API資料與輸出政策、實際元件一致\nPASS: 1990-01-01 19:30｜戊戌｜元辰、華蓋、空亡｜API資料與輸出政策、實際元件一致\nPASS: 1990-01-01 21:30｜己亥｜驛馬、天乙貴人、空亡、天醫、歲破｜API資料與輸出政策、實際元件一致\nPASS: 1990-02-18 05:30｜甲寅日丁卯時｜本派桃花不加納音條件，時柱桃花、外桃花命中\nPASS: 四種未知／缺少時辰輸入均拒絕產生命盤，不回傳假的神煞\nPASS: live API and rendered component; browser layout still requires separate visual verification"
     },
     {
       "id": "BAZI_SOURCE_REGISTRY_COMPLETE",
@@ -349,11 +344,11 @@
       "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 532,
+      "durationMs": 549,
       "htmlLength": 0,
       "error": "Command failed: cmd.exe /d /s /c npm.cmd run check:bazi-registry-completeness\n",
       "issue": "八字來源登記完整性（未驗證或缺古籍來源即失敗） verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:bazi-registry-completeness\n\nERROR: C-BAZI-CLASSICS status=CONFLICT gate=CONFLICT 來源 7 個 | 閘門計算 CONFLICT：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 64，未達 90；D 級來源不得作為交叉依據；有來源版本不可追溯；重大衝突：《三命通會》作者與內容增竄；重大衝突：《淵海子平》《滴天髓》《子平真詮》版本與作者不可追溯 / 登記狀態 CONFLICT（非 VERIFIED）\nERROR: C-BAZI-VALIDITY status=PENDING_POOL gate=PENDING_POOL 來源 4 個 | 閘門計算 PENDING_POOL：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 81，未達 90；有來源版本不可追溯 / 登記狀態 PENDING_POOL（非 VERIFIED）\nERROR: C-RED-LUAN-SHENSHA status=PENDING_POOL gate=PENDING_POOL 來源 3 個 | 閘門計算 PENDING_POOL：缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 83，未達 90；有來源版本不可追溯 / 登記狀態 PENDING_POOL（非 VERIFIED）\nERROR: C-BAZI-FIVE-GODS status=CONFLICT gate=CONFLICT 來源 4 個 | 閘門計算 CONFLICT：缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 46，未達 90；D 級來源不得作為交叉依據；缺原典（或原始研究）來源；有來源版本不可追溯；重大衝突：身弱用印時，喜神取比劫還是取生印的官殺 / 登記狀態 CONFLICT（非 VERIFIED） / 未掛原典（古籍）來源\nERROR: C-SHENSHA-RULE-INTEGRITY status=PENDING_POOL gate=PENDING_POOL 來源 2 個 | 閘門計算 PENDING_POOL：交叉比對來源 2 個，未達 3 個；缺原典（或原始研究）來源 / 登記狀態 PENDING_POOL（非 VERIFIED） / 未掛原典（古籍）來源\nERROR: C-ASURA-LIFE-STAGES status=CONFLICT gate=CONFLICT 來源 6 個 | 閘門計算 CONFLICT：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 83，未達 90；有來源版本不可追溯；重大衝突：四柱對應歲數：古籍無歲數，後世分界不一 / 登記狀態 CONFLICT（非 VERIFIED）\nSUMMARY: 17 筆 claim，OK 11，ERROR 6",
-      "output": "OK: C-BAZI-CHART status=VERIFIED gate=VERIFIED 來源 7 個\nERROR: C-BAZI-CLASSICS status=CONFLICT gate=CONFLICT 來源 7 個 | 閘門計算 CONFLICT：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 64，未達 90；D 級來源不得作為交叉依據；有來源版本不可追溯；重大衝突：《三命通會》作者與內容增竄；重大衝突：《淵海子平》《滴天髓》《子平真詮》版本與作者不可追溯 / 登記狀態 CONFLICT（非 VERIFIED）\nERROR: C-BAZI-VALIDITY status=PENDING_POOL gate=PENDING_POOL 來源 4 個 | 閘門計算 PENDING_POOL：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 81，未達 90；有來源版本不可追溯 / 登記狀態 PENDING_POOL（非 VERIFIED）\nOK: C-BAZI-PILLAR-SHENSHA status=VERIFIED gate=VERIFIED 來源 3 個\nERROR: C-RED-LUAN-SHENSHA status=PENDING_POOL gate=PENDING_POOL 來源 3 個 | 閘門計算 PENDING_POOL：缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 83，未達 90；有來源版本不可追溯 / 登記狀態 PENDING_POOL（非 VERIFIED）\nERROR: C-BAZI-FIVE-GODS status=CONFLICT gate=CONFLICT 來源 4 個 | 閘門計算 CONFLICT：缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 46，未達 90；D 級來源不得作為交叉依據；缺原典（或原始研究）來源；有來源版本不可追溯；重大衝突：身弱用印時，喜神取比劫還是取生印的官殺 / 登記狀態 CONFLICT（非 VERIFIED） / 未掛原典（古籍）來源\nOK: C-BAZI-SHENSHA-TIANYI status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-BAZI-SHENSHA-WENCHANG status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-BAZI-SHENSHA-TAOHUA status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-BAZI-SHENSHA-YIMA status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-DUAL-SHENSHA-JIANGXING status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-DUAL-SHENSHA-GEJIAO status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-DUAL-SHENSHA-YUANCHEN status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-DUAL-SHENSHA-YANGREN status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-BAZI-SHENSHA-HUAGAI status=VERIFIED gate=VERIFIED 來源 3 個\nERROR: C-SHENSHA-RULE-INTEGRITY status=PENDING_POOL gate=PENDING_POOL 來源 2 個 | 閘門計算 PENDING_POOL：交叉比對來源 2 個，未達 3 個；缺原典（或原始研究）來源 / 登記狀態 PENDING_POOL（非 VERIFIED） / 未掛原典（古籍）來源\nERROR: C-ASURA-LIFE-STAGES status=CONFLICT gate=CONFLICT 來源 6 個 | 閘門計算 CONFLICT：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 83，未達 90；有來源版本不可追溯；重大衝突：四柱對應歲數：古籍無歲數，後世分界不一 / 登記狀態 CONFLICT（非 VERIFIED）\nSUMMARY: 17 筆 claim，OK 11，ERROR 6"
+      "output": "> blood-type-compatibility@0.1.0 check:bazi-registry-completeness\n> node scripts/bazi-registry-completeness.cjs\n\nOK: C-BAZI-CHART status=VERIFIED gate=VERIFIED 來源 7 個\nERROR: C-BAZI-CLASSICS status=CONFLICT gate=CONFLICT 來源 7 個 | 閘門計算 CONFLICT：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 64，未達 90；D 級來源不得作為交叉依據；有來源版本不可追溯；重大衝突：《三命通會》作者與內容增竄；重大衝突：《淵海子平》《滴天髓》《子平真詮》版本與作者不可追溯 / 登記狀態 CONFLICT（非 VERIFIED）\nERROR: C-BAZI-VALIDITY status=PENDING_POOL gate=PENDING_POOL 來源 4 個 | 閘門計算 PENDING_POOL：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 81，未達 90；有來源版本不可追溯 / 登記狀態 PENDING_POOL（非 VERIFIED）\nOK: C-BAZI-PILLAR-SHENSHA status=VERIFIED gate=VERIFIED 來源 3 個\nERROR: C-RED-LUAN-SHENSHA status=PENDING_POOL gate=PENDING_POOL 來源 3 個 | 閘門計算 PENDING_POOL：缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 83，未達 90；有來源版本不可追溯 / 登記狀態 PENDING_POOL（非 VERIFIED）\nERROR: C-BAZI-FIVE-GODS status=CONFLICT gate=CONFLICT 來源 4 個 | 閘門計算 CONFLICT：缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 46，未達 90；D 級來源不得作為交叉依據；缺原典（或原始研究）來源；有來源版本不可追溯；重大衝突：身弱用印時，喜神取比劫還是取生印的官殺 / 登記狀態 CONFLICT（非 VERIFIED） / 未掛原典（古籍）來源\nOK: C-BAZI-SHENSHA-TIANYI status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-BAZI-SHENSHA-WENCHANG status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-BAZI-SHENSHA-TAOHUA status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-BAZI-SHENSHA-YIMA status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-DUAL-SHENSHA-JIANGXING status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-DUAL-SHENSHA-GEJIAO status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-DUAL-SHENSHA-YUANCHEN status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-DUAL-SHENSHA-YANGREN status=VERIFIED gate=VERIFIED 來源 3 個\nOK: C-BAZI-SHENSHA-HUAGAI status=VERIFIED gate=VERIFIED 來源 3 個\nERROR: C-SHENSHA-RULE-INTEGRITY status=PENDING_POOL gate=PENDING_POOL 來源 2 個 | 閘門計算 PENDING_POOL：交叉比對來源 2 個，未達 3 個；缺原典（或原始研究）來源 / 登記狀態 PENDING_POOL（非 VERIFIED） / 未掛原典（古籍）來源\nERROR: C-ASURA-LIFE-STAGES status=CONFLICT gate=CONFLICT 來源 6 個 | 閘門計算 CONFLICT：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 83，未達 90；有來源版本不可追溯；重大衝突：四柱對應歲數：古籍無歲數，後世分界不一 / 登記狀態 CONFLICT（非 VERIFIED）\nSUMMARY: 17 筆 claim，OK 11，ERROR 6"
     },
     {
       "id": "BAZI_FEATURE_COMPLETE",
@@ -364,11 +359,11 @@
       "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 543,
+      "durationMs": 556,
       "htmlLength": 0,
       "error": "Command failed: cmd.exe /d /s /c npm.cmd run test:bazi-feature-complete\n",
       "issue": "八字客戶功能完整（排盤、五項神煞、老師判讀、五神、紅鸞皆須放行） verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:bazi-feature-complete\n\nNOT READY: 八字老師進階判讀（格局、旺衰、斷語） — C-BAZI-CLASSICS=CONFLICT、C-BAZI-FIVE-GODS=CONFLICT\nNOT READY: 五神（用神、喜神、忌神、仇神、閒神） — C-BAZI-FIVE-GODS=CONFLICT\nNOT READY: 配對紅鸞 — C-RED-LUAN-SHENSHA=PENDING_POOL\nFAIL: bazi feature complete — 3/10 項未放行：八字老師進階判讀（格局、旺衰、斷語）、五神（用神、喜神、忌神、仇神、閒神）、配對紅鸞",
-      "output": "READY: 基礎四柱排盤 — C-BAZI-CHART=VERIFIED\nREADY: 四柱神煞・天乙 — C-BAZI-SHENSHA-TIANYI=VERIFIED（跨書差異保留作版本說明；正式輸出固定採用所選版本）\nREADY: 四柱神煞・文昌 — C-BAZI-SHENSHA-WENCHANG=VERIFIED（跨書差異保留作版本說明；正式輸出固定採用所選版本）\nREADY: 四柱神煞・桃花 — C-BAZI-SHENSHA-TAOHUA=VERIFIED\nREADY: 四柱神煞・驛馬 — C-BAZI-SHENSHA-YIMA=VERIFIED\nREADY: 四柱神煞・華蓋 — C-BAZI-SHENSHA-HUAGAI=VERIFIED\nREADY: 四柱神煞整列 — shenShaStatus=VERIFIED\nNOT READY: 八字老師進階判讀（格局、旺衰、斷語） — C-BAZI-CLASSICS=CONFLICT、C-BAZI-FIVE-GODS=CONFLICT\nNOT READY: 五神（用神、喜神、忌神、仇神、閒神） — C-BAZI-FIVE-GODS=CONFLICT\nNOT READY: 配對紅鸞 — C-RED-LUAN-SHENSHA=PENDING_POOL\nFAIL: bazi feature complete — 3/10 項未放行：八字老師進階判讀（格局、旺衰、斷語）、五神（用神、喜神、忌神、仇神、閒神）、配對紅鸞"
+      "output": "> blood-type-compatibility@0.1.0 test:bazi-feature-complete\n> node tests/bazi-feature-complete.test.cjs\n\nREADY: 基礎四柱排盤 — C-BAZI-CHART=VERIFIED\nREADY: 四柱神煞・天乙 — C-BAZI-SHENSHA-TIANYI=VERIFIED（跨書差異保留作版本說明；正式輸出固定採用所選版本）\nREADY: 四柱神煞・文昌 — C-BAZI-SHENSHA-WENCHANG=VERIFIED（跨書差異保留作版本說明；正式輸出固定採用所選版本）\nREADY: 四柱神煞・桃花 — C-BAZI-SHENSHA-TAOHUA=VERIFIED\nREADY: 四柱神煞・驛馬 — C-BAZI-SHENSHA-YIMA=VERIFIED\nREADY: 四柱神煞・華蓋 — C-BAZI-SHENSHA-HUAGAI=VERIFIED\nREADY: 四柱神煞整列 — shenShaStatus=VERIFIED\nNOT READY: 八字老師進階判讀（格局、旺衰、斷語） — C-BAZI-CLASSICS=CONFLICT、C-BAZI-FIVE-GODS=CONFLICT\nNOT READY: 五神（用神、喜神、忌神、仇神、閒神） — C-BAZI-FIVE-GODS=CONFLICT\nNOT READY: 配對紅鸞 — C-RED-LUAN-SHENSHA=PENDING_POOL\nFAIL: bazi feature complete — 3/10 項未放行：八字老師進階判讀（格局、旺衰、斷語）、五神（用神、喜神、忌神、仇神、閒神）、配對紅鸞"
     },
     {
       "id": "HOME_TAIJI_LEVEL01_MOTION",
@@ -379,11 +374,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1751,
+      "durationMs": 1910,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "Taiji Level 01 physics lock passed"
+      "output": "> blood-type-compatibility@0.1.0 test:taiji-level-01\n> tsc components/taiji/level-01/level01.constants.ts components/taiji/level-01/Level01Physics.ts components/taiji/level-01/Level01Fallback.ts components/taiji/level-01/Level01Orientation.ts components/taiji/level-01/Level01Entrance.ts components/taiji/level-01/Level01Reentry.ts components/taiji/level-01/Level01MotionGameEngine.ts components/taiji/level-01/Level01SensoryFeedback.ts tests/taiji-level-01-physics.test.ts --outDir .taiji-level-01-test-build --module commonjs --target es2020 --lib es2020,dom --moduleResolution node --esModuleInterop --skipLibCheck && node .taiji-level-01-test-build/tests/taiji-level-01-physics.test.js\n\nTaiji Level 01 physics lock passed"
     },
     {
       "id": "TAIJI_IOS",
@@ -393,11 +388,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 489,
+      "durationMs": 506,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: 太極在 Apple 手機可見；圖案不被硬體數字誤擋、畫質不被鎖低、遊戲授權走手勢且有手動退路"
+      "output": "> blood-type-compatibility@0.1.0 test:taiji-ios\n> node tests/taiji-ios-visibility.test.cjs\n\nPASS: 太極在 Apple 手機可見；圖案不被硬體數字誤擋、畫質不被鎖低、遊戲授權走手勢且有手動退路"
     },
     {
       "id": "HOME_TAIJI_LEVEL01_UI",
@@ -408,11 +403,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 356,
+      "durationMs": 369,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "Taiji Level 01 UI boundary passed"
+      "output": "> blood-type-compatibility@0.1.0 test:taiji-level-01-ui\n> node tests/taiji-level-01-ui-boundary.test.cjs\n\nTaiji Level 01 UI boundary passed"
     },
     {
       "id": "ICHING_NO_FABRICATED_HOUR",
@@ -422,11 +417,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 547,
+      "durationMs": 555,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: 生辰起卦不得代填午時；沒有時辰就不出卦，改給補時辰的出路"
+      "output": "> blood-type-compatibility@0.1.0 test:iching-hour\n> node tests/iching-no-fabricated-hour.test.cjs\n\nPASS: 生辰起卦不得代填午時；沒有時辰就不出卦，改給補時辰的出路"
     },
     {
       "id": "BEAST_STAKE_REWARD",
@@ -436,7 +431,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1186,
+      "durationMs": 1438,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -451,11 +446,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 397,
+      "durationMs": 420,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: only reviewed exact-player/exact-opponent six-second clips can play; previews and incomplete anatomy checks cannot"
+      "output": "> blood-type-compatibility@0.1.0 test:beast-release\n> node scripts/beast-build.mjs && node .beast-game-build/tests/beast-charge-release.test.js\n\nPASS: only reviewed exact-player/exact-opponent six-second clips can play; previews and incomplete anatomy checks cannot"
     },
     {
       "id": "BEAST_RELEASE_AUDIT",
@@ -463,14 +458,14 @@
       "title": "釋出稽核：技能檔庫與實際檔案逐張對得上",
       "script": "check:beast-releases",
       "timeoutMs": 60000,
-      "status": "FAILED",
+      "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 565,
+      "durationMs": 600,
       "htmlLength": 0,
-      "error": "Command failed: cmd.exe /d /s /c npm.cmd run check:beast-releases\nnode:fs:2427\r\n    return binding.writeFileUtf8(\r\n                   ^\r\n\r\nError: UNKNOWN: unknown error, open 'C:\\Users\\DRAGON\\Desktop\\命理\\reports\\beast-production\\release-summary.json'\r\n    at Object.writeFileSync (node:fs:2427:20)\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/scripts/check-beast-releases.mjs:57:4 {\r\n  errno: -4094,\r\n  code: 'UNKNOWN',\r\n  syscall: 'open',\r\n  path: 'C:\\\\Users\\\\DRAGON\\\\Desktop\\\\命理\\\\reports\\\\beast-production\\\\release-summary.json'\r\n}\r\n\r\nNode.js v24.13.0\r\n",
-      "issue": "釋出稽核：技能檔庫與實際檔案逐張對得上 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:beast-releases\nnode:fs:2427\r\n    return binding.writeFileUtf8(\r\n                   ^\r\n\r\nError: UNKNOWN: unknown error, open 'C:\\Users\\DRAGON\\Desktop\\命理\\reports\\beast-production\\release-summary.json'\r\n    at Object.writeFileSync (node:fs:2427:20)\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/scripts/check-beast-releases.mjs:57:4 {\r\n  errno: -4094,\r\n  code: 'UNKNOWN',\r\n  syscall: 'open',\r\n  path: 'C:\\\\Users\\\\DRAGON\\\\Desktop\\\\命理\\\\reports\\\\beast-production\\\\release-summary.json'\r\n}\r\n\r\nNode.js v24.13.0\r\n",
-      "output": "node:fs:2427\r\n    return binding.writeFileUtf8(\r\n                   ^\r\n\r\nError: UNKNOWN: unknown error, open 'C:\\Users\\DRAGON\\Desktop\\命理\\reports\\beast-production\\release-summary.json'\r\n    at Object.writeFileSync (node:fs:2427:20)\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/scripts/check-beast-releases.mjs:57:4 {\r\n  errno: -4094,\r\n  code: 'UNKNOWN',\r\n  syscall: 'open',\r\n  path: 'C:\\\\Users\\\\DRAGON\\\\Desktop\\\\命理\\\\reports\\\\beast-production\\\\release-summary.json'\r\n}\r\n\r\nNode.js v24.13.0"
+      "error": null,
+      "issue": null,
+      "output": "> blood-type-compatibility@0.1.0 check:beast-releases\n> node scripts/beast-build.mjs && node scripts/check-beast-releases.mjs\n\nApproved 0/60; pending 60; invalid releases 0. Approval is limited to each recorded opponent."
     },
     {
       "id": "BEAST_PRODUCTION_RETRY",
@@ -480,11 +475,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 734,
+      "durationMs": 790,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: identity mapping, explicit refinement, history preservation and three-attempt limit\nPASS: requested quota continuation retains the refusal and cannot duplicate a pending/result-bearing request\nPASS: transient Windows rename locks recover; permanent errors preserve original and recovery file without touching any generation API\nbeast_a01: interaction id saved; following this existing request only\nbeast_a01: interaction id saved; following this existing request only\nPASS: quota scopes and retry time, redaction, durable id before polling, no paid resubmission"
+      "output": "> blood-type-compatibility@0.1.0 test:beast-retry\n> node tests/beast-production-retry.test.mjs && node tests/beast-production-io.test.mjs && node tests/beast-production-resume.test.mjs\n\nPASS: identity mapping, explicit refinement, history preservation and three-attempt limit\nPASS: requested quota continuation retains the refusal and cannot duplicate a pending/result-bearing request\nPASS: transient Windows rename locks recover; permanent errors preserve original and recovery file without touching any generation API\nbeast_a01: interaction id saved; following this existing request only\nbeast_a01: interaction id saved; following this existing request only\nPASS: quota scopes and retry time, redaction, durable id before polling, no paid resubmission"
     },
     {
       "id": "BEAST_BATTLEFIELD",
@@ -495,11 +490,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 401,
+      "durationMs": 416,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: 開局、洗牌可重現、起始手牌\nPASS: 一張卡只能存在一個位置，違反會丟例外\nPASS: 合法位置只有一份，非法移動擋得下來\nPASS: 主戰／後備互換、後備滿了換不下來\nPASS: 雙方完全分離、選取是狀態、舊狀態不可變\nPASS: 蓋牌進場、翻牌顯形、離場自動翻回正面\nPASS: 對手蓋著的牌不回傳真實 id，張數照留\nPASS: 戰場層不重算傷害與勝負"
+      "output": "> blood-type-compatibility@0.1.0 test:beast-battlefield\n> node scripts/beast-build.mjs && node tests/beast-battlefield.test.mjs\n\nPASS: 開局、洗牌可重現、起始手牌\nPASS: 一張卡只能存在一個位置，違反會丟例外\nPASS: 合法位置只有一份，非法移動擋得下來\nPASS: 主戰／後備互換、後備滿了換不下來\nPASS: 雙方完全分離、選取是狀態、舊狀態不可變\nPASS: 蓋牌進場、翻牌顯形、離場自動翻回正面\nPASS: 對手蓋著的牌不回傳真實 id，張數照留\nPASS: 戰場層不重算傷害與勝負"
     },
     {
       "id": "BEAST_BATTLE_BRIDGE",
@@ -510,11 +505,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 417,
+      "durationMs": 454,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: 主戰排第一、場上就是隊伍\nPASS: 開戰條件講得出原因，條件不足擋得下來\nPASS: 對手同一套佈陣規則，不得動到玩家那一側\nPASS: 一到六隻都打得起來，同種子同結果\nPASS: 橋接層只翻譯不當裁判，勝負只來自核心"
+      "output": "> blood-type-compatibility@0.1.0 test:beast-bridge\n> node scripts/beast-build.mjs && node tests/beast-battle-bridge.test.mjs\n\nPASS: 主戰排第一、場上就是隊伍\nPASS: 開戰條件講得出原因，條件不足擋得下來\nPASS: 對手同一套佈陣規則，不得動到玩家那一側\nPASS: 一到六隻都打得起來，同種子同結果\nPASS: 橋接層只翻譯不當裁判，勝負只來自核心"
     },
     {
       "id": "BEAST_WEAPONS",
@@ -525,11 +520,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 393,
+      "durationMs": 449,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: 武器只是演出，不碰傷害；戰鬥引擎也不讀武器表\nPASS: 二十八宿部位與專案文件逐字一致\nPASS: 六十張六十種武器，幼子與成獸分得出級數\nPASS: 每張都拿得到完整武器，裸露描述講得出機構\nPASS: 素材真的存在、沿用既有授權素材庫、授權查得到\nPASS: 聲音只有一個來源，武器不自帶音色\nPASS: 吼 → 蓄力 → 命中 → 餘響，且與三維衝鋒動畫對齊"
+      "output": "> blood-type-compatibility@0.1.0 test:beast-weapons\n> node scripts/beast-build.mjs && node tests/beast-weapons.test.mjs\n\nPASS: 武器只是演出，不碰傷害；戰鬥引擎也不讀武器表\nPASS: 二十八宿部位與專案文件逐字一致\nPASS: 六十張六十種武器，幼子與成獸分得出級數\nPASS: 每張都拿得到完整武器，裸露描述講得出機構\nPASS: 素材真的存在、沿用既有授權素材庫、授權查得到\nPASS: 聲音只有一個來源，武器不自帶音色\nPASS: 吼 → 蓄力 → 命中 → 餘響，且與三維衝鋒動畫對齊"
     },
     {
       "id": "BEAST_ELEMENT_CONCEPT",
@@ -540,11 +535,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 558,
+      "durationMs": 608,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: 相剋表沿用五行，形成完整的環\nPASS: 帶剋的低戰力打得贏被剋的高戰力\nPASS: 倍率有份量，但沒有大到讓數值與技能失去意義\nPASS: 出戰前、交戰中、結果都講得出剋／被剋，且不自己算數值\nPASS: 卡片本身寫出剋誰／被誰剋，且排在戰鬥力前面\nPASS: 核心概念寫在技能檔案裡"
+      "output": "> blood-type-compatibility@0.1.0 test:beast-element-concept\n> node scripts/beast-build.mjs && node tests/beast-element-concept.test.mjs\n\nPASS: 相剋表沿用五行，形成完整的環\nPASS: 帶剋的低戰力打得贏被剋的高戰力\nPASS: 倍率有份量，但沒有大到讓數值與技能失去意義\nPASS: 出戰前、交戰中、結果都講得出剋／被剋，且不自己算數值\nPASS: 卡片本身寫出剋誰／被誰剋，且排在戰鬥力前面\nPASS: 核心概念寫在技能檔案裡"
     },
     {
       "id": "BEAST_GUARDIANS",
@@ -555,11 +550,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 390,
+      "durationMs": 431,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: 四大神獸各統領七宿，二十八宿不重不漏\nPASS: 幼子／成獸／四象分得出等級，同宿歸屬一致\nPASS: 強弱標示不說謊——壓平的分佈不做假星等\nPASS: 戰鬥力總分不回饋到戰鬥"
+      "output": "> blood-type-compatibility@0.1.0 test:beast-guardians\n> node scripts/beast-build.mjs && node tests/beast-guardians.test.mjs\n\nPASS: 四大神獸各統領七宿，二十八宿不重不漏\nPASS: 幼子／成獸／四象分得出等級，同宿歸屬一致\nPASS: 強弱標示不說謊——壓平的分佈不做假星等\nPASS: 戰鬥力總分不回饋到戰鬥"
     },
     {
       "id": "NO_FABRICATED_COUNTERS",
@@ -569,11 +564,11 @@
       "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 335,
+      "durationMs": 362,
       "htmlLength": 0,
       "error": "Command failed: cmd.exe /d /s /c npm.cmd run test:no-fake-counters\nnode:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: 顯示數要從真實造訪紀錄推算，不能相信存下來的彙總欄位\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/tests/no-fabricated-counters.test.mjs:87:10\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: false,\r\n  expected: true,\r\n  operator: '==',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0\r\n",
       "issue": "禁止作假：計數器沒有憑空底數，也不會自己長大 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run test:no-fake-counters\nnode:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: 顯示數要從真實造訪紀錄推算，不能相信存下來的彙總欄位\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/tests/no-fabricated-counters.test.mjs:87:10\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: false,\r\n  expected: true,\r\n  operator: '==',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0\r\n",
-      "output": "node:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: 顯示數要從真實造訪紀錄推算，不能相信存下來的彙總欄位\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/tests/no-fabricated-counters.test.mjs:87:10\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: false,\r\n  expected: true,\r\n  operator: '==',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0"
+      "output": "> blood-type-compatibility@0.1.0 test:no-fake-counters\n> node tests/no-fabricated-counters.test.mjs\n\nnode:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: 顯示數要從真實造訪紀錄推算，不能相信存下來的彙總欄位\r\n    at file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/tests/no-fabricated-counters.test.mjs:87:10\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: false,\r\n  expected: true,\r\n  operator: '==',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0"
     },
     {
       "id": "BEAST_REWARD_CLAIM",
@@ -584,11 +579,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 371,
+      "durationMs": 397,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: 發獎不等於入袋，領了才算收藏\nPASS: 不得重複發、不得重複領\nPASS: 壞資料擋在門口，多份獎勵各自獨立"
+      "output": "> blood-type-compatibility@0.1.0 test:beast-reward\n> node scripts/beast-build.mjs && node tests/beast-reward-claim.test.mjs\n\nPASS: 發獎不等於入袋，領了才算收藏\nPASS: 不得重複發、不得重複領\nPASS: 壞資料擋在門口，多份獎勵各自獨立"
     },
     {
       "id": "BEAST_CHARGE_CLIP",
@@ -598,11 +593,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 339,
+      "durationMs": 346,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: 一條龍串接（宣告才掛、不硬掛）\nPASS: 六秒配方唯一規格、逐部位審查清單在案\nPASS: 聲音以玩家為主，對手不發自己的叫聲"
+      "output": "> blood-type-compatibility@0.1.0 test:beast-clip\n> node tests/beast-charge-clip.test.cjs\n\nPASS: 一條龍串接（宣告才掛、不硬掛）\nPASS: 六秒配方唯一規格、逐部位審查清單在案\nPASS: 聲音以玩家為主，對手不發自己的叫聲"
     },
     {
       "id": "BEAST_BEAST_VOICE",
@@ -612,11 +607,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 553,
+      "durationMs": 588,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: 卡片音效組合唯一、素材存在、直接播放、離場取消\nPASS: 六十張本體聲音有來源、對手完全靜音、玩家按卡片發聲"
+      "output": "> blood-type-compatibility@0.1.0 test:beast-voice\n> node tests/beast-sound-profiles.test.cjs\n\nPASS: 卡片音效組合唯一、素材存在、直接播放、離場取消\nPASS: 六十張本體聲音有來源、對手完全靜音、玩家按卡片發聲"
     },
     {
       "id": "BEAST_CARD_SPEC",
@@ -626,11 +621,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 325,
+      "durationMs": 348,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: 六十張卡、三席、儀式、預覽共用同一份正統卡片規格（63×88mm）\nPASS: 放牌不會讓版面跳動"
+      "output": "> blood-type-compatibility@0.1.0 test:beast-card-spec\n> node tests/beast-card-spec.test.cjs\n\nPASS: 六十張卡、三席、儀式、預覽共用同一份正統卡片規格（63×88mm）\nPASS: 放牌不會讓版面跳動"
     },
     {
       "id": "BEAST_CARD_GAME_CORE",
@@ -641,11 +636,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1330,
+      "durationMs": 1393,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": " PASS  雙方起始牌量相同  20\n  PASS  雙方疲勞都從零開始  0,0\n  PASS  先手起手就是基準張數  5\n  PASS  後手就是基準加補償  6\n  PASS  先後手不得寫死成 PLAYER\n  PASS  首回合不進攻是綁先手，不是綁 PLAYER\n  PASS  補償是給後手，不是給對手\n  PASS  組陣台不得自己跑 playToEnd\n  PASS  組陣台不得自己跑 playTurn\n  PASS  組陣台不得自己跑 performAttack\n  PASS  組陣台不得自己跑 computeDamage\n  PASS  組陣台不得自己跑 createDuel\n  PASS  組陣台不得自己跑 createGame\n  PASS  組陣台不得自己跑 resolveEffects\n  PASS  組陣台不得自己跑 resolveStake\n  PASS  組陣台不得自己跑 buildDeck\n  PASS  組陣台不得匯入戰鬥引擎\n  PASS  決鬥種子由伺服器產生\n  PASS  重播是唯一能指定種子的路徑\n  PASS  不得直接採用客戶端傳來的 seed\n  PASS  同種子 → 同勝負  PLAYER\n  PASS  同種子 → 同先手  PLAYER\n  PASS  同種子 → 同本命  30,0\n\n【十四】友善引導：新手要進得來\n  PASS  有新手三步驟\n  PASS  引導看過就不再擋路\n  PASS  提供選卡建議入口\n  PASS  推薦要講得出理由，不是亂數\n  PASS  公平性直接顯示給客戶\n  PASS  可以重播同一場驗證\n  PASS  卡池夠推薦三張\n\n【十五】穩定性：連線不穩、存壞了，都不能讓整頁壞掉\n  PASS  請求有逾時\n  PASS  請求有重試\n  PASS  逾時要講人話\n  PASS  本機儲存一律包 try/catch\n  PASS  存壞的舊資料要忽略，不得讓整頁開不起來\n  PASS  卡池認不得的 id 要自動忽略\n  PASS  載入失敗有錯誤畫面\n  PASS  API 擋掉壞掉的 JSON\n  PASS  API 擋掉沒放滿的陣容\n  PASS  API 不快取戰果\n\n【十六】揭牌儀式：只播放真實交鋒，保留最後回合\n  PASS  只取三段，避免手機長篇戰報擋住牌面  3\n  PASS  包含六十筆以後真正的最後事件  [object Object]\n  PASS  每段皆來自原始對戰紀錄\n  PASS  不更動原始對戰\n  PASS  沒有攻擊就不編造交鋒\n  PASS  未收到紀錄時不提前播放\n\n神獸卡遊戲核心（六十張） — PASS 194 / FAIL 0\nBEAST_GAME_CORE_CERTIFIED=true\nPASS lineup rejects a fourth occupied slot\nPASS core rejects duplicate starters instead of trusting the UI\nPASS a one-turn stun survives until the target gets a turn\nPASS fire guardian strengthens its own fire, never its enemy\nPASS each card instance retains its own limited skill uses\nPASS a replacement occupies the vacant frontline slot\nPASS high-rarity starters obey the shared budget\nPASS opponents are unique, affordable and reproducible for 100 seeds\nPASS stunned target misses its action and recovers after its own turn\nCustomer-flow review: 9/9 passed\nPASS beast opponent naming: 58 front-end files checked\n{\"games\":1000,\"firstWins\":513,\"secondWins\":478,\"draws\":9,\"fatigueGames\":417,\"totalRounds\":10415,\"averageRounds\":10.415,\"firstWinRate\":0.5176589303733602,\"startersCovered\":60,\"coreVersion\":\"1.3.0\"}"
+      "output": " PASS  雙方起始牌量相同  20\n  PASS  雙方疲勞都從零開始  0,0\n  PASS  先手起手就是基準張數  5\n  PASS  後手就是基準加補償  6\n  PASS  先後手不得寫死成 PLAYER\n  PASS  首回合不進攻是綁先手，不是綁 PLAYER\n  PASS  補償是給後手，不是給對手\n  PASS  組陣台不得自己跑 playToEnd\n  PASS  組陣台不得自己跑 playTurn\n  PASS  組陣台不得自己跑 performAttack\n  PASS  組陣台不得自己跑 computeDamage\n  PASS  組陣台不得自己跑 createDuel\n  PASS  組陣台不得自己跑 createGame\n  PASS  組陣台不得自己跑 resolveEffects\n  PASS  組陣台不得自己跑 resolveStake\n  PASS  組陣台不得自己跑 buildDeck\n  PASS  組陣台不得匯入戰鬥引擎\n  PASS  決鬥種子由伺服器產生\n  PASS  重播是唯一能指定種子的路徑\n  PASS  不得直接採用客戶端傳來的 seed\n  PASS  同種子 → 同勝負  PLAYER\n  PASS  同種子 → 同先手  PLAYER\n  PASS  同種子 → 同本命  30,0\n\n【十四】友善引導：新手要進得來\n  PASS  有新手三步驟\n  PASS  引導看過就不再擋路\n  PASS  提供選卡建議入口\n  PASS  推薦要講得出理由，不是亂數\n  PASS  公平性直接顯示給客戶\n  PASS  可以重播同一場驗證\n  PASS  卡池夠推薦三張\n\n【十五】穩定性：連線不穩、存壞了，都不能讓整頁壞掉\n  PASS  請求有逾時\n  PASS  請求有重試\n  PASS  逾時要講人話\n  PASS  本機儲存一律包 try/catch\n  PASS  存壞的舊資料要忽略，不得讓整頁開不起來\n  PASS  卡池認不得的 id 要自動忽略\n  PASS  載入失敗有錯誤畫面\n  PASS  API 擋掉壞掉的 JSON\n  PASS  API 擋掉沒放滿的陣容\n  PASS  API 不快取戰果\n\n【十六】揭牌儀式：只播放真實交鋒，保留最後回合\n  PASS  只取三段，避免手機長篇戰報擋住牌面  3\n  PASS  包含六十筆以後真正的最後事件  [object Object]\n  PASS  每段皆來自原始對戰紀錄\n  PASS  不更動原始對戰\n  PASS  沒有攻擊就不編造交鋒\n  PASS  未收到紀錄時不提前播放\n\n神獸卡遊戲核心（六十張） — PASS 194 / FAIL 0\nBEAST_GAME_CORE_CERTIFIED=true\nPASS lineup rejects a fourth occupied slot\nPASS core rejects duplicate starters instead of trusting the UI\nPASS a one-turn stun survives until the target gets a turn\nPASS fire guardian strengthens its own fire, never its enemy\nPASS each card instance retains its own limited skill uses\nPASS a replacement occupies the vacant frontline slot\nPASS high-rarity starters obey the shared budget\nPASS opponents are unique, affordable and reproducible for 100 seeds\nPASS stunned target misses its action and recovers after its own turn\nCustomer-flow review: 9/9 passed\nPASS beast opponent naming: 59 front-end files checked\n{\"games\":1000,\"firstWins\":513,\"secondWins\":478,\"draws\":9,\"fatigueGames\":417,\"totalRounds\":10415,\"averageRounds\":10.415,\"firstWinRate\":0.5176589303733602,\"startersCovered\":60,\"coreVersion\":\"1.3.0\"}"
     },
     {
       "id": "BEAST_INTERACTIVE",
@@ -656,11 +651,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1845,
+      "durationMs": 1900,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "{\n  \"mode\": \"SMOKE\",\n  \"matches\": 1000,\n  \"playerWins\": 482,\n  \"draws\": 8,\n  \"maxRounds\": 80,\n  \"flags\": [\n    {\n      \"id\": \"beast_a19\",\n      \"role\": \"控制\",\n      \"rate\": 0.6891891891891891,\n      \"appearances\": 74,\n      \"wins\": 51,\n      \"draws\": 0\n    },\n    {\n      \"id\": \"beast_y15\",\n      \"role\": \"主攻\",\n      \"rate\": 0.6696428571428571,\n      \"appearances\": 112,\n      \"wins\": 75,\n      \"draws\": 0\n    },\n    {\n      \"id\": \"beast_y21\",\n      \"role\": \"主攻\",\n      \"rate\": 0.6727272727272727,\n      \"appearances\": 110,\n      \"wins\": 74,\n      \"draws\": 0\n    },\n    {\n      \"id\": \"beast_a13\",\n      \"role\": \"反擊\",\n      \"rate\": 0.32954545454545453,\n      \"appearances\": 88,\n      \"wins\": 29,\n      \"draws\": 0\n    },\n    {\n      \"id\": \"beast_a05\",\n      \"role\": \"控制\",\n      \"rate\": 0.6538461538461539,\n      \"appearances\": 104,\n      \"wins\": 68,\n      \"draws\": 0\n    }\n  ]\n}\n煙霧模式：1000 場，平衡閘門未評估（樣本不足會誤報）。完整驗證跑 npm run test:beast-interactive:full\nInteractive engine validation passed."
+      "output": "> blood-type-compatibility@0.1.0 test:beast-interactive\n> node scripts/beast-build.mjs && node tests/beast-interactive.test.cjs --seeds 500\n\n{\n  \"mode\": \"SMOKE\",\n  \"matches\": 1000,\n  \"playerWins\": 482,\n  \"draws\": 8,\n  \"maxRounds\": 80,\n  \"flags\": [\n    {\n      \"id\": \"beast_a19\",\n      \"role\": \"控制\",\n      \"rate\": 0.6891891891891891,\n      \"appearances\": 74,\n      \"wins\": 51,\n      \"draws\": 0\n    },\n    {\n      \"id\": \"beast_y15\",\n      \"role\": \"主攻\",\n      \"rate\": 0.6696428571428571,\n      \"appearances\": 112,\n      \"wins\": 75,\n      \"draws\": 0\n    },\n    {\n      \"id\": \"beast_y21\",\n      \"role\": \"主攻\",\n      \"rate\": 0.6727272727272727,\n      \"appearances\": 110,\n      \"wins\": 74,\n      \"draws\": 0\n    },\n    {\n      \"id\": \"beast_a13\",\n      \"role\": \"反擊\",\n      \"rate\": 0.32954545454545453,\n      \"appearances\": 88,\n      \"wins\": 29,\n      \"draws\": 0\n    },\n    {\n      \"id\": \"beast_a05\",\n      \"role\": \"控制\",\n      \"rate\": 0.6538461538461539,\n      \"appearances\": 104,\n      \"wins\": 68,\n      \"draws\": 0\n    }\n  ]\n}\n煙霧模式：1000 場，平衡閘門未評估（樣本不足會誤報）。完整驗證跑 npm run test:beast-interactive:full\nInteractive engine validation passed."
     },
     {
       "id": "STAR_BEAST_SELF_ENTRY_API",
@@ -671,11 +666,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 3642,
+      "durationMs": 5048,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: guardian input, unknown-hour integrity, deterministic mapping and duel API limits"
+      "output": "> blood-type-compatibility@0.1.0 test:star-beast-entry-api\n> node tests/star-beast-entry.api.test.cjs\n\nPASS: guardian input, unknown-hour integrity, deterministic mapping and duel API limits"
     },
     {
       "id": "HEALTH_RECOVERY_POLICY",
@@ -685,11 +680,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 335,
+      "durationMs": 334,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: only explicit recovery of unavailable home/ready services may restart; gameplay and API assertions never do"
+      "output": "> blood-type-compatibility@0.1.0 test:screen-health-policy\n> node tests/screen-health-recovery-policy.test.cjs\n\nPASS: only explicit recovery of unavailable home/ready services may restart; gameplay and API assertions never do"
     },
     {
       "id": "THREE_IN_ONE_INTEGRATION",
@@ -699,7 +694,7 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 1876,
+      "durationMs": 2080,
       "htmlLength": 0,
       "error": null,
       "issue": null,
@@ -713,11 +708,11 @@
       "status": "FAILED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 350,
+      "durationMs": 361,
       "htmlLength": 0,
       "error": "Command failed: cmd.exe /d /s /c npm.cmd run check:three-core-traditional-health\n",
       "issue": "三核心原典缺陷：禁止以流程通過代替算法正確 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:three-core-traditional-health\n\nUNRESOLVED: MEIHUA_GREGORIAN_SUM — 公曆年月日直接加總與已閱梅花年月日時取數傳本不符\nUNRESOLVED: BAZI_TEXT_HASH_READING — 另以姓名與文案雜湊起卦，未沿用三核心已核對卦象\nUNRESOLVED: KARMA_AI_CHART_AND_FIXED_FALLBACK — 讓模型自行推算命宮星曜並提供固定卦象後備，未由已核對命盤提供\nUNRESOLVED: ZIWEI_PALACE_HASH — 三核心核對後仍依宮名主星流年文字另起雜湊卦\nUNRESOLVED: GROWTH_WEEK_HASH — 週次與個人種子文字映射未有原典依據\nUNRESOLVED: SOLAR_TERM_HASH — 節氣名稱與年份映射卦象不等於官方曆法或正統起卦",
-      "output": "UNRESOLVED: MEIHUA_GREGORIAN_SUM — 公曆年月日直接加總與已閱梅花年月日時取數傳本不符\n仍有運算呼叫，尚未完成正式用途停用。\nUNRESOLVED: BAZI_TEXT_HASH_READING — 另以姓名與文案雜湊起卦，未沿用三核心已核對卦象\n目前另有停用條件，不代表算法已修復。\nUNRESOLVED: KARMA_AI_CHART_AND_FIXED_FALLBACK — 讓模型自行推算命宮星曜並提供固定卦象後備，未由已核對命盤提供\n目前另有停用條件，不代表算法已修復。\nUNRESOLVED: ZIWEI_PALACE_HASH — 三核心核對後仍依宮名主星流年文字另起雜湊卦\n仍有運算呼叫，尚未完成正式用途停用。\nUNRESOLVED: GROWTH_WEEK_HASH — 週次與個人種子文字映射未有原典依據\n仍有運算呼叫，尚未完成正式用途停用。\nUNRESOLVED: SOLAR_TERM_HASH — 節氣名稱與年份映射卦象不等於官方曆法或正統起卦\n仍有運算呼叫，尚未完成正式用途停用。\n原典缺陷清單檢查不取代算法、真機或服務可用性驗收。"
+      "output": "> blood-type-compatibility@0.1.0 check:three-core-traditional-health\n> node scripts/three-core-traditional-health.cjs\n\nUNRESOLVED: MEIHUA_GREGORIAN_SUM — 公曆年月日直接加總與已閱梅花年月日時取數傳本不符\n仍有運算呼叫，尚未完成正式用途停用。\nUNRESOLVED: BAZI_TEXT_HASH_READING — 另以姓名與文案雜湊起卦，未沿用三核心已核對卦象\n目前另有停用條件，不代表算法已修復。\nUNRESOLVED: KARMA_AI_CHART_AND_FIXED_FALLBACK — 讓模型自行推算命宮星曜並提供固定卦象後備，未由已核對命盤提供\n目前另有停用條件，不代表算法已修復。\nUNRESOLVED: ZIWEI_PALACE_HASH — 三核心核對後仍依宮名主星流年文字另起雜湊卦\n仍有運算呼叫，尚未完成正式用途停用。\nUNRESOLVED: GROWTH_WEEK_HASH — 週次與個人種子文字映射未有原典依據\n仍有運算呼叫，尚未完成正式用途停用。\nUNRESOLVED: SOLAR_TERM_HASH — 節氣名稱與年份映射卦象不等於官方曆法或正統起卦\n仍有運算呼叫，尚未完成正式用途停用。\n原典缺陷清單檢查不取代算法、真機或服務可用性驗收。"
     },
     {
       "id": "MEIHUA_ORIGINAL_CASES",
@@ -727,11 +722,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 525,
+      "durationMs": 581,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS: 2 original examples, remainder boundary, invalid traditional numbers; customer birth pipeline not certified"
+      "output": "> blood-type-compatibility@0.1.0 test:meihua-original-cases\n> node tests/meihua-original-cases.test.cjs\n\nPASS: 2 original examples, remainder boundary, invalid traditional numbers; customer birth pipeline not certified"
     },
     {
       "id": "ZIWEI_FORM_FILL",
@@ -743,11 +738,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 17490,
+      "durationMs": 18281,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "紫微表單手機實填健檢\n目標：http://localhost:8888/insight\nPASS 靜態：生日欄不得用生日值當 key (126ms)\nPASS 手機寬度開啟 http://localhost:8888/insight (1142ms)\nPASS 點「親朋好友」（只做本次分析，不寫入） (1285ms)\nPASS 輸入姓名 (477ms)\nPASS 民國年逐鍵輸入，焦點不跑 (727ms)\nPASS 月份逐鍵輸入，焦點不跑 (734ms)\nPASS 日期打「25」：打到「2」日期就湊齊，焦點仍不得跑 (768ms)\nPASS 填完後改日期（退格改成 28），焦點仍不得跑 (269ms)\nPASS 點性別「女性」 (495ms)\nPASS 點「不知道出生時辰」 (482ms)\nPASS 送出後出現三柱：甲寅年、辛未月、時柱待補 (1947ms)\nPASS 客戶看得到的字沒有內部用語（不知道時辰） (0ms)\nPASS 重新分析，改選寅時，出現易經老師解盤 (4475ms)\nPASS 命宮塔羅牌是後端選好送來的 (34ms)\nPASS 客戶看得到的字沒有內部用語（有時辰） (24ms)\nPASS 鬼魅老師：年齡由後端送來 (3109ms)\nPASS 全程無未捕捉的前端錯誤 (0ms)\nPASS 17 / FAIL 0\nZIWEI_FORM_FILL_CERTIFIED=true"
+      "output": "> blood-type-compatibility@0.1.0 test:ziwei-form-fill\n> node tests/ziwei-form-fill.e2e.mjs\n\n\n紫微表單手機實填健檢\n目標：http://localhost:8888/insight\nPASS 靜態：生日欄不得用生日值當 key (128ms)\nPASS 手機寬度開啟 http://localhost:8888/insight (2382ms)\nPASS 點「親朋好友」（只做本次分析，不寫入） (1311ms)\nPASS 輸入姓名 (480ms)\nPASS 民國年逐鍵輸入，焦點不跑 (731ms)\nPASS 月份逐鍵輸入，焦點不跑 (724ms)\nPASS 日期打「25」：打到「2」日期就湊齊，焦點仍不得跑 (739ms)\nPASS 填完後改日期（退格改成 28），焦點仍不得跑 (266ms)\nPASS 點性別「女性」 (489ms)\nPASS 點「不知道出生時辰」 (469ms)\nPASS 送出後出現三柱：甲寅年、辛未月、時柱待補 (1487ms)\nPASS 客戶看得到的字沒有內部用語（不知道時辰） (1ms)\nPASS 重新分析，改選寅時，出現易經老師解盤 (5388ms)\nPASS 命宮塔羅牌是後端選好送來的 (1ms)\nPASS 客戶看得到的字沒有內部用語（有時辰） (18ms)\nPASS 鬼魅老師：顯示後端有原典來源的條文 (2277ms)\nPASS 全程無未捕捉的前端錯誤 (0ms)\nPASS 17 / FAIL 0\nZIWEI_FORM_FILL_CERTIFIED=true"
     },
     {
       "id": "AI_TEACHER_AVAILABILITY",
@@ -758,11 +753,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 871,
+      "durationMs": 931,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS 易經老師：三種紫微解讀與娛樂解讀維持；未驗證八字解讀由共同後端守門拒絕；Google 外送 0 次\nZIWEI_TEACHER_CONTRACT_PASSED=true; BAZI_ADVANCED_READING_AVAILABLE=false"
+      "output": "> blood-type-compatibility@0.1.0 test:ai-teacher-availability\n> node tests/ai-teacher-availability.mjs\n\nPASS 易經老師：三種紫微解讀與娛樂解讀維持；未驗證八字解讀由共同後端守門拒絕；Google 外送 0 次\nZIWEI_TEACHER_CONTRACT_PASSED=true; BAZI_ADVANCED_READING_AVAILABLE=false"
     },
     {
       "id": "AI_CUSTOMER_MESSAGE",
@@ -772,11 +767,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 429,
+      "durationMs": 421,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS 月度花費上限 429 原文換成中文\nPASS 金鑰錯誤不外洩\nPASS 網路失敗英文換成中文\nPASS 非 Error 物件給預設中文\nPASS 自己寫的中文訊息保留\nPASS 回給客戶的訊息一定是中文為主\nPASS 6 / FAIL 0\nAI_CUSTOMER_MESSAGE_CERTIFIED=true\n(node:43472) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/lib/ai-error-message.ts is not specified and it doesn't parse as CommonJS.\nReparsing as ES module because module syntax was detected. This incurs a performance overhead.\nTo eliminate this warning, add \"type\": \"module\" to C:\\Users\\DRAGON\\Desktop\\命理\\package.json.\n(Use `node --trace-warnings ...` to show where the warning was created)"
+      "output": "> blood-type-compatibility@0.1.0 test:ai-customer-message\n> node tests/ai-customer-message.test.mjs\n\nPASS 月度花費上限 429 原文換成中文\nPASS 金鑰錯誤不外洩\nPASS 網路失敗英文換成中文\nPASS 非 Error 物件給預設中文\nPASS 自己寫的中文訊息保留\nPASS 回給客戶的訊息一定是中文為主\nPASS 6 / FAIL 0\nAI_CUSTOMER_MESSAGE_CERTIFIED=true\n(node:15536) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/DRAGON/Desktop/%E5%91%BD%E7%90%86/lib/ai-error-message.ts is not specified and it doesn't parse as CommonJS.\nReparsing as ES module because module syntax was detected. This incurs a performance overhead.\nTo eliminate this warning, add \"type\": \"module\" to C:\\Users\\DRAGON\\Desktop\\命理\\package.json.\n(Use `node --trace-warnings ...` to show where the warning was created)"
     },
     {
       "id": "ZIWEI_DISPLAY_ONLY",
@@ -786,11 +781,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 363,
+      "durationMs": 374,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "PASS 前端不定義也不呼叫選牌、合盤、算年齡\nPASS 後端 API 送出老師合盤、命宮塔羅、年齡\nPASS 紫微頁沒有內部用語\nPASS 老師後備文字沒有統計術語\nPASS 4 / FAIL 0\nZIWEI_DISPLAY_ONLY_CERTIFIED=true"
+      "output": "> blood-type-compatibility@0.1.0 test:ziwei-display-only\n> node tests/ziwei-frontend-display-only.test.mjs\n\nPASS 前端不定義也不呼叫選牌、合盤、算年齡\nPASS 後端 API 送出老師合盤、命宮塔羅、年齡\nPASS 紫微頁沒有內部用語\nPASS 老師後備文字沒有統計術語\nPASS 4 / FAIL 0\nZIWEI_DISPLAY_ONLY_CERTIFIED=true"
     },
     {
       "id": "HOME_TAIJI_LEVEL02_24_LOCK",
@@ -801,11 +796,11 @@
       "status": "PASSED",
       "sourcePath": null,
       "httpStatus": null,
-      "durationMs": 582,
+      "durationMs": 579,
       "htmlLength": 0,
       "error": null,
       "issue": null,
-      "output": "taiji-first-screen-scroll ok\nTaiji Level 02-24 Regression Lock passed"
+      "output": "> blood-type-compatibility@0.1.0 test:taiji-lock\n> node tests/taiji-level-02-24-lock.test.cjs\n\ntaiji-first-screen-scroll ok\nTaiji Level 02-24 Regression Lock passed"
     },
     {
       "id": "DUAL_CHART_SHENSHA_DISPLAY",
@@ -815,7 +810,7 @@
       "status": "FAILED",
       "sourcePath": "app/dual-chart/BaziChart.tsx",
       "httpStatus": null,
-      "durationMs": 1979,
+      "durationMs": 2096,
       "htmlLength": 0,
       "error": "Command failed: C:\\Program Files\\nodejs\\node.exe scripts/dual-chart-iching-shensha-display-check.cjs\n",
       "issue": "規則 taohua 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 waiTaohua 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jiangxing 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 gejiao 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tiande 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yuede 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tiandehe 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 longde 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tiangou 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 wugui 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jinkui 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 zaisha 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 liue 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yuepo 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 ripo 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 muyu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 kuigang 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 kongwang 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jinyu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 xuetang 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 guchen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 guasu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jiesha 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 lushen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tianyiDoctor 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 guoyin 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tianchu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tianshe 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 sanqi 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 wangshen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yinyangChacuo 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 guluan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 shieDabai 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 liuxia 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 sifei 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yuedehe 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 feiren 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jinshen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 bazhuan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jiuchou 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 liuxiu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 sangmen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 baihu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 bingfu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 pima 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 suipo 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yuekong 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jielu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tianzhuan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 dizhuan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 shiling 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 ride 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 rigui 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 panan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 anlu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jinshenDay 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 gonglu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tuishen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 hongyan 來源仍為 PENDING_POOL；顯示一致不等於原典核定",
