@@ -8,11 +8,12 @@ import library from '../docs/技能戰鬥檔案/鬼魅阿修羅/候選話術-100
 import { createBaziCore, type BaziBirthInput } from '../lib/bazi/engine';
 import {
   pickGoldWording, matchDimensions, WIRED_DIMENSIONS, EXCESS_SHARE_THRESHOLD,
-  crossCheckFourPillars, GATE_BLOCK_MESSAGE, UNAVAILABLE_MESSAGE, goldWordingViewFor,
+  crossCheckFourPillars, GATE_BLOCK_MESSAGE, UNAVAILABLE_MESSAGE, goldWordingViewFor, claimStatusFor, basisLineFor,
 } from '../lib/ghost-asura-gold-wording';
 import { ASURA_CHAIN, WORDING_COMPOSITION, credibilityTier } from '../lib/ghost-asura-order';
 import { CORE_ORDER } from '../lib/credibility-phrases';
 import { coreCredibility } from '../lib/credibility-wording';
+import { APPROVED_PHRASES, STATUS_WORDING } from '../lib/credibility-phrases';
 
 let pass = 0;
 const ok = (label: string, fn: () => void) => { fn(); pass++; console.log(`  ✓ ${label}`); };
@@ -189,6 +190,44 @@ ok('客戶看得到的提示（核對沒過、查無資料、標題）不得含�
   const view = goldWordingViewFor({}, false);
   for (const text of [GATE_BLOCK_MESSAGE, UNAVAILABLE_MESSAGE, view.label, view.text]) assert.ok(!JARGON.test(text), `客戶可見的字含術語：${text}`);
   assert.equal(view.text, UNAVAILABLE_MESSAGE);
+});
+
+ok('依據一句：只用已核准的公信力句子與閘門狀態說法，不比狀態說得更滿', () => {
+  // 已知時辰、核對通過：依據＝核准的交叉比對句＋閘門狀態說法＋三核心上限
+  const core = createBaziCore(cases[0][1]);
+  const gate = crossCheckFourPillars({ birthDate: cases[0][1].birthDate, gender: cases[0][1].gender, birthTime: cases[0][1].birthTime });
+  const r = pickGoldWording(core, gate);
+  assert.ok(r.status === 'OK' && r.tier === 'MEDIUM', '沒有客戶確認時，最高只到中');
+  if (r.status !== 'OK') return;
+  assert.ok(r.basis!.startsWith(APPROVED_PHRASES.crossCheck));
+  assert.ok(r.basis!.includes(STATUS_WORDING[claimStatusFor(r.dimension, core)]));
+  assert.ok(r.basis!.endsWith(APPROVED_PHRASES.traditionBoundary));
+  // 沒填時辰：明講暫排與核對未進行，不得說「已通過交叉比對」
+  const unknown = createBaziCore(cases[1][1]);
+  const ru = pickGoldWording(unknown, { status: 'TIME_UNKNOWN' });
+  assert.ok(ru.status === 'OK' && ru.tier === 'WEAK' && ru.basis!.includes('暫以夜半起算') && !ru.basis!.includes('已通過交叉比對'));
+  // 核對沒過：不挑句、當然沒有依據
+  assert.equal(basisLineFor('BLOCKED', { status: 'MISMATCH', differences: [] }, 'VERIFIED'), null);
+  // 來源只是待查核或衝突時，說法不得是「已通過」
+  assert.ok(basisLineFor('MEDIUM', { status: 'PASSED' }, 'PENDING_POOL')!.includes(STATUS_WORDING.PENDING_POOL));
+  assert.ok(!basisLineFor('MEDIUM', { status: 'PASSED' }, 'PENDING_POOL')!.includes('已通過交叉比對'));
+  assert.ok(basisLineFor('WEAK', { status: 'PASSED' }, 'CONFLICT')!.includes(STATUS_WORDING.CONFLICT));
+});
+
+ok('依據一句的來源狀態取自閘門重算：八字排盤正確性與天乙、文昌都有狀態', () => {
+  const core = createBaziCore(cases[0][1]);
+  assert.ok(['VERIFIED', 'CONFLICT', 'PENDING_POOL'].includes(claimStatusFor('NATURE', core)));
+  const view = goldWordingViewFor({ birthDate: '1974-07-02', birthTime: '03:30', gender: 'female' }, false);
+  assert.ok(view.basis && view.basis.length > 0);
+  assert.equal(goldWordingViewFor({}, false).basis, null);
+});
+
+ok('句庫已登記進來源登記（八字）；沒有第三方交叉來源，閘門重算結果不得是 VERIFIED', () => {
+  const claim = coreCredibility('八字').claims.find((c) => c.claimId === 'C-ASURA-GOLD-WORDING');
+  assert.ok(claim, '來源登記缺 C-ASURA-GOLD-WORDING');
+  assert.notEqual(claim!.status, 'VERIFIED');
+  assert.equal(claim!.status, 'PENDING_POOL');
+  assert.ok(!claim!.customerLine.includes('已通過交叉比對'));
 });
 
 ok('心理學整理已降為附錄：橫幅在、〈一〉不再定義含金量', () => {

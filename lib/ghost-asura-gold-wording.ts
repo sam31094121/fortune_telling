@@ -9,6 +9,10 @@
 import { createBaziCore, type BaziProfessionalResult } from './bazi/engine';
 import { isZiweiCertified, runBaziLayer, runZiweiLayer, type ThreeCoreInput } from './three-core-engine';
 import { verifyFourPillars, type FourPillarDifference } from './four-pillar-verification';
+import { coreCredibility } from './credibility-wording';
+import { APPROVED_PHRASES, STATUS_WORDING } from './credibility-phrases';
+import type { GateStatus } from './iching-source-gate';
+import { credibilityTier, type CredibilityTier } from './ghost-asura-order';
 import library from '../docs/技能戰鬥檔案/鬼魅阿修羅/候選話術-100句.json';
 
 export type GoldDimension =
@@ -90,12 +94,46 @@ export type GoldWordingResult =
       source: string[];
       designBasis: string;
       factBasis: string;
+      /** 力道等級（由公信力決定）；沒給核對結果時為 null */
+      tier: CredibilityTier | null;
+      /** 客戶看得到的「依據」一句（只用已核准的公信力句子與閘門狀態說法）；沒給核對結果時為 null */
+      basis: string | null;
       /** 命中的全部構面（依優先序）；只顯示第一個，其餘留作稽核 */
       matchedDimensions: GoldDimension[];
     }
   | { status: 'UNAVAILABLE'; message: string; gate?: FourPillarGate };
 
 export const UNAVAILABLE_MESSAGE = '暫時無法取得';
+
+/** 各構面所用事實對應的來源登記項目（claim_id）。狀態由閘門重算，不在此手填。 */
+const BAZI_CHART_CLAIM = 'C-BAZI-CHART';
+const SHENSHA_CLAIM: Record<string, string> = { tianyi: 'C-BAZI-SHENSHA-TIANYI', wenchang: 'C-BAZI-SHENSHA-WENCHANG' };
+
+let baziClaims: Map<string, GateStatus> | null = null;
+function baziClaimStatus(claimId: string): GateStatus {
+  if (!baziClaims) baziClaims = new Map(coreCredibility('八字').claims.map((c) => [c.claimId, c.status] as const));
+  return baziClaims.get(claimId) ?? 'PENDING_POOL';
+}
+
+/** 該構面所用事實的來源狀態：吉類神煞看命中的那幾項（任一非 VERIFIED 就取較弱者），其餘看八字排盤正確性。 */
+export function claimStatusFor(dimension: GoldDimension, core: BaziProfessionalResult): GateStatus {
+  if (dimension === 'AUSPICIOUS_STAR' && Array.isArray(core.shenSha)) {
+    const ids = [...new Set(core.shenSha.filter((x) => AUSPICIOUS_IDS.has(x.id)).map((x) => x.id))];
+    const statuses = ids.map((id) => baziClaimStatus(SHENSHA_CLAIM[id] ?? ''));
+    if (statuses.includes('CONFLICT')) return 'CONFLICT';
+    if (statuses.length === 0 || statuses.includes('PENDING_POOL')) return 'PENDING_POOL';
+    return 'VERIFIED';
+  }
+  return baziClaimStatus(BAZI_CHART_CLAIM);
+}
+
+/** 客戶看得到的「依據」。只組已核准的句子與閘門狀態說法，不比狀態說得更滿。 */
+export function basisLineFor(tier: CredibilityTier, gate: FourPillarGate, claimStatus: GateStatus): string | null {
+  if (tier === 'BLOCKED') return null;
+  if (gate.status === 'TIME_UNKNOWN') return '時辰未填，暫以夜半起算；核對尚未進行，這句只依已知資料。';
+  if (claimStatus === 'CONFLICT') return `這句所用的規則：${STATUS_WORDING.CONFLICT}。`;
+  return `${APPROVED_PHRASES.crossCheck}這句所用的規則：${STATUS_WORDING[claimStatus]}。${APPROVED_PHRASES.traditionBoundary}`;
+}
 
 /**
  * 依客戶資料算出命中的構面。優先序＝「越少人命中的越在前」，這樣挑出的句子最像他本人，
@@ -127,10 +165,10 @@ export function matchDimensions(core: BaziProfessionalResult): GoldDimension[] {
  * 阿修羅顯示管線用：把 normalizeAsuraInput 的結果轉成送往瀏覽器的一句。
  * 時辰不確定（hourAssumed，顯示管線以子時排）時，這裡一律當「沒填時辰」，不拿假子時去算。
  */
-export function goldWordingViewFor(engineInput: Record<string, unknown>, hourAssumed: boolean): { label: string; text: string } {
+export function goldWordingViewFor(engineInput: Record<string, unknown>, hourAssumed: boolean): { label: string; text: string; basis: string | null } {
   const label = '阿修羅對你說的一句';
   const { birthDate, birthTime, gender } = engineInput;
-  if (typeof birthDate !== 'string' || (gender !== 'male' && gender !== 'female')) return { label, text: UNAVAILABLE_MESSAGE };
+  if (typeof birthDate !== 'string' || (gender !== 'male' && gender !== 'female')) return { label, text: UNAVAILABLE_MESSAGE, basis: null };
   try {
     const known = !hourAssumed && typeof birthTime === 'string' && birthTime !== '';
     const core = createBaziCore({
@@ -142,9 +180,9 @@ export function goldWordingViewFor(engineInput: Record<string, unknown>, hourAss
     });
     const gate = crossCheckFourPillars({ birthDate, gender, birthTime: known ? (birthTime as string) : null });
     const r = pickGoldWording(core, gate);
-    return { label, text: r.status === 'OK' ? r.line : r.message };
+    return { label, text: r.status === 'OK' ? r.line : r.message, basis: r.status === 'OK' ? r.basis : null };
   } catch {
-    return { label, text: UNAVAILABLE_MESSAGE };
+    return { label, text: UNAVAILABLE_MESSAGE, basis: null };
   }
 }
 
@@ -161,6 +199,10 @@ export function pickGoldWording(core: BaziProfessionalResult, gate?: FourPillarG
   for (const dimension of matched) {
     const hit = entries.find((e) => e.stem === stem && e.dimension === dimension);
     if (hit) {
+      const tier = gate
+        ? credibilityTier({ fourPillars: gate.status, timeKnown: core.timePrecision !== 'UNKNOWN_TIME', claimStatus: claimStatusFor(dimension, core), inputConfirmed: false })
+        : null;
+      const basis = gate && tier ? basisLineFor(tier, gate, claimStatusFor(dimension, core)) : null;
       return {
         status: 'OK',
         id: hit.id,
@@ -171,6 +213,8 @@ export function pickGoldWording(core: BaziProfessionalResult, gate?: FourPillarG
         source: hit.source,
         designBasis: hit.designBasis,
         factBasis: hit.factBasis,
+        tier,
+        basis,
         matchedDimensions: matched,
       };
     }

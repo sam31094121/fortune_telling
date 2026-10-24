@@ -275,6 +275,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
         <p className={styles.goldWording} data-asura-gold-wording>
           <small>{display.goldWording.label}</small>
           <strong>{display.goldWording.text}</strong>
+          {display.goldWording.basis && <em data-asura-gold-basis>{display.goldWording.basis}</em>}
         </p>
       )}
 

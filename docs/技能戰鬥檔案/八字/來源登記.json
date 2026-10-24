@@ -1427,6 +1427,25 @@
       ],
       "note": "客戶畫面不得宣稱「大數據證實」「科學證實」或「國家認證」；統計數字必須同時標機關、年度與口徑。",
       "status": "CONFLICT"
+    },
+    {
+      "claim_id": "C-ASURA-GOLD-WORDING",
+      "title": "阿修羅「含金量一句」句庫（候選 100 句）的事實依據與公信力定位",
+      "domain": "八字知識",
+      "files": [
+        "docs/技能戰鬥檔案/鬼魅阿修羅/話術含金量技能.md",
+        "docs/技能戰鬥檔案/鬼魅阿修羅/候選話術-100句.json",
+        "lib/ghost-asura-gold-wording.ts",
+        "lib/ghost-asura-order.ts"
+      ],
+      "authority_files": [],
+      "big_data_sources": [],
+      "cross_references": [],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "句庫為本站自撰、尚未取得第三方來源交叉比對。事實依據（日元、月令強弱、五行、時辰有無、吉類神煞）取自八字確定性運算；各事實的來源狀態由閘門另行重算，不在此手填。句子是設計出的寫法，不是古籍原文，不得寫成已通過交叉比對。",
+      "verification_scope": "SELECTED_EDITION",
+      "comparisons": []
     }
   ]
 }

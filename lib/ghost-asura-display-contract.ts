@@ -215,6 +215,8 @@ export interface AsuraDisplay {
 export interface AsuraGoldWordingView {
   label: string;
   text: string;
+  /** 「依據」一句（後端只用已核准的公信力句子與閘門狀態說法組成）；沒有就不畫。 */
+  basis?: string | null;
 }
 
 /** 技能頁三張摺疊卡：生辰未送出前的一句（阿修羅口吻；無命盤資料，故放在共用合約）。 */
