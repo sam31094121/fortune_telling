@@ -10,13 +10,15 @@ import {
   pickGoldWording, matchDimensions, WIRED_DIMENSIONS, EXCESS_SHARE_THRESHOLD,
   crossCheckFourPillars, GATE_BLOCK_MESSAGE,
 } from '../lib/ghost-asura-gold-wording';
+import { ASURA_CHAIN, WORDING_COMPOSITION, credibilityTier } from '../lib/ghost-asura-order';
+import { CORE_ORDER } from '../lib/credibility-phrases';
 
 let pass = 0;
 const ok = (label: string, fn: () => void) => { fn(); pass++; console.log(`  ✓ ${label}`); };
 
 const entries = library.entries as Array<{ id: string; stem: string; dimension: string; line: string; source: string[] }>;
 
-/** 不得宣稱的字（須與 話術含金量技能.md〈5.2〉一致；新增禁語兩邊一起改） */
+/** 不得宣稱的字（須與 話術含金量技能.md〈6.2〉一致；新增禁語兩邊一起改） */
 const OVERCLAIM = ['必定', '註定', '保證', '準確度', '大數據證明', '科學已證實', '國家認證'];
 
 // 與 lib/server/ghost-asura-voice.ts 的 lintAsuraVoice 同規則（該檔 server-only，無法直接匯入）
@@ -109,26 +111,71 @@ ok('客戶看得到的句子不得出現命理術語（SKILL_LOCK 術語封鎖�
   for (const e of entries) assert.ok(!JARGON.test(e.line), `${e.id} ${e.line}`);
 });
 
-ok('技能檔寫明證據上限：〈5.1〉〈5.2〉〈5.4〉存在，且不得宣稱清單涵蓋守門的每個禁語', () => {
-  const doc = readFileSync(
-    new URL('../docs/技能戰鬥檔案/鬼魅阿修羅/話術含金量技能.md', import.meta.url),
-    'utf8',
-  );
-  for (const h of ['### 5.1 證據只證明到哪裡', '### 5.2 不得宣稱', '### 5.4 要老實標出的限制']) assert.ok(doc.includes(h), `技能檔缺 ${h}`);
-  const claims = doc.slice(doc.indexOf('### 5.2'), doc.indexOf('### 5.3'));
-  for (const w of OVERCLAIM) assert.ok(claims.includes(w), `技能檔〈5.2〉未列出禁語：${w}`);
+const DOC = readFileSync(new URL('../docs/技能戰鬥檔案/鬼魅阿修羅/話術含金量技能.md', import.meta.url), 'utf8');
+const section = (from: string, to: string) => DOC.slice(DOC.indexOf(from), DOC.indexOf(to));
+
+ok('技能檔寫明「含金量＝公信力」，心理學整理已降為附錄、不再當判準', () => {
+  assert.ok(DOC.includes('## 零、業主更正（2026-10-24）：含金量＝公信力'));
+  assert.ok(DOC.includes('最有公信力的含金量，就是最有公信力的話術'));
+  assert.ok(DOC.includes('## 附錄、說服與溝通心理學參考（降級，不是含金量判準）'));
+  assert.ok(!/心理學證據閘[：:]s*決定/.test(section('### 1.1', '### 1.2')), '鏈條裡不得再有心理學證據閘');
+});
+
+ok('技能檔寫明公信力上限：〈6.1〉〈6.2〉〈6.4〉存在，且不得宣稱清單涵蓋守門的每個禁語', () => {
+  for (const h of ['### 6.1 公信力上限', '### 6.2 不得宣稱', '### 6.4 要老實標出的限制']) assert.ok(DOC.includes(h), `技能檔缺 ${h}`);
+  const claims = section('### 6.2', '### 6.3');
+  for (const w of OVERCLAIM) assert.ok(claims.includes(w), `技能檔〈6.2〉未列出禁語：${w}`);
+});
+
+ok('順序單一來源：資料鏈與組句順序和技能檔一致；三核心相對順序沿用 CORE_ORDER，不另訂第二套', () => {
+  const chain = section('### 1.1', '### 1.2');
+  let last = -1;
+  for (const step of ASURA_CHAIN) {
+    const at = chain.indexOf(step.label.split('（')[0].split('＋')[0]);
+    assert.ok(at > last, `技能檔〈1.1〉缺步驟或順序顛倒：${step.label}`);
+    last = at;
+  }
+  assert.equal(ASURA_CHAIN[0].id, 'INPUT');
+  assert.equal(ASURA_CHAIN[ASURA_CHAIN.length - 1].id, 'DISPLAY');
+  const ids = ASURA_CHAIN.map((s) => s.id);
+  assert.ok(ids.indexOf('BAZI') < ids.indexOf('ZIWEI_CROSS_CHECK') && ids.indexOf('ZIWEI_CROSS_CHECK') < ids.indexOf('DIVINATION'));
+  assert.ok(ids.indexOf('CREDIBILITY_GATE') < ids.indexOf('ASURA_VOICE') && ids.indexOf('ASURA_VOICE') < ids.indexOf('DISPLAY'));
+  // CORE_ORDER：八字 → 紫微斗數 → 易經，與鏈條中八字先於紫微、紫微先於易經卜卦一致
+  assert.deepEqual([...CORE_ORDER], ['八字', '紫微斗數', '易經']);
+  const comp = section('### 1.2', '## 二、');
+  let lastC = -1;
+  for (const step of WORDING_COMPOSITION) {
+    const at = comp.indexOf(step.label.split('：')[0]);
+    assert.ok(at > lastC, `技能檔〈1.2〉缺組句步驟或順序顛倒：${step.label}`);
+    lastC = at;
+  }
+});
+
+ok('公信力等級：核對沒過＝擋；沒填時辰或來源衝突＝弱；強須核對通過＋VERIFIED＋客戶確認，缺一不可', () => {
+  const base = { fourPillars: 'PASSED', timeKnown: true, claimStatus: 'VERIFIED', inputConfirmed: true } as const;
+  assert.equal(credibilityTier(base), 'STRONG');
+  assert.equal(credibilityTier({ ...base, inputConfirmed: false }), 'MEDIUM');
+  assert.equal(credibilityTier({ ...base, claimStatus: 'PENDING_POOL' }), 'MEDIUM');
+  assert.equal(credibilityTier({ ...base, fourPillars: 'TIME_UNKNOWN', timeKnown: false }), 'WEAK');
+  assert.equal(credibilityTier({ ...base, claimStatus: 'CONFLICT' }), 'WEAK');
+  for (const f of ['MISMATCH', 'ZIWEI_UNAVAILABLE', 'ERROR'] as const) assert.equal(credibilityTier({ ...base, fourPillars: f }), 'BLOCKED');
+  // 即使其他條件都滿，四柱核對沒過也不可能說話
+  assert.equal(credibilityTier({ fourPillars: 'MISMATCH', timeKnown: true, claimStatus: 'VERIFIED', inputConfirmed: true }), 'BLOCKED');
+});
+
+ok('每句附事實依據 factBasis；依神煞的句子標明來源待核、力道最高到中', () => {
+  for (const e of entries as Array<{ id: string; dimension: string; factBasis?: string }>) assert.ok(e.factBasis && e.factBasis.length > 0, e.id);
+  for (const e of entries as Array<{ dimension: string; factBasis?: string }>) {
+    if (e.dimension === 'AUSPICIOUS_STAR') assert.ok(e.factBasis!.includes('PENDING_POOL') && e.factBasis!.includes('最高到中'));
+  }
 });
 
 ok('技能檔寫明個性授權與轉化承諾界線：事實說死結果不說死、錢不進本站、不借運、不承諾結果', () => {
-  const doc = readFileSync(
-    new URL('../docs/技能戰鬥檔案/鬼魅阿修羅/話術含金量技能.md', import.meta.url),
-    'utf8',
-  );
-  for (const h of ['## 六之三、阿修羅的個性與授權', '## 六之四、轉化承諾']) assert.ok(doc.includes(h), `技能檔缺 ${h}`);
-  const six3 = doc.slice(doc.indexOf('## 六之三'), doc.indexOf('## 六之四'));
-  assert.ok(six3.includes('事實就說死') && six3.includes('結果就不說死'));
-  const six4 = doc.slice(doc.indexOf('## 六之四'), doc.indexOf('## 七、'));
-  for (const w of ['錢不進本站', '不借運', '承諾行動，不承諾結果', '不得說「你會倒楣」']) assert.ok(six4.includes(w), `〈六之四〉缺：${w}`);
+  for (const h of ['## 七、阿修羅的個性與授權', '## 八、轉化承諾']) assert.ok(DOC.includes(h), `技能檔缺 ${h}`);
+  const s7 = section('## 七、', '## 八、');
+  assert.ok(s7.includes('事實就說死') && s7.includes('結果就不說死'));
+  const s8 = section('## 八、', '## 九、');
+  for (const w of ['錢不進本站', '不借運', '承諾行動，不承諾結果', '不得說「你會倒楣」']) assert.ok(s8.includes(w), `〈八〉缺：${w}`);
 });
 
 ok('句子不隨日期變，不得寫「今日」', () => {

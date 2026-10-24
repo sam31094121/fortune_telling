@@ -1,7 +1,7 @@
 /**
  * 鬼魅阿修羅 - 話術含金量挑句（後端運算，前端只照印）
  *
- * 規範見 docs/技能戰鬥檔案/鬼魅阿修羅/話術含金量技能.md。
+ * 規範見 docs/技能戰鬥檔案/鬼魅阿修羅/話術含金量技能.md（含金量＝公信力）；順序與力道等級見 lib/ghost-asura-order.ts。
  * 句庫為 候選話術-100句.json（10 日元 × 10 構面）；本檔只依客戶資料挑「一句」，不生成任何文字。
  * 後端沒有對應欄位的構面（提醒類神煞、流年）不接；挑不到時回明確中文狀態，不用別句頂替。
  */
@@ -23,7 +23,8 @@ interface LibraryEntry {
   trigger: string;
   line: string;
   source: string[];
-  evidenceCeiling: string;
+  designBasis: string;
+  factBasis: string;
 }
 
 /** 目前後端有真實欄位可觸發的構面。WARNING_STAR／FLOW_YEAR 尚無對應欄位，不接。 */
@@ -87,7 +88,8 @@ export type GoldWordingResult =
       trigger: string;
       line: string;
       source: string[];
-      evidenceCeiling: string;
+      designBasis: string;
+      factBasis: string;
       /** 命中的全部構面（依優先序）；只顯示第一個，其餘留作稽核 */
       matchedDimensions: GoldDimension[];
     }
@@ -167,7 +169,8 @@ export function pickGoldWording(core: BaziProfessionalResult, gate?: FourPillarG
         trigger: hit.trigger,
         line: hit.line,
         source: hit.source,
-        evidenceCeiling: hit.evidenceCeiling,
+        designBasis: hit.designBasis,
+        factBasis: hit.factBasis,
         matchedDimensions: matched,
       };
     }

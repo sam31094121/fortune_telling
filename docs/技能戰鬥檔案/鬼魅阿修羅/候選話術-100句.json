@@ -4,8 +4,8 @@
     "date": "2026-10-24",
     "status": "CANDIDATE（未併入正本、未接後端、待業主審）",
     "structure": "10 日元 × 10 構面；每句依客戶資料觸發，一人一句",
-    "rules": "照 lintAsuraVoice：句長≤16、不發問、不驚嘆、不預言、不威嚇、不用空洞誇詞；不超過證據上限",
-    "evidenceFile": "權威來源/話術含金量-說服與溝通心理學-權威來源.md",
+    "rules": "照 lintAsuraVoice：句長≤16、不發問、不驚嘆、不預言、不威嚇、不用空洞誇詞；不超過公信力上限",
+    "designBasisNote": "designBasis＝寫法手法的參考（說服與溝通心理學，附錄，非含金量判準）；含金量＝公信力，見 話術含金量技能.md〈二〉；factBasis＝該句事實的資料依據",
     "notWired": "尚未登記進來源登記、尚未併入 features/ghost-asura/wordings.ts；SKILL_LOCK.md 未動",
     "backendTodo": "各構面觸發條件（月令得力、五行偏旺、流年關係等）須確認後端已提供欄位，未提供者不得顯示該句"
   },
@@ -22,7 +22,8 @@
         "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "designBasis": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "factBasis": "日柱天干（八字確定性運算 lib/bazi/engine.ts）",
       "status": "CANDIDATE"
     },
     {
@@ -37,7 +38,8 @@
         "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "designBasis": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -52,7 +54,8 @@
         "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "designBasis": "兩面並陳：不超額宣稱，只給小動作",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -67,7 +70,8 @@
         "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "designBasis": "可信度：說明資料來源，不自封",
+      "factBasis": "時辰有無（客戶填寫）＋八字×紫微四柱核對通過",
       "status": "CANDIDATE"
     },
     {
@@ -82,7 +86,8 @@
         "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "designBasis": "可信度：如實說明暫排方式，標明已知範圍",
+      "factBasis": "時辰有無（客戶填寫）；紫微無法排，無核對可做",
       "status": "CANDIDATE"
     },
     {
@@ -97,7 +102,8 @@
         "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "designBasis": "兩面並陳：優點同時是代價",
+      "factBasis": "五行加權占比（八字確定性運算 fiveElements，門檻 0.45 為工程自訂）",
       "status": "CANDIDATE"
     },
     {
@@ -112,7 +118,8 @@
         "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "designBasis": "動機式晤談式：給一個對方自己能做的小動作",
+      "factBasis": "五行加權為 0（八字確定性運算 fiveElements）",
       "status": "CANDIDATE"
     },
     {
@@ -127,7 +134,8 @@
         "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
       "status": "CANDIDATE"
     },
     {
@@ -142,7 +150,8 @@
         "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "designBasis": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -157,7 +166,8 @@
         "lib/ghost-asura-narrative-engine.ts:41-43（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "designBasis": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -172,7 +182,8 @@
         "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "designBasis": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "factBasis": "日柱天干（八字確定性運算 lib/bazi/engine.ts）",
       "status": "CANDIDATE"
     },
     {
@@ -187,7 +198,8 @@
         "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "designBasis": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -202,7 +214,8 @@
         "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "designBasis": "兩面並陳：不超額宣稱，只給小動作",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -217,7 +230,8 @@
         "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "designBasis": "可信度：說明資料來源，不自封",
+      "factBasis": "時辰有無（客戶填寫）＋八字×紫微四柱核對通過",
       "status": "CANDIDATE"
     },
     {
@@ -232,7 +246,8 @@
         "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "designBasis": "可信度：如實說明暫排方式，標明已知範圍",
+      "factBasis": "時辰有無（客戶填寫）；紫微無法排，無核對可做",
       "status": "CANDIDATE"
     },
     {
@@ -247,7 +262,8 @@
         "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "designBasis": "兩面並陳：優點同時是代價",
+      "factBasis": "五行加權占比（八字確定性運算 fiveElements，門檻 0.45 為工程自訂）",
       "status": "CANDIDATE"
     },
     {
@@ -262,7 +278,8 @@
         "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "designBasis": "動機式晤談式：給一個對方自己能做的小動作",
+      "factBasis": "五行加權為 0（八字確定性運算 fiveElements）",
       "status": "CANDIDATE"
     },
     {
@@ -277,7 +294,8 @@
         "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
       "status": "CANDIDATE"
     },
     {
@@ -292,7 +310,8 @@
         "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "designBasis": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -307,7 +326,8 @@
         "lib/ghost-asura-narrative-engine.ts:46-48（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "designBasis": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -322,7 +342,8 @@
         "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "designBasis": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "factBasis": "日柱天干（八字確定性運算 lib/bazi/engine.ts）",
       "status": "CANDIDATE"
     },
     {
@@ -337,7 +358,8 @@
         "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "designBasis": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -352,7 +374,8 @@
         "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "designBasis": "兩面並陳：不超額宣稱，只給小動作",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -367,7 +390,8 @@
         "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "designBasis": "可信度：說明資料來源，不自封",
+      "factBasis": "時辰有無（客戶填寫）＋八字×紫微四柱核對通過",
       "status": "CANDIDATE"
     },
     {
@@ -382,7 +406,8 @@
         "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "designBasis": "可信度：如實說明暫排方式，標明已知範圍",
+      "factBasis": "時辰有無（客戶填寫）；紫微無法排，無核對可做",
       "status": "CANDIDATE"
     },
     {
@@ -397,7 +422,8 @@
         "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "designBasis": "兩面並陳：優點同時是代價",
+      "factBasis": "五行加權占比（八字確定性運算 fiveElements，門檻 0.45 為工程自訂）",
       "status": "CANDIDATE"
     },
     {
@@ -412,7 +438,8 @@
         "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "designBasis": "動機式晤談式：給一個對方自己能做的小動作",
+      "factBasis": "五行加權為 0（八字確定性運算 fiveElements）",
       "status": "CANDIDATE"
     },
     {
@@ -427,7 +454,8 @@
         "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
       "status": "CANDIDATE"
     },
     {
@@ -442,7 +470,8 @@
         "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "designBasis": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -457,7 +486,8 @@
         "lib/ghost-asura-narrative-engine.ts:51-53（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "designBasis": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -472,7 +502,8 @@
         "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "designBasis": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "factBasis": "日柱天干（八字確定性運算 lib/bazi/engine.ts）",
       "status": "CANDIDATE"
     },
     {
@@ -487,7 +518,8 @@
         "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "designBasis": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -502,7 +534,8 @@
         "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "designBasis": "兩面並陳：不超額宣稱，只給小動作",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -517,7 +550,8 @@
         "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "designBasis": "可信度：說明資料來源，不自封",
+      "factBasis": "時辰有無（客戶填寫）＋八字×紫微四柱核對通過",
       "status": "CANDIDATE"
     },
     {
@@ -532,7 +566,8 @@
         "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "designBasis": "可信度：如實說明暫排方式，標明已知範圍",
+      "factBasis": "時辰有無（客戶填寫）；紫微無法排，無核對可做",
       "status": "CANDIDATE"
     },
     {
@@ -547,7 +582,8 @@
         "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "designBasis": "兩面並陳：優點同時是代價",
+      "factBasis": "五行加權占比（八字確定性運算 fiveElements，門檻 0.45 為工程自訂）",
       "status": "CANDIDATE"
     },
     {
@@ -562,7 +598,8 @@
         "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "designBasis": "動機式晤談式：給一個對方自己能做的小動作",
+      "factBasis": "五行加權為 0（八字確定性運算 fiveElements）",
       "status": "CANDIDATE"
     },
     {
@@ -577,7 +614,8 @@
         "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
       "status": "CANDIDATE"
     },
     {
@@ -592,7 +630,8 @@
         "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "designBasis": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -607,7 +646,8 @@
         "lib/ghost-asura-narrative-engine.ts:56-58（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "designBasis": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -622,7 +662,8 @@
         "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "designBasis": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "factBasis": "日柱天干（八字確定性運算 lib/bazi/engine.ts）",
       "status": "CANDIDATE"
     },
     {
@@ -637,7 +678,8 @@
         "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "designBasis": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -652,7 +694,8 @@
         "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "designBasis": "兩面並陳：不超額宣稱，只給小動作",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -667,7 +710,8 @@
         "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "designBasis": "可信度：說明資料來源，不自封",
+      "factBasis": "時辰有無（客戶填寫）＋八字×紫微四柱核對通過",
       "status": "CANDIDATE"
     },
     {
@@ -682,7 +726,8 @@
         "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "designBasis": "可信度：如實說明暫排方式，標明已知範圍",
+      "factBasis": "時辰有無（客戶填寫）；紫微無法排，無核對可做",
       "status": "CANDIDATE"
     },
     {
@@ -697,7 +742,8 @@
         "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "designBasis": "兩面並陳：優點同時是代價",
+      "factBasis": "五行加權占比（八字確定性運算 fiveElements，門檻 0.45 為工程自訂）",
       "status": "CANDIDATE"
     },
     {
@@ -712,7 +758,8 @@
         "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "designBasis": "動機式晤談式：給一個對方自己能做的小動作",
+      "factBasis": "五行加權為 0（八字確定性運算 fiveElements）",
       "status": "CANDIDATE"
     },
     {
@@ -727,7 +774,8 @@
         "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
       "status": "CANDIDATE"
     },
     {
@@ -742,7 +790,8 @@
         "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "designBasis": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -757,7 +806,8 @@
         "lib/ghost-asura-narrative-engine.ts:61-63（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "designBasis": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -772,7 +822,8 @@
         "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "designBasis": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "factBasis": "日柱天干（八字確定性運算 lib/bazi/engine.ts）",
       "status": "CANDIDATE"
     },
     {
@@ -787,7 +838,8 @@
         "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "designBasis": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -802,7 +854,8 @@
         "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "designBasis": "兩面並陳：不超額宣稱，只給小動作",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -817,7 +870,8 @@
         "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "designBasis": "可信度：說明資料來源，不自封",
+      "factBasis": "時辰有無（客戶填寫）＋八字×紫微四柱核對通過",
       "status": "CANDIDATE"
     },
     {
@@ -832,7 +886,8 @@
         "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "designBasis": "可信度：如實說明暫排方式，標明已知範圍",
+      "factBasis": "時辰有無（客戶填寫）；紫微無法排，無核對可做",
       "status": "CANDIDATE"
     },
     {
@@ -847,7 +902,8 @@
         "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "designBasis": "兩面並陳：優點同時是代價",
+      "factBasis": "五行加權占比（八字確定性運算 fiveElements，門檻 0.45 為工程自訂）",
       "status": "CANDIDATE"
     },
     {
@@ -862,7 +918,8 @@
         "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "designBasis": "動機式晤談式：給一個對方自己能做的小動作",
+      "factBasis": "五行加權為 0（八字確定性運算 fiveElements）",
       "status": "CANDIDATE"
     },
     {
@@ -877,7 +934,8 @@
         "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
       "status": "CANDIDATE"
     },
     {
@@ -892,7 +950,8 @@
         "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "designBasis": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -907,7 +966,8 @@
         "lib/ghost-asura-narrative-engine.ts:66-68（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "designBasis": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -922,7 +982,8 @@
         "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "designBasis": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "factBasis": "日柱天干（八字確定性運算 lib/bazi/engine.ts）",
       "status": "CANDIDATE"
     },
     {
@@ -937,7 +998,8 @@
         "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "designBasis": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -952,7 +1014,8 @@
         "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "designBasis": "兩面並陳：不超額宣稱，只給小動作",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -967,7 +1030,8 @@
         "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "designBasis": "可信度：說明資料來源，不自封",
+      "factBasis": "時辰有無（客戶填寫）＋八字×紫微四柱核對通過",
       "status": "CANDIDATE"
     },
     {
@@ -982,7 +1046,8 @@
         "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "designBasis": "可信度：如實說明暫排方式，標明已知範圍",
+      "factBasis": "時辰有無（客戶填寫）；紫微無法排，無核對可做",
       "status": "CANDIDATE"
     },
     {
@@ -997,7 +1062,8 @@
         "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "designBasis": "兩面並陳：優點同時是代價",
+      "factBasis": "五行加權占比（八字確定性運算 fiveElements，門檻 0.45 為工程自訂）",
       "status": "CANDIDATE"
     },
     {
@@ -1012,7 +1078,8 @@
         "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "designBasis": "動機式晤談式：給一個對方自己能做的小動作",
+      "factBasis": "五行加權為 0（八字確定性運算 fiveElements）",
       "status": "CANDIDATE"
     },
     {
@@ -1027,7 +1094,8 @@
         "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
       "status": "CANDIDATE"
     },
     {
@@ -1042,7 +1110,8 @@
         "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "designBasis": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -1057,7 +1126,8 @@
         "lib/ghost-asura-narrative-engine.ts:71-73（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "designBasis": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -1072,7 +1142,8 @@
         "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "designBasis": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "factBasis": "日柱天干（八字確定性運算 lib/bazi/engine.ts）",
       "status": "CANDIDATE"
     },
     {
@@ -1087,7 +1158,8 @@
         "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "designBasis": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -1102,7 +1174,8 @@
         "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "designBasis": "兩面並陳：不超額宣稱，只給小動作",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -1117,7 +1190,8 @@
         "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "designBasis": "可信度：說明資料來源，不自封",
+      "factBasis": "時辰有無（客戶填寫）＋八字×紫微四柱核對通過",
       "status": "CANDIDATE"
     },
     {
@@ -1132,7 +1206,8 @@
         "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "designBasis": "可信度：如實說明暫排方式，標明已知範圍",
+      "factBasis": "時辰有無（客戶填寫）；紫微無法排，無核對可做",
       "status": "CANDIDATE"
     },
     {
@@ -1147,7 +1222,8 @@
         "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "designBasis": "兩面並陳：優點同時是代價",
+      "factBasis": "五行加權占比（八字確定性運算 fiveElements，門檻 0.45 為工程自訂）",
       "status": "CANDIDATE"
     },
     {
@@ -1162,7 +1238,8 @@
         "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "designBasis": "動機式晤談式：給一個對方自己能做的小動作",
+      "factBasis": "五行加權為 0（八字確定性運算 fiveElements）",
       "status": "CANDIDATE"
     },
     {
@@ -1177,7 +1254,8 @@
         "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
       "status": "CANDIDATE"
     },
     {
@@ -1192,7 +1270,8 @@
         "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "designBasis": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -1207,7 +1286,8 @@
         "lib/ghost-asura-narrative-engine.ts:76-78（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "designBasis": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -1222,7 +1302,8 @@
         "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "designBasis": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "factBasis": "日柱天干（八字確定性運算 lib/bazi/engine.ts）",
       "status": "CANDIDATE"
     },
     {
@@ -1237,7 +1318,8 @@
         "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "designBasis": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -1252,7 +1334,8 @@
         "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "designBasis": "兩面並陳：不超額宣稱，只給小動作",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -1267,7 +1350,8 @@
         "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "designBasis": "可信度：說明資料來源，不自封",
+      "factBasis": "時辰有無（客戶填寫）＋八字×紫微四柱核對通過",
       "status": "CANDIDATE"
     },
     {
@@ -1282,7 +1366,8 @@
         "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "designBasis": "可信度：如實說明暫排方式，標明已知範圍",
+      "factBasis": "時辰有無（客戶填寫）；紫微無法排，無核對可做",
       "status": "CANDIDATE"
     },
     {
@@ -1297,7 +1382,8 @@
         "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "designBasis": "兩面並陳：優點同時是代價",
+      "factBasis": "五行加權占比（八字確定性運算 fiveElements，門檻 0.45 為工程自訂）",
       "status": "CANDIDATE"
     },
     {
@@ -1312,7 +1398,8 @@
         "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "designBasis": "動機式晤談式：給一個對方自己能做的小動作",
+      "factBasis": "五行加權為 0（八字確定性運算 fiveElements）",
       "status": "CANDIDATE"
     },
     {
@@ -1327,7 +1414,8 @@
         "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
       "status": "CANDIDATE"
     },
     {
@@ -1342,7 +1430,8 @@
         "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "designBasis": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -1357,7 +1446,8 @@
         "lib/ghost-asura-narrative-engine.ts:81-83（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "designBasis": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -1372,7 +1462,8 @@
         "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "designBasis": "框架（換說法）：Piñon & Gambara 2005，d≈0.26～0.44",
+      "factBasis": "日柱天干（八字確定性運算 lib/bazi/engine.ts）",
       "status": "CANDIDATE"
     },
     {
@@ -1387,7 +1478,8 @@
         "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "designBasis": "社會規範式具體化：Poškus 2016，d=0.18～0.52（看對照）",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -1402,7 +1494,8 @@
         "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：不超額宣稱，只給小動作",
+      "designBasis": "兩面並陳：不超額宣稱，只給小動作",
+      "factBasis": "月令強弱（八字確定性運算 seasonalStrength）",
       "status": "CANDIDATE"
     },
     {
@@ -1417,7 +1510,8 @@
         "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：說明資料來源，不自封",
+      "designBasis": "可信度：說明資料來源，不自封",
+      "factBasis": "時辰有無（客戶填寫）＋八字×紫微四柱核對通過",
       "status": "CANDIDATE"
     },
     {
@@ -1432,7 +1526,8 @@
         "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "可信度：如實說明暫排方式，標明已知範圍",
+      "designBasis": "可信度：如實說明暫排方式，標明已知範圍",
+      "factBasis": "時辰有無（客戶填寫）；紫微無法排，無核對可做",
       "status": "CANDIDATE"
     },
     {
@@ -1447,7 +1542,8 @@
         "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "兩面並陳：優點同時是代價",
+      "designBasis": "兩面並陳：優點同時是代價",
+      "factBasis": "五行加權占比（八字確定性運算 fiveElements，門檻 0.45 為工程自訂）",
       "status": "CANDIDATE"
     },
     {
@@ -1462,7 +1558,8 @@
         "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "動機式晤談式：給一個對方自己能做的小動作",
+      "designBasis": "動機式晤談式：給一個對方自己能做的小動作",
+      "factBasis": "五行加權為 0（八字確定性運算 fiveElements）",
       "status": "CANDIDATE"
     },
     {
@@ -1477,7 +1574,8 @@
         "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "designBasis": "稀少線索（依類型）：Barton 2022，只說本錢，不說保證",
+      "factBasis": "吉類神煞命中（八字引擎 computeShenSha；神煞規則來源多為 PENDING_POOL，力道最高到中）",
       "status": "CANDIDATE"
     },
     {
@@ -1492,7 +1590,8 @@
         "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "designBasis": "轉化讀法：只講提醒與轉化，不恐嚇",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     },
     {
@@ -1507,7 +1606,8 @@
         "lib/ghost-asura-narrative-engine.ts:86-88（日元阿修羅名稱）",
         "五種方式第 1 項：八字命盤（觸發條件由後端運算）"
       ],
-      "evidenceCeiling": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "designBasis": "敘事：小而穩，r≈.17～.19，不做具體預言",
+      "factBasis": "尚無後端欄位，未接",
       "status": "CANDIDATE"
     }
   ]
