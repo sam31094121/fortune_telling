@@ -38,7 +38,7 @@ export default function StarterPackAfterBattle({ completed }: { completed: 'batt
   return <aside className="mt-3 rounded-xl border border-amber-300/40 bg-amber-300/10 p-3 text-center text-amber-100" aria-label="首次遊戲贈卡">
     {state === 'sent' && <div className="relative mb-2 flex min-h-28 items-center justify-center gap-1 overflow-hidden rounded-lg bg-slate-950/40" aria-hidden="true">
       <StarterPackPhotonRitual />
-      {[1, 2, 3].map((number) => <Image key={number} src={`/beast-game/thumb/young-${String(number).padStart(2, '0')}.webp`} alt="" width={42} height={56} unoptimized className="relative z-10 h-14 w-[42px] rounded-md object-cover shadow-lg" />)}
+      {[1, 2, 3].map((number) => <Image key={number} src={`/beast-game/thumb/young-${String(number).padStart(2, '0')}.v2.webp`} alt="" width={42} height={56} unoptimized className="relative z-10 h-14 w-[42px] rounded-md object-cover shadow-lg" />)}
       <span className="relative z-10 ml-1 text-xl font-black">× 28</span>
     </div>}
     <p role="status" className="text-sm font-bold">{state === 'sent' ? '🎁 28 張神獸幼子卡已送入收藏！' : state === 'sending' ? '正在送出 28 張神獸幼子卡…' : '28 張卡尚未入庫'}</p>

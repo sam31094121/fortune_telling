@@ -211,8 +211,8 @@ for (const item of data.items) {
     skills: [YOUNG_SKILLS[item.id % YOUNG_SKILLS.length]],
     passive: item.id % 4 === 0 ? ['skill_206'] : [],
     art: {
-      thumbnail: `/beast-game/thumb/young-${n}.webp`,
-      front: `/beast-game/front/young-${n}.webp`,
+      thumbnail: `/beast-game/thumb/young-${n}.v2.webp`,
+      front: `/beast-game/front/young-${n}.v2.webp`,
       high: item.youngDivineImage,
     },
     story: `${item.symbolicPart}的幼子。尚未長成，靈性已顯——${item.coreMeaning}的雛形。餵養與陪伴，牠會長成成獸的模樣。`,
@@ -235,8 +235,8 @@ for (const item of data.items) {
     skills: adultRarity === 'R' ? [kit.attack] : [kit.attack, kit.guard],
     passive: adultRarity === 'SSR' ? [kit.passive] : [],
     art: {
-      thumbnail: `/beast-game/thumb/adult-${n}.webp`,
-      front: `/beast-game/front/adult-${n}.webp`,
+      thumbnail: `/beast-game/thumb/adult-${n}.v2.webp`,
+      front: `/beast-game/front/adult-${n}.v2.webp`,
       high: item.image,
     },
     story: `${item.symbolicPart}，二十八宿第 ${item.id} 宿。核心寓意：${item.coreMeaning}。${item.traits}`,
@@ -258,8 +258,8 @@ for (const guardian of GUARDIANS) {
     skills: guardian.skills,
     passive: guardian.passive,
     art: {
-      thumbnail: `/beast-game/thumb/guardian-${guardian.slug}.webp`,
-      front: `/beast-game/front/guardian-${guardian.slug}.webp`,
+      thumbnail: `/beast-game/thumb/guardian-${guardian.slug}.v2.webp`,
+      front: `/beast-game/front/guardian-${guardian.slug}.v2.webp`,
       high: `/star-beasts/four-guardians/${guardian.slug}.png`,
     },
     story: guardian.story,
