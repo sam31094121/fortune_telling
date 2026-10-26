@@ -58,9 +58,9 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
   for (let i = 1; i < phases.length; i++) assert.equal(phases[i][0], phases[i - 1][1], 'phases are contiguous');
   const impact = rig.RIG_IMPACT_MS / rig.RIG_STRIKE_MS;
   assert.ok(impact >= rig.RIG_PHASES.attack[0] && impact < rig.RIG_PHASES.attack[1], 'impact falls inside the attack phase');
-  const css = read('components/battlefield/BattleArena.module.css');
+  const css = read('components/battlefield/BattleDock.module.css');
   const [hideFrom, hideTo] = rig.RIG_CARD_HIDDEN;
-  assert.ok(css.includes(`${Math.round(hideFrom * 100)}%, ${Math.round(hideTo * 100) - 1}% { opacity: 0; visibility: hidden; }`), 'CSS hides the card exactly during RIG_CARD_HIDDEN');
+  assert.ok(css.includes(`${Math.round(hideFrom * 100)}%, ${Math.round(hideTo * 100) - 1}% { opacity: 0.12; visibility: visible; }`), 'CSS fades the dock card exactly during RIG_CARD_HIDDEN (name and energy bar stay)');
 
   // 3) 純函式：同一個 t 永遠同一個畫面；任何時刻都有可見的身體；跳出前與回到卡片後透明
   let minBody = 1;
@@ -114,10 +114,11 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
   assert.doesNotMatch(read('scripts/build-beast-rig-sprites.mjs'), /public\/beast-game\/(front|spirit|thumb)['"`\/]\s*[,)]?\s*[^\n]*writeFile|toFile\(path\.join\(root, ?'public\/beast-game\/(front|spirit)/);
 
   // 7) 動畫不決定結果：不用亂數、不匯入會算勝負的函式；只拉長輸入鎖的演出時間
-  for (const f of ['lib/beast-game/beast-rig.ts', 'components/battlefield/BeastRigStage.tsx']) {
+  for (const f of ['lib/beast-game/beast-rig.ts', 'components/battlefield/BeastRigStage.tsx', 'components/battlefield/useRigStrike.ts']) {
     const src = read(f);
     assert.doesNotMatch(src, /Math\.random/, `${f} has no randomness`);
-    assert.doesNotMatch(src, /from ['"][^'"]*(interactive|battle-session|adjudication|battle-validation|stake)/, `${f} imports nothing that decides outcomes`);
+    // 只借型別（import type）不算：型別不會跑任何運算
+    assert.doesNotMatch(src.replace(/^import type .*$/gm, ''), /from ['"][^'"]*(interactive|battle-session|adjudication|battle-validation|stake)/, `${f} imports nothing that decides outcomes`);
   }
   const base = newMatch(['beast_a02', 'beast_a03'], ['beast_a06', 'beast_a22'], 42);
   const baihu = newMatch(['beast_g_baihu', 'beast_a02'], ['beast_a06', 'beast_a22'], 42);
@@ -131,11 +132,18 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
   assert.equal(presentation.rigStrikeEndMs(base), 0);
 
   // 8) 戰場串接：只在剛收到新戰報、主戰有骨架、出了傷害招式、且未開減少動態時播；原始卡片只在動畫期間隱藏
-  const arena = read('components/battlefield/BattleArena.tsx');
-  assert.match(arena, /rigStrike = Boolean\(match && activeRig && rigReady && !reduced && playing/);
-  assert.match(arena, /match\.revision !== playStartRevision && playerStrike/);
-  assert.match(arena, /data-rig=\{side === 'player' && rigStrike\}/);
-  assert.match(arena, /RIG_IMPACT_MS/, 'hit reaction and element effects wait for the bite');
-  assert.match(css, /prefers-reduced-motion: reduce\) \{ \.artSpace\[data-rig='true'\]/);
+  const hook = read('components/battlefield/useRigStrike.ts');
+  assert.ok(hook.includes('strike = Boolean(match && rig && !reduced && playing && playStartRevision !== null'), 'plays only while a fight is being shown');
+  assert.ok(hook.includes("match.revision !== playStartRevision && match.revision > 0 && isDamagingAction(match, 'player')"), 'plays only on a freshly received report with a damaging action');
+  const dock = read('components/battlefield/BattleDock.tsx');
+  assert.ok(dock.includes('useRigStrike(match, playing)'), 'the dock decides when the beast leaves its card');
+  assert.ok(dock.includes('data-rig={active && rigState.strike}'), 'only the active card fades while its beast is out');
+  assert.ok(dock.includes('<BeastRigStage'), 'the dock hosts the stage');
+  const arenaSrc = read('components/battlefield/BattleArena.tsx');
+  assert.ok(arenaSrc.includes('useRigStrike(match, playing).strike'));
+  assert.match(arenaSrc, /RIG_IMPACT_MS/, 'hit reaction and element effects wait for the bite');
+  assert.ok(css.includes("@media (prefers-reduced-motion: reduce)") && css.includes(".card[data-rig='true'] > span:first-child { animation: none; }"), 'reduced motion skips the fade');
+  const stage = read('components/battlefield/BeastRigStage.tsx');
+  assert.ok(stage.includes('[data-dock-card][data-active="true"]'), 'the beast leaves from and returns to the active dock card');
   console.log('PASS: white tiger strike — pure timeline, new-version art keyframes with a solid cut-out, run/leap/bite/return all present, never decides outcomes, originals untouched');
 })().catch((error) => { console.error(error); process.exit(1); });

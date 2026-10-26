@@ -1,8 +1,8 @@
 'use client';
 
 import { memo, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import BeastRigStage from './BeastRigStage';
-import { RIG_IMPACT_MS, RIG_STRIKE_MS, rigFor } from '@/lib/beast-game/beast-rig';
+import { RIG_IMPACT_MS } from '@/lib/beast-game/beast-rig';
+import { useRigStrike } from './useRigStrike';
 import { planTierPresentation } from '@/lib/beast-game/fusion-presentation';
 import FusionEffectStage from './FusionEffectStage';
 import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
@@ -28,14 +28,16 @@ import RageComboEffect from './RageComboEffect';
 import TeamRosterPanel from './TeamRosterPanel';
 
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
-/** Both fighters stay above the controls. All displayed combat values come from Match. */
-export default function BattleArena({ state, cards, match, view, onInspect, onAttack, tapToAttack = false, onSkill, playing = false }: {
+/**
+ * 戰場。對戰中只留對手與戰場效果：玩家的出戰卡在畫面最下方的出戰卡列（BattleDock），不再多一張卡站在前面作戰。
+ * 佈陣預覽（還沒開戰）仍顯示雙方。All displayed combat values come from Match.
+ */
+export default function BattleArena({ state, cards, match, view, onInspect, tapToAttack = false, onSkill, playing = false }: {
   playing?: boolean; cards: BattlefieldCardArt[]; onInspect: (id: string, side: 'player' | 'opponent') => void;
   /** 後端送來的可出招清單與合體教學；畫面照印。 */
   view?: BattleView | null;
   quietNote?: boolean;
-  onAttack?: (() => void) | null;
-  /** Only the easy mode opts into tapping its fighter to attack. */
+  /** 簡單模式：相剋說明收成可展開的一行。 */
   tapToAttack?: boolean;
   onSkill?: ((action: Action) => void) | null;
 } & ({ match: Match; state?: BattleState } | { match: Match | null; state: BattleState })) {
@@ -52,19 +54,8 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
   const playerAction = match ? performedAction(match, 'player') : null;
   const guide = match ? view?.fusionGuide ?? null : null;
   const [guideOpen, setGuideOpen] = useState(false);
-  // 網格變形動畫（目前只有白虎）：只在「這一局剛收到新戰報、且玩家主戰有骨架、出了傷害招式」時播。
-  // 動畫不決定結果：何時播取自戰報（performedAction／isDamagingAction），播多久是固定常數。
-  const arenaRef = useRef<HTMLElement>(null);
-  const [rigReady, setRigReady] = useState(false);
-  const [reduced, setReduced] = useState(false);
-  const [playStartRevision, setPlayStartRevision] = useState<number | null>(null);
-  useEffect(() => { setReduced(window.matchMedia('(prefers-reduced-motion: reduce)').matches); }, []);
-  useEffect(() => { setPlayStartRevision(playing ? (match?.revision ?? 0) : null); }, [playing]); // eslint-disable-line react-hooks/exhaustive-deps
-  const activeRig = playerFighter ? rigFor(playerFighter.cardId) : null;
-  const teamRig = activeRig ?? match?.player.team.map(f => rigFor(f.cardId)).find(Boolean) ?? null;
-  const rigStrike = Boolean(match && activeRig && rigReady && !reduced && playing && playStartRevision !== null
-    && match.revision !== playStartRevision && playerStrike);
-  const rigDelayMs = match && playerFighter ? Math.max(0, match.log.findIndex(entry => entry.side === 'player' && entry.cardId === playerFighter.cardId)) * COMBAT_BEAT_MS : 0;
+  // 白虎等有戰鬥動畫的神獸：何時播取自戰報，動畫從畫面最下方的出戰卡跳出（BattleDock）。這裡只讓對手的受擊與元素特效對齊咬合時刻。
+  const rigStrike = useRigStrike(match, playing).strike;
   const rageEntry = match?.log.find(entry => entry.side === 'player' && entry.action === 'RAGE');
   const castTier = rageEntry?.fusionTier && rageEntry.fusionTier !== 'NONE' ? RAGE_TIERS.find(tier => tier.tier === rageEntry.fusionTier) : undefined;
   const ultimatePlan = useMemo(() => (playing && playerAction === 'RAGE' && castTier && playerFighter
@@ -72,7 +63,7 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
     : null), [playing, playerAction, castTier, playerFighter]);
 
   return (
-    <section ref={arenaRef} className={styles.arena} aria-label="戰鬥畫面" data-card-presentation="shared" data-battle-visual data-playback={playing ? 'acting' : 'ready'} data-battle-revision={match?.revision} data-battle-venue="cards">
+    <section className={styles.arena} aria-label="戰鬥畫面" data-card-presentation="shared" data-battle-visual data-playback={playing ? 'acting' : 'ready'} data-battle-revision={match?.revision} data-battle-venue="cards">
       <RageComboEffect
         active={playing && playerAction === 'RAGE' && !castTier}
         element={strikeElement}
@@ -81,7 +72,6 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
       {ultimatePlan && <FusionEffectStage key={`ultimate-${match?.revision}`} plan={ultimatePlan} caption={castTier?.skillName} />}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className={styles.backdrop} src={BATTLE_VENUES.cards.image} alt="" aria-hidden="true" decoding="async" />
-      {teamRig && <BeastRigStage rig={teamRig} playKey={rigStrike ? match!.revision : null} delayMs={rigDelayMs} arenaRef={arenaRef} onReady={setRigReady} />}
       <div className="sr-only">
         <strong>{finished ? '本場結束' : match ? `第 ${match.round} 回合` : '佈陣預覽'}</strong>
         <span>{BATTLE_VENUES.cards.name}・卡片戰鬥</span>
@@ -111,8 +101,10 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
         </div>
       )}
 
-      <div className={styles.fighters}>
+      <div className={styles.fighters} data-solo={Boolean(match)}>
         {(['player', 'opponent'] as const).map(side => {
+          // 對戰中玩家的出戰卡就是畫面最下方那一列，這裡不再多畫一張
+          if (match && side === 'player') return null;
           const team = match?.[side];
           const fighter = team?.team[team.active];
           const card = side === 'player' ? mine : foe;
@@ -127,15 +119,15 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
           const multiplier = card && attacker ? book?.matchups[attacker.element as BeastElement]?.[card.element as BeastElement]?.multiplier ?? 1 : 1;
           return (
             <div className={styles.fighter} key={side} data-fighter={side} aria-label={`${label}：${card?.name ?? '等待主戰'}`}>
-              <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)} data-rig={side === 'player' && rigStrike} data-hit={hitOrder >= 0} data-skill={action === 'SKILL'} data-action={action ?? 'NONE'} data-impact={multiplier > 1 ? 'strong' : multiplier < 1 ? 'resisted' : 'normal'}
-                style={{ '--strike-x': side === 'player' ? '18px' : '-18px', '--strike-y': side === 'player' ? '-26px' : '26px', '--action-delay': `${Math.max(0, actionOrder) * COMBAT_BEAT_MS}ms`, '--rig-ms': `${RIG_STRIKE_MS}ms`, '--hit-delay': `${Math.max(0, hitOrder) * COMBAT_BEAT_MS + 200 + (side === 'opponent' && rigStrike ? RIG_IMPACT_MS : 0)}ms`, '--element-strike': card ? ELEMENT_FX[card.element as BattleElement]?.glow : undefined } as CSSProperties}>
+              <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)} data-hit={hitOrder >= 0} data-skill={action === 'SKILL'} data-action={action ?? 'NONE'} data-impact={multiplier > 1 ? 'strong' : multiplier < 1 ? 'resisted' : 'normal'}
+                style={{ '--strike-x': side === 'player' ? '18px' : '-18px', '--strike-y': side === 'player' ? '-26px' : '26px', '--action-delay': `${Math.max(0, actionOrder) * COMBAT_BEAT_MS}ms`, '--hit-delay': `${Math.max(0, hitOrder) * COMBAT_BEAT_MS + 200 + (side === 'opponent' && rigStrike ? RIG_IMPACT_MS : 0)}ms`, '--element-strike': card ? ELEMENT_FX[card.element as BattleElement]?.glow : undefined } as CSSProperties}>
                 <PhotonParticleEffect
-                  active={performed && rush && !(side === 'player' && rigStrike)}
+                  active={performed && rush}
                   element={card?.element}
                   intensity={action === 'RAGE' ? 'heavy' : action === 'SKILL' ? 'medium' : 'light'}
                   isSkill={action === 'SKILL' || action === 'RAGE'}
                 />
-                <button type="button" data-art-slot={side} disabled={!card || playing || (tapToAttack && side === 'player' && !onAttack)} aria-label={card ? tapToAttack && side === 'player' ? `讓${card.name}普通攻擊` : `查看${card.name}的卡面與能力` : '等待主戰卡上場'} onClick={() => { if (card) { if (tapToAttack && side === 'player') onAttack?.(); else onInspect(card.id, side); } }}
+                <button type="button" data-art-slot={side} disabled={!card || playing} aria-label={card ? `查看${card.name}的卡面與能力` : '等待主戰卡上場'} onClick={() => { if (card) onInspect(card.id, side); }}
                   className={`${styles.art} ${fighter?.defeated ? styles.defeated : ''}`}>
                   {card ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -169,24 +161,7 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
         })}
       </div>
 
-      {/* 右手邊：玩家隊伍 */}
-      {match && (
-        <div className={styles.rosterRight}>
-          <TeamRosterPanel
-            team={match.player.team.map(f => ({
-              id: f.cardId,
-              name: f.name,
-              hp: f.hp,
-              maxHp: f.maxHp,
-              defeated: f.defeated,
-              element: f.element,
-              canRage: match.status === 'PLAYING' && !guide?.used && guide?.partnerCardId === f.cardId,
-            }))}
-            side="player"
-            activeCardId={match.player.team[match.player.active]?.cardId}
-          />
-        </div>
-      )}
+      {/* 玩家隊伍的狀態（生命能量條、主戰、可合體搭檔）在畫面最下方的出戰卡列 */}
 
       {/* 右欄底部：相生相剋、合體進度、暴怒條與五顆帶符咒魔珠；數字全部來自戰鬥引擎。 */}
       {match && guide && (() => {

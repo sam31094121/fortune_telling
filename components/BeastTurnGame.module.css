@@ -118,9 +118,10 @@
 .calmBattle>div{height:auto;min-height:100dvh}
 .calmBattle [data-battle-split]:not([data-inspecting='true']){grid-template-rows:minmax(320px,calc(100svh - 350px)) auto}
 /* 戰鬥中畫面最下方有固定選卡列（BattleDock）：戰場讓出它的高度，操作按鈕才不會被蓋在底下。 */
-.calmBattle [data-battle-split][data-dock='true']:not([data-inspecting='true']){grid-template-rows:minmax(260px,calc(100svh - 350px - var(--battle-dock-h,120px))) auto}
+.calmBattle [data-battle-split][data-dock='true']:not([data-inspecting='true']){grid-template-rows:minmax(260px,calc(100svh - 350px - var(--battle-dock-h,164px))) auto}
 .calmBattle [data-battle-visual]{min-height:0!important}
 .calmBattle [data-battle-controls]{min-height:290px}
+.calmBattle [data-battle-split][data-dock='true'] [data-battle-controls]{min-height:0}
 .calmBattle [data-control-scroll]{overflow:visible;padding-bottom:12px}
 .calmBattle [data-inspecting='true'] [data-control-scroll]{overflow:auto}
 .calmBattle [data-easy-play-hint]{font-size:13px;padding:4px 6px;margin-bottom:4px}

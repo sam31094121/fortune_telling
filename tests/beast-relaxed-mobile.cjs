@@ -47,9 +47,8 @@ const width = Number(process.env.BEAST_TEST_WIDTH || 390);
     await page.getByText('自動普通攻擊中', { exact: true }).waitFor();
     await page.waitForTimeout(260);
     await page.screenshot({ path: `reports/beast-relaxed/${width}-clash.png` });
-    const visual = await page.locator('[data-fighter="player"] [data-rush]').evaluate(node => ({ rush: node.dataset.rush, animation: getComputedStyle(node.querySelector('button')).animationName, transform: getComputedStyle(node.querySelector('button')).transform }));
-    assert.equal(visual.rush, 'true', 'Actual attacking skill has a visible charge');
-    assert.match(visual.animation, /skillCharge/, 'Card movement is attached to the performed attack');
+    // 玩家出戰卡在畫面最下方的出戰卡列：真的出了技能，主戰卡上就有技能記號
+    assert.equal(await page.locator('[data-dock-card][data-active="true"]').getAttribute('data-action'), 'SKILL', 'Actual attacking skill is marked on the active dock card');
     await page.waitForTimeout(3900);
     assert.ok(actions >= 3, 'Ordinary attack advances automatically after skill');
     await page.getByRole('button', { name: '暫停自動' }).click();

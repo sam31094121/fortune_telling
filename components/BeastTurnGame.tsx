@@ -187,7 +187,7 @@ function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }:
       <div className={battleStyles.shell}>
         <header className={battleStyles.header}><h1>三卡免費戰場</h1><div className={styles.headerActions}><Link href="/" onClick={() => setAutomatic(false)} title="本場進度保留，回來可繼續">回首頁</Link><BattleHelpPanel onOpen={() => setAutomatic(false)} /></div></header>
         <div className={battleStyles.split} data-battle-split data-dock="true" data-inspecting={Boolean(inspection)} data-finished={match.status === 'FINISHED' && !playing}>
-          <BattleArena match={match} view={battleView} cards={cards} onInspect={inspect} onAttack={automatic ? null : onAttack} tapToAttack playing={playing}
+          <BattleArena match={match} view={battleView} cards={cards} onInspect={inspect} tapToAttack playing={playing}
             onSkill={match.status === 'PLAYING' && !busy && !playing && !error ? (action) => act(action) : null} />
           <section className={battleStyles.controls} aria-label="手部操控" data-battle-controls>
             <div className={battleStyles.controlsHeading}><strong>{inspection ? '相剋' : match.status === 'FINISHED' && !playing ? '結果' : `R${match.round}`}</strong><span>{busy || playing ? '…' : match.status === 'FINISHED' ? '✓' : '⚔'}</span></div>
@@ -247,7 +247,7 @@ function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }:
             </div>
             {match.status === 'FINISHED' && !playing && !inspection && <div className={battleStyles.footer} data-free-result-actions><div className={styles.resultActions}><button type="button" className={battleStyles.start} style={{ animation: 'none' }} disabled={busy} onClick={() => void send('START', { lineup: match.player.team.map(f => f.cardId) })}>同陣容再戰</button><button type="button" className={battleStyles.restart} disabled={busy} onClick={() => void send('LEAVE')}>更換陣容</button></div><Link href="/" className={styles.homeLink}>回首頁</Link></div>}
           </section>
-          <BattleDock match={match} view={battleView} cards={cards} busy={busy || playing || Boolean(error)} onAction={act} />
+          <BattleDock match={match} view={battleView} cards={cards} busy={busy || playing || Boolean(error)} playing={playing} onAction={act} onActiveTap={automatic ? null : onAttack} activeTapLabel="attack" ragePartnerId={battleView?.fusionGuide && !battleView.fusionGuide.used ? battleView.fusionGuide.partnerCardId : null} />
         </div>
       </div>
     </main>;

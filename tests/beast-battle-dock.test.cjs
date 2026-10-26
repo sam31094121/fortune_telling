@@ -93,4 +93,20 @@ assert.doesNotMatch(dockSrc, /Math\.random|legalActions|advance\(|newMatch/, 'do
 assert.match(dockSrc, /view\?\.legal/, 'dock reads backend-provided legal actions');
 // 7) 樣式：固定在畫面底部
 assert.match(read('components/battlefield/BattleDock.module.css'), /position: *fixed/);
+// 8) 卡片本身就是出戰卡：每張下方一條生命能量條（數值取自 Match）；點主戰＝攻擊／查看，由上層決定
+const meters = html.match(/role="meter"[^>]*/g) || [];
+assert.equal(meters.length, 3, 'one energy bar per card');
+match.player.team.forEach((f, i) => assert.ok(meters[i].includes(`aria-valuenow="${f.hp}"`) && meters[i].includes(`aria-valuemax="${f.maxHp}"`), 'energy bar equals the fighter hp'));
+const withTap = render(Dock, { match, view, cards, onAction() {}, onActiveTap() {}, activeTapLabel: 'attack' });
+assert.match(withTap, new RegExp(`aria-label="讓${match.player.team[match.player.active].name}普通攻擊"`), 'tapping the active card attacks');
+assert.doesNotMatch(withTap.match(/<button[^>]*data-active="true"[^>]*>/)[0], /disabled=""/, 'active card is tappable when the screen allows it');
+assert.match(html.match(/<button[^>]*data-active="true"[^>]*>/)[0], /disabled=""/, 'active card is inert when the screen gives no action');
+
+// 9) 戰場在對戰中只留對手，不再多一張卡站在前面作戰；一體成型的外框樣式存在
+const Arena = load('components/battlefield/BattleArena.tsx').default;
+const arenaHtml = render(Arena, { match, view, cards, onInspect() {} });
+assert.doesNotMatch(arenaHtml, /data-fighter="player"/, 'no extra player card in front during a battle');
+assert.match(arenaHtml, /data-fighter="opponent"/);
+assert.match(arenaHtml, /data-solo="true"/);
+assert.match(read('components/battlefield/BattleScreen.module.css'), /\.split\[data-dock='true'\] \{[^}]*border: 1px solid/, 'arena, controls and dock share one frame');
 console.log('PASS: bottom dock shows every brought-in card, one tap switches via backend legal actions, no extra swap button or confirmation, shared by all difficulties');

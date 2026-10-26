@@ -1985,22 +1985,27 @@ npm run check:beast-clips        # 落地一支就驗一支
 
 > 依然只有這一份神獸卡制度檔；本章只補「戰鬥畫面」與「白虎本體動畫」，不改任何戰鬥規則、數值與其他功能。
 
-### 一、戰鬥畫面最下方的固定選卡列（三種難度共用）
+### 一、戰鬥畫面一體成型：出戰卡列就是出戰的神獸（三種難度共用，2026-10-26 業主定案）
 
-- `components/battlefield/BattleDock.tsx`：玩家帶入幾張神獸卡，畫面最下方就固定排幾張；點任何一張立即上場，沒有額外「換卡」按鈕、沒有二次確認。
+- **只有一張卡，不分三張大卡片**：戰場、操作按鈕、出戰卡列合在同一個外框內，用細線分隔。
+- **不再有「站在前面作戰」的那張卡**：對戰中戰場只留對手；玩家帶入的幾張神獸卡就固定排在畫面最下方（`components/battlefield/BattleDock.tsx`），**這幾張卡本身就是出戰的神獸**。
+  - 點非主戰的卡：立即上場（沒有額外的換卡按鈕、沒有二次確認）。
+  - 點主戰的卡：簡單模式＝普通攻擊；中等、困難＝查看卡面與能力（由上層傳入）。
+  - **每張卡下方一條生命能量條**（取自 Match，護盾疊在後面，三成以下轉紅）與 hp／maxHp；主戰金框；已倒下灰階；可暴怒合體的搭檔右上角標「合體」；這一局主戰做了什麼（攻擊、技能、合體、受控、接替、換卡）標在卡片左上角。
 - 這一層不判斷任何事：哪一張能換，只看後端送來的 `view.legal` 裡的 `SWITCH` 合法動作；點下去交出的就是那個動作原封不動。主戰、已倒下、動畫演出中（busy）都按不下去，但**列永遠在**，不會消失。
-- 主戰倒下時的接替也走這一列；`BattlePanel` 只留一行提示。三種難度（簡單＝`BeastTurnGame`；中等、困難＝`/beast-game/battlefield`）共用同一個元件。
-- 版面：`position: fixed` 貼在畫面底部，並替內容預留 `--battle-dock-h`（120px）的空間；簡單模式的戰場在手機上讓出這個高度，操作按鈕才不會被蓋住。
+- 主戰倒下時的接替也走這一列；`BattlePanel` 只留一行提示。簡單＝`BeastTurnGame`；中等、困難＝`/beast-game/battlefield`，共用同一個元件。
+- 佈陣預覽（還沒開戰）仍顯示雙方，只有對戰中才收成「戰場只留對手」。
+- 版面：出戰卡列 `position: fixed` 貼在畫面底部，並替內容預留 `--battle-dock-h`（164px）；外框樣式見 `BattleScreen.module.css` 的 `.split[data-dock='true']`。
 - 守門：`npm run test:beast-battle-dock`（推送閘內）。
 
 ### 二、白虎本體戰鬥動畫
 
 美術母版只有一個：新版卡面 `public/beast-game/front/guardian-baihu.v2.webp`（舊檔名的卡圖已刪除，不得使用）。原始卡片與既有本體立繪**一律不改**，本次只新增 `public/beast-game/rig/baihu/`。
 
-流程：卡片跳出 → 戰場上的原始卡片暫時隱藏 → 奔跑（收腳↔伸展交替、縱躍）→ 接近對手 → 撲擊張嘴 → 咬合落爪（對手受擊與元素特效對齊這一刻）→ 返回 → 落地縮回卡片 → 原始卡片恢復。畫面最下方的選卡列全程顯示。
+流程：從畫面最下方的出戰卡跳出（這張卡的卡面暫時淡出，名字與能量條照留）→ 奔跑（收腳↔伸展交替、縱躍）→ 接近對手 → 撲擊張嘴 → 咬合落爪（對手受擊與元素特效對齊這一刻）→ 返回 → 落地縮回卡片 → 原始卡片恢復。出戰卡列全程顯示。
 
 - 素材：`scripts/gen-beast-rig-poses.mjs` 以新版卡面為底，用專案影像流程（以圖生圖、純黑底）產出五個姿勢關鍵幀（奔跑伸展、奔跑收腳、撲擊張嘴、咬合、落地），先放在 `.tmp/rig/poses/`（不進版控）；人工驗收後以 `scripts/build-beast-rig-sprites.mjs` 去背（只把與畫面邊界相連的近黑區域當背景，黑條紋與嘴內暗部保留）、色調對回母版毛皮平均色、輸出到 `public/beast-game/rig/baihu/` 並寫 `manifest.json`。呼叫付費 API，預設只跑指定姿勢。
-- 時間軸：`lib/beast-game/beast-rig.ts`（純函式 `strikeFrame(t)`：總長 1800ms、命中 1120ms、卡片隱藏 14%～90%）。畫面：`components/battlefield/BeastRigStage.tsx`（2D 畫布，素材掛載時載入一次）。串接：`BattleArena`。
+- 時間軸：`lib/beast-game/beast-rig.ts`（純函式 `strikeFrame(t)`：總長 1800ms、命中 1120ms、卡片隱藏 14%～90%）。畫面：`components/battlefield/BeastRigStage.tsx`（整個畫面層級的 2D 畫布，素材掛載時載入一次，由出戰卡列帶出）。何時播：`components/battlefield/useRigStrike.ts`（出戰卡列與戰場共用，戰場只用它對齊對手的受擊時刻）。
 - **動畫不決定戰鬥結果**：何時播取自戰報（`performedAction`／`isDamagingAction`，且是「這一局剛收到新戰報」），播多久是固定常數；`combatPlaybackMs` 只延長輸入鎖的演出時間。不用亂數、不匯入任何算勝負的函式。減少動態偏好開啟時不播。
 - 可擴充：`BEAST_RIGS` 登記表，青龍、朱雀、玄武之後各補一組關鍵幀與一筆資料即可；沒有登記的神獸維持原本的卡片衝鋒演出。
 - 驗收預覽：`/beast-game/rig-preview`（滑桿逐格檢視並與新版卡面並排比對）。

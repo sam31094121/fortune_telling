@@ -75,10 +75,10 @@ fs.mkdirSync(output, { recursive: true });
         assert.equal(await page.locator('[data-battle-visual]').textContent(), before, 'Inspection consumes no action or HP');
         await commands.getByRole('button', { name: /^普通攻擊/ }).tap();
         assert.notEqual(await page.locator('[data-battle-visual]').textContent(), before, 'Attack still advances combat');
-        assert.equal(await page.locator('[data-fighter="player"] [data-rush="true"]').count(), 1, 'An executed attack has a visual rush');
+        // 玩家出戰卡在畫面最下方的出戰卡列：執行過的攻擊會標在主戰卡上，卡片本身不離開出戰列
+        assert.equal(await page.locator('[data-dock-card][data-active="true"]').getAttribute('data-action'), 'ATTACK', 'An executed attack is marked on the active dock card');
         await page.waitForTimeout(650);
-        const transform = await page.locator('[data-fighter="player"] button').evaluate(e => getComputedStyle(e).transform);
-        assert.ok(transform === 'none' || transform === 'matrix(1, 0, 0, 1, 0, 0)', 'Card returns after attacking');
+        assert.equal(await page.locator('[data-dock-card]').count() > 0, true, 'The dock stays visible after attacking');
         for (let action = 0; action < 100 && await page.locator('[data-battle-result]').count() === 0; action++) {
           const next = page.getByRole('button', { name: '繼續，對手換卡', exact: true });
           if (await next.count()) await next.tap();

@@ -4,28 +4,28 @@
  * 神獸戰鬥動畫舞台（只負責畫；播不播、何時播都由上層依後端戰報決定）。
  *
  * 依 lib/beast-game/beast-rig.ts 的時間軸，把同一隻神獸的幾張關鍵姿勢（跑、撲、咬、落地）
- * 疊在 2D 畫布上，沿「卡片 → 對手」的路徑移動、縱躍、傾斜，並畫落地陰影。
+ * 疊在整個畫面層級的 2D 畫布上，沿「畫面最下方的出戰卡 → 對手卡」的路徑移動、縱躍、傾斜，並畫落地陰影。
  * 圖片只在掛載時載入一次；播放中不建立任何新資源，也不改 React 狀態。
  * 載入失敗回報 onReady(false)，上層就維持原本的卡片衝鋒演出。
  */
 
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { RIG_STRIKE_MS, rigFrameUrl, strikeFrame, type BeastRig, type RigFrameId } from '@/lib/beast-game/beast-rig';
 
 type Rect = { cx: number; top: number; height: number; width: number };
 
 export interface BeastRigGeometry {
-  /** 戰場寬度：精靈最寬的姿勢（奔跑伸展）不得超出它 */
+  /** 可用寬度：精靈最寬的姿勢（奔跑伸展）不得超出它 */
   arenaWidth: number;
-  /** 玩家本體卡片插圖位置（精靈從這裡跳出、回到這裡） */
+  /** 玩家出戰卡（畫面最下方）的位置：精靈從這裡跳出、回到這裡 */
   from: Rect;
-  /** 對手本體卡片插圖位置（精靈跑向這裡） */
+  /** 對手卡插圖位置（精靈跑向這裡） */
   to: Rect;
 }
 
-const toRect = (el: Element, base: DOMRect): Rect => {
+const toRect = (el: Element): Rect => {
   const r = el.getBoundingClientRect();
-  return { cx: r.left - base.left + r.width / 2, top: r.top - base.top, height: r.height, width: r.width };
+  return { cx: r.left + r.width / 2, top: r.top, height: r.height, width: r.width };
 };
 
 export interface RigPlacement { x: number; y: number; unit: number; rotation: number; mirror: boolean; }
@@ -34,12 +34,12 @@ export interface RigPlacement { x: number; y: number; unit: number; rotation: nu
 export function placeRig(geometry: BeastRigGeometry, frame: ReturnType<typeof strikeFrame>): RigPlacement {
   const progress = frame.travel.progress;
   const startX = geometry.from.cx;
-  const startY = geometry.from.top + geometry.from.height * 0.7;
+  const startY = geometry.from.top + geometry.from.height * 0.8;
   const endX = geometry.to.cx;
   const endY = geometry.to.top + geometry.to.height * 0.82;
   const depth = 1 - 0.14 * progress;
-  // 基準大小：不超過卡片高的 0.85 倍，也不讓最寬的姿勢（寬約 2.2 倍基準）超過戰場寬的 72%
-  const unit = Math.min(geometry.from.height * 0.85, geometry.arenaWidth * 0.33) * frame.scale * depth;
+  // 基準大小：最寬的姿勢（寬約 2.2 倍基準）不超過可用寬度的 70%
+  const unit = geometry.arenaWidth * 0.3 * frame.scale * depth;
   const x = startX + (endX - startX) * progress;
   const base = startY + (endY - startY) * progress;
   const y = base - frame.travel.hop * unit;
@@ -52,13 +52,12 @@ export function placeRig(geometry: BeastRigGeometry, frame: ReturnType<typeof st
   return { x, y, unit, rotation: tilt * frame.tilt, mirror };
 }
 
-export default function BeastRigStage({ rig, playKey, delayMs = 0, arenaRef, onReady, onFrame, seek = null }: {
+export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFrame, seek = null }: {
   rig: BeastRig;
   /** 每次出擊換一個數字（用戰局 revision）；null＝待命，不畫 */
   playKey: number | null;
   /** 這次出擊在戰報裡的起跑延遲（毫秒），與卡片衝鋒的 --action-delay 同一份 */
   delayMs?: number;
-  arenaRef: RefObject<HTMLElement | null>;
   onReady?: (ok: boolean) => void;
   /** 可選：每幀回報進度 0..1（測試與預覽頁用；不得拿來決定結果） */
   onFrame?: (t: number) => void;
@@ -96,23 +95,22 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, arenaRef, onR
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rig.dir]);
 
-  // 舞台尺寸跟著戰場
+  // 舞台尺寸跟著視窗
   useEffect(() => {
-    const arena = arenaRef.current;
     const el = canvas.current;
-    if (!arena || !el) return;
+    if (!el) return;
     const fit = () => {
-      const r = arena.getBoundingClientRect();
       const dpr = Math.min(2, window.devicePixelRatio || 1);
-      size.current = { w: r.width, h: r.height, dpr };
-      el.width = Math.max(1, Math.round(r.width * dpr));
-      el.height = Math.max(1, Math.round(r.height * dpr));
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      size.current = { w, h, dpr };
+      el.width = Math.max(1, Math.round(w * dpr));
+      el.height = Math.max(1, Math.round(h * dpr));
     };
     fit();
-    const observer = new ResizeObserver(fit);
-    observer.observe(arena);
-    return () => observer.disconnect();
-  }, [arenaRef]);
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, []);
 
   // 畫一幀（播放與預覽共用）
   const draw = (t: number, geometry: BeastRigGeometry) => {
@@ -166,15 +164,13 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, arenaRef, onR
   useEffect(() => {
     cancelAnimationFrame(raf.current);
     clearTimeout(timer.current);
-    const arena = arenaRef.current;
     const root = stage.current;
-    if (!arena || !root || !loaded) return;
+    if (!root || !loaded) return;
 
     const measure = (): BeastRigGeometry | null => {
-      const base = arena.getBoundingClientRect();
-      const mine = arena.querySelector('[data-fighter="player"] [data-art-slot]');
-      const foe = arena.querySelector('[data-fighter="opponent"] [data-art-slot]');
-      return mine && foe ? { arenaWidth: base.width, from: toRect(mine, base), to: toRect(foe, base) } : null;
+      const mine = document.querySelector('[data-dock-card][data-active="true"] [data-card-thumbnail]') ?? document.querySelector('[data-dock-card][data-active="true"]');
+      const foe = document.querySelector('[data-fighter="opponent"] [data-art-slot]');
+      return mine && foe ? { arenaWidth: Math.min(window.innerWidth, 640), from: toRect(mine), to: toRect(foe) } : null;
     };
     const clear = () => {
       const el = canvas.current;
@@ -208,11 +204,11 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, arenaRef, onR
     return () => { cancelAnimationFrame(raf.current); clearTimeout(timer.current); clear(); };
     // draw 只讀 ref 與 rig，不放進依賴
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playKey, delayMs, rig, arenaRef, onFrame, seek, loaded]);
+  }, [playKey, delayMs, rig, onFrame, seek, loaded]);
 
   return (
     <div ref={stage} data-rig-stage data-rig-active="false" aria-hidden="true"
-      style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 6 }}>
+      style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 10 }}>
       <span ref={shadow} data-rig-shadow
         style={{ position: 'absolute', left: 0, top: 0, opacity: 0, borderRadius: '50%', background: 'radial-gradient(ellipse at center, rgba(0,0,0,.55), rgba(0,0,0,0) 70%)', willChange: 'transform, opacity' }} />
       <canvas ref={canvas} data-rig-canvas style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />

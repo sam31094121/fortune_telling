@@ -6,14 +6,14 @@
  * - 滑桿：逐格檢視出擊動畫的每一個時刻（0～100%），並列出該時刻疊了哪些關鍵幀。
  * - 與新版卡面對照：左邊是原始卡面圖（唯一美術母版），右邊是這個時刻的動畫畫面，
  *   逐項檢查毛色、條紋、鬃毛、眼睛、牙齒是否與原卡一致。
+ * - 動畫舞台是整個畫面層級：精靈從下方的「出戰卡」跳出去，跑向上方的「對手卡」。
  */
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import BeastRigStage from '@/components/battlefield/BeastRigStage';
 import { BAIHU_RIG, RIG_PHASES, RIG_STRIKE_MS, strikeFrame } from '@/lib/beast-game/beast-rig';
 
 export default function RigPreviewPage() {
-  const arena = useRef<HTMLDivElement>(null);
   const [t, setT] = useState(0.62);
   const [playKey, setPlayKey] = useState<number | null>(null);
   const [ready, setReady] = useState(false);
@@ -29,20 +29,20 @@ export default function RigPreviewPage() {
       <div style={{ display: 'flex', gap: 8, margin: '8px 0' }}>
         <button type="button" onClick={() => setPlayKey(Date.now())} style={{ minHeight: 44, padding: '0 14px', border: '1px solid #7dd3fc', borderRadius: 8 }}>播放一次</button>
       </div>
-      <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'minmax(0, 1fr)' }}>
+      <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'minmax(0, 1fr)', justifyItems: 'center' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/beast-game/front/guardian-baihu.v2.webp" alt="新版卡面（美術母版）" style={{ width: 'min(100%, 420px)', borderRadius: 8, border: '1px solid #526386' }} />
-        <div ref={arena} style={{ position: 'relative', width: 'min(100%, 420px)', height: 560, border: '1px solid #526386', borderRadius: 12, background: 'linear-gradient(#10203a, #1c2b24)', overflow: 'hidden' }}>
+        <div style={{ position: 'relative', width: 'min(100%, 420px)', height: 520, border: '1px solid #526386', borderRadius: 12, background: 'linear-gradient(#10203a, #1c2b24)' }}>
           <div data-fighter="opponent" style={{ position: 'absolute', left: '50%', top: 18, transform: 'translateX(-50%)' }}>
             <div data-art-slot="opponent" style={{ width: 96, height: 134, border: '2px solid #b45309', borderRadius: 8, background: '#3b2a1a', display: 'grid', placeItems: 'center', fontSize: 12 }}>對手</div>
           </div>
-          <div data-fighter="player" style={{ position: 'absolute', left: '50%', bottom: 28, transform: 'translateX(-50%)' }}>
+          <div data-dock-card="beast_g_baihu" data-active="true" style={{ position: 'absolute', left: '50%', bottom: 16, transform: 'translateX(-50%)' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img data-art-slot="player" src="/beast-game/thumb/guardian-baihu.v2-480.webp" alt="白虎卡片" style={{ width: 130, height: 182, objectFit: 'cover', border: '2px solid #fde68a', borderRadius: 8, display: 'block' }} />
+            <span data-card-thumbnail style={{ display: 'block', width: 70, height: 98 }}><img src="/beast-game/thumb/guardian-baihu.v2-480.webp" alt="白虎出戰卡" style={{ width: '100%', height: '100%', objectFit: 'cover', border: '2px solid #fde68a', borderRadius: 6 }} /></span>
           </div>
-          <BeastRigStage rig={BAIHU_RIG} playKey={playKey} arenaRef={arena} onReady={setReady} seek={playKey === null ? t : null} />
         </div>
       </div>
+      <BeastRigStage rig={BAIHU_RIG} playKey={playKey} onReady={setReady} seek={playKey === null ? t : null} />
     </main>
   );
 }

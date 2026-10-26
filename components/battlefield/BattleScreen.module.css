@@ -21,7 +21,7 @@
   padding: 8px 0;
 }
 /* 戰鬥中畫面最下方有固定選卡列（BattleDock，position: fixed）；留出它的高度，內容才不會被蓋住。 */
-.split[data-dock='true'] { padding-bottom: calc(var(--battle-dock-h, 120px) + 8px); }
+.split[data-dock='true'] { padding-bottom: calc(var(--battle-dock-h, 164px) + 8px); }
 /* 結果畫面要放再戰與回首頁，按鍵卡放寬到黃金比例 38%。橫放矮螢幕另有左右分欄。 */
 @media (min-height: 541px) {
   .split[data-finished='true'] { grid-template-rows: minmax(0, 62fr) minmax(0, 38fr); }
@@ -171,3 +171,21 @@
 
 /* 首領預告（2026-09-15）：長輩一眼看得到——字放大、紅框，和一般提示分開。 */
 .bossLive { margin: 0 0 8px; padding: 10px 12px; border-left: 4px solid #fb7185; background: #fb718518; color: #ffe4e6; font-size: 16px; line-height: 24px; font-weight: 700; }
+
+/* 一體成型：對戰中戰場、操作區與最下方的出戰卡列合成同一張卡——只有最外層一個框，內部用細線分隔，不再是三塊各自有邊框的大卡片。 */
+.split[data-dock='true'] {
+  gap: 0;
+  padding: 0 0 var(--battle-dock-h, 164px);
+  border: 1px solid #526386;
+  border-bottom: 0;
+  border-radius: 18px 18px 0 0;
+  background: linear-gradient(#0e1a2c, #09121f);
+  overflow: hidden;
+}
+.split[data-dock='true'] > [data-battle-visual] { border: 0; border-radius: 0; }
+.split[data-dock='true'] > [data-battle-controls] {
+  border: 0;
+  border-top: 1px solid #2b405c;
+  border-radius: 0;
+  background: transparent;
+}

@@ -22,10 +22,10 @@ const {chromium}=require('playwright');
     data=await(await response).json();
     await page.locator('[data-playback="acting"]').waitFor();
     assert.equal(requests,before+1,'Eight immediate clicks send one action');
-    assert.equal(await page.locator('[data-fighter="player"] [data-action]').getAttribute('data-action'),expected);
+    assert.equal(await page.locator('[data-dock-card][data-active="true"]').getAttribute('data-action'),expected);
     assert.equal(await page.locator('[aria-label="本回合指令"] button:not(:disabled)').count(),0,'Controls remain locked during the presentation');
-    if(expected==='SKILL')assert.match(await page.locator('[data-fighter="player"] [data-action] button').evaluate(n=>getComputedStyle(n).animationName),/skillCharge/);
-    if(expected==='SWITCH')assert.match(await page.locator('[data-fighter="player"] [data-action] button').evaluate(n=>getComputedStyle(n).animationName),/reserveEnter/);
+    // 玩家出戰卡在畫面最下方的出戰卡列：動作記號標在主戰卡上，出戰列全程顯示
+    assert.equal(await page.locator('[data-battle-dock]').isVisible(),true,'The bottom dock never disappears during playback');
     await page.screenshot({path:`reports/beast-relaxed/playback-${expected}.png`});
     await page.locator('[data-playback="ready"]').waitFor();
     assert.equal(requests,before+1,'The lock never queues unwanted extra actions');

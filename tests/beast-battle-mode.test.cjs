@@ -229,8 +229,12 @@ const stunnedVisual = structuredClone(match);
 stunnedVisual.player.team[0].stunnedTurns = 1;
 const stunnedTurn = advance(stunnedVisual, { type: 'ATTACK' }, { type: 'ATTACK' });
 const stunnedArena = render(Arena, { match: stunnedTurn, view: viewOf(stunnedTurn), cards: interactiveCatalog(), onInspect() {} });
-const skippedCard = stunnedArena.match(/<div[^>]*data-action="SKIP"[\s\S]*?<\/button>/)?.[0];
+// 玩家出戰卡在畫面最下方的出戰卡列：受控的主戰由它標出（戰場只留對手）
+const stunnedDock = render(load('components/battlefield/BattleDock.tsx').default, { match: stunnedTurn, view: viewOf(stunnedTurn), cards: interactiveCatalog(), onAction() {} });
+const skippedCard = stunnedDock.match(/<button[^>]*data-action="SKIP"[\s\S]*?<\/button>/)?.[0];
 assert.ok(skippedCard, 'The stunned fighter is identified by its performed action');
+assert.match(skippedCard, /aria-label="受控"/, 'The stunned cue is announced');
+assert.doesNotMatch(stunnedArena, /data-fighter="player"/, 'During a battle the arena shows only the opponent; the player fighters live in the bottom dock');
 assert.doesNotMatch(skippedCard, /data-element=/, 'A skipped player action must not create element particles');
 assert.equal((stunnedArena.match(/data-rush="true"/g) || []).length, 1, 'Only the opponent actually attacked');
 const replacedArena = render(Arena, { match: replaced, view: viewOf(replaced), cards: interactiveCatalog(), onInspect() {} });
