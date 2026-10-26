@@ -16,7 +16,7 @@ const COPY = {
   zh: {
     label: '28 星宿・四象',
     badge: '60 種',
-    title: '星宿神獸卡片',
+    title: '戰鬥神獸卡片',
     subtitle: '本月守護獸',
     desc: '二十八星宿各有本體與幼子，另有四象守護獸。找到屬於你的星宿與守護特質。',
     chips: ['免費瀏覽', '先看再玩'],
@@ -27,7 +27,7 @@ const COPY = {
   en: {
     label: '28 Lunar Mansions · Four Symbols Collection',
     badge: '60 Species',
-    title: 'Star Mansion Divine Beast Cards',
+    title: 'Battle Divine Beast Cards',
     subtitle: 'This month\'s guardian',
     desc: "28 adult forms, 28 young forms, and 4 Four Symbols guardians, 60 divine beasts in all. Browse the cards and meet each one's guardian traits.",
     chips: ['Free to browse', '60 to explore', 'Look before you play'],
