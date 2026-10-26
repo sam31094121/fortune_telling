@@ -10,6 +10,7 @@ import type { interactiveCatalog, Match, Action } from '@/lib/beast-game/interac
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
 import BattleArena from './battlefield/BattleArena';
 import BattlePanel, { BattleLog } from './battlefield/BattlePanel';
+import BattleDock from './battlefield/BattleDock';
 import FusionOrbHud from './battlefield/FusionOrbHud';
 import BeastBattleVoice from './BeastBattleVoice';
 import BattleCardGuide from './battlefield/BattleCardGuide';
@@ -185,9 +186,8 @@ function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }:
       <VictoryAnimation show={match.status === 'FINISHED' && !playing} winner={match.winner === 'player' ? 'player' : null} />
       <div className={battleStyles.shell}>
         <header className={battleStyles.header}><h1>三卡免費戰場</h1><div className={styles.headerActions}><Link href="/" onClick={() => setAutomatic(false)} title="本場進度保留，回來可繼續">回首頁</Link><BattleHelpPanel onOpen={() => setAutomatic(false)} /></div></header>
-        <div className={battleStyles.split} data-battle-split data-inspecting={Boolean(inspection)} data-finished={match.status === 'FINISHED' && !playing}>
+        <div className={battleStyles.split} data-battle-split data-dock="true" data-inspecting={Boolean(inspection)} data-finished={match.status === 'FINISHED' && !playing}>
           <BattleArena match={match} view={battleView} cards={cards} onInspect={inspect} onAttack={automatic ? null : onAttack} tapToAttack playing={playing}
-            onSwap={match.status === 'PLAYING' && !busy && !playing && !error ? (action) => act(action) : null}
             onSkill={match.status === 'PLAYING' && !busy && !playing && !error ? (action) => act(action) : null} />
           <section className={battleStyles.controls} aria-label="手部操控" data-battle-controls>
             <div className={battleStyles.controlsHeading}><strong>{inspection ? '相剋' : match.status === 'FINISHED' && !playing ? '結果' : `R${match.round}`}</strong><span>{busy || playing ? '…' : match.status === 'FINISHED' ? '✓' : '⚔'}</span></div>
@@ -209,7 +209,7 @@ function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }:
                   <button type="button" className={styles.easyAbility} aria-label="戰鬥說明與戰報" aria-expanded={helpOpen} onClick={() => { setHelpOpen(open => !open); setAutomatic(false); }}>ⓘ</button>
                 </div>
 
-                <BattlePanel showLog={false} match={match} view={battleView} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} swapOnSide={match.status === 'PLAYING' && !busy && !playing} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
+                <BattlePanel showLog={false} match={match} view={battleView} onAction={act} busy={busy || playing} compact attackOnCard={Boolean(onAttack)} cards={cards} relaxed={automatic} onBrowse={() => { setAutomatic(false); scroll.current?.scrollTo({ top: 0 }); }} />
                 {/* 預覽用寶珠面板：魔珠與暴怒已由戰鬥引擎結算並顯示在戰場右欄，這裡隱藏。 */}
                 {(false as boolean) && match.status === 'PLAYING' && (() => {
                   const active = match.player.team[match.player.active];
@@ -247,6 +247,7 @@ function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }:
             </div>
             {match.status === 'FINISHED' && !playing && !inspection && <div className={battleStyles.footer} data-free-result-actions><div className={styles.resultActions}><button type="button" className={battleStyles.start} style={{ animation: 'none' }} disabled={busy} onClick={() => void send('START', { lineup: match.player.team.map(f => f.cardId) })}>同陣容再戰</button><button type="button" className={battleStyles.restart} disabled={busy} onClick={() => void send('LEAVE')}>更換陣容</button></div><Link href="/" className={styles.homeLink}>回首頁</Link></div>}
           </section>
+          <BattleDock match={match} view={battleView} cards={cards} busy={busy || playing || Boolean(error)} onAction={act} />
         </div>
       </div>
     </main>;

@@ -20,6 +20,8 @@
   gap: 8px;
   padding: 8px 0;
 }
+/* 戰鬥中畫面最下方有固定選卡列（BattleDock，position: fixed）；留出它的高度，內容才不會被蓋住。 */
+.split[data-dock='true'] { padding-bottom: calc(var(--battle-dock-h, 120px) + 8px); }
 /* 結果畫面要放再戰與回首頁，按鍵卡放寬到黃金比例 38%。橫放矮螢幕另有左右分欄。 */
 @media (min-height: 541px) {
   .split[data-finished='true'] { grid-template-rows: minmax(0, 62fr) minmax(0, 38fr); }

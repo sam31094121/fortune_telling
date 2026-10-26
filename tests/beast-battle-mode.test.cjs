@@ -186,9 +186,10 @@ assert.equal(JSON.stringify(nextStakeSelection(fullStake, '21')), JSON.stringify
 assert.deepEqual(selected, ['beast_a01'], 'Selection helper does not mutate existing state');
 assert.match(battlefieldPage, /runOwnedStakesDuel\(stakeCardIds/, 'Five actual collection entries use the shared atomic settlement');
 const compactActions = render(load('components/battlefield/BattlePanel.tsx').BattleActionBar, { match, view: viewOf(match), onAction() { throw new Error('Read-only render'); }, compact: true, cards: interactiveCatalog() });
-assert.equal((compactActions.match(/<button\b/g) || []).length, 4, 'Combat starts with four clear commands');
-for (const text of ['普通攻擊', '技能', '換卡', '暴怒合體']) assert.ok(compactActions.includes(text), `Current command remains accessible: ${text}`);
-assert.doesNotMatch(compactActions, /aria-label="點戰鬥卡換上場"/, 'Reserve choices open on demand');
+assert.equal((compactActions.match(/<button\b/g) || []).length, 3, 'Combat starts with three clear commands; card switching lives in the bottom dock');
+for (const text of ['普通攻擊', '技能', '暴怒合體']) assert.ok(compactActions.includes(text), `Current command remains accessible: ${text}`);
+assert.doesNotMatch(compactActions, /換卡|data-swap-entry/, 'No separate swap button or second confirmation step remains');
+assert.doesNotMatch(compactActions, /aria-label="點戰鬥卡換上場"/, 'No reserve panel inside the action bar');
 const prepSource = fs.readFileSync(path.join(root, 'components/battlefield/BattleArena.tsx'), 'utf8');
 assert.ok(prepSource.indexOf('<HandZone') < prepSource.indexOf('<div ref={placement}'), 'Choose the hand before choosing the destination');
 assert.match(prepSource, /requestAnimationFrame/);
@@ -212,10 +213,17 @@ assert.equal(replaced.opponent.team[1].hp, opponentDown.opponent.team[1].hp, 'Co
 const playerDown = structuredClone(match);
 playerDown.player.team[0].hp = 0; playerDown.player.team[0].defeated = true;
 const forcedHtml = render(ActionBar, { match: playerDown, view: viewOf(playerDown), compact: true, onAction() {}, cards: interactiveCatalog() });
-assert.match(forcedHtml, /選擇接替主戰的後備/);
+assert.match(forcedHtml, /請點最下方的卡片接替上場/, 'Forced replacement points to the always-visible bottom dock');
 assert.doesNotMatch(forcedHtml, /普通攻擊|本回合指令/);
-assert.equal((forcedHtml.match(/<button\b/g) || []).length, 1, 'Only the living reserve is actionable');
-console.log('PASS: forced replacements are clearly labelled and do not masquerade as ignored attacks');
+assert.equal((forcedHtml.match(/<button\b/g) || []).length, 0, 'Replacement choices live in the dock, not in the action bar');
+// 固定選卡列：同一份主戰已倒下的對局，只有活著的後備能點；主戰與倒下的按不下去
+const DockMod = load('components/battlefield/BattleDock.tsx').default;
+const dockHtml = render(DockMod, { match: playerDown, view: viewOf(playerDown), cards: interactiveCatalog(), onAction() {} });
+assert.equal((dockHtml.match(/data-dock-card=/g) || []).length, playerDown.player.team.length, 'One dock card per brought-in fighter');
+assert.equal((dockHtml.match(/<button\b[^>]*disabled=""/g) || []).length, playerDown.player.team.filter((f, i) => i === playerDown.player.active || f.defeated).length, 'Only living reserves are tappable');
+assert.match(dockHtml, /data-battle-dock/);
+assert.doesNotMatch(dockHtml, /確認|換卡/, 'No confirmation step or separate swap button');
+console.log('PASS: forced replacements point to the bottom dock; the dock shows every brought-in card and only living reserves are tappable');
 
 const stunnedVisual = structuredClone(match);
 stunnedVisual.player.team[0].stunnedTurns = 1;

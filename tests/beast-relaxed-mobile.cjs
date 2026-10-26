@@ -75,7 +75,7 @@ const width = Number(process.env.BEAST_TEST_WIDTH || 390);
     const beforeSwap = data.account.match;
     const voluntary = legalActions(beforeSwap,'player').find(action => action.type === 'SWITCH');
     if(voluntary && !beforeSwap.player.team[beforeSwap.player.active].defeated && !beforeSwap.opponent.team[beforeSwap.opponent.active].defeated) {
-      await page.getByRole('button',{name:/^換卡/}).click();
+      // 換卡已取消額外按鈕與二次確認：底部固定選卡列直接點卡即上場
       const swapResponse=page.waitForResponse(r=>r.url().endsWith('/api/beast-game/turns')&&r.request().method()==='POST');
       await page.getByRole('button',{name:'換上 '+beforeSwap.player.team[voluntary.index].name,exact:true}).click();
       data=await(await swapResponse).json();

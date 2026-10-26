@@ -1,0 +1,52 @@
+{
+  "card": "baihu",
+  "round": "1",
+  "source": "public/beast-game/front/guardian-baihu.v2.webp",
+  "frames": [
+    {
+      "id": "bite-close",
+      "file": "bite-close.webp",
+      "width": 900,
+      "height": 632,
+      "area": 317197,
+      "bytes": 118328,
+      "norm": 0.9289
+    },
+    {
+      "id": "land-crouch",
+      "file": "land-crouch.webp",
+      "width": 900,
+      "height": 618,
+      "area": 312635,
+      "bytes": 118066,
+      "norm": 0.9356
+    },
+    {
+      "id": "pounce-open",
+      "file": "pounce-open.webp",
+      "width": 900,
+      "height": 536,
+      "area": 219810,
+      "bytes": 102374,
+      "norm": 1.1158
+    },
+    {
+      "id": "run-gather",
+      "file": "run-gather.webp",
+      "width": 900,
+      "height": 602,
+      "area": 273681,
+      "bytes": 118316,
+      "norm": 1
+    },
+    {
+      "id": "run-reach",
+      "file": "run-reach.webp",
+      "width": 900,
+      "height": 486,
+      "area": 205567,
+      "bytes": 95746,
+      "norm": 1.1538
+    }
+  ]
+}

@@ -33,6 +33,7 @@ import {
   type Destination,
 } from '@/lib/beast-game/battlefield';
 import BattlePanel from '@/components/battlefield/BattlePanel';
+import BattleDock from '@/components/battlefield/BattleDock';
 import { canStartBattle, fieldTeam } from '@/lib/beast-game/battle-bridge';
 import type { Action, Match } from '@/lib/beast-game/interactive';
 import type { BattleView } from '@/lib/beast-game/battle-view';
@@ -572,10 +573,9 @@ function BattlefieldScreen() {
             <button type="button" className={styles.restart} onClick={() => { setError(null); setLoadAttempt(n => n + 1); }}>重新載入卡池</button>
           </div>
         ) : !state ? <p className={styles.loading}>正在發牌…</p> : (
-          <div className={styles.split} data-battle-split data-inspecting={Boolean(inspection)} data-preparing={!match} data-stake-review={!match && prepareView === 'stake'}>
+          <div className={styles.split} data-battle-split data-dock={match ? 'true' : undefined} data-finished={match?.status === 'FINISHED' && !playing} data-inspecting={Boolean(inspection)} data-preparing={!match} data-stake-review={!match && prepareView === 'stake'}>
             <BattleArena state={state} cards={cards} match={match} view={battleView} onInspect={inspectCard} playing={playing}
               onAttack={match?.status === 'PLAYING' && !playing ? (() => { const a = legal.find(x => x.type === 'ATTACK'); return a ? () => act(a) : null; })() : null}
-              onSwap={match?.status === 'PLAYING' && !playing ? (action) => act(action) : null}
               onSkill={match?.status === 'PLAYING' && !playing ? (action) => act(action) : null} />
             <section className={styles.controls} aria-label="手部操控" data-battle-controls data-preparing={!match}>
               <div className={styles.controlsHeading}>
@@ -682,6 +682,7 @@ function BattlefieldScreen() {
                 </div>
               ) : null}
             </section>
+            {match && <BattleDock match={match} view={battleView} cards={cards} busy={playing} onAction={act} />}
           </div>
         )}
       </div>

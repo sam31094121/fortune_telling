@@ -1,6 +1,8 @@
 'use client';
 
 import { memo, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import BeastRigStage from './BeastRigStage';
+import { RIG_IMPACT_MS, RIG_STRIKE_MS, rigFor } from '@/lib/beast-game/beast-rig';
 import { planTierPresentation } from '@/lib/beast-game/fusion-presentation';
 import FusionEffectStage from './FusionEffectStage';
 import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
@@ -15,7 +17,7 @@ import { ELEMENTS, ELEMENT_LABEL, type BeastElement } from '@/lib/beast-game/ele
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
 import { COMBAT_BEAT_MS } from '@/lib/beast-game/combat-presentation';
 import styles from './BattleArena.module.css';
-import { BeastThumb, BeastCardFace } from './BeastCardTile';
+import { BeastCardFace } from './BeastCardTile';
 import { ELEMENT_FX, type BattleElement } from '@/lib/beast-battle-fx';
 import { performedAction, isDamagingAction } from '@/lib/beast-game/combat-presentation';
 import { combatChanges } from '@/lib/beast-game/combat-feedback';
@@ -27,7 +29,7 @@ import TeamRosterPanel from './TeamRosterPanel';
 
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
 /** Both fighters stay above the controls. All displayed combat values come from Match. */
-export default function BattleArena({ state, cards, match, view, onInspect, onAttack, tapToAttack = false, onSwap, onSkill, playing = false }: {
+export default function BattleArena({ state, cards, match, view, onInspect, onAttack, tapToAttack = false, onSkill, playing = false }: {
   playing?: boolean; cards: BattlefieldCardArt[]; onInspect: (id: string, side: 'player' | 'opponent') => void;
   /** 後端送來的可出招清單與合體教學；畫面照印。 */
   view?: BattleView | null;
@@ -35,7 +37,6 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
   onAttack?: (() => void) | null;
   /** Only the easy mode opts into tapping its fighter to attack. */
   tapToAttack?: boolean;
-  onSwap?: ((action: Action) => void) | null;
   onSkill?: ((action: Action) => void) | null;
 } & ({ match: Match; state?: BattleState } | { match: Match | null; state: BattleState })) {
   const lookup = useMemo(() => new Map(cards.map(card => [card.id, card])), [cards]);
@@ -51,6 +52,19 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
   const playerAction = match ? performedAction(match, 'player') : null;
   const guide = match ? view?.fusionGuide ?? null : null;
   const [guideOpen, setGuideOpen] = useState(false);
+  // 網格變形動畫（目前只有白虎）：只在「這一局剛收到新戰報、且玩家主戰有骨架、出了傷害招式」時播。
+  // 動畫不決定結果：何時播取自戰報（performedAction／isDamagingAction），播多久是固定常數。
+  const arenaRef = useRef<HTMLElement>(null);
+  const [rigReady, setRigReady] = useState(false);
+  const [reduced, setReduced] = useState(false);
+  const [playStartRevision, setPlayStartRevision] = useState<number | null>(null);
+  useEffect(() => { setReduced(window.matchMedia('(prefers-reduced-motion: reduce)').matches); }, []);
+  useEffect(() => { setPlayStartRevision(playing ? (match?.revision ?? 0) : null); }, [playing]); // eslint-disable-line react-hooks/exhaustive-deps
+  const activeRig = playerFighter ? rigFor(playerFighter.cardId) : null;
+  const teamRig = activeRig ?? match?.player.team.map(f => rigFor(f.cardId)).find(Boolean) ?? null;
+  const rigStrike = Boolean(match && activeRig && rigReady && !reduced && playing && playStartRevision !== null
+    && match.revision !== playStartRevision && playerStrike);
+  const rigDelayMs = match && playerFighter ? Math.max(0, match.log.findIndex(entry => entry.side === 'player' && entry.cardId === playerFighter.cardId)) * COMBAT_BEAT_MS : 0;
   const rageEntry = match?.log.find(entry => entry.side === 'player' && entry.action === 'RAGE');
   const castTier = rageEntry?.fusionTier && rageEntry.fusionTier !== 'NONE' ? RAGE_TIERS.find(tier => tier.tier === rageEntry.fusionTier) : undefined;
   const ultimatePlan = useMemo(() => (playing && playerAction === 'RAGE' && castTier && playerFighter
@@ -58,7 +72,7 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
     : null), [playing, playerAction, castTier, playerFighter]);
 
   return (
-    <section className={styles.arena} aria-label="戰鬥畫面" data-card-presentation="shared" data-battle-visual data-playback={playing ? 'acting' : 'ready'} data-battle-revision={match?.revision} data-battle-venue="cards">
+    <section ref={arenaRef} className={styles.arena} aria-label="戰鬥畫面" data-card-presentation="shared" data-battle-visual data-playback={playing ? 'acting' : 'ready'} data-battle-revision={match?.revision} data-battle-venue="cards">
       <RageComboEffect
         active={playing && playerAction === 'RAGE' && !castTier}
         element={strikeElement}
@@ -67,12 +81,13 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
       {ultimatePlan && <FusionEffectStage key={`ultimate-${match?.revision}`} plan={ultimatePlan} caption={castTier?.skillName} />}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className={styles.backdrop} src={BATTLE_VENUES.cards.image} alt="" aria-hidden="true" decoding="async" />
+      {teamRig && <BeastRigStage rig={teamRig} playKey={rigStrike ? match!.revision : null} delayMs={rigDelayMs} arenaRef={arenaRef} onReady={setRigReady} />}
       <div className="sr-only">
         <strong>{finished ? '本場結束' : match ? `第 ${match.round} 回合` : '佈陣預覽'}</strong>
         <span>{BATTLE_VENUES.cards.name}・卡片戰鬥</span>
       </div>
       {playerStrike && strikeElement && <div key={`element-strike-${match?.revision}`} className={styles.elementStrike}
-        data-element={strikeElement} data-skill={String(playerAction === 'SKILL')} style={{ '--element-strike': ELEMENT_FX[strikeElement].glow, '--action-delay': `${Math.max(0, match?.log.findIndex(entry => entry.side === 'player' && entry.text.includes('：')) ?? 0) * COMBAT_BEAT_MS}ms` } as CSSProperties} aria-hidden="true">
+        data-element={strikeElement} data-skill={String(playerAction === 'SKILL')} style={{ '--element-strike': ELEMENT_FX[strikeElement].glow, '--action-delay': `${Math.max(0, match?.log.findIndex(entry => entry.side === 'player' && entry.text.includes('：')) ?? 0) * COMBAT_BEAT_MS + (rigStrike ? RIG_IMPACT_MS : 0)}ms` } as CSSProperties} aria-hidden="true">
         <span className={styles.strikeField} />
         <span className={styles.strikeTrace} data-trace="one" />
         <span className={styles.strikeReadout}><b>{playerAction === 'RAGE' ? '暴怒合體' : `${ELEMENT_FX[strikeElement].label}元素攻擊`}</b></span>
@@ -112,15 +127,15 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
           const multiplier = card && attacker ? book?.matchups[attacker.element as BeastElement]?.[card.element as BeastElement]?.multiplier ?? 1 : 1;
           return (
             <div className={styles.fighter} key={side} data-fighter={side} aria-label={`${label}：${card?.name ?? '等待主戰'}`}>
-              <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)} data-hit={hitOrder >= 0} data-skill={action === 'SKILL'} data-action={action ?? 'NONE'} data-impact={multiplier > 1 ? 'strong' : multiplier < 1 ? 'resisted' : 'normal'}
-                style={{ '--strike-x': side === 'player' ? '18px' : '-18px', '--strike-y': side === 'player' ? '-26px' : '26px', '--action-delay': `${Math.max(0, actionOrder) * COMBAT_BEAT_MS}ms`, '--hit-delay': `${Math.max(0, hitOrder) * COMBAT_BEAT_MS + 200}ms`, '--element-strike': card ? ELEMENT_FX[card.element as BattleElement]?.glow : undefined } as CSSProperties}>
+              <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)} data-rig={side === 'player' && rigStrike} data-hit={hitOrder >= 0} data-skill={action === 'SKILL'} data-action={action ?? 'NONE'} data-impact={multiplier > 1 ? 'strong' : multiplier < 1 ? 'resisted' : 'normal'}
+                style={{ '--strike-x': side === 'player' ? '18px' : '-18px', '--strike-y': side === 'player' ? '-26px' : '26px', '--action-delay': `${Math.max(0, actionOrder) * COMBAT_BEAT_MS}ms`, '--rig-ms': `${RIG_STRIKE_MS}ms`, '--hit-delay': `${Math.max(0, hitOrder) * COMBAT_BEAT_MS + 200 + (side === 'opponent' && rigStrike ? RIG_IMPACT_MS : 0)}ms`, '--element-strike': card ? ELEMENT_FX[card.element as BattleElement]?.glow : undefined } as CSSProperties}>
                 <PhotonParticleEffect
-                  active={performed && rush}
+                  active={performed && rush && !(side === 'player' && rigStrike)}
                   element={card?.element}
                   intensity={action === 'RAGE' ? 'heavy' : action === 'SKILL' ? 'medium' : 'light'}
                   isSkill={action === 'SKILL' || action === 'RAGE'}
                 />
-                <button type="button" disabled={!card || playing || (tapToAttack && side === 'player' && !onAttack)} aria-label={card ? tapToAttack && side === 'player' ? `讓${card.name}普通攻擊` : `查看${card.name}的卡面與能力` : '等待主戰卡上場'} onClick={() => { if (card) { if (tapToAttack && side === 'player') onAttack?.(); else onInspect(card.id, side); } }}
+                <button type="button" data-art-slot={side} disabled={!card || playing || (tapToAttack && side === 'player' && !onAttack)} aria-label={card ? tapToAttack && side === 'player' ? `讓${card.name}普通攻擊` : `查看${card.name}的卡面與能力` : '等待主戰卡上場'} onClick={() => { if (card) { if (tapToAttack && side === 'player') onAttack?.(); else onInspect(card.id, side); } }}
                   className={`${styles.art} ${fighter?.defeated ? styles.defeated : ''}`}>
                   {card ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -243,43 +258,20 @@ export default function BattleArena({ state, cards, match, view, onInspect, onAt
           </ul>
         </div>
       )}
-      {match?.status === 'PLAYING' && (onSwap !== undefined || onSkill !== undefined) && (() => {
-        const acts = view?.legal ?? [];
-        const switches = onSwap !== undefined ? acts.filter((a): a is Extract<Action, { type: 'SWITCH' }> => a.type === 'SWITCH') : [];
-        const skillAct = acts.find(a => a.type === 'SKILL');
+      {match?.status === 'PLAYING' && onSkill !== undefined && (() => {
+        const skillAct = (view?.legal ?? []).find(a => a.type === 'SKILL');
         const activeFighter = match.player.team[match.player.active];
         const skillProf = profile(activeFighter.cardId);
-        const showSkill = onSkill !== undefined;
-        const showSwap = onSwap !== undefined && switches.length > 0;
-        if (!showSkill && !showSwap) return null;
+        // 換卡已移到畫面最下方的固定選卡列（BattleDock）；這裡只留技能鈕。
         return (
-          <div className={styles.sideSwap} aria-label="左側換卡與技能">
-            {showSwap && <p className={styles.sideSwapLabel} role="note">換卡</p>}
-            {showSkill && (
-              <button type="button" className={styles.sideSkillBtn}
-                disabled={playing || !onSkill || !skillAct}
-                aria-label={`技能 ${skillProf.skillName}`}
-                onClick={() => { if (onSkill && skillAct) onSkill(skillAct); }}>
-                <span aria-hidden="true">✦</span>
-                <span>{activeFighter.cooldown > 0 ? `冷${activeFighter.cooldown}` : `⚡${skillProf.cost}`}</span>
-              </button>
-            )}
-            {showSwap && switches.map(action => {
-              const fighter = match.player.team[action.index];
-              const art = cards.find(c => c.id === fighter.cardId);
-              return (
-                <button key={fighter.instanceId} type="button"
-                  className={styles.swapCard} disabled={playing}
-                  aria-label={`換卡上場：${fighter.name}`}
-                  onClick={() => { if (onSwap) onSwap(action); }}>
-                  <em className={styles.swapTag} aria-hidden="true">換</em>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {art && <BeastThumb id={art.id} thumbnail={art.thumbnail} alt={art.name} draggable={false} />}
-                  <span>{fighter.name}</span>
-                  <small>{fighter.hp}/{fighter.maxHp}</small>
-                </button>
-              );
-            })}
+          <div className={styles.sideSwap} aria-label="左側技能">
+            <button type="button" className={styles.sideSkillBtn}
+              disabled={playing || !onSkill || !skillAct}
+              aria-label={`技能 ${skillProf.skillName}`}
+              onClick={() => { if (onSkill && skillAct) onSkill(skillAct); }}>
+              <span aria-hidden="true">✦</span>
+              <span>{activeFighter.cooldown > 0 ? `冷${activeFighter.cooldown}` : `⚡${skillProf.cost}`}</span>
+            </button>
           </div>
         );
       })()}

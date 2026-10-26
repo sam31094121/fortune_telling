@@ -1,4 +1,5 @@
 import { profile, type Match, type Side } from './interactive';
+import { RIG_STRIKE_MS, rigFor } from './beast-rig';
 
 export const COMBAT_BEAT_MS = 320;
 export function performedAction(match: Match, side: Side) {
@@ -18,5 +19,14 @@ export function isDamagingAction(match: Match, side: Side) {
 export function combatPlaybackMs(match: Match, reduced = false) {
   if (!match.log.length) return 0;
   if (reduced) return 180;
-  return (match.log.length - 1) * COMBAT_BEAT_MS + (match.log.some(entry => entry.action === 'RAGE') ? 900 : 450);
+  const base = (match.log.length - 1) * COMBAT_BEAT_MS + (match.log.some(entry => entry.action === 'RAGE') ? 900 : 450);
+  return Math.max(base, rigStrikeEndMs(match));
+}
+
+/** 玩家主戰有網格變形動畫（目前只有白虎）且這回合出了傷害招式時，整段出擊（跳出→奔跑→攻擊→返回）結束的時刻。否則 0。 */
+export function rigStrikeEndMs(match: Match): number {
+  const fighter = match.player.team[match.player.active];
+  if (!fighter || !rigFor(fighter.cardId) || !isDamagingAction(match, 'player')) return 0;
+  const order = Math.max(0, match.log.findIndex(entry => entry.side === 'player' && entry.cardId === fighter.cardId));
+  return order * COMBAT_BEAT_MS + RIG_STRIKE_MS + 100;
 }

@@ -31,7 +31,7 @@ const {chromium}=require('playwright');
     assert.equal(requests,before+1,'The lock never queues unwanted extra actions');
   };
   await play(page.getByRole('button',{name:/^技能/}),'SKILL');
-  await page.getByRole('button',{name:/^換卡/}).tap();
+  // 換卡已取消額外按鈕：底部固定選卡列直接點卡即上場
   const beforeRound=data.account.match.round;
   await play(page.getByRole('button',{name:'換上 亢金龍',exact:true}),'SWITCH');
   assert.equal(data.account.match.round,beforeRound+1);

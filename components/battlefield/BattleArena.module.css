@@ -901,3 +901,16 @@
 
 .arena[data-card-presentation='shared'] .arenaHpBar.critical{outline:1px solid #ff788c;box-shadow:0 0 6px #fb718580}
 .arena[data-card-presentation='shared'] .arenaHpBar.critical>span{min-width:3px}
+
+/* 網格變形動畫（白虎）：精靈跳出卡片後，戰場上的原始卡片暫時隱藏；回到卡片前恢復。
+   區間取自 lib/beast-game/beast-rig.ts 的 RIG_CARD_HIDDEN（14%～90%），總長由 --rig-ms 帶入。 */
+@keyframes rigCardAway {
+  0%, 13% { opacity: 1; visibility: visible; }
+  14%, 89% { opacity: 0; visibility: hidden; }
+  96%, 100% { opacity: 1; visibility: visible; }
+}
+.artSpace[data-rig='true'][data-rush='true'][data-action] .art {
+  animation: rigCardAway var(--rig-ms, 1800ms) linear both;
+  animation-delay: var(--action-delay, 0ms);
+}
+@media (prefers-reduced-motion: reduce) { .artSpace[data-rig='true'][data-rush='true'][data-action] .art { animation: none; } }

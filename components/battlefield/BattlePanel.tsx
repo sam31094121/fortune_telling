@@ -18,7 +18,6 @@
  */
 
 import styles from './BattlePanel.module.css';
-import { BeastThumb } from './BeastCardTile';
 import { memo, useEffect, useRef, useState } from 'react';
 import type { BattlefieldCardArt } from './GameBattlefield';
 import ElementOrbDisplay from './ElementOrbDisplay';
@@ -127,7 +126,7 @@ export function FighterStatus({ match, side, label }: { match: Match; side: Side
  * 冷卻中就沒有技能鈕、被打倒就只剩換位。**畫面不自己判斷能不能按**。
  */
 export function BattleActionBar({
-  match, view, onAction, busy, compact, attackOnCard, swapOnSide, cards = [], relaxed, onBrowse,
+  match, view, onAction, busy, compact, attackOnCard, relaxed,
 }: {
   match: Match;
   /** 後端送來的可出招清單與暴怒判斷；畫面照印，不自己判斷。 */
@@ -136,12 +135,9 @@ export function BattleActionBar({
   busy?: boolean;
   compact?: boolean;
   attackOnCard?: boolean;
-  swapOnSide?: boolean;
-  cards?: BattlefieldCardArt[];
   relaxed?: boolean;
-  onBrowse?: () => void;
 }) {
-  const [commandView, setCommandView] = useState<'swap' | 'rage' | null>(null);
+  const [commandView, setCommandView] = useState<'rage' | null>(null);
   const commandDetail = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (commandView) commandDetail.current?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
@@ -159,22 +155,11 @@ export function BattleActionBar({
     const rageReason = view.rageReason;
     const ragePartner = view.ragePartner;
     const fusionGuide = view.fusionGuide;
-    const switches = actions.filter((action): action is Extract<Action, { type: 'SWITCH' }> => action.type === 'SWITCH');
     // The core's forced-replacement phase consumes neither an attack nor a round.
     // Never label that transition as a normal attack that appears to do nothing.
+    // 主戰倒下：接替走畫面最下方的固定選卡列（BattleDock），這裡只提示，不再另開後備清單。
     if (active.defeated) return <div className={styles.compactActions}>
-      <p className={styles.activeHint} role="status">主戰已倒下——請點下方後備卡接替上場；這一步不出招。</p>
-      <div className={styles.reserveCards} role="group" aria-label="選擇接替主戰的後備" data-swap-guide>
-        {switches.map(action => {
-          const fighter = match.player.team[action.index];
-          const art = cards.find(card => card.id === fighter.cardId);
-          return <button type="button" key={fighter.instanceId} className={styles.reserveCard} disabled={busy}
-            aria-label={`換上 ${fighter.name}`} onClick={() => { setCommandView(null); onAction(action); }}>
-            {art && <BeastThumb id={art.id} thumbnail={art.thumbnail} alt={art.name} draggable={false} />}
-            <strong>{fighter.name}</strong><span>點此換上・{fighter.hp}/{fighter.maxHp}</span>
-          </button>;
-        })}
-      </div>
+      <p className={styles.activeHint} role="status" data-swap-guide>主戰已倒下——請點最下方的卡片接替上場；這一步不出招。</p>
     </div>;
     if (match.opponent.team[match.opponent.active].defeated && attack) return <div className={styles.compactActions}>
       <p className={styles.activeHint} role="status">易經已倒下，接下來由後備上場；這一步不出招。</p>
@@ -184,7 +169,6 @@ export function BattleActionBar({
       <div className={styles.compactActions}>
         <p className={styles.activeHint} role="status" data-next-action aria-label={busy ? '出招中' : active.stunnedTurns > 0 ? '受控' : `氣 ${match.player.energy}`}>
           {busy ? '▶' : active.stunnedTurns > 0 ? '⊘' : `⚡${match.player.energy}`}{!busy && special && !active.stunnedTurns ? ' · ✦' : ''}
-          {!busy && switches.length ? ' · 可換卡' : ''}
         </p>
         <div className={styles.primaryActions} role="group" aria-label="本回合指令">
           {!attackOnCard && <button type="button" className={styles.actionButton} disabled={busy || !attack}
@@ -198,11 +182,6 @@ export function BattleActionBar({
             <strong>技能</strong>
             <small>{active.cooldown > 0 ? `冷${active.cooldown}` : `⚡${skill.cost}`}</small>
           </button>
-          <button type="button" className={`${styles.actionButton} ${styles.swapButton}`} disabled={busy} aria-label="換卡" aria-expanded={commandView === 'swap' || active.defeated} data-swap-entry onClick={() => { onBrowse?.(); setCommandView(commandView === 'swap' ? null : 'swap'); }}>
-            <span aria-hidden="true">⇌</span>
-            <strong>換卡</strong>
-            <small>{switches.length ? `${switches.length} 張可換` : '看後備'}</small>
-          </button>
           <button type="button" className={`${styles.actionButton} ${!rage ? styles.rageUnavailable : ''}`} disabled={busy}
             aria-label={rage && ragePartner ? `暴怒合體・${fusionGuide.current.skillName}，${ragePartner.name}支援主戰，按一下出招` : `暴怒合體，${rageReason ?? '查看條件'}，按一下查看引導`}
             aria-expanded={!rage ? commandView === 'rage' : undefined}
@@ -215,24 +194,6 @@ export function BattleActionBar({
           <strong>{fusionGuide.headline}</strong>
           {fusionGuide.steps.map(step => <span key={step.key}>{step.done ? '✓' : '○'} {step.label} {step.value}：{step.hint}</span>)}
         </div>}
-        {(commandView === 'swap' || active.defeated) && <>
-        {!switches.length && <p className={styles.activeHint}>目前沒有可換上的後備，可使用仍可用的攻擊或技能。</p>}
-        <div className={styles.reserveCards} role="group" aria-label="點戰鬥卡換上場" data-swap-guide>
-          {match.player.team.map((fighter, index) => {
-            const action = switches.find(candidate => candidate.index === index);
-            const art = cards.find(card => card.id === fighter.cardId);
-            return (
-              <button key={fighter.instanceId} type="button" disabled={busy || !action}
-                className={styles.reserveCard} aria-label={`${index === match.player.active ? '目前主戰' : fighter.defeated ? '已倒下' : '換上'} ${fighter.name}`}
-                onClick={() => { if (action) { setCommandView(null); onAction(action); } }}>
-                {art && <BeastThumb id={art.id} thumbnail={art.thumbnail} alt={art.name} draggable={false} />}
-                <strong>{fighter.name}</strong>
-                <span>{index === match.player.active ? '主戰' : fighter.defeated ? '已倒下' : '點卡換上'}・{fighter.hp}/{fighter.maxHp}</span>
-              </button>
-            );
-          })}
-        </div>
-        </>}
         </div>
       </div>
     );
@@ -280,7 +241,7 @@ export function BattleLog({ match }: { match: Match }) {
 }
 
 const BattlePanel = memo(function BattlePanel({
-  match, view, onAction, busy, compact, swapOnSide, cards, relaxed, onBrowse, showLog = true,
+  match, view, onAction, busy, compact, relaxed, onBrowse, showLog = true,
 }: {
   match: Match;
   view?: BattleView | null;
@@ -289,7 +250,7 @@ const BattlePanel = memo(function BattlePanel({
   compact?: boolean;
   showLog?: boolean;
   attackOnCard?: boolean;
-  swapOnSide?: boolean;
+  /** 換卡改由畫面最下方的 BattleDock 負責；舊呼叫端仍可能傳 cards，這裡收下不用。 */
   cards?: BattlefieldCardArt[];
   relaxed?: boolean;
   onBrowse?: () => void;
@@ -434,7 +395,7 @@ const BattlePanel = memo(function BattlePanel({
           </small>
         </p>
       ) : (
-        <BattleActionBar match={match} view={view} onAction={onAction} busy={busy} compact={compact} attackOnCard={false} swapOnSide={swapOnSide} cards={cards} relaxed={relaxed} onBrowse={onBrowse} />
+        <BattleActionBar match={match} view={view} onAction={onAction} busy={busy} compact={compact} attackOnCard={false} relaxed={relaxed} />
       )}
 
       {showLog && (compact ? <details className={styles.battleDetails} onToggle={event => { if (event.currentTarget.open) onBrowse?.(); }}><summary>本回合戰報{match.log.length ? `・${match.log.length} 則` : ''}</summary><BattleLog match={match} /></details> : <BattleLog match={match} />)}

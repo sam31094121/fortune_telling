@@ -1,0 +1,62 @@
+/* 戰鬥畫面最下方固定選卡列：帶入幾張就排幾張，列永遠在，不隨動畫消失。 */
+.dock {
+  /* 永遠在畫面最下方，不隨捲動或動畫消失；z-index 低於對話框 */
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(100%, 640px);
+  box-sizing: border-box;
+  z-index: 9;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 6px;
+  align-items: stretch;
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid #3b4e69;
+  border-radius: 12px 12px 0 0;
+  background: #0b1424;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
+}
+.card {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  justify-items: center;
+  gap: 2px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 4px 2px;
+  border: 1px solid #4f6a86;
+  border-radius: 10px;
+  color: #dbeafe;
+  background: #12233a;
+  touch-action: manipulation;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+.card > span:first-child { width: min(100%, 46px); }
+.card strong {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.card > span:last-child { font-size: 11px; line-height: 1.2; color: #a9bfd8; }
+/* 主戰：金色外圈 */
+.card[data-active='true'] { border-color: #fde68a; box-shadow: 0 0 0 2px rgba(253, 230, 138, 0.55); background: #1d2f49; }
+.card[data-defeated='true'] { opacity: 0.5; filter: grayscale(0.85); }
+.card:disabled:not([data-active='true']):not([data-defeated='true']) { opacity: 0.72; }
+.card:not(:disabled):active { transform: scale(0.97); }
+.card:focus-visible { outline: 2px solid #7dd3fc; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .card, .card:not(:disabled):active { transition: none; transform: none; }
+}
+/* 橫放矮螢幕：縮小卡面，只留名字與血量 */
+@media (orientation: landscape) and (max-height: 540px) {
+  .dock { width: min(100%, 1100px); }
+  .card > span:first-child { width: min(100%, 30px); }
+}
