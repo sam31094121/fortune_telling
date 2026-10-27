@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const ts = require('typescript');
+const { scanGoldWording } = require('./helpers/asura-gold-contract.cjs');
 
 const root = path.resolve(__dirname, '..');
 const base = process.env.ASURA_BASE ?? 'http://localhost:8888';
@@ -66,7 +67,8 @@ assert.deepEqual(Object.values(ASURA_TIME_TERMS).map((t) => t.unit), ['å¹´', 'æœ
     const res = await fetch(`${base}/api/ghost-asura/reading`, { method: 'POST', headers: { ...(process.env.ASURA_COOKIE ? { Cookie: process.env.ASURA_COOKIE } : {}), 'Content-Type': 'application/json', Origin: base, 'X-Forwarded-For': '10.77.1.9' }, body: JSON.stringify({ ...body, calendarType: 'solar', timezone: 'Asia/Taipei' }) });
     const json = await res.json();
     assert(json?.data?.contract, `reading ok ${JSON.stringify(body)}`);
-    const { audit, ...shown } = json.data;
+    const { audit, goldWording, ...shown } = json.data;
+    problems.push(...scanGoldWording(goldWording, body, scan));
     const strings = [];
     const walk = (v, k) => { if (['key', 'id', 'contract', 'tone', 'glowIds'].includes(k)) return; if (typeof v === 'string') strings.push(v); else if (Array.isArray(v)) v.forEach((x) => walk(x, k)); else if (v && typeof v === 'object') for (const [kk, vv] of Object.entries(v)) walk(vv, kk); };
     walk(shown, '');

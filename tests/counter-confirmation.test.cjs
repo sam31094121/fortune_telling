@@ -44,9 +44,10 @@ async function run(file, outcome, buttonIndex = 0) {
     document: { cookie: '' }, navigator: { sendBeacon: () => outcome === 'queued' },
     crypto: { randomUUID: () => 'a1111111-1111-4111-8111-111111111111' },
     AbortController, Blob,
-    fetch: async () => {
+    fetch: async (url) => {
+      assert.ok(['/api/home-trust/agree', '/api/home-trust/disagree'].includes(url), 'feedback must use the current confirmed-count endpoint');
       if (outcome === 'failed' || outcome === 'queued') throw new Error('offline');
-      return { ok: true, json: async () => ({ ok: true, totalCount: 500, agreeCount: 800, disagreeCount: 90, viewCount: 110500, applied: true, didLike: true, didSend: true }) };
+      return { ok: true, json: async () => ({ ok: true, agreeCount: 800, disagreeCount: 90, viewCount: 110500, applied: true, didLike: true, didSend: true }) };
     },
   });
   const tree = module.exports.default({});
@@ -76,8 +77,9 @@ async function run(file, outcome, buttonIndex = 0) {
   const failedLike = await run('components/AiLikeFeedback.tsx', 'failed');
   assert.equal(failedLike.states[0], failedLike.before[0]);
   assert.equal(failedLike.states[1], false);
-  // 首頁信任區讀新 API 的 agreeCount（地板 714，所以用 800 驗證）；AiLikeFeedback 仍讀 totalCount。
-  for (const [file, expected] of [['components/AiTrustFeedback.tsx', 800], ['components/AiLikeFeedback.tsx', 500]]) {
+  // Both real components now use /api/home-trust/agree and its agreeCount.
+  // Omit the obsolete totalCount field so consuming it cannot pass unnoticed.
+  for (const [file, expected] of [['components/AiTrustFeedback.tsx', 800], ['components/AiLikeFeedback.tsx', 800]]) {
     const result = await run(file, 'confirmed');
     assert.equal(result.states[0], expected, 'display the acknowledged server total, without adding another vote');
   }

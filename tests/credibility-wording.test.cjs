@@ -8,7 +8,7 @@
  */
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const { execSync } = require('node:child_process');
+const { listSourceFiles } = require('./helpers/source-file-inventory.cjs');
 // 先由 npm run test:credibility-wording 以 tsc 編譯到 .credibility-test-build（含三份來源登記 JSON）。
 const B = '../.credibility-test-build/lib/';
 const { credibilityReport } = require(B + 'credibility-wording');
@@ -56,8 +56,8 @@ check('句子不得比狀態說得更滿：只有 VERIFIED 能說「已通過交
   for (const text of Object.values(report.phrases)) assert.ok(!OVERCLAIM.test(affirmative(text)), `核准句含誇大：${text}`);
 });
 
-const frontendFiles = execSync('git ls-files app components', { encoding: 'utf8' })
-  .split('\n').filter((f) => /\.(tsx?|jsx?)$/.test(f) && !f.startsWith('app/api/') && fs.existsSync(f));
+const frontendFiles = listSourceFiles(['app', 'components'], /\.(tsx?|jsx?)$/)
+  .filter((f) => !f.startsWith('app/api/') && fs.existsSync(f));
 
 check('前端不得出現誇大的大數據／準確度說法', () => {
   const hits = [];

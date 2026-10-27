@@ -6,6 +6,9 @@
  * （lib/nine-grid-numbers.ts，解說全部來自技能檔案），這裡只負責排版、配色、連線畫面與選取狀態，不組任何結論句子。
  */
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react';
+import dynamic from 'next/dynamic';
+// Keep the new card's scoped CSS available when its lazy module mounts or hot reloads.
+import './WesternLifeCode.module.css';
 import type { NineGridStudy } from '@/lib/nine-grid-numbers';
 import LuoshuCard from './LuoshuCard';
 import FiveStarLink, { ELEMENT_GEM } from './FiveStarLink';
@@ -18,6 +21,7 @@ import { usePlaybackFinish } from './usePlaybackFinish';
 import { PlaybackControls, PlaybackResult, PlaybackSource } from './PlaybackPresentation';
 import { usePlaybackViewport } from './usePlaybackViewport';
 import motion from './LuoshuMystic.module.css';
+const WesternLifeCode = dynamic(() => import('./WesternLifeCode'), { loading: () => <p role="status" className="p-4 text-center text-violet-100">正在載入西方生命密碼…</p> });
 
 /** 「來源」小標：預設只露一個小字，點開才顯示這一則出處（一次一則）；可點範圍向外擴到 44px */
 function SourceTip({ k, open, onToggle }: { k: NineGridSourceKey; open: boolean; onToggle: (k: NineGridSourceKey) => void }) {
@@ -71,13 +75,13 @@ function cellStyle(study: NineGridStudy, cell: { digit: number; count: number })
   };
 }
 
-export default function NineGridCard({ study }: { study: NineGridStudy }) {
-  return <NineGridResult key={study?.input?.birthDate} study={study} />;
+export default function NineGridCard({ study, birthDate }: { study: NineGridStudy; birthDate?: string }) {
+  return <NineGridResult key={study?.input?.birthDate} study={study} birthDate={birthDate ?? study.input.birthDate} />;
 }
 
-function NineGridResult({ study }: { study: NineGridStudy }) {
+function NineGridResult({ study, birthDate }: { study: NineGridStudy; birthDate: string }) {
   const uid = useId().replace(/:/g, '');
-  const [edition, setEdition] = useState<'luoshu' | 'shengming'>('luoshu');
+  const [edition, setEdition] = useState<'luoshu' | 'shengming' | 'western'>('luoshu');
   const [showControl, setShowControl] = useState(false);
   const [selection, setSelection] = useState<Selection | null>(null);
   // B：靈動數字＋姓名學（姓名五格由後端姓名學引擎算出；前端只播放後端給的落點與亮線）
@@ -153,7 +157,7 @@ function NineGridResult({ study }: { study: NineGridStudy }) {
   const flying = overlay && nameDropping ? overlay.drop[nameStep] : undefined;
   const noteLine = lineNote ? study.lines.find((line) => line.id === lineNote) : undefined;
 
-  const tabs = [{ id: 'luoshu' as const, label: '洛書九宮・古籍版' }, { id: 'shengming' as const, label: '靈動數字＋姓名學' }];
+  const tabs = [{ id: 'luoshu' as const, label: '洛書九宮・古籍版' }, { id: 'shengming' as const, label: '靈動數字＋姓名學' }, { id: 'western' as const, label: '西方生命密碼' }];
   const tabBar = (
     <div className="mb-3 flex flex-wrap justify-center gap-2" role="tablist" aria-label="版本">
       {tabs.map((tab) => (
@@ -161,6 +165,7 @@ function NineGridResult({ study }: { study: NineGridStudy }) {
       ))}
     </div>
   );
+  if (edition === 'western') return <div>{tabBar}<WesternLifeCode birthDate={birthDate} /></div>;
   if (edition === 'luoshu' && study.luoshu) return <div>{tabBar}<LuoshuCard luoshu={study.luoshu} birthDigits={study.input.digits} /></div>;
 
   return (

@@ -7,7 +7,7 @@
  */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { execSync } from 'node:child_process';
+import { listSourceFiles } from './helpers/source-file-inventory.cjs';
 import { calculateTrueSolarTime } from '../lib/true-solar-time.ts';
 
 const CASES = [
@@ -70,7 +70,7 @@ check('台北 1974-07-02 03:30 真太陽時修正落在合理範圍（經度 +6.
 });
 
 check('專案不再依賴已下架的 @ziweijs/core；曆法套件改為直接相依', () => {
-  const tracked = execSync('git ls-files lib app components', { encoding: 'utf8' }).split('\n').filter((f) => /\.(ts|tsx|js|mjs)$/.test(f));
+  const tracked = listSourceFiles(['lib', 'app', 'components'], /\.(ts|tsx|js|mjs)$/);
   // 只擋真正的匯入；搬入檔保留原套件名稱與 MIT 聲明屬必要出處，不算相依。
   const importsPackage = /(from\s+['"]@ziweijs\/core['"]|require\(\s*['"]@ziweijs\/core['"]\s*\)|import\(\s*['"]@ziweijs\/core['"]\s*\))/;
   const offenders = tracked.filter((f) => fs.existsSync(f) && importsPackage.test(fs.readFileSync(f, 'utf8')));

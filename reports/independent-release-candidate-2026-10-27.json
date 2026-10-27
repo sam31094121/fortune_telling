@@ -1,0 +1,573 @@
+{
+  "date": "2026-10-27",
+  "base": "6b98bdddaa11a72d5772767f4ef6c1ed316ee9fe",
+  "candidateDirectory": "C:\\Users\\DRAGON\\AppData\\Local\\Temp\\life-release-review-P6Dpyo\\candidate",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "2646af8b7b448b28ca0a82046c34c4da3a02f097eff2b8057636e56e70729b67",
+      "matchesWorkspace": true
+    },
+    {
+      "path": ".cursor/rules/backend-owns-computation.mdc",
+      "sha256": "7d0d3ef758dc20f8ab1b7e26fd5fdb36b97caee41241d2e7c77309769caf5a47",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "app/nine-grid/page.tsx",
+      "sha256": "635197331d68c2f74b72bfbcdb87d750f91de8c34a4a725fa5105f9ceff5dee7",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "components/nine-grid/NineGridCard.tsx",
+      "sha256": "9627322817bbe70d1e2bb787f0036691178d09c3562ca7d6fbf4007fcf96254a",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "components/nine-grid/WesternLifeCode.tsx",
+      "sha256": "c990ddb9237e9d9549b5be90d557a1bbdeabec62598e828ac31fc01217688a9c",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "components/nine-grid/WesternLifeCode.module.css",
+      "sha256": "eb589533f7d923c1cb17504edf5e8cd7a6cab9e6d742ead34eae5bd2a2238c37",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "app/api/western-life-code/route.ts",
+      "sha256": "8524d46362ae292e1ccd3b835796a165efe07bc5f30aa72d93ef31c180ce1e19",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "lib/western-life-code/engine.ts",
+      "sha256": "8848a2ebdbc6dd654261b56382076f82b55b404a3e6b2a6fc87ce4c650a28190",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "docs/技能戰鬥檔案/README.md",
+      "sha256": "13802cf5ab3e613e61aeb563106278aa0b457bafff0437dbabee64960f505664",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "tests/western-life-code.test.cjs",
+      "sha256": "e41facfdbe64a8355fc14efa7669058c2de8911cf569b8b90b471601034881fa",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "tests/western-life-code-api.test.cjs",
+      "sha256": "90a826efde9788347475c98785ca606cbe9a166d8f4cc7879e8ebb74f6f4dce1",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "tests/western-life-code-lifecycle.test.cjs",
+      "sha256": "bfc0d3f8cf2c3f27e0764227237b44b2530ebfcd1bb8d3974506112beee41a60",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "docs/技能戰鬥檔案/西方生命密碼/主數解說.json",
+      "sha256": "deb388599baef905fad8273d6a46fe559260af13ce8e4f51ef7c9a08be4050b5",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "docs/技能戰鬥檔案/西方生命密碼/使用者參考規格-V1.txt",
+      "sha256": "586da7cfd0e4fbf8fc4262990b65cb456b831611574800b8b9d03606cf207535",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "docs/技能戰鬥檔案/西方生命密碼/來源登記.json",
+      "sha256": "6c6faa90090ead68835709c8793f26a533e85803baf2832b707f20bbd65ecfdb",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "docs/技能戰鬥檔案/西方生命密碼/新人檔案.md",
+      "sha256": "bf2e6031b8168b21b5b1db60b6350dce6a7c7f760d16981c48c62b46ea7609c4",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "docs/技能戰鬥檔案/西方生命密碼/西方生命密碼.json",
+      "sha256": "7eba41395ce5708f5041debd8e150ea6ba8bd15fec3bc1e79313dec286fb3b90",
+      "matchesWorkspace": true
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "aa4a52b43f98e75bccf14a7035d4a9767129e1230ba199c9020f7ad5996819f4",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "app/api/visitor/record/route.ts",
+      "sha256": "5ac387816987a28feb59672b73aa041e39ee347bd3cbc4bdd30f969ede2fcb0a",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "components/FeatureVisitorCounter.tsx",
+      "sha256": "f647b6de8d2aaf7504cd693667e3041c0a294a0564e243da6cd9fd047a2871c9",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "lib/local-visitor-counter.ts",
+      "sha256": "31cabe3a724acbe9b4011fafe5ac1cd2f009bdbdd2e65046bb7d25a86bd27443",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "supabase/migrations/20261027094105_restore_active_feature_visitor_storage.sql",
+      "sha256": "363c6c7457dc0f31c82e7c38bfd2e133fe5f4c9386f023d1ee3277da409856da",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "tests/visitor-api-integrity.test.cjs",
+      "sha256": "415cd43e34a90584b24bb7c8bc36f6c6c9fd087bc8e112446c735073e7592eb1",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "tests/local-visitor-integrity.test.cjs",
+      "sha256": "b012948515f6973459cbc53f40939f1c83eecad5d9c37d09dd9acf92282eafc9",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "tests/counter-confirmation.test.cjs",
+      "sha256": "b872ea56eb1aca4ca34a93cf5f3b500d50248629eecce7ba3d4ee9629c51c8df",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "tests/helpers/asura-gold-contract.cjs",
+      "sha256": "e2b97125b7d6e641bc3ff6829faa2d9141ba930d1a144bb2dac48f88cb7f378b",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "tests/asura-gold-contract-boundary.test.cjs",
+      "sha256": "2a0b54bc6707b3539b2fba3253d0d71f86ee474dc688a71eefaf018d58ef8ec1",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "tests/ghost-asura-nature-api-regression.test.cjs",
+      "sha256": "97fc0e754c5195d3118e28bb9b6983045a8b1a8da23ba28d0ed14e2b9ff7f2ae",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "tests/ghost-asura-skill-forbidden-terms.test.cjs",
+      "sha256": "724acc524e62dedcb2eb3f190c5d7a7f8fa06711e394d1e51c9665e71fb5eba8",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "tests/helpers/source-file-inventory.cjs",
+      "sha256": "cbc0395421521c9a031ab126dcde6c9b8dffd5f4edb679917a9275d55338a582",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "tests/source-file-inventory.test.cjs",
+      "sha256": "9c4781a95c23e70918cea43a996ee0944a50ebe4723a22597b2a3c0ce576e033",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "tests/true-solar-time.test.mjs",
+      "sha256": "84406abb29406615c9769c5b68c53c084e4f1741ff181a65aec0c1492f8f0f1c",
+      "matchesWorkspace": true
+    },
+    {
+      "path": "tests/credibility-wording.test.cjs",
+      "sha256": "2afd23eee0ff9f94af7e4f1213ce7f04d29bfa47ea55ad60273626a5eab273cb",
+      "matchesWorkspace": true
+    }
+  ],
+  "privateAuditInputs": [
+    "data/visitor-counters.json (local copy only; excluded from publish)"
+  ],
+  "productionBuild": "passed",
+  "productionApi": "passed",
+  "workspacePrePushE2e": "passed; 38 Edge checks and 4 live suites",
+  "wholeHook": "All 42 npm scripts executed in candidate; 40 passed initially, 2 archive inventory defects repaired and rerun passed. Production build previously passed; no git push or skip gate.",
+  "committed": false,
+  "pushed": false,
+  "candidatePrePushE2e": "passed; 38 Edge checks and 4 live suites",
+  "hookScripts": [
+    {
+      "name": "test:three-core",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 1496,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-three-core.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:three-in-one",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 1495,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-three-in-one.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:bazi-contract",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 1613,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-bazi-contract.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:taiji-ios",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 335,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-taiji-ios.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:ghost-asura-skill",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 1175,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-ghost-asura-skill.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:ghost-asura-customer-output",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 2085,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-ghost-asura-customer-output.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:ghost-asura-three-core-voice",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 45205,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-ghost-asura-three-core-voice.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:ghost-asura-life-stages",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 1242,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-ghost-asura-life-stages.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:ghost-asura-seal-voice",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 1160,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-ghost-asura-seal-voice.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:ghost-asura-gold-wording",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 4608,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-ghost-asura-gold-wording.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:ghost-asura-card-toggle",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 199,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-ghost-asura-card-toggle.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:beast-game",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 1919,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-beast-game.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:beast-ritual",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 236,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-beast-ritual.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:beast-clip",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 214,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-beast-clip.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:beast-voice",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 406,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-beast-voice.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:beast-battlefield",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 1766,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-beast-battlefield.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:beast-bridge",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 1853,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-beast-bridge.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:beast-interactive:full",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 14636,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-beast-interactive-full.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:beast-difficulty",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 7290,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-beast-difficulty.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:iching-sources",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 257,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-iching-sources.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:ziwei-quanshu",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 16009,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-ziwei-quanshu.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:ziwei-wording-authority",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 1392,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-ziwei-wording-authority.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:mobile-zoom-pan",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 283,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-mobile-zoom-pan.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:locked-cards",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 269,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-locked-cards.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:share-version",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 689,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-share-version.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:beast-backend-only",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 1970,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-beast-backend-only.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:beast-battle-dock",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 847,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-beast-battle-dock.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:beast-rig-body",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 712,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-beast-rig-body.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:true-solar-time",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 258,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-true-solar-time.log",
+      "initialExitCode": 1,
+      "retried": true,
+      "initialFailure": "git ls-files cannot run in source archive without .git",
+      "repair": "bounded filesystem source inventory; same assertions; rerun passed"
+    },
+    {
+      "name": "test:credibility-wording",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 1363,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-credibility-wording.log",
+      "initialExitCode": 1,
+      "retried": true,
+      "initialFailure": "git ls-files cannot run in source archive without .git",
+      "repair": "bounded filesystem source inventory; same assertions; rerun passed"
+    },
+    {
+      "name": "test:soul-match",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 2147,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-soul-match.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:nameology-grids",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 872,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-nameology-grids.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:nine-grid",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 904,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-nine-grid.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:model-lab-lattice",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 363,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-model-lab-lattice.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:taiji-square-cavity",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 468,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-taiji-square-cavity.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:model-lab-projection",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 338,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-model-lab-projection.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:model-lab-multiverse",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 404,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-model-lab-multiverse.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:taiji-4d-cells",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 436,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-taiji-4d-cells.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:taiji-contact-ribs",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 584,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-taiji-contact-ribs.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:model-lab-equal-edge",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 339,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-model-lab-equal-edge.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:taiji-hollow-squares",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 461,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-taiji-hollow-squares.log",
+      "initialExitCode": 0,
+      "retried": false
+    },
+    {
+      "name": "test:model-lab-4d-audit",
+      "exitCode": 0,
+      "error": null,
+      "elapsedMs": 458,
+      "log": "C:\\Users\\DRAGON\\Desktop\\命理\\.tmp\\candidate-hook-logs\\test-model-lab-4d-audit.log",
+      "initialExitCode": 0,
+      "retried": false
+    }
+  ],
+  "sourceInventory": {
+    "oldTrackedSources": 762,
+    "candidateScannedSources": 765,
+    "missingOldSources": []
+  },
+  "inventoryNegativeControl": "passed",
+  "candidateProductionService": "8891 stopped; 8888 retained"
+}

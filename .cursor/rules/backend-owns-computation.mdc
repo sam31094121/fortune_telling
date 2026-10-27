@@ -5,6 +5,8 @@ alwaysApply: true
 
 # 後端運算、前端只顯示（2026-10-23 backend-only，業主確認）
 
+2026-10-26限定例外：業主批准九宮格頁新增獨立「西方生命密碼」後端與技能檔，不變更既有五種方式的名稱、順序或算法；仍遵守後端運算、前端顯示及禁止AI生成。只限此模組，詳見 `docs/技能戰鬥檔案/西方生命密碼/新人檔案.md`。
+
 > Backend owns all computation; frontend is display-only; no AI-generated or placeholder content.
 
 1. **後端負責所有運算**，包含十二宮解盤邏輯與來源查詢（出處、條文、連結）。Backend owns all computation, including 12-palace reading logic and source lookup.

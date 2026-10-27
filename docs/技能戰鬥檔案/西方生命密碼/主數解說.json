@@ -1,0 +1,130 @@
+{
+  "version": "1.0.0",
+  "reviewedAt": "2026-10-27",
+  "scope": "僅生命主數1至9的文化寓意；非人格測量，不移植其他命盤斷語。",
+  "toneSource": "鬼魅阿修羅/實戰話術範例.md：短開場、兩面並陳、具體小動作；動作為本站依主題整理的自我反思練習。",
+  "boundary": "這是 Decoz 流派的數字文化解讀，供自我反思，不是人格定論或命運預言。",
+  "labels": {
+    "meaning": "這個數字代表什麼",
+    "strength": "可以發揮的力量",
+    "challenge": "要看清的課題",
+    "action": "把力量用在這一步",
+    "evidence": "你的數字怎麼來",
+    "sources": "想看解說依據",
+    "next": "接著看優勢、課題與提醒",
+    "nextChallenge": "接著看要留意的課題 →",
+    "nextAction": "最後，看你的行動提醒 →",
+    "back": "回到主數解說",
+    "note": "含義依來源整理；行動提醒為本站的自我反思練習。"
+  },
+  "entries": [
+    {
+      "number": 1,
+      "title": "開創與自主",
+      "declaration": "先定方向，再踏出你的第一步。",
+      "meaning": "1 的核心是自主、開創與帶頭行動。它談的是如何作出自己的決定，不代表排名第一。",
+      "strength": "敢起頭、能定方向，願意為選擇負責。把獨立用在解題，開創才有力量。",
+      "challenge": "急著主導時，容易忽略別人的節奏。堅定要配合傾聽，別讓自信變成一意孤行。",
+      "action": "挑一件你能負責的小事，說清目標，先做第一步，也聽一次不同意見。",
+      "sourceId": "DECOZ-LIFE-1",
+      "sourceLocation": "Life Path Number 1 主文：主題、優勢與課題",
+      "reviewStatus": "SOURCE_CHECKED"
+    },
+    {
+      "number": 2,
+      "title": "協調與合作",
+      "declaration": "聽懂別人，也要站穩自己的位置。",
+      "meaning": "2 的核心是合作、敏銳與協調。重點在於讓不同立場能一起前進。",
+      "strength": "能看見細節與感受，耐心溝通，讓僵住的對話有轉圜空間。",
+      "challenge": "太在意評價，可能把自己的需求收起來。和氣需要界線，合作也需要你的聲音。",
+      "action": "下一次協商，先說出一個共同目標，再清楚說明自己需要什麼。",
+      "sourceId": "DECOZ-LIFE-2",
+      "sourceLocation": "Life Path Number 2 主文：主題、優勢與課題",
+      "reviewStatus": "SOURCE_CHECKED"
+    },
+    {
+      "number": 3,
+      "title": "表達與創造",
+      "declaration": "把想法說出來，也把它做出來。",
+      "meaning": "3 的核心是表達、創意與交流。想法需要出口，才有機會成為作品。",
+      "strength": "用文字、聲音或創作把抽象想法傳達出去，帶動氣氛與新的可能。",
+      "challenge": "靈感很多，專注卻可能分散。只停在熱鬧與談論，才華就難以累積。",
+      "action": "選一個想法，留一段不被打斷的時間，完成一個可以交付的小成果。",
+      "sourceId": "DECOZ-LIFE-3",
+      "sourceLocation": "Life Path Number 3 主文：主題、優勢與課題",
+      "reviewStatus": "SOURCE_CHECKED"
+    },
+    {
+      "number": 4,
+      "title": "建構與秩序",
+      "declaration": "把地基打穩，成果才站得住。",
+      "meaning": "4 的核心是秩序、實作與持續建構。一步一步完成，比急著抄近路更切合這個主題。",
+      "strength": "願意安排步驟、照顧細節，靠紀律與耐性把事情做紮實。",
+      "challenge": "規則守得太緊，可能錯過必要調整。穩定需要方法，也要容得下新證據。",
+      "action": "把眼前任務拆成三步，先完成第一步；遇到新情況，再調整下一步。",
+      "sourceId": "DECOZ-LIFE-4",
+      "sourceLocation": "Life Path Number 4 主文：主題、優勢與課題",
+      "reviewStatus": "SOURCE_CHECKED"
+    },
+    {
+      "number": 5,
+      "title": "自由與探索",
+      "declaration": "路可以換，答應的事要落地。",
+      "meaning": "5 的核心是自由、變化與體驗。透過接觸新事物，擴展看事情的方法。",
+      "strength": "好奇、適應與交流，是探索新環境時可以運用的力量。",
+      "challenge": "一有新鮮事就轉向，容易留下未完成的承諾。自由需要專注與節制來支撐。",
+      "action": "今天留一個探索空間，也選定一件開始過的事，把它收尾。",
+      "sourceId": "DECOZ-LIFE-5",
+      "sourceLocation": "Life Path Number 5 主文：主題、優勢與課題",
+      "reviewStatus": "SOURCE_CHECKED"
+    },
+    {
+      "number": 6,
+      "title": "照顧與責任",
+      "declaration": "願意守護，也要分清誰的責任。",
+      "meaning": "6 的核心是照顧、責任與和諧。關心他人時，也要讓對方保有自己的選擇。",
+      "strength": "願意支持、維繫關係，讓需要幫助的人有穩定的依靠。",
+      "challenge": "把所有擔子接過來，照顧可能變成干預，也可能壓垮自己。幫忙要留有界線。",
+      "action": "伸手幫忙前，先問對方需要哪一種協助，再確認自己能做到多少。",
+      "sourceId": "DECOZ-LIFE-6",
+      "sourceLocation": "Life Path Number 6 主文：主題、優勢與課題",
+      "reviewStatus": "SOURCE_CHECKED"
+    },
+    {
+      "number": 7,
+      "title": "求知與洞察",
+      "declaration": "把問題看深，也把答案帶回生活。",
+      "meaning": "7 的核心是求知、分析與內在探索。重點是追問原因，不急著接受表面答案。",
+      "strength": "能專注研究、整理線索，把零散資訊連成較清楚的理解。",
+      "challenge": "思考需要獨處，但過度退開可能阻斷交流。懷疑要用來查證，不必用來推開所有人。",
+      "action": "挑一個疑問，找一項可核對的證據，再把你的理解講給可信任的人聽。",
+      "sourceId": "DECOZ-LIFE-7",
+      "sourceLocation": "Life Path Number 7 主文：主題、優勢與課題",
+      "reviewStatus": "SOURCE_CHECKED"
+    },
+    {
+      "number": 8,
+      "title": "管理與承擔",
+      "declaration": "力量用在哪裡，責任就跟到哪裡。",
+      "meaning": "8 的核心是管理、目標與資源運用。這裡談影響力的使用，不代表財富保證。",
+      "strength": "把目標、資源與行動組織起來，讓事情有方向，也有人負責。",
+      "challenge": "過度追逐地位或控制，容易忽略他人的需要。影響力要配合公平與責任。",
+      "action": "為一項目標寫下資源、責任與完成條件，再確認安排是否公平可行。",
+      "sourceId": "DECOZ-LIFE-8",
+      "sourceLocation": "Life Path Number 8 主文：主題、優勢與課題",
+      "reviewStatus": "SOURCE_CHECKED"
+    },
+    {
+      "number": 9,
+      "title": "關懷與大局",
+      "declaration": "看得見大局，也要接得住現實。",
+      "meaning": "9 的核心是關懷、理想與寬廣視野。把眼光放到個人之外，看見共同需要。",
+      "strength": "能容納不同背景，願意為較大的目標付出，促成彼此理解。",
+      "challenge": "理想過高，可能對現實反覆失望。付出不必交換認同，也要接受能力與事情的界限。",
+      "action": "挑一件你在乎的小事，在能力內完成一次實際支持，並放下對回報的要求。",
+      "sourceId": "DECOZ-LIFE-9",
+      "sourceLocation": "Life Path Number 9 主文：主題、優勢與課題",
+      "reviewStatus": "SOURCE_CHECKED"
+    }
+  ]
+}

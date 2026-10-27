@@ -9,6 +9,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { load } = require('./fixtures/ghost-asura-nature/load.cjs');
 const tl = load('lib/server/ghost-asura-translation-layer.ts');
+const { validateGoldWording } = require('./helpers/asura-gold-contract.cjs');
 
 const base = process.env.ASURA_BASE ?? 'http://localhost:8888';
 const CASES = {
@@ -38,8 +39,10 @@ function compareText(where, before, after) {
     });
     assert.equal(res.status, 200, `${name} status`);
     const now = (await res.json()).data;
-    // 舊欄位全在、可讀、順序不變（只在最後新增 nature）
-    assert.deepEqual(Object.keys(now).filter((k) => k !== 'nature'), Object.keys(fixture), `${name} legacy keys`);
+    // Oct 24 added goldWording after nature; retain every Oct 9 legacy assertion.
+    // The additive field is checked separately, not silently ignored.
+    assert.deepEqual(Object.keys(now).filter((k) => k !== 'nature' && k !== 'goldWording'), Object.keys(fixture), `${name} legacy keys`);
+    validateGoldWording(now.goldWording, input);
     const sameYear = now.audit?.timeAxis?.flowYear === fixture.audit?.timeAxis?.flowYear && now.audit?.timeAxis?.todayTaipei === fixture.audit?.timeAxis?.todayTaipei;
     for (const key of Object.keys(fixture)) {
       if (key === 'sections') continue;
@@ -69,9 +72,12 @@ function compareText(where, before, after) {
     assert.deepEqual(count(JSON.stringify(now.nature), all), [], `${name} nature has terms`);
     assert.deepEqual(count(JSON.stringify(now.sections), tl.ZIWEI_TERMS), [], `${name} sections have ziwei terms`);
     ['natureKey', 'riskKeys', 'evidence', 'refs', 'sourceRefs'].forEach((k) => assert(!JSON.stringify(now).includes(`"${k}"`), `${name} leaks ${k}`));
-    // 整份 JSON：紫微名稱命中不得多於改動前
+    // Legacy payload + nature: no new Ziwei terms. Oct 24 goldWording is an
+    // independently verified additive contract above; its approved basis was
+    // not part of the Oct 9 fixture and cannot be compared as a legacy field.
     const before = Object.fromEntries(count(JSON.stringify(fixture), tl.ZIWEI_TERMS));
-    const after = Object.fromEntries(count(JSON.stringify(now), tl.ZIWEI_TERMS));
+    const { goldWording: verifiedGoldWording, ...legacyWithNature } = now;
+    const after = Object.fromEntries(count(JSON.stringify(legacyWithNature), tl.ZIWEI_TERMS));
     for (const [t, n] of Object.entries(after)) assert(n <= (before[t] ?? 0), `${name} new ziwei term ${t}`);
     summary[name] = { sameYear, nature: now.nature, story: Object.fromEntries(now.sections.map((s) => [s.key, s.story ?? null])), ziweiHitsBefore: before, ziweiHitsAfter: after, natureHits: count(JSON.stringify(now.nature), all).length, sectionsHits: count(JSON.stringify(now.sections), tl.ZIWEI_TERMS).length };
   }

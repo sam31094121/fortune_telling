@@ -62,6 +62,7 @@ push-result.txt
 /data/visitor-counters.backup.json
 /data/visitor-counters.json.tmp
 /data/visitor-counters.backup.json.tmp
+/data/counter-history/
 
 # Local fallback taiji sound preference stats (created when Supabase is not configured).
 /data/taiji-sound-preference.json

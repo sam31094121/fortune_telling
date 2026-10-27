@@ -2,25 +2,25 @@ import 'server-only';
 
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { createHash, randomUUID } from 'node:crypto';
 
 import {
   FEATURE_KEYS,
-  VISITOR_MIN_DISPLAY_COUNT,
   VISITOR_SEED_COUNT,
   type FeatureKey,
 } from '@/lib/visitor-counter';
-import { monotonicCount, visitorFloorFor } from '@/lib/trust-counter-floors';
 import { resolveLocalDataDirectory } from '@/lib/local-data-directory';
 
 const DATA_DIRECTORY = resolveLocalDataDirectory();
 const COUNTERS_FILE = path.join(DATA_DIRECTORY, 'visitor-counters.json');
 const COUNTERS_BACKUP_FILE = path.join(DATA_DIRECTORY, 'visitor-counters.backup.json');
-const COUNTER_AUTO_INCREMENT_INTERVAL_MS = 18_000;
 
 type StoredCounter = {
+  schemaVersion?: 2;
   displayCount: number;
   updatedAt: string;
   visitIds: string[];
+  unverifiedHistoricalCount?: number;
 };
 
 type LocalCounterValue = number | Partial<StoredCounter>;
@@ -33,24 +33,24 @@ function createInitialCounters(now = new Date()): NormalizedCounters {
   return Object.fromEntries(
     Object.values(FEATURE_KEYS).map((featureKey) => [
       featureKey,
-      { displayCount: Math.max(VISITOR_MIN_DISPLAY_COUNT, visitorFloorFor(featureKey)), updatedAt: now.toISOString(), visitIds: [] },
+      { schemaVersion: 2, displayCount: 0, updatedAt: now.toISOString(), visitIds: [] },
     ]),
   ) as unknown as NormalizedCounters;
 }
 
 function normalizeCounterValue(value: LocalCounterValue | undefined, now: Date): StoredCounter {
   if (typeof value === 'number' && Number.isSafeInteger(value) && value >= VISITOR_SEED_COUNT) {
-    return { displayCount: monotonicCount(value, VISITOR_MIN_DISPLAY_COUNT), updatedAt: now.toISOString(), visitIds: [] };
+    return { schemaVersion: 2, displayCount: 0, updatedAt: now.toISOString(), visitIds: [], unverifiedHistoricalCount: value };
   }
 
-  if (!value || typeof value !== 'object') {
-    return { displayCount: VISITOR_MIN_DISPLAY_COUNT, updatedAt: now.toISOString(), visitIds: [] };
-  }
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid counter value');
+  if (value.unverifiedHistoricalCount !== undefined && (!Number.isSafeInteger(value.unverifiedHistoricalCount) || value.unverifiedHistoricalCount < 0)) throw new Error('Invalid historical count');
+  if (value.visitIds !== undefined && (!Array.isArray(value.visitIds) || value.visitIds.some(id => typeof id !== 'string' || !id))) throw new Error('Invalid retained events');
 
   const displayCount = value.displayCount;
   const updatedAt = value.updatedAt;
   const visitIds = Array.isArray(value.visitIds)
-    ? Array.from(new Set(value.visitIds.filter((item): item is string => typeof item === 'string'))).slice(-5000)
+    ? Array.from(new Set(value.visitIds.filter((item): item is string => typeof item === 'string' && item.length > 0)))
     : [];
 
   if (
@@ -67,22 +67,19 @@ function normalizeCounterValue(value: LocalCounterValue | undefined, now: Date):
       就算 visitIds 是空的也會永遠贏——改資料檔沒有用，
       跑著的伺服器會把記憶體裡那個數字寫回去。
 
-      真相是「有幾個人來過」，那是數得出來的。
-      彙總欄位只是快取，不該凌駕它所彙總的東西。
+      留存事件數不是全部歷史真人數；未能核對的累計另存保留。
     */
-    // owner: counts only rise
+    // Historical aggregates stay separately recorded, never counted as events.
     return {
-      displayCount: monotonicCount(displayCount, visitIds.length, VISITOR_MIN_DISPLAY_COUNT),
+      schemaVersion: 2,
+      displayCount: visitIds.length,
+      unverifiedHistoricalCount: Math.max(value.unverifiedHistoricalCount ?? 0, displayCount - visitIds.length, 0),
       updatedAt,
       visitIds,
     };
   }
 
-  return {
-    displayCount: monotonicCount(visitIds.length, VISITOR_MIN_DISPLAY_COUNT),
-    updatedAt: now.toISOString(),
-    visitIds,
-  };
+  throw new Error('Invalid counter value');
 }
 
 function projectCounter(counter: StoredCounter): StoredCounter {
@@ -99,36 +96,57 @@ function projectCounter(counter: StoredCounter): StoredCounter {
   return counter;
 }
 
-async function readCounters({ projectElapsed = true } = {}): Promise<NormalizedCounters> {
+async function readCounters({ projectElapsed = true, allowNew = false, requiredFeature }: { projectElapsed?: boolean; allowNew?: boolean; requiredFeature?: FeatureKey } = {}): Promise<NormalizedCounters> {
+  if (process.env.VERCEL) throw new Error('Persistent visitor storage is unavailable');
   const now = new Date();
   const initial = createInitialCounters(now);
+  let found = false;
+  let unreadable = false;
+  const present = new Set<FeatureKey>();
 
   for (const filePath of [COUNTERS_BACKUP_FILE, COUNTERS_FILE]) {
     try {
       const content = await readFile(filePath, 'utf8');
       const stored = JSON.parse(content) as LocalCounters;
-
-      for (const featureKey of Object.values(FEATURE_KEYS)) {
-        const normalized = normalizeCounterValue(stored[featureKey], now);
+      if (!stored || typeof stored !== 'object' || Array.isArray(stored)) throw new Error('Invalid counter file');
+      const entries = Object.values(FEATURE_KEYS).filter(key => stored[key] !== undefined).map(key => [key, normalizeCounterValue(stored[key], now)] as const);
+      if (!entries.length) throw new Error('Empty counter file');
+      found = true;
+      for (const [featureKey, normalized] of entries) {
+        present.add(featureKey);
         const projected = projectElapsed ? projectCounter(normalized) : normalized;
-        const raised = {
+        const visitIds = [...new Set([...initial[featureKey].visitIds, ...projected.visitIds])];
+        initial[featureKey] = {
           ...projected,
-          displayCount: monotonicCount(projected.displayCount, visitorFloorFor(featureKey)),
+          visitIds,
+          displayCount: visitIds.length,
+          unverifiedHistoricalCount: Math.max(initial[featureKey].unverifiedHistoricalCount ?? 0, projected.unverifiedHistoricalCount ?? 0),
         };
-        if (raised.displayCount > initial[featureKey].displayCount) {
-          initial[featureKey] = raised;
-        }
       }
-    } catch {
-      // Try the next source, then fall back to the minimum live floor.
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') unreadable = true;
     }
   }
 
+  if (!found && (!allowNew || unreadable)) throw new Error('Visitor history is unavailable');
+  if (requiredFeature && !present.has(requiredFeature)) throw new Error('Visitor history is unavailable');
   return initial;
 }
 
 async function persistCounters(counters: NormalizedCounters) {
   await mkdir(DATA_DIRECTORY, { recursive: true });
+  const historyDirectory = path.join(DATA_DIRECTORY, 'counter-history');
+  await mkdir(historyDirectory, { recursive: true });
+  for (const file of [COUNTERS_FILE, COUNTERS_BACKUP_FILE]) {
+    try {
+      const original = await readFile(file);
+      const stored = JSON.parse(original.toString('utf8'));
+      if (Object.values(stored).every(value => value && typeof value === 'object' && (value as StoredCounter).schemaVersion === 2)) continue;
+      const hash = createHash('sha256').update(original).digest('hex');
+      const archive = path.join(historyDirectory, `${path.basename(file)}.${hash}.bak`);
+      await writeFile(archive, original, { flag: 'wx' }).catch(error => { if (error.code !== 'EEXIST') throw error; });
+    } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+  }
   const temporaryFile = `${COUNTERS_FILE}.tmp`;
   const backupTemporaryFile = `${COUNTERS_BACKUP_FILE}.tmp`;
   const content = `${JSON.stringify(counters, null, 2)}\n`;
@@ -138,22 +156,29 @@ async function persistCounters(counters: NormalizedCounters) {
   await rename(backupTemporaryFile, COUNTERS_BACKUP_FILE);
 }
 
-export function recordLocalVisitorVisit(featureKey: FeatureKey, visitId?: string): Promise<number> {
+/** Administrative reconciliation: preserve originals and normalize, without adding visits. */
+export function reconcileLocalVisitorHistory(): Promise<void> {
   const operation = writeQueue.then(async () => {
     const counters = await readCounters({ projectElapsed: false });
-    const counter = counters[featureKey];
-    const alreadyRecorded = Boolean(visitId && counter.visitIds.includes(visitId));
+    await persistCounters(counters);
+  });
+  writeQueue = operation.then(() => undefined, () => undefined);
+  return operation;
+}
 
-    const floor = visitorFloorFor(featureKey);
-    const base = monotonicCount(counter.displayCount, floor);
+export function recordLocalVisitorVisit(featureKey: FeatureKey, visitId?: string): Promise<number> {
+  const operation = writeQueue.then(async () => {
+    const counters = await readCounters({ projectElapsed: false, allowNew: true });
+    const counter = counters[featureKey];
+    const eventId = visitId || randomUUID();
+    const alreadyRecorded = counter.visitIds.includes(eventId);
     if (!alreadyRecorded) {
       counters[featureKey] = {
-        displayCount: base + 1,
+        ...counter,
+        displayCount: counter.visitIds.length + 1,
         updatedAt: new Date().toISOString(),
-        visitIds: visitId ? [...counter.visitIds, visitId].slice(-5000) : counter.visitIds,
+        visitIds: [...counter.visitIds, eventId],
       };
-    } else if (base !== counter.displayCount) {
-      counters[featureKey] = { ...counter, displayCount: base };
     }
 
     await persistCounters(counters);
@@ -169,13 +194,7 @@ export async function readLocalVisitorCount(
   { projectElapsed = true }: { projectElapsed?: boolean } = {},
 ): Promise<number> {
   const operation = writeQueue.then(async () => {
-    const counters = await readCounters({ projectElapsed });
-    const floor = visitorFloorFor(featureKey);
-    const raised = monotonicCount(counters[featureKey].displayCount, floor);
-    if (raised !== counters[featureKey].displayCount) {
-      counters[featureKey] = { ...counters[featureKey], displayCount: raised, updatedAt: new Date().toISOString() };
-    }
-    await persistCounters(counters);
+    const counters = await readCounters({ projectElapsed, requiredFeature: featureKey });
     return counters[featureKey].displayCount;
   });
 

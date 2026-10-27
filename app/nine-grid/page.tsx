@@ -154,7 +154,7 @@ export default function NineGridPage() {
           {study && (
             <div key={resultRun} className="mt-5 space-y-3">
               {guidance && <p className="px-1 text-center text-sm font-bold leading-7 text-violet-100/90">{guidance.resultIntro.text}</p>}
-              <NineGridCard study={study} />
+              <NineGridCard study={study} birthDate={birthDate} />
             </div>
           )}
         </div>

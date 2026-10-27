@@ -38,6 +38,7 @@ type StoredCounter = {
 };
 
 interface VisitorResponse {
+  countLabel?: string;
   ok?: boolean;
   displayCount?: number;
   viewCount?: number; // 首頁 home-trust 計數器回傳的欄位
@@ -209,6 +210,7 @@ export default function FeatureVisitorCounter({
   // 2026-10-17 vote guard：從沒拿到伺服器次數又失敗才顯示「暫時無法取得」；拿到過就保留最後確認的次數。
   const [countUnavailable, setCountUnavailable] = useState(false);
   const countConfirmedRef = useRef(false);
+  const [countLabel, setCountLabel] = useState('累計瀏覽次數');
   const didRecord = useRef(false);
   const visitId = useRef<string | null>(null);
   const hiddenCounter = isHiddenClassName(className);
@@ -282,6 +284,7 @@ export default function FeatureVisitorCounter({
         const nextDisplayCount = featureKey === 'home' ? data.viewCount : data.displayCount;
 
         if (response.ok && data.ok && isSafeDisplayCount(nextDisplayCount)) {
+          if (featureKey !== 'home' && typeof data.countLabel === 'string') setCountLabel(data.countLabel);
           commitDisplayCount(nextDisplayCount);
         } else {
           markCountUnavailable();
@@ -354,6 +357,7 @@ export default function FeatureVisitorCounter({
         const nextDisplayCount = isHomePage ? data.viewCount : data.displayCount;
 
         if (response.ok && data.ok && isSafeDisplayCount(nextDisplayCount)) {
+          if (!isHomePage && typeof data.countLabel === 'string') setCountLabel(data.countLabel);
           commitDisplayCount(nextDisplayCount);
         }
       } catch {
@@ -400,10 +404,10 @@ export default function FeatureVisitorCounter({
       data-visitor-counter={featureKey}
       className={`inline-flex w-fit flex-col border border-amber-300/30 bg-white/[0.08] text-[color:var(--text-main)] shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl ${compact ? 'items-center justify-center rounded-xl px-2.5 py-2 text-center' : 'rounded-2xl px-[18px] py-[14px]'} ${className}`}
       aria-label={displayCount === null
-        ? (countUnavailable ? `\u7d2f\u8a08\u700f\u89bd\u6b21\u6578\uff0c${VISITOR_UNAVAILABLE_TEXT}` : '\u7d2f\u8a08\u700f\u89bd\u6b21\u6578\uff0c\u6b63\u5728\u8a08\u7b97')
-        : `\u7d2f\u8a08\u700f\u89bd\u6b21\u6578 ${Math.trunc(displayCount)}`}
+        ? `${countLabel}，${countUnavailable ? VISITOR_UNAVAILABLE_TEXT : '正在計算'}`
+        : `${countLabel} ${Math.trunc(displayCount)}`}
     >
-      <div className={`visitor-counter-label ${compact ? 'text-[13px] leading-tight sm:text-[14px]' : 'text-[14px]'} font-bold text-[color:var(--text-main)] opacity-90`}>{'\u7d2f\u8a08\u700f\u89bd\u6b21\u6578'}</div>
+      <div className={`visitor-counter-label ${compact ? 'text-[13px] leading-tight sm:text-[14px]' : 'text-[14px]'} font-bold text-[color:var(--text-main)] opacity-90`}>{countLabel}</div>
       <div data-visitor-counter-count className={`top-feedback-count visitor-counter-count ${compact ? 'mt-1 font-serif text-2xl leading-none' : 'mt-1 text-2xl'} font-black tracking-[0.04em] text-amber-300 drop-shadow-[0_0_14px_rgba(251,191,36,0.28)]`} aria-live="polite">
         {displayCount === null
           ? (countUnavailable ? <VisitorUnavailableText /> : '\u8f09\u5165\u4e2d')

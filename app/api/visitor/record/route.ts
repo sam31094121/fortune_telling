@@ -24,6 +24,13 @@ type VisitorCounterTableRow = {
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+// Validate before display floors can turn missing or invalid data into zero.
+function confirmedCount(value: unknown): number | null {
+  if (typeof value !== 'number' && (typeof value !== 'string' || !/^\d+$/.test(value))) return null;
+  const count = Number(value);
+  return Number.isSafeInteger(count) && count >= 0 ? count : null;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const featureKey = searchParams.get('featureKey');
@@ -42,7 +49,7 @@ export async function GET(request: Request) {
         visitorFloorFor(featureKey),
       );
       return NextResponse.json(
-        { ok: true, featureKey, displayCount, storage: 'local', floorApplied: visitorFloorFor(featureKey) },
+        { ok: true, featureKey, displayCount, storage: 'local', countLabel: '已留存瀏覽紀錄', floorApplied: visitorFloorFor(featureKey) },
         { headers: { 'Cache-Control': 'no-store' } },
       );
     } catch (error) {
@@ -60,8 +67,9 @@ export async function GET(request: Request) {
     .eq('feature_key', featureKey)
     .maybeSingle<VisitorCounterTableRow>();
 
-  if (error) {
-    console.error('[visitor-counter] read failed', error.message);
+  const confirmed = confirmedCount(data?.real_count);
+  if (error || !data || data.feature_key !== featureKey || confirmed === null) {
+    console.error('[visitor-counter] read failed', error?.message ?? 'Missing or invalid counter row');
     return NextResponse.json(
       { ok: false, message: '瀏覽計數暫時無法讀取。' },
       { status: 503, headers: { 'Cache-Control': 'no-store' } },
@@ -69,7 +77,7 @@ export async function GET(request: Request) {
   }
 
   // 只顯示真實造訪數：不加資料庫裡的底數，也不依經過時間自己長大。
-  const displayCount = monotonicCount(Number(data?.real_count ?? 0), VISITOR_MIN_DISPLAY_COUNT, visitorFloorFor(featureKey));
+  const displayCount = monotonicCount(confirmed, VISITOR_MIN_DISPLAY_COUNT, visitorFloorFor(featureKey));
 
   if (!Number.isSafeInteger(displayCount)) {
     return NextResponse.json(
@@ -79,7 +87,7 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json(
-    { ok: true, featureKey, displayCount, storage: 'supabase', floorApplied: visitorFloorFor(featureKey) },
+    { ok: true, featureKey, displayCount, storage: 'supabase', countLabel: '修復後瀏覽紀錄', floorApplied: visitorFloorFor(featureKey) },
     { headers: { 'Cache-Control': 'no-store' } },
   );
 }
@@ -106,7 +114,7 @@ export async function POST(request: Request) {
     try {
       const displayCount = monotonicCount(await recordLocalVisitorVisit(body.featureKey, visitId), VISITOR_MIN_DISPLAY_COUNT, visitorFloorFor(body.featureKey));
       return NextResponse.json(
-        { ok: true, featureKey: body.featureKey, displayCount, storage: 'local', floorApplied: visitorFloorFor(body.featureKey) },
+        { ok: true, featureKey: body.featureKey, displayCount, storage: 'local', countLabel: '已留存瀏覽紀錄', floorApplied: visitorFloorFor(body.featureKey) },
         { headers: { 'Cache-Control': 'no-store' } },
       );
     } catch (error) {
@@ -124,7 +132,8 @@ export async function POST(request: Request) {
   });
 
   const row = Array.isArray(data) ? (data[0] as VisitorCounterRow | undefined) : undefined;
-  if (error || !row || !Number.isSafeInteger(Number(row.real_count))) {
+  const confirmed = confirmedCount(row?.real_count);
+  if (error || !row || row.feature_key !== body.featureKey || confirmed === null) {
     console.error('[visitor-counter] record failed', error?.message ?? 'No counter row returned');
     return NextResponse.json(
       { ok: false, message: '瀏覽計數暫時無法保存。' },
@@ -136,8 +145,9 @@ export async function POST(request: Request) {
     {
       ok: true,
       featureKey: row.feature_key,
-      displayCount: monotonicCount(Number(row.real_count), VISITOR_MIN_DISPLAY_COUNT, visitorFloorFor(body.featureKey)),
+      displayCount: monotonicCount(confirmed, VISITOR_MIN_DISPLAY_COUNT, visitorFloorFor(body.featureKey)),
       storage: 'supabase',
+      countLabel: '修復後瀏覽紀錄',
     },
     { headers: { 'Cache-Control': 'no-store' } },
   );
