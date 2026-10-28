@@ -121,6 +121,34 @@ equal(one.content.title,'1 · 開創與自主');
 equal(one,calculate('1974-06-28').exploration.answer.primaryReading);
 equal(one.content.meaning,covered.get(1).meaning);
 assert.notEqual(one.content.evidence,covered.get(1).evidence);checks++;
+const namedOne=calculate('1974-06-28',{name:'曾威諺',targetDate:'2026-10-28'}).exploration.answer.primaryReading.content.asuraTimeline;
+equal(namedOne.subjectName,'曾威諺');
+equal(namedOne.age,52);
+equal(namedOne.birthdayPassedThisYear,true);
+equal(namedOne.isStageTransitionPending,false);
+equal(namedOne.stageKey,'sovereign');
+assert(namedOne.openingCallout.startsWith('曾威諺。你現年 52 歲'));checks++;
+equal(namedOne.cards.map(c=>c.id),['past','present','future']);
+assert.notEqual(namedOne.cards[1].text,calculate('2001-06-26',{targetDate:'2026-10-28'}).exploration.answer.primaryReading.content.asuraTimeline.cards[1].text);checks++;
+for(const [birthDate,expectedAge,passed,pending,stage,nextStage] of [
+  ['2009-10-29',16,false,true,'youth','17–32 歲 · 破陣立業期'],
+  ['2009-10-28',17,true,false,'vanguard','33–48 歲 · 中場扛局期'],
+  ['1993-10-29',32,false,true,'vanguard','33–48 歲 · 中場扛局期'],
+  ['1993-10-28',33,true,false,'commander','49 歲以上 · 統帥定局期'],
+  ['1977-10-29',48,false,true,'commander','49 歲以上 · 統帥定局期'],
+  ['1977-10-28',49,true,false,'sovereign','統帥定局與傳承收官期'],
+]) {
+  const tl=calculate(birthDate,{targetDate:'2026-10-28'}).exploration.answer.primaryReading.content.asuraTimeline;
+  equal(tl.age,expectedAge); equal(tl.birthdayPassedThisYear,passed); equal(tl.isStageTransitionPending,pending);
+  equal(tl.stageKey,stage); equal(tl.nextStageLabel,nextStage);
+  assert(tl.subjectBadge.includes(passed?'今年生日已過':'今年生日未到')); checks++;
+  assert(tl.cards[0].text.includes(`這 ${expectedAge} 年走來的路。`)); checks++;
+  assert(tl.cards[1].text.includes(`你今年實歲 ${expectedAge} 歲。`)); checks++;
+  assert(tl.cards[2].text.includes(`從實歲 ${expectedAge} 歲往後看。`)); checks++;
+  assert(tl.cards[2].title.includes(nextStage)); checks++;
+  assert(tl.cards[2].yearDirection.length>0); checks++;
+  if(pending){ assert(tl.cards[1].yearDirection.includes('今年生日未到，實歲仍停在')); checks++; }
+}
 for(const [date,number] of [['1990-01-09',11],['1980-09-04',22],['2009-11-11',33]]) {
   const result=calculate(date);
   equal(get(result,'lifePath').final_value,number);

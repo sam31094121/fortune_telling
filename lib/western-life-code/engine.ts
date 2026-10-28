@@ -255,6 +255,17 @@ export function calculateLifeCode(body: unknown) {
   const meaning = meanings.entries.find(entry => entry.number === mainCard.final_value);
   const meaningSource = registry.sources.find(source => source.id === meaning?.sourceId);
   const meaningAvailable = mainCard.status === 'PASSED' && meaning?.reviewStatus === 'SOURCE_CHECKED' && meaningSource?.status === 'LOCATED';
+  const birthdayPassedThisYear = target.m > birth.m || (target.m === birth.m && target.d >= birth.d);
+  const age = Math.max(0, target.y - birth.y - (birthdayPassedThisYear ? 0 : 1));
+  const stageKey = age <= 16 ? 'youth' : age <= 32 ? 'vanguard' : age <= 48 ? 'commander' : 'sovereign';
+  const stageInfo = meanings.ageStages[stageKey];
+  const birthdayStatusText = birthdayPassedThisYear ? '今年生日已過' : '今年生日未到';
+  const isStageTransitionPending = !birthdayPassedThisYear && (age === 16 || age === 32 || age === 48);
+  const presentPeriod = stageKey === 'youth' ? m : stageKey === 'sovereign' ? y : d;
+  const displaySubject = name || '本人';
+  const yearNum = (evidenceCards.find(c => c.id === 'year')?.final_value as number) ?? 1;
+  const baseYearDirection = meanings.personalYearDirections[String(yearNum) as keyof typeof meanings.personalYearDirections] ?? '';
+  const presentDirection = isStageTransitionPending ? `${stageInfo.transitionPendingHook}${baseYearDirection}` : baseYearDirection;
   const primaryReading = {
     version: meanings.version,
     status: meaningAvailable ? 'AVAILABLE' as const : 'UNAVAILABLE' as const,
@@ -264,6 +275,50 @@ export function calculateLifeCode(body: unknown) {
       : '這個主數的解說來源尚未完成核對，暫時無法取得。',
     content: meaningAvailable && meaning ? {
       title: `${meaning.number} · ${meaning.title}`, declaration: meaning.declaration, meaning: meaning.meaning,
+      asuraTimeline: {
+        subjectName: displaySubject,
+        hasCustomName: Boolean(name),
+        age,
+        birthdayPassedThisYear,
+        isStageTransitionPending,
+        stageKey,
+        stageLabel: stageInfo.rangeLabel,
+        nextStageLabel: stageInfo.nextStageLabel,
+        subjectBadge: `受測者：${displaySubject} ｜ 實歲 ${age} 歲（${birthdayStatusText}） ｜ ${stageInfo.rangeLabel}`,
+        openingCallout: `${name ? `${name}。` : ''}你現年 ${age} 歲，正處於${stageInfo.rangeLabel}。${stageInfo.stageHook}`,
+        cards: [
+          {
+            id: 'past' as const,
+            tense: '以前',
+            temperament: `冷冷翻舊帳 · 拆解你這 ${age} 年的慣性形成`,
+            title: `以前（前 ${age} 年歷練）｜早年根基與防衛刀法`,
+            meta: `早年週期數 ${m} · 早年挑戰數 ${c1}`,
+            text: `這 ${age} 年走來的路。我一眼看穿。${meaning.asuraTimeline.pastByStage[stageKey]}`,
+            yearDirection: '',
+            highlight: false,
+          },
+          {
+            id: 'present' as const,
+            tense: '現在',
+            temperament: `實歲 ${age} 歲當場點醒 · 問題與破局方向`,
+            title: `現在（實歲 ${age} 歲）｜你這個年紀碰到的問題與方向`,
+            meta: `實歲 ${age} 歲（${birthdayStatusText}） · 階段週期數 ${presentPeriod} · 主挑戰數 ${challenges[2]} · 流年數 ${yearNum}`,
+            text: `你今年實歲 ${age} 歲。${meaning.asuraTimeline.present[stageKey]}`,
+            yearDirection: presentDirection,
+            highlight: true,
+          },
+          {
+            id: 'future' as const,
+            tense: '未來',
+            temperament: '提前警告 · 兩條分岔路自己選',
+            title: `未來（從 ${age} 歲往後走）｜邁向${stageInfo.nextStageLabel}`,
+            meta: `下一階段：${stageInfo.nextStageLabel} · 後段週期數 ${y} · 後段挑戰數 ${challenges[3]}`,
+            text: `從實歲 ${age} 歲往後看。${meaning.asuraTimeline.futureByStage[stageKey]}`,
+            yearDirection: stageInfo.futureStageHook,
+            highlight: true,
+          },
+        ],
+      },
       sections: [
         { id: 'strength', title: meanings.labels.strength, text: meaning.strength, next: meanings.labels.nextChallenge },
         { id: 'challenge', title: meanings.labels.challenge, text: meaning.challenge, next: meanings.labels.nextAction },

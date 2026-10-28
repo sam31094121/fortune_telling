@@ -165,7 +165,7 @@ function NineGridResult({ study, birthDate, onNameApplied }: { study: NineGridSt
       ))}
     </div>
   );
-  if (edition === 'western') return <div>{tabBar}<WesternLifeCode birthDate={birthDate} /></div>;
+  if (edition === 'western') return <div>{tabBar}<WesternLifeCode birthDate={birthDate} initialName={nameInput} /></div>;
   if (edition === 'luoshu' && study.luoshu) return <div>{tabBar}<LuoshuCard luoshu={study.luoshu} birthDigits={study.input.digits} /></div>;
 
   return (

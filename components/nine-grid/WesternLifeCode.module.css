@@ -29,3 +29,19 @@
 .meaningSection h6{font-size:17px;color:#e7c78e;margin:0 0 8px;line-height:1.6}
 .meaningSection p{margin:0 0 10px}
 .answerReading .meaningBoundary{font-size:13px;line-height:1.7;color:#c7b8d0;margin-top:20px}
+.asuraTimeline{text-align:left;margin:22px 0;padding:18px 14px;border:1px solid #e8c58a55;border-radius:18px;background:radial-gradient(ellipse at 50% 0,#5e304c44,transparent 65%),#120d1a;box-shadow:inset 0 1px 0 #ffffff12,0 10px 28px #0006}
+.asuraSubjectHeader{padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid #e8c58a33}
+.asuraSubjectBadge{display:inline-block;padding:4px 10px;border:1px solid #e8c58a77;border-radius:999px;background:#e8c58a18;color:#ffe4a8;font-size:12px;font-weight:800;letter-spacing:.06em}
+.answerReading .asuraOpeningCallout{margin:12px 0 0;font-size:17px;font-weight:800;line-height:1.85;color:#fff0ca}
+.asuraTimelineGrid{display:grid;gap:14px}
+.asuraTimeCard{padding:16px 14px;border:1px solid #ffffff1f;border-radius:14px;background:linear-gradient(155deg,#251b33,#15101f)}
+.asuraTimeCard[data-highlight=true]{border-color:#e8c58a77;background:linear-gradient(155deg,#35223d,#191124);box-shadow:0 0 22px #e8c58a14}
+.asuraTimeHeader{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}
+.asuraTenseTag{display:inline-block;padding:2px 9px;border-radius:6px;background:#e8c58a26;border:1px solid #e8c58a88;color:#ffe2a0;font-size:12px;font-weight:900;letter-spacing:.08em}
+.asuraTimeCard[data-tense=present] .asuraTenseTag{background:#f59e0b33;border-color:#fbbf24;color:#fff3c4}
+.asuraTimeCard[data-tense=future] .asuraTenseTag{background:#c084fc2e;border-color:#d8b4fe;color:#f3e8ff}
+.asuraTemperament{font-size:12px;font-weight:700;color:#d6c3e3}
+.asuraTimeCard h6{font-size:17px;font-weight:800;color:#ffe8b8;margin:4px 0 6px;line-height:1.5}
+.answerReading .asuraTimeMeta{margin:0 0 10px;font-size:12px;font-weight:700;line-height:1.6;color:#d4b687}
+.answerReading .asuraTimeBody{margin:0;font-size:16px;line-height:1.9;color:#f3eaf8}
+.answerReading .asuraYearDirection{margin:10px 0 0;padding:10px 12px;border-left:3px solid #fbbf24;border-radius:6px;background:#fbbf2414;font-size:15px;font-weight:800;line-height:1.75;color:#fde68a}

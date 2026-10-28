@@ -157,6 +157,26 @@ function FinalAnswer({ data }: { data: LifeCodeResult['exploration'] }) {
             <p className={styles.meaningDeclaration}>{primary.content.declaration}</p>
             <p>{primary.content.meaning}</p>
             <p className={styles.shortEquation}>{summary.shortReason}</p>
+            {primary.content.asuraTimeline && <section className={styles.asuraTimeline} aria-label="阿修羅三時段戰局">
+              <div className={styles.asuraSubjectHeader}>
+                <span className={styles.asuraSubjectBadge}>{primary.content.asuraTimeline.subjectBadge}</span>
+                <p className={styles.asuraOpeningCallout}>{primary.content.asuraTimeline.openingCallout}</p>
+              </div>
+              <div className={styles.asuraTimelineGrid}>
+                {primary.content.asuraTimeline.cards.map(item => (
+                  <article key={item.id} className={styles.asuraTimeCard} data-tense={item.id} data-highlight={item.highlight}>
+                    <header className={styles.asuraTimeHeader}>
+                      <span className={styles.asuraTenseTag}>{item.tense}</span>
+                      <span className={styles.asuraTemperament}>{item.temperament}</span>
+                    </header>
+                    <h6>{item.title}</h6>
+                    <p className={styles.asuraTimeMeta}>{item.meta}</p>
+                    <p className={styles.asuraTimeBody}>{item.text}</p>
+                    {item.yearDirection && <p className={styles.asuraYearDirection}>{item.yearDirection}</p>}
+                  </article>
+                ))}
+              </div>
+            </section>}
             <button type="button" className={styles.primary} onClick={() => setPracticeIndex(0)}>{primary.labels.next} →</button>
           </> : <>
             {primary.content.sections.map((section, index) => index === practiceIndex && <section className={styles.meaningSection} key={section.id} aria-label={section.title}><h6>{section.title}</h6><p>{section.text}</p>{section.next && <button type="button" className={styles.primary} onClick={() => setPracticeIndex(index + 1)}>{section.next}</button>}</section>)}
@@ -221,9 +241,9 @@ function Exploration({ data }: { data: LifeCodeResult['exploration'] }) {
   </section>;
 }
 
-export default function WesternLifeCode({ birthDate }: { birthDate: string }) {
+export default function WesternLifeCode({ birthDate, initialName = '' }: { birthDate: string; initialName?: string }) {
   const [guidance, setGuidance] = useState<{ title: string; intro: string; boundary: string; defaultTargetDate: string } | null>(null);
-  const [name, setName] = useState('');
+  const [name, setName] = useState(initialName);
   const [targetDate, setTargetDate] = useState('');
   const [result, setResult] = useState<LifeCodeResult | null>(null);
   const [error, setError] = useState('');
@@ -269,7 +289,7 @@ export default function WesternLifeCode({ birthDate }: { birthDate: string }) {
     <header className={styles.header}><p className={styles.eyebrow}>NUMEROLOGY · 生命數字卡</p><span className={styles.emblem} aria-hidden="true">✧</span><h2>西方生命密碼</h2>{guidance && <p>{guidance.intro}</p>}</header>
     <form className={styles.form} onSubmit={event => { event.preventDefault(); void submit(); }}>
       <div className={styles.birthday}><span>本次公曆生日</span><strong>{birthDate || '請先在上方填寫生日'}</strong><small>沿用上方出生日期</small></div>
-      <details className={styles.optionalFields}><summary>選填姓名／調整查詢日期</summary><label>出生英文全名 <small>選填</small><input autoComplete="off" maxLength={160} value={name} onChange={e => { edited(); setName(e.target.value); }} placeholder="例如 JOHN MICHAEL SMITH"/><small>依出生登記的完整英文姓名填寫；不自動翻譯中文。</small></label>
+      <details className={styles.optionalFields}><summary>選填姓名／調整查詢日期</summary><label>受測者姓名／出生英文全名 <small>選填</small><input autoComplete="off" maxLength={160} value={name} onChange={e => { edited(); setName(e.target.value); }} placeholder="例如 曾威諺 或 JOHN MICHAEL SMITH"/><small>填中文或英文姓名可啟動阿修羅專屬點名直斷；填完整英文姓名可同時計算 Decoz 姓名密碼。</small></label>
       <label>流年查詢日期<input type="date" value={targetDate} onChange={e => { edited(); setTargetDate(e.target.value); }} required /></label></details>
       <button className={styles.primary} disabled={!guidance || !birthDate || !targetDate || busy} type="submit">{busy ? '正在計算…' : '展開我的生命密碼'}</button>
       {error && <p className={styles.error} role="alert">{error}</p>}
