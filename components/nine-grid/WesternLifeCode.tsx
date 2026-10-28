@@ -157,31 +157,25 @@ function FinalAnswer({ data }: { data: LifeCodeResult['exploration'] }) {
             <p className={styles.meaningDeclaration}>{primary.content.declaration}</p>
             <p>{primary.content.meaning}</p>
             <p className={styles.shortEquation}>{summary.shortReason}</p>
-            {primary.content.asuraTimeline && <section className={styles.asuraTimeline} aria-label="阿修羅三時段戰局" data-status={primary.content.asuraTimeline.status}>
+            {primary.content.asuraTimeline && <section className={styles.asuraTimeline} aria-label="阿修羅三時段戰局">
               <div className={styles.asuraSubjectHeader}>
                 <span className={styles.asuraSubjectBadge}>{primary.content.asuraTimeline.subjectBadge}</span>
-                {primary.content.asuraTimeline.status === 'AVAILABLE' && primary.content.asuraTimeline.openingCallout && (
-                  <p className={styles.asuraOpeningCallout}>{primary.content.asuraTimeline.openingCallout}</p>
-                )}
+                <p className={styles.asuraOpeningCallout}>{primary.content.asuraTimeline.openingCallout}</p>
               </div>
-              {primary.content.asuraTimeline.status === 'AVAILABLE' ? (
-                <div className={styles.asuraTimelineGrid}>
-                  {primary.content.asuraTimeline.cards.map(item => (
-                    <article key={item.id} className={styles.asuraTimeCard} data-tense={item.id} data-highlight={item.highlight}>
-                      <header className={styles.asuraTimeHeader}>
-                        <span className={styles.asuraTenseTag}>{item.tense}</span>
-                        <span className={styles.asuraTemperament}>{item.temperament}</span>
-                      </header>
-                      <h6>{item.title}</h6>
-                      <p className={styles.asuraTimeMeta}>{item.meta}</p>
-                      <p className={styles.asuraTimeBody}>{item.text}</p>
-                      {item.yearDirection && <p className={styles.asuraYearDirection}>{item.yearDirection}</p>}
-                    </article>
-                  ))}
-                </div>
-              ) : (
-                <p className={styles.asuraWithheldNotice} role="status">{primary.content.asuraTimeline.statusMessage}</p>
-              )}
+              <div className={styles.asuraTimelineGrid}>
+                {primary.content.asuraTimeline.cards.map(item => (
+                  <article key={item.id} className={styles.asuraTimeCard} data-tense={item.id} data-highlight={item.highlight}>
+                    <header className={styles.asuraTimeHeader}>
+                      <span className={styles.asuraTenseTag}>{item.tense}</span>
+                      <span className={styles.asuraTemperament}>{item.temperament}</span>
+                    </header>
+                    <h6>{item.title}</h6>
+                    <p className={styles.asuraTimeMeta}>{item.meta}</p>
+                    <p className={styles.asuraTimeBody}>{item.text}</p>
+                    {item.yearDirection && <p className={styles.asuraYearDirection}>{item.yearDirection}</p>}
+                  </article>
+                ))}
+              </div>
             </section>}
             <button type="button" className={styles.primary} onClick={() => setPracticeIndex(0)}>{primary.labels.next} →</button>
           </> : <>

@@ -45,6 +45,3 @@
 .answerReading .asuraTimeMeta{margin:0 0 10px;font-size:12px;font-weight:700;line-height:1.6;color:#d4b687}
 .answerReading .asuraTimeBody{margin:0;font-size:16px;line-height:1.9;color:#f3eaf8}
 .answerReading .asuraYearDirection{margin:10px 0 0;padding:10px 12px;border-left:3px solid #fbbf24;border-radius:6px;background:#fbbf2414;font-size:15px;font-weight:800;line-height:1.75;color:#fde68a}
-.asuraTimeline[data-status=WITHHELD]{border-color:#ffffff29;background:#14101e;box-shadow:none}
-.asuraTimeline[data-status=WITHHELD] .asuraSubjectHeader{margin-bottom:10px;padding-bottom:10px;border-bottom-color:#ffffff1a}
-.answerReading .asuraWithheldNotice{margin:0;font-size:15px;line-height:1.85;color:#cfc2db}
