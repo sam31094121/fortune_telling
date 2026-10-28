@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { appendFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { existsSync, openSync, closeSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { execFile, spawn } from 'node:child_process';
@@ -41,6 +41,12 @@ const CARD_ROUTES = [
   { id: 'CARD_07', module: 'zodiac', title: 'AI 西洋星座', path: '/zodiac' },
   { id: 'CARD_08', module: 'tarot', title: 'AI 塔羅牌', path: '/tarot' },
   { id: 'CARD_09', module: 'growth_center', title: 'AI 個人成長中心', path: '/growth-center' },
+  { id: 'CARD_NAMEOLOGY_BAZI', module: 'nameology_bazi', title: '姓名學與八字入口', path: '/nameology?mode=bazi' },
+  { id: 'CARD_DUAL_CHART', module: 'dual_chart', title: '神煞易經入口', path: '/dual-chart' },
+  { id: 'CARD_GHOST_ASURA', module: 'ghost_asura', title: '鬼魅阿修羅入口', path: '/ghost-asura' },
+  { id: 'CARD_RED_LUAN', module: 'red_luan', title: '紅鸞心動入口', path: '/red-luan-heartbeat' },
+  { id: 'CARD_3D', module: 'taiji_3d', title: '立體太極模型入口', path: '/3D' },
+  { id: 'CARD_NINE_GRID', module: 'nine_grid', title: '九宮格與生命密碼入口', path: '/nine-grid' },
 ];
 
 const HEALTH_ROUTES = [
@@ -124,6 +130,14 @@ const HOME_COMPONENT_CHECKS = [
 // LEVEL_02–24 firewall remain intact, so run its deterministic checks as part
 // of every health scan. These tests use synthetic sensor values only.
 const BEHAVIOR_CHECKS = [
+  {
+    id: 'CARD_REQUEST_LIFECYCLE',
+    module: 'card_request_lifecycle',
+    title: '數字、八字與紅鸞換人重算、舊回應隔離及失敗重試',
+    path: '/',
+    script: 'test:card-request-lifecycle',
+    timeoutMs: 60000,
+  },
   {
     id: 'BAZI_ZIWEI_SHARED_PILLARS',
     module: 'bazi_ziwei_shared_pillars',
@@ -857,16 +871,27 @@ async function clearNextCache() {
 }
 
 function startDevServer() {
-  const command = process.platform === 'win32' ? 'cmd.exe' : 'npm';
-  const commandArgs = process.platform === 'win32' ? ['/c', 'npm.cmd', 'run', 'dev'] : ['run', 'dev'];
-  const child = spawn(command, commandArgs, {
-    cwd: PROJECT_ROOT,
-    detached: true,
-    windowsHide: true,
-    stdio: 'ignore',
-  });
-  child.unref();
-  return child.pid;
+  // Use the same installed Next CLI as npm run dev, without a detached cmd/npm
+  // wrapper. Keep launch failures observable instead of discarding stderr.
+  const out = openSync(NEXT_OUT_LOG, 'a');
+  const err = openSync(NEXT_ERR_LOG, 'a');
+  try {
+    const child = spawn(process.execPath, [
+      path.join(PROJECT_ROOT, 'node_modules', 'next', 'dist', 'bin', 'next'),
+      'dev', '-H', '0.0.0.0', '-p', String(PORT),
+    ], {
+      cwd: PROJECT_ROOT,
+      detached: true,
+      windowsHide: true,
+      stdio: ['ignore', out, err],
+    });
+    child.on('error', (error) => { void log(`Dev server launch failed: ${error.message}`, 'ERROR'); });
+    child.unref();
+    return child.pid;
+  } finally {
+    closeSync(out);
+    closeSync(err);
+  }
 }
 async function waitForHealthyHome() {
   const deadline = Date.now() + STARTUP_TIMEOUT_MS;

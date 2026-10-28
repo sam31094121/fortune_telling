@@ -1,0 +1,270 @@
+{
+  "scope": "local browser 1440 and 390 px; entry and back, not complete feature certification",
+  "results": [
+    {
+      "viewport": 1440,
+      "route": "/match",
+      "ms": 1706,
+      "scrollWidth": 1440,
+      "width": 1440,
+      "returned": true
+    },
+    {
+      "viewport": 1440,
+      "route": "/music",
+      "ms": 1649,
+      "heading": "輸入密碼，開啟人格音樂",
+      "scrollWidth": 1440,
+      "width": 1440,
+      "returned": true
+    },
+    {
+      "viewport": 1440,
+      "route": "/nameology",
+      "ms": 3348,
+      "heading": "易經姓名學",
+      "scrollWidth": 1425,
+      "width": 1425,
+      "returned": true
+    },
+    {
+      "viewport": 1440,
+      "route": "/nameology?mode=bazi",
+      "ms": 6029,
+      "heading": "易經姓名學",
+      "scrollWidth": 1425,
+      "width": 1425,
+      "returned": true
+    },
+    {
+      "viewport": 1440,
+      "route": "/numerology",
+      "ms": 4950,
+      "heading": "易經論數字",
+      "scrollWidth": 1425,
+      "width": 1425,
+      "returned": true
+    },
+    {
+      "viewport": 1440,
+      "route": "/insight",
+      "ms": 6016,
+      "heading": "看懂你的命盤掌握今年方向",
+      "scrollWidth": 1425,
+      "width": 1425,
+      "returned": true
+    },
+    {
+      "viewport": 1440,
+      "route": "/bazi",
+      "ms": 6027,
+      "heading": "易經八字命盤",
+      "scrollWidth": 1425,
+      "width": 1425,
+      "returned": true
+    },
+    {
+      "viewport": 1440,
+      "route": "/dual-chart",
+      "ms": 6993,
+      "heading": "神煞易經",
+      "scrollWidth": 1440,
+      "width": 1440,
+      "returned": true
+    },
+    {
+      "viewport": 1440,
+      "route": "/ghost-asura",
+      "ms": 10774,
+      "heading": "鬼魅阿修羅",
+      "scrollWidth": 1425,
+      "width": 1425,
+      "returned": true
+    },
+    {
+      "viewport": 1440,
+      "route": "/zodiac",
+      "ms": 11311,
+      "heading": "易經西洋星座分析",
+      "scrollWidth": 1440,
+      "width": 1440,
+      "returned": true
+    },
+    {
+      "viewport": 1440,
+      "route": "/red-luan-heartbeat",
+      "ms": 11185,
+      "heading": "桃花・紅鸞心動",
+      "scrollWidth": 1425,
+      "width": 1425,
+      "returned": true
+    },
+    {
+      "viewport": 1440,
+      "route": "/tarot",
+      "ms": 10861,
+      "heading": "古老塔羅牌",
+      "scrollWidth": 1440,
+      "width": 1440,
+      "returned": true
+    },
+    {
+      "viewport": 1440,
+      "route": "/star-beasts",
+      "ms": 11347,
+      "heading": "星宿神獸卡片",
+      "scrollWidth": 1425,
+      "width": 1425,
+      "returned": true
+    },
+    {
+      "viewport": 1440,
+      "route": "/3D",
+      "ms": 10898,
+      "scrollWidth": 1440,
+      "width": 1440,
+      "returned": true
+    },
+    {
+      "viewport": 1440,
+      "route": "/nine-grid",
+      "ms": 11184,
+      "heading": "九宮格靈動數字",
+      "scrollWidth": 1440,
+      "width": 1440,
+      "returned": true
+    },
+    {
+      "viewport": 1440,
+      "route": "/growth-center",
+      "width": 1425,
+      "scrollWidth": 1425,
+      "returned": true
+    },
+    {
+      "viewport": 390,
+      "route": "/match",
+      "scrollWidth": 375,
+      "width": 375,
+      "returned": true
+    },
+    {
+      "viewport": 390,
+      "route": "/music",
+      "heading": "輸入密碼，開啟人格音樂",
+      "scrollWidth": 390,
+      "width": 390,
+      "returned": true
+    },
+    {
+      "viewport": 390,
+      "route": "/nameology",
+      "heading": "易經姓名學",
+      "scrollWidth": 390,
+      "width": 390,
+      "returned": true
+    },
+    {
+      "viewport": 390,
+      "route": "/nameology?mode=bazi",
+      "heading": "易經姓名學",
+      "scrollWidth": 390,
+      "width": 390,
+      "returned": true
+    },
+    {
+      "viewport": 390,
+      "route": "/numerology",
+      "heading": "易經論數字",
+      "scrollWidth": 375,
+      "width": 375,
+      "returned": true
+    },
+    {
+      "viewport": 390,
+      "route": "/insight",
+      "heading": "看懂你的命盤掌握今年方向",
+      "scrollWidth": 375,
+      "width": 375,
+      "returned": true
+    },
+    {
+      "viewport": 390,
+      "route": "/bazi",
+      "heading": "易經八字命盤",
+      "scrollWidth": 375,
+      "width": 375,
+      "returned": true
+    },
+    {
+      "viewport": 390,
+      "route": "/dual-chart",
+      "heading": "神煞易經",
+      "scrollWidth": 390,
+      "width": 390,
+      "returned": true
+    },
+    {
+      "viewport": 390,
+      "route": "/ghost-asura",
+      "heading": "鬼魅阿修羅",
+      "scrollWidth": 375,
+      "width": 375,
+      "returned": true
+    },
+    {
+      "viewport": 390,
+      "route": "/zodiac",
+      "heading": "易經西洋星座分析",
+      "scrollWidth": 375,
+      "width": 375,
+      "returned": true
+    },
+    {
+      "viewport": 390,
+      "route": "/red-luan-heartbeat",
+      "heading": "桃花・紅鸞心動",
+      "scrollWidth": 375,
+      "width": 375,
+      "returned": true
+    },
+    {
+      "viewport": 390,
+      "route": "/tarot",
+      "heading": "古老塔羅牌",
+      "scrollWidth": 390,
+      "width": 390,
+      "returned": true
+    },
+    {
+      "viewport": 390,
+      "route": "/star-beasts",
+      "heading": "星宿神獸卡片",
+      "scrollWidth": 375,
+      "width": 375,
+      "returned": true
+    },
+    {
+      "viewport": 390,
+      "route": "/3D",
+      "scrollWidth": 390,
+      "width": 390,
+      "returned": true
+    },
+    {
+      "viewport": 390,
+      "route": "/nine-grid",
+      "scrollWidth": 375,
+      "width": 375,
+      "returned": true
+    },
+    {
+      "viewport": 390,
+      "route": "/growth-center",
+      "heading": "易經個人成長中心",
+      "scrollWidth": 375,
+      "width": 375,
+      "returned": true
+    }
+  ]
+}

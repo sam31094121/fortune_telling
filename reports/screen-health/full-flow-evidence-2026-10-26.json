@@ -1,0 +1,131 @@
+{
+  "date": "2026-10-26",
+  "environment": "localhost:8888 development; browser viewport simulation, not physical phone",
+  "flows": [
+    {
+      "card": "姓名學",
+      "viewport": "390×844",
+      "inputA": "合成姓名A／男性",
+      "inputB": "合成姓名B／女性",
+      "result": true,
+      "explanation": true,
+      "editClearsOld": true,
+      "secondResult": true,
+      "overflow": false
+    },
+    {
+      "card": "姓名學×八字",
+      "result": true,
+      "explanation": true,
+      "editClearsOld": true,
+      "secondResult": true,
+      "unknownHour": "三柱更新，時柱不補",
+      "issue": "頁面一處說未起卦，另有姓名象徵卦入口；既有來源與文案矛盾待核"
+    },
+    {
+      "card": "易經論數字",
+      "result": true,
+      "explanation": true,
+      "editClearsOld": true,
+      "secondResult": true,
+      "repair": "已修復改號保留舊答案及晚到回應防護"
+    },
+    {
+      "card": "八字",
+      "result": true,
+      "explanation": true,
+      "editClearsOld": true,
+      "secondResult": true,
+      "repair": "舊命盤清除與背景工作回寫隔離",
+      "limits": "進階判讀仍待核；詳細盤未知欄有原有英文狀態碼"
+    },
+    {
+      "card": "西洋星座",
+      "result": true,
+      "explanation": true,
+      "editClearsOld": true,
+      "secondResult": true,
+      "limits": "只驗太陽星座／未知時間；返回按鈕標示「查看今日分析」及原有AI字樣待文案範圍確認"
+    },
+    {
+      "card": "紅鸞心動",
+      "result": true,
+      "explanation": true,
+      "editClearsOld": true,
+      "secondResult": true,
+      "repair": "改生日清除舊答案及請求隔離"
+    },
+    {
+      "card": "靈魂配對",
+      "result": true,
+      "explanation": true,
+      "resetClearsOld": true,
+      "secondResult": true,
+      "limits": "未知時辰；進階補強未放行但解說仍指引取得共同寶珠，文案矛盾待核"
+    },
+    {
+      "card": "塔羅",
+      "result": true,
+      "explanation": true,
+      "resetClearsOld": true,
+      "secondResult": true,
+      "overflow": false
+    },
+    {
+      "card": "鬼魅阿修羅",
+      "result": true,
+      "explanation": true,
+      "editClearsOld": true,
+      "secondResult": true,
+      "overflow": false
+    },
+    {
+      "card": "星宿神獸",
+      "catalogueFilter": true,
+      "detail": true,
+      "childSwitch": true,
+      "nextCard": true,
+      "scope": "未進行押注、扣卡或獎勵領取"
+    },
+    {
+      "card": "三卡免費戰場",
+      "entry": true,
+      "scope": "僅確認載入既有結算與可見操作；未重新開戰、押注或領獎"
+    },
+    {
+      "card": "成長中心",
+      "entry": true,
+      "overflow": false,
+      "scope": "唯讀檢查，未領取寶珠、修改收藏或成長紀錄"
+    },
+    {
+      "card": "立體太極模型",
+      "entry": true,
+      "wireframeToggle": true,
+      "scope": "線框開關後恢復原狀；舞台／手機與桌面截圖沿用入口審查證據"
+    },
+    {
+      "card": "易經論數字",
+      "viewport": "1440×900",
+      "result": true,
+      "editClearsOld": true,
+      "overflow": false
+    },
+    {
+      "card": "八字",
+      "viewport": "1440×900",
+      "result": true,
+      "editClearsOld": true,
+      "overflow": false
+    },
+    {
+      "card": "紅鸞",
+      "viewport": "1440×900",
+      "result": true,
+      "noOpChoiceRetainsResult": true,
+      "editClearsOld": true,
+      "returnHome": true,
+      "overflow": false
+    }
+  ]
+}
