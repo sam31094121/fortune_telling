@@ -27,6 +27,7 @@ const loadTs = (rel) => {
 };
 const context = { exports: {}, require: (id) => {
   if (id === './beast-skill-archive') return loadTs('lib/beast-skill-archive.ts');
+  if (id === './beast-game/beast-rig') return loadTs('lib/beast-game/beast-rig.ts');
   throw new Error('沙箱沒有準備這個模組：' + id);
 }, window: {
   setTimeout(fn) { timers.set(++nextTimer, fn); return nextTimer; },

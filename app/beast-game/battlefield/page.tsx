@@ -681,7 +681,7 @@ function BattlefieldScreen() {
                 </div>
               ) : null}
             </section>
-            {match && <BattleDock match={match} view={battleView} cards={cards} busy={playing} playing={playing} onAction={act} onActiveTap={() => inspectCard(match.player.team[match.player.active].cardId, 'player')} activeTapLabel="inspect" ragePartnerId={battleView?.fusionGuide && !battleView.fusionGuide.used ? battleView.fusionGuide.partnerCardId : null} />}
+            {match && <BattleDock match={match} view={battleView} cards={cards} busy={playing} playing={playing} onAction={act} onActiveTap={(() => { const attack = match.status === 'PLAYING' && !playing ? battleView?.legal.find(a => a.type === 'ATTACK') : undefined; return attack ? () => act(attack) : null; })()} activeTapLabel="attack" ragePartnerId={battleView?.fusionGuide && !battleView.fusionGuide.used ? battleView.fusionGuide.partnerCardId : null} />}
           </div>
         )}
       </div>

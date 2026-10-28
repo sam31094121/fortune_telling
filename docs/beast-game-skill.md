@@ -2002,10 +2002,34 @@ npm run check:beast-clips        # 落地一支就驗一支
 
 美術母版只有一個：新版卡面 `public/beast-game/front/guardian-baihu.v2.webp`（舊檔名的卡圖已刪除，不得使用）。原始卡片與既有本體立繪**一律不改**，本次只新增 `public/beast-game/rig/baihu/`。
 
-流程：從畫面最下方的出戰卡跳出（這張卡的卡面暫時淡出，名字與能量條照留）→ 奔跑（收腳↔伸展交替、縱躍）→ 接近對手 → 撲擊張嘴 → 咬合落爪（對手受擊與元素特效對齊這一刻）→ 返回 → 落地縮回卡片 → 原始卡片恢復。出戰卡列全程顯示。
+流程：從畫面最下方的出戰卡跳出（這張卡的卡面暫時淡出，名字與能量條照留）→ 蓄勢（伏低、後拉、顫抖）→ 爆發出卡 → 突進（先慢後爆、殘影、揚塵）→ 撲殺張口 → 咬合頓挫（對手受擊與元素特效對齊這一刻，震動與白閃）→ **就地散去，不跑回來**（2026-10-26 業主定案）→ 原始卡片恢復。每隻神獸有自己的動作個性 `RIG_STYLES`（白虎、青龍、朱雀、玄武；白虎、青龍已有素材，朱雀、玄武待素材）。出戰卡列全程顯示。
 
-- 素材：`scripts/gen-beast-rig-poses.mjs` 以新版卡面為底，用專案影像流程（以圖生圖、純黑底）產出五個姿勢關鍵幀（奔跑伸展、奔跑收腳、撲擊張嘴、咬合、落地），先放在 `.tmp/rig/poses/`（不進版控）；人工驗收後以 `scripts/build-beast-rig-sprites.mjs` 去背（只把與畫面邊界相連的近黑區域當背景，黑條紋與嘴內暗部保留）、色調對回母版毛皮平均色、輸出到 `public/beast-game/rig/baihu/` 並寫 `manifest.json`。呼叫付費 API，預設只跑指定姿勢。
-- 時間軸：`lib/beast-game/beast-rig.ts`（純函式 `strikeFrame(t)`：總長 1800ms、命中 1120ms、卡片隱藏 14%～90%）。畫面：`components/battlefield/BeastRigStage.tsx`（整個畫面層級的 2D 畫布，素材掛載時載入一次，由出戰卡列帶出）。何時播：`components/battlefield/useRigStrike.ts`（出戰卡列與戰場共用，戰場只用它對齊對手的受擊時刻）。
+- 素材：`scripts/gen-beast-rig-poses.mjs` 以新版卡面為底，用專案影像流程（以圖生圖、純黑底）產出五個姿勢關鍵幀（奔跑伸展、奔跑收腳、撲擊張嘴、咬合、落地），先放在 `.tmp/rig/poses/`（不進版控）。第 2 輪起：`--size 2K`（輸出 2390×1792，原本約 1195×896）、`--ref2` 帶入同一隻老虎的另一個已驗收姿勢鎖定臉部花紋與條紋、提示詞要求逐根毛髮、完整鬃毛、清楚的鬍鬚、肉墊與爪、眼瞼細節。人工驗收後以 `scripts/build-beast-rig-sprites.mjs` 去背（只把與畫面邊界相連的近黑區域當背景，黑條紋、嘴內暗部、鼻孔保留；開運算防止泛洪灌進鼻孔等細縫；去除黑邊並還原邊緣色）、縮到 1200px 寬並輕微銳化、色調對回母版毛皮平均色，輸出到 `public/beast-game/rig/baihu/` 並寫 `manifest.json`。呼叫付費 API，預設只跑指定姿勢。目前採用第 3 輪檔案（第 2 輪生成後依姿勢角色重新對應）。
+- 時間軸：`lib/beast-game/beast-rig.ts`（純函式 `strikeFrame(t)`：總長 1500ms、命中 1120ms、卡片隱藏 14%～80%）。畫面：`components/battlefield/BeastRigStage.tsx`（整個畫面層級的 2D 畫布，素材掛載時載入一次，由出戰卡列帶出）。何時播：`components/battlefield/useRigStrike.ts`（出戰卡列與戰場共用，戰場只用它對齊對手的受擊時刻）。
+- **白虎攻擊圖檔清單**（四大神獸之首；全部在 `public/beast-game/rig/baihu/`，1200px 寬、透明底 webp，數值與 `manifest.json` 一致）：
+
+  | 檔案 | 尺寸 | 大小 | 攻擊中的用途 |
+  |---|---|---|---|
+  | `bite-close.webp` | 1200×841 | 202,758 B | 蓄勢（卡內伏低）、咬合（下顎闔上）、連咬與散去的底層姿勢 |
+  | `run-gather.webp` | 1200×808 | 208,660 B | 突進：四爪收攏、背弓起 |
+  | `run-reach.webp` | 1200×702 | 178,550 B | 爆發出卡、突進：四肢伸展 |
+  | `pounce-open.webp` | 1200×657 | 169,432 B | 撲殺：張口亮爪；連咬時與咬合交替開合 |
+  | `land-crouch.webp` | 1200×842 | 206,114 B | 保留素材；目前版本咬完就地散去，不再使用 |
+  | `manifest.json` | — | 約 1KB | 各幀尺寸、面積與正規化係數 `norm`（`beast-rig.ts` 的 `BAIHU_RIG` 必須與它一致） |
+
+  美術母版＝`public/beast-game/front/guardian-baihu.v2.webp`（新版卡面）；產生器 `scripts/gen-beast-rig-poses.mjs`、去背 `scripts/build-beast-rig-sprites.mjs`。**畫出來的特效不是圖檔**：殘影、揚塵、對手卡上的三道爪痕與碎片、咬合白閃，都由 `BeastRigStage.tsx` 依 `rendFrame`／`strikeFrame` 即時繪製。四大神獸其餘三隻（青龍、朱雀、玄武）的動作參數已登記在 `RIG_STYLES`，圖檔待補；新增時放 `public/beast-game/rig/<dir>/` 並照同樣格式寫進本清單。
+- **青龍攻擊圖檔清單**（2026-10-26 業主定案：青龍功能與白虎相同，品質須在白虎之上；全部在 `public/beast-game/rig/qinglong/`，1600px 寬、透明底 webp，`manifest.json` 與 `QINGLONG_RIG` 一致）：
+
+  | 檔案 | 尺寸 | 大小 | 攻擊中的用途 |
+  |---|---|---|---|
+  | `bite-close.webp` | 1600×1384 | 520,664 B | 蓄勢（卡內盤伏）、咬合（閉口獠牙）、連咬與散去的底層姿勢 |
+  | `pounce-open.webp` | 1600×1421 | 561,268 B | 撲咬：張口俯衝；連咬時與咬合交替開合 |
+  | `run-gather.webp` | 1600×913 | 465,466 B | 突進：身體盤成 S 形的飛行 |
+  | `run-reach.webp` | 1600×1209 | 455,946 B | 爆發出卡、突進：身體伸展的飛行 |
+
+  **活體動作（2026-10-26 業主要求：全身都會動，不是整塊圖在飛）**：青龍的圖用「網格變形」繪製（`BeastRigStage.tsx` 把圖切成 22×16 格、每格拆兩個三角形貼上，各部位的位移由 `beast-rig.ts` 的純函式 `livingPose`＋`meshDisplace` 算出）。頭（以脖子為軸俯仰、往前探）、下顎（以鉸鏈開合，連咬 3 次）、前爪（以肩膀為軸蓄力再下抓）、後爪（飛行時交替划動）、身體與尾巴（`bodyWave` 由頭傳到尾的波浪，頭穩尾大）各自動；各部位位置記在 `QINGLONG_RIG.frames[].anchors`。咬合與連咬一律用「張口」那張當底、下顎靠變形闔上（不換圖，避免整隻龍閃一下）。白虎仍是剛體（`wave: 0`）。爪痕畫在神獸後面、碎片畫在前面，白閃畫在最底層（不洗白身體）。預覽：`/beast-game/rig-preview?beast=qinglong&ms=1135`。
+  **AI 細修紀錄**：去背時嘴內暗紅、鼻孔不再被當成背景（背景洞要「中性灰黑」才去掉）；生成圖最外圈灰框去除；鬃毛縫隙的小黑洞去除；變形格縫以三角形外擴 0.6px 補平。
+  美術母版＝`public/beast-game/front/guardian-qinglong.v2.webp`。無翼東方龍，沿用同一組姿勢名稱與同一條時間軸（蓄勢→爆發出卡→突進→撲咬→咬合連咬、爪痕碎片→就地散去，不跑回來）；動作個性 `RIG_STYLES.qinglong`（盤旋騰空、弧線大、體型倍率 1.5、連咬 3 次）。**品質高於白虎的項目**：輸出解析度 1600px（白虎 1200px）、生成圖 2K、以同一條龍的姿勢鎖定鱗片與鬃毛、去背新增「最外圈灰框」與「鬃毛縫隙的小封閉洞」處理（`build-beast-rig-sprites.mjs`，並套回白虎重建不受影響）；守門 `test:beast-rig-body` 斷言青龍每張解析度高於白虎每一張。青龍沒有落地幀（咬完就地散去，用不到）。產生器 `gen-beast-rig-poses.mjs --card qinglong`（龍專用姿勢描述）。
 - **動畫不決定戰鬥結果**：何時播取自戰報（`performedAction`／`isDamagingAction`，且是「這一局剛收到新戰報」），播多久是固定常數；`combatPlaybackMs` 只延長輸入鎖的演出時間。不用亂數、不匯入任何算勝負的函式。減少動態偏好開啟時不播。
 - 可擴充：`BEAST_RIGS` 登記表，青龍、朱雀、玄武之後各補一組關鍵幀與一筆資料即可；沒有登記的神獸維持原本的卡片衝鋒演出。
 - 驗收預覽：`/beast-game/rig-preview`（滑桿逐格檢視並與新版卡面並排比對）。

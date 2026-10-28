@@ -906,3 +906,6 @@
 .fighters[data-solo='true'] { justify-content: center; }
 .fighters[data-solo='true'] .fighter[data-fighter='opponent'] { flex: 0 1 78%; }
 .fighters[data-solo='true'] .arenaVital { max-width: 200px; }
+
+/* 戰場只留畫面：數字文字已移除，空殼不佔高度 */
+.arenaEnergy:empty { display: none; }

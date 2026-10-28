@@ -613,3 +613,6 @@
 .activeHint { font-size: 13px !important; line-height: 19px !important; color: #d4e6f2 !important; }
 .primaryActions small { font-size: 12px !important; line-height: 16px !important; opacity: .9 !important; }
 .result small { font-size: 12px !important; }
+
+/* 取消換卡按鈕後只剩三個指令（攻擊、技能、暴怒合體）：三等分填滿整列，不留空欄。 */
+.primaryActions { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }

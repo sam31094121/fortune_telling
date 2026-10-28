@@ -98,7 +98,7 @@ const width = Number(process.env.BEAST_TEST_WIDTH || 390);
         await page.unroute('**/api/beast-game/turns');
       } else await route.continue();
     });
-    await page.getByRole('button', { name: /^普通攻擊/ }).click();
+    await page.getByRole('button', { name: /普通攻擊/ }).click();
     await page.getByRole('alert').filter({ hasText: '測試連線中斷' }).waitFor();
     await page.getByRole('button', { name: '重新載入戰況' }).click();
     await page.getByRole('alert').filter({ hasText: '測試連線中斷' }).waitFor({ state: 'hidden' });
@@ -113,7 +113,7 @@ const width = Number(process.env.BEAST_TEST_WIDTH || 390);
         button = page.getByRole('button', { name: '換上 ' + match.player.team[options[0].index].name, exact: true });
       } else if (match.opponent.team[match.opponent.active].defeated) {
         button = page.getByRole('button', { name: '繼續，對手換卡' });
-      } else button = page.getByRole('button', { name: options.some(a => a.type === 'SKILL') ? /^技能/ : /^普通攻擊/ });
+      } else button = page.getByRole('button', { name: options.some(a => a.type === 'SKILL') ? /^技能/ : /普通攻擊/ });
       const response = page.waitForResponse(r => r.url().endsWith('/api/beast-game/turns') && r.request().method() === 'POST');
       await button.click();
       data = await (await response).json();

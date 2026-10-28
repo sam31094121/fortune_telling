@@ -24,6 +24,10 @@ const card = arg('--card', 'baihu');
 const poseArg = arg('--pose', 'run-reach');
 const outDir = path.join(root, arg('--out', '.tmp/rig/poses'));
 const round = arg('--round', '1');
+/** 輸出尺寸（模型支援時）：1K／2K／4K；不支援時自動退回預設 */
+const imageSize = arg('--size', '');
+/** 第二張參考圖：同一隻老虎的另一個已驗收姿勢，用來鎖定這一隻的條紋與臉部花紋（跨姿勢一致） */
+const ref2 = arg('--ref2', '');
 
 /** 每張卡的母版（新版卡面）與描述。其他神獸之後各補一筆。 */
 const CARDS = {
@@ -35,6 +39,32 @@ const CARDS = {
       'amber-gold eyes, pink nose, long ivory fangs, long curved claws, a long tail with alternating black and white bands.',
       'Keep EXACTLY the same fur texture, stripe pattern, colours, proportions and painterly realistic style as the reference.',
     ].join(' '),
+    detail: [
+      'Render at the highest level of detail: individually visible fur strands, a thick full mane around the face as in the reference, crisp whiskers,',
+      'sharp separate toe pads and claws, detailed wet nose and gums, sharp ivory fangs, clear amber irises with round pupils and eyelid detail,',
+      'fine stripe edges with natural fur breakup. Painterly realistic style identical to the reference, no cartoon smoothing, no plastic look, no blur.',
+    ].join(' '),
+  },
+  qinglong: {
+    name: 'Azure Dragon (青龍)',
+    reference: 'public/beast-game/front/guardian-qinglong.v2.webp',
+    identity: [
+      'a massive Chinese azure dragon (Qinglong) with deep blue overlapping scales, a golden-tan belly with broad ventral plates,',
+      'a long golden-brown flowing mane and antler-like horns, long whiskers, glowing amber eyes, sharp ivory fangs, four-clawed golden talons, flowing golden fringe along the spine and tail.',
+      'Keep EXACTLY the same scale pattern, colours, mane, horns, proportions and painterly realistic style as the reference. No wings (a wingless serpentine eastern dragon).',
+    ].join(' '),
+    detail: [
+      'Render at the highest level of detail: individually visible overlapping scales with highlights, fine flowing mane strands, crisp whiskers,',
+      'sharp separate talons, detailed teeth and gums, clear amber eye with eyelid detail, fine scale edge breakup.',
+      'Painterly realistic style identical to the reference, no cartoon smoothing, no plastic look, no blur.',
+    ].join(' '),
+    poses: {
+      'run-reach': 'Soaring mid-flight toward the left: body stretched long and nearly straight in a gentle wave, head thrust far forward and level, front claws reaching ahead, hind legs trailing, tail and mane streaming behind, mouth slightly open.',
+      'run-gather': 'Soaring mid-flight, coiled phase: body folded into a strong S-curve with the head lowered and forward, front claws drawn in, mane flaring back, tail curling behind.',
+      'pounce-open': 'Diving strike, a completely different pose from the reference: the whole body plunges steeply DOWNWARD and to the left along a diagonal, head thrust far forward and tilted down toward the prey, jaws opened to the absolute maximum with upper and lower fangs and tongue clearly visible, both front arms flung forward with talons spread wide, mane and tail whipping upward behind, fierce glowing eyes wide open.',
+      'bite-close': 'The bite landing: the head slams forward and down, the MOUTH IS CLOSED TIGHTLY with lips pulled back baring clenched interlocking fangs (no open gap), a snarling wrinkled muzzle, eyes narrowed to furious slits, front talons raking forward and down, neck muscles bulging, body coiled behind the head, mane blown forward by the impact.',
+      'land-crouch': 'Coiled rest: body coiled in a tight spiral low to the ground, head raised and facing left, snarling, mane and tail settling. Similar to the reference coil but slightly lower.',
+    },
   },
 };
 
@@ -58,9 +88,11 @@ function prompt(spec, pose) {
   return [
     `Redraw the creature from the reference image as a single full-body character sprite in a NEW POSE.`,
     `It is ${spec.identity}`,
-    `Pose: ${POSES[pose]}`,
+    `Pose: ${(spec.poses ?? POSES)[pose]}`,
     `Strict side view, facing the LEFT edge of the image, same camera distance and same scale as the reference.`,
     `Do NOT redesign the creature: same species, same markings, same anatomy, same rendering style as the reference.`,
+    spec.detail,
+    ref2 ? `A SECOND reference image shows the SAME individual creature in another pose: copy its exact markings, scale or stripe layout, mane volume and colours so the two images are clearly the same animal.` : ``,
     `Isolated on a PURE SOLID BLACK background (#000000), absolutely no scenery, no ground, no rocks, no leaves,`,
     `no mist, no glow spill, no vignette, no text, no frame, no border.`,
     `The creature must not touch the image edges; leave clear black margin on all four sides.`,
@@ -69,10 +101,19 @@ function prompt(spec, pose) {
 
 async function generate(key, spec, pose) {
   const source = await sharp(path.join(root, spec.reference)).png().toBuffer();
+  const second = ref2 ? fs.readFileSync(path.join(root, ref2)) : null;
+  const body = (withSize) => ({
+    contents: [{ parts: [
+      { text: prompt(spec, pose) },
+      { inline_data: { mime_type: 'image/png', data: source.toString('base64') } },
+      ...(second ? [{ inline_data: { mime_type: 'image/png', data: second.toString('base64') } }] : []),
+    ] }],
+    ...(withSize && imageSize ? { generationConfig: { responseModalities: ['IMAGE'], imageConfig: { imageSize } } } : {}),
+  });
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contents: [{ parts: [{ text: prompt(spec, pose) }, { inline_data: { mime_type: 'image/png', data: source.toString('base64') } }] }] }),
+    body: JSON.stringify(body(true)),
   });
   if (!res.ok) throw new Error(`${res.status} ${(await res.text()).slice(0, 200)}`);
   const data = await res.json();
@@ -84,8 +125,8 @@ async function generate(key, spec, pose) {
 
 const spec = CARDS[card];
 if (!spec) throw new Error(`未知的卡：${card}`);
-const poses = poseArg === 'all' ? Object.keys(POSES) : poseArg.split(',');
-for (const p of poses) if (!POSES[p]) throw new Error(`未知的姿勢：${p}`);
+const poses = poseArg === 'all' ? Object.keys(spec.poses ?? POSES) : poseArg.split(',');
+for (const p of poses) if (!(spec.poses ?? POSES)[p]) throw new Error(`未知的姿勢：${p}`);
 fs.mkdirSync(outDir, { recursive: true });
 const key = apiKey();
 for (const pose of poses) {

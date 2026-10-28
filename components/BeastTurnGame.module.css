@@ -191,3 +191,13 @@
 
 /* Keep the compact command row to icon and action name; details stay in help. */
 .calmBattle [aria-label='本回合指令'] small{display:none}
+
+/* 一體成型（簡單模式）：操作區剛好是內容高度，戰場拿走其餘高度；出戰卡列的實際高度由 BattleDock 量出（--battle-dock-h），所以不重疊也不留空白。 */
+.calmBattle [data-battle-split][data-dock='true']:not([data-inspecting='true']){grid-template-rows:minmax(260px,1fr) auto}
+.calmBattle [data-battle-split][data-dock='true'] [data-battle-controls]{min-height:0}
+.calmBattle [data-battle-split][data-dock='true'] [data-control-scroll]{padding:6px 10px 8px;overflow:visible}
+.calmBattle [data-battle-split][data-dock='true'] .easyUtility{margin:0 0 6px;gap:8px}
+.calmBattle [data-battle-split][data-dock='true'] .easyAbility{width:38px;height:36px;min-height:36px;padding:4px;margin:0}
+.calmBattle [data-battle-split][data-dock='true'] .easyAbility svg{width:22px;height:22px}
+.calmBattle [data-battle-split][data-dock='true'] [aria-label='本回合指令']{margin-top:0}
+.calmBattle [data-battle-split][data-dock='true'] [aria-label='本回合指令']>button{height:52px;min-height:52px}

@@ -35,7 +35,7 @@ const {chromium}=require('playwright');
   const beforeRound=data.account.match.round;
   await play(page.getByRole('button',{name:'換上 亢金龍',exact:true}),'SWITCH');
   assert.equal(data.account.match.round,beforeRound+1);
-  await play(page.getByRole('button',{name:/^普通攻擊/}),'ATTACK');
+  await play(page.getByRole('button',{name:/普通攻擊/}),'ATTACK');
   console.log('PASS: mobile skill, voluntary switch and attack have distinct real animations; burst clicks submit once and no queued actions');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});

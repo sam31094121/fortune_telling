@@ -141,14 +141,14 @@ export default function BattleArena({ state, cards, match, view, onInspect, tapT
                 const isCritical = hpPct <= 30 && fighter.hp > 0;
                 return (
                   <div className={styles.arenaVital}>
-                    <strong className={styles.liveName}>{card?.name}・{ELEMENT_LABEL[fighter.element]}</strong>
+                    <strong className={styles.liveName}>{card?.name}</strong>
                     <div className={`${styles.arenaHpBar}${isCritical ? ` ${styles.critical}` : ''}`}>
                       <span style={{ width: `${hpPct}%` }} />
                     </div>
-                    <span className={styles.arenaEnergy} aria-label={`生命 ${fighter.hp}/${fighter.maxHp}，氣 ${team.energy}`}>{fighter.hp}/{fighter.maxHp}</span>
+                    <span className={styles.arenaEnergy} aria-label={`生命 ${fighter.hp}/${fighter.maxHp}，氣 ${team.energy}`} />
                     <span className={styles.vitalChanges}>
-                      {fighter.shield > 0 && <span className={styles.liveChange}>護盾 {fighter.shield}</span>}
-                      {change && <span className={styles.liveChange} data-combat-change>{change}</span>}
+                      {(false as boolean) && fighter.shield > 0 && <span className={styles.liveChange}>護盾 {fighter.shield}</span>}
+                      {(false as boolean) && change && <span className={styles.liveChange} data-combat-change>{change}</span>}
                     </span>
                   </div>
                 );
@@ -168,7 +168,8 @@ export default function BattleArena({ state, cards, match, view, onInspect, tapT
         const unsealed = guide.orbs;
         return (
           <div className={styles.orbColumn}>
-            {mine && foe && (
+            {/* 戰場不放說明字：相剋、魔珠說明、合體文字、數字全部拿掉（資料仍在 aria-label） */}
+            {(false as boolean) && mine && foe && (
               tapToAttack ? <details><summary>相剋</summary><MatchupSummary playerElement={mine.element as BeastElement} opponentElement={foe.element as BeastElement} /></details> : <MatchupSummary
                 playerElement={mine.element as BeastElement}
                 opponentElement={foe.element as BeastElement}
@@ -179,11 +180,10 @@ export default function BattleArena({ state, cards, match, view, onInspect, tapT
               <span className={styles.fusionLights} aria-hidden="true">
                 {guide.steps.map(step => <i key={step.key} data-done={step.done} />)}
               </span>
-              <span className={styles.fusionProgressText}>{guide.used ? '已合體' : guide.current.skillName}</span>
-              <small>怒 {guide.rage}</small>
+              {(false as boolean) && <span className={styles.fusionProgressText}>{guide.used ? '已合體' : guide.current.skillName}</span>}
             </button>
             {/* 客戶實玩：五顆寶珠沒有任何標示，不知道是什麼。加一行常駐小字，數字與下方 aria-label 同一份。 */}
-            <span className={styles.orbCaption} aria-hidden="true">魔珠 {unsealed}/{ELEMENTS.length}</span>
+            {(false as boolean) && <span className={styles.orbCaption} aria-hidden="true">魔珠 {unsealed}/{ELEMENTS.length}</span>}
             <div className={styles.orbRow}>
             <span className={styles.rageMeter} role="meter" aria-label={`暴怒 ${guide.rage}/100`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={guide.rage}>
               <span style={{ height: `${guide.rage}%` }} />

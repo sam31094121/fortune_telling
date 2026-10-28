@@ -46,6 +46,7 @@ import WinStreakCounter from './WinStreakCounter';
 import VictoryMoment from './VictoryMoment';
 import UpgradePathHint from './UpgradePathHint';
 import ShareBadge from './ShareBadge';
+import { RIG_STRIKE_EVENT, rigFor } from '@/lib/beast-game/beast-rig';
 import SoundEnhancer from './SoundEnhancer';
 
 /** 生命與護盾。護盾先扣，所以畫在血條上面一層。 */
@@ -171,12 +172,7 @@ export function BattleActionBar({
           {busy ? '▶' : active.stunnedTurns > 0 ? '⊘' : `⚡${match.player.energy}`}{!busy && special && !active.stunnedTurns ? ' · ✦' : ''}
         </p>
         <div className={styles.primaryActions} role="group" aria-label="本回合指令">
-          {!attackOnCard && <button type="button" className={styles.actionButton} disabled={busy || !attack}
-            style={{ '--element-glow': ELEMENT_FX[active.element as BattleElement]?.glow } as React.CSSProperties}
-            aria-label={relaxed && special ? '保留技能・普通攻擊' : '普通攻擊'} onClick={() => attack && onAction(attack)}>
-            <span aria-hidden="true" style={{ color: ELEMENT_FX[active.element as BattleElement]?.glow, textShadow: `0 0 10px ${ELEMENT_FX[active.element as BattleElement]?.glow}` }}>⚔</span>
-            <strong>攻擊</strong>
-          </button>}
+          {/* 普通攻擊＝直接點最下方的主戰卡片；這裡只留技能與暴怒合體 */}
           <button type="button" className={styles.skillButton} disabled={busy || !special} aria-label={`技能 ${skill.skillName}`} onClick={() => special && onAction(special)}>
             <span aria-hidden="true">✦</span>
             <strong>技能</strong>
@@ -289,12 +285,29 @@ const BattlePanel = memo(function BattlePanel({
       const fighter = match.player.team[match.player.active];
       const order = match.log.findIndex(e => e.side === 'player' && e.cardId === fighter.cardId);
       const heavy = isKoHit('player');
+      // 有戰鬥動畫的神獸（且沒開減少動態）打出傷害招式：聲音等動畫「真正開始」的訊號再播，咬合那一聲才會落在 RIG_IMPACT_MS。
+      // 監聽要在這一刻就掛上（動畫可能比計時器先起跑）；動畫沒載入、沒起跑時，過一會兒退回原本的時間軸，不能整場靜音。
+      const rigged = pAction !== 'RAGE' && isDamagingAction(match, 'player') && rigFor(fighter.cardId) !== null
+        && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (rigged) {
+        let fired = false;
+        const start = (withRig: boolean) => {
+          if (fired || !sound.current) return;
+          fired = true;
+          cancels.push(playBeastAction(sound.current.play, fighter.cardId, fighter.element as BattleElement, 'player', heavy, withRig));
+          if (pAction === 'SKILL') window.setTimeout(() => sound.current?.play('/audio/taiji/cc0-cannon-fire.ogg', heavy ? 0.52 : 0.38, 1), 80);
+        };
+        const onStart = () => start(true);
+        window.addEventListener(RIG_STRIKE_EVENT, onStart, { once: true });
+        cancels.push(() => window.removeEventListener(RIG_STRIKE_EVENT, onStart));
+        timers.push(window.setTimeout(() => start(false), Math.max(0, order) * COMBAT_BEAT_MS + 1200));
+      } else
       timers.push(window.setTimeout(() => {
         if (!sound.current) return;
         if (pAction === 'RAGE') {
           cancels.push(playBeastRage(sound.current.play, fighter.element as BattleElement));
         } else if (isDamagingAction(match, 'player')) {
-          cancels.push(playBeastAction(sound.current.play, fighter.cardId, fighter.element as BattleElement, 'player', heavy));
+          cancels.push(playBeastAction(sound.current.play, fighter.cardId, fighter.element as BattleElement, 'player', heavy, false));
           // 技能攻擊：加砲聲前奏，份量比普通攻擊重
           if (pAction === 'SKILL') window.setTimeout(() => sound.current?.play('/audio/taiji/cc0-cannon-fire.ogg', heavy ? 0.52 : 0.38, 1), 80);
         } else {

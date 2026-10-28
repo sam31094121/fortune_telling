@@ -186,8 +186,9 @@ assert.equal(JSON.stringify(nextStakeSelection(fullStake, '21')), JSON.stringify
 assert.deepEqual(selected, ['beast_a01'], 'Selection helper does not mutate existing state');
 assert.match(battlefieldPage, /runOwnedStakesDuel\(stakeCardIds/, 'Five actual collection entries use the shared atomic settlement');
 const compactActions = render(load('components/battlefield/BattlePanel.tsx').BattleActionBar, { match, view: viewOf(match), onAction() { throw new Error('Read-only render'); }, compact: true, cards: interactiveCatalog() });
-assert.equal((compactActions.match(/<button\b/g) || []).length, 3, 'Combat starts with three clear commands; card switching lives in the bottom dock');
-for (const text of ['普通攻擊', '技能', '暴怒合體']) assert.ok(compactActions.includes(text), `Current command remains accessible: ${text}`);
+assert.equal((compactActions.match(/<button\b/g) || []).length, 2, 'Combat keeps two commands (skill, rage fusion); attacking is tapping the bottom dock card');
+assert.ok(!compactActions.includes('普通攻擊'), 'No separate attack button: the active dock card attacks');
+for (const text of ['技能', '暴怒合體']) assert.ok(compactActions.includes(text), `Current command remains accessible: ${text}`);
 assert.doesNotMatch(compactActions, /換卡|data-swap-entry/, 'No separate swap button or second confirmation step remains');
 assert.doesNotMatch(compactActions, /aria-label="點戰鬥卡換上場"/, 'No reserve panel inside the action bar');
 const prepSource = fs.readFileSync(path.join(root, 'components/battlefield/BattleArena.tsx'), 'utf8');

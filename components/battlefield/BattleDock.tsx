@@ -14,7 +14,7 @@
  * 動畫演出中（busy）與對戰結束後列仍顯示，只是按不下去，卡片不會消失。
  */
 
-import { memo, type CSSProperties } from 'react';
+import { memo, useEffect, useRef, type CSSProperties } from 'react';
 import type { Action, Match } from '@/lib/beast-game/interactive';
 import type { BattleView } from '@/lib/beast-game/battle-view';
 import { RIG_STRIKE_MS } from '@/lib/beast-game/beast-rig';
@@ -48,12 +48,24 @@ const BattleDock = memo(function BattleDock({ match, view, cards, busy = false, 
   for (const action of view?.legal ?? []) if (action.type === 'SWITCH') switches.set(action.index, action);
   const playingMatch = match.status === 'PLAYING';
   const rigState = useRigStrike(match, playing);
+  // 量出這一列實際的高度，交給版面當預留空間（--battle-dock-h）：內容與出戰卡列剛好不重疊、不留多餘空白
+  const nav = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = nav.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const apply = () => root.style.setProperty('--battle-dock-h', `${Math.ceil(el.getBoundingClientRect().height)}px`);
+    apply();
+    const observer = new ResizeObserver(apply);
+    observer.observe(el);
+    return () => { observer.disconnect(); root.style.removeProperty('--battle-dock-h'); };
+  }, []);
   // 這一局主戰做了什麼（攻擊／技能／暴怒合體／受控／接替／換卡）：標在主戰那張卡上，取自戰報，不自己判斷
   const performed = performedAction(match, 'player');
 
   return (
     <>
-      <nav className={styles.dock} aria-label="出戰神獸・點卡上場或出擊" data-battle-dock data-count={team.length}>
+      <nav ref={nav} className={styles.dock} aria-label="出戰神獸・點卡上場或出擊" data-battle-dock data-count={team.length}>
         {team.map((fighter, index) => {
           const action = switches.get(index);
           const active = index === match.player.active;

@@ -38,7 +38,7 @@ const TeamRosterPanel = memo(function TeamRosterPanel({
   return (
     <div className={styles.rosterPanel} data-side={side} aria-label={side === 'player' ? '你的隊伍' : '對手隊伍'}>
       <div className={styles.rosterHeader}>
-        <span className={styles.count}>{aliveTeam.length}/{team.length}</span>
+        {(false as boolean) && <span className={styles.count}>{aliveTeam.length}/{team.length}</span>}
       </div>
 
       <div className={styles.rosterList}>
@@ -68,9 +68,7 @@ const TeamRosterPanel = memo(function TeamRosterPanel({
               </div>
 
               {/* 卡片名稱 */}
-              <div className={styles.cardName}>
-                {card.name}
-              </div>
+              {(false as boolean) && <div className={styles.cardName}>{card.name}</div>}
 
               {/* 血量條 */}
               <div className={styles.hpBar}>
@@ -82,9 +80,7 @@ const TeamRosterPanel = memo(function TeamRosterPanel({
               </div>
 
               {/* 血量數字 */}
-              <div className={styles.hpText}>
-                {card.hp}/{card.maxHp}
-              </div>
+              <div className="sr-only">{card.name} {card.hp}/{card.maxHp}</div>
 
               {/* 主戰標記 */}
               {activeCardId === card.id && (

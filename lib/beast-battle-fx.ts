@@ -22,6 +22,7 @@
  * 這裡只有「哪個元素配哪個聲音、配哪張圖」的對照表——
  * 播什麼、播多久，都不會改變任何一個數字。
  */
+import { RIG_IMPACT_MS, RIG_PHASES, RIG_STRIKE_MS } from './beast-game/beast-rig';
 
 export type BattleElement = 'SPACE' | 'AIR' | 'WATER' | 'FIRE' | 'EARTH';
 
@@ -355,6 +356,35 @@ export interface ActionSound {
 export const ACTION_BEATS = { voice: 0, charge: 170, strike: 430, tail: 620 } as const;
 
 /**
+ * 有戰鬥動畫（跳出卡片、衝刺、撲咬）的神獸專用的聲音時間軸：與 lib/beast-game/beast-rig.ts 的動畫階段對齊。
+ * 吼（蓄勢）→ 破空（爆發出卡）→ 風聲（突進）→ 咬合重擊（RIG_IMPACT_MS）→ 連咬兩口 → 餘響。
+ * 咬合那一聲一定落在 RIG_IMPACT_MS：對手受擊、元素特效、鏡頭震動、聲音都是同一個瞬間。
+ */
+export function rigActionTimeline(
+  cardId: string,
+  element: BattleElement,
+  heavy = false,
+): ActionSound[] {
+  const profile = cardSoundProfile(cardId, element);
+  const rate = profile.rate;
+  const voice = beastVoiceFor(cardId);
+  const launchAt = Math.round(RIG_PHASES.leap[0] * RIG_STRIKE_MS);
+  const runAt = Math.round(RIG_PHASES.run[0] * RIG_STRIKE_MS);
+  const out: ActionSound[] = [];
+  if (voice) out.push({ at: 0, src: voice, volume: 0.4, rate: 1, what: 'voice' });
+  out.push({ at: 60, src: ELEMENT_FX[element].attack, volume: 0.22, rate: 0.9, what: 'charge' });
+  out.push({ at: launchAt, src: profile.charge, volume: 0.36, rate, what: 'charge' });
+  out.push({ at: runAt + 120, src: ELEMENT_FX[element].attack, volume: 0.2, rate: 1.1, what: 'charge' });
+  out.push({ at: RIG_IMPACT_MS - 90, src: CLASH_FX.flip, volume: 0.26, rate: 0.8, what: 'charge' });
+  out.push({ at: RIG_IMPACT_MS, src: profile.impact, volume: heavy ? 0.7 : 0.58, rate, what: 'strike' });
+  out.push({ at: RIG_IMPACT_MS, src: CLASH_FX.impact, volume: heavy ? 0.6 : 0.46, rate: 0.9, what: 'strike' });
+  out.push({ at: RIG_IMPACT_MS + 130, src: profile.impact, volume: 0.4, rate: rate * 1.08, what: 'strike' });
+  out.push({ at: RIG_IMPACT_MS + 250, src: profile.impact, volume: 0.34, rate: rate * 0.94, what: 'strike' });
+  out.push({ at: RIG_IMPACT_MS + 330, src: heavy ? CLASH_FX.heavyImpact : profile.tail, volume: heavy ? 0.55 : 0.34, rate, what: 'tail' });
+  return out;
+}
+
+/**
  * 組出一次出手的完整聲音。
  *
  * side 不是玩家就**不放本體叫聲**——業主定調以玩家為主，
@@ -365,7 +395,10 @@ export function beastActionTimeline(
   element: BattleElement,
   side: 'player' | 'opponent',
   heavy = false,
+  /** 這隻神獸有戰鬥動畫（跳出卡片咬對手）：聲音改走與動畫階段對齊的時間軸 */
+  rig = false,
 ): ActionSound[] {
+  if (rig && side === 'player') return rigActionTimeline(cardId, element, heavy);
   const profile = cardSoundProfile(cardId, element);
   const rate = profile.rate;
   const out: ActionSound[] = [];
@@ -397,9 +430,10 @@ export function playBeastAction(
   element: BattleElement,
   side: 'player' | 'opponent',
   heavy = false,
+  rig = false,
 ): () => void {
   if (typeof window === 'undefined') return () => {};
-  const timers = beastActionTimeline(cardId, element, side, heavy).map((cue) =>
+  const timers = beastActionTimeline(cardId, element, side, heavy, rig).map((cue) =>
     cue.at === 0
       ? (play(cue.src, cue.volume, cue.rate), 0)
       : window.setTimeout(() => play(cue.src, cue.volume, cue.rate), cue.at),

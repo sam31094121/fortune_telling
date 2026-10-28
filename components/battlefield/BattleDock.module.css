@@ -12,9 +12,9 @@
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 1fr);
-  gap: 8px;
+  gap: 6px;
   align-items: stretch;
-  padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
+  padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid #3b4e69;
   border-radius: 14px 14px 0 0;
   background: linear-gradient(#0d1a2e, #08111f);
@@ -25,10 +25,10 @@
   display: grid;
   grid-template-rows: auto auto auto auto;
   justify-items: center;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
   min-height: 44px;
-  padding: 6px 4px 5px;
+  padding: 5px 4px 4px;
   border: 1px solid #4f6a86;
   border-radius: 12px;
   color: #dbeafe;
@@ -36,23 +36,23 @@
   touch-action: manipulation;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
-.card > span:first-child { width: min(100%, 64px); }
+.card > span:first-child { width: min(100%, 56px); }
 .card strong {
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
   line-height: 1.2;
 }
-.card small { font-size: 11px; line-height: 1.2; color: #a9bfd8; }
+.card small { font-size: 10px; line-height: 1.2; color: #a9bfd8; }
 /* 生命能量條：卡片正下方，一眼看出還剩多少；護盾疊在生命之後；三成以下轉紅 */
 .energy {
   position: relative;
   display: block;
   width: 100%;
-  height: 7px;
+  height: 6px;
   overflow: hidden;
   border-radius: 999px;
   background: #060d18;
@@ -113,11 +113,11 @@
   font-weight: 900;
 }
 /* 白虎等有戰鬥動畫的神獸出擊時：這張卡的卡面暫時淡出（牠已跳出去），名字與能量條照留；回到卡片前恢復。
-   區間取自 lib/beast-game/beast-rig.ts 的 RIG_CARD_HIDDEN（14%～90%），總長由 --rig-ms 帶入。 */
+   區間取自 lib/beast-game/beast-rig.ts 的 RIG_CARD_HIDDEN（14%～80%），總長由 --rig-ms 帶入。 */
 @keyframes rigCardAway {
   0%, 13% { opacity: 1; visibility: visible; }
-  14%, 89% { opacity: 0.12; visibility: visible; }
-  96%, 100% { opacity: 1; visibility: visible; }
+  14%, 79% { opacity: 0.12; visibility: visible; }
+  86%, 100% { opacity: 1; visibility: visible; }
 }
 .card[data-rig='true'] > span:first-child {
   animation: rigCardAway var(--rig-ms, 1800ms) linear both;

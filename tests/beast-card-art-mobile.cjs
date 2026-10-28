@@ -73,7 +73,7 @@ fs.mkdirSync(output, { recursive: true });
         await guide.getByRole('button', { name: '卡片能力', exact: true }).tap();
         await guide.getByRole('button', { name: '回到操控', exact: true }).tap();
         assert.equal(await page.locator('[data-battle-visual]').textContent(), before, 'Inspection consumes no action or HP');
-        await commands.getByRole('button', { name: /^普通攻擊/ }).tap();
+        await commands.getByRole('button', { name: /普通攻擊/ }).tap();
         assert.notEqual(await page.locator('[data-battle-visual]').textContent(), before, 'Attack still advances combat');
         // 玩家出戰卡在畫面最下方的出戰卡列：執行過的攻擊會標在主戰卡上，卡片本身不離開出戰列
         assert.equal(await page.locator('[data-dock-card][data-active="true"]').getAttribute('data-action'), 'ATTACK', 'An executed attack is marked on the active dock card');
@@ -82,7 +82,7 @@ fs.mkdirSync(output, { recursive: true });
         for (let action = 0; action < 100 && await page.locator('[data-battle-result]').count() === 0; action++) {
           const next = page.getByRole('button', { name: '繼續，對手換卡', exact: true });
           if (await next.count()) await next.tap();
-          else await page.getByRole('button', { name: /^普通攻擊/ }).tap();
+          else await page.getByRole('button', { name: /普通攻擊/ }).tap();
         }
         await page.locator('[data-battle-result]').waitFor();
         assert.match(await page.locator('[data-battle-result]').innerText(), /押注 0 張・贏得 0 張・輸掉 0 張/);

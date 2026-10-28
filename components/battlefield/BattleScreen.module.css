@@ -189,3 +189,14 @@
   border-radius: 0;
   background: transparent;
 }
+
+/* 一體成型（中等、困難）：操作區是內容高度（內容多時自己捲動），戰場拿走其餘高度。 */
+.split[data-dock='true'] { grid-template-rows: minmax(0, 1fr) auto; }
+.split[data-dock='true'] > [data-battle-controls] { max-height: 44dvh; }
+
+/* 一體成型：次要資訊（本回合戰報、離開本場、體驗戰說明）收成緊湊的小列，兩個摺疊項併排，不佔多餘的卡片空間。 */
+.split[data-dock='true'] [data-control-scroll] { padding: 6px 10px 8px; }
+.split[data-dock='true'] [data-control-scroll] details { display: inline-block; vertical-align: top; width: calc(50% - 4px); margin: 4px 0 0; padding: 0; }
+.split[data-dock='true'] [data-control-scroll] details[open] { display: block; width: 100%; }
+.split[data-dock='true'] [data-control-scroll] details summary { min-height: 36px; font-size: 13px; }
+.split[data-dock='true'] [data-control-scroll] p[data-battle-stake], .split[data-dock='true'] [data-control-scroll] p[data-battle-resumed] { margin: 4px 0 0; padding: 4px 8px; font-size: 12px; line-height: 1.4; }

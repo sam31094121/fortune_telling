@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { RIG_STRIKE_MS, rigFrameUrl, strikeFrame, type BeastRig, type RigFrameId } from '@/lib/beast-game/beast-rig';
+import { RIG_MESH, RIG_STRIKE_EVENT, RIG_STRIKE_MS, cameraFrame, livingPose, meshDisplace, rendFrame, rigFrameUrl, storyTime, strikeFrame, type BeastRig, type RigFrameId } from '@/lib/beast-game/beast-rig';
 
 type Rect = { cx: number; top: number; height: number; width: number };
 
@@ -21,6 +21,8 @@ export interface BeastRigGeometry {
   from: Rect;
   /** 對手卡插圖位置（精靈跑向這裡） */
   to: Rect;
+  /** 鏡頭推進的中心（戰場自己的座標，開始播放前量一次，震動時不再量，避免越量越偏） */
+  cameraOrigin?: string;
 }
 
 const toRect = (el: Element): Rect => {
@@ -31,7 +33,7 @@ const toRect = (el: Element): Rect => {
 export interface RigPlacement { x: number; y: number; unit: number; rotation: number; mirror: boolean; }
 
 /** 站位：起點＝玩家卡面下緣偏上，終點＝對手卡面下緣；越往對手越遠，略縮小製造景深。 */
-export function placeRig(geometry: BeastRigGeometry, frame: ReturnType<typeof strikeFrame>): RigPlacement {
+export function placeRig(geometry: BeastRigGeometry, frame: ReturnType<typeof strikeFrame>, size = 1): RigPlacement {
   const progress = frame.travel.progress;
   const startX = geometry.from.cx;
   const startY = geometry.from.top + geometry.from.height * 0.8;
@@ -39,8 +41,11 @@ export function placeRig(geometry: BeastRigGeometry, frame: ReturnType<typeof st
   const endY = geometry.to.top + geometry.to.height * 0.82;
   const depth = 1 - 0.14 * progress;
   // 基準大小：最寬的姿勢（寬約 2.2 倍基準）不超過可用寬度的 70%
-  const unit = geometry.arenaWidth * 0.3 * frame.scale * depth;
-  const x = startX + (endX - startX) * progress;
+  const unit = geometry.arenaWidth * 0.3 * frame.scale * depth * size;
+  const mirror0 = endX - startX > 8;
+  // 咬合時把頭壓到對手卡中央（精靈本來面向左，頭在身體的前端）：抵達後才位移，路上不受影響
+  const biteShift = (mirror0 ? -1 : 1) * unit * 0.55 * Math.pow(Math.max(0, progress), 6);
+  const x = startX + (endX - startX) * progress + biteShift;
   const base = startY + (endY - startY) * progress;
   const y = base - frame.travel.hop * unit;
   // 朝向：精靈本來面向左；對手在右邊就鏡射。往對手的方向抬頭，最多約 37 度
@@ -120,23 +125,87 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
     const { w, h, dpr } = size.current;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
-    const frame = strikeFrame(t);
-    const place = placeRig(geometry, frame);
-    const norms = new Map(rig.frames.map((f) => [f.id, f.norm] as const));
-    ctx.save();
-    ctx.translate(place.x, place.y);
-    ctx.rotate(place.rotation * (place.mirror ? 1 : -1));
-    ctx.scale(place.mirror ? -1 : 1, frame.squash);
-    for (const layer of frame.layers) {
-      const image = images.current.get(layer.frame);
-      if (!image) continue;
-      const dh = place.unit * (norms.get(layer.frame) ?? 1);
-      const dw = (image.naturalWidth / image.naturalHeight) * dh;
-      ctx.globalAlpha = layer.alpha * frame.alpha;
-      // 腳底錨點：圖的下緣中間偏上，讓縱躍與縮放以腳為軸
-      ctx.drawImage(image, -dw * 0.5, -dh * 0.92, dw, dh);
+    const style = rig.style;
+    const frame = strikeFrame(t, style);
+    // 鏡頭：整個戰場（不含出戰卡列）隨咬合震動並推進，以對手卡為中心；只動 transform，不影響版面
+    const arena = document.querySelector<HTMLElement>('[data-battle-visual]');
+    if (arena) {
+      const cam = cameraFrame(t, style);
+      if (geometry.cameraOrigin) arena.style.transformOrigin = geometry.cameraOrigin;
+      arena.style.transform = cam.zoom === 1 && cam.shakeX === 0 && cam.shakeY === 0 ? '' : `translate(${cam.shakeX.toFixed(2)}px, ${cam.shakeY.toFixed(2)}px) scale(${cam.zoom.toFixed(4)})`;
     }
-    ctx.restore();
+    const place = placeRig(geometry, frame, style.size);
+    const norms = new Map(rig.frames.map((f) => [f.id, f.norm] as const));
+    // 身體：同一套畫法，本體與殘影共用（殘影只是較早時刻的本體，淡、不鏡頭外）
+    const paint = (f: ReturnType<typeof strikeFrame>, p: RigPlacement, fade: number, jitter: number, tt: number) => {
+      ctx.save();
+      // 震動：固定頻率的正弦（不用亂數），蓄勢是顫抖、命中是震盪
+      const sx = Math.sin(t * 900) * f.shake * 5 * jitter;
+      const sy = Math.cos(t * 1100) * f.shake * 3 * jitter;
+      ctx.translate(p.x + sx, p.y + sy);
+      ctx.rotate(p.rotation * (p.mirror ? 1 : -1));
+      ctx.scale(p.mirror ? -1 : 1, f.squash);
+      for (const layer of f.layers) {
+        const image = images.current.get(layer.frame);
+        if (!image) continue;
+        const dh = p.unit * (norms.get(layer.frame) ?? 1);
+        const dw = (image.naturalWidth / image.naturalHeight) * dh;
+        ctx.globalAlpha = layer.alpha * f.alpha * fade;
+        const anchors = rig.frames.find((x) => x.id === layer.frame)?.anchors;
+        if (style.wave > 0 && anchors) {
+          // 活體：把圖切成網格，每個頂點依各部位的動作位移（頭、下顎、前爪、後爪、身體、尾巴各自動），
+          // 每格拆成兩個三角形，各用仿射變換貼上並從中心外擴 0.6px，格與格不出縫
+          const { cols, rows } = RIG_MESH;
+          const aspect = image.naturalWidth / image.naturalHeight;
+          const pose = livingPose(tt, style);
+          const vx = new Float32Array((cols + 1) * (rows + 1));
+          const vy = new Float32Array((cols + 1) * (rows + 1));
+          for (let j = 0; j <= rows; j++) for (let i = 0; i <= cols; i++) {
+            const u = i / cols; const v = j / rows;
+            const [mx, my] = meshDisplace(u, v, aspect, anchors, pose, tt, style);
+            vx[j * (cols + 1) + i] = -dw * 0.5 + u * dw + mx * dh;
+            vy[j * (cols + 1) + i] = -dh * 0.92 + v * dh + my * dh;
+          }
+          const base = ctx.getTransform();
+          const iw = image.naturalWidth;
+          const ih = image.naturalHeight;
+          const sw = iw / cols;
+          const sh = ih / rows;
+          /** 把圖上三角形 (s0,s1,s2) 貼到畫面上三角形 (d0,d1,d2)：仿射變換＋三角形裁切；三角形從中心外擴約 0.6px，格與格不留縫 */
+          const tri = (s0x: number, s0y: number, s1x: number, s1y: number, s2x: number, s2y: number, d0x: number, d0y: number, d1x: number, d1y: number, d2x: number, d2y: number) => {
+            const det = (s1x - s0x) * (s2y - s0y) - (s2x - s0x) * (s1y - s0y);
+            if (Math.abs(det) < 1e-6) return;
+            const a11 = ((d1x - d0x) * (s2y - s0y) - (d2x - d0x) * (s1y - s0y)) / det;
+            const a21 = ((d1y - d0y) * (s2y - s0y) - (d2y - d0y) * (s1y - s0y)) / det;
+            const a12 = ((d2x - d0x) * (s1x - s0x) - (d1x - d0x) * (s2x - s0x)) / det;
+            const a22 = ((d2y - d0y) * (s1x - s0x) - (d1y - d0y) * (s2x - s0x)) / det;
+            const cx = (d0x + d1x + d2x) / 3; const cy = (d0y + d1y + d2y) / 3;
+            const grow = (x: number, y: number): [number, number] => { const l = Math.hypot(x - cx, y - cy) || 1; return [x + ((x - cx) / l) * 0.6, y + ((y - cy) / l) * 0.6]; };
+            const [g0x, g0y] = grow(d0x, d0y); const [g1x, g1y] = grow(d1x, d1y); const [g2x, g2y] = grow(d2x, d2y);
+            ctx.setTransform(base);
+            ctx.beginPath(); ctx.moveTo(g0x, g0y); ctx.lineTo(g1x, g1y); ctx.lineTo(g2x, g2y); ctx.closePath(); ctx.clip();
+            ctx.transform(a11, a21, a12, a22, d0x - a11 * s0x - a12 * s0y, d0y - a21 * s0x - a22 * s0y);
+            // 只畫這個三角形涵蓋的那一小塊來源圖（外擴 1px），不重畫整張
+            const bx = Math.max(0, Math.min(s0x, s1x, s2x) - 1); const by = Math.max(0, Math.min(s0y, s1y, s2y) - 1);
+            const bw = Math.min(iw - bx, Math.max(s0x, s1x, s2x) - bx + 1); const bh = Math.min(ih - by, Math.max(s0y, s1y, s2y) - by + 1);
+            ctx.drawImage(image, bx, by, bw, bh, bx, by, bw, bh);
+          };
+          for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+            const i00 = j * (cols + 1) + i; const i10 = i00 + 1; const i01 = i00 + cols + 1; const i11 = i01 + 1;
+            const x0 = i * sw; const y0 = j * sh; const x1 = x0 + sw; const y1 = y0 + sh;
+            ctx.save();
+            tri(x0, y0, x1, y0, x0, y1, vx[i00], vy[i00], vx[i10], vy[i10], vx[i01], vy[i01]);
+            ctx.restore();
+            ctx.save();
+            tri(x1, y1, x0, y1, x1, y0, vx[i11], vy[i11], vx[i01], vy[i01], vx[i10], vy[i10]);
+            ctx.restore();
+          }
+          ctx.setTransform(base);
+        } else ctx.drawImage(image, -dw * 0.5, -dh * 0.92, dw, dh);
+      }
+      ctx.restore();
+    };
+    // 咬合白閃畫在身體後面：只給對手卡一圈光，不蓋住神獸（蓋上去會把身體洗白、看起來糊掉）
     if (frame.flash > 0) {
       // 咬合瞬間的白閃（只給畫面用）
       const fx = geometry.to.cx;
@@ -146,6 +215,69 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
       g.addColorStop(1, 'rgba(255,244,214,0)');
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, w, h);
+    }
+    // 殘影：往回看三個時刻，越舊越淡，畫在本體下面
+    if (frame.trail > 0.05) {
+      for (let i = 3; i >= 1; i--) {
+        const past = strikeFrame(Math.max(0, t - i * 0.016), style);
+        paint(past, placeRig(geometry, past, style.size), 0.2 * frame.trail * (1 - (i - 1) / 3), 0, Math.max(0, t - i * 0.016));
+      }
+    }
+    // 腳下揚塵：腳底位置往後噴出的幾團煙（位置由時間決定，不用亂數）
+    if (frame.dust > 0.05) {
+      const back = place.mirror ? -1 : 1;
+      for (let i = 0; i < 4; i++) {
+        const age = (i + 1) / 4;
+        const px = place.x + back * place.unit * (0.35 + age * 0.7);
+        const py = place.y - place.unit * 0.05 * (1 + age);
+        const r = place.unit * (0.07 + age * 0.12);
+        const g = ctx.createRadialGradient(px, py, 0, px, py, r);
+        g.addColorStop(0, `rgba(226,214,190,${0.34 * frame.dust * (1 - age * 0.7)})`);
+        g.addColorStop(1, 'rgba(226,214,190,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    const rend = rendFrame(t, style);
+    // 撕咬的爪痕畫在神獸後面（咬下去時身體蓋住卡面，爪痕從身體周圍露出來，不蓋住龍頭）
+    if (rend.power > 0 && rend.slash > 0) {
+      const { cx, top, width, height } = geometry.to;
+      const left = cx - width / 2;
+      const fade = 1 - rend.shards * rend.shards;
+      ctx.save();
+      ctx.lineCap = 'round';
+      for (let i = 0; i < 3; i++) {
+        const off = (i - 1) * width * 0.26;
+        const x0 = left + width * 0.22 + off + width * 0.14;
+        const y0 = top + height * 0.08;
+        const x1 = x0 + width * 0.34 * rend.slash;
+        const y1 = y0 + height * 0.84 * rend.slash;
+        ctx.globalAlpha = fade * rend.power;
+        ctx.strokeStyle = 'rgba(255,120,60,0.9)'; ctx.lineWidth = Math.max(5, width * 0.055); ctx.shadowColor = 'rgba(255,90,30,0.9)'; ctx.shadowBlur = 14;
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+        ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,248,230,0.95)'; ctx.lineWidth = Math.max(2, width * 0.02);
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+      }
+      ctx.restore();
+    }
+    paint(frame, place, 1, 1, t);
+    // 撕咬的碎片畫在神獸前面（位置與進度都由時間決定，不用亂數）
+    if (rend.power > 0 && rend.slash > 0) {
+      const { cx, top, width, height } = geometry.to;
+      const fade = 1 - rend.shards * rend.shards;
+      ctx.save();
+      // 碎片：從咬點向外飛散，越遠越淡
+      const fx = cx; const fy = top + height * 0.55;
+      for (let i = 0; i < 14; i++) {
+        const ang = i * 2.399 + 0.4;
+        const dist = width * (0.15 + (i % 5) * 0.12) * rend.shards;
+        const size = Math.max(3, width * (0.03 + (i % 3) * 0.015)) * (1 - rend.shards * 0.5);
+        ctx.globalAlpha = fade * rend.power * 0.9;
+        ctx.fillStyle = i % 2 ? 'rgba(255,230,190,1)' : 'rgba(255,140,70,1)';
+        ctx.save(); ctx.translate(fx + Math.cos(ang) * dist, fy + Math.sin(ang) * dist - rend.shards * width * 0.1); ctx.rotate(ang + rend.shards * 3);
+        ctx.fillRect(-size / 2, -size / 4, size, size / 2); ctx.restore();
+      }
+      ctx.restore();
     }
     if (shadow.current) {
       const lift = Math.min(1, frame.travel.hop * 2.2);
@@ -170,19 +302,29 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
     const measure = (): BeastRigGeometry | null => {
       const mine = document.querySelector('[data-dock-card][data-active="true"] [data-card-thumbnail]') ?? document.querySelector('[data-dock-card][data-active="true"]');
       const foe = document.querySelector('[data-fighter="opponent"] [data-art-slot]');
-      return mine && foe ? { arenaWidth: Math.min(window.innerWidth, 640), from: toRect(mine), to: toRect(foe) } : null;
+      const arena = document.querySelector<HTMLElement>('[data-battle-visual]');
+      const to = foe ? toRect(foe) : null;
+      const ar = arena?.getBoundingClientRect();
+      const cameraOrigin = to && ar ? `${to.cx - ar.left}px ${to.top + to.height / 2 - ar.top}px` : undefined;
+      return mine && foe && to ? { arenaWidth: Math.min(window.innerWidth, 640), from: toRect(mine), to, cameraOrigin } : null;
     };
     const clear = () => {
       const el = canvas.current;
       el?.getContext('2d')?.clearRect(0, 0, el.width, el.height);
       root.dataset.rigActive = 'false';
+      document.querySelector<HTMLElement>('[data-battle-visual]')?.style.removeProperty('transform');
       if (shadow.current) shadow.current.style.opacity = '0';
     };
 
     if (seek !== null) {
       const geometry = measure();
-      if (geometry) draw(seek, geometry);
-      return;
+      if (geometry) {
+        draw(seek, geometry);
+        // 剛載入的圖可能還沒解碼完：下一幀與稍後再畫一次（只有預覽頁的靜態檢視會走到這裡）
+        raf.current = requestAnimationFrame(() => draw(seek, geometry));
+        timer.current = setTimeout(() => draw(seek, geometry), 400);
+      }
+      return () => { cancelAnimationFrame(raf.current); clearTimeout(timer.current); };
     }
     if (playKey === null) return;
 
@@ -191,11 +333,14 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
       if (!geometry) return;
       const startedAt = performance.now();
       root.dataset.rigActive = 'true';
+      // 動畫「真正開始」的瞬間通知聲音：聲音與動畫各自計時會差約 0.3 秒，改由動畫發令（只是訊號，不含任何戰鬥資料）
+      window.dispatchEvent(new CustomEvent(RIG_STRIKE_EVENT, { detail: { cardId: rig.cardId } }));
       const step = (now: number) => {
-        const t = Math.min(1, (now - startedAt) / RIG_STRIKE_MS);
+        const real = Math.min(1, (now - startedAt) / RIG_STRIKE_MS);
+        const t = storyTime(real); // 咬合後慢動作約 120 毫秒，之後追回，總長不變
         draw(t, geometry);
         onFrame?.(t);
-        if (t < 1) raf.current = requestAnimationFrame(step);
+        if (real < 1) raf.current = requestAnimationFrame(step);
         else clear();
       };
       raf.current = requestAnimationFrame(step);

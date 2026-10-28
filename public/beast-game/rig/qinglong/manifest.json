@@ -1,0 +1,43 @@
+{
+  "card": "qinglong",
+  "round": "9",
+  "source": "public/beast-game/front/guardian-qinglong.v2.webp",
+  "frames": [
+    {
+      "id": "bite-close",
+      "file": "bite-close.webp",
+      "width": 1600,
+      "height": 1384,
+      "area": 1047213,
+      "bytes": 518794,
+      "norm": 1
+    },
+    {
+      "id": "pounce-open",
+      "file": "pounce-open.webp",
+      "width": 1600,
+      "height": 1421,
+      "area": 1087439,
+      "bytes": 557890,
+      "norm": 0.9813
+    },
+    {
+      "id": "run-gather",
+      "file": "run-gather.webp",
+      "width": 1600,
+      "height": 913,
+      "area": 719590,
+      "bytes": 465386,
+      "norm": 1.2064
+    },
+    {
+      "id": "run-reach",
+      "file": "run-reach.webp",
+      "width": 1600,
+      "height": 1209,
+      "area": 790426,
+      "bytes": 453970,
+      "norm": 1.151
+    }
+  ]
+}
