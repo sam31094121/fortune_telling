@@ -255,8 +255,15 @@ export function calculateLifeCode(body: unknown) {
   const meaning = meanings.entries.find(entry => entry.number === mainCard.final_value);
   const meaningSource = registry.sources.find(source => source.id === meaning?.sourceId);
   const meaningAvailable = mainCard.status === 'PASSED' && meaning?.reviewStatus === 'SOURCE_CHECKED' && meaningSource?.status === 'LOCATED';
-  const birthdayPassedThisYear = target.m > birth.m || (target.m === birth.m && target.d >= birth.d);
-  const age = Math.max(0, target.y - birth.y - (birthdayPassedThisYear ? 0 : 1));
+  const completedAgeOn = (ref: ReturnType<typeof dateParts>) => {
+    const passed = ref.m > birth.m || (ref.m === birth.m && ref.d >= birth.d);
+    return { age: Math.max(0, ref.y - birth.y - (passed ? 0 : 1)), birthdayPassedThisYear: passed };
+  };
+  const today = dateParts(todayInTaipei(), '今日日期');
+  const { age, birthdayPassedThisYear } = completedAgeOn(target);
+  const { age: currentAge, birthdayPassedThisYear: currentBirthdayPassedThisYear } = completedAgeOn(today);
+  const minimumAge = meanings.asuraTimelinePolicy.minimumAge;
+  const isTimelineEligible = age >= minimumAge && currentAge >= minimumAge;
   const stageKey = age <= 16 ? 'youth' : age <= 32 ? 'vanguard' : age <= 48 ? 'commander' : 'sovereign';
   const stageInfo = meanings.ageStages[stageKey];
   const birthdayStatusText = birthdayPassedThisYear ? '今年生日已過' : '今年生日未到';
@@ -275,11 +282,16 @@ export function calculateLifeCode(body: unknown) {
       : '這個主數的解說來源尚未完成核對，暫時無法取得。',
     content: meaningAvailable && meaning ? {
       title: `${meaning.number} · ${meaning.title}`, declaration: meaning.declaration, meaning: meaning.meaning,
-      asuraTimeline: {
+      asuraTimeline: isTimelineEligible ? {
+        status: 'AVAILABLE' as const,
+        minimumAge,
+        statusMessage: '',
         subjectName: displaySubject,
         hasCustomName: Boolean(name),
         age,
+        currentAge,
         birthdayPassedThisYear,
+        currentBirthdayPassedThisYear,
         isStageTransitionPending,
         stageKey,
         stageLabel: stageInfo.rangeLabel,
@@ -318,6 +330,23 @@ export function calculateLifeCode(body: unknown) {
             highlight: true,
           },
         ],
+      } : {
+        status: 'WITHHELD' as const,
+        minimumAge,
+        statusMessage: meanings.asuraTimelinePolicy.withheldMessage,
+        subjectName: displaySubject,
+        hasCustomName: Boolean(name),
+        age,
+        currentAge,
+        birthdayPassedThisYear,
+        currentBirthdayPassedThisYear,
+        isStageTransitionPending: false,
+        stageKey: null,
+        stageLabel: '',
+        nextStageLabel: '',
+        subjectBadge: `受測者：${displaySubject} ｜ 實歲 ${age} 歲（${birthdayStatusText}）`,
+        openingCallout: '',
+        cards: [],
       },
       sections: [
         { id: 'strength', title: meanings.labels.strength, text: meaning.strength, next: meanings.labels.nextChallenge },

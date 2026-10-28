@@ -122,6 +122,9 @@ equal(one,calculate('1974-06-28').exploration.answer.primaryReading);
 equal(one.content.meaning,covered.get(1).meaning);
 assert.notEqual(one.content.evidence,covered.get(1).evidence);checks++;
 const namedOne=calculate('1974-06-28',{name:'曾威諺',targetDate:'2026-10-28'}).exploration.answer.primaryReading.content.asuraTimeline;
+equal(namedOne.status,'AVAILABLE');
+equal(namedOne.minimumAge,18);
+equal(namedOne.statusMessage,'');
 equal(namedOne.subjectName,'曾威諺');
 equal(namedOne.age,52);
 equal(namedOne.birthdayPassedThisYear,true);
@@ -130,15 +133,37 @@ equal(namedOne.stageKey,'sovereign');
 assert(namedOne.openingCallout.startsWith('曾威諺。你現年 52 歲'));checks++;
 equal(namedOne.cards.map(c=>c.id),['past','present','future']);
 assert.notEqual(namedOne.cards[1].text,calculate('2001-06-26',{targetDate:'2026-10-28'}).exploration.answer.primaryReading.content.asuraTimeline.cards[1].text);checks++;
+for(const [birthDate,targetDate,expectedAge,passed] of [
+  ['2009-10-29','2026-10-28',16,false],
+  ['2009-10-28','2026-10-28',17,true],
+  ['2008-10-29','2026-10-28',17,false],
+  ['2010-05-01','2035-05-01',25,true],
+  ['1993-07-24','2010-07-23',16,false],
+]) {
+  const withheld=calculate(birthDate,{targetDate}).exploration.answer.primaryReading.content.asuraTimeline;
+  equal(withheld.status,'WITHHELD');
+  equal(withheld.minimumAge,18);
+  equal(withheld.age,expectedAge);
+  equal(withheld.birthdayPassedThisYear,passed);
+  equal(withheld.isStageTransitionPending,false);
+  equal(withheld.stageKey,null);
+  equal(withheld.stageLabel,'');
+  equal(withheld.nextStageLabel,'');
+  equal(withheld.openingCallout,'');
+  equal(withheld.cards,[]);
+  assert(withheld.statusMessage.includes('實歲滿 18 歲')); checks++;
+  assert(withheld.subjectBadge.includes(passed?'今年生日已過':'今年生日未到')); checks++;
+}
 for(const [birthDate,expectedAge,passed,pending,stage,nextStage] of [
-  ['2009-10-29',16,false,true,'youth','17–32 歲 · 破陣立業期'],
-  ['2009-10-28',17,true,false,'vanguard','33–48 歲 · 中場扛局期'],
+  ['2008-10-28',18,true,false,'vanguard','33–48 歲 · 中場扛局期'],
   ['1993-10-29',32,false,true,'vanguard','33–48 歲 · 中場扛局期'],
   ['1993-10-28',33,true,false,'commander','49 歲以上 · 統帥定局期'],
   ['1977-10-29',48,false,true,'commander','49 歲以上 · 統帥定局期'],
   ['1977-10-28',49,true,false,'sovereign','統帥定局與傳承收官期'],
 ]) {
   const tl=calculate(birthDate,{targetDate:'2026-10-28'}).exploration.answer.primaryReading.content.asuraTimeline;
+  equal(tl.status,'AVAILABLE');
+  equal(tl.minimumAge,18);
   equal(tl.age,expectedAge); equal(tl.birthdayPassedThisYear,passed); equal(tl.isStageTransitionPending,pending);
   equal(tl.stageKey,stage); equal(tl.nextStageLabel,nextStage);
   assert(tl.subjectBadge.includes(passed?'今年生日已過':'今年生日未到')); checks++;
