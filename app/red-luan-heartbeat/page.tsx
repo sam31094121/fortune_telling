@@ -59,11 +59,11 @@ type IChingReading = {
   onion: Array<{ step: number; layer: string; point: string; term?: string }>;
   closing: string;
   karmicBond: { title: string; owed: string; lesson: string; reunion: string; note: string };
-  teachers: Array<{ key: string; name: string; tagline: string; preview: string; opening: string; sections: Array<{ title: string; text: string }>; closing: string }>;
+  teachers: Array<{ key: string; name: string; tagline: string; preview: string; opening: string; sections: Array<{ title: string; text: string }>; closing: string; sources?: Array<{ title: string; reference: string }> }>;
   seedText: string;
 };
 type BaziSignal = { annualYear: number; annualBranch: string; inputCompleteness: string; natalEvidence: Evidence[]; annualTriggers: Evidence[]; limitations: string[]; sources: Array<{ title: string; reference: string }> };
-type ZiweiSignal = { status: 'READY' | 'UNAVAILABLE_BIRTH_TIME_REQUIRED'; inputCompleteness: string; palaces?: Array<{ palace: string; earthlyBranch: string; majorStars: string[]; minorStars: string[] }>; limitations: string[] };
+type ZiweiSignal = { starGuidance?: Array<{ name: string; role: string; sourcePalace: string; source: string; power: string; challenge: string; direction: string; action: string }>; lifePalace?: { palace: string; earthlyBranch: string; majorStars: string[]; minorStars: string[] }; status: 'READY' | 'UNAVAILABLE_BIRTH_TIME_REQUIRED'; inputCompleteness: string; palaces?: Array<{ palace: string; earthlyBranch: string; majorStars: string[]; minorStars: string[] }>; limitations: string[] };
 type RelationshipStatus = 'SINGLE_NEVER_MARRIED' | 'DATING' | 'MARRIED' | 'SEPARATED' | 'DIVORCED' | 'WIDOWED';
 type FamilyResponsibility = 'NO_CHILDREN_OR_PRIMARY_CARE' | 'LIVE_WITH_OR_CARE_FOR_PARENTS' | 'HAS_CHILDREN' | 'CARE_FOR_OTHER_FAMILY';
 type CurrentExpectation = 'MEET_SOMEONE' | 'STABLE_RELATIONSHIP' | 'MARRIAGE_PLANNING' | 'REPAIR_RELATIONSHIP';
@@ -570,6 +570,7 @@ function CalculationEvidence({ result }: { result: Reading['result'] }) {
 function RedLuanHeartbeatExperience() {
   const [form, setForm] = useState<BirthProfile>(EMPTY_FORM);
   const [context, setContext] = useState<SelfReportedContext>(EMPTY_CONTEXT);
+  const [guidedQuestion, setGuidedQuestion] = useState(0);
   const [missing, setMissing] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -581,7 +582,7 @@ function RedLuanHeartbeatExperience() {
   const [appliedContext, setAppliedContext] = useState<SelfReportedContext>(EMPTY_CONTEXT);
   /** 洋蔥剝到第幾層（0 = 只開第一層）。 */
   const [peeled, setPeeled] = useState(0);
-  const [teacherKey, setTeacherKey] = useState('iching');
+  const [teacherKey, setTeacherKey] = useState('asura');
   /** 目前展開的折疊區塊。預設全部收起，首屏只留客戶最想看的兩個答案。 */
   const [openedFolds, setOpenedFolds] = useState<string[]>([]);
   const [inLineBrowser, setInLineBrowser] = useState(false);
@@ -878,6 +879,7 @@ function RedLuanHeartbeatExperience() {
       await ritual;
       if (requestRef.current !== controller) return;
       if (mode === 'initial') {
+        setGuidedQuestion(0);
         setRitualStep(RITUAL_LINES.length - 1);
         await new Promise((resolve) => { setTimeout(resolve, 700); });
       }
@@ -891,7 +893,7 @@ function RedLuanHeartbeatExperience() {
         setOpenedLayer(0);
         setReflectionChoice('');
         setPeeled(0);
-        setTeacherKey('iching');
+        setTeacherKey('asura');
         setOpenedFolds([]);
         setFollowUp('idle');
     setShowReminderMonths(false);
@@ -906,7 +908,8 @@ function RedLuanHeartbeatExperience() {
         giftTotal: giftFoldKeysOf(payload).length,
         hourKnown: payload.person.hourKnown,
       });
-      const anchor = mode === 'refine' ? 'red-luan-layer-1' : 'red-luan-result';
+      if (mode === 'refine') setOpenedFolds((current) => [...new Set([...current, 'teachers'])]);
+      const anchor = mode === 'refine' ? 'red-luan-teachers' : 'red-luan-when';
       scrollToTarget(() => document.getElementById(anchor));
     } catch (requestError) {
       ritualLive = false;
@@ -934,8 +937,19 @@ function RedLuanHeartbeatExperience() {
   }
 
   function updateContext<Key extends keyof SelfReportedContext>(key: Key, value: SelfReportedContext[Key]) {
-    setContext((current) => ({ ...current, [key]: value }));
+    if (loading) return;
+    const nextContext = { ...context, [key]: value };
+    setContext(nextContext);
     setError('');
+    // Clearing a previous answer stays on that question. A choice advances;
+    // the final request receives the new value, not the previous render's state.
+    if (!value) return;
+    if (guidedQuestion < CONTEXT_GROUPS.length - 1) {
+      setGuidedQuestion((step) => step + 1);
+      scrollToTarget(() => document.getElementById('red-luan-guided-context'));
+    } else {
+      void submit(form, nextContext, 'refine');
+    }
   }
 
   const contextDirty = (Object.keys(EMPTY_CONTEXT) as ContextField[]).some((field) => context[field] !== appliedContext[field]);
@@ -1141,7 +1155,7 @@ function RedLuanHeartbeatExperience() {
           免責與後端稽核資料也全部往後收，讓它們在「想查」時才出現。
         */}
         <header className="rounded-3xl border border-cyan-200/25 bg-cyan-300/[0.08] p-5">
-          <p className="text-xs font-black tracking-[0.18em] text-cyan-100/75">結果已產生，可由上方卡片查看各項內容</p>
+          <p className="text-xs font-black tracking-[0.18em] text-cyan-100/75">先看最近紅鸞，再選你的現況，最後看行動提醒</p>
           <h2 className="mt-1 text-2xl font-black text-white">{reading.person.name ? `${reading.person.name}，這是你的紅鸞` : '這是你的紅鸞'}</h2>
           {/*
             回訪那一句原本只出現在送出前，客戶按下去就消失了——
@@ -1160,6 +1174,7 @@ function RedLuanHeartbeatExperience() {
                 title={reading.nextEncounters.soulResonance?.kind === 'BOTH' ? '下一次紅鸞心動・桃花和貴人同一個月' : '下一次紅鸞心動月份'}
                 tone="rose"
               />
+              {reading.ichingReading && <button type="button" className="w-full rounded-2xl border border-rose-100/60 bg-rose-300/20 px-5 py-4 text-lg font-black text-rose-50" onClick={() => { setGuidedQuestion(0); toggleFoldOpen('refine'); scrollToTarget(() => document.getElementById('red-luan-guided-context')); }}>看這段時間，我該怎麼行動 →</button>}
               {reading.nextEncounters.benefactor
                 && reading.nextEncounters.benefactor.startsOn !== reading.nextEncounters.soulResonance?.startsOn && (
                 <EncounterCard
@@ -1213,7 +1228,7 @@ function RedLuanHeartbeatExperience() {
             </div>
           )}
           {reading.ichingReading && <div className="mt-4 rounded-2xl border border-violet-200/30 bg-violet-400/[0.1] p-4">
-            <p className="text-sm font-black text-violet-100">想聽誰替你解這一卦？</p>
+            <p className="text-sm font-black text-violet-100">你的解說</p>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               {(reading.ichingReading.teachers ?? []).map((teacher) => (
                 <button
@@ -1263,16 +1278,18 @@ function RedLuanHeartbeatExperience() {
             {reading.ichingReading && <>
             {/* 補填區原本埋在證據折疊的第二層裡，客戶找不到。提到頂層。 */}
             <Fold
-              title="想讓引導更貼近你嗎？"
+              title="接著看你的現況"
+              anchorId="red-luan-guided-context"
               badge={answeredCount > 0 ? `已填 ${answeredCount} 項` : '選填'}
-              teaser="回答幾題，下面的引導會換成更貼近你的說法；全部跳過也不影響上面的答案"
+              teaser="選完自動到下一題，最後直接看行動提醒；不想回答可以跳過"
               foldKey="refine"
               opened={openedFolds}
               onToggle={toggleFold}
             >
           <div className="mt-4 space-y-3">
-            {CONTEXT_GROUPS.map((group) => (
-              <div key={group.field} data-context-field={group.field}>
+            <p className="text-sm font-black text-amber-100" aria-live="polite">選項 {guidedQuestion + 1} / {CONTEXT_GROUPS.length}</p>
+            {CONTEXT_GROUPS.map((group, index) => (
+              <div key={group.field} data-context-field={group.field} hidden={index !== guidedQuestion}>
                 <ContextChoiceGroup
                   title={group.title}
                   reason={group.reason}
@@ -1286,14 +1303,18 @@ function RedLuanHeartbeatExperience() {
             ))}
           </div>
 
-          {contextDirty && (
+          <div className="mt-4 flex gap-3">
+            {guidedQuestion > 0 && <button type="button" disabled={loading} className="rounded-xl border border-white/20 px-4 py-3 text-white" onClick={() => setGuidedQuestion((step) => step - 1)}>上一步</button>}
+            {guidedQuestion < CONTEXT_GROUPS.length - 1 && <button type="button" disabled={loading} className="flex-1 rounded-xl border border-amber-100/50 bg-amber-300/20 px-4 py-3 font-black text-amber-50" onClick={() => { setGuidedQuestion((step) => step + 1); scrollToTarget(() => document.getElementById('red-luan-guided-context')); }}>下一項（可略過） →</button>}
+          </div>
+          {guidedQuestion === CONTEXT_GROUPS.length - 1 && (
             <button
               type="button"
               disabled={loading}
-              onClick={() => { void submit(form, context, 'refine'); }}
+              onClick={() => { if (contextDirty) { void submit(form, context, 'refine'); } else { toggleFoldOpen('teachers'); scrollToTarget(() => document.getElementById('red-luan-teachers')); } }}
               className="mt-4 w-full rounded-2xl border border-amber-100/60 bg-amber-300/20 px-4 py-3 text-sm font-black text-amber-50 transition disabled:opacity-60"
             >
-              {loading ? '更新引導中…' : answeredCount > 0 ? `套用這 ${answeredCount} 項，更新引導` : '清空選擇，改回中性引導'}
+              {loading ? '正在整理你的回答…' : '看阿修羅總結與行動提醒 →'}
             </button>
           )}
             </Fold>
@@ -1363,7 +1384,20 @@ function RedLuanHeartbeatExperience() {
               <p className="mt-3 text-xs leading-5 text-white/75">{reading.ichingReading.karmicBond.note}</p>
             </Fold>
 
-            <Fold title="同一卦・兩種說法" badge="易經／鬼魅" teaser="兩位老師講法完全不同，挑一個聽" foldKey="teachers" anchorId="red-luan-teachers" opened={openedFolds} onToggle={toggleFold}>
+            <Fold title="鬼魅阿修羅" badge="解說" teaser="先看時間、對象，再看行動提醒" foldKey="teachers" anchorId="red-luan-teachers" opened={openedFolds} onToggle={toggleFold}>
+              <section className="mb-4 rounded-2xl border border-violet-200/30 bg-violet-300/10 p-4">
+                <h4 className="text-sm font-black text-violet-100">你的命宮主星</h4>
+                <p className="mt-2 text-xl font-black text-white">{reading.result.ziwei.lifePalace ? (reading.result.ziwei.lifePalace.majorStars.length > 0 ? reading.result.ziwei.lifePalace.majorStars.join('、') : '命宮無主星') : '暫時無法取得'}</p>
+                <div className="mt-3 space-y-3">
+                  {reading.result.ziwei.starGuidance?.length ? reading.result.ziwei.starGuidance.map((star) => <article key={star.name} className="rounded-xl border border-white/15 p-4">
+                    <h5 className="font-black text-violet-50">{star.name}・{star.role}</h5>
+                    <p className="mt-2 text-sm leading-7 text-white/85">{star.power}</p>
+                    <p className="mt-2 text-sm leading-7 text-white/75">{star.challenge}</p>
+                    <p className="mt-2 font-bold text-amber-100">{star.direction}</p>
+                    <p className="mt-2 text-sm leading-7 text-white">{star.action}</p>
+                  </article>) : <p className="text-sm text-white/70">目前沒有可對應的主星解說。</p>}
+                </div>
+              </section>
               <div className="grid gap-2 sm:grid-cols-2">
                 {(reading.ichingReading.teachers ?? []).map((teacher) => (
                   <button key={teacher.key} type="button" aria-pressed={teacherKey === teacher.key} onClick={() => setTeacherKey(teacher.key)} className={`rounded-2xl border px-4 py-3 text-left transition ${teacherKey === teacher.key ? 'border-violet-200/70 bg-violet-300/20 text-violet-50' : 'border-white/10 bg-white/[0.04] text-white/65'}`}>
@@ -1385,6 +1419,10 @@ function RedLuanHeartbeatExperience() {
                       </article>
                     ))}
                     {teacher.closing.split('\n').filter(Boolean).map((line) => <p key={line.slice(0, 14)} className="rounded-2xl border border-emerald-200/15 bg-emerald-300/[0.06] p-4 text-sm leading-7 text-emerald-50">{line}</p>)}
+                    <section className="rounded-2xl border border-amber-200/25 bg-amber-300/[0.08] p-4">
+                      <h4 className="font-black text-amber-50">{reading.contextAlignment.themeTitle}</h4>
+                      {reading.contextAlignment.actionDirections.map((direction) => <div key={direction.id} className="mt-3"><p className="text-sm font-black text-white">{direction.title}</p><p className="mt-1 text-sm leading-7 text-white/80">{direction.action}</p></div>)}
+                    </section>
                   </div>
                 );
               })()}
@@ -1407,7 +1445,7 @@ function RedLuanHeartbeatExperience() {
               ) : (
                 <>
                   <p className="text-sm font-black text-amber-50">看得到的部分，你都看完了</p>
-                  <p className="mt-1.5 text-xs leading-6 text-white/70">補上出生時辰，還有五層在等你：你的卦、上輩子相欠的那一筆、兩位老師的解讀，還有紫微夫妻宮。</p>
+                  <p className="mt-1.5 text-xs leading-6 text-white/70">補上出生時辰，還有五層在等你：你的卦、上輩子相欠的那一筆、阿修羅的解讀，還有紫微夫妻宮。</p>
                   <button
                     type="button"
                     onClick={jumpToHourPicker}
@@ -1425,6 +1463,13 @@ function RedLuanHeartbeatExperience() {
         {/* 完整推算過程：後端證據、品質核對、規則出處。想查的人才需要打開。 */}
         <Fold title="完整推算過程與證據" badge="想查再看" foldKey="evidence" opened={openedFolds} onToggle={toggleFold}>
         <div className="space-y-4">
+        {reading.result.ziwei.starGuidance?.map((star) => <p key={star.name} className="text-xs leading-6 text-white/75">{star.name}：本次{star.sourcePalace}。{star.source}</p>)}
+        {reading.ichingReading?.teachers.map((teacher) => (
+          <section key={teacher.key} className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+            <h3 className="font-black text-white">{teacher.name}</h3>
+            {teacher.sources?.map((source) => <p key={source.title} className="mt-2 text-xs leading-6 text-white/75">{source.title}：{source.reference}</p>)}
+          </section>
+        ))}
         <section id="red-luan-layer-0" className="scroll-mt-5 rounded-3xl border border-cyan-200/20 bg-slate-950/75 p-5">
           <p className="text-xs font-black tracking-[0.18em] text-cyan-200">第一層・命理底盤</p>
           <h3 className="mt-2 text-xl font-black text-white">先排好八字（有時辰再加排紫微）</h3>

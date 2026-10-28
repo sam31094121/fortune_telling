@@ -126,6 +126,14 @@ const PALACE_SYMBOLS: Record<string, string> = {
   JI_E: '疾',
 };
 
+/** Existing registered copy only; not a compatibility rule or a new interpretation. */
+export function registeredStarGuidance(starName: string) {
+  const archetype = STAR_ARCHETYPE_MAP[starName];
+  if (!archetype) return null;
+  const copy = ARCHETYPE_COPY[archetype];
+  return { power: copy.power, challenge: copy.challenge, direction: copy.direction, action: copy.action };
+}
+
 const ELEMENT_SIGNAL_MAP: Record<FiveElementKey, ZiweiDestinyElementSignal> = {
   metal: 'SPACE',
   wood: 'AIR',

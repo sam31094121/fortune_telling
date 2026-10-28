@@ -1,4 +1,5 @@
 import { createZiweiCore, resolveSanFangSiZhengFor, type ZiweiBirthInput, type ZiweiPalaceResult } from './ziwei/engine';
+import { registeredStarGuidance } from './ziwei-destiny-card';
 
 const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'] as const;
 type Branch = (typeof BRANCHES)[number];
@@ -295,6 +296,8 @@ export type ZiweiLovePersonSignal = {
   annualStatus: 'UNAVAILABLE_RULE_SOURCE_REQUIRED';
   inputCompleteness: '完整出生時辰' | '時辰未知';
   palaces?: Array<{ palace: string; earthlyBranch: string; majorStars: string[]; minorStars: string[] }>;
+  lifePalace?: { palace: string; earthlyBranch: string; majorStars: string[]; minorStars: string[] };
+  starGuidance?: Array<{ name: string; role: string; sourcePalace: string; source: string; power: string; challenge: string; direction: string; action: string }>;
   limitations: string[];
 };
 
@@ -1373,7 +1376,19 @@ export function buildZiweiLovePersonSignal(input: { birth: ZiweiBirthInput | nul
   }
 
   const core = createZiweiCore(input.birth);
+  const lifePalace = core.palaces.find((palace) => palace.name === '命宮');
   const spouse = core.palaces.find((palace) => palace.name === '夫妻宮');
+  const seenStars = new Set<string>();
+  const starGuidance = [lifePalace, spouse].flatMap((palace) => {
+    if (!palace) return [];
+    return palace.majorStarDetails.flatMap((star) => {
+      const copy = registeredStarGuidance(star.name);
+      if (!copy || seenStars.has(star.name)) return [];
+      seenStars.add(star.name);
+      return [{ name: star.name, role: palace.name === '命宮' ? '自身主星' : '關係參考', sourcePalace: palace.name,
+        source: 'lib/ziwei-destiny-card.ts：STAR_ARCHETYPE_MAP / ARCHETYPE_COPY；本站既有主星主題文案，非古籍逐字、非配對規則', ...copy }];
+    });
+  }).slice(0, 3);
   const surrounded = resolveSanFangSiZhengFor(input.birth, '夫妻宮');
   const palaces = [spouse, surrounded.wealth, surrounded.career, surrounded.opposite]
     .filter((palace): palace is ZiweiPalaceResult => Boolean(palace))
@@ -1385,6 +1400,8 @@ export function buildZiweiLovePersonSignal(input: { birth: ZiweiBirthInput | nul
     ruleVersion: RED_LUAN_HEARTBEAT_ZIWEI_VERSION,
     annualStatus: 'UNAVAILABLE_RULE_SOURCE_REQUIRED',
     inputCompleteness: '完整出生時辰',
+    lifePalace: lifePalace ? palaceEvidence(lifePalace) : undefined,
+    starGuidance,
     palaces,
     limitations: [
       '本層只列出本命夫妻宮及其三方四正的可核對星曜，不將星曜直接判為關係結果。',

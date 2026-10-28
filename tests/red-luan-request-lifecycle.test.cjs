@@ -6,7 +6,7 @@ const vm = require('node:vm');
 const ts = require('typescript');
 const source = fs.readFileSync('app/red-luan-heartbeat/page.tsx','utf8');
 const ast = ts.createSourceFile('page.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
-const names = new Set(['cancelPending','invalidateReading','updateBirthProfile','birthMissingFields','effectivePartnerGender','submit']);
+const names = new Set(['cancelPending','invalidateReading','updateBirthProfile','birthMissingFields','effectivePartnerGender','submit','updateContext']);
 const pieces=[];
 function visit(node) {
   if(ts.isFunctionDeclaration(node) && names.has(node.name?.text)) pieces.push(node.getText(ast));
@@ -15,7 +15,7 @@ function visit(node) {
 }
 visit(ast);
 assert.equal(pieces.length,names.size);
-const code=ts.transpileModule(pieces.join('\n')+'\nexports.api={submit,cancelPending,invalidateReading,updateBirthProfile};',{
+const code=ts.transpileModule(pieces.join('\n')+'\nexports.api={submit,cancelPending,invalidateReading,updateBirthProfile,updateContext};',{
   compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022},
 }).outputText;
 function mount() {
@@ -25,7 +25,7 @@ function mount() {
     useCallback:fn=>fn,
     requestRef:{current:null},deadlineRef:{current:null},submitLock:{current:false},
     form:{birthDate:'1990-01-01',gender:'male',timeUnknown:true,birthHourBranch:'unknown'},
-    context:{},partnerChoice:'auto',returningName:null,loading:false,reading:null,error:'',ritualStep:-1,retryMode:null,
+    context:{},guidedQuestion:0,CONTEXT_GROUPS:[{},{},{},{}],partnerChoice:'auto',returningName:null,loading:false,reading:null,error:'',ritualStep:-1,retryMode:null,
     HOUR_BRANCH_PENDING:'pending',RITUAL_LINES:['one','two','done'],RITUAL_WAITING_STEP:5,
     getAnalysisIdentityTarget:()=> 'guest',getIdentityRequiredMessage:()=> 'identity',
     toTraditionalHourBranch:()=>undefined,scrollToTarget(){},saveCanonicalBirthProfile(){},fromUnifiedBirthProfile:x=>x,
@@ -34,7 +34,7 @@ function mount() {
     window:{setTimeout(fn){timers.set(++timerId,fn);return timerId;},clearTimeout(id){timers.delete(id);}},
     fetch(url,options){return new Promise((resolve,reject)=>requests.push({url,options,resolve,reject}));},
   };
-  for(const key of ['form','reading','loading','error','ritualStep','retryMode'])ctx['set'+key[0].toUpperCase()+key.slice(1)]=value=>ctx[key]=value;
+  for(const key of ['form','context','guidedQuestion','reading','loading','error','ritualStep','retryMode'])ctx['set'+key[0].toUpperCase()+key.slice(1)]=value=>ctx[key]=value;
   for(const name of ['setMissing','setReturningName','setEditingBirth','setAppliedContext','setAlignmentChoice','setOpenedLayer','setReflectionChoice','setPeeled','setTeacherKey','setOpenedFolds','setFollowUp','setShowReminderMonths','setRevealedEntrances'])ctx[name]=()=>{};
   vm.runInNewContext(code,ctx);
   return {ctx,api:module.exports.api,requests,timers,writes:()=>writes,
@@ -64,4 +64,15 @@ test('failure keeps birth data, retry succeeds and duplicate submit stays locked
   const p=mount();const a=p.api.submit(p.ctx.form);await p.api.submit(p.ctx.form);assert.equal(p.requests.length,1);
   p.requests[0].reject(new Error('synthetic error'));await a;assert.equal(p.ctx.form.birthDate,'1990-01-01');assert.equal(p.ctx.loading,false);assert.equal(p.ctx.retryMode,'initial');
   const b=p.api.submit(p.ctx.form);p.success(1,'B');await b;assert.equal(p.ctx.reading.result.id,'B');
+});
+
+test('last choice submits its fresh value; clearing and loading do not submit',()=>{
+  const p=mount();p.ctx.guidedQuestion=3;
+  p.api.updateContext('familyResponsibility','HAS_CHILDREN');
+  assert.equal(p.requests.length,1);
+  assert.equal(JSON.parse(p.requests[0].options.body).familyResponsibility,'HAS_CHILDREN');
+  p.api.updateContext('familyResponsibility','CARE_FOR_OTHER_FAMILY');
+  assert.equal(p.requests.length,1);
+  const q=mount();q.ctx.guidedQuestion=3;q.api.updateContext('familyResponsibility','');
+  assert.equal(q.requests.length,0);assert.equal(q.ctx.guidedQuestion,3);
 });

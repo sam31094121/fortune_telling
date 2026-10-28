@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { GhostAsuraCard, GhostAsuraCardShell } from '@/features/ghost-asura/components/GhostAsuraCard';
 import type { AsuraDisplay } from '@/lib/ghost-asura-display-contract';
 import { asuraScrub } from '@/lib/asura-display-alias';
@@ -28,6 +28,11 @@ export default function AsuraSkillReading() {
   const display = shared ? shared.display : localDisplay;
   const setDisplay = shared ? shared.setDisplay : setLocalDisplay;
   const requestRef = useRef<AbortController | null>(null);
+
+  useEffect(() => () => {
+    requestRef.current?.abort();
+    requestRef.current = null;
+  }, []);
 
   function reset() {
     requestRef.current?.abort();

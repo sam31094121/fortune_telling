@@ -62,6 +62,14 @@ assert.equal(missingZiwei.annualStatus, 'UNAVAILABLE_RULE_SOURCE_REQUIRED');
 const knownZiwei = buildZiweiLovePersonSignal({ birth: { calendarType: 'solar', date: '1990-05-12', gender: '男', timeIndex: 6 } });
 assert.equal(knownZiwei.status, 'READY');
 assert.equal(knownZiwei.annualStatus, 'UNAVAILABLE_RULE_SOURCE_REQUIRED');
+assert.equal(missingZiwei.starGuidance, undefined);
+assert.ok(knownZiwei.starGuidance && knownZiwei.starGuidance.length > 0 && knownZiwei.starGuidance.length <= 3);
+assert.equal(new Set(knownZiwei.starGuidance!.map((star) => star.name)).size, knownZiwei.starGuidance!.length);
+for (const star of knownZiwei.starGuidance!) {
+  const palace = star.sourcePalace === '命宮' ? knownZiwei.lifePalace : knownZiwei.palaces?.find((item) => item.palace === '夫妻宮');
+  assert.ok(palace?.majorStars.some((name) => name === star.name || name.startsWith(`${star.name}（`)));
+  assert.ok(star.action && star.source.includes('非配對規則'));
+}
 assert.ok(knownZiwei.palaces?.some((palace) => palace.palace === '夫妻宮'));
 
 const singleUnknownHour = buildSingleRedLuanHeartbeat({
@@ -385,32 +393,25 @@ assert.ok(affinity.branches.every((row) => row.appearance && row.careers.length 
 const blankAffinity = buildRedLuanAffinityProfile({ yearBranch: '子', dayBranch: '子', ziwei: singleUnknownHour.ziwei });
 assert.ok(blankAffinity.onionLayers.length >= 1);
 
-// ---- 兩位老師：同一顆卦、不同話術 ----
-assert.deepEqual(ichingA.teachers.map((t) => t.key), ['iching', 'ghost']);
-const [ichingTeacher, ghostTeacher] = ichingA.teachers;
-assert.equal(ichingTeacher.name, '易經老師');
-assert.equal(ghostTeacher.name, '鬼魅老師');
-assert.notEqual(ichingTeacher.opening, ghostTeacher.opening, '兩位老師的開場必須不同');
-assert.notDeepEqual(ichingTeacher.sections, ghostTeacher.sections, '兩位老師的段落必須不同');
-// 易經老師刻意精簡：對象一句帶過（細節在自己的折疊裡），重點放時間與卦示。
-assert.ok(ichingTeacher.sections.length >= 3, '易經老師至少要有對象、時間、卦示');
-assert.ok(ghostTeacher.sections.length >= 4);
-assert.equal(
-  ichingTeacher.sections.filter((section) => /第.層/.test(section.title)).length,
-  0,
-  '四層細節不得在老師這裡再講一次',
-);
-for (const teacher of ichingA.teachers) {
-  assert.ok(teacher.sections.every((section) => section.title && section.text.length > 10));
-  assert.ok(teacher.closing.length > 0);
-  // 手冊 §十一：同一模組的卦象與話術必須是同一顆卦。
-  assert.ok(
-    [teacher.opening, ...teacher.sections.map((s) => s.text), teacher.closing].join('').includes(ichingA.hexagram.name),
-    `${teacher.name} 必須引用同一顆卦`,
-  );
-}
-assert.ok(ghostTeacher.sections.some((s) => s.title.includes('磁場')));
-assert.ok(ghostTeacher.sections.some((s) => s.title.includes('因果')));
+// ---- 本卡單一阿修羅：內容取本次結果，來源分開，原運算不變 ----
+assert.deepEqual(ichingA.teachers.map((t) => t.key), ['asura']);
+const [asura] = ichingA.teachers;
+assert.equal(asura.name, '鬼魅阿修羅');
+assert.equal(asura.opening, '別再繞了。');
+assert.equal(asura.closing, '我先把話放這裡。你自己決定要不要踩。');
+assert.deepEqual(asura.sections.map(s => s.title), ['時間', '傳統對應的對象', '你的卦', '行動提醒']);
+assert.equal(asura.sections[1].text, affinity.onionLayers[0].headline);
+assert.ok(asura.sections[2].text.includes(ichingA.hexagram.name));
+assert.equal(asura.sections[3].text, ichingA.hexagram.advice);
+assert.ok(ichingNoPeak.teachers[0].sections[0].text.includes('沒有月份命中'));
+assert.ok(asura.sources.some(source => source.reference.includes('阿修羅脾氣系統.md')));
+assert.ok(asura.sections.every(section => !section.text.includes('docs/')));
+const voiceSource = require('node:fs').readFileSync('docs/技能戰鬥檔案/鬼魅阿修羅/阿修羅脾氣系統.md', 'utf8');
+assert.ok(voiceSource.includes(asura.opening) && voiceSource.includes(asura.closing), '口氣必須逐字對回技能檔');
+const another = buildRedLuanIChingReading({ ...ichingInput, birthDate: '1985-11-03', shichenIndex: 2 });
+assert.equal(another.teachers[0].sections[3].text, another.hexagram.advice);
+assert.notDeepEqual(another.hexagram, ichingA.hexagram, '不同客戶使用自己的卦');
+assert.deepEqual(buildRedLuanIChingReading(ichingInput), ichingA, '換人後原人結果不污染');
 
 const aiEvidencePayload = buildRedLuanAiEvidencePayload(oneYearResult);
 const serializedAiPayload = JSON.stringify(aiEvidencePayload);

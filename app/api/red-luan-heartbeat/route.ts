@@ -257,7 +257,7 @@ export async function POST(request: Request) {
       unlocks: {
         ziwei: ziweiAvailable,
         hexagram: ichingReading !== null,
-        note: ichingReading === null ? '補上出生時辰，還能解鎖你的卦象、兩位老師的解讀，以及紫微夫妻宮。' : '',
+        note: ichingReading === null ? '補上出生時辰，還能解鎖你的卦象、阿修羅的解讀，以及紫微夫妻宮。' : '',
       },
       ichingReading,
       sourceChecks,

@@ -15,7 +15,7 @@
  */
 
 import { castHexagramFromBirth, type IChingReading } from './iching-engine';
-import { buildConciseOnion, buildEmpathicFromHexagram, buildGhostDecoding, patternNameOf, type ConciseOnionLayer } from './iching-psychology';
+import { buildConciseOnion, buildEmpathicFromHexagram, patternNameOf, type ConciseOnionLayer } from './iching-psychology';
 import type { RedLuanAffinityProfile, RedLuanEncounter, RedLuanMonthlyRhythm } from './red-luan-heartbeat-engine';
 
 /**
@@ -43,7 +43,7 @@ const KARMIC_REUNION_BY_LINE: Record<number, string> = {
   6: '這一世的重逢會發生在你終於願意放手之後——手放開了，新的才進得來',
 };
 
-export const RED_LUAN_TEACHERS = ['iching', 'ghost'] as const;
+export const RED_LUAN_TEACHERS = ['asura'] as const;
 export type RedLuanTeacher = (typeof RED_LUAN_TEACHERS)[number];
 
 export type RedLuanTeacherReading = {
@@ -53,9 +53,10 @@ export type RedLuanTeacherReading = {
   /** 按鈕上的內容預告——客戶要知道按下去會拿到什麼，才會想按。 */
   preview: string;
   opening: string;
-  /** 逐層揭露；兩位老師層數與口吻不同，但引用的是同一顆卦。 */
+  /** 依序顯示時間、對象、同一顆卦與行動提醒。 */
   sections: Array<{ title: string; text: string }>;
   closing: string;
+  sources: Array<{ title: string; reference: string }>;
 };
 
 export type RedLuanIChingReading = {
@@ -89,7 +90,7 @@ export type RedLuanIChingReading = {
   closing: string;
   /** 姻緣因果：上輩子相欠、這一世再聚。文化敘事＋心理學重新框架，非事實主張。 */
   karmicBond: { title: string; owed: string; lesson: string; reunion: string; note: string };
-  /** 兩位老師＝同一場卜卦的兩種話術分身（手冊 §六）。同一顆卦，不同口吻與切入層次。 */
+  /** 保留既有陣列契約，本卡現在只提供阿修羅；來源另列。 */
   teachers: RedLuanTeacherReading[];
   /** 起卦依據，可回查驗算。 */
   seedText: string;
@@ -180,10 +181,9 @@ export function buildRedLuanIChingReading(input: {
 }
 
 /**
- * 兩位老師（手冊 §六 話術分身原則）：
- * 易經老師＝沉穩導師，由外而內把卦義與命盤方向講清楚；
- * 鬼魅老師＝門外低語，走磁場／詭異／因果三段，神秘口氣是外衣、心理機制是骨架。
- * 兩位讀的是同一顆卦、同一份證據，差別只在切入順序與語氣。
+ * 2026-10-28 業主批准：本卡改為單一阿修羅解說。
+ * 僅重組已算出的月份、傳統對應與同一卦內容；不新增規則或提高來源狀態。
+ * 開場／收尾逐字取自鬼魅阿修羅〈阿修羅脾氣系統〉現在卡與未來卡梗例。
  */
 function buildTeacherReadings(input: {
   hexagram: IChingReading;
@@ -194,59 +194,24 @@ function buildTeacherReadings(input: {
   hasPeak: boolean;
   year: number;
 }): RedLuanTeacherReading[] {
-  const { hexagram, patternName, empathic, affinity } = input;
-  const ghost = buildGhostDecoding(hexagram);
-  const timing = input.hasPeak ? input.monthsPhrase : `${input.year} 年沒有月份命中這組規則`;
-
-  // 「他是誰」那四層在自己的折疊裡已經講過一次，這裡不再複述，
-  // 只留一句收攏，其餘留給時間與卦示——否則客戶會覺得同一段話被灌了兩次水。
-  const ichingSections = [
-    ...(affinity.onionLayers.length > 0
-      ? [{
-        title: '先講對象',
-        // 2026-09-17：傳統對應不是預言，不說「會靠近你的」。
-        text: `傳統對應裡，最常對應到的是${affinity.onionLayers[0].headline}這一型${
-          affinity.onionLayers[2] ? `，常出現在${affinity.onionLayers[2].headline}` : ''
-        }。細節你可以自己翻「一層一層看他是誰」，我這邊先講時間。`,
-      }]
-      : []),
-    { title: '什麼時候', text: input.hasPeak
-      ? `時間落在${timing}。這個月的流月地支，正好踩在你命盤紅鸞、天喜、桃花或貴人的位置上——不是我說的，是規則算出來的，證據每一條都可以往下核對。`
-      : `${timing}。今年這一路的力道在「養」不在「動」；與其等時間，不如把自己準備好。` },
-    { title: '卦示・怎麼做', text: `你的卦是${hexagram.hexagramName}（第${hexagram.kingWen}卦），格局是「${patternName}」。${hexagram.essence}。${hexagram.advice}` },
-  ];
-
-  const ghostSections = [
-    { title: '【磁場】干擾判讀', text: ghost.field },
-    { title: '【詭異】異象顯跡', text: ghost.spirit },
-    { title: '【因果】因果鏈拆解', text: ghost.karma },
-    // 2026-09-17 業主批准：網站看不見也感應不到，鬼魅口吻保留，但不聲稱「看見」。
-    { title: '【門縫】傳統對應的那一型', text: affinity.onionLayers.length > 0
-      ? `我從門縫往外看……照規則對應，浮出來的輪廓是：${affinity.onionLayers[0].headline}。再靠近一點看——${affinity.onionLayers.find((layer) => layer.step === 3)?.headline ?? '場域還看不清'}。方位在${affinity.onionLayers.find((layer) => layer.step === 4)?.headline ?? '未定'}。這不是預言，是你命盤裡紅鸞、天喜、桃花與貴人所在地支的氣性——影子是它們投出來的。`
-      : '我從門縫看出去……這一年門外沒有停留的影子。不是空，是還沒到；這組規則沒有給出方向，我就不替你捏一個出來。' },
-    { title: '【倒數】時間', text: input.hasPeak
-      ? `規則算出來的時間是——${timing}。過了這個月，這組規則就不再命中。要不要在那之前把自己準備好，是你的決定，不是卦的決定。`
-      : `${timing}。門外安靜的年份不用硬敲；${hexagram.advice}` },
-  ];
-
-  return [
-    {
-      key: 'iching',
-      name: '易經老師',
-      tagline: '沉穩導師',
-      preview: '把時間、對象、你該做什麼，一條一條講清楚',
-      opening: empathic.greeting,
-      sections: ichingSections,
-      closing: `${empathic.soulFriendVow}\n${empathic.closing}`,
-    },
-    {
-      key: 'ghost',
-      name: '鬼魅老師',
-      tagline: '門外低語',
-      preview: '說出你身上那道還沒散掉的舊迴聲',
-      opening: `……你先別出聲。我隔著門替你卜這一卦——${hexagram.hexagramName}，第${hexagram.kingWen}卦，${hexagram.glyph}。格局是「${patternName}」。門外的東西，我們一起把它看清楚。`,
-      sections: ghostSections,
-      closing: `聽清楚：${empathic.absolution.split('聽清楚')[0].trim()}那不是你的錯。門我替你留著，要不要走出來，你自己決定。`,
-    },
-  ];
+  const { hexagram, affinity } = input;
+  return [{
+    key: 'asura',
+    name: '鬼魅阿修羅',
+    tagline: '先講時間，再講對象。',
+    preview: '點開，看時間、對象與行動提醒',
+    opening: '別再繞了。',
+    sections: [
+      { title: '時間', text: input.hasPeak ? input.monthsPhrase :                 String(input.year) + ' 年沒有月份命中這組規則' },
+      { title: '傳統對應的對象', text: affinity.onionLayers[0]?.headline || '暫時無法取得' },
+      { title: '你的卦', text: hexagram.hexagramName + '・' + input.patternName + '。' + hexagram.essence },
+      { title: '行動提醒', text: hexagram.advice },
+    ],
+    closing: '我先把話放這裡。你自己決定要不要踩。',
+    sources: [
+      { title: '阿修羅口吻', reference: 'docs/技能戰鬥檔案/鬼魅阿修羅/阿修羅脾氣系統.md：現在卡 STUBBORNNESS、未來卡梗例；只借口氣，不據此判斷客戶人格。' },
+      { title: '時間與傳統對應', reference: '本次 nextEncounter／peakMonths 與 affinity；規則、取法及核對狀態見下方原有證據，不代表全部來源已核定。' },
+      { title: '卦與行動提醒', reference: '本次同一顆生辰卦的 essence／advice，沿用既有易經層；不冒充另外起卦或紫微流年共同證實。' },
+    ],
+  }];
 }
