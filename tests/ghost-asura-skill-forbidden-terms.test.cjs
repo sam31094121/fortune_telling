@@ -21,8 +21,8 @@ const { ASURA_FORBIDDEN_TERMS, ASURA_GANZHI_PAIR, ASURA_SKILLS, ASURA_TIME_TERMS
 const MUST_NOT = ['年柱', '月柱', '日柱', '時柱', '四柱', '神煞', '八字'];
 for (const t of MUST_NOT) assert(ASURA_FORBIDDEN_TERMS.includes(t), `forbidden list has ${t}`);
 
-// 原始神煞名（content.ts FIXED_NAMES 第一欄；為阿修羅名子字串者除外，如「天醫」⊂「天醫靈契」）
-const contentSrc = fs.readFileSync(path.join(root, 'app/ghost-asura/skill/content.ts'), 'utf8');
+// 原始神煞名（ghost-asura-skill-content.ts FIXED_NAMES 第一欄；為阿修羅名子字串者除外，如「天醫」⊂「天醫靈契」）
+const contentSrc = fs.readFileSync(path.join(root, 'lib/ghost-asura-skill-content.ts'), 'utf8');
 const fixed = [...contentSrc.slice(contentSrc.indexOf('export const FIXED_NAMES')).split('];')[0].matchAll(/\['([^']+)', '([^']+)'\]/g)].map((m) => [m[1], m[2]]);
 assert(fixed.length > 20, 'FIXED_NAMES parsed');
 const rawNames = fixed.map(([o]) => o).filter((o) => !fixed.some(([, a]) => a.includes(o)));

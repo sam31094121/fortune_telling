@@ -45,7 +45,7 @@ export const ASURA_STRING_OVERRIDES: Readonly<Record<string, string>> = {
   '子時': '夜半',
   '往後的流年，我已先看過。': '往後的年歲，我已先看過。',
   '往後的流年裡，還有動靜。': '往後的年歲裡，還有動靜。',
-  // 技能檔案頁（content.ts）
+  // 技能檔案頁（lib/ghost-asura-skill-content.ts → ghost-asura-skill-file.ts）
   '八字排盤不改。': '生緣的算法不改。',
   '正統八字排盤': '生緣照見無誤',
   '易經老師解盤（《神煞易經》）': '神之卷：另一位老師解盤',
