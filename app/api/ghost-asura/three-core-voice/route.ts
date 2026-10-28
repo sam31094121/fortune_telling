@@ -53,6 +53,9 @@ export async function POST(request: NextRequest) {
   try {
     // 戰局句依據阿修羅頁自己算好的欄位，和頁面清單同一個集合；排盤事實則取同一條鏈的結果。
     const display = computeGhostAsuraDisplay(raw);
+    if (display.ageGate?.status === 'WITHHELD') {
+      return reply({ voice: null, status: 'WITHHELD', message: display.ageGate.message, ageGate: display.ageGate });
+    }
     const result = calculateDualChart(engineInput);
     return reply({ voice: buildAsuraThreeCoreVoice(result, display, { hourAssumed: hourAssumed === true }) });
   } catch (error) {

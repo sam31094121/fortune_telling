@@ -24,7 +24,7 @@ Module._resolveFilename = function patched(request, ...rest) {
   return originalResolve.call(this, request, ...rest);
 };
 
-const { computeGhostAsuraDisplay, normalizeAsuraInput } = await import('../lib/server/ghost-asura-display.ts');
+const { computeGhostAsuraDisplay, normalizeAsuraInput, evaluateAsuraAgeGate } = await import('../lib/server/ghost-asura-display.ts');
 const { ASURA_WORDINGS } = await import('../features/ghost-asura/wordings.ts');
 const { ASURA_WORDINGS_CORE } = await import('../lib/ghost-asura-wordings-core.ts');
 const { COMPLETE_ASURA_DICTIONARY } = await import('../lib/ghost-asura-complete-dictionary.ts');
@@ -119,5 +119,25 @@ const everyWording = JSON.stringify(Object.values(ASURA_WORDINGS));
 ok(!everyWording.includes('兵不赤血刃印'), '話術庫裡不得有被改壞的成語');
 // 客戶實際看到的每個字也不得出現這個錯字（4 張鎖定命盤都已掃過，這裡用字面再擋一次）
 ok(PROTECTED_IDIOMS.every((i) => !i.includes('赤')), '成語表本身不得含替換後的名稱');
+
+// 18 歲禁忌守門（同時檢查今日實歲與查詢日期實歲；未達標回傳 WITHHELD 且清空過去／現在／未來三時段卡本文）
+const fixedNow = new Date('2026-10-28T04:00:00Z');
+for (const [birthDate, targetDate, expectedTodayAge, expectedTargetAge] of [
+  ['2009-10-28', '2026-10-28', 17, 17],
+  ['2008-10-29', '2026-10-28', 17, 17],
+  ['2010-05-01', '2035-05-01', 16, 25],
+  ['1990-05-01', '2005-05-01', 36, 15],
+]) {
+  const gate = evaluateAsuraAgeGate(birthDate, targetDate, fixedNow);
+  ok(gate.status === 'WITHHELD', `${birthDate}@${targetDate} 應為 WITHHELD`);
+  ok(gate.todayAge === expectedTodayAge && gate.targetAge === expectedTargetAge, `${birthDate}@${targetDate} 雙日期實歲計算正確`);
+  ok(typeof gate.message === 'string' && gate.message.includes('18 歲禁忌'), `${birthDate}@${targetDate} 應提供中性提示`);
+  const withheldOut = computeGhostAsuraDisplay({ birthDate, targetDate, birthTime: '12:00', gender: 'male' }, fixedNow);
+  ok(withheldOut.ageGate?.status === 'WITHHELD', `${birthDate}@${targetDate} display.ageGate 應為 WITHHELD`);
+  ok(withheldOut.sections.every((s) => s.items.length === 0 && s.blocks === null && s.narrative === null && s.coda === null), `${birthDate}@${targetDate} 未滿 18 歲時三時段卡不得輸出斷語本文`);
+}
+const adultOn18thBirthday = computeGhostAsuraDisplay({ birthDate: '2008-10-28', targetDate: '2026-10-28', birthTime: '12:00', gender: 'male' }, fixedNow);
+ok(adultOn18thBirthday.ageGate?.status === 'AVAILABLE' && adultOn18thBirthday.ageGate.todayAge === 18 && adultOn18thBirthday.ageGate.targetAge === 18, '滿 18 歲生日當天應為 AVAILABLE');
+ok(adultOn18thBirthday.sections.some((s) => (s.blocks?.length ?? 0) > 0 || s.items.length > 0), '滿 18 歲生日當天正常輸出三時段戰局卡');
 
 console.log(`ghost-asura-customer-output: ${checks} checks passed（${CASES.length} 張鎖定命盤＋話術庫，免登入）`);

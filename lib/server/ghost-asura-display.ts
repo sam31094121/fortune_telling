@@ -41,6 +41,7 @@ import {
   type AsuraDisplayAudit,
   type AsuraDisplayEntry,
   type AsuraDisplaySeal,
+  type AsuraAgeGate,
 } from '@/lib/ghost-asura-display-contract';
 
 const PILLAR_ORDER: GhostAsuraPillarKey[] = ['year', 'month', 'day', 'hour'];
@@ -51,6 +52,68 @@ const CONCRETE_BRANCHES = new Set(['zi', 'chou', 'yin', 'mao', 'chen', 'si', 'wu
 export const ASSUMED_HOUR_TIME = '00:00';
 export const ASSUMED_HOUR_LABEL = '子時' as const;
 export const HOUR_ASSUMED_NOTE = '時辰未知，以子時排。';
+export const ASURA_MIN_AGE = 18 as const;
+export const ASURA_AGE_GATE_LABEL = '18 歲禁忌｜未滿 18 歲禁止進入';
+export const ASURA_AGE_WITHHELD_MESSAGE =
+  '本卡設有 18 歲禁忌限制：須同時滿足今日實歲與查詢日期實歲滿 18 歲（以過完生日當日為準），未滿 18 歲暫不展開過去、現在、未來三時段戰局。';
+
+function calcCompletedAge(birthYmd: string, refYmd: string): { age: number; birthdayPassed: boolean } {
+  const [by, bm, bd] = birthYmd.split('-').map(Number);
+  const [ry, rm, rd] = refYmd.split('-').map(Number);
+  const birthdayPassed = rm > bm || (rm === bm && rd >= bd);
+  const age = Math.max(0, ry - by - (birthdayPassed ? 0 : 1));
+  return { age, birthdayPassed };
+}
+
+/**
+ * 鬼魅阿修羅專屬 18 歲禁忌守門：同時檢查「今日（Asia/Taipei）實歲」與「查詢日期（targetDate）實歲」。
+ * 兩者皆須滿 18 歲（過完生日當日始加 1 歲）方回傳 AVAILABLE；任一未達標即回傳 WITHHELD 與中性提示。
+ */
+export function evaluateAsuraAgeGate(
+  birthDate: string | undefined,
+  targetDate?: string | undefined,
+  now: Date = new Date(),
+): AsuraAgeGate {
+  const todayTaipei = new Date(now.getTime() + 8 * 3600_000).toISOString().slice(0, 10);
+  const effectiveTarget =
+    typeof targetDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(targetDate.trim())
+      ? targetDate.trim()
+      : todayTaipei;
+  if (typeof birthDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(birthDate.trim())) {
+    return {
+      status: 'WITHHELD',
+      minimumAge: ASURA_MIN_AGE,
+      label: ASURA_AGE_GATE_LABEL,
+      todayTaipei,
+      targetDate: effectiveTarget,
+      todayAge: 0,
+      targetAge: 0,
+      birthdayPassedToday: false,
+      birthdayPassedOnTarget: false,
+      message: ASURA_AGE_WITHHELD_MESSAGE,
+    };
+  }
+  const cleanBirth = birthDate.trim();
+  const todayCheck = calcCompletedAge(cleanBirth, todayTaipei);
+  const targetCheck = calcCompletedAge(cleanBirth, effectiveTarget);
+  const eligible =
+    cleanBirth <= todayTaipei &&
+    cleanBirth <= effectiveTarget &&
+    todayCheck.age >= ASURA_MIN_AGE &&
+    targetCheck.age >= ASURA_MIN_AGE;
+  return {
+    status: eligible ? 'AVAILABLE' : 'WITHHELD',
+    minimumAge: ASURA_MIN_AGE,
+    label: ASURA_AGE_GATE_LABEL,
+    todayTaipei,
+    targetDate: effectiveTarget,
+    todayAge: todayCheck.age,
+    targetAge: targetCheck.age,
+    birthdayPassedToday: todayCheck.birthdayPassed,
+    birthdayPassedOnTarget: targetCheck.birthdayPassed,
+    message: eligible ? null : ASURA_AGE_WITHHELD_MESSAGE,
+  };
+}
 
 /**
  * 只收既有阿修羅表單會送的欄位；曆法與時區沿用既有頁面固定值。
@@ -67,6 +130,7 @@ export function normalizeAsuraInput(raw: unknown): Record<string, unknown> {
     timezone: 'Asia/Taipei',
   };
   if (typeof body.birthDate === 'string') input.birthDate = body.birthDate.trim().slice(0, 10);
+  if (typeof body.targetDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(body.targetDate.trim())) input.targetDate = body.targetDate.trim();
   const time = typeof body.birthTime === 'string' ? body.birthTime.trim().slice(0, 7) : '';
   const branch = typeof body.birthHourBranch === 'string' ? body.birthHourBranch : '';
   const hourUnknown =
@@ -570,7 +634,7 @@ export function toAsuraDisplay(
 
 /** 生辰 → 既有後端排盤 → 既有阿修羅管線 → 顯示契約。錯誤訊息沿用既有後端的中文驗證訊息。 */
 export function computeGhostAsuraDisplay(raw: unknown, now: Date = new Date()): AsuraDisplay {
-  const { hourAssumed, identityTarget, ...engineInput } = normalizeAsuraInput(raw);
+  const { hourAssumed, identityTarget, targetDate, ...engineInput } = normalizeAsuraInput(raw);
   const result = calculateDualChart(engineInput);
   const timeAxis = computeTimeAxis(result, engineInput.gender === 'female' ? 'female' : 'male', now);
   const targetName = typeof engineInput.name === 'string' && engineInput.name.trim().length >= 2 ? engineInput.name.trim() : null;
@@ -593,7 +657,31 @@ export function computeGhostAsuraDisplay(raw: unknown, now: Date = new Date()): 
   const nature = computeNatureCard(engineInput, hourAssumed === true);
   // 話術含金量一句：後端依客戶資料從句庫挑一句，前端只照印（新增欄位，只增不改）。
   const goldWording = goldWordingViewFor(engineInput, hourAssumed === true);
-  return { ...asuraLinkStory(asuraTranslateDisplay(display), nature), nature: nature ? toPublic(nature) : null, goldWording };
+  const ageGate = evaluateAsuraAgeGate(
+    typeof engineInput.birthDate === 'string' ? engineInput.birthDate : undefined,
+    typeof targetDate === 'string' ? targetDate : undefined,
+    now,
+  );
+  const linked = asuraLinkStory(asuraTranslateDisplay(display), nature);
+  const finalSections =
+    ageGate.status === 'WITHHELD'
+      ? linked.sections.map((section) => ({
+          ...section,
+          lead: '',
+          narrative: null,
+          blocks: null,
+          coda: null,
+          story: null,
+          items: [],
+        }))
+      : linked.sections;
+  return {
+    ...linked,
+    sections: finalSections,
+    nature: nature ? toPublic(nature) : null,
+    goldWording,
+    ageGate,
+  };
 }
 
 /** 生辰 → 四道關 → analyzePersona → translateAsNature（後端完整版，含 natureKey／riskKeys／evidence）；任一關未過＝null。 */

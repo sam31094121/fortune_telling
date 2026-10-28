@@ -60,6 +60,7 @@ export default function GhostAsuraHomeEntry() {
           {/* 業主定案 2026-10-17：「本命阿修羅 · 獨立秘卷」小字隱藏；要恢復把 false && 拿掉 */}
           {false && <span className={styles.eyebrow}><HomeTranslatedText text="本命阿修羅 · 獨立秘卷" /></span>}
           <h2 className={brandStyles.brush} data-asura-brand-title><HomeTranslatedText text="鬼魅阿修羅" /></h2>
+          <p className={styles.ageGate} data-asura-age-gate><HomeTranslatedText text="18 歲禁忌｜未滿 18 歲禁止進入" /></p>
           <p><HomeTranslatedText text="四柱印記，點開閱讀力量與駕馭之道。" /></p>
           <p className={styles.impression}><HomeTranslatedText text={`印記示意：${featuredImpression.title}`} /></p>
         </div>

@@ -2100,3 +2100,5 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 .card[data-display-contract] [data-current-stage='true'][data-asura-pillar-head] { border-color:var(--pc); }
 .card[data-display-contract] [data-asura-pillar-head]:focus,
 .card[data-display-contract] [data-asura-column] summary:focus { outline:2px solid var(--pc); outline-offset:2px; scroll-margin-top:16px; }
+.ageGateBadge { display:inline-flex; align-items:center; width:fit-content; margin:6px auto 10px; padding:3px 12px; border:1px solid #ff5a6a; border-radius:999px; background:#3a0d14; color:#ffb3ba; font-size:13px; font-weight:700; letter-spacing:.05em; line-height:1.5; }
+.ageWithheldNotice { margin:10px 0 0; padding:14px 16px; border:1px solid #ff5a6a80; border-radius:12px; background:#241016; color:#f3dce0; font-size:15px; line-height:1.85; text-align:left; }

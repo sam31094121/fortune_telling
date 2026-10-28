@@ -14,6 +14,8 @@ assert.match(html, /<h2[^>]*>鬼魅阿修羅<\/h2>/);
 assert.doesNotMatch(html, /命魂戰局|<button/);
 assert.match(html, /印記示意：/);
 assert.match(html, /印記示意：五陰纏影/, 'Keep the accepted homepage example unchanged');
+assert.match(html, /data-asura-age-gate[^>]*>18 歲禁忌｜未滿 18 歲禁止進入</, 'Only Ghost Asura homepage card carries the 18+ age gate');
+assert.doesNotMatch(fs.readFileSync('app/page.tsx', 'utf8'), /data-asura-age-gate|18 歲禁忌｜未滿 18 歲禁止進入/, 'Other homepage cards must not be affected by the Ghost Asura 18+ restriction');
 assert.deepEqual([...cache.keys()].filter(file => /[/\\]lib[/\\].*asura/i.test(file)), [],
   'The new homepage entry must not load a legacy Asura registry');
 assert.equal([...html.matchAll(/<a\b/g)].length, 1, 'One entry link, no nested controls');

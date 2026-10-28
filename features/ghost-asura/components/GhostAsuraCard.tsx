@@ -233,6 +233,11 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
       {/* 橫幅「鬼魅［修羅印］阿修羅」＋下方過去／現在／未來一列三格：點格在下方全寬展開，再點收合。 */}
       <header className={styles.asuraTopRow} data-asura-top-row>
         <AsuraBanner title={display.title} />
+        {display.ageGate?.label && (
+          <p className={styles.ageGateBadge} data-asura-age-gate={display.ageGate.status}>
+            {display.ageGate.label}
+          </p>
+        )}
         {/* 本性卡：原〔本人：名字〕名牌的位置與結構升級成這張卡；有名字就顯示（後端無本性資料時四段留空位）；沒名字＝不顯示 */}
         {SHOW_NATURE_CARD && display.targetName ? (
           <AsuraNatureCard name={display.targetName} identityTarget={display.identityTarget} nature={display.nature} />
@@ -244,8 +249,13 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
           )
         )}
         {SHOW_HEADER_SUBTITLE && <p className={styles.subtitle}>{display.subtitle}</p>}
+        {display.ageGate?.status === 'WITHHELD' ? (
+          <p className={styles.ageWithheldNotice} role="status" data-asura-age-withheld="true">
+            {display.ageGate.message}
+          </p>
+        ) : null}
         <div className={styles.asuraTiles}>
-          {display.sections.map((section) => {
+          {(display.ageGate?.status === 'WITHHELD' ? [] : display.sections).map((section) => {
             const open = openKey === section.key;
             return (
               <button
@@ -285,7 +295,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
         </p>
       )}
 
-      {display.sections.map((section) => (
+      {(display.ageGate?.status === 'WITHHELD' ? [] : display.sections).map((section) => (
         <section
           key={section.key}
           id={`asura-fn-panel-${section.key}`}

@@ -13,6 +13,7 @@ import {
   inferDayMasterElement,
 } from '@/lib/ghost-asura-flow-year-engine';
 import { GhostAsuraTimelineResponse } from '@/lib/types/ghost-asura-timeline';
+import { evaluateAsuraAgeGate } from '@/lib/server/ghost-asura-display';
 
 /** 請求體型別 */
 interface TimelineCalculateRequest {
@@ -62,6 +63,25 @@ export async function POST(request: NextRequest) {
           },
         },
         { status: 400 }
+      );
+    }
+
+    // 鬼魅阿修羅 18 歲禁忌守門（同時檢查今日實歲與查詢日期實歲）
+    const rawTargetDate = (body as unknown as Record<string, unknown>).targetDate;
+    const ageGate = evaluateAsuraAgeGate(
+      body.birthDate,
+      typeof rawTargetDate === 'string' ? rawTargetDate : undefined,
+    );
+    if (ageGate.status === 'WITHHELD') {
+      return NextResponse.json(
+        {
+          status: 'WITHHELD',
+          code: 'AGE_WITHHELD',
+          message: ageGate.message,
+          ageGate,
+          timeline: null,
+        },
+        { status: 200 }
       );
     }
 

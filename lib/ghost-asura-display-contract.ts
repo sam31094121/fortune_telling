@@ -210,6 +210,8 @@ export interface AsuraDisplay {
    * 後端依客戶資料從句庫挑出一句（lib/ghost-asura-gold-wording.ts）；查無資料時 text 為明確中文狀態。前端只照印。
    */
   goldWording?: AsuraGoldWordingView | null;
+  /** 鬼魅阿修羅 18 歲禁忌守門（同時檢查今日實歲與查詢日期實歲；未達標時回傳 WITHHELD 與後端中性提示） */
+  ageGate?: AsuraAgeGate;
 }
 
 export interface AsuraGoldWordingView {
@@ -221,3 +223,18 @@ export interface AsuraGoldWordingView {
 
 /** 技能頁三張摺疊卡：生辰未送出前的一句（阿修羅口吻；無命盤資料，故放在共用合約）。 */
 export const ASURA_AWAIT_BIRTH = '生辰未至，我不開卷。日期、時辰、性別，交來。';
+
+export type AsuraAgeGateStatus = 'AVAILABLE' | 'WITHHELD';
+
+export interface AsuraAgeGate {
+  status: AsuraAgeGateStatus;
+  minimumAge: 18;
+  label: string;
+  todayTaipei: string;
+  targetDate: string;
+  todayAge: number;
+  targetAge: number;
+  birthdayPassedToday: boolean;
+  birthdayPassedOnTarget: boolean;
+  message: string | null;
+}
