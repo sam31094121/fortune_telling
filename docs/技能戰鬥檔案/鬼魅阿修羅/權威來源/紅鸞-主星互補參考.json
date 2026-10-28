@@ -1,0 +1,554 @@
+{
+  "version": "RED_LUAN_COMPLEMENT_REFERENCE_2026_10_28_V5",
+  "emptyLifeMethod": {
+    "id": "empty-life-migration-reference",
+    "sourceUrl": "https://zwayyuan.com/main-stars/",
+    "basisLabel": "命宮無主星，本次參考遷移宮",
+    "sourceScope": "依業主2026-10-28指定，命宮空宮參考遷移宮完整主星組；原命宮仍為空宮。借星解讀與配對條目分別保留來源，不把借星當實際坐命，也不移植需命宮及夫妻宮固定結構的規則。",
+    "sourceStatus": "MODERN_AUTHOR_REFERENCE"
+  },
+  "sourceStatus": "MODERN_AUTHOR_REFERENCE",
+  "sourceTitle": "紫微師範學院｜別再暈錯人！四步驟幫你找到真愛！",
+  "sourceUrl": "https://www.ziweischool.com.tw/article_d.php?id=830&lang=tw&tb=3",
+  "verifiedOn": "2026-10-28",
+  "scope": "現代作者以命宮與夫妻宮對應說明伴侶特質；不是雙人合盤、古籍格局認證或最佳對象排名。",
+  "rules": [
+    {
+      "id": "life-paired-stable-stars-active-complement",
+      "lifeStarSets": [
+        [
+          "紫微",
+          "天府"
+        ],
+        [
+          "武曲",
+          "天府"
+        ],
+        [
+          "廉貞",
+          "天府"
+        ],
+        [
+          "紫微",
+          "天相"
+        ],
+        [
+          "武曲",
+          "天相"
+        ],
+        [
+          "廉貞",
+          "天相"
+        ]
+      ],
+      "referenceStars": [
+        "七殺",
+        "破軍",
+        "貪狼"
+      ],
+      "title": "互補方向・七殺／破軍／貪狼型特質",
+      "quote": "彼此間相互激勵",
+      "quoteLocation": "夫妻宮的主星與輔星：第一組命宮組合",
+      "statusLabel": "現代觀點・相處參考",
+      "scopeLabel": "作者按命宮與夫妻宮對應提供伴侶特質方向；不是三顆星的最佳配對排名。"
+    },
+    {
+      "id": "life-paired-active-stars-stable-complement",
+      "lifeStarSets": [
+        [
+          "紫微",
+          "七殺"
+        ],
+        [
+          "武曲",
+          "七殺"
+        ],
+        [
+          "廉貞",
+          "七殺"
+        ],
+        [
+          "武曲",
+          "破軍"
+        ],
+        [
+          "紫微",
+          "破軍"
+        ],
+        [
+          "廉貞",
+          "破軍"
+        ],
+        [
+          "紫微",
+          "貪狼"
+        ],
+        [
+          "武曲",
+          "貪狼"
+        ],
+        [
+          "廉貞",
+          "貪狼"
+        ]
+      ],
+      "referenceStars": [
+        "天府",
+        "天相"
+      ],
+      "title": "互補方向・天府／天相型特質",
+      "quote": "具備穩重、務實且具領導力的特質",
+      "quoteLocation": "夫妻宮的主星與輔星：第二組命宮組合",
+      "statusLabel": "現代觀點・相處參考",
+      "scopeLabel": "參考互補特質，不代表已核對某位對象的命盤。"
+    },
+    {
+      "id": "life-single-pojun-tianfu-author-reference",
+      "lifeStarSets": [
+        [
+          "破軍"
+        ],
+        [
+          "天府"
+        ]
+      ],
+      "referenceStars": [
+        "天府",
+        "破軍"
+      ],
+      "title": "相處參考・破軍與天府",
+      "quote": "這一組前提是天府要願意接受破軍星脾氣可能比較不好，個性可能比較浮躁",
+      "quoteLocation": "天府星VS破軍星（第十四項）；命宮配對，非夫妻宮借星",
+      "statusLabel": "現代觀點・有條件的相處參考",
+      "scopeLabel": "作者以接納彼此性情為前提，並非無條件互補或最佳配對排名。",
+      "sourceTitle": "紫微吉吉店｜天府星與十四正曜",
+      "sourceUrl": "https://vocus.cc/article/65c45eaafd89780001149ec3",
+      "sourceScope": "作者直接討論雙方命宮主星的現代配對觀點；本條只適用命宮破軍或天府單星，不推定雙主星的主次，不構成古籍特殊格局或統計驗證。",
+      "verifiedOn": "2026-10-28"
+    },
+    {
+      "id": "life-single-ziwei-tianji-author-reference",
+      "lifeStarSets": [
+        [
+          "紫微"
+        ],
+        [
+          "天機"
+        ]
+      ],
+      "referenceStars": [
+        "紫微",
+        "天機"
+      ],
+      "title": "相處參考・紫微與天機",
+      "quote": "老闆只要能給天機星舞台，讓他展現智慧才華，兩人便是理想的一對。",
+      "quoteLocation": "紫微星VS天機星",
+      "statusLabel": "現代觀點・相處參考",
+      "scopeLabel": "依作者命宮配對觀點提供相處方向，非雙人合盤結論或最佳對象排名。",
+      "sourceTitle": "紫微吉吉店｜紫微星與十四正曜",
+      "sourceUrl": "https://vocus.cc/article/6336b0c7fd89780001745ae1",
+      "sourceScope": "現代作者的雙方命宮主星配對解讀；只適用單主星，未採用空宮借星或雙星強弱判定。",
+      "verifiedOn": "2026-10-28"
+    },
+    {
+      "id": "life-single-sun-moon-author-reference",
+      "lifeStarSets": [
+        [
+          "太陽"
+        ],
+        [
+          "太陰"
+        ]
+      ],
+      "referenceStars": [
+        "太陽",
+        "太陰"
+      ],
+      "title": "相處參考・太陰與太陽",
+      "quote": "需要找到兩人對的位置和溝通方式，才能幸福的組合。",
+      "quoteLocation": "太陰星＆太陽星",
+      "statusLabel": "現代觀點・相處參考",
+      "scopeLabel": "依作者命宮配對觀點提供相處方向，非雙人合盤結論或最佳對象排名。",
+      "sourceTitle": "紫微吉吉店｜太陰星與十四正曜",
+      "sourceUrl": "https://vocus.cc/article/65f4727ffd89780001680346",
+      "sourceScope": "現代作者的雙方命宮主星配對解讀；只適用單主星，未採用空宮借星或雙星強弱判定。",
+      "verifiedOn": "2026-10-28"
+    },
+    {
+      "id": "life-single-wuqu-tiantong-author-reference",
+      "lifeStarSets": [
+        [
+          "武曲"
+        ],
+        [
+          "天同"
+        ]
+      ],
+      "referenceStars": [
+        "武曲",
+        "天同"
+      ],
+      "title": "相處參考・武曲與天同",
+      "quote": "天同星懂得欣賞武曲星的英勇",
+      "quoteLocation": "武曲星VS天同星",
+      "statusLabel": "現代觀點・相處參考",
+      "scopeLabel": "依作者命宮配對觀點提供相處方向，非雙人合盤結論或最佳對象排名。",
+      "sourceTitle": "紫微吉吉店｜武曲星與十四正曜",
+      "sourceUrl": "https://vocus.cc/article/638a052afd89780001452c7f",
+      "sourceScope": "現代作者的雙方命宮主星配對解讀；只適用單主星，未採用空宮借星或雙星強弱判定。",
+      "verifiedOn": "2026-10-28"
+    },
+    {
+      "id": "life-single-lianzhen-tianxiang-author-reference",
+      "lifeStarSets": [
+        [
+          "廉貞"
+        ],
+        [
+          "天相"
+        ]
+      ],
+      "referenceStars": [
+        "廉貞",
+        "天相"
+      ],
+      "title": "相處參考・廉貞與天相",
+      "quote": "天相有服務的熱心",
+      "quoteLocation": "廉貞星VS天相星",
+      "statusLabel": "現代觀點・相處參考",
+      "scopeLabel": "依作者命宮配對觀點提供相處方向，非雙人合盤結論或最佳對象排名。",
+      "sourceTitle": "紫微吉吉店｜廉貞星與十四正曜",
+      "sourceUrl": "https://vocus.cc/article/647abc16fd89780001e9d1ab",
+      "sourceScope": "現代作者的雙方命宮主星配對解讀；只適用單主星，未採用空宮借星或雙星強弱判定。",
+      "verifiedOn": "2026-10-28"
+    },
+    {
+      "id": "life-single-tanlang-qisha-author-reference",
+      "lifeStarSets": [
+        [
+          "貪狼"
+        ],
+        [
+          "七殺"
+        ]
+      ],
+      "referenceStars": [
+        "貪狼",
+        "七殺"
+      ],
+      "title": "相處參考・貪狼與七殺",
+      "quote": "只要了解彼此先天上的個性，一個負責出嘴，一個專門跑腿",
+      "quoteLocation": "貪狼星＆七殺星",
+      "statusLabel": "現代觀點・相處參考",
+      "scopeLabel": "依作者命宮配對觀點提供相處方向，非雙人合盤結論或最佳對象排名。",
+      "sourceTitle": "紫微吉吉店｜貪狼星與十四正曜",
+      "sourceUrl": "https://vocus.cc/article/664b816ffd8978000120e182",
+      "sourceScope": "現代作者的雙方命宮主星配對解讀；只適用單主星，未採用空宮借星或雙星強弱判定。",
+      "verifiedOn": "2026-10-28"
+    },
+    {
+      "id": "life-single-jumen-sun-author-reference",
+      "lifeStarSets": [
+        [
+          "巨門"
+        ]
+      ],
+      "referenceStars": [
+        "太陽"
+      ],
+      "title": "相處參考・巨門與太陽",
+      "quote": "太陽可以很容易了解並讀懂巨門的苦悶跟心事，也能給予慰藉",
+      "quoteLocation": "巨門星＆太陽星",
+      "statusLabel": "現代觀點・相處參考",
+      "scopeLabel": "依作者命宮配對觀點提供相處方向，非雙人合盤結論或最佳對象排名。",
+      "sourceTitle": "紫微吉吉店｜巨門星與十四正曜",
+      "sourceUrl": "https://vocus.cc/article/67e41549fd89780001689766",
+      "sourceScope": "現代作者的雙方命宮主星配對解讀；只適用單主星，未採用空宮借星或雙星強弱判定。",
+      "verifiedOn": "2026-10-28"
+    },
+    {
+      "id": "life-single-tianliang-tianji-author-reference",
+      "lifeStarSets": [
+        [
+          "天梁"
+        ]
+      ],
+      "referenceStars": [
+        "天機"
+      ],
+      "title": "相處參考・天機與天梁",
+      "quote": "彼此能相輔相成，相知相惜，各自發揮本身的優點",
+      "quoteLocation": "天機星VS天梁星",
+      "statusLabel": "現代觀點・相處參考",
+      "scopeLabel": "依作者命宮配對觀點提供相處方向，非雙人合盤結論或最佳對象排名。",
+      "sourceTitle": "紫微吉吉店｜天機星與十四正曜",
+      "sourceUrl": "https://vocus.cc/article/63398d41fd89780001882033",
+      "sourceScope": "現代作者的雙方命宮主星配對解讀；只適用單主星，未採用空宮借星或雙星強弱判定。",
+      "verifiedOn": "2026-10-28"
+    },
+    {
+      "id": "yuan-dual-天機-太陰",
+      "lifeStarSets": [
+        [
+          "天機",
+          "太陰"
+        ]
+      ],
+      "requiredLifeBranches": [
+        "寅",
+        "申"
+      ],
+      "requiredSpouseStars": [
+        "太陽"
+      ],
+      "referenceStars": [
+        "太陽"
+      ],
+      "title": "相處參考・太陽",
+      "quote": "需要用心經營感情",
+      "quoteLocation": "當天機在寅宮或申宮",
+      "statusLabel": "現代作者觀點・對象特質參考",
+      "scopeLabel": "按本次命宮與夫妻宮固定對應說明偏好及相處條件；雙星對象為完整組合，不拆成兩個推薦，不表示最佳配對或雙人合盤。",
+      "sourceTitle": "紫微研究原｜紫微愛情配對・天機星喜歡的對象",
+      "sourceUrl": "https://www.dcard.tw/f/fortune_telling/p/252694563",
+      "sourceScope": "作者本人公開教學。僅核對文章明列的命宮雙星、宮位及夫妻宮完整星組；保留磨合提醒，不將偏好等同於互補優勢，不混用空宮借星法。非古籍或統計驗證。",
+      "verifiedOn": "2026-10-28"
+    },
+    {
+      "id": "yuan-dual-天機-巨門",
+      "lifeStarSets": [
+        [
+          "天機",
+          "巨門"
+        ]
+      ],
+      "requiredLifeBranches": [
+        "卯",
+        "酉"
+      ],
+      "requiredSpouseStars": [
+        "太陽",
+        "太陰"
+      ],
+      "referenceStars": [
+        "太陽",
+        "太陰"
+      ],
+      "title": "相處參考・太陽＋太陰",
+      "quote": "需特別注意口角的問題",
+      "quoteLocation": "當天機在卯宮或酉宮",
+      "statusLabel": "現代作者觀點・對象特質參考",
+      "scopeLabel": "按本次命宮與夫妻宮固定對應說明偏好及相處條件；雙星對象為完整組合，不拆成兩個推薦，不表示最佳配對或雙人合盤。",
+      "sourceTitle": "紫微研究原｜紫微愛情配對・天機星喜歡的對象",
+      "sourceUrl": "https://www.dcard.tw/f/fortune_telling/p/252694563",
+      "sourceScope": "作者本人公開教學。僅核對文章明列的命宮雙星、宮位及夫妻宮完整星組；保留磨合提醒，不將偏好等同於互補優勢，不混用空宮借星法。非古籍或統計驗證。",
+      "verifiedOn": "2026-10-28"
+    },
+    {
+      "id": "yuan-dual-天機-天梁",
+      "lifeStarSets": [
+        [
+          "天機",
+          "天梁"
+        ]
+      ],
+      "requiredLifeBranches": [
+        "辰",
+        "戌"
+      ],
+      "requiredSpouseStars": [
+        "太陽",
+        "巨門"
+      ],
+      "referenceStars": [
+        "太陽",
+        "巨門"
+      ],
+      "title": "相處參考・太陽＋巨門",
+      "quote": "互相都是真誠以對",
+      "quoteLocation": "當天機在辰宮或戌宮",
+      "statusLabel": "現代作者觀點・對象特質參考",
+      "scopeLabel": "按本次命宮與夫妻宮固定對應說明偏好及相處條件；雙星對象為完整組合，不拆成兩個推薦，不表示最佳配對或雙人合盤。",
+      "sourceTitle": "紫微研究原｜紫微愛情配對・天機星喜歡的對象",
+      "sourceUrl": "https://www.dcard.tw/f/fortune_telling/p/252694563",
+      "sourceScope": "作者本人公開教學。僅核對文章明列的命宮雙星、宮位及夫妻宮完整星組；保留磨合提醒，不將偏好等同於互補優勢，不混用空宮借星法。非古籍或統計驗證。",
+      "verifiedOn": "2026-10-28"
+    },
+    {
+      "id": "yuan-dual-天同-太陰",
+      "lifeStarSets": [
+        [
+          "天同",
+          "太陰"
+        ]
+      ],
+      "requiredLifeBranches": [
+        "子",
+        "午"
+      ],
+      "requiredSpouseStars": [],
+      "referenceStars": [
+        "天機",
+        "天梁"
+      ],
+      "title": "相處參考・天機＋天梁",
+      "quote": "甜蜜感不夠",
+      "quoteLocation": "當天同在子宮或午宮",
+      "statusLabel": "現代作者觀點・對象特質參考",
+      "scopeLabel": "按本次命宮與夫妻宮固定對應說明偏好及相處條件；雙星對象為完整組合，不拆成兩個推薦，不表示最佳配對或雙人合盤。",
+      "sourceTitle": "紫微研究原｜紫微愛情配對・天同星喜歡的對象",
+      "sourceUrl": "https://www.dcard.tw/f/fortune_telling/p/253356634",
+      "sourceScope": "作者本人公開教學。僅核對文章明列的命宮雙星、宮位及夫妻宮完整星組；保留磨合提醒，不將偏好等同於互補優勢，不混用空宮借星法。非古籍或統計驗證。 此組夫妻宮原為空宮；另以伯樂網楊居士〈天機天梁借星辰戌夫妻空宮守〉核對固定結構，要求官祿宮實際為天機天梁才取用相處摘錄。保留夫妻宮空集合，不將借星寫入本盤。",
+      "verifiedOn": "2026-10-28",
+      "requiredSpouseOppositeStars": [
+        "天機",
+        "天梁"
+      ],
+      "methodSourceUrl": "https://www.praxisluck.com/index.php/blog-quisque-gravida-purus-vitae/349-2016-09-21-03-21-26"
+    },
+    {
+      "id": "yuan-dual-天同-巨門",
+      "lifeStarSets": [
+        [
+          "天同",
+          "巨門"
+        ]
+      ],
+      "requiredLifeBranches": [
+        "丑",
+        "未"
+      ],
+      "requiredSpouseStars": [
+        "太陰"
+      ],
+      "referenceStars": [
+        "太陰"
+      ],
+      "title": "相處參考・太陰",
+      "quote": "很能體會這種心靈上的滿足",
+      "quoteLocation": "當天同在丑宮或未宮",
+      "statusLabel": "現代作者觀點・對象特質參考",
+      "scopeLabel": "按本次命宮與夫妻宮固定對應說明偏好及相處條件；雙星對象為完整組合，不拆成兩個推薦，不表示最佳配對或雙人合盤。",
+      "sourceTitle": "紫微研究原｜紫微愛情配對・天同星喜歡的對象",
+      "sourceUrl": "https://www.dcard.tw/f/fortune_telling/p/253356634",
+      "sourceScope": "作者本人公開教學。僅核對文章明列的命宮雙星、宮位及夫妻宮完整星組；保留磨合提醒，不將偏好等同於互補優勢，不混用空宮借星法。非古籍或統計驗證。",
+      "verifiedOn": "2026-10-28"
+    },
+    {
+      "id": "yuan-dual-天同-天梁",
+      "lifeStarSets": [
+        [
+          "天同",
+          "天梁"
+        ]
+      ],
+      "requiredLifeBranches": [
+        "寅",
+        "申"
+      ],
+      "requiredSpouseStars": [
+        "巨門"
+      ],
+      "referenceStars": [
+        "巨門"
+      ],
+      "title": "相處參考・巨門",
+      "quote": "喜歡心靈交流",
+      "quoteLocation": "當天同在寅宮或申宮",
+      "statusLabel": "現代作者觀點・對象特質參考",
+      "scopeLabel": "按本次命宮與夫妻宮固定對應說明偏好及相處條件；雙星對象為完整組合，不拆成兩個推薦，不表示最佳配對或雙人合盤。",
+      "sourceTitle": "紫微研究原｜紫微愛情配對・天同星喜歡的對象",
+      "sourceUrl": "https://www.dcard.tw/f/fortune_telling/p/253356634",
+      "sourceScope": "作者本人公開教學。僅核對文章明列的命宮雙星、宮位及夫妻宮完整星組；保留磨合提醒，不將偏好等同於互補優勢，不混用空宮借星法。非古籍或統計驗證。",
+      "verifiedOn": "2026-10-28"
+    },
+    {
+      "id": "yuan-dual-太陽-太陰",
+      "lifeStarSets": [
+        [
+          "太陽",
+          "太陰"
+        ]
+      ],
+      "requiredLifeBranches": [
+        "丑",
+        "未"
+      ],
+      "requiredSpouseStars": [
+        "天同"
+      ],
+      "referenceStars": [
+        "天同"
+      ],
+      "title": "相處參考・天同",
+      "quote": "很願意用心體會對方的感受",
+      "quoteLocation": "當太陽在丑宮或未宮",
+      "statusLabel": "現代作者觀點・對象特質參考",
+      "scopeLabel": "按本次命宮與夫妻宮固定對應說明偏好及相處條件；雙星對象為完整組合，不拆成兩個推薦，不表示最佳配對或雙人合盤。",
+      "sourceTitle": "紫微研究原｜紫微愛情配對・太陽星喜歡的對象",
+      "sourceUrl": "https://www.dcard.tw/f/fortune_telling/p/252924432",
+      "sourceScope": "作者本人公開教學。僅核對文章明列的命宮雙星、宮位及夫妻宮完整星組；保留磨合提醒，不將偏好等同於互補優勢，不混用空宮借星法。非古籍或統計驗證。",
+      "verifiedOn": "2026-10-28"
+    },
+    {
+      "id": "yuan-dual-太陽-巨門",
+      "lifeStarSets": [
+        [
+          "太陽",
+          "巨門"
+        ]
+      ],
+      "requiredLifeBranches": [
+        "寅",
+        "申"
+      ],
+      "requiredSpouseStars": [
+        "天同",
+        "太陰"
+      ],
+      "referenceStars": [
+        "天同",
+        "太陰"
+      ],
+      "title": "相處參考・天同＋太陰",
+      "quote": "一剛一柔",
+      "quoteLocation": "當太陽在寅宮或申宮",
+      "statusLabel": "現代作者觀點・對象特質參考",
+      "scopeLabel": "按本次命宮與夫妻宮固定對應說明偏好及相處條件；雙星對象為完整組合，不拆成兩個推薦，不表示最佳配對或雙人合盤。",
+      "sourceTitle": "紫微研究原｜紫微愛情配對・太陽星喜歡的對象",
+      "sourceUrl": "https://www.dcard.tw/f/fortune_telling/p/252924432",
+      "sourceScope": "作者本人公開教學。僅核對文章明列的命宮雙星、宮位及夫妻宮完整星組；保留磨合提醒，不將偏好等同於互補優勢，不混用空宮借星法。非古籍或統計驗證。",
+      "verifiedOn": "2026-10-28"
+    },
+    {
+      "id": "yuan-dual-太陽-天梁",
+      "lifeStarSets": [
+        [
+          "太陽",
+          "天梁"
+        ]
+      ],
+      "requiredLifeBranches": [
+        "卯",
+        "酉"
+      ],
+      "requiredSpouseStars": [
+        "天同",
+        "巨門"
+      ],
+      "referenceStars": [
+        "天同",
+        "巨門"
+      ],
+      "title": "相處參考・天同＋巨門",
+      "quote": "需要花較多心力經營",
+      "quoteLocation": "當太陽在卯宮或酉宮",
+      "statusLabel": "現代作者觀點・對象特質參考",
+      "scopeLabel": "按本次命宮與夫妻宮固定對應說明偏好及相處條件；雙星對象為完整組合，不拆成兩個推薦，不表示最佳配對或雙人合盤。",
+      "sourceTitle": "紫微研究原｜紫微愛情配對・太陽星喜歡的對象",
+      "sourceUrl": "https://www.dcard.tw/f/fortune_telling/p/252924432",
+      "sourceScope": "作者本人公開教學。僅核對文章明列的命宮雙星、宮位及夫妻宮完整星組；保留磨合提醒，不將偏好等同於互補優勢，不混用空宮借星法。非古籍或統計驗證。",
+      "verifiedOn": "2026-10-28"
+    }
+  ]
+}

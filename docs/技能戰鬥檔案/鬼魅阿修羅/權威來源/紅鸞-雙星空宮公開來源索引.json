@@ -1,0 +1,169 @@
+{
+  "version": "RED_LUAN_PUBLIC_SOURCE_CATALOG_2026_10_28",
+  "purpose": "工程來源索引，非直接顯示話術；不由文章標題產生推薦結果",
+  "reviewedOn": "2026-10-28",
+  "runtimeConsumption": false,
+  "sources": [
+    {
+      "title": "雙星組合 – 天機太陰",
+      "stars": [
+        "天機",
+        "太陰"
+      ],
+      "url": "https://m.click108.com.tw/article/201905/15071_1.php",
+      "publisher": "科技紫微網",
+      "author": "普羅米修士",
+      "sourceType": "MODERN_AUTHOR_REFERENCE",
+      "usableFor": "雙星同宮特徵與相處觀察",
+      "notEstablished": "對象主星推薦、雙人合盤評分、古籍特殊格局配對",
+      "status": "LOCATED_CONTENT_REVIEW_REQUIRED",
+      "contentUse": "保留出處；逐條確認上下文後才可登記短引文，不存全文或 AI 改寫斷語"
+    },
+    {
+      "title": "雙星組合 – 天機巨門",
+      "stars": [
+        "天機",
+        "巨門"
+      ],
+      "url": "https://m.click108.com.tw/article/201904/15014_1.php",
+      "publisher": "科技紫微網",
+      "author": "普羅米修士",
+      "sourceType": "MODERN_AUTHOR_REFERENCE",
+      "usableFor": "雙星同宮特徵與相處觀察",
+      "notEstablished": "對象主星推薦、雙人合盤評分、古籍特殊格局配對",
+      "status": "LOCATED_CONTENT_REVIEW_REQUIRED",
+      "contentUse": "保留出處；逐條確認上下文後才可登記短引文，不存全文或 AI 改寫斷語"
+    },
+    {
+      "title": "雙星組合 – 天機天梁",
+      "stars": [
+        "天機",
+        "天梁"
+      ],
+      "url": "https://m.click108.com.tw/article/201907/15130_1.php",
+      "publisher": "科技紫微網",
+      "author": "普羅米修士",
+      "sourceType": "MODERN_AUTHOR_REFERENCE",
+      "usableFor": "雙星同宮特徵與相處觀察",
+      "notEstablished": "對象主星推薦、雙人合盤評分、古籍特殊格局配對",
+      "status": "LOCATED_CONTENT_REVIEW_REQUIRED",
+      "contentUse": "保留出處；逐條確認上下文後才可登記短引文，不存全文或 AI 改寫斷語"
+    },
+    {
+      "title": "雙星組合 – 太陽太陰",
+      "stars": [
+        "太陽",
+        "太陰"
+      ],
+      "url": "https://art.click108.com.tw/article/201810/14763_1.html",
+      "publisher": "科技紫微網",
+      "author": "普羅米修士",
+      "sourceType": "MODERN_AUTHOR_REFERENCE",
+      "usableFor": "雙星同宮特徵與相處觀察",
+      "notEstablished": "對象主星推薦、雙人合盤評分、古籍特殊格局配對",
+      "status": "LOCATED_CONTENT_REVIEW_REQUIRED",
+      "contentUse": "保留出處；逐條確認上下文後才可登記短引文，不存全文或 AI 改寫斷語"
+    },
+    {
+      "title": "雙星組合 – 太陽巨門",
+      "stars": [
+        "太陽",
+        "巨門"
+      ],
+      "url": "https://art.click108.com.tw/article/201809/14733_1.html",
+      "publisher": "科技紫微網",
+      "author": "普羅米修士",
+      "sourceType": "MODERN_AUTHOR_REFERENCE",
+      "usableFor": "雙星同宮特徵與相處觀察",
+      "notEstablished": "對象主星推薦、雙人合盤評分、古籍特殊格局配對",
+      "status": "LOCATED_CONTENT_REVIEW_REQUIRED",
+      "contentUse": "保留出處；逐條確認上下文後才可登記短引文，不存全文或 AI 改寫斷語"
+    },
+    {
+      "title": "雙星組合 – 太陽天梁",
+      "stars": [
+        "太陽",
+        "天梁"
+      ],
+      "url": "https://m.click108.com.tw/article/201812/14830_1.php",
+      "publisher": "科技紫微網",
+      "author": "普羅米修士",
+      "sourceType": "MODERN_AUTHOR_REFERENCE",
+      "usableFor": "雙星同宮特徵與相處觀察",
+      "notEstablished": "對象主星推薦、雙人合盤評分、古籍特殊格局配對",
+      "status": "LOCATED_CONTENT_REVIEW_REQUIRED",
+      "contentUse": "保留出處；逐條確認上下文後才可登記短引文，不存全文或 AI 改寫斷語"
+    },
+    {
+      "title": "雙星組合 – 天同太陰",
+      "stars": [
+        "天同",
+        "太陰"
+      ],
+      "url": "https://m.click108.com.tw/article/201909/15202_1.php",
+      "publisher": "科技紫微網",
+      "author": "普羅米修士",
+      "sourceType": "MODERN_AUTHOR_REFERENCE",
+      "usableFor": "雙星同宮特徵與相處觀察",
+      "notEstablished": "對象主星推薦、雙人合盤評分、古籍特殊格局配對",
+      "status": "LOCATED_CONTENT_REVIEW_REQUIRED",
+      "contentUse": "保留出處；逐條確認上下文後才可登記短引文，不存全文或 AI 改寫斷語"
+    },
+    {
+      "title": "雙星組合 – 天同巨門",
+      "stars": [
+        "天同",
+        "巨門"
+      ],
+      "url": "https://art.click108.com.tw/article/201908/15161_1.html",
+      "publisher": "科技紫微網",
+      "author": "普羅米修士",
+      "sourceType": "MODERN_AUTHOR_REFERENCE",
+      "usableFor": "雙星同宮特徵與相處觀察",
+      "notEstablished": "對象主星推薦、雙人合盤評分、古籍特殊格局配對",
+      "status": "LOCATED_CONTENT_REVIEW_REQUIRED",
+      "contentUse": "保留出處；逐條確認上下文後才可登記短引文，不存全文或 AI 改寫斷語"
+    },
+    {
+      "title": "雙星組合 – 天同天梁",
+      "stars": [
+        "天同",
+        "天梁"
+      ],
+      "url": "https://m.click108.com.tw/article/201910/15238_1.php",
+      "publisher": "科技紫微網",
+      "author": "普羅米修士",
+      "sourceType": "MODERN_AUTHOR_REFERENCE",
+      "usableFor": "雙星同宮特徵與相處觀察",
+      "notEstablished": "對象主星推薦、雙人合盤評分、古籍特殊格局配對",
+      "status": "LOCATED_CONTENT_REVIEW_REQUIRED",
+      "contentUse": "保留出處；逐條確認上下文後才可登記短引文，不存全文或 AI 改寫斷語"
+    }
+  ],
+  "methods": [
+    {
+      "title": "談紫微雙星組合：是物理變化還是化學變化？",
+      "url": "https://m.click108.com.tw/article/201708/14159_1.php",
+      "publisher": "科技紫微網",
+      "author": "普羅米修士",
+      "verifiedScope": "十四單星、二十四雙星的分類；命宮空宮參考遷移宮",
+      "restriction": "這是性格解讀方法，不是雙人配對算法；不能與另一作者的夫妻宮配對法默默混合"
+    },
+    {
+      "title": "紫微星曜配對組合系列（一）",
+      "url": "https://vocus.cc/article/6336b0c7fd89780001745ae1",
+      "publisher": "方格子",
+      "author": "紫微吉吉店",
+      "verifiedScope": "作者以命宮坐星作配對參考；命宮空時採夫妻宮；雙星須判定主輔",
+      "restriction": "主輔判定還需時間與宮位，不能任選一顆；尚未核定全面可執行的判定表"
+    },
+    {
+      "title": "別再暈錯人！四步驟幫你找到真愛！",
+      "url": "https://www.ziweischool.com.tw/article_d.php?id=830&lang=tw&tb=3",
+      "publisher": "紫微師範學院",
+      "author": "輔德陸文章頁",
+      "verifiedScope": "兩組合計十五種命宮雙星的伴侶特徵方向",
+      "restriction": "命宮與夫妻宮互動解讀，非兩名客戶主星合盤；來源層級為現代觀點"
+    }
+  ]
+}

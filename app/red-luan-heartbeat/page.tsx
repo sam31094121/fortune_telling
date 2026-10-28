@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import type { buildComplementReference } from '@/lib/red-luan-complement-reference';
 import { ElementTreasureOrb } from '@/components/bazi/customer/ElementTreasureOrb';
 import { playElementUnsealSound } from '@/components/ElementUnsealSound';
 import { UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
@@ -59,11 +60,11 @@ type IChingReading = {
   onion: Array<{ step: number; layer: string; point: string; term?: string }>;
   closing: string;
   karmicBond: { title: string; owed: string; lesson: string; reunion: string; note: string };
-  teachers: Array<{ key: string; name: string; tagline: string; preview: string; opening: string; sections: Array<{ title: string; text: string }>; closing: string; sources?: Array<{ title: string; reference: string }> }>;
+  teachers: Array<{ key: string; name: string; tagline: string; preview: string; opening: string; sections: Array<{ title: string; text: string; placement?: 'evidence' }>; closing: string; sources?: Array<{ title: string; reference: string }> }>;
   seedText: string;
 };
 type BaziSignal = { annualYear: number; annualBranch: string; inputCompleteness: string; natalEvidence: Evidence[]; annualTriggers: Evidence[]; limitations: string[]; sources: Array<{ title: string; reference: string }> };
-type ZiweiSignal = { starGuidance?: Array<{ name: string; role: string; sourcePalace: string; source: string; power: string; challenge: string; direction: string; action: string }>; lifePalace?: { palace: string; earthlyBranch: string; majorStars: string[]; minorStars: string[] }; status: 'READY' | 'UNAVAILABLE_BIRTH_TIME_REQUIRED'; inputCompleteness: string; palaces?: Array<{ palace: string; earthlyBranch: string; majorStars: string[]; minorStars: string[] }>; limitations: string[] };
+type ZiweiSignal = { complementReference?: ReturnType<typeof buildComplementReference>; starGuidance?: Array<{ name: string; role: string; sourcePalace: string; source: string; power: string; challenge: string; direction: string; action: string }>; lifePalace?: { palace: string; earthlyBranch: string; majorStars: string[]; minorStars: string[] }; status: 'READY' | 'UNAVAILABLE_BIRTH_TIME_REQUIRED'; inputCompleteness: string; palaces?: Array<{ palace: string; earthlyBranch: string; majorStars: string[]; minorStars: string[] }>; limitations: string[] };
 type RelationshipStatus = 'SINGLE_NEVER_MARRIED' | 'DATING' | 'MARRIED' | 'SEPARATED' | 'DIVORCED' | 'WIDOWED';
 type FamilyResponsibility = 'NO_CHILDREN_OR_PRIMARY_CARE' | 'LIVE_WITH_OR_CARE_FOR_PARENTS' | 'HAS_CHILDREN' | 'CARE_FOR_OTHER_FAMILY';
 type CurrentExpectation = 'MEET_SOMEONE' | 'STABLE_RELATIONSHIP' | 'MARRIAGE_PLANNING' | 'REPAIR_RELATIONSHIP';
@@ -104,6 +105,7 @@ type Reading = {
     relationshipPosition: { relationshipStatus: RelationshipStatus | Unspecified; familyResponsibility: FamilyResponsibility | Unspecified; currentExpectation: CurrentExpectation | Unspecified };
     annualEvidence: { precision: 'ANNUAL_BRANCH'; years: number[]; evidenceCount: number };
     themeTitle: string;
+    primaryAction?: string;
     guidancePrompt: string;
     actionDirections: Array<{ id: 'relationship_rhythm' | 'life_arrangement' | 'expectation_direction'; title: string; symbolism: string; reflectionQuestion: string; action: string }>;
     limitations: string[];
@@ -1161,7 +1163,7 @@ function RedLuanHeartbeatExperience() {
             回訪那一句原本只出現在送出前，客戶按下去就消失了——
             他最後停留的畫面，反而沒有任何「這次跟上次不一樣」的證據。
           */}
-          {returnLine && <p className="mt-2 text-sm font-black leading-6 text-amber-100">{returnLine}</p>}
+          {identityTarget !== 'guest' && returnLine && <p className="mt-2 text-sm font-black leading-6 text-amber-100">{returnLine}</p>}
         </header>
 
         {reading.affinity && <section id="red-luan-spark" className="scroll-mt-5 rounded-3xl border border-rose-200/30 bg-[radial-gradient(circle_at_top_right,rgba(251,113,133,0.16),transparent_46%),rgba(15,23,42,0.86)] p-5 shadow-[0_18px_52px_rgba(244,63,94,0.14)]">
@@ -1385,45 +1387,38 @@ function RedLuanHeartbeatExperience() {
             </Fold>
 
             <Fold title="鬼魅阿修羅" badge="解說" teaser="先看時間、對象，再看行動提醒" foldKey="teachers" anchorId="red-luan-teachers" opened={openedFolds} onToggle={toggleFold}>
-              <section className="mb-4 rounded-2xl border border-violet-200/30 bg-violet-300/10 p-4">
-                <h4 className="text-sm font-black text-violet-100">你的命宮主星</h4>
-                <p className="mt-2 text-xl font-black text-white">{reading.result.ziwei.lifePalace ? (reading.result.ziwei.lifePalace.majorStars.length > 0 ? reading.result.ziwei.lifePalace.majorStars.join('、') : '命宮無主星') : '暫時無法取得'}</p>
-                <div className="mt-3 space-y-3">
-                  {reading.result.ziwei.starGuidance?.length ? reading.result.ziwei.starGuidance.map((star) => <article key={star.name} className="rounded-xl border border-white/15 p-4">
-                    <h5 className="font-black text-violet-50">{star.name}・{star.role}</h5>
-                    <p className="mt-2 text-sm leading-7 text-white/85">{star.power}</p>
-                    <p className="mt-2 text-sm leading-7 text-white/75">{star.challenge}</p>
-                    <p className="mt-2 font-bold text-amber-100">{star.direction}</p>
-                    <p className="mt-2 text-sm leading-7 text-white">{star.action}</p>
-                  </article>) : <p className="text-sm text-white/70">目前沒有可對應的主星解說。</p>}
-                </div>
-              </section>
-              <div className="grid gap-2 sm:grid-cols-2">
+              {(reading.ichingReading.teachers ?? []).length > 1 && <div className="grid gap-2 sm:grid-cols-2">
                 {(reading.ichingReading.teachers ?? []).map((teacher) => (
                   <button key={teacher.key} type="button" aria-pressed={teacherKey === teacher.key} onClick={() => setTeacherKey(teacher.key)} className={`rounded-2xl border px-4 py-3 text-left transition ${teacherKey === teacher.key ? 'border-violet-200/70 bg-violet-300/20 text-violet-50' : 'border-white/10 bg-white/[0.04] text-white/65'}`}>
                     <span className="block text-base font-black">{teacher.name}</span>
                     <span className="mt-1 block text-xs leading-4 opacity-75">{teacher.tagline}</span>
                   </button>
                 ))}
-              </div>
+              </div>}
               {(() => {
                 const teacher = (reading.ichingReading.teachers ?? []).find((item) => item.key === teacherKey) ?? (reading.ichingReading.teachers ?? [])[0];
                 if (!teacher) return null;
                 return (
                   <div className="mt-4 space-y-2">
                     {teacher.opening.split('\n').filter(Boolean).map((line) => <p key={line.slice(0, 14)} className="text-sm leading-7 text-white/[0.78]">{line}</p>)}
-                    {teacher.sections.map((section) => (
+                    {teacher.sections.filter((section) => section.placement !== 'evidence').map((section) => (
                       <article key={section.title} className="rounded-2xl border border-white/10 bg-black/[0.22] p-4">
                         <p className="text-xs font-black tracking-[0.14em] text-violet-100">{section.title}</p>
                         <p className="mt-2 text-sm leading-7 text-white/[0.78]">{section.text}</p>
                       </article>
                     ))}
-                    {teacher.closing.split('\n').filter(Boolean).map((line) => <p key={line.slice(0, 14)} className="rounded-2xl border border-emerald-200/15 bg-emerald-300/[0.06] p-4 text-sm leading-7 text-emerald-50">{line}</p>)}
+              <section className="mb-4 rounded-2xl border border-amber-200/30 bg-amber-300/10 p-4" aria-label="互補方向">
+                {reading.result.ziwei.complementReference ? <>
+                  <h4 className="text-xl font-black text-amber-100">阿修羅幫你找真愛</h4>
+                  <p className="mt-3 text-base font-bold text-white">{reading.result.ziwei.complementReference.title}</p>
+                  <p className="mt-2 text-lg leading-8 text-white/90">{reading.result.ziwei.complementReference.quote}</p>
+                </> : <><h4 className="font-black text-amber-100">互補方向</h4><p className="mt-2 text-sm text-white/70">暫時無法取得符合本次主星條件的互補參考。</p></>}
+              </section>
                     <section className="rounded-2xl border border-amber-200/25 bg-amber-300/[0.08] p-4">
-                      <h4 className="font-black text-amber-50">{reading.contextAlignment.themeTitle}</h4>
-                      {reading.contextAlignment.actionDirections.map((direction) => <div key={direction.id} className="mt-3"><p className="text-sm font-black text-white">{direction.title}</p><p className="mt-1 text-sm leading-7 text-white/80">{direction.action}</p></div>)}
+                      <h4 className="font-black text-amber-50">現在先做這一步</h4>
+                      <p className="mt-2 text-base leading-7 text-white">{reading.contextAlignment.primaryAction ?? '請重新計算以取得本次行動建議。'}</p>
                     </section>
-                  </div>
+                    {teacher.closing.split('\n').filter(Boolean).map((line) => <p key={line.slice(0, 14)} className="mt-3 text-sm leading-7 text-emerald-50">{line}</p>)}                  </div>
                 );
               })()}
             </Fold>
@@ -1463,10 +1458,32 @@ function RedLuanHeartbeatExperience() {
         {/* 完整推算過程：後端證據、品質核對、規則出處。想查的人才需要打開。 */}
         <Fold title="完整推算過程與證據" badge="想查再看" foldKey="evidence" opened={openedFolds} onToggle={toggleFold}>
         <div className="space-y-4">
+              <section className="mb-4 rounded-2xl border border-violet-200/30 bg-violet-300/10 p-4">
+                <h4 className="text-sm font-black text-violet-100">先看自己・本命主星與相處傾向</h4>
+                <p className="mt-2 text-xl font-black text-white">{reading.result.ziwei.lifePalace ? (reading.result.ziwei.lifePalace.majorStars.length > 0 ? reading.result.ziwei.lifePalace.majorStars.join('、') : '命宮無主星') : '暫時無法取得'}</p>
+                <div className="mt-3 space-y-3">
+                  {reading.result.ziwei.starGuidance?.length ? reading.result.ziwei.starGuidance.map((star) => <article key={star.name} className="rounded-xl border border-white/15 p-4">
+                    <h5 className="font-black text-violet-50">{star.name}・{star.role}</h5>
+                    <p className="mt-2 text-sm leading-7 text-white/85">{star.power}</p>
+                    <p className="mt-2 text-sm leading-7 text-white/75">{star.challenge}</p>
+                    <p className="mt-2 font-bold text-amber-100">{star.direction}</p>
+                    <p className="mt-2 text-sm leading-7 text-white">{star.action}</p>
+                  </article>) : <p className="text-sm text-white/70">目前沒有可對應的主星解說。</p>}
+                </div>
+              </section>
+
+        {reading.result.ziwei.complementReference && <section className="rounded-2xl border border-amber-200/20 p-4">
+          <h3 className="font-black text-amber-100">互補參考來源</h3>
+          <p className="mt-2 text-sm">{reading.result.ziwei.complementReference.statusLabel}・{reading.result.ziwei.complementReference.basisLabel}：{reading.result.ziwei.complementReference.matchedStars.join('、')}</p>
+          <p className="mt-2 text-sm leading-6">{reading.result.ziwei.complementReference.sourceScope}</p>
+          <p className="mt-2 text-sm leading-6">{reading.result.ziwei.complementReference.scopeLabel}</p>
+          <a className="mt-2 inline-block text-sm underline" href={reading.result.ziwei.complementReference.sourceUrl} target="_blank" rel="noopener noreferrer">{reading.result.ziwei.complementReference.sourceTitle}</a>
+        </section>}
         {reading.result.ziwei.starGuidance?.map((star) => <p key={star.name} className="text-xs leading-6 text-white/75">{star.name}：本次{star.sourcePalace}。{star.source}</p>)}
         {reading.ichingReading?.teachers.map((teacher) => (
           <section key={teacher.key} className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
             <h3 className="font-black text-white">{teacher.name}</h3>
+            {teacher.sections.filter((section) => section.placement === 'evidence').map((section) => <p key={section.title} className="mt-2 text-sm leading-6 text-white/75">{section.title}：{section.text}</p>)}
             {teacher.sources?.map((source) => <p key={source.title} className="mt-2 text-xs leading-6 text-white/75">{source.title}：{source.reference}</p>)}
           </section>
         ))}

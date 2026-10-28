@@ -4,6 +4,23 @@
   "rule": "八字沿用《易經》來源治理（docs/技能戰鬥檔案/易經/來源治理.md）：交叉比對的來源、權威性的檔案、大數據的來源；狀態由 lib/iching-source-gate.ts 計算，不得手填 VERIFIED。",
   "sources": [
     {
+      "source_id": "S-NDL-CINII-XINGXUE-CATALOG",
+      "author": "日本國立國會圖書館 NDL Search；資料提供者 CiNii Books／國立情報學研究所",
+      "locator": "https://ndlsearch.ndl.go.jp/books/R100000136-I1971430859862965700",
+      "data_type": "研究圖書館聯合書目：星學大成三十卷影印本，NACSIS BA61816139",
+      "kind": "圖書館書目",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "本輪核對公開書目事實與原頁連結，未取得重製或大量擷取授權；引用權限仍待依來源治理核定。",
+      "accessed_at": "2026-10-28",
+      "edition": "商務印書館影印；四庫全書珍本第四集184–189；出版年原記[19--?]，不得補造年份。",
+      "trust": "A",
+      "note": "只核對萬民英署名、三十卷及影印系列存在；不是獨立原典、配對實證或月份效度研究。NDL與CiNii為同筆書目，不重複計數。"
+    },
+    {
       "source_id": "S-SHENFENG-1929-V2-SCAN",
       "author": "張楠；秦慎安校勘",
       "locator": "https://upload.wikimedia.org/wikipedia/commons/d/d1/NLC511-027032013020556-10361_神峰通考_第2卷.pdf",
@@ -425,18 +442,19 @@
     {
       "source_id": "S-XINGXUE-DACHENG",
       "author": "明・萬民英",
-      "locator": "《星學大成》〈論紅鸞天喜〉（引擎 RED_LUAN_BY_YEAR_BRANCH_V1、TIAN_XI_OPPOSITE_RED_LUAN_V1 標註的出處）",
-      "data_type": "星命古籍",
+      "locator": "https://zh.wikisource.org/wiki/星學大成_(四庫全書本)/卷01 — 論紅鸞天喜",
+      "data_type": "《星學大成》四庫全書本卷一原典文字轉錄；紅鸞、天喜年支查表取法",
       "kind": "原典",
-      "can_cite": "待查核",
+      "can_cite": "PASS",
       "can_reproduce": "待查核",
       "bulk_extraction": "待查核",
       "automated_crawl": "待查核",
       "training_use": "待查核",
-      "license_terms": "古籍原文屬公有領域；實際取用版本權利待查核",
-      "accessed_at": "2026-09-17",
-      "edition": "版本與卷次待查核（程式已標註出處，本次未上網核對館藏）",
-      "trust": "A"
+      "license_terms": "原典古籍文字公有領域；維基文庫轉錄依網站署名-相同方式共享4.0條款，保留書名、作者、版本及頁面連結；不擴大為整站重製或訓練授權。",
+      "accessed_at": "2026-10-28",
+      "edition": "四庫全書本卷一〈論紅鸞天喜〉，維基文庫電子轉錄（2026-10-28核對正文；本輪未核原刻掃描）",
+      "trust": "A",
+      "note": "已直接讀取頁面正文，核對子年紅鸞卯起逆行、天喜酉起逆行及相對六支；tests/red-luan-heartbeat.test.ts覆蓋十二年支。只支持兩項年支定位，不支持最佳月份排序、外型職業或十四主星配對；不因此放行整個C-RED-LUAN-SHENSHA。"
     },
     {
       "source_id": "S-SITE-BRANCH-PROFILE",
@@ -905,15 +923,18 @@
       "authority_files": [
         "S-XINGXUE-DACHENG"
       ],
-      "big_data_sources": [],
+      "big_data_sources": [
+        "S-NDL-CINII-XINGXUE-CATALOG"
+      ],
       "cross_references": [
         "S-XINGXUE-DACHENG",
         "S-SITE-BRANCH-PROFILE",
-        "S-TEST-RED-LUAN"
+        "S-TEST-RED-LUAN",
+        "S-NDL-CINII-XINGXUE-CATALOG"
       ],
       "conflicts": [],
       "status": "PENDING_POOL",
-      "note": "月份規則有古籍出處標註但版本未核對；外型與職業對應是本站詮釋，沒有古籍條文，只能標為參考。"
+      "note": "2026-10-28已核對星學大成四庫卷一紅鸞天喜年支定位及NDL/CiNii版本書目；書目權限待核，不將書目作配對效度證據。外型職業仍為本站詮釋，沒有古籍條文。不得因此放行整個月份與人物主張。"
     },
     {
       "claim_id": "C-BAZI-FIVE-GODS",

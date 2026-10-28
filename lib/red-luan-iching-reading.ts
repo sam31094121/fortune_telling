@@ -54,7 +54,7 @@ export type RedLuanTeacherReading = {
   preview: string;
   opening: string;
   /** 依序顯示時間、對象、同一顆卦與行動提醒。 */
-  sections: Array<{ title: string; text: string }>;
+  sections: Array<{ title: string; text: string; placement?: 'evidence' }>;
   closing: string;
   sources: Array<{ title: string; reference: string }>;
 };
@@ -204,8 +204,8 @@ function buildTeacherReadings(input: {
     sections: [
       { title: '時間', text: input.hasPeak ? input.monthsPhrase :                 String(input.year) + ' 年沒有月份命中這組規則' },
       { title: '傳統對應的對象', text: affinity.onionLayers[0]?.headline || '暫時無法取得' },
-      { title: '你的卦', text: hexagram.hexagramName + '・' + input.patternName + '。' + hexagram.essence },
-      { title: '行動提醒', text: hexagram.advice },
+      { title: '你的卦', placement: 'evidence', text: hexagram.hexagramName + '・' + input.patternName + '。' + hexagram.essence },
+      { title: '行動提醒', placement: 'evidence', text: hexagram.advice },
     ],
     closing: '我先把話放這裡。你自己決定要不要踩。',
     sources: [

@@ -1,5 +1,6 @@
 import { createZiweiCore, resolveSanFangSiZhengFor, type ZiweiBirthInput, type ZiweiPalaceResult } from './ziwei/engine';
 import { registeredStarGuidance } from './ziwei-destiny-card';
+import { buildComplementReference } from './red-luan-complement-reference';
 
 const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'] as const;
 type Branch = (typeof BRANCHES)[number];
@@ -100,6 +101,7 @@ export type RedLuanContextAlignment = {
     evidenceCount: number;
   };
   themeTitle: string;
+  primaryAction: string;
   guidancePrompt: string;
   actionDirections: Array<{
     id: 'relationship_rhythm' | 'life_arrangement' | 'expectation_direction';
@@ -298,6 +300,7 @@ export type ZiweiLovePersonSignal = {
   palaces?: Array<{ palace: string; earthlyBranch: string; majorStars: string[]; minorStars: string[] }>;
   lifePalace?: { palace: string; earthlyBranch: string; majorStars: string[]; minorStars: string[] };
   starGuidance?: Array<{ name: string; role: string; sourcePalace: string; source: string; power: string; challenge: string; direction: string; action: string }>;
+  complementReference?: ReturnType<typeof buildComplementReference>;
   limitations: string[];
 };
 
@@ -394,6 +397,7 @@ export function buildRedLuanContextAlignment(
     },
     themeTitle: answeredThemes.length > 0 ? answeredThemes.join('・') : '年度訊號・方向留白',
     guidancePrompt: expectation.prompt,
+    primaryAction: relationship.action,
     actionDirections: [
       { id: 'relationship_rhythm', title: `界線與步調・${relationship.theme}`, symbolism: relationship.symbolism, reflectionQuestion: relationship.reflectionQuestion, action: relationship.action },
       { id: 'life_arrangement', title: `支持系統・${family.theme}`, symbolism: family.symbolism, reflectionQuestion: family.reflectionQuestion, action: family.action },
@@ -1379,7 +1383,7 @@ export function buildZiweiLovePersonSignal(input: { birth: ZiweiBirthInput | nul
   const lifePalace = core.palaces.find((palace) => palace.name === '命宮');
   const spouse = core.palaces.find((palace) => palace.name === '夫妻宮');
   const seenStars = new Set<string>();
-  const starGuidance = [lifePalace, spouse].flatMap((palace) => {
+  const starGuidance = [lifePalace].flatMap((palace) => {
     if (!palace) return [];
     return palace.majorStarDetails.flatMap((star) => {
       const copy = registeredStarGuidance(star.name);
@@ -1402,6 +1406,13 @@ export function buildZiweiLovePersonSignal(input: { birth: ZiweiBirthInput | nul
     inputCompleteness: '完整出生時辰',
     lifePalace: lifePalace ? palaceEvidence(lifePalace) : undefined,
     starGuidance,
+    complementReference: buildComplementReference(lifePalace?.majorStarDetails.map((star) => star.name) ?? [], {
+      confirmedEmptyLifePalace: Boolean(lifePalace && lifePalace.majorStarDetails.length === 0),
+      spouseStars: spouse?.majorStarDetails.map((star) => star.name) ?? [],
+      migrationStars: core.palaces.find((palace) => palace.name === '遷移宮')?.majorStarDetails.map((star) => star.name) ?? [],
+      lifeEarthlyBranch: lifePalace?.earthlyBranch,
+      spouseOppositeStars: core.palaces.find((palace) => palace.name === '官祿宮')?.majorStarDetails.map((star) => star.name) ?? [],
+    }),
     palaces,
     limitations: [
       '本層只列出本命夫妻宮及其三方四正的可核對星曜，不將星曜直接判為關係結果。',

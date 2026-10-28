@@ -1,4 +1,78 @@
 import assert from 'node:assert/strict';
+import { buildComplementReference } from '../lib/red-luan-complement-reference';
+
+// Exact combinations only: do not invent a dominant star or complete missing stars.
+assert.equal(buildComplementReference(['武曲', '七殺'])?.sourceStatus, 'MODERN_AUTHOR_REFERENCE');
+assert.deepEqual(buildComplementReference(['七殺', '武曲'])?.referenceStars, ['天府', '天相']);
+assert.deepEqual(buildComplementReference(['七殺'])?.referenceStars, ['貪狼']);
+for (const name of ['紫微', '天機', '太陽', '武曲', '天同', '廉貞', '天府', '太陰', '貪狼', '巨門', '天相', '天梁', '七殺', '破軍']) {
+  const reference = buildComplementReference([name]);
+  assert.ok(reference, `${name}: missing reference`);
+  assert.ok(reference.quote.trim(), `${name}: missing source excerpt`);
+  assert.ok(reference.referenceStars.length > 0, `${name}: missing partner reference`);
+  assert.ok(!reference.referenceStars.includes(name), `${name}: must not return own star as partner`);
+  assert.equal(reference.sourceStatus, 'MODERN_AUTHOR_REFERENCE');
+  assert.ok(reference.sourceUrl.startsWith('https://vocus.cc/article/'));
+  assert.deepEqual(buildComplementReference([name]), reference);
+}
+assert.deepEqual(buildComplementReference(['破軍'])?.referenceStars, ['天府']);
+assert.equal(buildComplementReference(['破軍'])?.sourceUrl, 'https://vocus.cc/article/65c45eaafd89780001149ec3');
+assert.match(buildComplementReference(['破軍'])!.quote, /前提/);
+assert.equal(buildComplementReference(['破軍', '天府']), null);
+assert.match(buildComplementReference(['武曲', '破軍'])!.sourceUrl, /ziweischool/);
+assert.equal(buildComplementReference([]), null);
+assert.equal(buildComplementReference(['七殺', '破軍', '貪狼']), null);
+assert.equal(buildComplementReference(['武曲', '七殺', '天相']), null);
+for (const first of ['紫微', '武曲', '廉貞']) {
+  for (const second of ['天府', '天相']) {
+    const reference = buildComplementReference([first, second]);
+    assert.deepEqual(reference?.referenceStars, ['七殺', '破軍', '貪狼']);
+    assert.match(reference!.sourceUrl, /ziweischool/);
+    assert.deepEqual(buildComplementReference([second, first])?.referenceStars, reference!.referenceStars);
+  }
+}
+// A bibliographic lead is not an executable recommendation rule.
+assert.equal(buildComplementReference(['天機', '太陰']), null);
+const sourcedDualCases: [string[], string, string[]][] = [
+  [['天機', '太陰'], '寅申', ['太陽']],
+  [['天機', '巨門'], '卯酉', ['太陽', '太陰']],
+  [['天機', '天梁'], '辰戌', ['太陽', '巨門']],
+  [['天同', '太陰'], '子午', ['天機', '天梁']],
+  [['天同', '巨門'], '丑未', ['太陰']],
+  [['天同', '天梁'], '寅申', ['巨門']],
+  [['太陽', '太陰'], '丑未', ['天同']],
+  [['太陽', '巨門'], '寅申', ['天同', '太陰']],
+  [['太陽', '天梁'], '卯酉', ['天同', '巨門']],
+];
+for (const [stars, branches, spouseStars] of sourcedDualCases) {
+  for (const branch of branches) {
+    const borrowOpposite = stars.includes('天同') && stars.includes('太陰');
+    const context = { confirmedEmptyLifePalace: false, spouseStars: borrowOpposite ? [] : spouseStars, lifeEarthlyBranch: branch, spouseOppositeStars: borrowOpposite ? spouseStars : [] };
+    const result = buildComplementReference(stars, context);
+    assert.deepEqual(result?.referenceStars, spouseStars);
+    assert.equal(result?.basis, 'LIFE_PALACE');
+    assert.match(result!.sourceUrl, /dcard\.tw/);
+    assert.deepEqual(buildComplementReference([...stars].reverse(), { ...context, spouseStars: [...context.spouseStars].reverse() }), { ...result, matchedStars: [...stars].reverse(), actualLifeStars: [...stars].reverse() });
+    if (borrowOpposite) assert.equal(buildComplementReference(stars, { ...context, spouseOppositeStars: [] }), null);
+    assert.equal(buildComplementReference(stars, { ...context, spouseStars: ['紫微'] }), null);
+    assert.equal(buildComplementReference(stars, { ...context, lifeEarthlyBranch: '不明' }), null);
+    assert.ok(!buildComplementReference([], { ...context, confirmedEmptyLifePalace: true })?.ruleId.startsWith('yuan-dual-'));
+  }
+}
+const emptyLifeReference = buildComplementReference([], { confirmedEmptyLifePalace: true, spouseStars: ['破軍'], migrationStars: ['天機'] });
+assert.equal(emptyLifeReference?.basis, 'EMPTY_LIFE_MIGRATION_REFERENCE');
+assert.deepEqual(emptyLifeReference?.actualLifeStars, []);
+assert.deepEqual(emptyLifeReference?.matchedStars, ['天機']);
+assert.equal(buildComplementReference([], { confirmedEmptyLifePalace: false, spouseStars: ['天機'] }), null);
+assert.equal(buildComplementReference([], { confirmedEmptyLifePalace: true, spouseStars: [] }), null);
+assert.equal(buildComplementReference([], { confirmedEmptyLifePalace: true, spouseStars: ['武曲', '七殺'] }), null);
+assert.equal(buildComplementReference(['破軍'], { confirmedEmptyLifePalace: true, spouseStars: ['天機'] })?.basis, 'LIFE_PALACE');
+const borrowedDual = buildComplementReference([], { confirmedEmptyLifePalace: true, spouseStars: ['天機'], migrationStars: ['武曲', '七殺'] });
+assert.deepEqual(borrowedDual?.matchedStars, ['武曲', '七殺']);
+assert.deepEqual(borrowedDual?.actualLifeStars, []);
+assert.deepEqual(borrowedDual?.referenceStars, ['天府', '天相']);
+assert.equal(borrowedDual?.basis, 'EMPTY_LIFE_MIGRATION_REFERENCE');
+assert.equal(buildComplementReference([], { confirmedEmptyLifePalace: false, spouseStars: [], migrationStars: ['天機'] }), null);
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
@@ -56,6 +130,30 @@ assert.equal(unknownHour.natalEvidence.some((item) => item.evidence.includes('�
 assert.ok(unknownHour.limitations.some((item) => item.includes('時柱不納入')));
 
 const missingZiwei = buildZiweiLovePersonSignal({ birth: null });
+const emptyLifeZiwei = buildZiweiLovePersonSignal({ birth: { calendarType: 'solar', date: '2000-01-01', gender: '女', timeIndex: 1 } });
+// Real chart integration: no hand-injected natal stars or spouse combinations.
+const dualBirthFixtures: [string, number, string][] = [
+  ['1990-01-08', 11, '天機-太陰'], ['1990-03-15', 0, '天機-巨門'],
+  ['1990-03-15', 11, '天機-天梁'], ['1991-07-01', 6, '天同-太陰'],
+  ['1990-08-15', 0, '天同-巨門'], ['1990-08-15', 11, '天同-天梁'],
+  ['1990-03-15', 8, '太陽-太陰'], ['1990-02-15', 0, '太陽-巨門'],
+  ['1990-06-15', 9, '太陽-天梁'],
+];
+for (const [date, timeIndex, pair] of dualBirthFixtures) {
+  const result = buildZiweiLovePersonSignal({ birth: { calendarType: 'solar', date, gender: '女', timeIndex } });
+  assert.equal(result.complementReference?.ruleId, `yuan-dual-${pair}`, `${date}: real chart rule mismatch`);
+  if (pair === '天同-太陰') {
+    assert.deepEqual(result.palaces?.find((p) => p.palace === '夫妻宮')?.majorStars, []);
+    assert.ok(result.complementReference?.methodSourceUrl);
+  }
+}
+assert.deepEqual(emptyLifeZiwei.lifePalace?.majorStars, []);
+assert.equal(emptyLifeZiwei.complementReference?.basis, 'EMPTY_LIFE_MIGRATION_REFERENCE');
+assert.deepEqual(emptyLifeZiwei.complementReference?.matchedStars, ['廉貞', '貪狼']);
+assert.deepEqual(emptyLifeZiwei.complementReference?.referenceStars, ['天府', '天相']);
+const unsupportedBorrowedPair = buildZiweiLovePersonSignal({ birth: { calendarType: 'solar', date: '2000-01-01', gender: '女', timeIndex: 5 } });
+assert.deepEqual(unsupportedBorrowedPair.lifePalace?.majorStars, []);
+assert.equal(unsupportedBorrowedPair.complementReference, null); // Own-palace structural rules cannot be moved to the opposite palace.
 assert.equal(missingZiwei.status, 'UNAVAILABLE_BIRTH_TIME_REQUIRED');
 assert.equal(missingZiwei.annualStatus, 'UNAVAILABLE_RULE_SOURCE_REQUIRED');
 
@@ -219,6 +317,9 @@ assert.equal(normalizeRedLuanSelfReportedContext(selfReportedContextA).relations
 const deterministicBeforeContextValidation = structuredClone(oneYearResult);
 const contextAlignmentA = buildRedLuanContextAlignment(selfReportedContextA, oneYearResult);
 const contextAlignmentB = buildRedLuanContextAlignment(selfReportedContextB, oneYearResult);
+for (const result of [contextAlignmentA, contextAlignmentB]) {
+  assert.equal(result.primaryAction, result.actionDirections.find((item) => item.id === 'relationship_rhythm')?.action);
+}
 assert.deepEqual(oneYearResult, deterministicBeforeContextValidation, '關係情境交叉運算不得改寫命盤或年度規則結果');
 assert.equal(contextAlignmentA.mode, 'REFLECTION_GUIDANCE_ONLY');
 assert.equal(contextAlignmentA.calculationOrder.stageOne.evidenceFrozenBeforeContext, true);
