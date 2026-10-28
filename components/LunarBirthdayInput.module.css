@@ -1,0 +1,37 @@
+.root :global(.grid-cols-3 > label > span) {
+  z-index: 10;
+  color: #cbd5e1 !important;
+  font-size: 18px !important;
+  font-weight: 700;
+}
+.root :global(input[type='text']) {
+  padding-right: 2.5rem !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc;
+  caret-color: #fde68a;
+  scroll-margin-block: 5rem;
+}
+@media (max-width: 640px) {
+  .root :global(.grid-cols-3) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .root :global(.grid-cols-3 > label:first-child) {
+    grid-column: 1 / -1;
+  }
+  .root :global(input[type='text']) {
+    min-width: 0;
+    min-height: 64px;
+    padding-left: 1rem !important;
+    font-size: 20px !important;
+  }
+  .root :global(input[type='text']:focus) {
+    transform: none;
+    outline: 2px solid #fde68a;
+    outline-offset: 2px;
+  }
+}
+@media (max-width: 380px) {
+  .root :global(.grid-cols-3) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

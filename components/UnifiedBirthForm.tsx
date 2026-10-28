@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import HomeTranslatedText, { useDisplayText } from '@/components/HomeTranslatedText';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import { getAnalysisIdentityTarget, IDENTITY_TARGET_UPDATED_EVENT, type AnalysisIdentityTarget } from '@/lib/identity-split-client';
@@ -259,6 +259,7 @@ export function UnifiedBirthForm({
   onSubmit,
 }: UnifiedBirthFormProps) {
   // ===== 本人資料檔案：選「自己」自動帶入之前填過的資料，不用重複填寫 =====
+  const nameInputId = useId();
   const valueRef = useRef(value);
   valueRef.current = value;
   const onChangeRef = useRef(onChange);
@@ -266,36 +267,34 @@ export function UnifiedBirthForm({
 
   useEffect(() => {
     if (!autoFillIdentity) return;
-    const applyIdentity = (target: AnalysisIdentityTarget | null) => {
+    let previousTarget = getAnalysisIdentityTarget();
+    const emptyProfile = (): BirthProfile => ({
+      ...valueRef.current,
+      name: '', birthDate: '', birthTime: '', birthHourBranch: undefined,
+      gender: undefined, timeUnknown: undefined,
+      birthPlace: '', country: '', city: '', calendarType: 'solar',
+    });
+    const applyIdentity = (target: AnalysisIdentityTarget | null, selected = false) => {
+      // 切去親友前保留本人已填的有效生日；親友資料永不寫進本人檔。
+      if (selected && previousTarget === 'self' && target === 'guest' && persistIdentity && valueRef.current.birthDate) {
+        saveSelfBirthProfile(valueRef.current);
+      }
+      previousTarget = target;
       if (target === 'self') {
         const saved = readSelfBirthProfile();
-        if (saved) {
-          // 只帶入有存過的欄位；使用者仍可修改
-          onChangeRef.current({ ...valueRef.current, ...saved });
-        } else {
-          // 本頁（八字）還沒存過本人資料，退而求其次看看唯一出生資料裡有沒有
-          // 別的頁面（例如紫微）已經填過的——只在完全沒有本地資料時才帶入
-          const canonical = readCanonicalBirthProfile();
-          if (canonical) onChangeRef.current({ ...valueRef.current, ...toUnifiedBirthProfile(canonical) });
-        }
+        const canonical = saved ? null : readCanonicalBirthProfile();
+        const own = saved ?? (canonical ? toUnifiedBirthProfile(canonical) : null);
+        if (own) onChangeRef.current({ ...emptyProfile(), ...own });
+        else if (selected) onChangeRef.current(emptyProfile());
       } else if (target === 'guest') {
-        // 切到親朋好友：若表單目前是本人檔案內容，清空讓使用者填別人的資料
-        const saved = readSelfBirthProfile();
-        const current = valueRef.current;
-        if (saved && saved.name && current.name === saved.name) {
-          onChangeRef.current({
-            ...current,
-            name: '', birthDate: '', birthTime: '', birthHourBranch: undefined,
-            gender: undefined, timeUnknown: undefined,
-          });
-        }
+        // 不依姓名判定：未填姓名也必須清空，且不刪除本人資料。
+        onChangeRef.current(emptyProfile());
       }
     };
-    // 初始：若已選「自己」，直接帶入
-    applyIdentity(getAnalysisIdentityTarget());
+    applyIdentity(previousTarget);
     const onIdentityChanged = (event: Event) => {
       const detail = (event as CustomEvent<{ target?: AnalysisIdentityTarget }>).detail;
-      applyIdentity(detail?.target ?? getAnalysisIdentityTarget());
+      applyIdentity(detail?.target ?? getAnalysisIdentityTarget(), true);
     };
     window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, onIdentityChanged);
     return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, onIdentityChanged);
@@ -328,13 +327,17 @@ export function UnifiedBirthForm({
 
       {fields.name && (
         <section data-field="name" className={fieldFrameClass(missing, 'name', value)}>
-          <label className="block text-sm font-black text-[color:var(--text-main)]"><HomeTranslatedText text={"1. 姓名"} />{nameOptional && <span className="ml-1 text-sm font-bold text-[color:var(--text-sub)]"><HomeTranslatedText text={"（選填）"} /></span>} {(value.name ?? '').trim().length >= 2 && <span className="ml-2 text-green-400"><HomeTranslatedText text={"完成"} /></span>}</label>
+          <label htmlFor={nameInputId} className="block text-sm font-black text-[color:var(--text-main)]"><HomeTranslatedText text={"1. 姓名"} /><span className="ml-1 text-sm font-bold text-[color:var(--text-sub)]"><HomeTranslatedText text={nameOptional ? "（選填）" : "（必填）"} /></span> {(value.name ?? '').trim().length >= 2 && <span className="ml-2 text-green-400"><HomeTranslatedText text={"完成"} /></span>}</label>
+          <p id={`${nameInputId}-hint`} className="mt-2 text-base leading-7 text-[color:var(--text-main)]"><HomeTranslatedText text={nameOptional ? "不用填也能計算；填寫只用來稱呼你。" : "請填寫姓名，至少 2 個字，才能繼續。"} /></p>
           <input
+            id={nameInputId}
+            aria-describedby={`${nameInputId}-hint`}
+            aria-required={!nameOptional}
             value={value.name ?? ''}
             onChange={(event) => onChange({ ...value, name: event.target.value })}
             onBlur={(event) => onChange({ ...value, name: event.target.value.trim() })}
             maxLength={20}
-            placeholder={display(nameOptional ? '可以不填；填了，結果會用名字稱呼你' : '請輸入姓名，至少 2 個字')}
+            placeholder={display(nameOptional ? '' : '姓名')}
             className={`mt-3 w-full rounded-2xl border bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60 ${hasMissing(missing, 'name') ? 'border-rose-300/70' : 'border-white/10'}`}
             autoComplete="off"
             disabled={disabled}

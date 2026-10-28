@@ -1,6 +1,7 @@
 'use client';
 
 import type { ChangeEvent } from 'react';
+import styles from './LunarBirthdayInput.module.css';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { normalizeCalendarInput, solarToLunarParts } from '@/lib/lunar-calendar';
 import { useInterfaceLanguage } from '@/components/InterfaceLanguage';
@@ -169,7 +170,7 @@ function LunarBirthdayInput({
       : 'border-white/10 bg-white/[0.04] text-[color:var(--text-sub)]';
 
   return (
-    <div className="space-y-3">
+    <div className={`${styles.root} space-y-3`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="text-xs font-semibold text-cyan-200">{display('生日資料')}</p>
@@ -199,18 +200,18 @@ function LunarBirthdayInput({
         </button>
       </div>
 
-      {/* placeholder 放範例，不放今天日期——長輩會以為已經幫他填好了。 */}
+      {/* 依業主要求不放範例字樣，空白欄位保留年、月、日標籤。 */}
       <div className="grid grid-cols-3 gap-3">
         <label className="relative block">
-          <input inputMode="numeric" enterKeyHint="next" type="text" aria-label={display('民國年')} placeholder={display('例 63')} value={rocYear} disabled={disabled} onChange={handleNumberInput(setRocYear, 4)} className="form-input glass-input glass-input-cyan w-full pr-9" />
+          <input inputMode="numeric" enterKeyHint="next" type="text" aria-label={display('民國年')} value={rocYear} disabled={disabled} onChange={handleNumberInput(setRocYear, 4)} className="form-input glass-input glass-input-cyan w-full pr-9" />
           <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[color:var(--text-muted)]">{display('年')}</span>
         </label>
         <label className="relative block">
-          <input inputMode="numeric" enterKeyHint="next" type="text" aria-label={display('月份')} placeholder={display('例 7')} value={month} disabled={disabled} onChange={handleNumberInput(setMonth, 2)} className="form-input glass-input glass-input-cyan w-full pr-9" />
+          <input inputMode="numeric" enterKeyHint="next" type="text" aria-label={display('月份')} value={month} disabled={disabled} onChange={handleNumberInput(setMonth, 2)} className="form-input glass-input glass-input-cyan w-full pr-9" />
           <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[color:var(--text-muted)]">{display('月')}</span>
         </label>
         <label className="relative block">
-          <input inputMode="numeric" enterKeyHint="done" type="text" aria-label={display('日期')} placeholder={display('例 25')} value={day} disabled={disabled} onChange={handleNumberInput(setDay, 2)} className="form-input glass-input glass-input-cyan w-full pr-9" />
+          <input inputMode="numeric" enterKeyHint="done" type="text" aria-label={display('日期')} value={day} disabled={disabled} onChange={handleNumberInput(setDay, 2)} className="form-input glass-input glass-input-cyan w-full pr-9" />
           <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[color:var(--text-muted)]">{display('日')}</span>
         </label>
       </div>
