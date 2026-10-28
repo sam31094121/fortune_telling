@@ -1,7 +1,7 @@
 'use client';
 
 import HomeTranslatedText from '@/components/HomeTranslatedText';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { HOUR_BRANCH_PENDING, UnifiedBirthForm, type BirthProfile } from '@/components/UnifiedBirthForm';
@@ -390,14 +390,32 @@ export default function BaziPage() {
   const resolvedBirthTime = form.timeUnknown ? '' : form.birthTime;
   const resultSectionRef = useRef<HTMLDivElement>(null);
   const baziSubmittingRef = useRef(false);
+  const requestVersionRef = useRef(0);
+  const formRef = useRef(form);
+  formRef.current = form;
+  const invalidateResult = useCallback(() => {
+    requestVersionRef.current += 1;
+    baziSubmittingRef.current = false;
+    setLoading(false);
+    setResult(null);
+    setCeremonyPhase('idle');
+    setProgressView(null);
+    setGateIssues([]);
+    setDailyRecord(null);
+    setMessage('');
+    setError('');
+  }, []);
 
   useEffect(() => {
     const clearIdentityError = () => {
-      setError((prev) => (prev === getIdentityRequiredMessage() ? '' : prev));
+      invalidateResult();
     };
     window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
-    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
-  }, []);
+    return () => {
+      window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+      requestVersionRef.current += 1;
+    };
+  }, [invalidateResult]);
 
   function scrollToResult() {
     resultSectionRef.current?.scrollIntoView({ block: 'start' });
@@ -475,6 +493,7 @@ export default function BaziPage() {
     }
 
     baziSubmittingRef.current = true;
+    const requestVersion = ++requestVersionRef.current;
     setLoading(true);
     setResult(null);
     setCeremonyPhase('processing');
@@ -502,9 +521,10 @@ export default function BaziPage() {
           calendarType: form.calendarType ?? 'solar',
         },
         onJob: (job) => {
-          if (job.message) setMessage(job.message);
+          if (requestVersion === requestVersionRef.current && job.message) setMessage(job.message);
         },
       });
+      if (requestVersion !== requestVersionRef.current) return;
       const hourUnknownNow = form.timeUnknown === true;
       const gate = runBaziFinalGate(data, hourUnknownNow, calculationId);
       if (!gate.passed) {
@@ -527,12 +547,15 @@ export default function BaziPage() {
         markGrowthModuleCompleted('bazi', brandElement);
       }
     } catch (caught) {
+      if (requestVersion !== requestVersionRef.current) return;
       setError(caught instanceof Error ? caught.message : '目前無法完成八字命盤。');
       setCeremonyPhase('gate_failed');
       setGateIssues(['backend request failed']);
     } finally {
-      baziSubmittingRef.current = false;
-      setLoading(false);
+      if (requestVersion === requestVersionRef.current) {
+        baziSubmittingRef.current = false;
+        setLoading(false);
+      }
     }
   }
 
@@ -572,7 +595,8 @@ export default function BaziPage() {
           // 預先塞一個值等於替客戶決定他的八字——他沒選過，畫面卻標「完成」。
           requireExplicitHourPick
           onChange={(profile) => {
-            setForm((current) => ({
+            const current = formRef.current;
+            const next = {
               ...current,
               ...profile,
               name: profile.name ?? '',
@@ -583,7 +607,10 @@ export default function BaziPage() {
               country: profile.country ?? current.country,
               city: profile.city ?? current.city,
               timeUnknown: profile.timeUnknown,
-            }));
+            };
+            if (JSON.stringify(current) !== JSON.stringify(next)) invalidateResult();
+            formRef.current = next;
+            setForm(next);
           }}
           onSubmit={() => { void handleSubmit(); }}
         />

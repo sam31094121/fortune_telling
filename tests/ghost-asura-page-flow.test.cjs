@@ -66,6 +66,7 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/ghost-asura/GhostAsur
     if (id === '@/lib/ghost-asura-audio') return { initializeAudio: async () => {}, playCardRevealSound: () => {}, playImpressionGlowSound: () => {}, playShareSuccessSound: () => {}, playDownloadSuccessSound: () => {} };
     if (id === '@/lib/ghost-asura-particles') return { initializeParticleSystem: () => {}, getParticleSystem: () => ({}), cleanupParticleSystem: () => {} };
     if (id === '@/features/ghost-asura/components/GhostAsuraCard') return { GhostAsuraCard: Card };
+    if (id === '@/features/ghost-asura/components/AsuraVoiceCard') return load('features/ghost-asura/components/AsuraVoiceCard.tsx');
     if (id === '@/lib/dual-chart-form') return { dualChartHourStatus };
     if (id === '@/lib/share-preview') return { withShareVersion: url => url };
     if (id === '@/components/bazi/customer/ElementTreasureOrb') return { ElementTreasureOrb: () => null };

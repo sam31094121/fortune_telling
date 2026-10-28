@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 
 import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
@@ -259,20 +259,41 @@ export default function NumerologyPage() {
   const [identityTarget, setIdentityTarget] = useState<AnalysisIdentityTarget | null>(null);
   const resultRef = useRef<HTMLElement>(null);
   const numberInputRef = useRef<HTMLInputElement>(null);
+  const requestRef = useRef<AbortController | null>(null);
+  const deadlineRef = useRef<number | null>(null);
+  const scrollTimerRef = useRef<number | null>(null);
+  const cancelPending = useCallback(() => {
+    requestRef.current?.abort();
+    requestRef.current = null;
+    if (deadlineRef.current !== null) window.clearTimeout(deadlineRef.current);
+    if (scrollTimerRef.current !== null) window.clearTimeout(scrollTimerRef.current);
+    deadlineRef.current = null;
+    scrollTimerRef.current = null;
+  }, []);
+  const invalidateResult = useCallback(() => {
+    cancelPending();
+    setResult(null);
+    setError('');
+    setLoading(false);
+  }, [cancelPending]);
 
   useEffect(() => {
     const clearIdentityError = () => {
       setError((prev) => (prev === getIdentityRequiredMessage() ? '' : prev));
     };
-    const refreshIdentityTarget = () => setIdentityTarget(getAnalysisIdentityTarget());
+    const refreshIdentityTarget = () => {
+      invalidateResult();
+      setIdentityTarget(getAnalysisIdentityTarget());
+    };
     refreshIdentityTarget();
     window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
     window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, refreshIdentityTarget);
     return () => {
       window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
       window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, refreshIdentityTarget);
+      cancelPending();
     };
-  }, []);
+  }, [cancelPending, invalidateResult]);
 
   useEffect(() => {
     setSavedReflection(readSavedNumberReflection());
@@ -323,6 +344,7 @@ export default function NumerologyPage() {
   const purposeCopy = PURPOSE_COPY[purpose];
 
   async function handleSubmit() {
+    if (requestRef.current) return;
     const target = getAnalysisIdentityTarget();
     if (!target) {
       setError(getIdentityRequiredMessage());
@@ -340,7 +362,9 @@ export default function NumerologyPage() {
     // 2026-10-17 numerology QA：斷網時客戶看到英文「Failed to fetch」，伺服器回 HTML 錯誤頁時看到
     // 「Unexpected token '<' … is not valid JSON」。改成安全解析＋中文說明，並加 30 秒期限，避免按鈕一直轉。
     const controller = new AbortController();
+    requestRef.current = controller;
     const deadline = window.setTimeout(() => controller.abort(), NUMBER_REQUEST_TIMEOUT_MS);
+    deadlineRef.current = deadline;
     try {
       const response = await fetch('/api/number-fortune', {
         method: 'POST',
@@ -353,23 +377,32 @@ export default function NumerologyPage() {
         throw caught;
       });
       const json = await response.json().catch(() => null);
+      if (requestRef.current !== controller) return;
+      if (controller.signal.aborted) throw new Error('這次判定等太久了，請再按一次；你輸入的數字還在。');
       if (!response.ok || !json?.ok) {
         throw new Error(json?.message || '數字分析暫時無法完成，請再按一次；你輸入的數字還在。');
       }
       setResult(json as NumberResult);
       markGrowthModuleCompleted('number');
-      window.setTimeout(() => {
+      scrollTimerRef.current = window.setTimeout(() => {
+        scrollTimerRef.current = null;
         resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 80);
     } catch (event) {
+      if (requestRef.current !== controller) return;
       setError(event instanceof Error ? event.message : '數字分析暫時無法完成，請再試一次。');
     } finally {
       window.clearTimeout(deadline);
-      setLoading(false);
+      if (requestRef.current === controller) {
+        requestRef.current = null;
+        deadlineRef.current = null;
+        setLoading(false);
+      }
     }
   }
 
   function clearNumerologyInput() {
+    invalidateResult();
     setValue('');
     setResult(null);
     setError('');
@@ -489,7 +522,7 @@ export default function NumerologyPage() {
                 <button
                   key={option.id}
                   type="button"
-                  onClick={() => { setPurpose(option.id); setResult(null); }}
+                  onClick={() => { invalidateResult(); setPurpose(option.id); }}
                   aria-pressed={purpose === option.id}
                   className={`min-h-[72px] rounded-xl border px-2.5 py-2 text-left transition ${purpose === option.id ? 'border-2 border-amber-100 bg-amber-300/[0.22] text-amber-50 shadow-[0_0_28px_rgba(251,191,36,0.38)]' : 'border-white/[0.12] bg-black/15 text-white/[0.62] hover:border-cyan-100/40 hover:text-cyan-50'} ${purpose === 'general' && option.id === 'general' ? 'animate-[pulse_1.6s_ease-in-out_infinite] ring-2 ring-amber-200/50 ring-offset-2 ring-offset-[#112026]' : ''}`}
                 >
@@ -512,6 +545,7 @@ export default function NumerologyPage() {
             autoComplete="off"
             onChange={(event) => {
               const nextValue = cleanNumber(event.target.value);
+              if (nextValue !== value) invalidateResult();
               setValue(nextValue);
               setError('');
             }}
@@ -531,6 +565,7 @@ export default function NumerologyPage() {
                 key={sample}
                 type="button"
                 onClick={() => {
+                  invalidateResult();
                   setValue(sample);
                   setError('');
                 }}

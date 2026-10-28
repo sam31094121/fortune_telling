@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ElementTreasureOrb } from '@/components/bazi/customer/ElementTreasureOrb';
 import { playElementUnsealSound } from '@/components/ElementUnsealSound';
@@ -632,6 +632,29 @@ function RedLuanHeartbeatExperience() {
    * 於是後端被打兩次、兩段儀式互相蓋掉。ref 才擋得住。
    */
   const submitLock = useRef(false);
+  const requestRef = useRef<AbortController | null>(null);
+  const deadlineRef = useRef<number | null>(null);
+  const cancelPending = useCallback(() => {
+    requestRef.current?.abort();
+    requestRef.current = null;
+    if (deadlineRef.current !== null) window.clearTimeout(deadlineRef.current);
+    deadlineRef.current = null;
+    submitLock.current = false;
+  }, []);
+  const invalidateReading = useCallback(() => {
+    cancelPending();
+    setReading(null);
+    setLoading(false);
+    setRitualStep(-1);
+    setError('');
+    setRetryMode(null);
+    setRevealedEntrances([]);
+  }, [cancelPending]);
+  function updateBirthProfile(profile: BirthProfile) {
+    const next = { ...form, ...profile };
+    if (JSON.stringify(next) !== JSON.stringify(form)) invalidateReading();
+    setForm(next);
+  }
 
   /** 幫朋友算：切成訪客身分、清掉這次的結果與填答，捲回表單。 */
   function startGuestReading() {
@@ -672,7 +695,7 @@ function RedLuanHeartbeatExperience() {
     // 2026-10-17 red-luan QA：拿到結果後表單已收成一行摘要，時辰欄位根本不在畫面上，
     // 以前按「補上時辰」只會往上捲一段、什麼都沒打開。先把表單展開再捲過去。
     setEditingBirth(true);
-    setForm((current) => ({ ...current, birthHourBranch: HOUR_BRANCH_PENDING, timeUnknown: false, birthTime: undefined }));
+    updateBirthProfile({ birthHourBranch: HOUR_BRANCH_PENDING, timeUnknown: false, birthTime: undefined });
     scrollToTarget(() => document.querySelector('[data-field="birthHourBranch"]'), 'center');
   }
 
@@ -724,13 +747,17 @@ function RedLuanHeartbeatExperience() {
 
   useEffect(() => {
     const onIdentityChanged = () => {
+      invalidateReading();
       setError((current) => (current === getIdentityRequiredMessage() ? '' : current));
       setIdentityTarget(getAnalysisIdentityTarget());
     };
     setIdentityTarget(getAnalysisIdentityTarget());
     window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, onIdentityChanged);
-    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, onIdentityChanged);
-  }, []);
+    return () => {
+      window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, onIdentityChanged);
+      cancelPending();
+    };
+  }, [cancelPending, invalidateReading]);
 
   /**
    * 回訪的人按「直接看我的紅鸞」。
@@ -799,6 +826,8 @@ function RedLuanHeartbeatExperience() {
       並行之後：網路快時儀式是等待的下限，網路慢時儀式蓋住等待。
     */
     let ritualLive = true;
+    const controller = new AbortController();
+    requestRef.current = controller;
     // 回訪的人不必再從第一句聽起，但也不能一句都不演——1.5 秒的收尾就夠。
     const ritualFrom = returningName !== null ? 1 : 0;
     // 2026-10-17 red-luan QA：最後一句「卦成了。」以前在 2.4 秒時就打出來，網路慢時
@@ -807,16 +836,16 @@ function RedLuanHeartbeatExperience() {
     const ritual = mode === 'initial'
       ? (async () => {
         for (let step = ritualFrom; step < RITUAL_LINES.length - 1; step += 1) {
-          if (!ritualLive) return;
+          if (!ritualLive || requestRef.current !== controller) return;
           setRitualStep(step);
           await new Promise((resolve) => { setTimeout(resolve, 850); });
         }
-        if (ritualLive) setRitualStep(RITUAL_WAITING_STEP);
+        if (ritualLive && requestRef.current === controller) setRitualStep(RITUAL_WAITING_STEP);
       })()
       : Promise.resolve();
     // 沒有期限時，伺服器卡住客戶就永遠停在儀式畫面；45 秒後明說，並保留「再試一次」。
-    const controller = new AbortController();
     const deadline = window.setTimeout(() => controller.abort(), 45000);
+    deadlineRef.current = deadline;
     try {
       const response = await fetch('/api/red-luan-heartbeat', {
         method: 'POST',
@@ -840,15 +869,20 @@ function RedLuanHeartbeatExperience() {
       // 2026-10-17 red-luan QA：伺服器回 500 HTML 時 response.json() 會丟英文 SyntaxError，
       // 客戶看到的是「網路好像斷了」——網路明明好好的。先安全解析，再給對的說法。
       const payload = await response.json().catch(() => null) as (Reading & { error?: string; message?: string }) | null;
+      if (requestRef.current !== controller) return;
+      if (controller.signal.aborted) throw new Error('timeout');
       if (!response.ok || !payload?.result) {
         throw new Error(payload?.error || payload?.message || '紅鸞推算服務暫時沒有完成，請稍後再按一次「再試一次」；你填的資料都還在。');
       }
       // 結果先回來也要把儀式演完，不然畫面會閃一下就跳走，反而像出錯。
       await ritual;
+      if (requestRef.current !== controller) return;
       if (mode === 'initial') {
         setRitualStep(RITUAL_LINES.length - 1);
         await new Promise((resolve) => { setTimeout(resolve, 700); });
       }
+      if (requestRef.current !== controller) return;
+      if (controller.signal.aborted) throw new Error('timeout');
       setReading(payload);
       setEditingBirth(false);
       setAppliedContext(submittedContext);
@@ -876,6 +910,7 @@ function RedLuanHeartbeatExperience() {
       scrollToTarget(() => document.getElementById(anchor));
     } catch (requestError) {
       ritualLive = false;
+      if (requestRef.current !== controller) return;
       setError(controller.signal.aborted
         ? '這次推算等太久了，可能是網路或伺服器比較慢。再按一次「再試一次」就好，你填的資料都還在。'
         : friendlyRequestError(requestError));
@@ -883,9 +918,13 @@ function RedLuanHeartbeatExperience() {
     } finally {
       window.clearTimeout(deadline);
       ritualLive = false;
-      submitLock.current = false;
-      setRitualStep(-1);
-      setLoading(false);
+      if (requestRef.current === controller) {
+        requestRef.current = null;
+        deadlineRef.current = null;
+        submitLock.current = false;
+        setRitualStep(-1);
+        setLoading(false);
+      }
     }
   }
 
@@ -1024,7 +1063,7 @@ function RedLuanHeartbeatExperience() {
           requireExplicitHourPick
           // 這頁用自己的金色按鈕，表單內建的送出鈕已用 CSS 藏起來，一併移出讀屏。
           hideSubmitChrome
-          onChange={(profile) => setForm((current) => ({ ...current, ...profile }))}
+          onChange={updateBirthProfile}
           onSubmit={(profile) => { void submit(profile); }}
         />
         <p className="mt-3 rounded-2xl border border-violet-200/15 bg-violet-300/[0.06] px-4 py-3 text-xs leading-6 text-violet-50/85">不知道時辰也可以算月份和人選；補上時辰還能多解鎖你的卦象。</p>
@@ -1034,7 +1073,7 @@ function RedLuanHeartbeatExperience() {
             {([['male', '男生'], ['female', '女生'], ['any', '都可以']] as const).map(([value, label]) => {
               const active = effectivePartnerGender(form.gender) === value;
               return (
-                <button key={value} type="button" aria-pressed={active} disabled={loading} onClick={() => setPartnerChoice(value)}
+                <button key={value} type="button" aria-pressed={active} disabled={loading} onClick={() => { if (!active) invalidateReading(); setPartnerChoice(value); }}
                   className={`min-h-11 rounded-2xl border px-3 py-2.5 text-sm font-black transition ${active ? 'border-rose-100/70 bg-rose-300/25 text-rose-50' : 'border-white/20 bg-white/[0.04] text-white/85'}`}>
                   {active ? '✓ ' : ''}{label}
                 </button>
@@ -1570,7 +1609,7 @@ function RedLuanHeartbeatExperience() {
         <p className="text-xs leading-5 text-white/75">本服務是文化探索與自我反思，不是心理診斷，也不是確定預測。</p>
       </section>}
 
-      <Link href="/" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-cyan-100 underline underline-offset-4">⌂ 返回首頁</Link>
+      <Link href="/" className="mx-auto mt-6 flex w-fit items-center gap-2 text-sm font-bold text-cyan-100 underline underline-offset-4">⌂ 返回首頁</Link>
 
       {showJumpPill && jumpPillLabel && (
         <button

@@ -111,7 +111,7 @@ const resolve=(p,data,ok=true)=>p.resolve({ok,json:async()=>data});
  assert(game.getByRole('region',{name:'把力量用在這一步'}).textContent.includes('可核對的證據'));
  assert.equal(guidedScrolls.at(-1).target.getAttribute('aria-label'),'答案解說');
  fireEvent.click(game.getByRole('button',{name:'← 回到主數解說'}));
- assert(game.getByText('把問題看深，也把答案帶回生活。'));
+ assert(game.getByText('一眼看穿表象底牌。別把自己鎖進孤島。'));
  fireEvent.click(game.getByRole('button',{name:'← 回到答案卡片'}));
  assert.equal(game.queryByRole('region',{name:'答案解說'}),null);
  fireEvent.click(game.getByRole('button',{name:/生日數字 看看多與缺/}));
