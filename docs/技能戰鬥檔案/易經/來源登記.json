@@ -4,6 +4,24 @@
   "rule": "凡有「易經」兩個字，都要有交叉比對的來源、權威性的檔案、大數據的來源；狀態由 lib/iching-source-gate.ts 計算，不得手填 VERIFIED。",
   "sources": [
     {
+      "source_id": "S-RED-LUAN-COMPLEMENT-REGISTER",
+      "author": "專案彙編；各條作者與公開網址見逐條登記",
+      "locator": "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紅鸞-主星互補參考.json",
+      "tracked_path": "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紅鸞-主星互補參考.json",
+      "data_type": "現代主星相處參考與借星適用條件索引",
+      "kind": "專案來源彙編",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "各原作者公開文章的使用條件仍待查核；公開可讀不等於全部用途授權",
+      "accessed_at": "2026-10-28",
+      "edition": "RED_LUAN_COMPLEMENT_REFERENCE_2026_10_28_V5",
+      "trust": "C",
+      "note": "索引不是獨立古籍、統計資料或新的交叉來源。原文出處、取用限制逐條保留，不與紅鸞心理學主張混登。"
+    },
+    {
       "source_id": "S-ZHOUYI-ZHENGYI",
       "author": "魏・王弼、晉・韓康伯注；唐・孔穎達疏",
       "locator": "《周易正義》，收於清・阮元校刻《十三經注疏》",
@@ -1637,6 +1655,29 @@
     }
   ],
   "claims": [
+    {
+      "claim_id": "C-RED-LUAN-COMPLEMENT-REFERENCE",
+      "title": "紅鸞主星相處參考、空宮借星適用條件及來源整理",
+      "domain": "現代紫微相處參考",
+      "files": [
+        "lib/red-luan-complement-reference.ts",
+        "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紅鸞-主星互補參考.json",
+        "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紅鸞-互補來源使用說明.md",
+        "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紅鸞-來源與功能對照.md",
+        "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紅鸞-雙星空宮公開來源索引.json",
+        "docs/技能戰鬥檔案/鬼魅阿修羅/權威來源/紅鸞-靈魂配對素材適用範圍.md"
+      ],
+      "authority_files": [
+        "S-RED-LUAN-COMPLEMENT-REGISTER"
+      ],
+      "big_data_sources": [],
+      "cross_references": [
+        "S-RED-LUAN-COMPLEMENT-REGISTER"
+      ],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "檔案涵蓋登記，不是已核定配對公式。每條取用各自作者條件；原命宮與參考星分開。來源不足及權限待核如實保留，本次業主批准發布例外不改此狀態。"
+    },
     {
       "claim_id": "C-ICHING-TEXT",
       "title": "六十四卦卦名、王家序與卦義",
