@@ -75,11 +75,11 @@ function cellStyle(study: NineGridStudy, cell: { digit: number; count: number })
   };
 }
 
-export default function NineGridCard({ study, birthDate }: { study: NineGridStudy; birthDate?: string }) {
-  return <NineGridResult key={study?.input?.birthDate} study={study} birthDate={birthDate ?? study.input.birthDate} />;
+export default function NineGridCard({ study, birthDate, onNameApplied }: { study: NineGridStudy; birthDate?: string; onNameApplied?: (name: string) => void }) {
+  return <NineGridResult key={study?.input?.birthDate} study={study} birthDate={birthDate ?? study.input.birthDate} onNameApplied={onNameApplied} />;
 }
 
-function NineGridResult({ study, birthDate }: { study: NineGridStudy; birthDate: string }) {
+function NineGridResult({ study, birthDate, onNameApplied }: { study: NineGridStudy; birthDate: string; onNameApplied?: (name: string) => void }) {
   const uid = useId().replace(/:/g, '');
   const [edition, setEdition] = useState<'luoshu' | 'shengming' | 'western'>('luoshu');
   const [showControl, setShowControl] = useState(false);
@@ -136,7 +136,7 @@ function NineGridResult({ study, birthDate }: { study: NineGridStudy; birthDate:
       const res = await fetch('/api/nine-grid', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ birthDate: study.input.birthDate, name: nameInput }) });
       const json = await res.json();
       if (!json.ok || !json.nameOverlay) { setNameError(json.message || '姓名對照暫時無法使用'); return; }
-      setOverlay(json.nameOverlay); player.setMode('auto'); setNameStep(0); setLineNote(null); setPlayRequest((n) => n + 1);
+      setOverlay(json.nameOverlay); onNameApplied?.(nameInput); player.setMode('auto'); setNameStep(0); setLineNote(null); setPlayRequest((n) => n + 1);
     } catch { setNameError('連線中斷 請再試一次'); } finally { setNameBusy(false); }
   }
   // 瀏覽器可能留著舊版格式的結果：格式不符就不顯示，不讓整頁當掉

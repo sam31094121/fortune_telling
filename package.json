@@ -128,6 +128,7 @@
     "test:asura-narrative-consistency": "node tests/asura-narrative-consistency.test.mjs",
     "test:asura-no-fabrication": "node tests/asura-no-fabrication.test.cjs",
     "test:asura-frontend-only": "node tests/asura-frontend-only.test.cjs",
+    "test:nine-grid-asura-fusion": "node tests/nine-grid-asura-fusion.test.cjs",
     "test:nine-grid-name": "npx --yes tsx tests/nine-grid-name-overlay.test.mjs",
     "test:e2e-asura": "npx --yes tsx tests/ghost-asura-card-clicks.e2e.mjs",
     "test:asura-live": "npx --yes tsx tests/run-asura-live.mjs",

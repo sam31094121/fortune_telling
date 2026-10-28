@@ -10,6 +10,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import LunarBirthdayInput from '@/components/LunarBirthdayInput';
 import NineGridCard from '@/components/nine-grid/NineGridCard';
+import AsuraFusionCard from '@/components/nine-grid/AsuraFusionCard';
+import type { AsuraFusion } from '@/lib/nine-grid-asura-fusion';
 import type { NineGridStudy } from '@/lib/nine-grid-numbers';
 import { NINE_GRID_GUIDE } from '@/lib/i18n-copy/nine-grid-guide';
 import mystic from '@/components/nine-grid/LuoshuMystic.module.css';
@@ -22,6 +24,7 @@ export default function NineGridPage() {
   const [birthDate, setBirthDate] = useState('');
   const [guidance, setGuidance] = useState<Guidance | null>(null);
   const [study, setStudy] = useState<NineGridStudy | null>(null);
+  const [fusion, setFusion] = useState<AsuraFusion | null>(null);
   const [loading, setLoading] = useState(false);
   const [resultRun, setResultRun] = useState(0);
   const [error, setError] = useState('');
@@ -42,6 +45,20 @@ export default function NineGridPage() {
     setError('');
   }, []);
 
+  // 阿修羅九宮融會由後端 /api/nine-grid/asura 組好，這裡只負責取回與顯示；較舊的回應不得蓋掉較新的。
+  const fusionRun = useRef(0);
+  const loadFusion = useCallback(async (date: string, name?: string) => {
+    fusionRun.current += 1;
+    const run = fusionRun.current;
+    try {
+      const response = await fetch('/api/nine-grid/asura', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(name ? { birthDate: date, name } : { birthDate: date }) });
+      const data = (await response.json()) as { ok: boolean; asuraFusion?: AsuraFusion };
+      if (run === fusionRun.current && response.ok && data.ok && data.asuraFusion) setFusion(data.asuraFusion);
+    } catch {
+      // 融會取不到時不顯示該卡，九宮格本身不受影響。
+    }
+  }, []);
+
   async function handleSubmit() {
     if (loading) return;
     if (!birthDate) { setError('請先填好出生年月日'); return; }
@@ -52,10 +69,13 @@ export default function NineGridPage() {
       const data = (await response.json()) as { ok: boolean; study?: NineGridStudy; message?: string };
       if (!response.ok || !data.ok || !data.study) {
         setStudy(null);
+        setFusion(null);
         setError(data.message ?? '目前沒辦法畫出九宮格，請稍後再試一次');
         return;
       }
       setStudy(data.study);
+      setFusion(null);
+      void loadFusion(birthDate);
       setResultRun((run) => run + 1);
 
     } catch {
@@ -154,7 +174,8 @@ export default function NineGridPage() {
           {study && (
             <div key={resultRun} className="mt-5 space-y-3">
               {guidance && <p className="px-1 text-center text-sm font-bold leading-7 text-violet-100/90">{guidance.resultIntro.text}</p>}
-              <NineGridCard study={study} birthDate={birthDate} />
+              <NineGridCard study={study} birthDate={birthDate} onNameApplied={(name) => void loadFusion(birthDate, name)} />
+              {fusion && <AsuraFusionCard fusion={fusion} />}
             </div>
           )}
         </div>
