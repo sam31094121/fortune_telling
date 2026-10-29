@@ -27160,8 +27160,15 @@ html[data-pinch-zoomed] [class*="TaijiSystem_sphereWrapper"] { touch-action: aut
 body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch :is(p, p.home-music-copy, .home-music-copy) { display: none !important; }
 /* 業主指定：阿修羅入口的年齡提醒保留可見，其他卡片說明仍隱藏。 */
 body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch[data-card-type="ghost-asura-home-entry"] p[data-asura-age-gate] {
-  display: inline-block !important;
-  margin-top: 8px !important;
+  display: block !important;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 !important;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 90, 106, .38);
+  border-radius: 12px;
+  background: linear-gradient(110deg, #34151c, #211319);
+  text-align: center;
   max-width: 100%;
   font-size: calc(14px * var(--ts, 1)) !important;
   line-height: 1.6 !important;
