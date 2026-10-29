@@ -2913,7 +2913,6 @@ export default function HomePage() {
           {/* 工具卡片：語言＋存到桌面＋字體大小，一張卡片，在「今日定向關卡」下面、「古老塔羅牌」上面 */}
           <HomeToolsCard />
           <div className={`home-feature-stack flex w-full flex-col gap-3 sm:gap-4 ${showMoreFeatures ? 'home-feature-stack--expanded' : 'home-feature-stack--collapsed'}`}>
-          <GhostAsuraHomeEntry />
           <button
             type="button"
             className="home-feature-more-toggle"
@@ -3085,6 +3084,7 @@ export default function HomePage() {
               <span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>
+          <GhostAsuraHomeEntry />
           <Link
             href={ZIWEI_ROUTE}
             prefetch

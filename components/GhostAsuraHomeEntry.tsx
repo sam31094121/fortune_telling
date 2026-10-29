@@ -49,7 +49,7 @@ export default function GhostAsuraHomeEntry() {
   return (
     <Link
       href="/ghost-asura"
-      className={`${styles.entry} home-feature-launch home-feature-tier-primary order-first w-full`}
+      className={`${styles.entry} home-feature-launch home-feature-tier-primary order-3 w-full`}
       data-card-type="ghost-asura-home-entry"
       aria-label="鬼魅阿修羅｜開啟阿修羅秘卷"
     >
