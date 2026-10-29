@@ -27165,14 +27165,18 @@ body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch[dat
   width: 100%;
   margin: 0 !important;
   padding: 8px 10px;
-  border: 1px solid rgba(255, 90, 106, .38);
+  border: 1px solid #e02038;
   border-radius: 12px;
-  background: linear-gradient(110deg, #34151c, #211319);
+  background: linear-gradient(110deg, #35030c, #1b0207);
+  box-shadow: inset 0 0 12px rgba(191, 0, 26, .16), 0 0 12px rgba(224, 32, 56, .14);
   text-align: center;
   max-width: 100%;
   font-size: calc(14px * var(--ts, 1)) !important;
   line-height: 1.6 !important;
-  color: #ffb3ba !important;
+  color: #ff4057 !important;
+  filter: none !important;
+  font-weight: 800;
+  text-shadow: 0 0 8px rgba(255, 32, 58, .2);
   white-space: normal;
 }
 /* 說明小字隱藏後，卡片不再撐著原本的最小高度，標題與按鈕之間不留一大塊空白 */
