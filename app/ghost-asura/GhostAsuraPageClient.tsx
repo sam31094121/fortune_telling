@@ -395,7 +395,6 @@ export default function GhostAsuraPageClient({
       <header className={styles.header}>
         <p className={styles.eyebrow}>本命阿修羅 · 四柱隱影解盤</p>
         <h1 className={brandStyles.brush} data-asura-brand-title>鬼魅阿修羅</h1>
-        <p className={styles.ageGateBadge} data-asura-page-age-gate>18 歲禁忌｜未滿 18 歲禁止進入</p>
         <p className={styles.intro}>
           剖析四柱陰影、隱性衝突與內在力量。
           點印記名稱查看其力量與駕馭之道。

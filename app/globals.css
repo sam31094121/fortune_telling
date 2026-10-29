@@ -27158,6 +27158,16 @@ html[data-pinch-zoomed] [class*="TaijiSystem_sphereWrapper"] { touch-action: aut
 .home-feature-stack a .home-music-copy { display: none !important; }
 /* 上面那條會被「h2 ~ p { display:block !important }」壓過（權重較高），所以補一條權重更高的 */
 body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch :is(p, p.home-music-copy, .home-music-copy) { display: none !important; }
+/* 業主指定：阿修羅入口的年齡提醒保留可見，其他卡片說明仍隱藏。 */
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch[data-card-type="ghost-asura-home-entry"] p[data-asura-age-gate] {
+  display: inline-block !important;
+  margin-top: 8px !important;
+  max-width: 100%;
+  font-size: calc(14px * var(--ts, 1)) !important;
+  line-height: 1.6 !important;
+  color: #ffb3ba !important;
+  white-space: normal;
+}
 /* 說明小字隱藏後，卡片不再撐著原本的最小高度，標題與按鈕之間不留一大塊空白 */
 body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch { min-height: 176px !important; } /* 每張卡片最小同高，高低差不超過幾像素 */
 /* 「更多探索（可稍後）」按鈕隱藏（業主定案 2026-10-17）：不需要這張卡。只隱藏、不刪；卡片展開狀態不受影響。 */
