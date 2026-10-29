@@ -2,6 +2,7 @@
 
 import type { ChangeEvent } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import styles from './LunarBirthdayInput.module.css';
 
 interface GuidedDateInputProps {
   value: string;
@@ -42,11 +43,6 @@ export default function GuidedDateInput({
   const [month, setMonth] = useState('');
   const [day, setDay] = useState('');
   const lastEmittedRef = useRef('');
-
-  const todayHint = useMemo(() => {
-    const today = new Date();
-    return { year: String(today.getFullYear()), month: pad2(today.getMonth() + 1), day: pad2(today.getDate()) };
-  }, []);
 
   const accentClass = useMemo(() => {
     if (accent === 'amber') return 'text-amber-200 border-amber-300/25 bg-amber-300/10';
@@ -100,20 +96,20 @@ export default function GuidedDateInput({
   }, [normalized, onChange]);
 
   return (
-    <div className="space-y-3">
+    <div className={`${styles.root} space-y-3`}>
       <p className="text-sm font-semibold text-[color:var(--text-sub)]">{label}</p>
 
       <div className="grid grid-cols-3 gap-3">
         <label className="relative block">
-          <input inputMode="numeric" type="text" aria-label="西元年" placeholder={todayHint.year} value={year} disabled={disabled} onChange={handleNumberInput(setYear, 4)} className="form-input glass-input glass-input-cyan w-full pr-9" />
+          <input inputMode="numeric" type="text" aria-label="西元年" value={year} disabled={disabled} onChange={handleNumberInput(setYear, 4)} className="form-input glass-input glass-input-cyan w-full pr-9" />
           <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[color:var(--text-muted)]">年</span>
         </label>
         <label className="relative block">
-          <input inputMode="numeric" type="text" aria-label="月份" placeholder={todayHint.month} value={month} disabled={disabled} onChange={handleNumberInput(setMonth, 2)} className="form-input glass-input glass-input-cyan w-full pr-9" />
+          <input inputMode="numeric" type="text" aria-label="月份" value={month} disabled={disabled} onChange={handleNumberInput(setMonth, 2)} className="form-input glass-input glass-input-cyan w-full pr-9" />
           <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[color:var(--text-muted)]">月</span>
         </label>
         <label className="relative block">
-          <input inputMode="numeric" type="text" aria-label="日期" placeholder={todayHint.day} value={day} disabled={disabled} onChange={handleNumberInput(setDay, 2)} className="form-input glass-input glass-input-cyan w-full pr-9" />
+          <input inputMode="numeric" type="text" aria-label="日期" value={day} disabled={disabled} onChange={handleNumberInput(setDay, 2)} className="form-input glass-input glass-input-cyan w-full pr-9" />
           <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[color:var(--text-muted)]">日</span>
         </label>
       </div>

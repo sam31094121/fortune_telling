@@ -1063,14 +1063,17 @@ function PersonStep({
       <div className="mt-8 space-y-8">
         <div>
           <label className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
-            1. 姓名
+            1. 姓名（必填）
             <OracleHint text={FRONTEND_COPY.nameHint} />
           </label>
+          <p className="mb-3 text-sm leading-6 text-[color:var(--text-sub)]">請填寫姓名，至少 2 個字，才能繼續。</p>
           <input
             type="text"
             value={value.name}
             onChange={(event) => onChange({ ...value, name: event.target.value })}
-            placeholder="請輸入姓名，至少 2 個字"
+            placeholder="姓名"
+            aria-label="姓名（必填，至少 2 個字）"
+            aria-required="true"
             className={`form-input w-full text-base neon-input-focus neon-card-hover glass-input ${accent === 'violet' ? 'glass-input-cyan' : ''}`}
           />
         </div>
@@ -2200,6 +2203,7 @@ export default function HomePage() {
 
   // 載入 localStorage 預填
   useEffect(() => {
+    if (getAnalysisIdentityTarget() !== 'self') return;
     const saved = loadUserData();
     if (saved) {
       setPersonA((prev) => ({

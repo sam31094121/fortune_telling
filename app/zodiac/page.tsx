@@ -9,6 +9,9 @@ import GuidedTimeInput from '@/components/GuidedTimeInput';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import { saveBirthProfile } from '@/lib/birth-profile-client';
+import { readSelfBirthProfile, saveSelfBirthProfile } from '@/lib/self-profile-client';
+import { readCanonicalBirthProfile } from '@/lib/canonical-birth-profile-client';
+import { toUnifiedBirthProfile } from '@/lib/canonical-birth-profile';
 import { searchCities, findCityById, type CityEntry } from '@/lib/city-directory';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
@@ -781,16 +784,34 @@ export default function ZodiacPage() {
   const [showMissingFields, setShowMissingFields] = useState(false);
   const [dailyRecord, setDailyRecord] = useState<DailyAnalysisRecord<ZodiacResult> | null>(null);
   const progressRef = useRef<HTMLDivElement | null>(null);
+  const formRef = useRef(form);
+  formRef.current = form;
 
   useEffect(() => {
-    const clearIdentityError = () => {
-      setError((prev) => (prev === getIdentityRequiredMessage() ? '' : prev));
+    let previous = getAnalysisIdentityTarget();
+    const applyIdentity = (event?: Event) => {
+      const target = getAnalysisIdentityTarget();
+      if (event && previous === 'self' && target === 'guest' && formRef.current.birthDate) {
+        saveSelfBirthProfile({ name: formRef.current.name, birthDate: formRef.current.birthDate });
+      }
+      previous = target;
+      setError('');
+      setResult(null);
+      setDailyRecord(null);
+      const own = target === 'self' ? readSelfBirthProfile() : null;
+      const canonical = target === 'self' && !own ? readCanonicalBirthProfile() : null;
+      const profile = own ?? (canonical ? toUnifiedBirthProfile(canonical) : null);
+      setForm({ ...INITIAL_FORM, name: profile?.name ?? '', birthDate: profile?.birthDate ?? '', birthTime: profile?.birthTime ?? '' });
+      setBirthTimeMode(null);
+      setCitySearch('');
     };
-    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
-    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, clearIdentityError);
+    applyIdentity();
+    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, applyIdentity);
+    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, applyIdentity);
   }, []);
 
   useEffect(() => {
+    if (getAnalysisIdentityTarget() !== 'self') return;
     const record = readDailyAnalysis<ZodiacResult>('zodiac');
     if (!record) return;
     if (!isCurrentZodiacResult(record.result)) {
@@ -955,13 +976,14 @@ export default function ZodiacPage() {
               <div className="space-y-6">
                 <div>
                   <label htmlFor="zodiac-name-input" className="mb-3 block text-sm font-black text-[color:var(--text-main)]">1. 姓名（可選填）</label>
+                  <p id="zodiac-name-hint" className="mb-3 text-sm leading-6 text-[color:var(--text-sub)]">不用填也能計算；填寫只用來稱呼你。</p>
                   <input
                     id="zodiac-name-input"
+                    aria-describedby="zodiac-name-hint"
                     value={form.name}
                     onChange={(event) => setForm({ ...form, name: event.target.value })}
                     maxLength={20}
                     disabled={submitting}
-                    placeholder="可填姓名，也可以留空"
                     className="form-input glass-input glass-input-cyan w-full text-base"
                   />
                 </div>

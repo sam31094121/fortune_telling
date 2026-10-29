@@ -651,13 +651,15 @@ export default function PersonalityMusicFlow({ onSubmit, loading }: PersonalityM
         <div className="space-y-5">
           <div ref={(node) => { fieldRefs.current.name = node; }} className={`music-required-field ${activeDataField === 'name' ? '' : 'hidden'} ${showMissingName ? 'music-required-field--missing' : ''}`}>
             <p className="mb-4 text-sm leading-6 text-[color:var(--text-sub)]">姓名會被轉成歌曲的核心稱呼與情緒記憶點。</p>
+            <p className="mb-3 text-sm leading-6 text-[color:var(--text-sub)]">姓名必填，至少 2 個字，才能繼續。</p>
             <input
               type="text"
-              aria-label="姓名"
+              aria-label="姓名（必填）"
+              aria-required="true"
               aria-invalid={showMissingName || undefined}
               value={form.name}
               maxLength={20}
-              placeholder="請輸入姓名"
+              placeholder="姓名"
               onChange={(event) => {
                 setForm((prev) => ({ ...prev, name: event.target.value }));
                 clearValidation();

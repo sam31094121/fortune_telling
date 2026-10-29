@@ -1030,18 +1030,10 @@ export default function NameologyPage() {
           setSelectionConfirm((previous) => ({ ...previous, gender: canonical?.gender !== 'UNSPECIFIED' || previous.gender }));
         }
       } else if (target === 'guest') {
-        // Guest data is isolated to this tab, never the member profile.
-        const saved = readGuestSession();
-        setForm(saved?.form ?? initialForm);
-        setShowShichen(Boolean(saved?.showShichen));
-        setSelectionConfirm({ gender: Boolean(saved?.selectionConfirm?.gender) });
-        if (saved?.result && saved.inputKey === nameologyInputKey(saved.form) && isCurrentNameologyResult(saved.result)) {
-          resultInputKeyRef.current = saved.inputKey;
-          setResult(saved.result.analysis);
-          setFiveElement(saved.result.fiveElement);
-          setThreeInOne(saved.result.threeInOne ?? null);
-          showRitualCompleteImmediately(saved.result.analysis.ritualSteps);
-        }
+        // 每次選親朋好友都從空白開始，不帶入上一位或本人資料。
+        setForm(initialForm);
+        setShowShichen(false);
+        setSelectionConfirm({ gender: false });
       }
       setSessionReady(true);
     };
@@ -1310,7 +1302,7 @@ export default function NameologyPage() {
           <IdentitySplitSelector className="mt-6" />
           {identity === 'guest' && (
             <div className="mt-3 rounded-xl border border-amber-200/20 p-3">
-              <p className="text-sm leading-6">本次資料與結果僅暫存在此分頁，30 分鐘未操作後不再恢復，不寫入會員成長中心。換人或共用手機時請先清除。</p>
+              <p className="text-sm leading-6">親朋好友請填寫本次資料，不會改動你自己的資料。再次選擇「親朋好友」會清空表單，方便換人填寫。</p>
               <button type="button" onClick={clearGuestSession} className="mt-2 min-h-[44px] rounded-xl border border-amber-200/40 px-4 py-2">清除本次資料・換人分析</button>
             </div>
           )}
@@ -1326,10 +1318,13 @@ export default function NameologyPage() {
           <div className="mt-7 grid gap-7">
             <div>
               <label htmlFor="nameology-name-input" className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
-                1. 姓名 {form.name.trim().length >= 2 && <span className="text-green-400">✓</span>}
+                1. 姓名（必填） {form.name.trim().length >= 2 && <span className="text-green-400">✓</span>}
               </label>
+              <p id="nameology-name-hint" className="mb-3 text-sm leading-6 text-[color:var(--text-sub)]">請填寫完整姓名，至少 2 個字，才能繼續。</p>
               <input
                 id="nameology-name-input"
+                aria-describedby="nameology-name-hint"
+                aria-required="true"
                 type="text"
                 value={form.name}
                 onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
@@ -1337,7 +1332,7 @@ export default function NameologyPage() {
                   const trimmed = event.target.value.trim();
                   if (trimmed !== event.target.value) setForm((prev) => ({ ...prev, name: trimmed }));
                 }}
-                placeholder="請輸入完整姓名（至少 2 個字）"
+                placeholder="姓名"
                 maxLength={20}
                 className={`form-input w-full rounded-lg border border-white/10 px-4 py-3 text-base ${showMissingName ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}`}
                 autoComplete="off"

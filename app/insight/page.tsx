@@ -9,9 +9,10 @@ import DailyAnalysisNotice from '@/components/DailyAnalysisNotice';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
 import { saveUserData, loadUserData } from '@/lib/storage';
 import { readCanonicalBirthProfile, saveCanonicalBirthProfile } from '@/lib/canonical-birth-profile-client';
-import { fromInsightData, toInsightData } from '@/lib/canonical-birth-profile';
+import { fromInsightData, fromUnifiedBirthProfile, toInsightData } from '@/lib/canonical-birth-profile';
+import { readSelfBirthProfile, saveSelfBirthProfile } from '@/lib/self-profile-client';
 import { markGrowthModuleCompleted } from '@/lib/growth-center-client';
-import { getAnalysisIdentityTarget, getIdentityRequiredMessage } from '@/lib/identity-split-client';
+import { getAnalysisIdentityTarget, getIdentityRequiredMessage, IDENTITY_TARGET_UPDATED_EVENT } from '@/lib/identity-split-client';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { recoverFromChunkError } from '@/lib/chunk-recovery';
 import { searchCities, findCityById, type CityEntry } from '@/lib/city-directory';
@@ -4533,6 +4534,8 @@ export default function InsightPage() {
   const selectedCity: CityEntry | null = input.birthCityId ? findCityById(input.birthCityId) : null;
   const [selectionConfirm, setSelectionConfirm] = useState<SelectionConfirm>(EMPTY_SELECTION_CONFIRM);
   const [analysisTarget, setAnalysisTarget] = useState<'self' | 'guest' | null>(null);
+  const identityInputRef = useRef(input);
+  identityInputRef.current = input;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<InsightResult | null>(null);
@@ -4602,6 +4605,32 @@ export default function InsightPage() {
 
   // 載入 localStorage 預填
   useEffect(() => {
+    let previous = getAnalysisIdentityTarget();
+    const applyIdentity = (event?: Event) => {
+    const target = getAnalysisIdentityTarget();
+    if (event && previous === 'self' && target === 'guest' && identityInputRef.current.birthDate) {
+      saveSelfBirthProfile({ name: identityInputRef.current.name, birthDate: identityInputRef.current.birthDate });
+    }
+    previous = target;
+    setAnalysisTarget(target);
+    if (event || target === 'guest') {
+      setResult(null);
+      setDailyRecord(null);
+      setError('');
+      clearRitualTimer();
+    }
+    if (target !== 'self') {
+      setInput({ name: '', birthDate: '', gender: 'female', shichen: 'unknown', birthCityId: null });
+      setSelectionConfirm(EMPTY_SELECTION_CONFIRM);
+      return;
+    }
+    const own = readSelfBirthProfile();
+    if (own?.birthDate) {
+      const restored = toInsightData(fromUnifiedBirthProfile(own));
+      setInput((prev) => ({ ...prev, ...restored, birthCityId: null }));
+      setSelectionConfirm({ gender: Boolean(own.gender) });
+      return;
+    }
     const saved = loadUserData();
     let genderConfirmed = false;
     if (saved) {
@@ -4632,6 +4661,10 @@ export default function InsightPage() {
       if (!genderConfirmed && canonicalGenderKnown) genderConfirmed = true;
     }
     setSelectionConfirm((prev) => ({ gender: prev.gender || genderConfirmed }));
+    };
+    applyIdentity();
+    window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, applyIdentity);
+    return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, applyIdentity);
   }, []);
 
   // 同步 input 的變更到 localStorage
@@ -4931,10 +4964,13 @@ export default function InsightPage() {
 
               <div>
                 <label htmlFor="ziwei-name-input" className="mb-3 block text-sm font-semibold text-[color:var(--text-main)]">
-                  1. 姓名 {input.name.trim().length >= 2 && <span className="text-green-400">✓</span>}
+                  1. 姓名（必填） {input.name.trim().length >= 2 && <span className="text-green-400">✓</span>}
                 </label>
+                <p id="ziwei-name-hint" className="mb-3 text-sm leading-6 text-[color:var(--text-sub)]">請填寫姓名，至少 2 個字，才能繼續。</p>
                 <input
                   id="ziwei-name-input"
+                  aria-describedby="ziwei-name-hint"
+                  aria-required="true"
                   type="text"
                   value={input.name}
                   onChange={(e) => {
@@ -4947,7 +4983,7 @@ export default function InsightPage() {
                       setInput({ ...input, name: trimmed });
                     }
                   }}
-                  placeholder="請輸入姓名（至少 2 個字）"
+                  placeholder="姓名"
                   maxLength={20}
                   className={`form-input w-full text-base border border-white/10 rounded-lg px-4 py-3 ${showMissingName ? 'border-rose-400/85 bg-rose-500/10 shadow-[0_0_22px_rgba(244,63,94,0.22)]' : ''}`}
                   autoComplete="off"

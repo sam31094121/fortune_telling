@@ -517,13 +517,15 @@ function PersonStep({
 
       <div className="mt-6 space-y-7">
         <div>
-          <label className="mb-2.5 block text-sm font-black text-[color:var(--text-main)]"><HomeTranslatedText text={"1. 姓名"} /><OracleHint text={FRONTEND_COPY.nameHint} />
+          <label className="mb-2.5 block text-sm font-black text-[color:var(--text-main)]"><HomeTranslatedText text={"1. 姓名（必填）"} /><OracleHint text={FRONTEND_COPY.nameHint} />
           </label>
+          <p className="mb-3 text-sm leading-6 text-[color:var(--text-sub)]"><HomeTranslatedText text="請填寫姓名，至少 2 個字，才能繼續。" /></p>
           <input
             type="text"
             value={value.name}
             onChange={updateName}
-            placeholder={display("請輸入姓名，至少 2 個字")}
+            placeholder={display("姓名")}
+            aria-required="true"
             aria-label={display("請輸入姓名，至少 2 個字")}
             aria-invalid={showMissingName || undefined}
             autoComplete="off"
@@ -1269,6 +1271,7 @@ export default function MatchPage() {
 
   // 載入 localStorage 預填到 personA
   useEffect(() => {
+    if (getAnalysisIdentityTarget() !== 'self') return;
     const saved = loadUserData();
     if (saved && !isDemoMatchName(saved.name)) {
       setPersonA((prev) => ({
