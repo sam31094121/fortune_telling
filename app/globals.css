@@ -27421,3 +27421,83 @@ body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack .hom
   animation: none;
   opacity: 1;
 }
+
+/* 2026-10-29 業主指定：首頁入口逐卡低調奢華精修；不影響內頁。 */
+#home-eight-card-route .home-feature-launch[href='/tarot'] { --luxe-metal: #c8af79; --luxe-ink: #28241d; }
+#home-eight-card-route .home-feature-launch[href='/red-luan-heartbeat'] { --luxe-metal: #cda28f; --luxe-ink: #302025; }
+#home-eight-card-route .home-feature-launch[href='/numerology'] { --luxe-metal: #b7c5ae; --luxe-ink: #1c2824; }
+#home-eight-card-route .home-feature-launch[href='/ghost-asura'] { --luxe-metal: #c4a17d; --luxe-ink: #2b1b20; }
+#home-eight-card-route .home-feature-launch[href='/insight'] { --luxe-metal: #b8accb; --luxe-ink: #231f30; }
+#home-eight-card-route .home-feature-launch[href='/match'] { --luxe-metal: #c5a69a; --luxe-ink: #2b2223; }
+#home-eight-card-route .home-feature-launch[href='/music'] { --luxe-metal: #c5b792; --luxe-ink: #27231e; }
+#home-eight-card-route .home-feature-launch[href='/zodiac'] { --luxe-metal: #a8b8cf; --luxe-ink: #1c2533; }
+#home-eight-card-route .home-feature-launch[href='/bazi'] { --luxe-metal: #c6b17f; --luxe-ink: #2c261d; }
+#home-eight-card-route .home-feature-launch[href='/nameology'] { --luxe-metal: #acbdab; --luxe-ink: #1f2823; }
+#home-eight-card-route .home-feature-launch[href='/nameology?mode=bazi'] { --luxe-metal: #c6b392; --luxe-ink: #28251d; }
+#home-eight-card-route .home-feature-launch[href='/dual-chart'] { --luxe-metal: #b1b8c3; --luxe-ink: #20242c; }
+#home-eight-card-route .home-feature-launch[href='/star-beasts'] { --luxe-metal: #c5ad83; --luxe-ink: #2b241d; }
+#home-eight-card-route .home-feature-launch[href='/3D'] { --luxe-metal: #abbcc0; --luxe-ink: #1d272c; }
+#home-eight-card-route .home-feature-launch[href='/nine-grid'] { --luxe-metal: #c1b790; --luxe-ink: #28261f; }
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack a.home-feature-launch {
+  border: 1px solid color-mix(in srgb, var(--luxe-metal) 40%, #161719) !important;
+  background: radial-gradient(ellipse at 0 0, var(--luxe-ink), transparent 72%), linear-gradient(135deg, #141517, #0b0d10) !important;
+  box-shadow: inset 0 1px 0 #fff7dd0c, inset 0 -1px 0 #0008, 0 6px 16px #0003 !important;
+  filter: none !important;
+  transition: border-color 180ms ease, box-shadow 180ms ease !important;
+}
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack a.home-feature-launch::after {
+  opacity: .08;
+  filter: grayscale(1);
+}
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack a.home-feature-launch h2 {
+  color: #eee7da !important;
+  text-shadow: 0 1px 2px #0008 !important;
+}
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack a.home-feature-launch .home-feature-cta {
+  background: linear-gradient(180deg, #ffffff06, #00000018) !important;
+  border: 1px solid color-mix(in srgb, var(--luxe-metal) 30%, #1d1e20) !important;
+  color: #e5ddce !important;
+  box-shadow: inset 0 1px 0 #fff5df08 !important;
+  text-shadow: none !important;
+}
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack a.home-feature-launch .home-feature-cta::before,
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack a.home-feature-launch .home-feature-cta::after {
+  display: none !important;
+}
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack a.home-feature-launch [data-home-entry-icon]:not(.tarot-entry-emblem) {
+  border-color: color-mix(in srgb, var(--luxe-metal) 80%, #303033) !important;
+  background: radial-gradient(ellipse at 15% 0, color-mix(in srgb, var(--luxe-metal) 24%, #202023), transparent 65%), linear-gradient(145deg, #202124, #0b0d10 75%) !important;
+  box-shadow: inset 0 1px 1px color-mix(in srgb, var(--luxe-metal) 55%, transparent), inset 0 -2px 3px #000a, 0 3px 7px #0005 !important;
+  outline-color: color-mix(in srgb, var(--luxe-metal) 30%, transparent);
+  color: var(--luxe-metal) !important;
+  text-shadow: 0 1px 0 #000, 0 -1px 0 #fff3 !important;
+  filter: none !important;
+}
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack a.home-feature-launch [data-home-entry-icon] :is(.home-oracle-3d-emblem__glyph, .number-fortune-auspicious-emblem__glyph, .ziwei-dou-3d-emblem__glyph) {
+  color: var(--luxe-metal) !important;
+  -webkit-text-fill-color: var(--luxe-metal) !important;
+  background: none !important;
+  text-shadow: 0 1px 1px #000, 0 -1px 0 #fff2 !important;
+  filter: none !important;
+}
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack a.home-feature-launch [data-home-entry-icon] :is(.home-oracle-3d-emblem__aura, .home-oracle-3d-emblem__spark, .number-fortune-auspicious-emblem__shine, .ziwei-dou-3d-emblem__aura) {
+  opacity: .18 !important;
+  animation: none !important;
+}
+body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack a.home-feature-launch:focus-visible {
+  outline: 2px solid var(--luxe-metal) !important;
+  outline-offset: 4px !important;
+}
+@media (hover: hover) {
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack a.home-feature-launch:hover {
+    border-color: var(--luxe-metal) !important;
+    box-shadow: inset 0 1px 0 #fff7dd12, 0 8px 20px #0005 !important;
+  }
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack a.home-feature-launch:hover .home-feature-cta {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--luxe-metal) 10%, #191a1c), #111315) !important;
+    border-color: color-mix(in srgb, var(--luxe-metal) 65%, #27282a) !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack a.home-feature-launch { transition: none !important; }
+}
