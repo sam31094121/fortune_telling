@@ -33,3 +33,13 @@
 - 青龍同構圖 run 完成後再執行一次 `npm run build`：exit 0，編譯 6.7 秒、型別檢查、43/43 靜態頁及 build traces 全部完成；前置 6146 檢查通過，仍有既有 lint warnings。這是最新版程式建置證據，實際畫面與實戰驗收由主線另列。
 
 沒有提交或推送；Git 保持 main，工作樹有本輪及其他代理的未提交變更。
+
+## 推送閘追加：開發驗收後端分層
+
+`test:beast-backend-only` 後續指出新驗收頁及 server actions 雖只在伺服器執行，運算仍落在受專案規則掃描的 app 目錄。已將開戰、出招、AI 選招、戰況、手冊與三局資料準備移至 `lib/server/beast-review.ts`，加上 `server-only` 邊界；app 保留 server-action wrapper、development / notFound 與顯示。
+
+原 development guard、隔離 session、24 場上限、revision 拒絕，以及不碰收藏／押注／獎勵的行為全部保留。沒有改動或放寬 backend-only 掃描測試。
+
+- `npm run test:beast-backend-only`：8 項完整通過。
+- `npx tsc --noEmit --incremental false`：exit 0；本次後端分層後未另跑 build，由主線推送流程重跑完整建置及守門。
+- `node tests/beast-ritual-rig.test.cjs`：通過；增加四獸資料與真實 `playSeries` 結果相等、非法獸名既有預設、伺服器頁面資料在 production 拒絕等回歸。測試 Node loader 僅代替 `server-only` bundler 標記，環境 guard 仍實際執行。
