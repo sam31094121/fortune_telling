@@ -488,7 +488,8 @@
   inset: -20%;
   z-index: 1;
   pointer-events: none;
-  background: url('/assets/taiji/esoteric-taijitu-public-domain.svg') center / 56% no-repeat;
+  /* 以高度定圓徑，避免扁戰場按寬放大後只剩巨大黑白截片。 */
+  background: url('/assets/taiji/esoteric-taijitu-public-domain.svg') center / auto 56% no-repeat;
   opacity: 0.055;
   animation: arenaTaijiField 52s linear infinite;
   mix-blend-mode: screen;

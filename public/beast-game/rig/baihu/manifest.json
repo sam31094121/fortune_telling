@@ -5,12 +5,14 @@
   "frames": [
     {
       "id": "bite-close",
-      "file": "bite-close.webp",
-      "width": 1400,
-      "height": 981,
+      "file": "bite-close.v2.webp",
+      "width": 1695,
+      "height": 928,
       "area": 775106,
-      "bytes": 243568,
-      "norm": 0.9329
+      "bytes": 428760,
+      "norm": 1.1066,
+      "originalFile": "bite-close.webp",
+      "sha256": "6981fef0f72c9bd6efdbaf3079bdb0e78f6407a88a9203764fcccf3dd9423819"
     },
     {
       "id": "land-crouch",
@@ -23,12 +25,14 @@
     },
     {
       "id": "pounce-open",
-      "file": "pounce-open.webp",
-      "width": 1400,
-      "height": 766,
+      "file": "pounce-open.v2.webp",
+      "width": 1695,
+      "height": 928,
       "area": 550863,
-      "bytes": 208864,
-      "norm": 1.1066
+      "bytes": 487520,
+      "norm": 1.1066,
+      "originalFile": "pounce-open.webp",
+      "sha256": "c2d1c61d629116ee3814f7fbfb258137648b89c9c9ceb14293db88d20ad1a66e"
     },
     {
       "id": "run-gather",

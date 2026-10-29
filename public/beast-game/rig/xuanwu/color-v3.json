@@ -1,0 +1,58 @@
+{
+  "authority": "public/beast-game/front/guardian-xuanwu.v2.webp",
+  "authoritySha256": "e95f0ca1405e6dcd0dc54c058ad83c8fca7e1f993f607a54c874b534569de803",
+  "prompt": "Edit ONLY the first image's color/material/lighting to match the second identity reference exactly. First is existing Xuanwu battle cutout; second is authoritative main card. Preserve first image pixel composition, pose, full silhouette, mouth positions, all four tortoise limbs, snake coils, canvas aspect ratio and transparent alpha. Do NOT redesign or move any anatomy. Replace the excessive bronze/gold/tan lighting with the main card's very dark charcoal black and cool slate gray natural scales and shell. Shell seams dark neutral gray, NOT gold rims. Tortoise face and belly dark charcoal, claws dark gray horn NOT gold ivory. Snake scales near-black cool gray with restrained silver highlights, belly charcoal not yellow. Eyes very dark subtle brown as main card, no glowing amber. Keep snake's open red mouth and fangs, turtle toothless closed beak. Photoreal rugged shell grooves fine scales, preserve fine detail but remove metallic gold gleam. Reference 2 is color/material authority ONLY, do not copy background or its pose. Transparent background.\n",
+  "generator": "built-in image_gen",
+  "quality": 94,
+  "alphaQuality": 100,
+  "frames": [
+    {
+      "id": "pounce-open",
+      "file": "pounce-open.color-v3.webp",
+      "width": 1536,
+      "height": 1024,
+      "norm": 1,
+      "bytes": 384868,
+      "sha256": "65c8357cfecc4812c6312cf265adfcf1a50029f84ee3c93139147a7d81fa2284",
+      "sourceSha256": "169cc5646ad79e931330dadcf2b459b8cfa72f0d0ab1a1597a5591c2067f26c7",
+      "generatedSource": "exec-8421752b-5b00-47e2-b9c9-d4ea3ba3ee92.png",
+      "originalFile": "pounce-open.webp"
+    },
+    {
+      "id": "bite-close",
+      "file": "bite-close.color-v3.webp",
+      "width": 1536,
+      "height": 1024,
+      "norm": 1,
+      "bytes": 393990,
+      "sha256": "b0083b85721563565889a7d06cad71d99b61cf40fda5f1154c0ab8f75ca128e0",
+      "sourceSha256": "333d217a842ec3cca474122e64d738fb54bdf04aaaa903286341fdbcdde5f5e3",
+      "generatedSource": "exec-f3884ba9-6488-41a3-9ed8-f9e07119c0c9.png",
+      "originalFile": "bite-close.webp"
+    },
+    {
+      "id": "run-gather",
+      "file": "run-gather.color-v3.webp",
+      "width": 1536,
+      "height": 1024,
+      "norm": 1,
+      "bytes": 397442,
+      "sha256": "0cc005fddf7a1fd26ad0eecd47d74e26703d40a0c1089f4a9928a01a6d3542ea",
+      "sourceSha256": "cfa0d5e7e0599d91796c02ad43f2f6c9cfcf06ec6fa1c4526b252a09d344a66d",
+      "generatedSource": "exec-e04ef6ab-d068-4b94-a538-a4b44989a15b.png",
+      "originalFile": "run-gather.webp"
+    },
+    {
+      "id": "run-reach",
+      "file": "run-reach.color-v3.webp",
+      "width": 1536,
+      "height": 1024,
+      "norm": 1,
+      "bytes": 415134,
+      "sha256": "276c36f6f56b7d26406ddec8d04c3aed5e4eb51815c18fd1f01672a6c09d35b9",
+      "sourceSha256": "98e0ae95b37b52f7a94336e05b2cb3cc03b154a763eee4560ffc320b1057f9ae",
+      "generatedSource": "exec-1171994f-6346-46f6-b6a9-62303463d092.png",
+      "originalFile": "run-reach.webp"
+    }
+  ]
+}

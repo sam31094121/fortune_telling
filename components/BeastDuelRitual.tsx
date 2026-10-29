@@ -3,11 +3,13 @@
 import { BATTLE_VENUES } from '@/lib/beast-game/venues';
 
 import dynamic from 'next/dynamic';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { selectRitualHighlights, type RitualTurn } from '@/lib/beast-ritual';
 import type { PairResult } from '@/lib/beast-game/series';
 import styles from './BeastDuelRitual.module.css';
 import { releasedChargeFor } from '@/lib/beast-charge-release';
+import BeastRigStage, { type BeastRigGeometry } from './battlefield/BeastRigStage';
+import { rigFor, RIG_CARD_HIDDEN, RIG_STRIKE_MS } from '@/lib/beast-game/beast-rig';
 
 /*
   三維對撞只在交鋒階段用，所以動態載入——
@@ -51,6 +53,13 @@ function actionForBeat(pair: PairResult | undefined, beat: number) {
   return actions[beat === 0 ? 0 : actions.length - 1];
 }
 
+/** Only a recorded damaging player action can trigger the new attack presentation. */
+export function ritualRigForBeat(cardId: string | undefined, pair: PairResult | undefined, beat: number) {
+  const action = actionForBeat(pair, beat);
+  return cardId && pair?.playerId === cardId && action?.side === 'PLAYER' && Number.isFinite(action.damage) && action.damage > 0
+    ? rigFor(cardId) : null;
+}
+
 export default function BeastDuelRitual({ player, opponent, timeline, replay, pairs, onComplete, onCancel }: Props) {
   const [dealt, setDealt] = useState(false);
   const [phase, setPhase] = useState<'covered' | 'revealing' | 'clash'>('covered');
@@ -89,6 +98,15 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
    * 想省事的人按箭頭切成自動，就照間隔自己翻完。
    */
   const [autoFlip, setAutoFlip] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(true);
+  const [readyRigId, setReadyRigId] = useState<string | null>(null);
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReducedMotion(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
   const sound = useRef(createSoundPlayer());
   useEffect(() => {
     const playerSound = sound.current;
@@ -152,6 +170,23 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
     }
   }, [player, opponent]);
   const dialog = useRef<HTMLDivElement>(null);
+  const rigFrom = useRef<HTMLDivElement>(null);
+  const rigTo = useRef<HTMLDivElement>(null);
+  const measureRig = useCallback((): BeastRigGeometry | null => {
+    const from = rigFrom.current?.getBoundingClientRect();
+    const to = rigTo.current?.getBoundingClientRect();
+    const pane = dialog.current?.querySelector('[data-duel-visual]')?.getBoundingClientRect();
+    if (!from || !to || !pane) return null;
+    const rect = (r: DOMRect) => ({ cx: r.left + r.width / 2, top: r.top, width: r.width, height: r.height });
+    return { arenaWidth: Math.min(pane.width, 460), from: rect(from), to: rect(to), targetArt: rigTo.current?.querySelector('img') ?? null };
+  }, []);
+  const noRigCamera = useCallback(() => null, []);
+  const onRigFrame = useCallback((t: number) => {
+    if (rigFrom.current) rigFrom.current.style.opacity = t >= RIG_CARD_HIDDEN[0] && t < RIG_CARD_HIDDEN[1] ? '0' : '1';
+  }, []);
+  const rigIndex = pairClash ?? Math.min(Math.max(0, Math.floor((revealCount - 1) / 2)), 2);
+  const preparedRig = rigFor(player[rigIndex]?.id ?? '');
+  const onRigReady = useCallback((ok: boolean) => setReadyRigId(ok ? preparedRig?.cardId ?? null : null), [preparedRig?.cardId]);
   const completeRef = useRef(onComplete);
   const cancelRef = useRef(onCancel);
   completeRef.current = onComplete;
@@ -256,7 +291,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
       setPairSide(side);
       setPairBeat(beat);
       if (!videoPlayingRef.current) playPlayerBeastVoice(sound.current.play, side, player[index].id);
-    }, beat * 1400));
+    }, beat * RIG_STRIKE_MS));
     const timers: number[] = [];
     const started = performance.now();
     const finishPair = () => {
@@ -383,6 +418,12 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
       : null;
   const clashActive = clashPairReady || clashTurnReady;
   const fusionBeat = pairClash !== null && pairResult === null && Boolean(actionForBeat(pairs?.[pairClash], pairBeat)?.fusion);
+  const rigPlayback = !reducedMotion && pairClash !== null && pairResult === null
+    && readyRigId === preparedRig?.cardId
+    ? ritualRigForBeat(player[pairClash]?.id, pairs?.[pairClash], pairBeat) : null;
+  // Once the actual actor's rig has loaded, keep legacy clips out of this pair.
+  // Opponent turns retain their existing presentation; asset failure retains the old fallback.
+  const usePreparedRig = !reducedMotion && Boolean(pairs?.[rigIndex]) && preparedRig !== null && readyRigId === preparedRig.cardId;
   const previewIndex = Math.min(Math.floor(revealCount / 2), 2);
 
   return <div ref={dialog} tabIndex={-1} role="dialog" aria-modal="true" aria-label="雙方揭牌儀式" className={styles.stage} data-battle-venue="fighting" style={{ backgroundImage: `linear-gradient(#070f21b8, #070f21eb), url("${BATTLE_VENUES.fighting.image}")` }} data-duel-ritual data-ritual-phase={!opponentReady ? 'waiting' : !dealt ? 'dealing' : phase}>
@@ -421,25 +462,26 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
           <div className={styles.arenaPost} />
           <div className={styles.arenaRing} />
         </div>
-        {!clashActive && <div className={styles.waitingCards} aria-hidden="true">
+        {(!clashActive || rigPlayback) && <div className={styles.waitingCards} data-ritual-rig-cards={rigPlayback ? 'true' : undefined} aria-hidden="true">
           {(() => {
-            const oCard = opponent?.[previewIndex];
-            const pCard = player?.[previewIndex];
+            const visibleIndex = rigPlayback && pairClash !== null ? pairClash : previewIndex;
+            const oCard = opponent?.[visibleIndex];
+            const pCard = player?.[visibleIndex];
             return <>
               <div className={styles.waitingOpponent} key="opponent">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <div className={styles.waitingFace}>{oCard && isRevealed('opponent', previewIndex) ? <BeastCardFace card={oCard} /> : <img src="/beast-game/card-back.webp" alt="" />}</div>
-                <span>易經卦象・{POSITIONS[previewIndex]}</span>
+                <div ref={rigTo} className={styles.waitingFace}>{oCard && isRevealed('opponent', visibleIndex) ? <BeastCardFace card={oCard} /> : <img src="/beast-game/card-back.webp" alt="" />}</div>
+                <span>易經卦象・{POSITIONS[visibleIndex]}</span>
               </div>
               <div className={styles.waitingPlayer} key="player">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <div className={styles.waitingFace}>{pCard && isRevealed('player', previewIndex) ? <BeastCardFace card={pCard} /> : <img src="/beast-game/card-back.webp" alt="" />}</div>
-                <span>客戶（你）・{POSITIONS[previewIndex]}</span>
+                <div ref={rigFrom} className={styles.waitingFace}>{pCard && isRevealed('player', visibleIndex) ? <BeastCardFace card={pCard} /> : <img src="/beast-game/card-back.webp" alt="" />}</div>
+                <span>客戶（你）・{POSITIONS[visibleIndex]}</span>
               </div>
             </>;
           })()}
         </div>}
-        {pairClash !== null && player[pairClash] && opponent?.[pairClash] && (
+        {!usePreparedRig && pairClash !== null && player[pairClash] && opponent?.[pairClash] && (
           <>
             {chargePuppetPoolId ? (
               <BeastLayeredPuppet
@@ -485,7 +527,7 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
             glow={fusionBeat ? '#fb7185' : ELEMENT_FX[clashCards.me.element as BattleElement]?.glow ?? '#fff'}
             beat={clashCards.beat}
             outcome={clashCards.outcome}
-            active={clashActive}
+            active={clashActive && !rigPlayback}
           />
         )}
         {pairResult && pairClash !== null ? <>
@@ -574,5 +616,8 @@ export default function BeastDuelRitual({ player, opponent, timeline, replay, pa
       </section>
       </div>
     </div>
+    {preparedRig && <BeastRigStage key={preparedRig.cardId} rig={preparedRig}
+      playKey={rigPlayback && pairClash !== null ? pairClash * 4 + pairBeat : null}
+      onReady={onRigReady} onFrame={onRigFrame} measureGeometry={measureRig} cameraElement={noRigCamera} layerZIndex={1001} />}
   </div>;
 }

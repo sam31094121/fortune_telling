@@ -1,0 +1,50 @@
+{
+  "card": "zhuque",
+  "round": 2,
+  "source": "public/beast-game/front/guardian-zhuque.v2.webp",
+  "sourceSha256": "40c405ecb734c6f6bdff79378e8020d5c718f48ce63c161096c0834490baf787",
+  "generator": "built-in image_gen",
+  "notes": "Same red phoenix, two wings/two legs, beak without teeth. Alpha verified on blue review backdrop.",
+  "frames": [
+    {
+      "id": "pounce-open",
+      "file": "pounce-open.webp",
+      "width": 1536,
+      "height": 1024,
+      "norm": 1,
+      "bytes": 591352,
+      "sha256": "daac961387a27619687a0e605c34dca4fd73837bf89ef01b03d005ce3da7b9e1",
+      "sourceSha256": "f32c49ad5755274b6e6016a68062e9448596c73f9df3f244289ac279542ed3b6"
+    },
+    {
+      "id": "bite-close",
+      "file": "bite-close.webp",
+      "width": 1536,
+      "height": 1024,
+      "norm": 1,
+      "bytes": 561942,
+      "sha256": "f731d925044c38a6e3c7b80390f3a90c78d1dceeca18ad780ce0f583de1b3145",
+      "sourceSha256": "5ff75ec17f1c2e61b44fef5dafd22ce5cbe193bf38386f46e33a740ed61eb5dd"
+    },
+    {
+      "id": "run-gather",
+      "file": "run-gather.webp",
+      "width": 1536,
+      "height": 1024,
+      "norm": 1,
+      "bytes": 517332,
+      "sha256": "86001987aea48e23ec5357172e0986ea98c3f88701d41c5489a499503743fd31",
+      "sourceSha256": "4b29e3fda51b63f60fa040ea0ec9f6b70247e3488ed5220ddcb5681f0d9cb448"
+    },
+    {
+      "id": "run-reach",
+      "file": "run-reach.webp",
+      "width": 1536,
+      "height": 1024,
+      "norm": 1,
+      "bytes": 550994,
+      "sha256": "382da6709771d047157811cbcb245edaa6ae83dc1f3e4190c0ceaad7fcf168e1",
+      "sourceSha256": "9fdd0919a4b4552f82e206a36389dfd9db5c823fed6272e8f3759e2bbe41a814"
+    }
+  ]
+}

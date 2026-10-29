@@ -5,21 +5,26 @@
   "frames": [
     {
       "id": "bite-close",
-      "file": "bite-close.webp",
-      "width": 1600,
-      "height": 1384,
-      "area": 1047213,
-      "bytes": 518794,
-      "norm": 1
+      "file": "bite-close.v2.webp",
+      "width": 1331,
+      "height": 1181,
+      "norm": 0.9813,
+      "bytes": 614572,
+      "sha256": "f723997d044781fc1728d60ce150db6b809c6d89d5ad66772059afb26a0998ba",
+      "sourceSha256": "b86eac45e59d78f29f713430ab4024dab5aadbc66f89ea9d52e9ad302907173d",
+      "generatedSource": "exec-ddbd98c2-961e-4656-9063-0e10fda5a20b.png",
+      "originalFile": "bite-close.webp"
     },
     {
       "id": "pounce-open",
-      "file": "pounce-open.webp",
-      "width": 1600,
-      "height": 1421,
+      "file": "pounce-open.v2.webp",
+      "width": 1331,
+      "height": 1182,
       "area": 1087439,
-      "bytes": 557890,
-      "norm": 0.9813
+      "bytes": 734626,
+      "norm": 0.9813,
+      "originalFile": "pounce-open.webp",
+      "sha256": "7a22f3ec60aa6288999630778e7411de2f80f4c584536534b2ec7bf5987f3c4e"
     },
     {
       "id": "run-gather",

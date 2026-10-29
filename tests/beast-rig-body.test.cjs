@@ -47,8 +47,8 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 
 (async () => {
   // 1) 登記：目前只有白虎有骨架，其他神獸維持原本的卡片衝鋒
-  assert.deepEqual(Object.keys(rig.BEAST_RIGS), ['beast_g_baihu', 'beast_g_qinglong']);
-  assert.equal(rig.rigFor('beast_g_zhuque'), null);
+  assert.deepEqual(Object.keys(rig.BEAST_RIGS), ['beast_g_baihu', 'beast_g_qinglong', 'beast_g_zhuque', 'beast_g_xuanwu']);
+  assert.equal(rig.rigFor('beast_g_zhuque'), rig.ZHUQUE_RIG);
   assert.equal(rig.rigFor(null), null);
 
   // 2) 時間軸：階段首尾相接，涵蓋 0..1；命中時刻落在攻擊階段；卡片隱藏區間與 CSS 同步
@@ -76,13 +76,28 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
   assert.ok(rig.strikeFrame(0).alpha < 0.05, 'starts hidden inside the card');
   assert.ok(rig.strikeFrame(1).alpha < 0.05, 'ends hidden: the original card takes over again');
 
-  // 4) 動作都做到了：蓄勢、跑（收腳↔伸展交替）、撲擊張嘴、咬合，並真的衝到對手卡前、咬完就地散去（不跑回來）
+  // 4) 穩定本體以關節推進；朱雀保留收翼↔展翼，命中後就地散去。
   const used = new Set();
   for (let i = 0; i <= 400; i++) for (const l of rig.strikeFrame(i / 400).layers) if (l.alpha > 0.5) used.add(l.frame);
-  for (const id of ['bite-close', 'run-gather', 'run-reach', 'pounce-open']) assert.ok(used.has(id), `pose ${id} is shown`);
+  for (const id of ['bite-close', 'pounce-open']) assert.ok(used.has(id), `pose ${id} is shown`);
   const reach = new Set(); let switches = 0; let last = null;
-  for (let i = 0; i <= 400; i++) { const t = rig.RIG_PHASES.run[0] + (rig.RIG_PHASES.run[1] - rig.RIG_PHASES.run[0]) * (i / 400); const top = rig.strikeFrame(t).layers.sort((a, b) => b.alpha - a.alpha)[0].frame; reach.add(top); if (last && top !== last) switches++; last = top; }
-  assert.ok(reach.has('run-gather') && reach.has('run-reach') && switches >= 4, 'running alternates between gathered and stretched poses');
+  const dragonClaws = [], dragonBody = [], dragonTail = [];
+  for (let i = 0; i <= 400; i++) {
+    const t = rig.RIG_PHASES.run[0] + (rig.RIG_PHASES.run[1] - rig.RIG_PHASES.run[0]) * (i / 400);
+    const top = rig.strikeFrame(t, rig.RIG_STYLES.zhuque).layers.sort((a, b) => b.alpha - a.alpha)[0].frame;
+    reach.add(top); if (last && top !== last) switches++; last = top;
+    const dragonLayers = rig.strikeFrame(t, rig.RIG_STYLES.qinglong).layers;
+    assert.equal(dragonLayers.length, 1, 'dragon charge uses one stable body');
+    assert.equal(dragonLayers[0].frame, 'pounce-open', 'dragon preserves refined color and body composition through charge');
+    assert.equal(dragonLayers[0].alpha, 1, 'dragon body stays opaque');
+    dragonClaws.push(rig.livingPose(t, rig.RIG_STYLES.qinglong).clawSwing);
+    dragonBody.push(rig.bodyWave(t, 0.5, rig.RIG_STYLES.qinglong));
+    dragonTail.push(rig.bodyWave(t, 0.9, rig.RIG_STYLES.qinglong));
+  }
+  assert.ok(reach.has('run-gather') && reach.has('run-reach') && switches >= 2, 'avian flight keeps gathered and stretched wing poses');
+  for (const [part, values] of [['claw', dragonClaws], ['body', dragonBody], ['tail', dragonTail]]) {
+    assert.ok(Math.max(...values) - Math.min(...values) > 0.001, `dragon ${part} still articulates with its stable sprite`);
+  }
   assert.equal(rig.strikeFrame(rig.RIG_PHASES.attack[0] + 0.001).travel.progress, 1, 'reaches the opponent');
   assert.ok(rig.strikeFrame(0.2).travel.progress > 0, 'dashes out of the card');
   const gone = rig.strikeFrame(rig.RIG_PHASES.recover[1] - 0.001);
@@ -91,11 +106,11 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
   assert.ok(rig.strikeFrame(impact).flash > 0.9, 'bite flash is peaked at the impact time');
   const bite = rig.strikeFrame(rig.RIG_PHASES.attack[0] + (rig.RIG_PHASES.attack[1] - rig.RIG_PHASES.attack[0]) * 0.3);
   assert.ok(bite.layers.some((l) => l.frame === 'pounce-open' && l.alpha > 0.7), 'mouth is wide open before the bite');
-  assert.ok(rig.strikeFrame(impact + 0.01).layers.some((l) => l.frame === 'bite-close' && l.alpha > 0.9), 'jaws are shut at the bite');
+  assert.ok(rig.livingPose(impact + 0.01, rig.BAIHU_RIG.style).jaw < 0.08, 'jaw closes at impact without changing the body image');
 
   // 5) 素材：manifest 與程式一致；每張都有透明背景（去背成功）且身體內部的條紋沒被挖穿
   const widths = {};
-  for (const [rigDef, minWidth] of [[rig.BAIHU_RIG, 1000], [rig.QINGLONG_RIG, 1500]]) {
+  for (const [rigDef, minWidth] of [[rig.BAIHU_RIG, 1000], [rig.QINGLONG_RIG, 1300], [rig.ZHUQUE_RIG, 1500], [rig.XUANWU_RIG, 1500]]) {
     const dir = path.join(root, 'public/beast-game/rig', rigDef.dir);
     const manifest = JSON.parse(fs.readFileSync(path.join(dir, 'manifest.json'), 'utf8'));
     assert.equal(manifest.source, `public/beast-game/front/guardian-${rigDef.dir}.v2.webp`, 'source is the new-version card art');
@@ -104,7 +119,7 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
       const entry = manifest.frames.find((f) => f.id === spec.id);
       assert.ok(entry, `${rigDef.dir}/${spec.id} in manifest`);
       assert.ok(Math.abs(entry.norm - spec.norm) < 1e-4, `${rigDef.dir}/${spec.id} norm matches manifest`);
-      const file = path.join(dir, `${spec.id}.webp`);
+      const file = path.join(dir, spec.file ?? `${spec.id}.webp`);
       assert.ok(fs.existsSync(file), `${rigDef.dir}/${spec.id}.webp exists`);
       const { data, info } = await sharp(file).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
       assert.ok(info.width >= minWidth, `${rigDef.dir}/${spec.id} keeps enough resolution (${info.width}px wide)`);
@@ -117,11 +132,11 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
     }
   }
   // 青龍的素材品質不得低於白虎（業主要求：青龍必須在白虎之上）：解析度更高、動作姿勢數不少於白虎的主要動作
-  assert.ok(Math.min(...widths.qinglong) > Math.max(...widths.baihu), 'qinglong sprites are higher resolution than baihu');
+  assert.ok(Math.min(...widths.qinglong) >= 1300, 'refined dragon retains native detail without upscaling');
   for (const id of ['bite-close', 'pounce-open', 'run-gather', 'run-reach']) assert.ok(rig.QINGLONG_RIG.frames.some((f) => f.id === id), `qinglong has the ${id} pose`);
   // 青龍的身體要像真的龍一樣搖動：波由頭傳到尾、頭穩尾大、隨時間流動；白虎是剛體不切條
   const q = rig.QINGLONG_RIG.style;
-  assert.equal(rig.bodyWave(0.4, 0.5, rig.BAIHU_RIG.style), 0, 'tiger body stays rigid');
+  assert.ok(Math.abs(rig.bodyWave(0.4, 0.5, rig.BAIHU_RIG.style)) < 0.03, 'tiger torso cannot ripple like a snake');
   assert.equal(rig.bodyWave(0.4, 0.5, q), rig.bodyWave(0.4, 0.5, q), 'wave is deterministic');
   let head = 0; let tail = 0; let moves = 0; let prev = null;
   for (let i = 0; i <= 200; i++) {
@@ -153,17 +168,17 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
   }
   assert.ok(jawMax - jawMin > 0.35, `the jaw really opens and shuts (range ${(jawMax - jawMin).toFixed(2)} rad)`);
   assert.ok(clawMax - clawMin > 0.6, 'the front claw winds up and rakes');
-  assert.ok(pitchMax > 0.15, 'the head lunges down onto the prey');
+  assert.equal(pitchMax, 0, 'the head advances forward without nodding down');
   assert.ok(hindSwing > 0.03, 'the hind claws paddle while running');
   // 部位只影響自己附近：頭部動作時，遠處的尾巴只受身體波浪影響
   const farBefore = rig.meshDisplace(0.9, 0.3, 1.13, A, { headPitch: 0, headThrust: 0, jaw: 0, clawSwing: 0, hind: [0, 0] }, 0.4, q);
   const farAfter = rig.meshDisplace(0.9, 0.3, 1.13, A, { headPitch: 0.3, headThrust: 0.07, jaw: 0.4, clawSwing: 0.5, hind: [0.04, -0.04] }, 0.4, q);
   assert.ok(Math.abs(farBefore[0] - farAfter[0]) < 1e-9 && Math.abs(farBefore[1] - farAfter[1]) < 1e-9, 'moving the head or claws never drags the tail');
-  // 連咬時用張口那張當底，下顎靠網格變形闔上，不換圖（避免整隻龍閃一下）
+  // 真閉口同構圖素材：持咬段不得再退回張嘴底圖。
   for (let i = 0; i <= 100; i++) {
     const t = rig.RIG_PHASES.attack[1] + (rig.RIG_PHASES.recover[1] - 0.001 - rig.RIG_PHASES.attack[1]) * i / 100;
     const f = rig.strikeFrame(t, q);
-    assert.ok(f.layers.every((l) => l.frame === 'pounce-open'), 'the bite uses one body image while the jaw is deformed');
+    assert.ok(f.layers.every((l) => l.frame === 'bite-close'), 'the held bite uses the same-composition closed-mouth body');
   }
   const stage = read('components/battlefield/BeastRigStage.tsx');
   assert.ok(stage.includes('meshDisplace(') && stage.includes('livingPose('), 'stage deforms the sprite as a mesh');
@@ -206,6 +221,30 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
   }
 
   // 6) 不動原始素材：新版卡面與既有本體立繪維持原檔，本次只新增 rig 資料夾
+  const { placeRig, alignRigContact, rigContactPull } = load('components/battlefield/BeastRigStage.tsx');
+  for (const definition of Object.values(rig.BEAST_RIGS)) {
+    const spec = definition.frames.find(f => f.id === 'pounce-open');
+    const meta = await sharp(path.join(root, 'public/beast-game/rig', definition.dir, spec.file ?? 'pounce-open.webp')).metadata();
+    const aspect = meta.width / meta.height;
+    for (const width of [360, 390, 430, 1280]) for (const side of [-1, 0, 1]) {
+      const geometry = { arenaWidth: Math.min(width, 640), from: { cx: width / 2 - side * 65, top: 600, width: 70, height: 98 }, to: { cx: width / 2 + side * 65, top: 180, width: 96, height: 134 } };
+      for (const t of [impact, 0.82, 0.88]) {
+        const f = rig.strikeFrame(t, definition.style);
+        const p = alignRigContact(placeRig(geometry, f, definition.style.size), f, spec, aspect, t, geometry, definition);
+        const contact = spec.contact ?? [spec.anchors.head[0] - 0.1, spec.anchors.jaw[1]];
+        const delta = rig.meshDisplace(...contact, aspect, spec.anchors, rig.livingPose(t, definition.style), t, definition.style);
+        const dh = p.unit * spec.norm;
+        const x = ((contact[0] - 0.5) * aspect + delta[0]) * dh * (p.mirror ? -1 : 1);
+        const y = ((contact[1] - 0.92) + delta[1]) * dh * f.squash;
+        const a = p.rotation * (p.mirror ? -1 : 1);
+        const pull = rigContactPull(p, t, 96);
+        assert.ok(Math.abs(p.x + x * Math.cos(a) - y * Math.sin(a) - geometry.to.cx - pull[0]) < 0.001, `${definition.dir} mouth tracks the horizontal tear contact`);
+        assert.ok(Math.abs(p.y + x * Math.sin(a) + y * Math.cos(a) - geometry.to.top - 134 * 0.55 - pull[1]) < 0.001, `${definition.dir} mouth tracks the vertical tear contact`);
+        assert.ok(Math.sin(a) * (p.mirror ? 1 : -1) < 0, 'head faces upward toward opponent, never away from it');
+      }
+    }
+  }
+
   for (const f of ['public/beast-game/front/guardian-baihu.v2.webp', 'public/beast-game/spirit/guardian-baihu.webp']) assert.ok(fs.existsSync(path.join(root, f)), `${f} untouched`);
   assert.doesNotMatch(read('scripts/build-beast-rig-sprites.mjs'), /public\/beast-game\/(front|spirit|thumb)['"`\/]\s*[,)]?\s*[^\n]*writeFile|toFile\(path\.join\(root, ?'public\/beast-game\/(front|spirit)/);
 
@@ -233,7 +272,7 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
   assert.ok(hook.includes("match.revision !== playStartRevision && match.revision > 0 && isDamagingAction(match, 'player')"), 'plays only on a freshly received report with a damaging action');
   const dock = read('components/battlefield/BattleDock.tsx');
   assert.ok(dock.includes('useRigStrike(match, playing)'), 'the dock decides when the beast leaves its card');
-  assert.ok(dock.includes('data-rig={active && rigState.strike}'), 'only the active card fades while its beast is out');
+  assert.ok(dock.includes('data-rig={active && rigState.strike && readyRigId === fighter.cardId}'), 'only the active card fades while its beast is out');
   assert.ok(dock.includes('<BeastRigStage'), 'the dock hosts the stage');
   const arenaSrc = read('components/battlefield/BattleArena.tsx');
   assert.ok(arenaSrc.includes('useRigStrike(match, playing).strike'));
@@ -241,5 +280,49 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
   assert.ok(css.includes("@media (prefers-reduced-motion: reduce)") && css.includes(".card[data-rig='true'] > span:first-child { animation: none; }"), 'reduced motion skips the fade');
   const stageSrc = read('components/battlefield/BeastRigStage.tsx');
   assert.ok(stageSrc.includes('[data-dock-card][data-active="true"]'), 'the beast leaves from and returns to the active dock card');
-  console.log('PASS: white tiger strike — pure timeline, new-version art keyframes with a solid cut-out, run/leap/bite/return all present, never decides outcomes, originals untouched');
+  const bird = rig.ZHUQUE_RIG;
+  // 換奔跑幀時嘴口不能因不同圖片底邊/norm而倒跳（使用者750ms重現）。
+  const tigerGeometry = { arenaWidth: 390, from: { cx: 195, top: 620, width: 70, height: 100 }, to: { cx: 195, top: 140, width: 96, height: 134 } };
+  let previousTigerMouthX = Infinity;
+  for (const t of [0.397, 0.45, 0.48, 0.5, 0.52, 0.55, 0.5799, 0.5801]) {
+    const f = rig.strikeFrame(t, rig.RIG_STYLES.baihu); const points = [];
+    for (const spec of rig.BAIHU_RIG.frames.filter(s => s.contact)) {
+      const meta = await sharp(path.join(root, 'public/beast-game/rig/baihu', spec.file ?? `${spec.id}.webp`)).metadata();
+      const aspect = meta.width / meta.height;
+      const p = alignRigContact(placeRig(tigerGeometry, f, 1), f, spec, aspect, t, tigerGeometry, rig.BAIHU_RIG);
+      const d = spec.anchors ? rig.meshDisplace(...spec.contact, aspect, spec.anchors, rig.livingPose(t, rig.RIG_STYLES.baihu), t, rig.RIG_STYLES.baihu) : [0, 0];
+      const dh = p.unit * spec.norm;
+      const x = (spec.contact[0] - 0.5) * dh * aspect + d[0] * dh;
+      const y = ((spec.contact[1] - 0.92) * dh + d[1] * dh) * f.squash;
+      points.push([p.x + x * Math.cos(p.rotation) - y * Math.sin(p.rotation), p.y + x * Math.sin(p.rotation) + y * Math.cos(p.rotation)]);
+    }
+    for (const point of points) assert.ok(Math.hypot(point[0] - points[0][0], point[1] - points[0][1]) < 0.001, 'tiger run/attack poses share the same mouth path across 750ms');
+    assert.ok(points[0][0] <= previousTigerMouthX + 0.001, 'left-facing tiger advances left instead of drifting backwards right at 596–870ms');
+    previousTigerMouthX = points[0][0];
+  }
+  const tigerAnchors = rig.BAIHU_RIG.frames.find(f => f.id === 'pounce-open').anchors;
+  const forearmU = (tigerAnchors.claw[0] + tigerAnchors.shoulder[0]) / 2;
+  const forearmV = (tigerAnchors.claw[1] + tigerAnchors.shoulder[1]) / 2;
+  const relaxed = { headPitch: 0, headThrust: 0, jaw: 0, clawSwing: 0, hind: [0, 0] };
+  const limbRest = rig.meshDisplace(forearmU, forearmV, 1.82, tigerAnchors, relaxed, 0.7, rig.RIG_STYLES.baihu);
+  const limbPush = rig.meshDisplace(forearmU, forearmV, 1.82, tigerAnchors, { ...relaxed, clawSwing: 0.4 }, 0.7, rig.RIG_STYLES.baihu);
+  assert.ok(Math.hypot(limbPush[0] - limbRest[0], limbPush[1] - limbRest[1]) > 0.03, 'tiger forearm follows shoulder instead of twisting only the paw');
+  const turtleAnchors = rig.XUANWU_RIG.frames.find(x => x.id === 'pounce-open').anchors;
+  const turtlePush = { ...relaxed, clawSwing: 0.11 };
+  const farRest = rig.meshDisplace(...turtleAnchors.farFore.claw, 1.5, turtleAnchors, relaxed, 0.7, rig.RIG_STYLES.xuanwu);
+  const farPush = rig.meshDisplace(...turtleAnchors.farFore.claw, 1.5, turtleAnchors, turtlePush, 0.7, rig.RIG_STYLES.xuanwu);
+  assert.ok(Math.hypot(farPush[0] - farRest[0], farPush[1] - farRest[1]) > 0.005, 'tortoise far foreleg has a separate shoulder-linked small movement');
+  const shellRest = rig.meshDisplace(0.6, 0.45, 1.5, turtleAnchors, relaxed, 0.7, rig.RIG_STYLES.xuanwu);
+  const shellPush = rig.meshDisplace(0.6, 0.45, 1.5, turtleAnchors, turtlePush, 0.7, rig.RIG_STYLES.xuanwu);
+  assert.ok(Math.hypot(shellPush[0] - shellRest[0], shellPush[1] - shellRest[1]) < 0.00001, 'foreleg loading must not bend the hard shell');
+  const wingAnchors = bird.frames.find(f => f.id === 'pounce-open').anchors;
+  const stillPose = { headPitch: 0, headThrust: 0, jaw: 0, clawSwing: 0, hind: [0, 0] };
+  for (const wing of wingAnchors.wings) {
+    for (const boundary of [0.52, 0.58, 0.68]) {
+      const before = rig.meshDisplace(...wing.tip, 1.5, wingAnchors, stillPose, boundary - 0.00001, bird.style);
+      const after = rig.meshDisplace(...wing.tip, 1.5, wingAnchors, stillPose, boundary + 0.00001, bird.style);
+      assert.ok(Math.hypot(after[0] - before[0], after[1] - before[1]) < 0.001, 'phoenix wings fold continuously into attack');
+    }
+  }
+  console.log('PASS: guardian strikes — native refined cutouts, continuous wings, aligned forward contact and reversible tearing, unchanged outcomes');
 })().catch((error) => { console.error(error); process.exit(1); });

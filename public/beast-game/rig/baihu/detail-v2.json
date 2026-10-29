@@ -1,0 +1,19 @@
+{
+  "source": "public/beast-game/rig/baihu/pounce-open.webp",
+  "generatedSource": "exec-dcd96833-d18c-4f75-a397-5152599e9480.png",
+  "generator": "built-in image_gen",
+  "width": 1695,
+  "height": 928,
+  "quality": 94,
+  "alphaQuality": 100,
+  "sha256": "c2d1c61d629116ee3814f7fbfb258137648b89c9c9ceb14293db88d20ad1a66e",
+  "scope": "Second-pass fur/mane, eyes, gum/teeth and attached claws; existing pose preserved. No upscale.",
+  "closedMouth": {
+    "generatedSource": "exec-a777d5c3-16dc-402f-884a-9b9e9e57bce6.png",
+    "file": "bite-close.v2.webp",
+    "width": 1695,
+    "height": 928,
+    "sha256": "6981fef0f72c9bd6efdbaf3079bdb0e78f6407a88a9203764fcccf3dd9423819",
+    "scope": "Same pounce body, only lower jaw closed; no frontal pose substitution."
+  }
+}

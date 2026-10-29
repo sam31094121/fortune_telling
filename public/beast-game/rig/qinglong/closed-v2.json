@@ -1,0 +1,15 @@
+{
+  "reference": "pounce-open.v2.webp",
+  "generator": "built-in image_gen",
+  "prompt": "Precise local edit: close ONLY the lower jaw of this exact blue-and-gold Chinese dragon so upper and lower jaws are fully clenched in a powerful bite. No visible large open mouth cavity, no extended tongue. Keep small natural interlocking fang tips at the lip line. Preserve EXACT original pose, head upper skull position, horns, eyes, flowing golden mane and whiskers, blue scales, gold belly, every limb, claw, coil and tail, canvas framing and aspect ratio. Do not rotate head or change any body geometry, don't change color or light. Transparent cutout, preserve alpha. Only lower mandible rotates upward at its hinge, beard follows the jaw locally; everything else stays pixel-aligned. This must crossfade seamlessly with reference as same-body closed-mouth animation frame.\n",
+  "id": "bite-close",
+  "file": "bite-close.v2.webp",
+  "width": 1331,
+  "height": 1181,
+  "norm": 0.9813,
+  "bytes": 614572,
+  "sha256": "f723997d044781fc1728d60ce150db6b809c6d89d5ad66772059afb26a0998ba",
+  "sourceSha256": "b86eac45e59d78f29f713430ab4024dab5aadbc66f89ea9d52e9ad302907173d",
+  "generatedSource": "exec-ddbd98c2-961e-4656-9063-0e10fda5a20b.png",
+  "originalFile": "bite-close.webp"
+}

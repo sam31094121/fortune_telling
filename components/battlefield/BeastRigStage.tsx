@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { RIG_MESH, RIG_STRIKE_EVENT, RIG_STRIKE_MS, cameraFrame, livingPose, meshDisplace, rendFrame, rigFrameUrl, storyTime, strikeFrame, type BeastRig, type RigFrameId } from '@/lib/beast-game/beast-rig';
+import { RIG_MESH, RIG_IMPACT_MS, RIG_STRIKE_EVENT, RIG_STRIKE_MS, bitePull, cameraFrame, livingPose, meshDisplace, rendFrame, rigFrameUrl, storyTime, strikeFrame, type BeastRig, type RigFrameId, type RigFrameSpec } from '@/lib/beast-game/beast-rig';
 
 type Rect = { cx: number; top: number; height: number; width: number };
 
@@ -23,6 +23,8 @@ export interface BeastRigGeometry {
   to: Rect;
   /** 鏡頭推進的中心（戰場自己的座標，開始播放前量一次，震動時不再量，避免越量越偏） */
   cameraOrigin?: string;
+  /** 本次對手真實卡圖，只用於命中後的可逆視覺切片。 */
+  targetArt?: HTMLImageElement | null;
 }
 
 const toRect = (el: Element): Rect => {
@@ -41,7 +43,7 @@ export function placeRig(geometry: BeastRigGeometry, frame: ReturnType<typeof st
   const endY = geometry.to.top + geometry.to.height * 0.82;
   const depth = 1 - 0.14 * progress;
   // 基準大小：最寬的姿勢（寬約 2.2 倍基準）不超過可用寬度的 70%
-  const unit = geometry.arenaWidth * 0.3 * frame.scale * depth * size;
+  const unit = geometry.arenaWidth * 0.24 * frame.scale * depth * size;
   const mirror0 = endX - startX > 8;
   // 咬合時把頭壓到對手卡中央（精靈本來面向左，頭在身體的前端）：抵達後才位移，路上不受影響
   const biteShift = (mirror0 ? -1 : 1) * unit * 0.55 * Math.pow(Math.max(0, progress), 6);
@@ -53,11 +55,53 @@ export function placeRig(geometry: BeastRigGeometry, frame: ReturnType<typeof st
   const dy = endY - startY;
   const mirror = dx > 8;
   const lean = Math.atan2(-dy, Math.abs(dx) + 1); // 對手在上方時為正
-  const tilt = Math.max(0, Math.min(0.65, lean * 0.7));
+  const tilt = Math.max(0, Math.min(0.32, lean));
   return { x, y, unit, rotation: tilt * frame.tilt, mirror };
 }
 
-export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFrame, seek = null }: {
+/** 同一嘴／喙接觸點驅動頭部位置與撕裂原點；先瞄準再咬住拉扯。 */
+export function alignRigContact(p: RigPlacement, f: ReturnType<typeof strikeFrame>, spec: RigFrameSpec, aspect: number, t: number, geometry: BeastRigGeometry, rig: BeastRig): RigPlacement {
+  const contact = spec.contact ?? (spec.anchors ? [spec.anchors.head[0] - 0.1, spec.anchors.jaw[1]] as const : null);
+  if (!contact) return p;
+  const impact = RIG_IMPACT_MS / RIG_STRIKE_MS;
+  const raw = Math.min(1, Math.max(0, (t - 0.58) / (impact - 0.58)));
+  const blend = raw * raw * (3 - 2 * raw);
+  const dh = p.unit * spec.norm; const dw = dh * aspect;
+  const displacement = spec.anchors ? meshDisplace(contact[0], contact[1], aspect, spec.anchors, livingPose(t, rig.style), t, rig.style) : [0, 0];
+  const lx = ((contact[0] - 0.5) * dw + displacement[0] * dh) * (p.mirror ? -1 : 1);
+  const ly = ((contact[1] - 0.92) * dh + displacement[1] * dh) * f.squash;
+  const angle = p.rotation * (p.mirror ? -1 : 1);
+  const rx = lx * Math.cos(angle) - ly * Math.sin(angle);
+  const ry = lx * Math.sin(angle) + ly * Math.cos(angle);
+  const pull = rigContactPull(p, t, geometry.to.width);
+  const targetX = geometry.to.cx + pull[0];
+  const targetY = geometry.to.top + geometry.to.height * 0.55 + pull[1];
+    // 各姿勢嘴／喙在不同圖片高度；只共用底邊會於換幀倒跳。
+    // 以各獸撲擊構圖的口位置作固定原點，保持獸種比例而不換路徑。
+    const origin: readonly [number, number] = rig.style.morphology === 'serpentine' ? [-0.353, -0.53]
+      : rig.style.morphology === 'avian' ? [-0.6975, -0.49]
+      : rig.style.morphology === 'armored' ? [-0.6825, -0.65] : [-0.707, -0.531];
+    const canonicalY = origin[1] * p.unit * f.squash;
+    const canonicalX = origin[0] * p.unit * (p.mirror ? -1 : 1);
+    const progress = f.travel.progress;
+    const runProgress = Math.min(1, Math.max(0, (progress - 0.3) / 0.7));
+    const approach = runProgress * runProgress * (3 - 2 * runProgress);
+    // 左向獸從卡內右側向左前進；鏡射相反。不能被舊biteShift推向臉的背後。
+    const side = p.mirror ? -1 : 1;
+    const travelX = geometry.from.cx + (geometry.to.cx - geometry.from.cx) * progress + side * Math.min(24, geometry.arenaWidth * 0.06) * (1 - approach);
+    const rawTravelY = p.y + canonicalX * Math.sin(angle) + canonicalY * Math.cos(angle);
+    // 重甲不壓縮後口點更高；前進不得越過目標，再被接觸插值拉回。
+    const travelY = rig.style.morphology === 'armored' ? Math.max(targetY, rawTravelY) : rawTravelY;
+    return { ...p, x: travelX + (targetX - travelX) * blend - rx, y: travelY + (targetY - travelY) * blend - ry };
+}
+
+/** 沿頭部朝前的軸拉扯，不以額外上下俯仰代替咬合。 */
+export function rigContactPull(p: RigPlacement, t: number, width: number): readonly [number, number] {
+  const distance = bitePull(t)[0] * width;
+  return [(p.mirror ? 1 : -1) * Math.cos(p.rotation) * distance, -Math.sin(p.rotation) * distance];
+}
+
+export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFrame, seek = null, measureGeometry, cameraElement, layerZIndex = 10 }: {
   rig: BeastRig;
   /** 每次出擊換一個數字（用戰局 revision）；null＝待命，不畫 */
   playKey: number | null;
@@ -68,6 +112,10 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
   onFrame?: (t: number) => void;
   /** 預覽頁用：給 0..1 就靜態畫出那一刻（不播放、不計時）。戰場上一律不傳。 */
   seek?: number | null;
+  /** 對戰儀式在獨立對話框內，使用自己的卡片座標，不抓到背景戰場。 */
+  measureGeometry?: () => BeastRigGeometry | null;
+  cameraElement?: () => HTMLElement | null;
+  layerZIndex?: number;
 }) {
   const stage = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -75,11 +123,14 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
   const images = useRef<Map<RigFrameId, HTMLImageElement>>(new Map());
   const raf = useRef(0);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const hiddenArt = useRef<{ image: HTMLImageElement; visibility: string } | null>(null);
   const size = useRef({ w: 0, h: 0, dpr: 1 });
   const [loaded, setLoaded] = useState(false);
 
   // 掛載：載入全部關鍵幀（一次）
   useEffect(() => {
+    setLoaded(false);
+    images.current = new Map();
     let cancelled = false;
     let pending = rig.frames.length;
     let failed = false;
@@ -128,7 +179,7 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
     const style = rig.style;
     const frame = strikeFrame(t, style);
     // 鏡頭：整個戰場（不含出戰卡列）隨咬合震動並推進，以對手卡為中心；只動 transform，不影響版面
-    const arena = document.querySelector<HTMLElement>('[data-battle-visual]');
+    const arena = cameraElement ? cameraElement() : document.querySelector<HTMLElement>('[data-battle-visual]');
     if (arena) {
       const cam = cameraFrame(t, style);
       if (geometry.cameraOrigin) arena.style.transformOrigin = geometry.cameraOrigin;
@@ -142,17 +193,20 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
       // 震動：固定頻率的正弦（不用亂數），蓄勢是顫抖、命中是震盪
       const sx = Math.sin(t * 900) * f.shake * 5 * jitter;
       const sy = Math.cos(t * 1100) * f.shake * 3 * jitter;
-      ctx.translate(p.x + sx, p.y + sy);
-      ctx.rotate(p.rotation * (p.mirror ? 1 : -1));
-      ctx.scale(p.mirror ? -1 : 1, f.squash);
       for (const layer of f.layers) {
         const image = images.current.get(layer.frame);
         if (!image) continue;
         const dh = p.unit * (norms.get(layer.frame) ?? 1);
         const dw = (image.naturalWidth / image.naturalHeight) * dh;
+        const spec = rig.frames.find((x) => x.id === layer.frame)!;
+        const aligned = alignRigContact(p, f, spec, image.naturalWidth / image.naturalHeight, tt, geometry, rig);
+        ctx.save();
+        ctx.translate(aligned.x + sx * 0.35, aligned.y + sy * 0.35);
+        ctx.rotate(aligned.rotation * (aligned.mirror ? -1 : 1));
+        ctx.scale(aligned.mirror ? -1 : 1, f.squash);
         ctx.globalAlpha = layer.alpha * f.alpha * fade;
         const anchors = rig.frames.find((x) => x.id === layer.frame)?.anchors;
-        if (style.wave > 0 && anchors) {
+        if ((style.articulation ?? style.wave) > 0 && anchors) {
           // 活體：把圖切成網格，每個頂點依各部位的動作位移（頭、下顎、前爪、後爪、身體、尾巴各自動），
           // 每格拆成兩個三角形，各用仿射變換貼上並從中心外擴 0.6px，格與格不出縫
           const { cols, rows } = RIG_MESH;
@@ -202,6 +256,7 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
           }
           ctx.setTransform(base);
         } else ctx.drawImage(image, -dw * 0.5, -dh * 0.92, dw, dh);
+        ctx.restore();
       }
       ctx.restore();
     };
@@ -239,6 +294,36 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
       }
     }
     const rend = rendFrame(t, style);
+    // 咬住後將「當前對手的真實卡圖」切成兩片拉開，動畫結束恢復。
+    // 只處理圖像，不修改血量、收藏或卡片資料。
+    const targetArt = geometry.targetArt;
+    if (targetArt?.complete && targetArt.naturalWidth > 0 && rend.power > 0 && rend.slash > 0) {
+      if (!hiddenArt.current) hiddenArt.current = { image: targetArt, visibility: targetArt.style.visibility };
+      targetArt.style.visibility = 'hidden';
+      const { cx, top, width, height } = geometry.to;
+      const left = cx - width / 2; const pull = rigContactPull(place, t, width);
+      const fade = Math.max(0, 1 - Math.max(0, (t - 0.88) / 0.07));
+      const fit = Math.max(width / targetArt.naturalWidth, height / targetArt.naturalHeight);
+      const iw = targetArt.naturalWidth * fit; const ih = targetArt.naturalHeight * fit;
+      for (const side of [-1, 1]) {
+        ctx.save(); ctx.globalAlpha = fade;
+        ctx.translate(side * Math.abs(pull[0]), side === (place.mirror ? 1 : -1) ? pull[1] : -pull[1]);
+        ctx.beginPath();
+        ctx.moveTo(side < 0 ? left : left + width, top);
+        ctx.lineTo(cx + width * 0.06, top);
+        ctx.lineTo(cx - width * 0.07, top + height * 0.23);
+        ctx.lineTo(cx + width * 0.08, top + height * 0.4);
+        ctx.lineTo(cx, top + height * 0.55);
+        ctx.lineTo(cx + width * 0.09, top + height * 0.7);
+        ctx.lineTo(cx - width * 0.06, top + height);
+        ctx.lineTo(side < 0 ? left : left + width, top + height);
+        ctx.closePath(); ctx.clip();
+        ctx.drawImage(targetArt, left + (width - iw) / 2, top + (height - ih) / 2, iw, ih);
+        ctx.restore();
+      }
+    } else if (hiddenArt.current) {
+      hiddenArt.current.image.style.visibility = hiddenArt.current.visibility; hiddenArt.current = null;
+    }
     // 撕咬的爪痕畫在神獸後面（咬下去時身體蓋住卡面，爪痕從身體周圍露出來，不蓋住龍頭）
     if (rend.power > 0 && rend.slash > 0) {
       const { cx, top, width, height } = geometry.to;
@@ -248,10 +333,10 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
       ctx.lineCap = 'round';
       for (let i = 0; i < 3; i++) {
         const off = (i - 1) * width * 0.26;
-        const x0 = left + width * 0.22 + off + width * 0.14;
-        const y0 = top + height * 0.08;
+        const x0 = cx + off * 0.35;
+        const y0 = top + height * 0.55;
         const x1 = x0 + width * 0.34 * rend.slash;
-        const y1 = y0 + height * 0.84 * rend.slash;
+        const y1 = y0 + height * 0.4 * rend.slash;
         ctx.globalAlpha = fade * rend.power;
         ctx.strokeStyle = 'rgba(255,120,60,0.9)'; ctx.lineWidth = Math.max(5, width * 0.055); ctx.shadowColor = 'rgba(255,90,30,0.9)'; ctx.shadowBlur = 14;
         ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
@@ -300,20 +385,22 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
     if (!root || !loaded) return;
 
     const measure = (): BeastRigGeometry | null => {
+      if (measureGeometry) return measureGeometry();
       const mine = document.querySelector('[data-dock-card][data-active="true"] [data-card-thumbnail]') ?? document.querySelector('[data-dock-card][data-active="true"]');
       const foe = document.querySelector('[data-fighter="opponent"] [data-art-slot]');
       const arena = document.querySelector<HTMLElement>('[data-battle-visual]');
       const to = foe ? toRect(foe) : null;
       const ar = arena?.getBoundingClientRect();
       const cameraOrigin = to && ar ? `${to.cx - ar.left}px ${to.top + to.height / 2 - ar.top}px` : undefined;
-      return mine && foe && to ? { arenaWidth: Math.min(window.innerWidth, 640), from: toRect(mine), to, cameraOrigin } : null;
+      return mine && foe && to ? { arenaWidth: Math.min(window.innerWidth, 640), from: toRect(mine), to, cameraOrigin, targetArt: foe.querySelector('img') } : null;
     };
     const clear = () => {
       const el = canvas.current;
       el?.getContext('2d')?.clearRect(0, 0, el.width, el.height);
       root.dataset.rigActive = 'false';
-      document.querySelector<HTMLElement>('[data-battle-visual]')?.style.removeProperty('transform');
+      (cameraElement ? cameraElement() : document.querySelector<HTMLElement>('[data-battle-visual]'))?.style.removeProperty('transform');
       if (shadow.current) shadow.current.style.opacity = '0';
+      if (hiddenArt.current) { hiddenArt.current.image.style.visibility = hiddenArt.current.visibility; hiddenArt.current = null; }
     };
 
     if (seek !== null) {
@@ -324,7 +411,7 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
         raf.current = requestAnimationFrame(() => draw(seek, geometry));
         timer.current = setTimeout(() => draw(seek, geometry), 400);
       }
-      return () => { cancelAnimationFrame(raf.current); clearTimeout(timer.current); };
+      return () => { cancelAnimationFrame(raf.current); clearTimeout(timer.current); clear(); };
     }
     if (playKey === null) return;
 
@@ -349,11 +436,11 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
     return () => { cancelAnimationFrame(raf.current); clearTimeout(timer.current); clear(); };
     // draw 只讀 ref 與 rig，不放進依賴
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playKey, delayMs, rig, onFrame, seek, loaded]);
+  }, [playKey, delayMs, rig, onFrame, seek, loaded, measureGeometry, cameraElement]);
 
   return (
     <div ref={stage} data-rig-stage data-rig-active="false" aria-hidden="true"
-      style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 10 }}>
+      style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: layerZIndex }}>
       <span ref={shadow} data-rig-shadow
         style={{ position: 'absolute', left: 0, top: 0, opacity: 0, borderRadius: '50%', background: 'radial-gradient(ellipse at center, rgba(0,0,0,.55), rgba(0,0,0,0) 70%)', willChange: 'transform, opacity' }} />
       <canvas ref={canvas} data-rig-canvas style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />

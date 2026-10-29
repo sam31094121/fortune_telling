@@ -244,25 +244,72 @@ console.log('PASS: visible strikes follow performed actions, not merely submitte
 
 // Full-size artwork is on demand; battle and hands keep the small portrait assets.
 const { combatGuideFor } = load('lib/beast-game/combat-guide.ts');
+// Cache-busting search parameters are URL metadata, not part of an on-disk filename.
+const publicArtworkFile = url => path.join(root, 'public', decodeURIComponent(new URL(url, 'http://localhost').pathname));
+assert.equal(publicArtworkFile('/beast-game/front/young-14.v2.webp?v=6'), publicArtworkFile('/beast-game/front/young-14.v2.webp'));
+assert.ok(!fs.existsSync(publicArtworkFile('/beast-game/front/definitely-missing-artwork.webp?v=6')), 'Version parameters must not hide a genuinely missing original');
+// 2026-10-24 commits 0bac65d5/a513fb6 replaced the September raw portrait with
+// BeastCardFace: one visible beast plus a decorative layer, responsive artwork,
+// a 63/88 full card and an intentionally cropped cover window (not uncropped art).
+function assertSameBeastPortrait(html, card) {
+  const images = html.match(/<img\b[^>]*>/g) || [];
+  assert.equal(images.filter(image => !/aria-hidden="true"/.test(image)).length, 1, 'Exactly one non-decorative beast portrait');
+  const expected = new URL(card.front, 'http://localhost').pathname;
+  const urls = images.flatMap(image => [...image.matchAll(/\b(?:src|srcSet)="([^"]+)"/g)]
+    .flatMap(([, value]) => value.split(',').map(candidate => candidate.trim().split(/\s+/)[0])));
+  assert.ok(urls.some(url => new URL(url, 'http://localhost').pathname === expected), 'Original artwork remains a responsive source');
+  for (const url of urls) {
+    const pathname = new URL(url, 'http://localhost').pathname;
+    assert.equal(path.basename(pathname).replace(/-480(?=\.webp$)/, ''), path.basename(expected), 'Every size and decorative layer belongs to this beast');
+    assert.ok(fs.existsSync(publicArtworkFile(url)), card.id + ': responsive artwork exists');
+  }
+}
 for (const card of interactiveCatalog()) {
   const guide = combatGuideFor(card.id);
   assert.equal(guide.front, card.front);
-  assert.ok(fs.existsSync(path.join(root, 'public', guide.front)), `${card.id}: original artwork exists`);
+  assert.ok(fs.existsSync(publicArtworkFile(guide.front)), card.id + ': original artwork exists');
   const html = render(Guide, { cardId: card.id, onClose() {} });
   assert.match(html, /data-card-showcase/, 'Default view puts the beast illustration first');
-  assert.equal((html.match(/<img\b/g) || []).length, 1, 'Inspect one original, not the whole catalog');
-  assert.ok(html.includes(`src="${card.front}"`));
+  assertSameBeastPortrait(html, card);
+  assert.match(html, /data-frame="v1"/, 'Guide retains the shared full card');
+  assert.match(html, /<button[^>]*>回到操控<\/button>/, 'A visible return control remains');
   for (const label of ['神獸卡面', '卡片能力', '五元素相剋', '回到操控', '查看效果']) assert.ok(html.includes(label));
 }
+// Negative controls: duplicates and mixing another beast must still fail.
+const fixtureCard = interactiveCatalog()[0];
+const fixtureHtml = render(Guide, { cardId: fixtureCard.id, onClose() {} });
+assert.throws(() => assertSameBeastPortrait(fixtureHtml.replace(/<img\b[^>]*aria-hidden="true"[^>]*>/, image => image.replace('aria-hidden="true"', '')), fixtureCard), /Exactly one/);
+assert.throws(() => assertSameBeastPortrait(fixtureHtml.replace(/(<img[^>]*src=")[^"]+/, '$1/beast-game/front/wrong-beast.webp'), fixtureCard), /belongs to this beast/);
 assert.doesNotMatch(arena, /src="\/beast-game\/front\//, 'Combat keeps lightweight thumbnails');
-assert.match(arena, /width="256" height="384"/, 'Images reserve their portrait proportions');
-const guideCss = postcss.parse(fs.readFileSync(path.join(root, 'components/battlefield/BattleCardGuide.module.css'), 'utf8'));
-for (const [css, selector] of [[arenaCss, '.art img'], [guideCss, '.portrait']]) {
-  let fit;
-  css.walkRules(selector, rule => rule.walkDecls('object-fit', decl => { fit = decl.value; }));
-  assert.equal(fit, 'contain', `${selector}: keep the entire original illustration`);
+assert.match(arena, /data-frame="v1"/, 'Combat and inspection use the same card frame');
+const tileCss = postcss.parse(fs.readFileSync(path.join(root, 'components/battlefield/BeastCardTile.module.css'), 'utf8'));
+const frameCss = postcss.parse(fs.readFileSync(path.join(root, 'components/BeastCardFrame.module.css'), 'utf8'));
+function cssValue(css, selector, property) {
+  let value;
+  css.walkRules(selector, rule => rule.walkDecls(property, decl => { value = decl.value.replace(/\s/g, ''); }));
+  return value;
 }
-console.log('PASS: all 60 original portraits are available, loaded one at a time, with abilities and return controls retained');
+assert.equal(cssValue(tileCss, '.fv1Face', 'aspect-ratio'), '63/88', 'Face reserves its established full-card ratio');
+assert.equal(cssValue(frameCss, '.card', 'aspect-ratio'), '63/88', 'Shared frame keeps the same ratio');
+assert.equal(cssValue(tileCss, '.fv1Window', 'aspect-ratio'), '4/3', 'Artwork window retains the approved crop proportions');
+assert.equal(cssValue(tileCss, '.stdArt', 'object-fit'), 'cover', 'Approved window crops uniformly rather than stretches artwork');
+assert.equal(cssValue(tileCss, '.stdArt', 'transform'), 'scale(1.08)', 'Existing uniform scale must not become unequal axis distortion');
+// Verify return wiring as well as the rendered label; this is a source contract,
+// not a substitute for the separate browser click-through evidence.
+const guideSource = ts.createSourceFile('BattleCardGuide.tsx', fs.readFileSync(path.join(root, 'components/battlefield/BattleCardGuide.tsx'), 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+let wiredReturnButtons = 0;
+function inspectReturn(node) {
+  if (ts.isJsxElement(node) && node.openingElement.tagName.getText(guideSource) === 'button'
+      && node.children.some(child => ts.isJsxText(child) && child.text.trim() === '回到操控')) {
+    const click = node.openingElement.attributes.properties.find(attr => ts.isJsxAttribute(attr) && attr.name.getText(guideSource) === 'onClick');
+    assert.ok(click && ts.isJsxExpression(click.initializer) && click.initializer.expression?.getText(guideSource) === 'onClose', 'Return button calls the supplied close handler');
+    wiredReturnButtons++;
+  }
+  ts.forEachChild(node, inspectReturn);
+}
+inspectReturn(guideSource);
+assert.equal(wiredReturnButtons, 2, 'Both populated and missing-guide paths can return');
+console.log('PASS: 60 same-beast responsive portraits, original assets, shared proportions and return wiring retained; cover crop is intentional');
 
 // Recorded changes must describe actual health movement, not raw formula damage.
 const { combatChanges } = load('lib/beast-game/combat-feedback.ts');
@@ -295,7 +342,12 @@ assert.equal(combatChanges(replaced,'player',replaced.player.team[0].cardId),'',
 const legacyLog = structuredClone(killed); legacyLog.log.forEach(entry=>delete entry.changes);
 assert.equal(combatChanges(legacyLog,'opponent','beast_a02'),'','Old saved matches never infer damage from formulas');
 const impactHtml=render(Arena,{match:killed, view: viewOf(killed),cards:interactiveCatalog(),onInspect(){}});
-assert.match(impactHtml,/受傷 −3/);assert.match(impactHtml,/易經/);
+// c3c713c4 (2026-10-28) hides the damage caption; truthful HP remains in
+// the health meter and accessible label. Exact loss is asserted above.
+assert.match(impactHtml, /aria-label="生命 0\/160，氣 3"/);
+assert.match(impactHtml, /style="width:0%"/);
+assert.match(impactHtml, /data-hit="true"/);
+assert.match(impactHtml, /易經/);
 const playingHtml=render(Arena,{match:shielded, view: viewOf(shielded),cards:interactiveCatalog(),onInspect(){}});
 assert.doesNotMatch(playingHtml,/你贏了|對手獲勝|必勝/);
 console.log('PASS: recorded HP/shield loss, capped healing/shields, counter overkill, old logs and replacements display honestly');
@@ -312,7 +364,12 @@ const voluntaryTurn=advance(voluntaryState,{type:'SWITCH',index:1},{type:'ATTACK
 assert.equal(presentation.performedAction(voluntaryTurn,'player'),'SWITCH');
 assert.equal(presentation.isDamagingAction(voluntaryTurn,'player'),false);
 const playbackHtml=render(Arena,{match:voluntaryTurn, view: viewOf(voluntaryTurn),cards:interactiveCatalog(),playing:true,onInspect(){}});
-assert.match(playbackHtml,/data-playback="acting"/);assert.match(playbackHtml,/data-action="SWITCH"/);
+assert.match(playbackHtml,/data-playback="acting"/);
+// 6b98bddd (2026-10-26): the player's actual fighter lives in the bottom dock.
+const switchDock = render(DockMod, { match: voluntaryTurn, view: viewOf(voluntaryTurn), cards: interactiveCatalog(), playing: true, onAction() {} });
+assert.match(switchDock, /data-active="true"[^>]*data-action="SWITCH"/);
+const switchCard = switchDock.match(/<button\b[^>]*data-action="SWITCH"[^>]*>/)?.[0];
+assert.match(switchCard, /data-rig="false"/, 'Switching never fabricates a guardian strike');
 assert.doesNotMatch(playbackHtml,/你贏了|對手獲勝/);
 console.log('PASS: typed performed actions distinguish attacks, skills, swaps, skipped actions and forced replacement');
 

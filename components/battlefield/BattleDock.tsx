@@ -14,7 +14,7 @@
  * 動畫演出中（busy）與對戰結束後列仍顯示，只是按不下去，卡片不會消失。
  */
 
-import { memo, useEffect, useRef, type CSSProperties } from 'react';
+import { memo, useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import type { Action, Match } from '@/lib/beast-game/interactive';
 import type { BattleView } from '@/lib/beast-game/battle-view';
 import { RIG_STRIKE_MS } from '@/lib/beast-game/beast-rig';
@@ -48,6 +48,9 @@ const BattleDock = memo(function BattleDock({ match, view, cards, busy = false, 
   for (const action of view?.legal ?? []) if (action.type === 'SWITCH') switches.set(action.index, action);
   const playingMatch = match.status === 'PLAYING';
   const rigState = useRigStrike(match, playing);
+  const [readyRigId, setReadyRigId] = useState<string | null>(null);
+  const rigId = rigState.teamRig?.cardId ?? null;
+  const onRigReady = useCallback((ready: boolean) => setReadyRigId(ready ? rigId : null), [rigId]);
   // 量出這一列實際的高度，交給版面當預留空間（--battle-dock-h）：內容與出戰卡列剛好不重疊、不留多餘空白
   const nav = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -91,7 +94,7 @@ const BattleDock = memo(function BattleDock({ match, view, cards, busy = false, 
               data-dock-card={fighter.cardId}
               data-active={active}
               data-defeated={fighter.defeated}
-              data-rig={active && rigState.strike}
+              data-rig={active && rigState.strike && readyRigId === fighter.cardId}
               data-rage-partner={ragePartnerId === fighter.cardId && playingMatch}
               data-action={active ? performed ?? 'NONE' : undefined}
               style={{ '--rig-ms': `${RIG_STRIKE_MS}ms`, '--action-delay': `${rigState.delayMs}ms` } as CSSProperties}
@@ -125,7 +128,7 @@ const BattleDock = memo(function BattleDock({ match, view, cards, busy = false, 
         })}
       </nav>
       {/* 白虎動畫舞台：整個畫面層級的畫布，從出戰卡跳出去、回到出戰卡 */}
-      {rigState.teamRig && <BeastRigStage rig={rigState.teamRig} playKey={rigState.playKey} delayMs={rigState.delayMs} />}
+      {rigState.teamRig && <BeastRigStage key={rigState.teamRig.cardId} rig={rigState.teamRig} playKey={rigState.playKey} delayMs={rigState.delayMs} onReady={onRigReady} />}
     </>
   );
 });
