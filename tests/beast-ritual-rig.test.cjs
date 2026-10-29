@@ -22,6 +22,8 @@ function load(relative) {
   const customRequire = id => {
     if (id.endsWith('.css')) return new Proxy({}, { get: (_, key) => String(key) });
     if (id === 'next/link') return function Link({ children, ...props }) { return React.createElement('a', props, children); };
+    // Server boundary is exercised in Node; production guards remain real.
+    if (id === 'server-only') return {};
     if (id === 'next/dynamic') return () => () => null;
     return id.startsWith('@/') ? load(id.slice(2)) : id.startsWith('.') ? load(path.resolve(path.dirname(file), id)) : require(id);
   };
@@ -41,7 +43,11 @@ assert.equal(ritualRigForBeat('beast_g_baihu', recorded('PLAYER', 12, 'beast_g_q
 assert.equal(ritualRigForBeat('beast_y21', recorded('PLAYER', 12, 'beast_y21'), 0), null);
 const reviewPage = fs.readFileSync(path.join(root, 'app/beast-game/ritual-review/page.tsx'), 'utf8');
 assert.match(reviewPage, /process\.env\.NODE_ENV !== 'development'\) notFound\(\)/);
-assert.match(reviewPage, /playSeries\(/);
+assert.match(reviewPage, /ritualReviewPageData\(/);
+const reviewBackend = fs.readFileSync(path.join(root, 'lib/server/beast-review.ts'), 'utf8');
+assert.match(reviewBackend, /import 'server-only'/);
+assert.match(reviewBackend, /playSeries\(/);
+assert.doesNotMatch(reviewBackend, /localStorage|claimReward|settleStake|saveCollection/);
 assert.doesNotMatch(reviewPage, /localStorage|claimReward|settleStake|saveCollection/);
 console.log('PASS: medium rig requires matching real player damage; zero damage, opponent and missing records do not animate; review is development-only');
 const {playSeries}=load('lib/beast-game/series.ts');
@@ -64,6 +70,14 @@ const initialEnv=process.env.NODE_ENV;
 try {
  process.env.NODE_ENV='development';
  const api=load('app/beast-game/combat-review/actions.ts');
+ const backend=load('lib/server/beast-review.ts');
+ assert.equal(backend.combatReviewPageData().cards.length,60);
+ for(const beast of ['baihu','qinglong','zhuque','xuanwu']) {
+   const data=backend.ritualReviewPageData(beast);
+   assert.equal(data.player[0].id,'beast_g_'+beast);
+   assert.equal(JSON.stringify(data.pairs),JSON.stringify(playSeries(data.player.map(c=>c.id),data.opponent.map(c=>c.id),29).pairs));
+ }
+ assert.equal(backend.ritualReviewPageData('invalid').player[0].id,'beast_g_baihu');
  for(const difficulty of ['EASY','HARD']) {
  const initial=await api.startCombatReview('baihu',difficulty);
  assert.equal(initial.match.difficulty??'EASY',difficulty);
@@ -73,6 +87,8 @@ try {
  await assert.rejects(()=>api.stepCombatReview(initial.id,0,{type:'ATTACK'}),/請等/);
  }
  process.env.NODE_ENV='production';
+ assert.throws(()=>backend.combatReviewPageData(),/僅供本機/);
+ assert.throws(()=>backend.ritualReviewPageData('baihu'),/僅供本機/);
  await assert.rejects(()=>api.startCombatReview('baihu','HARD'),/僅供本機/);
  await assert.rejects(()=>api.stepCombatReview('anything',0),/僅供本機/);
  console.log('PASS: isolated real EASY/HARD sessions, HARD boss, stale-revision rejection and production rejection');
