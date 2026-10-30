@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
+<link rel="icon" href="data:,">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>神獸戰隊 v0.7 單檔預覽｜中等模式・五元素三消戰鬥</title>
@@ -73,7 +74,9 @@ html,body{overflow-x:hidden}
 .orb-actionbar button{min-height:48px;min-width:44px;flex:1 1 30%;border-radius:8px;border:1px solid #526993;background:#263757;color:#f1f5ff;font-size:13px;line-height:1.15}
 .orb-actionbar button small{display:block;font-size:10px;opacity:.9}
 .orb-actionbar #linkFire:disabled{opacity:.45;filter:grayscale(1)}
+/* 底部動作列預留：--orb-bar-h 由下方腳本量測（含 safe-area），內容永不被蓋住 */
 .shell{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+.shell{padding-bottom:calc(var(--orb-bar-h, calc(76px + env(safe-area-inset-bottom))) + 12px)!important}html{scroll-padding-bottom:calc(var(--orb-bar-h, calc(76px + env(safe-area-inset-bottom))) + 12px)}
 #demoBadge{font-size:11px;padding:3px 8px;line-height:1.4}
 .firstPlay{margin:2px 3px}.chainCounter{margin-top:2px}.howTo{font-size:11px;color:#b4c6e7;margin:0 3px 4px}.howTo summary{cursor:pointer;min-height:24px}.howTo p{margin:4px 0;line-height:1.6}
 #linkBar:empty{display:none}
@@ -402,5 +405,6 @@ document.addEventListener('click',function(e){var t=e.target.closest&&e.target.c
 <!-- 動效包（contrib/motion，可選）：載入失敗時遊戲照常運作 -->
 <script>window.BeastMotionConfig = Object.assign({ muted: true }, window.BeastMotionConfig || {});</script>
 <script src="contrib/motion/motion.js" onerror="window.__beastMotionFailed = true; document.documentElement.classList.remove('bm-on');"></script>
+<script>/* 量測 #actionBar 實際高度（含 env(safe-area-inset-bottom)）→ --orb-bar-h */(function(){var b=document.getElementById('actionBar');if(!b)return;function set(){document.documentElement.style.setProperty('--orb-bar-h',Math.ceil(b.getBoundingClientRect().height)+'px')}set();if(window.ResizeObserver)new ResizeObserver(set).observe(b);addEventListener('resize',set);addEventListener('orientationchange',set)})();</script>
 </body>
 </html>

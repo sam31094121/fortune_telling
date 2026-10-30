@@ -132,6 +132,8 @@ function Match3Game({ init, teamIds, rule }: { init: { rng: Rng; team: Unit[]; e
       (window.__match3Events ??= []).push(pub as Match3Event); console.log('[match3]', pub);
     } else if (ev.type !== 'attack') { (window.__match3Events ??= []).push(ev); console.log('[match3]', ev); }
     const dealt = hits.reduce((s, h) => s + h.amount, 0);
+    // 顯示時序修正：放開當下就換成本步訊息（結算中），不再停留上一步的文字直到動畫結束
+    setLog(`${MATCH3_ORB_LABEL[el]}珠連 ${res.chainLength} 顆，結算中…`);
     setBusy(true);
     const frames = res.steps.map((st, i) => ({ before: i === 0 ? board : res.steps[i - 1].boardAfter, mag: i === 0 ? magic : res.steps[i - 1].magicAfter,
       cells: new Set(st.groups.flatMap((g) => g.cells.map((c) => k(c.r, c.c)))) }));
