@@ -1,0 +1,40 @@
+/*
+ * 寶珠奢華設計規範（Orb Luxury tokens）— 正式站 /beast-game/match3（BeadPolish.module.css）與 /beast-game/motion-preview 共用。
+ * 用法（CSS Modules）：在頁面根 class 寫 `composes: lux from '<相對路徑>/styles/orb-luxury-tokens.module.css';`
+ * 只放視覺 token，不含任何遊戲邏輯／數值。說明見 docs/orb-luxury-design-spec.md。
+ */
+.lux {
+  /* 底色 */
+  --ol-ink: #14121a;          /* 墨夜：頁面底 */
+  --ol-board: #1c1922;        /* 盤面／面板底 */
+  --ol-leather: #3a2a20;      /* 皮革：次要面板、按鈕底 */
+  /* 金 */
+  --ol-gold: #d6b86a;         /* 卡框金、細框 */
+  --ol-gold-deep: #8a6c33;    /* 深金：框陰影端 */
+  --ol-gold-pale: #f6d98f;    /* 淡金：框高光端 */
+  --ol-mgold: #ffe3a1;        /* 魔法珠金、強調字 */
+  /* 字 */
+  --ol-bone: #e8e1d3;         /* 主文字 */
+  --ol-ivory: #d9cfbb;        /* 次文字 */
+  /* 衍生 */
+  --ol-hair: color-mix(in srgb, var(--ol-gold) 34%, transparent);   /* 1px 髮絲金框 */
+  --ol-hair-soft: color-mix(in srgb, var(--ol-gold) 14%, transparent);
+  --ol-shadow: 0 10px 28px color-mix(in srgb, var(--ol-ink) 70%, transparent);
+  --ol-rim: linear-gradient(145deg, var(--ol-gold-pale), var(--ol-gold-deep) 52%, var(--ol-gold) 100%);
+  --ol-rim-magic: linear-gradient(145deg, var(--ol-mgold), var(--ol-gold) 45%, var(--ol-gold-deep) 70%, var(--ol-gold-pale));
+  --ol-panel: linear-gradient(180deg, color-mix(in srgb, var(--ol-gold) 6%, var(--ol-board)), var(--ol-ink));
+  /* 尺寸 */
+  --ol-radius-lg: 14px;
+  --ol-radius-md: 10px;
+  --ol-radius-sm: 6px;
+  --ol-gap: 8px;
+  --ol-touch: 44px;
+  --ol-safe-bottom: env(safe-area-inset-bottom, 0px);
+  /* 動態 */
+  --ol-ease: cubic-bezier(.2, .8, .3, 1);
+  --ol-fast: 160ms;
+  --ol-slow: 420ms;
+  /* 字體 */
+  --ol-font-title: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  --ol-font-ui: system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+}
