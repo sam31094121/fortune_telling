@@ -1,0 +1,114 @@
+/*
+ * orb-battle 精品化樣式（2026-10-30）｜對齊 /beast-game/match3 BeadBattle 的視覺系統。
+ * 只改外觀：不動 engine.js、遊戲數值、卡圖、聲音邏輯與 #actionBar 版面。
+ * 色票全部取自 match3：墨夜 #14121a／盤面 #1c1922／骨白 #e8e1d3／象牙 #d9cfbb／魔法珠金 #ffe3a1／
+ * 卡框金 #d6b86a／深金 #8a6c33／淡金 #f6d98f／印章 #b8893a；元素色同 lib/beast-game/element-palette.ts。
+ * 寶珠做法同 components/battlefield/bead/BeadPolish.module.css：金邊外框（rim）＋元素色珠體（body）＋柔光（sheen）＋置中白字，
+ * 形狀＝色＋形雙重編碼：風＝圓、空＝菱、水＝水滴、火＝三角、地＝圓角方。
+ * 前綴 :root .shell.shell 用來穩定蓋過 motion.css（.bm-on …）而不必 !important。
+ */
+:root { --lx-ink: #14121a; --lx-board: #1c1922; --lx-bone: #e8e1d3; --lx-ivory: #d9cfbb; --lx-gold: #d6b86a; --lx-gold-deep: #8a6c33; --lx-gold-pale: #f6d98f; --lx-mgold: #ffe3a1; --lx-seal: #b8893a;
+  --lx-frame: linear-gradient(145deg, var(--lx-gold-pale), var(--lx-gold-deep) 48%, var(--lx-gold) 100%);
+  --lx-hair: color-mix(in srgb, var(--lx-gold) 38%, transparent); color: var(--lx-bone); background: var(--lx-ink); }
+:root body { background: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--lx-gold-deep) 16%, var(--lx-board)), var(--lx-ink) 62%); color: var(--lx-bone); }
+:root .wind { --gem: #54d9ad; } :root .space { --gem: #bd97ff; } :root .water { --gem: #68b9ff; } :root .fire { --gem: #ff747a; } :root .earth { --gem: #efca77; }
+
+/* ── 文字：骨白／象牙，強調用柔金 ── */
+:root .shell.shell { color: var(--lx-bone); }
+:root .shell.shell .header h1 { color: var(--lx-mgold); font-weight: 700; letter-spacing: .12em; text-shadow: 0 1px 0 color-mix(in srgb, var(--lx-ink) 80%, transparent); }
+:root .shell.shell .tag { color: color-mix(in srgb, var(--lx-gold) 80%, var(--lx-ivory)); letter-spacing: .22em; }
+:root .shell.shell .subheading, :root .shell.shell .howTo, :root .shell.shell .linkHint, :root .shell.shell .firstPlay { color: var(--lx-ivory); }
+:root .shell.shell .statusLine { color: #f3dfb2; font-weight: 600; }
+:root .shell.shell .chainCounter { color: var(--lx-mgold); }
+:root .shell.shell #damageTotal, :root .shell.shell #battleStatus { color: var(--lx-mgold); }
+:root .shell.shell .log { color: var(--lx-ivory); }
+:root .shell.shell .notice { background: color-mix(in srgb, var(--lx-ink) 70%, var(--lx-board)); border: 1px solid var(--lx-hair); color: var(--lx-ivory); }
+:root .shell.shell .pill, :root .shell.shell .soundToggle { background: color-mix(in srgb, var(--lx-ink) 60%, var(--lx-board)); border: 1px solid color-mix(in srgb, var(--lx-gold) 55%, transparent); color: var(--lx-gold-pale); }
+
+/* ── 收藏卡：厚金框＋細內線＋墨底（我方／敵方同一套） ── */
+:root .shell.shell .teamCard, :root .shell.shell .enemyCard {
+  border: 2px solid transparent; border-radius: 10px; padding: 4px 3px 5px;
+  background: linear-gradient(180deg, var(--lx-board), var(--lx-ink)) padding-box, var(--lx-frame) border-box;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lx-gold-deep) 70%, transparent), 0 4px 10px color-mix(in srgb, var(--lx-ink) 80%, transparent); }
+:root .shell.shell .enemyCard { padding-top: 4px; }
+:root .shell.shell .enemyCard::before { display: none; }
+:root .shell.shell .teamCard .avatar, :root .shell.shell .enemyCard .avatar {
+  width: 100%; height: auto; aspect-ratio: 1; margin: 0; border-radius: 6px; overflow: hidden; animation: none;
+  background: color-mix(in srgb, var(--gem) 22%, var(--lx-ink));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--lx-gold) 70%, transparent), inset 0 0 0 1px color-mix(in srgb, var(--lx-ink) 60%, transparent); }
+:root .shell.shell .enemyCard .avatar::after { display: none; }
+:root .shell.shell .avatar img { border-radius: 6px !important; }
+:root .shell.shell .teamCard .name, :root .shell.shell .enemyCard .name { color: var(--lx-bone); font-weight: 600; }
+:root .shell.shell .hpTxt { color: var(--lx-ivory); }
+:root .shell.shell .bar { background: color-mix(in srgb, var(--lx-bone) 15%, transparent); }
+:root .shell.shell .bar i { background: #9a6b5a; }
+:root .shell.shell .bar.en i { background: linear-gradient(90deg, var(--lx-gold-deep), var(--lx-gold)); }
+:root .shell.shell .enemyCard .cd { background: color-mix(in srgb, var(--lx-ink) 85%, transparent); color: var(--lx-gold-pale); border: 1px solid var(--lx-hair); }
+:root .shell.shell .enemyCard .cd.soon { background: color-mix(in srgb, #ff747a 45%, var(--lx-ink)); color: var(--lx-bone); }
+:root .shell.shell .demoTag { color: var(--lx-gold-pale); }
+/* 選取／目標／連線：淡金外圈＋印章色，不用螢光 */
+:root .shell.shell .teamCard.selected, :root .shell.shell .teamCard.isLead, :root .shell.shell .enemyCard.target {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lx-gold) 10%, var(--lx-board)), var(--lx-ink)) padding-box, linear-gradient(145deg, var(--lx-mgold), var(--lx-gold) 50%, var(--lx-seal)) border-box;
+  box-shadow: inset 0 0 0 1px var(--lx-gold-pale), 0 0 0 1px color-mix(in srgb, var(--lx-gold-pale) 45%, transparent), 0 4px 12px color-mix(in srgb, var(--lx-ink) 80%, transparent); }
+:root .shell.shell .enemyCard.target .avatar { box-shadow: 0 0 0 1px var(--lx-gold-pale); }
+:root .shell.shell .teamCard.linked { box-shadow: inset 0 0 0 2px var(--lx-gold-pale); }
+:root .shell.shell .teamCard .linkNo { background: var(--lx-gold-pale); color: var(--lx-ink); }
+:root .shell.shell .teamCard .leadTag.lead { background: linear-gradient(135deg, var(--lx-gold-pale), var(--lx-gold) 55%, var(--lx-gold-deep)); color: var(--lx-ink); }
+:root .shell.shell .teamCard .leadTag.sup { background: var(--lx-ink); color: var(--lx-ivory); border-color: var(--lx-hair); }
+:root .shell.shell .skill { background: color-mix(in srgb, var(--lx-ink) 70%, var(--lx-board)); border: 1px solid color-mix(in srgb, var(--lx-gold) 45%, transparent); color: var(--lx-ivory); }
+:root .shell.shell .teamCard.ready .skill { background: linear-gradient(135deg, var(--lx-gold-pale), var(--lx-gold) 55%, var(--lx-gold-deep)); color: var(--lx-ink); border-color: var(--lx-mgold); font-weight: 700; }
+
+/* ── 盤面：墨底＋細金框 ── */
+:root .shell.shell .boardWrap { background: radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--lx-gold) 7%, var(--lx-board)), var(--lx-ink) 92%);
+  border: 1px solid color-mix(in srgb, var(--lx-gold) 40%, transparent);
+  box-shadow: inset 0 0 0 3px var(--lx-ink), inset 0 0 0 4px color-mix(in srgb, var(--lx-gold) 14%, transparent), 0 10px 28px color-mix(in srgb, var(--lx-ink) 70%, transparent); }
+:root .shell.shell .legend { color: var(--lx-ivory); }
+
+/* ── 寶珠：金邊實體寶石（rim＝.stone::before，body＝.stone::after，字在上） ── */
+:root .shell.shell .gem { background: transparent; color: #fff; }
+:root .shell.shell .gem::before { content: none; }
+:root .shell.shell .gem .stone { position: relative; width: 84%; height: 84%; border: 0; border-radius: 0; background: none; box-shadow: none; clip-path: none; transform: none; filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--lx-ink) 85%, transparent)); }
+:root .shell.shell .gem .stone::before, :root .shell.shell .gem .stone::after { content: ""; position: absolute; clip-path: none; animation: none; opacity: 1; mix-blend-mode: normal; }
+:root .shell.shell .gem .stone::before { inset: 0; background: var(--lx-frame); }
+:root .shell.shell .gem .stone::after { inset: 2px;
+  background: radial-gradient(28% 16% at 36% 24%, color-mix(in srgb, var(--lx-bone) 80%, transparent), transparent 100%),
+    radial-gradient(circle at 34% 26%, color-mix(in srgb, var(--lx-bone) 50%, var(--gem)) 0, color-mix(in srgb, var(--gem) 70%, var(--lx-ink)) 46%, color-mix(in srgb, var(--gem) 34%, var(--lx-ink)) 100%); }
+:root .shell.shell .gem .stone > span { position: relative; transform: none; z-index: 2; color: #fff; font-weight: 700; font-size: clamp(13px, 3.6vw, 17px); letter-spacing: .02em;
+  text-shadow: 0 1px 2px color-mix(in srgb, var(--lx-ink) 90%, transparent), 0 0 1px var(--lx-ink); }
+/* 形狀 */
+:root .shell.shell .gem.wind .stone::before, :root .shell.shell .gem.wind .stone::after { border-radius: 50%; }
+:root .shell.shell .gem.space .stone::before, :root .shell.shell .gem.space .stone::after { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+:root .shell.shell .gem.space .stone::before { inset: -6%; }
+:root .shell.shell .gem.space .stone::after { inset: calc(-6% + 3px); }
+:root .shell.shell .gem.water .stone::before, :root .shell.shell .gem.water .stone::after { border-radius: 50% 0 50% 50%; transform: rotate(-45deg) scale(.8); }
+:root .shell.shell .gem.water .stone::after { inset: 2.5px; }
+:root .shell.shell .gem.water .stone > span { top: 6%; }
+:root .shell.shell .gem.fire .stone::before, :root .shell.shell .gem.fire .stone::after { clip-path: polygon(50% 2%, 98% 92%, 2% 92%); }
+:root .shell.shell .gem.fire .stone::before { inset: -6%; }
+:root .shell.shell .gem.fire .stone::after { inset: calc(-6% + 4px); }
+:root .shell.shell .gem.fire .stone > span { top: 14%; }
+:root .shell.shell .gem.earth .stone::before, :root .shell.shell .gem.earth .stone::after { border-radius: 20%; }
+:root .shell.shell .gem.earth .stone::before { inset: 5%; }
+:root .shell.shell .gem.earth .stone::after { inset: calc(5% + 2px); }
+/* 狀態：選取上浮、拖曳路徑淡金描邊（不發光） */
+:root .shell.shell .gem.sel .stone, :root .shell.shell .gem.inPath .stone { transform: translateY(-2px) scale(1.06); filter: drop-shadow(0 0 0 var(--lx-gold-pale)) drop-shadow(0 3px 4px color-mix(in srgb, var(--lx-ink) 85%, transparent)) brightness(1.12); }
+:root .shell.shell .gem.inPath { outline: 0; transform: none; }
+/* 魔法珠：金箔外框＋徽章 */
+:root .shell.shell .gem.magic .stone { filter: drop-shadow(0 0 3px color-mix(in srgb, var(--lx-mgold) 55%, transparent)) drop-shadow(0 2px 3px color-mix(in srgb, var(--lx-ink) 85%, transparent)); box-shadow: none; }
+:root .shell.shell .gem.magic .stone::before { background: linear-gradient(145deg, var(--lx-mgold), var(--lx-gold) 45%, var(--lx-gold-deep) 70%, var(--lx-gold-pale)); }
+:root .shell.shell .gem .mp { z-index: 3; background: linear-gradient(135deg, var(--lx-gold-pale), var(--lx-gold) 55%, var(--lx-gold-deep)); color: var(--lx-ink); border: 0; border-radius: 9px; }
+:root .shell.shell .dragSvg polyline { stroke: var(--lx-gold-pale); opacity: .8; }
+:root .shell.shell .linkSvg polyline { stroke: var(--lx-gold-pale); filter: none; }
+
+/* ── 底部動作列：只換色與框線，版面不動 ── */
+:root .shell.shell .orb-actionbar { background: linear-gradient(180deg, color-mix(in srgb, var(--lx-ink) 90%, transparent), var(--lx-ink)); border-top: 1px solid color-mix(in srgb, var(--lx-gold) 45%, transparent); }
+:root .shell.shell .orb-actionbar button { background: linear-gradient(180deg, var(--lx-board), var(--lx-ink)); border: 1px solid color-mix(in srgb, var(--lx-gold) 60%, transparent); color: var(--lx-bone); }
+:root .shell.shell .orb-actionbar button.on, :root .shell.shell .orb-actionbar #linkFire:not(:disabled) { background: linear-gradient(135deg, var(--lx-gold-pale), var(--lx-gold) 55%, var(--lx-gold-deep)); color: var(--lx-ink); border-color: var(--lx-mgold); }
+:root .shell.shell .footer > button { background: color-mix(in srgb, var(--lx-ink) 70%, var(--lx-board)); border: 1px solid color-mix(in srgb, var(--lx-gold) 45%, transparent); color: var(--lx-ivory); }
+
+/* 結算框 */
+:root .resultBox { background: linear-gradient(180deg, var(--lx-board), var(--lx-ink)) padding-box, var(--lx-frame) border-box; border: 2px solid transparent; color: var(--lx-bone); }
+:root .resultBox p { color: var(--lx-ivory); }
+:root .resultBox button { background: linear-gradient(135deg, var(--lx-gold-pale), var(--lx-gold) 55%, var(--lx-gold-deep)); color: var(--lx-ink); }
+:root .result.won h2 { color: var(--lx-mgold); }
+:root .shell.shell .gem .stone img { transform: none; position: relative; z-index: 2; }
