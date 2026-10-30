@@ -147,7 +147,9 @@
     "test:ghost-asura-viewport": "npx --yes tsx tests/ghost-asura-viewport-consistency-08014.test.mjs",
     "check:ghost-asura:types": "tsc -p tsconfig.ghost-asura.json",
     "test:ghost-asura-boundary": "node tests/ghost-asura-dependency-boundary.test.cjs",
-    "check:ghost-asura": "npm run check:ghost-asura:types && npm run test:ghost-asura-boundary && npm run test:ghost-asura-skill && node tests/ghost-asura-stability.test.cjs && node tests/ghost-asura-page-flow.test.cjs && node tests/ghost-asura-customer-copy.test.cjs && node tests/ghost-asura-layout.test.cjs && node tests/ghost-asura-home-entry.test.cjs && npm run test:ghost-asura-wiring && npm run test:ghost-asura-viewport"
+    "check:ghost-asura": "npm run check:ghost-asura:types && npm run test:ghost-asura-boundary && npm run test:ghost-asura-skill && node tests/ghost-asura-stability.test.cjs && node tests/ghost-asura-page-flow.test.cjs && node tests/ghost-asura-customer-copy.test.cjs && node tests/ghost-asura-layout.test.cjs && node tests/ghost-asura-home-entry.test.cjs && npm run test:ghost-asura-wiring && npm run test:ghost-asura-viewport",
+    "test:no-old-cards": "node tests/no-old-cards.test.cjs",
+    "test:beast-match3": "node scripts/beast-build.mjs && node tests/beast-match3-core.test.cjs && node tests/beast-match3-outcome.test.cjs && node tests/beast-match3-team.test.cjs && node tests/beast-match3-no-old-cards.test.cjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",
