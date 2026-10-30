@@ -5,7 +5,7 @@
  * 五元素各一張卡：消哪色充哪張卡能量；只有主屬性相同的卡出手。敵方每 3 步反擊。
  * 卡面只引用 BeastCardFace（全站統一完整卡面），數值只讀 card-face-stats（不改）。
  */
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { BeastCardFace } from './BeastCardTile';
 import { playableCards } from '@/lib/beast-game/registry';
 import { CARD_FACE_STATS } from '@/lib/beast-game/card-face-stats';
@@ -16,11 +16,19 @@ import {
   DEFAULT_SAME_ELEMENT_RULE, attackingTeam, leadIds, chooseLead, type LeadChoice, shareEnergy, validTeamIds, type SameElementRule,
   type Board, type Cell, type MagicGrid, type Match3Event, type Match3Fighter, type Rng,
 } from '@/lib/beast-game/match3';
-import { DragPathSvg, dragHint, useDragChain } from './useDragChain';
+import { dragHint, useDragChain } from './useDragChain';
 import styles from './Match3Board.module.css';
+import { BeadLink } from './bead/BeadLink';
+import { useBannerQueue } from './bead/useBannerQueue';
+import { BeadBurst, CascadeLabel, type BurstCell } from './bead/BeadBurst';
+import { BEAD_TIMING, stepDuration } from '@/lib/beast-game/match3/bead-visual-config';
+import bp from './bead/BeadPolish.module.css';
+import { BoardCell } from './bead/BoardCell';
+import { SoundToggle } from './bead/SoundToggle';
+import { getBeadSound } from '@/lib/beast-game/match3/bead-sound';
 
 interface Unit extends Match3Fighter { name: string; thumbnail: string; maxHp: number; energy: number }
-declare global { interface Window { __match3Events?: Match3Event[] } }
+import type {} from '@/lib/beast-game/match3/event-bus'; // window.__match3Events 的共用宣告
 
 export const ORB_COLOR: Record<BeastElement, string> = { AIR: '#2f9e7e', SPACE: '#8d6fd1', WATER: '#2c74d0', FIRE: '#e0532c', EARTH: '#c39324' }; // 10/30：與 CSS 珠色 --c 同一組，拖曳線／能量條／珠子顏色一致;
 
@@ -41,20 +49,7 @@ export function pickLineup(rng: Rng, teamIds?: readonly string[] | null): { team
   return { team, enemy: { id: e.id, name: e.name, element: e.element, thumbnail: e.art.thumbnail, attack: es.attack, hp, maxHp: hp, energy: 0 } };
 }
 
-const ORB_CLASS: Record<BeastElement, string> = { AIR: styles.air, SPACE: styles.space, WATER: styles.water, FIRE: styles.fire, EARTH: styles.earth };
 const k = (r: number, c: number) => r * 1000 + c;
-
-/** 10/30 打磨：單格 memo，拖曳時只重繪狀態有變的格子，減少掉幀。規則不變。 */
-const OrbCell = memo(function OrbCell({ r, c, e, mp, sel, flash, shake, drop }: { r: number; c: number; e: BeastElement; mp: number; sel: boolean; flash: boolean; shake: boolean; drop: boolean }) {
-  const cls = [styles.orb, ORB_CLASS[e], sel ? styles.sel : '', flash ? styles.flash : '', shake ? styles.shake : '', drop ? styles.drop : '', mp > 0 ? styles.magic : ''].join(' ');
-  return (
-    <div role="gridcell" data-r={r} data-c={c} data-el={e} data-magic={mp || undefined} className={cls}
-      aria-label={`${MATCH3_ORB_LABEL[e]}${mp ? `魔法珠威力${mp}` : '珠'}`}>
-      <span className={styles.gem} aria-hidden="true" /><span className={styles.lbl} aria-hidden="true">{MATCH3_ORB_LABEL[e]}</span>
-      {mp > 0 && <span className={styles.power} aria-hidden="true">{mp}</span>}
-    </div>
-  );
-});
 
 function changedCells(prev: Board, next: Board): Set<number> {
   const s = new Set<number>();
@@ -86,7 +81,7 @@ function Match3Game({ init, teamIds, rule }: { init: { rng: Rng; team: Unit[]; e
   const [flash, setFlash] = useState<Set<number>>(new Set());
   const [shake, setShake] = useState<Set<number>>(new Set());
   const [drop, setDrop] = useState<Set<number>>(new Set());
-  const [banner, setBanner] = useState<{ text: string; kind: 'magic' | 'skill' | 'counter' | 'info' } | null>(null);
+  const [banner, setBanner, showBanner] = useBannerQueue(); // v3：橫幅排隊，不重疊
   const [hitTeam, setHitTeam] = useState<string | null>(null);
   const [attacked, setAttacked] = useState<Set<string>>(new Set());
   const [chosen, setChosen] = useState<LeadChoice>({});
@@ -99,10 +94,12 @@ function Match3Game({ init, teamIds, rule }: { init: { rng: Rng; team: Unit[]; e
   const [log, setLog] = useState('手指或滑鼠按住一顆寶珠，拖過相鄰的同色珠，放開就發動。');
   const [busy, setBusy] = useState(false);
   const [shortMsg, setShortMsg] = useState('');
+  const [burst, setBurst] = useState<{ id: number; cells: BurstCell[] } | null>(null);
+  const [stepNo, setStepNo] = useState(0);
+  const [popOrder, setPopOrder] = useState<Map<number, number>>(new Map());
   const timers = useRef<number[]>([]);
   const later = (fn: () => void, ms: number) => { timers.current.push(window.setTimeout(fn, ms)); };
   useEffect(() => () => timers.current.forEach((t) => window.clearTimeout(t)), []);
-  const showBanner = (text: string, kind: 'magic' | 'skill' | 'counter' | 'info') => { setBanner({ text, kind }); later(() => setBanner(null), 1400); };
 
   const teamHp = team.reduce((s, u) => s + Math.max(0, u.hp), 0);
   const teamMax = team.reduce((s, u) => s + u.maxHp, 0);
@@ -121,6 +118,7 @@ function Match3Game({ init, teamIds, rule }: { init: { rng: Rng; team: Unit[]; e
     if (!res.valid) {
       setShake(new Set(path.map((p) => k(p.r, p.c)))); later(() => setShake(new Set()), 340);
       const why = path.length < 3 ? `只連了 ${path.length} 顆，至少要 3 顆同色相連才會發動。` : '這條路線不成立，再試一次。';
+      getBeadSound()?.cancel();
       setLog(why); setShortMsg(why); later(() => setShortMsg(''), 1800);
       return;
     }
@@ -137,9 +135,18 @@ function Match3Game({ init, teamIds, rule }: { init: { rng: Rng; team: Unit[]; e
     setBusy(true);
     const frames = res.steps.map((st, i) => ({ before: i === 0 ? board : res.steps[i - 1].boardAfter, mag: i === 0 ? magic : res.steps[i - 1].magicAfter,
       cells: new Set(st.groups.flatMap((g) => g.cells.map((c) => k(c.r, c.c)))) }));
-    frames.forEach((fr, i) => later(() => { setBoard(fr.before); setMagic(fr.mag); setFlash(fr.cells); }, i * 300));
+    const pathIdx = new Map(path.map((p, i) => [k(p.r, p.c), i]));
+    const starts = frames.reduce<number[]>((a, _fr, i) => [...a, i === 0 ? 0 : a[i - 1] + stepDuration(frames[i - 1].cells.size)], []);
+    const total = starts[starts.length - 1] + stepDuration(frames[frames.length - 1].cells.size);
+    frames.forEach((fr, i) => later(() => {
+      const order = i === 0 ? pathIdx : new Map([...fr.cells].map((x, j) => [x, j]));
+      getBeadSound()?.chime(fr.cells.size);
+      setBoard(fr.before); setMagic(fr.mag); setFlash(fr.cells); setPopOrder(order); setStepNo(i + 1);
+      setBurst({ id: Date.now() + i, cells: [...fr.cells].map((x) => ({ r: Math.floor(x / 1000), c: x % 1000, el: fr.before[Math.floor(x / 1000)][x % 1000], order: order.get(x) ?? 0 })) });
+    }, starts[i]));
     later(() => {
-      setFlash(new Set()); setDrop(changedCells(board, res.board)); later(() => setDrop(new Set()), 360);
+      setFlash(new Set()); setDrop(changedCells(board, res.board)); later(() => getBeadSound()?.thud(), BEAD_TIMING.fallMs); later(() => setDrop(new Set()), BEAD_TIMING.fallMs + BEAD_TIMING.fallRowStaggerMs * 5);
+      later(() => { setBurst(null); setStepNo(0); }, BEAD_TIMING.stepLabelMs);
       setBoard(res.board); setMagic(res.magic); setBusy(false);
       const nextEnemyHp = Math.max(0, enemy.hp - dealt);
       setEnemy({ ...enemy, hp: nextEnemyHp });
@@ -155,8 +162,10 @@ function Match3Game({ init, teamIds, rule }: { init: { rng: Rng; team: Unit[]; e
       if (res.steps.length > 1) msg += `，連鎖 ${res.steps.length} 段`;
       if (res.magicTriggered.length) msg += `，引爆魔法珠（威力 ${res.magicTriggered.reduce((s, t) => s + t.power, 0)}）`;
       if (res.chainLength > NORMAL_POWER_CAP) msg += `（普通威力上限 ${NORMAL_POWER_CAP} 顆）`;
+      if (res.skill5) getBeadSound()?.skill5();
+      if (res.magicSpawn) later(() => getBeadSound()?.magic(), res.skill5 ? 900 : 0);
       if (res.skill5) showBanner(`五珠技！${lbl}屬性卡能量集滿`, 'skill');
-      else if (res.magicSpawn) showBanner(`生成${lbl}魔法珠・威力 ${res.magicSpawn.power}`, 'magic');
+      if (res.magicSpawn) showBanner(`生成${lbl}魔法珠・威力 ${res.magicSpawn.power}`, 'magic');
       else if (res.magicTriggered.length) showBanner('魔法珠引爆！能量集滿', 'skill');
       if (res.magicSpawn) msg += `，生成魔法珠（威力 ${res.magicSpawn.power}）`;
       if (res.reshuffled) msg += '；沒有可走的步，已重新洗盤';
@@ -172,7 +181,7 @@ function Match3Game({ init, teamIds, rule }: { init: { rng: Rng; team: Unit[]; e
       }
       setTeam(nextTeam);
       setLog(msg + '。');
-    }, frames.length * 300);
+    }, total);
   };
 
   /** 點隊員：同屬性多張且不是主攻＝改當主攻（能量滿也一併發動技能）；其餘照舊（能量滿發動、不滿提示）。 */
@@ -201,10 +210,12 @@ function Match3Game({ init, teamIds, rule }: { init: { rng: Rng; team: Unit[]; e
   const dragEl = drag.path.length ? board[drag.path[0].r][drag.path[0].c] : null;
   const hint = dragEl ? dragHint(drag.path.length, MATCH3_ORB_LABEL[dragEl], NORMAL_POWER_CAP, MAGIC_ORB_MIN_LENGTH, SKILL5_LENGTH) : '';
   const onPath = new Set(drag.path.map((p) => k(p.r, p.c)));
+  const prevLen = useRef(0);
+  useEffect(() => { const n = drag.path.length; if (n > prevLen.current) getBeadSound()?.tick(n); prevLen.current = n; }, [drag.path.length]);
   const pct = (a: number, b: number) => `${Math.max(0, Math.min(100, Math.round((a / b) * 100)))}%`;
 
   return (
-    <section className={styles.wrap} aria-label="五元素三消戰場">
+    <section className={`${styles.wrap} ${bp.lux}`} aria-label="五元素三消戰場">
       <div className={styles.enemy}>
         <div className={styles.enemyCard}><BeastCardFace card={{ id: enemy.id, name: enemy.name, thumbnail: enemy.thumbnail, element: enemy.element }} /></div>
         <div className={styles.enemyInfo}>
@@ -220,14 +231,18 @@ function Match3Game({ init, teamIds, rule }: { init: { rng: Rng; team: Unit[]; e
 
       <p className={styles.hint} data-testid="match3-hint" aria-live="polite">{hint || shortMsg || '拖滿 4 顆生成魔法珠，剛好 5 顆觸發五珠技'}</p>
 
-      <div ref={drag.ref} className={styles.board} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" {...drag.handlers}>
+      <div ref={drag.ref} className={`${styles.board} ${bp.board}`} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" {...drag.handlers}>
         {board.map((row, r) => row.map((e, c) => { const kk = k(r, c); return (
-          <OrbCell key={`${r}-${c}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} />); }))}
-        <DragPathSvg points={drag.points} color={dragEl ? ORB_COLOR[dragEl] : '#fff'} />
-        {banner && <div className={`${styles.banner} ${styles['b_' + banner.kind]}`} data-testid="match3-banner" role="status">{banner.text}</div>}
+          <BoardCell key={`${r}-${c}`} r={r} c={c} e={e} color={ORB_COLOR[e]} mp={magic[r]?.[c] ?? 0} sel={onPath.has(kk)} pop={flash.has(kk)}
+            shake={shake.has(kk)} fall={drop.has(kk)} order={popOrder.get(kk) ?? 0} />); }))}
+        <BeadLink points={drag.points} el={dragEl} />
+        {burst && <BeadBurst key={burst.id} cells={burst.cells} />}
+        <CascadeLabel step={stepNo} />
+        {banner && <div className={`${styles.banner} ${styles['b_' + banner.kind]} ${banner.kind === 'magic' || banner.kind === 'skill' ? bp.leaf : ''}`} data-testid="match3-banner" role="status">{banner.text}</div>}
       </div>
 
       <p className={styles.log} aria-live="polite" data-testid="match3-log">{log}</p>
+      <SoundToggle />
 
       <div className={styles.team}>
         {team.map((u) => {

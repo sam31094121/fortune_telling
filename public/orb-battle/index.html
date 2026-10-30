@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>神獸戰隊 v0.7 單檔預覽｜中等模式・五元素三消戰鬥</title>
+  <style>
+:root{font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;color:#f4f5ff;background:#0a1020;--wind:#54d9ad;--space:#bd97ff;--water:#68b9ff;--fire:#ff747a;--earth:#efca77}
+*{box-sizing:border-box} body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 4%,#253052,#0a1020 66%)}
+.shell{max-width:650px;margin:0 auto;padding:14px 12px 24px}.header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 4px 10px}.header h1{font-size:23px;margin:3px 0 0;letter-spacing:1px}.tag{font-size:10px;letter-spacing:1.5px;color:#b4c6e7}.pill{white-space:nowrap;border:1px solid #596a8c;padding:8px 10px;border-radius:30px;font-size:12px;color:#d5e5ff}.notice{border:1px solid #5e5a40;background:#262315;border-radius:10px;padding:8px 12px;color:#eed69b;font-size:12px;margin:4px 0 14px}.notice.real{border-color:#3e776b;background:#142f2b;color:#b8f1e2}
+/* ---- 重建區段 開始：原貼文此處約 2065 字被省略，以下依 HTML 結構重建 ---- */
+.subheading{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#b4c6e7;margin:8px 3px 6px}
+.enemyRow,.teamRow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.enemyCard,.teamCard{position:relative;min-height:44px;border:1px solid #3c4a6c;background:#151f38;border-radius:10px;padding:7px 3px;text-align:center;cursor:pointer;color:inherit;font:inherit}
+.enemyCard.target{border-color:#ff9fa3;box-shadow:0 0 0 1px #ff9fa3 inset}.teamCard.selected{border-color:#fff2ac;box-shadow:0 0 0 1px #fff2ac inset}
+.enemyCard.dead,.teamCard.dead{opacity:.35}
+.avatar{height:46px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;background:radial-gradient(circle at 40% 30%,#ffffff55,var(--gem) 45%,#101523);color:#fff;text-shadow:0 1px 3px #000a}
+.name{font-size:10px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar{height:5px;border-radius:3px;background:#0b1224;margin-top:4px;overflow:hidden}.bar i{display:block;height:100%;background:#ff747a}.bar.en i{background:#efca77}
+.demoTag{position:absolute;top:2px;left:3px;font-size:8px;color:#eed69b;letter-spacing:.5px}
+.statusLine{min-height:22px;font-size:12px;color:#d5e5ff;text-align:center;margin:2px 0 8px}
+.boardWrap{border:1px solid #3c4a6c;border-radius:14px;padding:6px;background:#0d1530}
+.board{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;touch-action:none;user-select:none;-webkit-user-select:none}
+.gem{position:relative;aspect-ratio:1;min-height:44px;border-radius:10px;border:0;background:#141d36;display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;color:#fff}
+.gem.sel{background:#3a456b}.gem.pop{animation:pop 260ms ease-out}@keyframes pop{0%{transform:scale(.4);opacity:.2}100%{transform:scale(1);opacity:1}}
+.gem::before{content:"";posi
+/* ---- 重建區段 結束；下行起接回原文 ---- */
+tion:absolute;inset:6%;border-radius:10px;background:var(--gem);opacity:.18;filter:blur(5px)}.gem .stone{width:75%;height:75%;display:flex;justify-content:center;align-items:center;border-radius:24% 45% 28% 45%;border:1px solid #ffffff8c;background:linear-gradient(145deg,#ffffffb0,var(--gem) 24%,var(--gem) 69%,#101523);box-shadow:inset 3px 4px 5px #ffffff55,inset -3px -4px 6px #0008,0 3px 5px #0006;transform:rotate(45deg);overflow:hidden}.gem .stone span{font-size:clamp(12px,3.2vw,20px);transform:rotate(-45deg);text-shadow:0 1px 3px #000a;font-weight:900}.gem .stone img{width:100%;height:100%;object-fit:contain;transform:rotate(-45deg)}.gem.focus{outline:2px solid #fff2ac;outline-offset:-3px}.gem:focus-visible{outline:3px solid white}.wind{--gem:var(--wind)}.space{--gem:var(--space)}.water{--gem:var(--water)}.fire{--gem:var(--fire)}.earth{--gem:var(--earth)}.legend{display:flex;justify-content:space-around;gap:8px;padding:9px 0;font-size:12px;color:#bdcbe5}.legend span{display:flex;gap:5px;align-items:center}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gem)}
+.teamCard .avatar{height:54px}.skill{margin-top:7px;width:95%;border:1px solid #8495be;background:#283759;color:#e7edff;padding:5px 1px;border-radius:6px;font-size:10px;cursor:pointer}.skill:disabled{opacity:.35;cursor:default}.teamCard.ready .skill{background:#66512f;color:#fff1c5;border-color:#e8ba69}.footer{margin-top:14px;display:flex;gap:12px;align-items:flex-start}.footer>button{background:#263757;border:1px solid #526993;color:#f1f5ff;border-radius:8px;padding:10px 12px;white-space:nowrap}.log{flex:1;font-size:11px;line-height:1.7;color:#a9bada;max-height:95px;overflow:auto}.effectLayer{position:fixed;inset:0;z-index:20;pointer-events:none;overflow:hidden}.projectile{position:absolute;border-radius:100%;width:13px;height:13px;background:var(--gem);box-shadow:0 0 9px 4px var(--gem);transition:transform 330ms ease-in,opacity 330ms}.hit{animation:hit 350ms ease-out}.attacking{animation:attack 350ms ease-out}@keyframes hit{50%{filter:brightness(2.3);transform:translateY(-5px)}}@keyframes attack{50%{transform:translateY(-9px) scale(1.07)}}
+@media(max-width:390px){.shell{padding:9px 6px}.enemyRow,.teamRow{gap:3px}.name{font-size:9px}.gem{border-radius:7px}.board{gap:3px}.teamCard,.enemyCard{padding:6px 1px}.avatar{height:40px}.teamCard .avatar{height:42px}.header h1{font-size:19px}}
+
+.firstPlay{font-size:12px;line-height:1.6;color:#cad9fa;margin:7px 3px;text-align:center}.gem:focus-visible,.enemyCard:focus-visible,.teamCard:focus-visible,.skill:focus-visible{outline:2px solid #fff;outline-offset:2px}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+/* 重建補充：按鈕觸控尺寸 */
+.footer>button,.skill{min-height:44px}.footer>button{min-width:44px}
+
+/* ==== 2026-10-30 功能 UI（簡單樣式，動效包 contrib/motion 會覆寫；請保留 class 名）==== */
+.enemyCard .cd{position:absolute;top:2px;right:3px;font-size:10px;background:#0008;border-radius:8px;padding:1px 5px;color:#ffd6d6}
+.enemyCard .cd.soon{background:#a33;color:#fff}
+.enemyCard.target::after{content:"🎯";position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);font-size:16px}
+.teamCard.dead{filter:grayscale(1);opacity:.4}.teamCard.dead .skill{visibility:hidden}
+.teamCard .hpTxt,.enemyCard .hpTxt{font-size:9px;color:#c8d3ee}
+.teamWrap{position:relative}.linkSvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+.linkSvg polyline{fill:none;stroke:#fff2ac;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px #fff2ac)}
+.teamCard .linkNo{position:absolute;top:-8px;right:-4px;z-index:6;width:22px;height:22px;border-radius:50%;background:#fff2ac;color:#222;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center}
+.teamCard.linked{border-color:#fff2ac;box-shadow:0 0 0 2px #fff2ac inset}
+.teamRow.linkMode .teamCard{touch-action:none}
+.linkBar{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}.linkBar button{min-height:44px;flex:1 1 30%;border-radius:8px;border:1px solid #526993;background:#263757;color:#f1f5ff;font-size:13px}
+.linkBar button.on{background:#66512f;border-color:#e8ba69;color:#fff1c5}.linkBar #linkFire:not(:disabled){background:#8a2f3a;border-color:#ff9fa3}.linkBar button:disabled{opacity:.4}
+.linkHint{font-size:11px;color:#b4c6e7;margin:6px 3px 0;min-height:16px}
+.chainCounter{position:relative;text-align:center;font-weight:900;font-size:18px;height:24px;color:#fff2ac;opacity:0;transition:opacity .2s}.chainCounter.show{opacity:1}
+.bonusTag{color:#ffb36b;font-size:12px;margin-left:6px}
+.floatNum{position:fixed;z-index:30;pointer-events:none;font-weight:900;font-size:18px;color:#fff;text-shadow:0 2px 3px #000;animation:floatUp 900ms ease-out forwards;white-space:nowrap;transform:translateX(-50%)}
+.floatNum small{display:block;font-size:11px;text-align:center}.floatNum.strong{color:#ffdd57}.floatNum.weak{color:#9fb5d8}.floatNum.enemy{color:#ff8a8a}
+@keyframes floatUp{0%{opacity:0;margin-top:0}15%{opacity:1}100%{opacity:0;margin-top:-40px}}
+.gem.drop{animation:drop 320ms ease-out both}@keyframes drop{0%{transform:translateY(calc(-100% * var(--fall,1)));opacity:.3}100%{transform:none;opacity:1}}
+.gem.clearing{animation:clearing 200ms ease-in forwards}@keyframes clearing{to{transform:scale(.2);opacity:0}}
+.result{position:fixed;inset:0;z-index:40;background:#000b;display:none;align-items:center;justify-content:center}.result.show{display:flex}
+.resultBox{background:#151f38;border:1px solid #596a8c;border-radius:16px;padding:22px 26px;text-align:center;max-width:320px;width:86%}
+.resultBox h2{margin:0 0 8px;font-size:26px}.resultBox p{font-size:13px;color:#c8d3ee;margin:4px 0}.resultBox button{margin-top:14px;min-height:48px;min-width:160px;border-radius:10px;border:0;background:#efca77;color:#222;font-size:16px;font-weight:900}
+.result.won h2{color:#fff2ac}.result.lost h2{color:#ff9fa3}
+html,body{overflow-x:hidden}
+.boardWrap{position:relative}.dragSvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
+.dragSvg polyline{fill:none;stroke:#fff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+.gem.inPath{outline:3px solid #fff;outline-offset:-3px;transform:scale(.92)}
+.gem.magic .stone{box-shadow:0 0 0 2px #fff,0 0 12px 3px var(--gem)}.gem .mp{position:absolute;right:2px;bottom:1px;font-size:10px;font-style:normal;font-weight:900;background:#000a;border-radius:6px;padding:0 3px;z-index:2}
+.pathNo{position:absolute;left:3px;top:1px;font-size:10px;font-weight:900;z-index:2}
+
+  </style>
+<link rel="stylesheet" href="contrib/motion/motion.css" onerror="this.remove()">
+<style>.soundToggle{min-width:44px;min-height:44px;border-radius:999px;font-size:18px;cursor:pointer}</style>
+<style>/* 底部固定動作列（id=actionBar / class=orb-actionbar） */
+.orb-actionbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;gap:6px;min-height:48px;margin:0 auto;max-width:1100px;padding:6px 4px calc(6px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#14121ae6,#14121a);border-top:1px solid #3a3550;box-sizing:border-box}
+.orb-actionbar button{min-height:48px;min-width:44px;flex:1 1 30%;border-radius:8px;border:1px solid #526993;background:#263757;color:#f1f5ff;font-size:13px;line-height:1.15}
+.orb-actionbar button small{display:block;font-size:10px;opacity:.9}
+.orb-actionbar #linkFire:disabled{opacity:.45;filter:grayscale(1)}
+.shell{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+#demoBadge{font-size:11px;padding:3px 8px;line-height:1.4}
+.firstPlay{margin:2px 3px}.chainCounter{margin-top:2px}.howTo{font-size:11px;color:#b4c6e7;margin:0 3px 4px}.howTo summary{cursor:pointer;min-height:24px}.howTo p{margin:4px 0;line-height:1.6}
+#linkBar:empty{display:none}
+</style>
+<style id="mobileFix">/* 2026-10-30 手機直玩修正（只改預覽） */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+body{user-select:none;-webkit-user-select:none}.log{user-select:text;-webkit-user-select:text}
+button,.teamCard,.enemyCard,.howTo summary,.soundToggle{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.teamRow.linkMode .teamCard{touch-action:none}
+.howTo summary{min-height:44px;display:flex;align-items:center;list-style-position:inside}
+.name,.hpTxt{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.subheading>span,.statusLine,.linkHint,.firstPlay,.howTo p,.log{overflow-wrap:anywhere;min-width:0}
+.teamCard .leadTag{position:absolute;top:-8px;left:50%;transform:translateX(-50%);z-index:6;font-size:10px;font-weight:900;line-height:1;padding:3px 6px;border-radius:999px;white-space:nowrap;pointer-events:none}
+.teamCard .leadTag.lead{background:#fff2ac;color:#3a2a00;box-shadow:0 0 0 1px #000a}
+.teamCard .leadTag.sup{background:#1c2846;color:#b4c6e7;border:1px solid #526993}
+.teamCard.isLead{border-color:#fff2ac;box-shadow:0 0 0 2px #fff2ac inset}
+html.lowfx .bmShard{display:none!important}
+html.lowfx .bmBeam,html.lowfx .linkSvg polyline,html.lowfx .gem.magic .stone{filter:none!important}
+html.lowfx .gem::before{filter:none;opacity:.12}
+@media (orientation:landscape) and (max-height:500px){
+ .shell{display:flex;flex-direction:column;padding-top:4px}
+ .header{padding:0 4px 2px}.header h1{font-size:15px}.tag{display:none}
+ .statusLine{order:-2;margin:0 0 2px;min-height:18px}
+ .boardWrap{order:-1;width:min(100%,calc((100vh - 116px) * 1.4));align-self:center}
+ .gem{min-height:0}
+ .orb-actionbar{min-height:44px;padding-top:3px;padding-bottom:calc(3px + env(safe-area-inset-bottom))}
+ .orb-actionbar button{min-height:44px}
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="header">
+      <div><span class="tag">神獸戰隊 · MEDIUM</span><h1>五元素 · 神獸戰鬥</h1></div>
+      <div style="display:flex;gap:8px;align-items:center"><button type="button" class="soundToggle" id="soundToggle" aria-pressed="true" aria-label="音效：靜音（點擊開啟）">🔇</button><div class="pill" id="turn">回合 0</div></div>
+    </header>
+    <div id="demoBadge" class="notice"></div>
+    <div class="subheading"><span>敵方神獸（點選指定目標；⏳ 為反擊倒數）</span><span id="battleStatus">戰鬥進行中</span></div>
+    <section class="enemyRow" id="enemyRow" aria-label="敵方神獸"></section>
+    <p class="firstPlay" id="firstPlay">按住寶珠拖過相鄰同色珠（≥3）放開攻擊</p>
+    <details class="howTo" id="howTo"><summary>玩法說明</summary><p>① 點敵方卡指定目標　② 按住寶珠拖過上下左右相鄰的同色珠（3 顆以上）放開發動；4 顆以上生成魔法珠（威力＝顆數，不設上限）、剛好 5 顆同時觸發五珠技　③ 能量滿點「技能」　④ 連線攻擊：開「連線模式」→ 點 2 張以上能量足夠的我方卡 → 點敵人 → 按「發動連線攻擊」（底部固定列）</p></details>
+    <div class="chainCounter" id="chainCounter" aria-live="polite"></div>
+    <div class="statusLine" id="message" aria-live="polite">按住寶珠，拖過相鄰同色珠 3 顆以上再放開。</div>
+    <section class="boardWrap" aria-label="五元素三消棋盤">
+      <div class="board" id="board"></div><svg class="dragSvg" id="dragSvg" aria-hidden="true"><polyline id="dragLine" points=""/></svg>
+    </section>
+    <div class="legend"><span><b class="dot wind"></b>風</span><span><b class="dot space"></b>空</span><span><b class="dot water"></b>水</span><span><b class="dot fire"></b>火</span><span><b class="dot earth"></b>地</span></div>
+    <div class="subheading"><span>出戰神獸（點卡設優先；滿能量點「技能」）</span><span id="damageTotal">傷害 0</span></div>
+    <div class="teamWrap" id="teamWrap"><section class="teamRow" id="teamRow" aria-label="出戰神獸卡"></section><svg class="linkSvg" id="linkSvg" aria-hidden="true"><polyline id="linkLine" points=""/></svg></div>
+    <div class="linkBar" id="linkBar"></div>
+    <div class="linkHint" id="linkHint">連線攻擊：開啟「連線模式」，依序點選或拖過 2 張以上能量 ≥ ${E_COST} 的我方卡，再點敵方目標後發動。</div>
+    <footer class="footer">
+      <button id="restart" type="button">重新開始</button>
+      <button id="quickAudit" type="button">一鍵自檢</button>
+      <div class="log" id="log" aria-live="polite"></div>
+    </footer>
+    <div id="actionBar" class="orb-actionbar linkBar" role="toolbar" aria-label="連線攻擊"><button type="button" id="linkMode" aria-pressed="false">連線模式</button><button type="button" id="linkClear">清除連線</button><button type="button" id="linkFire" disabled>發動連線攻擊</button></div>
+  </main>
+  <div class="effectLayer" id="effectLayer"></div>
+  <div class="result" id="result" role="dialog" aria-modal="true" aria-labelledby="resultTitle"><div class="resultBox"><h2 id="resultTitle"></h2><p id="resultInfo"></p><button type="button" id="again">再來一局</button></div></div>
+  <script>/* 手機：低階裝置降級 + 觸控點擊補發（拖曳棋盤後第一下點擊常被瀏覽器吞掉） */
+(function(){var q=location.search,n=navigator;if(/[?&]lowfx=1/.test(q)||(!/[?&]lowfx=0/.test(q)&&((n.hardwareConcurrency&&n.hardwareConcurrency<=4)||(n.deviceMemory&&n.deviceMemory<=2))))document.documentElement.classList.add('lowfx');
+var SEL='button,[data-team],[data-enemy],summary',down=null;
+document.addEventListener('pointerdown',function(e){if(e.pointerType!=='touch'){down=null;return;}var t=e.target.closest&&e.target.closest(SEL);down=t&&!t.closest('#board')?{el:t,x:e.clientX,y:e.clientY}:null;},true);
+document.addEventListener('pointerup',function(e){var d=down;down=null;if(!d||e.pointerType!=='touch')return;if(Math.abs(e.clientX-d.x)>12||Math.abs(e.clientY-d.y)>12)return;if(document.querySelector('.teamRow.linkMode')&&d.el.closest('[data-team]')&&!d.el.closest('[data-skill]'))return;var el=d.el;el.__tapAt=Date.now();setTimeout(function(){if(el.__tapAt&&!el.__clicked){el.__synth=1;if(el.tagName==='SUMMARY')el.parentElement.open=!el.parentElement.open;else el.click();el.__synth=0;el.__swallow=Date.now()+700;}el.__clicked=0;el.__tapAt=0;},120);},true);
+document.addEventListener('click',function(e){var t=e.target.closest&&e.target.closest(SEL);if(t&&!t.__synth&&t.__swallow&&Date.now()<t.__swallow){t.__swallow=0;e.preventDefault();e.stopImmediatePropagation();return;}if(t&&!t.__synth&&t.__tapAt){t.__clicked=1;}},true);
+})();</script>
+<script src="engine.js"></script><!-- 單一引擎來源：engine.js（file:// 可直接載入） -->
+  <script>if (!window.BeastEngine) document.addEventListener('DOMContentLoaded', function () { document.body.insertAdjacentHTML('afterbegin', '<p style="color:#ff9fa3;padding:12px">engine.js 載入失敗：請與 game.html 放在同一資料夾。</p>'); });</script>
+  <script>
+/* v0.7 重建 UI（2026-10-30 功能版）
+ * 動效／樣式掛鉤（contrib/motion 用）：
+ *   window.BeastHooks = { onClear, onAttack, onRefill, onChain, onSkill, onLinkAttack, onEnemyAttack, onKnockOut, onEnd }
+ *   同時在 window 派發 CustomEvent：'beast:clear' 'beast:attack' 'beast:refill' 'beast:chain' 'beast:skill'
+ *   'beast:linkAttack' 'beast:enemyAttack' 'beast:knockOut' 'beast:end'（detail = 引擎事件）
+ *   CSS class：.gem.clearing .gem.drop .enemyCard.target .enemyCard.hit .teamCard.attacking .teamCard.dead
+ *   .teamCard.linked .linkNo .linkSvg .chainCounter.show .floatNum(.strong/.weak/.enemy) .result(.won/.lost)
+ */
+(function () {
+  'use strict';
+  if (!window.BeastEngine) return;
+  var E = window.BeastEngine, $ = function (id) { return document.getElementById(id); };
+  var g, sel = null, busy = false, drag = null, linkMode = false, link = [], linkDrag = false;
+  // 存檔旗標：預設關閉；只有網址帶 ?orbsave=1 才讀寫獨立鍵 E.SAVE_KEY（永不碰舊進度）
+  var SAVE_ON = /[?&]orbsave=1\b/.test(location.search), store = null;
+  try { store = SAVE_ON ? window.localStorage : null; } catch (e) { store = null; }
+  var H = window.BeastHooks = window.BeastHooks || {};
+  function hook(name, detail) {
+    try { if (typeof H['on' + name] === 'function') H['on' + name](detail); } catch (e) { console.warn(e); }
+    window.dispatchEvent(new CustomEvent('beast:' + name.charAt(0).toLowerCase() + name.slice(1), { detail: detail }));
+  }
+  function seed() { var q = /[?&]seed=(\d+)/.exec(location.search); return q ? +q[1] : (Date.now() % 100000); }
+  function log(t) { var d = document.createElement('div'); d.textContent = t; $('log').prepend(d); while ($('log').childNodes.length > 30) $('log').lastChild.remove(); }
+  function msg(t) { $('message').textContent = t; }
+  function advTxt(a) { return a > 1 ? '克制 ×' + a : a < 1 ? '被克 ×' + a : ''; }
+  function cardHtml(c, i, mine) {
+    var cls = E.GEM_CLASS[c.element];
+    var h = (c.demo ? '<div class="demoTag">DEMO</div>' : '') + (mine ? '' : '<div class="cd' + (c.cd <= 1 ? ' soon' : '') + '" title="反擊倒數">⏳' + (c.hp > 0 ? c.cd : '-') + '</div>') +
+      '<div class="avatar ' + cls + '">' + ((c.art || c.thumb) ? '<img src="' + (c.art || c.thumb) + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px">' : E.LABEL[c.element]) + '</div><div class="name">' + c.name + '</div>' +
+      '<div class="bar"><i style="width:' + (100 * c.hp / c.maxHp) + '%"></i></div><div class="hpTxt">HP ' + c.hp + '</div>';
+    if (mine) {
+      var ln = link.indexOf(i);
+      if (ln >= 0) h += '<div class="linkNo">' + (ln + 1) + '</div>';
+      h += '<div class="bar en"><i style="width:' + c.energy + '%"></i></div><button class="skill" type="button" data-skill="' + i + '"' + (c.energy >= g.cfg.energyMax && c.hp > 0 && g.status === 'playing' ? '' : ' disabled') + '>' + (c.hp > 0 ? '技能' : '倒下') + '</button>';
+    }
+    return h;
+  }
+  /* 同元素 2 張以上存活時：1=主攻（點選者），2=輔助，0=無標示 */
+  function leadInfo(i) { var c = g.team[i]; if (!c || c.hp <= 0 || !E.leadFor) return 0; var n = 0; g.team.forEach(function (t) { if (t.hp > 0 && t.element === c.element) n++; }); if (n < 2) return 0; return E.leadFor(g, c.element) === i ? 1 : 2; }
+  function render(drop) {
+    $('turn').textContent = '回合 ' + g.turn;
+    $('damageTotal').textContent = '傷害 ' + g.totalDamage;
+    $('battleStatus').textContent = g.status === 'won' ? '勝利！' : g.status === 'lost' ? '敗北' : '戰鬥進行中';
+    $('enemyRow').innerHTML = g.enemies.map(function (c, i) { return '<div class="enemyCard ' + E.GEM_CLASS[c.element] + (i === g.target && c.hp > 0 ? ' target' : '') + (c.hp <= 0 ? ' dead' : '') + '" role="button" tabindex="0" data-enemy="' + i + '" aria-label="' + c.name + ' HP ' + c.hp + ' 反擊倒數 ' + c.cd + '">' + cardHtml(c, i, false) + '</div>'; }).join('');
+    $('teamRow').innerHTML = g.team.map(function (c, i) { return '<div class="teamCard ' + E.GEM_CLASS[c.element] + (i === g.selected ? ' selected' : '') + (c.energy >= g.cfg.energyMax && c.hp > 0 ? ' ready' : '') + (c.hp <= 0 ? ' dead' : '') + (link.indexOf(i) >= 0 ? ' linked' : '') + (leadInfo(i) === 1 ? ' isLead' : '') + '" role="button" tabindex="0" data-team="' + i + '" aria-label="' + c.name + ' HP ' + c.hp + ' 能量 ' + c.energy + (leadInfo(i) === 1 ? ' 主攻' : leadInfo(i) === 2 ? ' 輔助' : '') + '">' + cardHtml(c, i, true) + (leadInfo(i) === 1 ? '<span class="leadTag lead">主攻</span>' : leadInfo(i) === 2 ? '<span class="leadTag sup">輔助</span>' : '') + '</div>'; }).join('');
+    $('teamRow').classList.toggle('linkMode', linkMode);
+    var b = $('board'), html = '';
+    for (var r = 0; r < g.board.length; r++) for (var c = 0; c < g.board[0].length; c++) {
+      var e = g.board[r][c], s = sel && sel[0] === r && sel[1] === c, mp = g.magic && g.magic[r][c] > 0 ? g.magic[r][c] : 0;
+      var dropCls = drop ? ' drop' : '', style = drop ? ' style="--fall:' + (r + 1) + ';animation-delay:' + ((g.board.length - 1 - r) * 30) + 'ms"' : '';
+      html += '<button type="button" class="gem ' + E.GEM_CLASS[e] + (s ? ' sel focus' : '') + (mp ? ' magic' : '') + dropCls + '"' + style + ' data-r="' + r + '" data-c="' + c + '" aria-label="' + E.LABEL[e] + (mp ? ' 魔法珠威力' + mp : '') + ' 第' + (r + 1) + '列第' + (c + 1) + '欄"><span class="stone"><span>' + E.LABEL[e] + '</span></span>' + (mp ? '<i class="mp">✦' + mp + '</i>' : '') + '</button>';
+    }
+    b.innerHTML = html;
+    drawLink(); updateLinkBar(); showResult();
+  }
+  function center(el) { var r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
+  function floatNum(el, text, sub, cls) {
+    if (!el) return; var p = center(el), d = document.createElement('div');
+    d.className = 'floatNum ' + (cls || ''); d.style.left = p.x + 'px'; d.style.top = (p.y - 20) + 'px';
+    d.innerHTML = text + (sub ? '<small>' + sub + '</small>' : ''); document.body.appendChild(d);
+    setTimeout(function () { d.remove(); }, 950);
+  }
+  function drawLink() {
+    var w = $('teamWrap').getBoundingClientRect(), pts = link.map(function (i) {
+      var el = document.querySelector('[data-team="' + i + '"]'); if (!el) return ''; var p = center(el); return (p.x - w.left).toFixed(1) + ',' + (p.y - w.top).toFixed(1);
+    });
+    $('linkLine').setAttribute('points', pts.join(' '));
+  }
+  var linkTarget = false;
+  function linkProblem() {
+    var tgt = g.enemies[g.target];
+    if (g.status !== 'playing') return '戰鬥已結束';
+    if (!linkMode) return '先開連線模式';
+    if (link.length < g.cfg.linkMinCards) return '至少選 ' + g.cfg.linkMinCards + ' 張';
+    var low = link.filter(function (i) { return g.team[i].energy < g.cfg.linkEnergyCost; });
+    if (low.length) return g.team[low[0]].name + ' 能量不足 ' + g.cfg.linkEnergyCost;
+    if (!linkTarget || !tgt || tgt.hp <= 0) return '先點敵人';
+    return '';
+  }
+  function updateLinkBar() {
+    $('linkMode').classList.toggle('on', linkMode); $('linkMode').setAttribute('aria-pressed', String(linkMode));
+    $('linkMode').textContent = linkMode ? '連線模式：開' : '連線模式';
+    var p = linkProblem(); $('linkFire').disabled = !!p; $('linkFire').innerHTML = '發動連線攻擊' + (p ? '<small>' + p + '</small>' : ''); $('linkFire').setAttribute('aria-label', '發動連線攻擊' + (p ? '：' + p : ''));
+    if (linkMode || link.length) {
+      var dmg = link.length >= 2 ? E.calcLinkDamage(link.map(function (i) { return g.team[i]; }), g.cfg) : 0;
+      $('linkHint').textContent = '連線 ' + link.length + ' 張' + (link.length ? '（' + link.map(function (i) { return g.team[i].name; }).join(' → ') + '）' : '') + (p ? '・' + p : '・預估傷害 ' + dmg + '，每張扣能量 ' + g.cfg.linkEnergyCost);
+    } else $('linkHint').textContent = '連線攻擊：開啟「連線模式」，依序點選或拖過 2 張以上能量 ≥ ' + g.cfg.linkEnergyCost + ' 的我方卡，點敵方目標後按「發動連線攻擊」。';
+  }
+  function showResult() {
+    var box = $('result');
+    if (g.status === 'playing') { box.className = 'result'; return; }
+    if (box.classList.contains('show')) return;
+    box.className = 'result show ' + g.status;
+    $('resultTitle').textContent = g.status === 'won' ? '勝利！' : '敗北…';
+    $('resultInfo').textContent = (g.status === 'won' ? '敵方神獸全數倒下。' : '我方神獸全數倒下。') + '回合 ' + g.turn + '・總傷害 ' + g.totalDamage + '・最大連鎖 ' + g.maxChain + '・存活 ' + g.team.filter(function (c) { return c.hp > 0; }).length + '/' + g.team.length;
+    hook('End', { type: g.status, turn: g.turn, totalDamage: g.totalDamage, maxChain: g.maxChain });
+    setTimeout(function () { $('again').focus(); }, 30);
+  }
+  function chainBanner(n) {
+    var el = $('chainCounter'); if (n < 1) return;
+    el.textContent = '連鎖 ×' + n + (n > 1 ? '（傷害 ×' + E.chainMultiplier(n, g.cfg) + '）' : '');
+    el.classList.add('show'); clearTimeout(el._t); el._t = setTimeout(function () { el.classList.remove('show'); }, 1400);
+  }
+  function playEvents(news) {
+    var dmg = 0, maxLen = 0, chains = 0;
+    news.forEach(function (ev) {
+      if (ev.type === 'chain') { chains = ev.chain; hook('Chain', ev); }
+      else if (ev.type === 'attack') {
+        dmg += ev.damage; maxLen = Math.max(maxLen, ev.length);
+        var adv = advTxt(ev.advantage), bonus = ev.length >= 4 ? ev.length + '連 ×' + E.lengthMultiplier(ev.length, g.cfg) : '';
+        log(g.team[ev.attacker].name + ' ' + E.LABEL[ev.element] + (ev.orbs != null ? ev.orbs + '顆(威力' + ev.power + (ev.magic ? '・含魔法珠' : '') + ')' : ev.length + '連') + '・連鎖' + ev.chain + (bonus ? '・' + bonus : '') + (adv ? '・' + adv : '') + ' → ' + g.enemies[ev.target].name + ' -' + ev.damage);
+        hook('Clear', ev); hook('Attack', ev);
+        (function (ev, adv, bonus) { setTimeout(function () {
+          floatNum(document.querySelector('[data-enemy="' + ev.target + '"]'), '-' + ev.damage, [adv, bonus].filter(Boolean).join(' '), ev.advantage > 1 ? 'strong' : ev.advantage < 1 ? 'weak' : '');
+          flash('[data-team="' + ev.attacker + '"]', 'attacking'); flash('[data-enemy="' + ev.target + '"]', 'hit');
+        }, 60 + ev.chain * 140); })(ev, adv, bonus);
+      }
+      else if (ev.type === 'clearNoAttack') { hook('Clear', ev); log(E.LABEL[ev.element] + ' ' + ev.length + '連：' + E.attackOutcomeText(ev.outcome || E.attackOutcome(g.team, ev.element), E.LABEL[ev.element])); }
+      else if (ev.type === 'magicOrbSpawn') { hook('MagicOrb', ev); log('生成魔法珠：' + E.LABEL[ev.element] + ' 威力 ' + ev.power); }
+      else if (ev.type === 'magicOrbTrigger') { hook('MagicTrigger', ev); log('魔法珠引爆：' + E.LABEL[ev.element] + ' 威力 +' + ev.power + '，該屬性卡能量集滿'); }
+      else if (ev.type === 'skill5') { hook('Skill5', ev); log('五珠技！' + E.LABEL[ev.element] + ' 屬性卡能量集滿'); }
+      else if (ev.type === 'drag') hook('Drag', ev);
+      else if (ev.type === 'reshuffle') log('無可行步，已重洗棋盤');
+      else if (ev.type === 'enemyAttack') {
+        hook('EnemyAttack', ev);
+        var at = advTxt(ev.advantage);
+        log(g.enemies[ev.enemy].name + ' 反擊 → ' + g.team[ev.target].name + ' -' + ev.damage + (at ? '（' + at + '）' : ''));
+        (function (ev, at) { setTimeout(function () { floatNum(document.querySelector('[data-team="' + ev.target + '"]'), '-' + ev.damage, at, 'enemy'); flash('[data-team="' + ev.target + '"]', 'hit'); }, 650); })(ev, at);
+      }
+      else if (ev.type === 'knockedOut') { hook('KnockOut', ev); log(g.team[ev.target].name + ' 倒下（變灰，無法攻擊）'); }
+      else if (ev.type === 'battleWon') log('敵方全滅，勝利！');
+      else if (ev.type === 'battleLost') log('我方全滅，敗北。');
+    });
+    if (chains) chainBanner(chains);
+    return { dmg: dmg, maxLen: maxLen, chains: chains };
+  }
+  function flash(q, cls) { var el = document.querySelector(q); if (el) { el.classList.add(cls); setTimeout(function () { el.classList.remove(cls); }, 360); } }
+  var path = [];
+  function drawPath() {
+    var w = $('board').parentNode.getBoundingClientRect(), gems = document.querySelectorAll('.gem'), cols = g.board[0].length;
+    Array.prototype.forEach.call(gems, function (el) { el.classList.remove('inPath'); var n = el.querySelector('.pathNo'); if (n) n.remove(); });
+    $('dragLine').setAttribute('points', path.map(function (p, k) { var el = gems[p[0] * cols + p[1]]; if (!el) return ''; el.classList.add('inPath');
+      var no = document.createElement('span'); no.className = 'pathNo'; no.textContent = k + 1; el.appendChild(no);
+      var q = center(el); return (q.x - w.left).toFixed(1) + ',' + (q.y - w.top).toFixed(1); }).join(' '));
+    if (path.length) msg('連珠 ' + path.length + ' 顆' + (path.length < 3 ? '（至少 3 顆）' : path.length >= g.cfg.magicOrbMinLength ? (path.length === g.cfg.SKILL5_LENGTH ? '・五珠技＋魔法珠' : '・會生成魔法珠') : '') + (path.length > g.cfg.NORMAL_POWER_CAP ? '・普通威力上限 ' + g.cfg.NORMAL_POWER_CAP : ''));
+  }
+  function extendPath(p) {
+    if (!p) return;
+    var n = path.length;
+    if (n >= 2 && path[n - 2][0] === p[0] && path[n - 2][1] === p[1]) { path.pop(); drawPath(); return; } // 退回上一格
+    if (E.canExtend(g.board, path, p)) { path.push(p); drawPath(); }
+  }
+  function doDrag(pth) {
+    path = []; drawPath();
+    if (busy) return;
+    var before = g.events.length, r = E.tryDrag(g, pth);
+    if (!r.ok) { msg(r.reason === 'ended' ? '戰鬥已結束，按「再來一局」。' : r.reason === 'short' ? '未滿 3 顆，已取消。' : '路徑無效（需上下左右相鄰同色）。'); render(false); return; }
+    var news = g.events.slice(before);
+    if (store) { if (g.status === 'playing') E.saveGame(store, g); else E.clearSave(store); }
+    busy = true;
+    var gems = document.querySelectorAll('.gem'), cols = g.board[0].length;
+    pth.forEach(function (p) { var el = gems[p[0] * cols + p[1]]; if (el) el.classList.add('clearing'); });
+    hook('Clear', { type: 'dragClear', path: pth });
+    setTimeout(function () {
+      var res = playEvents(news);
+      var sp = news.filter(function (e) { return e.type === 'magicOrbSpawn'; })[0], s5 = news.some(function (e) { return e.type === 'skill5'; });
+      msg(pth.length + ' 顆連珠・連鎖 ' + res.chains + '・本步傷害 ' + res.dmg + (sp ? '・魔法珠 ✦' + sp.power : '') + (s5 ? '・五珠技！' : ''));
+      render(true); hook('Refill', { type: 'refill', chains: res.chains });
+      setTimeout(function () { busy = false; }, 340);
+    }, 200);
+  }
+  function cellOf(t) { var el = t.closest && t.closest('.gem'); return el ? [+el.dataset.r, +el.dataset.c] : null; }
+  function teamAt(x, y) { var el = document.elementFromPoint(x, y); el = el && el.closest && el.closest('[data-team]'); return el ? +el.dataset.team : -1; }
+  function toggleLink(i, fromDrag) {
+    if (g.team[i].hp <= 0) { msg(g.team[i].name + ' 已倒下，不能連線。'); return; }
+    var k = link.indexOf(i);
+    if (k >= 0) { if (!fromDrag) link = link.slice(0, k); }
+    else link.push(i);
+    render(false);
+  }
+  function fireLink() {
+    var before = g.events.length, idx = link.slice(), r = E.linkAttack(g, idx, g.target);
+    if (!r.ok) { msg('連線攻擊無法發動：' + (linkProblem() || r.reason)); return; }
+    var ev = r.event; hook('LinkAttack', ev);
+    log('連線攻擊 ' + idx.map(function (i) { return g.team[i].name; }).join(' → ') + ' → ' + g.enemies[ev.target].name + ' -' + ev.damage + '（' + ev.linkLength + '張 ×' + ev.multiplier + '）');
+    msg('連線攻擊！' + ev.linkLength + ' 張 → -' + ev.damage);
+    link = []; linkTarget = false; playEvents(g.events.slice(before + 1)); render(false);
+    floatNum(document.querySelector('[data-enemy="' + ev.target + '"]'), '-' + ev.damage, '連線 ×' + ev.multiplier, 'strong');
+    flash('[data-enemy="' + ev.target + '"]', 'hit');
+  }
+  function bind() {
+    var b = $('board');
+    function cellAt(x, y) { var el = document.elementFromPoint(x, y); return el ? cellOf(el) : null; }
+    b.addEventListener('pointerdown', function (e) { var p = cellOf(e.target); if (!p || busy || g.status !== 'playing') return; e.preventDefault(); drag = true; path = [p]; drawPath(); try { b.setPointerCapture(e.pointerId); } catch (x) {} });
+    b.addEventListener('pointermove', function (e) { if (!drag) return; extendPath(cellAt(e.clientX, e.clientY)); });
+    function endDrag() { if (!drag) return; drag = false; var p = path.slice(); doDrag(p); }
+    b.addEventListener('pointerup', endDrag); b.addEventListener('pointercancel', function () { drag = false; path = []; drawPath(); msg('已取消。'); });
+    b.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { var p = cellOf(e.target); if (!p) return; e.preventDefault();
+      var l = path[path.length - 1]; if (l && l[0] === p[0] && l[1] === p[1]) { doDrag(path.slice()); return; }
+      if (!path.length || !E.canExtend(g.board, path, p)) path = [p]; else path.push(p); drawPath(); }
+      if (e.key === 'Escape') { path = []; drawPath(); } });
+    var tr = $('teamRow');
+    tr.addEventListener('pointerdown', function (e) {
+      if (!linkMode || e.target.closest('[data-skill]')) return; var i = teamAt(e.clientX, e.clientY); if (i < 0) return;
+      linkDrag = { start: i, moved: false }; e.preventDefault();
+    });
+    window.addEventListener('pointermove', function (e) {
+      if (!linkDrag) return; var i = teamAt(e.clientX, e.clientY); if (i < 0) return;
+      if (!linkDrag.moved && i !== linkDrag.start) { linkDrag.moved = true; if (link.indexOf(linkDrag.start) < 0) toggleLink(linkDrag.start, true); }
+      if (linkDrag.moved && link.indexOf(i) < 0) toggleLink(i, true);
+    });
+    window.addEventListener('pointerup', function () { if (linkDrag) { var d = linkDrag; linkDrag = null; if (!d.moved) toggleLink(d.start, false); } });
+    tr.addEventListener('click', function (e) {
+      var sk = e.target.closest('[data-skill]');
+      if (sk) { var i = +sk.dataset.skill, before = g.events.length, r = E.useSkill(g, i); if (r.ok) { hook('Skill', g.events[before]); log(g.team[i].name + ' 技能 → ' + g.enemies[r.target].name + ' -' + r.damage); msg('技能發動！-' + r.damage); playEvents(g.events.slice(before + 1)); render(false); floatNum(document.querySelector('[data-enemy="' + r.target + '"]'), '-' + r.damage, '技能', 'strong'); } else render(false); return; }
+      if (linkMode) return;
+      var tc = e.target.closest('[data-team]'); if (tc) { var k = +tc.dataset.team; if (g.team[k].hp <= 0) { msg('倒下的卡無法出戰。'); return; } E.selectCard(g, k); if (leadInfo(k) === 1) msg(g.team[k].name + ' 設為' + E.LABEL[g.team[k].element] + '屬主攻（同屬其他卡輔助）'); render(false); }
+    });
+    $('enemyRow').addEventListener('click', function (e) { var ec = e.target.closest('[data-enemy]'); if (ec) { var k = +ec.dataset.enemy; if (g.enemies[k].hp <= 0) { msg('該敵人已倒下。'); return; } E.selectTarget(g, k); if (linkMode) linkTarget = true; msg('目標：' + g.enemies[k].name); render(false); } });
+    $('linkMode').addEventListener('click', function () { linkMode = !linkMode; if (!linkMode) { link = []; linkTarget = false; } render(false); });
+    $('linkClear').addEventListener('click', function () { link = []; linkTarget = false; render(false); });
+    $('linkFire').addEventListener('click', fireLink);
+    $('restart').addEventListener('click', start);
+    $('again').addEventListener('click', start);
+    $('quickAudit').addEventListener('click', quickAudit);
+    window.addEventListener('resize', drawLink);
+  }
+  function quickAudit() {
+    var ok = 0, n = 0; function c(x) { n++; if (x) ok++; }
+    var t = E.createGame({ seed: 1 });
+    c(t.board.length === 5 && t.board[0].length === 7); c(E.findRuns(t.board).length === 0); c(E.hasDragMove(t.board));
+    c(E.lengthMultiplier(7) > E.lengthMultiplier(6)); c(E.chainMultiplier(2) > E.chainMultiplier(1));
+    c(E.CONFIG.magicOrbSpawnEnabled === true); c(E.normalPower(14) === 10); c(E.useSkill(t, 0).ok === false); c(E.linkAttack(t, [0], 0).ok === false);
+    c(E.findRuns(g.board).length === 0); c(g.team.every(function (x) { return !x.demo && /\.v2\.webp$/.test(x.art); })); c(g.enemies.every(function (x) { return !x.demo && /\.v2\.webp$/.test(x.art); }));
+    msg('一鍵自檢：' + ok + '/' + n + ' 通過（完整測試請執行 node audit.js）'); log('一鍵自檢 ' + ok + '/' + n);
+  }
+  function start() {
+    var resumed = store && !start.fresh ? E.loadGame(store) : null; start.fresh = true;
+    g = resumed && resumed.status === 'playing' ? resumed : E.createGame({ seed: seed() }); if (!resumed && store) E.clearSave(store); sel = null; link = []; linkMode = false; linkTarget = false; busy = false; $('log').innerHTML = '';
+    $('result').className = 'result';
+    $('demoBadge').textContent = '正式神獸卡 5v5・敵方數值【待平衡】・seed ' + g.seed;
+    path = []; msg('點敵方卡指定目標，按住寶珠拖過相鄰同色珠 3 顆以上再放開。'); render(false);
+  }
+  window.__beastGame = function () { return g; };
+  window.__beastUI = { link: function () { return link.slice(); }, setLink: function (a) { link = a.slice(); render(false); }, render: function () { render(false); }, drag: function (p) { doDrag(p); } };
+  bind(); start();
+})();
+</script>
+<script>/* 音效：預設靜音；只有使用者點擊後才會開聲。動效包可讀 window.BeastSound.muted 或監聽 beast:sound */
+(function () { var S = window.BeastSound = { muted: true, unlocked: false }; var b = document.getElementById('soundToggle'); if (!b) return;
+  window.addEventListener('pointerdown', function () { S.unlocked = true; }, { once: true });
+  b.addEventListener('click', function () { S.unlocked = true; S.muted = !S.muted; if (window.BeastMotionConfig) window.BeastMotionConfig.muted = S.muted;
+    b.setAttribute('aria-pressed', String(S.muted)); b.textContent = S.muted ? '🔇' : '🔊'; b.setAttribute('aria-label', S.muted ? '音效：靜音（點擊開啟）' : '音效：開啟（點擊靜音）');
+    window.dispatchEvent(new CustomEvent('beast:sound', { detail: { muted: S.muted } })); }); })();</script>
+<!-- 動效包（contrib/motion，可選）：載入失敗時遊戲照常運作 -->
+<script>window.BeastMotionConfig = Object.assign({ muted: true }, window.BeastMotionConfig || {});</script>
+<script src="contrib/motion/motion.js" onerror="window.__beastMotionFailed = true; document.documentElement.classList.remove('bm-on');"></script>
+</body>
+</html>

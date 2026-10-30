@@ -1,0 +1,114 @@
+/*
+ * 寶珠精修｜奢華感的低調（quiet luxury）。只動 transform／opacity；尊重 prefers-reduced-motion。
+ * 色票全部取自既有檔案（不新增 hex）：
+ *  元素色 lib/beast-game/element-palette.ts；墨夜 #14121a／盤面 #1c1922／骨白 #e8e1d3／象牙 #d9cfbb（Match3Board.module.css）；
+ *  魔法珠金 #ffe3a1（Match3Board.module.css）；卡框金 #d6b86a／深金 #8a6c33／淡金 #f6d98f（BeastCardTile.module.css）。
+ *  其餘色調一律用 color-mix 從上述色票衍生。
+ */
+.lux { --ink: #14121a; --boardbg: #1c1922; --bone: #e8e1d3; --ivory: #d9cfbb; --gold: #d6b86a; --gold-deep: #8a6c33; --gold-pale: #f6d98f; --mgold: #ffe3a1; }
+.board.board { background: radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--gold) 7%, var(--boardbg)), var(--ink) 92%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 34%, transparent), 0 10px 28px color-mix(in srgb, var(--ink) 70%, transparent); }
+.board.board::before { content: ''; position: absolute; inset: 3px; border-radius: 10px; pointer-events: none;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 12%, transparent); }
+
+/* ── 珠 ── */
+.cell { --body: color-mix(in srgb, var(--el) 46%, var(--ink)); }
+.bead { position: absolute; inset: 7%; display: grid; place-items: center; transition: transform .16s cubic-bezier(.2,.8,.3,1); will-change: transform; }
+.halo { position: absolute; inset: -14%; border-radius: 50%; opacity: 0; transition: opacity .2s ease;
+  background: radial-gradient(circle, color-mix(in srgb, var(--el) 38%, transparent) 0, transparent 68%); }
+.rim { position: absolute; inset: 0; background: linear-gradient(145deg, var(--gold-pale), var(--gold-deep) 52%, var(--gold) 100%);
+  filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--ink) 80%, transparent)); }
+.body { position: absolute; inset: 1.5px;
+  background: radial-gradient(circle at 34% 26%, color-mix(in srgb, var(--bone) 58%, var(--body)) 0, var(--body) 44%, color-mix(in srgb, var(--body) 62%, var(--ink)) 100%); }
+.sheen { position: absolute; left: 24%; top: 16%; width: 30%; height: 16%; border-radius: 50%; transform: rotate(-24deg);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--bone) 85%, transparent), transparent); opacity: .26;
+  animation: bpShimmer 7.5s ease-in-out var(--d, 0ms) infinite; }
+.glyph { position: relative; font-size: clamp(12px, 3.2vw, 16px); font-weight: 600; letter-spacing: .02em;
+  color: color-mix(in srgb, var(--bone) 78%, var(--el)); text-shadow: 0 1px 1px color-mix(in srgb, var(--ink) 80%, transparent); }
+.glyph::after { content: ''; position: absolute; left: 50%; bottom: -3px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--el); opacity: .9; }
+/* 形狀（色＋形雙重編碼）：風＝圓、空＝菱、水＝水滴、火＝三角、地＝圓角方 */
+.bead[data-el=AIR] .rim, .bead[data-el=AIR] .body { border-radius: 50%; }
+.bead[data-el=SPACE] .rim, .bead[data-el=SPACE] .body { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.bead[data-el=SPACE] .rim { inset: -5%; }
+.bead[data-el=WATER] .rim { border-radius: 50% 0 50% 50%; transform: rotate(-45deg) scale(.86); }
+.bead[data-el=WATER] .body { border-radius: 50% 0 50% 50%; }
+.bead[data-el=FIRE] .rim, .bead[data-el=FIRE] .body { clip-path: polygon(50% 2%, 98% 92%, 2% 92%); }
+.bead[data-el=FIRE] .rim { inset: -5%; }
+.bead[data-el=FIRE] .body { inset: 3px; }
+.bead[data-el=FIRE] .glyph { top: 12%; }
+.bead[data-el=FIRE] .sheen { left: 40%; top: 26%; width: 22%; }
+.bead[data-el=EARTH] .rim, .bead[data-el=EARTH] .body { border-radius: 20%; }
+.bead[data-el=EARTH] .rim { inset: 6%; }
+
+/* ── 狀態 ── */
+.cell:active .bead { transform: scale(1.04, .92); }
+.sel .bead { transform: translateY(-3px) scale(1.07); }
+.sel .halo { opacity: 1; }
+.sel .sheen { opacity: .48; animation: none; }
+.pop .bead { animation: bpPop 220ms cubic-bezier(.3,.6,.4,1) both; animation-delay: calc(min(var(--i, 0) * 34ms, 300ms)); }
+.pop .halo { opacity: 1; }
+.fall .bead { animation: bpFall 380ms cubic-bezier(.25,1.3,.5,1) both; animation-delay: calc(var(--row, 0) * 26ms); }
+
+/* ── 魔法珠：金箔切面＋N 徽章，強度 --mi 隨威力上升 ── */
+.magicCell .rim { background: linear-gradient(145deg, var(--mgold), var(--gold) 45%, var(--gold-deep) 70%, var(--gold-pale)); }
+.facets { position: absolute; inset: 14%; border-radius: 50%; pointer-events: none; opacity: calc(.25 + var(--mi, 0) * .5);
+  background: conic-gradient(from 20deg, color-mix(in srgb, var(--mgold) 55%, transparent) 0 12%, transparent 12% 25%, color-mix(in srgb, var(--bone) 35%, transparent) 25% 37%, transparent 37% 50%,
+    color-mix(in srgb, var(--mgold) 45%, transparent) 50% 62%, transparent 62% 75%, color-mix(in srgb, var(--bone) 30%, transparent) 75% 87%, transparent 87%);
+  mix-blend-mode: screen; }
+.magicCell .halo { background: radial-gradient(circle, color-mix(in srgb, var(--mgold) 34%, transparent) 0, transparent 70%); animation: bpBreath 4.2s ease-in-out infinite; }
+.nbadge { position: absolute; top: -14%; right: -14%; z-index: 2; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px;
+  font-size: 10px; font-weight: 800; line-height: 17px; text-align: center; color: var(--ink);
+  background: linear-gradient(135deg, var(--gold-pale), var(--gold) 55%, var(--gold-deep));
+  box-shadow: 0 0 0 .5px color-mix(in srgb, var(--mgold) 80%, transparent), 0 1px 3px color-mix(in srgb, var(--ink) 80%, transparent);
+  transform: scale(calc(.92 + var(--mi, 0) * .22)); }
+
+/* ── 連線 ── */
+.link { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 3; }
+.flow { animation: bpFlow 1.8s linear infinite; }
+.badge { animation: bpIn .18s ease-out; }
+.link text { font-family: inherit; letter-spacing: .04em; }
+
+/* ── 粒子、連鎖標籤 ── */
+.burst { position: absolute; inset: 6px; pointer-events: none; z-index: 3; }
+.burst i { position: absolute; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; opacity: 0;
+  animation: bpSpark 560ms ease-out both; }
+.cascade { position: absolute; left: 10px; top: 8px; z-index: 4; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: .14em;
+  color: var(--gold-pale); background: color-mix(in srgb, var(--ink) 82%, transparent); border: 1px solid color-mix(in srgb, var(--gold) 55%, transparent);
+  pointer-events: none; animation: bpLabel 900ms ease-out both; }
+
+/* ── 金箔橫幅（五珠技／魔法珠） ── */
+.leaf.leaf { background: linear-gradient(135deg, var(--gold-pale), var(--gold) 48%, var(--gold-deep)); color: var(--ink); font-weight: 700; font-size: 16px; letter-spacing: .12em;
+  border: 1px solid color-mix(in srgb, var(--mgold) 70%, transparent); box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 70%, transparent); }
+
+@keyframes bpShimmer { 0%, 100% { opacity: .2; } 50% { opacity: .32; } }
+@keyframes bpBreath { 0%, 100% { opacity: calc(.35 + var(--mi, 0) * .3); } 50% { opacity: calc(.55 + var(--mi, 0) * .45); } }
+@keyframes bpPop { 0% { transform: scale(1); opacity: 1; } 40% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(.35); opacity: 0; } }
+@keyframes bpFall { from { transform: translateY(-70%); opacity: 0; } 60% { opacity: 1; } to { transform: none; opacity: 1; } }
+@keyframes bpFlow { to { stroke-dashoffset: -18; } }
+@keyframes bpIn { from { opacity: 0; transform: translateY(4px); } }
+@keyframes bpSpark { 0% { opacity: .8; transform: translate(0, 0) scale(1); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.4); } }
+@keyframes bpLabel { 0% { opacity: 0; transform: translateY(4px); } 18%, 70% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .bead, .halo { transition: none; }
+  .sheen, .flow, .badge, .magicCell .halo, .burst i, .tierPulse { animation: none; }
+  .badgePos, .tierLbl, .link line, .link polyline, .link circle, .badge rect { transition: none; }
+  .burst { display: none; }
+  .pop .bead { animation: none; opacity: .3; }
+  .fall .bead { animation: none; }
+  .cascade { animation: none; }
+}
+/* v3 精修：連線跟手、徽章避開手指、分級平滑過渡、五珠技／魔珠不重疊。 */
+.tail { stroke-dasharray: 2 5; }
+.badgePos { transition: transform var(--follow, 140ms) cubic-bezier(.2, .7, .2, 1); will-change: transform; }
+.link line, .link polyline, .link circle, .badge rect { transition: stroke var(--tierMs, 240ms) ease, stroke-width var(--tierMs, 240ms) ease; }
+.tierLbl { transition: opacity var(--tierMs, 240ms) ease; }
+.tierPulse { transform-box: fill-box; transform-origin: center; animation: bpTier .42s ease-out forwards; }
+@keyframes bpTier { from { opacity: .55; transform: scale(.9); } to { opacity: 0; transform: scale(1.35); } }
+/* 同一舞台只留一個「五珠技」橫幅（Match3Board 金葉），BeadFx 的小字不再疊上去。 */
+.lux [data-testid="skill5-banner"] { display: none; }
+/* v4 音效開關：低調膠囊，顏色沿用文字色並用 color-mix 調淡 */
+.soundBtn{display:block;margin:2px auto 6px;font:inherit;font-size:11px;letter-spacing:.08em;padding:3px 9px;border-radius:999px;
+  border:1px solid color-mix(in srgb, currentColor 28%, transparent);background:color-mix(in srgb, currentColor 6%, transparent);color:inherit;opacity:.72;cursor:pointer}
+.soundBtn:hover,.soundBtn:focus-visible{opacity:1}
+.soundBtn[aria-pressed="false"]{opacity:.5}

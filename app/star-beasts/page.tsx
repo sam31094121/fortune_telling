@@ -97,6 +97,7 @@ const GAME_MODES = [
   { id: 'easy', step: '① 簡單', iconPath: 'M13 2 4 14h7l-1 8 10-13h-7l1-7Z', title: '三卡免費戰場', desc: '選 3 張卡開戰，不扣收藏卡', href: '/beast-game?mode=easy' },
   { id: 'medium', step: '② 中度', iconPath: 'M20 12a8 8 0 1 1-8-8 M16 12a4 4 0 1 1-4-4 M12 12l9-9 M16 3h5v5', title: '單卡押注', desc: '押 1 張收藏卡；輸了失去 1 張', href: '/beast-game/lineup' },
   { id: 'hard', step: '③ 困難', iconPath: 'm4 3 3 1 12 13-2 2L4 6 4 3Z M3 17l4 4 M5 19l-2 2 M17 3l3 1-1 3-5 5 M10 15l-3 4 M17 17l4 4 M17 21l4-4', title: '五卡押注戰場', desc: `押 1～${MAX_STAKE_CARDS} 張收藏卡；輸了只失去押上的卡`, href: '/beast-game/battlefield' },
+  { id: 'bead', step: '④ 寶珠', iconPath: 'M12 3a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M6 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M18 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8', title: '寶珠戰鬥', desc: '自選五張卡，拖曳連珠出招', href: '/beast-game/match3' },
 ] as const;
 
 export default function StarBeastsPage() {
