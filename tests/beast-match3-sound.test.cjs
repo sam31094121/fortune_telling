@@ -52,6 +52,11 @@ for(const cue of ['clear','charge','impact','shield','fusion','counter','guard']
     assert.equal(release[0],'exp');assert.equal(release[1],.0001);assert(release[2]>attack[2]);
   }
   assert(totalPeak*ctx.gains[0].gain.value<=.1,'conservative summed peak gain remains below 0.1');
+  if(cue==='clear'||cue==='charge') {
+    assert(added.every(o=>o.type==='sine'),'frequent orb cues use smooth tones without triangle harmonics');
+    assert(added.every(o=>o.frequency.events.every(e=>e[1]<=440)),'frequent orb cues exclude sharp high accents');
+    assert(totalPeak*ctx.gains[0].gain.value<=.035,'frequent orb cues remain quieter than combat impacts');
+  }
   const endingHz=o=>o.frequency.events.at(-1)[1];
   const tail=added.reduce((a,b)=>a.stops[0]>b.stops[0]?a:b);
   assert(endingHz(tail)<=330,'longest voice ends in a low register instead of a shrill tail');

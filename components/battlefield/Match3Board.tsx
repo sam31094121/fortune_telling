@@ -341,6 +341,12 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
 
   return (
     <section ref={root} className={styles.wrap} onPointerDownCapture={() => audio.current?.unlock()} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
+      {rigEnabled && <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: 'absolute', pointerEvents: 'none' }}>
+        <defs>
+          <clipPath id="match3-soft-space" clipPathUnits="objectBoundingBox"><path d="M .42 .1 Q .5 .02 .58 .1 L .9 .42 Q .98 .5 .9 .58 L .58 .9 Q .5 .98 .42 .9 L .1 .58 Q .02 .5 .1 .42 Z" /></clipPath>
+          <clipPath id="match3-soft-fire" clipPathUnits="objectBoundingBox"><path d="M .42 .12 Q .5 -.02 .58 .12 L .94 .78 Q 1 .92 .84 .92 L .16 .92 Q 0 .92 .06 .78 Z" /></clipPath>
+        </defs>
+      </svg>}
       <header className={styles.head}>
         {rigEnabled && <Link href="/" className={styles.homeLink} data-testid="match3-home">回到首頁</Link>}
         {rigEnabled && onRepick && <div className={`${styles.repick} ${styles.repickTop}`}><button type="button" data-testid="open-picker" disabled={busy} onClick={onRepick}>重新選卡</button></div>}

@@ -3,8 +3,8 @@ export type Match3SoundCue = 'clear' | 'charge' | 'impact' | 'shield' | 'fusion'
 type Tone = { hz: number; to?: number; at?: number; duration: number; gain: number; type?: OscillatorType };
 const CUES: Record<Match3SoundCue, readonly Tone[]> = {
   // 高音只作短促辨識，較長尾音交給往下收的低聲部；不增加總音量或回合等待。
-  clear: [{ hz: 1100, to: 550, duration: .065, gain: .09 }, { hz: 1320, at: .025, to: 660, duration: .05, gain: .025 }, { hz: 220, to: 196, duration: .24, gain: .09 }],
-  charge: [{ hz: 220, to: 330, duration: .36, gain: .15, type: 'triangle' }, { hz: 660, to: 440, at: .1, duration: .1, gain: .045 }],
+  clear: [{ hz: 420, to: 210, duration: .18, gain: .06 }, { hz: 315, at: .035, to: 196, duration: .14, gain: .035 }, { hz: 196, to: 147, duration: .28, gain: .075 }],
+  charge: [{ hz: 220, to: 294, duration: .36, gain: .13 }, { hz: 440, to: 330, at: .1, duration: .12, gain: .035 }],
   impact: [{ hz: 135, to: 65, duration: .38, gain: .2, type: 'triangle' }, { hz: 1080, to: 360, duration: .05, gain: .04 }],
   shield: [{ hz: 660, to: 330, duration: .55, gain: .13 }, { hz: 990, to: 495, at: .055, duration: .12, gain: .045 }, { hz: 1320, to: 660, at: .11, duration: .09, gain: .025 }],
   fusion: [{ hz: 440, to: 220, duration: .26, gain: .1 }, { hz: 550, to: 275, at: .05, duration: .19, gain: .06 }, { hz: 880, to: 440, at: .1, duration: .12, gain: .035 }, { hz: 110, to: 82.4, at: .29, duration: .48, gain: .2, type: 'triangle' }],
