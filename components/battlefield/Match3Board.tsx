@@ -26,6 +26,8 @@ import bp from './bead/BeadPolish.module.css';
 import { BoardCell } from './bead/BoardCell';
 import { SoundToggle } from './bead/SoundToggle';
 import { getBeadSound } from '@/lib/beast-game/match3/bead-sound';
+import { applyGuardianBonus, isGuardianMagicEnabled, resolveGuardianActivations, type GuardianActivation } from '@/lib/beast-game/match3/guardian-magic';
+import { GuardianSkillFx } from './bead/GuardianSkillFx';
 
 interface Unit extends Match3Fighter { name: string; thumbnail: string; maxHp: number; energy: number }
 import type {} from '@/lib/beast-game/match3/event-bus'; // window.__match3Events 的共用宣告
@@ -85,6 +87,9 @@ function Match3Game({ init, teamIds, rule }: { init: { rng: Rng; team: Unit[]; e
   const [hitTeam, setHitTeam] = useState<string | null>(null);
   const [attacked, setAttacked] = useState<Set<string>>(new Set());
   const [chosen, setChosen] = useState<LeadChoice>({});
+  // 10/31 四象魔法珠：演出佇列（旗標 NEXT_PUBLIC_GUARDIAN_MAGIC=1 才會有內容）
+  const [gfx, setGfx] = useState<Array<{ act: GuardianActivation; bonus: number }>>([]);
+  const nextGfx = useCallback(() => setGfx((q) => q.slice(1)), []);
   // 測試專用：只在網址帶 ?m3debug=1 時掛上，用來把指定隊員 HP 設 0 驗證倒下換人；不改任何卡的真實數值。
   useEffect(() => {
     if (typeof window === 'undefined' || new URLSearchParams(window.location.search).get('m3debug') !== '1') return;
@@ -123,7 +128,11 @@ function Match3Game({ init, teamIds, rule }: { init: { rng: Rng; team: Unit[]; e
       return;
     }
     const el = res.element!;
-    const hits = computeHits(res.steps, attackingTeam(team, rule, chosen), enemy.element);
+    const baseHits = computeHits(res.steps, attackingTeam(team, rule, chosen), enemy.element);
+    const gActs = isGuardianMagicEnabled() && res.magicTriggered.length ? resolveGuardianActivations(res.magicTriggered, team, rngRef.current) : [];
+    const hits = applyGuardianBonus(baseHits, gActs);
+    const gShow = gActs.map((a) => ({ act: a, bonus: hits.filter((h) => h.chain === a.chain && h.element === a.orbElement).reduce((n, h) => n + (h.guardianBonus ?? 0), 0) }));
+    for (const g of gShow) { const ev = { type: 'guardianMagic', guardian: g.act.guardian.id, skill: g.act.guardian.skillId, orbElement: g.act.orbElement, chain: g.act.chain, bonus: g.bonus }; (window.__match3Events ??= []).push(ev as unknown as Match3Event); console.log('[match3]', ev); }
     { const ids = new Set(hits.filter((h) => h.amount > 0 && h.attackerId).map((h) => h.attackerId as string)); setAttacked(ids); later(() => setAttacked(new Set()), 900); }
     const gains = energyGains(res);
     const events = buildEvents(res.steps, hits, { magicSpawn: res.magicSpawn, magicTriggered: res.magicTriggered, skill5Element: res.skill5 ? el : null, energy: gains });
@@ -169,6 +178,8 @@ function Match3Game({ init, teamIds, rule }: { init: { rng: Rng; team: Unit[]; e
       if (res.skill5) showBanner(`五珠技！${lbl}屬性卡能量集滿`, 'skill');
       if (res.magicSpawn) showBanner(`生成${lbl}魔法珠・威力 ${res.magicSpawn.power}`, 'magic');
       else if (res.magicTriggered.length) showBanner('魔法珠引爆！能量集滿', 'skill');
+      for (const g of gShow) msg += `，${g.act.guardian.name}發動「${g.act.guardian.skillName}」（四象加成 +${g.bonus}）`;
+      if (gShow.length) setGfx((q) => [...q, ...gShow]);
       if (res.magicSpawn) msg += `，生成魔法珠（威力 ${res.magicSpawn.power}）`;
       if (res.reshuffled) msg += '；沒有可走的步，已重新洗盤';
       if (nextEnemyHp > 0 && m % ENEMY_COUNTER_EVERY === 0) {
@@ -240,6 +251,7 @@ function Match3Game({ init, teamIds, rule }: { init: { rng: Rng; team: Unit[]; e
         <BeadLink points={drag.points} el={dragEl} />
         {burst && <BeadBurst key={burst.id} cells={burst.cells} />}
         <CascadeLabel step={stepNo} />
+        {gfx[0] && <GuardianSkillFx key={`${gfx[0].act.chain}-${gfx[0].act.guardian.id}-${moves}`} act={gfx[0].act} bonus={gfx[0].bonus} onDone={nextGfx} />}
         {banner && <div className={`${styles.banner} ${styles['b_' + banner.kind]} ${banner.kind === 'magic' || banner.kind === 'skill' ? bp.leaf : ''}`} data-testid="match3-banner" role="status">{banner.text}</div>}
       </div>
 

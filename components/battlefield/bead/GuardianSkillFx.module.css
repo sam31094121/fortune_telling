@@ -1,0 +1,28 @@
+.layer { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; overflow: hidden; cursor: pointer;
+  --gc: #d6b86a; background: radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--gc) 30%, transparent), rgba(5, 6, 18, .82) 70%);
+  animation: gmIn 220ms ease-out both, gmOut 260ms ease-in calc(1400ms - 260ms) both; border-radius: inherit; }
+.layer[data-el='AIR'] { --gc: #2f9e7e; }
+.layer[data-el='FIRE'] { --gc: #e0532c; }
+.layer[data-el='SPACE'] { --gc: #8d6fd1; }
+.layer[data-el='WATER'] { --gc: #2c74d0; }
+.glow { position: absolute; width: 140%; aspect-ratio: 1; border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent, var(--gc), #f6d98f, transparent 60%); opacity: .35; animation: gmSpin 1400ms linear both; }
+.beast { position: relative; height: 78%; max-width: 70%; object-fit: contain; filter: drop-shadow(0 0 18px var(--gc)) drop-shadow(0 0 4px #f6d98f);
+  animation: gmBeast 1400ms cubic-bezier(.2, .8, .2, 1) both; pointer-events: none; }
+.banner { position: absolute; left: 50%; bottom: 8%; transform: translateX(-50%); display: grid; gap: 2px; text-align: center; white-space: nowrap;
+  padding: 8px 18px; border: 1px solid #d6b86a; border-radius: 10px; background: linear-gradient(180deg, rgba(28, 25, 34, .92), rgba(20, 18, 26, .92));
+  box-shadow: 0 0 16px color-mix(in srgb, var(--gc) 60%, transparent); color: #e8e1d3; animation: gmBanner 420ms 120ms ease-out both; }
+.sub { font-size: 12px; color: #ffe3a1; letter-spacing: .08em; }
+.name { font-size: clamp(18px, 4.6vw, 26px); color: #f6d98f; text-shadow: 0 0 8px var(--gc); }
+.dmg { font-size: 13px; font-weight: 700; color: #fff; }
+.skip { position: absolute; top: 8px; right: 8px; min-height: 32px; padding: 4px 12px; border-radius: 16px; border: 1px solid #8a6c33;
+  background: rgba(20, 18, 26, .8); color: #e8e1d3; font-size: 13px; cursor: pointer; }
+@keyframes gmIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes gmOut { to { opacity: 0; } }
+@keyframes gmSpin { from { transform: rotate(0) scale(.6); } to { transform: rotate(200deg) scale(1.1); } }
+@keyframes gmBeast { 0% { transform: translateY(18%) scale(.7); opacity: 0; } 30% { transform: translateY(0) scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes gmBanner { from { transform: translate(-50%, 12px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .layer, .glow, .beast, .banner { animation: none; }
+  .glow, .beast { display: none; }
+}
