@@ -93,7 +93,7 @@ function Match3Game({ init, teamIds, rule }: { init: { rng: Rng; team: Unit[]; e
   // 測試專用：只在網址帶 ?m3debug=1 時掛上，用來把指定隊員 HP 設 0 驗證倒下換人；不改任何卡的真實數值。
   useEffect(() => {
     if (typeof window === 'undefined' || new URLSearchParams(window.location.search).get('m3debug') !== '1') return;
-    (window as unknown as { __m3Debug?: unknown }).__m3Debug = { ko: (i: number) => setTeam((t) => t.map((u, k) => (k === i ? { ...u, hp: 0 } : u))) };
+    (window as unknown as { __m3Debug?: unknown }).__m3Debug = { ko: (i: number) => setTeam((t) => t.map((u, k) => (k === i ? { ...u, hp: 0 } : u))), load: (b: Board, m: MagicGrid) => { setBoard(b); setMagic(m); } };
     return () => { delete (window as unknown as { __m3Debug?: unknown }).__m3Debug; };
   }, []);
   const [log, setLog] = useState('手指或滑鼠按住一顆寶珠，拖過相鄰的同色珠，放開就發動。');
