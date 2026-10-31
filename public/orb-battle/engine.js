@@ -20,7 +20,12 @@
     chainBonusPerStep: 0.2,        // 【待平衡】rules.json CHAIN_STEP：1 + (連鎖-1)×0.2
     energyPerGem: 10, energyMax: 100,
     SKILL_RATIO: 2,                // 【待平衡】config.ts SKILL_RATIO：技能 = 卡面攻擊 × 2 × 克制倍率（damage.ts skillAmount）
-    NORMAL_POWER_CAP: 10,          // config.ts NORMAL_POWER_CAP：普通消除威力最多算 10 顆；魔法珠威力不設上限
+    NORMAL_POWER_CAP: Infinity,    // 10/31 鈺勝核准（僅 orb-battle）：取消普通威力上限 10；原 config.ts 值 10
+    diagonal: true,                // 10/31 鈺勝核准（僅 orb-battle）：上下左右＋四斜角皆可連；路徑長度不設上限；跳格（不相鄰）即斷
+    // 10/31 鈺勝核准（僅 orb-battle）：三難度、AI 鏡像玩家隊伍；雙方同乘難度倍率（攻擊與 HP）【待平衡】
+    // ai：AI 選路方式（easy＝隨機 3 顆、normal＝最長但上限 5 顆、hard＝最長＋優先克制）【待決定】
+    DIFFICULTY: { easy: { label: '簡單', mul: 1, ai: 'easy' }, normal: { label: '普通', mul: 1.25, ai: 'normal' }, hard: { label: '困難', mul: 1.5, ai: 'hard' } },
+    defaultDiff: 'normal', mirrorAI: true,
     SKILL5_LENGTH: 5,              // config.ts SKILL5_LENGTH：一次拖曳「剛好」5 顆 → 該屬性卡能量集滿
     magicOrbMinLength: 4,          // config.ts MAGIC_ORB_MIN_LENGTH
     magicOrbSpawnEnabled: true,    // config.ts MAGIC_ORB_SPAWN_ENABLED = true（已核准）
@@ -105,6 +110,9 @@
     return runs;
   }
   function isAdjacent(a, b) { return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) === 1; }
+  // 連珠相鄰：CONFIG.diagonal 時含四斜角（切比雪夫距離 1）；交換（legacy）仍用 isAdjacent
+  function isLinkAdjacent(a, b, cfg) { cfg = cfg || CONFIG; var dr = Math.abs(a[0] - b[0]), dc = Math.abs(a[1] - b[1]); return cfg.diagonal ? Math.max(dr, dc) === 1 : dr + dc === 1; }
+  function linkNeighbors(p, cfg) { cfg = cfg || CONFIG; var n = [[p[0] + 1, p[1]], [p[0] - 1, p[1]], [p[0], p[1] + 1], [p[0], p[1] - 1]]; if (cfg.diagonal) n.push([p[0] + 1, p[1] + 1], [p[0] + 1, p[1] - 1], [p[0] - 1, p[1] + 1], [p[0] - 1, p[1] - 1]); return n; }
   function swapCells(b, a, c) {
     var n = cloneBoard(b), t = n[a[0]][a[1]];
     n[a[0]][a[1]] = n[c[0]][c[1]]; n[c[0]][c[1]] = t; return n;
@@ -188,11 +196,17 @@
       seed: seed, cfg: cfg, rng: rng,
       board: opts.board ? cloneBoard(opts.board) : generateDragBoard(rng, cfg.cols, cfg.rows),
       team: (opts.team || OFFICIAL_TEAM).map(adaptCard),
-      enemies: (opts.enemies || OFFICIAL_ENEMIES).map(adaptCard),
+      enemies: (cfg.mirrorAI ? (opts.team || OFFICIAL_TEAM) : (opts.enemies || OFFICIAL_ENEMIES)).map(adaptCard),
       selected: 0, target: 0, maxChain: 0, turn: 0, totalDamage: 0, status: 'playing', events: [],
       leads: {}, mode: opts.mode === 'medium' && cfg.ORB_MEDIUM_ENABLED ? 'medium' : 'preview'
     };
     s.magic = opts.magic ? opts.magic.map(function (r) { return r.slice(); }) : emptyMagic(s.board);
+    // 難度：雙方（我方與鏡像 AI）同乘同一倍率【待平衡】；卡面原始數值不改，只在本局套用
+    s.diff = cfg.DIFFICULTY && cfg.DIFFICULTY[opts.diff] ? opts.diff : cfg.defaultDiff;
+    var tier = cfg.DIFFICULTY ? cfg.DIFFICULTY[s.diff] : { mul: 1 }; s.tierMul = tier.mul;
+    function scale(c) { c.baseAtk = c.atk; c.baseHp = c.maxHp; c.atk = Math.round(c.atk * tier.mul); c.maxHp = c.hp = Math.round(c.maxHp * tier.mul); }
+    s.team.forEach(scale); s.enemies.forEach(scale);
+    if (cfg.mirrorAI) s.enemies.forEach(function (e) { e.mirror = true; });
     // 每個敵人每 enemyAttackEvery（=3，React ENEMY_COUNTER_EVERY）步反擊一次，不錯開
     s.enemies.forEach(function (e) { e.cd = cfg.enemyAttackEvery; });
     return s;
@@ -246,6 +260,7 @@
   // 敵方回合計數：每次成功交換後 -1，歸零攻擊我方 HP 最低的存活卡（同 HP 取前者），再重置
   function enemyPhase(s) {
     if (s.status !== 'playing') return;
+    if (s.cfg.mirrorAI) { aiTurn(s); return; }
     s.enemies.forEach(function (e, ei) {
       if (e.hp <= 0 || s.status !== 'playing') return;
       e.cd -= 1;
@@ -380,7 +395,7 @@
   function canExtend(b, path, p) {
     if (!inBoundsP(b, p)) return false;
     if (!path.length) return true;
-    if (!isAdjacent(path[path.length - 1], p)) return false;
+    if (!isLinkAdjacent(path[path.length - 1], p)) return false;
     if (b[p[0]][p[1]] !== b[path[0][0]][path[0][1]]) return false;
     return !path.some(function (q) { return q[0] === p[0] && q[1] === p[1]; });
   }
@@ -396,7 +411,7 @@
       var n = 0, st = [[r, c]]; seen[r * 1000 + c] = 1;
       while (st.length) {
         var p = st.pop(); n++;
-        [[p[0] + 1, p[1]], [p[0] - 1, p[1]], [p[0], p[1] + 1], [p[0], p[1] - 1]].forEach(function (q) {
+        linkNeighbors(p).forEach(function (q) {
           if (inBoundsP(b, q) && !seen[key(q)] && b[q[0]][q[1]] === b[r][c]) { seen[key(q)] = 1; st.push(q); }
         });
       }
@@ -512,6 +527,65 @@
     if (o.kind === 'ko') return '我方' + label + '屬性卡已倒下（' + o.names.join('、') + '），無法出手';
     return '隊伍裡沒有' + label + '屬性主卡可出手';
   }
+  // 【待平衡】拖曳傷害（雙方同一公式）：round(卡面攻擊(已乘難度) × BASE_RATIO × (1 + (N − 3) × k) × 連鎖倍率 × 相剋)
+  // N＝威力（普通顆數，不設上限＋魔法珠威力），k＝lengthBonusPerExtraGem 0.25，BASE_RATIO 0.5，連鎖倍率 1 + (連鎖 − 1) × 0.2
+  function dragDamage(atk, n, chain, adv, cfg) { cfg = cfg || CONFIG; return Math.round(atk * cfg.BASE_RATIO * lengthMultiplier(n, cfg) * chainMultiplier(chain, cfg) * (adv == null ? 1 : adv)); }
+  // AI 找路：DFS（含斜角），節點預算避免爆量；回傳最長路徑（≤ cap）
+  function aiPaths(b, cap, budget) {
+    var best = [], seen = 0, rows = b.length, cols = b[0].length, all = [];
+    function dfs(p) {
+      if (++seen > budget) return;
+      if (p.length > best.length) best = p.slice();
+      if (p.length >= 3) all.push(p.slice());
+      if (p.length >= cap) return;
+      linkNeighbors(p[p.length - 1]).forEach(function (q) { if (seen <= budget && canExtend(b, p, q)) { p.push(q); dfs(p); p.pop(); } });
+    }
+    for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) dfs([[r, c]]);
+    return { best: best, all: all };
+  }
+  function aiChoosePath(s) {
+    var mode = (s.cfg.DIFFICULTY[s.diff] || {}).ai || 'normal', b = s.board;
+    var alive = s.enemies.filter(function (e) { return e.hp > 0; }).map(function (e) { return e.element; });
+    function usable(p) { return alive.indexOf(b[p[0][0]][p[0][1]]) >= 0; }
+    if (mode === 'easy') { var a3 = aiPaths(b, 3, 4000).all.filter(usable); if (!a3.length) a3 = aiPaths(b, 3, 4000).all; return a3.length ? a3[Math.floor(s.rng() * a3.length)] : null; }
+    var cap = mode === 'normal' ? 5 : 99, res = aiPaths(b, cap, mode === 'hard' ? 60000 : 15000), list = res.all.filter(usable);
+    if (!list.length) list = res.all; if (!list.length) return null;
+    var t = aiTargetIndex(s);
+    function score(p) { var el = b[p[0][0]][p[0][1]], adv = t >= 0 ? advantage(el, s.team[t].element, s.cfg) : 1, mag = 0; p.forEach(function (q) { mag += s.magic[q[0]][q[1]] || 0; }); return (p.length + mag) * (mode === 'hard' ? adv : 1); }
+    list.sort(function (x, y) { return score(y) - score(x); });
+    return list[0];
+  }
+  function aiTargetIndex(s) { var t = -1; s.team.forEach(function (c, i) { if (c.hp > 0 && (t < 0 || c.hp < s.team[t].hp)) t = i; }); return t; }
+  function aiLead(s, element) { for (var i = 0; i < s.enemies.length; i++) if (s.enemies[i].hp > 0 && s.enemies[i].element === element) return i; return -1; }
+  function hitTeam(s, ei, dmg, adv, extra) {
+    var t = aiTargetIndex(s); if (t < 0) return;
+    s.team[t].hp = Math.max(0, s.team[t].hp - dmg);
+    emit(s, Object.assign({ type: 'enemyAttack', enemy: ei, target: t, damage: dmg, advantage: adv }, extra || {}));
+    if (s.team[t].hp <= 0) { s.team[t].energy = 0; emit(s, { type: 'knockedOut', target: t }); }
+    if (s.team.every(function (c) { return c.hp <= 0; })) { s.status = 'lost'; emit(s, { type: 'battleLost' }); }
+  }
+  // AI 回合（與玩家對稱：每次玩家成功拖曳後 AI 拖一次；同盤面、同公式、同魔法珠／連鎖規則；能量滿自動放技能）
+  function aiTurn(s) {
+    if (s.status !== 'playing') return;
+    s.enemies.forEach(function (e, ei) {
+      if (e.hp > 0 && s.status === 'playing' && e.energy >= s.cfg.energyMax) { var t = aiTargetIndex(s); if (t < 0) return; var adv = advantage(e.element, s.team[t].element, s.cfg); e.energy = 0; hitTeam(s, ei, skillAmount(e.atk, adv, s.cfg), adv, { skill: true }); }
+    });
+    if (s.status !== 'playing') return;
+    var path = aiChoosePath(s); if (!path) return;
+    var res = resolveDragBoard(s.board, path, s.rng, s.magic, s.cfg); if (!res.valid) return;
+    emit(s, { type: 'aiDrag', element: res.element, length: res.chainLength, path: path.map(function (p) { return [p[0], p[1]]; }), diagonal: path.some(function (p, k) { return k && p[0] !== path[k - 1][0] && p[1] !== path[k - 1][1]; }) });
+    res.steps.forEach(function (step) {
+      step.groups.forEach(function (g) {
+        var ei = aiLead(s, g.element); if (ei < 0 || s.status !== 'playing') return;
+        var t = aiTargetIndex(s); if (t < 0) return;
+        var adv = advantage(g.element, s.team[t].element, s.cfg);
+        hitTeam(s, ei, dragDamage(s.enemies[ei].atk, g.power, step.chain, adv, s.cfg), adv, { power: g.power, chain: step.chain, ai: true });
+      });
+    });
+    energyGains(res, s.cfg).forEach(function (eg) { var ei = aiLead(s, eg.element); if (ei >= 0) s.enemies[ei].energy = applyEnergy(s.enemies[ei].energy, eg, s.cfg); });
+    s.board = res.board; s.magic = res.magic;
+    if (res.reshuffled) emit(s, { type: 'reshuffle', keepMagic: true });
+  }
   function tryDrag(s, path) {
     if (s.status !== 'playing') return { ok: false, reason: 'ended' };
     var res = resolveDragBoard(s.board, path, s.rng, s.magic, s.cfg);
@@ -528,7 +602,7 @@
         atks.forEach(function (ai) {
           var ti = aliveEnemyIndex(s); if (ti < 0 || s.status !== 'playing') return;
           var card = s.team[ai], adv = advantage(g.element, s.enemies[ti].element, s.cfg);
-          var dmg = Math.round(card.atk * s.cfg.BASE_RATIO * lengthMultiplier(g.power, s.cfg) * chainMultiplier(step.chain, s.cfg) * adv);
+          var dmg = dragDamage(card.atk, g.power, step.chain, adv, s.cfg);
           s.enemies[ti].hp = Math.max(0, s.enemies[ti].hp - dmg); s.totalDamage += dmg;
           emit(s, { type: 'attack', attacker: ai, target: ti, element: g.element, length: g.power, power: g.power, orbs: g.size, magic: !!g.magic, skill5: !!g.skill5, chain: step.chain, damage: dmg, advantage: adv, cells: g.cells });
           checkEnd(s);
@@ -550,7 +624,7 @@
   var SAVE_KEY = 'tdh_beast_orb_battle_save_v1', SAVE_VERSION = 1;
   function serializeGame(s) {
     return {
-      v: SAVE_VERSION, kind: 'orb-battle', mode: s.mode, savedAt: Date.now(),
+      v: SAVE_VERSION, kind: 'orb-battle', mode: s.mode, diff: s.diff, savedAt: Date.now(),
       seed: s.seed, rngState: s.rng.state >>> 0,
       board: cloneBoard(s.board), magic: s.magic.map(function (r) { return r.slice(); }),
       team: s.team.map(function (c) { return { id: c.id, hp: c.hp, energy: c.energy }; }),
@@ -568,12 +642,12 @@
     var b = data.board, m = data.magic;
     if (!Array.isArray(b) || b.length !== cfg.rows || !b.every(function (r) { return Array.isArray(r) && r.length === cfg.cols && r.every(function (e) { return ELEMENTS.indexOf(e) >= 0; }); })) return null;
     if (!Array.isArray(m) || m.length !== cfg.rows || !m.every(function (r) { return Array.isArray(r) && r.length === cfg.cols && r.every(function (x) { return Number.isInteger(x) && x >= 0; }); })) return null;
-    var teamPool = opts.teamPool || OFFICIAL_TEAM, enemyPool = opts.enemyPool || OFFICIAL_ENEMIES;
+    var teamPool = opts.teamPool || OFFICIAL_TEAM, enemyPool = cfg.mirrorAI ? teamPool : (opts.enemyPool || OFFICIAL_ENEMIES);
     function byId(pool, id) { for (var i = 0; i < pool.length; i++) if (pool[i].id === id) return pool[i]; return null; }
     var teamRaw = (data.team || []).map(function (t) { return byId(teamPool, t.id); });
     var enRaw = (data.enemies || []).map(function (t) { return byId(enemyPool, t.id); });
     if (!teamRaw.length || teamRaw.some(function (x) { return !x; }) || !enRaw.length || enRaw.some(function (x) { return !x; })) return null;
-    var s = createGame({ seed: data.seed, board: b, magic: m, team: teamRaw, enemies: enRaw, config: opts.config, mode: data.mode });
+    var s = createGame({ seed: data.seed, board: b, magic: m, team: teamRaw, enemies: enRaw, config: opts.config, mode: data.mode, diff: data.diff });
     s.rng = mulberry32(data.seed, data.rngState);
     s.team.forEach(function (c, i) { var t = data.team[i]; c.hp = Math.max(0, Math.min(c.maxHp, t.hp | 0)); c.energy = Math.max(0, Math.min(cfg.energyMax, t.energy | 0)); });
     s.enemies.forEach(function (e, i) { var t = data.enemies[i]; e.hp = Math.max(0, Math.min(e.maxHp, t.hp | 0)); e.cd = Math.max(1, Math.min(cfg.enemyAttackEvery, t.cd | 0)); });
@@ -590,8 +664,8 @@
   // 找一條可拖路徑（DFS，長度 3）供提示／測試
   function findDragHint(b, len) {
     len = len || 3;
-    function dfs(p) { if (p.length === len) return p; var l = p[p.length - 1], n = [[l[0] + 1, l[1]], [l[0] - 1, l[1]], [l[0], l[1] + 1], [l[0], l[1] - 1]];
-      for (var i = 0; i < 4; i++) if (canExtend(b, p, n[i])) { var x = dfs(p.concat([n[i]])); if (x) return x; } return null; }
+    function dfs(p) { if (p.length === len) return p; var l = p[p.length - 1], n = linkNeighbors(l);
+      for (var i = 0; i < n.length; i++) if (canExtend(b, p, n[i])) { var x = dfs(p.concat([n[i]])); if (x) return x; } return null; }
     for (var r = 0; r < b.length; r++) for (var c = 0; c < b[0].length; c++) { var x = dfs([[r, c]]); if (x) return x; }
     return null;
   }
@@ -607,7 +681,7 @@
   return {
     VERSION: 'v0.7-rebuild', ELEMENTS: ELEMENTS, LABEL: LABEL, GEM_CLASS: GEM_CLASS, COLOR: COLOR, CONFIG: CONFIG,
     DEMO_TEAM: DEMO_TEAM, OFFICIAL_TEAM: OFFICIAL_TEAM, DEMO_ENEMIES: DEMO_ENEMIES, OFFICIAL_ENEMIES: OFFICIAL_ENEMIES, attackOutcome: attackOutcome, attackOutcomeText: attackOutcomeText,
-    mulberry32: mulberry32, createBoard: createBoard, findRuns: findRuns, isAdjacent: isAdjacent,
+    mulberry32: mulberry32, createBoard: createBoard, findRuns: findRuns, isAdjacent: isAdjacent, isLinkAdjacent: isLinkAdjacent, dragDamage: dragDamage, aiTurn: aiTurn, aiChoosePath: aiChoosePath,
     swapCells: swapCells, hasMoves: hasMoves, applyGravity: applyGravity, reshuffle: reshuffle,
     adaptCard: adaptCard, lengthMultiplier: lengthMultiplier, chainMultiplier: chainMultiplier, calcDamage: calcDamage,
     createGame: createGame, trySwap: trySwap, resolve: resolve, useSkill: useSkill,

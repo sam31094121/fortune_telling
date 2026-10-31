@@ -89,6 +89,7 @@ button,.teamCard,.enemyCard,.howTo summary,.soundToggle{touch-action:manipulatio
 .teamRow.linkMode .teamCard{touch-action:none}
 .howTo summary{min-height:44px;display:flex;align-items:center;list-style-position:inside}
 .name,.hpTxt{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.diffRow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:0 0 4px}.diffRow #demoBadge{flex:1 1 180px;margin:0}.diffPick{flex:0 1 auto;display:grid;grid-template-columns:repeat(3,minmax(64px,1fr));gap:5px;margin:0 0 0 auto}.diffCard{min-height:34px;display:flex;align-items:center;justify-content:center;gap:4px;padding:3px 8px;border-radius:11px;border:1px solid #ffffff2e;background:linear-gradient(160deg,#2a3557,#151b30);color:#dfe8ff;box-shadow:inset 0 1px 0 #ffffff26,0 2px 6px #0007;font:inherit;cursor:pointer}.diffCard b{font-size:13px;letter-spacing:.06em;white-space:nowrap}.diffCard small{white-space:nowrap}.diffCard small{font-size:10px;color:#a9bbe0}.diffCard.on{border-color:#ffd77a;background:linear-gradient(160deg,#5a4a1e,#2a2110);color:#fff3cf;box-shadow:inset 0 1px 0 #fff4,0 0 10px #ffcf5a66}.diffCard.on small{color:#f1dca2}.diffCard:focus-visible{outline:2px solid #fff;outline-offset:2px}@media (pointer:coarse){.diffCard{min-height:40px}}@media (max-width:380px) and (max-height:780px){#firstPlay{display:none}.diffRow #demoBadge{display:none}.diffCard.on small::after{content:'・待平衡';font-size:9px}.diffCard{padding:3px 3px;gap:2px}}@media (max-width:500px){.diffPick{width:100%;margin:0}.diffRow #demoBadge{flex-basis:100%}}
 .subheading>span,.statusLine,.linkHint,.firstPlay,.howTo p,.log{overflow-wrap:anywhere;min-width:0}
 .teamCard .leadTag{position:absolute;top:-8px;left:50%;transform:translateX(-50%);z-index:6;font-size:10px;font-weight:900;line-height:1;padding:3px 6px;border-radius:999px;white-space:nowrap;pointer-events:none}
 .teamCard .leadTag.lead{background:#fff2ac;color:#3a2a00;box-shadow:0 0 0 1px #000a}
@@ -115,11 +116,11 @@ html.lowfx .gem::before{filter:none;opacity:.12}
       <div><span class="tag">神獸戰隊 · MEDIUM</span><h1>五元素 · 神獸戰鬥</h1></div>
       <div style="display:flex;gap:8px;align-items:center"><button type="button" class="soundToggle" id="soundToggle" aria-pressed="true" aria-label="音效：靜音（點擊開啟）">🔇</button><div class="pill" id="turn">回合 0</div></div>
     </header>
-    <div id="demoBadge" class="notice"></div>
-    <div class="subheading"><span>敵方神獸（點選指定目標；⏳ 為反擊倒數）</span><span id="battleStatus">戰鬥進行中</span></div>
+    <div class="diffRow"><div id="demoBadge" class="notice"></div><div class="diffPick" id="diffPick" role="radiogroup" aria-label="難度（雙方數值同乘倍率【待平衡】）"><button type="button" class="diffCard" data-diff="easy" role="radio" title="雙方數值 ×1・對手隨機 3 連"><b>簡單</b><small>×1</small></button><button type="button" class="diffCard" data-diff="normal" role="radio" title="雙方數值 ×1.25・對手最長 5 連"><b>普通</b><small>×1.25</small></button><button type="button" class="diffCard" data-diff="hard" role="radio" title="雙方數值 ×1.5・對手最長連＋找克制"><b>困難</b><small>×1.5</small></button></div></div>
+    <div class="subheading"><span title="你拖一次、對手拖一次">對手＝你的隊伍鏡像（點卡指定目標）</span><span id="battleStatus">戰鬥進行中</span></div>
     <section class="enemyRow" id="enemyRow" aria-label="敵方神獸"></section>
-    <p class="firstPlay" id="firstPlay">按住寶珠拖過相鄰同色珠（≥3）放開攻擊</p>
-    <details class="howTo" id="howTo"><summary>玩法說明</summary><p>① 點敵方卡指定目標　② 按住寶珠拖過上下左右相鄰的同色珠（3 顆以上）放開發動；4 顆以上生成魔法珠（威力＝顆數，不設上限）、剛好 5 顆同時觸發五珠技　③ 能量滿點「技能」　④ 連線攻擊：開「連線模式」→ 點 2 張以上能量足夠的我方卡 → 點敵人 → 按「發動連線攻擊」（底部固定列）</p></details>
+    <p class="firstPlay" id="firstPlay">拖過相鄰同色珠（可斜角・≥3・不限長）放開攻擊</p>
+    <details class="howTo" id="howTo"><summary>玩法說明</summary><p>① 點敵方卡指定目標　② 按住寶珠拖過相鄰同色珠（上下左右＋四斜角，3 顆以上、不限長度；跳格或不同色即斷）放開發動；傷害＝卡面攻擊 × 0.5 × (1 + (顆數 − 3) × 0.25) × 連鎖倍率 × 相剋【待平衡】；之後對手（你的隊伍鏡像）用同盤面、同公式拖一次；4 顆以上生成魔法珠（威力＝顆數，不設上限）、剛好 5 顆同時觸發五珠技　③ 能量滿點「技能」　④ 連線攻擊：開「連線模式」→ 點 2 張以上能量足夠的我方卡 → 點敵人 → 按「發動連線攻擊」（底部固定列）</p></details>
     <div class="chainCounter" id="chainCounter" aria-live="polite"></div>
     <div class="statusLine" id="message" aria-live="polite">按住寶珠，拖過相鄰同色珠 3 顆以上再放開。</div>
     <section class="boardWrap" aria-label="五元素三消棋盤">
@@ -177,7 +178,7 @@ document.addEventListener('click',function(e){var t=e.target.closest&&e.target.c
   function advTxt(a) { return a > 1 ? '克制 ×' + a : a < 1 ? '被克 ×' + a : ''; }
   function cardHtml(c, i, mine) {
     var cls = E.GEM_CLASS[c.element];
-    var h = (c.demo ? '<div class="demoTag">DEMO</div>' : '') + (mine ? '' : '<div class="cd' + (c.cd <= 1 ? ' soon' : '') + '" title="反擊倒數">⏳' + (c.hp > 0 ? c.cd : '-') + '</div>') +
+    var h = (c.demo ? '<div class="demoTag">DEMO</div>' : '') + (mine || c.mirror ? '' : '<div class="cd' + (c.cd <= 1 ? ' soon' : '') + '" title="反擊倒數">⏳' + (c.hp > 0 ? c.cd : '-') + '</div>') +
       '<div class="avatar ' + cls + '">' + ((c.art || c.thumb) ? '<img src="' + (c.art || c.thumb) + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px">' : E.LABEL[c.element]) + '</div><div class="name">' + c.name + '</div>' +
       '<div class="bar"><i style="width:' + (100 * c.hp / c.maxHp) + '%"></i></div><div class="hpTxt">HP ' + c.hp + '</div>';
     if (mine) {
@@ -272,11 +273,12 @@ document.addEventListener('click',function(e){var t=e.target.closest&&e.target.c
       else if (ev.type === 'magicOrbTrigger') { hook('MagicTrigger', ev); log('魔法珠引爆：' + E.LABEL[ev.element] + ' 威力 +' + ev.power + '，該屬性卡能量集滿'); }
       else if (ev.type === 'skill5') { hook('Skill5', ev); log('五珠技！' + E.LABEL[ev.element] + ' 屬性卡能量集滿'); }
       else if (ev.type === 'drag') hook('Drag', ev);
+      else if (ev.type === 'aiDrag') { hook('AiDrag', ev); log('對手回合：' + E.LABEL[ev.element] + ' ' + ev.length + ' 顆' + (ev.diagonal ? '（含斜角）' : '')); }
       else if (ev.type === 'reshuffle') log('無可行步，已重洗棋盤');
       else if (ev.type === 'enemyAttack') {
         hook('EnemyAttack', ev);
         var at = advTxt(ev.advantage);
-        log(g.enemies[ev.enemy].name + ' 反擊 → ' + g.team[ev.target].name + ' -' + ev.damage + (at ? '（' + at + '）' : ''));
+        log('對手' + g.enemies[ev.enemy].name + (ev.skill ? ' 技能' : ev.ai ? ' ' + ev.power + '連' : ' 反擊') + ' → ' + g.team[ev.target].name + ' -' + ev.damage + (at ? '（' + at + '）' : ''));
         (function (ev, at) { setTimeout(function () { floatNum(document.querySelector('[data-team="' + ev.target + '"]'), '-' + ev.damage, at, 'enemy'); flash('[data-team="' + ev.target + '"]', 'hit'); }, 650); })(ev, at);
       }
       else if (ev.type === 'knockedOut') { hook('KnockOut', ev); log(g.team[ev.target].name + ' 倒下（變灰，無法攻擊）'); }
@@ -294,7 +296,7 @@ document.addEventListener('click',function(e){var t=e.target.closest&&e.target.c
     $('dragLine').setAttribute('points', path.map(function (p, k) { var el = gems[p[0] * cols + p[1]]; if (!el) return ''; el.classList.add('inPath');
       var no = document.createElement('span'); no.className = 'pathNo'; no.textContent = k + 1; el.appendChild(no);
       var q = center(el); return (q.x - w.left).toFixed(1) + ',' + (q.y - w.top).toFixed(1); }).join(' '));
-    if (path.length) msg('連珠 ' + path.length + ' 顆' + (path.length < 3 ? '（至少 3 顆）' : path.length >= g.cfg.magicOrbMinLength ? (path.length === g.cfg.SKILL5_LENGTH ? '・五珠技＋魔法珠' : '・會生成魔法珠') : '') + (path.length > g.cfg.NORMAL_POWER_CAP ? '・普通威力上限 ' + g.cfg.NORMAL_POWER_CAP : ''));
+    if (path.length) msg('連珠 ' + path.length + ' 顆' + (path.length < 3 ? '（至少 3 顆）' : path.length >= g.cfg.magicOrbMinLength ? (path.length === g.cfg.SKILL5_LENGTH ? '・五珠技＋魔法珠' : '・會生成魔法珠') : '') + (path.length > 3 ? '・倍率 ×' + E.lengthMultiplier(path.length, g.cfg).toFixed(2) : ''));
   }
   function extendPath(p) {
     if (!p) return;
@@ -306,7 +308,7 @@ document.addEventListener('click',function(e){var t=e.target.closest&&e.target.c
     path = []; drawPath();
     if (busy) return;
     var before = g.events.length, r = E.tryDrag(g, pth);
-    if (!r.ok) { msg(r.reason === 'ended' ? '戰鬥已結束，按「再來一局」。' : r.reason === 'short' ? '未滿 3 顆，已取消。' : '路徑無效（需上下左右相鄰同色）。'); render(false); return; }
+    if (!r.ok) { msg(r.reason === 'ended' ? '戰鬥已結束，按「再來一局」。' : r.reason === 'short' ? '未滿 3 顆，已取消。' : '路徑無效（需相鄰同色，可斜角；跳格即斷）。'); render(false); return; }
     var news = g.events.slice(before);
     if (store) { if (g.status === 'playing') E.saveGame(store, g); else E.clearSave(store); }
     busy = true;
@@ -342,7 +344,8 @@ document.addEventListener('click',function(e){var t=e.target.closest&&e.target.c
   }
   function bind() {
     var b = $('board');
-    function cellAt(x, y) { var el = document.elementFromPoint(x, y); return el ? cellOf(el) : null; }
+    // 斜角連珠：只在指標進入珠心圓（半徑 42%）時才算進格，避免斜拖擦過角落誤連旁邊的珠
+    function cellAt(x, y) { var el = document.elementFromPoint(x, y), p = el ? cellOf(el) : null; if (!p) return null; var ge = el.closest('.gem') || el, r = ge.getBoundingClientRect(), dx = x - (r.left + r.width / 2), dy = y - (r.top + r.height / 2), rad = Math.min(r.width, r.height) * 0.42; return dx * dx + dy * dy <= rad * rad ? p : null; }
     b.addEventListener('pointerdown', function (e) { var p = cellOf(e.target); if (!p || busy || g.status !== 'playing') return; e.preventDefault(); drag = true; path = [p]; drawPath(); try { b.setPointerCapture(e.pointerId); } catch (x) {} });
     b.addEventListener('pointermove', function (e) { if (!drag) return; extendPath(cellAt(e.clientX, e.clientY)); });
     function endDrag() { if (!drag) return; drag = false; var p = path.slice(); doDrag(p); }
@@ -382,19 +385,23 @@ document.addEventListener('click',function(e){var t=e.target.closest&&e.target.c
     var t = E.createGame({ seed: 1 });
     c(t.board.length === E.CONFIG.rows && t.board[0].length === E.CONFIG.cols); c(E.findRuns(t.board).length === 0); c(E.hasDragMove(t.board));
     c(E.lengthMultiplier(7) > E.lengthMultiplier(6)); c(E.chainMultiplier(2) > E.chainMultiplier(1));
-    c(E.CONFIG.magicOrbSpawnEnabled === true); c(E.normalPower(14) === 10); c(E.useSkill(t, 0).ok === false); c(E.linkAttack(t, [0], 0).ok === false);
-    c(E.findRuns(g.board).length === 0); c(g.team.every(function (x) { return !x.demo && /\.v2\.webp$/.test(x.art); })); c(g.enemies.every(function (x) { return !x.demo && /\.v2\.webp$/.test(x.art); }));
+    c(E.CONFIG.magicOrbSpawnEnabled === true); c(E.normalPower(14) === 14); c(E.isLinkAdjacent([0, 0], [1, 1]) && !E.isLinkAdjacent([0, 0], [0, 2])); c(g.enemies.map(function (x) { return x.name; }).join() === g.team.map(function (x) { return x.name; }).join()); c(E.useSkill(t, 0).ok === false); c(E.linkAttack(t, [0], 0).ok === false);
+    c(E.findRuns(g.board).length === 0); c(g.team.every(function (x) { return !x.demo && /\.v2\.webp$/.test(x.art); })); c(g.enemies.every(function (x) { return !x.demo && /\.v2\.webp$/.test(x.art); })); c(g.team[0].atk === Math.round(g.team[0].baseAtk * g.tierMul) && g.enemies[0].atk === g.team[0].atk);
     msg('一鍵自檢：' + ok + '/' + n + ' 通過（完整測試請執行 node audit.js）'); log('一鍵自檢 ' + ok + '/' + n);
   }
+  function diffParam() { var q = /[?&]diff=(easy|normal|hard)/.exec(location.search); return q ? q[1] : null; }
+  var curDiff = diffParam() || 'normal';
+  function markDiff() { Array.prototype.forEach.call(document.querySelectorAll('.diffCard'), function (b) { var on = b.getAttribute('data-diff') === g.diff; b.classList.toggle('on', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); }); }
+  Array.prototype.forEach.call(document.querySelectorAll('.diffCard'), function (b) { b.addEventListener('click', function () { if (busy) return; curDiff = b.getAttribute('data-diff'); start.fresh = true; try { var u = new URL(location.href); u.searchParams.set('diff', curDiff); history.replaceState(null, '', u.pathname + u.search); } catch (e) {} start(); }); });
   function start() {
     var resumed = store && !start.fresh ? E.loadGame(store) : null; start.fresh = true;
-    g = resumed && resumed.status === 'playing' ? resumed : E.createGame({ seed: seed() }); if (!resumed && store) E.clearSave(store); sel = null; link = []; linkMode = false; linkTarget = false; busy = false; $('log').innerHTML = '';
+    g = resumed && resumed.status === 'playing' ? resumed : E.createGame({ seed: seed(), diff: curDiff }); if (resumed && diffParam() && resumed.diff !== diffParam()) g = E.createGame({ seed: seed(), diff: curDiff }); if (!resumed && store) E.clearSave(store); sel = null; link = []; linkMode = false; linkTarget = false; busy = false; $('log').innerHTML = '';
     $('result').className = 'result';
-    $('demoBadge').textContent = '正式神獸卡 5v5・敵方數值【待平衡】・seed ' + g.seed;
-    path = []; msg('點敵方卡指定目標，按住寶珠拖過相鄰同色珠 3 顆以上再放開。'); render(false);
+    $('demoBadge').textContent = '難度' + g.cfg.DIFFICULTY[g.diff].label + '・雙方 ×' + g.tierMul + '【待平衡】・對手＝你隊伍鏡像・seed ' + g.seed; markDiff();
+    path = []; msg('點敵方卡選目標，拖相鄰同色珠（可斜角）≥3 顆放開，之後換對手。'); render(false);
   }
   window.__beastGame = function () { return g; };
-  window.__beastUI = { link: function () { return link.slice(); }, setLink: function (a) { link = a.slice(); render(false); }, render: function () { render(false); }, drag: function (p) { doDrag(p); } };
+  window.__beastUI = { path: function () { return path.slice(); }, busy: function () { return busy; }, link: function () { return link.slice(); }, setLink: function (a) { link = a.slice(); render(false); }, render: function () { render(false); }, drag: function (p) { doDrag(p); } };
   bind(); start();
 })();
 </script>
