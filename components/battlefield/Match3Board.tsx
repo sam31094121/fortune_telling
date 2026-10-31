@@ -28,6 +28,7 @@ import styles from './Match3Board.module.css';
 import { RIG_STRIKE_MS } from '@/lib/beast-game/beast-rig';
 import Match3RigAttack, { Match3TargetArt, match3RigAttackers, type Match3Strike } from './Match3RigAttack';
 import { readMatch3Progress, saveMatch3Progress, type Match3ProgressOwner } from '@/lib/beast-game/match3/progress-store';
+import { createMatch3Sound, type Match3SoundCue } from './match3Sound';
 
 interface Unit extends Match3Fighter { name: string; thumbnail: string; maxHp: number; energy: number; skillName?: string; description?: string }
 interface Foe extends Match3Foe { name: string; thumbnail: string }
@@ -115,16 +116,21 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
   const [wins, setWins] = useState(init.wins);
   const [progressSaveFailed, setProgressSaveFailed] = useState(false);
   const stage = progressionStage(wins);
+  const audio = useRef<ReturnType<typeof createMatch3Sound> | null>(null);
+  const cue = useCallback((name: Match3SoundCue) => { if (!document.hidden) audio.current?.play(name); }, []);
+  const impact = useCallback(() => cue('impact'), [cue]);
   const hadRig = useRef(false);
   const root = useRef<HTMLElement>(null);
   const strikeKey = useRef(0);
   const [strike, setStrike] = useState<Match3Strike | null>(null);
-  const showStrike = (hits: readonly { attackerId?: string | null; amount: number }[], foe: Foe, after: Foe) => {
+  const showStrike = (hits: readonly { attackerId?: string | null; amount: number }[], foe: Foe, after: Foe, charge = false) => {
     if (!rigEnabled) return;
     const attackerIds = match3RigAttackers(hits, foe.hp, after.hp);
     hadRig.current = attackerIds.length > 0;
     const next = attackerIds.length ? { key: ++strikeKey.current, targetId: foe.id, attackerIds } : null;
     setStrike(next);
+    if (next && charge) cue('charge');
+    if (!next && foe.hp > after.hp) cue('impact');
     if (next) later(() => setStrike(current => current?.key === next.key ? null : current), RIG_STRIKE_MS);
   };
   const rngRef = useRef<Rng>(init.rng);
@@ -151,6 +157,14 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
   useEffect(() => { setDebug(new URLSearchParams(window.location.search).get('debug') === '1'); }, []);
   const [link, setLink] = useState<string[]>([]);
   const [muted, setMuted] = useState(false);
+  useEffect(() => {
+    if (!rigEnabled) return;
+    const controller = createMatch3Sound(); audio.current = controller;
+    const hide = () => { if (document.hidden) controller.stop(); };
+    document.addEventListener('visibilitychange', hide);
+    return () => { document.removeEventListener('visibilitychange', hide); controller.dispose(); if (audio.current === controller) audio.current = null; };
+  }, [rigEnabled]);
+  useEffect(() => { audio.current?.setMuted(muted); }, [muted]);
   const [help, setHelp] = useState(false);
   const [shieldBurst, setShieldBurst] = useState<BeastElement | null>(null);
   const [fusionBurst, setFusionBurst] = useState<BeastElement[] | null>(null);
@@ -186,6 +200,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
   }, [over, wins, rigEnabled, init.owner]);
 
   const restart = useCallback(() => {
+    audio.current?.stop();
     setStrike(null); setShieldBurst(null); setFusionBurst(null); setGuardActive(false); setCounterFoes(new Set());
     const rng = rngRef.current; const nextWins = rigEnabled ? nextProgressionWins(wins, over === 'win') : 0; setWins(nextWins); const n = pickLineup(rng, teamIds, cfg, nextWins); const b = generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, rigEnabled ? progressionStage(nextWins).minChain : 3);
     setTeam(n.team); setFoes(n.enemies); setTarget(0); setBoard(b); setMagic(emptyMagic(b)); setMoves(0); setTotalDmg(0); setLastDmg(0); setBanner(null);
@@ -200,7 +215,8 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
       if (cp.hits.length) {
         setCounterFoes(new Set(cp.hits.map(h => h.enemy)));
         setHitTeam(new Set(cp.hits.map(h => h.targetId)));
-        showBanner(shieldGuard ? '防禦合體：本輪反擊減傷一半' : '敵方反擊', 'counter'); sound(160);
+        showBanner(shieldGuard ? '防禦合體：本輪反擊減傷一半' : '敵方反擊', 'counter');
+        if (rigEnabled) cue(shieldGuard ? 'guard' : 'counter'); else sound(160);
         later(() => { setCounterFoes(new Set()); setHitTeam(new Set()); setGuardActive(false); }, 420);
       }
       setTeam(cp.team); setFoes(cp.foes); setLog(msg);
@@ -233,10 +249,11 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
       (window.__match3Events ??= []).push(pub as Match3BusEvent); console.log('[match3]', pub);
     } else if (ev.type !== 'attack') { (window.__match3Events ??= []).push(ev); console.log('[match3]', ev); }
     const dealt = hits.reduce((s, h) => s + h.amount, 0);
-    setBusy(true); sound(520 + res.chainLength * 40);
+    setBusy(true); if (!rigEnabled) sound(520 + res.chainLength * 40);
     const frames = res.steps.map((st, i) => ({ before: i === 0 ? board : res.steps[i - 1].boardAfter, mag: i === 0 ? magic : res.steps[i - 1].magicAfter,
       cells: new Set(st.groups.flatMap((g) => g.cells.map((c) => k(c.r, c.c)))) }));
     const shieldDelay = rigEnabled && (res.shieldFusion || res.magicTriggered.some(t => t.chain === 1 && t.power >= 7)) ? 900 : 0;
+    if (rigEnabled) cue(res.shieldFusion ? 'fusion' : shieldDelay ? 'shield' : dealt > 0 ? 'charge' : 'clear');
     if (shieldDelay) {
       if (res.shieldFusion) { setFusionBurst(path.slice(0, 3).map(p => board[p.r][p.c])); later(() => setFusionBurst(null), shieldDelay); }
       else { setShieldBurst(el); later(() => setShieldBurst(null), shieldDelay); }
@@ -282,11 +299,11 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
     if (busy || over || u.hp <= 0 || ti < 0 || u.energy < ENERGY_MAX) return;
     const foe = foes[ti]; const amt = skillAmount(u.attack, u.element, foe.element);
     const damaged = damageFoe(foes, ti, amt);
-    showStrike([{ attackerId: u.id, amount: amt }], foe, damaged[ti]);
+    showStrike([{ attackerId: u.id, amount: amt }], foe, damaged[ti], true);
     setFoes(damaged); setHitFoe(ti); later(() => setHitFoe(null), 500);
     setTeam(team.map((x) => (x.id === u.id ? { ...x, energy: 0 } : x))); setLastDmg(amt); setTotalDmg((s) => s + amt);
     if (rigEnabled) { setMoves(m => m + 1); endStep(team.map(x => x.id === u.id ? { ...x, energy: 0 } : x), damaged, '技能攻擊完成', amt > 0); }
-    showBanner(`${u.name}技能 −${amt}`, 'skill'); sound(880);
+    showBanner(`${u.name}技能 −${amt}`, 'skill'); if (!rigEnabled) sound(880);
     setLog(`${u.name}發動技能，對${foe.name}造成 ${amt} 點傷害（${rigEnabled ? '計一回合，存活對手接著反擊' : '不算步數'}）。`);
   };
 
@@ -296,12 +313,12 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
     const cards = link.map((id) => team.find((u) => u.id === id)!);
     const amt = linkDamage(cards.map((c) => c.attack)); const foe = foes[ti];
     const damaged = damageFoe(foes, ti, amt);
-    showStrike(cards.map(c => ({ attackerId: c.id, amount: amt })), foe, damaged[ti]);
+    showStrike(cards.map(c => ({ attackerId: c.id, amount: amt })), foe, damaged[ti], true);
     setFoes(damaged); setHitFoe(ti); later(() => setHitFoe(null), 500);
     setTeam(team.map((u) => (link.includes(u.id) ? { ...u, energy: u.energy - LINK_ENERGY_COST } : u)));
     setLastDmg(amt); setTotalDmg((s) => s + amt); setLink([]); setLinkMode(false);
     if (rigEnabled) { setMoves(m => m + 1); endStep(team.map(u => link.includes(u.id) ? { ...u, energy: u.energy - LINK_ENERGY_COST } : u), damaged, '連線攻擊完成', amt > 0); }
-    showBanner(`連線攻擊 ${cards.length} 張 −${amt}`, 'skill'); sound(990);
+    showBanner(`連線攻擊 ${cards.length} 張 −${amt}`, 'skill'); if (!rigEnabled) sound(990);
     setLog(`連線攻擊：${cards.map((c) => c.name).join('＋')} 對${foe.name}造成 ${amt} 點傷害（${rigEnabled ? '計一回合，存活對手接著反擊' : '不算步數'}）。`);
   };
   const fireSub = !linkMode ? `需 ${LINK_MIN_CARDS} 張卡各 ${LINK_ENERGY_COST} 能量` : problem === 'tooFew' ? `再選 ${LINK_MIN_CARDS - link.length} 張` : problem === 'energyLow' ? `每張需 ${LINK_ENERGY_COST} 能量` : problem ? '有卡已倒下' : `${link.length} 張・預估 ${linkDamage(link.map((id) => team.find((u) => u.id === id)?.attack ?? 0))}`;
@@ -323,7 +340,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
   );
 
   return (
-    <section ref={root} className={styles.wrap} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
+    <section ref={root} className={styles.wrap} onPointerDownCapture={() => audio.current?.unlock()} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
       <header className={styles.head}>
         {rigEnabled && <Link href="/" className={styles.homeLink} data-testid="match3-home">回到首頁</Link>}
         {rigEnabled && onRepick && <div className={`${styles.repick} ${styles.repickTop}`}><button type="button" data-testid="open-picker" disabled={busy} onClick={onRepick}>重新選卡</button></div>}
@@ -331,7 +348,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
           <div className={styles.kicker} data-testid="match3-badge">{cfg.badge}</div>
           <h1 className={styles.title} data-testid="match3-title">{cfg.title}<small className={styles.subtitle}>｜{cfg.subtitle}</small></h1>
         </div>
-        <button type="button" className={styles.mute} aria-pressed={muted} aria-label={muted ? '開啟音效' : '靜音'} onClick={() => setMuted(!muted)}>{muted ? '🔇' : '🔊'}</button>
+        <button type="button" className={styles.mute} aria-pressed={muted} aria-label={muted ? '開啟音效' : '靜音'} onClick={() => { audio.current?.setMuted(!muted); setMuted(!muted); if (muted) audio.current?.unlock(); }}>{muted ? '🔇' : '🔊'}</button>
         <div className={styles.round} data-testid="match3-round">{rigEnabled ? `${stage.label}·${moves + 1}回合` : `回合 ${moves + 1}`}</div>
         {rigEnabled && <button type="button" className={`${styles.helpBtn} ${styles.helpTop}`} aria-expanded={help} onClick={() => setHelp(!help)}>玩法與操作</button>}
       </header>
@@ -410,7 +427,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
           <button type="button" className={styles.again} disabled={busy} onClick={restart}>{rigEnabled ? (over === 'win' ? '挑戰下一關' : '原難度重試') : '再來一局'}</button>
         </div>
       )}
-      {rigEnabled && <Match3RigAttack ids={team.map(u => u.id)} root={root} strike={strike} />}
+      {rigEnabled && <Match3RigAttack ids={team.map(u => u.id)} root={root} strike={strike} onImpact={impact} />}
       <span hidden data-testid="match3-last-damage">{lastDmg}</span>
     </section>
   );

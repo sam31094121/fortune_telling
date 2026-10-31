@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import BeastRigStage, { type BeastRigGeometry } from './BeastRigStage';
-import { rigFor, RIG_CARD_HIDDEN, type BeastRig } from '@/lib/beast-game/beast-rig';
+import { rigFor, RIG_CARD_HIDDEN, RIG_IMPACT_MS, RIG_STRIKE_MS, type BeastRig } from '@/lib/beast-game/beast-rig';
 
 export interface Match3Strike { key: number; targetId: string; attackerIds: string[] }
 /** Presentation only: consume recorded HP changes; never decide damage or eligibility. */
@@ -14,7 +14,9 @@ export function Match3TargetArt({ src }: { src: string }) {
   // eslint-disable-next-line @next/next/no-img-element
   return <img src={src} alt="" draggable={false} decoding="async" />;
 }
-function Strike({ rig, root, strike, tear }: { rig: BeastRig; root: RefObject<HTMLElement | null>; strike: Match3Strike | null; tear: boolean }) {
+function Strike({ rig, root, strike, tear, onImpact }: { rig: BeastRig; root: RefObject<HTMLElement | null>; strike: Match3Strike | null; tear: boolean; onImpact: (key: number) => void }) {
+  const impactCallback = useRef(onImpact); impactCallback.current = onImpact;
+  const audioEvent = useRef<{ key: number; primary: boolean; animated: boolean; fired: boolean } | null>(null);
   const [ready, setReady] = useState(false);
   const [reduced, setReduced] = useState(true);
   useEffect(() => {
@@ -34,6 +36,10 @@ function Strike({ rig, root, strike, tear }: { rig: BeastRig; root: RefObject<HT
   }, [root, rig.cardId, strike?.targetId, tear]);
   const restore = useCallback(() => { if (card.current) { card.current.style.opacity = ''; card.current.closest('[data-testid="match3-ally"]')?.removeAttribute('data-rig-active'); } }, []);
   const frame = useCallback((t: number) => {
+    const event = audioEvent.current;
+    if (event?.primary && event.animated && !event.fired && t >= RIG_IMPACT_MS / RIG_STRIKE_MS && t < 1) {
+      event.fired = true; impactCallback.current(event.key);
+    }
     if (!card.current) return;
     card.current.style.opacity = t >= RIG_CARD_HIDDEN[0] && t < RIG_CARD_HIDDEN[1] ? '0' : '';
     const holder = card.current.closest('[data-testid="match3-ally"]');
@@ -48,12 +54,24 @@ function Strike({ rig, root, strike, tear }: { rig: BeastRig; root: RefObject<HT
     if (seen.current !== key) {
       seen.current = key;
       setAccepted(ready && !reduced ? key : null);
+      const primary = tear && !!strike?.attackerIds.includes(rig.cardId);
+      audioEvent.current = key === null ? null : { key, primary, animated: ready && !reduced, fired: false };
+      if (key !== null && primary && (!ready || reduced)) {
+        audioEvent.current!.fired = true;
+        impactCallback.current(key);
+      }
     } else if (!ready || reduced) setAccepted(null);
     if (!ready || reduced || key === null) restore();
-  }, [strike?.key, ready, reduced, restore]);
+  }, [strike?.key, ready, reduced, restore, tear, rig.cardId]);
   const camera = useCallback(() => null, []);
   return <BeastRigStage rig={rig} playKey={ready && !reduced && accepted === strike?.key && strike?.attackerIds.includes(rig.cardId) ? strike.key : null} onReady={setReady} measureGeometry={measure} cameraElement={camera} onFrame={frame} layerZIndex={51} />;
 }
-export default function Match3RigAttack({ ids, root, strike }: { ids: readonly string[]; root: RefObject<HTMLElement | null>; strike: Match3Strike | null }) {
-  return <>{ids.map(id => { const rig = rigFor(id); return rig ? <Strike key={id} rig={rig} root={root} strike={strike} tear={strike?.attackerIds[0] === id} /> : null; })}</>;
+export default function Match3RigAttack({ ids, root, strike, onImpact }: { ids: readonly string[]; root: RefObject<HTMLElement | null>; strike: Match3Strike | null; onImpact?: () => void }) {
+  const lastImpact = useRef<number | null>(null);
+  const latest = useRef({ strike, onImpact }); latest.current = { strike, onImpact };
+  const impact = useCallback((key: number) => {
+    if (latest.current.strike?.key !== key || lastImpact.current === key) return;
+    lastImpact.current = key; latest.current.onImpact?.();
+  }, []);
+  return <>{ids.map(id => { const rig = rigFor(id); return rig ? <Strike key={id} rig={rig} root={root} strike={strike} tear={strike?.attackerIds[0] === id} onImpact={impact} /> : null; })}</>;
 }
