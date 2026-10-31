@@ -26,8 +26,8 @@ import bp from './bead/BeadPolish.module.css';
 import { BoardCell } from './bead/BoardCell';
 import { SoundToggle } from './bead/SoundToggle';
 import { getBeadSound } from '@/lib/beast-game/match3/bead-sound';
-import { applyGuardianBonus, isGuardianMagicEnabled, resolveGuardianActivations, type GuardianActivation } from '@/lib/beast-game/match3/guardian-magic';
-import { GuardianSkillFx } from './bead/GuardianSkillFx';
+import { applyGuardianBonus, GUARDIAN_LIST, isGuardianMagicEnabled, resolveGuardianActivations, type GuardianActivation } from '@/lib/beast-game/match3/guardian-magic';
+import { GuardianSkillFx, GuardianCharge } from './bead/GuardianSkillFx';
 
 interface Unit extends Match3Fighter { name: string; thumbnail: string; maxHp: number; energy: number }
 import type {} from '@/lib/beast-game/match3/event-bus'; // window.__match3Events 的共用宣告
@@ -223,6 +223,8 @@ function Match3Game({ init, teamIds, rule }: { init: { rng: Rng; team: Unit[]; e
   const dragEl = drag.path.length ? board[drag.path[0].r][drag.path[0].c] : null;
   const hint = dragEl ? dragHint(drag.path.length, MATCH3_ORB_LABEL[dragEl], NORMAL_POWER_CAP, MAGIC_ORB_MIN_LENGTH, SKILL5_LENGTH) : '';
   const onPath = new Set(drag.path.map((p) => k(p.r, p.c)));
+  const chargeG = isGuardianMagicEnabled() && dragEl && drag.path.length >= MAGIC_ORB_MIN_LENGTH && drag.path.some((p) => (magic[p.r]?.[p.c] ?? 0) > 0)
+    ? team.filter((u) => u.hp > 0).map((u) => GUARDIAN_LIST.find((g) => g.id === u.id)).find((g) => g && (dragEl === 'EARTH' || g.element === dragEl)) ?? null : null;
   const prevLen = useRef(0);
   useEffect(() => { const n = drag.path.length; if (n > prevLen.current) getBeadSound()?.tick(n); prevLen.current = n; }, [drag.path.length]);
   const pct = (a: number, b: number) => `${Math.max(0, Math.min(100, Math.round((a / b) * 100)))}%`;
@@ -249,6 +251,7 @@ function Match3Game({ init, teamIds, rule }: { init: { rng: Rng; team: Unit[]; e
           <BoardCell key={`${r}-${c}`} r={r} c={c} e={e} color={ORB_COLOR[e]} mp={magic[r]?.[c] ?? 0} sel={onPath.has(kk)} pop={flash.has(kk)}
             shake={shake.has(kk)} fall={drop.has(kk)} order={popOrder.get(kk) ?? 0} />); }))}
         <BeadLink points={drag.points} el={dragEl} />
+        {chargeG && <GuardianCharge element={dragEl === 'EARTH' ? 'EARTH' : chargeG.element} name={dragEl === 'EARTH' ? '四象' : chargeG.name} />}
         {burst && <BeadBurst key={burst.id} cells={burst.cells} />}
         <CascadeLabel step={stepNo} />
         {gfx[0] && <GuardianSkillFx key={`${gfx[0].act.chain}-${gfx[0].act.guardian.id}-${moves}`} act={gfx[0].act} bonus={gfx[0].bonus} onDone={nextGfx} />}
