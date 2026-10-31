@@ -11,6 +11,7 @@ import { campaignHeroChoice, campaignAvailableIds, campaignCollection, campaignC
 import { BeastCardFace } from './BeastCardTile';
 import Match3Board from './Match3Board';
 import CampaignEnhancement from './CampaignEnhancement';
+import CampaignBackup from './CampaignBackup';
 import styles from './Match3Board.module.css';
 import picker from './Match3TeamPicker.module.css';
 
@@ -29,6 +30,14 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const [revision, setRevision] = useState(0);
   const startButton = useRef<HTMLButtonElement>(null);
   const previousCount = useRef(0);
+  const loadRetry = useRef<{ who: Owner; repick: boolean; reset: boolean } | null>(null);
+  const loadAlert = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (phase === 'battle' && error) {
+      loadAlert.current?.focus({ preventScroll: true });
+      loadAlert.current?.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+    }
+  }, [phase, error]);
   useEffect(() => {
     const becameReady = previousCount.current < 5 && selected.length === 5;
     previousCount.current = selected.length;
@@ -45,6 +54,7 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
     return <span className={picker.face}><BeastCardFace card={{ id: c.id, name: c.name, element: c.element, thumbnail: c.art.thumbnail, skillName: skill?.name, description: skill?.description }} />{attack && attack.bonus > 0 && <span className={picker.permanentBonus}>永久 +{attack.bonus} · 攻擊 {attack.attack}</span>}</span>;
   };
   const load = async (who: Owner, repick = false, reset = false) => {
+    loadRetry.current = { who, repick, reset };
     setSaving(true);
     const result = reset ? await resetGuestCampaign() : readCampaign(who);
     setSaving(false);
@@ -67,8 +77,14 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
       if (!result.ok) { setError(result.error || '舊進度尚未儲存，請重試。'); return; }
       await load('self');
     }}>確認這是我的舊進度，接續闖關</button>}{error && <p role="alert">{error}</p>}<p className={styles.hint}>自己的進度保存在這個瀏覽器。</p>
+    <CampaignBackup onImported={() => { void load('self'); }} />
   </section>;
-  if (phase === 'battle') return <Match3Board key={revision} seed={seed} mode={mode} progressOwner={owner} campaignEnabled teamIds={profile.teamIds} onCampaignContinue={() => load(owner)} onRepick={() => load(owner, true)} />;
+  if (phase === 'battle') return <>
+    <Match3Board key={revision} seed={seed} mode={mode} progressOwner={owner} campaignEnabled teamIds={profile.teamIds} onCampaignContinue={() => load(owner)} onRepick={() => load(owner, true)} />
+    {error && <div ref={loadAlert} role="alert" tabIndex={-1} className={picker.enhancement} data-testid="campaign-load-error"><p>{error}</p><button type="button" data-testid="retry-campaign-load" disabled={saving} onClick={() => {
+      const retry = loadRetry.current; if (retry) void load(retry.who, retry.repick, retry.reset);
+    }}>重試讀取我的進度</button></div>}
+  </>;
   const choice = campaignHeroChoice(profile);
   const changePlayer = <button type="button" className={styles.again} data-testid="change-player" disabled={saving} onClick={() => { setOwner(null); setProfile(null); setError(''); }}>更換玩家</button>;
   if (phase === 'hero') return <section className={styles.picker} data-testid="match3-hero-choice" aria-label="選擇主角">
@@ -99,6 +115,7 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
     <h2 className={picker.sectionTitle}>已獲成獸</h2>{collection.adults.length === 0 && <p className={styles.hint}>贏得第一場，即可獲得第一張成獸卡。</p>}<div className={picker.cardGrid}>{shown.filter(c => collection.adults.some(a => a.cardId === c.id)).map(c => <button type="button" className={picker.cardChoice} key={c.id} data-testid="pick-card" data-id={c.id} data-el={c.element} aria-label={`${c.name}，攻擊 ${CARD_FACE_STATS[c.id].attack}`} aria-pressed={selected.includes(c.id)} onClick={() => toggle(c.id)}>
       {face(c.id)}<span className={picker.choiceState}>已獲 {collection.adults.find(a => a.cardId === c.id)?.count} 張 · {selected.includes(c.id) ? '已選夥伴' : '點選出戰'}</span>
     </button>)}</div>
+    {owner === 'self' && <CampaignBackup onImported={() => { void load('self', true); }} />}
     <CampaignEnhancement owner={owner} profile={profile} onSaved={updated => { setProfile(updated); setSelected(ids => ids.filter(id => campaignAvailableIds(updated).includes(id))); }} />
     <h2 className={picker.sectionTitle}>幼子夥伴</h2><p className={styles.hint}>尚未消耗的幼子可自由挑選。</p>
     <div className={picker.cardGrid}>{shown.filter(c => collection.youngIds.includes(c.id)).map(c => <button type="button" className={picker.cardChoice} key={c.id} data-testid="pick-card" data-id={c.id} data-el={c.element} aria-label={`${c.name}，攻擊 ${CARD_FACE_STATS[c.id].attack}`} aria-pressed={selected.includes(c.id)} onClick={() => toggle(c.id)}>

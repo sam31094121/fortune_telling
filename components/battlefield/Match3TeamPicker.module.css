@@ -18,6 +18,7 @@
 .enhancement summary { cursor: pointer; min-height: 44px; display: list-item; font-weight: 700; }
 .enhancement label { display: block; margin: 14px 0; }
 .enhancement select { display: block; width: 100%; min-height: 44px; font: inherit; color: #f7ecd6; background: #242b35; border: 1px solid #8c7957; border-radius: 8px; }
+.enhancement input[type='file'] { display: block; width: 100%; min-width: 0; max-width: 100%; margin-top: 8px; font: inherit; }
 .enhancement button { min-height: 48px; width: 100%; padding: 10px; font: inherit; color: #211b12; background: #e5ce98; border: 0; border-radius: 8px; }
 .enhancement button:disabled { opacity: .5; cursor: not-allowed; }
 .enhancementFaces { display: grid; grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr); gap: 5px; max-width: 460px; margin: 0 auto; }

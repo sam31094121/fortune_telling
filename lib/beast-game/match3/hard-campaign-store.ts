@@ -1,5 +1,6 @@
 import { campaignWin, chooseCampaignHero, enhanceCampaignProfile, newCampaign, parseCampaign, validateCampaignTeam, type HardCampaign, type CampaignReward, type EnhancementReceipt } from './hard-campaign';
 import { readMatch3Progress } from './progress-store';
+import { decodeCampaignBackup, encodeCampaignBackup } from './campaign-backup';
 export type CampaignOwner = 'self' | 'guest';
 export interface CampaignResult { ok: boolean; profile: HardCampaign | null; error?: string }
 export interface CampaignSettlement extends CampaignResult { saved: boolean; reward?: CampaignReward; nextWins?: number; duplicate?: boolean }
@@ -80,4 +81,22 @@ export const importLegacyCampaign = (): Promise<CampaignResult> => transaction('
   const own = readCampaign('self');
   if (!own.ok || !own.profile) return own;
   return write('self', newCampaign(Math.max(own.profile.wins, state.legacyWins)));
+}, failed);
+
+/** A file transfer, not cloud sync. Never export guest or an unsaved migration. */
+export function exportCampaignBackup(owner: CampaignOwner): { ok: boolean; backup?: string; error?: string } {
+  try {
+    if (owner !== 'self') throw new Error('只有自己的已儲存進度可以備份');
+    const raw = storage(owner).getItem(keys.self);
+    if (raw === null) throw new Error('目前沒有已儲存的寶珠存檔可備份');
+    return { ok: true, backup: encodeCampaignBackup(parseCampaign(raw)) };
+  } catch (e) { return { ok: false, error: failed(e).error }; }
+}
+/** Recheck destination while holding the same lock as every campaign mutation. */
+export const importCampaignBackup = (owner: CampaignOwner, raw: string): Promise<CampaignResult> => transaction(owner, () => {
+  if (owner !== 'self') throw new Error('親朋好友模式不能匯入自己的存檔');
+  const store = storage(owner);
+  if (store.getItem(keys.self) !== null || store.getItem('match3-hard-progress-self-v1') !== null) throw new Error('這個瀏覽器已有自己的進度，不能覆蓋或合併。請改用沒有存檔的瀏覽器。');
+  const profile = decodeCampaignBackup(raw);
+  return write(owner, profile);
 }, failed);

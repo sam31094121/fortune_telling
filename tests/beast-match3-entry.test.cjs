@@ -112,7 +112,7 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
     return require(id);
   } });
   const C = campaignModule.exports;
-  let profile = C.newCampaign(), writes = 0;
+  let profile = C.newCampaign(), writes = 0, readFails = false;
   const state = []; let cursor = 0; let effects = []; let reducedMotion = false; const scrolls = [];
   const Board = () => null;
   const hooks = { ...React, useMemo: fn => fn(), useEffect: fn => effects.push(fn), useRef: initial => {
@@ -122,7 +122,7 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
     return [state[i], next => { state[i] = typeof next === 'function' ? next(state[i]) : next; }];
   } };
   const store = {
-    readCampaign: () => ({ ok: true, profile }),
+    readCampaign: () => readFails ? ({ok:false,profile:null,error:'測試進度暫時無法讀取'}) : ({ ok: true, profile }),
     readLegacyCampaignStatus: () => ({ canImport: false, legacyWins: 0 }),
     resetGuestCampaign: async () => ({ ok: true, profile: profile = C.newCampaign() }),
     selectCampaignHero: async (_, id) => ({ ok: true, profile: profile = C.chooseCampaignHero(profile, id) }),
@@ -145,6 +145,7 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
       if (id === '@/lib/beast-game/match3/hard-campaign-store') return store;
       if (id === './Match3Board') return { default: Board };
       if (id === './CampaignEnhancement') return { default: () => null };
+      if (id === './CampaignBackup') return { default: () => null };
       if (id === './BeastCardTile') return { BeastCardFace: CardFace };
       if (id.endsWith('.css')) return { default: {} };
       return require(id);
@@ -185,10 +186,17 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
   render(); assert.equal(scrolls.length, 2); assert.equal(scrolls[1].behavior, 'instant');
   assert.equal(by('start-battle').props.disabled, false);
   await by('start-battle').props.onClick();
-  assert.equal(render().type, Board); assert.equal(render().props.campaignEnabled, true); assert.equal(writes, 1);
+  assert(nodes(render()).some(n => n.type === Board)); assert.equal(nodes(render()).find(n => n.type === Board).props.campaignEnabled, true); assert.equal(writes, 1);
   assert.equal(profile.teamIds[0], heroes[0].props['data-id']);
   const won = C.campaignWin(profile, 'entry-ui-win', 0); profile = won.profile;
-  await render().props.onRepick();
+  const originalBoard = nodes(render()).find(n => n.type === Board);
+  readFails = true; await originalBoard.props.onRepick();
+  assert(by('campaign-load-error')); assert(by('retry-campaign-load'));
+  assert.equal(nodes(render()).find(n => n.type === Board).key, originalBoard.key, 'Failed read must not remount the battle');
+  assert.deepEqual(nodes(render()).find(n => n.type === Board).props.teamIds, originalBoard.props.teamIds);
+  readFails = false; by('retry-campaign-load').props.onClick();
+  await Promise.resolve();
+  assert(by('team-picker'), 'Retry restores original saved collection');
   choices = nodes(render()).filter(n => n.props?.['data-testid'] === 'pick-card');
   assert.equal(choices.length, 29); assert(choices.some(n => n.props['data-id'] === won.reward.cardId));
   // Enhancement uses a single explicit confirmation; failed persistence cannot

@@ -450,7 +450,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
       </div>
       <p className={rigEnabled ? styles.srOnly : styles.hint} data-testid="match3-hint" aria-live="polite">{hint || shortMsg || (cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊')}</p>
       {!rigEnabled && <button type="button" className={styles.helpBtn} aria-expanded={help} onClick={() => setHelp(!help)}>玩法說明</button>}
-      {help && <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆同屬性純盾牌連接會合擊，消耗本次連到的盾牌，按既有卡片與儲存顆數攻擊；其餘同屬性寶珠轉為盾牌，原本較高的數值保留。至少三顆不同顏色純盾牌連接，合體清除整盤對應顏色，依實際消除數量替對應卡片充能，最多充滿現有技能條；下一輪反擊減傷一半、不疊加，合體本身不攻擊。剩餘珠子先下落合成，再補新珠；自然連線累計四顆以上會保留數字，七顆以上變盾牌，三顆只消除。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「技能」。{rigEnabled ? '每次我方攻擊結束，對方接著反擊；連三顆起可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。幼子、成獸關各由一張存活卡出手，第三關起四大神獸聯合出擊。連珠攻擊門檻逐關提高至八顆，之後提高對方強度。獲勝升一關，落敗保留難度重試；本分頁暫存進度。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>}
+      {help && <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆同屬性純盾牌連接會合擊，消耗本次連到的盾牌，按既有卡片與儲存顆數攻擊；其餘同屬性寶珠轉為盾牌，原本較高的數值保留。至少三顆不同顏色純盾牌連接，合體清除整盤對應顏色，依實際消除數量替對應卡片充能，最多充滿現有技能條；下一輪反擊減傷一半、不疊加，合體本身不攻擊。剩餘珠子先下落合成，再補新珠；自然連線累計四顆以上會保留數字，七顆以上變盾牌，三顆只消除。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「{rigEnabled ? '能量攻擊' : '技能'}」。{rigEnabled && '卡面列的是原始技能資料；本模式目前使用通用能量攻擊，獨有技能效果尚未接入。'}{rigEnabled ? '每次我方攻擊結束，對方接著反擊；連三顆起可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。第一關幼子、第二至第七關成獸；第八、九、十關依序加入一、二、三隻神獸，第十一關起四獸到齊才聯合反擊，之前由一張存活卡反擊。連珠攻擊門檻逐關提高至八顆，之後提高對方強度。獲勝升一關，落敗保留難度重試；本人進度保存在這個瀏覽器，親友進度只在本分頁保留，重新選擇親友會重來。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>}
 
       {!log.startsWith('按住寶珠') && log ? <p className={rigEnabled ? styles.srOnly : styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
 
@@ -485,7 +485,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
                 <div className={styles.energy}><span style={{ width: pct(u.energy, ENERGY_MAX) }} /></div>
                 <div className={styles.allyMeta}>{down ? '已倒下' : `${MATCH3_ORB_LABEL[u.element]}${dup ? (lead ? '・主攻' : '・輔助') : ''} ${u.energy}`}</div>
               </button>
-              {full && !linkMode && <button type="button" className={styles.skill} data-testid="match3-skill" onPointerDown={(e) => e.stopPropagation()} onClick={() => unleash(u)}>技能</button>}
+              {full && !linkMode && <button type="button" className={styles.skill} data-testid="match3-skill" onPointerDown={(e) => e.stopPropagation()} onClick={() => unleash(u)}>{rigEnabled ? '能量攻擊' : '技能'}</button>}
             </div>
           );
         })}

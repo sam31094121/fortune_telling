@@ -110,12 +110,13 @@ export function parseCampaign(raw: string): HardCampaign {
   if (p.heroChoiceUsed && (!p.heroId || p.wins < 8)) throw new Error('主角選擇紀錄不一致');
   const orderedAdults = campaignAdultIds();
   if (p.rewards.length !== p.receipts.length || new Set(p.receipts.map(r => r.matchId)).size !== p.receipts.length || p.receipts.some((r, i) => !r || typeof r.matchId !== 'string' || !r.matchId.trim() || !adults.has(r.cardId) || !Number.isSafeInteger(r.win) || r.win < 1 || r.win > p.wins || (i > 0 && r.win !== p.receipts[i - 1].win + 1) || r.cardId !== orderedAdults[(r.win - 1) % orderedAdults.length] || JSON.stringify(r) !== JSON.stringify(p.rewards[i]))) throw new Error('寶珠獎勵紀錄不一致');
+  if (p.receipts.length && p.receipts[p.receipts.length - 1].win !== p.wins) throw new Error('勝場與最後獎勵紀錄不一致');
   if (!Array.isArray(p.consumedYoungIds) || !Array.isArray(p.enhancementReceipts) || !p.enhancements || typeof p.enhancements !== 'object' || Array.isArray(p.enhancements)) throw new Error('強化存檔格式無效');
   const consumed = new Set(p.consumedYoungIds), operations = new Set<string>(), totals: Record<string, number> = {};
   if (consumed.size !== p.consumedYoungIds.length || consumed.size !== p.enhancementReceipts.length) throw new Error('強化材料紀錄重複');
   for (const r of p.enhancementReceipts) {
     const young = r && getCard(r.youngId), target = r && getCard(r.targetId);
-    if (!r || typeof r.operationId !== 'string' || !r.operationId.trim() || operations.has(r.operationId) || young?.form !== 'YOUNG' || !target || (target.form !== 'GUARDIAN' && !p.rewards.some(reward => reward.cardId === r.targetId)) || !consumed.has(r.youngId) || r.attackBonus !== Math.max(1, Math.floor(young.stats.attack * .1))) throw new Error('強化收據無效');
+    if (!r || typeof r.operationId !== 'string' || !r.operationId.trim() || operations.has(r.operationId) || young?.form !== 'YOUNG' || !target || (target.form !== 'GUARDIAN' && !p.rewards.some(reward => reward.cardId === r.targetId)) || !consumed.has(r.youngId) || r.attackBonus !== Math.max(1, Math.floor(CARD_FACE_STATS[young.id].attack * .1))) throw new Error('強化收據無效');
     operations.add(r.operationId); consumed.delete(r.youngId);
     totals[r.targetId] = (totals[r.targetId] ?? 0) + r.attackBonus;
   }
