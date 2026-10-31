@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import HardCampaignEntry from './HardCampaignEntry';
 /** 自選 5 張出陣（同屬性可重複）。只列 .v2 卡池（playableCards ∩ card-face-stats）。不改卡圖與品質；困難版以遊玩身分隔離闖關進度。 */
 import { useEffect, useMemo, useState } from 'react';
 import { playableCards } from '@/lib/beast-game/registry';
@@ -19,7 +20,7 @@ function pickerFace(c: ReturnType<typeof playableCards>[number]) {
   return { id: c.id, name: c.name, element: c.element, thumbnail: c.art.thumbnail, skillName: skill?.name, description: skill?.description };
 }
 
-export default function Match3Entry({ seed, mode }: { seed?: number; mode?: Match3ModeId }) {
+function LegacyMatch3Entry({ seed, mode }: { seed?: number; mode?: Match3ModeId }) {
   const pool = useMemo(() => playableCards().filter((c) => CARD_FACE_STATS[c.id]), []);
   const [teamIds, setTeamIds] = useState<string[] | null>(null);
   const [picking, setPicking] = useState(false);
@@ -84,4 +85,8 @@ export default function Match3Entry({ seed, mode }: { seed?: number; mode?: Matc
       </div>
     </section>
   );
+}
+
+export default function Match3Entry(props: { seed?: number; mode?: Match3ModeId }) {
+  return props.mode === 'hard45' || props.mode === 'hard45b' ? <HardCampaignEntry {...props} /> : <LegacyMatch3Entry {...props} />;
 }

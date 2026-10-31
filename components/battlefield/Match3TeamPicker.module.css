@@ -8,7 +8,20 @@
 .selectedRow { display: flex; gap: 10px; max-width: 100%; overflow-x: auto; padding: 4px 3px 8px; overscroll-behavior-inline: contain; scroll-snap-type: x proximity; }
 .selectedRow:empty { display: none; }
 .selectedCard { flex: 0 0 100px; scroll-snap-align: start; }
+.selectedCard:disabled { opacity: 1; cursor: default; border-color: #e4c98d; }
 .remove { display: grid; place-items: center; min-height: 30px; font-size: 13px; }
+.sectionTitle { margin: 24px 0 12px; font-size: 20px; line-height: 1.5; color: #f1dfb8; }
+.enhancement { margin: 24px 0; padding: 14px; border: 1px solid #776044; border-radius: 14px; background: #171b24; color: #f7ecd6; line-height: 1.6; }
+.enhancement summary { cursor: pointer; min-height: 44px; display: list-item; font-weight: 700; }
+.enhancement label { display: block; margin: 14px 0; }
+.enhancement select { display: block; width: 100%; min-height: 44px; font: inherit; color: #f7ecd6; background: #242b35; border: 1px solid #8c7957; border-radius: 8px; }
+.enhancement button { min-height: 48px; width: 100%; padding: 10px; font: inherit; color: #211b12; background: #e5ce98; border: 0; border-radius: 8px; }
+.enhancement button:disabled { opacity: .5; cursor: not-allowed; }
+.enhancementFaces { display: grid; grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr); gap: 5px; max-width: 460px; margin: 0 auto; }
+.enhancementArrow { align-self: center; text-align: center; font-size: 24px; color: #e5ce98; }
+.enhancementEquation, .permanentBonus { display: block; padding: 8px 4px; color: #ffe3a0; font-size: 14px; line-height: 1.6; }
+.enhancementStats { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.enhancementStats dd { margin: 0; font-variant-numeric: tabular-nums; }
 @media (min-width: 600px) { .cardGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } }
 @media (min-width: 850px) { .cardGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .playerChoices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 20px 0; }

@@ -644,3 +644,5 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .fusionLightning { position:absolute; inset:0; width:100%; height:100%; z-index:3; pointer-events:none; overflow:hidden; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; opacity:0; filter:drop-shadow(0 0 3px rgba(220,245,255,.45)); animation:fusionDischarge var(--fusion-duration, 1650ms) ease-out both; }
 @keyframes fusionDischarge { 0%, 78% { opacity:0; stroke-dasharray:130; stroke-dashoffset:130; } 88% { opacity:.85; stroke-dashoffset:0; } 100% { opacity:0; stroke-dashoffset:0; } }
 @media (prefers-reduced-motion: reduce) { .fusionLightning { display:none; animation:none; } }
+
+.campaignRewardCard { width: min(160px, 42vw); margin: 10px auto; }

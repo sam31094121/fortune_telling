@@ -29,6 +29,8 @@ import Match3ElementGlyph from './Match3ElementGlyph';
 import { RIG_STRIKE_MS } from '@/lib/beast-game/beast-rig';
 import Match3RigAttack, { Match3TargetArt, match3RigAttackers, type Match3Strike } from './Match3RigAttack';
 import { readMatch3Progress, saveMatch3Progress, type Match3ProgressOwner } from '@/lib/beast-game/match3/progress-store';
+import { readCampaign, settleWin, type CampaignSettlement } from '@/lib/beast-game/match3/hard-campaign-store';
+import { validateCampaignTeam, campaignAttack, type HardCampaign } from '@/lib/beast-game/match3/hard-campaign';
 import { createMatch3Sound, type Match3SoundCue } from './match3Sound';
 import { refillPresentation, refillLandingTimes, fusionShieldLayout, fusionDischarge, FUSION_CLEAR_AT_MS, FUSION_DISPLAY_MS, type RefillMotion } from '@/lib/beast-game/match3/refill-presentation';
 
@@ -39,12 +41,12 @@ import type { Match3BusEvent } from '@/lib/beast-game/match3/event-bus';
 export const ORB_COLOR: Record<BeastElement, string> = { AIR: '#2f9e7e', SPACE: '#8d6fd1', WATER: '#2c74d0', FIRE: '#e0532c', EARTH: '#c39324' };
 
 /** 我方：外部 teamIds 合法照選的順序，否則五元素各一張（風空水火地）。敵方：固定五隻正式卡（enemies.json）。 */
-export function pickLineup(rng: Rng, teamIds?: readonly string[] | null, mode: Match3ModeConfig = match3Mode(), wins = 0): { team: Unit[]; enemies: Foe[] } {
+export function pickLineup(rng: Rng, teamIds?: readonly string[] | null, mode: Match3ModeConfig = match3Mode(), wins = 0, campaign?: HardCampaign | null): { team: Unit[]; enemies: Foe[] } {
   const pool = playableCards().filter((c) => CARD_FACE_STATS[c.id]);
   const shuffled = pool.slice().sort(() => rng() - 0.5);
   const team: Unit[] = [];
   const foeNames = enemyNamesFor(mode.id);
-  const unit = (c: (typeof pool)[number]): Unit => { const s = CARD_FACE_STATS[c.id]; const skill = getSkill(c.skills[0]); return { skillName: skill?.name, description: skill?.description, id: c.id, name: c.name, element: c.element, thumbnail: c.art.thumbnail, attack: s.attack, hp: s.hp, maxHp: s.hp, energy: 0 }; };
+  const unit = (c: (typeof pool)[number]): Unit => { const s = CARD_FACE_STATS[c.id]; const skill = getSkill(c.skills[0]); return { skillName: skill?.name, description: skill?.description, id: c.id, name: c.name, element: c.element, thumbnail: c.art.thumbnail, attack: campaign ? campaignAttack(campaign, c.id) : s.attack, hp: s.hp, maxHp: s.hp, energy: 0 }; };
   if (validTeamIds(teamIds, pool.map((c) => c.id))) for (const id of teamIds) team.push(unit(pool.find((c) => c.id === id)!));
   else for (const el of MATCH3_ORB_ELEMENTS) {
     const c = shuffled.find((x) => x.element === el && !foeNames.includes(x.name)); if (c) team.push(unit(c));
@@ -97,30 +99,39 @@ function beep(freq: number) {
   } catch { /* 無音效環境略過 */ }
 }
 
-export interface Match3BoardProps { seed?: number; teamIds?: readonly string[] | null; sameElementRule?: SameElementRule; onRepick?: () => void; mode?: Match3ModeId; progressOwner?: Match3ProgressOwner }
-export default function Match3Board({ seed, teamIds, sameElementRule = DEFAULT_SAME_ELEMENT_RULE, onRepick, mode, progressOwner = null }: Match3BoardProps) {
+export interface Match3BoardProps { seed?: number; teamIds?: readonly string[] | null; sameElementRule?: SameElementRule; onRepick?: () => void; mode?: Match3ModeId; progressOwner?: Match3ProgressOwner; campaignEnabled?: boolean; onCampaignContinue?: () => void }
+export default function Match3Board({ seed, teamIds, sameElementRule = DEFAULT_SAME_ELEMENT_RULE, onRepick, mode, progressOwner = null, campaignEnabled = false, onCampaignContinue }: Match3BoardProps) {
   const cfg = match3Mode(mode);
   const [init, setInit] = useState<{ rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; board: Board; owner: Match3ProgressOwner; revision: number } | null>(null);
   const revision = useRef(0);
+  const [initError, setInitError] = useState('');
   const key = teamIds?.join(',') ?? '';
   useEffect(() => {
     const initialize = () => {
       const s = seed ?? (Date.now() % 100000); const rng = seededRng(s);
       const owner = cfg.id === 'medium' ? null : progressOwner;
-      const wins = cfg.id === 'medium' ? 0 : readMatch3Progress(owner);
-      setInit({ rng, seed: s, wins, owner, revision: ++revision.current, ...pickLineup(rng, teamIds, cfg, wins), board: generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, cfg.id === 'medium' ? 3 : progressionStage(wins).minChain) });
+      const campaign = campaignEnabled && owner ? readCampaign(owner) : null;
+      if (campaignEnabled && (!campaign?.ok || !campaign.profile)) { setInitError(campaign?.error ?? '請先選擇主角及夥伴'); return; }
+      if (campaign?.profile && !validateCampaignTeam(campaign.profile, teamIds ?? [])) { setInitError('請先選擇主角及四張已解鎖夥伴'); return; }
+      const wins = cfg.id === 'medium' ? 0 : campaign?.profile?.wins ?? readMatch3Progress(owner);
+      setInit({ rng, seed: s, wins, owner, revision: ++revision.current, ...pickLineup(rng, teamIds, cfg, wins, campaign?.profile), board: generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, cfg.id === 'medium' ? 3 : progressionStage(wins).minChain) });
     };
     initialize();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seed, key, cfg.id, progressOwner]);
+  }, [seed, key, cfg.id, progressOwner, campaignEnabled]);
+  if (initError) return <section className={styles.wrap} role="alert">{initError}<button type="button" onClick={onRepick}>返回我的卡片</button></section>;
   if (!init) return <section className={styles.wrap} aria-busy="true" />;
-  return <Match3Game key={`${key}:${cfg.id}:${init.revision}`} init={init} teamIds={teamIds} rule={sameElementRule} onRepick={onRepick} cfg={cfg} />;
+  return <Match3Game key={`${key}:${cfg.id}:${init.revision}`} init={init} teamIds={teamIds} rule={sameElementRule} onRepick={onRepick} cfg={cfg} campaignEnabled={campaignEnabled} onCampaignContinue={onCampaignContinue} />;
 }
 
-function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeConfig; init: { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; board: Board; owner: Match3ProgressOwner }; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void }) {
+function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCampaignContinue }: { cfg: Match3ModeConfig; init: { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; board: Board; owner: Match3ProgressOwner }; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void; campaignEnabled: boolean; onCampaignContinue?: () => void }) {
   const rigEnabled = cfg.id === 'hard45' || cfg.id === 'hard45b';
   const [wins, setWins] = useState(init.wins);
   const [progressSaveFailed, setProgressSaveFailed] = useState(false);
+  const [campaignSettlement, setCampaignSettlement] = useState<CampaignSettlement | null>(null);
+  const [savingReward, setSavingReward] = useState(false);
+  const campaignMatchId = useRef<string | null>(null);
+  const savingRewardRef = useRef(false);
   const stage = progressionStage(wins);
   const audio = useRef<ReturnType<typeof createMatch3Sound> | null>(null);
   const cue = useCallback((name: Match3SoundCue) => { if (!document.hidden) audio.current?.play(name); }, []);
@@ -210,19 +221,36 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
   const ti = aliveTarget(foes, target);
   const leads = leadIds(team, rule === 'tap-lead' ? chosen : {});
 
+  const saveVictory = useCallback(async () => {
+    if (!campaignEnabled || !init.owner || savingRewardRef.current) return;
+    savingRewardRef.current = true; setSavingReward(true);
+    try {
+      campaignMatchId.current ??= window.crypto.randomUUID?.() ?? `orb-${window.crypto.getRandomValues(new Uint32Array(4)).join('-')}`;
+      const result = await settleWin(init.owner, campaignMatchId.current, wins);
+      setCampaignSettlement(result);
+    } catch {
+      setCampaignSettlement({ ok: false, saved: false, profile: null, error: '獎勵尚未保存，請重試。' });
+    } finally { savingRewardRef.current = false; setSavingReward(false); }
+  }, [campaignEnabled, init.owner, wins]);
+  const campaignAwaiting = campaignEnabled && over === 'win' && !campaignSettlement?.saved;
+  const wonCard = campaignSettlement?.saved && campaignSettlement.reward ? playableCards().find(c => c.id === campaignSettlement.reward!.cardId) : undefined;
+  const wonSkill = wonCard ? getSkill(wonCard.skills[0]) : undefined;
+
   useEffect(() => {
     if (!rigEnabled || !over) return;
+    if (campaignEnabled) { if (over === 'win') void saveVictory(); return; }
     setProgressSaveFailed(!saveMatch3Progress(init.owner, nextProgressionWins(wins, over === 'win')));
-  }, [over, wins, rigEnabled, init.owner]);
+  }, [over, wins, rigEnabled, init.owner, campaignEnabled, saveVictory]);
 
   const restart = useCallback(() => {
     audio.current?.stop();
+    if (campaignEnabled) { if (!campaignAwaiting) onCampaignContinue?.(); return; }
     setFalling(new Map()); setFlash(new Set()); setDrop(new Set()); setEmptyCells(new Set()); setRewards(new Set());
     setStrike(null); setShieldBurst(null); setFusionBurst(null); setGuardActive(false); setCounterFoes(new Set());
     const rng = rngRef.current; const nextWins = rigEnabled ? nextProgressionWins(wins, over === 'win') : 0; setWins(nextWins); const n = pickLineup(rng, teamIds, cfg, nextWins); const b = generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, rigEnabled ? progressionStage(nextWins).minChain : 3);
     setTeam(n.team); setFoes(n.enemies); setTarget(0); setBoard(b); setMagic(emptyMagic(b)); setMoves(0); setTotalDmg(0); setLastDmg(0); setBanner(null);
     setLink([]); setLinkMode(false); setLog('新的一局。' + (cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊'));
-  }, [teamIds, cfg, wins, over, rigEnabled]);
+  }, [teamIds, cfg, wins, over, rigEnabled, campaignEnabled, campaignAwaiting, onCampaignContinue]);
 
   /** 困難版先完成我方攻擊，再由一張存活敵卡輪替反擊。 */
   const endStep = (t: Unit[], f: Foe[], msg: string, attack = true, forceCounter = false, shieldGuard = false) => {
@@ -389,7 +417,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
       </svg>}
       <header className={styles.head}>
         {rigEnabled && <Link href="/" className={styles.homeLink} data-testid="match3-home">回到首頁</Link>}
-        {rigEnabled && onRepick && <div className={`${styles.repick} ${styles.repickTop}`}><button type="button" data-testid="open-picker" disabled={busy} onClick={onRepick}>重新選卡</button></div>}
+        {rigEnabled && onRepick && <div className={`${styles.repick} ${styles.repickTop}`}><button type="button" data-testid="open-picker" disabled={busy || campaignAwaiting} onClick={onRepick}>{campaignEnabled ? '我的卡片' : '重新選卡'}</button></div>}
         <div className={rigEnabled ? styles.srOnly : styles.headText}>
           <div className={styles.kicker} data-testid="match3-badge">{cfg.badge}</div>
           <h1 className={styles.title} data-testid="match3-title">{cfg.title}<small className={styles.subtitle}>｜{cfg.subtitle}</small></h1>
@@ -471,7 +499,14 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
           <div className={styles.resultTitle}>{over === 'win' ? '勝利' : '這局先到這裡'}</div>
           <p>{over === 'win' ? `共 ${moves} 步擊退敵方 ${foes.length} 隻神獸，總傷害 ${totalDmg}。` : '敵方守住了，再來一局吧。'}</p>
           {progressSaveFailed && <p role="alert">此瀏覽器無法儲存進度，關閉頁面後可能遺失。</p>}
-          <button type="button" className={styles.again} disabled={busy} onClick={restart}>{rigEnabled ? (over === 'win' ? '挑戰下一關' : '原難度重試') : '再來一局'}</button>
+          {campaignEnabled && over === 'win' && <div data-testid="campaign-victory-reward" aria-live="polite">
+            {savingReward ? <p>正在保存本局獎勵…</p> : wonCard ? <>
+              <p>多了一張{wonCard.name}！已存入寶珠「我的卡片」，可選作下一局夥伴。</p>
+              <div className={styles.campaignRewardCard}><BeastCardFace card={{ id: wonCard.id, name: wonCard.name, element: wonCard.element, thumbnail: wonCard.art.thumbnail, skillName: wonSkill?.name, description: wonSkill?.description }} /></div>
+              <button type="button" className={styles.again} disabled={busy} onClick={onRepick}>查看我的卡片</button>
+            </> : <><p role="alert">{campaignSettlement?.error ?? '獎勵尚未保存。'}</p><button type="button" className={styles.again} onClick={() => void saveVictory()}>重試保存獎勵</button></>}
+          </div>}
+          <button type="button" className={styles.again} disabled={busy || campaignAwaiting} onClick={restart}>{rigEnabled ? (over === 'win' ? '挑戰下一關' : '原難度重試') : '再來一局'}</button>
         </div>
       )}
       {rigEnabled && <Match3RigAttack ids={team.map(u => u.id)} root={root} strike={strike} onImpact={impact} />}
