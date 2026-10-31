@@ -31,7 +31,8 @@ test('fusion helper requires three physical finite shields', () => {
 test('move search distinguishes defense from attack and continues through same-color shields', () => {
   const same=[['AIR','AIR','AIR']], shields=[[7,7,7]];
   assert(D.hasDragMove(same,false,3,shields));
-  assert(!D.hasDragMove(same,false,4,shields));
+  assert(D.hasDragMove(same,false,4,shields));
+  assert(!D.hasDragMove(same,false,22,shields));
   assert(D.hasDragMove([['AIR','FIRE','WATER']],false,3,shields));
   assert(!D.hasDragMove([['AIR','FIRE','WATER']],false,4,shields));
   assert(D.hasDragMove([['AIR','AIR','AIR','AIR']],false,22,[[7,7,7,0]]));
@@ -40,7 +41,8 @@ test('move search distinguishes defense from attack and continues through same-c
   const large=Array.from({length:7},()=>Array(7).fill('AIR'));
   const all=large.map(r=>r.map(()=>7));
   const start=performance.now();
-  assert(!D.hasDragMove(large,true,4,all));
+  assert(D.hasDragMove(large,true,4,all));
+  assert(!D.hasDragMove(large,true,344,all));
   assert(performance.now()-start<2000,'shield-only search must prune, not enumerate every path');
   assert(D.hasDragMove(large,true,3,all));
 });
@@ -106,12 +108,13 @@ test('fusion clears all participating colors, preserves other shields and all ca
   }
   assert(cascaded,'must exercise a real follow-up cascade');
 });
-test('same-color three shields fuse; one/two shields with ordinary same-color keep color clear', () => {
+test('same-color three shields convert; one/two shields with ordinary same-color keep color clear', () => {
   for (let shields=1; shields<=3; shields++) {
     const {board,magic}=fixture(); board[0].splice(0,3,'AIR','AIR','AIR');
     magic[0].splice(0,3,...[0,1,2].map(i=>i<shields?7:0));
     const out=D.resolveDrag(board,path,B.seededRng(2),magic,1,true,true);
-    assert.equal(out.shieldFusion,shields===3);
+    assert.equal(out.shieldFusion,false);
+    assert.equal(!!out.shieldConversion,shields===3);
     if(shields<3) {
       assert(out.attackAllowed);
       assert.equal(out.steps[0].groups[0].size,board.flat().filter(e=>e==='AIR').length);
@@ -141,4 +144,28 @@ test('guard halves each of four joint counter hits after element multiplier, wit
   assert.equal(single.hits[0].damage,guarded.hits[1].damage);
   assert.equal(JSON.stringify({team,foes}),before);
 });
+
+
+test('five elements convert only unconsumed same-color beads, conserve high power and use path attack only', () => {
+  for(const element of ['AIR','FIRE','WATER','SPACE','EARTH']) for(const length of [3,4,5]) {
+    const board=B.generateBoard(B.seededRng(73),8,7,true),magic=D.emptyMagic(board);
+    const route=Array.from({length},(_,c)=>({r:0,c}));board[0].splice(0,length,...route.map(()=>element));magic[0].splice(0,length,...route.map((_,i)=>7+i));
+    board[6][5]=element;magic[6][5]=4;board[7][6]=element;magic[7][6]=13;
+    const before=JSON.stringify({board,magic});const out=D.resolveDrag(board,route,B.seededRng(41),magic,1,true,true,8),first=out.steps[0];
+    assert(out.valid&&out.attackAllowed&&!out.shieldFusion);assert.equal(out.element,element);assert.equal(out.shieldConversion.element,element);
+    assert(D.isShieldConversionPath(board,route,magic));assert.equal(D.dragIntent(route,magic,8,true,board),'attack');
+    assert.equal(first.groups[0].size,length);assert.deepEqual(first.clearedCells,route);assert.equal(first.groups[0].power,route.reduce((n,p)=>n+magic[p.r][p.c],0));
+    assert.equal(out.magicTriggered.length,length,'conversion targets do not deal damage or trigger stored powers');assert.equal(out.magicSpawn,null);assert.equal(out.skill5,false);
+    let newCount=0;board.forEach((row,r)=>row.forEach((e,c)=>{if(route.some(p=>p.r===r&&p.c===c))return;const dest=first.falls.find(f=>f.fromRow===r&&f.c===c)||{r,c};assert.equal(first.boardAfter[dest.r][dest.c],e);assert.equal(first.magicAfter[dest.r][dest.c],e===element?Math.max(7,magic[r][c]):magic[r][c]);if(e===element&&magic[r][c]<7)newCount++}));
+    assert.equal(first.rewards.length,newCount);assert(first.rewards.every(r=>r.element===element&&r.power===7));assert.deepEqual(out.shieldConversion.cells,first.rewards.map(({r,c})=>({r,c})));
+    assert.equal(JSON.stringify({board,magic}),before,'input immutable');
+    const complete=D.resolveDrag(board,route,B.seededRng(41),magic,50,true,true,8);let retained=complete.steps[0].rewards.map(r=>({...r}));
+    for(const step of complete.steps.slice(1)){for(const reward of retained){assert(!step.clearedCells.some(p=>p.r===reward.r&&p.c===reward.c),'converted shield cannot auto-clear');const fall=step.falls.find(f=>f.fromRow===reward.r&&f.c===reward.c);if(fall)reward.r=fall.r;assert.equal(step.magicAfter[reward.r][reward.c],7)}}
+  }
+});
+test('mixed shields remain defense and legacy previews without board stay compatible',()=>{
+  const {board,magic}=fixture();assert(!D.isShieldConversionPath(board,path,magic));assert.equal(D.dragIntent(path,magic,8,true,board),'defend');assert.equal(D.dragIntent(path,magic,8,true),'defend');
+  const out=D.resolveDrag(board,path,B.seededRng(5),magic,5,true,true,8);assert(out.shieldFusion&&!out.attackAllowed);assert.equal(out.shieldConversion,undefined);
+});
+
 console.log(`shield-fusion: ${count} groups passed`);

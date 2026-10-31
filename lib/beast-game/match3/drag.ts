@@ -17,6 +17,11 @@ export function isShieldFusionPath(path: readonly Cell[], magic: MagicGrid): boo
   return path.length >= MATCH3_MIN_RUN && path.every(p => Number.isFinite(magic[p.r]?.[p.c]) && magic[p.r][p.c] >= 7);
 }
 
+/** Only classifies a validated path; same-element pure shields convert instead of defending. */
+export function isShieldConversionPath(board: Board, path: readonly Cell[], magic: MagicGrid): boolean {
+  return isShieldFusionPath(path, magic) && path.every(p => inBounds(board, p) && board[p.r][p.c] === board[path[0].r]?.[path[0].c]);
+}
+
 /** 普通珠算一顆；數字珠（含盾牌）採用儲存顆數，不再額外加一顆。 */
 export function effectiveDragCount(path: readonly Cell[], magic: MagicGrid): number {
   return path.reduce((count, p) => {
@@ -26,10 +31,10 @@ export function effectiveDragCount(path: readonly Cell[], magic: MagicGrid): num
 }
 
 /** Validated drag preview shares the same attack gate as resolution; no board mutation. */
-export function dragIntent(path: readonly Cell[], magic: MagicGrid, minimum = MATCH3_MIN_RUN, shieldMode = false): 'idle' | 'incomplete' | 'clear' | 'attack' | 'defend' {
+export function dragIntent(path: readonly Cell[], magic: MagicGrid, minimum = MATCH3_MIN_RUN, shieldMode = false, board?: Board): 'idle' | 'incomplete' | 'clear' | 'attack' | 'defend' {
   if (!path.length) return 'idle';
   if (path.length < MATCH3_MIN_RUN) return 'incomplete';
-  if (shieldMode && isShieldFusionPath(path, magic)) return 'defend';
+  if (shieldMode && isShieldFusionPath(path, magic) && (!board || !isShieldConversionPath(board, path, magic))) return 'defend';
   return (shieldMode ? effectiveDragCount(path, magic) : path.length) >= minimum ? 'attack' : 'clear';
 }
 
@@ -77,10 +82,9 @@ export function largestDragChain(b: Board, diagonal = false): number {
   return best;
 }
 export function hasDragMove(b: Board, diagonal = false, minimum = MATCH3_MIN_RUN, magic?: MagicGrid): boolean {
-  // A mixed-color shield path can never become an attack. A same-color path
-  // can, but only if its connected color component contains a non-shield.
-  // Prune shield-only components before DFS (a full 7x7 shield board otherwise
-  // has exponentially many same-color paths, none of which can attack).
+  // Mixed-color shield fusion is defensive. Same-color shield conversion attacks
+  // using stored path power; prune components that cannot meet the minimum
+  // before DFS, including impossible high thresholds on an all-shield board.
   const attackStarts = new Set<number>();
   if (magic && minimum > MATCH3_MIN_RUN) {
     const seen = new Set<number>();
@@ -96,14 +100,13 @@ export function hasDragMove(b: Board, diagonal = false, minimum = MATCH3_MIN_RUN
           }
         }
       }
-      const nonShield = component.some(p => !Number.isFinite(magic[p.r]?.[p.c]) || magic[p.r][p.c] < 7);
-      if (nonShield && component.length >= MATCH3_MIN_RUN && effectiveDragCount(component, magic) >= minimum) component.forEach(p => attackStarts.add(key(p)));
+      if (component.length >= MATCH3_MIN_RUN && effectiveDragCount(component, magic) >= minimum) component.forEach(p => attackStarts.add(key(p)));
     }
   }
   const walk = (path: Cell[]): boolean => {
     const fusion = magic && isShieldFusionPath(path, magic);
     if (fusion) {
-      if (minimum <= MATCH3_MIN_RUN) return true;
+      if (minimum <= MATCH3_MIN_RUN || (isShieldConversionPath(b, path, magic!) && effectiveDragCount(path, magic!) >= minimum)) return true;
       if (path.some(p => b[p.r][p.c] !== b[path[0].r][path[0].c])) return false;
     } else if (path.length >= MATCH3_MIN_RUN && (magic ? effectiveDragCount(path, magic) : path.length) >= minimum) return true;
     const last = path[path.length - 1];
@@ -160,6 +163,8 @@ export interface DragResult {
   valid: boolean;
   attackAllowed: boolean;
   shieldFusion: boolean;
+  /** Newly converted same-element shields at first-stage post-gravity coordinates. */
+  shieldConversion?: { element: BeastElement; cells: Cell[] };
   reason?: 'short' | 'path';
   board: Board; magic: MagicGrid; steps: DragStep[];
   chainLength: number; effectiveLength: number; element: BeastElement | null;
@@ -197,10 +202,11 @@ function scoreGroup(g: MatchGroup, m: MagicGrid, chain: number, triggers: MagicT
 /** Hard mode settles survivors before generating new beads; holes are explicit metadata. */
 function resolveHardDrag(board: Board, path: readonly Cell[], rng: Rng, magic0: MagicGrid, maxChains: number, diagonal: boolean, minimum: number): DragResult {
   const effectiveLength = effectiveDragCount(path, magic0), n = path.length;
-  const shieldFusion = isShieldFusionPath(path, magic0), element = board[path[0].r][path[0].c];
+  const converting = isShieldConversionPath(board, path, magic0);
+  const shieldFusion = !converting && isShieldFusionPath(path, magic0), element = board[path[0].r][path[0].c];
   const shieldTriggered = path.some(p => magic0[p.r][p.c] >= 7);
   const colors = new Set(shieldFusion ? path.map(p => board[p.r][p.c]) : [element]);
-  const cells = shieldTriggered
+  const cells = shieldTriggered && !converting
     ? board.flatMap((row, r) => row.flatMap((e, c) => colors.has(e) ? [{ r, c }] : []))
     : path.map(p => ({ ...p }));
   const triggers: MagicTrigger[] = [], steps: DragStep[] = [];
@@ -239,7 +245,12 @@ function resolveHardDrag(board: Board, path: readonly Cell[], rng: Rng, magic0: 
   if (!shieldTriggered && MAGIC_ORB_SPAWN_ENABLED && effectiveLength >= MAGIC_ORB_MIN_LENGTH) {
     const end = path[n - 1]; firstClear.delete(key(end)); firstRewards.push({ ...end, element, power: effectiveLength });
   }
-  const spawn = stage(firstGroups, firstClear, firstRewards, 1)[0] ?? null;
+  if (converting) b.forEach((row, r) => row.forEach((e, c) => {
+    if (e === element && !firstClear.has(key({ r, c })) && m[r][c] < 7) firstRewards.push({ r, c, element, power: 7 });
+  }));
+  const firstPlaced = stage(firstGroups, firstClear, firstRewards, 1);
+  const spawn = converting ? null : firstPlaced[0] ?? null;
+  const shieldConversion = converting ? { element, cells: firstPlaced.map(({ r, c }) => ({ r, c })) } : undefined;
   let chain = 2;
   while (chain <= maxChains) {
     const excluded = new Set(holes);
@@ -262,9 +273,9 @@ function resolveHardDrag(board: Board, path: readonly Cell[], rng: Rng, magic0: 
   if (holes.size) stage([], new Set(), [], chain - 1, true);
   let reshuffled = false;
   if (!hasDragMove(b, diagonal, minimum, m)) { const rs = reshuffleKeepMagic(b, m, rng, diagonal, minimum); b = rs.board; m = rs.magic; reshuffled = true; }
-  const attackAllowed = dragIntent(path, magic0, minimum, true) === 'attack';
+  const attackAllowed = dragIntent(path, magic0, minimum, true, board) === 'attack';
   steps.forEach(step => { step.attackAllowed = attackAllowed; });
-  return { valid: true, attackAllowed, shieldFusion, board: b, magic: m, steps, chainLength: n, effectiveLength, element: shieldFusion ? null : element, magicSpawn: spawn, skill5, magicTriggered: triggers, reshuffled, cascadeCount: steps.filter(step => step.groups.length > 0).length };
+  return { valid: true, attackAllowed, shieldFusion, board: b, magic: m, steps, chainLength: n, effectiveLength, element: shieldFusion ? null : element, shieldConversion, magicSpawn: spawn, skill5, magicTriggered: triggers, reshuffled, cascadeCount: steps.filter(step => step.groups.length > 0).length };
 }
 
 export function resolveDrag(board: Board, path: readonly Cell[], rng: Rng, magicIn?: MagicGrid, maxChains = 50, diagonal = false, shieldMode = false, minimum = MATCH3_MIN_RUN): DragResult {
