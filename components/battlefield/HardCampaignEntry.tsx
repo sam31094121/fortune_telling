@@ -77,7 +77,6 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
       if (!result.ok) { setError(result.error || '舊進度尚未儲存，請重試。'); return; }
       await load('self');
     }}>確認這是我的舊進度，接續闖關</button>}{error && <p role="alert">{error}</p>}<p className={styles.hint}>自己的進度保存在這個瀏覽器。</p>
-    <CampaignBackup onImported={() => { void load('self'); }} />
   </section>;
   if (phase === 'battle') return <>
     <Match3Board key={revision} seed={seed} mode={mode} progressOwner={owner} campaignEnabled teamIds={profile.teamIds} onCampaignContinue={() => load(owner)} onRepick={() => load(owner, true)} />
