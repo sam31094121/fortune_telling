@@ -349,3 +349,5 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .legendIn span { display: inline-flex; align-items: center; gap: 6px; }
 .legendIn i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
 @media (min-width: 768px) { .infoMask { align-items: center; } .infoPanel { border-radius: 16px; } }
+/* 平板／桌機的敵方卡較高：多扣一些高度，出戰卡不被底部按鈕列切到。 */
+@media (min-width: 700px) { .board.boardMin { width: min(100%, max(300px, calc(100dvh - 520px))); } }

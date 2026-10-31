@@ -349,11 +349,11 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
       </div>
 
       {M && info && (
-        <div className={styles.infoMask} onClick={() => setInfo(false)}>
+        <div className={styles.infoMask} onClick={() => setInfo(false)} onKeyDown={(e) => { if (e.key === 'Escape') setInfo(false); }}>
           <div className={styles.infoPanel} role="dialog" aria-modal="true" aria-label="說明" data-testid="match3-info-panel" onClick={(e) => e.stopPropagation()}>
             <div className={styles.infoHead}><strong>說明</strong><button type="button" aria-label="關閉說明" onClick={() => setInfo(false)} autoFocus>✕</button></div>
             <h3>本局</h3>
-            <p data-testid="match3-sub">{cfg.badge}・5 對 5・{cfg.cols}×{cfg.rows}＝{cfg.cols * cfg.rows} 顆寶珠{cfg.diagonal ? '・可斜連' : ''}。敵方：{cfg.enemyHint ?? foes.map((f) => f.name).join('・')}</p>
+            <p data-testid="match3-sub">5 對 5・{cfg.cols}×{cfg.rows}＝{cfg.cols * cfg.rows} 顆寶珠{cfg.diagonal ? '・可斜連' : ''}。敵方：{cfg.enemyHint ?? foes.map((f) => f.name).join('・')}</p>
             <p>正式神獸卡 5v5・敵方 HP {cfg.enemyHp}／攻 {cfg.enemyAtk}／每 {cfg.counterEvery} 步反擊【待平衡】・seed {init.seed}・{over === 'win' ? '勝利' : over === 'lose' ? '落敗' : '戰鬥進行中'}</p>
             <h3>怎麼玩</h3>
             <p>按住寶珠拖過相鄰同色珠（≥3{cfg.diagonal ? '，可斜連' : ''}）放開攻擊。</p>
