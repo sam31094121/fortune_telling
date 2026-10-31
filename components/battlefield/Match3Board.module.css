@@ -17,10 +17,11 @@
 .pips i { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--ivory); display: block; }
 .pips i.pipOn { background: #e0532c; border-color: #e0532c; }
 .hint { min-height: 22px; margin: 10px 0 0; text-align: center; font-size: 14px; font-weight: 600; color: #f3dfb2; }
-.board { position: relative; display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin: 6px 0 8px; padding: 6px; background: #1c1922; border-radius: 12px;
+/* 7×7：盤面寬度同時受螢幕高度限制，390×844 一屏放得下敌人＋盤面＋出戰卡；珠子等比縮小。 */
+.board { position: relative; display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin: 6px auto 8px; padding: 5px; width: min(100%, max(300px, calc(100dvh - 440px))); background: #1c1922; border-radius: 12px;
   touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 /* 寶珠：整格是觸控區（390 寬約 46px），內層 .gem 以「顏色＋形狀」雙重編碼：風＝圓、空＝菱形、水＝水滴、火＝三角、地＝方塊。 */
-.orb { position: relative; aspect-ratio: 1; min-width: 44px; min-height: 44px; border-radius: 10px; cursor: grab;
+.orb { position: relative; aspect-ratio: 1; min-width: 0; min-height: 0; border-radius: 10px; cursor: grab;
   display: grid; place-items: center; -webkit-tap-highlight-color: transparent; transition: transform .14s cubic-bezier(.2,.8,.3,1.2), filter .14s ease; will-change: transform; }
 .gem { position: absolute; inset: 7%; background: var(--c);
   background-image: radial-gradient(circle at 32% 26%, rgba(255,255,255,.55) 0 12%, rgba(255,255,255,0) 38%), linear-gradient(160deg, rgba(255,255,255,.12), rgba(0,0,0,.28));

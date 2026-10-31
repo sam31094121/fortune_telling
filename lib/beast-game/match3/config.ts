@@ -6,7 +6,7 @@
 import { ELEMENT_LABEL, type BeastElement } from '../elements';
 
 export const MATCH3_COLS = 7;
-export const MATCH3_ROWS = 5;
+export const MATCH3_ROWS = 7;
 /** 最短可消連線（拖曳連珠與掉落後的直線連鎖都用這個）。 */
 export const MATCH3_MIN_RUN = 3;
 

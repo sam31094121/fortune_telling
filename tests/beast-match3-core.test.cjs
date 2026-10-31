@@ -14,11 +14,11 @@ const E = ['AIR', 'SPACE', 'WATER', 'FIRE', 'EARTH'];
 // 風／空棋盤格底（無任何連線），再手動放線
 const base = () => Array.from({ length: 5 }, (_, r) => Array.from({ length: 7 }, (_, c) => ((r + c) % 2 ? 'AIR' : 'SPACE')));
 
-t('盤面 7 欄 × 5 列、五元素單一來源', () => {
-  assert.equal(M.MATCH3_COLS, 7); assert.equal(M.MATCH3_ROWS, 5);
+t('盤面 7 欄 × 7 列、五元素單一來源', () => {
+  assert.equal(M.MATCH3_COLS, 7); assert.equal(M.MATCH3_ROWS, 7);
   assert.deepEqual([...M.MATCH3_ORB_ELEMENTS].sort(), [...E].sort());
   const b = M.generateBoard(M.seededRng(1));
-  assert.equal(b.length, 5); b.forEach((row) => assert.equal(row.length, 7));
+  assert.equal(b.length, 7); b.forEach((row) => assert.equal(row.length, 7));
   assert.equal(M.findGroups(base()).length, 0);
 });
 t('生成 300 盤：無現成連線、至少一步可走', () => {
@@ -177,7 +177,7 @@ t('拖曳後盤面仍有可拖步；300 盤生成都可拖', () => {
   for (let i = 0; i < 150; i++) {
     // 找一條 3 顆的路徑
     let path = null;
-    outer: for (let r = 0; r < 5; r++) for (let c = 0; c < 7; c++) {
+    outer: for (let r = 0; r < b.length; r++) for (let c = 0; c < b[0].length; c++) {
       const dfs = (p) => { if (p.length === 3) return p; const l = p[p.length - 1];
         for (const q of [{ r: l.r + 1, c: l.c }, { r: l.r - 1, c: l.c }, { r: l.r, c: l.c + 1 }, { r: l.r, c: l.c - 1 }]) if (M.canExtend(b, p, q)) { const x = dfs([...p, q]); if (x) return x; } return null; };
       path = dfs([{ r, c }]); if (path) break outer;
