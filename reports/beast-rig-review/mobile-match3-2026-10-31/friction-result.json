@@ -1,0 +1,166 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "kind": "first customer move under eight threshold",
+      "route": [
+        {
+          "r": 0,
+          "c": 0,
+          "el": "EARTH",
+          "mp": 0
+        },
+        {
+          "r": 0,
+          "c": 1,
+          "el": "EARTH",
+          "mp": 0
+        },
+        {
+          "r": 1,
+          "c": 2,
+          "el": "EARTH",
+          "mp": 0
+        }
+      ],
+      "edgeCount": 1,
+      "centerCount": 2,
+      "rollbackCount": 2,
+      "hint": {
+        "text": "合計 3 顆：只消除補珠，本關需 8 顆才會攻擊",
+        "rect": {
+          "x": 11,
+          "y": 192.5,
+          "width": 1,
+          "height": 1,
+          "top": 192.5,
+          "right": 12,
+          "bottom": 193.5,
+          "left": 11
+        },
+        "clip": "auto",
+        "position": "absolute"
+      },
+      "lock": {
+        "repickDisabled": true,
+        "boardAriaBusy": null
+      },
+      "durationMs": 1219,
+      "enemyHpBefore": [
+        {
+          "id": "beast_g_baihu",
+          "hp": 580
+        },
+        {
+          "id": "beast_g_qinglong",
+          "hp": 524
+        },
+        {
+          "id": "beast_g_xuanwu",
+          "hp": 656
+        },
+        {
+          "id": "beast_g_zhuque",
+          "hp": 564
+        }
+      ],
+      "enemyHpAfter": [
+        {
+          "id": "beast_g_baihu",
+          "hp": 580
+        },
+        {
+          "id": "beast_g_qinglong",
+          "hp": 524
+        },
+        {
+          "id": "beast_g_xuanwu",
+          "hp": 656
+        },
+        {
+          "id": "beast_g_zhuque",
+          "hp": 564
+        }
+      ],
+      "allyBefore": [
+        {
+          "id": "beast_y15",
+          "hp": 64
+        },
+        {
+          "id": "beast_a09",
+          "hp": 103
+        },
+        {
+          "id": "beast_y14",
+          "hp": 54
+        },
+        {
+          "id": "beast_a04",
+          "hp": 104
+        },
+        {
+          "id": "beast_y24",
+          "hp": 53
+        }
+      ],
+      "allyAfter": [
+        {
+          "id": "beast_y15",
+          "hp": 64
+        },
+        {
+          "id": "beast_a09",
+          "hp": 103
+        },
+        {
+          "id": "beast_y14",
+          "hp": 54
+        },
+        {
+          "id": "beast_a04",
+          "hp": 104
+        },
+        {
+          "id": "beast_y24",
+          "hp": 29
+        }
+      ],
+      "damage": 0
+    },
+    {
+      "kind": "legal attack availability",
+      "step": 1,
+      "hasAttack": true,
+      "physical": 8,
+      "effective": 8
+    },
+    {
+      "kind": "legal attack availability",
+      "step": 2,
+      "hasAttack": true,
+      "physical": 4,
+      "effective": 8
+    },
+    {
+      "kind": "legal attack availability",
+      "step": 3,
+      "hasAttack": true,
+      "physical": 8,
+      "effective": 8
+    },
+    {
+      "kind": "legal attack availability",
+      "step": 4,
+      "hasAttack": true,
+      "physical": 4,
+      "effective": 8
+    },
+    {
+      "kind": "repick reachable",
+      "cards": 60
+    }
+  ],
+  "errors": [],
+  "profile": "C:\\Users\\DRAGON\\AppData\\Local\\Temp\\match3-mobile-review-daJyOh"
+}

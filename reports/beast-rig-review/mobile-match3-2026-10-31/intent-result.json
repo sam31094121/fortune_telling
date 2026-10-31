@@ -1,0 +1,77 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "incomplete": {
+        "intent": "incomplete",
+        "busy": "false",
+        "flow": {
+          "opacity": "0.25",
+          "animation": "none",
+          "duration": "0s",
+          "stroke": "rgb(239, 253, 255)"
+        },
+        "animated": 51
+      },
+      "clear": {
+        "intent": "clear",
+        "busy": "false",
+        "flow": {
+          "opacity": "0.48",
+          "animation": "Match3Board_chainFlow__qEHDG",
+          "duration": "1.35s",
+          "stroke": "rgb(239, 253, 255)"
+        },
+        "animated": 55
+      },
+      "attack": {
+        "intent": "attack",
+        "busy": "false",
+        "flow": {
+          "opacity": "0.95",
+          "animation": "Match3Board_chainFlow__qEHDG",
+          "duration": "0.85s",
+          "stroke": "rgb(232, 250, 255)"
+        },
+        "animated": 56
+      },
+      "defend": {
+        "intent": "defend",
+        "busy": "false",
+        "flow": {
+          "opacity": "0.9",
+          "animation": "Match3Board_chainFlow__qEHDG",
+          "duration": "1.15s",
+          "stroke": "rgb(255, 240, 204)"
+        },
+        "animated": 53
+      },
+      "defendEvidence": "board/magic fixture, not naturally acquired",
+      "reduced": {
+        "intent": "attack",
+        "busy": "false",
+        "flow": {
+          "opacity": "0.95",
+          "animation": "none",
+          "duration": "1e-05s",
+          "stroke": "rgb(232, 250, 255)"
+        },
+        "animated": 0
+      },
+      "clearBusy": {
+        "during": "true",
+        "after": "false"
+      },
+      "attackBusy": {
+        "during": "true",
+        "after": "false"
+      },
+      "defendBusy": {
+        "during": "true",
+        "after": "false"
+      }
+    }
+  ],
+  "errors": [],
+  "profile": "C:\\Users\\DRAGON\\AppData\\Local\\Temp\\match3-mobile-review-loTRzt"
+}

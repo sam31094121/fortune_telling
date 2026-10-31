@@ -64,3 +64,8 @@
 ## 阿修羅發布檢查修復
 
 業主追加授權處理阿修羅卡點後，只修正三支過期測試：生日與姓名改用既有可存取標籤/欄位定位，成人ageGate逐欄驗證後維持舊契約比對。未改產品或命理公式。test:pre-push-e2e已完整退出0：38項滑鼠檢查與asura-live四支測試均通過。此前失敗保留作歷史紀錄，本次阻擋已排除。完整編譯及寶珠相關回歸亦已通過。
+
+
+## 連線意圖分級新增視覺驗收
+
+有限手機390真實拖曳：2珠incomplete流光不動、opacity0.25；八珠關3珠clear為0.48/1.35s；自然取得數字珠後有效≥8的attack為0.95/0.85s且放開確實造成傷害。隔離三盾fixture跨色拖曳為defend，淡金rgb(255,240,204)、0.9/1.15s；fixture非自然取得。clear/attack/defend結算時aria-busy皆true，完成後恢復false。模擬減少動態後flow動畫none、盤面執行中動畫0，未發現新增動畫繼續運行。測試tests/beast-match3-intent.e2e.mjs退出碼0，intent-result.json與四張intent截圖保留證據，沒有重跑自然12步，也沒有改產品。

@@ -15,6 +15,9 @@ for(const [stored,expected,allowed] of [[5,8,true],[4,7,false]]) {
   const res=M.resolveDrag(b,path,M.seededRng(91),magic,1,true,true,8);
   assert.equal(res.valid,true);assert.equal(res.chainLength,4);assert.equal(res.effectiveLength,expected);
   assert.equal(res.attackAllowed,allowed);
+  assert.equal(M.dragIntent(path,magic,8,true),allowed?'attack':'clear','preview matches weighted damage gate');
+  assert.equal(M.dragIntent([],magic,8,true),'idle');
+  assert.equal(M.dragIntent(path.slice(0,2),magic,3,true),'incomplete','stored power cannot replace three physical cells');
   assert.equal(res.magicSpawn.power,expected);
   assert.equal(res.magic.flat().filter(n=>n>=7).length,1);
   const first=res.steps[0].groups[0];
@@ -87,3 +90,5 @@ console.log('PASS: weighted stored-orb count, attack gate, seven/eight shield re
  const two=[['FIRE','FIRE'],['WATER','EARTH']], m=M.emptyMagic(two);m[0][0]=10;
  assert.equal(M.hasDragMove(two,true,8,m),false);
 }
+
+{ const b=makeBoard(), m=M.emptyMagic(b); m[6].fill(7); assert.equal(M.dragIntent(rowPath(3),m,8,true),'defend'); assert.equal(M.dragIntent(rowPath(3),m,3,false),'attack','simple retains ordinary attack'); }

@@ -353,6 +353,32 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 @media (prefers-reduced-motion: reduce) { .wrap[data-mode^="hard"] .board > svg [data-chain-flow] { animation: none; } }
 .wrap[data-mode^="hard"] .sel::after { border-color: #e4faff; box-shadow: 0 0 7px rgba(185,232,237,.45); }
 
+/* 連線用途由後端結果標記；僅分級光感，不改寶珠尺寸與觸控規則。 */
+.wrap[data-mode^="hard"] .board[data-chain-intent="incomplete"] > svg polyline { opacity: .55; }
+.wrap[data-mode^="hard"] .board[data-chain-intent="incomplete"] > svg [data-chain-flow] { animation: none; opacity: .25; }
+.wrap[data-mode^="hard"] .board[data-chain-intent="incomplete"] > svg circle:last-of-type { animation: none; }
+.wrap[data-mode^="hard"] .board[data-chain-intent="clear"] > svg polyline:first-of-type { stroke: rgba(185,232,237,.12); }
+.wrap[data-mode^="hard"] .board[data-chain-intent="clear"] > svg polyline:nth-of-type(2) { filter: drop-shadow(0 0 1px rgba(215,244,249,.5)); }
+.wrap[data-mode^="hard"] .board[data-chain-intent="clear"] > svg [data-chain-flow] { opacity: .48; animation-duration: 1.35s; }
+.wrap[data-mode^="hard"] .board[data-chain-intent="attack"] > svg polyline:first-of-type { stroke: rgba(170,228,244,.24); }
+.wrap[data-mode^="hard"] .board[data-chain-intent="attack"] > svg polyline:nth-of-type(2) { filter: drop-shadow(0 0 1px rgba(237,252,255,.9)) drop-shadow(0 0 3px rgba(144,219,241,.4)); }
+.wrap[data-mode^="hard"] .board[data-chain-intent="attack"] > svg [data-chain-flow] { stroke: #e8faff; opacity: .95; animation-duration: .85s; }
+.wrap[data-mode^="hard"] .board[data-chain-intent="defend"] > svg polyline:first-of-type { stroke: rgba(240,219,168,.24); }
+.wrap[data-mode^="hard"] .board[data-chain-intent="defend"] > svg polyline:nth-of-type(2) { filter: drop-shadow(0 0 1px rgba(255,244,216,.85)) drop-shadow(0 0 3px rgba(225,202,146,.4)); }
+.wrap[data-mode^="hard"] .board[data-chain-intent="defend"] > svg [data-chain-flow] { stroke: #fff0cc; opacity: .9; animation-duration: 1.15s; }
+.wrap[data-mode^="hard"] .board[data-chain-intent="defend"] > svg circle { fill: #fff3d9; }
+.wrap[data-mode^="hard"] .board[aria-busy="true"]::after {
+  content: ''; position: absolute; inset: 0; z-index: 7; pointer-events: none; border-radius: inherit;
+  box-shadow: inset 0 0 0 1px #c4e5ed, inset 0 0 6px rgba(185,232,237,.2);
+  opacity: .25; animation: hardBoardBusy 1.2s ease-in-out infinite;
+}
+@keyframes hardBoardBusy { 0%, 100% { opacity: .25; } 50% { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) {
+  .wrap[data-mode^="hard"] .board[data-chain-intent] > svg [data-chain-flow],
+  .wrap[data-mode^="hard"] .board[aria-busy="true"]::after { animation: none; }
+  .wrap[data-mode^="hard"] .board[aria-busy="true"]::after { opacity: .4; }
+}
+
 /* 困難版七乘七依手機可用寬度等比例縮放。 */
 .wrap[data-mode^="hard"] .board { gap: clamp(2px, .9vw, 4px); padding: 4px; }
 .wrap[data-mode^="hard"] .orb { min-width: 0; min-height: 0; aspect-ratio: 1; container-type: inline-size; }

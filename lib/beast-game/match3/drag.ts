@@ -25,6 +25,14 @@ export function effectiveDragCount(path: readonly Cell[], magic: MagicGrid): num
   }, 0);
 }
 
+/** Validated drag preview shares the same attack gate as resolution; no board mutation. */
+export function dragIntent(path: readonly Cell[], magic: MagicGrid, minimum = MATCH3_MIN_RUN, shieldMode = false): 'idle' | 'incomplete' | 'clear' | 'attack' | 'defend' {
+  if (!path.length) return 'idle';
+  if (path.length < MATCH3_MIN_RUN) return 'incomplete';
+  if (shieldMode && isShieldFusionPath(path, magic)) return 'defend';
+  return (shieldMode ? effectiveDragCount(path, magic) : path.length) >= minimum ? 'attack' : 'clear';
+}
+
 /** 拖曳中：這格能不能接在路徑後面（相鄰、同色、沒走過）。 */
 export function canExtend(b: Board, path: readonly Cell[], p: Cell, diagonal = false, magic?: MagicGrid, shieldMode = false): boolean {
   if (!inBounds(b, p)) return false;
@@ -221,7 +229,7 @@ export function resolveDrag(board: Board, path: readonly Cell[], rng: Rng, magic
   }
   let reshuffled = false;
   if (!hasDragMove(b, diagonal, minimum, shieldMode ? m : undefined)) { const rs = reshuffleKeepMagic(b, m, rng, diagonal, minimum); b = rs.board; m = rs.magic; reshuffled = true; }
-  const attackAllowed = !shieldFusion && ruleLength >= minimum;
+  const attackAllowed = dragIntent(path, magic0, minimum, shieldMode) === 'attack';
   steps.forEach(step => { step.attackAllowed = attackAllowed; });
   return { valid: true, attackAllowed, shieldFusion, board: b, magic: m, steps, chainLength: n, effectiveLength, element: shieldFusion ? null : element, magicSpawn: spawn, skill5, magicTriggered: triggers, reshuffled };
 }
