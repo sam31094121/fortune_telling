@@ -12,7 +12,7 @@ const port = 9700 + Math.floor(Math.random() * 150);
 const profile = mkdtempSync(path.join(os.tmpdir(), 'match3-mobile-review-'));
 const output = path.join(os.tmpdir(),'match3-progress-acceptance-20261031');
 mkdirSync(output, { recursive: true });
-const browser = spawn(edgePath, ['--headless=new', '--no-first-run', '--disable-default-apps', '--hide-scrollbars', `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore', windowsHide: true });
+const browser = spawn(edgePath, ['--headless=new', '--mute-audio', '--no-first-run', '--disable-default-apps', '--hide-scrollbars', `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore', windowsHide: true });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const results = []; let ws; const errors = [];
 try {
@@ -68,7 +68,7 @@ try {
   const enter=async owner=>{
     await click('a[href="/star-beasts"]');await wait(`!!document.querySelector('a[href="/beast-game/match3-hard"]')`);await click('a[href="/beast-game/match3-hard"]');await wait(`!!document.querySelector('[data-testid="match3-player-choice"]')`);
     assert.equal(await js(`document.querySelectorAll('[data-testid="match3-board"]').length`),0,'Board exposed before identity choice');
-    await click(`[data-testid="play-${owner}"]`);await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===49`);await sleep(150);return snap();
+    await click(`[data-testid="play-${owner}"]`);await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===56`);await sleep(150);return snap();
   };
   const home=async()=>{await click('[data-testid="match3-home"]');await wait(`location.pathname==='/'`)};
   for(const width of [390,820]){
@@ -76,23 +76,24 @@ try {
     // Controlled storage fixture; eight wins were not naturally played.
     await js(`localStorage.setItem('match3-hard-progress-self-v1','8');sessionStorage.setItem('match3-hard-progress-guest-v1','4')`);
     const self=await enter('self');assert.equal(self.enemy.length,4);assert(self.enemy.every(e=>e.id.startsWith('beast_g_')));
-    await send('Page.reload');await wait(`!!document.querySelector('[data-testid="play-self"]')`);await click('[data-testid="play-self"]');await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===49`);assert.deepEqual((await snap()).enemy,self.enemy,'Reload lost self stage');
-    await click('[data-testid="open-picker"]');await wait(`document.querySelectorAll('[data-testid="pick-card"]').length===60`);for(const el of ['AIR','SPACE','WATER','FIRE','EARTH'])await click(`[data-testid="pick-card"][data-el="${el}"]`);await click('[data-testid="start-battle"]');await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===49`);assert.deepEqual((await snap()).enemy,self.enemy,'Repick reset self stage');
+    await send('Page.reload');await wait(`!!document.querySelector('[data-testid="play-self"]')`);await click('[data-testid="play-self"]');await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===56`);assert.deepEqual((await snap()).enemy,self.enemy,'Reload lost self stage');
+    await click('[data-testid="open-picker"]');await wait(`document.querySelectorAll('[data-testid="pick-card"]').length===60`);for(const el of ['AIR','SPACE','WATER','FIRE','EARTH'])await click(`[data-testid="pick-card"][data-el="${el}"]`);await click('[data-testid="start-battle"]');await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===56`);assert.deepEqual((await snap()).enemy,self.enemy,'Repick reset self stage');
     const before=await snap();await drag(findPath(before.cells,3));const after=await snap();assert.equal(after.damage,0);assert(after.ally.reduce((n,c)=>n+c.hp,0)<before.ally.reduce((n,c)=>n+c.hp,0),'Self stage no counter');await save('self-new-'+width);
-    await click('[data-testid="open-picker"]');await wait(`!!document.querySelector('[data-testid="change-player"]')`);await click('[data-testid="change-player"]');await wait(`!!document.querySelector('[data-testid="play-guest"]')`);await click('[data-testid="play-guest"]');await wait(`!!document.querySelector('[data-testid="start-battle"]')`);await click('[data-testid="start-battle"]');await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===49`);
+    await click('[data-testid="open-picker"]');await wait(`!!document.querySelector('[data-testid="change-player"]')`);await click('[data-testid="change-player"]');await wait(`!!document.querySelector('[data-testid="play-guest"]')`);await click('[data-testid="play-guest"]');await wait(`!!document.querySelector('[data-testid="start-battle"]')`);await click('[data-testid="start-battle"]');await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===56`);
     const guest=await snap();const guestStore=await storage();assert.equal(guestStore.guest,'0');assert.equal(guestStore.self,'8');assert(guest.enemy.every(e=>e.id.startsWith('beast_y')));
     await drag(findPath(guest.cells,3));assert((await snap()).damage>0);await save('guest-new-'+width);await home();
     await js(`sessionStorage.setItem('match3-hard-progress-guest-v1','4')`);const repeated=await enter('guest');assert(repeated.enemy.every(e=>e.id.startsWith('beast_y')));assert.equal((await storage()).guest,'0');await home();
     const resumed=await enter('self');assert.deepEqual(resumed.enemy,self.enemy);assert.equal((await storage()).self,'8');await home();
-    await send('Page.navigate',{url:base+'/beast-game/match3-preview'});await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length>0`);const simple=await snap();assert.equal(simple.cells.length,35);assert.equal(simple.enemy.length,5);assert.equal(await js(`document.querySelectorAll('[data-testid="match3-player-choice"]').length`),0);
-    results.push({width,evidence:'self8/guest4 controlled storage; actual game-only choice, no global identity mutation',selfStageResumed:true,pageReload:true,repickRetained:true,changePlayerGuestZero:true,repeatGuestZero:true,selfValue:(await storage()).self,simpleOrbs:simple.cells.length});
-    console.log('PASS new game identity UI '+width+' self resume / guest reset / repeat / repick / reload / simple separate');
+    const previewResponse=await fetch(base+'/beast-game/match3-preview',{redirect:'manual'});assert.equal(previewResponse.status,308);assert.equal(previewResponse.headers.get('location'),'/beast-game/match3-hard');
+    await send('Page.navigate',{url:base+'/beast-game/match3-preview'});await wait(`location.pathname==='/beast-game/match3-hard' && !!document.querySelector('[data-testid="play-guest"]')`);assert.equal(await js(`document.querySelectorAll('[data-testid="match3-board"]').length`),0,'Redirect bypassed identity choice');await click('[data-testid="play-guest"]');await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===56`);const redirected=await snap();assert.equal(redirected.cells.length,56);assert.equal(redirected.enemy.length,5);assert(redirected.enemy.every(e=>e.id.startsWith('beast_y')));assert.equal((await storage()).guest,'0');assert.equal((await storage()).self,'8','Preview redirect overwrote self progress');
+    results.push({width,evidence:'self8/guest4 controlled storage; actual game-only choice, no global identity mutation',selfStageResumed:true,pageReload:true,repickRetained:true,changePlayerGuestZero:true,repeatGuestZero:true,selfValue:(await storage()).self,previewRedirect:true,redirectedOrbs:redirected.cells.length});
+    console.log('PASS new game identity UI '+width+' self resume / guest reset / repeat / repick / reload / preview redirects without resetting self');
   }
   // Explicit legacy-claim technical fixtures, not naturally won stages.
   for(const [selfWins,legacyWins,expected] of [[8,10,10],[12,4,12]]){
     await send('Page.navigate',{url:base+'/'});await wait(`!!document.querySelector('a[href="/star-beasts"]')`);
     await js(`localStorage.setItem('match3-hard-progress-self-v1','${selfWins}');sessionStorage.setItem('match3-hard-progress','${legacyWins}')`);
-    await click('a[href="/star-beasts"]');await wait(`!!document.querySelector('a[href="/beast-game/match3-hard"]')`);await click('a[href="/beast-game/match3-hard"]');await wait(`!!document.querySelector('[data-testid="resume-legacy"]')`);await click('[data-testid="resume-legacy"]');await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===49`);
+    await click('a[href="/star-beasts"]');await wait(`!!document.querySelector('a[href="/beast-game/match3-hard"]')`);await click('a[href="/beast-game/match3-hard"]');await wait(`!!document.querySelector('[data-testid="resume-legacy"]')`);await click('[data-testid="resume-legacy"]');await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===56`);
     assert.equal((await storage()).self,String(expected));assert.equal(await js(`sessionStorage.getItem('match3-hard-progress')`),String(legacyWins));results.push({kind:'explicit legacy fixture',selfWins,legacyWins,afterSelf:expected});
   }
   assert.equal(errors.length,0,errors.join('\n'));writeFileSync(path.join(output,'progress-result.json'),JSON.stringify({passed:true,results,errors,profile},null,2));

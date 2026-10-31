@@ -38,6 +38,7 @@ for (const [query, expected] of [
       if (id === '@/lib/beast-game/card-face-stats') return { CARD_FACE_STATS: stats };
       if (id === '@/cards/skills') return { getSkill: id => skills[id] };
       if (id === '@/lib/beast-game/match3') return M;
+      if (id === '@/lib/beast-game/match3/progress-store') return require('../.beast-game-build/lib/beast-game/match3/progress-store');
       if (id === './Match3Board') return { default: () => null };
       if (id === './BeastCardTile') return { BeastCardFace: CardFace };
       if (id.endsWith('.css')) return { default: {} };
@@ -46,6 +47,7 @@ for (const [query, expected] of [
   });
   const render = () => { cursor = 0; return mod.exports.default({ mode }); };
   render(); effect(); mounted = true;
+  if (mode === 'hard45') nodes(render()).find(n => n.props?.['data-testid'] === 'play-guest').props.onClick();
   const board = render().props.children;
   assert.equal(JSON.stringify(board.props.teamIds), JSON.stringify(expected), query);
   board.props.onRepick();
@@ -89,7 +91,7 @@ for (const c of realPool) {
 
 const entry = fs.readFileSync('components/BeastTurnGame.tsx', 'utf8');
 const routes = [...entry.matchAll(/<Link\s+href="(\/beast-game\/match3[^" ]*)"/g)].map(m => m[1]);
-assert.deepEqual(routes, ['/beast-game/match3-preview', '/beast-game/match3-hard']);
+assert.deepEqual(routes, ['/beast-game/match3-hard']);
 assert.equal(M.MATCH3_MODES.medium.id, 'medium');
 assert.equal(M.MATCH3_MODES.medium.title, '寶珠戰・簡單');
 assert.equal(M.MATCH3_MODES.medium.badge, '簡單・35 珠');
@@ -104,4 +106,16 @@ vm.runInNewContext(compile('app/beast-game/match3-hard2/page.tsx'), {
 });
 old.exports.default();
 assert.equal(destination, '/beast-game/match3-hard');
-console.log('PASS: two public orb entries, legacy hard2 redirect, invalid query repick safe, valid team and numerical rules preserved');
+for (const route of ['match3', 'match3-preview']) {
+  const retired = { exports: {} };
+  let retiredDestination;
+  vm.runInNewContext(compile(`app/beast-game/${route}/page.tsx`), {
+    module: retired, exports: retired.exports, require: id => {
+      assert.equal(id, 'next/navigation');
+      return { permanentRedirect: to => { retiredDestination = to; } };
+    },
+  });
+  retired.exports.default();
+  assert.equal(retiredDestination, '/beast-game/match3-hard', `${route} must retire into the current orb game`);
+}
+console.log('PASS: one public orb entry, retired URLs redirect, invalid query repick safe, valid team and numerical rules preserved');

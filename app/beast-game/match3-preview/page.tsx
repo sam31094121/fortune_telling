@@ -1,8 +1,8 @@
-/** 入口卡 → 正式神獸卡 5v5 三消（自選隊伍 → Match3Board）。舊 Match3Preview.tsx 保留未刪。 */
-import Match3Entry from '@/components/battlefield/Match3TeamPicker';
+/** 舊簡單寶珠入口退役；保留網址相容，統一進入新版。 */
+import { permanentRedirect } from 'next/navigation';
 
-export const metadata = { title: '寶珠戰・簡單（5v5・35 顆）', robots: { index: false } };
+export const metadata = { title: '寶珠戰・困難', robots: { index: false } };
 
 export default function Match3PreviewPage() {
-  return <Match3Entry />;
+  permanentRedirect('/beast-game/match3-hard');
 }

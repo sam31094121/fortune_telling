@@ -2085,3 +2085,6 @@ npm run check:beast-clips        # 落地一支就驗一支
 - 後續寶珠新版開發與展示以困難入口為基準；不得以舊 `/beast-game/match3` 或實驗入口替代，也不得因更新把其他寶珠入口自行加回此選單。
 - 本輪「整個玩法區只剩一張」的候選已撤回，未提交／發布；以業主更正「戰鬥卡片不要動，只針對寶珠」為準。原本未提交的實驗入口變更保留、不混入此次發布。
 - 真實頁面渲染回歸固定核對 `easy`、`medium`、`hard`、`bead-hard` 四個入口及困難版連結；納入發布必跑的 `test:beast-difficulty`，防止舊寶珠入口自行回來或誤隱藏其他戰鬥卡。
+# 寶珠舊網址退役補強（2026-10-31 業主追加批准）
+
+目前唯一對外寶珠版本為 `/beast-game/match3-hard`。舊 `/beast-game/match3` 與 `/beast-game/match3-preview` 永久轉向新版；`match3-hard2` 沿用既有轉向。星獸頁與戰場頁均不得重新顯示舊簡單寶珠入口。共用引擎及原始資料保留，不得把舊頁重新當新版更新基準。入口及轉向檢查包含在 `test:beast-difficulty`；詳見 `reports/beast-rig-review/orb-canonical-entry-2026-10-31.md`。
