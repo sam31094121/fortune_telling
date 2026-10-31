@@ -149,6 +149,7 @@ document.addEventListener('click',function(e){var t=e.target.closest&&e.target.c
 <script src="engine.js"></script><!-- 單一引擎來源：engine.js（file:// 可直接載入） -->
   <script>if (!window.BeastEngine) document.addEventListener('DOMContentLoaded', function () { document.body.insertAdjacentHTML('afterbegin', '<p style="color:#ff9fa3;padding:12px">engine.js 載入失敗：請與 game.html 放在同一資料夾。</p>'); });</script>
   <script>
+  /* 魔珠視覺（只影響外觀；使用者 10/31 核准開啟，僅 orb-battle；match3 的 lib 旗標不動） */ var MAGIC_BEAD_VISUALS_ENABLED = true;
 /* v0.7 重建 UI（2026-10-30 功能版）
  * 動效／樣式掛鉤（contrib/motion 用）：
  *   window.BeastHooks = { onClear, onAttack, onRefill, onChain, onSkill, onLinkAttack, onEnemyAttack, onKnockOut, onEnd }
@@ -198,7 +199,7 @@ document.addEventListener('click',function(e){var t=e.target.closest&&e.target.c
     var b = $('board'), html = '';
     for (var r = 0; r < g.board.length; r++) for (var c = 0; c < g.board[0].length; c++) {
       var e = g.board[r][c], s = sel && sel[0] === r && sel[1] === c, mp = g.magic && g.magic[r][c] > 0 ? g.magic[r][c] : 0;
-      var dropCls = drop ? ' drop' : '', style = drop ? ' style="--fall:' + (r + 1) + ';animation-delay:' + ((g.board.length - 1 - r) * 30) + 'ms"' : '';
+      var dropCls = drop ? ' drop' : '', mv = mp && MAGIC_BEAD_VISUALS_ENABLED, st = (drop ? '--fall:' + (r + 1) + ';animation-delay:' + ((g.board.length - 1 - r) * 30) + 'ms;' : '') + (mv ? '--mn:' + mp + ';--mx:' + Math.max(0, mp - 5) + ';' : ''), style = (st ? ' style="' + st + '"' : '') + (mv ? ' data-magic-level="' + Math.min(mp, 6) + '" data-magic-n="' + mp + '"' : '');
       html += '<button type="button" class="gem ' + E.GEM_CLASS[e] + (s ? ' sel focus' : '') + (mp ? ' magic' : '') + dropCls + '"' + style + ' data-r="' + r + '" data-c="' + c + '" aria-label="' + E.LABEL[e] + (mp ? ' 魔法珠威力' + mp : '') + ' 第' + (r + 1) + '列第' + (c + 1) + '欄"><span class="stone"><span>' + E.LABEL[e] + '</span></span>' + (mp ? '<i class="mp">✦' + mp + '</i>' : '') + '</button>';
     }
     b.innerHTML = html;
