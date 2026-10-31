@@ -33,7 +33,7 @@ const load = window => {
 };
 const sound=load({AudioContext:FakeAudio});
 sound.play('clear');assert.equal(created.length,0,'play must not create/resume audio');
-sound.unlock();assert.equal(created.length,1);const ctx=created[0];assert.equal(ctx.resumes,1);assert.equal(ctx.gains[0].gain.value,.2);
+sound.unlock();assert.equal(created.length,1);const ctx=created[0];assert.equal(ctx.resumes,1);assert.equal(ctx.gains[0].gain.value,1,'device media volume has no extra master attenuation');
 assert.equal(ctx.filters.length,1);const filter=ctx.filters[0];
 assert.equal(filter.type,'lowpass');assert.equal(filter.frequency.value,1400);assert.equal(filter.Q.value,.5);
 assert.equal(ctx.gains[0].destination,filter);assert.equal(filter.destination,ctx.destination,'all cues pass through the low-Q filter');
@@ -51,11 +51,11 @@ for(const cue of ['clear','charge','impact','shield','fusion','counter','guard']
     assert(attack[1]>0&&attack[1]<=.23);totalPeak+=attack[1];
     assert.equal(release[0],'exp');assert.equal(release[1],.0001);assert(release[2]>attack[2]);
   }
-  assert(totalPeak*ctx.gains[0].gain.value<=.1,'conservative summed peak gain remains below 0.1');
+  assert(totalPeak*ctx.gains[0].gain.value<=.4,'summed source peaks retain headroom below digital clipping');
   if(cue==='clear'||cue==='charge') {
     assert(added.every(o=>o.type==='sine'),'frequent orb cues use smooth tones without triangle harmonics');
     assert(added.every(o=>o.frequency.events.every(e=>e[1]<=440)),'frequent orb cues exclude sharp high accents');
-    assert(totalPeak*ctx.gains[0].gain.value<=.035,'frequent orb cues remain quieter than combat impacts');
+    assert(totalPeak*ctx.gains[0].gain.value<=.175,'frequent orb cues remain quieter than combat impacts');
   }
   const endingHz=o=>o.frequency.events.at(-1)[1];
   const tail=added.reduce((a,b)=>a.stops[0]>b.stops[0]?a:b);

@@ -380,7 +380,7 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 }
 
 /* 困難版七乘七依手機可用寬度等比例縮放。 */
-.wrap[data-mode^="hard"] .board { gap: clamp(2px, .9vw, 4px); padding: 4px; }
+.wrap[data-mode^="hard"] .board { --orb-gap: clamp(2px, .9vw, 4px); gap: var(--orb-gap); padding: 4px; }
 .wrap[data-mode^="hard"] .orb { min-width: 0; min-height: 0; aspect-ratio: 1; container-type: inline-size; }
 
 /* 魔法珠威力：實際數值的琉璃金邊徽章，留在格內避免蓋到相鄰寶珠。 */
@@ -570,7 +570,7 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .wrap[data-mode^="hard"] .sel::after { border-radius: 16px; box-shadow: 0 0 7px rgba(201,164,92,.5); }
 .wrap[data-mode^="hard"] .drop { animation: m3SoftDrop .32s cubic-bezier(.22,.68,.3,1); }
 .wrap[data-mode^="hard"] .flash .gem,
-.wrap[data-mode^="hard"] .flash .lbl { animation: m3SoftClear .26s ease-out forwards; }
+.wrap[data-mode^="hard"] .flash .lbl { animation: m3SoftClear var(--clear-duration, .26s) ease-out forwards; }
 .wrap[data-mode^="hard"] .water.flash .gem { animation-name: m3SoftWaterClear; }
 @keyframes m3SoftDrop {
   from { transform: translateY(-22%) scale(.98); opacity: .35; }
@@ -589,4 +589,18 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
   .wrap[data-mode^="hard"] .flash .gem,
   .wrap[data-mode^="hard"] .water.flash .gem,
   .wrap[data-mode^="hard"] .flash .lbl { animation: none; }
+}
+
+.wrap[data-mode^="hard"] .board[data-refilling="true"] { overflow: hidden; }
+.wrap[data-mode^="hard"] .falling {
+  z-index: 1;
+  animation: m3RefillFall var(--fall-duration) cubic-bezier(.22,.65,.25,1) var(--fall-delay) both;
+}
+@keyframes m3RefillFall {
+  0% { transform: translateY(var(--fall-offset)) scale(.98); opacity: var(--fall-opacity, 1); }
+  15% { opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wrap[data-mode^="hard"] .falling { animation: none; }
 }

@@ -148,7 +148,8 @@ export interface MagicSpawn { r: number; c: number; element: BeastElement; power
 export interface MagicTrigger { r: number; c: number; element: BeastElement; power: number; chain: number }
 /** 一段消除裡的一組；power＝普通顆數（上限 10）＋組內魔法珠威力（不設上限）。 */
 export interface DragGroup extends MatchGroup { power: number; magic?: boolean; magicPower?: number; skill5?: boolean }
-export interface DragStep extends CascadeStep { groups: DragGroup[]; magicAfter: MagicGrid }
+export interface OrbFall extends Cell { fromRow: number }
+export interface DragStep extends CascadeStep { groups: DragGroup[]; magicAfter: MagicGrid; falls?: OrbFall[]; clearedCells?: Cell[] }
 export interface DragResult {
   valid: boolean;
   attackAllowed: boolean;
@@ -159,14 +160,23 @@ export interface DragResult {
   magicSpawn: MagicSpawn | null; skill5: boolean; magicTriggered: MagicTrigger[]; reshuffled: boolean;
 }
 
-function collapseBoth(b: Board, m: MagicGrid, cleared: Set<number>, rng: Rng): { board: Board; magic: MagicGrid } {
+function collapseBoth(b: Board, m: MagicGrid, cleared: Set<number>, rng: Rng, recordFalls = false): { board: Board; magic: MagicGrid; falls?: OrbFall[] } {
   const rows = b.length, cols = b[0].length; const nb = cloneBoard(b); const nm = m.map((x) => x.slice());
+  const falls: OrbFall[] | undefined = recordFalls ? [] : undefined;
   for (let c = 0; c < cols; c++) {
-    const keep: Array<[BeastElement, number]> = [];
-    for (let r = rows - 1; r >= 0; r--) if (!cleared.has(r * 1000 + c)) keep.push([b[r][c], m[r][c]]);
-    for (let r = rows - 1, i = 0; r >= 0; r--, i++) { if (i < keep.length) { nb[r][c] = keep[i][0]; nm[r][c] = keep[i][1]; } else { nb[r][c] = randomOrb(rng); nm[r][c] = 0; } }
+    const keep: Array<[BeastElement, number, number]> = [];
+    for (let r = rows - 1; r >= 0; r--) if (!cleared.has(r * 1000 + c)) keep.push([b[r][c], m[r][c], r]);
+    for (let r = rows - 1, i = 0; r >= 0; r--, i++) {
+      if (i < keep.length) {
+        nb[r][c] = keep[i][0]; nm[r][c] = keep[i][1];
+        if (keep[i][2] !== r) falls?.push({ r, c, fromRow: keep[i][2] });
+      } else {
+        nb[r][c] = randomOrb(rng); nm[r][c] = 0;
+        falls?.push({ r, c, fromRow: r - (rows - keep.length) });
+      }
+    }
   }
-  return { board: nb, magic: nm };
+  return { board: nb, magic: nm, falls };
 }
 
 function scoreGroup(g: MatchGroup, m: MagicGrid, chain: number, triggers: MagicTrigger[]): DragGroup {
@@ -208,11 +218,11 @@ export function resolveDrag(board: Board, path: readonly Cell[], rng: Rng, magic
     const end = path[n - 1]; cleared.delete(key(end)); m1[end.r][end.c] = ruleLength;
     spawn = { r: end.r, c: end.c, element, power: ruleLength };
   }
-  let { board: b, magic: m } = collapseBoth(board, m1, cleared, rng);
+  let { board: b, magic: m, falls } = collapseBoth(board, m1, cleared, rng, shieldMode);
   if (spawn) { // 找出魔法珠掉落後的位置（同欄往下）
     for (let r = b.length - 1; r >= 0; r--) if (m[r][spawn.c] === ruleLength && b[r][spawn.c] === element) { spawn = { ...spawn, r }; break; }
   }
-  const steps: DragStep[] = [{ chain: 1, groups: firstGroups, boardAfter: cloneBoard(b), magicAfter: m.map((x) => x.slice()) }];
+  const steps: DragStep[] = [{ chain: 1, groups: firstGroups, boardAfter: cloneBoard(b), magicAfter: m.map((x) => x.slice()), ...(falls ? { falls, clearedCells: [...cleared].map(value => ({ r: Math.floor(value / 1000), c: value % 1000 })) } : {}) }];
   for (let chain = 2; chain <= maxChains; chain++) {
     // 盾牌留待玩家再次連入；自動落珠不消耗剛獲得的獎勵。
     const groups = findGroups(b, diagonal).map(g => {
@@ -224,8 +234,8 @@ export function resolveDrag(board: Board, path: readonly Cell[], rng: Rng, magic
     const scored = groups.map((g) => shieldFusion ? { ...g, power: 0 } : scoreGroup(g, m, chain, triggers));
     const cl = new Set<number>(); groups.forEach((g) => g.cells.forEach((p) => cl.add(key(p))));
     const mm = m.map((x) => x.slice()); cl.forEach((k) => { mm[Math.floor(k / 1000)][k % 1000] = 0; });
-    ({ board: b, magic: m } = collapseBoth(b, mm, cl, rng));
-    steps.push({ chain, groups: scored, boardAfter: cloneBoard(b), magicAfter: m.map((x) => x.slice()) });
+    ({ board: b, magic: m, falls } = collapseBoth(b, mm, cl, rng, shieldMode));
+    steps.push({ chain, groups: scored, boardAfter: cloneBoard(b), magicAfter: m.map((x) => x.slice()), ...(falls ? { falls, clearedCells: [...cl].map(value => ({ r: Math.floor(value / 1000), c: value % 1000 })) } : {}) });
   }
   let reshuffled = false;
   if (!hasDragMove(b, diagonal, minimum, shieldMode ? m : undefined)) { const rs = reshuffleKeepMagic(b, m, rng, diagonal, minimum); b = rs.board; m = rs.magic; reshuffled = true; }

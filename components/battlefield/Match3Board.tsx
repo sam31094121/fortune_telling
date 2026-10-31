@@ -29,6 +29,7 @@ import { RIG_STRIKE_MS } from '@/lib/beast-game/beast-rig';
 import Match3RigAttack, { Match3TargetArt, match3RigAttackers, type Match3Strike } from './Match3RigAttack';
 import { readMatch3Progress, saveMatch3Progress, type Match3ProgressOwner } from '@/lib/beast-game/match3/progress-store';
 import { createMatch3Sound, type Match3SoundCue } from './match3Sound';
+import { refillPresentation, type RefillMotion } from '@/lib/beast-game/match3/refill-presentation';
 
 interface Unit extends Match3Fighter { name: string; thumbnail: string; maxHp: number; energy: number; skillName?: string; description?: string }
 interface Foe extends Match3Foe { name: string; thumbnail: string }
@@ -64,10 +65,12 @@ const k = (r: number, c: number) => r * 1000 + c;
 /** 可斜連模式（config diagonal:true）的提示字。 */
 const DIAG_TIP = '相鄰同色珠三顆起可消除（可斜連）；攻擊須達本關門檻';
 
-const OrbCell = memo(function OrbCell({ r, c, e, mp, sel, flash, shake, drop, shield }: { r: number; c: number; e: BeastElement; mp: number; shield: boolean; sel: boolean; flash: boolean; shake: boolean; drop: boolean }) {
-  const cls = [styles.orb, ORB_CLASS[e], sel ? styles.sel : '', flash ? styles.flash : '', shake ? styles.shake : '', drop ? styles.drop : '', mp > 0 ? styles.magic : '', shield && mp >= 7 ? styles.shieldCell : ''].join(' ');
+const OrbCell = memo(function OrbCell({ r, c, e, mp, sel, flash, shake, drop, shield, fall }: { r: number; c: number; e: BeastElement; mp: number; shield: boolean; sel: boolean; flash: boolean; shake: boolean; drop: boolean; fall?: RefillMotion }) {
+  const cls = [styles.orb, ORB_CLASS[e], sel ? styles.sel : '', flash ? styles.flash : '', shake ? styles.shake : '', drop ? styles.drop : '', fall ? styles.falling : '', mp > 0 ? styles.magic : '', shield && mp >= 7 ? styles.shieldCell : ''].join(' ');
   return (
     <div role="gridcell" data-r={r} data-c={c} data-el={e} data-magic={mp || undefined} className={cls}
+      data-fall-from={fall?.fromRow} data-fall-delay={fall?.delayMs}
+      style={fall ? { ['--fall-offset' as string]: `calc(-${(r - fall.fromRow) * 100}% - ${r - fall.fromRow} * var(--orb-gap))`, ['--fall-delay' as string]: `${fall.delayMs}ms`, ['--fall-duration' as string]: `${fall.durationMs}ms`, ['--fall-opacity' as string]: fall.fromRow < 0 ? 0 : 1 } : undefined}
       aria-label={`${MATCH3_ORB_LABEL[e]}${mp ? `魔法珠威力${mp}` : '珠'}`}>
       <span className={styles.gem} aria-hidden="true" /><span className={styles.lbl} aria-hidden="true">{MATCH3_ORB_LABEL[e]}</span>
       {mp > 0 && (shield && mp >= 7 ? <img className={styles.shieldOrb} src="/pwa/save-shield-080.png" alt={`080 ${MATCH3_ORB_LABEL[e]}屬性清場盾牌`} draggable={false} /> : <span className={styles.power} aria-hidden="true">{mp}</span>)}
@@ -145,6 +148,8 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
   const [flash, setFlash] = useState<Set<number>>(new Set());
   const [shake, setShake] = useState<Set<number>>(new Set());
   const [drop, setDrop] = useState<Set<number>>(new Set());
+  const [falling, setFalling] = useState<Map<number, RefillMotion>>(new Map());
+  const [clearMs, setClearMs] = useState(260);
   const [banner, setBanner, queuedBanner] = useBannerQueue();
   const [hitTeam, setHitTeam] = useState<Set<string>>(new Set());
   const [counterFoes, setCounterFoes] = useState<Set<number>>(new Set());
@@ -201,6 +206,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
 
   const restart = useCallback(() => {
     audio.current?.stop();
+    setFalling(new Map()); setFlash(new Set()); setDrop(new Set());
     setStrike(null); setShieldBurst(null); setFusionBurst(null); setGuardActive(false); setCounterFoes(new Set());
     const rng = rngRef.current; const nextWins = rigEnabled ? nextProgressionWins(wins, over === 'win') : 0; setWins(nextWins); const n = pickLineup(rng, teamIds, cfg, nextWins); const b = generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, rigEnabled ? progressionStage(nextWins).minChain : 3);
     setTeam(n.team); setFoes(n.enemies); setTarget(0); setBoard(b); setMagic(emptyMagic(b)); setMoves(0); setTotalDmg(0); setLastDmg(0); setBanner(null);
@@ -251,16 +257,28 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
     const dealt = hits.reduce((s, h) => s + h.amount, 0);
     setBusy(true); if (!rigEnabled) sound(520 + res.chainLength * 40);
     const frames = res.steps.map((st, i) => ({ before: i === 0 ? board : res.steps[i - 1].boardAfter, mag: i === 0 ? magic : res.steps[i - 1].magicAfter,
-      cells: new Set(st.groups.flatMap((g) => g.cells.map((c) => k(c.r, c.c)))) }));
+      cells: new Set((st.clearedCells ?? st.groups.flatMap(g => g.cells)).map(c => k(c.r, c.c))) }));
     const shieldDelay = rigEnabled && (res.shieldFusion || res.magicTriggered.some(t => t.chain === 1 && t.power >= 7)) ? 900 : 0;
     if (rigEnabled) cue(res.shieldFusion ? 'fusion' : shieldDelay ? 'shield' : dealt > 0 ? 'charge' : 'clear');
     if (shieldDelay) {
       if (res.shieldFusion) { setFusionBurst(path.slice(0, 3).map(p => board[p.r][p.c])); later(() => setFusionBurst(null), shieldDelay); }
       else { setShieldBurst(el); later(() => setShieldBurst(null), shieldDelay); }
     }
-    frames.forEach((fr, i) => later(() => { setBoard(fr.before); setMagic(fr.mag); setFlash(fr.cells); }, shieldDelay + i * 300));
+    let settleAt = shieldDelay + frames.length * 300;
+    if (rigEnabled) {
+      const playback = refillPresentation(res.steps, window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      playback.frames.forEach((phase, i) => {
+        later(() => { setFalling(new Map()); setClearMs(phase.clearMs); setBoard(frames[i].before); setMagic(frames[i].mag); setFlash(frames[i].cells); }, shieldDelay + phase.clearAt);
+        later(() => {
+          setFlash(new Set()); setBoard(res.steps[i].boardAfter); setMagic(res.steps[i].magicAfter);
+          setFalling(new Map(phase.motions.map(motion => [k(motion.r, motion.c), motion])));
+        }, shieldDelay + phase.fallAt);
+      });
+      settleAt = shieldDelay + playback.durationMs;
+    } else frames.forEach((fr, i) => later(() => { setBoard(fr.before); setMagic(fr.mag); setFlash(fr.cells); }, shieldDelay + i * 300));
     later(() => {
-      setFlash(new Set()); setDrop(changedCells(board, res.board)); later(() => setDrop(new Set()), 360);
+      setFlash(new Set()); setFalling(new Map());
+      if (!rigEnabled || res.reshuffled) { setDrop(changedCells(board, res.board)); later(() => setDrop(new Set()), 360); }
       setBoard(res.board); setMagic(res.magic); setBusy(false);
       const nf = damageFoe(foes, ti, dealt);
       showStrike(hits, foe, nf[ti]);
@@ -279,7 +297,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
       if (res.reshuffled) msg += '；沒有可走的步，已重新洗盤';
       if (nf[ti].hp <= 0) msg += `；${foe.name}倒下`;
       endStep(shareEnergy(team, gains, rule, chosen), nf, msg, dealt > 0, rigEnabled, res.shieldFusion);
-    }, shieldDelay + frames.length * 300);
+    }, settleAt);
   };
 
   /** 點卡：連線模式＝加入／移出連線；否則設為優先（同屬性多張＝改當主攻）。 */
@@ -385,9 +403,9 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
 
       {!log.startsWith('按住寶珠') && log ? <p className={rigEnabled ? styles.srOnly : styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
 
-      <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" data-chain-intent={rigEnabled ? chainIntent : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers}>
+      <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, ['--clear-duration' as string]: `${clearMs}ms` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" data-refilling={falling.size > 0 ? 'true' : undefined} data-chain-intent={rigEnabled ? chainIntent : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers}>
         {board.map((row, r) => row.map((e, c) => { const kk = k(r, c); return (
-          <OrbCell key={`${r}-${c}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} shield={rigEnabled} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} />); }))}
+          <OrbCell key={`${r}-${c}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} shield={rigEnabled} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} fall={falling.get(kk)} />); }))}
         {shieldBurst && <div className={styles.shieldBurst} style={{ color: ORB_COLOR[shieldBurst] }} role="status" aria-label="080 盾牌清除同色寶珠"><span /><img src="/pwa/save-shield-080.png" alt="" draggable={false} /></div>}
         {fusionBurst && <div className={styles.fusionBurst} data-testid="shield-fusion-effect" role="status" aria-label="盾牌防禦合體"><div className={styles.fusionHalo} />{fusionBurst.map((element, i) => <img key={`${element}-${i}`} src="/pwa/save-shield-080.png" alt="" draggable={false} style={{ color: ORB_COLOR[element], ['--fusion-x' as string]: `${(i - (fusionBurst.length - 1) / 2) * 90}%` }} />)}</div>}
         <DragPathSvg points={drag.points} color={dragEl ? ORB_COLOR[dragEl] : '#fff'} luminous={rigEnabled} />

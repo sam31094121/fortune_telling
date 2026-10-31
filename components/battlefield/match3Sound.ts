@@ -2,7 +2,7 @@
 export type Match3SoundCue = 'clear' | 'charge' | 'impact' | 'shield' | 'fusion' | 'counter' | 'guard';
 type Tone = { hz: number; to?: number; at?: number; duration: number; gain: number; type?: OscillatorType };
 const CUES: Record<Match3SoundCue, readonly Tone[]> = {
-  // 高音只作短促辨識，較長尾音交給往下收的低聲部；不增加總音量或回合等待。
+  // 高音只作短促辨識，較長尾音交給往下收的低聲部；不增加回合等待。
   clear: [{ hz: 420, to: 210, duration: .18, gain: .06 }, { hz: 315, at: .035, to: 196, duration: .14, gain: .035 }, { hz: 196, to: 147, duration: .28, gain: .075 }],
   charge: [{ hz: 220, to: 294, duration: .36, gain: .13 }, { hz: 440, to: 330, at: .1, duration: .12, gain: .035 }],
   impact: [{ hz: 135, to: 65, duration: .38, gain: .2, type: 'triangle' }, { hz: 1080, to: 360, duration: .05, gain: .04 }],
@@ -60,7 +60,8 @@ export function createMatch3Sound() {
           if (!Audio) return;
           context = new Audio();
           master = context.createGain();
-          master.gain.value = .2;
+          // 不額外壓低裝置媒體音量；各聲部保留混音餘裕與柔和包絡。
+          master.gain.value = 1;
           softener = context.createBiquadFilter();
           softener.type = 'lowpass';
           softener.frequency.value = 1400;
