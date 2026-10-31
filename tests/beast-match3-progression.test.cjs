@@ -48,59 +48,35 @@ assert.equal(M.nextProgressionWins(2, true), 3);
 for (const n of [0, 1, 2, 3, 5, 6, 30]) assert.equal(M.nextProgressionWins(n, false), n);
 for (const n of [-1, NaN, Infinity]) assert.equal(M.progressionStage(n).index, 0);
 assert.deepEqual(Array.from({length:10},(_,n)=>M.progressionStage(n).minChain), [3,4,5,6,7,8,8,8,8,8]);
-for (const wins of [2,3,4,5,6,10,100]) {
-  const stage=M.progressionStage(wins);
-  assert.equal(stage.wins,wins); assert.equal(stage.index,2); assert.equal(stage.form,'GUARDIAN');
-  assert.equal(stage.enemyCount,4); assert.equal(stage.simultaneous,true);
-  assert.equal(M.nextProgressionWins(wins,true),wins+1);
-}
-for(const [input,expected] of [[-4,0],[NaN,0],[Infinity,0],[1.8,1],[Number.MAX_VALUE,Number.MAX_SAFE_INTEGER]]) {
-  assert.equal(M.progressionStage(input).wins,expected);
-  assert.equal(M.nextProgressionWins(input,false),expected);
-}
-assert.equal(M.nextProgressionWins(Number.MAX_SAFE_INTEGER,true),Number.MAX_SAFE_INTEGER);
-const guardian=pool.find(c=>c.form==='GUARDIAN');
-for(const wins of [5,6,7,10]) {
-  const stage=M.progressionStage(wins), multiplier=1+(wins-5)*.1;
-  assert.equal(stage.strengthMultiplier,multiplier);
-  assert.equal(stage.hpScale,4*multiplier); assert.equal(stage.attackScale,.075*multiplier);
-  const stats=M.progressionEnemyStats(guardian,wins);
-  assert.equal(stats.hp,Math.round(guardian.stats.hp*4*multiplier));
-  assert.equal(stats.attack,Math.round(guardian.stats.attack*.075*multiplier));
-}
-assert.deepEqual(M.progressionEnemyStats(guardian,2),M.progressionEnemyStats(guardian,5),'提高門檻時不偷加數值');
-const huge=M.progressionEnemyStats(guardian,Number.MAX_SAFE_INTEGER);
-assert.ok(Number.isSafeInteger(huge.hp)); assert.ok(Number.isSafeInteger(huge.attack));
 
-const seen = [new Set(), new Set(), new Set()];
-const hp = [[], [], []], turnAttack = [[], [], []];
-for (let seed = 1; seed <= 500; seed++) for (let level = 0; level < 3; level++) {
-  const selected = M.selectProgressionEnemies(pool, M.seededRng(seed), level);
-  assert.deepEqual(selected.map(c => c.id), M.selectProgressionEnemies([...pool].reverse(), M.seededRng(seed), level).map(c => c.id));
-  assert.equal(selected.length, level === 2 ? 4 : 5);
-  assert.equal(new Set(selected.map(c => c.id)).size, selected.length);
-  assert.ok(selected.every(c => c.form === M.progressionStage(level).form));
-  if (level < 2) assert.equal(new Set(selected.map(c => c.element)).size, 5);
-  selected.forEach(c => seen[level].add(c.id));
-  const stats = selected.map(c => M.progressionEnemyStats(c, level));
-  stats.forEach(s => { assert.equal(s.hp, s.maxHp); assert.equal(s.cd, 1); assert.ok(s.attack > 0); });
-  hp[level].push(stats.reduce((sum, s) => sum + s.hp, 0));
-  // 第一、二關輪替一張；末關四獸同回合合擊。不把五張牌誤算為五次出手。
-  turnAttack[level].push(...(level === 2 ? [stats.reduce((sum, s) => sum + s.attack, 0)] : stats.map(s => s.attack)));
+for(const [input,expected] of [[-4,0],[NaN,0],[Infinity,0],[1.8,1],[Number.MAX_VALUE,Number.MAX_SAFE_INTEGER]]) {assert.equal(M.progressionStage(input).wins,expected);assert.equal(M.nextProgressionWins(input,false),expected);}
+assert.equal(M.nextProgressionWins(Number.MAX_SAFE_INTEGER,true),Number.MAX_SAFE_INTEGER);
+const guardian=pool.find(c=>c.form==='GUARDIAN'),adult=pool.find(c=>c.form==='ADULT');
+for(let wins=0;wins<=15;wins++) {
+ const stage=M.progressionStage(wins),guardians=Math.min(4,Math.max(0,wins-6));
+ assert.equal(stage.guardianCount,guardians);assert.equal(stage.simultaneous,guardians===4);assert.equal(stage.enemyCount,wins<7?5:4);assert.equal(stage.form,wins===0?'YOUNG':wins<7?'ADULT':'GUARDIAN');
+ const multiplier=1+Math.max(0,wins-5)*.1;assert.equal(stage.strengthMultiplier,multiplier);
+ for(let seed=1;seed<=500;seed++) {
+  const selected=M.selectProgressionEnemies(pool,M.seededRng(seed),wins);
+  assert.deepEqual(selected.map(c=>c.id),M.selectProgressionEnemies([...pool].reverse(),M.seededRng(seed),wins).map(c=>c.id));
+  assert.equal(selected.length,stage.enemyCount);assert.equal(new Set(selected.map(c=>c.id)).size,selected.length);assert.equal(selected.filter(c=>c.form==='GUARDIAN').length,guardians);
+  assert.equal(selected.filter(c=>c.form==='ADULT').length,wins===0?0:stage.enemyCount-guardians);
+  if(wins<7)assert.equal(new Set(selected.map(c=>c.element)).size,5);
+  for(const c of selected){const stats=M.progressionEnemyStats(c,wins),hp=c.form==='YOUNG'?2:c.form==='ADULT'?3:4,atk=c.form==='YOUNG'?.1:c.form==='ADULT'?.15:.075;assert.equal(stats.hp,Math.round(c.stats.hp*hp*multiplier));assert.equal(stats.attack,Math.round(c.stats.attack*atk*multiplier));assert.equal(stats.maxHp,stats.hp);assert.equal(stats.cd,1);}
+ }
 }
-assert.deepEqual(seen.map(s => s.size), [28, 28, 4]);
-assert.ok(Math.min(...hp[1]) > Math.max(...hp[0]));
-assert.ok(Math.min(...hp[2]) > Math.max(...hp[1]));
-assert.ok(Math.min(...turnAttack[1]) > Math.max(...turnAttack[0]));
-assert.ok(Math.min(...turnAttack[2]) > Math.max(...turnAttack[1]));
-assert.equal(JSON.stringify(pool), before, '不得修改原始卡片');
-assert.throws(() => M.selectProgressionEnemies(pool.filter(c => c.form !== 'GUARDIAN'), M.seededRng(1), 2));
-assert.throws(() => M.selectProgressionEnemies([], M.seededRng(1), 0));
-assert.throws(() => M.selectProgressionEnemies(pool, () => 1, 0));
-assert.throws(() => M.progressionEnemyStats(pool.find(c => c.form === 'GUARDIAN'), 0));
-console.log('PASS: 28+28+4 registry, 500 seeded selections per stage, win/loss progression, roster bounds and immutable stats');
-console.log('Stage HP ranges:', hp.map(a => [Math.min(...a), Math.max(...a)]));
-console.log('Raw counter-turn attack ranges before elements:', turnAttack.map(a => [Math.min(...a), Math.max(...a)]));
+assert.deepEqual(M.progressionEnemyStats(adult,2),M.progressionEnemyStats(adult,5),'higher chain threshold alone does not add stats');
+for(const wins of [0,1,2,3,4,5,6])assert.throws(()=>M.progressionEnemyStats(guardian,wins));
+assert.throws(()=>M.progressionEnemyStats(adult,10));
+const huge=M.progressionEnemyStats(guardian,Number.MAX_SAFE_INTEGER);assert(Number.isSafeInteger(huge.hp)&&Number.isSafeInteger(huge.attack));
+for(const wins of [0,1,6,7,8,9,10,11]) {const stage=M.progressionStage(wins),foes=M.selectProgressionEnemies(pool,M.seededRng(4),wins).map(c=>({...c,...M.progressionEnemyStats(c,wins)}));const result=M.counterPhase([{id:'ally',element:'SPACE',hp:1000000,energy:0}],foes,1,stage.simultaneous?undefined:0);assert.equal(result.hits.length,wins>=10?4:1,'only a full four-guardian team counters simultaneously');}
+assert.equal(JSON.stringify(pool),before,'original cards remain unchanged');
+assert.throws(()=>M.selectProgressionEnemies(pool.filter(c=>c.form!=='GUARDIAN'),M.seededRng(1),7));
+assert.throws(()=>M.selectProgressionEnemies(pool.filter(c=>c.form!=='ADULT'),M.seededRng(1),7));
+assert.throws(()=>M.selectProgressionEnemies([],M.seededRng(1),0));
+assert.throws(()=>M.selectProgressionEnemies(pool,()=>1,7));
+assert.throws(()=>M.selectProgressionEnemies([...pool,adult],M.seededRng(1),7));
+console.log('PASS: stages1–16 each 500 seeds, stage8–11 guardians1/2/3/4, real mixed rosters, per-form scales, original cards unchanged');
 
 // Eight-orb stage: shorter legal paths clear/refill without any attack leakage.
 for (let n=3;n<=8;n++) {

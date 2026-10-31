@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { playableCards } from '@/lib/beast-game/registry';
 import { CARD_FACE_STATS } from '@/lib/beast-game/card-face-stats';
 import { getSkill } from '@/cards/skills';
@@ -27,6 +27,15 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [revision, setRevision] = useState(0);
+  const startButton = useRef<HTMLButtonElement>(null);
+  const previousCount = useRef(0);
+  useEffect(() => {
+    const becameReady = previousCount.current < 5 && selected.length === 5;
+    previousCount.current = selected.length;
+    if (phase === 'team' && becameReady) {
+      startButton.current?.scrollIntoView({ block: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+    }
+  }, [selected.length, phase]);
   const [legacyAvailable, setLegacyAvailable] = useState(false);
   useEffect(() => { setLegacyAvailable(readLegacyCampaignStatus().canImport); }, [owner]);
   const face = (id: string) => {
@@ -96,7 +105,8 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
       {face(c.id)}<span className={picker.choiceState}>{selected.includes(c.id) ? '已選夥伴' : '點選出戰'}</span>
     </button>)}</div>
     {error && <p role="alert">{error}</p>}
-    <div className={styles.pickBar}><button type="button" className={styles.again} data-testid="start-battle" disabled={!validateCampaignTeam(profile, selected) || saving} onClick={async () => {
+    {selected.length === 5 && <p className={picker.readyHint} role="status" data-testid="team-ready-hint">隊伍已就緒，點此開始作戰</p>}
+    <div className={styles.pickBar}><button ref={startButton} type="button" className={`${styles.again} ${selected.length === 5 ? picker.readyStart : ''}`} data-testid="start-battle" disabled={!validateCampaignTeam(profile, selected) || saving} onClick={async () => {
       setSaving(true); const result = await saveCampaignTeam(owner, selected); setSaving(false);
       if (!result.ok || !result.profile) { setError(result.error || '隊伍尚未儲存，請重試。'); return; }
       setProfile(result.profile); setError(''); setRevision(n => n + 1); setPhase('battle');

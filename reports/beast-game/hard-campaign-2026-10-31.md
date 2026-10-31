@@ -25,4 +25,4 @@
 
 完整原發布檢查全部通過；追加最終 build、test:beast-match3、test:beast-difficulty 通過。獨立實拖白虎攻擊71，實際傷害87與核心預期87一致（未強化同事件84）；768／1280px卡面無水平溢出。獨立詳細證據見 campaign-independent-qa-2026-10-31.md。
 
-正式部署待提交後查核。
+正式首批 e0882e5 部署成功。隔離正式站驗收已確認身份、四象選一、四幼子、56珠、本人重載／親友隔離，另以明示fixture核對第四關鎖／第五關強化與返回首頁。證據 Temp/match3-campaign-qa-R6R2Or/evidence 與 Temp/match3-campaign-qa-BB4PVO/evidence。後續開戰引導與敵陣調整另批，不以此結果代替。

@@ -113,9 +113,11 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
   } });
   const C = campaignModule.exports;
   let profile = C.newCampaign(), writes = 0;
-  const state = []; let cursor = 0;
+  const state = []; let cursor = 0; let effects = []; let reducedMotion = false; const scrolls = [];
   const Board = () => null;
-  const hooks = { ...React, useMemo: fn => fn(), useEffect: () => {}, useState: initial => {
+  const hooks = { ...React, useMemo: fn => fn(), useEffect: fn => effects.push(fn), useRef: initial => {
+    const i = cursor++; if (!(i in state)) state[i] = { current: initial }; return state[i];
+  }, useState: initial => {
     const i = cursor++; if (!(i in state)) state[i] = initial;
     return [state[i], next => { state[i] = typeof next === 'function' ? next(state[i]) : next; }];
   } };
@@ -132,7 +134,7 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
   const mod = { exports: {} };
   vm.runInNewContext(compile('components/battlefield/HardCampaignEntry.tsx'), {
     module: mod, exports: mod.exports,
-    window: { location: { search: '?team=' + realPool.filter(c => c.form === 'ADULT').slice(0, 5).map(c => c.id).join(',') } },
+    window: { matchMedia: () => ({ matches: reducedMotion }), location: { search: '?team=' + realPool.filter(c => c.form === 'ADULT').slice(0, 5).map(c => c.id).join(',') } },
     require: id => {
       if (id === 'react') return hooks;
       if (id === '@/lib/beast-game/registry') return { playableCards: () => realPool };
@@ -148,7 +150,12 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
       return require(id);
     },
   });
-  const render = () => { cursor = 0; return mod.exports.default({ mode: 'hard45' }); };
+  const render = () => {
+    cursor = 0; effects = []; const result = mod.exports.default({ mode: 'hard45' });
+    const start = nodes(result).find(n => n.props?.['data-testid'] === 'start-battle');
+    if (start?.props.ref) start.props.ref.current = { scrollIntoView: options => scrolls.push(options) };
+    effects.forEach(fn => fn()); return result;
+  };
   const by = testid => nodes(render()).find(n => n.props?.['data-testid'] === testid);
   assert(by('play-guest')); await by('play-guest').props.onClick();
   assert(by('match3-hero-choice'), 'URL adult team cannot bypass hero choice');
@@ -167,6 +174,15 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
   }
   choices.slice(0, 5).forEach(n => n.props.onClick());
   assert.equal(nodes(by('picked-row')).filter(n => n.type === CardFace).length, 5, 'Hero plus four only');
+  assert.equal(by('team-ready-hint').props.children, '隊伍已就緒，點此開始作戰');
+  assert.equal(scrolls.length, 1); assert.equal(scrolls[0].block, 'nearest'); assert.equal(scrolls[0].behavior, 'smooth');
+  render(); render(); assert.equal(scrolls.length, 1, 'Rerenders must not scroll repeatedly');
+  assert.notEqual(render().type, Board, 'Full team must not auto-start');
+  const removable = nodes(by('picked-row')).find(n => n.type === 'button' && !n.props.disabled);
+  removable.props.onClick(); render(); assert.equal(by('team-ready-hint'), undefined);
+  reducedMotion = true;
+  nodes(render()).find(n => n.props?.['data-testid'] === 'pick-card' && n.props['data-id'] === choices[0].props['data-id']).props.onClick();
+  render(); assert.equal(scrolls.length, 2); assert.equal(scrolls[1].behavior, 'instant');
   assert.equal(by('start-battle').props.disabled, false);
   await by('start-battle').props.onClick();
   assert.equal(render().type, Board); assert.equal(render().props.campaignEnabled, true); assert.equal(writes, 1);

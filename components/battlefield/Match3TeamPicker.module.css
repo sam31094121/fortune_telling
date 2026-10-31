@@ -11,6 +11,9 @@
 .selectedCard:disabled { opacity: 1; cursor: default; border-color: #e4c98d; }
 .remove { display: grid; place-items: center; min-height: 30px; font-size: 13px; }
 .sectionTitle { margin: 24px 0 12px; font-size: 20px; line-height: 1.5; color: #f1dfb8; }
+.readyHint { margin: 10px 0 4px; color: #f3dca6; font-size: 14px; line-height: 1.5; }
+.readyStart { scroll-margin-bottom: max(16px, env(safe-area-inset-bottom)); }
+.readyStart:not(:disabled) { border-color: #f0d295; background: linear-gradient(135deg, #ead39f, #c8a66a); color: #241c11; box-shadow: 0 0 0 1px #f0d29566, 0 3px 14px #d0ac6330; }
 .enhancement { margin: 24px 0; padding: 14px; border: 1px solid #776044; border-radius: 14px; background: #171b24; color: #f7ecd6; line-height: 1.6; }
 .enhancement summary { cursor: pointer; min-height: 44px; display: list-item; font-weight: 700; }
 .enhancement label { display: block; margin: 14px 0; }
