@@ -86,7 +86,7 @@
     "test:beast-combat-guide": "node scripts/beast-build.mjs && node tests/beast-combat-guide.test.mjs",
     "test:beast-battle-mode": "node tests/beast-battle-mode.test.cjs",
     "test:beast-battle-dock": "node tests/beast-battle-dock.test.cjs",
-    "test:beast-rig-body": "node tests/beast-rig-body.test.cjs",
+    "test:beast-rig-body": "node tests/beast-rig-body.test.cjs && node tests/beast-rig-readability.test.cjs",
     "build:beast": "node scripts/beast-build.mjs",
     "test:beast-interactive:full": "node scripts/beast-build.mjs && node tests/beast-interactive.test.cjs",
     "test:beast-difficulty": "node scripts/beast-build.mjs && node tests/beast-difficulty.test.cjs",

@@ -25,6 +25,16 @@ export interface BeastRigGeometry {
   cameraOrigin?: string;
   /** 本次對手真實卡圖，只用於命中後的可逆視覺切片。 */
   targetArt?: HTMLImageElement | null;
+  /** 在出擊前決定近垂直卡位朝向，整段保持，避免右列本體伸出視窗。 */
+  mirror?: boolean;
+}
+
+export function orientRigGeometry(geometry: BeastRigGeometry, viewportWidth: number): BeastRigGeometry {
+  const dx = geometry.to.cx - geometry.from.cx;
+  const mirror = Math.abs(dx) <= 8 && Number.isFinite(viewportWidth) && viewportWidth > 0
+    ? geometry.to.cx > viewportWidth / 2
+    : dx > 8;
+  return { ...geometry, mirror };
 }
 
 const toRect = (el: Element): Rect => {
@@ -44,7 +54,7 @@ export function placeRig(geometry: BeastRigGeometry, frame: ReturnType<typeof st
   const depth = 1 - 0.14 * progress;
   // 基準大小：最寬的姿勢（寬約 2.2 倍基準）不超過可用寬度的 70%
   const unit = geometry.arenaWidth * 0.24 * frame.scale * depth * size;
-  const mirror0 = endX - startX > 8;
+  const mirror0 = geometry.mirror ?? endX - startX > 8;
   // 咬合時把頭壓到對手卡中央（精靈本來面向左，頭在身體的前端）：抵達後才位移，路上不受影響
   const biteShift = (mirror0 ? -1 : 1) * unit * 0.55 * Math.pow(Math.max(0, progress), 6);
   const x = startX + (endX - startX) * progress + biteShift;
@@ -53,7 +63,7 @@ export function placeRig(geometry: BeastRigGeometry, frame: ReturnType<typeof st
   // 朝向：精靈本來面向左；對手在右邊就鏡射。往對手的方向抬頭，最多約 37 度
   const dx = endX - startX;
   const dy = endY - startY;
-  const mirror = dx > 8;
+  const mirror = mirror0;
   const lean = Math.atan2(-dy, Math.abs(dx) + 1); // 對手在上方時為正
   const tilt = Math.max(0, Math.min(0.32, lean));
   return { x, y, unit, rotation: tilt * frame.tilt, mirror };
@@ -90,8 +100,9 @@ export function alignRigContact(p: RigPlacement, f: ReturnType<typeof strikeFram
     const side = p.mirror ? -1 : 1;
     const travelX = geometry.from.cx + (geometry.to.cx - geometry.from.cx) * progress + side * Math.min(24, geometry.arenaWidth * 0.06) * (1 - approach);
     const rawTravelY = p.y + canonicalX * Math.sin(angle) + canonicalY * Math.cos(angle);
-    // 重甲不壓縮後口點更高；前進不得越過目標，再被接觸插值拉回。
-    const travelY = rig.style.morphology === 'armored' ? Math.max(targetY, rawTravelY) : rawTravelY;
+    // 重甲與長身龍的高口點不得越過目標再拉回；近頂敵卡也不會把龍頭拋出視窗。
+    // 白虎與朱雀保留已驗收的弧線。
+    const travelY = rig.style.morphology === 'armored' || rig.style.morphology === 'serpentine' ? Math.max(targetY, rawTravelY) : rawTravelY;
     return { ...p, x: travelX + (targetX - travelX) * blend - rx, y: travelY + (targetY - travelY) * blend - ry };
 }
 
@@ -99,6 +110,26 @@ export function alignRigContact(p: RigPlacement, f: ReturnType<typeof strikeFram
 export function rigContactPull(p: RigPlacement, t: number, width: number): readonly [number, number] {
   const distance = bitePull(t)[0] * width;
   return [(p.mirror ? 1 : -1) * Math.cos(p.rotation) * distance, -Math.sin(p.rotation) * distance];
+}
+
+type ReadabilityZone = { x: number; y: number; radius: number };
+/** 前景碎片避開嘴接點和小範圍頭部，讓閉口／眼睛仍可辨識。 */
+export function rigReadabilityZones(p: RigPlacement, f: ReturnType<typeof strikeFrame>, spec: RigFrameSpec, aspect: number, t: number, geometry: BeastRigGeometry, rig: BeastRig): ReadabilityZone[] {
+  const pull = rigContactPull(p, t, geometry.to.width);
+  const zones: ReadabilityZone[] = [{ x: geometry.to.cx + pull[0], y: geometry.to.top + geometry.to.height * .55 + pull[1], radius: Math.max(6, Math.min(12, geometry.to.width * .11)) }];
+  if (!spec.anchors) return zones;
+  const placed = alignRigContact(p, f, spec, aspect, t, geometry, rig);
+  const [u, v] = spec.anchors.head;
+  const displacement = meshDisplace(u, v, aspect, spec.anchors, livingPose(t, rig.style), t, rig.style);
+  const dh = p.unit * spec.norm, sign = p.mirror ? -1 : 1, angle = p.rotation * sign;
+  const x = ((u - .5) * dh * aspect + displacement[0] * dh) * sign;
+  const y = ((v - .92) * dh + displacement[1] * dh) * f.squash;
+  zones.push({ x: placed.x + x * Math.cos(angle) - y * Math.sin(angle), y: placed.y + x * Math.sin(angle) + y * Math.cos(angle), radius: Math.max(5, Math.min(14, dh * .065)) });
+  return zones;
+}
+export function shardOutsideReadabilityZones(x: number, y: number, size: number, zones: readonly ReadabilityZone[]): boolean {
+  const radius = Math.hypot(size / 2, size / 4);
+  return zones.every(zone => Math.hypot(x - zone.x, y - zone.y) > zone.radius + radius);
 }
 
 export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFrame, seek = null, measureGeometry, cameraElement, layerZIndex = 10 }: {
@@ -353,13 +384,19 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
       ctx.save();
       // 碎片：從咬點向外飛散，越遠越淡
       const fx = cx; const fy = top + height * 0.55;
+      const active = frame.layers[0];
+      const activeImage = active ? images.current.get(active.frame) : null;
+      const activeSpec = active ? rig.frames.find(spec => spec.id === active.frame) : null;
+      const zones = activeImage && activeSpec ? rigReadabilityZones(place, frame, activeSpec, activeImage.naturalWidth / activeImage.naturalHeight, t, geometry, rig) : [];
       for (let i = 0; i < 14; i++) {
         const ang = i * 2.399 + 0.4;
         const dist = width * (0.15 + (i % 5) * 0.12) * rend.shards;
         const size = Math.max(3, width * (0.03 + (i % 3) * 0.015)) * (1 - rend.shards * 0.5);
+        const shardX = fx + Math.cos(ang) * dist, shardY = fy + Math.sin(ang) * dist - rend.shards * width * 0.1;
+        if (!shardOutsideReadabilityZones(shardX, shardY, size, zones)) continue;
         ctx.globalAlpha = fade * rend.power * 0.9;
         ctx.fillStyle = i % 2 ? 'rgba(255,230,190,1)' : 'rgba(255,140,70,1)';
-        ctx.save(); ctx.translate(fx + Math.cos(ang) * dist, fy + Math.sin(ang) * dist - rend.shards * width * 0.1); ctx.rotate(ang + rend.shards * 3);
+        ctx.save(); ctx.translate(shardX, shardY); ctx.rotate(ang + rend.shards * 3);
         ctx.fillRect(-size / 2, -size / 4, size, size / 2); ctx.restore();
       }
       ctx.restore();
@@ -385,14 +422,14 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
     if (!root || !loaded) return;
 
     const measure = (): BeastRigGeometry | null => {
-      if (measureGeometry) return measureGeometry();
+      if (measureGeometry) { const geometry = measureGeometry(); return geometry ? orientRigGeometry(geometry, window.innerWidth) : null; }
       const mine = document.querySelector('[data-dock-card][data-active="true"] [data-card-thumbnail]') ?? document.querySelector('[data-dock-card][data-active="true"]');
       const foe = document.querySelector('[data-fighter="opponent"] [data-art-slot]');
       const arena = document.querySelector<HTMLElement>('[data-battle-visual]');
       const to = foe ? toRect(foe) : null;
       const ar = arena?.getBoundingClientRect();
       const cameraOrigin = to && ar ? `${to.cx - ar.left}px ${to.top + to.height / 2 - ar.top}px` : undefined;
-      return mine && foe && to ? { arenaWidth: Math.min(window.innerWidth, 640), from: toRect(mine), to, cameraOrigin, targetArt: foe.querySelector('img') } : null;
+      return mine && foe && to ? orientRigGeometry({ arenaWidth: Math.min(window.innerWidth, 640), from: toRect(mine), to, cameraOrigin, targetArt: foe.querySelector('img') }, window.innerWidth) : null;
     };
     const clear = () => {
       const el = canvas.current;

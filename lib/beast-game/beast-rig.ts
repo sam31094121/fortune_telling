@@ -434,9 +434,9 @@ export function livingPose(t: number, style: RigStyle = RIG_STYLES.qinglong): Li
   const armored = style.morphology === 'armored';
   const crouchThrust = armored ? -0.01 : -0.025;
   const readyThrust = armored ? 0.012 : 0.02;
-  const crouchClaw = armored ? -0.06 : -0.18;
+  const crouchClaw = armored ? -0.10 : -0.18;
   const readyClaw = armored ? -0.04 : -0.12;
-  const drawClaw = armored ? -0.08 : -0.28;
+  const drawClaw = armored ? -0.13 : -0.28;
   const strikeThrust = armored ? 0.035 : style.morphology === 'avian' ? 0.06 : 0.07;
   const strikeClaw = armored ? 0.16 : style.morphology === 'feline' ? 0.38 : style.morphology === 'avian' ? 0.34 : 0.5;
   const out = (p: LivingPose, fade = 1): LivingPose => ({

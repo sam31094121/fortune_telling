@@ -44,8 +44,9 @@ assert.equal(match3RigAttackers([{attackerId:null,amount:10},{attackerId:'beast_
 const board=fs.readFileSync(path.join(root,'components/battlefield/Match3Board.tsx'),'utf8');
 assert.equal((board.match(/showStrike\(/g)||[]).length,3,'Drag, skill and link all use actual damage result');
 assert.match(board,/showStrike\(hits, foe, nf\[ti\]\)/);
-assert.match(board,/showStrike\(\[\{ attackerId: u.id, amount: amt \}\], foe, damaged\[ti\]\)/);
-assert.match(board,/showStrike\(cards.map/);
+// 已發布的技能與聯手出擊會傳入蓄能音效旗標；實際扣血仍是前三個參數。
+assert.match(board,/showStrike\(\[\{ attackerId: u.id, amount: amt \}\], foe, damaged\[ti\], true\)/);
+assert.match(board,/showStrike\(cards.map\(c => \(\{ attackerId: c.id, amount: amt \}\)\), foe, damaged\[ti\], true\)/);
 assert.match(board,/const rigEnabled = cfg.id === 'hard45' \|\| cfg.id === 'hard45b'/);
 assert.match(board,/if \(!rigEnabled\) return/);
 assert.match(board,/rigEnabled && <Match3RigAttack/);
