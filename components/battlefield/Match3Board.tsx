@@ -7,7 +7,7 @@ import Link from 'next/link';
  * 規則不變：拖過相鄰同色 ≥3 放開發動、普通威力上限 10、≥4 生成魔法珠、剛好 5 顆魔法珠＋五珠技、每顆 +10 能量、
  * 每 3 步反擊、只有主屬性相同的卡出手、克制表 elements.ts、同屬性輔助拿一半能量。卡面只讀 .v2 新卡與 card-face-stats。
  */
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { BeastCardFace } from './BeastCardTile';
 import { useBannerQueue } from './bead/useBannerQueue';
 import { playableCards } from '@/lib/beast-game/registry';
@@ -32,7 +32,8 @@ import { readMatch3Progress, saveMatch3Progress, type Match3ProgressOwner } from
 import { readCampaign, settleWin, type CampaignSettlement } from '@/lib/beast-game/match3/hard-campaign-store';
 import { validateCampaignTeam, campaignAttack, type HardCampaign } from '@/lib/beast-game/match3/hard-campaign';
 import { createMatch3Sound, type Match3SoundCue } from './match3Sound';
-import { refillPresentation, refillLandingTimes, fusionShieldLayout, fusionDischarge, FUSION_CLEAR_AT_MS, FUSION_DISPLAY_MS, type RefillMotion } from '@/lib/beast-game/match3/refill-presentation';
+import { runRefillPlayback } from '@/lib/beast-game/match3/refill-runner';
+import { refillDisplaySteps, refillPresentation, refillLandingTimes, fusionShieldLayout, fusionDischarge, FUSION_CLEAR_AT_MS, FUSION_DISPLAY_MS, type RefillMotion } from '@/lib/beast-game/match3/refill-presentation';
 
 interface Unit extends Match3Fighter { name: string; thumbnail: string; maxHp: number; energy: number; skillName?: string; description?: string }
 interface Foe extends Match3Foe { name: string; thumbnail: string }
@@ -193,12 +194,17 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
   const [log, setLog] = useState(cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊');
   const [busy, setBusy] = useState(false);
   const [shortMsg, setShortMsg] = useState('');
+  const [refillEpoch, setRefillEpoch] = useState(0);
+  const refillRun = useRef<AbortController | null>(null);
+  const refillCommit = useRef<(() => void) | null>(null);
+  useLayoutEffect(() => { const ack = refillCommit.current; refillCommit.current = null; ack?.(); }, [refillEpoch]);
   const timers = useRef(new Set<number>());
   const later = (fn: () => void, ms: number) => {
     const timer = window.setTimeout(() => { timers.current.delete(timer); fn(); }, ms);
     timers.current.add(timer);
   };
   useEffect(() => () => {
+    refillRun.current?.abort(); refillCommit.current?.(); refillCommit.current = null;
     timers.current.forEach((t) => window.clearTimeout(t));
     timers.current.clear();
   }, []);
@@ -295,39 +301,22 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
     } else if (ev.type !== 'attack') { (window.__match3Events ??= []).push(ev); console.log('[match3]', ev); }
     const dealt = hits.reduce((s, h) => s + h.amount, 0);
     setBusy(true); if (!rigEnabled) sound(520 + res.chainLength * 40);
-    const frames = res.steps.map((st, i) => ({ before: i === 0 ? board : res.steps[i - 1].boardAfter, mag: i === 0 ? magic : res.steps[i - 1].magicAfter,
+    const displaySteps = rigEnabled ? refillDisplaySteps(res) : res.steps;
+    const frames = displaySteps.map((st, i) => ({ before: i === 0 ? board : displaySteps[i - 1].boardAfter, mag: i === 0 ? magic : displaySteps[i - 1].magicAfter,
       cells: new Set((st.clearedCells ?? st.groups.flatMap(g => g.cells)).map(c => k(c.r, c.c))) }));
     const fusionEffect = res.shieldFusion || !!res.shieldConversion;
     const shieldDelay = rigEnabled && fusionEffect ? FUSION_CLEAR_AT_MS : rigEnabled && res.magicTriggered.some(t => t.chain === 1 && t.power >= 7) ? 900 : 0;
     if (rigEnabled) cue(fusionEffect ? 'fusion' : shieldDelay ? 'shield' : dealt > 0 ? 'charge' : 'clear');
     if (shieldDelay) {
-      if (fusionEffect) { setFusionBurst(path.map(p => board[p.r][p.c])); later(() => cue('clear'), FUSION_CLEAR_AT_MS); later(() => setFusionBurst(null), FUSION_DISPLAY_MS); }
-      else { setShieldBurst(el); later(() => setShieldBurst(null), shieldDelay); }
+      if (fusionEffect) setFusionBurst(path.map(p => board[p.r][p.c]));
+      else setShieldBurst(el);
     }
     let settleAt = shieldDelay + frames.length * 300;
-    if (rigEnabled) {
-      const playback = refillPresentation(res.steps, window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-      playback.frames.forEach((phase, i) => {
-        const mergeAt = res.steps[i].rewards?.length ? Math.max(0, ...phase.motions.map(m => m.delayMs + m.durationMs)) : null;
-        refillLandingTimes(phase.motions).filter(at => mergeAt === null || mergeAt - at >= 140).forEach(at => later(() => cue('drop'), shieldDelay + phase.fallAt + at));
-        if (mergeAt !== null) later(() => cue('merge'), shieldDelay + phase.fallAt + mergeAt);
-        later(() => {
-          setFalling(new Map()); setRewards(new Set()); setClearMs(phase.clearMs);
-          setBoard(frames[i].before); setMagic(frames[i].mag); setFlash(frames[i].cells);
-          setEmptyCells(new Set((i ? res.steps[i - 1].emptyCells ?? [] : []).map(p => k(p.r, p.c))));
-        }, shieldDelay + phase.clearAt);
-        later(() => {
-          setFlash(new Set()); setBoard(res.steps[i].boardAfter); setMagic(res.steps[i].magicAfter);
-          setEmptyCells(new Set((res.steps[i].emptyCells ?? []).map(p => k(p.r, p.c))));
-          setRewards(new Set((res.steps[i].rewards ?? []).map(p => k(p.r, p.c))));
-          setFalling(new Map(phase.motions.map(motion => [k(motion.r, motion.c), motion])));
-        }, shieldDelay + phase.fallAt);
-      });
-      settleAt = shieldDelay + playback.durationMs;
-    } else frames.forEach((fr, i) => later(() => { setBoard(fr.before); setMagic(fr.mag); setFlash(fr.cells); }, shieldDelay + i * 300));
-    later(() => {
+    const playback = rigEnabled ? refillPresentation(displaySteps, window.matchMedia('(prefers-reduced-motion: reduce)').matches) : null;
+    if (!rigEnabled) frames.forEach((fr, i) => later(() => { setBoard(fr.before); setMagic(fr.mag); setFlash(fr.cells); }, shieldDelay + i * 300));
+    const settle = () => {
       setFlash(new Set()); setFalling(new Map()); setEmptyCells(new Set()); setRewards(new Set());
-      if (!rigEnabled || res.reshuffled) { setDrop(changedCells(board, res.board)); later(() => setDrop(new Set()), 360); }
+      if (!rigEnabled) { setDrop(changedCells(board, res.board)); later(() => setDrop(new Set()), 360); }
       setBoard(res.board); setMagic(res.magic); setBusy(false);
       const nf = damageFoe(foes, ti, dealt);
       showStrike(hits, foe, nf[ti]);
@@ -347,7 +336,46 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
       if (res.reshuffled) msg += '；沒有可走的步，已重新洗盤';
       if (nf[ti].hp <= 0) msg += `；${foe.name}倒下`;
       endStep(shareEnergy(team, gains, rule, chosen), nf, msg, dealt > 0, rigEnabled, res.shieldFusion);
-    }, settleAt);
+    };
+    if (playback) {
+      refillRun.current?.abort();
+      const controller = new AbortController(); refillRun.current = controller;
+      const paused = new Set<Animation>();
+      void runRefillPlayback(playback.frames, {
+        signal: controller.signal, initialDelayMs: fusionEffect ? FUSION_DISPLAY_MS : shieldDelay,
+        intro: () => new Promise<void>(resolve => { refillCommit.current = resolve; setRefillEpoch(epoch => epoch + 1); }),
+        commit: (phase, i) => new Promise<void>(resolve => {
+          refillCommit.current = resolve;
+          if (phase === 'clear') {
+            if (i === 0) { setFusionBurst(null); setShieldBurst(null); if (fusionEffect) cue('clear'); }
+            setFalling(new Map()); setRewards(new Set()); setClearMs(playback.frames[i].clearMs);
+            setBoard(frames[i].before); setMagic(frames[i].mag); setFlash(frames[i].cells);
+            setEmptyCells(new Set((i ? displaySteps[i - 1].emptyCells ?? [] : []).map(p => k(p.r, p.c))));
+          } else {
+            setFlash(new Set()); setBoard(displaySteps[i].boardAfter); setMagic(displaySteps[i].magicAfter);
+            setEmptyCells(new Set((displaySteps[i].emptyCells ?? []).map(p => k(p.r, p.c))));
+            setRewards(new Set((displaySteps[i].rewards ?? []).map(p => k(p.r, p.c))));
+            setFalling(new Map(playback.frames[i].motions.map(motion => [k(motion.r, motion.c), motion])));
+          }
+          setRefillEpoch(epoch => epoch + 1);
+        }),
+        cues: i => {
+          const motions = playback.frames[i].motions;
+          const mergeAt = displaySteps[i].rewards?.length ? Math.max(0, ...motions.map(m => m.delayMs + m.durationMs)) : null;
+          return [...refillLandingTimes(motions).filter(at => mergeAt === null || mergeAt - at >= 140).map(at => ({ at, kind: 'drop' as const })), ...(mergeAt === null ? [] : [{ at: mergeAt, kind: 'merge' as const }])];
+        },
+        cue: kind => cue(kind),
+        pause: hidden => {
+          if (hidden) for (const animation of drag.ref.current?.closest('[data-mode]')?.getAnimations({ subtree: true }) ?? []) {
+            if (animation.playState === 'running') { paused.add(animation); animation.pause(); }
+          } else { for (const animation of paused) {
+            const target = (animation.effect as KeyframeEffect | null)?.target;
+            if (target instanceof Element && target.isConnected && animation.playState === 'paused') animation.play();
+          } paused.clear(); }
+        },
+        complete: () => { if (refillRun.current === controller) refillRun.current = null; settle(); },
+      }).catch(error => { if (error?.name !== 'AbortError') console.error('[match3-refill]', error); });
+    } else later(settle, settleAt);
   };
 
   /** 點卡：連線模式＝加入／移出連線；否則設為優先（同屬性多張＝改當主攻）。 */
@@ -454,9 +482,9 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
 
       {!log.startsWith('按住寶珠') && log ? <p className={rigEnabled ? styles.srOnly : styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
 
-      <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, ['--clear-duration' as string]: `${clearMs}ms` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" data-refilling={falling.size > 0 ? 'true' : undefined} data-chain-intent={rigEnabled ? chainIntent : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers}>
+      <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, ['--clear-duration' as string]: `${clearMs}ms` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" data-refill-epoch={rigEnabled ? refillEpoch : undefined} data-refilling={falling.size > 0 ? 'true' : undefined} data-chain-intent={rigEnabled ? chainIntent : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers}>
         {board.map((row, r) => row.map((e, c) => { const kk = k(r, c); return (
-          <OrbCell key={`${r}-${c}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} shield={rigEnabled} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} fall={falling.get(kk)} empty={emptyCells.has(kk)} reward={rewards.has(kk)} />); }))}
+          <OrbCell key={`${r}-${c}-${rigEnabled ? refillEpoch : 0}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} shield={rigEnabled} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} fall={falling.get(kk)} empty={emptyCells.has(kk)} reward={rewards.has(kk)} />); }))}
         {shieldBurst && <div className={styles.shieldBurst} style={{ color: ORB_COLOR[shieldBurst] }} role="status" aria-label="080 盾牌清除同色寶珠"><span /><img src="/pwa/save-shield-080.png" alt="" draggable={false} /></div>}
         {fusionBurst && <div className={styles.fusionBurst} data-testid="shield-fusion-effect" role="status" aria-label="盾牌合體" style={{ ['--fusion-duration' as string]: `${FUSION_DISPLAY_MS}ms`, ['--fusion-colors' as string]: `conic-gradient(${fusionBurst.map(e => ORB_COLOR[e]).join(',')})` }}><div className={styles.fusionHalo} /><svg className={styles.fusionLightning} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">{fusionDischarge(fusionBurst, board).map(bolt => <polyline key={bolt.element} points={bolt.points} stroke={ORB_COLOR[bolt.element]} vectorEffect="non-scaling-stroke" />)}</svg>{fusionShieldLayout(fusionBurst.length).map((pose, i) => <span key={i} className={styles.fusionShield} data-fusion-element={fusionBurst[i]} data-primary={pose.primary || undefined} style={{ color: ORB_COLOR[fusionBurst[i]], width: `${pose.size}%`, ['--fusion-x' as string]: `${pose.x}%`, ['--fusion-y' as string]: `${pose.y}%`, ['--fusion-scale' as string]: pose.scale }}><img src="/pwa/save-shield-080.png" alt="" draggable={false} /></span>)}</div>}
         <DragPathSvg points={drag.points} color={dragEl ? ORB_COLOR[dragEl] : '#fff'} luminous={rigEnabled} />

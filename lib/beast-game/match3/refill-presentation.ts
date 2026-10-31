@@ -1,4 +1,4 @@
-import type { DragStep, OrbFall } from './drag';
+import type { DragStep, DragResult, OrbFall } from './drag';
 import type { BeastElement } from '../elements';
 
 export const FUSION_CLEAR_AT_MS = 1450;
@@ -37,11 +37,14 @@ export function fusionShieldLayout(count: number) {
 /** Presentation timeline only: consume recorded falls; never generate or score orbs. */
 export function refillPresentation(steps: readonly Pick<DragStep, 'falls' | 'emptyCells' | 'rewards'>[], reduced = false) {
   const raw = steps.map(step => {
-    const falls = [...(step.falls ?? [])].sort((a, b) => b.r - a.r || a.c - b.c);
+    const falls = [...(step.falls ?? [])].sort((a, b) => Number(a.fromRow < 0) - Number(b.fromRow < 0) || b.r - a.r || a.c - b.c);
     const stagger = reduced ? 0 : Math.min(20, 700 / Math.max(1, falls.length - 1));
     const duration = reduced || !falls.length ? 0 : 300 + Math.min(7, Math.max(...falls.map(f => f.r - f.fromRow))) * 18;
     const hold = reduced ? 0 : step.rewards?.length ? 260 : step.emptyCells?.length ? 140 : 0;
-    return { clear: reduced ? 60 : 260, falls, stagger, duration, span: (reduced ? 60 : 260) + duration + Math.max(0, falls.length - 1) * stagger + hold };
+    const survivors = falls.filter(f => f.fromRow >= 0).length;
+    const spawnAt = survivors ? duration + Math.max(0, survivors - 1) * stagger : 0;
+    const delays = falls.map((fall, index) => fall.fromRow < 0 ? spawnAt + (index - survivors) * stagger : index * stagger);
+    return { clear: reduced ? 60 : 260, falls, delays, duration, span: (reduced ? 60 : 260) + duration + Math.max(0, ...delays) + hold };
   });
   const scale = Math.min(1, 5000 / Math.max(1, raw.reduce((sum, frame) => sum + frame.span, 0)));
   let cursor = 0;
@@ -49,7 +52,16 @@ export function refillPresentation(steps: readonly Pick<DragStep, 'falls' | 'emp
     const clearAt = cursor, fallAt = cursor + frame.clear * scale;
     cursor += frame.span * scale;
     return { clearAt, fallAt, endAt: cursor, clearMs: frame.clear * scale,
-      motions: frame.falls.map((fall, index): RefillMotion => ({ ...fall, delayMs: index * frame.stagger * scale, durationMs: frame.duration * scale })) };
+      motions: frame.falls.map((fall, index): RefillMotion => ({ ...fall, delayMs: frame.delays[index] * scale, durationMs: frame.duration * scale })) };
   });
   return { frames, durationMs: cursor };
+}
+
+/** Display-only terminal shuffle. Never feed these frames to damage, energy or events. */
+export function refillDisplaySteps(result: DragResult): DragStep[] {
+  if (!result.reshuffled) return result.steps;
+  const cells = result.board.flatMap((row, r) => row.map((_, c) => ({ r, c })));
+  return [...result.steps, { chain: 0, groups: [], attackAllowed: false,
+    boardAfter: result.board, magicAfter: result.magic, clearedCells: cells,
+    falls: cells.map(cell => ({ ...cell, fromRow: -1 })), emptyCells: [], rewards: [] }];
 }
