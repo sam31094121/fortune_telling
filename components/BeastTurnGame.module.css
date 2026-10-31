@@ -201,3 +201,5 @@
 .calmBattle [data-battle-split][data-dock='true'] .easyAbility svg{width:22px;height:22px}
 .calmBattle [data-battle-split][data-dock='true'] [aria-label='本回合指令']{margin-top:0}
 .calmBattle [data-battle-split][data-dock='true'] [aria-label='本回合指令']>button{height:52px;min-height:52px}
+
+.modeCards>*:nth-child(4){animation-delay:.15s}

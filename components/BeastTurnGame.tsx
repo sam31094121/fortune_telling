@@ -308,6 +308,24 @@ function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }:
               <span className={styles.modeDesc}>{`押 1～${MAX_STAKE_CARDS} 張收藏卡；輸了只失去押上的卡`}</span>
               <span className={styles.modeBadge + ' ' + styles.modeBadgeWager}>③ 困難</span>
             </Link>
+            <Link href="/beast-game/match3-preview" className={styles.modeCard} role="listitem" data-difficulty="match3" data-testid="match3-entry-card" aria-label="寶珠戰：五元素寶珠卡片對戰">
+              <span className={styles.modeIcon}>🔮</span>
+              <strong>寶珠戰・五元素卡片</strong>
+              <span className={styles.modeDesc}>連線消珠出卡，五屬性卡片對戰（預覽）</span>
+              <span className={styles.modeBadge}>✦ 寶珠戰</span>
+            </Link>
+            <Link href="/beast-game/match3-hard" className={styles.modeCard} role="listitem" data-difficulty="match3-hard" data-testid="match3-hard-entry-card" aria-label="寶珠戰・困難：敵我各五張，四十五顆寶珠，可斜連">
+              <span className={styles.modeIcon}>💎</span>
+              <strong>困難 5v5　45 珠・可斜連</strong>
+              <span className={styles.modeDesc}>9×5・斜角也能連・敵方更強、反擊更快（預覽）</span>
+              <span className={styles.modeBadge}>✦ 寶珠戰・困難</span>
+            </Link>
+            <Link href="/beast-game/match3-hard2" className={styles.modeCard} role="listitem" data-difficulty="match3-hard2" data-testid="match3-hard2-entry-card" aria-label="寶珠戰・困難 II：敵我各五張，四十五顆寶珠，可斜連，另一組敵方">
+              <span className={styles.modeIcon}>💠</span>
+              <strong>寶珠戰・困難 II</strong>
+              <span className={styles.modeDesc}>9×5・可斜連・換一組敵方五神獸（預覽）</span>
+              <span className={styles.modeBadge}>✦ 寶珠戰・困難 II</span>
+            </Link>
           </div>
         </> : prepareStep === 'select' ? <>
           {starterPackClaimed === false && <p className={styles.pickHint} role="status">先選 3 張卡，玩完首戰送 28 張幼子卡 ↓</p>}

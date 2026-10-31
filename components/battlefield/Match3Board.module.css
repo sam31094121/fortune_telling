@@ -1,0 +1,302 @@
+/* 配色：墨夜底、骨白／象牙字、皮革卡底、火漆金只用於選取焦點；五元素低飽和。 */
+.wrap { --ink: #14121a; --bone: #e8e1d3; --ivory: #d9cfbb; --leather: #3a2a20; --seal: #b8893a;
+  position: relative; max-width: 560px; margin: 0 auto; padding: 12px 12px 88px; color: var(--bone); background: var(--ink); min-height: 100dvh; }
+.enemy { display: flex; gap: 12px; align-items: center; background: var(--leather); border-radius: 12px; padding: 8px; }
+.enemyCard { width: 72px; flex: none; }
+.enemyInfo { flex: 1; min-width: 0; }
+.name { font-size: 16px; font-weight: 600; color: var(--bone); overflow-wrap: anywhere; }
+.tag { margin-left: 8px; font-size: 12px; color: var(--ivory); border: 1px solid rgba(217,207,187,.4); border-radius: 6px; padding: 0 6px; white-space: nowrap; }
+.bar { height: 8px; border-radius: 4px; background: rgba(232,225,211,.15); overflow: hidden; margin: 6px 0 4px; }
+.bar > span { display: block; height: 100%; background: #9a6b5a; transition: width .3s ease; }
+.meta { font-size: 12px; color: var(--ivory); }
+/* 反擊倒數：三格燈號，剩 1 步轉紅閃爍 */
+.counter { display: inline-flex; align-items: center; gap: 8px; margin-top: 6px; padding: 4px 10px; border-radius: 999px; font-size: 14px; font-weight: 700;
+  background: rgba(20,18,26,.55); color: var(--bone); border: 1px solid rgba(217,207,187,.35); }
+.counterHot { color: #ffd2cf; border-color: #e0532c; background: rgba(224,83,44,.25); animation: m3hot 1s ease-in-out infinite; }
+.pips { display: inline-flex; gap: 4px; }
+.pips i { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--ivory); display: block; }
+.pips i.pipOn { background: #e0532c; border-color: #e0532c; }
+.hint { min-height: 22px; margin: 10px 0 0; text-align: center; font-size: 14px; font-weight: 600; color: #f3dfb2; }
+.board { position: relative; display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin: 6px 0 8px; padding: 6px; background: #1c1922; border-radius: 12px;
+  touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+/* 寶珠：整格是觸控區（390 寬約 46px），內層 .gem 以「顏色＋形狀」雙重編碼：風＝圓、空＝菱形、水＝水滴、火＝三角、地＝方塊。 */
+.orb { position: relative; aspect-ratio: 1; min-width: 44px; min-height: 44px; border-radius: 10px; cursor: grab;
+  display: grid; place-items: center; -webkit-tap-highlight-color: transparent; transition: transform .14s cubic-bezier(.2,.8,.3,1.2), filter .14s ease; will-change: transform; }
+.gem { position: absolute; inset: 7%; background: var(--c);
+  background-image: radial-gradient(circle at 32% 26%, rgba(255,255,255,.55) 0 12%, rgba(255,255,255,0) 38%), linear-gradient(160deg, rgba(255,255,255,.12), rgba(0,0,0,.28));
+  box-shadow: inset 0 -3px 6px rgba(0,0,0,.35), 0 2px 4px rgba(0,0,0,.4); }
+.lbl { position: relative; font-size: clamp(13px, 3.6vw, 18px); font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.75); pointer-events: none; }
+.air { --c: #2f9e7e; }   .air .gem { border-radius: 50%; }
+.space { --c: #8d6fd1; } .space .gem { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); inset: 2%; }
+.water { --c: #2c74d0; } .water .gem { border-radius: 50% 0 50% 50%; transform: rotate(-45deg) scale(.86); }
+.fire { --c: #e0532c; }  .fire .gem { clip-path: polygon(50% 3%, 97% 92%, 3% 92%); inset: 2%; }
+.fire .lbl { top: 12%; }
+.earth { --c: #c39324; } .earth .gem { border-radius: 18%; inset: 12%; }
+.sel { transform: scale(1.08); }
+.sel::after { content: ''; position: absolute; inset: -1px; border-radius: 12px; border: 2px solid var(--seal); box-shadow: 0 0 10px rgba(201,164,92,.7); pointer-events: none; }
+/* 魔法珠：金色光環＋右上角威力數字 */
+.magic::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #ffe3a1; box-shadow: 0 0 12px 3px rgba(255,214,120,.75), inset 0 0 8px rgba(255,240,200,.6);
+  animation: m3magic 1.4s ease-in-out infinite; pointer-events: none; z-index: 1; }
+.power { position: absolute; top: -2px; right: -2px; z-index: 2; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 10px; background: #ffe3a1; color: #3a2a20;
+  font-size: 12px; font-weight: 800; line-height: 20px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,.6); pointer-events: none; }
+.flash .gem, .flash .lbl { animation: m3clear .26s ease-out forwards; }
+.shake { animation: m3shake .3s ease; }
+.drop { animation: m3drop .32s cubic-bezier(.3,.7,.4,1); }
+.banner { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 4; padding: 10px 18px; border-radius: 12px; font-size: 18px; font-weight: 800;
+  white-space: normal; width: max-content; max-width: 92%; text-align: center; line-height: 1.3; overflow-wrap: anywhere; pointer-events: none; animation: m3pop .3s ease-out; box-shadow: 0 6px 18px rgba(0,0,0,.5); }
+.b_magic { background: #ffe3a1; color: #3a2a20; }
+.b_skill { background: #f3c14b; color: #2a1a10; }
+.b_counter { background: #b8322a; color: #fff; }
+.b_info { background: var(--leather); color: var(--bone); }
+@keyframes m3magic { 50% { box-shadow: 0 0 4px 1px rgba(255,214,120,.4), inset 0 0 4px rgba(255,240,200,.3); } }
+@keyframes m3hot { 50% { background: rgba(224,83,44,.45); } }
+@keyframes m3pop { from { transform: translate(-50%, -50%) scale(.7); opacity: 0; } }
+@keyframes m3clear { 0% { filter: brightness(1.6); } 100% { opacity: 0; transform: scale(1.3); filter: brightness(2) blur(2px); } }
+@keyframes m3shake { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+@keyframes m3drop { from { transform: translateY(-40%); opacity: .2; } to { transform: none; opacity: 1; } }
+@keyframes m3hit { 25% { transform: translateX(-4px); background: #7a2a22; } 75% { transform: translateX(4px); } }
+@media (prefers-reduced-motion: reduce) {
+  .orb, .bar > span, .energy > span { transition: none; }
+  .shake, .drop, .magic::before, .counterHot, .banner, .allyHit { animation: none; }
+  .flash .gem, .flash .lbl { animation: none; opacity: .3; }
+}
+.log { min-height: 22px; font-size: 14px; color: var(--bone); text-align: center; margin: 4px 0 10px; }
+.team { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.ally { background: var(--leather); border-radius: 10px; padding: 4px; text-align: center; min-width: 0; }
+.allyCard { width: 100%; max-width: 100px; margin: 0 auto; }
+.energy { height: 6px; border-radius: 3px; background: rgba(232,225,211,.12); overflow: hidden; margin: 2px 0 3px; }
+.energy > span { display: block; height: 100%; background: var(--ec); transition: width .3s ease; }
+.allyMeta { font-size: 11px; color: var(--ivory); line-height: 1.25; overflow-wrap: anywhere; }
+.allyFull { border-color: var(--ec) !important; box-shadow: 0 0 10px var(--ec); }
+.allyFull .allyMeta { color: #fff; font-weight: 700; }
+.allyHit { animation: m3hit .5s ease; }
+.down { opacity: .45; }
+.result { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: rgba(20,18,26,.88); color: var(--bone); z-index: 50; }
+.resultTitle { font-size: 24px; font-weight: 700; }
+.again { margin-top: 8px; padding: 10px 24px; min-height: 44px; border-radius: 10px; background: var(--leather); color: var(--bone); border: 1px solid var(--seal); font-size: 16px; }
+@media (min-width: 768px) { .wrap { padding-top: 24px; } .enemyCard { width: 96px; } .allyMeta { font-size: 12px; } }
+
+button.ally { font: inherit; color: inherit; border: 1px solid transparent; border-radius: 10px; padding: 4px; cursor: pointer; text-align: center; min-height: 44px; }
+
+/* 自選出陣 */
+.picker { display: grid; gap: 10px; max-width: 960px; margin: 0 auto; padding: 12px; color: #f4ead8; }
+.pickBar { display: flex; gap: 8px; justify-content: center; padding: 8px; }
+.pickTabs, .pickRow { display: flex; flex-wrap: wrap; gap: 6px; }
+.pickTabs button, .pickRow button, .pickGrid button { min-height: 44px; padding: 6px 10px; border-radius: 10px; border: 1px solid #6b5a44; background: #2a2119; color: inherit; }
+.pickTabs button[aria-pressed='true'], .pickGrid button[aria-pressed='true'] { background: #6b4f1f; border-color: #ffe3a1; }
+.pickGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; }
+.pickGrid small { display: block; opacity: .75; }
+
+/* 水晶切面魔法珠（crystal-orb）：在原本形狀上疊切面高光，不改顏色編碼；reduced-motion 時停掉閃光。 */
+.magic .gem { background:
+    linear-gradient(135deg, rgba(255,255,255,.55) 0 18%, transparent 18% 40%, rgba(255,255,255,.18) 40% 52%, transparent 52%),
+    conic-gradient(from 30deg, rgba(255,255,255,.35), rgba(0,0,0,.18), rgba(255,255,255,.25), rgba(0,0,0,.22), rgba(255,255,255,.35)),
+    var(--c);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.55), inset 0 -3px 6px rgba(0,0,0,.25); }
+.magic .gem::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.7) 48%, transparent 60%);
+  background-size: 250% 100%; animation: m3facet 2.2s ease-in-out infinite; }
+@keyframes m3facet { 0% { background-position: 120% 0; } 60%, 100% { background-position: -120% 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .magic .gem::after { animation: none; background-position: 50% 0; opacity: .5; }
+}
+
+/* 出手提示：本步實際出手的卡亮一下（同屬性多張時看得出是誰打） */
+.allyAttack { outline: 2px solid var(--ec); outline-offset: 1px; transform: translateY(-3px); transition: transform .15s; }
+@media (prefers-reduced-motion: reduce) { .allyAttack { transform: none; } }
+
+/* 點選主攻：觸控目標 ≥44px、點卡不觸發拖珠、主攻有明顯選取環 */
+.ally { min-height: 44px; min-width: 44px; touch-action: manipulation; user-select: none; -webkit-user-select: none; cursor: pointer; position: relative; }
+.allyLead { box-shadow: 0 0 0 3px var(--ec), 0 0 12px var(--ec); }
+.allyLead .allyMeta { color: #fff; font-weight: 700; }
+
+/* 10/30 打磨（不改規則）：訊息不截斷、拖曳線發光、拖曳頭脈動、魔法珠邊緣銳利 */
+.hint, .log { overflow-wrap: anywhere; line-height: 1.4; }
+.sel .gem { filter: brightness(1.15) saturate(1.1); }
+.board svg[data-testid='drag-path'] polyline:nth-of-type(2) { filter: drop-shadow(0 0 5px rgba(255,255,255,.55)); }
+.board svg[data-testid='drag-path'] circle:last-of-type { transform-box: fill-box; transform-origin: center; animation: m3head .5s ease-in-out infinite alternate; }
+@keyframes m3head { to { transform: scale(1.25); } }
+.magic .gem { outline: 1.5px solid rgba(255,240,200,.95); outline-offset: -1.5px; }
+.magic .lbl { text-shadow: 0 0 2px #000, 0 1px 2px rgba(0,0,0,.9); }
+.power { font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) {
+  .orb { will-change: auto; }
+  .board svg[data-testid='drag-path'] circle:last-of-type { animation: none; }
+}
+
+/* ===== 10/30 5v5 版面（依 5v5 截圖）：標題列、敵方五隻、圖例、出戰列、底部常駐連線列。寶珠樣式沿用上方（不降級）。 ===== */
+.wrap { padding-bottom: calc(96px + env(safe-area-inset-bottom)); overflow-x: hidden; }
+.head { display: flex; align-items: center; gap: 10px; }
+.headText { flex: 1; min-width: 0; }
+.kicker { font-size: 12px; letter-spacing: .08em; color: var(--ivory); opacity: .85; }
+.title { margin: 2px 0 0; font-size: clamp(20px, 6vw, 26px); font-weight: 800; color: #f6efe0; }
+.mute { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(217,207,187,.5); background: #f3eee4; font-size: 20px; flex: none; }
+.round { min-height: 40px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(217,207,187,.5); font-size: 14px; white-space: nowrap; }
+.sub { margin: 10px 0 8px; padding: 6px 10px; border-radius: 10px; border: 1px solid rgba(201,164,92,.55); background: rgba(201,164,92,.08); color: #f3dfb2; font-size: 13px; overflow-wrap: anywhere; }
+.secHead { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; margin: 8px 0 6px; font-size: 13px; color: var(--ivory); }
+.secHead span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.secHead span:last-child { white-space: nowrap; }
+.foes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.foe { position: relative; font: inherit; color: inherit; background: rgba(58,42,32,.55); border: 1.5px solid transparent; border-radius: 12px; padding: 18px 3px 6px; min-width: 0; min-height: 44px; cursor: pointer; text-align: center; touch-action: manipulation; }
+.foeOn { border-color: #f08a8a; box-shadow: 0 0 0 1px rgba(240,138,138,.4), 0 0 12px rgba(240,138,138,.35); background: rgba(90,40,40,.35); }
+.foeHot .cd { background: #b8322a; color: #fff; animation: m3hot 1s ease-in-out infinite; }
+.cd { position: absolute; top: 3px; right: 3px; font-size: 11px; font-weight: 800; padding: 0 5px; border-radius: 8px; background: rgba(20,18,26,.75); color: #f6efe0; line-height: 16px; }
+.foeArt { width: 100%; max-width: 64px; aspect-ratio: 1; margin: 0 auto; border-radius: 50%; overflow: hidden; border: 2px solid var(--ec); box-shadow: 0 0 0 2px rgba(201,164,92,.5); background: #0c0b10; }
+.foeArt img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.foeName { margin-top: 3px; font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.foeBar { height: 5px; margin: 3px 0 2px; }
+.foeBar > span { background: #f07a7a; }
+.foeHp { font-size: 11px; color: var(--ivory); white-space: nowrap; }
+.tgt { position: absolute; left: 50%; bottom: -10px; transform: translateX(-50%); font-size: 14px; line-height: 1; }
+.helpBtn { font: inherit; font-size: 13px; color: var(--ivory); background: none; border: 0; min-height: 44px; padding: 0 4px; text-decoration: underline; cursor: pointer; }
+.help { font-size: 13px; line-height: 1.5; color: var(--bone); background: rgba(58,42,32,.5); border-radius: 10px; padding: 8px 10px; margin: 0 0 6px; }
+.legend { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 6px; font-size: 13px; color: var(--bone); margin: 2px 0 6px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.allyBtn { font: inherit; color: inherit; background: none; border: 0; padding: 0; width: 100%; cursor: pointer; min-height: 44px; touch-action: manipulation; }
+.allyBtn:disabled { cursor: default; }
+.skill { display: block; width: 100%; min-height: 36px; margin-top: 3px; border-radius: 8px; border: 1px solid var(--ec); background: var(--ec); color: #fff; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; animation: m3skillPulse 1.4s ease-in-out infinite; }
+.linkOn .ally { outline: 1px dashed rgba(217,207,187,.45); outline-offset: 1px; }
+.allyLink { box-shadow: 0 0 0 3px #ffe3a1, 0 0 14px rgba(255,227,161,.7) !important; }
+.repick { display: flex; justify-content: center; margin: 10px 0; }
+.repick button { min-height: 44px; padding: 0 18px; border-radius: 10px; border: 1px solid rgba(217,207,187,.5); background: transparent; color: var(--bone); font: inherit; }
+.actionBar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
+  max-width: 560px; margin: 0 auto; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); background: rgba(20,18,26,.94); border-top: 1px solid rgba(217,207,187,.25); backdrop-filter: blur(6px); }
+.actionBar button { min-height: 56px; border-radius: 12px; border: 1px solid #5d6f99; background: #263552; color: #eef3ff; font: inherit; font-size: 15px; font-weight: 700; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; padding: 4px; }
+.actionBar button small { font-size: 11px; font-weight: 500; opacity: .8; }
+.actionBar button:disabled { opacity: .5; }
+.actionBar button.on { background: #3d5a8f; border-color: #ffe3a1; }
+.actionBar button.fire:not(:disabled) { background: #8a3b2a; border-color: #ffb38a; }
+@media (min-width: 768px) { .foeArt { max-width: 80px; } .foeName { font-size: 13px; } }
+@media (prefers-reduced-motion: reduce) { .skill, .foeHot .cd { animation: none; } }
+@keyframes m3hot { 50% { transform: scale(1.15); } }
+@keyframes m3skillPulse { 50% { filter: brightness(1.25); } }
+
+.foeArt { background: #0c0b10 center / cover no-repeat; }
+
+/* ===== 困難 45 顆（9×5）：欄數由 config 給；縮 gap/padding 讓 390 寬不橫向捲動（每格約 37px），寶珠形狀樣式不變。 ===== */
+.board.dense { gap: 3px; padding: 4px; }
+.board.dense .orb { min-width: 0; min-height: 0; border-radius: 8px; }
+.board.dense .lbl { font-size: clamp(11px, 3.1vw, 17px); }
+
+/* ===== 10/31 寶珠質感 gemfx（只改外觀：形狀、尺寸、版面、規則都不變）=====
+ * 色源（唯讀）：命理/components/bazi/customer/elementOrbPalette.ts 的 ORB_MATERIAL／DEMON_MATERIAL（空=SPACE 風=AIR 水=WATER 火=FIRE 地=EARTH），
+ * 鑲框：命理/app/home-leather.css 的 --lx-label #cdb991、--lx-seal #9a7a45、--lx-seal-deep #5a3f22、--lx-moon #b9bac0、--lx-base #0c0b10。
+ * 方向：低調奢華。.gem＝拉絲香檳金屬框；::before＝寶石本體（ORB color 為主體、DEMON emissive→color 為內部深度與邊緣暗部、
+ * ORB light／emissive 以低透明度當高光與紋脈、ORB ring 當 1px 內斜面）；::after＝很慢、很淡、很少出現的掃光。
+ * 霓虹 emissive 一律降透明度＋本體 saturate(.85) 收斂；五顆亮度已拉近。 */
+.orb { background: radial-gradient(ellipse 34% 7% at 50% 94%, rgba(12,11,16,.78), rgba(12,11,16,0) 72%); }
+.gem { box-shadow: none; filter: none;
+  background: repeating-linear-gradient(100deg, rgba(255,255,255,.07) 0 1px, rgba(0,0,0,0) 1px 2px),
+    linear-gradient(140deg, #cdb991 0%, #9a7a45 34%, #b9bac0 50%, #9a7a45 66%, #5a3f22 100%); }
+.gem::before { content: ''; position: absolute; inset: 2px; border-radius: inherit; clip-path: inherit; pointer-events: none; filter: saturate(.85);
+  box-shadow: inset 0 1px 0 var(--ring), inset 0 -1px 0 rgba(12,11,16,.55), inset 0 -4px 7px var(--deep);
+  --spec: radial-gradient(circle at 31% 24%, rgba(255,255,255,.6) 0 5%, var(--lt) 9%, rgba(255,255,255,0) 15%),
+    radial-gradient(ellipse 26% 14% at 68% 80%, var(--lt), rgba(255,255,255,0) 80%); }
+.orb:not(.magic) .gem::after { content: ''; position: absolute; inset: 2px; border-radius: inherit; clip-path: inherit; pointer-events: none;
+  background: linear-gradient(115deg, rgba(255,255,255,0) 40%, rgba(255,255,255,.15) 50%, rgba(255,255,255,0) 60%);
+  background-size: 300% 100%; background-position: 130% 0; animation: gemSweep 11s ease-in-out infinite; }
+@keyframes gemSweep { 0%, 86% { background-position: 130% 0; } 100% { background-position: -130% 0; } }
+.orb:nth-child(3n+1) .gem::after { animation-delay: -3.7s; }
+.orb:nth-child(3n+2) .gem::after { animation-delay: -7.3s; }
+
+/* 空｜紫水晶菱形：ORB #443087 本體 → DEMON #5b2a86 → #120a1c 邊緣；十字切面＋兩點靜態星芒（light #dfd8ff）；細紋脈 emissive #b4a2ff */
+.space .gem::before { inset: 3px; --ring: rgba(238,233,255,.38); --lt: rgba(223,216,255,.16); --deep: rgba(18,10,28,.6);
+  background: var(--spec),
+  radial-gradient(circle at 64% 40%, rgba(223,216,255,.55) 0 1.2%, rgba(223,216,255,0) 2.6%),
+  radial-gradient(circle at 40% 66%, rgba(223,216,255,.32) 0 1%, rgba(223,216,255,0) 2.2%),
+  linear-gradient(90deg, rgba(0,0,0,0) 49.4%, rgba(180,162,255,.18) 50%, rgba(0,0,0,0) 50.6%),
+  linear-gradient(0deg, rgba(0,0,0,0) 49.4%, rgba(180,162,255,.12) 50%, rgba(0,0,0,0) 50.6%),
+  conic-gradient(from 45deg at 50% 50%, rgba(255,255,255,.09) 0 25%, rgba(18,10,28,.18) 25% 50%, rgba(255,255,255,.03) 50% 75%, rgba(18,10,28,.26) 75%),
+  radial-gradient(circle at 45% 40%, #443087 0%, #443087 30%, #5b2a86 62%, #120a1c 100%); }
+/* 風｜帝王綠翡翠圓：ORB #006f4d 本體 → DEMON #1f6b4a → #04120c；內部雲絮（light #8dffcd）＋一道細旋紋（emissive #00f5a0） */
+.air .gem::before { --ring: rgba(198,255,225,.32); --lt: rgba(141,255,205,.13); --deep: rgba(4,18,12,.6);
+  background: var(--spec),
+  radial-gradient(circle at 54% 56%, rgba(0,0,0,0) 31%, rgba(0,245,160,.16) 32.5% 34%, rgba(0,0,0,0) 35.5%),
+  radial-gradient(ellipse 30% 18% at 40% 62%, rgba(141,255,205,.13), rgba(0,0,0,0) 70%),
+  radial-gradient(circle at 42% 38%, #006f4d 0%, #006f4d 34%, #1f6b4a 62%, #04120c 100%); }
+/* 水｜藍寶水滴：ORB #006ee6 本體 → DEMON #0d6b62 → #04141a；底部折射亮帶（light #60edff）＋漣漪環（emissive #00e5ff） */
+.water .gem::before { --ring: rgba(194,251,255,.34); --lt: rgba(96,237,255,.13); --deep: rgba(4,20,26,.62); filter: saturate(.72) brightness(.88);
+  background: var(--spec),
+  radial-gradient(ellipse 34% 30% at 50% 50%, rgba(0,0,0,0) 74%, rgba(0,229,255,.18) 80%, rgba(0,0,0,0) 88%),
+  radial-gradient(ellipse 46% 26% at 56% 78%, rgba(96,237,255,.22), rgba(0,0,0,0) 75%),
+  radial-gradient(circle at 40% 36%, #006ee6 0%, #006ee6 22%, #0d6b62 64%, #04141a 100%); }
+/* 火｜鴿血紅寶三角：ORB #a40039 本體 → DEMON #7a0f3a → #1a0410；頂點放射細切面、底部內斂餘燼（emissive #ff1264 低透明）、高光 light #ff9fc5 */
+.fire .gem::before { inset: 3px; --ring: rgba(255,210,231,.34); --lt: rgba(255,159,197,.14); --deep: rgba(26,4,16,.6);
+  background: var(--spec),
+  radial-gradient(ellipse 40% 22% at 50% 84%, rgba(255,18,100,.22), rgba(0,0,0,0) 75%),
+  conic-gradient(from 150deg at 50% 6%, rgba(255,255,255,.09) 0 10%, rgba(26,4,16,.18) 10% 20%, rgba(255,255,255,.05) 20% 30%, rgba(26,4,16,.14) 30% 40%, rgba(0,0,0,0) 40%),
+  radial-gradient(circle at 48% 45%, #a40039 0%, #a40039 30%, #7a0f3a 64%, #1a0410 100%); }
+/* 地｜金絲楠木琥珀方塊：ORB #9b4b00 本體 → DEMON #5c3d0f → #140d04；四面斜切切面、細石紋（light #ffe198）、內含微粒＋金絲紋脈（emissive #ffad12） */
+.earth .gem::before { --ring: rgba(255,235,176,.34); --lt: rgba(255,225,152,.14); --deep: rgba(20,13,4,.6);
+  background: var(--spec),
+  radial-gradient(circle at 62% 58%, rgba(20,13,4,.45) 0 1.4%, rgba(0,0,0,0) 2.6%),
+  radial-gradient(circle at 36% 70%, rgba(20,13,4,.35) 0 1%, rgba(0,0,0,0) 2.2%),
+  repeating-linear-gradient(28deg, rgba(255,225,152,.06) 0 1px, rgba(0,0,0,0) 1px 3px),
+  linear-gradient(118deg, rgba(0,0,0,0) 46%, rgba(255,173,18,.16) 48%, rgba(0,0,0,0) 50%),
+  conic-gradient(from 45deg at 50% 50%, rgba(255,255,255,.11) 0 25%, rgba(20,13,4,.10) 25% 50%, rgba(20,13,4,.26) 50% 75%, rgba(255,255,255,.04) 75%),
+  radial-gradient(circle at 45% 40%, #9b4b00 0%, #9b4b00 32%, #5c3d0f 66%, #140d04 100%); }
+.lbl { text-shadow: 0 1px 1px rgba(12,11,16,.9), 0 0 3px rgba(12,11,16,.5); letter-spacing: .02em; }
+.magic .gem::before { opacity: .62; }
+@media (prefers-reduced-motion: reduce) {
+  .orb:not(.magic) .gem::after { animation: none; background-position: 130% 0; }
+}
+
+/* ===== 10/31 意境微細節（保留原本五形：水滴／方塊／圓／菱形／三角，只改內部質感方向；不動 clip-path／尺寸）===== */
+/* 意境微細節（沿形狀方向） */
+/* 水＝落雨與流動：.gem 旋轉 -45deg，所以 135deg／225deg 在畫面上＝由上往下直向流的絲光（ORB light #60edff、ring #c2fbff） */
+.water .gem::before { background: var(--spec),
+  linear-gradient(135deg, rgba(0,0,0,0) 36%, rgba(96,237,255,.16) 42%, rgba(0,0,0,0) 48%),
+  repeating-linear-gradient(135deg, rgba(194,251,255,.05) 0 1px, rgba(0,0,0,0) 1px 4px),
+  linear-gradient(225deg, rgba(0,0,0,0) 55%, rgba(96,237,255,.14) 92%),
+  radial-gradient(circle at 40% 36%, #006ee6 0%, #006ee6 22%, #0d6b62 64%, #04141a 100%); }
+/* 地＝山與大地：金箔片沉向平底（ORB emissive #ffad12、light #ffe198） */
+.earth .gem::before { background: var(--spec),
+  radial-gradient(circle at 30% 84%, rgba(255,173,18,.5) 0 1.6%, rgba(0,0,0,0) 2.8%),
+  radial-gradient(circle at 58% 88%, rgba(255,225,152,.45) 0 1.3%, rgba(0,0,0,0) 2.5%),
+  radial-gradient(circle at 76% 80%, rgba(255,173,18,.38) 0 1.1%, rgba(0,0,0,0) 2.2%),
+  radial-gradient(circle at 46% 76%, rgba(255,225,152,.3) 0 .9%, rgba(0,0,0,0) 2%),
+  repeating-linear-gradient(0deg, rgba(255,225,152,.05) 0 1px, rgba(0,0,0,0) 1px 4px),
+  linear-gradient(180deg, rgba(255,255,255,.07) 0%, rgba(0,0,0,0) 40%, rgba(20,13,4,.25) 100%),
+  radial-gradient(circle at 48% 50%, #9b4b00 0%, #9b4b00 32%, #5c3d0f 66%, #140d04 100%); }
+/* 風＝流動之氣：翠色絲絮沿彎尾由左上流向右下（ORB light #8dffcd、emissive #00f5a0） */
+.air .gem::before { background: var(--spec),
+  linear-gradient(45deg, rgba(0,0,0,0) 44%, rgba(141,255,205,.16) 47%, rgba(0,0,0,0) 50%),
+  linear-gradient(45deg, rgba(0,0,0,0) 54%, rgba(0,245,160,.12) 56.5%, rgba(0,0,0,0) 59%),
+  linear-gradient(45deg, rgba(0,0,0,0) 34%, rgba(141,255,205,.08) 36%, rgba(0,0,0,0) 38%),
+  radial-gradient(circle at 56% 56%, #006f4d 0%, #006f4d 30%, #1f6b4a 60%, #04120c 100%); }
+/* 空＝虛空與星：金紅石針由核心放射向四個星尖（ORB light #dfd8ff、emissive #b4a2ff） */
+.space .gem::before { background: var(--spec),
+  repeating-conic-gradient(from -1.5deg at 50% 50%, rgba(223,216,255,.26) 0 3deg, rgba(0,0,0,0) 3deg 90deg),
+  repeating-conic-gradient(from 43.5deg at 50% 50%, rgba(180,162,255,.1) 0 3deg, rgba(0,0,0,0) 3deg 90deg),
+  radial-gradient(circle at 50% 50%, rgba(223,216,255,.22) 0 4%, rgba(0,0,0,0) 10%),
+  radial-gradient(circle at 50% 50%, #443087 0%, #443087 28%, #5b2a86 58%, #120a1c 100%); }
+/* 火＝上升之熱：蛋白石微點由底往火尖上升、越高越小（ORB ring #ffd2e7、light #ff9fc5、emissive #ff1264） */
+.fire .gem::before { background: var(--spec),
+  radial-gradient(circle at 54% 14%, rgba(255,210,231,.5) 0 .9%, rgba(0,0,0,0) 2%),
+  radial-gradient(circle at 48% 32%, rgba(255,159,197,.4) 0 1.2%, rgba(0,0,0,0) 2.4%),
+  radial-gradient(circle at 60% 50%, rgba(255,210,231,.3) 0 1.4%, rgba(0,0,0,0) 2.7%),
+  radial-gradient(circle at 40% 66%, rgba(255,159,197,.26) 0 1.6%, rgba(0,0,0,0) 3%),
+  radial-gradient(ellipse 44% 22% at 50% 88%, rgba(255,18,100,.22), rgba(0,0,0,0) 75%),
+  linear-gradient(0deg, rgba(0,0,0,0) 30%, rgba(255,159,197,.07) 100%),
+  radial-gradient(circle at 50% 62%, #a40039 0%, #a40039 30%, #7a0f3a 62%, #1a0410 100%); }
+
+/* ===== 寶珠戰・困難 II（hard45b）精修：只作用於 data-mode="hard45b"，不改規則／版面／尺寸 ===== */
+/* 1. 寶珠：更薄、更均勻的金屬框；核心與內含物更清晰 */
+.wrap[data-mode="hard45b"] .gem { background: linear-gradient(140deg, #cdb991 0%, #b39a68 30%, #b9bac0 50%, #a88c58 70%, #7a5a33 100%); }
+.wrap[data-mode="hard45b"] .gem::before { inset: 1.5px; filter: saturate(.9) contrast(1.08); box-shadow: inset 0 .5px 0 var(--ring), inset 0 -.5px 0 rgba(12,11,16,.6), inset 0 -3px 5px var(--deep); }
+.wrap[data-mode="hard45b"] .space .gem::before, .wrap[data-mode="hard45b"] .fire .gem::before { inset: 2.25px; }
+.wrap[data-mode="hard45b"] .water .gem::before { filter: saturate(.78) brightness(.92) contrast(1.08); }
+.wrap[data-mode="hard45b"] .orb:not(.magic) .gem::after { inset: 1.5px; opacity: .7; }
+.wrap[data-mode="hard45b"] .lbl { text-shadow: 0 .5px 0 rgba(12,11,16,.95), 0 0 2px rgba(12,11,16,.55); }
+/* 2. 盤面框：深底＋一條 home-leather 金色髮絲線（用 inset shadow，不改尺寸） */
+.wrap[data-mode="hard45b"] .board { background: #0c0b10; box-shadow: inset 0 0 0 1px rgba(205,185,145,.26), inset 0 1px 0 rgba(205,185,145,.12); }
+/* 3. 敵方卡：同一皮革底、髮絲線框；選中改用金色細線而非紅光 */
+.wrap[data-mode="hard45b"] .foe { background: linear-gradient(180deg, rgba(58,42,32,.62), rgba(12,11,16,.72)); border-color: rgba(205,185,145,.22); }
+.wrap[data-mode="hard45b"] .foeOn { border-color: #cdb991; background: linear-gradient(180deg, rgba(90,63,34,.55), rgba(12,11,16,.72)); box-shadow: 0 0 0 1px rgba(205,185,145,.35), 0 0 8px rgba(205,185,145,.22); }
+.wrap[data-mode="hard45b"] .foeArt { box-shadow: 0 0 0 1px rgba(205,185,145,.35); }
+/* 4. 我方卡：同色皮革、髮絲線 */
+.wrap[data-mode="hard45b"] .ally { background: linear-gradient(180deg, #3a2a20, #1a1410); box-shadow: inset 0 0 0 1px rgba(205,185,145,.22); }
+.wrap[data-mode="hard45b"] .secHead { border-bottom: 1px solid rgba(205,185,145,.16); padding-bottom: 0; }
+/* 5. 底部操作列：深底＋頂部髮絲線 */
+.wrap[data-mode="hard45b"] .actionBar { background: rgba(12,11,16,.94); box-shadow: inset 0 1px 0 rgba(205,185,145,.28); }
