@@ -25,6 +25,7 @@ import {
 } from '@/lib/beast-game/match3';
 import { DragPathSvg, dragHint, useDragChain } from './useDragChain';
 import styles from './Match3Board.module.css';
+import Match3ElementGlyph from './Match3ElementGlyph';
 import { RIG_STRIKE_MS } from '@/lib/beast-game/beast-rig';
 import Match3RigAttack, { Match3TargetArt, match3RigAttackers, type Match3Strike } from './Match3RigAttack';
 import { readMatch3Progress, saveMatch3Progress, type Match3ProgressOwner } from '@/lib/beast-game/match3/progress-store';
@@ -73,7 +74,8 @@ const OrbCell = memo(function OrbCell({ r, c, e, mp, sel, flash, shake, drop, sh
       data-fall-from={fall?.fromRow} data-fall-delay={fall?.delayMs}
       style={fall ? { ['--fall-offset' as string]: `calc(-${(r - fall.fromRow) * 100}% - ${r - fall.fromRow} * var(--orb-gap))`, ['--fall-delay' as string]: `${fall.delayMs}ms`, ['--fall-duration' as string]: `${fall.durationMs}ms`, ['--fall-opacity' as string]: fall.fromRow < 0 ? 0 : 1 } : undefined}
       aria-label={`${MATCH3_ORB_LABEL[e]}${mp ? `魔法珠威力${mp}` : '珠'}`}>
-      <span className={styles.gem} aria-hidden="true" /><span className={styles.lbl} aria-hidden="true">{MATCH3_ORB_LABEL[e]}</span>
+      <span className={styles.gem} aria-hidden="true" />
+      {shield ? (mp < 7 && <Match3ElementGlyph element={e} className={styles.elementGlyph} />) : <span className={styles.lbl} aria-hidden="true">{MATCH3_ORB_LABEL[e]}</span>}
       {mp > 0 && (shield && mp >= 7 ? <img className={styles.shieldOrb} src="/pwa/save-shield-080.png" alt={`080 ${MATCH3_ORB_LABEL[e]}屬性清場盾牌`} draggable={false} /> : <span className={styles.power} aria-hidden="true">{mp}</span>)}
     </div>
   );

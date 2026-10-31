@@ -586,6 +586,15 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
   text-shadow: 0 1px 2px rgba(12,11,16,.6);
 }
 .wrap[data-mode^="hard"] .sel::after { border-radius: 16px; box-shadow: 0 0 7px rgba(201,164,92,.5); }
+.elementGlyph { position: relative; width: 58%; height: 58%; color: #faf4e8; pointer-events: none;
+  filter: drop-shadow(0 1px 1px rgba(12,11,16,.45)); }
+.fire .elementGlyph { top: 7%; width: 53%; height: 53%; }
+.magic .elementGlyph { width: 52%; height: 52%; }
+.sel .elementGlyph { color: #fffaf0; }
+.wrap[data-mode^="hard"] .flash .elementGlyph { animation: m3SoftClear var(--clear-duration, .26s) ease-out forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .wrap[data-mode^="hard"] .flash .elementGlyph { animation: none; opacity: .3; }
+}
 .wrap[data-mode^="hard"] .drop { animation: m3SoftDrop .32s cubic-bezier(.22,.68,.3,1); }
 .wrap[data-mode^="hard"] .flash .gem,
 .wrap[data-mode^="hard"] .flash .lbl { animation: m3SoftClear var(--clear-duration, .26s) ease-out forwards; }
