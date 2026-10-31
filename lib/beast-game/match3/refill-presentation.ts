@@ -38,21 +38,37 @@ export function fusionShieldLayout(count: number) {
 export function refillPresentation(steps: readonly Pick<DragStep, 'falls' | 'emptyCells' | 'rewards'>[], reduced = false) {
   const raw = steps.map(step => {
     const falls = [...(step.falls ?? [])].sort((a, b) => Number(a.fromRow < 0) - Number(b.fromRow < 0) || b.r - a.r || a.c - b.c);
-    const stagger = reduced ? 0 : Math.min(20, 700 / Math.max(1, falls.length - 1));
+    const stagger = reduced ? 0 : 20;
     const duration = reduced || !falls.length ? 0 : 300 + Math.min(7, Math.max(...falls.map(f => f.r - f.fromRow))) * 18;
     const hold = reduced ? 0 : step.rewards?.length ? 260 : step.emptyCells?.length ? 140 : 0;
     const survivors = falls.filter(f => f.fromRow >= 0).length;
     const spawnAt = survivors ? duration + Math.max(0, survivors - 1) * stagger : 0;
     const delays = falls.map((fall, index) => fall.fromRow < 0 ? spawnAt + (index - survivors) * stagger : index * stagger);
-    return { clear: reduced ? 60 : 260, falls, delays, duration, span: (reduced ? 60 : 260) + duration + Math.max(0, ...delays) + hold };
+    return { clear: reduced ? 60 : 260, falls, delays, duration, hold, survivors, stagger, span: (reduced ? 60 : 260) + duration + Math.max(0, ...delays) + hold };
   });
-  const scale = Math.min(1, 5000 / Math.max(1, raw.reduce((sum, frame) => sum + frame.span, 0)));
+  // Preserve a visible frame between beads in ordinary cascades. Extremely long
+  // cascades retain the existing five-second planned budget and use smaller batches.
+  const planned = (scale: number, minimumStagger: number) => raw.map(frame => {
+    const duration = frame.duration * scale, stagger = reduced ? 0 : Math.max(minimumStagger, frame.stagger * scale);
+    const spawnAt = frame.survivors ? duration + Math.max(0, frame.survivors - 1) * stagger : 0;
+    const delays = frame.falls.map((fall, index) => fall.fromRow < 0 ? spawnAt + (index - frame.survivors) * stagger : index * stagger);
+    return { ...frame, duration, delays, clear: frame.clear * scale, span: frame.clear * scale + duration + Math.max(0, ...delays) + frame.hold * scale };
+  });
+  const total = (frames: ReturnType<typeof planned>) => frames.reduce((sum, frame) => sum + frame.span, 0);
+  let plan = planned(1, 0);
+  if (total(plan) > 5000) {
+    if (!reduced && total(planned(.4, 18)) <= 5000) {
+      let low = .4, high = 1;
+      for (let i = 0; i < 40; i++) { const mid = (low + high) / 2; if (total(planned(mid, 18)) <= 5000) low = mid; else high = mid; }
+      plan = planned(low, 18);
+    } else plan = planned(5000 / Math.max(1, total(plan)), 0);
+  }
   let cursor = 0;
-  const frames = raw.map(frame => {
-    const clearAt = cursor, fallAt = cursor + frame.clear * scale;
-    cursor += frame.span * scale;
-    return { clearAt, fallAt, endAt: cursor, clearMs: frame.clear * scale,
-      motions: frame.falls.map((fall, index): RefillMotion => ({ ...fall, delayMs: frame.delays[index] * scale, durationMs: frame.duration * scale })) };
+  const frames = plan.map(frame => {
+    const clearAt = cursor, fallAt = cursor + frame.clear;
+    cursor += frame.span;
+    return { clearAt, fallAt, endAt: cursor, clearMs: frame.clear,
+      motions: frame.falls.map((fall, index): RefillMotion => ({ ...fall, delayMs: frame.delays[index], durationMs: frame.duration })) };
   });
   return { frames, durationMs: cursor };
 }

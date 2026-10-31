@@ -202,13 +202,16 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
   // Enhancement uses a single explicit confirmation; failed persistence cannot
   // consume the material, and retry must reuse the same operation receipt ID.
   const enhancementState = []; let enhancementCursor = 0, attempts = 0;
-  const operationRef = { current: null }; const operationIds = [];
+  const operationIds = [], enhancementTimers = [];
   const enhancementModule = { exports: {} };
   vm.runInNewContext(compile('components/battlefield/CampaignEnhancement.tsx'), {
     module: enhancementModule, exports: enhancementModule.exports,
     crypto: { randomUUID: () => 'entry-enhancement-operation' },
+    window: { matchMedia: () => ({ matches: false }), setTimeout: fn => { enhancementTimers.push(fn); return enhancementTimers.length; }, clearTimeout: () => {} },
     require: id => {
-      if (id === 'react') return { ...React, useRef: () => operationRef, useState: initial => {
+      if (id === 'react') return { ...React, useEffect: fn => { fn(); }, useRef: initial => {
+        const i = enhancementCursor++; if (!(i in enhancementState)) enhancementState[i] = { current: initial }; return enhancementState[i];
+      }, useState: initial => {
         const i = enhancementCursor++; if (!(i in enhancementState)) enhancementState[i] = initial;
         return [enhancementState[i], next => { enhancementState[i] = next; }];
       } };
@@ -228,25 +231,37 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
   const renderEnhancement = () => { enhancementCursor = 0; return enhancementModule.exports.default({ owner: 'self', profile, onSaved: p => { profile = p; } }); };
   const enhanceBy = id => nodes(renderEnhancement()).find(n => n.props?.['data-testid'] === id);
   // Controlled progress fixtures test the fifth-stage boundary, not natural wins.
+  while (profile.wins < 4) profile = C.campaignWin(profile, `entry-stage-${profile.wins}`, profile.wins).profile;
+  const completedFour = profile;
   profile = { ...profile, wins: 3 };
   assert.equal(enhanceBy('enhancement-locked').props.children, '第五關解鎖永久強化');
   assert.equal(enhanceBy('enhance-material'), undefined, 'First four stages cannot expose consumption form');
-  profile = { ...profile, wins: 4 };
+  profile = completedFour;
   assert(enhanceBy('campaign-enhancement'), 'Entering fifth stage unlocks the form');
   const material = C.enhancementOptions(profile).youngIds[0];
   assert(material && !profile.teamIds.includes(material));
-  enhanceBy('enhance-target').props.onChange({ target: { value: profile.heroId } });
-  enhanceBy('enhance-material').props.onChange({ target: { value: material } });
+  assert.equal(enhanceBy('enhance-material'), undefined, 'Choose target before material');
+  nodes(renderEnhancement()).find(n => n.props?.['data-testid'] === 'enhance-target' && n.props['data-id'] === profile.heroId).props.onClick();
+  assert.equal(enhanceBy('confirm-enhancement'), undefined, 'No consumption before explicit material choice');
+  nodes(renderEnhancement()).find(n => n.props?.['data-testid'] === 'enhance-material' && n.props['data-id'] === material).props.onClick();
+  assert(!nodes(renderEnhancement()).some(n => n.type === 'select'), 'Card-guided flow does not use text dropdowns');
   assert.equal(enhanceBy('confirm-enhancement').props.disabled, false);
   const oldAttack = C.campaignCardAttack(profile, profile.heroId).attack;
   await enhanceBy('confirm-enhancement').props.onClick();
   assert(C.enhancementOptions(profile).youngIds.includes(material), 'Failed save cannot consume young');
   assert.equal(C.campaignCardAttack(profile, profile.heroId).attack, oldAttack);
+  assert(!nodes(renderEnhancement()).some(n => n.props?.['data-enhancement-animation']), 'Failed save cannot animate a successful absorption');
   await enhanceBy('confirm-enhancement').props.onClick();
   assert.equal(operationIds[0], operationIds[1], 'Retry must reuse operation ID');
   assert(!C.enhancementOptions(profile).youngIds.includes(material));
   assert(C.campaignCardAttack(profile, profile.heroId).attack > oldAttack);
+  assert(nodes(renderEnhancement()).some(n => n.props?.['data-enhancement-animation'] === 'absorbing'), 'Saved material remains visible through absorption');
+  assert.equal(enhanceBy('confirm-enhancement'), undefined, 'Saved operation cannot be submitted twice during animation');
+  enhancementTimers.at(-1)();
   assert.match(enhanceBy('enhancement-result').props.children, /已融入/);
+  const receiptDisplay = C.enhancementReceiptDisplay(profile, operationIds[1]);
+  assert.equal(receiptDisplay.beforeAttack, oldAttack);
+  assert.equal(receiptDisplay.afterAttack, C.campaignCardAttack(profile, profile.heroId).attack);
   console.log('PASS: hard campaign requires guardian, locks hero + four young, registered skills and unlocked adult remain selectable');
   console.log('PASS: permanent enhancement confirmation, failed save preservation and idempotent retry UI');
 })().catch(error => { console.error(error); process.exitCode = 1; });

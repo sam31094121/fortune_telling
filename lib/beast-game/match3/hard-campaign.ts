@@ -64,6 +64,20 @@ export function previewCampaignEnhancement(p: HardCampaign, youngId: string, tar
     : newTotal > maxBonus || attackBonus <= 0 ? '已達強化上限，不能消耗幼子' : undefined;
   return { allowed: !reason, reason, baseAttack, currentBonus, attackBonus, newTotal, afterAttack: baseAttack + newTotal, maxBonus };
 }
+/** Reconstruct this saved operation, not the latest aggregate after later operations. */
+export function enhancementReceiptDisplay(profile: HardCampaign, operationId: string): { beforeAttack: number; afterAttack: number; attackBonus: number } | null {
+  let saved: HardCampaign;
+  try { saved = parseCampaign(JSON.stringify(profile)); } catch { return null; }
+  const receipt = saved.enhancementReceipts?.find(r => r.operationId === operationId);
+  if (!receipt) return null;
+  let beforeAttack = CARD_FACE_STATS[receipt.targetId].attack;
+  for (const prior of saved.enhancementReceipts ?? []) {
+    if (prior.operationId === operationId) return { beforeAttack, afterAttack: beforeAttack + receipt.attackBonus, attackBonus: receipt.attackBonus };
+    if (prior.targetId === receipt.targetId) beforeAttack += prior.attackBonus;
+  }
+  return null;
+}
+
 export function enhanceCampaignProfile(p: HardCampaign, operationId: string, youngId: string, targetId: string): { profile: HardCampaign; receipt: EnhancementReceipt; duplicate: boolean } {
   if (!operationId.trim() || operationId.length > 200) throw new Error('強化操作識別無效');
   const existing = p.enhancementReceipts?.find(r => r.operationId === operationId);

@@ -24,3 +24,13 @@
 單盾原生7珠生成/清場與最新原珠→新珠逐幀實測亦通過，證據Temp profiles wWNCDQ與diQ39T。
 
 完整發布門檻failures=[]，末次洗盤修正後的最終編譯與全套寶珠回歸亦通過；以獨立build目錄避免干擾8888。證據Temp/beast-refill-stability-gate-20261031。部署與正式實測另確認，以上不冒充Android/iPhone真機。
+
+## 後續長幀與捲動畫面修復
+
+正式站12次實拖另外重現：fall開始後650ms忙碌使CSS牆鐘一次跨到落底；部分連鎖縮放後間隔12.318ms不足60Hz一幀。證據Temp/match3-campaign-qa-9ArtLp/evidence/diagnosis-summary.json，不能將前批phase排程通過等同單珠動作全部穩定。
+
+本批將每段有限CSS動畫由可見RAF時間驅動currentTime，fall單次最多推進一個60Hz幀；常見連鎖優先保留至少18ms間隔，調整其他呈現時長維持5秒規劃上限。極端多phase仍採批次縮放，並非宣稱所有珠子永遠逐顆獨佔一幀。背景或主線程等待不計入規劃上限。音效按實際可見落點，阻塞當下不集中回補；核心結果與傷害不變。
+
+本機獨立QA六次原生拖曳至自然勝利：普通珠/盾牌650ms忙碌、4倍CPU、上下捲動與viewport變化、背景返回均補滿56格，busy未提前解除且無pageerror。330ms長幀時呈現時間僅增加16.67ms，尚未輪到珠子位置保持。證據Temp/match3-campaign-qa-9STxHX/evidence/controlled-timing-summary.json及drop-report.json。本次全程靜音，不宣稱聲音聽感驗收；未重跑terminal洗盤fixture，也不冒充實體手機。
+
+本批完整48項發布門檻重跑全過，證據Temp/beast-fusion-visible-frame-gate-retry-1793449864067。首次build在編譯成功後遭Windows讀取tsconfig的瞬時UNKNOWN錯誤，保留Temp/beast-fusion-visible-frame-gate-1793449754132失敗紀錄；可讀恢復後完整重跑，未略過檢查。發布與部署狀態由整合代理另核對。
