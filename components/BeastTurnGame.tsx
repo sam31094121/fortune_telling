@@ -287,7 +287,18 @@ function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }:
               </span>
             </Link>;
           })()}
-          <p className={styles.modeNavLabel} role="status">請先選難度（三選一）</p>
+          <p className={styles.modeNavLabel} role="status">請選擇戰場</p>
+          <div className={styles.match3Row} role="list" aria-label="寶珠戰（預覽）">
+            <Link href="/beast-game/match3-preview" className={styles.match3Mini} role="listitem" data-difficulty="match3" data-testid="match3-entry-card" aria-label="寶珠戰・中等：五元素對決，35 顆寶珠（預覽）">
+              <span aria-hidden="true">🔮</span><strong>寶珠戰・中等</strong><small>五元素對決</small>
+            </Link>
+            <Link href="/beast-game/match3-hard" className={styles.match3Mini} role="listitem" data-difficulty="match3-hard" data-testid="match3-hard-entry-card" aria-label="寶珠戰・困難：45 珠斜連，敵我各五張（預覽）">
+              <span aria-hidden="true">💎</span><strong>寶珠戰・困難</strong><small>45 珠斜連</small>
+            </Link>
+            <Link href="/beast-game/match3-hard2" className={styles.match3Mini} role="listitem" data-difficulty="match3-hard2" data-testid="match3-hard2-entry-card" aria-label="寶珠戰・困難 II：二十八宿軍團，45 珠斜連（預覽）">
+              <span aria-hidden="true">💠</span><strong>寶珠戰・困難 II</strong><small>二十八宿軍團</small>
+            </Link>
+          </div>
           <div className={styles.modeCards} role="list" aria-label="難度選擇">
             <button type="button" role="listitem" className={styles.freeEntryBtn} onClick={enterEasy} data-difficulty="easy">
               <span className={styles.freeEntryStep}>① 簡單</span>
@@ -307,24 +318,6 @@ function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }:
               <strong>困難・五卡押注</strong>
               <span className={styles.modeDesc}>{`押 1～${MAX_STAKE_CARDS} 張收藏卡；輸了只失去押上的卡`}</span>
               <span className={styles.modeBadge + ' ' + styles.modeBadgeWager}>③ 困難</span>
-            </Link>
-            <Link href="/beast-game/match3-preview" className={styles.modeCard} role="listitem" data-difficulty="match3" data-testid="match3-entry-card" aria-label="寶珠戰：五元素寶珠卡片對戰">
-              <span className={styles.modeIcon}>🔮</span>
-              <strong>寶珠戰・五元素卡片</strong>
-              <span className={styles.modeDesc}>連線消珠出卡，五屬性卡片對戰（預覽）</span>
-              <span className={styles.modeBadge}>✦ 寶珠戰</span>
-            </Link>
-            <Link href="/beast-game/match3-hard" className={styles.modeCard} role="listitem" data-difficulty="match3-hard" data-testid="match3-hard-entry-card" aria-label="寶珠戰・困難：敵我各五張，四十五顆寶珠，可斜連">
-              <span className={styles.modeIcon}>💎</span>
-              <strong>困難 5v5　45 珠・可斜連</strong>
-              <span className={styles.modeDesc}>9×5・斜角也能連・敵方更強、反擊更快（預覽）</span>
-              <span className={styles.modeBadge}>✦ 寶珠戰・困難</span>
-            </Link>
-            <Link href="/beast-game/match3-hard2" className={styles.modeCard} role="listitem" data-difficulty="match3-hard2" data-testid="match3-hard2-entry-card" aria-label="寶珠戰・困難 II：敵我各五張，四十五顆寶珠，可斜連，另一組敵方">
-              <span className={styles.modeIcon}>💠</span>
-              <strong>寶珠戰・困難 II</strong>
-              <span className={styles.modeDesc}>9×5・可斜連・換一組敵方五神獸（預覽）</span>
-              <span className={styles.modeBadge}>✦ 寶珠戰・困難 II</span>
             </Link>
           </div>
         </> : prepareStep === 'select' ? <>
@@ -389,7 +382,7 @@ function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }:
           <button className={styles.advancedBtn} onClick={enterEasy}>① 簡單練習</button>
           <Link href="/beast-game/lineup" className={styles.nextStepLink} data-returning-next>② 帶著卡去中等押注 →</Link>
         </> : <>
-          <button className={styles.startBattle} onClick={enterEasy}>① 進入簡單・選 3 張卡</button>
+          <button className={styles.startBattle} onClick={enterEasy}>不知道選哪個？從 ① 簡單開始</button>
         </>) : prepareStep === 'select' ? <>
           <button className={styles.advancedBtn} onClick={() => { if (window.location.search) window.history.replaceState(null, '', window.location.pathname); setPrepareStep('mode'); setSelected([]); setError(''); }}>進階玩法 ▸</button>
           <button className={styles.startBattle} disabled={busy || selected.length !== 3 || (preparingExisting && match?.status === 'PLAYING')} onClick={() => { void send('START', { lineup: selected, difficulty: 'NORMAL' }); }} style={selected.length === 3 ? { boxShadow: '0 0 20px rgba(59, 130, 246, 0.35)' } : {}}>

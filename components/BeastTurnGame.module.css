@@ -203,3 +203,12 @@
 .calmBattle [data-battle-split][data-dock='true'] [aria-label='本回合指令']>button{height:52px;min-height:52px}
 
 .modeCards>*:nth-child(4){animation-delay:.15s}
+
+/* 10/31 寶珠戰入口：首屏精簡一列（390 寬三格），不擠掉簡單／中等／困難 */
+.match3Row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:6px 4px 0}
+.match3Mini{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:64px;padding:8px 4px;border-radius:14px;border:1px solid #7fb6d966;background:linear-gradient(135deg,#1b2b3d,#121a28);color:#ffe8b3;text-decoration:none;text-align:center;-webkit-tap-highlight-color:transparent}
+.match3Mini:active{transform:scale(.97);border-color:rgba(246,206,114,.75)}
+.match3Mini strong{font-size:13px;font-weight:800;line-height:1.2}
+.match3Mini small{font-size:11px;color:#c9d6e2;line-height:1.2}
+.match3Mini[data-difficulty="match3-hard"]{border-color:#ff8a5c88}
+.match3Mini[data-difficulty="match3-hard2"]{border-color:#cdb99188}

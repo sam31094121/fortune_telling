@@ -109,6 +109,9 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
   const [attacked, setAttacked] = useState<Set<string>>(new Set());
   const [chosen, setChosen] = useState<LeadChoice>({});
   const [linkMode, setLinkMode] = useState(false);
+  const [debug, setDebug] = useState(false);
+  const [pulse, setPulse] = useState(false);
+  useEffect(() => { setDebug(new URLSearchParams(window.location.search).get('debug') === '1'); }, []);
   const [link, setLink] = useState<string[]>([]);
   const [muted, setMuted] = useState(false);
   const [help, setHelp] = useState(false);
@@ -232,7 +235,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
     showBanner(`連線攻擊 ${cards.length} 張 −${amt}`, 'skill'); sound(990);
     setLog(`連線攻擊：${cards.map((c) => c.name).join('＋')} 對${foe.name}造成 ${amt} 點傷害（不算步數）。`);
   };
-  const fireSub = !linkMode ? '先開連線模式' : problem === 'tooFew' ? `再選 ${LINK_MIN_CARDS - link.length} 張` : problem === 'energyLow' ? `每張需 ${LINK_ENERGY_COST} 能量` : problem ? '有卡已倒下' : `${link.length} 張・預估 ${linkDamage(link.map((id) => team.find((u) => u.id === id)?.attack ?? 0))}`;
+  const fireSub = !linkMode ? `需 ${LINK_MIN_CARDS} 張卡各 ${LINK_ENERGY_COST} 能量` : problem === 'tooFew' ? `再選 ${LINK_MIN_CARDS - link.length} 張` : problem === 'energyLow' ? `每張需 ${LINK_ENERGY_COST} 能量` : problem ? '有卡已倒下' : `${link.length} 張・預估 ${linkDamage(link.map((id) => team.find((u) => u.id === id)?.attack ?? 0))}`;
 
   const drag = useDragChain(board, !busy && !over, release, cfg.diagonal);
   const dragEl = drag.path.length ? board[drag.path[0].r][drag.path[0].c] : null;
@@ -241,16 +244,17 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
   const pct = (a: number, b: number) => `${Math.max(0, Math.min(100, Math.round((a / b) * 100)))}%`;
 
   return (
-    <section className={styles.wrap} aria-label="五元素神獸戰鬥 5v5" data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
+    <section className={styles.wrap} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
       <header className={styles.head}>
         <div className={styles.headText}>
-          <div className={styles.kicker}>神獸戰隊 · {cfg.kicker}</div>
-          <h1 className={styles.title}>五元素・神獸戰鬥</h1>
+          <div className={styles.kicker} data-testid="match3-badge">{cfg.badge}</div>
+          <h1 className={styles.title} data-testid="match3-title">{cfg.title}<small className={styles.subtitle}>｜{cfg.subtitle}</small></h1>
         </div>
         <button type="button" className={styles.mute} aria-pressed={muted} aria-label={muted ? '開啟音效' : '靜音'} onClick={() => setMuted(!muted)}>{muted ? '🔇' : '🔊'}</button>
         <div className={styles.round} data-testid="match3-round">回合 {moves + 1}</div>
       </header>
-      <div className={styles.sub}>正式神獸卡 5v5・{cfg.cols}×{cfg.rows}＝{cfg.cols * cfg.rows} 顆寶珠・敵方 HP {cfg.enemyHp}／攻 {cfg.enemyAtk}／每 {cfg.counterEvery} 步反擊【待平衡】{cfg.diagonal ? '・可斜連' : ''}・seed {init.seed}</div>
+      <div className={styles.sub} data-testid="match3-sub">5 對 5・{cfg.cols * cfg.rows} 顆寶珠{cfg.diagonal ? '・可斜連' : ''}・敵方：{cfg.enemyHint ?? foes.map((f) => f.name).join('・')}</div>
+      {debug && <div className={styles.sub} data-testid="match3-debug">[debug] 正式神獸卡 5v5・{cfg.cols}×{cfg.rows}＝{cfg.cols * cfg.rows} 顆寶珠・敵方 HP {cfg.enemyHp}／攻 {cfg.enemyAtk}／每 {cfg.counterEvery} 步反擊【待平衡】{cfg.diagonal ? '・可斜連' : ''}・seed {init.seed}</div>}
 
       <div className={styles.secHead}><span>敵方神獸（點選指定目標；⏳ 為反擊倒數）</span><span>{over === 'win' ? '勝利' : over === 'lose' ? '落敗' : '戰鬥進行中'}</span></div>
       <div className={styles.foes} data-testid="match3-enemies">
@@ -273,7 +277,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
       <button type="button" className={styles.helpBtn} aria-expanded={help} onClick={() => setHelp(!help)}>玩法說明</button>
       {help && <p className={styles.help}>{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上放開攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「技能」。每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>}
 
-      <p className={styles.log} aria-live="polite" data-testid="match3-log">{log.startsWith('按住寶珠') ? '' : log}</p>
+      {!log.startsWith('按住寶珠') && log ? <p className={styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
 
       <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" {...drag.handlers}>
         {board.map((row, r) => row.map((e, c) => { const kk = k(r, c); return (
@@ -310,9 +314,9 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
       {onRepick && <div className={styles.repick}><button type="button" data-testid="open-picker" onClick={onRepick}>重新選卡</button></div>}
 
       <div className={styles.actionBar} role="toolbar" aria-label="連線攻擊" data-testid="match3-actionbar">
-        <button type="button" className={linkMode ? styles.on : ''} aria-pressed={linkMode} onClick={() => { setLinkMode(!linkMode); if (linkMode) setLink([]); }}>{linkMode ? '連線模式：開' : '連線模式'}</button>
+        <button type="button" className={`${linkMode ? styles.on : ''} ${pulse ? styles.pulse : ''}`} data-testid="match3-link-mode" aria-pressed={linkMode} onClick={() => { setLinkMode(!linkMode); if (linkMode) setLink([]); }}>{linkMode ? '連線模式：開' : '連線模式'}</button>
         <button type="button" onClick={() => setLink([])} disabled={!link.length}>清除連線</button>
-        <button type="button" className={styles.fire} disabled={!linkMode || !!problem || !!over} onClick={fireLink} data-testid="match3-link-fire">發動連線攻擊<small>{fireSub}</small></button>
+        <button type="button" className={styles.fire} aria-disabled={!linkMode || !!problem || !!over} onClick={() => { if (!linkMode) { setLog(`先按左下「連線模式」，再點 ${LINK_MIN_CARDS} 張以上、每張至少 ${LINK_ENERGY_COST} 能量的卡。`); setPulse(true); setTimeout(() => setPulse(false), 1600); return; } if (problem || over) { setLog(fireSub); return; } fireLink(); }} data-testid="match3-link-fire">發動連線攻擊<small>{fireSub}</small></button>
       </div>
 
       {over && (

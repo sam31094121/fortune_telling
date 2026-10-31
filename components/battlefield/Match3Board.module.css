@@ -300,3 +300,21 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .wrap[data-mode="hard45b"] .secHead { border-bottom: 1px solid rgba(205,185,145,.16); padding-bottom: 0; }
 /* 5. 底部操作列：深底＋頂部髮絲線 */
 .wrap[data-mode="hard45b"] .actionBar { background: rgba(12,11,16,.94); box-shadow: inset 0 1px 0 rgba(205,185,145,.28); }
+
+/* ===== 10/31 客戶審查修正 ===== */
+.wrap { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+.kicker { color: var(--accent, var(--ivory)); opacity: 1; font-weight: 700; }
+.title { border-left: 4px solid var(--accent, transparent); padding-left: 8px; }
+.subtitle { font-size: .62em; font-weight: 700; color: var(--accent, #f3dfb2); }
+.sub { border-color: var(--accent, rgba(201,164,92,.55)); }
+.hint { margin-top: 6px; }
+.helpBtn { min-height: 36px; }
+.help { margin-top: 0; }
+.board { margin-top: 4px; }
+.log { margin: 2px 0 4px; }
+.actionBar button.fire[aria-disabled='true'] { opacity: .6; }
+.actionBar button.pulse { animation: m3pulse .4s ease-in-out 4 alternate; border-color: #ffe3a1; }
+@keyframes m3pulse { from { box-shadow: 0 0 0 0 rgba(255,227,161,.0); } to { box-shadow: 0 0 0 4px rgba(255,227,161,.85); } }
+.wrap[data-cols='9'] { padding-left: 4px; padding-right: 4px; }
+.board.dense { gap: 2px; padding: 2px; }
+.board.dense .orb { border-radius: 7px; }
