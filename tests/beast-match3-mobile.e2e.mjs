@@ -67,9 +67,13 @@ try {
   const start = async (wins, width) => {
     await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 2, mobile: true });
     await send('Page.navigate', { url: `${base}/beast-game/match3-hard` });
+    await wait(`document.querySelector('[data-testid="match3-player-choice"]')`);
+    await click('[data-testid="play-self"]');
     await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===49`);
-    await js(`sessionStorage.setItem('match3-hard-progress', '${wins}')`);
+    await js(`localStorage.setItem('match3-hard-progress-self-v1', '${wins}')`);
     await send('Page.reload');
+    await wait(`document.querySelector('[data-testid="match3-player-choice"]')`);
+    await click('[data-testid="play-self"]');
     await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===49`); await sleep(300);
   };
   const hp = (value, side) => value[side].reduce((s, c) => s + c.hp, 0);
@@ -79,6 +83,8 @@ try {
   await click('a[href="/star-beasts"]');
   await wait(`document.querySelector('a[href="/beast-game/match3-hard"]')`);
   await click('a[href="/beast-game/match3-hard"]');
+  await wait(`document.querySelector('[data-testid="match3-player-choice"]')`);
+  await click('[data-testid="play-self"]');
   await wait(`document.querySelector('[data-testid="open-picker"]')`);
   await click('[data-testid="open-picker"]');
   await wait(`document.querySelectorAll('[data-testid="pick-card"]').length===60`);

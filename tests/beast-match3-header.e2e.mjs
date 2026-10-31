@@ -67,13 +67,20 @@ try {
   const start = async (wins, width) => {
     await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 2, mobile: true });
     await send('Page.navigate', { url: `${base}/beast-game/match3-hard` });
+    await wait(`document.querySelector('[data-testid="match3-player-choice"]')`);
+    await click('[data-testid="play-self"]');
     await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===49`);
-    await js(`sessionStorage.setItem('match3-hard-progress', '${wins}')`);
+    await js(`localStorage.setItem('match3-hard-progress-self-v1', '${wins}')`);
     await send('Page.reload');
+    await wait(`document.querySelector('[data-testid="match3-player-choice"]')`);
+    await click('[data-testid="play-self"]');
     await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===49`); await sleep(300);
   };
   for (const width of [320,390,820]) {
     await start(0,width);
+    assert.match(await js("document.querySelector('[data-testid=\"match3-round\"]').textContent"), /回合$/, 'round unit is visible');
+    // Layout-only fixture: reproduce the customer's two-digit round label.
+    await js("document.querySelector('[data-testid=\"match3-round\"]').textContent = \"困難·20回合\"");
     const row=await js(`(()=>{const h=document.querySelector('[data-testid="match3-home"]').closest('header');const items=[...h.querySelectorAll('a,button,[data-testid="match3-round"]')].map(e=>({text:e.textContent,tag:e.tagName,r:e.getBoundingClientRect().toJSON()}));return {items,width:innerWidth,scroll:document.documentElement.scrollWidth}})()`);
     assert.equal(row.items.length,5,'Expected home/picker/sound/round/help');
     assert(row.scroll<=width+1,'Horizontal overflow');

@@ -11,3 +11,9 @@
 .remove { display: grid; place-items: center; min-height: 30px; font-size: 13px; }
 @media (min-width: 600px) { .cardGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } }
 @media (min-width: 850px) { .cardGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.playerChoices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 20px 0; }
+.playerChoices button { min-height: 112px; padding: 18px 12px; border: 1px solid rgba(226, 195, 125, .38); border-radius: 18px; background: linear-gradient(145deg, #253342, #111923); color: #f6edda; cursor: pointer; text-align: center; }
+.playerChoices strong { display: block; font-size: 20px; line-height: 1.5; }
+.playerChoices span { display: block; margin-top: 8px; font-size: 14px; line-height: 1.6; color: #d4dce6; }
+.playerChoices button:focus-visible { outline: 2px solid #e6c783; outline-offset: 3px; }
+.playerChoices button:active { background: #2f4050; }

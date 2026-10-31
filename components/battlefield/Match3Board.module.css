@@ -546,3 +546,11 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
   .allyGuard::after { opacity: 0; }
   .fusionBurst::before, .fusionBurst::after, .fusionHalo::before { display: none; }
 }
+
+@media (max-width: 360px) {
+  .wrap[data-mode^="hard"] .head { gap: 2px; }
+  .wrap[data-mode^="hard"] .head .round { padding: 0; }
+  .wrap[data-mode^="hard"] .head .homeLink,
+  .wrap[data-mode^="hard"] .head .helpTop { padding-inline: 2px; }
+  .wrap[data-mode^="hard"] .head .repickTop button { padding-inline: 2px; }
+}

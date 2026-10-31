@@ -27,6 +27,7 @@ import { DragPathSvg, dragHint, useDragChain } from './useDragChain';
 import styles from './Match3Board.module.css';
 import { RIG_STRIKE_MS } from '@/lib/beast-game/beast-rig';
 import Match3RigAttack, { Match3TargetArt, match3RigAttackers, type Match3Strike } from './Match3RigAttack';
+import { readMatch3Progress, saveMatch3Progress, type Match3ProgressOwner } from '@/lib/beast-game/match3/progress-store';
 
 interface Unit extends Match3Fighter { name: string; thumbnail: string; maxHp: number; energy: number; skillName?: string; description?: string }
 interface Foe extends Match3Foe { name: string; thumbnail: string }
@@ -89,25 +90,30 @@ function beep(freq: number) {
   } catch { /* 無音效環境略過 */ }
 }
 
-export interface Match3BoardProps { seed?: number; teamIds?: readonly string[] | null; sameElementRule?: SameElementRule; onRepick?: () => void; mode?: Match3ModeId }
-export default function Match3Board({ seed, teamIds, sameElementRule = DEFAULT_SAME_ELEMENT_RULE, onRepick, mode }: Match3BoardProps) {
+export interface Match3BoardProps { seed?: number; teamIds?: readonly string[] | null; sameElementRule?: SameElementRule; onRepick?: () => void; mode?: Match3ModeId; progressOwner?: Match3ProgressOwner }
+export default function Match3Board({ seed, teamIds, sameElementRule = DEFAULT_SAME_ELEMENT_RULE, onRepick, mode, progressOwner = null }: Match3BoardProps) {
   const cfg = match3Mode(mode);
-  const [init, setInit] = useState<{ rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; board: Board } | null>(null);
+  const [init, setInit] = useState<{ rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; board: Board; owner: Match3ProgressOwner; revision: number } | null>(null);
+  const revision = useRef(0);
   const key = teamIds?.join(',') ?? '';
   useEffect(() => {
-    const s = seed ?? (Date.now() % 100000); const rng = seededRng(s);
-    let wins = 0;
-    if (cfg.id !== 'medium') { try { wins = progressionStage(Number(sessionStorage.getItem('match3-hard-progress'))).wins; } catch {} }
-    setInit({ rng, seed: s, wins, ...pickLineup(rng, teamIds, cfg, wins), board: generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, cfg.id === 'medium' ? 3 : progressionStage(wins).minChain) });
+    const initialize = () => {
+      const s = seed ?? (Date.now() % 100000); const rng = seededRng(s);
+      const owner = cfg.id === 'medium' ? null : progressOwner;
+      const wins = cfg.id === 'medium' ? 0 : readMatch3Progress(owner);
+      setInit({ rng, seed: s, wins, owner, revision: ++revision.current, ...pickLineup(rng, teamIds, cfg, wins), board: generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, cfg.id === 'medium' ? 3 : progressionStage(wins).minChain) });
+    };
+    initialize();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seed, key, cfg.id]);
+  }, [seed, key, cfg.id, progressOwner]);
   if (!init) return <section className={styles.wrap} aria-busy="true" />;
-  return <Match3Game key={key + cfg.id} init={init} teamIds={teamIds} rule={sameElementRule} onRepick={onRepick} cfg={cfg} />;
+  return <Match3Game key={`${key}:${cfg.id}:${init.revision}`} init={init} teamIds={teamIds} rule={sameElementRule} onRepick={onRepick} cfg={cfg} />;
 }
 
-function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeConfig; init: { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; board: Board }; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void }) {
+function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeConfig; init: { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; board: Board; owner: Match3ProgressOwner }; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void }) {
   const rigEnabled = cfg.id === 'hard45' || cfg.id === 'hard45b';
   const [wins, setWins] = useState(init.wins);
+  const [progressSaveFailed, setProgressSaveFailed] = useState(false);
   const stage = progressionStage(wins);
   const hadRig = useRef(false);
   const root = useRef<HTMLElement>(null);
@@ -176,8 +182,8 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
 
   useEffect(() => {
     if (!rigEnabled || !over) return;
-    try { sessionStorage.setItem('match3-hard-progress', String(nextProgressionWins(wins, over === 'win'))); } catch {}
-  }, [over, wins, rigEnabled]);
+    setProgressSaveFailed(!saveMatch3Progress(init.owner, nextProgressionWins(wins, over === 'win')));
+  }, [over, wins, rigEnabled, init.owner]);
 
   const restart = useCallback(() => {
     setStrike(null); setShieldBurst(null); setFusionBurst(null); setGuardActive(false); setCounterFoes(new Set());
@@ -326,7 +332,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
           <h1 className={styles.title} data-testid="match3-title">{cfg.title}<small className={styles.subtitle}>｜{cfg.subtitle}</small></h1>
         </div>
         <button type="button" className={styles.mute} aria-pressed={muted} aria-label={muted ? '開啟音效' : '靜音'} onClick={() => setMuted(!muted)}>{muted ? '🔇' : '🔊'}</button>
-        <div className={styles.round} data-testid="match3-round">{rigEnabled ? `${stage.label} · ${moves + 1}` : `回合 ${moves + 1}`}</div>
+        <div className={styles.round} data-testid="match3-round">{rigEnabled ? `${stage.label}·${moves + 1}回合` : `回合 ${moves + 1}`}</div>
         {rigEnabled && <button type="button" className={`${styles.helpBtn} ${styles.helpTop}`} aria-expanded={help} onClick={() => setHelp(!help)}>玩法與操作</button>}
       </header>
       {rigEnabled && help && actions}
@@ -400,6 +406,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
         <div className={styles.result} role="dialog" aria-label="對戰結果" data-testid="match3-result" data-result={over}>
           <div className={styles.resultTitle}>{over === 'win' ? '勝利' : '這局先到這裡'}</div>
           <p>{over === 'win' ? `共 ${moves} 步擊退敵方 ${foes.length} 隻神獸，總傷害 ${totalDmg}。` : '敵方守住了，再來一局吧。'}</p>
+          {progressSaveFailed && <p role="alert">此瀏覽器無法儲存進度，關閉頁面後可能遺失。</p>}
           <button type="button" className={styles.again} disabled={busy} onClick={restart}>{rigEnabled ? (over === 'win' ? '挑戰下一關' : '原難度重試') : '再來一局'}</button>
         </div>
       )}

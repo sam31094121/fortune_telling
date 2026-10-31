@@ -67,9 +67,13 @@ try {
   const start = async (wins, width) => {
     await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 2, mobile: true });
     await send('Page.navigate', { url: `${base}/beast-game/match3-hard` });
+    await wait(`document.querySelector('[data-testid="match3-player-choice"]')`);
+    await click('[data-testid="play-self"]');
     await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===49`);
-    await js(`sessionStorage.setItem('match3-hard-progress', '${wins}')`);
+    await js(`localStorage.setItem('match3-hard-progress-self-v1', '${wins}')`);
     await send('Page.reload');
+    await wait(`document.querySelector('[data-testid="match3-player-choice"]')`);
+    await click('[data-testid="play-self"]');
     await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===49`); await sleep(300);
   };
   const state = async (fixture=false) => js(`(()=>{

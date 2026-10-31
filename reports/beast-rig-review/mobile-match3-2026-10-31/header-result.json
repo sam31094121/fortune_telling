@@ -11,10 +11,10 @@
           "r": {
             "x": 12,
             "y": 12,
-            "width": 58,
+            "width": 54,
             "height": 44,
             "top": 12,
-            "right": 70,
+            "right": 66,
             "bottom": 56,
             "left": 12
           }
@@ -23,56 +23,56 @@
           "text": "重新選卡",
           "tag": "BUTTON",
           "r": {
-            "x": 73,
+            "x": 68,
             "y": 12,
-            "width": 58,
+            "width": 54,
             "height": 44,
             "top": 12,
-            "right": 131,
+            "right": 122,
             "bottom": 56,
-            "left": 73
+            "left": 68
           }
         },
         {
           "text": "🔊",
           "tag": "BUTTON",
           "r": {
-            "x": 134,
+            "x": 124,
             "y": 12,
             "width": 40,
             "height": 44,
             "top": 12,
-            "right": 174,
+            "right": 164,
             "bottom": 56,
-            "left": 134
+            "left": 124
           }
         },
         {
-          "text": "簡單 · 1",
+          "text": "困難·20回合",
           "tag": "DIV",
           "r": {
-            "x": 177,
+            "x": 166,
             "y": 14,
-            "width": 49.734375,
+            "width": 66.6875,
             "height": 40,
             "top": 14,
-            "right": 226.734375,
+            "right": 232.6875,
             "bottom": 54,
-            "left": 177
+            "left": 166
           }
         },
         {
           "text": "玩法與操作",
           "tag": "BUTTON",
           "r": {
-            "x": 240,
+            "x": 244,
             "y": 12,
-            "width": 68,
+            "width": 64,
             "height": 44,
             "top": 12,
             "right": 308,
             "bottom": 56,
-            "left": 240
+            "left": 244
           }
         }
       ]
@@ -124,15 +124,15 @@
           }
         },
         {
-          "text": "簡單 · 1",
+          "text": "困難·20回合",
           "tag": "DIV",
           "r": {
             "x": 177,
             "y": 14,
-            "width": 49.734375,
+            "width": 74.6875,
             "height": 40,
             "top": 14,
-            "right": 226.734375,
+            "right": 251.6875,
             "bottom": 54,
             "left": 177
           }
@@ -200,15 +200,15 @@
           }
         },
         {
-          "text": "簡單 · 1",
+          "text": "困難·20回合",
           "tag": "DIV",
           "r": {
             "x": 307,
             "y": 26,
-            "width": 49.734375,
+            "width": 74.6875,
             "height": 40,
             "top": 26,
-            "right": 356.734375,
+            "right": 381.6875,
             "bottom": 66,
             "left": 307
           }
@@ -231,5 +231,5 @@
     }
   ],
   "errors": [],
-  "profile": "C:\\Users\\DRAGON\\AppData\\Local\\Temp\\match3-mobile-review-4uIkau"
+  "profile": "C:\\Users\\DRAGON\\AppData\\Local\\Temp\\match3-mobile-review-g4BVSm"
 }
