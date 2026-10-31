@@ -199,7 +199,7 @@ document.addEventListener('click',function(e){var t=e.target.closest&&e.target.c
     var b = $('board'), html = '';
     for (var r = 0; r < g.board.length; r++) for (var c = 0; c < g.board[0].length; c++) {
       var e = g.board[r][c], s = sel && sel[0] === r && sel[1] === c, mp = g.magic && g.magic[r][c] > 0 ? g.magic[r][c] : 0;
-      var dropCls = drop ? ' drop' : '', mv = mp && MAGIC_BEAD_VISUALS_ENABLED, st = (drop ? '--fall:' + (r + 1) + ';animation-delay:' + ((g.board.length - 1 - r) * 30) + 'ms;' : '') + (mv ? '--mn:' + mp + ';--mx:' + Math.max(0, mp - 5) + ';' : ''), style = (st ? ' style="' + st + '"' : '') + (mv ? ' data-magic-level="' + Math.min(mp, 6) + '" data-magic-n="' + mp + '"' : '');
+      var dropCls = drop ? ' drop' : '', mv = mp && MAGIC_BEAD_VISUALS_ENABLED, st = (drop ? '--fall:' + (r + 1) + ';animation-delay:' + ((g.board.length - 1 - r) * 30) + 'ms;' : '') + (mv ? '--magic-n:' + mp + ';' : ''), style = (st ? ' style="' + st + '"' : '') + (mv ? ' data-magic-level="' + mp + '" data-magic-n="' + mp + '"' : '');
       html += '<button type="button" class="gem ' + E.GEM_CLASS[e] + (s ? ' sel focus' : '') + (mp ? ' magic' : '') + dropCls + '"' + style + ' data-r="' + r + '" data-c="' + c + '" aria-label="' + E.LABEL[e] + (mp ? ' 魔法珠威力' + mp : '') + ' 第' + (r + 1) + '列第' + (c + 1) + '欄"><span class="stone"><span>' + E.LABEL[e] + '</span></span>' + (mp ? '<i class="mp">✦' + mp + '</i>' : '') + '</button>';
     }
     b.innerHTML = html;
@@ -408,5 +408,20 @@ document.addEventListener('click',function(e){var t=e.target.closest&&e.target.c
 <script>window.BeastMotionConfig = Object.assign({ muted: true }, window.BeastMotionConfig || {});</script>
 <script src="contrib/motion/motion.js" onerror="window.__beastMotionFailed = true; document.documentElement.classList.remove('bm-on');"></script>
 <script>/* 量測 #actionBar 實際高度（含 env(safe-area-inset-bottom)）→ --orb-bar-h */(function(){var b=document.getElementById('actionBar');if(!b)return;function set(){document.documentElement.style.setProperty('--orb-bar-h',Math.ceil(b.getBoundingClientRect().height)+'px')}set();if(window.ResizeObserver)new ResizeObserver(set).observe(b);addEventListener('resize',set);addEventListener('orientationchange',set)})();</script>
+<script>/* 版面量測（只調外觀尺寸與間距，不動遊戲）：首屏任何可點元素都不落在 #actionBar 底下。
+ A：我方卡＋技能鈕整排放進首屏（必要時收起重複的開場提示、縮卡圖、縮棋盤）；B：放不下時（如 1280×800），棋盤完整留在動作列上方，我方卡整排移到首屏之下。寫入 --fit-av／--fit-bw */
+(function(){var R=document.documentElement,busy=0;function q(s){return document.querySelector(s)}function rc(e){return e.getBoundingClientRect()}
+function clear(){R.style.removeProperty('--fit-av');R.style.removeProperty('--fit-bw');R.classList.remove('fit-tight');['#teamWrap','.footer','.boardWrap'].forEach(function(s){var e=q(s);if(e)e.style.marginTop=''})}
+function setv(a,w){if(a)R.style.setProperty('--fit-av',a+'px');if(w)R.style.setProperty('--fit-bw',w+'px')}
+function teamBot(){var c=document.querySelectorAll('.teamCard'),m=0;for(var k=0;k<c.length;k++)m=Math.max(m,rc(c[k]).bottom);return m}
+function push(sel,barTop){var e=q(sel);if(!e)return;var r=rc(e);if(r.top<innerHeight&&r.bottom>barTop){e.style.marginTop=(parseFloat(getComputedStyle(e).marginTop)||0)+Math.ceil(innerHeight-r.top+6)+'px'}}
+function fit(){if(busy||scrollY>4)return;busy=1;try{clear();var bar=q('#actionBar'),bw=q('.boardWrap'),av=q('.teamCard .avatar');if(!bar||!bw||!av)return;
+ var barTop=rc(bar).top-8,land=innerWidth>innerHeight&&innerHeight<=500;
+ if(!land){var sm=innerWidth<500,minW=Math.min(sm?296:330,rc(bw).width),minA=sm?48:56;if(teamBot()>barTop)R.classList.add('fit-tight');
+  for(var i=0;i<6;i++){var over=Math.ceil(teamBot()-barTop);if(over<=0)break;var a=rc(av).height,na=Math.max(minA,Math.floor(a-over/4)),rem=over-2*(a-na),w=rc(bw).width,nw=Math.max(minW,Math.floor(w-Math.max(0,rem)*1.45));if(na>=a&&nw>=w)break;setv(na,nw)}
+  if(teamBot()>barTop){clear();var cap=Math.min(rc(av).height,96);setv(cap,0);var bt=rc(bw).top,w0=rc(bw).width,h0=rc(bw).height;if(rc(bw).bottom>barTop)setv(cap,Math.max(260,Math.floor(w0*(barTop-bt)/h0)));push('#teamWrap',barTop)}}
+ push('.footer',barTop);
+}finally{busy=0}}
+var t;function later(){clearTimeout(t);t=setTimeout(fit,80)}addEventListener('load',fit);addEventListener('resize',later);addEventListener('orientationchange',later);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(later);setTimeout(fit,0)})();</script>
 </body>
 </html>
