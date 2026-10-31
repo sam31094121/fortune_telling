@@ -35,7 +35,7 @@ const sound=load({AudioContext:FakeAudio});
 sound.play('clear');assert.equal(created.length,0,'play must not create/resume audio');
 sound.unlock();assert.equal(created.length,1);const ctx=created[0];assert.equal(ctx.resumes,1);assert.equal(ctx.gains[0].gain.value,.2);
 assert.equal(ctx.filters.length,1);const filter=ctx.filters[0];
-assert.equal(filter.type,'lowpass');assert.equal(filter.frequency.value,2200);assert.equal(filter.Q.value,.5);
+assert.equal(filter.type,'lowpass');assert.equal(filter.frequency.value,1400);assert.equal(filter.Q.value,.5);
 assert.equal(ctx.gains[0].destination,filter);assert.equal(filter.destination,ctx.destination,'all cues pass through the low-Q filter');
 const signatures=[];
 for(const cue of ['clear','charge','impact','shield','fusion','counter','guard']) {
@@ -52,6 +52,13 @@ for(const cue of ['clear','charge','impact','shield','fusion','counter','guard']
     assert.equal(release[0],'exp');assert.equal(release[1],.0001);assert(release[2]>attack[2]);
   }
   assert(totalPeak*ctx.gains[0].gain.value<=.1,'conservative summed peak gain remains below 0.1');
+  const endingHz=o=>o.frequency.events.at(-1)[1];
+  const tail=added.reduce((a,b)=>a.stops[0]>b.stops[0]?a:b);
+  assert(endingHz(tail)<=330,'longest voice ends in a low register instead of a shrill tail');
+  for(const o of added) if(o.frequency.events[0][1]>=880) {
+    assert(o.stops[0]-o.startAt<=.131,'bright accents finish early');
+    assert(o.destination.gain.events[1][1]<=.1,'bright accents remain quiet');
+  }
   signatures.push(JSON.stringify(added.map(o=>[o.type,o.frequency.events,o.startAt,o.stops[0]])));
 }
 assert.equal(new Set(signatures).size,7,'each cue has distinct timing/pitch/timbre');
