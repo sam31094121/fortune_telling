@@ -20,6 +20,8 @@ import {
   type Board, type Cell, type MagicGrid, type Match3Event, type Match3Fighter, type Match3Foe, type Rng,
 } from '@/lib/beast-game/match3';
 import { DragPathSvg, dragHint, useDragChain } from './useDragChain';
+import { applyGuardianStrike, GUARDIAN_LIST, GUARDIAN_MAGIC_BONUS_CAP, GUARDIAN_MAGIC_MULT, guardianStrikeBonuses, isGuardianMagicEnabled, resolveGuardianActivations, type GuardianActivation } from '@/lib/beast-game/match3/guardian-magic';
+import { GuardianSkillFx, GuardianCharge } from './bead/GuardianSkillFx';
 import styles from './Match3Board.module.css';
 
 interface Unit extends Match3Fighter { name: string; thumbnail: string; maxHp: number; energy: number }
@@ -117,6 +119,12 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
   const [help, setHelp] = useState(false);
   const [log, setLog] = useState(cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊');
   const [busy, setBusy] = useState(false);
+  // 10/31 四象魔法珠：演出佇列（模式 guardian:true 且旗標 NEXT_PUBLIC_GUARDIAN_MAGIC=1 才會有內容）
+  const gOn = !!cfg.guardian && isGuardianMagicEnabled();
+  const [gfx, setGfx] = useState<Array<{ act: GuardianActivation; bonus: number; fxId: number }>>([]);
+  const nextGfx = useCallback(() => setGfx((q) => q.slice(1)), []);
+  const fxSeq = useRef(0);
+  const [info, setInfo] = useState(false);
   const [shortMsg, setShortMsg] = useState('');
   const timers = useRef<number[]>([]);
   const later = (fn: () => void, ms: number) => { timers.current.push(window.setTimeout(fn, ms)); };
@@ -131,6 +139,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
       ko: (i: number) => setTeam((t) => t.map((u, j) => (j === i ? { ...u, hp: 0 } : u))),
       foeHp: (i: number, hp: number) => setFoes((f) => f.map((x, j) => (j === i ? { ...x, hp } : x))),
       fillEnergy: () => setTeam((t) => t.map((u) => ({ ...u, energy: ENERGY_MAX }))),
+      load: (b: Board, m: MagicGrid) => { setBoard(b); setMagic(m); },
     };
     return () => { delete (window as unknown as { __m3Debug?: unknown }).__m3Debug; };
   }, []);
@@ -170,6 +179,10 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
     const el = res.element!;
     const foe = foes[ti];
     const hits = computeHits(res.steps, attackingTeam(team, rule, chosen), foe.element);
+    const gActs = gOn && res.magicTriggered.length ? resolveGuardianActivations(res.magicTriggered, team, rngRef.current) : [];
+    const gBon = guardianStrikeBonuses(hits, gActs, team);
+    const gShow = gActs.map((act, i) => ({ act, bonus: gBon[i], fxId: ++fxSeq.current }));
+    const gTotal = gBon.reduce((a, b) => a + b, 0);
     { const ids = new Set(hits.filter((h) => h.amount > 0 && h.attackerId).map((h) => h.attackerId as string)); setAttacked(ids); later(() => setAttacked(new Set()), 900); }
     const gains = energyGains(res);
     const events = buildEvents(res.steps, hits, { magicSpawn: res.magicSpawn, magicTriggered: res.magicTriggered, skill5Element: res.skill5 ? el : null, energy: gains });
@@ -177,7 +190,8 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
       const pub = { element: ev.element, count: ev.count, cascadeStep: ev.cascadeStep, eligible: ev.eligible, power: ev.power, target: foe.id, ...(ev.magic ? { magic: true, magicPower: ev.magicPower } : {}), ...(ev.skill5 ? { skill5: true } : {}) };
       (window.__match3Events ??= []).push(pub as unknown as Match3Event); console.log('[match3]', pub);
     } else if (ev.type !== 'attack') { (window.__match3Events ??= []).push(ev); console.log('[match3]', ev); }
-    const dealt = hits.reduce((s, h) => s + h.amount, 0);
+    const baseDealt = hits.reduce((s, h) => s + h.amount, 0);
+    const dealt = baseDealt + gTotal;
     setBusy(true); sound(520 + res.chainLength * 40);
     const frames = res.steps.map((st, i) => ({ before: i === 0 ? board : res.steps[i - 1].boardAfter, mag: i === 0 ? magic : res.steps[i - 1].magicAfter,
       cells: new Set(st.groups.flatMap((g) => g.cells.map((c) => k(c.r, c.c)))) }));
@@ -185,7 +199,10 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
     later(() => {
       setFlash(new Set()); setDrop(changedCells(board, res.board)); later(() => setDrop(new Set()), 360);
       setBoard(res.board); setMagic(res.magic); setBusy(false);
-      const nf = damageFoe(foes, ti, dealt);
+      const gs = applyGuardianStrike(foes, ti, baseDealt, gTotal);
+      const nf = gs.foes;
+      for (const g of gShow) { const ev = { type: 'guardianMagic', guardian: g.act.guardian.id, skill: g.act.guardian.skillId, orbElement: g.act.orbElement, chain: g.act.chain, bonus: g.bonus, target: gs.bonusTarget >= 0 ? foes[gs.bonusTarget].id : null }; (window.__match3Events ??= []).push(ev as unknown as Match3Event); console.log('[match3]', ev); }
+      if (gShow.length) setGfx((q) => [...q, ...gShow]);
       if (dealt > 0) { setHitFoe(ti); later(() => setHitFoe(null), 500); }
       setMoves((m) => m + 1); setLastDmg(dealt); setTotalDmg((s) => s + dealt);
       const lbl = MATCH3_ORB_LABEL[el];
@@ -197,6 +214,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
       else if (res.magicTriggered.length) showBanner('魔法珠引爆！能量集滿', 'skill');
       if (res.magicSpawn) msg += `，生成魔法珠（威力 ${res.magicSpawn.power}）`;
       if (res.reshuffled) msg += '；沒有可走的步，已重新洗盤';
+      for (const g of gShow) msg += `，${g.act.guardian.name}發動「${g.act.guardian.skillName}」+${g.bonus}${gs.bonusTarget >= 0 && gs.bonusTarget !== ti ? `（轉給${foes[gs.bonusTarget].name}）` : ''}`;
       if (nf[ti].hp <= 0) msg += `；${foe.name}倒下`;
       endStep(shareEnergy(team, gains, rule, chosen), nf, msg);
     }, frames.length * 300);
@@ -241,6 +259,11 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
   const dragEl = drag.path.length ? board[drag.path[0].r][drag.path[0].c] : null;
   const hint = dragEl ? dragHint(drag.path.length, MATCH3_ORB_LABEL[dragEl], NORMAL_POWER_CAP, MAGIC_ORB_MIN_LENGTH, SKILL5_LENGTH) : '';
   const onPath = new Set(drag.path.map((p) => k(p.r, p.c)));
+  const chargeG = gOn && dragEl && drag.path.length >= MAGIC_ORB_MIN_LENGTH && drag.path.some((p) => (magic[p.r]?.[p.c] ?? 0) > 0)
+    ? team.filter((u) => u.hp > 0).map((u) => GUARDIAN_LIST.find((g) => g.id === u.id)).find((g) => g && (dragEl === 'EARTH' || g.element === dragEl)) ?? null : null;
+  const busyTap = () => { if (busy && !over) { setShortMsg('結算中，稍候再拖'); later(() => setShortMsg(''), 1200); } };
+  const M = !!cfg.minimal;
+  const ruleText = `${cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上放開攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「技能」。每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 ${cfg.counterEvery} 步）。連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。`;
   const pct = (a: number, b: number) => `${Math.max(0, Math.min(100, Math.round((a / b) * 100)))}%`;
 
   return (
@@ -250,13 +273,14 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
           <div className={styles.kicker} data-testid="match3-badge">{cfg.badge}</div>
           <h1 className={styles.title} data-testid="match3-title">{cfg.title}<small className={styles.subtitle}>｜{cfg.subtitle}</small></h1>
         </div>
+        {M && <button type="button" className={styles.infoBtn} data-testid="match3-info" aria-expanded={info} aria-haspopup="dialog" aria-label="說明" onClick={() => setInfo(true)}><span aria-hidden="true">?</span>說明</button>}
         <button type="button" className={styles.mute} aria-pressed={muted} aria-label={muted ? '開啟音效' : '靜音'} onClick={() => setMuted(!muted)}>{muted ? '🔇' : '🔊'}</button>
         <div className={styles.round} data-testid="match3-round">回合 {moves + 1}</div>
       </header>
-      <div className={styles.sub} data-testid="match3-sub">5 對 5・{cfg.cols * cfg.rows} 顆寶珠{cfg.diagonal ? '・可斜連' : ''}・敵方：{cfg.enemyHint ?? foes.map((f) => f.name).join('・')}</div>
+      {!M && <div className={styles.sub} data-testid="match3-sub">5 對 5・{cfg.cols * cfg.rows} 顆寶珠{cfg.diagonal ? '・可斜連' : ''}・敵方：{cfg.enemyHint ?? foes.map((f) => f.name).join('・')}</div>}
       {debug && <div className={styles.sub} data-testid="match3-debug">[debug] 正式神獸卡 5v5・{cfg.cols}×{cfg.rows}＝{cfg.cols * cfg.rows} 顆寶珠・敵方 HP {cfg.enemyHp}／攻 {cfg.enemyAtk}／每 {cfg.counterEvery} 步反擊【待平衡】{cfg.diagonal ? '・可斜連' : ''}・seed {init.seed}</div>}
 
-      <div className={styles.secHead}><span>敵方神獸（點選指定目標；⏳ 為反擊倒數）</span><span>{over === 'win' ? '勝利' : over === 'lose' ? '落敗' : '戰鬥進行中'}</span></div>
+      {!M && <div className={styles.secHead}><span>敵方神獸（點選指定目標；⏳ 為反擊倒數）</span><span>{over === 'win' ? '勝利' : over === 'lose' ? '落敗' : '戰鬥進行中'}</span></div>}
       <div className={styles.foes} data-testid="match3-enemies">
         {foes.map((f, i) => (
           <button type="button" key={f.id} data-testid="match3-enemy" data-id={f.id} data-hp={f.hp} data-cd={f.cd} data-target={i === ti ? '1' : '0'}
@@ -273,21 +297,26 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
           </button>
         ))}
       </div>
-      <p className={styles.hint} data-testid="match3-hint" aria-live="polite">{hint || shortMsg || (cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊')}</p>
+      {!M && <><p className={styles.hint} data-testid="match3-hint" aria-live="polite">{hint || shortMsg || (cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊')}</p>
       <button type="button" className={styles.helpBtn} aria-expanded={help} onClick={() => setHelp(!help)}>玩法說明</button>
       {help && <p className={styles.help}>{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上放開攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「技能」。每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>}
 
-      {!log.startsWith('按住寶珠') && log ? <p className={styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
+      {!log.startsWith('按住寶珠') && log ? <p className={styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}</>}
+      {M && <span data-testid="match3-log" aria-live="polite" className={styles.srOnly}>{log}</span>}
 
-      <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" {...drag.handlers}>
+      <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''} ${M ? styles.boardMin : ''}`} data-busy={busy ? '1' : undefined} onPointerDownCapture={busyTap} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" {...drag.handlers}>
         {board.map((row, r) => row.map((e, c) => { const kk = k(r, c); return (
           <OrbCell key={`${r}-${c}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} />); }))}
         <DragPathSvg points={drag.points} color={dragEl ? ORB_COLOR[dragEl] : '#fff'} />
+        {chargeG && dragEl && <GuardianCharge element={dragEl === 'EARTH' ? 'EARTH' : chargeG.element} name={dragEl === 'EARTH' ? '四象' : chargeG.name} />}
+        {M && (hint || shortMsg || busy) && <div className={styles.toast} data-testid="match3-hint" aria-live="polite">{hint || shortMsg || '結算中…'}</div>}
+        {gfx[0] && <GuardianSkillFx key={gfx[0].fxId} act={gfx[0].act} bonus={gfx[0].bonus} onDone={nextGfx} />}
         {banner && <div className={`${styles.banner} ${styles['b_' + banner.kind]}`} data-testid="match3-banner" role="status">{banner.text}</div>}
       </div>
-      <div className={styles.legend} aria-hidden="true">{MATCH3_ORB_ELEMENTS.map((e) => <span key={e}><i style={{ background: ORB_COLOR[e] }} />{MATCH3_ORB_LABEL[e]}</span>)}</div>
+      {!M && <div className={styles.legend} aria-hidden="true">{MATCH3_ORB_ELEMENTS.map((e) => <span key={e}><i style={{ background: ORB_COLOR[e] }} />{MATCH3_ORB_LABEL[e]}</span>)}</div>}
 
-      <div className={styles.secHead}><span>出戰神獸（點卡設優先；滿能量點「技能」）</span><span data-testid="match3-damage">傷害 {totalDmg}</span></div>
+      {M ? <div className={styles.dmgRow}><span data-testid="match3-damage">傷害 {totalDmg}</span>{lastDmg > 0 && <small>本步 {lastDmg}</small>}</div>
+        : <div className={styles.secHead}><span>出戰神獸（點卡設優先；滿能量點「技能」）</span><span data-testid="match3-damage">傷害 {totalDmg}</span></div>}
       <div className={`${styles.team} ${linkMode ? styles.linkOn : ''}`}>
         {team.map((u) => {
           const down = u.hp <= 0;
@@ -311,7 +340,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
           );
         })}
       </div>
-      {onRepick && <div className={styles.repick}><button type="button" data-testid="open-picker" onClick={onRepick}>重新選卡</button></div>}
+      {onRepick && !M && <div className={styles.repick}><button type="button" data-testid="open-picker" onClick={onRepick}>重新選卡</button></div>}
 
       <div className={styles.actionBar} role="toolbar" aria-label="連線攻擊" data-testid="match3-actionbar">
         <button type="button" className={`${linkMode ? styles.on : ''} ${pulse ? styles.pulse : ''}`} data-testid="match3-link-mode" aria-pressed={linkMode} onClick={() => { setLinkMode(!linkMode); if (linkMode) setLink([]); }}>{linkMode ? '連線模式：開' : '連線模式'}</button>
@@ -319,6 +348,25 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
         <button type="button" className={styles.fire} aria-disabled={!linkMode || !!problem || !!over} onClick={() => { if (!linkMode) { setLog(`先按左下「連線模式」，再點 ${LINK_MIN_CARDS} 張以上、每張至少 ${LINK_ENERGY_COST} 能量的卡。`); setPulse(true); setTimeout(() => setPulse(false), 1600); return; } if (problem || over) { setLog(fireSub); return; } fireLink(); }} data-testid="match3-link-fire">發動連線攻擊<small>{fireSub}</small></button>
       </div>
 
+      {M && info && (
+        <div className={styles.infoMask} onClick={() => setInfo(false)}>
+          <div className={styles.infoPanel} role="dialog" aria-modal="true" aria-label="說明" data-testid="match3-info-panel" onClick={(e) => e.stopPropagation()}>
+            <div className={styles.infoHead}><strong>說明</strong><button type="button" aria-label="關閉說明" onClick={() => setInfo(false)} autoFocus>✕</button></div>
+            <h3>本局</h3>
+            <p data-testid="match3-sub">{cfg.badge}・5 對 5・{cfg.cols}×{cfg.rows}＝{cfg.cols * cfg.rows} 顆寶珠{cfg.diagonal ? '・可斜連' : ''}。敵方：{cfg.enemyHint ?? foes.map((f) => f.name).join('・')}</p>
+            <p>正式神獸卡 5v5・敵方 HP {cfg.enemyHp}／攻 {cfg.enemyAtk}／每 {cfg.counterEvery} 步反擊【待平衡】・seed {init.seed}・{over === 'win' ? '勝利' : over === 'lose' ? '落敗' : '戰鬥進行中'}</p>
+            <h3>怎麼玩</h3>
+            <p>按住寶珠拖過相鄰同色珠（≥3{cfg.diagonal ? '，可斜連' : ''}）放開攻擊。</p>
+            <p>{ruleText}</p>
+            <h3>敵方與出戰</h3>
+            <p>敵方神獸：點選指定目標；⏳ 為反擊倒數。出戰神獸：點卡設優先；滿能量點「技能」。</p>
+            <div className={styles.legendIn}>{MATCH3_ORB_ELEMENTS.map((e) => <span key={e}><i style={{ background: ORB_COLOR[e] }} />{MATCH3_ORB_LABEL[e]}</span>)}</div>
+            {gOn && <><h3>四象魔法珠</h3><p>引爆魔法珠時，隊伍裡在場的四象神獸出招：風→{GUARDIAN_LIST.find((g) => g.element === 'AIR')?.name}、火→{GUARDIAN_LIST.find((g) => g.element === 'FIRE')?.name}、空→{GUARDIAN_LIST.find((g) => g.element === 'SPACE')?.name}、水→{GUARDIAN_LIST.find((g) => g.element === 'WATER')?.name}；地珠＝隊伍裡在場的四象隨機一隻。該段傷害 ×{GUARDIAN_MAGIC_MULT}，加成每次最多 +{GUARDIAN_MAGIC_BONUS_CAP}【待平衡】；目標已倒下時加成轉給下一隻存活敵人。演出點一下或按 Esc 可略過。</p></>}
+            {onRepick && <div className={styles.repick}><button type="button" data-testid="open-picker" onClick={() => { setInfo(false); onRepick(); }}>重新選卡</button></div>}
+            {log && <><h3>上一步</h3><p data-testid="match3-info-log">{log}</p></>}
+          </div>
+        </div>
+      )}
       {over && (
         <div className={styles.result} role="dialog" aria-label="對戰結果" data-testid="match3-result" data-result={over}>
           <div className={styles.resultTitle}>{over === 'win' ? '勝利' : '這局先到這裡'}</div>

@@ -5,6 +5,8 @@ const nextConfig = {
   // causes apparent freezes and "clientReferenceManifest" runtime failures.
   distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
+  // 10/31 dev-only: Next.js dev indicator (the floating N) overlapped the fixed bottom action bar; production builds never show it.
+  devIndicators: false,
   compress: true,
   productionBrowserSourceMaps: false,
   outputFileTracingRoot: process.cwd(),

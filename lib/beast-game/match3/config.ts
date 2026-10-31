@@ -64,7 +64,7 @@ export function isMatch3Enabled(): boolean {
  * hard45 的 enemyHp／enemyAtk／counterEvery 全部是【待平衡】暫定值，不是定案數字。
  */
 /** hard45b＝寶珠戰・困難 II（提案名）：盤面／斜連／數值全部沿用 hard45（【待平衡】，不新增數字），只換敵方五隻（見 enemies.ts HARD2 規則）。 */
-export type Match3ModeId = 'medium' | 'hard45' | 'hard45b';
+export type Match3ModeId = 'medium' | 'hard45' | 'hard45b' | 'hard49g';
 export interface Match3ModeConfig {
   id: Match3ModeId; kicker: string; cols: number; rows: number;
   /** 玩家看的中文標題／副標／徽章／主色／敵方提示（提案名，待用戶定案）。 */
@@ -72,6 +72,10 @@ export interface Match3ModeConfig {
   enemyHp: number; enemyAtk: number; counterEvery: number; placeholder: boolean;
   /** 斜連開關（可回退）：true＝拖曳可走 8 方向、直線判定含兩條斜線；false＝只有上下左右／橫直。 */
   diagonal: boolean;
+  /** 10/31：四象魔法珠（仍受 NEXT_PUBLIC_GUARDIAN_MAGIC 旗標控制）。 */
+  guardian?: boolean;
+  /** 10/31：戰鬥畫面只留必要元素，說明全收進「說明」面板。 */
+  minimal?: boolean;
 }
 export const MATCH3_MODES: Record<Match3ModeId, Match3ModeConfig> = {
   medium: { id: 'medium', kicker: '寶珠戰・中等', title: '寶珠戰・中等', subtitle: '五元素對決', badge: '中等・35 珠', accent: '#6fb6ff', enemyHint: null, cols: MATCH3_COLS, rows: MATCH3_ROWS, enemyHp: 300, enemyAtk: 8, counterEvery: ENEMY_COUNTER_EVERY, placeholder: true, diagonal: false },
@@ -79,6 +83,8 @@ export const MATCH3_MODES: Record<Match3ModeId, Match3ModeConfig> = {
   hard45: { id: 'hard45', kicker: '寶珠戰・困難', title: '寶珠戰・困難', subtitle: '45 珠斜連', badge: '困難・45 珠・可斜連', accent: '#ff8a5c', enemyHint: null, cols: 9, rows: 5, enemyHp: 450, enemyAtk: 12, counterEvery: 2, placeholder: true, diagonal: true },
   /** 【待平衡】數值＝hard45（450／12／2），未新增任何數字。 */
   hard45b: { id: 'hard45b', kicker: '寶珠戰・困難 II', title: '寶珠戰・困難 II', subtitle: '二十八宿軍團', badge: '困難 II・45 珠・可斜連', accent: '#cdb991', enemyHint: '東方青龍七宿：角・亢・氐・房・心', cols: 9, rows: 5, enemyHp: 450, enemyAtk: 12, counterEvery: 2, placeholder: true, diagonal: true },
+  /** 10/31 困難・戰鬥寶珠＝困難 II 的延伸：7×7＝49 顆、可斜連、四象魔法珠、精簡畫面；敵方與數值沿用 hard45b（【待平衡】，未新增數字）。 */
+  hard49g: { id: 'hard49g', kicker: '寶珠戰・困難', title: '戰鬥寶珠', subtitle: '四象魔法珠', badge: '困難・49 珠・可斜連', accent: '#cdb991', enemyHint: '東方青龍七宿：角・亢・氐・房・心', cols: 7, rows: 7, enemyHp: 450, enemyAtk: 12, counterEvery: 2, placeholder: true, diagonal: true, guardian: true, minimal: true },
 };
 export function match3Mode(id?: Match3ModeId | null): Match3ModeConfig { return MATCH3_MODES[id ?? 'medium'] ?? MATCH3_MODES.medium; }
 

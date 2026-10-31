@@ -24,7 +24,7 @@ export function selectHard2Enemies<C extends { id: string; name: string; element
   return out;
 }
 /** 該模式的敵方名單：hard45b 用 HARD2，其餘（medium、hard45）維持原本 MATCH3_ENEMY_NAMES。 */
-export function enemyNamesFor(modeId?: string | null): readonly string[] { return modeId === 'hard45b' ? HARD2_ENEMY_NAMES : MATCH3_ENEMY_NAMES; }
+export function enemyNamesFor(modeId?: string | null): readonly string[] { return modeId === 'hard45b' || modeId === 'hard49g' ? HARD2_ENEMY_NAMES : MATCH3_ENEMY_NAMES; }
 export const MATCH3_ENEMY_HP = 300;
 export const MATCH3_ENEMY_ATK = 8;
 export const LINK_MIN_CARDS = 2;

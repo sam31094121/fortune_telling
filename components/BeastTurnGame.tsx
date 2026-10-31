@@ -298,6 +298,9 @@ function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }:
             <Link href="/beast-game/match3-hard2" className={styles.match3Mini} role="listitem" data-difficulty="match3-hard2" data-testid="match3-hard2-entry-card" aria-label="寶珠戰・困難 II：二十八宿軍團，45 珠斜連（預覽）">
               <span aria-hidden="true">💠</span><strong>寶珠戰・困難 II</strong><small>二十八宿軍團</small>
             </Link>
+            <Link href="/beast-game/match3-hard2g" className={styles.match3Mini} role="listitem" data-difficulty="match3-hard2g" data-testid="match3-hard2g-entry-card" aria-label="困難・戰鬥寶珠：49 珠斜連，四象魔法珠（預覽）">
+              <span aria-hidden="true">🐉</span><strong>困難・戰鬥寶珠</strong><small>49 珠・四象魔法</small>
+            </Link>
           </div>
           <div className={styles.modeCards} role="list" aria-label="難度選擇">
             <button type="button" role="listitem" className={styles.freeEntryBtn} onClick={enterEasy} data-difficulty="easy">
