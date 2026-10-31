@@ -6,10 +6,17 @@ import Match3Board from '../Match3Board';
 import BeadFx from '@/components/motion/BeadFx';
 import { playableCards } from '@/lib/beast-game/registry';
 import { CARD_FACE_STATS } from '@/lib/beast-game/card-face-stats';
+import { getSkill } from '@/cards/skills';
 import { MATCH3_ORB_ELEMENTS, MATCH3_ORB_LABEL } from '@/lib/beast-game/match3';
 import { TEAM_SIZE } from '@/lib/beast-game/match3/config';
 import bp from './BeadPolish.module.css';
 import pk from './TeamPicker.module.css';
+
+/** 直接顯示卡檔登錄技能；此入口沒有圖鑑 Provider。 */
+function pickerFace(c: ReturnType<typeof playableCards>[number]) {
+  const skill = getSkill(c.skills[0]);
+  return { id: c.id, name: c.name, thumbnail: c.art.thumbnail, element: c.element, skillName: skill?.name, description: skill?.description };
+}
 
 export default function BeadBattle() {
   const pool = useMemo(() => playableCards().filter((c) => CARD_FACE_STATS[c.id]), []);
@@ -44,7 +51,7 @@ export default function BeadBattle() {
                 return (
                   <button key={c.id} type="button" data-testid="pick-card" data-el={el} aria-pressed={on} className={`${pk.card} ${on ? pk.on : ''}`}
                     disabled={!on && picked.length >= TEAM_SIZE} onClick={() => toggle(c.id)} aria-label={`${c.name}，${MATCH3_ORB_LABEL[el]}屬性${on ? '，已選' : ''}`}>
-                    <BeastCardFace card={{ id: c.id, name: c.name, thumbnail: c.art.thumbnail, element: c.element }} />
+                    <BeastCardFace card={pickerFace(c)} />
                     {on && <span className={pk.order}>{picked.indexOf(c.id) + 1}</span>}
                   </button>
                 );
@@ -59,7 +66,7 @@ export default function BeadBattle() {
             const c = picked[i] ? byId.get(picked[i]) : null;
             return (
               <button key={i} type="button" className={pk.slot} disabled={!c} onClick={() => c && toggle(c.id)} aria-label={c ? `移除${c.name}` : `第 ${i + 1} 格空位`}>
-                {c ? <BeastCardFace card={{ id: c.id, name: c.name, thumbnail: c.art.thumbnail, element: c.element }} /> : <span className={pk.empty}>{i + 1}</span>}
+                {c ? <BeastCardFace card={pickerFace(c)} /> : <span className={pk.empty}>{i + 1}</span>}
               </button>
             );
           })}

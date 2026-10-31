@@ -180,9 +180,15 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
   const [log, setLog] = useState(cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊');
   const [busy, setBusy] = useState(false);
   const [shortMsg, setShortMsg] = useState('');
-  const timers = useRef<number[]>([]);
-  const later = (fn: () => void, ms: number) => { timers.current.push(window.setTimeout(fn, ms)); };
-  useEffect(() => () => timers.current.forEach((t) => window.clearTimeout(t)), []);
+  const timers = useRef(new Set<number>());
+  const later = (fn: () => void, ms: number) => {
+    const timer = window.setTimeout(() => { timers.current.delete(timer); fn(); }, ms);
+    timers.current.add(timer);
+  };
+  useEffect(() => () => {
+    timers.current.forEach((t) => window.clearTimeout(t));
+    timers.current.clear();
+  }, []);
   const showBanner = (text: string, kind: 'magic' | 'skill' | 'counter' | 'info', visual = rigEnabled) => queuedBanner(text, kind, visual);
   const sound = (f: number) => { if (!muted) beep(f); };
 
