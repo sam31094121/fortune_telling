@@ -14,7 +14,7 @@
 
   // TODO-balance：以下倍率皆為範例參數，非最終規格
   var CONFIG = {
-    cols: 7, rows: 5, minMatch: 3,
+    cols: 7, rows: 7, minMatch: 3,
     baseDamagePerGem: 10,
     lengthBonusPerExtraGem: 0.25,  // 【待平衡】rules.json LENGTH_STEP（match3/config.ts）：1 + (最長直線-3)×0.25
     chainBonusPerStep: 0.2,        // 【待平衡】rules.json CHAIN_STEP：1 + (連鎖-1)×0.2

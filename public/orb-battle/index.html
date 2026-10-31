@@ -380,7 +380,7 @@ document.addEventListener('click',function(e){var t=e.target.closest&&e.target.c
   function quickAudit() {
     var ok = 0, n = 0; function c(x) { n++; if (x) ok++; }
     var t = E.createGame({ seed: 1 });
-    c(t.board.length === 5 && t.board[0].length === 7); c(E.findRuns(t.board).length === 0); c(E.hasDragMove(t.board));
+    c(t.board.length === E.CONFIG.rows && t.board[0].length === E.CONFIG.cols); c(E.findRuns(t.board).length === 0); c(E.hasDragMove(t.board));
     c(E.lengthMultiplier(7) > E.lengthMultiplier(6)); c(E.chainMultiplier(2) > E.chainMultiplier(1));
     c(E.CONFIG.magicOrbSpawnEnabled === true); c(E.normalPower(14) === 10); c(E.useSkill(t, 0).ok === false); c(E.linkAttack(t, [0], 0).ok === false);
     c(E.findRuns(g.board).length === 0); c(g.team.every(function (x) { return !x.demo && /\.v2\.webp$/.test(x.art); })); c(g.enemies.every(function (x) { return !x.demo && /\.v2\.webp$/.test(x.art); }));

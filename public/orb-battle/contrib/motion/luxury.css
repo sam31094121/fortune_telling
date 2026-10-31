@@ -195,7 +195,8 @@ html.lowfx .shell.shell .gem[data-magic-n] .stone { filter: none !important; }
 @media (orientation: landscape) and (max-height: 500px) {
   :root .shell.shell .header { order: -3; padding: 0 4px; }
   :root .shell.shell .soundToggle { min-height: 40px; min-width: 40px; }
-  :root .shell.shell .boardWrap { width: min(100%, calc((100vh - var(--orb-bar-h, 50px) - 96px) * 1.4)); margin-bottom: calc(var(--orb-bar-h, 50px) + 12px); }
+  :root .shell.shell .boardWrap { order: -4; margin-top: 6px; width: min(100%, calc(100vh - var(--orb-bar-h, 50px) - 18px)); margin-bottom: calc(var(--orb-bar-h, 50px) + 12px); }
+  :root .shell.shell .gem { min-height: 0; }
 }/* 首屏放不下時收起與提示列重複的開場提示（同一句操作說明） */
 html.fit-tight .shell.shell .firstPlay { display: none; }
 /* 珠子質感底線＝live match3：厚金屬金邊（含受光凸緣）、元素色底部圓點 */
