@@ -9,7 +9,7 @@ const base = (rows, cols) => Array.from({ length: rows }, (_, r) => Array.from({
 const paint = (b, cells, e) => { cells.forEach(([r, c]) => { b[r][c] = e; }); return b; };
 const DIRS = { 橫: [0, 1], 直: [1, 0], '↘': [1, 1], '↙': [1, -1] };
 const lineCells = (r, c, [dr, dc]) => [0, 1, 2].map((i) => [r + dr * i, c + dc * i]);
-t('mode 旗標：medium diagonal=false、hard45 diagonal=true', () => { assert.equal(MED.diagonal, false); assert.equal(H.diagonal, true); });
+t('mode 旗標：medium diagonal=true（10/31 起八方向）、hard45 diagonal=true', () => { assert.equal(MED.diagonal, true); assert.equal(H.diagonal, true); });
 t('底盤自身在四方向都沒有 3 連', () => { for (const m of [MED, H]) { const b = base(m.rows, m.cols); assert.equal(M.findGroups(b, true).length, 0); assert.equal(M.findGroups(b, false).length, 0); } });
 for (const m of [MED, H]) for (const [name, d] of Object.entries(DIRS)) {
   const start = d[1] === -1 ? [1, 4] : [1, 1];
@@ -70,4 +70,13 @@ t('不變規則：最少 3、上限 10、≥4 魔法珠、剛好 5 五珠技、�
   assert.equal(M.ENERGY_PER_ORB, 10); assert.equal(M.ENERGY_MAX, 100); assert.equal(MED.counterEvery, 3); assert.equal(H.counterEvery, 2);
   assert.equal(M.linkDamage([10, 10]), 60); assert.equal(M.linkDamage([10, 10, 10]), 135);
 });
+/* 10/31：中等 7×7 八方向拖曳＋橫直斜消除 */
+{ const bl = () => { const b = []; for (let r = 0; r < 7; r++) { b.push([]); for (let c = 0; c < 7; c++) b[r].push(['AIR', 'FIRE', 'WATER', 'SPACE'][(r * 2 + c * 3 + (r >> 1)) % 4]); } return b; };
+  for (const [nm, [dr, dc]] of Object.entries({ '→': [0, 1], '←': [0, -1], '↓': [1, 0], '↑': [-1, 0], '↘': [1, 1], '↖': [-1, -1], '↙': [1, -1], '↗': [-1, 1] })) t(`medium 7×7 拖曳 ${nm} 可消`, () => {
+    const b = bl(); const p = [0, 1, 2].map((i) => ({ r: 3 + dr * i, c: 3 + dc * i })); p.forEach((q) => { b[q.r][q.c] = 'EARTH'; });
+    assert.ok(M.isValidPath(b, p, MED.diagonal)); assert.ok(M.resolveDrag(b, p, M.seededRng(3), undefined, 50, MED.diagonal).valid); });
+  for (const [nm, cells] of Object.entries({ '橫': [[2, 1], [2, 2], [2, 3]], '直': [[1, 4], [2, 4], [3, 4]], '↘': [[1, 1], [2, 2], [3, 3]], '↙': [[1, 5], [2, 4], [3, 3]] })) t(`medium 7×7 連鎖判定 ${nm}`, () => {
+    const b = bl(); for (const [r, c] of cells) b[r][c] = 'EARTH'; assert.equal(M.findGroups(b, MED.diagonal).filter((g) => g.element === 'EARTH').length, 1); });
+  t('medium 300 seed 7×7 開局無現成 3 連（八方向）且有可拖步', () => { for (let s = 1; s <= 300; s++) { const b = M.generateDragBoard(M.seededRng(s), MED.rows, MED.cols, MED.diagonal); assert.equal(b.length * b[0].length, 49); assert.equal(M.findGroups(b, true).length, 0); assert.ok(M.hasDragMove(b, true)); } });
+}
 console.log('beast-match3-diagonal: ' + pass + ' passed');

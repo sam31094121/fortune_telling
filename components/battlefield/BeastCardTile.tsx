@@ -523,7 +523,7 @@ function FrameV1Tile({
               srcSet={srcSet}
               sizes="(max-width: 480px) 46vw, 200px"
               alt=""
-              loading="lazy"
+              loading={face ? 'eager' : 'lazy'}
               decoding="async"
             />
           </span>

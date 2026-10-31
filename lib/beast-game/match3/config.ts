@@ -6,7 +6,7 @@
 import { ELEMENT_LABEL, type BeastElement } from '../elements';
 
 export const MATCH3_COLS = 7;
-export const MATCH3_ROWS = 5;
+export const MATCH3_ROWS = 7;
 /** 最短可消連線（拖曳連珠與掉落後的直線連鎖都用這個）。 */
 export const MATCH3_MIN_RUN = 3;
 
@@ -34,6 +34,15 @@ export function chainMultiplier(chain: number): number {
 
 /** 【待平衡】一組消除的基礎傷害＝攻擊者卡面攻擊力 × BASE_RATIO。 */
 export const BASE_RATIO = 0.5;
+
+/**
+ * 【待平衡】四象魔法珠（10/31 平衡）：含魔法珠那一段的傷害 × GUARDIAN_MAGIC_MULT，多出部分每次最多 GUARDIAN_MAGIC_BONUS_CAP。
+ * 依據：敵方 HP 450；實測 4 珠一段基礎傷害約 74～88、連鎖 3 段最高約 245。
+ *  - ×1.6 → 4 珠段加成約 +44～+53，加上基礎約 120～140＝敵人 HP 的 27～31%：一看就比普通消除強。
+ *  - 上限 90＝敵人 HP 的 20%：大連鎖（≈245）＋90＝335 < 450，四象單次不會把滿血敵人一擊打倒。
+ */
+export const GUARDIAN_MAGIC_MULT = 1.6;
+export const GUARDIAN_MAGIC_BONUS_CAP = 90;
 
 /** 魔法珠：一次拖曳 4 顆以上，在放開的那格生成同色魔法珠，威力＝連線顆數（不設上限）。 */
 export const MAGIC_ORB_MIN_LENGTH = 4;
@@ -78,7 +87,7 @@ export interface Match3ModeConfig {
   minimal?: boolean;
 }
 export const MATCH3_MODES: Record<Match3ModeId, Match3ModeConfig> = {
-  medium: { id: 'medium', kicker: '寶珠戰・中等', title: '寶珠戰・中等', subtitle: '五元素對決', badge: '中等・35 珠', accent: '#6fb6ff', enemyHint: null, cols: MATCH3_COLS, rows: MATCH3_ROWS, enemyHp: 300, enemyAtk: 8, counterEvery: ENEMY_COUNTER_EVERY, placeholder: true, diagonal: false },
+  medium: { id: 'medium', kicker: '寶珠戰・中等', title: '寶珠戰・中等', subtitle: '五元素對決', badge: '中等・49 珠・八方向', accent: '#6fb6ff', enemyHint: null, cols: MATCH3_COLS, rows: MATCH3_ROWS, enemyHp: 300, enemyAtk: 8, counterEvery: ENEMY_COUNTER_EVERY, placeholder: true, diagonal: true },
   /** 【待平衡】HP ×1.5、ATK ×1.5、反擊每 2 步（比中等快 1 步）。 */
   hard45: { id: 'hard45', kicker: '寶珠戰・困難', title: '寶珠戰・困難', subtitle: '45 珠斜連', badge: '困難・45 珠・可斜連', accent: '#ff8a5c', enemyHint: null, cols: 9, rows: 5, enemyHp: 450, enemyAtk: 12, counterEvery: 2, placeholder: true, diagonal: true },
   /** 【待平衡】數值＝hard45（450／12／2），未新增任何數字。 */

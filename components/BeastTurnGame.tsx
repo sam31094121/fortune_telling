@@ -289,7 +289,7 @@ function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }:
           })()}
           <p className={styles.modeNavLabel} role="status">請選擇戰場</p>
           <div className={styles.match3Row} role="list" aria-label="寶珠戰（預覽）">
-            <Link href="/beast-game/match3-preview" className={styles.match3Mini} role="listitem" data-difficulty="match3" data-testid="match3-entry-card" aria-label="寶珠戰・中等：五元素對決，35 顆寶珠（預覽）">
+            <Link href="/beast-game/match3-preview" className={styles.match3Mini} role="listitem" data-difficulty="match3" data-testid="match3-entry-card" aria-label="寶珠戰・中等：五元素對決，49 顆寶珠・八方向連消（預覽）">
               <span aria-hidden="true">🔮</span><strong>寶珠戰・中等</strong><small>五元素對決</small>
             </Link>
             <Link href="/beast-game/match3-hard" className={styles.match3Mini} role="listitem" data-difficulty="match3-hard" data-testid="match3-hard-entry-card" aria-label="寶珠戰・困難：45 珠斜連，敵我各五張（預覽）">

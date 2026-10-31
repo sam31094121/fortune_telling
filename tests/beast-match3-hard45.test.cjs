@@ -3,9 +3,9 @@ const assert = require('node:assert/strict');
 const M = require('../.beast-game-build/lib/beast-game/match3');
 let pass = 0; const t = (n, f) => { f(); pass++; console.log('  ok ' + n); };
 const H = M.MATCH3_MODES.hard45, MED = M.MATCH3_MODES.medium;
-t('hard45＝9×5＝45 顆；medium 仍 7×5＝35', () => {
+t('hard45＝9×5＝45 顆（困難不動）；medium 改 7×7＝49', () => {
   assert.equal(H.cols * H.rows, 45); assert.equal(H.cols, 9); assert.equal(H.rows, 5);
-  assert.equal(MED.cols, 7); assert.equal(MED.rows, 5); assert.equal(M.MATCH3_COLS, 7);
+  assert.equal(MED.cols, 7); assert.equal(MED.rows, 7); assert.equal(M.MATCH3_COLS, 7);
 });
 t('medium 數值與原本相同（HP 300／ATK 8／倒數 3）', () => {
   assert.equal(MED.enemyHp, M.MATCH3_ENEMY_HP); assert.equal(MED.enemyAtk, M.MATCH3_ENEMY_ATK); assert.equal(MED.counterEvery, 3);

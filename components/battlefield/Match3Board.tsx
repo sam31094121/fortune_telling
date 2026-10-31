@@ -7,7 +7,7 @@
  * 每 3 步反擊、只有主屬性相同的卡出手、克制表 elements.ts、同屬性輔助拿一半能量。卡面只讀 .v2 新卡與 card-face-stats。
  */
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { BeastCardFace } from './BeastCardTile';
+import { BeastCardFace, cardArtThumb } from './BeastCardTile';
 import { playableCards } from '@/lib/beast-game/registry';
 import { CARD_FACE_STATS } from '@/lib/beast-game/card-face-stats';
 import type { BeastElement } from '@/lib/beast-game/elements';
@@ -20,7 +20,8 @@ import {
   type Board, type Cell, type MagicGrid, type Match3Event, type Match3Fighter, type Match3Foe, type Rng,
 } from '@/lib/beast-game/match3';
 import { DragPathSvg, dragHint, useDragChain } from './useDragChain';
-import { applyGuardianStrike, GUARDIAN_LIST, GUARDIAN_MAGIC_BONUS_CAP, GUARDIAN_MAGIC_MULT, guardianStrikeBonuses, isGuardianMagicEnabled, resolveGuardianActivations, type GuardianActivation } from '@/lib/beast-game/match3/guardian-magic';
+import { GUARDIAN_MAGIC_BONUS_CAP, GUARDIAN_MAGIC_MULT } from '@/lib/beast-game/match3/config';
+import { applyGuardianStrike, GUARDIAN_LIST, guardianStrikeBonuses, isGuardianMagicEnabled, resolveGuardianActivations, type GuardianActivation } from '@/lib/beast-game/match3/guardian-magic';
 import { GuardianSkillFx, GuardianCharge } from './bead/GuardianSkillFx';
 import styles from './Match3Board.module.css';
 
@@ -51,16 +52,35 @@ const k = (r: number, c: number) => r * 1000 + c;
 /** 可斜連模式（config diagonal:true）的提示字。 */
 const DIAG_TIP = '按住寶珠拖過相鄰同色珠（≥3，可斜連）放開攻擊';
 
-const OrbCell = memo(function OrbCell({ r, c, e, mp, sel, flash, shake, drop }: { r: number; c: number; e: BeastElement; mp: number; sel: boolean; flash: boolean; shake: boolean; drop: boolean }) {
-  const cls = [styles.orb, ORB_CLASS[e], sel ? styles.sel : '', flash ? styles.flash : '', shake ? styles.shake : '', drop ? styles.drop : '', mp > 0 ? styles.magic : ''].join(' ');
+const OrbCell = memo(function OrbCell({ r, c, e, mp, sel, flash, shake, drop, fall = 0, rows = 7 }: { r: number; c: number; e: BeastElement; mp: number; sel: boolean; flash: boolean; shake: boolean; drop: boolean; fall?: number; rows?: number }) {
+  const cls = [styles.orb, ORB_CLASS[e], sel ? styles.sel : '', flash ? styles.flash : '', shake ? styles.shake : '', drop ? styles.drop : '', fall > 0 ? styles.fall : '', mp > 0 ? styles.magic : ''].join(' ');
+  // 掉落：--fr＝往下掉幾格；依欄＋列錯開 0～60ms，下面的先落地。
+  const st = fall > 0 ? ({ ['--fr' as string]: fall, ['--fd' as string]: `${c * 6 + (rows - 1 - r) * 4}ms` }) : undefined;
   return (
-    <div role="gridcell" data-r={r} data-c={c} data-el={e} data-magic={mp || undefined} className={cls}
+    <div role="gridcell" data-r={r} data-c={c} data-el={e} data-magic={mp || undefined} data-fall={fall || undefined} className={cls} style={st}
       aria-label={`${MATCH3_ORB_LABEL[e]}${mp ? `魔法珠威力${mp}` : '珠'}`}>
       <span className={styles.gem} aria-hidden="true" /><span className={styles.lbl} aria-hidden="true">{MATCH3_ORB_LABEL[e]}</span>
       {mp > 0 && <span className={styles.power} aria-hidden="true">{mp}</span>}
     </div>
   );
 });
+
+/** 一段消除後，每個「消除後盤面」格子是從上方掉了幾格（新補的珠＝該欄消掉的顆數）。對應 cascade.collapse：同欄直落、新珠從上補。 */
+export function fallMap(rows: number, cols: number, cleared: Set<number>): Map<number, number> {
+  const out = new Map<number, number>();
+  for (let c = 0; c < cols; c++) {
+    let gaps = 0, w = rows - 1;
+    for (let r = rows - 1; r >= 0; r--) {
+      if (cleared.has(k(r, c))) { gaps++; continue; }
+      if (gaps > 0) out.set(k(w, c), gaps); w--;
+    }
+    for (let r = w; r >= 0; r--) out.set(k(r, c), gaps);
+  }
+  return out;
+}
+/** 每段：消除閃光 → 上方珠落下＋新珠補入（translateY 微回彈）。總時間短，結算中可先拖下一步（排隊）。 */
+const CLEAR_MS = 160, FALL_MS = 300, STEP_MS = CLEAR_MS + FALL_MS;
+const reducedMotion = () => typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 function changedCells(prev: Board, next: Board): Set<number> {
   const s = new Set<number>();
@@ -105,6 +125,8 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
   const [flash, setFlash] = useState<Set<number>>(new Set());
   const [shake, setShake] = useState<Set<number>>(new Set());
   const [drop, setDrop] = useState<Set<number>>(new Set());
+  const [fall, setFall] = useState<{ seq: number; m: Map<number, number> }>({ seq: 0, m: new Map() });
+  const pendingRef = useRef<Cell[] | null>(null);
   const [banner, setBanner] = useState<{ text: string; kind: 'magic' | 'skill' | 'counter' | 'info' } | null>(null);
   const [hitTeam, setHitTeam] = useState<Set<string>>(new Set());
   const [hitFoe, setHitFoe] = useState<number | null>(null);
@@ -168,7 +190,10 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
   };
 
   const release = (path: Cell[]) => {
-    if (busy || over || ti < 0) return;
+    if (over || ti < 0) return;
+    if (busy) { // 結算中放開＝排隊，結算完自動出手（會重新驗證路線）
+      pendingRef.current = path.slice(); setShortMsg('已排隊，結算後出手'); later(() => setShortMsg(''), 1200); return;
+    }
     const res = resolveDrag(board, path, rngRef.current, magic, 50, cfg.diagonal);
     if (!res.valid) {
       setShake(new Set(path.map((p) => k(p.r, p.c)))); later(() => setShake(new Set()), 340);
@@ -193,11 +218,22 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
     const baseDealt = hits.reduce((s, h) => s + h.amount, 0);
     const dealt = baseDealt + gTotal;
     setBusy(true); sound(520 + res.chainLength * 40);
-    const frames = res.steps.map((st, i) => ({ before: i === 0 ? board : res.steps[i - 1].boardAfter, mag: i === 0 ? magic : res.steps[i - 1].magicAfter,
-      cells: new Set(st.groups.flatMap((g) => g.cells.map((c) => k(c.r, c.c)))) }));
-    frames.forEach((fr, i) => later(() => { setBoard(fr.before); setMagic(fr.mag); setFlash(fr.cells); }, i * 300));
+    const rm = reducedMotion(); const cm = rm ? 90 : CLEAR_MS, sm = rm ? 150 : STEP_MS;
+    const endKey = res.magicSpawn ? k(path[path.length - 1].r, path[path.length - 1].c) : -1;
+    const frames = res.steps.map((st, i) => {
+      const cells = new Set(st.groups.flatMap((g) => g.cells.map((c) => k(c.r, c.c))));
+      if (i === 0 && endKey >= 0) cells.delete(endKey); // 生成魔法珠的那格留著
+      return { before: i === 0 ? board : res.steps[i - 1].boardAfter, mag: i === 0 ? magic : res.steps[i - 1].magicAfter, after: st.boardAfter, magAfter: st.magicAfter, cells,
+        fall: fallMap(cfg.rows, cfg.cols, cells) };
+    });
+    frames.forEach((fr, i) => {
+      later(() => { setBoard(fr.before); setMagic(fr.mag); setFlash(fr.cells); }, i * sm);
+      later(() => { setFlash(new Set()); setBoard(fr.after); setMagic(fr.magAfter); if (!rm) setFall((f) => ({ seq: f.seq + 1, m: fr.fall })); }, i * sm + cm);
+    });
     later(() => {
-      setFlash(new Set()); setDrop(changedCells(board, res.board)); later(() => setDrop(new Set()), 360);
+      setFlash(new Set()); setFall((f) => ({ seq: f.seq, m: new Map() }));
+      const last = frames.length ? frames[frames.length - 1].after : board;
+      if (res.reshuffled) { setDrop(changedCells(last, res.board)); later(() => setDrop(new Set()), 360); }
       setBoard(res.board); setMagic(res.magic); setBusy(false);
       const gs = applyGuardianStrike(foes, ti, baseDealt, gTotal);
       const nf = gs.foes;
@@ -217,7 +253,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
       for (const g of gShow) msg += `，${g.act.guardian.name}發動「${g.act.guardian.skillName}」+${g.bonus}${gs.bonusTarget >= 0 && gs.bonusTarget !== ti ? `（轉給${foes[gs.bonusTarget].name}）` : ''}`;
       if (nf[ti].hp <= 0) msg += `；${foe.name}倒下`;
       endStep(shareEnergy(team, gains, rule, chosen), nf, msg);
-    }, frames.length * 300);
+    }, frames.length * sm);
   };
 
   /** 點卡：連線模式＝加入／移出連線；否則設為優先（同屬性多張＝改當主攻）。 */
@@ -255,13 +291,27 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
   };
   const fireSub = !linkMode ? `需 ${LINK_MIN_CARDS} 張卡各 ${LINK_ENERGY_COST} 能量` : problem === 'tooFew' ? `再選 ${LINK_MIN_CARDS - link.length} 張` : problem === 'energyLow' ? `每張需 ${LINK_ENERGY_COST} 能量` : problem ? '有卡已倒下' : `${link.length} 張・預估 ${linkDamage(link.map((id) => team.find((u) => u.id === id)?.attack ?? 0))}`;
 
-  const drag = useDragChain(board, !busy && !over, release, cfg.diagonal);
+  const drag = useDragChain(board, !over, release, cfg.diagonal);
+  // 結算完：有排隊的路線就直接出手（resolveDrag 會用新盤面重驗；不成立就提示重拖）
+  useEffect(() => {
+    if (busy || over || !pendingRef.current) return;
+    const p = pendingRef.current; pendingRef.current = null;
+    const ok = p.length >= 3 && p.every((q) => board[q.r]?.[q.c] === board[p[0].r][p[0].c]);
+    if (ok) release(p); else { setShortMsg('盤面已變，請重拖'); later(() => setShortMsg(''), 1400); }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [busy]);
+  // 換隊後卡圖空白：先把隊伍卡圖預載進快取
+  const teamKey = team.map((u) => u.id).join(',');
+  useEffect(() => {
+    for (const u of team) for (const src of [cardArtThumb(u.id), u.thumbnail]) if (src) { const im = new Image(); im.decoding = 'async'; im.src = src; }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teamKey]);
   const dragEl = drag.path.length ? board[drag.path[0].r][drag.path[0].c] : null;
   const hint = dragEl ? dragHint(drag.path.length, MATCH3_ORB_LABEL[dragEl], NORMAL_POWER_CAP, MAGIC_ORB_MIN_LENGTH, SKILL5_LENGTH) : '';
   const onPath = new Set(drag.path.map((p) => k(p.r, p.c)));
   const chargeG = gOn && dragEl && drag.path.length >= MAGIC_ORB_MIN_LENGTH && drag.path.some((p) => (magic[p.r]?.[p.c] ?? 0) > 0)
     ? team.filter((u) => u.hp > 0).map((u) => GUARDIAN_LIST.find((g) => g.id === u.id)).find((g) => g && (dragEl === 'EARTH' || g.element === dragEl)) ?? null : null;
-  const busyTap = () => { if (busy && !over) { setShortMsg('結算中，稍候再拖'); later(() => setShortMsg(''), 1200); } };
+  const busyTap = () => { /* 結算中也可以拖：放開後排隊 */ };
   const M = !!cfg.minimal;
   const ruleText = `${cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上放開攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「技能」。每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 ${cfg.counterEvery} 步）。連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。`;
   const pct = (a: number, b: number) => `${Math.max(0, Math.min(100, Math.round((a / b) * 100)))}%`;
@@ -273,6 +323,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
           <div className={styles.kicker} data-testid="match3-badge">{cfg.badge}</div>
           <h1 className={styles.title} data-testid="match3-title">{cfg.title}<small className={styles.subtitle}>｜{cfg.subtitle}</small></h1>
         </div>
+        {M && onRepick && <button type="button" className={styles.repickBtn} data-testid="header-repick" aria-label="重新選卡" title="重新選卡" onClick={onRepick}><span aria-hidden="true">⇄</span></button>}
         {M && <button type="button" className={styles.infoBtn} data-testid="match3-info" aria-expanded={info} aria-haspopup="dialog" aria-label="說明" onClick={() => setInfo(true)}><span aria-hidden="true">?</span>說明</button>}
         <button type="button" className={styles.mute} aria-pressed={muted} aria-label={muted ? '開啟音效' : '靜音'} onClick={() => setMuted(!muted)}>{muted ? '🔇' : '🔊'}</button>
         <div className={styles.round} data-testid="match3-round">回合 {moves + 1}</div>
@@ -306,7 +357,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
 
       <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''} ${M ? styles.boardMin : ''}`} data-busy={busy ? '1' : undefined} onPointerDownCapture={busyTap} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" {...drag.handlers}>
         {board.map((row, r) => row.map((e, c) => { const kk = k(r, c); return (
-          <OrbCell key={`${r}-${c}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} />); }))}
+          <OrbCell key={fall.m.has(kk) ? `${r}-${c}-f${fall.seq}` : `${r}-${c}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} fall={fall.m.get(kk) ?? 0} rows={cfg.rows} />); }))}
         <DragPathSvg points={drag.points} color={dragEl ? ORB_COLOR[dragEl] : '#fff'} />
         {chargeG && dragEl && <GuardianCharge element={dragEl === 'EARTH' ? 'EARTH' : chargeG.element} name={dragEl === 'EARTH' ? '四象' : chargeG.name} />}
         {M && (hint || shortMsg || busy) && <div className={styles.toast} data-testid="match3-hint" aria-live="polite">{hint || shortMsg || '結算中…'}</div>}

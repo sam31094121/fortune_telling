@@ -351,3 +351,16 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 @media (min-width: 768px) { .infoMask { align-items: center; } .infoPanel { border-radius: 16px; } }
 /* 平板／桌機的敵方卡較高：多扣一些高度，出戰卡不被底部按鈕列切到。 */
 @media (min-width: 700px) { .board.boardMin { width: min(100%, max(300px, calc(100dvh - 520px))); } }
+
+/* 10/31：消除後落下＋補珠（translateY 微回彈，依欄列錯開）；--fr＝掉落格數 */
+.fall { animation: m3fall .3s cubic-bezier(.25,.8,.35,1) var(--fd, 0ms) both; will-change: transform; }
+@keyframes m3fall {
+  0% { transform: translateY(calc(var(--fr) * -100% - var(--fr) * 3px)); }
+  78% { transform: translateY(5%); }
+  100% { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .fall { animation: none; } }
+/* 精簡模式表頭「重新選卡」圖示鈕 */
+.repickBtn { display: inline-grid; place-items: center; min-width: 40px; min-height: 40px; border-radius: 12px; border: 1px solid rgba(217,207,187,.5); background: transparent; color: var(--bone); font-size: 18px; flex: none; cursor: pointer; }
+/* 精簡模式：隱藏頁尾，手機不再多捲 ~140px */
+:global(body):has(.boardMin) :global(footer) { display: none; }

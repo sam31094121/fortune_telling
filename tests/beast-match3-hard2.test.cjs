@@ -9,7 +9,7 @@ t('hard45b：9×5＝45、diagonal=true、數值＝hard45（450/12/2）且待平�
   assert.equal(H2.enemyHp, H.enemyHp); assert.equal(H2.enemyAtk, H.enemyAtk); assert.equal(H2.counterEvery, H.counterEvery); assert.equal(H2.placeholder, true);
 });
 t('medium／hard45 原值不變', () => {
-  assert.deepEqual([MED.cols, MED.rows, MED.enemyHp, MED.enemyAtk, MED.counterEvery, MED.diagonal], [7, 5, 300, 8, 3, false]);
+  assert.deepEqual([MED.cols, MED.rows, MED.enemyHp, MED.enemyAtk, MED.counterEvery, MED.diagonal], [7, 7, 300, 8, 3, true]);
   assert.deepEqual([H.cols, H.rows, H.enemyHp, H.enemyAtk, H.counterEvery, H.diagonal], [9, 5, 450, 12, 2, true]);
 });
 t('規則選出的五隻＝HARD2_ENEMY_NAMES（可重現）', () => {

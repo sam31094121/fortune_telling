@@ -10,7 +10,7 @@ import type { MagicTrigger } from './drag';
 import type { Rng } from './board';
 import { playableCards } from '../registry';
 import { getSkill } from '../../../cards/skills';
-import { BASE_RATIO } from './config';
+import { BASE_RATIO, GUARDIAN_MAGIC_BONUS_CAP, GUARDIAN_MAGIC_MULT } from './config';
 import { aliveTarget, damageFoe } from './enemies';
 
 export interface GuardianInfo { id: string; name: string; skillId: string; skillName: string; element: BeastElement }
@@ -29,10 +29,7 @@ function buildGuardians(): Partial<Record<BeastElement, GuardianInfo>> {
 export const GUARDIAN_BY_ELEMENT: Partial<Record<BeastElement, GuardianInfo>> = buildGuardians();
 export const GUARDIAN_LIST: readonly GuardianInfo[] = (['AIR', 'FIRE', 'SPACE', 'WATER'] as const).map((e) => GUARDIAN_BY_ELEMENT[e]).filter((g): g is GuardianInfo => !!g);
 
-/** 【待平衡】四象魔法珠：含魔法珠那一組的傷害 × 1.5。 */
-export const GUARDIAN_MAGIC_MULT = 1.5;
-/** 【待平衡】每一筆傷害因四象加成「多出來」的部分最多加這麼多（避免魔法珠威力無上限時爆傷）。 */
-export const GUARDIAN_MAGIC_BONUS_CAP = 120;
+// 【待平衡】倍率與上限放在 config.ts（GUARDIAN_MAGIC_MULT／GUARDIAN_MAGIC_BONUS_CAP）。
 /** 演出時間（毫秒），點畫面可略過。 */
 export const GUARDIAN_FX_MS = 1400;
 
