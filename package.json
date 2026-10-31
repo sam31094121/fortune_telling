@@ -89,7 +89,7 @@
     "test:beast-rig-body": "node tests/beast-rig-body.test.cjs && node tests/beast-rig-readability.test.cjs",
     "build:beast": "node scripts/beast-build.mjs",
     "test:beast-interactive:full": "node scripts/beast-build.mjs && node tests/beast-interactive.test.cjs",
-    "test:beast-difficulty": "node scripts/beast-build.mjs && node tests/beast-difficulty.test.cjs",
+    "test:beast-difficulty": "node scripts/beast-build.mjs && node tests/beast-difficulty.test.cjs && node tests/beast-match3-picker-render.test.cjs",
     "test:credibility-wording": "tsc lib/credibility-wording.ts --outDir .credibility-test-build --module commonjs --target es2020 --moduleResolution node --esModuleInterop --resolveJsonModule --skipLibCheck && node tests/credibility-wording.test.cjs",
     "test:soul-match": "tsc lib/match-five-element-engine.ts lib/match-story-engine.ts lib/match-stability.ts tests/soul-match.test.ts --outDir .soul-match-test-build --module commonjs --target es2021 --moduleResolution node --resolveJsonModule --esModuleInterop --skipLibCheck && node .soul-match-test-build/tests/soul-match.test.js",
     "test:model-lab-lattice": "node tests/model-lab-lattice.test.cjs",

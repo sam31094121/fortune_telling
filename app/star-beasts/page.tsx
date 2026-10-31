@@ -155,7 +155,7 @@ export default function StarBeastsPage() {
           <nav className="mt-5" aria-label="選擇遊戲難度" data-beast-chooser>
             <p className="text-xs font-black tracking-[0.22em] text-amber-200/85">選一種玩法開始</p>
             <ul className={modeStyles.list}>
-              {GAME_MODES.map((mode) => (
+              {GAME_MODES.filter((mode) => !['bead', 'orb'].includes(mode.id)).map((mode) => (
                 <li key={mode.id} className={modeStyles.item}>
                   <Link href={mode.href} data-difficulty-choice={mode.id} className={modeStyles.card}>
                     <span aria-hidden="true" className={modeStyles.emblem}>

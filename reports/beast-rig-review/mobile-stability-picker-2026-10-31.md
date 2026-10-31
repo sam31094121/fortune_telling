@@ -39,3 +39,11 @@
 - `match3-webkit-20261031/result.json`
 
 完成後恢復凍結；其他既有未提交變更不屬此批。
+
+## 後續限定：只保留困難寶珠入口
+
+- 業主最終更正只針對寶珠：保留 `bead-hard`「寶珠戰・困難」，隱藏 `bead`、`orb`；非寶珠 `easy`、`medium`、`hard` 戰鬥入口維持原狀。路由、共用引擎、資料及六十張神獸卡不刪除。
+- 實際元件 SSR 及原生畫面均核對入口依序是 `easy`、`medium`、`hard`、`bead-hard`，四個連結保留原值；點進困難→親友→56 珠→回首頁正常，無例外。六十張技能／攻擊回歸仍通過。最終證據 `beast-menu-orb-only-20261031/result.json` 及 `menu.png`。
+- 「整個模式區只剩一張」候選及 `beast-menu-hard-only-20261031` 證據已隨業主更正撤回，未提交，不作目前版本的驗收依據。
+- 同一來源檔已有實驗 ORB 入口的未提交變更，維持原狀；此次只將基於 HEAD 的選單篩選單行提交，不包含實驗入口。
+- 此入口批次完整發布檢查已通過，`beast-single-entry-gate-20261031/gate-result.json` 的 failures 為空；最終篩選版本再次編譯通過。完整入口圖 `beast-menu-orb-only-20261031/menu-complete.png` 已由業主確認。

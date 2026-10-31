@@ -11,9 +11,11 @@ const cache = new Map();
 // Render the real presentation components. Effects do not run or write inventory.
 function load(relative) {
   let file = path.resolve(root, relative);
-  if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index');
+  if (!path.extname(file)) {
+    const candidates = [file + '.ts', file + '.tsx', path.join(file, 'index.ts'), path.join(file, 'index.tsx')];
+    file = candidates.find(candidate => fs.existsSync(candidate)) ?? file;
+  }
   if (file.endsWith('.json')) return JSON.parse(fs.readFileSync(file, 'utf8'));
-  if (!path.extname(file)) file += fs.existsSync(file + '.ts') ? '.ts' : '.tsx';
   if (cache.has(file)) return cache.get(file).exports;
   const mod = { exports: {} }; cache.set(file, mod);
   const input = fs.readFileSync(file, 'utf8');
@@ -26,7 +28,7 @@ function load(relative) {
     if (id === 'next/dynamic') return () => () => null;
     return id.startsWith('@/') ? load(id.slice(2)) : id.startsWith('.') ? load(path.resolve(path.dirname(file), id)) : require(id);
   };
-  vm.runInNewContext(source, { module: mod, exports: mod.exports, require: customRequire, console, setTimeout, clearTimeout, AbortController, structuredClone, crypto: require('node:crypto').webcrypto }, { filename: file });
+  vm.runInNewContext(source, { module: mod, exports: mod.exports, require: customRequire, console, setTimeout, clearTimeout, AbortController, structuredClone, process: { env: { NODE_ENV: 'test', NEXT_PUBLIC_BEAST_ORB: '1' } }, crypto: require('node:crypto').webcrypto }, { filename: file });
   return mod.exports;
 }
 
@@ -56,3 +58,11 @@ function audit() {
 }
 assert.deepEqual(audit(), [], 'all cards show their own registered skill and description');
 console.log('PASS real BeadBattle SSR: 60 original skills/descriptions/attacks');
+
+// Only the approved orb entrance is visible; unrelated battle entries and card pool remain intact.
+const ModesPage = load('app/star-beasts/page.tsx').default;
+const modesHtml = renderToStaticMarkup(React.createElement(ModesPage));
+const modeLinks = modesHtml.match(/<a\b[^>]*data-difficulty-choice="[^"]+"[^>]*>/g) || [];
+assert.deepEqual(modeLinks.map(link => link.match(/data-difficulty-choice="([^"]+)"/)[1]), ['easy', 'medium', 'hard', 'bead-hard'], 'keep all non-orb battles and only the approved orb entry');
+assert.ok(modeLinks[3].includes('href="/beast-game/match3-hard"'), 'retain the 56-orb route');
+console.log('PASS real mode picker: battle entries unchanged; only difficult orb entry visible');
