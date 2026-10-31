@@ -38,7 +38,7 @@ assert.equal(ctx.filters.length,1);const filter=ctx.filters[0];
 assert.equal(filter.type,'lowpass');assert.equal(filter.frequency.value,1400);assert.equal(filter.Q.value,.5);
 assert.equal(ctx.gains[0].destination,filter);assert.equal(filter.destination,ctx.destination,'all cues pass through the low-Q filter');
 const signatures=[];
-for(const cue of ['clear','charge','impact','shield','fusion','counter','guard']) {
+for(const cue of ['drop','merge','clear','charge','impact','shield','fusion','counter','guard']) {
   const before=ctx.oscillators.length,gainsBefore=ctx.gains.length;sound.play(cue);const added=ctx.oscillators.slice(before);
   assert(added.length>=2,'layered cue');
   for(const o of added){assert(o.stops[0]-ctx.currentTime<=.9);assert(o.startAt>=ctx.currentTime);}
@@ -52,7 +52,7 @@ for(const cue of ['clear','charge','impact','shield','fusion','counter','guard']
     assert.equal(release[0],'exp');assert.equal(release[1],.0001);assert(release[2]>attack[2]);
   }
   assert(totalPeak*ctx.gains[0].gain.value<=.4,'summed source peaks retain headroom below digital clipping');
-  if(cue==='clear'||cue==='charge') {
+  if(cue==='merge'||cue==='drop'||cue==='clear'||cue==='charge') {
     assert(added.every(o=>o.type==='sine'),'frequent orb cues use smooth tones without triangle harmonics');
     assert(added.every(o=>o.frequency.events.every(e=>e[1]<=440)),'frequent orb cues exclude sharp high accents');
     assert(totalPeak*ctx.gains[0].gain.value<=.175,'frequent orb cues remain quieter than combat impacts');
@@ -66,7 +66,7 @@ for(const cue of ['clear','charge','impact','shield','fusion','counter','guard']
   }
   signatures.push(JSON.stringify(added.map(o=>[o.type,o.frequency.events,o.startAt,o.stops[0]])));
 }
-assert.equal(new Set(signatures).size,7,'each cue has distinct timing/pitch/timbre');
+assert.equal(new Set(signatures).size,9,'each cue has distinct timing/pitch/timbre');
 sound.play('fusion');const last=ctx.oscillators.slice(-4);assert(last.some(o=>o.startAt>ctx.currentTime),'fixture includes future sources');
 ctx.currentTime+=.025;sound.setMuted(true);
 const active=last[0];assert.equal(active.disconnected,false,'active source stays connected for short release');
@@ -94,3 +94,48 @@ for(const browser of [undefined,{}, {AudioContext:class{constructor(){throw Erro
   const quiet=load(browser);assert.doesNotThrow(()=>{quiet.unlock();quiet.play('clear');quiet.setMuted(true);quiet.stop();quiet.dispose();});
 }
 console.log('PASS match3 sound gesture unlock, distinct bounded cues, mute/stop/dispose and silent unavailable API');
+
+// Falling beads never interrupt the semantic combat cue, never queue late sounds.
+const landing=load({AudioContext:FakeAudio});resumeRuns=true;landing.unlock();const fallCtx=created.at(-1);
+for(const cue of ['guard','impact','fusion']) {
+  landing.play(cue);const voices=fallCtx.oscillators.slice(),stopCounts=voices.map(o=>o.stops.length);
+  for(let i=0;i<10;i++)landing.play('drop');
+  assert.equal(fallCtx.oscillators.length,voices.length,'drop cannot cut off '+cue);
+  assert.deepEqual(voices.map(o=>o.stops.length),stopCounts,'rejected drops do not stop combat audio');
+  fallCtx.currentTime+=1;
+}
+let prior=fallCtx.oscillators.length;landing.play('drop');assert.equal(fallCtx.oscillators.length-prior,2);
+const falling=fallCtx.oscillators.slice(-2);assert(falling.every(o=>o.type==='sine'));
+assert.deepEqual(falling.map(o=>o.frequency.events[0][1]),[196,294]);
+assert.deepEqual(falling.map(o=>o.frequency.events.at(-1)[1]),[147,196]);
+assert(falling.every(o=>o.stops[0]-o.startAt<=.211));
+for(let i=0;i<100;i++)landing.play('drop');assert.equal(fallCtx.oscillators.length,prior+2);
+fallCtx.currentTime+=.119;landing.play('drop');assert.equal(fallCtx.oscillators.length,prior+2);
+fallCtx.currentTime+=.002;landing.play('drop');assert.equal(fallCtx.oscillators.length,prior+4);
+const interrupted=fallCtx.oscillators.slice(-2);fallCtx.currentTime+=.03;landing.play('impact');
+assert(interrupted.every(o=>o.stops.at(-1)<=fallCtx.currentTime+.011),'impact preempts drop');
+landing.setMuted(true);prior=fallCtx.oscillators.length;landing.play('drop');landing.setMuted(false);
+assert.equal(fallCtx.oscillators.length,prior,'unmute has no queued drops');landing.play('drop');assert.equal(fallCtx.oscillators.length,prior+2,'mute resets obsolete priority');
+landing.stop();prior=fallCtx.oscillators.length;landing.play('drop');assert.equal(fallCtx.oscillators.length,prior+2,'explicit stop resets throttle');
+landing.dispose();prior=fallCtx.oscillators.length;landing.play('drop');assert.equal(fallCtx.oscillators.length,prior);
+assert(fallCtx.gains.every(g=>g.disconnected));console.log('PASS soft landing, combat priority, 120ms throttle and cleanup');
+
+const merging=load({AudioContext:FakeAudio});merging.unlock();const mergeCtx=created.at(-1);
+for(const cue of ['impact','shield','fusion','guard']){
+ merging.play(cue);const prior=mergeCtx.oscillators.length,stops=mergeCtx.oscillators.map(o=>o.stops.length);
+ merging.play('merge');assert.equal(mergeCtx.oscillators.length,prior);assert.deepEqual(mergeCtx.oscillators.map(o=>o.stops.length),stops);
+ mergeCtx.currentTime+=1;
+}
+merging.play('drop');const dropVoices=mergeCtx.oscillators.slice(-2);mergeCtx.currentTime+=.04;
+let n=mergeCtx.oscillators.length;merging.play('merge');assert.equal(mergeCtx.oscillators.length,n+2,'merge takes over drop immediately');
+assert(dropVoices.every(o=>o.stops.at(-1)<=mergeCtx.currentTime+.011));
+const mergeVoices=mergeCtx.oscillators.slice(-2);assert(mergeVoices.every(o=>o.type==='sine'));assert.deepEqual(mergeVoices.map(o=>o.frequency.events[0][1]),[247,165]);assert.deepEqual(mergeVoices.map(o=>o.frequency.events.at(-1)[1]),[165,123]);
+n=mergeCtx.oscillators.length;for(let i=0;i<100;i++){merging.play('drop');merging.play('merge')}assert.equal(mergeCtx.oscillators.length,n);
+mergeCtx.currentTime+=.179;merging.play('merge');assert.equal(mergeCtx.oscillators.length,n);
+mergeCtx.currentTime+=.002;merging.play('merge');assert.equal(mergeCtx.oscillators.length,n+2);
+mergeCtx.currentTime+=.2;merging.play('drop');assert.equal(mergeCtx.oscillators.length,n+2,'drop cannot truncate merge tail');
+mergeCtx.currentTime+=.15;merging.play('drop');assert.equal(mergeCtx.oscillators.length,n+4);
+merging.play('merge');n=mergeCtx.oscillators.length;merging.play('impact');assert.equal(mergeCtx.oscillators.length,n+2,'combat takes over merging');
+merging.setMuted(true);merging.play('merge');merging.setMuted(false);n=mergeCtx.oscillators.length;merging.play('merge');assert.equal(mergeCtx.oscillators.length,n+2,'mute resets merge timing');
+merging.stop();n=mergeCtx.oscillators.length;merging.play('drop');assert.equal(mergeCtx.oscillators.length,n+2);merging.dispose();n=mergeCtx.oscillators.length;merging.play('merge');assert.equal(mergeCtx.oscillators.length,n);assert(mergeCtx.gains.every(g=>g.disconnected));
+console.log('PASS rounded merge, drop takeover, critical priority, 180ms throttle and cleanup');

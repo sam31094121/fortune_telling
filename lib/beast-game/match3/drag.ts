@@ -149,7 +149,13 @@ export interface MagicTrigger { r: number; c: number; element: BeastElement; pow
 /** 一段消除裡的一組；power＝普通顆數（上限 10）＋組內魔法珠威力（不設上限）。 */
 export interface DragGroup extends MatchGroup { power: number; magic?: boolean; magicPower?: number; skill5?: boolean }
 export interface OrbFall extends Cell { fromRow: number }
-export interface DragStep extends CascadeStep { groups: DragGroup[]; magicAfter: MagicGrid; falls?: OrbFall[]; clearedCells?: Cell[] }
+export interface DragStep extends CascadeStep {
+  groups: DragGroup[]; magicAfter: MagicGrid; falls?: OrbFall[]; clearedCells?: Cell[];
+  /** Authoritative empty slots: masked board values must never be displayed or matched. */
+  emptyCells?: Cell[];
+  /** Newly merged rewards at their post-gravity positions. */
+  rewards?: MagicSpawn[];
+}
 export interface DragResult {
   valid: boolean;
   attackAllowed: boolean;
@@ -158,6 +164,7 @@ export interface DragResult {
   board: Board; magic: MagicGrid; steps: DragStep[];
   chainLength: number; effectiveLength: number; element: BeastElement | null;
   magicSpawn: MagicSpawn | null; skill5: boolean; magicTriggered: MagicTrigger[]; reshuffled: boolean;
+  cascadeCount?: number;
 }
 
 function collapseBoth(b: Board, m: MagicGrid, cleared: Set<number>, rng: Rng, recordFalls = false): { board: Board; magic: MagicGrid; falls?: OrbFall[] } {
@@ -187,12 +194,86 @@ function scoreGroup(g: MatchGroup, m: MagicGrid, chain: number, triggers: MagicT
   return out;
 }
 
+/** Hard mode settles survivors before generating new beads; holes are explicit metadata. */
+function resolveHardDrag(board: Board, path: readonly Cell[], rng: Rng, magic0: MagicGrid, maxChains: number, diagonal: boolean, minimum: number): DragResult {
+  const effectiveLength = effectiveDragCount(path, magic0), n = path.length;
+  const shieldFusion = isShieldFusionPath(path, magic0), element = board[path[0].r][path[0].c];
+  const shieldTriggered = path.some(p => magic0[p.r][p.c] >= 7);
+  const colors = new Set(shieldFusion ? path.map(p => board[p.r][p.c]) : [element]);
+  const cells = shieldTriggered
+    ? board.flatMap((row, r) => row.flatMap((e, c) => colors.has(e) ? [{ r, c }] : []))
+    : path.map(p => ({ ...p }));
+  const triggers: MagicTrigger[] = [], steps: DragStep[] = [];
+  const skill5 = !shieldFusion && effectiveLength === SKILL5_LENGTH;
+  const firstGroups: DragGroup[] = shieldFusion
+    ? [...colors].map(e => { const colored = cells.filter(p => board[p.r][p.c] === e); return { element: e, cells: colored, size: colored.length, longest: colored.length, runs: [colored.length], power: 0 }; })
+    : [scoreGroup({ element, cells, size: cells.length, longest: n, runs: [n] }, magic0, 1, triggers)];
+  if (skill5) firstGroups[0].skill5 = true;
+  let b = cloneBoard(board), m = magic0.map(row => row.slice()), holes = new Set<number>();
+  const decode = (values: ReadonlySet<number>): Cell[] => [...values].map(value => ({ r: Math.floor(value / 1000), c: value % 1000 }));
+  const stage = (groups: DragGroup[], cleared: Set<number>, rewards: MagicSpawn[], chain: number, refill = false) => {
+    cleared.forEach(value => { holes.add(value); m[Math.floor(value / 1000)][value % 1000] = 0; });
+    rewards.forEach(reward => { holes.delete(key(reward)); m[reward.r][reward.c] = reward.power; });
+    const nb = cloneBoard(b), nm = emptyMagic(b), nextHoles = new Set<number>(), falls: OrbFall[] = [], placed: MagicSpawn[] = [];
+    const rewardAt = new Map(rewards.map(reward => [key(reward), reward]));
+    for (let c = 0; c < b[0].length; c++) {
+      const keep: Array<{ element: BeastElement; power: number; fromRow: number }> = [];
+      for (let r = b.length - 1; r >= 0; r--) if (!holes.has(key({ r, c }))) keep.push({ element: b[r][c], power: m[r][c], fromRow: r });
+      const missing = b.length - keep.length;
+      for (let r = b.length - 1, i = 0; r >= 0; r--, i++) {
+        if (i < keep.length) {
+          const orb = keep[i]; nb[r][c] = orb.element; nm[r][c] = orb.power;
+          if (orb.fromRow !== r) falls.push({ r, c, fromRow: orb.fromRow });
+          const reward = rewardAt.get(key({ r: orb.fromRow, c }));
+          if (reward) placed.push({ ...reward, r });
+        } else if (refill) { nb[r][c] = randomOrb(rng); falls.push({ r, c, fromRow: r - missing }); }
+        else nextHoles.add(key({ r, c }));
+      }
+    }
+    b = nb; m = nm; holes = nextHoles;
+    steps.push({ chain, groups, boardAfter: cloneBoard(b), magicAfter: m.map(row => row.slice()), falls, clearedCells: decode(cleared), emptyCells: decode(holes), rewards: placed });
+    return placed;
+  };
+  const firstClear = new Set(cells.map(key));
+  const firstRewards: MagicSpawn[] = [];
+  if (!shieldTriggered && MAGIC_ORB_SPAWN_ENABLED && effectiveLength >= MAGIC_ORB_MIN_LENGTH) {
+    const end = path[n - 1]; firstClear.delete(key(end)); firstRewards.push({ ...end, element, power: effectiveLength });
+  }
+  const spawn = stage(firstGroups, firstClear, firstRewards, 1)[0] ?? null;
+  let chain = 2;
+  while (chain <= maxChains) {
+    const excluded = new Set(holes);
+    m.forEach((row, r) => row.forEach((power, c) => { if (power >= 7) excluded.add(key({ r, c })); }));
+    const groups = findGroups(b, diagonal, excluded);
+    if (!groups.length) {
+      if (holes.size) { stage([], new Set(), [], chain - 1, true); continue; }
+      break;
+    }
+    const scored = groups.map(g => shieldFusion ? { ...g, power: 0 } : scoreGroup(g, m, chain, triggers));
+    const cleared = new Set(groups.flatMap(g => g.cells.map(key))), rewards: MagicSpawn[] = [];
+    for (const group of groups) if (MAGIC_ORB_SPAWN_ENABLED && effectiveDragCount(group.cells, m) >= MAGIC_ORB_MIN_LENGTH) {
+      const anchor = [...group.cells].sort((a, z) => z.r - a.r || z.c - a.c)[0];
+      rewards.push({ ...anchor, element: group.element, power: effectiveDragCount(group.cells, m) });
+      cleared.delete(key(anchor));
+    }
+    stage(scored, cleared, rewards, chain++);
+  }
+  // The cascade safety limit never leaves an unplayable half-empty board.
+  if (holes.size) stage([], new Set(), [], chain - 1, true);
+  let reshuffled = false;
+  if (!hasDragMove(b, diagonal, minimum, m)) { const rs = reshuffleKeepMagic(b, m, rng, diagonal, minimum); b = rs.board; m = rs.magic; reshuffled = true; }
+  const attackAllowed = dragIntent(path, magic0, minimum, true) === 'attack';
+  steps.forEach(step => { step.attackAllowed = attackAllowed; });
+  return { valid: true, attackAllowed, shieldFusion, board: b, magic: m, steps, chainLength: n, effectiveLength, element: shieldFusion ? null : element, magicSpawn: spawn, skill5, magicTriggered: triggers, reshuffled, cascadeCount: steps.filter(step => step.groups.length > 0).length };
+}
+
 export function resolveDrag(board: Board, path: readonly Cell[], rng: Rng, magicIn?: MagicGrid, maxChains = 50, diagonal = false, shieldMode = false, minimum = MATCH3_MIN_RUN): DragResult {
   const magic0 = magicIn ?? emptyMagic(board);
   const effectiveLength = effectiveDragCount(path, magic0);
   const fail = (reason: 'short' | 'path'): DragResult => ({ valid: false, attackAllowed: false, shieldFusion: false, reason, board, magic: magic0, steps: [], chainLength: path.length, effectiveLength, element: null, magicSpawn: null, skill5: false, magicTriggered: [], reshuffled: false });
   if (!isValidPath(board, path, diagonal, magic0, shieldMode)) return fail('path');
   if (path.length < MATCH3_MIN_RUN) return fail('short');
+  if (shieldMode) return resolveHardDrag(board, path, rng, magic0, maxChains, diagonal, minimum);
   const shieldFusion = shieldMode && isShieldFusionPath(path, magic0);
   const element = board[path[0].r][path[0].c];
   const n = path.length;

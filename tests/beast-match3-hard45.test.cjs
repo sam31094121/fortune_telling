@@ -1,10 +1,10 @@
-/** 困難 49 顆模式：盤面 7×7 由 config 給、敵方數值走 config、核心規則與中等完全相同。 */
+/** 困難 56 顆模式：盤面 7×8 由 config 給、敵方數值走 config、核心規則與中等完全相同。 */
 const assert = require('node:assert/strict');
 const M = require('../.beast-game-build/lib/beast-game/match3');
 let pass = 0; const t = (n, f) => { f(); pass++; console.log('  ok ' + n); };
 const H = M.MATCH3_MODES.hard45, MED = M.MATCH3_MODES.medium;
-t('hard45＝7×7＝49 顆；medium 仍 7×5＝35', () => {
-  assert.equal(H.cols * H.rows, 49); assert.equal(H.cols, 7); assert.equal(H.rows, 7);
+t('hard45＝7×8＝56 顆；medium 仍 7×5＝35', () => {
+  assert.equal(H.cols * H.rows, 56); assert.equal(H.cols, 7); assert.equal(H.rows, 8);
   assert.equal(MED.cols, 7); assert.equal(MED.rows, 5); assert.equal(M.MATCH3_COLS, 7);
 });
 t('medium 數值與原本相同（HP 300／ATK 8／倒數 3）', () => {
@@ -25,24 +25,24 @@ const findPath = (b) => { // 找一條 3 顆相鄰同色路徑
   }
   return null;
 };
-t('300 個 seed：49 顆盤面 7 列×7 欄、五色皆在、開局無現成三連、可拖', () => {
+t('300 個 seed：56 顆盤面 8 列×7 欄、五色皆在、開局無現成三連、可拖', () => {
   for (let s = 1; s <= 300; s++) {
     const b = M.generateDragBoard(M.seededRng(s), H.rows, H.cols);
-    assert.equal(b.length, 7); b.forEach((row) => assert.equal(row.length, 7));
-    assert.equal(b.flat().length, 49);
+    assert.equal(b.length, 8); b.forEach((row) => assert.equal(row.length, 7));
+    assert.equal(b.flat().length, 56);
     for (const e of b.flat()) assert.ok(M.MATCH3_ORB_ELEMENTS.includes(e));
     assert.equal(M.findGroups(b).length, 0);
     assert.ok(findPath(b), 'seed ' + s + ' 沒有可拖路徑');
   }
 });
-t('49 顆盤拖曳發動後仍是 7×7（含補珠、魔法珠格）', () => {
+t('56 顆盤拖曳發動後仍是 7×8（含補珠、魔法珠格）', () => {
   let n = 0;
   for (let s = 1; s <= 100; s++) {
     const rng = M.seededRng(s); const b = M.generateDragBoard(rng, H.rows, H.cols); const p = findPath(b);
     const res = M.resolveDrag(b, p, rng, M.emptyMagic(b));
     assert.ok(res.valid); n++;
-    assert.equal(res.board.length, 7); res.board.forEach((row) => assert.equal(row.length, 7));
-    assert.equal(res.magic.length, 7); res.magic.forEach((row) => assert.equal(row.length, 7));
+    assert.equal(res.board.length, 8); res.board.forEach((row) => assert.equal(row.length, 7));
+    assert.equal(res.magic.length, 8); res.magic.forEach((row) => assert.equal(row.length, 7));
     assert.equal(res.chainLength, 3);
   }
   assert.equal(n, 100);

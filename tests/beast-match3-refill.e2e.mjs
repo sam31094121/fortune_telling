@@ -69,23 +69,23 @@ try {
     await send('Page.navigate', { url: `${base}/beast-game/match3-hard` });
     await wait(`document.querySelector('[data-testid="match3-player-choice"]')`);
     await click('[data-testid="play-self"]');
-    await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===49`);
+    await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===56`);
     await js(`localStorage.setItem('match3-hard-progress-self-v1', '${wins}')`);
     await send('Page.reload');
     await wait(`document.querySelector('[data-testid="match3-player-choice"]')`);
     await click('[data-testid="play-self"]');
-    await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===49`); await sleep(300);
+    await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===56`); await sleep(300);
   };
   const state = async (fixture=false) => js(`(()=>{
     const root=document.querySelector('[data-testid="match3-board"]');
     let f=root[Object.keys(root).find(k=>k.startsWith('__reactFiber$'))], chosen;
-    for(;f;f=f.return){let hooks=[],h=f.memoizedState;for(let i=0;h&&i<80;i++,h=h.next)hooks.push(h);if(hooks.filter(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length===7&&Array.isArray(h.memoizedState[0])).length>=2){chosen=hooks;break;}}
+    for(;f;f=f.return){let hooks=[],h=f.memoizedState;for(let i=0;h&&i<80;i++,h=h.next)hooks.push(h);if(hooks.filter(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length===8&&Array.isArray(h.memoizedState[0])).length>=2){chosen=hooks;break;}}
     if(!chosen)throw Error('Fixture owner not found');
-    const matrix=chosen.filter(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length===7&&Array.isArray(h.memoizedState[0]));
+    const matrix=chosen.filter(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length===8&&Array.isArray(h.memoizedState[0]));
     const b=matrix.find(h=>typeof h.memoizedState[0][0]==='string'), m=matrix.find(h=>typeof h.memoizedState[0][0]==='number');
     const t=chosen.find(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length&&h.memoizedState[0]?.energy!==undefined&&h.memoizedState[0]?.hp!==undefined);
     const e=chosen.find(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length&&h.memoizedState[0]?.cd!==undefined&&h.memoizedState[0]?.hp!==undefined);
-    if(${fixture}){const els=['FIRE','WATER','AIR','SPACE','EARTH'];const board=Array.from({length:7},(_,r)=>Array.from({length:7},(_,c)=>els[(r*2+c)%5]));const magic=Array.from({length:7},()=>Array(7).fill(0));for(let c=0;c<3;c++)magic[3][c]=7;board[6][0]=board[6][1]=board[6][2]='EARTH';b.queue.dispatch(board);m.queue.dispatch(magic);}
+    if(${fixture}){const els=['FIRE','WATER','AIR','SPACE','EARTH'];const board=Array.from({length:8},(_,r)=>Array.from({length:7},(_,c)=>els[(r*2+c)%5]));const magic=Array.from({length:8},()=>Array(7).fill(0));for(let c=0;c<3;c++)magic[3][c]=7;board[6][0]=board[6][1]=board[6][2]='EARTH';b.queue.dispatch(board);m.queue.dispatch(magic);}
     return {team:t.memoizedState,foes:e.memoizedState};
   })()`);
   await send('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{
@@ -109,7 +109,7 @@ try {
     assert(observations.every(f=>f.busy==='true'&&f.disabled&&f.overflow==='hidden'),'no input while unsettled and entering beads stay inside board');
     assert(observations.some(f=>new Set(f.cells.map(c=>c.delay)).size>1),'stagger visible in real CSS');
     assert(observations.some(f=>f.cells.some(c=>c.animation.includes('m3RefillFall')&&c.transform!=='none')));
-    const after=await snap();assert.equal(after.cells.length,49);assert(after.scroll<=width);
+    const after=await snap();assert.equal(after.cells.length,56);assert(after.scroll<=width);
     assert.equal(await js('document.querySelectorAll("[data-fall-from]").length'),0,'all motion state settles');
     assert.equal(await js('window.__gains[0].gain.value'),1,'no extra master attenuation');
     results.push({width,frames:observations.length,sample:observations.slice(0,2),after});await save('refill-settled-'+width);

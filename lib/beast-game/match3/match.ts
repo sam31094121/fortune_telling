@@ -18,22 +18,25 @@ export interface MatchGroup {
 }
 
 /** diagonal＝true 時另外掃「↘（diag）」與「↙（anti）」兩條斜線；預設 false＝只有橫直（中等模式行為不變）。 */
-export function findRuns(b: Grid, diagonal = false): Run[] {
+export function findRuns(b: Grid, diagonal = false, excluded?: ReadonlySet<number>): Run[] {
   const runs: Run[] = [];
   const rows = b.length, cols = b[0]?.length ?? 0;
+  const at = (r: number, c: number) => excluded?.has(r * 1000 + c) ? undefined : b[r][c];
   for (let r = 0; r < rows; r++) {
     let s = 0;
     for (let c = 1; c <= cols; c++) {
-      if (c < cols && b[r][c] === b[r][s]) continue;
-      if (c - s >= MATCH3_MIN_RUN) runs.push({ element: b[r][s], dir: 'row', cells: Array.from({ length: c - s }, (_, i) => ({ r, c: s + i })) });
+      if (c < cols && at(r, c) === at(r, s)) continue;
+      const element = at(r, s);
+      if (element && c - s >= MATCH3_MIN_RUN) runs.push({ element, dir: 'row', cells: Array.from({ length: c - s }, (_, i) => ({ r, c: s + i })) });
       s = c;
     }
   }
   for (let c = 0; c < cols; c++) {
     let s = 0;
     for (let r = 1; r <= rows; r++) {
-      if (r < rows && b[r][c] === b[s][c]) continue;
-      if (r - s >= MATCH3_MIN_RUN) runs.push({ element: b[s][c], dir: 'col', cells: Array.from({ length: r - s }, (_, i) => ({ r: s + i, c })) });
+      if (r < rows && at(r, c) === at(s, c)) continue;
+      const element = at(s, c);
+      if (element && r - s >= MATCH3_MIN_RUN) runs.push({ element, dir: 'col', cells: Array.from({ length: r - s }, (_, i) => ({ r: s + i, c })) });
       s = r;
     }
   }
@@ -45,8 +48,9 @@ export function findRuns(b: Grid, diagonal = false): Run[] {
       for (let r = r0, c = c0; r >= 0 && r < rows && c >= 0 && c < cols; r += dr, c += dc) line.push({ r, c });
       let s = 0;
       for (let i = 1; i <= line.length; i++) {
-        if (i < line.length && b[line[i].r][line[i].c] === b[line[s].r][line[s].c]) continue;
-        if (i - s >= MATCH3_MIN_RUN) runs.push({ element: b[line[s].r][line[s].c], dir, cells: line.slice(s, i) });
+        if (i < line.length && at(line[i].r, line[i].c) === at(line[s].r, line[s].c)) continue;
+        const element = at(line[s].r, line[s].c);
+        if (element && i - s >= MATCH3_MIN_RUN) runs.push({ element, dir, cells: line.slice(s, i) });
         s = i;
       }
     }
@@ -54,8 +58,8 @@ export function findRuns(b: Grid, diagonal = false): Run[] {
   return runs;
 }
 
-export function findGroups(b: Grid, diagonal = false): MatchGroup[] {
-  const runs = findRuns(b, diagonal);
+export function findGroups(b: Grid, diagonal = false, excluded?: ReadonlySet<number>): MatchGroup[] {
+  const runs = findRuns(b, diagonal, excluded);
   const parent = runs.map((_, i) => i);
   const find = (i: number): number => (parent[i] === i ? i : (parent[i] = find(parent[i])));
   const key = (p: { r: number; c: number }) => p.r * 1000 + p.c;

@@ -22,7 +22,7 @@ for (let level = 0; level < 3; level++) {
   assert.equal(enough.valid,true); assert.equal(enough.chainLength,minimum);
   assert.equal(enough.attackAllowed,true);
   for(let seed=1;seed<=100;seed++) {
-    const generated=M.generateDragBoard(M.seededRng(seed),7,7,true,minimum);
+    const generated=M.generateDragBoard(M.seededRng(seed),M.MATCH3_MODES.hard45.rows,M.MATCH3_MODES.hard45.cols,true,minimum);
     assert.ok(M.hasDragMove(generated,true,minimum));
     assert.equal(M.findGroups(generated,true).length,0);
   }

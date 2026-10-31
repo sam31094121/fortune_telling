@@ -78,11 +78,11 @@ test('physical minimum, adjacency, no revisits and no crossing remain enforced',
   assert(!D.isValidPath(board,crossing,true,magic,true));
   assert(!D.isValidPath(board,[{r:0,c:0},{r:1,c:1},{r:2,c:2}],false,magic,true));
 });
-test('fusion consumes only selected shields, groups by color and all cascades have zero attack', () => {
+test('fusion clears all participating colors, preserves other shields and all cascades have zero attack', () => {
   let cascaded = false;
   for (let seed=1; seed<=24; seed++) {
     const {board,magic} = fixture(seed);
-    magic[6][6] = 11; // Unselected shield survives refill/cascades/reshuffle.
+    board[6][6] = 'EARTH'; magic[6][6] = 11; // A different-color shield survives.
     const before=JSON.stringify({board,magic});
     const out=D.resolveDrag(board,path,B.seededRng(seed+100),magic,50,true,true,50);
     assert(out.valid && out.shieldFusion);
@@ -90,15 +90,19 @@ test('fusion consumes only selected shields, groups by color and all cascades ha
     assert.equal(out.effectiveLength,24); assert.equal(out.chainLength,3);
     assert.equal(out.magicSpawn,null); assert.equal(out.skill5,false);
     assert.deepEqual(out.magicTriggered,[]);
-    assert.deepEqual(out.steps[0].groups.map(g=>[g.element,g.size]),[['AIR',1],['FIRE',1],['WATER',1]]);
-    assert.equal(out.steps[0].groups.flatMap(g=>g.cells).length,3);
+    assert.deepEqual(out.steps[0].groups.map(g=>[g.element,g.size]),['AIR','FIRE','WATER'].map(e=>[e,board.flat().filter(v=>v===e).length]));
+    const total=board.flat().filter(e=>['AIR','FIRE','WATER'].includes(e)).length;
+    assert.equal(out.steps[0].clearedCells.length,total);
+    assert.equal(out.steps[0].emptyCells.length,total);
+    const empty=new Set(out.steps[0].emptyCells.map(p=>p.r*1000+p.c));
+    out.steps[0].boardAfter.forEach((row,r)=>row.forEach((e,c)=>{if(!empty.has(r*1000+c))assert(['EARTH','SPACE'].includes(e))}));
     for (const step of out.steps) {
       assert.equal(step.attackAllowed,false);
       assert(step.groups.every(g=>g.power===0 && !g.skill5));
     }
-    assert.deepEqual(out.magic.flat().filter(n=>n>0),[11]);
+    assert.equal(out.magic[6][6],11);assert.equal(out.board[6][6],'EARTH');
     assert.equal(JSON.stringify({board,magic}),before);
-    cascaded ||= out.steps.length>1;
+    cascaded ||= out.steps.some(s=>s.chain>1&&s.groups.length);
   }
   assert(cascaded,'must exercise a real follow-up cascade');
 });

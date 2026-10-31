@@ -501,29 +501,31 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
   content: ''; grid-area: 1/1; width: 24%; height: 2px; z-index: 0; opacity: 0;
   background: linear-gradient(90deg, transparent, #b9e8ed 45%, #f1fbff 70%, transparent);
   box-shadow: 0 0 4px rgba(185,232,237,.45);
-  animation: shieldFuseFlow .9s cubic-bezier(.35,0,.2,1) both;
+  animation: shieldFuseFlow var(--fusion-duration, 1650ms) cubic-bezier(.35,0,.2,1) both;
 }
 .fusionBurst::before { --fusion-flow-start: -90%; }
 .fusionBurst::after { --fusion-flow-start: 90%; background: linear-gradient(270deg, transparent, #b9e8ed 45%, #f1fbff 70%, transparent); }
-.fusionBurst img { --fusion-rest-opacity: 0; grid-area: 1/1; width: 24%; height: auto; z-index: 1; filter: drop-shadow(0 0 2px currentColor) drop-shadow(0 0 7px currentColor); animation: shieldFuse .9s cubic-bezier(.2,.7,.25,1) both; }
+.fusionShield { --fusion-rest-opacity: 0; grid-area: 1/1; aspect-ratio: 1; display: grid; place-items: center; border: 2px solid currentColor; border-radius: 50%; background: color-mix(in srgb, currentColor 22%, #171824); box-shadow: 0 0 8px color-mix(in srgb, currentColor 45%, transparent), inset 0 0 10px color-mix(in srgb, currentColor 24%, transparent); z-index: 1; animation: shieldFuse var(--fusion-duration, 1650ms) cubic-bezier(.2,.7,.25,1) both; }
+.fusionShield img { width: 82%; height: auto; filter: drop-shadow(0 0 2px currentColor); }
 /* 匯聚後只留下中間一枚，避免三張同圖與光暈重疊洗白 080。 */
-.fusionBurst img:nth-of-type(2) { --fusion-rest-opacity: 1; z-index: 2; }
-.fusionHalo { grid-area: 1/1; position: relative; width: 46%; aspect-ratio: 1; border: 1.5px solid #e4faff; border-radius: 50%; box-shadow: 0 0 3px rgba(244,255,255,.7), 0 0 10px rgba(185,232,237,.5), inset 0 0 5px rgba(185,232,237,.3); animation: shieldFuseHalo .9s ease-out both; }
-.fusionHalo::after { content: ''; position: absolute; inset: -9%; border: 1px solid rgba(219,249,255,.5); border-radius: inherit; box-shadow: 0 0 5px rgba(185,232,237,.25); }
-.fusionHalo::before { content: ''; position: absolute; inset: -14%; border: 1.5px solid #fff2d7; border-radius: inherit; box-shadow: 0 0 3px rgba(228,250,255,.6); opacity: 0; animation: shieldFusePulse .9s ease-out both; }
+.fusionShield[data-primary] { --fusion-rest-opacity: 1; z-index: 2; }
+.fusionHalo { grid-area: 1/1; position: relative; width: 46%; aspect-ratio: 1; border: 1.5px solid #e4faff; border-radius: 50%; box-shadow: 0 0 3px rgba(244,255,255,.7), 0 0 10px rgba(185,232,237,.5), inset 0 0 5px rgba(185,232,237,.3); animation: shieldFuseHalo var(--fusion-duration, 1650ms) ease-out both; }
+.fusionHalo::after { content: ''; position: absolute; inset: -9%; border-radius: inherit; background: var(--fusion-colors); mask-image: radial-gradient(circle, transparent 64%, #000 65%, #000 69%, transparent 70%); }
+.fusionHalo::before { content: ''; position: absolute; inset: -14%; border: 1.5px solid #fff2d7; border-radius: inherit; box-shadow: 0 0 3px rgba(228,250,255,.6); opacity: 0; animation: shieldFusePulse var(--fusion-duration, 1650ms) ease-out both; }
 .allyGuard { outline: 2px solid #dbf9ff; outline-offset: -2px; box-shadow: 0 0 12px rgba(185,232,237,.65), inset 0 0 8px rgba(185,232,237,.3); }
 .allyGuard::after { content: ''; position: absolute; inset: 1px; border-radius: inherit; pointer-events: none; border: 1px solid #e4faff; box-shadow: 0 0 8px rgba(185,232,237,.5); opacity: 0; animation: shieldGuardPulse .42s ease-out both; }
 @keyframes shieldFuse {
-  0% { transform: translateX(var(--fusion-x)) scale(.5); opacity: 0; }
-  18%, 28% { transform: translateX(var(--fusion-x)) scale(.85); opacity: 1; }
-  52%, 72% { transform: translateX(0) scale(1.75); opacity: var(--fusion-rest-opacity); }
-  84% { transform: translateX(0) scale(1.3); opacity: var(--fusion-rest-opacity); }
-  100% { transform: translateX(0) scale(.3); opacity: 0; }
+  0% { transform: translate(var(--fusion-x), var(--fusion-y)) scale(.5); opacity: 0; }
+  18%, 28% { transform: translate(var(--fusion-x), var(--fusion-y)) scale(.85); opacity: 1; }
+  36%, 80% { transform: translate(0, 0) scale(var(--fusion-scale)); opacity: var(--fusion-rest-opacity); }
+  66% { transform: translate(0, 0) scale(calc(var(--fusion-scale) * 1.035)); opacity: var(--fusion-rest-opacity); }
+  92% { transform: translate(0, 0) scale(calc(var(--fusion-scale) * .75)); opacity: var(--fusion-rest-opacity); }
+  100% { transform: translate(0, 0) scale(.3); opacity: 0; }
 }
 @keyframes shieldFuseHalo {
-  0%, 40% { transform: scale(.45); opacity: 0; }
-  58% { transform: scale(.9); opacity: .7; }
-  82% { transform: scale(1.65); opacity: .3; }
+  0%, 28% { transform: scale(.45); opacity: 0; }
+  40%, 72% { transform: scale(.9); opacity: .7; }
+  90% { transform: scale(1.65); opacity: .3; }
   100% { transform: scale(1.4); opacity: 0; }
 }
 @keyframes shieldGuardPulse { 0% { opacity: 0; } 35% { opacity: .85; } 100% { opacity: 0; } }
@@ -539,9 +541,9 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
   66%, 100% { transform: scale(1.16); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .fusionBurst img, .fusionHalo, .allyGuard::after,
+  .fusionShield, .fusionHalo, .allyGuard::after,
   .fusionBurst::before, .fusionBurst::after, .fusionHalo::before { animation: none; }
-  .fusionBurst img { transform: translateX(var(--fusion-x)) scale(.6); }
+  .fusionShield { transform: translate(var(--fusion-x), var(--fusion-y)) scale(.85); }
   .fusionHalo { opacity: .3; }
   .allyGuard::after { opacity: 0; }
   .fusionBurst::before, .fusionBurst::after, .fusionHalo::before { display: none; }
@@ -592,6 +594,13 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 }
 
 .wrap[data-mode^="hard"] .board[data-refilling="true"] { overflow: hidden; }
+.wrap[data-mode^="hard"] .emptyCell { visibility: hidden; pointer-events: none; }
+.wrap[data-mode^="hard"] .reward .power,
+.wrap[data-mode^="hard"] .reward .shieldOrb { animation: m3RewardForm .45s ease-out both; }
+@keyframes m3RewardForm {
+  from { opacity: .5; filter: brightness(1.35); }
+  to { opacity: 1; filter: brightness(1); }
+}
 .wrap[data-mode^="hard"] .falling {
   z-index: 1;
   animation: m3RefillFall var(--fall-duration) cubic-bezier(.22,.65,.25,1) var(--fall-delay) both;
@@ -602,5 +611,11 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
   100% { transform: translateY(0) scale(1); opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .wrap[data-mode^="hard"] .falling { animation: none; }
+  .wrap[data-mode^="hard"] .falling,
+  .wrap[data-mode^="hard"] .reward .power,
+  .wrap[data-mode^="hard"] .reward .shieldOrb { animation: none; }
 }
+
+.fusionLightning { position:absolute; inset:0; width:100%; height:100%; z-index:3; pointer-events:none; overflow:hidden; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; opacity:0; filter:drop-shadow(0 0 3px rgba(220,245,255,.45)); animation:fusionDischarge var(--fusion-duration, 1650ms) ease-out both; }
+@keyframes fusionDischarge { 0%, 78% { opacity:0; stroke-dasharray:130; stroke-dashoffset:130; } 88% { opacity:.85; stroke-dashoffset:0; } 100% { opacity:0; stroke-dashoffset:0; } }
+@media (prefers-reduced-motion: reduce) { .fusionLightning { display:none; animation:none; } }

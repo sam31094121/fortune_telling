@@ -69,23 +69,23 @@ try {
     await send('Page.navigate', { url: `${base}/beast-game/match3-hard` });
     await wait(`document.querySelector('[data-testid="match3-player-choice"]')`);
     await click('[data-testid="play-self"]');
-    await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===49`);
+    await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===56`);
     await js(`localStorage.setItem('match3-hard-progress-self-v1', '${wins}')`);
     await send('Page.reload');
     await wait(`document.querySelector('[data-testid="match3-player-choice"]')`);
     await click('[data-testid="play-self"]');
-    await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===49`); await sleep(300);
+    await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===56`); await sleep(300);
   };
   const state = async (fixture=false) => js(`(()=>{
     const root=document.querySelector('[data-testid="match3-board"]');
     let f=root[Object.keys(root).find(k=>k.startsWith('__reactFiber$'))], chosen;
-    for(;f;f=f.return){let hooks=[],h=f.memoizedState;for(let i=0;h&&i<80;i++,h=h.next)hooks.push(h);if(hooks.filter(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length===7&&Array.isArray(h.memoizedState[0])).length>=2){chosen=hooks;break;}}
+    for(;f;f=f.return){let hooks=[],h=f.memoizedState;for(let i=0;h&&i<80;i++,h=h.next)hooks.push(h);if(hooks.filter(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length===8&&Array.isArray(h.memoizedState[0])).length>=2){chosen=hooks;break;}}
     if(!chosen)throw Error('Fixture owner not found');
-    const matrix=chosen.filter(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length===7&&Array.isArray(h.memoizedState[0]));
+    const matrix=chosen.filter(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length===8&&Array.isArray(h.memoizedState[0]));
     const b=matrix.find(h=>typeof h.memoizedState[0][0]==='string'), m=matrix.find(h=>typeof h.memoizedState[0][0]==='number');
     const t=chosen.find(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length&&h.memoizedState[0]?.energy!==undefined&&h.memoizedState[0]?.hp!==undefined);
     const e=chosen.find(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length&&h.memoizedState[0]?.cd!==undefined&&h.memoizedState[0]?.hp!==undefined);
-    if(${fixture}){const els=['FIRE','WATER','AIR','SPACE','EARTH'];const board=Array.from({length:7},(_,r)=>Array.from({length:7},(_,c)=>els[(r*2+c)%5]));const magic=Array.from({length:7},()=>Array(7).fill(0));for(let c=0;c<3;c++)magic[3][c]=7;board[6][0]=board[6][1]=board[6][2]='EARTH';b.queue.dispatch(board);m.queue.dispatch(magic);}
+    if(${fixture}){const els=['FIRE','WATER','AIR','SPACE','EARTH'];const board=Array.from({length:8},(_,r)=>Array.from({length:7},(_,c)=>els[(r*2+c)%5]));const magic=Array.from({length:8},()=>Array(7).fill(0));for(let c=0;c<3;c++)magic[3][c]=7;board[6][0]=board[6][1]=board[6][2]='EARTH';b.queue.dispatch(board);m.queue.dispatch(magic);}
     return {team:t.memoizedState,foes:e.memoizedState};
   })()`);
   await send('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{
@@ -109,7 +109,7 @@ try {
   }
   await send('Emulation.setEmulatedMedia',{features:[]});await start(5,390);await state(true);await sleep(200);await reset();await drag([{r:3,c:0},{r:3,c:1},{r:3,c:2}]);l=await log();f=frequencies(l);assert.deepEqual(f.slice(0,4),[440,550,880,110]);assert(f.includes(cueHz.guard)&&!f.includes(cueHz.impact));results.push({case:'explicit board/magic fixture fusion and guard',log:l});
   // Explicit board/magic fixture: two FIRE ordinary cells plus one FIRE shield; actual pointer triggers colour clear.
-  await start(0,390);await state(true);await js(`(()=>{const b=document.querySelector('[data-testid="match3-board"]');let f=b[Object.keys(b).find(k=>k.startsWith('__reactFiber$'))];for(;f;f=f.return){let h=f.memoizedState,done=0;for(let i=0;h&&i<80;i++,h=h.next){if(Array.isArray(h.memoizedState)&&h.memoizedState.length===7&&Array.isArray(h.memoizedState[0])){let a=h.memoizedState.map(r=>r.slice());if(typeof a[0][0]==='string'){a[3][0]=a[3][1]=a[3][2]='FIRE';h.queue.dispatch(a);done++}else if(typeof a[0][0]==='number'){a=a.map(r=>r.map(()=>0));a[3][2]=7;h.queue.dispatch(a);done++}if(done===2)return}}}})()`);await sleep(150);await reset();await drag([{r:3,c:0},{r:3,c:1},{r:3,c:2}]);l=await log();f=frequencies(l);assert.deepEqual(f.slice(0,3),[660,990,1320]);assert(!f.includes(440),'Single shield must not play fusion');results.push({case:'explicit board/magic fixture single shield colour clear',log:l});
+  await start(0,390);await state(true);await js(`(()=>{const b=document.querySelector('[data-testid="match3-board"]');let f=b[Object.keys(b).find(k=>k.startsWith('__reactFiber$'))];for(;f;f=f.return){let h=f.memoizedState,done=0;for(let i=0;h&&i<80;i++,h=h.next){if(Array.isArray(h.memoizedState)&&h.memoizedState.length===8&&Array.isArray(h.memoizedState[0])){let a=h.memoizedState.map(r=>r.slice());if(typeof a[0][0]==='string'){a[3][0]=a[3][1]=a[3][2]='FIRE';h.queue.dispatch(a);done++}else if(typeof a[0][0]==='number'){a=a.map(r=>r.map(()=>0));a[3][2]=7;h.queue.dispatch(a);done++}if(done===2)return}}}})()`);await sleep(150);await reset();await drag([{r:3,c:0},{r:3,c:1},{r:3,c:2}]);l=await log();f=frequencies(l);assert.deepEqual(f.slice(0,3),[660,990,1320]);assert(!f.includes(440),'Single shield must not play fusion');results.push({case:'explicit board/magic fixture single shield colour clear',log:l});
   // Mute during a real running fusion cue, using actual pointer clicks.
   await start(5,390);await state(true);await sleep(150);await reset();await js(`document.querySelector('[data-testid="match3-board"]').scrollIntoView({block:'center',behavior:'instant'})`);
   const pts=await js(`Array.from({length:3},(_,c)=>{let r=document.querySelector('[data-testid="match3-board"] [data-r="3"][data-c="'+c+'"]').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})`);

@@ -1,7 +1,10 @@
 /** 寶珠介面提示音；不取代六秒戰鬥影片或神獸登錄原聲。 */
-export type Match3SoundCue = 'clear' | 'charge' | 'impact' | 'shield' | 'fusion' | 'counter' | 'guard';
+export type Match3SoundCue = 'clear' | 'charge' | 'impact' | 'shield' | 'fusion' | 'counter' | 'guard' | 'drop' | 'merge';
 type Tone = { hz: number; to?: number; at?: number; duration: number; gain: number; type?: OscillatorType };
 const CUES: Record<Match3SoundCue, readonly Tone[]> = {
+  // 落珠只作圓潤低音回饋；命中與護盾仍保有聲音優先權。
+  merge: [{ hz: 247, to: 165, duration: .24, gain: .08 }, { hz: 165, to: 123, at: .03, duration: .30, gain: .065 }],
+  drop: [{ hz: 196, to: 147, duration: .20, gain: .09 }, { hz: 294, to: 196, at: .025, duration: .12, gain: .04 }],
   // 高音只作短促辨識，較長尾音交給往下收的低聲部；不增加回合等待。
   clear: [{ hz: 420, to: 210, duration: .18, gain: .06 }, { hz: 315, at: .035, to: 196, duration: .14, gain: .035 }, { hz: 196, to: 147, duration: .28, gain: .075 }],
   charge: [{ hz: 220, to: 294, duration: .36, gain: .13 }, { hz: 440, to: 330, at: .1, duration: .12, gain: .035 }],
@@ -18,6 +21,10 @@ export function createMatch3Sound() {
   let softener: BiquadFilterNode | null = null;
   let muted = false;
   let disposed = false;
+  let priorityUntil = 0;
+  let lastDropAt = -Infinity;
+  let lastMergeAt = -Infinity;
+  let mergeUntil = 0;
   const voices = new Map<OscillatorNode, { gain: GainNode; start: number; scheduled: boolean; releasing: boolean }>();
   const clean = (source: OscillatorNode, gain: GainNode) => {
     voices.delete(source);
@@ -49,7 +56,7 @@ export function createMatch3Sound() {
       }
     }
   };
-  const stop = () => stopVoices();
+  const stop = () => { priorityUntil = 0; lastDropAt = -Infinity; lastMergeAt = -Infinity; mergeUntil = 0; stopVoices(); };
   return {
     /** 呼叫端必須在真實手勢中同步呼叫；未解鎖的 play 不排隊補播。 */
     unlock(): void {
@@ -75,7 +82,18 @@ export function createMatch3Sound() {
     play(cue: Match3SoundCue): void {
       if (disposed || muted || !context || !master || context.state !== 'running') return;
       // 新事件接手舊提示，避免連續點擊疊音增大音量或留下延遲音。
-      stop();
+      const now = context.currentTime;
+      if (cue === 'drop' && (now < priorityUntil || now < mergeUntil || now - lastDropAt < .12)) return;
+      if (cue === 'merge' && (now < priorityUntil || now - lastMergeAt < .18)) return;
+      stopVoices();
+      if (cue === 'drop') lastDropAt = now;
+      else if (cue === 'merge') {
+        lastMergeAt = now;
+        mergeUntil = now + Math.max(...CUES.merge.map(tone => (tone.at ?? 0) + tone.duration)) + .01;
+      } else {
+        mergeUntil = 0;
+        priorityUntil = now + Math.max(...CUES[cue].map(tone => (tone.at ?? 0) + tone.duration)) + .01;
+      }
       try {
         for (const tone of CUES[cue]) {
           const source = context.createOscillator(), gain = context.createGain();
@@ -98,7 +116,7 @@ export function createMatch3Sound() {
     stop,
     dispose(): void {
       if (disposed) return;
-      disposed = true; stopVoices(true);
+      disposed = true; priorityUntil = 0; lastDropAt = -Infinity; stopVoices(true);
       try { master?.disconnect(); } catch { /* Already disconnected. */ }
       try { softener?.disconnect(); } catch { /* Already disconnected. */ }
       try { void context?.close().catch(() => {}); } catch { /* Already closed. */ }

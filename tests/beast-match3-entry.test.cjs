@@ -95,7 +95,7 @@ assert.equal(M.MATCH3_MODES.medium.title, '寶珠戰・簡單');
 assert.equal(M.MATCH3_MODES.medium.badge, '簡單・35 珠');
 assert.equal(M.MATCH3_MODES.hard45.title, '寶珠戰・困難');
 assert.deepEqual([M.MATCH3_MODES.medium.cols, M.MATCH3_MODES.medium.rows, M.MATCH3_MODES.medium.enemyHp, M.MATCH3_MODES.medium.enemyAtk], [7,5,300,8]);
-assert.deepEqual([M.MATCH3_MODES.hard45.cols, M.MATCH3_MODES.hard45.rows, M.MATCH3_MODES.hard45.enemyHp, M.MATCH3_MODES.hard45.enemyAtk], [7,7,450,12]);
+assert.deepEqual([M.MATCH3_MODES.hard45.cols, M.MATCH3_MODES.hard45.rows, M.MATCH3_MODES.hard45.enemyHp, M.MATCH3_MODES.hard45.enemyAtk], [7,8,450,12]);
 const old = { exports: {} }; let destination;
 vm.runInNewContext(compile('app/beast-game/match3-hard2/page.tsx'), {
   module: old, exports: old.exports, require: id => {

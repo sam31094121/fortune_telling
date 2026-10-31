@@ -29,7 +29,7 @@ import { RIG_STRIKE_MS } from '@/lib/beast-game/beast-rig';
 import Match3RigAttack, { Match3TargetArt, match3RigAttackers, type Match3Strike } from './Match3RigAttack';
 import { readMatch3Progress, saveMatch3Progress, type Match3ProgressOwner } from '@/lib/beast-game/match3/progress-store';
 import { createMatch3Sound, type Match3SoundCue } from './match3Sound';
-import { refillPresentation, type RefillMotion } from '@/lib/beast-game/match3/refill-presentation';
+import { refillPresentation, refillLandingTimes, fusionShieldLayout, fusionDischarge, FUSION_CLEAR_AT_MS, FUSION_DISPLAY_MS, type RefillMotion } from '@/lib/beast-game/match3/refill-presentation';
 
 interface Unit extends Match3Fighter { name: string; thumbnail: string; maxHp: number; energy: number; skillName?: string; description?: string }
 interface Foe extends Match3Foe { name: string; thumbnail: string }
@@ -65,8 +65,9 @@ const k = (r: number, c: number) => r * 1000 + c;
 /** 可斜連模式（config diagonal:true）的提示字。 */
 const DIAG_TIP = '相鄰同色珠三顆起可消除（可斜連）；攻擊須達本關門檻';
 
-const OrbCell = memo(function OrbCell({ r, c, e, mp, sel, flash, shake, drop, shield, fall }: { r: number; c: number; e: BeastElement; mp: number; shield: boolean; sel: boolean; flash: boolean; shake: boolean; drop: boolean; fall?: RefillMotion }) {
-  const cls = [styles.orb, ORB_CLASS[e], sel ? styles.sel : '', flash ? styles.flash : '', shake ? styles.shake : '', drop ? styles.drop : '', fall ? styles.falling : '', mp > 0 ? styles.magic : '', shield && mp >= 7 ? styles.shieldCell : ''].join(' ');
+const OrbCell = memo(function OrbCell({ r, c, e, mp, sel, flash, shake, drop, shield, fall, empty, reward }: { r: number; c: number; e: BeastElement; mp: number; shield: boolean; sel: boolean; flash: boolean; shake: boolean; drop: boolean; fall?: RefillMotion; empty?: boolean; reward?: boolean }) {
+  if (empty) return <div role="gridcell" data-r={r} data-c={c} data-empty="true" className={`${styles.orb} ${styles.emptyCell}`} aria-label="待補珠空格" />;
+  const cls = [styles.orb, ORB_CLASS[e], sel ? styles.sel : '', flash ? styles.flash : '', shake ? styles.shake : '', drop ? styles.drop : '', fall ? styles.falling : '', reward ? styles.reward : '', mp > 0 ? styles.magic : '', shield && mp >= 7 ? styles.shieldCell : ''].join(' ');
   return (
     <div role="gridcell" data-r={r} data-c={c} data-el={e} data-magic={mp || undefined} className={cls}
       data-fall-from={fall?.fromRow} data-fall-delay={fall?.delayMs}
@@ -149,6 +150,8 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
   const [shake, setShake] = useState<Set<number>>(new Set());
   const [drop, setDrop] = useState<Set<number>>(new Set());
   const [falling, setFalling] = useState<Map<number, RefillMotion>>(new Map());
+  const [emptyCells, setEmptyCells] = useState<Set<number>>(new Set());
+  const [rewards, setRewards] = useState<Set<number>>(new Set());
   const [clearMs, setClearMs] = useState(260);
   const [banner, setBanner, queuedBanner] = useBannerQueue();
   const [hitTeam, setHitTeam] = useState<Set<string>>(new Set());
@@ -206,7 +209,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
 
   const restart = useCallback(() => {
     audio.current?.stop();
-    setFalling(new Map()); setFlash(new Set()); setDrop(new Set());
+    setFalling(new Map()); setFlash(new Set()); setDrop(new Set()); setEmptyCells(new Set()); setRewards(new Set());
     setStrike(null); setShieldBurst(null); setFusionBurst(null); setGuardActive(false); setCounterFoes(new Set());
     const rng = rngRef.current; const nextWins = rigEnabled ? nextProgressionWins(wins, over === 'win') : 0; setWins(nextWins); const n = pickLineup(rng, teamIds, cfg, nextWins); const b = generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, rigEnabled ? progressionStage(nextWins).minChain : 3);
     setTeam(n.team); setFoes(n.enemies); setTarget(0); setBoard(b); setMagic(emptyMagic(b)); setMoves(0); setTotalDmg(0); setLastDmg(0); setBanner(null);
@@ -258,26 +261,35 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
     setBusy(true); if (!rigEnabled) sound(520 + res.chainLength * 40);
     const frames = res.steps.map((st, i) => ({ before: i === 0 ? board : res.steps[i - 1].boardAfter, mag: i === 0 ? magic : res.steps[i - 1].magicAfter,
       cells: new Set((st.clearedCells ?? st.groups.flatMap(g => g.cells)).map(c => k(c.r, c.c))) }));
-    const shieldDelay = rigEnabled && (res.shieldFusion || res.magicTriggered.some(t => t.chain === 1 && t.power >= 7)) ? 900 : 0;
+    const shieldDelay = rigEnabled && res.shieldFusion ? FUSION_CLEAR_AT_MS : rigEnabled && res.magicTriggered.some(t => t.chain === 1 && t.power >= 7) ? 900 : 0;
     if (rigEnabled) cue(res.shieldFusion ? 'fusion' : shieldDelay ? 'shield' : dealt > 0 ? 'charge' : 'clear');
     if (shieldDelay) {
-      if (res.shieldFusion) { setFusionBurst(path.slice(0, 3).map(p => board[p.r][p.c])); later(() => setFusionBurst(null), shieldDelay); }
+      if (res.shieldFusion) { setFusionBurst(path.map(p => board[p.r][p.c])); later(() => cue('clear'), FUSION_CLEAR_AT_MS); later(() => setFusionBurst(null), FUSION_DISPLAY_MS); }
       else { setShieldBurst(el); later(() => setShieldBurst(null), shieldDelay); }
     }
     let settleAt = shieldDelay + frames.length * 300;
     if (rigEnabled) {
       const playback = refillPresentation(res.steps, window.matchMedia('(prefers-reduced-motion: reduce)').matches);
       playback.frames.forEach((phase, i) => {
-        later(() => { setFalling(new Map()); setClearMs(phase.clearMs); setBoard(frames[i].before); setMagic(frames[i].mag); setFlash(frames[i].cells); }, shieldDelay + phase.clearAt);
+        const mergeAt = res.steps[i].rewards?.length ? Math.max(0, ...phase.motions.map(m => m.delayMs + m.durationMs)) : null;
+        refillLandingTimes(phase.motions).filter(at => mergeAt === null || mergeAt - at >= 140).forEach(at => later(() => cue('drop'), shieldDelay + phase.fallAt + at));
+        if (mergeAt !== null) later(() => cue('merge'), shieldDelay + phase.fallAt + mergeAt);
+        later(() => {
+          setFalling(new Map()); setRewards(new Set()); setClearMs(phase.clearMs);
+          setBoard(frames[i].before); setMagic(frames[i].mag); setFlash(frames[i].cells);
+          setEmptyCells(new Set((i ? res.steps[i - 1].emptyCells ?? [] : []).map(p => k(p.r, p.c))));
+        }, shieldDelay + phase.clearAt);
         later(() => {
           setFlash(new Set()); setBoard(res.steps[i].boardAfter); setMagic(res.steps[i].magicAfter);
+          setEmptyCells(new Set((res.steps[i].emptyCells ?? []).map(p => k(p.r, p.c))));
+          setRewards(new Set((res.steps[i].rewards ?? []).map(p => k(p.r, p.c))));
           setFalling(new Map(phase.motions.map(motion => [k(motion.r, motion.c), motion])));
         }, shieldDelay + phase.fallAt);
       });
       settleAt = shieldDelay + playback.durationMs;
     } else frames.forEach((fr, i) => later(() => { setBoard(fr.before); setMagic(fr.mag); setFlash(fr.cells); }, shieldDelay + i * 300));
     later(() => {
-      setFlash(new Set()); setFalling(new Map());
+      setFlash(new Set()); setFalling(new Map()); setEmptyCells(new Set()); setRewards(new Set());
       if (!rigEnabled || res.reshuffled) { setDrop(changedCells(board, res.board)); later(() => setDrop(new Set()), 360); }
       setBoard(res.board); setMagic(res.magic); setBusy(false);
       const nf = damageFoe(foes, ti, dealt);
@@ -285,8 +297,8 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
       if (dealt > 0) { setHitFoe(ti); later(() => setHitFoe(null), 500); }
       setMoves((m) => m + 1); setLastDmg(dealt); setTotalDmg((s) => s + dealt);
       const lbl = el ? MATCH3_ORB_LABEL[el] : '';
-      let msg = `${res.chainLength} 格連珠、合計 ${rigEnabled ? res.effectiveLength : res.chainLength} 顆・連鎖 ${res.steps.length}・本步傷害 ${dealt}`;
-      if (res.shieldFusion) msg += '（防禦合體：本輪 AI 反擊減傷一半、不疊加）';
+      let msg = `${res.chainLength} 格連珠、合計 ${rigEnabled ? res.effectiveLength : res.chainLength} 顆・連鎖 ${res.cascadeCount ?? res.steps.length}・本步傷害 ${dealt}`;
+      if (res.shieldFusion) msg += '（三盾清場充能：本輪反擊減傷一半、不疊加）';
       else if (!res.attackAllowed) msg += `（本關至少連 ${stage.minChain} 顆才有攻擊，這次只消除補珠）`;
       else if (dealt === 0) msg += `（隊伍沒有存活的${lbl}屬性主攻）`;
       if (res.chainLength > NORMAL_POWER_CAP) msg += `（普通威力上限 ${NORMAL_POWER_CAP} 顆）`;
@@ -345,7 +357,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
   const dragEl = drag.path.length ? board[drag.path[0].r][drag.path[0].c] : null;
   const chainIntent = dragIntent(drag.path, magic, rigEnabled ? stage.minChain : 3, rigEnabled);
   const effectiveCount = rigEnabled ? effectiveDragCount(drag.path, magic) : drag.path.length;
-  const hint = rigEnabled && isShieldFusionPath(drag.path, magic) ? '盾牌防禦合體：下一輪反擊減傷一半，不疊加' : dragEl && rigEnabled && drag.path.length >= 3 && effectiveCount < stage.minChain ? `合計 ${effectiveCount} 顆：只消除補珠，本關需 ${stage.minChain} 顆才會攻擊` : dragEl ? dragHint(effectiveCount, MATCH3_ORB_LABEL[dragEl], NORMAL_POWER_CAP, MAGIC_ORB_MIN_LENGTH, SKILL5_LENGTH) : '';
+  const hint = rigEnabled && isShieldFusionPath(drag.path, magic) ? '三盾清場充能：下一輪反擊減傷一半，不疊加' : dragEl && rigEnabled && drag.path.length >= 3 && effectiveCount < stage.minChain ? `合計 ${effectiveCount} 顆：只消除補珠，本關需 ${stage.minChain} 顆才會攻擊` : dragEl ? dragHint(effectiveCount, MATCH3_ORB_LABEL[dragEl], NORMAL_POWER_CAP, MAGIC_ORB_MIN_LENGTH, SKILL5_LENGTH) : '';
   const onPath = new Set(drag.path.map((p) => k(p.r, p.c)));
   const pct = (a: number, b: number) => `${Math.max(0, Math.min(100, Math.round((a / b) * 100)))}%`;
 
@@ -399,15 +411,15 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg }: { cfg: Match3ModeCon
       </div>
       <p className={rigEnabled ? styles.srOnly : styles.hint} data-testid="match3-hint" aria-live="polite">{hint || shortMsg || (cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊')}</p>
       {!rigEnabled && <button type="button" className={styles.helpBtn} aria-expanded={help} onClick={() => setHelp(!help)}>玩法說明</button>}
-      {help && <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆純盾牌可跨顏色連接，消耗後合體防禦，下一輪反擊減傷一半、不疊加；合體本身不攻擊。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「技能」。{rigEnabled ? '每次我方攻擊結束，對方接著反擊；連三顆起可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。幼子、成獸關各由一張存活卡出手，第三關起四大神獸聯合出擊。連珠攻擊門檻逐關提高至八顆，之後提高對方強度。獲勝升一關，落敗保留難度重試；本分頁暫存進度。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>}
+      {help && <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆純盾牌可跨顏色連接，合體清除整盤對應顏色，依實際消除數量替對應卡片充能，最多充滿現有技能條；下一輪反擊減傷一半、不疊加，合體本身不攻擊。剩餘珠子先下落合成，再補新珠；自然連線累計四顆以上會保留數字，七顆以上變盾牌，三顆只消除。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「技能」。{rigEnabled ? '每次我方攻擊結束，對方接著反擊；連三顆起可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。幼子、成獸關各由一張存活卡出手，第三關起四大神獸聯合出擊。連珠攻擊門檻逐關提高至八顆，之後提高對方強度。獲勝升一關，落敗保留難度重試；本分頁暫存進度。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>}
 
       {!log.startsWith('按住寶珠') && log ? <p className={rigEnabled ? styles.srOnly : styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
 
       <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, ['--clear-duration' as string]: `${clearMs}ms` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" data-refilling={falling.size > 0 ? 'true' : undefined} data-chain-intent={rigEnabled ? chainIntent : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers}>
         {board.map((row, r) => row.map((e, c) => { const kk = k(r, c); return (
-          <OrbCell key={`${r}-${c}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} shield={rigEnabled} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} fall={falling.get(kk)} />); }))}
+          <OrbCell key={`${r}-${c}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} shield={rigEnabled} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} fall={falling.get(kk)} empty={emptyCells.has(kk)} reward={rewards.has(kk)} />); }))}
         {shieldBurst && <div className={styles.shieldBurst} style={{ color: ORB_COLOR[shieldBurst] }} role="status" aria-label="080 盾牌清除同色寶珠"><span /><img src="/pwa/save-shield-080.png" alt="" draggable={false} /></div>}
-        {fusionBurst && <div className={styles.fusionBurst} data-testid="shield-fusion-effect" role="status" aria-label="盾牌防禦合體"><div className={styles.fusionHalo} />{fusionBurst.map((element, i) => <img key={`${element}-${i}`} src="/pwa/save-shield-080.png" alt="" draggable={false} style={{ color: ORB_COLOR[element], ['--fusion-x' as string]: `${(i - (fusionBurst.length - 1) / 2) * 90}%` }} />)}</div>}
+        {fusionBurst && <div className={styles.fusionBurst} data-testid="shield-fusion-effect" role="status" aria-label="盾牌防禦合體" style={{ ['--fusion-duration' as string]: `${FUSION_DISPLAY_MS}ms`, ['--fusion-colors' as string]: `conic-gradient(${fusionBurst.map(e => ORB_COLOR[e]).join(',')})` }}><div className={styles.fusionHalo} /><svg className={styles.fusionLightning} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">{fusionDischarge(fusionBurst, board).map(bolt => <polyline key={bolt.element} points={bolt.points} stroke={ORB_COLOR[bolt.element]} vectorEffect="non-scaling-stroke" />)}</svg>{fusionShieldLayout(fusionBurst.length).map((pose, i) => <span key={i} className={styles.fusionShield} data-fusion-element={fusionBurst[i]} data-primary={pose.primary || undefined} style={{ color: ORB_COLOR[fusionBurst[i]], width: `${pose.size}%`, ['--fusion-x' as string]: `${pose.x}%`, ['--fusion-y' as string]: `${pose.y}%`, ['--fusion-scale' as string]: pose.scale }}><img src="/pwa/save-shield-080.png" alt="" draggable={false} /></span>)}</div>}
         <DragPathSvg points={drag.points} color={dragEl ? ORB_COLOR[dragEl] : '#fff'} luminous={rigEnabled} />
         {banner && (banner.visual
           ? <div className={`${styles.chainEffect} ${banner.kind === 'skill' ? styles.chainCharged : ''} ${banner.kind === 'counter' ? styles.chainCounter : ''}`} data-testid="match3-chain-effect" role="status"><span className={styles.srOnly}>{banner.text}</span><span aria-hidden="true" className={styles.chainRing} /><span aria-hidden="true" className={styles.chainCore} /></div>
