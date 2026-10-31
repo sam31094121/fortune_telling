@@ -89,7 +89,7 @@
 :root .shell.shell .gem.fire .stone > span { top: 14%; }
 :root .shell.shell .gem.earth .stone::before, :root .shell.shell .gem.earth .stone::after { border-radius: 20%; }
 :root .shell.shell .gem.earth .stone::before { inset: 5%; }
-:root .shell.shell .gem.earth .stone::after { inset: calc(5% + 2px); }
+:root .shell.shell .gem.earth .stone::after { inset: calc(5% + 3px); }
 /* 狀態：選取上浮、拖曳路徑淡金描邊（不發光） */
 :root .shell.shell .gem.sel .stone, :root .shell.shell .gem.inPath .stone { transform: translateY(-2px) scale(1.06); filter: drop-shadow(0 0 0 var(--lx-gold-pale)) drop-shadow(0 3px 4px color-mix(in srgb, var(--lx-ink) 85%, transparent)) brightness(1.12); }
 :root .shell.shell .gem.inPath { outline: 0; transform: none; }
@@ -112,3 +112,72 @@
 :root .resultBox button { background: linear-gradient(135deg, var(--lx-gold-pale), var(--lx-gold) 55%, var(--lx-gold-deep)); color: var(--lx-ink); }
 :root .result.won h2 { color: var(--lx-mgold); }
 :root .shell.shell .gem .stone img { transform: none; position: relative; z-index: 2; }
+
+/* ── 2026-10-31 三頁統一（以正式 /beast-game/match3 實測為準，match3 本身不改）──
+ * 底色：body rgb(5,6,18)＋頂部紫光 rgba(79,53,218,.25)＋底部金光 rgba(188,161,101,.12)（app 全站 body 實測值）；
+ * 內容欄同 Match3Board .wrap：墨夜 #14121a。字型同全站 body 實測字族。
+ * 卡片同 Match3Board .ally：皮革 #3a2a20、圓角 10、細透明框；選中＝元素色 3px 環＋12px 光（風綠／空紫…）。
+ * 寶珠珠體同 BeadPolish .cell --body：元素 46%＋墨；地珠 40% 讓金邊對珠體 ≥2.6:1。 */
+:root { --lx-leather: #3a2a20; font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif, ui-sans-serif, system-ui, sans-serif; background: rgb(5, 6, 18); color: rgb(245, 240, 225); }
+:root body { font-family: inherit; background-color: rgb(5, 6, 18); background-image: radial-gradient(circle at 50% 0%, rgba(79, 53, 218, .25), rgba(0, 0, 0, 0) 35%), radial-gradient(circle at 50% 100%, rgba(188, 161, 101, .12), rgba(0, 0, 0, 0) 30%); background-attachment: fixed; }
+:root .shell.shell { background: var(--lx-ink); max-width: 560px; min-height: 100dvh; }
+:root .shell.shell button, :root .resultBox button { font-family: inherit; }
+
+/* 卡片：皮革底（我方／敵方同一套），選中元素色環 */
+:root .shell.shell .teamCard, :root .shell.shell .enemyCard { border: 1px solid transparent; border-radius: 10px; padding: 4px; background: var(--lx-leather); box-shadow: none; }
+:root .shell.shell .teamCard .avatar, :root .shell.shell .enemyCard .avatar { box-shadow: 0 0 0 1px color-mix(in srgb, var(--lx-gold) 55%, transparent); }
+:root .shell.shell .teamCard.selected, :root .shell.shell .teamCard.isLead, :root .shell.shell .enemyCard.target {
+  background: var(--lx-leather); border-color: transparent; box-shadow: 0 0 0 3px var(--gem, var(--lx-seal)), 0 0 12px var(--gem, var(--lx-seal)); }
+:root .shell.shell .enemyCard.target .avatar { box-shadow: 0 0 0 1px color-mix(in srgb, var(--lx-gold) 55%, transparent); }
+:root .shell.shell .teamCard.linked { box-shadow: 0 0 0 2px var(--gem, var(--lx-seal)); }
+:root .shell.shell .teamCard.ready { border-color: var(--gem); box-shadow: 0 0 10px var(--gem); }
+:root .shell.shell .teamCard.ready.isLead, :root .shell.shell .teamCard.ready.selected { box-shadow: 0 0 0 3px var(--gem), 0 0 12px var(--gem); }
+:root .shell.shell .boardWrap { border-radius: 12px; }
+
+/* 寶珠珠體：同 match3 公式 */
+:root .shell.shell .gem .stone::after { inset: 1.5px;
+  background: radial-gradient(circle at 34% 26%, color-mix(in srgb, var(--lx-bone) 58%, var(--gbody)) 0, var(--gbody) 44%, color-mix(in srgb, var(--gbody) 62%, var(--lx-ink)) 100%); }
+:root .shell.shell .gem { --gbody: color-mix(in srgb, var(--gem) 46%, var(--lx-ink)); }
+:root .shell.shell .gem.earth { --gbody: color-mix(in srgb, var(--gem) 36%, var(--lx-ink)); }
+:root .shell.shell .gem.earth:not([data-magic-n]) .stone::before { background: linear-gradient(145deg, var(--lx-gold-pale), var(--lx-gold) 55%, var(--lx-gold)); }
+:root .shell.shell .gem.space .stone::after { inset: calc(-6% + 2.5px); }
+:root .shell.shell .gem.fire .stone::after { inset: calc(-6% + 3px); }
+:root .shell.shell .gem.earth .stone::after { inset: calc(5% + 3px); }
+
+/* 版面：「玩法說明」與開場提示併成一行；棋盤上方不留空白 */
+:root .shell.shell .firstPlay { margin: 6px 3px 0; }
+:root .shell.shell .howTo { margin: 0 3px; text-align: center; }
+:root .shell.shell .howTo summary { min-height: 32px; justify-content: center; color: color-mix(in srgb, var(--lx-gold) 80%, var(--lx-ivory)); }
+:root .shell.shell .statusLine { margin: 4px 0 8px; }
+
+/* ── 2026-10-31 魔珠黑金視覺（使用者核准開啟；只改外觀，威力／傷害數值不動）──
+ * --mn＝魔珠威力 N（=連線顆數），--mx＝max(0, N-5)。data-magic-level：4／5／6（6 代表 ≥6）。
+ * N=4：黑金珠體＋細金邊。N=5：再加緩慢流動的金色光環。N≥6：每多 1 顆，黑金閃層更密、外緣金光更強，不設上限。
+ * 每顆魔珠保留元素色小標記（珠體底部圓點＋元素色字）。只動 transform／opacity 動畫，尊重 reduced-motion。 */
+:root .shell.shell .gem[data-magic-n] { --mx: 0; --mgw: calc(1px + var(--mx) * 1.6px); }
+:root .shell.shell .gem[data-magic-n] .stone { filter: drop-shadow(0 0 var(--mgw) color-mix(in srgb, var(--lx-mgold) calc(45% + var(--mx) * 9%), transparent)) drop-shadow(0 2px 3px color-mix(in srgb, var(--lx-ink) 85%, transparent)); }
+:root .shell.shell .gem[data-magic-n] .stone::before { background: linear-gradient(145deg, var(--lx-mgold), var(--lx-gold) 40%, var(--lx-gold-deep) 70%, var(--lx-gold-pale)); }
+:root .shell.shell .gem[data-magic-n] .stone::after {
+  background:
+    repeating-linear-gradient(118deg, transparent 0 calc(9px / (1 + var(--mx) * .6)), color-mix(in srgb, var(--lx-mgold) calc(var(--mx) * 7%), transparent) calc(9px / (1 + var(--mx) * .6)) calc(11px / (1 + var(--mx) * .6))),
+    radial-gradient(28% 16% at 36% 24%, color-mix(in srgb, var(--lx-gold-pale) 55%, transparent), transparent 100%),
+    radial-gradient(circle at 34% 26%, color-mix(in srgb, var(--lx-gold) 30%, #0b0a0f) 0, #0b0a0f 48%, color-mix(in srgb, var(--lx-gold-deep) 25%, #050408) 100%); }
+:root .shell.shell .gem[data-magic-n] .stone > span { color: color-mix(in srgb, var(--gem) 70%, var(--lx-bone)); }
+:root .shell.shell .gem[data-magic-n] .stone > span::after { content: ""; position: absolute; left: 50%; bottom: -4px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--gem); box-shadow: 0 0 0 1px color-mix(in srgb, var(--lx-ink) 80%, transparent); }
+/* N≥5：流動金光環（gem::before 原本關閉，這裡只給魔珠用） */
+:root .shell.shell .gem[data-magic-level="5"]::before, :root .shell.shell .gem[data-magic-level="6"]::before {
+  content: ""; position: absolute; inset: 2%; border-radius: 50%; pointer-events: none; z-index: 1; filter: none; opacity: calc(.7 + var(--mx) * .06);
+  background: conic-gradient(from 0deg, transparent 0 55%, color-mix(in srgb, var(--lx-mgold) 85%, transparent) 72%, var(--lx-gold-pale) 78%, transparent 92%);
+  -webkit-mask: radial-gradient(circle, transparent 0 calc(66% - var(--mx) * 1%), #000 calc(68% - var(--mx) * 1%) 71%, transparent 72%); mask: radial-gradient(circle, transparent 0 calc(66% - var(--mx) * 1%), #000 calc(68% - var(--mx) * 1%) 71%, transparent 72%);
+  animation: lxMagicRing calc(4.8s / (1 + var(--mx) * .15)) linear infinite; }
+:root .shell.shell .gem[data-magic-n] { position: relative; }
+:root .shell.shell .gem[data-magic-n] .mp { background: linear-gradient(135deg, var(--lx-gold-pale), var(--lx-gold) 55%, var(--lx-gold-deep)); color: #0b0a0f; box-shadow: 0 0 0 1px var(--gem); }
+@keyframes lxMagicRing { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { :root .shell.shell .gem[data-magic-level]::before { animation: none; } }
+html.lowfx .shell.shell .gem[data-magic-n] .stone { filter: none !important; }
+
+/* 1280 棋盤上方留白：連鎖計數改疊在提示列上（佔位 0、拖曳中棋盤不位移），有計數時暫隱提示字（visibility，不影響版面） */
+:root .shell.shell .chainCounter { height: 0; margin: 0; overflow: visible; z-index: 5; line-height: 30px; }
+:root .shell.shell .chainCounter:not(:empty) + .statusLine { visibility: hidden; }
+/* 地珠：高光收斂，讓金邊在整圈都 ≥2.6:1 */
+:root .shell.shell .gem.earth:not([data-magic-n]) .stone::after { background: radial-gradient(circle at 34% 26%, color-mix(in srgb, var(--gem) 30%, var(--gbody)) 0, var(--gbody) 40%, color-mix(in srgb, var(--gbody) 60%, var(--lx-ink)) 100%); }
