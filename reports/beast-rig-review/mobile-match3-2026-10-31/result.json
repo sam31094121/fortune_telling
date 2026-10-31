@@ -1,0 +1,181 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "status": "homepage hard input passed",
+      "steps": 11,
+      "result": "win"
+    },
+    {
+      "wins": 0,
+      "width": 390,
+      "initialEnemy": [
+        {
+          "id": "beast_y15",
+          "hp": 128
+        },
+        {
+          "id": "beast_y16",
+          "hp": 100
+        },
+        {
+          "id": "beast_y14",
+          "hp": 108
+        },
+        {
+          "id": "beast_y20",
+          "hp": 96
+        },
+        {
+          "id": "beast_y10",
+          "hp": 118
+        }
+      ],
+      "minChain": 3,
+      "status": "passed"
+    },
+    {
+      "wins": 1,
+      "width": 390,
+      "initialEnemy": [
+        {
+          "id": "beast_a15",
+          "hp": 267
+        },
+        {
+          "id": "beast_a16",
+          "hp": 336
+        },
+        {
+          "id": "beast_a14",
+          "hp": 411
+        },
+        {
+          "id": "beast_a11",
+          "hp": 363
+        },
+        {
+          "id": "beast_a10",
+          "hp": 381
+        }
+      ],
+      "minChain": 4,
+      "status": "passed"
+    },
+    {
+      "wins": 2,
+      "width": 390,
+      "initialEnemy": [
+        {
+          "id": "beast_g_baihu",
+          "hp": 580
+        },
+        {
+          "id": "beast_g_qinglong",
+          "hp": 524
+        },
+        {
+          "id": "beast_g_xuanwu",
+          "hp": 656
+        },
+        {
+          "id": "beast_g_zhuque",
+          "hp": 564
+        }
+      ],
+      "minChain": 5,
+      "status": "passed"
+    },
+    {
+      "wins": 5,
+      "width": 390,
+      "initialEnemy": [
+        {
+          "id": "beast_g_baihu",
+          "hp": 580
+        },
+        {
+          "id": "beast_g_qinglong",
+          "hp": 524
+        },
+        {
+          "id": "beast_g_xuanwu",
+          "hp": 656
+        },
+        {
+          "id": "beast_g_zhuque",
+          "hp": 564
+        }
+      ],
+      "minChain": 8,
+      "status": "passed"
+    },
+    {
+      "wins": 6,
+      "width": 390,
+      "initialEnemy": [
+        {
+          "id": "beast_g_baihu",
+          "hp": 638
+        },
+        {
+          "id": "beast_g_qinglong",
+          "hp": 576
+        },
+        {
+          "id": "beast_g_xuanwu",
+          "hp": 722
+        },
+        {
+          "id": "beast_g_zhuque",
+          "hp": 620
+        }
+      ],
+      "minChain": 8,
+      "status": "passed"
+    },
+    {
+      "attempt": 1,
+      "physical": 4,
+      "effective": 8,
+      "route": [
+        {
+          "r": 3,
+          "c": 3,
+          "el": "FIRE",
+          "mp": 0
+        },
+        {
+          "r": 4,
+          "c": 4,
+          "el": "FIRE",
+          "mp": 0
+        },
+        {
+          "r": 3,
+          "c": 5,
+          "el": "FIRE",
+          "mp": 5
+        },
+        {
+          "r": 4,
+          "c": 6,
+          "el": "FIRE",
+          "mp": 0
+        }
+      ],
+      "damage": 54,
+      "status": "weighted real drag passed"
+    },
+    {
+      "width": 820,
+      "status": "tablet passed"
+    },
+    {
+      "cards": 60,
+      "status": "picker passed"
+    }
+  ],
+  "errors": [],
+  "profile": "C:\\Users\\DRAGON\\AppData\\Local\\Temp\\match3-mobile-review-SToNYB"
+}

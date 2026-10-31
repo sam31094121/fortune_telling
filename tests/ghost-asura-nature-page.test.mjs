@@ -81,7 +81,11 @@ for (const c of CASES) {
       await (async () => { const r = await evalJs(`location.href = ${JSON.stringify(BASE + '/ghost-asura')}`); return r; })();
       await waitFor(`document.readyState === 'complete' && !!document.querySelector('button[type=submit]')`); await sleep(2500);
       await evalJs(clickText('我自己')); await sleep(300);
-      if (c.name) { await evalJs(typeInto(`e.placeholder && e.placeholder.includes('名字')`, c.name)); await sleep(300); }
+      // Oct 28 removed example/name placeholders; the labelled field remains.
+      assert.equal(await evalJs(`document.querySelectorAll('main[data-page="ghost-asura"] [data-field="name"] input').length`), 1, 'one labelled name field');
+      assert(await evalJs(typeInto(`e.matches('main[data-page="ghost-asura"] [data-field="name"] input') && !e.disabled`, c.name)), 'name field writable');
+      await sleep(300);
+      assert.equal(await evalJs(`document.querySelector('main[data-page="ghost-asura"] [data-field="name"] input').value`), c.name, 'name retained');
       await evalJs(clickText('國曆生日')); await sleep(300);
       await evalJs(typeInto(`e.getAttribute('aria-label') === '民國年'`, c.y)); await evalJs(typeInto(`e.getAttribute('aria-label') === '月份'`, c.m)); await evalJs(typeInto(`e.getAttribute('aria-label') === '日期'`, c.d)); await sleep(200);
       await evalJs(clickText(c.g)); await sleep(300);
@@ -131,5 +135,9 @@ for (const c of CASES) {
 }
 if (SHOTS) writeFileSync(path.join(SHOTS, 'v17-nature-page-report.json'), JSON.stringify(report, null, 1));
 console.log(JSON.stringify(report, null, 1));
-if (failed) process.exit(1);
+if (failed) {
+  // Keep actionable failures at the tail for the release runner's bounded log.
+  for (const [tag, result] of Object.entries(report)) if (result.error) console.error(`FAIL ${tag}: ${result.error}`);
+  process.exit(1);
+}
 console.log('ghost-asura-nature-page: PASS');

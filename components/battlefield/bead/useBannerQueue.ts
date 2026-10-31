@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { BANNER_QUEUE } from '@/lib/beast-game/match3/bead-visual-config';
 
 export type BannerKind = 'magic' | 'skill' | 'counter' | 'info';
-export type Banner = { text: string; kind: BannerKind };
+export type Banner = { text: string; kind: BannerKind; visual?: boolean };
 
 export function useBannerQueue() {
   const [banner, setCurrent] = useState<Banner | null>(null);
@@ -27,8 +27,8 @@ export function useBannerQueue() {
     }, hold);
   }, []);
 
-  const showBanner = useCallback((text: string, kind: BannerKind) => {
-    queue.current.push({ text, kind });
+  const showBanner = useCallback((text: string, kind: BannerKind, visual = false) => {
+    queue.current.push({ text, kind, visual });
     if (!busy.current) next();
   }, [next]);
 
@@ -37,7 +37,7 @@ export function useBannerQueue() {
     queue.current = [];
     busy.current = false;
     setCurrent(null);
-    if (b) showBanner(b.text, b.kind);
+    if (b) showBanner(b.text, b.kind, b.visual);
   }, [showBanner]);
 
   useEffect(() => () => window.clearTimeout(timer.current), []);

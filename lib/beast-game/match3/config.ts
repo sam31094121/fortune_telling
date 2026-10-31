@@ -56,3 +56,28 @@ export const TEAM_SIZE = 5;
 export function isMatch3Enabled(): boolean {
   return process.env.NEXT_PUBLIC_BEAST_MATCH3 === '1';
 }
+
+/**
+ * 寶珠戰模式表（盤面大小與敵方強度都從這裡讀，不在元件寫死）。
+ * medium＝既有 5v5（7×5＝35 顆，數值與原本完全相同）。
+ * hard45＝困難 5v5（7×7＝49 顆）。盤面變大＝每步可連的珠變多、我方輸出變高，所以敵方相對加強；
+ * hard45 的 enemyHp／enemyAtk／counterEvery 全部是【待平衡】暫定值，不是定案數字。
+ */
+/** hard45b＝寶珠戰・困難 II（提案名）：盤面／斜連／數值全部沿用 hard45（【待平衡】，不新增數字），只換敵方五隻（見 enemies.ts HARD2 規則）。 */
+export type Match3ModeId = 'medium' | 'hard45' | 'hard45b';
+export interface Match3ModeConfig {
+  id: Match3ModeId; kicker: string; cols: number; rows: number;
+  /** 玩家看的中文標題／副標／徽章／主色／敵方提示（提案名，待用戶定案）。 */
+  title: string; subtitle: string; badge: string; accent: string; enemyHint: string | null;
+  enemyHp: number; enemyAtk: number; counterEvery: number; placeholder: boolean;
+  /** 斜連開關（可回退）：true＝拖曳可走 8 方向、直線判定含兩條斜線；false＝只有上下左右／橫直。 */
+  diagonal: boolean;
+}
+export const MATCH3_MODES: Record<Match3ModeId, Match3ModeConfig> = {
+  medium: { id: 'medium', kicker: '寶珠戰・簡單', title: '寶珠戰・簡單', subtitle: '五元素對決', badge: '簡單・35 珠', accent: '#6fb6ff', enemyHint: null, cols: MATCH3_COLS, rows: MATCH3_ROWS, enemyHp: 300, enemyAtk: 8, counterEvery: ENEMY_COUNTER_EVERY, placeholder: true, diagonal: false },
+  /** 【待平衡】HP ×1.5、ATK ×1.5、反擊每 2 步（比中等快 1 步）。 */
+  hard45: { id: 'hard45', kicker: '寶珠戰・困難', title: '寶珠戰・困難', subtitle: '49 珠斜連', badge: '困難・49 珠・可斜連', accent: '#ff8a5c', enemyHint: null, cols: 7, rows: 7, enemyHp: 450, enemyAtk: 12, counterEvery: 1, placeholder: true, diagonal: true },
+  /** 【待平衡】數值＝hard45（450／12／2），未新增任何數字。 */
+  hard45b: { id: 'hard45b', kicker: '寶珠戰・困難 II', title: '寶珠戰・困難 II', subtitle: '二十八宿軍團', badge: '困難 II・49 珠・可斜連', accent: '#cdb991', enemyHint: '東方青龍七宿：角・亢・氐・房・心', cols: 7, rows: 7, enemyHp: 450, enemyAtk: 12, counterEvery: 1, placeholder: true, diagonal: true },
+};
+export function match3Mode(id?: Match3ModeId | null): Match3ModeConfig { return MATCH3_MODES[id ?? 'medium'] ?? MATCH3_MODES.medium; }

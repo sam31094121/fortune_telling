@@ -1,0 +1,13 @@
+/* 僅供困難寶珠戰選卡；卡框、圖窗與資料均交給正式 BeastCardFace。 */
+.cardGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.cardChoice, .selectedCard { position: relative; display: flex; flex-direction: column; align-items: stretch; min-width: 0; margin: 0; padding: 3px; border: 1px solid #776044; border-radius: 12px; background: #171b24; color: #f7ecd6; font: inherit; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.face { display: block; width: 100%; min-width: 0; pointer-events: none; }
+.cardChoice[aria-pressed='true'] { border-color: #f4d28c; box-shadow: 0 0 0 2px #f4d28c, 0 4px 16px #080b1266; background: #40351f; }
+.cardChoice:focus-visible, .selectedCard:focus-visible { outline: 3px solid #bcf0ff; outline-offset: 3px; }
+.choiceState { display: grid; place-items: center; min-height: 34px; font-size: 14px; font-weight: 700; line-height: 1.2; }
+.selectedRow { display: flex; gap: 10px; max-width: 100%; overflow-x: auto; padding: 4px 3px 8px; overscroll-behavior-inline: contain; scroll-snap-type: x proximity; }
+.selectedRow:empty { display: none; }
+.selectedCard { flex: 0 0 100px; scroll-snap-align: start; }
+.remove { display: grid; place-items: center; min-height: 30px; font-size: 13px; }
+@media (min-width: 600px) { .cardGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } }
+@media (min-width: 850px) { .cardGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }

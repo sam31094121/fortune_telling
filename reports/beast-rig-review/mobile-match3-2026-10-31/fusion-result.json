@@ -1,0 +1,165 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "kind": "natural acquisition probe",
+      "moves": 12,
+      "shields": 5,
+      "crossColorRouteFound": false
+    },
+    {
+      "kind": "injected isolated fixture, NOT naturally acquired",
+      "width": 390,
+      "guardedHits": [
+        {
+          "enemy": 0,
+          "targetId": "beast_y24",
+          "damage": 3
+        },
+        {
+          "enemy": 1,
+          "targetId": "beast_y24",
+          "damage": 4
+        },
+        {
+          "enemy": 2,
+          "targetId": "beast_y24",
+          "damage": 3
+        },
+        {
+          "enemy": 3,
+          "targetId": "beast_y24",
+          "damage": 4
+        }
+      ],
+      "regularHits": [
+        {
+          "enemy": 0,
+          "targetId": "beast_y24",
+          "damage": 5
+        },
+        {
+          "enemy": 1,
+          "targetId": "beast_y24",
+          "damage": 7
+        },
+        {
+          "enemy": 2,
+          "targetId": "beast_y24",
+          "damage": 5
+        },
+        {
+          "enemy": 3,
+          "targetId": "beast_y24",
+          "damage": 7
+        }
+      ],
+      "nextHits": [
+        {
+          "enemy": 0,
+          "targetId": "beast_y24",
+          "damage": 5
+        },
+        {
+          "enemy": 1,
+          "targetId": "beast_y24",
+          "damage": 7
+        },
+        {
+          "enemy": 2,
+          "targetId": "beast_y24",
+          "damage": 5
+        },
+        {
+          "enemy": 3,
+          "targetId": "beast_y24",
+          "damage": 7
+        }
+      ],
+      "effect": {
+        "pointerEvents": "none",
+        "hitOverlay": false,
+        "images": 3
+      },
+      "status": "passed"
+    },
+    {
+      "kind": "injected isolated fixture, NOT naturally acquired",
+      "width": 820,
+      "guardedHits": [
+        {
+          "enemy": 0,
+          "targetId": "beast_y04",
+          "damage": 2
+        },
+        {
+          "enemy": 1,
+          "targetId": "beast_y04",
+          "damage": 3
+        },
+        {
+          "enemy": 2,
+          "targetId": "beast_y04",
+          "damage": 4
+        },
+        {
+          "enemy": 3,
+          "targetId": "beast_y04",
+          "damage": 4
+        }
+      ],
+      "regularHits": [
+        {
+          "enemy": 0,
+          "targetId": "beast_y04",
+          "damage": 5
+        },
+        {
+          "enemy": 1,
+          "targetId": "beast_y04",
+          "damage": 6
+        },
+        {
+          "enemy": 2,
+          "targetId": "beast_y04",
+          "damage": 7
+        },
+        {
+          "enemy": 3,
+          "targetId": "beast_y04",
+          "damage": 7
+        }
+      ],
+      "nextHits": [
+        {
+          "enemy": 0,
+          "targetId": "beast_y04",
+          "damage": 5
+        },
+        {
+          "enemy": 1,
+          "targetId": "beast_y04",
+          "damage": 6
+        },
+        {
+          "enemy": 2,
+          "targetId": "beast_y04",
+          "damage": 7
+        },
+        {
+          "enemy": 3,
+          "targetId": "beast_y04",
+          "damage": 7
+        }
+      ],
+      "effect": {
+        "pointerEvents": "none",
+        "hitOverlay": false,
+        "images": 3
+      },
+      "status": "passed"
+    }
+  ],
+  "errors": [],
+  "profile": "C:\\Users\\DRAGON\\AppData\\Local\\Temp\\match3-mobile-review-Hw1bVg"
+}

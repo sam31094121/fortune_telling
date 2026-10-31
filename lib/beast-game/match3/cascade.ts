@@ -2,7 +2,7 @@
 import { cloneBoard, findValidMoves, generateBoard, isAdjacent, inBounds, randomOrb, swapped, type Board, type Cell, type Rng } from './board';
 import { findGroups, type MatchGroup } from './match';
 
-export interface CascadeStep { chain: number; groups: MatchGroup[]; boardAfter: Board }
+export interface CascadeStep { chain: number; groups: MatchGroup[]; boardAfter: Board; attackAllowed?: boolean }
 export interface SwapResult { valid: boolean; board: Board; steps: CascadeStep[]; reshuffled: boolean }
 
 export function collapse(b: Board, cleared: Set<number>, rng: Rng): Board {

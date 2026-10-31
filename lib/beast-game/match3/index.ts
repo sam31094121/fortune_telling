@@ -9,3 +9,5 @@ export * from './damage';
 export * from './events';
 export * from './outcome';
 export * from './team';
+export * from './enemies';
+export * from './progression';

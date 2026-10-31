@@ -25,13 +25,15 @@ export function randomOrb(rng: Rng): BeastElement {
 export function cloneBoard(b: Board): Board { return b.map((row) => row.slice()); }
 
 /** 放這顆會不會立刻和左邊兩顆或上面兩顆連成 3。 */
-function makesRun(b: Board, r: number, c: number, e: BeastElement): boolean {
+function makesRun(b: Board, r: number, c: number, e: BeastElement, diagonal = false): boolean {
+  if (diagonal && r >= 2 && b[r - 1]?.[c - 1] === e && b[r - 2]?.[c - 2] === e) return true;
+  if (diagonal && r >= 2 && b[r - 1]?.[c + 1] === e && b[r - 2]?.[c + 2] === e) return true;
   if (c >= 2 && b[r][c - 1] === e && b[r][c - 2] === e) return true;
   if (r >= 2 && b[r - 1]?.[c] === e && b[r - 2]?.[c] === e) return true;
   return false;
 }
 
-export function generateBoard(rng: Rng, rows = MATCH3_ROWS, cols = MATCH3_COLS): Board {
+export function generateBoard(rng: Rng, rows = MATCH3_ROWS, cols = MATCH3_COLS, diagonal = false): Board {
   for (let attempt = 0; attempt < 200; attempt++) {
     const b: Board = [];
     for (let r = 0; r < rows; r++) {
@@ -39,17 +41,20 @@ export function generateBoard(rng: Rng, rows = MATCH3_ROWS, cols = MATCH3_COLS):
       for (let c = 0; c < cols; c++) {
         let e = randomOrb(rng);
         let guard = 0;
-        while (makesRun(b, r, c, e) && guard++ < 20) e = randomOrb(rng);
+        while (makesRun(b, r, c, e, diagonal) && guard++ < 20) e = randomOrb(rng);
         b[r].push(e);
       }
     }
-    if (findGroups(b).length === 0 && findValidMoves(b).length > 0) return b;
+    if (findGroups(b, diagonal).length === 0 && findValidMoves(b, diagonal).length > 0) return b;
   }
   throw new Error('match3: 無法生成合法盤面');
 }
 
-export function isAdjacent(a: Cell, b: Cell): boolean {
-  return Math.abs(a.r - b.r) + Math.abs(a.c - b.c) === 1;
+/** diagonal＝true 時 8 方向（含 ↗↙↖↘）都算相鄰。 */
+export function isAdjacent(a: Cell, b: Cell, diagonal = false): boolean {
+  const dr = Math.abs(a.r - b.r), dc = Math.abs(a.c - b.c);
+  if (diagonal) return Math.max(dr, dc) === 1;
+  return dr + dc === 1;
 }
 
 export function inBounds(b: Board, p: Cell): boolean {
@@ -62,12 +67,12 @@ export function swapped(b: Board, a: Cell, d: Cell): Board {
   return n;
 }
 
-export function findValidMoves(b: Board): Array<[Cell, Cell]> {
+export function findValidMoves(b: Board, diagonal = false): Array<[Cell, Cell]> {
   const out: Array<[Cell, Cell]> = [];
   for (let r = 0; r < b.length; r++) for (let c = 0; c < b[0].length; c++) {
     for (const d of [{ r, c: c + 1 }, { r: r + 1, c }]) {
       if (!inBounds(b, d) || b[r][c] === b[d.r][d.c]) continue;
-      if (findGroups(swapped(b, { r, c }, d)).length > 0) out.push([{ r, c }, d]);
+      if (findGroups(swapped(b, { r, c }, d), diagonal).length > 0) out.push([{ r, c }, d]);
     }
   }
   return out;

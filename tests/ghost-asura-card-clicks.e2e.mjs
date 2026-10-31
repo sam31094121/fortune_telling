@@ -70,7 +70,7 @@ try {
   };
 
   const clickText = (txt) => `(() => { const el = [...document.querySelectorAll('button')].find(e => e.textContent.trim().startsWith(${JSON.stringify(txt)})); if (!el) return false; el.click(); return true; })()`;
-  const typeAt = (index, value) => `(() => { const el = [...document.querySelectorAll('input')].filter(e => (e.placeholder || '').startsWith('例'))[${index}]; if (!el) return false; Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, ${JSON.stringify(value)}); el.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`;
+  const typeAt = (index, value) => `(() => { const nodes = document.querySelectorAll('main[data-page="ghost-asura"] [data-field="birthDate"] input[aria-label="' + ${JSON.stringify(['民國年', '月份', '日期'][index])} + '"]'); if (nodes.length !== 1 || nodes[0].disabled) return false; const el = nodes[0]; Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, ${JSON.stringify(value)}); el.dispatchEvent(new Event('input', { bubbles: true })); return el.value === ${JSON.stringify(value)}; })()`;
 
   // ---- 進頁面、填鎖定命盤 1974-06-28 18:00 男（民國 63 年 6 月 28 日）----
   await send('Page.navigate', { url: `${srv.base}/ghost-asura` });

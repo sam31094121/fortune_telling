@@ -287,7 +287,15 @@ function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }:
               </span>
             </Link>;
           })()}
-          <p className={styles.modeNavLabel} role="status">請先選難度（三選一）</p>
+          <p className={styles.modeNavLabel} role="status">請選擇戰場</p>
+          <div className={styles.match3Row} role="list" aria-label="寶珠戰（預覽）">
+            <Link href="/beast-game/match3-preview" className={styles.match3Mini} role="listitem" data-difficulty="match3" data-testid="match3-entry-card" aria-label="寶珠戰・簡單：五元素對決，35 顆寶珠（預覽）">
+              <span aria-hidden="true">🔮</span><strong>寶珠戰・簡單</strong><small>五元素對決</small>
+            </Link>
+            <Link href="/beast-game/match3-hard" className={styles.match3Mini} role="listitem" data-difficulty="match3-hard" data-testid="match3-hard-entry-card" aria-label="寶珠戰・困難：49 顆寶珠斜連，逐關挑戰">
+              <span aria-hidden="true">💎</span><strong>寶珠戰・困難</strong><small>49 珠斜連</small>
+            </Link>
+          </div>
           <div className={styles.modeCards} role="list" aria-label="難度選擇">
             <button type="button" role="listitem" className={styles.freeEntryBtn} onClick={enterEasy} data-difficulty="easy">
               <span className={styles.freeEntryStep}>① 簡單</span>
@@ -371,7 +379,7 @@ function BeastTurnGameScreen({ initialStep = 'mode', preparationEntry = false }:
           <button className={styles.advancedBtn} onClick={enterEasy}>① 簡單練習</button>
           <Link href="/beast-game/lineup" className={styles.nextStepLink} data-returning-next>② 帶著卡去中等押注 →</Link>
         </> : <>
-          <button className={styles.startBattle} onClick={enterEasy}>① 進入簡單・選 3 張卡</button>
+          <button className={styles.startBattle} onClick={enterEasy}>不知道選哪個？從 ① 簡單開始</button>
         </>) : prepareStep === 'select' ? <>
           <button className={styles.advancedBtn} onClick={() => { if (window.location.search) window.history.replaceState(null, '', window.location.pathname); setPrepareStep('mode'); setSelected([]); setError(''); }}>進階玩法 ▸</button>
           <button className={styles.startBattle} disabled={busy || selected.length !== 3 || (preparingExisting && match?.status === 'PLAYING')} onClick={() => { void send('START', { lineup: selected, difficulty: 'NORMAL' }); }} style={selected.length === 3 ? { boxShadow: '0 0 20px rgba(59, 130, 246, 0.35)' } : {}}>

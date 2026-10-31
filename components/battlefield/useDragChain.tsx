@@ -1,11 +1,11 @@
 'use client';
 /** 拖曳連珠共用：pointer events（滑鼠＋觸控），沿路徑畫線；退回上一格可撤銷。只處理手勢，規則全在 lib/beast-game/match3。 */
 import { useCallback, useRef, useState, type PointerEvent as RPointerEvent } from 'react';
-import { canExtend, type Board, type Cell } from '@/lib/beast-game/match3';
+import { canExtend, type Board, type Cell, type MagicGrid } from '@/lib/beast-game/match3';
 
 export interface DragPoint { x: number; y: number }
 
-export function useDragChain(board: Board, enabled: boolean, onRelease: (path: Cell[]) => void) {
+export function useDragChain(board: Board, enabled: boolean, onRelease: (path: Cell[]) => void, diagonal = false, magic?: MagicGrid, shieldMode = false) {
   const ref = useRef<HTMLDivElement>(null);
   const pathRef = useRef<Cell[]>([]);
   const [path, setPath] = useState<Cell[]>([]);
@@ -39,7 +39,7 @@ export function useDragChain(board: Board, enabled: boolean, onRelease: (path: C
     if (last.r === hit.cell.r && last.c === hit.cell.c) return;
     const prev = cur[cur.length - 2];
     if (prev && prev.r === hit.cell.r && prev.c === hit.cell.c) { ptsRef.current = ptsRef.current.slice(0, -1); commit(cur.slice(0, -1), ptsRef.current); return; }
-    if (canExtend(board, cur, hit.cell)) { ptsRef.current = [...ptsRef.current, hit.pt]; commit([...cur, hit.cell], ptsRef.current); }
+    if (canExtend(board, cur, hit.cell, diagonal, magic, shieldMode)) { ptsRef.current = [...ptsRef.current, hit.pt]; commit([...cur, hit.cell], ptsRef.current); }
   };
   const end = () => {
     const done = pathRef.current; ptsRef.current = []; commit([], []);
@@ -51,13 +51,14 @@ export function useDragChain(board: Board, enabled: boolean, onRelease: (path: C
 }
 
 /** 拖曳路徑：SVG 折線，疊在盤面上，不擋指標。 */
-export function DragPathSvg({ points, color }: { points: DragPoint[]; color: string }) {
+export function DragPathSvg({ points, color, luminous = false }: { points: DragPoint[]; color: string; luminous?: boolean }) {
   if (points.length === 0) return null;
   const d = points.map((p) => `${p.x},${p.y}`).join(' ');
   return (
     <svg aria-hidden="true" data-testid="drag-path" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible', zIndex: 3 }}>
       <polyline points={d} fill="none" stroke="rgba(0,0,0,.55)" strokeWidth={14} strokeLinecap="round" strokeLinejoin="round" />
       <polyline points={d} fill="none" stroke={color} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" />
+      {luminous && <polyline data-chain-flow="true" points={d} fill="none" stroke="#effdff" strokeWidth={2} strokeDasharray="8 26" strokeLinecap="round" strokeLinejoin="round" />}
       {points.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r={i === points.length - 1 ? 9 : 6} fill="#fff" stroke={color} strokeWidth={3} />)}
     </svg>
   );

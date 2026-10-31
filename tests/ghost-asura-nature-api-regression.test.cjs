@@ -26,12 +26,29 @@ function compareText(where, before, after) {
   if (after !== before) changes.push({ where, before, after });
 }
 
+// 2e27ebd (Oct 28) added this public adult gate. Verify it explicitly;
+// do not weaken the Oct 9 legacy snapshot or silently discard new fields.
+function validateAdultGate(gate, birthDate, requestDay) {
+  const responseDay = new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10);
+  assert(gate && [requestDay, responseDay].includes(gate.todayTaipei), 'ageGate Taipei request/response day');
+  const passed = gate.todayTaipei.slice(5) >= birthDate.slice(5);
+  const age = Number(gate.todayTaipei.slice(0, 4)) - Number(birthDate.slice(0, 4)) - (passed ? 0 : 1);
+  assert(age >= 18, 'regression fixtures are adults');
+  assert.deepEqual(gate, {
+    status: 'AVAILABLE', minimumAge: 18, label: '18 歲禁忌｜未滿 18 歲禁止進入',
+    todayTaipei: gate.todayTaipei, targetDate: gate.todayTaipei,
+    todayAge: age, targetAge: age, birthdayPassedToday: passed,
+    birthdayPassedOnTarget: passed, message: null,
+  }, 'ageGate exact adult contract');
+}
+
 (async () => {
   let i = 0;
   const summary = {};
   for (const [name, input] of Object.entries(CASES)) {
     i++;
     const fixture = JSON.parse(fs.readFileSync(path.join(__dirname, `fixtures/ghost-asura-nature/baseline-${name}.json`), 'utf8')).data;
+    const requestDay = new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10);
     const res = await fetch(`${base}/api/ghost-asura/reading`, {
       method: 'POST',
       headers: { ...(process.env.ASURA_COOKIE ? { Cookie: process.env.ASURA_COOKIE } : {}), 'Content-Type': 'application/json', Origin: base, 'x-forwarded-for': `10.18.${Date.now() % 250}.${i}` },
@@ -41,7 +58,8 @@ function compareText(where, before, after) {
     const now = (await res.json()).data;
     // Oct 24 added goldWording after nature; retain every Oct 9 legacy assertion.
     // The additive field is checked separately, not silently ignored.
-    assert.deepEqual(Object.keys(now).filter((k) => k !== 'nature' && k !== 'goldWording'), Object.keys(fixture), `${name} legacy keys`);
+    validateAdultGate(now.ageGate, input.birthDate, requestDay);
+    assert.deepEqual(Object.keys(now).filter((k) => k !== 'nature' && k !== 'goldWording' && k !== 'ageGate'), Object.keys(fixture), `${name} legacy keys`);
     validateGoldWording(now.goldWording, input);
     const sameYear = now.audit?.timeAxis?.flowYear === fixture.audit?.timeAxis?.flowYear && now.audit?.timeAxis?.todayTaipei === fixture.audit?.timeAxis?.todayTaipei;
     for (const key of Object.keys(fixture)) {

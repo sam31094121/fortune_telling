@@ -1,0 +1,235 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "width": 320,
+      "status": "header and actual home click passed",
+      "controls": [
+        {
+          "text": "回到首頁",
+          "tag": "A",
+          "r": {
+            "x": 12,
+            "y": 12,
+            "width": 58,
+            "height": 44,
+            "top": 12,
+            "right": 70,
+            "bottom": 56,
+            "left": 12
+          }
+        },
+        {
+          "text": "重新選卡",
+          "tag": "BUTTON",
+          "r": {
+            "x": 73,
+            "y": 12,
+            "width": 58,
+            "height": 44,
+            "top": 12,
+            "right": 131,
+            "bottom": 56,
+            "left": 73
+          }
+        },
+        {
+          "text": "🔊",
+          "tag": "BUTTON",
+          "r": {
+            "x": 134,
+            "y": 12,
+            "width": 40,
+            "height": 44,
+            "top": 12,
+            "right": 174,
+            "bottom": 56,
+            "left": 134
+          }
+        },
+        {
+          "text": "簡單 · 1",
+          "tag": "DIV",
+          "r": {
+            "x": 177,
+            "y": 14,
+            "width": 49.734375,
+            "height": 40,
+            "top": 14,
+            "right": 226.734375,
+            "bottom": 54,
+            "left": 177
+          }
+        },
+        {
+          "text": "玩法與操作",
+          "tag": "BUTTON",
+          "r": {
+            "x": 240,
+            "y": 12,
+            "width": 68,
+            "height": 44,
+            "top": 12,
+            "right": 308,
+            "bottom": 56,
+            "left": 240
+          }
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "status": "header and actual home click passed",
+      "controls": [
+        {
+          "text": "回到首頁",
+          "tag": "A",
+          "r": {
+            "x": 12,
+            "y": 12,
+            "width": 58,
+            "height": 44,
+            "top": 12,
+            "right": 70,
+            "bottom": 56,
+            "left": 12
+          }
+        },
+        {
+          "text": "重新選卡",
+          "tag": "BUTTON",
+          "r": {
+            "x": 73,
+            "y": 12,
+            "width": 58,
+            "height": 44,
+            "top": 12,
+            "right": 131,
+            "bottom": 56,
+            "left": 73
+          }
+        },
+        {
+          "text": "🔊",
+          "tag": "BUTTON",
+          "r": {
+            "x": 134,
+            "y": 12,
+            "width": 40,
+            "height": 44,
+            "top": 12,
+            "right": 174,
+            "bottom": 56,
+            "left": 134
+          }
+        },
+        {
+          "text": "簡單 · 1",
+          "tag": "DIV",
+          "r": {
+            "x": 177,
+            "y": 14,
+            "width": 49.734375,
+            "height": 40,
+            "top": 14,
+            "right": 226.734375,
+            "bottom": 54,
+            "left": 177
+          }
+        },
+        {
+          "text": "玩法與操作",
+          "tag": "BUTTON",
+          "r": {
+            "x": 310,
+            "y": 12,
+            "width": 68,
+            "height": 44,
+            "top": 12,
+            "right": 378,
+            "bottom": 56,
+            "left": 310
+          }
+        }
+      ]
+    },
+    {
+      "width": 820,
+      "status": "header and actual home click passed",
+      "controls": [
+        {
+          "text": "回到首頁",
+          "tag": "A",
+          "r": {
+            "x": 142,
+            "y": 24,
+            "width": 58,
+            "height": 44,
+            "top": 24,
+            "right": 200,
+            "bottom": 68,
+            "left": 142
+          }
+        },
+        {
+          "text": "重新選卡",
+          "tag": "BUTTON",
+          "r": {
+            "x": 203,
+            "y": 24,
+            "width": 58,
+            "height": 44,
+            "top": 24,
+            "right": 261,
+            "bottom": 68,
+            "left": 203
+          }
+        },
+        {
+          "text": "🔊",
+          "tag": "BUTTON",
+          "r": {
+            "x": 264,
+            "y": 24,
+            "width": 40,
+            "height": 44,
+            "top": 24,
+            "right": 304,
+            "bottom": 68,
+            "left": 264
+          }
+        },
+        {
+          "text": "簡單 · 1",
+          "tag": "DIV",
+          "r": {
+            "x": 307,
+            "y": 26,
+            "width": 49.734375,
+            "height": 40,
+            "top": 26,
+            "right": 356.734375,
+            "bottom": 66,
+            "left": 307
+          }
+        },
+        {
+          "text": "玩法與操作",
+          "tag": "BUTTON",
+          "r": {
+            "x": 610,
+            "y": 24,
+            "width": 68,
+            "height": 44,
+            "top": 24,
+            "right": 678,
+            "bottom": 68,
+            "left": 610
+          }
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "profile": "C:\\Users\\DRAGON\\AppData\\Local\\Temp\\match3-mobile-review-4uIkau"
+}

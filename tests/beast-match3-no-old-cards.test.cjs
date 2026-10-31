@@ -23,5 +23,8 @@ for (const c of cards) {
   assert.ok(fs.existsSync(path.join(root, 'public', c.art.thumbnail.split('?')[0])), `${c.id} 縮圖檔不存在`);
 }
 const comp = fs.readFileSync(path.join(root, 'components/battlefield/Match3Board.tsx'), 'utf8');
-assert.ok(/BeastCardFace/.test(comp) && !/<img\b/.test(comp), '卡面只用 BeastCardFace（全站統一卡面）');
+assert.ok(/<BeastCardFace\b/.test(comp), '我方卡面只用 BeastCardFace（.v2 正式卡面）');
+for (const img of comp.match(/<img\b[^>]*>/g) ?? []) {
+  assert.match(img, /src="\/pwa\/save-shield-080\.png"/, '額外圖片只允許 080 寶珠獎勵圖示，不允許替換卡面');
+}
 console.log(`beast-match3-no-old-cards: ${pass} 檔＋60 張卡檢查通過`);

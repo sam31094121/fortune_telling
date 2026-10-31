@@ -1,0 +1,115 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "kind": "injected isolated fixture, NOT naturally acquired",
+      "width": 390,
+      "guardedHits": [
+        {
+          "enemy": 0,
+          "targetId": "beast_y26",
+          "damage": 3
+        },
+        {
+          "enemy": 1,
+          "targetId": "beast_y26",
+          "damage": 3
+        },
+        {
+          "enemy": 2,
+          "targetId": "beast_y26",
+          "damage": 3
+        },
+        {
+          "enemy": 3,
+          "targetId": "beast_y26",
+          "damage": 3
+        }
+      ],
+      "regularHits": [
+        {
+          "enemy": 0,
+          "targetId": "beast_y26",
+          "damage": 5
+        },
+        {
+          "enemy": 1,
+          "targetId": "beast_y26",
+          "damage": 6
+        },
+        {
+          "enemy": 2,
+          "targetId": "beast_y26",
+          "damage": 6
+        },
+        {
+          "enemy": 3,
+          "targetId": "beast_y26",
+          "damage": 6
+        }
+      ],
+      "effect": {
+        "pointerEvents": "none",
+        "hitOverlay": false,
+        "images": 3
+      },
+      "status": "visual and home navigation passed"
+    },
+    {
+      "kind": "injected isolated fixture, NOT naturally acquired",
+      "width": 820,
+      "guardedHits": [
+        {
+          "enemy": 0,
+          "targetId": "beast_y17",
+          "damage": 3
+        },
+        {
+          "enemy": 1,
+          "targetId": "beast_y17",
+          "damage": 4
+        },
+        {
+          "enemy": 2,
+          "targetId": "beast_y17",
+          "damage": 3
+        },
+        {
+          "enemy": 3,
+          "targetId": "beast_y17",
+          "damage": 4
+        }
+      ],
+      "regularHits": [
+        {
+          "enemy": 0,
+          "targetId": "beast_y17",
+          "damage": 5
+        },
+        {
+          "enemy": 1,
+          "targetId": "beast_y17",
+          "damage": 7
+        },
+        {
+          "enemy": 2,
+          "targetId": "beast_y17",
+          "damage": 5
+        },
+        {
+          "enemy": 3,
+          "targetId": "beast_y17",
+          "damage": 7
+        }
+      ],
+      "effect": {
+        "pointerEvents": "none",
+        "hitOverlay": false,
+        "images": 3
+      },
+      "status": "visual and home navigation passed"
+    }
+  ],
+  "errors": [],
+  "profile": "C:\\Users\\DRAGON\\AppData\\Local\\Temp\\match3-mobile-review-4boSuO"
+}

@@ -375,7 +375,8 @@ export default function InstallShield080() {
     window.setTimeout(() => setNudge(false), 1800);
   }, [guide, canAutoOpenBrowser, openInBrowser, deferred, runPrompt]);
 
-  if (!ready) return null;
+  // 困難寶珠戰保留完整操作空間，不顯示桌面安裝盾牌；其他入口照舊。
+  if (!ready || /^\/beast-game\/match3-hard2?\/?$/.test(pathname ?? '')) return null;
 
   if (phoneHost) {
     // 2026-10-17 shield installed hide：手機偵測到已安裝（standalone／getInstalledRelatedApps／appinstalled）就整個不顯示，

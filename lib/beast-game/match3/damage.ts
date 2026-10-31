@@ -25,7 +25,7 @@ export function computeHits(steps: readonly CascadeStep[], team: readonly Match3
     const power = groupPower(g);
     const attackers = eligibleAttackers(team, g.element, selectedId);
     if (attackers.length === 0) { hits.push({ attackerId: null, element: g.element, orbs: g.size, length: g.longest, chain: step.chain, amount: 0, power }); continue; }
-    for (const f of attackers) hits.push({ attackerId: f.id, element: g.element, orbs: g.size, length: g.longest, chain: step.chain, amount: hitAmount(f.attack, power, step.chain, f.element, enemyElement), power });
+    for (const f of attackers) hits.push({ attackerId: f.id, element: g.element, orbs: g.size, length: g.longest, chain: step.chain, amount: step.attackAllowed === false ? 0 : hitAmount(f.attack, power, step.chain, f.element, enemyElement), power });
   }
   return hits;
 }

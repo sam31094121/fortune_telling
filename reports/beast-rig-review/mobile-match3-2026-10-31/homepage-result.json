@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "status": "homepage hard input passed",
+      "steps": 12,
+      "result": "win"
+    }
+  ],
+  "errors": [],
+  "profile": "C:\\Users\\DRAGON\\AppData\\Local\\Temp\\match3-mobile-review-naL98v"
+}
