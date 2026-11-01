@@ -76,3 +76,14 @@
 本輪連續／重入證據：`Temp/match3-campaign-qa-n0H790/evidence/skills-longplay-report.json`、`Temp/match3-campaign-qa-8Cvldd/evidence/remount-report.json`。
 
 最後徽章證據：`Temp/match3-campaign-qa-J9oKm1/evidence/skills-marker-final.json`。不得將上述模擬／技術 fixture 宣稱為 25 項全部實機通過。
+
+
+## 追加：恢復手機可操作的寶珠尺寸
+
+業主回報近正方形調整後寶珠過小，明確要求恢復前一版尺寸並避免拖珠時上下晃動。故障原因是新增依可視高度扣固定410／360px後再限制盤寬，320×568下盤僅約182px、單珠約24px。本次只移除兩條高度限寬，恢復依可用寬度呈現7×8盤，增加局部overflow-anchor:none；保留安全區、touch-action:none、56格及全部戰鬥規則。
+
+本機瀏覽器觸控模擬：320×568與320×480盤寬304px、單珠39.81px；390×844盤寬374px、單珠49.28px。三尺寸拖珠至補滿56格，scrollY前後相同、scroll事件0、無橫向溢出及頁面例外。我方卡可主動捲動到達。極矮螢幕仍需要主動捲動查看卡片，不宣稱全部內容同屏；沒有以裁切或縮珠掩蓋限制。證據：本機Temp/match3-campaign-qa-MQrthx/evidence/restored-size-report.json。
+
+本次npm run build及test:beast-fairness通過，編譯保留既有lint警告。這是尺寸與頁面位移修復，不代表先前主執行緒長停頓後整批落定的問題已修好，也不代替Android／iPhone真機驗收。
+
+最新隔離production build再驗：127.0.0.1:9194/beast-game/match3-hard，三尺寸可見「簡單·4顆可攻擊」（起始進度label），盤與單珠尺寸一致、拖珠補56及scroll差0、errors0。證據：Temp/match3-campaign-qa-aHqyOI/evidence/restored-size-report.json。測試服務／瀏覽器已關閉，未動使用者8888。
