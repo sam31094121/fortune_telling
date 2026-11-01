@@ -1,4 +1,4 @@
-/** 困難寶珠戰進度：三階卡池、四珠攻擊門檻與逐關增強；不修改收藏卡原始數值。 */
+/** 困難寶珠戰進度：三階卡池、逐關攻擊門檻與逐關增強；不修改收藏卡原始數值。 */
 import type { BeastElement } from '../elements';
 import type { Rng } from './board';
 import { MATCH3_ORB_ELEMENTS } from './config';
@@ -17,7 +17,7 @@ export interface ProgressionStage {
   readonly form: 'YOUNG' | 'ADULT' | 'GUARDIAN';
   readonly enemyCount: 5;
   readonly guardianCount: 0 | 1;
-  readonly minChain: 4;
+  readonly minChain: 3 | 4 | 5 | 6 | 7 | 8;
   /** 沿用既定前七關倍率；後期遭遇總預算與單次反擊峰值分別線性成長。 */
   readonly strengthMultiplier: number;
   readonly hpScale: number;
@@ -26,11 +26,13 @@ export interface ProgressionStage {
 }
 
 /** 戰場換算基準；始終五張，從第八關固定四成獸加一神獸，單卡反擊。 */
-const STAGES: readonly Omit<ProgressionStage, 'wins' | 'strengthMultiplier' | 'guardianCount'>[] = Object.freeze([
-  Object.freeze({ index: 0, label: '簡單', form: 'YOUNG', enemyCount: 5, minChain: 4, hpScale: 2, attackScale: .1, simultaneous: false }),
-  Object.freeze({ index: 1, label: '中度', form: 'ADULT', enemyCount: 5, minChain: 4, hpScale: 3, attackScale: .15, simultaneous: false }),
-  Object.freeze({ index: 2, label: '困難', form: 'GUARDIAN', enemyCount: 5, minChain: 4, hpScale: 4, attackScale: .075, simultaneous: false }),
+const STAGES: readonly Omit<ProgressionStage, 'wins' | 'strengthMultiplier' | 'guardianCount' | 'minChain'>[] = Object.freeze([
+  Object.freeze({ index: 0, label: '簡單', form: 'YOUNG', enemyCount: 5, hpScale: 2, attackScale: .1, simultaneous: false }),
+  Object.freeze({ index: 1, label: '中度', form: 'ADULT', enemyCount: 5, hpScale: 3, attackScale: .15, simultaneous: false }),
+  Object.freeze({ index: 2, label: '困難', form: 'GUARDIAN', enemyCount: 5, hpScale: 4, attackScale: .075, simultaneous: false }),
 ]);
+
+const ATTACK_THRESHOLDS = Object.freeze([3, 4, 4, 5, 5, 6, 7, 8] as const);
 
 function normalizedWins(wins: number): number {
   if (!Number.isFinite(wins) || wins <= 0) return 0;
@@ -40,7 +42,7 @@ export function progressionStage(wins: number): ProgressionStage {
   const count = normalizedWins(wins);
   const base = STAGES[count === 0 ? 0 : count < 7 ? 1 : 2];
   const guardianCount: ProgressionStage['guardianCount'] = count >= 7 ? 1 : 0;
-  // 保留既有第七關起的基準倍率；攻擊門檻獨立固定四珠。
+  // 保留既有第七關起的基準倍率；攻擊門檻獨立逐關至第八關封頂八珠。
   const strengthMultiplier = 1 + Math.max(0, count - 5) * .1;
   return Object.freeze({
     ...base,
@@ -49,7 +51,7 @@ export function progressionStage(wins: number): ProgressionStage {
     guardianCount,
     simultaneous: false,
     wins: count,
-    minChain: 4,
+    minChain: ATTACK_THRESHOLDS[Math.min(count, ATTACK_THRESHOLDS.length - 1)],
     strengthMultiplier,
     hpScale: base.hpScale * strengthMultiplier,
     attackScale: base.attackScale * strengthMultiplier,

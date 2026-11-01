@@ -146,6 +146,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
   const hadRig = useRef(false);
   const root = useRef<HTMLElement>(null);
   const strikeKey = useRef(0);
+  const energyActionKey = useRef(0);
   const [strike, setStrike] = useState<Match3Strike | null>(null);
   const showStrike = (hits: readonly { attackerId?: string | null; amount: number }[], foe: Foe, after: Foe, charge = false, actualDamage?: number) => {
     if (!rigEnabled) return;
@@ -360,7 +361,6 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
       setShake(new Set(path.map((p) => k(p.r, p.c)))); later(() => setShake(new Set()), 340);
       const why = path.length < 3 ? `只連了 ${path.length} 顆，至少要 3 顆同色相連才能消除。` : '這條路線不成立，再試一次。';
       setLog(why); setShortMsg(why); later(() => setShortMsg(''), 1800);
-      if (rigEnabled && res.reason === 'short' && path.length > 0) { setMoves(m => m + 1); endStep(team, foes, why, false, true, false, false); }
       return;
     }
     const el = res.element;
@@ -479,11 +479,17 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
     setLog(dup ? `${u.name}設為${MATCH3_ORB_LABEL[u.element]}屬性優先（主攻），其他同屬性卡改當輔助（拿一半能量）。` : `${u.name}是${MATCH3_ORB_LABEL[u.element]}屬性主攻；消${MATCH3_ORB_LABEL[u.element]}珠由它出手。`);
   };
 
+  // Stored-energy attacks are not orb turns: retain animation lock, without
+  // ticking statuses, enemy cooldowns, or scheduling a counterattack.
+  const finishEnergyAttack = () => {
+    setBusy(true);
+    later(() => setBusy(false), hadRig.current ? RIG_STRIKE_MS : 240);
+  };
   const unleash = (u: Unit) => {
     if (busy || over || u.hp <= 0 || ti < 0 || u.energy < ENERGY_MAX || (rigEnabled && !fighterCanAct(u))) return;
     const foe = foes[ti]; const amt = skillAmount(rigEnabled ? fighterEffectiveAttack(u) : u.attack, u.element, foe.element);
     const spentTeam = team.map(x => x.id === u.id ? { ...x, energy: 0 } : x);
-    const applied = rigEnabled ? damageFoeWithSkills(foes, ti, amt, stage.wins + 1, `${init.seed}:${moves}:energy`, spentTeam, u.id) : null;
+    const applied = rigEnabled ? damageFoeWithSkills(foes, ti, amt, stage.wins + 1, `${init.seed}:energy:${++energyActionKey.current}`, spentTeam, u.id, false) : null;
     const damaged = applied?.foes ?? damageFoe(foes, ti, amt);
     const nextTeam = applied?.team ?? spentTeam;
     const actualAmount = applied?.actualDamage ?? amt;
@@ -491,9 +497,9 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
     showStrike([{ attackerId: u.id, amount: actualAmount }], foe, damaged[ti], true, rigEnabled ? actualAmount : undefined);
     setFoes(damaged); setHitFoe(ti); later(() => setHitFoe(null), 500);
     setTeam(nextTeam); setLastDmg(actualAmount); setTotalDmg((s) => s + actualAmount);
-    if (rigEnabled) { setMoves(m => m + 1); endStep(nextTeam, damaged, '技能攻擊完成', actualAmount > 0, true); }
+    if (rigEnabled) finishEnergyAttack();
     showBanner(`${u.name}技能 −${actualAmount}`, 'skill'); if (!rigEnabled) sound(880);
-    setLog(`${u.name}發動技能，對${foe.name}造成 ${actualAmount} 點傷害（${rigEnabled ? '計一回合，存活對手接著反擊' : '不算步數'}）。`);
+    setLog(`${u.name}發動技能，對${foe.name}造成 ${actualAmount} 點傷害（不算步數、不觸發反擊）。`);
   };
 
   const actionableLink = link;
@@ -504,7 +510,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
     const cards = actionableLink.map((id) => team.find((u) => u.id === id)!);
     const amt = linkDamage(cards.map((c) => rigEnabled ? fighterEffectiveAttack(c) : c.attack)); const foe = foes[ti];
     const spentTeam = team.map(u => actionableLink.includes(u.id) ? { ...u, energy: u.energy - LINK_ENERGY_COST } : u);
-    const applied = rigEnabled ? damageFoeWithSkills(foes, ti, amt, stage.wins + 1, `${init.seed}:${moves}:link`, spentTeam, cards[0].id) : null;
+    const applied = rigEnabled ? damageFoeWithSkills(foes, ti, amt, stage.wins + 1, `${init.seed}:energy:${++energyActionKey.current}`, spentTeam, cards[0].id, false) : null;
     const damaged = applied?.foes ?? damageFoe(foes, ti, amt);
     const nextTeam = applied?.team ?? spentTeam;
     const actualAmount = applied?.actualDamage ?? amt;
@@ -513,9 +519,9 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
     setFoes(damaged); setHitFoe(ti); later(() => setHitFoe(null), 500);
     setTeam(nextTeam);
     setLastDmg(actualAmount); setTotalDmg((s) => s + actualAmount); setLink([]); setLinkMode(false);
-    if (rigEnabled) { setMoves(m => m + 1); endStep(nextTeam, damaged, '連線攻擊完成', actualAmount > 0, true); }
+    if (rigEnabled) finishEnergyAttack();
     showBanner(`連線攻擊 ${cards.length} 張 −${actualAmount}`, 'skill'); if (!rigEnabled) sound(990);
-    setLog(`連線攻擊：${cards.map((c) => c.name).join('＋')} 對${foe.name}造成 ${actualAmount} 點傷害（${rigEnabled ? '計一回合，存活對手接著反擊' : '不算步數'}）。`);
+    setLog(`連線攻擊：${cards.map((c) => c.name).join('＋')} 對${foe.name}造成 ${actualAmount} 點傷害（不算步數、不觸發反擊）。`);
   };
   const fireSub = !linkMode ? `需 ${LINK_MIN_CARDS} 張卡各 ${LINK_ENERGY_COST} 能量` : problem === 'tooFew' ? `再選 ${LINK_MIN_CARDS - link.length} 張` : problem === 'energyLow' ? `每張需 ${LINK_ENERGY_COST} 能量` : problem === 'controlled' ? '有卡暫時受控，請重選' : problem ? '有卡已倒下' : `${link.length} 張・預估 ${linkDamage(link.map((id) => { const u = team.find(x => x.id === id); return u ? rigEnabled ? fighterEffectiveAttack(u) : u.attack : 0; }))}`;
 
@@ -560,7 +566,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
         {rigEnabled && <button type="button" className={`${styles.helpBtn} ${styles.helpTop}`} aria-expanded={help} onClick={() => setHelp(!help)}>玩法與操作</button>}
       </header>
       {rigEnabled && help && actions}
-      {rigEnabled && intro && <div className={styles.quickIntro} data-testid="match3-quick-intro" role="status">上下、左右、左斜、右斜都可以，只要3顆相同寶珠連成一線即可；4顆以上才具有攻擊效果，連得越多，威力越強。<button type="button" onClick={() => setIntro(false)} aria-label="收起操作提示">×</button></div>}
+      {rigEnabled && intro && <div className={styles.quickIntro} data-testid="match3-quick-intro" role="status">上下、左右、左斜、右斜都可以，只要3顆相同寶珠連成一線即可；本關合計 {stage.minChain} 顆以上才具有攻擊效果，連得越多，威力越強。<button type="button" onClick={() => setIntro(false)} aria-label="收起操作提示">×</button></div>}
       {rigEnabled && counterVisuals.length > 0 && <svg className={styles.counterTrace} aria-hidden="true" data-testid="match3-counter-trace">{counterVisuals.map((h, i) => { const visual = counterVisualPath(h.enemyId, h.element, h.x1, h.y1, h.x2, h.y2); return <g key={i} data-source-id={h.enemyId} data-element={h.element} data-lightning={visual.lightning || undefined} style={{ ['--counter-color' as string]: visual.color, ['--counter-width' as string]: visual.width }}><path d={visual.path} pathLength="1" /><circle cx={h.x2} cy={h.y2} r="20" /></g>; })}</svg>}
       <div className={rigEnabled ? styles.srOnly : styles.sub} data-testid="match3-sub">{team.length} 對 {foes.length}・{cfg.cols * cfg.rows} 顆寶珠{cfg.diagonal ? '・可斜連' : ''}・敵方：{cfg.enemyHint ?? foes.map((f) => f.name).join('・')}</div>
       {debug && <div className={styles.sub} data-testid="match3-debug">[debug] 正式神獸卡 5v5・{cfg.cols}×{cfg.rows}＝{cfg.cols * cfg.rows} 顆寶珠・敵方 HP {cfg.enemyHp}／攻 {cfg.enemyAtk}／每 {cfg.counterEvery} 步反擊【待平衡】{cfg.diagonal ? '・可斜連' : ''}・seed {init.seed}</div>}
@@ -587,7 +593,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
       </div>
       <p className={rigEnabled ? styles.srOnly : styles.hint} data-testid="match3-hint" aria-live="polite">{hint || shortMsg || (cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊')}</p>
       {!rigEnabled && <button type="button" className={styles.helpBtn} aria-expanded={help} onClick={() => setHelp(!help)}>玩法說明</button>}
-      {help && <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆同屬性純盾牌連接會合擊，消耗本次連到的盾牌，按既有卡片與儲存顆數攻擊；其餘同屬性寶珠轉為盾牌，原本較高的數值保留。至少三顆不同顏色純盾牌連接，合體清除整盤對應顏色，依實際消除數量替對應卡片充能，最多充滿現有技能條；下一輪反擊減傷一半、不疊加，合體本身不攻擊。剩餘珠子先下落合成，再補新珠；自然連線累計四顆以上會保留數字，七顆以上變盾牌，三顆只消除。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「{rigEnabled ? '能量攻擊' : '技能'}」。{rigEnabled && '我方能量按鈕使用通用能量攻擊。敵方從第八關起逐步啟用原卡技能；沒有抽棄牌區，抽棄牌效果不適用。'}{rigEnabled ? '每次我方攻擊結束，對方接著反擊；連三顆起可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。全關卡五對五。第一關五張幼子、第二至第七關五張成獸；第八關起，敵方前四格為成獸，第五格為一張神獸，後續始終只有這一個神獸席位，每次由一張存活卡反擊。連珠攻擊門檻固定四顆，逐關提高對方強度。獲勝升一關，落敗保留難度重試；本人進度保存在這個瀏覽器，親友進度只在本分頁保留，重新選擇親友會重來。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>}
+      {help && <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆同屬性純盾牌連接會合擊，消耗本次連到的盾牌，按既有卡片與儲存顆數攻擊；其餘同屬性寶珠轉為盾牌，原本較高的數值保留。至少三顆不同顏色純盾牌連接，合體清除整盤對應顏色，依實際消除數量替對應卡片充能，最多充滿現有技能條；下一輪反擊減傷一半、不疊加，合體本身不攻擊。剩餘珠子先下落合成，再補新珠；自然連線累計四顆以上會保留數字，七顆以上變盾牌，三顆只消除。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「{rigEnabled ? '能量攻擊' : '技能'}」。{rigEnabled && '我方能量按鈕使用通用能量攻擊。敵方從第八關起逐步啟用原卡技能；沒有抽棄牌區，抽棄牌效果不適用。'}{rigEnabled ? '每次有效寶珠連線結束，對方反擊一次；連三顆起可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。儲存能量的單卡與多卡攻擊不消耗回合，也不觸發反擊。全關卡五對五。第一關五張幼子、第二至第七關五張成獸；第八關起，敵方前四格為成獸，第五格為一張神獸，前四張倒下後才參戰並可被攻擊，後續始終只有這一個神獸席位，每次由一張存活卡反擊。連珠攻擊門檻逐關提高，第八關首次達八顆，之後維持八顆；對方強度繼續逐關提高。獲勝升一關，落敗保留難度重試；本人進度保存在這個瀏覽器，親友進度只在本分頁保留，重新選擇親友會重來。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>}
 
       {!log.startsWith('按住寶珠') && log ? <p className={rigEnabled ? styles.srOnly : styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
 

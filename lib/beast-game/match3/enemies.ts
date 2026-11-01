@@ -71,7 +71,7 @@ export function damageFoe<T extends { hp: number }>(foes: readonly T[], index: n
 }
 
 /** Existing orb damage once, then an actual-damage event; never recalculate the hit. */
-export function damageFoeWithSkills<F extends Match3Foe, T extends SkillFoe & { energy: number }>(foes: readonly F[], index: number, amount: number, stage: number, eventId: string, team: readonly T[], actualAttackerId: string | null): { foes: F[]; team: T[]; skillEvents: OrbSkillEvent[]; actualDamage: number } {
+export function damageFoeWithSkills<F extends Match3Foe, T extends SkillFoe & { energy: number }>(foes: readonly F[], index: number, amount: number, stage: number, eventId: string, team: readonly T[], actualAttackerId: string | null, reactionEnabled = true): { foes: F[]; team: T[]; skillEvents: OrbSkillEvent[]; actualDamage: number } {
   if (!foeAvailable(foes, index, stage)) return { foes: [...foes], team: [...team], skillEvents: [], actualDamage: 0 };
   if(stage>=8&&foes[index]?.appliedPlayerHitIds?.includes(eventId))return {foes:[...foes],team:[...team],skillEvents:[],actualDamage:0};
   const ready = initializeAvailableFoes(foes, stage);
@@ -79,7 +79,7 @@ export function damageFoeWithSkills<F extends Match3Foe, T extends SkillFoe & { 
   if(stage>=8&&result[index])result[index]={...result[index],appliedPlayerHitIds:[...(foes[index].appliedPlayerHitIds??[]),eventId]};
   const actualDamage = result[index] && ready[index] ? ready[index].hp - result[index].hp : 0;
   const skillEvents: OrbSkillEvent[] = [];
-  if (stage >= 11 && actualDamage > 0 && result[index]?.hp > 0) {
+  if (reactionEnabled && stage >= 11 && actualDamage > 0 && result[index]?.hp > 0) {
     const attackerIndex = nextTeam.findIndex(u => u.id === actualAttackerId);
     if (attackerIndex < 0) throw new Error('受創技能缺少實際攻擊者');
     const reaction = runOrbSkillEvent(result[index], 'ON_DAMAGED', { target: nextTeam[attackerIndex], actualDamage, eventId, sourceSide:'enemy', targetSide:'ally' });
@@ -87,7 +87,7 @@ export function damageFoeWithSkills<F extends Match3Foe, T extends SkillFoe & { 
     if (reaction.target) nextTeam[attackerIndex] = { ...reaction.target, energy: reaction.target.hp <= 0 ? 0 : nextTeam[attackerIndex].energy };
     skillEvents.push(...reaction.events);
   }
-  return { foes: result, team: nextTeam, skillEvents, actualDamage };
+  return { foes: reactionEnabled ? result : initializeAvailableFoes(result, stage), team: nextTeam, skillEvents, actualDamage };
 }
 
 export interface CounterHit { enemy: number; enemyId: string; targetId: string; damage: number; hpBefore: number; hpAfter: number; actualDamage: number }

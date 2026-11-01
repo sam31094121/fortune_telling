@@ -2,12 +2,13 @@ const assert = require('node:assert/strict');
 const M = require('../.beast-game-build/lib/beast-game/match3');
 const pool = require('../.beast-game-build/lib/beast-game/registry').playableCards();
 const before = JSON.stringify(pool);
-assert.deepEqual([0,1,2].map(n => M.progressionStage(n).minChain), [4,4,4]);
-for (let level = 0; level < 3; level++) {
+assert.deepEqual([0,1,2].map(n => M.progressionStage(n).minChain), [3,4,4]);
+for (let level = 0; level < 10; level++) {
   const minimum = M.progressionStage(level).minChain;
   const board = Array.from({length:7}, (_,r) => Array.from({length:7}, (_,c) => M.MATCH3_ORB_ELEMENTS[(r*2+c)%5]));
   board[6] = Array(7).fill('FIRE');
-  const path = board[6].map((_,c) => ({r:6,c}));
+  board[5][6]='FIRE';
+  const path = [...board[6].map((_,c) => ({r:6,c})),{r:5,c:6}];
   const tooShort = M.resolveDrag(board,path.slice(0,minimum-1),M.seededRng(11),M.emptyMagic(board),1,true,true,minimum);
   if (minimum === 3) {
     assert.equal(tooShort.valid,false); assert.equal(tooShort.reason,'short');
@@ -17,6 +18,11 @@ for (let level = 0; level < 3; level++) {
     assert.ok(tooShort.steps.length > 0); assert.notDeepEqual(tooShort.board,board);
     const team=M.MATCH3_ORB_ELEMENTS.map((element,i)=>({id:String(i),element,hp:100,attack:100}));
     assert.ok(M.computeHits(tooShort.steps,team,'EARTH').every(h=>h.amount===0));
+  }
+  for(let size=3;size<minimum;size++) {
+    const below=M.resolveDrag(board,path.slice(0,size),M.seededRng(11),M.emptyMagic(board),1,true,true,minimum);
+    assert.equal(below.valid,true);assert.equal(below.attackAllowed,false);
+    assert(M.computeHits(below.steps,M.MATCH3_ORB_ELEMENTS.map((element,i)=>({id:String(i),element,hp:100,attack:100})),'EARTH').every(h=>h.amount===0));
   }
   const enough = M.resolveDrag(board,path.slice(0,minimum),M.seededRng(11),M.emptyMagic(board),1,true,true,minimum);
   assert.equal(enough.valid,true); assert.equal(enough.chainLength,minimum);
@@ -47,7 +53,7 @@ assert.equal(M.nextProgressionWins(1, true), 2);
 assert.equal(M.nextProgressionWins(2, true), 3);
 for (const n of [0, 1, 2, 3, 5, 6, 30]) assert.equal(M.nextProgressionWins(n, false), n);
 for (const n of [-1, NaN, Infinity]) assert.equal(M.progressionStage(n).index, 0);
-assert.deepEqual(Array.from({length:10},(_,n)=>M.progressionStage(n).minChain), Array(10).fill(4));
+assert.deepEqual(Array.from({length:10},(_,n)=>M.progressionStage(n).minChain), [3,4,4,5,5,6,7,8,8,8]);
 
 for(const [input,expected] of [[-4,0],[NaN,0],[Infinity,0],[1.8,1],[Number.MAX_VALUE,Number.MAX_SAFE_INTEGER]]) {assert.equal(M.progressionStage(input).wins,expected);assert.equal(M.nextProgressionWins(input,false),expected);}
 assert.equal(M.nextProgressionWins(Number.MAX_SAFE_INTEGER,true),Number.MAX_SAFE_INTEGER);
@@ -111,7 +117,7 @@ assert.equal(JSON.stringify(pool),before);console.log('PASS 500 seeds: stage8–
 
 for(const wins of [12,30,100,1000,Number.MAX_SAFE_INTEGER]) {
  const cards=M.selectProgressionEnemies(pool,M.seededRng(27),wins),stage=M.progressionStage(wins),stats=M.progressionLineupStats(cards,wins,pool);
- assert.equal(cards.length,5);assert.equal(cards.filter(c=>c.form==='GUARDIAN').length,1);assert.equal(cards[4].form,'GUARDIAN');assert.equal(stage.simultaneous,false);assert.equal(stage.minChain,4);
+ assert.equal(cards.length,5);assert.equal(cards.filter(c=>c.form==='GUARDIAN').length,1);assert.equal(cards[4].form,'GUARDIAN');assert.equal(stage.simultaneous,false);assert.equal(stage.minChain,8);
  assert(stats.every(s=>Number.isSafeInteger(s.attack)&&Number.isSafeInteger(s.hp)));assert(stats.slice(0,4).every(s=>s.attack<=stats[4].attack));
 }
 assert.deepEqual([7,8,9,10,11].map(w=>M.progressionStrengthBudget(pool,w).roundAttack),[16,18,20,22,24]);

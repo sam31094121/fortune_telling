@@ -68,3 +68,67 @@ console.log('PASS skill display retains same-invocation DAMAGE+STUN, excludes ol
 
 const finalSkillId=displayRun.events[displayRun.events.length-1].skillId;
 assert.equal(R.orbSkillDisplay(displayRun.events,guardSource.id,'ally').displayDamage,displayRun.events.filter(e=>e.skillId===finalSkillId&&e.targetSide==='ally').reduce((n,e)=>n+e.actualDamage,0),'different original skills must not be mixed');
+
+// Stored-energy actions preserve the holder turn and do not provoke enemy skills.
+{
+ const E=require('../lib/beast-game/match3/enemies.ts');
+ const c=cards.find(c=>c.skills.includes('skill_109'));
+ const base=R.initializeFoeSkills({...make(c),hp:10000,maxHp:10000,cd:3},{sourceSide:'enemy'}).foe;
+ base.skillRuntime={...base.skillRuntime,shield:0};
+ const ally={...make(cards[0]),hp:1000,maxHp:1000,energy:100};
+ const normal=E.damageFoeWithSkills([base],0,1,11,'orb-normal',[ally],ally.id);
+ assert(normal.skillEvents.some(e=>e.trigger==='ON_DAMAGED'),'ordinary orb retains reaction');
+ let foes=[base],team=[ally];
+ for(let n=1;n<=3;n++){
+  const hit=E.damageFoeWithSkills(foes,0,1,11,'energy:'+n,team,ally.id,false);
+  assert.equal(hit.actualDamage,1);assert.deepEqual(hit.team,team);assert.deepEqual(hit.skillEvents,[]);
+  assert.equal(hit.foes[0].cd,3);assert.deepEqual(hit.foes[0].skillRuntime,base.skillRuntime);
+  const retry=E.damageFoeWithSkills(hit.foes,0,1,11,'energy:'+n,hit.team,ally.id,false);
+  assert.equal(retry.actualDamage,0);foes=hit.foes;team=hit.team;
+ }
+ assert.equal(foes[0].hp,9997,'distinct stored-energy actions in one orb turn each deal damage');
+ const kill=E.damageFoeWithSkills(foes,0,99999,11,'energy:kill',team,ally.id,false);
+ assert.equal(kill.foes[0].hp,0);assert.deepEqual(kill.team,team);
+}
+
+{
+ const E=require('../lib/beast-game/match3/enemies.ts');
+ const guardian=cards.find(c=>c.form==='GUARDIAN'), adults=cards.filter(c=>c.form==='ADULT').slice(0,4);
+ const foes=[...adults.map((c,i)=>({...make(c),hp:i===3?1:0,cd:3})),{...make(guardian),cd:3}];
+ const ally={...make(cards[0]),energy:100};
+ const res=E.damageFoeWithSkills(foes,3,1,12,'energy:last-escort',[ally],ally.id,false);
+ assert(E.foeAvailable(res.foes,4,12));assert(res.foes[4].skillRuntime,'newly available guardian initializes without a counter turn');
+ assert.equal(res.foes[4].cd,3);assert.deepEqual(res.team,[ally]);
+ assert.deepEqual(E.initializeAvailableFoes(res.foes,12),res.foes,'summon/passive initializes only once');
+}
+
+// Execute the actual Board release callback with presentation adapters stubbed:
+// invalid gestures do not spend turns; each valid 3/4/8 chain settles once.
+{
+ const vm=require('node:vm'),M=require('../lib/beast-game/match3/index.ts');
+ const seeded=n=>()=>((n=(Math.imul(n,1664525)+1013904223)>>>0)/4294967296);
+ const source=fs.readFileSync(require.resolve('../components/battlefield/Match3Board.tsx'),'utf8');
+ const tree=ts.createSourceFile('Board.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
+ let release;function find(n){if(ts.isVariableDeclaration(n)&&n.name.getText(tree)==='release')release=n.initializer.getText(tree);ts.forEachChild(n,find)}find(tree);assert(release);
+ for(const wins of [0,7])for(const length of [1,2,3,4,8]){
+  const board=M.generateDragBoard(seeded(811),8,7,true,4),magic=M.emptyMagic(board);
+  const path=Array.from({length},(_,i)=>i<7?{r:0,c:i}:{r:1,c:6});for(const p of path)board[p.r][p.c]='FIRE';
+  let turns=0,counters=0,resolved;
+  const context={console:{log(){}},Set,Map,AbortController,window:{matchMedia:()=>({matches:false})},
+   busy:false,over:null,ti:0,board,magic,rngRef:{current:seeded(812)},cfg:{diagonal:true},rigEnabled:true,stage:M.progressionStage(wins),
+   team:[],foes:[{id:'target',name:'target',hp:10000}],moves:0,init:{seed:811},rule:null,chosen:{},
+   k:(r,c)=>r+':'+c,later:()=>{},resolveDrag:(...a)=>(resolved=M.resolveDrag(...a)),
+   computeHits:()=>[],attackingTeam:t=>t,energyGains:M.energyGains,buildEvents:()=>[],
+   refillDisplaySteps:M.refillDisplaySteps,refillPresentation:require('../lib/beast-game/match3/refill-presentation.ts').refillPresentation,
+   refillRun:{current:null},refillCommit:{current:null},NORMAL_POWER_CAP:99,MATCH3_ORB_LABEL:{FIRE:'火'},
+   shareEnergy:t=>t,showStrike:()=>{},showBanner:()=>{},showSkillEvents:()=>{},cue:()=>{},
+   setMoves:()=>turns++,endStep:(t,f,msg,attack,force)=>{assert.equal(force,true);counters++},
+   runRefillPlayback:(_,options)=>{options.complete();return Promise.resolve()}
+  };
+  context.refillDisplaySteps=require('../lib/beast-game/match3/refill-presentation.ts').refillDisplaySteps;
+  for(const name of release.match(/\bset[A-Z]\w*/g)||[])if(!(name in context))context[name]=()=>{};
+  vm.runInNewContext(ts.transpileModule('const release='+release+'; release(path);',{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText,{...context,path});
+  assert.equal(resolved.valid,length>=3);assert.equal(turns,length>=3?1:0);assert.equal(counters,length>=3?1:0);
+  if(length>=3)assert.equal(resolved.attackAllowed,length>=M.progressionStage(wins).minChain);
+ }
+}

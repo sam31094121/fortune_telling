@@ -142,3 +142,21 @@
 最後追加禁止整盤先空白：真重整改逐欄展示core計算完的盤面，每段只清退/重落該欄普通珠；其餘欄與特殊珠保持。所有展示段chain0/groups空/attackfalse，不送傷害或能量；不重抽RNG。真seed87/resolve1087畫面依欄0至6、每次最多8顆且不跨欄同落、無整盤空白，magic4/7/13全程保留、最終56格精確等核心且無頁面錯誤。證據Temp/match3-campaign-qa-6gwaUb/evidence/refill-column-special-report.json與terminal-first-column.png。所有測試資料隔離、自建瀏覽器已關閉。
 
 本追加批最終gate：完整test:beast-match3（含boss-reserve、逐欄refill與runner）PASS；test:beast-fairness（194核心、9客戶流程與1000局稽核）PASS；test:locked-cards 18項PASS；production build PASS，只有既有lint警告，沒有named JSON export新警告；diff-check PASS。尚未完成Android/iPhone實體裝置、發熱及真實聽感驗收，不以模擬冒充。
+
+## 再追加：能量出招不交敵方回合
+
+業主明確指定：寶珠連線才輪替，三顆零傷害也換敵；底部儲存能量隨可操作時使用，不應引發敵方攻擊。實際發現unleash/fireLink均setMoves再endStep，且第11關起受創技能可能另外打回玩家。最小修正兩條能量路徑取消回合推進，保留原耗能、原傷害、動畫busy及結算；damageFoeWithSkills新增預設true的reactionEnabled，只有能量明確傳false抑制整個受創技能，一般寶珠原技能不變。每次能量使用獨立遞增事件序號，避免同回合相同moves導致去重吞傷。能量擊殺末護衛後立即初始化新可用神獸一次，但不執行敵方回合。
+
+另查到1/2顆無效拖曳short分支會計回合並反擊，與3顆才有效規格衝突，一併刪除此分支；保留提示。測試抽取實際Board release函式並執行真resolveDrag，僅呈現adapter替身：1/2不計回合、3/4/8各一次交敵，3零攻擊、4以上攻擊。技能runtime測試涵蓋普通受創仍觸發、連續三個獨立能量事件各扣血/相同事件重送去重、雙方狀態期限不推進、末護衛能量擊殺解鎖與初始化一次。玩法說明與戰鬥紀錄同步。
+
+最終完整寶珠回歸、公平性檢查、18項鎖定卡片及production build均通過，既有lint警告保留；無修改原卡數值、連珠傷害公式、掉落演出或其他卡片。
+
+前批正式5dc315e實際載入新page-c51dbb29a3489071：Temp/match3-campaign-qa-7yGlYS/evidence/formal-5dc-fit-report.json驗390×844及320×480滿能量同屏、swipe/wheel仍scrollY0、末位待命不可選、說明與離場恢復；Temp/match3-campaign-qa-gbVpSM/evidence/refill-column-special-report.json正式真重整最多8顆逐欄、終盤等core。這批證據不代表之後能量/門檻已上線。
+
+能量本機實點Temp/match3-campaign-qa-vyh1PI：同回合兩張單卡造成163/54實扣、各扣100能量且零反擊；多卡連線傷害576、各扣50且零反擊；1/2不交回合、3/4/8各一次；能量擊殺後正常勝利但回合不增加。第11關Temp/match3-campaign-qa-kLe095/evidence/energy-stage11-report.json：具有受創技能110的柳土獐HP10000→9864，但技能use/event未觸發、零反擊/回合不變；末護衛1HP能量擊殺後神獸882HP保留、待命解除、被動初始化一次且不反擊。這些為隔離fixture，未修改客戶進度。
+
+## 門檻再核定（第八關才首次八顆）
+
+業主選擇第八關才首次8顆，覆蓋固定4及歷史第六關到8配置。採前八關3/4/4/5/5/6/7/8、第八後8；有效連線仍3，未達本關攻擊門檻仍消除/充能並交敵一次，第一關3可攻。數字權重與原傷害公式、敵方強度倍率、五對五待命、能量免回合不變。進場說明與help需依stage顯示，禁止繼續宣稱所有關卡固定4。
+
+最終獨立實拖6項PASS：Temp/match3-campaign-qa-5ezXpq/evidence/stage-threshold-report.json，第1關3連傷114、第7關7連157、第8關3/4連直傷0但各+1回合/1反擊、第8關8連352、第9關8連437；全部補滿56、busy恢復、無頁面錯誤。標題/intro/help讀值一致。此為刻意配置的門檻fixture，不作自然勝率宣稱。最新門檻完成後重新執行完整寶珠回歸、公平性、locked-cards與production build均PASS，diff-check PASS；模擬不代替實體Android/iPhone驗收。
