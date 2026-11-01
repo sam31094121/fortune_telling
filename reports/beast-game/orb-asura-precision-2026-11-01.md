@@ -87,3 +87,22 @@
 本次npm run build及test:beast-fairness通過，編譯保留既有lint警告。這是尺寸與頁面位移修復，不代表先前主執行緒長停頓後整批落定的問題已修好，也不代替Android／iPhone真機驗收。
 
 最新隔離production build再驗：127.0.0.1:9194/beast-game/match3-hard，三尺寸可見「簡單·4顆可攻擊」（起始進度label），盤與單珠尺寸一致、拖珠補56及scroll差0、errors0。證據：Temp/match3-campaign-qa-aHqyOI/evidence/restored-size-report.json。測試服務／瀏覽器已關閉，未動使用者8888。
+
+
+## 追加：五對五、末位唯一神獸與清楚反擊
+
+業主明確取代逐隻增至四獸的舊設定：第1關仍五幼子、第2–7關仍五成獸；第8關起前四格成獸、第五格唯一神獸，後續不增加神獸席位，所有關卡單卡反擊。沿用原名單首隻神獸，不新增固定輪換順序；原始卡檔及技能不改。
+
+總ATK/HP沿原線性遭遇預算，單次基礎攻擊峰值改從第7關最大值逐關增加，第8–12關為16/18/20/22/24，取代原第11關四獸合擊跳變。末位神獸基礎ATK不低其他四張，但實傷仍受原技能與屬性克制影響，不宣稱所有情境全面最強或保證玩家獲勝。
+
+關卡1–16每關500種子、8–12預算每關500種子、高關及安全整數邊界驗證通過。完整test:beast-match3與test:beast-fairness通過；前七關、原卡資料、4珠門檻、數字珠、盾牌、收藏保存保持。
+
+第8/11/12關隔離手機瀏覽器真觸控連珠：五敵位、末位唯一白虎、普攻軌跡最多1條且技能來源同一敵卡，補滿56格與操作恢復，無橫溢/頁面錯誤。證據本機Temp/match3-campaign-qa-hQFqOe/evidence/five-versus-five-report.json；非Android/iPhone實體機，不代表長期自然勝率驗收。
+
+追加UI授權：頂列改實際第N關（wins+1）與4顆攻擊門檻；反擊單條線2px改4.5px圓端、360ms單次前進停留淡出，原命中圈加柔和填色，移除該線drop-shadow；沿用原420ms反擊窗口及傷害，不加粒子或連續閃爍，減少動態設定保留。
+
+最後追加五元素光束：依實際出手卡ID及element讀既有色盤；風弧、水波、火折、地直束、空弧，白虎空屬性採紫白折電視覺，未增雷系技能。單條SVG路徑偏移上限14px、源端與命中端保持精準；無新粒子/迴圈/額外傷害。新增五色、端點、範圍與白虎特例回歸通過並納入test:beast-match3。
+
+業主追加確認沙漏會誤導：困難版移除待機倒數及永久緊急紅框，只在counterFoes真實出手期間顯示反擊中，aria-label同樣取消每卡幾步後反擊預告；其他模式倒數規則及顯示不動。
+
+最終五屬性技術fixture驗收：每次指定一張真卡為唯一反擊來源，五色與路徑/命中一致、減少動態無動畫、56格恢復、errors0，非自然通關證據。Temp/match3-campaign-qa-QPm6Bq/evidence/five-element-beam-report.json；正常第11關沙漏替換待機0→真白虎反擊中1→結束0，Temp/match3-campaign-qa-0mb3HI/evidence/counter-badge-final-report.json。最後UI修改後npm run build通過（既有lint警告保留），test:locked-cards18項及diff-check通過。

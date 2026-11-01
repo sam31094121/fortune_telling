@@ -53,8 +53,8 @@ for(const [input,expected] of [[-4,0],[NaN,0],[Infinity,0],[1.8,1],[Number.MAX_V
 assert.equal(M.nextProgressionWins(Number.MAX_SAFE_INTEGER,true),Number.MAX_SAFE_INTEGER);
 const guardian=pool.find(c=>c.form==='GUARDIAN'),adult=pool.find(c=>c.form==='ADULT');
 for(let wins=0;wins<=15;wins++) {
- const stage=M.progressionStage(wins),guardians=Math.min(4,Math.max(0,wins-6));
- assert.equal(stage.guardianCount,guardians);assert.equal(stage.simultaneous,guardians===4);assert.equal(stage.enemyCount,wins<7?5:4);assert.equal(stage.form,wins===0?'YOUNG':wins<7?'ADULT':'GUARDIAN');
+ const stage=M.progressionStage(wins),guardians=wins>=7?1:0;
+ assert.equal(stage.guardianCount,guardians);assert.equal(stage.simultaneous,false);assert.equal(stage.enemyCount,5);assert.equal(stage.form,wins===0?'YOUNG':wins<7?'ADULT':'GUARDIAN');
  const multiplier=1+Math.max(0,wins-5)*.1;assert.equal(stage.strengthMultiplier,multiplier);
  for(let seed=1;seed<=500;seed++) {
   const selected=M.selectProgressionEnemies(pool,M.seededRng(seed),wins);
@@ -62,21 +62,22 @@ for(let wins=0;wins<=15;wins++) {
   assert.equal(selected.length,stage.enemyCount);assert.equal(new Set(selected.map(c=>c.id)).size,selected.length);assert.equal(selected.filter(c=>c.form==='GUARDIAN').length,guardians);
   assert.equal(selected.filter(c=>c.form==='ADULT').length,wins===0?0:stage.enemyCount-guardians);
   if(wins<7)assert.equal(new Set(selected.map(c=>c.element)).size,5);
-  for(const c of selected){const stats=M.progressionEnemyStats(c,wins),hp=c.form==='YOUNG'?2:c.form==='ADULT'?3:4,atk=c.form==='YOUNG'?.1:c.form==='ADULT'?.15:.075;assert.equal(stats.hp,Math.round(c.stats.hp*hp*multiplier));assert.equal(stats.attack,Math.round(c.stats.attack*atk*multiplier));assert.equal(stats.maxHp,stats.hp);assert.equal(stats.cd,1);}
+  else {assert(selected.slice(0,4).every(c=>c.form==='ADULT'));assert.equal(selected[4].id,pool.filter(c=>c.form==='GUARDIAN').sort((a,b)=>a.id.localeCompare(b.id))[0].id);const lineup=M.progressionLineupStats(selected,wins,pool);assert(lineup.slice(0,4).every(c=>c.attack<=lineup[4].attack));}
+  for(const c of selected){const stats=M.progressionEnemyStats(c,wins),hp=c.form==='YOUNG'?2:c.form==='ADULT'?3:4,atk=c.form==='YOUNG'?.1:c.form==='ADULT'?.15:.075;assert.equal(stats.hp,Math.round(c.stats.hp*(hp*multiplier)));assert.equal(stats.attack,Math.round(c.stats.attack*(atk*multiplier)));assert.equal(stats.maxHp,stats.hp);assert.equal(stats.cd,1);}
  }
 }
 assert.deepEqual(M.progressionEnemyStats(adult,2),M.progressionEnemyStats(adult,5),'higher chain threshold alone does not add stats');
 for(const wins of [0,1,2,3,4,5,6])assert.throws(()=>M.progressionEnemyStats(guardian,wins));
-assert.throws(()=>M.progressionEnemyStats(adult,10));
+assert(M.progressionEnemyStats(adult,10).attack>0);
 const huge=M.progressionEnemyStats(guardian,Number.MAX_SAFE_INTEGER);assert(Number.isSafeInteger(huge.hp)&&Number.isSafeInteger(huge.attack));
-for(const wins of [0,1,6,7,8,9,10,11]) {const stage=M.progressionStage(wins),foes=M.selectProgressionEnemies(pool,M.seededRng(4),wins).map(c=>({...c,...M.progressionEnemyStats(c,wins)}));const result=M.counterPhase([{id:'ally',element:'SPACE',hp:1000000,energy:0}],foes,1,stage.simultaneous?undefined:0);assert.equal(result.hits.length,wins>=10?4:1,'only a full four-guardian team counters simultaneously');}
+for(const wins of [0,1,6,7,8,9,10,11]) {const stage=M.progressionStage(wins),foes=M.selectProgressionEnemies(pool,M.seededRng(4),wins).map(c=>({...c,...M.progressionEnemyStats(c,wins)}));const result=M.counterPhase([{id:'ally',element:'SPACE',hp:1000000,energy:0}],foes,1,stage.simultaneous?undefined:0);assert.equal(result.hits.length,1,'all stages keep exactly one counter actor');}
 assert.equal(JSON.stringify(pool),before,'original cards remain unchanged');
 assert.throws(()=>M.selectProgressionEnemies(pool.filter(c=>c.form!=='GUARDIAN'),M.seededRng(1),7));
 assert.throws(()=>M.selectProgressionEnemies(pool.filter(c=>c.form!=='ADULT'),M.seededRng(1),7));
 assert.throws(()=>M.selectProgressionEnemies([],M.seededRng(1),0));
 assert.throws(()=>M.selectProgressionEnemies(pool,()=>1,7));
 assert.throws(()=>M.selectProgressionEnemies([...pool,adult],M.seededRng(1),7));
-console.log('PASS: stages1–16 each 500 seeds, stage8–11 guardians1/2/3/4, real mixed rosters, per-form scales, original cards unchanged');
+console.log('PASS: stages1–16 each 500 seeds, stage8 onward four adults + one final guardian, real five-card rosters, per-form scales, original cards unchanged');
 
 // Eight-orb stage: shorter legal paths clear/refill without any attack leakage.
 for (let n=3;n<=8;n++) {
@@ -107,3 +108,11 @@ for(let seed=1;seed<=500;seed++) {
 }
 for(let wins=0;wins<7;wins++){const c=M.selectProgressionEnemies(pool,M.seededRng(3),wins);assert.deepEqual(M.progressionLineupStats(c,wins,pool),c.map(x=>M.progressionEnemyStats(x,wins)))}
 assert.equal(JSON.stringify(pool),before);console.log('PASS 500 seeds: stage8–12 total ATK/HP and neutral one-round capacity strictly increase; first7 unchanged');
+
+for(const wins of [12,30,100,1000,Number.MAX_SAFE_INTEGER]) {
+ const cards=M.selectProgressionEnemies(pool,M.seededRng(27),wins),stage=M.progressionStage(wins),stats=M.progressionLineupStats(cards,wins,pool);
+ assert.equal(cards.length,5);assert.equal(cards.filter(c=>c.form==='GUARDIAN').length,1);assert.equal(cards[4].form,'GUARDIAN');assert.equal(stage.simultaneous,false);assert.equal(stage.minChain,4);
+ assert(stats.every(s=>Number.isSafeInteger(s.attack)&&Number.isSafeInteger(s.hp)));assert(stats.slice(0,4).every(s=>s.attack<=stats[4].attack));
+}
+assert.deepEqual([7,8,9,10,11].map(w=>M.progressionStrengthBudget(pool,w).roundAttack),[16,18,20,22,24]);
+assert.equal(JSON.stringify(pool),before);console.log('PASS high stages remain 5v5, last guardian has highest base battlefield ATK, single counter grows 16/18/20/22/24');

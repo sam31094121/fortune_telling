@@ -1,4 +1,5 @@
 'use client';
+import { counterVisualPath } from '@/lib/beast-game/match3/counter-visual';
 import Link from 'next/link';
 /**
  * 神獸戰隊 v0.9｜五元素寶珠戰 5v5（寶珠戰卡片 → /beast-game/match3-preview → 自選出陣 → 本元件）
@@ -176,7 +177,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
   const [hitTeam, setHitTeam] = useState<Set<string>>(new Set());
   const [skillVisuals, setSkillVisuals] = useState<OrbSkillEvent[]>([]);
   const [intro, setIntro] = useState(rigEnabled);
-  const [counterVisuals, setCounterVisuals] = useState<{ enemy: number; targetId: string; actualDamage: number; hpBefore: number; hpAfter: number; x1: number; y1: number; x2: number; y2: number }[]>([]);
+  const [counterVisuals, setCounterVisuals] = useState<{ enemy: number; enemyId: string; element: BeastElement; targetId: string; actualDamage: number; hpBefore: number; hpAfter: number; x1: number; y1: number; x2: number; y2: number }[]>([]);
   useEffect(() => {
     if (!intro) return;
     const timer = window.setTimeout(() => setIntro(false), 2500);
@@ -286,12 +287,13 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
       if (cp.hits.length) {
         if (rigEnabled && root.current) {
           const bounds = root.current.getBoundingClientRect();
-          const enemies = root.current.querySelectorAll('[data-testid="match3-enemy"]');
+          const enemies = Array.from(root.current.querySelectorAll<HTMLElement>('[data-testid="match3-enemy"]'));
           const allies = Array.from(root.current.querySelectorAll<HTMLElement>('[data-testid="match3-ally"]'));
           setCounterVisuals(cp.hits.flatMap(h => {
-            const from = enemies[h.enemy]?.getBoundingClientRect();
+            const source = cp.foes.find(f => f.id === h.enemyId);
+            const from = enemies.find(e => e.dataset.id === h.enemyId)?.getBoundingClientRect();
             const to = allies.find(a => a.dataset.id === h.targetId)?.getBoundingClientRect();
-            return from && to ? [{ ...h, x1: from.left + from.width / 2 - bounds.left, y1: from.top + from.height / 2 - bounds.top, x2: to.left + to.width / 2 - bounds.left, y2: to.top + to.height / 2 - bounds.top }] : [];
+            return source && from && to ? [{ ...h, element: source.element, x1: from.left + from.width / 2 - bounds.left, y1: from.top + from.height / 2 - bounds.top, x2: to.left + to.width / 2 - bounds.left, y2: to.top + to.height / 2 - bounds.top }] : [];
           }));
         }
         setCounterFoes(new Set(cp.hits.map(h => h.enemy)));
@@ -519,27 +521,27 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
           <h1 className={styles.title} data-testid="match3-title">{cfg.title}<small className={styles.subtitle}>｜{cfg.subtitle}</small></h1>
         </div>
         <button type="button" className={styles.mute} aria-pressed={muted} aria-label={muted ? '開啟音效' : '靜音'} onClick={() => { audio.current?.setMuted(!muted); setMuted(!muted); if (muted) audio.current?.unlock(); }}>{muted ? '🔇' : '🔊'}</button>
-        <div className={styles.round} data-testid={rigEnabled ? 'match3-attack-threshold' : 'match3-round'}>{rigEnabled ? `${stage.label}·${stage.minChain}顆可攻擊` : `回合 ${moves + 1}`}</div>
+        <div className={styles.round} data-testid={rigEnabled ? 'match3-attack-threshold' : 'match3-round'}>{rigEnabled ? `第 ${stage.wins + 1} 關 · ${stage.minChain}顆可攻擊` : `回合 ${moves + 1}`}</div>
         {rigEnabled && <span className={styles.srOnly} data-testid="match3-round">{stage.label}·{moves + 1}回合</span>}
         {rigEnabled && <button type="button" className={`${styles.helpBtn} ${styles.helpTop}`} aria-expanded={help} onClick={() => setHelp(!help)}>玩法與操作</button>}
       </header>
       {rigEnabled && help && actions}
       {rigEnabled && intro && <div className={styles.quickIntro} data-testid="match3-quick-intro" role="status">上下、左右、左斜、右斜都可以，只要3顆相同寶珠連成一線即可；4顆以上才具有攻擊效果，連得越多，威力越強。<button type="button" onClick={() => setIntro(false)} aria-label="收起操作提示">×</button></div>}
-      {rigEnabled && counterVisuals.length > 0 && <svg className={styles.counterTrace} aria-hidden="true" data-testid="match3-counter-trace">{counterVisuals.map((h, i) => <g key={i} style={{ animationDelay: i * 30 + 'ms' }}><path d={`M ${h.x1} ${h.y1} L ${h.x2} ${h.y2}`} pathLength="1" /><circle cx={h.x2} cy={h.y2} r="20" /></g>)}</svg>}
+      {rigEnabled && counterVisuals.length > 0 && <svg className={styles.counterTrace} aria-hidden="true" data-testid="match3-counter-trace">{counterVisuals.map((h, i) => { const visual = counterVisualPath(h.enemyId, h.element, h.x1, h.y1, h.x2, h.y2); return <g key={i} data-source-id={h.enemyId} data-element={h.element} data-lightning={visual.lightning || undefined} style={{ ['--counter-color' as string]: visual.color, ['--counter-width' as string]: visual.width }}><path d={visual.path} pathLength="1" /><circle cx={h.x2} cy={h.y2} r="20" /></g>; })}</svg>}
       <div className={rigEnabled ? styles.srOnly : styles.sub} data-testid="match3-sub">{team.length} 對 {foes.length}・{cfg.cols * cfg.rows} 顆寶珠{cfg.diagonal ? '・可斜連' : ''}・敵方：{cfg.enemyHint ?? foes.map((f) => f.name).join('・')}</div>
       {debug && <div className={styles.sub} data-testid="match3-debug">[debug] 正式神獸卡 5v5・{cfg.cols}×{cfg.rows}＝{cfg.cols * cfg.rows} 顆寶珠・敵方 HP {cfg.enemyHp}／攻 {cfg.enemyAtk}／每 {cfg.counterEvery} 步反擊【待平衡】{cfg.diagonal ? '・可斜連' : ''}・seed {init.seed}</div>}
 
-      <div className={rigEnabled ? styles.srOnly : styles.secHead}><span>敵方神獸（點選指定目標；⏳ 為反擊倒數）</span><span>{over === 'win' ? '勝利' : over === 'lose' ? '落敗' : '戰鬥進行中'}</span></div>
+      <div className={rigEnabled ? styles.srOnly : styles.secHead}><span>{rigEnabled ? '敵方神獸（點選指定目標；出手時標示反擊中）' : '敵方神獸（點選指定目標；⏳ 為反擊倒數）'}</span><span>{over === 'win' ? '勝利' : over === 'lose' ? '落敗' : '戰鬥進行中'}</span></div>
       <div className={`${styles.foes} ${rigEnabled && stage.simultaneous && counterFoes.size > 1 ? styles.fourBeastUnion : ''}`} style={rigEnabled ? { gridTemplateColumns: `repeat(${foes.length}, minmax(0, 1fr))` } : undefined} data-testid="match3-enemies">
         {foes.map((f, i) => (
           <button type="button" key={f.id} data-testid="match3-enemy" data-id={f.id} data-hp={f.hp} data-cd={f.cd} data-target={i === ti ? '1' : '0'}
             disabled={f.hp <= 0} onClick={() => { if (f.hp > 0) { setTarget(i); setLog(`目標改為${f.name}。`); } }}
-            aria-pressed={i === ti} aria-label={`${f.name}，${MATCH3_ORB_LABEL[f.element]}屬性，HP ${f.hp}/${f.maxHp}，${f.cd} 步後反擊${i === ti ? '，目前目標' : '，點擊設為目標'}`}
-            className={`${styles.foe} ${i === ti ? styles.foeOn : ''} ${f.hp <= 0 ? styles.down : ''} ${hitFoe === i ? styles.allyHit : ''} ${counterFoes.has(i) ? styles.foeAttack : ''} ${f.cd === 1 && f.hp > 0 ? styles.foeHot : ''}`}
+            aria-pressed={i === ti} aria-label={`${f.name}，${MATCH3_ORB_LABEL[f.element]}屬性，HP ${f.hp}/${f.maxHp}，${rigEnabled ? (counterFoes.has(i) ? '反擊中' : '由阿修羅選擇反擊卡') : `${f.cd} 步後反擊`}${i === ti ? '，目前目標' : '，點擊設為目標'}`}
+            className={`${styles.foe} ${i === ti ? styles.foeOn : ''} ${f.hp <= 0 ? styles.down : ''} ${hitFoe === i ? styles.allyHit : ''} ${counterFoes.has(i) ? styles.foeAttack : ''} ${!rigEnabled && f.cd === 1 && f.hp > 0 ? styles.foeHot : ''}`}
             style={{ ['--ec' as string]: ORB_COLOR[f.element] }}>
             {rigEnabled && skillMarker(f.id, 'enemy')}
             {rigEnabled && !!f.skillRuntime?.shield && <span className={styles.runtimeShield}>盾 {f.skillRuntime.shield}</span>}
-            <span className={styles.cd} data-testid="match3-counter" aria-hidden="true">⏳{f.cd}</span>
+            {(!rigEnabled || counterFoes.has(i)) && <span className={styles.cd} data-testid="match3-counter" aria-hidden="true">{rigEnabled ? '反擊中' : <>⏳{f.cd}</>}</span>}
             <div className={styles.foeArt} role="img" aria-label={f.name} data-rig-target={rigEnabled || undefined} style={rigEnabled ? undefined : { backgroundImage: `url(${f.thumbnail})` }}>{rigEnabled && <Match3TargetArt src={f.thumbnail} />}</div>
             <div className={styles.foeName}>{f.name}</div>
             <div className={`${styles.bar} ${styles.foeBar}`} role="progressbar" aria-label={`${f.name}生命`} aria-valuenow={f.hp} aria-valuemax={f.maxHp}><span style={{ width: pct(f.hp, f.maxHp) }} /></div>
@@ -550,7 +552,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
       </div>
       <p className={rigEnabled ? styles.srOnly : styles.hint} data-testid="match3-hint" aria-live="polite">{hint || shortMsg || (cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊')}</p>
       {!rigEnabled && <button type="button" className={styles.helpBtn} aria-expanded={help} onClick={() => setHelp(!help)}>玩法說明</button>}
-      {help && <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆同屬性純盾牌連接會合擊，消耗本次連到的盾牌，按既有卡片與儲存顆數攻擊；其餘同屬性寶珠轉為盾牌，原本較高的數值保留。至少三顆不同顏色純盾牌連接，合體清除整盤對應顏色，依實際消除數量替對應卡片充能，最多充滿現有技能條；下一輪反擊減傷一半、不疊加，合體本身不攻擊。剩餘珠子先下落合成，再補新珠；自然連線累計四顆以上會保留數字，七顆以上變盾牌，三顆只消除。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「{rigEnabled ? '能量攻擊' : '技能'}」。{rigEnabled && '我方能量按鈕使用通用能量攻擊。敵方從第八關起逐步啟用原卡技能；沒有抽棄牌區，抽棄牌效果不適用。'}{rigEnabled ? '每次我方攻擊結束，對方接著反擊；連三顆起可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。第一關幼子、第二至第七關成獸；第八、九、十關依序加入一、二、三隻神獸，第十一關起四獸到齊才聯合反擊，之前由一張存活卡反擊。連珠攻擊門檻固定四顆，逐關提高對方強度。獲勝升一關，落敗保留難度重試；本人進度保存在這個瀏覽器，親友進度只在本分頁保留，重新選擇親友會重來。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>}
+      {help && <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆同屬性純盾牌連接會合擊，消耗本次連到的盾牌，按既有卡片與儲存顆數攻擊；其餘同屬性寶珠轉為盾牌，原本較高的數值保留。至少三顆不同顏色純盾牌連接，合體清除整盤對應顏色，依實際消除數量替對應卡片充能，最多充滿現有技能條；下一輪反擊減傷一半、不疊加，合體本身不攻擊。剩餘珠子先下落合成，再補新珠；自然連線累計四顆以上會保留數字，七顆以上變盾牌，三顆只消除。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「{rigEnabled ? '能量攻擊' : '技能'}」。{rigEnabled && '我方能量按鈕使用通用能量攻擊。敵方從第八關起逐步啟用原卡技能；沒有抽棄牌區，抽棄牌效果不適用。'}{rigEnabled ? '每次我方攻擊結束，對方接著反擊；連三顆起可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。全關卡五對五。第一關五張幼子、第二至第七關五張成獸；第八關起，敵方前四格為成獸，第五格為一張神獸，後續始終只有這一個神獸席位，每次由一張存活卡反擊。連珠攻擊門檻固定四顆，逐關提高對方強度。獲勝升一關，落敗保留難度重試；本人進度保存在這個瀏覽器，親友進度只在本分頁保留，重新選擇親友會重來。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>}
 
       {!log.startsWith('按住寶珠') && log ? <p className={rigEnabled ? styles.srOnly : styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
 

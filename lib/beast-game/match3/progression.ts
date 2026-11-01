@@ -15,25 +15,21 @@ export interface ProgressionStage {
   readonly index: 0 | 1 | 2;
   readonly label: '簡單' | '中度' | '困難';
   readonly form: 'YOUNG' | 'ADULT' | 'GUARDIAN';
-  readonly enemyCount: 4 | 5;
-  readonly guardianCount: 0 | 1 | 2 | 3 | 4;
+  readonly enemyCount: 5;
+  readonly guardianCount: 0 | 1;
   readonly minChain: 4;
-  /** 達到八珠後，每多過一關在原始關卡倍率上線性增加 10%。 */
+  /** 沿用既定前七關倍率；後期遭遇總預算與單次反擊峰值分別線性成長。 */
   readonly strengthMultiplier: number;
   readonly hpScale: number;
   readonly attackScale: number;
   readonly simultaneous: boolean;
 }
 
-/**
- * 明列待實戰平衡的戰場轉換倍率。
- * 四獸集齊前每回合只有一張卡反擊；第十一關起由四獸存活成員同回合合擊，
- * 所以末關的單卡攻擊換算較小，不把四倍出手次數再重複放大。
- */
+/** 戰場換算基準；始終五張，從第八關固定四成獸加一神獸，單卡反擊。 */
 const STAGES: readonly Omit<ProgressionStage, 'wins' | 'strengthMultiplier' | 'guardianCount'>[] = Object.freeze([
   Object.freeze({ index: 0, label: '簡單', form: 'YOUNG', enemyCount: 5, minChain: 4, hpScale: 2, attackScale: .1, simultaneous: false }),
   Object.freeze({ index: 1, label: '中度', form: 'ADULT', enemyCount: 5, minChain: 4, hpScale: 3, attackScale: .15, simultaneous: false }),
-  Object.freeze({ index: 2, label: '困難', form: 'GUARDIAN', enemyCount: 4, minChain: 4, hpScale: 4, attackScale: .075, simultaneous: true }),
+  Object.freeze({ index: 2, label: '困難', form: 'GUARDIAN', enemyCount: 5, minChain: 4, hpScale: 4, attackScale: .075, simultaneous: false }),
 ]);
 
 function normalizedWins(wins: number): number {
@@ -43,15 +39,15 @@ function normalizedWins(wins: number): number {
 export function progressionStage(wins: number): ProgressionStage {
   const count = normalizedWins(wins);
   const base = STAGES[count === 0 ? 0 : count < 7 ? 1 : 2];
-  const guardianCount = Math.min(4, Math.max(0, count - 6)) as ProgressionStage['guardianCount'];
-  // wins 5 首次八珠，wins 6 才增加 10%；線性成長，不逐關複利。
+  const guardianCount: ProgressionStage['guardianCount'] = count >= 7 ? 1 : 0;
+  // 保留既有第七關起的基準倍率；攻擊門檻獨立固定四珠。
   const strengthMultiplier = 1 + Math.max(0, count - 5) * .1;
   return Object.freeze({
     ...base,
     index: Math.min(2, count) as ProgressionStage['index'],
     label: STAGES[Math.min(2, count)].label,
     guardianCount,
-    simultaneous: guardianCount === 4,
+    simultaneous: false,
     wins: count,
     minChain: 4,
     strengthMultiplier,
@@ -66,21 +62,22 @@ export function nextProgressionWins(current: number, won: boolean): number {
   return won && count < Number.MAX_SAFE_INTEGER ? count + 1 : count;
 }
 
-/** Stage 8–10 introduces one guardian at a time; real adults fill the four slots. */
+/** From stage 8, four real adults precede the same existing first guardian at index 4. */
 export function selectProgressionEnemies<C extends ProgressionCard>(pool: readonly C[], rng: Rng, wins: number): C[] {
   const stage = progressionStage(wins);
   const candidates = pool.filter(c => c.form === stage.form).slice().sort((a, b) => a.id.localeCompare(b.id));
   if (new Set(candidates.map(c => c.id)).size !== candidates.length) throw new Error('關卡卡池含重複卡片');
   if (stage.form === 'GUARDIAN') {
     if (candidates.length !== 4) throw new Error('四大神獸卡池不完整');
-    const selected = candidates.slice(0, stage.guardianCount);
+    const selected: C[] = [];
     const adults = pool.filter(c => c.form === 'ADULT').slice().sort((a, b) => a.id.localeCompare(b.id));
-    if (new Set(adults.map(c => c.id)).size !== adults.length || adults.length < 4 - selected.length) throw new Error('成獸補位卡池不完整');
+    if (new Set(adults.map(c => c.id)).size !== adults.length || adults.length < 4) throw new Error('成獸補位卡池不完整');
     while (selected.length < 4) {
       const sample = rng();
       if (!Number.isFinite(sample) || sample < 0 || sample >= 1) throw new Error('抽卡亂數超出範圍');
       selected.push(adults.splice(Math.floor(sample * adults.length), 1)[0]);
     }
+    selected.push(candidates[0]);
     if (new Set(selected.map(c => c.id)).size !== selected.length) throw new Error('關卡卡池含重複卡片');
     return selected;
   }
@@ -95,7 +92,7 @@ export function selectProgressionEnemies<C extends ProgressionCard>(pool: readon
 
 export function progressionEnemyStats(card: ProgressionCard, wins: number): { hp: number; maxHp: number; attack: number; cd: number } {
   const stage = progressionStage(wins);
-  const mixedAdult = stage.guardianCount > 0 && stage.guardianCount < 4 && card.form === 'ADULT';
+  const mixedAdult = stage.guardianCount === 1 && card.form === 'ADULT';
   if (card.form !== stage.form && !mixedAdult) throw new Error('卡片不屬於本關卡');
   if (![card.stats.hp, card.stats.attack].every(n => Number.isFinite(n) && n > 0)) throw new Error('卡片原始數值不完整');
   const scaled = (base: number, factor: number) => Math.min(Number.MAX_SAFE_INTEGER, Math.max(1, Math.round(base * factor)));
@@ -119,12 +116,14 @@ export function progressionStrengthBudget(pool: readonly ProgressionCard[], wins
     return Math.min(Number.MAX_SAFE_INTEGER, base + (normalizedWins(wins) - 6) * increment);
   };
   const attack = grow('attack');
-  return { attack, hp: grow('hp'), roundAttack: normalizedWins(wins) < 10 ? Math.ceil(attack / 4) + 1 : attack };
+  const basePeak = Math.max(...maxima.map(c => c.attack));
+  const roundAttack = Math.min(attack - 4, basePeak + (normalizedWins(wins) - 6) * Math.max(1, Math.ceil(basePeak * .1)));
+  return { attack, hp: grow('hp'), roundAttack };
 }
 export function progressionLineupStats(cards: readonly ProgressionCard[], wins: number, pool: readonly ProgressionCard[]): { hp: number; maxHp: number; attack: number; cd: number }[] {
   const raw = cards.map(c => progressionEnemyStats(c, wins)), budget = progressionStrengthBudget(pool, wins);
   if (!budget) return raw;
-  if (cards.length !== progressionStage(wins).enemyCount || new Set(cards.map(c => c.id)).size !== cards.length) throw new Error('關卡陣容不完整');
+  if (cards.length !== 5 || cards[4]?.form !== 'GUARDIAN' || cards.slice(0, 4).some(c => c.form !== 'ADULT') || new Set(cards.map(c => c.id)).size !== cards.length) throw new Error('關卡陣容不完整');
   const allocate = (key: 'attack' | 'hp') => {
     const total = raw.reduce((n, c) => n + c[key], 0), available = BigInt(budget[key] - raw.length), divisor = BigInt(total);
     const values = raw.map(c => 1 + Number(BigInt(c[key]) * available / divisor));
@@ -134,7 +133,7 @@ export function progressionLineupStats(cards: readonly ProgressionCard[], wins: 
   };
   const attacks = allocate('attack'), health = allocate('hp');
   if (!progressionStage(wins).simultaneous) {
-    const peak = budget.roundAttack, strongest = raw.reduce((best, card, i) => card.attack > raw[best].attack ? i : best, 0);
+    const peak = budget.roundAttack, strongest = 4;
     let excess = 0;
     for (let i = 0; i < attacks.length; i++) { excess += Math.max(0, attacks[i] - peak); attacks[i] = Math.min(peak, attacks[i]); }
     for (let i = 0; i < attacks.length && excess > 0; i++) { const add = Math.min(excess, peak - attacks[i]); attacks[i] += add; excess -= add; }
