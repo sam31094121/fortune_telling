@@ -124,3 +124,21 @@
 本輪手機項目為瀏覽器模擬與明示測試fixture；headless切另一頁仍回報visibility=visible，僅能算切頁返回，不冒充真手機切App測試。Android/iPhone、小米/三星實體機仍未連線，不能宣稱全品牌真機驗收。
 
 最終獨立驗收：普通/30FPS/650ms停頓/4倍CPU與捲動/單盾/真重整，終盤均精確等核心、56格、busy正常解除且頁面無例外。最終真單盾8段計畫8秒、20ms間隔與318–426ms落程，不再壓5秒；真重整含power4/7/13三顆特殊珠，位置/opacity保持且無flash/fall，只有53顆普通珠重整。明示visibility事件fixture暫停穩定後800ms位置相同，恢復後終盤正確。證據Temp/match3-campaign-qa-khht5s/evidence/refill-v2-final-shield-report.json、Temp/match3-campaign-qa-Qvd8Yb/evidence/refill-final-special-report.json、Temp/match3-campaign-qa-fTUpWD/evidence/refill-hidden-fixture-report.json；總結Temp/orb-refill-independent-final-20261101.md。最終全寶珠回歸及production build再次通過（既有lint警告保留），diff-check通過。未更動客戶存檔，自建測試瀏覽器已關閉；用戶8888服務保持。
+
+前批正式驗收亦通過：Temp/match3-campaign-qa-ZrqvSI/evidence/refill-7960b86-formal-report.json，普通/長盾/特殊珠整理三組盤面等核心、56格、無busy違規或頁面錯誤；正式chunk已載入新提示與native timeline。下列為其後業主追加，不混作前批已發布證據。
+
+## 追加：主要戰鬥同屏、神獸最後解鎖、普通掉落略快與逐欄整理
+
+業主確認目前一般手機尺寸清楚，只要主要戰鬥不再上下移動，且矮屏也要看到HP/技能/攻擊。重現390×844本體785.22px但父頁850.22px、320×667本體663.53px但父頁728.53px，多65px來自尾端安裝dock。僅hard戰鬥以完整實際可視範圍設定局部data狀態，CSS限制html/body捲動及回彈，不改inline body style；主要戰鬥收起dock，說明/結算/離場恢復。矮屏先收緊卡片及留白，預留滿能量按鈕，≤520px以實際剩餘高度調盤寬且珠不小於33px；ResizeObserver/視窗事件離場清除，錯誤提示、縮放與放不下的極端視窗不硬裁。
+
+隔離手機原生座標驗收390×844、320×667、320×568、320×480，五張滿能量均完整同屏且可點；上方/敵卡/盤/己卡/空白touch swipe及wheel均scrollY=0，所有反擊源端/目標端位於viewport。珠尺寸依序49.28/39.81/39.81/33px。說明開啟解鎖、返回頂部關閉重鎖；退出選卡恢復auto並可捲300px。實際安裝鈕注入亦戰鬥隱藏、離場恢復。證據Temp/match3-campaign-qa-rfKM50/evidence/fit-native-interaction-report.json及Temp/match3-campaign-qa-nE2m62；不宣稱所有小尺寸或實機都已通過。
+
+業主明確選定前四張倒下後神獸才能被打並參戰。原先僅位置最後，沒有待命閘門，仍可提前反擊。新增共用核心availability/target/initialization判定，待命不受傷、不反擊、不跑召喚/被動；前四張全倒後沿原效果引擎初始化一次。Board建好完整五敵後才初始化，前端顯示待命/disabled，舊目標自動選可攻擊敵。第1–7關、原卡值、五對五與其他模式不變。新增boss-reserve測試納入全寶珠gate；盾牌source-test編譯器補esModuleInterop與正式tsconfig一致，保留所有斷言，JSON仍用default import避免新建置警告。
+
+第8/11關技術fixture：前三張倒下、第四張HP1，真四連擊殺第四張後末位解除待命、成為唯一反擊來源；其HP未受溢傷，下一回合原PASSIVE使用/加成仍只有一次。證據Temp/match3-campaign-qa-7JLA51/evidence/boss-transition-report.json、Temp/match3-campaign-qa-BIFTQw/evidence/boss-transition-repeat-report.json。這是受控過渡驗證，非自然勝率測試。
+
+後續追加普通掉落約快一成：原duration乘0.9取整數，20ms間隔、清退、獎勵停留不變；同色/異色合體1650ms及釋放點不變。真八段盾後補珠計畫7723ms、單珠319/302/286/383ms，終盤一致且操作恢復，證據Temp/match3-campaign-qa-6R86GE/evidence/refill-v2-final-shield-report.json。長鏈依段數自然增加總時間，沒有恢復5秒快轉。
+
+最後追加禁止整盤先空白：真重整改逐欄展示core計算完的盤面，每段只清退/重落該欄普通珠；其餘欄與特殊珠保持。所有展示段chain0/groups空/attackfalse，不送傷害或能量；不重抽RNG。真seed87/resolve1087畫面依欄0至6、每次最多8顆且不跨欄同落、無整盤空白，magic4/7/13全程保留、最終56格精確等核心且無頁面錯誤。證據Temp/match3-campaign-qa-6gwaUb/evidence/refill-column-special-report.json與terminal-first-column.png。所有測試資料隔離、自建瀏覽器已關閉。
+
+本追加批最終gate：完整test:beast-match3（含boss-reserve、逐欄refill與runner）PASS；test:beast-fairness（194核心、9客戶流程與1000局稽核）PASS；test:locked-cards 18項PASS；production build PASS，只有既有lint警告，沒有named JSON export新警告；diff-check PASS。尚未完成Android/iPhone實體裝置、發熱及真實聽感驗收，不以模擬冒充。

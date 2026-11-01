@@ -39,7 +39,7 @@ export function refillPresentation(steps: readonly Pick<DragStep, 'falls' | 'emp
   const raw = steps.map(step => {
     const falls = [...(step.falls ?? [])].sort((a, b) => Number(a.fromRow < 0) - Number(b.fromRow < 0) || b.r - a.r || a.c - b.c);
     const stagger = reduced ? 0 : 20;
-    const duration = reduced || !falls.length ? 0 : 300 + Math.min(7, Math.max(...falls.map(f => f.r - f.fromRow))) * 18;
+    const duration = reduced || !falls.length ? 0 : Math.round((300 + Math.min(7, Math.max(...falls.map(f => f.r - f.fromRow))) * 18) * .9);
     const hold = reduced ? 0 : step.rewards?.length ? 260 : step.emptyCells?.length ? 140 : 0;
     const survivors = falls.filter(f => f.fromRow >= 0).length;
     const spawnAt = survivors ? duration + Math.max(0, survivors - 1) * stagger : 0;
@@ -62,10 +62,23 @@ export function refillPresentation(steps: readonly Pick<DragStep, 'falls' | 'emp
 /** Display-only terminal shuffle. Never feed these frames to damage, energy or events. */
 export function refillDisplaySteps(result: DragResult): DragStep[] {
   if (!result.reshuffled) return result.steps;
-  // Core reshuffles ordinary beads only; stored numbers/shields stay in place.
-  // Do not make these preserved beads disappear or fall from the top again.
-  const cells = result.board.flatMap((row, r) => row.flatMap((_, c) => result.magic[r][c] > 0 ? [] : [{ r, c }]));
-  return [...result.steps, { chain: 0, groups: [], attackAllowed: false,
-    boardAfter: result.board, magicAfter: result.magic, clearedCells: cells,
-    falls: cells.map(cell => ({ ...cell, fromRow: -1 })), emptyCells: [], rewards: [] }];
+  // Replace only one ordinary-bead column per visible phase. Stored numbers and
+  // shields, and all columns that have not reached their turn, remain in place.
+  const shown = [...result.steps];
+  let board = result.steps.at(-1)?.boardAfter ?? result.board;
+  let magic = result.steps.at(-1)?.magicAfter ?? result.magic;
+  for (let c = 0; c < (result.board[0]?.length ?? 0); c++) {
+    const cells = result.board.flatMap((_, r) => result.magic[r][c] > 0 ? [] : [{ r, c }]);
+    if (!cells.length) continue;
+    const nextBoard = board.map(row => [...row]), nextMagic = magic.map(row => [...row]);
+    for (const cell of cells) {
+      nextBoard[cell.r][cell.c] = result.board[cell.r][cell.c];
+      nextMagic[cell.r][cell.c] = result.magic[cell.r][cell.c];
+    }
+    shown.push({ chain: 0, groups: [], attackAllowed: false,
+      boardAfter: nextBoard, magicAfter: nextMagic, clearedCells: cells,
+      falls: cells.map(cell => ({ ...cell, fromRow: -1 })), emptyCells: [], rewards: [] });
+    board = nextBoard; magic = nextMagic;
+  }
+  return shown;
 }

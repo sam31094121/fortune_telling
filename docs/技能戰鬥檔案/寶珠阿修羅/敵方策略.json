@@ -1,6 +1,14 @@
 {
   "id": "ORB_ASURA_ENEMY_POLICY_V1",
   "scope": "hard orb only; not fortune-telling Asura",
+  "guardianReserve": {
+    "fromStage": 8,
+    "lineup": "five enemies; four escorts followed by one real guardian",
+    "unlock": "all first four enemies have zero HP",
+    "waiting": "cannot be targeted or counterattack; no summon/passive initialization",
+    "activation": "original summon/passive initialized once when available; original skill values unchanged",
+    "implementation": "enemies.foeAvailable / availableFoeTarget / initializeAvailableFoes"
+  },
   "sources": [
     "lib/beast-game/match3/enemies.ts",
     "lib/beast-game/interactive.ts#chooseAI",

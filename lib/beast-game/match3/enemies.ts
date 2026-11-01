@@ -9,6 +9,8 @@ import { planOrbCounter, orbCounterDamage, resolveOrbEnemyAction } from './enemy
  */
 import type { BeastElement } from '../elements';
 import { ENEMY_COUNTER_EVERY } from './config';
+import { getCard } from '../registry';
+import policy from '../../../docs/技能戰鬥檔案/寶珠阿修羅/敵方策略.json';
 
 /** 依 5v5 截圖的敵方五隻（以卡名從 60 張 .v2 卡池解析，不寫死 ID）。 */
 export const MATCH3_ENEMY_NAMES = ['井木犴', '婁金狗', '箕水豹', '星日馬', '女土蝠'] as const;
@@ -37,6 +39,20 @@ export const LINK_BONUS_PER_EXTRA = 0.5;
 export interface Match3Foe { id: string; element: BeastElement; hp: number; maxHp: number; attack: number; cd: number; skillRuntime?: FoeSkillState; lastCounterTurn?: string; lastCounterPhase?: string; appliedPlayerHitIds?: string[] }
 interface Ally { id: string; element: BeastElement; hp: number; energy: number; maxHp?: number; attack?: number; skillRuntime?: FoeSkillState }
 
+/** Only the current five-card encounter reserves its fifth guardian until all four escorts fall. */
+export function foeAvailable(foes: readonly { id: string; hp: number }[], index: number, stage = 0): boolean {
+  const foe = foes[index];
+  if (!foe || foe.hp <= 0) return false;
+  const waiting = stage >= policy.guardianReserve.fromStage && foes.length === 5 && index === 4 && getCard(foe.id)?.form === 'GUARDIAN' && foes.slice(0, 4).some(f => f.hp > 0);
+  return !waiting;
+}
+export function availableFoeTarget(foes: readonly { id: string; hp: number }[], target: number, stage = 0): number {
+  return foeAvailable(foes, target, stage) ? target : foes.findIndex((_, i) => foeAvailable(foes, i, stage));
+}
+export function initializeAvailableFoes<F extends Match3Foe>(foes: readonly F[], stage: number): F[] {
+  return foes.map((f, i) => stage >= 8 && foeAvailable(foes, i, stage) ? initializeFoeSkills(f, { sourceSide: 'enemy' }).foe : f);
+}
+
 /** mode 不給＝原本中等數值（HP 300／ATK 8／倒數 3）；困難模式由 config.MATCH3_MODES 傳入【待平衡】值。 */
 export function makeFoe(id: string, element: BeastElement, mode?: { enemyHp: number; enemyAtk: number; counterEvery: number }): Match3Foe {
   const hp = mode?.enemyHp ?? MATCH3_ENEMY_HP;
@@ -56,10 +72,12 @@ export function damageFoe<T extends { hp: number }>(foes: readonly T[], index: n
 
 /** Existing orb damage once, then an actual-damage event; never recalculate the hit. */
 export function damageFoeWithSkills<F extends Match3Foe, T extends SkillFoe & { energy: number }>(foes: readonly F[], index: number, amount: number, stage: number, eventId: string, team: readonly T[], actualAttackerId: string | null): { foes: F[]; team: T[]; skillEvents: OrbSkillEvent[]; actualDamage: number } {
+  if (!foeAvailable(foes, index, stage)) return { foes: [...foes], team: [...team], skillEvents: [], actualDamage: 0 };
   if(stage>=8&&foes[index]?.appliedPlayerHitIds?.includes(eventId))return {foes:[...foes],team:[...team],skillEvents:[],actualDamage:0};
-  const result = damageFoe(foes, index, amount), nextTeam = team.slice();
+  const ready = initializeAvailableFoes(foes, stage);
+  const result = damageFoe(ready, index, amount), nextTeam = team.slice();
   if(stage>=8&&result[index])result[index]={...result[index],appliedPlayerHitIds:[...(foes[index].appliedPlayerHitIds??[]),eventId]};
-  const actualDamage = result[index] && foes[index] ? foes[index].hp - result[index].hp : 0;
+  const actualDamage = result[index] && ready[index] ? ready[index].hp - result[index].hp : 0;
   const skillEvents: OrbSkillEvent[] = [];
   if (stage >= 11 && actualDamage > 0 && result[index]?.hp > 0) {
     const attackerIndex = nextTeam.findIndex(u => u.id === actualAttackerId);
@@ -78,8 +96,8 @@ export interface CounterHit { enemy: number; enemyId: string; targetId: string; 
 export function counterPhase<T extends Ally, F extends Match3Foe>(team: readonly T[], foes: readonly F[], every: number = ENEMY_COUNTER_EVERY, singleTurn?: number, shieldGuard = false, strategyStage?: number, skillContext?: { turnId: string }): { team: T[]; foes: F[]; hits: CounterHit[]; skillEvents: OrbSkillEvent[] } {
   let t = team.slice(); const hits: CounterHit[] = [], skillEvents: OrbSkillEvent[] = [];
   const stage = strategyStage ?? 0, skills = stage >= 8, eventId = skillContext?.turnId;
-  let nf = foes.map(f => { if (!skills) return f; const init = initializeFoeSkills(f,{sourceSide:'enemy'}); skillEvents.push(...init.events); return init.foe; });
-  const living = nf.map((f, i) => f.hp > 0 ? i : -1).filter(i => i >= 0);
+  let nf = foes.map((f, i) => { if (!skills || !foeAvailable(foes, i, stage)) return f; const init = initializeFoeSkills(f,{sourceSide:'enemy'}); skillEvents.push(...init.events); return init.foe; });
+  const living = nf.map((f, i) => foeAvailable(nf, i, stage) ? i : -1).filter(i => i >= 0);
   const eligible = living.filter(i => (singleTurn !== undefined || nf[i].cd <= 1) && (!skills || eventId === undefined || nf[i].lastCounterPhase !== eventId));
   const selected = singleTurn === undefined ? null : living[singleTurn % living.length];
   const planned = strategyStage === undefined ? null : planOrbCounter(t, nf, eligible, singleTurn !== undefined, singleTurn ?? 0, stage, shieldGuard);

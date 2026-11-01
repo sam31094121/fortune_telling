@@ -6,22 +6,29 @@ const { refillPresentation, refillDisplaySteps, refillLandingTimes, fusionShield
   // Isolated terminal-reshuffle contract, not a claim of natural gameplay.
   const board=Array.from({length:8},(_,r)=>Array.from({length:7},(_,c)=>M.MATCH3_ORB_ELEMENTS[(r+c)%5]));
   const magic=M.emptyMagic(board); magic[1][2]=4; magic[4][3]=7; magic[7][6]=13;
-  const original={chain:1,groups:[],boardAfter:board,magicAfter:magic};
+  const beforeBoard=board.map((row,r)=>row.map((e,c)=>magic[r][c]>0?e:M.MATCH3_ORB_ELEMENTS[(r+c+1)%5]));
+  const original={chain:1,groups:[],boardAfter:beforeBoard,magicAfter:magic};
   const result={board,magic,steps:[original],reshuffled:true};
-  const snapshot=JSON.stringify(result), shown=refillDisplaySteps(result), terminal=shown.at(-1);
-  assert.equal(shown.length,2); assert.equal(shown[0],original);
-  assert.equal(terminal.boardAfter,board); assert.equal(terminal.magicAfter,magic);
-  assert.equal(terminal.clearedCells.length,53); assert.equal(terminal.falls.length,53);
-  for(const p of [{r:1,c:2},{r:4,c:3},{r:7,c:6}]) {
-    assert(!terminal.clearedCells.some(q=>q.r===p.r&&q.c===p.c));
-    assert(!terminal.falls.some(q=>q.r===p.r&&q.c===p.c));
-    assert.equal(terminal.boardAfter[p.r][p.c],board[p.r][p.c]);
-    assert.equal(terminal.magicAfter[p.r][p.c],magic[p.r][p.c]);
+  const snapshot=JSON.stringify(result), shown=refillDisplaySteps(result), terminal=shown.at(-1), phases=shown.slice(1);
+  assert.equal(shown.length,8);assert.equal(shown[0],original);
+  assert.deepEqual(terminal.boardAfter,board);assert.deepEqual(terminal.magicAfter,magic);
+  assert.equal(phases.reduce((n,p)=>n+p.clearedCells.length,0),53);
+  let previous=beforeBoard;
+  for(const [column,phase] of phases.entries()) {
+    assert(phase.clearedCells.length<=8);assert.equal(new Set(phase.clearedCells.map(p=>p.c)).size,1);assert(phase.clearedCells.every(p=>p.c===column));
+    assert.deepEqual(phase.falls.map(({fromRow,...p})=>p),phase.clearedCells);assert(phase.falls.every(p=>p.fromRow<0));
+    for(let r=0;r<8;r++)for(let c=0;c<7;c++){
+      assert.equal(phase.boardAfter[r][c],c===column&&magic[r][c]===0?board[r][c]:previous[r][c]);
+      assert.equal(phase.magicAfter[r][c],magic[r][c]);
+      if(magic[r][c]>0)assert(!phase.clearedCells.some(p=>p.r===r&&p.c===c));
+    }
+    assert.equal(phase.chain,0);assert.equal(phase.attackAllowed,false);assert.deepEqual(phase.groups,[]);assert.deepEqual(phase.rewards,[]);
+    previous=phase.boardAfter;
   }
-  assert.equal(terminal.chain,0); assert.equal(terminal.attackAllowed,false);
-  assert.deepEqual(terminal.groups,[]); assert.deepEqual(terminal.rewards,[]);
+  assert.deepEqual(M.computeHits(phases,[{id:'review',element:'FIRE',hp:100,attack:100}],'EARTH'),[],'display-only columns cannot create attacks');
   assert.equal(JSON.stringify(result),snapshot,'display cannot mutate scoring/energy input');
   assert.equal(refillDisplaySteps({...result,reshuffled:false}),result.steps);
+
 }
 for (const count of [3, 4, 5, 8, 56]) {
   const layout=fusionShieldLayout(count);

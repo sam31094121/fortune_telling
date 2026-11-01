@@ -16,12 +16,12 @@ import { CARD_FACE_STATS } from '@/lib/beast-game/card-face-stats';
 import { getSkill } from '@/cards/skills';
 import type { BeastElement } from '@/lib/beast-game/elements';
 import { fighterCanAct, fighterEffectiveAttack, endPlayerSkillTurn } from '@/lib/beast-game/match3/damage';
-import { initializeFoeSkills, orbSkillDisplay, type OrbSkillEvent } from '@/lib/beast-game/match3/skill-runtime';
+import { orbSkillDisplay, type OrbSkillEvent } from '@/lib/beast-game/match3/skill-runtime';
 import {
   ENERGY_MAX, MAGIC_ORB_MIN_LENGTH, MATCH3_ORB_ELEMENTS, MATCH3_ORB_LABEL, NORMAL_POWER_CAP, SKILL5_LENGTH,
   buildEvents, computeHits, dragIntent, effectiveDragCount, isShieldFusionPath, emptyMagic, energyGains, generateDragBoard, resolveDrag, seededRng, skillAmount,
   DEFAULT_SAME_ELEMENT_RULE, attackingTeam, leadIds, chooseLead, type LeadChoice, shareEnergy, validTeamIds, type SameElementRule,
-  MATCH3_ENEMY_NAMES, enemyNamesFor, makeFoe, aliveTarget, damageFoe, damageFoeWithSkills, counterPhase, linkDamage, linkProblem, LINK_ENERGY_COST, LINK_MIN_CARDS,
+  MATCH3_ENEMY_NAMES, enemyNamesFor, makeFoe, availableFoeTarget, foeAvailable, initializeAvailableFoes, damageFoe, damageFoeWithSkills, counterPhase, linkDamage, linkProblem, LINK_ENERGY_COST, LINK_MIN_CARDS,
   progressionStage, nextProgressionWins, selectProgressionEnemies, progressionLineupStats,
   match3Mode, type Match3ModeConfig, type Match3ModeId,
   type Board, type Cell, type MagicGrid, type Match3Fighter, type Match3Foe, type Rng,
@@ -62,9 +62,9 @@ export function pickLineup(rng: Rng, teamIds?: readonly string[] | null, mode: M
     for (const [index, c] of selected.entries()) {
       const s = stats[index];
       const enemy = { id: c.id, element: c.element, hp: s.hp, maxHp: s.hp, attack: s.attack, cd: 1, name: c.name, thumbnail: c.art.thumbnail };
-      enemies.push(wins >= 7 ? initializeFoeSkills(enemy, { sourceSide: 'enemy' }).foe : enemy);
+      enemies.push(enemy);
     }
-    return { team, enemies };
+    return { team, enemies: initializeAvailableFoes(enemies, wins + 1) };
   }
   for (const nm of foeNames) { const c = pool.find((x) => x.name === nm); if (c) enemies.push({ ...makeFoe(c.id, c.element, mode), name: c.name, thumbnail: c.art.thumbnail }); }
   return { team, enemies };
@@ -239,7 +239,49 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
 
   const teamHp = team.reduce((s, u) => s + Math.max(0, u.hp), 0);
   const over = foes.every((f) => f.hp <= 0) ? 'win' : teamHp <= 0 ? 'lose' : null;
-  const ti = aliveTarget(foes, target);
+  const [scrollLocked, setScrollLocked] = useState(false);
+  useLayoutEffect(() => {
+    if (!rigEnabled || help || over) { setScrollLocked(false); return; }
+    const element = root.current; if (!element) return;
+    let raf: number | null = null;
+    const viewport = window.visualViewport;
+    const previousCompactWidth = element.style.getPropertyValue('--compact-board-width');
+    const measure = () => {
+      raf = null;
+      let rect = element.getBoundingClientRect(); const top = viewport?.offsetTop ?? 0;
+      const height = viewport?.height ?? window.innerHeight;
+      const boardElement = element.querySelector<HTMLElement>('[data-testid="match3-board"]');
+      if (boardElement && window.matchMedia('(max-height: 520px) and (max-width: 600px)').matches) {
+        const box = boardElement.getBoundingClientRect(), style = getComputedStyle(boardElement);
+        const number = (v: string) => Number.parseFloat(v) || 0;
+        const vertical = number(style.paddingTop) + number(style.paddingBottom) + number(style.borderTopWidth) + number(style.borderBottomWidth);
+        const horizontal = number(style.paddingLeft) + number(style.paddingRight) + number(style.borderLeftWidth) + number(style.borderRightWidth);
+        const available = height - (rect.height - box.height) - 1;
+        const cell = Math.max(33, Math.min(35, (available - vertical - (cfg.rows - 1) * number(style.rowGap)) / cfg.rows));
+        const width = cell * cfg.cols + (cfg.cols - 1) * number(style.columnGap) + horizontal;
+        const value = Math.round(width) + 'px';
+        if (element.style.getPropertyValue('--compact-board-width') !== value) element.style.setProperty('--compact-board-width', value);
+        rect = element.getBoundingClientRect();
+      } else element.style.removeProperty('--compact-board-width');
+      const dockControls = Array.from(element.parentElement?.querySelectorAll<HTMLElement>('[data-testid="campaign-load-error"]') ?? []);
+      const hasExtraControls = dockControls.some(control => control.getClientRects().length > 0);
+      const fits = !hasExtraControls && Math.abs((viewport?.scale ?? 1) - 1) < .01 && rect.height <= height + 1 && rect.top >= top - 1 && rect.bottom <= top + height + 1;
+      setScrollLocked(fits);
+    };
+    const schedule = () => { if (raf === null) raf = requestAnimationFrame(measure); };
+    const observer = new ResizeObserver(schedule); observer.observe(element); if (element.parentElement) observer.observe(element.parentElement);
+    window.addEventListener('resize', schedule); window.addEventListener('scroll', schedule, { passive: true });
+    viewport?.addEventListener('resize', schedule); viewport?.addEventListener('scroll', schedule);
+    measure();
+    return () => {
+      observer.disconnect(); if (raf !== null) cancelAnimationFrame(raf);
+      if (previousCompactWidth) element.style.setProperty('--compact-board-width', previousCompactWidth); else element.style.removeProperty('--compact-board-width');
+      window.removeEventListener('resize', schedule); window.removeEventListener('scroll', schedule);
+      viewport?.removeEventListener('resize', schedule); viewport?.removeEventListener('scroll', schedule);
+    };
+  }, [rigEnabled, help, over, cfg.rows, cfg.cols]);
+  const enemyReady = (index: number) => foeAvailable(foes, index, rigEnabled ? stage.wins + 1 : 0);
+  const ti = availableFoeTarget(foes, target, rigEnabled ? stage.wins + 1 : 0);
   const leads = leadIds(team, rule === 'tap-lead' ? chosen : {});
 
   const saveVictory = useCallback(async () => {
@@ -498,7 +540,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
   );
 
   return (
-    <section ref={root} className={styles.wrap} onPointerDownCapture={() => { audio.current?.unlock(); setIntro(false); }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
+    <section ref={root} className={styles.wrap} data-match3-scroll-lock={scrollLocked && !help && !over ? "true" : undefined} data-match3-battle-active={rigEnabled && !help && !over ? "true" : undefined} onPointerDownCapture={() => { audio.current?.unlock(); setIntro(false); }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
       {rigEnabled && <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: 'absolute', pointerEvents: 'none' }}>
         <defs>
           <clipPath id="match3-soft-space" clipPathUnits="objectBoundingBox"><path d="M .42 .1 Q .5 .02 .58 .1 L .9 .42 Q .98 .5 .9 .58 L .58 .9 Q .5 .98 .42 .9 L .1 .58 Q .02 .5 .1 .42 Z" /></clipPath>
@@ -527,11 +569,12 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
       <div className={`${styles.foes} ${rigEnabled && stage.simultaneous && counterFoes.size > 1 ? styles.fourBeastUnion : ''}`} style={rigEnabled ? { gridTemplateColumns: `repeat(${foes.length}, minmax(0, 1fr))` } : undefined} data-testid="match3-enemies">
         {foes.map((f, i) => (
           <button type="button" key={f.id} data-testid="match3-enemy" data-id={f.id} data-hp={f.hp} data-cd={f.cd} data-target={i === ti ? '1' : '0'}
-            disabled={f.hp <= 0} onClick={() => { if (f.hp > 0) { setTarget(i); setLog(`目標改為${f.name}。`); } }}
-            aria-pressed={i === ti} aria-label={`${f.name}，${MATCH3_ORB_LABEL[f.element]}屬性，HP ${f.hp}/${f.maxHp}，${rigEnabled ? (counterFoes.has(i) ? '反擊中' : '由阿修羅選擇反擊卡') : `${f.cd} 步後反擊`}${i === ti ? '，目前目標' : '，點擊設為目標'}`}
+            disabled={!enemyReady(i)} data-waiting={f.hp > 0 && !enemyReady(i) ? 'true' : undefined} onClick={() => { if (enemyReady(i)) { setTarget(i); setLog(`目標改為${f.name}。`); } }}
+            aria-pressed={i === ti} aria-label={`${f.name}，${MATCH3_ORB_LABEL[f.element]}屬性，HP ${f.hp}/${f.maxHp}，${f.hp > 0 && !enemyReady(i) ? '待命，前四張敵卡倒下後才能攻擊並參戰' : rigEnabled ? (counterFoes.has(i) ? '反擊中' : '由阿修羅選擇反擊卡') : `${f.cd} 步後反擊`}${i === ti ? '，目前目標' : enemyReady(i) ? '，點擊設為目標' : ''}`}
             className={`${styles.foe} ${i === ti ? styles.foeOn : ''} ${f.hp <= 0 ? styles.down : ''} ${hitFoe === i ? styles.allyHit : ''} ${counterFoes.has(i) ? styles.foeAttack : ''} ${!rigEnabled && f.cd === 1 && f.hp > 0 ? styles.foeHot : ''}`}
             style={{ ['--ec' as string]: ORB_COLOR[f.element] }}>
             {rigEnabled && skillMarker(f.id, 'enemy')}
+            {rigEnabled && f.hp > 0 && !enemyReady(i) && <span className={styles.cd} data-testid="match3-boss-waiting">待命</span>}
             {rigEnabled && !!f.skillRuntime?.shield && <span className={styles.runtimeShield}>盾 {f.skillRuntime.shield}</span>}
             {(!rigEnabled || counterFoes.has(i)) && <span className={styles.cd} data-testid="match3-counter" aria-hidden="true">{rigEnabled ? '反擊中' : <>⏳{f.cd}</>}</span>}
             <div className={styles.foeArt} role="img" aria-label={f.name} data-rig-target={rigEnabled || undefined} style={rigEnabled ? undefined : { backgroundImage: `url(${f.thumbnail})` }}>{rigEnabled && <Match3TargetArt src={f.thumbnail} />}</div>
@@ -583,6 +626,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
                 {rigEnabled && <span className={styles.allyHp} data-testid="match3-ally-hp">HP {u.hp}</span>}
                 <div className={styles.energy}><span style={{ width: pct(u.energy, ENERGY_MAX) }} /></div>
                 <div className={styles.allyMeta}>{down ? '已倒下' : `${MATCH3_ORB_LABEL[u.element]}${dup ? (lead ? '・主攻' : '・輔助') : ''} ${u.energy}`}</div>
+                {rigEnabled && <span className={styles.compactEnergy} aria-hidden="true">氣 {u.energy}</span>}
               </button>
               {full && !linkMode && <button type="button" className={styles.skill} data-testid="match3-skill" disabled={rigEnabled && !fighterCanAct(u)} onPointerDown={(e) => e.stopPropagation()} onClick={() => unleash(u)}>{rigEnabled ? (fighterCanAct(u) ? '能量攻擊' : '暫時受控') : '技能'}</button>}
             </div>
