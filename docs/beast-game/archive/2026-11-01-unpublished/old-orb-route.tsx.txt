@@ -1,0 +1,12 @@
+import { notFound, redirect } from 'next/navigation';
+
+/**
+ * 2026-10-30 寶珠戰入口（第四種玩法）。
+ * 旗標 NEXT_PUBLIC_BEAST_ORB=1 才開；預設關閉 → 404。
+ * 遊戲本體是 public/beast-game/orb/game.html（由 C:\\tmp\\orb-battle-preview 複製，只含 .v2 卡圖），
+ * 開啟時直接導向靜態頁，手機上不用 iframe、捲動與觸控最單純。
+ */
+export default function BeastOrbPage() {
+  if (process.env.NEXT_PUBLIC_BEAST_ORB !== '1') notFound();
+  redirect('/beast-game/orb/game.html');
+}

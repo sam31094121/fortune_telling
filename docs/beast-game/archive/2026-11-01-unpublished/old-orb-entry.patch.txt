@@ -1,0 +1,25 @@
+diff --git a/app/star-beasts/page.tsx b/app/star-beasts/page.tsx
+index df32c7f..cf689b4 100644
+--- a/app/star-beasts/page.tsx
++++ b/app/star-beasts/page.tsx
+@@ -100,6 +100,11 @@ const GAME_MODES = [
+   { id: 'bead-hard', step: '⑤ 寶珠困難', iconPath: 'M12 3a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M6 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M18 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8', title: '寶珠戰・困難', desc: '56 顆寶珠、數字累加、盾牌清場，逐關挑戰', href: '/beast-game/match3-hard' },
+ ] as const;
+
++// 2026-10-30 寶珠戰：第四張入口，旗標 NEXT_PUBLIC_BEAST_ORB=1 才顯示（預設關閉；建置時決定，改了要重新 build）。
++const ORB_MODE = { id: 'orb', step: '④ 寶珠戰', iconPath: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8', title: '五色寶珠連線戰', desc: '拖曳寶珠連成一串，五隻神獸一起攻擊', href: '/beast-game/orb' } as const;
++const VISIBLE_GAME_MODES: ReadonlyArray<{ id: string; step: string; iconPath: string; title: string; desc: string; href: string }> =
++  process.env.NEXT_PUBLIC_BEAST_ORB === '1' ? [...GAME_MODES, ORB_MODE] : GAME_MODES;
++
+ export default function StarBeastsPage() {
+   const [season, setSeason] = useState<Season>('all');
+   const [form, setForm] = useState<Form>('awakened');
+@@ -154,7 +159,7 @@ export default function StarBeastsPage() {
+           <nav className="mt-5" aria-label="選擇遊戲難度" data-beast-chooser>
+             <p className="text-xs font-black tracking-[0.22em] text-amber-200/85">選一種玩法開始</p>
+             <ul className={modeStyles.list}>
+-              {GAME_MODES.filter((mode) => !['bead', 'orb'].includes(mode.id)).map((mode) => (
++              {VISIBLE_GAME_MODES.filter((mode) => !['bead', 'orb'].includes(mode.id)).map((mode) => (
+                 <li key={mode.id} className={modeStyles.item}>
+                   <Link href={mode.href} data-difficulty-choice={mode.id} className={modeStyles.card}>
+                     <span aria-hidden="true" className={modeStyles.emblem}>

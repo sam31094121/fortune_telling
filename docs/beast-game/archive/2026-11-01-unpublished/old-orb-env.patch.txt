@@ -1,0 +1,11 @@
+diff --git a/.env.example b/.env.example
+index 6b8a613..2a16a50 100644
+--- a/.env.example
++++ b/.env.example
+@@ -36,3 +36,6 @@ ADMIN_SESSION_SECRET=generate_with_openssl_rand_hex_32_change_this_now
+ # 只有這些 IP 可以存取管理員後台
+ # 訪問 http://localhost:8888/api/admin/ip-check 查詢你的 IP
+ ADMIN_AUTHORIZED_IPS=YOUR_IP_ADDRESS_HERE
++
++# 寶珠戰（第四種玩法入口 /beast-game/orb）。預設關閉；設為 1 才顯示入口卡與開放路由。建置時決定，改了要重新 npm run build。
++NEXT_PUBLIC_BEAST_ORB=0

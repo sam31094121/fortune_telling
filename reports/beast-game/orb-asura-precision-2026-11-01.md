@@ -176,3 +176,10 @@
 最終獨立本機PASS：Temp/match3-campaign-qa-Dy9BEr/evidence/misclick-counter-report.json（1/2各+1回合/1反擊/敵HP不變）；LEkO8M/evidence/cascade-group-attack-report.json（初3後9實傷87等core，3+3+3與5+5不合湊）；sOlCJz/evidence/cascade-group8-attack-report.json（初8後3總傷35等core，後3零傷）；3w65yI/evidence/refill-v2-final-shield-report.json（新254/269/283/341ms落程、delay0/20/40…600ms、native running/finished、56格/無提前busy解除）；GdRWYs/evidence/retired-enemies-report.json（DOM5→4→Boss1，原foes5保留，後續busy不復活；能量擊殺末護衛後Boss HP952保留/技能初始化一次、回合不變/0反擊）。以上目錄均在Temp/match3-campaign-qa-*下，全部終盤等core且無JS錯誤，自建靜音Edge已關閉，未改客戶存檔。
 
 最新全部gate已過：test:beast-match3（含新增cascade-attack）、test:beast-fairness、test:locked-cards、production build與diff-check。Build保留既有lint警告；沒有跳過失敗或改原卡值。這批提交前的證據仍是瀏覽器模擬，非各品牌真機驗收。
+# 現行規則與正式驗收補記
+
+最新規則見 `docs/技能戰鬥檔案/寶珠阿修羅/寶珠戰現行規則.md`。e5b75af的正式chunk已切換為page-e215daccc4cd28d3.js並由獨立隔離瀏覽器核對：一顆誤按回合+1/反擊1；初3後9傷害87、只反擊1、終盤56與核心一致；卡面5→4且後續能量不復活敗卡，護衛全倒後完整神獸居中，命中Boss HP947→811且底層五卡資料保留；普通實際CSS落程254～312ms、間隔20ms，無JS錯誤。證據在臨時目錄match3-campaign-qa-j3Z3j1、4KqJwj、8mH3fN的evidence子目錄。這是390手機尺寸Chromium模擬，不是真機。
+
+剩餘未提交內容採封存：舊35珠原型及候選玄武圖移入非公開archive；正式front恢復核定圖，舊原型兩個入口只轉現行困難版。194項原先已刪除歷史圖經引用查核後記錄在archive清單。詳見 `docs/beast-game/archive/2026-11-01-unpublished/README.md`。此批發布仍須另外通過路由/鎖定卡片/編譯驗證，不能沿用上段正式驗收冒充。
+
+本次封存/規則定稿驗證完成：locked-cards 18項、正式build及diff --check通過；本機HTTP確認兩個舊入口307到現行hard、舊engine.js為404、現行hard為200。獨立唯讀審查確認規則與核心一致，app/components/lib無本封存目錄的執行引用。
