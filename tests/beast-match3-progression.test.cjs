@@ -17,12 +17,12 @@ for (let level = 0; level < 10; level++) {
     assert.equal(tooShort.valid,true); assert.equal(tooShort.attackAllowed,false);
     assert.ok(tooShort.steps.length > 0); assert.notDeepEqual(tooShort.board,board);
     const team=M.MATCH3_ORB_ELEMENTS.map((element,i)=>({id:String(i),element,hp:100,attack:100}));
-    assert.ok(M.computeHits(tooShort.steps,team,'EARTH').every(h=>h.amount===0));
+    assert.ok(M.computeHits([tooShort.steps[0]],team,'EARTH').every(h=>h.amount===0));
   }
   for(let size=3;size<minimum;size++) {
     const below=M.resolveDrag(board,path.slice(0,size),M.seededRng(11),M.emptyMagic(board),1,true,true,minimum);
     assert.equal(below.valid,true);assert.equal(below.attackAllowed,false);
-    assert(M.computeHits(below.steps,M.MATCH3_ORB_ELEMENTS.map((element,i)=>({id:String(i),element,hp:100,attack:100})),'EARTH').every(h=>h.amount===0));
+    assert(M.computeHits([below.steps[0]],M.MATCH3_ORB_ELEMENTS.map((element,i)=>({id:String(i),element,hp:100,attack:100})),'EARTH').every(h=>h.amount===0));
   }
   const enough = M.resolveDrag(board,path.slice(0,minimum),M.seededRng(11),M.emptyMagic(board),1,true,true,minimum);
   assert.equal(enough.valid,true); assert.equal(enough.chainLength,minimum);
@@ -34,13 +34,19 @@ for (let level = 0; level < 10; level++) {
   }
 }
 // Hard stage: both three and four are valid clear/refill moves; even cascade
-// groups cannot leak damage through the five-orb attack gate.
+// groups independently qualify against the five-orb attack gate.
 for (const length of [3,4]) {
   const b=Array.from({length:7},()=>Array(7).fill('FIRE'));
   const r=M.resolveDrag(b,Array.from({length},(_,c)=>({r:6,c})),M.seededRng(19),M.emptyMagic(b),10,true,true,5);
   assert.equal(r.valid,true);assert.equal(r.attackAllowed,false);
-  assert.ok(r.steps.length>0);assert.ok(r.steps.every(s=>s.attackAllowed===false));
-  assert.ok(M.computeHits(r.steps,[{id:'f',element:'FIRE',hp:100,attack:100}],'EARTH').every(h=>h.amount===0));
+  assert.ok(r.steps.length>0);assert.equal(r.steps[0].attackAllowed,false);
+  const actor=[{id:'f',element:'FIRE',hp:100,attack:100}];
+  assert.ok(M.computeHits([r.steps[0]],actor,'EARTH').every(h=>h.amount===0));
+  for(const step of r.steps.slice(1)) for(const group of step.groups) {
+    assert.equal(group.attackAllowed,group.power>=5);
+    const hits=M.computeHits([{...step,groups:[group]}],actor,'EARTH');
+    assert(hits.every(h=>group.element==='FIRE'&&group.attackAllowed?h.amount>0:h.amount===0));
+  }
 }
 // Connected component size alone is insufficient: a plus has five cells but no
 // non-repeating orthogonal path of four. The move finder must follow real paths.
@@ -91,7 +97,8 @@ for (let n=3;n<=8;n++) {
   const path=[...Array.from({length:7},(_,c)=>({r:6,c})),{r:5,c:6}].slice(0,n);
   const r=M.resolveDrag(b,path,M.seededRng(31),M.emptyMagic(b),1,true,true,8);
   assert.equal(r.valid,true);assert.equal(r.attackAllowed,n>=8);
-  assert.equal(r.steps.every(s=>s.attackAllowed===false),n<8);
+  assert.equal(r.steps[0].attackAllowed,n>=8);
+  assert(r.steps.slice(1).every(s=>s.groups.length===0&&s.attackAllowed===false),'maxChains=1 terminal refill cannot attack');
 }
 // An unattainable attack search must still leave a real three-orb clearing move.
 const fallback=M.generateDragBoard(M.seededRng(71),7,7,true,50);

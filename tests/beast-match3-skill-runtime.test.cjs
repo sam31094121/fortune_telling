@@ -103,16 +103,17 @@ assert.equal(R.orbSkillDisplay(displayRun.events,guardSource.id,'ally').displayD
 }
 
 // Execute the actual Board release callback with presentation adapters stubbed:
-// invalid gestures do not spend turns; each valid 3/4/8 chain settles once.
+// nonempty mistakes also spend one turn; empty gestures spend none.
 {
  const vm=require('node:vm'),M=require('../lib/beast-game/match3/index.ts');
  const seeded=n=>()=>((n=(Math.imul(n,1664525)+1013904223)>>>0)/4294967296);
  const source=fs.readFileSync(require.resolve('../components/battlefield/Match3Board.tsx'),'utf8');
  const tree=ts.createSourceFile('Board.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
  let release;function find(n){if(ts.isVariableDeclaration(n)&&n.name.getText(tree)==='release')release=n.initializer.getText(tree);ts.forEachChild(n,find)}find(tree);assert(release);
- for(const wins of [0,7])for(const length of [1,2,3,4,8]){
+ for(const wins of [0,7])for(const length of [0,1,2,3,4,8])for(const gap of [false,true]){
+  if(gap && length!==3)continue;
   const board=M.generateDragBoard(seeded(811),8,7,true,4),magic=M.emptyMagic(board);
-  const path=Array.from({length},(_,i)=>i<7?{r:0,c:i}:{r:1,c:6});for(const p of path)board[p.r][p.c]='FIRE';
+  const path=Array.from({length},(_,i)=>i<7?{r:0,c:i}:{r:1,c:6});if(gap)path[1]={r:0,c:4};for(const p of path)board[p.r][p.c]='FIRE';
   let turns=0,counters=0,resolved;
   const context={console:{log(){}},Set,Map,AbortController,window:{matchMedia:()=>({matches:false})},
    busy:false,over:null,ti:0,board,magic,rngRef:{current:seeded(812)},cfg:{diagonal:true},rigEnabled:true,stage:M.progressionStage(wins),
@@ -128,7 +129,7 @@ assert.equal(R.orbSkillDisplay(displayRun.events,guardSource.id,'ally').displayD
   context.refillDisplaySteps=require('../lib/beast-game/match3/refill-presentation.ts').refillDisplaySteps;
   for(const name of release.match(/\bset[A-Z]\w*/g)||[])if(!(name in context))context[name]=()=>{};
   vm.runInNewContext(ts.transpileModule('const release='+release+'; release(path);',{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText,{...context,path});
-  assert.equal(resolved.valid,length>=3);assert.equal(turns,length>=3?1:0);assert.equal(counters,length>=3?1:0);
-  if(length>=3)assert.equal(resolved.attackAllowed,length>=M.progressionStage(wins).minChain);
+  assert.equal(resolved.valid,length>=3&&!gap);assert.equal(turns,length>0?1:0);assert.equal(counters,length>0?1:0);
+  if(length>=3&&!gap)assert.equal(resolved.attackAllowed,length>=M.progressionStage(wins).minChain);
  }
 }

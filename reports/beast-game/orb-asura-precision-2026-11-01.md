@@ -160,3 +160,19 @@
 業主選擇第八關才首次8顆，覆蓋固定4及歷史第六關到8配置。採前八關3/4/4/5/5/6/7/8、第八後8；有效連線仍3，未達本關攻擊門檻仍消除/充能並交敵一次，第一關3可攻。數字權重與原傷害公式、敵方強度倍率、五對五待命、能量免回合不變。進場說明與help需依stage顯示，禁止繼續宣稱所有關卡固定4。
 
 最終獨立實拖6項PASS：Temp/match3-campaign-qa-5ezXpq/evidence/stage-threshold-report.json，第1關3連傷114、第7關7連157、第8關3/4連直傷0但各+1回合/1反擊、第8關8連352、第9關8連437；全部補滿56、busy恢復、無頁面錯誤。標題/intro/help讀值一致。此為刻意配置的門檻fixture，不作自然勝率宣稱。最新門檻完成後重新執行完整寶珠回歸、公平性、locked-cards與production build均PASS，diff-check PASS；模擬不代替實體Android/iPhone驗收。
+
+正式3fc819c確認載入page-e3d8e8b：Temp/match3-campaign-qa-DMOHE2/evidence/formal-3fc-energy-report.json兩單卡傷163/54各扣100、多卡傷576各扣50，回合不變/零反擊；Temp/match3-campaign-qa-vkvnD2/evidence/formal-3fc-threshold-report.json第一關3攻擊208、第八關3/4直接傷害0且各一次反擊，顯示3/8門檻一致、56格/頁面零錯誤。以下為其後追加規則，不能以這份正式證據代替。
+
+## 最新追加：逐張退場、完整神獸對決、誤按計次、逐組連鎖攻擊與更快普通落程
+
+業主再確認誤按也計回合，覆蓋前批1/2不計設定。Board非空無效path也setMoves並正常endStep狀態tick/一次敵方行動；空path、busy重複操作、UI及能量不計。callback回歸含空、1/2、跳格、3/4/8，依當關門檻區分傷害。此為明確覆蓋，不將前批通過當最新誤按規則已發布。
+
+敗卡等原有busy演出完成後以ID鎖存退場，不splice foes、不改索引，其他活卡保留原欄；下一次busy不重現敗卡，新局恢復。最後只剩真guardian才置中3欄，沿現有rigFor/rigFrameUrl完整靜態姿態（白虎land-crouch），橫向身形/名稱/HP，無新增素材或rAF。完整身形390/320480截圖與幾何證據Temp/match3-campaign-qa-ZVtV7v/evidence/boss-fullbody-final-report.json：卡222.8×100/180.8×54、contain無圓裁、scroll0/同屏。既有最後擊殺與反擊完成後才轉場，避免提前移除rig目標。此完整姿勢布局驗收先於逐張退場追加，後者另補行為驗收。
+
+確定的掉落攻擊故障：原resolveHardDrag把所有step.attackAllowed覆寫成初次拖線結果，初次不足會漏掉後續達標，初次達標又會讓後續不足組攻擊。現每個scored group以當時effectiveDragCount/當關minimum記錄attackAllowed，初組沿dragIntent，step只彙整；computeHits同時核對group/step。不新增來源過濾，不變動原scored組、RNG、盤面、獎勵；混色盾維持零攻擊。Board紀錄改辨識後續達標，不再錯稱整次只消除。新cascade-attack gate驗真seed初3後9自動攻、初8後3不攻、同step8與3不混算、展示重整不攻。
+
+完整回歸首次在progression.test舊的「所有step都不可攻」斷言失敗；因業主已核定逐組達標，改成初組不足零傷、後續逐組核對門檻/實際傷害，保留其他盤面、技能與500seed斷言後全寶珠gate通過，未跳過失敗項。普通落程依最新要求0.9→0.8原基準，較前版再短約11%；20ms間隔、舊珠先落/新珠再補、合體1650ms及整串不壓縮維持。
+
+最終獨立本機PASS：Temp/match3-campaign-qa-Dy9BEr/evidence/misclick-counter-report.json（1/2各+1回合/1反擊/敵HP不變）；LEkO8M/evidence/cascade-group-attack-report.json（初3後9實傷87等core，3+3+3與5+5不合湊）；sOlCJz/evidence/cascade-group8-attack-report.json（初8後3總傷35等core，後3零傷）；3w65yI/evidence/refill-v2-final-shield-report.json（新254/269/283/341ms落程、delay0/20/40…600ms、native running/finished、56格/無提前busy解除）；GdRWYs/evidence/retired-enemies-report.json（DOM5→4→Boss1，原foes5保留，後續busy不復活；能量擊殺末護衛後Boss HP952保留/技能初始化一次、回合不變/0反擊）。以上目錄均在Temp/match3-campaign-qa-*下，全部終盤等core且無JS錯誤，自建靜音Edge已關閉，未改客戶存檔。
+
+最新全部gate已過：test:beast-match3（含新增cascade-attack）、test:beast-fairness、test:locked-cards、production build與diff-check。Build保留既有lint警告；沒有跳過失敗或改原卡值。這批提交前的證據仍是瀏覽器模擬，非各品牌真機驗收。

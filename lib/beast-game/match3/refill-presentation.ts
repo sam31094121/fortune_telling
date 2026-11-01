@@ -39,7 +39,7 @@ export function refillPresentation(steps: readonly Pick<DragStep, 'falls' | 'emp
   const raw = steps.map(step => {
     const falls = [...(step.falls ?? [])].sort((a, b) => Number(a.fromRow < 0) - Number(b.fromRow < 0) || b.r - a.r || a.c - b.c);
     const stagger = reduced ? 0 : 20;
-    const duration = reduced || !falls.length ? 0 : Math.round((300 + Math.min(7, Math.max(...falls.map(f => f.r - f.fromRow))) * 18) * .9);
+    const duration = reduced || !falls.length ? 0 : Math.round((300 + Math.min(7, Math.max(...falls.map(f => f.r - f.fromRow))) * 18) * .8);
     const hold = reduced ? 0 : step.rewards?.length ? 260 : step.emptyCells?.length ? 140 : 0;
     const survivors = falls.filter(f => f.fromRow >= 0).length;
     const spawnAt = survivors ? duration + Math.max(0, survivors - 1) * stagger : 0;

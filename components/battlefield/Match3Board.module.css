@@ -720,3 +720,28 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 
 /* Installation utilities return when help/result opens or this battlefield unmounts. */
 :global([data-game-mode="battle"]):has(.wrap[data-match3-battle-active="true"]) :global([data-beast-page-dock]) { display: none; }
+
+/* Keep the five-slot encounter geometry/data; only the surviving guardian
+   occupies the central three slots. Full-body art shares the row with HP text. */
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] > .foe { grid-column: 2 / span 3; }
+
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] > .foe {
+ height: 100px; padding: 3px; display: grid;
+ grid-template-columns: minmax(0, 2fr) minmax(48px, 1fr);
+ grid-template-rows: 1fr auto auto 1fr; column-gap: 3px;
+}
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .foeArt {
+ grid-column: 1; grid-row: 1 / -1; width: 100%; height: 100%; max-width: none;
+ aspect-ratio: auto; margin: 0; border: 0; border-radius: 0; overflow: visible;
+ background: transparent; box-shadow: none;
+}
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .foeArt img { object-fit: contain; }
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .foeName { grid-column: 2; grid-row: 2; margin: 0; }
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .foeBar { grid-column: 2; grid-row: 3; }
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .foeHp { grid-column: 2; grid-row: 4; align-self: start; }
+@media (max-height: 720px) and (max-width: 600px) {
+ .wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] > .foe { height: 78px; }
+}
+@media (max-height: 600px) and (max-width: 600px) {
+ .wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] > .foe { height: 54px; }
+}

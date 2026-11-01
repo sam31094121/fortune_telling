@@ -260,7 +260,7 @@ function resolveHardDrag(board: Board, path: readonly Cell[], rng: Rng, magic0: 
       if (holes.size) { stage([], new Set(), [], chain - 1, true); continue; }
       break;
     }
-    const scored = groups.map(g => shieldFusion ? { ...g, power: 0 } : scoreGroup(g, m, chain, triggers));
+    const scored = groups.map(g => ({ ...(shieldFusion ? { ...g, power: 0 } : scoreGroup(g, m, chain, triggers)), attackAllowed: !shieldFusion && effectiveDragCount(g.cells, m) >= minimum }));
     const cleared = new Set(groups.flatMap(g => g.cells.map(key))), rewards: MagicSpawn[] = [];
     for (const group of groups) if (MAGIC_ORB_SPAWN_ENABLED && effectiveDragCount(group.cells, m) >= MAGIC_ORB_MIN_LENGTH) {
       const anchor = [...group.cells].sort((a, z) => z.r - a.r || z.c - a.c)[0];
@@ -274,7 +274,8 @@ function resolveHardDrag(board: Board, path: readonly Cell[], rng: Rng, magic0: 
   let reshuffled = false;
   if (!hasDragMove(b, diagonal, minimum, m)) { const rs = reshuffleKeepMagic(b, m, rng, diagonal, minimum); b = rs.board; m = rs.magic; reshuffled = true; }
   const attackAllowed = dragIntent(path, magic0, minimum, true, board) === 'attack';
-  steps.forEach(step => { step.attackAllowed = attackAllowed; });
+  firstGroups.forEach(group => { group.attackAllowed = attackAllowed; });
+  steps.forEach(step => { step.attackAllowed = step.groups.some(group => group.attackAllowed === true); });
   return { valid: true, attackAllowed, shieldFusion, board: b, magic: m, steps, chainLength: n, effectiveLength, element: shieldFusion ? null : element, shieldConversion, magicSpawn: spawn, skill5, magicTriggered: triggers, reshuffled, cascadeCount: steps.filter(step => step.groups.length > 0).length };
 }
 

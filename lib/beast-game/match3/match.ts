@@ -8,6 +8,8 @@ import { MATCH3_MIN_RUN } from './config';
 type Grid = BeastElement[][];
 export interface Run { element: BeastElement; cells: Array<{ r: number; c: number }>; dir: 'row' | 'col' | 'diag' | 'anti' }
 export interface MatchGroup {
+  /** Hard-mode recorded eligibility for this group; absent preserves legacy behavior. */
+  attackAllowed?: boolean;
   element: BeastElement;
   cells: Array<{ r: number; c: number }>;
   /** 不重複顆數 */
