@@ -376,7 +376,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
       if (res.magicSpawn) showBanner(`生成${lbl}魔法珠・威力 ${res.magicSpawn.power}`, 'magic', rigEnabled);
       else if (res.magicTriggered.length && !res.shieldFusion) showBanner('魔法珠引爆！能量集滿', 'skill', rigEnabled);
       if (res.magicSpawn) msg += `，生成魔法珠（威力 ${res.magicSpawn.power}）`;
-      if (res.reshuffled) msg += '；沒有可走的步，已重新洗盤';
+      if (res.reshuffled) msg += '；沒有可攻擊連線，已整理普通寶珠；數字與盾牌保留';
       if (nf[ti].hp <= 0) msg += `；${foe.name}倒下`;
       endStep(shareEnergy(nextTeam, gains, rule, chosen), nf, msg, actualDealt > 0, rigEnabled, res.shieldFusion);
     };
@@ -384,13 +384,13 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
       refillRun.current?.abort();
       const controller = new AbortController(); refillRun.current = controller;
       const paused = new Set<Animation>();
-      const controlled = new Set<Animation>();
       void runRefillPlayback(playback.frames, {
         signal: controller.signal, initialDelayMs: fusionEffect ? FUSION_DISPLAY_MS : shieldDelay,
         intro: () => new Promise<void>(resolve => { refillCommit.current = resolve; setRefillEpoch(epoch => epoch + 1); }),
         commit: (phase, i) => new Promise<void>(resolve => {
           refillCommit.current = resolve;
           if (phase === 'clear') {
+            if (res.reshuffled && i === res.steps.length) showBanner('沒有可攻擊連線，整理普通寶珠', 'info');
             if (i === 0) { setFusionBurst(null); setShieldBurst(null); if (fusionEffect) cue('clear'); }
             setFalling(new Map()); setRewards(new Set()); setClearMs(playback.frames[i].clearMs);
             setBoard(frames[i].before); setMagic(frames[i].mag); setFlash(frames[i].cells);
@@ -408,15 +408,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
           const mergeAt = displaySteps[i].rewards?.length ? Math.max(0, ...motions.map(m => m.delayMs + m.durationMs)) : null;
           return [...refillLandingTimes(motions).filter(at => mergeAt === null || mergeAt - at >= 140).map(at => ({ at, kind: 'drop' as const })), ...(mergeAt === null ? [] : [{ at: mergeAt, kind: 'merge' as const }])];
         },
-        begin: () => {
-          controlled.clear();
-          for (const animation of drag.ref.current?.getAnimations({ subtree: true }) ?? []) {
-            if (Number.isFinite(Number(animation.effect?.getComputedTiming().endTime))) {
-              animation.pause(); animation.currentTime = 0; controlled.add(animation);
-            }
-          }
-        },
-        advance: elapsed => { for (const animation of controlled) animation.currentTime = elapsed; },
+        // Native transform animations remain on the browser timeline; RAF only observes phase time.
         cue: kind => cue(kind),
         pause: hidden => {
           if (hidden) for (const animation of drag.ref.current?.closest('[data-mode]')?.getAnimations({ subtree: true }) ?? []) {
@@ -427,7 +419,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
           } paused.clear(); }
         },
         complete: () => { if (refillRun.current === controller) refillRun.current = null; settle(); },
-      }).catch(error => { if (error?.name !== 'AbortError') console.error('[match3-refill]', error); });
+      }).catch(error => { if (error?.name !== 'AbortError') console.error('[match3-refill]', error); }).finally(() => paused.clear());
     } else later(settle, settleAt);
   };
 

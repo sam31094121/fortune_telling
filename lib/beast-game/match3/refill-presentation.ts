@@ -46,23 +46,9 @@ export function refillPresentation(steps: readonly Pick<DragStep, 'falls' | 'emp
     const delays = falls.map((fall, index) => fall.fromRow < 0 ? spawnAt + (index - survivors) * stagger : index * stagger);
     return { clear: reduced ? 60 : 260, falls, delays, duration, hold, survivors, stagger, span: (reduced ? 60 : 260) + duration + Math.max(0, ...delays) + hold };
   });
-  // Preserve a visible frame between beads in ordinary cascades. Extremely long
-  // cascades retain the existing five-second planned budget and use smaller batches.
-  const planned = (scale: number, minimumStagger: number) => raw.map(frame => {
-    const duration = frame.duration * scale, stagger = reduced ? 0 : Math.max(minimumStagger, frame.stagger * scale);
-    const spawnAt = frame.survivors ? duration + Math.max(0, frame.survivors - 1) * stagger : 0;
-    const delays = frame.falls.map((fall, index) => fall.fromRow < 0 ? spawnAt + (index - frame.survivors) * stagger : index * stagger);
-    return { ...frame, duration, delays, clear: frame.clear * scale, span: frame.clear * scale + duration + Math.max(0, ...delays) + frame.hold * scale };
-  });
-  const total = (frames: ReturnType<typeof planned>) => frames.reduce((sum, frame) => sum + frame.span, 0);
-  let plan = planned(1, 0);
-  if (total(plan) > 5000) {
-    if (!reduced && total(planned(.4, 18)) <= 5000) {
-      let low = .4, high = 1;
-      for (let i = 0; i < 40; i++) { const mid = (low + high) / 2; if (total(planned(mid, 18)) <= 5000) low = mid; else high = mid; }
-      plan = planned(low, 18);
-    } else plan = planned(5000 / Math.max(1, total(plan)), 0);
-  }
+  // Each recorded cascade keeps the same cadence, regardless of chain count.
+  // Longer chains take longer; never compress individual drops to fit a global cap.
+  const plan = raw;
   let cursor = 0;
   const frames = plan.map(frame => {
     const clearAt = cursor, fallAt = cursor + frame.clear;
@@ -76,7 +62,9 @@ export function refillPresentation(steps: readonly Pick<DragStep, 'falls' | 'emp
 /** Display-only terminal shuffle. Never feed these frames to damage, energy or events. */
 export function refillDisplaySteps(result: DragResult): DragStep[] {
   if (!result.reshuffled) return result.steps;
-  const cells = result.board.flatMap((row, r) => row.map((_, c) => ({ r, c })));
+  // Core reshuffles ordinary beads only; stored numbers/shields stay in place.
+  // Do not make these preserved beads disappear or fall from the top again.
+  const cells = result.board.flatMap((row, r) => row.flatMap((_, c) => result.magic[r][c] > 0 ? [] : [{ r, c }]));
   return [...result.steps, { chain: 0, groups: [], attackAllowed: false,
     boardAfter: result.board, magicAfter: result.magic, clearedCells: cells,
     falls: cells.map(cell => ({ ...cell, fromRow: -1 })), emptyCells: [], rewards: [] }];

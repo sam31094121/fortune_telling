@@ -1,4 +1,5 @@
 import { ELEMENT_PALETTE } from '../element-palette';
+import { BAIHU_RIG } from '../beast-rig';
 import type { BeastElement } from '../elements';
 
 /** Display geometry only; endpoints always follow the recorded source and target. */
@@ -6,7 +7,7 @@ export function counterVisualPath(sourceId: string, element: BeastElement, x1: n
   const dx = x2 - x1, dy = y2 - y1, length = Math.hypot(dx, dy);
   const bend = Math.min(14, length * .06), nx = length ? -dy / length : 0, ny = length ? dx / length : 0;
   const point = (t: number, side: number) => `${x1 + dx * t + nx * bend * side} ${y1 + dy * t + ny * bend * side}`;
-  const lightning = sourceId === 'beast_g_baihu' && element === 'SPACE';
+  const lightning = sourceId === BAIHU_RIG.cardId && element === 'SPACE';
   const path = lightning ? `M ${point(0,0)} L ${point(.28,.7)} L ${point(.42,-.7)} L ${point(.65,.65)} L ${point(1,0)}`
     : element === 'FIRE' ? `M ${point(0,0)} L ${point(.42,.5)} L ${point(.62,-.35)} L ${point(1,0)}`
     : element === 'WATER' ? `M ${point(0,0)} C ${point(.3,1)} ${point(.7,-1)} ${point(1,0)}`

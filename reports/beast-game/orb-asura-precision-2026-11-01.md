@@ -106,3 +106,21 @@
 業主追加確認沙漏會誤導：困難版移除待機倒數及永久緊急紅框，只在counterFoes真實出手期間顯示反擊中，aria-label同樣取消每卡幾步後反擊預告；其他模式倒數規則及顯示不動。
 
 最終五屬性技術fixture驗收：每次指定一張真卡為唯一反擊來源，五色與路徑/命中一致、減少動態無動畫、56格恢復、errors0，非自然通關證據。Temp/match3-campaign-qa-QPm6Bq/evidence/five-element-beam-report.json；正常第11關沙漏替換待機0→真白虎反擊中1→結束0，Temp/match3-campaign-qa-0mb3HI/evidence/counter-badge-final-report.json。最後UI修改後npm run build通過（既有lint警告保留），test:locked-cards18項及diff-check通過。
+
+## 追加：手機整批掉落的三項最小演出修復
+
+業主再次回報手機普通遊玩會突然整批掉落、像偷偷換盤，明確要求細修。修前相同輸入/RNG隔離實測：普通消除2珠在約14ms跳14–20px；單盾17珠在約12ms跳8–158px。終盤始終等於核心結果；普通消除也能發生，不能將全部現象解釋為真正重整。證據位於本機Temp/match3-campaign-qa-XjmEcF/evidence/refill-v2-before-report.json。
+
+修復範圍僅困難寶珠演出：
+
+- 移除把CSS動畫暫停後逐RAF寫currentTime的控制，讓原生transform動畫在瀏覽器時間軸播放；流程仍用實際elapsed、DOM提交確認、背景暫停與取消清理，不以每幀限額造成低FPS慢動作，不補播過時音效。
+- 移除全連鎖強壓5秒的比例加速。同一段維持原20ms逐珠間隔、300–426ms落程與原清退/獎勵停留；舊珠落定後再入新珠。鏈數越多總播放自然越久，不再將間隔壓成1ms。此修正優先保留可辨識順序，沒有改核心50段上限。人工50段各56個新珠的極端需89.3秒；混合舊/新珠且每段有獎勵的人工上界約122.6秒，非已觀察自然局，不宣稱所有長鏈仍5秒內結束。
+- 核心無可攻擊連線時仍依既有規則整理普通珠，但演出不再清退或重落magic>0的數字/盾牌，顏色、座標、power保留。該段顯示短提示「沒有可攻擊連線，整理普通寶珠」，不新增停等，不改RNG、傷害、充能、卡片或存檔。
+
+原生合成器隔離實驗：650ms主執行緒阻塞內，原生球持續移動，逐RAF手動球停在原處；證據Temp/orb-native-timeline-oHlugS。實戰截圖亦確認同輸入舊珠停在Y239.6，新版依序232.9→248.8→256.6→260.1→262.1。這不是所有手機每幀顯示保證。
+
+本輪完整test:beast-match3、test:beast-fairness與test:locked-cards通過。首次回歸另抓到上一批光束寫死白虎ID違反既有卡片來源守門，已改引用既有BAIHU_RIG.cardId，行為/素材不變，再跑完整寶珠回歸通過，沒有放寬守門。掉落測試增加特殊珠保留、單段與50段相同時序、30/60/15FPS時間一致、過時音效丟棄及200輪完成/取消資源清理。
+
+本輪手機項目為瀏覽器模擬與明示測試fixture；headless切另一頁仍回報visibility=visible，僅能算切頁返回，不冒充真手機切App測試。Android/iPhone、小米/三星實體機仍未連線，不能宣稱全品牌真機驗收。
+
+最終獨立驗收：普通/30FPS/650ms停頓/4倍CPU與捲動/單盾/真重整，終盤均精確等核心、56格、busy正常解除且頁面無例外。最終真單盾8段計畫8秒、20ms間隔與318–426ms落程，不再壓5秒；真重整含power4/7/13三顆特殊珠，位置/opacity保持且無flash/fall，只有53顆普通珠重整。明示visibility事件fixture暫停穩定後800ms位置相同，恢復後終盤正確。證據Temp/match3-campaign-qa-khht5s/evidence/refill-v2-final-shield-report.json、Temp/match3-campaign-qa-Qvd8Yb/evidence/refill-final-special-report.json、Temp/match3-campaign-qa-fTUpWD/evidence/refill-hidden-fixture-report.json；總結Temp/orb-refill-independent-final-20261101.md。最終全寶珠回歸及production build再次通過（既有lint警告保留），diff-check通過。未更動客戶存檔，自建測試瀏覽器已關閉；用戶8888服務保持。

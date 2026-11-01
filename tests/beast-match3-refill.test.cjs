@@ -1,7 +1,28 @@
 const assert = require('node:assert/strict');
 const { createHash } = require('node:crypto');
 const M = require('../.beast-game-build/lib/beast-game/match3');
-const { refillPresentation, refillLandingTimes, fusionShieldLayout } = require('../.beast-game-build/lib/beast-game/match3/refill-presentation');
+const { refillPresentation, refillDisplaySteps, refillLandingTimes, fusionShieldLayout } = require('../.beast-game-build/lib/beast-game/match3/refill-presentation');
+{
+  // Isolated terminal-reshuffle contract, not a claim of natural gameplay.
+  const board=Array.from({length:8},(_,r)=>Array.from({length:7},(_,c)=>M.MATCH3_ORB_ELEMENTS[(r+c)%5]));
+  const magic=M.emptyMagic(board); magic[1][2]=4; magic[4][3]=7; magic[7][6]=13;
+  const original={chain:1,groups:[],boardAfter:board,magicAfter:magic};
+  const result={board,magic,steps:[original],reshuffled:true};
+  const snapshot=JSON.stringify(result), shown=refillDisplaySteps(result), terminal=shown.at(-1);
+  assert.equal(shown.length,2); assert.equal(shown[0],original);
+  assert.equal(terminal.boardAfter,board); assert.equal(terminal.magicAfter,magic);
+  assert.equal(terminal.clearedCells.length,53); assert.equal(terminal.falls.length,53);
+  for(const p of [{r:1,c:2},{r:4,c:3},{r:7,c:6}]) {
+    assert(!terminal.clearedCells.some(q=>q.r===p.r&&q.c===p.c));
+    assert(!terminal.falls.some(q=>q.r===p.r&&q.c===p.c));
+    assert.equal(terminal.boardAfter[p.r][p.c],board[p.r][p.c]);
+    assert.equal(terminal.magicAfter[p.r][p.c],magic[p.r][p.c]);
+  }
+  assert.equal(terminal.chain,0); assert.equal(terminal.attackAllowed,false);
+  assert.deepEqual(terminal.groups,[]); assert.deepEqual(terminal.rewards,[]);
+  assert.equal(JSON.stringify(result),snapshot,'display cannot mutate scoring/energy input');
+  assert.equal(refillDisplaySteps({...result,reshuffled:false}),result.steps);
+}
 for (const count of [3, 4, 5, 8, 56]) {
   const layout=fusionShieldLayout(count);
   assert.equal(layout.length,count);assert.equal(layout.filter(p=>p.primary).length,1);
@@ -48,13 +69,22 @@ for (const kind of Object.keys(baseline)) {
     assert.equal(new Set(frame.motions.map(m=>m.delayMs)).size,frame.motions.length,'each falling orb has its own start');
     for(const motion of frame.motions) assert(frame.fallAt+motion.delayMs+motion.durationMs<=frame.endAt+1e-7);
   });
-  assert(timeline.durationMs<=5000);
+  assert(Number.isFinite(timeline.durationMs));
   const reduced=refillPresentation(result.steps,true);assert(reduced.frames.every(f=>f.motions.every(m=>m.delayMs===0&&m.durationMs===0)));
   const simple=M.resolveDrag(b,path,M.seededRng(91),magic,1,false,false,3);
   assert(simple.steps.every(s=>!('falls'in s)&&!('clearedCells'in s)),'legacy contract unchanged');
 }
 const heavy=refillPresentation(Array.from({length:50},()=>({falls:Array.from({length:49},(_,i)=>({r:Math.floor(i/7),c:i%7,fromRow:Math.floor(i/7)-7}))})));
-assert(heavy.durationMs<=5000.000001,'many cascades must not lock the player out for a minute');
+const single=refillPresentation([{falls:Array.from({length:49},(_,i)=>({r:Math.floor(i/7),c:i%7,fromRow:Math.floor(i/7)-7}))}]);
+assert.equal(heavy.durationMs,single.durationMs*50,'50 segments retain natural duration without idle or global speedup');
+for(let i=0;i<heavy.frames.length;i++) {
+  assert.deepEqual(heavy.frames[i].motions,single.frames[0].motions);
+  assert.equal(heavy.frames[i].clearMs,single.frames[0].clearMs);
+  if(i)assert.equal(heavy.frames[i].clearAt,heavy.frames[i-1].endAt);
+}
+assert(Number.isFinite(heavy.durationMs) && heavy.durationMs<120000);
+const reducedHeavy=refillPresentation(Array.from({length:50},()=>({falls:[]})),true);
+assert.equal(reducedHeavy.durationMs,3000,'reduced motion retains 60ms per clear');
 console.log('PASS refill provenance, unchanged legacy outcomes, sparse reward conservation, stagger, reduced motion and bounded wait');
 
 function fusionFixture(seed) {
