@@ -1,3 +1,5 @@
+import { initializeFoeSkills, absorbFoeShieldDamage, type FoeSkillState, type OrbSkillEvent, type SkillFoe, runOrbSkillEvent } from './skill-runtime';
+import { planOrbCounter, orbCounterDamage, resolveOrbEnemyAction } from './enemy-strategy';
 /**
  * 寶珠戰 5v5：敵方五隻（10/30 鈺勝確認的 5v5 截圖為功能／版面基準）。
  * 名單來源：orb-battle-preview/contrib/mingli/enemies.json（井木犴、婁金狗、箕水豹、星日馬、女土蝠，.v2 卡圖）。
@@ -5,7 +7,7 @@
  * 反擊：每隻敵人各自倒數 ENEMY_COUNTER_EVERY（3）步，歸零攻擊我方 HP 最低的存活卡（同 HP 取前者），套用克制表 elementMultiplier。
  * 連線攻擊【待平衡】：連線模式點選 ≥2 張、每張需且消耗 50 能量；傷害＝round(Σ攻擊 × 3 × (1 + (張數-2) × 0.5))，不算步數。
  */
-import { elementMultiplier, type BeastElement } from '../elements';
+import type { BeastElement } from '../elements';
 import { ENEMY_COUNTER_EVERY } from './config';
 
 /** 依 5v5 截圖的敵方五隻（以卡名從 60 張 .v2 卡池解析，不寫死 ID）。 */
@@ -32,8 +34,8 @@ export const LINK_ENERGY_COST = 50;
 export const LINK_BASE_MULTIPLIER = 3;
 export const LINK_BONUS_PER_EXTRA = 0.5;
 
-export interface Match3Foe { id: string; element: BeastElement; hp: number; maxHp: number; attack: number; cd: number }
-interface Ally { id: string; element: BeastElement; hp: number; energy: number }
+export interface Match3Foe { id: string; element: BeastElement; hp: number; maxHp: number; attack: number; cd: number; skillRuntime?: FoeSkillState; lastCounterTurn?: string; lastCounterPhase?: string; appliedPlayerHitIds?: string[] }
+interface Ally { id: string; element: BeastElement; hp: number; energy: number; maxHp?: number; attack?: number; skillRuntime?: FoeSkillState }
 
 /** mode 不給＝原本中等數值（HP 300／ATK 8／倒數 3）；困難模式由 config.MATCH3_MODES 傳入【待平衡】值。 */
 export function makeFoe(id: string, element: BeastElement, mode?: { enemyHp: number; enemyAtk: number; counterEvery: number }): Match3Foe {
@@ -49,32 +51,61 @@ export function aliveTarget(foes: readonly { hp: number }[], target: number): nu
 
 /** 傷害打在目標身上（溢出不轉移），回傳新陣列。 */
 export function damageFoe<T extends { hp: number }>(foes: readonly T[], index: number, amount: number): T[] {
-  return foes.map((f, i) => (i === index ? { ...f, hp: Math.max(0, f.hp - Math.max(0, amount)) } : f));
+  return foes.map((f, i) => (i === index ? absorbFoeShieldDamage(f, amount).foe : f));
 }
 
-export interface CounterHit { enemy: number; targetId: string; damage: number }
+/** Existing orb damage once, then an actual-damage event; never recalculate the hit. */
+export function damageFoeWithSkills<F extends Match3Foe, T extends SkillFoe & { energy: number }>(foes: readonly F[], index: number, amount: number, stage: number, eventId: string, team: readonly T[], actualAttackerId: string | null): { foes: F[]; team: T[]; skillEvents: OrbSkillEvent[]; actualDamage: number } {
+  if(stage>=8&&foes[index]?.appliedPlayerHitIds?.includes(eventId))return {foes:[...foes],team:[...team],skillEvents:[],actualDamage:0};
+  const result = damageFoe(foes, index, amount), nextTeam = team.slice();
+  if(stage>=8&&result[index])result[index]={...result[index],appliedPlayerHitIds:[...(foes[index].appliedPlayerHitIds??[]),eventId]};
+  const actualDamage = result[index] && foes[index] ? foes[index].hp - result[index].hp : 0;
+  const skillEvents: OrbSkillEvent[] = [];
+  if (stage >= 11 && actualDamage > 0 && result[index]?.hp > 0) {
+    const attackerIndex = nextTeam.findIndex(u => u.id === actualAttackerId);
+    if (attackerIndex < 0) throw new Error('受創技能缺少實際攻擊者');
+    const reaction = runOrbSkillEvent(result[index], 'ON_DAMAGED', { target: nextTeam[attackerIndex], actualDamage, eventId, sourceSide:'enemy', targetSide:'ally' });
+    result[index] = reaction.source;
+    if (reaction.target) nextTeam[attackerIndex] = { ...reaction.target, energy: reaction.target.hp <= 0 ? 0 : nextTeam[attackerIndex].energy };
+    skillEvents.push(...reaction.events);
+  }
+  return { foes: result, team: nextTeam, skillEvents, actualDamage };
+}
+
+export interface CounterHit { enemy: number; enemyId: string; targetId: string; damage: number; hpBefore: number; hpAfter: number; actualDamage: number }
 
 /** 一步結束後的敵方回合：每隻存活敵人倒數 -1，歸零者攻擊我方 HP 最低存活卡並重置倒數。 */
-export function counterPhase<T extends Ally, F extends Match3Foe>(team: readonly T[], foes: readonly F[], every: number = ENEMY_COUNTER_EVERY, singleTurn?: number, shieldGuard = false): { team: T[]; foes: F[]; hits: CounterHit[] } {
-  let t = team.slice(); const hits: CounterHit[] = [];
-  const living = foes.map((f, i) => f.hp > 0 ? i : -1).filter(i => i >= 0);
+export function counterPhase<T extends Ally, F extends Match3Foe>(team: readonly T[], foes: readonly F[], every: number = ENEMY_COUNTER_EVERY, singleTurn?: number, shieldGuard = false, strategyStage?: number, skillContext?: { turnId: string }): { team: T[]; foes: F[]; hits: CounterHit[]; skillEvents: OrbSkillEvent[] } {
+  let t = team.slice(); const hits: CounterHit[] = [], skillEvents: OrbSkillEvent[] = [];
+  const stage = strategyStage ?? 0, skills = stage >= 8, eventId = skillContext?.turnId;
+  let nf = foes.map(f => { if (!skills) return f; const init = initializeFoeSkills(f,{sourceSide:'enemy'}); skillEvents.push(...init.events); return init.foe; });
+  const living = nf.map((f, i) => f.hp > 0 ? i : -1).filter(i => i >= 0);
+  const eligible = living.filter(i => (singleTurn !== undefined || nf[i].cd <= 1) && (!skills || eventId === undefined || nf[i].lastCounterPhase !== eventId));
   const selected = singleTurn === undefined ? null : living[singleTurn % living.length];
-  const nf = foes.map((f, ei) => {
-    if (f.hp <= 0) return f;
-    if (selected !== null && ei !== selected) return f;
-    const cd = singleTurn === undefined ? f.cd - 1 : 0;
-    if (cd > 0) return { ...f, cd };
-    let ti = -1;
-    t.forEach((u, i) => { if (u.hp > 0 && (ti < 0 || u.hp < t[ti].hp)) ti = i; });
-    if (ti >= 0) {
-      const raw = f.attack * elementMultiplier(f.element, t[ti].element);
-      const dmg = Math.round(raw * (shieldGuard ? 0.5 : 1));
-      hits.push({ enemy: ei, targetId: t[ti].id, damage: dmg });
-      t = t.map((u, i) => (i === ti ? { ...u, hp: Math.max(0, u.hp - dmg), energy: u.hp - dmg <= 0 ? 0 : u.energy } : u));
+  const planned = strategyStage === undefined ? null : planOrbCounter(t, nf, eligible, singleTurn !== undefined, singleTurn ?? 0, stage, shieldGuard);
+  const order = planned ? planned.map(p => p.enemy) : eligible.filter(i => selected === null || i === selected);
+  nf = nf.map((f, i) => f.hp <= 0 || skills && eventId !== undefined && f.lastCounterPhase === eventId || singleTurn !== undefined && !order.includes(i) ? f : { ...f, cd: order.includes(i) ? every : f.cd - 1 });
+  for (const ei of order) {
+    let ti=planned?.find(p=>p.enemy===ei)?.target??-1;
+    if(ti<0||t[ti]?.hp<=0){ti=-1;t.forEach((u,i)=>{if(u.hp>0&&(ti<0||u.hp<t[ti].hp))ti=i})}
+    if(ti<0)break;
+    const f=nf[ei];if(f.hp<=0)continue;
+    const actionEventId=eventId===undefined?undefined:eventId+':enemy:'+ei;
+    if(skills){
+      if(typeof t[ti].attack!=='number'||typeof t[ti].maxHp!=='number')throw new Error('戰鬥技能目標缺少原始能力');
+      const r=resolveOrbEnemyAction(f,t[ti] as T & SkillFoe,stage,shieldGuard,actionEventId);
+      nf[ei]={...r.source,...(eventId===undefined?{}:{lastCounterTurn:eventId})};
+      t[ti]={...r.target,energy:r.target.hp<=0?0:t[ti].energy};skillEvents.push(...r.events);
+      if(r.basic)hits.push({enemy:ei,enemyId:f.id,targetId:t[ti].id,...r.basic});
+    }else{
+      const damage=orbCounterDamage(f.attack,f.element,t[ti].element,shieldGuard),hpBefore=t[ti].hp;
+      const after=absorbFoeShieldDamage(t[ti],damage).foe;
+      t[ti]={...after,energy:after.hp<=0?0:t[ti].energy};
+      hits.push({enemy:ei,enemyId:f.id,targetId:t[ti].id,damage,hpBefore,hpAfter:after.hp,actualDamage:hpBefore-after.hp});
     }
-    return { ...f, cd: every };
-  });
-  return { team: t, foes: nf, hits };
+  }
+  if (skills && eventId !== undefined) nf = nf.map(f => ({ ...f, lastCounterPhase: eventId }));
+  return { team: t, foes: nf, hits, skillEvents };
 }
 
 export function linkMultiplier(n: number): number { return 1 + Math.max(0, n - LINK_MIN_CARDS) * LINK_BONUS_PER_EXTRA; }

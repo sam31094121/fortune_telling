@@ -1,4 +1,6 @@
-/** Read-only capability inventory. Names/descriptions never imply an effect is active. */
+/** Player-card capability inventory. Names/descriptions never imply an active player skill.
+ * Enemy Asura effects are separately executed by skill-runtime; this inventory does not
+ * claim that the player's ON_ATTACK skills replace the existing energy-attack formula. */
 import { getSkill, type SkillTrigger } from '../../../cards/skills';
 import { playableCards } from '../registry';
 import type { EffectSpec } from '../effects';

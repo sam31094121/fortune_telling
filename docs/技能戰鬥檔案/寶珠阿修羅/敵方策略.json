@@ -1,0 +1,141 @@
+{
+  "id": "ORB_ASURA_ENEMY_POLICY_V1",
+  "scope": "hard orb only; not fortune-telling Asura",
+  "sources": [
+    "lib/beast-game/match3/enemies.ts",
+    "lib/beast-game/interactive.ts#chooseAI",
+    "lib/beast-game/iching-skill-archive.ts",
+    "cards/skills/index.ts"
+  ],
+  "authority": "2026-11-01 owner approved dedicated orb battle archive",
+  "utility": [
+    "defeated living targets",
+    "actual HP removed",
+    "own remaining HP plus shield",
+    "own surviving effective attack"
+  ],
+  "constraints": [
+    "public state only",
+    "no extra attacks",
+    "preserve card stats",
+    "stage11 retargeting already existed"
+  ],
+  "tiers": [
+    {
+      "stage": 1,
+      "level": 0,
+      "targets": "baseline",
+      "actors": "rotation"
+    },
+    {
+      "stage": 8,
+      "level": 1,
+      "targets": "element",
+      "actors": "best"
+    },
+    {
+      "stage": 9,
+      "level": 2,
+      "targets": "all",
+      "actors": "best"
+    },
+    {
+      "stage": 10,
+      "level": 3,
+      "targets": "all",
+      "actors": "best"
+    },
+    {
+      "stage": 11,
+      "level": 4,
+      "targets": "all",
+      "actors": "best"
+    },
+    {
+      "stage": 12,
+      "level": 5,
+      "targets": "all",
+      "actors": "permutations",
+      "search": "current round beam4, legal speed, same-speed permutations"
+    }
+  ],
+  "skillContract": {
+    "registry": "cards/skills/index.ts",
+    "eventCandidates": [
+      "ON_SUMMON",
+      "PASSIVE",
+      "ON_TURN_START",
+      "ON_TURN_END",
+      "ON_ATTACK",
+      "ON_DAMAGED"
+    ],
+    "status": "connected through counterPhase single entry; original effect engine, original uses and trigger values",
+    "mappingRequired": [
+      "DRAW/DISCARD: no deck; entire skill is notApplicable and consumes no use"
+    ],
+    "supportedEffects": "original effect engine; skills containing DRAW or DISCARD are entirely notApplicable (no deck), never partially executed",
+    "stages": {
+      "8": [
+        "ON_SUMMON",
+        "PASSIVE"
+      ],
+      "9": [
+        "ON_TURN_START",
+        "ON_TURN_END"
+      ],
+      "10": [
+        "ON_ATTACK"
+      ],
+      "11": [
+        "ON_DAMAGED"
+      ],
+      "12": [
+        "all prior triggers retained"
+      ]
+    },
+    "damageOrder": "orb basic once, original ON_ATTACK effects once, actual-damage reaction once; no recursion"
+  },
+  "encounterBudget": {
+    "source": "progressionStrengthBudget/progressionLineupStats",
+    "firstSeven": "unchanged",
+    "stage8to12": {
+      "attack": [
+        62,
+        68,
+        74,
+        80,
+        86
+      ],
+      "hp": [
+        2389,
+        2607,
+        2825,
+        3043,
+        3261
+      ],
+      "neutralRoundCapacity": [
+        17,
+        18,
+        20,
+        80,
+        86
+      ]
+    },
+    "derivation": "stage7 real per-element adult maxima baseline, +10% base per stage; allocation preserves exact totals and strongest single-actor capacity",
+    "validation": "500 seeds per stage, original card records unchanged; arbitrary elemental matchups and win rate not guaranteed",
+    "caution": "stage11 four simultaneous guardian attacks are existing behavior; 20 to 80 is not a smooth difficulty claim"
+  },
+  "plannerLimits": [
+    "public present state only; no unseen orb board or RNG",
+    "same original resolver is used for both finite previews and committed actions",
+    "speed order is mandatory; permutations are limited to equal-speed actors",
+    "stage12 beam width4 across one current counter round, always retains full lower-tier greedy candidate",
+    "stage11 live-target reselection was already implemented"
+  ],
+  "validation": {
+    "counterFacts": "actual HP overkill, guard, cooldown replay, hit replay",
+    "skillPlanner": "original effect/remaining uses/shield/stun preview; no mutation",
+    "search500Seeds": "stage12 never worse than retained stage11 candidate by stated utility; 233/500 strict improvement in deterministic synthetic fixtures",
+    "fixtureLimit": "isolated neutral capability/strategy tests are not customer win-rate or mobile endurance proof"
+  }
+}

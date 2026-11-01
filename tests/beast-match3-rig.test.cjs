@@ -39,14 +39,17 @@ for(const name of ['baihu','qinglong','zhuque','xuanwu']) {
  for(const amount of [0,-1,NaN,Infinity])assert.equal(match3RigAttackers([{attackerId:id,amount}],10,0).length,0);
  for(const [before,after] of [[10,10],[0,0],[10,12],[NaN,0],[10,NaN]])assert.equal(match3RigAttackers([{attackerId:id,amount:50}],before,after).length,0);
  assert.equal(match3RigAttackers([{attackerId:id,amount:5},{attackerId:id,amount:5}],10,0).length,1);
+ assert.equal(match3RigAttackers([{attackerId:id,amount:5}],10,10,5).length,1,'Recorded damage still animates when an on-damaged heal restores HP');
+ assert.equal(match3RigAttackers([{attackerId:id,amount:5}],10,12,5).length,1,'Healing above pre-hit HP cannot erase the actual hit');
+ for(const actual of [0,-1,NaN,Infinity])assert.equal(match3RigAttackers([{attackerId:id,amount:5}],10,0,actual).length,0,'Invalid/zero actual damage cannot animate');
 }
 assert.equal(match3RigAttackers([{attackerId:null,amount:10},{attackerId:'beast_y01',amount:10}],10,0).length,0);
 const board=fs.readFileSync(path.join(root,'components/battlefield/Match3Board.tsx'),'utf8');
 assert.equal((board.match(/showStrike\(/g)||[]).length,3,'Drag, skill and link all use actual damage result');
-assert.match(board,/showStrike\(hits, foe, nf\[ti\]\)/);
-// 已發布的技能與聯手出擊會傳入蓄能音效旗標；實際扣血仍是前三個參數。
-assert.match(board,/showStrike\(\[\{ attackerId: u.id, amount: amt \}\], foe, damaged\[ti\], true\)/);
-assert.match(board,/showStrike\(cards.map\(c => \(\{ attackerId: c.id, amount: amt \}\)\), foe, damaged\[ti\], true\)/);
+assert(board.includes('showStrike(rigEnabled ? actualHits : hits, foe, nf[ti], false, rigEnabled ? actualDealt : undefined)'));
+// Hard callers pass recorded actual damage; default consumers keep HP-delta behavior.
+assert(board.includes('showStrike([{ attackerId: u.id, amount: actualAmount }], foe, damaged[ti], true, rigEnabled ? actualAmount : undefined)'));
+assert(board.includes('showStrike(cards.map(c => ({ attackerId: c.id, amount: actualAmount })), foe, damaged[ti], true, rigEnabled ? actualAmount : undefined)'));
 assert.match(board,/const rigEnabled = cfg.id === 'hard45' \|\| cfg.id === 'hard45b'/);
 assert.match(board,/if \(!rigEnabled\) return/);
 assert.match(board,/rigEnabled && <Match3RigAttack/);

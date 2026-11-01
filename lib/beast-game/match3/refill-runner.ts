@@ -21,17 +21,18 @@ function committed(commit: () => Promise<void>, signal: AbortSignal): Promise<vo
     Promise.resolve().then(() => { if (signal.aborted) throw cancelled(); return commit(); }).then(() => { signal.removeEventListener('abort', abort); if (signal.aborted) reject(cancelled()); else resolve(); }, error => { signal.removeEventListener('abort', abort); reject(error); });
   });
 }
-function visibleWait(clock: RefillClock, duration: number, signal: AbortSignal, progress?: (elapsed: number, late: boolean) => void, maxStep = 50): Promise<void> {
+function visibleWait(clock: RefillClock, duration: number, signal: AbortSignal, progress?: (elapsed: number, late: boolean) => void): Promise<void> {
   return new Promise((resolve, reject) => {
-    let handle: number | null = null, last: number | null = null, elapsed = 0, visualElapsed = 0;
+    let handle: number | null = null, last: number | null = null, elapsed = 0;
     const clean = () => { if (handle !== null) clock.cancel(handle); unsubscribe(); signal.removeEventListener('abort', abort); };
     const abort = () => { clean(); reject(cancelled()); };
     const tick = (time: number) => {
       handle = null;
       if (!clock.visible()) { last = null; return; }
-      // A long main-thread stall cannot consume the next phases before they paint.
+      // Visible wall time, not a per-frame allowance: 30 fps must not play at half speed.
+      // A stalled frame may skip intermediate poses; it cannot create time to replay them.
       const delta = last === null ? 0 : Math.max(0, time - last);
-      elapsed += Math.min(maxStep, delta); visualElapsed += delta;
+      elapsed = Math.min(duration, elapsed + delta);
       last = time; progress?.(elapsed, delta > 80);
       if (elapsed >= duration) { clean(); resolve(); } else handle = clock.frame(tick);
     };
@@ -76,7 +77,7 @@ export async function runRefillPlayback(frames: readonly RefillRunnerFrame[], op
         while (cursor < cues.length && cues[cursor].at <= elapsed) latest = cues[cursor++];
         // No backlog burst when an expensive frame misses several cue instants.
         if (latest && !late && elapsed - latest.at <= 80 && !options.signal.aborted) options.cue?.(latest.kind);
-      }, 1000 / 60);
+      });
     }
     if (!options.signal.aborted) options.complete();
   } finally { unsubscribe(); }

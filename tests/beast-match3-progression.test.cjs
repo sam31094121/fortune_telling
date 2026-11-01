@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const M = require('../.beast-game-build/lib/beast-game/match3');
 const pool = require('../.beast-game-build/lib/beast-game/registry').playableCards();
 const before = JSON.stringify(pool);
-assert.deepEqual([0,1,2].map(n => M.progressionStage(n).minChain), [3,4,5]);
+assert.deepEqual([0,1,2].map(n => M.progressionStage(n).minChain), [4,4,4]);
 for (let level = 0; level < 3; level++) {
   const minimum = M.progressionStage(level).minChain;
   const board = Array.from({length:7}, (_,r) => Array.from({length:7}, (_,c) => M.MATCH3_ORB_ELEMENTS[(r*2+c)%5]));
@@ -47,7 +47,7 @@ assert.equal(M.nextProgressionWins(1, true), 2);
 assert.equal(M.nextProgressionWins(2, true), 3);
 for (const n of [0, 1, 2, 3, 5, 6, 30]) assert.equal(M.nextProgressionWins(n, false), n);
 for (const n of [-1, NaN, Infinity]) assert.equal(M.progressionStage(n).index, 0);
-assert.deepEqual(Array.from({length:10},(_,n)=>M.progressionStage(n).minChain), [3,4,5,6,7,8,8,8,8,8]);
+assert.deepEqual(Array.from({length:10},(_,n)=>M.progressionStage(n).minChain), Array(10).fill(4));
 
 for(const [input,expected] of [[-4,0],[NaN,0],[Infinity,0],[1.8,1],[Number.MAX_VALUE,Number.MAX_SAFE_INTEGER]]) {assert.equal(M.progressionStage(input).wins,expected);assert.equal(M.nextProgressionWins(input,false),expected);}
 assert.equal(M.nextProgressionWins(Number.MAX_SAFE_INTEGER,true),Number.MAX_SAFE_INTEGER);
@@ -94,3 +94,16 @@ const shuffled=M.reshuffleKeepMagic(fallback,mark,M.seededRng(82),true,50);
 assert.ok(M.hasDragMove(shuffled.board,true,3));
 assert.deepEqual(shuffled.magic,mark);assert.equal(shuffled.board[0][0],fallback[0][0]);
 console.log('PASS: eight-orb clear-only attacks and playable fallback preserve shield attributes');
+
+// Fixed encounter budgets survive the adult→guardian composition change.
+for(let seed=1;seed<=500;seed++) {
+ let previous=null;
+ for(let wins=7;wins<=11;wins++) {
+  const chosen=M.selectProgressionEnemies(pool,M.seededRng(seed),wins),stats=M.progressionLineupStats(chosen,wins,pool),budget=M.progressionStrengthBudget(pool,wins);
+  assert.equal(stats.reduce((n,c)=>n+c.attack,0),budget.attack);assert.equal(stats.reduce((n,c)=>n+c.hp,0),budget.hp);
+  const capacity=M.progressionStage(wins).simultaneous?stats.reduce((n,c)=>n+c.attack,0):Math.max(...stats.map(c=>c.attack));
+  assert.equal(capacity,budget.roundAttack);if(previous){assert(budget.attack>previous.attack);assert(budget.hp>previous.hp);assert(capacity>previous.roundAttack)}previous=budget;
+ }
+}
+for(let wins=0;wins<7;wins++){const c=M.selectProgressionEnemies(pool,M.seededRng(3),wins);assert.deepEqual(M.progressionLineupStats(c,wins,pool),c.map(x=>M.progressionEnemyStats(x,wins)))}
+assert.equal(JSON.stringify(pool),before);console.log('PASS 500 seeds: stage8–12 total ATK/HP and neutral one-round capacity strictly increase; first7 unchanged');

@@ -646,3 +646,32 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 @media (prefers-reduced-motion: reduce) { .fusionLightning { display:none; animation:none; } }
 
 .campaignRewardCard { width: min(160px, 42vw); margin: 10px auto; }
+/* 困難寶珠：56珠維持7×8與正圓，按可用高度縮小盤面，不裁掉隊伍。 */
+.wrap[data-mode^="hard"] { box-sizing: border-box; min-height: 0; padding: max(6px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); }
+.wrap[data-mode^="hard"] .board { width: min(100%, calc((100dvh - 410px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * .875)); max-width: 100%; box-sizing: border-box; margin: 8px auto; }
+.wrap[data-mode^="hard"] .orb { min-width: 0; min-height: 0; }
+.wrap[data-mode^="hard"] .foes, .wrap[data-mode^="hard"] .team { gap: 4px; }
+.wrap[data-mode^="hard"] .allyCard { max-width: 66px; }
+.wrap[data-mode^="hard"] .foeArt { max-width: 54px; }
+.wrap[data-mode^="hard"] .allyMeta { font-size: 10px; }
+.quickIntro { position: absolute; z-index: 12; top: 54px; left: 8px; right: 8px; padding: 10px 34px 10px 12px; border: 1px solid #b9a77a66; border-radius: 12px; background: #1b2028ed; color: #f6e9cd; font-size: 13px; line-height: 1.5; pointer-events: none; box-shadow: 0 4px 12px #0004; }
+.quickIntro button { position: absolute; right: 0; top: 0; min-width: 32px; min-height: 44px; border: 0; background: none; color: inherit; font-size: 22px; pointer-events: auto; }
+.counterTrace { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 7; overflow: visible; }
+.counterTrace path { stroke: #f3ba91; stroke-width: 2; fill: none; stroke-dasharray: 1; animation: m3CounterTrace 240ms ease-out both; filter: drop-shadow(0 0 3px #f6d2a677); }
+.counterTrace circle { fill: none; stroke: #f6cfa6; stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: m3CounterRing 300ms 100ms ease-out both; }
+.counterDamage { position: absolute; z-index: 8; top: calc(8px + var(--hit-order, 0) * 14px); left: 50%; transform: translateX(-50%); font-size: 15px; line-height: 1.2; font-weight: 700; color: #fff0dc; text-shadow: 0 1px 3px #000; padding: 2px 5px; border-radius: 7px; background: #71392de6; pointer-events: none; animation: m3CounterNumber 300ms 100ms ease-out both; }
+@keyframes m3CounterTrace { 0% { stroke-dashoffset: 1; opacity: .4; } 65% { stroke-dashoffset: 0; opacity: .9; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes m3CounterRing { from { opacity: .9; transform: scale(.5); } to { opacity: 0; transform: scale(1.6); } }
+@keyframes m3CounterNumber { from { opacity: 0; translate: 0 4px; } 35%,100% { opacity: 1; translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .counterTrace path, .counterTrace circle { animation: none; opacity: .3; } .counterDamage { animation: none; } }
+.wrap[data-mode^="hard"] .allyHp { display: block; font-size: 11px; line-height: 14px; color: #e8decb; font-variant-numeric: tabular-nums; }
+.wrap[data-mode^="hard"] .allyHit .bar > span { transition-delay: 100ms; }
+@media (prefers-reduced-motion: reduce) { .wrap[data-mode^="hard"] .allyHit .bar > span { transition-delay: 0ms; } }
+
+@media (max-width: 599px) and (max-height: 700px) {
+ .wrap[data-mode^="hard"] .board { width: min(100%, calc((100dvh - 360px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * .875)); }
+ .wrap[data-mode^="hard"] .foeArt { max-width: 42px; }
+ .wrap[data-mode^="hard"] .allyMeta { display: none; }
+}
+.skillFeedback { position: absolute; z-index: 9; left: 0; right: 0; top: 32%; padding: 3px 2px; border-radius: 5px; background: #253a45ee; color: #fff2d2; font-size: 10px; line-height: 1.3; text-align: center; pointer-events: none; }
+.runtimeShield { position: absolute; z-index: 3; left: 2px; bottom: 3px; border-radius: 4px; padding: 1px 3px; font-size: 10px; line-height: 1.2; color: #d5f0ff; background: #183442ee; pointer-events: none; }

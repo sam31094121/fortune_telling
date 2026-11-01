@@ -17,6 +17,12 @@ export interface Match3FxEvent {
 
 export type Match3BusEvent = Match3Event | Match3FxEvent;
 
+/** Keep the same array/push subscription; this is diagnostic history, not battle state. */
+export function appendMatch3Event(buffer: Match3BusEvent[], event: Match3BusEvent): void {
+  buffer.push(event);
+  if (buffer.length > 512) buffer.splice(0, buffer.length - 512);
+}
+
 export function isMatch3FxEvent(ev: unknown): ev is Match3FxEvent {
   const e = ev as Partial<Match3FxEvent> | null;
   return !!e && typeof e === 'object' && typeof e.count === 'number' && typeof e.cascadeStep === 'number' && typeof e.element === 'string';

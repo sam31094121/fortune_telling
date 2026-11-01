@@ -123,13 +123,13 @@ try {
       assert.notDeepEqual(after.cells, initial.cells, 'Below-threshold valid clear did not replace orbs');
     }
     const before = await snap();
-    await drag(findPath(before.cells, Math.min(8, 3 + wins)));
+    await drag(findPath(before.cells, 4));
     const after = await snap();
     assert(hp(after, 'enemy') < hp(before, 'enemy'), 'Threshold chain did not damage enemy');
     assert(after.damage > 0); assert(hp(after, 'ally') < hp(before, 'ally'), 'Enemy failed to counter after valid attack');
     await save(`phone-wins-${wins}`);
-    results.push({ wins, width: 390, initialEnemy: initial.enemy, minChain: Math.min(8, 3 + wins), status: 'passed' });
-    console.log(`PASS mobile wins=${wins}, minChain=${Math.min(8, 3 + wins)}`);
+    results.push({ wins, width: 390, initialEnemy: initial.enemy, minChain: 4, status: 'passed' });
+    console.log(`PASS mobile wins=${wins}, minChain=${4}`);
   }
   const five = results.find(r => r.wins === 5).initialEnemy, six = results.find(r => r.wins === 6).initialEnemy;
   for (const f of five) assert.equal(six.find(s => s.id === f.id).hp, Math.round(f.hp * 1.1), 'Post-eight-orb enemy HP did not increase 10%');

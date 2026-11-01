@@ -5,6 +5,18 @@ import { BASE_RATIO, SKILL_RATIO, chainMultiplier, lengthMultiplier, normalPower
 import { eligibleAttackers, type Match3Fighter } from './eligibility';
 import type { CascadeStep } from './cascade';
 import type { MatchGroup } from './match';
+import { foeSkillAttack, orbSkillCanAttack, tickFoeSkillDurations } from './skill-runtime';
+
+/** Resolve received status effects without modifying the card's original attack. */
+export function fighterEffectiveAttack(f: Match3Fighter): number {
+  return f.skillRuntime ? foeSkillAttack({ ...f, maxHp: f.maxHp ?? f.hp }) : f.attack;
+}
+export const fighterCanAct = (f: Pick<Match3Fighter, 'hp' | 'skillRuntime'>): boolean => orbSkillCanAttack(f);
+
+/** Called once after a valid player action, before the opponent applies new statuses. */
+export function endPlayerSkillTurn<T extends Match3Fighter>(team: readonly T[]): T[] {
+  return team.map(f => f.skillRuntime ? { ...f, skillRuntime: tickFoeSkillDurations({ ...f, maxHp: f.maxHp ?? f.hp }).skillRuntime } : f);
+}
 
 export interface Match3Hit { attackerId: string | null; element: BeastElement; orbs: number; length: number; chain: number; amount: number; power?: number }
 
@@ -25,7 +37,7 @@ export function computeHits(steps: readonly CascadeStep[], team: readonly Match3
     const power = groupPower(g);
     const attackers = eligibleAttackers(team, g.element, selectedId);
     if (attackers.length === 0) { hits.push({ attackerId: null, element: g.element, orbs: g.size, length: g.longest, chain: step.chain, amount: 0, power }); continue; }
-    for (const f of attackers) hits.push({ attackerId: f.id, element: g.element, orbs: g.size, length: g.longest, chain: step.chain, amount: step.attackAllowed === false ? 0 : hitAmount(f.attack, power, step.chain, f.element, enemyElement), power });
+    for (const f of attackers) hits.push({ attackerId: f.id, element: g.element, orbs: g.size, length: g.longest, chain: step.chain, amount: step.attackAllowed === false ? 0 : hitAmount(fighterEffectiveAttack(f), power, step.chain, f.element, enemyElement), power });
   }
   return hits;
 }

@@ -5,8 +5,9 @@ import { rigFor, RIG_CARD_HIDDEN, RIG_IMPACT_MS, RIG_STRIKE_MS, type BeastRig } 
 
 export interface Match3Strike { key: number; targetId: string; attackerIds: string[] }
 /** Presentation only: consume recorded HP changes; never decide damage or eligibility. */
-export function match3RigAttackers(hits: readonly { attackerId?: string | null; amount: number }[], beforeHp: number, afterHp: number): string[] {
-  if (!Number.isFinite(beforeHp) || !Number.isFinite(afterHp) || beforeHp <= 0 || afterHp >= beforeHp) return [];
+export function match3RigAttackers(hits: readonly { attackerId?: string | null; amount: number }[], beforeHp: number, afterHp: number, actualDamage?: number): string[] {
+  if (!Number.isFinite(beforeHp) || !Number.isFinite(afterHp) || beforeHp <= 0) return [];
+  if (actualDamage === undefined ? afterHp >= beforeHp : !Number.isFinite(actualDamage) || actualDamage <= 0) return [];
   return [...new Set(hits.filter(h => Number.isFinite(h.amount) && h.amount > 0 && h.attackerId && rigFor(h.attackerId)).map(h => h.attackerId!))];
 }
 export function Match3TargetArt({ src }: { src: string }) {
