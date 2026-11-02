@@ -32,7 +32,7 @@ const STAGES: readonly Omit<ProgressionStage, 'wins' | 'strengthMultiplier' | 'g
   Object.freeze({ index: 2, label: '困難', form: 'GUARDIAN', enemyCount: 5, hpScale: 4, attackScale: .075, simultaneous: false }),
 ]);
 
-const ATTACK_THRESHOLDS = Object.freeze([3, 4, 4, 5, 5, 6, 7, 8] as const);
+const ATTACK_THRESHOLDS = Object.freeze([3, 4, 4, 5, 5, 6, 7, 6] as const);
 
 function normalizedWins(wins: number): number {
   if (!Number.isFinite(wins) || wins <= 0) return 0;

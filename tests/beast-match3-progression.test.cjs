@@ -59,7 +59,7 @@ assert.equal(M.nextProgressionWins(1, true), 2);
 assert.equal(M.nextProgressionWins(2, true), 3);
 for (const n of [0, 1, 2, 3, 5, 6, 30]) assert.equal(M.nextProgressionWins(n, false), n);
 for (const n of [-1, NaN, Infinity]) assert.equal(M.progressionStage(n).index, 0);
-assert.deepEqual(Array.from({length:10},(_,n)=>M.progressionStage(n).minChain), [3,4,4,5,5,6,7,8,8,8]);
+assert.deepEqual(Array.from({length:10},(_,n)=>M.progressionStage(n).minChain), [3,4,4,5,5,6,7,6,6,6]);
 
 for(const [input,expected] of [[-4,0],[NaN,0],[Infinity,0],[1.8,1],[Number.MAX_VALUE,Number.MAX_SAFE_INTEGER]]) {assert.equal(M.progressionStage(input).wins,expected);assert.equal(M.nextProgressionWins(input,false),expected);}
 assert.equal(M.nextProgressionWins(Number.MAX_SAFE_INTEGER,true),Number.MAX_SAFE_INTEGER);
@@ -124,7 +124,7 @@ assert.equal(JSON.stringify(pool),before);console.log('PASS 500 seeds: stage8–
 
 for(const wins of [12,30,100,1000,Number.MAX_SAFE_INTEGER]) {
  const cards=M.selectProgressionEnemies(pool,M.seededRng(27),wins),stage=M.progressionStage(wins),stats=M.progressionLineupStats(cards,wins,pool);
- assert.equal(cards.length,5);assert.equal(cards.filter(c=>c.form==='GUARDIAN').length,1);assert.equal(cards[4].form,'GUARDIAN');assert.equal(stage.simultaneous,false);assert.equal(stage.minChain,8);
+ assert.equal(cards.length,5);assert.equal(cards.filter(c=>c.form==='GUARDIAN').length,1);assert.equal(cards[4].form,'GUARDIAN');assert.equal(stage.simultaneous,false);assert.equal(stage.minChain,6);
  assert(stats.every(s=>Number.isSafeInteger(s.attack)&&Number.isSafeInteger(s.hp)));assert(stats.slice(0,4).every(s=>s.attack<=stats[4].attack));
 }
 assert.deepEqual([7,8,9,10,11].map(w=>M.progressionStrengthBudget(pool,w).roundAttack),[16,18,20,22,24]);
