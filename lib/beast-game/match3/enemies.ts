@@ -76,7 +76,7 @@ export function damageFoeWithSkills<F extends Match3Foe, T extends SkillFoe & { 
   if(stage>=8&&foes[index]?.appliedPlayerHitIds?.includes(eventId))return {foes:[...foes],team:[...team],skillEvents:[],actualDamage:0};
   const ready = initializeAvailableFoes(foes, stage);
   const result = damageFoe(ready, index, amount), nextTeam = team.slice();
-  if(stage>=8&&result[index])result[index]={...result[index],appliedPlayerHitIds:[...(foes[index].appliedPlayerHitIds??[]),eventId]};
+  if(stage>=8&&result[index])result[index]={...result[index],appliedPlayerHitIds:[...(foes[index].appliedPlayerHitIds??[]),eventId].slice(-512)};
   const actualDamage = result[index] && ready[index] ? ready[index].hp - result[index].hp : 0;
   const skillEvents: OrbSkillEvent[] = [];
   if (reactionEnabled && stage >= 11 && actualDamage > 0 && result[index]?.hp > 0) {
@@ -96,20 +96,21 @@ export interface CounterHit { enemy: number; enemyId: string; targetId: string; 
 export function counterPhase<T extends Ally, F extends Match3Foe>(team: readonly T[], foes: readonly F[], every: number = ENEMY_COUNTER_EVERY, singleTurn?: number, shieldGuard = false, strategyStage?: number, skillContext?: { turnId: string }): { team: T[]; foes: F[]; hits: CounterHit[]; skillEvents: OrbSkillEvent[] } {
   let t = team.slice(); const hits: CounterHit[] = [], skillEvents: OrbSkillEvent[] = [];
   const stage = strategyStage ?? 0, skills = stage >= 8, eventId = skillContext?.turnId;
+  const tracked = skills || t.some(u => (u as T & SkillFoe).skillRuntime?.playerSkillsEnabled);
   let nf = foes.map((f, i) => { if (!skills || !foeAvailable(foes, i, stage)) return f; const init = initializeFoeSkills(f,{sourceSide:'enemy'}); skillEvents.push(...init.events); return init.foe; });
   const living = nf.map((f, i) => foeAvailable(nf, i, stage) ? i : -1).filter(i => i >= 0);
-  const eligible = living.filter(i => (singleTurn !== undefined || nf[i].cd <= 1) && (!skills || eventId === undefined || nf[i].lastCounterPhase !== eventId));
+  const eligible = living.filter(i => (singleTurn !== undefined || nf[i].cd <= 1) && (!tracked || eventId === undefined || nf[i].lastCounterPhase !== eventId));
   const selected = singleTurn === undefined ? null : living[singleTurn % living.length];
   const planned = strategyStage === undefined ? null : planOrbCounter(t, nf, eligible, singleTurn !== undefined, singleTurn ?? 0, stage, shieldGuard);
   const order = planned ? planned.map(p => p.enemy) : eligible.filter(i => selected === null || i === selected);
-  nf = nf.map((f, i) => f.hp <= 0 || skills && eventId !== undefined && f.lastCounterPhase === eventId || singleTurn !== undefined && !order.includes(i) ? f : { ...f, cd: order.includes(i) ? every : f.cd - 1 });
+  nf = nf.map((f, i) => f.hp <= 0 || tracked && eventId !== undefined && f.lastCounterPhase === eventId || singleTurn !== undefined && !order.includes(i) ? f : { ...f, cd: order.includes(i) ? every : f.cd - 1 });
   for (const ei of order) {
     let ti=planned?.find(p=>p.enemy===ei)?.target??-1;
     if(ti<0||t[ti]?.hp<=0){ti=-1;t.forEach((u,i)=>{if(u.hp>0&&(ti<0||u.hp<t[ti].hp))ti=i})}
     if(ti<0)break;
     const f=nf[ei];if(f.hp<=0)continue;
     const actionEventId=eventId===undefined?undefined:eventId+':enemy:'+ei;
-    if(skills){
+    if(skills || f.skillRuntime || (t[ti] as T & SkillFoe).skillRuntime?.playerSkillsEnabled){
       if(typeof t[ti].attack!=='number'||typeof t[ti].maxHp!=='number')throw new Error('戰鬥技能目標缺少原始能力');
       const r=resolveOrbEnemyAction(f,t[ti] as T & SkillFoe,stage,shieldGuard,actionEventId);
       nf[ei]={...r.source,...(eventId===undefined?{}:{lastCounterTurn:eventId})};
@@ -122,7 +123,7 @@ export function counterPhase<T extends Ally, F extends Match3Foe>(team: readonly
       hits.push({enemy:ei,enemyId:f.id,targetId:t[ti].id,damage,hpBefore,hpAfter:after.hp,actualDamage:hpBefore-after.hp});
     }
   }
-  if (skills && eventId !== undefined) nf = nf.map(f => ({ ...f, lastCounterPhase: eventId }));
+  if (tracked && eventId !== undefined) nf = nf.map(f => ({ ...f, lastCounterPhase: eventId }));
   return { team: t, foes: nf, hits, skillEvents };
 }
 

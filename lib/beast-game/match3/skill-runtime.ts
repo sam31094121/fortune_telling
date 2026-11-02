@@ -5,6 +5,8 @@ import { resolveEffects, tickDurations, effectiveStat, elementBoostPercent, type
 import type { BeastElement } from '../elements';
 
 export interface FoeSkillState {
+  playerSkillsEnabled?: boolean;
+  playerAttackReceipts?: string[];
   uses: Record<string, number>;
   initialized: Partial<Record<'ON_SUMMON' | 'PASSIVE', boolean>>;
   lastEvents: Partial<Record<SkillTrigger, string>>;
@@ -31,7 +33,7 @@ export function orbSkillDisplay(events: readonly OrbSkillEvent[], cardId: string
   const actualDamage=group.reduce((sum,e)=>sum+e.actualDamage,0),isTarget=last.targetId===cardId&&last.targetSide===side;
   return {...last,hpBefore:group[0].hpBefore,effects:group.flatMap(e=>e.effects),actualDamage,shieldAbsorbed:group.reduce((sum,e)=>sum+e.shieldAbsorbed,0),isTarget,displayDamage:isTarget?actualDamage:0};
 }
-const state = (f: SkillFoe): FoeSkillState => ({ uses: { ...f.skillRuntime?.uses }, initialized: { ...f.skillRuntime?.initialized }, lastEvents: { ...f.skillRuntime?.lastEvents }, shield: f.skillRuntime?.shield ?? 0, modifiers: (f.skillRuntime?.modifiers ?? []).map(m => ({ ...m })), stunnedTurns: f.skillRuntime?.stunnedTurns ?? 0, elementBoosts: (f.skillRuntime?.elementBoosts ?? []).map(b => ({ ...b })) });
+const state = (f: SkillFoe): FoeSkillState => ({ playerSkillsEnabled: f.skillRuntime?.playerSkillsEnabled, playerAttackReceipts: f.skillRuntime?.playerAttackReceipts ? [...f.skillRuntime.playerAttackReceipts] : undefined, uses: { ...f.skillRuntime?.uses }, initialized: { ...f.skillRuntime?.initialized }, lastEvents: { ...f.skillRuntime?.lastEvents }, shield: f.skillRuntime?.shield ?? 0, modifiers: (f.skillRuntime?.modifiers ?? []).map(m => ({ ...m })), stunnedTurns: f.skillRuntime?.stunnedTurns ?? 0, elementBoosts: (f.skillRuntime?.elementBoosts ?? []).map(b => ({ ...b })) });
 export function isMappedFoeSkill(skill: SkillDefinition): boolean {
   return skill.effects.length > 0 && skill.effects.every(e => e.type !== 'DRAW' && e.type !== 'DISCARD');
 }

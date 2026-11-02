@@ -46,10 +46,10 @@ for(const name of ['baihu','qinglong','zhuque','xuanwu']) {
 assert.equal(match3RigAttackers([{attackerId:null,amount:10},{attackerId:'beast_y01',amount:10}],10,0).length,0);
 const board=fs.readFileSync(path.join(root,'components/battlefield/Match3Board.tsx'),'utf8');
 assert.equal((board.match(/showStrike\(/g)||[]).length,3,'Drag, skill and link all use actual damage result');
-assert(board.includes('showStrike(rigEnabled ? actualHits : hits, foe, nf[ti], false, rigEnabled ? actualDealt : undefined)'));
+assert(board.includes('showStrike(rigEnabled ? actualHits : hits, foe, nf[actionTarget], false, rigEnabled ? actualDealt : undefined)'));
 // Hard callers pass recorded actual damage; default consumers keep HP-delta behavior.
-assert(board.includes('showStrike([{ attackerId: u.id, amount: actualAmount }], foe, damaged[ti], true, rigEnabled ? actualAmount : undefined)'));
-assert(board.includes('showStrike(cards.map(c => ({ attackerId: c.id, amount: actualAmount })), foe, damaged[ti], true, rigEnabled ? actualAmount : undefined)'));
+assert(board.includes('showStrike(applied?.actualHits ?? [{ attackerId: u.id, amount: actualAmount }], foe, damaged[ti], true, rigEnabled ? actualAmount : undefined)'));
+assert(board.includes('showStrike(applied?.actualHits ?? cards.map(c => ({ attackerId: c.id, amount: actualAmount })), foe, damaged[ti], true, rigEnabled ? actualAmount : undefined)'));
 assert.match(board,/const rigEnabled = cfg.id === 'hard45' \|\| cfg.id === 'hard45b'/);
 assert.match(board,/if \(!rigEnabled\) return/);
 assert.match(board,/rigEnabled && <Match3RigAttack/);

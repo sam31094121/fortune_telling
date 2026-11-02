@@ -25,12 +25,12 @@ export function resolveOrbEnemyAction<F extends SkillFoe,T extends SkillFoe>(act
     basic={damage,hpBefore,hpAfter:target.hp,actualDamage:hpBefore-target.hp};
     let actual=basic.actualDamage;
     if(stage>=10)actual+=trigger('ON_ATTACK');
-    if(stage>=11 && actual>0 && target.hp>0) {
+    if((stage>=11 || target.skillRuntime?.playerSkillsEnabled) && actual>0 && target.hp>0) {
       const r=runOrbSkillEvent(target,'ON_DAMAGED',{target:source,actualDamage:actual,eventId,sourceSide:'ally',targetSide:'enemy'});target=r.source;if(r.target)source=r.target;events.push(...r.events);
     }
   }
   if(stage>=9)trigger('ON_TURN_END');
-  if(stage>=8)source=tickFoeSkillDurations(source);
+  if(stage>=8 || source.skillRuntime)source=tickFoeSkillDurations(source);
   return {source,target,basic,events};
 }
 const better = (a: readonly number[], b: readonly number[]) => { for(let i=0;i<a.length;i++){if(a[i]!==b[i])return a[i]>b[i]}return false; };
@@ -56,7 +56,7 @@ export function planOrbCounter(team: readonly Fighter[], foes: readonly Enemy[],
     if(tier.level>=2)candidates.push(...living);
     return [...new Set(candidates)].map(target=>{
       const source=s.enemies[enemy],victim=s.players[target];let nextSource=source,nextTarget=victim;
-      if(stage>=8&&complete(source)&&complete(victim)){const r=resolveOrbEnemyAction(source,victim,stage,guard);nextSource=r.source;nextTarget=r.target}
+      if((stage>=8||source.skillRuntime||victim.skillRuntime?.playerSkillsEnabled)&&complete(source)&&complete(victim)){const r=resolveOrbEnemyAction(source,victim,stage,guard);nextSource=r.source;nextTarget=r.target}
       else nextTarget=absorbFoeShieldDamage(victim,orbCounterDamage(source.attack,source.element,victim.element,guard)).foe;
       const players=[...s.players],enemies=[...s.enemies];players[target]=nextTarget;enemies[enemy]=nextSource;
       return {players,enemies,actions:[...s.actions,{enemy,target}]};

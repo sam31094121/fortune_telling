@@ -119,7 +119,7 @@ assert.equal(R.orbSkillDisplay(displayRun.events,guardSource.id,'ally').displayD
    busy:false,over:null,ti:0,board,magic,rngRef:{current:seeded(812)},cfg:{diagonal:true},rigEnabled:true,stage:M.progressionStage(wins),
    team:[],foes:[{id:'target',name:'target',hp:10000}],moves:0,init:{seed:811},rule:null,chosen:{},
    k:(r,c)=>r+':'+c,later:()=>{},resolveDrag:(...a)=>(resolved=M.resolveDrag(...a)),
-   computeHits:()=>[],attackingTeam:t=>t,energyGains:M.energyGains,buildEvents:()=>[],
+   availableFoeTarget:M.availableFoeTarget,runPlayerTurnSkills:M.runPlayerTurnSkills,orderPlayerHits:M.orderPlayerHits,computeHits:()=>[],attackingTeam:t=>t,energyGains:M.energyGains,buildEvents:()=>[],
    refillDisplaySteps:M.refillDisplaySteps,refillPresentation:require('../lib/beast-game/match3/refill-presentation.ts').refillPresentation,
    refillRun:{current:null},refillCommit:{current:null},NORMAL_POWER_CAP:99,MATCH3_ORB_LABEL:{FIRE:'火'},
    shareEnergy:t=>t,showStrike:()=>{},showBanner:()=>{},showSkillEvents:()=>{},cue:()=>{},

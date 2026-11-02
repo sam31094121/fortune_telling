@@ -745,3 +745,6 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 @media (max-height: 600px) and (max-width: 600px) {
  .wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] > .foe { height: 54px; }
 }
+
+.skillWithShield { line-height: 12px; padding: 2px 0; }
+.skillShieldLine { display: block; font-size: 10px; line-height: 10px; font-weight: 500; }
