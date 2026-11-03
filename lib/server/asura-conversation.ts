@@ -39,7 +39,7 @@ export function conversationFromDisplay(display: AsuraDisplay, topic: AsuraConve
   if (!display.audit.listing.ok || display.hourAssumed) return unavailable('目前資料核對未完成，暫時無法取得。');
   const section = display.sections.find((item) => item.key === sectionKeys[topic]);
   const basis = conversationBasis(display, section);
-  const action = voice?.lines.find((line) => line.label === '斷語')?.text;
+  const action = nonempty([voice?.lines.find((line) => line.label === '斷語')?.text])[0];
   const options = [
     ...(intent === 'summary' ? [{ id: 'intent:why', label: '看依據' }] : []),
     ...(intent === 'why' && action ? [{ id: 'intent:action', label: '看行動提醒' }] : []),

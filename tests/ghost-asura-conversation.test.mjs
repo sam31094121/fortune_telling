@@ -81,6 +81,8 @@ try {
     assert.deepEqual(conversationBasis(removed, linkedSection), [], 'removed target cannot cite a different card');
   }
   const action = buildAsuraConversation(birthInput, 'future', 'action', now);
+  const blankVoice = { ...voice, lines: [{ label: '斷語', text: '   ' }] };
+  assert.ok(!conversationFromDisplay(display, 'present', 'why', blankVoice).options.some(option => option.id === 'intent:action'), 'blank action must not be offered as an available skill');
   assert.deepEqual(action.step, { number: 3, total: 3, label: '行動', complete: true });
   assert.ok(action.options.every((option) => option.id.startsWith('topic:') && option.id !== 'topic:future'), 'completed flow has only explicit other-topic restart');
   assert.equal(action.answer, voice.lines.find((line) => line.label === '斷語').text);
