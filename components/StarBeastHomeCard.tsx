@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import HomeTranslatedText from '@/components/HomeTranslatedText';
 import styles from './StarBeastHomeCard.module.css';
+import Match3ElementGlyph from './battlefield/Match3ElementGlyph';
+import orbStyles from './battlefield/Match3Board.module.css';
 
 type CardLang = 'zh' | 'en';
 
@@ -81,6 +83,22 @@ export default function StarBeastHomeCard() {
         className="home-feature-launch home-feature-tier-explore w-full relative group overflow-hidden rounded-3xl border border-amber-200/30 bg-[radial-gradient(circle_at_82%_22%,rgba(251,191,36,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(63,35,70,0.62),rgba(12,18,42,0.98))] p-5 sm:p-6 text-left shadow-[0_0_30px_rgba(251,191,36,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-200/70 hover:shadow-[0_0_50px_rgba(251,191,36,0.25)] active:scale-[0.99] flex flex-col gap-3 sm:gap-4"
       >
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+
+        {/* Decorative preview only: absolute placement preserves the original card geometry. */}
+        <div data-home-battle-orbs aria-hidden="true" data-mode="hard-preview" className={orbStyles.wrap}
+          style={{ position: 'absolute', left: '50%', bottom: 86, transform: 'translateX(-50%)', display: 'flex', gap: 12, width: 208, height: 32, minHeight: 0, maxWidth: 'none', margin: 0, padding: 0, background: 'transparent', overflow: 'visible', pointerEvents: 'none' }}>
+          <svg width="0" height="0" focusable="false" style={{ position: 'absolute' }}><defs>
+            <clipPath id="home-battle-soft-space" clipPathUnits="objectBoundingBox"><path d="M .42 .1 Q .5 .02 .58 .1 L .9 .42 Q .98 .5 .9 .58 L .58 .9 Q .5 .98 .42 .9 L .1 .58 Q .02 .5 .1 .42 Z" /></clipPath>
+            <clipPath id="home-battle-soft-fire" clipPathUnits="objectBoundingBox"><path d="M .42 .12 Q .5 -.02 .58 .12 L .94 .78 Q 1 .92 .84 .92 L .16 .92 Q 0 .92 .06 .78 Z" /></clipPath>
+          </defs></svg>
+          {(['SPACE', 'AIR', 'WATER', 'FIRE', 'EARTH'] as const).map(element => (
+            <span key={element} data-preview-element={element} className={orbStyles.orb + ' ' + orbStyles[element.toLowerCase()] + ' ' + styles.previewOrb}
+              style={{ width: 32, height: 32, minWidth: 32, minHeight: 32, flex: 'none', cursor: 'inherit', willChange: 'auto' }}>
+              <span className={orbStyles.gem} style={element === 'SPACE' ? { clipPath: 'url(#home-battle-soft-space)' } : element === 'FIRE' ? { clipPath: 'url(#home-battle-soft-fire)' } : undefined} />
+              <Match3ElementGlyph element={element} className={orbStyles.elementGlyph} />
+            </span>
+          ))}
+        </div>
 
         {/* 【年柱 — 上層】視覺識別 */}
         <div className="relative w-full flex items-center gap-3 sm:gap-4">

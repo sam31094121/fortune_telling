@@ -18,3 +18,6 @@
     margin-right: 0;
   }
 }
+
+/* Homepage decoration stays still; no game timers or interaction are mounted. */
+.previewOrb *, .previewOrb *::before, .previewOrb *::after { animation: none !important; transition: none !important; }
