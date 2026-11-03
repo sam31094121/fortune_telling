@@ -20,6 +20,16 @@ export class ParticleSystem {
   private particles: Particle[] = [];
   private animationId: number | null = null;
   private isRunning = false;
+  private destroyed = false;
+  private previousTime: number | null = null;
+  private readonly onVisibilityChange = () => {
+    if (document.hidden) {
+      if (this.animationId !== null) cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+      this.isRunning = false;
+      this.previousTime = null;
+    } else if (this.particles.length > 0) this.start();
+  };
   /** 2026-10-17 stability：記住 ResizeObserver，destroy() 時解除，避免離開頁面後仍持有容器與畫布。 */
   private resizeObserver: ResizeObserver | null = null;
 
@@ -37,6 +47,7 @@ export class ParticleSystem {
     this.ctx = this.canvas.getContext('2d');
     this.resizeCanvas();
     this.setupResizeListener(container);
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
   }
 
   private resizeCanvas(): void {
@@ -150,6 +161,7 @@ export class ParticleSystem {
    * 添加單個粒子
    */
   private addParticle(particle: Particle): void {
+    if (this.destroyed) return;
     this.particles.push(particle);
     if (!this.isRunning) {
       this.start();
@@ -160,17 +172,23 @@ export class ParticleSystem {
    * 開始渲染迴圈
    */
   private start(): void {
-    if (this.isRunning) return;
+    if (this.isRunning || this.destroyed || document.hidden || !this.ctx) return;
     this.isRunning = true;
+    this.previousTime = performance.now();
 
-    const animate = () => {
-      this.update();
+    const animate = (timestamp: number) => {
+      this.animationId = null;
+      if (this.destroyed || document.hidden) { this.isRunning = false; return; }
+      const elapsedFrames = Math.max(0, timestamp - (this.previousTime ?? timestamp)) / (1000 / 60);
+      this.previousTime = timestamp;
+      this.update(elapsedFrames);
       this.draw();
 
       if (this.particles.length > 0) {
         this.animationId = requestAnimationFrame(animate);
       } else {
         this.isRunning = false;
+        this.previousTime = null;
       }
     };
 
@@ -180,18 +198,17 @@ export class ParticleSystem {
   /**
    * 更新粒子狀態
    */
-  private update(): void {
+  private update(elapsedFrames: number): void {
     this.particles = this.particles.filter((p) => {
+      p.life -= 0.015 * elapsedFrames;
+      p.opacity = Math.max(0, p.opacity - 0.02 * elapsedFrames);
+      if (p.life <= 0) return false;
       // 重力
-      p.vy += 0.1;
+      p.y += p.vy * elapsedFrames + 0.05 * elapsedFrames * elapsedFrames;
+      p.vy += 0.1 * elapsedFrames;
 
       // 位移
-      p.x += p.vx;
-      p.y += p.vy;
-
-      // 生命衰減
-      p.life -= 0.015;
-      p.opacity = Math.max(0, p.opacity - 0.02);
+      p.x += p.vx * elapsedFrames;
 
       return p.life > 0;
     });
@@ -222,6 +239,8 @@ export class ParticleSystem {
    * 清理資源
    */
   public destroy(): void {
+    this.destroyed = true;
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
     }
@@ -230,6 +249,7 @@ export class ParticleSystem {
     this.resizeObserver = null;
     this.animationId = null;
     this.isRunning = false;
+    this.previousTime = null;
     this.particles = [];
     this.canvas.remove();
   }

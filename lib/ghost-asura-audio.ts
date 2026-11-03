@@ -44,20 +44,28 @@ export const audioAssets = {
 /**
  * 動態加載 Howler.js 並初始化音效
  */
-export async function initializeAudio(): Promise<void> {
-  return new Promise((resolve) => {
+let initialization: Promise<void> | null = null;
+const sounds = new Map<keyof typeof audioAssets, any>();
+const glowTimers = new Set<ReturnType<typeof setTimeout>>();
+
+export function initializeAudio(): Promise<void> {
+  if (typeof window === 'undefined' || typeof document === 'undefined' || (window as any).Howl) return Promise.resolve();
+  if (initialization) return initialization;
+  initialization = new Promise((resolve) => {
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js';
     script.onload = () => {
-      console.log('✅ Howler.js loaded, audio system ready');
+      script.remove();
       resolve();
     };
     script.onerror = () => {
-      console.warn('⚠️ Failed to load Howler.js, audio disabled');
+      script.remove();
+      initialization = null;
       resolve(); // 音效失敗不應中斷應用
     };
     document.head.appendChild(script);
   });
+  return initialization;
 }
 
 /**
@@ -73,9 +81,11 @@ export function playCardRevealSound(): void {
  */
 export function playImpressionGlowSound(index: number): void {
   const delay = 200 + index * 100; // 卡片展開後延遲
-  setTimeout(() => {
+  const timer = setTimeout(() => {
+    glowTimers.delete(timer);
     playSound('impressionGlow');
   }, delay);
+  glowTimers.add(timer);
 }
 
 /**
@@ -120,17 +130,30 @@ function playSound(soundKey: keyof typeof audioAssets): void {
     }
 
     // 建立並播放音效（使用 Howler.js）
-    const sound = new (window as any).Howl({
-      src: soundConfig.src,
-      volume: soundConfig.volume ?? 0.5,
-      preload: false,
-      autoplay: true,
-    });
-
+    let sound = sounds.get(soundKey);
+    if (!sound) {
+      sound = new (window as any).Howl({
+        src: soundConfig.src,
+        volume: soundConfig.volume ?? 0.5,
+        preload: false,
+        autoplay: false,
+      });
+      sounds.set(soundKey, sound);
+    }
     sound.play();
   } catch (err) {
     console.error(`Failed to play sound ${soundKey}:`, err);
   }
+}
+
+/** Cancel old-result callbacks and release audio objects; later playback can initialize again. */
+export function cleanupAudio(): void {
+  for (const timer of glowTimers) clearTimeout(timer);
+  glowTimers.clear();
+  for (const sound of sounds.values()) {
+    try { sound.stop(); sound.unload(); } catch { /* Cleanup must not block navigation. */ }
+  }
+  sounds.clear();
 }
 
 /**

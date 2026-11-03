@@ -8,6 +8,7 @@ const load = require('./helpers/load-iching-shensha-ui.cjs');
 const { dualChartHourStatus } = load('lib/dual-chart-form.ts');
 const BirthForm = () => null;
 const Card = () => null;
+const Conversation = () => null;
 let cursor = 0;
 const states = [];
 const effects = [];
@@ -16,6 +17,14 @@ let unlocked = true;
 const listeners = new Map();
 const timers = new Map();
 let timerId = 0;
+let cardElement = null;
+let audioCleanups = 0;
+const particleCalls = [];
+const particles = {
+  createCardEnergyFlow: card => particleCalls.push(['card', card]),
+  createImpressionGlow: element => particleCalls.push(['glow', element]),
+  createShockwave: () => particleCalls.push(['shockwave']),
+};
 const router = { refresh() {} };
 const hooks = {
   ...React, useMemo: fn => fn(), useCallback: fn => fn,
@@ -42,7 +51,7 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/ghost-asura/GhostAsur
   window: {
     addEventListener: (key, fn) => listeners.set(key, fn),
     removeEventListener: key => listeners.delete(key),
-    setTimeout: fn => { timers.set(++timerId, fn); return timerId; },
+    setTimeout: (fn, delay) => { fn.delay = delay; timers.set(++timerId, fn); return timerId; },
     clearTimeout: id => timers.delete(id),
     matchMedia: () => ({ matches: true }),
   },
@@ -63,9 +72,10 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/ghost-asura/GhostAsur
     };
     if (id === '@/lib/ghost-asura-download') return { downloadAsPDF: () => {}, downloadAsImage: () => {}, generateFilename: () => 'asura' };
     if (id === '@/lib/ghost-asura-animation') return { getCardRevealAnimation: () => ({}), getImpressionGlowAnimation: () => ({}), getScrollFormationAnimation: () => ({}), getTotalAnimationDuration: () => 0 };
-    if (id === '@/lib/ghost-asura-audio') return { initializeAudio: async () => {}, playCardRevealSound: () => {}, playImpressionGlowSound: () => {}, playShareSuccessSound: () => {}, playDownloadSuccessSound: () => {} };
-    if (id === '@/lib/ghost-asura-particles') return { initializeParticleSystem: () => {}, getParticleSystem: () => ({}), cleanupParticleSystem: () => {} };
+    if (id === '@/lib/ghost-asura-audio') return { initializeAudio: async () => {}, cleanupAudio: () => { audioCleanups++; }, playCardRevealSound: () => {}, playImpressionGlowSound: () => {}, playShareSuccessSound: () => {}, playDownloadSuccessSound: () => {} };
+    if (id === '@/lib/ghost-asura-particles') return { initializeParticleSystem: () => {}, getParticleSystem: () => particles, cleanupParticleSystem: () => {} };
     if (id === '@/features/ghost-asura/components/GhostAsuraCard') return { GhostAsuraCard: Card };
+    if (id === './skill/AsuraConversation') return { default: Conversation, __esModule: true };
     if (id === '@/features/ghost-asura/components/AsuraVoiceCard') return load('features/ghost-asura/components/AsuraVoiceCard.tsx');
     if (id === '@/lib/dual-chart-form') return { dualChartHourStatus };
     if (id === '@/lib/share-preview') return { withShareVersion: url => url };
@@ -77,6 +87,8 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/ghost-asura/GhostAsur
 function render() {
   cursor = 0;
   const tree = target.exports.default({ unlocked, configured: true });
+  const card = find(tree, x => x.type === 'div' && x.props?.style?.animation?.startsWith('asuraCardReveal'));
+  if (card) card.props.ref.current = cardElement;
   const queued = pendingEffects; pendingEffects = []; queued.forEach(fn => fn());
   return tree;
 }
@@ -191,8 +203,83 @@ const ready = { birthDate: '1990-01-01', gender: 'male', birthHourBranch: 'wu', 
   assert.match(find(render(), item => item.props?.role === 'alert').props.children, /阿修羅秘卷/);
 
   form().props.onChange(ready);
+  const namedProfile = { ...ready, name: '測試甲', targetDate: '2026-11-03', country: '台灣' };
+  form().props.onChange(namedProfile);
+  form().props.onSubmit(namedProfile);
+  const homeRead = pending.at(-1);
+  const homePayload = JSON.parse(homeRead.options.body);
+  homeRead.resolve({ ok: true, status: 200, json: async () => ({ data: { contract: 'ghost-asura-display/v1', fixture: 'conversation-ready', audit: { listing: { ok: true } }, hourAssumed: false } }) });
+  await tick();
+  const homeConversation = () => find(render(), x => x.type === Conversation);
+  assert.ok(homeConversation(), 'homepage mounts existing guide after verified known-time result');
+  assert.deepEqual(JSON.parse(JSON.stringify(homeConversation().props.birthInput)), homePayload, 'conversation uses exact completed payload incl name, branch, identity and target date');
+  const requestsAfterHomeRead = requests;
+  render();
+  assert.equal(requests, requestsAfterHomeRead, 'mount does not submit conversation automatically');
+  listeners.get('identity-target-updated')({ detail: { target: 'guest' } }); render();
+  assert.equal(homeConversation(), undefined, 'switching identity removes old conversation');
+  form().props.onSubmit(namedProfile);
+  const guestRead = pending.at(-1);
+  assert.equal(JSON.parse(guestRead.options.body).identityTarget, 'guest');
+  listeners.get('identity-target-updated')({ detail: { target: 'self' } }); render();
+  guestRead.resolve({ ok: true, status: 200, json: async () => ({ data: { contract: 'ghost-asura-display/v1', audit: { listing: { ok: true } }, hourAssumed: false } }) });
+  await tick();
+  assert.equal(homeConversation(), undefined, 'late other-identity result cannot restore conversation');
+  for (const condition of [
+    { hourAssumed: true, audit: { listing: { ok: true } } },
+    { hourAssumed: false, audit: { listing: { ok: false } } },
+    { hourAssumed: false, audit: { listing: { ok: true } }, ageGate: { status: 'WITHHELD' } },
+  ]) {
+    form().props.onSubmit(ready);
+    pending.at(-1).resolve({ ok: true, status: 200, json: async () => ({ data: { contract: 'ghost-asura-display/v1', ...condition } }) });
+    await tick();
+    assert.equal(homeConversation(), undefined, 'assumed time, failed audit or withheld result never opens guide');
+  }
+  form().props.onChange(ready);
+  form().props.onSubmit(ready);
+  const stalled = pending.at(-1);
+  const deadline = [...timers].find(([, callback]) => callback.delay === 30000);
+  assert.ok(deadline, 'request deadline is tracked');
+  timers.delete(deadline[0]); deadline[1]();
+  assert.equal(stalled.options.signal.aborted, true);
+  assert.equal(form().props.disabled, false, 'abort-ignoring timeout releases busy');
+  assert.match(find(render(), x => x.props?.role === 'alert').props.children, /等太久/);
+  form().props.onSubmit(ready);
+  const retry = pending.at(-1);
+  succeed(stalled, 'too-late'); await tick();
+  assert.equal(result(), undefined);
+  assert.equal(form().props.disabled, true, 'old timeout finally cannot release retry');
+  assert.equal([...timers.values()].filter(fn => fn.delay === 30000).length, 1);
+  let finishJson;
+  retry.resolve({ ok: true, status: 200, json: () => new Promise(resolve => { finishJson = resolve; }) });
+  await tick();
+  const jsonDeadline = [...timers].find(([, callback]) => callback.delay === 30000);
+  timers.delete(jsonDeadline[0]); jsonDeadline[1]();
+  assert.equal(form().props.disabled, false, 'JSON wait shares same timeout');
+  finishJson({ data: { contract: 'ghost-asura-display/v1', fixture: 'late-json' } }); await tick();
+  assert.equal(result(), undefined);
+
+  const localImpression = { getAttribute: () => 'same-id' };
+  cardElement = { querySelectorAll: selector => { assert.equal(selector, '[data-asura-id]'); return [localImpression]; }, getBoundingClientRect: () => ({ left: 0, top: 0, width: 200, height: 300 }) };
+  form().props.onSubmit(ready);
+  pending.at(-1).resolve({ ok: true, status: 200, json: async () => ({ data: { contract: 'ghost-asura-display/v1', fixture: 'animated', glowIds: ['same-id'] } }) });
+  await tick(); render();
+  const animationCallbacks = [...timers.values()].filter(fn => fn.delay <= 1000);
+  assert.equal(animationCallbacks.length, 2, 'one glow and one shockwave timer');
+  animationCallbacks.find(fn => fn.delay === 200)();
+  assert.equal(particleCalls.at(-1)[1], localImpression, 'glow resolves only inside current card');
+  const beforeCancel = particleCalls.length;
+  const beforeAudioCleanup = audioCleanups;
+  form().props.onChange(changed); render();
+  assert.equal([...timers.values()].filter(fn => fn.delay <= 1000).length, 0, 'changing result cancels animation timers');
+  animationCallbacks.forEach(fn => fn());
+  assert.equal(particleCalls.length, beforeCancel, 'callbacks queued before cleanup cannot animate new result');
+  assert.ok(audioCleanups > beforeAudioCleanup, 'result cleanup cancels delayed sound');
+  cardElement = null;
+  form().props.onChange(ready);
   form().props.onSubmit(ready);
   effects.forEach(effect => effect?.cleanup?.());
+  assert.equal(timers.size, 0, 'unmount clears tracked expiry, calculation and result timers');
   succeed(pending[pending.length - 1], 'unmounted'); await tick();
   assert.equal(result(), undefined, 'Unmounted request is invalidated');
   console.log('PASS: actual page handlers, no-op input, retry, unknown time, hour abort/clear, double submit, abort-ignoring stale success/error/finally, pageshow, expiry, lock and unmount');

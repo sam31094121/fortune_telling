@@ -13,6 +13,7 @@ import { GhostAsuraCard, GhostAsuraCardShell } from '@/features/ghost-asura/comp
 import type { AsuraDisplay } from '@/lib/ghost-asura-display-contract';
 import { asuraScrub } from '@/lib/asura-display-alias';
 import { useAsuraReading } from './AsuraReadingContext';
+import AsuraConversation, { type CompletedBirthInput } from './AsuraConversation';
 import styles from './asura-skill-reading.module.css';
 
 export default function AsuraSkillReading() {
@@ -28,17 +29,24 @@ export default function AsuraSkillReading() {
   const display = shared ? shared.display : localDisplay;
   const setDisplay = shared ? shared.setDisplay : setLocalDisplay;
   const requestRef = useRef<AbortController | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [completedInput, setCompletedInput] = useState<CompletedBirthInput | null>(null);
 
   useEffect(() => () => {
+    if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
+    timeoutRef.current = null;
     requestRef.current?.abort();
     requestRef.current = null;
   }, []);
 
   function reset() {
+    if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
+    timeoutRef.current = null;
     requestRef.current?.abort();
     requestRef.current = null;
     setBusy(false);
     setDisplay(null);
+    setCompletedInput(null);
     setError('');
   }
 
@@ -54,6 +62,19 @@ export default function AsuraSkillReading() {
     setBusy(true);
     setError('');
     setDisplay(null);
+    setCompletedInput(null);
+    const submittedInput: CompletedBirthInput = hourUnknown
+      ? { birthDate, timeUnknown: true, gender, calendarType: 'solar', timezone: 'Asia/Taipei' }
+      : { birthDate, birthTime, gender, calendarType: 'solar', timezone: 'Asia/Taipei' };
+    const timeout = setTimeout(() => {
+      if (requestRef.current !== request) return;
+      timeoutRef.current = null;
+      requestRef.current = null;
+      request.abort();
+      setBusy(false);
+      setError('連線等待過久，請再次按「開啟戰局」重試。');
+    }, 30_000);
+    timeoutRef.current = timeout;
     try {
       const response = await fetch('/api/ghost-asura/reading', {
         method: 'POST',
@@ -61,11 +82,7 @@ export default function AsuraSkillReading() {
         signal: request.signal,
         headers: { 'Content-Type': 'application/json' },
         // 不知道時辰：只送旗標，後端以子時排並回 hourAssumed（前端不自行代填時間）
-        body: JSON.stringify(
-          hourUnknown
-            ? { birthDate, timeUnknown: true, gender, calendarType: 'solar', timezone: 'Asia/Taipei' }
-            : { birthDate, birthTime, gender, calendarType: 'solar', timezone: 'Asia/Taipei' },
-        ),
+        body: JSON.stringify(submittedInput),
       });
       const data = await response.json().catch(() => ({}));
       if (requestRef.current !== request) return;
@@ -73,10 +90,13 @@ export default function AsuraSkillReading() {
         throw new Error(typeof data?.error === 'string' ? data.error : '戰局暫時開不了，稍後再來。');
       }
       setDisplay(data.data as AsuraDisplay);
+      setCompletedInput(submittedInput);
     } catch (e) {
       if (requestRef.current !== request) return;
       setError(asuraScrub(e instanceof Error ? e.message : '連線失敗，請稍後再試。'));
     } finally {
+      clearTimeout(timeout);
+      if (timeoutRef.current === timeout) timeoutRef.current = null;
       if (requestRef.current === request) {
         requestRef.current = null;
         setBusy(false);
@@ -146,6 +166,7 @@ export default function AsuraSkillReading() {
       <div className={styles.result} aria-live="polite" data-ghost-asura-result={display ? 'ready' : 'idle'}>
         {display ? <GhostAsuraCard display={display} /> : <GhostAsuraCardShell />}
       </div>
+      {display && completedInput && <AsuraConversation birthInput={completedInput} />}
     </div>
   );
 }

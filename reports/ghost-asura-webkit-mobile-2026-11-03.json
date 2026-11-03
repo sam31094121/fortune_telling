@@ -1,0 +1,87 @@
+{
+  "scope": "Desktop WebKit mobile emulation, not physical iPhone Safari",
+  "base": "http://localhost:8888",
+  "passed": true,
+  "checks": [
+    {
+      "name": "homepage touch entry, birth form and real result",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "canvas": [
+          {
+            "width": 390,
+            "height": 6363
+          }
+        ]
+      },
+      "request": {
+        "status": 200,
+        "elapsedMs": 233
+      }
+    },
+    {
+      "name": "homepage three-step touch guide preserves exact backend answer, scope and submitted profile"
+    },
+    {
+      "name": "390px touch details toggle",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "canvas": [
+          {
+            "width": 390,
+            "height": 7301
+          }
+        ]
+      }
+    },
+    {
+      "name": "320px touch details toggle",
+      "geometry": {
+        "width": 320,
+        "scrollWidth": 320,
+        "canvas": [
+          {
+            "width": 320,
+            "height": 7984
+          }
+        ]
+      }
+    },
+    {
+      "name": "changed-date rerun gets current person result",
+      "geometry": {
+        "width": 320,
+        "scrollWidth": 320,
+        "canvas": [
+          {
+            "width": 320,
+            "height": 6208
+          }
+        ]
+      }
+    },
+    {
+      "name": "offline submit unlocks form and does not show stale result"
+    },
+    {
+      "name": "network restored manual retry succeeds",
+      "geometry": {
+        "width": 320,
+        "scrollWidth": 320,
+        "canvas": [
+          {
+            "width": 320,
+            "height": 6068
+          }
+        ]
+      }
+    },
+    {
+      "name": "return home and reenter has single canvas and usable form"
+    }
+  ],
+  "errors": [],
+  "engine": "18.0"
+}

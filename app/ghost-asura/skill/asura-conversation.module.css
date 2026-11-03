@@ -1,0 +1,13 @@
+.panel { min-width: 0; padding: 16px; border: 1px solid #755d3c; border-radius: 10px; background: #171310; color: #efe6df; overflow-wrap: anywhere; }
+.panel h2 { margin: 0 0 8px; font-size: 18px; color: #e6c47a; }
+.note { margin: 8px 0; font-size: 14px; line-height: 1.6; color: #c9bba8; }
+.history { display: grid; gap: 12px; list-style: none; margin: 16px 0; padding: 0; }
+.history li { min-width: 0; border-top: 1px solid #44372b; padding-top: 10px; }
+.question { margin: 0 0 6px; font-weight: 700; color: #e6c47a; }
+.step { margin: 0 0 8px; font-size: 13px; color: #c9bba8; letter-spacing: .06em; }
+.answer { margin: 0; white-space: pre-wrap; line-height: 1.8; }
+.options { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.options button { min-height: 44px; max-width: 100%; padding: 8px 12px; border: 1px solid #9d7e5d; border-radius: 8px; background: #33291f; color: #efd9bc; font: inherit; white-space: normal; overflow-wrap: anywhere; cursor: pointer; }
+.options button:focus-visible { outline: 2px solid #e3b881; outline-offset: 2px; }
+.options button:disabled { opacity: .65; cursor: wait; }
+.error { color: #fecaca; line-height: 1.6; }

@@ -21,11 +21,12 @@ import {
 } from '@/lib/identity-split-client';
 import { GhostAsuraCard } from '@/features/ghost-asura/components/GhostAsuraCard';
 import { AsuraVoiceCard } from '@/features/ghost-asura/components/AsuraVoiceCard';
+import AsuraConversation, { type CompletedBirthInput } from './skill/AsuraConversation';
 import type { AsuraDisplay } from '@/lib/ghost-asura-display-contract';
 import { dualChartHourStatus } from '@/lib/dual-chart-form';
 import { downloadAsPDF, downloadAsImage, generateFilename } from '@/lib/ghost-asura-download';
 import { getCardRevealAnimation, getImpressionGlowAnimation, getScrollFormationAnimation, getTotalAnimationDuration } from '@/lib/ghost-asura-animation';
-import { initializeAudio, playCardRevealSound, playImpressionGlowSound, playShareSuccessSound, playDownloadSuccessSound } from '@/lib/ghost-asura-audio';
+import { initializeAudio, cleanupAudio, playCardRevealSound, playImpressionGlowSound, playShareSuccessSound, playDownloadSuccessSound } from '@/lib/ghost-asura-audio';
 import { initializeParticleSystem, getParticleSystem, cleanupParticleSystem } from '@/lib/ghost-asura-particles';
 import { withShareVersion } from '@/lib/share-preview';
 import { ElementTreasureOrb } from '@/components/bazi/customer/ElementTreasureOrb';
@@ -95,17 +96,25 @@ export default function GhostAsuraPageClient({
   const resultRef = useRef<HTMLElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const calculationRef = useRef<AbortController | null>(null);
+  const calculationTimeoutRef = useRef<number | null>(null);
+  const identityTargetRef = useRef(identityTarget);
+  identityTargetRef.current = identityTarget;
 
   useEffect(() => {
     const handleTargetUpdate = (event: Event) => {
       const detail = (event as CustomEvent<{ target?: AnalysisIdentityTarget }>).detail;
-      if (detail?.target) setIdentityTarget(detail.target);
+      if (detail?.target && detail.target !== identityTargetRef.current) {
+        invalidateCalculation();
+        setIdentityTarget(detail.target);
+      }
     };
     window.addEventListener(IDENTITY_TARGET_UPDATED_EVENT, handleTargetUpdate);
     return () => window.removeEventListener(IDENTITY_TARGET_UPDATED_EVENT, handleTargetUpdate);
   }, []);
 
   function invalidateCalculation() {
+    if (calculationTimeoutRef.current !== null) window.clearTimeout(calculationTimeoutRef.current);
+    calculationTimeoutRef.current = null;
     calculationRef.current?.abort();
     calculationRef.current = null;
     setBusy(false);
@@ -208,6 +217,7 @@ export default function GhostAsuraPageClient({
 
     return () => {
       cleanupParticleSystem();
+      cleanupAudio();
     };
   }, []);
 
@@ -225,6 +235,8 @@ export default function GhostAsuraPageClient({
     return () => {
       window.removeEventListener('pageshow', recheck);
       window.clearTimeout(expire);
+      if (calculationTimeoutRef.current !== null) window.clearTimeout(calculationTimeoutRef.current);
+      calculationTimeoutRef.current = null;
       calculationRef.current?.abort();
       calculationRef.current = null;
     };
@@ -235,12 +247,15 @@ export default function GhostAsuraPageClient({
 
   useEffect(() => {
     if (!result || !cardRef.current) return;
+    const cardElement = cardRef.current;
+    const animationTimers: number[] = [];
+    let cancelled = false;
 
     // 播放卡片展開音效 + 粒子效果
     playCardRevealSound();
     const particleSystem = getParticleSystem();
     if (particleSystem) {
-      particleSystem.createCardEnergyFlow(cardRef.current);
+      particleSystem.createCardEnergyFlow(cardElement);
     }
 
     // 逐個播放印記點亮音效 + 粒子（延遲 200ms 起，每個間隔 100ms）
@@ -249,32 +264,38 @@ export default function GhostAsuraPageClient({
       playImpressionGlowSound(index);
 
       // 找到對應的 DOM 元素並創建光粒子
-      setTimeout(() => {
-        const itemElement = document.querySelector(
-          `[data-asura-id="${id}"]`
-        );
+      animationTimers.push(window.setTimeout(() => {
+        if (cancelled || cardRef.current !== cardElement) return;
+        const itemElement = Array.from(cardElement.querySelectorAll<HTMLElement>('[data-asura-id]'))
+          .find((element) => element.getAttribute('data-asura-id') === id);
         if (itemElement && particleSystem) {
           particleSystem.createImpressionGlow(itemElement as HTMLElement, index);
         }
-      }, 200 + index * 100);
+      }, 200 + index * 100));
     });
 
     // 衝擊波效果（1s 後觸發）
-    setTimeout(() => {
+    animationTimers.push(window.setTimeout(() => {
+      if (cancelled || cardRef.current !== cardElement) return;
       const ps = getParticleSystem();
-      if (ps && cardRef.current) {
-        const rect = cardRef.current.getBoundingClientRect();
+      if (ps) {
+        const rect = cardElement.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
         ps.createShockwave(centerX, centerY, 1.2);
       }
-    }, 1000);
+    }, 1000));
 
     resultRef.current?.focus({ preventScroll: true });
     resultRef.current?.scrollIntoView({
       block: 'start',
       behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
     });
+    return () => {
+      cancelled = true;
+      animationTimers.forEach((timer) => window.clearTimeout(timer));
+      cleanupAudio();
+    };
   }, [result, reading]);
 
 
@@ -323,24 +344,24 @@ export default function GhostAsuraPageClient({
     const request = new AbortController();
     calculationRef.current = request;
     setBusy(true);
-    let timedOut = false;
     const timeout = window.setTimeout(() => {
-      timedOut = true;
+      if (calculationRef.current !== request) return;
+      calculationTimeoutRef.current = null;
+      calculationRef.current = null;
       request.abort();
+      setBusy(false);
+      setError('排盤等太久了，已先停止等待；你填的資料都還在，請稍後再按一次。');
     }, READING_TIMEOUT_MS);
+    calculationTimeoutRef.current = timeout;
     try {
       const target = identityTarget ?? getAnalysisIdentityTarget() ?? 'self';
+      const submittedInput = { ...profile, identityTarget: target, calendarType: 'solar', timezone: 'Asia/Taipei' };
       const response = await fetch('/api/ghost-asura/reading', {
         method: 'POST',
         cache: 'no-store',
         signal: request.signal,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...profile,
-          identityTarget: target,
-          calendarType: 'solar',
-          timezone: 'Asia/Taipei',
-        }),
+        body: JSON.stringify(submittedInput),
       });
       // 伺服器錯誤或閘道逾時可能回 HTML：不能直接 .json()，否則客人會看到英文 SyntaxError
       const data = (await response.json().catch(() => null)) as { data?: AsuraDisplay; error?: unknown } | null;
@@ -351,21 +372,20 @@ export default function GhostAsuraPageClient({
       if (!response.ok || !data) {
         throw new Error(hasChinese(data?.error) ? data.error : `排盤暫時沒有完成（代碼 ${response.status}），請稍後再按一次；你填的資料都還在。`);
       }
-      setVoiceBody({ ...profile, identityTarget: target, calendarType: 'solar', timezone: 'Asia/Taipei' });
+      setVoiceBody(submittedInput);
       setResult(data.data ?? null);
     } catch (e) {
       if (calculationRef.current !== request) return;
       console.error('[GhostAsuraPageClient] calculate failed', e);
       const message = (e as { message?: unknown } | null)?.message;
       setError(
-        timedOut
-          ? '排盤等太久了，已先停止等待；你填的資料都還在，請稍後再按一次。'
-          : hasChinese(message)
+        hasChinese(message)
             ? message
             : '連線失敗：網路不穩，這次沒有排盤成功；請確認連線後再按一次，你填的資料都還在。',
       );
     } finally {
       window.clearTimeout(timeout);
+      if (calculationTimeoutRef.current === timeout) calculationTimeoutRef.current = null;
       if (calculationRef.current === request) {
         calculationRef.current = null;
         setBusy(false);
@@ -515,6 +535,12 @@ export default function GhostAsuraPageClient({
 
               {/* 修羅斷語：八字、紫微、易經翻成同一個修羅口吻（後端組句，這裡只照印） */}
               {reading.ageGate?.status !== 'WITHHELD' && <AsuraVoiceCard body={voiceBody} />}
+              {reading.audit?.listing?.ok === true && reading.hourAssumed === false
+                && reading.ageGate?.status !== 'WITHHELD' && voiceBody
+                && typeof voiceBody.birthDate === 'string'
+                && (voiceBody.gender === 'male' || voiceBody.gender === 'female')
+                && voiceBody.timeUnknown !== true && voiceBody.birthTimeKnown !== false
+                && <AsuraConversation birthInput={voiceBody as CompletedBirthInput} />}
 
               {/* 💾 下載秘卷 */}
               <div className={styles.downloadSection}>
