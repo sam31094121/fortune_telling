@@ -74,7 +74,7 @@ for(let wins=0;wins<=15;wins++) {
   assert.equal(selected.length,stage.enemyCount);assert.equal(new Set(selected.map(c=>c.id)).size,selected.length);assert.equal(selected.filter(c=>c.form==='GUARDIAN').length,guardians);
   assert.equal(selected.filter(c=>c.form==='ADULT').length,wins===0?0:stage.enemyCount-guardians);
   if(wins<7)assert.equal(new Set(selected.map(c=>c.element)).size,5);
-  else {assert(selected.slice(0,4).every(c=>c.form==='ADULT'));assert.equal(selected[4].id,pool.filter(c=>c.form==='GUARDIAN').sort((a,b)=>a.id.localeCompare(b.id))[0].id);const lineup=M.progressionLineupStats(selected,wins,pool);assert(lineup.slice(0,4).every(c=>c.attack<=lineup[4].attack));}
+  else {assert(selected.slice(0,4).every(c=>c.form==='ADULT'));assert.equal(selected[4].id,['beast_g_baihu','beast_g_zhuque','beast_g_qinglong','beast_g_xuanwu'][(wins-7)%4]);const lineup=M.progressionLineupStats(selected,wins,pool);assert(lineup.slice(0,4).every(c=>c.attack<=lineup[4].attack));}
   for(const c of selected){const stats=M.progressionEnemyStats(c,wins),hp=c.form==='YOUNG'?2:c.form==='ADULT'?3:4,atk=c.form==='YOUNG'?.1:c.form==='ADULT'?.15:.075;assert.equal(stats.hp,Math.round(c.stats.hp*(hp*multiplier)));assert.equal(stats.attack,Math.round(c.stats.attack*(atk*multiplier)));assert.equal(stats.maxHp,stats.hp);assert.equal(stats.cd,1);}
  }
 }
@@ -129,3 +129,10 @@ for(const wins of [12,30,100,1000,Number.MAX_SAFE_INTEGER]) {
 }
 assert.deepEqual([7,8,9,10,11].map(w=>M.progressionStrengthBudget(pool,w).roundAttack),[16,18,20,22,24]);
 assert.equal(JSON.stringify(pool),before);console.log('PASS high stages remain 5v5, last guardian has highest base battlefield ATK, single counter grows 16/18/20/22/24');
+
+// Rotation depends only on completed stages: retry/seed/pool order cannot change the boss.
+for(let wins=7;wins<19;wins++){
+ const expected=["beast_g_baihu","beast_g_zhuque","beast_g_qinglong","beast_g_xuanwu"][(wins-7)%4];
+ for(const seed of [1,47,99])assert.equal(M.selectProgressionEnemies([...pool].reverse(),M.seededRng(seed),M.nextProgressionWins(wins,false))[4].id,expected);
+ assert.notEqual(M.selectProgressionEnemies(pool,M.seededRng(1),M.nextProgressionWins(wins,true))[4].id,expected);
+}

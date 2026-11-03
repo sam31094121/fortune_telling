@@ -64,7 +64,10 @@ export function nextProgressionWins(current: number, won: boolean): number {
   return won && count < Number.MAX_SAFE_INTEGER ? count + 1 : count;
 }
 
-/** From stage 8, four real adults precede the same existing first guardian at index 4. */
+// Original guardian elements: white tiger, vermilion bird, azure dragon, black tortoise.
+const GUARDIAN_ROTATION: readonly BeastElement[] = ['SPACE', 'FIRE', 'AIR', 'WATER'];
+
+/** From stage 8, rotate one final guardian per cleared stage; retries keep the same guardian. */
 export function selectProgressionEnemies<C extends ProgressionCard>(pool: readonly C[], rng: Rng, wins: number): C[] {
   const stage = progressionStage(wins);
   const candidates = pool.filter(c => c.form === stage.form).slice().sort((a, b) => a.id.localeCompare(b.id));
@@ -79,7 +82,10 @@ export function selectProgressionEnemies<C extends ProgressionCard>(pool: readon
       if (!Number.isFinite(sample) || sample < 0 || sample >= 1) throw new Error('抽卡亂數超出範圍');
       selected.push(adults.splice(Math.floor(sample * adults.length), 1)[0]);
     }
-    selected.push(candidates[0]);
+    const guardianElement = GUARDIAN_ROTATION[(stage.wins - 7) % GUARDIAN_ROTATION.length];
+    const guardian = candidates.find(c => c.element === guardianElement);
+    if (!guardian) throw new Error('輪值神獸卡片不存在');
+    selected.push(guardian);
     if (new Set(selected.map(c => c.id)).size !== selected.length) throw new Error('關卡卡池含重複卡片');
     return selected;
   }
