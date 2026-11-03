@@ -66,8 +66,9 @@ export default function AsuraConversation({ birthInput }: { birthInput: Complete
         || typeof data.answer !== 'string' || !data.answer.trim() || typeof data.scopeNote !== 'string'
         || !data.step || ![1, 2, 3].includes(data.step.number) || data.step.total !== 3
         || !['結論', '依據', '行動'].includes(data.step.label) || typeof data.step.complete !== 'boolean'
-        || !Array.isArray(data.options) || data.options.some((option: { id?: unknown; label?: unknown }) =>
+        || !Array.isArray(data.options) || data.options.length === 0 || data.options.some((option: { id?: unknown; label?: unknown }) =>
           !option || typeof option.id !== 'string' || typeof option.label !== 'string'
+          || !option.label.trim()
           || !/^(topic:(past|present|future)|intent:(summary|why|action))$/.test(option.id))) {
         throw new Error('追問內容未完整取得，請稍後重試。');
       }

@@ -45,6 +45,16 @@ function finish(request, answer = '後端真實內容', status = 'READY') {
 }
 (async () => {
   render(); assert.equal(requests.length, 0, 'no automatic followup request');
+  for (const options of [[], [{ id: 'intent:why', label: '   ' }]]) {
+    button().props.onClick();
+    requests.at(-1).resolve({ ok: true, json: async () => ({ status: 'READY', topic: 'present', intent: 'summary', answer: '內容', scopeNote: '', step: { number: 1, total: 3, label: '結論', complete: false }, options }) });
+    await tick();
+    assert.equal(nodes(render()).filter(n => n.type === 'li').length, 0, 'unusable options must not replace the retry controls');
+    assert.ok(get(n => n.props?.role === 'alert'), 'incomplete response explains failure');
+    assert.equal(button().props.disabled, false, 'manual retry remains available');
+    assert.equal(timers.size, 0, 'invalid response clears timer');
+  }
+  requests.length = 0;
   const click = button().props.onClick; click(); click();
   assert.equal(requests.length, 1, 'same-render double click is deduplicated');
   assert.equal(button().props.disabled, true);
