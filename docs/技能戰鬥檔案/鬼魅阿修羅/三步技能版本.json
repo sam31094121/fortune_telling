@@ -1,0 +1,47 @@
+{
+  "registryVersion": "1.0.0",
+  "scope": "ghost-asura-guided-conversation",
+  "baselineCommit": "6020e9c",
+  "authority": "docs/技能戰鬥檔案/鬼魅阿修羅/SKILL_LOCK.md",
+  "verificationScope": "backend-regression-and-mobile-browser-simulation",
+  "physicalPhoneVerified": false,
+  "skills": [
+    {
+      "id": "summary",
+      "version": "1.0.0",
+      "state": "CONNECTED",
+      "order": 1,
+      "source": "lib/server/ghost-asura-display.ts",
+      "implementation": "lib/server/asura-conversation.ts",
+      "condition": "同一客戶、同一主題，既有年齡、時辰及 listing 核對通過",
+      "missing": "UNAVAILABLE，不補另一主題內容",
+      "tests": ["tests/ghost-asura-conversation.test.mjs", "tests/ghost-asura-conversation-flow.test.cjs"]
+    },
+    {
+      "id": "why",
+      "version": "1.0.0",
+      "state": "CONNECTED",
+      "order": 2,
+      "source": "lib/server/ghost-asura-display.ts",
+      "implementation": "lib/server/asura-conversation.ts",
+      "condition": "該段引用的穩定 ID 與柱位，同時對上當份卡片及段落項目",
+      "missing": "UNAVAILABLE，不以同名或另一人的印記補充",
+      "tests": ["tests/ghost-asura-conversation.test.mjs", "tests/ghost-asura-conversation-flow.test.cjs"]
+    },
+    {
+      "id": "action",
+      "version": "1.0.1",
+      "state": "CONNECTED",
+      "order": 3,
+      "source": "lib/server/asura-three-core-voice.ts",
+      "implementation": "lib/server/asura-conversation.ts",
+      "condition": "同份已核對結果具有非空白斷語，只作整體行動提醒",
+      "missing": "無內容不提供選項；直接請求仍回 UNAVAILABLE",
+      "tests": ["tests/ghost-asura-conversation.test.mjs", "tests/ghost-asura-conversation-flow.test.cjs"]
+    }
+  ],
+  "reserved": [
+    { "id": "external-wisdom-and-long-term-memory", "state": "ARCHIVED", "note": "歸檔不代表接入、長期記憶或自主學習已啟用" }
+  ],
+  "evidence": ["reports/asura-skill-selection-2026-11-03.md", "reports/asura-response-recovery-2026-11-03.md"]
+}
