@@ -8,6 +8,7 @@ import HomeTranslatedText from '@/components/HomeTranslatedText';
 import { useInterfaceLanguage } from '@/components/InterfaceLanguage';
 import dualChartEntryStyles from './dual-chart-entry.module.css';
 import musicEntryStyles from './music-entry.module.css';
+import redLuanEntryStyles from './red-luan-entry.module.css';
 import './home-leather.css';
 import dynamic from 'next/dynamic';
 import { injectPerformanceCSS } from '@/lib/performance-css';
@@ -3237,20 +3238,17 @@ export default function HomePage() {
           ) : (
             <Link
               href="/red-luan-heartbeat"
-              className="home-feature-launch home-feature-tier-primary order-1 w-full relative group overflow-hidden rounded-3xl border border-rose-300/35 bg-[radial-gradient(circle_at_14%_20%,rgba(251,113,133,0.24),transparent_34%),radial-gradient(circle_at_84%_22%,rgba(251,191,36,0.16),transparent_30%),linear-gradient(115deg,rgba(51,8,30,0.98),rgba(26,12,42,0.96)_58%,rgba(15,23,42,0.98))] p-6 text-left shadow-[0_0_34px_rgba(244,63,94,0.18)] transition-[border-color,box-shadow,transform] duration-500 hover:border-rose-200/75 hover:shadow-[0_0_54px_rgba(244,63,94,0.30)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+              className={`${redLuanEntryStyles.entry} home-feature-launch home-feature-tier-primary order-1 w-full relative group overflow-hidden rounded-3xl border border-rose-300/35 bg-[radial-gradient(circle_at_14%_20%,rgba(251,113,133,0.24),transparent_34%),radial-gradient(circle_at_84%_22%,rgba(251,191,36,0.16),transparent_30%),linear-gradient(115deg,rgba(51,8,30,0.98),rgba(26,12,42,0.96)_58%,rgba(15,23,42,0.98))] p-6 text-left shadow-[0_0_34px_rgba(244,63,94,0.18)] transition-[border-color,box-shadow,transform] duration-500 hover:border-rose-200/75 hover:shadow-[0_0_54px_rgba(244,63,94,0.30)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap`}
               aria-label="算出下一次紅鸞心動的月份與對象類型"
             >
+              <div className={`absolute ${redLuanEntryStyles.artwork}`} aria-hidden="true">
+                <div className={redLuanEntryStyles.scenery} />
+                <img src="/beast-game/front/adult-05.v2.webp" alt="" draggable={false} />
+              </div>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-100/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
-              <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
-                <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--peach" aria-hidden="true">
-                  <span className="home-oracle-3d-emblem__aura" />
-                  <span className="home-oracle-3d-emblem__bevel" />
-                  <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
-                  <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
-                  <span className="home-oracle-3d-emblem__glyph">桃</span>
-                </div>
+              <div className={`${redLuanEntryStyles.heading} relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5`}>
                 <div className="min-w-0 flex-1">
-                  <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-rose-50 sm:text-2xl"><HomeTranslatedText text={"桃花・紅鸞心動"} /></h2>
+                  <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-rose-50 sm:text-2xl"><HomeTranslatedText text={"桃花紅鸞心動"} /></h2>
                   <p className="mt-1 text-xs leading-5 text-rose-50/75"><HomeTranslatedText text={"抽出心動月份、對象類型與相遇提示。"} /></p>
                 </div>
               </div>
