@@ -21,3 +21,28 @@
 
 /* Homepage decoration stays still; no game timers or interaction are mounted. */
 .previewOrb *, .previewOrb *::before, .previewOrb *::after { animation: none !important; transition: none !important; }
+
+/* Full official attack frame occupies only the space above the unchanged five orbs. */
+.dragonArtwork {
+  position: absolute;
+  inset: 6px 16px 126px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.dragonArtwork::before {
+  content: '';
+  position: absolute;
+  inset: 8% 18%;
+  background: radial-gradient(ellipse, #b5995533, #27565d22 42%, transparent 72%);
+}
+.dragon {
+  display: block;
+  width: auto;
+  height: 84%;
+  max-width: 80%;
+  object-fit: contain;
+  transform: rotate(-8deg);
+  filter: drop-shadow(0 5px 4px #000a);
+}

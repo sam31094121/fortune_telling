@@ -79,6 +79,7 @@ export default function StarBeastHomeCard() {
     <div className={`${styles.wrap} order-[14] w-full relative flex flex-col`}>
       <Link
         href="/star-beasts"
+        aria-label={t.title}
         lang={isZh ? 'zh-Hant' : 'en'}
         className="home-feature-launch home-feature-tier-explore w-full relative group overflow-hidden rounded-3xl border border-amber-200/30 bg-[radial-gradient(circle_at_82%_22%,rgba(251,191,36,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(63,35,70,0.62),rgba(12,18,42,0.98))] p-5 sm:p-6 text-left shadow-[0_0_30px_rgba(251,191,36,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-200/70 hover:shadow-[0_0_50px_rgba(251,191,36,0.25)] active:scale-[0.99] flex flex-col gap-3 sm:gap-4"
       >
@@ -100,24 +101,8 @@ export default function StarBeastHomeCard() {
           ))}
         </div>
 
-        {/* 【年柱 — 上層】視覺識別 */}
-        <div className="relative w-full flex items-center gap-3 sm:gap-4">
-          <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--indigo" aria-hidden="true">
-            <span className="home-oracle-3d-emblem__aura" />
-            <span className="home-oracle-3d-emblem__bevel" />
-            <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
-            <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
-            <span className="home-oracle-3d-emblem__glyph">宿</span>
-          </div>
-          <h2 className="min-w-0 flex-1 font-serif text-lg sm:text-xl font-black text-amber-50 tracking-tight text-left">
-            <span className={fade}>{text(t.title)}</span>
-          </h2>
-          {/* 業主定案 2026-10-17：首頁卡片小字隱藏（徽章、標籤、副標、時間）；要恢復把 false && 拿掉 */}
-          {false && (
-          <div className="justify-self-end inline-block rounded-full border border-amber-200/25 bg-amber-300/10 px-2.5 py-1 text-[9px] font-bold tracking-widest text-amber-100">
-            <span className={fade}>{text(t.badge)}</span>
-          </div>
-          )}
+        <div className={styles.dragonArtwork} aria-hidden="true">
+          <img className={styles.dragon} src="/beast-game/rig/qinglong/pounce-open.v2.webp" alt="" draggable={false} />
         </div>
 
         {/* 【月柱】名稱已併入上層與圖示同一排；標籤小字隱藏 */}
