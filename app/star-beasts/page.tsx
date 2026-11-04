@@ -163,7 +163,7 @@ export default function StarBeastsPage() {
             <ul className={modeStyles.list}>
               {GAME_MODES.filter((mode) => !['bead', 'orb'].includes(mode.id)).map((mode) => (
                 <li key={mode.id} className={modeStyles.item}>
-                  <Link href={mode.href} data-difficulty-choice={mode.id} className={`${modeStyles.card} ${mode.id === 'bead-hard' ? modeStyles.orbGameCard : ''}`}>
+                  <Link href={mode.href} data-difficulty-choice={mode.id} className={`${modeStyles.card} ${mode.id === 'bead-hard' ? modeStyles.orbGameCard : modeStyles.duelGameCard}`}>
                     {mode.id === 'bead-hard' ? <>
                       <span className={modeStyles.orbArtwork} aria-hidden="true">
                         <span className={modeStyles.orbBoard}>
@@ -183,15 +183,11 @@ export default function StarBeastsPage() {
                       </span>
                       <strong className={modeStyles.orbGameTitle}>{mode.title}<span aria-hidden="true">↗</span></strong>
                     </> : <>
-                    <span aria-hidden="true" className={modeStyles.emblem}>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" focusable="false"><path d={mode.iconPath} /></svg>
-                    </span>
-                    <span className={modeStyles.content}>
-                      <span className={modeStyles.level}>{mode.step}</span>
-                      <strong className={modeStyles.title}>{mode.title}</strong>
-                      <span className={modeStyles.description}>{mode.desc}</span>
-                    </span>
-                    <span aria-hidden="true" className={modeStyles.arrow}>↗</span>
+                      <span className={modeStyles.duelArtwork} aria-hidden="true">
+                        <img className={modeStyles.duelTiger} src="/beast-game/rig/baihu/pounce-open.v2.webp" alt="" draggable={false} />
+                        <img className={modeStyles.duelPhoenix} src="/beast-game/rig/zhuque/pounce-open.webp" alt="" draggable={false} />
+                      </span>
+                      <strong className={modeStyles.duelTitle}>{mode.title}<span aria-hidden="true">↗</span></strong>
                     </>}
                   </Link>
                 </li>
