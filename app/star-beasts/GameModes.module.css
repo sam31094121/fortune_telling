@@ -3,7 +3,7 @@
   gap: 12px;
   margin-top: 14px;
 }
-.item { min-width: 0; }
+.item { min-width: 0; align-self: start; }
 .card {
   --accent: #e6c68a;
   --glow: 230, 198, 138;
@@ -78,3 +78,36 @@
   .card, .arrow { transition: none; }
   .card:hover, .card:active, .card:hover .arrow { transform: none; }
 }
+
+/* Only the independent orb-game entrance: existing cards retain their layout. */
+.card.orbGameCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+  padding: 16px 12px 20px;
+  border-color: #9a855f;
+  background: radial-gradient(ellipse at 75% 10%, #45505c66, transparent 55%), radial-gradient(ellipse at 15% 80%, #49362055, transparent 60%), linear-gradient(155deg, #24242c, #090d16);
+  overflow: hidden;
+}
+.orbArtwork { display: grid; place-items: center; width: 100%; padding: 10px 6px 26px; }
+.orbBoard {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  width: min(100%, 280px);
+  aspect-ratio: 7 / 8;
+  border: 1px solid #cdb99188;
+  border-radius: 12px;
+  background: radial-gradient(ellipse at 50% 0, #39343e, #1c1922 65%);
+  box-shadow: 0 7px 0 #080910, 0 8px 0 #b49d6555, 0 18px 26px #0009, inset 0 0 18px #0008;
+}
+.orbBoard .orbCell { display: grid; place-items: center; min-width: 0; min-height: 0; border: 1px solid #cdb9910d; cursor: inherit; }
+.orbBoard .orbCell::after, .orbBoard .orbCell > span::after { animation: none; }
+.orbConnection { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; filter: drop-shadow(0 0 2px var(--c)); }
+.orbConnection path { stroke: color-mix(in srgb, var(--c) 72%, white); stroke-width: .085; stroke-linecap: round; stroke-linejoin: round; }
+.orbConnection circle { stroke: color-mix(in srgb, var(--c) 65%, white); stroke-width: .065; }
+.orbConnection .chainStart { fill: var(--c); }
+.orbConnection .chainDirections { stroke: color-mix(in srgb, var(--c) 60%, white); stroke-width: .065; }
+.orbGameTitle { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 0 6px; color: #fff3df; font-family: system-ui, sans-serif; font-size: clamp(20px, 3vw, 26px); font-weight: 900; letter-spacing: .035em; line-height: 1.4; text-shadow: 0 2px 8px #000; }
+.orbGameTitle > span { color: #94e8ff; font-size: 24px; }

@@ -6,6 +6,9 @@ import modeStyles from './GameModes.module.css';
 import CatalogBeastCard from '@/components/battlefield/CatalogBeastCard';
 import starBeastsData from '@/data/star-beasts.json';
 import SelfStarBeastEntry from '@/components/SelfStarBeastEntry';
+import Match3ElementGlyph from '@/components/battlefield/Match3ElementGlyph';
+import match3Styles from '@/components/battlefield/Match3Board.module.css';
+import type { BeastElement } from '@/lib/beast-game/elements';
 
 type Season = 'all' | 'spring' | 'summer' | 'autumn' | 'winter';
 type Form = 'young' | 'awakened';
@@ -97,6 +100,14 @@ const GAME_MODES = [
   { id: 'bead-hard', step: '⑤ 寶珠困難', iconPath: 'M12 3a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M6 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M18 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8', title: '寶珠戰・困難', desc: '56 顆寶珠、數字累加、盾牌清場，逐關挑戰', href: '/beast-game/match3-hard' },
 ] as const;
 
+// Decorative 7×8 board artwork; no game state, rewards or customer progress.
+const ORB_ENTRY_BOARD = [
+  '空風水火地風空', '火地空水火水地', '風空地火水水空', '風水水水地水水',
+  '地水空水水水地', '空水火地風火地', '水地空風水火空', '風火地水空地風',
+] as const;
+const ENTRY_ELEMENTS: Record<string, BeastElement> = { 空: 'SPACE', 風: 'AIR', 水: 'WATER', 火: 'FIRE', 地: 'EARTH' };
+const ENTRY_GEMS = { 空: match3Styles.space, 風: match3Styles.air, 水: match3Styles.water, 火: match3Styles.fire, 地: match3Styles.earth } as const;
+
 export default function StarBeastsPage() {
   const [season, setSeason] = useState<Season>('all');
   const [form, setForm] = useState<Form>('awakened');
@@ -152,7 +163,26 @@ export default function StarBeastsPage() {
             <ul className={modeStyles.list}>
               {GAME_MODES.filter((mode) => !['bead', 'orb'].includes(mode.id)).map((mode) => (
                 <li key={mode.id} className={modeStyles.item}>
-                  <Link href={mode.href} data-difficulty-choice={mode.id} className={modeStyles.card}>
+                  <Link href={mode.href} data-difficulty-choice={mode.id} className={`${modeStyles.card} ${mode.id === 'bead-hard' ? modeStyles.orbGameCard : ''}`}>
+                    {mode.id === 'bead-hard' ? <>
+                      <span className={modeStyles.orbArtwork} aria-hidden="true">
+                        <span className={modeStyles.orbBoard}>
+                          {ORB_ENTRY_BOARD.flatMap((row, y) => [...row].map((element, x) => (
+                            <span key={`${x}-${y}`} data-entry-element={ENTRY_ELEMENTS[element]} data-entry-shield={y === 6 && [1, 3, 5].includes(x) || undefined} className={`${match3Styles.orb} ${ENTRY_GEMS[element as ProductElement]} ${modeStyles.orbCell} ${y === 6 && [1, 3, 5].includes(x) ? `${match3Styles.magic} ${match3Styles.shieldCell}` : ''}`}>
+                              <span className={match3Styles.gem} />
+                              {y === 6 && [1, 3, 5].includes(x) ? <img className={match3Styles.shieldOrb} src="/pwa/save-shield-080.png" alt="" draggable={false} /> : <Match3ElementGlyph element={ENTRY_ELEMENTS[element]} className={match3Styles.elementGlyph} />}
+                            </span>
+                          )))}
+                          <svg className={`${modeStyles.orbConnection} ${match3Styles.water}`} viewBox="0 0 7 8" fill="none">
+                            <path data-entry-chain d="M .5 6.5 L 1.5 5.5 L 1.5 4.5 L 1.5 3.5 L 2.5 3.5 L 3.5 3.5 L 3.5 4.5 L 4.5 4.5 L 5.5 4.5 L 6.5 3.5 L 5.5 2.5 L 4.5 2.5 L 3.5 1.5 L 2.5 .5" />
+                            <circle className={modeStyles.chainStart} cx=".5" cy="6.5" r=".13" />
+                            <path className={modeStyles.chainDirections} d="M 1.34 4.15 L 1.5 3.97 L 1.66 4.15 M 2.85 3.34 L 3.03 3.5 L 2.85 3.66 M 3.34 3.9 L 3.5 4.08 L 3.66 3.9 M 5.15 2.34 L 4.97 2.5 L 5.15 2.66" />
+                            <circle cx="2.5" cy=".5" r=".39" />
+                          </svg>
+                        </span>
+                      </span>
+                      <strong className={modeStyles.orbGameTitle}>{mode.title}<span aria-hidden="true">↗</span></strong>
+                    </> : <>
                     <span aria-hidden="true" className={modeStyles.emblem}>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" focusable="false"><path d={mode.iconPath} /></svg>
                     </span>
@@ -162,6 +192,7 @@ export default function StarBeastsPage() {
                       <span className={modeStyles.description}>{mode.desc}</span>
                     </span>
                     <span aria-hidden="true" className={modeStyles.arrow}>↗</span>
+                    </>}
                   </Link>
                 </li>
               ))}
