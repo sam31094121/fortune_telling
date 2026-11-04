@@ -12,7 +12,7 @@ const StarterPackPhotonRitual = dynamic(() => import('./StarterPackPhotonRitual'
 type GiftState = 'checking' | 'sending' | 'sent' | 'already' | 'failed';
 
 /** Render only after a finished battle; never promise cards before a saved receipt exists. */
-export default function StarterPackAfterBattle({ completed }: { completed: 'battlefield' | 'stake-duel' }) {
+export default function StarterPackAfterBattle({ completed, onContinue }: { completed: 'battlefield' | 'stake-duel'; onContinue?: () => void }) {
   const [state, setState] = useState<GiftState>('checking');
   const [error, setError] = useState('');
 
@@ -44,8 +44,8 @@ export default function StarterPackAfterBattle({ completed }: { completed: 'batt
     <p role="status" className="text-sm font-bold">{state === 'sent' ? '🎁 28 張神獸幼子卡已送入收藏！' : state === 'sending' ? '正在送出 28 張神獸幼子卡…' : '28 張卡尚未入庫'}</p>
     {/* 連續引導（2026-09-15）：從免押卡的戰場領到卡，下一步就是拿去押注——不讓客人斷在這裡自己找入口。 */}
     {state === 'sent' && completed === 'battlefield' && <>
-      <p className="mt-1 text-xs">下一步：帶新卡去押注競技場。</p>
-      <Link href="/beast-game/lineup" className="mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-lg bg-amber-200 px-4 font-black text-slate-950">帶新卡去押注競技場</Link>
+      <p className="mt-1 text-xs">下一步：選五張新卡，確認押卡後開始闖關。</p>
+      {onContinue ? <button type="button" onClick={onContinue} className="mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-lg bg-amber-200 px-4 font-black text-slate-950">帶新卡開始闖關</button> : <Link href="/beast-game/battlefield" className="mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-lg bg-amber-200 px-4 font-black text-slate-950">帶新卡開始闖關</Link>}
       <Link href="/growth-center#beast-collection" className="mt-1 inline-flex min-h-11 items-center justify-center px-4 text-sm font-bold underline">查看我的卡片</Link>
     </>}
     {state === 'sent' && completed !== 'battlefield' && <p className="mt-1 text-xs">點一下看卡片，再選卡繼續玩。</p>}

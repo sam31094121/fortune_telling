@@ -114,8 +114,8 @@ check('第三階段 3A：開局發牌與易經自動佈陣在後端，開戰核�
   }
   assert.match(route, /newMatch\(body\.playerTeam, table\.opponentTeam/, '易經陣容一律採用牌桌票裡後端排好的');
   const page = stripComments(read('app/beast-game/battlefield/page.tsx'));
-  assert.match(page, /type: 'DEAL'/);
-  assert.match(page, /tableToken: tableToken\.current/);
+  assert.match(page, /type:\s*['"]DEAL['"]/);
+  assert.match(page, /tableToken:\s*tableToken\.current/);
   const { signTableTicket, openTableTicket, openBattleSession } = require('../.beast-game-build/lib/beast-game/battle-session');
   const ticket = { v: 1, kind: 'table', playerCards: ['a', 'b'], opponentTeam: ['x', 'y'], issuedAt: Date.now() };
   const token = signTableTicket(ticket);

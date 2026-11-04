@@ -1,3 +1,4 @@
+import { parseCollectionCampaign, type CardCampaignCollection } from './beast-game/card-campaign-fusion';
 /** Pure inventory ledger. Battle outcomes come from the game API; this only moves owned copies. */
 const MAX_STAKE_CARDS = 20;
 const MAX_REWARD_CARDS = 100;
@@ -60,6 +61,7 @@ function receiptMovement(before: CollectionEntry[], after: CollectionEntry[], st
   };
 }
 export interface BeastCollection {
+  cardCampaign?: CardCampaignCollection;
   cards: CollectionEntry[];
   history: CollectionHistoryItem[];
   /** Growth grants stay claimed even after the actual copy is lost. */
@@ -91,6 +93,7 @@ export function migrateCollection(value: unknown): BeastCollection {
     granted: Array.isArray(old.granted) ? old.granted : [],
     receipts: old.receipts && typeof old.receipts === 'object' ? old.receipts : {},
     pending: old.pending ?? null,
+    ...(old.cardCampaign === undefined ? {} : {cardCampaign: parseCollectionCampaign(old.cardCampaign)}),
     starterPack: typeof old.starterPack === 'string' ? old.starterPack : undefined,
   };
 }

@@ -15,11 +15,13 @@
  */
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { Match } from './interactive';
+import { parseCardCampaign, type CardCampaign, type OwnedCardRef } from './card-campaign';
 
 const SECRET = process.env.BEAST_BATTLE_SECRET || process.env.JWT_SECRET || 'beast-battle-stateless-v1';
 export const BATTLE_SESSION_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 
 export interface BattleSession {
+  campaign?: CardCampaign;
   v: 1;
   match: Match;
   /** 押注代表卡；體驗戰為 null。 */
@@ -63,6 +65,8 @@ export function openBattleSession(token: unknown, now = Date.now()): BattleSessi
  * 開戰時核對：玩家上場的卡必須是這一桌發到手上的；易經陣容一律採用這裡後端排好的。
  */
 export interface TableTicket {
+  campaign?: CardCampaign;
+  selectedEntries?: OwnedCardRef[];
   v: 1;
   kind: 'table';
   /** 發到玩家手上的牌（可以拿來佈陣的卡）。 */
@@ -94,4 +98,18 @@ export function openTableTicket(token: unknown, now = Date.now()): TableTicket |
   } catch {
     return null;
   }
+}
+
+export function signCardCampaign(campaign:CardCampaign):string {
+  if(!parseCardCampaign(campaign))throw new Error('闖關紀錄無效，未更新存檔。');
+  const payload=Buffer.from(JSON.stringify(campaign),'utf8').toString('base64url');
+  if(payload.length>512000)throw new Error('培養紀錄已達此版容量，未消耗材料。');
+  return `${payload}.${sign(payload)}`;
+}
+export function openCardCampaign(token:unknown):CardCampaign|null {
+  if(typeof token!=='string'||token.length>512100)return null;
+  const i=token.lastIndexOf('.');if(i<=0)return null;
+  const payload=token.slice(0,i),actual=Buffer.from(token.slice(i+1)),expected=Buffer.from(sign(payload));
+  if(actual.length!==expected.length||!timingSafeEqual(actual,expected))return null;
+  try{return parseCardCampaign(JSON.parse(Buffer.from(payload,'base64url').toString('utf8')));}catch{return null;}
 }

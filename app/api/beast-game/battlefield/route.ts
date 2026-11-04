@@ -1,7 +1,8 @@
-import { randomInt } from 'node:crypto';
+import { randomInt, randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { advance, bossNotice, chooseAI, legalActions, newMatch, type Action } from '@/lib/beast-game/interactive';
-import { openBattleSession, openTableTicket, signBattleSession, signTableTicket, type BattleSession } from '@/lib/beast-game/battle-session';
+import { openBattleSession, openTableTicket, signBattleSession, signTableTicket, openCardCampaign, signCardCampaign, type BattleSession } from '@/lib/beast-game/battle-session';
+import { cardCampaignStage, cardCampaignSeed, cardCampaignOpponent, cardCampaignEnhancementPreview, enhanceCardCampaign, applyCardCampaignStats, settleCardCampaign, validOwnedCard, type CardCampaign, type OwnedCardRef } from '@/lib/beast-game/card-campaign';
 import { battleViewFor } from '@/lib/beast-game/battle-view';
 import { resolveStake } from '@/lib/beast-game/stake';
 import { judgeVictorySkill } from '@/lib/beast-game/iching-judgment';
@@ -30,6 +31,13 @@ export const dynamic = 'force-dynamic';
  */
 
 type Body = {
+  campaign?: unknown;
+  campaignToken?: unknown;
+  selectedEntries?: unknown;
+  operationId?: unknown;
+  target?: unknown;
+  material?: unknown;
+  preview?: unknown;
   type?: string;
   token?: unknown;
   action?: unknown;
@@ -76,6 +84,7 @@ function settle(session: BattleSession): StakeOutcome | undefined {
 
 function reply(session: BattleSession, extra: { action?: Action } = {}) {
   const { match } = session;
+  const campaign = session.campaign ? session.stakeCount>0 ? settleCardCampaign(session.campaign, match) : {...session.campaign,pending:match.status==='FINISHED'?null:session.campaign.pending} : null;
   return NextResponse.json({
     ok: true,
     match,
@@ -84,6 +93,7 @@ function reply(session: BattleSession, extra: { action?: Action } = {}) {
     view: battleViewFor(match),
     notice: bossNotice(match),
     outcome: settle(session),
+    ...(campaign ? { campaign: cardCampaignStage(campaign.wins), campaignToken: signCardCampaign(campaign) } : {}),
     ...extra,
   }, { headers: { 'Cache-Control': 'no-store' } });
 }
@@ -100,7 +110,35 @@ export async function POST(request: Request) {
   if (!body || typeof body !== 'object') return fail('資料格式無效。');
 
   try {
+    const getCampaign = ():CardCampaign => {
+      if(body.campaignToken!==undefined&&body.campaignToken!==null){const c=openCardCampaign(body.campaignToken);if(!c)throw new Error('闖關存檔憑證無效，未覆寫原存檔。');return c;}
+      return {v:1,kind:'card-campaign',id:randomUUID(),seed:randomInt(2147483647),wins:0,pending:null,enhancements:[]};
+    };
+    if(body.type==='PROGRESS'){
+      const campaign=getCampaign();return NextResponse.json({ok:true,campaign:cardCampaignStage(campaign.wins),campaignToken:signCardCampaign(campaign)},{headers:{'Cache-Control':'no-store'}});
+    }
+    if(body.type==='ENHANCE'){
+      const campaign=getCampaign();
+      if(!validOwnedCard(body.target)||!validOwnedCard(body.material))return fail('培養副本資料無效，未消耗卡片。');
+      const preview=cardCampaignEnhancementPreview(campaign,body.target,body.material);
+      if(body.preview===true)return NextResponse.json({ok:true,preview,campaign:cardCampaignStage(campaign.wins),campaignToken:signCardCampaign(campaign)},{headers:{'Cache-Control':'no-store'}});
+      if(typeof body.operationId!=='string')return fail('培養操作識別無效。');
+      const result=enhanceCardCampaign(campaign,body.operationId,body.target,body.material);
+      return NextResponse.json({ok:true,receipt:result.receipt,duplicate:result.duplicate,campaign:cardCampaignStage(result.campaign.wins),campaignToken:signCardCampaign(result.campaign)},{headers:{'Cache-Control':'no-store'}});
+    }
     if (body.type === 'DEAL') {
+      if(body.campaign===true){
+        const campaign=getCampaign();if(campaign.pending)return fail('請先接續或完成原戰鬥。');
+        const entries=Array.isArray(body.selectedEntries)&&body.selectedEntries.every(validOwnedCard)?body.selectedEntries as OwnedCardRef[]:undefined;
+        const playerCards=entries?entries.map(e=>e.cardId):isTeam(body.playerTeam)?body.playerTeam:cardCampaignOpponent({...campaign,seed:campaign.seed^1234567});
+        if(playerCards.length!==5||new Set(playerCards).size!==5||playerCards.some(id=>!getCard(id)))return fail('請親選五張不同神獸上陣。');
+        if(entries&&(new Set(entries.map(e=>e.id)).size!==5||entries.some(e=>campaign.enhancements.some(r=>r.materialEntryId===e.id))))return fail('上陣副本重複或已消耗。');
+        const rng=createRng(cardCampaignSeed(campaign));
+        const fresh=newBattle(playerCards,cardCampaignOpponent(campaign),rng,false);
+        const table=autoPlaceOpponent(fresh,rng,4);
+        const tableToken=signTableTicket({v:1,kind:'table',campaign,selectedEntries:entries,playerCards,opponentTeam:fieldTeam(table,'OPPONENT'),issuedAt:Date.now()});
+        return NextResponse.json({ok:true,table,tableToken,deckIds:playerCards,opening:{player:fresh.player.hand.slice(),opponent:fresh.opponent.hand.slice()},campaign:cardCampaignStage(campaign.wins),campaignToken:signCardCampaign(campaign)},{headers:{'Cache-Control':'no-store'}});
+      }
       // 開局：洗牌、發牌、易經自動佈陣都在後端。易經用同一套佈陣規則上場——沒有特權、沒有額外格子。
       const ids = playableCards().map((card) => card.id);
       const requested = isTeam(body.playerDeckIds) ? sanitizeDeckSelection(body.playerDeckIds, ids) : [];
@@ -129,6 +167,14 @@ export async function POST(request: Request) {
       if (!Number.isInteger(stakeCount) || stakeCount < 0 || stakeCount > MAX_STAKE_CARDS) return fail(`押注要選 1～${MAX_STAKE_CARDS} 張。`);
       const stakeCardId = typeof body.stakeCardId === 'string' ? body.stakeCardId : null;
       if (stakeCount > 0 && (!stakeCardId || !getCard(stakeCardId))) return fail('押注卡無效，押注卡未扣除。');
+      if(table.campaign){
+        if(body.playerTeam.length!==5||new Set(body.playerTeam).size!==5||table.opponentTeam.length!==5)return fail('闖關必須五對五，請重新佈陣。');
+        if(stakeCount>0&&!table.selectedEntries)return fail('免押體驗不能冒用收藏押卡。');
+        const campaign={...table.campaign,pending:randomUUID()};
+        let match=newMatch(body.playerTeam,table.opponentTeam,cardCampaignSeed(campaign),{difficulty:cardCampaignStage(campaign.wins).difficulty});
+        match=applyCardCampaignStats(match,campaign,table.selectedEntries);
+        return reply({v:1,match,campaign,stakeCardId:stakeCount>0?stakeCardId:null,stakeCount,issuedAt:Date.now()});
+      }
       // 正式押注戰＝困難首領；體驗戰（免押卡、新客人）維持簡單。難度由後端決定，不採信前端。
       const match = newMatch(body.playerTeam, table.opponentTeam, randomInt(2147483647), { difficulty: stakeCount > 0 ? 'HARD' : 'EASY' });
       return reply({ v: 1, match, stakeCardId: stakeCount > 0 ? stakeCardId : null, stakeCount, issuedAt: Date.now() });

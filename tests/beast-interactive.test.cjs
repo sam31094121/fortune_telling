@@ -19,7 +19,9 @@ assert(legalActions(game,'player').every(a=>a.type==='SWITCH'));
 const replacement=advance(game,{type:'SWITCH',index:1});
 assert.equal(replacement.round,game.round);assert.equal(replacement.player.energy,game.player.energy);
 assert.equal(replacement.opponent.team[0].hp,game.opponent.team[0].hp,'replacement never grants free damage');
-assert(fs.readFileSync('app/beast-game/page.tsx','utf8').includes('<BeastTurnGame'));
+for (const entry of ['app/beast-game/page.tsx', 'app/beast-game/lineup/page.tsx']) {
+  assert(fs.readFileSync(entry,'utf8').includes("redirect('/beast-game/battlefield')"), 'legacy entries must lead to the unified campaign');
+}
 assert(!fs.readFileSync('components/BeastTurnGame.tsx','utf8').includes('advance('),'UI cannot resolve outcomes');
 /*
   抽樣場數。

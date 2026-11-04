@@ -1,6 +1,6 @@
-import BeastTurnGame from '@/components/BeastTurnGame';
+import { redirect } from 'next/navigation';
 
-/** A navigation-only entrance; an existing battle remains available separately. */
+/** 舊選卡入口接回統一戰場，由既有流程恢復戰局與收藏。 */
 export default function BeastPreparationPage() {
-  return <BeastTurnGame preparationEntry />;
+  redirect('/beast-game/battlefield');
 }

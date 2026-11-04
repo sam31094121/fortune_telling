@@ -1,0 +1,18 @@
+.panel {padding:12px;color:#f5e7bd;}
+.panel h2 {font-size:20px;font-weight:800;}
+.panel p {margin:8px 0;line-height:1.5;}
+.grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.grid button {min-width:0;padding:5px;border:1px solid #756348;border-radius:12px;background:#141b29;text-align:center;}
+.grid button[aria-pressed=true] {border:2px solid #f0cc72;background:#302919;}
+.grid button:disabled:not([aria-pressed=true]) {opacity:.5;}
+.grid strong,.grid small {display:block;overflow-wrap:anywhere;}
+.grid strong {font-size:13px;}.grid small {font-size:11px;}
+.confirm {display:block;width:100%;min-height:48px;margin:14px 0;padding:8px;border-radius:10px;background:#e7c674;color:#211b11;font-weight:800;}
+.confirm:disabled {opacity:.5;}
+@media(min-width:600px){.grid{grid-template-columns:repeat(5,minmax(0,1fr));}}
+.fusionPair {display:grid;grid-template-columns:1fr 24px 1fr;align-items:center;gap:12px;max-width:320px;margin:12px auto;}
+.fusionPair[data-absorbing=true] > :first-child {animation:absorb 1.4s ease-in forwards;}
+.fusionPair[data-absorbing=true] > :last-child {animation:receive 1.4s ease-out forwards;}
+@keyframes absorb {to{transform:translateX(65%) scale(.15);opacity:0;}}
+@keyframes receive {50%{filter:brightness(1.5);}to{transform:scale(1.05);}}
+@media(prefers-reduced-motion:reduce){.fusionPair[data-absorbing=true]>*{animation:none;}}

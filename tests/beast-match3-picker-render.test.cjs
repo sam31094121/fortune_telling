@@ -59,10 +59,11 @@ function audit() {
 assert.deepEqual(audit(), [], 'all cards show their own registered skill and description');
 console.log('PASS real BeadBattle SSR: 60 original skills/descriptions/attacks');
 
-// Only the approved orb entrance is visible; unrelated battle entries and card pool remain intact.
+// Card modes now share one campaign; the independent orb entrance remains intact.
 const ModesPage = load('app/star-beasts/page.tsx').default;
 const modesHtml = renderToStaticMarkup(React.createElement(ModesPage));
 const modeLinks = modesHtml.match(/<a\b[^>]*data-difficulty-choice="[^"]+"[^>]*>/g) || [];
-assert.deepEqual(modeLinks.map(link => link.match(/data-difficulty-choice="([^"]+)"/)[1]), ['easy', 'medium', 'hard', 'bead-hard'], 'keep all non-orb battles and only the approved orb entry');
-assert.ok(modeLinks[3].includes('href="/beast-game/match3-hard"'), 'retain the 56-orb route');
-console.log('PASS real mode picker: battle entries unchanged; only difficult orb entry visible');
+assert.deepEqual(modeLinks.map(link => link.match(/data-difficulty-choice="([^"]+)"/)[1]), ['campaign', 'bead-hard'], 'one card campaign and one independent orb entry');
+assert.ok(modeLinks[0].includes('href="/beast-game/battlefield"'), 'card campaign uses the existing battlefield');
+assert.ok(modeLinks[1].includes('href="/beast-game/match3-hard"'), 'retain the 56-orb route');
+console.log('PASS real mode picker: unified card campaign and independent orb entry');

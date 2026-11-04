@@ -6,7 +6,6 @@ import modeStyles from './GameModes.module.css';
 import CatalogBeastCard from '@/components/battlefield/CatalogBeastCard';
 import starBeastsData from '@/data/star-beasts.json';
 import SelfStarBeastEntry from '@/components/SelfStarBeastEntry';
-import { MAX_STAKE_CARDS } from '@/lib/beast-game/stake-rules';
 
 type Season = 'all' | 'spring' | 'summer' | 'autumn' | 'winter';
 type Form = 'young' | 'awakened';
@@ -92,11 +91,9 @@ const FORM_LABELS: Record<Form, string> = {
   awakened: '本體神獸',
 };
 
-// 2026-10-17 beast card：進到這頁就看到三種玩法，點一下直接開始；沿用既有三個遊戲入口，不新增遊戲邏輯。
+// 卡片戰鬥統一闖關；寶珠戰保持獨立入口。
 const GAME_MODES = [
-  { id: 'easy', step: '① 簡單', iconPath: 'M13 2 4 14h7l-1 8 10-13h-7l1-7Z', title: '三卡免費戰場', desc: '選 3 張卡開戰，不扣收藏卡', href: '/beast-game?mode=easy' },
-  { id: 'medium', step: '② 中度', iconPath: 'M20 12a8 8 0 1 1-8-8 M16 12a4 4 0 1 1-4-4 M12 12l9-9 M16 3h5v5', title: '單卡押注', desc: '押 1 張收藏卡；輸了失去 1 張', href: '/beast-game/lineup' },
-  { id: 'hard', step: '③ 困難', iconPath: 'm4 3 3 1 12 13-2 2L4 6 4 3Z M3 17l4 4 M5 19l-2 2 M17 3l3 1-1 3-5 5 M10 15l-3 4 M17 17l4 4 M17 21l4-4', title: '五卡押注戰場', desc: `押 1～${MAX_STAKE_CARDS} 張收藏卡；輸了只失去押上的卡`, href: '/beast-game/battlefield' },
+  { id: 'campaign', step: '卡片闖關', iconPath: 'm4 3 3 1 12 13-2 2L4 6 4 3Z M3 17l4 4 M5 19l-2 2 M17 3l3 1-1 3-5 5 M10 15l-3 4 M17 17l4 4 M17 21l4-4', title: '卡片戰鬥', desc: '合體培養、五對五押卡，勝利後逐關挑戰', href: '/beast-game/battlefield' },
   { id: 'bead-hard', step: '⑤ 寶珠困難', iconPath: 'M12 3a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M6 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M18 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8', title: '寶珠戰・困難', desc: '56 顆寶珠、數字累加、盾牌清場，逐關挑戰', href: '/beast-game/match3-hard' },
 ] as const;
 
@@ -150,8 +147,7 @@ export default function StarBeastsPage() {
           <p className="text-xs font-black tracking-[0.28em] text-amber-200/85">THE TWENTY-EIGHT MANSIONS</p>
           <h1 className="mt-3 font-serif text-4xl font-black tracking-wide text-white sm:text-6xl">星宿神獸卡片</h1>
           <p className="mt-4 text-sm text-slate-300">二十八星宿分類，各有本體與幼子形態；另有四隻四象守護獸。</p>
-          {/* 2026-10-17 beast card：原本的「開始 →」換成三選一並放在「找出我的本體神獸」上面，手機第一屏就看得到三個選項，客人不用再多點一層。 */}
-          <nav className="mt-5" aria-label="選擇遊戲難度" data-beast-chooser>
+          <nav className="mt-5" aria-label="選擇遊戲玩法" data-beast-chooser>
             <p className="text-xs font-black tracking-[0.22em] text-amber-200/85">選一種玩法開始</p>
             <ul className={modeStyles.list}>
               {GAME_MODES.filter((mode) => !['bead', 'orb'].includes(mode.id)).map((mode) => (
