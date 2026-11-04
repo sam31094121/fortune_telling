@@ -40,9 +40,9 @@
 .dragon {
   display: block;
   width: auto;
-  height: 84%;
+  height: 98%;
   max-width: 80%;
   object-fit: contain;
-  transform: rotate(-8deg);
+  transform: translate(7px, 17px) rotate(-8deg);
   filter: drop-shadow(0 5px 4px #000a);
 }
