@@ -3160,20 +3160,16 @@ export default function HomePage() {
           </Link>
 
           <Link href="/dual-chart" lang={readingLanguage} aria-label={readingCopy.enter} className={`${dualChartEntryStyles.entry} home-feature-launch home-feature-violet home-feature-tier-primary order-[13] w-full mb-3 relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 sm:p-6 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex flex-wrap items-center justify-between gap-5 sm:gap-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300`}>
+            <div className={`absolute ${dualChartEntryStyles.phoenixArtwork}`} aria-hidden="true">
+              <img src="/home-entry/zhuque-tail-repaired-ai-v1.png" alt="" draggable={false} />
+            </div>
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--violet" aria-hidden="true">
-                <span className="home-oracle-3d-emblem__aura" />
-                <span className="home-oracle-3d-emblem__bevel" />
-                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
-                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
-                <span className="home-oracle-3d-emblem__glyph">易</span>
-              </div>
               <div className="min-w-0 flex-1">
                 <span className="hidden rounded-full bg-violet-500/10 border border-violet-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-violet-300 uppercase animate-pulse">易經 · 三層融會</span>
-                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-violet-100 tracking-wide">{readingCopy.dual}</h2>
+
                 <p className="mt-1 text-xs font-bold text-violet-200/85">{readingCopy.systems}</p>
                 <p className="mt-1.5 text-xs text-[color:var(--text-sub)] leading-relaxed">{readingCopy.description}</p>
                 <p className="mt-2 text-xs leading-6 text-violet-300/75">{readingCopy.password}</p>

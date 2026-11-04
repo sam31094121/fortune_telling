@@ -12,3 +12,37 @@
   white-space: normal;
   line-height: 1.6;
 }
+
+/* Approved AI tail-repair derivative, isolated to this entry; copy and destination unchanged. */
+.phoenixArtwork {
+  position: absolute;
+  inset: 21px 12px 55px;
+  z-index: 2;
+  mix-blend-mode: lighten;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+.phoenixArtwork img {
+  display: block;
+  height: auto;
+  width: auto;
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  filter: none;
+}
+
+/* Match the selected image's near-black edge without changing its pixels. */
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry {
+  background: #090909 !important;
+  border-color: #514332 !important;
+  box-shadow: none !important;
+}
+/* Keep the selected full image clear of shared decorative overlays. */
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry::before,
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry::after,
+.entry > :global(.absolute.inset-0) {
+  display: none !important;
+}
