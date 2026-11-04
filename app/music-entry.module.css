@@ -1,0 +1,49 @@
+/* Keep the shared entrance dimensions; only arrange the music artwork inside. */
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry {
+  background: linear-gradient(180deg, #0b1118 12%, #131d28 62%, #0b1118 94%) !important;
+  border-color: #424d58 !important;
+  box-shadow: none !important;
+}
+
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry::before,
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry::after,
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry > :global(.absolute:not([aria-hidden])) {
+  display: none !important;
+}
+
+.artwork {
+  position: absolute;
+  inset: 54px 12px 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry > .heading {
+  position: absolute !important;
+  top: 8px !important;
+  left: 20px !important;
+  right: 20px !important;
+  margin: 0 !important;
+  text-align: center;
+}
+
+.artwork img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  /* Broad, irregular scenery boundary; no silhouette tracing of the beast. */
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20720%20540%22%3E%3Cdefs%3E%3Cfilter%20id%3D%22edge%22%20x%3D%22-20%25%22%20y%3D%22-20%25%22%20width%3D%22140%25%22%20height%3D%22140%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%229%22%2F%3E%3C%2Ffilter%3E%3C%2Fdefs%3E%3Cpath%20fill%3D%22white%22%20filter%3D%22url(%23edge)%22%20d%3D%22M86%2020%20C154%204%20205%2017%20273%208%20C352%20-2%20426%206%20490%2018%20C541%2027%20594%2020%20634%2049%20C677%2079%20675%20124%20697%20167%20C715%20209%20704%20255%20707%20298%20C712%20348%20702%20384%20707%20425%20C713%20468%20694%20492%20653%20508%20C599%20530%20546%20516%20491%20523%20C420%20533%20352%20515%20292%20526%20C221%20539%20166%20520%20112%20527%20C69%20532%2021%20516%2017%20480%20C13%20446%2025%20410%2015%20371%20C2%20323%2019%20284%2012%20243%20C3%20199%2023%20165%2025%20127%20C26%2081%2043%2043%2086%2020%20Z%22%2F%3E%3C%2Fsvg%3E");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry :global(.home-music-title),
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry :global(.home-music-title-line) {
+  display: block !important;
+  text-align: center !important;
+}

@@ -7,6 +7,7 @@ import Image from 'next/image';
 import HomeTranslatedText from '@/components/HomeTranslatedText';
 import { useInterfaceLanguage } from '@/components/InterfaceLanguage';
 import dualChartEntryStyles from './dual-chart-entry.module.css';
+import musicEntryStyles from './music-entry.module.css';
 import './home-leather.css';
 import dynamic from 'next/dynamic';
 import { injectPerformanceCSS } from '@/lib/performance-css';
@@ -2956,18 +2957,14 @@ export default function HomePage() {
 
           <Link
             href="/music"
-            className="home-feature-launch home-feature-violet home-feature-tier-secondary order-6 w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-4 flex-wrap sm:p-6 sm:gap-6"
+            className={`${musicEntryStyles.entry} home-feature-launch home-feature-violet home-feature-tier-secondary order-6 w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-4 flex-wrap sm:p-6 sm:gap-6`}
           >
+            <div className={`absolute ${musicEntryStyles.artwork}`} aria-hidden="true">
+              <img src="/beast-game/front/guardian-xuanwu.v2.webp" alt="" draggable={false} />
+            </div>
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-            <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--violet" aria-hidden="true">
-                <span className="home-oracle-3d-emblem__aura" />
-                <span className="home-oracle-3d-emblem__bevel" />
-                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
-                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
-                <span className="home-oracle-3d-emblem__glyph">生</span>
-              </div>
+            <div className={`${musicEntryStyles.heading} flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5`}>
               <div className="min-w-0 flex-1">
                 <span className="hidden max-w-full rounded-full bg-violet-500/10 border border-violet-500/25 px-3 py-1 text-[10px] font-bold leading-none tracking-[0.12em] text-violet-300 uppercase animate-pulse">
                   <HomeTranslatedText text={"易經聲音歌曲"} />
