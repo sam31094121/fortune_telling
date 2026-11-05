@@ -1,5 +1,6 @@
 'use client';
 import nineGridArtwork from '@/components/NineGridHomeArtwork.module.css';
+import nameBaziArtwork from '@/components/NameBaziHomeArtwork.module.css';
 import nameArtwork from '@/components/NameologyHomeArtwork.module.css';
 import baziArtwork from '@/components/BaziHomeArtwork.module.css';
 import zodiacArtwork from '@/components/ZodiacHomeArtwork.module.css';
@@ -3018,19 +3019,11 @@ export default function HomePage() {
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
+            <div className={nameBaziArtwork.scenery} aria-hidden="true" />
+            <img className={nameBaziArtwork.artwork} src="/beast-game/front/young-03.v2.webp" alt="" aria-hidden="true" draggable={false} />
+            <span className={nameBaziArtwork.title}><HomeTranslatedText text="姓名學 × 八字" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--amber" aria-hidden="true">
-                <span className="home-oracle-3d-emblem__aura" />
-                <span className="home-oracle-3d-emblem__bevel" />
-                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
-                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
-                <span className="home-oracle-3d-emblem__glyph">合</span>
-              </div>
               <div className="min-w-0 flex-1">
-                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-amber-100 tracking-wide flex items-center gap-2">
-                  <span><HomeTranslatedText text={"姓名學 × 八字"} /></span>
-                  <span className="text-xs font-sans text-amber-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 姓名 · 生日時辰 · 八字融會貫通"} /></span>
-                </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]"><HomeTranslatedText text={"填姓名、性別、出生日期與時辰，姓名五格連到八字五行，兩邊一起對照。"} /></p>
               </div>
             </div>
