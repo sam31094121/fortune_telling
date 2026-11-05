@@ -1,5 +1,7 @@
 'use client';
 import nineGridArtwork from '@/components/NineGridHomeArtwork.module.css';
+import zodiacArtwork from '@/components/ZodiacHomeArtwork.module.css';
+import matchArtwork from '@/components/MatchHomeArtwork.module.css';
 import ziweiArtwork from '@/components/ZiweiHomeArtwork.module.css';
 import numberArtwork from '@/components/NumberHomeArtwork.module.css';
 
@@ -2934,20 +2936,12 @@ export default function HomePage() {
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
+            <div className={matchArtwork.scenery} aria-hidden="true" />
+            <img className={matchArtwork.artwork} src="/beast-game/front/young-04.v2.webp" alt="" aria-hidden="true" draggable={false} />
+            <span className={matchArtwork.title}><HomeTranslatedText text="易經靈魂配對" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--rose" aria-hidden="true">
-                <span className="home-oracle-3d-emblem__aura" />
-                <span className="home-oracle-3d-emblem__bevel" />
-                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
-                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
-                <span className="home-oracle-3d-emblem__glyph">緣</span>
-              </div>
               <div className="min-w-0 flex-1">
                 <span className="hidden rounded-full bg-rose-500/10 border border-rose-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-rose-300 uppercase animate-pulse"><HomeTranslatedText text={"易經 · 靈魂雙星配對"} /></span>
-                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-rose-100 tracking-wide flex items-center gap-2">
-                  <span><HomeTranslatedText text={"易經靈魂配對"} /></span>
-                  <span className="text-xs font-sans text-rose-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 雙人命盤 · 相處節奏 · 互補點分析"} /></span>
-                </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]"><HomeTranslatedText text={"輸入兩位資料，分析相處頻率、吸引力、溝通模式與命定互補關係。🎁 拆開有禮：兩顆心的合卦，和一句誰最懂誰的答案。"} /></p>
               </div>
             </div>
@@ -3176,24 +3170,14 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(217,70,239,0.22),transparent_34%),radial-gradient(circle_at_78%_30%,rgba(34,211,238,0.16),transparent_28%)] pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-fuchsia-400/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
+            <div className={zodiacArtwork.scenery} aria-hidden="true" />
+            <img className={zodiacArtwork.artwork} src="/beast-game/front/young-26.v2.webp" alt="" aria-hidden="true" draggable={false} />
+            <span className={zodiacArtwork.title}><HomeTranslatedText text="易經西洋星座" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--fuchsia" aria-hidden="true">
-                <span className="home-oracle-3d-emblem__aura" />
-                <span className="home-oracle-3d-emblem__bevel" />
-                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
-                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
-                <span className="home-oracle-3d-emblem__glyph">星</span>
-              </div>
               <div className="min-w-0 flex-1">
                 <span className="hidden rounded-full bg-fuchsia-500/10 border border-fuchsia-400/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-fuchsia-200 uppercase animate-pulse">
                   <HomeTranslatedText text={"易經 · 星空人格"} />
                 </span>
-                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-fuchsia-100 tracking-wide flex items-center gap-2">
-                  <span><HomeTranslatedText text={"易經西洋星座"} /></span>
-                  <span className="text-xs font-sans text-fuchsia-200 font-normal opacity-85 hidden sm:inline">
-                    <HomeTranslatedText text={"// 出生年月日 · 十二星座 · 本週提醒"} />
-                  </span>
-                </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">
                   <HomeTranslatedText text={"輸入出生年月日，獨立判定十二星座，整理人格特質、優勢、忽略點與本週提醒。🎁 拆開有禮：你的星座×易經卦象，一週剛剛好的提醒。"} />
                 </p>
