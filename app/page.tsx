@@ -1,5 +1,6 @@
 'use client';
 import nineGridArtwork from '@/components/NineGridHomeArtwork.module.css';
+import ziweiArtwork from '@/components/ZiweiHomeArtwork.module.css';
 import numberArtwork from '@/components/NumberHomeArtwork.module.css';
 
 import { useMemo, useState, useDeferredValue, useEffect, useRef, type CSSProperties } from 'react';
@@ -3091,20 +3092,12 @@ export default function HomePage() {
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
+            <div className={ziweiArtwork.scenery} aria-hidden="true" />
+            <img className={ziweiArtwork.artwork} src="/beast-game/front/young-08.v2.webp" alt="" aria-hidden="true" draggable={false} />
+            <span className={ziweiArtwork.title}><HomeTranslatedText text="易經紫微斗數" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div data-home-entry-icon className="ziwei-dou-3d-emblem pointer-events-none" aria-hidden="true">
-                <span className="ziwei-dou-3d-emblem__aura" />
-                <span className="ziwei-dou-3d-emblem__bevel" />
-                <span className="ziwei-dou-3d-emblem__star ziwei-dou-3d-emblem__star--one" />
-                <span className="ziwei-dou-3d-emblem__star ziwei-dou-3d-emblem__star--two" />
-                <span className="ziwei-dou-3d-emblem__glyph">紫</span>
-              </div>
               <div className="min-w-0 flex-1">
                 <span className="hidden rounded-full bg-indigo-500/10 border border-indigo-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-indigo-300 uppercase animate-pulse"><HomeTranslatedText text={"易經 · 紫微斗數命盤"} /></span>
-                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-indigo-100 tracking-wide flex items-center gap-2">
-                  <span><HomeTranslatedText text={"易經紫微斗數"} /></span>
-                  <span className="text-xs font-sans text-indigo-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 命宮主軸 · 三方四正 · 年度方向"} /></span>
-                </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]"><HomeTranslatedText text={"依出生資料整理命宮主軸，先看懂長期方向，再交給 易經做精華判定。🎁 拆開有禮：你的特殊格局名稱，和一句「我真的懂你」。"} /></p>
               </div>
             </div>
