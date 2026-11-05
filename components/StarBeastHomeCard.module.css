@@ -13,6 +13,16 @@
   margin-right: 5.5rem;
 }
 
+/* Background only: preserve card, dragon and orb geometry. */
+.scenery {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(180deg, #07172938 0%, #07172918 45%, #071729e8 100%), url('/home-entry/qinglong-scenery-v1.png');
+  background-size: cover;
+  background-position: center;
+}
+
 @media (min-width: 640px) {
   .label {
     margin-right: 0;
