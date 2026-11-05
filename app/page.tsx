@@ -1,5 +1,6 @@
 'use client';
 import nineGridArtwork from '@/components/NineGridHomeArtwork.module.css';
+import baziArtwork from '@/components/BaziHomeArtwork.module.css';
 import zodiacArtwork from '@/components/ZodiacHomeArtwork.module.css';
 import matchArtwork from '@/components/MatchHomeArtwork.module.css';
 import ziweiArtwork from '@/components/ZiweiHomeArtwork.module.css';
@@ -3109,24 +3110,14 @@ export default function HomePage() {
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
+            <div className={baziArtwork.scenery} aria-hidden="true" />
+            <img className={baziArtwork.artwork} src="/beast-game/front/young-09.v2.webp" alt="" aria-hidden="true" draggable={false} />
+            <span className={baziArtwork.title}><HomeTranslatedText text="易經八字命盤" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--emerald" aria-hidden="true">
-                <span className="home-oracle-3d-emblem__aura" />
-                <span className="home-oracle-3d-emblem__bevel" />
-                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
-                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
-                <span className="home-oracle-3d-emblem__glyph">辰</span>
-              </div>
               <div className="min-w-0 flex-1">
                 <span className="hidden rounded-full bg-emerald-500/10 border border-emerald-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-emerald-300 uppercase animate-pulse">
                   <HomeTranslatedText text={"易經 · 八字命盤"} />
                 </span>
-                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-emerald-100 tracking-wide flex items-center gap-2">
-                  <span><HomeTranslatedText text={"易經八字命盤"} /></span>
-                  <span className="text-xs font-sans text-emerald-300 font-normal opacity-85 hidden sm:inline">
-                    <HomeTranslatedText text={"// 八字四柱 · 五元素補強 · 相生相剋"} />
-                  </span>
-                </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]">
                   <HomeTranslatedText text={"獨立八字排盤，整理四柱、藏干、十神、旺衰、大運與流年。🎁 拆開有禮：同一張盤的兩種聲音——溫柔的與神祕的，各給你一份。"} />
                 </p>
