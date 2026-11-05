@@ -1,5 +1,6 @@
 'use client';
 import nineGridArtwork from '@/components/NineGridHomeArtwork.module.css';
+import nameArtwork from '@/components/NameologyHomeArtwork.module.css';
 import baziArtwork from '@/components/BaziHomeArtwork.module.css';
 import zodiacArtwork from '@/components/ZodiacHomeArtwork.module.css';
 import matchArtwork from '@/components/MatchHomeArtwork.module.css';
@@ -2994,20 +2995,12 @@ export default function HomePage() {
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
+            <div className={nameArtwork.scenery} aria-hidden="true" />
+            <img className={nameArtwork.artwork} src="/beast-game/front/young-15.v2.webp" alt="" aria-hidden="true" draggable={false} />
+            <span className={nameArtwork.title}><HomeTranslatedText text="易經姓名學" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--amber" aria-hidden="true">
-                <span className="home-oracle-3d-emblem__aura" />
-                <span className="home-oracle-3d-emblem__bevel" />
-                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
-                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
-                <span className="home-oracle-3d-emblem__glyph">名</span>
-              </div>
               <div className="min-w-0 flex-1">
                 <span className="hidden rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-300 uppercase animate-pulse"><HomeTranslatedText text={"易經 · 姓名決策系統"} /></span>
-                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-amber-100 tracking-wide flex items-center gap-2">
-                  <span><HomeTranslatedText text={"易經姓名學"} /></span>
-                  <span className="text-xs font-sans text-amber-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 臺灣字典 · 取名意境 · 易經卜卦判定"} /></span>
-                </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]"><HomeTranslatedText text={"以臺灣字典固定部首、筆畫與取名意境，最後只留下今天最需要改變的一個方向。🎁 拆開有禮：你名字裡藏著一句沒人說破的溫度話。"} /></p>
               </div>
             </div>
