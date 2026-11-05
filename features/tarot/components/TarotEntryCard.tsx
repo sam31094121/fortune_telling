@@ -1,13 +1,18 @@
 import Link from 'next/link';
 import HomeTranslatedText from '@/components/HomeTranslatedText';
 import HomeTrustEvidence from '@/components/HomeTrustEvidence';
+import styles from './TarotEntryCard.module.css';
 
 export default function TarotEntryCard() {
   return (
     <Link
       href="/tarot"
-      className="tarot-entry-card home-feature-launch home-feature-tier-primary order-0 w-full relative group overflow-hidden rounded-3xl border border-cyan-300/30 bg-gradient-to-r from-slate-950 via-indigo-950/25 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.16)] transition-all duration-500 hover:border-cyan-200/70 hover:shadow-[0_0_52px_rgba(34,211,238,0.28)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
+      className={`${styles.entry} tarot-entry-card home-feature-launch home-feature-tier-primary order-0 w-full relative group overflow-hidden rounded-3xl border border-cyan-300/30 bg-gradient-to-r from-slate-950 via-indigo-950/25 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(34,211,238,0.16)] transition-all duration-500 hover:border-cyan-200/70 hover:shadow-[0_0_52px_rgba(34,211,238,0.28)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap`}
     >
+      <div className={styles.scenery} aria-hidden="true" />
+      <span className={styles.title}><HomeTranslatedText text="古老塔羅牌" /></span>
+      <img className={styles.sourceScene} src="/beast-game/front/young-01.v2.webp" alt="" aria-hidden="true" draggable={false} />
+      <span className={styles.foreground} aria-hidden="true"><img className={styles.artwork} src="/beast-game/front/young-01.v2.webp" alt="" draggable={false} /><img className={`${styles.artwork} ${styles.hindPaw}`} src="/home-entry/tarot-hind-paw-candidate.png" alt="" draggable={false} /></span>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_14%_22%,rgba(34,211,238,0.22),transparent_32%),radial-gradient(circle_at_84%_24%,rgba(251,191,36,0.16),transparent_28%),linear-gradient(115deg,transparent,rgba(255,255,255,0.08),transparent)] pointer-events-none" />
       <div className="absolute inset-y-0 right-10 hidden w-40 rotate-6 grid-cols-3 gap-1 opacity-30 sm:grid" aria-hidden="true">
         {Array.from({ length: 9 }).map((_, index) => (
@@ -16,7 +21,7 @@ export default function TarotEntryCard() {
       </div>
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-200/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-      <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
+      <div className={`${styles.legacyCopy} relative flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5`}>
         {/* 2026-08-16 依指示改版：金字塔頂端低調訊號徽章。只服務塔羅入口卡，不影響其他卡片。 */}
         <div data-home-entry-icon className="tarot-entry-emblem" aria-hidden="true">
           <span className="tarot-entry-emblem__halo" />

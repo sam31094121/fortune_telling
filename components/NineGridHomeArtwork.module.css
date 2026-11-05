@@ -2,29 +2,9 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(180deg, #171008, #21160d 55%, #100d09);
+  background: #080402 url('/home-entry/nine-grid-dog-autumn-scenery-v1.png') center bottom / auto 100% no-repeat;
 }
-.scenery::before, .scenery::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 21%;
-  background-image: url('/beast-game/front/young-20.v2.webp');
-  background-size: auto 100%;
-  background-repeat: no-repeat;
-}
-.scenery::before {
-  left: 0;
-  background-position: left center;
-  mask-image: linear-gradient(to right, #000, transparent);
-}
-.scenery::after {
-  right: 0;
-  background-position: left center;
-  transform: scaleX(-1);
-  mask-image: linear-gradient(to right, #000, transparent);
-}
+.scenery::before, .scenery::after { display: none; }
 .artwork {
   position: absolute;
   top: 42px;
@@ -34,7 +14,6 @@
   max-width: calc(100% - 32px);
   transform: translateX(-50%);
   object-fit: contain;
-  mask-image: radial-gradient(ellipse at center, #000 58%, transparent 75%);
   pointer-events: none;
 }
 .title {
@@ -50,3 +29,35 @@
   text-shadow: 0 2px 5px #000;
   pointer-events: none;
 }
+/* Preserve official monkey pixels; only the silhouette crosses the CTA. */
+:global(body #home-eight-card-route) a:has(.artwork) { opacity:1 !important; }
+:global(body #home-eight-card-route) a:has(.artwork)::after { display:none; }
+:global(body #home-eight-card-route) a:has(.artwork) .artwork {
+ top:68px; height:calc(100% - 112px); z-index:2;
+ opacity:1 !important; filter:none !important;
+ mask-image:url('/home-entry/nine-grid-dog-silhouette.svg');
+ -webkit-mask-image:url('/home-entry/nine-grid-dog-silhouette.svg');
+ mask-size:100% 100%; mask-repeat:no-repeat;
+}
+.title { z-index:3; }
+:global(body #home-eight-card-route) a:has(.artwork) :global(.home-feature-cta) { position:relative; z-index:1; opacity:0 !important; transition:opacity 150ms ease; }
+:global(body #home-eight-card-route) a:has(.artwork):active :global(.home-feature-cta),
+:global(body #home-eight-card-route) a:has(.artwork):focus-visible :global(.home-feature-cta) { opacity:1 !important; }
+@media(hover:hover) { :global(body #home-eight-card-route) a:has(.artwork):hover :global(.home-feature-cta) { opacity:1 !important; } }
+
+/* Retain the source contact lighting behind the untouched foreground. */
+.scenery::after {
+ content:'';display:block;position:absolute;top:68px;left:50%;
+ height:calc(100% - 112px);aspect-ratio:4 / 3;max-width:calc(100% - 32px);
+ transform:translateX(-50%);
+ background:url('/beast-game/front/young-16.v2.webp') center / contain no-repeat;
+ mask-image:radial-gradient(ellipse 65% 65% at 50% 50%,#000 45%,rgba(0,0,0,.85) 62%,rgba(0,0,0,.3) 82%,transparent 100%);
+ pointer-events:none;
+}
+
+:global(body #home-eight-card-route) a:has(.artwork) .scenery { filter:none !important; }
+
+/* Shadow is applied after the silhouette, never to the rectangular source. */
+.foreground { position:absolute; inset:0; z-index:2; pointer-events:none; filter:drop-shadow(0 1px 0.7px rgba(0,0,0,.72)); }
+
+:global(body #home-eight-card-route) a:has(.artwork) .foreground { opacity:1 !important; filter:drop-shadow(0 1px 0.7px rgba(0,0,0,.72)) !important; }

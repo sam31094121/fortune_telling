@@ -5,6 +5,68 @@
   contain: layout style paint;
 }
 
+/* Homepage-only artwork and notice visibility; route and age checks are unchanged. */
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry {
+  background: linear-gradient(180deg, rgb(9 14 16 / 24%), transparent 38%, rgb(9 14 16 / 22%)),
+    url('/home-entry/xuanwu-environment-ai-v1.png') center / cover no-repeat !important;
+  border-color: #55564b !important;
+  box-shadow: none !important;
+}
+
+.baihuArtwork {
+  position: absolute;
+  inset: 50px 12px 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.baihuArtwork img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: none;
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20720%20540%22%3E%3Cdefs%3E%3Cfilter%20id%3D%22soft%22%20x%3D%22-25%25%22%20y%3D%22-25%25%22%20width%3D%22150%25%22%20height%3D%22150%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%2220%22%2F%3E%3CfeComponentTransfer%3E%3CfeFuncA%20type%3D%22linear%22%20slope%3D%222%22%20intercept%3D%220%22%2F%3E%3C%2FfeComponentTransfer%3E%3C%2Ffilter%3E%3C%2Fdefs%3E%3Cpath%20fill%3D%22white%22%20filter%3D%22url(%23soft)%22%20d%3D%22M85%2023%20C180%20-6%20315%20-8%20405%205%20C478%2014%20547%2023%20598%2070%20C651%20120%20691%20182%20700%20249%20C711%20316%20713%20391%20685%20458%20C660%20513%20565%20517%20491%20526%20C391%20538%20304%20517%20219%20527%20C134%20539%2048%20507%2029%20450%20C7%20383%2032%20319%2017%20261%20C3%20200%2029%20137%2031%2094%20C34%2058%2054%2036%2085%2023%20Z%22%2F%3E%3C%2Fsvg%3E"), linear-gradient(to bottom, transparent, #000 5%, #000 94%, transparent);
+  mask-composite: intersect;
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry :is(.watermark, .emblem, .copy p) {
+  display: none !important;
+}
+
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .content {
+  position: absolute !important;
+  top: 4px !important;
+  left: 16px !important;
+  right: 16px !important;
+  margin: 0 !important;
+  filter: none !important;
+  text-align: center;
+}
+
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry h2 {
+  display: block !important;
+  text-align: center !important;
+  font-family: 'Asura Brand Brush', serif !important;
+  font-weight: 400 !important;
+  color: #ef6969 !important;
+  -webkit-text-fill-color: #ef6969 !important;
+  text-shadow: 0 1px 0 #6e1925, 0 2px 3px #220b10 !important;
+}
+
+.baihuScenery {
+  /* The environment now belongs to the entire outer card, not an inset strip. */
+  display: none;
+}
+
 .entry.entry {
   display: flex;
   flex-direction: column;
@@ -561,3 +623,35 @@
   pointer-events: none;
   user-select: none;
 }
+
+/* Keep the original action legible over the full-card scenery. */
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .cta {
+  background: rgb(12 18 19 / 88%) !important;
+}
+
+/* Apply the approved homepage art standard without changing Asura behavior. */
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry { opacity: 1 !important; }
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry .baihuArtwork { inset: 58px 12px 46px; z-index: 2; }
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry .baihuArtwork img { filter: none !important; opacity: 1 !important; }
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry .content { z-index: 3; }
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry .cta { position: relative; z-index: 1; opacity: 0 !important; transition: opacity 150ms ease; }
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry:active .cta,
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry:focus-visible .cta { opacity: 1 !important; }
+@media (hover: hover) { :global(body #home-eight-card-route .home-feature-stack) a.entry.entry:hover .cta { opacity: 1 !important; } }
+
+/* Never fade paws, claws or tail: feather only outside the full silhouette. */
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry .baihuArtwork img { mask-image: url('/home-entry/asura-baihu-contour-mask.svg?v=edge-feather-4'); mask-size: 100% 100%; mask-repeat: no-repeat; }
+
+/* Foreground alone crosses CTA; keep the scenery behind. */
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry .baihuArtwork img {mask-image:none;transform:translateY(2px);}
+
+/* Narrow cards are taller: align the supporting front paws with the CTA rim. */
+@media (max-width: 360px) {
+  :global(body #home-eight-card-route .home-feature-stack) a.entry.entry .baihuArtwork img { transform: translateY(8px); }
+}
+
+
+/* Approved art-only swap: carry Xuanwu's established stance and scenery alignment. */
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry .baihuArtwork {inset:54px 12px 48px;}
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry .baihuArtwork img {transform-origin:28% 88%;transform:translateY(3px) rotate(3deg);}
+@media(min-width:600px){:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry {background-position:center,center calc(50% - 76px) !important;}}

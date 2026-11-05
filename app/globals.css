@@ -27526,3 +27526,21 @@ body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack a.ho
 @media (prefers-reduced-motion: reduce) {
   body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack a.home-feature-launch { transition: none !important; }
 }
+/* Owner-approved homepage title typography: match the five-character 八字姓名學 title.
+   Scope only existing card headings; CTA text, artwork and inner-page typography stay separate. */
+body:has(#home-eight-card-route) #home-eight-card-route#home-eight-card-route .home-feature-stack a.home-feature-launch :is(h2, span[class*="_title__"]) {
+  font-family: "DFKai-SB", "KaiTi", "STKaiti", "BiauKai", serif !important;
+  font-weight: 400 !important;
+  font-size: 25px !important;
+  line-height: 1.35 !important;
+  letter-spacing: .09em !important;
+  -webkit-text-stroke: .3px currentColor !important;
+  text-align: center !important;
+}
+body:has(#home-eight-card-route) #home-eight-card-route#home-eight-card-route .home-feature-stack a.home-feature-launch :is(h2, span[class*="_title__"]) :where(span) {
+  font-family: inherit !important;
+  font-weight: inherit !important;
+  font-size: inherit !important;
+  letter-spacing: inherit !important;
+  line-height: inherit !important;
+}

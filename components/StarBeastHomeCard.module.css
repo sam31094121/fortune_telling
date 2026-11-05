@@ -35,17 +35,15 @@
 /* Full official attack frame occupies only the space above the unchanged five orbs. */
 .dragonArtwork {
   position: absolute;
-  inset: 6px 16px 126px;
+  z-index: 2;
+  inset: 0 16px 94px;
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
 }
 .dragonArtwork::before {
-  content: '';
-  position: absolute;
-  inset: 8% 18%;
-  background: radial-gradient(ellipse, #b5995533, #27565d22 42%, transparent 72%);
+  content: none;
 }
 .dragon {
   display: block;
@@ -53,6 +51,29 @@
   height: 98%;
   max-width: 80%;
   object-fit: contain;
-  transform: translate(7px, 17px) rotate(-8deg);
-  filter: drop-shadow(0 5px 4px #000a);
+  transform: translate(7px, 37px) rotate(-8deg) scale(1.06);
+  filter: none;
+}
+
+/* Keep the official dragon's colour; do not change the five orb layers. */
+.contactShadow {
+  position: absolute;
+  clip-path: inset(76% 0 0);
+  filter: brightness(0) drop-shadow(0 2px 1px rgb(0 0 0 / 65%));
+  opacity: .22;
+  pointer-events: none;
+}
+
+:global(body #home-eight-card-route) a:has(.dragonArtwork) .dragonArtwork {
+  filter: none !important;
+}
+
+/* The original five orbs replace the text in the same opening area. */
+:global(body #home-eight-card-route) a:has(.dragonArtwork) :global(.home-feature-cta) {
+  padding: 7px 12px !important;
+  min-height: 48px;
+}
+@media (min-width: 640px) {
+  .dragonArtwork { inset: -4px 16px 78px; }
+  .dragon { transform: translate(7px, 26px) rotate(-8deg) scale(1.06); }
 }

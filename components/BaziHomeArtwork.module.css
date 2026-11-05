@@ -1,18 +1,15 @@
-.scenery { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, #080b14b8, #080b1460 68%, transparent), url('/home-entry/bazi-young-scenery-v1.png') center bottom / 100% 165% no-repeat; }
-.artwork { position: absolute; pointer-events: none; }
-.title { position: absolute; top: 12px; left: 16px; right: 16px; text-align: center; white-space: nowrap; font-size: 16px; font-weight: 800; color: #d1fae5; text-shadow: 0 2px 5px #000; pointer-events: none; z-index: 3; }
-:global(body #home-eight-card-route) a:has(.artwork) { opacity: 1 !important; }
-:global(body #home-eight-card-route) a:has(.artwork)::after { display: none; }
-:global(body #home-eight-card-route) a:has(.artwork) .title { opacity: 1 !important; }
-:global(body #home-eight-card-route) a:has(.artwork) .artwork {
-  top: 53px; left: 50%; width: auto; height: calc(100% - 104px); max-width: calc(100% - 32px);
-  transform: translateX(-50%); object-fit: contain; z-index: 2; filter: none !important; opacity: 1 !important;
-  mask-image: linear-gradient(to right, transparent, #000 8%, #000 94%, transparent), linear-gradient(to bottom, transparent, #000 5%, #000 90%, transparent 95%);
-  mask-composite: intersect;
-}
-:global(body #home-eight-card-route) a:has(.artwork) :global(.home-feature-cta) { position: relative; z-index: 1; opacity: 0 !important; transition: opacity 150ms ease; }
+.scenery { position:absolute; inset:0; pointer-events:none; background:#080502 url('/home-entry/bazi-goat-bamboo-scenery-v1.png') center bottom / auto 100% no-repeat; }
+.scenery::after { content:''; position:absolute; top:58px;left:50%;height:calc(100% - 104px);aspect-ratio:4/3;max-width:calc(100% - 32px);transform:translateX(-50%);background:url('/beast-game/front/young-23.v2.webp') center / contain no-repeat;mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 50%,rgba(0,0,0,.75) 66%,rgba(0,0,0,.2) 84%,transparent 100%); }
+.foreground { position:absolute;inset:0;z-index:2;pointer-events:none; }
+.artwork { position:absolute;pointer-events:none; }
+.title { position:absolute;top:12px;left:16px;right:16px;text-align:center;white-space:nowrap;font-size:16px;font-weight:800;color:#d1fae5;text-shadow:0 2px 5px #000;pointer-events:none;z-index:3; }
+:global(body #home-eight-card-route) a:has(.artwork) { opacity:1 !important; }
+:global(body #home-eight-card-route) a:has(.artwork)::after { display:none; }
+:global(body #home-eight-card-route) a:has(.artwork) .title { opacity:1 !important; }
+:global(body #home-eight-card-route) a:has(.artwork) .scenery { filter:none !important; }
+:global(body #home-eight-card-route) a:has(.artwork) .foreground { opacity:1 !important;filter:drop-shadow(0 1px .7px rgba(0,0,0,.72)) !important; }
+:global(body #home-eight-card-route) a:has(.artwork) .artwork {top:58px;left:50%;width:auto;height:calc(100% - 104px);max-width:calc(100% - 32px);transform:translateX(-50%);object-fit:contain;z-index:2;filter:none !important;opacity:1 !important;mask-image:url('/home-entry/bazi-goat-silhouette.svg');-webkit-mask-image:url('/home-entry/bazi-goat-silhouette.svg');mask-size:100% 100%;mask-repeat:no-repeat;}
+:global(body #home-eight-card-route) a:has(.artwork) :global(.home-feature-cta) {position:relative;z-index:1;opacity:0 !important;transition:opacity 150ms ease;}
 :global(body #home-eight-card-route) a:has(.artwork):active :global(.home-feature-cta),
-:global(body #home-eight-card-route) a:has(.artwork):focus-visible :global(.home-feature-cta) { opacity: 1 !important; }
-@media (hover: hover) { :global(body #home-eight-card-route) a:has(.artwork):hover :global(.home-feature-cta) { opacity: 1 !important; } }
-
-:global(body #home-eight-card-route) a:has(.artwork) .artwork { mask-image: url('/home-entry/bazi-original-contour-mask.svg'); mask-size: 100% 100%; mask-repeat: no-repeat; }
+:global(body #home-eight-card-route) a:has(.artwork):focus-visible :global(.home-feature-cta) {opacity:1 !important;}
+@media(hover:hover){:global(body #home-eight-card-route) a:has(.artwork):hover :global(.home-feature-cta){opacity:1 !important;}}

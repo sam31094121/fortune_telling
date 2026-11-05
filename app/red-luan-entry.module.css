@@ -58,3 +58,24 @@
     linear-gradient(to bottom, transparent, #000 7%, #000 94%, transparent);
   mask-composite: intersect;
 }
+
+/* Approved scoped refinement: retain the official fox and entry behavior. */
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry {
+ opacity:1 !important;
+ background:linear-gradient(180deg, rgb(16 18 29 / 12%), transparent 45%, rgb(16 18 29 / 10%)),url('/home-entry/xinyuehu-environment-ai-v1.png') center / cover no-repeat !important;
+}
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .artwork { inset:48px 12px 52px; z-index:2; }
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .artwork img { filter:none !important; opacity:1 !important; }
+.scenery { display:none; }
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .heading { z-index:3; }
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .heading p { display:none; }
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry :global(.home-feature-cta) { z-index:1; opacity:0 !important; transition:opacity 150ms ease; }
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry:active :global(.home-feature-cta),
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry:focus-visible :global(.home-feature-cta) {opacity:1 !important;}
+@media (hover:hover) { :global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry:hover :global(.home-feature-cta) {opacity:1 !important;} }
+
+/* Transparent foreground: scenery cannot overlap the action panel. */
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .artwork img { mask-image:none; }
+
+/* Paw sole is at 89% of the source canvas; land 1px inside action rim. */
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .artwork img { transform:translateY(calc(11% - 15px)); }

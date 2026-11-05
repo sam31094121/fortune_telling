@@ -1,0 +1,28 @@
+.scenery {position:absolute;inset:0;pointer-events:none;background:linear-gradient(rgb(4 13 10 / 18%), transparent 85%),#0c211b url('/home-entry/tarot-dragon-willow-scenery-v1.png') center bottom / auto 100% no-repeat;}
+.sourceScene,.artwork {position:absolute;top:60px;left:50%;height:calc(100% - 102px);width:auto;max-width:calc(100% - 24px);transform:translateX(-50%);object-fit:contain;pointer-events:none;}
+.sourceScene {z-index:0;mask-image:radial-gradient(ellipse 55% 62% at 52% 56%,#000 28%,rgba(0,0,0,.65) 53%,transparent 86%),linear-gradient(to bottom,transparent 0%,#000 24%,#000 78%,transparent 100%),linear-gradient(to right,transparent 0%,#000 22%,#000 78%,transparent 100%);mask-composite:intersect;}
+.foreground {position:absolute;inset:0;z-index:2;pointer-events:none;}
+.artwork {mask-image:url('/home-entry/tarot-dragon-paws-tail.svg');mask-size:100% 100%;mask-repeat:no-repeat;}
+:global(body #home-eight-card-route) .entry {opacity:1 !important;}
+:global(body #home-eight-card-route) .entry::after {display:none;}
+:global(body #home-eight-card-route) .entry .scenery,:global(body #home-eight-card-route) .entry .sourceScene,:global(body #home-eight-card-route) .entry .artwork {filter:none !important;opacity:1 !important;}
+:global(body #home-eight-card-route) .entry .foreground {filter:none !important;opacity:1 !important;}
+:global(body #home-eight-card-route) .entry > :global(.absolute):not(.scenery) {display:none !important;}
+:global(body #home-eight-card-route) .entry > :global(.relative.flex):not(:global(.home-feature-cta)) {position:absolute !important;top:10px;left:16px;right:16px;z-index:3;pointer-events:none;}
+:global(body #home-eight-card-route) .entry h2 {display:block !important;text-align:center !important;margin:0 !important;}
+:global(body #home-eight-card-route) .entry h2 > span:first-child {font-size:16px !important;line-height:24px !important;color:#dcfce7 !important;}
+:global(body #home-eight-card-route) .entry h2 > span:not(:first-child),:global(body #home-eight-card-route) .entry :global([data-home-entry-icon]),:global(body #home-eight-card-route) .entry p {display:none !important;}
+:global(body #home-eight-card-route) .entry :global(.home-feature-cta) {position:relative;z-index:1;opacity:0 !important;transition:opacity 150ms ease;}
+:global(body #home-eight-card-route) .entry:active :global(.home-feature-cta),:global(body #home-eight-card-route) .entry:focus-visible :global(.home-feature-cta) {opacity:1 !important;}
+@media(hover:hover){:global(body #home-eight-card-route) .entry:hover :global(.home-feature-cta) {opacity:1 !important;}}
+
+:global(body #home-eight-card-route) .entry > :global(.relative.flex):not(:global(.home-feature-cta)) {display:none !important;}
+:global(body #home-eight-card-route) .entry .title {position:absolute;top:12px;left:16px;right:16px;z-index:3;display:block !important;opacity:1 !important;filter:none !important;font-size:16px;font-weight:800;text-align:center;color:#dcfce7;white-space:nowrap;pointer-events:none;text-shadow:0 2px 5px #000;}
+
+:global(body #home-eight-card-route#home-eight-card-route) .entry.entry .legacyCopy {display:none !important;}
+
+/* Local ground contact only; no outline shadow around the creature. */
+.scenery::after {content:"";position:absolute;left:50%;top:calc(85% - 25px);width:118px;height:15px;transform:translateX(-50%);background:radial-gradient(ellipse,rgba(12,17,8,.48),rgba(12,17,8,.18) 44%,transparent 72%);pointer-events:none;}
+
+
+.hindPaw {mask-image:url("/home-entry/tarot-hind-paw-mask.svg");}

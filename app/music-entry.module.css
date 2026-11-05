@@ -1,6 +1,7 @@
 /* Keep the shared entrance dimensions; only arrange the music artwork inside. */
 :global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry {
-  background: linear-gradient(180deg, #0b1118 12%, #131d28 62%, #0b1118 94%) !important;
+  background: linear-gradient(180deg, rgb(7 13 20 / 24%), transparent 40%, rgb(7 13 20 / 22%)),
+    url('/home-entry/baihu-environment-continuous-v4.png') center / cover no-repeat !important;
   border-color: #424d58 !important;
   box-shadow: none !important;
 }
@@ -18,6 +19,10 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
+}
+
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry :global(.home-music-cta) {
+  background: rgb(8 15 23 / 88%) !important;
 }
 
 :global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry > .heading {
@@ -47,3 +52,32 @@
   display: block !important;
   text-align: center !important;
 }
+
+/* Scoped 3D foreground trial, preserving music route. */
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry {opacity:1 !important;filter:none !important;}
+.artwork {inset:54px 12px 48px;z-index:2;}
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .artwork img {mask-image:none;filter:none !important;opacity:1 !important;}
+.heading {z-index:3;}
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry :global(.home-music-cta) {position:relative;z-index:1;opacity:0 !important;transition:opacity 150ms ease;}
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry:active :global(.home-music-cta),
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry:focus-visible :global(.home-music-cta) {opacity:1 !important;}
+@media(hover:hover){:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry:hover :global(.home-music-cta){opacity:1 !important;}}
+
+/* Small stance adjustment around the front support, not an overall drop. */
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .artwork img {transform-origin:28% 88%;transform:translateY(3px) rotate(3deg);}
+
+/* Tight contact shadow only under the feet; no scenery overlay. */
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry :global(.home-music-cta)::before {content:'';position:absolute;left:26%;right:26%;top:-2px;height:5px;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,.65),transparent 72%);}
+/* Wide cards crop the scene vertically: lift only the rock surface so idle
+   claws remain supported; creature geometry and CTA contact stay unchanged. */
+@media (min-width: 600px) {
+  :global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry {
+    background-position: center, center calc(50% - 76px) !important;
+  }
+}
+
+/* Approved art-only swap: preserve Baihu's established paw contact. */
+.artwork {inset:58px 12px 46px;}
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .artwork img {transform:translateY(2px);}
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry {background-position:center !important;}
+@media(max-width:360px){:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .artwork img {transform:translateY(8px);}}

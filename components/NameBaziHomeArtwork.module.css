@@ -1,4 +1,4 @@
-.scenery { position: absolute; inset: 0; pointer-events: none; background: url('/home-entry/name-bazi-young-scenery-v1.png') center bottom / 100% 120% no-repeat; }
+.scenery { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(rgb(8 7 5 / 20%), rgb(8 7 5 / 8%)), url('/home-entry/name-bazi-young-scenery-v1.png') center bottom / 100% 120% no-repeat; }
 .artwork { position: absolute; pointer-events: none; }
 .title { position: absolute; top: 12px; left: 16px; right: 16px; text-align: center; white-space: nowrap; font-size: 16px; font-weight: 800; color: #fef3c7; text-shadow: 0 2px 5px #000; pointer-events: none; z-index: 3; }
 :global(body #home-eight-card-route) a:has(.artwork) { opacity: 1 !important; }
@@ -14,3 +14,21 @@
 :global(body #home-eight-card-route) a:has(.artwork):active :global(.home-feature-cta),
 :global(body #home-eight-card-route) a:has(.artwork):focus-visible :global(.home-feature-cta) { opacity: 1 !important; }
 @media (hover: hover) { :global(body #home-eight-card-route) a:has(.artwork):hover :global(.home-feature-cta) { opacity: 1 !important; } }
+
+/* Preserve official young03 pixels while separating the entire scene from CTA. */
+:global(body #home-eight-card-route) a:has(.artwork) .artwork {
+ top: 59px; mask-image: url('/home-entry/name-bazi-original-silhouette.svg');
+ -webkit-mask-image: url('/home-entry/name-bazi-original-silhouette.svg');
+ mask-size: 100% 100%; mask-repeat: no-repeat;
+}
+
+/* Softer calligraphic title, scoped to this entry only. */
+:global(body #home-eight-card-route) a:has(.artwork) .title {font-family:"DFKai-SB","KaiTi","STKaiti","BiauKai",serif;font-weight:400;-webkit-text-stroke:.3px currentColor;font-size:25px !important;letter-spacing:.09em;line-height:1.35;color:#f4dfb2;text-shadow:0 1px 3px #0008;}
+
+:global(body #home-eight-card-route) a:has(.artwork) .scenery {filter:none !important;}
+.scenery::after {content:"";position:absolute;left:50%;top:calc(88% - 39px);width:120px;height:12px;transform:translateX(-50%);background:radial-gradient(ellipse,rgba(15,10,5,.42),transparent 70%);pointer-events:none;}
+
+:global(body #home-eight-card-route) a:has(.artwork) .title :global(*) {font-size:inherit !important;}
+
+/* Original-pixel context behind the precise foreground restores fine fur without blurring it. */
+.scenery::before {content:"";position:absolute;top:59px;left:50%;height:calc(100% - 104px);aspect-ratio:4 / 3;max-width:calc(100% - 32px);transform:translateX(-50%);background:url('/beast-game/front/young-03.v2.webp') center / contain no-repeat;mask:url('/home-entry/name-bazi-context-mask.svg') center / 100% 100% no-repeat;pointer-events:none;}

@@ -1,4 +1,5 @@
 'use client';
+import taijiArtwork from '@/components/TaijiBeastHomeArtwork.module.css';
 import nineGridArtwork from '@/components/NineGridHomeArtwork.module.css';
 import nameBaziArtwork from '@/components/NameBaziHomeArtwork.module.css';
 import nameArtwork from '@/components/NameologyHomeArtwork.module.css';
@@ -2961,7 +2962,7 @@ export default function HomePage() {
             className={`${musicEntryStyles.entry} home-feature-launch home-feature-violet home-feature-tier-secondary order-6 w-full relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex items-center justify-between gap-4 flex-wrap sm:p-6 sm:gap-6`}
           >
             <div className={`absolute ${musicEntryStyles.artwork}`} aria-hidden="true">
-              <img src="/beast-game/front/guardian-xuanwu.v2.webp" alt="" draggable={false} />
+              <img src="/home-entry/baihu-foreground-v1.png" alt="" draggable={false} />
             </div>
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
@@ -3021,7 +3022,7 @@ export default function HomePage() {
 
             <div className={nameBaziArtwork.scenery} aria-hidden="true" />
             <img className={nameBaziArtwork.artwork} src="/beast-game/front/young-03.v2.webp" alt="" aria-hidden="true" draggable={false} />
-            <span className={nameBaziArtwork.title}><HomeTranslatedText text="姓名學 × 八字" /></span>
+            <span className={nameBaziArtwork.title}><HomeTranslatedText text="八字姓名學" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
               <div className="min-w-0 flex-1">
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]"><HomeTranslatedText text={"填姓名、性別、出生日期與時辰，姓名五格連到八字五行，兩邊一起對照。"} /></p>
@@ -3044,7 +3045,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
             
               <div className={numberArtwork.scenery} aria-hidden="true" />
-              <img className={numberArtwork.artwork} src="/beast-game/front/young-14.v2.webp" alt="" aria-hidden="true" draggable={false} />
+              <img className={numberArtwork.artwork} src="/home-entry/number-young-foreground-v1.png" alt="" aria-hidden="true" draggable={false} />
               <span className={numberArtwork.title}><HomeTranslatedText text="易經論數字" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
 
@@ -3074,7 +3075,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className={ziweiArtwork.scenery} aria-hidden="true" />
-            <img className={ziweiArtwork.artwork} src="/beast-game/front/young-08.v2.webp" alt="" aria-hidden="true" draggable={false} />
+            <img className={ziweiArtwork.artwork} src="/home-entry/ziwei-young-foreground-v1.png" alt="" aria-hidden="true" draggable={false} />
             <span className={ziweiArtwork.title}><HomeTranslatedText text="易經紫微斗數" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
               <div className="min-w-0 flex-1">
@@ -3097,7 +3098,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className={baziArtwork.scenery} aria-hidden="true" />
-            <img className={baziArtwork.artwork} src="/beast-game/front/young-09.v2.webp" alt="" aria-hidden="true" draggable={false} />
+            <span className={baziArtwork.foreground} aria-hidden="true"><img className={baziArtwork.artwork} src="/beast-game/front/young-23.v2.webp" alt="" aria-hidden="true" draggable={false} /></span>
             <span className={baziArtwork.title}><HomeTranslatedText text="易經八字命盤" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
               <div className="min-w-0 flex-1">
@@ -3118,7 +3119,12 @@ export default function HomePage() {
           </Link>
 
           <Link href="/dual-chart" lang={readingLanguage} aria-label={readingCopy.enter} className={`${dualChartEntryStyles.entry} home-feature-launch home-feature-violet home-feature-tier-primary order-[13] w-full mb-3 relative group overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-r from-slate-950 via-violet-950/20 to-slate-950 p-5 sm:p-6 text-left shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-400 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] active:scale-[0.99] flex flex-wrap items-center justify-between gap-5 sm:gap-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300`}>
+            <span className={dualChartEntryStyles.title}>{readingCopy.dual}</span>
             <div className={`absolute ${dualChartEntryStyles.phoenixArtwork}`} aria-hidden="true">
+              <img src="/home-entry/zhuque-tail-repaired-ai-v1.png" alt="" draggable={false} />
+            </div>
+            <svg width="0" height="0" aria-hidden="true" style={{ position: "absolute", pointerEvents: "none" }}><defs><filter id="shensha-tail-detail" colorInterpolationFilters="sRGB" x="0" y="0" width="100%" height="100%"><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  24 -24 0 0 -0.12" /></filter></defs></svg>
+            <div className={`absolute ${dualChartEntryStyles.phoenixTail}`} aria-hidden="true">
               <img src="/home-entry/zhuque-tail-repaired-ai-v1.png" alt="" draggable={false} />
             </div>
             {/* 炫光掃過特效 */}
@@ -3193,7 +3199,7 @@ export default function HomePage() {
             >
               <div className={`absolute ${redLuanEntryStyles.artwork}`} aria-hidden="true">
                 <div className={redLuanEntryStyles.scenery} />
-                <img src="/beast-game/front/adult-05.v2.webp" alt="" draggable={false} />
+                <img src="/home-entry/xinyuehu-foreground-v1.png" alt="" draggable={false} />
               </div>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-100/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
               <div className={`${redLuanEntryStyles.heading} relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5`}>
@@ -3211,56 +3217,14 @@ export default function HomePage() {
           <TarotEntryCard />
           {/* 2026-09-25 star-beast i18n toggle: card extracted to a client component with 中｜EN switch; href="/star-beasts" */}
           <StarBeastHomeCard />
-          <Link
-            href="/3D"
-            className="home-feature-launch home-feature-tier-explore order-[15] w-full relative group overflow-hidden rounded-3xl border border-violet-300/30 bg-[radial-gradient(circle_at_82%_22%,rgba(167,139,250,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(45,28,74,0.62),rgba(12,18,42,0.98))] p-6 text-left shadow-[0_0_30px_rgba(167,139,250,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-200/70 hover:shadow-[0_0_50px_rgba(167,139,250,0.25)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-200/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
-            <div className="pointer-events-none absolute -right-6 -top-8 h-40 w-40 opacity-[0.18] transition-opacity duration-500 group-hover:opacity-[0.32]" aria-hidden="true">
-              <svg viewBox="0 0 100 100" className="h-full w-full">
-                <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(196,181,253,0.9)" strokeWidth="1.2" />
-                <rect x="18" y="18" width="64" height="64" fill="none" stroke="rgba(167,139,250,0.95)" strokeWidth="1.1" />
-                <rect x="30" y="30" width="40" height="40" fill="none" stroke="rgba(245,208,254,0.7)" strokeWidth="0.9" />
-                <path d="M18 18L30 30M82 18L70 30M18 82L30 70M82 82L70 70" stroke="rgba(196,181,253,0.55)" strokeWidth="0.8" />
-              </svg>
-            </div>
-            <div className="relative flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
-              <div data-home-entry-icon className="relative grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-violet-100/35 bg-violet-200/10 shadow-[0_0_28px_rgba(167,139,250,0.18)]" aria-hidden="true">
-                <svg viewBox="0 0 64 64" className="h-11 w-11">
-                  <defs>
-                    <linearGradient id="tj4d-shell" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#ede9fe" />
-                      <stop offset="100%" stopColor="#a78bfa" />
-                    </linearGradient>
-                    <linearGradient id="tj4d-cube" x1="0%" y1="100%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#c4b5fd" />
-                      <stop offset="100%" stopColor="#f5d0fe" />
-                    </linearGradient>
-                  </defs>
-                  <circle cx="32" cy="32" r="29" fill="none" stroke="url(#tj4d-shell)" strokeWidth="1.6" opacity="0.95" />
-                  <path d="M32 3a29 29 0 0 1 0 58a14.5 14.5 0 0 0 0-29a14.5 14.5 0 0 1 0-29" fill="rgba(237,233,254,0.14)" />
-                  <circle cx="32" cy="17.5" r="3.1" fill="#0c122a" />
-                  <circle cx="32" cy="46.5" r="3.1" fill="#ede9fe" />
-                  <rect x="11.5" y="11.5" width="41" height="41" fill="none" stroke="rgba(196,181,253,0.88)" strokeWidth="1.15" />
-                  <g stroke="url(#tj4d-cube)" strokeWidth="1.35" fill="none" strokeLinecap="round">
-                    <rect x="18" y="18" width="20" height="20" opacity="0.95" />
-                    <rect x="26" y="26" width="20" height="20" opacity="0.95" />
-                    <path d="M18 18L26 26M38 18L46 26M18 38L26 46M38 38L46 46" opacity="0.92" />
-                    <path d="M28 28L36 28L36 36L28 36Z" opacity="0.75" />
-                  </g>
-                  <circle cx="32" cy="32" r="2" fill="#f5d0fe" />
-                </svg>
-              </div>
-              <div className="min-w-0 flex-1">
-                <span className="hidden rounded-full border border-violet-200/30 bg-violet-300/10 px-2.5 py-0.5 text-[10px] font-bold tracking-widest text-violet-100"><HomeTranslatedText text={"四維 · 超立方"} /></span>
-                <h2 className="mt-1.5 font-serif text-xl font-black tracking-wide text-violet-50 sm:text-2xl"><HomeTranslatedText text={"立體太極模型"} /></h2>
-                <p className="mt-1 text-sm text-slate-200"><HomeTranslatedText text={"空心太極包方形核心，方圓緊貼，進入四維。"} /></p>
-              </div>
-            </div>
+          <Link href="/3D" className={`home-feature-launch home-feature-tier-explore order-[15] w-full relative group overflow-hidden rounded-3xl border border-violet-300/30 bg-[radial-gradient(circle_at_82%_22%,rgba(167,139,250,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(45,28,74,0.62),rgba(12,18,42,0.98))] p-6 text-left shadow-[0_0_30px_rgba(167,139,250,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-200/70 hover:shadow-[0_0_50px_rgba(167,139,250,0.25)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap ${taijiArtwork.entry}`}>
+            <div className={taijiArtwork.scene} aria-hidden="true"><img src="/beast-game/front/young-07.v2.webp" alt="" draggable={false} /></div>
+            <img className={taijiArtwork.paws} src="/beast-game/front/young-07.v2.webp" alt="" aria-hidden="true" draggable={false} />
+            <h2 className={taijiArtwork.title}><HomeTranslatedText text="立體太極模型" /></h2>
+            <p className="sr-only"><HomeTranslatedText text="空心太極包方形核心，方圓緊貼，進入四維。" /></p>
             <HomeTrustEvidence items={["免費體驗", "可旋轉", "非付費牆"]} />
             <div className="home-feature-cta relative flex items-center gap-2 rounded-xl border border-violet-200/40 bg-violet-300/15 px-5 py-3 text-xs font-bold text-violet-50 transition group-hover:bg-violet-300/25">
-              <span><HomeTranslatedText text={"請點我開啟"} /></span>
-              <span className="transition-transform group-hover:translate-x-1.5">➜</span>
+              <span><HomeTranslatedText text="請點我開啟" /></span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
             </div>
           </Link>
           {/* 2026-10-21 九宮格靈動數字：首頁最下方功能卡片，樣式與易經姓名學卡一致；解說全部來自技能檔案，後端運算 */}
@@ -3269,7 +3233,7 @@ export default function HomePage() {
             className="home-feature-launch home-feature-amber home-feature-tier-explore order-[16] w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             <div className={nineGridArtwork.scenery} aria-hidden="true" />
-            <img className={nineGridArtwork.artwork} src="/beast-game/front/young-20.v2.webp" alt="" aria-hidden="true" draggable={false} />
+            <span className={nineGridArtwork.foreground} aria-hidden="true"><img className={nineGridArtwork.artwork} src="/beast-game/front/young-16.v2.webp" alt="" aria-hidden="true" draggable={false} /></span>
             <span className={nineGridArtwork.title}><HomeTranslatedText text="九宮格靈動數字" /></span>
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />

@@ -86,23 +86,8 @@ export default function StarBeastHomeCard() {
         <div className={styles.scenery} aria-hidden="true" />
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
-        {/* Decorative preview only: absolute placement preserves the original card geometry. */}
-        <div data-home-battle-orbs aria-hidden="true" data-mode="hard-preview" className={orbStyles.wrap}
-          style={{ position: 'absolute', left: '50%', bottom: 86, transform: 'translateX(-50%)', display: 'flex', gap: 12, width: 208, height: 32, minHeight: 0, maxWidth: 'none', margin: 0, padding: 0, background: 'transparent', overflow: 'visible', pointerEvents: 'none' }}>
-          <svg width="0" height="0" focusable="false" style={{ position: 'absolute' }}><defs>
-            <clipPath id="home-battle-soft-space" clipPathUnits="objectBoundingBox"><path d="M .42 .1 Q .5 .02 .58 .1 L .9 .42 Q .98 .5 .9 .58 L .58 .9 Q .5 .98 .42 .9 L .1 .58 Q .02 .5 .1 .42 Z" /></clipPath>
-            <clipPath id="home-battle-soft-fire" clipPathUnits="objectBoundingBox"><path d="M .42 .12 Q .5 -.02 .58 .12 L .94 .78 Q 1 .92 .84 .92 L .16 .92 Q 0 .92 .06 .78 Z" /></clipPath>
-          </defs></svg>
-          {(['SPACE', 'AIR', 'WATER', 'FIRE', 'EARTH'] as const).map(element => (
-            <span key={element} data-preview-element={element} className={orbStyles.orb + ' ' + orbStyles[element.toLowerCase()] + ' ' + styles.previewOrb}
-              style={{ width: 32, height: 32, minWidth: 32, minHeight: 32, flex: 'none', cursor: 'inherit', willChange: 'auto' }}>
-              <span className={orbStyles.gem} style={element === 'SPACE' ? { clipPath: 'url(#home-battle-soft-space)' } : element === 'FIRE' ? { clipPath: 'url(#home-battle-soft-fire)' } : undefined} />
-              <Match3ElementGlyph element={element} className={orbStyles.elementGlyph} />
-            </span>
-          ))}
-        </div>
-
         <div className={styles.dragonArtwork} aria-hidden="true">
+          <img className={`${styles.dragon} ${styles.contactShadow}`} src="/beast-game/rig/qinglong/pounce-open.v2.webp" alt="" draggable={false} />
           <img className={styles.dragon} src="/beast-game/rig/qinglong/pounce-open.v2.webp" alt="" draggable={false} />
         </div>
 
@@ -128,7 +113,21 @@ export default function StarBeastHomeCard() {
         {/* 【時柱 — 下層】行動層 */}
         <div className="relative w-full pt-2">
           <div className="home-feature-cta flex items-center justify-center gap-2 rounded-2xl border border-amber-200/40 bg-amber-300/15 px-6 py-4 text-sm font-bold text-amber-50 shadow-[0_0_20px_rgba(251,191,36,0.15)] transition group-hover:bg-amber-300/25 active:scale-95">
-            <span className={fade}>{text(t.cta)}</span><span className="transition-transform group-hover:translate-x-1.5">➜</span>
+            {/* Five existing orbs are the visual opening affordance; the parent link owns navigation. */}
+        <div data-home-battle-orbs aria-hidden="true" data-mode="hard-preview" className={orbStyles.wrap}
+          style={{ position: 'relative', display: 'flex', gap: 12, width: 208, height: 32, minHeight: 0, maxWidth: 'none', margin: 0, padding: 0, background: 'transparent', overflow: 'visible', pointerEvents: 'none' }}>
+          <svg width="0" height="0" focusable="false" style={{ position: 'absolute' }}><defs>
+            <clipPath id="home-battle-soft-space" clipPathUnits="objectBoundingBox"><path d="M .42 .1 Q .5 .02 .58 .1 L .9 .42 Q .98 .5 .9 .58 L .58 .9 Q .5 .98 .42 .9 L .1 .58 Q .02 .5 .1 .42 Z" /></clipPath>
+            <clipPath id="home-battle-soft-fire" clipPathUnits="objectBoundingBox"><path d="M .42 .12 Q .5 -.02 .58 .12 L .94 .78 Q 1 .92 .84 .92 L .16 .92 Q 0 .92 .06 .78 Z" /></clipPath>
+          </defs></svg>
+          {(['SPACE', 'AIR', 'WATER', 'FIRE', 'EARTH'] as const).map(element => (
+            <span key={element} data-preview-element={element} className={orbStyles.orb + ' ' + orbStyles[element.toLowerCase()] + ' ' + styles.previewOrb}
+              style={{ width: 32, height: 32, minWidth: 32, minHeight: 32, flex: 'none', cursor: 'inherit', willChange: 'auto' }}>
+              <span className={orbStyles.gem} style={element === 'SPACE' ? { clipPath: 'url(#home-battle-soft-space)' } : element === 'FIRE' ? { clipPath: 'url(#home-battle-soft-fire)' } : undefined} />
+              <Match3ElementGlyph element={element} className={orbStyles.elementGlyph} />
+            </span>
+          ))}
+        </div>
           </div>
         </div>
       </Link>

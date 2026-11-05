@@ -14,3 +14,12 @@
 :global(body #home-eight-card-route) a:has(.artwork):active :global(.home-feature-cta),
 :global(body #home-eight-card-route) a:has(.artwork):focus-visible :global(.home-feature-cta) { opacity: 1 !important; }
 @media (hover: hover) { :global(body #home-eight-card-route) a:has(.artwork):hover :global(.home-feature-cta) { opacity: 1 !important; } }
+
+
+/* Exact official pixels; hand-traced foreground silhouette, no generated replacement. */
+:global(body #home-eight-card-route) a:has(.artwork) .artwork {
+ top: 61px;
+ mask-image: url('/home-entry/nameology-original-silhouette.svg');
+ -webkit-mask-image: url('/home-entry/nameology-original-silhouette.svg');
+ mask-size: 100% 100%; mask-repeat: no-repeat;
+}

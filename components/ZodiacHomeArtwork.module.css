@@ -1,14 +1,13 @@
-.scenery { position: absolute; inset: 0; pointer-events: none; background: url('/home-entry/zodiac-young-scenery-v1.png') center bottom / 100% 115% no-repeat; }
+.scenery { position: absolute; inset: 0; pointer-events: none; background: url('/home-entry/zodiac-young-scenery-v1.png') center bottom / 145% 115% no-repeat; }
 .artwork { position: absolute; pointer-events: none; }
 .title { position: absolute; top: 12px; left: 16px; right: 16px; text-align: center; white-space: nowrap; font-size: 16px; font-weight: 800; color: #e0e7ff; text-shadow: 0 2px 5px #000; pointer-events: none; z-index: 3; }
 :global(body #home-eight-card-route) a:has(.artwork) { opacity: 1 !important; }
 :global(body #home-eight-card-route) a:has(.artwork)::after { display: none; }
 :global(body #home-eight-card-route) a:has(.artwork) .title { opacity: 1 !important; }
 :global(body #home-eight-card-route) a:has(.artwork) .artwork {
-  top: 58px; left: 50%; width: auto; height: calc(100% - 104px); max-width: calc(100% - 32px);
+  top: 44px; left: 50%; width: auto; height: calc(100% - 84px); max-width: calc(100% - 32px);
   transform: translateX(-50%); object-fit: contain; z-index: 2; filter: none !important; opacity: 1 !important;
-  mask-image: linear-gradient(to right, transparent, #000 12%, #000 92%, transparent), linear-gradient(to bottom, transparent, #000 12%, #000 89%, transparent 98%);
-  mask-composite: intersect;
+  mask-image: url("/home-entry/zodiac-original-silhouette.svg"); mask-size: 100% 100%; mask-repeat: no-repeat;
 }
 :global(body #home-eight-card-route) a:has(.artwork) :global(.home-feature-cta) { position: relative; z-index: 1; opacity: 0 !important; transition: opacity 150ms ease; }
 :global(body #home-eight-card-route) a:has(.artwork):active :global(.home-feature-cta),
