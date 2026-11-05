@@ -1,0 +1,52 @@
+.scenery {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, #171008, #21160d 55%, #100d09);
+}
+.scenery::before, .scenery::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 21%;
+  background-image: url('/beast-game/front/young-20.v2.webp');
+  background-size: auto 100%;
+  background-repeat: no-repeat;
+}
+.scenery::before {
+  left: 0;
+  background-position: left center;
+  mask-image: linear-gradient(to right, #000, transparent);
+}
+.scenery::after {
+  right: 0;
+  background-position: left center;
+  transform: scaleX(-1);
+  mask-image: linear-gradient(to right, #000, transparent);
+}
+.artwork {
+  position: absolute;
+  top: 42px;
+  left: 50%;
+  width: auto;
+  height: calc(100% - 112px);
+  max-width: calc(100% - 32px);
+  transform: translateX(-50%);
+  object-fit: contain;
+  mask-image: radial-gradient(ellipse at center, #000 58%, transparent 75%);
+  pointer-events: none;
+}
+.title {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  right: 16px;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffe4a6;
+  text-shadow: 0 2px 5px #000;
+  pointer-events: none;
+}

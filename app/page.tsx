@@ -1,4 +1,6 @@
 'use client';
+import nineGridArtwork from '@/components/NineGridHomeArtwork.module.css';
+import numberArtwork from '@/components/NumberHomeArtwork.module.css';
 
 import { useMemo, useState, useDeferredValue, useEffect, useRef, type CSSProperties } from 'react';
 import { FRONTEND_COPY } from '@/lib/credibility-phrases';
@@ -3059,19 +3061,13 @@ export default function HomePage() {
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
             
+              <div className={numberArtwork.scenery} aria-hidden="true" />
+              <img className={numberArtwork.artwork} src="/beast-game/front/young-14.v2.webp" alt="" aria-hidden="true" draggable={false} />
+              <span className={numberArtwork.title}><HomeTranslatedText text="易經論數字" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div data-home-entry-icon className="number-fortune-auspicious-emblem" aria-hidden="true">
-                <span className="number-fortune-auspicious-emblem__halo" />
-                <span className="number-fortune-auspicious-emblem__ring" />
-                <span className="number-fortune-auspicious-emblem__shine" />
-                <span className="number-fortune-auspicious-emblem__glyph">吉</span>
-              </div>
+
               <div className="min-w-0 flex-1">
                 <span className="hidden rounded-full bg-cyan-500/10 border border-cyan-500/25 px-3 py-0.5 text-[10px] font-bold tracking-widest text-cyan-300 uppercase animate-pulse"><HomeTranslatedText text={"CARD 01 · 數字好壞速測"} /></span>
-                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-cyan-100 tracking-wide flex items-center gap-2">
-                  <span><HomeTranslatedText text={"易經論數字"} /></span>
-                  <span className="text-xs font-sans text-cyan-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 4 / 6 / 8 / 10 碼 · 即時判定"} /></span>
-                </h2>
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]"><HomeTranslatedText text={"輸入 2 到 10 碼，易經立即整理吉凶傾向與今日行動。🎁 拆開有禮：你的數字會起出一支專屬卦，六十四格裡就這一格是你。"} /></p>
               </div>
             </div>
@@ -3318,22 +3314,15 @@ export default function HomePage() {
             href="/nine-grid"
             className="home-feature-launch home-feature-amber home-feature-tier-explore order-[16] w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
+            <div className={nineGridArtwork.scenery} aria-hidden="true" />
+            <img className={nineGridArtwork.artwork} src="/beast-game/front/young-20.v2.webp" alt="" aria-hidden="true" draggable={false} />
+            <span className={nineGridArtwork.title}><HomeTranslatedText text="九宮格靈動數字" /></span>
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
 
             <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-4.5">
-              <div data-home-entry-icon className="home-oracle-3d-emblem home-oracle-3d-emblem--amber" aria-hidden="true">
-                <span className="home-oracle-3d-emblem__aura" />
-                <span className="home-oracle-3d-emblem__bevel" />
-                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--one" />
-                <span className="home-oracle-3d-emblem__spark home-oracle-3d-emblem__spark--two" />
-                <span className="home-oracle-3d-emblem__glyph">九</span>
-              </div>
               <div className="min-w-0 flex-1">
-                <h2 className="mt-1.5 font-serif text-xl sm:text-2xl font-black text-amber-100 tracking-wide flex items-center gap-2">
-                  <span><HomeTranslatedText text={"九宮格靈動數字"} /></span>
-                  <span className="text-xs font-sans text-amber-300 font-normal opacity-85 hidden sm:inline"><HomeTranslatedText text={"// 生命靈數 · 洛書九宮"} /></span>
-                </h2>
+
                 <p className="mt-1 text-xs text-[color:var(--text-sub)]"><HomeTranslatedText text={"輸入西元出生年月日，畫出你的九宮格，看哪些數字與連線亮起來。"} /></p>
               </div>
             </div>
