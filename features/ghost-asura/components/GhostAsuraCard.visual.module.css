@@ -446,3 +446,201 @@
     transform: none !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+ * 「前三秒」入場節奏 — ADDITIVE only (keep visualRoot/Card/Badge…)
+ * Eye-line: 「你」 first → guide → viewerLine → 「現在」章
+ * Rhythm: 0.8s / cubic-bezier(0.34,1.56,0.64,1) / ~100ms stagger
+ * Motion: transform + opacity ONLY. FE wires new classNames below.
+ * Live hooks (no TSX yet for new names): .visualRoot [data-asura-decree-viewer]
+ * ═══════════════════════════════════════════════════════════ */
+
+@keyframes entranceFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(var(--entrance-rise, 10px));
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes entranceSealIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Stage flag — put on decree section root alongside visualRoot */
+.entranceStage {
+  --entrance-dur: 0.8s;
+  --entrance-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --entrance-stagger: 0.1s;
+  --entrance-rise: 10px;
+  /* Beat map (~3s feel, 「你」 first) */
+  --entrance-beat-guide: 0ms;
+  --entrance-beat-viewer: calc(1 * var(--entrance-stagger)); /* ~100ms */
+  --entrance-beat-seal: calc(3 * var(--entrance-stagger));   /* ~300ms */
+  --entrance-beat-cards: calc(4.5 * var(--entrance-stagger)); /* ~450ms */
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+/* Reuse visualRoot as stage when FE hasn't added entranceStage yet */
+.visualRoot {
+  --entrance-dur: 0.8s;
+  --entrance-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --entrance-stagger: 0.1s;
+  --entrance-rise: 10px;
+  --entrance-beat-guide: 0ms;
+  --entrance-beat-viewer: calc(1 * var(--entrance-stagger));
+  --entrance-beat-seal: calc(3 * var(--entrance-stagger));
+  --entrance-beat-cards: calc(4.5 * var(--entrance-stagger));
+}
+
+/* 1) Guide / nav strip — FE: PresentGuide / decree lead strip */
+.entranceGuide {
+  opacity: 0;
+  transform: translateY(var(--entrance-rise, 10px));
+  animation: entranceFadeUp var(--entrance-dur, 0.8s) var(--entrance-ease, cubic-bezier(0.34, 1.56, 0.64, 1)) both;
+  animation-delay: var(--entrance-beat-guide, 0ms);
+  will-change: transform, opacity;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* 2) Personalized viewerLine chip — 「你今年 52 歲…」; eye lands on 你 */
+.entranceViewerLine {
+  opacity: 0;
+  transform: translateY(var(--entrance-rise, 10px));
+  animation: entranceFadeUp var(--entrance-dur, 0.8s) var(--entrance-ease, cubic-bezier(0.34, 1.56, 0.64, 1)) both;
+  animation-delay: var(--entrance-beat-viewer, 0.1s);
+  will-change: transform, opacity;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* Live hook: already-wired visualViewerChip + data-asura-decree-viewer */
+.visualViewerChip,
+.visualRoot [data-asura-decree-viewer] {
+  opacity: 0;
+  transform: translateY(var(--entrance-rise, 10px));
+  animation: entranceFadeUp var(--entrance-dur, 0.8s) var(--entrance-ease, cubic-bezier(0.34, 1.56, 0.64, 1)) both;
+  animation-delay: var(--entrance-beat-viewer, 0.1s);
+  will-change: transform, opacity;
+}
+
+/* Emphasize 「你」 / name weight without inventing copy */
+.visualViewerName,
+.entranceViewerLine .visualViewerName {
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+/* 3) 「現在」 card state-seal / mark — third beat */
+.entranceCurrentSeal {
+  opacity: 0;
+  transform: translateY(6px) scale(0.94);
+  animation: entranceSealIn 0.7s var(--entrance-ease, cubic-bezier(0.34, 1.56, 0.64, 1)) both;
+  animation-delay: var(--entrance-beat-seal, 0.3s);
+  will-change: transform, opacity;
+  max-width: 100%;
+}
+
+/* Live: current mark seal enters on beat 3, then soft pulse (keep polish) */
+.visualMarkSealCurrent {
+  animation:
+    entranceSealIn 0.7s var(--entrance-ease, cubic-bezier(0.34, 1.56, 0.64, 1)) both,
+    decreeSealPulse 2.2s ease-in-out infinite;
+  animation-delay:
+    var(--entrance-beat-seal, 0.3s),
+    calc(var(--entrance-beat-seal, 0.3s) + 0.75s);
+}
+
+/* Optional FE class on current decree card shell */
+.entranceCurrentCard {
+  /* marker only — timing via visualCardCurrent + beat-cards below */
+}
+
+/* Push card grid entrance slightly after viewer so eye hits 「你」 first */
+.visualRoot .visualCard {
+  animation-delay: calc(var(--entrance-beat-cards, 0.45s) + (var(--decree-stagger, 0.1s) * 0));
+}
+.visualRoot .visualCard:nth-child(1) {
+  animation-delay: calc(var(--entrance-beat-cards, 0.45s) + (var(--decree-stagger, 0.1s) * 0));
+}
+.visualRoot .visualCard:nth-child(2) {
+  animation-delay: calc(var(--entrance-beat-cards, 0.45s) + (var(--decree-stagger, 0.1s) * 1));
+}
+.visualRoot .visualCard:nth-child(3) {
+  animation-delay: calc(var(--entrance-beat-cards, 0.45s) + (var(--decree-stagger, 0.1s) * 2));
+}
+.visualRoot .visualCard:nth-child(4) {
+  animation-delay: calc(var(--entrance-beat-cards, 0.45s) + (var(--decree-stagger, 0.1s) * 3));
+}
+
+.visualRoot .visualCardCurrent {
+  animation:
+    decreeCardIn var(--decree-dur, 0.8s) var(--decree-ease, cubic-bezier(0.34, 1.56, 0.64, 1)) both,
+    decreeCurrentBreathe 2.4s ease-in-out infinite;
+  animation-delay:
+    calc(var(--entrance-beat-cards, 0.45s) + (var(--decree-stagger, 0.1s) * 1)),
+    calc(var(--entrance-beat-cards, 0.45s) + 1s);
+}
+
+/* Badge / title inside cards: keep relative stagger after card beat */
+.visualRoot .visualBadge {
+  animation-delay: calc(var(--entrance-beat-cards, 0.45s) + 0.08s);
+}
+.visualRoot .visualIcon {
+  animation-delay: calc(var(--entrance-beat-cards, 0.45s) + 0.12s);
+}
+.visualRoot .visualTitleOverlay {
+  animation-delay: calc(var(--entrance-beat-cards, 0.45s) + 0.16s);
+}
+.visualRoot .visualBody {
+  animation-delay: calc(var(--entrance-beat-cards, 0.45s) + 0.22s);
+}
+
+@media (max-width: 420px) {
+  .entranceStage,
+  .visualRoot {
+    --entrance-rise: 8px;
+  }
+
+  .entranceGuide,
+  .entranceViewerLine,
+  .visualViewerChip,
+  .entranceCurrentSeal {
+    max-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entranceStage,
+  .entranceGuide,
+  .entranceViewerLine,
+  .entranceCurrentSeal,
+  .entranceCurrentCard,
+  .visualViewerChip,
+  .visualRoot [data-asura-decree-viewer],
+  .visualMarkSealCurrent,
+  .visualRoot .visualCard,
+  .visualRoot .visualCardCurrent,
+  .visualRoot .visualCard:nth-child(n),
+  .visualRoot .visualBadge,
+  .visualRoot .visualIcon,
+  .visualRoot .visualTitleOverlay,
+  .visualRoot .visualBody {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

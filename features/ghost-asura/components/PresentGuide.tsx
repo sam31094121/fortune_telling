@@ -1,6 +1,7 @@
 import type { CSSProperties, MouseEvent } from 'react';
 import type { AsuraDisplay } from '@/lib/ghost-asura-display-contract';
 import styles from './GhostAsuraCard.module.css';
+import visual from './GhostAsuraCard.visual.module.css';
 
 export const COLUMN_ACCENTS = { year: '#fd722a', month: '#fdb303', day: '#19b5a5', hour: '#4aa8e8' };
 
@@ -24,7 +25,7 @@ export function PresentGuide({ display, sectionKey = 'pillars' }: { display: Asu
   const related = guide?.related ?? [];
   const period = sectionKey === 'verdict' ? '未來' : '現在';
   if (!current && !related.length) return null;
-  return <nav className={styles.presentGuide} aria-label={`${period}的閱讀引導`}>
+  return <nav className={`${styles.presentGuide} ${visual.entranceGuide}`} aria-label={`${period}的閱讀引導`}>
     {current && <section style={{ '--guide-accent': COLUMN_ACCENTS[current.key] } as CSSProperties}>
       <strong>先看你目前的年齡階段</strong>
       <p>下方「{current.ageText}」這一欄，對應你目前的年齡。點名稱就能看該張解說。</p>

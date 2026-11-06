@@ -59,7 +59,7 @@ function validateAdultGate(gate, birthDate, requestDay) {
     // Oct 24 added goldWording after nature; retain every Oct 9 legacy assertion.
     // The additive field is checked separately, not silently ignored.
     validateAdultGate(now.ageGate, input.birthDate, requestDay);
-    assert.deepEqual(Object.keys(now).filter((k) => k !== 'nature' && k !== 'goldWording' && k !== 'ageGate' && k !== 'timelineDecree' && k !== 'ageTimeline' && k !== 'decreeAnchors' && k !== 'viewer'), Object.keys(fixture), `${name} legacy keys`);
+    assert.deepEqual(Object.keys(now).filter((k) => k !== 'nature' && k !== 'goldWording' && k !== 'ageGate' && k !== 'timelineDecree' && k !== 'ageTimeline' && k !== 'decreeAnchors' && k !== 'viewer' && k !== 'pinnedSummary'), Object.keys(fixture), `${name} legacy keys`);
     validateGoldWording(now.goldWording, input);
     assert(now.timelineDecree && now.timelineDecree.title === '千人千面戰神令' && now.timelineDecree.lines.length === 4, `${name} timelineDecree present`);
     assert.deepEqual(count(JSON.stringify(now.timelineDecree), tl.ASURA_CARD_FORBIDDEN_TERMS), [], `${name} timelineDecree terms`);
@@ -75,6 +75,12 @@ function validateAdultGate(gate, birthDate, requestDay) {
     // 客人本人（新增欄位）：viewer.age＝後端實歲；viewerLine 帶年齡
     assert(now.viewer && Number.isInteger(now.viewer.age) && (now.viewer.name === null || typeof now.viewer.name === 'string'), `${name} viewer`);
     assert(typeof now.ageTimeline.viewerLine === 'string' && now.ageTimeline.viewerLine.includes(`你今年 ${now.viewer.age} 歲`), `${name} viewerLine`);
+    assert(typeof now.pinnedSummary === 'string' && now.pinnedSummary.includes(`你今年 ${now.viewer.age} 歲`), `${name} pinnedSummary`);
+    if (now.decreeAnchors) {
+      const nowCard = now.decreeAnchors.find((a) => a.mark === '現在');
+      const actCard = now.decreeAnchors.find((a) => a.mark === '現在就做');
+      if (nowCard && actCard) assert.notEqual(nowCard.headline, actCard.headline, `${name} 現在/現在就做 headlines differ`);
+    }
     assert(now.ageTimeline.segments.slice(0, -1).every((g) => typeof g.bridge === 'string' && g.bridge) && now.ageTimeline.segments[now.ageTimeline.segments.length - 1].bridge === null, `${name} bridges`);
     assert(now.ageTimeline.segments.every((g) => g.depth.every((d) => typeof d.close === 'string' && d.close.length > 0)), `${name} depth close`);
     assert(Array.isArray(now.ageTimeline.premiumTitles), `${name} premiumTitles`);

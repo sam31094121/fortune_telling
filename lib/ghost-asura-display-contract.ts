@@ -229,6 +229,11 @@ export interface AsuraDisplay {
    */
   decreeAnchors?: AsuraDecreeAnchor[] | null;
   /**
+   * 置頂摘要（新增欄位，只增不改；舊資料無此欄＝不畫）：一句個人定位，例「你今年 52 歲，正走在 44–53 歲這段」；
+   * 有姓名時前綴「{姓名}，」。由 viewer 實歲＋現在段起訖歲組成；無實歲＝null。前端只照印。
+   */
+  pinnedSummary?: string | null;
+  /**
    * 客人本人（新增欄位）：後端由表單資料算出，前端只照印、不自算。
    * name＝表單 name 清洗後（trim、去控制字元與符號、上限 12 字；含任何禁詞＝null）；表單未填＝null，前端改稱「你」，不得自編姓名。
    * age＝今日（台北）實歲（與 ageGate 同一套足歲算法）；生日缺漏＝null。
@@ -356,7 +361,7 @@ export interface AsuraDecreeAnchor {
   ageRange: string;
   /** 卡面狀態章：走過／現在／現在就做／下一段 */
   mark: '走過' | '現在' | '現在就做' | '下一段';
-  /** 同 segments[segmentIndex].opening.headline（卡面疊字用） */
+  /** focus=segment：同 segments[segmentIndex].opening.headline；focus=action：由該段洋蔥行動句組成的行動式標題（例「今天就做這一件：…」） */
   headline: string;
 }
 

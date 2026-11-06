@@ -1,11 +1,11 @@
-/* AsuraAgeTimeline.motion.module.css
+﻿/* AsuraAgeTimeline.motion.module.css
  * Motion owner only. Class names must stay stable for TSX wiring.
  * Rhythm aligned to asuraImpressionGlow: 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)
  * stagger 100ms (lib/ghost-asura-animation.ts impressionGlow.staggerDelay)
  * Animations use ONLY transform + opacity (mobile 390 first).
  *
  * Beat sequence (not all at once):
- *   bridge fade → segment open → peel container → peel layers cascade
+ *   guide/viewer → segments/cards → bridge (WITH/AFTER cards) → peel cascade
  *
  * Expand approach (no height anim): scaleY + translateY from transform-origin top,
  * with opacity. Works for open/peel without layout thrash.
@@ -309,6 +309,174 @@
   .motionPeel[data-peeled="2"],
   .motionPeel[data-peeled="3"],
   .motionPeelLayer {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
+/* ═══════════════════════════════════════════════════════════
+ * 「前三秒」入場節奏 — age timeline (ADDITIVE)
+ * Sequence: guide(hereBar) → viewerLine → 「現在」段章
+ * Live hooks via .motionRoot [data-asura-age-here|viewer] (no TSX edit)
+ * New classNames listed for FE wiring.
+ * ═══════════════════════════════════════════════════════════ */
+
+@keyframes asuraEntranceFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(var(--asura-entrance-rise, 10px));
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes asuraEntranceSealIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.motionRoot {
+  --asura-entrance-dur: 0.8s;
+  --asura-entrance-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --asura-entrance-stagger: 100ms;
+  --asura-entrance-rise: 10px;
+  --asura-entrance-guide: 0ms;
+  --asura-entrance-viewer: calc(1 * var(--asura-entrance-stagger));
+  --asura-entrance-seal: calc(3 * var(--asura-entrance-stagger));
+  --asura-entrance-segments: calc(5 * var(--asura-entrance-stagger));
+  /* FAIL mid180: bridge must enter WITH/AFTER cards, never before (was 0ms) */
+  --asura-phase-bridge: calc(var(--asura-entrance-segments) + 1 * var(--asura-age-stagger));
+}
+/* Bridge: lock to after segment cascade starts (sibling of cards, not child) */
+.motionRoot .motionBridge {
+  animation-delay: var(--asura-phase-bridge);
+}
+
+/* Stage flag (optional; motionRoot already acts as stage) */
+.motionEntranceStage {
+  /* same vars inherited when combined with motionRoot */
+}
+
+/* 1) Guide strip — FE: styles.hereBar / segNav lead */
+.motionEntranceGuide {
+  opacity: 0;
+  transform: translateY(var(--asura-entrance-rise, 10px));
+  animation: asuraEntranceFadeUp var(--asura-entrance-dur) var(--asura-entrance-ease) both;
+  animation-delay: var(--asura-entrance-guide);
+  will-change: transform, opacity;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* Live: hereBar already has data-asura-age-here under motionRoot */
+.motionRoot [data-asura-age-here] {
+  opacity: 0;
+  transform: translateY(var(--asura-entrance-rise, 10px));
+  animation: asuraEntranceFadeUp var(--asura-entrance-dur) var(--asura-entrance-ease) both;
+  animation-delay: var(--asura-entrance-guide);
+  will-change: transform, opacity;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* 2) viewerLine — 「你今年 52 歲…」; eye-line on 你 */
+.motionEntranceViewer {
+  opacity: 0;
+  transform: translateY(var(--asura-entrance-rise, 10px));
+  animation: asuraEntranceFadeUp var(--asura-entrance-dur) var(--asura-entrance-ease) both;
+  animation-delay: var(--asura-entrance-viewer);
+  will-change: transform, opacity;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.motionRoot [data-asura-age-viewer] {
+  opacity: 0;
+  transform: translateY(var(--asura-entrance-rise, 10px));
+  animation: asuraEntranceFadeUp var(--asura-entrance-dur) var(--asura-entrance-ease) both;
+  animation-delay: var(--asura-entrance-viewer);
+  will-change: transform, opacity;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* 3) 「現在」 current mark / hereTag seal */
+.motionEntranceCurrentMark {
+  opacity: 0;
+  transform: translateY(6px) scale(0.94);
+  animation: asuraEntranceSealIn 0.7s var(--asura-entrance-ease) both;
+  animation-delay: var(--asura-entrance-seal);
+  will-change: transform, opacity;
+  max-width: 100%;
+}
+
+/* Live: peel-hint / here tag on current segment */
+.motionRoot .motionSegmentCurrent [data-asura-age-peel-hint] {
+  opacity: 0;
+  transform: translateY(6px) scale(0.94);
+  animation: asuraEntranceSealIn 0.7s var(--asura-entrance-ease) both;
+  animation-delay: var(--asura-entrance-seal);
+  will-change: transform, opacity;
+}
+
+/* Delay segment cascade so guide + viewer land first */
+.motionRoot .motionSegment:nth-child(1) { animation-delay: calc(var(--asura-entrance-segments) + 0 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(2) { animation-delay: calc(var(--asura-entrance-segments) + 1 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(3) { animation-delay: calc(var(--asura-entrance-segments) + 2 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(4) { animation-delay: calc(var(--asura-entrance-segments) + 3 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(5) { animation-delay: calc(var(--asura-entrance-segments) + 4 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(6) { animation-delay: calc(var(--asura-entrance-segments) + 5 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(7) { animation-delay: calc(var(--asura-entrance-segments) + 6 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(8) { animation-delay: calc(var(--asura-entrance-segments) + 7 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(9) { animation-delay: calc(var(--asura-entrance-segments) + 8 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(10) { animation-delay: calc(var(--asura-entrance-segments) + 9 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(11) { animation-delay: calc(var(--asura-entrance-segments) + 10 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(12) { animation-delay: calc(var(--asura-entrance-segments) + 11 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(13) { animation-delay: calc(var(--asura-entrance-segments) + 12 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(14) { animation-delay: calc(var(--asura-entrance-segments) + 13 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(15) { animation-delay: calc(var(--asura-entrance-segments) + 14 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(16) { animation-delay: calc(var(--asura-entrance-segments) + 15 * var(--asura-age-stagger)); }
+
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(1) { animation-delay: calc(var(--asura-entrance-segments) + 0 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 0 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(2) { animation-delay: calc(var(--asura-entrance-segments) + 1 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 1 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(3) { animation-delay: calc(var(--asura-entrance-segments) + 2 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 2 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(4) { animation-delay: calc(var(--asura-entrance-segments) + 3 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 3 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(5) { animation-delay: calc(var(--asura-entrance-segments) + 4 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 4 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(6) { animation-delay: calc(var(--asura-entrance-segments) + 5 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 5 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(7) { animation-delay: calc(var(--asura-entrance-segments) + 6 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 6 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(8) { animation-delay: calc(var(--asura-entrance-segments) + 7 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 7 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(9) { animation-delay: calc(var(--asura-entrance-segments) + 8 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 8 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(10) { animation-delay: calc(var(--asura-entrance-segments) + 9 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 9 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(11) { animation-delay: calc(var(--asura-entrance-segments) + 10 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 10 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(12) { animation-delay: calc(var(--asura-entrance-segments) + 11 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 11 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(13) { animation-delay: calc(var(--asura-entrance-segments) + 12 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 12 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(14) { animation-delay: calc(var(--asura-entrance-segments) + 13 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 13 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(15) { animation-delay: calc(var(--asura-entrance-segments) + 14 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 14 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(16) { animation-delay: calc(var(--asura-entrance-segments) + 15 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 15 * var(--asura-age-stagger)); }
+
+@media (max-width: 420px) {
+  .motionRoot {
+    --asura-entrance-rise: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motionEntranceStage,
+  .motionEntranceGuide,
+  .motionEntranceViewer,
+  .motionEntranceCurrentMark,
+  .motionRoot [data-asura-age-here],
+  .motionRoot [data-asura-age-viewer],
+  .motionRoot .motionSegmentCurrent [data-asura-age-peel-hint] {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;

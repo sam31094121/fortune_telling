@@ -13,7 +13,8 @@
 import 'server-only';
 
 import { ASURA_FORBIDDEN_TERMS as ALIAS_FORBIDDEN_TERMS } from '@/lib/asura-display-alias';
-import type { AsuraAgePremiumTitle, AsuraAgeTimeline, AsuraDecreeAnchor, AsuraDisplay, AsuraDisplaySection, AsuraTimelineDecree } from '@/lib/ghost-asura-display-contract';
+import { plainActionOrder } from '@/lib/server/ghost-asura-voice';
+import type { AsuraAgePremiumTitle, AsuraAgeTimeline, AsuraAgeTimelineSegment, AsuraDecreeAnchor, AsuraDisplay, AsuraDisplaySection, AsuraTimelineDecree } from '@/lib/ghost-asura-display-contract';
 import {
   NATURE_CARD_VERSION,
   type AsuraImageEntry,
@@ -53,10 +54,10 @@ export function forbiddenTermsIn(text: string, terms: readonly string[] = ASURA_
 const TIMELINE_DECREE_SOURCE: AsuraTimelineDecree = {
   title: '千人千面戰神令',
   lines: [
-    { key: 'opening', heading: '戰意開場', body: '你腳下這片地，不是今日才踏上的。早年一寸一寸夯實的路，就是你的根基，站得穩。' },
-    { key: 'sandbox', heading: '沙盤直斷', body: '你手裡這股勁剛冒頭，刃還沒開過鋒。嫩，卻已握在掌心。' },
-    { key: 'tactics', heading: '戰術號令', body: '你懂的、練過的，就是兵書。兵書壓箱底，從沒贏過一場。拿出來用，才叫戰。' },
-    { key: 'closing', heading: '修羅戰令', body: '前方鼓聲已起，一快一慢。踩著鼓點走，節奏握在你手。' },
+    { key: 'opening', heading: '戰意開場', body: '你腳下這片地，不是今日才踏上的。早年一步一步走實的路，就是你的根基，站得穩。' },
+    { key: 'sandbox', heading: '沙盤直斷', body: '你手上這股勁剛冒頭，刀還沒開鋒。還嫩，但已經握在你手裡。' },
+    { key: 'tactics', heading: '戰術號令', body: '你懂的、練過的，就是你的兵書。兵書壓在箱底，一場也贏不了。拿出來用，才叫上戰場。' },
+    { key: 'closing', heading: '修羅戰令', body: '前方鼓聲已響，時快時慢。跟著鼓點走，節奏握在你手上。' },
   ],
 };
 
@@ -408,6 +409,39 @@ function parseAgeLabel(label: string): [number, number] | null {
  * 戰神令四卡對應的年齡段（文字不動，只給定位＋卡面標記）：1→現在前一段（過去，無則現在）、2→現在、3→現在（focus action）、4→現在後一段（未來，無則現在）。
  * 無「現在」段＝null。卡面標記（label／ageRange／mark／headline）全由後端組好，前端只照印。
  */
+/** 從本段洋蔥行動句組「現在就做」卡專用 headline（與 opening.headline 分開）；優先取擔綱本段標題那一層的第一個 action，再經 voice.plainActionOrder 白話改寫（原文不動）。 */
+function actionFocusHeadline(seg: AsuraAgeTimelineSegment): string {
+  const body = seg.opening.headline.replace(/^\d+\s*歲起，/, '');
+  let layerIdx = -1;
+  const prem = AGE_PREMIUM_TITLES.find((p) => p.phrase === body);
+  if (prem) layerIdx = PALACE_VERSE_LAYERS.findIndex((l) => l.key === prem.layer);
+  if (layerIdx < 0) {
+    const weighted = AGE_WEIGHTED_TITLES.find((w) => w.phrase === body);
+    if (weighted) layerIdx = PALACE_VERSE_LAYERS.findIndex((l) => l.key === weighted.layer);
+  }
+  if (layerIdx < 0) {
+    for (let i = 0; i < PALACE_VERSE_LAYERS.length; i++) {
+      const phrases = Object.values(AGE_ROW_HEADLINE[PALACE_VERSE_LAYERS[i].key] ?? {});
+      if (phrases.some((p) => p === body)) { layerIdx = i; break; }
+    }
+  }
+  const action =
+    (layerIdx >= 0 ? seg.depth[layerIdx]?.action?.[0] : undefined) ||
+    seg.depth.flatMap((d) => d.action).find((a) => typeof a === 'string' && a.trim().length > 0);
+  if (!action) return seg.opening.headline;
+  const line = `今天就做這一件：${plainActionOrder(action)}`;
+  return line;
+}
+
+/** 置頂摘要（display.pinnedSummary）：由 viewer 實歲＋現在段起訖歲組成；有姓名則前綴。無實歲＝null。 */
+export function buildPinnedSummary(timeline: AsuraAgeTimeline | null | undefined, viewer: AgeTimelineViewer | null = null): string | null {
+  if (!viewer || typeof viewer.age !== 'number') return null;
+  const who = viewer.name ? `${viewer.name}，` : '';
+  const cur = timeline?.segments?.find((s) => s.isCurrent);
+  const r = cur ? parseAgeLabel(cur.ageLabel) : null;
+  return r ? `${who}你今年 ${viewer.age} 歲，正走在 ${r[0]}–${r[1]} 歲這段` : `${who}你今年 ${viewer.age} 歲`;
+}
+
 export function buildDecreeAnchors(timeline: AsuraAgeTimeline | null | undefined, viewer: AgeTimelineViewer | null = null): AsuraDecreeAnchor[] | null {
   if (!timeline || timeline.segments.length === 0) return null;
   const cur = timeline.segments.findIndex((s) => s.isCurrent);
@@ -423,7 +457,8 @@ export function buildDecreeAnchors(timeline: AsuraAgeTimeline | null | undefined
       : mark === '下一段' ? `你 ${r ? r[0] : ageRange} 歲起・下一段`
       : age !== null ? `你今年 ${age} 歲・${mark === '現在就做' ? '現在就做' : '就在這段'}`
       : `你 ${ageRange} 歲・${mark === '現在就做' ? '現在就做' : '就在這段'}`;
-    return { segmentIndex: i, ageLabel: seg.ageLabel, tense: seg.tense, focus, label, ageRange, mark, headline: seg.opening.headline };
+    const headline = focus === 'action' ? actionFocusHeadline(seg) : seg.opening.headline;
+    return { segmentIndex: i, ageLabel: seg.ageLabel, tense: seg.tense, focus, label, ageRange, mark, headline };
   };
   const last = timeline.segments.length - 1;
   return [at(cur > 0 ? cur - 1 : cur, 'segment'), at(cur, 'segment'), at(cur, 'action'), at(cur < last ? cur + 1 : cur, 'segment')];

@@ -38,8 +38,8 @@ assert(tl.palaceVerseForbiddenHits('甲子年').includes('干支組合'));
 const JARGON2 = ['立纛', '歃血', '淬鋒', '擂鼓', '擂', '掛印', '封金', '破釜', '沉舟', '臥薪', '嘗膽', '虎賁', '金戈', '鐵馬', '封刀', '按劍', '鳴金', '出鞘'];
 for (const t of [...Object.values(tl.AGE_BRIDGE_OPEN).flat(), ...Object.values(tl.AGE_BRIDGE_CLOSE).flat(), ...tl.AGE_HOOK_TO_HISTORY, ...tl.AGE_HOOK_TO_ACTION]) assert.deepEqual(JARGON2.filter((w) => t.includes(w)), [], `jargon ${t}`);
 for (const l of tl.PALACE_VERSE_LAYERS) for (const row of Object.values(tl.PALACE_VERSE_ONION[l.key])) for (const t of [row.depth.basis.hook, row.depth.history ? row.depth.history.hook : '']) assert.deepEqual(JARGON2.filter((w) => t.includes(w)), [], `hook jargon ${t}`);
-assert.equal(tl.buildTimelineDecree().lines[1].body, '你手裡這股勁剛冒頭，刃還沒開過鋒。嫩，卻已握在掌心。');
-assert.equal(tl.buildTimelineDecree().lines[0].body, '你腳下這片地，不是今日才踏上的。早年一寸一寸夯實的路，就是你的根基，站得穩。');
+assert.equal(tl.buildTimelineDecree().lines[1].body, '你手上這股勁剛冒頭，刀還沒開鋒。還嫩，但已經握在你手裡。');
+assert.equal(tl.buildTimelineDecree().lines[0].body, '你腳下這片地，不是今日才踏上的。早年一步一步走實的路，就是你的根基，站得穩。');
 const src = fs.readFileSync(path.join(root, 'lib/server/ghost-asura-translation-layer.ts'), 'utf8');
 assert(!/from '@\/lib\/(ziwei|dual-chart|three-core)/.test(src), 'translation layer imports no engine');
 
@@ -171,7 +171,12 @@ const BRIDGES_1974 = ["這段你往上走，下一段你正面迎戰。", "這�
 fs.writeFileSync(path.join(require('node:os').tmpdir(), 'ga-1974-bridges.json'), JSON.stringify({ bridges: v.segments.map((g) => [g.ageLabel, g.opening.headline, g.bridge]), guide: v.guide, anchors: tl.buildDecreeAnchors(v) }, null, 1));
 assert.deepEqual(v.segments.map((g) => g.bridge), BRIDGES_1974, '1974 bridges');
 assert.deepEqual(tl.buildDecreeAnchors(v).map((a) => [a.segmentIndex, a.tense, a.focus]), [[3, '過去', 'segment'], [4, '現在', 'segment'], [4, '現在', 'action'], [5, '未來', 'segment']], '1974 anchors');
-assert.deepEqual(tl.buildDecreeAnchors(v, { name: null, age: 52 }).map((a) => [a.label, a.ageRange, a.mark, a.headline === v.segments[a.segmentIndex].opening.headline]), [['你 34–43 歲・走過的路', '34–43', '走過', true], ['你今年 52 歲・就在這段', '44–53', '現在', true], ['你今年 52 歲・現在就做', '44–53', '現在就做', true], ['你 54 歲起・下一段', '54–63', '下一段', true]], '1974 anchor markers');
+assert.deepEqual(tl.buildDecreeAnchors(v, { name: null, age: 52 }).map((a) => [a.label, a.ageRange, a.mark, a.headline]), [['你 34–43 歲・走過的路', '34–43', '走過', v.segments[3].opening.headline], ['你今年 52 歲・就在這段', '44–53', '現在', v.segments[4].opening.headline], ['你今年 52 歲・現在就做', '44–53', '現在就做', '今天就做這一件：這陣子給自己排一天休息，身體不對勁就去看醫生'], ['你 54 歲起・下一段', '54–63', '下一段', v.segments[5].opening.headline]], '1974 anchor markers');
+assert.notEqual(tl.buildDecreeAnchors(v, { name: null, age: 52 })[1].headline, tl.buildDecreeAnchors(v, { name: null, age: 52 })[2].headline, '現在 vs 現在就做 headlines differ');
+assert.equal(tl.buildPinnedSummary(v, { name: null, age: 52 }), '你今年 52 歲，正走在 44–53 歲這段');
+assert.equal(tl.buildPinnedSummary(v, { name: '阿勝', age: 52 }), '阿勝，你今年 52 歲，正走在 44–53 歲這段');
+assert.equal(tl.buildPinnedSummary(null, { name: '阿勝', age: 52 }), '阿勝，你今年 52 歲');
+assert.equal(tl.buildPinnedSummary(v, null), null);
 assert.deepEqual(v.premiumTitles.map((p) => [p.segmentIndex, p.phrase]), [[3, "這段有場傷心事，我陪你哭完再站起來"], [4, "身體在喊停，我要你先停，再打下一仗"]], '1974 premium');
 
 // ── 3) 多組生辰 ──
@@ -200,5 +205,15 @@ for (let y = 1950; y <= 2005; y += 5) for (const m of [1, 4, 8, 12]) for (const 
   if (x.segments.some((g) => g.isCurrent)) assert(an.length === 4 && an.every((a) => x.segments[a.segmentIndex].ageLabel === a.ageLabel && x.segments[a.segmentIndex].tense === a.tense), 'anchors'); else assert.equal(an, null);
   assert.deepEqual(tl.palaceVerseForbiddenHits(JSON.stringify(x)), []);
   n++;
+}
+// ASURA_ACTION_PLAIN coverage：洋蔥每一條 action 都有白話改寫，且禁詞＝0
+{ const missing = []; const hits = [];
+  for (const layer of Object.keys(tl.PALACE_VERSE_ONION)) for (const row of Object.values(tl.PALACE_VERSE_ONION[layer])) for (const a of row.depth.action) {
+    if (!voice.ASURA_ACTION_PLAIN[a]) missing.push(a);
+    hits.push(...tl.palaceVerseForbiddenHits(voice.plainActionOrder(a)));
+  }
+  assert.equal(Object.keys(voice.ASURA_ACTION_PLAIN).length, 48, 'ASURA_ACTION_PLAIN 48 keys');
+  assert.deepEqual(missing, [], 'ASURA_ACTION_PLAIN covers every onion action');
+  assert.deepEqual([...new Set(hits)], [], 'ASURA_ACTION_PLAIN forbidden');
 }
 console.log(`ghost-asura-palace-verses: PASS (576 combos, ${later.size} later-level values, onion 48 rows / ${histories} histories / ${sources.size} sources, 1974 case, ${n} charts, avg ${(ms / n).toFixed(3)} ms/chart, ${premHits} premium headlines)`);

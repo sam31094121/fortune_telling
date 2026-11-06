@@ -19,7 +19,7 @@ import { asuraDeepScrub } from '@/lib/asura-display-alias';
 import { AsuraSkillError, asuraPlainLineOf, resolveAsuraInterpretation } from '@/features/ghost-asura/skill';
 import { ASURA_PLAIN, ASURA_TIMELINE, ASURA_VOICE, composeTime, type AsuraPillarKey, type AsuraWhen, voiceLead } from '@/lib/server/ghost-asura-voice';
 import { analyzePersona, runNatureGates } from '@/lib/server/ghost-asura-persona';
-import { asuraLinkStory, asuraTranslateDisplay, buildAgeTimeline, buildDecreeAnchors, buildTimelineDecree, sanitizeViewerName, toPublic, translateAsNature, type AgeTimelineViewer, type PalaceVerseCell } from '@/lib/server/ghost-asura-translation-layer';
+import { asuraLinkStory, asuraTranslateDisplay, buildAgeTimeline, buildDecreeAnchors, buildPinnedSummary, buildTimelineDecree, sanitizeViewerName, toPublic, translateAsNature, type AgeTimelineViewer, type PalaceVerseCell } from '@/lib/server/ghost-asura-translation-layer';
 import type { AsuraNatureCardServer } from '@/lib/ghost-asura-nature-contract';
 import { goldWordingViewFor } from '@/lib/ghost-asura-gold-wording';
 import {
@@ -684,9 +684,13 @@ export function computeGhostAsuraDisplay(raw: unknown, now: Date = new Date()): 
   };
 }
 
-/** ageTimeline 與由它推得的戰神令四卡定位（decreeAnchors，卡面標記含客人年齡）。 */
-function ageTimelineFields(ageTimeline: AsuraDisplay['ageTimeline'], viewer: AgeTimelineViewer | null = null): Pick<AsuraDisplay, 'ageTimeline' | 'decreeAnchors'> {
-  return { ageTimeline: ageTimeline ?? null, decreeAnchors: buildDecreeAnchors(ageTimeline, viewer) };
+/** ageTimeline 與由它推得的戰神令四卡定位（decreeAnchors）＋置頂摘要（pinnedSummary）。 */
+function ageTimelineFields(ageTimeline: AsuraDisplay['ageTimeline'], viewer: AgeTimelineViewer | null = null): Pick<AsuraDisplay, 'ageTimeline' | 'decreeAnchors' | 'pinnedSummary'> {
+  return {
+    ageTimeline: ageTimeline ?? null,
+    decreeAnchors: buildDecreeAnchors(ageTimeline, viewer),
+    pinnedSummary: buildPinnedSummary(ageTimeline, viewer),
+  };
 }
 
 /** 台北今日 YYYY-MM-DD。 */

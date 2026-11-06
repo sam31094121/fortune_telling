@@ -11,7 +11,7 @@
 'use client';
 
 
-import { Fragment, useMemo, useState, type SyntheticEvent, type CSSProperties } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState, type SyntheticEvent, type CSSProperties } from 'react';
 import { animationConfig } from '@/lib/ghost-asura-animation';
 import type { AsuraDisplay, AsuraDisplaySeal } from '@/lib/ghost-asura-display-contract';
 import type { GhostAsuraReading } from '../types';
@@ -157,6 +157,9 @@ const SHOW_STATS_CARD = false;
 /** 業主 2026-10-06：卡片話術與程式碼複製列暫不渲染；改 true 即恢復。清單與資料不受影響。 */
 const SHOW_COPY_BUTTONS = false;
 
+/** 業主 2026-11-06：紅字年齡標「18 歲禁忌｜未滿 18 歲禁止進入」暫時隱藏；上線時改 true。不刪 CSS／常數／後端年齡閘門。 */
+const SHOW_ASURA_AGE_GATE_BADGE = false;
+
 const STAT_TARGET_ID = {
   pillars: 'asura-pillars',
   dormant: 'asura-rest-dormant',
@@ -262,6 +265,17 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
     });
   };
   const nextDelay = () => baseDelay + glowIndex++ * animationConfig.impressionGlow.staggerDelay;
+  const decreeRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!display.timelineDecree) return;
+    const el = decreeRef.current ?? document.querySelector<HTMLElement>('[data-asura-timeline-decree]');
+    if (!el) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.requestAnimationFrame(() => {
+      el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    });
+  }, [display.timelineDecree]);
 
   return (
     <section
@@ -274,7 +288,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
       {/* 橫幅「鬼魅［修羅印］阿修羅」＋下方過去／現在／未來一列三格：點格在下方全寬展開，再點收合。 */}
       <header className={styles.asuraTopRow} data-asura-top-row>
         <AsuraBanner title={display.title} />
-        {display.ageGate?.label && (
+        {SHOW_ASURA_AGE_GATE_BADGE && display.ageGate?.label && (
           <p className={styles.ageGateBadge} data-asura-age-gate={display.ageGate.status}>
             {display.ageGate.label}
           </p>
@@ -315,6 +329,12 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
           })}
         </div>
       </header>
+
+      {display.pinnedSummary ? (
+        <p data-asura-pinned-summary className={styles.pinnedSummary}>
+          {display.pinnedSummary}
+        </p>
+      ) : null}
 
       {display.hourNote && (
         <p className={styles.fnHourNote} data-asura-hour-note>
@@ -636,13 +656,14 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
         const viewerAge = viewer && typeof viewer.age === 'number' ? viewer.age : null;
         return (
         <aside
-          className={`${styles.timelineDecree} ${visual.visualRoot}`}
+          ref={decreeRef}
+          className={`${styles.timelineDecree} ${visual.visualRoot} ${visual.entranceStage}`}
           data-asura-timeline-decree
           aria-label={display.timelineDecree.title}
         >
           <h2 className={`${styles.timelineDecreeTitle} ${visual.visualSectionTitle}`}>{display.timelineDecree.title}</h2>
           {viewerName || viewerAge !== null ? (
-            <p className={visual.visualViewerChip} data-asura-decree-viewer title={display.ageTimeline?.viewerLine || undefined}>
+            <p className={`${visual.visualViewerChip} ${visual.entranceViewerLine}`} data-asura-decree-viewer title={display.ageTimeline?.viewerLine || undefined}>
               {viewerName ? <span className={visual.visualViewerName}>{viewerName}</span> : null}
               {viewerAge !== null ? <span className={visual.visualViewerAge}>{viewerAge} 歲</span> : null}
             </p>
@@ -658,7 +679,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
               return (
                 <article
                   key={line.key}
-                  className={`${styles.timelineDecreeCard} ${visual.visualCard} ${cardTense}`}
+                  className={`${styles.timelineDecreeCard} ${visual.visualCard} ${cardTense}${isNow ? ` ${visual.entranceCurrentCard}` : ''}`}
                   data-asura-timeline-card={line.key}
                 >
                   {anchor ? (
@@ -684,7 +705,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
                             {anchor.ageRange}
                             <small className={visual.visualAgeBandUnit}>歲</small>
                           </span>
-                          <span className={isNow ? `${visual.visualMarkSeal} ${visual.visualMarkSealCurrent}` : visual.visualMarkSeal}>{anchor.mark}</span>
+                          <span className={isNow ? `${visual.visualMarkSeal} ${visual.visualMarkSealCurrent} ${visual.entranceCurrentSeal}` : visual.visualMarkSeal}>{anchor.mark}</span>
                           <span className={visual.visualBadgeLabel}>{decreeBadgeLabel(anchor)}</span>
                         </>
                       ) : (

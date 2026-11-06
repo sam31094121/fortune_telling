@@ -201,20 +201,20 @@ export function AsuraAgeTimeline({
 
   return (
     <section
-      className={`${styles.root} ${motion.motionRoot}`}
+      className={`${styles.root} ${motion.motionRoot} ${motion.motionEntranceStage}`}
       aria-label={view.title}
       data-asura-age-timeline
     >
       <h2 className={styles.title}>{view.title}</h2>
 
-      <div className={styles.hereBar} data-asura-age-here>
+      <div className={`${styles.hereBar} ${motion.motionEntranceGuide}`} data-asura-age-here>
         <p className={styles.hereText}>
           {herePrefix}
           <span className={styles.hereDot}> · </span>
           <span className={styles.hereAge}>{currentSeg?.ageLabel ?? ''}</span>
         </p>
         {viewerLine ? (
-          <p className={styles.viewerLine} data-asura-age-viewer>
+          <p className={`${styles.viewerLine} ${motion.motionEntranceViewer}`} data-asura-age-viewer>
             {viewerLine}
           </p>
         ) : null}
@@ -328,7 +328,7 @@ export function AsuraAgeTimeline({
                       <span className={styles.ageLabel}>{segment.ageLabel}</span>
                       <span className={styles.tense}>{segment.tense}</span>
                       {segment.isCurrent ? (
-                        <span className={styles.hereTag} data-asura-age-peel-hint>
+                        <span className={`${styles.hereTag} ${motion.motionEntranceCurrentMark}`} data-asura-age-peel-hint>
                           再剝一層
                         </span>
                       ) : null}

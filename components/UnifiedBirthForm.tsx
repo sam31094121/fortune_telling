@@ -265,6 +265,13 @@ export function UnifiedBirthForm({
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
+  /** Merge against the latest profile synchronously so rapid field updates cannot wipe earlier ones (e.g. name). */
+  function patchProfile(partial: Partial<BirthProfile>) {
+    const next = { ...valueRef.current, ...partial };
+    valueRef.current = next;
+    onChange(next);
+  }
+
   useEffect(() => {
     if (!autoFillIdentity) return;
     let previousTarget = getAnalysisIdentityTarget();
@@ -316,11 +323,12 @@ export function UnifiedBirthForm({
     <form
       onSubmit={(event) => {
         event.preventDefault();
+        const submitted = valueRef.current;
         if (persistIdentity && getAnalysisIdentityTarget() === 'self') {
-          saveSelfBirthProfile(value); // 本人資料檔案：下次選「自己」自動帶入
-          saveCanonicalBirthProfile(fromUnifiedBirthProfile(value)); // 唯一出生資料：讓紫微那頁也能帶出來
+          saveSelfBirthProfile(submitted); // 本人資料檔案：下次選「自己」自動帶入
+          saveCanonicalBirthProfile(fromUnifiedBirthProfile(submitted)); // 唯一出生資料：讓紫微那頁也能帶出來
         }
-        onSubmit(value);
+        onSubmit(submitted);
       }}
       className="mega-friendly-form space-y-4"
     >
@@ -334,8 +342,8 @@ export function UnifiedBirthForm({
             aria-describedby={`${nameInputId}-hint`}
             aria-required={!nameOptional}
             value={value.name ?? ''}
-            onChange={(event) => onChange({ ...value, name: event.target.value })}
-            onBlur={(event) => onChange({ ...value, name: event.target.value.trim() })}
+            onChange={(event) => patchProfile({ name: event.target.value })}
+            onBlur={(event) => patchProfile({ name: event.target.value.trim() })}
             maxLength={20}
             placeholder={display(nameOptional ? '' : '姓名')}
             className={`mt-3 w-full rounded-2xl border bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60 ${hasMissing(missing, 'name') ? 'border-rose-300/70' : 'border-white/10'}`}
@@ -352,7 +360,7 @@ export function UnifiedBirthForm({
           <div className="mt-4">
             <LunarBirthdayInput
               value={value.birthDate ?? ''}
-              onChange={(birthDate) => onChange({ ...value, birthDate: birthDate.trim() })}
+              onChange={(birthDate) => patchProfile({ birthDate: birthDate.trim() })}
               accent={dateAccent}
               label={display("出生日期（萬年曆）")}
               disabled={disabled}
@@ -370,7 +378,7 @@ export function UnifiedBirthForm({
               { label: '女性', value: 'female' as const, description: '用女性的算法。' },
               { label: '男性', value: 'male' as const, description: '用男性的算法。' },
             ].map((item) => (
-              <ChoiceButton key={item.value} active={value.gender === item.value} alert={hasMissing(missing, 'gender')} onClick={() => onChange({ ...value, gender: item.value })}>
+              <ChoiceButton key={item.value} active={value.gender === item.value} alert={hasMissing(missing, 'gender')} onClick={() => patchProfile({ gender: item.value })}>
                 <span className="block text-base font-black"><HomeTranslatedText text={item.label} /></span>
                 <span className="mt-1.5 block text-xs font-semibold leading-5"><HomeTranslatedText text={item.description} /></span>
               </ChoiceButton>
@@ -384,8 +392,8 @@ export function UnifiedBirthForm({
         <section data-field="birthPlace" className={fieldFrameClass(missing, 'birthPlace', value)}>
           <label className="block text-sm font-black text-[color:var(--text-main)]"><HomeTranslatedText text={"4. 出生地點"} />{value.country && value.city && <span className="ml-2 text-green-400"><HomeTranslatedText text={"完成"} /></span>}</label>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <input value={value.country ?? ''} onChange={(event) => onChange({ ...value, country: event.target.value, birthPlace: [event.target.value, value.city ?? ''].filter(Boolean).join(' ') })} placeholder={display("國家，例如台灣")} className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60" disabled={disabled} />
-            <input value={value.city ?? ''} onChange={(event) => onChange({ ...value, city: event.target.value, birthPlace: [value.country ?? '', event.target.value].filter(Boolean).join(' ') })} placeholder={display("城市，例如台北")} className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60" disabled={disabled} />
+            <input value={value.country ?? ''} onChange={(event) => { const city = valueRef.current.city ?? ''; patchProfile({ country: event.target.value, birthPlace: [event.target.value, city].filter(Boolean).join(' ') }); }} placeholder={display("國家，例如台灣")} className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60" disabled={disabled} />
+            <input value={value.city ?? ''} onChange={(event) => { const country = valueRef.current.country ?? ''; patchProfile({ city: event.target.value, birthPlace: [country, event.target.value].filter(Boolean).join(' ') }); }} placeholder={display("城市，例如台北")} className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-base font-bold text-[color:var(--text-main)] outline-none focus:border-amber-200/60" disabled={disabled} />
           </div>
           {hasMissing(missing, 'birthPlace') && !isFieldDone(value, 'birthPlace') && <p className="form-missing-alert"><HomeTranslatedText text={"請確認出生國家與城市。"} /></p>}
         </section>
@@ -403,8 +411,7 @@ export function UnifiedBirthForm({
             copy={copy}
             onChange={(birthHourBranch) => {
               const isUnknown = birthHourBranch === 'unknown';
-              onChange({
-                ...value,
+              patchProfile({
                 birthHourBranch: isUnknown ? undefined : birthHourBranch,
                 timeUnknown: isUnknown,
                 birthTime: isUnknown ? '' : hourBranchToBirthTime(birthHourBranch),
