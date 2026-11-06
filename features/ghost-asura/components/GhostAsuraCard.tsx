@@ -17,9 +17,11 @@ import type { AsuraDisplay, AsuraDisplaySeal } from '@/lib/ghost-asura-display-c
 import type { GhostAsuraReading } from '../types';
 import { GHOST_ASURA_CARD_TITLE, GHOST_ASURA_UI } from '../uiText';
 import styles from './GhostAsuraCard.module.css';
+import visual from './GhostAsuraCard.visual.module.css';
 import { AsuraNatureCard } from './AsuraNatureCard';
 import { SealMotion } from './SealMotion';
 import { PresentGuide, COLUMN_ACCENTS } from './PresentGuide';
+import { AsuraAgeTimeline, type AsuraAgeFocusRequest } from './AsuraAgeTimeline';
 
 /** 點開印記卡後，捲到視線中央（卡片比畫面高就把標題對齊畫面上方，確保標題看得到）。
  *  等展開動畫（約 0.24 秒）跑完再算位置；使用者開了「減少動態」就不用平滑捲動。純畫面行為，不碰任何資料。 */
@@ -47,6 +49,44 @@ function focusOpenedDetail(event: SyntheticEvent<HTMLDetailsElement>) {
 }
 
 /** 「這一役的來歷」收合面板：業主 2026-10-15 要求隱藏（沒有用途）。保持 false；未經明說叫醒不得改成 true。 */
+
+/** Optional backend card↔timeline anchors (Array(4) parallel to timelineDecree.lines). */
+type AsuraDecreeAnchor = {
+  segmentIndex: number;
+  ageLabel: string;
+  tense: string;
+  focus?: 'action' | 'basis' | 'history' | string;
+  label?: string;
+  /** backend: big age range e.g. 34–43 */
+  ageRange?: string;
+  /** backend: 走過／現在／現在就做／下一段 */
+  mark?: string;
+  /** backend: segment headline for the card overlay */
+  headline?: string;
+};
+
+type AsuraDisplayWithAnchors = AsuraDisplay & {
+  decreeAnchors?: AsuraDecreeAnchor[] | null;
+};
+
+function decreeBadgeLabel(anchor: AsuraDecreeAnchor): string {
+  if (anchor.label && anchor.label.trim()) return anchor.label.trim();
+  const tense = (anchor.tense || '').trim();
+  const age = (anchor.ageLabel || '').trim();
+  if (tense === '現在') return `你在：${age}・現在`;
+  if (tense === '過去' || tense === '來時路') return `來時路・${age}`;
+  if (tense === '未來' || tense === '下一陣') return `下一陣・${age}`;
+  return [tense, age].filter(Boolean).join('・');
+}
+
+/** Emphasize first sentence only; do not alter wording. */
+function splitFirstSentence(body: string): { first: string; rest: string } {
+  const text = body ?? '';
+  const m = text.match(/^(.*?[。！？!?])([sS]*)$/);
+  if (!m) return { first: text, rest: '' };
+  return { first: m[1], rest: m[2] };
+}
+
 const SHOW_LIFE_ORIGIN = false as boolean;
 
 /** 四張卡標題列下面的三行字（阿修羅一句話、指向底下印記、歲數說明）：業主 2026-10-15 要求隱藏（上面的標題卡已經有了，這些字沒有意義）。保持 false；未經明說叫醒不得改成 true。資料仍由後端組好。 */
@@ -141,6 +181,7 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [restOpen, setRestOpen] = useState<Record<string, boolean>>({});
   const [copyStatus, setCopyStatus] = useState<Record<string, boolean>>({});
+  const [focusRequest, setFocusRequest] = useState<AsuraAgeFocusRequest | null>(null);
   let glowIndex = 0;
 
   /** 複製卡片話術或程式碼至剪貼簿（修羅檔案專用） */
@@ -587,6 +628,90 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
         </details>
       </section>
       <p className={styles.scopeNote}>{display.scopeNote}</p>
+
+      {/* 千人千面戰神令：四張獨立卡片；後端文案，前端只照印（visual.* 由動效助手提供） */}
+      {display.timelineDecree && (() => {
+        const viewer = display.viewer ?? null;
+        const viewerName = viewer && typeof viewer.name === 'string' && viewer.name.trim() ? viewer.name.trim() : '';
+        const viewerAge = viewer && typeof viewer.age === 'number' ? viewer.age : null;
+        return (
+        <aside
+          className={`${styles.timelineDecree} ${visual.visualRoot}`}
+          data-asura-timeline-decree
+          aria-label={display.timelineDecree.title}
+        >
+          <h2 className={`${styles.timelineDecreeTitle} ${visual.visualSectionTitle}`}>{display.timelineDecree.title}</h2>
+          {viewerName || viewerAge !== null ? (
+            <p className={visual.visualViewerChip} data-asura-decree-viewer title={display.ageTimeline?.viewerLine || undefined}>
+              {viewerName ? <span className={visual.visualViewerName}>{viewerName}</span> : null}
+              {viewerAge !== null ? <span className={visual.visualViewerAge}>{viewerAge} 歲</span> : null}
+            </p>
+          ) : null}
+          <div className={`${styles.timelineDecreeGrid} ${visual.visualGrid}`}>
+            {display.timelineDecree.lines.map((line, lineIndex) => {
+              const anchors = (display as AsuraDisplayWithAnchors).decreeAnchors;
+              const anchor = Array.isArray(anchors) ? anchors[lineIndex] : null;
+              const parts = splitFirstSentence(line.body);
+              const isNow = anchor?.tense === '現在';
+              const cardTense = !anchor ? '' : anchor.tense === '過去' ? visual.visualCardPast : isNow ? visual.visualCardCurrent : visual.visualCardFuture;
+              const badgeTense = !anchor ? '' : anchor.tense === '過去' ? visual.visualBadgePast : isNow ? visual.visualBadgeCurrent : '';
+              return (
+                <article
+                  key={line.key}
+                  className={`${styles.timelineDecreeCard} ${visual.visualCard} ${cardTense}`}
+                  data-asura-timeline-card={line.key}
+                >
+                  {anchor ? (
+                    <button
+                      type="button"
+                      className={anchor.ageRange ? `${styles.decreeMarker} ${visual.visualBadge} ${badgeTense}` : styles.decreeAnchorBadge}
+                      data-asura-decree-anchor={lineIndex}
+                      data-mark={anchor.mark || undefined}
+                      aria-label={decreeBadgeLabel(anchor)}
+                      onClick={() => {
+                        setFocusRequest({
+                          segmentIndex: anchor.segmentIndex,
+                          lineIndex,
+                          peelTo: anchor.focus === 'action' ? 'action' : undefined,
+                          nonce: Date.now(),
+                        });
+                      }}
+                    >
+                      {anchor.ageRange ? (
+                        <>
+                          <span className={`${styles.decreeMarkerIcon} ${visual.visualIcon}`} aria-hidden="true" />
+                          <span className={visual.visualAgeBand}>
+                            {anchor.ageRange}
+                            <small className={visual.visualAgeBandUnit}>歲</small>
+                          </span>
+                          <span className={isNow ? `${visual.visualMarkSeal} ${visual.visualMarkSealCurrent}` : visual.visualMarkSeal}>{anchor.mark}</span>
+                          <span className={visual.visualBadgeLabel}>{decreeBadgeLabel(anchor)}</span>
+                        </>
+                      ) : (
+                        decreeBadgeLabel(anchor)
+                      )}
+                    </button>
+                  ) : null}
+                  {anchor && anchor.headline ? (
+                    <p className={visual.visualTitleOverlay} data-asura-decree-headline={lineIndex}>
+                      {anchor.headline}
+                    </p>
+                  ) : null}
+                  <h3 className={styles.timelineDecreeCardHeading}>【{line.heading}】</h3>
+                  <p className={`${styles.timelineDecreeCardBody} ${visual.visualBody}`}>
+                    <span className={styles.decreeFirstSentence}>{parts.first}</span>
+                    {parts.rest}
+                  </p>
+                </article>
+              );
+            })}
+          </div>
+        </aside>
+        );
+      })()}
+      {display.ageTimeline && (
+        <AsuraAgeTimeline data={display.ageTimeline} focusRequest={focusRequest} />
+      )}
     </section>
   );
 }

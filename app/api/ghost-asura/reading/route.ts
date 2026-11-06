@@ -2,7 +2,8 @@
  * 鬼魅阿修羅 — 後端解盤端點（POST /api/ghost-asura/reading）
  *
  * 輸入：與 /ghost-asura 頁相同的生辰欄位（birthDate, birthTime, gender, birthHourBranch?, name?）。
- * 輸出：{ data: AsuraDisplay } —— 只有已分組／篩選／排序的可顯示文字，不含四柱干支或任何原始命理資料。
+ * 輸出：成功 { data: AsuraDisplay } —— 只有已分組／篩選／排序的可顯示文字，不含四柱干支或任何原始命理資料。
+ *       失敗 { error, code } —— 繁體中文訊息＋穩定錯誤碼（見 lib/server/ghost-asura-errors.ts），不含堆疊。
  *
  * 速率限制沿用 lib/dual-chart-auth 的 checkAPIRateLimit（設定未改）。
  * 同一 IP 重送「相同生辰」時直接回短期快取，不重算、不扣額度（同 IP 友善）。
@@ -13,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { checkAPIRateLimit, sameOrigin } from '@/lib/dual-chart-auth';
 import { computeGhostAsuraDisplay, normalizeAsuraInput } from '@/lib/server/ghost-asura-display';
 import type { AsuraDisplay } from '@/lib/ghost-asura-display-contract';
+import { asuraError, asuraRateLimited, classifyAsuraComputeError } from '@/lib/server/ghost-asura-errors';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -59,22 +61,22 @@ function writeCache(key: string, data: AsuraDisplay) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!sameOrigin(request)) return reply({ error: '請從本站開啟。' }, 403);
+  if (!sameOrigin(request)) return reply(asuraError('ASURA_FORBIDDEN_ORIGIN'), 403);
 
   const text = await request.text().catch(() => '');
-  if (text.length === 0) return reply({ error: '請先填寫生辰。' }, 400);
-  if (text.length > 2048) return reply({ error: '輸入內容過長。' }, 400);
+  if (text.length === 0) return reply(asuraError('ASURA_EMPTY_BODY'), 400);
+  if (text.length > 2048) return reply(asuraError('ASURA_BODY_TOO_LARGE'), 400);
 
   let raw: unknown;
   try {
     raw = JSON.parse(text);
   } catch {
-    return reply({ error: '請求格式不正確。' }, 400);
+    return reply(asuraError('ASURA_INVALID_JSON'), 400);
   }
 
   const input = normalizeAsuraInput(raw);
   if (typeof input.birthDate !== 'string' || input.birthDate === '') {
-    return reply({ error: '缺少出生日期。' }, 400);
+    return reply(asuraError('ASURA_MISSING_BIRTH_DATE'), 400);
   }
 
   // 同 IP、同一份生辰：短期內直接回原結果，不扣速率額度。
@@ -88,9 +90,8 @@ export async function POST(request: NextRequest) {
     'X-RateLimit-Reset': String(Math.floor(Date.now() / 1000) + limit.resetSeconds),
   };
   if (!limit.allowed) {
-    const minutes = Math.max(1, Math.ceil(limit.resetSeconds / 60));
     return reply(
-      { error: `戰局開得太密。刀先歇著，約 ${minutes} 分鐘後再來。` },
+      asuraRateLimited(limit.resetSeconds),
       429,
       { ...limitHeaders, 'Retry-After': String(limit.resetSeconds) }
     );
@@ -101,6 +102,8 @@ export async function POST(request: NextRequest) {
     writeCache(cacheKey, data);
     return reply({ data }, 200, limitHeaders);
   } catch (error) {
-    return reply({ error: error instanceof Error ? error.message : '出生資料無法排盤。' }, 400, limitHeaders);
+    const body = classifyAsuraComputeError(error);
+    if (body.code === 'ASURA_CHART_FAILED') console.error('[ghost-asura/reading] compute failed', error);
+    return reply(body, 400, limitHeaders);
   }
 }

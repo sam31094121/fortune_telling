@@ -18,10 +18,8 @@ import { buildFlowYearShenSha } from '@/lib/dual-chart-iching-shensha';
 import { asuraDeepScrub } from '@/lib/asura-display-alias';
 import { AsuraSkillError, asuraPlainLineOf, resolveAsuraInterpretation } from '@/features/ghost-asura/skill';
 import { ASURA_PLAIN, ASURA_TIMELINE, ASURA_VOICE, composeTime, type AsuraPillarKey, type AsuraWhen, voiceLead } from '@/lib/server/ghost-asura-voice';
-import { generatePersonalizedCardSpeech, deriveGenderExpressionProfile } from '@/lib/asura/ghost-asura-gender-expression-skill';
-import { buildClientAsuraPersona } from '@/lib/asura/client-personality-cross-engine';
 import { analyzePersona, runNatureGates } from '@/lib/server/ghost-asura-persona';
-import { asuraLinkStory, asuraTranslateDisplay, toPublic, translateAsNature } from '@/lib/server/ghost-asura-translation-layer';
+import { asuraLinkStory, asuraTranslateDisplay, buildAgeTimeline, buildDecreeAnchors, buildTimelineDecree, sanitizeViewerName, toPublic, translateAsNature, type AgeTimelineViewer, type PalaceVerseCell } from '@/lib/server/ghost-asura-translation-layer';
 import type { AsuraNatureCardServer } from '@/lib/ghost-asura-nature-contract';
 import { goldWordingViewFor } from '@/lib/ghost-asura-gold-wording';
 import {
@@ -415,7 +413,6 @@ export function toAsuraDisplay(
 
   // 白話：既有手寫（ASURA_PLAIN）優先；沒有才用 Skill 母版的固定核心意義。
   const plainTextOf = (id: string): string | null => ASURA_PLAIN[id] ?? asuraPlainLineOf(id);
-  const plainOf = (item: GhostAsuraDisplayItem) => { const plain = plainTextOf(item.resultId); return plain ? { plain } : {}; };
 
   // 三張卡同一引擎：一段連續讀盤（依柱位人生階段排序、同柱合拍、轉場、收束）→ 白話區（每印一行，對應時間）→ 收尾金句。
   const pillarKeyOf = (item: GhostAsuraDisplayItem): AsuraPillarKey =>
@@ -505,7 +502,6 @@ export function toAsuraDisplay(
   const hitsSection = timeSection('past', { key: 'hits', heading: '過去', label: '命中神煞' });
   const pillarsSection = timeSection('present', { key: 'pillars', heading: '現在', label: '柱位與封印' });
   const futureBase = timeSection('future', { key: 'verdict', heading: '未來', label: '阿修羅判語' });
-  const verdictItems = futureBase.items;
 
   // 總判若提到任何未輸出的印記（或用到未輸出印記的計數），整句不輸出：被隱藏的印記不得被讀到。
   const hiddenNames = reading.items.filter((item) => !qualifying.includes(item)).map((item) => item.displayName).filter(Boolean);
@@ -657,6 +653,7 @@ export function computeGhostAsuraDisplay(raw: unknown, now: Date = new Date()): 
   const nature = computeNatureCard(engineInput, hourAssumed === true);
   // 話術含金量一句：後端依客戶資料從句庫挑一句，前端只照印（新增欄位，只增不改）。
   const goldWording = goldWordingViewFor(engineInput, hourAssumed === true);
+  const viewer = computeViewer(engineInput.name, typeof engineInput.birthDate === 'string' ? engineInput.birthDate : undefined, now);
   const ageGate = evaluateAsuraAgeGate(
     typeof engineInput.birthDate === 'string' ? engineInput.birthDate : undefined,
     typeof targetDate === 'string' ? targetDate : undefined,
@@ -681,7 +678,54 @@ export function computeGhostAsuraDisplay(raw: unknown, now: Date = new Date()): 
     nature: nature ? toPublic(nature) : null,
     goldWording,
     ageGate,
+    timelineDecree: buildTimelineDecree(),
+    ...ageTimelineFields(ageGate.status === 'WITHHELD' ? null : computeAgeTimeline(result, now, viewer.name), viewer),
+    viewer,
   };
+}
+
+/** ageTimeline 與由它推得的戰神令四卡定位（decreeAnchors，卡面標記含客人年齡）。 */
+function ageTimelineFields(ageTimeline: AsuraDisplay['ageTimeline'], viewer: AgeTimelineViewer | null = null): Pick<AsuraDisplay, 'ageTimeline' | 'decreeAnchors'> {
+  return { ageTimeline: ageTimeline ?? null, decreeAnchors: buildDecreeAnchors(ageTimeline, viewer) };
+}
+
+/** 台北今日 YYYY-MM-DD。 */
+function taipeiYmd(now: Date): string {
+  return new Date(now.getTime() + 8 * 3600_000).toISOString().slice(0, 10);
+}
+
+/** 客人本人（display.viewer）：姓名清洗（sanitizeViewerName）＋今日台北實歲（calcCompletedAge，與 ageGate 同算法）。 */
+export function computeViewer(rawName: unknown, birthDate: string | undefined, now: Date = new Date()): AgeTimelineViewer {
+  const name = sanitizeViewerName(rawName);
+  const age = typeof birthDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(birthDate) ? calcCompletedAge(birthDate, taipeiYmd(now)).age : null;
+  return { name, age };
+}
+
+/**
+ * 十二陣・四十八道戰痕：只搬 calculateDualChart 已算好的 ziwei.palaces[].period（與紫微命盤頁 palaceCycles 同一份），
+ * 不另行排盤、不改紫微運算。虛歲＝今日（台北）農曆年 − 出生農曆年 ＋ 1（與 iztro 大限虛歲同制）。
+ */
+export function computeAgeTimeline(result: DualChartResult, now: Date = new Date(), viewerName: string | null = null): AsuraDisplay['ageTimeline'] {
+  try {
+    const palaces = (result.ziwei?.palaces ?? []) as unknown as Array<{ key: string; period?: { range?: number[]; stage?: string; boshi?: string; suiqian?: string; jiangqian?: string } | null }>;
+    const cells: PalaceVerseCell[] = palaces.map((p) => ({
+      palaceKey: String(p.key),
+      range: [...(p.period?.range ?? [])],
+      stage: String(p.period?.stage ?? ''),
+      boshi: String(p.period?.boshi ?? ''),
+      suiqian: String(p.period?.suiqian ?? ''),
+      jiangqian: String(p.period?.jiangqian ?? ''),
+    }));
+    const [by, bm, bd] = String(result.ziwei?.raw?.solarDate ?? '').split('-').map(Number);
+    if (!by || !bm || !bd) return null;
+    const birthLunarYear = Solar.fromYmd(by, bm, bd).getLunar().getYear();
+    const t = new Date(now.getTime() + 8 * 3600_000);
+    const nowLunarYear = Solar.fromYmd(t.getUTCFullYear(), t.getUTCMonth() + 1, t.getUTCDate()).getLunar().getYear();
+    const age = calcCompletedAge(`${by}-${String(bm).padStart(2, '0')}-${String(bd).padStart(2, '0')}`, taipeiYmd(now)).age;
+    return buildAgeTimeline(cells, nowLunarYear - birthLunarYear + 1, { name: sanitizeViewerName(viewerName), age });
+  } catch {
+    return null;
+  }
 }
 
 /** 生辰 → 四道關 → analyzePersona → translateAsNature（後端完整版，含 natureKey／riskKeys／evidence）；任一關未過＝null。 */

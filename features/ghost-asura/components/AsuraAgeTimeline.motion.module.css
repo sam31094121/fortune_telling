@@ -1,0 +1,317 @@
+/* AsuraAgeTimeline.motion.module.css
+ * Motion owner only. Class names must stay stable for TSX wiring.
+ * Rhythm aligned to asuraImpressionGlow: 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)
+ * stagger 100ms (lib/ghost-asura-animation.ts impressionGlow.staggerDelay)
+ * Animations use ONLY transform + opacity (mobile 390 first).
+ *
+ * Beat sequence (not all at once):
+ *   bridge fade → segment open → peel container → peel layers cascade
+ *
+ * Expand approach (no height anim): scaleY + translateY from transform-origin top,
+ * with opacity. Works for open/peel without layout thrash.
+ */
+
+@keyframes asuraAgeSegmentIn {
+  0% {
+    opacity: 0;
+    transform: translateY(var(--asura-age-rise, 10px));
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes asuraAgeLineIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes asuraAgeCurrentBreathe {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.88;
+    transform: scale(1.012);
+  }
+}
+
+/* Bridge between segments — fade + slight rise */
+@keyframes asuraAgeBridgeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(var(--asura-age-rise, 10px));
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Segment expand/collapse — scaleY from top (no height); opacity + slight rise */
+@keyframes asuraAgeSegmentOpen {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.92) translateY(calc(var(--asura-age-rise, 10px) * -0.4));
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
+}
+
+/* Peel container settle when 「再剝一層」 expands */
+@keyframes asuraAgePeelExpand {
+  0% {
+    opacity: 0.9;
+    transform: scaleY(0.96) translateY(calc(var(--asura-age-rise, 10px) * -0.3));
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
+}
+
+/* Each onion layer (依據→歷史→行動) */
+@keyframes asuraAgePeelLayerIn {
+  0% {
+    opacity: 0;
+    transform: translateY(var(--asura-age-rise, 10px)) scaleY(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+.motionRoot {
+  --asura-age-dur: 0.8s;
+  --asura-age-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --asura-age-stagger: 100ms;
+  --asura-age-rise: 10px;
+  /* Phase beats — sequential, not simultaneous */
+  --asura-phase-bridge: 0ms;
+  --asura-phase-open: calc(2 * var(--asura-age-stagger));
+  --asura-phase-peel: calc(4 * var(--asura-age-stagger));
+  --asura-phase-layer: calc(5 * var(--asura-age-stagger));
+}
+
+/* ---------- Existing: list entrance ---------- */
+.motionSegment {
+  opacity: 0;
+  transform: translateY(var(--asura-age-rise, 10px));
+  animation: asuraAgeSegmentIn var(--asura-age-dur) var(--asura-age-ease) forwards;
+  transition:
+    transform 0.2s var(--asura-age-ease),
+    opacity 0.2s ease;
+  will-change: transform, opacity;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.motionRoot .motionSegment:nth-child(1) { animation-delay: calc(0 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(2) { animation-delay: calc(1 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(3) { animation-delay: calc(2 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(4) { animation-delay: calc(3 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(5) { animation-delay: calc(4 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(6) { animation-delay: calc(5 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(7) { animation-delay: calc(6 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(8) { animation-delay: calc(7 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(9) { animation-delay: calc(8 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(10) { animation-delay: calc(9 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(11) { animation-delay: calc(10 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(12) { animation-delay: calc(11 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(13) { animation-delay: calc(12 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(14) { animation-delay: calc(13 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(15) { animation-delay: calc(14 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment:nth-child(16) { animation-delay: calc(15 * var(--asura-age-stagger)); }
+
+.motionSegment:hover {
+  transform: translateY(-1px) scale(1.015);
+  opacity: 1;
+}
+
+.motionSegment:active {
+  transform: translateY(0) scale(0.985);
+  opacity: 0.96;
+}
+
+.motionSegmentCurrent {
+  animation:
+    asuraAgeSegmentIn var(--asura-age-dur) var(--asura-age-ease) forwards,
+    asuraAgeCurrentBreathe 2.4s ease-in-out 0.9s infinite;
+}
+
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(1) { animation-delay: calc(0 * var(--asura-age-stagger)), calc(0.9s + 0 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(2) { animation-delay: calc(1 * var(--asura-age-stagger)), calc(0.9s + 1 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(3) { animation-delay: calc(2 * var(--asura-age-stagger)), calc(0.9s + 2 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(4) { animation-delay: calc(3 * var(--asura-age-stagger)), calc(0.9s + 3 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(5) { animation-delay: calc(4 * var(--asura-age-stagger)), calc(0.9s + 4 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(6) { animation-delay: calc(5 * var(--asura-age-stagger)), calc(0.9s + 5 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(7) { animation-delay: calc(6 * var(--asura-age-stagger)), calc(0.9s + 6 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(8) { animation-delay: calc(7 * var(--asura-age-stagger)), calc(0.9s + 7 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(9) { animation-delay: calc(8 * var(--asura-age-stagger)), calc(0.9s + 8 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(10) { animation-delay: calc(9 * var(--asura-age-stagger)), calc(0.9s + 9 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(11) { animation-delay: calc(10 * var(--asura-age-stagger)), calc(0.9s + 10 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(12) { animation-delay: calc(11 * var(--asura-age-stagger)), calc(0.9s + 11 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(13) { animation-delay: calc(12 * var(--asura-age-stagger)), calc(0.9s + 12 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(14) { animation-delay: calc(13 * var(--asura-age-stagger)), calc(0.9s + 13 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(15) { animation-delay: calc(14 * var(--asura-age-stagger)), calc(0.9s + 14 * var(--asura-age-stagger)); }
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(16) { animation-delay: calc(15 * var(--asura-age-stagger)), calc(0.9s + 15 * var(--asura-age-stagger)); }
+
+.motionSegmentCurrent:hover {
+  transform: translateY(-1px) scale(1.02);
+  opacity: 1;
+}
+
+.motionSegmentCurrent:active {
+  transform: translateY(0) scale(0.99);
+  opacity: 0.98;
+}
+
+.motionLine {
+  opacity: 0;
+  transform: translateY(6px);
+  animation: asuraAgeLineIn 0.55s var(--asura-age-ease) forwards;
+  animation-delay: 0.12s;
+}
+
+.motionSegment .motionLine:nth-child(1) { animation-delay: 0.18s; }
+.motionSegment .motionLine:nth-child(2) { animation-delay: 0.26s; }
+.motionSegment .motionLine:nth-child(3) { animation-delay: 0.34s; }
+.motionSegment .motionLine:nth-child(4) { animation-delay: 0.42s; }
+.motionSegment .motionLine:nth-child(5) { animation-delay: 0.50s; }
+.motionSegment .motionLine:nth-child(6) { animation-delay: 0.58s; }
+
+/* ---------- Bridge (connecting sentence between segments) ---------- */
+.motionBridge {
+  opacity: 0;
+  transform: translateY(var(--asura-age-rise, 10px));
+  animation: asuraAgeBridgeIn var(--asura-age-dur) var(--asura-age-ease) forwards;
+  animation-delay: var(--asura-phase-bridge);
+  will-change: transform, opacity;
+}
+
+/* ---------- Segment open/close ----------
+ * Approach: no height. scaleY(0.92→1) + translateY + opacity from
+ * transform-origin: top center. FE should add .motionSegmentOpen when
+ * opened; also mirrors [data-opened="true"] so current TSX works now.
+ */
+.motionSegmentOpen,
+.motionSegment[data-opened="true"] {
+  transform-origin: top center;
+  animation: asuraAgeSegmentOpen var(--asura-age-dur) var(--asura-age-ease) forwards;
+  animation-delay: var(--asura-phase-open);
+  will-change: transform, opacity;
+}
+
+/* Current + opened: open first, then soft breathe after open settles */
+.motionSegmentCurrent.motionSegmentOpen,
+.motionSegmentCurrent[data-opened="true"] {
+  animation:
+    asuraAgeSegmentOpen var(--asura-age-dur) var(--asura-age-ease) forwards,
+    asuraAgeCurrentBreathe 2.4s ease-in-out infinite;
+  animation-delay: var(--asura-phase-open), calc(var(--asura-phase-open) + var(--asura-age-dur));
+}
+
+/* ---------- Peel container (line that holds onion layers) ----------
+ * Same element also has .motionLine. Line entrance runs while data-peeled="0".
+ * When peel expands (data-peeled >= 1), this rule takes over — after user has
+ * already seen the line, so overriding the completed line-in is intentional.
+ */
+.motionPeel {
+  transform-origin: top center;
+}
+
+.motionPeel[data-peeled="1"],
+.motionPeel[data-peeled="2"],
+.motionPeel[data-peeled="3"] {
+  transform-origin: top center;
+  animation: asuraAgePeelExpand var(--asura-age-dur) var(--asura-age-ease) forwards;
+  animation-delay: var(--asura-phase-peel);
+  will-change: transform, opacity;
+}
+
+/* ---------- Peel layers: 依據 → 歷史 → 行動, one beat apart ---------- */
+.motionPeelLayer {
+  opacity: 0;
+  transform: translateY(var(--asura-age-rise, 10px)) scaleY(0.94);
+  transform-origin: top center;
+  animation: asuraAgePeelLayerIn var(--asura-age-dur) var(--asura-age-ease) forwards;
+  animation-delay: var(--asura-phase-layer);
+  will-change: transform, opacity;
+}
+
+.motionPeel .motionPeelLayer:nth-child(1) {
+  animation-delay: calc(var(--asura-phase-layer) + 0 * var(--asura-age-stagger));
+}
+.motionPeel .motionPeelLayer:nth-child(2) {
+  animation-delay: calc(var(--asura-phase-layer) + 1 * var(--asura-age-stagger));
+}
+.motionPeel .motionPeelLayer:nth-child(3) {
+  animation-delay: calc(var(--asura-phase-layer) + 2 * var(--asura-age-stagger));
+}
+.motionPeel .motionPeelLayer:nth-child(4) {
+  animation-delay: calc(var(--asura-phase-layer) + 3 * var(--asura-age-stagger));
+}
+.motionPeel .motionPeelLayer:nth-child(5) {
+  animation-delay: calc(var(--asura-phase-layer) + 4 * var(--asura-age-stagger));
+}
+.motionPeel .motionPeelLayer:nth-child(6) {
+  animation-delay: calc(var(--asura-phase-layer) + 5 * var(--asura-age-stagger));
+}
+
+/* Layer kind order fallback when not pure nth among siblings */
+.motionPeelLayer[data-asura-peel-layer="basis"] {
+  animation-delay: calc(var(--asura-phase-layer) + 0 * var(--asura-age-stagger));
+}
+.motionPeelLayer[data-asura-peel-layer="history"] {
+  animation-delay: calc(var(--asura-phase-layer) + 1 * var(--asura-age-stagger));
+}
+.motionPeelLayer[data-asura-peel-layer="action"] {
+  animation-delay: calc(var(--asura-phase-layer) + 2 * var(--asura-age-stagger));
+}
+
+/* Mobile 390 first — shorter travel */
+@media (max-width: 420px) {
+  .motionRoot {
+    --asura-age-rise: 8px;
+  }
+
+  .motionSegment:hover {
+    transform: translateY(-1px) scale(1.01);
+  }
+
+  .motionSegment:active {
+    transform: translateY(0) scale(0.99);
+  }
+}
+
+/* Reduced motion: static fully visible — no entrance, no breathe, no peel */
+@media (prefers-reduced-motion: reduce) {
+  .motionSegment,
+  .motionSegmentCurrent,
+  .motionSegmentOpen,
+  .motionSegment[data-opened="true"],
+  .motionLine,
+  .motionBridge,
+  .motionPeel,
+  .motionPeel[data-peeled="1"],
+  .motionPeel[data-peeled="2"],
+  .motionPeel[data-peeled="3"],
+  .motionPeelLayer {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}

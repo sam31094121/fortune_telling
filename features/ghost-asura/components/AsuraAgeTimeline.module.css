@@ -1,0 +1,827 @@
+/* AsuraAgeTimeline — static visuals only.
+   Motion/entrance lives in AsuraAgeTimeline.motion.module.css (separate owner).
+   Palette aligned with GhostAsuraCard.timelineDecreeCard / asura gold tokens. */
+
+.root {
+  --gold: #c9a45c;
+  --gold-hi: #e6c886;
+  --gold-bright: #fcea86;
+  --gold-line: rgba(248, 199, 88, 0.4);
+  --gold-line-soft: rgba(248, 199, 88, 0.22);
+  --gold-glow: rgba(248, 199, 88, 0.28);
+  --ink: #0d0b0a;
+  --panel: #1e1d1a;
+  --panel-deep: #141210;
+  --text: #e4ddc9;
+  --text-muted: #b8ae96;
+  --rail: rgba(201, 164, 92, 0.55);
+  --node: #c9a45c;
+  --node-core: #fcea86;
+
+  box-sizing: border-box;
+  width: 100%;
+  margin: 20px 0 0;
+  padding: 16px 14px 18px;
+  border: 1px solid var(--gold-line);
+  border-radius: 12px;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(248, 199, 88, 0.10), transparent 55%),
+    radial-gradient(90% 70% at 100% 100%, rgba(139, 30, 30, 0.12), transparent 50%),
+    linear-gradient(165deg, #242018 0%, var(--panel) 42%, var(--panel-deep) 100%);
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(230, 200, 134, 0.08),
+    inset 0 0 28px rgba(248, 199, 88, 0.04);
+  color: var(--text);
+  overflow: hidden;
+}
+
+.title {
+  margin: 0 0 16px;
+  padding: 0 2px 10px;
+  border-bottom: 1px solid var(--gold-line-soft);
+  color: var(--gold-bright);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 18px rgba(248, 199, 88, 0.22);
+}
+
+/* Vertical timeline rail */
+.track {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 4px 0 4px 22px;
+}
+
+.track::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 10px;
+  bottom: 10px;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    var(--rail) 8%,
+    var(--rail) 92%,
+    transparent 100%
+  );
+  box-shadow: 0 0 8px rgba(248, 199, 88, 0.18);
+  pointer-events: none;
+}
+
+.segment {
+  position: relative;
+  margin: 0;
+  padding: 12px 12px 12px 14px;
+  border: 1px solid var(--gold-line-soft);
+  border-radius: 10px;
+  background:
+    linear-gradient(160deg, rgba(36, 32, 24, 0.92), rgba(22, 20, 18, 0.96));
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+  min-width: 0;
+}
+
+/* Timeline node on the rail */
+.segment::before {
+  content: "";
+  position: absolute;
+  left: -19px;
+  top: 18px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1.5px solid var(--node);
+  background:
+    radial-gradient(circle at 40% 35%, rgba(252, 234, 134, 0.85), var(--node) 55%, #6a4e1c 100%);
+  box-shadow:
+    0 0 0 3px rgba(14, 12, 10, 0.9),
+    0 0 10px var(--gold-glow);
+  z-index: 1;
+}
+
+.segmentCurrent {
+  border-color: rgba(248, 199, 88, 0.72);
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(248, 199, 88, 0.14), transparent 55%),
+    linear-gradient(160deg, rgba(48, 40, 22, 0.96), rgba(28, 24, 18, 0.98));
+  box-shadow:
+    0 0 0 1px rgba(248, 199, 88, 0.18),
+    0 8px 22px rgba(0, 0, 0, 0.32),
+    0 0 24px rgba(248, 199, 88, 0.16),
+    inset 0 1px 0 rgba(252, 234, 134, 0.12);
+}
+
+.segmentCurrent::before {
+  border-color: var(--gold-bright);
+  background:
+    radial-gradient(circle at 40% 35%, #fff6c8, var(--gold-bright) 45%, #c9a45c 100%);
+  box-shadow:
+    0 0 0 3px rgba(14, 12, 10, 0.95),
+    0 0 14px rgba(252, 234, 134, 0.55),
+    0 0 22px rgba(248, 199, 88, 0.35);
+  width: 13px;
+  height: 13px;
+  left: -20px;
+  top: 17px;
+}
+
+.segmentHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 12px;
+  margin: 0 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(248, 199, 88, 0.16);
+}
+
+.tense {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border: 1px solid rgba(248, 199, 88, 0.45);
+  border-radius: 999px;
+  background: rgba(248, 199, 88, 0.08);
+  color: var(--gold-bright);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+}
+
+.segmentCurrent .tense {
+  border-color: rgba(252, 234, 134, 0.75);
+  background: rgba(248, 199, 88, 0.16);
+  box-shadow: 0 0 12px rgba(248, 199, 88, 0.22);
+}
+
+.ageLabel {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+}
+
+.segmentCurrent .ageLabel {
+  color: #efddb5;
+}
+
+.lines {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.line {
+  position: relative;
+  margin: 0;
+  padding: 0 0 0 12px;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.85;
+  letter-spacing: 0.02em;
+}
+
+.line::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: 5px;
+  height: 1px;
+  background: var(--gold-line);
+  box-shadow: 0 0 4px rgba(248, 199, 88, 0.25);
+}
+
+/* Desktop: a touch more breathing room; still one vertical track */
+@media (min-width: 720px) {
+  .root {
+    margin-top: 24px;
+    padding: 18px 18px 22px;
+    border-radius: 14px;
+  }
+
+  .title {
+    font-size: 17px;
+    margin-bottom: 18px;
+    letter-spacing: 0.1em;
+  }
+
+  .track {
+    gap: 16px;
+    padding-left: 26px;
+  }
+
+  .track::before {
+    left: 9px;
+  }
+
+  .segment {
+    padding: 14px 16px 14px 16px;
+    border-radius: 12px;
+  }
+
+  .segment::before {
+    left: -23px;
+    width: 12px;
+    height: 12px;
+  }
+
+  .segmentCurrent::before {
+    left: -24px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .tense {
+    font-size: 13px;
+  }
+
+  .ageLabel {
+    font-size: 13px;
+  }
+
+  .line {
+    font-size: 14px;
+  }
+}
+
+/* Mobile 390 first — tighten without losing gold frame quality */
+@media (max-width: 420px) {
+  .root {
+    padding: 14px 12px 16px;
+    border-radius: 10px;
+  }
+
+  .title {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+
+  .track {
+    gap: 12px;
+    padding-left: 20px;
+  }
+
+  .segment {
+    padding: 11px 12px;
+    border-radius: 10px;
+  }
+
+  .line {
+    font-size: 13px;
+    line-height: 1.8;
+  }
+}
+
+
+/* —— 洋蔥層／導覽（靜態；動效 class 在 .motion.module.css） —— */
+.hereBar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--gold-line-soft);
+  border-radius: 10px;
+  background: rgba(248, 199, 88, 0.05);
+}
+
+.hereText {
+  margin: 0;
+  color: var(--gold-bright);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+}
+
+.hereDot {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.hereAge {
+  color: #efddb5;
+  font-weight: 700;
+}
+
+.progress {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.progressItem {
+  margin: 0;
+  padding: 0;
+}
+
+.progressDot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 1px solid rgba(248, 199, 88, 0.35);
+  border-radius: 50%;
+  background: rgba(20, 18, 16, 0.9);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dotIdle {
+  opacity: 0.45;
+}
+
+.dotVisited {
+  opacity: 0.85;
+  background: rgba(201, 164, 92, 0.55);
+  border-color: rgba(248, 199, 88, 0.55);
+  box-shadow: 0 0 6px rgba(248, 199, 88, 0.18);
+}
+
+.dotCurrent {
+  opacity: 1;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle at 40% 35%, #fff6c8, #fcea86 45%, #c9a45c 100%);
+  border-color: #fcea86;
+  box-shadow: 0 0 10px rgba(252, 234, 134, 0.45);
+}
+
+.segmentOpened {
+  outline: 1px solid rgba(248, 199, 88, 0.35);
+}
+
+.hereTag {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  padding: 2px 8px;
+  border: 1px solid rgba(252, 234, 134, 0.55);
+  border-radius: 999px;
+  background: rgba(248, 199, 88, 0.14);
+  color: var(--gold-bright);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+}
+
+.opening {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-left: 2px solid rgba(248, 199, 88, 0.55);
+  background: rgba(248, 199, 88, 0.06);
+  color: #efddb5;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+}
+
+.lineSurface {
+  margin: 0;
+}
+
+.peelLayer {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border: 1px solid rgba(248, 199, 88, 0.18);
+  border-radius: 8px;
+  background: rgba(14, 12, 10, 0.55);
+}
+
+.peelText {
+  margin: 0;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.peelHook {
+  margin: 6px 0 0;
+  color: var(--gold-hi);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.peelSource {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+.peelActions {
+  margin: 0;
+  padding: 0 0 0 16px;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.peelMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 8px;
+}
+
+.peelProgress {
+  color: var(--text-muted);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.peelButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border: 1px solid rgba(248, 199, 88, 0.4);
+  border-radius: 999px;
+  background: rgba(248, 199, 88, 0.08);
+  color: var(--gold-hi);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.peelButtonCurrent {
+  border-color: rgba(252, 234, 134, 0.7);
+  background: rgba(248, 199, 88, 0.16);
+  color: var(--gold-bright);
+  box-shadow: 0 0 10px rgba(248, 199, 88, 0.2);
+}
+
+.segNav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid rgba(248, 199, 88, 0.14);
+}
+
+.segNavLink {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--gold-hi);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.segNavSpacer {
+  flex: 1;
+  min-width: 1px;
+}
+
+@media (max-width: 420px) {
+  .hereBar {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .hereText {
+    font-size: 12px;
+  }
+
+  .opening {
+    font-size: 12px;
+    padding: 7px 8px;
+  }
+
+  .peelText,
+  .peelHook,
+  .peelActions {
+    font-size: 12px;
+  }
+
+  .segNavLink {
+    font-size: 11px;
+  }
+}
+
+
+.headline {
+  margin: 0 0 10px;
+  color: var(--gold-bright);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.45;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 18px rgba(248, 199, 88, 0.28);
+}
+
+.collapsedHit {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.collapsedHit .headline {
+  margin-bottom: 0;
+}
+
+.collapsedMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 12px;
+}
+
+@media (max-width: 420px) {
+  .headline {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 720px) {
+  .headline {
+    font-size: 18px;
+  }
+}
+
+.bridge {
+  margin: 2px 0 2px;
+  padding: 6px 10px 6px 14px;
+  border: 0;
+  border-left: 2px solid rgba(248, 199, 88, 0.28);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.65;
+  letter-spacing: 0.02em;
+}
+
+.endLine {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(248, 199, 88, 0.22);
+  border-radius: 8px;
+  background: rgba(248, 199, 88, 0.05);
+  color: var(--gold-hi);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.7;
+  letter-spacing: 0.03em;
+  text-align: center;
+}
+
+@media (max-width: 420px) {
+  .bridge {
+    font-size: 11px;
+    padding: 5px 8px 5px 12px;
+  }
+
+  .endLine {
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+}
+
+/* —— collector polish (static) —— */
+.headline {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 12px;
+  color: var(--gold-bright);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.4;
+  letter-spacing: 0.07em;
+  text-shadow: 0 0 20px rgba(248, 199, 88, 0.3);
+}
+
+.headlineText {
+  flex: 1;
+  min-width: 0;
+}
+
+.headlinePremium {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(252, 234, 134, 0.55);
+  border-radius: 10px;
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(252, 234, 134, 0.16), transparent 55%),
+    linear-gradient(160deg, rgba(52, 42, 20, 0.95), rgba(24, 20, 14, 0.98));
+  box-shadow:
+    0 0 0 1px rgba(248, 199, 88, 0.12),
+    0 8px 20px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(252, 234, 134, 0.14);
+  text-shadow: 0 0 22px rgba(252, 234, 134, 0.38);
+}
+
+.premiumSeal {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border: 1.5px solid rgba(252, 234, 134, 0.85);
+  border-radius: 4px;
+  background: rgba(139, 30, 30, 0.55);
+  color: #fff6c8;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+  box-shadow: 0 0 10px rgba(248, 199, 88, 0.35);
+}
+
+.segment {
+  padding: 14px 14px 14px 16px;
+}
+
+.segmentHead {
+  gap: 8px 10px;
+  margin: 0 0 12px;
+  padding-bottom: 10px;
+}
+
+.opening {
+  margin: 0 0 12px;
+  padding: 9px 12px;
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.lines {
+  gap: 10px;
+}
+
+.line {
+  font-size: 13px;
+  line-height: 1.9;
+}
+
+.peelButton,
+.peelButtonCurrent {
+  min-height: 44px;
+  padding: 8px 14px;
+  font-size: 12px;
+}
+
+.segNavLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 4px;
+}
+
+.collapsedHit {
+  min-height: 44px;
+  padding: 4px 2px;
+}
+
+.progressDot {
+  box-sizing: content-box;
+  width: 10px;
+  height: 10px;
+  padding: 17px;
+  margin: 0;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+
+.collapsedHit:focus-visible,
+.peelButton:focus-visible,
+.peelButtonCurrent:focus-visible,
+.segNavLink:focus-visible,
+.progressDot:focus-visible {
+  outline: 2px solid #fcea86;
+  outline-offset: 2px;
+}
+
+.bridge {
+  margin: 4px 0 6px;
+  padding: 8px 12px 8px 16px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #c4b89a;
+}
+
+.endLine {
+  margin: 12px 0 2px;
+  padding: 12px 14px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+
+.hereBar {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+}
+
+.hereText {
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 420px) {
+  .headline {
+    font-size: 15px;
+    letter-spacing: 0.05em;
+  }
+  .headlinePremium {
+    padding: 9px 10px;
+  }
+  .segment {
+    padding: 12px;
+  }
+  .bridge {
+    font-size: 11px;
+  }
+}
+
+@media (min-width: 720px) {
+  .headline {
+    font-size: 19px;
+  }
+  .headlinePremium {
+    padding: 12px 14px;
+  }
+}
+
+
+.peelClose {
+  border-color: rgba(248, 199, 88, 0.32);
+  background: rgba(248, 199, 88, 0.06);
+}
+
+.peelCloseText {
+  margin: 0;
+  color: var(--gold-hi);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.75;
+  letter-spacing: 0.03em;
+}
+
+.peelDone {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+}
+
+
+/* 客人本人一句（viewerLine，後端代入年齡／姓名）2026-11-06 */
+.viewerLine {
+  margin: 6px 0 0;
+  color: #fff3b0;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.5;
+  letter-spacing: 0.03em;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 420px) {
+  .viewerLine { font-size: 14px; }
+}

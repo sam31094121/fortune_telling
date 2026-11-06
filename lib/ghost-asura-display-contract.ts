@@ -212,6 +212,36 @@ export interface AsuraDisplay {
   goldWording?: AsuraGoldWordingView | null;
   /** 鬼魅阿修羅 18 歲禁忌守門（同時檢查今日實歲與查詢日期實歲；未達標時回傳 WITHHELD 與後端中性提示） */
   ageGate?: AsuraAgeGate;
+  /**
+   * 千人千面戰神令｜四段時間線意境（新增欄位，只增不改；舊資料無此欄＝不畫）。
+   * 後端固定文案，經禁用詞檢查；前端只照印。不含紫微／命理術語，亦不帶實際盤值。
+   */
+  timelineDecree?: AsuraTimelineDecree | null;
+  /**
+   * 十二陣・四十八道戰痕｜年齡時間軸（新增欄位，只增不改；舊資料無此欄＝不畫；未滿 18 歲＝null）。
+   * 後端讀本人紫微盤（calculateDualChart 的同一份 iztro periods）每段四值，查 576 組合表組句，依年齡由過去到未來排列；
+   * 經禁用詞檢查。前端只照印，不運算、不自生內容。不含任何命理名稱、陣名或神名；意涵分級 sourceLevel 只留後端。
+   */
+  ageTimeline?: AsuraAgeTimeline | null;
+  /**
+   * 戰神令四卡 → 年齡段定位（新增欄位；長度 4，依卡序）。由 ageTimeline 推得；ageTimeline 為 null 或無「現在」段＝null。
+   * 不改戰神令文字。
+   */
+  decreeAnchors?: AsuraDecreeAnchor[] | null;
+  /**
+   * 客人本人（新增欄位）：後端由表單資料算出，前端只照印、不自算。
+   * name＝表單 name 清洗後（trim、去控制字元與符號、上限 12 字；含任何禁詞＝null）；表單未填＝null，前端改稱「你」，不得自編姓名。
+   * age＝今日（台北）實歲（與 ageGate 同一套足歲算法）；生日缺漏＝null。
+   */
+  viewer?: AsuraViewer | null;
+}
+
+/** 客人本人資料（display.viewer）。 */
+export interface AsuraViewer {
+  /** 清洗後姓名；無＝null */
+  name: string | null;
+  /** 今日（台北）實歲；無法計算＝null */
+  age: number | null;
 }
 
 export interface AsuraGoldWordingView {
@@ -237,4 +267,123 @@ export interface AsuraAgeGate {
   birthdayPassedToday: boolean;
   birthdayPassedOnTarget: boolean;
   message: string | null;
+}
+
+export interface AsuraTimelineDecreeLine {
+  key: 'opening' | 'sandbox' | 'tactics' | 'closing';
+  heading: string;
+  body: string;
+}
+
+export interface AsuraTimelineDecree {
+  title: string;
+  lines: AsuraTimelineDecreeLine[];
+}
+
+/** 年齡段時態（依今日台北虛歲判定）。 */
+export type AsuraAgeTimelineTense = '過去' | '現在' | '未來';
+
+/** 年齡時間軸一段＝一個大限十年段（共 12 段，已依年齡由小到大排序；前端不需再排）。 */
+export interface AsuraAgeTimelineSegment {
+  /** 例：約 4–13 歲 */
+  ageLabel: string;
+  /** 依今日（台北）虛歲判定：段止歲 < 虛歲＝過去；段起歲 > 虛歲＝未來；其餘＝現在。 */
+  tense: AsuraAgeTimelineTense;
+  /** 當前年齡段（＝tense 為「現在」）；全軸最多一段為 true。前端據此高亮，不需自行計算。 */
+  isCurrent: boolean;
+  /**
+   * 段落開場：text＝位置句（依時態＋白話領域＋客人年齡，後端代入）；headline＝「{起歲} 歲起，」＋本段標題，≤26 字。
+   * headline 選法：本段含招牌語來源值＝該招牌語（見 premiumTitles）；否則權重最高值（同分取前層），該值有核准整句（權重標題）時用整句。
+   */
+  opening: AsuraAgeTimelineOpening;
+  /** 固定四句，固定層序：氣（起落）→ 旗（旗號）→ 令（歲令）→ 勢（兵勢）。 */
+  lines: string[];
+  /** 洋蔥層：與 lines 一一對應（長度固定 4）。 */
+  depth: AsuraAgeTimelineDepth[];
+  /** 承接句：連到下一段（只由兩段意涵決定）；最後一段為 null，改用 AsuraAgeTimeline.guide.endLine。 */
+  bridge: string | null;
+}
+
+/** 段落開場。 */
+export interface AsuraAgeTimelineOpening {
+  /**
+   * 位置句（後端代入客人資料）：
+   * 過去「你 34–43 歲走過這段，落在家門。」；現在「{姓名，}你今年虛歲 53，正走在這段，落在戰功；今年是這段最後一年。」；
+   * 未來「再過 1 年，你 54 歲進這段，落在身邊人馬。」
+   */
+  text: string;
+  /** 段落標題：「{起歲} 歲起，」＋我→你白話整句（不含白話領域），≤26 字。例「44 歲起，身體在喊停，我要你先停，再打下一仗」 */
+  headline: string;
+}
+
+/** 一句（lines[j]）的洋蔥層，依序顯示：basis → history → action → close。 */
+export interface AsuraAgeTimelineDepth {
+  /** 名義層：傳統名義＋修羅場景（我→你）；hook 末句引向下一層（有 history 引向史事，否則引向 action）。 */
+  basis: { text: string; hook: string };
+  /** 史鑒層：真實史事（白話轉述、忠於原典）＋出處《書・篇》＋hook（末句引向 action）；查無貼切史事＝null，不編。 */
+  history: { text: string; source: string; hook: string } | null;
+  /** 行動層：1–2 個具體行動（修羅口吻，對「你」下令）。 */
+  action: string[];
+  /** 收束層：這一層洋蔥的修羅收尾句（必有，接在 action 之後顯示）。 */
+  close: string;
+}
+
+/** 時間軸導覽文字（後端固定，前端照印）。 */
+export interface AsuraAgeTimelineGuide {
+  /** 現在段標籤（目前：「你現在在這段，往下看」）；固定字，不含個人資料，前端 fallback 逐字相同 */
+  hereLabel: string;
+  /** 往上一段的按鈕字（目前：「點這裡看上一段」） */
+  toPast: string;
+  /** 往下一段的按鈕字（目前：「點這裡看下一段」） */
+  toFuture: string;
+  /** 最後一段之後的收尾句（目前：「往後的路你都看完了。點最上面的亮點，回到你現在這段。」） */
+  endLine: string;
+}
+
+/** 戰神令四卡對應的年齡段（只給定位，不改戰神令文字）。 */
+export interface AsuraDecreeAnchor {
+  /** ageTimeline.segments 的索引 */
+  segmentIndex: number;
+  /** 同 segments[segmentIndex].ageLabel */
+  ageLabel: string;
+  /** 同 segments[segmentIndex].tense */
+  tense: AsuraAgeTimelineTense;
+  /** segment＝對應整段；action＝對應該段洋蔥層的行動 */
+  focus: 'segment' | 'action';
+  /** 卡面標記一句（後端代入客人年齡）：例「你 34–43 歲・走過的路」「你今年 52 歲・就在這段」「你今年 52 歲・現在就做」「你 54 歲起・下一段」 */
+  label: string;
+  /** 大字年齡區間：例「34–43」（前端加「歲」字樣即可，不自算） */
+  ageRange: string;
+  /** 卡面狀態章：走過／現在／現在就做／下一段 */
+  mark: '走過' | '現在' | '現在就做' | '下一段';
+  /** 同 segments[segmentIndex].opening.headline（卡面疊字用） */
+  headline: string;
+}
+
+/** 精品標題：哪一段的 headline 由四句招牌語之一擔綱（供前端加強顯示）。只出現在真的含其來源值的段。 */
+export interface AsuraAgePremiumTitle {
+  /** ageTimeline.segments 的索引 */
+  segmentIndex: number;
+  /** 同 segments[segmentIndex].ageLabel */
+  ageLabel: string;
+  /** 招牌語整句（不含年齡前綴），四句之一，見 AGE_PREMIUM_TITLES */
+  phrase: string;
+  /** 與 segments[segmentIndex].opening.headline 相同 */
+  headline: string;
+}
+
+/** 十二陣・四十八道戰痕（display.ageTimeline）：每段 4 句；段數＝截到「今年實歲＋10」所在段為止（1–12 段）。 */
+export interface AsuraAgeTimeline {
+  /** 「十二陣・四十八道戰痕」 */
+  title: string;
+  /** 導覽文字 */
+  guide: AsuraAgeTimelineGuide;
+  /**
+   * 客人本人一句（後端代入，放在「你現在在這段」列下）：例「你今年 52 歲（虛歲 53），正走在 44–53 歲這段。」；
+   * 有姓名時前綴「{姓名}，」。無現在段＝只報年齡。
+   */
+  viewerLine: string;
+  segments: AsuraAgeTimelineSegment[];
+  /** 哪些段由招牌語擔綱 headline（依段序；只列真的含來源值的段，現行規則下每張盤 4 段）。 */
+  premiumTitles: AsuraAgePremiumTitle[];
 }

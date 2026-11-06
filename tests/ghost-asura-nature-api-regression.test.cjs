@@ -59,8 +59,32 @@ function validateAdultGate(gate, birthDate, requestDay) {
     // Oct 24 added goldWording after nature; retain every Oct 9 legacy assertion.
     // The additive field is checked separately, not silently ignored.
     validateAdultGate(now.ageGate, input.birthDate, requestDay);
-    assert.deepEqual(Object.keys(now).filter((k) => k !== 'nature' && k !== 'goldWording' && k !== 'ageGate'), Object.keys(fixture), `${name} legacy keys`);
+    assert.deepEqual(Object.keys(now).filter((k) => k !== 'nature' && k !== 'goldWording' && k !== 'ageGate' && k !== 'timelineDecree' && k !== 'ageTimeline' && k !== 'decreeAnchors' && k !== 'viewer'), Object.keys(fixture), `${name} legacy keys`);
     validateGoldWording(now.goldWording, input);
+    assert(now.timelineDecree && now.timelineDecree.title === '千人千面戰神令' && now.timelineDecree.lines.length === 4, `${name} timelineDecree present`);
+    assert.deepEqual(count(JSON.stringify(now.timelineDecree), tl.ASURA_CARD_FORBIDDEN_TERMS), [], `${name} timelineDecree terms`);
+    assert.deepEqual(count(JSON.stringify(now.timelineDecree), tl.ZIWEI_TERMS), [], `${name} timelineDecree ziwei`);
+    // 2026-11-06 十二陣・四十八道戰痕 ageTimeline（新增欄位）：12 段×4 句、isCurrent 至多一段、零禁詞（含四組名稱／48 神名／宮名／干支組合）、不外送 sourceLevel
+    assert(now.ageTimeline && now.ageTimeline.segments.length >= 1 && now.ageTimeline.segments.length <= 12 && now.ageTimeline.segments.every((g) => g.lines.length === 4), `${name} ageTimeline 48 lines`);
+    assert.deepEqual(tl.palaceVerseForbiddenHits(JSON.stringify(now.ageTimeline)), [], `${name} ageTimeline terms`);
+    assert(now.ageTimeline.segments.filter((g) => g.isCurrent).length <= 1, `${name} ageTimeline isCurrent`);
+    assert(now.ageTimeline.segments.every((g) => g.opening && Array.from(g.opening.headline).length <= 26 && g.depth.length === 4), `${name} ageTimeline opening/depth`);
+    assert(!JSON.stringify(now).includes('decreeDepth'), `${name} no decreeDepth`);
+    // bridge／guide／decreeAnchors（新增欄位）
+    assert(now.ageTimeline.guide && now.ageTimeline.guide.hereLabel === '你現在在這段，往下看' && now.ageTimeline.guide.toPast === '點這裡看上一段' && now.ageTimeline.guide.toFuture === '點這裡看下一段' && now.ageTimeline.guide.endLine === '往後的路你都看完了。點最上面的亮點，回到你現在這段。', `${name} guide`);
+    // 客人本人（新增欄位）：viewer.age＝後端實歲；viewerLine 帶年齡
+    assert(now.viewer && Number.isInteger(now.viewer.age) && (now.viewer.name === null || typeof now.viewer.name === 'string'), `${name} viewer`);
+    assert(typeof now.ageTimeline.viewerLine === 'string' && now.ageTimeline.viewerLine.includes(`你今年 ${now.viewer.age} 歲`), `${name} viewerLine`);
+    assert(now.ageTimeline.segments.slice(0, -1).every((g) => typeof g.bridge === 'string' && g.bridge) && now.ageTimeline.segments[now.ageTimeline.segments.length - 1].bridge === null, `${name} bridges`);
+    assert(now.ageTimeline.segments.every((g) => g.depth.every((d) => typeof d.close === 'string' && d.close.length > 0)), `${name} depth close`);
+    assert(Array.isArray(now.ageTimeline.premiumTitles), `${name} premiumTitles`);
+    if (now.ageTimeline.segments.some((g) => g.isCurrent)) {
+      assert(Array.isArray(now.decreeAnchors) && now.decreeAnchors.length === 4, `${name} decreeAnchors`);
+      assert.deepEqual(now.decreeAnchors.map((a) => a.focus), ['segment', 'segment', 'action', 'segment'], `${name} anchor focus`);
+      for (const a of now.decreeAnchors) { assert.deepEqual(Object.keys(a), ['segmentIndex', 'ageLabel', 'tense', 'focus', 'label', 'ageRange', 'mark', 'headline']); assert(a.label.startsWith('你'), `${name} anchor label`); }
+    } else assert.equal(now.decreeAnchors, null, `${name} decreeAnchors null`);
+    assert.deepEqual(tl.palaceVerseForbiddenHits(JSON.stringify(now.decreeAnchors)), [], `${name} decreeAnchors terms`);
+    assert(!JSON.stringify(now.ageTimeline).includes('sourceLevel'), `${name} ageTimeline leaks sourceLevel`);
     const sameYear = now.audit?.timeAxis?.flowYear === fixture.audit?.timeAxis?.flowYear && now.audit?.timeAxis?.todayTaipei === fixture.audit?.timeAxis?.todayTaipei;
     for (const key of Object.keys(fixture)) {
       if (key === 'sections') continue;

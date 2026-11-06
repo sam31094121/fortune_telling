@@ -1,0 +1,448 @@
+﻿/* GhostAsuraCard.visual.module.css
+ * Visual / motion polish for 「千人千面戰神令」 four cards ONLY.
+ * FE wires these classNames onto existing decree card markup after backend finishes.
+ * Do NOT invent copy. Display API fields only (decreeAnchors / viewer / viewerLine / premiumTitles).
+ * Animations: transform + opacity only. Rhythm = asuraImpressionGlow (0.8s, stagger 100ms).
+ * Forbidden on-card text remains a backend concern: 48 神名、宮名、星名、干支.
+ */
+
+/* ─── keyframes ─── */
+@keyframes decreeCardIn {
+  0% {
+    opacity: 0;
+    transform: translateY(var(--decree-rise, 12px));
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes decreeBadgeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes decreeTitleIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes decreeCurrentBreathe {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.01);
+  }
+}
+
+@keyframes decreeSealPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.82;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes decreeIconSettle {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ─── root / grid ─── */
+.visualRoot {
+  --decree-rise: 12px;
+  --decree-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --decree-dur: 0.8s;
+  --decree-stagger: 0.1s;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.visualGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  min-width: 0;
+}
+
+@media (min-width: 720px) {
+  .visualGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+}
+
+/* ─── card shell (skim-at-a-glance) ─── */
+.visualCard {
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+  opacity: 0;
+  transform: translateY(var(--decree-rise, 12px));
+  animation: decreeCardIn var(--decree-dur) var(--decree-ease) both;
+}
+
+.visualCard:nth-child(1) { animation-delay: calc(var(--decree-stagger) * 0); }
+.visualCard:nth-child(2) { animation-delay: calc(var(--decree-stagger) * 1); }
+.visualCard:nth-child(3) { animation-delay: calc(var(--decree-stagger) * 2); }
+.visualCard:nth-child(4) { animation-delay: calc(var(--decree-stagger) * 3); }
+
+/* Soft depth vignette — no new copy */
+.visualCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    165deg,
+    rgba(252, 234, 134, 0.07) 0%,
+    transparent 42%,
+    rgba(0, 0, 0, 0.18) 100%
+  );
+  opacity: 0.9;
+  z-index: 0;
+}
+
+.visualCard > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Current / action cards get a quiet breath (mark = 現在 | 現在就做) */
+.visualCardCurrent {
+  animation:
+    decreeCardIn var(--decree-dur) var(--decree-ease) both,
+    decreeCurrentBreathe 2.4s ease-in-out 1s infinite;
+}
+
+.visualCardPast {
+  /* slightly quieter past cards — opacity only */
+  opacity: 0.94;
+}
+
+.visualCardFuture {
+  /* future stays clear */
+}
+
+/* Hover / tap feedback — transform + opacity only */
+.visualCard:hover,
+.visualCard:focus-within {
+  transform: translateY(-2px) scale(1.008);
+}
+
+.visualCard:active {
+  transform: translateY(0) scale(0.995);
+  opacity: 0.96;
+}
+
+/* ─── large age band ─── */
+.visualAgeBand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  font-size: clamp(22px, 6.2vw, 28px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: #fff3b0;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.visualAgeBandUnit {
+  font-size: 0.48em;
+  font-weight: 700;
+  opacity: 0.9;
+  margin-left: 2px;
+}
+
+/* ─── personalised badge (~16 chars, one line, no overflow @390) ─── */
+.visualBadge {
+  display: grid;
+  grid-template-columns: auto minmax(0, auto) minmax(0, 1fr);
+  grid-template-areas:
+    "icon age mark"
+    "label label label";
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 4px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 64px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  box-sizing: border-box;
+  opacity: 0;
+  animation: decreeBadgeIn 0.7s var(--decree-ease) 0.08s both;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+.visualBadge:hover,
+.visualBadge:focus-visible {
+  transform: scale(1.015);
+}
+
+.visualBadge:active {
+  transform: scale(0.985);
+  opacity: 0.92;
+}
+
+.visualBadge:focus-visible {
+  outline: 2px solid #fcea86;
+  outline-offset: 2px;
+}
+
+/* Personalised line: ~16 CJK chars, single line, ellipsis if long — never invent text */
+.visualBadgeLabel {
+  grid-area: label;
+  min-width: 0;
+  max-width: 100%;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  opacity: 0.88;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Status seal (走過 / 現在 / 現在就做 / 下一段) — API mark only */
+.visualMarkSeal {
+  grid-area: mark;
+  justify-self: end;
+  max-width: 100%;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: rgba(252, 234, 134, 0.16);
+  border: 1px solid rgba(252, 234, 134, 0.45);
+}
+
+.visualMarkSealCurrent {
+  background: #fcea86;
+  color: #2a1606;
+  animation: decreeSealPulse 2.2s ease-in-out 0.6s infinite;
+}
+
+/* Icon circle */
+.visualIcon {
+  grid-area: icon;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(252, 234, 134, 0.6);
+  font-size: 15px;
+  line-height: 1;
+  opacity: 0;
+  animation: decreeIconSettle 0.55s var(--decree-ease) 0.12s both;
+}
+
+.visualAgeBand {
+  grid-area: age;
+}
+
+/* Current badge emphasis */
+.visualBadgeCurrent {
+  border-color: rgba(255, 214, 102, 0.9);
+  background: linear-gradient(180deg, rgba(255, 196, 64, 0.28), rgba(248, 199, 88, 0.08));
+  box-shadow: 0 0 18px rgba(255, 196, 64, 0.35);
+}
+
+.visualBadgePast {
+  filter: saturate(0.78);
+  opacity: 0.92;
+}
+
+/* ─── title overlay (headline from API) ─── */
+.visualTitleOverlay {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border-left: 3px solid #fcea86;
+  background: rgba(0, 0, 0, 0.32);
+  color: #fff3b0;
+  font-size: clamp(13px, 3.6vw, 15px);
+  font-weight: 800;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
+  box-sizing: border-box;
+  opacity: 0;
+  animation: decreeTitleIn 0.7s var(--decree-ease) 0.16s both;
+}
+
+/* Optional viewer chip (name|null + age) — FE maps display.viewer / viewerLine */
+.visualViewerChip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0 0 10px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(252, 234, 134, 0.35);
+  background: rgba(252, 234, 134, 0.08);
+  color: #efddb5;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Long name: shrink gracefully; empty name: chip still looks fine via age-only text from API */
+.visualViewerName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.visualViewerAge {
+  flex-shrink: 0;
+  margin-left: 6px;
+  opacity: 0.9;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Section heading polish */
+.visualSectionTitle {
+  margin: 0 0 14px;
+  color: #fcea86;
+  font-size: clamp(15px, 4.2vw, 17px);
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+/* Body first-sentence emphasis stays in base CSS; this only stages opacity */
+.visualBody {
+  margin: 0;
+  max-width: 100%;
+  opacity: 0;
+  animation: decreeTitleIn 0.65s var(--decree-ease) 0.22s both;
+}
+
+/* ─── mobile 390 / ≤420 ─── */
+@media (max-width: 420px) {
+  .visualRoot {
+    --decree-rise: 8px;
+  }
+
+  .visualBadge {
+    padding: 9px 12px;
+    column-gap: 8px;
+    min-height: 58px;
+  }
+
+  .visualAgeBand {
+    font-size: 22px;
+  }
+
+  .visualBadgeLabel {
+    font-size: 11px;
+    /* ~16 CJK @ 390: keep one line, ellipsis */
+    max-width: 100%;
+  }
+
+  .visualMarkSeal {
+    font-size: 12px;
+    padding: 2px 8px;
+    max-width: 7.5em;
+  }
+
+  .visualTitleOverlay {
+    font-size: 13px;
+    padding: 7px 10px;
+  }
+
+  .visualIcon {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+
+  .visualViewerChip {
+    font-size: 11px;
+    padding: 3px 10px;
+  }
+
+  .visualCard:hover,
+  .visualCard:focus-within {
+    transform: translateY(-1px) scale(1.004);
+  }
+}
+
+/* ─── reduced motion: static full show ─── */
+@media (prefers-reduced-motion: reduce) {
+  .visualCard,
+  .visualCardCurrent,
+  .visualCard:nth-child(n),
+  .visualBadge,
+  .visualIcon,
+  .visualTitleOverlay,
+  .visualBody,
+  .visualMarkSealCurrent {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .visualCard:hover,
+  .visualCard:focus-within,
+  .visualCard:active,
+  .visualBadge:hover,
+  .visualBadge:focus-visible,
+  .visualBadge:active {
+    transform: none !important;
+  }
+}
