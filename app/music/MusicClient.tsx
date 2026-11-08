@@ -5,7 +5,6 @@ import Link from 'next/link';
 import PersonalityMusicFlow, { type MusicFormData } from '@/components/PersonalityMusicFlow';
 import PersonalityMusicReport from '@/components/PersonalityMusicReport';
 import IdentitySplitSelector from '@/components/IdentitySplitSelector';
-import FeatureVisitorCounter from '@/components/FeatureVisitorCounter';
 import TaijiStandaloneCard from '@/components/TaijiStandaloneCard';
 import { getCompletedGrowthModules, getGrowthElements, markGrowthModuleCompleted } from '@/lib/growth-center-client';
 import {
@@ -521,7 +520,6 @@ export default function MusicSystemPage() {
       {pageState === 'form' && (
         <div className="relative z-30 mx-auto max-w-6xl px-4 pt-5 sm:px-6 lg:px-8">
           <div className="flex items-start justify-between gap-3">
-            <FeatureVisitorCounter featureKey="music" className="shrink-0" />
             <Link href="/" className="feature-home-link feature-home-link--violet mt-1 shrink-0">
               返回首頁
             </Link>

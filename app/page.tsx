@@ -3734,7 +3734,6 @@ export default function HomePage() {
             {/* 已解鎖時顯示的 VIP 聲學與天命報告 */}
             {data?.karma_story && isUnlocked && (
               <div className="space-y-6 animate-rise">
-                <FeatureVisitorCounter featureKey="karma" />
                 {/* 聲學音樂適配區 (動態跳動頻譜) */}
                 <div className="fortune-card vip-gold-card p-6 sm:p-8 relative overflow-hidden">
                   <div className="absolute right-6 top-6 flex items-center gap-2">
@@ -4041,7 +4040,6 @@ export default function HomePage() {
               </p>
             </div>
 
-            <FeatureVisitorCounter featureKey="number" className="hidden" />
 
             <IdentitySplitSelector className="mb-4" />
             <DailyAnalysisNotice record={numberDailyRecord} className="mb-4" moduleName="易經論數字" onViewResult={numberDailyRecord ? () => restoreNumberDailyRecord(numberDailyRecord) : undefined} />
@@ -4168,7 +4166,6 @@ export default function HomePage() {
                       </div>
                     </>
                   )}
-                  <FeatureVisitorCounter featureKey="iching" className="hidden" />
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <span className="text-sm font-semibold text-cyan-200">
                       分析對象：<span className="text-base text-cyan-100 font-mono font-bold">{fortuneResult.value}</span>

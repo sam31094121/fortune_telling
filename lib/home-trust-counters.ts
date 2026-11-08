@@ -1,244 +1,54 @@
 import 'server-only';
-
 import { NextResponse } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { getVisitorSupabaseClient } from '@/lib/visitor-counter';
-import { HOME_TRUST_FLOORS } from '@/lib/trust-counter-floors';
-import {
-  checkVoteRateLimit,
-  getClientIp,
-  markVoteEventApplied,
-  releaseVoteEvent,
-  VOTE_MIN_INTERVAL_MS,
-} from '@/lib/home-trust-vote-limiter';
+import { HOME_TRUST_EPOCH, isHomeTrustSnapshot, type HomeTrustKind } from '@/lib/home-trust-contract';
+import { checkVoteRateLimit, getClientIp, releaseVoteEvent } from '@/lib/home-trust-vote-limiter';
 
-
-
-/*
-  首頁信任區（認同／不認同／累計瀏覽次數）的伺服器端單一入口。
-
-  原則（業主規格）：
-  - 正式數字只存在資料庫；前端只負責顯示，不得指定最終數字。
-  - 所有 +1 都由資料庫原子完成；本檔只傳「動作」與「事件編號」。
-  - 事件編號用來去重：同一事件重送（逾時重試、離線補送、sendBeacon、多分頁補送）只 +1 一次，
-    不同事件各自 +1，所以快速連點不會漏算。
-  - 失敗就誠實回 503，不假裝成功。
-*/
-
-export type HomeTrustKind = 'agree' | 'disagree' | 'view';
-
-export type HomeTrustCounters = {
-  agreeCount: number;
-  disagreeCount: number;
-  viewCount: number;
-};
-
-export class HomeTrustUnavailableError extends Error {
-  constructor(message: string, options?: { cause?: unknown }) {
-    super(message, options);
-    this.name = 'HomeTrustUnavailableError';
-  }
+const headers = { 'Cache-Control': 'no-store' };
+const failure = () => NextResponse.json({ ok: false, message: '暫時無法取得，請稍後重試。' }, { status: 503, headers });
+function snapshot(row: Record<string, unknown> | null) {
+  if (!row) return null;
+  const value = { epoch: row.epoch, agreeCount: row.agree_count, disagreeCount: row.disagree_count, viewCount: row.view_count, revision: row.revision };
+  return isHomeTrustSnapshot(value) ? value : null;
 }
-
-const NO_STORE = { 'Cache-Control': 'no-store' } as const;
-const EVENT_ID_PATTERN = /^[A-Za-z0-9_-]{8,100}$/;
-const MAX_BODY_BYTES = 1024;
-
-const FAILURE_MESSAGE: Record<HomeTrustKind, string> = {
-  agree: '無法更新認同計數。',
-  disagree: '無法更新不認同計數。',
-  view: '無法更新瀏覽次數。',
-};
-
-export function normalizeCount(value: unknown, floor: number): number {
-  const count = Number(value);
-  return Number.isSafeInteger(count) && count >= floor ? count : floor;
+export async function handleHomeTrustRead() {
+  try {
+    const client = getVisitorSupabaseClient();
+    if (!client) return failure();
+    const { data, error } = await client.from('home_trust_counters').select('epoch, agree_count, disagree_count, view_count, revision').eq('id', 'home').maybeSingle();
+    const current = snapshot(data);
+    if (error || !current) return failure();
+    return NextResponse.json({ ok: true, ...current }, { headers });
+  } catch { return failure(); }
 }
-
-export function floorCounters(): HomeTrustCounters {
-  return {
-    agreeCount: HOME_TRUST_FLOORS.agree,
-    disagreeCount: HOME_TRUST_FLOORS.disagree,
-    viewCount: HOME_TRUST_FLOORS.view,
-  };
-}
-
-function toCounters(row: Record<string, unknown>): HomeTrustCounters {
-  return {
-    agreeCount: normalizeCount(row.agree_count, HOME_TRUST_FLOORS.agree),
-    disagreeCount: normalizeCount(row.disagree_count, HOME_TRUST_FLOORS.disagree),
-    viewCount: normalizeCount(row.view_count, HOME_TRUST_FLOORS.view),
-  };
-}
-
-export function isValidEventId(value: unknown): value is string {
-  return typeof value === 'string' && EVENT_ID_PATTERN.test(value);
-}
-
-/**
- * 只擋「瀏覽器發起的跨站 POST」（別的網站的頁面偷偷替你灌數字）。
- * 沒有 Origin 的請求（舊客戶端、代理）不擋——這不是安全邊界，只是擋掉最常見的濫用。
- */
-export function isCrossSiteRequest(request: Request): boolean {
-  if (request.headers.get('sec-fetch-site') === 'cross-site') return true;
-
+export async function handleHomeTrustIncrement(kind: HomeTrustKind, request: Request) {
   const origin = request.headers.get('origin');
-  if (!origin) return false;
-  if (origin === 'null') return true;
-
+  let crossOrigin = request.headers.get('sec-fetch-site') === 'cross-site';
+  try { if (origin && new URL(origin).host !== (request.headers.get('host') ?? new URL(request.url).host)) crossOrigin = true; }
+  catch { crossOrigin = true; }
+  if (crossOrigin) {
+    return NextResponse.json({ ok: false, message: '請從本站操作。' }, { status: 403, headers });
+  }
+  let eventId: string;
   try {
-    const host = request.headers.get('host') ?? new URL(request.url).host;
-    return new URL(origin).host !== host;
+    const text = await request.text();
+    if (text.length > 512) throw new Error('body');
+    const body = JSON.parse(text);
+    if (body?.epoch !== HOME_TRUST_EPOCH || typeof body.eventId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(body.eventId)) throw new Error('event');
+    eventId = body.eventId;
   } catch {
-    return true;
+    return NextResponse.json({ ok: false, message: '請重新整理頁面後再試。' }, { status: 400, headers });
   }
-}
-
-/** 取事件編號：JSON 本文的 eventId，或 X-Idempotency-Key。沒帶回 null；帶了但格式不對回 'invalid'。 */
-export async function readEventId(request: Request): Promise<string | null | 'invalid'> {
-  const headerValue = request.headers.get('x-idempotency-key');
-  let candidate: unknown = headerValue ?? undefined;
-
-  if (candidate === undefined) {
-    let text = '';
-    try {
-      text = await request.text();
-    } catch {
-      return 'invalid';
-    }
-    if (text.length > MAX_BODY_BYTES) return 'invalid';
-    if (text.trim() === '') return null;
-    try {
-      const parsed = JSON.parse(text) as { eventId?: unknown } | null;
-      candidate = parsed && typeof parsed === 'object' ? parsed.eventId : undefined;
-    } catch {
-      return 'invalid';
-    }
-    if (candidate === undefined || candidate === null) return null;
+  if (kind !== 'view' && checkVoteRateLimit(getClientIp(request), eventId) === 'limited') {
+    return NextResponse.json({ ok: false, message: '操作太頻繁，請稍後再試。' }, { status: 429, headers });
   }
-
-  return isValidEventId(candidate) ? candidate : 'invalid';
-}
-
-type RpcError = { code?: string; message?: string } | null;
-
-function isMissingFunction(error: RpcError): boolean {
-  if (!error) return false;
-  return error.code === 'PGRST202' || error.code === '42883' || /could not find the function/i.test(error.message ?? '');
-}
-
-function firstRow(data: unknown): Record<string, unknown> | null {
-  if (Array.isArray(data)) return (data[0] as Record<string, unknown> | undefined) ?? null;
-  if (data && typeof data === 'object') return data as Record<string, unknown>;
-  return null;
-}
-
-export type IncrementResult = HomeTrustCounters & { applied: boolean };
-
-export async function incrementHomeTrust(
-  kind: HomeTrustKind,
-  eventId: string | null,
-  client: SupabaseClient | null = getVisitorSupabaseClient(),
-): Promise<IncrementResult> {
-  if (!client) throw new HomeTrustUnavailableError('資料庫尚未設定。');
-
-  const primary = await client.rpc('home_trust_increment', { p_kind: kind, p_event_id: eventId });
-  let data: unknown = primary.data;
-  let applied = true;
-
-  if (primary.error && isMissingFunction(primary.error)) {
-    // 程式比資料庫遷移早部署：退回舊函式（可用，但沒有事件去重）。
-    console.warn(`[home-trust] home_trust_increment 不存在，暫用舊函式 increment_home_trust_${kind}；請套用遷移 20261006170000。`);
-    const legacy = await client.rpc(`increment_home_trust_${kind}`);
-    if (legacy.error) throw new HomeTrustUnavailableError(legacy.error.message, { cause: legacy.error });
-    data = legacy.data;
-  } else if (primary.error) {
-    throw new HomeTrustUnavailableError(primary.error.message, { cause: primary.error });
-  }
-
-  const row = firstRow(data);
-  if (!row) throw new HomeTrustUnavailableError('累加函式沒有回傳資料。');
-  if (typeof row.applied === 'boolean') applied = row.applied;
-
-  return { ...toCounters(row), applied };
-}
-
-export async function readHomeTrust(
-  client: SupabaseClient | null = getVisitorSupabaseClient(),
-): Promise<HomeTrustCounters & { source: 'database' | 'floor' }> {
-  if (!client) throw new HomeTrustUnavailableError('資料庫尚未設定。');
-
-  const { data, error } = await client
-    .from('home_trust_counters')
-    .select('agree_count, disagree_count, view_count')
-    .eq('id', 'home')
-    .maybeSingle();
-
-  if (error) throw new HomeTrustUnavailableError(error.message, { cause: error });
-
-  if (!data) {
-    console.warn('[home-trust] 資料表沒有 id=home 這一列，暫以地板值回應；請確認遷移已套用。');
-    return { ...floorCounters(), source: 'floor' };
-  }
-
-  return { ...toCounters(data as Record<string, unknown>), source: 'database' };
-}
-
-/** POST /api/home-trust/{agree,disagree,view} 共用處理。 */
-export async function handleHomeTrustIncrement(
-  kind: HomeTrustKind,
-  request: Request,
-  client?: SupabaseClient | null,
-): Promise<Response> {
-  if (isCrossSiteRequest(request)) {
-    return NextResponse.json({ ok: false, message: '請從本站操作。' }, { status: 403, headers: NO_STORE });
-  }
-
-  const eventId = await readEventId(request);
-  if (eventId === 'invalid') {
-    return NextResponse.json({ ok: false, message: '事件編號格式不正確。' }, { status: 400, headers: NO_STORE });
-  }
-
-  // 2026-10-17 vote guard：只節流認同／不認同；瀏覽次數不受影響。被擋下的請求不碰資料庫、不 +1。
-  const isVote = kind === 'agree' || kind === 'disagree';
-  const voteDecision = isVote ? checkVoteRateLimit(getClientIp(request), eventId) : 'allow';
-
-  if (voteDecision === 'limited') {
-    return NextResponse.json(
-      { ok: false, rateLimited: true, message: '操作太頻繁，請稍後再試。' },
-      { status: 429, headers: { ...NO_STORE, 'Retry-After': String(Math.ceil(VOTE_MIN_INTERVAL_MS / 1000)) } },
-    );
-  }
-
-  if (voteDecision === 'duplicate') {
-    // 同一事件已確認寫入：只回目前數字，不再 +1。
-    try {
-      const current = await readHomeTrust(client);
-      return NextResponse.json({ ok: true, ...current, applied: false }, { headers: NO_STORE });
-    } catch (error) {
-      console.error(`[home-trust/${kind}] 讀取失敗：`, error);
-      return NextResponse.json({ ok: false, message: FAILURE_MESSAGE[kind] }, { status: 503, headers: NO_STORE });
-    }
-  }
-
   try {
-    const result = await incrementHomeTrust(kind, eventId, client);
-    if (isVote) markVoteEventApplied(eventId);
-    return NextResponse.json({ ok: true, ...result }, { headers: NO_STORE });
-  } catch (error) {
-    if (isVote && voteDecision === 'allow') releaseVoteEvent(eventId);
-    console.error(`[home-trust/${kind}] 累加失敗：`, error);
-    return NextResponse.json({ ok: false, message: FAILURE_MESSAGE[kind] }, { status: 503, headers: NO_STORE });
-  }
-}
-
-/** GET /api/home-trust 處理。 */
-export async function handleHomeTrustRead(client?: SupabaseClient | null): Promise<Response> {
-  try {
-    const result = await readHomeTrust(client);
-    return NextResponse.json({ ok: true, ...result }, { headers: NO_STORE });
-  } catch (error) {
-    console.error('[home-trust] 讀取失敗：', error);
-    return NextResponse.json({ ok: false, message: '無法讀取計數器。' }, { status: 503, headers: NO_STORE });
-  }
+    const client = getVisitorSupabaseClient();
+    if (!client) throw new Error('unconfigured');
+    const { data, error } = await client.rpc('home_trust_increment_v2', { p_kind: kind, p_event_id: eventId, p_epoch: HOME_TRUST_EPOCH });
+    const row = Array.isArray(data) ? data[0] : null;
+    const current = snapshot(row);
+    if (error || !current) throw new Error('unavailable');
+    return NextResponse.json({ ok: true, ...current, applied: row.applied === true }, { headers });
+  } catch { releaseVoteEvent(eventId); return failure(); }
 }

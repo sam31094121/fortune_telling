@@ -21,7 +21,6 @@ import { Level01RenderEngine } from './Level01RenderEngine';
 import { Level01RuntimeBoundary } from './Level01RuntimeBoundary';
 import { rotationFeedbackProfile } from './Level01SensoryFeedback';
 import { Level01SensorController } from './Level01SensorController';
-import { Level01SoundPreferenceEngine } from './Level01SoundPreference';
 import { Level01Telemetry } from './Level01Telemetry';
 import { canAutoStartLevel01Sensors, requestLevel01SensorPermission, sensorsSupported } from './Level01Orientation';
 import type { Level01GameState, Level01Score, QualityLevel } from './Level01Runtime';
@@ -98,11 +97,7 @@ export class Level01TaijiMotionController {
   private completedAt = -1;
   private lastRotationFeedbackAt = -Infinity;
   private lastRotationFeedbackStep: number | null = null;
-  private readonly soundPreference = new Level01SoundPreferenceEngine();
   private soundVariant: TaijiSoundVariant | null = null;
-  private hasArmedBefore = false;
-  private activationEventRecorded = false;
-  private armedAudioAt = -Infinity;
   private activationArmInFlight = false;
   private lastActivationAt = -Infinity;
   private manualFallback = false;
@@ -298,10 +293,6 @@ export class Level01TaijiMotionController {
   toggleAudio() {
     this.audioEnabled = !this.audioEnabled;
     if (this.audioEnabled) this.armAudioFromUserGesture();
-    else if (this.soundVariant && this.hasArmedBefore && this.now() - this.armedAudioAt < 4000) {
-      // 啟動音才剛播沒幾秒就被關掉，算一次「立即靜音」，是偏好學習要看的負向訊號。
-      this.soundPreference.recordEvent({ variant: this.soundVariant, mutedImmediately: true });
-    }
     this.audio.setEnabled(this.audioEnabled);
     this.persistPreferences();
     this.publish(this.pose.driving, this.game.snapshot(this.physics.holdProgress));
@@ -432,11 +423,6 @@ export class Level01TaijiMotionController {
   playReentryWhoosh() {
     this.audio.playReentryWhoosh();
     this.haptics.scheduleReentryCheer();
-  }
-
-  recordNextStepCompleted() {
-    if (!this.soundVariant) return;
-    this.soundPreference.recordEvent({ variant: this.soundVariant, nextStepCompleted: true });
   }
 
   tick(delta: number) {
@@ -631,10 +617,6 @@ export class Level01TaijiMotionController {
     });
     if (game.state === 'LEVEL_COMPLETE') {
       this.telemetry.update({ completionSuccess: true });
-      if (this.soundVariant && !this.activationEventRecorded) {
-        this.activationEventRecorded = true;
-        this.soundPreference.recordEvent({ variant: this.soundVariant, completedInteraction: true });
-      }
       if (this.featureEnabled) {
         this.completedAt = now;
         this.motionGame.markUnity();
@@ -678,22 +660,16 @@ export class Level01TaijiMotionController {
     this.activationArmInFlight = true;
     void this.audio.armFromUserGesture().then((ready) => {
       if (!ready || this.disposed) return;
-      // Assign the local experiment only after a real gesture successfully
-      // unlocks audio; constructing the page itself records nothing.
-      const variant = this.soundVariant ?? this.soundPreference.resolveVariant();
+      // Retain the four activation sounds, without preference tracking.
+      const variants: TaijiSoundVariant[] = ['SOFT_WOOD', 'WARM_BELL', 'AIR_CHIME', 'LOW_RESONANCE'];
+      const variant = this.soundVariant ?? variants[Math.floor(Math.random() * variants.length)];
       this.soundVariant = variant;
       this.audio.playActivationChime(variant);
       // The first mobile press is also the browser's audio-unlock gesture.
       // Schedule the strike only after resume succeeds, otherwise the visual
       // lightning appears while the first thunder is silently discarded.
       if (playInitialLightning) this.audio.playLightningStrike(strikeOrigin);
-      this.armedAudioAt = this.now();
-      this.lastActivationAt = this.armedAudioAt;
-      this.soundPreference.recordEvent({ variant, replayed: this.hasArmedBefore });
-      this.hasArmedBefore = true;
-      this.activationEventRecorded = false;
-      // 背景確認跨使用者聚合有沒有已經產生真正的贏家；不 await，不擋這次的儀式節奏。
-      void this.soundPreference.refreshWinnerFromServer();
+      this.lastActivationAt = this.now();
     }).finally(() => {
       this.activationArmInFlight = false;
     });

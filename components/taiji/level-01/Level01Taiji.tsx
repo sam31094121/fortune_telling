@@ -91,7 +91,6 @@ function RuntimeOverlay({
   }, [interacting]);
 
   const startToday = useCallback(() => {
-    controller.recordNextStepCompleted();
     document.getElementById('home-eight-card-route')?.scrollIntoView({ behavior: pose.reducedMotion ? 'auto' : 'smooth', block: 'start' });
   }, [controller, pose.reducedMotion]);
 
