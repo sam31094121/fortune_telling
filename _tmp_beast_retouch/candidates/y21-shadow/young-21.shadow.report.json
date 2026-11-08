@@ -1,0 +1,195 @@
+{
+ "card": "young-21",
+ "method": "y21-shadow-lift v3 (strict final-pixel dL cap; ground-contact band y>=440 fades to 0 by y=450)",
+ "srcSha": "DF100C6C43185E86F9EA958D4B93F0C2C727EF3580C3A0559FFE9F2B6192B025",
+ "poly": [
+  [
+   300,
+   45
+  ],
+  [
+   350,
+   42
+  ],
+  [
+   385,
+   65
+  ],
+  [
+   400,
+   105
+  ],
+  [
+   412,
+   135
+  ],
+  [
+   470,
+   175
+  ],
+  [
+   520,
+   215
+  ],
+  [
+   560,
+   260
+  ],
+  [
+   588,
+   320
+  ],
+  [
+   598,
+   380
+  ],
+  [
+   596,
+   440
+  ],
+  [
+   586,
+   452
+  ],
+  [
+   500,
+   456
+  ],
+  [
+   488,
+   448
+  ],
+  [
+   440,
+   464
+  ],
+  [
+   358,
+   464
+  ],
+  [
+   350,
+   452
+  ],
+  [
+   330,
+   446
+  ],
+  [
+   300,
+   443
+  ],
+  [
+   290,
+   438
+  ],
+  [
+   268,
+   446
+  ],
+  [
+   262,
+   460
+  ],
+  [
+   176,
+   460
+  ],
+  [
+   170,
+   448
+  ],
+  [
+   180,
+   400
+  ],
+  [
+   195,
+   340
+  ],
+  [
+   205,
+   300
+  ],
+  [
+   214,
+   250
+  ],
+  [
+   212,
+   200
+  ],
+  [
+   212,
+   130
+  ],
+  [
+   226,
+   92
+  ],
+  [
+   260,
+   56
+  ]
+ ],
+ "rules": {
+  "L_MAX": 96,
+  "L_FULL": 40,
+  "inset": "blur(4) of polygon, (v-0.5)*2 -> 0 at polygon edge",
+  "gate": "R>=B && R-G<=40, blur(1)"
+ },
+ "out": {
+  "+4": {
+   "webp": "_tmp_beast_retouch\\candidates\\y21-shadow\\young-21.shadow+4.cand.webp",
+   "webpSha": "B76D7FD80911A01682AD4A29F040DA2F7B5A7CFD6E771ECC603A991F9DCAD028",
+   "pngLossless": "_tmp_beast_retouch\\candidates\\y21-shadow\\young-21.shadow+4.png",
+   "pngSha": "6B76550C661F1604EA9B19265A20BB85B7077B3BD77A46F7C2A826D9E02DD4D5",
+   "w": 720,
+   "h": 540,
+   "changedPx": 107170,
+   "changedOutsidePolygon": 0,
+   "maxDeltaL": 4,
+   "meanDeltaOnChanged": 3.5,
+   "verifyDecoded": {
+    "maxFinalDeltaL": 4,
+    "minFinalDeltaL": 0.072,
+    "overCap": 0,
+    "outsidePolygon": 0,
+    "changedAtL96plus": 0,
+    "changedInContactBandY450plus": 0
+   }
+  },
+  "+7": {
+   "webp": "_tmp_beast_retouch\\candidates\\y21-shadow\\young-21.shadow+7.cand.webp",
+   "webpSha": "2ADAFB538E800D4EA12879FB175A9C173649054959F2FDC5A5C1049D001763AA",
+   "pngLossless": "_tmp_beast_retouch\\candidates\\y21-shadow\\young-21.shadow+7.png",
+   "pngSha": "ECC8E74C491B2B743841116E80A096C39E1B36D7CCC20E69066F7D5F067B9F67",
+   "w": 720,
+   "h": 540,
+   "changedPx": 108497,
+   "changedOutsidePolygon": 0,
+   "maxDeltaL": 7,
+   "meanDeltaOnChanged": 6.16,
+   "verifyDecoded": {
+    "maxFinalDeltaL": 7,
+    "minFinalDeltaL": 0.072,
+    "overCap": 0,
+    "outsidePolygon": 0,
+    "changedAtL96plus": 0,
+    "changedInContactBandY450plus": 0
+   },
+   "thumbs": {
+    "_tmp_beast_retouch\\candidates\\y21-shadow\\thumb\\young-21.v2.webp": {
+     "sha": "9CD8BD1D5656169DF4A14A63103E7EEF9EE9F3A68E7E8EE5C35ACF1354F5E32B",
+     "w": 256,
+     "h": 192
+    },
+    "_tmp_beast_retouch\\candidates\\y21-shadow\\thumb\\young-21.v2-480.webp": {
+     "sha": "7A620DE565EC06253FBA00D40F2C4DDA22B121960E5B93283DE545185B89A39D",
+     "w": 480,
+     "h": 360
+    }
+   }
+  }
+ }
+}
