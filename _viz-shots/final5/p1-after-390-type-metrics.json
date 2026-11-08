@@ -1,0 +1,13 @@
+{
+  "overflowX": false,
+  "bridge": {
+    "fontSize": "12px",
+    "fontWeight": "600",
+    "text": "這段你往上走，下一段你正面迎戰。"
+  },
+  "source": null,
+  "progress": {
+    "fontSize": "12px",
+    "text": "已剝 0／4"
+  }
+}

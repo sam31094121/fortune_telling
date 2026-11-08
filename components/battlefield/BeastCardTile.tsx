@@ -44,9 +44,9 @@ import { CARD_FACE_STATS, CARD_FACE_SKILL } from '@/lib/beast-game/card-face-sta
 const ART_V2_POS: Record<string, number> = {"beast_y01":50,"beast_y02":50,"beast_y03":50,"beast_y04":50,"beast_y05":50,"beast_y06":50,"beast_y07":50,"beast_y08":50,"beast_y09":50,"beast_y10":50,"beast_y11":50,"beast_y12":50,"beast_y13":50,"beast_y14":50,"beast_y15":72.4,"beast_y16":60.4,"beast_y17":79.7,"beast_y18":60,"beast_y19":71.6,"beast_y20":66.6,"beast_y21":60,"beast_y22":60.5,"beast_y23":60.4,"beast_y24":58,"beast_y25":65.1,"beast_y26":60.5,"beast_y27":63.6,"beast_y28":66.1,"beast_a01":50,"beast_a02":50,"beast_a03":55,"beast_a04":30,"beast_a05":50,"beast_a06":50,"beast_a07":50,"beast_a08":50,"beast_a09":50,"beast_a10":50,"beast_a11":50,"beast_a12":50,"beast_a13":50,"beast_a14":50,"beast_a15":50,"beast_a16":50,"beast_a17":50,"beast_a18":50,"beast_a19":50,"beast_a20":50,"beast_a21":50,"beast_a22":50,"beast_a23":50,"beast_a24":50,"beast_a25":50,"beast_a26":50,"beast_a27":50,"beast_a28":50,"beast_g_qinglong":50,"beast_g_zhuque":50,"beast_g_baihu":50,"beast_g_xuanwu":50};
 const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
   beast_y01: {
-    thumb: '/beast-game/thumb/young-01.v2.webp?v=6207f137be27',
-    mid: '/beast-game/thumb/young-01.v2-480.webp?v=dcf3cdd45378',
-    front: '/beast-game/front/young-01.v2.webp?v=eed5b8f52ea5',
+    thumb: '/beast-game/front/young-01.hind-paw-v1.svg',
+    mid: '/beast-game/front/young-01.hind-paw-v1.svg',
+    front: '/beast-game/front/young-01.hind-paw-v1.svg',
   },
   beast_y02: {
     thumb: '/beast-game/thumb/young-02.v2.webp?v=8a9f83381fb5',
@@ -334,14 +334,14 @@ const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
     front: '/beast-game/front/guardian-zhuque.v2.webp?v=40c405ecb734',
   },
   beast_g_baihu: {
-    thumb: '/beast-game/thumb/guardian-baihu.v2.webp?v=9261ab45150d',
-    mid: '/beast-game/thumb/guardian-baihu.v2-480.webp?v=87bd08c78b3d',
-    front: '/beast-game/front/guardian-baihu.v2.webp?v=f7b4bba225f1',
+    thumb: '/beast-game/thumb/guardian-baihu.v2.webp?v=f5380a7f9ffd',
+    mid: '/beast-game/thumb/guardian-baihu.v2-480.webp?v=14510cdcc77f',
+    front: '/beast-game/front/guardian-baihu.v2.webp?v=7e35fc3fd5bc',
   },
   beast_g_xuanwu: {
-    thumb: '/beast-game/thumb/guardian-xuanwu.v2.webp?v=56a99f9b197b',
-    mid: '/beast-game/thumb/guardian-xuanwu.v2-480.webp?v=3607859f81a3',
-    front: '/beast-game/front/guardian-xuanwu.v2.webp?v=e95f0ca1405e',
+    thumb: '/beast-game/thumb/guardian-xuanwu.v2.webp?v=9d261a6a9ed5',
+    mid: '/beast-game/thumb/guardian-xuanwu.v2-480.webp?v=3f96488bd5ed',
+    front: '/beast-game/front/guardian-xuanwu.v2.webp?v=009e8960b2cc',
   },
 };
 

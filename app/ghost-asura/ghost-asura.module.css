@@ -1013,6 +1013,14 @@
 @media (prefers-reduced-motion: reduce) {
   .stepOrbActive::after { animation: none; }
   .stepOrb { transition: none; }
+  /* P1 FAIL#1: resultsEnter/slideInUp must show final state under reduce
+   * (globals sets animation-duration:0.01ms; without opacity:1 content stays blank) */
+  .resultsEnter {
+    animation: none !important;
+    animation-delay: 0s !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 /* 手機：五顆寶珠排成一列（原本三顆＋兩顆兩排，像一串珠子才對） */
@@ -1083,4 +1091,50 @@
   .inputPanel :global(.mega-friendly-form) :global(.text-xs) { font-size: 0.875rem !important; }
   .inputPanel :global(.mega-friendly-form) [class*="text-[11px]"],
   .inputPanel :global(.mega-friendly-form) [class*="text-[10px]"] { font-size: 0.8125rem !important; }
+}
+
+/* === FLICKER 2026-11-06 phase2 (Grok) — no white flash / no float / no blur entrance === */
+.page {
+  background-color: #040A03 !important;
+  background: #040A03 !important;
+}
+.asuraCardReveal {
+  animation: none !important;
+  filter: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+}
+.asuraImpressionGlow {
+  animation: none !important;
+  filter: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+/* Redefine blur-heavy keyframes to opacity/transform only (in case inline styles re-trigger name) */
+@keyframes asuraCardReveal {
+  0% { opacity: 0.92; transform: translateY(8px); filter: none; }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+@keyframes advancedCardFlip {
+  0% { opacity: 0.92; transform: translateY(10px); filter: none; }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+@keyframes asuraImpressionGlow {
+  0% { opacity: 0.9; filter: none; }
+  100% { opacity: 1; filter: none; }
+}
+@keyframes asuraCardFloat {
+  0%, 100% { box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .asuraCardReveal,
+  .asuraImpressionGlow,
+  .resultsEnter {
+    animation: none !important;
+    animation-delay: 0s !important;
+    filter: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }

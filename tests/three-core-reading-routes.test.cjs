@@ -10,11 +10,11 @@ async function main() {
   for (const [route, teacherId] of [['teacher-analysis', 'STRUCTURE_MASTER'], ['entertainment-analysis', 'HORROR']]) {
     let current = passed;
     let generated = 0;
-    const generate = async () => { generated++; return { reading: 'verified fixture' }; };
+    const generate = async (_id, context) => { assert.strictEqual(context.reviewedThreeCore, current, 'same-request verified result must reach reader'); generated++; return { reading: 'verified fixture' }; };
     const dependencies = {
       'next/server': { NextResponse: { json: Response.json } },
       '@/lib/ai-error-message': { customerSafeAiMessage: () => 'failed' },
-      '@/lib/api-stability': { createRequestId: () => 'test', hashedCacheKey: () => 'same-chart',
+      '@/lib/api-stability': { createRequestId: () => 'test', hashedCacheKey: (parts) => parts.join('|'),
         friendlyErrorResponse: (_id, code, message, status) => Response.json({ code, message }, { status }) },
       '@/lib/ziwei-chart-store': { resolveVerifiedZiweiChart: () => ({ chart: {
         birthInput: { date: '1990-05-20', timeIndex: 7, gender: '男' }, engineVersion: 'test',
@@ -49,6 +49,13 @@ async function main() {
     current = passed;
     assert.equal((await call()).status, 200);
     assert.equal(generated, 1, 'valid cache remains usable after verification');
+    current = await core.runThreeInOne({ birthDate: '1992-01-01', birthTime: '08:00', gender: 'female' });
+    core.assertThreeInOnePassed(current);
+    assert.equal((await call()).status, 200);
+    assert.equal(generated, 2, 'a different reviewed fingerprint cannot reuse old output');
+    current = await core.runThreeInOne({ birthDate: '1992-01-01', birthTime: null, hourBranchIndex: null, gender: 'female' });
+    assert.equal((await call()).status, 422);
+    assert.equal(generated, 2, 'missing time must not reach reader');
   }
   console.log('PASS: both reading routes validate before generation and before cached output');
 }

@@ -9,7 +9,7 @@
 
 'use client';
 
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { startTransition, useEffect, useRef, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UnifiedBirthForm, hourBranchToBirthTime, type BirthProfile } from '@/components/UnifiedBirthForm';
@@ -373,7 +373,9 @@ export default function GhostAsuraPageClient({
         throw new Error(hasChinese(data?.error) ? data.error : `排盤暫時沒有完成（代碼 ${response.status}），請稍後再按一次；你填的資料都還在。`);
       }
       setVoiceBody(submittedInput);
-      setResult(data.data ?? null);
+      startTransition(() => {
+        setResult(data.data ?? null);
+      });
     } catch (e) {
       if (calculationRef.current !== request) return;
       console.error('[GhostAsuraPageClient] calculate failed', e);
@@ -525,9 +527,6 @@ export default function GhostAsuraPageClient({
                 <div
                   ref={cardRef}
                   className={styles.asuraCardReveal}
-                  style={{
-                    animation: `asuraCardReveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
-                  }}
                 >
                   <GhostAsuraCard display={reading} />
                 </div>

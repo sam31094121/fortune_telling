@@ -1,4 +1,4 @@
-// 鬼魅阿修羅｜十二陣・四十八道戰痕（後端）：node tests/ghost-asura-palace-verses.test.cjs（不需 dev server）
+﻿// 鬼魅阿修羅｜十二陣・四十八道戰痕（後端）：node tests/ghost-asura-palace-verses.test.cjs（不需 dev server）
 // 1) 576 組合查詢表（12 陣×4 層×12 值）逐列：ASURA_CARD_FORBIDDEN_TERMS＋四組名稱／48 神名／宮名子字串＋干支組合＝零命中；lintAsuraVoice 通過；
 //    sourceLevel 分級（later＝後世整理）與來源報告一致。
 // 2) 1974-06-28 男 酉時（2026-11-06）：與紫微命盤頁同一份 period 值，依大限起歲排序，逐句比對；isCurrent 只有 44–53。
@@ -129,23 +129,23 @@ const r = calculateDualChart({ birthDate: '1974-06-28', birthTime: '18:00', gend
 const v = display.computeAgeTimeline(r, now);
 assert(v && v.segments.length === 6, '1974 實歲 52 → 截到含 62 的段（54–63），共 6 段');
 assert.deepEqual(Object.keys(v), ['title', 'guide', 'viewerLine', 'segments', 'premiumTitles']);
-assert.equal(v.viewerLine, '你今年 52 歲（虛歲 53），正走在 44–53 歲這段。');
+assert.equal(v.viewerLine, '你今年虛歲 53（實歲 52）。');
 assert(v.segments.every((g) => JSON.stringify(Object.keys(g)) === JSON.stringify(['ageLabel', 'tense', 'isCurrent', 'opening', 'lines', 'depth', 'bridge'])), 'segment shape');
 const srv = tl.buildAgeTimelineServer(r.ziwei.palaces.map((p) => ({ palaceKey: p.key, range: p.period.range, stage: p.period.stage, boshi: p.period.boshi, suiqian: p.period.suiqian, jiangqian: p.period.jiangqian })), 53, { name: null, age: 52 });
 assert.deepEqual(srv.timeline, v);
 const T = Object.fromEntries(tl.PALACE_VERSE_LAYERS.map((l) => [l.key, l.table]));
 const L = (k, n, d) => T[k][n].text.replace('{d}', d);
 const expect = [
-  [4, 13, '過去', ['帝旺', '喜神', '龍德', '息神'], '你自己'],
-  [14, 23, '過去', ['衰', '病符', '白虎', '華蓋'], '上一代'],
-  [24, 33, '過去', ['病', '大耗', '天德', '劫煞'], '心氣'],
-  [34, 43, '過去', ['死', '伏兵', '弔客', '災煞'], '家門'],
-  [44, 53, '現在', ['墓', '官府', '病符', '天煞'], '戰功'],
-  [54, 63, '未來', ['絕', '博士', '歲建', '指背'], '身邊人馬'],
+  [4, 13, '過去', ['帝旺', '喜神', '龍德', '息神'], '自個兒'],
+  [14, 23, '過去', ['衰', '病符', '白虎', '華蓋'], '長輩那邊'],
+  [24, 33, '過去', ['病', '大耗', '天德', '劫煞'], '心裡'],
+  [34, 43, '過去', ['死', '伏兵', '弔客', '災煞'], '家裡'],
+  [44, 53, '現在', ['墓', '官府', '病符', '天煞'], '手上的差事'],
+  [54, 63, '未來', ['絕', '博士', '歲建', '指背'], '身邊跟著的人'],
 ];
 expect.forEach(([a, b, tense, [s, bo, sq, jq], d], i) => {
   const g = v.segments[i];
-  assert.equal(g.ageLabel, `約 ${a}–${b} 歲`); assert.deepEqual(srv.ranges[i], [a, b]);
+  assert.equal(g.ageLabel, `約虛歲 ${a}–${b}`); assert.deepEqual(srv.ranges[i], [a, b]);
   assert.equal(g.tense, tense); assert.equal(g.isCurrent, tense === '現在');
   assert.deepEqual(g.lines, [L('stage', s, d), L('banner', bo, d), L('decree', sq, d), L('force', jq, d)], `group ${a}`);
 });
@@ -156,26 +156,27 @@ assert.deepEqual(tl.palaceVerseForbiddenHits(blob), []);
 for (const leak of ['sourceLevel', 'classic', 'later', 'note', 'palaceKey', 'MING', 'FU_MU']) assert(!blob.includes(leak), `leaks ${leak}`);
 assert.equal(v.segments.flatMap((g) => g.lines).length, 24);
 assert(v.segments.every((g) => g.depth.length === 4 && g.depth.every((x) => x.basis && 'history' in x && x.action.length >= 1 && x.action.length <= 2 && typeof x.close === 'string' && x.close.length > 0)), 'depth parallel to lines');
-const HEADLINES_1974 = ["4 歲起，我把你推到最高點，守得住才是你的", "14 歲起，你前面有險，出手留三分", "24 歲起，錢在往外流，我要你先守住家底", "34 歲起，這段有場傷心事，我陪你哭完再站起來", "44 歲起，身體在喊停，我要你先停，再打下一仗", "54 歲起，舊路我替你斷了，新路從你腳下開始"];
+const HEADLINES_1974 = ["虛歲4起，我把你推到最高點，守得住才是你的", "虛歲14起，你前面有險，出手留三分", "虛歲24起，錢在往外流，我要你先守住家底", "虛歲34起，這段有場傷心事，我陪你哭完再站起來", "虛歲44起，身體在喊停，我要你先停，再打下一仗", "虛歲54起，舊路我替你斷了，新路從你腳下開始"];
 assert.deepEqual(v.segments.map((g) => g.opening.headline), HEADLINES_1974, '1974 headlines');
-assert.deepEqual(v.segments.map((g) => g.opening.text), ["你 4–13 歲走過這段，落在你自己。", "你 14–23 歲走過這段，落在上一代。", "你 24–33 歲走過這段，落在心氣。", "你 34–43 歲走過這段，落在家門。", "你今年虛歲 53，正走在這段，落在戰功；今年是這段最後一年。", "再過 1 年，你 54 歲進這段，落在身邊人馬。"]);
+assert.deepEqual(v.segments.map((g) => g.opening.text), ["你虛歲 4–13 走過這段，落在自個兒。", "你虛歲 14–23 走過這段，落在長輩那邊。", "你虛歲 24–33 走過這段，落在心裡。", "你虛歲 34–43 走過這段，落在家裡。", "今年是這段最後一年，收尾要穩。", "再過 1 年，你虛歲 54 進這段，落在身邊跟著的人。"]);
 // 姓名版：只在現在段位置句與 viewerLine 前綴姓名
-{ const vn = display.computeAgeTimeline(r, now, '  阿勝 '); assert.equal(vn.viewerLine, '阿勝，你今年 52 歲（虛歲 53），正走在 44–53 歲這段。'); assert(vn.segments[4].opening.text.startsWith('阿勝，你今年虛歲 53')); assert.equal(vn.segments.filter((g) => g.opening.text.includes('阿勝')).length, 1);
+{ const vn = display.computeAgeTimeline(r, now, '  阿勝 '); assert.equal(vn.viewerLine, '阿勝，你今年虛歲 53（實歲 52）。'); assert(vn.segments[4].opening.text.startsWith('阿勝，今年是這段最後一年')); assert.equal(vn.segments.filter((g) => g.opening.text.includes('阿勝')).length, 1);
   // 截斷：18／40／80 歲各留到含「實歲＋10」的段
   const kept = (bd) => display.computeAgeTimeline(calculateDualChart({ birthDate: bd, birthTime: '18:00', gender: 'male', calendarType: 'solar', timezone: 'Asia/Taipei' }), now).segments.map((g) => g.ageLabel);
-  assert.deepEqual(kept('2008-01-15'), ["約 6–15 歲", "約 16–25 歲", "約 26–35 歲"], 'age18 cutoff 28');
-  assert.deepEqual(kept('1986-06-28'), ["約 6–15 歲", "約 16–25 歲", "約 26–35 歲", "約 36–45 歲", "約 46–55 歲"], 'age40 cutoff 50');
-  assert.deepEqual(kept('1946-06-28'), ["約 6–15 歲", "約 16–25 歲", "約 26–35 歲", "約 36–45 歲", "約 46–55 歲", "約 56–65 歲", "約 66–75 歲", "約 76–85 歲", "約 86–95 歲"], 'age80 cutoff 90'); assert.equal(display.computeAgeTimeline(r, now, '天同').viewerLine, v.viewerLine); }
+  assert.deepEqual(kept('2008-01-15'), ["約虛歲 6–15", "約虛歲 16–25", "約虛歲 26–35"], 'age18 cutoff 28');
+  assert.deepEqual(kept('1986-06-28'), ["約虛歲 6–15", "約虛歲 16–25", "約虛歲 26–35", "約虛歲 36–45", "約虛歲 46–55"], 'age40 cutoff 50');
+  assert.deepEqual(kept('1946-06-28'), ["約虛歲 6–15", "約虛歲 16–25", "約虛歲 26–35", "約虛歲 36–45", "約虛歲 46–55", "約虛歲 56–65", "約虛歲 66–75", "約虛歲 76–85", "約虛歲 86–95"], 'age80 cutoff 90'); assert.equal(display.computeAgeTimeline(r, now, '天同').viewerLine, v.viewerLine); }
 for (const leak of ['weight', 'headlineLayers']) assert(!blob.includes(leak), `leaks ${leak}`);
 const BRIDGES_1974 = ["這段你往上走，下一段你正面迎戰。", "這段有人衝你來，下一段你守住錢。", "這段你先顧傷，下一段你放下舊的。", "這段你放下舊的，下一段你先止損。", "這段你要止損，下一段你斷舊路。", null];
 fs.writeFileSync(path.join(require('node:os').tmpdir(), 'ga-1974-bridges.json'), JSON.stringify({ bridges: v.segments.map((g) => [g.ageLabel, g.opening.headline, g.bridge]), guide: v.guide, anchors: tl.buildDecreeAnchors(v) }, null, 1));
 assert.deepEqual(v.segments.map((g) => g.bridge), BRIDGES_1974, '1974 bridges');
 assert.deepEqual(tl.buildDecreeAnchors(v).map((a) => [a.segmentIndex, a.tense, a.focus]), [[3, '過去', 'segment'], [4, '現在', 'segment'], [4, '現在', 'action'], [5, '未來', 'segment']], '1974 anchors');
-assert.deepEqual(tl.buildDecreeAnchors(v, { name: null, age: 52 }).map((a) => [a.label, a.ageRange, a.mark, a.headline]), [['你 34–43 歲・走過的路', '34–43', '走過', v.segments[3].opening.headline], ['你今年 52 歲・就在這段', '44–53', '現在', v.segments[4].opening.headline], ['你今年 52 歲・現在就做', '44–53', '現在就做', '今天就做這一件：這陣子給自己排一天休息，身體不對勁就去看醫生'], ['你 54 歲起・下一段', '54–63', '下一段', v.segments[5].opening.headline]], '1974 anchor markers');
-assert.notEqual(tl.buildDecreeAnchors(v, { name: null, age: 52 })[1].headline, tl.buildDecreeAnchors(v, { name: null, age: 52 })[2].headline, '現在 vs 現在就做 headlines differ');
-assert.equal(tl.buildPinnedSummary(v, { name: null, age: 52 }), '你今年 52 歲，正走在 44–53 歲這段');
-assert.equal(tl.buildPinnedSummary(v, { name: '阿勝', age: 52 }), '阿勝，你今年 52 歲，正走在 44–53 歲這段');
-assert.equal(tl.buildPinnedSummary(null, { name: '阿勝', age: 52 }), '阿勝，你今年 52 歲');
+assert.deepEqual(tl.buildDecreeAnchors(v, { name: null, age: 52, nominalAge: 53 }).map((a) => [a.label, a.ageRange, a.mark, a.headline]), [['你虛歲 34–43・走過的路', '34–43', '走過', v.segments[3].opening.headline], ['你今年虛歲 53・就在這段', '44–53', '現在', v.segments[4].opening.headline], ['你今年虛歲 53・現在就做', '44–53', '現在就做', '今天就做這一件：這陣子給自己排一天休息，身體不對勁就去看醫生'], ['你虛歲 54 起・下一段', '54–63', '下一段', v.segments[5].opening.headline]], '1974 anchor markers');
+assert.notEqual(tl.buildDecreeAnchors(v, { name: null, age: 52, nominalAge: 53 })[1].headline, tl.buildDecreeAnchors(v, { name: null, age: 52, nominalAge: 53 })[2].headline, '現在 vs 現在就做 headlines differ');
+assert.equal(tl.buildPinnedSummary(v, { name: null, age: 52, nominalAge: 53 }), '你今年虛歲 53（實歲 52），這段今年收尾');
+assert.equal(tl.buildPinnedSummary(v, { name: '阿勝', age: 52, nominalAge: 53 }), '阿勝，你今年虛歲 53（實歲 52），這段今年收尾');
+assert.equal(tl.buildPinnedSummary(v, { name: '阿勝', age: 50, nominalAge: 50 }), '阿勝，你今年虛歲 50（實歲 50），這段還剩 3 年');
+assert.equal(tl.buildPinnedSummary(null, { name: '阿勝', age: 52 }), '阿勝，你今年實歲 52 歲');
 assert.equal(tl.buildPinnedSummary(v, null), null);
 assert.deepEqual(v.premiumTitles.map((p) => [p.segmentIndex, p.phrase]), [[3, "這段有場傷心事，我陪你哭完再站起來"], [4, "身體在喊停，我要你先停，再打下一仗"]], '1974 premium');
 
@@ -189,7 +190,7 @@ for (let y = 1950; y <= 2005; y += 5) for (const m of [1, 4, 8, 12]) for (const 
   const PREM = Object.fromEntries(tl.AGE_PREMIUM_TITLES.map((p) => [p.value, p.phrase]));
   x && x.segments.forEach((g, i) => {
     const phrase = PREM[pv[i].suiqian]; const pt = x.premiumTitles.find((p) => p.segmentIndex === i);
-    assert(Array.from(g.opening.headline).length <= 26 && g.opening.headline.startsWith(`${pv[i].range[0]} 歲起，`), `headline ≤26 + age ${y}-${m} seg${i}: ${g.opening.headline}`);
+    assert(Array.from(g.opening.headline).length <= 26 && g.opening.headline.startsWith(`虛歲${pv[i].range[0]}起，`), `headline ≤26 + age ${y}-${m} seg${i}: ${g.opening.headline}`);
     if (phrase) { premHits++; assert(pt && pt.phrase === phrase && pt.headline === g.opening.headline && g.opening.headline.endsWith(phrase), `premium ${y}-${m} seg${i}`); }
     else { assert(!pt, `premium without source ${y}-${m} seg${i}`); for (const q of Object.values(PREM)) assert(!g.opening.headline.includes(q), `phrase leak ${y}-${m} seg${i}: ${g.opening.headline}`); }
   });
@@ -215,5 +216,32 @@ for (let y = 1950; y <= 2005; y += 5) for (const m of [1, 4, 8, 12]) for (const 
   assert.equal(Object.keys(voice.ASURA_ACTION_PLAIN).length, 48, 'ASURA_ACTION_PLAIN 48 keys');
   assert.deepEqual(missing, [], 'ASURA_ACTION_PLAIN covers every onion action');
   assert.deepEqual([...new Set(hits)], [], 'ASURA_ACTION_PLAIN forbidden');
+}
+// domains avoid palace aliases
+{ assert(Array.isArray(tl.PALACE_NAME_ALIASES) && tl.PALACE_NAME_ALIASES.includes('事業') && tl.PALACE_NAME_ALIASES.includes('家宅'));
+  for (const [k, d] of Object.entries(tl.PALACE_VERSE_DOMAIN)) {
+    for (const a of tl.PALACE_NAME_ALIASES) {
+      assert.notEqual(d, a, `domain ${k} equals alias ${a}`);
+      assert(!d.includes(a), `domain ${k}=(${d}) contains alias ${a}`);
+    }
+  }
+  const ok = display.computeGhostAsuraDisplay({ birthDate: '1974-06-28', birthTime: '18:00', gender: 'male', calendarType: 'solar', timezone: 'Asia/Taipei', name: '阿勝' });
+  assert.equal(ok.pinnedSummary, '阿勝，你今年虛歲 53（實歲 52），這段今年收尾');
+}
+// hook tails unique per segment + targetName 禁名
+{ const stock = [...tl.AGE_HOOK_TO_HISTORY, ...tl.AGE_HOOK_TO_ACTION];
+  for (const g of v.segments) {
+    const tails = [];
+    for (const d of g.depth) for (const h of [d.basis.hook, d.history && d.history.hook].filter(Boolean)) {
+      const t = stock.find((x) => h.endsWith(x)); if (t) tails.push(t);
+    }
+    assert.equal(new Set(tails).size, tails.length, 'hook tails unique per segment ' + g.ageLabel);
+  }
+  const disp = display.computeGhostAsuraDisplay({ birthDate: '1974-06-28', birthTime: '18:00', gender: 'male', calendarType: 'solar', timezone: 'Asia/Taipei', name: '天同' });
+  assert.equal(disp.targetName, null, 'targetName sanitizes forbidden 天同');
+  assert.equal(disp.viewer && disp.viewer.name, null);
+  const ok = display.computeGhostAsuraDisplay({ birthDate: '1974-06-28', birthTime: '18:00', gender: 'male', calendarType: 'solar', timezone: 'Asia/Taipei', name: '阿勝' });
+  assert.equal(ok.targetName, '阿勝');
+  assert.equal(ok.pinnedSummary, '阿勝，你今年虛歲 53（實歲 52），這段今年收尾');
 }
 console.log(`ghost-asura-palace-verses: PASS (576 combos, ${later.size} later-level values, onion 48 rows / ${histories} histories / ${sources.size} sources, 1974 case, ${n} charts, avg ${(ms / n).toFixed(3)} ms/chart, ${premHits} premium headlines)`);

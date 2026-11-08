@@ -5,6 +5,7 @@ const vm = require('node:vm');
 const ts = require('typescript');
 const { load } = require('./fixtures/ghost-asura-nature/load.cjs');
 const core = load('lib/three-in-one.ts');
+const reviewedOutput = load('lib/bazi-reviewed-output.ts');
 
 function moduleFrom(file, dependencies) {
   const m = { exports: {} };
@@ -22,6 +23,7 @@ for (const route of ['google-reading', 'horror-reading']) {
     const birthInput = { birthDate: '1990-05-20', birthTime: '14:00', gender: 'male', calendarType: 'solar', timezone: 'Asia/Taipei' };
     let allowed = true, corrupt = false, inputCalls = [], readings = [];
     const verified = moduleFrom('lib/bazi-verified-reading.ts', {
+      './bazi-reviewed-output': { getReviewedBaziOutputGate(result) { const gate = reviewedOutput.getReviewedBaziOutputGate(result); return { ...gate, interpretationReady: allowed && gate.interpretationReady }; } },
       './three-in-one': { ...core, async runThreeInOne(input) {
         inputCalls.push(JSON.parse(JSON.stringify(input)));
         const result = await core.runThreeInOne(input);

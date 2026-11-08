@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { analyzeBazi, type BaziAnalysisInput } from '@/lib/bazi-engine';
 import { attachBaziProfessionalCoreV5, type BaziRuntimeInput } from '@/lib/bazi-professional-result-v5';
+import { verifiedBaziReading } from '@/lib/bazi-verified-reading';
+import { BAZI_WITHHELD_INTERPRETATION_FIELDS } from '@/lib/bazi-traditional-gate';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -68,6 +70,32 @@ export async function POST(request: Request) {
     }
 
     const result = attachBaziProfessionalCoreV5(analyzeBazi(input), input);
+    result.professionalChart.traditionalInterpretationGate = {
+      ...result.professionalChart.traditionalInterpretationGate!,
+      interpretationReady: false,
+      redLuanReady: false,
+      withheldFields: BAZI_WITHHELD_INTERPRETATION_FIELDS,
+      customerMessage: '本次保留基礎命盤；完成八字、紫微與四柱核對後才提供進階判讀。',
+    };
+    // The existing basic chart always remains available. Only the approved
+    // exact-time Taiwan/solar input contract can request reviewed extensions.
+    if (!input.timeUnknown && input.birthTimeKnown !== false
+      && (!input.calendarType || ['solar', 'SOLAR'].includes(input.calendarType))
+      && ['TW', '台灣', '台湾', 'Taiwan'].includes(input.country ?? '')) {
+      try {
+        const reviewed = await verifiedBaziReading({ birthInput: {
+          birthDate: input.birthDate, birthTime: input.birthTime, gender: input.gender,
+          calendarType: 'solar', timezone: 'Asia/Taipei',
+        } });
+        const sameChart = (['year', 'month', 'day', 'hour'] as const).every(key => {
+          const pillar = result.pillars[key];
+          return pillar && `${pillar.stem}${pillar.branch}` === reviewed.bazi[key];
+        });
+        if (sameChart) result.professionalChart.traditionalInterpretationGate = reviewed.outputGate;
+      } catch {
+        // Review failure cannot erase valid basic chart data or open extensions.
+      }
+    }
     return NextResponse.json({ success: true, ok: true, data: result }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     const message = typeof (error as { message?: unknown })?.message === 'string' ? (error as { message: string }).message : String(error);

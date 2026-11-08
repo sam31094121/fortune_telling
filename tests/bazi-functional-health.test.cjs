@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const { readAvailability } = require('../scripts/bazi-functional-health.cjs');
+const { readAvailability, readReviewedAvailability } = require('../scripts/bazi-functional-health.cjs');
 const registry = JSON.parse(fs.readFileSync('docs/技能戰鬥檔案/八字/來源登記.json', 'utf8'));
 const actual = readAvailability(registry);
 assert.equal(actual.ok, false, 'unavailable customer features must not report healthy');
@@ -38,3 +38,29 @@ assert.equal(readAvailability(withVerified(registry.claims.map(c => c.claim_id))
 const noCore = { ...registry, claims: registry.claims.filter(c => c.claim_id !== 'C-BAZI-CHART') };
 assert.equal(readAvailability(noCore).capabilities.some(c => c.available), false);
 console.log('PASS: availability failures are visible and unrelated Bazi capabilities stay isolated');
+
+async function checkReviewedPolicy() {
+  const registryPath = 'docs/技能戰鬥檔案/八字/來源登記.json';
+  const before = fs.readFileSync(registryPath, 'utf8');
+  const reviewed = await readReviewedAvailability();
+  assert.equal(reviewed.backendReview.passed, true);
+  assert.equal(reviewed.backendReview.checks.length, 6, 'two real charts plus tampering, unknown-time and forged-marker checks');
+  assert.ok(reviewed.backendReview.checks.every(check => check.passed));
+  assert.equal(reviewed.ok, true, 'the scoped reviewed endpoints open after actual backend verification');
+  assert.equal(reviewed.sourceAudit.ok, false, 'opening endpoints must not erase pending source evidence');
+  for (const id of ['BAZI_TEACHER_ADVANCED', 'BAZI_REINFORCEMENT', 'MATCH_RED_LUAN']) {
+    const capability = reviewed.capabilities.find(item => item.id === id);
+    const source = reviewed.sourceAudit.capabilities.find(item => item.id === id);
+    assert.equal(capability.available, true);
+    assert.equal(capability.sourceReady, source.available);
+    assert.equal(capability.approvalBasis, 'BACKEND_REVIEWED_OUTPUT');
+    assert.deepEqual(capability.evidence, source.evidence, 'runtime permission must not rewrite the source audit');
+  }
+  const shensha = reviewed.capabilities.find(item => item.id === 'BAZI_PILLAR_SHENSHA');
+  assert.equal(shensha.approvalBasis, 'SOURCE_GATE');
+  assert.deepEqual(shensha.rules, reviewed.sourceAudit.capabilities.find(item => item.id === shensha.id).rules);
+  assert.equal(fs.readFileSync(registryPath, 'utf8'), before, 'health check is read-only');
+  assert.match(reviewed.scope, /不代表八字頁所有功能/);
+  console.log('PASS: real backend reviewed policy is reported separately from unchanged source readiness');
+}
+checkReviewedPolicy().catch(error => { console.error(error); process.exitCode = 1; });

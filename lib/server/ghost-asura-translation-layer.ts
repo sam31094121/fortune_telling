@@ -88,18 +88,18 @@ export function buildTimelineDecree(): AsuraTimelineDecree {
 
 /** 宮位 → 白話領域（不得含宮名）。鍵＝ lib/ziwei 宮位 key。 */
 export const PALACE_VERSE_DOMAIN: Readonly<Record<string, string>> = {
-  MING: '你自己',
-  XIONG_DI: '同袍',
-  FU_QI: '枕邊人',
-  ZI_NV: '晚輩',
-  CAI_BO: '錢袋',
-  JI_E: '這副身子',
+  MING: '自個兒',
+  XIONG_DI: '一起做事的人',
+  FU_QI: '枕邊的人',
+  ZI_NV: '帶的晚輩',
+  CAI_BO: '口袋裡的錢',
+  JI_E: '自己的身子',
   QIAN_YI: '出外的路',
-  JIAO_YOU: '身邊人馬',
-  GUAN_LU: '戰功',
-  TIAN_ZHAI: '家門',
-  FU_DE: '心氣',
-  FU_MU: '上一代',
+  JIAO_YOU: '身邊跟著的人',
+  GUAN_LU: '手上的差事',
+  TIAN_ZHAI: '家裡',
+  FU_DE: '心裡',
+  FU_MU: '長輩那邊',
 };
 
 /** 意涵依據分級（只留後端，不外送 JSON）：classic＝古籍有名義；later＝後世整理（古典專義薄弱）。 */
@@ -109,74 +109,83 @@ const T = (text: string, note: string, sourceLevel: PalaceVerseSourceLevel = 'cl
 
 /** 第一層：氣的起落（長生十二）。洋蔥最外層＝客人第一眼那一句：我→你、直說、不鋪陳（2026-11-06 客戶視角版）。 */
 export const PALACE_VERSE_STAGE: Readonly<Record<string, VerseTemplate>> = {
-  長生: T('{d}，你的新勁剛冒頭，根還淺。', '如人始生而向長'),
-  沐浴: T('{d}，你還嫩，一碰就傷。', '又曰敗，形體柔脆易為所損'),
-  冠帶: T('{d}，你架勢成了，缺一場實戰。', '形氣漸長，如人具衣冠'),
-  臨官: T('{d}，你已能自己帶人上陣。', '由長而壯，可以出仕'),
-  帝旺: T('{d}，你站在最高點，再上沒路。', '壯盛之極'),
-  衰: T('{d}，你的勢頭在往回收。', '盛極而衰'),
-  病: T('{d}，你力氣見底，硬拚必輸。', '衰之甚'),
-  死: T('{d}，你的舊勁用完了，別硬撐。', '氣之盡而無餘'),
-  墓: T('{d}，我把你的鋒芒收進庫裡。', '又曰庫，造化收藏'),
-  絕: T('{d}，你的舊路斷了，新路在前。', '前之氣已絕，後之氣將續'),
-  胎: T('{d}，你的新局在暗處成形。', '後之氣續而結聚成胎'),
-  養: T('{d}，你還在長本事，刀未出鞘。', '如人養母腹（成形）'),
+  長生: T('說到{d}，新勁剛冒頭。根還淺。', '如人始生而向長'),
+  沐浴: T('說到{d}，你還嫩。一碰就傷。', '又曰敗，形體柔脆易為所損'),
+  冠帶: T('說到{d}，架勢成了。缺一場實戰。', '形氣漸長，如人具衣冠'),
+  臨官: T('說到{d}，你能自己帶人了。', '由長而壯，可以出仕'),
+  帝旺: T('說到{d}，你在最高點。再上沒路。', '壯盛之極'),
+  衰: T('說到{d}，勢頭在往回收。', '盛極而衰'),
+  病: T('說到{d}，力氣見底。硬拚必輸。', '衰之甚'),
+  死: T('說到{d}，舊勁用完了。別硬撐。', '氣之盡而無餘'),
+  墓: T('說到{d}，我要你藏好實力。別一次打光。', '又曰庫，造化收藏'),
+  絕: T('說到{d}，舊路斷了。新路在前。', '前之氣已絕，後之氣將續'),
+  胎: T('說到{d}，新局在暗處成形。', '後之氣續而結聚成胎'),
+  養: T('說到{d}，你還在長本事。刀未出鞘。', '如人養母腹（成形）'),
 };
 
 /** 第二層：旗號（博士十二）。 */
 export const PALACE_VERSE_BOSHI: Readonly<Record<string, VerseTemplate>> = {
-  博士: T('{d}，你靠腦子贏，不靠蠻力。', '聰明'),
-  力士: T('{d}，你說的話，算數。', '權'),
-  青龍: T('{d}，好消息正敲你的門。', '喜氣'),
-  小耗: T('{d}，你的錢一點一點漏走。', '錢（耗財）'),
-  將軍: T('{d}，你一開口，全場安靜。', '威武'),
-  奏書: T('{d}，有一份福落到你手上。', '福'),
-  飛廉: T('{d}，沒人幫你，你一個人衝。', '主孤（底本作弧）'),
-  喜神: T('{d}，你的好事一樁接一樁。', '延（喜慶延續）'),
-  病符: T('{d}，你帶著傷，先顧好再戰。', '帶疾；不作醫療斷語'),
-  大耗: T('{d}，你的老本在往外流。', '退祖'),
-  伏兵: T('{d}，有人在暗處朝你放冷箭。', '口舌纏'),
-  官府: T('{d}，閒話纏上你，少說為贏。', '口舌纏／主官符'),
+  博士: T('說到{d}，靠腦子贏。不靠蠻力。', '聰明'),
+  力士: T('說到{d}，你說的話算數。', '權'),
+  青龍: T('說到{d}，好消息上門了。', '喜氣'),
+  小耗: T('說到{d}，錢在一點點漏。', '錢（耗財）'),
+  將軍: T('說到{d}，你一開口。全場安靜。', '威武'),
+  奏書: T('說到{d}，有福落到手上。', '福'),
+  飛廉: T('說到{d}，沒人幫你。你自己衝。', '主孤（底本作弧）'),
+  喜神: T('說到{d}，好事接連來。', '延（喜慶延續）'),
+  病符: T('說到{d}，你帶著傷。先顧好再戰。', '帶疾；不作醫療斷語'),
+  大耗: T('說到{d}，老本往外流。', '退祖'),
+  伏兵: T('說到{d}，暗處有冷箭。', '口舌纏'),
+  官府: T('說到{d}，閒話纏上你。少說為贏。', '口舌纏／主官符'),
 };
 
 /** 第三層：歲令（歲前十二）。 */
 export const PALACE_VERSE_SUIQIAN: Readonly<Record<string, VerseTemplate>> = {
-  歲建: T('{d}，你坐主位，起落都比人大。', '太歲本位；歲前首神屬後世整圈', 'later'),
-  晦氣: T('{d}，你眼前起霧，看不清別動。', '晦暗；缺古典專條', 'later'),
-  喪門: T('{d}，有人或事要離開你。', '孝服凶象；本派讀作告別與新章'),
-  貫索: T('{d}，你被繩結纏住，先解再走。', '牽絆；缺古典專條', 'later'),
-  官符: T('{d}，公文合約找上你，逐字看。', '官訟'),
-  小耗: T('{d}，你身邊小洞不斷，逐個堵。', '小破耗；歲前系屬後世整圈', 'later'),
-  大耗: T('{d}，你破了個大口，先止血。', '大破耗（或作歲破）；屬後世整圈', 'later'),
-  龍德: T('{d}，你遇險，有人伸手拉你。', '吉、解厄；屬後世整圈', 'later'),
-  白虎: T('{d}，猛虎擋你的路，留三分。', '凶象；本派讀作守住分寸'),
-  天德: T('{d}，你有德蔭護著，凶事化開。', '德曜解厄'),
-  弔客: T('{d}，你這段要經過一場哀事。', '弔喪孝服'),
-  病符: T('{d}，你身體在響警鐘，先停。', '帶疾；歲前系位置屬後世；不作醫療斷語', 'later'),
+  歲建: T('說到{d}，你坐主位。起落比人大。', '太歲本位；歲前首神屬後世整圈', 'later'),
+  晦氣: T('說到{d}，眼前起霧。看不清別動。', '晦暗；缺古典專條', 'later'),
+  喪門: T('說到{d}，有人或事要走。', '孝服凶象；本派讀作告別與新章'),
+  貫索: T('說到{d}，被繩結纏住。先解再走。', '牽絆；缺古典專條', 'later'),
+  官符: T('說到{d}，公文找上門。逐字看。', '官訟'),
+  小耗: T('說到{d}，小洞不斷。逐個堵。', '小破耗；歲前系屬後世整圈', 'later'),
+  大耗: T('說到{d}，破了大口。先止血。', '大破耗（或作歲破）；屬後世整圈', 'later'),
+  龍德: T('說到{d}，遇險有人拉。', '吉、解厄；屬後世整圈', 'later'),
+  白虎: T('說到{d}，猛虎擋路。留三分。', '凶象；本派讀作守住分寸'),
+  天德: T('說到{d}，有德蔭護著。凶事化開。', '德曜解厄'),
+  弔客: T('說到{d}，要過一場哀事。', '弔喪孝服'),
+  病符: T('說到{d}，身體響警鐘。先停。', '帶疾；歲前系位置屬後世；不作醫療斷語', 'later'),
 };
 
 /** 第四層：將令（將前十二）。 */
 export const PALACE_VERSE_JIANGQIAN: Readonly<Record<string, VerseTemplate>> = {
-  將星: T('{d}，帥旗在你手，你發號令。', '三合中位，威權'),
-  攀鞍: T('{d}，你已上馬，往高處去。', '上鞍、功名；後世整理', 'later'),
-  歲驛: T('{d}，你停不下來，越跑越順。', '奔波遷動；後世整理', 'later'),
-  息神: T('{d}，你的鼓聲停了，先按兵。', '休止、消沉；後世整理', 'later'),
-  華蓋: T('{d}，你獨坐高處，冷，但清醒。', '孤寡、術藝'),
-  劫煞: T('{d}，有人伸手搶你的，刀先擋。', '劫奪'),
-  災煞: T('{d}，你腳下有暗流，步子放穩。', '災厄'),
-  天煞: T('{d}，你頭頂壓著重擔，扛住。', '上壓之煞；後世整理', 'later'),
-  指背: T('{d}，有人在背後指你，別回頭。', '背後指議；後世整理', 'later'),
-  咸池: T('{d}，酒色纏上你，刀柄握緊。', '沐浴之地、桃花敗神'),
-  月煞: T('{d}，你路上有暗絆，放慢。', '阻滯；後世整理', 'later'),
-  亡神: T('{d}，你心神易散，東西易丟。', '失、耗'),
+  將星: T('說到{d}，帥旗在你手。你發號令。', '三合中位，威權'),
+  攀鞍: T('說到{d}，你已上馬。往高處去。', '上鞍、功名；後世整理', 'later'),
+  歲驛: T('說到{d}，你停不下來。越跑越順。', '奔波遷動；後世整理', 'later'),
+  息神: T('說到{d}，鼓聲停了。先按兵。', '休止、消沉；後世整理', 'later'),
+  華蓋: T('說到{d}，你獨坐高處。冷但清醒。', '孤寡、術藝'),
+  劫煞: T('說到{d}，有人來搶。刀先擋。', '劫奪'),
+  災煞: T('說到{d}，腳下有暗流。步子放穩。', '災厄'),
+  天煞: T('說到{d}，頭頂壓重擔。扛住。', '上壓之煞；後世整理', 'later'),
+  指背: T('說到{d}，背後有人指。別回頭。', '背後指議；後世整理', 'later'),
+  咸池: T('說到{d}，酒色纏上你。刀柄握緊。', '沐浴之地、桃花敗神'),
+  月煞: T('說到{d}，路上有暗絆。放慢。', '阻滯；後世整理', 'later'),
+  亡神: T('說到{d}，心神易散。東西易丟。', '失、耗'),
 };
 
 /** 本段額外禁詞：四組名稱、48 個神名、12 宮名（含簡稱）。與 ASURA_CARD_FORBIDDEN_TERMS 併用，子字串比對。 */
+/** 宮名／常見別名（禁出現在領域詞與戰痕句）。 */
+export const PALACE_NAME_ALIASES: readonly string[] = [
+  '命宮', '身宮', '兄弟', '兄弟宮', '夫妻', '夫妻宮', '子女', '子女宮', '財帛', '財帛宮', '疾厄', '疾厄宮',
+  '遷移', '遷移宮', '交友', '交友宮', '朋友宮', '僕役', '僕役宮', '奴僕', '奴僕宮', '官祿', '官祿宮', '事業', '事業宮',
+  '田宅', '田宅宮', '家宅', '福德', '福德宮', '父母', '父母宮',
+] as const;
+
 export const PALACE_VERSE_FORBIDDEN_TERMS: readonly string[] = [...new Set<string>([
   '長生', '博士', '歲前', '將前', '十二神',
   ...Object.keys(PALACE_VERSE_STAGE), ...Object.keys(PALACE_VERSE_BOSHI), ...Object.keys(PALACE_VERSE_SUIQIAN), ...Object.keys(PALACE_VERSE_JIANGQIAN),
   '蜚廉', '天耗', '宮府', '吊客',
-  '命宮', '兄弟', '夫妻', '子女', '財帛', '疾厄', '遷移', '交友', '僕役', '奴僕', '官祿', '田宅', '福德', '父母',
+  '命宮', '身宮', '兄弟', '兄弟宮', '夫妻', '夫妻宮', '子女', '子女宮', '財帛', '財帛宮', '疾厄', '疾厄宮',
+  '遷移', '遷移宮', '交友', '交友宮', '朋友宮', '僕役', '僕役宮', '奴僕', '奴僕宮', '官祿', '官祿宮', '事業', '事業宮',
+  '田宅', '田宅宮', '家宅', '福德', '福德宮', '父母', '父母宮',
 ])];
 
 const PALACE_VERSE_GANZHI = /[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]/;
@@ -397,7 +406,7 @@ export function buildAgeBridges(kinds: readonly AgeBridgeKind[]): Array<string |
 export const AGE_TIMELINE_GUIDE = { hereLabel: '你現在在這段，往下看', toPast: '點這裡看上一段', toFuture: '點這裡看下一段', endLine: '往後的路你都看完了。點最上面的亮點，回到你現在這段。' } as const;
 
 /** 客人本人資料（後端算好、已清洗）：name＝表單姓名（清洗後；無或含禁詞＝null）；age＝今日（台北）實歲；null＝無法計算。 */
-export interface AgeTimelineViewer { name: string | null; age: number | null }
+export interface AgeTimelineViewer { name: string | null; age: number | null; /** 今日虛歲（大限制）；pinnedSummary 剩餘年用 */ nominalAge?: number | null }
 
 /** 從 ageLabel（「約 34–43 歲」）取回起訖歲；格式不符＝null。 */
 function parseAgeLabel(label: string): [number, number] | null {
@@ -411,7 +420,7 @@ function parseAgeLabel(label: string): [number, number] | null {
  */
 /** 從本段洋蔥行動句組「現在就做」卡專用 headline（與 opening.headline 分開）；優先取擔綱本段標題那一層的第一個 action，再經 voice.plainActionOrder 白話改寫（原文不動）。 */
 function actionFocusHeadline(seg: AsuraAgeTimelineSegment): string {
-  const body = seg.opening.headline.replace(/^\d+\s*歲起，/, '');
+  const body = seg.opening.headline.replace(/^(?:虛歲)?\d+\s*(?:歲)?起，/, '');
   let layerIdx = -1;
   const prem = AGE_PREMIUM_TITLES.find((p) => p.phrase === body);
   if (prem) layerIdx = PALACE_VERSE_LAYERS.findIndex((l) => l.key === prem.layer);
@@ -433,13 +442,19 @@ function actionFocusHeadline(seg: AsuraAgeTimelineSegment): string {
   return line;
 }
 
-/** 置頂摘要（display.pinnedSummary）：由 viewer 實歲＋現在段起訖歲組成；有姓名則前綴。無實歲＝null。 */
+/** 置頂摘要（display.pinnedSummary）：「{名，}你今年 N 歲，這段還剩 X 年」；N＝實歲，X＝止歲虛歲−今日虛歲（≤0＝這段今年收尾）。無實歲＝null。 */
 export function buildPinnedSummary(timeline: AsuraAgeTimeline | null | undefined, viewer: AgeTimelineViewer | null = null): string | null {
   if (!viewer || typeof viewer.age !== 'number') return null;
   const who = viewer.name ? `${viewer.name}，` : '';
   const cur = timeline?.segments?.find((s) => s.isCurrent);
   const r = cur ? parseAgeLabel(cur.ageLabel) : null;
-  return r ? `${who}你今年 ${viewer.age} 歲，正走在 ${r[0]}–${r[1]} 歲這段` : `${who}你今年 ${viewer.age} 歲`;
+  const nominal = typeof viewer.nominalAge === 'number' ? viewer.nominalAge : null;
+  if (r && nominal !== null) {
+    const x = r[1] - nominal;
+    const ageBit = `你今年虛歲 ${nominal}（實歲 ${viewer.age}）`;
+    return x <= 0 ? `${who}${ageBit}，這段今年收尾` : `${who}${ageBit}，這段還剩 ${x} 年`;
+  }
+  return `${who}你今年實歲 ${viewer.age} 歲`;
 }
 
 export function buildDecreeAnchors(timeline: AsuraAgeTimeline | null | undefined, viewer: AgeTimelineViewer | null = null): AsuraDecreeAnchor[] | null {
@@ -447,16 +462,18 @@ export function buildDecreeAnchors(timeline: AsuraAgeTimeline | null | undefined
   const cur = timeline.segments.findIndex((s) => s.isCurrent);
   if (cur < 0) return null;
   const age = viewer && typeof viewer.age === 'number' ? viewer.age : null;
+  const nominal = viewer && typeof viewer.nominalAge === 'number' ? viewer.nominalAge : null;
   const at = (i: number, focus: AsuraDecreeAnchor['focus']): AsuraDecreeAnchor => {
     const seg = timeline.segments[i];
     const r = parseAgeLabel(seg.ageLabel);
     const ageRange = r ? `${r[0]}–${r[1]}` : seg.ageLabel;
     const mark: AsuraDecreeAnchor['mark'] = seg.tense === '過去' ? '走過' : seg.tense === '未來' ? '下一段' : focus === 'action' ? '現在就做' : '現在';
     const label =
-      mark === '走過' ? `你 ${ageRange} 歲・走過的路`
-      : mark === '下一段' ? `你 ${r ? r[0] : ageRange} 歲起・下一段`
-      : age !== null ? `你今年 ${age} 歲・${mark === '現在就做' ? '現在就做' : '就在這段'}`
-      : `你 ${ageRange} 歲・${mark === '現在就做' ? '現在就做' : '就在這段'}`;
+      mark === '走過' ? `你虛歲 ${ageRange}・走過的路`
+      : mark === '下一段' ? `你虛歲 ${r ? r[0] : ageRange} 起・下一段`
+      : nominal !== null ? `你今年虛歲 ${nominal}・${mark === '現在就做' ? '現在就做' : '就在這段'}`
+      : age !== null ? `你今年實歲 ${age}・${mark === '現在就做' ? '現在就做' : '就在這段'}`
+      : `你虛歲 ${ageRange}・${mark === '現在就做' ? '現在就做' : '就在這段'}`;
     const headline = focus === 'action' ? actionFocusHeadline(seg) : seg.opening.headline;
     return { segmentIndex: i, ageLabel: seg.ageLabel, tense: seg.tense, focus, label, ageRange, mark, headline };
   };
@@ -482,12 +499,12 @@ export function sanitizeViewerName(raw: unknown): string | null {
  * {name}＝「姓名，」或空字串（只用在現在段）、{left}＝現在段剩餘年數句。全部後端代入，前端照印。
  */
 export const AGE_OPENING_POSITION: Readonly<Record<'過去' | '現在' | '未來', string>> = {
-  過去: '你 {from}–{to} 歲走過這段，落在{d}。',
-  現在: '{name}你今年虛歲 {n}，正走在這段，落在{d}；{left}',
-  未來: '再過 {wait} 年，你 {from} 歲進這段，落在{d}。',
+  過去: '你虛歲 {from}–{to} 走過這段，落在{d}。',
+  現在: '{name}{left}',
+  未來: '再過 {wait} 年，你虛歲 {from} 進這段，落在{d}。',
 };
-/** 現在段剩餘年數句：本段止歲＝今年虛歲→最後一年；否則還有幾年。 */
-const leftLine = (to: number, n: number): string => (to - n <= 0 ? '今年是這段最後一年。' : `這段還有 ${to - n} 年。`);
+/** 現在段剩餘年數句（口語收尾）：止歲虛歲−今日虛歲≤0→今年收尾；否則還有幾年。 */
+const leftLine = (to: number, n: number): string => (to - n <= 0 ? '今年是這段最後一年，收尾要穩。' : `這段還有 ${to - n} 年，一步步走穩。`);
 /** 標題上限（含「{起歲} 歲起，」前綴）。 */
 export const AGE_HEADLINE_MAX = 26;
 /**
@@ -495,7 +512,7 @@ export const AGE_HEADLINE_MAX = 26;
  * 例：實歲 18→留到含 28 的段；52→含 62；80→含 90。實歲無法計算＝用虛歲。截斷後承接句、招牌語、戰神令定位都只算留下的段。
  */
 export const AGE_TIMELINE_LOOKAHEAD = 10;
-const headlinePrefix = (from: number): string => `${from} 歲起，`;
+const headlinePrefix = (from: number): string => `虛歲${from}起，`;
 
 /** 後端完整版（含每句 sourceLevel 與數字起訖歲，供稽核／測試）；外送前只取 timeline。 */
 export interface AgeTimelineServer { timeline: AsuraAgeTimeline; sourceLevels: PalaceVerseSourceLevel[][]; ranges: Array<[number, number]>; headlineLayers: PalaceVerseLayerKey[] }
@@ -529,6 +546,28 @@ export const AGE_WEIGHTED_TITLES: readonly { layer: PalaceVerseLayerKey; value: 
  * headline：含招牌語來源值＝招牌語（AGE_PREMIUM_TITLES）優先；否則權重最高者（同分取前層）。bridge：buildAgeBridges(依 headline 那一值的 AGE_BRIDGE_KIND)。
  */
 /** 依本人每段四值查 576 表組 48 句（依大限起歲由小到大）。任何一值查不到、或命中禁詞＝回 null，不補不編。 */
+/** 段內去重 hook 套語尾（AGE_HOOK_TO_HISTORY／AGE_HOOK_TO_ACTION）；已用過則改抽池中未用句，池盡則去掉套語尾。 */
+function dedupeSegmentHookTails<T extends { basis: { text: string; hook: string }; history: { text: string; source: string; hook: string } | null; action: string[]; close: string }>(depth: T[]): T[] {
+  const stock = [...AGE_HOOK_TO_HISTORY, ...AGE_HOOK_TO_ACTION];
+  const used = new Set<string>();
+  const fix = (hook: string): string => {
+    const tail = stock.find((t) => hook.endsWith(t));
+    if (!tail) return hook;
+    if (!used.has(tail)) { used.add(tail); return hook; }
+    const pool = (AGE_HOOK_TO_HISTORY as readonly string[]).includes(tail) ? AGE_HOOK_TO_HISTORY : AGE_HOOK_TO_ACTION;
+    const alt = pool.find((t) => !used.has(t));
+    if (!alt) return hook.slice(0, Math.max(0, hook.length - tail.length)).replace(/[。．]$/, '') + (hook.slice(0, Math.max(0, hook.length - tail.length)).endsWith('。') ? '' : '。');
+    used.add(alt);
+    return hook.slice(0, hook.length - tail.length) + alt;
+  };
+  return depth.map((d) => ({
+    ...d,
+    basis: { ...d.basis, hook: fix(d.basis.hook) },
+    history: d.history ? { ...d.history, hook: fix(d.history.hook) } : null,
+    action: [...d.action],
+  }));
+}
+
 export function buildAgeTimelineServer(cells: readonly PalaceVerseCell[], nominalAge: number, viewer: AgeTimelineViewer | null = null): AgeTimelineServer | null {
   const name = viewer?.name ?? null;
   const age = viewer && typeof viewer.age === 'number' ? viewer.age : null;
@@ -555,7 +594,7 @@ export function buildAgeTimelineServer(cells: readonly PalaceVerseCell[], nomina
     if (premium.length > 0) {
       const chosen = premium[segmentIndex % premium.length];
       top = PALACE_VERSE_LAYERS.findIndex((l) => l.key === chosen.layer);
-      premiumTitles.push({ segmentIndex, ageLabel: `約 ${from}–${to} 歲`, phrase: chosen.phrase, headline: headlinePrefix(from) + chosen.phrase });
+      premiumTitles.push({ segmentIndex, ageLabel: `約虛歲 ${from}–${to}`, phrase: chosen.phrase, headline: headlinePrefix(from) + chosen.phrase });
     }
     const weighted = premium.length > 0 ? null : AGE_WEIGHTED_TITLES.find((w) => w.layer === PALACE_VERSE_LAYERS[top].key && c[PALACE_VERSE_LAYERS[top].field] === w.value);
     const headline = premium.length > 0 ? premiumTitles[premiumTitles.length - 1].headline : headlinePrefix(from) + (weighted ? weighted.phrase : rows[top]!.headline);
@@ -564,12 +603,12 @@ export function buildAgeTimelineServer(cells: readonly PalaceVerseCell[], nomina
       .replace('{d}', domain).replace('{from}', String(from)).replace('{to}', String(to)).replace('{n}', String(nominalAge))
       .replace('{wait}', String(from - nominalAge)).replace('{name}', name ? `${name}，` : '').replace('{left}', leftLine(to, nominalAge));
     segments.push({
-      ageLabel: `約 ${from}–${to} 歲`,
+      ageLabel: `約虛歲 ${from}–${to}`,
       tense,
       isCurrent: tense === '現在',
       opening: { text: openingText, headline },
       lines: entries.map((e) => e!.text),
-      depth: rows.map((row) => ({ basis: { ...row!.depth.basis }, history: row!.depth.history ? { ...row!.depth.history } : null, action: [...row!.depth.action], close: row!.depth.close })),
+      depth: dedupeSegmentHookTails(rows.map((row) => ({ basis: { ...row!.depth.basis }, history: row!.depth.history ? { ...row!.depth.history } : null, action: [...row!.depth.action], close: row!.depth.close }))),
       bridge: null,
     });
     headlineLayers.push(PALACE_VERSE_LAYERS[top].key);
@@ -588,8 +627,8 @@ export function buildAgeTimelineServer(cells: readonly PalaceVerseCell[], nomina
   buildAgeBridges(kinds).forEach((bridge, i) => { segments[i].bridge = bridge; });
   const curSeg = segments.findIndex((g) => g.isCurrent);
   const who = name ? `${name}，` : '';
-  const ageText = age !== null ? `你今年 ${age} 歲（虛歲 ${nominalAge}）` : `你今年虛歲 ${nominalAge}`;
-  const viewerLine = curSeg >= 0 ? `${who}${ageText}，正走在 ${ranges[curSeg][0]}–${ranges[curSeg][1]} 歲這段。` : `${who}${ageText}。`;
+  const ageText = age !== null ? `你今年虛歲 ${nominalAge}（實歲 ${age}）` : `你今年虛歲 ${nominalAge}`;
+  const viewerLine = `${who}${ageText}。`;
   const timeline: AsuraAgeTimeline = { title: PALACE_VERSES_TITLE, guide: { ...AGE_TIMELINE_GUIDE }, viewerLine, segments, premiumTitles };
   // 禁詞檢查排除客人姓名本身（姓名已在 sanitizeViewerName 擋過一次）
   const blob = JSON.stringify(timeline);

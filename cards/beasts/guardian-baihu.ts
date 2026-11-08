@@ -22,8 +22,8 @@ const card: BeastCard = {
   skills: ['skill_303', 'skill_102'],
   passive: ['skill_113'],
   art: {
-    thumbnail: '/beast-game/thumb/guardian-baihu.v2.webp?v=11',
-    front: '/beast-game/front/guardian-baihu.v2.webp?v=11',
+    thumbnail: '/beast-game/thumb/guardian-baihu.v2.webp?v=f5380a7f9ffd',
+    front: '/beast-game/front/guardian-baihu.v2.webp?v=7e35fc3fd5bc',
     high: '/star-beasts/four-guardians/baihu.png',
     back: '/beast-game/card-back.webp',
   },

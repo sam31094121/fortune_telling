@@ -12,7 +12,7 @@
  * （規格「十一」的自動語意相似度檢查列入 Phase 2）。
  */
 
-import { castHexagram } from '@/lib/iching-engine';
+import { assertThreeInOnePassed } from '@/lib/three-in-one';
 
 import { authoritySummary } from '@/lib/ziwei/wording-authority';
 import type { LifeTeacherResult, NarrativeTeacherResult, PalaceAnalysisContext, PalaceId, StructureTeacherResult, TeacherId } from './types';
@@ -34,13 +34,16 @@ import { selectGhostAsuraLines } from './ghost-asura-lines';
 
 /** 引用依據表：每顆星標上《紫微斗數全書》核對等級，限制話術能引用到多大（lib/ziwei/wording-authority.ts）。 */
 
-/** 每一宮的易經卦象：以宮名＋主星＋流年決定性起卦，三位老師（含鬼魅老師）共用同一卦。 */
-function castPalaceHexagram(context: PalaceAnalysisContext) {
-  return castHexagram(
-    context.selectedPalace.palaceName,
-    context.selectedPalace.majorStars.map((s) => s.name).join(','),
-    context.timeContext.annualYear,
-  );
+/** 三位老師沿用同次後端核對的卦象，不依宮名、星名或流年另起卦。 */
+function assertReviewedContext(context: PalaceAnalysisContext) {
+  if (!context.verified || !context.reviewedThreeCore) throw new Error('THREE_IN_ONE_NOT_PASSED: 缺少同次後端核對');
+  assertThreeInOnePassed(context.reviewedThreeCore);
+}
+
+function reviewedHexagram(context: PalaceAnalysisContext) {
+  const reviewed = context.reviewedThreeCore;
+  if (!reviewed || reviewed.status !== 'PASSED') throw new Error('THREE_IN_ONE_NOT_PASSED');
+  return reviewed.result.yijing.reading;
 }
 
 /**
@@ -84,6 +87,7 @@ function hasUsableData(context: PalaceAnalysisContext): boolean {
 /* ==================== 老師 1｜格局老師 STRUCTURE_MASTER ==================== */
 
 export async function runStructureTeacher(context: PalaceAnalysisContext): Promise<StructureTeacherResult | typeof INSUFFICIENT_DATA> {
+  assertReviewedContext(context);
   if (!hasUsableData(context)) return INSUFFICIENT_DATA;
   return buildLocalStructureResult(context);
 }
@@ -91,6 +95,7 @@ export async function runStructureTeacher(context: PalaceAnalysisContext): Promi
 /* ==================== 老師 2｜恐怖型老師 LIFE_MASTER ==================== */
 
 export async function runLifeTeacher(context: PalaceAnalysisContext): Promise<LifeTeacherResult | typeof INSUFFICIENT_DATA> {
+  assertReviewedContext(context);
   // 2026-10-23 ghost-asura：鬼魅老師改為後端決定性選句（古籍條文表），不呼叫 AI；本宮無主星時借對宮主星。
   const ghostAsura = selectGhostAsuraLines(context);
   if (!hasUsableData(context) && ghostAsura.status === 'NO_MAJOR_STAR') return INSUFFICIENT_DATA;
@@ -100,6 +105,7 @@ export async function runLifeTeacher(context: PalaceAnalysisContext): Promise<Li
 /* ==================== 老師 3｜鬼魅型老師 NARRATIVE_MASTER ==================== */
 
 export async function runNarrativeTeacher(context: PalaceAnalysisContext): Promise<NarrativeTeacherResult | typeof INSUFFICIENT_DATA> {
+  assertReviewedContext(context);
   if (!hasUsableData(context)) return INSUFFICIENT_DATA;
   return buildLocalNarrativeResult(context);
 }
@@ -224,7 +230,7 @@ function buildLocalStructureResult(context: PalaceAnalysisContext): StructureTea
     pastStructure: `此宮長期容易養成「${guide.topic}」上的固定慣性：能量高時傾向多承接、能量低時傾向遞延處理；這是盤面推論，不指涉具體經歷。`,
     // 流年主題是一整段話，塞進「」會變成引號套引號的長句；主題留在命盤依據裡回查即可。
     futureTendency: `${context.timeContext.annualYear} 年這一年，若${weakest.palaceName}的牽制沒有處理，分數容易往下掉；反過來把那裡補上，${structureType}結構就有機會再往上走。`,
-    conclusion: `${authoritySummary(p)}結論：${p.palaceName}為${structureType}結構（${score}/100）。易經同步起卦得「${castPalaceHexagram(context).hexagramName}」印證：${castPalaceHexagram(context).advice}優先處理${weakest.palaceName}的牽制、善用${strongest.palaceName}的支撐，是這張盤最省力的走法。提醒一句：星曜只是描述盤面的形容詞，走勢要看整張盤的星曜組合、亮度、四化與三方四正一起怎麼配，不是單一顆星說了算。`,
+    conclusion: `${authoritySummary(p)}結論：${p.palaceName}為${structureType}結構（${score}/100）。同次核對的易經卦象為「${reviewedHexagram(context).hexagramName}」印證：${reviewedHexagram(context).advice}優先處理${weakest.palaceName}的牽制、善用${strongest.palaceName}的支撐，是這張盤最省力的走法。提醒一句：星曜只是描述盤面的形容詞，走勢要看整張盤的星曜組合、亮度、四化與三方四正一起怎麼配，不是單一顆星說了算。`,
     evidenceRefs: buildEvidenceRefs(context),
   };
 }
@@ -249,7 +255,7 @@ function buildLocalLifeResult(context: PalaceAnalysisContext): LifeTeacherResult
     blindSpot: `最容易被合理化的盲點：把「還沒出事」當成「沒有事」。${pressurePoint}的耗損是複利式的，安靜不等於安全；但這個盲點看得見，就有得處理，單一星曜不會替你決定結果。`,
     decisionStyle: `壓力下的決策傾向：${mainStar}式的先斬後奏或先扛再說；證據就在本宮星曜配置——快，但容易把代價往後挪。`,
     relationshipWithEnvironment: `對外互動的摩擦點：${context.threeHarmony.opposite.palaceName}（${majorText(context.threeHarmony.opposite)}）的對照顯示，外界回應的節奏與你的預期存在落差，容易演變為單向消耗。`,
-    practicalDirection: `易經為此宮起卦得「${castPalaceHexagram(context).hexagramName}」，${castPalaceHexagram(context).advice}止損動作只有一個：本週為「${guide.topic}」設一條明確界線（一句話能說完的那種），並向一位相關的人說出口。行有餘力，把省下的力氣拿去幫一個真正需要的人。`,
+    practicalDirection: `同次核對的易經卦象為「${reviewedHexagram(context).hexagramName}」，${reviewedHexagram(context).advice}止損動作只有一個：本週為「${guide.topic}」設一條明確界線（一句話能說完的那種），並向一位相關的人說出口。行有餘力，把省下的力氣拿去幫一個真正需要的人。`,
   };
   return { teacherId: 'LIFE_MASTER', ...normalizeLifeResult(raw), evidenceRefs: buildEvidenceRefs(context) };
 }
@@ -279,7 +285,7 @@ function buildLocalNarrativeResult(context: PalaceAnalysisContext): NarrativeTea
     story: `${mainStar}的光落在${props[0] ?? '門口'}，一切看起來如常。直到${props[2] ?? '走廊盡頭'}傳來一下不該有的聲響——這個人回頭，發現${props[1] ?? '時鐘'}不知何時已經停了。就在此刻，整個空間的燈忽然一暗，像要把${guide.topic}裡拖延的一切一次收走；黑下來的不是房間，是選項。${harmonyStar}在遠處仍亮著一盞燈，提示這條線還有支撐——但得有人先動。`,
     pastEcho: `舊畫面的殘影：同樣的${props[0] ?? '物件'}、同樣被放回原位的手。這是命盤慣性的映照，不是真實往事，更不是判決；畫面怎麼走，還要看整張盤與你接下來的選擇。`,
     futureShadow: `${context.timeContext.annualYear} 年的光線斜過來時，若這個人仍把${props[1] ?? '該面對的事'}往旁邊挪，影子會比現在長一倍；若伸手拆開它，畫面就換場。這是條件式的暗影，不是預言。`,
-    finalMetaphor: `牆上有人用舊墨寫過一卦：「${castPalaceHexagram(context).hexagramName}」。午夜的低語只說一句：燈一直都在，門也沒有鎖——誠實地伸手，比任何咒語都靈。`,
+    finalMetaphor: `牆上有人用舊墨寫過一卦：「${reviewedHexagram(context).hexagramName}」。午夜的低語只說一句：燈一直都在，門也沒有鎖——誠實地伸手，比任何咒語都靈。`,
   };
   return { teacherId: 'NARRATIVE_MASTER', ...normalizeNarrativeResult(raw), evidenceRefs: buildEvidenceRefs(context) };
 }
@@ -288,7 +294,7 @@ function buildLocalNarrativeResult(context: PalaceAnalysisContext): NarrativeTea
 
 function buildEvidenceRefs(context: PalaceAnalysisContext): string[] {
   // 這些依據會原樣顯示給客戶：用全形冒號與一般說法，不用「三合宮A」這種內部代號。
-  const refs = [`宮位：${context.selectedPalace.palaceName}`, `易經：${castPalaceHexagram(context).hexagramName}第${castPalaceHexagram(context).changingLine}爻`];
+  const refs = [`宮位：${context.selectedPalace.palaceName}`, `易經：${reviewedHexagram(context).hexagramName}第${reviewedHexagram(context).changingLine}爻`];
   if (context.timeContext.currentAge !== null) refs.push(`目前年齡：${context.timeContext.currentAge}歲`);
   refs.push(`流年：${context.timeContext.annualYear}`);
   if (context.timeContext.annualTheme) refs.push(`流年主題：${context.timeContext.annualTheme}`);

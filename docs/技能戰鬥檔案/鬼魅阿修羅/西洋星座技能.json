@@ -1,0 +1,82 @@
+{
+  "id": "asura-western-zodiac",
+  "version": "1.1.0",
+  "state": "CONNECTED",
+  "sourceStatus": "EXISTING_PROJECT_RULES",
+  "source": "lib/zodiac-engine.ts@e5c5f10",
+  "scope": "Western zodiac interpretation only; no new chart formulas",
+  "tables": {
+    "ZODIAC_ELEMENT_FOCUS": {
+      "fire": "行動、熱情、主導力",
+      "earth": "穩定、承擔、落實力",
+      "air": "思考、溝通、連結力",
+      "water": "感受、直覺、共感力"
+    },
+    "ZODIAC_MODALITY_FOCUS": {
+      "cardinal": "啟動事件與開創方向",
+      "fixed": "維持成果與穩定核心",
+      "mutable": "調整策略與轉換節奏"
+    },
+    "ZODIAC_POLARITY_FOCUS": {
+      "yang": "外放推進與主動表達",
+      "yin": "內在沉澱與接收整合"
+    },
+    "BRAND_ELEMENT_ACTIONS": {
+      "AIR": [
+        "把目標寫成 3 步路線，今天先完成第 1 步。",
+        "主動連結一位能帶來新觀點的人。",
+        "每天固定 15 分鐘學一個新觀念。"
+      ],
+      "SPACE": [
+        "寫下一條清楚界線，今天就執行。",
+        "將手上任務刪到 3 件，先專心完成主項。",
+        "用一句話定義自己現在的優先級。"
+      ],
+      "WATER": [
+        "先記錄感受，再回應事件，不讓情緒被忽略。",
+        "今天做 10 分鐘靜心整理。",
+        "在重要對話前，先聽完對方真正需求。"
+      ],
+      "FIRE": [
+        "今天完成一個能被看見的行動。",
+        "把真正想說的話用一段清楚文字說出來。",
+        "給目標一個明確截止時間。"
+      ],
+      "EARTH": [
+        "固定睡眠、飲食或工作節奏，先把基礎穩住。",
+        "整理一個你每天會使用的空間。",
+        "把承諾減到可以持續完成的範圍。"
+      ]
+    }
+  },
+  "templates": {
+    "point": "{role}{sign}：{elementFocus}。表達節奏：{modalityFocus}。能量方向：{polarityFocus}。",
+    "summary": "阿修羅直說：{basis}的主軸是{elementLabel}，重點在{elementFocus}。用{modalityLabel}的節奏落實。",
+    "priority": "阿修羅的補強順序：{element}排第{rank}。依本盤既有權重，補強需求為{score}。"
+  },
+  "distributionCopy": {
+    "elements": "你的星盤表達特質",
+    "modes": "你傾向怎麼推進事情",
+    "polarity": "你的表達方向",
+    "present": "本次星盤有呈現",
+    "absent": "本次未呈現",
+    "noBasis": "目前已知星盤點沒有落在這一類，不代表你沒有這種能力。",
+    "sunOnly": "本次只提供生日，因此只依太陽星座整理。這是星盤分類，不是能力分數；未呈現不代表你缺少這項特質。",
+    "multiple": "依本次已知的太陽、月亮與上升星座整理。這是星盤分類與相對比重，不是人格測驗或能力評分。"
+  },
+  "workflow": {
+    "scope": "只限西洋星座",
+    "order": [
+      "核對本次客戶與輸入資料",
+      "沿用既有西洋星座運算",
+      "依可核對資料選取既有技能",
+      "後端整理解讀，保留來源",
+      "驗證現行結果版本",
+      "前端顯示解讀"
+    ],
+    "resultVersion": "zodiac_core_v6_asura",
+    "legacyPolicy": "拒用舊版解讀，不清除客戶原始資料",
+    "crossSystemReference": "待接入，不代填性別或時辰",
+    "deployment": "本機修改，尚未上線"
+  }
+}

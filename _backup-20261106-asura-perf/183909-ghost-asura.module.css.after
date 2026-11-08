@@ -1,0 +1,1140 @@
+/* Only the private Asura page uses this skin; shared forms retain their defaults. */
+.page {
+  --text-main: #f4efe4;
+  --text-sub: #c9c3b5;
+  --text-muted: #a8a296;
+  min-height: 100dvh;
+  padding: 24px max(16px, calc((100% - 1040px) / 2)) 80px;
+  background: #121210;
+  color: var(--text-main);
+  color-scheme: dark;
+}
+
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.nav a, .nav button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #c9c3b5;
+  font-size: 13px;
+}
+.nav button { padding: 0 14px; border: 1px solid #aa7323; border-radius: 8px; }
+.nav a:hover, .nav button:hover { color: #fce74a; }
+.page button:disabled { opacity: .5; cursor: wait; }
+.page :is(a, button, summary):focus-visible { outline: 2px solid #fce74a; outline-offset: 4px; }
+
+.header { padding: 36px 0 30px; }
+.eyebrow { margin: 0; color: #aa7323; font-size: 12px; letter-spacing: .2em; }
+.header h1 { margin: 10px 0 16px; font-size: clamp(42px, 5vw, 64px); line-height: 1.3; }
+.intro { max-width: 650px; margin: 0; color: #c9c3b5; font-size: 15px; line-height: 1.85; }
+.panel {
+  min-width: 0;
+  margin-bottom: 28px;
+  padding: 24px;
+  border: 1px solid #aa7323;
+  border-radius: 16px;
+  background: #383836;
+  box-shadow: 0 12px 36px #0003;
+}
+.panel h2 { color: #fce74a; font-size: 22px; font-weight: 700; line-height: 1.5; }
+.note { margin: 0 0 20px; color: #c0baac; font-size: 13px; line-height: 1.8; }
+.fields { min-width: 0; border: 0; padding: 0; margin: 0; }
+.results { scroll-margin-top: 20px; outline: none; }
+.results:focus-visible { outline: 2px solid #fce74a; outline-offset: 5px; border-radius: 16px; }
+.error { margin: 20px 0 0; padding: 16px; border: 1px solid #be6971; border-radius: 12px; background: #381d24; color: #ffdae0; line-height: 1.8; }
+
+.login { display: grid; gap: 16px; max-width: 460px; }
+.login .note { margin: 0; }
+.login label, .zi { color: #efe9dc; font-size: 15px; font-weight: 600; }
+.login input, .zi select { width: 100%; min-height: 52px; padding: 12px; border: 1px solid #4a4842; border-radius: 8px; background: #121210; color: #f8f3e8; font-size: 16px; }
+.login > button { min-height: 52px; padding: 12px 20px; background: #aa7323; border: 1px solid #fce74a; border-radius: 10px; color: #121210; font-weight: 800; }
+.login a { color: #fce74a; text-decoration: underline; }
+.passwordField { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+.passwordToggle { min-height: 48px; padding: 8px 12px; border: 1px solid #4a4842; border-radius: 8px; color: #e8d9a8; font-size: 13px; }
+.zi { display: grid; gap: 10px; margin-top: 16px; }
+
+/* Neutralize the site's cyan glow only inside this page's existing form. */
+.page .inputPanel :global(.mega-friendly-form) > section {
+  padding: 18px;
+  border-radius: 12px;
+  background: #2c2c2a;
+  border-color: #aa7323;
+  box-shadow: none;
+}
+.page .inputPanel :global(.mega-friendly-form) > section::before { display: none; }
+.page .inputPanel :global(.mega-friendly-form) label {
+  color: #efe9dc !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  text-shadow: none;
+}
+.page .inputPanel :global(.mega-friendly-form) input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
+.page .inputPanel :global(.mega-friendly-form) select {
+  min-height: 52px;
+  border: 1px solid #5a5650 !important;
+  border-radius: 8px !important;
+  background: #121210 !important;
+  color: #f8f3e8 !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+  text-shadow: none;
+}
+.page .inputPanel :global(.mega-friendly-form) input::placeholder { color: #a8a296 !important; font-weight: 400 !important; }
+.page .inputPanel :global(.mega-friendly-form) input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):focus,
+.page .inputPanel :global(.mega-friendly-form) select:focus {
+  border-color: #fce74a !important;
+  outline: 2px solid #fce74a4d;
+  outline-offset: 3px;
+}
+.inputPanel :global(.mega-friendly-form) button { min-height: 48px; border-radius: 9px; box-shadow: none; text-shadow: none; }
+.inputPanel [class*="text-cyan"], .inputPanel [class*="text-violet"] { color: #e8d9a8; }
+.inputPanel :is([class*=" bg-cyan-"], [class^="bg-cyan-"], [class*=" bg-violet-"], [class^="bg-violet-"]) { background: #2a2110; box-shadow: none; }
+.inputPanel :is([class*=" border-cyan-"], [class^="border-cyan-"], [class*=" border-violet-"], [class^="border-violet-"]) { border-color: #aa7323; }
+.inputPanel [class*="text-amber"] { color: #edd0a8; }
+.inputPanel :is([class*=" bg-amber-"], [class^="bg-amber-"]) { background: #372b24; box-shadow: none; }
+.inputPanel :is([class*=" border-amber-"], [class^="border-amber-"]) { border-color: #a18665; }
+.inputPanel [class*="text-green"], .inputPanel [class*="text-emerald"] { color: #b9d1bd; }
+.page .inputPanel :global(.mega-friendly-form) > section:has(:global(.form-missing-alert)) { border-color: #ce7b84; background: #2d1921; }
+.inputPanel :global(.mega-friendly-form) > button[type="submit"] {
+  min-height: 56px;
+  padding: 14px 20px;
+  border: 1px solid #aa7323;
+  border-radius: 10px;
+  background: #2a2110;
+  color: #fce74a;
+  font-size: 16px;
+  letter-spacing: .08em;
+  animation: none;
+  transform: none;
+  box-shadow: none;
+}
+.inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready) { background: #aa7323; border-color: #fce74a; color: #121210; }
+.inputPanel :global(.mega-submit-guide) { color: #d9b45a; font-size: 13px; text-shadow: none; }
+.inputPanel :global(.mega-submit-guide__arrow) { animation: none; }
+.inputPanel :global(.mega-friendly-form) > section:last-child h2 { font-size: 18px; margin-top: 8px; }
+
+@media (hover: hover) {
+  .inputPanel :global(.mega-friendly-form) button:hover { border-color: #deb894; }
+  .inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready):hover { background: #e2bd8d; }
+}
+/* ==================== 進度指引 + 動畫反饋 ==================== */
+
+/* 進度條容器 */
+.progressContainer {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, rgba(212, 175, 55, 0.02) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 12px;
+}
+
+/* 單一步驟 */
+.progressStep {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+/* 步驟圓點 */
+.stepCircle {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(212, 175, 55, 0.3);
+  color: #c9c3b5;
+  background: #2c2c2a;
+}
+
+/* 步驟圓點 - 已完成 */
+.stepCircle.done {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: #d4af37;
+  color: #d4af37;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+}
+
+/* 步驟圓點 - 當前 */
+.stepCircle.active {
+  background: #d4af37;
+  border-color: #d4af37;
+  color: #121210;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+  animation: progressPulse 1.5s ease-in-out infinite;
+}
+
+/* 步驟文字 */
+.stepLabel {
+  font-size: 12px;
+  color: #a8a296;
+  text-align: center;
+  line-height: 1.4;
+  max-width: 80px;
+  transition: color 0.3s ease;
+}
+
+.stepCircle.done ~ .stepLabel,
+.stepCircle.active ~ .stepLabel {
+  color: #f4efe4;
+  font-weight: 600;
+}
+
+/* 進度條連線 */
+.progressConnector {
+  position: absolute;
+  top: 23px;
+  left: 64px;
+  right: -68px;
+  height: 2px;
+  background: rgba(212, 175, 55, 0.15);
+  transition: background 0.3s ease;
+}
+
+.progressConnector.active {
+  background: #d4af37;
+}
+
+.progressStep:last-child .progressConnector {
+  display: none;
+}
+
+/* ==================== 加載動畫 ==================== */
+
+/* 按鈕加載狀態 */
+.buttonLoading {
+  position: relative;
+  pointer-events: none;
+}
+
+/* 脈動圓點 */
+.loadingDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  margin: 0 3px;
+  animation: loadingPulse 1.4s ease-in-out infinite;
+}
+
+.loadingDot:nth-child(1) { animation-delay: 0s; }
+.loadingDot:nth-child(2) { animation-delay: 0.2s; }
+.loadingDot:nth-child(3) { animation-delay: 0.4s; }
+
+/* 關鍵動畫幀 */
+@keyframes progressPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+  }
+}
+
+@keyframes loadingPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.7);
+  }
+}
+
+/* 秘卷展開動畫（後續用） */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.resultsEnter {
+  animation: slideInUp 0.5s ease-out;
+}
+
+/* ==================== 快速重新解盤 ==================== */
+
+.quickRetakeSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.quickRetakeLabel {
+  font-size: 12px;
+  color: #a8a296;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.quickRetakeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 12px 28px;
+  border: 2px solid rgba(212, 175, 55, 0.4);
+  border-radius: 10px;
+  background: rgba(212, 175, 55, 0.08);
+  color: #d4af37;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.quickRetakeButton:hover {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: #d4af37;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+  transform: translateY(-2px);
+}
+
+.quickRetakeButton:active {
+  transform: translateY(0);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.1);
+}
+
+.quickRetakeIcon {
+  font-size: 16px;
+  animation: spinSlow 2s linear infinite;
+}
+
+.quickRetakeButton:hover .quickRetakeIcon {
+  animation: spinFast 0.8s linear infinite;
+}
+
+/* ==================== 分享功能 ==================== */
+
+.shareSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.shareLabel {
+  font-size: 12px;
+  color: #a8a296;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.shareButtons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.shareButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 10px 20px;
+  border: 1.5px solid rgba(212, 175, 55, 0.3);
+  border-radius: 8px;
+  background: rgba(212, 175, 55, 0.05);
+  color: #d4af37;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.shareButton:hover {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: #d4af37;
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.15);
+  transform: translateY(-2px);
+}
+
+.shareButton:active {
+  transform: translateY(0);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.08);
+}
+
+.shareIcon {
+  font-size: 14px;
+}
+
+.shareButtonLabel {
+  white-space: nowrap;
+}
+
+/* 複製成功提示 */
+.copySuccess {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: rgba(76, 175, 80, 0.15);
+  color: #81c784;
+  font-size: 12px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.copySuccessFadeOut {
+  animation: fadeOut 0.4s ease-out 1.5s forwards;
+}
+
+/* ==================== 下載功能 ==================== */
+
+.downloadSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.downloadLabel {
+  font-size: 12px;
+  color: #a8a296;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.downloadButtons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.downloadButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 10px 20px;
+  border: 1.5px solid rgba(212, 175, 55, 0.3);
+  border-radius: 8px;
+  background: rgba(212, 175, 55, 0.05);
+  color: #d4af37;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.downloadButton:hover {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: #d4af37;
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.15);
+  transform: translateY(-2px);
+}
+
+.downloadButton:active {
+  transform: translateY(0);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.08);
+}
+
+.downloadButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.downloadIcon {
+  font-size: 14px;
+}
+
+.downloadButtonLabel {
+  white-space: nowrap;
+}
+
+/* 下載進度提示 */
+.downloadProgress {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: rgba(212, 175, 55, 0.15);
+  color: #d4af37;
+  font-size: 12px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.downloadProgressDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d4af37;
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ==================== 移動端優化（觸控反饋 + 響應式） ==================== */
+
+@media (max-width: 600px) {
+  .shareButtons {
+    gap: 10px;
+  }
+
+  .shareButton {
+    min-height: 44px;
+    padding: 8px 16px;
+    font-size: 12px;
+    /* 觸控反饋 */
+    transform: scale(1);
+    transition: all 0.15s ease;
+  }
+
+  .shareButton:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 4px rgba(212, 175, 55, 0.1);
+  }
+
+  .shareButton:focus-visible {
+    outline: 2px solid #d4af37;
+    outline-offset: 2px;
+  }
+
+  .shareButtonLabel {
+    display: none;
+  }
+
+  .shareIcon {
+    font-size: 16px;
+  }
+
+  .downloadButtons {
+    gap: 10px;
+  }
+
+  .downloadButton {
+    min-height: 44px;
+    padding: 8px 16px;
+    font-size: 12px;
+    /* 觸控反饋 */
+    transform: scale(1);
+    transition: all 0.15s ease;
+  }
+
+  .downloadButton:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 4px rgba(212, 175, 55, 0.1);
+  }
+
+  .downloadButton:focus-visible {
+    outline: 2px solid #d4af37;
+    outline-offset: 2px;
+  }
+
+  .downloadButtonLabel {
+    display: none;
+  }
+
+  .downloadIcon {
+    font-size: 16px;
+  }
+
+  /* 手機卡片排版優化 */
+  .card {
+    padding: 16px;
+  }
+
+  .pillarsTable {
+    gap: 8px;
+  }
+
+  .pillarColumn {
+    padding: 12px;
+  }
+
+  /* 進度條手機優化 */
+  .progressStep {
+    flex: 0 0 calc(33.333% - 8px);
+  }
+
+  .stepCircle {
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
+  }
+
+  /* 快速重新解盤手機優化 */
+  .quickRetakeButton {
+    min-height: 48px;
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  .quickRetakeButton:active {
+    transform: scale(0.98);
+  }
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spinFast {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ==================== 鬼魅阿修羅核心動畫 ==================== */
+
+/* 卡片揭示：從暗到明、鬼魅漸現 */
+@keyframes asuraCardReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+    filter: blur(8px) brightness(0.6);
+  }
+  30% {
+    filter: blur(4px) brightness(0.8);
+  }
+  70% {
+    filter: blur(1px) brightness(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0) brightness(1);
+  }
+}
+
+.asuraCardReveal {
+  animation: asuraCardReveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 印記點亮：逐個閃爍、像被喚醒 */
+@keyframes asuraImpressionGlow {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+    filter: blur(4px);
+    text-shadow: none;
+  }
+  20% {
+    opacity: 0.5;
+    transform: scale(1);
+    filter: blur(2px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+    filter: blur(0);
+    text-shadow: 0 0 12px rgba(212, 175, 55, 0.8);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1);
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    text-shadow: 0 0 4px rgba(212, 175, 55, 0.3);
+  }
+}
+
+.asuraImpressionGlow {
+  animation: asuraImpressionGlow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 秘卷成型：能量匯聚 */
+@keyframes asuraScrollFormation {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) rotateX(10deg);
+  }
+  50% {
+    transform: scale(1.02) rotateX(5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotateX(0deg);
+  }
+}
+
+.asuraScrollFormation {
+  animation: asuraScrollFormation 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 衝擊波：阿修羅的氣魄 */
+@keyframes asuraShockwave {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+  }
+  30% {
+    opacity: 1;
+    box-shadow: 0 0 0 20px rgba(212, 175, 55, 0.3);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 40px rgba(212, 175, 55, 0.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 60px rgba(212, 175, 55, 0);
+  }
+}
+
+.asuraShockwave {
+  animation: asuraShockwave 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 鬼魅陰影效果（卡片邊框）*/
+@keyframes asuraShadowPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.15), 0 0 40px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.25), 0 0 60px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.asuraShadowPulse {
+  animation: asuraShadowPulse 3s ease-in-out infinite;
+}
+
+/* ==================== 3D 升級 V2：透視與深度感 ==================== */
+
+.asuraCard3DContainer {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.asuraCardReveal {
+  transform-style: preserve-3d;
+  transform-origin: center center;
+}
+
+/* 卡片浮起深度感 */
+@keyframes asuraCardFloat {
+  0% {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  }
+  100% {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.35);
+  }
+}
+
+.asuraCardReveal {
+  animation: asuraCardFloat 3s ease-in-out infinite;
+}
+
+/* 印記 3D 層級 */
+@keyframes asuraImpressionFloat3D {
+  0% {
+    transform: translateZ(-20px);
+    opacity: 0;
+  }
+  50% {
+    transform: translateZ(15px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateZ(10px);
+    opacity: 1;
+  }
+}
+
+.asuraImpressionGlow {
+  transform-style: preserve-3d;
+  animation: asuraImpressionFloat3D 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ==================== Phase 5：高級 3D 效果升級 ==================== */
+
+/* 高級 3D 卡片深度翻轉 */
+@keyframes advancedCardFlip {
+  0% {
+    opacity: 0;
+    transform: rotateX(15deg) rotateY(8deg) translateY(40px) scale(0.95);
+    filter: blur(8px) brightness(0.6);
+  }
+  35% {
+    transform: rotateX(8deg) rotateY(4deg) translateY(20px) scale(0.98);
+    filter: blur(4px) brightness(0.8);
+  }
+  70% {
+    transform: rotateX(2deg) rotateY(1deg) translateY(5px) scale(0.99);
+    filter: blur(1px) brightness(1);
+  }
+  100% {
+    opacity: 1;
+    transform: rotateX(0deg) rotateY(0deg) translateY(0) scale(1);
+    filter: blur(0) brightness(1);
+  }
+}
+
+/* 光線反射光暈 */
+@keyframes lightReflectionGlow {
+  0% {
+    opacity: 0;
+    box-shadow:
+      0 0 0 0 rgba(212, 175, 55, 0.8),
+      0 0 24px 0 rgba(212, 175, 55, 0.3);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow:
+      0 0 8px 4px rgba(212, 175, 55, 0.6),
+      0 0 32px 8px rgba(212, 175, 55, 0.2);
+  }
+  100% {
+    opacity: 0;
+    box-shadow:
+      0 0 16px 12px rgba(212, 175, 55, 0.2),
+      0 0 40px 16px rgba(212, 175, 55, 0.1);
+  }
+}
+
+/* 浮起漸變光暈 */
+@keyframes floatingGradientAura {
+  0% {
+    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(212, 175, 55, 0.5));
+  }
+  100% {
+    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.3));
+  }
+}
+
+@media (max-width: 600px) {
+  .page { padding: 16px 12px 56px; }
+  .header { padding: 24px 4px; }
+  .intro { font-size: 14px; }
+  .panel { padding: 14px; }
+  .page .inputPanel :global(.mega-friendly-form) > section { padding: 14px; }
+  .page .inputPanel :global(.mega-friendly-form) :is(input:not([type="checkbox"]), select) { padding-inline: 10px; }
+  .inputPanel :global(.mega-friendly-form) > section[data-field="birthDate"] :global(.grid-cols-3) { gap: 8px; }
+
+  /* 手機版進度條調整 */
+  .progressContainer {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+  }
+  .progressStep {
+    flex: 0 0 calc(33.333% - 8px);
+  }
+  .progressConnector {
+    display: none;
+  }
+  .stepCircle {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+  .stepLabel {
+    font-size: 11px;
+    max-width: 60px;
+  }
+
+  /* 手機版 3D 簡化 */
+  .asuraCard3DContainer {
+    perspective: 800px;
+  }
+}
+
+/* 2026-10-12 盾牌原圖配色：黑 #121210、炭灰 #383836、深金 #aa7323、亮金 #fce74a；只改顏色，不加裝飾、不改尺寸 */
+.header h1[data-asura-brand-title] {
+  background: linear-gradient(180deg, #fce74a 0%, #aa7323 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: #d9b45a;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+.login > button,
+.inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready) { background: linear-gradient(180deg, #fce74a 0%, #aa7323 100%); }
+.page :is(a, button, summary):focus-visible { outline-color: #0677cd; }
+
+/* 八字彩虹點綴：取自盾牌 8 字的實色，硬邊色段無模糊；只用在主要按鈕外框、目前步驟圈、焦點框 */
+.page { box-shadow: none; }
+.panel { box-shadow: none; }
+.stepCircle.done { background: #2a2110; border-color: #aa7323; color: #fce74a; box-shadow: none; }
+.stepCircle.active { border-color: transparent; background: linear-gradient(#fce74a, #fce74a) padding-box, conic-gradient(#d22536 0 16.66%, #e7570d 0 33.33%, #f2d42d 0 50%, #2ab65a 0 66.66%, #0677cd 0 83.33%, #a225b4 0) border-box; color: #121210; box-shadow: none; animation: none; }
+.login > button,
+.inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready) { border-color: transparent; background: linear-gradient(180deg, #fce74a 0%, #aa7323 100%) padding-box, linear-gradient(90deg, #d22536 0 16.66%, #e7570d 0 33.33%, #f2d42d 0 50%, #2ab65a 0 66.66%, #0677cd 0 83.33%, #a225b4 0) border-box; color: #121210; box-shadow: none; }
+
+/* 2026-10-12 盾牌質感優化（只動顏色與質感，不改版面與尺寸）：
+   取自盾牌：黑底菱格編織、金框四段漸層（亮金 #fcea86 → 金 #f8c758 → 深金 #c48a29 → 古銅 #975905）。
+   彩虹只留在主要按鈕外框與目前步驟圈。文字對比維持 AA 以上。 */
+.page {
+  background:
+    radial-gradient(ellipse at 50% -8%, rgba(248, 199, 88, .12), transparent 36rem),
+    repeating-linear-gradient(45deg, rgba(248, 199, 88, .028) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(-45deg, rgba(248, 199, 88, .028) 0 1px, transparent 1px 7px),
+    #0f0f0d;
+}
+.header h1[data-asura-brand-title] {
+  background: linear-gradient(180deg, #fcea86 0%, #f8c758 42%, #c48a29 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.eyebrow { color: #c48a29; }
+.panel,
+.progressContainer {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(180deg, #1c1c1a 0%, #131311 100%) padding-box,
+    linear-gradient(135deg, #fcea86 0%, #c48a29 38%, #975905 62%, #f8c758 100%) border-box;
+  box-shadow: inset 0 1px 0 rgba(252, 234, 134, .16);
+}
+.page .inputPanel :global(.mega-friendly-form) > section {
+  background: linear-gradient(180deg, #2f2f2c 0%, #262624 100%);
+  border-color: #8a6420;
+  box-shadow: inset 0 1px 0 rgba(252, 234, 134, .10);
+}
+.panel h2, .login a { color: #fcea86; }
+.login > button,
+.inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready) {
+  background:
+    linear-gradient(180deg, #fcea86 0%, #f8c758 45%, #c48a29 100%) padding-box,
+    linear-gradient(90deg, #d22536 0 16.66%, #e7570d 0 33.33%, #f2d42d 0 50%, #2ab65a 0 66.66%, #0677cd 0 83.33%, #a225b4 0) border-box;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), inset 0 -1px 0 rgba(151, 89, 5, .6);
+}
+.inputPanel :global(.mega-friendly-form) > button[type="submit"]:not(:global(.mega-submit-ready)) {
+  background: linear-gradient(180deg, #2f2410 0%, #231b0b 100%);
+  border-color: #8a6420;
+  color: #fcea86;
+}
+.stepCircle.done { background: linear-gradient(180deg, #2f2410, #231b0b); border-color: #c48a29; color: #fcea86; }
+.progressContainer { border-radius: 12px; }
+@media (hover: hover) {
+  .login > button:hover,
+  .inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready):hover { filter: brightness(1.06); }
+}
+
+/* ==========================================================================
+   2026-10-12 進度五顆寶珠：原本打勾的圓圈，改成全站共用的五元素寶珠（空・風・水・火・地）。
+   完成＝該元素的顏色發亮發光；未完成＝封印著、不發光。顏色只讀 elementOrbPalette，不另建色表。
+   ========================================================================== */
+.progressStep { --step-glow: #fcea86; }
+.stepOrb {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex: none;
+  border-radius: 50%;
+  transition: filter 0.5s ease, transform 0.5s ease;
+}
+.stepOrb[data-lit='false'] { filter: grayscale(0.35) brightness(0.8); }
+.stepOrb[data-lit='true'] { filter: drop-shadow(0 0 10px var(--step-glow)); transform: scale(1.04); }
+/* 目前輪到的那一顆：外圈輕輕呼吸，提示「下一個填這裡」 */
+.stepOrbActive::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px dashed var(--step-glow);
+  opacity: 0.85;
+  animation: stepOrbBreath 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes stepOrbBreath {
+  0%, 100% { transform: scale(0.96); opacity: 0.45; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+.stepOrb[data-lit='true'] ~ .stepLabel {
+  color: #f4efe4;
+  font-weight: 700;
+  text-shadow: 0 0 10px var(--step-glow);
+}
+.progressConnector { top: 25px; }
+.progressConnector.active { background: var(--step-glow); box-shadow: 0 0 8px var(--step-glow); }
+@media (max-width: 600px) {
+  .stepOrb { width: 44px; height: 44px; }
+  .progressConnector { top: 21px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stepOrbActive::after { animation: none; }
+  .stepOrb { transition: none; }
+  /* P1 FAIL#1: resultsEnter/slideInUp must show final state under reduce
+   * (globals sets animation-duration:0.01ms; without opacity:1 content stays blank) */
+  .resultsEnter {
+    animation: none !important;
+    animation-delay: 0s !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* 手機：五顆寶珠排成一列（原本三顆＋兩顆兩排，像一串珠子才對） */
+@media (max-width: 600px) {
+  .progressContainer { flex-wrap: nowrap; gap: 2px; padding: 16px 6px 12px; }
+  .progressStep { flex: 1 1 0; min-width: 0; }
+  .stepLabel { font-size: 13px; max-width: 100%; letter-spacing: 0; }
+  .eyebrow { font-size: 14px; }
+}
+
+/* 手機字體再加大一階（2026-10-12 真手機回報：一進去字還是太小）。與 globals.css 的「手機字體（唯一一份）」一起使用。 */
+@media (max-width: 640px) {
+  .intro { font-size: calc(17px * var(--ts, 1)); }
+  .note { font-size: calc(16px * var(--ts, 1)); }
+  .eyebrow { font-size: calc(15px * var(--ts, 1)); }
+  .nav a, .nav button { font-size: calc(15px * var(--ts, 1)); }
+  .stepLabel { font-size: calc(14px * var(--ts, 1)); }
+  .inputPanel :global(.mega-submit-guide) { font-size: calc(15px * var(--ts, 1)); }
+}
+
+/* 2026-10-17「阿修羅升級」：手機填表縮短（原本輸入區約 3100px，要滑近四個螢幕才看到送出鈕）。
+   1. 時辰卡：名稱與時段並排、時間範圍在下，每張約 70px（原本 129px）
+   2. 性別：兩顆並排（原本各 114px 疊著）
+   3. 「不知道／知道出生時辰」兩個選項縮小內距
+   4. 送出鈕固定在畫面底部，填完不用滑到最下面
+   只動這一頁的版面，不改欄位、不改邏輯。字級用 calc 跟著首頁字體大小倍率。 */
+@media (max-width: 640px) {
+  .inputPanel :global(button[class*="min-h-[88px]"]) {
+    display: grid !important;
+    grid-template-columns: auto 1fr;
+    align-items: baseline;
+    column-gap: 6px;
+    row-gap: 2px;
+    min-height: 0 !important;
+    padding: 10px 12px !important;
+  }
+  .inputPanel :global(button[class*="min-h-[88px]"]) > p { margin: 0 !important; line-height: 1.25 !important; }
+  .inputPanel :global(button[class*="min-h-[88px]"]) > p:nth-child(1) { grid-column: 1; grid-row: 1; font-size: calc(18px * var(--ts, 1)) !important; white-space: nowrap; }
+  .inputPanel :global(button[class*="min-h-[88px]"]) > p:nth-child(2) { grid-column: 1 / -1; grid-row: 2; font-size: calc(13px * var(--ts, 1)) !important; }
+  .inputPanel :global(button[class*="min-h-[88px]"]) > p:nth-child(3) { grid-column: 2; grid-row: 1; justify-self: end; font-size: calc(13px * var(--ts, 1)) !important; white-space: nowrap; }
+
+  .inputPanel :global([class*="mt-3 grid gap-3 sm:grid-cols-2"]) { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+  .inputPanel :global([class*="mt-3 grid gap-3 sm:grid-cols-2"]) > button { padding: 12px 14px !important; }
+  .inputPanel :global([class*="mt-4 grid gap-3 sm:grid-cols-2"]) > button { padding-top: 12px !important; padding-bottom: 12px !important; }
+
+  .inputPanel :global(.mega-friendly-form) > button[type="submit"] {
+    position: sticky;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    z-index: 30;
+    box-shadow: 0 -14px 26px -10px rgba(0, 0, 0, 0.7), 0 10px 26px -8px rgba(248, 199, 88, 0.45);
+  }
+}
+/* 第 6 項（頁面層）：下載、分享、重新解盤的小標題下限 13px，跟著字體大小倍率 */
+@media (max-width: 640px) {
+  .downloadLabel,
+  .shareLabel,
+  .quickRetakeLabel { font-size: calc(13px * var(--ts, 1)) !important; }
+}
+/* 平板小字放大（2026-10-17「平板阿修羅小字也要放大」）：平板（641～1180px）畫面版原本有約 75 處 10～12px 的字，
+   集中在填表區、進度標籤、頁首小標與頁尾的下載／分享標題；提到 13～14px。用 rem：跟著首頁選的字體大小一起放大。
+   手機另有自己的規則（calc × 倍率），電腦不動。 */
+@media screen and (min-width: 641px) and (max-width: 1180px) {
+  .eyebrow,
+  .stepLabel,
+  .downloadLabel,
+  .shareLabel,
+  .quickRetakeLabel { font-size: 0.8125rem !important; }
+  .inputPanel :global(.mega-friendly-form) :global(.text-xs) { font-size: 0.875rem !important; }
+  .inputPanel :global(.mega-friendly-form) [class*="text-[11px]"],
+  .inputPanel :global(.mega-friendly-form) [class*="text-[10px]"] { font-size: 0.8125rem !important; }
+}
+
+/* === FLICKER 2026-11-06 phase2 (Grok) — no white flash / no float / no blur entrance === */
+.page {
+  background-color: #040A03 !important;
+  background: #040A03 !important;
+}
+.asuraCardReveal {
+  animation: none !important;
+  filter: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+}
+.asuraImpressionGlow {
+  animation: none !important;
+  filter: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+/* Redefine blur-heavy keyframes to opacity/transform only (in case inline styles re-trigger name) */
+@keyframes asuraCardReveal {
+  0% { opacity: 0.92; transform: translateY(8px); filter: none; }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+@keyframes advancedCardFlip {
+  0% { opacity: 0.92; transform: translateY(10px); filter: none; }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+@keyframes asuraImpressionGlow {
+  0% { opacity: 0.9; filter: none; }
+  100% { opacity: 1; filter: none; }
+}
+@keyframes asuraCardFloat {
+  0%, 100% { box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .asuraCardReveal,
+  .asuraImpressionGlow,
+  .resultsEnter {
+    animation: none !important;
+    animation-delay: 0s !important;
+    filter: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

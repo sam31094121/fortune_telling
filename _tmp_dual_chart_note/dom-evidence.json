@@ -1,0 +1,21 @@
+{
+  "ok": true,
+  "evidence": {
+    "hasNeedle": true,
+    "hasMisc": true,
+    "needleAfterMisc_innerText": true,
+    "needleAfterMisc_notes": true,
+    "noteIdx": 12,
+    "miscIdx": 11,
+    "lastNotes": [
+      "武曲（利） · 化科、七殺（旺）",
+      "輔星與雜曜：天福、空亡、破碎",
+      "排盤核心：iztro@2.5.8+quanshu-20261012。星曜亮度、壬干化科、解神依《紫微斗數全書》；大限為引擎的虛歲區間；以所填出生日期、時辰排盤。",
+      "雜曜中的孤辰、寡宿、咸池、華蓋、恩光、天貴、天官、天福、天才、天壽、破碎、天月、陰煞、天巫、年解、天德、月德、天廚、蜚廉、天空，《紫微斗數全書》查無安星口訣，依後世排盤軟體，僅供參考。",
+      "宮位下方四行小字：長生：能量剛出生、最嫩的階段。博士：學問、才藝的代表。歲前：早年運勢的底層。將前：近期運勢的節奏。"
+    ],
+    "snippetAround": "破碎、天月、陰煞、天巫、年解、天德、月德、天廚、蜚廉、天空，《紫微斗數全書》查無安星口訣，依後世排盤軟體，僅供參考。\n\n宮位下方四行小字：長生：能量剛出生、最嫩的階段。博士：學問、才藝的代表。歲前：早年運勢的底層。將前：近期運勢的節奏。"
+  },
+  "out": "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_dual_chart_note\\after-390.png",
+  "clipPath": "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_dual_chart_note\\after-390-ziwei-bottom.png"
+}

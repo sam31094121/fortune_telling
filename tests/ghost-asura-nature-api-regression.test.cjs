@@ -74,8 +74,10 @@ function validateAdultGate(gate, birthDate, requestDay) {
     assert(now.ageTimeline.guide && now.ageTimeline.guide.hereLabel === '你現在在這段，往下看' && now.ageTimeline.guide.toPast === '點這裡看上一段' && now.ageTimeline.guide.toFuture === '點這裡看下一段' && now.ageTimeline.guide.endLine === '往後的路你都看完了。點最上面的亮點，回到你現在這段。', `${name} guide`);
     // 客人本人（新增欄位）：viewer.age＝後端實歲；viewerLine 帶年齡
     assert(now.viewer && Number.isInteger(now.viewer.age) && (now.viewer.name === null || typeof now.viewer.name === 'string'), `${name} viewer`);
-    assert(typeof now.ageTimeline.viewerLine === 'string' && now.ageTimeline.viewerLine.includes(`你今年 ${now.viewer.age} 歲`), `${name} viewerLine`);
-    assert(typeof now.pinnedSummary === 'string' && now.pinnedSummary.includes(`你今年 ${now.viewer.age} 歲`), `${name} pinnedSummary`);
+    assert(typeof now.ageTimeline.viewerLine === 'string' && now.ageTimeline.viewerLine.includes('虛歲') && now.ageTimeline.viewerLine.includes(`實歲 ${now.viewer.age}`), `${name} viewerLine`);
+    assert(typeof now.pinnedSummary === 'string' && now.pinnedSummary.includes('虛歲') && now.pinnedSummary.includes(`實歲 ${now.viewer.age}`), `${name} pinnedSummary`);
+    assert(!/\\d+–\\d+/.test(now.pinnedSummary), `${name} pinnedSummary has no A-B range`);
+    assert(!/\\d+–\\d+/.test(now.ageTimeline.viewerLine), `${name} viewerLine has no A-B range`);
     if (now.decreeAnchors) {
       const nowCard = now.decreeAnchors.find((a) => a.mark === '現在');
       const actCard = now.decreeAnchors.find((a) => a.mark === '現在就做');

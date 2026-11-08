@@ -1,3 +1,4 @@
+import type { ThreeInOneResult } from '@/lib/three-in-one';
 /**
  * 紫微三老師系統｜核心型別（2026-08-22）
  *
@@ -46,6 +47,8 @@ export interface PalaceSnapshot {
 
 export interface PalaceAnalysisContext {
   analysisId: string;
+  /** 僅由後端同次三核心核對傳入，不接受前端成功標記。 */
+  reviewedThreeCore?: ThreeInOneResult;
 
   selectedPalace: PalaceSnapshot;
 

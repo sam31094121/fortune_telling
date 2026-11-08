@@ -1,4 +1,5 @@
 import { runThreeInOne, assertThreeInOnePassed } from './three-in-one';
+import { getReviewedBaziOutputGate } from './bazi-reviewed-output';
 
 /** Only raw birth input crosses the request boundary; client conclusions are ignored. */
 export async function verifiedBaziReading(body: unknown) {
@@ -19,6 +20,7 @@ export async function verifiedBaziReading(body: unknown) {
   const verified = await runThreeInOne({ birthDate: birth.birthDate, birthTime: birth.birthTime, gender: birth.gender });
   assertThreeInOnePassed(verified);
   return {
+    outputGate: getReviewedBaziOutputGate(verified),
     shortName: typeof request.shortName === 'string' ? request.shortName.trim().slice(0, 8) || '你' : '你',
     bazi: verified.result.bazi,
     iching: verified.result.yijing.reading,

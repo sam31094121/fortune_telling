@@ -1,0 +1,14 @@
+{
+  "age": {
+    "color": "rgb(255, 230, 0)",
+    "bg": "linear-gradient(rgb(255, 245, 157) 0%, rgb(255, 230, 0) 46%, rgb(240, 180, 0) 100%)",
+    "fill": "rgba(0, 0, 0, 0)"
+  },
+  "seal": {
+    "color": "rgb(4, 10, 3)",
+    "bg": "linear-gradient(rgba(255, 245, 157, 0.95) 0%, rgba(255, 230, 0, 0.88) 55%, rgba(240, 180, 0, 0.92) 100%)",
+    "fill": "rgb(4, 10, 3)"
+  },
+  "cardBg": "linear-gradient(148deg, rgba(255, 245, 157, 0.62) 0%, rgba(255, 230, 0, 0.22) 14%, rgba(232, 245, 184, 0.14) 28%, rgba(0, 0, 0, 0) 50%), radial-gradient(130% 100% at 6% -5%, rgba(255, 239, 90, 0.32), ",
+  "segs": 6
+}

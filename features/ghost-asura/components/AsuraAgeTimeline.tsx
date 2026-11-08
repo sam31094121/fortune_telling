@@ -7,10 +7,18 @@
  * 資料缺席時整段不畫。
  * 洋蔥層（optional depth）：每次只剝一層；無 depth 時與舊版相同只照印 lines。
  */
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, startTransition, useEffect, useMemo, useState } from 'react';
 import type { AsuraAgeTimeline as AsuraAgeTimelineData } from '@/lib/ghost-asura-display-contract';
 import styles from './AsuraAgeTimeline.module.css';
 import motion from './AsuraAgeTimeline.motion.module.css';
+
+/** Mobile or reduced-motion: instant scroll (perf). */
+function asuraScrollBehavior(): ScrollBehavior {
+  if (typeof window === 'undefined') return 'auto';
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return 'auto';
+  if (window.matchMedia('(max-width: 420px)').matches) return 'auto';
+  return 'smooth';
+}
 
 /** 後端尚未落地前的可選洋蔥／導覽欄位（只增不改；前端本地延伸，不改 lib/）。 */
 export type AsuraLineDepth = {
@@ -116,6 +124,8 @@ export function AsuraAgeTimeline({
   const [visited, setVisited] = useState<Record<number, true>>({});
   const [peelLevels, setPeelLevels] = useState<Record<string, number>>({});
   const [bootstrapped, setBootstrapped] = useState(false);
+  /** First paint: 戰神令旁時間軸只掛「現在段」；其餘段 idle 後再掛，砍開卡 longtask。 */
+  const [extrasReady, setExtrasReady] = useState(false);
 
   useEffect(() => {
     if (!segments || bootstrapped) return;
@@ -123,6 +133,31 @@ export function AsuraAgeTimeline({
     setVisited({ [currentIndex]: true });
     setBootstrapped(true);
   }, [segments, currentIndex, bootstrapped]);
+
+  useEffect(() => {
+    if (!segments) return;
+    setExtrasReady(false);
+    let cancelled = false;
+    const enable = () => {
+      if (!cancelled) setExtrasReady(true);
+    };
+    let idleId: number | undefined;
+    let timeoutId: number | undefined;
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (typeof w.requestIdleCallback === 'function') {
+      idleId = w.requestIdleCallback(enable, { timeout: 450 });
+    } else {
+      timeoutId = window.setTimeout(enable, 50);
+    }
+    return () => {
+      cancelled = true;
+      if (idleId != null && typeof w.cancelIdleCallback === 'function') w.cancelIdleCallback(idleId);
+      if (timeoutId != null) window.clearTimeout(timeoutId);
+    };
+  }, [segments]);
 
   useEffect(() => {
     if (!focusRequest || !segments) return;
@@ -133,30 +168,31 @@ export function AsuraAgeTimeline({
     setVisited((prev) => (prev[target] ? prev : { ...prev, [target]: true }));
 
     if (focusRequest.peelTo) {
-      setPeelLevels((prev) => {
-        const next = { ...prev };
-        const seg = segments[target];
-        const depths = Array.isArray(seg.depth) ? seg.depth : [];
-        const lineIndexes =
-          typeof focusRequest.lineIndex === 'number'
-            ? [focusRequest.lineIndex]
-            : seg.lines.map((_, i) => i);
-        for (const li of lineIndexes) {
-          const layers = listAvailableLayers(depths[li]);
-          next[`${target}-${li}`] = peelLevelForTarget(layers, focusRequest.peelTo);
-        }
-        return next;
+      startTransition(() => {
+        setPeelLevels((prev) => {
+          const next = { ...prev };
+          const seg = segments[target];
+          const depths = Array.isArray(seg.depth) ? seg.depth : [];
+          const lineIndexes =
+            typeof focusRequest.lineIndex === 'number'
+              ? [focusRequest.lineIndex]
+              : seg.lines.map((_, i) => i);
+          for (const li of lineIndexes) {
+            const layers = listAvailableLayers(depths[li]);
+            next[`${target}-${li}`] = peelLevelForTarget(layers, focusRequest.peelTo);
+          }
+          return next;
+        });
       });
     }
 
-    const reduce =
-      typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setExtrasReady(true);
     const run = () => {
       const el = document.querySelector(`[data-asura-age-seg-index="${target}"]`) as HTMLElement | null;
       if (!el) return;
-      el.scrollIntoView({ block: 'start', inline: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+      el.scrollIntoView({ block: 'start', inline: 'nearest', behavior: asuraScrollBehavior() });
     };
-    window.setTimeout(run, reduce ? 0 : 40);
+    window.setTimeout(run, asuraScrollBehavior() === 'auto' ? 0 : 40);
   }, [focusRequest, segments]);
 
   if (!view || !segments || segments.length === 0) return null;
@@ -183,19 +219,21 @@ export function AsuraAgeTimeline({
 
   const openSegment = (index: number) => {
     if (index < 0 || index >= segments.length) return;
+    if (!extrasReady) setExtrasReady(true);
     setOpenedIndex(index);
     setVisited((prev) => (prev[index] ? prev : { ...prev, [index]: true }));
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const el = document.querySelector(`[data-asura-age-seg-index="${index}"]`) as HTMLElement | null;
-    if (el) el.scrollIntoView({ block: 'start', inline: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+    if (el) el.scrollIntoView({ block: 'start', inline: 'nearest', behavior: asuraScrollBehavior() });
   };
 
   const peelOnce = (segIndex: number, lineIndex: number, max: number) => {
     const key = `${segIndex}-${lineIndex}`;
-    setPeelLevels((prev) => {
-      const cur = prev[key] ?? 0;
-      if (cur >= max) return prev;
-      return { ...prev, [key]: cur + 1 };
+    startTransition(() => {
+      setPeelLevels((prev) => {
+        const cur = prev[key] ?? 0;
+        if (cur >= max) return prev;
+        return { ...prev, [key]: cur + 1 };
+      });
     });
   };
 
@@ -236,6 +274,11 @@ export function AsuraAgeTimeline({
                   aria-current={seg.isCurrent ? 'step' : undefined}
                   onClick={() => openSegment(i)}
                 />
+                {seg.ageLabel ? (
+                  <span className={styles.progressAge} aria-hidden="true">
+                    {seg.ageLabel}
+                  </span>
+                ) : null}
               </li>
             );
           })}
@@ -258,6 +301,36 @@ export function AsuraAgeTimeline({
           const bridgeText =
             typeof segment.bridge === 'string' ? segment.bridge.trim() : '';
           const isLast = index === segments.length - 1;
+          const mountFullSegment = extrasReady || index === currentIndex || index === openedIndex;
+
+          if (!mountFullSegment) {
+            return (
+              <Fragment key={key}>
+                <article
+                  id={`asura-age-seg-${index}`}
+                  className={segmentClass}
+                  data-asura-age-segment={segment.tense}
+                  data-asura-age-seg-index={index}
+                  data-current={segment.isCurrent ? 'true' : undefined}
+                  data-asura-deferred="true"
+                >
+                  <button
+                    type="button"
+                    className={styles.collapsedHit}
+                    onClick={() => openSegment(index)}
+                    aria-expanded={false}
+                    aria-label={segment.ageLabel + "・" + segment.tense}
+                  >
+                    <span className={styles.lineSurface}>{segment.lines[0] ?? segment.ageLabel}</span>
+                    <span className={styles.collapsedMeta}>
+                      <span className={styles.ageLabel}>{segment.ageLabel}</span>
+                      <span className={styles.tense}>{segment.tense}</span>
+                    </span>
+                  </button>
+                </article>
+              </Fragment>
+            );
+          }
 
           return (
             <Fragment key={key}>

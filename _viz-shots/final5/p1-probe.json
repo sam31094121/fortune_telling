@@ -1,0 +1,61 @@
+{
+  "media": true,
+  "decree": {
+    "w": 364,
+    "h": 1054,
+    "op": 0,
+    "txt": "千人千面戰神令\n\n52 歲\n\n34–43\n歲\n走過\n你虛歲 34–43・走過的路\n\n虛歲34起，這段有場傷心事，我陪你哭完再站起來\n\n【戰意開場】\n\n你腳下這片地，不是今日才踏上的。早年一步一步走實的路，就是你的根基，站得穩。\n\n44–53"
+  },
+  "cards": [
+    {
+      "key": "opening",
+      "w": 340,
+      "h": 232,
+      "op": 0,
+      "ownOp": "1",
+      "txt": "34–43\n歲\n走過\n你虛歲 34–43・走過的路\n\n虛歲34起，這段有場傷心事，我陪你哭完再站起來\n\n【戰意開場】\n\n你腳下這片地，不是今日才踏上的。早年一步",
+      "cls": "GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardPast__H"
+    },
+    {
+      "key": "sandbox",
+      "w": 340,
+      "h": 232,
+      "op": 0,
+      "ownOp": "1",
+      "txt": "44–53\n歲\n現在\n你今年虛歲 53・就在這段\n\n虛歲44起，身體在喊停，我要你先停，再打下一仗\n\n【沙盤直斷】\n\n你手上這股勁剛冒頭，刀還沒開鋒。還嫩，但已",
+      "cls": "GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardCurrent"
+    },
+    {
+      "key": "tactics",
+      "w": 340,
+      "h": 232,
+      "op": 0,
+      "ownOp": "1",
+      "txt": "44–53\n歲\n現在就做\n你今年虛歲 53・現在就做\n\n今天就做這一件：這陣子給自己排一天休息，身體不對勁就去看醫生\n\n【戰術號令】\n\n你懂的、練過的，就是你的",
+      "cls": "GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardCurrent"
+    },
+    {
+      "key": "closing",
+      "w": 340,
+      "h": 213,
+      "op": 0,
+      "ownOp": "1",
+      "txt": "54–63\n歲\n下一段\n你虛歲 54 起・下一段\n\n虛歲54起，舊路我替你斷了，新路從你腳下開始\n\n【修羅戰令】\n\n前方鼓聲已響，時快時慢。跟著鼓點走，節奏握在",
+      "cls": "GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardFuture_"
+    }
+  ],
+  "guide": {
+    "tag": "DIV",
+    "op": 0,
+    "txt": "你現在在這段，往下看 · 約虛歲 44–53\n\n你今年虛歲 53（實歲 52）。\n\n約虛歲 4–13\n約虛歲 14–23\n約虛歲 24–33\n約虛歲 34–43\n約虛歲 44–53\n約虛歲 54–63",
+    "cls": "AsuraAgeTimeline_hereBar__6dBcp AsuraAgeTimeline_motion_motionEntranceGuide__0LCYD"
+  },
+  "ages": [
+    "約虛歲 4–13",
+    "約虛歲 14–23",
+    "約虛歲 24–33",
+    "約虛歲 34–43",
+    "約虛歲 44–53",
+    "約虛歲 54–63"
+  ]
+}

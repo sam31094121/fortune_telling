@@ -1,4 +1,4 @@
-﻿/* AsuraAgeTimeline.motion.module.css
+/* AsuraAgeTimeline.motion.module.css
  * Motion owner only. Class names must stay stable for TSX wiring.
  * Rhythm aligned to asuraImpressionGlow: 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)
  * stagger 100ms (lib/ghost-asura-animation.ts impressionGlow.staggerDelay)
@@ -476,10 +476,96 @@
   .motionEntranceCurrentMark,
   .motionRoot [data-asura-age-here],
   .motionRoot [data-asura-age-viewer],
-  .motionRoot .motionSegmentCurrent [data-asura-age-peel-hint] {
+  .motionRoot .motionSegmentCurrent [data-asura-age-peel-hint],
+  .motionRoot .motionSegment,
+  .motionRoot .motionSegmentCurrent,
+  .motionRoot .motionSegment:nth-child(n),
+  .motionRoot .motionSegment.motionSegmentCurrent:nth-child(n),
+  .motionRoot .motionBridge,
+  .motionRoot .motionLine,
+  .motionRoot .motionPeel,
+  .motionRoot .motionPeelLayer {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    animation-delay: 0s !important;
+    transition: none !important;
+  }
+}
+
+/* P1 FAIL#1 end-of-file guard: entrance rules must not leave opacity 0 under reduce */
+@media (prefers-reduced-motion: reduce) {
+  .motionRoot,
+  .motionRoot * {
+    animation-delay: 0s !important;
+  }
+  .motionSegment,
+  .motionSegmentCurrent,
+  .motionBridge,
+  .motionLine,
+  .motionPeel,
+  .motionPeelLayer,
+  .motionEntranceStage,
+  .motionEntranceGuide,
+  .motionEntranceViewer,
+  .motionEntranceCurrentMark {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+/* === FLICKER 2026-11-06 phase2 (Grok) — mobile entrance settle; peel opacity/transform only === */
+@media (max-width: 420px) {
+  .motionRoot {
+    --asura-age-dur: 0.22s;
+    --asura-age-ease: ease-out;
+    --asura-age-rise: 4px;
+    --asura-entrance-dur: 0.01s;
+    --asura-entrance-stagger: 0ms;
+    --asura-entrance-rise: 0px;
+  }
+  .motionEntranceStage,
+  .motionEntranceGuide,
+  .motionEntranceViewer,
+  .motionEntranceCurrentMark,
+  .motionEntranceCurrentCard {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .motionSegment,
+  .motionSegmentCurrent {
+    animation-duration: 0.22s !important;
+  }
+}
+@keyframes asuraAgePeelExpand {
+  0% { opacity: 0.96; transform: translateY(2px); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes asuraAgePeelLayerIn {
+  0% { opacity: 0.85; transform: translateY(4px); }
+  100% { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .motionEntranceStage,
+  .motionEntranceGuide,
+  .motionEntranceViewer,
+  .motionEntranceCurrentMark,
+  .motionEntranceCurrentCard,
+  .motionRoot [data-asura-age-here],
+  .motionRoot [data-asura-age-viewer],
+  .motionRoot .motionSegment,
+  .motionRoot .motionSegmentCurrent,
+  .motionRoot .motionBridge,
+  .motionRoot .motionLine,
+  .motionRoot .motionPeel,
+  .motionRoot .motionPeelLayer {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;
     transition: none !important;
+    filter: none !important;
   }
 }

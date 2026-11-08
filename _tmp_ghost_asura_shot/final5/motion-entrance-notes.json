@@ -1,0 +1,33 @@
+﻿{
+    "sequence":  [
+                     "guide/hereBar @0ms",
+                     "viewerLine @~100ms",
+                     "現在 seal @~300ms",
+                     "cards/segments @~450-500ms+"
+                 ],
+    "filesChanged":  [
+                         "features/ghost-asura/components/GhostAsuraCard.visual.module.css",
+                         "features/ghost-asura/components/AsuraAgeTimeline.motion.module.css"
+                     ],
+    "backup":  "C:\\tmp\\asura-entrance-backup\\20261106-153534\\",
+    "afterNote":  "Settled end-state after ~2.8s. Live hooks via motionRoot/visualRoot + data-asura-age-here|viewer|peel-hint and visualViewerChip/visualMarkSealCurrent already apply without new TSX. Named entrance* / motionEntrance* classes still need FE wiring for PresentGuide strip / explicit stage flag.",
+    "fixture":  "民國63/6/28 男性 酉時 → viewerLine 你今年52歲; marks 走過/現在/現在就做/下一段",
+    "task":  "前三秒入場節奏",
+    "noCommit":  true,
+    "overflowX390":  false,
+    "newClassNames":  {
+                          "visual":  [
+                                         "entranceStage",
+                                         "entranceGuide",
+                                         "entranceViewerLine",
+                                         "entranceCurrentSeal",
+                                         "entranceCurrentCard"
+                                     ],
+                          "motion":  [
+                                         "motionEntranceStage",
+                                         "motionEntranceGuide",
+                                         "motionEntranceViewer",
+                                         "motionEntranceCurrentMark"
+                                     ]
+                      }
+}

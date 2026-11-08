@@ -229,8 +229,8 @@ export interface AsuraDisplay {
    */
   decreeAnchors?: AsuraDecreeAnchor[] | null;
   /**
-   * 置頂摘要（新增欄位，只增不改；舊資料無此欄＝不畫）：一句個人定位，例「你今年 52 歲，正走在 44–53 歲這段」；
-   * 有姓名時前綴「{姓名}，」。由 viewer 實歲＋現在段起訖歲組成；無實歲＝null。前端只照印。
+   * 置頂摘要（新增欄位，只增不改；舊資料無此欄＝不畫）：例「你今年虛歲 53（實歲 52），這段今年收尾」；大限與剩餘年皆以虛歲計，實歲僅對照。
+   * 有姓名時前綴「{姓名}，」。無實歲＝null。前端只照印。
    */
   pinnedSummary?: string | null;
   /**
@@ -313,8 +313,8 @@ export interface AsuraAgeTimelineSegment {
 export interface AsuraAgeTimelineOpening {
   /**
    * 位置句（後端代入客人資料）：
-   * 過去「你 34–43 歲走過這段，落在家門。」；現在「{姓名，}你今年虛歲 53，正走在這段，落在戰功；今年是這段最後一年。」；
-   * 未來「再過 1 年，你 54 歲進這段，落在身邊人馬。」
+   * 過去「你 34–43 歲走過這段，落在家門。」；現在「{姓名，}今年是這段最後一年，收尾要穩。」（不落領域詞）；
+   * 未來「再過 1 年，你 54 歲進這段，落在身邊的人。」
    */
   text: string;
   /** 段落標題：「{起歲} 歲起，」＋我→你白話整句（不含白話領域），≤26 字。例「44 歲起，身體在喊停，我要你先停，再打下一仗」 */
@@ -384,8 +384,8 @@ export interface AsuraAgeTimeline {
   /** 導覽文字 */
   guide: AsuraAgeTimelineGuide;
   /**
-   * 客人本人一句（後端代入，放在「你現在在這段」列下）：例「你今年 52 歲（虛歲 53），正走在 44–53 歲這段。」；
-   * 有姓名時前綴「{姓名}，」。無現在段＝只報年齡。
+   * 客人本人一句（後端代入）：例「你今年虛歲 53（實歲 52）。」；不重複大限 A–B（歲距／剩餘年見 pinnedSummary，皆虛歲制）。
+   * 有姓名時前綴「{姓名}，」。
    */
   viewerLine: string;
   segments: AsuraAgeTimelineSegment[];

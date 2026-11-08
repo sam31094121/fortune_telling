@@ -1,0 +1,55 @@
+{
+  "overflowX": false,
+  "docSW": 1280,
+  "cardEffOp": 1,
+  "labels": [
+    {
+      "text": "你虛歲 34–43・走過的路",
+      "fontSize": "13px",
+      "opacity": "1"
+    },
+    {
+      "text": "你今年虛歲 53・就在這段",
+      "fontSize": "13px",
+      "opacity": "1"
+    },
+    {
+      "text": "你今年虛歲 53・現在就做",
+      "fontSize": "13px",
+      "opacity": "1"
+    },
+    {
+      "text": "你虛歲 54 起・下一段",
+      "fontSize": "13px",
+      "opacity": "1"
+    }
+  ],
+  "dots": [
+    {
+      "aria": "約虛歲 4–13・過去",
+      "ageText": "約虛歲 4–13"
+    },
+    {
+      "aria": "約虛歲 14–23・過去",
+      "ageText": "約虛歲 14–23"
+    },
+    {
+      "aria": "約虛歲 24–33・過去",
+      "ageText": "約虛歲 24–33"
+    },
+    {
+      "aria": "約虛歲 34–43・過去",
+      "ageText": "約虛歲 34–43"
+    },
+    {
+      "aria": "約虛歲 44–53・現在",
+      "ageText": "約虛歲 44–53"
+    },
+    {
+      "aria": "約虛歲 54–63・未來",
+      "ageText": "約虛歲 54–63"
+    }
+  ],
+  "cardBoxShadow": "rgba(252, 234, 134, 0.55) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.32) 6px 10px 22px 0px",
+  "cardBorder": "1px solid rgba(248, 199, 88, 0.48)"
+}

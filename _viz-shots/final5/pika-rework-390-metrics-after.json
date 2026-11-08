@@ -1,0 +1,25 @@
+{
+  "pinnedText": "你今年虛歲 53（實歲 52），這段今年收尾",
+  "pinnedPos": "relative",
+  "segCount": 6,
+  "hitOk": true,
+  "overlap": {
+    "ox": 318,
+    "oy": 0,
+    "area": 0,
+    "pinnedPos": "relative",
+    "pinnedZ": "1"
+  },
+  "ageSample": {
+    "color": "rgb(255, 225, 74)",
+    "bg": "linear-gradient(rgb(255, 248, 208) 0%, rgb(255, 225, 74) 48%, rgb(240, 180, 0) 100%)",
+    "fill": "rgba(0, 0, 0, 0)"
+  },
+  "sealSample": {
+    "color": "rgb(230, 245, 184)",
+    "bg": "none",
+    "fill": "rgb(230, 245, 184)"
+  },
+  "currentSegBg": "linear-gradient(155deg, rgba(255, 248, 208, 0.34) 0%, rgba(255, 225, 74, 0.14) 22%, rgba(0, 0, 0, 0) 52%), radial-gradie",
+  "vw": 390
+}

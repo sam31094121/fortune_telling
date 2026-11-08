@@ -241,19 +241,6 @@ function logZodiacJob(jobId: string, step: string, detail?: Record<string, unkno
   console.info('[ZODIAC]' + '[' + step + ']', { jobId, ...(detail ?? {}) });
 }
 
-function buildZodiacDebugPrompt(input: { name: string; birthDate: string; birthTime: string | null; birthCityId: string | null }, bloodType: BloodType, analysisTarget: unknown) {
-  const target = analysisTarget === 'self' ? 'SELF' : analysisTarget === 'guest' ? 'OTHER' : 'UNKNOWN';
-  return [
-    '易經西洋星座分析 Prompt',
-    `分析模式：${target}`,
-    `出生日期：${input.birthDate}`,
-    `出生時間：${input.birthTime ?? '未提供'}`,
-    `出生城市：${input.birthCityId ?? '未提供'}`,
-    `血型：${bloodType || '未提供'}`,
-    '任務：判定太陽星座；若有出生時間則加入月亮與上升星座；最後交由五元素與 Integration Layer 整合。',
-  ].join('\n');
-}
-
 async function runZodiacJob(job: AnalysisJob, inputData: unknown) {
   logZodiacJob(job.jobId, 'START', { moduleId: job.moduleId, analysisType: job.analysisType });
   updateAnalysisJob(job.jobId, { status: 'VALIDATING', progressStage: 'VALIDATING_INPUT', progressPercent: 12, message: ANALYSIS_MODULES.ZODIAC.loadingCopy.validating });
@@ -276,9 +263,6 @@ async function runZodiacJob(job: AnalysisJob, inputData: unknown) {
 
   if (!isValidBirthday(input.birthDate)) throw new Error('請提供有效生日。');
   logZodiacJob(job.jobId, 'BLOOD_TYPE', { bloodType: bloodType || 'NONE' });
-  const aiPrompt = buildZodiacDebugPrompt(input, bloodType, inputData.analysisTarget);
-  if (!aiPrompt.trim()) throw new Error('西洋星座 易經 Prompt 建立失敗。');
-  logZodiacJob(job.jobId, 'PROMPT_READY', { promptLength: aiPrompt.length });
 
   updateAnalysisJob(job.jobId, { status: 'PROCESSING', progressStage: 'RUNNING_ENGINE', progressPercent: 45, message: ANALYSIS_MODULES.ZODIAC.loadingCopy.processing });
   logZodiacJob(job.jobId, 'ENGINE_START', { birthDate: input.birthDate, hasBirthTime: Boolean(input.birthTime), birthCityId: input.birthCityId });

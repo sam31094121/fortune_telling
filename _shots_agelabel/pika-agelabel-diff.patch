@@ -1,0 +1,953 @@
+﻿diff --git a/features/ghost-asura/components/AsuraAgeTimeline.module.css b/features/ghost-asura/components/AsuraAgeTimeline.module.css
+index c8037c2..9044d18 100644
+--- a/features/ghost-asura/components/AsuraAgeTimeline.module.css
++++ b/features/ghost-asura/components/AsuraAgeTimeline.module.css
+@@ -1,22 +1,33 @@
+ /* AsuraAgeTimeline ??static visuals only.
+    Motion/entrance lives in AsuraAgeTimeline.motion.module.css (separate owner).
+-   Palette aligned with GhostAsuraCard.timelineDecreeCard / asura gold tokens. */
++   Palette = Pikachu ex 276/217 original (SKILL guide 禮0 + binding). Retired crimson-gold. */
+ 
+ .root {
+-  --gold: #c9a45c;
+-  --gold-hi: #e6c886;
+-  --gold-bright: #fcea86;
+-  --gold-line: rgba(248, 199, 88, 0.4);
+-  --gold-line-soft: rgba(248, 199, 88, 0.22);
+-  --gold-glow: rgba(248, 199, 88, 0.28);
+-  --ink: #0d0b0a;
+-  --panel: #1e1d1a;
+-  --panel-deep: #141210;
+-  --text: #e4ddc9;
+-  --text-muted: #b8ae96;
+-  --rail: rgba(201, 164, 92, 0.55);
+-  --node: #c9a45c;
+-  --node-core: #fcea86;
++  /* Pikachu ex 276/217 original palette (SKILL 禮0 + binding) ??retired crimson-gold */
++  --gold: #7CB342;            /* grass mid ??kept name for cascade; value = green */
++  --gold-hi: #C5E063;         /* pale yellow-green mist highlight */
++  --gold-bright: #FFE14A;     /* saturated lemon yellow ??primary accent */
++  --gold-line: rgba(124, 179, 66, 0.45);
++  --gold-line-soft: rgba(124, 179, 66, 0.22);
++  --gold-glow: rgba(255, 225, 74, 0.28);
++  --ink: #0A1608;             /* near-black deep green */
++  --panel: #152218;           /* moss-dark panel */
++  --panel-deep: #0C140A;      /* deeper green vignette */
++  --text: #E8F0D8;            /* readable pale yellow-green */
++  --text-muted: #A8B890;
++  --rail: rgba(107, 158, 61, 0.55);
++  --node: #6B9E3D;
++  --node-core: #FFE14A;
++  --lemon: #FFE14A;
++  --lemon-hi: #FFF6C8;
++  --lemon-shade: #E6A817;
++  --mist: #D4E8B0;
++  --grass: #6B9E3D;
++  --moss: #4A7A2E;
++  --deep: #0F1F0C;
++  --cheek: #E85D4C;
++  --warm-brown: #6B4423;
++  --sky: #8A9BC8;
+ 
+   box-sizing: border-box;
+   width: 100%;
+@@ -25,13 +36,14 @@
+   border: 1px solid var(--gold-line);
+   border-radius: 12px;
+   background:
+-    radial-gradient(120% 80% at 50% 0%, rgba(248, 199, 88, 0.10), transparent 55%),
+-    radial-gradient(90% 70% at 100% 100%, rgba(139, 30, 30, 0.12), transparent 50%),
+-    linear-gradient(165deg, #242018 0%, var(--panel) 42%, var(--panel-deep) 100%);
++    radial-gradient(120% 80% at 18% 0%, rgba(255, 246, 200, 0.18), transparent 50%),
++    radial-gradient(90% 70% at 100% 100%, rgba(15, 31, 12, 0.55), transparent 55%),
++    radial-gradient(70% 50% at 50% 100%, rgba(74, 122, 46, 0.18), transparent 60%),
++    linear-gradient(165deg, #1A2E14 0%, var(--panel) 42%, var(--panel-deep) 100%);
+   box-shadow:
+     0 8px 22px rgba(0, 0, 0, 0.28),
+-    inset 0 1px 0 rgba(230, 200, 134, 0.08),
+-    inset 0 0 28px rgba(248, 199, 88, 0.04);
++    inset 0 1px 0 rgba(255, 246, 200, 0.14),
++    inset 0 0 28px rgba(107, 158, 61, 0.06);
+   color: var(--text);
+   overflow: hidden;
+ }
+@@ -45,7 +57,7 @@
+   font-weight: 700;
+   line-height: 1.4;
+   letter-spacing: 0.08em;
+-  text-shadow: 0 0 18px rgba(248, 199, 88, 0.22);
++  text-shadow: 0 1px 0 rgba(10, 22, 8, 0.55), 0 0 14px rgba(255, 225, 74, 0.18);
+ }
+ 
+ /* Vertical timeline rail */
+@@ -72,7 +84,7 @@
+     var(--rail) 92%,
+     transparent 100%
+   );
+-  box-shadow: 0 0 8px rgba(248, 199, 88, 0.18);
++  box-shadow: 0 0 8px rgba(107, 158, 61, 0.22);
+   pointer-events: none;
+ }
+ 
+@@ -83,7 +95,8 @@
+   border: 1px solid var(--gold-line-soft);
+   border-radius: 10px;
+   background:
+-    linear-gradient(160deg, rgba(36, 32, 24, 0.92), rgba(22, 20, 18, 0.96));
++    linear-gradient(165deg, rgba(212, 232, 176, 0.06) 0%, transparent 42%),
++    linear-gradient(160deg, rgba(26, 46, 20, 0.94), rgba(12, 20, 10, 0.97));
+   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+   min-width: 0;
+ }
+@@ -99,33 +112,31 @@
+   border-radius: 50%;
+   border: 1.5px solid var(--node);
+   background:
+-    radial-gradient(circle at 40% 35%, rgba(252, 234, 134, 0.85), var(--node) 55%, #6a4e1c 100%);
++    radial-gradient(circle at 40% 35%, rgba(255, 246, 200, 0.95), var(--node) 55%, #2A4A18 100%);
+   box-shadow:
+-    0 0 0 3px rgba(14, 12, 10, 0.9),
++    0 0 0 3px rgba(10, 22, 8, 0.92),
+     0 0 10px var(--gold-glow);
+   z-index: 1;
+ }
+ 
+ .segmentCurrent {
+-  border-color: rgba(248, 199, 88, 0.72);
++  border-color: rgba(255, 225, 74, 0.72);
+   background:
+-    radial-gradient(120% 90% at 0% 0%, rgba(248, 199, 88, 0.14), transparent 55%),
+-    linear-gradient(160deg, rgba(48, 40, 22, 0.96), rgba(28, 24, 18, 0.98));
++    radial-gradient(120% 90% at 0% 0%, rgba(255, 246, 200, 0.22), transparent 55%),
++    linear-gradient(160deg, rgba(42, 70, 28, 0.96), rgba(18, 32, 14, 0.98));
+   box-shadow:
+-    0 0 0 1px rgba(248, 199, 88, 0.18),
+-    0 8px 22px rgba(0, 0, 0, 0.32),
+-    0 0 24px rgba(248, 199, 88, 0.16),
+-    inset 0 1px 0 rgba(252, 234, 134, 0.12);
++    0 0 0 1px rgba(107, 158, 61, 0.22),
++    6px 10px 22px rgba(10, 22, 8, 0.45),
++    inset 0 1px 0 rgba(255, 246, 200, 0.28);
+ }
+ 
+ .segmentCurrent::before {
+   border-color: var(--gold-bright);
+   background:
+-    radial-gradient(circle at 40% 35%, #fff6c8, var(--gold-bright) 45%, #c9a45c 100%);
++    radial-gradient(circle at 40% 35%, #FFF6C8, var(--gold-bright) 45%, #6B9E3D 100%);
+   box-shadow:
+-    0 0 0 3px rgba(14, 12, 10, 0.95),
+-    0 0 14px rgba(252, 234, 134, 0.55),
+-    0 0 22px rgba(248, 199, 88, 0.35);
++    0 0 0 3px rgba(10, 22, 8, 0.95),
++    0 2px 10px rgba(255, 225, 74, 0.35);
+   width: 13px;
+   height: 13px;
+   left: -20px;
+@@ -139,16 +150,16 @@
+   gap: 8px 12px;
+   margin: 0 0 10px;
+   padding-bottom: 8px;
+-  border-bottom: 1px solid rgba(248, 199, 88, 0.16);
++  border-bottom: 1px solid rgba(255, 225, 74, 0.16);
+ }
+ 
+ .tense {
+   display: inline-flex;
+   align-items: center;
+   padding: 2px 10px;
+-  border: 1px solid rgba(248, 199, 88, 0.45);
++  border: 1px solid rgba(255, 225, 74, 0.45);
+   border-radius: 999px;
+-  background: rgba(248, 199, 88, 0.08);
++  background: rgba(255, 225, 74, 0.10);
+   color: var(--gold-bright);
+   font-size: 12px;
+   font-weight: 700;
+@@ -157,9 +168,9 @@
+ }
+ 
+ .segmentCurrent .tense {
+-  border-color: rgba(252, 234, 134, 0.75);
+-  background: rgba(248, 199, 88, 0.16);
+-  box-shadow: 0 0 12px rgba(248, 199, 88, 0.22);
++  border-color: rgba(255, 225, 74, 0.78);
++  background: rgba(255, 225, 74, 0.16);
++  box-shadow: 0 2px 8px rgba(255, 225, 74, 0.18);
+ }
+ 
+ .ageLabel {
+@@ -171,7 +182,7 @@
+ }
+ 
+ .segmentCurrent .ageLabel {
+-  color: #efddb5;
++  color: #E8F0D8;
+ }
+ 
+ .lines {
+@@ -200,7 +211,7 @@
+   width: 5px;
+   height: 1px;
+   background: var(--gold-line);
+-  box-shadow: 0 0 4px rgba(248, 199, 88, 0.25);
++  box-shadow: 0 1px 4px rgba(107, 158, 61, 0.28);
+ }
+ 
+ /* Desktop: a touch more breathing room; still one vertical track */
+@@ -294,7 +305,7 @@
+   padding: 10px 12px;
+   border: 1px solid var(--gold-line-soft);
+   border-radius: 10px;
+-  background: rgba(248, 199, 88, 0.05);
++  background: rgba(124, 179, 66, 0.06);
+ }
+ 
+ .hereText {
+@@ -312,7 +323,7 @@
+ }
+ 
+ .hereAge {
+-  color: #efddb5;
++  color: #E8F0D8;
+   font-weight: 700;
+ }
+ 
+@@ -329,6 +340,37 @@
+ .progressItem {
+   margin: 0;
+   padding: 0;
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  gap: 4px;
++  min-width: 0;
++  /* AGELABEL 2026-11-06: widen so full ageLabel shows (was 3.6em ?????艾? */
++  flex: 1 1 0;
++  max-width: 5.8em;
++}
++
++.progressAge {
++  display: block;
++  max-width: 100%;
++  min-width: 0;
++  color: var(--text-muted);
++  font-size: 9px;
++  font-weight: 600;
++  line-height: 1.25;
++  letter-spacing: 0.01em;
++  text-align: center;
++  white-space: normal;
++  overflow: visible;
++  text-overflow: clip;
++  overflow-wrap: anywhere;
++  word-break: break-word;
++  font-variant-numeric: tabular-nums;
++}
++
++.progressItem:has(.dotCurrent) .progressAge {
++  color: #E8F0D8;
++  font-weight: 700;
+ }
+ 
+ .progressDot {
+@@ -336,9 +378,9 @@
+   width: 8px;
+   height: 8px;
+   padding: 0;
+-  border: 1px solid rgba(248, 199, 88, 0.35);
++  border: 1px solid rgba(124, 179, 66, 0.38);
+   border-radius: 50%;
+-  background: rgba(20, 18, 16, 0.9);
++  background: rgba(12, 20, 10, 0.92);
+   cursor: pointer;
+   -webkit-tap-highlight-color: transparent;
+ }
+@@ -349,22 +391,22 @@
+ 
+ .dotVisited {
+   opacity: 0.85;
+-  background: rgba(201, 164, 92, 0.55);
+-  border-color: rgba(248, 199, 88, 0.55);
+-  box-shadow: 0 0 6px rgba(248, 199, 88, 0.18);
++  background: rgba(107, 158, 61, 0.55);
++  border-color: rgba(124, 179, 66, 0.55);
++  box-shadow: 0 1px 4px rgba(107, 158, 61, 0.25);
+ }
+ 
+ .dotCurrent {
+   opacity: 1;
+   width: 10px;
+   height: 10px;
+-  background: radial-gradient(circle at 40% 35%, #fff6c8, #fcea86 45%, #c9a45c 100%);
+-  border-color: #fcea86;
+-  box-shadow: 0 0 10px rgba(252, 234, 134, 0.45);
++  background: radial-gradient(circle at 40% 35%, #FFF6C8, #FFE14A 45%, #6B9E3D 100%);
++  border-color: #FFE14A;
++  box-shadow: 0 2px 8px rgba(255, 225, 74, 0.32);
+ }
+ 
+ .segmentOpened {
+-  outline: 1px solid rgba(248, 199, 88, 0.35);
++  outline: 1px solid rgba(124, 179, 66, 0.38);
+ }
+ 
+ .hereTag {
+@@ -372,9 +414,9 @@
+   align-items: center;
+   margin-left: auto;
+   padding: 2px 8px;
+-  border: 1px solid rgba(252, 234, 134, 0.55);
++  border: 1px solid rgba(255, 225, 74, 0.55);
+   border-radius: 999px;
+-  background: rgba(248, 199, 88, 0.14);
++  background: rgba(255, 225, 74, 0.14);
+   color: var(--gold-bright);
+   font-size: 11px;
+   font-weight: 700;
+@@ -385,9 +427,9 @@
+ .opening {
+   margin: 0 0 10px;
+   padding: 8px 10px;
+-  border-left: 2px solid rgba(248, 199, 88, 0.55);
+-  background: rgba(248, 199, 88, 0.06);
+-  color: #efddb5;
++  border-left: 2px solid rgba(124, 179, 66, 0.55);
++  background: rgba(124, 179, 66, 0.08);
++  color: #E8F0D8;
+   font-size: 13px;
+   font-weight: 600;
+   line-height: 1.7;
+@@ -401,9 +443,9 @@
+ .peelLayer {
+   margin: 8px 0 0;
+   padding: 8px 10px;
+-  border: 1px solid rgba(248, 199, 88, 0.18);
++  border: 1px solid rgba(124, 179, 66, 0.22);
+   border-radius: 8px;
+-  background: rgba(14, 12, 10, 0.55);
++  background: rgba(10, 22, 8, 0.6);
+ }
+ 
+ .peelText {
+@@ -455,9 +497,9 @@
+   display: inline-flex;
+   align-items: center;
+   padding: 3px 10px;
+-  border: 1px solid rgba(248, 199, 88, 0.4);
++  border: 1px solid rgba(124, 179, 66, 0.42);
+   border-radius: 999px;
+-  background: rgba(248, 199, 88, 0.08);
++  background: rgba(255, 225, 74, 0.10);
+   color: var(--gold-hi);
+   font-size: 11px;
+   font-weight: 700;
+@@ -469,9 +511,9 @@
+ 
+ .peelButtonCurrent {
+   border-color: rgba(252, 234, 134, 0.7);
+-  background: rgba(248, 199, 88, 0.16);
++  background: rgba(255, 225, 74, 0.16);
+   color: var(--gold-bright);
+-  box-shadow: 0 0 10px rgba(248, 199, 88, 0.2);
++  box-shadow: 0 2px 8px rgba(255, 225, 74, 0.16);
+ }
+ 
+ .segNav {
+@@ -480,7 +522,7 @@
+   gap: 12px;
+   margin: 12px 0 0;
+   padding-top: 10px;
+-  border-top: 1px solid rgba(248, 199, 88, 0.14);
++  border-top: 1px solid rgba(255, 225, 74, 0.14);
+ }
+ 
+ .segNavLink {
+@@ -538,7 +580,7 @@
+   font-weight: 800;
+   line-height: 1.45;
+   letter-spacing: 0.06em;
+-  text-shadow: 0 0 18px rgba(248, 199, 88, 0.28);
++  text-shadow: 0 1px 0 rgba(10, 22, 8, 0.55), 0 0 14px rgba(255, 225, 74, 0.22);
+ }
+ 
+ .collapsedHit {
+@@ -583,7 +625,7 @@
+   margin: 2px 0 2px;
+   padding: 6px 10px 6px 14px;
+   border: 0;
+-  border-left: 2px solid rgba(248, 199, 88, 0.28);
++  border-left: 2px solid rgba(107, 158, 61, 0.28);
+   color: var(--text-muted);
+   font-size: 12px;
+   font-weight: 500;
+@@ -594,9 +636,9 @@
+ .endLine {
+   margin: 8px 0 0;
+   padding: 10px 12px;
+-  border: 1px solid rgba(248, 199, 88, 0.22);
++  border: 1px solid rgba(124, 179, 66, 0.25);
+   border-radius: 8px;
+-  background: rgba(248, 199, 88, 0.05);
++  background: rgba(124, 179, 66, 0.06);
+   color: var(--gold-hi);
+   font-size: 12px;
+   font-weight: 600;
+@@ -628,7 +670,7 @@
+   font-weight: 800;
+   line-height: 1.4;
+   letter-spacing: 0.07em;
+-  text-shadow: 0 0 20px rgba(248, 199, 88, 0.3);
++  text-shadow: 0 1px 0 rgba(10, 22, 8, 0.55), 0 0 16px rgba(255, 225, 74, 0.22);
+ }
+ 
+ .headlineText {
+@@ -639,16 +681,16 @@
+ .headlinePremium {
+   margin-bottom: 14px;
+   padding: 10px 12px;
+-  border: 1px solid rgba(252, 234, 134, 0.55);
++  border: 1px solid rgba(255, 225, 74, 0.55);
+   border-radius: 10px;
+   background:
+-    radial-gradient(120% 90% at 0% 0%, rgba(252, 234, 134, 0.16), transparent 55%),
+-    linear-gradient(160deg, rgba(52, 42, 20, 0.95), rgba(24, 20, 14, 0.98));
++    radial-gradient(120% 90% at 0% 0%, rgba(255, 246, 200, 0.18), transparent 55%),
++    linear-gradient(160deg, rgba(42, 70, 28, 0.95), rgba(12, 20, 10, 0.98));
+   box-shadow:
+-    0 0 0 1px rgba(248, 199, 88, 0.12),
++    0 0 0 1px rgba(107, 158, 61, 0.18),
+     0 8px 20px rgba(0, 0, 0, 0.28),
+-    inset 0 1px 0 rgba(252, 234, 134, 0.14);
+-  text-shadow: 0 0 22px rgba(252, 234, 134, 0.38);
++    inset 0 1px 0 rgba(255, 246, 200, 0.16);
++  text-shadow: 0 1px 0 rgba(10, 22, 8, 0.5), 0 0 16px rgba(255, 225, 74, 0.28);
+ }
+ 
+ .premiumSeal {
+@@ -659,15 +701,15 @@
+   width: 22px;
+   height: 22px;
+   margin-top: 1px;
+-  border: 1.5px solid rgba(252, 234, 134, 0.85);
++  border: 1.5px solid rgba(255, 225, 74, 0.9);
+   border-radius: 4px;
+-  background: rgba(139, 30, 30, 0.55);
+-  color: #fff6c8;
++  background: rgba(232, 93, 76, 0.78);
++  color: #FFF6C8;
+   font-size: 12px;
+   font-weight: 800;
+   letter-spacing: 0;
+   line-height: 1;
+-  box-shadow: 0 0 10px rgba(248, 199, 88, 0.35);
++  box-shadow: 0 2px 8px rgba(232, 93, 76, 0.25);
+ }
+ 
+ .segment {
+@@ -730,7 +772,7 @@
+ .peelButtonCurrent:focus-visible,
+ .segNavLink:focus-visible,
+ .progressDot:focus-visible {
+-  outline: 2px solid #fcea86;
++  outline: 2px solid #FFE14A;
+   outline-offset: 2px;
+ }
+ 
+@@ -739,7 +781,7 @@
+   padding: 8px 12px 8px 16px;
+   font-size: 12px;
+   line-height: 1.7;
+-  color: #c4b89a;
++  color: #A8B890;
+ }
+ 
+ .endLine {
+@@ -786,8 +828,8 @@
+ 
+ 
+ .peelClose {
+-  border-color: rgba(248, 199, 88, 0.32);
+-  background: rgba(248, 199, 88, 0.06);
++  border-color: rgba(124, 179, 66, 0.35);
++  background: rgba(124, 179, 66, 0.08);
+ }
+ 
+ .peelCloseText {
+@@ -815,7 +857,7 @@
+ /* 摰Ｖ犖?砌犖銝?伐?viewerLine嚗?蝡臭誨?亙僑朣∴?憪?嚗?026-11-06 */
+ .viewerLine {
+   margin: 6px 0 0;
+-  color: #fff3b0;
++  color: #FFF6C8;
+   font-size: 15px;
+   font-weight: 800;
+   line-height: 1.5;
+@@ -825,3 +867,467 @@
+ @media (max-width: 420px) {
+   .viewerLine { font-size: 14px; }
+ }
++
++
++/* P1 type hierarchy 2026-11-06 */
++.bridge {
++  font-weight: 600;
++  font-size: 13px;
++  opacity: 1;
++}
++.peelSource,
++.peelProgress {
++  font-size: 12px;
++  opacity: 1;
++}
++@media (max-width: 420px) {
++  .bridge {
++    font-size: 12px;
++    font-weight: 600;
++    line-height: 1.65;
++  }
++  .peelSource,
++  .peelProgress {
++    font-size: 12px;
++  }
++  .progressAge {
++    font-size: 9px;
++    max-width: none; /* AGELABEL: was 3.2em ?????艾?/ 3-line stack */
++  }
++  .progress {
++    gap: 4px 6px;
++  }
++}
++
++
++/* Pikachu ex 276/217 palette applied 2026-11-06 ??SKILL 禮0 + 蝬?
++ * Main lemon #FFE14A; greens mist?rass?oss?ear-black; cheek red seal only.
++ * Depth: fog TL beam, bright current mid, deep-green vignette. No full-ring glow.
++ * Variable names --gold* retained for cascade; values are lemon/green.
++ */
++
++/* === Pika REWORK 2026-11-06 ? Bot_APP BLOCKED response (age segments) === */
++.root {
++  --gold: #7CB342;
++  --gold-hi: #E6F5B8;
++  --gold-bright: #FFE14A;
++  --gold-line: rgba(124, 179, 66, 0.55);
++  --gold-line-soft: rgba(124, 179, 66, 0.28);
++  --gold-glow: rgba(255, 225, 74, 0.4);
++  --ink: #060E05;
++  --panel: #122010;
++  --panel-deep: #060E05;
++  --text: #EAF3D4;
++  --text-muted: #A8B890;
++  --rail: rgba(124, 179, 66, 0.65);
++  --node: #7CB342;
++  --node-core: #FFE14A;
++  --lemon: #FFE14A;
++  --lemon-hi: #FFF8D0;
++  --lemon-shade: #F0B400;
++  --mist: #E6F5B8;
++  --grass: #7CB342;
++  --moss: #3D6B24;
++  --deep: #0A1608;
++  background:
++    linear-gradient(155deg, rgba(255, 248, 208, 0.32) 0%, rgba(255, 225, 74, 0.12) 16%, rgba(126, 179, 66, 0.06) 36%, transparent 55%),
++    radial-gradient(120% 80% at 14% 0%, rgba(230, 245, 184, 0.28), transparent 48%),
++    radial-gradient(90% 70% at 50% 55%, rgba(124, 179, 66, 0.16), transparent 58%),
++    radial-gradient(80% 70% at 100% 100%, rgba(6, 14, 5, 0.75), transparent 52%),
++    radial-gradient(70% 55% at 0% 100%, rgba(10, 22, 8, 0.55), transparent 48%),
++    linear-gradient(165deg, #1E3A18 0%, #122010 42%, #060E05 100%);
++  box-shadow:
++    0 8px 22px rgba(0, 0, 0, 0.32),
++    inset 0 1px 0 rgba(255, 248, 208, 0.28),
++    inset 0 0 32px rgba(124, 179, 66, 0.08);
++  border-color: rgba(124, 179, 66, 0.55);
++  scroll-margin-top: 12px;
++  position: relative;
++  z-index: 0;
++}
++.title {
++  color: #FFE14A;
++  text-shadow: 0 1px 0 rgba(6, 14, 5, 0.6), 0 0 16px rgba(255, 225, 74, 0.28);
++}
++.segment {
++  background:
++    linear-gradient(155deg, rgba(230, 245, 184, 0.1) 0%, transparent 40%),
++    linear-gradient(160deg, rgba(30, 58, 24, 0.94), rgba(6, 14, 5, 0.98));
++  border-color: rgba(124, 179, 66, 0.32);
++  box-shadow:
++    0 4px 14px rgba(0, 0, 0, 0.28),
++    inset 0 1px 0 rgba(230, 245, 184, 0.12);
++}
++.segmentCurrent {
++  border-color: rgba(255, 225, 74, 0.88);
++  background:
++    linear-gradient(155deg, rgba(255, 248, 208, 0.34) 0%, rgba(255, 225, 74, 0.14) 22%, transparent 52%),
++    radial-gradient(120% 90% at 0% 0%, rgba(255, 239, 90, 0.2), transparent 55%),
++    linear-gradient(160deg, rgba(48, 82, 32, 0.97), rgba(14, 28, 12, 0.99));
++  box-shadow:
++    0 0 0 1px rgba(124, 179, 66, 0.28),
++    6px 12px 24px rgba(6, 14, 5, 0.5),
++    inset 0 1px 0 rgba(255, 248, 208, 0.4);
++}
++.segmentCurrent::before {
++  border-color: #FFE14A;
++  background: radial-gradient(circle at 40% 35%, #FFF8D0, #FFE14A 42%, #7CB342 100%);
++  box-shadow:
++    0 0 0 3px rgba(6, 14, 5, 0.95),
++    0 2px 12px rgba(255, 225, 74, 0.45);
++}
++.tense {
++  border-color: rgba(255, 225, 74, 0.55);
++  background: rgba(255, 225, 74, 0.12);
++  color: #FFE14A;
++}
++.segmentCurrent .tense {
++  border-color: rgba(255, 248, 208, 0.9);
++  background: linear-gradient(180deg, #FFF8D0 0%, #FFE14A 55%, #F0B400 100%);
++  color: #060E05;
++  box-shadow:
++    inset 0 1px 0 rgba(255, 255, 255, 0.35),
++    0 2px 8px rgba(255, 225, 74, 0.32);
++  font-weight: 900;
++}
++.ageLabel { color: #A8B890; }
++.segmentCurrent .ageLabel {
++  color: #FFE14A;
++  font-weight: 800;
++  text-shadow: 0 1px 0 rgba(6, 14, 5, 0.55);
++}
++.viewerLine { color: #EAF3D4; }
++.root [data-asura-age-segment] {
++  position: relative;
++  z-index: 1;
++  scroll-margin-top: 12px;
++}
++
++/* === FLOOR49 2026-11-06 ??4.9: lemon age+seal, TL mist beam, 3-layer depth === */
++.root {
++  --gold: #7CB342;
++  --gold-hi: #E8F5B8;
++  --gold-bright: #FFE600;
++  --gold-line: rgba(124, 179, 66, 0.58);
++  --gold-line-soft: rgba(124, 179, 66, 0.3);
++  --gold-glow: rgba(255, 230, 0, 0.45);
++  --ink: #040A03;
++  --panel: #0E1C0C;
++  --panel-deep: #040A03;
++  --text: #EAF3D4;
++  --text-muted: #A8B890;
++  --rail: rgba(124, 179, 66, 0.68);
++  --node: #7CB342;
++  --node-core: #FFE600;
++  --lemon: #FFE600;
++  --lemon-hi: #FFF59D;
++  --lemon-shade: #F0B400;
++  --mist: #E8F5B8;
++  --grass: #7CB342;
++  --moss: #2E5A1C;
++  --deep: #071208;
++  /* rear pale YG mist + TL light shaft ??mid ??front deep moss */
++  background:
++    linear-gradient(148deg, rgba(255, 245, 157, 0.58) 0%, rgba(232, 245, 184, 0.32) 9%, rgba(255, 230, 0, 0.14) 20%, rgba(124, 179, 66, 0.06) 34%, transparent 48%),
++    radial-gradient(130% 90% at 10% -8%, rgba(232, 245, 184, 0.42), transparent 44%),
++    radial-gradient(100% 80% at 48% 52%, rgba(124, 179, 66, 0.18), transparent 58%),
++    radial-gradient(85% 75% at 100% 100%, rgba(4, 10, 3, 0.85), transparent 50%),
++    radial-gradient(75% 60% at 0% 100%, rgba(7, 18, 8, 0.65), transparent 46%),
++    linear-gradient(165deg, #1A3214 0%, #0E1C0C 42%, #040A03 100%);
++  box-shadow:
++    0 8px 22px rgba(0, 0, 0, 0.32),
++    inset 0 1px 0 rgba(255, 245, 157, 0.35),
++    inset 0 0 36px rgba(124, 179, 66, 0.08);
++  border-color: rgba(124, 179, 66, 0.58);
++  scroll-margin-top: 12px;
++  position: relative;
++  z-index: 0;
++  overflow: hidden;
++}
++.title {
++  color: #FFE600;
++  text-shadow: 0 1px 0 rgba(4, 10, 3, 0.7), 0 0 18px rgba(255, 230, 0, 0.32);
++}
++.segment {
++  background:
++    linear-gradient(148deg, rgba(232, 245, 184, 0.22) 0%, rgba(255, 230, 0, 0.06) 18%, transparent 42%),
++    radial-gradient(120% 90% at 0% 0%, rgba(232, 245, 184, 0.18), transparent 50%),
++    linear-gradient(160deg, rgba(26, 50, 20, 0.94), rgba(4, 10, 3, 0.98));
++  border-color: rgba(124, 179, 66, 0.36);
++  box-shadow:
++    0 4px 14px rgba(0, 0, 0, 0.28),
++    inset 0 1px 0 rgba(232, 245, 184, 0.18),
++    inset 0 -14px 22px rgba(4, 10, 3, 0.28);
++}
++.segmentCurrent {
++  border-color: rgba(255, 230, 0, 0.95);
++  background:
++    linear-gradient(148deg, rgba(255, 245, 157, 0.55) 0%, rgba(255, 230, 0, 0.2) 16%, rgba(232, 245, 184, 0.12) 30%, transparent 52%),
++    radial-gradient(130% 100% at 0% -5%, rgba(255, 239, 90, 0.28), transparent 48%),
++    radial-gradient(100% 80% at 50% 45%, rgba(124, 179, 66, 0.18), transparent 55%),
++    linear-gradient(160deg, rgba(52, 90, 34, 0.97), rgba(10, 22, 8, 0.99));
++  box-shadow:
++    0 0 0 1px rgba(124, 179, 66, 0.3),
++    6px 12px 24px rgba(4, 10, 3, 0.5),
++    inset 0 1px 0 rgba(255, 245, 157, 0.5),
++    inset 0 -16px 24px rgba(4, 10, 3, 0.28);
++}
++.segmentCurrent::before {
++  border-color: #FFE600;
++  background: radial-gradient(circle at 40% 35%, #FFF59D, #FFE600 42%, #7CB342 100%);
++  box-shadow:
++    0 0 0 3px rgba(4, 10, 3, 0.95),
++    0 2px 12px rgba(255, 230, 0, 0.5);
++}
++/* Age numerals ??saturated lemon on ALL segs */
++.ageLabel {
++  color: #FFE600;
++  font-weight: 900;
++  font-size: 14px;
++  letter-spacing: 0.03em;
++  text-shadow: 0 1px 0 rgba(4, 10, 3, 0.75), 0 0 12px rgba(255, 230, 0, 0.32);
++}
++.segmentCurrent .ageLabel {
++  color: #FFE600;
++  font-weight: 900;
++  text-shadow: 0 1px 0 rgba(4, 10, 3, 0.8), 0 0 14px rgba(255, 230, 0, 0.42);
++}
++.hereAge {
++  color: #FFE600;
++  font-weight: 900;
++  text-shadow: 0 1px 0 rgba(4, 10, 3, 0.7), 0 0 12px rgba(255, 230, 0, 0.3);
++}
++.progressAge {
++  color: #FFE600;
++  font-weight: 800;
++}
++/* Seals (tense) ??saturated lemon fill, not only ?曉 */
++.tense {
++  border-color: rgba(255, 245, 157, 0.95);
++  background: linear-gradient(180deg, #FFF59D 0%, #FFE600 55%, #F0B400 100%);
++  color: #040A03;
++  font-weight: 900;
++  box-shadow:
++    inset 0 1px 0 rgba(255, 255, 255, 0.35),
++    0 2px 8px rgba(255, 230, 0, 0.3);
++}
++.segmentCurrent .tense {
++  border-color: rgba(255, 245, 157, 1);
++  background: linear-gradient(180deg, #FFF59D 0%, #FFE600 50%, #F0B400 100%);
++  color: #040A03;
++  box-shadow:
++    inset 0 1px 0 rgba(255, 255, 255, 0.45),
++    0 2px 10px rgba(255, 230, 0, 0.42);
++  font-weight: 900;
++}
++.hereTag {
++  border-color: rgba(255, 245, 157, 0.95);
++  background: linear-gradient(180deg, #FFF59D 0%, #FFE600 55%, #F0B400 100%);
++  color: #040A03;
++  font-weight: 900;
++}
++.premiumSeal {
++  background: linear-gradient(180deg, #FFF59D 0%, #FFE600 55%, #F0B400 100%);
++  color: #040A03;
++  border-color: rgba(255, 245, 157, 0.9);
++  font-weight: 900;
++}
++.viewerLine { color: #EAF3D4; }
++.root [data-asura-age-segment] {
++  position: relative;
++  z-index: 1;
++  scroll-margin-top: 12px;
++}
++
++/* === BEAM 2026-11-06 ??visible TL pale-YG shaft + fogged rear (age segs) === */
++.root {
++  background:
++    linear-gradient(132deg,
++      rgba(255, 252, 210, 0.88) 0%,
++      rgba(232, 245, 184, 0.68) 8%,
++      rgba(197, 224, 99, 0.36) 18%,
++      rgba(255, 230, 0, 0.1) 28%,
++      transparent 42%),
++    radial-gradient(140% 100% at 4% -12%, rgba(232, 245, 184, 0.82), rgba(197, 224, 99, 0.32) 30%, transparent 54%),
++    radial-gradient(100% 80% at 48% 50%, rgba(168, 210, 96, 0.2), transparent 60%),
++    radial-gradient(90% 80% at 100% 100%, rgba(4, 10, 3, 0.9), transparent 48%),
++    radial-gradient(80% 70% at 0% 100%, rgba(10, 28, 10, 0.75), transparent 44%),
++    linear-gradient(165deg, #C8E878 0%, #7CB342 24%, #2A4A1C 52%, #071208 78%, #040A03 100%);
++  box-shadow:
++    0 8px 22px rgba(0, 0, 0, 0.32),
++    inset 0 1px 0 rgba(255, 252, 210, 0.55),
++    inset 0 -28px 40px rgba(4, 10, 3, 0.45),
++    inset 0 0 40px rgba(197, 224, 99, 0.12);
++  border-color: rgba(124, 179, 66, 0.62);
++}
++.segment {
++  background:
++    linear-gradient(132deg, rgba(232, 245, 184, 0.42) 0%, rgba(197, 224, 99, 0.16) 16%, transparent 40%),
++    radial-gradient(130% 100% at 0% -8%, rgba(232, 245, 184, 0.38), transparent 48%),
++    linear-gradient(160deg, rgba(72, 118, 42, 0.55) 0%, rgba(26, 50, 20, 0.9) 42%, rgba(4, 10, 3, 0.98) 100%);
++  box-shadow:
++    0 4px 14px rgba(0, 0, 0, 0.28),
++    inset 0 1px 0 rgba(232, 245, 184, 0.35),
++    inset 0 -16px 24px rgba(4, 10, 3, 0.4);
++}
++.segmentCurrent {
++  border-color: rgba(255, 230, 0, 0.95);
++  background:
++    linear-gradient(132deg,
++      rgba(255, 252, 210, 0.92) 0%,
++      rgba(255, 245, 157, 0.7) 8%,
++      rgba(232, 245, 184, 0.42) 18%,
++      rgba(255, 230, 0, 0.16) 28%,
++      transparent 48%),
++    radial-gradient(140% 110% at -2% -10%, rgba(255, 252, 210, 0.72), rgba(232, 245, 184, 0.35) 32%, transparent 55%),
++    radial-gradient(100% 80% at 50% 42%, rgba(168, 210, 96, 0.22), transparent 56%),
++    linear-gradient(160deg, rgba(100, 150, 48, 0.55) 0%, rgba(52, 90, 34, 0.9) 40%, rgba(10, 22, 8, 0.99) 100%);
++  box-shadow:
++    0 0 0 1px rgba(124, 179, 66, 0.32),
++    6px 12px 24px rgba(4, 10, 3, 0.5),
++    inset 0 1px 0 rgba(255, 252, 210, 0.7),
++    inset 0 -18px 28px rgba(4, 10, 3, 0.36);
++}
++/* lemon age/seal KEEP ??no override */
++
++/* === READ 2026-11-06 ??contrast ??.5:1 on pale beam; beam layers untouched === */
++.title {
++  display: inline-block;
++  max-width: 100%;
++  box-sizing: border-box;
++  margin-bottom: 12px;
++  padding: 8px 12px;
++  border-radius: 8px;
++  border-bottom: 0;
++  background: rgba(4, 10, 3, 0.82);
++  color: #FFF8D0;
++  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.55);
++  box-shadow: 0 1px 0 rgba(255, 252, 210, 0.18);
++}
++.hereBar {
++  background: rgba(4, 10, 3, 0.78);
++  border-color: rgba(124, 179, 66, 0.45);
++  box-shadow: inset 0 1px 0 rgba(255, 252, 210, 0.12);
++}
++.hereText {
++  color: #FFF8D0;
++  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
++}
++.hereDot {
++  color: #C8DCA0;
++}
++.hereAge {
++  color: #FFE600;
++  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65), 0 0 8px rgba(255, 230, 0, 0.25);
++}
++.viewerLine {
++  color: #FFF8D0;
++  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
++}
++.progressAge {
++  color: #142810;
++  font-weight: 700;
++  text-shadow: 0 1px 0 rgba(255, 252, 210, 0.55);
++  background: rgba(4, 10, 3, 0.55);
++  border-radius: 4px;
++  padding: 1px 3px;
++}
++.progressItem:has(.dotCurrent) .progressAge {
++  color: #FFE600;
++  background: rgba(4, 10, 3, 0.78);
++  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
++}
++/* Age range labels on cards ??deep moss for beam clash; seals stay lemon */
++.ageLabel {
++  color: #142810;
++  font-weight: 800;
++  text-shadow: 0 1px 0 rgba(255, 252, 210, 0.45);
++  background: rgba(255, 252, 210, 0.55);
++  border-radius: 4px;
++  padding: 1px 6px;
++}
++.segmentCurrent .ageLabel {
++  color: #040A03;
++  background: rgba(255, 245, 157, 0.85);
++  text-shadow: none;
++}
++.bridge {
++  color: #EAF3D4;
++  background: rgba(4, 10, 3, 0.72);
++  border-left-color: rgba(124, 179, 66, 0.55);
++  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
++  border-radius: 0 6px 6px 0;
++}
++.headline,
++.headlineText {
++  color: #FFF8D0;
++  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.55), 0 0 10px rgba(0, 0, 0, 0.25);
++}
++.headlinePremium {
++  background:
++    radial-gradient(120% 90% at 0% 0%, rgba(255, 252, 210, 0.12), transparent 55%),
++    linear-gradient(160deg, rgba(4, 10, 3, 0.92), rgba(14, 28, 12, 0.96));
++  border-color: rgba(124, 179, 66, 0.5);
++}
++
++/* === READ2 2026-11-06 ??stronger ageLabel plate contrast === */
++.ageLabel {
++  color: #040A03;
++  background: rgba(255, 252, 210, 0.92);
++  font-weight: 800;
++  text-shadow: none;
++  box-shadow: 0 1px 0 rgba(4, 10, 3, 0.25);
++}
++.segmentCurrent .ageLabel {
++  color: #040A03;
++  background: rgba(255, 245, 157, 0.95);
++  text-shadow: none;
++}
++
++/* === READ3 2026-11-06 ??progressAge light-on-dark (hereBar already dark) === */
++.progressAge {
++  color: #EAF3D4;
++  font-weight: 700;
++  background: rgba(4, 10, 3, 0.88);
++  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.55);
++  border-radius: 4px;
++  padding: 2px 4px;
++  box-shadow: 0 1px 0 rgba(255, 252, 210, 0.12);
++}
++.progressItem:has(.dotCurrent) .progressAge {
++  color: #FFE600;
++  background: rgba(4, 10, 3, 0.92);
++  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.7);
++  font-weight: 800;
++}
++
++
++/* === AGELABEL 2026-11-06 ??full age text under progress dots (no ???艾?truncate) === */
++.progressItem {
++  flex: 1 1 0;
++  min-width: 0;
++  max-width: none;
++}
++.progressAge {
++  max-width: 100% !important; /* beat leftover 3.2em media cap */
++  width: 100%;
++  box-sizing: border-box;
++  font-size: 9px;
++  line-height: 1.25;
++  letter-spacing: 0;
++  white-space: normal;
++  overflow: visible;
++  text-overflow: clip;
++  overflow-wrap: break-word;
++  word-break: keep-all; /* prefer wrapping at spaces, not mid-CJK glyph salad */
++}
++@media (max-width: 390px) {
++  .progressAge { font-size: 8.5px; }
++  /* mobile eye-comfort: slightly softer glow so guide doesn't steal hero */
++  .progressItem:has(.dotCurrent) .progressAge {
++    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.55);
++  }
++}
++@media (min-width: 720px) {
++  .progressAge { font-size: 10px; }
++}

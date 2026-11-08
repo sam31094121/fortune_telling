@@ -21,7 +21,7 @@ import { assertThreeInOnePassed, runThreeInOne } from '@/lib/three-in-one';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const PROMPT_VERSION = 'entertainment-v1';
+const PROMPT_VERSION = 'entertainment-v2-reviewed-hexagram';
 
 type RouteContext = { params: Promise<{ analysisId: string }> };
 
@@ -76,14 +76,14 @@ export async function POST(request: Request, context: RouteContext) {
   } catch {
     return friendlyErrorResponse(requestId, 'THREE_IN_ONE_LOCKED', '三核心資料不一致，暫不提供解讀。', 422);
   }
-  const cacheKey = hashedCacheKey([analysisId, palaceId, teacherId, chart.engineVersion, PROMPT_VERSION]);
+  const cacheKey = hashedCacheKey([analysisId, palaceId, teacherId, chart.engineVersion, PROMPT_VERSION, threeInOne.result.yijing.certificate.chartFingerprint]);
   const cached = entertainmentCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION_MS) {
     return NextResponse.json({ ok: true, requestId, cached: true, data: cached.result }, { headers: { 'Cache-Control': 'no-store' } });
   }
 
   try {
-    const palaceContext = buildPalaceContext(chart, palaceId, analysisId);
+    const palaceContext = { ...buildPalaceContext(chart, palaceId, analysisId), reviewedThreeCore: threeInOne };
     const result = await runEntertainmentTeacher(teacherId, palaceContext);
     entertainmentCache.set(cacheKey, { result, timestamp: Date.now() });
     return NextResponse.json({ ok: true, requestId, cached: false, data: result }, { headers: { 'Cache-Control': 'no-store' } });

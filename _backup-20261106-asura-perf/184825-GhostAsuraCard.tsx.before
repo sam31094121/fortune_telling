@@ -1,0 +1,1024 @@
+/**
+ * 鬼魅阿修羅卡片 — 只讀後端已核可顯示資料
+ *
+ * 主路徑（/ghost-asura）：`display` 來自 POST /api/ghost-asura/reading，
+ * 已在後端分組／篩選／排序；本元件只照印文字，不做任何分組或命理判斷。
+ * 卡頭下方三段原生摺疊段（收合只顯示兩字標題）：時間軸：過去（命中神煞）／現在（柱位與封印）／未來（阿修羅判語）。
+ *
+ * 舊路徑 `reading`：僅 /dual-chart 阿修羅分頁暫留（尚未遷移），維持原樣不動。
+ */
+
+'use client';
+
+
+import { Fragment, useEffect, useMemo, useRef, useState, type SyntheticEvent, type CSSProperties } from 'react';
+import { animationConfig } from '@/lib/ghost-asura-animation';
+import type { AsuraDisplay, AsuraDisplaySeal } from '@/lib/ghost-asura-display-contract';
+import type { GhostAsuraReading } from '../types';
+import { GHOST_ASURA_CARD_TITLE, GHOST_ASURA_UI } from '../uiText';
+import styles from './GhostAsuraCard.module.css';
+import visual from './GhostAsuraCard.visual.module.css';
+import { AsuraNatureCard } from './AsuraNatureCard';
+import { SealMotion } from './SealMotion';
+import { PresentGuide, COLUMN_ACCENTS } from './PresentGuide';
+import { AsuraAgeTimeline, type AsuraAgeFocusRequest } from './AsuraAgeTimeline';
+
+/** 點開印記卡後，捲到視線中央（卡片比畫面高就把標題對齊畫面上方，確保標題看得到）。
+ *  等展開動畫（約 0.24 秒）跑完再算位置；使用者開了「減少動態」就不用平滑捲動。純畫面行為，不碰任何資料。 */
+function focusOpenedDetail(event: SyntheticEvent<HTMLDetailsElement>) {
+  const el = event.currentTarget;
+  if (!el.open) return;
+  const card = el.closest('li') ?? el;
+  window.setTimeout(() => {
+    if (!el.open || !el.isConnected) return;
+    // Modern reader: keep the tapped heading in place whenever it is already visible.
+    // Recentring every opened card makes the phone page jump during reading.
+    if (el.closest('[data-display-contract]')) {
+      const heading = el.querySelector('summary');
+      if (!heading) return;
+      const rect = heading.getBoundingClientRect();
+      if (rect.top >= 8 && rect.bottom <= window.innerHeight - 8) return;
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      heading.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+      return;
+    }
+    const fits = card.getBoundingClientRect().height <= window.innerHeight * 0.88;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    card.scrollIntoView({ block: fits ? 'center' : 'start', inline: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+  }, 280);
+}
+
+/** 「這一役的來歷」收合面板：業主 2026-10-15 要求隱藏（沒有用途）。保持 false；未經明說叫醒不得改成 true。 */
+
+/** Optional backend card↔timeline anchors (Array(4) parallel to timelineDecree.lines). */
+type AsuraDecreeAnchor = {
+  segmentIndex: number;
+  ageLabel: string;
+  tense: string;
+  focus?: 'action' | 'basis' | 'history' | string;
+  label?: string;
+  /** backend: big age range e.g. 34–43 */
+  ageRange?: string;
+  /** backend: 走過／現在／現在就做／下一段 */
+  mark?: string;
+  /** backend: segment headline for the card overlay */
+  headline?: string;
+};
+
+type AsuraDisplayWithAnchors = AsuraDisplay & {
+  decreeAnchors?: AsuraDecreeAnchor[] | null;
+};
+
+function decreeBadgeLabel(anchor: AsuraDecreeAnchor): string {
+  if (anchor.label && anchor.label.trim()) return anchor.label.trim();
+  const tense = (anchor.tense || '').trim();
+  const age = (anchor.ageLabel || '').trim();
+  if (tense === '現在') return `你在：${age}・現在`;
+  if (tense === '過去' || tense === '來時路') return `來時路・${age}`;
+  if (tense === '未來' || tense === '下一陣') return `下一陣・${age}`;
+  return [tense, age].filter(Boolean).join('・');
+}
+
+/** Emphasize first sentence only; do not alter wording. */
+function splitFirstSentence(body: string): { first: string; rest: string } {
+  const text = body ?? '';
+  const m = text.match(/^(.*?[。！？!?])([sS]*)$/);
+  if (!m) return { first: text, rest: '' };
+  return { first: m[1], rest: m[2] };
+}
+
+const SHOW_LIFE_ORIGIN = false as boolean;
+
+/** 四張卡標題列下面的三行字（阿修羅一句話、指向底下印記、歲數說明）：業主 2026-10-15 要求隱藏（上面的標題卡已經有了，這些字沒有意義）。保持 false；未經明說叫醒不得改成 true。資料仍由後端組好。 */
+const SHOW_LIFE_TEXT = false as boolean;
+
+/** 過去／現在／未來三張卡下面那行「左右滑過四有，印記各歸其位。」：業主 2026-10-15 要求隱藏。保持 false；未經明說叫醒不得改成 true。 */
+const SHOW_SCROLL_HINT = false as boolean;
+
+export function GhostAsuraCard({ display, reading }: { display?: AsuraDisplay; reading?: GhostAsuraReading }) {
+  if (display) return <DisplayCard display={display} />;
+  if (reading) return <LegacyReadingCard reading={reading} />;
+  return null;
+}
+
+/**
+ * 卡頭橫幅：標題拆成左右兩組（鬼魅｜阿修羅）貼齊兩端，中間空隙蓋一方「修羅」白文印（純裝飾，aria-hidden）。
+ * 只是排版拆字，標題文字不變（h2 以 aria-label 保留完整標題）；標題若非「鬼魅阿修羅」則整句顯示、不拆。
+ */
+function AsuraBanner({ title }: { title: string }) {
+  const split = title === GHOST_ASURA_CARD_TITLE && title.length > 2;
+  return (
+    <div className={styles.asuraBanner} data-asura-banner>
+      <h2 className={styles.bannerTitle} aria-label={title}>
+        {split ? (
+          <>
+            <span className={styles.bannerLeft} aria-hidden="true">{title.slice(0, 2)}</span>
+            {/* 印文「修羅」由 CSS 偽元素繪出，不進入標題文字（textContent 仍為「鬼魅阿修羅」） */}
+            <span className={styles.bannerSeal} aria-hidden="true" data-asura-seal>
+              <span className={styles.sealInk} />
+            </span>
+            <span className={styles.bannerRight} aria-hidden="true">{title.slice(2)}</span>
+          </>
+        ) : (
+          title
+        )}
+      </h2>
+    </div>
+  );
+}
+
+/** 尚未送出生辰時的空框：只有標題與三格標題，不可展開、不含任何資料。 */
+export function GhostAsuraCardShell() {
+  return (
+    <section className={styles.card} aria-label={GHOST_ASURA_CARD_TITLE} data-card-type="ghost-asura-reading" data-asura-shell>
+      <header className={styles.asuraTopRow} data-asura-top-row>
+        <AsuraBanner title={GHOST_ASURA_CARD_TITLE} />
+        <div className={styles.asuraTiles}>
+          {(['過去', '現在', '未來'] as const).map((heading) => (
+            <button key={heading} type="button" className={`${styles.tileSquare} ${styles.tileSquareIdle}`} disabled aria-disabled="true">
+              {heading}
+            </button>
+          ))}
+        </div>
+      </header>
+    </section>
+  );
+}
+
+/** 業主 2026-10-04：標題下小字（副標「本命阿修羅｜命魂戰局｜阿修羅秘卷」）暫不渲染；改 true 即恢復。 */
+const SHOW_HEADER_SUBTITLE = false;
+
+/** 業主 2026-10-09：〔本人：名字〕名牌升級為本性卡（三格之上，點開見本性／優勢／弱點／風險）。有名字就顯示（無本性資料＝四段空位）；沒填名字＝不顯示；改 false 即全回舊名牌。 */
+const SHOW_NATURE_CARD = true;
+
+/** 業主 2026-10-06：印記數字統計卡（四個可點數字＋白話說明）暫不渲染；改 true 即恢復。清單與資料不受影響。 */
+const SHOW_STATS_CARD = false;
+
+/** 業主 2026-10-06：卡片話術與程式碼複製列暫不渲染；改 true 即恢復。清單與資料不受影響。 */
+const SHOW_COPY_BUTTONS = false;
+
+/** 業主 2026-11-06：紅字年齡標「18 歲禁忌｜未滿 18 歲禁止進入」暫時隱藏；上線時改 true。不刪 CSS／常數／後端年齡閘門。 */
+const SHOW_ASURA_AGE_GATE_BADGE = false;
+
+const STAT_TARGET_ID = {
+  pillars: 'asura-pillars',
+  dormant: 'asura-rest-dormant',
+  pending: 'asura-rest-pending',
+} as const;
+
+const TONE_ITEM: Record<AsuraDisplaySeal['tone'], string> = {
+  awakened: `${styles.item} ${styles.itemAwakened}`,
+  dormant: `${styles.item} ${styles.itemDormant}`,
+  pending: `${styles.item} ${styles.itemPending}`,
+};
+const TONE_SEAL: Record<AsuraDisplaySeal['tone'], string> = {
+  awakened: `${styles.seal} ${styles.sealAwakened}`,
+  dormant: `${styles.seal} ${styles.sealDormant}`,
+  pending: `${styles.seal} ${styles.sealPending}`,
+};
+
+function DisplayCard({ display }: { display: AsuraDisplay }) {
+  const currentColumn = display.sections.find(section => section.key === 'pillars')?.guidance?.stage;
+  const baseDelay =
+    animationConfig.cardReveal.delay + animationConfig.cardReveal.duration + animationConfig.impressionGlow.delay;
+  const [openKey, setOpenKey] = useState<string | null>(null);
+  const [restOpen, setRestOpen] = useState<Record<string, boolean>>({});
+  const [copyStatus, setCopyStatus] = useState<Record<string, boolean>>({});
+  const [focusRequest, setFocusRequest] = useState<AsuraAgeFocusRequest | null>(null);
+  let glowIndex = 0;
+
+  /** 複製卡片話術或程式碼至剪貼簿（修羅檔案專用） */
+  const handleCopyCard = (section: AsuraDisplay['sections'][0], mode: 'narrative' | 'code') => {
+    let payload = '';
+    const isPast = section.key === 'hits' || section.heading.includes('過去');
+    const isPresent = section.key === 'pillars' || section.heading.includes('現在');
+    const headingBadge =
+      isPast
+        ? '【過去｜解形成】'
+        : isPresent
+        ? '【現在｜解當下】'
+        : '【未來｜解趨勢】';
+
+    const targetLabel = display.targetName
+      ? `【${display.identityTarget === 'guest' ? '親友' : '本人'}：${display.targetName}】`
+      : '';
+
+    if (mode === 'narrative') {
+      const lines: string[] = [
+        `# 鬼魅阿修羅修羅檔案 ${targetLabel} ${headingBadge}`.trim(),
+        '',
+        section.lead ? `> ${section.lead}` : '',
+        '',
+      ];
+      if (section.blocks) {
+        for (const b of section.blocks) {
+          lines.push(b.text);
+          if (b.plain && b.plain.length > 0) {
+            for (const p of b.plain) {
+              lines.push(`  - 【${p.label}】${p.plain}`);
+            }
+          }
+          lines.push('');
+        }
+      }
+      if (section.coda) {
+        lines.push(`\n**阿修羅判語**：${section.coda}`);
+      }
+      payload = lines.filter(Boolean).join('\n');
+    } else {
+      const codeObject = {
+        cardModel: 'GHOST_ASURA_TIME_CARDS_V1',
+        period: section.key,
+        heading: section.heading,
+        badge: headingBadge,
+        targetName: display.targetName || null,
+        identityTarget: display.identityTarget || 'self',
+        lead: section.lead || '',
+        narrativeBlocks: section.blocks || [],
+        coda: section.coda || '',
+        items: section.items || [],
+      };
+      payload = JSON.stringify(codeObject, null, 2);
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(payload).then(() => {
+        const key = `${section.key}-${mode}`;
+        setCopyStatus((prev) => ({ ...prev, [key]: true }));
+        setTimeout(() => {
+          setCopyStatus((prev) => ({ ...prev, [key]: false }));
+        }, 2000);
+      });
+    }
+  };
+
+  /** 點統計數字：展開對應清單、捲到該處、把焦點交給它（鍵盤與讀屏也跟得上）。 */
+  const jumpTo = (target: keyof typeof STAT_TARGET_ID) => {
+    if (target !== 'pillars') setRestOpen((current) => ({ ...current, [target]: true }));
+    window.requestAnimationFrame(() => {
+      const el = document.getElementById(STAT_TARGET_ID[target]);
+      if (!el) return;
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      const focusTarget = target === 'pillars' ? el : ((el.querySelector(':scope > summary') as HTMLElement | null) ?? el);
+      focusTarget.focus({ preventScroll: true });
+    });
+  };
+  const nextDelay = () => baseDelay + glowIndex++ * animationConfig.impressionGlow.staggerDelay;
+  const decreeRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!display.timelineDecree) return;
+    const el = decreeRef.current ?? document.querySelector<HTMLElement>('[data-asura-timeline-decree]');
+    if (!el) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.requestAnimationFrame(() => {
+      el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    });
+  }, [display.timelineDecree]);
+
+  return (
+    <section
+      className={styles.card}
+      aria-label={display.title}
+      data-card-type="ghost-asura-reading"
+      data-guard-status={display.alert ? 'FAILED' : 'PASSED'}
+      data-display-contract={display.contract}
+    >
+      {/* 橫幅「鬼魅［修羅印］阿修羅」＋下方過去／現在／未來一列三格：點格在下方全寬展開，再點收合。 */}
+      <header className={styles.asuraTopRow} data-asura-top-row>
+        <AsuraBanner title={display.title} />
+        {SHOW_ASURA_AGE_GATE_BADGE && display.ageGate?.label && (
+          <p className={styles.ageGateBadge} data-asura-age-gate={display.ageGate.status}>
+            {display.ageGate.label}
+          </p>
+        )}
+        {/* 本性卡：原〔本人：名字〕名牌的位置與結構升級成這張卡；有名字就顯示（後端無本性資料時四段留空位）；沒名字＝不顯示 */}
+        {SHOW_NATURE_CARD && display.targetName ? (
+          <AsuraNatureCard name={display.targetName} identityTarget={display.identityTarget} nature={display.nature} />
+        ) : (
+          display.targetName && (
+            <div className={styles.targetBadge} data-asura-target-badge>
+              〔{display.identityTarget === 'guest' ? '親友' : '本人'}：{display.targetName}〕
+            </div>
+          )
+        )}
+        {SHOW_HEADER_SUBTITLE && <p className={styles.subtitle}>{display.subtitle}</p>}
+        {display.ageGate?.status === 'WITHHELD' ? (
+          <p className={styles.ageWithheldNotice} role="status" data-asura-age-withheld="true">
+            {display.ageGate.message}
+          </p>
+        ) : null}
+        <div className={styles.asuraTiles}>
+          {(display.ageGate?.status === 'WITHHELD' ? [] : display.sections).map((section) => {
+            const open = openKey === section.key;
+            return (
+              <button
+                key={section.key}
+                type="button"
+                className={open ? `${styles.tileSquare} ${styles.tileSquareOn}` : styles.tileSquare}
+                style={section.key === 'pillars' && currentColumn ? { '--tab-accent': COLUMN_ACCENTS[currentColumn.key] } as CSSProperties : undefined}
+                aria-expanded={open}
+                aria-controls={`asura-fn-panel-${section.key}`}
+                data-asura-tile={section.key}
+                onClick={() => setOpenKey(open ? null : section.key)}
+              >
+                {section.heading}
+              </button>
+            );
+          })}
+        </div>
+      </header>
+
+      {display.pinnedSummary ? (
+        <p data-asura-pinned-summary className={styles.pinnedSummary}>
+          {display.pinnedSummary}
+        </p>
+      ) : null}
+
+      {display.hourNote && (
+        <p className={styles.fnHourNote} data-asura-hour-note>
+          {display.hourNote}
+        </p>
+      )}
+
+      {display.goldWording && (
+        <p className={styles.goldWording} data-asura-gold-wording>
+          <small>{display.goldWording.label}</small>
+          <strong>{display.goldWording.text}</strong>
+          {display.goldWording.basis && <em data-asura-gold-basis>{display.goldWording.basis}</em>}
+        </p>
+      )}
+
+      {display.alert && (
+        <p className={`${styles.failed} ${styles.fnAlert}`} role="alert" data-guard="failed">
+          {display.alert}
+        </p>
+      )}
+
+      {(display.ageGate?.status === 'WITHHELD' ? [] : display.sections).map((section) => (
+        <section
+          key={section.key}
+          id={`asura-fn-panel-${section.key}`}
+          className={styles.fnPanel}
+          role="region"
+          aria-label={section.heading}
+          data-asura-function={section.key}
+          hidden={openKey !== section.key}
+          tabIndex={-1}
+        >
+          {openKey === section.key && (
+            <div className={styles.fnBody}>
+              {/* 故事線（新增 story 欄）：承接本性卡，同一翻譯層；舊資料無此欄＝不畫 */}
+              {section.story && <p className={styles.fnStory} data-asura-story={section.key}>{section.story}</p>}
+              {/* 修羅檔案技能專用操作列：標示時間維度並提供一鍵複製話術與程式碼 */}
+              <div className={styles.fnActionBar} data-asura-action-bar>
+                <div className={styles.fnBadgeTag}>
+                  {(section.key === 'hits' || section.heading.includes('過去')) && '【過去｜解形成】'}
+                  {(section.key === 'pillars' || section.heading.includes('現在')) && '【現在｜解當下】'}
+                  {(section.key === 'verdict' || section.heading.includes('未來')) && '【未來｜解趨勢】'}
+                </div>
+                {SHOW_COPY_BUTTONS && (
+                  <div className={styles.fnBtnGroup}>
+                    <button
+                      type="button"
+                      className={styles.fnCopyBtn}
+                      onClick={() => handleCopyCard(section, 'narrative')}
+                      title="複製本卡阿修羅話術 Markdown"
+                    >
+                      {copyStatus[`${section.key}-narrative`] ? '✓ 已複製話術' : '📋 複製修羅話術'}
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.fnCopyBtn} ${styles.fnCopyBtnCode}`}
+                      onClick={() => handleCopyCard(section, 'code')}
+                      title="複製修羅卡片程式碼 JSON"
+                    >
+                      {copyStatus[`${section.key}-code`] ? '✓ 已複製代碼' : '💻 複製卡片代碼'}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {section.lead && <p className={styles.fnLead}>{section.lead}</p>}
+              {/* 讀盤逐段照印，每段後緊接該段印記的白話；0 印＝後端不給任何字，這裡就不印 */}
+              {section.blocks && section.blocks.length > 0 && (
+                <div className={styles.fnNarrative} data-asura-narrative data-asura-interleaved>
+                  {section.blocks.map((block, i) => (
+                    <Fragment key={i}>
+                      <p>{block.text}</p>
+                      {block.plain.map((line) => (
+                        <div key={line.label} className={styles.fnPlainLine} data-asura-plain>
+                          <span className={styles.fnPlainTag}>白話</span>
+                          <strong>{line.label}</strong>
+                          {line.plain}
+                        </div>
+                      ))}
+                    </Fragment>
+                  ))}
+                </div>
+              )}
+              {section.coda && (
+                <p className={styles.fnCoda} data-asura-coda>
+                  {section.coda}
+                </p>
+              )}
+              {(section.key === 'pillars' || section.key === 'verdict') && <PresentGuide display={display} sectionKey={section.key} />}
+            </div>
+          )}
+        </section>
+      ))}
+
+      {SHOW_SCROLL_HINT && <p className={styles.scrollHint}>{display.scrollHint}</p>}
+      <div
+        className={styles.pillarScroll}
+        id={STAT_TARGET_ID.pillars}
+        role="region"
+        aria-label="四柱與所屬印記，可左右捲動"
+        tabIndex={0}
+        data-asura-pillar-scroll
+      >
+        <div className={styles.pillarReadingGrid} data-asura-pillar-grid>
+          <div className={styles.pillarsTable}>
+            {display.columns.map((column) => (
+              <div key={column.key} className={styles.pillarColumn} data-asura-pillar-head={column.key} data-current-stage={column.key === currentColumn?.key || undefined} style={{ '--pc': COLUMN_ACCENTS[column.key] } as CSSProperties}>
+                <div className={styles.pillarLabel}>{column.heading}</div>
+                <div className={styles.pillarValue} data-asura-leading>{column.lead}</div>
+                <small className={styles.pillarCount}>{column.countText}</small>
+                {column.life && (
+                  <div className={styles.lifeHead}>
+                    {column.life.tenseLabel && <span className={styles.lifeTense}>{column.life.tenseLabel}</span>}
+                    <span className={styles.lifeAge}>{column.life.ageText}</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {display.columns.map((column) => (
+            <div
+              key={column.key}
+              className={styles.pillarGroup}
+              role="group"
+              aria-label={`${column.heading}印記`}
+              data-asura-column={column.key}
+              data-current-stage={column.key === currentColumn?.key || undefined}
+              style={{ '--pc': COLUMN_ACCENTS[column.key] } as CSSProperties}
+            >
+              {SHOW_LIFE_TEXT && column.life && column.life.headline && <p className={styles.lifeHeadline}>{column.life.headline}</p>}
+              {SHOW_LIFE_TEXT && column.life && column.life.pointer && <p className={styles.lifePointer}>{column.life.pointer}</p>}
+              {/* 「這一役的來歷」收合面板已隱藏（2026-10-15，業主：沒有用途）。原碼保留，未經明說叫醒不得再顯示；
+                  資料仍由後端組好（life.lines），只是前端不畫。歲數說明 life.note 改成常駐的一行小字，避免歲數被誤讀成古籍定論。 */}
+              {SHOW_LIFE_TEXT && column.life && column.life.note && <p className={styles.lifeBasis}>{column.life.note}</p>}
+              {SHOW_LIFE_ORIGIN && column.life && (
+                <details className={styles.lifeDetail} data-asura-life={column.key}>
+                  <summary className={styles.lifeSummary}>{GHOST_ASURA_UI.lifeSummary}</summary>
+                  <div className={styles.lifeBody}>
+                    {column.life.lines.map((line) => (
+                      <p key={line}>{line}</p>
+                    ))}
+                    <p className={styles.lifeBasis}>{column.life.note}</p>
+                  </div>
+                </details>
+              )}
+              {column.seals.length === 0 && (
+                <p className={styles.pillarEmpty} aria-label={`${column.heading}目前沒有對應印記`}>—</p>
+              )}
+              <ul className={styles.list} aria-label={`${column.heading}印記`} data-asura-list={column.heading}>
+                {column.seals.map((seal) => (
+                  <li
+                    key={seal.id}
+                    className={TONE_ITEM[seal.tone]}
+                    data-asura-id={seal.id}
+                    data-seal-status={seal.tone}
+                    data-display-name={seal.name}
+                    style={
+                      seal.tone === 'awakened'
+                        ? {
+                            animation: 'asuraImpressionGlow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+                            animationDelay: `${nextDelay()}ms`,
+                          }
+                        : {}
+                    }
+                  >
+                    <details className={styles.itemDetail} data-asura-detail name={`asura-col-${column.key}`} onToggle={focusOpenedDetail}>
+                      <summary className={styles.itemHead}>
+                        <strong className={styles.displayName}>{seal.name}</strong>
+                        <SealMotion id={seal.id} />
+                      </summary>
+                      <div className={styles.itemBody}>
+                        <span className={TONE_SEAL[seal.tone]}>{seal.sealLabel}</span>
+                        {(seal.declaration || seal.meaning) && (
+                          <div className={styles.meaning}>
+                            {seal.declaration && <div className={styles.meaningStrong}>{seal.declaration}</div>}
+                            {seal.meaning}
+                          </div>
+                        )}
+                        {seal.clash && (
+                          <div className={styles.battleLine}>
+                            <span style={{ color: '#fca5a5' }}>{GHOST_ASURA_UI.printClash}｜</span>
+                            {seal.clash}
+                          </div>
+                        )}
+                      </div>
+                    </details>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {display.rest.filter((group) => group.key !== 'dormant').map((group) => (
+        <details
+          key={group.key}
+          id={`asura-rest-${group.key}`}
+          className={styles.restGroup}
+          data-asura-rest={group.key}
+          open={Boolean(restOpen[group.key])}
+          onToggle={(event) => {
+            const open = (event.currentTarget as HTMLDetailsElement).open;
+            setRestOpen((current) => (current[group.key] === open ? current : { ...current, [group.key]: open }));
+          }}
+        >
+          <summary className={styles.restSummary}>{group.heading}</summary>
+          <ul className={styles.list} aria-label={group.heading} data-asura-list={group.heading}>
+            {group.seals.map((seal) => (
+              <li
+                key={seal.id}
+                className={TONE_ITEM[seal.tone]}
+                data-asura-id={seal.id}
+                data-seal-status={seal.tone}
+                data-display-name={seal.name}
+              >
+                <div className={styles.restHead}>
+                  <strong className={styles.displayName}>{seal.name}</strong>
+                  <span className={TONE_SEAL[seal.tone]}>{seal.sealLabel}</span>
+                </div>
+                <div className={styles.restNote}>{group.note}</div>
+                {seal.declaration && <div className={styles.meaningStrong}>{seal.declaration}</div>}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ))}
+
+      <div className={styles.summaryFooter} data-asura-summary-footer>
+        <div className={styles.banner} data-asura-banner>
+          {display.lines.map((line, index) => (
+            <span key={line}>
+              {index > 0 && <br />}
+              {line}
+            </span>
+          ))}
+        </div>
+        {SHOW_STATS_CARD && (
+        <div className={styles.stats} data-asura-stats role="group" aria-label="印記數字說明；點數字可跳到對應清單">
+          {display.stats
+            .filter(stat => !(stat.value === '0' && stat.tone === 'pending'))
+            .map((stat) => {
+            const body = (
+              <>
+                <b
+                  className={
+                    stat.tone === 'awakened' ? styles.awakenedValue : stat.tone === 'pending' ? styles.pendingValue : undefined
+                  }
+                >
+                  {stat.value}
+                </b>
+                <span className={styles.statLabel}>{stat.label}</span>
+                {stat.caption && <small className={styles.statCaption}>{stat.caption}</small>}
+              </>
+            );
+            const target = stat.target;
+            return target ? (
+              <button
+                key={stat.label}
+                type="button"
+                className={styles.statTile}
+                data-asura-stat-target={target}
+                aria-controls={STAT_TARGET_ID[target]}
+                onClick={() => jumpTo(target)}
+              >
+                {body}
+                <span className={styles.statGo} aria-hidden="true">查看清單 ↓</span>
+              </button>
+            ) : (
+              <div key={stat.label} className={styles.statTile} data-asura-stat-static>
+                {body}
+              </div>
+            );
+          })}
+          <div className={styles.statsNotes} data-asura-stats-notes>
+            {display.statsLines.map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+          </div>
+        </div>
+        )}
+      </div>
+
+      {display.supplements.map((group) => (
+        <section key={group.key} className={styles.section} data-layer={group.key}>
+          <h3 className={styles.sectionTitle}>{group.heading}</h3>
+          {group.entries.map((entry) => (
+            <details key={entry.id} className={styles.supplement} data-asura-supplement={group.key}>
+              <summary className={styles.supplementHead}>{entry.title}</summary>
+              <div className={styles.sectionBody}>
+                <div className={styles.fieldRow}>{entry.members}</div>
+                <div>{entry.text}</div>
+              </div>
+            </details>
+          ))}
+        </section>
+      ))}
+
+      <section className={styles.section} data-layer="battlefield">
+        <details className={styles.supplement} data-asura-supplement="battlefield">
+          <summary className={styles.supplementHead}><h3>{display.battleField.heading}</h3></summary>
+          <div className={styles.sectionBody}>
+            {display.battleField.rows.map((row) => (
+              <div key={row.label} className={styles.fieldRow}>
+                <span className={styles.fieldLabel}>{row.label}：</span>
+                {row.text}
+              </div>
+            ))}
+          </div>
+        </details>
+      </section>
+      <p className={styles.scopeNote}>{display.scopeNote}</p>
+
+      {/* 千人千面戰神令：四張獨立卡片；後端文案，前端只照印（visual.* 由動效助手提供） */}
+      {display.timelineDecree && (() => {
+        const viewer = display.viewer ?? null;
+        const viewerName = viewer && typeof viewer.name === 'string' && viewer.name.trim() ? viewer.name.trim() : '';
+        const viewerAge = viewer && typeof viewer.age === 'number' ? viewer.age : null;
+        return (
+        <aside
+          ref={decreeRef}
+          className={`${styles.timelineDecree} ${visual.visualRoot} ${visual.entranceStage}`}
+          data-asura-timeline-decree
+          aria-label={display.timelineDecree.title}
+        >
+          <h2 className={`${styles.timelineDecreeTitle} ${visual.visualSectionTitle}`}>{display.timelineDecree.title}</h2>
+          {viewerName || viewerAge !== null ? (
+            <p className={`${visual.visualViewerChip} ${visual.entranceViewerLine}`} data-asura-decree-viewer title={display.ageTimeline?.viewerLine || undefined}>
+              {viewerName ? <span className={visual.visualViewerName}>{viewerName}</span> : null}
+              {viewerAge !== null ? <span className={visual.visualViewerAge}>{viewerAge} 歲</span> : null}
+            </p>
+          ) : null}
+          <div className={`${styles.timelineDecreeGrid} ${visual.visualGrid}`}>
+            {display.timelineDecree.lines.map((line, lineIndex) => {
+              const anchors = (display as AsuraDisplayWithAnchors).decreeAnchors;
+              const anchor = Array.isArray(anchors) ? anchors[lineIndex] : null;
+              const parts = splitFirstSentence(line.body);
+              const isNow = anchor?.tense === '現在';
+              const cardTense = !anchor ? '' : anchor.tense === '過去' ? visual.visualCardPast : isNow ? visual.visualCardCurrent : visual.visualCardFuture;
+              const badgeTense = !anchor ? '' : anchor.tense === '過去' ? visual.visualBadgePast : isNow ? visual.visualBadgeCurrent : '';
+              return (
+                <article
+                  key={line.key}
+                  className={`${styles.timelineDecreeCard} ${visual.visualCard} ${cardTense}${isNow ? ` ${visual.entranceCurrentCard}` : ''}`}
+                  data-asura-timeline-card={line.key}
+                >
+                  {anchor ? (
+                    <button
+                      type="button"
+                      className={anchor.ageRange ? `${styles.decreeMarker} ${visual.visualBadge} ${badgeTense}` : styles.decreeAnchorBadge}
+                      data-asura-decree-anchor={lineIndex}
+                      data-mark={anchor.mark || undefined}
+                      aria-label={decreeBadgeLabel(anchor)}
+                      onClick={() => {
+                        setFocusRequest({
+                          segmentIndex: anchor.segmentIndex,
+                          lineIndex,
+                          peelTo: anchor.focus === 'action' ? 'action' : undefined,
+                          nonce: Date.now(),
+                        });
+                      }}
+                    >
+                      {anchor.ageRange ? (
+                        <>
+                          <span className={`${styles.decreeMarkerIcon} ${visual.visualIcon}`} aria-hidden="true" />
+                          <span className={visual.visualAgeBand}>
+                            {anchor.ageRange}
+                            <small className={visual.visualAgeBandUnit}>歲</small>
+                          </span>
+                          <span className={isNow ? `${visual.visualMarkSeal} ${visual.visualMarkSealCurrent} ${visual.entranceCurrentSeal}` : visual.visualMarkSeal}>{anchor.mark}</span>
+                          <span className={visual.visualBadgeLabel}>{decreeBadgeLabel(anchor)}</span>
+                        </>
+                      ) : (
+                        decreeBadgeLabel(anchor)
+                      )}
+                    </button>
+                  ) : null}
+                  {anchor && anchor.headline ? (
+                    <p className={visual.visualTitleOverlay} data-asura-decree-headline={lineIndex}>
+                      {anchor.headline}
+                    </p>
+                  ) : null}
+                  <h3 className={styles.timelineDecreeCardHeading}>【{line.heading}】</h3>
+                  <p className={`${styles.timelineDecreeCardBody} ${visual.visualBody}`}>
+                    <span className={styles.decreeFirstSentence}>{parts.first}</span>
+                    {parts.rest}
+                  </p>
+                </article>
+              );
+            })}
+          </div>
+        </aside>
+        );
+      })()}
+      {display.ageTimeline && (
+        <AsuraAgeTimeline data={display.ageTimeline} focusRequest={focusRequest} />
+      )}
+    </section>
+  );
+}
+
+function LegacyReadingCard({ reading }: { reading: GhostAsuraReading }) {
+  const failed = reading.guard.status === 'FAILED';
+  const pillarHitCount = (label: string) => reading.items.filter(item =>
+    item.sealStatus === 'awakened' && item.pillarLabels.includes(label)).length;
+  const pillarLead = (label: string) => reading.items.find(item =>
+    item.sealStatus === 'awakened' && item.pillarLabels.includes(label))?.displayName ?? '暫無命中';
+
+  // 計算印記動畫延遲：卡片展開後才逐個亮起
+  const getImpressionAnimationDelay = useMemo(() => {
+    let globalIndex = 0;
+    return () => {
+      const delay =
+        animationConfig.cardReveal.delay +
+        animationConfig.cardReveal.duration +
+        animationConfig.impressionGlow.delay +
+        globalIndex * animationConfig.impressionGlow.staggerDelay;
+      globalIndex++;
+      return delay;
+    };
+  }, []);
+
+  return (
+    <section
+      className={styles.card}
+      aria-label={reading.cardTitle}
+      data-card-type="ghost-asura-reading"
+      data-result-batch={reading.resultBatchId}
+      data-guard-status={reading.guard.status}
+      data-item-count={reading.items.length}
+    >
+      <header className={styles.header}>
+        <span className={styles.crest} aria-hidden="true">修羅</span>
+        <h2 className={styles.title}>{reading.cardTitle}</h2>
+        <p className={styles.subtitle}>
+          {GHOST_ASURA_UI.natalAsura}｜{GHOST_ASURA_UI.battleField}｜
+          {GHOST_ASURA_UI.secretScroll}
+        </p>
+      </header>
+
+      <p className={styles.scrollHint}>左右滑動查看四柱，印記依柱對齊。</p>
+      <div
+        className={styles.pillarScroll}
+        role="region"
+        aria-label="四柱與所屬印記，可左右捲動"
+        tabIndex={0}
+        data-asura-pillar-scroll
+      >
+      <div className={styles.pillarReadingGrid} data-asura-pillar-grid>
+      {/* 柱頭與各柱印記共用四欄格線；標語和統計另置於列表下方。 */}
+      <div className={styles.pillarsTable}>
+        <div className={styles.pillarColumn} data-asura-pillar-head="year">
+          <div className={styles.pillarLabel}>年柱</div>
+          <div className={styles.pillarValue} data-asura-leading>{pillarLead('祖域（年柱）')}</div>
+          <small className={styles.pillarCount}>共 {pillarHitCount('祖域（年柱）')} 枚印記</small>
+        </div>
+        <div className={styles.pillarColumn} data-asura-pillar-head="month">
+          <div className={styles.pillarLabel}>月柱</div>
+          <div className={styles.pillarValue} data-asura-leading>{pillarLead('命境（月柱）')}</div>
+          <small className={styles.pillarCount}>共 {pillarHitCount('命境（月柱）')} 枚印記</small>
+        </div>
+        <div className={styles.pillarColumn} data-asura-pillar-head="day">
+          <div className={styles.pillarLabel}>日柱</div>
+          <div className={styles.pillarValue} data-asura-leading>{pillarLead('本魂（日柱）')}</div>
+          <small className={styles.pillarCount}>共 {pillarHitCount('本魂（日柱）')} 枚印記</small>
+        </div>
+        <div className={styles.pillarColumn} data-asura-pillar-head="hour">
+          <div className={styles.pillarLabel}>時柱</div>
+          <div className={styles.pillarValue} data-asura-leading>{pillarLead('後界（時柱）')}</div>
+          <small className={styles.pillarCount}>共 {pillarHitCount('後界（時柱）')} 枚印記</small>
+        </div>
+      </div>
+
+      {failed && (
+        <div className={styles.failed} role="alert" data-guard="failed">
+          {GHOST_ASURA_UI.incompleteBanner}
+          {reading.pendingEntries.length > 0 && (
+            <div>
+              待補 {reading.pendingEntries.length} 筆：
+              {reading.pendingEntries
+                .slice(0, 8)
+                .map((entry) => entry.label || entry.resultId)
+                .join('、')}
+              {reading.pendingEntries.length > 8 ? '…' : ''}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 按四柱分組排列印記 — 年月日時順序 */}
+      {(() => {
+        const pillarOrder = [
+          '祖域（年柱）',
+          '命境（月柱）',
+          '本魂（日柱）',
+          '後界（時柱）',
+        ];
+        const pillarNames = ['年柱', '月柱', '日柱', '時柱'];
+        const pillarKeys = ['year', 'month', 'day', 'hour'];
+        const groupedByPillar = new Map<string, typeof reading.items>();
+
+        reading.items.forEach((item) => {
+          // 客戶列表只顯示後端已命中的印記；統計仍使用完整 reading，不改判定。
+          if (item.sealStatus !== 'awakened') return;
+          if (item.pillarLabels.length === 0) return;
+          item.pillarLabels.forEach((pillar) => {
+            if (!groupedByPillar.has(pillar)) {
+              groupedByPillar.set(pillar, []);
+            }
+            groupedByPillar.get(pillar)!.push(item);
+          });
+        });
+
+        return (
+          <>
+            {pillarOrder.map((fullLabel, idx) => {
+              const itemsForPillar = groupedByPillar.get(fullLabel) || [];
+
+              return (
+                <div
+                  key={fullLabel}
+                  className={styles.pillarGroup}
+                  role="group"
+                  aria-label={`${pillarNames[idx]}印記`}
+                  data-asura-column={pillarKeys[idx]}
+                >
+                  {itemsForPillar.length === 0 && (
+                    <p className={styles.pillarEmpty} aria-label={`${pillarNames[idx]}目前沒有對應印記`}>—</p>
+                  )}
+                  <ul className={styles.list} aria-label={`${pillarNames[idx]}印記`} data-asura-list={pillarNames[idx]}>
+                    {itemsForPillar.map((item) => {
+                      const itemClass =
+                        item.sealStatus === 'awakened'
+                          ? `${styles.item} ${styles.itemAwakened}`
+                          : item.sealStatus === 'dormant'
+                            ? `${styles.item} ${styles.itemDormant}`
+                            : `${styles.item} ${styles.itemPending}`;
+                      const sealClass =
+                        item.sealStatus === 'awakened'
+                          ? `${styles.seal} ${styles.sealAwakened}`
+                          : item.sealStatus === 'dormant'
+                            ? `${styles.seal} ${styles.sealDormant}`
+                            : `${styles.seal} ${styles.sealPending}`;
+
+                      return (
+                        <li
+                          key={item.resultId}
+                          className={itemClass}
+                          data-asura-id={item.resultId}
+                          data-seal-status={item.sealStatus}
+                          data-display-name={item.displayName}
+                          style={
+                            item.sealStatus === 'awakened'
+                              ? {
+                                  animation: `asuraImpressionGlow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
+                                  animationDelay: `${getImpressionAnimationDelay()}ms`,
+                                }
+                              : {}
+                          }
+                        >
+                          <details className={styles.itemDetail} data-asura-detail name={`asura-col-${pillarKeys[idx]}`} onToggle={focusOpenedDetail}>
+                          <summary className={styles.itemHead}>
+                            <strong className={styles.displayName}>{item.displayName}</strong>
+                          </summary>
+                          <div className={styles.itemBody}>
+                            <span className={sealClass}>{item.sealLabel}</span>
+
+                          {item.sealStatus === 'pending' ? (
+                            <div className={styles.meaning}>
+                              {item.pendingReason ?? GHOST_ASURA_UI.pendingHint}
+                            </div>
+                          ) : (
+                            <>
+                              {item.shortDeclaration && (
+                                <div className={styles.meaning}>
+                                  <div className={styles.meaningStrong}>
+                                    {item.shortDeclaration}
+                                  </div>
+                                  {item.coreMeaning}
+                                </div>
+                              )}
+                              {(item.battleSignificance || item.verdict) && (
+                                <div className={styles.battleLine}>
+                                  <span style={{ color: '#fca5a5' }}>
+                                    {GHOST_ASURA_UI.printClash}｜
+                                  </span>
+                                  {item.battleSignificance} {item.verdict}
+                                </div>
+                              )}
+                            </>
+                          )}
+                          </div>
+                          </details>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              );
+            })}
+          </>
+        );
+      })()}
+      </div>
+      </div>
+
+      <div className={styles.summaryFooter} data-asura-summary-footer>
+        <div className={styles.banner} data-asura-banner>
+          別人還沒看見風暴，阿修羅先看見。
+          <br />
+          命盤是戰場，不是保護區。你已經站上去了。
+        </div>
+        <div className={styles.stats} data-asura-stats>
+          <span><b>{reading.items.length}</b> 項印記</span>
+          <span><b className={styles.awakenedValue}>{reading.awakenedCount}</b> {GHOST_ASURA_UI.sealAwakened}</span>
+          <span><b>{reading.dormantCount}</b> {GHOST_ASURA_UI.sealDormant}</span>
+          <span><b className={styles.pendingValue}>{reading.pendingCount}</b> {GHOST_ASURA_UI.sealPending}</span>
+          <small className={styles.statsHint}>統計為印記種類；同一印記命中多柱時，各柱分別呈現。</small>
+        </div>
+      </div>
+
+      {reading.dualClashes.length > 0 && (
+        <section className={styles.section} data-layer="dual">
+          <h3 className={styles.sectionTitle}>{GHOST_ASURA_UI.printClash}</h3>
+          {reading.dualClashes.map((clash) => (
+            <details key={clash.comboId} className={styles.supplement} data-asura-supplement="dual">
+              <summary className={styles.supplementHead}>{clash.title}</summary>
+              <div className={styles.sectionBody}>
+              <div className={styles.fieldRow}>
+                {clash.memberDisplayNames.join(' ↔ ')}
+                {clash.pillarLabel ? `｜${clash.pillarLabel}` : ''}
+              </div>
+              <div>{clash.evidenceText}</div>
+              </div>
+            </details>
+          ))}
+        </section>
+      )}
+
+      {reading.chains.length > 0 && (
+        <section className={styles.section} data-layer="chain">
+          <h3 className={styles.sectionTitle}>{GHOST_ASURA_UI.asuraChain}</h3>
+          {reading.chains.map((chain) => (
+            <details key={chain.comboId} className={styles.supplement} data-asura-supplement="chain">
+              <summary className={styles.supplementHead}>{chain.title}</summary>
+              <div className={styles.sectionBody}>
+              <div className={styles.fieldRow}>
+                {chain.memberDisplayNames.join('、')}
+              </div>
+              <div>{chain.evidenceText}</div>
+              </div>
+            </details>
+          ))}
+        </section>
+      )}
+
+      <section className={styles.section} data-layer="battlefield">
+        <details className={styles.supplement} data-asura-supplement="battlefield">
+        <summary className={styles.supplementHead}><h3>{GHOST_ASURA_UI.battleField}</h3></summary>
+        <div className={styles.sectionBody}>
+          {(
+            [
+              ['主戰魂', reading.battleField.mainSoul],
+              ['主要護印', reading.battleField.mainGuardian],
+              ['主要劫印', reading.battleField.mainTribulation],
+              ['主要陰影', reading.battleField.mainShadow],
+              ['魅緣力量', reading.battleField.charmPower],
+              ['權勢力量', reading.battleField.authorityPower],
+              ['財庫力量', reading.battleField.treasurePower],
+              ['移動力量', reading.battleField.movementPower],
+              ['突破口', reading.battleField.breakthrough],
+              ['戰局宣判', reading.battleField.finalVerdict],
+            ] as const
+          ).map(([label, value]) => (
+            <div key={label} className={styles.fieldRow}>
+              <span className={styles.fieldLabel}>{label}：</span>
+              {value}
+            </div>
+          ))}
+        </div>
+        </details>
+      </section>
+      <p className={styles.scopeNote}>印記故事用於文化象徵與自我反思，不代表心理診斷或必然發生的預言。</p>
+    </section>
+  );
+}

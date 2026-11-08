@@ -64,22 +64,6 @@ async function generateKarmaStory(_request: KarmaRequest): Promise<KarmaStory> {
   throw new AsuraUnavailableError('KARMA_STORY_NO_SKILL_SOURCE');
 }
 
-function getFallbackKarmaStory(body: KarmaRequest): KarmaStory {
-  const score = body.matchResult?.match_score ?? 60;
-  return {
-    resonance_score: score,
-    active_giver: body.personA.name,
-    needs_understanding: body.personB.name,
-    relationship_theme: `天宿因果課題：在紅塵執念與靈魂改心中尋求順天之軌。`,
-    story: `在宿世天命的交錯中，${body.personA.name} 與 ${body.personB.name} 的相遇絕非偶然。這是一段註定要在「${score}%」的星盤引力場中反覆淬煉的緣分。前世的執念如今化為今生相處的拉扯。雙方最深處的命宮星曜正無聲地考驗著彼此的修行。人之所以受折磨，是因為凡夫俗子執著於色相與得失（人有色無空，執念難消）。只有看透「離下坎上：火水未濟卦」之變易道理，學會放下對彼此的索求，方能突破宿世的困局。`,
-    today_advice: `修行的重中之重在於改命，而改命的唯一法門是「自己有沒有真正改心、廣結善緣」。不要一味在控制與冷暴力中指責對方，而是要學會放下心中的執著與不甘。以善為本，順天而行，這段關係的因果便已在默默中改寫。`,
-    closing_wisdom: `順天而行，以善為道則合、則生；執迷不悟，逆天而行則離、則亡。當你願意跨出改心與放下的第一步，宿世的因果密碼便已為你悄然啟封。`,
-    personA_star: `星曜交匯`,
-    personB_star: `星曜交匯`,
-    iching_hexagram: `震下巽上：雷風恆卦 · 剛柔並濟`
-  };
-}
-
 export async function POST(request: Request) {
   const requestId = createRequestId();
   const now = Date.now();

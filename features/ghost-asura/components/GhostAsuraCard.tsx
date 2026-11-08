@@ -10,7 +10,6 @@
 
 'use client';
 
-
 import { Fragment, useEffect, useMemo, useRef, useState, type SyntheticEvent, type CSSProperties } from 'react';
 import { animationConfig } from '@/lib/ghost-asura-animation';
 import type { AsuraDisplay, AsuraDisplaySeal } from '@/lib/ghost-asura-display-contract';
@@ -22,6 +21,15 @@ import { AsuraNatureCard } from './AsuraNatureCard';
 import { SealMotion } from './SealMotion';
 import { PresentGuide, COLUMN_ACCENTS } from './PresentGuide';
 import { AsuraAgeTimeline, type AsuraAgeFocusRequest } from './AsuraAgeTimeline';
+
+/** Mobile or reduced-motion: instant scroll (perf). Desktop may smooth. */
+function asuraScrollBehavior(): ScrollBehavior {
+  if (typeof window === 'undefined') return 'auto';
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return 'auto';
+  if (window.matchMedia('(max-width: 420px)').matches) return 'auto';
+  return 'smooth';
+}
+
 
 /** 點開印記卡後，捲到視線中央（卡片比畫面高就把標題對齊畫面上方，確保標題看得到）。
  *  等展開動畫（約 0.24 秒）跑完再算位置；使用者開了「減少動態」就不用平滑捲動。純畫面行為，不碰任何資料。 */
@@ -38,13 +46,11 @@ function focusOpenedDetail(event: SyntheticEvent<HTMLDetailsElement>) {
       if (!heading) return;
       const rect = heading.getBoundingClientRect();
       if (rect.top >= 8 && rect.bottom <= window.innerHeight - 8) return;
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      heading.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+      heading.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: asuraScrollBehavior() });
       return;
     }
     const fits = card.getBoundingClientRect().height <= window.innerHeight * 0.88;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    card.scrollIntoView({ block: fits ? 'center' : 'start', inline: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+    card.scrollIntoView({ block: fits ? 'center' : 'start', inline: 'nearest', behavior: asuraScrollBehavior() });
   }, 280);
 }
 
@@ -179,13 +185,10 @@ const TONE_SEAL: Record<AsuraDisplaySeal['tone'], string> = {
 
 function DisplayCard({ display }: { display: AsuraDisplay }) {
   const currentColumn = display.sections.find(section => section.key === 'pillars')?.guidance?.stage;
-  const baseDelay =
-    animationConfig.cardReveal.delay + animationConfig.cardReveal.duration + animationConfig.impressionGlow.delay;
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [restOpen, setRestOpen] = useState<Record<string, boolean>>({});
   const [copyStatus, setCopyStatus] = useState<Record<string, boolean>>({});
   const [focusRequest, setFocusRequest] = useState<AsuraAgeFocusRequest | null>(null);
-  let glowIndex = 0;
 
   /** 複製卡片話術或程式碼至剪貼簿（修羅檔案專用） */
   const handleCopyCard = (section: AsuraDisplay['sections'][0], mode: 'narrative' | 'code') => {
@@ -258,22 +261,19 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
     window.requestAnimationFrame(() => {
       const el = document.getElementById(STAT_TARGET_ID[target]);
       if (!el) return;
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      el.scrollIntoView({ behavior: asuraScrollBehavior(), block: 'start' });
       const focusTarget = target === 'pillars' ? el : ((el.querySelector(':scope > summary') as HTMLElement | null) ?? el);
       focusTarget.focus({ preventScroll: true });
     });
   };
-  const nextDelay = () => baseDelay + glowIndex++ * animationConfig.impressionGlow.staggerDelay;
   const decreeRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!display.timelineDecree) return;
     const el = decreeRef.current ?? document.querySelector<HTMLElement>('[data-asura-timeline-decree]');
     if (!el) return;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     window.requestAnimationFrame(() => {
-      el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      el.scrollIntoView({ behavior: asuraScrollBehavior(), block: 'start' });
     });
   }, [display.timelineDecree]);
 
@@ -492,14 +492,6 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
                     data-asura-id={seal.id}
                     data-seal-status={seal.tone}
                     data-display-name={seal.name}
-                    style={
-                      seal.tone === 'awakened'
-                        ? {
-                            animation: 'asuraImpressionGlow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-                            animationDelay: `${nextDelay()}ms`,
-                          }
-                        : {}
-                    }
                   >
                     <details className={styles.itemDetail} data-asura-detail name={`asura-col-${column.key}`} onToggle={focusOpenedDetail}>
                       <summary className={styles.itemHead}>
@@ -887,14 +879,6 @@ function LegacyReadingCard({ reading }: { reading: GhostAsuraReading }) {
                           data-asura-id={item.resultId}
                           data-seal-status={item.sealStatus}
                           data-display-name={item.displayName}
-                          style={
-                            item.sealStatus === 'awakened'
-                              ? {
-                                  animation: `asuraImpressionGlow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
-                                  animationDelay: `${getImpressionAnimationDelay()}ms`,
-                                }
-                              : {}
-                          }
                         >
                           <details className={styles.itemDetail} data-asura-detail name={`asura-col-${pillarKeys[idx]}`} onToggle={focusOpenedDetail}>
                           <summary className={styles.itemHead}>

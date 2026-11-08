@@ -20,7 +20,7 @@ import { assertThreeInOnePassed, runThreeInOne } from '@/lib/three-in-one';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const PROMPT_VERSION = 'teacher-v19-ghost-asura'; // 2026-10-23 ghost-asura：換版以免舊快取回傳無古籍條文的結果
+const PROMPT_VERSION = 'teacher-v20-reviewed-hexagram'; // 2026-10-23 ghost-asura：換版以免舊快取回傳無古籍條文的結果
 
 type RouteContext = { params: Promise<{ analysisId: string }> };
 
@@ -77,14 +77,14 @@ export async function POST(request: Request, context: RouteContext) {
     return friendlyErrorResponse(requestId, 'THREE_IN_ONE_LOCKED', '三核心資料不一致，暫不提供解讀。', 422);
   }
   const nowBucket = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' }).format(new Date());
-  const cacheKey = hashedCacheKey([analysisId, palaceId, teacherId, chart.engineVersion, PROMPT_VERSION, nowBucket]);
+  const cacheKey = hashedCacheKey([analysisId, palaceId, teacherId, chart.engineVersion, PROMPT_VERSION, threeInOne.result.yijing.certificate.chartFingerprint, nowBucket]);
   const cached = teacherCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION_MS) {
     return NextResponse.json({ ok: true, requestId, cached: true, data: cached.result }, { headers: { 'Cache-Control': 'no-store' } });
   }
 
   try {
-    const context = buildPalaceContext(chart, palaceId, analysisId, record.timeSeed);
+    const context = { ...buildPalaceContext(chart, palaceId, analysisId, record.timeSeed), reviewedThreeCore: threeInOne };
     const result = await runTeacher(teacherId, context);
     teacherCache.set(cacheKey, { result, timestamp: Date.now() });
     return NextResponse.json({ ok: true, requestId, cached: false, data: result }, { headers: { 'Cache-Control': 'no-store' } });

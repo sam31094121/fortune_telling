@@ -15,6 +15,8 @@ import { toUnifiedBirthProfile } from '@/lib/canonical-birth-profile';
 import { searchCities, findCityById, type CityEntry } from '@/lib/city-directory';
 import FiveElementPriorityCard from '@/components/FiveElementPriorityCard';
 import type { FiveElementIntegrationResult } from '@/lib/five-element-engine';
+import type { ZodiacDistributionGuide, ZodiacDistributionRow } from '@/lib/zodiac-engine';
+import guideStyles from './zodiac-guide.module.css';
 import type { BloodType } from '@/lib/types';
 import MegaInputGuide from '@/components/MegaInputGuide';
 import { clearDailyAnalysis, getDailyAnalysisButtonLabel, readDailyAnalysis, saveDailyAnalysis, type DailyAnalysisRecord } from '@/lib/daily-analysis-limit';
@@ -59,7 +61,7 @@ const ZODIAC_TRACE_TEMPLATE: ZodiacTraceStep[] = [
   { id: 'sign', label: '判定星座', status: 'pending' },
   { id: 'blood', label: '判定血型', status: 'pending' },
   { id: 'prompt', label: '整理解讀條件', status: 'pending' },
-  { id: 'ai', label: '易經卜卦分析', status: 'pending' },
+  { id: 'ai', label: '阿修羅技能解讀', status: 'pending' },
   { id: 'element', label: '五元素整合', status: 'pending' },
   { id: 'write', label: '資料寫入分流', status: 'pending' },
   { id: 'done', label: '建立報告', status: 'pending' },
@@ -154,7 +156,7 @@ type ZodiacDeepPointReading = {
 };
 
 type ZodiacDeepAnalysis = {
-  layer: 'ai_zodiac_deep_analysis';
+  layer: 'asura_zodiac_deep_analysis';
   sourceLayer: 'professional_zodiac_chart';
   recalculationAllowed: false;
   professionalInputDigest: string[];
@@ -164,7 +166,7 @@ type ZodiacDeepAnalysis = {
   tensionPatterns: string[];
   growthOpportunities: string[];
   userFriendlySummary: string;
-  aiPromptMaterial: {
+  skillMaterial: {
     fixedFacts: string[];
     interpretationRules: string[];
     prohibitedMoves: string[];
@@ -184,8 +186,8 @@ type ZodiacReinforcementPriority = {
 };
 
 type ZodiacReinforcementPlan = {
-  layer: 'ai_zodiac_reinforcement_plan';
-  sourceLayer: 'ai_zodiac_deep_analysis';
+  layer: 'asura_zodiac_reinforcement_plan';
+  sourceLayer: 'asura_zodiac_deep_analysis';
   recalculationAllowed: false;
   principle: string;
   priorities: [ZodiacReinforcementPriority, ZodiacReinforcementPriority, ZodiacReinforcementPriority];
@@ -201,6 +203,7 @@ type ZodiacReinforcementPlan = {
 };
 
 type ZodiacResult = {
+  distributionGuide: ZodiacDistributionGuide;
   ok: true;
   mode: 'zodiac';
   moduleId: 'ZODIAC';
@@ -266,6 +269,8 @@ const BLOOD_TYPES: Array<Exclude<BloodType, ''>> = ['A', 'B', 'AB', 'O'];
 
 function isCurrentZodiacResult(value: ZodiacResult | null | undefined): value is ZodiacResult {
   return Boolean(
+    value?.engineVersion === 'zodiac_core_v5_asura' &&
+    value.distributionGuide?.groups?.length === 3 &&
     value?.professionalChart?.points?.sun &&
     value.professionalChart.dominantSignature &&
     value.professionalChart.elementDistribution &&
@@ -472,17 +477,19 @@ function InfoItem({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-function DistributionLine({ label, value, accent }: { label: string; value: number; accent: string }) {
-  const width = Math.max(4, Math.min(100, Math.round(value * 34)));
+function DistributionLine({ row }: { row: ZodiacDistributionRow }) {
+  const icons: Record<string, string> = { fire: '☀', earth: '◇', air: '≋', water: '≈', cardinal: '↗', fixed: '◎', mutable: '↻', yang: '↗', yin: '◔' };
   return (
-    <div className="min-w-0 rounded-xl border border-white/10 bg-black/15 px-3 py-2">
-      <div className="flex items-center justify-between gap-3 text-xs font-black">
-        <span className="text-[color:var(--text-main)]">{label}</span>
-        <span className="text-[color:var(--text-muted)]">{value}</span>
-      </div>
-      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-        <div className={'h-full rounded-full ' + accent} style={{ width: width + '%' }} />
-      </div>
+    <div className={guideStyles.card} data-kind={row.key} data-active={row.active}>
+      <span className={guideStyles.icon} aria-hidden="true">{icons[row.key]}</span>
+      <p className={guideStyles.label}>{row.label}</p>
+      <p className={guideStyles.meaning}>{row.meaning}</p>
+      <p className={guideStyles.status}>{row.status}</p>
+      <details className={guideStyles.raw}>
+        <summary className="cursor-pointer">查看計算依據</summary>
+        <p className={guideStyles.basis}>{row.basis}</p>
+        <p className="mt-2">加權分數：{row.value}；本組比重：{row.share}%</p>
+      </details>
     </div>
   );
 }
@@ -514,9 +521,6 @@ function ProfessionalZodiacLayer({ result }: { result: ZodiacResult }) {
   if (!chart) return null;
 
   const points = [chart.points.sun, chart.points.moon, chart.points.rising].filter((point): point is ZodiacProfessionalPoint => Boolean(point));
-  const elementItems = Object.entries(chart.elementDistribution) as Array<[ZodiacElement, number]>;
-  const modalityItems = Object.entries(chart.modalityDistribution) as Array<[ZodiacModality, number]>;
-  const polarityItems = Object.entries(chart.polarityDistribution) as Array<[ZodiacPolarity, number]>;
 
   return (
     <section className="fortune-card overflow-hidden border-fuchsia-300/[0.24] bg-[radial-gradient(circle_at_top_left,rgba(217,70,239,0.16),rgba(34,211,238,0.07)_42%,rgba(15,23,42,0.72)_100%)] p-5 sm:p-6">
@@ -552,18 +556,15 @@ function ProfessionalZodiacLayer({ result }: { result: ZodiacResult }) {
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div className="space-y-2">
-            <p className="text-xs font-black text-cyan-100">元素分佈</p>
-            {elementItems.map(([key, value]) => <DistributionLine key={key} label={ELEMENT_LABEL[key]} value={value} accent="bg-cyan-300" />)}
-          </div>
-          <div className="space-y-2">
-            <p className="text-xs font-black text-fuchsia-100">模式分佈</p>
-            {modalityItems.map(([key, value]) => <DistributionLine key={key} label={MODALITY_LABEL[key]} value={value} accent="bg-fuchsia-300" />)}
-          </div>
-          <div className="space-y-2">
-            <p className="text-xs font-black text-amber-100">陰陽分佈</p>
-            {polarityItems.map(([key, value]) => <DistributionLine key={key} label={POLARITY_LABEL[key]} value={value} accent="bg-amber-300" />)}
+        <div className={guideStyles.guide}>
+          <p className={guideStyles.intro}>{result.distributionGuide.note}</p>
+          <div>
+            {result.distributionGuide.groups.map(group => (
+              <div key={group.title} className={guideStyles.group}>
+                <h3 className={guideStyles.heading}>{group.title}</h3>
+                <div className={guideStyles.grid}>{group.rows.map(row => <DistributionLine key={row.key} row={row} />)}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -590,7 +591,7 @@ function DeepZodiacAnalysisLayer({ result }: { result: ZodiacResult }) {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-200">I-CHING DEEP READING LAYER</p>
-          <h2 className="mt-3 break-words font-serif text-2xl font-black leading-tight text-cyan-50 sm:text-3xl">{'\u7b2c\u4e8c\u5c64\uff5cAI \u6df1\u5ea6\u89e3\u8b80'}</h2>
+          <h2 className="mt-3 break-words font-serif text-2xl font-black leading-tight text-cyan-50 sm:text-3xl">{'\u7b2c\u4e8c\u5c64\uff5c阿修羅 \u6df1\u5ea6\u89e3\u8b80'}</h2>
           <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{analysis.coreNarrative}</p>
         </div>
         <div className="min-w-0 rounded-2xl border border-cyan-200/20 bg-black/15 p-4 lg:w-[360px]">
@@ -643,7 +644,7 @@ function ZodiacReinforcementPlanLayer({ result }: { result: ZodiacResult }) {
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
           <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-200">I-CHING REINFORCEMENT LAYER</p>
-          <h2 className="mt-3 break-words font-serif text-2xl font-black leading-tight text-amber-50 sm:text-3xl">{'\u7b2c\u4e09\u5c64\uff5cAI \u88dc\u5f37\u65b9\u6848'}</h2>
+          <h2 className="mt-3 break-words font-serif text-2xl font-black leading-tight text-amber-50 sm:text-3xl">{'\u7b2c\u4e09\u5c64\uff5c阿修羅 \u88dc\u5f37\u65b9\u6848'}</h2>
           <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{plan.principle}</p>
         </div>
         <div className="rounded-2xl border border-amber-200/20 bg-black/15 p-4 text-sm font-black text-amber-50 lg:w-[340px]">
@@ -671,7 +672,7 @@ function ZodiacReinforcementPlanLayer({ result }: { result: ZodiacResult }) {
 
       <div className="mt-5 rounded-2xl border border-white/10 bg-black/15 p-4">
         <p className="text-xs font-black text-[color:var(--text-main)]">Integration Layer Payload</p>
-        <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{'\u7b2c\u4e00\u88dc\u5f37\uff1a'}{plan.integrationLayerPayload.firstPriority}{'\u3002SELF \u53ef\u4ea4\u7d66 AI \u6210\u9577\u4e2d\u5fc3\u66f4\u65b0\uff1bOTHER \u50c5\u4f5c\u672c\u6b21\u55ae\u6b21\u5206\u6790\u3002'}</p>
+        <p className="mt-2 text-xs font-semibold leading-6 text-[color:var(--text-sub)]">{'\u7b2c\u4e00\u88dc\u5f37\uff1a'}{plan.integrationLayerPayload.firstPriority}{'\u3002SELF \u53ef\u4ea4\u7d66 阿修羅 \u6210\u9577\u4e2d\u5fc3\u66f4\u65b0\uff1bOTHER \u50c5\u4f5c\u672c\u6b21\u55ae\u6b21\u5206\u6790\u3002'}</p>
       </div>
     </section>
   );
@@ -685,6 +686,10 @@ function ResultPanel({ result, onReset }: { result: ZodiacResult; onReset: () =>
 
   return (
     <section className="space-y-5">
+      {result.deepAnalysis && <section className="fortune-card border-cyan-300/20 bg-cyan-300/[0.06] p-5 sm:p-6" aria-label="阿修羅重點解讀">
+        <h2 className="text-xl font-black text-cyan-50">阿修羅先說重點</h2>
+        <p className="mt-3 text-sm font-semibold leading-7 text-[color:var(--text-sub)]">{result.deepAnalysis.coreNarrative}</p>
+      </section>}
       <ProfessionalZodiacLayer result={result} />
       <DeepZodiacAnalysisLayer result={result} />
       <ZodiacReinforcementPlanLayer result={result} />
@@ -891,6 +896,7 @@ export default function ZodiacPage() {
     setSubmitting(true);
     try {
       const data = await requestZodiacAnalysis({ name: form.name, birthDate: form.birthDate, birthTime, birthCityId, bloodType: form.bloodType, analysisTarget }, setJob, updateTrace);
+      if (!isCurrentZodiacResult(data)) throw new Error('阿修羅星座解讀版本尚未更新，請稍後重試。');
       setResult(data);
       setDailyRecord(saveDailyAnalysis<ZodiacResult>('zodiac', data));
       if (analysisTarget === 'self') {

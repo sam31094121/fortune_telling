@@ -42,28 +42,38 @@
       "id": "KARMA_AI_CHART_AND_FIXED_FALLBACK",
       "path": "app/api/karma-story-generate/route.ts",
       "symbol": "generateKarmaStory / getFallbackKarmaStory",
-      "status": "BLOCKED_FOR_TRADITIONAL_USE",
+      "status": "RESOLVED",
       "reason": "讓模型自行推算命宮星曜並提供固定卦象後備，未由已核對命盤提供",
       "runtimeDisabled": true,
-      "runtimeRestriction": "目前 Google 供應商停用；未完成獨立規則閘，不可因供應商重啟而直接恢復",
+      "runtimeRestriction": "本項僅關閉舊模型排盤與固定後備故事殘留；因果故事仍無技能來源、固定回 503 暫時無法取得，未恢復客戶功能，其他原典缺陷不因此放行。",
       "releaseConditions": [
         "移除模型排盤及固定卦象後備",
         "雙方三核心與適用規則均通過",
         "輸出逐項可追溯至正式資料"
+      ],
+      "resolutionEvidence": [
+        "app/api/karma-story-generate/route.ts：generateKarmaStory 無條件拋出 AsuraUnavailableError，無 AI 供應商呼叫；已移除未使用的 getFallbackKarmaStory 固定故事。",
+        "tests/karma-story-unavailable-route.test.cjs（2026-11-03 通過）：真實路由與共用錯誤回應，設定供應商金鑰仍無外送；連續請求及偽造 verified 均 503、no-store、無 karma_story；無效 JSON／資料 400 與限流 429 不變。"
       ]
     },
     {
       "path": "lib/ziwei-teacher/teachers.ts",
       "reason": "三核心核對後仍依宮名主星流年文字另起雜湊卦",
-      "status": "BLOCKED_FOR_TRADITIONAL_USE",
+      "status": "RESOLVED",
       "id": "ZIWEI_PALACE_HASH",
       "releaseConditions": [
         "原典版本與取法依據",
         "同次三核心資料及用途一致",
         "独立算例與入口回歸"
       ],
-      "runtimeDisabled": false,
-      "symbol": "castPalaceHexagram"
+      "runtimeDisabled": true,
+      "symbol": "castPalaceHexagram",
+      "runtimeRestriction": "僅關閉宮名／主星／流年另起雜湊卦旁路；三位老師與娛樂入口沿用同次後端核對結果。MEIHUA_GREGORIAN_SUM 仍未解除，不代表取數原典或所有功能已核定。",
+      "resolutionEvidence": [
+        "lib/ziwei-teacher/teachers.ts：移除 castHexagram 呼叫，入口 assertThreeInOnePassed 後只讀 context.reviewedThreeCore.result.yijing.reading；缺核對或內容不一致不出老師結果。",
+        "兩支紫微老師路由傳入本次後端 runThreeInOne 結果，更新快取版本並加入命盤指紋；每次請求仍先核對再讀快取，不讀前端核對標記或卦象。",
+        "tests/ai-teacher-availability.mjs、tests/three-core-reading-routes.test.cjs（2026-11-03 通過）：真實三核心與老師，改宮名／星名／流年不另換卦；缺核對、偽造旗標、損壞指紋阻擋；兩入口同次結果傳遞與換人快取隔離，外送 0 次。"
+      ]
     },
     {
       "path": "lib/growth-center-engine.ts",

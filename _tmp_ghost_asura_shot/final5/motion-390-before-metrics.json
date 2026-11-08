@@ -1,0 +1,17 @@
+{
+  "overflowX": false,
+  "decreeOverflowX": false,
+  "clientW": 390,
+  "scrollW": 390,
+  "hasHere": true,
+  "hasViewer": true,
+  "viewerText": "52 歲",
+  "hereText": "你現在在這段，往下看 · 約 44–53 歲你今年 52 歲（虛歲 53），正走在 44–53 歲這段。",
+  "decreePresent": true,
+  "markCurrent": [
+    "走過",
+    "現在",
+    "現在就做",
+    "下一段"
+  ]
+}

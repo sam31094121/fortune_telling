@@ -120,3 +120,11 @@ console.log('\n【測試 4】前端組件契約：姓名標籤、親友切換與
 console.log('\n════════════════════════════════════════════════════════════');
 console.log('✅ 鬼魅阿修羅 姓名功能臺運算與身分話術貫穿回歸測試 — 全部通過');
 console.log('════════════════════════════════════════════════════════════\n');
+
+// 5. targetName 必須經 sanitizeViewerName（原始碼契約）
+{
+  const src = fs.readFileSync(path.join(root, 'lib/server/ghost-asura-display.ts'), 'utf8');
+  assert(src.includes('const targetName = sanitizeViewerName(engineInput.name)'), 'targetName 必須經 sanitizeViewerName');
+  assert(!/const targetName = typeof engineInput\.name === 'string' && engineInput\.name\.trim\(\)\.length >= 2/.test(src), '舊版 targetName trim 長度判斷已移除');
+  console.log('✅ targetName sanitizeViewerName 契約');
+}

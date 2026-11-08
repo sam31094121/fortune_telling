@@ -1,4 +1,4 @@
-﻿/* GhostAsuraCard.visual.module.css
+/* GhostAsuraCard.visual.module.css
  * Visual / motion polish for 「千人千面戰神令」 four cards ONLY.
  * FE wires these classNames onto existing decree card markup after backend finishes.
  * Do NOT invent copy. Display API fields only (decreeAnchors / viewer / viewerLine / premiumTitles).
@@ -77,6 +77,19 @@
 
 /* ─── root / grid ─── */
 .visualRoot {
+  /* Pikachu ex 276/217 — SKILL §0 + 綁定 */
+  --pika-lemon: #FFE14A;
+  --pika-lemon-hi: #FFF6C8;
+  --pika-lemon-shade: #E6A817;
+  --pika-mist: #D4E8B0;
+  --pika-grass: #6B9E3D;
+  --pika-moss: #4A7A2E;
+  --pika-deep: #0F1F0C;
+  --pika-ink: #0A1608;
+  --pika-cheek: #E85D4C;
+  --pika-brown: #6B4423;
+  --pika-sky: #8A9BC8;
+  --pika-text: #E8F0D8;
   --decree-rise: 12px;
   --decree-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
   --decree-dur: 0.8s;
@@ -126,9 +139,9 @@
   border-radius: inherit;
   background: linear-gradient(
     165deg,
-    rgba(252, 234, 134, 0.07) 0%,
+    rgba(255, 246, 200, 0.10) 0%,
     transparent 42%,
-    rgba(0, 0, 0, 0.18) 100%
+    rgba(10, 22, 8, 0.28) 100%
   );
   opacity: 0.9;
   z-index: 0;
@@ -175,7 +188,7 @@
   font-weight: 900;
   line-height: 1;
   letter-spacing: 0.01em;
-  color: #fff3b0;
+  color: #FFF6C8;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   max-width: 100%;
@@ -222,7 +235,7 @@
 }
 
 .visualBadge:focus-visible {
-  outline: 2px solid #fcea86;
+  outline: 2px solid #FFE14A;
   outline-offset: 2px;
 }
 
@@ -231,11 +244,11 @@
   grid-area: label;
   min-width: 0;
   max-width: 100%;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1.35;
   letter-spacing: 0.02em;
-  opacity: 0.88;
+  opacity: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -254,13 +267,13 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  background: rgba(252, 234, 134, 0.16);
-  border: 1px solid rgba(252, 234, 134, 0.45);
+  background: rgba(255, 225, 74, 0.16);
+  border: 1px solid rgba(255, 225, 74, 0.45);
 }
 
 .visualMarkSealCurrent {
-  background: #fcea86;
-  color: #2a1606;
+  background: #FFE14A;
+  color: #0A1608;
   animation: decreeSealPulse 2.2s ease-in-out 0.6s infinite;
 }
 
@@ -274,7 +287,7 @@
   height: 30px;
   flex-shrink: 0;
   border-radius: 50%;
-  border: 1px solid rgba(252, 234, 134, 0.6);
+  border: 1px solid rgba(255, 225, 74, 0.6);
   font-size: 15px;
   line-height: 1;
   opacity: 0;
@@ -287,9 +300,12 @@
 
 /* Current badge emphasis */
 .visualBadgeCurrent {
-  border-color: rgba(255, 214, 102, 0.9);
-  background: linear-gradient(180deg, rgba(255, 196, 64, 0.28), rgba(248, 199, 88, 0.08));
-  box-shadow: 0 0 18px rgba(255, 196, 64, 0.35);
+  border-color: rgba(255, 225, 74, 0.9);
+  background: linear-gradient(180deg, rgba(255, 225, 74, 0.28), rgba(255, 225, 74, 0.10));
+  /* directional depth only — no full-ring glow (卡面修圖手法 #2) */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 200, 0.55),
+    4px 8px 16px rgba(10, 22, 8, 0.4);
 }
 
 .visualBadgePast {
@@ -301,9 +317,9 @@
 .visualTitleOverlay {
   margin: 0 0 10px;
   padding: 8px 12px;
-  border-left: 3px solid #fcea86;
-  background: rgba(0, 0, 0, 0.32);
-  color: #fff3b0;
+  border-left: 3px solid #FFE14A;
+  background: rgba(10, 22, 8, 0.45);
+  color: #FFF6C8;
   font-size: clamp(13px, 3.6vw, 15px);
   font-weight: 800;
   line-height: 1.45;
@@ -324,9 +340,9 @@
   margin: 0 0 10px;
   padding: 4px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(252, 234, 134, 0.35);
+  border: 1px solid rgba(255, 225, 74, 0.35);
   background: rgba(252, 234, 134, 0.08);
-  color: #efddb5;
+  color: #E8F0D8;
   font-size: 12px;
   font-weight: 600;
   line-height: 1.4;
@@ -355,7 +371,7 @@
 /* Section heading polish */
 .visualSectionTitle {
   margin: 0 0 14px;
-  color: #fcea86;
+  color: #FFE14A;
   font-size: clamp(15px, 4.2vw, 17px);
   font-weight: 700;
   line-height: 1.4;
@@ -389,7 +405,8 @@
   }
 
   .visualBadgeLabel {
-    font-size: 11px;
+    font-size: 13px;
+    opacity: 1;
     /* ~16 CJK @ 390: keep one line, ellipsis */
     max-width: 100%;
   }
@@ -638,9 +655,745 @@
   .visualRoot .visualBadge,
   .visualRoot .visualIcon,
   .visualRoot .visualTitleOverlay,
-  .visualRoot .visualBody {
+  .visualRoot .visualBody,
+  .visualCard,
+  .visualCardCurrent,
+  .visualBadge,
+  .visualIcon,
+  .visualTitleOverlay,
+  .visualBody {
+    animation: none !important;
+    animation-delay: 0s !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* P1 FAIL#1 end-of-file guard: later P1 polish must not leave entrance opacity 0 under reduce */
+@media (prefers-reduced-motion: reduce) {
+  .visualRoot,
+  .visualRoot *,
+  .entranceStage,
+  .entranceStage * {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+  }
+  .visualCard,
+  .visualCardCurrent,
+  .visualBadge,
+  .visualIcon,
+  .visualTitleOverlay,
+  .visualBody,
+  .visualViewerChip,
+  .visualMarkSealCurrent,
+  .entranceGuide,
+  .entranceViewerLine,
+  .entranceCurrentSeal,
+  .entranceCurrentCard {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
+/* Pikachu ex palette border + top/TL reverse-light 2026-11-06
+ * SKILL §0 + 綁定: lemon main, green support, no full-ring glow, TL→BR beam
+ */
+.visualCard {
+  border: 1px solid rgba(74, 122, 46, 0.65);
+  background:
+    linear-gradient(165deg, rgba(255, 246, 200, 0.14) 0%, transparent 38%),
+    linear-gradient(165deg, #1A2E14 0%, #0C140A 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 200, 0.55),
+    6px 10px 22px rgba(10, 22, 8, 0.45);
+}
+
+/* Top + slight TL reverse-light edge — NOT a full ring */
+.visualCard::after {
+  content: "";
+  position: absolute;
+  left: 6%;
+  right: 18%;
+  top: 0;
+  height: 2px;
+  pointer-events: none;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 246, 200, 0.55) 0%,
+    rgba(255, 225, 74, 0.95) 35%,
+    rgba(197, 224, 99, 0.35) 70%,
+    transparent 100%
+  );
+  box-shadow: 0 3px 8px rgba(255, 225, 74, 0.16);
+  z-index: 2;
+  opacity: 0.95;
+}
+
+.visualCard::before {
+  background: linear-gradient(
+    165deg,
+    rgba(255, 246, 200, 0.14) 0%,
+    rgba(212, 232, 176, 0.04) 28%,
+    transparent 48%,
+    rgba(10, 22, 8, 0.42) 100%
+  );
+}
+
+.visualCardCurrent {
+  border-color: rgba(255, 225, 74, 0.78);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 200, 0.75),
+    6px 12px 24px rgba(10, 22, 8, 0.5);
+}
+
+.visualCardCurrent::after {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 246, 200, 0.7) 0%,
+    rgba(255, 225, 74, 1) 40%,
+    rgba(197, 224, 99, 0.4) 75%,
+    transparent 100%
+  );
+  box-shadow: 0 4px 10px rgba(255, 225, 74, 0.22);
+}
+
+.visualBadgeCurrent {
+  border-color: rgba(255, 225, 74, 0.9);
+  background: linear-gradient(180deg, rgba(255, 225, 74, 0.28), rgba(107, 158, 61, 0.10));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 200, 0.55),
+    4px 8px 16px rgba(10, 22, 8, 0.4);
+}
+
+.visualMarkSealCurrent {
+  background: #FFE14A;
+  color: #0A1608;
+}
+
+.visualAgeBand {
+  color: #FFE14A;
+  text-shadow: 0 1px 0 rgba(10, 22, 8, 0.55);
+}
+
+.visualSectionTitle {
+  color: #FFE14A;
+}
+
+.visualTitleOverlay {
+  border-left-color: #FFE14A;
+  background: rgba(10, 22, 8, 0.45);
+  color: #FFF6C8;
+}
+
+.visualViewerChip {
+  border-color: rgba(124, 179, 66, 0.4);
+  background: rgba(255, 225, 74, 0.08);
+  color: #E8F0D8;
+}
+
+.visualMarkSeal {
+  background: rgba(255, 225, 74, 0.14);
+  border: 1px solid rgba(255, 225, 74, 0.45);
+  color: #FFF6C8;
+}
+
+.visualIcon {
+  border: 1px solid rgba(255, 225, 74, 0.55);
+  background: rgba(74, 122, 46, 0.25);
+}
+
+.visualBadge:focus-visible {
+  outline: 2px solid #FFE14A;
+}
+
+@media (max-width: 420px) {
+  .visualCard {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 246, 200, 0.5),
+      4px 8px 16px rgba(10, 22, 8, 0.42);
+  }
+  .visualCard::after {
+    left: 5%;
+    right: 22%;
+    height: 1.5px;
+  }
+}
+
+
+/* P1 FAIL#1 absolute EOF: final state under prefers-reduced-motion: reduce */
+@media (prefers-reduced-motion: reduce) {
+  .visualCard,
+  .visualCardCurrent,
+  .visualBadge,
+  .visualIcon,
+  .visualTitleOverlay,
+  .visualBody,
+  .visualViewerChip,
+  .visualMarkSealCurrent,
+  .entranceGuide,
+  .entranceViewerLine,
+  .entranceCurrentSeal,
+  .entranceCurrentCard,
+  .entranceStage,
+  .visualRoot .visualCard,
+  .visualRoot .visualCardCurrent {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    animation-delay: 0s !important;
+  }
+}
+
+/* Pikachu ex 276/217 palette applied 2026-11-06 — SKILL 阿修羅官方用色指南 §0 + 綁定
+ * Lemon primary accents; green depth/frame; cheek red unused on decree (seal stays lemon).
+ * Reduced-motion final-state guards above remain in force.
+ */
+
+/* === Pika REWORK 2026-11-06 ? Bot_APP BLOCKED response (decree cards) === */
+.visualRoot {
+  --pika-lemon: #FFE14A;
+  --pika-lemon-hi: #FFF8D0;
+  --pika-lemon-shade: #F0B400;
+  --pika-mist: #E6F5B8;
+  --pika-grass: #7CB342;
+  --pika-moss: #3D6B24;
+  --pika-deep: #0A1608;
+  --pika-ink: #060E05;
+}
+.visualCard {
+  border: 1px solid rgba(61, 107, 36, 0.75);
+  background:
+    linear-gradient(155deg, rgba(255, 248, 208, 0.28) 0%, rgba(255, 225, 74, 0.10) 18%, rgba(126, 179, 66, 0.05) 38%, transparent 58%),
+    radial-gradient(120% 90% at 12% 0%, rgba(230, 245, 184, 0.22), transparent 48%),
+    radial-gradient(90% 70% at 55% 45%, rgba(124, 179, 66, 0.14), transparent 55%),
+    radial-gradient(80% 70% at 100% 100%, rgba(6, 14, 5, 0.72), transparent 50%),
+    radial-gradient(70% 60% at 0% 100%, rgba(10, 22, 8, 0.55), transparent 45%),
+    linear-gradient(165deg, #1E3A18 0%, #122010 48%, #060E05 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 208, 0.7),
+    inset 0 -18px 28px rgba(6, 14, 5, 0.35),
+    6px 12px 24px rgba(6, 14, 5, 0.55);
+}
+.visualCard::before {
+  background: linear-gradient(
+    155deg,
+    rgba(255, 248, 208, 0.22) 0%,
+    rgba(230, 245, 184, 0.08) 22%,
+    transparent 46%,
+    rgba(6, 14, 5, 0.5) 100%
+  );
+  opacity: 1;
+}
+.visualCard::after {
+  left: 5%;
+  right: 22%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 248, 208, 0.85) 0%,
+    rgba(255, 225, 74, 1) 32%,
+    rgba(197, 224, 99, 0.45) 68%,
+    transparent 100%
+  );
+  box-shadow: 0 3px 10px rgba(255, 225, 74, 0.28);
+  opacity: 1;
+}
+.visualCardCurrent {
+  border-color: rgba(255, 225, 74, 0.92);
+  background:
+    linear-gradient(155deg, rgba(255, 248, 208, 0.36) 0%, rgba(255, 225, 74, 0.16) 20%, rgba(124, 179, 66, 0.08) 42%, transparent 60%),
+    radial-gradient(120% 90% at 10% 0%, rgba(255, 239, 90, 0.22), transparent 50%),
+    radial-gradient(90% 70% at 55% 40%, rgba(124, 179, 66, 0.18), transparent 55%),
+    radial-gradient(80% 70% at 100% 100%, rgba(6, 14, 5, 0.65), transparent 50%),
+    linear-gradient(165deg, #2A4A1C 0%, #163018 50%, #0A1608 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 208, 0.85),
+    inset 0 -16px 26px rgba(6, 14, 5, 0.3),
+    6px 14px 26px rgba(6, 14, 5, 0.55);
+}
+.visualCardCurrent::after {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 248, 208, 0.95) 0%,
+    rgba(255, 225, 74, 1) 38%,
+    rgba(197, 224, 99, 0.5) 72%,
+    transparent 100%
+  );
+  box-shadow: 0 4px 12px rgba(255, 225, 74, 0.35);
+}
+.visualAgeBand {
+  color: #FFE14A;
+  background: linear-gradient(180deg, #FFF8D0 0%, #FFE14A 48%, #F0B400 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(6, 14, 5, 0.65));
+  text-shadow: none;
+  font-weight: 900;
+}
+.visualAgeBandUnit {
+  -webkit-text-fill-color: #FFE14A;
+  opacity: 0.95;
+  filter: none;
+}
+.visualMarkSealCurrent {
+  background: linear-gradient(180deg, #FFF8D0 0%, #FFE14A 55%, #F0B400 100%);
+  color: #060E05;
+  border: 1px solid rgba(255, 248, 208, 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 2px 8px rgba(255, 225, 74, 0.35);
+  font-weight: 900;
+}
+.visualMarkSeal {
+  background: rgba(124, 179, 66, 0.14);
+  border: 1px solid rgba(124, 179, 66, 0.45);
+  color: #E6F5B8;
+}
+.visualBadgeCurrent {
+  border-color: rgba(255, 225, 74, 0.95);
+  background: linear-gradient(180deg, rgba(255, 225, 74, 0.38), rgba(124, 179, 66, 0.12));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 208, 0.7),
+    4px 8px 16px rgba(6, 14, 5, 0.42);
+}
+.visualSectionTitle {
+  color: #FFE14A;
+  text-shadow: 0 1px 0 rgba(6, 14, 5, 0.55), 0 0 12px rgba(255, 225, 74, 0.22);
+}
+.visualTitleOverlay {
+  border-left-color: #FFE14A;
+  background: rgba(6, 14, 5, 0.5);
+  color: #FFF8D0;
+}
+.visualIcon {
+  border: 1px solid rgba(255, 225, 74, 0.7);
+  background: rgba(124, 179, 66, 0.28);
+  color: #FFE14A;
+}
+.visualViewerChip {
+  border-color: rgba(124, 179, 66, 0.5);
+  background: rgba(255, 225, 74, 0.1);
+  color: #E8F0D8;
+}
+@media (max-width: 420px) {
+  .visualAgeBand { font-size: 24px; }
+  .visualCard::after { left: 4%; right: 24%; height: 1.5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .visualCard,
+  .visualCardCurrent,
+  .visualBadge,
+  .visualIcon,
+  .visualTitleOverlay,
+  .visualBody,
+  .visualViewerChip,
+  .visualMarkSealCurrent,
+  .entranceGuide,
+  .entranceViewerLine,
+  .entranceCurrentSeal,
+  .entranceCurrentCard,
+  .entranceStage,
+  .visualRoot .visualCard,
+  .visualRoot .visualCardCurrent {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    animation-delay: 0s !important;
+  }
+}
+
+/* === FLOOR49 2026-11-06 — 4.9: lemon on age+seal, TL mist beam, 3-layer depth === */
+.visualRoot {
+  --pika-lemon: #FFE600;
+  --pika-lemon-hi: #FFF59D;
+  --pika-lemon-shade: #F0B400;
+  --pika-mist: #E8F5B8;
+  --pika-grass: #7CB342;
+  --pika-moss: #2E5A1C;
+  --pika-deep: #071208;
+  --pika-ink: #040A03;
+}
+/* Mid brightest + rear pale YG beam + front deep moss vignette */
+.visualCard {
+  border: 1px solid rgba(46, 90, 28, 0.78);
+  background:
+    linear-gradient(148deg, rgba(255, 245, 157, 0.55) 0%, rgba(232, 245, 184, 0.28) 10%, rgba(255, 230, 0, 0.12) 22%, rgba(124, 179, 66, 0.05) 36%, transparent 48%),
+    radial-gradient(130% 100% at 8% -5%, rgba(232, 245, 184, 0.38), transparent 42%),
+    radial-gradient(95% 75% at 50% 42%, rgba(124, 179, 66, 0.16), transparent 58%),
+    radial-gradient(85% 75% at 100% 100%, rgba(4, 10, 3, 0.82), transparent 48%),
+    radial-gradient(75% 65% at 0% 100%, rgba(7, 18, 8, 0.62), transparent 46%),
+    linear-gradient(165deg, #1A3214 0%, #0E1C0C 48%, #040A03 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 245, 157, 0.78),
+    inset 0 -22px 32px rgba(4, 10, 3, 0.42),
+    6px 12px 24px rgba(4, 10, 3, 0.55);
+}
+.visualCard::before {
+  background: linear-gradient(
+    148deg,
+    rgba(255, 245, 157, 0.42) 0%,
+    rgba(232, 245, 184, 0.16) 18%,
+    transparent 40%,
+    rgba(4, 10, 3, 0.55) 100%
+  );
+  opacity: 1;
+}
+.visualCard::after {
+  left: 4%;
+  right: 28%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 245, 157, 0.95) 0%,
+    rgba(255, 230, 0, 1) 34%,
+    rgba(197, 224, 99, 0.45) 70%,
+    transparent 100%
+  );
+  box-shadow: 0 3px 12px rgba(255, 230, 0, 0.35);
+  opacity: 1;
+}
+.visualCardCurrent {
+  border-color: rgba(255, 230, 0, 0.95);
+  background:
+    linear-gradient(148deg, rgba(255, 245, 157, 0.62) 0%, rgba(255, 230, 0, 0.22) 14%, rgba(232, 245, 184, 0.14) 28%, transparent 50%),
+    radial-gradient(130% 100% at 6% -5%, rgba(255, 239, 90, 0.32), transparent 44%),
+    radial-gradient(95% 75% at 50% 40%, rgba(124, 179, 66, 0.2), transparent 56%),
+    radial-gradient(85% 75% at 100% 100%, rgba(4, 10, 3, 0.72), transparent 48%),
+    linear-gradient(165deg, #2C521E 0%, #163018 50%, #071208 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 245, 157, 0.92),
+    inset 0 -18px 28px rgba(4, 10, 3, 0.32),
+    6px 14px 26px rgba(4, 10, 3, 0.55);
+}
+/* Age numerals = brightest lemon (all cards) */
+.visualAgeBand {
+  color: #FFE600;
+  background: linear-gradient(180deg, #FFF59D 0%, #FFE600 46%, #F0B400 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(4, 10, 3, 0.75)) drop-shadow(0 0 10px rgba(255, 230, 0, 0.35));
+  text-shadow: none;
+  font-weight: 900;
+}
+.visualAgeBandUnit {
+  -webkit-text-fill-color: #FFE600;
+  opacity: 1;
+  filter: none;
+}
+/* Seals = saturated lemon (not only 現在) */
+.visualMarkSeal {
+  background: linear-gradient(180deg, rgba(255, 245, 157, 0.95) 0%, rgba(255, 230, 0, 0.88) 55%, rgba(240, 180, 0, 0.92) 100%);
+  border: 1px solid rgba(255, 245, 157, 0.95);
+  color: #040A03;
+  font-weight: 900;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 2px 8px rgba(255, 230, 0, 0.28);
+}
+.visualMarkSealCurrent {
+  background: linear-gradient(180deg, #FFF59D 0%, #FFE600 50%, #F0B400 100%);
+  color: #040A03;
+  border: 1px solid rgba(255, 245, 157, 1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 2px 10px rgba(255, 230, 0, 0.45);
+  font-weight: 900;
+}
+.visualBadgeCurrent {
+  border-color: rgba(255, 230, 0, 0.98);
+  background: linear-gradient(180deg, rgba(255, 230, 0, 0.42), rgba(124, 179, 66, 0.12));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 245, 157, 0.75),
+    4px 8px 16px rgba(4, 10, 3, 0.42);
+}
+.visualSectionTitle { color: #FFE600; }
+.visualIcon {
+  border: 1px solid rgba(255, 230, 0, 0.85);
+  background: rgba(124, 179, 66, 0.28);
+  color: #FFE600;
+}
+.visualTitleOverlay {
+  border-left-color: #FFE600;
+  color: #FFF59D;
+}
+
+/* === BEAM 2026-11-06 — visible TL pale-YG shaft + fogged rear (keep lemon age/seal) === */
+.visualCard {
+  /* Layer order: beam, rear fog, mid grass, front moss vignette, base */
+  background:
+    linear-gradient(132deg,
+      rgba(255, 252, 210, 0.92) 0%,
+      rgba(232, 245, 184, 0.72) 8%,
+      rgba(197, 224, 99, 0.38) 18%,
+      rgba(255, 230, 0, 0.12) 28%,
+      transparent 42%),
+    radial-gradient(140% 110% at 0% -10%, rgba(232, 245, 184, 0.78), rgba(197, 224, 99, 0.28) 28%, transparent 52%),
+    radial-gradient(100% 80% at 48% 40%, rgba(168, 210, 96, 0.22), transparent 60%),
+    radial-gradient(90% 80% at 100% 100%, rgba(4, 10, 3, 0.88), transparent 46%),
+    radial-gradient(80% 70% at 0% 100%, rgba(10, 28, 10, 0.72), transparent 44%),
+    linear-gradient(165deg, #C8E878 0%, #7CB342 22%, #2A4A1C 52%, #071208 78%, #040A03 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 252, 210, 0.95),
+    inset 0 -26px 36px rgba(4, 10, 3, 0.55),
+    6px 12px 24px rgba(4, 10, 3, 0.55);
+}
+.visualCard::before {
+  /* Dedicated visible TL beam wash */
+  background: linear-gradient(
+    132deg,
+    rgba(255, 252, 210, 0.78) 0%,
+    rgba(232, 245, 184, 0.48) 14%,
+    rgba(197, 224, 99, 0.18) 30%,
+    transparent 48%,
+    rgba(4, 10, 3, 0.62) 100%
+  );
+  opacity: 1;
+}
+.visualCardCurrent {
+  border-color: rgba(255, 230, 0, 0.95);
+  background:
+    linear-gradient(132deg,
+      rgba(255, 252, 210, 0.98) 0%,
+      rgba(255, 245, 157, 0.78) 7%,
+      rgba(232, 245, 184, 0.55) 16%,
+      rgba(255, 230, 0, 0.22) 26%,
+      transparent 44%),
+    radial-gradient(145% 115% at -2% -12%, rgba(255, 252, 210, 0.85), rgba(232, 245, 184, 0.42) 30%, transparent 55%),
+    radial-gradient(100% 80% at 50% 38%, rgba(168, 210, 96, 0.28), transparent 58%),
+    radial-gradient(90% 80% at 100% 100%, rgba(4, 10, 3, 0.78), transparent 46%),
+    linear-gradient(165deg, #D8F090 0%, #9CCC4A 20%, #3D6B24 48%, #0E1C0C 74%, #040A03 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 252, 210, 1),
+    inset 0 -20px 30px rgba(4, 10, 3, 0.4),
+    6px 14px 26px rgba(4, 10, 3, 0.55);
+}
+/* lemon age/seal KEEP — no override */
+
+/* === READ 2026-11-06 — contrast ≥4.5:1 on pale beam; beam layers untouched === */
+.visualTitleOverlay {
+  background: rgba(4, 10, 3, 0.82);
+  color: #FFF8D0;
+  border-left-color: #FFE600;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+.visualSectionTitle {
+  color: #FFF8D0;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.55);
+  background: rgba(4, 10, 3, 0.72);
+  display: inline-block;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+.visualViewerChip {
+  background: rgba(4, 10, 3, 0.78);
+  border-color: rgba(124, 179, 66, 0.45);
+  color: #FFF8D0;
+}
+.visualIcon {
+  color: #FFE600;
+  background: rgba(4, 10, 3, 0.72);
+  border-color: rgba(255, 230, 0, 0.85);
+}
+
+/* === PERF 2026-11-06 — decree visualCard: 2–3 bg layers; beam = 1 pseudo === */
+.visualCard {
+  isolation: isolate;
+  background:
+    radial-gradient(100% 80% at 48% 40%, rgba(168, 210, 96, 0.2), transparent 58%),
+    radial-gradient(90% 80% at 100% 100%, rgba(4, 10, 3, 0.82), transparent 48%),
+    linear-gradient(165deg, #7CB342 0%, #2A4A1C 40%, #0E1C0C 72%, #040A03 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 252, 210, 0.75),
+    inset 0 -22px 32px rgba(4, 10, 3, 0.48),
+    6px 12px 24px rgba(4, 10, 3, 0.55);
+}
+/* Single beam wash — pointer-events none + contain paint */
+.visualCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  contain: paint;
+  z-index: 0;
+  opacity: 1;
+  background: linear-gradient(
+    132deg,
+    rgba(255, 252, 210, 0.88) 0%,
+    rgba(232, 245, 184, 0.55) 12%,
+    rgba(197, 224, 99, 0.22) 26%,
+    transparent 46%,
+    rgba(4, 10, 3, 0.45) 100%
+  );
+}
+/* Keep ::after as thin top rim only (not a second beam stack) */
+.visualCard::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 4%;
+  right: 28%;
+  height: 2px;
+  border-radius: 0;
+  pointer-events: none;
+  contain: paint;
+  z-index: 2;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 245, 157, 0.95) 0%,
+    rgba(255, 230, 0, 1) 34%,
+    rgba(197, 224, 99, 0.45) 70%,
+    transparent 100%
+  );
+  box-shadow: 0 3px 10px rgba(255, 230, 0, 0.28);
+  opacity: 1;
+}
+.visualCardCurrent {
+  border-color: rgba(255, 230, 0, 0.95);
+  background:
+    radial-gradient(120% 100% at 6% -5%, rgba(255, 239, 90, 0.3), transparent 48%),
+    radial-gradient(90% 70% at 50% 40%, rgba(168, 210, 96, 0.24), transparent 58%),
+    linear-gradient(165deg, #9CCC4A 0%, #3D6B24 42%, #0E1C0C 74%, #040A03 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 252, 210, 0.95),
+    inset 0 -18px 28px rgba(4, 10, 3, 0.36),
+    6px 14px 26px rgba(4, 10, 3, 0.55);
+}
+.visualCardCurrent::before {
+  background: linear-gradient(
+    132deg,
+    rgba(255, 252, 210, 0.92) 0%,
+    rgba(255, 245, 157, 0.55) 12%,
+    rgba(232, 245, 184, 0.22) 28%,
+    transparent 48%,
+    rgba(4, 10, 3, 0.4) 100%
+  );
+}
+.visualCardPast {
+  /* muted via color, not saturate() filter */
+  opacity: 0.9;
+  filter: none;
+  background:
+    radial-gradient(100% 80% at 48% 40%, rgba(124, 179, 66, 0.12), transparent 58%),
+    radial-gradient(90% 80% at 100% 100%, rgba(4, 10, 3, 0.88), transparent 48%),
+    linear-gradient(165deg, #3D5A28 0%, #1A2E14 45%, #071208 100%);
+}
+.visualCardPast::before {
+  opacity: 0.55;
+  background: linear-gradient(
+    132deg,
+    rgba(197, 224, 99, 0.28) 0%,
+    rgba(124, 179, 66, 0.12) 20%,
+    transparent 45%,
+    rgba(4, 10, 3, 0.55) 100%
+  );
+}
+.visualCardFuture {
+  /* keep clear mid — same 3-layer recipe, slightly cooler mist */
+  background:
+    radial-gradient(100% 80% at 48% 40%, rgba(168, 210, 96, 0.16), transparent 58%),
+    radial-gradient(90% 80% at 100% 100%, rgba(4, 10, 3, 0.8), transparent 48%),
+    linear-gradient(165deg, #6B9E3D 0%, #2A4A1C 42%, #0E1C0C 74%, #040A03 100%);
+}
+/* Age band: text-shadow instead of drop-shadow filter (clip-text keeps fill) */
+.visualAgeBand {
+  filter: none !important;
+  /* solid lemon fallback when clip unsupported; glow via text-shadow on unit sibling */
+  text-shadow: 0 1px 0 rgba(4, 10, 3, 0.85), 0 0 10px rgba(255, 230, 0, 0.35);
+}
+.visualAgeBandUnit {
+  filter: none !important;
+  text-shadow: 0 1px 0 rgba(4, 10, 3, 0.75);
+}
+.visualBadgePast {
+  filter: none !important;
+  opacity: 0.9;
+  border-color: rgba(74, 122, 46, 0.55);
+  background: linear-gradient(180deg, rgba(74, 122, 46, 0.22), rgba(14, 28, 12, 0.55));
+  color: #C5D6A8;
+}
+/* Off-screen decree cards */
+.visualCard:not(.visualCardCurrent) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 200px;
+}
+
+/* === PERF 2026-11-06b — mobile: kill infinite breathe / pulse; lighter shadows === */
+@media (max-width: 420px) {
+  .visualCardCurrent {
+    animation: decreeCardIn var(--decree-dur) var(--decree-ease) both !important;
+  }
+  .visualMarkSealCurrent,
+  .visualRoot .visualCardCurrent {
+    animation: none !important;
+  }
+  .visualCard,
+  .visualCardCurrent {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 252, 210, 0.7),
+      0 6px 14px rgba(4, 10, 3, 0.4);
+  }
+  .visualCard::after {
+    box-shadow: none;
+  }
+}
+
+/* === FLICKER 2026-11-06 — no content-vis flash; underpaint; no infinite pulse === */
+.visualCard,
+.visualCardCurrent,
+.visualCardPast,
+.visualCardFuture,
+.visualRoot {
+  background-color: #040A03;
+}
+.visualCard:not(.visualCardCurrent) {
+  content-visibility: visible !important;
+  contain-intrinsic-size: none;
+}
+.visualCard,
+.visualCardCurrent,
+.visualBadge,
+.visualBadgeCurrent,
+.visualBadgePast {
+  transition: none; /* no bg/border color thrash on state change */
+}
+.visualCardCurrent,
+.visualRoot .visualCardCurrent,
+.visualMarkSealCurrent {
+  animation: decreeCardIn var(--decree-dur, 0.8s) ease-out both !important; /* drop infinite breathe/pulse */
+}
+@media (max-width: 420px) {
+  .visualCard,
+  .visualCardCurrent,
+  .visualBadge,
+  .visualIcon,
+  .visualTitleOverlay,
+  .visualMarkSealCurrent,
+  .entranceGuide,
+  .entranceViewerLine,
+  .entranceCurrentSeal,
+  .entranceCurrentCard,
+  .entranceStage {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+    filter: none !important;
+  }
+}
+/* Age band: solid lemon (no clip-text flicker) on small screens */
+@media (max-width: 420px) {
+  .visualAgeBand {
+    background: none !important;
+    -webkit-background-clip: border-box !important;
+    background-clip: border-box !important;
+    -webkit-text-fill-color: #FFE600 !important;
+    color: #FFE600 !important;
+    filter: none !important;
+    text-shadow: 0 1px 0 rgba(4, 10, 3, 0.85);
   }
 }

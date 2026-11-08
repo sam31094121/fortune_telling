@@ -1,0 +1,64 @@
+{
+  "frames": {
+    "t0": {
+      "label": "t0",
+      "overflowX": false,
+      "bridgeMaxOp": 0,
+      "bridge0": {
+        "op": 0,
+        "delay": "0.6s",
+        "text": "這段你往上走，下一段你正面迎戰。"
+      },
+      "curSegOp": 0,
+      "segOps": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "nextBadge": false
+    },
+    "t180": {
+      "label": "t180",
+      "overflowX": false,
+      "bridgeMaxOp": 0,
+      "bridge0": {
+        "op": 0,
+        "delay": "0.6s",
+        "text": "這段你往上走，下一段你正面迎戰。"
+      },
+      "curSegOp": 1,
+      "segOps": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "nextBadge": false
+    },
+    "t500": {
+      "label": "t500",
+      "overflowX": false,
+      "bridgeMaxOp": 0,
+      "bridge0": {
+        "op": 0,
+        "delay": "0.6s",
+        "text": "這段你往上走，下一段你正面迎戰。"
+      },
+      "curSegOp": 1,
+      "segOps": [
+        0.005,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "nextBadge": false
+    }
+  }
+}

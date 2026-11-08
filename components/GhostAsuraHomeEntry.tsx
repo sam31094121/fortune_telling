@@ -67,7 +67,6 @@ export default function GhostAsuraHomeEntry() {
           <p className={styles.impression}><HomeTranslatedText text={`印記示意：${featuredImpression.title}`} /></p>
         </div>
       </div>
-      <p className={styles.ageGate} data-asura-age-gate><HomeTranslatedText text="18 歲禁忌｜未滿 18 歲禁止進入" /></p>
       {/* 業主定案 2026-10-16：免費／3 分鐘／阿修羅秘卷 小標籤隱藏；要恢復把 false && 拿掉 */}
       {false && (
       <div className={styles.meta}>

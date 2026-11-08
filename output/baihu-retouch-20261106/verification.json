@@ -1,0 +1,18 @@
+{
+  "source": "public\\home-entry\\baihu-foreground-v1.png",
+  "candidate": "output\\baihu-retouch-20261106\\baihu-foreground-edge-clean-v2.png",
+  "source_sha256": "f97af89bde7ef7af218cf8fc38f0642707091c9b0f970bfb31c104b650bdc514",
+  "size": [
+    1448,
+    1086
+  ],
+  "removed_low_alpha_red_yellow_fringe_pixels": 6535,
+  "changed_alpha_max_original": 23,
+  "rgb_unchanged": "Visible retained pixels unchanged; zero-alpha hidden RGB cleared",
+  "all_pixels_outside_mask_unchanged": "All originally visible pixels outside selected fringe unchanged; invisible RGB normalized",
+  "all_alpha_above_24_unchanged": true,
+  "dimension_gate": "FAIL: below 2560 long edge / 1440 short edge",
+  "status": "internal candidate only; source and homepage reference unchanged; no release",
+  "transparent_hidden_rgb_cleared": 895439,
+  "retained_visible_pixels_exact_match": true
+}

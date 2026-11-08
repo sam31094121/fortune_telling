@@ -1,0 +1,215 @@
+{
+  "360": {
+    "width": 360,
+    "docScrollWidth": 360,
+    "bodyScrollWidth": 360,
+    "maxChildRight": 886,
+    "overflowX": false,
+    "ages": [
+      {
+        "text": "約虛歲 4–13",
+        "itemW": 41,
+        "ageW": 41,
+        "ageH": 25,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "8.5px",
+        "lines": 2
+      },
+      {
+        "text": "約虛歲 14–23",
+        "itemW": 41,
+        "ageW": 41,
+        "ageH": 25,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "8.5px",
+        "lines": 2
+      },
+      {
+        "text": "約虛歲 24–33",
+        "itemW": 41,
+        "ageW": 41,
+        "ageH": 25,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "8.5px",
+        "lines": 2
+      },
+      {
+        "text": "約虛歲 34–43",
+        "itemW": 41,
+        "ageW": 41,
+        "ageH": 25,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "8.5px",
+        "lines": 2
+      },
+      {
+        "text": "約虛歲 44–53",
+        "itemW": 41,
+        "ageW": 41,
+        "ageH": 25,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "8.5px",
+        "lines": 2
+      },
+      {
+        "text": "約虛歲 54–63",
+        "itemW": 41,
+        "ageW": 41,
+        "ageH": 25,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "8.5px",
+        "lines": 2
+      }
+    ],
+    "anyEllipsisOnly": false,
+    "allFull": true
+  },
+  "390": {
+    "width": 390,
+    "docScrollWidth": 390,
+    "bodyScrollWidth": 390,
+    "maxChildRight": 886,
+    "overflowX": false,
+    "ages": [
+      {
+        "text": "約虛歲 4–13",
+        "itemW": 46,
+        "ageW": 46,
+        "ageH": 25,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "8.5px",
+        "lines": 2
+      },
+      {
+        "text": "約虛歲 14–23",
+        "itemW": 46,
+        "ageW": 46,
+        "ageH": 25,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "8.5px",
+        "lines": 2
+      },
+      {
+        "text": "約虛歲 24–33",
+        "itemW": 46,
+        "ageW": 46,
+        "ageH": 25,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "8.5px",
+        "lines": 2
+      },
+      {
+        "text": "約虛歲 34–43",
+        "itemW": 46,
+        "ageW": 46,
+        "ageH": 25,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "8.5px",
+        "lines": 2
+      },
+      {
+        "text": "約虛歲 44–53",
+        "itemW": 46,
+        "ageW": 46,
+        "ageH": 25,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "8.5px",
+        "lines": 2
+      },
+      {
+        "text": "約虛歲 54–63",
+        "itemW": 46,
+        "ageW": 46,
+        "ageH": 25,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "8.5px",
+        "lines": 2
+      }
+    ],
+    "anyEllipsisOnly": false,
+    "allFull": true
+  },
+  "1280": {
+    "width": 1280,
+    "docScrollWidth": 1280,
+    "bodyScrollWidth": 1280,
+    "maxChildRight": 1280,
+    "overflowX": false,
+    "ages": [
+      {
+        "text": "約虛歲 4–13",
+        "itemW": 157,
+        "ageW": 157,
+        "ageH": 17,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "10px",
+        "lines": 1
+      },
+      {
+        "text": "約虛歲 14–23",
+        "itemW": 157,
+        "ageW": 157,
+        "ageH": 17,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "10px",
+        "lines": 1
+      },
+      {
+        "text": "約虛歲 24–33",
+        "itemW": 157,
+        "ageW": 157,
+        "ageH": 17,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "10px",
+        "lines": 1
+      },
+      {
+        "text": "約虛歲 34–43",
+        "itemW": 157,
+        "ageW": 157,
+        "ageH": 17,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "10px",
+        "lines": 1
+      },
+      {
+        "text": "約虛歲 44–53",
+        "itemW": 157,
+        "ageW": 157,
+        "ageH": 17,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "10px",
+        "lines": 1
+      },
+      {
+        "text": "約虛歲 54–63",
+        "itemW": 157,
+        "ageW": 157,
+        "ageH": 17,
+        "maxW": "100%",
+        "whiteSpace": "normal",
+        "fontSize": "10px",
+        "lines": 1
+      }
+    ],
+    "anyEllipsisOnly": false,
+    "allFull": true
+  }
+}

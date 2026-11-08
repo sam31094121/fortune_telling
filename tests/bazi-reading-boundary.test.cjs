@@ -14,7 +14,7 @@ async function main() {
   const passed = await three.runThreeInOne(birthInput);
   three.assertThreeInOnePassed(passed);
   let current = passed, allowed = true, verifiedCalls = 0, generated = 0;
-  const helper = load('lib/bazi-verified-reading.ts', { './three-in-one': { ...three, runThreeInOne: async input => {
+  const helper = load('lib/bazi-verified-reading.ts', { './bazi-reviewed-output': { getReviewedBaziOutputGate: result => { three.assertThreeInOnePassed(result); return { interpretationReady: allowed }; } }, './three-in-one': { ...three, runThreeInOne: async input => {
     verifiedCalls++;
     assert.equal(input.birthTime, birthInput.birthTime);
     assert.equal(input.dayMaster, undefined, 'client facts never enter the engine');
@@ -55,7 +55,7 @@ async function main() {
     current = passed; allowed = false;
     const beforeBlocked = verifiedCalls;
     assert.equal((await call(body)).status, 409);
-    assert.equal(verifiedCalls, beforeBlocked);
+    assert.equal(verifiedCalls, beforeBlocked + 1, 'review policy is evaluated after server computation');
   }
   console.log('PASS: both Bazi reading routes reject forged facts, missing time, changed pillars/fingerprint/order and stale output');
 }

@@ -1,0 +1,16 @@
+{
+  "target": "首頁易經西洋星座 / 張月鹿幼子",
+  "change": "Only mask: 0.75 source-pixel expansion and 0.3 source-pixel alpha-edge smoothing; contour paths unchanged",
+  "source_dimensions": [
+    720,
+    540
+  ],
+  "background_dimensions": [
+    1536,
+    1024
+  ],
+  "source_pixels": "unchanged",
+  "visual_review": "Current phone-sized page inspected; no obvious new clipping. Fine-hair improvement not quantified; not full-device acceptance.",
+  "quality_gate": "Below required source dimensions; no 2K/4K pass",
+  "status": "local mask candidate applied; not committed or published; no functional changes"
+}

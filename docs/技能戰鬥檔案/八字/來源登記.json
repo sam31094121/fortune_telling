@@ -323,7 +323,27 @@
       "license_terms": "古籍原文屬公有領域；版本與取用權利待查核",
       "accessed_at": "2026-09-16",
       "edition": "版本待查核（國圖、HOLLIS、HathiTrust 皆未能開啟紀錄）",
-      "trust": "D"
+      "trust": "D",
+      "bibliographic_followup": {
+        "reviewed_at": "2026-11-05",
+        "evidence": [
+          {
+            "institution": "日本國立國會圖書館",
+            "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I000007566884",
+            "edition": "新刊合併官板音義評註淵海子平5卷；宋徐升撰、明楊淙增校；上海掃葉山房石印，民國，6冊",
+            "scope": "機構書目已閱；未逐頁核對規則原文"
+          },
+          {
+            "institution": "國家圖書館臺灣華文電子書庫／國立臺灣圖書館",
+            "url": "https://taiwanebook.ncl.edu.tw/en/book/NTL-9900014379",
+            "edition": "淵海子平子平真詮 v.1；秦慎安校勘；文明，1926，207頁",
+            "scope": "機構書目及閱讀器已閱；PDF工具未成功開啟，未宣稱完成書影校勘"
+          }
+        ],
+        "limits": "只補可追溯版本線索；原有權限、信任等級與claim狀態保留，不以書目替條文、作者考證或公式驗證。",
+        "policy_url": "https://ndlsearch.ndl.go.jp/help/sitepolicy",
+        "policy_note": "NDL自建書目可自由利用的條款已查閱；不延伸為書內全文授權，不代填人工核准。"
+      }
     },
     {
       "source_id": "S-ZIPING-ZHENQUAN",
@@ -339,7 +359,27 @@
       "license_terms": "古籍原文屬公有領域；現代點校本受著作權保護（待查核）",
       "accessed_at": "2026-09-16",
       "edition": "現代本：趙嘉寧註（中醫古籍出版社 2012）等；古刊本待查核",
-      "trust": "D"
+      "trust": "D",
+      "bibliographic_followup": {
+        "reviewed_at": "2026-11-05",
+        "evidence": [
+          {
+            "institution": "日本國立國會圖書館",
+            "url": "https://ndlsearch.ndl.go.jp/books/R100000002-I000002325258",
+            "edition": "子平真詮：訳註；沈孝瞻原著，竹中利貞譯註；サン企画，1993.2，241頁",
+            "scope": "機構書目已閱；現代日譯註本，非清刊原刻本。數位本有存取限制，未讀正文"
+          },
+          {
+            "institution": "國家圖書館臺灣華文電子書庫／國立臺灣圖書館",
+            "url": "https://taiwanebook.ncl.edu.tw/en/book/NTL-9900014379",
+            "edition": "淵海子平子平真詮 v.1；秦慎安校勘；文明，1926",
+            "scope": "合刊書目可追溯；未核對子平真詮正文頁碼"
+          }
+        ],
+        "limits": "只補可追溯版本線索；原有權限、信任等級與claim狀態保留，不以書目替條文、作者考證或公式驗證。",
+        "policy_url": "https://ndlsearch.ndl.go.jp/help/sitepolicy",
+        "policy_note": "NDL自建書目可自由利用的條款已查閱；不延伸為書內全文授權，不代填人工核准。"
+      }
     },
     {
       "source_id": "S-DITIANSUI",
@@ -355,7 +395,21 @@
       "license_terms": "待查核",
       "accessed_at": "2026-09-16",
       "edition": "版本待查核",
-      "trust": "D"
+      "trust": "D",
+      "bibliographic_followup": {
+        "reviewed_at": "2026-11-05",
+        "evidence": [
+          {
+            "institution": "日本國立情報學研究所 CiNii Research",
+            "url": "https://cir.nii.ac.jp/crid/1971993809698498077",
+            "edition": "滴天髄；題宋京圖撰、明劉基注、清任鐵樵疏，孫正治點校；中州古籍出版社1994.9；ISBN 7534812720",
+            "scope": "搜尋索引有館藏書目；直接頁面遇驗證，列候選而非正文核定。署名只是書目責任表示，不證實歷史作者"
+          }
+        ],
+        "limits": "只補可追溯版本線索；原有權限、信任等級與claim狀態保留，不以書目替條文、作者考證或公式驗證。",
+        "policy_url": "https://ndlsearch.ndl.go.jp/help/sitepolicy",
+        "policy_note": "NDL自建書目可自由利用的條款已查閱；不延伸為書內全文授權，不代填人工核准。"
+      }
     },
     {
       "source_id": "S-SMITH-1991",

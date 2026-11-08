@@ -633,7 +633,7 @@ export function computeGhostAsuraDisplay(raw: unknown, now: Date = new Date()): 
   const { hourAssumed, identityTarget, targetDate, ...engineInput } = normalizeAsuraInput(raw);
   const result = calculateDualChart(engineInput);
   const timeAxis = computeTimeAxis(result, engineInput.gender === 'female' ? 'female' : 'male', now);
-  const targetName = typeof engineInput.name === 'string' && engineInput.name.trim().length >= 2 ? engineInput.name.trim() : null;
+  const targetName = sanitizeViewerName(engineInput.name);
   const effectiveTarget = (identityTarget === 'guest' ? 'guest' : 'self') as 'self' | 'guest';
 
   const declaredSex = engineInput.gender === 'female' ? 'FEMALE' : engineInput.gender === 'male' ? 'MALE' : null;
@@ -686,10 +686,13 @@ export function computeGhostAsuraDisplay(raw: unknown, now: Date = new Date()): 
 
 /** ageTimeline 與由它推得的戰神令四卡定位（decreeAnchors）＋置頂摘要（pinnedSummary）。 */
 function ageTimelineFields(ageTimeline: AsuraDisplay['ageTimeline'], viewer: AgeTimelineViewer | null = null): Pick<AsuraDisplay, 'ageTimeline' | 'decreeAnchors' | 'pinnedSummary'> {
+  const enriched: AgeTimelineViewer | null = viewer && ageTimeline?.viewerLine
+    ? { ...viewer, nominalAge: viewer.nominalAge ?? (/(?:虛歲)\s*(\d+)/.exec(ageTimeline.viewerLine) ? Number(/(?:虛歲)\s*(\d+)/.exec(ageTimeline.viewerLine)![1]) : null) }
+    : viewer;
   return {
     ageTimeline: ageTimeline ?? null,
-    decreeAnchors: buildDecreeAnchors(ageTimeline, viewer),
-    pinnedSummary: buildPinnedSummary(ageTimeline, viewer),
+    decreeAnchors: buildDecreeAnchors(ageTimeline, enriched),
+    pinnedSummary: buildPinnedSummary(ageTimeline, enriched),
   };
 }
 
@@ -726,7 +729,8 @@ export function computeAgeTimeline(result: DualChartResult, now: Date = new Date
     const t = new Date(now.getTime() + 8 * 3600_000);
     const nowLunarYear = Solar.fromYmd(t.getUTCFullYear(), t.getUTCMonth() + 1, t.getUTCDate()).getLunar().getYear();
     const age = calcCompletedAge(`${by}-${String(bm).padStart(2, '0')}-${String(bd).padStart(2, '0')}`, taipeiYmd(now)).age;
-    return buildAgeTimeline(cells, nowLunarYear - birthLunarYear + 1, { name: sanitizeViewerName(viewerName), age });
+    const nominalAge = nowLunarYear - birthLunarYear + 1;
+    return buildAgeTimeline(cells, nominalAge, { name: sanitizeViewerName(viewerName), age, nominalAge });
   } catch {
     return null;
   }

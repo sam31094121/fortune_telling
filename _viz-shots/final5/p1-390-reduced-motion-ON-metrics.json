@@ -1,0 +1,13 @@
+{
+  "hasDecree": true,
+  "hasCard": true,
+  "decreeOp": 1,
+  "cardOp": 1,
+  "resultsOp": 1,
+  "resultsAnim": "none",
+  "cardAnim": "none",
+  "cardOpacity": "1",
+  "mq": true,
+  "bytes": 662833,
+  "reducedMotion": "reduce"
+}

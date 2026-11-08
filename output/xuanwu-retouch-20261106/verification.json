@@ -1,0 +1,16 @@
+{
+  "target": "首頁鬼魅阿修羅玄武",
+  "source": "public\\home-entry\\xuanwu-corrected-foreground-v2.png",
+  "source_sha256": "47d4c0faf4227490b22a4730d4319479fef19a0fa5ae8601fa224eebb432beb4",
+  "candidate": "output\\xuanwu-retouch-20261106\\xuanwu-foreground-edge-clean-v3.png",
+  "dimensions": [
+    1448,
+    1086
+  ],
+  "removed_low_alpha_boundary_color_pixels": 287,
+  "max_removed_alpha": 9,
+  "retained_visible_pixels_exact_match": true,
+  "unchanged_alpha_above_24": true,
+  "dimension_gate": "FAIL: 1448x1086 below long edge 2560 / short edge 1440",
+  "status": "Internal candidate; source, homepage references, functionality unchanged; not committed or deployed"
+}

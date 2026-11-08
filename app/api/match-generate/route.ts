@@ -1,3 +1,4 @@
+import { getReviewedBaziOutputGate } from '@/lib/bazi-reviewed-output';
 import { googleGenerationKey } from '@/lib/teacher-provider';
 import { NextResponse } from 'next/server';
 import { GoogleGenAI, Type } from '@google/genai';
@@ -16,10 +17,10 @@ import { analyzeBazi } from '@/lib/bazi-engine';
 import { deriveBaziPillarBeast } from '@/lib/bazi-four-pillar-beasts';
 import { SHICHEN_LIST } from '@/lib/shichen-engine';
 import { buildBaziLovePersonSignal, buildZiweiLovePersonSignal, type RedLuanHeartbeatResult } from '@/lib/red-luan-heartbeat-engine';
-import { assertThreeInOnePassed, runThreeInOne } from '@/lib/three-in-one';
+import { assertThreeInOnePassed, runThreeInOne, type ThreeInOneSuccess } from '@/lib/three-in-one';
 import { buildMatchThreeCoreView } from '@/lib/match-three-core-view';
 import { coreCredibility } from '@/lib/credibility-wording';
-import { getBaziTraditionalOutputGate, type BaziTraditionalOutputGate } from '@/lib/bazi-traditional-gate';
+import { BAZI_WITHHELD_INTERPRETATION_FIELDS, getBaziTraditionalOutputGate, type BaziTraditionalOutputGate } from '@/lib/bazi-traditional-gate';
 
 export const dynamic = 'force-dynamic';
 
@@ -202,7 +203,11 @@ function buildProfile(person: PersonInput): { profile: PersonProfile; display: P
   };
 }
 
-function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): BaziMatchFoundationBuild {
+function buildBaziMatchFoundation(
+  personA: PersonInput,
+  personB: PersonInput,
+  reviewed?: { personA: ThreeInOneSuccess; personB: ThreeInOneSuccess },
+): BaziMatchFoundationBuild {
   const toBaziInput = (person: PersonInput) => {
     const traditionalHour = person.birthHourBranch && person.birthHourBranch !== 'unknown'
       ? person.birthHourBranch
@@ -221,10 +226,39 @@ function buildBaziMatchFoundation(personA: PersonInput, personB: PersonInput): B
   };
   const chartA = analyzeBazi(toBaziInput(personA));
   const chartB = analyzeBazi(toBaziInput(personB));
-  const traditionalGate = getBaziTraditionalOutputGate(
+  const sourceGate = getBaziTraditionalOutputGate(
     chartA.professionalChart.verification.readyForInterpretation
       && chartB.professionalChart.verification.readyForInterpretation,
   );
+  // Source approval cannot substitute for both people completing this request's
+  // backend review. Unknown-time results remain useful as basic chart data only.
+  let traditionalGate: BaziTraditionalOutputGate = {
+    ...sourceGate,
+    interpretationReady: false,
+    redLuanReady: false,
+    withheldFields: BAZI_WITHHELD_INTERPRETATION_FIELDS,
+    customerMessage: '雙方出生時辰與命盤核對完成後，才提供進階配對判讀。',
+  };
+  if (reviewed) {
+    // Existing analyzeBazi produces the reinforcement inputs separately. Bind
+    // those exact pillars to the reviewed results before opening either output.
+    for (const [chart, review] of [[chartA, reviewed.personA], [chartB, reviewed.personB]] as const) {
+      assertThreeInOnePassed(review);
+      for (const pillar of ['year', 'month', 'day', 'hour'] as const) {
+        const actual = chart.pillars[pillar];
+        if (!actual || actual.stem + actual.branch !== review.result.bazi[pillar]) {
+          throw new Error('MATCH_FOUNDATION_REVIEW_MISMATCH');
+        }
+      }
+    }
+    const first = getReviewedBaziOutputGate(reviewed.personA);
+    const second = getReviewedBaziOutputGate(reviewed.personB);
+    traditionalGate = {
+      ...first,
+      interpretationReady: first.interpretationReady && second.interpretationReady,
+      redLuanReady: first.redLuanReady && second.redLuanReady,
+    };
+  }
   const firstA = chartA.aiReinforcementPlan.first;
   const firstB = chartB.aiReinforcementPlan.first;
   // Soul matching deliberately reuses the exact same day-pillar helper as the
@@ -562,7 +596,7 @@ export async function POST(request: Request) {
     body.personB.birthHourBranch ?? 'unknown',
     body.personB.bloodType,
     body.personB.gender,
-    'soul-match-three-core-v5',
+    'soul-match-three-core-v6-reviewed-output',
   ]);
   const cached = responseCache.get(cacheKey);
   if (cached && now < cached.expireTime) {
@@ -590,7 +624,10 @@ export async function POST(request: Request) {
     if (threeInOneB.status === 'PASSED') assertThreeInOnePassed(threeInOneB);
     const rawResult = computeCompatibility(profileA, profileB);
     const result = stabilizeMatchResult(rawResult);
-    const baziBuild = buildBaziMatchFoundation(body.personA, body.personB);
+    const reviewed = threeInOneA.status === 'PASSED' && threeInOneB.status === 'PASSED'
+      ? { personA: threeInOneA, personB: threeInOneB }
+      : undefined;
+    const baziBuild = buildBaziMatchFoundation(body.personA, body.personB, reviewed);
     const baziFoundation = baziBuild.foundation;
     const redLuanHeartbeat = baziFoundation.traditionalGate.redLuanReady
       ? buildRedLuanHeartbeat(body.personA, body.personB, baziBuild.charts)

@@ -53,5 +53,6 @@ export default function ZiweiChart({ result }: { result: DualChartResult }) {
     <div className={styles.printLegend}><span>命宮：實線框 · 身宮：虛線框</span><span>四化：{['祿', '權', '科', '忌'].map(value => <b key={value} className={styles.badge} data-mutagen={value}>{value}</b>)}</span><span>亮度依《紫微斗數全書》卷二廟旺表：廟、旺、得、利、平、不、陷；無標記表示引擎未提供。</span></div>
     <p className={styles.note}>排盤核心：{ziwei.engineVersion}。星曜亮度、壬干化科、解神依《紫微斗數全書》；大限為引擎的虛歲區間；以所填出生日期、時辰排盤。</p>
     <p className={styles.note}>雜曜中的{quanshuCoverage.noQuanshuVerse.join('、')}，《紫微斗數全書》查無安星口訣，依後世排盤軟體，僅供參考。</p>
+    <p className={styles.note}>宮位下方四行小字：長生：能量剛出生、最嫩的階段。博士：學問、才藝的代表。歲前：早年運勢的底層。將前：近期運勢的節奏。</p>
   </>;
 }

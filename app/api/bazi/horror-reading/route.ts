@@ -1,22 +1,20 @@
 import { NextResponse } from 'next/server';
 import { formatHexagramLine } from '@/lib/iching-engine';
 import { buildEmpathicFromHexagram, formatGhostDecoding, patternNameOf } from '@/lib/iching-psychology';
-import { getBaziTraditionalOutputGate } from '@/lib/bazi-traditional-gate';
 import { verifiedBaziReading } from '@/lib/bazi-verified-reading';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function POST(request: Request) {
-  const traditionalGate = getBaziTraditionalOutputGate(true);
-  if (!traditionalGate.interpretationReady) {
-    return NextResponse.json(
-      { ok: false, code: 'BAZI_TRADITIONAL_INTERPRETATION_BLOCKED', message: '進階八字解讀暫未提供，請返回命盤查看基礎資料說明。' },
-      { status: 409, headers: { 'Cache-Control': 'no-store' } },
-    );
-  }
   try {
-    const { shortName, bazi, iching, chartFingerprint } = await verifiedBaziReading(await request.json());
+    const { shortName, bazi, iching, chartFingerprint, outputGate } = await verifiedBaziReading(await request.json());
+    if (!outputGate.interpretationReady) {
+      return NextResponse.json(
+        { ok: false, code: 'BAZI_TRADITIONAL_INTERPRETATION_BLOCKED', message: '命盤來源核對未完成，暫不提供解讀。' },
+        { status: 409, headers: { 'Cache-Control': 'no-store' } },
+      );
+    }
     const empathic = buildEmpathicFromHexagram(shortName, iching);
     const reading = `${shortName}，本次已核對四柱：${bazi.year}、${bazi.month}、${bazi.day}、${bazi.hour}。`
       + `以下以象徵場景呈現已核對生辰卦：${formatHexagramLine(iching)}，卦象表達「${patternNameOf(iching)}」。`

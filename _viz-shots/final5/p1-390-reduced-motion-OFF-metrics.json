@@ -1,0 +1,13 @@
+{
+  "hasDecree": true,
+  "hasCard": true,
+  "decreeOp": 1,
+  "cardOp": 1,
+  "resultsOp": 1,
+  "resultsAnim": "ghost-asura_slideInUp__aPVkZ",
+  "cardAnim": "GhostAsuraCard_visual_decreeCardIn__SThfl",
+  "cardOpacity": "1",
+  "mq": false,
+  "bytes": 613694,
+  "reducedMotion": "no-preference"
+}

@@ -42,7 +42,7 @@ const CARD_ROUTES = [
   { id: 'CARD_08', module: 'tarot', title: 'AI 塔羅牌', path: '/tarot' },
   { id: 'CARD_09', module: 'growth_center', title: 'AI 個人成長中心', path: '/growth-center' },
   { id: 'CARD_NAMEOLOGY_BAZI', module: 'nameology_bazi', title: '姓名學與八字入口', path: '/nameology?mode=bazi' },
-  { id: 'CARD_DUAL_CHART', module: 'dual_chart', title: '神煞易經入口', path: '/dual-chart' },
+  { id: 'CARD_DUAL_CHART', module: 'dual_chart', title: '易經神煞入口', path: '/dual-chart' },
   { id: 'CARD_GHOST_ASURA', module: 'ghost_asura', title: '鬼魅阿修羅入口', path: '/ghost-asura' },
   { id: 'CARD_RED_LUAN', module: 'red_luan', title: '紅鸞心動入口', path: '/red-luan-heartbeat' },
   { id: 'CARD_3D', module: 'taiji_3d', title: '立體太極模型入口', path: '/3D' },
@@ -657,7 +657,7 @@ async function checkDualChartShenShaDisplay() {
   const check = {
     id: 'DUAL_CHART_SHENSHA_DISPLAY',
     module: 'dual_chart_shensha_display',
-    title: '雙命盤四柱神煞後端運算到前端顯示',
+    title: '易經神煞：四柱神煞後端運算到前端顯示',
     path: '/dual-chart',
   };
   const startedAt = Date.now();

@@ -1,0 +1,32 @@
+{
+  "width": 390,
+  "ok": true,
+  "overflowX": false,
+  "pinnedCount": 1,
+  "ageBadgeVisible": [],
+  "nowVsAction": {
+    "hasNow": true,
+    "hasActionToday": true,
+    "hasActionNow": true,
+    "decreeTitle": true,
+    "bodies": {
+      "opening": true,
+      "sandbox": true,
+      "tactics": true,
+      "closing": true,
+      "oldOpening": false,
+      "oldSandbox": false
+    },
+    "pinnedDup": 3
+  },
+  "decreeBodies": {
+    "opening": true,
+    "sandbox": true,
+    "tactics": true,
+    "closing": true,
+    "oldOpening": false,
+    "oldSandbox": false
+  },
+  "errors": [],
+  "pinnedText": "阿勝，你今年 52 歲，正走在 44–53 歲這段"
+}

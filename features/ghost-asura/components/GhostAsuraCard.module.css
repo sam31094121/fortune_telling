@@ -2105,9 +2105,10 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 
 /* 千人千面戰神令：四張獨立卡片（暗底金框，對齊 sectionBody／supplement 風格；後端照印） */
 .pinnedSummary {
-  position: sticky;
-  top: 0;
-  z-index: 5;
+  /* Pika rework 2026-11-06: unstick - sticky overlay covered 44-53 card content */
+  position: relative;
+  top: auto;
+  z-index: 1;
   margin: 0 0 12px;
   padding: 10px 12px;
   max-width: 100%;
@@ -2116,12 +2117,16 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   overflow-wrap: anywhere;
   word-break: break-word;
   border-radius: 10px;
-  background: rgba(20, 16, 12, 0.92);
-  color: #fcea86;
+  border: 1px solid rgba(255, 225, 74, 0.42);
+  background:
+    linear-gradient(165deg, rgba(255, 246, 200, 0.16) 0%, transparent 55%),
+    rgba(15, 31, 12, 0.94);
+  color: #FFE14A;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.45;
   letter-spacing: 0.02em;
+  box-shadow: inset 0 1px 0 rgba(255, 246, 200, 0.35);
 }
 
 .timelineDecree {
@@ -2130,7 +2135,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   border: 0;
   border-radius: 0;
   background: transparent;
-  scroll-margin-top: 72px;
+  scroll-margin-top: 16px;
 }
 .timelineDecreeTitle {
   margin: 0 0 14px;
@@ -2282,3 +2287,84 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 .decreeMarker[data-mark='現在'] .decreeMarkerIcon::before { content: '◉'; }
 .decreeMarker[data-mark='現在就做'] .decreeMarkerIcon::before { content: '➤'; }
 .decreeMarker[data-mark='下一段'] .decreeMarkerIcon::before { content: '▶'; }
+
+
+/* P1 decree card gold hierarchy + top sheen handoff to visual module 2026-11-06 */
+.timelineDecreeCard {
+  border: 1px solid rgba(248, 199, 88, 0.48);
+  box-shadow: none;
+  overflow: hidden;
+}
+
+/* === Pika REWORK 2026-11-06 ? Bot_APP BLOCKED response (decree base + anti-restick) === */
+.timelineDecreeCard {
+  border-color: rgba(124, 179, 66, 0.45);
+  background:
+    linear-gradient(155deg, rgba(255, 248, 208, 0.1) 0%, transparent 40%),
+    linear-gradient(165deg, #1A2E14 0%, #0C140A 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 208, 0.35),
+    6px 10px 22px rgba(6, 14, 5, 0.45);
+}
+.timelineDecreeTitle,
+.timelineDecreeCardHeading { color: #FFE14A; }
+.timelineDecreeCardBody { color: #E8F0D8; }
+.pinnedSummary {
+  position: relative !important;
+  top: auto !important;
+  z-index: 1 !important;
+}
+
+/* === PERF 2026-11-06 — bannerTitle: text-shadow, no filter / will-change:filter === */
+.bannerTitle {
+  filter: none !important;
+  will-change: auto !important;
+  transition: none;
+  /* Approximate prior drop-shadow stack with compositable text-shadow */
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 4px 12px rgba(10, 28, 10, 0.45),
+    0 0 16px rgba(255, 230, 0, 0.12);
+}
+.card[data-display-contract] .bannerTitle {
+  filter: none !important;
+}
+.asuraBanner:hover {
+  filter: none !important;
+  /* depth via transform already present; soft box glow instead of drop-shadow filter */
+  box-shadow: 0 12px 24px rgba(4, 10, 3, 0.4);
+}
+.asuraBanner::before {
+  filter: none !important;
+}
+
+/* === PERF+FLICKER 2026-11-06 phase2 (Grok) — tileSquare/bannerSeal slim; keep 皮卡丘 lemon/moss === */
+.bannerSeal,
+.card[data-display-contract] .bannerSeal {
+  filter: none !important;
+  will-change: auto !important;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.65);
+}
+.tileSquare {
+  will-change: auto !important;
+}
+/* Cap painted layers: kill ink grain pseudo stacks on story tiles */
+.asuraTiles .tileSquare::before {
+  display: none !important;
+  background: none !important;
+}
+.asuraTiles .tileSquare:not(.tileSquareOn) {
+  /* ≤2 gradient layers + solid fallback (Pikachu-safe warm ink) */
+  background:
+    linear-gradient(165deg, rgba(255, 248, 208, 0.14) 0%, transparent 42%),
+    linear-gradient(165deg, var(--t-top, #c99a2a), var(--t-bot, #6e4a0c)) !important;
+}
+.card[data-display-contract] .asuraTiles .tileSquare {
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.06), transparent 40%),
+    linear-gradient(145deg, color-mix(in srgb, var(--tab-accent, #c5ab65) 22%, #25231f), #191917) !important;
+}
+/* Solid page-ink under banner text avoids flash-through while filter is off */
+.asuraBanner {
+  background-color: #0A1608;
+}

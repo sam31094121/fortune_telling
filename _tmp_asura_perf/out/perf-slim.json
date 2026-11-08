@@ -1,0 +1,2414 @@
+{
+  "perf-390x844-cpu4x.json": {
+    "buildHint": {
+      "title": "鬼魅阿修羅｜阿修羅秘卷",
+      "nextData": false,
+      "hotLikelyDev": true,
+      "scripts": [
+        "http://localhost:8888/_next/static/chunks/main-app.js?v=1793959437851",
+        "http://localhost:8888/_next/static/chunks/app-pages-internals.js",
+        "http://localhost:8888/_next/static/chunks/app/layout.js",
+        "http://localhost:8888/_next/static/chunks/app/error.js",
+        "http://localhost:8888/_next/static/chunks/app/global-error.js",
+        "http://localhost:8888/_next/static/chunks/app/ghost-asura/page.js",
+        "http://localhost:8888/_next/static/chunks/polyfills.js",
+        "http://localhost:8888/_next/static/chunks/webpack.js?v=1793959437851"
+      ],
+      "note": "likely Next.js DEV (HMR scripts present)"
+    },
+    "blocked": null,
+    "open": {
+      "verdict": "FAIL",
+      "frames": {
+        "count": 439,
+        "avg": 16.09,
+        "p50": 8.4,
+        "p95": 25.1,
+        "max": 860,
+        "droppedOver33": 17,
+        "droppedOver50": 15
+      },
+      "longTaskCount": 11,
+      "longTaskMax": 734,
+      "longTasks": [
+        {
+          "name": "self",
+          "start": 2621.1,
+          "duration": 55
+        },
+        {
+          "name": "self",
+          "start": 3970.1,
+          "duration": 108
+        },
+        {
+          "name": "self",
+          "start": 4730.1,
+          "duration": 161
+        },
+        {
+          "name": "self",
+          "start": 5234.7,
+          "duration": 51
+        },
+        {
+          "name": "self",
+          "start": 5363.1,
+          "duration": 133
+        },
+        {
+          "name": "self",
+          "start": 5496.7,
+          "duration": 734
+        },
+        {
+          "name": "self",
+          "start": 6232.6,
+          "duration": 86
+        },
+        {
+          "name": "self",
+          "start": 6552.5,
+          "duration": 67
+        },
+        {
+          "name": "self",
+          "start": 6822,
+          "duration": 110
+        },
+        {
+          "name": "self",
+          "start": 7931,
+          "duration": 82
+        },
+        {
+          "name": "self",
+          "start": 9311.3,
+          "duration": 63
+        }
+      ],
+      "actionMeta": {
+        "ok": true,
+        "textHas": true,
+        "h": 1022.390625
+      }
+    },
+    "segs": {
+      "4–13": {
+        "verdict": "FAIL",
+        "frames": {
+          "count": 50,
+          "avg": 18.2,
+          "p50": 16.7,
+          "p95": 25.1,
+          "max": 66.8,
+          "droppedOver33": 1,
+          "droppedOver50": 1
+        },
+        "longTaskCount": 1,
+        "longTaskMax": 70,
+        "longTasks": [
+          {
+            "name": "self",
+            "start": 10651.8,
+            "duration": 70
+          }
+        ],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "14–23": {
+        "verdict": "FAIL",
+        "frames": {
+          "count": 62,
+          "avg": 15.08,
+          "p50": 16.7,
+          "p95": 25,
+          "max": 33.4,
+          "droppedOver33": 1,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "24–33": {
+        "verdict": "PASS",
+        "frames": {
+          "count": 78,
+          "avg": 11.67,
+          "p50": 8.4,
+          "p95": 16.8,
+          "max": 16.8,
+          "droppedOver33": 0,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "34–43": {
+        "verdict": "PASS",
+        "frames": {
+          "count": 81,
+          "avg": 11.34,
+          "p50": 8.4,
+          "p95": 16.8,
+          "max": 16.8,
+          "droppedOver33": 0,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "44–53": {
+        "verdict": "PASS",
+        "frames": {
+          "count": 72,
+          "avg": 12.64,
+          "p50": 16.6,
+          "p95": 16.8,
+          "max": 16.9,
+          "droppedOver33": 0,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "54–63": {
+        "verdict": "PASS",
+        "frames": {
+          "count": 71,
+          "avg": 12.93,
+          "p50": 16.6,
+          "p95": 16.8,
+          "max": 16.8,
+          "droppedOver33": 0,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      }
+    },
+    "peel": {
+      "verdict": "FAIL",
+      "frames": {
+        "count": 64,
+        "avg": 19.31,
+        "p50": 16.7,
+        "p95": 50.1,
+        "max": 108.5,
+        "droppedOver33": 4,
+        "droppedOver50": 4
+      },
+      "longTaskCount": 3,
+      "longTaskMax": 95,
+      "longTasks": [
+        {
+          "name": "self",
+          "start": 17966.2,
+          "duration": 95
+        },
+        {
+          "name": "self",
+          "start": 18108.8,
+          "duration": 64
+        },
+        {
+          "name": "self",
+          "start": 18501,
+          "duration": 65
+        }
+      ],
+      "actionMeta": {
+        "ok": true,
+        "text": "再剝一層"
+      }
+    },
+    "scroll": {
+      "verdict": "FAIL",
+      "frames": {
+        "count": 96,
+        "avg": 16.87,
+        "p50": 16.7,
+        "p95": 25.1,
+        "max": 83.5,
+        "droppedOver33": 3,
+        "droppedOver50": 2
+      },
+      "longTaskCount": 2,
+      "longTaskMax": 83,
+      "longTasks": [
+        {
+          "name": "self",
+          "start": 19230.1,
+          "duration": 71
+        },
+        {
+          "name": "self",
+          "start": 19779.6,
+          "duration": 83
+        }
+      ]
+    },
+    "cssSamples": {
+      "decree": {
+        "sel": "[data-asura-timeline-decree]",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "transform": "none",
+        "boxShadow": "none",
+        "backgroundImage": "none",
+        "opacity": "1"
+      },
+      "timeline": {
+        "sel": "[data-asura-age-timeline]",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "transform": "none",
+        "boxShadow": "rgba(0, 0, 0, 0.32) 0px 8px 22px 0px, rgba(255, 252, 210, 0.55) 0px 1px 0px 0px inset, rgba(4, 10, 3, 0.45) 0px -28px 40px 0px inset, rgba(197, 224, 99, 0.12) 0px 0px 40px 0px inse",
+        "backgroundImage": "linear-gradient(132deg, rgba(255, 252, 210, 0.88) 0%, rgba(232, 245, 184, 0.68) 8%, rgba(197, 224, 99, 0.36) 18%, rgba(255, 230, 0, 0.1) 28%, rgba(0, 0, 0, 0) 42%), radial-gradient(140% 100% at 4% -12%, rgba(232, 245, 18",
+        "opacity": "1"
+      },
+      "visualRoot": {
+        "sel": "[class*=\"visualRoot\"]",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "transform": "none",
+        "boxShadow": "none",
+        "backgroundImage": "none",
+        "opacity": "1"
+      }
+    },
+    "cssCostly": [
+      {
+        "tag": "HEADER",
+        "className": "GhostAsuraCard_asuraTopRow__zZD8x",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 2,
+        "boxShadowLen": 137
+      },
+      {
+        "tag": "DIV",
+        "className": "GhostAsuraCard_asuraBanner__dBZcZ",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 2,
+        "boxShadowLen": 93
+      },
+      {
+        "tag": "H2",
+        "className": "GhostAsuraCard_bannerTitle__bS1af",
+        "filter": "drop-shadow(rgba(0, 0, 0, 0.533) 0px 2px 1px)",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "filter",
+        "gradientCount": 1,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "SPAN",
+        "className": "GhostAsuraCard_bannerSeal__ZVUv1",
+        "filter": "drop-shadow(rgba(0, 0, 0, 0.467) 0px 2px 3px)",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "BUTTON",
+        "className": "GhostAsuraCard_tileSquare__UBQL4",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, box-shadow, border-color",
+        "gradientCount": 2,
+        "boxShadowLen": 191
+      },
+      {
+        "tag": "LI",
+        "className": "GhostAsuraCard_item__YD3Rm GhostAsuraCard_itemAwakened__lHROn",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 85
+      },
+      {
+        "tag": "P",
+        "className": "GhostAsuraCard_visual_visualViewerChip__Mv0uX GhostAsuraCard_visual_entranceViewerLine__bXVDk",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardPast__HC5Jp",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 6,
+        "boxShadowLen": 134
+      },
+      {
+        "tag": "BUTTON",
+        "className": "GhostAsuraCard_decreeMarker__LPKms GhostAsuraCard_visual_visualBadge__l0A7T GhostAsuraCard_visual_visualBadgePast__hZABH",
+        "filter": "saturate(0.78)",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "SPAN",
+        "className": "GhostAsuraCard_visual_visualAgeBand__tP14v",
+        "filter": "drop-shadow(rgba(4, 10, 3, 0.75) 0px 1px 0px) drop-shadow(rgba(255, 230, 0, 0.35) 0px 0px 10px)",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "SPAN",
+        "className": "GhostAsuraCard_visual_visualMarkSeal__ngPfg",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 88
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardCurrent__HoLHs GhostAsuraCard_visual_entranceCu",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 5,
+        "boxShadowLen": 126
+      },
+      {
+        "tag": "BUTTON",
+        "className": "GhostAsuraCard_decreeMarker__LPKms GhostAsuraCard_visual_visualBadge__l0A7T GhostAsuraCard_visual_visualBadgeCurrent__XB3m5",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 86
+      },
+      {
+        "tag": "SPAN",
+        "className": "GhostAsuraCard_visual_visualMarkSeal__ngPfg GhostAsuraCard_visual_visualMarkSealCurrent__MBZmm GhostAsuraCard_visual_entranceCurrentSeal__Gk47i",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 1,
+        "boxShadowLen": 89
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardFuture__JGQcv",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 6,
+        "boxShadowLen": 134
+      },
+      {
+        "tag": "SECTION",
+        "className": "AsuraAgeTimeline_root___Jqps AsuraAgeTimeline_motion_motionRoot___MfYJ AsuraAgeTimeline_motion_motionEntranceStage__QSaRp",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 6,
+        "boxShadowLen": 181
+      },
+      {
+        "tag": "DIV",
+        "className": "AsuraAgeTimeline_hereBar__6dBcp AsuraAgeTimeline_motion_motionEntranceGuide__0LCYD",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 47
+      },
+      {
+        "tag": "P",
+        "className": "AsuraAgeTimeline_viewerLine__5_tCd AsuraAgeTimeline_motion_motionEntranceViewer__OIe_N",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "AsuraAgeTimeline_segment__bd65S AsuraAgeTimeline_motion_motionSegment__LfvnL",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 3,
+        "boxShadowLen": 131
+      },
+      {
+        "tag": "SPAN",
+        "className": "AsuraAgeTimeline_tense__2wYGU",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 87
+      },
+      {
+        "tag": "P",
+        "className": "AsuraAgeTimeline_bridge__GkjJK AsuraAgeTimeline_motion_motionBridge__kyLeB",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "SPAN",
+        "className": "AsuraAgeTimeline_headline__j1DWs AsuraAgeTimeline_headlinePremium__itg08",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 2,
+        "boxShadowLen": 127
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "AsuraAgeTimeline_segment__bd65S AsuraAgeTimeline_segmentCurrent__fqxb7 AsuraAgeTimeline_motion_motionSegment__LfvnL AsuraAgeTimeline_motion_motionSegmentCurrent",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 4,
+        "boxShadowLen": 174
+      },
+      {
+        "tag": "H3",
+        "className": "AsuraAgeTimeline_headline__j1DWs AsuraAgeTimeline_headlinePremium__itg08",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 2,
+        "boxShadowLen": 127
+      },
+      {
+        "tag": "SPAN",
+        "className": "AsuraAgeTimeline_hereTag__PCwuW AsuraAgeTimeline_motion_motionEntranceCurrentMark__AqJMr",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 1,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "P",
+        "className": "AsuraAgeTimeline_endLine__X0pXH AsuraAgeTimeline_motion_motionBridge__kyLeB",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      }
+    ]
+  },
+  "perf-390x844-cpu6x.json": {
+    "buildHint": {
+      "title": "鬼魅阿修羅｜阿修羅秘卷",
+      "nextData": false,
+      "hotLikelyDev": false,
+      "scripts": [
+        "http://localhost:8888/_next/static/chunks/main-app.js?v=1793959459067",
+        "http://localhost:8888/_next/static/chunks/app-pages-internals.js",
+        "http://localhost:8888/_next/static/chunks/app/layout.js",
+        "http://localhost:8888/_next/static/chunks/app/error.js",
+        "http://localhost:8888/_next/static/chunks/app/global-error.js",
+        "http://localhost:8888/_next/static/chunks/app/ghost-asura/page.js",
+        "http://localhost:8888/_next/static/chunks/polyfills.js",
+        "https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"
+      ],
+      "note": "unknown"
+    },
+    "blocked": null,
+    "open": {
+      "verdict": "FAIL",
+      "frames": {
+        "count": 284,
+        "avg": 28.87,
+        "p50": 8.4,
+        "p95": 100.1,
+        "max": 1536.3,
+        "droppedOver33": 29,
+        "droppedOver50": 20
+      },
+      "longTaskCount": 22,
+      "longTaskMax": 1273,
+      "longTasks": [
+        {
+          "name": "self",
+          "start": 3693.4,
+          "duration": 88
+        },
+        {
+          "name": "self",
+          "start": 4093.8,
+          "duration": 60
+        },
+        {
+          "name": "self",
+          "start": 4199.3,
+          "duration": 66
+        },
+        {
+          "name": "self",
+          "start": 4267.1,
+          "duration": 54
+        },
+        {
+          "name": "self",
+          "start": 4772.3,
+          "duration": 78
+        },
+        {
+          "name": "self",
+          "start": 4850.8,
+          "duration": 62
+        },
+        {
+          "name": "self",
+          "start": 5124.4,
+          "duration": 105
+        },
+        {
+          "name": "self",
+          "start": 5230,
+          "duration": 186
+        },
+        {
+          "name": "self",
+          "start": 5457.7,
+          "duration": 50
+        },
+        {
+          "name": "self",
+          "start": 5941.8,
+          "duration": 88
+        },
+        {
+          "name": "self",
+          "start": 6030.5,
+          "duration": 280
+        },
+        {
+          "name": "self",
+          "start": 6544.1,
+          "duration": 96
+        },
+        {
+          "name": "self",
+          "start": 6640.7,
+          "duration": 81
+        },
+        {
+          "name": "self",
+          "start": 6776.6,
+          "duration": 259
+        },
+        {
+          "name": "self",
+          "start": 7035.9,
+          "duration": 1273
+        },
+        {
+          "name": "self",
+          "start": 8319.7,
+          "duration": 124
+        },
+        {
+          "name": "self",
+          "start": 8734.5,
+          "duration": 163
+        },
+        {
+          "name": "self",
+          "start": 8898.4,
+          "duration": 148
+        },
+        {
+          "name": "self",
+          "start": 9053.9,
+          "duration": 113
+        },
+        {
+          "name": "self",
+          "start": 9222.3,
+          "duration": 117
+        },
+        {
+          "name": "self",
+          "start": 9476.4,
+          "duration": 158
+        },
+        {
+          "name": "self",
+          "start": 10187,
+          "duration": 117
+        }
+      ],
+      "actionMeta": {
+        "ok": true,
+        "textHas": true,
+        "h": 1022.390625
+      }
+    },
+    "segs": {
+      "4–13": {
+        "verdict": "FAIL",
+        "frames": {
+          "count": 37,
+          "avg": 25.05,
+          "p50": 25,
+          "p95": 33.4,
+          "max": 116.9,
+          "droppedOver33": 3,
+          "droppedOver50": 1
+        },
+        "longTaskCount": 1,
+        "longTaskMax": 111,
+        "longTasks": [
+          {
+            "name": "self",
+            "start": 12904.7,
+            "duration": 111
+          }
+        ],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "14–23": {
+        "verdict": "FAIL",
+        "frames": {
+          "count": 30,
+          "avg": 30.89,
+          "p50": 25.1,
+          "p95": 108.5,
+          "max": 125.2,
+          "droppedOver33": 5,
+          "droppedOver50": 2
+        },
+        "longTaskCount": 2,
+        "longTaskMax": 106,
+        "longTasks": [
+          {
+            "name": "self",
+            "start": 14472.1,
+            "duration": 97
+          },
+          {
+            "name": "self",
+            "start": 14595.7,
+            "duration": 106
+          }
+        ],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "24–33": {
+        "verdict": "FAIL",
+        "frames": {
+          "count": 42,
+          "avg": 22.26,
+          "p50": 25,
+          "p95": 25.1,
+          "max": 33.5,
+          "droppedOver33": 1,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "34–43": {
+        "verdict": "FAIL",
+        "frames": {
+          "count": 41,
+          "avg": 22.61,
+          "p50": 25,
+          "p95": 25.2,
+          "max": 33.5,
+          "droppedOver33": 1,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "44–53": {
+        "verdict": "FAIL",
+        "frames": {
+          "count": 40,
+          "avg": 23.17,
+          "p50": 25,
+          "p95": 25.1,
+          "max": 25.2,
+          "droppedOver33": 0,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "54–63": {
+        "verdict": "FAIL",
+        "frames": {
+          "count": 37,
+          "avg": 24.59,
+          "p50": 25,
+          "p95": 33.3,
+          "max": 33.5,
+          "droppedOver33": 1,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      }
+    },
+    "peel": {
+      "verdict": "FAIL",
+      "frames": {
+        "count": 38,
+        "avg": 32.96,
+        "p50": 25.1,
+        "p95": 116.8,
+        "max": 192.1,
+        "droppedOver33": 11,
+        "droppedOver50": 2
+      },
+      "longTaskCount": 2,
+      "longTaskMax": 148,
+      "longTasks": [
+        {
+          "name": "self",
+          "start": 20582.7,
+          "duration": 148
+        },
+        {
+          "name": "self",
+          "start": 21134.8,
+          "duration": 117
+        }
+      ],
+      "actionMeta": {
+        "ok": true,
+        "text": "再剝一層"
+      }
+    },
+    "scroll": {
+      "verdict": "FAIL",
+      "frames": {
+        "count": 62,
+        "avg": 26.26,
+        "p50": 25,
+        "p95": 33.4,
+        "max": 133.6,
+        "droppedOver33": 6,
+        "droppedOver50": 2
+      },
+      "longTaskCount": 2,
+      "longTaskMax": 128,
+      "longTasks": [
+        {
+          "name": "self",
+          "start": 21860.1,
+          "duration": 128
+        },
+        {
+          "name": "self",
+          "start": 22421.2,
+          "duration": 103
+        }
+      ]
+    },
+    "cssSamples": {
+      "decree": {
+        "sel": "[data-asura-timeline-decree]",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "transform": "none",
+        "boxShadow": "none",
+        "backgroundImage": "none",
+        "opacity": "1"
+      },
+      "timeline": {
+        "sel": "[data-asura-age-timeline]",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "transform": "none",
+        "boxShadow": "rgba(0, 0, 0, 0.32) 0px 8px 22px 0px, rgba(255, 252, 210, 0.55) 0px 1px 0px 0px inset, rgba(4, 10, 3, 0.45) 0px -28px 40px 0px inset, rgba(197, 224, 99, 0.12) 0px 0px 40px 0px inse",
+        "backgroundImage": "linear-gradient(132deg, rgba(255, 252, 210, 0.88) 0%, rgba(232, 245, 184, 0.68) 8%, rgba(197, 224, 99, 0.36) 18%, rgba(255, 230, 0, 0.1) 28%, rgba(0, 0, 0, 0) 42%), radial-gradient(140% 100% at 4% -12%, rgba(232, 245, 18",
+        "opacity": "1"
+      },
+      "visualRoot": {
+        "sel": "[class*=\"visualRoot\"]",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "transform": "none",
+        "boxShadow": "none",
+        "backgroundImage": "none",
+        "opacity": "1"
+      }
+    },
+    "cssCostly": [
+      {
+        "tag": "HEADER",
+        "className": "GhostAsuraCard_asuraTopRow__zZD8x",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 2,
+        "boxShadowLen": 137
+      },
+      {
+        "tag": "DIV",
+        "className": "GhostAsuraCard_asuraBanner__dBZcZ",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 2,
+        "boxShadowLen": 93
+      },
+      {
+        "tag": "H2",
+        "className": "GhostAsuraCard_bannerTitle__bS1af",
+        "filter": "drop-shadow(rgba(0, 0, 0, 0.533) 0px 2px 1px)",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "filter",
+        "gradientCount": 1,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "SPAN",
+        "className": "GhostAsuraCard_bannerSeal__ZVUv1",
+        "filter": "drop-shadow(rgba(0, 0, 0, 0.467) 0px 2px 3px)",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "BUTTON",
+        "className": "GhostAsuraCard_tileSquare__UBQL4",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, box-shadow, border-color",
+        "gradientCount": 2,
+        "boxShadowLen": 191
+      },
+      {
+        "tag": "LI",
+        "className": "GhostAsuraCard_item__YD3Rm GhostAsuraCard_itemAwakened__lHROn",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 85
+      },
+      {
+        "tag": "P",
+        "className": "GhostAsuraCard_visual_visualViewerChip__Mv0uX GhostAsuraCard_visual_entranceViewerLine__bXVDk",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardPast__HC5Jp",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 6,
+        "boxShadowLen": 134
+      },
+      {
+        "tag": "BUTTON",
+        "className": "GhostAsuraCard_decreeMarker__LPKms GhostAsuraCard_visual_visualBadge__l0A7T GhostAsuraCard_visual_visualBadgePast__hZABH",
+        "filter": "saturate(0.78)",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "SPAN",
+        "className": "GhostAsuraCard_visual_visualAgeBand__tP14v",
+        "filter": "drop-shadow(rgba(4, 10, 3, 0.75) 0px 1px 0px) drop-shadow(rgba(255, 230, 0, 0.35) 0px 0px 10px)",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "SPAN",
+        "className": "GhostAsuraCard_visual_visualMarkSeal__ngPfg",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 88
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardCurrent__HoLHs GhostAsuraCard_visual_entranceCu",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 5,
+        "boxShadowLen": 126
+      },
+      {
+        "tag": "BUTTON",
+        "className": "GhostAsuraCard_decreeMarker__LPKms GhostAsuraCard_visual_visualBadge__l0A7T GhostAsuraCard_visual_visualBadgeCurrent__XB3m5",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 86
+      },
+      {
+        "tag": "SPAN",
+        "className": "GhostAsuraCard_visual_visualMarkSeal__ngPfg GhostAsuraCard_visual_visualMarkSealCurrent__MBZmm GhostAsuraCard_visual_entranceCurrentSeal__Gk47i",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 1,
+        "boxShadowLen": 89
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardFuture__JGQcv",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 6,
+        "boxShadowLen": 134
+      },
+      {
+        "tag": "SECTION",
+        "className": "AsuraAgeTimeline_root___Jqps AsuraAgeTimeline_motion_motionRoot___MfYJ AsuraAgeTimeline_motion_motionEntranceStage__QSaRp",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 6,
+        "boxShadowLen": 181
+      },
+      {
+        "tag": "DIV",
+        "className": "AsuraAgeTimeline_hereBar__6dBcp AsuraAgeTimeline_motion_motionEntranceGuide__0LCYD",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 47
+      },
+      {
+        "tag": "P",
+        "className": "AsuraAgeTimeline_viewerLine__5_tCd AsuraAgeTimeline_motion_motionEntranceViewer__OIe_N",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "AsuraAgeTimeline_segment__bd65S AsuraAgeTimeline_motion_motionSegment__LfvnL",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 3,
+        "boxShadowLen": 131
+      },
+      {
+        "tag": "SPAN",
+        "className": "AsuraAgeTimeline_tense__2wYGU",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 87
+      },
+      {
+        "tag": "P",
+        "className": "AsuraAgeTimeline_bridge__GkjJK AsuraAgeTimeline_motion_motionBridge__kyLeB",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "SPAN",
+        "className": "AsuraAgeTimeline_headline__j1DWs AsuraAgeTimeline_headlinePremium__itg08",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 2,
+        "boxShadowLen": 127
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "AsuraAgeTimeline_segment__bd65S AsuraAgeTimeline_segmentCurrent__fqxb7 AsuraAgeTimeline_motion_motionSegment__LfvnL AsuraAgeTimeline_motion_motionSegmentCurrent",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 4,
+        "boxShadowLen": 174
+      },
+      {
+        "tag": "H3",
+        "className": "AsuraAgeTimeline_headline__j1DWs AsuraAgeTimeline_headlinePremium__itg08",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 2,
+        "boxShadowLen": 127
+      },
+      {
+        "tag": "SPAN",
+        "className": "AsuraAgeTimeline_hereTag__PCwuW AsuraAgeTimeline_motion_motionEntranceCurrentMark__AqJMr",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 1,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "P",
+        "className": "AsuraAgeTimeline_endLine__X0pXH AsuraAgeTimeline_motion_motionBridge__kyLeB",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      }
+    ]
+  },
+  "perf-360x800-cpu4x.json": {
+    "buildHint": {
+      "title": "鬼魅阿修羅｜阿修羅秘卷",
+      "nextData": false,
+      "hotLikelyDev": true,
+      "scripts": [
+        "http://localhost:8888/_next/static/chunks/main-app.js?v=1793959482883",
+        "http://localhost:8888/_next/static/chunks/app-pages-internals.js",
+        "http://localhost:8888/_next/static/chunks/app/layout.js",
+        "http://localhost:8888/_next/static/chunks/app/error.js",
+        "http://localhost:8888/_next/static/chunks/app/global-error.js",
+        "http://localhost:8888/_next/static/chunks/app/ghost-asura/page.js",
+        "http://localhost:8888/_next/static/chunks/polyfills.js",
+        "http://localhost:8888/_next/static/chunks/webpack.js?v=1793959482883"
+      ],
+      "note": "likely Next.js DEV (HMR scripts present)"
+    },
+    "blocked": null,
+    "open": {
+      "verdict": "FAIL",
+      "frames": {
+        "count": 441,
+        "avg": 16,
+        "p50": 8.4,
+        "p95": 25.1,
+        "max": 843.3,
+        "droppedOver33": 16,
+        "droppedOver50": 14
+      },
+      "longTaskCount": 10,
+      "longTaskMax": 705,
+      "longTasks": [
+        {
+          "name": "self",
+          "start": 4379.7,
+          "duration": 110
+        },
+        {
+          "name": "self",
+          "start": 5141.2,
+          "duration": 169
+        },
+        {
+          "name": "self",
+          "start": 5649.6,
+          "duration": 55
+        },
+        {
+          "name": "self",
+          "start": 5778.2,
+          "duration": 145
+        },
+        {
+          "name": "self",
+          "start": 5923.4,
+          "duration": 705
+        },
+        {
+          "name": "self",
+          "start": 6630.7,
+          "duration": 85
+        },
+        {
+          "name": "self",
+          "start": 6973.9,
+          "duration": 89
+        },
+        {
+          "name": "self",
+          "start": 7151.2,
+          "duration": 137
+        },
+        {
+          "name": "self",
+          "start": 8339.5,
+          "duration": 73
+        },
+        {
+          "name": "self",
+          "start": 9717.5,
+          "duration": 59
+        }
+      ],
+      "actionMeta": {
+        "ok": true,
+        "textHas": true,
+        "h": 1041.484375
+      }
+    },
+    "segs": {
+      "4–13": {
+        "verdict": "FAIL",
+        "frames": {
+          "count": 76,
+          "avg": 12.08,
+          "p50": 8.4,
+          "p95": 16.8,
+          "max": 66.8,
+          "droppedOver33": 1,
+          "droppedOver50": 1
+        },
+        "longTaskCount": 1,
+        "longTaskMax": 68,
+        "longTasks": [
+          {
+            "name": "self",
+            "start": 10969.9,
+            "duration": 68
+          }
+        ],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "14–23": {
+        "verdict": "PASS",
+        "frames": {
+          "count": 82,
+          "avg": 11.2,
+          "p50": 8.4,
+          "p95": 16.8,
+          "max": 16.8,
+          "droppedOver33": 0,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "24–33": {
+        "verdict": "PASS",
+        "frames": {
+          "count": 76,
+          "avg": 11.98,
+          "p50": 8.4,
+          "p95": 16.8,
+          "max": 16.8,
+          "droppedOver33": 0,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "34–43": {
+        "verdict": "PASS",
+        "frames": {
+          "count": 72,
+          "avg": 12.76,
+          "p50": 16.6,
+          "p95": 16.8,
+          "max": 16.8,
+          "droppedOver33": 0,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "44–53": {
+        "verdict": "PASS",
+        "frames": {
+          "count": 73,
+          "avg": 12.58,
+          "p50": 16.6,
+          "p95": 16.8,
+          "max": 16.8,
+          "droppedOver33": 0,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "54–63": {
+        "verdict": "PASS",
+        "frames": {
+          "count": 68,
+          "avg": 13.51,
+          "p50": 16.6,
+          "p95": 16.8,
+          "max": 16.8,
+          "droppedOver33": 0,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      }
+    },
+    "peel": {
+      "verdict": "FAIL",
+      "frames": {
+        "count": 70,
+        "avg": 17.77,
+        "p50": 16.7,
+        "p95": 25.1,
+        "max": 108.5,
+        "droppedOver33": 2,
+        "droppedOver50": 2
+      },
+      "longTaskCount": 2,
+      "longTaskMax": 83,
+      "longTasks": [
+        {
+          "name": "self",
+          "start": 18335.9,
+          "duration": 83
+        },
+        {
+          "name": "self",
+          "start": 18875.1,
+          "duration": 64
+        }
+      ],
+      "actionMeta": {
+        "ok": true,
+        "text": "再剝一層"
+      }
+    },
+    "scroll": {
+      "verdict": "FAIL",
+      "frames": {
+        "count": 124,
+        "avg": 13.13,
+        "p50": 8.4,
+        "p95": 16.8,
+        "max": 66.9,
+        "droppedOver33": 2,
+        "droppedOver50": 2
+      },
+      "longTaskCount": 2,
+      "longTaskMax": 67,
+      "longTasks": [
+        {
+          "name": "self",
+          "start": 19601.4,
+          "duration": 67
+        },
+        {
+          "name": "self",
+          "start": 20135.6,
+          "duration": 66
+        }
+      ]
+    },
+    "cssSamples": {
+      "decree": {
+        "sel": "[data-asura-timeline-decree]",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "transform": "none",
+        "boxShadow": "none",
+        "backgroundImage": "none",
+        "opacity": "1"
+      },
+      "timeline": {
+        "sel": "[data-asura-age-timeline]",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "transform": "none",
+        "boxShadow": "rgba(0, 0, 0, 0.32) 0px 8px 22px 0px, rgba(255, 252, 210, 0.55) 0px 1px 0px 0px inset, rgba(4, 10, 3, 0.45) 0px -28px 40px 0px inset, rgba(197, 224, 99, 0.12) 0px 0px 40px 0px inse",
+        "backgroundImage": "linear-gradient(132deg, rgba(255, 252, 210, 0.88) 0%, rgba(232, 245, 184, 0.68) 8%, rgba(197, 224, 99, 0.36) 18%, rgba(255, 230, 0, 0.1) 28%, rgba(0, 0, 0, 0) 42%), radial-gradient(140% 100% at 4% -12%, rgba(232, 245, 18",
+        "opacity": "1"
+      },
+      "visualRoot": {
+        "sel": "[class*=\"visualRoot\"]",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "transform": "none",
+        "boxShadow": "none",
+        "backgroundImage": "none",
+        "opacity": "1"
+      }
+    },
+    "cssCostly": [
+      {
+        "tag": "HEADER",
+        "className": "GhostAsuraCard_asuraTopRow__zZD8x",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 2,
+        "boxShadowLen": 137
+      },
+      {
+        "tag": "DIV",
+        "className": "GhostAsuraCard_asuraBanner__dBZcZ",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 2,
+        "boxShadowLen": 93
+      },
+      {
+        "tag": "H2",
+        "className": "GhostAsuraCard_bannerTitle__bS1af",
+        "filter": "drop-shadow(rgba(0, 0, 0, 0.533) 0px 2px 1px)",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "filter",
+        "gradientCount": 1,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "SPAN",
+        "className": "GhostAsuraCard_bannerSeal__ZVUv1",
+        "filter": "drop-shadow(rgba(0, 0, 0, 0.467) 0px 2px 3px)",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "BUTTON",
+        "className": "GhostAsuraCard_tileSquare__UBQL4",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, box-shadow, border-color",
+        "gradientCount": 2,
+        "boxShadowLen": 191
+      },
+      {
+        "tag": "LI",
+        "className": "GhostAsuraCard_item__YD3Rm GhostAsuraCard_itemAwakened__lHROn",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 85
+      },
+      {
+        "tag": "P",
+        "className": "GhostAsuraCard_visual_visualViewerChip__Mv0uX GhostAsuraCard_visual_entranceViewerLine__bXVDk",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardPast__HC5Jp",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 6,
+        "boxShadowLen": 134
+      },
+      {
+        "tag": "BUTTON",
+        "className": "GhostAsuraCard_decreeMarker__LPKms GhostAsuraCard_visual_visualBadge__l0A7T GhostAsuraCard_visual_visualBadgePast__hZABH",
+        "filter": "saturate(0.78)",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "SPAN",
+        "className": "GhostAsuraCard_visual_visualAgeBand__tP14v",
+        "filter": "drop-shadow(rgba(4, 10, 3, 0.75) 0px 1px 0px) drop-shadow(rgba(255, 230, 0, 0.35) 0px 0px 10px)",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "SPAN",
+        "className": "GhostAsuraCard_visual_visualMarkSeal__ngPfg",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 88
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardCurrent__HoLHs GhostAsuraCard_visual_entranceCu",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 5,
+        "boxShadowLen": 126
+      },
+      {
+        "tag": "BUTTON",
+        "className": "GhostAsuraCard_decreeMarker__LPKms GhostAsuraCard_visual_visualBadge__l0A7T GhostAsuraCard_visual_visualBadgeCurrent__XB3m5",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 86
+      },
+      {
+        "tag": "SPAN",
+        "className": "GhostAsuraCard_visual_visualMarkSeal__ngPfg GhostAsuraCard_visual_visualMarkSealCurrent__MBZmm GhostAsuraCard_visual_entranceCurrentSeal__Gk47i",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 1,
+        "boxShadowLen": 89
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardFuture__JGQcv",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 6,
+        "boxShadowLen": 134
+      },
+      {
+        "tag": "SECTION",
+        "className": "AsuraAgeTimeline_root___Jqps AsuraAgeTimeline_motion_motionRoot___MfYJ AsuraAgeTimeline_motion_motionEntranceStage__QSaRp",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 6,
+        "boxShadowLen": 181
+      },
+      {
+        "tag": "DIV",
+        "className": "AsuraAgeTimeline_hereBar__6dBcp AsuraAgeTimeline_motion_motionEntranceGuide__0LCYD",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 47
+      },
+      {
+        "tag": "P",
+        "className": "AsuraAgeTimeline_viewerLine__5_tCd AsuraAgeTimeline_motion_motionEntranceViewer__OIe_N",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "AsuraAgeTimeline_segment__bd65S AsuraAgeTimeline_motion_motionSegment__LfvnL",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 3,
+        "boxShadowLen": 131
+      },
+      {
+        "tag": "SPAN",
+        "className": "AsuraAgeTimeline_tense__2wYGU",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 87
+      },
+      {
+        "tag": "P",
+        "className": "AsuraAgeTimeline_bridge__GkjJK AsuraAgeTimeline_motion_motionBridge__kyLeB",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "SPAN",
+        "className": "AsuraAgeTimeline_headline__j1DWs AsuraAgeTimeline_headlinePremium__itg08",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 2,
+        "boxShadowLen": 127
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "AsuraAgeTimeline_segment__bd65S AsuraAgeTimeline_segmentCurrent__fqxb7 AsuraAgeTimeline_motion_motionSegment__LfvnL AsuraAgeTimeline_motion_motionSegmentCurrent",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 4,
+        "boxShadowLen": 174
+      },
+      {
+        "tag": "H3",
+        "className": "AsuraAgeTimeline_headline__j1DWs AsuraAgeTimeline_headlinePremium__itg08",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 2,
+        "boxShadowLen": 127
+      },
+      {
+        "tag": "SPAN",
+        "className": "AsuraAgeTimeline_hereTag__PCwuW AsuraAgeTimeline_motion_motionEntranceCurrentMark__AqJMr",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 1,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "P",
+        "className": "AsuraAgeTimeline_endLine__X0pXH AsuraAgeTimeline_motion_motionBridge__kyLeB",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      }
+    ]
+  },
+  "perf-360x800-cpu6x.json": {
+    "buildHint": {
+      "title": "鬼魅阿修羅｜阿修羅秘卷",
+      "nextData": false,
+      "hotLikelyDev": true,
+      "scripts": [
+        "http://localhost:8888/_next/static/chunks/main-app.js?v=1793959504464",
+        "http://localhost:8888/_next/static/chunks/app-pages-internals.js",
+        "http://localhost:8888/_next/static/chunks/app/layout.js",
+        "http://localhost:8888/_next/static/chunks/app/error.js",
+        "http://localhost:8888/_next/static/chunks/app/global-error.js",
+        "http://localhost:8888/_next/static/chunks/app/ghost-asura/page.js",
+        "http://localhost:8888/_next/static/chunks/polyfills.js",
+        "http://localhost:8888/_next/static/chunks/webpack.js?v=1793959504464"
+      ],
+      "note": "likely Next.js DEV (HMR scripts present)"
+    },
+    "blocked": null,
+    "open": {
+      "verdict": "FAIL",
+      "frames": {
+        "count": 278,
+        "avg": 28.86,
+        "p50": 8.4,
+        "p95": 108.5,
+        "max": 1586.3,
+        "droppedOver33": 29,
+        "droppedOver50": 15
+      },
+      "longTaskCount": 22,
+      "longTaskMax": 1331,
+      "longTasks": [
+        {
+          "name": "self",
+          "start": 4215,
+          "duration": 89
+        },
+        {
+          "name": "self",
+          "start": 4609.3,
+          "duration": 67
+        },
+        {
+          "name": "self",
+          "start": 4725.5,
+          "duration": 67
+        },
+        {
+          "name": "self",
+          "start": 4793.5,
+          "duration": 55
+        },
+        {
+          "name": "self",
+          "start": 5278.9,
+          "duration": 59
+        },
+        {
+          "name": "self",
+          "start": 5339.3,
+          "duration": 53
+        },
+        {
+          "name": "self",
+          "start": 5598.3,
+          "duration": 81
+        },
+        {
+          "name": "self",
+          "start": 5679.8,
+          "duration": 196
+        },
+        {
+          "name": "self",
+          "start": 5923,
+          "duration": 53
+        },
+        {
+          "name": "self",
+          "start": 6390,
+          "duration": 90
+        },
+        {
+          "name": "self",
+          "start": 6481,
+          "duration": 289
+        },
+        {
+          "name": "self",
+          "start": 6983.1,
+          "duration": 88
+        },
+        {
+          "name": "self",
+          "start": 7071.9,
+          "duration": 74
+        },
+        {
+          "name": "self",
+          "start": 7201,
+          "duration": 253
+        },
+        {
+          "name": "self",
+          "start": 7454.6,
+          "duration": 1331
+        },
+        {
+          "name": "self",
+          "start": 8795.7,
+          "duration": 118
+        },
+        {
+          "name": "self",
+          "start": 9204.1,
+          "duration": 164
+        },
+        {
+          "name": "self",
+          "start": 9368.6,
+          "duration": 142
+        },
+        {
+          "name": "self",
+          "start": 9518.6,
+          "duration": 112
+        },
+        {
+          "name": "self",
+          "start": 9681.1,
+          "duration": 147
+        },
+        {
+          "name": "self",
+          "start": 9883.5,
+          "duration": 199
+        },
+        {
+          "name": "self",
+          "start": 10639.3,
+          "duration": 132
+        }
+      ],
+      "actionMeta": {
+        "ok": true,
+        "textHas": true,
+        "h": 1041.484375
+      }
+    },
+    "segs": {
+      "4–13": {
+        "verdict": "FAIL",
+        "frames": {
+          "count": 34,
+          "avg": 27.01,
+          "p50": 25,
+          "p95": 41.8,
+          "max": 116.9,
+          "droppedOver33": 7,
+          "droppedOver50": 1
+        },
+        "longTaskCount": 1,
+        "longTaskMax": 115,
+        "longTasks": [
+          {
+            "name": "self",
+            "start": 13400.9,
+            "duration": 115
+          }
+        ],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "14–23": {
+        "verdict": "FAIL",
+        "frames": {
+          "count": 32,
+          "avg": 28.7,
+          "p50": 25,
+          "p95": 108.5,
+          "max": 142,
+          "droppedOver33": 2,
+          "droppedOver50": 2
+        },
+        "longTaskCount": 2,
+        "longTaskMax": 122,
+        "longTasks": [
+          {
+            "name": "self",
+            "start": 14919.6,
+            "duration": 122
+          },
+          {
+            "name": "self",
+            "start": 15065.8,
+            "duration": 105
+          }
+        ],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "24–33": {
+        "verdict": "FAIL",
+        "frames": {
+          "count": 41,
+          "avg": 22.2,
+          "p50": 25,
+          "p95": 25.1,
+          "max": 33.3,
+          "droppedOver33": 0,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "34–43": {
+        "verdict": "FAIL",
+        "frames": {
+          "count": 40,
+          "avg": 23.17,
+          "p50": 25,
+          "p95": 25.2,
+          "max": 33.5,
+          "droppedOver33": 1,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "44–53": {
+        "verdict": "FAIL",
+        "frames": {
+          "count": 38,
+          "avg": 24.61,
+          "p50": 25,
+          "p95": 33.4,
+          "max": 33.4,
+          "droppedOver33": 4,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      },
+      "54–63": {
+        "verdict": "FAIL",
+        "frames": {
+          "count": 37,
+          "avg": 25.05,
+          "p50": 25,
+          "p95": 33.5,
+          "max": 33.5,
+          "droppedOver33": 5,
+          "droppedOver50": 0
+        },
+        "longTaskCount": 0,
+        "longTaskMax": 0,
+        "longTasks": [],
+        "actionMeta": {
+          "ok": true,
+          "text": "← 返回首頁本命阿修羅 · 四柱隱影解盤鬼魅阿修羅剖析四柱陰影、隱性衝突與內在力量。 點印記名稱查看其力量與駕馭之道。我"
+        }
+      }
+    },
+    "peel": {
+      "verdict": "FAIL",
+      "frames": {
+        "count": 39,
+        "avg": 32.75,
+        "p50": 25.1,
+        "p95": 108.4,
+        "max": 183.7,
+        "droppedOver33": 7,
+        "droppedOver50": 2
+      },
+      "longTaskCount": 2,
+      "longTaskMax": 144,
+      "longTasks": [
+        {
+          "name": "self",
+          "start": 21063.9,
+          "duration": 144
+        },
+        {
+          "name": "self",
+          "start": 21611.7,
+          "duration": 108
+        }
+      ],
+      "actionMeta": {
+        "ok": true,
+        "text": "再剝一層"
+      }
+    },
+    "scroll": {
+      "verdict": "FAIL",
+      "frames": {
+        "count": 58,
+        "avg": 27.93,
+        "p50": 25,
+        "p95": 33.5,
+        "max": 117,
+        "droppedOver33": 8,
+        "droppedOver50": 2
+      },
+      "longTaskCount": 2,
+      "longTaskMax": 113,
+      "longTasks": [
+        {
+          "name": "self",
+          "start": 22352.5,
+          "duration": 113
+        },
+        {
+          "name": "self",
+          "start": 22914.2,
+          "duration": 111
+        }
+      ]
+    },
+    "cssSamples": {
+      "decree": {
+        "sel": "[data-asura-timeline-decree]",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "transform": "none",
+        "boxShadow": "none",
+        "backgroundImage": "none",
+        "opacity": "1"
+      },
+      "timeline": {
+        "sel": "[data-asura-age-timeline]",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "transform": "none",
+        "boxShadow": "rgba(0, 0, 0, 0.32) 0px 8px 22px 0px, rgba(255, 252, 210, 0.55) 0px 1px 0px 0px inset, rgba(4, 10, 3, 0.45) 0px -28px 40px 0px inset, rgba(197, 224, 99, 0.12) 0px 0px 40px 0px inse",
+        "backgroundImage": "linear-gradient(132deg, rgba(255, 252, 210, 0.88) 0%, rgba(232, 245, 184, 0.68) 8%, rgba(197, 224, 99, 0.36) 18%, rgba(255, 230, 0, 0.1) 28%, rgba(0, 0, 0, 0) 42%), radial-gradient(140% 100% at 4% -12%, rgba(232, 245, 18",
+        "opacity": "1"
+      },
+      "visualRoot": {
+        "sel": "[class*=\"visualRoot\"]",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "transform": "none",
+        "boxShadow": "none",
+        "backgroundImage": "none",
+        "opacity": "1"
+      }
+    },
+    "cssCostly": [
+      {
+        "tag": "HEADER",
+        "className": "GhostAsuraCard_asuraTopRow__zZD8x",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 2,
+        "boxShadowLen": 137
+      },
+      {
+        "tag": "DIV",
+        "className": "GhostAsuraCard_asuraBanner__dBZcZ",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 2,
+        "boxShadowLen": 93
+      },
+      {
+        "tag": "H2",
+        "className": "GhostAsuraCard_bannerTitle__bS1af",
+        "filter": "drop-shadow(rgba(0, 0, 0, 0.533) 0px 2px 1px)",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "filter",
+        "gradientCount": 1,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "SPAN",
+        "className": "GhostAsuraCard_bannerSeal__ZVUv1",
+        "filter": "drop-shadow(rgba(0, 0, 0, 0.467) 0px 2px 3px)",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "BUTTON",
+        "className": "GhostAsuraCard_tileSquare__UBQL4",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, box-shadow, border-color",
+        "gradientCount": 2,
+        "boxShadowLen": 191
+      },
+      {
+        "tag": "LI",
+        "className": "GhostAsuraCard_item__YD3Rm GhostAsuraCard_itemAwakened__lHROn",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 85
+      },
+      {
+        "tag": "P",
+        "className": "GhostAsuraCard_visual_visualViewerChip__Mv0uX GhostAsuraCard_visual_entranceViewerLine__bXVDk",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardPast__HC5Jp",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 6,
+        "boxShadowLen": 134
+      },
+      {
+        "tag": "BUTTON",
+        "className": "GhostAsuraCard_decreeMarker__LPKms GhostAsuraCard_visual_visualBadge__l0A7T GhostAsuraCard_visual_visualBadgePast__hZABH",
+        "filter": "saturate(0.78)",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "SPAN",
+        "className": "GhostAsuraCard_visual_visualAgeBand__tP14v",
+        "filter": "drop-shadow(rgba(4, 10, 3, 0.75) 0px 1px 0px) drop-shadow(rgba(255, 230, 0, 0.35) 0px 0px 10px)",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "SPAN",
+        "className": "GhostAsuraCard_visual_visualMarkSeal__ngPfg",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 88
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardCurrent__HoLHs GhostAsuraCard_visual_entranceCu",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 5,
+        "boxShadowLen": 126
+      },
+      {
+        "tag": "BUTTON",
+        "className": "GhostAsuraCard_decreeMarker__LPKms GhostAsuraCard_visual_visualBadge__l0A7T GhostAsuraCard_visual_visualBadgeCurrent__XB3m5",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 86
+      },
+      {
+        "tag": "SPAN",
+        "className": "GhostAsuraCard_visual_visualMarkSeal__ngPfg GhostAsuraCard_visual_visualMarkSealCurrent__MBZmm GhostAsuraCard_visual_entranceCurrentSeal__Gk47i",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 1,
+        "boxShadowLen": 89
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardFuture__JGQcv",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 6,
+        "boxShadowLen": 134
+      },
+      {
+        "tag": "SECTION",
+        "className": "AsuraAgeTimeline_root___Jqps AsuraAgeTimeline_motion_motionRoot___MfYJ AsuraAgeTimeline_motion_motionEntranceStage__QSaRp",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 6,
+        "boxShadowLen": 181
+      },
+      {
+        "tag": "DIV",
+        "className": "AsuraAgeTimeline_hereBar__6dBcp AsuraAgeTimeline_motion_motionEntranceGuide__0LCYD",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 47
+      },
+      {
+        "tag": "P",
+        "className": "AsuraAgeTimeline_viewerLine__5_tCd AsuraAgeTimeline_motion_motionEntranceViewer__OIe_N",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "AsuraAgeTimeline_segment__bd65S AsuraAgeTimeline_motion_motionSegment__LfvnL",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 3,
+        "boxShadowLen": 131
+      },
+      {
+        "tag": "SPAN",
+        "className": "AsuraAgeTimeline_tense__2wYGU",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 1,
+        "boxShadowLen": 87
+      },
+      {
+        "tag": "P",
+        "className": "AsuraAgeTimeline_bridge__GkjJK AsuraAgeTimeline_motion_motionBridge__kyLeB",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "SPAN",
+        "className": "AsuraAgeTimeline_headline__j1DWs AsuraAgeTimeline_headlinePremium__itg08",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 2,
+        "boxShadowLen": 127
+      },
+      {
+        "tag": "ARTICLE",
+        "className": "AsuraAgeTimeline_segment__bd65S AsuraAgeTimeline_segmentCurrent__fqxb7 AsuraAgeTimeline_motion_motionSegment__LfvnL AsuraAgeTimeline_motion_motionSegmentCurrent",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 4,
+        "boxShadowLen": 174
+      },
+      {
+        "tag": "H3",
+        "className": "AsuraAgeTimeline_headline__j1DWs AsuraAgeTimeline_headlinePremium__itg08",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "auto",
+        "gradientCount": 2,
+        "boxShadowLen": 127
+      },
+      {
+        "tag": "SPAN",
+        "className": "AsuraAgeTimeline_hereTag__PCwuW AsuraAgeTimeline_motion_motionEntranceCurrentMark__AqJMr",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 1,
+        "boxShadowLen": 4
+      },
+      {
+        "tag": "P",
+        "className": "AsuraAgeTimeline_endLine__X0pXH AsuraAgeTimeline_motion_motionBridge__kyLeB",
+        "filter": "none",
+        "backdropFilter": "none",
+        "mixBlendMode": "normal",
+        "willChange": "transform, opacity",
+        "gradientCount": 0,
+        "boxShadowLen": 4
+      }
+    ]
+  }
+}
