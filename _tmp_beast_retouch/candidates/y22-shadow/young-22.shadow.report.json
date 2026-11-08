@@ -1,0 +1,159 @@
+{
+ "card": "young-22",
+ "method": "y22-shadow-lift v1 (right back + tail only)",
+ "srcSha": "6ECEBFF2F36661BD23A7A89D49891DE204BE1A1693390D57EBAFE8308B7E4F9B",
+ "poly": [
+  [
+   455,
+   250
+  ],
+  [
+   488,
+   266
+  ],
+  [
+   516,
+   292
+  ],
+  [
+   536,
+   320
+  ],
+  [
+   550,
+   350
+  ],
+  [
+   562,
+   378
+  ],
+  [
+   598,
+   392
+  ],
+  [
+   628,
+   404
+  ],
+  [
+   646,
+   426
+  ],
+  [
+   652,
+   455
+  ],
+  [
+   645,
+   476
+  ],
+  [
+   622,
+   484
+  ],
+  [
+   580,
+   482
+  ],
+  [
+   546,
+   474
+  ],
+  [
+   522,
+   466
+  ],
+  [
+   503,
+   452
+  ],
+  [
+   490,
+   430
+  ],
+  [
+   478,
+   412
+  ],
+  [
+   474,
+   380
+  ],
+  [
+   464,
+   340
+  ],
+  [
+   450,
+   300
+  ],
+  [
+   443,
+   270
+  ]
+ ],
+ "rules": {
+  "L_MAX": 96,
+  "L_FULL": 40,
+  "Y_FADE0": 466,
+  "Y_ZERO": 478,
+  "FEATHER": 4,
+  "cap": "final rounded Lum delta <= cap"
+ },
+ "out": {
+  "+4": {
+   "webp": "_tmp_beast_retouch\\candidates\\y22-shadow\\young-22.shadow+4.cand.webp",
+   "webpSha": "D80F57D29B0A4F1DD4DF939EAD25CE692C4B6BAF044A8DFE53D1EE52491E13E1",
+   "png": "_tmp_beast_retouch\\candidates\\y22-shadow\\young-22.shadow+4.png",
+   "pngSha": "16EE9C6378EFBA7F88FD5FC2B7DCA26746A2A6AEFC31BF161F193EE0553AF840",
+   "w": 720,
+   "h": 540,
+   "changedPx": 21997,
+   "maxFinalDeltaL": 4,
+   "minFinalDeltaL": 0.213,
+   "overCap": 0,
+   "outsidePolygon": 0,
+   "changedAtL96plus": 0,
+   "changedRowsYge478": 0,
+   "thumbs": {
+    "_tmp_beast_retouch\\candidates\\y22-shadow\\thumb\\+4\\young-22.v2.webp": {
+     "sha": "24467D3F50F8CEF757215E7E089EE86A5332FB647495C43231D4CD1F76CA8374",
+     "w": 256,
+     "h": 192
+    },
+    "_tmp_beast_retouch\\candidates\\y22-shadow\\thumb\\+4\\young-22.v2-480.webp": {
+     "sha": "8604F0062CD01D8EA15760B4801FE6F89CC5A55A4AA38073FB132C4FEF6A4CEE",
+     "w": 480,
+     "h": 360
+    }
+   }
+  },
+  "+7": {
+   "webp": "_tmp_beast_retouch\\candidates\\y22-shadow\\young-22.shadow+7.cand.webp",
+   "webpSha": "ECBFBED9976240A710C9479EF0D80DD38977B8957ED1C64108A902F41A7A7C57",
+   "png": "_tmp_beast_retouch\\candidates\\y22-shadow\\young-22.shadow+7.png",
+   "pngSha": "AA4E1981E9917492254D89A49B15F36FBAA06243D4EA295C853237B208B78A16",
+   "w": 720,
+   "h": 540,
+   "changedPx": 22207,
+   "maxFinalDeltaL": 7,
+   "minFinalDeltaL": 0.213,
+   "overCap": 0,
+   "outsidePolygon": 0,
+   "changedAtL96plus": 0,
+   "changedRowsYge478": 0,
+   "thumbs": {
+    "_tmp_beast_retouch\\candidates\\y22-shadow\\thumb\\+7\\young-22.v2.webp": {
+     "sha": "B06C4EE09D8006ACDAF222152AF25FE6DE9CF0ADDA7A4AB2B5FAE28C957270B5",
+     "w": 256,
+     "h": 192
+    },
+    "_tmp_beast_retouch\\candidates\\y22-shadow\\thumb\\+7\\young-22.v2-480.webp": {
+     "sha": "CA9A8ADB957E33F6AF88A13F28896971837470044D4D247285E8847F378CE14D",
+     "w": 480,
+     "h": 360
+    }
+   }
+  }
+ }
+}
