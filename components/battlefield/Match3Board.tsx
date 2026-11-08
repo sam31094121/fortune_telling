@@ -1,7 +1,10 @@
 'use client';
+import { ElementTreasureOrb } from '@/components/bazi/customer/ElementTreasureOrb';
+import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
 import { counterVisualPath } from '@/lib/beast-game/match3/counter-visual';
 import type { resolveOrbTurn } from '@/lib/beast-game/match3/resolve-turn';
 import OrbElementAttack, { type ElementFlight } from './OrbElementAttack';
+import EnemyActionIndicator from './EnemyActionIndicator';
 import Link from 'next/link';
 /**
  * 神獸戰隊 v0.9｜五元素寶珠戰 5v5（寶珠戰卡片 → /beast-game/match3-preview → 自選出陣 → 本元件）
@@ -626,7 +629,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
           <div className={styles.kicker} data-testid="match3-badge">{cfg.badge}</div>
           <h1 className={styles.title} data-testid="match3-title">{cfg.title}<small className={styles.subtitle}>｜{cfg.subtitle}</small></h1>
         </div>
-        <button type="button" className={styles.mute} aria-pressed={muted} aria-label={muted ? '開啟音效' : '靜音'} onClick={() => { audio.current?.setMuted(!muted); setMuted(!muted); if (muted) audio.current?.unlock(); }}>{muted ? '🔇' : '🔊'}</button>
+        {!rigEnabled && <button type="button" className={styles.mute} aria-pressed={muted} aria-label={muted ? '開啟音效' : '靜音'} onClick={() => { audio.current?.setMuted(!muted); setMuted(!muted); if (muted) audio.current?.unlock(); }}>{muted ? '🔇' : '🔊'}</button>}
         <div className={styles.round} data-testid={rigEnabled ? 'match3-attack-threshold' : 'match3-round'}>{rigEnabled ? `第 ${stage.wins + 1} 關 · ${stage.minChain}顆可攻擊` : `回合 ${moves + 1}`}</div>
         {rigEnabled && <span className={styles.srOnly} data-testid="match3-round">{stage.label}·{moves + 1}回合</span>}
         {rigEnabled && <button type="button" className={`${styles.helpBtn} ${styles.helpTop}`} aria-expanded={help} onClick={() => setHelp(!help)}>玩法與操作</button>}
@@ -664,6 +667,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
             <div className={styles.foeArt} role="img" aria-label={f.name} data-rig-target={rigEnabled || undefined} style={rigEnabled ? undefined : { backgroundImage: `url(${f.thumbnail})` }}>{rigEnabled && <Match3TargetArt src={guardianDuel && duelArt ? duelArt : f.thumbnail} />}</div>
             <div className={styles.foeName}>{f.name}</div>
             <div className={`${styles.bar} ${styles.foeBar}`} role="progressbar" aria-label={`${f.name}生命`} aria-valuenow={f.hp} aria-valuemax={f.maxHp}><span style={{ width: pct(f.hp, f.maxHp) }} /></div>
+            {rigEnabled && <EnemyActionIndicator energy={f.attackEnergy ?? 0} className={styles.enemyActionState} down={f.hp <= 0} ended={!!over} waiting={!enemyReady(i)} controlled={(f.skillRuntime?.stunnedTurns ?? 0) > 0} attacking={counterFoes.has(i)} />}
             <div className={styles.foeHp}>{MATCH3_ORB_LABEL[f.element]} {f.hp}/{f.maxHp}</div>
             {!rigEnabled && i === ti && <span className={styles.tgt} aria-hidden="true">🎯</span>}
           </button>
@@ -675,6 +679,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
         <p>拖過相鄰同色珠，至少3格；本關合計 {stage.minChain} 顆可攻擊。可斜連，不可跳格或重疊。</p>
         <p>4顆起留數字，7顆起變盾牌。連入同色盾牌可清除同色珠；掉落連鎖也有效。</p>
         <p>每次放開非空連線都換對方反擊，無效連線也算。能量滿100時神獸發光，點神獸攻擊後能量歸零；2張卡各有50能量，可用連線攻擊。</p>
+        <p>玩家消除同屬性寶珠累積能量，珠數越多充能越快；滿條後點亮起的神獸發招並歸零。敵方每次有效連珠增加四分之一，連鎖不重複累加，滿條後依關卡順序出手並歸零。受控不能出手，待命敵人不蓄力；能量技與連線技能不充能。</p>
         <p>五行補血與盾牌組合請點開「五行與盾牌目標」。獲勝挑戰下一關，落敗原難度重試。</p>
       </div> : <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆同屬性純盾牌連接會合擊，消耗本次連到的盾牌，按既有卡片與儲存顆數攻擊，本次寶珠攻擊強化1.5倍；其餘同屬性寶珠轉為盾牌，原本較高的數值保留。至少三顆不同顏色純盾牌連接，合體清除整盤對應顏色，依實際消除數量替對應卡片充能，最多充滿現有技能條；雙色或三色減傷50%、四色減傷60%並回復10%生命、五色減傷70%並回復15%生命與儲存下次寶珠攻擊1.5倍；防護只限本輪、不疊加。剩餘珠子先下落合成，再補新珠；自然連線累計四顆以上會保留數字，七顆以上變盾牌，三顆只消除。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「{rigEnabled ? '能量攻擊' : '技能'}」。{rigEnabled && '我方原卡招牌技能依登場、攻擊、受創及回合時機自動觸發，沿用原次數；能量按鈕保留通用攻擊，不另消耗回合。敵方從第八關起逐步啟用原卡技能；沒有抽棄牌區，抽棄牌效果不適用。'}{rigEnabled ? '每次非空寶珠連線都算一次回合，誤按一、二顆或無效路線也會由對方反擊一次；連三顆起才可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。儲存能量的單卡與多卡攻擊不消耗回合，也不觸發反擊。全關卡五對五。第一關五張幼子、第二至第七關五張成獸；第八關起，敵方前四格為成獸，第五格為一張神獸，前四張倒下後才參戰並可被攻擊，後續始終只有這一個神獸席位，通關後依白虎、朱雀、青龍、玄武輪替，失敗重試不換；每次由一張存活卡反擊。第八關及之後連六顆以上即可攻擊，第一至第七關維持各關門檻；對方強度繼續逐關提高。獲勝升一關，落敗保留難度重試；本人進度保存在這個瀏覽器，親友進度只在本分頁保留，重新選擇親友會重來。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>)}
 
@@ -714,7 +719,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
                 <div className={styles.allyCard} data-rig-source>{rigEnabled ? <Match3TargetArt src={u.thumbnail} /> : <BeastCardFace card={{ id: u.id, name: u.name, thumbnail: u.thumbnail, element: u.element, skillName: u.skillName, description: u.description }} />}</div>
                 <div className={styles.bar} role={rigEnabled ? 'progressbar' : undefined} aria-label={rigEnabled ? `${u.name}生命` : undefined} aria-valuenow={rigEnabled ? u.hp : undefined} aria-valuemax={rigEnabled ? u.maxHp : undefined}><span style={{ width: pct(u.hp, u.maxHp) }} /></div>
                 {rigEnabled && <span className={styles.allyHp} data-testid="match3-ally-hp">{MATCH3_ORB_LABEL[u.element]} {u.hp}/{u.maxHp}</span>}
-                <div className={styles.energy}><span style={{ width: pct(u.energy, ENERGY_MAX) }} /></div>
+                <div className={styles.energy} data-ready-orb={energyReady ? 'true' : undefined} role="progressbar" aria-label={energyReady ? '能量已滿，點擊寶珠或神獸發動攻擊' : '攻擊能量'} aria-valuemin={0} aria-valuemax={ENERGY_MAX} aria-valuenow={u.energy}>{energyReady ? <span className={styles.readyEnergyOrb} data-testid="match3-ready-energy-orb"><ElementTreasureOrb element={getProductOrbFromBrand(u.element.toLowerCase() as 'space' | 'air' | 'water' | 'fire' | 'earth')} released preview animated={false} visualScale={0.8} /></span> : <span style={{ width: pct(u.energy, ENERGY_MAX) }} />}</div>
                 <div className={styles.allyMeta}>{down ? '已倒下' : `${MATCH3_ORB_LABEL[u.element]}${dup ? (lead ? '・主攻' : '・輔助') : ''} ${u.energy}`}</div>
                 {rigEnabled && <span className={styles.compactEnergy} aria-hidden="true">氣 {u.energy}</span>}
               </button>

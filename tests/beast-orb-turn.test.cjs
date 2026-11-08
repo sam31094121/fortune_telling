@@ -7,10 +7,10 @@ const cards=ELEMENTS.map(e=>playableCards().find(c=>c.element===e));
 const fixture=()=>({board:Array.from({length:8},(_,r)=>Array.from({length:7},(_,c)=>ELEMENTS[(r+c)%5])),magic:Array.from({length:8},()=>Array(7).fill(0)),path:[{r:0,c:0},{r:0,c:1},{r:0,c:2}],team:cards.map(c=>({id:c.id,name:c.name,thumbnail:c.art.thumbnail,element:c.element,hp:50,maxHp:100,attack:20,energy:0})),foes:cards.map(c=>({id:c.id,name:c.name,thumbnail:c.art.thumbnail,element:c.element,hp:100,maxHp:200,attack:8,cd:1})),mode:'hard45',wins:0,target:0,seed:100,move:0,chosen:{},rule:'tap-lead',attackBoost:1});
 for(const n of [1,2,3]){
  const p=fixture();p.board[0].fill('WATER');p.path=p.path.slice(0,n);const original=JSON.stringify(p);const r=resolveOrbTurn(p);
- assert.equal(r.res.valid,n>=3);assert.equal(r.counter.hits.length,1);assert.equal(JSON.stringify(p),original);assert.deepEqual(r,resolveOrbTurn(p));
+ assert.equal(r.res.valid,n>=3);assert.equal(r.counter.hits.length,0);assert(r.beforeCounter.foes.every(f=>(f.attackEnergy??0)===(n>=3&&f.hp>0?25:0)));assert.equal(JSON.stringify(p),original);assert.deepEqual(r,resolveOrbTurn(p));
  if(n<3)assert.equal(r.heals.length,0);
 }
-console.log('PASS short gestures still counter once, no healing, deterministic replay, immutable snapshots');
+console.log('PASS valid turns charge once; short gestures neither charge nor counter; no healing, deterministic replay, immutable snapshots');
 for(const [colors,kind] of [[['WATER','WATER','WATER'],'same'],[['AIR','WATER','AIR'],'mixed'],[['AIR','WATER','FIRE'],'three'],[['AIR','WATER','FIRE','SPACE'],'four']]){
  const p=fixture();p.path=colors.map((e,c)=>{p.board[0][c]=e;p.magic[0][c]=7;return {r:0,c}});const r=resolveOrbTurn(p);assert.equal(r.shield.kind,kind);assert(r.counter.team.every(f=>f.hp<=f.maxHp));
 }

@@ -1,0 +1,40 @@
+{
+ "card": "adult-22",
+ "method": "UNIFIED-v1",
+ "src": "_tmp_beast_retouch/_backup-retouch-20261108/front/adult-22.v2.webp",
+ "srcSha": "CC34E208A6138780793DDF6C6D159DB0ECF5B2CFBF1FFF943ABD59C57AA472FB",
+ "steps": [
+  "S1 tone: inside guardian envelope -> no change",
+  "S2 detail: lapvar >= guardian min -> no change",
+  "S3 geometry: none (no resize, crop, move, generation)"
+ ],
+ "params": {},
+ "shaOk": true,
+ "before": {
+  "w": 720,
+  "h": 540,
+  "meanL": 36.1,
+  "p1": 8,
+  "p99": 141.4,
+  "sat": 0.497,
+  "RB": 1.77,
+  "lapvar": 1682.8,
+  "borderEnergy": 5.22
+ },
+ "touched": false,
+ "after": {
+  "w": 720,
+  "h": 540,
+  "meanL": 36.1,
+  "p1": 8,
+  "p99": 141.4,
+  "sat": 0.497,
+  "RB": 1.77,
+  "lapvar": 1682.8,
+  "borderEnergy": 5.22
+ },
+ "candidate": "_tmp_beast_retouch/candidates/adult-22.cand.webp",
+ "candSha": "CC34E208A6138780793DDF6C6D159DB0ECF5B2CFBF1FFF943ABD59C57AA472FB",
+ "hdFloor": "PASS (owner exception 2026-11-08 18:48: card front 720x540 = guardian size)",
+ "deliverable": "needs site review (360/390/768) before replacing public/"
+}

@@ -113,8 +113,8 @@ assert.equal(R.orbSkillDisplay(displayRun.events,guardSource.id,'ally').displayD
   if(gap)p.path[1]={r:0,c:4};for(const c of p.path)p.board[c.r][c.c]='FIRE';
   const r=resolveOrbTurn(p);
   assert.equal(r.res.valid,length>=3&&!gap);
-  assert.equal(r.counter.hits.length,length>0?1:0);
+  assert.equal(r.counter.hits.length,0,'zero starting charge cannot counter');
   if(length>=3&&!gap)assert.equal(r.res.attackAllowed,length>=M.progressionStage(wins).minChain);
  }
- console.log('PASS server turn: empty drag no counter, invalid nonempty drag one counter, per-stage attack gate unchanged');
+ console.log('PASS server turn: empty drag no counter, invalid nonempty drag no charge/counter, per-stage attack gate unchanged');
 }

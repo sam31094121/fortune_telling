@@ -19,6 +19,7 @@ export async function POST(request: Request) {
       for (const f of side) if (!getCard(f.id) || getCard(f.id)!.element !== f.element || !integer(f.maxHp,1,10000000) || !integer(f.hp,0,f.maxHp) || !integer(f.attack,0,10000000)) throw new Error('invalid');
     }
     if (p.team.some(f => !integer(f.energy,0,100)) || p.foes.some(f => !integer(f.cd,0,1000)) || !['tap-lead','first-attacks','all-attack'].includes(p.rule) || !p.chosen || typeof p.chosen !== 'object' || Array.isArray(p.chosen)) throw new Error('invalid');
+    if (p.foes.some(f => f.attackEnergy !== undefined && ![0,25,50,75,100].includes(f.attackEnergy) || f.lastChargeTurn !== undefined && (typeof f.lastChargeTurn !== 'string' || f.lastChargeTurn.length > 80))) throw new Error('invalid');
     if (Object.entries(p.chosen).some(([element,id]) => !isBeastElement(element) || typeof id !== 'string' || !p.team.some(f => f.id === id && f.element === element))) throw new Error('invalid');
     return NextResponse.json(resolveOrbTurn(p), { headers: { 'Cache-Control': 'no-store' } });
   } catch {

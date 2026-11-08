@@ -1,4 +1,4 @@
-import { initializeFoeSkills, absorbFoeShieldDamage, type FoeSkillState, type OrbSkillEvent, type SkillFoe, runOrbSkillEvent } from './skill-runtime';
+import { initializeFoeSkills, absorbFoeShieldDamage, tickFoeSkillDurations, type FoeSkillState, type OrbSkillEvent, type SkillFoe, runOrbSkillEvent } from './skill-runtime';
 import { planOrbCounter, orbCounterDamage, resolveOrbEnemyAction } from './enemy-strategy';
 /**
  * 寶珠戰 5v5：敵方五隻（10/30 鈺勝確認的 5v5 截圖為功能／版面基準）。
@@ -36,7 +36,7 @@ export const LINK_ENERGY_COST = 50;
 export const LINK_BASE_MULTIPLIER = 3;
 export const LINK_BONUS_PER_EXTRA = 0.5;
 
-export interface Match3Foe { id: string; element: BeastElement; hp: number; maxHp: number; attack: number; cd: number; skillRuntime?: FoeSkillState; lastCounterTurn?: string; lastCounterPhase?: string; appliedPlayerHitIds?: string[] }
+export interface Match3Foe { id: string; element: BeastElement; hp: number; maxHp: number; attack: number; cd: number; attackEnergy?: number; lastChargeTurn?: string; skillRuntime?: FoeSkillState; lastCounterTurn?: string; lastCounterPhase?: string; appliedPlayerHitIds?: string[] }
 interface Ally { id: string; element: BeastElement; hp: number; energy: number; maxHp?: number; attack?: number; skillRuntime?: FoeSkillState }
 
 /** Only the current five-card encounter reserves its fifth guardian until all four escorts fall. */
@@ -56,7 +56,14 @@ export function initializeAvailableFoes<F extends Match3Foe>(foes: readonly F[],
 /** mode 不給＝原本中等數值（HP 300／ATK 8／倒數 3）；困難模式由 config.MATCH3_MODES 傳入【待平衡】值。 */
 export function makeFoe(id: string, element: BeastElement, mode?: { enemyHp: number; enemyAtk: number; counterEvery: number }): Match3Foe {
   const hp = mode?.enemyHp ?? MATCH3_ENEMY_HP;
-  return { id, element, hp, maxHp: hp, attack: mode?.enemyAtk ?? MATCH3_ENEMY_ATK, cd: mode?.counterEvery ?? ENEMY_COUNTER_EVERY };
+  return { id, element, hp, maxHp: hp, attack: mode?.enemyAtk ?? MATCH3_ENEMY_ATK, cd: mode?.counterEvery ?? ENEMY_COUNTER_EVERY, attackEnergy: 0 };
+}
+
+/** One valid player turn charges available living enemies once, regardless of colour or cascades. */
+export function chargeEnemyAttack<F extends Match3Foe>(foes: readonly F[], stage: number, turnId: string): F[] {
+  return foes.map((f, i) => !foeAvailable(foes, i, stage) || f.lastChargeTurn === turnId ? f : {
+    ...f, attackEnergy: Math.min(100, (f.attackEnergy ?? 0) + 25), lastChargeTurn: turnId,
+  });
 }
 
 /** 目前目標：選的還活著就用它，否則第一隻存活；全滅回 -1。 */
@@ -93,22 +100,27 @@ export function damageFoeWithSkills<F extends Match3Foe, T extends SkillFoe & { 
 export interface CounterHit { enemy: number; enemyId: string; targetId: string; damage: number; hpBefore: number; hpAfter: number; actualDamage: number }
 
 /** 一步結束後的敵方回合：每隻存活敵人倒數 -1，歸零者攻擊我方 HP 最低存活卡並重置倒數。 */
-export function counterPhase<T extends Ally, F extends Match3Foe>(team: readonly T[], foes: readonly F[], every: number = ENEMY_COUNTER_EVERY, singleTurn?: number, shieldGuard: boolean | number = false, strategyStage?: number, skillContext?: { turnId: string }): { team: T[]; foes: F[]; hits: CounterHit[]; skillEvents: OrbSkillEvent[] } {
+export function counterPhase<T extends Ally, F extends Match3Foe>(team: readonly T[], foes: readonly F[], every: number = ENEMY_COUNTER_EVERY, singleTurn?: number, shieldGuard: boolean | number = false, strategyStage?: number, skillContext?: { turnId: string; energyGate?: boolean }): { team: T[]; foes: F[]; hits: CounterHit[]; skillEvents: OrbSkillEvent[] } {
   let t = team.slice(); const hits: CounterHit[] = [], skillEvents: OrbSkillEvent[] = [];
   const stage = strategyStage ?? 0, skills = stage >= 8, eventId = skillContext?.turnId;
-  const tracked = skills || t.some(u => (u as T & SkillFoe).skillRuntime?.playerSkillsEnabled);
+  const energyGate = skillContext?.energyGate === true;
+  const tracked = energyGate || skills || t.some(u => (u as T & SkillFoe).skillRuntime?.playerSkillsEnabled);
   let nf = foes.map((f, i) => { if (!skills || !foeAvailable(foes, i, stage)) return f; const init = initializeFoeSkills(f,{sourceSide:'enemy'}); skillEvents.push(...init.events); return init.foe; });
   const living = nf.map((f, i) => foeAvailable(nf, i, stage) ? i : -1).filter(i => i >= 0);
-  const eligible = living.filter(i => (singleTurn !== undefined || nf[i].cd <= 1) && (!tracked || eventId === undefined || nf[i].lastCounterPhase !== eventId));
+  const eligible = living.filter(i => (energyGate ? (nf[i].attackEnergy ?? 0) >= 100 : singleTurn !== undefined || nf[i].cd <= 1) && (!tracked || eventId === undefined || nf[i].lastCounterPhase !== eventId));
   const selected = singleTurn === undefined ? null : living[singleTurn % living.length];
   const planned = strategyStage === undefined ? null : planOrbCounter(t, nf, eligible, singleTurn !== undefined, singleTurn ?? 0, stage, shieldGuard);
   const order = planned ? planned.map(p => p.enemy) : eligible.filter(i => selected === null || i === selected);
-  nf = nf.map((f, i) => f.hp <= 0 || tracked && eventId !== undefined && f.lastCounterPhase === eventId || singleTurn !== undefined && !order.includes(i) ? f : { ...f, cd: order.includes(i) ? every : f.cd - 1 });
+  nf = nf.map((f, i) => energyGate || f.hp <= 0 || tracked && eventId !== undefined && f.lastCounterPhase === eventId || singleTurn !== undefined && !order.includes(i) ? f : { ...f, cd: order.includes(i) ? every : f.cd - 1 });
   for (const ei of order) {
     let ti=planned?.find(p=>p.enemy===ei)?.target??-1;
     if(ti<0||t[ti]?.hp<=0){ti=-1;t.forEach((u,i)=>{if(u.hp>0&&(ti<0||u.hp<t[ti].hp))ti=i})}
     if(ti<0)break;
     const f=nf[ei];if(f.hp<=0)continue;
+    if (energyGate && (f.skillRuntime?.stunnedTurns ?? 0) > 0) {
+      nf[ei] = tickFoeSkillDurations(f);
+      continue;
+    }
     const actionEventId=eventId===undefined?undefined:eventId+':enemy:'+ei;
     if(skills || f.skillRuntime || (t[ti] as T & SkillFoe).skillRuntime?.playerSkillsEnabled){
       if(typeof t[ti].attack!=='number'||typeof t[ti].maxHp!=='number')throw new Error('戰鬥技能目標缺少原始能力');
@@ -123,6 +135,7 @@ export function counterPhase<T extends Ally, F extends Match3Foe>(team: readonly
       hits.push({enemy:ei,enemyId:f.id,targetId:t[ti].id,damage,hpBefore,hpAfter:after.hp,actualDamage:hpBefore-after.hp});
     }
   }
+  if (energyGate) nf = nf.map((f, i) => hits.some(h => h.enemy === i) ? { ...f, attackEnergy: 0 } : f);
   if (tracked && eventId !== undefined) nf = nf.map(f => ({ ...f, lastCounterPhase: eventId }));
   return { team: t, foes: nf, hits, skillEvents };
 }

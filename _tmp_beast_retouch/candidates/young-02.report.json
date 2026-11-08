@@ -1,0 +1,40 @@
+{
+ "card": "young-02",
+ "method": "UNIFIED-v1",
+ "src": "_tmp_beast_retouch/_backup-retouch-20261108/front/young-02.v2.webp",
+ "srcSha": "7191EC14618E200EFCD57F7E8A9E9C55EE0A74A539291AC27234A45E822D4155",
+ "steps": [
+  "S1 tone: inside guardian envelope -> no change",
+  "S2 detail: lapvar >= guardian min -> no change",
+  "S3 geometry: none (no resize, crop, move, generation)"
+ ],
+ "params": {},
+ "shaOk": true,
+ "before": {
+  "w": 720,
+  "h": 540,
+  "meanL": 37.1,
+  "p1": 3.8,
+  "p99": 130.4,
+  "sat": 0.366,
+  "RB": 0.94,
+  "lapvar": 2538,
+  "borderEnergy": 1.15
+ },
+ "touched": false,
+ "after": {
+  "w": 720,
+  "h": 540,
+  "meanL": 37.1,
+  "p1": 3.8,
+  "p99": 130.4,
+  "sat": 0.366,
+  "RB": 0.94,
+  "lapvar": 2538,
+  "borderEnergy": 1.15
+ },
+ "candidate": "_tmp_beast_retouch/candidates/young-02.cand.webp",
+ "candSha": "7191EC14618E200EFCD57F7E8A9E9C55EE0A74A539291AC27234A45E822D4155",
+ "hdFloor": "PASS (owner exception 2026-11-08 18:48: card front 720x540 = guardian size)",
+ "deliverable": "needs site review (360/390/768) before replacing public/"
+}

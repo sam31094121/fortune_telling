@@ -1,0 +1,40 @@
+{
+ "card": "adult-07",
+ "method": "UNIFIED-v1",
+ "src": "_tmp_beast_retouch/_backup-retouch-20261108/front/adult-07.v2.webp",
+ "srcSha": "EDFFA3F94CBF25AFF9DF671E4B9E48A4B1C80F8BE5ECA4F45D5FBA49589DA47B",
+ "steps": [
+  "S1 tone: inside guardian envelope -> no change",
+  "S2 detail: lapvar >= guardian min -> no change",
+  "S3 geometry: none (no resize, crop, move, generation)"
+ ],
+ "params": {},
+ "shaOk": true,
+ "before": {
+  "w": 720,
+  "h": 540,
+  "meanL": 72.2,
+  "p1": 10.6,
+  "p99": 206.8,
+  "sat": 0.28,
+  "RB": 0.9,
+  "lapvar": 6485.8,
+  "borderEnergy": 23.22
+ },
+ "touched": false,
+ "after": {
+  "w": 720,
+  "h": 540,
+  "meanL": 72.2,
+  "p1": 10.6,
+  "p99": 206.8,
+  "sat": 0.28,
+  "RB": 0.9,
+  "lapvar": 6485.8,
+  "borderEnergy": 23.22
+ },
+ "candidate": "_tmp_beast_retouch/candidates/adult-07.cand.webp",
+ "candSha": "EDFFA3F94CBF25AFF9DF671E4B9E48A4B1C80F8BE5ECA4F45D5FBA49589DA47B",
+ "hdFloor": "PASS (owner exception 2026-11-08 18:48: card front 720x540 = guardian size)",
+ "deliverable": "needs site review (360/390/768) before replacing public/"
+}

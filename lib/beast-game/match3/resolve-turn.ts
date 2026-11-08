@@ -6,7 +6,7 @@ import { progressionStage } from './progression';
 import { computeHits, endPlayerSkillTurn, fighterCanAct } from './damage';
 import { attackingTeam, shareEnergy, type LeadChoice, type SameElementRule } from './team';
 import { energyGains } from './energy';
-import { availableFoeTarget, foeAvailable, counterPhase, damageFoe, type Match3Foe } from './enemies';
+import { availableFoeTarget, foeAvailable, counterPhase, chargeEnemyAttack, damageFoe, type Match3Foe } from './enemies';
 import { runPlayerTurnSkills, resolvePlayerCardAttack, orderPlayerHits, recalculatePlayerHit } from './player-skills';
 import type { Match3Fighter } from './eligibility';
 import type { OrbSkillEvent } from './skill-runtime';
@@ -69,9 +69,10 @@ export function resolveOrbTurn(input: TurnInput) {
     const ended = runPlayerTurnSkills(team, foes, 'ON_TURN_END', input.wins + 1, eventId + ':end', target);
     team = endPlayerSkillTurn(ended.team); foes = ended.foes; skills.push(...ended.skillEvents); endDamage = ended.actualDamage;
   }
+  if (hard && res.valid) foes = chargeEnemyAttack(foes, input.wins + 1, eventId);
   const beforeCounter = { team, foes };
   const guardScale = shield && 'damageScale' in shield ? shield.damageScale : 1;
-  const counter = input.path.length === 0 || !res.valid && !hard ? { team, foes, hits: [], skillEvents: [] } : counterPhase(team, foes, cfg.counterEvery, hard && !stage.simultaneous ? input.move : undefined, guardScale, hard ? input.wins + 1 : undefined, hard ? { turnId: eventId } : undefined);
+  const counter = input.path.length === 0 || !res.valid ? { team, foes, hits: [], skillEvents: [] } : counterPhase(team, foes, cfg.counterEvery, hard && !stage.simultaneous ? input.move : undefined, guardScale, hard ? input.wins + 1 : undefined, hard ? { turnId: eventId, energyGate: true } : undefined);
   const enemyBudget = new Map<string, number>();
   for (const h of counter.hits) {
     const source = counter.foes.find(f => f.id === h.enemyId);

@@ -1,0 +1,44 @@
+{
+ "card": "young-16",
+ "method": "UNIFIED-v1",
+ "src": "_tmp_beast_retouch/_backup-retouch-20261108/front/young-16.v2.webp",
+ "srcSha": "36C78D0B017174F7D2873A67A3066A54DFA9B01A7BC63F98D2C796A142AAEE52",
+ "steps": [
+  "S1 tone: inside guardian envelope -> no change",
+  "S2 detail: lapvar 1303.6 < guardian min 1411.4 -> sharpen sigma=0.5 m1=0.4 m2=1.0 x1=3 -> 2073.7",
+  "S3 geometry: none (no resize, crop, move, generation)"
+ ],
+ "params": {},
+ "shaOk": true,
+ "before": {
+  "w": 720,
+  "h": 540,
+  "meanL": 43.1,
+  "p1": 0.9,
+  "p99": 207.5,
+  "sat": 0.8,
+  "RB": 2.57,
+  "lapvar": 1303.6,
+  "borderEnergy": 3.26
+ },
+ "touched": true,
+ "after": {
+  "w": 720,
+  "h": 540,
+  "meanL": 43.2,
+  "p1": 0.9,
+  "p99": 209.7,
+  "sat": 0.792,
+  "RB": 2.53,
+  "lapvar": 2027.3,
+  "borderEnergy": 3.67
+ },
+ "candidate": "_tmp_beast_retouch/candidates/young-16.cand.webp",
+ "candSha": "35CECB2471A9C55B42E607B1DB85ACA06B25340C245E5F840ABB11DBA2FC36CD",
+ "hdFloor": "PASS (owner exception 2026-11-08 18:48: card front 720x540 = guardian size)",
+ "deliverable": "needs site review (360/390/768) before replacing public/",
+ "thumbs": {
+  "thumb/young-16.v2.webp": "4925BD57FDA0D5FB68E04D5C7F86F5A1AF2DD2690A745788971374F317D5475C",
+  "thumb/young-16.v2-480.webp": "700960D5C737DC2CA11B03D52B4C73A2D8A68FDCAC35B7BF96BDD0773E041999"
+ }
+}

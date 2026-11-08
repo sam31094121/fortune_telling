@@ -41,6 +41,7 @@
   ],
   "exclude": [
     "node_modules",
-    "_engine-puppet-install"
+    "_engine-puppet-install",
+    "_tmp_asura_perf"
   ]
 }
