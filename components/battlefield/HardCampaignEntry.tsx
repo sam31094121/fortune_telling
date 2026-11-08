@@ -29,6 +29,17 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const [saving, setSaving] = useState(false);
   const [revision, setRevision] = useState(0);
   const startButton = useRef<HTMLButtonElement>(null);
+  const confirmHeroButton = useRef<HTMLButtonElement>(null);
+  const teamHeading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (phase === 'hero' && candidate) {
+      confirmHeroButton.current?.scrollIntoView({ block: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+    }
+    if (phase === 'team') {
+      teamHeading.current?.focus({ preventScroll: true });
+      teamHeading.current?.scrollIntoView({ block: 'start', behavior: 'instant' });
+    }
+  }, [phase, candidate]);
   const previousCount = useRef(0);
   const loadRetry = useRef<{ who: Owner; repick: boolean; reset: boolean } | null>(null);
   const loadAlert = useRef<HTMLDivElement>(null);
@@ -91,22 +102,29 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
     <p className={styles.hint}>{choice === 'milestone' ? '通過第八關，可保留原主角或更換一次。確認後主角固定。' : profile.wins >= 8 ? '你的進度已通過第八關；這次選擇即使用唯一的重選機會，確認後主角固定。' : '主角占一個出戰位置。選定後固定，通過第八關可重新選擇一次。'}</p>
     {choice === 'milestone' && <p className={styles.hint}>永久強化留在原卡，不會轉移到新主角；原卡加成仍會保留。</p>}
     <div className={picker.cardGrid}>{pool.filter(c => c.id.startsWith('beast_g_')).map(c => <button type="button" className={picker.cardChoice} key={c.id} data-testid="pick-hero" data-id={c.id} aria-pressed={candidate === c.id} onClick={() => setCandidate(c.id)}>
-      {face(c.id)}<span className={picker.choiceState}>{profile.heroId === c.id ? '保留原主角' : c.name}</span>
+      {face(c.id)}<span className={picker.choiceState}>{candidate === c.id ? `已選 ${c.name}・請按下方確認` : profile.heroId === c.id ? '保留原主角' : `點選 ${c.name}`}</span>
     </button>)}</div>
     {error && <p role="alert">{error}</p>}
-    <div className={styles.pickBar}><button type="button" className={styles.again} data-testid="confirm-hero" disabled={!candidate || saving} onClick={async () => {
+    <p className={picker.readyHint} role="status">{candidate ? `已選 ${pool.find(c => c.id === candidate)?.name}，請點下方按鈕確認，再選擇四位夥伴。` : '先點選一張主角卡，再按下方按鈕確認。'}</p>
+    <div className={styles.pickBar}><button ref={confirmHeroButton} type="button" className={`${styles.again} ${candidate ? picker.readyStart : ''}`} data-testid="confirm-hero" disabled={!candidate || saving} onClick={async () => {
       if (!candidate) return;
       setSaving(true); const result = await selectCampaignHero(owner, candidate); setSaving(false);
       if (!result.ok || !result.profile) { setError(result.error || '主角尚未儲存，請重試。'); return; }
       setProfile(result.profile); setSelected(validateCampaignTeam(result.profile, result.profile.teamIds) ? [...result.profile.teamIds] : [candidate]); setPhase('team'); setError('');
-    }}>確認主角</button></div>
+    }}>{saving ? '正在儲存主角…' : candidate ? `點此確認 ${pool.find(c => c.id === candidate)?.name}，繼續選夥伴 →` : '請先點選一位主角'}</button></div>
   </section>;
   const allowed = campaignAvailableIds(profile);
   const collection = campaignCollection(profile);
   const shown = pool.filter(c => allowed.includes(c.id) && c.id !== profile.heroId && (tab === 'ALL' || c.element === tab));
   const toggle = (id: string) => { if (id !== profile.heroId && allowed.includes(id)) setSelected(s => s.includes(id) ? s.filter(x => x !== id) : s.length < 5 ? [...s, id] : s); };
   return <section className={styles.picker} data-testid="team-picker" aria-label="選擇主角的四位夥伴">
-    {home}{changePlayer}<h1>我的卡片</h1><p className={styles.hint}>主角已固定，接著選 4 張夥伴。勝利獲得的成獸保存在這裡，也能加入隊伍。</p><h2 className={picker.sectionTitle}>主角與出戰隊伍</h2>
+    {home}{changePlayer}<h1 ref={teamHeading} tabIndex={-1}>第二步：點選四位夥伴</h1>
+    <div className={picker.companionGuide} role="status" aria-live="polite">
+      <strong>{selected.length === 5 ? '四位夥伴已選齊！' : `已選 ${Math.max(0, selected.length - 1)}／4 位夥伴，還差 ${5 - selected.length} 位`}</strong>
+      <p>{selected.length === 5 ? '請點下方金色「開始作戰」按鈕，帶隊出發。' : '往下滑，點喜歡的卡片加入隊伍。主角已保留，不用再選。'}</p>
+      <p>想換夥伴？再點一次已選卡片即可取消。</p>
+    </div>
+    <p className={styles.hint}>勝利獲得的成獸保存在這裡，也能加入隊伍。</p><h2 className={picker.sectionTitle}>主角與出戰隊伍</h2>
     <div className={picker.selectedRow} data-testid="picked-row" aria-label={`已選 ${selected.length} 張`}>{selected.map(id => <button type="button" key={id} className={picker.selectedCard} disabled={id === profile.heroId} aria-label={id === profile.heroId ? '固定主角' : `移除${pool.find(c => c.id === id)?.name}`} onClick={() => toggle(id)}>
       {face(id)}<span className={picker.remove}>{id === profile.heroId ? '主角・固定' : '移除夥伴'}</span>
     </button>)}</div>
@@ -126,6 +144,6 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
       setSaving(true); const result = await saveCampaignTeam(owner, selected); setSaving(false);
       if (!result.ok || !result.profile) { setError(result.error || '隊伍尚未儲存，請重試。'); return; }
       setProfile(result.profile); setError(''); setRevision(n => n + 1); setPhase('battle');
-    }}>開戰（{selected.length}/5）</button></div>
+    }}>{saving ? '正在儲存隊伍…' : selected.length === 5 ? '點此開始作戰 →' : `請再點選 ${5 - selected.length} 位夥伴`}</button></div>
   </section>;
 }
