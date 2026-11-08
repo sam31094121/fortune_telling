@@ -44,4 +44,15 @@ ok(/min-height:\s*56px/.test(css), '按鈕高度 56px');
 ok(/prefers-reduced-motion/.test(css), '尊重減少動態');
 ok(/aria-live="polite"/.test(comp), '結果變化會被讀出');
 
+// 寬度以容器為準（同橫幅，避免窄手機超出右邊）
+ok(!/^\.reveal \{[^}]*\bwidth:\s*min\([^)]*vw/m.test(css), '戰利品揭曉外框寬度不得以視窗為準');
+ok(/width:\s*100%;\s*max-width:\s*420px/.test(css), '戰利品揭曉寬度以容器為準，最寬 420');
+
+// 結算版面：操作區在結算時整欄一起捲，勝負橫幅與碎片不會被底下固定列擠到只剩十幾像素
+const screenCss = read('components/battlefield/BattleScreen.module.css');
+ok(/data-dock='true'\]\[data-finished='true'\] > \[data-battle-controls\] \{ max-height: 76dvh; \}/.test(screenCss), '結算時放寬操作區高度上限');
+ok(/\[data-finished='true'\] > \[data-battle-controls\] \{ display: block; overflow-y: auto;/.test(screenCss), '結算時整個操作區當一欄一起捲');
+ok(/\[data-finished='true'\] > \[data-battle-controls\] > \[data-control-scroll\] \{ overflow: visible; \}/.test(screenCss), '結算時內層捲動區不再自己捲（否則會被壓成十幾像素）');
+ok(/\[data-finished='true'\] > \[data-battle-controls\] > \.footer \{ position: static;/.test(screenCss), '結算時固定列跟著內容走，不再浮在最下面蓋住結果');
+
 console.log(`battle-reward-reveal: ${n} checks passed`);

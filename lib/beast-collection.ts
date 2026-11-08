@@ -4,7 +4,8 @@ import { cardFusionChoices, requireFusionCopies, commitOwnedFusion, fusionReceip
 import type { CardEnhancementReceipt } from './beast-game/card-campaign';
 export { cardFusionChoices, fusionReceiptDisplay } from './beast-game/card-campaign-fusion';
 import { deriveUnlockedMansions, gameCardIdsForMansion } from './beast-growth-rewards';
-import { grantGrowthCards, grantStarterPack, migrateCollection, reserveCard, reserveOwnedStakes, settleCard, type BeastCollection, type CollectionReceipt, type StakeOutcome } from './beast-collection-ledger';
+import { creditBattleReward, exchangeShards, grantGrowthCards, grantStarterPack, migrateCollection, reserveCard, reserveOwnedStakes, settleCard, shardSummary, type BeastCollection, type CollectionReceipt, type ShardReceipt, type StakeOutcome } from './beast-collection-ledger';
+import type { BattleReward, ShardExchangeKind } from './beast-game/battle-reward';
 export type { BeastCollection, CollectionEntry, CollectionHistoryItem, CollectionReceipt } from './beast-collection-ledger';
 
 const COLLECTION_KEY = 'tdh_beast_collection_v1';
@@ -253,6 +254,43 @@ export async function claimStarterPack(completed:string,profileId:string):Promis
   throw lastError;
  });
 }
+
+/**
+ * 免費戰場戰利碎片（2026-11-08）。後端算好的戰績（BattleReward）由這裡入帳到本機收藏帳本。
+ * 同一場只入一次（收據鑰匙）；重新整理、重送都不會多給。入帳失敗要讓客戶看得到並可重試，不假裝已發獎。
+ */
+export type ShardCreditResult = { saved: boolean; receipt?: ShardReceipt; duplicate?: boolean; summary?: ReturnType<typeof shardSummary>; error?: string };
+export async function creditFreeBattleReward(reward: BattleReward): Promise<ShardCreditResult> {
+  if (typeof window === 'undefined' || !navigator.locks) return { saved: false, error: '請使用支援安全保存的瀏覽器。' };
+  try {
+    return await navigator.locks.request(LOCK, async () => {
+      const current = readStrict();
+      if (current.storageError) throw new Error(current.storageError);
+      const credited = creditBattleReward(current, reward, now());
+      if (!credited.duplicate) write(credited.collection);
+      return { saved: true, receipt: credited.receipt, duplicate: credited.duplicate, summary: shardSummary(credited.collection) };
+    });
+  } catch (error) {
+    return { saved: false, error: error instanceof Error && /[㐀-鿿]/.test(error.message) ? error.message : '戰利碎片尚未保存，請重試。' };
+  }
+}
+export type ShardExchangeResult = { saved: boolean; cardId?: string; summary?: ReturnType<typeof shardSummary>; error?: string };
+export async function exchangeFreeBattleShards(kind: ShardExchangeKind): Promise<ShardExchangeResult> {
+  if (typeof window === 'undefined' || !navigator.locks) return { saved: false, error: '請使用支援安全保存的瀏覽器。' };
+  try {
+    return await navigator.locks.request(LOCK, async () => {
+      const current = readStrict();
+      if (current.storageError) throw new Error(current.storageError);
+      const done = exchangeShards(current, kind, now());
+      write(done.collection);
+      return { saved: true, cardId: done.cardId, summary: shardSummary(done.collection) };
+    });
+  } catch (error) {
+    return { saved: false, error: error instanceof Error && /[㐀-鿿]/.test(error.message) ? error.message : '兌換尚未完成，碎片沒有扣除，請重試。' };
+  }
+}
+/** 給畫面讀目前的碎片摘要（唯讀，不寫入）。 */
+export function readShardSummary() { return shardSummary(readCollection()); }
 
 export type OwnedEnhancementResult = {saved:boolean;collection?:BeastCollection;receipt?:CardEnhancementReceipt;display?:ReturnType<typeof fusionReceiptDisplay>;error?:string};
 async function campaignRequest(body:Record<string,unknown>) {

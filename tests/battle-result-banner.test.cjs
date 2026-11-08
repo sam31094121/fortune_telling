@@ -40,4 +40,8 @@ ok(/動作演出中，接著顯示結果/.test(finishedBranch.split('<BattleResu
 ok((panel.match(/<BattleResultBanner/g) || []).length === 1, 'BattlePanel 只有一處橫幅');
 ok(/\{over && \(/.test(match3) && match3.indexOf('{over && (') < match3.indexOf('<BattleResultBanner'), '寶珠戰橫幅只在 over 之後出現');
 
+// 寬度以容器為準：以視窗（92vw）為準時，放進窄欄（BattlePanel）會超出右邊，窄手機實測超出 10px
+ok(!/(^|[;{\s])width:\s*min\([^)]*vw/m.test(css), '橫幅「寬度」不得以視窗為準（字級用 vw 不在此限）');
+ok(/width:\s*100%;\s*max-width:\s*420px/.test(css), '橫幅寬度以容器為準，最寬 420');
+
 console.log(`battle-result-banner: ${n} checks passed`);

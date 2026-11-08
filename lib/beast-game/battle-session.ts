@@ -22,6 +22,12 @@ export const BATTLE_SESSION_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 
 export interface BattleSession {
   campaign?: CardCampaign;
+  /**
+   * 闖關局上陣的收藏副本。開局時 applyCardCampaignStats 會依它改能力值；
+   * 戰後要重播驗證戰績獎勵（battle-reward-server.ts）就必須用同一份重做同一個開局轉換。
+   * 舊票沒有這個欄位＝無法重播驗證＝不發戰績獎勵（安全，不是錯誤）。
+   */
+  selectedEntries?: OwnedCardRef[];
   v: 1;
   match: Match;
   /** 押注代表卡；體驗戰為 null。 */

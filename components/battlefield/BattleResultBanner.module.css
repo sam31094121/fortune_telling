@@ -4,7 +4,9 @@
   display: grid;
   justify-items: center;
   gap: 6px;
-  width: min(92vw, 420px);
+  /* 以容器為準，不是以視窗為準：放在窄欄（BattlePanel）時才不會超出右邊；全螢幕蓋板裡最寬 420。 */
+  width: 100%;
+  max-width: 420px;
   box-sizing: border-box;
   margin: 0 auto;
   padding: 20px 14px 18px;

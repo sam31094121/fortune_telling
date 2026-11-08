@@ -4,6 +4,7 @@ import { advance, bossNotice, chooseAI, legalActions, newMatch, type Action } fr
 import { openBattleSession, openTableTicket, signBattleSession, signTableTicket, openCardCampaign, signCardCampaign, type BattleSession } from '@/lib/beast-game/battle-session';
 import { cardCampaignStage, cardCampaignSeed, cardCampaignOpponent, cardCampaignEnhancementPreview, enhanceCardCampaign, applyCardCampaignStats, settleCardCampaign, validOwnedCard, type CardCampaign, type OwnedCardRef } from '@/lib/beast-game/card-campaign';
 import { battleViewFor } from '@/lib/beast-game/battle-view';
+import { battleRewardFor } from '@/lib/beast-game/battle-reward-server';
 import { resolveStake } from '@/lib/beast-game/stake';
 import { judgeVictorySkill } from '@/lib/beast-game/iching-judgment';
 import { distributeRewardCards } from '@/lib/beast-game/reward-distribution';
@@ -93,6 +94,8 @@ function reply(session: BattleSession, extra: { action?: Action } = {}) {
     view: battleViewFor(match),
     notice: bossNotice(match),
     outcome: settle(session),
+    // 戰利碎片（2026-11-08）：只有「已結束」才算得出，由後端重播整場驗證；進行中、舊票、對不上一律 null。
+    reward: battleRewardFor(match, { campaign: session.campaign, selectedEntries: session.selectedEntries }),
     ...(campaign ? { campaign: cardCampaignStage(campaign.wins), campaignToken: signCardCampaign(campaign) } : {}),
     ...extra,
   }, { headers: { 'Cache-Control': 'no-store' } });
@@ -173,7 +176,7 @@ export async function POST(request: Request) {
         const campaign={...table.campaign,pending:randomUUID()};
         let match=newMatch(body.playerTeam,table.opponentTeam,cardCampaignSeed(campaign),{difficulty:cardCampaignStage(campaign.wins).difficulty});
         match=applyCardCampaignStats(match,campaign,table.selectedEntries);
-        return reply({v:1,match,campaign,stakeCardId:stakeCount>0?stakeCardId:null,stakeCount,issuedAt:Date.now()});
+        return reply({v:1,match,campaign,selectedEntries:table.selectedEntries,stakeCardId:stakeCount>0?stakeCardId:null,stakeCount,issuedAt:Date.now()});
       }
       // 正式押注戰＝困難首領；體驗戰（免押卡、新客人）維持簡單。難度由後端決定，不採信前端。
       const match = newMatch(body.playerTeam, table.opponentTeam, randomInt(2147483647), { difficulty: stakeCount > 0 ? 'HARD' : 'EASY' });

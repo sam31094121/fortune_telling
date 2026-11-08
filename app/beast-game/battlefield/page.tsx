@@ -42,6 +42,8 @@ import { namedStakeOutcome } from '@/lib/beast-stake-presentation';
 import BeastStakeResult from '@/components/BeastStakeResult';
 import BeastBattleVoice from '@/components/BeastBattleVoice';
 import StarterPackAfterBattle from '@/components/StarterPackAfterBattle';
+import FreeBattleShards from '@/components/battlefield/FreeBattleShards';
+import type { BattleReward } from '@/lib/beast-game/battle-reward';
 import OwnedCampaignPreparation from '@/components/battlefield/OwnedCampaignPreparation';
 import OwnedCardCultivation from '@/components/battlefield/OwnedCardCultivation';
 import { readOwnedCardCampaignProgress } from '@/lib/beast-collection';
@@ -54,7 +56,7 @@ import { MAX_REWARD_CARDS, MAX_STAKE_CARDS } from '@/lib/beast-game/stake-rules'
 
 
 type CampaignReply = { campaign?: { wins: number; stage: number }; campaignToken?: string };
-type BattleReply = CampaignReply & { ok: true; match: Match; token: string; legal: Action[]; view: BattleView; notice: string | null; outcome?: StakeOutcome; action?: Action };
+type BattleReply = CampaignReply & { ok: true; match: Match; token: string; legal: Action[]; view: BattleView; notice: string | null; outcome?: StakeOutcome; action?: Action; reward?: BattleReward | null };
 type DealReply = CampaignReply & { ok: true; table: BattleState; deckIds: string[]; opening: { player: string[]; opponent: string[] }; tableToken: string };
 
 /**
@@ -110,6 +112,8 @@ function BattlefieldScreen() {
   const [ownedStake, setOwnedStake] = useState<StakeCard[]>([]);
   const [settlement, setSettlement] = useState<Settlement | null>(null);
   const [outcome, setOutcome] = useState<StakeOutcome | null>(null);
+  /** 後端算好、重播驗證過的戰績獎勵（戰利碎片）；進行中一律 null，不提前揭曉。 */
+  const [reward, setReward] = useState<BattleReward | null>(null);
   const settlementProgress = useRef<{campaignToken:string;wins:number} | undefined>(undefined);
   const [battleStake, setBattleStake] = useState<string | null>(null);
   const [battleVoiceId, setBattleVoiceId] = useState('');
@@ -273,7 +277,7 @@ function BattlefieldScreen() {
       const expectedCampaignToken = dealCampaignToken.current!;
       // 開戰交給後端：種子、難度（押注戰＝困難首領、體驗戰＝簡單）、易經判斷都由後端決定。
       const opened = await callBattle({ type: 'START', tableToken: tableToken.current, playerTeam: fieldTeam(state, 'PLAYER'), opponentTeam: fieldTeam(state, 'OPPONENT'), stakeCardId: stakeCardIds.length ? representative?.cardId ?? null : null, stakeCount: stakeCardIds.length });
-      battleToken.current = opened.token; setLegal(opened.legal); setLiveNotice(opened.notice); setBattleView(opened.view);
+      battleToken.current = opened.token; setLegal(opened.legal); setLiveNotice(opened.notice); setBattleView(opened.view); setReward(null);
       const next = opened.match;
       setOutcome(null); setSettlement(null); setBattleStake(representative?.cardId || null);
       setBattleVoiceId(crypto.randomUUID());
@@ -331,7 +335,7 @@ function BattlefieldScreen() {
     resumedBattle.current = true;
     liveMatchId.current = live.matchId;
     if (live.table && typeof live.table === 'object') setState(live.table as BattleState);
-    battleToken.current = reply.token; setLegal(reply.legal); setLiveNotice(reply.notice); setBattleView(reply.view);
+    battleToken.current = reply.token; setLegal(reply.legal); setLiveNotice(reply.notice); setBattleView(reply.view); setReward(reply.reward ?? null);
     if (reply.outcome && reply.campaignToken && reply.campaign) settlementProgress.current = {campaignToken:reply.campaignToken,wins:reply.campaign.wins};
     setOutcome(null); setSettlement(null); setBattleStake(live.stakeCardId); setBattleVoiceId(crypto.randomUUID());
     setAutomatic(false); setInspection(null);
@@ -357,7 +361,7 @@ function BattlefieldScreen() {
   const applyReply = useCallback((reply: BattleReply) => {
     if (reply.outcome && reply.campaignToken && reply.campaign) settlementProgress.current = {campaignToken:reply.campaignToken,wins:reply.campaign.wins};
     if (liveMatchId.current) updateLiveBattleToken(liveMatchId.current, reply.token);
-    battleToken.current = reply.token; setLegal(reply.legal); setLiveNotice(reply.notice); setBattleView(reply.view);
+    battleToken.current = reply.token; setLegal(reply.legal); setLiveNotice(reply.notice); setBattleView(reply.view); setReward(reply.reward ?? null);
     setMatch(reply.match); playRound(reply.match);
     controlScroll.current?.scrollTo({ top: 0 });
     if (reply.outcome && pendingBattle.current) {
@@ -540,6 +544,8 @@ function BattlefieldScreen() {
                     {match.status === 'FINISHED' && !playing && isTrial && (
                       <p role="status" className={styles.notice} data-battle-result={match.winner}>體驗戰結束：押注 0 張・贏得 0 張・輸掉 0 張。</p>
                     )}
+                    {/* 戰利碎片（2026-11-08）：連勝、戰績、合體階加成。不動押卡經濟：體驗戰仍不發卡不押卡，押注戰要等押注結算保存成功才入帳；演出結束才顯示。 */}
+                    {match.status === 'FINISHED' && !playing && (isTrial || settlement?.saved === true) && <FreeBattleShards reward={reward} />}
                     {match.status === 'FINISHED' && isTrial && <BeastBattleVoice id={`trial:${battleVoiceId}`}
                       text={`${match.winner === 'player' ? '恭喜獲勝！' : match.winner === 'opponent' ? '本場對手獲勝。' : '本場平手。'}這是免押體驗戰。押注零張，贏得零張，輸掉零張。可以換一組戰術再挑戰。`} />}
                   </>

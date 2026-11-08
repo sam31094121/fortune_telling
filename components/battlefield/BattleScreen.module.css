@@ -193,6 +193,14 @@
 /* 一體成型（中等、困難）：操作區是內容高度（內容多時自己捲動），戰場拿走其餘高度。 */
 .split[data-dock='true'] { grid-template-rows: minmax(0, 1fr) auto; }
 .split[data-dock='true'] > [data-battle-controls] { max-height: 44dvh; }
+/* 結算（戰鬥已結束）：勝利／戰敗橫幅與戰利碎片都在操作區的捲動區裡，底下固定列（首戰贈卡＋再戰鈕）可以很高。
+   原本 44dvh 的上限會把捲動區擠到只剩十幾像素，第一次贏的客戶看不到結果；結算時放寬上限讓結果有位置。 */
+.split[data-dock='true'][data-finished='true'] > [data-battle-controls] { max-height: 76dvh; }
+/* 更進一步：結算時整個操作區當成一欄一起捲（勝負橫幅、戰利碎片在最上面，首戰贈卡與再戰鈕接在後面），
+   不再把結果關在被固定列擠到很小的內層捲動區裡；固定列在結算時改成跟著內容走，不再浮在最下面蓋住結果。 */
+.split[data-dock='true'][data-finished='true'] > [data-battle-controls] { display: block; overflow-y: auto; overscroll-behavior-y: contain; }
+.split[data-dock='true'][data-finished='true'] > [data-battle-controls] > [data-control-scroll] { overflow: visible; }
+.split[data-dock='true'][data-finished='true'] > [data-battle-controls] > .footer { position: static; box-shadow: none; }
 
 /* 一體成型：次要資訊（本回合戰報、離開本場、體驗戰說明）收成緊湊的小列，兩個摺疊項併排，不佔多餘的卡片空間。 */
 .split[data-dock='true'] [data-control-scroll] { padding: 6px 10px 8px; }

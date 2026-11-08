@@ -1,4 +1,5 @@
 import { parseCollectionCampaign, type CardCampaignCollection } from './beast-game/card-campaign-fusion';
+import { SHARD_EXCHANGE_COST, exchangeCardId, rewardShards, streakBonus, winsToNextStreakTier, type BattleReward, type ShardExchangeKind } from './beast-game/battle-reward';
 /** Pure inventory ledger. Battle outcomes come from the game API; this only moves owned copies. */
 const MAX_STAKE_CARDS = 20;
 const MAX_REWARD_CARDS = 100;
@@ -74,6 +75,8 @@ export interface BeastCollection {
   /** 已經領過的獎勵 id。擋重複領，也擋重複發。 */
   claimedRewards?: string[];
   starterPack?: string;
+  /** 免費戰場戰利碎片帳本（見 beast-game/battle-reward.ts）。 */
+  shards?: ShardLedger;
 }
 
 export function isBeastCardId(value: unknown): value is string {
@@ -95,6 +98,7 @@ export function migrateCollection(value: unknown): BeastCollection {
     pending: old.pending ?? null,
     ...(old.cardCampaign === undefined ? {} : {cardCampaign: parseCollectionCampaign(old.cardCampaign)}),
     starterPack: typeof old.starterPack === 'string' ? old.starterPack : undefined,
+    ...(old.shards === undefined ? {} : { shards: parseShardLedger(old.shards) }),
   };
 }
 
@@ -271,4 +275,126 @@ export function claimReward(
 /** 格子裡還有幾份沒領。畫面用它決定要不要提示。 */
 export function unclaimedRewardCount(current: BeastCollection): number {
   return (current.rewards ?? []).length;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   免費戰場戰利碎片（2026-11-08 業主批准：贏了要有獎賞、越打越多）
+   規則在 beast-game/battle-reward.ts；這裡只負責「入帳、連勝、兌換」，與押卡收藏分開計。
+   ──────────────────────────────────────────────────────────────────────── */
+
+export interface ShardReceipt {
+  key: string;
+  outcome: BattleReward['outcome'];
+  /** 本場入帳碎片（含連勝加成）。 */
+  gained: number;
+  streakBonus: number;
+  streakAfter: number;
+  /** 後端組好的說明＋連勝說明，畫面只照印。 */
+  lines: string[];
+  at: string;
+  totalAfter: number;
+}
+export interface ShardLedger {
+  v: 1;
+  shards: number;
+  /** 目前連勝；輸了歸零，平手不動。 */
+  streak: number;
+  bestStreak: number;
+  totalEarned: number;
+  /** 兌換次數：決定下一張輪到哪一張卡。 */
+  exchanged: { ADULT: number; GUARDIAN: number };
+  /** 以戰局鑰匙記錄收據，擋重複入帳；只留最近 200 筆。 */
+  receipts: Record<string, ShardReceipt>;
+}
+const MAX_SHARD_RECEIPTS = 200;
+export const emptyShardLedger = (): ShardLedger => ({ v: 1, shards: 0, streak: 0, bestStreak: 0, totalEarned: 0, exchanged: { ADULT: 0, GUARDIAN: 0 }, receipts: {} });
+
+const safeCount = (n: unknown) => Number.isSafeInteger(n) && (n as number) >= 0;
+export function parseShardLedger(value: unknown): ShardLedger {
+  const v = value as ShardLedger;
+  if (!v || v.v !== 1 || ![v.shards, v.streak, v.bestStreak, v.totalEarned].every(safeCount) || !v.exchanged || !safeCount(v.exchanged.ADULT) || !safeCount(v.exchanged.GUARDIAN) || !v.receipts || typeof v.receipts !== 'object') {
+    throw new Error('碎片資料無法讀取，請先保留資料。');
+  }
+  return { ...v, exchanged: { ...v.exchanged }, receipts: { ...v.receipts } };
+}
+
+function validReward(r: BattleReward): boolean {
+  if (!r || typeof r.key !== 'string' || !r.key || r.key.length > 300) return false;
+  if (!['win', 'lose', 'draw'].includes(r.outcome)) return false;
+  if (![r.base, r.survival, r.swift, r.fusion].every(safeCount) || r.base > 1 || r.survival > 2 || r.swift > 1 || r.fusion > 3) return false;
+  if (r.outcome !== 'win' && rewardShards(r) !== 0) return false;
+  if (r.outcome === 'win' && r.base !== 1) return false;
+  return Array.isArray(r.lines) && r.lines.length <= 8 && r.lines.every((l) => typeof l === 'string' && l.length <= 80);
+}
+
+/** 把一場免費戰場的戰績入帳。同一場（同一把鑰匙）只入一次；贏才有碎片，輸歸零連勝，平手不動。 */
+export function creditBattleReward(current: BeastCollection, reward: BattleReward, at: string): { collection: BeastCollection; receipt: ShardReceipt; duplicate: boolean } {
+  const ledger = current.shards ?? emptyShardLedger();
+  const previous = ledger.receipts[reward.key];
+  if (previous) return { collection: current, receipt: previous, duplicate: true };
+  if (!validReward(reward)) throw new Error('戰績資料不完整，暫不入帳。');
+  const win = reward.outcome === 'win';
+  const streakAfter = win ? ledger.streak + 1 : reward.outcome === 'lose' ? 0 : ledger.streak;
+  const bonus = win ? streakBonus(streakAfter) : 0;
+  const gained = win ? rewardShards(reward) + bonus : 0;
+  const lines = win ? [...reward.lines, ...(bonus > 0 ? [`連勝 ${streakAfter} 場 ＋${bonus}`] : [])] : [];
+  const receipt: ShardReceipt = { key: reward.key, outcome: reward.outcome, gained, streakBonus: bonus, streakAfter, lines, at, totalAfter: ledger.shards + gained };
+  const keys = Object.keys(ledger.receipts);
+  const kept = keys.length >= MAX_SHARD_RECEIPTS ? Object.fromEntries(keys.slice(keys.length - MAX_SHARD_RECEIPTS + 1).map((k) => [k, ledger.receipts[k]])) : ledger.receipts;
+  return {
+    collection: {
+      ...current,
+      shards: {
+        ...ledger,
+        shards: ledger.shards + gained,
+        streak: streakAfter,
+        bestStreak: Math.max(ledger.bestStreak, streakAfter),
+        totalEarned: ledger.totalEarned + gained,
+        receipts: { ...kept, [reward.key]: receipt },
+      },
+    },
+    receipt,
+    duplicate: false,
+  };
+}
+
+/** 用碎片兌換一張卡：成獸或四象，按卡檔順序輪流發，不抽籤。碎片不夠直接丟例外，不扣、不發。 */
+export function exchangeShards(current: BeastCollection, kind: ShardExchangeKind, at: string): { collection: BeastCollection; cardId: string; shardsLeft: number } {
+  const ledger = current.shards ?? emptyShardLedger();
+  const cost = SHARD_EXCHANGE_COST[kind];
+  if (ledger.shards < cost) throw new Error(`碎片還差 ${cost - ledger.shards} 片，還不能兌換。`);
+  const index = ledger.exchanged[kind];
+  const cardId = exchangeCardId(kind, index);
+  if (!isBeastCardId(cardId)) throw new Error('兌換卡片不在正式牌庫，暫停兌換。');
+  const left = ledger.shards - cost;
+  return {
+    collection: {
+      ...current,
+      cards: [...current.cards, { id: `shard:${kind}:${index}`, cardId, at, source: 'GROWTH' }],
+      shards: { ...ledger, shards: left, exchanged: { ...ledger.exchanged, [kind]: index + 1 } },
+      history: [{ at, kind: 'WON' as const, cardId, note: kind === 'ADULT' ? '戰利碎片兌換成獸' : '戰利碎片兌換四象' }, ...current.history].slice(0, 60),
+    },
+    cardId,
+    shardsLeft: left,
+  };
+}
+
+/** 給畫面照印的碎片摘要（全部在這裡算好，元件不運算）。 */
+export function shardSummary(current: BeastCollection) {
+  const l = current.shards ?? emptyShardLedger();
+  const next = winsToNextStreakTier(l.streak);
+  return {
+    shards: l.shards,
+    streak: l.streak,
+    bestStreak: l.bestStreak,
+    adultCost: SHARD_EXCHANGE_COST.ADULT,
+    guardianCost: SHARD_EXCHANGE_COST.GUARDIAN,
+    canAdult: l.shards >= SHARD_EXCHANGE_COST.ADULT,
+    canGuardian: l.shards >= SHARD_EXCHANGE_COST.GUARDIAN,
+    adultNeed: Math.max(0, SHARD_EXCHANGE_COST.ADULT - l.shards),
+    guardianNeed: Math.max(0, SHARD_EXCHANGE_COST.GUARDIAN - l.shards),
+    nextAdultCardId: exchangeCardId('ADULT', l.exchanged.ADULT),
+    nextGuardianCardId: exchangeCardId('GUARDIAN', l.exchanged.GUARDIAN),
+    nextStreakGoal: next ? `再連勝 ${next.wins} 場，每場多 ＋${next.bonus} 片` : '連勝加碼已到最高階',
+  };
 }

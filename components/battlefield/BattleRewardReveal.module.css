@@ -4,7 +4,9 @@
   display: grid;
   justify-items: center;
   gap: 10px;
-  width: min(92vw, 420px);
+  /* 以容器為準，不是以視窗為準，窄欄裡才不會超出右邊。 */
+  width: 100%;
+  max-width: 420px;
   box-sizing: border-box;
   margin: 0 auto;
   padding: 14px 14px 16px;
