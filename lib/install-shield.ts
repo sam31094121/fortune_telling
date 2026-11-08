@@ -97,3 +97,19 @@ export function mobileGuideFor(ua: string, platform: InstallPlatform, inApp: InA
   if (isSamsungInternet(ua)) return 'samsung';
   return 'chrome-android';
 }
+
+/**
+ * iPhone／iPad 沒有「一鍵安裝」API，網頁不能直接叫出「加入主畫面」視窗（Apple 限制）。
+ * 能做到的最短路徑：按下我們的按鈕就直接叫出系統分享面板，使用者省掉「自己找分享鈕」那一步，
+ * 接著只要在面板裡點「加入主畫面」。回傳 true＝分享面板已叫出（或使用者關閉）；false＝此瀏覽器不支援，改看步驟。
+ */
+export async function openIosShareSheet(): Promise<boolean> {
+  if (typeof navigator === 'undefined' || typeof navigator.share !== 'function') return false;
+  try {
+    await navigator.share({ title: '太極命理', url: window.location.origin + '/' });
+    return true;
+  } catch (err) {
+    // 使用者關掉面板（AbortError）也算叫出過；其他錯誤退回步驟說明
+    return err instanceof DOMException && err.name === 'AbortError';
+  }
+}

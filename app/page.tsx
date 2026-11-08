@@ -45,6 +45,7 @@ import FineDiningServiceProgress from '@/components/FineDiningServiceProgress';
 import TarotEntryCard from '@/features/tarot/components/TarotEntryCard';
 import HomeToolsCard from '@/components/HomeToolsCard';
 import HomeInstallCard from '@/components/HomeInstallCard';
+import HomeGuestbook from '@/components/HomeGuestbook';
 import StarBeastHomeCard from '@/components/StarBeastHomeCard';
 import GhostAsuraHomeEntry from '@/components/GhostAsuraHomeEntry';
 import { markPendingRoute, recoverFromChunkError } from '@/lib/chunk-recovery';
@@ -3938,6 +3939,9 @@ export default function HomePage() {
 
         {/* 底部 LINE 好友入口 */}
         <LineVipShareCard friendHref={lineFriendHref} onShare={handleLineShare} />
+
+        {/* 不記名公開留言板（後端驗證與限速；管理員可下架） */}
+        <HomeGuestbook />
 
         {/* 底部安裝入口：一鍵安裝到手機桌面（PWA） */}
         <HomeInstallCard />

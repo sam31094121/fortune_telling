@@ -17,6 +17,7 @@ import {
   stripInstallParams,
   isPhoneLayout,
   mobileGuideFor,
+  openIosShareSheet,
   type MobileGuide,
   type DesktopBrowser,
   withOpenExternalBrowser,
@@ -371,6 +372,8 @@ export default function InstallShield080() {
       return;
     }
     if (guide !== 'inapp' && deferred && (await runPrompt())) return;
+    // iPhone／iPad：直接叫出系統分享面板，使用者只要往下滑點「加入主畫面」。
+    if (guide === 'ios') void openIosShareSheet();
     setNudge(true);
     window.setTimeout(() => setNudge(false), 1800);
   }, [guide, canAutoOpenBrowser, openInBrowser, deferred, runPrompt]);

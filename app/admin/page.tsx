@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useState, useEffect } from 'react';
+import AdminGuestbookPanel from '@/components/AdminGuestbookPanel';
 import styles from './admin.module.css';
 
 export default function AdminLogin() {
@@ -172,6 +173,7 @@ export default function AdminLogin() {
         </div>
 
         <div className={styles.content}>
+          <AdminGuestbookPanel />
           <section className={styles.logsSection}>
             <h2>命盤製作日誌（{logs.length}）</h2>
 

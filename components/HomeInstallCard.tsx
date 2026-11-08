@@ -9,6 +9,7 @@ import {
   isIPad,
   isPhoneLayout,
   mobileGuideFor,
+  openIosShareSheet,
   type MobileGuide,
 } from '@/lib/install-shield';
 import styles from './HomeInstallCard.module.css';
@@ -22,7 +23,7 @@ type GuideKey = MobileGuide | 'desktop';
 
 /** 沒有系統安裝視窗時，教使用者手動存到桌面的步驟（畫在卡片裡，不用 alert）。 */
 const GUIDE_STEPS: Record<GuideKey, string[]> = {
-  ios: ['用 Safari 開啟本頁', '點下方的「分享」按鈕', '往下找「加入主畫面」並點它', '按右上角「新增」就完成了'],
+  ios: ['分享面板跳出後，往下滑', '找到「加入主畫面」並點它', '按右上角「新增」就完成了', '沒跳出面板？用 Safari 開啟本頁，點下方「分享」按鈕'],
   'chrome-android': ['點右上角「⋮」選單', '選「加到主畫面」或「安裝應用程式」', '按「安裝」就完成了'],
   samsung: ['點下方的「≡」選單', '選「新增頁面至」', '選「主畫面」就完成了'],
   inapp: ['目前在 LINE／臉書等 App 內建瀏覽器，無法存到桌面', '點右上角「⋯」或「⋮」', '選「用瀏覽器開啟」，再回到這張卡片'],
@@ -92,8 +93,10 @@ export default function HomeInstallCard() {
         setDeferred(null);
       }
     }
+    // iPhone／iPad：先直接叫出分享面板（省掉自己找分享鈕），並同時展開步驟提示「往下滑點加入主畫面」。
     setShowSteps(true);
-  }, [deferred]);
+    if (guide === 'ios') await openIosShareSheet();
+  }, [deferred, guide]);
 
   if (!ready || hidden) return null;
 
