@@ -130,8 +130,8 @@ export const QINGLONG_RIG: BeastRig = {
   dir: 'qinglong',
   style: RIG_STYLES.qinglong,
   frames: [
-    { id: 'bite-close', file: 'bite-close.v2.webp', norm: 0.9813, contact: [0.18, 0.35], anchors: { head: [0.21, 0.3], neck: [0.38, 0.36], jaw: [0.25, 0.37], claw: [0.05, 0.62], shoulder: [0.19, 0.68], hind: [[0.37, 0.88], [0.76, 0.9]], jawRest: 0 } },
-    { id: 'pounce-open', file: 'pounce-open.v2.webp', norm: 0.9813, contact: [0.18, 0.38], anchors: { head: [0.21, 0.3], neck: [0.38, 0.36], jaw: [0.25, 0.37], claw: [0.05, 0.62], shoulder: [0.19, 0.68], hind: [[0.37, 0.88], [0.76, 0.9]], jawRest: 0.3 } },
+    { id: 'bite-close', file: 'bite-close.cutout-v5.webp', norm: 0.9813, contact: [0.27, 0.34], anchors: { head: [0.31, 0.29], neck: [0.43, 0.36], jaw: [0.30, 0.38], claw: [0.18, 0.60], shoulder: [0.30, 0.68], hind: [[0.48, 0.83], [0.87, 0.76]], jawRest: 0 } },
+    { id: 'pounce-open', file: 'pounce-open.cutout-v5.webp', norm: 0.9813, contact: [0.27, 0.38], anchors: { head: [0.31, 0.29], neck: [0.43, 0.36], jaw: [0.30, 0.38], claw: [0.18, 0.60], shoulder: [0.30, 0.68], hind: [[0.48, 0.83], [0.72, 0.83]], jawRest: 0.3 } },
     { id: 'run-gather', norm: 1.2064, contact: [0.112, 0.418], anchors: { head: [0.14, 0.37], neck: [0.3, 0.4], jaw: [0.17, 0.45], claw: [0.05, 0.7], shoulder: [0.15, 0.77], hind: [[0.28, 0.92], [0.58, 0.82]], jawRest: 0.18 } },
     { id: 'run-reach', norm: 1.151, contact: [0.188, 0.4], anchors: { head: [0.21, 0.31], neck: [0.38, 0.38], jaw: [0.24, 0.38], claw: [0.05, 0.68], shoulder: [0.17, 0.73], hind: [[0.37, 0.9], [0.82, 0.84]], jawRest: 0.16 } },
   ],

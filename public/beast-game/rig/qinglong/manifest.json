@@ -5,26 +5,28 @@
   "frames": [
     {
       "id": "bite-close",
-      "file": "bite-close.v2.webp",
-      "width": 1331,
-      "height": 1181,
+      "file": "bite-close.cutout-v5.webp",
+      "width": 1448,
+      "height": 1086,
       "norm": 0.9813,
-      "bytes": 614572,
-      "sha256": "f723997d044781fc1728d60ce150db6b809c6d89d5ad66772059afb26a0998ba",
+      "bytes": 1141312,
+      "sha256": "bebc58d2d56d13d15a426247bc8cf67a1c83e65dd364a895ce722090bc5d48af",
       "sourceSha256": "b86eac45e59d78f29f713430ab4024dab5aadbc66f89ea9d52e9ad302907173d",
       "generatedSource": "exec-ddbd98c2-961e-4656-9063-0e10fda5a20b.png",
-      "originalFile": "bite-close.webp"
+      "originalFile": "bite-close.webp",
+      "reviewSource": "reports/beast-rig-review/qinglong-2026-11-08/candidates/bite-cutout-v5.png"
     },
     {
       "id": "pounce-open",
-      "file": "pounce-open.v2.webp",
-      "width": 1331,
-      "height": 1182,
+      "file": "pounce-open.cutout-v5.webp",
+      "width": 1448,
+      "height": 1086,
       "area": 1087439,
-      "bytes": 734626,
+      "bytes": 1010052,
       "norm": 0.9813,
       "originalFile": "pounce-open.webp",
-      "sha256": "7a22f3ec60aa6288999630778e7411de2f80f4c584536534b2ec7bf5987f3c4e"
+      "sha256": "d302b144e61e97adb8d94a6b07a3972a9d960b6421b6c78ba1fa77e6efc23526",
+      "reviewSource": "reports/beast-rig-review/qinglong-2026-11-08/candidates/pounce-cutout-v5.png"
     },
     {
       "id": "run-gather",
@@ -33,7 +35,9 @@
       "height": 913,
       "area": 719590,
       "bytes": 465386,
-      "norm": 1.2064
+      "norm": 1.2064,
+      "sha256": "4ac1ca22792615e4b72d23657cd20193a06a8d2e768005307aca18ed83603d11",
+      "hashRecordedAt": "2026-11-08（補登，檔案未變動）"
     },
     {
       "id": "run-reach",
@@ -42,7 +46,9 @@
       "height": 1209,
       "area": 790426,
       "bytes": 453970,
-      "norm": 1.151
+      "norm": 1.151,
+      "sha256": "2b62bcbcd83d4a7e484cc5e6ca35ef24d4d9a5b5d5bc4bc5fceb4b23c6f10c1e",
+      "hashRecordedAt": "2026-11-08（補登，檔案未變動）"
     }
   ]
 }
