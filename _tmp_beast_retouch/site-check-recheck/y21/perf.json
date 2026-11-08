@@ -1,0 +1,90 @@
+[
+ {
+  "mode": "old",
+  "W": 360,
+  "cpu": "4x",
+  "longTasks": 8,
+  "over50": 8,
+  "maxLT": 918,
+  "frames": 165,
+  "p95": 66.7,
+  "maxFrame": 1017
+ },
+ {
+  "mode": "old",
+  "W": 360,
+  "cpu": "6x",
+  "longTasks": 85,
+  "over50": 83,
+  "maxLT": 2133,
+  "frames": 97,
+  "p95": 1749.9,
+  "maxFrame": 2133
+ },
+ {
+  "mode": "old",
+  "W": 390,
+  "cpu": "4x",
+  "longTasks": 26,
+  "over50": 26,
+  "maxLT": 1445,
+  "frames": 180,
+  "p95": 600,
+  "maxFrame": 1433
+ },
+ {
+  "mode": "old",
+  "W": 390,
+  "cpu": "6x",
+  "longTasks": 69,
+  "over50": 69,
+  "maxLT": 1458,
+  "frames": 99,
+  "p95": 1100,
+  "maxFrame": 1450
+ },
+ {
+  "mode": "new",
+  "W": 360,
+  "cpu": "4x",
+  "longTasks": 10,
+  "over50": 10,
+  "maxLT": 709,
+  "frames": 205,
+  "p95": 66.7,
+  "maxFrame": 767
+ },
+ {
+  "mode": "new",
+  "W": 360,
+  "cpu": "6x",
+  "longTasks": 67,
+  "over50": 67,
+  "maxLT": 1835,
+  "frames": 142,
+  "p95": 1016.7,
+  "maxFrame": 1850
+ },
+ {
+  "mode": "new",
+  "W": 390,
+  "cpu": "4x",
+  "longTasks": 13,
+  "over50": 13,
+  "maxLT": 654,
+  "frames": 146,
+  "p95": 316.7,
+  "maxFrame": 700
+ },
+ {
+  "mode": "new",
+  "W": 390,
+  "cpu": "6x",
+  "longTasks": 65,
+  "over50": 65,
+  "maxLT": 1894,
+  "frames": 150,
+  "p95": 966.5,
+  "maxFrame": 1867
+ }
+]
