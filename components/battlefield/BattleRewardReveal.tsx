@@ -13,6 +13,8 @@ import styles from './BattleRewardReveal.module.css';
 export type BattleRewardStatus = 'saving' | 'saved' | 'failed';
 
 interface Props {
+  /** 僅寶珠戰困難版使用的戰利品揭曉演出。 */
+  presentation?: 'standard' | 'orb-victory';
   status: BattleRewardStatus;
   /** 後端已保存的戰利卡（完整卡面，由父層以既有 BeastCardFace 傳入） */
   card?: ReactNode;
@@ -23,9 +25,9 @@ interface Props {
   viewDisabled?: boolean;
 }
 
-export default function BattleRewardReveal({ status, card, message, onRetry, onViewCards, viewDisabled }: Props) {
+export default function BattleRewardReveal({ status, card, message, onRetry, onViewCards, viewDisabled, presentation = 'standard' }: Props) {
   return (
-    <section className={styles.reveal} data-testid="campaign-victory-reward" data-reward-status={status} aria-live="polite" aria-label="戰利品">
+    <section className={styles.reveal} data-presentation={presentation} data-testid="campaign-victory-reward" data-reward-status={status} aria-live="polite" aria-label="戰利品">
       <h3 className={styles.heading}><span aria-hidden="true">🎁</span> 戰利品</h3>
 
       {status === 'saving' ? (
@@ -35,7 +37,17 @@ export default function BattleRewardReveal({ status, card, message, onRetry, onV
         </>
       ) : status === 'saved' ? (
         <>
-          <div className={styles.cardWrap} data-reward-card>{card}</div>
+          {presentation === 'orb-victory' ? (
+            <div className={styles.stage}>
+              <div className={styles.aura} aria-hidden="true" />
+              <div className={styles.ring} aria-hidden="true" />
+              <div className={styles.sparks} aria-hidden="true">
+                {Array.from({ length: 12 }, (_, i) => <i key={i} style={{ rotate: `${i * 30}deg` }} />)}
+              </div>
+              <div className={styles.cardWrap} data-reward-card>{card}</div>
+              <div className={styles.pedestal} aria-hidden="true" />
+            </div>
+          ) : <div className={styles.cardWrap} data-reward-card>{card}</div>}
           <p className={styles.message}>{message}</p>
           {onViewCards ? (
             <button type="button" className={styles.button} disabled={viewDisabled} onClick={onViewCards}>查看我的卡片</button>

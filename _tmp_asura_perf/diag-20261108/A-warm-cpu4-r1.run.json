@@ -104,62 +104,517 @@
     "Ma Shan Zheng|unloaded|swap",
     "Ma Shan Zheng|unloaded|swap"
   ],
-  "decreeWallMs": 419,
+  "decreeWallMs": 469,
   "geo": {
     "calls": {
       "getBoundingClientRect": 13,
       "scrollIntoView": 2
     },
     "ms": {
-      "getBoundingClientRect": 13.400000035762787,
-      "scrollIntoView": 0.6000000238418579
+      "getBoundingClientRect": 26.900000035762787,
+      "scrollIntoView": 0.7000000476837158
     }
   },
   "fontEvents": [
     {
-      "t": 5546.5,
+      "t": 5827,
       "n": [
         "Asura Tiles Brush loaded",
         "Asura Seal Carved loaded"
       ]
     }
   ],
-  "windowMs": 3450.5,
-  "longTasks": [
+  "ltDetail": [
     {
-      "at": 217.4,
-      "ms": 165.9
+      "at": 6.5,
+      "ms": 128.3,
+      "parts": {
+        "EvaluateScript": 128,
+        "EventDispatch": 30.8,
+        "UpdateLayoutTree": 1.6,
+        "FunctionCall": 100.7
+      }
     },
     {
-      "at": 386.2,
-      "ms": 55.1
+      "at": 222.9,
+      "ms": 97.3,
+      "parts": {
+        "FunctionCall": 97.1
+      }
     },
     {
-      "at": 471.3,
-      "ms": 146.2
+      "at": 404.1,
+      "ms": 135.8,
+      "parts": {
+        "UpdateLayoutTree": 54.9,
+        "Layout": 49.6,
+        "PrePaint": 4.3,
+        "IntersectionObserverController::computeIntersections": 0,
+        "FunctionCall": 0.2,
+        "Paint": 42.5,
+        "Layerize": 4.5,
+        "Commit": 2.2,
+        "UpdateLayer": 0.4,
+        "HitTest": 0.8
+      }
     },
     {
-      "at": 715.9,
-      "ms": 79.7
+      "at": 542.7,
+      "ms": 57.5,
+      "parts": {
+        "FunctionCall": 57.3,
+        "UpdateLayoutTree": 18.1,
+        "Layout": 6.5
+      }
     },
     {
-      "at": 883.2,
-      "ms": 89.8
+      "at": 623.5,
+      "ms": 134.9,
+      "parts": {
+        "FunctionCall": 134.1,
+        "MajorGC": 11.2
+      }
     },
     {
-      "at": 1040.9,
-      "ms": 71.7
+      "at": 758.5,
+      "ms": 117.9,
+      "parts": {
+        "EventDispatch": 4,
+        "FunctionCall": 4,
+        "FireAnimationFrame": 0.4,
+        "UpdateLayoutTree": 94.4,
+        "Layout": 4.3,
+        "PrePaint": 2,
+        "IntersectionObserverController::computeIntersections": 0,
+        "Paint": 10.8,
+        "Layerize": 2.4,
+        "Commit": 1.1,
+        "UpdateLayer": 0.6
+      }
+    },
+    {
+      "at": 944.6,
+      "ms": 61.1,
+      "parts": {
+        "FireAnimationFrame": 0.2,
+        "FunctionCall": 0.6,
+        "UpdateLayoutTree": 48.4,
+        "Layout": 2.6,
+        "PrePaint": 1.4,
+        "IntersectionObserverController::computeIntersections": 0,
+        "Paint": 3.4,
+        "Layerize": 2.7,
+        "Commit": 1,
+        "UpdateLayer": 0.4
+      }
+    },
+    {
+      "at": 1023.1,
+      "ms": 65.1,
+      "parts": {
+        "FunctionCall": 64.9
+      }
+    },
+    {
+      "at": 1088.2,
+      "ms": 64.2,
+      "parts": {
+        "EventDispatch": 0,
+        "FunctionCall": 0.8,
+        "FireAnimationFrame": 0.4,
+        "UpdateLayoutTree": 48,
+        "Layout": 2.8,
+        "PrePaint": 1.8,
+        "IntersectionObserverController::computeIntersections": 0,
+        "Paint": 9.7,
+        "Layerize": 2.9,
+        "Commit": 1,
+        "UpdateLayer": 0.2
+      }
+    },
+    {
+      "at": 1297.7,
+      "ms": 56.9,
+      "parts": {
+        "FireAnimationFrame": 0.2,
+        "FunctionCall": 0.2,
+        "UpdateLayoutTree": 48,
+        "Layout": 1,
+        "PrePaint": 1.2,
+        "IntersectionObserverController::computeIntersections": 0.2,
+        "Paint": 2,
+        "Layerize": 1.2,
+        "Commit": 1.6,
+        "UpdateLayer": 0.4
+      }
     }
   ],
-  "ltMax": 165.9,
+  "recalcCauses": [
+    {
+      "at": 135.2,
+      "ms": 28.1,
+      "el": 380,
+      "inv": [
+        [
+          "ScheduleStyle |  | BUTTON class='min-h-[88px] rounded-xl border px-3 py-4 text- :disabled",
+          12
+        ],
+        [
+          "StyleInvalidator | Invalidation set invalidates subtree | BUTTON class='min-h-[88px] rounded-xl border px-3 py-4 text-",
+          12
+        ],
+        [
+          "StyleRecalc | Related style rule | BUTTON class='min-h-[88px] rounded-xl border px-3 py-4 text-",
+          12
+        ],
+        [
+          "ScheduleStyle |  | BUTTON class='min-h-[88px] rounded-xl border px-3 py-4 text- :enabled",
+          12
+        ],
+        [
+          "ScheduleStyle |  | BUTTON class='rounded-2xl border px-5 py-5 text-left transit :disabled",
+          4
+        ],
+        [
+          "StyleInvalidator | Invalidation set invalidates subtree | BUTTON class='rounded-2xl border px-5 py-5 text-left transit",
+          4
+        ],
+        [
+          "StyleRecalc | Related style rule | BUTTON class='rounded-2xl border px-5 py-5 text-left transit",
+          4
+        ],
+        [
+          "ScheduleStyle |  | BUTTON class='rounded-2xl border px-5 py-5 text-left transit :enabled",
+          4
+        ]
+      ]
+    },
+    {
+      "at": 181.2,
+      "ms": 23.5,
+      "el": 380,
+      "inv": [
+        [
+          "StyleRecalc | Control | DIV",
+          4
+        ],
+        [
+          "StyleRecalc | Animation | SPAN class='ElementOrbDisplay_orbContainer__trMIS ElementTre",
+          4
+        ],
+        [
+          "StyleRecalc | Animation | DIV class='ElementOrbDisplay_orbRing__ghX0W'",
+          4
+        ],
+        [
+          "StyleRecalc | Animation | DIV class='ElementOrbDisplay_orbCore__Qs3nZ'",
+          4
+        ],
+        [
+          "Layout | Style changed | INPUT class='form-input glass-input glass-input-cyan w-full ",
+          3
+        ],
+        [
+          "StyleRecalc | Attribute | CANVAS",
+          2
+        ],
+        [
+          "Layout | Style changed | DIV",
+          1
+        ],
+        [
+          "Layout | Style changed | P class='text-center text-xs font-semibold text-white/40'",
+          1
+        ]
+      ]
+    },
+    {
+      "at": 320.6,
+      "ms": 23.2,
+      "el": 383,
+      "inv": [
+        [
+          "ScheduleStyle |  | BUTTON class='min-h-[88px] rounded-xl border px-3 py-4 text- :disabled",
+          12
+        ],
+        [
+          "StyleInvalidator | Invalidation set invalidates subtree | BUTTON class='min-h-[88px] rounded-xl border px-3 py-4 text-",
+          12
+        ],
+        [
+          "StyleRecalc | Related style rule | BUTTON class='min-h-[88px] rounded-xl border px-3 py-4 text-",
+          12
+        ],
+        [
+          "ScheduleStyle |  | BUTTON class='min-h-[88px] rounded-xl border px-3 py-4 text- :enabled",
+          12
+        ],
+        [
+          "ScheduleStyle |  | BUTTON class='rounded-2xl border px-5 py-5 text-left transit :disabled",
+          4
+        ],
+        [
+          "StyleInvalidator | Invalidation set invalidates subtree | BUTTON class='rounded-2xl border px-5 py-5 text-left transit",
+          4
+        ],
+        [
+          "StyleRecalc | Related style rule | BUTTON class='rounded-2xl border px-5 py-5 text-left transit",
+          4
+        ],
+        [
+          "ScheduleStyle |  | BUTTON class='rounded-2xl border px-5 py-5 text-left transit :enabled",
+          4
+        ]
+      ]
+    },
+    {
+      "at": 404.5,
+      "ms": 53.3,
+      "el": 659,
+      "inv": [
+        [
+          "StyleRecalc | Animation | SPAN class='ElementOrbDisplay_orbContainer__trMIS ElementTre",
+          12
+        ],
+        [
+          "StyleRecalc | Animation | DIV class='ElementOrbDisplay_orbRing__ghX0W'",
+          12
+        ],
+        [
+          "StyleRecalc | Animation | DIV class='ElementOrbDisplay_orbCore__Qs3nZ'",
+          12
+        ],
+        [
+          "StyleRecalc | Node was inserted into tree | SECTION class='ghost-asura_results__anfvf ghost-asura_result",
+          1
+        ],
+        [
+          "StyleRecalc | Affected by :has() | BODY class='font-sans antialiased app-mobile-device app-smal",
+          1
+        ],
+        [
+          "ScheduleStyle |  | BODY class='font-sans antialiased app-mobile-device app-smal :has",
+          1
+        ],
+        [
+          "StyleInvalidator | Invalidation set invalidates subtree | BODY class='font-sans antialiased app-mobile-device app-smal",
+          1
+        ],
+        [
+          "StyleRecalc | Related style rule | BODY class='font-sans antialiased app-mobile-device app-smal",
+          1
+        ]
+      ]
+    },
+    {
+      "at": 764.6,
+      "ms": 94.2,
+      "el": 900,
+      "inv": [
+        [
+          "StyleRecalc | Animation | ::before",
+          18
+        ],
+        [
+          "StyleRecalc | Animation | LI class='GhostAsuraCard_item__YD3Rm GhostAsuraCard_itemAwak",
+          17
+        ],
+        [
+          "StyleRecalc | Affected by :has() | HTML",
+          9
+        ],
+        [
+          "StyleRecalc | Affected by :has() | BODY class='font-sans antialiased app-mobile-device app-smal",
+          8
+        ],
+        [
+          "ScheduleStyle |  | BODY class='font-sans antialiased app-mobile-device app-smal :has",
+          8
+        ],
+        [
+          "Layout | Removed from layout | #text",
+          4
+        ],
+        [
+          "StyleRecalc | Animation | SPAN class='ElementOrbDisplay_orbContainer__trMIS ElementTre",
+          4
+        ],
+        [
+          "StyleRecalc | Animation | DIV class='ElementOrbDisplay_orbRing__ghX0W'",
+          4
+        ]
+      ]
+    },
+    {
+      "at": 945.8,
+      "ms": 48.4,
+      "el": 910,
+      "inv": [
+        [
+          "StyleRecalc | Animation | ::before",
+          36
+        ],
+        [
+          "StyleRecalc | Animation | LI class='GhostAsuraCard_item__YD3Rm GhostAsuraCard_itemAwak",
+          34
+        ],
+        [
+          "StyleRecalc | Animation | DIV class='ElementOrbDisplay_orbCore__Qs3nZ'",
+          10
+        ],
+        [
+          "StyleRecalc | Animation | SPAN class='ElementOrbDisplay_orbContainer__trMIS ElementTre",
+          9
+        ],
+        [
+          "StyleRecalc | Animation | DIV class='ElementOrbDisplay_orbRing__ghX0W'",
+          9
+        ],
+        [
+          "StyleRecalc | Animation | ARTICLE class='GhostAsuraCard_timelineDecreeCard__rpYwM Ghos",
+          6
+        ],
+        [
+          "StyleRecalc | Animation | ARTICLE id='asura-age-seg-3' class='AsuraAgeTimeline_segment",
+          3
+        ],
+        [
+          "StyleRecalc | Animation | ARTICLE id='asura-age-seg-2' class='AsuraAgeTimeline_segment",
+          3
+        ]
+      ]
+    },
+    {
+      "at": 1089.8,
+      "ms": 47.8,
+      "el": 921,
+      "inv": [
+        [
+          "StyleRecalc | Animation | ::before",
+          18
+        ],
+        [
+          "StyleRecalc | Animation | LI class='GhostAsuraCard_item__YD3Rm GhostAsuraCard_itemAwak",
+          17
+        ],
+        [
+          "StyleRecalc | Affected by :has() | BODY class='font-sans antialiased app-mobile-device app-smal",
+          14
+        ],
+        [
+          "ScheduleStyle |  | BODY class='font-sans antialiased app-mobile-device app-smal :has",
+          14
+        ],
+        [
+          "StyleRecalc | Affected by :has() | HTML",
+          14
+        ],
+        [
+          "StyleRecalc | Animation | SPAN class='ElementOrbDisplay_orbContainer__trMIS ElementTre",
+          4
+        ],
+        [
+          "StyleRecalc | Animation | DIV class='ElementOrbDisplay_orbRing__ghX0W'",
+          4
+        ],
+        [
+          "StyleRecalc | Animation | DIV class='ElementOrbDisplay_orbCore__Qs3nZ'",
+          4
+        ]
+      ]
+    },
+    {
+      "at": 1299.3,
+      "ms": 48,
+      "el": 921,
+      "inv": [
+        [
+          "StyleRecalc | Animation | ::before",
+          72
+        ],
+        [
+          "StyleRecalc | Animation | P class='AsuraAgeTimeline_bridge__GkjJK AsuraAgeTimeline_mot",
+          16
+        ],
+        [
+          "StyleRecalc | Animation | SPAN class='ElementOrbDisplay_orbContainer__trMIS ElementTre",
+          16
+        ],
+        [
+          "StyleRecalc | Animation | DIV class='ElementOrbDisplay_orbRing__ghX0W'",
+          16
+        ],
+        [
+          "StyleRecalc | Animation | DIV class='ElementOrbDisplay_orbCore__Qs3nZ'",
+          16
+        ],
+        [
+          "StyleRecalc | Animation | P class='GhostAsuraCard_timelineDecreeCardBody__m88HZ GhostA",
+          16
+        ],
+        [
+          "StyleRecalc | Animation | LI class='AsuraAgeTimeline_line__k_E7H AsuraAgeTimeline_moti",
+          12
+        ],
+        [
+          "StyleRecalc | Animation | ARTICLE class='GhostAsuraCard_timelineDecreeCard__rpYwM Ghos",
+          8
+        ]
+      ]
+    }
+  ],
+  "windowMs": 3628.3,
+  "longTasks": [
+    {
+      "at": 6.5,
+      "ms": 128.3
+    },
+    {
+      "at": 222.9,
+      "ms": 97.3
+    },
+    {
+      "at": 404.1,
+      "ms": 135.8
+    },
+    {
+      "at": 542.7,
+      "ms": 57.5
+    },
+    {
+      "at": 623.5,
+      "ms": 134.9
+    },
+    {
+      "at": 758.5,
+      "ms": 117.9
+    },
+    {
+      "at": 944.6,
+      "ms": 61.1
+    },
+    {
+      "at": 1023.1,
+      "ms": 65.1
+    },
+    {
+      "at": 1088.2,
+      "ms": 64.2
+    },
+    {
+      "at": 1297.7,
+      "ms": 56.9
+    }
+  ],
+  "ltMax": 135.8,
   "layout": {
-    "count": 16,
-    "totalMs": 96.9,
-    "maxMs": 63.9,
+    "count": 15,
+    "totalMs": 71.4,
+    "maxMs": 49.6,
     "top": [
       {
-        "ms": 63.9,
-        "at": 278,
+        "ms": 49.6,
+        "at": 457.8,
         "dirty": 441,
         "total": 852,
         "partial": false,
@@ -167,8 +622,8 @@
         "stack": []
       },
       {
-        "ms": 6.9,
-        "at": 427.7,
+        "ms": 6.5,
+        "at": 585.7,
         "dirty": 26,
         "total": 1143,
         "partial": false,
@@ -181,8 +636,8 @@
         ]
       },
       {
-        "ms": 5.7,
-        "at": 581,
+        "ms": 4.1,
+        "at": 858.9,
         "dirty": 174,
         "total": 1145,
         "partial": false,
@@ -191,19 +646,19 @@
       }
     ],
     "forcedCount": 1,
-    "forcedMs": 6.9
+    "forcedMs": 6.5
   },
   "recalc": {
-    "count": 273,
-    "totalMs": 1329.7,
-    "maxMs": 103.4,
+    "count": 300,
+    "totalMs": 1219.6,
+    "maxMs": 94.2,
     "maxEl": 921
   },
-  "scriptMs": 269,
-  "paintMs": 1154,
+  "scriptMs": 698.9,
+  "paintMs": 1036.5,
   "fontEventMs": {
-    "BeginRemoteFontLoad": 0.8009999999999999,
-    "RemoteFontLoaded": 0.007
+    "BeginRemoteFontLoad": 0.587,
+    "RemoteFontLoaded": 0.006
   },
-  "fontInvalidations": 0
+  "fontInvalidations": 45
 }

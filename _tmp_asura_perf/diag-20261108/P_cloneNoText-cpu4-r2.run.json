@@ -1,0 +1,320 @@
+{
+  "tag": "P_cloneNoText-cpu4-r2",
+  "variant": "P_cloneNoText",
+  "cpu": 4,
+  "runIdx": 2,
+  "buildId": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js",
+  "filled": true,
+  "prewarm": {
+    "ms": 304.6
+  },
+  "fontsBefore": [
+    "Asura Brand Brush|loaded|swap",
+    "Asura Tiles Brush|unloaded|swap",
+    "Asura Seal Carved|loaded|swap",
+    "Asura Brand Brush|loaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap",
+    "Ma Shan Zheng|unloaded|swap"
+  ],
+  "decreeWallMs": 698,
+  "geo": {
+    "calls": {
+      "getBoundingClientRect": 13,
+      "scrollIntoView": 2
+    },
+    "ms": {
+      "getBoundingClientRect": 17.100000023841858,
+      "scrollIntoView": 0.5
+    }
+  },
+  "fontEvents": [
+    {
+      "t": 6619.5,
+      "n": [
+        "Asura Tiles Brush loaded"
+      ]
+    }
+  ],
+  "ltDetail": [
+    {
+      "at": 183.3,
+      "ms": 443.3,
+      "parts": {
+        "UpdateLayoutTree": 38.8,
+        "Layout": 371.2,
+        "PrePaint": 6.6,
+        "IntersectionObserverController::computeIntersections": 0,
+        "FunctionCall": 0.4,
+        "Paint": 45.8,
+        "Layerize": 4.2,
+        "Commit": 1.2,
+        "UpdateLayer": 0
+      }
+    },
+    {
+      "at": 628.4,
+      "ms": 90.8,
+      "parts": {
+        "FunctionCall": 90.4,
+        "UpdateLayoutTree": 8.3,
+        "Layout": 6
+      }
+    },
+    {
+      "at": 756.6,
+      "ms": 147.9,
+      "parts": {
+        "EventDispatch": 4.4,
+        "FunctionCall": 13.5,
+        "FireAnimationFrame": 0.8,
+        "UpdateLayoutTree": 95,
+        "Layout": 20.5,
+        "PrePaint": 3.2,
+        "IntersectionObserverController::computeIntersections": 0.2,
+        "MajorGC": 8.7,
+        "Paint": 13.1,
+        "Layerize": 2.2,
+        "Commit": 1,
+        "UpdateLayer": 0.2
+      }
+    },
+    {
+      "at": 962.4,
+      "ms": 75.2,
+      "parts": {
+        "EventDispatch": 0.8,
+        "FunctionCall": 1.4,
+        "FireAnimationFrame": 0.4,
+        "UpdateLayoutTree": 40.6,
+        "Layout": 21.9,
+        "PrePaint": 2,
+        "IntersectionObserverController::computeIntersections": 0,
+        "Paint": 5,
+        "Layerize": 1.8,
+        "Commit": 1,
+        "UpdateLayer": 0.2
+      }
+    },
+    {
+      "at": 1112.6,
+      "ms": 75.1,
+      "parts": {
+        "FireAnimationFrame": 0.2,
+        "FunctionCall": 1,
+        "UpdateLayoutTree": 41.1,
+        "Layout": 17.7,
+        "PrePaint": 2.8,
+        "IntersectionObserverController::computeIntersections": 0,
+        "Paint": 13.2,
+        "Layerize": 2.4,
+        "Commit": 1.4,
+        "UpdateLayer": 0.4,
+        "HitTest": 0.4
+      }
+    },
+    {
+      "at": 1293.7,
+      "ms": 51.2,
+      "parts": {
+        "EventDispatch": 0.6,
+        "FunctionCall": 0.6,
+        "FireAnimationFrame": 0.2,
+        "UpdateLayoutTree": 40.4,
+        "Layout": 1.4,
+        "PrePaint": 1.2,
+        "IntersectionObserverController::computeIntersections": 0,
+        "Paint": 4.8,
+        "Layerize": 1.4,
+        "Commit": 0.8,
+        "UpdateLayer": 0.2
+      }
+    },
+    {
+      "at": 2825.2,
+      "ms": 64.8,
+      "parts": {
+        "FireAnimationFrame": 0.4,
+        "FunctionCall": 0.4,
+        "UpdateLayoutTree": 54.7,
+        "Layout": 1.8,
+        "PrePaint": 1.6,
+        "IntersectionObserverController::computeIntersections": 0,
+        "Paint": 2,
+        "Layerize": 1.8,
+        "Commit": 1,
+        "UpdateLayer": 0.2
+      }
+    }
+  ],
+  "windowMs": 3734.4,
+  "longTasks": [
+    {
+      "at": 183.3,
+      "ms": 443.3
+    },
+    {
+      "at": 628.4,
+      "ms": 90.8
+    },
+    {
+      "at": 756.6,
+      "ms": 147.9
+    },
+    {
+      "at": 962.4,
+      "ms": 75.2
+    },
+    {
+      "at": 1112.6,
+      "ms": 75.1
+    },
+    {
+      "at": 1293.7,
+      "ms": 51.2
+    },
+    {
+      "at": 2825.2,
+      "ms": 64.8
+    }
+  ],
+  "ltMax": 443.3,
+  "layout": {
+    "count": 20,
+    "totalMs": 449.2,
+    "maxMs": 370.2,
+    "top": [
+      {
+        "ms": 370.2,
+        "at": 221,
+        "dirty": 441,
+        "total": 852,
+        "partial": false,
+        "forced": false,
+        "stack": []
+      },
+      {
+        "ms": 21.7,
+        "at": 1004.6,
+        "dirty": 96,
+        "total": 1161,
+        "partial": false,
+        "forced": false,
+        "stack": []
+      },
+      {
+        "ms": 19.9,
+        "at": 858.2,
+        "dirty": 174,
+        "total": 1145,
+        "partial": false,
+        "forced": false,
+        "stack": []
+      }
+    ],
+    "forcedCount": 1,
+    "forcedMs": 6
+  },
+  "recalc": {
+    "count": 314,
+    "totalMs": 1165.2,
+    "maxMs": 94.4,
+    "maxEl": 921
+  },
+  "scriptMs": 286.2,
+  "paintMs": 988.5,
+  "fontEventMs": {
+    "BeginRemoteFontLoad": 0.234,
+    "RemoteFontLoaded": 0.157
+  },
+  "fontInvalidations": 0
+}

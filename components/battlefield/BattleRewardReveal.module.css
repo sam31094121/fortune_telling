@@ -99,9 +99,54 @@
   50% { opacity: 1; }
 }
 
+/* 困難寶珠戰限定：固定舞台內揭曉，粒子與光環不推移版面。 */
+.reveal[data-presentation='orb-victory'] {
+  isolation: isolate;
+  gap: 8px;
+  padding: 12px;
+  background: radial-gradient(ellipse at 50% 38%, #59401f 0%, #201b22 58%, #11131d 100%) padding-box,
+    linear-gradient(145deg, #fff0ae, #947039 48%, #efcf80) border-box;
+  box-shadow: inset 0 0 26px #e5b75b0d, 0 12px 28px #0005;
+}
+.reveal[data-presentation='orb-victory'] .heading { font-size: 16px; }
+.reveal[data-presentation='orb-victory'] .message { font-size: 14px; }
+.reveal[data-presentation='orb-victory'] .placeholder { animation: none; }
+.reveal[data-presentation='orb-victory'] .button { min-height: 44px; font-size: 16px; }
+.stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-width: 0;
+  padding: 24px 0 28px;
+  box-sizing: border-box;
+  isolation: isolate;
+  overflow: hidden;
+}
+.stage .cardWrap { position: relative; z-index: 2; width: min(170px, 58%); filter: drop-shadow(0 6px 14px #0009); }
+.stage .cardWrap > * { animation: treasureReveal 1.1s cubic-bezier(.2,.7,.25,1) both; }
+.aura, .ring, .sparks, .pedestal { position: absolute; pointer-events: none; }
+.aura {
+  inset: 0;
+  background: radial-gradient(ellipse, #ffe2a15c, #d6a04716 46%, transparent 70%);
+  animation: treasureLight 2.4s ease-out both;
+}
+.ring { width: 210px; height: 210px; max-width: 90%; border: 1px solid #f9d8876b; border-radius: 50%; box-shadow: 0 0 20px #ebba4326, inset 0 0 20px #ebba4326; animation: treasureRing 1.8s ease-out both; }
+.sparks { inset: 0; z-index: 3; }
+.sparks i { position: absolute; left: 50%; top: 50%; width: 2px; height: 2px; }
+.sparks i::after { content: ''; display: block; width: 4px; height: 4px; border-radius: 1px; background: #ffedb6; box-shadow: 0 0 6px #ffd575; animation: treasureSpark 1.8s ease-out .3s both; }
+.sparks i:nth-child(even)::after { animation-delay: .5s; }
+.pedestal { bottom: 15px; width: 160px; max-width: 70%; height: 18px; border-radius: 50%; background: radial-gradient(ellipse, #ffe2a180, #c08c3024 45%, transparent 72%); }
+@keyframes treasureReveal { from { opacity: 0; transform: translateY(12px) rotateY(-35deg) scale(.88); } 65% { opacity: 1; } to { opacity: 1; transform: none; } }
+@keyframes treasureLight { from { opacity: 0; transform: scale(.65); } 45% { opacity: 1; } to { opacity: .75; transform: scale(1); } }
+@keyframes treasureRing { from { opacity: 0; transform: scale(.45); } 35% { opacity: .8; } to { opacity: .3; transform: scale(1); } }
+@keyframes treasureSpark { from { opacity: 0; transform: translateY(-45px) scale(.3); } 25% { opacity: 1; } to { opacity: 0; transform: translateY(-145px) scale(.5); } }
+
 @media (prefers-reduced-motion: reduce) {
+  .stage .cardWrap > *, .aura, .ring, .sparks i::after,
   .placeholder,
   .cardWrap > * {
     animation: none;
   }
+  .sparks { display: none; }
 }

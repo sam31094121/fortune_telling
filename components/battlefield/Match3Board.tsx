@@ -738,6 +738,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
           {/* 戰利品緊接在勝負橫幅下面：贏了一眼就看到獲得什麼；保存成功才顯示已獲得（見 BattleRewardReveal） */}
           {campaignEnabled && over === 'win' && (
             <BattleRewardReveal
+              presentation={rigEnabled ? 'orb-victory' : 'standard'}
               status={savingReward ? 'saving' : wonCard ? 'saved' : 'failed'}
               message={savingReward ? '正在保存本局獎勵…' : wonCard ? `多了一張${wonCard.name}！已存入寶珠「我的卡片」，可選作下一局夥伴。` : (campaignSettlement?.error ?? '獎勵尚未保存。')}
               card={wonCard ? <BeastCardFace card={{ id: wonCard.id, name: wonCard.name, element: wonCard.element, thumbnail: wonCard.art.thumbnail, skillName: wonSkill?.name, description: wonSkill?.description }} /> : undefined}

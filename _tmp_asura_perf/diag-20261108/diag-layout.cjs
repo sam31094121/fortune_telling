@@ -42,6 +42,17 @@ const V={
   P_text:{prewarm:'text'},
   P_font:{prewarm:'font'},
   P_textOther:{prewarm:'other'},
+  P_kai:{js:`(() => { const fams=['DFKai-SB','PMingLiU','serif']; const d=document.createElement('div'); d.style.cssText='position:absolute;left:0;top:0;width:350px;visibility:hidden'; for(const f of fams){ const sp=document.createElement('div'); sp.style.fontFamily=f; sp.textContent='\u4fee\u7f85\u963f\u9b3c\u9b45\u904e\u53bb\u73fe\u5728\u672a\u4f86\u6230\u795e\u4ee4'; d.appendChild(sp);} document.body.appendChild(d); const t=performance.now(); d.offsetHeight; const ms=performance.now()-t; d.remove(); return {ms:+ms.toFixed(1)}; })()`},
+  P_clone:{clone:true},
+  B_noImgTop:{css:`[class*=GhostAsuraCard_asuraTopRow], [class*=GhostAsuraCard_asuraTopRow] *, [class*=GhostAsuraCard_asuraTopRow] *::before, [class*=GhostAsuraCard_asuraTopRow] *::after, [class*=GhostAsuraCard_asuraTopRow]::before, [class*=GhostAsuraCard_asuraTopRow]::after{background-image:none !important;mask-image:none !important;-webkit-mask-image:none !important;border-image:none !important}`},
+  B_noImgAll:{css:`main[data-page="ghost-asura"] *, main[data-page="ghost-asura"] *::before, main[data-page="ghost-asura"] *::after{background-image:none !important;mask-image:none !important;-webkit-mask-image:none !important;border-image:none !important}`},
+  Q_weights2:{css:`main[data-page="ghost-asura"] [style], main[data-page="ghost-asura"] *{font-synthesis:none !important} main[data-page="ghost-asura"] :is(b,strong,h1,h2,h3,h4,h5,h6,th,[class]){font-weight:clamp(400, (var(--diag-w, 400)), 700)}`},
+  Q_w400:{css:`main[data-page="ghost-asura"] *{font-weight:400 !important}`},
+  Q_oneFont:{css:`main[data-page="ghost-asura"] *{font-weight:400 !important;font-size:14px !important;font-family:"Microsoft JhengHei",sans-serif !important}`},
+  Q_oneSize:{css:`main[data-page="ghost-asura"] *{font-size:14px !important}`},
+  P_cloneNoText:{clone:'notext'},
+  P_cloneOtherText:{clone:'other'},
+  P_cloneLatin:{clone:'latin'},
   F_fontsReady:{js:`(async()=>{ await document.fonts.ready; const fs=[...document.fonts].filter(f=>/Asura/.test(f.family)); await Promise.all(fs.map(f=>f.load().catch(()=>null))); return fs.map(f=>f.family+':'+f.status); })()`},
   S_sysFont:{css:`main[data-page="ghost-asura"] *{font-family:"Microsoft JhengHei",sans-serif !important}`},
   T_noWrapBalance:{css:`main[data-page="ghost-asura"] *{text-wrap:wrap !important}`},
@@ -72,6 +83,7 @@ async function run(variant,cpu,runIdx,hide){
     const v=V[variant]||{};
     if(v.css) await c.evalJs(`(() => { const s=document.createElement('style'); s.id='diag'; s.textContent=${JSON.stringify(v.css)}; document.head.appendChild(s); return true; })()`);
     if(v.js) res.pre=await c.evalJs(v.js);
+    if(v.clone){ const html=fs.readFileSync(path.join(OUT,'PROBE-card.html'),'utf8'); res.prewarm=await c.evalJs(`(() => { const d=document.createElement('div'); d.setAttribute('aria-hidden','true'); d.style.cssText='position:absolute;left:0;top:0;width:390px;visibility:hidden;pointer-events:none;contain:strict;height:10px;overflow:hidden'; const host=document.querySelector('main[data-page="ghost-asura"]')||document.body; d.innerHTML=${JSON.stringify('__HTML__')}; const mode=${JSON.stringify(String(v.clone))}; if(mode!=='true'){ const tw=document.createTreeWalker(d,NodeFilter.SHOW_TEXT); const ns=[]; let n; while(n=tw.nextNode()) ns.push(n); for(const x of ns){ if(mode==='notext') x.nodeValue=''; else if(mode==='latin') x.nodeValue=x.nodeValue.replace(/[\\u3400-\\u9fff]/g,'a'); else x.nodeValue=x.nodeValue.replace(/[\\u4e00-\\u9fff]/g,ch=>String.fromCharCode(0x4e00+((ch.charCodeAt(0)-0x4e00+7919)%20900))); } } host.appendChild(d); const t=performance.now(); d.firstElementChild&&d.firstElementChild.getBoundingClientRect(); const ms=performance.now()-t; d.remove(); return {ms:+ms.toFixed(1)}; })()`.replace('"__HTML__"',JSON.stringify(html))); }
     if(v.prewarm){ let txt=''; const card=fs.existsSync(path.join(OUT,'PROBE-text.txt'))?fs.readFileSync(path.join(OUT,'PROBE-text.txt'),'utf8'):'';
       if(v.prewarm==='text') txt=card; else if(v.prewarm==='font') txt='\u4e00\u662f\u5728\u4e0d\u4e86\u6709\u548c\u4eba\u9019\u4e2d';
       else { const set=new Set(card); let o=''; for(let cp=0x4e00; o.length<set.size && cp<0x9fff; cp++){ const ch=String.fromCharCode(cp); if(!set.has(ch)) o+=ch; } txt=o.repeat(Math.max(1,Math.round(card.length/Math.max(1,o.length)))); }
@@ -83,7 +95,7 @@ async function run(variant,cpu,runIdx,hide){
     const events=[]; let done; const fin=new Promise(r=>done=r);
     const l=m=>{if(m.method==='Tracing.dataCollected')events.push(...m.params.value); if(m.method==='Tracing.tracingComplete')done()};
     c.listeners.push(l);
-    await c.send('Tracing.start',{traceConfig:{includedCategories:CATS.split(',')},transferMode:'ReportEvents'});
+    await c.send('Tracing.start',{traceConfig:{includedCategories:(CATS+(process.env.INV==='1'?',disabled-by-default-devtools.timeline.invalidationTracking':'')).split(',')},transferMode:'ReportEvents'});
     await sleep(300);
     await c.evalJs(`(window.__asuraGeoOn=true, window.__asuraFontEvents=[], performance.mark('asura-action-start'), true)`);
     await c.evalJs(SUBMIT); const t=Date.now(); await c.waitFor(DECREE_VISIBLE); res.decreeWallMs=Date.now()-t;
@@ -114,6 +126,9 @@ async function run(variant,cpu,runIdx,hide){
     const kids=['Layout','UpdateLayoutTree','Paint','PrePaint','Layerize','FunctionCall','EvaluateScript','v8.callFunction','HitTest','ParseHTML','MinorGC','MajorGC','V8.GC_SCAVENGER','FireAnimationFrame','TimerFire','EventDispatch','UpdateLayer','Commit','IntersectionObserverController::computeIntersections','ScrollLayer'];
     const ltDetail=events.filter(e=>onMain(e)&&e.ph==='X'&&(e.name==='RunTask'||e.name==='ThreadControllerImpl::RunTask')&&e.dur>50000).map(t=>{ const inside=events.filter(e=>e.pid===t.pid&&e.tid===t.tid&&e.ph==='X'&&e.ts>=t.ts&&e.ts+e.dur<=t.ts+t.dur&&kids.includes(e.name)); const m={}; for(const e of inside) m[e.name]=+(((m[e.name]||0)+e.dur/1000)).toFixed(1); return {at:+((t.ts-t0)/1000).toFixed(1),ms:+(t.dur/1000).toFixed(1),parts:m}; });
     res.ltDetail=ltDetail;
+    if(process.env.INV==='1'){ const inv=events.filter(e=>e.pid===pid&&/InvalidationTracking/.test(e.name)&&e.ts>=t0&&e.ts<=t1);
+      const bigRec=rec.filter(e=>e.dur>20000).map(r=>{ const prev=inv.filter(i=>i.ts<=r.ts&&i.ts>=r.ts-40000); const agg={}; for(const i of prev){ const d=i.args?.data||{}; const k=i.name.replace('InvalidationTracking','')+' | '+(d.reason||d.invalidationList?.map(x=>x.classes||x.attribute||x.id||x.tagNames).join('/')||'')+' | '+(d.nodeName||'').slice(0,60)+(d.changedClass?' .'+d.changedClass:'')+(d.changedAttribute?' ['+d.changedAttribute+']':'')+(d.changedPseudo?' :'+d.changedPseudo:''); agg[k]=(agg[k]||0)+1; } return {at:+((r.ts-t0)/1000).toFixed(1),ms:+(r.dur/1000).toFixed(1),el:ec(r),inv:Object.entries(agg).sort((a,b)=>b[1]-a[1]).slice(0,8)}; });
+      res.recalcCauses=bigRec; }
     Object.assign(res,{windowMs:+((t1-t0)/1000).toFixed(1),longTasks:lts,ltMax:lts.length?Math.max(...lts.map(x=>x.ms)):0,
       layout:{count:lay.length,totalMs:sum(lay),maxMs:lay.length?+(Math.max(...lay.map(e=>e.dur))/1000).toFixed(1):0,top:bigLay,forcedCount:forced.length,forcedMs:sum(forced)},
       recalc:{count:rec.length,totalMs:sum(rec),maxMs:rec.length?+(Math.max(...rec.map(e=>e.dur))/1000).toFixed(1):0,maxEl:Math.max(0,...rec.map(ec).filter(x=>x!=null))},
@@ -141,11 +156,11 @@ const PROBE=`(() => {
  r.fonts=[...document.fonts].map(f=>({family:f.family,status:f.status,display:f.display,unicodeRange:f.unicodeRange.slice(0,40)}));
  r.preloads=[...document.querySelectorAll('link[rel=preload][as=font]')].map(l=>l.href.split('/').pop());
  r.sections=[...card.children].map(ch=>({tag:ch.tagName,cls:String(ch.className).slice(0,80),nodes:ch.querySelectorAll('*').length,h:Math.round(ch.getBoundingClientRect().height)}));
- r.text=card.innerText; return r; })()`;
+ r.text=card.innerText; r.html=card.outerHTML; return r; })()`;
 module.exports={run,V,connect,fillNoSubmit,SUBMIT,DECREE_VISIBLE,PROBE,sleep,GEO_INIT};
 if(require.main===module){(async()=>{
   const mode=process.argv[2]||'probe';
-  if(mode==='probe'){ const c=await connect(9950); try{ await c.send('Page.enable'); await c.send('Runtime.enable'); await c.send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:3,mobile:true}); await c.send('Page.navigate',{url:BASE+'/ghost-asura'}); await c.waitFor(`document.readyState==='complete' && !!document.querySelector('button')`); await sleep(1000); await fillNoSubmit(c.evalJs); await sleep(500); await c.evalJs(SUBMIT); await c.waitFor(DECREE_VISIBLE); await sleep(3000); const p=await c.evalJs(PROBE); fs.writeFileSync(path.join(OUT,'PROBE-text.txt'),p.text); delete p.text; fs.writeFileSync(path.join(OUT,'PROBE-dom.json'),JSON.stringify(p,null,2)); console.log(JSON.stringify(p).slice(0,6000)); } finally{ c.ws.close(); c.edge.kill(); } return; }
+  if(mode==='probe'){ const c=await connect(9950); try{ await c.send('Page.enable'); await c.send('Runtime.enable'); await c.send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:3,mobile:true}); await c.send('Page.navigate',{url:BASE+'/ghost-asura'}); await c.waitFor(`document.readyState==='complete' && !!document.querySelector('button')`); await sleep(1000); await fillNoSubmit(c.evalJs); await sleep(500); await c.evalJs(SUBMIT); await c.waitFor(DECREE_VISIBLE); await sleep(3000); const p=await c.evalJs(PROBE); fs.writeFileSync(path.join(OUT,'PROBE-text.txt'),p.text); delete p.text; fs.writeFileSync(path.join(OUT,'PROBE-card.html'),p.html); delete p.html; fs.writeFileSync(path.join(OUT,'PROBE-dom.json'),JSON.stringify(p,null,2)); console.log(JSON.stringify(p).slice(0,6000)); } finally{ c.ws.close(); c.edge.kill(); } return; }
   const variants=(process.argv[3]||'A').split(','); const cpus=(process.argv[4]||'4').split(',').map(Number); const runs=+(process.argv[5]||3);
   const hides=process.env.HIDES?JSON.parse(process.env.HIDES):[null];
   for(let r=1;r<=runs;r++) for(const cpu of cpus) for(const v of variants) for(const h of hides) await run(v,cpu,r,h);

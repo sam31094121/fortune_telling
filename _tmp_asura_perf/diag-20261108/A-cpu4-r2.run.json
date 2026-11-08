@@ -103,20 +103,20 @@
     "Ma Shan Zheng|unloaded|swap",
     "Ma Shan Zheng|unloaded|swap"
   ],
-  "decreeWallMs": 1283,
+  "decreeWallMs": 1348,
   "geo": {
     "calls": {
       "getBoundingClientRect": 13,
       "scrollIntoView": 2
     },
     "ms": {
-      "getBoundingClientRect": 19.80000001192093,
-      "scrollIntoView": 0.7000000476837158
+      "getBoundingClientRect": 22.30000001192093,
+      "scrollIntoView": 1.0000000596046448
     }
   },
   "fontEvents": [
     {
-      "t": 6936.100000023842,
+      "t": 6889.800000011921,
       "n": [
         "Asura Tiles Brush loaded",
         "Asura Seal Carved loaded"
@@ -125,176 +125,194 @@
   ],
   "ltDetail": [
     {
-      "at": 28.9,
-      "ms": 53.4,
+      "at": 30.7,
+      "ms": 61.6,
       "parts": {
-        "UpdateLayoutTree": 35.4,
-        "Layout": 6.1,
-        "PrePaint": 2,
+        "UpdateLayoutTree": 42.7,
+        "Layout": 6.9,
+        "PrePaint": 2.2,
         "IntersectionObserverController::computeIntersections": 0.2,
+        "FunctionCall": 1,
+        "Paint": 4.2,
+        "Layerize": 1.6,
+        "Commit": 1,
+        "UpdateLayer": 0.4
+      }
+    },
+    {
+      "at": 145,
+      "ms": 51,
+      "parts": {
+        "UpdateLayoutTree": 35.8,
+        "Layout": 3,
+        "PrePaint": 2,
+        "IntersectionObserverController::computeIntersections": 0,
         "FunctionCall": 0.6,
-        "Paint": 3.9,
-        "Layerize": 2.2,
+        "Paint": 2.7,
+        "Layerize": 1.4,
         "Commit": 0.8,
         "UpdateLayer": 0.2
       }
     },
     {
-      "at": 271.6,
-      "ms": 906.9,
+      "at": 334.6,
+      "ms": 942,
       "parts": {
-        "UpdateLayoutTree": 71.8,
-        "Layout": 797.7,
-        "ParseHTML": 0.6,
+        "UpdateLayoutTree": 82.1,
+        "Layout": 816.6,
+        "ParseHTML": 0.2,
         "EventDispatch": 0,
-        "PrePaint": 6.7,
-        "IntersectionObserverController::computeIntersections": 0.2,
-        "FunctionCall": 0.6,
-        "Paint": 52.1,
-        "Layerize": 4.7,
-        "Commit": 2.8,
-        "UpdateLayer": 1,
+        "PrePaint": 9.6,
+        "IntersectionObserverController::computeIntersections": 0,
+        "FunctionCall": 0.4,
+        "Paint": 53.5,
+        "Layerize": 4.5,
+        "Commit": 3,
+        "UpdateLayer": 0.8,
         "HitTest": 0.8
       }
     },
     {
-      "at": 1181.7,
-      "ms": 111,
+      "at": 1279.9,
+      "ms": 93.8,
       "parts": {
-        "FunctionCall": 110.6,
-        "UpdateLayoutTree": 11.4,
-        "Layout": 9.8
+        "FunctionCall": 93.2,
+        "UpdateLayoutTree": 8.5,
+        "Layout": 10.4
       }
     },
     {
-      "at": 1333,
-      "ms": 171.4,
+      "at": 1415.1,
+      "ms": 150,
       "parts": {
         "EventDispatch": 6.8,
-        "FunctionCall": 5.4,
-        "FireAnimationFrame": 0.8,
-        "UpdateLayoutTree": 120.3,
-        "Layout": 23.2,
-        "PrePaint": 3.6,
-        "IntersectionObserverController::computeIntersections": 0,
-        "Paint": 15.6,
-        "Layerize": 2.8,
-        "Commit": 1.4,
-        "UpdateLayer": 0.6
-      }
-    },
-    {
-      "at": 1592.1,
-      "ms": 106.3,
-      "parts": {
-        "FireAnimationFrame": 0.4,
-        "FunctionCall": 1.2,
-        "UpdateLayoutTree": 52.7,
-        "Layout": 36.4,
-        "PrePaint": 3,
-        "IntersectionObserverController::computeIntersections": 0,
-        "Paint": 5.5,
-        "Layerize": 3,
-        "Commit": 1.6,
-        "UpdateLayer": 0.6
-      }
-    },
-    {
-      "at": 1709.6,
-      "ms": 138.1,
-      "parts": {
-        "EventDispatch": 0.4,
-        "FunctionCall": 13.6,
-        "FireAnimationFrame": 0.8,
-        "UpdateLayoutTree": 77.6,
-        "Layout": 20.4,
-        "PrePaint": 7.1,
-        "IntersectionObserverController::computeIntersections": 0,
-        "MajorGC": 11.2,
-        "Paint": 12.5,
-        "Layerize": 3.5,
-        "Commit": 1.6,
-        "UpdateLayer": 0.6
-      }
-    },
-    {
-      "at": 1898.4,
-      "ms": 76.4,
-      "parts": {
+        "FunctionCall": 5.2,
         "FireAnimationFrame": 0.6,
-        "FunctionCall": 0.6,
-        "UpdateLayoutTree": 63.4,
-        "Layout": 2.4,
-        "PrePaint": 1.6,
+        "UpdateLayoutTree": 101.3,
+        "Layout": 22.7,
+        "PrePaint": 2,
         "IntersectionObserverController::computeIntersections": 0.2,
-        "Paint": 4.2,
-        "Layerize": 2.3,
-        "Commit": 1,
+        "Paint": 13.2,
+        "Layerize": 3.1,
+        "Commit": 1.4,
         "UpdateLayer": 0.2
       }
     },
     {
-      "at": 3155.9,
-      "ms": 81.7,
+      "at": 1641.7,
+      "ms": 128.4,
+      "parts": {
+        "FireAnimationFrame": 0.4,
+        "FunctionCall": 13.6,
+        "UpdateLayoutTree": 70.5,
+        "Layout": 30,
+        "PrePaint": 3,
+        "IntersectionObserverController::computeIntersections": 0,
+        "MajorGC": 11.8,
+        "Paint": 6.5,
+        "Layerize": 2.3,
+        "Commit": 1.2,
+        "UpdateLayer": 0.2
+      }
+    },
+    {
+      "at": 1835.4,
+      "ms": 84.9,
+      "parts": {
+        "EventDispatch": 0.2,
+        "FunctionCall": 1.8,
+        "FireAnimationFrame": 0.6,
+        "UpdateLayoutTree": 43.1,
+        "Layout": 19.9,
+        "PrePaint": 4.1,
+        "IntersectionObserverController::computeIntersections": 0,
+        "Paint": 12.5,
+        "Layerize": 2.9,
+        "Commit": 1,
+        "UpdateLayer": 0.4
+      }
+    },
+    {
+      "at": 1977.4,
+      "ms": 79,
+      "parts": {
+        "FireAnimationFrame": 0.4,
+        "FunctionCall": 0.2,
+        "UpdateLayoutTree": 65,
+        "Layout": 1.8,
+        "PrePaint": 2.8,
+        "IntersectionObserverController::computeIntersections": 0.2,
+        "Paint": 4.7,
+        "Layerize": 1.6,
+        "Commit": 1.6,
+        "UpdateLayer": 0.2
+      }
+    },
+    {
+      "at": 3158.4,
+      "ms": 58.8,
       "parts": {
         "FireAnimationFrame": 0.2,
         "FunctionCall": 0.2,
-        "UpdateLayoutTree": 68.9,
-        "Layout": 2,
-        "PrePaint": 1.8,
+        "UpdateLayoutTree": 49.3,
+        "Layout": 1.6,
+        "PrePaint": 1.2,
         "IntersectionObserverController::computeIntersections": 0,
-        "Paint": 2.6,
-        "Layerize": 2.7,
-        "Commit": 2.3,
-        "UpdateLayer": 0.4,
-        "HitTest": 0.8
+        "Paint": 2.3,
+        "Layerize": 1.8,
+        "Commit": 1.4,
+        "UpdateLayer": 0.2
       }
     }
   ],
-  "windowMs": 4329.5,
+  "windowMs": 4399.8,
   "longTasks": [
     {
-      "at": 28.9,
-      "ms": 53.4
+      "at": 30.7,
+      "ms": 61.6
     },
     {
-      "at": 271.6,
-      "ms": 906.9
+      "at": 145,
+      "ms": 51
     },
     {
-      "at": 1181.7,
-      "ms": 111
+      "at": 334.6,
+      "ms": 942
     },
     {
-      "at": 1333,
-      "ms": 171.4
+      "at": 1279.9,
+      "ms": 93.8
     },
     {
-      "at": 1592.1,
-      "ms": 106.3
+      "at": 1415.1,
+      "ms": 150
     },
     {
-      "at": 1709.6,
-      "ms": 138.1
+      "at": 1641.7,
+      "ms": 128.4
     },
     {
-      "at": 1898.4,
-      "ms": 76.4
+      "at": 1835.4,
+      "ms": 84.9
     },
     {
-      "at": 3155.9,
-      "ms": 81.7
+      "at": 1977.4,
+      "ms": 79
+    },
+    {
+      "at": 3158.4,
+      "ms": 58.8
     }
   ],
-  "ltMax": 906.9,
+  "ltMax": 942,
   "layout": {
-    "count": 22,
-    "totalMs": 902.3,
-    "maxMs": 796.5,
+    "count": 23,
+    "totalMs": 914.9,
+    "maxMs": 815.2,
     "top": [
       {
-        "ms": 796.5,
-        "at": 340,
+        "ms": 815.2,
+        "at": 412.9,
         "dirty": 441,
         "total": 852,
         "partial": false,
@@ -302,8 +320,8 @@
         "stack": []
       },
       {
-        "ms": 35.8,
-        "at": 1646,
+        "ms": 29.4,
+        "at": 1713.2,
         "dirty": 96,
         "total": 1161,
         "partial": false,
@@ -311,8 +329,8 @@
         "stack": []
       },
       {
-        "ms": 22.8,
-        "at": 1462.7,
+        "ms": 22.7,
+        "at": 1526.1,
         "dirty": 174,
         "total": 1145,
         "partial": false,
@@ -321,19 +339,19 @@
       }
     ],
     "forcedCount": 1,
-    "forcedMs": 9.8
+    "forcedMs": 10.4
   },
   "recalc": {
-    "count": 261,
-    "totalMs": 1436.5,
-    "maxMs": 119.9,
+    "count": 255,
+    "totalMs": 1445.9,
+    "maxMs": 101.3,
     "maxEl": 921
   },
-  "scriptMs": 337.9,
-  "paintMs": 1137.8,
+  "scriptMs": 343.9,
+  "paintMs": 1143.5,
   "fontEventMs": {
-    "BeginRemoteFontLoad": 1.039,
-    "RemoteFontLoaded": 0.006
+    "BeginRemoteFontLoad": 0.843,
+    "RemoteFontLoaded": 0.007
   },
   "fontInvalidations": 0
 }
