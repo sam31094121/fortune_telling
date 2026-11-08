@@ -44,6 +44,7 @@ import {
 } from '@/lib/beast-game/interactive';
 import WinStreakCounter from './WinStreakCounter';
 import VictoryMoment from './VictoryMoment';
+import BattleResultBanner from './BattleResultBanner';
 import UpgradePathHint from './UpgradePathHint';
 import ShareBadge from './ShareBadge';
 import { RIG_STRIKE_EVENT, rigFor } from '@/lib/beast-game/beast-rig';
@@ -396,8 +397,8 @@ const BattlePanel = memo(function BattlePanel({
       })()}
 
       {finished && busy ? <p className={styles.activeHint} role="status">動作演出中，接著顯示結果…</p> : finished ? (
-        <p className={styles.result} role="status" data-winner={match.winner ?? 'NONE'}>
-          {match.winner === 'player' ? '你贏了' : match.winner === 'opponent' ? '易經獲勝' : '平手'}
+        <div className={styles.result} role="status" data-winner={match.winner ?? 'NONE'}>
+          <BattleResultBanner outcome={match.winner === 'player' ? 'win' : match.winner === 'opponent' ? 'lose' : 'draw'} />
           <small>共 {match.round - 1} 回合</small>
           {/*
             業主定調第三件：「輸掉時講得出原因，而不是只說『你輸了』。」
@@ -406,7 +407,7 @@ const BattlePanel = memo(function BattlePanel({
           <small data-outcome-reason>
             {view?.guides.outcome ?? ''}
           </small>
-        </p>
+        </div>
       ) : (
         <BattleActionBar match={match} view={view} onAction={onAction} busy={busy} compact={compact} attackOnCard={false} relaxed={relaxed} />
       )}

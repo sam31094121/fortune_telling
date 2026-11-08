@@ -31,6 +31,8 @@ import { DragPathSvg, dragHint, useDragChain } from './useDragChain';
 import styles from './Match3Board.module.css';
 import Match3ElementGlyph from './Match3ElementGlyph';
 import { RIG_STRIKE_MS, rigFor, rigFrameUrl } from '@/lib/beast-game/beast-rig';
+import BattleResultBanner from './BattleResultBanner';
+import BattleRewardReveal from './BattleRewardReveal';
 import Match3RigAttack, { Match3TargetArt, match3RigAttackers, type Match3Strike } from './Match3RigAttack';
 import { readMatch3Progress, saveMatch3Progress, type Match3ProgressOwner } from '@/lib/beast-game/match3/progress-store';
 import { readCampaign, settleWin, type CampaignSettlement } from '@/lib/beast-game/match3/hard-campaign-store';
@@ -677,16 +679,20 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
 
       {over && (
         <div className={styles.result} role="dialog" aria-label="對戰結果" data-testid="match3-result" data-result={over}>
-          <div className={styles.resultTitle}>{over === 'win' ? '勝利' : '這局先到這裡'}</div>
-          <p>{over === 'win' ? `共 ${moves} 步擊退敵方 ${foes.length} 隻神獸，總傷害 ${totalDmg}。` : '敵方守住了，再來一局吧。'}</p>
+          <BattleResultBanner outcome={over === 'win' ? 'win' : 'lose'} subtitle={over === 'win' ? '你贏了！' : '敵方守住了，這一局沒有贏。'} />
+          {/* 戰利品緊接在勝負橫幅下面：贏了一眼就看到獲得什麼；保存成功才顯示已獲得（見 BattleRewardReveal） */}
+          {campaignEnabled && over === 'win' && (
+            <BattleRewardReveal
+              status={savingReward ? 'saving' : wonCard ? 'saved' : 'failed'}
+              message={savingReward ? '正在保存本局獎勵…' : wonCard ? `多了一張${wonCard.name}！已存入寶珠「我的卡片」，可選作下一局夥伴。` : (campaignSettlement?.error ?? '獎勵尚未保存。')}
+              card={wonCard ? <BeastCardFace card={{ id: wonCard.id, name: wonCard.name, element: wonCard.element, thumbnail: wonCard.art.thumbnail, skillName: wonSkill?.name, description: wonSkill?.description }} /> : undefined}
+              onRetry={() => void saveVictory()}
+              onViewCards={onRepick}
+              viewDisabled={busy}
+            />
+          )}
+          <p>{over === 'win' ? `共 ${moves} 步擊退敵方 ${foes.length} 隻神獸，總傷害 ${totalDmg}。` : '再來一局，換個打法試試。'}</p>
           {progressSaveFailed && <p role="alert">此瀏覽器無法儲存進度，關閉頁面後可能遺失。</p>}
-          {campaignEnabled && over === 'win' && <div data-testid="campaign-victory-reward" aria-live="polite">
-            {savingReward ? <p>正在保存本局獎勵…</p> : wonCard ? <>
-              <p>多了一張{wonCard.name}！已存入寶珠「我的卡片」，可選作下一局夥伴。</p>
-              <div className={styles.campaignRewardCard}><BeastCardFace card={{ id: wonCard.id, name: wonCard.name, element: wonCard.element, thumbnail: wonCard.art.thumbnail, skillName: wonSkill?.name, description: wonSkill?.description }} /></div>
-              <button type="button" className={styles.again} disabled={busy} onClick={onRepick}>查看我的卡片</button>
-            </> : <><p role="alert">{campaignSettlement?.error ?? '獎勵尚未保存。'}</p><button type="button" className={styles.again} onClick={() => void saveVictory()}>重試保存獎勵</button></>}
-          </div>}
           <button type="button" className={styles.again} disabled={busy || campaignAwaiting} onClick={restart}>{rigEnabled ? (over === 'win' ? '挑戰下一關' : '原難度重試') : '再來一局'}</button>
         </div>
       )}

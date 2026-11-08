@@ -1,0 +1,98 @@
+/* 戰鬥結算橫幅：贏＝金色發光＋獎盃；輸＝深紅暗沉＋碎心；平手＝冷灰藍＋握手。
+   字與圖示用固定像素，不隨字體選擇縮放；文字對比都在 7:1 以上。 */
+.banner {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: min(92vw, 420px);
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 20px 14px 18px;
+  border-radius: 20px;
+  border: 3px solid transparent;
+  text-align: center;
+  /* 父層（BattlePanel 的結果框）有文字光暈；橫幅自己有明確配色，不吃那層光暈 */
+  text-shadow: none;
+  font-size: 17px;
+  letter-spacing: normal;
+  animation: bannerPop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.icon {
+  font-size: 64px;
+  line-height: 1;
+}
+.word {
+  font-size: clamp(44px, 13vw, 64px);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  line-height: 1.1;
+  /* 字尾補一個字距，視覺才會置中 */
+  padding-left: 0.14em;
+}
+.sub {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+/* 贏：金底深字，外圈光暈呼吸 */
+.banner[data-outcome='win'] {
+  background: linear-gradient(135deg, #fcea86 0%, #f8c758 50%, #c48a29 100%);
+  border-color: #fff4b8;
+  color: #1a1203;
+  box-shadow: 0 0 36px rgba(252, 234, 134, 0.55), inset 0 2px 0 rgba(255, 255, 255, 0.6);
+  animation: bannerPop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both, winGlow 1.6s ease-in-out 0.5s infinite;
+}
+.banner[data-outcome='win'] .icon {
+  animation: trophyBounce 1.2s ease-in-out 0.5s infinite;
+}
+
+/* 輸：深紅暗沉，沒有光暈；入場震一下就靜下來 */
+.banner[data-outcome='lose'] {
+  background: linear-gradient(180deg, #3a1218 0%, #1c0a0e 100%);
+  border-color: #b3262f;
+  color: #ffd9d9;
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.6);
+  animation: loseShake 0.55s ease-out both;
+}
+.banner[data-outcome='lose'] .icon {
+  filter: grayscale(0.35);
+}
+
+/* 平手：冷灰藍，安靜 */
+.banner[data-outcome='draw'] {
+  background: linear-gradient(180deg, #25323f 0%, #161e27 100%);
+  border-color: #7fa3cc;
+  color: #e3eefb;
+}
+
+@keyframes bannerPop {
+  0% { opacity: 0; transform: scale(0.6); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes winGlow {
+  0%, 100% { box-shadow: 0 0 36px rgba(252, 234, 134, 0.55), inset 0 2px 0 rgba(255, 255, 255, 0.6); }
+  50% { box-shadow: 0 0 64px rgba(252, 234, 134, 0.9), inset 0 2px 0 rgba(255, 255, 255, 0.6); }
+}
+@keyframes trophyBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-6px) scale(1.08); }
+}
+@keyframes loseShake {
+  0% { opacity: 0; transform: translateX(0) scale(0.9); }
+  25% { opacity: 1; transform: translateX(-10px) scale(1); }
+  45% { transform: translateX(8px); }
+  65% { transform: translateX(-5px); }
+  85% { transform: translateX(3px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+/* 動作過敏或偏好減少動態：只留靜態畫面，圖示、文字、顏色照樣區分勝負 */
+@media (prefers-reduced-motion: reduce) {
+  .banner,
+  .banner[data-outcome='win'],
+  .banner[data-outcome='lose'],
+  .banner[data-outcome='win'] .icon {
+    animation: none;
+  }
+}

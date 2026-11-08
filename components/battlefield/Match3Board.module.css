@@ -73,6 +73,15 @@
 .down { opacity: .45; }
 .result { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: rgba(20,18,26,.88); color: var(--bone); z-index: 50; }
 .resultTitle { font-size: 24px; font-weight: 700; }
+/* 結算蓋板底色也分勝負：贏＝暖金光，輸＝暗紅（橫幅本身另有圖示、大字、動作） */
+.result[data-result='win'] { background: radial-gradient(circle at 50% 40%, rgba(120, 90, 20, .92), rgba(20, 16, 8, .96)); }
+.result[data-result='lose'] { background: radial-gradient(circle at 50% 40%, rgba(70, 18, 26, .94), rgba(14, 6, 9, .97)); }
+.result p { margin: 4px 16px; text-align: center; }
+/* 內容（橫幅＋戰利品＋按鈕）比螢幕高時要能捲動，不能把戰利品擠到畫面外。
+   用 auto margin 取代 justify-content:center，內容矮時照樣置中、高時從頂端開始可捲。 */
+.result { justify-content: flex-start; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 12px; box-sizing: border-box; }
+.result > :first-child { margin-top: auto; }
+.result > :last-child { margin-bottom: auto; }
 .again { margin-top: 8px; padding: 10px 24px; min-height: 44px; border-radius: 10px; background: var(--leather); color: var(--bone); border: 1px solid var(--seal); font-size: 16px; }
 @media (min-width: 768px) { .wrap { padding-top: 24px; } .enemyCard { width: 96px; } .allyMeta { font-size: 12px; } }
 
