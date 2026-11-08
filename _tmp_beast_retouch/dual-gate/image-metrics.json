@@ -1,0 +1,1025 @@
+{
+ "guardian-baihu": {
+  "w": 720,
+  "h": 540,
+  "bright235": 0,
+  "bright250": 0,
+  "quad_TL_TR_BL_BR": [
+   81.6,
+   56.7,
+   65.5,
+   53.3
+  ],
+  "TLminusBR": 28.3,
+  "leftMinusRight": 18.5,
+  "topMinusBottom": 9.8,
+  "hiCentroid": [
+   0.29,
+   0.41
+  ],
+  "hueDeg": 29.4,
+  "satPx": 46.8,
+  "p99": 205.2,
+  "p1": 16.2
+ },
+ "young-11": {
+  "oldSha": "9A74281F87A9D8FCAC89BE02FB814327DEB217C4E0C30E83746349BA770EF576",
+  "newSha": "C4D3853207298A084A316956602CBCF4BF4585656AE34800EC9671E9E5000F88",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.03,
+   "bright250": 0.002,
+   "quad_TL_TR_BL_BR": [
+    33.9,
+    39,
+    37.9,
+    21.6
+   ],
+   "TLminusBR": 12.3,
+   "leftMinusRight": 5.6,
+   "topMinusBottom": 6.7,
+   "hiCentroid": [
+    0.47,
+    0.35
+   ],
+   "hueDeg": 22,
+   "satPx": 19.1,
+   "p99": 195,
+   "p1": 0.9
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.08,
+   "bright250": 0.004,
+   "quad_TL_TR_BL_BR": [
+    33.9,
+    39.1,
+    37.9,
+    21.6
+   ],
+   "TLminusBR": 12.3,
+   "leftMinusRight": 5.5,
+   "topMinusBottom": 6.8,
+   "hiCentroid": [
+    0.47,
+    0.35
+   ],
+   "hueDeg": 21.9,
+   "satPx": 18.8,
+   "p99": 198.6,
+   "p1": 0.9
+  }
+ },
+ "young-12": {
+  "oldSha": "ED1D198E9FC81DF71DA26449357C9AD43C7F69E155D39BE9C2B2F67998121998",
+  "newSha": "AE964AE9B01DD2CAFC3EE013ECF004715AF1A930AB7B74171C828B57FBFF6B36",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.02,
+   "bright250": 0.004,
+   "quad_TL_TR_BL_BR": [
+    16.1,
+    7,
+    27.9,
+    13.9
+   ],
+   "TLminusBR": 2.2,
+   "leftMinusRight": 11.6,
+   "topMinusBottom": -9.3,
+   "hiCentroid": [
+    0.39,
+    0.55
+   ],
+   "hueDeg": 12.9,
+   "satPx": 13.8,
+   "p99": 154.4,
+   "p1": 0.9
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.06,
+   "bright250": 0.01,
+   "quad_TL_TR_BL_BR": [
+    16.2,
+    7,
+    28,
+    14.1
+   ],
+   "TLminusBR": 2.1,
+   "leftMinusRight": 11.6,
+   "topMinusBottom": -9.4,
+   "hiCentroid": [
+    0.39,
+    0.55
+   ],
+   "hueDeg": 12.3,
+   "satPx": 13.4,
+   "p99": 159.7,
+   "p1": 0.9
+  }
+ },
+ "young-13": {
+  "oldSha": "F75FF8BD1BC74833644AF7A1CDC7B2ED7B2C44D1130851D27D56A46D6872A459",
+  "newSha": "EA16F403B6A18941C254F5A1242E3AFF343CD55FB5E28E12B0407F6143EE4461",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0,
+   "bright250": 0.001,
+   "quad_TL_TR_BL_BR": [
+    25.4,
+    15.1,
+    18.9,
+    12
+   ],
+   "TLminusBR": 13.4,
+   "leftMinusRight": 8.6,
+   "topMinusBottom": 4.8,
+   "hiCentroid": [
+    0.3,
+    0.39
+   ],
+   "hueDeg": 17.6,
+   "satPx": 16.8,
+   "p99": 100.6,
+   "p1": 3.6
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.02,
+   "bright250": 0.003,
+   "quad_TL_TR_BL_BR": [
+    30.4,
+    17.6,
+    22.2,
+    13.6
+   ],
+   "TLminusBR": 16.8,
+   "leftMinusRight": 10.7,
+   "topMinusBottom": 6.1,
+   "hiCentroid": [
+    0.29,
+    0.39
+   ],
+   "hueDeg": 17.5,
+   "satPx": 21,
+   "p99": 124.6,
+   "p1": 3.7
+  }
+ },
+ "young-14": {
+  "oldSha": "6CB009A832F333D5399C924B55DBDBE6B1A162C41C0000F65AF29849EE3C1F66",
+  "newSha": "6CB009A832F333D5399C924B55DBDBE6B1A162C41C0000F65AF29849EE3C1F66",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.01,
+   "bright250": 0.004,
+   "quad_TL_TR_BL_BR": [
+    30.6,
+    9.7,
+    30.4,
+    18.7
+   ],
+   "TLminusBR": 11.9,
+   "leftMinusRight": 16.3,
+   "topMinusBottom": -4.4,
+   "hiCentroid": [
+    0.29,
+    0.47
+   ],
+   "hueDeg": 24.8,
+   "satPx": 21.7,
+   "p99": 166.6,
+   "p1": 0.9
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.01,
+   "bright250": 0.004,
+   "quad_TL_TR_BL_BR": [
+    30.6,
+    9.7,
+    30.4,
+    18.7
+   ],
+   "TLminusBR": 11.9,
+   "leftMinusRight": 16.3,
+   "topMinusBottom": -4.4,
+   "hiCentroid": [
+    0.29,
+    0.47
+   ],
+   "hueDeg": 24.8,
+   "satPx": 21.7,
+   "p99": 166.6,
+   "p1": 0.9
+  }
+ },
+ "young-15": {
+  "oldSha": "FD61E3F6DD3EF9706967F3BDA0DF5CE88E44733375E7E0E4E8F24633B8076545",
+  "newSha": "FD61E3F6DD3EF9706967F3BDA0DF5CE88E44733375E7E0E4E8F24633B8076545",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.03,
+   "bright250": 0.004,
+   "quad_TL_TR_BL_BR": [
+    29.2,
+    11.5,
+    30.1,
+    25.3
+   ],
+   "TLminusBR": 3.9,
+   "leftMinusRight": 11.2,
+   "topMinusBottom": -7.3,
+   "hiCentroid": [
+    0.36,
+    0.43
+   ],
+   "hueDeg": 22.8,
+   "satPx": 29.2,
+   "p99": 170.1,
+   "p1": 2
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.03,
+   "bright250": 0.004,
+   "quad_TL_TR_BL_BR": [
+    29.2,
+    11.5,
+    30.1,
+    25.3
+   ],
+   "TLminusBR": 3.9,
+   "leftMinusRight": 11.2,
+   "topMinusBottom": -7.3,
+   "hiCentroid": [
+    0.36,
+    0.43
+   ],
+   "hueDeg": 22.8,
+   "satPx": 29.2,
+   "p99": 170.1,
+   "p1": 2
+  }
+ },
+ "young-16": {
+  "oldSha": "36C78D0B017174F7D2873A67A3066A54DFA9B01A7BC63F98D2C796A142AAEE52",
+  "newSha": "35CECB2471A9C55B42E607B1DB85ACA06B25340C245E5F840ABB11DBA2FC36CD",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.02,
+   "bright250": 0.004,
+   "quad_TL_TR_BL_BR": [
+    61,
+    23.2,
+    46.4,
+    41.7
+   ],
+   "TLminusBR": 19.3,
+   "leftMinusRight": 21.3,
+   "topMinusBottom": -1.9,
+   "hiCentroid": [
+    0.28,
+    0.33
+   ],
+   "hueDeg": 27.1,
+   "satPx": 40.5,
+   "p99": 207.5,
+   "p1": 0.9
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.05,
+   "bright250": 0.008,
+   "quad_TL_TR_BL_BR": [
+    61.1,
+    23.4,
+    46.6,
+    41.8
+   ],
+   "TLminusBR": 19.3,
+   "leftMinusRight": 21.3,
+   "topMinusBottom": -1.9,
+   "hiCentroid": [
+    0.29,
+    0.33
+   ],
+   "hueDeg": 27.1,
+   "satPx": 40.2,
+   "p99": 209.7,
+   "p1": 0.9
+  }
+ },
+ "young-17": {
+  "oldSha": "99CF88037A3A0799CA5C7B0E086F9E8D639842FC0967FE4A0D7CF17745127F42",
+  "newSha": "99CF88037A3A0799CA5C7B0E086F9E8D639842FC0967FE4A0D7CF17745127F42",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.02,
+   "bright250": 0.004,
+   "quad_TL_TR_BL_BR": [
+    28.5,
+    13.9,
+    29.9,
+    15.3
+   ],
+   "TLminusBR": 13.2,
+   "leftMinusRight": 14.6,
+   "topMinusBottom": -1.4,
+   "hiCentroid": [
+    0.31,
+    0.43
+   ],
+   "hueDeg": 24.2,
+   "satPx": 28.7,
+   "p99": 153.4,
+   "p1": 0.9
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.02,
+   "bright250": 0.004,
+   "quad_TL_TR_BL_BR": [
+    28.5,
+    13.9,
+    29.9,
+    15.3
+   ],
+   "TLminusBR": 13.2,
+   "leftMinusRight": 14.6,
+   "topMinusBottom": -1.4,
+   "hiCentroid": [
+    0.31,
+    0.43
+   ],
+   "hueDeg": 24.2,
+   "satPx": 28.7,
+   "p99": 153.4,
+   "p1": 0.9
+  }
+ },
+ "young-18": {
+  "oldSha": "B7EEAA41DAC46808576938FB73F66B7FC7831DCC70B965180CA264EF8FD7955F",
+  "newSha": "B7EEAA41DAC46808576938FB73F66B7FC7831DCC70B965180CA264EF8FD7955F",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.02,
+   "bright250": 0.007,
+   "quad_TL_TR_BL_BR": [
+    20.4,
+    11,
+    19.1,
+    11.1
+   ],
+   "TLminusBR": 9.3,
+   "leftMinusRight": 8.7,
+   "topMinusBottom": 0.6,
+   "hiCentroid": [
+    0.38,
+    0.44
+   ],
+   "hueDeg": 10.7,
+   "satPx": 24.8,
+   "p99": 132.2,
+   "p1": 0.9
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.02,
+   "bright250": 0.007,
+   "quad_TL_TR_BL_BR": [
+    20.4,
+    11,
+    19.1,
+    11.1
+   ],
+   "TLminusBR": 9.3,
+   "leftMinusRight": 8.7,
+   "topMinusBottom": 0.6,
+   "hiCentroid": [
+    0.38,
+    0.44
+   ],
+   "hueDeg": 10.7,
+   "satPx": 24.8,
+   "p99": 132.2,
+   "p1": 0.9
+  }
+ },
+ "young-19": {
+  "oldSha": "119395B137671610F52E3D6B055851AF5BD537AE3C11FA34ACA0A9D8D48F16EE",
+  "newSha": "119395B137671610F52E3D6B055851AF5BD537AE3C11FA34ACA0A9D8D48F16EE",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.02,
+   "bright250": 0.004,
+   "quad_TL_TR_BL_BR": [
+    25.3,
+    23.9,
+    25.3,
+    21
+   ],
+   "TLminusBR": 4.3,
+   "leftMinusRight": 2.9,
+   "topMinusBottom": 1.5,
+   "hiCentroid": [
+    0.5,
+    0.37
+   ],
+   "hueDeg": 2.9,
+   "satPx": 27.9,
+   "p99": 139.4,
+   "p1": 4.1
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.02,
+   "bright250": 0.004,
+   "quad_TL_TR_BL_BR": [
+    25.3,
+    23.9,
+    25.3,
+    21
+   ],
+   "TLminusBR": 4.3,
+   "leftMinusRight": 2.9,
+   "topMinusBottom": 1.5,
+   "hiCentroid": [
+    0.5,
+    0.37
+   ],
+   "hueDeg": 2.9,
+   "satPx": 27.9,
+   "p99": 139.4,
+   "p1": 4.1
+  }
+ },
+ "young-20": {
+  "oldSha": "44CA98A513AB3D9F1116FA128755C5B161F2259EC3094866F2F4834362AC7B93",
+  "newSha": "86E0FE64D16EAF7BF76FEA7F3A526EA0FCC0D865D2FE4D889B2211B0C06CA106",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0,
+   "bright250": 0.002,
+   "quad_TL_TR_BL_BR": [
+    35.9,
+    24.1,
+    26,
+    23.4
+   ],
+   "TLminusBR": 12.5,
+   "leftMinusRight": 7.2,
+   "topMinusBottom": 5.3,
+   "hiCentroid": [
+    0.41,
+    0.34
+   ],
+   "hueDeg": 21.1,
+   "satPx": 38.7,
+   "p99": 130.9,
+   "p1": 5.9
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.01,
+   "bright250": 0.003,
+   "quad_TL_TR_BL_BR": [
+    36.1,
+    24.2,
+    26.2,
+    23.4
+   ],
+   "TLminusBR": 12.7,
+   "leftMinusRight": 7.3,
+   "topMinusBottom": 5.3,
+   "hiCentroid": [
+    0.4,
+    0.35
+   ],
+   "hueDeg": 20.2,
+   "satPx": 38.7,
+   "p99": 134.9,
+   "p1": 5.5
+  }
+ },
+ "adult-13": {
+  "oldSha": "3218FCAF44788AAEBC94F705C8D61057128703243E82AEEF8365F3E1B9EC3258",
+  "newSha": "3218FCAF44788AAEBC94F705C8D61057128703243E82AEEF8365F3E1B9EC3258",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.01,
+   "bright250": 0.001,
+   "quad_TL_TR_BL_BR": [
+    43.1,
+    39,
+    48.9,
+    44.8
+   ],
+   "TLminusBR": -1.7,
+   "leftMinusRight": 4.1,
+   "topMinusBottom": -5.8,
+   "hiCentroid": [
+    0.33,
+    0.64
+   ],
+   "hueDeg": 222.1,
+   "satPx": 38.9,
+   "p99": 145.3,
+   "p1": 5.9
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.01,
+   "bright250": 0.001,
+   "quad_TL_TR_BL_BR": [
+    43.1,
+    39,
+    48.9,
+    44.8
+   ],
+   "TLminusBR": -1.7,
+   "leftMinusRight": 4.1,
+   "topMinusBottom": -5.8,
+   "hiCentroid": [
+    0.33,
+    0.64
+   ],
+   "hueDeg": 222.1,
+   "satPx": 38.9,
+   "p99": 145.3,
+   "p1": 5.9
+  }
+ },
+ "adult-14": {
+  "oldSha": "39F6E680B191064F0BF23978D6971C83D90F8004AB2CC4FB79029A84E8B1C099",
+  "newSha": "39F6E680B191064F0BF23978D6971C83D90F8004AB2CC4FB79029A84E8B1C099",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.01,
+   "bright250": 0,
+   "quad_TL_TR_BL_BR": [
+    61.1,
+    59.2,
+    61.6,
+    40.3
+   ],
+   "TLminusBR": 20.8,
+   "leftMinusRight": 11.6,
+   "topMinusBottom": 9.2,
+   "hiCentroid": [
+    0.29,
+    0.31
+   ],
+   "hueDeg": 181.3,
+   "satPx": 17.1,
+   "p99": 166,
+   "p1": 7.3
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.01,
+   "bright250": 0,
+   "quad_TL_TR_BL_BR": [
+    61.1,
+    59.2,
+    61.6,
+    40.3
+   ],
+   "TLminusBR": 20.8,
+   "leftMinusRight": 11.6,
+   "topMinusBottom": 9.2,
+   "hiCentroid": [
+    0.29,
+    0.31
+   ],
+   "hueDeg": 181.3,
+   "satPx": 17.1,
+   "p99": 166,
+   "p1": 7.3
+  }
+ },
+ "adult-15": {
+  "oldSha": "1051D2759B6054760F35F48D2D0307CF54A0BBE670E6F34BCC8DA80F734BE483",
+  "newSha": "1051D2759B6054760F35F48D2D0307CF54A0BBE670E6F34BCC8DA80F734BE483",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.04,
+   "bright250": 0.003,
+   "quad_TL_TR_BL_BR": [
+    29,
+    13.8,
+    31.3,
+    31.4
+   ],
+   "TLminusBR": -2.4,
+   "leftMinusRight": 7.6,
+   "topMinusBottom": -10,
+   "hiCentroid": [
+    0.36,
+    0.44
+   ],
+   "hueDeg": 24.3,
+   "satPx": 30.5,
+   "p99": 157.9,
+   "p1": 3.2
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.04,
+   "bright250": 0.003,
+   "quad_TL_TR_BL_BR": [
+    29,
+    13.8,
+    31.3,
+    31.4
+   ],
+   "TLminusBR": -2.4,
+   "leftMinusRight": 7.6,
+   "topMinusBottom": -10,
+   "hiCentroid": [
+    0.36,
+    0.44
+   ],
+   "hueDeg": 24.3,
+   "satPx": 30.5,
+   "p99": 157.9,
+   "p1": 3.2
+  }
+ },
+ "adult-16": {
+  "oldSha": "A8E50C9AF2676DEDEF0468945FE49A1F25B75F78BCE4E162A3781CA7D10F32E8",
+  "newSha": "A8E50C9AF2676DEDEF0468945FE49A1F25B75F78BCE4E162A3781CA7D10F32E8",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.04,
+   "bright250": 0.003,
+   "quad_TL_TR_BL_BR": [
+    63.9,
+    39.1,
+    45.6,
+    39.8
+   ],
+   "TLminusBR": 24.1,
+   "leftMinusRight": 15.3,
+   "topMinusBottom": 8.8,
+   "hiCentroid": [
+    0.3,
+    0.33
+   ],
+   "hueDeg": 26.3,
+   "satPx": 47.7,
+   "p99": 190.6,
+   "p1": 11.6
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.04,
+   "bright250": 0.003,
+   "quad_TL_TR_BL_BR": [
+    63.9,
+    39.1,
+    45.6,
+    39.8
+   ],
+   "TLminusBR": 24.1,
+   "leftMinusRight": 15.3,
+   "topMinusBottom": 8.8,
+   "hiCentroid": [
+    0.3,
+    0.33
+   ],
+   "hueDeg": 26.3,
+   "satPx": 47.7,
+   "p99": 190.6,
+   "p1": 11.6
+  }
+ },
+ "adult-17": {
+  "oldSha": "B456A1C86899747B9B20CC13D592D15CA5D625F084F6D37EE5EA33D40BCF9277",
+  "newSha": "B456A1C86899747B9B20CC13D592D15CA5D625F084F6D37EE5EA33D40BCF9277",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.01,
+   "bright250": 0.001,
+   "quad_TL_TR_BL_BR": [
+    41.4,
+    34,
+    37.8,
+    29
+   ],
+   "TLminusBR": 12.4,
+   "leftMinusRight": 8.1,
+   "topMinusBottom": 4.3,
+   "hiCentroid": [
+    0.39,
+    0.38
+   ],
+   "hueDeg": 30.5,
+   "satPx": 42.4,
+   "p99": 143.7,
+   "p1": 5.5
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.01,
+   "bright250": 0.001,
+   "quad_TL_TR_BL_BR": [
+    41.4,
+    34,
+    37.8,
+    29
+   ],
+   "TLminusBR": 12.4,
+   "leftMinusRight": 8.1,
+   "topMinusBottom": 4.3,
+   "hiCentroid": [
+    0.39,
+    0.38
+   ],
+   "hueDeg": 30.5,
+   "satPx": 42.4,
+   "p99": 143.7,
+   "p1": 5.5
+  }
+ },
+ "adult-18": {
+  "oldSha": "2030D74CC856913872A7008E6A4D233BE1284AF7DDC050D1C3626EB48790B7B9",
+  "newSha": "CF1CDDD4AE8AF29049B8B0F695604CDC6075FE3233A7BCCCE18060BEB9A3CE9C",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0,
+   "bright250": 0,
+   "quad_TL_TR_BL_BR": [
+    29.5,
+    26.9,
+    22.9,
+    20.1
+   ],
+   "TLminusBR": 9.4,
+   "leftMinusRight": 2.7,
+   "topMinusBottom": 6.7,
+   "hiCentroid": [
+    0.45,
+    0.38
+   ],
+   "hueDeg": 14.4,
+   "satPx": 26.6,
+   "p99": 122.3,
+   "p1": 5.5
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.01,
+   "bright250": 0,
+   "quad_TL_TR_BL_BR": [
+    30.5,
+    27.8,
+    23.6,
+    20.5
+   ],
+   "TLminusBR": 10,
+   "leftMinusRight": 2.9,
+   "topMinusBottom": 7.1,
+   "hiCentroid": [
+    0.45,
+    0.38
+   ],
+   "hueDeg": 13.8,
+   "satPx": 28.1,
+   "p99": 128.8,
+   "p1": 5.5
+  }
+ },
+ "adult-19": {
+  "oldSha": "6D78BA88C5E3EF171D22B2E02200AFA5CCC1A9A269D81C28D257CD69FD924F43",
+  "newSha": "838C6D77656A30654F7B274FCE02233AC70D4D87B33D929FAD2755B5BB0004FB",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0,
+   "bright250": 0,
+   "quad_TL_TR_BL_BR": [
+    44.6,
+    34.9,
+    56.2,
+    28.9
+   ],
+   "TLminusBR": 15.7,
+   "leftMinusRight": 18.5,
+   "topMinusBottom": -2.8,
+   "hiCentroid": [
+    0.41,
+    0.39
+   ],
+   "hueDeg": 243,
+   "satPx": 9.3,
+   "p99": 156.5,
+   "p1": 1.1
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.01,
+   "bright250": 0.002,
+   "quad_TL_TR_BL_BR": [
+    44.7,
+    34.9,
+    56.3,
+    28.9
+   ],
+   "TLminusBR": 15.8,
+   "leftMinusRight": 18.6,
+   "topMinusBottom": -2.8,
+   "hiCentroid": [
+    0.41,
+    0.39
+   ],
+   "hueDeg": 242.3,
+   "satPx": 9,
+   "p99": 159.1,
+   "p1": 1.1
+  }
+ },
+ "adult-20": {
+  "oldSha": "F09A20EDB2A82AFEB1F1FD834A3C154CD84D710D0F768548DB6D253DA66A391C",
+  "newSha": "5A4CBB6FABF6B39D49B346D01D97A9C12B33B46C0CAA8F6B8A567595D7F8D5F9",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0,
+   "bright250": 0,
+   "quad_TL_TR_BL_BR": [
+    31.2,
+    26.1,
+    24.4,
+    24.8
+   ],
+   "TLminusBR": 6.4,
+   "leftMinusRight": 2.3,
+   "topMinusBottom": 4,
+   "hiCentroid": [
+    0.41,
+    0.34
+   ],
+   "hueDeg": 26.3,
+   "satPx": 33.6,
+   "p99": 107,
+   "p1": 8.1
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0,
+   "bright250": 0,
+   "quad_TL_TR_BL_BR": [
+    35.8,
+    29.6,
+    27.6,
+    27.9
+   ],
+   "TLminusBR": 7.9,
+   "leftMinusRight": 2.9,
+   "topMinusBottom": 5,
+   "hiCentroid": [
+    0.41,
+    0.35
+   ],
+   "hueDeg": 26.2,
+   "satPx": 39.8,
+   "p99": 132.2,
+   "p1": 7.1
+  }
+ },
+ "adult-21": {
+  "oldSha": "CB9E64D4AADAAA1B09FFD615B96B6C1F296D985E76B5468F369011592E68AA2B",
+  "newSha": "CB9E64D4AADAAA1B09FFD615B96B6C1F296D985E76B5468F369011592E68AA2B",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.02,
+   "bright250": 0.002,
+   "quad_TL_TR_BL_BR": [
+    35.8,
+    33.2,
+    34.3,
+    25.9
+   ],
+   "TLminusBR": 9.9,
+   "leftMinusRight": 5.5,
+   "topMinusBottom": 4.4,
+   "hiCentroid": [
+    0.37,
+    0.46
+   ],
+   "hueDeg": 17.3,
+   "satPx": 29.3,
+   "p99": 141.8,
+   "p1": 3.3
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0.02,
+   "bright250": 0.002,
+   "quad_TL_TR_BL_BR": [
+    35.8,
+    33.2,
+    34.3,
+    25.9
+   ],
+   "TLminusBR": 9.9,
+   "leftMinusRight": 5.5,
+   "topMinusBottom": 4.4,
+   "hiCentroid": [
+    0.37,
+    0.46
+   ],
+   "hueDeg": 17.3,
+   "satPx": 29.3,
+   "p99": 141.8,
+   "p1": 3.3
+  }
+ },
+ "adult-22": {
+  "oldSha": "CC34E208A6138780793DDF6C6D159DB0ECF5B2CFBF1FFF943ABD59C57AA472FB",
+  "newSha": "CC34E208A6138780793DDF6C6D159DB0ECF5B2CFBF1FFF943ABD59C57AA472FB",
+  "old": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0,
+   "bright250": 0,
+   "quad_TL_TR_BL_BR": [
+    46.8,
+    30.9,
+    37.6,
+    29.2
+   ],
+   "TLminusBR": 17.6,
+   "leftMinusRight": 12.2,
+   "topMinusBottom": 5.4,
+   "hiCentroid": [
+    0.29,
+    0.39
+   ],
+   "hueDeg": 45.1,
+   "satPx": 29.1,
+   "p99": 141.4,
+   "p1": 8
+  },
+  "new": {
+   "w": 720,
+   "h": 540,
+   "bright235": 0,
+   "bright250": 0,
+   "quad_TL_TR_BL_BR": [
+    46.8,
+    30.9,
+    37.6,
+    29.2
+   ],
+   "TLminusBR": 17.6,
+   "leftMinusRight": 12.2,
+   "topMinusBottom": 5.4,
+   "hiCentroid": [
+    0.29,
+    0.39
+   ],
+   "hueDeg": 45.1,
+   "satPx": 29.1,
+   "p99": 141.4,
+   "p1": 8
+  }
+ }
+}

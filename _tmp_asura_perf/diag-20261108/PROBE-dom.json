@@ -1,0 +1,896 @@
+{
+  "cardClass": "GhostAsuraCard_card__khDCa",
+  "cardTag": "SECTION",
+  "cardNodes": 484,
+  "mainNodes": 795,
+  "docNodes": 890,
+  "textNodes": 297,
+  "textChars": 4207,
+  "cjkChars": 3503,
+  "imgs": 0,
+  "imgsNoDims": 0,
+  "svgs": 17,
+  "details": 21,
+  "maxDepth": 10,
+  "maxGridFlexNesting": 4,
+  "display": {
+    "grid": 15,
+    "block": 262,
+    "flex": 88,
+    "none": 24,
+    "contents": 1,
+    "list-item": 21,
+    "inline": 53,
+    "inline-block": 19,
+    "inline-flex": 1
+  },
+  "textWrap": {},
+  "letterSpacing": {
+    "2.5272px": 4,
+    "1.6848px": 1,
+    "2.24px": 3,
+    "0.28px": 1,
+    "1.3px": 1,
+    "1.08px": 1,
+    "0.52px": 6,
+    "0.96px": 10,
+    "0.525px": 17,
+    "0.6px": 85,
+    "0.55px": 17,
+    "1.44px": 2,
+    "0.9828px": 1,
+    "0.22px": 2,
+    "0.24px": 13,
+    "0.26px": 25,
+    "0.56px": 4,
+    "1.2px": 1,
+    "0.65px": 3,
+    "0.42px": 7,
+    "0.75px": 12,
+    "0.66px": 1,
+    "0.48px": 4,
+    "0.72px": 4,
+    "0.44px": 2
+  },
+  "fontFamily": {
+    "\"Microsoft JhengHei\", \"PingFang TC\", \"Noto Sans TC\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, ui-sans-serif, system-ui, sans-serif": 474,
+    "\"Asura Brand Brush\", DFKai-SB, BiauKai, STKaiti, KaiTi, \"Noto Serif TC\", \"Songti TC\", PMingLiU, serif": 5,
+    "\"Asura Tiles Brush\", \"Asura Brand Brush\", DFKai-SB, BiauKai, STKaiti, KaiTi, \"Noto Serif TC\", \"Songti TC\", PMingLiU, serif": 3,
+    "serif": 1,
+    "sans-serif": 1
+  },
+  "contentVisibility": {},
+  "contain": {},
+  "fx": {
+    "filter": 17,
+    "backdrop": 0,
+    "mask": 2
+  },
+  "topClasses": [
+    [
+      "GhostAsuraCard_item",
+      17
+    ],
+    [
+      "GhostAsuraCard_itemAwakened",
+      17
+    ],
+    [
+      "GhostAsuraCard_itemDetail",
+      17
+    ],
+    [
+      "GhostAsuraCard_itemHead",
+      17
+    ],
+    [
+      "GhostAsuraCard_displayName",
+      17
+    ],
+    [
+      "GhostAsuraCard_sealMotion",
+      17
+    ],
+    [
+      "GhostAsuraCard_itemBody",
+      17
+    ],
+    [
+      "GhostAsuraCard_seal",
+      17
+    ],
+    [
+      "GhostAsuraCard_sealAwakened",
+      17
+    ],
+    [
+      "GhostAsuraCard_meaning",
+      17
+    ],
+    [
+      "GhostAsuraCard_meaningStrong",
+      17
+    ],
+    [
+      "GhostAsuraCard_battleLine",
+      17
+    ],
+    [
+      "GhostAsuraCard_fieldRow",
+      13
+    ],
+    [
+      "GhostAsuraCard_fieldLabel",
+      10
+    ],
+    [
+      "AsuraAgeTimeline_progressItem",
+      6
+    ],
+    [
+      "AsuraAgeTimeline_progressDot",
+      6
+    ],
+    [
+      "AsuraAgeTimeline_progressAge",
+      6
+    ],
+    [
+      "AsuraAgeTimeline_segment",
+      6
+    ],
+    [
+      "AsuraAgeTimeline_motion_motionSegment",
+      6
+    ],
+    [
+      "AsuraAgeTimeline_headline",
+      6
+    ],
+    [
+      "AsuraAgeTimeline_headlineText",
+      6
+    ],
+    [
+      "AsuraAgeTimeline_ageLabel",
+      6
+    ],
+    [
+      "AsuraAgeTimeline_tense",
+      6
+    ],
+    [
+      "AsuraAgeTimeline_motion_motionBridge",
+      6
+    ],
+    [
+      "AsuraAgeTimeline_dotIdle",
+      5
+    ],
+    [
+      "AsuraAgeTimeline_collapsedHit",
+      5
+    ],
+    [
+      "AsuraAgeTimeline_collapsedMeta",
+      5
+    ],
+    [
+      "AsuraAgeTimeline_bridge",
+      5
+    ],
+    [
+      "GhostAsuraCard_pillarColumn",
+      4
+    ],
+    [
+      "GhostAsuraCard_pillarLabel",
+      4
+    ],
+    [
+      "GhostAsuraCard_pillarValue",
+      4
+    ],
+    [
+      "GhostAsuraCard_pillarCount",
+      4
+    ],
+    [
+      "GhostAsuraCard_lifeHead",
+      4
+    ],
+    [
+      "GhostAsuraCard_lifeTense",
+      4
+    ],
+    [
+      "GhostAsuraCard_lifeAge",
+      4
+    ],
+    [
+      "GhostAsuraCard_pillarGroup",
+      4
+    ],
+    [
+      "GhostAsuraCard_list",
+      4
+    ],
+    [
+      "GhostAsuraCard_supplement",
+      4
+    ],
+    [
+      "GhostAsuraCard_supplementHead",
+      4
+    ],
+    [
+      "GhostAsuraCard_sectionBody",
+      4
+    ]
+  ],
+  "fonts": [
+    {
+      "family": "Asura Brand Brush",
+      "status": "loaded",
+      "display": "swap",
+      "unicodeRange": "U+4FEE, U+7F85, U+963F, U+9B3C, U+9B45"
+    },
+    {
+      "family": "Asura Tiles Brush",
+      "status": "loaded",
+      "display": "swap",
+      "unicodeRange": "U+904E, U+53BB, U+73FE, U+5728, U+672A, "
+    },
+    {
+      "family": "Asura Seal Carved",
+      "status": "loaded",
+      "display": "swap",
+      "unicodeRange": "U+4FEE, U+7F85"
+    },
+    {
+      "family": "Asura Brand Brush",
+      "status": "loaded",
+      "display": "swap",
+      "unicodeRange": "U+4FEE, U+7F85, U+963F, U+9B3C, U+9B45"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+FEE3, U+FEF3, U+FF03-FF04, U+FF07, U+F"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+F0A7, U+F0B2, U+F0B7, U+F0C9, U+F0D8, "
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+9F83, U+9F85-9F8D, U+9F90-9F91, U+9F94"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+9E30-9E33, U+9E35-9E3B, U+9E3E, U+9E40"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+9C82-9C83, U+9C85-9C8C, U+9C8E-9C92, U"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+9A80, U+9A83, U+9A85, U+9A88-9A8A, U+9"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+98DD, U+98E1-98E2, U+98E7-98EA, U+98EC"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+975B-975C, U+9763, U+9765-9766, U+976C"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+95C4-95CA, U+95CC-95CD, U+95D4-95D6, U"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+94F5, U+94F7, U+94F9, U+94FB-94FD, U+9"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+941C-942B, U+942D-942E, U+9432-9433, U"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+92EC-92ED, U+92F0, U+92F3, U+92F8, U+9"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+9163-9164, U+9169, U+9170, U+9172, U+9"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+9004, U+900B, U+9011, U+9015-9016, U+9"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+8E41-8E42, U+8E47, U+8E49-8E4B, U+8E50"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+8CBD, U+8CBF-8CC4, U+8CC7-8CC8, U+8CCA"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+8B80, U+8B83, U+8B8A, U+8B8C, U+8B90, "
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+8A15-8A18, U+8A1A-8A1B, U+8A1D, U+8A1F"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+8882, U+8884-8886, U+8888, U+888F, U+8"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+86F4, U+86F8-86F9, U+86FB, U+86FE, U+8"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+8548, U+854E, U+8553, U+8556-8557, U+8"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+83C5, U+83C8-83C9, U+83CB, U+83D1, U+8"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+82BC, U+82BE, U+82C0-82C2, U+82C4-82C8"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+8166-8169, U+816B, U+816D, U+8171, U+8"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+8016, U+8018-8019, U+801C, U+801E, U+8"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+7EF0-7EF2, U+7EF6, U+7EFA-7EFB, U+7EFE"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+7DD2, U+7DD4, U+7DD6-7DD8, U+7DDA-7DE0"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+7CE8, U+7CEC, U+7CF0, U+7CF5-7CF9, U+7"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+7BD3-7BD4, U+7BD9-7BDA, U+7BDD, U+7BE0"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+7AE6, U+7AF4-7AF7, U+7AFA-7AFB, U+7AFD"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+798B-798E, U+7992, U+7994-7995, U+7997"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+784C, U+784E-7854, U+7856-7857, U+7859"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+7722, U+7726, U+7728, U+772B-7730, U+7"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+7613-7619, U+761B-761D, U+761F-7622, U"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+750D, U+750F, U+7511, U+7513, U+7515, "
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+73F0, U+73F2, U+73F4-73F5, U+73F7, U+7"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+72E6, U+72E8, U+72EF-72F0, U+72F2-72F4"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+71A8, U+71AF, U+71B1-71BC, U+71BE, U+7"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+700B, U+700D, U+7015, U+7018, U+701B, "
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+6ED9, U+6EDB, U+6EDD, U+6EDF-6EE0, U+6"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+6DC3, U+6DC5-6DC6, U+6DC9, U+6DCC, U+6"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+6CB1-6CB2, U+6CB4-6CB5, U+6CB7, U+6CBA"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+6B83-6B86, U+6B89, U+6B8D, U+6B91-6B93"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+69FE-6A01, U+6A06, U+6A09, U+6A0B, U+6"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+68D3, U+68D7, U+68DD, U+68DF, U+68E1, "
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+678B-678D, U+678F, U+6792-6793, U+6796"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+6631, U+6633-6634, U+6636, U+663A-663B"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+64F1-64F2, U+64F4, U+64F7-64F8, U+64FA"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+63B8-63BC, U+63BE, U+63C0, U+63C3-63C4"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+622C, U+622E-6230, U+6232, U+6238, U+6"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+60ED-60EE, U+60F0-60F1, U+60F4, U+60F6"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+5FC4, U+5FC9, U+5FCB, U+5FCE-5FD6, U+5"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+5E98, U+5E9B, U+5E9D, U+5EA0-5EA5, U+5"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+5D26-5D27, U+5D2E-5D34, U+5D3C-5D3E, U"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+5BEC, U+5BEE-5BF0, U+5BF2-5BF3, U+5BF5"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+5AA0, U+5AA3-5AA4, U+5AAA, U+5AAE-5AAF"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+596A, U+596C-596E, U+5977, U+597B-597C"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+5820, U+5822-5823, U+5825-5826, U+582C"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+56F9, U+56FC, U+56FF-5700, U+5703-5704"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+55F5-55F7, U+55FB, U+55FE, U+5600-5601"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+550F, U+5511-5514, U+5516-5517, U+5519"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+53E7-53E9, U+53F1, U+53F4-53F5, U+53FA"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+5289, U+528B, U+528D, U+528F, U+5291-5"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+5104, U+5106-5107, U+5109-510B, U+510D"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+4FD1, U+4FD3, U+4FDA-4FDC, U+4FDF-4FE0"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+4EA3, U+4EA5, U+4EB0-4EB1, U+4EB3-4EB6"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+3129, U+3131, U+3134, U+3137, U+3139, "
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+207C-2083, U+208C-208E, U+2092, U+20A6"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+1D34-1D35, U+1D38-1D3A, U+1D3C, U+1D3F"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+2AE-2B3, U+2B5-2BF, U+2C2-2C3, U+2C6-2"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+A1-A4, U+A6-A8, U+AA, U+AC, U+AF, U+B1"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+221A, U+2264, U+2464, U+25A0, U+3008, "
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+161, U+926, U+928, U+939, U+93F-940, U"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+10C, U+627-629, U+639, U+644, U+64A, U"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+60, U+631, U+2606, U+3014-3015, U+309C"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+2003, U+2193, U+2462, U+4E19, U+4E2B, "
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+5E, U+2190, U+250A, U+25BC, U+25CF, U+"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+B0, U+2191, U+2460-2461, U+25C6, U+300"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+200B, U+2103, U+4E18, U+4E27-4E28, U+4"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+24, U+4E08, U+4E43, U+4E4F, U+4EF0, U+"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+A5, U+2192, U+2605, U+4E11, U+4E22, U+"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+300C-300D, U+4E54, U+4E58, U+4E95, U+4"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+4E4C, U+4E88, U+4EA1, U+4EA6, U+4ED3-4"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+23, U+3D, U+4E01, U+4E39, U+4E73, U+4E"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+26, U+3C, U+D7, U+4E4E, U+4E61, U+4E71"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+7E, U+2026, U+4E03, U+4E25, U+4E30, U+"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+25, U+4E14, U+4E1D, U+4E3D, U+4E49, U+"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+2B, U+40, U+3000, U+300A-300B, U+4E16,"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+4E, U+201C-201D, U+3010-3011, U+4E07, "
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+D, U+3E, U+5F, U+7C, U+A0, U+A9, U+4E0"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+20-22, U+27-2A, U+2C-3B, U+3F, U+41-4D"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "status": "unloaded",
+      "display": "swap",
+      "unicodeRange": "U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2"
+    }
+  ],
+  "preloads": [],
+  "sections": [
+    {
+      "tag": "HEADER",
+      "cls": "GhostAsuraCard_asuraTopRow__zZD8x",
+      "nodes": 10,
+      "h": 304
+    },
+    {
+      "tag": "P",
+      "cls": "GhostAsuraCard_pinnedSummary__B98Yt",
+      "nodes": 0,
+      "h": 42
+    },
+    {
+      "tag": "P",
+      "cls": "GhostAsuraCard_goldWording__RwSKM",
+      "nodes": 3,
+      "h": 209
+    },
+    {
+      "tag": "SECTION",
+      "cls": "GhostAsuraCard_fnPanel__qlcpz",
+      "nodes": 0,
+      "h": 0
+    },
+    {
+      "tag": "SECTION",
+      "cls": "GhostAsuraCard_fnPanel__qlcpz",
+      "nodes": 0,
+      "h": 0
+    },
+    {
+      "tag": "SECTION",
+      "cls": "GhostAsuraCard_fnPanel__qlcpz",
+      "nodes": 0,
+      "h": 0
+    },
+    {
+      "tag": "DIV",
+      "cls": "GhostAsuraCard_pillarScroll__hd_og",
+      "nodes": 259,
+      "h": 611
+    },
+    {
+      "tag": "DIV",
+      "cls": "GhostAsuraCard_summaryFooter__hMb3Q",
+      "nodes": 4,
+      "h": 108
+    },
+    {
+      "tag": "SECTION",
+      "cls": "GhostAsuraCard_section__9t2xt",
+      "nodes": 6,
+      "h": 134
+    },
+    {
+      "tag": "SECTION",
+      "cls": "GhostAsuraCard_section__9t2xt",
+      "nodes": 11,
+      "h": 204
+    },
+    {
+      "tag": "SECTION",
+      "cls": "GhostAsuraCard_section__9t2xt",
+      "nodes": 24,
+      "h": 91
+    },
+    {
+      "tag": "P",
+      "cls": "GhostAsuraCard_scopeNote__1GwWX",
+      "nodes": 0,
+      "h": 82
+    },
+    {
+      "tag": "ASIDE",
+      "cls": "GhostAsuraCard_timelineDecree__vT6NV GhostAsuraCard_visual_visualRoot__8kmCW Gho",
+      "nodes": 48,
+      "h": 1022
+    },
+    {
+      "tag": "SECTION",
+      "cls": "AsuraAgeTimeline_root___Jqps AsuraAgeTimeline_motion_motionRoot___MfYJ AsuraAgeT",
+      "nodes": 105,
+      "h": 1921
+    }
+  ]
+}
