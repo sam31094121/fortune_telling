@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useMobileHomeEntry } from '@/components/useMobileHomeEntry';
 import HomeTranslatedText from '@/components/HomeTranslatedText';
 import { InterfaceLanguagePicker } from '@/components/InterfaceLanguage';
 import {
@@ -25,6 +26,8 @@ import styles from './HomeToolsCard.module.css';
  * 字體選擇存在這支手機裡，下次回來、換頁都沿用；只改字級，不動內容。
  */
 export default function HomeToolsCard() {
+  const entryRef = useRef<HTMLDivElement>(null);
+  useMobileHomeEntry(entryRef);
   const [current, setCurrent] = useState<TextSizeId>(TEXT_SIZE_DEFAULT);
 
   useEffect(() => {
@@ -42,7 +45,7 @@ export default function HomeToolsCard() {
   };
 
   return (
-    <div className={styles.wrap} data-text-size-switch data-home-tools-card>
+    <div ref={entryRef} className={styles.wrap} data-text-size-switch data-home-tools-card>
       <div className={styles.card}>
         <div className={styles.langRow} data-home-tools-language>
           <InterfaceLanguagePicker variant="card" />

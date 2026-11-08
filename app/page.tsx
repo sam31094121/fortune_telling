@@ -2523,6 +2523,8 @@ export default function HomePage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('taijiMotionGame') !== '1') return;
+    // Phones enter at the language/tools row; desktop keeps the dedicated Taiji entry.
+    if (window.matchMedia('(max-width: 767px)').matches) return;
     const focusTaiji = () => document.getElementById('home-top-empty-shell-card')
       ?.scrollIntoView({ behavior: 'auto', block: 'start' });
     const frame = window.requestAnimationFrame(focusTaiji);
@@ -3943,8 +3945,8 @@ export default function HomePage() {
         {/* 不記名公開留言板（後端驗證與限速；管理員可下架） */}
         <HomeGuestbook />
 
-        {/* 底部安裝入口：一鍵安裝到手機桌面（PWA） */}
-        <HomeInstallCard />
+        {/* 底部安裝入口：與上方工具卡的金盾牌「存到桌面」重複，業主 2026-11-08 定案只留上方；隱藏但保留原碼，要叫醒改成 true */}
+        {false && <HomeInstallCard />}
 
         <div className="flex justify-center pb-2" aria-hidden="true">
           <Image

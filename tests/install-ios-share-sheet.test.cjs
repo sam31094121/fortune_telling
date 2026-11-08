@@ -19,4 +19,11 @@ ok(/guide === 'ios'[\s\S]{0,80}openIosShareSheet/.test(card), '首頁卡片 iOS 
 ok(/guide === 'ios'[\s\S]{0,80}openIosShareSheet/.test(shield), '大盾牌 iOS 要叫分享面板');
 ok(!/setInstalled\(true\)[^;]*openIosShareSheet|openIosShareSheet[^;]*setInstalled\(true\)/.test(card + shield), 'iOS 不能偵測到已安裝，不得在叫面板後設為已安裝');
 
+// 首頁只留上方金盾牌一個安裝入口：第一下就要叫出分享面板，下方重複卡片要隱藏
+ok(/if \(guide === 'ios' && !inlineOpen\) void openIosShareSheet\(\)/.test(shield), '手機金盾牌第一下直接叫出分享面板');
+ok(/if \(platform === 'ios'\) void openIosShareSheet\(\)/.test(shield), 'iPad 金盾牌第一下直接叫出分享面板');
+const page = read('app/page.tsx');
+ok(/\{false && <HomeInstallCard \/>\}/.test(page), '下方重複的安裝卡片隱藏、原碼保留');
+ok((page.match(/<HomeToolsCard \/>/g) || []).length === 1, '上方工具卡仍在');
+
 console.log(`install-ios-share-sheet: ${n} checks passed`);

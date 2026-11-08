@@ -89,6 +89,7 @@ export default function InstallShield080() {
   const [guide, setGuide] = useState<MobileGuide>('chrome-android');
   const [inlineOpen, setInlineOpen] = useState(false);
   const [installed, setInstalled] = useState(false);
+  const [installNotice, setInstallNotice] = useState('');
   const [nudge, setNudge] = useState(false);
   const pathname = usePathname();
   const hostRef = useRef<HTMLElement | null>(null);
@@ -126,9 +127,11 @@ export default function InstallShield080() {
         setReady(true);
         return () => host?.remove();
       }
-      const nav = window.navigator as Navigator & { getInstalledRelatedApps?: () => Promise<unknown[]> };
-      nav.getInstalledRelatedApps?.().then((apps) => { if (apps.length) setInstalled(true); }).catch(() => {});
-    } else if ((dismissed && !wantsInstallSheet(search)) || isStandalone()) return;
+    } else if (isStandalone()) {
+      setInstalled(true);
+      setReady(true);
+      return;
+    } else if (dismissed && !wantsInstallSheet(search)) return;
     setPlatform(detectPlatform(ua, window.navigator.maxTouchPoints));
     setDesktop(detectDesktopBrowser(ua));
     setIpad(isIPad(ua, window.navigator.maxTouchPoints));
@@ -154,7 +157,12 @@ export default function InstallShield080() {
       e.preventDefault();
       setDeferred(e as BeforeInstallPromptEvent);
     };
-    const onInstalled = () => (phone ? setInstalled(true) : setReady(false));
+    const onInstalled = () => {
+      setInstalled(true);
+      setReady(true);
+      setDeferred(null);
+      setSheet(null);
+    };
     window.addEventListener('beforeinstallprompt', onPrompt);
     window.addEventListener('appinstalled', onInstalled);
     return () => {
@@ -242,14 +250,18 @@ export default function InstallShield080() {
       await ev.prompt();
       const choice = await ev.userChoice.catch(() => null);
       setDeferred(null);
-      if (choice?.outcome === 'accepted') setReady(false);
+      setInstallNotice(choice?.outcome === 'accepted'
+        ? '已送出安裝要求，請等候瀏覽器完成。完成後，請回到桌面／主畫面點金盾牌開啟。'
+        : '這次還沒有儲存，沒關係。您可以稍後再按「存到桌面」，依照步驟完成。');
+      setInlineOpen(true);
+      openSheetFor();
       return true;
     } catch {
       // 事件過期或已用過：一律退回說明
       setDeferred(null);
       return false;
     }
-  }, [deferred]);
+  }, [deferred, openSheetFor]);
 
   const onTap = useCallback(async (e?: React.MouseEvent) => {
     e?.preventDefault();
@@ -263,9 +275,11 @@ export default function InstallShield080() {
       setSheet('inapp-manual');
       return;
     }
+    // iPad（電腦版面）：同樣第一下就叫出系統分享面板，後面的說明視窗保留當備援。
+    if (platform === 'ios') void openIosShareSheet();
     if (deferred && (await runPrompt())) return;
     openSheetFor();
-  }, [inApp, deferred, runPrompt, openSheetFor]);
+  }, [inApp, platform, deferred, runPrompt, openSheetFor]);
 
   // 保險：按在盾牌上之後短時間內，任何落到盾牌以外的點擊（例如底下的卡片連結）一律攔下，不會被帶去別頁。
   useEffect(() => {
@@ -361,6 +375,8 @@ export default function InstallShield080() {
   const onInlineTap = useCallback(async () => {
     if (installed) return;
     setNudge(false);
+    // iPhone／iPad：第一下就直接叫出系統分享面板（必須在使用者點擊的當下呼叫），同時展開步驟提示「往下滑點加入主畫面」。
+    if (guide === 'ios' && !inlineOpen) void openIosShareSheet();
     if (!inlineOpen && guide !== 'inapp' && deferred && (await runPrompt())) return;
     setInlineOpen((v) => !v);
   }, [installed, inlineOpen, guide, deferred, runPrompt]);
@@ -381,10 +397,17 @@ export default function InstallShield080() {
   // 困難寶珠戰保留完整操作空間，不顯示桌面安裝盾牌；其他入口照舊。
   if (!ready || /^\/beast-game\/match3-hard2?\/?$/.test(pathname ?? '')) return null;
 
+  if (installed) {
+    const done = <div className="taiji-install-inline" role="status" data-install-complete="080">
+      <style>{INSTALL_INLINE_CSS}</style>
+      <strong>✓ 已存到桌面</strong>
+      <p className="hint">{isStandalone() ? '歡迎回來！您正在使用桌面／主畫面的入口。' : '儲存完成！請回到桌面／主畫面，點金盾牌就能開啟本站。'}</p>
+    </div>;
+    const destination = slots?.tap ?? deskSlot ?? phoneHost;
+    return destination ? createPortal(done, destination) : done;
+  }
+
   if (phoneHost) {
-    // 2026-10-17 shield installed hide：手機偵測到已安裝（standalone／getInstalledRelatedApps／appinstalled）就整個不顯示，
-    // 跟電腦、平板一樣；不再顯示「已存到桌面」。首頁工具列的盾牌格子是 :empty 就隱藏，頁尾掛載點沒有內容就是 0 高，不留空白。
-    if (installed) return null;
     const steps: string[] =
       guide === 'samsung'
         ? ['點右下角「≡」選單', '選「加入頁面至」→「主畫面」', '或點網址列的「＋」／下載圖示']
@@ -412,6 +435,7 @@ export default function InstallShield080() {
         {inlineOpen && !installed ? (
                   <div className="panel" role="region" aria-label="安裝說明">
                     <h3>天地人和，一切隨緣</h3>
+                    {installNotice ? <p role="status">{installNotice}</p> : null}
                     <p className="lead">
                       {guide === 'inapp'
                         ? '這裡是 LINE／臉書等 App 內建的瀏覽器，不能直接安裝，要先換到手機瀏覽器。'
@@ -424,9 +448,11 @@ export default function InstallShield080() {
                       <span className="go">
                         {guide === 'inapp' && canAutoOpenBrowser ? '按這裡，用瀏覽器開啟' : deferred ? '按這裡，立即安裝' : '按這裡，看安裝步驟'}
                       </span>
-                      <span className="sub">{deferred ? '會跳出安裝視窗，按「安裝」就完成' : '約 10 秒就完成'}</span>
+                      <span className="sub">{deferred ? '請在瀏覽器視窗確認安裝' : '依照下方步驟，完成後回主畫面查看'}</span>
                     </button>
                     <ol className={`steps${nudge ? ' nudge' : ''}`}>{steps.map((t) => <li key={t}>{t}</li>)}</ol>
+                    <p className="hint">如果已經儲存，請回主畫面找金盾牌並點開。{guide === 'ios' ? '若分享面板沒有「加入主畫面」，請改用 Safari 瀏覽器本身的分享選單。' : ''}</p>
+                    <button type="button" className="big" onClick={() => setInstallNotice('謝謝確認！請回到主畫面點金盾牌開啟；從該入口進站後，我們就能確認您正在使用主畫面版本。')}>我已經在主畫面看到金盾牌</button>
                     {guide === 'samsung' || guide === 'chrome-android' ? (
                       <p className="hint">三星手機加不上去時：到「設定 → 主畫面」關掉「鎖定主畫面版面配置」。</p>
                     ) : null}
@@ -527,6 +553,7 @@ export default function InstallShield080() {
             onTouchMove={(e) => { if (sheetStartY.current !== null) setSheetDy(Math.max(0, e.touches[0].clientY - sheetStartY.current)); }}
             onTouchEnd={() => { if (sheetDy > 60) setSheet(null); setSheetDy(0); sheetStartY.current = null; }}
           >
+            {installNotice ? <p role="status">{installNotice}</p> : null}
             {sheet === 'ios' ? (
               <>
                 <h2>把太極命理加入主畫面</h2>
@@ -596,7 +623,7 @@ export default function InstallShield080() {
                 <h2>把太極命理加入主畫面</h2>
                 {deferred ? (
                   <p style={{ margin: '0 0 12px' }}>
-                    <button type="button" className="taiji-install-now" onClick={async () => { const ok = await runPrompt(); if (ok) setSheet(null); }}>
+                    <button type="button" className="taiji-install-now" onClick={runPrompt}>
                       立即安裝到主畫面
                     </button>
                   </p>
@@ -611,6 +638,7 @@ export default function InstallShield080() {
               <button type="button" onClick={dismiss}>不再提醒</button>
               <button type="button" className="primary" onClick={() => setSheet(null)}>知道了</button>
             </div>
+            <p>已經儲存了嗎？請回桌面／主畫面點金盾牌開啟，下次就不用再找連結。</p>
           </div>
         </div>
       ) : null}
