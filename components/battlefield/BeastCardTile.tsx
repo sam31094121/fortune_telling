@@ -184,9 +184,9 @@ const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
     front: '/beast-game/front/young-28.v2.webp?v=ffdc2fb1330b',
   },
   beast_a01: {
-    thumb: '/beast-game/thumb/adult-01.v2.webp?v=47f80d915551',
-    mid: '/beast-game/thumb/adult-01.v2-480.webp?v=9298e2134322',
-    front: '/beast-game/front/adult-01.v2.webp?v=b07b42a5b17a',
+    thumb: '/beast-game/front/adult-01.tail-leaf-v3.webp',
+    mid: '/beast-game/front/adult-01.tail-leaf-v3.webp',
+    front: '/beast-game/front/adult-01.tail-leaf-v3.webp',
   },
   beast_a02: {
     thumb: '/beast-game/thumb/adult-02.v2.webp?v=efecb89fd773',

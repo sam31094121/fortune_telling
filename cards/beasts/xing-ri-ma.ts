@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-25.v2.webp?v=11',
     front: '/beast-game/front/adult-25.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/25.png',
+    high: '/beast-game/front/adult-25.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '朱雀頸部，二十八宿第 25 宿。核心寓意：奔波忠烈。熱愛奔波，生命力旺盛，重視榮譽；一生多在外地發展，有大將之風。',

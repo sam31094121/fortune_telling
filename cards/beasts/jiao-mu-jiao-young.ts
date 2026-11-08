@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/front/young-01.hind-paw-v1.svg',
     front: '/beast-game/front/young-01.hind-paw-v1.svg',
-    high: '/star-beasts/spring/01-jiao-mu-jiao-young-divine.png',
+    high: '/beast-game/front/young-01.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '蒼龍之角的幼子。尚未長成，靈性已顯——突破開創的雛形。餵養與陪伴，牠會長成成獸的模樣。',

@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/young-06.v2.webp?v=7',
     front: '/beast-game/front/young-06.v2.webp?v=7',
-    high: '/star-beasts/spring/06-wei-huo-hu-young-divine.png',
+    high: '/beast-game/front/young-06.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '蒼龍之尾的幼子。尚未長成，靈性已顯——爭鬥好勝的雛形。餵養與陪伴，牠會長成成獸的模樣。',

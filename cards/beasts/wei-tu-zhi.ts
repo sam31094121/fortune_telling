@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-17.v2.webp?v=11',
     front: '/beast-game/front/adult-17.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/17.png',
+    high: '/beast-game/front/adult-17.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '白虎之胃，二十八宿第 17 宿。核心寓意：財庫剛強。性格強勢，好勝心重，對金錢極其敏銳；具備天生的經商與管理長才。',

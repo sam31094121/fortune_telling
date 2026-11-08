@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/young-12.v2.webp?v=6',
     front: '/beast-game/front/young-12.v2.webp?v=6',
-    high: '/star-beasts/winter/12-wei-yue-yan-young-divine.png',
+    high: '/beast-game/front/young-12.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '玄武屋脊的幼子。尚未長成，靈性已顯——高危機警的雛形。餵養與陪伴，牠會長成成獸的模樣。',

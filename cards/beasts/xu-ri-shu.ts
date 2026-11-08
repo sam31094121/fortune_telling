@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-11.v2.webp?v=11',
     front: '/beast-game/front/adult-11.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/11.png',
+    high: '/beast-game/front/adult-11.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '玄武虛位，二十八宿第 11 宿。核心寓意：空虛靈性。直覺力強，思想深邃，對神秘事物感興趣；內心常感孤獨、缺乏安全感。',

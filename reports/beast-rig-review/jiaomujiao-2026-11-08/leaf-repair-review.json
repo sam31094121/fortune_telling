@@ -1,0 +1,11 @@
+{
+  "status": "未通過",
+  "width": 1448,
+  "height": 1086,
+  "improvement": "背部枝葉辨識提高",
+  "failure": "局部外的腹甲、四肢、尾部形狀改動，右側主尾尾尖觸底，未保持原構圖",
+  "source": "public/beast-game/front/adult-01.v2.webp",
+  "tool": "built-in imagegen",
+  "deployed": false,
+  "permission": "通過才更新本體卡及移除被取代圖"
+}

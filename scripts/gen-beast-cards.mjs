@@ -260,7 +260,7 @@ for (const guardian of GUARDIANS) {
     art: {
       thumbnail: `/beast-game/thumb/guardian-${guardian.slug}.v2.webp`,
       front: `/beast-game/front/guardian-${guardian.slug}.v2.webp`,
-      high: `/star-beasts/four-guardians/${guardian.slug}.png`,
+      high: `/beast-game/front/guardian-${guardian.slug}.v2.webp`,
     },
     story: guardian.story,
     mansionId: guardian.mansionId,

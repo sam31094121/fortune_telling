@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-15.v2.webp?v=11',
     front: '/beast-game/front/adult-15.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/15.png',
+    high: '/beast-game/front/adult-15.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '白虎之尾，二十八宿第 15 宿。核心寓意：文采反差。外表威嚴，內在卻極具文才與浪漫；聰明好學，但感情較多波折。',

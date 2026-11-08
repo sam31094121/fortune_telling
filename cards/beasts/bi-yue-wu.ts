@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-19.v2.webp?v=12',
     front: '/beast-game/front/adult-19.v2.webp?v=12',
-    high: '/star-beasts/adult-divine-v2/19.png',
+    high: '/beast-game/front/adult-19.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '白虎邊疆，二十八宿第 19 宿。核心寓意：堅韌守衛。意志力驚人，性格剛毅，能吃苦耐勞；適合在逆境與高難度環境生存。',

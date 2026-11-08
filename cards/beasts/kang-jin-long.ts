@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-02.v2.webp?v=11',
     front: '/beast-game/front/adult-02.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/02.png',
+    high: '/beast-game/front/adult-02.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '蒼龍咽喉，二十八宿第 2 宿。核心寓意：正直威權。風骨高尚，嫉惡如仇，重視名譽；性格倔強，不願流於俗套。',

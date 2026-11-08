@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-13.v2.webp?v=11',
     front: '/beast-game/front/adult-13.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/13.png',
+    high: '/beast-game/front/adult-13.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '玄武宮室，二十八宿第 13 宿。核心寓意：建設剛猛。行動力驚人，性格豪爽直率，具開拓精神；適合建築、創業、軍警。',

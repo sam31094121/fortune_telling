@@ -1,0 +1,32 @@
+{
+  "tag": "C-cpu4-r3",
+  "name": "scroll-v3",
+  "meta": {
+    "y0": 6028,
+    "y1": 7468,
+    "deltaY": 1440
+  },
+  "windowFound": true,
+  "windowMs": 3028.1,
+  "longTaskCount": 0,
+  "longTaskMaxMs": 0,
+  "longTasks": [],
+  "styleRecalc": {
+    "count": 329,
+    "totalMs": 983,
+    "biggest": {
+      "ms": 33.1,
+      "elementCount": 920
+    },
+    "maxElementCount": {
+      "elementCount": 920,
+      "ms": 33.1
+    }
+  },
+  "layout": {
+    "count": 1,
+    "totalMs": 1.2,
+    "maxMs": 1.2
+  },
+  "eventCount": 97545
+}

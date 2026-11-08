@@ -1,0 +1,69 @@
+{
+  "tag": "B-cpu6-r2",
+  "name": "open",
+  "meta": {
+    "filled": true,
+    "clicked": true,
+    "decreeAppearWallMs": 1753
+  },
+  "windowFound": true,
+  "windowMs": 4840.7,
+  "longTaskCount": 9,
+  "longTaskMaxMs": 1289.9,
+  "longTasks": [
+    {
+      "startMsFromActionStart": 14.1,
+      "durationMs": 56.8
+    },
+    {
+      "startMsFromActionStart": 70.9,
+      "durationMs": 68.8
+    },
+    {
+      "startMsFromActionStart": 383.1,
+      "durationMs": 1289.9
+    },
+    {
+      "startMsFromActionStart": 1678.1,
+      "durationMs": 111.9
+    },
+    {
+      "startMsFromActionStart": 1846.5,
+      "durationMs": 222.7
+    },
+    {
+      "startMsFromActionStart": 2174.4,
+      "durationMs": 161.8
+    },
+    {
+      "startMsFromActionStart": 2389.6,
+      "durationMs": 84.3
+    },
+    {
+      "startMsFromActionStart": 3690.1,
+      "durationMs": 119
+    },
+    {
+      "startMsFromActionStart": 3836.4,
+      "durationMs": 79.3
+    }
+  ],
+  "styleRecalc": {
+    "count": 186,
+    "totalMs": 1463.2,
+    "biggest": {
+      "ms": 142.3,
+      "elementCount": 900
+    },
+    "maxElementCount": {
+      "elementCount": 921,
+      "ms": 68
+    }
+  },
+  "layout": {
+    "count": 21,
+    "totalMs": 1296.7,
+    "maxMs": 1158.1
+  },
+  "eventCount": 56319
+}

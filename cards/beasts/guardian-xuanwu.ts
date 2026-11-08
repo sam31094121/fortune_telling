@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/guardian-xuanwu.v2.webp?v=9d261a6a9ed5',
     front: '/beast-game/front/guardian-xuanwu.v2.webp?v=009e8960b2cc',
-    high: '/star-beasts/four-guardians/xuanwu.png',
+    high: '/beast-game/front/guardian-xuanwu.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '北方玄武，統斗、牛、女、虛、危、室、壁七宿。冬之主宰，主收藏與守成——負淵而立，不動如山。',

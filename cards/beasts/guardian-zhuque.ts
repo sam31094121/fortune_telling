@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/guardian-zhuque.v2.webp?v=11',
     front: '/beast-game/front/guardian-zhuque.v2.webp?v=11',
-    high: '/star-beasts/four-guardians/zhuque.png',
+    high: '/beast-game/front/guardian-zhuque.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '南方朱雀，統井、鬼、柳、星、張、翼、軫七宿。夏之主宰，主熱烈與昭彰——展翼之時，天地俱明。',

@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/young-23.v2.webp?v=5',
     front: '/beast-game/front/young-23.v2.webp?v=5',
-    high: '/star-beasts/summer/23-gui-jin-yang-young-divine.png',
+    high: '/beast-game/front/young-23.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '朱雀之眼的幼子。尚未長成，靈性已顯——神秘庇護的雛形。餵養與陪伴，牠會長成成獸的模樣。',

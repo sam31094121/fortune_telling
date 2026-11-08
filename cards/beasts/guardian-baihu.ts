@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/guardian-baihu.v2.webp?v=f5380a7f9ffd',
     front: '/beast-game/front/guardian-baihu.v2.webp?v=7e35fc3fd5bc',
-    high: '/star-beasts/four-guardians/baihu.png',
+    high: '/beast-game/front/guardian-baihu.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '西方白虎，統奎、婁、胃、昴、畢、觜、參七宿。秋之主宰，主肅殺與決斷——虎嘯之時，萬象歸位。',

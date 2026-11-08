@@ -1,0 +1,47 @@
+{
+  "tag": "B-cpu6-r1",
+  "name": "peel",
+  "meta": {
+    "ok": true
+  },
+  "windowFound": true,
+  "windowMs": 3047,
+  "longTaskCount": 4,
+  "longTaskMaxMs": 111.6,
+  "longTasks": [
+    {
+      "startMsFromActionStart": 27.8,
+      "durationMs": 111.6
+    },
+    {
+      "startMsFromActionStart": 184.3,
+      "durationMs": 92.8
+    },
+    {
+      "startMsFromActionStart": 281.2,
+      "durationMs": 84.6
+    },
+    {
+      "startMsFromActionStart": 555.2,
+      "durationMs": 74.6
+    }
+  ],
+  "styleRecalc": {
+    "count": 206,
+    "totalMs": 1493.4,
+    "biggest": {
+      "ms": 100.4,
+      "elementCount": 921
+    },
+    "maxElementCount": {
+      "elementCount": 924,
+      "ms": 59.9
+    }
+  },
+  "layout": {
+    "count": 5,
+    "totalMs": 22.4,
+    "maxMs": 16.1
+  },
+  "eventCount": 60719
+}

@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-04.v2.webp?v=11',
     front: '/beast-game/front/adult-04.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/04.png',
+    high: '/beast-game/front/adult-04.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '蒼龍腹部，二十八宿第 4 宿。核心寓意：明朗財祿。人緣極佳，開朗樂觀，具商業頭腦；多得貴人相助，常有意外財。',

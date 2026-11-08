@@ -1,0 +1,657 @@
+.wrapper {
+  outline: none;
+  /* GPU 加速 */
+  will-change: auto;
+  contain: layout style paint;
+}
+
+/* Homepage-only artwork and notice visibility; route and age checks are unchanged. */
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry {
+  background: linear-gradient(180deg, rgb(9 14 16 / 24%), transparent 38%, rgb(9 14 16 / 22%)),
+    url('/home-entry/xuanwu-environment-ai-v1.png') center / cover no-repeat !important;
+  border-color: #55564b !important;
+  box-shadow: none !important;
+}
+
+.baihuArtwork {
+  position: absolute;
+  inset: 50px 12px 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.baihuArtwork img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: none;
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20720%20540%22%3E%3Cdefs%3E%3Cfilter%20id%3D%22soft%22%20x%3D%22-25%25%22%20y%3D%22-25%25%22%20width%3D%22150%25%22%20height%3D%22150%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%2220%22%2F%3E%3CfeComponentTransfer%3E%3CfeFuncA%20type%3D%22linear%22%20slope%3D%222%22%20intercept%3D%220%22%2F%3E%3C%2FfeComponentTransfer%3E%3C%2Ffilter%3E%3C%2Fdefs%3E%3Cpath%20fill%3D%22white%22%20filter%3D%22url(%23soft)%22%20d%3D%22M85%2023%20C180%20-6%20315%20-8%20405%205%20C478%2014%20547%2023%20598%2070%20C651%20120%20691%20182%20700%20249%20C711%20316%20713%20391%20685%20458%20C660%20513%20565%20517%20491%20526%20C391%20538%20304%20517%20219%20527%20C134%20539%2048%20507%2029%20450%20C7%20383%2032%20319%2017%20261%20C3%20200%2029%20137%2031%2094%20C34%2058%2054%2036%2085%2023%20Z%22%2F%3E%3C%2Fsvg%3E"), linear-gradient(to bottom, transparent, #000 5%, #000 94%, transparent);
+  mask-composite: intersect;
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry :is(.watermark, .emblem, .copy p) {
+  display: none !important;
+}
+
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .content {
+  position: absolute !important;
+  top: 4px !important;
+  left: 16px !important;
+  right: 16px !important;
+  margin: 0 !important;
+  filter: none !important;
+  text-align: center;
+}
+
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry h2 {
+  display: block !important;
+  text-align: center !important;
+  font-family: 'Asura Brand Brush', serif !important;
+  font-weight: 400 !important;
+  color: #ef6969 !important;
+  -webkit-text-fill-color: #ef6969 !important;
+  text-shadow: 0 1px 0 #6e1925, 0 2px 3px #220b10 !important;
+}
+
+.baihuScenery {
+  /* The environment now belongs to the entire outer card, not an inset strip. */
+  display: none;
+}
+
+.entry.entry {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  padding: 24px !important;
+  min-width: 0;
+  border: 1px solid #95636b;
+  border-radius: 24px;
+  background: linear-gradient(115deg, #25151d, #17131d 75%);
+  color: #f5eae3;
+  text-align: left;
+  box-shadow: 0 8px 24px #14070d33 !important;
+  overflow: hidden;
+}
+.entry.entry::before, .entry.entry::after { display: none !important; }
+.content { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.emblem {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid #a27670;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #4b2830, #271d27);
+  color: #f1cba9;
+  font-family: serif;
+  font-size: 27px;
+  font-weight: 700;
+}
+.copy { min-width: 0; flex: 1; }
+.eyebrow { display: block; color: #d3b29c; font-size: 11px; line-height: 1.7; letter-spacing: .1em; }
+.entry.entry h2 { margin: 5px 0 8px; font-size: 36px; line-height: 1.25; }
+.entry.entry .ageGate { display: inline-block; width: fit-content; margin: 0 0 8px; padding: 2px 10px; border: 1px solid #ff5a6a; border-radius: 999px; background: #3a0d14; color: #ffb3ba; font-size: 12px !important; font-weight: 700; letter-spacing: .04em; line-height: 1.5 !important; }
+.entry.entry p { display: block; margin: 0; color: #cbb9b8; font-size: 13px !important; line-height: 1.7 !important; overflow: visible; -webkit-line-clamp: unset !important; }
+.entry.entry .impression { margin-top: 4px; color: #ddb6ad; font-size: 12px !important; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.meta > span { padding: 2px 9px; border: 1px solid #73505a; border-radius: 99px; font-size: 11px; color: #d8bcb1; }
+.entry.entry .cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  width: 100%;
+  padding: 10px 16px;
+  border: 1px solid #976a67;
+  border-radius: 12px;
+  background: #37222b;
+  color: #f1d0b7;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.entry.entry:focus-visible { outline: 2px solid #e5bd91; outline-offset: 4px; }
+@media (hover: hover) {
+  .entry.entry:hover { border-color: #e5bd91; }
+  .entry.entry:hover .cta { background: #4a2d35; }
+}
+.impressionGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gridLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: #d3b29c;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.gridItem {
+  all: unset;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 8px;
+  min-height: 60px;
+  border: 1px solid #73505a;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #2a1820, #1a0f18);
+  cursor: pointer;
+  transition: all 200ms ease;
+  perspective: 1000px;
+  position: relative;
+  overflow: hidden;
+}
+
+.gridItem::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(229, 189, 145, 0.2), transparent 70%);
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+.gridItem:hover {
+  border-color: #a27670;
+  background: linear-gradient(145deg, #3a2830, #2a1a28);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(162, 118, 112, 0.2);
+}
+
+.gridItem:hover::before {
+  opacity: 1;
+}
+
+.gridItem:focus-visible {
+  outline: 2px solid #e5bd91;
+  outline-offset: 2px;
+}
+
+.gridSymbol {
+  display: block;
+  font-size: 20px;
+  line-height: 1;
+  margin-bottom: 2px;
+  transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center;
+  animation: symbolFloat 2s ease-in-out infinite;
+}
+
+@keyframes symbolFloat {
+  0%, 100% {
+    transform: translateZ(0) translateY(0) scale(1);
+    will-change: transform;
+  }
+  50% {
+    transform: translateZ(0) translateY(-2px) scale(1.05);
+  }
+}
+
+.gridItem:hover .gridSymbol {
+  animation: symbolGlow 400ms ease;
+  filter: drop-shadow(0 0 6px rgba(229, 189, 145, 0.6));
+}
+
+@keyframes symbolGlow {
+  0% {
+    transform: translateZ(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateZ(0) scale(1.15) rotate(10deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateZ(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@supports (filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0))) {
+  .gridSymbol {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+
+  .gridItem:hover .gridSymbol {
+    filter: drop-shadow(0 0 6px rgba(229, 189, 145, 0.6));
+  }
+
+  .gridItem.active .gridSymbol {
+    filter: drop-shadow(0 0 8px rgba(229, 189, 145, 0.8));
+  }
+}
+
+.gridItem.active {
+  border-color: #e5bd91;
+  background: linear-gradient(145deg, #4b3338, #3a2530);
+  box-shadow: 0 0 12px #e5bd9133;
+  transform: translateY(-2px);
+}
+
+.gridItem.active .gridSymbol {
+  animation: symbolGlow 400ms ease;
+  filter: drop-shadow(0 0 8px rgba(229, 189, 145, 0.8));
+}
+
+.gridItem.clicked {
+  animation: impressionPulse 400ms ease-out;
+}
+
+@keyframes impressionPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 12px #e5bd9133;
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 20px #e5bd91cc;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 12px #e5bd9133;
+  }
+}
+
+.gridTitle {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #f1cba9;
+  line-height: 1.2;
+}
+
+.gridStatus {
+  display: block;
+  font-size: 9px;
+  color: #d8bcb1;
+  opacity: 0.7;
+  line-height: 1.2;
+}
+
+.descriptionBox {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(61, 30, 41, 0.6);
+  border: 1px solid #73505a;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  /* 分離動畫屬性以優化性能 */
+  transition: opacity 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              max-height 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              border-color 300ms ease;
+  will-change: opacity, max-height;
+  contain: layout;
+}
+
+.descriptionBox.show {
+  max-height: 320px;
+  opacity: 1;
+  padding: 12px 14px;
+  border-color: #a27670;
+  background: rgba(61, 30, 41, 0.9);
+  overflow-y: auto;
+}
+
+.descriptionTitle {
+  display: block;
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #f1cba9;
+  line-height: 1.4;
+}
+
+.descriptionText {
+  display: block;
+  margin: 0;
+  font-size: 12px;
+  color: #cbb9b8;
+  line-height: 1.6;
+  opacity: 0.95;
+}
+
+.descriptionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+}
+
+.statusBadge.awakened {
+  background: linear-gradient(135deg, rgba(255, 184, 130, 0.25), rgba(255, 140, 90, 0.15));
+  color: #ffb882;
+  border: 1px solid rgba(255, 184, 130, 0.4);
+}
+
+.statusBadge.dormant {
+  background: linear-gradient(135deg, rgba(150, 130, 150, 0.25), rgba(120, 100, 120, 0.15));
+  color: #b8a8c8;
+  border: 1px solid rgba(150, 130, 150, 0.4);
+}
+
+.featurePreview {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0;
+  justify-content: space-around;
+}
+
+.featureItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(90, 50, 70, 0.4);
+  border: 1px solid rgba(162, 118, 112, 0.3);
+  cursor: default;
+  transition: all 200ms ease;
+}
+
+.featureItem:hover {
+  background: rgba(90, 50, 70, 0.6);
+  border-color: rgba(162, 118, 112, 0.5);
+}
+
+.featureIcon {
+  display: block;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.featureLabel {
+  display: block;
+  font-size: 10px;
+  color: #d3b29c;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.learnMoreBtn {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px 12px;
+  border: 1px solid #a27670;
+  border-radius: 8px;
+  background: linear-gradient(145deg, rgba(58, 28, 40, 0.8), rgba(45, 20, 35, 0.9));
+  color: #f1cba9;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.learnMoreBtn:hover {
+  border-color: #e5bd91;
+  background: linear-gradient(145deg, rgba(75, 35, 55, 0.9), rgba(58, 28, 40, 1));
+  box-shadow: 0 0 12px rgba(229, 189, 145, 0.2);
+}
+
+.learnMoreBtn:active {
+  transform: scale(0.98);
+}
+
+@media (prefers-contrast: more) {
+  .gridItem {
+    border-color: #b8a8c8;
+    color: #ffffff;
+  }
+
+  .gridItem.active {
+    border-color: #ffb882;
+    box-shadow: 0 0 12px #ffb88266;
+  }
+
+  .statusBadge.awakened {
+    color: #ffb882;
+    border: 1.5px solid #ffb882;
+  }
+
+  .statusBadge.dormant {
+    color: #b8a8c8;
+    border: 1.5px solid #b8a8c8;
+  }
+
+  .gridTitle {
+    color: #ffffff;
+  }
+
+  .gridStatus {
+    color: #e0d0e0;
+  }
+
+  .descriptionTitle {
+    color: #ffffff;
+  }
+
+  .learnMoreBtn {
+    border-color: #ffb882;
+    color: #ffffff;
+  }
+
+  .learnMoreBtn:hover {
+    border-color: #ffb882;
+    box-shadow: 0 0 12px #ffb88266;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gridSymbol {
+    animation: none;
+  }
+
+  .gridItem {
+    transition: none;
+  }
+
+  .gridItem:hover::before {
+    opacity: 1;
+    transition: none;
+  }
+
+  .descriptionBox {
+    transition: opacity 0ms ease;
+  }
+
+  .gridItem.clicked {
+    animation: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .entry.entry { padding: 16px !important; gap: 12px !important; }
+  .content { align-items: flex-start; gap: 14px; }
+  .emblem { width: 48px; height: 48px; border-radius: 13px; font-size: 24px; }
+  .entry.entry h2 { font-size: 30px !important; line-height: 1.3 !important; }
+
+  .gridContainer {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+  }
+
+  .gridItem {
+    padding: 8px 6px;
+    min-height: 54px;
+  }
+
+  .gridTitle {
+    font-size: 11px;
+  }
+
+  .gridStatus {
+    font-size: 8px;
+  }
+}
+
+/* ==========================================================================
+   2026-10-12 「修」字墨印：毛筆字體（與標題「鬼魅阿修羅」同一款專案已授權字體，已含「修」）、
+   黑紅墨底、金屬金邊、金字帶朱紅落影，像蓋在卡片上的一枚印。只動這顆小印章，不改尺寸與版面。
+   ========================================================================== */
+.emblem {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background:
+    linear-gradient(160deg, #3a1219 0%, #14090c 58%, #070505 100%) padding-box,
+    linear-gradient(135deg, #fcea86 0%, #c48a29 42%, #8b1e1e 100%) border-box;
+  color: #f8dc8c;
+  font-family: 'Asura Brand Brush', 'Yuji Boku', 'DFKai-SB', 'BiauKai', 'STKaiti', 'KaiTi', serif;
+  font-weight: 400;
+  font-synthesis: none;
+  font-size: 40px;
+  line-height: 1;
+  letter-spacing: 0;
+  text-indent: 0;
+  padding-bottom: 2px;
+  text-shadow:
+    0 2px 0 #6b1b26,
+    0 0 12px rgba(252, 234, 134, 0.5),
+    0 4px 10px rgba(0, 0, 0, 0.75);
+  -webkit-text-stroke: 0.7px currentColor;
+  box-shadow:
+    inset 0 0 0 1px rgba(252, 234, 134, 0.28),
+    inset 0 -10px 16px rgba(139, 30, 30, 0.4),
+    0 6px 14px -4px rgba(139, 30, 30, 0.7),
+    0 0 14px rgba(252, 234, 134, 0.2);
+  transition: box-shadow 240ms ease, transform 240ms ease;
+}
+/* 墨暈高光：左上一抹金光，右下一抹朱紅 */
+.emblem::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 60% at 28% 22%, rgba(252, 234, 134, 0.22), transparent 62%),
+    radial-gradient(60% 50% at 88% 92%, rgba(190, 30, 45, 0.5), transparent 70%);
+}
+/* 飛白與潑墨點：下緣一道乾筆橫掃、右上角兩點墨 */
+.emblem::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent 0, rgba(252, 234, 134, 0.55) 18%, rgba(252, 234, 134, 0.1) 62%, transparent 100%) 50% calc(100% - 6px) / 62% 2px no-repeat,
+    radial-gradient(circle at 86% 16%, rgba(0, 0, 0, 0.85) 0 7%, transparent 8%),
+    radial-gradient(circle at 74% 8%, rgba(0, 0, 0, 0.7) 0 3.5%, transparent 4.5%);
+}
+.entry:hover .emblem,
+.entry:focus-visible .emblem {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 1px rgba(252, 234, 134, 0.4),
+    inset 0 -10px 16px rgba(139, 30, 30, 0.45),
+    0 8px 18px -4px rgba(139, 30, 30, 0.8),
+    0 0 20px rgba(252, 234, 134, 0.38);
+}
+@media (max-width: 640px) {
+  .emblem { font-size: 35px; border-radius: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .emblem { transition: none; }
+  .entry:hover .emblem, .entry:focus-visible .emblem { transform: none; }
+}
+
+/* 2026-10-17「阿修羅升級」：與其他首頁卡片對齊。保留毛筆「修」印記與毛筆標題（招牌），
+   只拉齊：標題起點與垂直位置、圖示的立體姿態、右上角淡淡的裝飾浮水印。 */
+.entry.entry { position: relative; overflow: hidden; }
+.entry.entry .content { align-items: center !important; gap: 20px !important; }
+.entry.entry .copy { padding-top: 2px; }
+.entry.entry h2 { margin: 0 !important; }
+.emblem { transform: perspective(420px) rotateX(6deg) rotateY(-8deg) translateY(-1px) translateZ(0); }
+.entry.entry .watermark {
+  position: absolute;
+  right: 16px;
+  top: 8px;
+  font-family: 'Asura Brand Brush', 'Yuji Boku', serif;
+  font-size: 4.4rem !important;
+  line-height: 1 !important;
+  color: rgba(248, 199, 88, 0.1) !important;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Keep the original action legible over the full-card scenery. */
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry .cta {
+  background: rgb(12 18 19 / 88%) !important;
+}
+
+/* Apply the approved homepage art standard without changing Asura behavior. */
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry { opacity: 1 !important; }
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry .baihuArtwork { inset: 58px 12px 46px; z-index: 2; }
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry .baihuArtwork img { filter: none !important; opacity: 1 !important; }
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry .content { z-index: 3; }
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry .cta { position: relative; z-index: 1; opacity: 0 !important; transition: opacity 150ms ease; }
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry:active .cta,
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry:focus-visible .cta { opacity: 1 !important; }
+@media (hover: hover) { :global(body #home-eight-card-route .home-feature-stack) a.entry.entry:hover .cta { opacity: 1 !important; } }
+
+/* Never fade paws, claws or tail: feather only outside the full silhouette. */
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry .baihuArtwork img { mask-image: url('/home-entry/asura-baihu-contour-mask.svg?v=edge-feather-4'); mask-size: 100% 100%; mask-repeat: no-repeat; }
+
+/* Foreground alone crosses CTA; keep the scenery behind. */
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry .baihuArtwork img {mask-image:none;transform:translateY(2px);}
+
+/* Narrow cards are taller: align the supporting front paws with the CTA rim. */
+@media (max-width: 360px) {
+  :global(body #home-eight-card-route .home-feature-stack) a.entry.entry .baihuArtwork img { transform: translateY(8px); }
+}
+
+
+/* Approved art-only swap: carry Xuanwu's established stance and scenery alignment. */
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry .baihuArtwork {inset:54px 12px 48px;}
+:global(body #home-eight-card-route .home-feature-stack) a.entry.entry .baihuArtwork img {transform-origin:28% 88%;transform:translateY(3px) rotate(3deg);}
+@media(min-width:600px){:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry {background-position:center,center calc(50% - 76px) !important;}}

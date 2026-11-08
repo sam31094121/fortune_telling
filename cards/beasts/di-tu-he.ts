@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-03.v2.webp?v=12',
     front: '/beast-game/front/adult-03.v2.webp?v=12',
-    high: '/star-beasts/adult-divine-v2/03.png',
+    high: '/beast-game/front/adult-03.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '蒼龍胸肋，二十八宿第 3 宿。核心寓意：承載基石。性格低調沉穩，適應力極強，善默默耕耘；屬於大器晚成型。',

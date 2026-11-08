@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-24.v2.webp?v=12',
     front: '/beast-game/front/adult-24.v2.webp?v=12',
-    high: '/star-beasts/adult-divine-v2/24.png',
+    high: '/beast-game/front/adult-24.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '朱雀之嘴，二十八宿第 24 宿。核心寓意：柔順多疑。外表溫和，擅長社交；內心多疑、善變，容易在感情或決策中搖擺。',

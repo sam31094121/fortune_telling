@@ -1,0 +1,37 @@
+{
+  "tag": "B-cpu6-r3",
+  "name": "scroll-v3",
+  "meta": {
+    "y0": 6028,
+    "y1": 7468,
+    "deltaY": 1440
+  },
+  "windowFound": true,
+  "windowMs": 3230.7,
+  "longTaskCount": 1,
+  "longTaskMaxMs": 103.4,
+  "longTasks": [
+    {
+      "startMsFromActionStart": 86.4,
+      "durationMs": 103.4
+    }
+  ],
+  "styleRecalc": {
+    "count": 190,
+    "totalMs": 994.8,
+    "biggest": {
+      "ms": 77,
+      "elementCount": 924
+    },
+    "maxElementCount": {
+      "elementCount": 924,
+      "ms": 77
+    }
+  },
+  "layout": {
+    "count": 1,
+    "totalMs": 3.1,
+    "maxMs": 3.1
+  },
+  "eventCount": 58777
+}

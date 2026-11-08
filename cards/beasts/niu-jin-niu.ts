@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-09.v2.webp?v=11',
     front: '/beast-game/front/adult-09.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/09.png',
+    high: '/beast-game/front/adult-09.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '玄武脖頸，二十八宿第 9 宿。核心寓意：勞碌基業。刻苦耐勞，責任感極強，極其固執；一生較為操勞，但能積攢家業。',

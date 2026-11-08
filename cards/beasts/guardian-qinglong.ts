@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/guardian-qinglong.v2.webp?v=11',
     front: '/beast-game/front/guardian-qinglong.v2.webp?v=11',
-    high: '/star-beasts/four-guardians/qinglong.png',
+    high: '/beast-game/front/guardian-qinglong.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '東方蒼龍，統角、亢、氐、房、心、尾、箕七宿。春之主宰，主生發與開創——龍抬頭之時，萬物隨之而動。',

@@ -1,0 +1,69 @@
+/* Keep this entry readable despite the shared compact mobile card rules. */
+.entry.entry p {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset !important;
+  font-size: 14px !important;
+  line-height: 1.65 !important;
+}
+
+.entry.entry > span {
+  min-height: 48px;
+  white-space: normal;
+  line-height: 1.6;
+}
+
+/* Approved AI tail-repair derivative, isolated to this entry; copy and destination unchanged. */
+.phoenixArtwork {
+  position: absolute;
+  inset: 21px 12px 55px;
+  z-index: 2;
+  mix-blend-mode: lighten;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+.phoenixArtwork img {
+  display: block;
+  height: auto;
+  width: auto;
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  filter: none;
+}
+
+/* Match the selected image's near-black edge without changing its pixels. */
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry {
+  background: #090909 !important;
+  border-color: #514332 !important;
+  box-shadow: none !important;
+}
+/* Keep the selected full image clear of shared decorative overlays. */
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry::before,
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry::after,
+.entry > :global(.absolute.inset-0) {
+  display: none !important;
+}
+
+/* Homepage visual review: retain the existing title and reveal only the action on interaction. */
+.title {position:absolute;top:12px;left:16px;right:16px;text-align:center;font-size:16px;font-weight:800;color:#fef3c7;z-index:3;pointer-events:none;}
+.entry.entry > .title {min-height:0;line-height:1.4;white-space:nowrap;}
+.phoenixArtwork {inset:46px 12px 48px;}
+:global(body #home-eight-card-route) a.entry.entry :global(.home-feature-cta) {position:relative;z-index:1;opacity:0 !important;transition:opacity 150ms ease;}
+:global(body #home-eight-card-route) a.entry.entry:active :global(.home-feature-cta),
+:global(body #home-eight-card-route) a.entry.entry:focus-visible :global(.home-feature-cta) {opacity:1 !important;}
+@media(hover:hover){:global(body #home-eight-card-route) a.entry.entry:hover :global(.home-feature-cta){opacity:1 !important;}}
+
+/* Only opaque feather tips cross the action rim; the complete scene stays behind it. */
+.phoenixArtwork {z-index:0;mix-blend-mode:normal;}
+.phoenixTail {position:absolute;inset:46px 12px 48px;z-index:2;display:flex;align-items:center;justify-content:center;pointer-events:none;filter:drop-shadow(1px 2px 1px rgb(0 0 0 / 65%));}
+.phoenixTail img {display:block;width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;mask:none;clip-path:inset(70% 0 0 0);filter:url('#shensha-tail-detail');}
+
+/* Tablet-only refinement: slightly enlarge the paired scene/feather layers together.
+   Keep their coordinates identical so the extracted feather pixels cannot drift. */
+@media (min-width: 640px) {
+  .phoenixArtwork, .phoenixTail {inset:38px 12px 46px;}
+  .phoenixTail {filter:drop-shadow(0 1px .6px rgb(0 0 0 / 45%));}
+}

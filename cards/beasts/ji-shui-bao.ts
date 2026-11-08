@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-07.v2.webp?v=11',
     front: '/beast-game/front/adult-07.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/07.png',
+    high: '/beast-game/front/adult-07.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '蒼龍尾末，二十八宿第 7 宿。核心寓意：風浪漂泊。熱愛自由，特立獨行，口才極佳；一生多奔波，適合創意傳播。',

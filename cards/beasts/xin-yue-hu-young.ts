@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/young-05.v2.webp?v=6',
     front: '/beast-game/front/young-05.v2.webp?v=6',
-    high: '/star-beasts/spring/05-xin-yue-hu-young-divine.png',
+    high: '/beast-game/front/young-05.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '蒼龍心臟的幼子。尚未長成，靈性已顯——權謀多疑的雛形。餵養與陪伴，牠會長成成獸的模樣。',

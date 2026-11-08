@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-26.v2.webp?v=12',
     front: '/beast-game/front/adult-26.v2.webp?v=12',
-    high: '/star-beasts/adult-divine-v2/26.png',
+    high: '/beast-game/front/adult-26.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '朱雀羽翼，二十八宿第 26 宿。核心寓意：華麗受矚。愛漂亮，喜歡成為全場焦點，表演慾強；具備極佳的公關與演藝天賦。',

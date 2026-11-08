@@ -1,0 +1,43 @@
+{
+  "tag": "C-cpu6-r3",
+  "name": "peel",
+  "meta": {
+    "ok": true
+  },
+  "windowFound": true,
+  "windowMs": 3052,
+  "longTaskCount": 3,
+  "longTaskMaxMs": 96.6,
+  "longTasks": [
+    {
+      "startMsFromActionStart": 29.7,
+      "durationMs": 78
+    },
+    {
+      "startMsFromActionStart": 151.8,
+      "durationMs": 96.6
+    },
+    {
+      "startMsFromActionStart": 566.3,
+      "durationMs": 79.7
+    }
+  ],
+  "styleRecalc": {
+    "count": 216,
+    "totalMs": 1248.2,
+    "biggest": {
+      "ms": 66.7,
+      "elementCount": 920
+    },
+    "maxElementCount": {
+      "elementCount": 924,
+      "ms": 62.2
+    }
+  },
+  "layout": {
+    "count": 4,
+    "totalMs": 19.5,
+    "maxMs": 15.2
+  },
+  "eventCount": 64171
+}

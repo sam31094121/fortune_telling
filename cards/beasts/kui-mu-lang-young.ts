@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/young-15.v2.webp?v=5',
     front: '/beast-game/front/young-15.v2.webp?v=5',
-    high: '/star-beasts/autumn/15-kui-mu-lang-young-divine.png',
+    high: '/beast-game/front/young-15.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '白虎之尾的幼子。尚未長成，靈性已顯——文采反差的雛形。餵養與陪伴，牠會長成成獸的模樣。',

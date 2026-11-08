@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/young-21.v2.webp?v=5',
     front: '/beast-game/front/young-21.v2.webp?v=5',
-    high: '/star-beasts/autumn/21-shen-shui-yuan-young-divine.png',
+    high: '/beast-game/front/young-21.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '白虎將軍的幼子。尚未長成，靈性已顯——變革煞氣的雛形。餵養與陪伴，牠會長成成獸的模樣。',

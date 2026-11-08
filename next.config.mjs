@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+const retiredBeastArt = JSON.parse(readFileSync(new URL('./data/retired-beast-art.json', import.meta.url), 'utf8'));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Keep production builds isolated from the live development server. Sharing
@@ -6,6 +9,8 @@ const nextConfig = {
   distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
   compress: true,
+  // Old bookmarks and image fields resolve to the same current 60-card set.
+  async redirects() { return retiredBeastArt; },
   productionBrowserSourceMaps: false,
   outputFileTracingRoot: process.cwd(),
   // tyme4ts 只在伺服器端農曆換算使用，交給 Node 載入、不重新打包。

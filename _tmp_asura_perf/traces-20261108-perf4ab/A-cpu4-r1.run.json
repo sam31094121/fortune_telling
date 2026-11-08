@@ -1,0 +1,160 @@
+{
+  "tag": "A-cpu4-r1",
+  "variant": "A",
+  "cpu": 4,
+  "run": 1,
+  "scenarios": {
+    "open": {
+      "tag": "A-cpu4-r1",
+      "name": "open",
+      "meta": {
+        "filled": true,
+        "clicked": true,
+        "decreeAppearWallMs": 1012
+      },
+      "windowFound": true,
+      "windowMs": 4071,
+      "longTaskCount": 7,
+      "longTaskMaxMs": 762.3,
+      "longTasks": [
+        {
+          "startMsFromActionStart": 209.1,
+          "durationMs": 762.3
+        },
+        {
+          "startMsFromActionStart": 973.8,
+          "durationMs": 79.3
+        },
+        {
+          "startMsFromActionStart": 1080.7,
+          "durationMs": 142.3
+        },
+        {
+          "startMsFromActionStart": 1297.3,
+          "durationMs": 84.3
+        },
+        {
+          "startMsFromActionStart": 1470.2,
+          "durationMs": 75.8
+        },
+        {
+          "startMsFromActionStart": 1619,
+          "durationMs": 50.3
+        },
+        {
+          "startMsFromActionStart": 3667.4,
+          "durationMs": 64.1
+        }
+      ],
+      "styleRecalc": {
+        "count": 297,
+        "totalMs": 1314,
+        "biggest": {
+          "ms": 94.9,
+          "elementCount": 900
+        },
+        "maxElementCount": {
+          "elementCount": 921,
+          "ms": 41.9
+        }
+      },
+      "layout": {
+        "count": 23,
+        "totalMs": 771.5,
+        "maxMs": 684.1
+      },
+      "eventCount": 81116
+    },
+    "peel": {
+      "tag": "A-cpu4-r1",
+      "name": "peel",
+      "meta": {
+        "ok": true
+      },
+      "windowFound": true,
+      "windowMs": 3031.7,
+      "longTaskCount": 3,
+      "longTaskMaxMs": 96.3,
+      "longTasks": [
+        {
+          "startMsFromActionStart": 13.4,
+          "durationMs": 96.3
+        },
+        {
+          "startMsFromActionStart": 122.5,
+          "durationMs": 92.4
+        },
+        {
+          "startMsFromActionStart": 540.6,
+          "durationMs": 67.8
+        }
+      ],
+      "styleRecalc": {
+        "count": 295,
+        "totalMs": 1409.5,
+        "biggest": {
+          "ms": 84.7,
+          "elementCount": 921
+        },
+        "maxElementCount": {
+          "elementCount": 924,
+          "ms": 66.6
+        }
+      },
+      "layout": {
+        "count": 4,
+        "totalMs": 15.7,
+        "maxMs": 11.4
+      },
+      "eventCount": 84122
+    },
+    "scroll": {
+      "tag": "A-cpu4-r1",
+      "name": "scroll-v3",
+      "meta": {
+        "y0": 6028,
+        "y1": 7468,
+        "deltaY": 1440
+      },
+      "windowFound": true,
+      "windowMs": 3124.8,
+      "longTaskCount": 1,
+      "longTaskMaxMs": 68.9,
+      "longTasks": [
+        {
+          "startMsFromActionStart": 37.5,
+          "durationMs": 68.9
+        }
+      ],
+      "styleRecalc": {
+        "count": 217,
+        "totalMs": 956.1,
+        "biggest": {
+          "ms": 56.3,
+          "elementCount": 924
+        },
+        "maxElementCount": {
+          "elementCount": 924,
+          "ms": 56.3
+        }
+      },
+      "layout": {
+        "count": 1,
+        "totalMs": 1.4,
+        "maxMs": 1.4
+      },
+      "eventCount": 71848
+    }
+  },
+  "buildId": null,
+  "hasBefore": {
+    "rulesWithBodyHas": 99,
+    "rulesWithBodyNotHas": 21,
+    "rulesWithHtmlHas": 1
+  },
+  "hasAfter": {
+    "rulesWithBodyHas": 99,
+    "rulesWithBodyNotHas": 21,
+    "rulesWithHtmlHas": 1
+  }
+}

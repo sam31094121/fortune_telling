@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-23.v2.webp?v=11',
     front: '/beast-game/front/adult-23.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/23.png',
+    high: '/beast-game/front/adult-23.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '朱雀之眼，二十八宿第 23 宿。核心寓意：神秘庇護。靈性極高，善解人意，常得神明或長輩庇佑；對玄學、心理學有天賦。',

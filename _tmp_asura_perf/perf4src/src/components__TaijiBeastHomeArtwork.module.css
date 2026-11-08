@@ -1,0 +1,12 @@
+.scene,.paws {position:absolute;top:26px;left:50%;height:calc(100% - 72px);width:auto;aspect-ratio:4/3;transform:translateX(-50%);pointer-events:none;}
+.scene {z-index:0;mask:url('/home-entry/taiji-leopard-context.svg') center/100% 100% no-repeat;}
+.scene img {width:100%;height:100%;object-fit:contain;filter:none!important;opacity:1!important;}
+.paws {z-index:2;object-fit:contain;filter:none!important;opacity:1!important;mask:url('/home-entry/taiji-leopard-paws.svg') center/100% 100% no-repeat;}
+.title {position:absolute!important;top:0!important;left:16px;right:16px;z-index:3;text-align:center;pointer-events:none;}
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry {background:url('/home-entry/taiji-leopard-environment-v1.png') center/cover no-repeat!important;opacity:1!important;}
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry :global(.home-feature-cta) {z-index:1;opacity:0!important;background:linear-gradient(#252628,#111315)!important;transition:opacity 150ms ease;}
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry:is(:active,:focus-visible) :global(.home-feature-cta) {opacity:1!important;}
+@media(hover:hover){:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry:hover :global(.home-feature-cta){opacity:1!important;}}
+
+/* Only remove the inherited decorative cube for this creature entry. */
+:global(body:has(#home-eight-card-route) #home-eight-card-route .home-feature-stack) a.entry.entry::after {display:none!important;}

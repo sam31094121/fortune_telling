@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-16.v2.webp?v=11',
     front: '/beast-game/front/adult-16.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/16.png',
+    high: '/beast-game/front/adult-16.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '白虎聚眾，二十八宿第 16 宿。核心寓意：繁衍利索。做事乾脆利落，善於理財，家庭觀念重；具服務精神，常為人解難。',

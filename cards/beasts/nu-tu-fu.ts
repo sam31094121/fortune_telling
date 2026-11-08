@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-10.v2.webp?v=11',
     front: '/beast-game/front/adult-10.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/10.png',
+    high: '/beast-game/front/adult-10.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '玄武身軀，二十八宿第 10 宿。核心寓意：技能內斂。專注力強，擁有一技之長；性格偏向保守內向，不喜與人爭鋒。',

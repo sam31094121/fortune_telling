@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-01.v2.webp?v=11',
     front: '/beast-game/front/adult-01.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/01.png',
+    high: '/beast-game/front/adult-01.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '蒼龍之角，二十八宿第 1 宿。核心寓意：突破開創。具領導才能，直覺敏銳，善破僵局；性格過於剛烈，不易妥協。',

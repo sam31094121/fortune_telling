@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-08.v2.webp?v=11',
     front: '/beast-game/front/adult-08.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/08.png',
+    high: '/beast-game/front/adult-08.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '玄武之首，二十八宿第 8 宿。核心寓意：才華穩健。性格溫和敦厚，好學深思，具文人氣質；處事按部就班，受人信賴。',

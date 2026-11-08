@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-22.v2.webp?v=11',
     front: '/beast-game/front/adult-22.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/22.png',
+    high: '/beast-game/front/adult-22.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '朱雀之冠，二十八宿第 22 宿。核心寓意：敏銳陰鬱。直覺驚人，體質敏感，常察覺他人不見的細節；性格溫和但內心悲觀。',

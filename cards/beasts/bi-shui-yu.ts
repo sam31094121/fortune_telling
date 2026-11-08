@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-14.v2.webp?v=12',
     front: '/beast-game/front/adult-14.v2.webp?v=12',
-    high: '/star-beasts/adult-divine-v2/14.png',
+    high: '/beast-game/front/adult-14.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '玄武牆壁，二十八宿第 14 宿。核心寓意：守護智慧。喜好鑽研學問，性格沉靜，不喜衝突；扮演守護者或幕僚能大放異彩。',

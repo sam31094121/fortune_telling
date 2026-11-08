@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-05.v2.webp?v=11',
     front: '/beast-game/front/adult-05.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/05.png',
+    high: '/beast-game/front/adult-05.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '蒼龍心臟，二十八宿第 5 宿。核心寓意：權謀多疑。心思極其細密，洞察力驚人，具神秘魅力；內心佔有慾強。',

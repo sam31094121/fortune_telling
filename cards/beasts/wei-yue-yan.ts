@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-12.v2.webp?v=11',
     front: '/beast-game/front/adult-12.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/12.png',
+    high: '/beast-game/front/adult-12.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '玄武屋脊，二十八宿第 12 宿。核心寓意：高危機警。危機意識極高，做事謹慎，性格剛直；一生多大風大浪，靠機智化險。',

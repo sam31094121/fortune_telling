@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-21.v2.webp?v=11',
     front: '/beast-game/front/adult-21.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/21.png',
+    high: '/beast-game/front/adult-21.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '白虎將軍，二十八宿第 21 宿。核心寓意：變革煞氣。性格剛烈，不畏權勢，好勇鬥狠；一生多重大變革，具大開大合之命。',

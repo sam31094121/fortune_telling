@@ -21,12 +21,13 @@ const results = [];
 const check = (group, name, pass, detail) => results.push({ group, name, pass, detail });
 
 const rgb2hsv = (r, g, b) => { r /= 255; g /= 255; b /= 255; const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; let h = 0; if (d) { if (mx === r) h = ((g - b) / d) % 6; else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4; h *= 60; if (h < 0) h += 360; } return [h, mx ? d / mx : 0, mx]; };
-async function analyse(file, { skipDarkBg = false } = {}) {
+async function analyse(file, { skipDarkBg = false, region = null } = {}) {
   const { data, info } = await sharp(file).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const acc = { blue: [0, 0, 0], gold: [0, 0, 0] }; let rim = 0, whiteRim = 0;
   const W = info.width, H = info.height;
   for (let i = 0; i < data.length; i += 4) {
     if (data[i + 3] < 200) continue;
+    if (region) { const px = (i / 4) % W, py = Math.floor(i / 4 / W); const fx = px / W, fy = py / H; if (fx < region[0] || fx > region[1] || fy < region[2] || fy > region[3]) continue; }
     const [h, s, v] = rgb2hsv(data[i], data[i + 1], data[i + 2]);
     if (skipDarkBg && v < 0.2) continue;
     const k = (h >= 190 && h <= 250 && s > 0.25) ? 'blue' : (h >= 25 && h <= 55 && s > 0.35 && v > 0.35) ? 'gold' : null;
@@ -43,7 +44,8 @@ async function analyse(file, { skipDarkBg = false } = {}) {
 }
 
 (async () => {
-  const master = await analyse(path.join(root, 'public/beast-game/front/guardian-qinglong.v2.webp'), { skipDarkBg: true });
+  // 母版有深藍夜空背景、沒有透明通道：只取中央身體區並濾掉深色底，避免背景被算進鱗片（實測整張取樣會讓明度在 0.18～0.25 間浮動，中央身體區 0.22～0.25）
+  const master = await analyse(path.join(root, 'public/beast-game/front/guardian-qinglong.v2.webp'), { skipDarkBg: true, region: [0.2, 0.8, 0.25, 0.85] });
   const targets = [
     ...manifest.frames.map((f) => ({ label: `上線 ${f.id}（${f.file}）`, group: '上線中的素材', file: path.join(dir, f.file) })),
     ...JSON.parse(fs.readFileSync(path.join(candDir, 'candidates.json'), 'utf8')).files.map((c) => ({ label: `候選 ${c.id}（${c.file}）`, group: '調色候選', file: path.join(candDir, c.file) })),

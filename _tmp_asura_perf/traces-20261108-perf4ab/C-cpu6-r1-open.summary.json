@@ -1,0 +1,61 @@
+{
+  "tag": "C-cpu6-r1",
+  "name": "open",
+  "meta": {
+    "filled": true,
+    "clicked": true,
+    "decreeAppearWallMs": 1710
+  },
+  "windowFound": true,
+  "windowMs": 4770.7,
+  "longTaskCount": 7,
+  "longTaskMaxMs": 1294,
+  "longTasks": [
+    {
+      "startMsFromActionStart": 50.6,
+      "durationMs": 66.5
+    },
+    {
+      "startMsFromActionStart": 326.4,
+      "durationMs": 1294
+    },
+    {
+      "startMsFromActionStart": 1624.7,
+      "durationMs": 103.3
+    },
+    {
+      "startMsFromActionStart": 1784.6,
+      "durationMs": 260.3
+    },
+    {
+      "startMsFromActionStart": 2158.5,
+      "durationMs": 195.1
+    },
+    {
+      "startMsFromActionStart": 2428.8,
+      "durationMs": 91.9
+    },
+    {
+      "startMsFromActionStart": 3685.2,
+      "durationMs": 88.8
+    }
+  ],
+  "styleRecalc": {
+    "count": 210,
+    "totalMs": 1342.2,
+    "biggest": {
+      "ms": 165.6,
+      "elementCount": 900
+    },
+    "maxElementCount": {
+      "elementCount": 921,
+      "ms": 88.6
+    }
+  },
+  "layout": {
+    "count": 21,
+    "totalMs": 1319.1,
+    "maxMs": 1174.8
+  },
+  "eventCount": 60562
+}

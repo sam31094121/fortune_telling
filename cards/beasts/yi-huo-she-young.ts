@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/young-27.v2.webp?v=5',
     front: '/beast-game/front/young-27.v2.webp?v=5',
-    high: '/star-beasts/summer/27-yi-huo-she-young-divine.png',
+    high: '/beast-game/front/young-27.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '朱雀翅膀的幼子。尚未長成，靈性已顯——輔助飛翔的雛形。餵養與陪伴，牠會長成成獸的模樣。',

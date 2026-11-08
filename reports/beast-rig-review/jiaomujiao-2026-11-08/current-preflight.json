@@ -1,0 +1,13 @@
+{
+  "cardId": "beast_a01",
+  "scope": "新版角木蛟成獸；不使用舊卡",
+  "source": "public/beast-game/front/adult-01.v2.webp",
+  "sha256": "b07b42a5b17ab4283b5e46454f9c67fdcbdba3125c9aec4bfe1a32041fc2fec3",
+  "width": 720,
+  "height": 540,
+  "minimumNativeSizePass": false,
+  "rigRegistered": false,
+  "qinglongControl": true,
+  "baihuControl": true,
+  "status": "未通過：新版來源尺寸不足且未登錄角木蛟動作；未做手機動畫通過宣告"
+}

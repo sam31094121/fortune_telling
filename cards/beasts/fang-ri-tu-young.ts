@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/young-04.v2.webp?v=6',
     front: '/beast-game/front/young-04.v2.webp?v=6',
-    high: '/star-beasts/spring/04-fang-ri-tu-young-divine.png',
+    high: '/beast-game/front/young-04.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '蒼龍腹部的幼子。尚未長成，靈性已顯——明朗財祿的雛形。餵養與陪伴，牠會長成成獸的模樣。',

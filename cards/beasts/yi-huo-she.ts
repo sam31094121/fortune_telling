@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-27.v2.webp?v=11',
     front: '/beast-game/front/adult-27.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/27.png',
+    high: '/beast-game/front/adult-27.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '朱雀翅膀，二十八宿第 27 宿。核心寓意：輔助飛翔。擅長輔佐領導者，心思慎密，行動快如閃電；是不可或缺的靈魂幕僚。',

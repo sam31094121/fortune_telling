@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-28.v2.webp?v=11',
     front: '/beast-game/front/adult-28.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/28.png',
+    high: '/beast-game/front/adult-28.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '朱雀尾端，二十八宿第 28 宿。核心寓意：車輿協調。擅長協調各方利益，處事圓融；一生與車船、貿易有緣，平穩向成功。',

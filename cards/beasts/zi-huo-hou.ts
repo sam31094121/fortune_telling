@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-20.v2.webp?v=11',
     front: '/beast-game/front/adult-20.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/20.png',
+    high: '/beast-game/front/adult-20.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '白虎之口，二十八宿第 20 宿。核心寓意：口舌機變。言辭犀利，思維敏捷，善於辯論；臨場反應極強，但要防口舌是非。',

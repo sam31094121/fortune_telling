@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/young-08.v2.webp?v=6',
     front: '/beast-game/front/young-08.v2.webp?v=6',
-    high: '/star-beasts/winter/08-dou-mu-xie-young-divine.png',
+    high: '/beast-game/front/young-08.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '玄武之首的幼子。尚未長成，靈性已顯——才華穩健的雛形。餵養與陪伴，牠會長成成獸的模樣。',

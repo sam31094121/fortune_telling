@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-18.v2.webp?v=11',
     front: '/beast-game/front/adult-18.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/18.png',
+    high: '/beast-game/front/adult-18.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '白虎耳目，二十八宿第 18 宿。核心寓意：名聲清高。外貌出眾，氣質清高，自尊心極強；重視精神層面，容易獲得名望。',

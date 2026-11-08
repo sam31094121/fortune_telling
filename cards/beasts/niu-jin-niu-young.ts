@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/young-09.v2.webp?v=6',
     front: '/beast-game/front/young-09.v2.webp?v=6',
-    high: '/star-beasts/winter/09-niu-jin-niu-young-divine.png',
+    high: '/beast-game/front/young-09.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '玄武脖頸的幼子。尚未長成，靈性已顯——勞碌基業的雛形。餵養與陪伴，牠會長成成獸的模樣。',

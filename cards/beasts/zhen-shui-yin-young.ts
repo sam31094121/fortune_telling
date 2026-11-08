@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/young-28.v2.webp?v=5',
     front: '/beast-game/front/young-28.v2.webp?v=5',
-    high: '/star-beasts/summer/28-zhen-shui-yin-young-divine-v24-ratio-fixed.jpg',
+    high: '/beast-game/front/young-28.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '朱雀尾端的幼子。尚未長成，靈性已顯——車輿協調的雛形。餵養與陪伴，牠會長成成獸的模樣。',

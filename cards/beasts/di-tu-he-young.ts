@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/young-03.v2.webp?v=6',
     front: '/beast-game/front/young-03.v2.webp?v=6',
-    high: '/star-beasts/spring/03-di-tu-he-young-divine.png',
+    high: '/beast-game/front/young-03.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '蒼龍胸肋的幼子。尚未長成，靈性已顯——承載基石的雛形。餵養與陪伴，牠會長成成獸的模樣。',

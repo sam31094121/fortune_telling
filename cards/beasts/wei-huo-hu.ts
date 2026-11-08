@@ -24,7 +24,7 @@ const card: BeastCard = {
   art: {
     thumbnail: '/beast-game/thumb/adult-06.v2.webp?v=11',
     front: '/beast-game/front/adult-06.v2.webp?v=11',
-    high: '/star-beasts/adult-divine-v2/06.png',
+    high: '/beast-game/front/adult-06.v2.webp',
     back: '/beast-game/card-back.webp',
   },
   story: '蒼龍之尾，二十八宿第 6 宿。核心寓意：爭鬥好勝。戰鬥力旺盛，不服輸，喜好競爭；逆境中爆發力強，需防暴躁。',
