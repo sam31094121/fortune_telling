@@ -1,0 +1,174 @@
+{
+  "base": "http://localhost:3010",
+  "startedAt": "2026-11-08T09:36:47.315Z",
+  "scenarios": {
+    "entrance": {
+      "flashes": 0,
+      "flashesPerSec": 0,
+      "maxLuma": 8.219,
+      "whiteFlash": false,
+      "burstFiles": [
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\entrance-f000.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\entrance-f001.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\entrance-f002.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\entrance-f003.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\entrance-f004.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\entrance-f005.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\entrance-f006.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\entrance-f007.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\entrance-f008.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\entrance-f009.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\entrance-f010.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\entrance-f011.png"
+      ],
+      "flashProbe": [
+        {
+          "tag": "BODY",
+          "bg": "rgb(5, 6, 18)",
+          "luma": 6.65
+        },
+        {
+          "tag": "MAIN",
+          "bg": "rgb(4, 10, 3)",
+          "luma": 8.22
+        },
+        {
+          "tag": "ASIDE",
+          "bg": "rgb(4, 10, 3)",
+          "luma": 8.22
+        },
+        {
+          "tag": "SECTION",
+          "bg": "rgb(4, 10, 3)",
+          "luma": 8.22
+        }
+      ]
+    },
+    "segswitch": {
+      "flashes": 0,
+      "flashesPerSec": 0,
+      "maxLuma": 249.60539999999997,
+      "whiteFlash": false,
+      "burstFiles": [
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\segswitch-f000.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\segswitch-f001.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\segswitch-f002.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\segswitch-f003.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\segswitch-f004.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\segswitch-f005.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\segswitch-f006.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\segswitch-f007.png"
+      ]
+    },
+    "peel": {
+      "flashes": 0,
+      "flashesPerSec": 0,
+      "maxLuma": 249.60539999999997,
+      "whiteFlash": false,
+      "burstFiles": [
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\peel-f000.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\peel-f001.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\peel-f002.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\peel-f003.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\peel-f004.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\peel-f005.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\peel-f006.png",
+        "C:\\Users\\DRAGON\\Desktop\\命理\\_tmp_asura_perf\\flicker-20261108-perf3\\peel-f007.png"
+      ]
+    },
+    "reducedMotion": {
+      "opacities": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "ageVisible": true,
+      "textLen": 400,
+      "allOpaque": true,
+      "pass": true
+    }
+  },
+  "contrastRaw": [
+    {
+      "sel": "[class*=\"bannerTitle\"]",
+      "color": "rgb(217, 181, 106)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "fontSize": "42.12px",
+      "text": "鬼魅阿修羅"
+    },
+    {
+      "sel": "[data-asura-timeline-decree]",
+      "color": "rgb(244, 239, 228)",
+      "bg": "rgb(5, 6, 18)",
+      "fontSize": "20px",
+      "text": "千人千面戰神令52 歲34–43歲走過你虛歲 34–43・走過的路虛歲34起，這"
+    },
+    {
+      "sel": "[data-asura-age-timeline] [data-asura-age-seg-index]",
+      "color": "rgb(234, 243, 212)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "fontSize": "20px",
+      "text": "虛歲4起，我把你推到最高點，守得住才是你的約虛歲 4–13過去"
+    },
+    {
+      "sel": "[class*=\"pinnedSummary\"]",
+      "color": "rgb(255, 225, 74)",
+      "bg": "rgba(15, 31, 12, 0.94)",
+      "fontSize": "14px",
+      "text": "你今年虛歲 53（實歲 52），這段今年收尾"
+    },
+    {
+      "sel": "[class*=\"visualAgeBand\"]",
+      "color": "rgb(255, 230, 0)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "fontSize": "24px",
+      "text": "34–43歲"
+    }
+  ],
+  "contrast": [
+    {
+      "sel": "[class*=\"bannerTitle\"]",
+      "text": "鬼魅阿修羅",
+      "color": "rgb(217, 181, 106)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "ratio": 10.77,
+      "pass": true
+    },
+    {
+      "sel": "[data-asura-timeline-decree]",
+      "text": "千人千面戰神令52 歲34–43歲走過你虛歲 34–43・走過的路虛歲34起，這",
+      "color": "rgb(244, 239, 228)",
+      "bg": "rgb(5, 6, 18)",
+      "ratio": 17.59,
+      "pass": true
+    },
+    {
+      "sel": "[data-asura-age-timeline] [data-asura-age-seg-index]",
+      "text": "虛歲4起，我把你推到最高點，守得住才是你的約虛歲 4–13過去",
+      "color": "rgb(234, 243, 212)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "ratio": 18.27,
+      "pass": true
+    },
+    {
+      "sel": "[class*=\"pinnedSummary\"]",
+      "text": "你今年虛歲 53（實歲 52），這段今年收尾",
+      "color": "rgb(255, 225, 74)",
+      "bg": "rgba(15, 31, 12, 0.94)",
+      "ratio": 13.2,
+      "pass": true
+    },
+    {
+      "sel": "[class*=\"visualAgeBand\"]",
+      "text": "34–43歲",
+      "color": "rgb(255, 230, 0)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "ratio": 16.57,
+      "pass": true
+    }
+  ],
+  "finishedAt": "2026-11-08T09:37:12.427Z"
+}

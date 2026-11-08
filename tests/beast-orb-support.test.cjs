@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),ts=require('typescript');
+require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true,resolveJsonModule:true}}).outputText,f);
+const {healSupport,shieldPlan}=require('../lib/beast-game/match3/element-support.ts');
+const {ELEMENTS,ELEMENT_GENERATES}=require('../lib/beast-game/elements.ts');
+const {orbCounterDamage}=require('../lib/beast-game/match3/enemy-strategy.ts');
+let cases=0;const check=(name,f)=>{f();cases++;console.log('PASS '+name)};
+check('all 25 generating pairs, actual healing and immutable input',()=>{for(const source of ELEMENTS)for(const element of ELEMENTS){const original=[{id:'a',element,hp:50,maxHp:100}];const r=healSupport(original,source,3,new Map());assert.equal(r.team[0].hp,ELEMENT_GENERATES[source]===element?53:50);assert.equal(original[0].hp,50)}});
+check('cascade accumulation caps each recipient at ten percent',()=>{let t=[{id:'a',element:'AIR',hp:20,maxHp:100}];const budget=new Map();for(let i=0;i<50;i++)t=healSupport(t,'WATER',4,budget,i+1).team;assert.equal(t[0].hp,30)});
+check('no resurrection, no overheal, no cross-element healing',()=>{const r=healSupport([{id:'dead',element:'AIR',hp:0,maxHp:100},{id:'full',element:'AIR',hp:100,maxHp:100},{id:'hurt',element:'AIR',hp:99,maxHp:100},{id:'wrong',element:'FIRE',hp:10,maxHp:100}],'WATER',10,new Map());assert.deepEqual(r.team.map(f=>f.hp),[0,100,100,10]);assert.equal(r.facts[0].actual,1)});
+check('every shield color combination distinguishes unique colors from count',()=>{for(let n=3;n<=5;n++){const max=5**n;for(let x=0;x<max;x++){let z=x;const row=Array.from({length:n},()=>{const e=ELEMENTS[z%5];z=Math.floor(z/5);return e});const s=shieldPlan([row],[row.map(()=>7)],row.map((_,c)=>({r:0,c})));const distinct=new Set(row).size;assert.equal(s.kind,['','same','mixed','three','four','five'][distinct])}}});
+check('ordinary beads and fewer than three shields do not earn reward',()=>{assert.equal(shieldPlan([['AIR','AIR','AIR']],[[7,7,6]],[{r:0,c:0},{r:0,c:1},{r:0,c:2}]),null);assert.equal(shieldPlan([['AIR','FIRE']],[[7,7]],[{r:0,c:0},{r:0,c:1}]),null)});
+check('guard tiers apply the same counter formula and preserve legacy boolean',()=>{assert.equal(orbCounterDamage(100,'WATER','FIRE',false),120);assert.equal(orbCounterDamage(100,'WATER','FIRE',true),60);assert.equal(orbCounterDamage(100,'WATER','FIRE',.4),48);assert.equal(orbCounterDamage(100,'WATER','FIRE',.3),36)});
+console.log(cases+' support suites passed');

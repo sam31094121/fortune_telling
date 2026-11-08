@@ -1,0 +1,175 @@
+{
+  "scope": "Read-only current rig asset audit; owner acceptance is separate from measured resolution; no image edits",
+  "rows": [
+    {
+      "card": "beast_g_baihu",
+      "frame": "bite-close",
+      "file": "public/beast-game/rig/baihu/bite-close.v2.webp",
+      "width": 1695,
+      "height": 928,
+      "alpha": true,
+      "sha256": "6981fef0f72c9bd6efdbaf3079bdb0e78f6407a88a9203764fcccf3dd9423819",
+      "minimum2k": false
+    },
+    {
+      "card": "beast_g_baihu",
+      "frame": "land-crouch",
+      "file": "public/beast-game/rig/baihu/land-crouch.webp",
+      "width": 1400,
+      "height": 982,
+      "alpha": true,
+      "sha256": "5cb48ab7e29c4771f86def7ae925f94eecf02683446fafb0b5213658196e3e45",
+      "minimum2k": false
+    },
+    {
+      "card": "beast_g_baihu",
+      "frame": "pounce-open",
+      "file": "public/beast-game/rig/baihu/pounce-open.v2.webp",
+      "width": 1695,
+      "height": 928,
+      "alpha": true,
+      "sha256": "c2d1c61d629116ee3814f7fbfb258137648b89c9c9ceb14293db88d20ad1a66e",
+      "minimum2k": false
+    },
+    {
+      "card": "beast_g_baihu",
+      "frame": "run-gather",
+      "file": "public/beast-game/rig/baihu/run-gather.webp",
+      "width": 1400,
+      "height": 943,
+      "alpha": true,
+      "sha256": "4ac0fc4f9986ec0378063c52a472118f2c37ea74b02e96a162df7adeba4142f0",
+      "minimum2k": false
+    },
+    {
+      "card": "beast_g_baihu",
+      "frame": "run-reach",
+      "file": "public/beast-game/rig/baihu/run-reach.webp",
+      "width": 1400,
+      "height": 819,
+      "alpha": true,
+      "sha256": "8e433a307fd3bcee989ebf4b4029b8d6bb728beff0b5e85ac4afee8117fd73c8",
+      "minimum2k": false
+    },
+    {
+      "card": "beast_g_qinglong",
+      "frame": "bite-close",
+      "file": "public/beast-game/rig/qinglong/bite-close.v3.webp",
+      "width": 1331,
+      "height": 1181,
+      "alpha": true,
+      "sha256": "7d5dac3162f4754e5a3a8ec12e174b79f7498a052786c199ddbe67335e0fca5c",
+      "minimum2k": false
+    },
+    {
+      "card": "beast_g_qinglong",
+      "frame": "pounce-open",
+      "file": "public/beast-game/rig/qinglong/pounce-open.v3.webp",
+      "width": 1331,
+      "height": 1182,
+      "alpha": true,
+      "sha256": "95b80efb4c41caa43505b6c9499b7650410884d206b15d4c4e395c2d774cedf4",
+      "minimum2k": false
+    },
+    {
+      "card": "beast_g_qinglong",
+      "frame": "run-gather",
+      "file": "public/beast-game/rig/qinglong/run-gather.webp",
+      "width": 1600,
+      "height": 913,
+      "alpha": true,
+      "sha256": "4ac1ca22792615e4b72d23657cd20193a06a8d2e768005307aca18ed83603d11",
+      "minimum2k": false
+    },
+    {
+      "card": "beast_g_qinglong",
+      "frame": "run-reach",
+      "file": "public/beast-game/rig/qinglong/run-reach.webp",
+      "width": 1600,
+      "height": 1209,
+      "alpha": true,
+      "sha256": "2b62bcbcd83d4a7e484cc5e6ca35ef24d4d9a5b5d5bc4bc5fceb4b23c6f10c1e",
+      "minimum2k": false
+    },
+    {
+      "card": "beast_g_zhuque",
+      "frame": "bite-close",
+      "file": "public/beast-game/rig/zhuque/bite-close.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "sha256": "f731d925044c38a6e3c7b80390f3a90c78d1dceeca18ad780ce0f583de1b3145",
+      "minimum2k": false
+    },
+    {
+      "card": "beast_g_zhuque",
+      "frame": "pounce-open",
+      "file": "public/beast-game/rig/zhuque/pounce-open.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "sha256": "daac961387a27619687a0e605c34dca4fd73837bf89ef01b03d005ce3da7b9e1",
+      "minimum2k": false
+    },
+    {
+      "card": "beast_g_zhuque",
+      "frame": "run-gather",
+      "file": "public/beast-game/rig/zhuque/run-gather.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "sha256": "86001987aea48e23ec5357172e0986ea98c3f88701d41c5489a499503743fd31",
+      "minimum2k": false
+    },
+    {
+      "card": "beast_g_zhuque",
+      "frame": "run-reach",
+      "file": "public/beast-game/rig/zhuque/run-reach.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "sha256": "382da6709771d047157811cbcb245edaa6ae83dc1f3e4190c0ceaad7fcf168e1",
+      "minimum2k": false
+    },
+    {
+      "card": "beast_g_xuanwu",
+      "frame": "bite-close",
+      "file": "public/beast-game/rig/xuanwu/bite-close.color-v3.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "sha256": "b0083b85721563565889a7d06cad71d99b61cf40fda5f1154c0ab8f75ca128e0",
+      "minimum2k": false
+    },
+    {
+      "card": "beast_g_xuanwu",
+      "frame": "pounce-open",
+      "file": "public/beast-game/rig/xuanwu/pounce-open.color-v3.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "sha256": "65c8357cfecc4812c6312cf265adfcf1a50029f84ee3c93139147a7d81fa2284",
+      "minimum2k": false
+    },
+    {
+      "card": "beast_g_xuanwu",
+      "frame": "run-gather",
+      "file": "public/beast-game/rig/xuanwu/run-gather.color-v3.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "sha256": "0cc005fddf7a1fd26ad0eecd47d74e26703d40a0c1089f4a9928a01a6d3542ea",
+      "minimum2k": false
+    },
+    {
+      "card": "beast_g_xuanwu",
+      "frame": "run-reach",
+      "file": "public/beast-game/rig/xuanwu/run-reach.color-v3.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "sha256": "276c36f6f56b7d26406ddec8d04c3aed5e4eb51815c18fd1f01672a6c09d35b9",
+      "minimum2k": false
+    }
+  ]
+}

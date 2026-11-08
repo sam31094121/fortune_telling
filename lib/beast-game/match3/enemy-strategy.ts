@@ -4,19 +4,20 @@ import { absorbFoeShieldDamage, foeSkillAttack, orbSkillCanAttack, orbSkillSpeed
 interface Fighter { hp: number; element: BeastElement; id?: string; maxHp?: number; attack?: number; skillRuntime?: FoeSkillState }
 interface Enemy extends Fighter { attack: number }
 const complete = (f: Fighter): f is SkillFoe => typeof f.id === 'string' && typeof f.maxHp === 'number' && typeof f.attack === 'number';
-export function orbCounterDamage(attack: number, from: BeastElement, to: BeastElement, guard: boolean): number {
-  return Math.round(attack * elementMultiplier(from, to) * (guard ? .5 : 1));
+export const guardDamageScale = (guard: boolean | number): number => typeof guard === 'boolean' ? (guard ? .5 : 1) : [1, .5, .4, .3].includes(guard) ? guard : 1;
+export function orbCounterDamage(attack: number, from: BeastElement, to: BeastElement, guard: boolean | number): number {
+  return Math.round(attack * elementMultiplier(from, to) * guardDamageScale(guard));
 }
 export function orbEnemyStrategy(stage: number) {
   return [...policy.tiers].reverse().find(t => Number.isFinite(stage) && stage >= t.stage) ?? policy.tiers[0];
 }
 /** Same original event resolver is used by finite previews and the committed counter action. */
-export function resolveOrbEnemyAction<F extends SkillFoe,T extends SkillFoe>(actor: F, victim: T, stage: number, guard: boolean, eventId?: string) {
+export function resolveOrbEnemyAction<F extends SkillFoe,T extends SkillFoe>(actor: F, victim: T, stage: number, guard: boolean | number, eventId?: string) {
   let source = actor, target = victim;
   const events: OrbSkillEvent[] = [];
   let basic: null | {damage:number;hpBefore:number;hpAfter:number;actualDamage:number} = null;
   const trigger = (kind: 'ON_TURN_START'|'ON_ATTACK'|'ON_TURN_END') => {
-    const r=runOrbSkillEvent(source,kind,{target,eventId,incomingDamageScale:guard?.5:1,sourceSide:'enemy',targetSide:'ally'});source=r.source;if(r.target)target=r.target;events.push(...r.events);return r.targetActualDamage;
+    const r=runOrbSkillEvent(source,kind,{target,eventId,incomingDamageScale:guardDamageScale(guard),sourceSide:'enemy',targetSide:'ally'});source=r.source;if(r.target)target=r.target;events.push(...r.events);return r.targetActualDamage;
   };
   if(stage>=9)trigger('ON_TURN_START');
   if(target.hp>0 && orbSkillCanAttack(source)) {
@@ -35,7 +36,7 @@ export function resolveOrbEnemyAction<F extends SkillFoe,T extends SkillFoe>(act
 }
 const better = (a: readonly number[], b: readonly number[]) => { for(let i=0;i<a.length;i++){if(a[i]!==b[i])return a[i]>b[i]}return false; };
 /** One planner, public present state only. At most 24 legal same-speed permutations; no future board/RNG. */
-export function planOrbCounter(team: readonly Fighter[], foes: readonly Enemy[], eligible: readonly number[], single: boolean, turn: number, stage: number, guard: boolean): { enemy: number; target: number }[] {
+export function planOrbCounter(team: readonly Fighter[], foes: readonly Enemy[], eligible: readonly number[], single: boolean, turn: number, stage: number, guard: boolean | number): { enemy: number; target: number }[] {
   if (!eligible.length) return [];
   const tier=orbEnemyStrategy(stage), speed=(i:number)=>stage>=8&&complete(foes[i])?orbSkillSpeed(foes[i] as SkillFoe):0;
   const baseline=single?[eligible[turn%eligible.length]]:[...eligible].sort((a,b)=>speed(b)-speed(a));

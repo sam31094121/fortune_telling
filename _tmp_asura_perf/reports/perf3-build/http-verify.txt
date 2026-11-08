@@ -1,0 +1,37 @@
+﻿checked 2026-11-08 17:31:06 UTC+8; HTTP only, not hydration/browser PASS
+page /ghost-asura 200 bytes=40914
+200 /_next/static/chunks/1160-517c4ffa66bfb265.js
+200 /_next/static/chunks/1255-cf02c4775860a5ab.js
+200 /_next/static/chunks/1744-874b18650a74249b.js
+200 /_next/static/chunks/2619-04bc32f026a0d946.js
+200 /_next/static/chunks/3168-f0a52ca6aae2ba17.js
+200 /_next/static/chunks/4722-428074e9a39f9ecc.js
+200 /_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js
+200 /_next/static/chunks/5021-bac334b0fe169427.js
+200 /_next/static/chunks/5239-0a1ac76c84eea57d.js
+200 /_next/static/chunks/6221-1524413f46f7cf37.js
+200 /_next/static/chunks/7095-fb240618aa4c9f51.js
+200 /_next/static/chunks/8475-aed51a46ac592ecf.js
+200 /_next/static/chunks/9ca3580a-31425010c9a9f85c.js
+200 /_next/static/chunks/app/error-70db0a968339c820.js
+200 /_next/static/chunks/app/ghost-asura/page-c9c26c2139ff97fa.js
+200 /_next/static/chunks/app/global-error-52c463447b51f04e.js
+200 /_next/static/chunks/app/layout-e1bf231f1a281090.js
+200 /_next/static/chunks/fdc6837e-fcc3a8dda6a9f725.js
+200 /_next/static/chunks/fef136d0-2568610d038611bc.js
+200 /_next/static/chunks/main-app-e2f408c4b038188f.js
+200 /_next/static/chunks/polyfills-42372ed130431b0a.js
+200 /_next/static/chunks/webpack-efa4729db472c4e6.js
+200 /_next/static/css/0724e8168ec64a9d.css
+200 /_next/static/css/0ff28ffbb5c7d347.css
+200 /_next/static/css/388486f585caef4d.css
+200 /_next/static/css/54a67348da1c4555.css
+200 /_next/static/css/7c3186f797c3d8e7.css
+200 /_next/static/css/7df1bed99e3dcbb1.css
+200 /_next/static/css/8be8d88a7f0fc6f9.css
+200 /_next/static/css/9acec2d9855f178a.css
+200 /_next/static/css/d19e40d3f48545a5.css
+assets=31 non200=0
+page chunk getContainerRect=True
+layout chunk .next-production\static\chunks\app\layout-e1bf231f1a281090.js exists=True
+server pid=14432 (next start -p 3010, parent 42924, launcher 44684); 8888 pid=15516 untouched

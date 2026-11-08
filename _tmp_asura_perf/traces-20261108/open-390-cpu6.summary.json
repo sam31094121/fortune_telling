@@ -1,0 +1,59 @@
+{
+  "name": "open-390-cpu6",
+  "meta": {
+    "filled": true,
+    "clicked": true,
+    "decreeAppearWallMs": 1847
+  },
+  "windowFound": true,
+  "windowMs": 4934.9,
+  "longTaskCount": 11,
+  "longTaskMaxMs": 1346.4,
+  "longTasks": [
+    {
+      "startMsFromActionStart": 11.8,
+      "durationMs": 62.3
+    },
+    {
+      "startMsFromActionStart": 74.1,
+      "durationMs": 69.8
+    },
+    {
+      "startMsFromActionStart": 208.9,
+      "durationMs": 54.3
+    },
+    {
+      "startMsFromActionStart": 416.9,
+      "durationMs": 1346.4
+    },
+    {
+      "startMsFromActionStart": 1769.6,
+      "durationMs": 115.8
+    },
+    {
+      "startMsFromActionStart": 1927.8,
+      "durationMs": 184.1
+    },
+    {
+      "startMsFromActionStart": 2112.3,
+      "durationMs": 139.8
+    },
+    {
+      "startMsFromActionStart": 2270.5,
+      "durationMs": 113.4
+    },
+    {
+      "startMsFromActionStart": 2431.9,
+      "durationMs": 145
+    },
+    {
+      "startMsFromActionStart": 2577,
+      "durationMs": 78.3
+    },
+    {
+      "startMsFromActionStart": 2694.8,
+      "durationMs": 170.5
+    }
+  ],
+  "eventCount": 54804
+}

@@ -69,9 +69,14 @@ export class ParticleSystem {
   /**
    * 建立卡片邊緣能量流
    */
-  public createCardEnergyFlow(cardElement: HTMLElement): void {
-    const rect = cardElement.getBoundingClientRect();
-    const parentRect = this.canvas.parentElement?.getBoundingClientRect();
+  /** 容器（canvas 父層）目前的幾何；供呼叫端一次批次讀取，避免在計時器裡逐次強制同步排版。 */
+  public getContainerRect(): DOMRect | undefined {
+    return this.canvas.parentElement?.getBoundingClientRect();
+  }
+
+  public createCardEnergyFlow(cardElement: HTMLElement, precomputed?: { rect: DOMRect; parentRect: DOMRect }): void {
+    const rect = precomputed?.rect ?? cardElement.getBoundingClientRect();
+    const parentRect = precomputed?.parentRect ?? this.canvas.parentElement?.getBoundingClientRect();
     if (!parentRect) return;
 
     const startX = rect.left - parentRect.left;
@@ -99,9 +104,9 @@ export class ParticleSystem {
    * @param element 印記元素
    * @param index 印記索引
    */
-  public createImpressionGlow(element: HTMLElement, index: number): void {
-    const rect = element.getBoundingClientRect();
-    const parentRect = this.canvas.parentElement?.getBoundingClientRect();
+  public createImpressionGlow(element: HTMLElement, index: number, precomputed?: { rect: DOMRect; parentRect: DOMRect }): void {
+    const rect = precomputed?.rect ?? element.getBoundingClientRect();
+    const parentRect = precomputed?.parentRect ?? this.canvas.parentElement?.getBoundingClientRect();
     if (!parentRect) return;
 
     const centerX = rect.left - parentRect.left + rect.width / 2;

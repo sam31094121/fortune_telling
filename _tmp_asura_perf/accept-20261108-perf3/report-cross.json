@@ -1,0 +1,674 @@
+{
+  "base": "http://localhost:3010",
+  "startedAt": "2026-11-08T09:40:22.930Z",
+  "cross1": [
+    {
+      "page": "/",
+      "cpu": 1,
+      "before": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects",
+        "app-stress-mode"
+      ],
+      "scrollMax": 5309,
+      "during": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects",
+        "app-stress-mode",
+        "app-scrolling"
+      ],
+      "scrollY": 2447,
+      "after6s": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollWindowMs": {
+        "start": 3415,
+        "end": 4550
+      },
+      "transitions": {
+        "app-scrolling": [
+          "+888",
+          "-1462",
+          "+3438",
+          "-4955"
+        ],
+        "app-stress-mode": [
+          "+908",
+          "-6110"
+        ],
+        "app-lite-effects": [
+          "+888"
+        ],
+        "app-touching": []
+      },
+      "classMutationCount": 8,
+      "scrollingSeenDuring": true,
+      "scrollingClearedAfter": true,
+      "stressClearedAfter": true,
+      "shot": "page_-cpu1-after.png",
+      "docStatus": [
+        {
+          "url": "http://localhost:3010/",
+          "status": 200
+        }
+      ],
+      "consoleErrors": [],
+      "consoleWarnings": 1,
+      "exceptions": [],
+      "logErrors": [],
+      "httpErrors": []
+    },
+    {
+      "page": "/trust",
+      "cpu": 1,
+      "before": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollMax": 1415,
+      "during": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects",
+        "app-scrolling"
+      ],
+      "scrollY": 1415,
+      "after6s": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollWindowMs": {
+        "start": 2704,
+        "end": 3710
+      },
+      "transitions": {
+        "app-scrolling": [
+          "+2708",
+          "-4114"
+        ],
+        "app-stress-mode": [],
+        "app-lite-effects": [
+          "+148"
+        ],
+        "app-touching": []
+      },
+      "classMutationCount": 4,
+      "scrollingSeenDuring": true,
+      "scrollingClearedAfter": true,
+      "stressClearedAfter": true,
+      "shot": "page_trust-cpu1-after.png",
+      "docStatus": [
+        {
+          "url": "http://localhost:3010/trust",
+          "status": 200
+        }
+      ],
+      "consoleErrors": [],
+      "consoleWarnings": 0,
+      "exceptions": [],
+      "logErrors": [],
+      "httpErrors": []
+    },
+    {
+      "page": "/dual-chart",
+      "cpu": 1,
+      "before": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollMax": 0,
+      "during": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollY": 0,
+      "after6s": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollWindowMs": {
+        "start": 2672,
+        "end": 3754
+      },
+      "transitions": {
+        "app-scrolling": [],
+        "app-stress-mode": [],
+        "app-lite-effects": [
+          "+154"
+        ],
+        "app-touching": []
+      },
+      "classMutationCount": 2,
+      "scrollingSeenDuring": false,
+      "scrollingClearedAfter": true,
+      "stressClearedAfter": true,
+      "shot": "page_dual-chart-cpu1-after.png",
+      "docStatus": [
+        {
+          "url": "http://localhost:3010/dual-chart",
+          "status": 200
+        }
+      ],
+      "consoleErrors": [],
+      "consoleWarnings": 0,
+      "exceptions": [],
+      "logErrors": [],
+      "httpErrors": []
+    },
+    {
+      "page": "/single-shensha",
+      "cpu": 1,
+      "before": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollMax": 0,
+      "during": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollY": 0,
+      "after6s": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollWindowMs": {
+        "start": 2676,
+        "end": 3763
+      },
+      "transitions": {
+        "app-scrolling": [],
+        "app-stress-mode": [],
+        "app-lite-effects": [
+          "+134"
+        ],
+        "app-touching": []
+      },
+      "classMutationCount": 2,
+      "scrollingSeenDuring": false,
+      "scrollingClearedAfter": true,
+      "stressClearedAfter": true,
+      "shot": "page_single-shensha-cpu1-after.png",
+      "docStatus": [
+        {
+          "url": "http://localhost:3010/single-shensha",
+          "status": 200
+        }
+      ],
+      "consoleErrors": [],
+      "consoleWarnings": 0,
+      "exceptions": [],
+      "logErrors": [],
+      "httpErrors": []
+    },
+    {
+      "page": "/ghost-asura",
+      "cpu": 1,
+      "before": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollMax": 1653,
+      "during": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects",
+        "app-scrolling"
+      ],
+      "scrollY": 1600,
+      "after6s": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollWindowMs": {
+        "start": 2714,
+        "end": 3843
+      },
+      "transitions": {
+        "app-scrolling": [
+          "+2733",
+          "-4250"
+        ],
+        "app-stress-mode": [],
+        "app-lite-effects": [
+          "+216"
+        ],
+        "app-touching": []
+      },
+      "classMutationCount": 4,
+      "scrollingSeenDuring": true,
+      "scrollingClearedAfter": true,
+      "stressClearedAfter": true,
+      "shot": "page_ghost-asura-cpu1-after.png",
+      "docStatus": [
+        {
+          "url": "http://localhost:3010/ghost-asura",
+          "status": 200
+        }
+      ],
+      "consoleErrors": [],
+      "consoleWarnings": 0,
+      "exceptions": [],
+      "logErrors": [],
+      "httpErrors": []
+    },
+    {
+      "page": "/beast-game/battlefield",
+      "cpu": 1,
+      "before": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollMax": 65,
+      "during": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollY": 0,
+      "after6s": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollWindowMs": {
+        "start": 2677,
+        "end": 3796
+      },
+      "transitions": {
+        "app-scrolling": [],
+        "app-stress-mode": [],
+        "app-lite-effects": [
+          "+118"
+        ],
+        "app-touching": []
+      },
+      "classMutationCount": 2,
+      "scrollingSeenDuring": false,
+      "scrollingClearedAfter": true,
+      "stressClearedAfter": true,
+      "shot": "page_beast-game_battlefield-cpu1-after.png",
+      "docStatus": [
+        {
+          "url": "http://localhost:3010/beast-game/battlefield",
+          "status": 200
+        }
+      ],
+      "consoleErrors": [],
+      "consoleWarnings": 0,
+      "exceptions": [],
+      "logErrors": [],
+      "httpErrors": []
+    }
+  ],
+  "cross4": [
+    {
+      "page": "/",
+      "cpu": 4,
+      "before": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects",
+        "app-stress-mode"
+      ],
+      "scrollMax": 5309,
+      "during": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects",
+        "app-stress-mode",
+        "app-scrolling"
+      ],
+      "scrollY": 2447,
+      "after6s": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollWindowMs": {
+        "start": 5483,
+        "end": 7172
+      },
+      "transitions": {
+        "app-scrolling": [
+          "+5627",
+          "-7522"
+        ],
+        "app-stress-mode": [
+          "+3408",
+          "-8616"
+        ],
+        "app-lite-effects": [
+          "+3286"
+        ],
+        "app-touching": []
+      },
+      "classMutationCount": 6,
+      "scrollingSeenDuring": true,
+      "scrollingClearedAfter": true,
+      "stressClearedAfter": true,
+      "shot": "page_-cpu4-after.png",
+      "docStatus": [
+        {
+          "url": "http://localhost:3010/",
+          "status": 200
+        }
+      ],
+      "consoleErrors": [],
+      "consoleWarnings": 1,
+      "exceptions": [],
+      "logErrors": [],
+      "httpErrors": []
+    },
+    {
+      "page": "/trust",
+      "cpu": 4,
+      "before": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollMax": 1415,
+      "during": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects",
+        "app-scrolling"
+      ],
+      "scrollY": 1415,
+      "after6s": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollWindowMs": {
+        "start": 3308,
+        "end": 4354
+      },
+      "transitions": {
+        "app-scrolling": [
+          "+3319",
+          "-4936"
+        ],
+        "app-stress-mode": [],
+        "app-lite-effects": [
+          "+877"
+        ],
+        "app-touching": []
+      },
+      "classMutationCount": 4,
+      "scrollingSeenDuring": true,
+      "scrollingClearedAfter": true,
+      "stressClearedAfter": true,
+      "shot": "page_trust-cpu4-after.png",
+      "docStatus": [
+        {
+          "url": "http://localhost:3010/trust",
+          "status": 200
+        }
+      ],
+      "consoleErrors": [],
+      "consoleWarnings": 0,
+      "exceptions": [],
+      "logErrors": [],
+      "httpErrors": []
+    },
+    {
+      "page": "/dual-chart",
+      "cpu": 4,
+      "before": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollMax": 0,
+      "during": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollY": 0,
+      "after6s": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollWindowMs": {
+        "start": 3261,
+        "end": 4344
+      },
+      "transitions": {
+        "app-scrolling": [],
+        "app-stress-mode": [],
+        "app-lite-effects": [
+          "+776"
+        ],
+        "app-touching": []
+      },
+      "classMutationCount": 2,
+      "scrollingSeenDuring": false,
+      "scrollingClearedAfter": true,
+      "stressClearedAfter": true,
+      "shot": "page_dual-chart-cpu4-after.png",
+      "docStatus": [
+        {
+          "url": "http://localhost:3010/dual-chart",
+          "status": 200
+        }
+      ],
+      "consoleErrors": [],
+      "consoleWarnings": 0,
+      "exceptions": [],
+      "logErrors": [],
+      "httpErrors": []
+    },
+    {
+      "page": "/single-shensha",
+      "cpu": 4,
+      "before": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollMax": 0,
+      "during": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollY": 0,
+      "after6s": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollWindowMs": {
+        "start": 3208,
+        "end": 4292
+      },
+      "transitions": {
+        "app-scrolling": [],
+        "app-stress-mode": [],
+        "app-lite-effects": [
+          "+710"
+        ],
+        "app-touching": []
+      },
+      "classMutationCount": 2,
+      "scrollingSeenDuring": false,
+      "scrollingClearedAfter": true,
+      "stressClearedAfter": true,
+      "shot": "page_single-shensha-cpu4-after.png",
+      "docStatus": [
+        {
+          "url": "http://localhost:3010/single-shensha",
+          "status": 200
+        }
+      ],
+      "consoleErrors": [],
+      "consoleWarnings": 0,
+      "exceptions": [],
+      "logErrors": [],
+      "httpErrors": []
+    },
+    {
+      "page": "/ghost-asura",
+      "cpu": 4,
+      "before": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects",
+        "app-stress-mode"
+      ],
+      "scrollMax": 1653,
+      "during": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects",
+        "app-stress-mode",
+        "app-scrolling"
+      ],
+      "scrollY": 1600,
+      "after6s": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollWindowMs": {
+        "start": 3744,
+        "end": 4870
+      },
+      "transitions": {
+        "app-scrolling": [
+          "+3768",
+          "-5272"
+        ],
+        "app-stress-mode": [
+          "+1509",
+          "-6713"
+        ],
+        "app-lite-effects": [
+          "+1461"
+        ],
+        "app-touching": []
+      },
+      "classMutationCount": 6,
+      "scrollingSeenDuring": true,
+      "scrollingClearedAfter": true,
+      "stressClearedAfter": true,
+      "shot": "page_ghost-asura-cpu4-after.png",
+      "docStatus": [
+        {
+          "url": "http://localhost:3010/ghost-asura",
+          "status": 200
+        }
+      ],
+      "consoleErrors": [],
+      "consoleWarnings": 0,
+      "exceptions": [],
+      "logErrors": [],
+      "httpErrors": []
+    },
+    {
+      "page": "/beast-game/battlefield",
+      "cpu": 4,
+      "before": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollMax": 65,
+      "during": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollY": 0,
+      "after6s": [
+        "app-mobile-device",
+        "app-small-screen",
+        "app-low-power-device",
+        "app-lite-effects"
+      ],
+      "scrollWindowMs": {
+        "start": 3078,
+        "end": 4165
+      },
+      "transitions": {
+        "app-scrolling": [],
+        "app-stress-mode": [],
+        "app-lite-effects": [
+          "+617"
+        ],
+        "app-touching": []
+      },
+      "classMutationCount": 2,
+      "scrollingSeenDuring": false,
+      "scrollingClearedAfter": true,
+      "stressClearedAfter": true,
+      "shot": "page_beast-game_battlefield-cpu4-after.png",
+      "docStatus": [
+        {
+          "url": "http://localhost:3010/beast-game/battlefield",
+          "status": 200
+        }
+      ],
+      "consoleErrors": [],
+      "consoleWarnings": 0,
+      "exceptions": [],
+      "logErrors": [],
+      "httpErrors": []
+    }
+  ],
+  "finishedAt": "2026-11-08T09:42:35.992Z"
+}

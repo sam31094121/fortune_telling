@@ -1,0 +1,131 @@
+[
+  {
+    "file": "beast-match3-backup.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-boss-reserve.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-cascade-attack.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-core.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-counter-visual.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-diagonal.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-enemies.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-entry.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-event-history.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-hard-campaign.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-hard2.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-hard45.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-no-old-cards.test.cjs",
+    "passed": false,
+    "error": "node:assert:885\r\n    throw err;\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: beast_g_baihu 縮圖不是 .v2\r\n    at Object.<anonymous> (C:\\Users\\DRAGON\\Desktop\\命理\\tests\\beast-match3-no-old-cards.test.cjs:22:10)\r\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\r\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\r\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\r\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\r\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\r\n    at node:internal/main/run_main_module:33:47 {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: '/beast-game/thumb/guardian-baihu.v2.webp?v=f5380a7f9ffd',\r\n  expected: /\\.v2(-480)?\\.webp(\\?v=\\d+)?$/,\r\n  operator: 'match',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.13.0\r\n"
+  },
+  {
+    "file": "beast-match3-outcome.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-picker-render.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-player-skills.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-player-status.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-progress-store.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-progression.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-refill-runner.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-refill.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-rig.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-shield-fusion.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-skill-capabilities.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-skill-runtime.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-sound.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-team.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-match3-weighted.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-orb-api.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-orb-support.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-orb-turn-invariants.test.cjs",
+    "passed": true
+  },
+  {
+    "file": "beast-orb-turn.test.cjs",
+    "passed": true
+  }
+]

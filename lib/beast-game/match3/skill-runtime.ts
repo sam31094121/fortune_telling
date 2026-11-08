@@ -47,7 +47,7 @@ function persist<F extends SkillFoe>(f: F, beast: BeastInstance, runtime: FoeSki
   return { ...f, hp: beast.hp, skillRuntime: { ...runtime, shield: beast.shield, modifiers: beast.modifiers, stunnedTurns: beast.stunnedTurns, elementBoosts: beast.elementBoosts } };
 }
 /** Shared foe/ally event adapter. No deck means an entire DRAW/DISCARD skill is inapplicable. */
-export function runOrbSkillEvent<F extends SkillFoe, T extends SkillFoe = SkillFoe>(foe: F, trigger: SkillTrigger, context: { target?: T; actualDamage?: number; eventId?: string; baseAttack?: number; incomingDamageScale?: 0.5 | 1; sourceSide?: 'ally' | 'enemy'; targetSide?: 'ally' | 'enemy' } = {}) {
+export function runOrbSkillEvent<F extends SkillFoe, T extends SkillFoe = SkillFoe>(foe: F, trigger: SkillTrigger, context: { target?: T; actualDamage?: number; eventId?: string; baseAttack?: number; incomingDamageScale?: number; sourceSide?: 'ally' | 'enemy'; targetSide?: 'ally' | 'enemy' } = {}) {
   const result = { source: foe, target: context.target, events: [] as OrbSkillEvent[], unsupported: [] as string[], notApplicable: [] as Array<{ skillId: string; reason: 'no_deck' | 'no_target' }>, targetActualDamage: 0 };
   if (foe.hp <= 0 || (trigger === 'ON_DAMAGED' && !(Number.isFinite(context.actualDamage) && context.actualDamage! > 0))) return result;
   if (trigger === 'ON_ATTACK' && (foe.skillRuntime?.stunnedTurns ?? 0) > 0) return result;
@@ -73,13 +73,13 @@ export function runOrbSkillEvent<F extends SkillFoe, T extends SkillFoe = SkillF
       // Match battle.triggerSkills: dead opponents receive no further effects.
       if (target === enemy && target?.defeated) continue;
       const hpBefore = target?.hp ?? beast.hp, shieldBefore = target?.shield ?? beast.shield, logStart = log.length;
-      if (effect.type === 'DAMAGE' && target === enemy && target && context.incomingDamageScale === 0.5) {
+      if (effect.type === 'DAMAGE' && target === enemy && target && context.incomingDamageScale !== undefined && context.incomingDamageScale < 1) {
         // Resolve the original skill first, before guard, shield or overkill clipping.
         const probe = { ...target, hp: Number.MAX_SAFE_INTEGER, maxHp: Number.MAX_SAFE_INTEGER, shield: 0, defeated: false };
         const original: EffectLogEntry[] = [];
         resolveEffects([effect], { source: beast, target: probe, baseAttack, side: { draw: () => 0, discard: () => 0 }, log: original });
         for (const entry of original) {
-          const guarded = Math.round(entry.applied * 0.5);
+          const guarded = Math.round(entry.applied * ([0.3, 0.4, 0.5].includes(context.incomingDamageScale!) ? context.incomingDamageScale! : 1));
           const absorbed = Math.min(target.shield, guarded);
           target.shield -= absorbed;
           const before = target.hp;
@@ -105,7 +105,7 @@ export function runOrbSkillEvent<F extends SkillFoe, T extends SkillFoe = SkillF
   return result;
 }
 /** Compatibility for foe-only callers; pass a target to resolve offensive skills. */
-export function runFoeSkillEvent<F extends SkillFoe, T extends SkillFoe = SkillFoe>(foe: F, trigger: SkillTrigger, context: { target?: T; actualDamage?: number; eventId?: string; baseAttack?: number; incomingDamageScale?: 0.5 | 1; sourceSide?: 'ally' | 'enemy'; targetSide?: 'ally' | 'enemy' } = {}) {
+export function runFoeSkillEvent<F extends SkillFoe, T extends SkillFoe = SkillFoe>(foe: F, trigger: SkillTrigger, context: { target?: T; actualDamage?: number; eventId?: string; baseAttack?: number; incomingDamageScale?: number; sourceSide?: 'ally' | 'enemy'; targetSide?: 'ally' | 'enemy' } = {}) {
   const result = runOrbSkillEvent(foe, trigger, context);
   return { ...result, foe: result.source };
 }

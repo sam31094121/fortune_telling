@@ -1,0 +1,34 @@
+{
+  "name": "peel-390-cpu6",
+  "meta": {
+    "ok": true,
+    "text": "再剝一層"
+  },
+  "windowFound": true,
+  "windowMs": 3051,
+  "longTaskCount": 5,
+  "longTaskMaxMs": 133.3,
+  "longTasks": [
+    {
+      "startMsFromActionStart": 33.1,
+      "durationMs": 116.4
+    },
+    {
+      "startMsFromActionStart": 199.7,
+      "durationMs": 133.3
+    },
+    {
+      "startMsFromActionStart": 363.4,
+      "durationMs": 92.2
+    },
+    {
+      "startMsFromActionStart": 475.2,
+      "durationMs": 102.5
+    },
+    {
+      "startMsFromActionStart": 597.4,
+      "durationMs": 118.2
+    }
+  ],
+  "eventCount": 51035
+}

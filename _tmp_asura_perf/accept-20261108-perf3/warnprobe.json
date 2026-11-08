@@ -1,0 +1,122 @@
+[
+  {
+    "page": "/",
+    "cpu": 1,
+    "before": [
+      "app-mobile-device",
+      "app-small-screen",
+      "app-low-power-device",
+      "app-lite-effects",
+      "app-stress-mode"
+    ],
+    "scrollMax": 5309,
+    "during": [
+      "app-mobile-device",
+      "app-small-screen",
+      "app-low-power-device",
+      "app-lite-effects",
+      "app-stress-mode",
+      "app-scrolling"
+    ],
+    "scrollY": 2447,
+    "after6s": [
+      "app-mobile-device",
+      "app-small-screen",
+      "app-low-power-device",
+      "app-lite-effects"
+    ],
+    "scrollWindowMs": {
+      "start": 2860,
+      "end": 4070
+    },
+    "transitions": {
+      "app-scrolling": [
+        "+951",
+        "-1510",
+        "+2884",
+        "-4476"
+      ],
+      "app-stress-mode": [
+        "+977",
+        "-6181"
+      ],
+      "app-lite-effects": [
+        "+951"
+      ],
+      "app-touching": []
+    },
+    "classMutationCount": 8,
+    "scrollingSeenDuring": true,
+    "scrollingClearedAfter": true,
+    "stressClearedAfter": true,
+    "shot": "page_-cpu1-after.png",
+    "docStatus": [
+      {
+        "url": "http://localhost:3010/",
+        "status": 200
+      }
+    ],
+    "consoleErrors": [],
+    "consoleWarnings": [
+      {
+        "type": "warning",
+        "text": "THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."
+      }
+    ],
+    "exceptions": [],
+    "logErrors": [],
+    "httpErrors": []
+  },
+  {
+    "page": "/dual-chart",
+    "cpu": 1,
+    "before": [
+      "app-mobile-device",
+      "app-small-screen",
+      "app-low-power-device",
+      "app-lite-effects"
+    ],
+    "scrollMax": 0,
+    "during": [
+      "app-mobile-device",
+      "app-small-screen",
+      "app-low-power-device",
+      "app-lite-effects"
+    ],
+    "scrollY": 0,
+    "after6s": [
+      "app-mobile-device",
+      "app-small-screen",
+      "app-low-power-device",
+      "app-lite-effects"
+    ],
+    "scrollWindowMs": {
+      "start": 2671,
+      "end": 3772
+    },
+    "transitions": {
+      "app-scrolling": [],
+      "app-stress-mode": [],
+      "app-lite-effects": [
+        "+159"
+      ],
+      "app-touching": []
+    },
+    "classMutationCount": 2,
+    "scrollingSeenDuring": false,
+    "scrollingClearedAfter": true,
+    "stressClearedAfter": true,
+    "shot": "page_dual-chart-cpu1-after.png",
+    "docStatus": [
+      {
+        "url": "http://localhost:3010/dual-chart",
+        "status": 200
+      }
+    ],
+    "consoleErrors": [],
+    "consoleWarnings": [],
+    "exceptions": [],
+    "logErrors": [],
+    "httpErrors": []
+  }
+]

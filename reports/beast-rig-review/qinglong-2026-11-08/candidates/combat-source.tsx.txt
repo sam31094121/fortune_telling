@@ -1,0 +1,8 @@
+'use client';
+import {useState} from 'react';
+import {Match3Game,pickLineup} from '@/components/battlefield/Match3Board';
+import {match3Mode,seededRng,generateDragBoard,DEFAULT_SAME_ELEMENT_RULE} from '@/lib/beast-game/match3';
+import {QINGLONG_RIG} from '@/lib/beast-game/beast-rig';
+QINGLONG_RIG.frames=QINGLONG_RIG.frames.map(f=>f.id==='pounce-open'||f.id==='bite-close'?{...f,file:'../qinglong-review/'+f.id+'.png',contact:[0.27,f.id==='pounce-open'?0.38:0.34],anchors:{...f.anchors,head:[0.31,0.29],neck:[0.43,0.36],jaw:[0.30,0.38],claw:[0.18,0.60],shoulder:[0.30,0.68],hind:f.id==='pounce-open'?[[0.48,0.83],[0.72,0.83]]:[[0.48,0.83],[0.87,0.76]]}}:f);
+const ids=['beast_g_qinglong','beast_g_baihu','beast_g_zhuque','beast_g_xuanwu','beast_a03'];
+export default function Review(){const cfg=match3Mode('hard45');const [init]=useState(()=>{const rng=seededRng(8821);const lineup=pickLineup(rng,ids,cfg,0);return{rng,seed:8821,wins:0,owner:null,...lineup,team:lineup.team.map(t=>({...t,energy:100})),board:generateDragBoard(rng,cfg.rows,cfg.cols,cfg.diagonal,3)}});return <Match3Game init={init} teamIds={ids} cfg={cfg} rule={DEFAULT_SAME_ELEMENT_RULE} campaignEnabled={false}/>;}

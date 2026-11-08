@@ -1,0 +1,1690 @@
+{
+  "cpu": 4,
+  "windowMs": 10031.6,
+  "longTasks": [
+    {
+      "start": 0.8,
+      "dur": 408.3,
+      "top": [
+        "WebFrameWidgetImpl::UpdateLifecycle:406.7",
+        "LocalFrameView::RunStyleAndLayoutLifecyclePhases:402.3",
+        "LocalFrameView::updateStyleAndLayoutIfNeededRecursive:402.3",
+        "LocalFrameView::UpdateStyleAndLayout:402.3",
+        "Blink.Style.UpdateTime:402.2",
+        "UpdateLayoutTree:400.1",
+        "Document::updateStyle:400",
+        "Document::recalcStyle:399.5"
+      ]
+    },
+    {
+      "start": 410.1,
+      "dur": 158.6,
+      "top": [
+        "EvaluateScript:158.3",
+        "RunMicrotasks:120.8",
+        "FunctionCall:120.4",
+        "EventDispatcher::dispatch:43.7",
+        "EventDispatch:43.7",
+        "Blink.Style.UpdateTime:24.5",
+        "UpdateLayoutTree:23.9",
+        "Document::updateStyle:23"
+      ]
+    },
+    {
+      "start": 568.8,
+      "dur": 441.4,
+      "top": [
+        "WebFrameWidgetImpl::UpdateLifecycle:437.4",
+        "LocalFrameView::RunStyleAndLayoutLifecyclePhases:422.5",
+        "LocalFrameView::UpdateStyleAndLayout:422.4",
+        "LocalFrameView::updateStyleAndLayoutIfNeededRecursive:422.3",
+        "Blink.Style.UpdateTime:412.6",
+        "UpdateLayoutTree:409.9",
+        "Document::updateStyle:409.8",
+        "Document::recalcStyle:409.3"
+      ]
+    },
+    {
+      "start": 1166.6,
+      "dur": 90.4,
+      "top": [
+        "MessagePort::Accept:90.2",
+        "FunctionCall:90",
+        "V8.StackGuard:0.3",
+        "V8.HandleInterrupts:0.3",
+        "V8.BytecodeBudgetInterrupt:0.2",
+        "RunMicrotasks:0",
+        "SerializedScriptValueFactory::create:0",
+        "V8.BytecodeBudgetInterruptWithStackCheck:0"
+      ]
+    },
+    {
+      "start": 1257,
+      "dur": 492.1,
+      "top": [
+        "WebFrameWidgetImpl::UpdateLifecycle:484.8",
+        "LocalFrameView::RunStyleAndLayoutLifecyclePhases:474",
+        "LocalFrameView::updateStyleAndLayoutIfNeededRecursive:473.9",
+        "LocalFrameView::UpdateStyleAndLayout:473.9",
+        "Blink.Style.UpdateTime:468.1",
+        "UpdateLayoutTree:465.5",
+        "Document::updateStyle:465.3",
+        "Document::recalcStyle:464.9"
+      ]
+    },
+    {
+      "start": 2201.1,
+      "dur": 2001.8,
+      "top": [
+        "WebFrameWidgetImpl::UpdateLifecycle:1997.4",
+        "LocalFrameView::UpdateStyleAndLayout:1954.5",
+        "LocalFrameView::RunStyleAndLayoutLifecyclePhases:1953.3",
+        "LocalFrameView::updateStyleAndLayoutIfNeededRecursive:1953.1",
+        "LocalFrameView::layout:1026.2",
+        "Layout:1026.2",
+        "LocalFrameView::performLayout:1025.8",
+        "Blink.Layout.UpdateTime:1024.6"
+      ]
+    },
+    {
+      "start": 4206.4,
+      "dur": 166.2,
+      "top": [
+        "MessagePort::Accept:166",
+        "FunctionCall:165.6",
+        "Document::UpdateStyleAndLayout:53.7",
+        "Blink.ForcedStyleAndLayout.UpdateTime:53.6",
+        "LocalFrameView::UpdateStyleAndLayout:53.3",
+        "Blink.Style.UpdateTime:48.1",
+        "UpdateLayoutTree:47.3",
+        "Document::updateStyle:32.4"
+      ]
+    },
+    {
+      "start": 4403.6,
+      "dur": 1168.3,
+      "top": [
+        "TimerBase::run:1168.1",
+        "TimerFire:1168.1",
+        "AsyncTask Run:1167.9",
+        "FunctionCall:1167.7",
+        "Document::UpdateStyleAndLayout:1166.9",
+        "Blink.ForcedStyleAndLayout.UpdateTime:1166.9",
+        "LocalFrameView::UpdateStyleAndLayout:1166.7",
+        "Blink.Style.UpdateTime:1163.1"
+      ]
+    },
+    {
+      "start": 5572.5,
+      "dur": 1112.8,
+      "top": [
+        "WebFrameWidgetImpl::UpdateLifecycle:1083.2",
+        "LocalFrameView::RunStyleAndLayoutLifecyclePhases:1067.1",
+        "LocalFrameView::updateStyleAndLayoutIfNeededRecursive:1066.9",
+        "LocalFrameView::UpdateStyleAndLayout:1066.9",
+        "Blink.Style.UpdateTime:1063.3",
+        "UpdateLayoutTree:1060.2",
+        "Document::updateStyle:1060.2",
+        "Document::recalcStyle:1059"
+      ]
+    },
+    {
+      "start": 6685.9,
+      "dur": 104.4,
+      "top": [
+        "MessagePort::Accept:104.1",
+        "FunctionCall:103.8",
+        "V8.StackGuard:1.2",
+        "V8.HandleInterrupts:1.1",
+        "V8.BytecodeBudgetInterrupt:0.2",
+        "RunMicrotasks:0.2",
+        "SerializedScriptValueFactory::create:0",
+        "V8.BytecodeBudgetInterruptWithStackCheck:0"
+      ]
+    },
+    {
+      "start": 6791.8,
+      "dur": 1122,
+      "top": [
+        "WebFrameWidgetImpl::UpdateLifecycle:1110.3",
+        "LocalFrameView::RunStyleAndLayoutLifecyclePhases:1080.4",
+        "LocalFrameView::updateStyleAndLayoutIfNeededRecursive:1080.2",
+        "LocalFrameView::UpdateStyleAndLayout:1080",
+        "Blink.Style.UpdateTime:1050.4",
+        "UpdateLayoutTree:1047.1",
+        "Document::updateStyle:1045.4",
+        "Document::recalcStyle:1043.1"
+      ]
+    },
+    {
+      "start": 7918.2,
+      "dur": 939.4,
+      "top": [
+        "TimerBase::run:939.2",
+        "TimerFire:939.2",
+        "AsyncTask Run:939.1",
+        "FunctionCall:938.8",
+        "Document::UpdateStyleAndLayout:937.4",
+        "Blink.ForcedStyleAndLayout.UpdateTime:937.4",
+        "LocalFrameView::UpdateStyleAndLayout:937.4",
+        "Blink.Style.UpdateTime:935"
+      ]
+    },
+    {
+      "start": 8858.2,
+      "dur": 115.9,
+      "top": [
+        "WebFrameWidgetImpl::BeginMainFrame:101.3",
+        "Blink.Animate.UpdateTime:101.3",
+        "PageAnimator::serviceScriptedAnimations:101.3",
+        "AsyncTask Run:100.9",
+        "FunctionCall:100",
+        "FrameRequestCallbackCollection::ExecuteFrameCallbacks:98.8",
+        "FireAnimationFrame:98.8",
+        "V8.GC_HEAP_ENSURE_SWEEPING_COMPLETED:96"
+      ]
+    },
+    {
+      "start": 8981.8,
+      "dur": 907.2,
+      "top": [
+        "Document::UpdateStyleAndLayout:906.9",
+        "Blink.ForcedStyleAndLayout.UpdateTime:906.9",
+        "LocalFrameView::UpdateStyleAndLayout:906.9",
+        "Blink.Style.UpdateTime:904.7",
+        "UpdateLayoutTree:901.7",
+        "Document::updateStyle:901.5",
+        "Document::recalcStyle:900.5",
+        "V8.GC_MC_INCREMENTAL:6.7"
+      ]
+    },
+    {
+      "start": 9889.3,
+      "dur": 73.1,
+      "top": [
+        "WebFrameWidgetImpl::UpdateLifecycle:54.2",
+        "LocalFrameView::RunStyleAndLayoutLifecyclePhases:45",
+        "LocalFrameView::updateStyleAndLayoutIfNeededRecursive:45",
+        "LocalFrameView::UpdateStyleAndLayout:45",
+        "Blink.Style.UpdateTime:44.9",
+        "UpdateLayoutTree:44.1",
+        "Document::updateStyle:44.1",
+        "Document::recalcStyle:43.7"
+      ]
+    },
+    {
+      "start": 9962.6,
+      "dur": 68.6,
+      "top": [
+        "MessagePort::Accept:68.4",
+        "FunctionCall:68",
+        "V8.StackGuard:0.7",
+        "V8.HandleInterrupts:0.7",
+        "RunMicrotasks:0.2",
+        "V8.BytecodeBudgetInterrupt:0.2"
+      ]
+    }
+  ],
+  "layouts": [
+    {
+      "start": 3115.9,
+      "dur": 1024.1,
+      "begin": {
+        "dirtyObjects": 441,
+        "frame": "0BA548D0E2C09AAFDF651999D2C63B32",
+        "partialLayout": false,
+        "sampleTraceId": 5710859582159819,
+        "totalObjects": 852
+      },
+      "end": null,
+      "inv": [
+        [
+          "LayoutInvalidationTracking | #text | Added to layout | @:",
+          126
+        ],
+        [
+          "LayoutInvalidationTracking | SUMMARY class='GhostAsuraCard_supplementHead__uSsU5' | Added to layout | @:",
+          19
+        ],
+        [
+          "LayoutInvalidationTracking | BUTTON class='GhostAsuraCard_tileSquare__UBQL4' | Added to layout | @:",
+          12
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN class='GhostAsuraCard_decreeMarkerIcon__0Wdob GhostAsuraCard_visual_visualIcon__bvZzw' | Added to layout | @:",
+          12
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN class='AsuraAgeTimeline_tense__2wYGU' | Added to layout | @:",
+          12
+        ],
+        [
+          "LayoutInvalidationTracking | LI class='AsuraAgeTimeline_line__k_E7H AsuraAgeTimeline_motion_motionLine__H7dPY AsuraAgeTimeline_motion_motionPeel__wouxo' | Added to layout | @:",
+          12
+        ],
+        [
+          "LayoutInvalidationTracking | ARTICLE class='GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardCurrent__HoLHs GhostAsuraCard_visual_entranceCurrentCard__pHKjF' | Added to layout | @:",
+          10
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN class='GhostAsuraCard_visual_visualAgeBand__tP14v' | Added to layout | @:",
+          8
+        ],
+        [
+          "LayoutInvalidationTracking | BUTTON class='AsuraAgeTimeline_peelButton__JHJC1' | Added to layout | @:",
+          8
+        ],
+        [
+          "LayoutInvalidationTracking | LI class='AsuraAgeTimeline_progressItem__hbN8C' | Added to layout | @:",
+          6
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN class='AsuraAgeTimeline_progressAge__hzlgM' | Added to layout | @:",
+          6
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN class='AsuraAgeTimeline_ageLabel__8CVmx' | Added to layout | @:",
+          6
+        ]
+      ]
+    },
+    {
+      "start": 7849.4,
+      "dur": 27.8,
+      "begin": {
+        "dirtyObjects": 191,
+        "frame": "0BA548D0E2C09AAFDF651999D2C63B32",
+        "partialLayout": false,
+        "sampleTraceId": 5710859582147062,
+        "totalObjects": 1145
+      },
+      "end": null,
+      "inv": [
+        [
+          "LayoutInvalidationTracking | #text | Added to layout | @:",
+          35
+        ],
+        [
+          "LayoutInvalidationTracking | SLOT id='details-content' | Removed from layout | @:",
+          21
+        ],
+        [
+          "LayoutInvalidationTracking | SLOT id='details-content' | Added to layout | @:",
+          21
+        ],
+        [
+          "LayoutInvalidationTracking | LI class='AsuraAgeTimeline_line__k_E7H AsuraAgeTimeline_motion_motionLine__H7dPY AsuraAgeTimeline_motion_motionPeel__wouxo' | Added to layout | @:",
+          12
+        ],
+        [
+          "LayoutInvalidationTracking | BUTTON class='AsuraAgeTimeline_peelButton__JHJC1 AsuraAgeTimeline_peelButtonCurrent__rw23e' | Added to layout | @:",
+          8
+        ],
+        [
+          "LayoutInvalidationTracking | BUTTON class='AsuraAgeTimeline_segNavLink__Vkm2H' | Added to layout | @:",
+          4
+        ],
+        [
+          "LayoutInvalidationTracking | DIV class='AsuraAgeTimeline_lineSurface__TOdOR' | Added to layout | @:",
+          4
+        ],
+        [
+          "LayoutInvalidationTracking | DIV class='AsuraAgeTimeline_peelMeta__bqPcH' | Added to layout | @:",
+          4
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN class='AsuraAgeTimeline_peelProgress__vn6X0' | Added to layout | @:",
+          4
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN class='AsuraAgeTimeline_tense__2wYGU' | Added to layout | @:",
+          4
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN class='AsuraAgeTimeline_ageLabel__8CVmx' | Added to layout | @:",
+          2
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN class='AsuraAgeTimeline_hereTag__PCwuW AsuraAgeTimeline_motion_motionEntranceCurrentMark__AqJMr' | Added to layout | @:",
+          2
+        ]
+      ]
+    },
+    {
+      "start": 4347.2,
+      "dur": 9.9,
+      "begin": {
+        "dirtyObjects": 26,
+        "frame": "0BA548D0E2C09AAFDF651999D2C63B32",
+        "partialLayout": false,
+        "sampleTraceId": 5710859582146471,
+        "stackTrace": [
+          {
+            "columnNumber": 8780,
+            "functionName": "createCardEnergyFlow",
+            "lineNumber": 1,
+            "scriptId": "26",
+            "url": "http://localhost:3010/_next/static/chunks/app/ghost-asura/page-6dfb8da59b08cfc1.js"
+          },
+          {
+            "columnNumber": 17057,
+            "functionName": "",
+            "lineNumber": 1,
+            "scriptId": "26",
+            "url": "http://localhost:3010/_next/static/chunks/app/ghost-asura/page-6dfb8da59b08cfc1.js"
+          },
+          {
+            "columnNumber": 88957,
+            "functionName": "o1",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104849,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104829,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104894,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104733,
+            "functionName": "ux",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 104919,
+            "functionName": "uE",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 129318,
+            "functionName": "i_",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 124936,
+            "functionName": "",
+            "lineNumber": 1,
+            "scriptId": "11",
+            "url": "http://localhost:3010/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js"
+          },
+          {
+            "columnNumber": 65059,
+            "functionName": "w",
+            "lineNumber": 1,
+            "scriptId": "12",
+            "url": "http://localhost:3010/_next/static/chunks/1255-cf02c4775860a5ab.js"
+          }
+        ],
+        "totalObjects": 1143
+      },
+      "end": null,
+      "inv": [
+        [
+          "InvalidateLayout |  |  | @:",
+          6
+        ],
+        [
+          "LayoutInvalidationTracking | BUTTON class='GhostAsuraCard_tileSquare__UBQL4' | Fonts changed | createCardEnergyFlow@page-6dfb8da59b08cfc1.js:1",
+          6
+        ],
+        [
+          "LayoutInvalidationTracking | path | SVG changed | @:",
+          5
+        ],
+        [
+          "StyleRecalcInvalidationTracking | SPAN class='ElementOrbDisplay_orbContainer__trMIS ElementTreasureOrb_orb__NTPNl' | Animation | createCardEnergyFlow@page-6dfb8da59b08cfc1.js:1",
+          4
+        ],
+        [
+          "StyleRecalcInvalidationTracking | DIV class='ElementOrbDisplay_orbRing__ghX0W' | Animation | createCardEnergyFlow@page-6dfb8da59b08cfc1.js:1",
+          4
+        ],
+        [
+          "StyleRecalcInvalidationTracking | DIV class='ElementOrbDisplay_orbCore__Qs3nZ' | Animation | createCardEnergyFlow@page-6dfb8da59b08cfc1.js:1",
+          4
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN class='GhostAsuraCard_bannerSeal__ZVUv1' | Fonts changed | createCardEnergyFlow@page-6dfb8da59b08cfc1.js:1",
+          4
+        ],
+        [
+          "LayoutInvalidationTracking | svg | Size changed | @:",
+          3
+        ],
+        [
+          "LayoutInvalidationTracking | #document | Unknown | @:",
+          3
+        ],
+        [
+          "LayoutInvalidationTracking | circle | SVG changed | @:",
+          3
+        ],
+        [
+          "LayoutInvalidationTracking | #text | Fonts changed | createCardEnergyFlow@page-6dfb8da59b08cfc1.js:1",
+          3
+        ],
+        [
+          "ScheduleStyleRecalculation |  |  | @:",
+          2
+        ]
+      ]
+    },
+    {
+      "start": 981.9,
+      "dur": 7.9,
+      "begin": {
+        "dirtyObjects": 29,
+        "frame": "0BA548D0E2C09AAFDF651999D2C63B32",
+        "partialLayout": false,
+        "sampleTraceId": 5710859582157744,
+        "totalObjects": 409
+      },
+      "end": null,
+      "inv": [
+        [
+          "StyleRecalcInvalidationTracking | DIV | Control | @:",
+          4
+        ],
+        [
+          "LayoutInvalidationTracking | INPUT class='form-input glass-input glass-input-cyan w-full pr-9' | Style changed | @:",
+          3
+        ],
+        [
+          "LayoutInvalidationTracking | DIV | Style changed | @:",
+          1
+        ],
+        [
+          "LayoutInvalidationTracking | P class='text-center text-xs font-semibold text-white/40' | Style changed | @:",
+          1
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN | Added to layout | @:",
+          1
+        ],
+        [
+          "LayoutInvalidationTracking | #text | Added to layout | @:",
+          1
+        ]
+      ]
+    },
+    {
+      "start": 1729.6,
+      "dur": 3.8,
+      "begin": {
+        "dirtyObjects": 35,
+        "frame": "0BA548D0E2C09AAFDF651999D2C63B32",
+        "partialLayout": false,
+        "sampleTraceId": 5710859582159960,
+        "totalObjects": 415
+      },
+      "end": null,
+      "inv": [
+        [
+          "LayoutInvalidationTracking | #text | Added to layout | @:",
+          4
+        ],
+        [
+          "LayoutInvalidationTracking | INPUT class='form-input glass-input glass-input-cyan w-full pr-9' | Style changed | @:",
+          3
+        ],
+        [
+          "StyleRecalcInvalidationTracking | DIV | Control | @:",
+          3
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN | Added to layout | @:",
+          3
+        ],
+        [
+          "LayoutInvalidationTracking | P class='mega-submit-guide' | Style changed | @:",
+          1
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN class='mega-submit-guide__arrow' | Added to layout | @:",
+          1
+        ]
+      ]
+    }
+  ],
+  "styles": [
+    {
+      "name": "UpdateLayoutTree",
+      "start": 4404.6,
+      "dur": 1160.1,
+      "elementCount": 901,
+      "inv": [
+        [
+          "InvalidateLayout |  |  | @:",
+          6
+        ],
+        [
+          "LayoutInvalidationTracking | BUTTON class='GhostAsuraCard_tileSquare__UBQL4' | Fonts changed | createCardEnergyFlow@page-6dfb8da59b08cfc1.js:1",
+          6
+        ],
+        [
+          "LayoutInvalidationTracking | path | SVG changed | @:",
+          5
+        ],
+        [
+          "StyleRecalcInvalidationTracking | SPAN class='ElementOrbDisplay_orbContainer__trMIS ElementTreasureOrb_orb__NTPNl' | Animation | createCardEnergyFlow@page-6dfb8da59b08cfc1.js:1",
+          4
+        ],
+        [
+          "StyleRecalcInvalidationTracking | DIV class='ElementOrbDisplay_orbRing__ghX0W' | Animation | createCardEnergyFlow@page-6dfb8da59b08cfc1.js:1",
+          4
+        ],
+        [
+          "StyleRecalcInvalidationTracking | DIV class='ElementOrbDisplay_orbCore__Qs3nZ' | Animation | createCardEnergyFlow@page-6dfb8da59b08cfc1.js:1",
+          4
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN class='GhostAsuraCard_bannerSeal__ZVUv1' | Fonts changed | createCardEnergyFlow@page-6dfb8da59b08cfc1.js:1",
+          4
+        ],
+        [
+          "LayoutInvalidationTracking | svg | Size changed | @:",
+          3
+        ],
+        [
+          "LayoutInvalidationTracking | #document | Unknown | @:",
+          3
+        ],
+        [
+          "LayoutInvalidationTracking | circle | SVG changed | @:",
+          3
+        ],
+        [
+          "LayoutInvalidationTracking | #text | Fonts changed | createCardEnergyFlow@page-6dfb8da59b08cfc1.js:1",
+          3
+        ],
+        [
+          "ScheduleStyleRecalculation |  |  | @:",
+          2
+        ]
+      ]
+    },
+    {
+      "name": "UpdateLayoutTree",
+      "start": 5598.7,
+      "dur": 1060.2,
+      "elementCount": 901,
+      "inv": [
+        [
+          "LayoutInvalidationTracking | SLOT id='details-content' | Removed from layout | v@layout-78943f4aa7f5652a.js:1",
+          21
+        ],
+        [
+          "LayoutInvalidationTracking | SLOT id='details-content' | Added to layout | v@layout-78943f4aa7f5652a.js:1",
+          21
+        ],
+        [
+          "StyleRecalcInvalidationTracking | ::before | Animation | @:",
+          18
+        ],
+        [
+          "StyleRecalcInvalidationTracking | LI class='GhostAsuraCard_item__YD3Rm GhostAsuraCard_itemAwakened__lHROn' | Animation | @:",
+          17
+        ],
+        [
+          "StyleRecalcInvalidationTracking | SPAN class='ElementOrbDisplay_orbContainer__trMIS ElementTreasureOrb_orb__NTPNl' | Animation | @:",
+          4
+        ],
+        [
+          "StyleRecalcInvalidationTracking | DIV class='ElementOrbDisplay_orbRing__ghX0W' | Animation | @:",
+          4
+        ],
+        [
+          "StyleRecalcInvalidationTracking | DIV class='ElementOrbDisplay_orbCore__Qs3nZ' | Animation | @:",
+          4
+        ],
+        [
+          "StyleRecalcInvalidationTracking | ARTICLE class='GhostAsuraCard_timelineDecreeCard__rpYwM GhostAsuraCard_visual_visualCard__tJwLS GhostAsuraCard_visual_visualCardCurrent__HoLHs GhostAsuraCard_visual_entranceCurrentCard__pHKjF' | Animation | @:",
+          2
+        ],
+        [
+          "StyleRecalcInvalidationTracking | P class='AsuraAgeTimeline_bridge__GkjJK AsuraAgeTimeline_motion_motionBridge__kyLeB' | Animation | @:",
+          2
+        ],
+        [
+          "InvalidateLayout |  |  | v@layout-78943f4aa7f5652a.js:1",
+          1
+        ],
+        [
+          "StyleRecalcInvalidationTracking | HTML | Affected by :has() | y@layout-78943f4aa7f5652a.js:1",
+          1
+        ],
+        [
+          "ScheduleStyleRecalculation |  |  | y@layout-78943f4aa7f5652a.js:1",
+          1
+        ]
+      ]
+    },
+    {
+      "name": "UpdateLayoutTree",
+      "start": 6801,
+      "dur": 1045.3,
+      "elementCount": 900,
+      "inv": [
+        [
+          "LayoutInvalidationTracking | #text | Removed from layout | ud@4bd1b696-100b9d70ed4e49c1.js:1",
+          34
+        ],
+        [
+          "LayoutInvalidationTracking | SLOT id='details-content' | Removed from layout | @:",
+          21
+        ],
+        [
+          "LayoutInvalidationTracking | SLOT id='details-content' | Added to layout | @:",
+          21
+        ],
+        [
+          "StyleRecalcInvalidationTracking | ::before | Animation | @:",
+          18
+        ],
+        [
+          "StyleRecalcInvalidationTracking | LI class='GhostAsuraCard_item__YD3Rm GhostAsuraCard_itemAwakened__lHROn' | Animation | @:",
+          17
+        ],
+        [
+          "LayoutInvalidationTracking | LI class='AsuraAgeTimeline_line__k_E7H AsuraAgeTimeline_motion_motionLine__H7dPY AsuraAgeTimeline_motion_motionPeel__wouxo' | Removed from layout | ud@4bd1b696-100b9d70ed4e49c1.js:1",
+          12
+        ],
+        [
+          "LayoutInvalidationTracking | BUTTON class='AsuraAgeTimeline_peelButton__JHJC1' | Removed from layout | ud@4bd1b696-100b9d70ed4e49c1.js:1",
+          8
+        ],
+        [
+          "StyleRecalcInvalidationTracking | BODY class='font-sans antialiased app-mobile-device app-small-screen app-low-power-device app-lite-effects app-scrolling' | Affected by :has() | ud@4bd1b696-100b9d70ed4e49c1.js:1",
+          7
+        ],
+        [
+          "ScheduleStyleInvalidationTracking | BODY class='font-sans antialiased app-mobile-device app-small-screen app-low-power-device app-lite-effects app-scrolling' |  | ud@4bd1b696-100b9d70ed4e49c1.js:1",
+          7
+        ],
+        [
+          "StyleRecalcInvalidationTracking | HTML | Affected by :has() | ud@4bd1b696-100b9d70ed4e49c1.js:1",
+          7
+        ],
+        [
+          "StyleRecalcInvalidationTracking | BODY class='font-sans antialiased app-mobile-device app-small-screen app-low-power-device app-lite-effects app-scrolling' | Affected by :has() | un@4bd1b696-100b9d70ed4e49c1.js:1",
+          6
+        ],
+        [
+          "ScheduleStyleInvalidationTracking | BODY class='font-sans antialiased app-mobile-device app-small-screen app-low-power-device app-lite-effects app-scrolling' |  | un@4bd1b696-100b9d70ed4e49c1.js:1",
+          6
+        ]
+      ]
+    },
+    {
+      "name": "UpdateLayoutTree",
+      "start": 7919.2,
+      "dur": 932.7,
+      "elementCount": 900,
+      "inv": [
+        [
+          "LayoutInvalidationTracking | #text | Added to layout | @:",
+          35
+        ],
+        [
+          "LayoutInvalidationTracking | SLOT id='details-content' | Removed from layout | @:",
+          21
+        ],
+        [
+          "LayoutInvalidationTracking | SLOT id='details-content' | Added to layout | @:",
+          21
+        ],
+        [
+          "LayoutInvalidationTracking | LI class='AsuraAgeTimeline_line__k_E7H AsuraAgeTimeline_motion_motionLine__H7dPY AsuraAgeTimeline_motion_motionPeel__wouxo' | Added to layout | @:",
+          12
+        ],
+        [
+          "LayoutInvalidationTracking | BUTTON class='AsuraAgeTimeline_peelButton__JHJC1 AsuraAgeTimeline_peelButtonCurrent__rw23e' | Added to layout | @:",
+          8
+        ],
+        [
+          "LayoutInvalidationTracking | BUTTON class='AsuraAgeTimeline_segNavLink__Vkm2H' | Added to layout | @:",
+          4
+        ],
+        [
+          "LayoutInvalidationTracking | DIV class='AsuraAgeTimeline_lineSurface__TOdOR' | Added to layout | @:",
+          4
+        ],
+        [
+          "LayoutInvalidationTracking | DIV class='AsuraAgeTimeline_peelMeta__bqPcH' | Added to layout | @:",
+          4
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN class='AsuraAgeTimeline_peelProgress__vn6X0' | Added to layout | @:",
+          4
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN class='AsuraAgeTimeline_tense__2wYGU' | Added to layout | @:",
+          4
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN class='AsuraAgeTimeline_ageLabel__8CVmx' | Added to layout | @:",
+          2
+        ],
+        [
+          "LayoutInvalidationTracking | SPAN class='AsuraAgeTimeline_hereTag__PCwuW AsuraAgeTimeline_motion_motionEntranceCurrentMark__AqJMr' | Added to layout | @:",
+          2
+        ]
+      ]
+    },
+    {
+      "name": "UpdateLayoutTree",
+      "start": 2202.3,
+      "dur": 910,
+      "elementCount": 659,
+      "inv": [
+        [
+          "StyleRecalcInvalidationTracking | SPAN class='ElementOrbDisplay_orbContainer__trMIS ElementTreasureOrb_orb__NTPNl' | Animation | @:",
+          28
+        ],
+        [
+          "StyleRecalcInvalidationTracking | DIV class='ElementOrbDisplay_orbRing__ghX0W' | Animation | @:",
+          28
+        ],
+        [
+          "StyleRecalcInvalidationTracking | DIV class='ElementOrbDisplay_orbCore__Qs3nZ' | Animation | @:",
+          28
+        ],
+        [
+          "StyleRecalcInvalidationTracking | BUTTON class='min-h-[88px] rounded-xl border px-3 py-4 text-left transition-all active:scale-[0.97] border-white/10 bg-white/5 hover:border-cyan-300/50 hover:bg-cyan-400/10' | Animation | @:",
+          11
+        ],
+        [
+          "ScheduleStyleRecalculation |  |  | @:",
+          6
+        ],
+        [
+          "StyleRecalcInvalidationTracking | BUTTON class='rounded-2xl border px-5 py-5 text-left transition border-white/10 bg-black/18 text-[color:var(--text-sub)] hover:border-amber-200/35' | Animation | @:",
+          2
+        ],
+        [
+          "StyleRecalcInvalidationTracking | BUTTON class='rounded-lg px-3 py-2.5 font-semibold transition-all border border-cyan-300/30 bg-cyan-400/15 text-cyan-100' | Animation | @:",
+          1
+        ],
+        [
+          "StyleRecalcInvalidationTracking | BUTTON class='rounded-lg px-3 py-2.5 font-semibold transition-all text-[color:var(--text-sub)] hover:text-white' | Animation | @:",
+          1
+        ],
+        [
+          "StyleRecalcInvalidationTracking | BUTTON class='rounded-2xl border px-5 py-5 text-left transition border-amber-200/70 bg-amber-300/16 text-amber-50 shadow-[0_0_22px_rgba(251,191,36,0.16)]' | Animation | @:",
+          1
+        ],
+        [
+          "StyleRecalcInvalidationTracking | BUTTON class='rounded-2xl border px-5 py-5 text-left transition border-cyan-200/70 bg-cyan-300/16 text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,0.14)]' | Animation | @:",
+          1
+        ],
+        [
+          "StyleRecalcInvalidationTracking | BUTTON class='min-h-[88px] rounded-xl border px-3 py-4 text-left transition-all active:scale-[0.97] border-cyan-200 bg-cyan-400/20 text-cyan-100 shadow-[0_0_18px_rgba(255,255,255,0.18)]' | Animation | @:",
+          1
+        ],
+        [
+          "ScheduleStyleRecalculation |  |  | un@4bd1b696-100b9d70ed4e49c1.js:1",
+          1
+        ]
+      ]
+    }
+  ],
+  "invalidationEventNames": [
+    "StyleRecalcInvalidationTracking",
+    "ScheduleStyleRecalculation",
+    "ScheduleStyleInvalidationTracking",
+    "StyleInvalidatorInvalidationTracking",
+    "LayoutInvalidationTracking",
+    "InvalidateLayout",
+    "Document::updateStyleInvalidationIfNeeded",
+    "StyleEngine::scheduleInvalidationsForRuleSets",
+    "StyleEngine::InvalidateStyleAndLayoutForFontUpdates",
+    "LayoutObject::InvalidateSubtreeForFontUpdates"
+  ],
+  "selectorStatsEvents": 35,
+  "topSelectors": [
+    [
+      "body:not(:has(.home-feature-stack, .counter-button, [class*=\"TodayDirectionQuest\"], [class*=\"BeastCard\"], [class*=\"BeastTechCard\"], [class*=\"BattleCardGuide\"], [class*=\"attlefield\"], [class*=\"BeastTurnGame\"], [class*=\"GrowthStakeSlots\"])) main :is([class*=\"border-cyan-\"], .feature-home-link--cyan)",
+      {
+        "us": 18395,
+        "match": 162,
+        "attempts": 6422
+      }
+    ],
+    [
+      "body:not(:has(.home-feature-stack)) main :is(.rounded-2xl, .rounded-3xl)[class*=\"bg-\"][class*=\"border\"]:not(button, a, form):not(:has(input, textarea, select)):not([class*=\"bg-white\"]):not([class*=\"-50\"]):not([class*=\"-100\"]):not([class*=\"-200\"]):not([class*=\"-300\"]):not([class*=\"bg-gradient\"]) [class*=\"text-[color:var(--text-\"]",
+      {
+        "us": 16721,
+        "match": 0,
+        "attempts": 5190
+      }
+    ],
+    [
+      "body:has(#home-eight-card-route) main [class*=\"TodayDirectionQuest_\"] :is(span, small, p, em)",
+      {
+        "us": 13597,
+        "match": 0,
+        "attempts": 6422
+      }
+    ],
+    [
+      "body:not(:has(.home-feature-stack)) :is([class*=\"BeastTechCard_card\"], [class*=\"BeastCardFrame_card\"], [class*=\"BeastCardTile_tile\"], [class*=\"BattleCardGuide_guide\"], [class*=\"FourPillarsCard_pillarCard\"], [class*=\"GhostAsuraTimelineCard_container\"], [class*=\"GhostAsuraTimeCardsDisplay_container\"], [class*=\"GhostAsuraCardComplete_container\"])",
+      {
+        "us": 12247,
+        "match": 0,
+        "attempts": 6422
+      }
+    ],
+    [
+      "::backdrop",
+      {
+        "us": 11142,
+        "match": 4861,
+        "attempts": 6422
+      }
+    ],
+    [
+      "*",
+      {
+        "us": 10155,
+        "match": 19444,
+        "attempts": 25688
+      }
+    ],
+    [
+      "body:has(#home-eight-card-route) :is(header, main) :is(section, .rounded-3xl, .rounded-2xl):not(.home-hero-stage *):not([class*=\"emerald\"]):not([class*=\"red-\"]):not(.home-feature-cta):not(button)",
+      {
+        "us": 9477,
+        "match": 0,
+        "attempts": 6422
+      }
+    ],
+    [
+      "::after",
+      {
+        "us": 9198,
+        "match": 15585,
+        "attempts": 19266
+      }
+    ],
+    [
+      "body:has(#home-eight-card-route) main :is(span, div)[class*=\"rounded-full\"][class*=\"text-[\"]:not(.home-hero-stage *):not([class*=\"emerald\"]):not([class*=\"red-\"]):not(button *)",
+      {
+        "us": 8122,
+        "match": 0,
+        "attempts": 5190
+      }
+    ],
+    [
+      "body:has(#home-eight-card-route) main :is(hr, [class*=\"divide-\"] > *)",
+      {
+        "us": 8041,
+        "match": 0,
+        "attempts": 6422
+      }
+    ]
+  ]
+}

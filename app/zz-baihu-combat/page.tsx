@@ -1,0 +1,6 @@
+'use client';
+import {useState} from 'react';
+import {Match3Game,pickLineup} from '@/components/battlefield/Match3Board';
+import {match3Mode,seededRng,generateDragBoard,DEFAULT_SAME_ELEMENT_RULE} from '@/lib/beast-game/match3';
+const ids=['beast_g_baihu','beast_g_qinglong','beast_g_zhuque','beast_g_xuanwu','beast_a03'];
+export default function Review(){const cfg=match3Mode('hard45');const [init]=useState(()=>{const rng=seededRng(8821);const lineup=pickLineup(rng,ids,cfg,0);return{rng,seed:8821,wins:0,owner:null,...lineup,team:lineup.team.map(t=>({...t,energy:100})),board:generateDragBoard(rng,cfg.rows,cfg.cols,cfg.diagonal,3)}});return <Match3Game init={init} teamIds={ids} cfg={cfg} rule={DEFAULT_SAME_ELEMENT_RULE} campaignEnabled={false}/>;}

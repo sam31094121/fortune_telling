@@ -1,0 +1,26 @@
+{
+  "name": "peel-390-cpu4",
+  "meta": {
+    "ok": true,
+    "text": "再剝一層"
+  },
+  "windowFound": true,
+  "windowMs": 3031,
+  "longTaskCount": 3,
+  "longTaskMaxMs": 74.2,
+  "longTasks": [
+    {
+      "startMsFromActionStart": 13.6,
+      "durationMs": 69.6
+    },
+    {
+      "startMsFromActionStart": 93.2,
+      "durationMs": 74.2
+    },
+    {
+      "startMsFromActionStart": 547.8,
+      "durationMs": 55.6
+    }
+  ],
+  "eventCount": 92828
+}

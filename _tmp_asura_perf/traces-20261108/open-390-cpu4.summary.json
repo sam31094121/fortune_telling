@@ -1,0 +1,43 @@
+{
+  "name": "open-390-cpu4",
+  "meta": {
+    "filled": true,
+    "clicked": true,
+    "decreeAppearWallMs": 1107
+  },
+  "windowFound": true,
+  "windowMs": 4164.9,
+  "longTaskCount": 7,
+  "longTaskMaxMs": 829.4,
+  "longTasks": [
+    {
+      "startMsFromActionStart": 243.4,
+      "durationMs": 829.4
+    },
+    {
+      "startMsFromActionStart": 1075.5,
+      "durationMs": 81.3
+    },
+    {
+      "startMsFromActionStart": 1184.1,
+      "durationMs": 135.5
+    },
+    {
+      "startMsFromActionStart": 1388.5,
+      "durationMs": 86.9
+    },
+    {
+      "startMsFromActionStart": 1568.7,
+      "durationMs": 87.5
+    },
+    {
+      "startMsFromActionStart": 1712.6,
+      "durationMs": 65.3
+    },
+    {
+      "startMsFromActionStart": 3704.9,
+      "durationMs": 61
+    }
+  ],
+  "eventCount": 84258
+}

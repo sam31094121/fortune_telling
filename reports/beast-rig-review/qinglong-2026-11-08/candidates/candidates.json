@@ -1,0 +1,47 @@
+{
+  "card": "beast_g_qinglong",
+  "status": "候選：畫質 HD 底線（1280×720）已通過；調色授權與臉部／鬃毛一致性待業主決定，決定前不得接入或交付",
+  "createdAt": "2026-11-08",
+  "note": "只改鱗片與鬃毛的飽和度與明度，不動透明度、構圖與細節；來源 v2 原檔保留於 public/beast-game/rig/qinglong/。方法腳本：regrade-colors.cjs。",
+  "files": [
+    {
+      "id": "bite-close",
+      "file": "bite-close.v3.webp",
+      "width": 1331,
+      "height": 1181,
+      "bytes": 579220,
+      "sha256": "7d5dac3162f4754e5a3a8ec12e174b79f7498a052786c199ddbe67335e0fca5c",
+      "gradedFrom": {
+        "file": "bite-close.v2.webp",
+        "path": "public/beast-game/rig/qinglong/bite-close.v2.webp",
+        "sha256": "f723997d044781fc1728d60ce150db6b809c6d89d5ad66772059afb26a0998ba"
+      }
+    },
+    {
+      "id": "pounce-open",
+      "file": "pounce-open.v3.webp",
+      "width": 1331,
+      "height": 1182,
+      "bytes": 685912,
+      "sha256": "95b80efb4c41caa43505b6c9499b7650410884d206b15d4c4e395c2d774cedf4",
+      "gradedFrom": {
+        "file": "pounce-open.v2.webp",
+        "path": "public/beast-game/rig/qinglong/pounce-open.v2.webp",
+        "sha256": "7a22f3ec60aa6288999630778e7411de2f80f4c584536534b2ec7bf5987f3c4e"
+      }
+    }
+  ],
+  "reviewedAt": "2026-11-08",
+  "history": [
+    {
+      "at": "2026-11-08 早",
+      "status": "候選（未通過 2K 底線，不得交付或上線）",
+      "note": "當時底線為 2K（2560×1440）；歷史結果保留，不改標。"
+    },
+    {
+      "at": "2026-11-08 17:00 後",
+      "status": "候選：畫質 HD 底線（1280×720）已通過；調色授權與臉部／鬃毛一致性待業主決定，決定前不得接入或交付",
+      "note": "業主批准全套底線改為 HD 1280×720（SKILL.md 2026-11-08 修訂）。"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "scroll-390-cpu6",
+  "meta": {
+    "method": "Input.synthesizeScrollGesture touch",
+    "error": null,
+    "scrollY0": 4982,
+    "scrollY1": 4982
+  },
+  "windowFound": true,
+  "windowMs": 5890,
+  "longTaskCount": 6,
+  "longTaskMaxMs": 127.6,
+  "longTasks": [
+    {
+      "startMsFromActionStart": 122.6,
+      "durationMs": 101.4
+    },
+    {
+      "startMsFromActionStart": 770.7,
+      "durationMs": 114.2
+    },
+    {
+      "startMsFromActionStart": 3119.8,
+      "durationMs": 113.1
+    },
+    {
+      "startMsFromActionStart": 3769.5,
+      "durationMs": 101.2
+    },
+    {
+      "startMsFromActionStart": 4207.8,
+      "durationMs": 99.7
+    },
+    {
+      "startMsFromActionStart": 4322.5,
+      "durationMs": 127.6
+    }
+  ],
+  "eventCount": 109496
+}

@@ -1,0 +1,73 @@
+﻿diff --git a/app/ghost-asura/GhostAsuraPageClient.tsx b/app/ghost-asura/GhostAsuraPageClient.tsx
+index ecf2a19..c42913f 100644
+--- a/app/ghost-asura/GhostAsuraPageClient.tsx
++++ b/app/ghost-asura/GhostAsuraPageClient.tsx
+@@ -254,8 +254,24 @@ export default function GhostAsuraPageClient({
+     // ?剜?∠?撅??單? + 蝎???
+     playCardRevealSound();
+     const particleSystem = getParticleSystem();
++    // ?嚗??∠銝?甈⊥甈∟??嗾雿??∠??捆?具??啗?嚗?閮??典銝??澆 getBoundingClientRect嚗?+    // ?踹?瘥閮?閫貊銝甈⊥?撥?嗅?甇交見撘?????摮??摨???霈?+    const containerRect = particleSystem?.getContainerRect();
++    const cardRect = particleSystem ? cardElement.getBoundingClientRect() : undefined;
++    const glowIdsForGeometry = reading?.glowIds ?? [];
++    const glowGeometry = new Map<string, { element: HTMLElement; rect: DOMRect }>();
++    if (particleSystem && containerRect && glowIdsForGeometry.length > 0) {
++      const items = Array.from(cardElement.querySelectorAll<HTMLElement>('[data-asura-id]'));
++      glowIdsForGeometry.forEach((id) => {
++        const element = items.find((item) => item.getAttribute('data-asura-id') === id);
++        if (element && !glowGeometry.has(id)) glowGeometry.set(id, { element, rect: element.getBoundingClientRect() });
++      });
++    }
+     if (particleSystem) {
+-      particleSystem.createCardEnergyFlow(cardElement);
++      particleSystem.createCardEnergyFlow(
++        cardElement,
++        cardRect && containerRect ? { rect: cardRect, parentRect: containerRect } : undefined,
++      );
+     }
+ 
+     // ??曉閮?鈭桅??+ 蝎?嚗辣??200ms 韏瘀?瘥???100ms嚗?@@ -266,6 +282,11 @@ export default function GhostAsuraPageClient({
+       // ?曉撠???DOM ??銝血撱箏?蝎?
+       animationTimers.push(window.setTimeout(() => {
+         if (cancelled || cardRef.current !== cardElement) return;
++        const cached = glowGeometry.get(id);
++        if (cached && particleSystem && containerRect) {
++          particleSystem.createImpressionGlow(cached.element, index, { rect: cached.rect, parentRect: containerRect });
++          return;
++        }
+         const itemElement = Array.from(cardElement.querySelectorAll<HTMLElement>('[data-asura-id]'))
+           .find((element) => element.getAttribute('data-asura-id') === id);
+         if (itemElement && particleSystem) {
+diff --git a/lib/ghost-asura-particles.ts b/lib/ghost-asura-particles.ts
+index d4374bd..b7f184e 100644
+--- a/lib/ghost-asura-particles.ts
++++ b/lib/ghost-asura-particles.ts
+@@ -69,9 +69,14 @@ export class ParticleSystem {
+   /**
+    * 撱箇??∠??楠?賡?瘚?    */
+-  public createCardEnergyFlow(cardElement: HTMLElement): void {
+-    const rect = cardElement.getBoundingClientRect();
+-    const parentRect = this.canvas.parentElement?.getBoundingClientRect();
++  /** 摰孵嚗anvas ?嗅惜嚗??撟曆?嚗??澆蝡臭?甈⊥甈∟????踹??刻??鋆⊿活撘瑕?郊????*/
++  public getContainerRect(): DOMRect | undefined {
++    return this.canvas.parentElement?.getBoundingClientRect();
++  }
++
++  public createCardEnergyFlow(cardElement: HTMLElement, precomputed?: { rect: DOMRect; parentRect: DOMRect }): void {
++    const rect = precomputed?.rect ?? cardElement.getBoundingClientRect();
++    const parentRect = precomputed?.parentRect ?? this.canvas.parentElement?.getBoundingClientRect();
+     if (!parentRect) return;
+ 
+     const startX = rect.left - parentRect.left;
+@@ -99,9 +104,9 @@ export class ParticleSystem {
+    * @param element ?啗???
+    * @param index ?啗?蝝Ｗ?
+    */
+-  public createImpressionGlow(element: HTMLElement, index: number): void {
+-    const rect = element.getBoundingClientRect();
+-    const parentRect = this.canvas.parentElement?.getBoundingClientRect();
++  public createImpressionGlow(element: HTMLElement, index: number, precomputed?: { rect: DOMRect; parentRect: DOMRect }): void {
++    const rect = precomputed?.rect ?? element.getBoundingClientRect();
++    const parentRect = precomputed?.parentRect ?? this.canvas.parentElement?.getBoundingClientRect();
+     if (!parentRect) return;
+ 
+     const centerX = rect.left - parentRect.left + rect.width / 2;

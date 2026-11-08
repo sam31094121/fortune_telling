@@ -1,0 +1,188 @@
+{
+  "cpu4": [
+    {
+      "name": "open-390-cpu4-layout",
+      "meta": {
+        "filled": true,
+        "clicked": true,
+        "decreeAppearWallMs": 3544
+      },
+      "windowFound": true,
+      "windowMs": 8187.3,
+      "longTaskCount": 13,
+      "longTaskMaxMs": 1980.6,
+      "longTasks": [
+        {
+          "startMsFromActionStart": 2,
+          "durationMs": 473.4
+        },
+        {
+          "startMsFromActionStart": 475.6,
+          "durationMs": 163.8
+        },
+        {
+          "startMsFromActionStart": 639.4,
+          "durationMs": 446.8
+        },
+        {
+          "startMsFromActionStart": 1221,
+          "durationMs": 97.7
+        },
+        {
+          "startMsFromActionStart": 1319.8,
+          "durationMs": 482.5
+        },
+        {
+          "startMsFromActionStart": 2001.1,
+          "durationMs": 1980.6
+        },
+        {
+          "startMsFromActionStart": 3985.5,
+          "durationMs": 167.7
+        },
+        {
+          "startMsFromActionStart": 4190.3,
+          "durationMs": 161.2
+        },
+        {
+          "startMsFromActionStart": 4351.6,
+          "durationMs": 1312.5
+        },
+        {
+          "startMsFromActionStart": 5677.6,
+          "durationMs": 1221.4
+        },
+        {
+          "startMsFromActionStart": 6913.1,
+          "durationMs": 1114.4
+        },
+        {
+          "startMsFromActionStart": 8028.3,
+          "durationMs": 66
+        },
+        {
+          "startMsFromActionStart": 8097.1,
+          "durationMs": 89.4
+        }
+      ],
+      "eventCount": 39756
+    }
+  ],
+  "cpu6": [
+    {
+      "name": "open-390-cpu6-layout",
+      "meta": {
+        "filled": true,
+        "clicked": true,
+        "decreeAppearWallMs": 9580
+      },
+      "windowFound": true,
+      "windowMs": 20304.2,
+      "longTaskCount": 25,
+      "longTaskMaxMs": 3616.4,
+      "longTasks": [
+        {
+          "startMsFromActionStart": 1.8,
+          "durationMs": 66.6
+        },
+        {
+          "startMsFromActionStart": 71.7,
+          "durationMs": 1320.9
+        },
+        {
+          "startMsFromActionStart": 1392.8,
+          "durationMs": 1188.4
+        },
+        {
+          "startMsFromActionStart": 2593.8,
+          "durationMs": 94.4
+        },
+        {
+          "startMsFromActionStart": 2689.6,
+          "durationMs": 66.8
+        },
+        {
+          "startMsFromActionStart": 2757,
+          "durationMs": 80.8
+        },
+        {
+          "startMsFromActionStart": 2842.4,
+          "durationMs": 63.8
+        },
+        {
+          "startMsFromActionStart": 2906.6,
+          "durationMs": 208.3
+        },
+        {
+          "startMsFromActionStart": 3115.1,
+          "durationMs": 1108.6
+        },
+        {
+          "startMsFromActionStart": 4234,
+          "durationMs": 92.4
+        },
+        {
+          "startMsFromActionStart": 4338,
+          "durationMs": 1134.2
+        },
+        {
+          "startMsFromActionStart": 5482.5,
+          "durationMs": 949.7
+        },
+        {
+          "startMsFromActionStart": 6451.9,
+          "durationMs": 50.6
+        },
+        {
+          "startMsFromActionStart": 6891.9,
+          "durationMs": 53.7
+        },
+        {
+          "startMsFromActionStart": 6952.1,
+          "durationMs": 55.2
+        },
+        {
+          "startMsFromActionStart": 7014.1,
+          "durationMs": 51.6
+        },
+        {
+          "startMsFromActionStart": 7087,
+          "durationMs": 3616.4
+        },
+        {
+          "startMsFromActionStart": 10711.1,
+          "durationMs": 210.1
+        },
+        {
+          "startMsFromActionStart": 10982.1,
+          "durationMs": 246.7
+        },
+        {
+          "startMsFromActionStart": 11229.3,
+          "durationMs": 2118.1
+        },
+        {
+          "startMsFromActionStart": 13375.3,
+          "durationMs": 2230.8
+        },
+        {
+          "startMsFromActionStart": 15626,
+          "durationMs": 1931.2
+        },
+        {
+          "startMsFromActionStart": 17557.9,
+          "durationMs": 105.1
+        },
+        {
+          "startMsFromActionStart": 17665.9,
+          "durationMs": 139.2
+        },
+        {
+          "startMsFromActionStart": 17805.5,
+          "durationMs": 2497.2
+        }
+      ],
+      "eventCount": 64635
+    }
+  ]
+}

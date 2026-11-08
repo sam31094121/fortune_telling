@@ -1,0 +1,96 @@
+{
+  "cpu4": [
+    {
+      "name": "open-untraced",
+      "meta": {
+        "filled": true,
+        "clicked": true,
+        "decreeAppearWallMs": 1031
+      }
+    },
+    {
+      "name": "peel-untraced",
+      "meta": {
+        "ok": true,
+        "text": "再剝一層"
+      }
+    },
+    {
+      "name": "scroll-390-cpu4-v2",
+      "meta": {
+        "method": "Input.dispatchMouseEvent mouseWheel x12 deltaY120",
+        "scrollY0": 6028,
+        "scrollY1": 7468,
+        "deltaY": 1440,
+        "maxScroll": 8315,
+        "innerChanged": []
+      },
+      "windowFound": true,
+      "windowMs": 3482.5,
+      "longTaskCount": 2,
+      "longTaskMaxMs": 341.6,
+      "longTasks": [
+        {
+          "startMsFromActionStart": 13.4,
+          "durationMs": 341.6
+        },
+        {
+          "startMsFromActionStart": 391.6,
+          "durationMs": 50.6
+        }
+      ],
+      "eventCount": 65628
+    }
+  ],
+  "cpu6": [
+    {
+      "name": "open-untraced",
+      "meta": {
+        "filled": true,
+        "clicked": true,
+        "decreeAppearWallMs": 1804
+      }
+    },
+    {
+      "name": "peel-untraced",
+      "meta": {
+        "ok": true,
+        "text": "再剝一層"
+      }
+    },
+    {
+      "name": "scroll-390-cpu6-v2",
+      "meta": {
+        "method": "Input.dispatchMouseEvent mouseWheel x12 deltaY120",
+        "scrollY0": 6028,
+        "scrollY1": 7468,
+        "deltaY": 1440,
+        "maxScroll": 8315,
+        "innerChanged": []
+      },
+      "windowFound": true,
+      "windowMs": 3938,
+      "longTaskCount": 4,
+      "longTaskMaxMs": 546.6,
+      "longTasks": [
+        {
+          "startMsFromActionStart": 19,
+          "durationMs": 546.6
+        },
+        {
+          "startMsFromActionStart": 646.4,
+          "durationMs": 132.1
+        },
+        {
+          "startMsFromActionStart": 784.3,
+          "durationMs": 97.8
+        },
+        {
+          "startMsFromActionStart": 906,
+          "durationMs": 108.7
+        }
+      ],
+      "eventCount": 48088
+    }
+  ]
+}

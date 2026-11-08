@@ -1,0 +1,1076 @@
+{
+  "standard": {
+    "long": 1280,
+    "short": 720
+  },
+  "note": "本體資產盤點不是動畫或畫質全面通過；manifest 另須核對 renderer。",
+  "cards": [
+    {
+      "id": "beast_a01",
+      "name": "角木蛟",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a01.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "614bd02827485d958f158a0c664cfe82a7290aaa2ab3e95156db9548be5037e3",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a02",
+      "name": "亢金龍",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a02.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "e3f759b95c552622396d26baacc479626140d74578aeae88377d9039f5996608",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a03",
+      "name": "氐土貉",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a03.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "3c6d843f00ec3f48e072abc9394e92c4572fd707c061f16f4e410a2a95f247d5",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a04",
+      "name": "房日兔",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a04.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "5147cd453574fdba6fbfa5a55b800ba699ab31454f9d1da476734d1a645c5f94",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a05",
+      "name": "心月狐",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a05.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "dc55b58760cfeab281fdbe65f2e98d40d593fe9e7a5acb11df1b072dedad22ca",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a06",
+      "name": "尾火虎",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a06.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "6408698b3e2614e8dde7dbf933e1394acdb00a3ec2e22b485f196e2e976b4979",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a07",
+      "name": "箕水豹",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a07.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "8bbd50985594cf1c1ec19b15a703f2cfeb455e725efba8b80e6c36b894a86015",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a08",
+      "name": "斗木獬",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a08.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "4e0ffaa3e541e751e256a2fae84eece12b21c4d6ccefaca520daa081319a5658",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a09",
+      "name": "牛金牛",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a09.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "66e1779d10e64b4149340a470b80d6c0e8d45205ed39fb3fa00e22d9f842b20f",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a10",
+      "name": "女土蝠",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a10.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "efb54a44232f8a47279c2d9fa3f81e715c9f6c77fac55aaed0c103f9fbdb6302",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a11",
+      "name": "虛日鼠",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a11.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "dcd55843f2ece3771202f11ffdb37843289f1fa61fe9ed8dfabb750149a6716c",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a12",
+      "name": "危月燕",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a12.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "d8b746eb0dd8b28d0becd782952ea2ddc924f4b296f9a1a9f7e06965924f124d",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a13",
+      "name": "室火豬",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a13.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "a7e6b35f7e443c2fb298f5e263d2d00187d3409377a7709766996c078ed20360",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a14",
+      "name": "壁水貐",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a14.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "ff71e6c8476d48f4359e0c9f734e2e895e9d4b7aa67f836e57b21c983f065a62",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a15",
+      "name": "奎木狼",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a15.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "adece7a444b104cca5a30fb98a2fb0502fb102e07f40e04aae33b1faf468c92b",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a16",
+      "name": "婁金狗",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a16.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "55ab8af48fef6560b8832e0f2e5ca1f9fc8fe4d50cee8f9ae84f949328f038fa",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a17",
+      "name": "胃土雉",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a17.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "a29c1bd6028aecd63311c3b0de9ad0d3517815706f98bfcc9c7b361a071c42d1",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a18",
+      "name": "昴日雞",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a18.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "4bde3f3516441b51d16cff6640c73a19e13036ed537793458a8acfd8de66cb29",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a19",
+      "name": "畢月烏",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a19.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "ceb7562bab355ac8169f769f16f3714cc6a03d8e3e20d391d98fb904bdc1d1e0",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a20",
+      "name": "觜火猴",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a20.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "eaecf40530b788661234e824597fe54917107387ad692a291c492f5878fa857f",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a21",
+      "name": "參水猿",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a21.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "056f3f4d2c85dc25142b68861e2d3b73afad5d6b799f10841c2fc3f358da1c2c",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a22",
+      "name": "井木犴",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a22.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "1933bd4bd7b6e15c99615717d119d1c8f81b6a0324ea519d774c2ec358ee8a15",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a23",
+      "name": "鬼金羊",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a23.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "31f82e35fca183ece5dabd8c3461a1b5c354f7ce5ccfe02381933852460d770a",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a24",
+      "name": "柳土獐",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a24.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "fa7d6a42abe94fca8d5e1c353e679c9207d8bd26f9615a5b4f98592b59227677",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a25",
+      "name": "星日馬",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a25.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "b5b16f4c8fbde04ecac38eb3c169d9e70dc626e896c6f6735dd69fc114439bef",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a26",
+      "name": "張月鹿",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a26.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "eaa876883b74e95693e9c666be320e64b655883e19b6ad9b00ca601abe47a1f7",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a27",
+      "name": "翼火蛇",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a27.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "084e30d29da354524ea3a368792bb0dedd043373a55e97e6b2d7fed7e954a26b",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_a28",
+      "name": "軫水蚓",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_a28.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "b75a2d963dc812a10bc1eaebd9ef4839a5cec73d6b81f38717d86ae2dbdf0981",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y01",
+      "name": "角木蛟・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y01.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "b3a5f24d95f2494e51096b15c8dc1df916c7f79e93cd1757bbcaa955fc40f797",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y02",
+      "name": "亢金龍・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y02.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "7beb7f388d8fb1aae8e6499ed8fc5df202606ca674f0ed7c41a18d255364a23f",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y03",
+      "name": "氐土貉・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y03.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "f080e6b54614230a9b6ba413701f680b357b8b039fa9d2b0d0d1f919cb409385",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y04",
+      "name": "房日兔・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y04.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "0ebe595f6d9ec76a0eade13e52457766f0f77379b40f907aabfc36687a01699b",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y05",
+      "name": "心月狐・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y05.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "9d4cede29d79e92327d49c90d4c19f2b544d930767a3a7b522c42fc6a96be901",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y06",
+      "name": "尾火虎・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y06.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "ee41991f9dda4919eb0cd041fa9aacb570e8aa983478faf0386cf600e34a7131",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y07",
+      "name": "箕水豹・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y07.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "ac078b5a6170096c5578bd5a5ceaa06e4294f716fc864169f90fd3ea78f148f0",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y08",
+      "name": "斗木獬・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y08.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "f3dd437b42a12dca5839c72bcd600617c480eeb761a340b6248b7a26659a9fcf",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y09",
+      "name": "牛金牛・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y09.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "79682b6a12a86fa4addde64112015fa76e7afbb94f4865ffd02463a35947483e",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y10",
+      "name": "女土蝠・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y10.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "a4d8ba0bf91a8e166a0d2444962219bff9cbd460a83e378ee23841116d84e900",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y11",
+      "name": "虛日鼠・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y11.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "fd0c904011e619aa86658196f65e2321cdb9a870c822c84e4b54678c871f7b0b",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y12",
+      "name": "危月燕・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y12.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "05d5127a07b761de5712b173f303c9a0781e3741ae9cb66633ffd1877cbd566a",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y13",
+      "name": "室火豬・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y13.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "0b8a929c1dafd7a4eb8638f76392a3f1aeabc2f4996b266f7faf050645333ef3",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y14",
+      "name": "壁水貐・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y14.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "6cffa628714195b0879ab58e39f327987a2cc78200db4ceb623a9b18ae3448a5",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y15",
+      "name": "奎木狼・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y15.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "01c91a05ccc6c7f941e76ac6a66ce3b7f515d2f9967682d384fbae2a24b482c5",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y16",
+      "name": "婁金狗・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y16.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "2960acea7d7bb662962998027eee50c58039a1fe1b3adb455b4273ff823998f4",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y17",
+      "name": "胃土雉・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y17.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "8648a48d89989f225767172b54c5c7d427c8e90d50ea9565d2bbf2d4c99bef4b",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y18",
+      "name": "昴日雞・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y18.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "84e1e67aafc29127ef0920751483f1cb925b669ccc06b5f8ea159cec16eff8e9",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y19",
+      "name": "畢月烏・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y19.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "c6866be82c4902659a8f72d990426707a846f9eee9cb395e1bee295d05fe69bb",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y20",
+      "name": "觜火猴・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y20.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "275827927ad500980b17c17362d54d207f85e57ea2a9dc22fd0ad880ce567d89",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y21",
+      "name": "參水猿・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y21.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "34b27ba1dea747ffc685215a9d9ad0c1106d89cf5c786aa73913946414a10103",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y22",
+      "name": "井木犴・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y22.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "fdd2e94e3cd84bddc75143d12b0a7e1cf3ea45ee242e996283cf4bf064fcfd8d",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y23",
+      "name": "鬼金羊・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y23.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "c9c2c098727f5a973a495318dbf18cd20fb9433fd8dcaef8a3bbe554d9c47fc1",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y24",
+      "name": "柳土獐・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y24.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "5c56df7dff214975f435b9e97966e49f3853f1c330476da500c6d31b68086317",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y25",
+      "name": "星日馬・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y25.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "59370c95e629f52191ecaaf55b53e8db036532b4665220c339ea0c875c901799",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y26",
+      "name": "張月鹿・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y26.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "7a0f6ef1372ea18450c023ccf6171502961d98d6f5ff574708920762aa71615b",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y27",
+      "name": "翼火蛇・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y27.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "0ba4957eedd2bc9a6f54a55092310c55b4d21fee42422d2203b6eb8caae0bf4f",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_y28",
+      "name": "軫水蚓・幼子",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_y28.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "fc105678493165c5d0c93256e7974e23b603b782a5e6a7530e0be207e72a985f",
+        "sizePass": false
+      },
+      "rigFrames": [],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_g_qinglong",
+      "name": "青龍",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_g_qinglong.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "adc23acbb520d0bf59fac2173e1f2d9c2867f30b28e26fc78fbff1474459375a",
+        "sizePass": false
+      },
+      "rigFrames": [
+        {
+          "path": "public/beast-game/rig/qinglong/bite-close.cutout-v5.webp",
+          "width": 1448,
+          "height": 1086,
+          "sizePass": true
+        },
+        {
+          "path": "public/beast-game/rig/qinglong/pounce-open.cutout-v5.webp",
+          "width": 1448,
+          "height": 1086,
+          "sizePass": true
+        },
+        {
+          "path": "public/beast-game/rig/qinglong/run-gather.webp",
+          "width": 1600,
+          "height": 913,
+          "sizePass": true
+        },
+        {
+          "path": "public/beast-game/rig/qinglong/run-reach.webp",
+          "width": 1600,
+          "height": 1209,
+          "sizePass": true
+        }
+      ],
+      "visual": "代理實測通過：v5 戰鬥動作；不包含本體縮圖升級",
+      "interaction": "代理實測通過：320/390/768 隔離能量對局",
+      "delivery": "本機通過、未提交；待全站健康門檻",
+      "evidence": "../qinglong-2026-11-08/v5-local-acceptance.md"
+    },
+    {
+      "id": "beast_g_zhuque",
+      "name": "朱雀",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_g_zhuque.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "2e37f7735729ac130b1e19f5c29a2a3e350d3631b5429327827b4e0037cc6fd4",
+        "sizePass": false
+      },
+      "rigFrames": [
+        {
+          "path": "public/beast-game/rig/zhuque/pounce-open.webp",
+          "width": 1536,
+          "height": 1024,
+          "sizePass": true
+        },
+        {
+          "path": "public/beast-game/rig/zhuque/bite-close.webp",
+          "width": 1536,
+          "height": 1024,
+          "sizePass": true
+        },
+        {
+          "path": "public/beast-game/rig/zhuque/run-gather.webp",
+          "width": 1536,
+          "height": 1024,
+          "sizePass": true
+        },
+        {
+          "path": "public/beast-game/rig/zhuque/run-reach.webp",
+          "width": 1536,
+          "height": 1024,
+          "sizePass": true
+        }
+      ],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_g_baihu",
+      "name": "白虎",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_g_baihu.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "e2da43bff9116af453711f05c560816672a47611617b67decd947b91baf1f51e",
+        "sizePass": false
+      },
+      "rigFrames": [
+        {
+          "path": "public/beast-game/rig/baihu/bite-close.v2.webp",
+          "width": 1695,
+          "height": 928,
+          "sizePass": true
+        },
+        {
+          "path": "public/beast-game/rig/baihu/land-crouch.webp",
+          "width": 1400,
+          "height": 982,
+          "sizePass": true
+        },
+        {
+          "path": "public/beast-game/rig/baihu/pounce-open.v2.webp",
+          "width": 1695,
+          "height": 928,
+          "sizePass": true
+        },
+        {
+          "path": "public/beast-game/rig/baihu/run-gather.webp",
+          "width": 1400,
+          "height": 943,
+          "sizePass": true
+        },
+        {
+          "path": "public/beast-game/rig/baihu/run-reach.webp",
+          "width": 1400,
+          "height": 819,
+          "sizePass": true
+        }
+      ],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    },
+    {
+      "id": "beast_g_xuanwu",
+      "name": "玄武",
+      "body": {
+        "path": "public/beast-game/skill-bodies/beast_g_xuanwu.webp",
+        "width": 848,
+        "height": 565,
+        "alpha": false,
+        "sha256": "a4121849a04099d865d44bdf2c837f4e99093f907de7a98469ea7f83f1c354ac",
+        "sizePass": false
+      },
+      "rigFrames": [
+        {
+          "path": "public/beast-game/rig/xuanwu/pounce-open.color-v3.webp",
+          "width": 1536,
+          "height": 1024,
+          "sizePass": true
+        },
+        {
+          "path": "public/beast-game/rig/xuanwu/bite-close.color-v3.webp",
+          "width": 1536,
+          "height": 1024,
+          "sizePass": true
+        },
+        {
+          "path": "public/beast-game/rig/xuanwu/run-gather.color-v3.webp",
+          "width": 1536,
+          "height": 1024,
+          "sizePass": true
+        },
+        {
+          "path": "public/beast-game/rig/xuanwu/run-reach.color-v3.webp",
+          "width": 1536,
+          "height": 1024,
+          "sizePass": true
+        }
+      ],
+      "visual": "未驗證",
+      "interaction": "未驗證",
+      "delivery": "未通過：尚未完成逐卡視覺與互動驗收"
+    }
+  ]
+}

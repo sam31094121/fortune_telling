@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import BeastRigStage, { type BeastRigGeometry } from './BeastRigStage';
 import { rigFor, RIG_CARD_HIDDEN, RIG_IMPACT_MS, RIG_STRIKE_MS, type BeastRig } from '@/lib/beast-game/beast-rig';
 
-export interface Match3Strike { key: number; targetId: string; attackerIds: string[] }
+export interface Match3Strike { key: number; targetId: string; attackerIds: string[]; summon?: { guardianId: string; sourceId: string } | null }
 /** Presentation only: consume recorded HP changes; never decide damage or eligibility. */
 export function match3RigAttackers(hits: readonly { attackerId?: string | null; amount: number }[], beforeHp: number, afterHp: number, actualDamage?: number): string[] {
   if (!Number.isFinite(beforeHp) || !Number.isFinite(afterHp) || beforeHp <= 0) return [];
@@ -28,13 +28,14 @@ function Strike({ rig, root, strike, tear, onImpact }: { rig: BeastRig; root: Re
   }, []);
   const card = useRef<HTMLElement | null>(null);
   const measure = useCallback((): BeastRigGeometry | null => {
-    const from = root.current?.querySelector<HTMLElement>('[data-testid="match3-ally"][data-id="' + rig.cardId + '"] [data-rig-source]');
+    const sourceId = strike?.summon?.guardianId === rig.cardId ? strike.summon.sourceId : rig.cardId;
+    const from = root.current?.querySelector<HTMLElement>('[data-testid="match3-ally"][data-id="' + sourceId + '"] [data-rig-source]');
     const to = root.current?.querySelector<HTMLElement>('[data-testid="match3-enemy"][data-id="' + strike?.targetId + '"] [data-rig-target]');
     if (!from || !to) return null;
     card.current = from;
     const rect = (el: HTMLElement) => { const r = el.getBoundingClientRect(); return { cx:r.left + r.width / 2, top:r.top, width:r.width, height:r.height }; };
     return { from: rect(from), to: rect(to), arenaWidth: Math.min(root.current!.getBoundingClientRect().width,460), targetArt: tear ? to.querySelector('img') : null };
-  }, [root, rig.cardId, strike?.targetId, tear]);
+  }, [root, rig.cardId, strike?.targetId, strike?.summon?.sourceId, tear]);
   const restore = useCallback(() => { if (card.current) { card.current.style.opacity = ''; card.current.closest('[data-testid="match3-ally"]')?.removeAttribute('data-rig-active'); } }, []);
   const frame = useCallback((t: number) => {
     const event = audioEvent.current;
@@ -65,7 +66,7 @@ function Strike({ rig, root, strike, tear, onImpact }: { rig: BeastRig; root: Re
     if (!ready || reduced || key === null) restore();
   }, [strike?.key, ready, reduced, restore, tear, rig.cardId]);
   const camera = useCallback(() => null, []);
-  return <BeastRigStage rig={rig} playKey={ready && !reduced && accepted === strike?.key && strike?.attackerIds.includes(rig.cardId) ? strike.key : null} onReady={setReady} measureGeometry={measure} cameraElement={camera} onFrame={frame} layerZIndex={51} />;
+  return <BeastRigStage rig={rig} playKey={ready && !reduced && accepted === strike?.key && strike?.attackerIds.includes(rig.cardId) ? strike.key : null} onReady={setReady} measureGeometry={measure} cameraElement={camera} onFrame={frame} layerZIndex={51} stableMotion />;
 }
 export default function Match3RigAttack({ ids, root, strike, onImpact }: { ids: readonly string[]; root: RefObject<HTMLElement | null>; strike: Match3Strike | null; onImpact?: () => void }) {
   const lastImpact = useRef<number | null>(null);
@@ -74,5 +75,6 @@ export default function Match3RigAttack({ ids, root, strike, onImpact }: { ids: 
     if (latest.current.strike?.key !== key || lastImpact.current === key) return;
     lastImpact.current = key; latest.current.onImpact?.();
   }, []);
-  return <>{ids.map(id => { const rig = rigFor(id); return rig ? <Strike key={id} rig={rig} root={root} strike={strike} tear={strike?.attackerIds[0] === id} onImpact={impact} /> : null; })}</>;
+  const renderedIds = [...new Set([...ids, ...(strike?.summon ? [strike.summon.guardianId] : [])])];
+  return <>{renderedIds.map(id => { const rig = rigFor(id); return rig ? <Strike key={id} rig={rig} root={root} strike={strike} tear={strike?.attackerIds[0] === id} onImpact={impact} /> : null; })}</>;
 }

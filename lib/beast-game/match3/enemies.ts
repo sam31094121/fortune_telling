@@ -93,7 +93,7 @@ export function damageFoeWithSkills<F extends Match3Foe, T extends SkillFoe & { 
 export interface CounterHit { enemy: number; enemyId: string; targetId: string; damage: number; hpBefore: number; hpAfter: number; actualDamage: number }
 
 /** 一步結束後的敵方回合：每隻存活敵人倒數 -1，歸零者攻擊我方 HP 最低存活卡並重置倒數。 */
-export function counterPhase<T extends Ally, F extends Match3Foe>(team: readonly T[], foes: readonly F[], every: number = ENEMY_COUNTER_EVERY, singleTurn?: number, shieldGuard = false, strategyStage?: number, skillContext?: { turnId: string }): { team: T[]; foes: F[]; hits: CounterHit[]; skillEvents: OrbSkillEvent[] } {
+export function counterPhase<T extends Ally, F extends Match3Foe>(team: readonly T[], foes: readonly F[], every: number = ENEMY_COUNTER_EVERY, singleTurn?: number, shieldGuard: boolean | number = false, strategyStage?: number, skillContext?: { turnId: string }): { team: T[]; foes: F[]; hits: CounterHit[]; skillEvents: OrbSkillEvent[] } {
   let t = team.slice(); const hits: CounterHit[] = [], skillEvents: OrbSkillEvent[] = [];
   const stage = strategyStage ?? 0, skills = stage >= 8, eventId = skillContext?.turnId;
   const tracked = skills || t.some(u => (u as T & SkillFoe).skillRuntime?.playerSkillsEnabled);

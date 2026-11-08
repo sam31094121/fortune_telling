@@ -17,9 +17,25 @@ for (const f of files) {
 }
 const cards = playableCards();
 assert.equal(cards.length, 60, '卡池應為 60 張');
+// 正式素材採數字版號或 12 位 SHA-256 前綴作快取版本；仍只接受本地 v2 卡圖。
+const thumbnailPattern = /^\/beast-game\/thumb\/[a-z0-9-]+\.v2(-480)?\.webp(?:\?v=(?:\d+|[a-f0-9]{12}))?$/;
+for (const version of ['', '?v=11', '?v=f5380a7f9ffd']) {
+  assert.match('/beast-game/thumb/guardian-baihu.v2.webp' + version, thumbnailPattern);
+}
+for (const bad of ['/beast-game/thumb/guardian-baihu.webp', '/beast-game/_orig/guardian-baihu.v2.webp', 'https://example.com/guardian-baihu.v2.webp', '/beast-game/thumb/guardian-baihu.v2.webp?v=garbage', '/beast-game/thumb/guardian-baihu.v2.webp?v=11&other=1']) {
+  assert.ok(!thumbnailPattern.test(bad), `不得放行舊圖或非法版本：${bad}`);
+}
 for (const c of cards) {
   assert.match(c.id, /^beast_(g_[a-z]+|[ay]\d{2})$/, `舊格式 ID ${c.id}`);
-  assert.match(c.art.thumbnail, /\.v2(-480)?\.webp(\?v=\d+)?$/, `${c.id} 縮圖不是 .v2`);
+  if (c.id === 'beast_y01' && c.art.thumbnail === '/beast-game/front/young-01.hind-paw-v1.svg') {
+    const repaired = fs.readFileSync(path.join(root, 'public', c.art.thumbnail), 'utf8');
+    const embedded = repaired.match(/data:image\/webp;base64,([^"']+)/);
+    assert.ok(embedded, '後腳修補圖必須包含正式原圖');
+    assert.deepEqual(Buffer.from(embedded[1], 'base64'), fs.readFileSync(path.join(root, 'public/beast-game/front/young-01.v2.webp')), '修補圖底圖必須與正式 v2 原圖一致');
+    assert.ok(!/<script\b|\bon\w+\s*=|(?:href|src)=["'](?:https?:|\/\/)/i.test(repaired), '修補圖不得執行腳本或載入遠端來源');
+  } else {
+    assert.match(c.art.thumbnail, thumbnailPattern, `${c.id} 縮圖不是合法本地 .v2 版本`);
+  }
   assert.ok(fs.existsSync(path.join(root, 'public', c.art.thumbnail.split('?')[0])), `${c.id} 縮圖檔不存在`);
 }
 const comp = fs.readFileSync(path.join(root, 'components/battlefield/Match3Board.tsx'), 'utf8');

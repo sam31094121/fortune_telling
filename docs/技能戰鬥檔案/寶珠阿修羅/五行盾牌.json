@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "healing": { "minimumBeads": 3, "percentPerBead": 1, "maxPercentPerTurn": 10, "enemyCounterPercent": 3 },
+  "shields": {
+    "mixed": { "name": "雙色護陣", "damageScale": 0.5, "healPercent": 0, "nextAttackMultiplier": 1 },
+    "three": { "name": "三色護陣", "damageScale": 0.5, "healPercent": 0, "nextAttackMultiplier": 1 },
+    "four": { "name": "四色回生陣", "damageScale": 0.4, "healPercent": 10, "nextAttackMultiplier": 1 },
+    "five": { "name": "五行合陣", "damageScale": 0.3, "healPercent": 15, "nextAttackMultiplier": 1.5 },
+    "same": { "name": "同色強攻", "attackMultiplier": 1.5 }
+  },
+  "rules": [
+    "相生沿用 elements.ts，手動與掉落有效連線均計算；按實際格數、不按魔珠儲存威力。",
+    "每位存活受益者每回合相生補血最多生命上限10%；不復活、不超上限；整數向下取整。",
+    "對手每次實際普通攻擊可按出手元素相生治療隊友3%；每位受益者每輪同樣最多10%。",
+    "盾牌數量至少三枚，以不同顏色數分類；重複顏色不提高異色階級。",
+    "異色防護僅本輪反擊有效，不疊加；四色與五色額外治療獨立於相生上限。",
+    "五色反攻加成只儲存一次、不疊加，由下次有效寶珠攻擊消耗；不放大技能附加傷害。",
+    "同色三盾沿用轉換效果並強化本次普通寶珠攻擊；神獸演出不能創造額外傷害。"
+  ]
+}

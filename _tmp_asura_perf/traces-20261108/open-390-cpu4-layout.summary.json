@@ -1,0 +1,79 @@
+{
+  "name": "open-390-cpu4-layout",
+  "meta": {
+    "filled": true,
+    "clicked": true,
+    "decreeAppearWallMs": 3832
+  },
+  "windowFound": true,
+  "windowMs": 10031.6,
+  "longTaskCount": 16,
+  "longTaskMaxMs": 2001.8,
+  "longTasks": [
+    {
+      "startMsFromActionStart": 0.8,
+      "durationMs": 408.3
+    },
+    {
+      "startMsFromActionStart": 410.1,
+      "durationMs": 158.6
+    },
+    {
+      "startMsFromActionStart": 568.8,
+      "durationMs": 441.4
+    },
+    {
+      "startMsFromActionStart": 1166.6,
+      "durationMs": 90.4
+    },
+    {
+      "startMsFromActionStart": 1257,
+      "durationMs": 492.1
+    },
+    {
+      "startMsFromActionStart": 2201.1,
+      "durationMs": 2001.8
+    },
+    {
+      "startMsFromActionStart": 4206.4,
+      "durationMs": 166.2
+    },
+    {
+      "startMsFromActionStart": 4403.6,
+      "durationMs": 1168.3
+    },
+    {
+      "startMsFromActionStart": 5572.5,
+      "durationMs": 1112.8
+    },
+    {
+      "startMsFromActionStart": 6685.9,
+      "durationMs": 104.4
+    },
+    {
+      "startMsFromActionStart": 6791.8,
+      "durationMs": 1122
+    },
+    {
+      "startMsFromActionStart": 7918.2,
+      "durationMs": 939.4
+    },
+    {
+      "startMsFromActionStart": 8858.2,
+      "durationMs": 115.9
+    },
+    {
+      "startMsFromActionStart": 8981.8,
+      "durationMs": 907.2
+    },
+    {
+      "startMsFromActionStart": 9889.3,
+      "durationMs": 73.1
+    },
+    {
+      "startMsFromActionStart": 9962.6,
+      "durationMs": 68.6
+    }
+  ],
+  "eventCount": 49904
+}

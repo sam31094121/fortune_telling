@@ -1,0 +1,26 @@
+{
+  "name": "scroll-390-cpu4-v3",
+  "meta": {
+    "method": "Input.dispatchMouseEvent mouseWheel x12 deltaY120; snapshots outside window",
+    "scrollY0": 6028,
+    "scrollY1": 7468,
+    "deltaY": 1440,
+    "maxScroll": 8315,
+    "innerChanged": []
+  },
+  "windowFound": true,
+  "windowMs": 3157.1,
+  "longTaskCount": 2,
+  "longTaskMaxMs": 62.5,
+  "longTasks": [
+    {
+      "startMsFromActionStart": 0.8,
+      "durationMs": 53.7
+    },
+    {
+      "startMsFromActionStart": 80.5,
+      "durationMs": 62.5
+    }
+  ],
+  "eventCount": 66792
+}

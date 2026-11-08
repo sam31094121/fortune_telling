@@ -1,0 +1,228 @@
+{
+  "cpu4": [
+    {
+      "name": "open-390-cpu4",
+      "meta": {
+        "filled": true,
+        "clicked": true,
+        "decreeAppearWallMs": 1102
+      },
+      "windowFound": true,
+      "windowMs": 4168.8,
+      "longTaskCount": 7,
+      "longTaskMaxMs": 818.6,
+      "longTasks": [
+        {
+          "startMsFromActionStart": 246.4,
+          "durationMs": 818.6
+        },
+        {
+          "startMsFromActionStart": 1067.7,
+          "durationMs": 83.4
+        },
+        {
+          "startMsFromActionStart": 1181.9,
+          "durationMs": 139.3
+        },
+        {
+          "startMsFromActionStart": 1372.1,
+          "durationMs": 81.3
+        },
+        {
+          "startMsFromActionStart": 1553.1,
+          "durationMs": 107.5
+        },
+        {
+          "startMsFromActionStart": 1722.4,
+          "durationMs": 69.8
+        },
+        {
+          "startMsFromActionStart": 3621.8,
+          "durationMs": 59.9
+        }
+      ],
+      "eventCount": 83888
+    },
+    {
+      "name": "peel-390-cpu4",
+      "meta": {
+        "ok": true,
+        "text": "再剝一層"
+      },
+      "windowFound": true,
+      "windowMs": 3039.9,
+      "longTaskCount": 3,
+      "longTaskMaxMs": 90.4,
+      "longTasks": [
+        {
+          "startMsFromActionStart": 15.6,
+          "durationMs": 90.4
+        },
+        {
+          "startMsFromActionStart": 130.8,
+          "durationMs": 80.7
+        },
+        {
+          "startMsFromActionStart": 544.8,
+          "durationMs": 63.4
+        }
+      ],
+      "eventCount": 89953
+    },
+    {
+      "name": "scroll-390-cpu4",
+      "meta": {
+        "method": "Input.synthesizeScrollGesture touch",
+        "error": null,
+        "scrollY0": 4982,
+        "scrollY1": 4982
+      },
+      "windowFound": true,
+      "windowMs": 5817.3,
+      "longTaskCount": 4,
+      "longTaskMaxMs": 70,
+      "longTasks": [
+        {
+          "startMsFromActionStart": 66.9,
+          "durationMs": 61.5
+        },
+        {
+          "startMsFromActionStart": 693,
+          "durationMs": 63.9
+        },
+        {
+          "startMsFromActionStart": 3056.8,
+          "durationMs": 55.1
+        },
+        {
+          "startMsFromActionStart": 3694.6,
+          "durationMs": 70
+        }
+      ],
+      "eventCount": 167910
+    }
+  ],
+  "cpu6": [
+    {
+      "name": "open-390-cpu6",
+      "meta": {
+        "filled": true,
+        "clicked": true,
+        "decreeAppearWallMs": 1947
+      },
+      "windowFound": true,
+      "windowMs": 5050.3,
+      "longTaskCount": 9,
+      "longTaskMaxMs": 1430.5,
+      "longTasks": [
+        {
+          "startMsFromActionStart": 14.9,
+          "durationMs": 70.9
+        },
+        {
+          "startMsFromActionStart": 86,
+          "durationMs": 69.8
+        },
+        {
+          "startMsFromActionStart": 224,
+          "durationMs": 61.5
+        },
+        {
+          "startMsFromActionStart": 460.4,
+          "durationMs": 1430.5
+        },
+        {
+          "startMsFromActionStart": 1896.5,
+          "durationMs": 101.8
+        },
+        {
+          "startMsFromActionStart": 2057.8,
+          "durationMs": 264.3
+        },
+        {
+          "startMsFromActionStart": 2379.7,
+          "durationMs": 116.9
+        },
+        {
+          "startMsFromActionStart": 2553.6,
+          "durationMs": 212.2
+        },
+        {
+          "startMsFromActionStart": 2800,
+          "durationMs": 108.7
+        }
+      ],
+      "eventCount": 57265
+    },
+    {
+      "name": "peel-390-cpu6",
+      "meta": {
+        "ok": true,
+        "text": "再剝一層"
+      },
+      "windowFound": true,
+      "windowMs": 3045.8,
+      "longTaskCount": 4,
+      "longTaskMaxMs": 108.5,
+      "longTasks": [
+        {
+          "startMsFromActionStart": 24.6,
+          "durationMs": 85.8
+        },
+        {
+          "startMsFromActionStart": 155.6,
+          "durationMs": 108.5
+        },
+        {
+          "startMsFromActionStart": 326.7,
+          "durationMs": 84.2
+        },
+        {
+          "startMsFromActionStart": 563.3,
+          "durationMs": 91.6
+        }
+      ],
+      "eventCount": 57193
+    },
+    {
+      "name": "scroll-390-cpu6",
+      "meta": {
+        "method": "Input.synthesizeScrollGesture touch",
+        "error": null,
+        "scrollY0": 4982,
+        "scrollY1": 4982
+      },
+      "windowFound": true,
+      "windowMs": 5890,
+      "longTaskCount": 6,
+      "longTaskMaxMs": 127.6,
+      "longTasks": [
+        {
+          "startMsFromActionStart": 122.6,
+          "durationMs": 101.4
+        },
+        {
+          "startMsFromActionStart": 770.7,
+          "durationMs": 114.2
+        },
+        {
+          "startMsFromActionStart": 3119.8,
+          "durationMs": 113.1
+        },
+        {
+          "startMsFromActionStart": 3769.5,
+          "durationMs": 101.2
+        },
+        {
+          "startMsFromActionStart": 4207.8,
+          "durationMs": 99.7
+        },
+        {
+          "startMsFromActionStart": 4322.5,
+          "durationMs": 127.6
+        }
+      ],
+      "eventCount": 109496
+    }
+  ]
+}

@@ -30,6 +30,8 @@ export default function AppStabilityGuard() {
     const body = document.body;
     const mobileMedia = window.matchMedia('(max-width: 768px), (pointer: coarse)');
     const reducedMotionMedia = window.matchMedia('(prefers-reduced-motion: reduce)');
+    // matchMedia replaces window.innerWidth so mode updates never force a synchronous layout.
+    const smallScreenMedia = window.matchMedia('(max-width: 430px)');
     const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
     const connection = (navigator as Navigator & { connection?: NetworkInformationLike }).connection;
     const userAgent = navigator.userAgent.toLowerCase();
@@ -41,6 +43,16 @@ export default function AppStabilityGuard() {
     let touchIdleTimerId: number | undefined;
     let stressTimerId: number | undefined;
     let longTaskObserver: PerformanceObserver | undefined;
+    let lastScrollAt = 0;
+    let lastTouchAt = 0;
+    // Mirror of classes this guard owns; writes only happen when a value actually changes,
+    // so body never gets redundant mutations that invalidate full-page style.
+    const appliedClasses = new Map<string, boolean>();
+    const setBodyClass = (name: string, on: boolean) => {
+      if (appliedClasses.get(name) === on && body.classList.contains(name) === on) return;
+      appliedClasses.set(name, on);
+      if (body.classList.contains(name) !== on) body.classList.toggle(name, on);
+    };
 
     const updatePerformanceMode = () => {
       const saveData = Boolean(connection?.saveData);
@@ -48,15 +60,17 @@ export default function AppStabilityGuard() {
       const slowNetwork = effectiveType === 'slow-2g' || effectiveType === '2g';
       const mobileDevice = mobileMedia.matches;
       const reducedMotion = reducedMotionMedia.matches;
-      const smallScreen = window.innerWidth <= 430;
+      const smallScreen = smallScreenMedia.matches;
       const lowPowerDevice = mobileDevice || limitedCpu || limitedMemory || saveData || slowNetwork || reducedMotion;
+      const stressActive = stressTimerId !== undefined;
 
-      body.classList.toggle('app-mobile-device', mobileDevice);
-      body.classList.toggle('app-small-screen', smallScreen);
-      body.classList.toggle('app-social-browser', socialBrowser);
-      body.classList.toggle('app-reduced-motion', reducedMotion);
-      body.classList.toggle('app-low-power-device', lowPowerDevice);
-      body.classList.toggle('app-lite-effects', lowPowerDevice || socialBrowser);
+      setBodyClass('app-mobile-device', mobileDevice);
+      setBodyClass('app-small-screen', smallScreen);
+      setBodyClass('app-social-browser', socialBrowser);
+      setBodyClass('app-reduced-motion', reducedMotion);
+      setBodyClass('app-low-power-device', lowPowerDevice);
+      // While stress mode is active, lite effects stay on (same semantics as before).
+      setBodyClass('app-lite-effects', lowPowerDevice || socialBrowser || stressActive);
     };
 
     const schedulePerformanceModeUpdate = () => {
@@ -68,41 +82,63 @@ export default function AppStabilityGuard() {
     };
 
     const updatePageVisibility = () => {
-      body.classList.toggle('app-page-hidden', document.visibilityState !== 'visible');
+      setBodyClass('app-page-hidden', document.visibilityState !== 'visible');
+    };
+
+    // Idle detection keeps one timer alive per gesture instead of clear/set on every event;
+    // the class is still removed 520ms / 620ms after the last event.
+    const SCROLL_IDLE_MS = 520;
+    const TOUCH_IDLE_MS = 620;
+
+    const checkScrollIdle = () => {
+      const remaining = lastScrollAt + SCROLL_IDLE_MS - performance.now();
+      if (remaining > 1) {
+        scrollIdleTimerId = window.setTimeout(checkScrollIdle, remaining);
+        return;
+      }
+      scrollIdleTimerId = undefined;
+      setBodyClass('app-scrolling', false);
     };
 
     const markScrolling = () => {
-      if (!body.classList.contains('app-scrolling')) {
-        body.classList.add('app-scrolling');
+      lastScrollAt = performance.now();
+      setBodyClass('app-scrolling', true);
+      if (scrollIdleTimerId === undefined) {
+        scrollIdleTimerId = window.setTimeout(checkScrollIdle, SCROLL_IDLE_MS);
       }
-      if (scrollIdleTimerId !== undefined) window.clearTimeout(scrollIdleTimerId);
-      scrollIdleTimerId = window.setTimeout(() => {
-        body.classList.remove('app-scrolling');
-      }, 520);
+    };
+
+    const checkTouchIdle = () => {
+      const remaining = lastTouchAt + TOUCH_IDLE_MS - performance.now();
+      if (remaining > 1) {
+        touchIdleTimerId = window.setTimeout(checkTouchIdle, remaining);
+        return;
+      }
+      touchIdleTimerId = undefined;
+      setBodyClass('app-touching', false);
     };
 
     const markTouching = () => {
-      if (!body.classList.contains('app-touching')) {
-        body.classList.add('app-touching');
+      lastTouchAt = performance.now();
+      setBodyClass('app-touching', true);
+      if (touchIdleTimerId === undefined) {
+        touchIdleTimerId = window.setTimeout(checkTouchIdle, TOUCH_IDLE_MS);
       }
-      if (touchIdleTimerId !== undefined) window.clearTimeout(touchIdleTimerId);
-      touchIdleTimerId = window.setTimeout(() => {
-        body.classList.remove('app-touching');
-      }, 620);
     };
 
     const markStressMode = () => {
-      if (body.classList.contains('app-stress-mode')) return;
-      body.classList.add('app-stress-mode');
-      body.classList.add('app-lite-effects');
+      if (stressTimerId !== undefined || body.classList.contains('app-stress-mode')) return;
+      stressTimerId = window.setTimeout(() => {
+        stressTimerId = undefined;
+        // One pass: drop stress, then lite-effects only changes if no other reason keeps it on.
+        setBodyClass('app-stress-mode', false);
+        updatePerformanceMode();
+      }, 5200);
+      setBodyClass('app-stress-mode', true);
+      setBodyClass('app-lite-effects', true);
       // Visual enhancements can subscribe to this signal and yield resources
       // before a long task turns into a visible interaction stall.
       window.dispatchEvent(new CustomEvent('tdh:performance-stress'));
-      if (stressTimerId !== undefined) window.clearTimeout(stressTimerId);
-      stressTimerId = window.setTimeout(() => {
-        body.classList.remove('app-stress-mode');
-        updatePerformanceMode();
-      }, 5200);
     };
 
     const handleError = (event: ErrorEvent) => {
@@ -133,6 +169,11 @@ export default function AppStabilityGuard() {
       } else {
         mobileMedia.addListener(schedulePerformanceModeUpdate);
       }
+      if (typeof smallScreenMedia.addEventListener === 'function') {
+        smallScreenMedia.addEventListener('change', schedulePerformanceModeUpdate);
+      } else {
+        smallScreenMedia.addListener(schedulePerformanceModeUpdate);
+      }
     };
 
     const removeMobileMediaListener = () => {
@@ -140,6 +181,11 @@ export default function AppStabilityGuard() {
         mobileMedia.removeEventListener('change', schedulePerformanceModeUpdate);
       } else {
         mobileMedia.removeListener(schedulePerformanceModeUpdate);
+      }
+      if (typeof smallScreenMedia.removeEventListener === 'function') {
+        smallScreenMedia.removeEventListener('change', schedulePerformanceModeUpdate);
+      } else {
+        smallScreenMedia.removeListener(schedulePerformanceModeUpdate);
       }
     };
 

@@ -102,34 +102,19 @@ assert.equal(R.orbSkillDisplay(displayRun.events,guardSource.id,'ally').displayD
  assert.deepEqual(E.initializeAvailableFoes(res.foes,12),res.foes,'summon/passive initializes only once');
 }
 
-// Execute the actual Board release callback with presentation adapters stubbed:
-// nonempty mistakes also spend one turn; empty gestures spend none.
+// The release now awaits the server; preserve invalid-path/turn-count assertions against that resolver.
 {
- const vm=require('node:vm'),M=require('../lib/beast-game/match3/index.ts');
- const seeded=n=>()=>((n=(Math.imul(n,1664525)+1013904223)>>>0)/4294967296);
- const source=fs.readFileSync(require.resolve('../components/battlefield/Match3Board.tsx'),'utf8');
- const tree=ts.createSourceFile('Board.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
- let release;function find(n){if(ts.isVariableDeclaration(n)&&n.name.getText(tree)==='release')release=n.initializer.getText(tree);ts.forEachChild(n,find)}find(tree);assert(release);
+ const {fixture}=require('./beast-orb-turn.test.cjs');
+ const {resolveOrbTurn}=require('../lib/beast-game/match3/resolve-turn.ts');
+ const M=require('../lib/beast-game/match3/index.ts');
  for(const wins of [0,7])for(const length of [0,1,2,3,4,8])for(const gap of [false,true]){
-  if(gap && length!==3)continue;
-  const board=M.generateDragBoard(seeded(811),8,7,true,4),magic=M.emptyMagic(board);
-  const path=Array.from({length},(_,i)=>i<7?{r:0,c:i}:{r:1,c:6});if(gap)path[1]={r:0,c:4};for(const p of path)board[p.r][p.c]='FIRE';
-  let turns=0,counters=0,resolved;
-  const context={console:{log(){}},Set,Map,AbortController,window:{matchMedia:()=>({matches:false})},
-   busy:false,over:null,ti:0,board,magic,rngRef:{current:seeded(812)},cfg:{diagonal:true},rigEnabled:true,stage:M.progressionStage(wins),
-   team:[],foes:[{id:'target',name:'target',hp:10000}],moves:0,init:{seed:811},rule:null,chosen:{},
-   k:(r,c)=>r+':'+c,later:()=>{},resolveDrag:(...a)=>(resolved=M.resolveDrag(...a)),
-   availableFoeTarget:M.availableFoeTarget,runPlayerTurnSkills:M.runPlayerTurnSkills,orderPlayerHits:M.orderPlayerHits,computeHits:()=>[],attackingTeam:t=>t,energyGains:M.energyGains,buildEvents:()=>[],
-   refillDisplaySteps:M.refillDisplaySteps,refillPresentation:require('../lib/beast-game/match3/refill-presentation.ts').refillPresentation,
-   refillRun:{current:null},refillCommit:{current:null},NORMAL_POWER_CAP:99,MATCH3_ORB_LABEL:{FIRE:'火'},
-   shareEnergy:t=>t,showStrike:()=>{},showBanner:()=>{},showSkillEvents:()=>{},cue:()=>{},
-   setMoves:()=>turns++,endStep:(t,f,msg,attack,force)=>{assert.equal(force,true);counters++},
-   runRefillPlayback:(_,options)=>{options.complete();return Promise.resolve()}
-  };
-  context.refillDisplaySteps=require('../lib/beast-game/match3/refill-presentation.ts').refillDisplaySteps;
-  for(const name of release.match(/\bset[A-Z]\w*/g)||[])if(!(name in context))context[name]=()=>{};
-  vm.runInNewContext(ts.transpileModule('const release='+release+'; release(path);',{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText,{...context,path});
-  assert.equal(resolved.valid,length>=3&&!gap);assert.equal(turns,length>0?1:0);assert.equal(counters,length>0?1:0);
-  if(length>=3&&!gap)assert.equal(resolved.attackAllowed,length>=M.progressionStage(wins).minChain);
+  if(gap&&length!==3)continue;
+  const p=fixture();p.wins=wins;p.path=Array.from({length},(_,i)=>i<7?{r:0,c:i}:{r:1,c:6});
+  if(gap)p.path[1]={r:0,c:4};for(const c of p.path)p.board[c.r][c.c]='FIRE';
+  const r=resolveOrbTurn(p);
+  assert.equal(r.res.valid,length>=3&&!gap);
+  assert.equal(r.counter.hits.length,length>0?1:0);
+  if(length>=3&&!gap)assert.equal(r.res.attackAllowed,length>=M.progressionStage(wins).minChain);
  }
+ console.log('PASS server turn: empty drag no counter, invalid nonempty drag one counter, per-stage attack gate unchanged');
 }

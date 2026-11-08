@@ -1,0 +1,967 @@
+{
+  "asuraStatic": {
+    "name": "asura-390-static",
+    "scrollMid": false,
+    "buildId": null,
+    "filled": true,
+    "submitted": true,
+    "shotGlow": "asura-390-static-glow-400ms.png",
+    "shotShock": "asura-390-static-shockwave-1150ms.png",
+    "samples": [
+      {
+        "label": "+120",
+        "tMs": 153,
+        "scrollY": 5002,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5002
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 36,
+          "t": 3896,
+          "r": 876,
+          "b": 4335
+        },
+        "painted": 164,
+        "nearGlowEl": 0,
+        "inCardUnion60": 0,
+        "centroid": {
+          "x": 167,
+          "y": 3138
+        },
+        "bbox": {
+          "l": 16,
+          "t": 3112,
+          "r": 366,
+          "b": 3170
+        },
+        "viewportInCanvas": {
+          "top": 5002,
+          "bottom": 5846
+        }
+      },
+      {
+        "label": "+250",
+        "tMs": 274,
+        "scrollY": 5002,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5002
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 38,
+          "t": 3898,
+          "r": 874,
+          "b": 4322
+        },
+        "painted": 234,
+        "nearGlowEl": 98,
+        "inCardUnion60": 98,
+        "centroid": {
+          "x": 154,
+          "y": 3504
+        },
+        "bbox": {
+          "l": 16,
+          "t": 3108,
+          "r": 364,
+          "b": 4018
+        },
+        "viewportInCanvas": {
+          "top": 5002,
+          "bottom": 5846
+        }
+      },
+      {
+        "label": "+400",
+        "tMs": 416,
+        "scrollY": 5002,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5002
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 37,
+          "t": 3892,
+          "r": 875,
+          "b": 4318
+        },
+        "painted": 85,
+        "nearGlowEl": 85,
+        "inCardUnion60": 85,
+        "centroid": {
+          "x": 134,
+          "y": 4005
+        },
+        "bbox": {
+          "l": 82,
+          "t": 3958,
+          "r": 178,
+          "b": 4058
+        },
+        "viewportInCanvas": {
+          "top": 5002,
+          "bottom": 5846
+        }
+      },
+      {
+        "label": "+600",
+        "tMs": 619,
+        "scrollY": 5002,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5002
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 38,
+          "t": 3893,
+          "r": 874,
+          "b": 4315
+        },
+        "painted": 81,
+        "nearGlowEl": 81,
+        "inCardUnion60": 81,
+        "centroid": {
+          "x": 131,
+          "y": 4022
+        },
+        "bbox": {
+          "l": 36,
+          "t": 3932,
+          "r": 212,
+          "b": 4116
+        },
+        "viewportInCanvas": {
+          "top": 5002,
+          "bottom": 5846
+        }
+      },
+      {
+        "label": "+800",
+        "tMs": 811,
+        "scrollY": 5002,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5002
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 38,
+          "t": 3893,
+          "r": 874,
+          "b": 4315
+        },
+        "painted": 81,
+        "nearGlowEl": 81,
+        "inCardUnion60": 81,
+        "centroid": {
+          "x": 131,
+          "y": 4022
+        },
+        "bbox": {
+          "l": 36,
+          "t": 3932,
+          "r": 212,
+          "b": 4116
+        },
+        "viewportInCanvas": {
+          "top": 5002,
+          "bottom": 5846
+        }
+      },
+      {
+        "label": "+1050",
+        "tMs": 1062,
+        "scrollY": 5002,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5002
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 38,
+          "t": 3893,
+          "r": 874,
+          "b": 4315
+        },
+        "painted": 434,
+        "nearGlowEl": 0,
+        "inCardUnion60": 0,
+        "centroid": {
+          "x": 193,
+          "y": 546
+        },
+        "bbox": {
+          "l": 164,
+          "t": 514,
+          "r": 222,
+          "b": 580
+        },
+        "viewportInCanvas": {
+          "top": 5002,
+          "bottom": 5846
+        }
+      },
+      {
+        "label": "+1150",
+        "tMs": 1169,
+        "scrollY": 5002,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5002
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 38,
+          "t": 3893,
+          "r": 874,
+          "b": 4315
+        },
+        "painted": 565,
+        "nearGlowEl": 0,
+        "inCardUnion60": 0,
+        "centroid": {
+          "x": 191,
+          "y": 541
+        },
+        "bbox": {
+          "l": 102,
+          "t": 456,
+          "r": 280,
+          "b": 646
+        },
+        "viewportInCanvas": {
+          "top": 5002,
+          "bottom": 5846
+        }
+      },
+      {
+        "label": "+1300",
+        "tMs": 1307,
+        "scrollY": 5002,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5002
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 38,
+          "t": 3893,
+          "r": 874,
+          "b": 4315
+        },
+        "painted": 554,
+        "nearGlowEl": 0,
+        "inCardUnion60": 0,
+        "centroid": {
+          "x": 188,
+          "y": 542
+        },
+        "bbox": {
+          "l": 22,
+          "t": 384,
+          "r": 358,
+          "b": 740
+        },
+        "viewportInCanvas": {
+          "top": 5002,
+          "bottom": 5846
+        }
+      },
+      {
+        "label": "+1600",
+        "tMs": 1619,
+        "scrollY": 5002,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5002
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 38,
+          "t": 3893,
+          "r": 874,
+          "b": 4315
+        },
+        "painted": 554,
+        "nearGlowEl": 0,
+        "inCardUnion60": 0,
+        "centroid": {
+          "x": 188,
+          "y": 542
+        },
+        "bbox": {
+          "l": 22,
+          "t": 384,
+          "r": 358,
+          "b": 740
+        },
+        "viewportInCanvas": {
+          "top": 5002,
+          "bottom": 5846
+        }
+      },
+      {
+        "label": "+2200",
+        "tMs": 2212,
+        "scrollY": 5002,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5002
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 38,
+          "t": 3893,
+          "r": 874,
+          "b": 4315
+        },
+        "painted": 0,
+        "nearGlowEl": 0,
+        "inCardUnion60": 0,
+        "centroid": null,
+        "bbox": null,
+        "viewportInCanvas": {
+          "top": 5002,
+          "bottom": 5846
+        }
+      }
+    ],
+    "foundAfterMs": 228,
+    "decree": {
+      "len": 398,
+      "headsFound": [
+        {
+          "h": "【戰意開場】",
+          "at": 67
+        },
+        {
+          "h": "【沙盤直斷】",
+          "at": 166
+        },
+        {
+          "h": "【戰術號令】",
+          "at": 264
+        },
+        {
+          "h": "【修羅戰令】",
+          "at": 364
+        }
+      ],
+      "inOrder": true,
+      "sec1HasJinRiCai": true,
+      "sec1": "【戰意開場】\n\n你腳下這片地，不是今日才踏上的。早年一步一步走實的路，就是你的根基，站得穩。\n\n44–53\n歲\n現在\n你今年虛歲 53・就在這段\n\n虛歲44起，身體在喊停，我要你先停，再打下一仗\n\n"
+    },
+    "shotDecree": "asura-390-static-decree-viewport.png",
+    "log": {
+      "console": [],
+      "exceptions": [],
+      "logEntries": [
+        {
+          "level": "warning",
+          "source": "other",
+          "text": "Tracking Prevention blocked access to storage for https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "other",
+          "text": "Tracking Prevention blocked access to storage for https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "other",
+          "text": "Tracking Prevention blocked access to storage for https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "other",
+          "text": "Tracking Prevention blocked access to storage for https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/1e30e76128306c47.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/1acceba7870a1425.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/bcfaeecc98caef88.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/d9391ac30784ba7e.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/c05cef980bda78a0.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/2fadeda6d2cbdfd0.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "rendering",
+          "text": "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/1e30e76128306c47.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/1acceba7870a1425.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/bcfaeecc98caef88.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/d9391ac30784ba7e.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/c05cef980bda78a0.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/2fadeda6d2cbdfd0.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        }
+      ],
+      "httpErrors": [],
+      "docStatus": [
+        {
+          "url": "http://localhost:3010/ghost-asura",
+          "status": 200
+        }
+      ]
+    },
+    "hydrationErrors": []
+  },
+  "asuraScroll": {
+    "name": "asura-390-scrollmid",
+    "scrollMid": true,
+    "buildId": null,
+    "filled": true,
+    "submitted": true,
+    "shotGlow": "asura-390-scrollmid-glow-after-scroll300-450ms.png",
+    "shotShock": "asura-390-scrollmid-shockwave-1150ms.png",
+    "samples": [
+      {
+        "label": "+120",
+        "tMs": 176,
+        "scrollY": 5002,
+        "canvas": {
+          "w": 390,
+          "h": 8647,
+          "topInViewport": -5002
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 36,
+          "t": 3897,
+          "r": 876,
+          "b": 4334
+        },
+        "painted": 198,
+        "nearGlowEl": 0,
+        "inCardUnion60": 0,
+        "centroid": {
+          "x": 212,
+          "y": 3147
+        },
+        "bbox": {
+          "l": 34,
+          "t": 3138,
+          "r": 374,
+          "b": 3154
+        },
+        "viewportInCanvas": {
+          "top": 5002,
+          "bottom": 5846
+        }
+      },
+      {
+        "label": "+250",
+        "tMs": 272,
+        "scrollY": 5302,
+        "canvas": {
+          "w": 390,
+          "h": 8647,
+          "topInViewport": -5302
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 38,
+          "t": 3898,
+          "r": 874,
+          "b": 4322
+        },
+        "painted": 184,
+        "nearGlowEl": 0,
+        "inCardUnion60": 0,
+        "centroid": {
+          "x": 214,
+          "y": 3143
+        },
+        "bbox": {
+          "l": 30,
+          "t": 3124,
+          "r": 374,
+          "b": 3160
+        },
+        "viewportInCanvas": {
+          "top": 5302,
+          "bottom": 6146
+        }
+      },
+      {
+        "label": "+400",
+        "tMs": 427,
+        "scrollY": 5302,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5302
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 37,
+          "t": 3892,
+          "r": 875,
+          "b": 4318
+        },
+        "painted": 255,
+        "nearGlowEl": 90,
+        "inCardUnion60": 90,
+        "centroid": {
+          "x": 187,
+          "y": 3452
+        },
+        "bbox": {
+          "l": 26,
+          "t": 3116,
+          "r": 376,
+          "b": 4052
+        },
+        "viewportInCanvas": {
+          "top": 5302,
+          "bottom": 6146
+        }
+      },
+      {
+        "label": "+600",
+        "tMs": 612,
+        "scrollY": 5302,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5302
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 38,
+          "t": 3893,
+          "r": 874,
+          "b": 4315
+        },
+        "painted": 72,
+        "nearGlowEl": 72,
+        "inCardUnion60": 72,
+        "centroid": {
+          "x": 137,
+          "y": 4039
+        },
+        "bbox": {
+          "l": 42,
+          "t": 3958,
+          "r": 210,
+          "b": 4126
+        },
+        "viewportInCanvas": {
+          "top": 5302,
+          "bottom": 6146
+        }
+      },
+      {
+        "label": "+800",
+        "tMs": 819,
+        "scrollY": 5302,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5302
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 38,
+          "t": 3893,
+          "r": 874,
+          "b": 4315
+        },
+        "painted": 66,
+        "nearGlowEl": 66,
+        "inCardUnion60": 66,
+        "centroid": {
+          "x": 136,
+          "y": 4052
+        },
+        "bbox": {
+          "l": 22,
+          "t": 3954,
+          "r": 226,
+          "b": 4158
+        },
+        "viewportInCanvas": {
+          "top": 5302,
+          "bottom": 6146
+        }
+      },
+      {
+        "label": "+1050",
+        "tMs": 1059,
+        "scrollY": 5302,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5302
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 38,
+          "t": 3893,
+          "r": 874,
+          "b": 4315
+        },
+        "painted": 0,
+        "nearGlowEl": 0,
+        "inCardUnion60": 0,
+        "centroid": null,
+        "bbox": null,
+        "viewportInCanvas": {
+          "top": 5302,
+          "bottom": 6146
+        }
+      },
+      {
+        "label": "+1150",
+        "tMs": 1161,
+        "scrollY": 5302,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5302
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 38,
+          "t": 3893,
+          "r": 874,
+          "b": 4315
+        },
+        "painted": 575,
+        "nearGlowEl": 0,
+        "inCardUnion60": 0,
+        "centroid": {
+          "x": 196,
+          "y": 247
+        },
+        "bbox": {
+          "l": 142,
+          "t": 192,
+          "r": 254,
+          "b": 300
+        },
+        "viewportInCanvas": {
+          "top": 5302,
+          "bottom": 6146
+        }
+      },
+      {
+        "label": "+1300",
+        "tMs": 1311,
+        "scrollY": 5302,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5302
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 38,
+          "t": 3893,
+          "r": 874,
+          "b": 4315
+        },
+        "painted": 591,
+        "nearGlowEl": 0,
+        "inCardUnion60": 0,
+        "centroid": {
+          "x": 198,
+          "y": 256
+        },
+        "bbox": {
+          "l": 58,
+          "t": 114,
+          "r": 344,
+          "b": 388
+        },
+        "viewportInCanvas": {
+          "top": 5302,
+          "bottom": 6146
+        }
+      },
+      {
+        "label": "+1600",
+        "tMs": 1621,
+        "scrollY": 5302,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5302
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 38,
+          "t": 3893,
+          "r": 874,
+          "b": 4315
+        },
+        "painted": 592,
+        "nearGlowEl": 0,
+        "inCardUnion60": 0,
+        "centroid": {
+          "x": 199,
+          "y": 261
+        },
+        "bbox": {
+          "l": 32,
+          "t": 90,
+          "r": 374,
+          "b": 420
+        },
+        "viewportInCanvas": {
+          "top": 5302,
+          "bottom": 6146
+        }
+      },
+      {
+        "label": "+2200",
+        "tMs": 2206,
+        "scrollY": 5302,
+        "canvas": {
+          "w": 390,
+          "h": 9086,
+          "topInViewport": -5302
+        },
+        "asuraIdCount": 17,
+        "idsUnion": {
+          "l": 38,
+          "t": 3893,
+          "r": 874,
+          "b": 4315
+        },
+        "painted": 0,
+        "nearGlowEl": 0,
+        "inCardUnion60": 0,
+        "centroid": null,
+        "bbox": null,
+        "viewportInCanvas": {
+          "top": 5302,
+          "bottom": 6146
+        }
+      }
+    ],
+    "foundAfterMs": 146,
+    "scroll": {
+      "before": 5002,
+      "after": 5302,
+      "atMs": 180
+    },
+    "decree": {
+      "len": 398,
+      "headsFound": [
+        {
+          "h": "【戰意開場】",
+          "at": 67
+        },
+        {
+          "h": "【沙盤直斷】",
+          "at": 166
+        },
+        {
+          "h": "【戰術號令】",
+          "at": 264
+        },
+        {
+          "h": "【修羅戰令】",
+          "at": 364
+        }
+      ],
+      "inOrder": true,
+      "sec1HasJinRiCai": true,
+      "sec1": "【戰意開場】\n\n你腳下這片地，不是今日才踏上的。早年一步一步走實的路，就是你的根基，站得穩。\n\n44–53\n歲\n現在\n你今年虛歲 53・就在這段\n\n虛歲44起，身體在喊停，我要你先停，再打下一仗\n\n"
+    },
+    "shotDecree": "asura-390-scrollmid-decree-viewport.png",
+    "log": {
+      "console": [],
+      "exceptions": [],
+      "logEntries": [
+        {
+          "level": "warning",
+          "source": "other",
+          "text": "Tracking Prevention blocked access to storage for https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "other",
+          "text": "Tracking Prevention blocked access to storage for https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "other",
+          "text": "Tracking Prevention blocked access to storage for https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "other",
+          "text": "Tracking Prevention blocked access to storage for https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/1e30e76128306c47.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/1acceba7870a1425.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/bcfaeecc98caef88.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/d9391ac30784ba7e.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/c05cef980bda78a0.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/2fadeda6d2cbdfd0.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "rendering",
+          "text": "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/1e30e76128306c47.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/1acceba7870a1425.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/bcfaeecc98caef88.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/d9391ac30784ba7e.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/c05cef980bda78a0.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        },
+        {
+          "level": "warning",
+          "source": "javascript",
+          "text": "The resource http://localhost:3010/_next/static/css/2fadeda6d2cbdfd0.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+          "url": "http://localhost:3010/ghost-asura"
+        }
+      ],
+      "httpErrors": [],
+      "docStatus": [
+        {
+          "url": "http://localhost:3010/ghost-asura",
+          "status": 200
+        }
+      ]
+    },
+    "hydrationErrors": []
+  }
+}

@@ -1,0 +1,60 @@
+ M .codex/skills/home-beast-entry-blending/SKILL.md
+ M app/ghost-asura/GhostAsuraPageClient.tsx
+ M components/AppStabilityGuard.tsx
+ M components/battlefield/BattlePanel.tsx
+ M components/battlefield/BeastRigStage.tsx
+ M components/battlefield/Match3Board.module.css
+ M components/battlefield/Match3Board.tsx
+ M components/battlefield/Match3RigAttack.tsx
+ M lib/beast-game/match3/enemies.ts
+ M lib/beast-game/match3/enemy-strategy.ts
+ M lib/beast-game/match3/skill-runtime.ts
+ M lib/ghost-asura-particles.ts
+ M package.json
+ M public/beast-game/rig/qinglong/manifest.json
+ M reports/beast-production/release-summary.json
+ M reports/screen-health/latest.json
+ M tests/beast-match3-no-old-cards.test.cjs
+ M tests/beast-match3-rig.test.cjs
+ M tests/beast-match3-skill-runtime.test.cjs
+?? .codex/skills/home-beast-entry-blending/references/orb-battle-body-review.md
+?? _backup-20261108-asura-perf2/
+?? _backup-20261108-resume/
+?? _tmp_asura_perf/apply-perf3.ps1
+?? _tmp_asura_perf/asura-perf-diff-0b5ba01-116e27b.patch
+?? _tmp_asura_perf/decree-390-20261108-element.png
+?? _tmp_asura_perf/decree-390-20261108-text.json
+?? _tmp_asura_perf/decree-390-20261108-viewport.png
+?? _tmp_asura_perf/flicker-20261108/
+?? _tmp_asura_perf/lay.zip
+?? _tmp_asura_perf/lt-20261108.zip
+?? _tmp_asura_perf/out-20261108-prod/
+?? _tmp_asura_perf/out-20261108-prod3010/
+?? _tmp_asura_perf/parse-layout-20261108.cjs
+?? _tmp_asura_perf/perf3.diff
+?? _tmp_asura_perf/reports/
+?? _tmp_asura_perf/sc-v3.zip
+?? _tmp_asura_perf/tr-20261108.zip
+?? _tmp_asura_perf/trace-asura-20261108.cjs
+?? _tmp_asura_perf/trace-open-layout-20261108.cjs
+?? _tmp_asura_perf/trace-scroll-v2-20261108.cjs
+?? _tmp_asura_perf/trace-scroll-v3-20261108.cjs
+?? _tmp_asura_perf/traces-20261108/
+?? app/api/beast-game/orb-turn/
+?? components/battlefield/OrbElementAttack.tsx
+?? docs/技能戰鬥檔案/寶珠阿修羅/五行盾牌.json
+?? lib/beast-game/match3/element-support.ts
+?? lib/beast-game/match3/resolve-turn.ts
+?? reports/beast-rig-review/all-60-2026-11-08/
+?? reports/beast-rig-review/qinglong-2026-11-08/
+?? reports/beast-rig-review/xuanwu-2026-11-08/
+?? reports/orb-guardian-review/
+?? reports/orb-support-review-2026-11-08.md
+?? reports/orb-support-tests-2026-11-08.json
+?? tests/beast-orb-api.test.cjs
+?? tests/beast-orb-energy-tap.test.cjs
+?? tests/beast-orb-support.test.cjs
+?? tests/beast-orb-turn-invariants.test.cjs
+?? tests/beast-orb-turn.test.cjs
+?? tests/beast-qinglong-body.test.cjs
+?? tests/beast-qinglong-gate.test.cjs

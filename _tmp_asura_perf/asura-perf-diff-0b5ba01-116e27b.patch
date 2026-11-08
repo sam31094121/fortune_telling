@@ -1,0 +1,3697 @@
+﻿diff --git a/app/ghost-asura/GhostAsuraPageClient.tsx b/app/ghost-asura/GhostAsuraPageClient.tsx
+index 1f502ea..ecf2a19 100644
+--- a/app/ghost-asura/GhostAsuraPageClient.tsx
++++ b/app/ghost-asura/GhostAsuraPageClient.tsx
+@@ -9,7 +9,7 @@
+ 
+ 'use client';
+ 
+-import { useEffect, useRef, useState, type CSSProperties } from 'react';
++import { startTransition, useEffect, useRef, useState, type CSSProperties } from 'react';
+ import Link from 'next/link';
+ import { useRouter } from 'next/navigation';
+ import { UnifiedBirthForm, hourBranchToBirthTime, type BirthProfile } from '@/components/UnifiedBirthForm';
+@@ -373,7 +373,9 @@ export default function GhostAsuraPageClient({
+         throw new Error(hasChinese(data?.error) ? data.error : `??急?瘝?摰?嚗誨蝣?${response.status}嚗?隢?敺???甈∴?雿‵?????);
+       }
+       setVoiceBody(submittedInput);
+-      setResult(data.data ?? null);
++      startTransition(() => {
++        setResult(data.data ?? null);
++      });
+     } catch (e) {
+       if (calculationRef.current !== request) return;
+       console.error('[GhostAsuraPageClient] calculate failed', e);
+@@ -525,9 +527,6 @@ export default function GhostAsuraPageClient({
+                 <div
+                   ref={cardRef}
+                   className={styles.asuraCardReveal}
+-                  style={{
+-                    animation: `asuraCardReveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
+-                  }}
+                 >
+                   <GhostAsuraCard display={reading} />
+                 </div>
+diff --git a/app/ghost-asura/ghost-asura.module.css b/app/ghost-asura/ghost-asura.module.css
+index 6251c35..dffea72 100644
+--- a/app/ghost-asura/ghost-asura.module.css
++++ b/app/ghost-asura/ghost-asura.module.css
+@@ -1,1070 +1,1078 @@
+-/* Only the private Asura page uses this skin; shared forms retain their defaults. */
+-.page {
+-  --text-main: #f4efe4;
+-  --text-sub: #c9c3b5;
+-  --text-muted: #a8a296;
+-  min-height: 100dvh;
+-  padding: 24px max(16px, calc((100% - 1040px) / 2)) 80px;
+-  background: #121210;
+-  color: var(--text-main);
+-  color-scheme: dark;
+-}
+-
+-.nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+-.nav a, .nav button {
+-  display: inline-flex;
+-  align-items: center;
+-  min-height: 44px;
+-  color: #c9c3b5;
+-  font-size: 13px;
+-}
+-.nav button { padding: 0 14px; border: 1px solid #aa7323; border-radius: 8px; }
+-.nav a:hover, .nav button:hover { color: #fce74a; }
+-.page button:disabled { opacity: .5; cursor: wait; }
+-.page :is(a, button, summary):focus-visible { outline: 2px solid #fce74a; outline-offset: 4px; }
+-
+-.header { padding: 36px 0 30px; }
+-.eyebrow { margin: 0; color: #aa7323; font-size: 12px; letter-spacing: .2em; }
+-.header h1 { margin: 10px 0 16px; font-size: clamp(42px, 5vw, 64px); line-height: 1.3; }
+-.intro { max-width: 650px; margin: 0; color: #c9c3b5; font-size: 15px; line-height: 1.85; }
+-.panel {
+-  min-width: 0;
+-  margin-bottom: 28px;
+-  padding: 24px;
+-  border: 1px solid #aa7323;
+-  border-radius: 16px;
+-  background: #383836;
+-  box-shadow: 0 12px 36px #0003;
+-}
+-.panel h2 { color: #fce74a; font-size: 22px; font-weight: 700; line-height: 1.5; }
+-.note { margin: 0 0 20px; color: #c0baac; font-size: 13px; line-height: 1.8; }
+-.fields { min-width: 0; border: 0; padding: 0; margin: 0; }
+-.results { scroll-margin-top: 20px; outline: none; }
+-.results:focus-visible { outline: 2px solid #fce74a; outline-offset: 5px; border-radius: 16px; }
+-.error { margin: 20px 0 0; padding: 16px; border: 1px solid #be6971; border-radius: 12px; background: #381d24; color: #ffdae0; line-height: 1.8; }
+-
+-.login { display: grid; gap: 16px; max-width: 460px; }
+-.login .note { margin: 0; }
+-.login label, .zi { color: #efe9dc; font-size: 15px; font-weight: 600; }
+-.login input, .zi select { width: 100%; min-height: 52px; padding: 12px; border: 1px solid #4a4842; border-radius: 8px; background: #121210; color: #f8f3e8; font-size: 16px; }
+-.login > button { min-height: 52px; padding: 12px 20px; background: #aa7323; border: 1px solid #fce74a; border-radius: 10px; color: #121210; font-weight: 800; }
+-.login a { color: #fce74a; text-decoration: underline; }
+-.passwordField { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+-.passwordToggle { min-height: 48px; padding: 8px 12px; border: 1px solid #4a4842; border-radius: 8px; color: #e8d9a8; font-size: 13px; }
+-.zi { display: grid; gap: 10px; margin-top: 16px; }
+-
+-/* Neutralize the site's cyan glow only inside this page's existing form. */
+-.page .inputPanel :global(.mega-friendly-form) > section {
+-  padding: 18px;
+-  border-radius: 12px;
+-  background: #2c2c2a;
+-  border-color: #aa7323;
+-  box-shadow: none;
+-}
+-.page .inputPanel :global(.mega-friendly-form) > section::before { display: none; }
+-.page .inputPanel :global(.mega-friendly-form) label {
+-  color: #efe9dc !important;
+-  font-size: 15px !important;
+-  font-weight: 700 !important;
+-  text-shadow: none;
+-}
+-.page .inputPanel :global(.mega-friendly-form) input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
+-.page .inputPanel :global(.mega-friendly-form) select {
+-  min-height: 52px;
+-  border: 1px solid #5a5650 !important;
+-  border-radius: 8px !important;
+-  background: #121210 !important;
+-  color: #f8f3e8 !important;
+-  font-size: 16px !important;
+-  font-weight: 600 !important;
+-  box-shadow: none !important;
+-  text-shadow: none;
+-}
+-.page .inputPanel :global(.mega-friendly-form) input::placeholder { color: #a8a296 !important; font-weight: 400 !important; }
+-.page .inputPanel :global(.mega-friendly-form) input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):focus,
+-.page .inputPanel :global(.mega-friendly-form) select:focus {
+-  border-color: #fce74a !important;
+-  outline: 2px solid #fce74a4d;
+-  outline-offset: 3px;
+-}
+-.inputPanel :global(.mega-friendly-form) button { min-height: 48px; border-radius: 9px; box-shadow: none; text-shadow: none; }
+-.inputPanel [class*="text-cyan"], .inputPanel [class*="text-violet"] { color: #e8d9a8; }
+-.inputPanel :is([class*=" bg-cyan-"], [class^="bg-cyan-"], [class*=" bg-violet-"], [class^="bg-violet-"]) { background: #2a2110; box-shadow: none; }
+-.inputPanel :is([class*=" border-cyan-"], [class^="border-cyan-"], [class*=" border-violet-"], [class^="border-violet-"]) { border-color: #aa7323; }
+-.inputPanel [class*="text-amber"] { color: #edd0a8; }
+-.inputPanel :is([class*=" bg-amber-"], [class^="bg-amber-"]) { background: #372b24; box-shadow: none; }
+-.inputPanel :is([class*=" border-amber-"], [class^="border-amber-"]) { border-color: #a18665; }
+-.inputPanel [class*="text-green"], .inputPanel [class*="text-emerald"] { color: #b9d1bd; }
+-.page .inputPanel :global(.mega-friendly-form) > section:has(:global(.form-missing-alert)) { border-color: #ce7b84; background: #2d1921; }
+-.inputPanel :global(.mega-friendly-form) > button[type="submit"] {
+-  min-height: 56px;
+-  padding: 14px 20px;
+-  border: 1px solid #aa7323;
+-  border-radius: 10px;
+-  background: #2a2110;
+-  color: #fce74a;
+-  font-size: 16px;
+-  letter-spacing: .08em;
+-  animation: none;
+-  transform: none;
+-  box-shadow: none;
+-}
+-.inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready) { background: #aa7323; border-color: #fce74a; color: #121210; }
+-.inputPanel :global(.mega-submit-guide) { color: #d9b45a; font-size: 13px; text-shadow: none; }
+-.inputPanel :global(.mega-submit-guide__arrow) { animation: none; }
+-.inputPanel :global(.mega-friendly-form) > section:last-child h2 { font-size: 18px; margin-top: 8px; }
+-
+-@media (hover: hover) {
+-  .inputPanel :global(.mega-friendly-form) button:hover { border-color: #deb894; }
+-  .inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready):hover { background: #e2bd8d; }
+-}
+-/* ==================== ?脣漲?? + ??? ==================== */
+-
+-/* ?脣漲璇捆??*/
+-.progressContainer {
+-  display: flex;
+-  gap: 16px;
+-  margin-bottom: 28px;
+-  padding: 20px;
+-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, rgba(212, 175, 55, 0.02) 100%);
+-  border: 1px solid rgba(212, 175, 55, 0.15);
+-  border-radius: 12px;
+-}
+-
+-/* ?桐?甇仿? */
+-.progressStep {
+-  flex: 1;
+-  display: flex;
+-  flex-direction: column;
+-  align-items: center;
+-  gap: 8px;
+-  position: relative;
+-}
+-
+-/* 甇仿??? */
+-.stepCircle {
+-  width: 48px;
+-  height: 48px;
+-  display: flex;
+-  align-items: center;
+-  justify-content: center;
+-  border-radius: 50%;
+-  font-weight: 700;
+-  font-size: 16px;
+-  transition: all 0.3s ease;
+-  border: 2px solid rgba(212, 175, 55, 0.3);
+-  color: #c9c3b5;
+-  background: #2c2c2a;
+-}
+-
+-/* 甇仿??? - 撌脣???*/
+-.stepCircle.done {
+-  background: rgba(212, 175, 55, 0.2);
+-  border-color: #d4af37;
+-  color: #d4af37;
+-  box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+-}
+-
+-/* 甇仿??? - ?嗅? */
+-.stepCircle.active {
+-  background: #d4af37;
+-  border-color: #d4af37;
+-  color: #121210;
+-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+-  animation: progressPulse 1.5s ease-in-out infinite;
+-}
+-
+-/* 甇仿??? */
+-.stepLabel {
+-  font-size: 12px;
+-  color: #a8a296;
+-  text-align: center;
+-  line-height: 1.4;
+-  max-width: 80px;
+-  transition: color 0.3s ease;
+-}
+-
+-.stepCircle.done ~ .stepLabel,
+-.stepCircle.active ~ .stepLabel {
+-  color: #f4efe4;
+-  font-weight: 600;
+-}
+-
+-/* ?脣漲璇?? */
+-.progressConnector {
+-  position: absolute;
+-  top: 23px;
+-  left: 64px;
+-  right: -68px;
+-  height: 2px;
+-  background: rgba(212, 175, 55, 0.15);
+-  transition: background 0.3s ease;
+-}
+-
+-.progressConnector.active {
+-  background: #d4af37;
+-}
+-
+-.progressStep:last-child .progressConnector {
+-  display: none;
+-}
+-
+-/* ==================== ??? ==================== */
+-
+-/* ???????*/
+-.buttonLoading {
+-  position: relative;
+-  pointer-events: none;
+-}
+-
+-/* ???? */
+-.loadingDot {
+-  display: inline-block;
+-  width: 6px;
+-  height: 6px;
+-  border-radius: 50%;
+-  background: currentColor;
+-  margin: 0 3px;
+-  animation: loadingPulse 1.4s ease-in-out infinite;
+-}
+-
+-.loadingDot:nth-child(1) { animation-delay: 0s; }
+-.loadingDot:nth-child(2) { animation-delay: 0.2s; }
+-.loadingDot:nth-child(3) { animation-delay: 0.4s; }
+-
+-/* ??撟 */
+-@keyframes progressPulse {
+-  0%, 100% {
+-    transform: scale(1);
+-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+-  }
+-  50% {
+-    transform: scale(1.1);
+-    box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+-  }
+-}
+-
+-@keyframes loadingPulse {
+-  0%, 100% {
+-    opacity: 1;
+-    transform: scale(1);
+-  }
+-  50% {
+-    opacity: 0.4;
+-    transform: scale(0.7);
+-  }
+-}
+-
+-/* 蝘撅??嚗?蝥嚗?*/
+-@keyframes slideInUp {
+-  from {
+-    opacity: 0;
+-    transform: translateY(20px);
+-  }
+-  to {
+-    opacity: 1;
+-    transform: translateY(0);
+-  }
+-}
+-
+-.resultsEnter {
+-  animation: slideInUp 0.5s ease-out;
+-}
+-
+-/* ==================== 敹恍??啗圾??==================== */
+-
+-.quickRetakeSection {
+-  display: flex;
+-  flex-direction: column;
+-  align-items: center;
+-  gap: 12px;
+-  margin-top: 40px;
+-  padding-top: 32px;
+-  border-top: 1px solid rgba(212, 175, 55, 0.2);
+-}
+-
+-.quickRetakeLabel {
+-  font-size: 12px;
+-  color: #a8a296;
+-  letter-spacing: 0.05em;
+-  text-transform: uppercase;
+-}
+-
+-.quickRetakeButton {
+-  display: inline-flex;
+-  align-items: center;
+-  justify-content: center;
+-  gap: 8px;
+-  min-height: 52px;
+-  padding: 12px 28px;
+-  border: 2px solid rgba(212, 175, 55, 0.4);
+-  border-radius: 10px;
+-  background: rgba(212, 175, 55, 0.08);
+-  color: #d4af37;
+-  font-size: 15px;
+-  font-weight: 700;
+-  letter-spacing: 0.05em;
+-  cursor: pointer;
+-  transition: all 0.3s ease;
+-}
+-
+-.quickRetakeButton:hover {
+-  background: rgba(212, 175, 55, 0.15);
+-  border-color: #d4af37;
+-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+-  transform: translateY(-2px);
+-}
+-
+-.quickRetakeButton:active {
+-  transform: translateY(0);
+-  box-shadow: 0 0 12px rgba(212, 175, 55, 0.1);
+-}
+-
+-.quickRetakeIcon {
+-  font-size: 16px;
+-  animation: spinSlow 2s linear infinite;
+-}
+-
+-.quickRetakeButton:hover .quickRetakeIcon {
+-  animation: spinFast 0.8s linear infinite;
+-}
+-
+-/* ==================== ?澈? ==================== */
+-
+-.shareSection {
+-  display: flex;
+-  flex-direction: column;
+-  align-items: center;
+-  gap: 16px;
+-  margin-top: 40px;
+-  padding-top: 32px;
+-  border-top: 1px solid rgba(212, 175, 55, 0.2);
+-}
+-
+-.shareLabel {
+-  font-size: 12px;
+-  color: #a8a296;
+-  letter-spacing: 0.05em;
+-  text-transform: uppercase;
+-}
+-
+-.shareButtons {
+-  display: flex;
+-  flex-wrap: wrap;
+-  justify-content: center;
+-  gap: 12px;
+-}
+-
+-.shareButton {
+-  display: inline-flex;
+-  align-items: center;
+-  justify-content: center;
+-  gap: 8px;
+-  min-height: 48px;
+-  padding: 10px 20px;
+-  border: 1.5px solid rgba(212, 175, 55, 0.3);
+-  border-radius: 8px;
+-  background: rgba(212, 175, 55, 0.05);
+-  color: #d4af37;
+-  font-size: 13px;
+-  font-weight: 700;
+-  letter-spacing: 0.04em;
+-  cursor: pointer;
+-  transition: all 0.3s ease;
+-}
+-
+-.shareButton:hover {
+-  background: rgba(212, 175, 55, 0.12);
+-  border-color: #d4af37;
+-  box-shadow: 0 0 16px rgba(212, 175, 55, 0.15);
+-  transform: translateY(-2px);
+-}
+-
+-.shareButton:active {
+-  transform: translateY(0);
+-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.08);
+-}
+-
+-.shareIcon {
+-  font-size: 14px;
+-}
+-
+-.shareButtonLabel {
+-  white-space: nowrap;
+-}
+-
+-/* 銴ˊ???內 */
+-.copySuccess {
+-  display: inline-flex;
+-  align-items: center;
+-  gap: 6px;
+-  margin-top: 8px;
+-  padding: 8px 12px;
+-  border-radius: 6px;
+-  background: rgba(76, 175, 80, 0.15);
+-  color: #81c784;
+-  font-size: 12px;
+-  animation: slideIn 0.3s ease-out;
+-}
+-
+-@keyframes fadeOut {
+-  0% {
+-    opacity: 1;
+-    transform: translateY(0);
+-  }
+-  100% {
+-    opacity: 0;
+-    transform: translateY(-10px);
+-  }
+-}
+-
+-.copySuccessFadeOut {
+-  animation: fadeOut 0.4s ease-out 1.5s forwards;
+-}
+-
+-/* ==================== 銝?? ==================== */
+-
+-.downloadSection {
+-  display: flex;
+-  flex-direction: column;
+-  align-items: center;
+-  gap: 16px;
+-  margin-top: 40px;
+-  padding-top: 32px;
+-  border-top: 1px solid rgba(212, 175, 55, 0.2);
+-}
+-
+-.downloadLabel {
+-  font-size: 12px;
+-  color: #a8a296;
+-  letter-spacing: 0.05em;
+-  text-transform: uppercase;
+-}
+-
+-.downloadButtons {
+-  display: flex;
+-  flex-wrap: wrap;
+-  justify-content: center;
+-  gap: 12px;
+-}
+-
+-.downloadButton {
+-  display: inline-flex;
+-  align-items: center;
+-  justify-content: center;
+-  gap: 8px;
+-  min-height: 48px;
+-  padding: 10px 20px;
+-  border: 1.5px solid rgba(212, 175, 55, 0.3);
+-  border-radius: 8px;
+-  background: rgba(212, 175, 55, 0.05);
+-  color: #d4af37;
+-  font-size: 13px;
+-  font-weight: 700;
+-  letter-spacing: 0.04em;
+-  cursor: pointer;
+-  transition: all 0.3s ease;
+-}
+-
+-.downloadButton:hover {
+-  background: rgba(212, 175, 55, 0.12);
+-  border-color: #d4af37;
+-  box-shadow: 0 0 16px rgba(212, 175, 55, 0.15);
+-  transform: translateY(-2px);
+-}
+-
+-.downloadButton:active {
+-  transform: translateY(0);
+-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.08);
+-}
+-
+-.downloadButton:disabled {
+-  opacity: 0.5;
+-  cursor: not-allowed;
+-}
+-
+-.downloadIcon {
+-  font-size: 14px;
+-}
+-
+-.downloadButtonLabel {
+-  white-space: nowrap;
+-}
+-
+-/* 銝??脣漲?內 */
+-.downloadProgress {
+-  display: inline-flex;
+-  align-items: center;
+-  gap: 8px;
+-  margin-top: 8px;
+-  padding: 8px 12px;
+-  border-radius: 6px;
+-  background: rgba(212, 175, 55, 0.15);
+-  color: #d4af37;
+-  font-size: 12px;
+-  animation: slideIn 0.3s ease-out;
+-}
+-
+-.downloadProgressDot {
+-  display: inline-block;
+-  width: 6px;
+-  height: 6px;
+-  border-radius: 50%;
+-  background: #d4af37;
+-  animation: blink 1s ease-in-out infinite;
+-}
+-
+-@keyframes blink {
+-  0%, 100% { opacity: 1; }
+-  50% { opacity: 0.3; }
+-}
+-
+-/* ==================== 蝘餃?蝡臬??閫豢?? + ?踵?撘? ==================== */
+-
+-@media (max-width: 600px) {
+-  .shareButtons {
+-    gap: 10px;
+-  }
+-
+-  .shareButton {
+-    min-height: 44px;
+-    padding: 8px 16px;
+-    font-size: 12px;
+-    /* 閫豢?? */
+-    transform: scale(1);
+-    transition: all 0.15s ease;
+-  }
+-
+-  .shareButton:active {
+-    transform: scale(0.95);
+-    box-shadow: 0 0 4px rgba(212, 175, 55, 0.1);
+-  }
+-
+-  .shareButton:focus-visible {
+-    outline: 2px solid #d4af37;
+-    outline-offset: 2px;
+-  }
+-
+-  .shareButtonLabel {
+-    display: none;
+-  }
+-
+-  .shareIcon {
+-    font-size: 16px;
+-  }
+-
+-  .downloadButtons {
+-    gap: 10px;
+-  }
+-
+-  .downloadButton {
+-    min-height: 44px;
+-    padding: 8px 16px;
+-    font-size: 12px;
+-    /* 閫豢?? */
+-    transform: scale(1);
+-    transition: all 0.15s ease;
+-  }
+-
+-  .downloadButton:active {
+-    transform: scale(0.95);
+-    box-shadow: 0 0 4px rgba(212, 175, 55, 0.1);
+-  }
+-
+-  .downloadButton:focus-visible {
+-    outline: 2px solid #d4af37;
+-    outline-offset: 2px;
+-  }
+-
+-  .downloadButtonLabel {
+-    display: none;
+-  }
+-
+-  .downloadIcon {
+-    font-size: 16px;
+-  }
+-
+-  /* ???∠????芸? */
+-  .card {
+-    padding: 16px;
+-  }
+-
+-  .pillarsTable {
+-    gap: 8px;
+-  }
+-
+-  .pillarColumn {
+-    padding: 12px;
+-  }
+-
+-  /* ?脣漲璇?璈??*/
+-  .progressStep {
+-    flex: 0 0 calc(33.333% - 8px);
+-  }
+-
+-  .stepCircle {
+-    width: 36px;
+-    height: 36px;
+-    font-size: 12px;
+-  }
+-
+-  /* 敹恍??啗圾?斗?璈??*/
+-  .quickRetakeButton {
+-    min-height: 48px;
+-    padding: 10px 20px;
+-    font-size: 14px;
+-  }
+-
+-  .quickRetakeButton:active {
+-    transform: scale(0.98);
+-  }
+-}
+-
+-@keyframes spinSlow {
+-  from { transform: rotate(0deg); }
+-  to { transform: rotate(360deg); }
+-}
+-
+-@keyframes spinFast {
+-  from { transform: rotate(0deg); }
+-  to { transform: rotate(360deg); }
+-}
+-
+-/* ==================== 擛潮??蹂耨蝢敹???==================== */
+-
+-/* ?∠??剔內嚗???狩擳撓??*/
+-@keyframes asuraCardReveal {
+-  0% {
+-    opacity: 0;
+-    transform: translateY(40px) scale(0.95);
+-    filter: blur(8px) brightness(0.6);
+-  }
+-  30% {
+-    filter: blur(4px) brightness(0.8);
+-  }
+-  70% {
+-    filter: blur(1px) brightness(1);
+-  }
+-  100% {
+-    opacity: 1;
+-    transform: translateY(0) scale(1);
+-    filter: blur(0) brightness(1);
+-  }
+-}
+-
+-.asuraCardReveal {
+-  animation: asuraCardReveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+-}
+-
+-/* ?啗?暺漁嚗???鋡怠???*/
+-@keyframes asuraImpressionGlow {
+-  0% {
+-    opacity: 0;
+-    transform: scale(0.8);
+-    filter: blur(4px);
+-    text-shadow: none;
+-  }
+-  20% {
+-    opacity: 0.5;
+-    transform: scale(1);
+-    filter: blur(2px);
+-  }
+-  50% {
+-    opacity: 1;
+-    transform: scale(1.05);
+-    filter: blur(0);
+-    text-shadow: 0 0 12px rgba(212, 175, 55, 0.8);
+-  }
+-  70% {
+-    opacity: 1;
+-    transform: scale(1);
+-    text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+-  }
+-  100% {
+-    opacity: 1;
+-    transform: scale(1);
+-    text-shadow: 0 0 4px rgba(212, 175, 55, 0.3);
+-  }
+-}
+-
+-.asuraImpressionGlow {
+-  animation: asuraImpressionGlow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+-}
+-
+-/* 蝘??嚗???*/
+-@keyframes asuraScrollFormation {
+-  0% {
+-    opacity: 0;
+-    transform: scale(0.9) rotateX(10deg);
+-  }
+-  50% {
+-    transform: scale(1.02) rotateX(5deg);
+-  }
+-  100% {
+-    opacity: 1;
+-    transform: scale(1) rotateX(0deg);
+-  }
+-}
+-
+-.asuraScrollFormation {
+-  animation: asuraScrollFormation 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+-}
+-
+-/* 銵?瘜ｇ??蹂耨蝢?瘞?? */
+-@keyframes asuraShockwave {
+-  0% {
+-    opacity: 0;
+-    transform: scale(0.9);
+-    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+-  }
+-  30% {
+-    opacity: 1;
+-    box-shadow: 0 0 0 20px rgba(212, 175, 55, 0.3);
+-  }
+-  60% {
+-    opacity: 1;
+-    transform: scale(1);
+-    box-shadow: 0 0 0 40px rgba(212, 175, 55, 0.1);
+-  }
+-  100% {
+-    opacity: 1;
+-    transform: scale(1);
+-    box-shadow: 0 0 0 60px rgba(212, 175, 55, 0);
+-  }
+-}
+-
+-.asuraShockwave {
+-  animation: asuraShockwave 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+-}
+-
+-/* 擛潮??啣蔣??嚗??獢?*/
+-@keyframes asuraShadowPulse {
+-  0%, 100% {
+-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.15), 0 0 40px rgba(0, 0, 0, 0.3);
+-  }
+-  50% {
+-    box-shadow: 0 0 30px rgba(212, 175, 55, 0.25), 0 0 60px rgba(0, 0, 0, 0.4);
+-  }
+-}
+-
+-.asuraShadowPulse {
+-  animation: asuraShadowPulse 3s ease-in-out infinite;
+-}
+-
+-/* ==================== 3D ?? V2嚗??楛摨行? ==================== */
+-
+-.asuraCard3DContainer {
+-  perspective: 1200px;
+-  transform-style: preserve-3d;
+-}
+-
+-.asuraCardReveal {
+-  transform-style: preserve-3d;
+-  transform-origin: center center;
+-}
+-
+-/* ?∠?瘚株絲瘛勗漲??*/
+-@keyframes asuraCardFloat {
+-  0% {
+-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+-  }
+-  50% {
+-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+-  }
+-  100% {
+-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.35);
+-  }
+-}
+-
+-.asuraCardReveal {
+-  animation: asuraCardFloat 3s ease-in-out infinite;
+-}
+-
+-/* ?啗? 3D 撅斤? */
+-@keyframes asuraImpressionFloat3D {
+-  0% {
+-    transform: translateZ(-20px);
+-    opacity: 0;
+-  }
+-  50% {
+-    transform: translateZ(15px);
+-    opacity: 1;
+-  }
+-  100% {
+-    transform: translateZ(10px);
+-    opacity: 1;
+-  }
+-}
+-
+-.asuraImpressionGlow {
+-  transform-style: preserve-3d;
+-  animation: asuraImpressionFloat3D 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+-}
+-
+-/* ==================== Phase 5嚗?蝝?3D ???? ==================== */
+-
+-/* 擃? 3D ?∠?瘛勗漲蝧餉? */
+-@keyframes advancedCardFlip {
+-  0% {
+-    opacity: 0;
+-    transform: rotateX(15deg) rotateY(8deg) translateY(40px) scale(0.95);
+-    filter: blur(8px) brightness(0.6);
+-  }
+-  35% {
+-    transform: rotateX(8deg) rotateY(4deg) translateY(20px) scale(0.98);
+-    filter: blur(4px) brightness(0.8);
+-  }
+-  70% {
+-    transform: rotateX(2deg) rotateY(1deg) translateY(5px) scale(0.99);
+-    filter: blur(1px) brightness(1);
+-  }
+-  100% {
+-    opacity: 1;
+-    transform: rotateX(0deg) rotateY(0deg) translateY(0) scale(1);
+-    filter: blur(0) brightness(1);
+-  }
+-}
+-
+-/* ?????? */
+-@keyframes lightReflectionGlow {
+-  0% {
+-    opacity: 0;
+-    box-shadow:
+-      0 0 0 0 rgba(212, 175, 55, 0.8),
+-      0 0 24px 0 rgba(212, 175, 55, 0.3);
+-  }
+-  50% {
+-    opacity: 0.8;
+-    box-shadow:
+-      0 0 8px 4px rgba(212, 175, 55, 0.6),
+-      0 0 32px 8px rgba(212, 175, 55, 0.2);
+-  }
+-  100% {
+-    opacity: 0;
+-    box-shadow:
+-      0 0 16px 12px rgba(212, 175, 55, 0.2),
+-      0 0 40px 16px rgba(212, 175, 55, 0.1);
+-  }
+-}
+-
+-/* 瘚株絲瞍貉??? */
+-@keyframes floatingGradientAura {
+-  0% {
+-    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.3));
+-  }
+-  50% {
+-    filter: drop-shadow(0 0 16px rgba(212, 175, 55, 0.5));
+-  }
+-  100% {
+-    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.3));
+-  }
+-}
+-
+-@media (max-width: 600px) {
+-  .page { padding: 16px 12px 56px; }
+-  .header { padding: 24px 4px; }
+-  .intro { font-size: 14px; }
+-  .panel { padding: 14px; }
+-  .page .inputPanel :global(.mega-friendly-form) > section { padding: 14px; }
+-  .page .inputPanel :global(.mega-friendly-form) :is(input:not([type="checkbox"]), select) { padding-inline: 10px; }
+-  .inputPanel :global(.mega-friendly-form) > section[data-field="birthDate"] :global(.grid-cols-3) { gap: 8px; }
+-
+-  /* ???脣漲璇矽??*/
+-  .progressContainer {
+-    flex-wrap: wrap;
+-    gap: 12px;
+-    padding: 16px;
+-  }
+-  .progressStep {
+-    flex: 0 0 calc(33.333% - 8px);
+-  }
+-  .progressConnector {
+-    display: none;
+-  }
+-  .stepCircle {
+-    width: 40px;
+-    height: 40px;
+-    font-size: 14px;
+-  }
+-  .stepLabel {
+-    font-size: 11px;
+-    max-width: 60px;
+-  }
+-
+-  /* ????3D 蝪∪? */
+-  .asuraCard3DContainer {
+-    perspective: 800px;
+-  }
+-}
+-
+-/* 2026-10-12 ?曄????嚗? #121210???#383836?楛??#aa7323?漁??#fce74a嚗?寥??莎?銝?鋆ˇ???孵偕撖?*/
+-.header h1[data-asura-brand-title] {
+-  background: linear-gradient(180deg, #fce74a 0%, #aa7323 100%);
+-  -webkit-background-clip: text;
+-  background-clip: text;
+-  color: #d9b45a;
+-  -webkit-text-fill-color: transparent;
+-  -webkit-text-stroke: 0;
+-  text-shadow: none;
+-}
+-.login > button,
+-.inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready) { background: linear-gradient(180deg, #fce74a 0%, #aa7323 100%); }
+-.page :is(a, button, summary):focus-visible { outline-color: #0677cd; }
+-
+-/* ?怠?敶抵暺韌嚗??芰??8 摮?撖西嚗′?畾萇璅∠?嚗?典銝餉???憭???郊撽??暺? */
+-.page { box-shadow: none; }
+-.panel { box-shadow: none; }
+-.stepCircle.done { background: #2a2110; border-color: #aa7323; color: #fce74a; box-shadow: none; }
+-.stepCircle.active { border-color: transparent; background: linear-gradient(#fce74a, #fce74a) padding-box, conic-gradient(#d22536 0 16.66%, #e7570d 0 33.33%, #f2d42d 0 50%, #2ab65a 0 66.66%, #0677cd 0 83.33%, #a225b4 0) border-box; color: #121210; box-shadow: none; animation: none; }
+-.login > button,
+-.inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready) { border-color: transparent; background: linear-gradient(180deg, #fce74a 0%, #aa7323 100%) padding-box, linear-gradient(90deg, #d22536 0 16.66%, #e7570d 0 33.33%, #f2d42d 0 50%, #2ab65a 0 66.66%, #0677cd 0 83.33%, #a225b4 0) border-box; color: #121210; box-shadow: none; }
+-
+-/* 2026-10-12 ?曄?鞈芣??芸?嚗???脰?鞈芣?嚗??寧??Ｚ?撠箏站嚗?
+-   ??曄?嚗?摨?潛楊蝜?獢?畾菜撓撅歹?鈭桅? #fcea86 ????#f8c758 ??瘛梢? #c48a29 ???日? #975905嚗?-   敶抵?芰??其蜓閬???獢??桀?甇仿???摮?瘥雁??AA 隞乩???*/
+-.page {
+-  background:
+-    radial-gradient(ellipse at 50% -8%, rgba(248, 199, 88, .12), transparent 36rem),
+-    repeating-linear-gradient(45deg, rgba(248, 199, 88, .028) 0 1px, transparent 1px 7px),
+-    repeating-linear-gradient(-45deg, rgba(248, 199, 88, .028) 0 1px, transparent 1px 7px),
+-    #0f0f0d;
+-}
+-.header h1[data-asura-brand-title] {
+-  background: linear-gradient(180deg, #fcea86 0%, #f8c758 42%, #c48a29 100%);
+-  -webkit-background-clip: text;
+-  background-clip: text;
+-  -webkit-text-fill-color: transparent;
+-}
+-.eyebrow { color: #c48a29; }
+-.panel,
+-.progressContainer {
+-  border: 1px solid transparent;
+-  background:
+-    linear-gradient(180deg, #1c1c1a 0%, #131311 100%) padding-box,
+-    linear-gradient(135deg, #fcea86 0%, #c48a29 38%, #975905 62%, #f8c758 100%) border-box;
+-  box-shadow: inset 0 1px 0 rgba(252, 234, 134, .16);
+-}
+-.page .inputPanel :global(.mega-friendly-form) > section {
+-  background: linear-gradient(180deg, #2f2f2c 0%, #262624 100%);
+-  border-color: #8a6420;
+-  box-shadow: inset 0 1px 0 rgba(252, 234, 134, .10);
+-}
+-.panel h2, .login a { color: #fcea86; }
+-.login > button,
+-.inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready) {
+-  background:
+-    linear-gradient(180deg, #fcea86 0%, #f8c758 45%, #c48a29 100%) padding-box,
+-    linear-gradient(90deg, #d22536 0 16.66%, #e7570d 0 33.33%, #f2d42d 0 50%, #2ab65a 0 66.66%, #0677cd 0 83.33%, #a225b4 0) border-box;
+-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), inset 0 -1px 0 rgba(151, 89, 5, .6);
+-}
+-.inputPanel :global(.mega-friendly-form) > button[type="submit"]:not(:global(.mega-submit-ready)) {
+-  background: linear-gradient(180deg, #2f2410 0%, #231b0b 100%);
+-  border-color: #8a6420;
+-  color: #fcea86;
+-}
+-.stepCircle.done { background: linear-gradient(180deg, #2f2410, #231b0b); border-color: #c48a29; color: #fcea86; }
+-.progressContainer { border-radius: 12px; }
+-@media (hover: hover) {
+-  .login > button:hover,
+-  .inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready):hover { filter: brightness(1.06); }
+-}
+-
+-/* ==========================================================================
+-   2026-10-12 ?脣漲鈭?撖嗥?嚗??祆??曄???嚗?蝡?函?鈭?蝝窄??蝛箝憸具瘞氬?怒?堆???-   摰?嚗府?????脩鈭桃???芸???撠???澆????脣霈 elementOrbPalette嚗??血遣?脰”??-   ========================================================================== */
+-.progressStep { --step-glow: #fcea86; }
+-.stepOrb {
+-  position: relative;
+-  width: 52px;
+-  height: 52px;
+-  flex: none;
+-  border-radius: 50%;
+-  transition: filter 0.5s ease, transform 0.5s ease;
+-}
+-.stepOrb[data-lit='false'] { filter: grayscale(0.35) brightness(0.8); }
+-.stepOrb[data-lit='true'] { filter: drop-shadow(0 0 10px var(--step-glow)); transform: scale(1.04); }
+-/* ?桀?頛芸?銝憿?憭?頛??澆嚗?蝷箝?銝?‵?ㄐ??*/
+-.stepOrbActive::after {
+-  content: '';
+-  position: absolute;
+-  inset: -5px;
+-  border-radius: 50%;
+-  border: 2px dashed var(--step-glow);
+-  opacity: 0.85;
+-  animation: stepOrbBreath 1.6s ease-in-out infinite;
+-  pointer-events: none;
+-}
+-@keyframes stepOrbBreath {
+-  0%, 100% { transform: scale(0.96); opacity: 0.45; }
+-  50% { transform: scale(1.06); opacity: 1; }
+-}
+-.stepOrb[data-lit='true'] ~ .stepLabel {
+-  color: #f4efe4;
+-  font-weight: 700;
+-  text-shadow: 0 0 10px var(--step-glow);
+-}
+-.progressConnector { top: 25px; }
+-.progressConnector.active { background: var(--step-glow); box-shadow: 0 0 8px var(--step-glow); }
+-@media (max-width: 600px) {
+-  .stepOrb { width: 44px; height: 44px; }
+-  .progressConnector { top: 21px; }
+-}
++/* Only the private Asura page uses this skin; shared forms retain their defaults. */
++.page {
++  --text-main: #f4efe4;
++  --text-sub: #c9c3b5;
++  --text-muted: #a8a296;
++  min-height: 100dvh;
++  padding: 24px max(16px, calc((100% - 1040px) / 2)) 80px;
++  background: #121210;
++  color: var(--text-main);
++  color-scheme: dark;
++}
++
++.nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
++.nav a, .nav button {
++  display: inline-flex;
++  align-items: center;
++  min-height: 44px;
++  color: #c9c3b5;
++  font-size: 13px;
++}
++.nav button { padding: 0 14px; border: 1px solid #aa7323; border-radius: 8px; }
++.nav a:hover, .nav button:hover { color: #fce74a; }
++.page button:disabled { opacity: .5; cursor: wait; }
++.page :is(a, button, summary):focus-visible { outline: 2px solid #fce74a; outline-offset: 4px; }
++
++.header { padding: 36px 0 30px; }
++.eyebrow { margin: 0; color: #aa7323; font-size: 12px; letter-spacing: .2em; }
++.header h1 { margin: 10px 0 16px; font-size: clamp(42px, 5vw, 64px); line-height: 1.3; }
++.intro { max-width: 650px; margin: 0; color: #c9c3b5; font-size: 15px; line-height: 1.85; }
++.panel {
++  min-width: 0;
++  margin-bottom: 28px;
++  padding: 24px;
++  border: 1px solid #aa7323;
++  border-radius: 16px;
++  background: #383836;
++  box-shadow: 0 12px 36px #0003;
++}
++.panel h2 { color: #fce74a; font-size: 22px; font-weight: 700; line-height: 1.5; }
++.note { margin: 0 0 20px; color: #c0baac; font-size: 13px; line-height: 1.8; }
++.fields { min-width: 0; border: 0; padding: 0; margin: 0; }
++.results { scroll-margin-top: 20px; outline: none; }
++.results:focus-visible { outline: 2px solid #fce74a; outline-offset: 5px; border-radius: 16px; }
++.error { margin: 20px 0 0; padding: 16px; border: 1px solid #be6971; border-radius: 12px; background: #381d24; color: #ffdae0; line-height: 1.8; }
++
++.login { display: grid; gap: 16px; max-width: 460px; }
++.login .note { margin: 0; }
++.login label, .zi { color: #efe9dc; font-size: 15px; font-weight: 600; }
++.login input, .zi select { width: 100%; min-height: 52px; padding: 12px; border: 1px solid #4a4842; border-radius: 8px; background: #121210; color: #f8f3e8; font-size: 16px; }
++.login > button { min-height: 52px; padding: 12px 20px; background: #aa7323; border: 1px solid #fce74a; border-radius: 10px; color: #121210; font-weight: 800; }
++.login a { color: #fce74a; text-decoration: underline; }
++.passwordField { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
++.passwordToggle { min-height: 48px; padding: 8px 12px; border: 1px solid #4a4842; border-radius: 8px; color: #e8d9a8; font-size: 13px; }
++.zi { display: grid; gap: 10px; margin-top: 16px; }
++
++/* Neutralize the site's cyan glow only inside this page's existing form. */
++.page .inputPanel :global(.mega-friendly-form) > section {
++  padding: 18px;
++  border-radius: 12px;
++  background: #2c2c2a;
++  border-color: #aa7323;
++  box-shadow: none;
++}
++.page .inputPanel :global(.mega-friendly-form) > section::before { display: none; }
++.page .inputPanel :global(.mega-friendly-form) label {
++  color: #efe9dc !important;
++  font-size: 15px !important;
++  font-weight: 700 !important;
++  text-shadow: none;
++}
++.page .inputPanel :global(.mega-friendly-form) input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
++.page .inputPanel :global(.mega-friendly-form) select {
++  min-height: 52px;
++  border: 1px solid #5a5650 !important;
++  border-radius: 8px !important;
++  background: #121210 !important;
++  color: #f8f3e8 !important;
++  font-size: 16px !important;
++  font-weight: 600 !important;
++  box-shadow: none !important;
++  text-shadow: none;
++}
++.page .inputPanel :global(.mega-friendly-form) input::placeholder { color: #a8a296 !important; font-weight: 400 !important; }
++.page .inputPanel :global(.mega-friendly-form) input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):focus,
++.page .inputPanel :global(.mega-friendly-form) select:focus {
++  border-color: #fce74a !important;
++  outline: 2px solid #fce74a4d;
++  outline-offset: 3px;
++}
++.inputPanel :global(.mega-friendly-form) button { min-height: 48px; border-radius: 9px; box-shadow: none; text-shadow: none; }
++.inputPanel [class*="text-cyan"], .inputPanel [class*="text-violet"] { color: #e8d9a8; }
++.inputPanel :is([class*=" bg-cyan-"], [class^="bg-cyan-"], [class*=" bg-violet-"], [class^="bg-violet-"]) { background: #2a2110; box-shadow: none; }
++.inputPanel :is([class*=" border-cyan-"], [class^="border-cyan-"], [class*=" border-violet-"], [class^="border-violet-"]) { border-color: #aa7323; }
++.inputPanel [class*="text-amber"] { color: #edd0a8; }
++.inputPanel :is([class*=" bg-amber-"], [class^="bg-amber-"]) { background: #372b24; box-shadow: none; }
++.inputPanel :is([class*=" border-amber-"], [class^="border-amber-"]) { border-color: #a18665; }
++.inputPanel [class*="text-green"], .inputPanel [class*="text-emerald"] { color: #b9d1bd; }
++.page .inputPanel :global(.mega-friendly-form) > section:has(:global(.form-missing-alert)) { border-color: #ce7b84; background: #2d1921; }
++.inputPanel :global(.mega-friendly-form) > button[type="submit"] {
++  min-height: 56px;
++  padding: 14px 20px;
++  border: 1px solid #aa7323;
++  border-radius: 10px;
++  background: #2a2110;
++  color: #fce74a;
++  font-size: 16px;
++  letter-spacing: .08em;
++  animation: none;
++  transform: none;
++  box-shadow: none;
++}
++.inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready) { background: #aa7323; border-color: #fce74a; color: #121210; }
++.inputPanel :global(.mega-submit-guide) { color: #d9b45a; font-size: 13px; text-shadow: none; }
++.inputPanel :global(.mega-submit-guide__arrow) { animation: none; }
++.inputPanel :global(.mega-friendly-form) > section:last-child h2 { font-size: 18px; margin-top: 8px; }
++
++@media (hover: hover) {
++  .inputPanel :global(.mega-friendly-form) button:hover { border-color: #deb894; }
++  .inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready):hover { background: #e2bd8d; }
++}
++/* ==================== ?脣漲?? + ??? ==================== */
++
++/* ?脣漲璇捆??*/
++.progressContainer {
++  display: flex;
++  gap: 16px;
++  margin-bottom: 28px;
++  padding: 20px;
++  background: linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, rgba(212, 175, 55, 0.02) 100%);
++  border: 1px solid rgba(212, 175, 55, 0.15);
++  border-radius: 12px;
++}
++
++/* ?桐?甇仿? */
++.progressStep {
++  flex: 1;
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  gap: 8px;
++  position: relative;
++}
++
++/* 甇仿??? */
++.stepCircle {
++  width: 48px;
++  height: 48px;
++  display: flex;
++  align-items: center;
++  justify-content: center;
++  border-radius: 50%;
++  font-weight: 700;
++  font-size: 16px;
++  transition: all 0.3s ease;
++  border: 2px solid rgba(212, 175, 55, 0.3);
++  color: #c9c3b5;
++  background: #2c2c2a;
++}
++
++/* 甇仿??? - 撌脣???*/
++.stepCircle.done {
++  background: rgba(212, 175, 55, 0.2);
++  border-color: #d4af37;
++  color: #d4af37;
++  box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
++}
++
++/* 甇仿??? - ?嗅? */
++.stepCircle.active {
++  background: #d4af37;
++  border-color: #d4af37;
++  color: #121210;
++  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
++  animation: progressPulse 1.5s ease-in-out infinite;
++}
++
++/* 甇仿??? */
++.stepLabel {
++  font-size: 12px;
++  color: #a8a296;
++  text-align: center;
++  line-height: 1.4;
++  max-width: 80px;
++  transition: color 0.3s ease;
++}
++
++.stepCircle.done ~ .stepLabel,
++.stepCircle.active ~ .stepLabel {
++  color: #f4efe4;
++  font-weight: 600;
++}
++
++/* ?脣漲璇?? */
++.progressConnector {
++  position: absolute;
++  top: 23px;
++  left: 64px;
++  right: -68px;
++  height: 2px;
++  background: rgba(212, 175, 55, 0.15);
++  transition: background 0.3s ease;
++}
++
++.progressConnector.active {
++  background: #d4af37;
++}
++
++.progressStep:last-child .progressConnector {
++  display: none;
++}
++
++/* ==================== ??? ==================== */
++
++/* ???????*/
++.buttonLoading {
++  position: relative;
++  pointer-events: none;
++}
++
++/* ???? */
++.loadingDot {
++  display: inline-block;
++  width: 6px;
++  height: 6px;
++  border-radius: 50%;
++  background: currentColor;
++  margin: 0 3px;
++  animation: loadingPulse 1.4s ease-in-out infinite;
++}
++
++.loadingDot:nth-child(1) { animation-delay: 0s; }
++.loadingDot:nth-child(2) { animation-delay: 0.2s; }
++.loadingDot:nth-child(3) { animation-delay: 0.4s; }
++
++/* ??撟 */
++@keyframes progressPulse {
++  0%, 100% {
++    transform: scale(1);
++    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
++  }
++  50% {
++    transform: scale(1.1);
++    box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
++  }
++}
++
++@keyframes loadingPulse {
++  0%, 100% {
++    opacity: 1;
++    transform: scale(1);
++  }
++  50% {
++    opacity: 0.4;
++    transform: scale(0.7);
++  }
++}
++
++/* 蝘撅??嚗?蝥嚗?*/
++@keyframes slideInUp {
++  from {
++    opacity: 0;
++    transform: translateY(20px);
++  }
++  to {
++    opacity: 1;
++    transform: translateY(0);
++  }
++}
++
++.resultsEnter {
++  animation: slideInUp 0.5s ease-out;
++}
++
++/* ==================== 敹恍??啗圾??==================== */
++
++.quickRetakeSection {
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  gap: 12px;
++  margin-top: 40px;
++  padding-top: 32px;
++  border-top: 1px solid rgba(212, 175, 55, 0.2);
++}
++
++.quickRetakeLabel {
++  font-size: 12px;
++  color: #a8a296;
++  letter-spacing: 0.05em;
++  text-transform: uppercase;
++}
++
++.quickRetakeButton {
++  display: inline-flex;
++  align-items: center;
++  justify-content: center;
++  gap: 8px;
++  min-height: 52px;
++  padding: 12px 28px;
++  border: 2px solid rgba(212, 175, 55, 0.4);
++  border-radius: 10px;
++  background: rgba(212, 175, 55, 0.08);
++  color: #d4af37;
++  font-size: 15px;
++  font-weight: 700;
++  letter-spacing: 0.05em;
++  cursor: pointer;
++  transition: all 0.3s ease;
++}
++
++.quickRetakeButton:hover {
++  background: rgba(212, 175, 55, 0.15);
++  border-color: #d4af37;
++  box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
++  transform: translateY(-2px);
++}
++
++.quickRetakeButton:active {
++  transform: translateY(0);
++  box-shadow: 0 0 12px rgba(212, 175, 55, 0.1);
++}
++
++.quickRetakeIcon {
++  font-size: 16px;
++  animation: spinSlow 2s linear infinite;
++}
++
++.quickRetakeButton:hover .quickRetakeIcon {
++  animation: spinFast 0.8s linear infinite;
++}
++
++/* ==================== ?澈? ==================== */
++
++.shareSection {
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  gap: 16px;
++  margin-top: 40px;
++  padding-top: 32px;
++  border-top: 1px solid rgba(212, 175, 55, 0.2);
++}
++
++.shareLabel {
++  font-size: 12px;
++  color: #a8a296;
++  letter-spacing: 0.05em;
++  text-transform: uppercase;
++}
++
++.shareButtons {
++  display: flex;
++  flex-wrap: wrap;
++  justify-content: center;
++  gap: 12px;
++}
++
++.shareButton {
++  display: inline-flex;
++  align-items: center;
++  justify-content: center;
++  gap: 8px;
++  min-height: 48px;
++  padding: 10px 20px;
++  border: 1.5px solid rgba(212, 175, 55, 0.3);
++  border-radius: 8px;
++  background: rgba(212, 175, 55, 0.05);
++  color: #d4af37;
++  font-size: 13px;
++  font-weight: 700;
++  letter-spacing: 0.04em;
++  cursor: pointer;
++  transition: all 0.3s ease;
++}
++
++.shareButton:hover {
++  background: rgba(212, 175, 55, 0.12);
++  border-color: #d4af37;
++  box-shadow: 0 0 16px rgba(212, 175, 55, 0.15);
++  transform: translateY(-2px);
++}
++
++.shareButton:active {
++  transform: translateY(0);
++  box-shadow: 0 0 8px rgba(212, 175, 55, 0.08);
++}
++
++.shareIcon {
++  font-size: 14px;
++}
++
++.shareButtonLabel {
++  white-space: nowrap;
++}
++
++/* 銴ˊ???內 */
++.copySuccess {
++  display: inline-flex;
++  align-items: center;
++  gap: 6px;
++  margin-top: 8px;
++  padding: 8px 12px;
++  border-radius: 6px;
++  background: rgba(76, 175, 80, 0.15);
++  color: #81c784;
++  font-size: 12px;
++  animation: slideIn 0.3s ease-out;
++}
++
++@keyframes fadeOut {
++  0% {
++    opacity: 1;
++    transform: translateY(0);
++  }
++  100% {
++    opacity: 0;
++    transform: translateY(-10px);
++  }
++}
++
++.copySuccessFadeOut {
++  animation: fadeOut 0.4s ease-out 1.5s forwards;
++}
++
++/* ==================== 銝?? ==================== */
++
++.downloadSection {
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  gap: 16px;
++  margin-top: 40px;
++  padding-top: 32px;
++  border-top: 1px solid rgba(212, 175, 55, 0.2);
++}
++
++.downloadLabel {
++  font-size: 12px;
++  color: #a8a296;
++  letter-spacing: 0.05em;
++  text-transform: uppercase;
++}
++
++.downloadButtons {
++  display: flex;
++  flex-wrap: wrap;
++  justify-content: center;
++  gap: 12px;
++}
++
++.downloadButton {
++  display: inline-flex;
++  align-items: center;
++  justify-content: center;
++  gap: 8px;
++  min-height: 48px;
++  padding: 10px 20px;
++  border: 1.5px solid rgba(212, 175, 55, 0.3);
++  border-radius: 8px;
++  background: rgba(212, 175, 55, 0.05);
++  color: #d4af37;
++  font-size: 13px;
++  font-weight: 700;
++  letter-spacing: 0.04em;
++  cursor: pointer;
++  transition: all 0.3s ease;
++}
++
++.downloadButton:hover {
++  background: rgba(212, 175, 55, 0.12);
++  border-color: #d4af37;
++  box-shadow: 0 0 16px rgba(212, 175, 55, 0.15);
++  transform: translateY(-2px);
++}
++
++.downloadButton:active {
++  transform: translateY(0);
++  box-shadow: 0 0 8px rgba(212, 175, 55, 0.08);
++}
++
++.downloadButton:disabled {
++  opacity: 0.5;
++  cursor: not-allowed;
++}
++
++.downloadIcon {
++  font-size: 14px;
++}
++
++.downloadButtonLabel {
++  white-space: nowrap;
++}
++
++/* 銝??脣漲?內 */
++.downloadProgress {
++  display: inline-flex;
++  align-items: center;
++  gap: 8px;
++  margin-top: 8px;
++  padding: 8px 12px;
++  border-radius: 6px;
++  background: rgba(212, 175, 55, 0.15);
++  color: #d4af37;
++  font-size: 12px;
++  animation: slideIn 0.3s ease-out;
++}
++
++.downloadProgressDot {
++  display: inline-block;
++  width: 6px;
++  height: 6px;
++  border-radius: 50%;
++  background: #d4af37;
++  animation: blink 1s ease-in-out infinite;
++}
++
++@keyframes blink {
++  0%, 100% { opacity: 1; }
++  50% { opacity: 0.3; }
++}
++
++/* ==================== 蝘餃?蝡臬??閫豢?? + ?踵?撘? ==================== */
++
++@media (max-width: 600px) {
++  .shareButtons {
++    gap: 10px;
++  }
++
++  .shareButton {
++    min-height: 44px;
++    padding: 8px 16px;
++    font-size: 12px;
++    /* 閫豢?? */
++    transform: scale(1);
++    transition: all 0.15s ease;
++  }
++
++  .shareButton:active {
++    transform: scale(0.95);
++    box-shadow: 0 0 4px rgba(212, 175, 55, 0.1);
++  }
++
++  .shareButton:focus-visible {
++    outline: 2px solid #d4af37;
++    outline-offset: 2px;
++  }
++
++  .shareButtonLabel {
++    display: none;
++  }
++
++  .shareIcon {
++    font-size: 16px;
++  }
++
++  .downloadButtons {
++    gap: 10px;
++  }
++
++  .downloadButton {
++    min-height: 44px;
++    padding: 8px 16px;
++    font-size: 12px;
++    /* 閫豢?? */
++    transform: scale(1);
++    transition: all 0.15s ease;
++  }
++
++  .downloadButton:active {
++    transform: scale(0.95);
++    box-shadow: 0 0 4px rgba(212, 175, 55, 0.1);
++  }
++
++  .downloadButton:focus-visible {
++    outline: 2px solid #d4af37;
++    outline-offset: 2px;
++  }
++
++  .downloadButtonLabel {
++    display: none;
++  }
++
++  .downloadIcon {
++    font-size: 16px;
++  }
++
++  /* ???∠????芸? */
++  .card {
++    padding: 16px;
++  }
++
++  .pillarsTable {
++    gap: 8px;
++  }
++
++  .pillarColumn {
++    padding: 12px;
++  }
++
++  /* ?脣漲璇?璈??*/
++  .progressStep {
++    flex: 0 0 calc(33.333% - 8px);
++  }
++
++  .stepCircle {
++    width: 36px;
++    height: 36px;
++    font-size: 12px;
++  }
++
++  /* 敹恍??啗圾?斗?璈??*/
++  .quickRetakeButton {
++    min-height: 48px;
++    padding: 10px 20px;
++    font-size: 14px;
++  }
++
++  .quickRetakeButton:active {
++    transform: scale(0.98);
++  }
++}
++
++@keyframes spinSlow {
++  from { transform: rotate(0deg); }
++  to { transform: rotate(360deg); }
++}
++
++@keyframes spinFast {
++  from { transform: rotate(0deg); }
++  to { transform: rotate(360deg); }
++}
++
++/* ==================== 擛潮??蹂耨蝢敹???==================== */
++
++/* ?∠??剔內嚗???狩擳撓??*/
++@keyframes asuraCardReveal {
++  0% {
++    opacity: 0;
++    transform: translateY(40px) scale(0.95);
++    filter: blur(8px) brightness(0.6);
++  }
++  30% {
++    filter: blur(4px) brightness(0.8);
++  }
++  70% {
++    filter: blur(1px) brightness(1);
++  }
++  100% {
++    opacity: 1;
++    transform: translateY(0) scale(1);
++    filter: blur(0) brightness(1);
++  }
++}
++
++.asuraCardReveal {
++  animation: asuraCardReveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
++}
++
++/* ?啗?暺漁嚗???鋡怠???*/
++@keyframes asuraImpressionGlow {
++  0% {
++    opacity: 0;
++    transform: scale(0.8);
++    filter: blur(4px);
++    text-shadow: none;
++  }
++  20% {
++    opacity: 0.5;
++    transform: scale(1);
++    filter: blur(2px);
++  }
++  50% {
++    opacity: 1;
++    transform: scale(1.05);
++    filter: blur(0);
++    text-shadow: 0 0 12px rgba(212, 175, 55, 0.8);
++  }
++  70% {
++    opacity: 1;
++    transform: scale(1);
++    text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
++  }
++  100% {
++    opacity: 1;
++    transform: scale(1);
++    text-shadow: 0 0 4px rgba(212, 175, 55, 0.3);
++  }
++}
++
++.asuraImpressionGlow {
++  animation: asuraImpressionGlow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
++}
++
++/* 蝘??嚗???*/
++@keyframes asuraScrollFormation {
++  0% {
++    opacity: 0;
++    transform: scale(0.9) rotateX(10deg);
++  }
++  50% {
++    transform: scale(1.02) rotateX(5deg);
++  }
++  100% {
++    opacity: 1;
++    transform: scale(1) rotateX(0deg);
++  }
++}
++
++.asuraScrollFormation {
++  animation: asuraScrollFormation 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
++}
++
++/* 銵?瘜ｇ??蹂耨蝢?瘞?? */
++@keyframes asuraShockwave {
++  0% {
++    opacity: 0;
++    transform: scale(0.9);
++    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
++  }
++  30% {
++    opacity: 1;
++    box-shadow: 0 0 0 20px rgba(212, 175, 55, 0.3);
++  }
++  60% {
++    opacity: 1;
++    transform: scale(1);
++    box-shadow: 0 0 0 40px rgba(212, 175, 55, 0.1);
++  }
++  100% {
++    opacity: 1;
++    transform: scale(1);
++    box-shadow: 0 0 0 60px rgba(212, 175, 55, 0);
++  }
++}
++
++.asuraShockwave {
++  animation: asuraShockwave 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
++}
++
++/* 擛潮??啣蔣??嚗??獢?*/
++@keyframes asuraShadowPulse {
++  0%, 100% {
++    box-shadow: 0 0 20px rgba(212, 175, 55, 0.15), 0 0 40px rgba(0, 0, 0, 0.3);
++  }
++  50% {
++    box-shadow: 0 0 30px rgba(212, 175, 55, 0.25), 0 0 60px rgba(0, 0, 0, 0.4);
++  }
++}
++
++.asuraShadowPulse {
++  animation: asuraShadowPulse 3s ease-in-out infinite;
++}
++
++/* ==================== 3D ?? V2嚗??楛摨行? ==================== */
++
++.asuraCard3DContainer {
++  perspective: 1200px;
++  transform-style: preserve-3d;
++}
++
++.asuraCardReveal {
++  transform-style: preserve-3d;
++  transform-origin: center center;
++}
++
++/* ?∠?瘚株絲瘛勗漲??*/
++@keyframes asuraCardFloat {
++  0% {
++    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
++  }
++  50% {
++    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
++  }
++  100% {
++    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.35);
++  }
++}
++
++.asuraCardReveal {
++  animation: asuraCardFloat 3s ease-in-out infinite;
++}
++
++/* ?啗? 3D 撅斤? */
++@keyframes asuraImpressionFloat3D {
++  0% {
++    transform: translateZ(-20px);
++    opacity: 0;
++  }
++  50% {
++    transform: translateZ(15px);
++    opacity: 1;
++  }
++  100% {
++    transform: translateZ(10px);
++    opacity: 1;
++  }
++}
++
++.asuraImpressionGlow {
++  transform-style: preserve-3d;
++  animation: asuraImpressionFloat3D 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
++}
++
++/* ==================== Phase 5嚗?蝝?3D ???? ==================== */
++
++/* 擃? 3D ?∠?瘛勗漲蝧餉? */
++@keyframes advancedCardFlip {
++  0% {
++    opacity: 0;
++    transform: rotateX(15deg) rotateY(8deg) translateY(40px) scale(0.95);
++    filter: blur(8px) brightness(0.6);
++  }
++  35% {
++    transform: rotateX(8deg) rotateY(4deg) translateY(20px) scale(0.98);
++    filter: blur(4px) brightness(0.8);
++  }
++  70% {
++    transform: rotateX(2deg) rotateY(1deg) translateY(5px) scale(0.99);
++    filter: blur(1px) brightness(1);
++  }
++  100% {
++    opacity: 1;
++    transform: rotateX(0deg) rotateY(0deg) translateY(0) scale(1);
++    filter: blur(0) brightness(1);
++  }
++}
++
++/* ?????? */
++@keyframes lightReflectionGlow {
++  0% {
++    opacity: 0;
++    box-shadow:
++      0 0 0 0 rgba(212, 175, 55, 0.8),
++      0 0 24px 0 rgba(212, 175, 55, 0.3);
++  }
++  50% {
++    opacity: 0.8;
++    box-shadow:
++      0 0 8px 4px rgba(212, 175, 55, 0.6),
++      0 0 32px 8px rgba(212, 175, 55, 0.2);
++  }
++  100% {
++    opacity: 0;
++    box-shadow:
++      0 0 16px 12px rgba(212, 175, 55, 0.2),
++      0 0 40px 16px rgba(212, 175, 55, 0.1);
++  }
++}
++
++/* 瘚株絲瞍貉??? */
++@keyframes floatingGradientAura {
++  0% {
++    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.3));
++  }
++  50% {
++    filter: drop-shadow(0 0 16px rgba(212, 175, 55, 0.5));
++  }
++  100% {
++    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.3));
++  }
++}
++
++@media (max-width: 600px) {
++  .page { padding: 16px 12px 56px; }
++  .header { padding: 24px 4px; }
++  .intro { font-size: 14px; }
++  .panel { padding: 14px; }
++  .page .inputPanel :global(.mega-friendly-form) > section { padding: 14px; }
++  .page .inputPanel :global(.mega-friendly-form) :is(input:not([type="checkbox"]), select) { padding-inline: 10px; }
++  .inputPanel :global(.mega-friendly-form) > section[data-field="birthDate"] :global(.grid-cols-3) { gap: 8px; }
++
++  /* ???脣漲璇矽??*/
++  .progressContainer {
++    flex-wrap: wrap;
++    gap: 12px;
++    padding: 16px;
++  }
++  .progressStep {
++    flex: 0 0 calc(33.333% - 8px);
++  }
++  .progressConnector {
++    display: none;
++  }
++  .stepCircle {
++    width: 40px;
++    height: 40px;
++    font-size: 14px;
++  }
++  .stepLabel {
++    font-size: 11px;
++    max-width: 60px;
++  }
++
++  /* ????3D 蝪∪? */
++  .asuraCard3DContainer {
++    perspective: 800px;
++  }
++}
++
++/* 2026-10-12 ?曄????嚗? #121210???#383836?楛??#aa7323?漁??#fce74a嚗?寥??莎?銝?鋆ˇ???孵偕撖?*/
++.header h1[data-asura-brand-title] {
++  background: linear-gradient(180deg, #fce74a 0%, #aa7323 100%);
++  -webkit-background-clip: text;
++  background-clip: text;
++  color: #d9b45a;
++  -webkit-text-fill-color: transparent;
++  -webkit-text-stroke: 0;
++  text-shadow: none;
++}
++.login > button,
++.inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready) { background: linear-gradient(180deg, #fce74a 0%, #aa7323 100%); }
++.page :is(a, button, summary):focus-visible { outline-color: #0677cd; }
++
++/* ?怠?敶抵暺韌嚗??芰??8 摮?撖西嚗′?畾萇璅∠?嚗?典銝餉???憭???郊撽??暺? */
++.page { box-shadow: none; }
++.panel { box-shadow: none; }
++.stepCircle.done { background: #2a2110; border-color: #aa7323; color: #fce74a; box-shadow: none; }
++.stepCircle.active { border-color: transparent; background: linear-gradient(#fce74a, #fce74a) padding-box, conic-gradient(#d22536 0 16.66%, #e7570d 0 33.33%, #f2d42d 0 50%, #2ab65a 0 66.66%, #0677cd 0 83.33%, #a225b4 0) border-box; color: #121210; box-shadow: none; animation: none; }
++.login > button,
++.inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready) { border-color: transparent; background: linear-gradient(180deg, #fce74a 0%, #aa7323 100%) padding-box, linear-gradient(90deg, #d22536 0 16.66%, #e7570d 0 33.33%, #f2d42d 0 50%, #2ab65a 0 66.66%, #0677cd 0 83.33%, #a225b4 0) border-box; color: #121210; box-shadow: none; }
++
++/* 2026-10-12 ?曄?鞈芣??芸?嚗???脰?鞈芣?嚗??寧??Ｚ?撠箏站嚗?
++   ??曄?嚗?摨?潛楊蝜?獢?畾菜撓撅歹?鈭桅? #fcea86 ????#f8c758 ??瘛梢? #c48a29 ???日? #975905嚗?
++   敶抵?芰??其蜓閬???獢??桀?甇仿???摮?瘥雁??AA 隞乩???*/
++.page {
++  background:
++    radial-gradient(ellipse at 50% -8%, rgba(248, 199, 88, .12), transparent 36rem),
++    repeating-linear-gradient(45deg, rgba(248, 199, 88, .028) 0 1px, transparent 1px 7px),
++    repeating-linear-gradient(-45deg, rgba(248, 199, 88, .028) 0 1px, transparent 1px 7px),
++    #0f0f0d;
++}
++.header h1[data-asura-brand-title] {
++  background: linear-gradient(180deg, #fcea86 0%, #f8c758 42%, #c48a29 100%);
++  -webkit-background-clip: text;
++  background-clip: text;
++  -webkit-text-fill-color: transparent;
++}
++.eyebrow { color: #c48a29; }
++.panel,
++.progressContainer {
++  border: 1px solid transparent;
++  background:
++    linear-gradient(180deg, #1c1c1a 0%, #131311 100%) padding-box,
++    linear-gradient(135deg, #fcea86 0%, #c48a29 38%, #975905 62%, #f8c758 100%) border-box;
++  box-shadow: inset 0 1px 0 rgba(252, 234, 134, .16);
++}
++.page .inputPanel :global(.mega-friendly-form) > section {
++  background: linear-gradient(180deg, #2f2f2c 0%, #262624 100%);
++  border-color: #8a6420;
++  box-shadow: inset 0 1px 0 rgba(252, 234, 134, .10);
++}
++.panel h2, .login a { color: #fcea86; }
++.login > button,
++.inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready) {
++  background:
++    linear-gradient(180deg, #fcea86 0%, #f8c758 45%, #c48a29 100%) padding-box,
++    linear-gradient(90deg, #d22536 0 16.66%, #e7570d 0 33.33%, #f2d42d 0 50%, #2ab65a 0 66.66%, #0677cd 0 83.33%, #a225b4 0) border-box;
++  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), inset 0 -1px 0 rgba(151, 89, 5, .6);
++}
++.inputPanel :global(.mega-friendly-form) > button[type="submit"]:not(:global(.mega-submit-ready)) {
++  background: linear-gradient(180deg, #2f2410 0%, #231b0b 100%);
++  border-color: #8a6420;
++  color: #fcea86;
++}
++.stepCircle.done { background: linear-gradient(180deg, #2f2410, #231b0b); border-color: #c48a29; color: #fcea86; }
++.progressContainer { border-radius: 12px; }
++@media (hover: hover) {
++  .login > button:hover,
++  .inputPanel :global(.mega-friendly-form) > button:global(.mega-submit-ready):hover { filter: brightness(1.06); }
++}
++
++/* ==========================================================================
++   2026-10-12 ?脣漲鈭?撖嗥?嚗??祆??曄???嚗?蝡?函?鈭?蝝窄??蝛箝憸具瘞氬?怒?堆???
++   摰?嚗府?????脩鈭桃???芸???撠???澆????脣霈 elementOrbPalette嚗??血遣?脰”??
++   ========================================================================== */
++.progressStep { --step-glow: #fcea86; }
++.stepOrb {
++  position: relative;
++  width: 52px;
++  height: 52px;
++  flex: none;
++  border-radius: 50%;
++  transition: filter 0.5s ease, transform 0.5s ease;
++}
++.stepOrb[data-lit='false'] { filter: grayscale(0.35) brightness(0.8); }
++.stepOrb[data-lit='true'] { filter: drop-shadow(0 0 10px var(--step-glow)); transform: scale(1.04); }
++/* ?桀?頛芸?銝憿?憭?頛??澆嚗?蝷箝?銝?‵?ㄐ??*/
++.stepOrbActive::after {
++  content: '';
++  position: absolute;
++  inset: -5px;
++  border-radius: 50%;
++  border: 2px dashed var(--step-glow);
++  opacity: 0.85;
++  animation: stepOrbBreath 1.6s ease-in-out infinite;
++  pointer-events: none;
++}
++@keyframes stepOrbBreath {
++  0%, 100% { transform: scale(0.96); opacity: 0.45; }
++  50% { transform: scale(1.06); opacity: 1; }
++}
++.stepOrb[data-lit='true'] ~ .stepLabel {
++  color: #f4efe4;
++  font-weight: 700;
++  text-shadow: 0 0 10px var(--step-glow);
++}
++.progressConnector { top: 25px; }
++.progressConnector.active { background: var(--step-glow); box-shadow: 0 0 8px var(--step-glow); }
++@media (max-width: 600px) {
++  .stepOrb { width: 44px; height: 44px; }
++  .progressConnector { top: 21px; }
++}
+ @media (prefers-reduced-motion: reduce) {
+   .stepOrbActive::after { animation: none; }
+   .stepOrb { transition: none; }
+-}
+-
+-/* ??嚗?憿窄???????銝?嚗憿????銝脩?摮?撠? */
+-@media (max-width: 600px) {
+-  .progressContainer { flex-wrap: nowrap; gap: 2px; padding: 16px 6px 12px; }
+-  .progressStep { flex: 1 1 0; min-width: 0; }
+-  .stepLabel { font-size: 13px; max-width: 100%; letter-spacing: 0; }
+-  .eyebrow { font-size: 14px; }
+-}
+-
+-/* ??摮???憭找???2026-10-12 ??璈??梧?銝?脣摮??臬云撠??? globals.css ??璈?擃??臭?銝隞踝???韏瑚蝙?具?*/
+-@media (max-width: 640px) {
+-  .intro { font-size: calc(17px * var(--ts, 1)); }
+-  .note { font-size: calc(16px * var(--ts, 1)); }
+-  .eyebrow { font-size: calc(15px * var(--ts, 1)); }
+-  .nav a, .nav button { font-size: calc(15px * var(--ts, 1)); }
+-  .stepLabel { font-size: calc(14px * var(--ts, 1)); }
+-  .inputPanel :global(.mega-submit-guide) { font-size: calc(15px * var(--ts, 1)); }
+-}
+-
+-/* 2026-10-17?靽桃???????憛怨”蝮桃嚗??祈撓?亙?蝝?3100px嚗?皛??撟???????-   1. ?劓?∴??迂??畾萎蒂?????銝?瘥撐蝝?70px嚗???129px嚗?-   2. ?批嚗憿蒂?????114px ??嚗?-   3. ???仿?嚗???颲啜??葬撠頝?-   4. ??摰?恍摨嚗‵摰??冽??唳?銝
+-   ?芸??????嚗??寞?雿??寥?頛胯?蝝 calc 頝?擐?摮?憭批?????*/
+-@media (max-width: 640px) {
+-  .inputPanel :global(button[class*="min-h-[88px]"]) {
+-    display: grid !important;
+-    grid-template-columns: auto 1fr;
+-    align-items: baseline;
+-    column-gap: 6px;
+-    row-gap: 2px;
+-    min-height: 0 !important;
+-    padding: 10px 12px !important;
+-  }
+-  .inputPanel :global(button[class*="min-h-[88px]"]) > p { margin: 0 !important; line-height: 1.25 !important; }
+-  .inputPanel :global(button[class*="min-h-[88px]"]) > p:nth-child(1) { grid-column: 1; grid-row: 1; font-size: calc(18px * var(--ts, 1)) !important; white-space: nowrap; }
+-  .inputPanel :global(button[class*="min-h-[88px]"]) > p:nth-child(2) { grid-column: 1 / -1; grid-row: 2; font-size: calc(13px * var(--ts, 1)) !important; }
+-  .inputPanel :global(button[class*="min-h-[88px]"]) > p:nth-child(3) { grid-column: 2; grid-row: 1; justify-self: end; font-size: calc(13px * var(--ts, 1)) !important; white-space: nowrap; }
+-
+-  .inputPanel :global([class*="mt-3 grid gap-3 sm:grid-cols-2"]) { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+-  .inputPanel :global([class*="mt-3 grid gap-3 sm:grid-cols-2"]) > button { padding: 12px 14px !important; }
+-  .inputPanel :global([class*="mt-4 grid gap-3 sm:grid-cols-2"]) > button { padding-top: 12px !important; padding-bottom: 12px !important; }
+-
+-  .inputPanel :global(.mega-friendly-form) > button[type="submit"] {
+-    position: sticky;
+-    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+-    z-index: 30;
+-    box-shadow: 0 -14px 26px -10px rgba(0, 0, 0, 0.7), 0 10px 26px -8px rgba(248, 199, 88, 0.45);
+-  }
+-}
++  /* P1 FAIL#1: resultsEnter/slideInUp must show final state under reduce
++   * (globals sets animation-duration:0.01ms; without opacity:1 content stays blank) */
++  .resultsEnter {
++    animation: none !important;
++    animation-delay: 0s !important;
++    opacity: 1 !important;
++    transform: none !important;
++  }
++}
++
++/* ??嚗?憿窄???????銝?嚗憿????銝脩?摮?撠? */
++@media (max-width: 600px) {
++  .progressContainer { flex-wrap: nowrap; gap: 2px; padding: 16px 6px 12px; }
++  .progressStep { flex: 1 1 0; min-width: 0; }
++  .stepLabel { font-size: 13px; max-width: 100%; letter-spacing: 0; }
++  .eyebrow { font-size: 14px; }
++}
++
++/* ??摮???憭找???2026-10-12 ??璈??梧?銝?脣摮??臬云撠??? globals.css ??璈?擃??臭?銝隞踝???韏瑚蝙?具?*/
++@media (max-width: 640px) {
++  .intro { font-size: calc(17px * var(--ts, 1)); }
++  .note { font-size: calc(16px * var(--ts, 1)); }
++  .eyebrow { font-size: calc(15px * var(--ts, 1)); }
++  .nav a, .nav button { font-size: calc(15px * var(--ts, 1)); }
++  .stepLabel { font-size: calc(14px * var(--ts, 1)); }
++  .inputPanel :global(.mega-submit-guide) { font-size: calc(15px * var(--ts, 1)); }
++}
++
++/* 2026-10-17?靽桃???????憛怨”蝮桃嚗??祈撓?亙?蝝?3100px嚗?皛??撟???????
++   1. ?劓?∴??迂??畾萎蒂?????銝?瘥撐蝝?70px嚗???129px嚗?
++   2. ?批嚗憿蒂?????114px ??嚗?
++   3. ???仿?嚗???颲啜??葬撠頝?
++   4. ??摰?恍摨嚗‵摰??冽??唳?銝
++   ?芸??????嚗??寞?雿??寥?頛胯?蝝 calc 頝?擐?摮?憭批?????*/
++@media (max-width: 640px) {
++  .inputPanel :global(button[class*="min-h-[88px]"]) {
++    display: grid !important;
++    grid-template-columns: auto 1fr;
++    align-items: baseline;
++    column-gap: 6px;
++    row-gap: 2px;
++    min-height: 0 !important;
++    padding: 10px 12px !important;
++  }
++  .inputPanel :global(button[class*="min-h-[88px]"]) > p { margin: 0 !important; line-height: 1.25 !important; }
++  .inputPanel :global(button[class*="min-h-[88px]"]) > p:nth-child(1) { grid-column: 1; grid-row: 1; font-size: calc(18px * var(--ts, 1)) !important; white-space: nowrap; }
++  .inputPanel :global(button[class*="min-h-[88px]"]) > p:nth-child(2) { grid-column: 1 / -1; grid-row: 2; font-size: calc(13px * var(--ts, 1)) !important; }
++  .inputPanel :global(button[class*="min-h-[88px]"]) > p:nth-child(3) { grid-column: 2; grid-row: 1; justify-self: end; font-size: calc(13px * var(--ts, 1)) !important; white-space: nowrap; }
++
++  .inputPanel :global([class*="mt-3 grid gap-3 sm:grid-cols-2"]) { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
++  .inputPanel :global([class*="mt-3 grid gap-3 sm:grid-cols-2"]) > button { padding: 12px 14px !important; }
++  .inputPanel :global([class*="mt-4 grid gap-3 sm:grid-cols-2"]) > button { padding-top: 12px !important; padding-bottom: 12px !important; }
++
++  .inputPanel :global(.mega-friendly-form) > button[type="submit"] {
++    position: sticky;
++    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
++    z-index: 30;
++    box-shadow: 0 -14px 26px -10px rgba(0, 0, 0, 0.7), 0 10px 26px -8px rgba(248, 199, 88, 0.45);
++  }
++}
+ /* 蝚?6 ???撅歹?嚗?頛?鈭怒??啗圾?斤?撠?憿???13px嚗???擃之撠? */
+ @media (max-width: 640px) {
+   .downloadLabel,
+@@ -1084,3 +1092,49 @@
+   .inputPanel :global(.mega-friendly-form) [class*="text-[11px]"],
+   .inputPanel :global(.mega-friendly-form) [class*="text-[10px]"] { font-size: 0.8125rem !important; }
+ }
++
++/* === FLICKER 2026-11-06 phase2 (Grok) ??no white flash / no float / no blur entrance === */
++.page {
++  background-color: #040A03 !important;
++  background: #040A03 !important;
++}
++.asuraCardReveal {
++  animation: none !important;
++  filter: none !important;
++  opacity: 1 !important;
++  transform: none !important;
++  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
++}
++.asuraImpressionGlow {
++  animation: none !important;
++  filter: none !important;
++  opacity: 1 !important;
++  transform: none !important;
++}
++/* Redefine blur-heavy keyframes to opacity/transform only (in case inline styles re-trigger name) */
++@keyframes asuraCardReveal {
++  0% { opacity: 0.92; transform: translateY(8px); filter: none; }
++  100% { opacity: 1; transform: none; filter: none; }
++}
++@keyframes advancedCardFlip {
++  0% { opacity: 0.92; transform: translateY(10px); filter: none; }
++  100% { opacity: 1; transform: none; filter: none; }
++}
++@keyframes asuraImpressionGlow {
++  0% { opacity: 0.9; filter: none; }
++  100% { opacity: 1; filter: none; }
++}
++@keyframes asuraCardFloat {
++  0%, 100% { box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); }
++}
++@media (prefers-reduced-motion: reduce) {
++  .asuraCardReveal,
++  .asuraImpressionGlow,
++  .resultsEnter {
++    animation: none !important;
++    animation-delay: 0s !important;
++    filter: none !important;
++    opacity: 1 !important;
++    transform: none !important;
++  }
++}
+\ No newline at end of file
+diff --git a/features/ghost-asura/components/AsuraAgeTimeline.motion.module.css b/features/ghost-asura/components/AsuraAgeTimeline.motion.module.css
+index 64d6bc8..02da580 100644
+--- a/features/ghost-asura/components/AsuraAgeTimeline.motion.module.css
++++ b/features/ghost-asura/components/AsuraAgeTimeline.motion.module.css
+@@ -1,485 +1,571 @@
+-嚜?* AsuraAgeTimeline.motion.module.css
+- * Motion owner only. Class names must stay stable for TSX wiring.
+- * Rhythm aligned to asuraImpressionGlow: 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)
+- * stagger 100ms (lib/ghost-asura-animation.ts impressionGlow.staggerDelay)
+- * Animations use ONLY transform + opacity (mobile 390 first).
+- *
+- * Beat sequence (not all at once):
+- *   guide/viewer ??segments/cards ??bridge (WITH/AFTER cards) ??peel cascade
+- *
+- * Expand approach (no height anim): scaleY + translateY from transform-origin top,
+- * with opacity. Works for open/peel without layout thrash.
+- */
+-
+-@keyframes asuraAgeSegmentIn {
+-  0% {
+-    opacity: 0;
+-    transform: translateY(var(--asura-age-rise, 10px));
+-  }
+-  100% {
+-    opacity: 1;
+-    transform: translateY(0);
+-  }
+-}
+-
+-@keyframes asuraAgeLineIn {
+-  0% {
+-    opacity: 0;
+-    transform: translateY(6px);
+-  }
+-  100% {
+-    opacity: 1;
+-    transform: translateY(0);
+-  }
+-}
+-
+-@keyframes asuraAgeCurrentBreathe {
+-  0%,
+-  100% {
+-    opacity: 1;
+-    transform: scale(1);
+-  }
+-  50% {
+-    opacity: 0.88;
+-    transform: scale(1.012);
+-  }
+-}
+-
+-/* Bridge between segments ??fade + slight rise */
+-@keyframes asuraAgeBridgeIn {
+-  0% {
+-    opacity: 0;
+-    transform: translateY(var(--asura-age-rise, 10px));
+-  }
+-  100% {
+-    opacity: 1;
+-    transform: translateY(0);
+-  }
+-}
+-
+-/* Segment expand/collapse ??scaleY from top (no height); opacity + slight rise */
+-@keyframes asuraAgeSegmentOpen {
+-  0% {
+-    opacity: 0;
+-    transform: scaleY(0.92) translateY(calc(var(--asura-age-rise, 10px) * -0.4));
+-  }
+-  100% {
+-    opacity: 1;
+-    transform: scaleY(1) translateY(0);
+-  }
+-}
+-
+-/* Peel container settle when ????撅扎?expands */
+-@keyframes asuraAgePeelExpand {
+-  0% {
+-    opacity: 0.9;
+-    transform: scaleY(0.96) translateY(calc(var(--asura-age-rise, 10px) * -0.3));
+-  }
+-  100% {
+-    opacity: 1;
+-    transform: scaleY(1) translateY(0);
+-  }
+-}
+-
+-/* Each onion layer (靘??風?聆?銵?) */
+-@keyframes asuraAgePeelLayerIn {
+-  0% {
+-    opacity: 0;
+-    transform: translateY(var(--asura-age-rise, 10px)) scaleY(0.94);
+-  }
+-  100% {
+-    opacity: 1;
+-    transform: translateY(0) scaleY(1);
+-  }
+-}
+-
+-.motionRoot {
+-  --asura-age-dur: 0.8s;
+-  --asura-age-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+-  --asura-age-stagger: 100ms;
+-  --asura-age-rise: 10px;
+-  /* Phase beats ??sequential, not simultaneous */
+-  --asura-phase-bridge: 0ms;
+-  --asura-phase-open: calc(2 * var(--asura-age-stagger));
+-  --asura-phase-peel: calc(4 * var(--asura-age-stagger));
+-  --asura-phase-layer: calc(5 * var(--asura-age-stagger));
+-}
+-
+-/* ---------- Existing: list entrance ---------- */
+-.motionSegment {
+-  opacity: 0;
+-  transform: translateY(var(--asura-age-rise, 10px));
+-  animation: asuraAgeSegmentIn var(--asura-age-dur) var(--asura-age-ease) forwards;
+-  transition:
+-    transform 0.2s var(--asura-age-ease),
+-    opacity 0.2s ease;
+-  will-change: transform, opacity;
+-  -webkit-tap-highlight-color: transparent;
+-  touch-action: manipulation;
+-}
+-
+-.motionRoot .motionSegment:nth-child(1) { animation-delay: calc(0 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(2) { animation-delay: calc(1 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(3) { animation-delay: calc(2 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(4) { animation-delay: calc(3 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(5) { animation-delay: calc(4 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(6) { animation-delay: calc(5 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(7) { animation-delay: calc(6 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(8) { animation-delay: calc(7 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(9) { animation-delay: calc(8 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(10) { animation-delay: calc(9 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(11) { animation-delay: calc(10 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(12) { animation-delay: calc(11 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(13) { animation-delay: calc(12 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(14) { animation-delay: calc(13 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(15) { animation-delay: calc(14 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(16) { animation-delay: calc(15 * var(--asura-age-stagger)); }
+-
+-.motionSegment:hover {
+-  transform: translateY(-1px) scale(1.015);
+-  opacity: 1;
+-}
+-
+-.motionSegment:active {
+-  transform: translateY(0) scale(0.985);
+-  opacity: 0.96;
+-}
+-
+-.motionSegmentCurrent {
+-  animation:
+-    asuraAgeSegmentIn var(--asura-age-dur) var(--asura-age-ease) forwards,
+-    asuraAgeCurrentBreathe 2.4s ease-in-out 0.9s infinite;
+-}
+-
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(1) { animation-delay: calc(0 * var(--asura-age-stagger)), calc(0.9s + 0 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(2) { animation-delay: calc(1 * var(--asura-age-stagger)), calc(0.9s + 1 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(3) { animation-delay: calc(2 * var(--asura-age-stagger)), calc(0.9s + 2 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(4) { animation-delay: calc(3 * var(--asura-age-stagger)), calc(0.9s + 3 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(5) { animation-delay: calc(4 * var(--asura-age-stagger)), calc(0.9s + 4 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(6) { animation-delay: calc(5 * var(--asura-age-stagger)), calc(0.9s + 5 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(7) { animation-delay: calc(6 * var(--asura-age-stagger)), calc(0.9s + 6 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(8) { animation-delay: calc(7 * var(--asura-age-stagger)), calc(0.9s + 7 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(9) { animation-delay: calc(8 * var(--asura-age-stagger)), calc(0.9s + 8 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(10) { animation-delay: calc(9 * var(--asura-age-stagger)), calc(0.9s + 9 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(11) { animation-delay: calc(10 * var(--asura-age-stagger)), calc(0.9s + 10 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(12) { animation-delay: calc(11 * var(--asura-age-stagger)), calc(0.9s + 11 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(13) { animation-delay: calc(12 * var(--asura-age-stagger)), calc(0.9s + 12 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(14) { animation-delay: calc(13 * var(--asura-age-stagger)), calc(0.9s + 13 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(15) { animation-delay: calc(14 * var(--asura-age-stagger)), calc(0.9s + 14 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(16) { animation-delay: calc(15 * var(--asura-age-stagger)), calc(0.9s + 15 * var(--asura-age-stagger)); }
+-
+-.motionSegmentCurrent:hover {
+-  transform: translateY(-1px) scale(1.02);
+-  opacity: 1;
+-}
+-
+-.motionSegmentCurrent:active {
+-  transform: translateY(0) scale(0.99);
+-  opacity: 0.98;
+-}
+-
+-.motionLine {
+-  opacity: 0;
+-  transform: translateY(6px);
+-  animation: asuraAgeLineIn 0.55s var(--asura-age-ease) forwards;
+-  animation-delay: 0.12s;
+-}
+-
+-.motionSegment .motionLine:nth-child(1) { animation-delay: 0.18s; }
+-.motionSegment .motionLine:nth-child(2) { animation-delay: 0.26s; }
+-.motionSegment .motionLine:nth-child(3) { animation-delay: 0.34s; }
+-.motionSegment .motionLine:nth-child(4) { animation-delay: 0.42s; }
+-.motionSegment .motionLine:nth-child(5) { animation-delay: 0.50s; }
+-.motionSegment .motionLine:nth-child(6) { animation-delay: 0.58s; }
+-
+-/* ---------- Bridge (connecting sentence between segments) ---------- */
+-.motionBridge {
+-  opacity: 0;
+-  transform: translateY(var(--asura-age-rise, 10px));
+-  animation: asuraAgeBridgeIn var(--asura-age-dur) var(--asura-age-ease) forwards;
+-  animation-delay: var(--asura-phase-bridge);
+-  will-change: transform, opacity;
+-}
+-
+-/* ---------- Segment open/close ----------
+- * Approach: no height. scaleY(0.92??) + translateY + opacity from
+- * transform-origin: top center. FE should add .motionSegmentOpen when
+- * opened; also mirrors [data-opened="true"] so current TSX works now.
+- */
+-.motionSegmentOpen,
+-.motionSegment[data-opened="true"] {
+-  transform-origin: top center;
+-  animation: asuraAgeSegmentOpen var(--asura-age-dur) var(--asura-age-ease) forwards;
+-  animation-delay: var(--asura-phase-open);
+-  will-change: transform, opacity;
+-}
+-
+-/* Current + opened: open first, then soft breathe after open settles */
+-.motionSegmentCurrent.motionSegmentOpen,
+-.motionSegmentCurrent[data-opened="true"] {
+-  animation:
+-    asuraAgeSegmentOpen var(--asura-age-dur) var(--asura-age-ease) forwards,
+-    asuraAgeCurrentBreathe 2.4s ease-in-out infinite;
+-  animation-delay: var(--asura-phase-open), calc(var(--asura-phase-open) + var(--asura-age-dur));
+-}
+-
+-/* ---------- Peel container (line that holds onion layers) ----------
+- * Same element also has .motionLine. Line entrance runs while data-peeled="0".
+- * When peel expands (data-peeled >= 1), this rule takes over ??after user has
+- * already seen the line, so overriding the completed line-in is intentional.
+- */
+-.motionPeel {
+-  transform-origin: top center;
+-}
+-
+-.motionPeel[data-peeled="1"],
+-.motionPeel[data-peeled="2"],
+-.motionPeel[data-peeled="3"] {
+-  transform-origin: top center;
+-  animation: asuraAgePeelExpand var(--asura-age-dur) var(--asura-age-ease) forwards;
+-  animation-delay: var(--asura-phase-peel);
+-  will-change: transform, opacity;
+-}
+-
+-/* ---------- Peel layers: 靘? ??甇瑕 ??銵?, one beat apart ---------- */
+-.motionPeelLayer {
+-  opacity: 0;
+-  transform: translateY(var(--asura-age-rise, 10px)) scaleY(0.94);
+-  transform-origin: top center;
+-  animation: asuraAgePeelLayerIn var(--asura-age-dur) var(--asura-age-ease) forwards;
+-  animation-delay: var(--asura-phase-layer);
+-  will-change: transform, opacity;
+-}
+-
+-.motionPeel .motionPeelLayer:nth-child(1) {
+-  animation-delay: calc(var(--asura-phase-layer) + 0 * var(--asura-age-stagger));
+-}
+-.motionPeel .motionPeelLayer:nth-child(2) {
+-  animation-delay: calc(var(--asura-phase-layer) + 1 * var(--asura-age-stagger));
+-}
+-.motionPeel .motionPeelLayer:nth-child(3) {
+-  animation-delay: calc(var(--asura-phase-layer) + 2 * var(--asura-age-stagger));
+-}
+-.motionPeel .motionPeelLayer:nth-child(4) {
+-  animation-delay: calc(var(--asura-phase-layer) + 3 * var(--asura-age-stagger));
+-}
+-.motionPeel .motionPeelLayer:nth-child(5) {
+-  animation-delay: calc(var(--asura-phase-layer) + 4 * var(--asura-age-stagger));
+-}
+-.motionPeel .motionPeelLayer:nth-child(6) {
+-  animation-delay: calc(var(--asura-phase-layer) + 5 * var(--asura-age-stagger));
+-}
+-
+-/* Layer kind order fallback when not pure nth among siblings */
+-.motionPeelLayer[data-asura-peel-layer="basis"] {
+-  animation-delay: calc(var(--asura-phase-layer) + 0 * var(--asura-age-stagger));
+-}
+-.motionPeelLayer[data-asura-peel-layer="history"] {
+-  animation-delay: calc(var(--asura-phase-layer) + 1 * var(--asura-age-stagger));
+-}
+-.motionPeelLayer[data-asura-peel-layer="action"] {
+-  animation-delay: calc(var(--asura-phase-layer) + 2 * var(--asura-age-stagger));
+-}
++/* AsuraAgeTimeline.motion.module.css
++ * Motion owner only. Class names must stay stable for TSX wiring.
++ * Rhythm aligned to asuraImpressionGlow: 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)
++ * stagger 100ms (lib/ghost-asura-animation.ts impressionGlow.staggerDelay)
++ * Animations use ONLY transform + opacity (mobile 390 first).
++ *
++ * Beat sequence (not all at once):
++ *   guide/viewer ??segments/cards ??bridge (WITH/AFTER cards) ??peel cascade
++ *
++ * Expand approach (no height anim): scaleY + translateY from transform-origin top,
++ * with opacity. Works for open/peel without layout thrash.
++ */
++
++@keyframes asuraAgeSegmentIn {
++  0% {
++    opacity: 0;
++    transform: translateY(var(--asura-age-rise, 10px));
++  }
++  100% {
++    opacity: 1;
++    transform: translateY(0);
++  }
++}
++
++@keyframes asuraAgeLineIn {
++  0% {
++    opacity: 0;
++    transform: translateY(6px);
++  }
++  100% {
++    opacity: 1;
++    transform: translateY(0);
++  }
++}
++
++@keyframes asuraAgeCurrentBreathe {
++  0%,
++  100% {
++    opacity: 1;
++    transform: scale(1);
++  }
++  50% {
++    opacity: 0.88;
++    transform: scale(1.012);
++  }
++}
++
++/* Bridge between segments ??fade + slight rise */
++@keyframes asuraAgeBridgeIn {
++  0% {
++    opacity: 0;
++    transform: translateY(var(--asura-age-rise, 10px));
++  }
++  100% {
++    opacity: 1;
++    transform: translateY(0);
++  }
++}
++
++/* Segment expand/collapse ??scaleY from top (no height); opacity + slight rise */
++@keyframes asuraAgeSegmentOpen {
++  0% {
++    opacity: 0;
++    transform: scaleY(0.92) translateY(calc(var(--asura-age-rise, 10px) * -0.4));
++  }
++  100% {
++    opacity: 1;
++    transform: scaleY(1) translateY(0);
++  }
++}
++
++/* Peel container settle when ????撅扎?expands */
++@keyframes asuraAgePeelExpand {
++  0% {
++    opacity: 0.9;
++    transform: scaleY(0.96) translateY(calc(var(--asura-age-rise, 10px) * -0.3));
++  }
++  100% {
++    opacity: 1;
++    transform: scaleY(1) translateY(0);
++  }
++}
++
++/* Each onion layer (靘??風?聆?銵?) */
++@keyframes asuraAgePeelLayerIn {
++  0% {
++    opacity: 0;
++    transform: translateY(var(--asura-age-rise, 10px)) scaleY(0.94);
++  }
++  100% {
++    opacity: 1;
++    transform: translateY(0) scaleY(1);
++  }
++}
++
++.motionRoot {
++  --asura-age-dur: 0.8s;
++  --asura-age-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
++  --asura-age-stagger: 100ms;
++  --asura-age-rise: 10px;
++  /* Phase beats ??sequential, not simultaneous */
++  --asura-phase-bridge: 0ms;
++  --asura-phase-open: calc(2 * var(--asura-age-stagger));
++  --asura-phase-peel: calc(4 * var(--asura-age-stagger));
++  --asura-phase-layer: calc(5 * var(--asura-age-stagger));
++}
++
++/* ---------- Existing: list entrance ---------- */
++.motionSegment {
++  opacity: 0;
++  transform: translateY(var(--asura-age-rise, 10px));
++  animation: asuraAgeSegmentIn var(--asura-age-dur) var(--asura-age-ease) forwards;
++  transition:
++    transform 0.2s var(--asura-age-ease),
++    opacity 0.2s ease;
++  will-change: transform, opacity;
++  -webkit-tap-highlight-color: transparent;
++  touch-action: manipulation;
++}
++
++.motionRoot .motionSegment:nth-child(1) { animation-delay: calc(0 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(2) { animation-delay: calc(1 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(3) { animation-delay: calc(2 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(4) { animation-delay: calc(3 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(5) { animation-delay: calc(4 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(6) { animation-delay: calc(5 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(7) { animation-delay: calc(6 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(8) { animation-delay: calc(7 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(9) { animation-delay: calc(8 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(10) { animation-delay: calc(9 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(11) { animation-delay: calc(10 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(12) { animation-delay: calc(11 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(13) { animation-delay: calc(12 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(14) { animation-delay: calc(13 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(15) { animation-delay: calc(14 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(16) { animation-delay: calc(15 * var(--asura-age-stagger)); }
++
++.motionSegment:hover {
++  transform: translateY(-1px) scale(1.015);
++  opacity: 1;
++}
++
++.motionSegment:active {
++  transform: translateY(0) scale(0.985);
++  opacity: 0.96;
++}
++
++.motionSegmentCurrent {
++  animation:
++    asuraAgeSegmentIn var(--asura-age-dur) var(--asura-age-ease) forwards,
++    asuraAgeCurrentBreathe 2.4s ease-in-out 0.9s infinite;
++}
++
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(1) { animation-delay: calc(0 * var(--asura-age-stagger)), calc(0.9s + 0 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(2) { animation-delay: calc(1 * var(--asura-age-stagger)), calc(0.9s + 1 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(3) { animation-delay: calc(2 * var(--asura-age-stagger)), calc(0.9s + 2 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(4) { animation-delay: calc(3 * var(--asura-age-stagger)), calc(0.9s + 3 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(5) { animation-delay: calc(4 * var(--asura-age-stagger)), calc(0.9s + 4 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(6) { animation-delay: calc(5 * var(--asura-age-stagger)), calc(0.9s + 5 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(7) { animation-delay: calc(6 * var(--asura-age-stagger)), calc(0.9s + 6 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(8) { animation-delay: calc(7 * var(--asura-age-stagger)), calc(0.9s + 7 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(9) { animation-delay: calc(8 * var(--asura-age-stagger)), calc(0.9s + 8 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(10) { animation-delay: calc(9 * var(--asura-age-stagger)), calc(0.9s + 9 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(11) { animation-delay: calc(10 * var(--asura-age-stagger)), calc(0.9s + 10 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(12) { animation-delay: calc(11 * var(--asura-age-stagger)), calc(0.9s + 11 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(13) { animation-delay: calc(12 * var(--asura-age-stagger)), calc(0.9s + 12 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(14) { animation-delay: calc(13 * var(--asura-age-stagger)), calc(0.9s + 13 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(15) { animation-delay: calc(14 * var(--asura-age-stagger)), calc(0.9s + 14 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(16) { animation-delay: calc(15 * var(--asura-age-stagger)), calc(0.9s + 15 * var(--asura-age-stagger)); }
++
++.motionSegmentCurrent:hover {
++  transform: translateY(-1px) scale(1.02);
++  opacity: 1;
++}
++
++.motionSegmentCurrent:active {
++  transform: translateY(0) scale(0.99);
++  opacity: 0.98;
++}
++
++.motionLine {
++  opacity: 0;
++  transform: translateY(6px);
++  animation: asuraAgeLineIn 0.55s var(--asura-age-ease) forwards;
++  animation-delay: 0.12s;
++}
++
++.motionSegment .motionLine:nth-child(1) { animation-delay: 0.18s; }
++.motionSegment .motionLine:nth-child(2) { animation-delay: 0.26s; }
++.motionSegment .motionLine:nth-child(3) { animation-delay: 0.34s; }
++.motionSegment .motionLine:nth-child(4) { animation-delay: 0.42s; }
++.motionSegment .motionLine:nth-child(5) { animation-delay: 0.50s; }
++.motionSegment .motionLine:nth-child(6) { animation-delay: 0.58s; }
++
++/* ---------- Bridge (connecting sentence between segments) ---------- */
++.motionBridge {
++  opacity: 0;
++  transform: translateY(var(--asura-age-rise, 10px));
++  animation: asuraAgeBridgeIn var(--asura-age-dur) var(--asura-age-ease) forwards;
++  animation-delay: var(--asura-phase-bridge);
++  will-change: transform, opacity;
++}
++
++/* ---------- Segment open/close ----------
++ * Approach: no height. scaleY(0.92??) + translateY + opacity from
++ * transform-origin: top center. FE should add .motionSegmentOpen when
++ * opened; also mirrors [data-opened="true"] so current TSX works now.
++ */
++.motionSegmentOpen,
++.motionSegment[data-opened="true"] {
++  transform-origin: top center;
++  animation: asuraAgeSegmentOpen var(--asura-age-dur) var(--asura-age-ease) forwards;
++  animation-delay: var(--asura-phase-open);
++  will-change: transform, opacity;
++}
++
++/* Current + opened: open first, then soft breathe after open settles */
++.motionSegmentCurrent.motionSegmentOpen,
++.motionSegmentCurrent[data-opened="true"] {
++  animation:
++    asuraAgeSegmentOpen var(--asura-age-dur) var(--asura-age-ease) forwards,
++    asuraAgeCurrentBreathe 2.4s ease-in-out infinite;
++  animation-delay: var(--asura-phase-open), calc(var(--asura-phase-open) + var(--asura-age-dur));
++}
++
++/* ---------- Peel container (line that holds onion layers) ----------
++ * Same element also has .motionLine. Line entrance runs while data-peeled="0".
++ * When peel expands (data-peeled >= 1), this rule takes over ??after user has
++ * already seen the line, so overriding the completed line-in is intentional.
++ */
++.motionPeel {
++  transform-origin: top center;
++}
++
++.motionPeel[data-peeled="1"],
++.motionPeel[data-peeled="2"],
++.motionPeel[data-peeled="3"] {
++  transform-origin: top center;
++  animation: asuraAgePeelExpand var(--asura-age-dur) var(--asura-age-ease) forwards;
++  animation-delay: var(--asura-phase-peel);
++  will-change: transform, opacity;
++}
++
++/* ---------- Peel layers: 靘? ??甇瑕 ??銵?, one beat apart ---------- */
++.motionPeelLayer {
++  opacity: 0;
++  transform: translateY(var(--asura-age-rise, 10px)) scaleY(0.94);
++  transform-origin: top center;
++  animation: asuraAgePeelLayerIn var(--asura-age-dur) var(--asura-age-ease) forwards;
++  animation-delay: var(--asura-phase-layer);
++  will-change: transform, opacity;
++}
++
++.motionPeel .motionPeelLayer:nth-child(1) {
++  animation-delay: calc(var(--asura-phase-layer) + 0 * var(--asura-age-stagger));
++}
++.motionPeel .motionPeelLayer:nth-child(2) {
++  animation-delay: calc(var(--asura-phase-layer) + 1 * var(--asura-age-stagger));
++}
++.motionPeel .motionPeelLayer:nth-child(3) {
++  animation-delay: calc(var(--asura-phase-layer) + 2 * var(--asura-age-stagger));
++}
++.motionPeel .motionPeelLayer:nth-child(4) {
++  animation-delay: calc(var(--asura-phase-layer) + 3 * var(--asura-age-stagger));
++}
++.motionPeel .motionPeelLayer:nth-child(5) {
++  animation-delay: calc(var(--asura-phase-layer) + 4 * var(--asura-age-stagger));
++}
++.motionPeel .motionPeelLayer:nth-child(6) {
++  animation-delay: calc(var(--asura-phase-layer) + 5 * var(--asura-age-stagger));
++}
++
++/* Layer kind order fallback when not pure nth among siblings */
++.motionPeelLayer[data-asura-peel-layer="basis"] {
++  animation-delay: calc(var(--asura-phase-layer) + 0 * var(--asura-age-stagger));
++}
++.motionPeelLayer[data-asura-peel-layer="history"] {
++  animation-delay: calc(var(--asura-phase-layer) + 1 * var(--asura-age-stagger));
++}
++.motionPeelLayer[data-asura-peel-layer="action"] {
++  animation-delay: calc(var(--asura-phase-layer) + 2 * var(--asura-age-stagger));
++}
++
++/* Mobile 390 first ??shorter travel */
++@media (max-width: 420px) {
++  .motionRoot {
++    --asura-age-rise: 8px;
++  }
++
++  .motionSegment:hover {
++    transform: translateY(-1px) scale(1.01);
++  }
++
++  .motionSegment:active {
++    transform: translateY(0) scale(0.99);
++  }
++}
++
++/* Reduced motion: static fully visible ??no entrance, no breathe, no peel */
++@media (prefers-reduced-motion: reduce) {
++  .motionSegment,
++  .motionSegmentCurrent,
++  .motionSegmentOpen,
++  .motionSegment[data-opened="true"],
++  .motionLine,
++  .motionBridge,
++  .motionPeel,
++  .motionPeel[data-peeled="1"],
++  .motionPeel[data-peeled="2"],
++  .motionPeel[data-peeled="3"],
++  .motionPeelLayer {
++    opacity: 1 !important;
++    transform: none !important;
++    animation: none !important;
++    transition: none !important;
++  }
++}
++/* ????????????????????????????????????????????????????????????
++ * ??銝???渡?憟???age timeline (ADDITIVE)
++ * Sequence: guide(hereBar) ??viewerLine ????具挾蝡?
++ * Live hooks via .motionRoot [data-asura-age-here|viewer] (no TSX edit)
++ * New classNames listed for FE wiring.
++ * ????????????????????????????????????????????????????????????*/
++
++@keyframes asuraEntranceFadeUp {
++  0% {
++    opacity: 0;
++    transform: translateY(var(--asura-entrance-rise, 10px));
++  }
++  100% {
++    opacity: 1;
++    transform: translateY(0);
++  }
++}
++
++@keyframes asuraEntranceSealIn {
++  0% {
++    opacity: 0;
++    transform: translateY(6px) scale(0.94);
++  }
++  100% {
++    opacity: 1;
++    transform: translateY(0) scale(1);
++  }
++}
++
++.motionRoot {
++  --asura-entrance-dur: 0.8s;
++  --asura-entrance-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
++  --asura-entrance-stagger: 100ms;
++  --asura-entrance-rise: 10px;
++  --asura-entrance-guide: 0ms;
++  --asura-entrance-viewer: calc(1 * var(--asura-entrance-stagger));
++  --asura-entrance-seal: calc(3 * var(--asura-entrance-stagger));
++  --asura-entrance-segments: calc(5 * var(--asura-entrance-stagger));
++  /* FAIL mid180: bridge must enter WITH/AFTER cards, never before (was 0ms) */
++  --asura-phase-bridge: calc(var(--asura-entrance-segments) + 1 * var(--asura-age-stagger));
++}
++/* Bridge: lock to after segment cascade starts (sibling of cards, not child) */
++.motionRoot .motionBridge {
++  animation-delay: var(--asura-phase-bridge);
++}
++
++/* Stage flag (optional; motionRoot already acts as stage) */
++.motionEntranceStage {
++  /* same vars inherited when combined with motionRoot */
++}
++
++/* 1) Guide strip ??FE: styles.hereBar / segNav lead */
++.motionEntranceGuide {
++  opacity: 0;
++  transform: translateY(var(--asura-entrance-rise, 10px));
++  animation: asuraEntranceFadeUp var(--asura-entrance-dur) var(--asura-entrance-ease) both;
++  animation-delay: var(--asura-entrance-guide);
++  will-change: transform, opacity;
++  max-width: 100%;
++  min-width: 0;
++}
++
++/* Live: hereBar already has data-asura-age-here under motionRoot */
++.motionRoot [data-asura-age-here] {
++  opacity: 0;
++  transform: translateY(var(--asura-entrance-rise, 10px));
++  animation: asuraEntranceFadeUp var(--asura-entrance-dur) var(--asura-entrance-ease) both;
++  animation-delay: var(--asura-entrance-guide);
++  will-change: transform, opacity;
++  max-width: 100%;
++  min-width: 0;
++}
++
++/* 2) viewerLine ????隞僑 52 甇聆艾? eye-line on 雿?*/
++.motionEntranceViewer {
++  opacity: 0;
++  transform: translateY(var(--asura-entrance-rise, 10px));
++  animation: asuraEntranceFadeUp var(--asura-entrance-dur) var(--asura-entrance-ease) both;
++  animation-delay: var(--asura-entrance-viewer);
++  will-change: transform, opacity;
++  max-width: 100%;
++  min-width: 0;
++}
++
++.motionRoot [data-asura-age-viewer] {
++  opacity: 0;
++  transform: translateY(var(--asura-entrance-rise, 10px));
++  animation: asuraEntranceFadeUp var(--asura-entrance-dur) var(--asura-entrance-ease) both;
++  animation-delay: var(--asura-entrance-viewer);
++  will-change: transform, opacity;
++  max-width: 100%;
++  min-width: 0;
++}
++
++/* 3) ??具?current mark / hereTag seal */
++.motionEntranceCurrentMark {
++  opacity: 0;
++  transform: translateY(6px) scale(0.94);
++  animation: asuraEntranceSealIn 0.7s var(--asura-entrance-ease) both;
++  animation-delay: var(--asura-entrance-seal);
++  will-change: transform, opacity;
++  max-width: 100%;
++}
++
++/* Live: peel-hint / here tag on current segment */
++.motionRoot .motionSegmentCurrent [data-asura-age-peel-hint] {
++  opacity: 0;
++  transform: translateY(6px) scale(0.94);
++  animation: asuraEntranceSealIn 0.7s var(--asura-entrance-ease) both;
++  animation-delay: var(--asura-entrance-seal);
++  will-change: transform, opacity;
++}
++
++/* Delay segment cascade so guide + viewer land first */
++.motionRoot .motionSegment:nth-child(1) { animation-delay: calc(var(--asura-entrance-segments) + 0 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(2) { animation-delay: calc(var(--asura-entrance-segments) + 1 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(3) { animation-delay: calc(var(--asura-entrance-segments) + 2 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(4) { animation-delay: calc(var(--asura-entrance-segments) + 3 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(5) { animation-delay: calc(var(--asura-entrance-segments) + 4 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(6) { animation-delay: calc(var(--asura-entrance-segments) + 5 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(7) { animation-delay: calc(var(--asura-entrance-segments) + 6 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(8) { animation-delay: calc(var(--asura-entrance-segments) + 7 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(9) { animation-delay: calc(var(--asura-entrance-segments) + 8 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(10) { animation-delay: calc(var(--asura-entrance-segments) + 9 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(11) { animation-delay: calc(var(--asura-entrance-segments) + 10 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(12) { animation-delay: calc(var(--asura-entrance-segments) + 11 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(13) { animation-delay: calc(var(--asura-entrance-segments) + 12 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(14) { animation-delay: calc(var(--asura-entrance-segments) + 13 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(15) { animation-delay: calc(var(--asura-entrance-segments) + 14 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment:nth-child(16) { animation-delay: calc(var(--asura-entrance-segments) + 15 * var(--asura-age-stagger)); }
++
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(1) { animation-delay: calc(var(--asura-entrance-segments) + 0 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 0 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(2) { animation-delay: calc(var(--asura-entrance-segments) + 1 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 1 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(3) { animation-delay: calc(var(--asura-entrance-segments) + 2 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 2 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(4) { animation-delay: calc(var(--asura-entrance-segments) + 3 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 3 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(5) { animation-delay: calc(var(--asura-entrance-segments) + 4 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 4 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(6) { animation-delay: calc(var(--asura-entrance-segments) + 5 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 5 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(7) { animation-delay: calc(var(--asura-entrance-segments) + 6 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 6 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(8) { animation-delay: calc(var(--asura-entrance-segments) + 7 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 7 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(9) { animation-delay: calc(var(--asura-entrance-segments) + 8 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 8 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(10) { animation-delay: calc(var(--asura-entrance-segments) + 9 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 9 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(11) { animation-delay: calc(var(--asura-entrance-segments) + 10 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 10 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(12) { animation-delay: calc(var(--asura-entrance-segments) + 11 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 11 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(13) { animation-delay: calc(var(--asura-entrance-segments) + 12 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 12 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(14) { animation-delay: calc(var(--asura-entrance-segments) + 13 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 13 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(15) { animation-delay: calc(var(--asura-entrance-segments) + 14 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 14 * var(--asura-age-stagger)); }
++.motionRoot .motionSegment.motionSegmentCurrent:nth-child(16) { animation-delay: calc(var(--asura-entrance-segments) + 15 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 15 * var(--asura-age-stagger)); }
++
++@media (max-width: 420px) {
++  .motionRoot {
++    --asura-entrance-rise: 8px;
++  }
++}
++
++@media (prefers-reduced-motion: reduce) {
++  .motionEntranceStage,
++  .motionEntranceGuide,
++  .motionEntranceViewer,
++  .motionEntranceCurrentMark,
++  .motionRoot [data-asura-age-here],
++  .motionRoot [data-asura-age-viewer],
++  .motionRoot .motionSegmentCurrent [data-asura-age-peel-hint],
++  .motionRoot .motionSegment,
++  .motionRoot .motionSegmentCurrent,
++  .motionRoot .motionSegment:nth-child(n),
++  .motionRoot .motionSegment.motionSegmentCurrent:nth-child(n),
++  .motionRoot .motionBridge,
++  .motionRoot .motionLine,
++  .motionRoot .motionPeel,
++  .motionRoot .motionPeelLayer {
++    opacity: 1 !important;
++    transform: none !important;
++    animation: none !important;
++    animation-delay: 0s !important;
++    transition: none !important;
++  }
++}
++
++/* P1 FAIL#1 end-of-file guard: entrance rules must not leave opacity 0 under reduce */
++@media (prefers-reduced-motion: reduce) {
++  .motionRoot,
++  .motionRoot * {
++    animation-delay: 0s !important;
++  }
++  .motionSegment,
++  .motionSegmentCurrent,
++  .motionBridge,
++  .motionLine,
++  .motionPeel,
++  .motionPeelLayer,
++  .motionEntranceStage,
++  .motionEntranceGuide,
++  .motionEntranceViewer,
++  .motionEntranceCurrentMark {
++    opacity: 1 !important;
++    transform: none !important;
++    animation: none !important;
++  }
++}
+ 
+-/* Mobile 390 first ??shorter travel */
++/* === FLICKER 2026-11-06 phase2 (Grok) ??mobile entrance settle; peel opacity/transform only === */
+ @media (max-width: 420px) {
+   .motionRoot {
+-    --asura-age-rise: 8px;
+-  }
+-
+-  .motionSegment:hover {
+-    transform: translateY(-1px) scale(1.01);
+-  }
+-
+-  .motionSegment:active {
+-    transform: translateY(0) scale(0.99);
++    --asura-age-dur: 0.22s;
++    --asura-age-ease: ease-out;
++    --asura-age-rise: 4px;
++    --asura-entrance-dur: 0.01s;
++    --asura-entrance-stagger: 0ms;
++    --asura-entrance-rise: 0px;
+   }
+-}
+-
+-/* Reduced motion: static fully visible ??no entrance, no breathe, no peel */
+-@media (prefers-reduced-motion: reduce) {
+-  .motionSegment,
+-  .motionSegmentCurrent,
+-  .motionSegmentOpen,
+-  .motionSegment[data-opened="true"],
+-  .motionLine,
+-  .motionBridge,
+-  .motionPeel,
+-  .motionPeel[data-peeled="1"],
+-  .motionPeel[data-peeled="2"],
+-  .motionPeel[data-peeled="3"],
+-  .motionPeelLayer {
++  .motionEntranceStage,
++  .motionEntranceGuide,
++  .motionEntranceViewer,
++  .motionEntranceCurrentMark,
++  .motionEntranceCurrentCard {
++    animation: none !important;
+     opacity: 1 !important;
+     transform: none !important;
+-    animation: none !important;
+-    transition: none !important;
+-  }
+-}
+-/* ????????????????????????????????????????????????????????????- * ??銝???渡?憟???age timeline (ADDITIVE)
+- * Sequence: guide(hereBar) ??viewerLine ????具挾蝡?- * Live hooks via .motionRoot [data-asura-age-here|viewer] (no TSX edit)
+- * New classNames listed for FE wiring.
+- * ????????????????????????????????????????????????????????????*/
+-
+-@keyframes asuraEntranceFadeUp {
+-  0% {
+-    opacity: 0;
+-    transform: translateY(var(--asura-entrance-rise, 10px));
+-  }
+-  100% {
+-    opacity: 1;
+-    transform: translateY(0);
++    filter: none !important;
+   }
+-}
+-
+-@keyframes asuraEntranceSealIn {
+-  0% {
+-    opacity: 0;
+-    transform: translateY(6px) scale(0.94);
+-  }
+-  100% {
+-    opacity: 1;
+-    transform: translateY(0) scale(1);
++  .motionSegment,
++  .motionSegmentCurrent {
++    animation-duration: 0.22s !important;
+   }
+ }
+-
+-.motionRoot {
+-  --asura-entrance-dur: 0.8s;
+-  --asura-entrance-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+-  --asura-entrance-stagger: 100ms;
+-  --asura-entrance-rise: 10px;
+-  --asura-entrance-guide: 0ms;
+-  --asura-entrance-viewer: calc(1 * var(--asura-entrance-stagger));
+-  --asura-entrance-seal: calc(3 * var(--asura-entrance-stagger));
+-  --asura-entrance-segments: calc(5 * var(--asura-entrance-stagger));
+-  /* FAIL mid180: bridge must enter WITH/AFTER cards, never before (was 0ms) */
+-  --asura-phase-bridge: calc(var(--asura-entrance-segments) + 1 * var(--asura-age-stagger));
+-}
+-/* Bridge: lock to after segment cascade starts (sibling of cards, not child) */
+-.motionRoot .motionBridge {
+-  animation-delay: var(--asura-phase-bridge);
+-}
+-
+-/* Stage flag (optional; motionRoot already acts as stage) */
+-.motionEntranceStage {
+-  /* same vars inherited when combined with motionRoot */
+-}
+-
+-/* 1) Guide strip ??FE: styles.hereBar / segNav lead */
+-.motionEntranceGuide {
+-  opacity: 0;
+-  transform: translateY(var(--asura-entrance-rise, 10px));
+-  animation: asuraEntranceFadeUp var(--asura-entrance-dur) var(--asura-entrance-ease) both;
+-  animation-delay: var(--asura-entrance-guide);
+-  will-change: transform, opacity;
+-  max-width: 100%;
+-  min-width: 0;
+-}
+-
+-/* Live: hereBar already has data-asura-age-here under motionRoot */
+-.motionRoot [data-asura-age-here] {
+-  opacity: 0;
+-  transform: translateY(var(--asura-entrance-rise, 10px));
+-  animation: asuraEntranceFadeUp var(--asura-entrance-dur) var(--asura-entrance-ease) both;
+-  animation-delay: var(--asura-entrance-guide);
+-  will-change: transform, opacity;
+-  max-width: 100%;
+-  min-width: 0;
+-}
+-
+-/* 2) viewerLine ????隞僑 52 甇聆艾? eye-line on 雿?*/
+-.motionEntranceViewer {
+-  opacity: 0;
+-  transform: translateY(var(--asura-entrance-rise, 10px));
+-  animation: asuraEntranceFadeUp var(--asura-entrance-dur) var(--asura-entrance-ease) both;
+-  animation-delay: var(--asura-entrance-viewer);
+-  will-change: transform, opacity;
+-  max-width: 100%;
+-  min-width: 0;
+-}
+-
+-.motionRoot [data-asura-age-viewer] {
+-  opacity: 0;
+-  transform: translateY(var(--asura-entrance-rise, 10px));
+-  animation: asuraEntranceFadeUp var(--asura-entrance-dur) var(--asura-entrance-ease) both;
+-  animation-delay: var(--asura-entrance-viewer);
+-  will-change: transform, opacity;
+-  max-width: 100%;
+-  min-width: 0;
+-}
+-
+-/* 3) ??具?current mark / hereTag seal */
+-.motionEntranceCurrentMark {
+-  opacity: 0;
+-  transform: translateY(6px) scale(0.94);
+-  animation: asuraEntranceSealIn 0.7s var(--asura-entrance-ease) both;
+-  animation-delay: var(--asura-entrance-seal);
+-  will-change: transform, opacity;
+-  max-width: 100%;
+-}
+-
+-/* Live: peel-hint / here tag on current segment */
+-.motionRoot .motionSegmentCurrent [data-asura-age-peel-hint] {
+-  opacity: 0;
+-  transform: translateY(6px) scale(0.94);
+-  animation: asuraEntranceSealIn 0.7s var(--asura-entrance-ease) both;
+-  animation-delay: var(--asura-entrance-seal);
+-  will-change: transform, opacity;
++@keyframes asuraAgePeelExpand {
++  0% { opacity: 0.96; transform: translateY(2px); }
++  100% { opacity: 1; transform: none; }
+ }
+-
+-/* Delay segment cascade so guide + viewer land first */
+-.motionRoot .motionSegment:nth-child(1) { animation-delay: calc(var(--asura-entrance-segments) + 0 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(2) { animation-delay: calc(var(--asura-entrance-segments) + 1 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(3) { animation-delay: calc(var(--asura-entrance-segments) + 2 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(4) { animation-delay: calc(var(--asura-entrance-segments) + 3 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(5) { animation-delay: calc(var(--asura-entrance-segments) + 4 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(6) { animation-delay: calc(var(--asura-entrance-segments) + 5 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(7) { animation-delay: calc(var(--asura-entrance-segments) + 6 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(8) { animation-delay: calc(var(--asura-entrance-segments) + 7 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(9) { animation-delay: calc(var(--asura-entrance-segments) + 8 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(10) { animation-delay: calc(var(--asura-entrance-segments) + 9 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(11) { animation-delay: calc(var(--asura-entrance-segments) + 10 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(12) { animation-delay: calc(var(--asura-entrance-segments) + 11 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(13) { animation-delay: calc(var(--asura-entrance-segments) + 12 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(14) { animation-delay: calc(var(--asura-entrance-segments) + 13 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(15) { animation-delay: calc(var(--asura-entrance-segments) + 14 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment:nth-child(16) { animation-delay: calc(var(--asura-entrance-segments) + 15 * var(--asura-age-stagger)); }
+-
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(1) { animation-delay: calc(var(--asura-entrance-segments) + 0 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 0 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(2) { animation-delay: calc(var(--asura-entrance-segments) + 1 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 1 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(3) { animation-delay: calc(var(--asura-entrance-segments) + 2 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 2 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(4) { animation-delay: calc(var(--asura-entrance-segments) + 3 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 3 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(5) { animation-delay: calc(var(--asura-entrance-segments) + 4 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 4 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(6) { animation-delay: calc(var(--asura-entrance-segments) + 5 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 5 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(7) { animation-delay: calc(var(--asura-entrance-segments) + 6 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 6 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(8) { animation-delay: calc(var(--asura-entrance-segments) + 7 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 7 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(9) { animation-delay: calc(var(--asura-entrance-segments) + 8 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 8 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(10) { animation-delay: calc(var(--asura-entrance-segments) + 9 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 9 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(11) { animation-delay: calc(var(--asura-entrance-segments) + 10 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 10 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(12) { animation-delay: calc(var(--asura-entrance-segments) + 11 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 11 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(13) { animation-delay: calc(var(--asura-entrance-segments) + 12 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 12 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(14) { animation-delay: calc(var(--asura-entrance-segments) + 13 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 13 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(15) { animation-delay: calc(var(--asura-entrance-segments) + 14 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 14 * var(--asura-age-stagger)); }
+-.motionRoot .motionSegment.motionSegmentCurrent:nth-child(16) { animation-delay: calc(var(--asura-entrance-segments) + 15 * var(--asura-age-stagger)), calc(0.9s + var(--asura-entrance-segments) + 15 * var(--asura-age-stagger)); }
+-
+-@media (max-width: 420px) {
+-  .motionRoot {
+-    --asura-entrance-rise: 8px;
+-  }
++@keyframes asuraAgePeelLayerIn {
++  0% { opacity: 0.85; transform: translateY(4px); }
++  100% { opacity: 1; transform: none; }
+ }
+-
+ @media (prefers-reduced-motion: reduce) {
+   .motionEntranceStage,
+   .motionEntranceGuide,
+   .motionEntranceViewer,
+   .motionEntranceCurrentMark,
++  .motionEntranceCurrentCard,
+   .motionRoot [data-asura-age-here],
+   .motionRoot [data-asura-age-viewer],
+-  .motionRoot .motionSegmentCurrent [data-asura-age-peel-hint] {
++  .motionRoot .motionSegment,
++  .motionRoot .motionSegmentCurrent,
++  .motionRoot .motionBridge,
++  .motionRoot .motionLine,
++  .motionRoot .motionPeel,
++  .motionRoot .motionPeelLayer {
+     opacity: 1 !important;
+     transform: none !important;
+     animation: none !important;
+     transition: none !important;
++    filter: none !important;
+   }
+-}
++}
+\ No newline at end of file
+diff --git a/features/ghost-asura/components/AsuraAgeTimeline.tsx b/features/ghost-asura/components/AsuraAgeTimeline.tsx
+index a21779a..d5cb3a9 100644
+--- a/features/ghost-asura/components/AsuraAgeTimeline.tsx
++++ b/features/ghost-asura/components/AsuraAgeTimeline.tsx
+@@ -7,11 +7,19 @@
+  * 鞈?蝻箏葉?畾萎??怒?  * 瘣撅歹?optional depth嚗?瘥活?芸?銝撅歹???depth ?????詨??芰??lines??  */
+-import { Fragment, useEffect, useMemo, useState } from 'react';
++import { Fragment, startTransition, useEffect, useMemo, useState } from 'react';
+ import type { AsuraAgeTimeline as AsuraAgeTimelineData } from '@/lib/ghost-asura-display-contract';
+ import styles from './AsuraAgeTimeline.module.css';
+ import motion from './AsuraAgeTimeline.motion.module.css';
+ 
++/** Mobile or reduced-motion: instant scroll (perf). */
++function asuraScrollBehavior(): ScrollBehavior {
++  if (typeof window === 'undefined') return 'auto';
++  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return 'auto';
++  if (window.matchMedia('(max-width: 420px)').matches) return 'auto';
++  return 'smooth';
++}
++
+ /** 敺垢撠?賢???舫瘣嚗?閬賣?雿??芸?銝嚗?蝡舀?啣辣隡賂?銝 lib/嚗?*/
+ export type AsuraLineDepth = {
+   basis: { text: string; hook: string };
+@@ -116,6 +124,8 @@ export function AsuraAgeTimeline({
+   const [visited, setVisited] = useState<Record<number, true>>({});
+   const [peelLevels, setPeelLevels] = useState<Record<string, number>>({});
+   const [bootstrapped, setBootstrapped] = useState(false);
++  /** First paint: ?啁?隞斗???頠詨??冽挾???園?畾?idle 敺???????longtask??*/
++  const [extrasReady, setExtrasReady] = useState(false);
+ 
+   useEffect(() => {
+     if (!segments || bootstrapped) return;
+@@ -124,6 +134,31 @@ export function AsuraAgeTimeline({
+     setBootstrapped(true);
+   }, [segments, currentIndex, bootstrapped]);
+ 
++  useEffect(() => {
++    if (!segments) return;
++    setExtrasReady(false);
++    let cancelled = false;
++    const enable = () => {
++      if (!cancelled) setExtrasReady(true);
++    };
++    let idleId: number | undefined;
++    let timeoutId: number | undefined;
++    const w = window as Window & {
++      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
++      cancelIdleCallback?: (id: number) => void;
++    };
++    if (typeof w.requestIdleCallback === 'function') {
++      idleId = w.requestIdleCallback(enable, { timeout: 450 });
++    } else {
++      timeoutId = window.setTimeout(enable, 50);
++    }
++    return () => {
++      cancelled = true;
++      if (idleId != null && typeof w.cancelIdleCallback === 'function') w.cancelIdleCallback(idleId);
++      if (timeoutId != null) window.clearTimeout(timeoutId);
++    };
++  }, [segments]);
++
+   useEffect(() => {
+     if (!focusRequest || !segments) return;
+     const target = focusRequest.segmentIndex;
+@@ -133,30 +168,31 @@ export function AsuraAgeTimeline({
+     setVisited((prev) => (prev[target] ? prev : { ...prev, [target]: true }));
+ 
+     if (focusRequest.peelTo) {
+-      setPeelLevels((prev) => {
+-        const next = { ...prev };
+-        const seg = segments[target];
+-        const depths = Array.isArray(seg.depth) ? seg.depth : [];
+-        const lineIndexes =
+-          typeof focusRequest.lineIndex === 'number'
+-            ? [focusRequest.lineIndex]
+-            : seg.lines.map((_, i) => i);
+-        for (const li of lineIndexes) {
+-          const layers = listAvailableLayers(depths[li]);
+-          next[`${target}-${li}`] = peelLevelForTarget(layers, focusRequest.peelTo);
+-        }
+-        return next;
++      startTransition(() => {
++        setPeelLevels((prev) => {
++          const next = { ...prev };
++          const seg = segments[target];
++          const depths = Array.isArray(seg.depth) ? seg.depth : [];
++          const lineIndexes =
++            typeof focusRequest.lineIndex === 'number'
++              ? [focusRequest.lineIndex]
++              : seg.lines.map((_, i) => i);
++          for (const li of lineIndexes) {
++            const layers = listAvailableLayers(depths[li]);
++            next[`${target}-${li}`] = peelLevelForTarget(layers, focusRequest.peelTo);
++          }
++          return next;
++        });
+       });
+     }
+ 
+-    const reduce =
+-      typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
++    setExtrasReady(true);
+     const run = () => {
+       const el = document.querySelector(`[data-asura-age-seg-index="${target}"]`) as HTMLElement | null;
+       if (!el) return;
+-      el.scrollIntoView({ block: 'start', inline: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
++      el.scrollIntoView({ block: 'start', inline: 'nearest', behavior: asuraScrollBehavior() });
+     };
+-    window.setTimeout(run, reduce ? 0 : 40);
++    window.setTimeout(run, asuraScrollBehavior() === 'auto' ? 0 : 40);
+   }, [focusRequest, segments]);
+ 
+   if (!view || !segments || segments.length === 0) return null;
+@@ -183,19 +219,21 @@ export function AsuraAgeTimeline({
+ 
+   const openSegment = (index: number) => {
+     if (index < 0 || index >= segments.length) return;
++    if (!extrasReady) setExtrasReady(true);
+     setOpenedIndex(index);
+     setVisited((prev) => (prev[index] ? prev : { ...prev, [index]: true }));
+-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+     const el = document.querySelector(`[data-asura-age-seg-index="${index}"]`) as HTMLElement | null;
+-    if (el) el.scrollIntoView({ block: 'start', inline: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
++    if (el) el.scrollIntoView({ block: 'start', inline: 'nearest', behavior: asuraScrollBehavior() });
+   };
+ 
+   const peelOnce = (segIndex: number, lineIndex: number, max: number) => {
+     const key = `${segIndex}-${lineIndex}`;
+-    setPeelLevels((prev) => {
+-      const cur = prev[key] ?? 0;
+-      if (cur >= max) return prev;
+-      return { ...prev, [key]: cur + 1 };
++    startTransition(() => {
++      setPeelLevels((prev) => {
++        const cur = prev[key] ?? 0;
++        if (cur >= max) return prev;
++        return { ...prev, [key]: cur + 1 };
++      });
+     });
+   };
+ 
+@@ -236,6 +274,11 @@ export function AsuraAgeTimeline({
+                   aria-current={seg.isCurrent ? 'step' : undefined}
+                   onClick={() => openSegment(i)}
+                 />
++                {seg.ageLabel ? (
++                  <span className={styles.progressAge} aria-hidden="true">
++                    {seg.ageLabel}
++                  </span>
++                ) : null}
+               </li>
+             );
+           })}
+@@ -258,6 +301,36 @@ export function AsuraAgeTimeline({
+           const bridgeText =
+             typeof segment.bridge === 'string' ? segment.bridge.trim() : '';
+           const isLast = index === segments.length - 1;
++          const mountFullSegment = extrasReady || index === currentIndex || index === openedIndex;
++
++          if (!mountFullSegment) {
++            return (
++              <Fragment key={key}>
++                <article
++                  id={`asura-age-seg-${index}`}
++                  className={segmentClass}
++                  data-asura-age-segment={segment.tense}
++                  data-asura-age-seg-index={index}
++                  data-current={segment.isCurrent ? 'true' : undefined}
++                  data-asura-deferred="true"
++                >
++                  <button
++                    type="button"
++                    className={styles.collapsedHit}
++                    onClick={() => openSegment(index)}
++                    aria-expanded={false}
++                    aria-label={segment.ageLabel + "?? + segment.tense}
++                  >
++                    <span className={styles.lineSurface}>{segment.lines[0] ?? segment.ageLabel}</span>
++                    <span className={styles.collapsedMeta}>
++                      <span className={styles.ageLabel}>{segment.ageLabel}</span>
++                      <span className={styles.tense}>{segment.tense}</span>
++                    </span>
++                  </button>
++                </article>
++              </Fragment>
++            );
++          }
+ 
+           return (
+             <Fragment key={key}>
+diff --git a/features/ghost-asura/components/GhostAsuraCard.module.css b/features/ghost-asura/components/GhostAsuraCard.module.css
+index 17057f4..48409eb 100644
+--- a/features/ghost-asura/components/GhostAsuraCard.module.css
++++ b/features/ghost-asura/components/GhostAsuraCard.module.css
+@@ -2105,9 +2105,10 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
+ 
+ /* ?犖??啁?隞歹??撐?函??∠?嚗?摨?獢?撠? sectionBody嚗upplement 憸冽嚗?蝡舐?堆? */
+ .pinnedSummary {
+-  position: sticky;
+-  top: 0;
+-  z-index: 5;
++  /* Pika rework 2026-11-06: unstick - sticky overlay covered 44-53 card content */
++  position: relative;
++  top: auto;
++  z-index: 1;
+   margin: 0 0 12px;
+   padding: 10px 12px;
+   max-width: 100%;
+@@ -2116,12 +2117,16 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
+   overflow-wrap: anywhere;
+   word-break: break-word;
+   border-radius: 10px;
+-  background: rgba(20, 16, 12, 0.92);
+-  color: #fcea86;
++  border: 1px solid rgba(255, 225, 74, 0.42);
++  background:
++    linear-gradient(165deg, rgba(255, 246, 200, 0.16) 0%, transparent 55%),
++    rgba(15, 31, 12, 0.94);
++  color: #FFE14A;
+   font-size: 14px;
+-  font-weight: 600;
++  font-weight: 700;
+   line-height: 1.45;
+   letter-spacing: 0.02em;
++  box-shadow: inset 0 1px 0 rgba(255, 246, 200, 0.35);
+ }
+ 
+ .timelineDecree {
+@@ -2130,7 +2135,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
+   border: 0;
+   border-radius: 0;
+   background: transparent;
+-  scroll-margin-top: 72px;
++  scroll-margin-top: 16px;
+ }
+ .timelineDecreeTitle {
+   margin: 0 0 14px;
+@@ -2282,3 +2287,84 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
+ .decreeMarker[data-mark='?曉'] .decreeMarkerIcon::before { content: '??; }
+ .decreeMarker[data-mark='?曉撠勗?'] .decreeMarkerIcon::before { content: '??; }
+ .decreeMarker[data-mark='銝?畾?] .decreeMarkerIcon::before { content: '??; }
++
++
++/* P1 decree card gold hierarchy + top sheen handoff to visual module 2026-11-06 */
++.timelineDecreeCard {
++  border: 1px solid rgba(248, 199, 88, 0.48);
++  box-shadow: none;
++  overflow: hidden;
++}
++
++/* === Pika REWORK 2026-11-06 ? Bot_APP BLOCKED response (decree base + anti-restick) === */
++.timelineDecreeCard {
++  border-color: rgba(124, 179, 66, 0.45);
++  background:
++    linear-gradient(155deg, rgba(255, 248, 208, 0.1) 0%, transparent 40%),
++    linear-gradient(165deg, #1A2E14 0%, #0C140A 100%);
++  box-shadow:
++    inset 0 1px 0 rgba(255, 248, 208, 0.35),
++    6px 10px 22px rgba(6, 14, 5, 0.45);
++}
++.timelineDecreeTitle,
++.timelineDecreeCardHeading { color: #FFE14A; }
++.timelineDecreeCardBody { color: #E8F0D8; }
++.pinnedSummary {
++  position: relative !important;
++  top: auto !important;
++  z-index: 1 !important;
++}
++
++/* === PERF 2026-11-06 ??bannerTitle: text-shadow, no filter / will-change:filter === */
++.bannerTitle {
++  filter: none !important;
++  will-change: auto !important;
++  transition: none;
++  /* Approximate prior drop-shadow stack with compositable text-shadow */
++  text-shadow:
++    0 2px 4px rgba(0, 0, 0, 0.8),
++    0 4px 12px rgba(10, 28, 10, 0.45),
++    0 0 16px rgba(255, 230, 0, 0.12);
++}
++.card[data-display-contract] .bannerTitle {
++  filter: none !important;
++}
++.asuraBanner:hover {
++  filter: none !important;
++  /* depth via transform already present; soft box glow instead of drop-shadow filter */
++  box-shadow: 0 12px 24px rgba(4, 10, 3, 0.4);
++}
++.asuraBanner::before {
++  filter: none !important;
++}
++
++/* === PERF+FLICKER 2026-11-06 phase2 (Grok) ??tileSquare/bannerSeal slim; keep ?桀銝?lemon/moss === */
++.bannerSeal,
++.card[data-display-contract] .bannerSeal {
++  filter: none !important;
++  will-change: auto !important;
++  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.65);
++}
++.tileSquare {
++  will-change: auto !important;
++}
++/* Cap painted layers: kill ink grain pseudo stacks on story tiles */
++.asuraTiles .tileSquare::before {
++  display: none !important;
++  background: none !important;
++}
++.asuraTiles .tileSquare:not(.tileSquareOn) {
++  /* ?? gradient layers + solid fallback (Pikachu-safe warm ink) */
++  background:
++    linear-gradient(165deg, rgba(255, 248, 208, 0.14) 0%, transparent 42%),
++    linear-gradient(165deg, var(--t-top, #c99a2a), var(--t-bot, #6e4a0c)) !important;
++}
++.card[data-display-contract] .asuraTiles .tileSquare {
++  background:
++    linear-gradient(165deg, rgba(255, 255, 255, 0.06), transparent 40%),
++    linear-gradient(145deg, color-mix(in srgb, var(--tab-accent, #c5ab65) 22%, #25231f), #191917) !important;
++}
++/* Solid page-ink under banner text avoids flash-through while filter is off */
++.asuraBanner {
++  background-color: #0A1608;
++}
+\ No newline at end of file
+diff --git a/features/ghost-asura/components/GhostAsuraCard.tsx b/features/ghost-asura/components/GhostAsuraCard.tsx
+index df81978..2989e55 100644
+--- a/features/ghost-asura/components/GhostAsuraCard.tsx
++++ b/features/ghost-asura/components/GhostAsuraCard.tsx
+@@ -10,7 +10,6 @@
+ 
+ 'use client';
+ 
+-
+ import { Fragment, useEffect, useMemo, useRef, useState, type SyntheticEvent, type CSSProperties } from 'react';
+ import { animationConfig } from '@/lib/ghost-asura-animation';
+ import type { AsuraDisplay, AsuraDisplaySeal } from '@/lib/ghost-asura-display-contract';
+@@ -23,6 +22,15 @@ import { SealMotion } from './SealMotion';
+ import { PresentGuide, COLUMN_ACCENTS } from './PresentGuide';
+ import { AsuraAgeTimeline, type AsuraAgeFocusRequest } from './AsuraAgeTimeline';
+ 
++/** Mobile or reduced-motion: instant scroll (perf). Desktop may smooth. */
++function asuraScrollBehavior(): ScrollBehavior {
++  if (typeof window === 'undefined') return 'auto';
++  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return 'auto';
++  if (window.matchMedia('(max-width: 420px)').matches) return 'auto';
++  return 'smooth';
++}
++
++
+ /** 暺??啗??∪?嚗?啗?蝺葉憭殷??∠?瘥?ａ?撠望?璅?撠??恍銝嚗Ⅱ靽?憿?敺嚗?  *  蝑????恬?蝝?0.24 蝘?頝???雿蔭嚗蝙?刻?鈭?撠??停銝撟單??脣????恍銵嚗?蝣唬遙雿???*/
+ function focusOpenedDetail(event: SyntheticEvent<HTMLDetailsElement>) {
+@@ -38,13 +46,11 @@ function focusOpenedDetail(event: SyntheticEvent<HTMLDetailsElement>) {
+       if (!heading) return;
+       const rect = heading.getBoundingClientRect();
+       if (rect.top >= 8 && rect.bottom <= window.innerHeight - 8) return;
+-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+-      heading.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
++      heading.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: asuraScrollBehavior() });
+       return;
+     }
+     const fits = card.getBoundingClientRect().height <= window.innerHeight * 0.88;
+-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+-    card.scrollIntoView({ block: fits ? 'center' : 'start', inline: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
++    card.scrollIntoView({ block: fits ? 'center' : 'start', inline: 'nearest', behavior: asuraScrollBehavior() });
+   }, 280);
+ }
+ 
+@@ -179,13 +185,10 @@ const TONE_SEAL: Record<AsuraDisplaySeal['tone'], string> = {
+ 
+ function DisplayCard({ display }: { display: AsuraDisplay }) {
+   const currentColumn = display.sections.find(section => section.key === 'pillars')?.guidance?.stage;
+-  const baseDelay =
+-    animationConfig.cardReveal.delay + animationConfig.cardReveal.duration + animationConfig.impressionGlow.delay;
+   const [openKey, setOpenKey] = useState<string | null>(null);
+   const [restOpen, setRestOpen] = useState<Record<string, boolean>>({});
+   const [copyStatus, setCopyStatus] = useState<Record<string, boolean>>({});
+   const [focusRequest, setFocusRequest] = useState<AsuraAgeFocusRequest | null>(null);
+-  let glowIndex = 0;
+ 
+   /** 銴ˊ?∠?閰梯???撘Ⅳ?喳鞎潛倏嚗耨蝢?獢??剁? */
+   const handleCopyCard = (section: AsuraDisplay['sections'][0], mode: 'narrative' | 'code') => {
+@@ -258,22 +261,19 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
+     window.requestAnimationFrame(() => {
+       const el = document.getElementById(STAT_TARGET_ID[target]);
+       if (!el) return;
+-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+-      el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
++      el.scrollIntoView({ behavior: asuraScrollBehavior(), block: 'start' });
+       const focusTarget = target === 'pillars' ? el : ((el.querySelector(':scope > summary') as HTMLElement | null) ?? el);
+       focusTarget.focus({ preventScroll: true });
+     });
+   };
+-  const nextDelay = () => baseDelay + glowIndex++ * animationConfig.impressionGlow.staggerDelay;
+   const decreeRef = useRef<HTMLElement | null>(null);
+ 
+   useEffect(() => {
+     if (!display.timelineDecree) return;
+     const el = decreeRef.current ?? document.querySelector<HTMLElement>('[data-asura-timeline-decree]');
+     if (!el) return;
+-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+     window.requestAnimationFrame(() => {
+-      el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
++      el.scrollIntoView({ behavior: asuraScrollBehavior(), block: 'start' });
+     });
+   }, [display.timelineDecree]);
+ 
+@@ -492,14 +492,6 @@ function DisplayCard({ display }: { display: AsuraDisplay }) {
+                     data-asura-id={seal.id}
+                     data-seal-status={seal.tone}
+                     data-display-name={seal.name}
+-                    style={
+-                      seal.tone === 'awakened'
+-                        ? {
+-                            animation: 'asuraImpressionGlow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+-                            animationDelay: `${nextDelay()}ms`,
+-                          }
+-                        : {}
+-                    }
+                   >
+                     <details className={styles.itemDetail} data-asura-detail name={`asura-col-${column.key}`} onToggle={focusOpenedDetail}>
+                       <summary className={styles.itemHead}>
+@@ -887,14 +879,6 @@ function LegacyReadingCard({ reading }: { reading: GhostAsuraReading }) {
+                           data-asura-id={item.resultId}
+                           data-seal-status={item.sealStatus}
+                           data-display-name={item.displayName}
+-                          style={
+-                            item.sealStatus === 'awakened'
+-                              ? {
+-                                  animation: `asuraImpressionGlow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
+-                                  animationDelay: `${getImpressionAnimationDelay()}ms`,
+-                                }
+-                              : {}
+-                          }
+                         >
+                           <details className={styles.itemDetail} data-asura-detail name={`asura-col-${pillarKeys[idx]}`} onToggle={focusOpenedDetail}>
+                           <summary className={styles.itemHead}>

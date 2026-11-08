@@ -1,0 +1,184 @@
+{
+  "cpu4": [
+    {
+      "name": "open-390-cpu4-layout",
+      "meta": {
+        "filled": true,
+        "clicked": true,
+        "decreeAppearWallMs": 3832
+      },
+      "windowFound": true,
+      "windowMs": 10031.6,
+      "longTaskCount": 16,
+      "longTaskMaxMs": 2001.8,
+      "longTasks": [
+        {
+          "startMsFromActionStart": 0.8,
+          "durationMs": 408.3
+        },
+        {
+          "startMsFromActionStart": 410.1,
+          "durationMs": 158.6
+        },
+        {
+          "startMsFromActionStart": 568.8,
+          "durationMs": 441.4
+        },
+        {
+          "startMsFromActionStart": 1166.6,
+          "durationMs": 90.4
+        },
+        {
+          "startMsFromActionStart": 1257,
+          "durationMs": 492.1
+        },
+        {
+          "startMsFromActionStart": 2201.1,
+          "durationMs": 2001.8
+        },
+        {
+          "startMsFromActionStart": 4206.4,
+          "durationMs": 166.2
+        },
+        {
+          "startMsFromActionStart": 4403.6,
+          "durationMs": 1168.3
+        },
+        {
+          "startMsFromActionStart": 5572.5,
+          "durationMs": 1112.8
+        },
+        {
+          "startMsFromActionStart": 6685.9,
+          "durationMs": 104.4
+        },
+        {
+          "startMsFromActionStart": 6791.8,
+          "durationMs": 1122
+        },
+        {
+          "startMsFromActionStart": 7918.2,
+          "durationMs": 939.4
+        },
+        {
+          "startMsFromActionStart": 8858.2,
+          "durationMs": 115.9
+        },
+        {
+          "startMsFromActionStart": 8981.8,
+          "durationMs": 907.2
+        },
+        {
+          "startMsFromActionStart": 9889.3,
+          "durationMs": 73.1
+        },
+        {
+          "startMsFromActionStart": 9962.6,
+          "durationMs": 68.6
+        }
+      ],
+      "eventCount": 49904
+    }
+  ],
+  "cpu6": [
+    {
+      "name": "open-390-cpu6-layout",
+      "meta": {
+        "filled": true,
+        "clicked": true,
+        "decreeAppearWallMs": 6997
+      },
+      "windowFound": true,
+      "windowMs": 13668.7,
+      "longTaskCount": 21,
+      "longTaskMaxMs": 2909.9,
+      "longTasks": [
+        {
+          "startMsFromActionStart": 50.9,
+          "durationMs": 902.9
+        },
+        {
+          "startMsFromActionStart": 954.2,
+          "durationMs": 721
+        },
+        {
+          "startMsFromActionStart": 1683.9,
+          "durationMs": 62.4
+        },
+        {
+          "startMsFromActionStart": 1746.6,
+          "durationMs": 685.4
+        },
+        {
+          "startMsFromActionStart": 2432.4,
+          "durationMs": 63.6
+        },
+        {
+          "startMsFromActionStart": 2538.3,
+          "durationMs": 683
+        },
+        {
+          "startMsFromActionStart": 3264,
+          "durationMs": 121.7
+        },
+        {
+          "startMsFromActionStart": 3385.8,
+          "durationMs": 691.7
+        },
+        {
+          "startMsFromActionStart": 4085.4,
+          "durationMs": 56.2
+        },
+        {
+          "startMsFromActionStart": 4148.4,
+          "durationMs": 53.8
+        },
+        {
+          "startMsFromActionStart": 4217.9,
+          "durationMs": 54.2
+        },
+        {
+          "startMsFromActionStart": 4278.5,
+          "durationMs": 58.2
+        },
+        {
+          "startMsFromActionStart": 4816.9,
+          "durationMs": 2909.9
+        },
+        {
+          "startMsFromActionStart": 7735.1,
+          "durationMs": 175.4
+        },
+        {
+          "startMsFromActionStart": 7955.4,
+          "durationMs": 188.5
+        },
+        {
+          "startMsFromActionStart": 8144.3,
+          "durationMs": 1797.4
+        },
+        {
+          "startMsFromActionStart": 9942,
+          "durationMs": 1526.4
+        },
+        {
+          "startMsFromActionStart": 11470.6,
+          "durationMs": 335.8
+        },
+        {
+          "startMsFromActionStart": 11823.3,
+          "durationMs": 51.8
+        },
+        {
+          "startMsFromActionStart": 11879.9,
+          "durationMs": 1684.5
+        },
+        {
+          "startMsFromActionStart": 13565.2,
+          "durationMs": 101.8
+        }
+      ],
+      "eventCount": 51060
+    }
+  ]
+}

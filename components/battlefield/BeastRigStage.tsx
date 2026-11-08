@@ -132,7 +132,7 @@ export function shardOutsideReadabilityZones(x: number, y: number, size: number,
   return zones.every(zone => Math.hypot(x - zone.x, y - zone.y) > zone.radius + radius);
 }
 
-export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFrame, seek = null, measureGeometry, cameraElement, layerZIndex = 10 }: {
+export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFrame, seek = null, measureGeometry, cameraElement, layerZIndex = 10, stableMotion = false }: {
   rig: BeastRig;
   /** 每次出擊換一個數字（用戰局 revision）；null＝待命，不畫 */
   playKey: number | null;
@@ -147,6 +147,8 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
   measureGeometry?: () => BeastRigGeometry | null;
   cameraElement?: () => HTMLElement | null;
   layerZIndex?: number;
+  /** Orb battle accessibility: no camera shake or high-frequency sprite jitter. */
+  stableMotion?: boolean;
 }) {
   const stage = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -211,7 +213,7 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
     const frame = strikeFrame(t, style);
     // 鏡頭：整個戰場（不含出戰卡列）隨咬合震動並推進，以對手卡為中心；只動 transform，不影響版面
     const arena = cameraElement ? cameraElement() : document.querySelector<HTMLElement>('[data-battle-visual]');
-    if (arena) {
+    if (arena && !stableMotion) {
       const cam = cameraFrame(t, style);
       if (geometry.cameraOrigin) arena.style.transformOrigin = geometry.cameraOrigin;
       arena.style.transform = cam.zoom === 1 && cam.shakeX === 0 && cam.shakeY === 0 ? '' : `translate(${cam.shakeX.toFixed(2)}px, ${cam.shakeY.toFixed(2)}px) scale(${cam.zoom.toFixed(4)})`;
@@ -222,8 +224,8 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
     const paint = (f: ReturnType<typeof strikeFrame>, p: RigPlacement, fade: number, jitter: number, tt: number) => {
       ctx.save();
       // 震動：固定頻率的正弦（不用亂數），蓄勢是顫抖、命中是震盪
-      const sx = Math.sin(t * 900) * f.shake * 5 * jitter;
-      const sy = Math.cos(t * 1100) * f.shake * 3 * jitter;
+      const sx = stableMotion ? 0 : Math.sin(t * 900) * f.shake * 5 * jitter;
+      const sy = stableMotion ? 0 : Math.cos(t * 1100) * f.shake * 3 * jitter;
       for (const layer of f.layers) {
         const image = images.current.get(layer.frame);
         if (!image) continue;
@@ -327,7 +329,7 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
     const rend = rendFrame(t, style);
     // 咬住後將「當前對手的真實卡圖」切成兩片拉開，動畫結束恢復。
     // 只處理圖像，不修改血量、收藏或卡片資料。
-    const targetArt = geometry.targetArt;
+    const targetArt = stableMotion ? null : geometry.targetArt;
     if (targetArt?.complete && targetArt.naturalWidth > 0 && rend.power > 0 && rend.slash > 0) {
       if (!hiddenArt.current) hiddenArt.current = { image: targetArt, visibility: targetArt.style.visibility };
       targetArt.style.visibility = 'hidden';
@@ -473,7 +475,7 @@ export default function BeastRigStage({ rig, playKey, delayMs = 0, onReady, onFr
     return () => { cancelAnimationFrame(raf.current); clearTimeout(timer.current); clear(); };
     // draw 只讀 ref 與 rig，不放進依賴
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playKey, delayMs, rig, onFrame, seek, loaded, measureGeometry, cameraElement]);
+  }, [playKey, delayMs, rig, onFrame, seek, loaded, measureGeometry, cameraElement, stableMotion]);
 
   return (
     <div ref={stage} data-rig-stage data-rig-active="false" aria-hidden="true"

@@ -1,0 +1,86 @@
+{
+  "date": "2026-11-08",
+  "note": "重新檢查既有原稿；原稿尺寸通過不等於去背或造型驗收通過。此前稱沒有可用高解析來源過於籠統，降低至 HD 後應重新檢查原稿。",
+  "sources": [
+    {
+      "path": ".tmp/rig/poses/qinglong-bite-close.r1.png",
+      "width": 2390,
+      "height": 1792,
+      "alpha": false,
+      "hd": true,
+      "sha256": "298a6fa432007be675e6c9e79fa6d7ea1afce3781a4d238ed228b8ee38030c0b"
+    },
+    {
+      "path": ".tmp/rig/poses/qinglong-bite-close.r2.png",
+      "width": 2390,
+      "height": 1792,
+      "alpha": false,
+      "hd": true,
+      "sha256": "d79fc0ee36eedc955292b46cd6e450b82793a991c99e10f3cbe71e4b8bf8a381"
+    },
+    {
+      "path": ".tmp/rig/poses/qinglong-bite-close.r9.png",
+      "width": 2390,
+      "height": 1792,
+      "alpha": false,
+      "hd": true,
+      "sha256": "d79fc0ee36eedc955292b46cd6e450b82793a991c99e10f3cbe71e4b8bf8a381"
+    },
+    {
+      "path": ".tmp/rig/poses/qinglong-pounce-open.r1.png",
+      "width": 2390,
+      "height": 1792,
+      "alpha": false,
+      "hd": true,
+      "sha256": "05e7976aa17ea07b3fb357ef2f06557fe952c0d4a155fe4cf6fb9e0cdfb2f658"
+    },
+    {
+      "path": ".tmp/rig/poses/qinglong-pounce-open.r2.png",
+      "width": 2390,
+      "height": 1792,
+      "alpha": false,
+      "hd": true,
+      "sha256": "0e92255a4921f5285471b5450f06f540f2cecbbc30c767da31e68bc49fd469a0"
+    },
+    {
+      "path": ".tmp/rig/poses/qinglong-pounce-open.r9.png",
+      "width": 2390,
+      "height": 1792,
+      "alpha": false,
+      "hd": true,
+      "sha256": "05e7976aa17ea07b3fb357ef2f06557fe952c0d4a155fe4cf6fb9e0cdfb2f658"
+    },
+    {
+      "path": ".tmp/rig/poses/qinglong-run-gather.r1.png",
+      "width": 2752,
+      "height": 1536,
+      "alpha": false,
+      "hd": true,
+      "sha256": "b7104b5fcb847bfd855e9826c1aa5cbf94250c6b2a4c5dd28423bc9b9019f7aa"
+    },
+    {
+      "path": ".tmp/rig/poses/qinglong-run-gather.r9.png",
+      "width": 2752,
+      "height": 1536,
+      "alpha": false,
+      "hd": true,
+      "sha256": "b7104b5fcb847bfd855e9826c1aa5cbf94250c6b2a4c5dd28423bc9b9019f7aa"
+    },
+    {
+      "path": ".tmp/rig/poses/qinglong-run-reach.r1.png",
+      "width": 2390,
+      "height": 1792,
+      "alpha": false,
+      "hd": true,
+      "sha256": "17cba7212afb35178ec0f0369fd6797c107642eac79d48c6b13ac189525f5127"
+    },
+    {
+      "path": ".tmp/rig/poses/qinglong-run-reach.r9.png",
+      "width": 2390,
+      "height": 1792,
+      "alpha": false,
+      "hd": true,
+      "sha256": "17cba7212afb35178ec0f0369fd6797c107642eac79d48c6b13ac189525f5127"
+    }
+  ]
+}

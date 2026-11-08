@@ -1,0 +1,67 @@
+{
+  "name": "open-390-cpu4-layout",
+  "meta": {
+    "filled": true,
+    "clicked": true,
+    "decreeAppearWallMs": 3544
+  },
+  "windowFound": true,
+  "windowMs": 8187.3,
+  "longTaskCount": 13,
+  "longTaskMaxMs": 1980.6,
+  "longTasks": [
+    {
+      "startMsFromActionStart": 2,
+      "durationMs": 473.4
+    },
+    {
+      "startMsFromActionStart": 475.6,
+      "durationMs": 163.8
+    },
+    {
+      "startMsFromActionStart": 639.4,
+      "durationMs": 446.8
+    },
+    {
+      "startMsFromActionStart": 1221,
+      "durationMs": 97.7
+    },
+    {
+      "startMsFromActionStart": 1319.8,
+      "durationMs": 482.5
+    },
+    {
+      "startMsFromActionStart": 2001.1,
+      "durationMs": 1980.6
+    },
+    {
+      "startMsFromActionStart": 3985.5,
+      "durationMs": 167.7
+    },
+    {
+      "startMsFromActionStart": 4190.3,
+      "durationMs": 161.2
+    },
+    {
+      "startMsFromActionStart": 4351.6,
+      "durationMs": 1312.5
+    },
+    {
+      "startMsFromActionStart": 5677.6,
+      "durationMs": 1221.4
+    },
+    {
+      "startMsFromActionStart": 6913.1,
+      "durationMs": 1114.4
+    },
+    {
+      "startMsFromActionStart": 8028.3,
+      "durationMs": 66
+    },
+    {
+      "startMsFromActionStart": 8097.1,
+      "durationMs": 89.4
+    }
+  ],
+  "eventCount": 39756
+}

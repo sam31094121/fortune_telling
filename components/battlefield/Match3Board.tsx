@@ -1,5 +1,7 @@
 'use client';
 import { counterVisualPath } from '@/lib/beast-game/match3/counter-visual';
+import type { resolveOrbTurn } from '@/lib/beast-game/match3/resolve-turn';
+import OrbElementAttack, { type ElementFlight } from './OrbElementAttack';
 import Link from 'next/link';
 /**
  * 神獸戰隊 v0.9｜五元素寶珠戰 5v5（寶珠戰卡片 → /beast-game/match3-preview → 自選出陣 → 本元件）
@@ -135,7 +137,7 @@ export default function Match3Board({ seed, teamIds, sameElementRule = DEFAULT_S
   return <Match3Game key={`${key}:${cfg.id}:${init.revision}`} init={init} teamIds={teamIds} rule={sameElementRule} onRepick={onRepick} cfg={cfg} campaignEnabled={campaignEnabled} onCampaignContinue={onCampaignContinue} />;
 }
 
-function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCampaignContinue }: { cfg: Match3ModeConfig; init: { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner }; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void; campaignEnabled: boolean; onCampaignContinue?: () => void }) {
+export function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCampaignContinue }: { cfg: Match3ModeConfig; init: { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner }; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void; campaignEnabled: boolean; onCampaignContinue?: () => void }) {
   const rigEnabled = cfg.id === 'hard45' || cfg.id === 'hard45b';
   const [wins, setWins] = useState(init.wins);
   const [progressSaveFailed, setProgressSaveFailed] = useState(false);
@@ -149,15 +151,19 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
   const impact = useCallback(() => cue('impact'), [cue]);
   const hadRig = useRef(false);
   const root = useRef<HTMLElement>(null);
+  // Enter at the battlefield top before paint; never inherit the picker scroll
+  // position or animate a camera-like scroll into the new game.
+  useLayoutEffect(() => { root.current?.scrollIntoView({ block: 'start', behavior: 'instant' }); }, []);
   const strikeKey = useRef(0);
   const energyActionKey = useRef(0);
+  const energyClickLock = useRef(false);
   const skillVisualKey = useRef(0);
   const [strike, setStrike] = useState<Match3Strike | null>(null);
-  const showStrike = (hits: readonly { attackerId?: string | null; amount: number }[], foe: Foe, after: Foe, charge = false, actualDamage?: number) => {
+  const showStrike = (hits: readonly { attackerId?: string | null; amount: number }[], foe: Foe, after: Foe, charge = false, actualDamage?: number, summon?: Match3Strike['summon']) => {
     if (!rigEnabled) return;
-    const attackerIds = match3RigAttackers(hits, foe.hp, after.hp, actualDamage);
+    const attackerIds = summon ? [summon.guardianId] : match3RigAttackers(hits, foe.hp, after.hp, actualDamage);
     hadRig.current = attackerIds.length > 0;
-    const next = attackerIds.length ? { key: ++strikeKey.current, targetId: foe.id, attackerIds } : null;
+    const next = attackerIds.length ? { key: ++strikeKey.current, targetId: foe.id, attackerIds, summon } : null;
     setStrike(next);
     if (next && charge) cue('charge');
     if (!next && foe.hp > after.hp) cue('impact');
@@ -213,6 +219,12 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
   const [guardActive, setGuardActive] = useState(false);
   const [log, setLog] = useState(cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊');
   const [busy, setBusy] = useState(false);
+  const [attackBoost, setAttackBoost] = useState(1);
+  const [supportText, setSupportText] = useState('');
+  const [shieldGoals, setShieldGoals] = useState<ReturnType<typeof resolveOrbTurn>['shieldGoals']>([]);
+  const [outgoing, setOutgoing] = useState<ElementFlight[]>([]);
+  const turnRequest = useRef<AbortController | null>(null);
+  useEffect(() => () => { turnRequest.current?.abort(); }, []);
   const [shortMsg, setShortMsg] = useState('');
   const [refillEpoch, setRefillEpoch] = useState(0);
   const refillRun = useRef<AbortController | null>(null);
@@ -334,7 +346,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
     const rng = rngRef.current; const nextWins = rigEnabled ? nextProgressionWins(wins, over === 'win') : 0; setWins(nextWins); const n = pickLineup(rng, teamIds, cfg, nextWins); const b = generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, rigEnabled ? progressionStage(nextWins).minChain : 3);
     showSkillEvents(n.playerSkillEvents ?? []);
     setTeam(n.team); setFoes(n.enemies); setTarget(0); setBoard(b); setMagic(emptyMagic(b)); setMoves(0); setTotalDmg(0); setLastDmg(0); setBanner(null);
-    setLink([]); setLinkMode(false); setLog('新的一局。' + (cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊'));
+    setAttackBoost(1); setSupportText(''); setShieldGoals([]); setLink([]); setLinkMode(false); setLog('新的一局。' + (cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊'));
   }, [teamIds, cfg, wins, over, rigEnabled, campaignEnabled, campaignAwaiting, onCampaignContinue]);
 
   /** 困難版先完成我方攻擊，再由一張存活敵卡輪替反擊。 */
@@ -344,11 +356,11 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
     setSkillVisuals(events); later(() => { if (skillVisualKey.current === key) setSkillVisuals([]); }, 900);
   };
   useEffect(() => { if (rigEnabled) showSkillEvents(init.playerSkillEvents ?? []); }, [init]);
-  const endStep = (inputTeam: Unit[], f: Foe[], msg: string, attack = true, forceCounter = false, shieldGuard = false, validAction = true) => {
-    const ended = rigEnabled && validAction ? runPlayerTurnSkills(inputTeam, f, 'ON_TURN_END', stage.wins + 1, `${init.seed}:${moves}:end`, availableFoeTarget(f, ti, stage.wins + 1)) : null;
+  const endStep = (inputTeam: Unit[], f: Foe[], msg: string, attack = true, forceCounter = false, shieldGuard = false, validAction = true, prepared?: ReturnType<typeof resolveOrbTurn>) => {
+    const ended = !prepared && rigEnabled && validAction ? runPlayerTurnSkills(inputTeam, f, 'ON_TURN_END', stage.wins + 1, `${init.seed}:${moves}:end`, availableFoeTarget(f, ti, stage.wins + 1)) : null;
     if (ended) { f = ended.foes; showSkillEvents(ended.skillEvents); if (ended.actualDamage > 0) setTotalDmg(s => s + ended.actualDamage); }
-    const t = rigEnabled && validAction ? endPlayerSkillTurn(ended?.team ?? inputTeam) : inputTeam;
-    const cp = rigEnabled && !attack && !forceCounter ? { team: t, foes: f, hits: [], skillEvents: [] } : counterPhase(t, f, cfg.counterEvery, rigEnabled && !stage.simultaneous ? moves : undefined, rigEnabled && shieldGuard, rigEnabled ? stage.wins + 1 : undefined, rigEnabled ? { turnId: `${init.seed}:${moves}` } : undefined);
+    const t = prepared ? prepared.beforeCounter.team : rigEnabled && validAction ? endPlayerSkillTurn(ended?.team ?? inputTeam) : inputTeam;
+    const cp = prepared?.counter ?? (rigEnabled && !attack && !forceCounter ? { team: t, foes: f, hits: [], skillEvents: [] } : counterPhase(t, f, cfg.counterEvery, rigEnabled && !stage.simultaneous ? moves : undefined, rigEnabled && shieldGuard, rigEnabled ? stage.wins + 1 : undefined, rigEnabled ? { turnId: `${init.seed}:${moves}` } : undefined));
     const applyCounter = () => {
       showSkillEvents(cp.skillEvents);
       setGuardActive(shieldGuard && cp.hits.length > 0);
@@ -366,7 +378,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
         }
         setCounterFoes(new Set(cp.hits.map(h => h.enemy)));
         setHitTeam(new Set(cp.hits.map(h => h.targetId)));
-        showBanner(shieldGuard ? '防禦合體：本輪反擊減傷一半' : '敵方反擊', 'counter');
+        showBanner(shieldGuard ? `${prepared?.shield?.name ?? '防禦合體'}：本輪防護生效` : '敵方反擊', 'counter');
         if (rigEnabled) cue(shieldGuard ? 'guard' : 'counter'); else sound(160);
         later(() => { setCounterFoes(new Set()); setHitTeam(new Set()); setGuardActive(false); setCounterVisuals([]); }, 420);
       }
@@ -375,29 +387,40 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
     };
     if (rigEnabled) {
       setBusy(true); setTeam(t); setFoes(f);
-      later(applyCounter, attack ? (hadRig.current ? RIG_STRIKE_MS : 240) : 0);
+      later(applyCounter, attack ? (hadRig.current ? RIG_STRIKE_MS : prepared ? 900 : 240) : 0);
     } else applyCounter();
   };
 
-  const release = (path: Cell[]) => {
-    if (busy || over || ti < 0) return;
-    const started = rigEnabled && path.length > 0 ? runPlayerTurnSkills(team, foes, 'ON_TURN_START', stage.wins + 1, `${init.seed}:${moves}:start`, ti) : null;
-    const actionTeam = started?.team ?? team, actionFoes = started?.foes ?? foes;
-    const nextTarget = availableFoeTarget(actionFoes, ti, rigEnabled ? stage.wins + 1 : 0);
-    const actionTarget = nextTarget < 0 ? ti : nextTarget;
-    if (started) { setTeam(actionTeam); setFoes(actionFoes); showSkillEvents(started.skillEvents); if (started.actualDamage > 0) setTotalDmg(s => s + started.actualDamage); }
-    const res = resolveDrag(board, path, rngRef.current, magic, 50, cfg.diagonal, rigEnabled, rigEnabled ? stage.minChain : 3);
+  const release = async (path: Cell[]) => {
+    if (busy || turnRequest.current || over || ti < 0 || path.length === 0) return;
+    const controller = new AbortController(); turnRequest.current = controller; setBusy(true);
+    const timeout = window.setTimeout(() => controller.abort(), 15000);
+    let prepared: ReturnType<typeof resolveOrbTurn>;
+    try {
+      const response = await fetch('/api/beast-game/orb-turn', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: controller.signal,
+        body: JSON.stringify({ board, magic, path, team, foes, mode: cfg.id, wins, target: ti, seed: (init.seed + moves * 2654435761) >>> 0, move: moves, chosen, rule, attackBoost }) });
+      if (!response.ok) throw new Error('turn unavailable');
+      prepared = await response.json();
+      if (controller.signal.aborted) return;
+    } catch {
+      if (turnRequest.current === controller) { setBusy(false); setLog('暫時無法完成本回合，盤面與生命未變更，請重新連珠。'); }
+      return;
+    } finally { window.clearTimeout(timeout); if (turnRequest.current === controller) turnRequest.current = null; }
+    const { res } = prepared;
+    setShieldGoals(prepared.shieldGoals);
+    const actionTeam = team, actionFoes = foes;
+    const actionTarget = prepared.target < 0 ? ti : prepared.target;
     if (!res.valid) {
       setShake(new Set(path.map((p) => k(p.r, p.c)))); later(() => setShake(new Set()), 340);
       const why = path.length < 3 ? `只連了 ${path.length} 顆，至少要 3 顆同色相連才能消除。` : '這條路線不成立，再試一次。';
       setLog(why); setShortMsg(why); later(() => setShortMsg(''), 1800);
-      if (rigEnabled && path.length > 0) { setMoves(m => m + 1); endStep(actionTeam, actionFoes, why, false, true); }
+      if (rigEnabled && path.length > 0) { setTotalDmg(s => s + prepared.startDamage + prepared.endDamage); setMoves(m => m + 1); endStep(prepared.beforeCounter.team, prepared.beforeCounter.foes, why, false, true, false, true, prepared); }
+      else setBusy(false);
       return;
     }
     const el = res.element;
     const foe = actionFoes[actionTarget];
-    const computedHits = computeHits(res.steps, attackingTeam(actionTeam, rule, chosen), foe.element);
-    const hits = rigEnabled ? orderPlayerHits(computedHits, actionTeam) : computedHits;
+    const hits = prepared.hits;
     { const ids = new Set(hits.filter((h) => h.amount > 0 && h.attackerId).map((h) => h.attackerId as string)); setAttacked(ids); later(() => setAttacked(new Set()), 900); }
     const gains = energyGains(res);
     const events = buildEvents(res.steps, hits, { magicSpawn: res.magicSpawn, magicTriggered: res.magicTriggered, skill5Element: res.skill5 ? el : null, energy: gains });
@@ -424,27 +447,32 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
       setFlash(new Set()); setFalling(new Map()); setEmptyCells(new Set()); setRewards(new Set());
       if (!rigEnabled) { setDrop(changedCells(board, res.board)); later(() => setDrop(new Set()), 360); }
       setBoard(res.board); setMagic(res.magic); setBusy(false);
-      let nf = actionFoes, nextTeam = actionTeam, actualDealt = 0;
-      const actualHits: { attackerId: string; amount: number }[] = [];
-      const skillEvents: OrbSkillEvent[] = [];
-      if (rigEnabled) {
-        for (const [index, hit] of hits.entries()) {
-          const actor = nextTeam.find(u => u.id === hit.attackerId);
-          if (!actor || !fighterCanAct(actor) || hit.amount <= 0) continue;
-          const currentHit = recalculatePlayerHit(hit, nextTeam, nf[actionTarget].element);
-          if (currentHit.amount <= 0) continue;
-          const applied = resolvePlayerCardAttack({ foes: nf, team: nextTeam, targetIndex: actionTarget, attackerIds: [actor.id], baseDamage: currentHit.amount, stage: stage.wins + 1, eventId: `${init.seed}:${moves}:orb:${index}`, allowEnemyReaction: true });
-          nf = applied.foes; nextTeam = applied.team; actualDealt += applied.actualDamage; actualHits.push(...applied.actualHits); skillEvents.push(...applied.skillEvents);
-        }
-        showSkillEvents(skillEvents);
-      } else { nf = damageFoe(foes, ti, dealt); actualDealt = dealt; }
-      showStrike(rigEnabled ? actualHits : hits, foe, nf[actionTarget], false, rigEnabled ? actualDealt : undefined);
+      const nf = prepared.beforeCounter.foes, nextTeam = prepared.beforeCounter.team, actualDealt = prepared.damage + prepared.startDamage + prepared.endDamage;
+      const actualHits = prepared.actualHits;
+      if (root.current) {
+        const bounds = root.current.getBoundingClientRect();
+        const targetEl = root.current.querySelector<HTMLElement>(`[data-testid="match3-enemy"][data-id="${foe.id}"]`);
+        const to = targetEl?.getBoundingClientRect();
+        setOutgoing(to ? actualHits.filter(h=>h.amount>0).flatMap((h,i)=>{
+          const actor=team.find(u=>u.id===h.attackerId);
+          const from=root.current?.querySelector<HTMLElement>(`[data-testid="match3-ally"][data-id="${h.attackerId}"]`)?.getBoundingClientRect();
+          return actor&&from ? [{id:`${moves}:${i}`,element:actor.element,x1:from.left+from.width/2-bounds.left,y1:from.top-bounds.top,x2:to.left+to.width/2-bounds.left,y2:to.top+to.height/2-bounds.top,amount:h.amount}] : [];
+        }) : []);
+        later(()=>setOutgoing([]),900);
+      }
+      showSkillEvents(prepared.skills);
+      setAttackBoost(prepared.nextBoost);
+      const healing = prepared.healingSummary.map(h => `${h.name} +${h.actual}`).join('、');
+      const enemyHealing = prepared.enemyHealingSummary.map(h => `${h.name} +${h.actual}`).join('、');
+      setSupportText([prepared.shield?.name, healing && `我方回復：${healing}`, enemyHealing && `敵方相生回復：${enemyHealing}`].filter(Boolean).join('；'));
+      showStrike(rigEnabled ? actualHits : hits, foe, nf[actionTarget], false, rigEnabled ? actualDealt : undefined, prepared.summon);
+      if (prepared.summon) showBanner(`${prepared.summon.name}應召突襲！`, 'skill');
       if (actualDealt > 0) { setHitFoe(actionTarget); later(() => setHitFoe(null), 500); }
       setMoves((m) => m + 1); setLastDmg(actualDealt); setTotalDmg((s) => s + actualDealt);
       const lbl = el ? MATCH3_ORB_LABEL[el] : '';
       let msg = `${res.chainLength} 格連珠、合計 ${rigEnabled ? res.effectiveLength : res.chainLength} 顆・連鎖 ${res.cascadeCount ?? res.steps.length}・本步傷害 ${actualDealt}`;
       if (res.shieldConversion) msg += `（同屬性盾牌合擊：其餘${lbl}寶珠轉為盾牌）`;
-      else if (res.shieldFusion) msg += '（三盾清場充能：本輪反擊減傷一半、不疊加）';
+      else if (res.shieldFusion) msg += `（${prepared.shield?.name ?? '盾牌合體'}）`;
       else if (!res.attackAllowed) msg += res.steps.some(step => step.attackAllowed) ? `（掉落連鎖達到本關 ${stage.minChain} 顆攻擊門檻）` : `（本關至少連 ${stage.minChain} 顆才有攻擊，這次只消除補珠）`;
       else if (dealt === 0) msg += `（沒有可出手的${lbl}屬性主攻，可能已倒下或暫時受控）`;
       if (res.chainLength > NORMAL_POWER_CAP) msg += `（普通威力上限 ${NORMAL_POWER_CAP} 顆）`;
@@ -454,7 +482,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
       if (res.magicSpawn) msg += `，生成魔法珠（威力 ${res.magicSpawn.power}）`;
       if (res.reshuffled) msg += '；沒有可攻擊連線，已整理普通寶珠；數字與盾牌保留';
       if (nf[actionTarget].hp <= 0) msg += `；${foe.name}倒下`;
-      endStep(shareEnergy(nextTeam, gains, rule, chosen), nf, msg, actualDealt > 0, rigEnabled, res.shieldFusion);
+      endStep(nextTeam, nf, msg, actualDealt > 0, rigEnabled, prepared.guardScale < 1, true, prepared);
     };
     if (playback) {
       refillRun.current?.abort();
@@ -480,6 +508,8 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
           setRefillEpoch(epoch => epoch + 1);
         }),
         cues: i => {
+          const fact = prepared.chainFacts.find(f=>f.chain===displaySteps[i]?.chain);
+          if (fact && displaySteps[i]?.groups.length) setSupportText(`連鎖 ${fact.chain}：實際傷害 ${fact.damage}${fact.heals.length ? '；'+fact.heals.map(h=>`${team.find(u=>u.id===h.id)?.name ?? '隊友'}回復 ${h.actual}`).join('、') : ''}`);
           const motions = playback.frames[i].motions;
           const mergeAt = displaySteps[i].rewards?.length ? Math.max(0, ...motions.map(m => m.delayMs + m.durationMs)) : null;
           return [...refillLandingTimes(motions).filter(at => mergeAt === null || mergeAt - at >= 140).map(at => ({ at, kind: 'drop' as const })), ...(mergeAt === null ? [] : [{ at: mergeAt, kind: 'merge' as const }])];
@@ -508,6 +538,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
       if (u.energy < LINK_ENERGY_COST) { setLog(`${u.name}能量 ${u.energy}，連線需要 ${LINK_ENERGY_COST}。`); return; }
       setLink([...link, u.id]); setLog(`已連線 ${link.length + 1} 張（至少 ${LINK_MIN_CARDS} 張）。`); return;
     }
+    if (rigEnabled && u.energy >= ENERGY_MAX) { unleash(u); return; }
     const dup = team.filter((x) => x.element === u.element).length > 1;
     setChosen(chooseLead(team, chosen, u.id));
     setLog(dup ? `${u.name}設為${MATCH3_ORB_LABEL[u.element]}屬性優先（主攻），其他同屬性卡改當輔助（拿一半能量）。` : `${u.name}是${MATCH3_ORB_LABEL[u.element]}屬性主攻；消${MATCH3_ORB_LABEL[u.element]}珠由它出手。`);
@@ -517,10 +548,11 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
   // ticking statuses, enemy cooldowns, or scheduling a counterattack.
   const finishEnergyAttack = () => {
     setBusy(true);
-    later(() => setBusy(false), hadRig.current ? RIG_STRIKE_MS : 240);
+    later(() => { energyClickLock.current = false; setBusy(false); }, hadRig.current ? RIG_STRIKE_MS : 240);
   };
   const unleash = (u: Unit) => {
-    if (busy || over || u.hp <= 0 || ti < 0 || u.energy < ENERGY_MAX || (rigEnabled && !fighterCanAct(u))) return;
+    if (energyClickLock.current || busy || over || u.hp <= 0 || ti < 0 || u.energy < ENERGY_MAX || (rigEnabled && !fighterCanAct(u))) return;
+    if (rigEnabled) energyClickLock.current = true;
     const foe = foes[ti]; const amt = skillAmount(rigEnabled ? fighterEffectiveAttack(u) : u.attack, u.element, foe.element);
     const spentTeam = team.map(x => x.id === u.id ? { ...x, energy: 0 } : x);
     const applied = rigEnabled ? resolvePlayerCardAttack({ foes, team: spentTeam, targetIndex: ti, attackerIds: [u.id], baseDamage: amt, stage: stage.wins + 1, eventId: `${init.seed}:energy:${++energyActionKey.current}`, allowEnemyReaction: false }) : null;
@@ -567,7 +599,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
   const dragEl = drag.path.length ? board[drag.path[0].r][drag.path[0].c] : null;
   const chainIntent = dragIntent(drag.path, magic, rigEnabled ? stage.minChain : 3, rigEnabled, board);
   const effectiveCount = rigEnabled ? effectiveDragCount(drag.path, magic) : drag.path.length;
-  const hint = rigEnabled && isShieldFusionPath(drag.path, magic) ? chainIntent === 'attack' ? '同屬性盾牌合擊：其餘同色寶珠轉為盾牌' : '三盾清場充能：下一輪反擊減傷一半，不疊加' : dragEl && rigEnabled && drag.path.length >= 3 && effectiveCount < stage.minChain ? `合計 ${effectiveCount} 顆：只消除補珠，本關需 ${stage.minChain} 顆才會攻擊` : dragEl ? dragHint(effectiveCount, MATCH3_ORB_LABEL[dragEl], NORMAL_POWER_CAP, MAGIC_ORB_MIN_LENGTH, SKILL5_LENGTH) : '';
+  const hint = rigEnabled && isShieldFusionPath(drag.path, magic) ? chainIntent === 'attack' ? '同屬性盾牌合擊：其餘同色寶珠轉為盾牌' : '盾牌合體：依顏色數結算防護與回復' : dragEl && rigEnabled && drag.path.length >= 3 && effectiveCount < stage.minChain ? `合計 ${effectiveCount} 顆：只消除補珠，本關需 ${stage.minChain} 顆才會攻擊` : dragEl ? dragHint(effectiveCount, MATCH3_ORB_LABEL[dragEl], NORMAL_POWER_CAP, MAGIC_ORB_MIN_LENGTH, SKILL5_LENGTH) : '';
   const onPath = new Set(drag.path.map((p) => k(p.r, p.c)));
   const pct = (a: number, b: number) => `${Math.max(0, Math.min(100, Math.round((a / b) * 100)))}%`;
 
@@ -600,9 +632,21 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
         {rigEnabled && <button type="button" className={`${styles.helpBtn} ${styles.helpTop}`} aria-expanded={help} onClick={() => setHelp(!help)}>玩法與操作</button>}
       </header>
       {rigEnabled && help && actions}
-      {rigEnabled && intro && <div className={styles.quickIntro} data-testid="match3-quick-intro" role="status">上下、左右、左斜、右斜都可以，只要3顆相同寶珠連成一線即可；本關合計 {stage.minChain} 顆以上才具有攻擊效果，連得越多，威力越強。<button type="button" onClick={() => setIntro(false)} aria-label="收起操作提示">×</button></div>}
+      {rigEnabled && help && intro && <div className={styles.quickIntro} data-testid="match3-quick-intro" role="status">上下、左右、左斜、右斜都可以，只要3顆相同寶珠連成一線即可；本關合計 {stage.minChain} 顆以上才具有攻擊效果，連得越多，威力越強。<button type="button" onClick={() => setIntro(false)} aria-label="收起操作提示">×</button></div>}
       {rigEnabled && counterVisuals.length > 0 && <svg className={styles.counterTrace} aria-hidden="true" data-testid="match3-counter-trace">{counterVisuals.map((h, i) => { const visual = counterVisualPath(h.enemyId, h.element, h.x1, h.y1, h.x2, h.y2); return <g key={i} data-source-id={h.enemyId} data-element={h.element} data-lightning={visual.lightning || undefined} style={{ ['--counter-color' as string]: visual.color, ['--counter-width' as string]: visual.width }}><path d={visual.path} pathLength="1" /><circle cx={h.x2} cy={h.y2} r="20" /></g>; })}</svg>}
+      <OrbElementAttack flights={outgoing} side="ally" />
+      <OrbElementAttack flights={counterVisuals.map((h,i)=>({...h,id:`counter:${i}`,amount:h.actualDamage}))} side="enemy" />
       <div className={rigEnabled ? styles.srOnly : styles.sub} data-testid="match3-sub">{team.length} 對 {foes.length}・{cfg.cols * cfg.rows} 顆寶珠{cfg.diagonal ? '・可斜連' : ''}・敵方：{cfg.enemyHint ?? foes.map((f) => f.name).join('・')}</div>
+      {help && <details className={styles.elementRules}>
+        <summary>五行與盾牌目標{attackBoost > 1 ? '・反攻已就緒' : ''}</summary>
+        <p>相生：空→水→風→火→地→空。三顆有效連珠起，替相生屬性存活隊友補血；每顆1%，手動與掉落連鎖合計每位每回合最多10%。</p>
+        <p>對手每次實際普通出手，替相生屬性隊友補3%，每位每輪最多10%。雙方都不復活、不超過原生命上限。</p>
+        <p>至少三枚純盾牌：同色強攻；雙色／三色防護；四色加補血；五色再儲存下一次寶珠反攻。顏色要不同才升級，更多同色不冒充五色。</p>
+        <p>三色減傷50%；四色減傷60%、補10%；五色減傷70%、補15%、下次寶珠攻擊1.5倍。防護僅本輪、加成不疊加。</p>
+        <p>同色三盾強化本次寶珠攻擊1.5倍，須有該屬性隊員可出手。空召白虎、風召青龍、水召玄武、火召朱雀；地以岩槌強攻，效果同等，不另造第五隻神獸。</p>
+        {shieldGoals.length > 0 && <p data-testid="shield-color-goals">盤面盾牌：{shieldGoals.map(g => <span key={g.element} style={{color:ORB_COLOR[g.element]}}>{MATCH3_ORB_LABEL[g.element]} {g.count > 0 ? `${g.count}枚` : '尚缺'}　</span>)}<br/>須拖過相鄰盾牌才會合體，盤面有盾牌不代表已觸發。</p>}
+      </details>}
+      {help && <p role="status" className={styles.supportResult} data-testid="orb-support-result">{supportText || '尚無本回合紀錄。'}{attackBoost > 1 && <><br/>五行反攻已就緒：下一次有效寶珠攻擊 ×1.5</>}</p>}
       {debug && <div className={styles.sub} data-testid="match3-debug">[debug] 正式神獸卡 5v5・{cfg.cols}×{cfg.rows}＝{cfg.cols * cfg.rows} 顆寶珠・敵方 HP {cfg.enemyHp}／攻 {cfg.enemyAtk}／每 {cfg.counterEvery} 步反擊【待平衡】{cfg.diagonal ? '・可斜連' : ''}・seed {init.seed}</div>}
 
       <div className={rigEnabled ? styles.srOnly : styles.secHead}><span>{rigEnabled ? '敵方神獸（點選指定目標；出手時標示反擊中）' : '敵方神獸（點選指定目標；⏳ 為反擊倒數）'}</span><span>{over === 'win' ? '勝利' : over === 'lose' ? '落敗' : '戰鬥進行中'}</span></div>
@@ -620,14 +664,19 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
             <div className={styles.foeArt} role="img" aria-label={f.name} data-rig-target={rigEnabled || undefined} style={rigEnabled ? undefined : { backgroundImage: `url(${f.thumbnail})` }}>{rigEnabled && <Match3TargetArt src={guardianDuel && duelArt ? duelArt : f.thumbnail} />}</div>
             <div className={styles.foeName}>{f.name}</div>
             <div className={`${styles.bar} ${styles.foeBar}`} role="progressbar" aria-label={`${f.name}生命`} aria-valuenow={f.hp} aria-valuemax={f.maxHp}><span style={{ width: pct(f.hp, f.maxHp) }} /></div>
-            <div className={styles.foeHp}>HP {f.hp}</div>
-            {i === ti && <span className={styles.tgt} aria-hidden="true">🎯</span>}
+            <div className={styles.foeHp}>{MATCH3_ORB_LABEL[f.element]} {f.hp}/{f.maxHp}</div>
+            {!rigEnabled && i === ti && <span className={styles.tgt} aria-hidden="true">🎯</span>}
           </button>
         ))}
       </div>
       <p className={rigEnabled ? styles.srOnly : styles.hint} data-testid="match3-hint" aria-live="polite">{hint || shortMsg || (cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊')}</p>
       {!rigEnabled && <button type="button" className={styles.helpBtn} aria-expanded={help} onClick={() => setHelp(!help)}>玩法說明</button>}
-      {help && <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆同屬性純盾牌連接會合擊，消耗本次連到的盾牌，按既有卡片與儲存顆數攻擊；其餘同屬性寶珠轉為盾牌，原本較高的數值保留。至少三顆不同顏色純盾牌連接，合體清除整盤對應顏色，依實際消除數量替對應卡片充能，最多充滿現有技能條；下一輪反擊減傷一半、不疊加，合體本身不攻擊。剩餘珠子先下落合成，再補新珠；自然連線累計四顆以上會保留數字，七顆以上變盾牌，三顆只消除。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「{rigEnabled ? '能量攻擊' : '技能'}」。{rigEnabled && '我方原卡招牌技能依登場、攻擊、受創及回合時機自動觸發，沿用原次數；能量按鈕保留通用攻擊，不另消耗回合。敵方從第八關起逐步啟用原卡技能；沒有抽棄牌區，抽棄牌效果不適用。'}{rigEnabled ? '每次非空寶珠連線都算一次回合，誤按一、二顆或無效路線也會由對方反擊一次；連三顆起才可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。儲存能量的單卡與多卡攻擊不消耗回合，也不觸發反擊。全關卡五對五。第一關五張幼子、第二至第七關五張成獸；第八關起，敵方前四格為成獸，第五格為一張神獸，前四張倒下後才參戰並可被攻擊，後續始終只有這一個神獸席位，通關後依白虎、朱雀、青龍、玄武輪替，失敗重試不換；每次由一張存活卡反擊。第八關及之後連六顆以上即可攻擊，第一至第七關維持各關門檻；對方強度繼續逐關提高。獲勝升一關，落敗保留難度重試；本人進度保存在這個瀏覽器，親友進度只在本分頁保留，重新選擇親友會重來。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>}
+      {help && (rigEnabled ? <div className={styles.help}>
+        <p>拖過相鄰同色珠，至少3格；本關合計 {stage.minChain} 顆可攻擊。可斜連，不可跳格或重疊。</p>
+        <p>4顆起留數字，7顆起變盾牌。連入同色盾牌可清除同色珠；掉落連鎖也有效。</p>
+        <p>每次放開非空連線都換對方反擊，無效連線也算。能量滿100時神獸發光，點神獸攻擊後能量歸零；2張卡各有50能量，可用連線攻擊。</p>
+        <p>五行補血與盾牌組合請點開「五行與盾牌目標」。獲勝挑戰下一關，落敗原難度重試。</p>
+      </div> : <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆同屬性純盾牌連接會合擊，消耗本次連到的盾牌，按既有卡片與儲存顆數攻擊，本次寶珠攻擊強化1.5倍；其餘同屬性寶珠轉為盾牌，原本較高的數值保留。至少三顆不同顏色純盾牌連接，合體清除整盤對應顏色，依實際消除數量替對應卡片充能，最多充滿現有技能條；雙色或三色減傷50%、四色減傷60%並回復10%生命、五色減傷70%並回復15%生命與儲存下次寶珠攻擊1.5倍；防護只限本輪、不疊加。剩餘珠子先下落合成，再補新珠；自然連線累計四顆以上會保留數字，七顆以上變盾牌，三顆只消除。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「{rigEnabled ? '能量攻擊' : '技能'}」。{rigEnabled && '我方原卡招牌技能依登場、攻擊、受創及回合時機自動觸發，沿用原次數；能量按鈕保留通用攻擊，不另消耗回合。敵方從第八關起逐步啟用原卡技能；沒有抽棄牌區，抽棄牌效果不適用。'}{rigEnabled ? '每次非空寶珠連線都算一次回合，誤按一、二顆或無效路線也會由對方反擊一次；連三顆起才可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。儲存能量的單卡與多卡攻擊不消耗回合，也不觸發反擊。全關卡五對五。第一關五張幼子、第二至第七關五張成獸；第八關起，敵方前四格為成獸，第五格為一張神獸，前四張倒下後才參戰並可被攻擊，後續始終只有這一個神獸席位，通關後依白虎、朱雀、青龍、玄武輪替，失敗重試不換；每次由一張存活卡反擊。第八關及之後連六顆以上即可攻擊，第一至第七關維持各關門檻；對方強度繼續逐關提高。獲勝升一關，落敗保留難度重試；本人進度保存在這個瀏覽器，親友進度只在本分頁保留，重新選擇親友會重來。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>)}
 
       {!log.startsWith('按住寶珠') && log ? <p className={rigEnabled ? styles.srOnly : styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
 
@@ -648,27 +697,28 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
         {team.map((u) => {
           const down = u.hp <= 0;
           const full = !down && u.energy >= ENERGY_MAX;
+          const energyReady = rigEnabled && full && !busy && !over && !linkMode && ti >= 0 && fighterCanAct(u);
           const dup = team.filter((x) => x.element === u.element).length > 1;
           const lead = rule === 'all-attack' || leads.has(u.id);
           const inLink = link.includes(u.id);
           return (
-            <div key={u.id} data-testid="match3-ally" data-id={u.id} data-el={u.element} data-energy={u.energy} data-hp={u.hp} data-lead={lead ? '1' : '0'} data-link={inLink ? '1' : undefined} data-attacked={attacked.has(u.id) ? '1' : undefined} data-shield-guard={guardActive && !down ? 'true' : undefined}
-              className={`${styles.ally} ${down ? styles.down : ''} ${full ? styles.allyFull : ''} ${hitTeam.has(u.id) ? styles.allyHit : ''} ${attacked.has(u.id) ? styles.allyAttack : ''} ${dup && lead ? styles.allyLead : ''} ${inLink ? styles.allyLink : ''} ${guardActive && !down ? styles.allyGuard : ''}`}
+            <div key={u.id} data-testid="match3-ally" data-id={u.id} data-el={u.element} data-energy={u.energy} data-hp={u.hp} data-energy-ready={energyReady ? "true" : undefined} data-lead={lead ? '1' : '0'} data-link={inLink ? '1' : undefined} data-attacked={attacked.has(u.id) ? '1' : undefined} data-shield-guard={guardActive && !down ? 'true' : undefined}
+              className={`${styles.ally} ${down ? styles.down : ''} ${(rigEnabled ? energyReady : full) ? styles.allyFull : ''} ${hitTeam.has(u.id) ? styles.allyHit : ''} ${attacked.has(u.id) ? styles.allyAttack : ''} ${dup && lead ? styles.allyLead : ''} ${inLink ? styles.allyLink : ''} ${guardActive && !down ? styles.allyGuard : ''}`}
               style={{ ['--ec' as string]: ORB_COLOR[u.element] }}>
               {rigEnabled && skillMarker(u.id, 'ally')}
               {rigEnabled && !(full && !linkMode) && !!u.skillRuntime?.shield && <span className={styles.runtimeShield} data-testid="match3-ally-shield">盾 {u.skillRuntime.shield}</span>}
               {rigEnabled && !(full && !linkMode) && !!u.skillRuntime?.stunnedTurns && <span className={styles.runtimeShield} data-testid="match3-ally-stun" style={u.skillRuntime.shield ? { bottom: 20 } : undefined}>暫時受控</span>}
               {rigEnabled && counterVisuals.filter(h => h.targetId === u.id).map((h, i) => <span key={i} className={styles.counterDamage} data-testid="match3-counter-damage" data-actual-damage={h.actualDamage} data-hp-before={h.hpBefore} data-hp-after={h.hpAfter} style={{ ['--hit-order' as string]: i }} aria-label={`受到${h.actualDamage}點傷害，生命${h.hpBefore}降至${h.hpAfter}`}>−{h.actualDamage}</span>)}
               <button type="button" className={styles.allyBtn} disabled={down} onPointerDown={(e) => e.stopPropagation()} onClick={() => tapAlly(u)} aria-pressed={linkMode ? inLink : dup ? lead : undefined}
-                aria-label={`${u.name}，${MATCH3_ORB_LABEL[u.element]}屬性${dup ? (lead ? '，主攻' : '，輔助') : ''}，HP ${u.hp}/${u.maxHp}，能量 ${u.energy}/${ENERGY_MAX}${linkMode ? (inLink ? '，已連線' : '，點擊加入連線') : ''}`}>
-                <div className={styles.allyCard} data-rig-source><BeastCardFace card={{ id: u.id, name: u.name, thumbnail: u.thumbnail, element: u.element, skillName: u.skillName, description: u.description }} /></div>
+                aria-label={`${u.name}，${MATCH3_ORB_LABEL[u.element]}屬性${dup ? (lead ? '，主攻' : '，輔助') : ''}，HP ${u.hp}/${u.maxHp}，能量 ${u.energy}/${ENERGY_MAX}${energyReady ? '，能量已滿，點擊發動能量攻擊' : ''}${linkMode ? (inLink ? '，已連線' : '，點擊加入連線') : ''}`}>
+                <div className={styles.allyCard} data-rig-source>{rigEnabled ? <Match3TargetArt src={u.thumbnail} /> : <BeastCardFace card={{ id: u.id, name: u.name, thumbnail: u.thumbnail, element: u.element, skillName: u.skillName, description: u.description }} />}</div>
                 <div className={styles.bar} role={rigEnabled ? 'progressbar' : undefined} aria-label={rigEnabled ? `${u.name}生命` : undefined} aria-valuenow={rigEnabled ? u.hp : undefined} aria-valuemax={rigEnabled ? u.maxHp : undefined}><span style={{ width: pct(u.hp, u.maxHp) }} /></div>
-                {rigEnabled && <span className={styles.allyHp} data-testid="match3-ally-hp">HP {u.hp}</span>}
+                {rigEnabled && <span className={styles.allyHp} data-testid="match3-ally-hp">{MATCH3_ORB_LABEL[u.element]} {u.hp}/{u.maxHp}</span>}
                 <div className={styles.energy}><span style={{ width: pct(u.energy, ENERGY_MAX) }} /></div>
                 <div className={styles.allyMeta}>{down ? '已倒下' : `${MATCH3_ORB_LABEL[u.element]}${dup ? (lead ? '・主攻' : '・輔助') : ''} ${u.energy}`}</div>
                 {rigEnabled && <span className={styles.compactEnergy} aria-hidden="true">氣 {u.energy}</span>}
               </button>
-              {full && !linkMode && <button type="button" className={`${styles.skill} ${rigEnabled && u.skillRuntime?.shield ? styles.skillWithShield : ''}`} data-testid="match3-skill" disabled={rigEnabled && !fighterCanAct(u)} onPointerDown={(e) => e.stopPropagation()} onClick={() => unleash(u)}>{rigEnabled ? (fighterCanAct(u) ? '能量攻擊' : '暫時受控') : '技能'}{rigEnabled && !!u.skillRuntime?.shield && <span className={styles.skillShieldLine} data-testid="match3-ally-shield">盾 {u.skillRuntime.shield}</span>}</button>}
+              {!rigEnabled && full && !linkMode && <button type="button" className={`${styles.skill} ${rigEnabled && u.skillRuntime?.shield ? styles.skillWithShield : ''}`} data-testid="match3-skill" disabled={rigEnabled && !fighterCanAct(u)} onPointerDown={(e) => e.stopPropagation()} onClick={() => unleash(u)}>{rigEnabled ? (fighterCanAct(u) ? '能量攻擊' : '暫時受控') : '技能'}{rigEnabled && !!u.skillRuntime?.shield && <span className={styles.skillShieldLine} data-testid="match3-ally-shield">盾 {u.skillRuntime.shield}</span>}</button>}
             </div>
           );
         })}
@@ -696,7 +746,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
           <button type="button" className={styles.again} disabled={busy || campaignAwaiting} onClick={restart}>{rigEnabled ? (over === 'win' ? '挑戰下一關' : '原難度重試') : '再來一局'}</button>
         </div>
       )}
-      {rigEnabled && <Match3RigAttack ids={team.map(u => u.id)} root={root} strike={strike} onImpact={impact} />}
+      {rigEnabled && <Match3RigAttack ids={[...team.map(u => u.id), ...playableCards().filter(c => c.form === 'GUARDIAN' && team.some(u => u.element === c.element)).map(c => c.id)]} root={root} strike={strike} onImpact={impact} />}
       <span hidden data-testid="match3-last-damage">{lastDmg}</span>
     </section>
   );

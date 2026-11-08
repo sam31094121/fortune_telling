@@ -254,8 +254,24 @@ export default function GhostAsuraPageClient({
     // 播放卡片展開音效 + 粒子效果
     playCardRevealSound();
     const particleSystem = getParticleSystem();
+    // 效能：開卡當下一次批次讀取幾何（卡片、容器、各印記），計時器內不再呼叫 getBoundingClientRect，
+    // 避免每個印記各觸發一次整頁強制同步樣式／排版。粒子數量、時序、效果不變。
+    const containerRect = particleSystem?.getContainerRect();
+    const cardRect = particleSystem ? cardElement.getBoundingClientRect() : undefined;
+    const glowIdsForGeometry = reading?.glowIds ?? [];
+    const glowGeometry = new Map<string, { element: HTMLElement; rect: DOMRect }>();
+    if (particleSystem && containerRect && glowIdsForGeometry.length > 0) {
+      const items = Array.from(cardElement.querySelectorAll<HTMLElement>('[data-asura-id]'));
+      glowIdsForGeometry.forEach((id) => {
+        const element = items.find((item) => item.getAttribute('data-asura-id') === id);
+        if (element && !glowGeometry.has(id)) glowGeometry.set(id, { element, rect: element.getBoundingClientRect() });
+      });
+    }
     if (particleSystem) {
-      particleSystem.createCardEnergyFlow(cardElement);
+      particleSystem.createCardEnergyFlow(
+        cardElement,
+        cardRect && containerRect ? { rect: cardRect, parentRect: containerRect } : undefined,
+      );
     }
 
     // 逐個播放印記點亮音效 + 粒子（延遲 200ms 起，每個間隔 100ms）
@@ -266,6 +282,11 @@ export default function GhostAsuraPageClient({
       // 找到對應的 DOM 元素並創建光粒子
       animationTimers.push(window.setTimeout(() => {
         if (cancelled || cardRef.current !== cardElement) return;
+        const cached = glowGeometry.get(id);
+        if (cached && particleSystem && containerRect) {
+          particleSystem.createImpressionGlow(cached.element, index, { rect: cached.rect, parentRect: containerRect });
+          return;
+        }
         const itemElement = Array.from(cardElement.querySelectorAll<HTMLElement>('[data-asura-id]'))
           .find((element) => element.getAttribute('data-asura-id') === id);
         if (itemElement && particleSystem) {

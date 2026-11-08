@@ -1,0 +1,50 @@
+{
+  "status": "素材初查，未判定完整通過；邊界像素僅為裁切風險指標",
+  "frames": [
+    {
+      "id": "bite-close",
+      "file": "bite-close.v2.webp",
+      "width": 1695,
+      "height": 928,
+      "sizePass": true,
+      "edgePixels": 20,
+      "sha256": "6981fef0f72c9bd6efdbaf3079bdb0e78f6407a88a9203764fcccf3dd9423819"
+    },
+    {
+      "id": "land-crouch",
+      "file": "land-crouch.webp",
+      "width": 1400,
+      "height": 982,
+      "sizePass": true,
+      "edgePixels": 0,
+      "sha256": "5cb48ab7e29c4771f86def7ae925f94eecf02683446fafb0b5213658196e3e45"
+    },
+    {
+      "id": "pounce-open",
+      "file": "pounce-open.v2.webp",
+      "width": 1695,
+      "height": 928,
+      "sizePass": true,
+      "edgePixels": 0,
+      "sha256": "c2d1c61d629116ee3814f7fbfb258137648b89c9c9ceb14293db88d20ad1a66e"
+    },
+    {
+      "id": "run-gather",
+      "file": "run-gather.webp",
+      "width": 1400,
+      "height": 943,
+      "sizePass": true,
+      "edgePixels": 0,
+      "sha256": "4ac0fc4f9986ec0378063c52a472118f2c37ea74b02e96a162df7adeba4142f0"
+    },
+    {
+      "id": "run-reach",
+      "file": "run-reach.webp",
+      "width": 1400,
+      "height": 819,
+      "sizePass": true,
+      "edgePixels": 0,
+      "sha256": "8e433a307fd3bcee989ebf4b4029b8d6bb728beff0b5e85ac4afee8117fd73c8"
+    }
+  ]
+}
