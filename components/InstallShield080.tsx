@@ -66,6 +66,12 @@ function isStandalone(): boolean {
 }
 
 export default function InstallShield080() {
+  const pathname = usePathname();
+  // 安裝入口集中在首頁；離開首頁即卸載，連同說明面板與手機掛載容器一起清理。
+  return pathname === '/' ? <HomeInstallShield080 /> : null;
+}
+
+function HomeInstallShield080() {
   const [ready, setReady] = useState(false);
   const [platform, setPlatform] = useState<InstallPlatform>('other');
   const [inApp, setInApp] = useState<InAppBrowser>(null);
