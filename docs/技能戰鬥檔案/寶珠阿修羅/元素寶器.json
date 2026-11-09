@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "grant": { "distinctShieldElements": 5, "amount": 1, "elementFrom": "last-shield" },
+  "base": "highest-living-effective-attack",
+  "advanceTurn": false,
+  "selfCarry": true,
+  "guestCarry": false,
+  "SPACE": { "name": "裂空環", "description": "先削目標護盾50%，再以1倍攻擊穿擊", "hits": [1], "shieldBreak": 0.5 },
+  "AIR": { "name": "迴風刃", "description": "三段迴旋，每段0.45倍攻擊", "hits": [0.45, 0.45, 0.45] },
+  "WATER": { "name": "纏流水紋", "description": "0.8倍攻擊，目標蓄力降低25，最低為0", "hits": [0.8], "energyDrain": 25 },
+  "FIRE": { "name": "焚焰矢", "description": "蓄聚後以2倍攻擊命中單一目標", "hits": [2] },
+  "EARTH": { "name": "鎮岳印", "description": "0.8倍攻擊，下次敵方反擊減傷50%，不疊加", "hits": [0.8], "guardScale": 0.5 }
+}

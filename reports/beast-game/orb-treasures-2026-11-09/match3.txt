@@ -1,0 +1,161 @@
+
+> blood-type-compatibility@0.1.0 test:beast-match3
+> node scripts/beast-build.mjs && node tests/beast-match3-core.test.cjs && node tests/beast-match3-outcome.test.cjs && node tests/beast-match3-team.test.cjs && node tests/beast-match3-enemies.test.cjs && node tests/beast-match3-no-old-cards.test.cjs && node tests/beast-match3-hard45.test.cjs && node tests/beast-match3-diagonal.test.cjs && node tests/beast-match3-hard2.test.cjs && node tests/beast-match3-progression.test.cjs && node tests/beast-match3-weighted.test.cjs && node tests/beast-match3-shield-fusion.test.cjs && node tests/beast-match3-hard-campaign.test.cjs && node tests/beast-match3-backup.test.cjs && node tests/beast-match3-skill-capabilities.test.cjs && node tests/beast-match3-skill-runtime.test.cjs && node tests/beast-match3-player-status.test.cjs && node tests/beast-match3-event-history.test.cjs && node tests/beast-match3-rig.test.cjs && node tests/beast-match3-progress-store.test.cjs && node tests/beast-match3-sound.test.cjs && node tests/beast-match3-refill.test.cjs && node tests/beast-match3-refill-runner.test.cjs && node tests/beast-match3-picker-render.test.cjs && node tests/beast-match3-counter-visual.test.cjs && node tests/beast-match3-boss-reserve.test.cjs && node tests/beast-match3-cascade-attack.test.cjs && node tests/beast-match3-player-skills.test.cjs && node tests/beast-match3-enemy-energy.test.cjs && node tests/beast-match3-replay.test.cjs
+
+  ✓ 盤面 7 欄 × 5 列、五元素單一來源
+  ✓ 生成 300 盤：無現成連線、至少一步可走
+  ✓ 橫向 3～7 連都能判定，長度正確
+  ✓ 直向 3～5 連
+  ✓ L 形：交點不重複計顆（3+3→5 顆）
+  ✓ 十字：交點不重複計顆（5+3→7 顆）
+  ✓ 長度倍率與連鎖倍率分開、不寫死 3/4/5
+  ✓ 克制倍率沿用 elements.ts
+  ✓ 連鎖：掉落後再成線會記第 2 段以上
+  ✓ 無效交換不動盤面；非相鄰不可交換
+  ✓ 只有主屬性出手：其他顏色可消、傷害 0
+  ✓ 數值凍結：打完 200 步，60 張卡面數值不變
+  ✓ clear 事件含 element/count/cascadeStep/eligible
+  ✓ 選取的神獸優先攻擊
+  ✓ 魔珠設定：開啟生成、4 顆起、剛好 5 顆五珠技、普通威力上限 10
+  ✓ 拖曳：相鄰、同色、不重複才可延伸；斜角不行
+  ✓ 拖曳：未滿 3 顆取消、盤面不變
+  ✓ 拖曳 3 顆：消除、不生成魔法珠、事件格式不變
+  ✓ 拖曳 4 顆：在放開那格（掉落後）生成魔法珠，威力 4
+  ✓ 拖曳剛好 5 顆：五珠技＋能量集滿；6 顆不是五珠技
+  ✓ 連線不設上限、普通威力最多 10；魔法珠威力不設上限
+  ✓ 屬性分工：消哪色充哪色，每顆 ENERGY_PER_ORB
+  ✓ 拖曳後盤面仍有可拖步；300 盤生成都可拖
+  ✓ 無步可走洗盤時魔法珠原地保留（位置、顏色、威力）
+beast-match3-core: 24 項通過
+  ✓ 地卡被打倒：顯示「已倒下」，不再說「沒有」
+  ✓ 火卡活著：拖火珠一定有傷害
+  ✓ 隊伍真的沒有該屬性：才說「沒有」
+  ✓ 連鎖傷害來自其他顏色：不算到拖曳顏色
+  ✓ 地＋火隊伍（全員存活）消地、消火都出手
+beast-match3-outcome: 5 項通過
+  ✓ 預設規則：同屬性只有第一張出手
+  ✓ 第一張倒下：下一張同屬性接手
+  ✓ all-attack：同屬性全員出手
+  ✓ 能量：主攻全額，其餘一半；集滿只給主攻
+  ✓ 沒有該屬性：不出手
+  ✓ teamIds 驗證：5 張、不重複、在卡池
+  ✓ 點選主攻：點第二張火，第二張出手、第一張只拿一半能量
+  ✓ 預設規則是 tap-lead；沒點過＝第一張
+  ✓ 選擇會保留，直到點同屬性另一張；點別屬性不影響
+  ✓ 點單張屬性或倒下的卡：不改選擇
+  ✓ 被點的主攻倒下：換下一張存活的同屬性（繞回開頭）
+  ✓ first-attacks 忽略點選
+beast-match3-team: 12 項通過
+  ok 敵方剛好 5 隻、不重複、都在 60 張 .v2 卡池
+  ok makeFoe：HP 滿、倒數 3
+  ok damageFoe 只傷指定那隻、不低於 0
+  ok aliveTarget：目標倒下自動換活著的
+  ok 每 3 步反擊一次：前兩步不打、第三步打並重置 3
+  ok 倒下的敵人不反擊
+  ok 連線攻擊：至少 2 張、每張 50 能量、倍率遞增
+beast-match3-enemies: 7 passed
+PASS counter facts: sequential actual HP, overkill, guard and no dead actors/targets
+PASS single planner: original skills/uses/shields/stun, legal speed, immutable preview and action replay
+PASS 500 seeds: legal-speed skill/uses/shield lookahead retains greedy candidate; improvements 233
+beast-match3-no-old-cards: 39 檔＋60 張卡檢查通過
+  ok hard45＝7×8＝56 顆；medium 仍 7×5＝35
+  ok medium 數值與原本相同（HP 300／ATK 8／倒數 3）
+  ok hard45 敵人比中等強、反擊不慢於中等，且標記為待平衡
+  ok 300 個 seed：56 顆盤面 8 列×7 欄、五色皆在、開局無現成三連、可拖
+  ok 56 顆盤拖曳發動後仍是 7×8（含補珠、魔法珠格）
+  ok 不變規則：普通威力上限 10、≥4 魔法珠、5 顆五珠技、每顆 +10、上限 100、連線公式
+  ok 困難每次輪替一張存活卡反擊；倒下不出手；全滅停止
+beast-match3-hard45: 7 passed
+  ok 七顆普通珠生成單一盾牌；同色再次連入清全盤該色；簡單版不清場
+  ok 困難斜連拒絕穿線、重複珠及重疊邊；合法轉彎保留
+  ok mode 旗標：medium diagonal=false、hard45 diagonal=true
+  ok 底盤自身在四方向都沒有 3 連
+  ok medium｜直線判定 橫：接受
+  ok medium｜拖曳路徑 橫：接受
+  ok medium｜直線判定 直：接受
+  ok medium｜拖曳路徑 直：接受
+  ok medium｜直線判定 ↘：拒絕
+  ok medium｜拖曳路徑 ↘：拒絕
+  ok medium｜直線判定 ↙：拒絕
+  ok medium｜拖曳路徑 ↙：拒絕
+  ok hard45｜直線判定 橫：接受
+  ok hard45｜拖曳路徑 橫：接受
+  ok hard45｜直線判定 直：接受
+  ok hard45｜拖曳路徑 直：接受
+  ok hard45｜直線判定 ↘：接受
+  ok hard45｜拖曳路徑 ↘：接受
+  ok hard45｜直線判定 ↙：接受
+  ok hard45｜拖曳路徑 ↙：接受
+  ok hard45｜↗↙↖↘ 每一步都算相鄰；medium 斜角不算
+  ok hard45｜混合方向長路徑（→↘↗↓）5 顆＝五珠技＋魔法珠
+  ok 300 seed｜hard45 開局四方向都無現成 3 連、且有可拖步（8 方向）
+  ok 300 seed｜medium 預設呼叫與 diagonal=false 完全相同（行為不變）
+  ok hard45｜連鎖補珠後的斜線 3 連會被消（cascade 含斜線）
+  ok 不變規則：最少 3、上限 10、≥4 魔法珠、剛好 5 五珠技、能量、反擊間隔、連線公式
+beast-match3-diagonal: 26 passed
+  ok hard45b：7×8＝56、diagonal=true、數值＝hard45（450/12/1）且待平衡
+  ok medium／hard45 原值不變
+  ok 規則選出的五隻＝HARD2_ENEMY_NAMES（可重現）
+  ok 五隻：不重複、五屬性各一、都是 .v2 成年卡、非守護獸、不在 hard45 敵方
+  ok enemyNamesFor：hard45b→HARD2；medium／hard45／未給→原名單
+  ok hard45b 300 seed：開局四方向無現成 3 連、且有可拖步
+  ok makeFoe(hard45b)：HP 450／ATK 12／倒數 1
+beast-match3-hard2: 7 passed
+PASS: stages1–16 each 500 seeds, stage8 onward four adults + one final guardian, real five-card rosters, per-form scales, original cards unchanged
+PASS: eight-orb clear-only attacks and playable fallback preserve shield attributes
+PASS 500 seeds: stage8–12 total ATK/HP and neutral one-round capacity strictly increase; first7 unchanged
+PASS high stages remain 5v5, last guardian has highest base battlefield ATK, single counter grows 16/18/20/22/24
+PASS: weighted stored-orb count, attack gate, seven/eight shield reward, physical path guard and shield no-double-reward
+PASS fusion helper requires three physical finite shields
+PASS move search distinguishes defense from attack and continues through same-color shields
+PASS reshuffle fallback preserves cross-color shield-only defensive move
+PASS cross-color extension requires every cell to be a shield and hard shield mode
+PASS physical minimum, adjacency, no revisits and no crossing remain enforced
+PASS fusion clears all participating colors, preserves other shields and all cascades have zero attack
+PASS same-color three shields convert; one/two shields with ordinary same-color keep color clear
+PASS simple mode stays ordinary same-color damage, no fusion
+PASS guard halves each of four joint counter hits after element multiplier, without persistence
+PASS five elements convert only unconsumed same-color beads, conserve high power and use path attack only
+PASS mixed shields remain defense and legacy previews without board stay compatible
+shield-fusion: 11 groups passed
+PASS campaign: initial/8-win hero lock, 28-adult rotation, actual persistence, duplicate/race/retry, owners, corruption, unsupported-lock policy
+PASS: versioned self backup, complete ledger, corrupt/oversize/guest rejection, no overwrite, lock and readback
+PASS 60-card/95-reference exact source inventory, all slots/passives, missing source, original triggers active, no-deck explicitly inapplicable, no combat mutation
+PASS foe event runtime: 91 mapped card skills, 4 whole-skill exclusions; immutable effects, once, event dedupe, uses, holder duration, actual shield HP
+PASS same-turn cooldown replay does not grant an extra enemy action
+PASS guard skill raw-damage half once before shield/overkill; multiple hits; stun unchanged
+PASS same card ID across sides retains explicit skill source/target identity
+PASS skill display retains same-invocation DAMAGE+STUN, excludes older invocation and opposite side
+PASS valid turns charge once; short gestures neither charge nor counter; no healing, deterministic replay, immutable snapshots
+PASS shield tiers, five-color defense/heal, one-use next attack boost
+PASS same-color summons match actual eligible damage and existing four guardians; earth retains its own element
+PASS server turn: empty drag no counter, invalid nonempty drag no charge/counter, per-stage attack gate unchanged
+PASS player received status: stun, effective attack, holder duration, immutable original card
+PASS: 2000 delivered events retain newest 512, subscription array identity preserved, Board cleanup clears history
+PASS: four match3 guardians use recorded positive HP loss, scoped geometry and reduced-motion fallback; rules unchanged
+PASS self persists across module reload and old rounds cannot lower progress
+PASS guest resets on every explicit selection without affecting self or legacy
+PASS unlabelled legacy progress is never assigned to self or guest
+PASS invalid persisted values safely start at zero; progression normalization is retained
+PASS blocked storage retains memory, reports false, and recovery never rolls back
+PASS failed guest reset cannot resurrect stale previous guest value
+PASS explicit legacy claim preserves the greater self value and never deletes the old record
+PASS throwing Storage getters and server rendering remain safe
+progress-store: 8 groups passed
+PASS match3 sound gesture unlock, distinct bounded cues, mute/stop/dispose and silent unavailable API
+PASS soft landing, combat priority, 120ms throttle and cleanup
+PASS rounded merge, drop takeover, critical priority, 180ms throttle and cleanup
+PASS refill provenance, unchanged legacy outcomes, sparse reward conservation, stagger, reduced motion and bounded wait
+PASS multi-color fusion, survivor 4→6 accumulation, real rewards, shield retention, actual capped energy and sparse-match boundaries
+beast-match3-refill: official 56-orb fusion retained 4 to 6 passed
+PASS committed sequential phases, hidden pause, FPS-independent duration, dropped late cues, 200-cycle cleanup, abort pending commit cleanup, survivor-before-spawn, bounded planner
+PASS real BeadBattle SSR: 60 original skills/descriptions/attacks
+PASS real mode picker: unified card campaign and independent orb entry
+PASS counter visuals: five original colors, exact endpoints, bounded geometry, actual source ID, white-tiger visual only
+PASS reserved boss: locked target/counter/initialization, original summon once after escort defeat, dead/invalid guards, early/legacy unchanged
+PASS per-group cascade attacks: short initial then automatic qualifying cascade, long initial cannot boost short follow-up, mixed eligibility, display shuffle excluded
+PASS player signature: original summon/passive/attack/end/start/uses, stage-1 stun, action replay, generic basic once, link source attribution, boss protection, bounded receipts, immutable originals
+PASS enemy charge: four valid turns, all colours, invalid/empty turn, deduplication, actual attacker reset, dead enemies, displayed server values
+PASS player 3/4/6/10 beads = 30/40/60/100, unrelated colours unchanged, cascade 70, controlled full charge retained, reserved guardian waits
+PASS simultaneous charge preserves valid cooldown and attacks only at full
+PASS 800 seeded 56-bead replays: 4718 groups, 315 falling five-bead groups, 885 simultaneous groups; 3/5/6/7, survivor conservation, no silent colour change, exact events/paths/counts, reduced-motion hold

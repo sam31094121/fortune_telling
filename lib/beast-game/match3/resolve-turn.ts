@@ -1,4 +1,5 @@
 /** Server turn resolver: UI receives facts, never invents healing or shield rewards. */
+import { grantTreasure, type TreasureBook } from './treasures';
 import { buildOrbReplay } from './replay';
 import { buildEvents } from './events';
 import { resolveDrag, type MagicGrid } from './drag';
@@ -16,7 +17,7 @@ import { healSupport, shieldPlan, SUPPORT_POLICY, type HealFact } from './elemen
 import { playableCards } from '../registry';
 export interface TurnUnit extends Match3Fighter { maxHp: number; energy: number; name: string; thumbnail: string }
 export interface TurnFoe extends Match3Foe { name: string; thumbnail: string }
-export interface TurnInput { board: Board; magic: MagicGrid; path: Cell[]; team: TurnUnit[]; foes: TurnFoe[]; mode: Match3ModeId; wins: number; target: number; seed: number; move: number; chosen: LeadChoice; rule: SameElementRule; attackBoost: number }
+export interface TurnInput { treasures?: TreasureBook; actionId?: string; treasureGuard?: number; action?: 'treasure'; treasureElement?: import('../elements').BeastElement; board: Board; magic: MagicGrid; path: Cell[]; team: TurnUnit[]; foes: TurnFoe[]; mode: Match3ModeId; wins: number; target: number; seed: number; move: number; chosen: LeadChoice; rule: SameElementRule; attackBoost: number }
 export function resolveOrbTurn(input: TurnInput) {
   const cfg = match3Mode(input.mode), hard = cfg.id !== 'medium', stage = progressionStage(input.wins), eventId = `${input.seed}:${input.move}`;
   // Validate the action before running any skills. An invalid drag cannot create healing.
@@ -73,7 +74,7 @@ export function resolveOrbTurn(input: TurnInput) {
   }
   if (hard && res.valid) foes = chargeEnemyAttack(foes, input.wins + 1, eventId);
   const beforeCounter = { team, foes };
-  const guardScale = shield && 'damageScale' in shield ? shield.damageScale : 1;
+  const guardScale = Math.min(input.treasureGuard ?? 1, shield && 'damageScale' in shield ? shield.damageScale : 1);
   const counter = input.path.length === 0 || !res.valid ? { team, foes, hits: [], skillEvents: [] } : counterPhase(team, foes, cfg.counterEvery, hard && !stage.simultaneous ? input.move : undefined, guardScale, hard ? input.wins + 1 : undefined, hard ? { turnId: eventId, energyGate: true } : undefined);
   const enemyBudget = new Map<string, number>();
   for (const h of counter.hits) {
@@ -92,5 +93,7 @@ export function resolveOrbTurn(input: TurnInput) {
   const shieldGoals = (['SPACE','AIR','WATER','FIRE','EARTH'] as const).map(element=>({element,count:res.board.reduce((sum,row,r)=>sum+row.filter((e,c)=>e===element && res.magic[r][c]>=7).length,0)}));
   const replay = hard && res.valid ? buildOrbReplay(input.board, input.magic, input.path, res, cfg.diagonal) : [];
   const events = buildEvents(res.steps, hits, { magicSpawn: res.magicSpawn, magicTriggered: res.magicTriggered, skill5Element: res.skill5 ? res.element : null, energy: energyGains(res) });
-  return { replay, events, res, target, hits, actualHits, damage, startDamage, endDamage, skills, heals, enemyHeals, healingSummary, enemyHealingSummary, shieldGoals, summon, chainFacts, shield, guardScale, beforeCounter, counter, nextBoost };
+  const treasure = grantTreasure(input, res);
+  const nextTreasureGuard = counter.hits.length ? 1 : input.treasureGuard ?? 1;
+  return { treasure, nextTreasureGuard, replay, events, res, target, hits, actualHits, damage, startDamage, endDamage, skills, heals, enemyHeals, healingSummary, enemyHealingSummary, shieldGoals, summon, chainFacts, shield, guardScale, beforeCounter, counter, nextBoost };
 }

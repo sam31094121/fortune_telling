@@ -1,0 +1,1 @@
+PASS: five grants, path/receipt validation, all five effects, no counter/charge, shield/overkill, guard use, own carry, guest expiry, failed save, concurrent consume

@@ -1,3 +1,4 @@
+import { resolveTreasureUse, validateTreasureBook } from '@/lib/beast-game/match3/treasures';
 import { NextResponse } from 'next/server';
 import { resolveOrbTurn, type TurnInput } from '@/lib/beast-game/match3/resolve-turn';
 import { isBeastElement } from '@/lib/beast-game/elements';
@@ -21,6 +22,14 @@ export async function POST(request: Request) {
     if (p.team.some(f => !integer(f.energy,0,100)) || p.foes.some(f => !integer(f.cd,0,1000)) || !['tap-lead','first-attacks','all-attack'].includes(p.rule) || !p.chosen || typeof p.chosen !== 'object' || Array.isArray(p.chosen)) throw new Error('invalid');
     if (p.foes.some(f => f.attackEnergy !== undefined && ![0,25,50,75,100].includes(f.attackEnergy) || f.lastChargeTurn !== undefined && (typeof f.lastChargeTurn !== 'string' || f.lastChargeTurn.length > 80))) throw new Error('invalid');
     if (Object.entries(p.chosen).some(([element,id]) => !isBeastElement(element) || typeof id !== 'string' || !p.team.some(f => f.id === id && f.element === element))) throw new Error('invalid');
+    if (p.treasures !== undefined) validateTreasureBook(p.treasures);
+    if (p.actionId !== undefined && (typeof p.actionId !== 'string' || !p.actionId.length || p.actionId.length > 100)) throw new Error('invalid');
+    if (p.treasureGuard !== undefined && ![1,0.5].includes(p.treasureGuard)) throw new Error('invalid');
+    if (p.action === 'treasure') {
+      if (!isBeastElement(p.treasureElement)) throw new Error('invalid');
+      return NextResponse.json(resolveTreasureUse(p, p.treasureElement), { headers: { 'Cache-Control': 'no-store' } });
+    }
+    if (p.action !== undefined) throw new Error('invalid');
     return NextResponse.json(resolveOrbTurn(p), { headers: { 'Cache-Control': 'no-store' } });
   } catch {
     return NextResponse.json({ error: '暫時無法完成本回合，請重試；尚未套用結果。' }, { status: 400, headers: { 'Cache-Control': 'no-store' } });

@@ -1,3 +1,4 @@
+import { emptyTreasureBook, validateTreasureBook, type TreasureBook } from './treasures';
 import { campaignWin, chooseCampaignHero, enhanceCampaignProfile, newCampaign, parseCampaign, validateCampaignTeam, type HardCampaign, type CampaignReward, type EnhancementReceipt } from './hard-campaign';
 import { readMatch3Progress } from './progress-store';
 import { decodeCampaignBackup, encodeCampaignBackup } from './campaign-backup';
@@ -32,7 +33,7 @@ function settleWinUnlocked(owner: CampaignOwner, matchId: string, winsAtStart: n
   try {
     const next = campaignWin(current.profile, matchId, winsAtStart);
     // Existing receipt is already read from durable storage; never mint another copy.
-    const result = next.duplicate ? current : write(owner, next.profile);
+    const result = next.duplicate ? current : write(owner, owner === 'guest' ? { ...next.profile, treasures: emptyTreasureBook() } : next.profile);
     return result.ok ? { ...result, saved: true, reward: next.reward, nextWins: next.profile.wins, duplicate: next.duplicate } : { ...result, saved: false };
   } catch (e) { return { ...failed(e), saved: false }; }
 }
@@ -100,3 +101,19 @@ export const importCampaignBackup = (owner: CampaignOwner, raw: string): Promise
   const profile = decodeCampaignBackup(raw);
   return write(owner, profile);
 }, failed);
+
+/** Hold the owner lock across request and durable save; no display before save acknowledgement. */
+export async function transactTreasures<T>(owner: CampaignOwner, run: (book: TreasureBook) => Promise<{ book: TreasureBook; result: T }>): Promise<T> {
+  const execute = async () => {
+    const current = readCampaign(owner);
+    if (!current.ok || !current.profile) throw new Error(current.error ?? '暫時無法讀取寶器');
+    const next = await run(current.profile.treasures ?? emptyTreasureBook());
+    const saved = write(owner, { ...current.profile, treasures: validateTreasureBook(next.book) });
+    if (!saved.ok) throw new Error(saved.error ?? '寶器尚未保存，請重試');
+    return next.result;
+  };
+  storage(owner);
+  if (typeof navigator !== 'undefined' && navigator.locks?.request) return navigator.locks.request(keys[owner], execute);
+  if (owner === 'guest') return execute();
+  throw new Error('此瀏覽器暫不支援安全儲存，請使用支援的瀏覽器重試');
+}

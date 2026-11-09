@@ -1,3 +1,4 @@
+import { validateTreasureBook, type TreasureBook } from './treasures';
 import { getCard, playableCards } from '../registry';
 import { CARD_FACE_STATS } from '../card-face-stats';
 
@@ -5,6 +6,7 @@ export interface CampaignReward { matchId: string; cardId: string; win: number }
 export interface EnhancementReceipt { operationId: string; youngId: string; targetId: string; attackBonus: number }
 export interface HardCampaign {
   version: 1;
+  treasures?: TreasureBook;
   wins: number;
   heroId: string | null;
   heroChoiceUsed: boolean;
@@ -118,6 +120,7 @@ export function parseCampaign(raw: string): HardCampaign {
   p.consumedYoungIds ??= [];
   p.enhancements ??= {};
   p.enhancementReceipts ??= [];
+  if (p?.treasures !== undefined) p.treasures = validateTreasureBook(p.treasures);
   const adults = new Set(campaignAdultIds());
   if (!p || p.version !== 1 || !Number.isSafeInteger(p.wins) || p.wins < 0 || typeof p.heroChoiceUsed !== 'boolean' || (p.heroId !== null && !campaignGuardianIds().includes(p.heroId)) || !Array.isArray(p.teamIds) || !Array.isArray(p.rewards) || !Array.isArray(p.receipts)) throw new Error('寶珠存檔格式不完整');
   if (p.teamIds.length && !validateCampaignTeam(p, p.teamIds)) throw new Error('寶珠隊伍存檔無效');

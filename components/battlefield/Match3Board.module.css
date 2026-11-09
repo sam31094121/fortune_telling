@@ -836,3 +836,9 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .replayLines text { fill: #fff8da; font-size: 13px; font-weight: 800; }
 @keyframes m3MatchOnce { 0%, 100% { fill: #fff2ab22; } 45% { fill: #fff2ab88; } }
 @media (prefers-reduced-motion: reduce) { .wrap[data-mode^="hard"] .board > svg.replayLines circle { animation: none; } }
+
+/* The measured board leaves room for the fixed treasure dock. */
+.wrap[data-mode^="hard"] .board { width:min(100%,var(--compact-board-width,100%)); margin-left:auto; margin-right:auto; }
+
+/* Return the space saved by the flat treasure dock to the orbs, retaining device safe area. */
+.wrap[data-mode^="hard"][data-match3-battle-active="true"] { padding-bottom:max(2px, env(safe-area-inset-bottom, 0px)); }

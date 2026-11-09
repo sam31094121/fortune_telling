@@ -309,6 +309,12 @@ const BEHAVIOR_CHECKS = [
     timeoutMs: 45000,
   },
   {
+    id: 'BEAST_ORB_TREASURES',
+    module: 'beast_orb_treasures',
+    title: '寶珠五元素寶器：稀有合成、真實效果、消耗及跨關保存',
+    script: 'test:beast-match3-treasures',
+  },
+  {
     id: 'BEAST_ORB_REPLAY',
     module: 'beast_orb_replay',
     title: '寶珠逐輪真實連線：5/6/7顆、保留珠、手機桌面先標示再消除',
