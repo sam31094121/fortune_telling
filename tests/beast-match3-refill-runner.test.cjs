@@ -13,6 +13,17 @@ function clock(){let now=0,visible=true,id=0;const frames=new Map(),listeners=ne
 const flush=async()=>{for(let i=0;i<12;i++)await Promise.resolve()};
 const pump=async(c,n=1,ms=20)=>{for(let i=0;i<n;i++){await flush();c.step(ms);await flush()}};
 (async()=>{
+ const marked=clock(),marks=[],markStop=new AbortController();let markDone=false;
+ const marking=runRefillPlayback([{clearAt:0,fallAt:100,endAt:300,matchMs:600},{clearAt:300,fallAt:400,endAt:600,matchMs:600}],{clock:marked,signal:markStop.signal,commit:async(phase,i)=>{marks.push({phase,i,t:marked.now()})},complete:()=>markDone=true});
+ for(let i=0;i<15;i++)await pump(marked);
+ assert.deepEqual(marks.map(m=>m.phase),['match'],'whole group is held before removal');
+ marked.hide(true);await pump(marked,10,1000);assert.equal(marks.length,1);marked.hide(false);
+ for(let i=0;i<150&&!markDone;i++)await pump(marked);await marking;
+ assert.deepEqual(marks.map(m=>m.phase),['match','clear','fall','match','clear','fall']);
+ assert(marks[4].t-marks[3].t>=600,'each next group has its own readable hold');
+ assert(marks[3].t-marks[2].t>=200,'next match cannot appear before all falls land');
+ assert.equal(marked.pending(),0);assert.equal(marked.listeners(),0);
+
  const c=clock(),signal=new AbortController(),seen=[],sounds=[],paused=[];let ack,completed=0;
  const run=runRefillPlayback([{clearAt:0,fallAt:100,endAt:300},{clearAt:300,fallAt:400,endAt:600}],{clock:c,signal:signal.signal,commit:(phase,i)=>{seen.push(phase+i);if(phase==='clear'&&i===0)return new Promise(r=>ack=r);return Promise.resolve()},cues:()=>[{at:20,kind:'drop'},{at:180,kind:'merge'}],cue:k=>sounds.push(k),pause:p=>paused.push(p),complete:()=>completed++});
  await pump(c,10);assert.deepEqual(seen,['clear0']);assert.equal(completed,0,'uncommitted DOM cannot advance');ack();await pump(c,7);assert(seen.includes('fall0'));c.hide(true);const before=[...seen];await pump(c,10,1000);assert.deepEqual(seen,before);assert.equal(completed,0);c.hide(false);await pump(c,1,1000);assert(!seen.includes('clear1'),'background elapsed cannot skip fall');await pump(c,50);await run;assert.equal(completed,1);assert.deepEqual(seen,['clear0','fall0','clear1','fall1']);assert(paused.includes(true));assert.equal(c.listeners(),0);assert.equal(c.pending(),0);

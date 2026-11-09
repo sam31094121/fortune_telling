@@ -309,6 +309,13 @@ const BEHAVIOR_CHECKS = [
     timeoutMs: 45000,
   },
   {
+    id: 'BEAST_ORB_REPLAY',
+    module: 'beast_orb_replay',
+    title: '寶珠逐輪真實連線：5/6/7顆、保留珠、手機桌面先標示再消除',
+    script: 'test:beast-match3-replay',
+    timeoutMs: 240000,
+  },
+  {
     id: 'BEAST_INTERACTIVE',
     module: 'beast_interactive',
     title: '新回合制：六十張定位、能量、補位與一千場煙霧抽樣',

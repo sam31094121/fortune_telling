@@ -1,4 +1,6 @@
 /** Server turn resolver: UI receives facts, never invents healing or shield rewards. */
+import { buildOrbReplay } from './replay';
+import { buildEvents } from './events';
 import { resolveDrag, type MagicGrid } from './drag';
 import { seededRng, type Board, type Cell } from './board';
 import { match3Mode, type Match3ModeId } from './config';
@@ -88,5 +90,7 @@ export function resolveOrbTurn(input: TurnInput) {
   const summarize = (facts: HealFact[], units: {id:string;name:string}[]) => [...new Set(facts.map(h=>h.id))].map(id=>({ id, name: units.find(u=>u.id===id)!.name, actual: facts.filter(h=>h.id===id).reduce((sum,h)=>sum+h.actual,0) }));
   const healingSummary = summarize(heals,input.team), enemyHealingSummary = summarize(enemyHeals,input.foes);
   const shieldGoals = (['SPACE','AIR','WATER','FIRE','EARTH'] as const).map(element=>({element,count:res.board.reduce((sum,row,r)=>sum+row.filter((e,c)=>e===element && res.magic[r][c]>=7).length,0)}));
-  return { res, target, hits, actualHits, damage, startDamage, endDamage, skills, heals, enemyHeals, healingSummary, enemyHealingSummary, shieldGoals, summon, chainFacts, shield, guardScale, beforeCounter, counter, nextBoost };
+  const replay = hard && res.valid ? buildOrbReplay(input.board, input.magic, input.path, res, cfg.diagonal) : [];
+  const events = buildEvents(res.steps, hits, { magicSpawn: res.magicSpawn, magicTriggered: res.magicTriggered, skill5Element: res.skill5 ? res.element : null, energy: energyGains(res) });
+  return { replay, events, res, target, hits, actualHits, damage, startDamage, endDamage, skills, heals, enemyHeals, healingSummary, enemyHealingSummary, shieldGoals, summon, chainFacts, shield, guardScale, beforeCounter, counter, nextBoost };
 }

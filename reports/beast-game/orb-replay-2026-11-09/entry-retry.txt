@@ -1,0 +1,5 @@
+
+> blood-type-compatibility@0.1.0 test:star-beast-entry-api
+> node tests/star-beast-entry.api.test.cjs
+
+PASS: guardian input, unknown-hour integrity, deterministic mapping and duel API limits

@@ -1,0 +1,53 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "case": "recorded match then clear",
+      "width": 320,
+      "length": 5,
+      "reduced": false,
+      "chains": 8
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 390,
+      "length": 6,
+      "reduced": false,
+      "chains": 3
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 1440,
+      "length": 7,
+      "reduced": false,
+      "chains": 1
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 390,
+      "length": 5,
+      "reduced": true,
+      "chains": 8
+    },
+    {
+      "width": 320,
+      "frames": 83
+    },
+    {
+      "width": 390,
+      "frames": 79
+    },
+    {
+      "width": 820,
+      "frames": 76
+    },
+    {
+      "width": 1440,
+      "frames": 600
+    },
+    {
+      "case": "leave during refill cancels pending actions"
+    }
+  ],
+  "errors": []
+}

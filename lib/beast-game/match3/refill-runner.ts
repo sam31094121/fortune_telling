@@ -10,7 +10,7 @@ export const browserRefillClock = (): RefillClock => ({
   visible: () => document.visibilityState !== 'hidden',
   onVisibility: callback => { document.addEventListener('visibilitychange', callback); return () => document.removeEventListener('visibilitychange', callback); },
 });
-export interface RefillRunnerFrame { clearAt: number; fallAt: number; endAt: number }
+export interface RefillRunnerFrame { clearAt: number; fallAt: number; endAt: number; matchMs?: number }
 export interface RefillCue { at: number; kind: 'drop' | 'merge' }
 const cancelled = () => new DOMException('Refill playback cancelled', 'AbortError');
 function committed(commit: () => Promise<void>, signal: AbortSignal): Promise<void> {
@@ -45,11 +45,11 @@ function visibleWait(clock: RefillClock, duration: number, signal: AbortSignal, 
 export async function runRefillPlayback(frames: readonly RefillRunnerFrame[], options: {
   signal: AbortSignal; clock?: RefillClock; initialDelayMs?: number;
   intro?: () => Promise<void>;
-  commit: (phase: 'clear' | 'fall', index: number) => Promise<void>;
+  commit: (phase: 'match' | 'clear' | 'fall', index: number) => Promise<void>;
   cues?: (index: number) => readonly RefillCue[];
   cue?: (kind: RefillCue['kind']) => void;
   pause?: (paused: boolean) => void;
-  begin?: (phase: 'intro' | 'clear' | 'fall', index: number) => void;
+  begin?: (phase: 'intro' | 'match' | 'clear' | 'fall', index: number) => void;
   advance?: (elapsed: number) => void;
   complete: () => void;
 }): Promise<void> {
@@ -62,6 +62,12 @@ export async function runRefillPlayback(frames: readonly RefillRunnerFrame[], op
     await visibleWait(clock, options.initialDelayMs ?? 0, options.signal, elapsed => options.advance?.(elapsed));
     for (let i = 0; i < frames.length; i++) {
       if (options.signal.aborted) throw cancelled();
+      if (frames[i].matchMs) {
+        await committed(() => options.commit('match', i), options.signal);
+        options.begin?.('match', i);
+        options.pause?.(!clock.visible());
+        await visibleWait(clock, frames[i].matchMs!, options.signal);
+      }
       await committed(() => options.commit('clear', i), options.signal);
       options.begin?.('clear', i);
       options.pause?.(!clock.visible());

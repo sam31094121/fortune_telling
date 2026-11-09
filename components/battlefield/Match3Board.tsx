@@ -3,6 +3,8 @@ import { ElementTreasureOrb } from '@/components/bazi/customer/ElementTreasureOr
 import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
 import { counterVisualPath } from '@/lib/beast-game/match3/counter-visual';
 import type { resolveOrbTurn } from '@/lib/beast-game/match3/resolve-turn';
+import Match3ReplayLines from './Match3ReplayLines';
+import type { OrbReplayFrame } from '@/lib/beast-game/match3/replay';
 import OrbElementAttack, { type ElementFlight } from './OrbElementAttack';
 import EnemyActionIndicator from './EnemyActionIndicator';
 import Link from 'next/link';
@@ -25,7 +27,7 @@ import { initializePlayerSkills, runPlayerTurnSkills, resolvePlayerCardAttack, o
 import { orbSkillDisplay, type OrbSkillEvent } from '@/lib/beast-game/match3/skill-runtime';
 import {
   ENERGY_MAX, MAGIC_ORB_MIN_LENGTH, MATCH3_ORB_ELEMENTS, MATCH3_ORB_LABEL, NORMAL_POWER_CAP, SKILL5_LENGTH,
-  buildEvents, computeHits, dragIntent, effectiveDragCount, isShieldFusionPath, emptyMagic, energyGains, generateDragBoard, resolveDrag, seededRng, skillAmount,
+  computeHits, dragIntent, effectiveDragCount, isShieldFusionPath, emptyMagic, generateDragBoard, resolveDrag, seededRng, skillAmount,
   DEFAULT_SAME_ELEMENT_RULE, attackingTeam, leadIds, chooseLead, type LeadChoice, shareEnergy, validTeamIds, type SameElementRule,
   MATCH3_ENEMY_NAMES, enemyNamesFor, makeFoe, availableFoeTarget, foeAvailable, initializeAvailableFoes, damageFoe, counterPhase, linkDamage, linkProblem, LINK_ENERGY_COST, LINK_MIN_CARDS,
   progressionStage, nextProgressionWins, selectProgressionEnemies, progressionLineupStats,
@@ -44,7 +46,7 @@ import { readCampaign, settleWin, type CampaignSettlement } from '@/lib/beast-ga
 import { validateCampaignTeam, campaignAttack, type HardCampaign } from '@/lib/beast-game/match3/hard-campaign';
 import { createMatch3Sound, type Match3SoundCue } from './match3Sound';
 import { runRefillPlayback } from '@/lib/beast-game/match3/refill-runner';
-import { refillDisplaySteps, refillPresentation, refillLandingTimes, fusionShieldLayout, fusionDischarge, FUSION_CLEAR_AT_MS, FUSION_DISPLAY_MS, type RefillMotion } from '@/lib/beast-game/match3/refill-presentation';
+import { refillPresentation, refillLandingTimes, fusionShieldLayout, fusionDischarge, FUSION_CLEAR_AT_MS, FUSION_DISPLAY_MS, type RefillMotion } from '@/lib/beast-game/match3/refill-presentation';
 
 interface Unit extends Match3Fighter { name: string; thumbnail: string; maxHp: number; energy: number; skillName?: string; description?: string }
 interface Foe extends Match3Foe { name: string; thumbnail: string }
@@ -229,6 +231,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
   const turnRequest = useRef<AbortController | null>(null);
   useEffect(() => () => { turnRequest.current?.abort(); }, []);
   const [shortMsg, setShortMsg] = useState('');
+  const [matchFrame, setMatchFrame] = useState<OrbReplayFrame | null>(null);
   const [refillEpoch, setRefillEpoch] = useState(0);
   const refillRun = useRef<AbortController | null>(null);
   const refillCommit = useRef<(() => void) | null>(null);
@@ -425,15 +428,18 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
     const foe = actionFoes[actionTarget];
     const hits = prepared.hits;
     { const ids = new Set(hits.filter((h) => h.amount > 0 && h.attackerId).map((h) => h.attackerId as string)); setAttacked(ids); later(() => setAttacked(new Set()), 900); }
-    const gains = energyGains(res);
-    const events = buildEvents(res.steps, hits, { magicSpawn: res.magicSpawn, magicTriggered: res.magicTriggered, skill5Element: res.skill5 ? el : null, energy: gains });
-    for (const ev of events) if (ev.type === 'clear') {
-      const pub = { element: ev.element, count: ev.count, cascadeStep: ev.cascadeStep, eligible: ev.eligible, power: ev.power, target: foe.id, ...(ev.magic ? { magic: true, magicPower: ev.magicPower } : {}), ...(ev.skill5 ? { skill5: true } : {}) };
-      appendMatch3Event(window.__match3Events ??= [], pub as Match3BusEvent); console.log('[match3]', pub);
-    } else if (ev.type !== 'attack') { appendMatch3Event(window.__match3Events ??= [], ev); console.log('[match3]', ev); }
+    const events = prepared.events;
+    const publish = (chain?: number) => { for (const ev of events) {
+      if (chain !== undefined ? ev.type !== 'clear' || ev.chain !== chain : rigEnabled && ev.type === 'clear') continue;
+      if (ev.type === 'clear') {
+        const pub = { element: ev.element, count: ev.count, cascadeStep: ev.cascadeStep, eligible: ev.eligible, power: ev.power, target: foe.id, ...(ev.magic ? { magic: true, magicPower: ev.magicPower } : {}), ...(ev.skill5 ? { skill5: true } : {}) };
+        appendMatch3Event(window.__match3Events ??= [], pub as Match3BusEvent);
+      } else if (ev.type !== 'attack') appendMatch3Event(window.__match3Events ??= [], ev);
+    } };
+    if (!rigEnabled) publish();
     const dealt = hits.reduce((s, h) => s + h.amount, 0);
     setBusy(true); if (!rigEnabled) sound(520 + res.chainLength * 40);
-    const displaySteps = rigEnabled ? refillDisplaySteps(res) : res.steps;
+    const displaySteps = rigEnabled ? prepared.replay : res.steps;
     const frames = displaySteps.map((st, i) => ({ before: i === 0 ? board : displaySteps[i - 1].boardAfter, mag: i === 0 ? magic : displaySteps[i - 1].magicAfter,
       cells: new Set((st.clearedCells ?? st.groups.flatMap(g => g.cells)).map(c => k(c.r, c.c))) }));
     const fusionEffect = res.shieldFusion || !!res.shieldConversion;
@@ -447,6 +453,8 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
     const playback = rigEnabled ? refillPresentation(displaySteps, window.matchMedia('(prefers-reduced-motion: reduce)').matches) : null;
     if (!rigEnabled) frames.forEach((fr, i) => later(() => { setBoard(fr.before); setMagic(fr.mag); setFlash(fr.cells); }, shieldDelay + i * 300));
     const settle = () => {
+      setMatchFrame(null);
+      if (rigEnabled) publish();
       setFlash(new Set()); setFalling(new Map()); setEmptyCells(new Set()); setRewards(new Set());
       if (!rigEnabled) { setDrop(changedCells(board, res.board)); later(() => setDrop(new Set()), 360); }
       setBoard(res.board); setMagic(res.magic); setBusy(false);
@@ -496,7 +504,15 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
         intro: () => new Promise<void>(resolve => { refillCommit.current = resolve; setRefillEpoch(epoch => epoch + 1); }),
         commit: (phase, i) => new Promise<void>(resolve => {
           refillCommit.current = resolve;
-          if (phase === 'clear') {
+          if (phase === 'match') {
+            const frame = prepared.replay[i];
+            setBoard(frame.boardBefore); setMagic(frame.magicBefore);
+            setEmptyCells(new Set(frame.emptyBefore.map(p => k(p.r, p.c))));
+            setFlash(new Set()); setFalling(new Map()); setRewards(new Set());
+            setMatchFrame(frame); publish(frame.chain);
+            setSupportText(frame.matches.map(group => group.description).join('；'));
+          } else if (phase === 'clear') {
+            setMatchFrame(null);
             if (res.reshuffled && i === res.steps.length) showBanner('沒有可攻擊連線，整理普通寶珠', 'info');
             if (i === 0) { setFusionBurst(null); setShieldBurst(null); if (fusionEffect) cue('clear'); }
             setFalling(new Map()); setRewards(new Set()); setClearMs(playback.frames[i].clearMs);
@@ -690,6 +706,7 @@ function Match3Game({ init, teamIds, rule, onRepick, cfg, campaignEnabled, onCam
           <OrbCell key={`${r}-${c}-${rigEnabled ? refillEpoch : 0}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} shield={rigEnabled} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} fall={falling.get(kk)} empty={emptyCells.has(kk)} reward={rewards.has(kk)} />); }))}
         {shieldBurst && <div className={styles.shieldBurst} style={{ color: ORB_COLOR[shieldBurst] }} role="status" aria-label="080 盾牌清除同色寶珠"><span /><img src="/pwa/save-shield-080.png" alt="" draggable={false} /></div>}
         {fusionBurst && <div className={styles.fusionBurst} data-testid="shield-fusion-effect" role="status" aria-label="盾牌合體" style={{ ['--fusion-duration' as string]: `${FUSION_DISPLAY_MS}ms`, ['--fusion-colors' as string]: `conic-gradient(${fusionBurst.map(e => ORB_COLOR[e]).join(',')})` }}><div className={styles.fusionHalo} /><svg className={styles.fusionLightning} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">{fusionDischarge(fusionBurst, board).map(bolt => <polyline key={bolt.element} points={bolt.points} stroke={ORB_COLOR[bolt.element]} vectorEffect="non-scaling-stroke" />)}</svg>{fusionShieldLayout(fusionBurst.length).map((pose, i) => <span key={i} className={styles.fusionShield} data-fusion-element={fusionBurst[i]} data-primary={pose.primary || undefined} style={{ color: ORB_COLOR[fusionBurst[i]], width: `${pose.size}%`, ['--fusion-x' as string]: `${pose.x}%`, ['--fusion-y' as string]: `${pose.y}%`, ['--fusion-scale' as string]: pose.scale }}><img src="/pwa/save-shield-080.png" alt="" draggable={false} /></span>)}</div>}
+        {matchFrame && <Match3ReplayLines frame={matchFrame} />}
         <DragPathSvg points={drag.points} color={dragEl ? ORB_COLOR[dragEl] : '#fff'} luminous={rigEnabled} />
         {banner && (banner.visual
           ? <div className={`${styles.chainEffect} ${banner.kind === 'skill' ? styles.chainCharged : ''} ${banner.kind === 'counter' ? styles.chainCounter : ''}`} data-testid="match3-chain-effect" role="status"><span className={styles.srOnly}>{banner.text}</span><span aria-hidden="true" className={styles.chainRing} /><span aria-hidden="true" className={styles.chainCore} /></div>

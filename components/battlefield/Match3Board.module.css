@@ -827,3 +827,12 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .wrap[data-mode^="hard"] .head .round, .wrap[data-mode^="hard"] .head .helpTop, .wrap[data-mode^="hard"] .head .homeLink, .wrap[data-mode^="hard"] .head .repickTop button { font-size: 10px; }
 /* Reserve the ready orb's static halo even when the page is scroll-locked. */
 .wrap[data-mode^="hard"] { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+
+/* Complete server match, including a retained number bead, before any removal. */
+.replayLines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; overflow: hidden; }
+.wrap[data-mode^="hard"] .board > svg.replayLines polyline { fill: none; stroke: #fff3ae; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1px 2px #171321); }
+.wrap[data-mode^="hard"] .board > svg.replayLines circle { fill: #fff2ab33; stroke: #fff7ce; stroke-width: 2; animation: m3MatchOnce 600ms ease-out both; }
+.replayLines rect { fill: #24202f; stroke: #fff3ae; stroke-width: 1; }
+.replayLines text { fill: #fff8da; font-size: 13px; font-weight: 800; }
+@keyframes m3MatchOnce { 0%, 100% { fill: #fff2ab22; } 45% { fill: #fff2ab88; } }
+@media (prefers-reduced-motion: reduce) { .wrap[data-mode^="hard"] .board > svg.replayLines circle { animation: none; } }

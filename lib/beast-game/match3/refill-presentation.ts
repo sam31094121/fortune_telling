@@ -35,7 +35,7 @@ export function fusionShieldLayout(count: number) {
   });
 }
 /** Presentation timeline only: consume recorded falls; never generate or score orbs. */
-export function refillPresentation(steps: readonly Pick<DragStep, 'falls' | 'emptyCells' | 'rewards'>[], reduced = false) {
+export function refillPresentation(steps: readonly (Pick<DragStep, 'falls' | 'emptyCells' | 'rewards'> & { matches?: readonly unknown[] })[], reduced = false) {
   const raw = steps.map(step => {
     const falls = [...(step.falls ?? [])].sort((a, b) => Number(a.fromRow < 0) - Number(b.fromRow < 0) || b.r - a.r || a.c - b.c);
     const stagger = reduced ? 0 : 20;
@@ -50,10 +50,11 @@ export function refillPresentation(steps: readonly Pick<DragStep, 'falls' | 'emp
   // Longer chains take longer; never compress individual drops to fit a global cap.
   const plan = raw;
   let cursor = 0;
-  const frames = plan.map(frame => {
-    const clearAt = cursor, fallAt = cursor + frame.clear;
-    cursor += frame.span;
-    return { clearAt, fallAt, endAt: cursor, clearMs: frame.clear,
+  const frames = plan.map((frame, index) => {
+    const matchMs = steps[index].matches?.length ? 600 : 0;
+    const clearAt = cursor + matchMs, fallAt = clearAt + frame.clear;
+    cursor += matchMs + frame.span;
+    return { matchMs, clearAt, fallAt, endAt: cursor, clearMs: frame.clear,
       motions: frame.falls.map((fall, index): RefillMotion => ({ ...fall, delayMs: frame.delays[index], durationMs: frame.duration })) };
   });
   return { frames, durationMs: cursor };

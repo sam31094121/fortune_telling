@@ -1,0 +1,10 @@
+{
+  "core": "passed",
+  "seededReplays": 800,
+  "groups": 4718,
+  "fallingFiveGroups": 315,
+  "multiGroupRounds": 885,
+  "productionBuildExit": 0,
+  "entryApiRetryExit": 0,
+  "browser": true
+}
