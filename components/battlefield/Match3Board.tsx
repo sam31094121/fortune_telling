@@ -25,8 +25,9 @@ import { CARD_FACE_STATS } from '@/lib/beast-game/card-face-stats';
 import { getSkill } from '@/cards/skills';
 import type { BeastElement } from '@/lib/beast-game/elements';
 import { fighterCanAct, fighterEffectiveAttack, endPlayerSkillTurn } from '@/lib/beast-game/match3/damage';
-import { initializePlayerSkills, runPlayerTurnSkills, resolvePlayerCardAttack, orderPlayerHits, recalculatePlayerHit } from '@/lib/beast-game/match3/player-skills';
+import { initializePlayerSkills, runPlayerTurnSkills, orderPlayerHits, recalculatePlayerHit } from '@/lib/beast-game/match3/player-skills';
 import { orbSkillDisplay, type OrbSkillEvent } from '@/lib/beast-game/match3/skill-runtime';
+import type { CardAttackResult } from '@/lib/beast-game/match3/card-attack';
 import {
   ENERGY_MAX, MAGIC_ORB_MIN_LENGTH, MATCH3_ORB_ELEMENTS, MATCH3_ORB_LABEL, NORMAL_POWER_CAP, SKILL5_LENGTH,
   computeHits, dragIntent, effectiveDragCount, isShieldFusionPath, emptyMagic, generateDragBoard, resolveDrag, seededRng, skillAmount,
@@ -169,6 +170,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   useLayoutEffect(() => { root.current?.scrollIntoView({ block: 'start', behavior: 'instant' }); }, []);
   const strikeKey = useRef(0);
   const energyActionKey = useRef(0);
+  const cardAttackKey = useRef(0);
   const energyClickLock = useRef(false);
   const skillVisualKey = useRef(0);
   const [strike, setStrike] = useState<Match3Strike | null>(null);
@@ -686,17 +688,39 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     setBusy(true);
     later(() => { energyClickLock.current = false; setBusy(false); }, hadRig.current ? RIG_STRIKE_MS : 240);
   };
-  const unleash = (u: Unit) => {
+  // 能量技／連結攻擊（rig 模式）：只送出意圖（施放者／連線卡、目標），由伺服端 orb-turn（action energy／link → card-attack.ts）以原公式算傷害、回權威敵方 HP。
+  // 回傳值直接當作原本的 applied；前端不先扣血、不判擊倒，擊倒交給 queueKnockouts（id：battleId:skill:N:ko:foeId／battleId:link:N:ko:foeId，同一 id 只播一次）。
+  const cardActionId = (kind: 'skill' | 'link') => (battleId.current ||= crypto.randomUUID()) + ':' + kind + ':' + (++cardAttackKey.current);
+  const requestCardAttack = async (action: 'energy' | 'link', ids: string[], eventId: string, actionId: string): Promise<CardAttackResult | null> => {
+    const controller = new AbortController(); turnRequest.current = controller; setBusy(true);
+    const timeout = window.setTimeout(() => controller.abort(), 15000);
+    try {
+      const response = await fetch('/api/beast-game/orb-turn', { method:'POST', headers:{'Content-Type':'application/json'}, signal:controller.signal,
+        body:JSON.stringify({ board, magic, path:[], team, foes, mode:cfg.id, wins, target:ti, seed:init.seed, move:moves, chosen, rule, attackBoost, treasureGuard, action, ...(action === 'energy' ? { attackerId:ids[0] } : { linkIds:ids }), eventId, actionId }) });
+      if (!response.ok) throw new Error('card attack unavailable');
+      const result: CardAttackResult = await response.json();
+      if (controller.signal.aborted) throw new Error('aborted');
+      return result;
+    } catch {
+      if (turnRequest.current === controller) { energyClickLock.current = false; setBusy(false); setLog(action === 'energy' ? '暫時無法發動技能，能量與生命未變更，請重試。' : '暫時無法發動連線攻擊，能量與生命未變更，請重試。'); }
+      return null;
+    } finally { window.clearTimeout(timeout); if (turnRequest.current === controller) turnRequest.current = null; }
+  };
+  const unleash = async (u: Unit) => {
     if (energyClickLock.current || busy || over || u.hp <= 0 || ti < 0 || u.energy < ENERGY_MAX || (rigEnabled && !fighterCanAct(u))) return;
+    if (rigEnabled && turnRequest.current) return;
     if (rigEnabled) energyClickLock.current = true;
     const foe = foes[ti]; const amt = skillAmount(rigEnabled ? fighterEffectiveAttack(u) : u.attack, u.element, foe.element);
     const spentTeam = team.map(x => x.id === u.id ? { ...x, energy: 0 } : x);
-    const applied = rigEnabled ? resolvePlayerCardAttack({ foes, team: spentTeam, targetIndex: ti, attackerIds: [u.id], baseDamage: amt, stage: stage.wins + 1, eventId: `${init.seed}:energy:${++energyActionKey.current}`, allowEnemyReaction: false }) : null;
+    const actionId = rigEnabled ? cardActionId('skill') : '';
+    const applied = rigEnabled ? await requestCardAttack('energy', [u.id], `${init.seed}:energy:${++energyActionKey.current}`, actionId) : null;
+    if (rigEnabled && !applied) return;
     const damaged = applied?.foes ?? damageFoe(foes, ti, amt);
     const nextTeam = applied?.team ?? spentTeam;
     const actualAmount = applied?.actualDamage ?? amt;
     if (applied) showSkillEvents(applied.skillEvents);
     showStrike(applied?.actualHits ?? [{ attackerId: u.id, amount: actualAmount }], foe, damaged[ti], true, rigEnabled ? actualAmount : undefined);
+    if (rigEnabled) queueKnockouts(foes, damaged, actionId, 'server-skill', hadRig.current ? RIG_IMPACT_MS : 0);
     setFoes(damaged); if (actualAmount > 0) { setHitFoe(ti); later(() => setHitFoe(null), 500); }
     setTeam(nextTeam); setLastDmg(actualAmount); setTotalDmg((s) => s + actualAmount);
     if (rigEnabled) finishEnergyAttack();
@@ -707,17 +731,22 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const actionableLink = link;
   const controlledLink = rigEnabled && link.some(id => { const u = team.find(x => x.id === id); return u && !fighterCanAct(u); });
   const problem = controlledLink ? 'controlled' : linkProblem(team, link);
-  const fireLink = () => {
+  const fireLink = async () => {
     if (!linkMode || problem || over || busy || ti < 0) return;
+    if (rigEnabled && (energyClickLock.current || turnRequest.current)) return;
+    if (rigEnabled) energyClickLock.current = true;
     const cards = actionableLink.map((id) => team.find((u) => u.id === id)!);
     const amt = linkDamage(cards.map((c) => rigEnabled ? fighterEffectiveAttack(c) : c.attack)); const foe = foes[ti];
     const spentTeam = team.map(u => actionableLink.includes(u.id) ? { ...u, energy: u.energy - LINK_ENERGY_COST } : u);
-    const applied = rigEnabled ? resolvePlayerCardAttack({ foes, team: spentTeam, targetIndex: ti, attackerIds: cards.map(c => c.id), baseDamage: amt, stage: stage.wins + 1, eventId: `${init.seed}:energy:${++energyActionKey.current}`, allowEnemyReaction: false }) : null;
+    const actionId = rigEnabled ? cardActionId('link') : '';
+    const applied = rigEnabled ? await requestCardAttack('link', cards.map(c => c.id), `${init.seed}:energy:${++energyActionKey.current}`, actionId) : null;
+    if (rigEnabled && !applied) return;
     const damaged = applied?.foes ?? damageFoe(foes, ti, amt);
     const nextTeam = applied?.team ?? spentTeam;
     const actualAmount = applied?.actualDamage ?? amt;
     if (applied) showSkillEvents(applied.skillEvents);
     showStrike(applied?.actualHits ?? cards.map(c => ({ attackerId: c.id, amount: actualAmount })), foe, damaged[ti], true, rigEnabled ? actualAmount : undefined);
+    if (rigEnabled) queueKnockouts(foes, damaged, actionId, 'server-link', hadRig.current ? RIG_IMPACT_MS : 0);
     setFoes(damaged); setHitFoe(ti); later(() => setHitFoe(null), 500);
     setTeam(nextTeam);
     setLastDmg(actualAmount); setTotalDmg((s) => s + actualAmount); setLink([]); setLinkMode(false);

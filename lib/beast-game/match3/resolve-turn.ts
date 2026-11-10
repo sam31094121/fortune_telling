@@ -17,7 +17,7 @@ import { healSupport, shieldPlan, SUPPORT_POLICY, type HealFact } from './elemen
 import { playableCards } from '../registry';
 export interface TurnUnit extends Match3Fighter { maxHp: number; energy: number; name: string; thumbnail: string }
 export interface TurnFoe extends Match3Foe { name: string; thumbnail: string }
-export interface TurnInput { treasures?: TreasureBook; actionId?: string; treasureGuard?: number; action?: 'treasure'; treasureElement?: import('../elements').BeastElement; board: Board; magic: MagicGrid; path: Cell[]; team: TurnUnit[]; foes: TurnFoe[]; mode: Match3ModeId; wins: number; target: number; seed: number; move: number; chosen: LeadChoice; rule: SameElementRule; attackBoost: number }
+export interface TurnInput { treasures?: TreasureBook; actionId?: string; treasureGuard?: number; action?: 'treasure' | 'energy' | 'link'; treasureElement?: import('../elements').BeastElement; /** 能量技／連結攻擊（card-attack.ts）：施放者、連線卡、沿用前端原 eventId。 */ attackerId?: string; linkIds?: string[]; eventId?: string; board: Board; magic: MagicGrid; path: Cell[]; team: TurnUnit[]; foes: TurnFoe[]; mode: Match3ModeId; wins: number; target: number; seed: number; move: number; chosen: LeadChoice; rule: SameElementRule; attackBoost: number }
 export function resolveOrbTurn(input: TurnInput) {
   const cfg = match3Mode(input.mode), hard = cfg.id !== 'medium', stage = progressionStage(input.wins), eventId = `${input.seed}:${input.move}`;
   // Validate the action before running any skills. An invalid drag cannot create healing.

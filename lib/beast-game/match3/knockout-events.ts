@@ -2,7 +2,7 @@
  * 寶珠戰擊倒事件（只讀伺服端結果，不自行判定擊倒）
  * 規格：寶珠戰鬥卡片技能檔 第五章 1／2a／5。
  *
- * - 只有「送出前 hp > 0、伺服端回傳 hp <= 0」才算擊倒事件；前端算出的傷害（能量技／連線攻擊）不得餵進來。
+ * - 只有「送出前 hp > 0、伺服端回傳 hp <= 0」才算擊倒事件；前端自行算出的傷害不得餵進來（能量技／連線攻擊已改由伺服端計算）。
  * - 事件 id 由 actionId + foeId 組成，同一伺服端回合重複處理也只會播一次。
  * - isFinalBoss：使用者 2026-11-09 20:02 定案「最終魔王＝第 8 關起最後殿後的四大神獸」。
  *   reservedGuardianBossRule(stage) 只沿用既有判定（enemies.ts foeAvailable 的殿後條件＋敵方策略.json guardianReserve.fromStage），
@@ -11,8 +11,8 @@
 import policy from '../../../docs/技能戰鬥檔案/寶珠阿修羅/敵方策略.json';
 import { getCard } from '../registry';
 
-/** server-turn＝有效連珠；server-turn-dot＝無效路徑時伺服端算的回合起訖持續傷害；server-counter＝伺服端反擊階段；server-treasure＝寶器。 */
-export type KnockoutSource = 'server-turn' | 'server-turn-dot' | 'server-counter' | 'server-treasure' | 'preview';
+/** server-turn＝有效連珠；server-turn-dot＝無效路徑時伺服端算的回合起訖持續傷害；server-counter＝伺服端反擊階段；server-treasure＝寶器；server-skill＝能量技；server-link＝連結攻擊（兩者皆由 orb-turn 路由 card-attack.ts 計算）。 */
+export type KnockoutSource = 'server-turn' | 'server-turn-dot' | 'server-counter' | 'server-treasure' | 'server-skill' | 'server-link' | 'preview';
 
 export interface KnockoutEvent {
   /** 唯一 id，直接當 <AsuraDeathFx play> 的觸發值。 */

@@ -1,6 +1,7 @@
 import { resolveTreasureUse, validateTreasureBook } from '@/lib/beast-game/match3/treasures';
 import { NextResponse } from 'next/server';
 import { resolveOrbTurn, type TurnInput } from '@/lib/beast-game/match3/resolve-turn';
+import { resolveCardAttackTurn } from '@/lib/beast-game/match3/card-attack';
 import { isBeastElement } from '@/lib/beast-game/elements';
 import { getCard } from '@/lib/beast-game/registry';
 export const runtime = 'nodejs';
@@ -28,6 +29,11 @@ export async function POST(request: Request) {
     if (p.action === 'treasure') {
       if (!isBeastElement(p.treasureElement)) throw new Error('invalid');
       return NextResponse.json(resolveTreasureUse(p, p.treasureElement), { headers: { 'Cache-Control': 'no-store' } });
+    }
+    // 能量技／連結攻擊：伺服端算傷害並回權威敵方 HP（擊倒由前端 deriveServerKnockouts 讀取，不在前端判定）。
+    if (p.action === 'energy' || p.action === 'link') {
+      if (p.path.length !== 0) throw new Error('invalid');
+      return NextResponse.json(resolveCardAttackTurn(p), { headers: { 'Cache-Control': 'no-store' } });
     }
     if (p.action !== undefined) throw new Error('invalid');
     return NextResponse.json(resolveOrbTurn(p), { headers: { 'Cache-Control': 'no-store' } });
