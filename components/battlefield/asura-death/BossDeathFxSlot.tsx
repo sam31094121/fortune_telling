@@ -34,16 +34,19 @@ export interface BossDeathFxProps {
 export default function BossDeathFxSlot({ play, anchorRef, zIndex = 45, durationMs, beast, onStart, onDone }: BossDeathFxProps) {
   const [ended, setEnded] = useState(false);
   const [mounted, setMounted] = useState(false);
+  // 等 v4 已在 DOM 才給 play。不能只靠 requestAnimationFrame：視窗被遮住／最小化／背景分頁時瀏覽器停發 rAF，
+  // 舊寫法會一直等 → play 永遠是 null → 停在 armed 不播、只剩 Host 保底 settled。改成 rAF＋計時器雙軌，最多等 400ms。
   useEffect(() => {
-    let raf = 0, n = 0, seen = 0;
+    let raf = 0, to = 0, n = 0, seen = 0, stop = false; const t0 = performance.now();
     const tick = () => {
+      if (stop) return; cancelAnimationFrame(raf); clearTimeout(to);
       const el = [...document.querySelectorAll<HTMLElement>('[data-testid="boss-death-fx"]')].some(e => e.dataset.released !== '1');
       if (el) seen++;
-      if (seen >= 2 || ++n > 120) { setMounted(true); return; }
-      raf = requestAnimationFrame(tick);
+      if (seen >= 2 || ++n > 120 || performance.now() - t0 > 400) { stop = true; setMounted(true); return; }
+      raf = requestAnimationFrame(tick); to = window.setTimeout(tick, 34);
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(tick); to = window.setTimeout(tick, 34);
+    return () => { stop = true; cancelAnimationFrame(raf); clearTimeout(to); };
   }, []);
   if (typeof document === 'undefined') return null;
   if (ended) return createPortal(<div aria-hidden="true" hidden data-testid="boss-death-fx" data-state="done" data-released="1" />, document.body);
