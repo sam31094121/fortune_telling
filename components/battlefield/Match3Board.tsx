@@ -39,7 +39,9 @@ import {
 import { DragPathSvg, dragHint, useDragChain } from './useDragChain';
 import styles from './Match3Board.module.css';
 import Match3ElementGlyph from './Match3ElementGlyph';
-import { RIG_STRIKE_MS, rigFor, rigFrameUrl } from '@/lib/beast-game/beast-rig';
+import { RIG_IMPACT_MS, RIG_STRIKE_MS, rigFor, rigFrameUrl } from '@/lib/beast-game/beast-rig';
+import AsuraDeathHost from './asura-death/AsuraDeathHost';
+import { deriveServerKnockouts, reservedGuardianBossRule, type FinalBossRule, type KnockoutEvent, type KnockoutSource } from '@/lib/beast-game/match3/knockout-events';
 import BattleResultBanner from './BattleResultBanner';
 import BattleRewardReveal from './BattleRewardReveal';
 import Match3RigAttack, { Match3TargetArt, match3RigAttackers, type Match3Strike } from './Match3RigAttack';
@@ -51,6 +53,9 @@ import { runRefillPlayback } from '@/lib/beast-game/match3/refill-runner';
 import { refillPresentation, refillLandingTimes, fusionShieldLayout, fusionDischarge, FUSION_CLEAR_AT_MS, FUSION_DISPLAY_MS, type RefillMotion } from '@/lib/beast-game/match3/refill-presentation';
 
 interface Unit extends Match3Fighter { name: string; thumbnail: string; maxHp: number; energy: number; skillName?: string; description?: string }
+/** 全滅後等死亡特效的上限（從分出勝負起算）：一般＝命中延遲 1.12s＋6 倍降速 arm＋1.9s 動畫；魔王＝1.12s＋arm 3.4s＋4.2s 爆炸。 */
+const RESULT_HOLD_MAX_MS = 6500;
+const RESULT_HOLD_BOSS_MAX_MS = 12000;
 interface Foe extends Match3Foe { name: string; thumbnail: string }
 import { appendMatch3Event, type Match3BusEvent } from '@/lib/beast-game/match3/event-bus';
 
@@ -120,8 +125,8 @@ function beep(freq: number) {
 }
 
 export interface TreasurePractice { board: Board; magic: MagicGrid; book: TreasureBook; catalog: ReturnType<typeof treasureCatalog> }
-export interface Match3BoardProps { treasurePractice?: TreasurePractice; seed?: number; teamIds?: readonly string[] | null; sameElementRule?: SameElementRule; onRepick?: () => void; mode?: Match3ModeId; progressOwner?: Match3ProgressOwner; campaignEnabled?: boolean; onCampaignContinue?: () => void }
-export default function Match3Board({ treasurePractice, seed, teamIds, sameElementRule = DEFAULT_SAME_ELEMENT_RULE, onRepick, mode, progressOwner = null, campaignEnabled = false, onCampaignContinue }: Match3BoardProps) {
+export interface Match3BoardProps { treasurePractice?: TreasurePractice; seed?: number; teamIds?: readonly string[] | null; sameElementRule?: SameElementRule; onRepick?: () => void; mode?: Match3ModeId; progressOwner?: Match3ProgressOwner; campaignEnabled?: boolean; onCampaignContinue?: () => void; /** 覆寫用；未給＝第 8 關起殿後的四大神獸（reservedGuardianBossRule，與 foeAvailable 同源）。 */ isFinalBoss?: FinalBossRule }
+export default function Match3Board({ treasurePractice, seed, teamIds, sameElementRule = DEFAULT_SAME_ELEMENT_RULE, onRepick, mode, progressOwner = null, campaignEnabled = false, onCampaignContinue, isFinalBoss }: Match3BoardProps) {
   const cfg = match3Mode(mode);
   const [init, setInit] = useState<{ rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner; revision: number } | null>(null);
   const revision = useRef(0);
@@ -142,10 +147,10 @@ export default function Match3Board({ treasurePractice, seed, teamIds, sameEleme
   }, [seed, key, cfg.id, progressOwner, campaignEnabled]);
   if (initError) return <section className={styles.wrap} role="alert">{initError}<button type="button" onClick={onRepick}>返回我的卡片</button></section>;
   if (!init) return <section className={styles.wrap} aria-busy="true" />;
-  return <Match3Game treasurePractice={treasurePractice} key={`${key}:${cfg.id}:${init.revision}`} init={init} teamIds={teamIds} rule={sameElementRule} onRepick={onRepick} cfg={cfg} campaignEnabled={campaignEnabled} onCampaignContinue={onCampaignContinue} />;
+  return <Match3Game treasurePractice={treasurePractice} key={`${key}:${cfg.id}:${init.revision}`} init={init} teamIds={teamIds} rule={sameElementRule} onRepick={onRepick} cfg={cfg} campaignEnabled={campaignEnabled} onCampaignContinue={onCampaignContinue} isFinalBoss={isFinalBoss} />;
 }
 
-function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, campaignEnabled, onCampaignContinue }: { treasurePractice?: TreasurePractice; cfg: Match3ModeConfig; init: { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner }; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void; campaignEnabled: boolean; onCampaignContinue?: () => void }) {
+function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, campaignEnabled, onCampaignContinue, isFinalBoss }: { isFinalBoss?: FinalBossRule; treasurePractice?: TreasurePractice; cfg: Match3ModeConfig; init: { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner }; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void; campaignEnabled: boolean; onCampaignContinue?: () => void }) {
   const rigEnabled = cfg.id === 'hard45' || cfg.id === 'hard45b';
   const [wins, setWins] = useState(init.wins);
   const [progressSaveFailed, setProgressSaveFailed] = useState(false);
@@ -167,6 +172,26 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const energyClickLock = useRef(false);
   const skillVisualKey = useRef(0);
   const [strike, setStrike] = useState<Match3Strike | null>(null);
+  // 阿修羅死亡動畫：只吃伺服端回合結果（orb-turn／寶器）產生的擊倒事件；播放中暫緩 .down 與退場，播完（或保底逾時）才恢復。
+  const [knockouts, setKnockouts] = useState<KnockoutEvent[]>([]);
+  const [deathHold, setDeathHold] = useState<ReadonlySet<string>>(() => new Set());
+  const deathDelay = useRef(new Map<string, number>());
+  /** 還沒播完的擊倒特效（全滅時延後「顯示」結算；勝負判定與存檔照常即時）。 */
+  const [deathPending, setDeathPending] = useState<ReadonlySet<string>>(() => new Set());
+  const [resultHoldExpired, setResultHoldExpired] = useState(false);
+  /** 擊倒特效播放中凍結預熱名單：不替「換上來的新鎖定目標」新建引擎（避免擊倒後 100ms 級長任務），播完再補。 */
+  const [warmFreeze, setWarmFreeze] = useState<readonly string[] | null>(null);
+  const queueKnockouts = (before: readonly Foe[], serverAfter: readonly Foe[], actionId: string, source: KnockoutSource, delayMs: number) => {
+    const ko = deriveServerKnockouts(before, serverAfter, { actionId, source, isFinalBoss: isFinalBoss ?? reservedGuardianBossRule(rigEnabled ? stage.wins + 1 : 0) });
+    if (!ko.length) return;
+    ko.forEach(e => deathDelay.current.set(e.id, delayMs));
+    setDeathHold(h => new Set([...h, ...ko.map(e => e.foeId)]));
+    setDeathPending(p => new Set([...p, ...ko.map(e => e.id)]));
+    setWarmFreeze(f => (f && deathPending.size ? f : deathWarm.map(w => w.foeId)));
+    setKnockouts(list => [...list.filter(e => !ko.some(n => n.id === e.id)).slice(-8), ...ko]);
+  };
+  const finishDeath = (ev: KnockoutEvent) => setDeathPending(p => { if (!p.has(ev.id)) return p; const n = new Set(p); n.delete(ev.id); return n; });
+  const settleDeath = (ev: KnockoutEvent) => setDeathHold(h => { if (!h.has(ev.foeId)) return h; const n = new Set(h); n.delete(ev.foeId); return n; });
   const showStrike = (hits: readonly { attackerId?: string | null; amount: number }[], foe: Foe, after: Foe, charge = false, actualDamage?: number, summon?: Match3Strike['summon']) => {
     if (!rigEnabled) return;
     const attackerIds = summon ? [summon.guardianId] : match3RigAttackers(hits, foe.hp, after.hp, actualDamage);
@@ -289,6 +314,16 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
 
   const teamHp = team.reduce((s, u) => s + Math.max(0, u.hp), 0);
   const over = foes.every((f) => f.hp <= 0) ? 'win' : teamHp <= 0 ? 'lose' : null;
+  // 結算畫面等最後的死亡特效播完（魔王等爆炸 done）才顯示；保底上限避免卡住（一般 6.5s、魔王 12s，從分出勝負起算，涵蓋 6 倍降速）。
+  const deathPendingAny = deathPending.size > 0;
+  const deathPendingBoss = knockouts.some(e => e.isFinalBoss && deathPending.has(e.id));
+  useEffect(() => {
+    if (!over) { setResultHoldExpired(false); return; }
+    if (!deathPendingAny) return;
+    const t = window.setTimeout(() => setResultHoldExpired(true), deathPendingBoss ? RESULT_HOLD_BOSS_MAX_MS : RESULT_HOLD_MAX_MS);
+    return () => window.clearTimeout(t);
+  }, [over, deathPendingAny, deathPendingBoss]);
+  const resultWaiting = !!over && deathPendingAny && !resultHoldExpired;
   const [scrollLocked, setScrollLocked] = useState(false);
   useLayoutEffect(() => {
     if (!rigEnabled || help || over) { setScrollLocked(false); return; }
@@ -335,8 +370,8 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const [duelSettled, setDuelSettled] = useState(false);
   const [retiredFoes, setRetiredFoes] = useState<Set<string>>(() => new Set());
   useEffect(() => {
-    if (!busy) setRetiredFoes(new Set(foes.filter(f => f.hp <= 0).map(f => f.id)));
-  }, [foes, busy]);
+    if (!busy) setRetiredFoes(new Set(foes.filter(f => f.hp <= 0 && !deathHold.has(f.id)).map(f => f.id)));
+  }, [foes, busy, deathHold]);
   useEffect(() => {
     if (!guardianDuelReady) setDuelSettled(false);
     else if (!busy) setDuelSettled(true);
@@ -347,6 +382,16 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const duelRig = guardianDuel ? rigFor(foes[4].id) : null;
   const duelArt = duelRig ? rigFrameUrl(duelRig, duelRig.frames.some(frame => frame.id === 'land-crouch') ? 'land-crouch' : 'run-reach') : null;
   const ti = availableFoeTarget(foes, target, rigEnabled ? stage.wins + 1 : 0);
+  // 阿修羅死亡 v3 預熱：戰鬥中只對「鎖定目標」與 HP≤30% 的一般敵人先建引擎並 prewarm()（最終魔王走 v3 魔王分支，不在此列）；Host 同時最多 5 個。
+  const deathBossRule = isFinalBoss ?? reservedGuardianBossRule(rigEnabled ? stage.wins + 1 : 0);
+  const deathWarmAll = over ? [] : foes.flatMap((f, i) => f.hp > 0 && (i === ti || f.hp <= f.maxHp * 0.3) && !deathBossRule(f, i, foes) ? [{ foeId: f.id, foeIndex: i }] : []);
+  const deathWarm = deathPending.size > 0 && warmFreeze ? deathWarmAll.filter(w => warmFreeze.includes(w.foeId)) : deathWarmAll;
+  /** 一般版卡圖明確給：與畫面上同一張（rig 模式＝Match3TargetArt 的 src，非 rig＝background-image 的 thumbnail）。 */
+  const deathBossPresent = foes.some((f, i) => deathBossRule(f, i, foes));
+  /** 殿後魔王登場（護衛全倒、魔王仍在）：交給 Host 呼叫 v4 預熱。 */
+  const deathBossIdx = foes.findIndex((f, i) => deathBossRule(f, i, foes));
+  const deathBossOnStage = !over && deathBossIdx >= 0 && foes[deathBossIdx].hp > 0 && foes.every((f, i) => i === deathBossIdx || f.hp <= 0) ? { foeId: foes[deathBossIdx].id, foeIndex: deathBossIdx } : null;
+  const deathSrc = (id: string) => { const f = foes.find(x => x.id === id); return f ? (rigEnabled && guardianDuel && duelArt ? duelArt : f.thumbnail) : undefined; };
   const leads = leadIds(team, rule === 'tap-lead' ? chosen : {});
 
   const saveVictory = useCallback(async () => {
@@ -375,6 +420,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     if (treasurePractice) { window.location.reload(); return; }
     if (campaignEnabled) { if (!campaignAwaiting) onCampaignContinue?.(); return; }
     setFalling(new Map()); setFlash(new Set()); setDrop(new Set()); setEmptyCells(new Set()); setRewards(new Set());
+    setKnockouts([]); setDeathHold(new Set()); setDeathPending(new Set()); setResultHoldExpired(false); setWarmFreeze(null); deathDelay.current.clear();
     setStrike(null); setShieldBurst(null); setFusionBurst(null); setGuardActive(false); setCounterFoes(new Set()); setCounterVisuals([]); setHitTeam(new Set()); setSkillVisuals([]);
     const rng = rngRef.current; const nextWins = rigEnabled ? nextProgressionWins(wins, over === 'win') : 0; setWins(nextWins); const n = pickLineup(rng, teamIds, cfg, nextWins); const b = generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, rigEnabled ? progressionStage(nextWins).minChain : 3);
     showSkillEvents(n.playerSkillEvents ?? []);
@@ -415,6 +461,8 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
         if (rigEnabled) cue(shieldGuard ? 'guard' : 'counter'); else sound(160);
         later(() => { setCounterFoes(new Set()); setHitTeam(new Set()); setGuardActive(false); setCounterVisuals([]); }, 420);
       }
+      // 伺服端反擊階段（prepared.counter）若造成敵方倒下（例如反傷），同樣排入擊倒事件；瀏覽器自算的 counterPhase 不排。
+      if (prepared) queueKnockouts(f, cp.foes, battleId.current + ':counter:' + moves, 'server-counter', 0);
       setTeam(cp.team); setFoes(cp.foes); setLog(msg);
       if (rigEnabled) later(() => setBusy(false), cp.hits.length ? 420 : 0);
     };
@@ -447,7 +495,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       setTreasures(result.catalog);
       setTreasureFlight({effect:result.effect,x1:source.left+source.width/2-bounds.left,y1:source.top+source.height/2-bounds.top,x2:target.left+target.width/2-bounds.left,y2:target.top+target.height/2-bounds.top});
       cue('charge');
-      later(() => { setTeam(result.team); setFoes(result.foes); setTreasureGuard(result.guardScale); setLastDmg(result.effect.damage); setTotalDmg(d=>d+result.effect.damage); setLog(result.effect.description); setSupportText(result.effect.description); cue('impact'); }, 950);
+      later(() => { queueKnockouts(foes, result.foes, actionId, 'server-treasure', 0); setTeam(result.team); setFoes(result.foes); setTreasureGuard(result.guardScale); setLastDmg(result.effect.damage); setTotalDmg(d=>d+result.effect.damage); setLog(result.effect.description); setSupportText(result.effect.description); cue('impact'); }, 950);
       later(() => { setTreasureFlight(null); setBusy(false); }, 1900);
     } catch (e) { if (!controller.signal.aborted) setLog(e instanceof Error ? e.message : '寶器未保存，請重試。'); setBusy(false); }
     finally { window.clearTimeout(timeout); if (turnRequest.current === controller) turnRequest.current = null; }
@@ -483,6 +531,8 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       setShake(new Set(path.map((p) => k(p.r, p.c)))); later(() => setShake(new Set()), 340);
       const why = path.length < 3 ? `只連了 ${path.length} 顆，至少要 3 顆同色相連才能消除。` : '這條路線不成立，再試一次。';
       setLog(why); setShortMsg(why); later(() => setShortMsg(''), 1800);
+      // 無效路徑：伺服端仍結算回合起訖持續傷害（beforeCounter.foes），其擊倒同樣要播。
+      if (rigEnabled && path.length > 0) queueKnockouts(actionFoes, prepared.beforeCounter.foes, battleId.current + ':turn:' + moves, 'server-turn-dot', 0);
       if (rigEnabled && path.length > 0) { setTotalDmg(s => s + prepared.startDamage + prepared.endDamage); setMoves(m => m + 1); endStep(prepared.beforeCounter.team, prepared.beforeCounter.foes, why, false, true, false, true, prepared); }
       else setBusy(false);
       return;
@@ -542,6 +592,8 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       const enemyHealing = prepared.enemyHealingSummary.map(h => `${h.name} +${h.actual}`).join('、');
       setSupportText([prepared.shield?.name, healing && `我方回復：${healing}`, enemyHealing && `敵方相生回復：${enemyHealing}`].filter(Boolean).join('；'));
       showStrike(rigEnabled ? actualHits : hits, foe, nf[actionTarget], false, rigEnabled ? actualDealt : undefined, prepared.summon);
+      // 伺服端回合已確認的擊倒；rig 攻擊時等咬合命中（RIG_IMPACT_MS）後才開播。連鎖在 settle（整段播放完）才結算，因此必在擊倒那段之後。
+      queueKnockouts(actionFoes, nf, battleId.current + ':turn:' + moves, 'server-turn', hadRig.current ? RIG_IMPACT_MS : 0);
       if (prepared.summon) showBanner(`${prepared.summon.name}應召突襲！`, 'skill');
       if (actualDealt > 0) { setHitFoe(actionTarget); later(() => setHitFoe(null), 500); }
       setMoves((m) => m + 1); setLastDmg(actualDealt); setTotalDmg((s) => s + actualDealt);
@@ -739,7 +791,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
           <button type="button" key={f.id} data-testid="match3-enemy" data-id={f.id} data-hp={f.hp} data-cd={f.cd} data-target={i === ti ? '1' : '0'}
             disabled={!enemyReady(i)} data-waiting={f.hp > 0 && !enemyReady(i) ? 'true' : undefined} onClick={() => { if (enemyReady(i)) { setTarget(i); setLog(`目標改為${f.name}。`); } }}
             aria-pressed={i === ti} aria-label={`${f.name}，${MATCH3_ORB_LABEL[f.element]}屬性，HP ${f.hp}/${f.maxHp}，${f.hp > 0 && !enemyReady(i) ? '待命，前四張敵卡倒下後才能攻擊並參戰' : rigEnabled ? (counterFoes.has(i) ? '反擊中' : '由阿修羅選擇反擊卡') : `${f.cd} 步後反擊`}${i === ti ? '，目前目標' : enemyReady(i) ? '，點擊設為目標' : ''}`}
-            className={`${styles.foe} ${i === ti ? styles.foeOn : ''} ${f.hp <= 0 ? styles.down : ''} ${hitFoe === i ? styles.allyHit : ''} ${counterFoes.has(i) ? styles.foeAttack : ''} ${!rigEnabled && f.cd === 1 && f.hp > 0 ? styles.foeHot : ''}`}
+            className={`${styles.foe} ${i === ti ? styles.foeOn : ''} ${f.hp <= 0 && !deathHold.has(f.id) ? styles.down : ''} ${hitFoe === i ? styles.allyHit : ''} ${counterFoes.has(i) ? styles.foeAttack : ''} ${!rigEnabled && f.cd === 1 && f.hp > 0 ? styles.foeHot : ''}`}
             style={{ ['--ec' as string]: ORB_COLOR[f.element], ...(rigEnabled && !guardianDuel ? { gridColumn: i + 1 } : {}) }}>
             {rigEnabled && skillMarker(f.id, 'enemy')}
             {rigEnabled && f.hp > 0 && !enemyReady(i) && <span className={styles.cd} data-testid="match3-boss-waiting">待命</span>}
@@ -818,7 +870,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
 
       {!rigEnabled && actions}
 
-      {over && (
+      {over && !resultWaiting && (
         <div className={styles.result} role="dialog" aria-label="對戰結果" data-testid="match3-result" data-result={over}>
           <BattleResultBanner outcome={over === 'win' ? 'win' : 'lose'} subtitle={over === 'win' ? '你贏了！' : '敵方守住了，這一局沒有贏。'} />
           {/* 戰利品緊接在勝負橫幅下面：贏了一眼就看到獲得什麼；保存成功才顯示已獲得（見 BattleRewardReveal） */}
@@ -838,6 +890,8 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
           <button type="button" className={styles.again} disabled={busy || campaignAwaiting} onClick={restart}>{rigEnabled ? (over === 'win' ? '挑戰下一關' : '原難度重試') : '再來一局'}</button>
         </div>
       )}
+      <AsuraDeathHost events={knockouts} root={root} startDelayMs={ev => deathDelay.current.get(ev.id) ?? 0} warm={deathWarm} srcOf={deathSrc} preloadBoss={deathBossPresent} bossOnStage={deathBossOnStage} onSettled={settleDeath} onEventFinished={finishDeath} />
+      {resultWaiting && <span hidden data-testid="match3-result-pending" data-pending={deathPending.size} />}
       {rigEnabled && <Match3RigAttack ids={[...team.map(u => u.id), ...playableCards().filter(c => c.form === 'GUARDIAN' && team.some(u => u.element === c.element)).map(c => c.id)]} root={root} strike={strike} onImpact={impact} />}
       <span hidden data-testid="match3-last-damage">{lastDmg}</span>
     </section>

@@ -1,0 +1,16 @@
+/* 純疊加特效層：不攔截任何點擊、不加卡框光暈 */
+.layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 40; /* 高於盤面、低於結算面板（結算面板請用 >= 50）；元件 zIndex prop 會覆寫 */
+  contain: strict;
+}
+.fixed { position: fixed; }
+.canvas {
+  position: absolute;
+  pointer-events: none;
+  will-change: transform;
+  transform: translateZ(0);
+}
