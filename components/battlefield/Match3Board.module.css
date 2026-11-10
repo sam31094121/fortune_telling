@@ -842,3 +842,13 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 
 /* Return the space saved by the flat treasure dock to the orbs, retaining device safe area. */
 .wrap[data-mode^="hard"][data-match3-battle-active="true"] { padding-bottom:max(2px, env(safe-area-inset-bottom, 0px)); }
+
+/* 困難模式：連結攻擊列常駐於隊伍／寶器下方（手機優先、單列三鍵、不蓋棋盤）；顏色沿用原 actionBar。 */
+.wrap[data-mode^="hard"] .actionBar { margin: 4px 0 0; padding: 4px; gap: 4px; border-radius: 10px; backdrop-filter: none; }
+.wrap[data-mode^="hard"] .actionBar button { min-height: 44px; font-size: 13px; border-radius: 9px; padding: 2px 4px; touch-action: manipulation; }
+.wrap[data-mode^="hard"] .actionBar button small { font-size: 10px; line-height: 1.15; }
+.wrap[data-mode^="hard"] .actionBar button.on { box-shadow: 0 0 0 1px #ffe3a1, 0 0 8px rgba(255,227,161,.45); }
+@media (max-height: 600px) and (max-width: 600px) {
+ .wrap[data-mode^="hard"] .actionBar button { min-height: 36px; font-size: 12px; }
+ .wrap[data-mode^="hard"] .actionBar button small { display: none; }
+}

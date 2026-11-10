@@ -338,7 +338,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       let rect = element.getBoundingClientRect(); const top = viewport?.offsetTop ?? 0;
       const height = viewport?.height ?? window.innerHeight;
       const boardElement = element.querySelector<HTMLElement>('[data-testid="match3-board"]');
-      if (boardElement && window.matchMedia('(max-width: 900px)').matches) {
+      if (boardElement && window.matchMedia('(max-width: 900px), (max-height: 960px)').matches) {
         const box = boardElement.getBoundingClientRect(), style = getComputedStyle(boardElement);
         const number = (v: string) => Number.parseFloat(v) || 0;
         const vertical = number(style.paddingTop) + number(style.paddingBottom) + number(style.borderTopWidth) + number(style.borderBottomWidth);
@@ -393,7 +393,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   /** 殿後魔王登場（護衛全倒、魔王仍在）：交給 Host 呼叫 v4 預熱。 */
   const deathBossIdx = foes.findIndex((f, i) => deathBossRule(f, i, foes));
   const deathBossOnStage = !over && deathBossIdx >= 0 && foes[deathBossIdx].hp > 0 && foes.every((f, i) => i === deathBossIdx || f.hp <= 0) ? { foeId: foes[deathBossIdx].id, foeIndex: deathBossIdx } : null;
-  const deathSrc = (id: string) => { const f = foes.find(x => x.id === id); return f ? (rigEnabled && guardianDuel && duelArt ? duelArt : f.thumbnail) : undefined; };
+  const deathSrc = (id: string) => { const f = foes.find(x => x.id === id); return f ? (rigEnabled && guardianDuel && duelArt && id === foes[4]?.id ? duelArt : f.thumbnail) : undefined; };
   const leads = leadIds(team, rule === 'tap-lead' ? chosen : {});
 
   const saveVictory = useCallback(async () => {
@@ -770,7 +770,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
 
   const actions = (
 <div className={styles.actionBar} role="toolbar" aria-label="連線攻擊" data-testid="match3-actionbar">
-        <button type="button" className={`${linkMode ? styles.on : ''} ${pulse ? styles.pulse : ''}`} data-testid="match3-link-mode" aria-pressed={linkMode} onClick={() => { setLinkMode(!linkMode); if (linkMode) setLink([]); }}>{linkMode ? '連線模式：開' : '連線模式'}</button>
+        <button type="button" className={`${linkMode ? styles.on : ''} ${pulse ? styles.pulse : ''}`} data-testid="match3-link-mode" aria-pressed={linkMode} onClick={() => { setLinkMode(!linkMode); if (linkMode) setLink([]); }}>{linkMode ? '連線模式：開' : '連線模式'}{rigEnabled && <small data-testid="match3-link-mode-hint">{linkMode ? '點卡＝加入連線' : '點滿能量卡＝能量技'}</small>}</button>
         <button type="button" onClick={() => setLink([])} disabled={!link.length}>清除連線</button>
         <button type="button" className={styles.fire} aria-disabled={!linkMode || !!problem || !!over} onClick={() => { if (!linkMode) { setLog(`先按左下「連線模式」，再點 ${LINK_MIN_CARDS} 張以上、每張至少 ${LINK_ENERGY_COST} 能量的卡。`); setPulse(true); later(() => setPulse(false), 1600); return; } if (problem || over) { setLog(fireSub); return; } fireLink(); }} data-testid="match3-link-fire">發動連線攻擊<small>{fireSub}</small></button>
       </div>
@@ -796,7 +796,6 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
         {rigEnabled && <span className={styles.srOnly} data-testid="match3-round">{stage.label}·{moves + 1}回合</span>}
         {rigEnabled && <button type="button" className={`${styles.helpBtn} ${styles.helpTop}`} aria-expanded={help} onClick={() => setHelp(!help)}>玩法與操作</button>}
       </header>
-      {rigEnabled && help && actions}
       {rigEnabled && help && intro && <div className={styles.quickIntro} data-testid="match3-quick-intro" role="status">上下、左右、左斜、右斜都可以，只要3顆相同寶珠連成一線即可；本關合計 {stage.minChain} 顆以上才具有攻擊效果，連得越多，威力越強。<button type="button" onClick={() => setIntro(false)} aria-label="收起操作提示">×</button></div>}
       {rigEnabled && counterVisuals.length > 0 && <svg className={styles.counterTrace} aria-hidden="true" data-testid="match3-counter-trace">{counterVisuals.map((h, i) => { const visual = counterVisualPath(h.enemyId, h.element, h.x1, h.y1, h.x2, h.y2); return <g key={i} data-source-id={h.enemyId} data-element={h.element} data-lightning={visual.lightning || undefined} style={{ ['--counter-color' as string]: visual.color, ['--counter-width' as string]: visual.width }}><path d={visual.path} pathLength="1" /><circle cx={h.x2} cy={h.y2} r="20" /></g>; })}</svg>}
       <OrbElementAttack flights={outgoing} side="ally" />
@@ -826,7 +825,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
             {rigEnabled && f.hp > 0 && !enemyReady(i) && <span className={styles.cd} data-testid="match3-boss-waiting">待命</span>}
             {rigEnabled && !!f.skillRuntime?.shield && <span className={styles.runtimeShield}>盾 {f.skillRuntime.shield}</span>}
             {(!rigEnabled || counterFoes.has(i)) && <span className={styles.cd} data-testid="match3-counter" aria-hidden="true">{rigEnabled ? '反擊中' : <>⏳{f.cd}</>}</span>}
-            <div className={styles.foeArt} role="img" aria-label={f.name} data-rig-target={rigEnabled || undefined} style={rigEnabled ? undefined : { backgroundImage: `url(${f.thumbnail})` }}>{rigEnabled && <Match3TargetArt src={guardianDuel && duelArt ? duelArt : f.thumbnail} />}</div>
+            <div className={styles.foeArt} role="img" aria-label={f.name} data-rig-target={rigEnabled || undefined} style={rigEnabled ? undefined : { backgroundImage: `url(${f.thumbnail})` }}>{rigEnabled && <Match3TargetArt src={guardianDuel && duelArt && i === 4 ? duelArt : f.thumbnail} />}</div>
             <div className={styles.foeName}>{f.name}</div>
             <div className={`${styles.bar} ${styles.foeBar}`} role="progressbar" aria-label={`${f.name}生命`} aria-valuenow={f.hp} aria-valuemax={f.maxHp}><span style={{ width: pct(f.hp, f.maxHp) }} /></div>
             {rigEnabled && <EnemyActionIndicator energy={f.attackEnergy ?? 0} className={styles.enemyActionState} down={f.hp <= 0} ended={!!over} waiting={!enemyReady(i)} controlled={(f.skillRuntime?.stunnedTurns ?? 0) > 0} attacking={counterFoes.has(i)} />}
@@ -894,6 +893,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
         })}
       </div>
       {rigEnabled && (campaignEnabled || treasurePractice) && <OrbTreasures catalog={treasures} disabled={busy || !!over} guard={treasureGuard} onUse={useTreasure}/>}
+      {rigEnabled && actions}
       <TreasureAnimation flight={treasureFlight}/>
       {!rigEnabled && onRepick && <div className={styles.repick}><button type="button" data-testid="open-picker" onClick={onRepick}>重新選卡</button></div>}
 

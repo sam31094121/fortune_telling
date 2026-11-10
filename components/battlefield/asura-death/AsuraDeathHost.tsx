@@ -120,7 +120,7 @@ export default function AsuraDeathHost({ events, root, resolveAnchor = defaultAn
     return () => window.clearTimeout(bossWarmTimer.current);
   });
   const bossAnchors = useRef(new Map<string, HTMLElement | null>());
-  const slotAnchors = useRef(new Map<string, { el: HTMLElement | null; gen: number; lockedFor?: string }>());
+  const slotAnchors = useRef(new Map<string, { el: HTMLElement | null; gen: number; lockedFor?: string; src?: string }>());
   const finishedIds = useRef(new Set<string>());
   const el = root.current;
   const delayOf = (ev: KnockoutEvent) => typeof startDelayMs === 'function' ? startDelayMs(ev) : startDelayMs;
@@ -141,7 +141,9 @@ export default function AsuraDeathHost({ events, root, resolveAnchor = defaultAn
       const n = resolveAnchor(t, el);
       if (!a || n !== a.el) a = { el: n, gen: (a?.gen ?? 0) + 1 };
     }
-    a = a ? { ...a, lockedFor: ev?.id } : { el: null, gen: 0, lockedFor: ev?.id };
+    // 播放中同時鎖定卡圖 src：版面切換（例如魔王登場）不得讓 src 變更而銷毀播放中的引擎。
+    const lockedSrc = ev ? srcOf?.(t.foeId) : undefined;
+    a = a ? { ...a, lockedFor: ev?.id, src: lockedSrc } : { el: null, gen: 0, lockedFor: ev?.id, src: lockedSrc };
     slotAnchors.current.set(t.foeId, a);
     return a;
   };
@@ -149,7 +151,7 @@ export default function AsuraDeathHost({ events, root, resolveAnchor = defaultAn
   return <span data-testid="asura-death-host" data-events={events.length} data-engines={slots.length} data-warm-targets={(warm ?? []).map(w => w.foeId).join(',')} data-boss-prewarm={bossWarmed.current.size} hidden>
     {slots.map(({ t, ev }) => {
       const a = anchorOf(t, ev);
-      return <RegularSlot key={`${t.foeId}:${a.gen}`} ev={ev} anchor={a.el} src={srcOf?.(t.foeId)} delay={ev ? delayOf(ev) : 0} zIndex={zIndex}
+      return <RegularSlot key={`${t.foeId}:${a.gen}`} ev={ev} anchor={a.el} src={ev ? (a.src ?? srcOf?.(t.foeId)) : srcOf?.(t.foeId)} delay={ev ? delayOf(ev) : 0} zIndex={zIndex}
         failsafe={failsafeMs.regular} startGraceMs={startGraceMs.regular} destroyAfterMs={destroyAfterMs}
         onStart={e => onEventStart?.(e)} onDone={(e, info) => { onEventDone?.(e, info); finished(e); }} onSettled={e => onSettled?.(e)} onRelease={release} />;
     })}
