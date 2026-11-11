@@ -122,7 +122,7 @@ const BattleDock = memo(function BattleDock({ match, view, cards, busy = false, 
                 <i style={{ width: `${hpPct}%` }} />
                 {shieldPct > 0 && <b style={{ width: `${shieldPct}%`, left: `${hpPct}%` }} />}
               </span>
-              <small>{status}・{fighter.hp}/{fighter.maxHp}</small>
+              <small title={status}>{fighter.defeated ? '已倒下' : `${fighter.hp}/${fighter.maxHp}`}</small>
             </button>
           );
         })}

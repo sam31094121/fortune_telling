@@ -220,3 +220,9 @@
    只靠漸層自然銜接（外面保留同一個外框）。 */
 .split[data-dock='true'] > [data-battle-controls] { border: 0; background: linear-gradient(180deg, #0a152400 0, #0a1424 38%, #09121f 100%); }
 .split[data-dock='true'] > [data-battle-visual] { box-shadow: none; }
+
+/* 2026-11-12 手機精細度：矮螢幕（小手機／橫向）把次要提示收起來，戰場與卡片優先放大 */
+@media (max-height: 720px) {
+  .split[data-dock='true'] [data-battle-stake], .split[data-dock='true'] [data-battle-resumed] { display: none; }
+  .split[data-dock='true'] > [data-battle-controls] { max-height: 38dvh; }
+}
