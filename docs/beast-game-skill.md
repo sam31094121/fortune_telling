@@ -2272,13 +2272,16 @@ npm run check:beast-clips        # 落地一支就驗一支
 - `npm run test:battle-reward`（規則、帳本、三種開局的重播一致、偽造防護、前端不運算、不提前揭曉）。
 - 既有守門照跑：`test:beast-backend-only`、`test:beast-stake`、`test:beast-stake-reward`、`beast-turns-*`。
 
-## 2026-11-11 業主追加：隱藏連線攻擊工具列（功能保留）
+## 2026-11-11 業主追加：拿掉連線攻擊工具列，改自動連線（15:32）
 
-- 寶珠戰困難盤面下方的「連線攻擊」工具列（「連線模式：開／關」、「清除連線」、「發動連線攻擊」三顆按鈕，`data-testid="match3-actionbar"`）**從畫面隱藏**。業主明示「功能一樣存在」：**不刪除任何程式**。
-- 作法：`components/battlefield/Match3Board.tsx` 兩處渲染點（困難與非困難）改為 `{false && … actions}`，工具列 JSX、連線模式狀態、點卡加入連線的邏輯、連線攻擊結算全部保留。
-- 隱藏永久生效：除非業主明說「叫醒／顯示」，不得自行恢復。要恢復只需把兩處的 `false &&` 拿掉。
-- 影響（照實說明）：隱藏後畫面上沒有入口可切換連線模式或發動連線攻擊，客戶實際上無法使用「多卡連線攻擊」；單卡滿能量點擊攻擊不受影響，核心結算與規則不變。
-- 守門：`tests/beast-match3-hard-link-button.test.cjs` 改為「必須是隱藏、程式碼必須保留、仍可實際渲染並驗證點卡邏輯」，實測把 `false` 拿掉時該測試會失敗。
+- 寶珠戰盤面下方的「連線攻擊」工具列（「連線模式：開／關」、「清除連線」、「發動連線攻擊」，`data-testid="match3-actionbar"`）在 360／390／1280 等所有寬度都不掛載。功能改由盤面操作承擔，不靠畫面上的說明或按鈕。
+- 不要用 `{false && … actions}` 只藏不拆：那樣畫面上沒有入口，客戶實際上無法發動多卡連線攻擊。這是 `9c7dec80` 的舊作法，已拿掉以免與現行行為重複、互相矛盾。
+- 現行作法：`components/battlefield/Match3Board.tsx` 以 `const mobileActionless = true` 拿掉 640px 限制，兩處渲染改為 `{… && !mobileActionless && actions}`。工具列 JSX 仍留在程式裡，但不掛載。改由：
+  - 滿線自動連線攻擊（所有 ≥50 能量且可出手的卡一起、各扣 50；同一就緒視窗只發一次）
+  - 點滿能量卡發動能量技
+  - 再點已選卡，或點棋盤空白處，清除連線
+- 測試專用：`?m3debug=1` 的 `holdAutoLink`／`?m3autolink=0` 可暫停自動連線，方便驗證手動點兩張卡；正式遊玩（無 m3debug）不受影響。
+- 守門：`tests/beast-match3-hard-link-button.test.cjs` 驗證全寬不掛載工具列、自動連線與點卡路徑。
 
 
 ## 2026-11-11 業主追加：連線後掉落時序（快、狠、準、穩）
