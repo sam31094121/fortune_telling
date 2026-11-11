@@ -97,7 +97,7 @@ const FORM_LABELS: Record<Form, string> = {
 // 卡片戰鬥統一闖關；寶珠戰保持獨立入口。
 const GAME_MODES = [
   { id: 'campaign', step: '卡片闖關', iconPath: 'm4 3 3 1 12 13-2 2L4 6 4 3Z M3 17l4 4 M5 19l-2 2 M17 3l3 1-1 3-5 5 M10 15l-3 4 M17 17l4 4 M17 21l4-4', title: '卡片戰鬥', desc: '合體培養、五對五押卡，勝利後逐關挑戰', href: '/beast-game/battlefield' },
-  { id: 'bead-hard', step: '⑤ 寶珠困難', iconPath: 'M12 3a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M6 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M18 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8', title: '寶珠戰・困難', desc: '56 顆寶珠、數字累加、盾牌清場，逐關挑戰', href: '/beast-game/match3-hard' },
+  { id: 'bead-hard', step: '⑤ 寶珠困難', iconPath: 'M12 3a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M6 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M18 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8', title: '寶石捷連線', desc: '56 顆寶珠、數字累加、盾牌清場，逐關挑戰', href: '/beast-game/match3-hard' },
 ] as const;
 
 // Decorative 7×8 board artwork; no game state, rewards or customer progress.
