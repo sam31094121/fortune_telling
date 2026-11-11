@@ -605,13 +605,13 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .fire .elementGlyph { top: 7%; width: 53%; height: 53%; }
 .magic .elementGlyph { width: 52%; height: 52%; }
 .sel .elementGlyph { color: #fffaf0; }
-.wrap[data-mode^="hard"] .flash .elementGlyph { animation: m3SoftClear var(--clear-duration, .26s) ease-out forwards; }
+.wrap[data-mode^="hard"] .flash .elementGlyph { animation: m3SoftClear var(--clear-duration, .15s) ease-out forwards; }
 @media (prefers-reduced-motion: reduce) {
   .wrap[data-mode^="hard"] .flash .elementGlyph { animation: none; opacity: .3; }
 }
 .wrap[data-mode^="hard"] .drop { animation: m3SoftDrop .32s cubic-bezier(.22,.68,.3,1); }
 .wrap[data-mode^="hard"] .flash .gem,
-.wrap[data-mode^="hard"] .flash .lbl { animation: m3SoftClear var(--clear-duration, .26s) ease-out forwards; }
+.wrap[data-mode^="hard"] .flash .lbl { animation: m3SoftClear var(--clear-duration, .15s) ease-out forwards; }
 .wrap[data-mode^="hard"] .water.flash .gem { animation-name: m3SoftWaterClear; }
 @keyframes m3SoftDrop {
   from { transform: translateY(-22%) scale(.98); opacity: .35; }
@@ -640,14 +640,28 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
   from { opacity: .5; filter: brightness(1.35); }
   to { opacity: 1; filter: brightness(1); }
 }
+/* 掉落（2026-11-11 業主：快、狠、準、穩）
+   快：落程由 refill-presentation 依各珠實際落差算好（--fall-duration／--fall-delay），這裡不另設時間。
+   狠：cubic-bezier(.333,0,.667,.333) 正是 y∝t² 的重力曲線（先慢後快、撞地），落地接一個極短的壓扁回彈。
+   準：只用 transform／opacity，不動版面；落點由最終格位決定，動畫結束一定在原位。
+   穩：不用 filter、不震動鏡頭；落地動畫用 forwards（不套在延遲期間），避免蓋掉還沒開始掉的位置。 */
 .wrap[data-mode^="hard"] .falling {
   z-index: 1;
-  animation: m3RefillFall var(--fall-duration) cubic-bezier(.22,.65,.25,1) var(--fall-delay) both;
+  transform-origin: 50% 100%;
+  will-change: transform, opacity;
+  animation:
+    m3RefillFall var(--fall-duration) cubic-bezier(.333,0,.667,.333) var(--fall-delay) both,
+    m3RefillLand 90ms cubic-bezier(.2,.9,.3,1) calc(var(--fall-delay) + var(--fall-duration)) forwards;
 }
 @keyframes m3RefillFall {
   0% { transform: translateY(var(--fall-offset)) scale(.98); opacity: var(--fall-opacity, 1); }
-  15% { opacity: 1; }
+  12% { opacity: 1; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes m3RefillLand {
+  0% { transform: translateY(0) scale(1, 1); }
+  40% { transform: translateY(0) scale(1.07, .9); }
+  100% { transform: translateY(0) scale(1, 1); }
 }
 @media (prefers-reduced-motion: reduce) {
   .wrap[data-mode^="hard"] .falling,

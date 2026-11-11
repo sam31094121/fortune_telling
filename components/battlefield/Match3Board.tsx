@@ -51,7 +51,7 @@ import { readCampaign, settleWin, transactTreasures, type CampaignSettlement } f
 import { validateCampaignTeam, campaignAttack, type HardCampaign } from '@/lib/beast-game/match3/hard-campaign';
 import { createMatch3Sound, type Match3SoundCue } from './match3Sound';
 import { runRefillPlayback } from '@/lib/beast-game/match3/refill-runner';
-import { refillPresentation, refillLandingTimes, fusionShieldLayout, fusionDischarge, FUSION_CLEAR_AT_MS, FUSION_DISPLAY_MS, type RefillMotion } from '@/lib/beast-game/match3/refill-presentation';
+import { REFILL_TIMING, refillPresentation, refillLandingTimes, fusionShieldLayout, fusionDischarge, FUSION_CLEAR_AT_MS, FUSION_DISPLAY_MS, type RefillMotion } from '@/lib/beast-game/match3/refill-presentation';
 
 interface Unit extends Match3Fighter { name: string; thumbnail: string; maxHp: number; energy: number; skillName?: string; description?: string }
 /** 全滅後等死亡特效的上限（從分出勝負起算）：一般＝命中延遲 1.12s＋6 倍降速 arm＋1.9s 動畫；魔王＝1.12s＋arm 3.4s＋4.2s 爆炸。 */
@@ -235,7 +235,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const [falling, setFalling] = useState<Map<number, RefillMotion>>(new Map());
   const [emptyCells, setEmptyCells] = useState<Set<number>>(new Set());
   const [rewards, setRewards] = useState<Set<number>>(new Set());
-  const [clearMs, setClearMs] = useState(260);
+  const [clearMs, setClearMs] = useState<number>(REFILL_TIMING.clearMs);
   const [banner, setBanner, queuedBanner] = useBannerQueue();
   const [hitTeam, setHitTeam] = useState<Set<string>>(new Set());
   const [skillVisuals, setSkillVisuals] = useState<OrbSkillEvent[]>([]);

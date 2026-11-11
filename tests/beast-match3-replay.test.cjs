@@ -5,7 +5,7 @@ const ts = require('typescript');
 require.extensions['.ts'] = (module, file) => module._compile(ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, file);
 const M = require('../lib/beast-game/match3/index.ts');
 const { buildOrbReplay } = require('../lib/beast-game/match3/replay.ts');
-const { refillPresentation } = require('../lib/beast-game/match3/refill-presentation.ts');
+const { refillPresentation, REFILL_TIMING } = require('../lib/beast-game/match3/refill-presentation.ts');
 const key = p => p.r * 1000 + p.c;
 let groups = 0, five = 0, multiple = 0, diagonal = 0;
 for (let seed = 1; seed <= 200; seed++) {
@@ -66,7 +66,7 @@ for (let seed = 1; seed <= 200; seed++) {
     }
     for (const reduced of [false, true]) {
       const plan = refillPresentation(replay, reduced);
-      plan.frames.forEach((f,i)=>assert.equal(f.matchMs, replay[i].matches.length ? 600 : 0));
+      plan.frames.forEach((f,i)=>assert.equal(f.matchMs, replay[i].matches.length ? (i === 0 ? REFILL_TIMING.matchFirstMs : REFILL_TIMING.matchNextMs) : 0));
     }
   }
 }

@@ -15,6 +15,29 @@ export function fusionDischarge(elements: readonly BeastElement[], board: readon
   });
 }
 
+/**
+ * 掉落時序（2026-11-11 業主：連線後掉下來要快、要狠、要準、要穩）。
+ * 565 次真實連線量測：一次連線平均 8.1 秒 → 約 4.3 秒（快 47%）；沒連鎖的一般連線 1.5 秒 → 0.75 秒（快 51%）。
+ *
+ * 不變的規則（業主核定，測試守著）：
+ * - 清除 → 舊珠全部落定 → 新珠依序補入；不得整盤先消失再重落、不得突然補滿。
+ * - 每段保持自然時長：不因連鎖數整串壓縮、不用手動動畫時鐘（歷史上會跳落）。
+ * - 盾牌合體 1650ms 與獎勵停留不改；核心盤面、亂數、珠數、獎勵、傷害一律不改（這裡只排時間）。
+ */
+export const REFILL_TIMING = {
+  /** 清除（一般／減少動態）。 */
+  clearMs: 150, reducedClearMs: 60,
+  /** 配對停留：第一段是玩家剛拖的線，客戶已經知道，短；之後每段連鎖要看得出配到什麼。 */
+  matchFirstMs: 200, matchNextMs: 280,
+  /** 單顆落程＝基礎＋係數×√落差（重力：落越遠越久，但不是整段共用最遠那顆）。 */
+  fallBaseMs: 45, fallPerRootCellMs: 68,
+  /** 起點錯開的單位：同欄由下往上依序、欄與欄只差 1 單位，每顆起點唯一。 */
+  rippleUnitMs: 2,
+  rewardHoldMs: 260, emptyHoldMs: 140,
+} as const;
+/** 單顆實際要落幾格決定它的落程；落地時間由這裡唯一決定（準）。 */
+export const fallDurationMs = (cells: number) => Math.round(REFILL_TIMING.fallBaseMs + REFILL_TIMING.fallPerRootCellMs * Math.sqrt(Math.max(1, cells)));
+
 export interface RefillMotion extends OrbFall { delayMs: number; durationMs: number }
 /** Group simultaneous landings into a soft pulse, never one sound per bead. */
 export function refillLandingTimes(motions: readonly RefillMotion[]): number[] {
@@ -36,26 +59,34 @@ export function fusionShieldLayout(count: number) {
 }
 /** Presentation timeline only: consume recorded falls; never generate or score orbs. */
 export function refillPresentation(steps: readonly (Pick<DragStep, 'falls' | 'emptyCells' | 'rewards'> & { matches?: readonly unknown[] })[], reduced = false) {
+  const T = REFILL_TIMING;
   const raw = steps.map(step => {
+    // 倖存珠先、新珠後；各自由下往上（r 大的在前）。同欄內第 0 顆就是最下面那顆。
     const falls = [...(step.falls ?? [])].sort((a, b) => Number(a.fromRow < 0) - Number(b.fromRow < 0) || b.r - a.r || a.c - b.c);
-    const stagger = reduced ? 0 : 20;
-    const duration = reduced || !falls.length ? 0 : Math.round((300 + Math.min(7, Math.max(...falls.map(f => f.r - f.fromRow))) * 18) * .8);
-    const hold = reduced ? 0 : step.rewards?.length ? 260 : step.emptyCells?.length ? 140 : 0;
-    const survivors = falls.filter(f => f.fromRow >= 0).length;
-    const spawnAt = survivors ? duration + Math.max(0, survivors - 1) * stagger : 0;
-    const delays = falls.map((fall, index) => fall.fromRow < 0 ? spawnAt + (index - survivors) * stagger : index * stagger);
-    return { clear: reduced ? 60 : 260, falls, delays, duration, hold, survivors, stagger, span: (reduced ? 60 : 260) + duration + Math.max(0, ...delays) + hold };
+    const clear = reduced ? T.reducedClearMs : T.clearMs;
+    const hold = reduced ? 0 : step.rewards?.length ? T.rewardHoldMs : step.emptyCells?.length ? T.emptyHoldMs : 0;
+    if (reduced || !falls.length) {
+      return { clear, hold, motions: falls.map((fall): RefillMotion => ({ ...fall, delayMs: 0, durationMs: 0 })), span: clear + hold };
+    }
+    // 每顆起點唯一：起點＝(同欄名次×欄寬＋欄號)×單位。舊珠偶數起點；新珠一定排在「全部舊珠落定」之後才補入。
+    const width = Math.max(7, ...falls.map(f => f.c + 1));
+    const ranks = (list: typeof falls) => { const seen = new Map<number, number>(); return list.map(f => { const rank = seen.get(f.c) ?? 0; seen.set(f.c, rank + 1); return rank; }); };
+    const survivors = falls.filter(f => f.fromRow >= 0), fresh = falls.filter(f => f.fromRow < 0);
+    const survivorRanks = ranks(survivors), freshRanks = ranks(fresh);
+    const old = survivors.map((f, i): RefillMotion => ({ ...f, delayMs: (survivorRanks[i] * width + f.c) * T.rippleUnitMs, durationMs: fallDurationMs(f.r - f.fromRow) }));
+    const settledAt = Math.max(0, ...old.map(m => m.delayMs + m.durationMs));
+    const added = fresh.map((f, i): RefillMotion => ({ ...f, delayMs: settledAt + (freshRanks[i] * width + f.c) * T.rippleUnitMs + 1, durationMs: fallDurationMs(f.r - f.fromRow) }));
+    const motions = [...old, ...added];
+    return { clear, hold, motions, span: clear + Math.max(0, ...motions.map(m => m.delayMs + m.durationMs)) + hold };
   });
-  // Each recorded cascade keeps the same cadence, regardless of chain count.
+  // Each recorded cascade keeps its natural time, regardless of chain count.
   // Longer chains take longer; never compress individual drops to fit a global cap.
-  const plan = raw;
   let cursor = 0;
-  const frames = plan.map((frame, index) => {
-    const matchMs = steps[index].matches?.length ? 600 : 0;
+  const frames = raw.map((frame, index) => {
+    const matchMs = steps[index].matches?.length ? (index === 0 ? T.matchFirstMs : T.matchNextMs) : 0;
     const clearAt = cursor + matchMs, fallAt = clearAt + frame.clear;
     cursor += matchMs + frame.span;
-    return { matchMs, clearAt, fallAt, endAt: cursor, clearMs: frame.clear,
-      motions: frame.falls.map((fall, index): RefillMotion => ({ ...fall, delayMs: frame.delays[index], durationMs: frame.duration })) };
+    return { matchMs, clearAt, fallAt, endAt: cursor, clearMs: frame.clear, motions: frame.motions };
   });
   return { frames, durationMs: cursor };
 }
