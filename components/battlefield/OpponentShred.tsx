@@ -13,6 +13,9 @@ import dynamic from 'next/dynamic';
 // 約 150KB 的撕裂引擎不進首屏：第一次有卡被打倒才載入。
 const AsuraDeathFx = dynamic(() => import('./asura-death/AsuraDeathFx'), { ssr: false, loading: () => null });
 
+/** 進入戰鬥時先把撕裂引擎的程式載好，擊倒當下只剩建立畫面，不會在那一刻卡一下。 */
+export function preloadOpponentShred() { void import('./asura-death/AsuraDeathFx'); }
+
 export default function OpponentShred({ anchorRef, src, eventId, onDone }: {
   anchorRef: RefObject<HTMLElement | null>;
   src?: string;

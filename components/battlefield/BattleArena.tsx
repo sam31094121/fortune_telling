@@ -26,7 +26,7 @@ import MatchupSummary from './MatchupSummary';
 import PhotonParticleEffect from './PhotonParticleEffect';
 import RageComboEffect from './RageComboEffect';
 import TeamRosterPanel from './TeamRosterPanel';
-import OpponentShred from './OpponentShred';
+import OpponentShred, { preloadOpponentShred } from './OpponentShred';
 
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
 /**
@@ -50,6 +50,8 @@ export default function BattleArena({ state, cards, match, view, onInspect, tapT
   const [, bumpShred] = useState(0);
   const opponentArt = useRef<HTMLElement | null>(null);
   if (match && match.revision === 0) shredded.current.clear();
+  const inBattle = Boolean(match);
+  useEffect(() => { if (inBattle) preloadOpponentShred(); }, [inBattle]);
   // 對位倍率與說明取自後端相剋戰力手冊（後端化第三階段 3B）。
   const book = useGuideBook();
   const matchup = mine && foe ? book?.matchups[mine.element as BeastElement]?.[foe.element as BeastElement] ?? null : null;
