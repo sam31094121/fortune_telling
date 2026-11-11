@@ -469,6 +469,14 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   }, [lastFoeReady, busy]);
   const lastFoeBig = lastFoeReady && lastFoeSettled;
   const bigFoe = guardianDuel || lastFoeBig;
+  // 業主 2026-11-11（手機實測回報）：我方只剩最後一隻神獸時，同樣放大成魔王般的大卡片（與敵方對稱）。
+  const lastAllyReady = rigEnabled && team.length > 1 && !over && team.filter(u => u.hp > 0).length === 1;
+  const [lastAllySettled, setLastAllySettled] = useState(false);
+  useEffect(() => {
+    if (!lastAllyReady) setLastAllySettled(false);
+    else if (!busy) setLastAllySettled(true);
+  }, [lastAllyReady, busy]);
+  const lastAllyBig = lastAllyReady && lastAllySettled;
   const duelRig = guardianDuel ? rigFor(foes[4].id) : null;
   const duelArt = duelRig ? rigFrameUrl(duelRig, duelRig.frames.some(frame => frame.id === 'land-crouch') ? 'land-crouch' : 'run-reach') : null;
   const ti = availableFoeTarget(foes, target, rigEnabled ? stage.wins + 1 : 0);
@@ -1001,7 +1009,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       {!rigEnabled && <div className={styles.legend} aria-hidden="true">{MATCH3_ORB_ELEMENTS.map((e) => <span key={e}><i style={{ background: ORB_COLOR[e] }} />{MATCH3_ORB_LABEL[e]}</span>)}</div>}
 
       <div className={rigEnabled ? styles.srOnly : styles.secHead}><span>出戰神獸（點卡設優先；滿能量點「技能」）</span><span data-testid="match3-damage">傷害 {totalDmg}</span></div>
-      <div className={`${styles.team} ${linkMode ? styles.linkOn : ''}`}>
+      <div className={`${styles.team} ${linkMode ? styles.linkOn : ''}`} data-last-ally={lastAllyBig || undefined}>
         {team.map((u) => {
           const down = u.hp <= 0;
           const full = !down && u.energy >= ENERGY_MAX;
