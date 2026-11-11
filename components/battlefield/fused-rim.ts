@@ -33,6 +33,8 @@ export function fusedRimState(s: { down: boolean; fired: boolean; ready: boolean
   if (s.down) return 'down';
   if (s.fired) return 'activated';
   if (s.ready) return 'ready';
+  // hp<=0 但尚在死亡動畫（呼叫端 down=false）時不要當「低血」呼吸（命理 N2）
+  if (s.hpRatio <= 0) return 'idle';
   if (s.hpRatio <= 0.3) return 'low';
   return 'idle';
 }
