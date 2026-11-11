@@ -261,7 +261,7 @@ function bossRoundEnd(s:Match){
   const cardId=opp.team[opp.active].cardId;
   if(boss.armed==='ORB_SEAL'&&player.rageAvailable===1&&(player.orbs??0)>0){
     player.orbs=0;
-    s.log.push({side:'opponent',cardId,bossCounter:'ORB_SEAL',text:'易經・寶珠封印：你的魔珠全部被封印。'});
+    s.log.push({side:'opponent',cardId,bossCounter:'ORB_SEAL',text:'阿修羅・寶珠封印：你的魔珠全部被封印。'});
   }
   boss.armed=null;
   if(boss.desperationRounds>0)boss.desperationRounds--;
@@ -270,7 +270,7 @@ function bossRoundEnd(s:Match){
   const own=bossCounterOptions('HARD',opp.orbs??0,opp.rage??0,'IDLE').map(o=>o.counter);
   if(own.includes('DESPERATION_MODE')&&unused('DESPERATION_MODE')){
     boss.used.push('DESPERATION_MODE');boss.desperationRounds=DESPERATION_ROUNDS;
-    s.log.push({side:'opponent',cardId,bossCounter:'DESPERATION_MODE',text:`易經進入背水模式：接下來 ${DESPERATION_ROUNDS} 回合攻擊加 ${DESPERATION_BONUS}。`});
+    s.log.push({side:'opponent',cardId,bossCounter:'DESPERATION_MODE',text:`阿修羅進入背水模式：接下來 ${DESPERATION_ROUNDS} 回合攻擊加 ${DESPERATION_BONUS}。`});
     return;
   }
   if(player.rageAvailable!==1||!rageMaterialFor(s,'player'))return;
@@ -278,7 +278,7 @@ function bossRoundEnd(s:Match){
   const pick=(['FUSION_BREAK','ORB_SEAL'] as BossCounter[]).find(c=>threat.includes(c)&&unused(c));
   if(!pick)return;
   boss.used.push(pick);boss.armed=pick;
-  s.log.push({side:'opponent',cardId,bossCounter:pick,text:pick==='FUSION_BREAK'?'易經預告・合體破壞：下回合你若暴怒合體，會被直接擊碎。':'易經預告・寶珠封印：這回合結束前沒用掉魔珠，會全部被封印。'});
+  s.log.push({side:'opponent',cardId,bossCounter:pick,text:pick==='FUSION_BREAK'?'阿修羅預告・合體破壞：下回合你若暴怒合體，會被直接擊碎。':'阿修羅預告・寶珠封印：這回合結束前沒用掉魔珠，會全部被封印。'});
 }
 /**
  * 戰鬥畫面上客戶要看到的首領提示（2026-09-15）。
@@ -289,8 +289,8 @@ export function bossNotice(m:Match):string|null {
   const boss=m.opponent.boss;
   if(!boss)return null;
   if(m.status==='PLAYING'){
-    if(boss.armed==='ORB_SEAL')return '易經預告・寶珠封印：這回合沒用掉魔珠，就會全部被封印。想搶先暴怒合體，按「暫停」自己出招。';
-    if(boss.armed==='FUSION_BREAK')return '易經預告・合體破壞：這回合暴怒合體會被擊碎。按「暫停」可以先忍住。';
+    if(boss.armed==='ORB_SEAL')return '阿修羅預告・寶珠封印：這回合沒用掉魔珠，就會全部被封印。想搶先暴怒合體，按「暫停」自己出招。';
+    if(boss.armed==='FUSION_BREAK')return '阿修羅預告・合體破壞：這回合暴怒合體會被擊碎。按「暫停」可以先忍住。';
     if(boss.desperationRounds>0)return `易經背水模式：還有 ${boss.desperationRounds} 回合，攻擊加 ${DESPERATION_BONUS}。`;
   }
   const effect=m.log.find(e=>e.bossCounter&&!/預告|進入/.test(e.text));
@@ -325,7 +325,7 @@ export function advance(previous:Match,playerAction:Action,opponentAction:Action
     // 合體破壞：上回合已在戰報預告；這回合玩家仍選擇合體，就被擊碎（本場合體用掉、不造成傷害）。
     if(side==='player'&&action.type==='RAGE'&&boss?.armed==='FUSION_BREAK'){
       t.rageAvailable=0;t.orbs=0;t.rage=0;boss.armed=null;consumeStatus();
-      s.log.push({side:'opponent',cardId:enemy.cardId,bossCounter:'FUSION_BREAK',text:'易經・合體破壞：你的暴怒合體被擊碎，本場不能再合體。'});
+      s.log.push({side:'opponent',cardId:enemy.cardId,bossCounter:'FUSION_BREAK',text:'阿修羅・合體破壞：你的暴怒合體被擊碎，本場不能再合體。'});
       continue;
     }
     const material=action.type==='RAGE'?rageMaterialFor(s,side):null;

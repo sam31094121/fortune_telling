@@ -116,7 +116,7 @@ export default function BattleArena({ state, cards, match, view, onInspect, tapT
           const team = match?.[side];
           const fighter = team?.team[team.active];
           const card = side === 'player' ? mine : foe;
-          const label = side === 'player' ? '你' : '易經';
+          const label = side === 'player' ? '你' : '阿修羅';
           const change = match && fighter ? combatChanges(match, side, fighter.cardId) : '';
           const action = match ? performedAction(match, side) : null;
           const performed = action === 'ATTACK' || action === 'SKILL' || action === 'RAGE';

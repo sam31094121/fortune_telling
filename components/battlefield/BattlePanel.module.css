@@ -620,3 +620,33 @@
 /* 2026-11-12：普通攻擊明確按鈕（與技能、暴怒同一排） */
 .attackButton { display: grid; place-items: center; gap: 2px; }
 .attackButton strong { font-size: 15px; }
+
+/* ───────── 2026-11-12 業主：操作鈕升級成「金屬＋玻璃」質感（同樣的按鈕、同樣的動作） ───────── */
+.primaryActions .actionButton, .primaryActions .skillButton {
+  position: relative; overflow: hidden; border-radius: 14px; letter-spacing: .06em;
+  transition: transform .12s ease, box-shadow .2s ease, filter .2s ease;
+}
+.primaryActions .actionButton {
+  border: 1px solid #f0d48f8c;
+  background: linear-gradient(180deg, #ffffff22 0%, #ffffff08 48%, #00000033 100%), #121c30;
+  color: #f4ead0;
+  box-shadow: inset 0 1px 0 #ffffff38, inset 0 -2px 4px #00000066, 0 8px 18px #0000006b;
+}
+.primaryActions .attackButton {
+  border-color: #ffb29cb3;
+  background: linear-gradient(180deg, #ff9b8a2e 0%, #ff6b5a0f 48%, #00000033 100%), #2a1218;
+  color: #ffe6de;
+}
+.primaryActions .skillButton {
+  border: 1px solid #fff0b5;
+  background: linear-gradient(180deg, #fff6cf 0%, #f8cf72 42%, #d99a2f 100%);
+  color: #2a1a06;
+  box-shadow: inset 0 1px 0 #fffdf0, inset 0 -3px 5px #8a5a1259, 0 10px 22px #f5b84a59, 0 0 22px #ffd27a40;
+}
+/* 金屬反光：一道斜光，只靜態呈現 */
+.primaryActions .skillButton::after, .primaryActions .actionButton::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(115deg, transparent 38%, #ffffff2e 48%, transparent 58%);
+}
+.primaryActions .actionButton:active:not(:disabled), .primaryActions .skillButton:active:not(:disabled) { transform: translateY(1px) scale(.97); filter: brightness(1.08); }
+.primaryActions .actionButton:disabled, .primaryActions .skillButton:disabled { opacity: .5; filter: saturate(.7); }

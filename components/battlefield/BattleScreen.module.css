@@ -215,3 +215,8 @@
 .battleHelp h2 { margin: 0 0 6px; font-size: 18px; font-weight: 900; }
 .battleHelp ol { margin: 0 0 10px; padding-left: 18px; display: grid; gap: 6px; font-size: 14px; line-height: 1.5; }
 .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* 2026-11-12 業主：戰鬥畫面一體成型——戰場、操作區、出戰卡列之間不再有任何分割線，
+   只靠漸層自然銜接（外面保留同一個外框）。 */
+.split[data-dock='true'] > [data-battle-controls] { border: 0; background: linear-gradient(180deg, #0a152400 0, #0a1424 38%, #09121f 100%); }
+.split[data-dock='true'] > [data-battle-visual] { box-shadow: none; }

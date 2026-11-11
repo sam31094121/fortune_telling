@@ -31,10 +31,10 @@ export default function ElementMatchupGuide({
     <details className={`${styles.matchupGuide} ${className}`}>
       <summary aria-label="查看目前兩張卡的相生相剋" title="相生相剋">？</summary>
       <div className={styles.shortVerdict}>
-        <span>我方 {playerLabel} · 易經 {opponentLabel}</span>
+        <span>我方 {playerLabel} · 阿修羅 {opponentLabel}</span>
         <strong>{playerCounters ? '有利' : opponentCounters ? '不利' : playerGenerates || opponentGenerates ? '相生' : '無加成'}</strong>
       </div>
-      <div className={styles.orbRow} role="img" aria-label={`五元素寶珠示意；我方${playerLabel}，易經${opponentLabel}`}>
+      <div className={styles.orbRow} role="img" aria-label={`五元素寶珠示意；我方${playerLabel}，阿修羅${opponentLabel}`}>
         {ELEMENTS.map(element => (
           <span key={element} className={`${styles.elementSymbol} ${styles[`symbol-${element}`]} ${element === playerElement ? styles.orbMine : ''} ${element === opponentElement ? styles.orbOpponent : ''}`} aria-hidden="true">
             {ELEMENT_LABEL[element]}
@@ -42,12 +42,12 @@ export default function ElementMatchupGuide({
         ))}
       </div>
       <p className={styles.explanation}>
-        {playerCounters && `我剋易經 · 攻擊元素倍率 ${percent(playerElement, opponentElement)}`}
-        {opponentCounters && `易經剋我 · 我方攻擊元素倍率 ${percent(playerElement, opponentElement)}`}
+        {playerCounters && `我剋阿修羅 · 攻擊元素倍率 ${percent(playerElement, opponentElement)}`}
+        {opponentCounters && `阿修羅剋我 · 我方攻擊元素倍率 ${percent(playerElement, opponentElement)}`}
         {(playerGenerates || opponentGenerates) && '相生不加傷害；合體看己方後備'}
         {!playerCounters && !opponentCounters && !playerGenerates && !opponentGenerates && '這兩張卡沒有元素加成'}
       </p>
-      <p className={styles.explanation}>易經攻我：{percent(opponentElement, playerElement)}。實扣生命還要計算防禦與護盾。</p>
+      <p className={styles.explanation}>阿修羅攻我：{percent(opponentElement, playerElement)}。實扣生命還要計算防禦與護盾。</p>
     </details>
   );
 }

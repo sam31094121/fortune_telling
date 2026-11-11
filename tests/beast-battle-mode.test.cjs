@@ -203,7 +203,7 @@ const opponentDown = structuredClone(match);
 opponentDown.opponent.team[opponentDown.opponent.active].hp = 0;
 opponentDown.opponent.team[opponentDown.opponent.active].defeated = true;
 const replacementHtml = render(ActionBar, { match: opponentDown, view: viewOf(opponentDown), compact: true, onAction() {} });
-assert.match(replacementHtml, /繼續，易經換卡/);
+assert.match(replacementHtml, /繼續，阿修羅換卡/);
 assert.doesNotMatch(replacementHtml, /普通攻擊|耗氣/);
 const replaced = advance(opponentDown, { type: 'ATTACK' });
 assert.equal(replaced.round, opponentDown.round, 'Replacement is not a completed combat round');

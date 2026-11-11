@@ -913,3 +913,45 @@
 
 /* 對方卡片已被撕碎：原卡不再回彈 */
 .art[data-shredded] { visibility: hidden; }
+
+/* 2026-11-12 業主：戰場邊緣不留亮線與外框，底部融進操作區。 */
+[data-dock='true'] .arena { border: 0; box-shadow: none; }
+[data-dock='true'] .arena::before { background: linear-gradient(180deg, #061021ed 0%, #06102178 36%, #0610215c 60%, #0a1424 100%); }
+[data-dock='true'] .arena { -webkit-mask-image: linear-gradient(180deg, #000 0, #000 80%, transparent 100%); mask-image: linear-gradient(180deg, #000 0, #000 80%, transparent 100%); }
+
+/* ───────── 2026-11-12 業主：「百萬價值」戰鬥場質感（只改外觀，不動任何戰鬥數字與流程） ─────────
+   聚光燈＋暖金霧＋暗角，卡片像站在發光的舞台上，血條是帶光澤的金屬槽。全部靜態或只用 transform／opacity。 */
+[data-dock='true'] .arena {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 38%, #ffe3a42e 0%, #c9954a14 38%, transparent 70%),
+    radial-gradient(ellipse at 50% 70%, #2a4570 0%, #0d1830 58%, #050b18 100%),
+    linear-gradient(180deg, #0a1428, #060d1c);
+}
+/* 舞台地面的光：卡片腳下一圈暖金色光暈，讓卡片「站」在場上而不是貼在背景 */
+[data-dock='true'] .fighter[data-fighter='opponent']::before {
+  content: ''; position: absolute; z-index: 0; left: 50%; bottom: 34px; width: 86%; height: 34px; transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, #ffd98a66 0%, #ffc86a2e 42%, transparent 72%); pointer-events: none;
+}
+[data-dock='true'] .artSpace { z-index: 1; }
+[data-dock='true'] .art {
+  border: 2px solid #f0d48f;
+  border-radius: 13px;
+  box-shadow:
+    0 0 0 1px #fff2c94d,
+    0 22px 42px #000000a6,
+    0 0 38px #ffc96a38,
+    inset 0 1px 0 #ffffff40,
+    inset 0 0 18px #00000059;
+}
+/* 名牌與血條：金屬槽＋光澤 */
+[data-dock='true'] .liveName { color: #ffeec4; letter-spacing: .14em; font-weight: 900; text-shadow: 0 1px 0 #000a, 0 0 10px #ffc96a66; }
+[data-dock='true'] .arenaHpBar {
+  height: 10px; background: linear-gradient(180deg, #05080f, #141b2a); border: 1px solid #f0d48f73;
+  box-shadow: inset 0 2px 3px #000b, 0 1px 0 #ffffff1f;
+}
+[data-dock='true'] .arenaHpBar > span {
+  background: linear-gradient(180deg, #fff3c4 0%, #f6c765 45%, #c98622 100%);
+  box-shadow: 0 0 8px #ffc96a80;
+}
+[data-dock='true'] .arenaHpBar > span::after { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 40%; background: linear-gradient(180deg, #ffffff66, transparent); border-radius: inherit; }
+[data-dock='true'] .arenaHpBar.critical > span { background: linear-gradient(180deg, #ffd1d8 0%, #fb7185 50%, #be1e3f 100%); box-shadow: 0 0 10px #fb718599; }

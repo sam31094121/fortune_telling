@@ -133,3 +133,9 @@
   .dock { width: min(100%, 1100px); }
   .card > span:first-child { width: min(100%, 34px); }
 }
+
+/* 2026-11-12 業主：出戰卡列與上方操作區之間不要分割線與陰影，同一片底色往下延續。 */
+.dock { border-top: 0; box-shadow: none; background: linear-gradient(180deg, #09121f00 0, #09121f 24%, #08101c 100%); }
+
+/* 2026-11-12 百萬質感：出戰卡列像放在絨布上的卡，每張有陰影與金邊微光 */
+.dock button { box-shadow: 0 8px 16px #00000080, inset 0 1px 0 #ffffff26; }

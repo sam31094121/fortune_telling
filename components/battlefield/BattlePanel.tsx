@@ -164,7 +164,7 @@ export function BattleActionBar({
       <p className={styles.activeHint} role="status" data-swap-guide>↓ 選一張後備上場</p>
     </div>;
     if (match.opponent.team[match.opponent.active].defeated && attack) return <div className={styles.compactActions}>
-      <button type="button" className={styles.actionButton} disabled={busy} onClick={() => { setCommandView(null); onAction(attack); }}>繼續，易經換卡</button>
+      <button type="button" className={styles.actionButton} disabled={busy} onClick={() => { setCommandView(null); onAction(attack); }}>繼續，阿修羅換卡</button>
     </div>;
     return (
       <div className={styles.compactActions}>
@@ -376,7 +376,7 @@ const BattlePanel = memo(function BattlePanel({
 
       {/* HP 條已移到 BattleArena 各自卡片正下方，此處不再重複顯示 */}
 
-      {!compact && <><FighterStatus match={match} side="opponent" label="易經" />
+      {!compact && <><FighterStatus match={match} side="opponent" label="阿修羅" />
       <FighterStatus match={match} side="player" label="你" /></>}
 
       {/*

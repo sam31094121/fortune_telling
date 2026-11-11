@@ -251,7 +251,7 @@ export function TurnIndicator({ state, inBattle }: { state: BattleState; inBattl
     <div className={styles.center} role="status" aria-live="polite">
       <p className={styles.vs}>VS</p>
       <p className={styles.hint}>
-        第 {state.turn} 回合・{mine ? '你的回合' : '易經回合'}
+        第 {state.turn} 回合・{mine ? '你的回合' : '阿修羅回合'}
         {state.phase === 'PREPARE' ? '・佈陣中' : ''}
       </p>
       {state.selectedCardId ? (
@@ -284,9 +284,9 @@ export function TurnIndicator({ state, inBattle }: { state: BattleState; inBattl
 
 export function OpponentField({ state, lookup }: { state: BattleState; lookup: CardLookup }) {
   return (
-    <section className={styles.side} aria-label="易經戰場">
+    <section className={styles.side} aria-label="阿修羅戰場">
       <div className={styles.sideLabel}>
-        <strong>易經卦象</strong>
+        <strong>阿修羅陣容</strong>
         <span>手牌 {state.opponent.hand.length}・牌庫 {state.opponent.deck.length}</span>
       </div>
       {/* 對手的後備在上、主戰在下——越靠中央越接近交戰面。 */}
@@ -296,9 +296,9 @@ export function OpponentField({ state, lookup }: { state: BattleState; lookup: C
         selectedCardId={null}
         legalSlots={[]}
         faceDown={state.opponent.faceDown}
-        sideLabel="易經"
+        sideLabel="阿修羅"
       />
-      <ActiveCardSlot cardId={state.opponent.active} lookup={lookup} sideLabel="易經" />
+      <ActiveCardSlot cardId={state.opponent.active} lookup={lookup} sideLabel="阿修羅" />
     </section>
   );
 }
