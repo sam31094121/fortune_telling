@@ -120,6 +120,7 @@ export default function StarBeastsPage() {
   const [season, setSeason] = useState<Season>('all');
   const [form, setForm] = useState<Form>('awakened');
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [myGuardian, setMyGuardian] = useState<string | null>(null);
   const visibleBeasts = useMemo(() => BEASTS
     .filter((beast) => season === 'all' || beast.season === season)
     .toSorted((a, b) => SEASON_ORDER[a.season] - SEASON_ORDER[b.season] || a.id - b.id), [season]);
@@ -237,7 +238,7 @@ export default function StarBeastsPage() {
               ))}
             </ul>
           </nav>
-          <SelfStarBeastEntry onFound={(id) => { setForm('awakened'); setSeason('all'); openBeast(id); }} />
+          <SelfStarBeastEntry onFound={(name) => { setMyGuardian(name); document.getElementById('four-guardians-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} />
           <details className="mt-4 max-w-2xl text-xs text-slate-400">
             <summary className="min-h-[44px] cursor-pointer py-3 font-bold text-slate-300">這裡有什麼？</summary>
             <p className="mt-2 leading-6">二十八星宿分為春夏秋冬，每一宿都有本體神獸與神獸幼子。</p>
@@ -254,7 +255,8 @@ export default function StarBeastsPage() {
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {FOUR_GUARDIANS.map((guardian) => (
-              <article key={guardian.name} className="group overflow-hidden rounded-2xl border border-amber-200/20 bg-slate-950/70 shadow-lg">
+              <article key={guardian.name} data-my-guardian={myGuardian === guardian.name || undefined} className={`group relative overflow-hidden rounded-2xl border bg-slate-950/70 shadow-lg ${myGuardian === guardian.name ? 'border-amber-200 ring-2 ring-amber-200 shadow-[0_0_24px_rgba(252,211,77,0.55)]' : 'border-amber-200/20'}`}>
+                {myGuardian === guardian.name && <span className="absolute left-2 top-2 z-10 rounded-full bg-amber-300 px-3 py-1 text-xs font-black text-slate-950">我的神獸</span>}
                 <div className="aspect-[63/88] overflow-hidden bg-black">
                   <CatalogBeastCard name={guardian.name} />
                 </div>

@@ -1,6 +1,29 @@
 import { Lunar } from 'lunar-typescript';
 import { runThreeInOne } from './three-in-one';
-import { deriveBaziPillarBeast } from './bazi-four-pillar-beasts';
+
+export type FourGuardianName = '青龍' | '朱雀' | '白虎' | '玄武';
+/** 業主 2026-11-12：只從四大神獸（青龍、朱雀、白虎、玄武）四選一，不再配二十八宿本體神獸。 */
+const GUARDIAN_BY_ELEMENT: Record<string, { guardian: FourGuardianName; direction: string }> = {
+  木: { guardian: '青龍', direction: '東方' }, 火: { guardian: '朱雀', direction: '南方' },
+  金: { guardian: '白虎', direction: '西方' }, 水: { guardian: '玄武', direction: '北方' },
+};
+const STEM_ELEMENT: Record<string, string> = { 甲: '木', 乙: '木', 丙: '火', 丁: '火', 戊: '土', 己: '土', 庚: '金', 辛: '金', 壬: '水', 癸: '水' };
+// 日主屬土時四象沒有對應的一隻：依「出生月份的季節」寄旺四季（寅卯辰春、巳午未夏、申酉戌秋、亥子丑冬）。
+const SEASON_ELEMENT_BY_MONTH_BRANCH: Record<string, string> = { 寅: '木', 卯: '木', 辰: '木', 巳: '火', 午: '火', 未: '火', 申: '金', 酉: '金', 戌: '金', 亥: '水', 子: '水', 丑: '水' };
+
+/** 純函式：八字日柱＋月柱 → 四大神獸之一。每個人一定拿到四隻中的一隻。 */
+export function pickFourGuardian(dayPillar: string, monthPillar: string) {
+  const dayElement = STEM_ELEMENT[dayPillar[0]];
+  if (!dayElement) throw new Error('命盤核對未通過，請確認出生資料。');
+  const viaSeason = dayElement === '土';
+  const element = viaSeason ? SEASON_ELEMENT_BY_MONTH_BRANCH[monthPillar[1]] : dayElement;
+  const picked = element ? GUARDIAN_BY_ELEMENT[element] : undefined;
+  if (!picked) throw new Error('命盤核對未通過，請確認出生資料。');
+  const reason = viaSeason
+    ? `日主屬土，依出生月份的季節歸屬${picked.direction}${picked.guardian}`
+    : `日主屬${dayElement}，對應${picked.direction}${picked.guardian}`;
+  return { guardian: picked.guardian, element, dayElement, reason };
+}
 
 export type SelfStarBeastInput = {
   birthDate?: string;
@@ -12,7 +35,7 @@ export type SelfStarBeastInput = {
 };
 const HOUR_KEYS = ['zi', 'chou', 'yin', 'mao', 'chen', 'si', 'wu', 'wei', 'shen', 'you', 'xu', 'hai'];
 
-/** Uses the existing verified day-pillar collection mapping, never a random draw. */
+/** 由八字日柱／月柱（唯一來源 lib/bazi/engine.ts）決定，不是隨機抽。 */
 export async function findSelfStarBeast(input: SelfStarBeastInput) {
   if (!input || typeof input !== 'object' || !['male', 'female'].includes(input.gender ?? '')) {
     throw new Error('請補上出生日期與性別。');
@@ -49,13 +72,12 @@ export async function findSelfStarBeast(input: SelfStarBeastInput) {
   if (result.status !== 'PASSED' && result.status !== 'TIME_UNKNOWN') {
     throw new Error('命盤核對未通過，請確認出生資料。');
   }
-  const dayPillar = result.result.bazi.day;
-  const link = deriveBaziPillarBeast({ key: 'day', label: '日柱', stem: dayPillar[0], branch: dayPillar[1] });
+  const picked = pickFourGuardian(result.result.bazi.day, result.result.bazi.month);
   return {
-    beastId: link.beast.id,
-    productElement: link.productElement,
-    evidence: link.evidence,
+    guardian: picked.guardian,
+    element: picked.element,
+    reason: picked.reason,
     timeUnknown: result.status === 'TIME_UNKNOWN',
-    method: '八字日柱收藏對應',
+    method: '八字日主五行對應四大神獸',
   };
 }

@@ -8,7 +8,7 @@ import { readCanonicalBirthProfile, saveCanonicalBirthProfile } from '@/lib/cano
 import { fromUnifiedBirthProfile, toUnifiedBirthProfile } from '@/lib/canonical-birth-profile';
 import { setAnalysisIdentityTarget } from '@/lib/identity-split-client';
 
-export default function SelfStarBeastEntry({ onFound }: { onFound: (id: number) => void }) {
+export default function SelfStarBeastEntry({ onFound }: { onFound: (guardian: string) => void }) {
   const [profile, setProfile] = useState<BirthProfile>({ timeUnknown: true, calendarType: 'solar' });
   const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -35,9 +35,9 @@ export default function SelfStarBeastEntry({ onFound }: { onFound: (id: number) 
       if (!response.ok || !result.ok) throw new Error(result.error ?? '暫時無法取得神獸。');
       saveSelfBirthProfile(next);
       saveCanonicalBirthProfile(fromUnifiedBirthProfile(next));
-      setNote(`${result.method}${result.timeUnknown ? '・未使用時辰' : ''}`);
+      setNote(`${result.reason}${result.timeUnknown ? '・未使用時辰' : ''}`);
       setEditing(false);
-      onFound(result.beastId);
+      onFound(result.guardian);
     } catch (error) {
       setMessage(controller.signal.aborted ? '連線逾時，請再試一次。' : error instanceof Error ? error.message : '暫時無法取得神獸，請再試一次。');
       setEditing(true);
@@ -64,7 +64,7 @@ export default function SelfStarBeastEntry({ onFound }: { onFound: (id: number) 
 
   return (
     <div className="mt-5 max-w-xl">
-      <p className="text-sm font-bold text-amber-100">找出我的本體神獸</p>
+      <p className="text-sm font-bold text-amber-100">找出我的四大神獸</p>
       <button type="button" disabled={busy} onClick={chooseSelf}
         className="mt-3 min-h-12 rounded-full border border-amber-100/55 bg-amber-300/20 px-8 text-sm font-black text-amber-50 disabled:opacity-50">
         {busy ? '正在核對…' : '我自己'}
