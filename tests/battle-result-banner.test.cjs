@@ -38,7 +38,10 @@ ok(/<BattleResultBanner outcome=\{match\.winner === 'player' \? 'win' : match\.w
 const finishedBranch = panel.split('finished && busy ?')[1] || '';
 ok(/動作演出中，接著顯示結果/.test(finishedBranch.split('<BattleResultBanner')[0]), '橫幅排在「演出中」提示之後的已結束分支');
 ok((panel.match(/<BattleResultBanner/g) || []).length === 1, 'BattlePanel 只有一處橫幅');
-ok(/\{over && \(/.test(match3) && match3.indexOf('{over && (') < match3.indexOf('<BattleResultBanner'), '寶珠戰橫幅只在 over 之後出現');
+// 條件可以再加別的（例如 !resultWaiting＝等演出結束），但一定要先有 over（戰鬥已結束）才會出現。
+const overGate = match3.search(/\{over && (?:![A-Za-z]+ && )*\(/);
+ok(overGate >= 0 && overGate < match3.indexOf('<BattleResultBanner'), '寶珠戰橫幅只在 over 之後出現（可附加其他等待條件，但不得少了 over）');
+ok(!/\{(?!over\b)[A-Za-z!]+ && \(\s*<div className=\{styles\.result\}/.test(match3), '結算蓋板不得改成不看 over 的條件');
 
 // 寬度以容器為準：以視窗（92vw）為準時，放進窄欄（BattlePanel）會超出右邊，窄手機實測超出 10px
 ok(!/(^|[;{\s])width:\s*min\([^)]*vw/m.test(css), '橫幅「寬度」不得以視窗為準（字級用 vw 不在此限）');
