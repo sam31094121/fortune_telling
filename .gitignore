@@ -128,3 +128,11 @@ t12
 .nine-grid-build
 .guestbook-test-build/
 .battle-reward-test-build/
+# 2026-11-09 user 鈺勝: beast retouch candidates must never be pushed to main
+/_tmp_beast_retouch/
+
+# 建置快取與暫存目錄（2026-11-11）：曾被自動提交一次掃進約 2000 個檔案、近 750MB，
+# 其中單檔 415MB／256MB，超過 GitHub 的 100MB 上限，會讓整個推送被拒。不得進版控。
+.next-*/
+_tmp_*/
+_backup-*/

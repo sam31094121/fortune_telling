@@ -48,7 +48,7 @@
 .formGroup label {
   display: block;
   color: #ccc;
-  font-weight: 500;
+  font-weight: 400;
   margin-bottom: 8px;
   font-size: 14px;
 }
@@ -97,7 +97,7 @@
   border: none;
   border-radius: 8px;
   color: #fff;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
@@ -234,7 +234,7 @@
 
 .name {
   color: #fff;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 13px;
 }
 
@@ -295,7 +295,7 @@
 .tab dt {
   color: #888;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   margin-top: 12px;
   margin-bottom: 4px;
   text-transform: uppercase;
@@ -373,7 +373,7 @@
   padding: 8px;
   text-align: left;
   color: #888;
-  font-weight: 600;
+  font-weight: 700;
   border-bottom: 1px solid #2a2a4e;
   text-transform: uppercase;
   letter-spacing: 0.3px;

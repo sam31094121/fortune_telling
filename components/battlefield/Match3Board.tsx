@@ -18,7 +18,7 @@ import Link from 'next/link';
  * 每 3 步反擊、只有主屬性相同的卡出手、克制表 elements.ts、同屬性輔助拿一半能量。卡面只讀 .v2 新卡與 card-face-stats。
  */
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { BeastCardFace } from './BeastCardTile';
+import { BeastCardFace, cardArt480 } from './BeastCardTile';
 import { useBannerQueue } from './bead/useBannerQueue';
 import { getCard, playableCards } from '@/lib/beast-game/registry';
 import { CARD_FACE_STATS } from '@/lib/beast-game/card-face-stats';
@@ -45,7 +45,7 @@ import AsuraDeathHost from './asura-death/AsuraDeathHost';
 import { deriveServerKnockouts, reservedGuardianBossRule, type FinalBossRule, type KnockoutEvent, type KnockoutSource } from '@/lib/beast-game/match3/knockout-events';
 import BattleResultBanner from './BattleResultBanner';
 import BattleRewardReveal from './BattleRewardReveal';
-import Match3RigAttack, { Match3TargetArt, match3RigAttackers, type Match3Strike } from './Match3RigAttack';
+import Match3RigAttack, { Match3TargetArt, useBattleArtUrl, match3RigAttackers, type Match3Strike } from './Match3RigAttack';
 import { readMatch3Progress, saveMatch3Progress, type Match3ProgressOwner } from '@/lib/beast-game/match3/progress-store';
 import { readCampaign, settleWin, transactTreasures, type CampaignSettlement } from '@/lib/beast-game/match3/hard-campaign-store';
 import { validateCampaignTeam, campaignAttack, type HardCampaign } from '@/lib/beast-game/match3/hard-campaign';
@@ -60,6 +60,22 @@ const RESULT_HOLD_BOSS_MAX_MS = 12000;
 interface Foe extends Match3Foe { name: string; thumbnail: string }
 import { appendMatch3Event, type Match3BusEvent } from '@/lib/beast-game/match3/event-bus';
 
+function nonGuardianBattleArt(id: string, thumbnail: string): string {
+  return cardArt480(id) || thumbnail;
+}
+function battleArtFallback(id: string, thumbnail: string): string {
+  return getCard(id)?.art.thumbnail || thumbnail;
+}
+function FoeBattleArt({ name, src, fallback, rigEnabled, rigSrc }: { name: string; src: string; fallback: string; rigEnabled: boolean; rigSrc: string }) {
+  const url = useBattleArtUrl(src, fallback);
+  return (
+    <div className={styles.foeArt} role="img" aria-label={name} data-rig-target={rigEnabled || undefined} style={rigEnabled ? undefined : { backgroundImage: `url(${url})` }}>
+      {rigEnabled && <Match3TargetArt src={rigSrc} fallback={fallback} />}
+    </div>
+  );
+}
+
+
 export const ORB_COLOR: Record<BeastElement, string> = { AIR: '#2f9e7e', SPACE: '#8d6fd1', WATER: '#2c74d0', FIRE: '#e0532c', EARTH: '#c39324' };
 
 /** 我方：外部 teamIds 合法照選的順序，否則五元素各一張（風空水火地）。敵方：固定五隻正式卡（enemies.json）。 */
@@ -68,7 +84,7 @@ export function pickLineup(rng: Rng, teamIds?: readonly string[] | null, mode: M
   const shuffled = pool.slice().sort(() => rng() - 0.5);
   const team: Unit[] = [];
   const foeNames = enemyNamesFor(mode.id);
-  const unit = (c: (typeof pool)[number]): Unit => { const s = CARD_FACE_STATS[c.id]; const skill = getSkill(c.skills[0]); return { skillName: skill?.name, description: skill?.description, id: c.id, name: c.name, element: c.element, thumbnail: c.art.thumbnail, attack: campaign ? campaignAttack(campaign, c.id) : s.attack, hp: s.hp, maxHp: s.hp, energy: 0 }; };
+  const unit = (c: (typeof pool)[number]): Unit => { const s = CARD_FACE_STATS[c.id]; const skill = getSkill(c.skills[0]); return { skillName: skill?.name, description: skill?.description, id: c.id, name: c.name, element: c.element, thumbnail: nonGuardianBattleArt(c.id, c.art.thumbnail), attack: campaign ? campaignAttack(campaign, c.id) : s.attack, hp: s.hp, maxHp: s.hp, energy: 0 }; };
   if (validTeamIds(teamIds, pool.map((c) => c.id))) for (const id of teamIds) team.push(unit(pool.find((c) => c.id === id)!));
   else for (const el of MATCH3_ORB_ELEMENTS) {
     const c = shuffled.find((x) => x.element === el && !foeNames.includes(x.name)); if (c) team.push(unit(c));
@@ -79,13 +95,13 @@ export function pickLineup(rng: Rng, teamIds?: readonly string[] | null, mode: M
     const stats = progressionLineupStats(selected, wins, pool);
     for (const [index, c] of selected.entries()) {
       const s = stats[index];
-      const enemy = { id: c.id, element: c.element, hp: s.hp, maxHp: s.hp, attack: s.attack, cd: 1, name: c.name, thumbnail: c.art.thumbnail };
+      const enemy = { id: c.id, element: c.element, hp: s.hp, maxHp: s.hp, attack: s.attack, cd: 1, name: c.name, thumbnail: nonGuardianBattleArt(c.id, c.art.thumbnail) };
       enemies.push(enemy);
     }
     const player = initializePlayerSkills(team);
     return { team: player.team, playerSkillEvents: player.skillEvents, enemies: initializeAvailableFoes(enemies, wins + 1) };
   }
-  for (const nm of foeNames) { const c = pool.find((x) => x.name === nm); if (c) enemies.push({ ...makeFoe(c.id, c.element, mode), name: c.name, thumbnail: c.art.thumbnail }); }
+  for (const nm of foeNames) { const c = pool.find((x) => x.name === nm); if (c) enemies.push({ ...makeFoe(c.id, c.element, mode), name: c.name, thumbnail: nonGuardianBattleArt(c.id, c.art.thumbnail) }); }
   return { team, enemies };
 }
 
@@ -125,7 +141,7 @@ function beep(freq: number) {
   } catch { /* 無音效環境略過 */ }
 }
 
-export interface TreasurePractice { board: Board; magic: MagicGrid; book: TreasureBook; catalog: ReturnType<typeof treasureCatalog> }
+export interface TreasurePractice { scenario?: string; board: Board; magic: MagicGrid; book: TreasureBook; catalog: ReturnType<typeof treasureCatalog> }
 export interface Match3BoardProps { treasurePractice?: TreasurePractice; seed?: number; teamIds?: readonly string[] | null; sameElementRule?: SameElementRule; onRepick?: () => void; mode?: Match3ModeId; progressOwner?: Match3ProgressOwner; campaignEnabled?: boolean; onCampaignContinue?: () => void; /** 覆寫用；未給＝第 8 關起殿後的四大神獸（reservedGuardianBossRule，與 foeAvailable 同源）。 */ isFinalBoss?: FinalBossRule }
 export default function Match3Board({ treasurePractice, seed, teamIds, sameElementRule = DEFAULT_SAME_ELEMENT_RULE, onRepick, mode, progressOwner = null, campaignEnabled = false, onCampaignContinue, isFinalBoss }: Match3BoardProps) {
   const cfg = match3Mode(mode);
@@ -276,7 +292,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     const current = readCampaign(init.owner);
     if (!current.ok || !current.profile) return;
     const book = current.profile.treasures ?? { version: 1, counts: { SPACE:0, AIR:0, WATER:0, FIRE:0, EARTH:0 }, receipts: [] };
-    fetch('/api/beast-game/orb-treasures', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(book), signal:controller.signal })
+    fetch('/api/beast-game/orb-treasures', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({book,team:init.team}), signal:controller.signal })
       .then(async r => { if (!r.ok) throw new Error(); const catalog = await r.json(); if (catalogRevision.current === 0) setTreasures(catalog); })
       .catch(() => { if (!controller.signal.aborted) setLog('暫時無法讀取寶器，請重新進入戰場。'); });
     return () => controller.abort();
@@ -474,7 +490,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     } else applyCounter();
   };
 
-  const useTreasure = async (element: BeastElement) => {
+  const useTreasure = async (element: BeastElement, variant: number) => {
     if (busy || turnRequest.current || over || ti < 0 || (!treasurePractice && (!init.owner || !campaignEnabled))) return;
     catalogRevision.current++;
     const controller = new AbortController(); turnRequest.current = controller; setBusy(true);
@@ -484,7 +500,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     try {
       const result = await treasureTransaction(async book => {
         const r = await fetch('/api/beast-game/orb-turn', {method:'POST', headers:{'Content-Type':'application/json'}, signal:controller.signal,
-          body:JSON.stringify({ board,magic,path:[],team,foes,mode:cfg.id,wins,target:ti,seed:init.seed,move:moves,chosen,rule,attackBoost,treasureGuard,treasures:book,action:'treasure',treasureElement:element,actionId })});
+          body:JSON.stringify({ board,magic,path:[],team,foes,mode:cfg.id,wins,target:ti,seed:init.seed,move:moves,chosen,rule,attackBoost,treasureGuard,treasures:book,action:'treasure',treasureElement:element,treasureVariant:variant,actionId })});
         if (!r.ok) throw new Error('暫時無法使用寶器，請重試。');
         const result: TreasureUse = await r.json();
         if (controller.signal.aborted) throw new Error('請求已中止');
@@ -492,7 +508,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       });
       if (controller.signal.aborted) return;
       const bounds = root.current!.getBoundingClientRect();
-      const source = root.current!.querySelector('[data-treasure="'+element+'"]')!.getBoundingClientRect();
+      const source = root.current!.querySelector('[data-treasure="'+element+'"][data-variant="'+variant+'"]')!.getBoundingClientRect();
       const target = root.current!.querySelector('[data-testid="match3-enemy"][data-id="'+result.effect.targetId+'"]')!.getBoundingClientRect();
       setTreasures(result.catalog);
       setTreasureFlight({effect:result.effect,x1:source.left+source.width/2-bounds.left,y1:source.top+source.height/2-bounds.top,x2:target.left+target.width/2-bounds.left,y2:target.top+target.height/2-bounds.top});
@@ -792,7 +808,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
           <h1 className={styles.title} data-testid="match3-title">{cfg.title}<small className={styles.subtitle}>｜{cfg.subtitle}</small></h1>
         </div>
         {!rigEnabled && <button type="button" className={styles.mute} aria-pressed={muted} aria-label={muted ? '開啟音效' : '靜音'} onClick={() => { audio.current?.setMuted(!muted); setMuted(!muted); if (muted) audio.current?.unlock(); }}>{muted ? '🔇' : '🔊'}</button>}
-        <div className={styles.round} data-testid={rigEnabled ? 'match3-attack-threshold' : 'match3-round'}>{rigEnabled ? treasurePractice ? '寶器試玩 · 不存檔' : `第 ${stage.wins + 1} 關 · ${stage.minChain}顆可攻擊` : `回合 ${moves + 1}`}</div>
+        <div className={styles.round} data-testid={rigEnabled ? 'match3-attack-threshold' : 'match3-round'}>{rigEnabled ? treasurePractice ? <select aria-label="試玩隊伍" value={treasurePractice.scenario ?? 'WATER:5'} onChange={e=>{const [element,copies]=e.target.value.split(':');window.location.href='/beast-game/treasure-preview?element='+element+'&copies='+copies;}} style={{maxWidth:130,height:20,minHeight:20,padding:0,fontSize:11,color:'inherit',background:'#16151b',border:0}}>{(['WATER','SPACE','AIR','FIRE','EARTH'] as BeastElement[]).flatMap(el=>[5,2].map(n=><option key={el+n} value={el+':'+n}>{MATCH3_ORB_LABEL[el]}系{n}隻 · 試玩</option>))}</select> : `第 ${stage.wins + 1} 關 · ${stage.minChain}顆可攻擊` : `回合 ${moves + 1}`}</div>
         {rigEnabled && <span className={styles.srOnly} data-testid="match3-round">{stage.label}·{moves + 1}回合</span>}
         {rigEnabled && <button type="button" className={`${styles.helpBtn} ${styles.helpTop}`} aria-expanded={help} onClick={() => setHelp(!help)}>玩法與操作</button>}
       </header>
@@ -805,8 +821,8 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
         <summary>五行與盾牌目標{attackBoost > 1 ? '・反攻已就緒' : ''}</summary>
         <p>相生：空→水→風→火→地→空。三顆有效連珠起，替相生屬性存活隊友補血；每顆1%，手動與掉落連鎖合計每位每回合最多10%。</p>
         <p>對手每次實際普通出手，替相生屬性隊友補3%，每位每輪最多10%。雙方都不復活、不超過原生命上限。</p>
-        <p>至少三枚純盾牌：同色強攻；雙色／三色防護；四色加補血；五色再儲存下一次寶珠反攻。顏色要不同才升級，更多同色不冒充五色。</p>
-        <p>三色減傷50%；四色減傷60%、補10%；五色減傷70%、補15%、下次寶珠攻擊1.5倍。防護僅本輪、加成不疊加。</p>
+        <p>至少三枚純盾牌：同色強攻；雙色／三色防護；四色加補血；五色只升級盤面盾牌。顏色要不同才升級，更多同色不冒充五色。</p>
+        <p>三色減傷50%；四色減傷60%、補10%；五色不附帶攻擊、補血、減傷或法寶。防護僅本輪、加成不疊加。</p>
         <p>同色三盾強化本次寶珠攻擊1.5倍，須有該屬性隊員可出手。空召白虎、風召青龍、水召玄武、火召朱雀；地以岩槌強攻，效果同等，不另造第五隻神獸。</p>
         {shieldGoals.length > 0 && <p data-testid="shield-color-goals">盤面盾牌：{shieldGoals.map(g => <span key={g.element} style={{color:ORB_COLOR[g.element]}}>{MATCH3_ORB_LABEL[g.element]} {g.count > 0 ? `${g.count}枚` : '尚缺'}　</span>)}<br/>須拖過相鄰盾牌才會合體，盤面有盾牌不代表已觸發。</p>}
       </details>}
@@ -825,7 +841,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
             {rigEnabled && f.hp > 0 && !enemyReady(i) && <span className={styles.cd} data-testid="match3-boss-waiting">待命</span>}
             {rigEnabled && !!f.skillRuntime?.shield && <span className={styles.runtimeShield}>盾 {f.skillRuntime.shield}</span>}
             {(!rigEnabled || counterFoes.has(i)) && <span className={styles.cd} data-testid="match3-counter" aria-hidden="true">{rigEnabled ? '反擊中' : <>⏳{f.cd}</>}</span>}
-            <div className={styles.foeArt} role="img" aria-label={f.name} data-rig-target={rigEnabled || undefined} style={rigEnabled ? undefined : { backgroundImage: `url(${f.thumbnail})` }}>{rigEnabled && <Match3TargetArt src={guardianDuel && duelArt && i === 4 ? duelArt : f.thumbnail} />}</div>
+            <FoeBattleArt name={f.name} src={f.thumbnail} fallback={battleArtFallback(f.id, f.thumbnail)} rigEnabled={!!rigEnabled} rigSrc={guardianDuel && duelArt && i === 4 ? duelArt : f.thumbnail} />
             <div className={styles.foeName}>{f.name}</div>
             <div className={`${styles.bar} ${styles.foeBar}`} role="progressbar" aria-label={`${f.name}生命`} aria-valuenow={f.hp} aria-valuemax={f.maxHp}><span style={{ width: pct(f.hp, f.maxHp) }} /></div>
             {rigEnabled && <EnemyActionIndicator energy={f.attackEnergy ?? 0} className={styles.enemyActionState} down={f.hp <= 0} ended={!!over} waiting={!enemyReady(i)} controlled={(f.skillRuntime?.stunnedTurns ?? 0) > 0} attacking={counterFoes.has(i)} />}
@@ -841,10 +857,10 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
         <p>4顆起留數字，7顆起變盾牌。連入同色盾牌可清除同色珠；掉落連鎖也有效。</p>
         <p>每次放開非空連線都換對方反擊，無效連線也算。能量滿100時神獸發光，點神獸攻擊後能量歸零；2張卡各有50能量，可用連線攻擊。</p>
         <p>玩家消除同屬性寶珠累積能量，珠數越多充能越快；滿條後點亮起的神獸發招並歸零。敵方每次有效連珠增加四分之一，連鎖不重複累加，滿條後依關卡順序出手並歸零。受控不能出手，待命敵人不蓄力；能量技與連線技能不充能。</p>
-        <p>五色盾牌連線合成一件寶器，由最後一枚盾牌決定屬性。點下方寶器直接釋放，消耗一件，不增加敵方回合。自己的未用寶器可帶到下一關，親友的僅限本關；保存在本瀏覽器。</p>
-        {treasures.map(x => <p key={x.element}>{x.name}：{x.description}</p>)}
+        <p>五色盾牌連線只消耗連到的盾牌，其餘寶珠下落後全變各自屬性的盾牌，空位補普通珠；不獲得法寶。同屬性純盾牌一次連4、5、6、7、8格，分別只取得第1、2、3、4、5號法寶一件，按實際格數計算，不按盾牌儲存威力計數。同屬性隊員按順序分配不同種類，階級越高基礎威力越高。點下方寶器直接釋放，消耗一件，不增加敵方回合。自己的未用寶器可帶到下一關，親友的僅限本關；保存在本瀏覽器。</p>
+        {treasures.map(x => <p key={x.element+':'+x.variant}>{x.name}：{x.description}</p>)}
         <p>五行補血與盾牌組合請點開「五行與盾牌目標」。獲勝挑戰下一關，落敗原難度重試。</p>
-      </div> : <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆同屬性純盾牌連接會合擊，消耗本次連到的盾牌，按既有卡片與儲存顆數攻擊，本次寶珠攻擊強化1.5倍；其餘同屬性寶珠轉為盾牌，原本較高的數值保留。至少三顆不同顏色純盾牌連接，合體清除整盤對應顏色，依實際消除數量替對應卡片充能，最多充滿現有技能條；雙色或三色減傷50%、四色減傷60%並回復10%生命、五色減傷70%並回復15%生命與儲存下次寶珠攻擊1.5倍；防護只限本輪、不疊加。剩餘珠子先下落合成，再補新珠；自然連線累計四顆以上會保留數字，七顆以上變盾牌，三顆只消除。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「{rigEnabled ? '能量攻擊' : '技能'}」。{rigEnabled && '我方原卡招牌技能依登場、攻擊、受創及回合時機自動觸發，沿用原次數；能量按鈕保留通用攻擊，不另消耗回合。敵方從第八關起逐步啟用原卡技能；沒有抽棄牌區，抽棄牌效果不適用。'}{rigEnabled ? '每次非空寶珠連線都算一次回合，誤按一、二顆或無效路線也會由對方反擊一次；連三顆起才可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。儲存能量的單卡與多卡攻擊不消耗回合，也不觸發反擊。全關卡五對五。第一關五張幼子、第二至第七關五張成獸；第八關起，敵方前四格為成獸，第五格為一張神獸，前四張倒下後才參戰並可被攻擊，後續始終只有這一個神獸席位，通關後依白虎、朱雀、青龍、玄武輪替，失敗重試不換；每次由一張存活卡反擊。第八關及之後連六顆以上即可攻擊，第一至第七關維持各關門檻；對方強度繼續逐關提高。獲勝升一關，落敗保留難度重試；本人進度保存在這個瀏覽器，親友進度只在本分頁保留，重新選擇親友會重來。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>)}
+      </div> : <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆同屬性純盾牌連接會合擊，消耗本次連到的盾牌，按既有卡片與儲存顆數攻擊，本次寶珠攻擊強化1.5倍；其餘同屬性寶珠轉為盾牌，原本較高的數值保留。至少三顆不同顏色純盾牌連接，二至四色合體清除整盤對應顏色；五色只消耗連到的盾牌，其餘寶珠依原屬性升為盾牌並保留高數值，空位補普通珠，依實際消除數量替對應卡片充能，最多充滿現有技能條；雙色或三色減傷50%、四色減傷60%並回復10%生命、五色只升盾，不附帶攻擊、回血、減傷或法寶；防護只限本輪、不疊加。剩餘珠子先下落合成，再補新珠；自然連線累計四顆以上會保留數字，七顆以上變盾牌，三顆只消除。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「{rigEnabled ? '能量攻擊' : '技能'}」。{rigEnabled && '我方原卡招牌技能依登場、攻擊、受創及回合時機自動觸發，沿用原次數；能量按鈕保留通用攻擊，不另消耗回合。敵方從第八關起逐步啟用原卡技能；沒有抽棄牌區，抽棄牌效果不適用。'}{rigEnabled ? '每次非空寶珠連線都算一次回合，誤按一、二顆或無效路線也會由對方反擊一次；連三顆起才可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。儲存能量的單卡與多卡攻擊不消耗回合，也不觸發反擊。全關卡五對五。第一關五張幼子、第二至第七關五張成獸；第八關起，敵方前四格為成獸，第五格為一張神獸，前四張倒下後才參戰並可被攻擊，後續始終只有這一個神獸席位，通關後依白虎、朱雀、青龍、玄武輪替，失敗重試不換；每次由一張存活卡反擊。第八關及之後連六顆以上即可攻擊，第一至第七關維持各關門檻；對方強度繼續逐關提高。獲勝升一關，落敗保留難度重試；本人進度保存在這個瀏覽器，親友進度只在本分頁保留，重新選擇親友會重來。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>)}
 
       {!log.startsWith('按住寶珠') && log ? <p className={rigEnabled ? styles.srOnly : styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
 
@@ -880,7 +896,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
               {rigEnabled && counterVisuals.filter(h => h.targetId === u.id).map((h, i) => <span key={i} className={styles.counterDamage} data-testid="match3-counter-damage" data-actual-damage={h.actualDamage} data-hp-before={h.hpBefore} data-hp-after={h.hpAfter} style={{ ['--hit-order' as string]: i }} aria-label={`受到${h.actualDamage}點傷害，生命${h.hpBefore}降至${h.hpAfter}`}>−{h.actualDamage}</span>)}
               <button type="button" className={styles.allyBtn} disabled={down} onPointerDown={(e) => e.stopPropagation()} onClick={() => tapAlly(u)} aria-pressed={linkMode ? inLink : dup ? lead : undefined}
                 aria-label={`${u.name}，${MATCH3_ORB_LABEL[u.element]}屬性${dup ? (lead ? '，主攻' : '，輔助') : ''}，HP ${u.hp}/${u.maxHp}，能量 ${u.energy}/${ENERGY_MAX}${energyReady ? '，能量已滿，點擊發動能量攻擊' : ''}${linkMode ? (inLink ? '，已連線' : '，點擊加入連線') : ''}`}>
-                <div className={styles.allyCard} data-rig-source>{rigEnabled ? <Match3TargetArt src={u.thumbnail} /> : <BeastCardFace card={{ id: u.id, name: u.name, thumbnail: u.thumbnail, element: u.element, skillName: u.skillName, description: u.description }} />}</div>
+                <div className={styles.allyCard} data-rig-source>{rigEnabled ? <Match3TargetArt src={u.thumbnail} fallback={battleArtFallback(u.id, u.thumbnail)} /> : <BeastCardFace card={{ id: u.id, name: u.name, thumbnail: u.thumbnail, element: u.element, skillName: u.skillName, description: u.description }} />}</div>
                 <div className={styles.bar} role={rigEnabled ? 'progressbar' : undefined} aria-label={rigEnabled ? `${u.name}生命` : undefined} aria-valuenow={rigEnabled ? u.hp : undefined} aria-valuemax={rigEnabled ? u.maxHp : undefined}><span style={{ width: pct(u.hp, u.maxHp) }} /></div>
                 {rigEnabled && <span className={styles.allyHp} data-testid="match3-ally-hp">{MATCH3_ORB_LABEL[u.element]} {u.hp}/{u.maxHp}</span>}
                 <div className={styles.energy} data-ready-orb={energyReady ? 'true' : undefined} role="progressbar" aria-label={energyReady ? '能量已滿，點擊寶珠或神獸發動攻擊' : '攻擊能量'} aria-valuemin={0} aria-valuemax={ENERGY_MAX} aria-valuenow={u.energy}>{energyReady ? <span className={styles.readyEnergyOrb} data-testid="match3-ready-energy-orb"><ElementTreasureOrb element={getProductOrbFromBrand(u.element.toLowerCase() as 'space' | 'air' | 'water' | 'fire' | 'earth')} released preview animated={false} visualScale={0.8} /></span> : <span style={{ width: pct(u.energy, ENERGY_MAX) }} />}</div>

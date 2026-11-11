@@ -11,7 +11,7 @@
 .cycleContainer h3 {
   margin: 0;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 900;
   color: #7dd3fc;
   letter-spacing: 0.1em;
   text-shadow: 0 0 12px rgba(125, 211, 252, 0.3);
@@ -73,13 +73,13 @@
 .relationText strong {
   color: #fbbf24;
   text-shadow: 0 0 8px rgba(251, 146, 60, 0.2);
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .relationText small {
   display: block;
   color: #7dd3fc;
-  font-weight: 600;
+  font-weight: 700;
   margin-top: 3px;
   letter-spacing: 0.05em;
 }

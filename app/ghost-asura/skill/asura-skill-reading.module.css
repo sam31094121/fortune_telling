@@ -304,9 +304,9 @@
 .wrap .result :global([data-asura-function] > div:empty) { padding: 0; min-height: 0; }
 
 /* 文字（共用） */
-.timeAwait { margin: 0; color: var(--a-gold-hi); font: 600 18px/1.9 serif; letter-spacing: 0.08em; }
+.timeAwait { margin: 0; color: var(--a-gold-hi); font: 700 18px/1.9 serif; letter-spacing: 0.08em; }
 .timeHourNote { margin: 0 0 8px; color: var(--a-gold); font-size: 15px; line-height: 1.7; }
-.timeLead { margin: 0 0 8px; color: #f6d3a6; font: 600 18px/1.9 serif; }
+.timeLead { margin: 0 0 8px; color: #f6d3a6; font: 700 18px/1.9 serif; }
 .timeCards [data-asura-interleaved],
 .wrap .result :global([data-asura-interleaved]) { display: grid; gap: 16px; }
 .timeCards [data-asura-interleaved] > p,
@@ -331,7 +331,7 @@
 .timeCards [data-asura-interleaved] > [data-asura-plain] + [data-asura-plain],
 .wrap .result :global([data-asura-interleaved] > [data-asura-plain] + [data-asura-plain]) { margin-top: -10px; }
 .timePlainLine strong,
-.wrap .result :global([data-asura-plain] strong) { margin-right: 6px; color: var(--a-gold); font-weight: 600; }
+.wrap .result :global([data-asura-plain] strong) { margin-right: 6px; color: var(--a-gold); font-weight: 700; }
 .timePlainTag,
 .wrap .result :global([data-asura-plain] > span:first-child) {
   display: inline-block;
@@ -396,13 +396,13 @@
 .timeCards.timeCards > .timeCard[data-asura-time-card="hits"] > summary > span:first-child { background: linear-gradient(180deg, #3a2c17, #241a0c); box-shadow: inset 0 0 0 1px var(--past-gold); color: #e2c78d; }
 .timeCards.timeCards > .timeCard[data-asura-time-card="hits"] > summary strong { color: var(--past-gold-text); font-size: 27px; font-weight: 900; }
 .timeCards .timeCard[data-asura-time-card="hits"] [data-asura-interleaved] > p,
-.wrap .result :global([data-asura-function="hits"] [data-asura-interleaved] > p) { font-size: 19px; line-height: 2; font-weight: 500; }
+.wrap .result :global([data-asura-function="hits"] [data-asura-interleaved] > p) { font-size: 19px; line-height: 2; font-weight: 400; }
 .timeCards .timeCard[data-asura-time-card="hits"] [data-asura-interleaved] > p:first-child,
-.wrap .result :global([data-asura-function="hits"] [data-asura-interleaved] > p:first-child) { color: var(--past-gold-text); font-size: 22px; font-weight: 800; line-height: 1.8; }
+.wrap .result :global([data-asura-function="hits"] [data-asura-interleaved] > p:first-child) { color: var(--past-gold-text); font-size: 22px; font-weight: 900; line-height: 1.8; }
 .timeCards .timeCard[data-asura-time-card="hits"] [data-asura-plain],
 .wrap .result :global([data-asura-function="hits"] [data-asura-plain]) { font-size: 15px; line-height: 1.75; }
 .timeCards .timeCard[data-asura-time-card="hits"] [data-asura-coda],
-.wrap .result :global([data-asura-function="hits"] [data-asura-coda]) { color: var(--past-gold-text); font-size: 23px; font-weight: 800; }
+.wrap .result :global([data-asura-function="hits"] [data-asura-coda]) { color: var(--past-gold-text); font-size: 23px; font-weight: 900; }
 
 /* ── 現在：中量、摔墨甩痕 ── */
 .timeCards.timeCards > .timeCard[data-asura-time-card="pillars"],
@@ -428,7 +428,7 @@
 .timeCards.timeCards > .timeCard[data-asura-time-card="pillars"][open],
 .wrap .result :global([data-asura-function="pillars"] > div) { min-height: calc(var(--U) * 3); }
 .timeCards.timeCards > .timeCard[data-asura-time-card="pillars"] > summary > span:first-child { background: linear-gradient(180deg, #a12626, #8b1e1e); box-shadow: inset 0 0 0 1px rgba(230, 196, 122, 0.55); color: #fbeac6; }
-.timeCards.timeCards > .timeCard[data-asura-time-card="pillars"] > summary strong { color: var(--now-gold-text); font-size: 25px; font-weight: 800; }
+.timeCards.timeCards > .timeCard[data-asura-time-card="pillars"] > summary strong { color: var(--now-gold-text); font-size: 25px; font-weight: 900; }
 .timeCards .timeCard[data-asura-time-card="pillars"] [data-asura-interleaved] > p,
 .wrap .result :global([data-asura-function="pillars"] [data-asura-interleaved] > p) { font-size: 18.5px; line-height: 2; }
 .timeCards .timeCard[data-asura-time-card="pillars"] [data-asura-interleaved] > p:first-child,
@@ -436,7 +436,7 @@
 .timeCards .timeCard[data-asura-time-card="pillars"] [data-asura-plain],
 .wrap .result :global([data-asura-function="pillars"] [data-asura-plain]) { font-size: 14.5px; line-height: 1.75; }
 .timeCards .timeCard[data-asura-time-card="pillars"] [data-asura-coda],
-.wrap .result :global([data-asura-function="pillars"] [data-asura-coda]) { color: var(--now-gold-text); font-size: 22px; font-weight: 800; }
+.wrap .result :global([data-asura-function="pillars"] [data-asura-coda]) { color: var(--now-gold-text); font-size: 22px; font-weight: 900; }
 
 /* ── 未來：最輕最疏、飛白 ── */
 .timeCards.timeCards > .timeCard[data-asura-time-card="verdict"],
@@ -481,7 +481,7 @@
 .timeCards .timeCard[data-asura-time-card="verdict"] [data-asura-interleaved] > p,
 .wrap .result :global([data-asura-function="verdict"] [data-asura-interleaved] > p) { color: #e4dccb; font-size: 18px; line-height: 2.1; font-weight: 400; letter-spacing: 0.04em; }
 .timeCards .timeCard[data-asura-time-card="verdict"] [data-asura-interleaved] > p:first-child,
-.wrap .result :global([data-asura-function="verdict"] [data-asura-interleaved] > p:first-child) { color: var(--fut-gold-text); font-size: 20px; font-weight: 600; line-height: 1.9; }
+.wrap .result :global([data-asura-function="verdict"] [data-asura-interleaved] > p:first-child) { color: var(--fut-gold-text); font-size: 20px; font-weight: 700; line-height: 1.9; }
 .timeCards .timeCard[data-asura-time-card="verdict"] [data-asura-plain],
 .wrap .result :global([data-asura-function="verdict"] [data-asura-plain]) { margin-top: -14px; border-left-color: rgba(232, 210, 154, 0.35); font-size: 14.5px; line-height: 1.8; }
 .timeCards .timeCard[data-asura-time-card="verdict"] [data-asura-coda],

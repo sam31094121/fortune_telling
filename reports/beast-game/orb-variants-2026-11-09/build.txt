@@ -1,0 +1,591 @@
+
+> blood-type-compatibility@0.1.0 prebuild
+> node tests/ghost-asura-skill-coverage.test.cjs
+
+PASS: 6147 checks | ids=65 entries=65 complete=65 broken=0 reused=19 generated=46 coverage=100% skill=ASURA_SKILL_V1.0 realAwakened=74 existingWordingWithBannedWords=none
+
+> blood-type-compatibility@0.1.0 build
+> node scripts/build.mjs
+
+[build] 產物目錄：.next-production（本地隔離目錄，不影響執行中的 dev server）
+   ▲ Next.js 15.5.22
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · optimizePackageImports
+
+   Creating an optimized production build ...
+ ⚠ Compiled with warnings in 5.7s
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'variants' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./lib/beast-game/match3/hard-campaign.ts
+./components/battlefield/Match3Board.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'grant'.'distinctShieldElements' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./lib/beast-game/match3/hard-campaign.ts
+./components/battlefield/Match3Board.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'grant'.'amount' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./lib/beast-game/match3/hard-campaign.ts
+./components/battlefield/Match3Board.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'grant'.'amount' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./lib/beast-game/match3/hard-campaign.ts
+./components/battlefield/Match3Board.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'SPACE'.'shieldBreak' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./lib/beast-game/match3/hard-campaign.ts
+./components/battlefield/Match3Board.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'WATER'.'energyDrain' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./lib/beast-game/match3/hard-campaign.ts
+./components/battlefield/Match3Board.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'EARTH'.'guardScale' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./lib/beast-game/match3/hard-campaign.ts
+./components/battlefield/Match3Board.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'variants' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./app/beast-game/treasure-preview/page.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'grant'.'distinctShieldElements' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./app/beast-game/treasure-preview/page.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'grant'.'amount' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./app/beast-game/treasure-preview/page.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'grant'.'amount' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./app/beast-game/treasure-preview/page.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'SPACE'.'shieldBreak' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./app/beast-game/treasure-preview/page.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'WATER'.'energyDrain' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./app/beast-game/treasure-preview/page.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'EARTH'.'guardScale' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./app/beast-game/treasure-preview/page.tsx
+
+ ⚠ Compiled with warnings in 3.7s
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'variants' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./lib/beast-game/match3/hard-campaign-store.ts
+./components/battlefield/Match3Board.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'grant'.'distinctShieldElements' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./lib/beast-game/match3/hard-campaign-store.ts
+./components/battlefield/Match3Board.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'grant'.'amount' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./lib/beast-game/match3/hard-campaign-store.ts
+./components/battlefield/Match3Board.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'grant'.'amount' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./lib/beast-game/match3/hard-campaign-store.ts
+./components/battlefield/Match3Board.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'SPACE'.'shieldBreak' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./lib/beast-game/match3/hard-campaign-store.ts
+./components/battlefield/Match3Board.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'WATER'.'energyDrain' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./lib/beast-game/match3/hard-campaign-store.ts
+./components/battlefield/Match3Board.tsx
+
+./lib/beast-game/match3/treasures.ts
+Should not import the named export 'EARTH'.'guardScale' (imported as 'policy') from default-exporting module (only default export is available soon)
+
+Import trace for requested module:
+./lib/beast-game/match3/treasures.ts
+./lib/beast-game/match3/hard-campaign-store.ts
+./components/battlefield/Match3Board.tsx
+
+ ✓ Compiled successfully in 9.5s
+   Linting and checking validity of types ...
+
+./app/admin/page.tsx
+13:36  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+15:50  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+184:33  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./app/api/match-generate/route.ts
+542:49  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./app/bazi/page.tsx
+317:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+321:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/beast-game/battlefield/page.tsx
+203:6  Warning: React Hook useEffect has a missing dependency: 'resumeLive'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/beast-game/motion-preview/MotionPreview.tsx
+215:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+278:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/dual-chart/BaziChart.tsx
+217:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/dual-chart/ComparisonCard.tsx
+124:34  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+143:44  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./app/dual-chart/GhostAsuraCardIndependent.tsx
+168:46  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+171:46  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+241:32  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+245:32  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+277:33  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./app/dual-chart/ZiweiChart.tsx
+48:27  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+48:66  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+48:102  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+48:144  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+48:173  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+48:204  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./app/insight/page.tsx
+2975:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+3459:39  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+4604:6  Warning: React Hook useEffect has a missing dependency: 'showRitualCompleteImmediately'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+4686:6  Warning: React Hook useEffect has a missing dependency: 'input'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+4698:6  Warning: React Hook useEffect has a missing dependency: 'result'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+4698:16  Warning: React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked.  react-hooks/exhaustive-deps
+
+./app/layout.tsx
+107:9  Warning: Custom fonts not added in `pages/_document.js` will only load for a single page. This is discouraged. See: https://nextjs.org/docs/messages/no-page-custom-font  @next/next/no-page-custom-font
+
+./app/music/MusicClient.tsx
+601:70  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./app/nameology/page.tsx
+695:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+1143:6  Warning: React Hook useEffect has a missing dependency: 'showRitualCompleteImmediately'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/page.tsx
+1856:67  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+1925:67  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+2287:6  Warning: React Hook useEffect has a missing dependency: 'data'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+2287:19  Warning: React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked.  react-hooks/exhaustive-deps
+2509:6  Warning: React Hook useEffect has a missing dependency: 'data'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+2509:13  Warning: React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked.  react-hooks/exhaustive-deps
+2947:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+2968:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+3004:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+3027:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+3051:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+3081:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+3104:73  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+3127:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+3131:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+3160:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+3181:13  Warning: The attribute aria-disabled is not supported by the role region. This role is implicit on the element section.  jsx-a11y/role-supports-aria-props
+3205:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+3224:68  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+3225:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+3239:77  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/star-beasts/page.tsx
+129:6  Warning: React Hook useEffect has a missing dependency: 'moveSelected'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+173:67  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+187:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+188:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/battlefield/FusionEffectStage.tsx
+218:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/battlefield/Match3Board.tsx
+101:39  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+256:6  Warning: React Hook useEffect has a missing dependency: 'init.team'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+371:6  Warning: React Hook useEffect has a missing dependency: 'treasurePractice'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+383:6  Warning: React Hook useCallback has missing dependencies: 'setBanner', 'showSkillEvents', and 'treasurePractice'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+391:87  Warning: React Hook useEffect has missing dependencies: 'rigEnabled' and 'showSkillEvents'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+774:151  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+775:989  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/battlefield/Match3RigAttack.tsx
+38:6  Warning: React Hook useCallback has a missing dependency: 'strike.summon?.guardianId'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+67:6  Warning: React Hook useEffect has a missing dependency: 'strike?.attackerIds'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./components/bazi/customer/ProfessionalBaziTable.tsx
+285:85  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+335:40  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./components/GhostAsuraHomeEntry.tsx
+58:9  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/GhostAsuraTimeCardsDisplay.tsx
+67:26  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+68:29  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+69:28  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./components/InstallShield080.tsx
+435:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+453:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+518:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+546:11  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/model-lab/ModelLab.tsx
+495:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/nine-grid/LuoshuCard.tsx
+59:6  Warning: React Hook useLayoutEffect has a missing dependency: 'dropSeq'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+63:82  Warning: React Hook useEffect has a missing dependency: 'dropSeq'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./components/nine-grid/useDropPlayback.ts
+62:6  Warning: React Hook useEffect has a missing dependency: 'state.landed'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./components/StarBeastHomeCard.tsx
+90:11  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+91:11  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/taiji/level-01/Level01Taiji.tsx
+95:6  Warning: React Hook useCallback has an unnecessary dependency: 'controller'. Either exclude it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./components/taiji/TaijiWebGL3D.tsx
+9:27  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+11:31  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+18:34  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+28:35  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+29:26  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+32:34  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+39:35  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+69:43  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+209:25  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+231:47  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+525:33  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+569:33  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+572:40  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./components/VisualGravityCore.tsx
+49:67  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+410:35  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+413:58  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+414:55  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+423:26  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+424:24  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+429:49  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+1057:25  Warning: The ref value 'effectTimeoutsRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'effectTimeoutsRef.current' to a variable inside the effect, and use that variable in the cleanup function.  react-hooks/exhaustive-deps
+1072:31  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+1073:28  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+1310:6  Warning: React Hook useEffect has missing dependencies: 'triggerBurst' and 'updateAndDraw'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./lib/asura/client-personality-cross-engine.ts
+139:29  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+140:28  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+141:32  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+200:24  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+220:24  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+274:32  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/asura/future-card-interpreter.ts
+127:26  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/asura/present-card-interpreter.ts
+127:28  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/asura/time-cards-temper-speech.ts
+138:11  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/asura/time-cards-unified-engine.ts
+117:28  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/beast-game/battle-validation.ts
+15:10  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/cache-manager.ts
+13:46  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/feedback-counter.ts
+285:17  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+319:37  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/ghost-asura-audio-enhance.ts
+52:63  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/ghost-asura-audio.ts
+48:50  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+52:86  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+121:21  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+135:30  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+163:18  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+164:16  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+172:18  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+173:16  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+182:18  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+183:16  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/ghost-asura-display-contract.ts
+202:45  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/ghost-asura-elements.ts
+235:20  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/ghost-asura-frontend-guard.ts
+19:15  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/ghost-asura-interaction-enhance.ts
+103:93  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/ghost-asura-narrative-engine.ts
+19:13  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:12  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/ghost-asura-performance.ts
+47:36  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+76:34  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/iching-shensha-asura.ts
+67:29  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+73:48  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+76:35  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+98:59  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/music-parameter-generator.ts
+39:75  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+83:77  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+175:83  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+271:21  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/music-personality-db.ts
+191:60  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/relationship-matrix-engine.ts
+172:8  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+184:8  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/server/ghost-asura-display.ts
+571:50  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/ziwei/engine.ts
+246:17  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+267:49  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+376:90  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+431:70  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/54) ...
+   Generating static pages (13/54) 
+   Generating static pages (26/54) 
+   Generating static pages (40/54) 
+ ✓ Generating static pages (54/54)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                            Size  First Load JS
+┌ ○ /                                               59.2 kB         515 kB
+├ ○ /_not-found                                        1 kB         105 kB
+├ ○ /3D                                             2.48 kB         110 kB
+├ ○ /admin                                          3.59 kB         107 kB
+├ ƒ /api/admin/dual-chart-logs                        351 B         104 kB
+├ ƒ /api/admin/guestbook                              351 B         104 kB
+├ ƒ /api/admin/ip-check                               351 B         104 kB
+├ ƒ /api/admin/login                                  351 B         104 kB
+├ ƒ /api/admin/logout                                 351 B         104 kB
+├ ƒ /api/ai-action-guidance                           351 B         104 kB
+├ ƒ /api/ai-copywriting-style-center                  351 B         104 kB
+├ ƒ /api/ai-follow-up                                 351 B         104 kB
+├ ƒ /api/analysis/jobs                                351 B         104 kB
+├ ƒ /api/analysis/jobs/[jobId]                        351 B         104 kB
+├ ƒ /api/analysis/results/[resultId]                  351 B         104 kB
+├ ƒ /api/analyze                                      351 B         104 kB
+├ ƒ /api/audio/guide/[cardId]                         351 B         104 kB
+├ ƒ /api/bazi                                         351 B         104 kB
+├ ƒ /api/bazi-debug                                   351 B         104 kB
+├ ƒ /api/bazi/google-reading                          351 B         104 kB
+├ ƒ /api/bazi/horror-reading                          351 B         104 kB
+├ ƒ /api/beast-game                                   351 B         104 kB
+├ ƒ /api/beast-game/battlefield                       351 B         104 kB
+├ ƒ /api/beast-game/elements                          351 B         104 kB
+├ ƒ /api/beast-game/guide-book                        351 B         104 kB
+├ ƒ /api/beast-game/orb-treasures                     351 B         104 kB
+├ ƒ /api/beast-game/orb-turn                          351 B         104 kB
+├ ƒ /api/beast-game/stake-duel                        351 B         104 kB
+├ ƒ /api/beast-game/starter-pack                      351 B         104 kB
+├ ƒ /api/beast-game/turns                             351 B         104 kB
+├ ƒ /api/beast-production                             351 B         104 kB
+├ ƒ /api/beast-skills                                 351 B         104 kB
+├ ƒ /api/credibility                                  351 B         104 kB
+├ ƒ /api/dual-chart                                   351 B         104 kB
+├ ƒ /api/dual-chart/session                           351 B         104 kB
+├ ƒ /api/ghost-asura/conversation                     351 B         104 kB
+├ ƒ /api/ghost-asura/reading                          351 B         104 kB
+├ ○ /api/ghost-asura/skill-file                       351 B         104 kB
+├ ƒ /api/ghost-asura/three-core-voice                 351 B         104 kB
+├ ƒ /api/ghost-asura/timeline                         351 B         104 kB
+├ ƒ /api/ghost-asura/validate-consistency             351 B         104 kB
+├ ƒ /api/growth-center                                351 B         104 kB
+├ ƒ /api/guestbook                                    351 B         104 kB
+├ ƒ /api/home-trust                                   351 B         104 kB
+├ ƒ /api/home-trust/agree                             351 B         104 kB
+├ ƒ /api/home-trust/disagree                          351 B         104 kB
+├ ƒ /api/home-trust/feedback                          351 B         104 kB
+├ ƒ /api/home-trust/feedback/stats                    351 B         104 kB
+├ ƒ /api/home-trust/view                              351 B         104 kB
+├ ƒ /api/insight-analyze                              351 B         104 kB
+├ ƒ /api/karma-story-generate                         351 B         104 kB
+├ ƒ /api/master-platform-final-optimize               351 B         104 kB
+├ ƒ /api/match-generate                               351 B         104 kB
+├ ƒ /api/music-elevenlabs                             351 B         104 kB
+├ ƒ /api/music-generate                               351 B         104 kB
+├ ƒ /api/music-lyria                                  351 B         104 kB
+├ ƒ /api/nameology-analyze                            351 B         104 kB
+├ ƒ /api/nine-grid                                    351 B         104 kB
+├ ƒ /api/nine-grid/asura                              351 B         104 kB
+├ ƒ /api/number-fortune                               351 B         104 kB
+├ ƒ /api/number/analyze                               351 B         104 kB
+├ ƒ /api/platform-center                              351 B         104 kB
+├ ƒ /api/platform-control-center                      351 B         104 kB
+├ ƒ /api/preview                                      351 B         104 kB
+├ ƒ /api/red-luan-heartbeat                           351 B         104 kB
+├ ƒ /api/solar-term                                   351 B         104 kB
+├ ƒ /api/star-beasts/guardian                         351 B         104 kB
+├ ƒ /api/tarot/deck                                   351 B         104 kB
+├ ƒ /api/tarot/draw-output                            351 B         104 kB
+├ ƒ /api/tarot/interpret                              351 B         104 kB
+├ ƒ /api/tarot/reading                                351 B         104 kB
+├ ƒ /api/tarot/shuffle                                351 B         104 kB
+├ ƒ /api/tarot/stats                                  351 B         104 kB
+├ ƒ /api/trust-feedback/ws                            351 B         104 kB
+├ ƒ /api/western-life-code                            351 B         104 kB
+├ ƒ /api/ziwei-debug                                  351 B         104 kB
+├ ƒ /api/ziwei/[analysisId]/entertainment-analysis    351 B         104 kB
+├ ƒ /api/ziwei/[analysisId]/teacher-analysis          351 B         104 kB
+├ ○ /bazi                                             34 kB         715 kB
+├ ○ /beast-game                                       351 B         104 kB
+├ ○ /beast-game/battlefield                           208 B         202 kB
+├ ƒ /beast-game/combat-review                       2.12 kB         169 kB
+├ ○ /beast-game/lineup                                351 B         104 kB
+├ ○ /beast-game/match3                                351 B         104 kB
+├ ○ /beast-game/match3-hard                         8.04 kB         200 kB
+├ ○ /beast-game/match3-hard2                          351 B         104 kB
+├ ○ /beast-game/match3-preview                        351 B         104 kB
+├ ○ /beast-game/motion-preview                      10.2 kB         122 kB
+├ ○ /beast-game/orb                                   351 B         104 kB
+├ ○ /beast-game/orb/game.html                         351 B         104 kB
+├ ○ /beast-game/prepare                               351 B         104 kB
+├ ○ /beast-game/preview                               351 B         104 kB
+├ ƒ /beast-game/production                          3.66 kB         107 kB
+├ ○ /beast-game/qa-stakes                           1.76 kB         204 kB
+├ ○ /beast-game/rig-preview                         1.81 kB         114 kB
+├ ƒ /beast-game/ritual-review                       10.7 kB         149 kB
+├ ○ /beast-game/treasure-preview                      194 B         192 kB
+├ ○ /card-battle-v1                                 7.94 kB         112 kB
+├ ƒ /dual-chart                                     9.21 kB         731 kB
+├ ƒ /ghost-asura                                    14.4 kB         684 kB
+├ ○ /ghost-asura/cross-device-monitor               2.78 kB         106 kB
+├ ○ /ghost-asura/skill                              7.98 kB         134 kB
+├ ○ /growth-center                                   157 kB         300 kB
+├ ○ /insight                                        43.6 kB         720 kB
+├ ƒ /internal/asura-chain                             337 B         104 kB
+├ ƒ /internal/health/dependencies                     351 B         104 kB
+├ ƒ /internal/health/live                             351 B         104 kB
+├ ƒ /internal/health/ready                            351 B         104 kB
+├ ○ /internal/orb-material-review                   3.36 kB         110 kB
+├ ○ /landing                                          963 B         105 kB
+├ ○ /manifest.webmanifest                             351 B         104 kB
+├ ○ /match                                            54 kB         528 kB
+├ ƒ /music                                          41.4 kB         469 kB
+├ ○ /nameology                                      23.9 kB         677 kB
+├ ○ /nine-grid                                      24.7 kB         452 kB
+├ ○ /numerology                                     11.5 kB         119 kB
+├ ○ /orb-battle                                       351 B         104 kB
+├ ƒ /platform-center                                  170 B         107 kB
+├ ƒ /platform-control-center                          170 B         107 kB
+├ ○ /red-luan-heartbeat                             29.1 kB         685 kB
+├ ○ /robots.txt                                       351 B         104 kB
+├ ƒ /single-shensha                                 2.43 kB         724 kB
+├ ○ /sitemap.xml                                      351 B         104 kB
+├ ○ /star-beasts                                    10.3 kB         684 kB
+├ ○ /tarot                                          13.6 kB         132 kB
+├ ○ /trust                                          8.81 kB         116 kB
+└ ○ /zodiac                                         17.4 kB         327 kB
++ First Load JS shared by all                        104 kB
+  ├ chunks/1255-cf02c4775860a5ab.js                   46 kB
+  ├ chunks/4bd1b696-100b9d70ed4e49c1.js             54.2 kB
+  └ other shared chunks (total)                     3.39 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

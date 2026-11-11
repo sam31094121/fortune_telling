@@ -1,10 +1,10 @@
 .page{max-width:980px;margin:auto;padding:24px 16px 72px;color:#f5f1e8;min-height:100dvh}
 .nav{display:flex;justify-content:space-between;gap:16px;align-items:center}
 .nav a,.nav button{padding:12px 0;color:#d8c6ff}
-.header{padding:32px 0 24px}.header h1{font-size:32px;font-weight:800;margin:8px 0}
+.header{padding:32px 0 24px}.header h1{font-size:32px;font-weight:900;margin:8px 0}
 .header p,.note{color:#c4bfd2;font-size:14px;line-height:1.8}.note{margin:12px 0}
 .panel{padding:22px;border:1px solid #bca0e833;border-radius:24px;background:linear-gradient(135deg,#171627,#0b1020);margin-bottom:24px;min-width:0}
-.panel h2{font-size:22px;font-weight:800;margin-bottom:18px;color:#eee2ff}
+.panel h2{font-size:22px;font-weight:900;margin-bottom:18px;color:#eee2ff}
 .panel :global(td),.panel :global(th){overflow-wrap:anywhere}.panel :global(.grid)>*{min-width:0}
 .login{display:grid;gap:16px;max-width:440px}
 .login input,.zi select{background:#080c18;border:1px solid #a899ba;border-radius:12px;padding:14px;color:#fff;font-size:16px;width:100%}
@@ -13,7 +13,7 @@
 .error{position:sticky;bottom:16px;background:#491e32;color:#ffe6ef;border:1px solid #ff9aba;padding:16px;border-radius:14px;z-index:5}
 .results{scroll-margin-top:20px}.zi{display:grid;gap:12px;margin-top:18px}
 .palace{border:1px solid #bca0e844;border-radius:16px;padding:18px;line-height:1.9;overflow-wrap:anywhere}
-.palace h3{font-size:19px;font-weight:800;color:#e5d0ff}.palace p{font-size:15px;color:#d7d2e0;margin-top:8px}
+.palace h3{font-size:19px;font-weight:900;color:#e5d0ff}.palace p{font-size:15px;color:#d7d2e0;margin-top:8px}
 .palace .stars{font-size:18px;color:#ffdfa3;font-weight:700}
 .chart{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(150px,auto));gap:3px;background:#ac8ec566;border:2px solid #ac8ec566;border-radius:16px;overflow:hidden;margin:20px 0}
 .center{grid-area:2/2/4/4;background:#171725;padding:20px;display:flex;flex-direction:column;justify-content:center;gap:8px;overflow-wrap:anywhere;font-size:15px}
@@ -21,10 +21,10 @@
 .cell{background:#1b2030;padding:12px;text-align:left;display:flex;flex-direction:column;gap:6px;min-width:0}
 .cell[aria-pressed=true]{outline:3px solid #e8c078;outline-offset:-3px}.cell:focus-visible{outline:3px solid white;outline-offset:-3px}
 .life{background:#3a2546}.body{background:#173e3a}
-.cellStars{display:flex;flex-wrap:wrap;gap:5px;font-size:18px;font-weight:800;color:#ffe1a9}.cellStars>span{display:inline-flex;align-items:center;gap:3px}
+.cellStars{display:flex;flex-wrap:wrap;gap:5px;font-size:18px;font-weight:900;color:#ffe1a9}.cellStars>span{display:inline-flex;align-items:center;gap:3px}
 .badge{font-size:11px;padding:1px 3px;background:#754689;color:white;border-radius:3px}
 .cellMinor{font-size:12px;color:#bfc3d9;line-height:1.6}.cellPeriod{margin-top:auto;font-size:12px;color:#b8b2c9}
-.cellTitle{font-size:16px;font-weight:800;color:#e2cdf7;display:flex;flex-wrap:wrap;gap:4px;line-height:1.5}.cellTitle b{font-size:11px;color:#a6e1cc}
+.cellTitle{font-size:16px;font-weight:900;color:#e2cdf7;display:flex;flex-wrap:wrap;gap:4px;line-height:1.5}.cellTitle b{font-size:11px;color:#a6e1cc}
 .cellBranch{line-height:1.4;color:#a8c6b5;font-size:12px}.emptyStar{font-size:14px;font-weight:400;color:#bbb}
 .chart+.palace{scroll-margin-top:18px}.printStars{display:none}
 .printEntry{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px;align-items:center}
@@ -37,23 +37,23 @@
 .progressBar{width:100%;height:4px;background:#ddd;border-radius:2px;overflow:hidden;flex:0 0 100%}
 .progressFill{height:100%;background:#d9bef5;transition:width 0.2s ease;border-radius:2px}
 .printHint{width:100%;font-size:13px;line-height:1.7;color:#51495c}
-.pdfDownload{display:block;width:100%;border:1px solid #765785;background:#eee3f4;color:#482957;padding:14px;border-radius:10px;text-align:center;font-weight:800}
+.pdfDownload{display:block;width:100%;border:1px solid #765785;background:#eee3f4;color:#482957;padding:14px;border-radius:10px;text-align:center;font-weight:900}
 .chartTabNav{display:none;gap:0;border-bottom:2px solid #bca0e844;margin-bottom:20px}
-.chartTabNav button{flex:1;padding:14px 12px;background:transparent;color:#c4bfd2;border:none;font-weight:600;border-bottom:3px solid transparent;cursor:pointer;transition:all 0.2s}
+.chartTabNav button{flex:1;padding:14px 12px;background:transparent;color:#c4bfd2;border:none;font-weight:700;border-bottom:3px solid transparent;cursor:pointer;transition:all 0.2s}
 .chartTabNav button[aria-selected=true],.chartTabNav button.active{color:#d9bef5;border-bottom-color:#d9bef5}
 .comparisionPlaceholder{color:#a899ba;text-align:center;padding:40px 20px;font-style:italic}
 .comparisonCard{display:grid;gap:32px}
-.comparisonHeader h3{font-size:24px;font-weight:800;color:#eee2ff;margin-bottom:4px}
+.comparisonHeader h3{font-size:24px;font-weight:900;color:#eee2ff;margin-bottom:4px}
 .comparisonSubtitle{font-size:14px;color:#c4bfd2;margin-bottom:20px}
 .comparisonSection{padding:20px;background:#1b2030;border-radius:16px;border:1px solid #bca0e833}
 .comparisonSection h4{font-size:18px;font-weight:700;color:#d9bef5;margin-bottom:16px}
 .elementComparison{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:16px}
-.elementColumn h5{font-size:14px;color:#a899ba;margin-bottom:12px;font-weight:600}
+.elementColumn h5{font-size:14px;color:#a899ba;margin-bottom:12px;font-weight:700}
 .elementBar{display:grid;grid-template-columns:40px 1fr 30px;gap:12px;align-items:center;margin-bottom:12px;font-size:13px}
-.elementBar label{color:#c4bfd2;font-weight:500}
+.elementBar label{color:#c4bfd2;font-weight:400}
 .barContainer{height:16px;background:#0a0d14;border-radius:8px;overflow:hidden;border:1px solid #6b5a7f}
 .barFill{height:100%;background:linear-gradient(90deg,#d9bef5,#b9a9d6);transition:width 0.3s ease}
-.barValue{color:#9d8fb3;font-weight:600;text-align:right}
+.barValue{color:#9d8fb3;font-weight:700;text-align:right}
 .mappingTable{width:100%;font-size:13px;border-collapse:collapse;margin-bottom:16px}
 .mappingTable th{background:#2a2540;color:#d9bef5;padding:12px;text-align:left;font-weight:700}
 .mappingTable td{padding:12px;border-bottom:1px solid #bca0e833;color:#d7d2e0;line-height:1.6}
@@ -100,7 +100,7 @@
 .printPreview .cell[aria-pressed=true]{outline:none}.printPreview .cellMinor{display:none}
 .printPreview .printStars{display:flex;flex-wrap:wrap;gap:2px 8px;font-size:12.5px;line-height:1.7;overflow-wrap:anywhere;color:#343650!important}
 .printPreview .cellStars{font-size:18px;line-height:1.5;display:flex;flex-wrap:wrap;color:#6a366d!important}.printPreview .cellStars>span{display:inline-flex}
-.printPreview .cellTitle{font-size:17px;font-weight:800;color:#643653!important;line-height:1.5}.printPreview .cellTitle b{font-size:11px;color:#246d4d!important}
+.printPreview .cellTitle{font-size:17px;font-weight:900;color:#643653!important;line-height:1.5}.printPreview .cellTitle b{font-size:11px;color:#246d4d!important}
 .printPreview .cellPeriod,.printPreview .cellBranch{font-size:12px;line-height:1.5;color:#465b55!important}
 .printPreview .badge{background:#835291!important;border:1px solid #754388;color:white!important;font-size:11px;padding:0 3px}
 .printPreview .emptyStar{color:#6e6678!important;font-size:14px}.printPreview .chart+.palace{display:none}
@@ -115,7 +115,7 @@
 .printPreview [data-bazi-raw-chart] :global(.text-xs){font-size:12px}
 .starBrightness,.printLegend{display:none}.metaLabel{margin-right:5px}.metaLabel:not(:first-child){margin-left:10px}
 .printPreview .interactionHint{display:none}
-.printPreview .starBrightness{display:inline;font:500 11px/1.5 sans-serif;color:#62526e!important}
+.printPreview .starBrightness{display:inline;font:400 11px/1.5 sans-serif;color:#62526e!important}
 .printPreview .printStars>span{display:inline-flex;align-items:baseline;white-space:nowrap;gap:1px}
 .printPreview .printStars small{font-size:10.5px}
 .printPreview .center{border:1px solid #d6c7b6;gap:10px}
@@ -170,7 +170,7 @@
   width:100%;min-width:0;box-sizing:border-box;margin:20px 0;padding:18px 16px 20px;border:1px solid #bba4d055;border-radius:18px;
   background:radial-gradient(120% 60% at 50% 0%,#2e2748 0%,#1b1929 55%,#161524 100%);scroll-margin-top:20px;box-shadow:0 10px 32px #0807114d}
 .shenshaHeader{text-align:center;margin:0 0 14px}
-.shenshaHeader h3{margin:0;font-size:24px;font-weight:800;letter-spacing:.18em;color:#f4e6ff}
+.shenshaHeader h3{margin:0;font-size:24px;font-weight:900;letter-spacing:.18em;color:#f4e6ff}
 .shenshaHeader .shenshaSubtitle{margin:6px 0 0;font-size:13px;letter-spacing:.06em;color:var(--ss-muted)}
 .shenshaCard>p{font-size:13px;line-height:1.6;color:#ffe1a7;margin:0 0 10px}
 .shenshaCard [data-shensha-tone="福氣"],.embeddedShenShaRow [data-shensha-tone="福氣"]{--ss-tone:var(--ss-gold)}
@@ -193,7 +193,7 @@
 .shenshaLegend span[data-shensha-tone]::before{content:'';display:inline-block;width:10px;height:10px;margin-inline-end:5px;border-radius:50%;background:var(--ss-tone);vertical-align:-1px}
 .shenshaCard>p.shenshaFootnote{margin:6px 0 0;font-size:13px;line-height:1.6;color:var(--ss-muted);text-align:center}
 .shenshaIching{margin-top:18px;padding-top:4px;min-width:0}
-.shenshaSectionTitle{display:flex;align-items:center;gap:8px;margin:18px 0 8px;font-size:17px;font-weight:800;letter-spacing:.12em;color:#f0e0ff}
+.shenshaSectionTitle{display:flex;align-items:center;gap:8px;margin:18px 0 8px;font-size:17px;font-weight:900;letter-spacing:.12em;color:#f0e0ff}
 .shenshaSectionTitle::before{content:'';width:4px;height:18px;border-radius:2px;background:linear-gradient(180deg,var(--ss-gold),var(--ss-violet))}
 .shenshaChain{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .shenshaChain li{display:grid;grid-template-columns:5.2em minmax(0,1fr);gap:8px;align-items:baseline;padding:6px 12px;border-radius:10px;background:var(--ss-panel);font-size:14px;line-height:1.6;color:var(--ss-text);overflow-wrap:anywhere}
@@ -201,13 +201,13 @@
 .shenshaHexagram{display:flex;align-items:center;justify-content:center;gap:16px;margin:14px 0 2px;padding:12px 14px;border-radius:16px;border:1px solid #e9c46a44;background:radial-gradient(90% 120% at 50% 0%,#3a3052,#221d33)}
 .shenshaHexagram>span{font-size:52px;line-height:1;color:#f4e6ff;text-shadow:0 0 18px #cdb2ff55}
 .shenshaHexagram p{display:grid;gap:2px;margin:0;text-align:start}
-.shenshaHexagram b{font-size:24px;font-weight:800;letter-spacing:.12em;color:#f4e6ff}
+.shenshaHexagram b{font-size:24px;font-weight:900;letter-spacing:.12em;color:#f4e6ff}
 .shenshaHexagram small{font-size:13px;color:var(--ss-muted)}
 .shenshaSummary{margin:0 0 12px;padding:14px 16px;border-radius:12px;border:1px solid #e9c46a44;background:linear-gradient(135deg,#2a2440,#1f1c2f);font-size:16px;line-height:1.85;color:#f5f0ff;overflow-wrap:anywhere}
 .shenshaSummary h4{margin:0 0 12px;font-size:15px;font-weight:700;letter-spacing:.1em;color:#f0e0ff}
 .shenshaSummaryStats{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0;padding:8px 0;align-items:center}
 .summaryTotal{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(233,196,106,.1);border:1px solid #e9c46a55;border-radius:999px;font-size:14px;color:#f0e0ff}
-.summaryTotal b{font-size:18px;font-weight:800;color:#f2cf7a}
+.summaryTotal b{font-size:18px;font-weight:900;color:#f2cf7a}
 .summaryTone{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;font-size:14px;color:#f5f0ff}
 .summaryTone[data-tone="福氣"]{background:rgba(165,214,167,.08);color:#a5d6a7}
 .summaryTone[data-tone="動能"]{background:rgba(205,178,255,.08);color:#cdb2ff}
@@ -313,7 +313,7 @@
 .printPreview .shenshaPillars>div{padding:9px 4px;border:1px solid #888;background:#fff!important;text-align:center;border-radius:4px}
 .printPreview .shenshaPillars h4{font-size:12px;font-weight:700;color:#333!important;margin:0 0 7px;padding-bottom:5px;border-bottom:1px solid #ddd}
 .printPreview .shenshaPillars ul{list-style:none;margin:0;padding:0;display:grid;gap:3px}
-.printPreview .shenshaPillars li{font-size:12.5px;color:#2a2235!important;line-height:1.5;font-weight:500}
+.printPreview .shenshaPillars li{font-size:12.5px;color:#2a2235!important;line-height:1.5;font-weight:400}
 .printPreview .shenshaEmpty{color:#666!important;font-size:11px}
 .printPreview .shenshaPillarNote{font-size:10px;color:#888!important;margin-top:4px}
 .printPreview .baziMain>p.shenshaLegend{font-size:10px;color:#888!important;margin-top:6px;gap:4px 10px;letter-spacing:0}
@@ -373,7 +373,7 @@
 .printPreview.monochrome .life{border:3px solid #000!important;background:#fff!important}.printPreview.monochrome .body{border:2px dashed #000!important;background:#fff!important}
 .printPreview.monochrome .badge[data-mutagen]{background:#f5f5f5!important;color:#000!important;border:2px solid #000!important;font-weight:900;border-radius:2px}
 .printPreview.monochrome .badge[data-mutagen='權']{border-width:3px!important}.printPreview.monochrome .badge[data-mutagen='科']{border-style:double!important}.printPreview.monochrome .badge[data-mutagen='忌']{background:#222!important;color:#fff!important;border:2px solid #000!important}
-.printPreview.monochrome .cellStars{font-weight:900;color:#000!important}.printPreview.monochrome .printStars{font-weight:600}.printPreview.monochrome .elementRing{filter:grayscale(1) contrast(1.1);border:2px solid #333}.printPreview.monochrome .elementRing>div{background:#fafafa!important;border:1px solid #888}.printPreview.monochrome .elementLegend i{filter:grayscale(1) brightness(0.95);border:1px solid #333}
+.printPreview.monochrome .cellStars{font-weight:900;color:#000!important}.printPreview.monochrome .printStars{font-weight:700}.printPreview.monochrome .elementRing{filter:grayscale(1) contrast(1.1);border:2px solid #333}.printPreview.monochrome .elementRing>div{background:#fafafa!important;border:1px solid #888}.printPreview.monochrome .elementLegend i{filter:grayscale(1) brightness(0.95);border:1px solid #333}
 .elementRingSvg{display:block;width:154px;height:154px;margin:0 auto 8px}.elementLegend svg{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-right:4px}.elementLegend small{font-size:10px}
 @media print{
  .printPreview .elementRingSvg{display:block!important}
@@ -392,14 +392,14 @@
 .printPreview .baziMain>.micro{margin-top:10px;margin-bottom:8px}.printPreview .startLuck{font-size:14px}
 .printPreview .baziMain>.luckGrid{font-size:12px;line-height:1.5;margin-top:6px}.printPreview .baziMain>.micro{font-size:12px;line-height:1.5}.printPreview .baziMain>.relations{font-size:13px;margin-top:6px}.printPreview .baziMain>.relations small{font-size:11px}
 /* Reading hierarchy: primary data, aligned labels, then secondary details. */
-.summaryGrid>div{display:grid;grid-template-columns:2.2em minmax(0,1fr);align-items:baseline}.summaryGrid dd{font-weight:500}
-.ageStrip{display:grid;grid-template-columns:2em minmax(0,1fr);column-gap:5px;align-items:start}.ageStrip>b{font-weight:600}.ageValues{display:flex;flex-wrap:wrap;column-gap:3px}.ageValues>span{white-space:nowrap;font-variant-numeric:tabular-nums}
-.printPreview .panel h2{font-size:26px;letter-spacing:4px;font-weight:750}
+.summaryGrid>div{display:grid;grid-template-columns:2.2em minmax(0,1fr);align-items:baseline}.summaryGrid dd{font-weight:400}
+.ageStrip{display:grid;grid-template-columns:2em minmax(0,1fr);column-gap:5px;align-items:start}.ageStrip>b{font-weight:700}.ageValues{display:flex;flex-wrap:wrap;column-gap:3px}.ageValues>span{white-space:nowrap;font-variant-numeric:tabular-nums}
+.printPreview .panel h2{font-size:26px;letter-spacing:4px;font-weight:900}
 .printPreview .baziMain>.pillarGrid{outline:1px solid #a697ad;outline-offset:-1px}.printPreview .baziMain>.pillarGrid thead th{font-size:16px;letter-spacing:1px}
-.printPreview .summaryGrid{font-size:12.5px}.printPreview .summaryGrid dt{font-weight:750}.printPreview .annualGrid small,.printPreview .annualGrid span{font-size:11.5px}
+.printPreview .summaryGrid{font-size:12.5px}.printPreview .summaryGrid dt{font-weight:900}.printPreview .annualGrid small,.printPreview .annualGrid span{font-size:11.5px}
 .printPreview .baziMain>.luckGrid{font-variant-numeric:tabular-nums}.printPreview .baziMain>.luckGrid b{font-size:18px}
-.printPreview .cellStars{font-size:18px;line-height:1.45;column-gap:6px}.printPreview .starBrightness{font-size:11px;font-weight:500}.printPreview .printStars{font-size:12.5px;line-height:1.5;column-gap:7px}
-.printPreview .palaceCycles{font-size:11.5px;line-height:1.45}.printPreview .ageStrip{font-size:11px;line-height:1.45}.printPreview .cellPeriod{font-weight:600}
+.printPreview .cellStars{font-size:18px;line-height:1.45;column-gap:6px}.printPreview .starBrightness{font-size:11px;font-weight:400}.printPreview .printStars{font-size:12.5px;line-height:1.5;column-gap:7px}
+.printPreview .palaceCycles{font-size:11.5px;line-height:1.45}.printPreview .ageStrip{font-size:11px;line-height:1.45}.printPreview .cellPeriod{font-weight:700}
 .printPreview.monochrome .baziMain>.pillarGrid{outline-color:#666}
 .passwordField{display:flex;gap:8px;align-items:stretch;min-width:0}.passwordField input{min-width:0;flex:1}.login .passwordToggle{flex:none;min-height:48px;padding:10px;background:#292236;color:#eee2ff;border:1px solid #a899ba;font-size:14px}.login .note{margin:0}.login>a{padding:12px 0;color:#d8c6ff}
 @media(max-width:360px){.passwordField{flex-wrap:wrap}.passwordField input{flex-basis:100%}.login .passwordToggle{width:100%}}
@@ -425,10 +425,10 @@
 .printPreview .baziMain>.micro{margin-bottom:0}
 
 /* Hierarchy stays inside the relationship section; data order is unchanged. */
-.relations h3{font-size:18px;font-weight:800;letter-spacing:.06em;line-height:1.35}
+.relations h3{font-size:18px;font-weight:900;letter-spacing:.06em;line-height:1.35}
 .relations p{min-width:0;overflow-wrap:anywhere;line-height:1.5}
-.relations p>b{font-size:17px;font-weight:800;line-height:1.4}
-.relationParticipants{display:inline-block;margin-left:8px;font-size:13px;font-weight:500;line-height:1.4}
+.relations p>b{font-size:17px;font-weight:900;line-height:1.4}
+.relationParticipants{display:inline-block;margin-left:8px;font-size:13px;font-weight:400;line-height:1.4}
 .relations small{margin-top:3px;line-height:1.4}
 .printPreview .baziMain>.relations{padding:7px 9px;gap:6px 12px;align-content:space-evenly}
 .printPreview .relations h3{font-size:18px;line-height:1.35}
@@ -504,7 +504,7 @@
 .flowYearSummary[data-vibe="需注意"]{background:linear-gradient(135deg,rgba(147,211,234,.08),rgba(147,211,234,.04));border-color:rgba(147,211,234,.3)}
 .flowYearSummary[data-vibe="平衡"]{background:linear-gradient(135deg,rgba(233,196,106,.06),rgba(233,196,106,.02));border-color:rgba(233,196,106,.2)}
 .flowSummaryHeader{display:flex;align-items:center;gap:12px;margin:0 0 10px;justify-content:space-between}
-.flowSummaryHeader h4{margin:0;font-size:17px;font-weight:800;color:#e5d0ff;letter-spacing:.04em}
+.flowSummaryHeader h4{margin:0;font-size:17px;font-weight:900;color:#e5d0ff;letter-spacing:.04em}
 .vibeTag{display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:2px 14px;border-radius:999px;font-size:13px;font-weight:700;letter-spacing:.05em;white-space:nowrap}
 .vibeTag[data-vibe="吉"]{background:rgba(165,214,167,.2);color:#a5d6a7;border:1px solid rgba(165,214,167,.4)}
 .vibeTag[data-vibe="平順"]{background:rgba(205,178,255,.2);color:#cdb2ff;border:1px solid rgba(205,178,255,.4)}
@@ -583,8 +583,8 @@ details[open]>summary .moreHint::after{content:' ▴'}
 .ghostSealed :global(.space-seal-paper){top:-18%;left:auto;right:10%;width:58px;height:136%;padding-top:10px}
 /* 融合卡片：八字易經神煞命盤 */
 .fusedChart{position:relative}
-.fusedChart h2{font-size:24px;font-weight:800;margin-bottom:4px;color:#f5e6ff;text-align:center;letter-spacing:.02em}
-.fusedSubtitle{text-align:center;font-size:13px;color:#b8a8c8;margin-bottom:20px;letter-spacing:.05em;font-weight:500}
+.fusedChart h2{font-size:24px;font-weight:900;margin-bottom:4px;color:#f5e6ff;text-align:center;letter-spacing:.02em}
+.fusedSubtitle{text-align:center;font-size:13px;color:#b8a8c8;margin-bottom:20px;letter-spacing:.05em;font-weight:400}
 .shenshaIchingFused{margin-top:24px;padding-top:20px;border-top:2px solid rgba(217,190,245,.2)}
 .shenshaIchingFused .shenshaCard{border:none;background:transparent;padding:0}
 .shenshaIchingFused .shenshaCard h3{font-size:20px;color:#e5d0ff;margin-top:0}
@@ -599,7 +599,7 @@ details[open]>summary .moreHint::after{content:' ▴'}
 .printPreview .fusedChart .startLuck{padding-top:5px;padding-bottom:5px;margin-top:6px}
 .printPreview .fusedChart .reportFooter{margin-top:6px;padding-top:5px}
 /* Keep annual ages legible in the raster PDF's font fallback as well as the preview. */
-.printPreview .baziSidebar .annualGrid th small{font-family:Arial,"Microsoft JhengHei",sans-serif;font-weight:500;letter-spacing:0}
+.printPreview .baziSidebar .annualGrid th small{font-family:Arial,"Microsoft JhengHei",sans-serif;font-weight:400;letter-spacing:0}
 .printPreview .shenshaIchingFused{margin-top:16px;padding-top:14px;border-top:1.5px solid rgba(0,0,0,.1)}
 
 /* ════════════════════════════════════════════════════════════════════════════
@@ -654,7 +654,7 @@ details[open]>summary .moreHint::after{content:' ▴'}
   font-size: 16px;
   line-height: 1.9;
   color: var(--asura-text);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.02em;
   border-radius: 8px;
   box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.03);
@@ -667,7 +667,7 @@ details[open]>summary .moreHint::after{content:' ▴'}
   gap: 10px;
   margin: 24px 0 12px;
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.12em;
   color: #F0E6FF;
   text-transform: uppercase;
@@ -739,7 +739,7 @@ details[open]>summary .moreHint::after{content:' ▴'}
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 600;
+  font-weight: 700;
   color: #E8D5FF;
   font-size: 15px;
 }
@@ -838,7 +838,7 @@ details[open] > summary .moreHint::after {
   border-radius: 10px;
   background: linear-gradient(90deg, rgba(50, 40, 60, 0.4), rgba(30, 25, 40, 0.3));
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  font-weight: 600;
+  font-weight: 700;
   color: #E8D5FF;
   transition: all 0.15s ease;
 }
@@ -886,7 +886,7 @@ details[open] > summary .moreHint::after {
   font-size: 16px;
   line-height: 1.9;
   color: var(--asura-text);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.02em;
   border-radius: 8px;
   box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.03);
@@ -1092,7 +1092,7 @@ details[open] > summary .moreHint::after {
   color: var(--asura-gold-dim);
   margin: 0;
   letter-spacing: 0.08em;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .ghostAsuraShare {
@@ -1294,7 +1294,7 @@ details[open] > summary .moreHint::after {
    垂直高度不增加（不加 padding、圓角膠囊用 inset 陰影不佔高）；實測這頁 A4 原本就貼邊，不能再撐高。 */
 .printPreview .summaryGrid.elementReading{border:1px solid #b9a8c4;border-bottom:0;border-radius:6px;overflow:hidden;background:#fbf8fc;box-shadow:inset 0 2px 0 #c9a961}
 .printPreview .summaryGrid.elementReading>div{border-bottom-color:#dacfe2;border-right-color:#dacfe2}
-.printPreview .summaryGrid.elementReading dt{color:#76598a!important;font-weight:600;letter-spacing:.14em}
+.printPreview .summaryGrid.elementReading dt{color:#76598a!important;font-weight:700;letter-spacing:.14em}
 .printPreview .summaryGrid.elementReading dd{letter-spacing:.06em}
 .printPreview .summaryGrid.elementReading>div[data-reading]{background:linear-gradient(180deg,#f8f0de,#fcf7ec)}
 .printPreview .summaryGrid.elementReading>div[data-reading] dd{color:#4d3510!important}

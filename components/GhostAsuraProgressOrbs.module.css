@@ -376,7 +376,7 @@
 
 .labelText {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: #f1cba9;
   line-height: 1.2;
 }
@@ -522,7 +522,7 @@
 
 .completedText {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: #d3b29c;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -598,7 +598,7 @@
 .ceremonyText {
   margin: 0;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   color: #ffb882;
   line-height: 1.5;
 }

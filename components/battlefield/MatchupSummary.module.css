@@ -20,7 +20,7 @@
   transition: all 0.2s;
   color: #b8c2ca;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.05em;
 }
 
@@ -126,7 +126,7 @@
 .role {
   font-size: 10px;
   color: #7dd3fc;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -190,4 +190,4 @@
 
 /* 2026-10-17 客戶實玩：右欄「相生相剋 +20%」小晶片 10～11px 太小，提到 12～13px。 */
 .label { font-size: 12px !important; }
-.percent { font-size: 13px !important; font-weight: 800; }
+.percent { font-size: 13px !important; font-weight: 900; }

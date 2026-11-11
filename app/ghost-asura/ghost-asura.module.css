@@ -45,9 +45,9 @@
 
 .login { display: grid; gap: 16px; max-width: 460px; }
 .login .note { margin: 0; }
-.login label, .zi { color: #efe9dc; font-size: 15px; font-weight: 600; }
+.login label, .zi { color: #efe9dc; font-size: 15px; font-weight: 700; }
 .login input, .zi select { width: 100%; min-height: 52px; padding: 12px; border: 1px solid #4a4842; border-radius: 8px; background: #121210; color: #f8f3e8; font-size: 16px; }
-.login > button { min-height: 52px; padding: 12px 20px; background: #aa7323; border: 1px solid #fce74a; border-radius: 10px; color: #121210; font-weight: 800; }
+.login > button { min-height: 52px; padding: 12px 20px; background: #aa7323; border: 1px solid #fce74a; border-radius: 10px; color: #121210; font-weight: 900; }
 .login a { color: #fce74a; text-decoration: underline; }
 .passwordField { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
 .passwordToggle { min-height: 48px; padding: 8px 12px; border: 1px solid #4a4842; border-radius: 8px; color: #e8d9a8; font-size: 13px; }
@@ -76,7 +76,7 @@
   background: #121210 !important;
   color: #f8f3e8 !important;
   font-size: 16px !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   box-shadow: none !important;
   text-shadow: none;
 }
@@ -187,7 +187,7 @@
 .stepCircle.done ~ .stepLabel,
 .stepCircle.active ~ .stepLabel {
   color: #f4efe4;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* 進度條連線 */

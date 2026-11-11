@@ -49,8 +49,8 @@
 }
 .emblem svg { width: 26px; height: 26px; filter: drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #ffffff20); }
 .content { display: grid; min-width: 0; gap: 6px; }
-.level { color: var(--accent); font-size: 11px; font-weight: 800; letter-spacing: .12em; line-height: 1.5; }
-.title { color: #fff3d9; font-family: 'Noto Serif TC', serif; font-size: 18px; font-weight: 800; line-height: 1.4; letter-spacing: .025em; text-shadow: 0 2px 2px #0008; overflow-wrap: anywhere; }
+.level { color: var(--accent); font-size: 11px; font-weight: 900; letter-spacing: .12em; line-height: 1.5; }
+.title { color: #fff3d9; font-family: 'Noto Serif TC', serif; font-size: 18px; font-weight: 900; line-height: 1.4; letter-spacing: .025em; text-shadow: 0 2px 2px #0008; overflow-wrap: anywhere; }
 .description { color: #c3c7cf; font-size: 12px; line-height: 1.75; overflow-wrap: anywhere; }
 .arrow { align-self: center; color: #d7c6a4; font-size: 22px; line-height: 1; transition: transform 180ms ease, color 180ms ease; }
 .card:focus-visible { outline: 3px solid #ffe3a5; outline-offset: 4px; border-color: #ffe3a5; }
@@ -103,7 +103,10 @@
   box-shadow: 0 7px 0 #080910, 0 8px 0 #b49d6555, 0 18px 26px #0009, inset 0 0 18px #0008;
 }
 .orbBoard .orbCell { display: grid; place-items: center; min-width: 0; min-height: 0; border: 1px solid #cdb9910d; cursor: inherit; }
-.orbBoard .orbCell::after, .orbBoard .orbCell > span::after { animation: none; }
+/* 2026-11-09 perf：入口示意盤是靜態示意圖（無遊戲狀態）。原本這行權重 (0,2,2) 輸給 Match3Board 的
+   .orb:not(.magic) .gem::after (0,3,1)，也沒涵蓋 .magic::before，導致 53 個 gemSweep＋3 個 m3magic 無限動畫
+   在主執行緒每幀重算樣式。提高權重讓它真的停住；停住後畫面＝prefers-reduced-motion 下的既有靜止畫面。 */
+.orbBoard .orbCell.orbCell::before, .orbBoard .orbCell.orbCell::after, .orbBoard .orbCell.orbCell > span::after { animation: none; }
 .orbConnection { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; filter: drop-shadow(0 0 2px var(--c)); }
 .orbConnection path { stroke: color-mix(in srgb, var(--c) 72%, white); stroke-width: .085; stroke-linecap: round; stroke-linejoin: round; }
 .orbConnection circle { stroke: color-mix(in srgb, var(--c) 65%, white); stroke-width: .065; }

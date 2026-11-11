@@ -22,6 +22,8 @@ const config: Config = {
           cyan: 'var(--human-cyan)',
         },
       },
+      // 2026-11-09 用戶鈺勝指定：全站字重收斂成 400／700／900（微軟正黑體只有細／標準／粗三個字面，500→400、600→700、800→900 畫面同字面）。
+      fontWeight: { medium: '400', semibold: '700', extrabold: '900' },
       fontFamily: {
         sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         serif: ['var(--font-serif)', 'serif'],

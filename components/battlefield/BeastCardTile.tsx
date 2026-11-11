@@ -44,9 +44,9 @@ import { CARD_FACE_STATS, CARD_FACE_SKILL } from '@/lib/beast-game/card-face-sta
 const ART_V2_POS: Record<string, number> = {"beast_y01":50,"beast_y02":50,"beast_y03":50,"beast_y04":50,"beast_y05":50,"beast_y06":50,"beast_y07":50,"beast_y08":50,"beast_y09":50,"beast_y10":50,"beast_y11":50,"beast_y12":50,"beast_y13":50,"beast_y14":50,"beast_y15":72.4,"beast_y16":60.4,"beast_y17":79.7,"beast_y18":60,"beast_y19":71.6,"beast_y20":66.6,"beast_y21":60,"beast_y22":60.5,"beast_y23":60.4,"beast_y24":58,"beast_y25":65.1,"beast_y26":60.5,"beast_y27":63.6,"beast_y28":66.1,"beast_a01":50,"beast_a02":50,"beast_a03":55,"beast_a04":30,"beast_a05":50,"beast_a06":50,"beast_a07":50,"beast_a08":50,"beast_a09":50,"beast_a10":50,"beast_a11":50,"beast_a12":50,"beast_a13":50,"beast_a14":50,"beast_a15":50,"beast_a16":50,"beast_a17":50,"beast_a18":50,"beast_a19":50,"beast_a20":50,"beast_a21":50,"beast_a22":50,"beast_a23":50,"beast_a24":50,"beast_a25":50,"beast_a26":50,"beast_a27":50,"beast_a28":50,"beast_g_qinglong":50,"beast_g_zhuque":50,"beast_g_baihu":50,"beast_g_xuanwu":50};
 const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
   beast_y01: {
-    thumb: '/beast-game/front/young-01.hind-paw-v1.svg',
-    mid: '/beast-game/front/young-01.hind-paw-v1.svg',
-    front: '/beast-game/front/young-01.hind-paw-v1.svg',
+    thumb: '/beast-game/thumb/young-01.v2.webp?v=6207f137be27',
+    mid: '/beast-game/thumb/young-01.v2-480.webp?v=dcf3cdd45378',
+    front: '/beast-game/front/young-01.v2.webp?v=eed5b8f52ea5',
   },
   beast_y02: {
     thumb: '/beast-game/thumb/young-02.v2.webp?v=8a9f83381fb5',
@@ -440,6 +440,19 @@ export function cardArtThumb(cardId: string): string {
   return ART_V2[cardId]?.front ?? '';
 }
 
+/** 戰鬥畫面用 480 縮圖。四象不走這裡。mid 若不是 480 檔，依 id 推導實際命名；找不到則回傳空字串供呼叫端退回原 thumbnail。 */
+export function cardArt480(cardId: string): string {
+  if (cardId.startsWith('beast_g_')) return '';
+  const mid = ART_V2[cardId]?.mid ?? '';
+  if (/(?:thumb-)?480\.webp(?:$|\?)/i.test(mid)) return mid;
+  const y = cardId.match(/^beast_y(\d+)$/);
+  if (y) return '/beast-game/thumb/young-' + y[1].padStart(2, '0') + '.v2-480.webp';
+  const a = cardId.match(/^beast_a(\d+)$/);
+  if (a) return '/beast-game/thumb/adult-' + a[1].padStart(2, '0') + '.v2-480.webp';
+  return '';
+}
+
+
 /**
  * 小卡縮圖（新版）：用新版卡圖加 .metal 金框。給放不下整張新卡面（名字、體力、技能）的小格子用，
  * 讓六十張卡在所有畫面都是同一副金框與同一版卡圖。查不到新版圖才退回原圖。
@@ -506,7 +519,7 @@ function FrameV1Tile({
       <span className={`${frame.card} ${styles.fv1Card}`}>
         <span className={styles.fv1Inner}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className={styles.fv1Back} src={src} srcSet={srcSet} sizes="(max-width: 480px) 46vw, 200px" alt="" aria-hidden="true" loading="lazy" decoding="async" />
+          <img className={styles.fv1Back} src={src} srcSet={srcSet} sizes="(max-width: 480px) 46vw, 200px" alt="" aria-hidden="true" loading="lazy" decoding="async" onError={(e) => { const img = e.currentTarget; if (img.dataset.artFallback === '1') return; img.dataset.artFallback = '1'; if (!src) return; img.removeAttribute('srcset'); img.src = src; }} />
           <span className={styles.fv1Head}>
             <span className={styles.fv1Stage}>{FV1_STAGE[tier]}</span>
             <span className={styles.fv1Name}>{faceName}</span>
@@ -525,6 +538,7 @@ function FrameV1Tile({
               alt=""
               loading="lazy"
               decoding="async"
+              onError={(e) => { const img = e.currentTarget; if (img.dataset.artFallback === '1') return; img.dataset.artFallback = '1'; if (!src) return; img.removeAttribute('srcset'); img.src = src; }}
             />
           </span>
           <span className={styles.fv1Panel}>

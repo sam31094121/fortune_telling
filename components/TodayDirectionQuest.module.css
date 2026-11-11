@@ -108,7 +108,7 @@
   gap: 0.3rem;
   color: rgba(167, 243, 208, 0.92);
   font-size: 0.66rem;
-  font-weight: 950;
+  font-weight: 900;
 }
 
 .eyebrow,
@@ -116,7 +116,7 @@
 .kicker {
   margin: 0;
   font-size: 0.7rem;
-  font-weight: 950;
+  font-weight: 900;
   letter-spacing: 0.18em;
 }
 
@@ -177,7 +177,7 @@
   color: #f8fafc;
   font-family: var(--font-sans), "Microsoft JhengHei", "PingFang TC", sans-serif;
   font-size: clamp(1.75rem, 7vw, 3.2rem);
-  font-weight: 950;
+  font-weight: 900;
   line-height: 1.12;
   letter-spacing: 0;
   font-kerning: normal;
@@ -191,7 +191,7 @@
   margin: 0.7rem 0 0;
   color: rgba(224, 242, 254, 0.85);
   font-size: clamp(0.92rem, 2.3vw, 1.05rem);
-  font-weight: 750;
+  font-weight: 900;
   line-height: 1.75;
 }
 
@@ -209,7 +209,7 @@
   background: rgba(15, 23, 42, 0.5);
   color: rgba(226, 232, 240, 0.88);
   font-size: 0.7rem;
-  font-weight: 850;
+  font-weight: 900;
 }
 
 .introAction {
@@ -245,7 +245,7 @@
 .lockPreview small {
   color: rgba(148, 163, 184, 0.9);
   font-size: 0.66rem;
-  font-weight: 850;
+  font-weight: 900;
   letter-spacing: 0.12em;
 }
 
@@ -269,7 +269,7 @@
   background: linear-gradient(115deg, #fde68a, #67e8f9);
   color: #07111f;
   font-size: 0.92rem;
-  font-weight: 950;
+  font-weight: 900;
   text-align: center;
   box-shadow: 0 0 28px rgba(103, 232, 249, 0.2);
   transition: transform 180ms ease, filter 180ms ease, box-shadow 180ms ease;
@@ -297,7 +297,7 @@
   background: rgba(14, 116, 144, 0.2);
   color: #e0f2fe;
   font-size: 0.92rem;
-  font-weight: 950;
+  font-weight: 900;
 }
 
 .feedbackGrid {
@@ -316,7 +316,7 @@
   background: rgba(15, 23, 42, 0.45);
   color: rgba(226, 232, 240, 0.95);
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 900;
   text-decoration: none;
   cursor: pointer;
 }
@@ -342,14 +342,14 @@
 .checkinOrb small {
   color: rgba(167, 243, 208, 0.78);
   font-size: 0.72rem;
-  font-weight: 850;
+  font-weight: 900;
 }
 
 .checkinOrb strong {
   margin-top: 0.25rem;
   color: #ecfdf5;
   font-size: 1rem;
-  font-weight: 950;
+  font-weight: 900;
 }
 
 .checkinPromise,
@@ -358,7 +358,7 @@
   margin: 0.85rem 0 0;
   color: rgba(167, 243, 208, 0.86);
   font-size: 0.8rem;
-  font-weight: 850;
+  font-weight: 900;
   line-height: 1.6;
   text-align: center;
 }
@@ -425,7 +425,7 @@
   color: #fde68a;
   font-family: var(--font-serif), serif;
   font-size: 1.15rem;
-  font-weight: 950;
+  font-weight: 900;
 }
 
 .choiceButton > span:nth-child(2) {
@@ -440,7 +440,7 @@
 
 .choiceButton strong {
   font-size: 1rem;
-  font-weight: 950;
+  font-weight: 900;
   letter-spacing: 0.015em;
 }
 
@@ -448,7 +448,7 @@
   margin-top: 0.25rem;
   color: rgba(148, 163, 184, 0.9);
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .choiceArrow {
@@ -505,7 +505,7 @@
   background: transparent;
   color: rgba(186, 230, 253, 0.72);
   font-size: 0.73rem;
-  font-weight: 850;
+  font-weight: 900;
   text-decoration: underline;
   text-decoration-color: rgba(186, 230, 253, 0.25);
   text-underline-offset: 0.25rem;
@@ -545,7 +545,7 @@
   display: block;
   color: rgba(148, 163, 184, 0.92);
   font-size: 0.66rem;
-  font-weight: 950;
+  font-weight: 900;
   letter-spacing: 0.12em;
 }
 
@@ -554,7 +554,7 @@
   margin: 0.5rem 0 0;
   color: rgba(248, 250, 252, 0.94);
   font-size: 0.94rem;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.75;
 }
 
@@ -616,7 +616,7 @@
   background: rgba(2, 6, 23, 0.88);
   color: rgba(226, 232, 240, 0.78);
   font-size: 0.56rem;
-  font-weight: 950;
+  font-weight: 900;
 }
 
 .orbLoading {
@@ -630,7 +630,7 @@
   color: #d1fae5;
   font-family: var(--font-serif), serif;
   font-size: 1.8rem;
-  font-weight: 950;
+  font-weight: 900;
   box-shadow: 0 0 24px rgba(52, 211, 153, 0.22);
 }
 
@@ -658,7 +658,7 @@
   margin: 0.85rem 0 0;
   color: rgba(167, 243, 208, 0.76);
   font-size: 0.74rem;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.6;
 }
 
@@ -731,7 +731,7 @@
   .eyebrow,
   .progressText {
     font-size: 0.72rem;
-    font-weight: 950;
+    font-weight: 900;
     letter-spacing: 0.08em;
   }
 
@@ -743,7 +743,7 @@
   .step h2,
   .reward h2 {
     font-size: clamp(1.9rem, 8.8vw, 2.35rem);
-    font-weight: 950;
+    font-weight: 900;
     line-height: 1.18;
     text-shadow: 0 2px 16px rgba(2, 6, 23, 0.82);
   }
@@ -752,7 +752,7 @@
   .stepLead,
   .rewardLead {
     font-size: 1rem;
-    font-weight: 850;
+    font-weight: 900;
     line-height: 1.7;
   }
 
@@ -776,13 +776,13 @@
 
   .lockPreview strong {
     font-size: 1rem;
-    font-weight: 950;
+    font-weight: 900;
   }
 
   .primaryButton {
     min-height: 3.7rem;
     font-size: 1rem;
-    font-weight: 950;
+    font-weight: 900;
   }
 
   .secondaryButton {
@@ -796,7 +796,7 @@
 
   .choiceButton small {
     font-size: 0.78rem;
-    font-weight: 850;
+    font-weight: 900;
   }
 
   .choiceButton,
@@ -808,14 +808,14 @@
 
   .pathButton strong {
     font-size: 0.96rem;
-    font-weight: 950;
+    font-weight: 900;
     line-height: 1.55;
   }
 
   .reflectionCard p,
   .actionCard p {
     font-size: 1rem;
-    font-weight: 850;
+    font-weight: 900;
     line-height: 1.72;
   }
 
@@ -834,7 +834,7 @@
 
   .disclaimer {
     font-size: 0.74rem;
-    font-weight: 750;
+    font-weight: 900;
   }
 
   .windGlow {
@@ -912,7 +912,7 @@
   margin: 0.7rem 0 0;
   color: rgba(186, 230, 253, 0.88);
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.55;
   letter-spacing: 0.02em;
 }
@@ -920,7 +920,7 @@
   margin-top: 0.45rem;
   color: rgba(253, 230, 138, 0.82);
   font-size: 0.74rem;
-  font-weight: 750;
+  font-weight: 900;
 }
 @media (max-width: 900px), (pointer: coarse) {
   .intro {
@@ -1034,7 +1034,7 @@
   gap: 0.35rem;
   margin: 0;
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.08em;
   color: rgba(253, 230, 138, 0.92);
 }
@@ -1063,7 +1063,7 @@
 .takeawayAction span {
   display: block;
   font-size: 0.66rem;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.1em;
   color: rgba(165, 243, 252, 0.9);
 }
@@ -1072,7 +1072,7 @@
   display: block;
   margin-top: 0.28rem;
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.5;
   color: #ecfeff;
 }
@@ -1091,7 +1091,7 @@
     linear-gradient(180deg, rgba(8, 47, 73, 0.42), rgba(2, 6, 23, 0.55));
   color: rgba(186, 230, 253, 0.94);
   font-size: 0.8rem;
-  font-weight: 750;
+  font-weight: 900;
   line-height: 1.45;
   letter-spacing: 0.01em;
   text-align: center;
@@ -1119,7 +1119,7 @@
   background: rgba(120, 53, 15, 0.28);
   color: #fde68a;
   font-size: 0.7rem;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.06em;
   line-height: 1.2;
   box-shadow: inset 0 1px 0 rgba(253, 230, 138, 0.12);

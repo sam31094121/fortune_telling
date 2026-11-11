@@ -2,7 +2,7 @@
 .scenery::after { content:''; position:absolute; top:58px;left:50%;height:calc(100% - 104px);aspect-ratio:4/3;max-width:calc(100% - 32px);transform:translateX(-50%);background:url('/beast-game/front/young-23.v2.webp') center / contain no-repeat;mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 50%,rgba(0,0,0,.75) 66%,rgba(0,0,0,.2) 84%,transparent 100%); }
 .foreground { position:absolute;inset:0;z-index:2;pointer-events:none; }
 .artwork { position:absolute;pointer-events:none; }
-.title { position:absolute;top:12px;left:16px;right:16px;text-align:center;white-space:nowrap;font-size:16px;font-weight:800;color:#d1fae5;text-shadow:0 2px 5px #000;pointer-events:none;z-index:3; }
+.title { position:absolute;top:12px;left:16px;right:16px;text-align:center;white-space:nowrap;font-size:16px;font-weight:900;color:#d1fae5;text-shadow:0 2px 5px #000;pointer-events:none;z-index:3; }
 :global(body #home-eight-card-route) a:has(.artwork) { opacity:1 !important; }
 :global(body #home-eight-card-route) a:has(.artwork)::after { display:none; }
 :global(body #home-eight-card-route) a:has(.artwork) .title { opacity:1 !important; }

@@ -200,7 +200,7 @@
 .layerReviewHeading {
   margin-bottom: 6px;
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .layerReviewHeading output {
@@ -222,7 +222,7 @@
   background: rgba(148, 163, 184, 0.1);
   color: rgba(226, 232, 240, 0.9);
   font-size: 9px;
-  font-weight: 800;
+  font-weight: 900;
   cursor: pointer;
 }
 

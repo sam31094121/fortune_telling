@@ -21,6 +21,7 @@ import {
 } from '@/lib/identity-split-client';
 import { GhostAsuraCard } from '@/features/ghost-asura/components/GhostAsuraCard';
 import { AsuraVoiceCard } from '@/features/ghost-asura/components/AsuraVoiceCard';
+import { AsuraLayoutPrewarm } from '@/features/ghost-asura/components/AsuraLayoutPrewarm';
 import AsuraConversation, { type CompletedBirthInput } from './skill/AsuraConversation';
 import type { AsuraDisplay } from '@/lib/ghost-asura-display-contract';
 import { dualChartHourStatus } from '@/lib/dual-chart-form';
@@ -660,6 +661,9 @@ export default function GhostAsuraPageClient({
           )}
         </section>
       )}
+
+      {/* 2026-11-09 用戶鈺勝指定：填表閒置時在畫面外分段預排卡片字型，開卡只做顯示（不顯示任何東西） */}
+      <AsuraLayoutPrewarm active={unlocked && !result} />
 
       {error && (
         <p className={styles.error} role="alert">

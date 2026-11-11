@@ -7,7 +7,7 @@
 .guideLead{margin:0 0 10px;font-size:16px;font-weight:700;color:#ecfeff}
 .primaryAdd{display:grid;gap:4px;place-items:center;width:100%;min-height:64px;margin:8px 0;padding:12px 14px;border:0;border-radius:14px;background:#fde68a;color:#78350f;font-size:18px;font-weight:900;line-height:1.35;box-shadow:0 0 0 2px #fbbf2488}
 .primaryAdd small{font-size:13px;font-weight:700;color:#92400e}
-.helpButton{min-height:48px;padding:10px 14px;margin-top:8px;border-radius:12px;background:#cffafe;color:#083344;font-weight:800;font-size:15px}
+.helpButton{min-height:48px;padding:10px 14px;margin-top:8px;border-radius:12px;background:#cffafe;color:#083344;font-weight:900;font-size:15px}
 .toggle{display:block;min-height:44px;text-decoration:underline;font-size:13px;margin-top:6px}
 .arrow{display:flex;align-items:center;gap:10px;color:#fde68a;font-weight:700;font-size:15px;line-height:1.6;margin:12px 0 6px}
 .arrow span{font-size:30px;line-height:1}

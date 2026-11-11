@@ -311,7 +311,7 @@ const BEHAVIOR_CHECKS = [
   {
     id: 'BEAST_ORB_TREASURES',
     module: 'beast_orb_treasures',
-    title: '寶珠五元素寶器：稀有合成、真實效果、消耗及跨關保存',
+    title: '寶珠二十五法寶：同色4至8盾精確發獎、五色只升盾、消耗及保存',
     script: 'test:beast-match3-treasures',
   },
   {

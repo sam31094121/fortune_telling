@@ -154,7 +154,7 @@
   border-radius: 999px;
   color: #0f172a;
   font-size: clamp(0.68rem, 2.1vw, 0.78rem);
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1;
   box-shadow:
     inset 4px 4px 7px rgba(255, 255, 255, 0.62),
@@ -378,7 +378,7 @@
   margin: 0;
   color: #0f172a;
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: 900;
   text-align: center;
 }
 

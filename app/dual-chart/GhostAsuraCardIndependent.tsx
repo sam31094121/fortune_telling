@@ -143,7 +143,7 @@ export function GhostAsuraCardIndependent({
             lineHeight: '1.8',
             margin: 0,
             fontSize: '14px',
-            fontWeight: 600,
+            fontWeight: 700,
           }}
         >
           {asuraView.opening ||
@@ -198,7 +198,7 @@ export function GhostAsuraCardIndependent({
                 alignItems: 'center',
                 gap: '8px',
                 fontSize: '14px',
-                fontWeight: 600,
+                fontWeight: 700,
                 color: '#D4AF37',
                 letterSpacing: '0.08em',
               }}
@@ -214,7 +214,7 @@ export function GhostAsuraCardIndependent({
                   padding: '2px 8px',
                   borderRadius: '3px',
                   color: '#D4AF37',
-                  fontWeight: 600,
+                  fontWeight: 700,
                 }}
               >
                 {items.length}
@@ -269,7 +269,7 @@ export function GhostAsuraCardIndependent({
                         borderRadius: '3px',
                         background: 'rgba(212, 175, 55, 0.1)',
                         color: '#D4AF37',
-                        fontWeight: 500,
+                        fontWeight: 400,
                         textTransform: 'uppercase',
                         letterSpacing: '0.05em',
                       }}
@@ -292,7 +292,7 @@ export function GhostAsuraCardIndependent({
                         style={{
                           margin: '0 0 4px 0',
                           color: '#F5D547',
-                          fontWeight: 600,
+                          fontWeight: 700,
                         }}
                       >
                         {line.wording.shortDeclaration}
@@ -341,7 +341,7 @@ export function GhostAsuraCardIndependent({
             lineHeight: '1.8',
             margin: 0,
             fontSize: '14px',
-            fontWeight: 600,
+            fontWeight: 700,
           }}
         >
           {asuraView.closing ||
@@ -372,7 +372,7 @@ export function GhostAsuraCardIndependent({
               style={{
                 margin: '4px 0 0 0',
                 color: '#ff6b6b',
-                fontWeight: 600,
+                fontWeight: 700,
               }}
             >
               ❌ 完整度檢查失敗

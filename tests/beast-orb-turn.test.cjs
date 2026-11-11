@@ -16,13 +16,13 @@ for(const [colors,kind] of [[['WATER','WATER','WATER'],'same'],[['AIR','WATER','
 }
 {
  const p=fixture();p.path=ELEMENTS.map((e,c)=>{p.board[0][c]=e;p.magic[0][c]=7;return {r:0,c}});const r=resolveOrbTurn(p);
- assert.equal(r.shield.kind,'five');assert.equal(r.guardScale,.3);assert.equal(r.nextBoost,1.5);assert.equal(r.damage,0);
- assert(r.heals.every(h=>h.reason==='shield'&&h.actual===15));
+ assert.equal(r.shield.kind,'five');assert.equal(r.guardScale,1);assert.equal(r.nextBoost,1);assert.equal(r.damage,0);
+ assert.equal(r.heals.length,0);
  const q={...p,board:r.res.board,magic:r.res.magic,team:r.counter.team,foes:r.counter.foes,attackBoost:r.nextBoost};
  q.board=q.board.map(r=>r.slice());q.magic=q.magic.map(r=>r.slice());q.board[0].fill('WATER');q.magic[0].fill(0);q.path=[0,1,2].map(c=>({r:0,c}));
  const after=resolveOrbTurn(q);assert.equal(after.nextBoost,1);assert(after.damage>0);
 }
-console.log('PASS shield tiers, five-color defense/heal, one-use next attack boost');
+console.log('PASS shield tiers, five-color board upgrade without defense/heal/attack bonus');
 for (const element of ELEMENTS) {
  const p=fixture(); p.board[0].fill(element); p.path=[0,1,2].map(c=>({r:0,c})); p.magic[0].fill(7);
  const r=resolveOrbTurn(p);

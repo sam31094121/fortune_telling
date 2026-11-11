@@ -1,11 +1,11 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { BeastCardFace } from './BeastCardTile';
 import { GuideBookProvider, useGuideBook } from './GuideBookContext';
 import type { GuideBook } from '@/lib/beast-game/guide-book';
 let request: Promise<GuideBook | null> | null = null;
 /** Catalog portraits use the same backend identity and full face as the battlefield. */
-export default function CatalogBeastCard({ id, name, young = false, className }: { id?: string; name?: string; young?: boolean; className?: string }) {
+function CatalogBeastCard({ id, name, young = false, className }: { id?: string; name?: string; young?: boolean; className?: string }) {
  const parent = useGuideBook();
  const [loaded, setLoaded] = useState<GuideBook | null>(null);
  useEffect(() => {
@@ -21,3 +21,5 @@ export default function CatalogBeastCard({ id, name, young = false, className }:
   {card ? <GuideBookProvider value={book}><BeastCardFace card={card} /></GuideBookProvider> : <span role="status">暫時無法取得</span>}
  </span>;
 }
+// 2026-11-09 perf：props 只有字串，開／關詳細卡時父頁重繪不必重畫 28 張完整卡面。
+export default memo(CatalogBeastCard);

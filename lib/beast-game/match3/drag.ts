@@ -170,6 +170,7 @@ export interface DragResult {
   chainLength: number; effectiveLength: number; element: BeastElement | null;
   magicSpawn: MagicSpawn | null; skill5: boolean; magicTriggered: MagicTrigger[]; reshuffled: boolean;
   cascadeCount?: number;
+  boardShieldUpgrade?: boolean;
 }
 
 function collapseBoth(b: Board, m: MagicGrid, cleared: Set<number>, rng: Rng, recordFalls = false): { board: Board; magic: MagicGrid; falls?: OrbFall[] } {
@@ -206,7 +207,8 @@ function resolveHardDrag(board: Board, path: readonly Cell[], rng: Rng, magic0: 
   const shieldFusion = !converting && isShieldFusionPath(path, magic0), element = board[path[0].r][path[0].c];
   const shieldTriggered = path.some(p => magic0[p.r][p.c] >= 7);
   const colors = new Set(shieldFusion ? path.map(p => board[p.r][p.c]) : [element]);
-  const cells = shieldTriggered && !converting
+  const boardShieldUpgrade = shieldFusion && colors.size === 5;
+  const cells = shieldTriggered && !converting && !boardShieldUpgrade
     ? board.flatMap((row, r) => row.flatMap((e, c) => colors.has(e) ? [{ r, c }] : []))
     : path.map(p => ({ ...p }));
   const triggers: MagicTrigger[] = [], steps: DragStep[] = [];
@@ -248,7 +250,18 @@ function resolveHardDrag(board: Board, path: readonly Cell[], rng: Rng, magic0: 
   if (converting) b.forEach((row, r) => row.forEach((e, c) => {
     if (e === element && !firstClear.has(key({ r, c })) && m[r][c] < 7) firstRewards.push({ r, c, element, power: 7 });
   }));
+  if (boardShieldUpgrade) b.forEach((row,r)=>row.forEach((e,c)=>{
+    if (!firstClear.has(key({r,c}))) firstRewards.push({r,c,element:e,power:Math.max(7,m[r][c])});
+  }));
   const firstPlaced = stage(firstGroups, firstClear, firstRewards, 1);
+  if (boardShieldUpgrade) {
+    // Five-colour upgrade keeps every survivor; only the consumed path is refilled.
+    // This upgrade action ends after refill, so newly upgraded shields cannot auto-clear.
+    stage([],new Set(),[],1,true);
+    firstGroups.forEach(g=>{g.attackAllowed=false;});
+    steps.forEach(st=>{st.attackAllowed=false;});
+    return {valid:true,attackAllowed:false,shieldFusion:true,boardShieldUpgrade:true,board:b,magic:m,steps,chainLength:n,effectiveLength,element:null,magicSpawn:null,skill5:false,magicTriggered:[],reshuffled:false,cascadeCount:1};
+  }
   const spawn = converting ? null : firstPlaced[0] ?? null;
   const shieldConversion = converting ? { element, cells: firstPlaced.map(({ r, c }) => ({ r, c })) } : undefined;
   let chain = 2;

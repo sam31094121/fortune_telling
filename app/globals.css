@@ -988,7 +988,7 @@ body.app-lite-effects .taiji-light-orbit--violet .taiji-light-orbit__head {
 .home-signal-chip span {
   color: var(--text-muted);
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.18em;
 }
 
@@ -1392,7 +1392,7 @@ body.app-lite-effects .taiji-light-orbit--violet .taiji-light-orbit__head {
   color: rgba(207, 250, 254, 0.78);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.18em;
 }
 
@@ -2076,7 +2076,7 @@ body.app-lite-effects .taiji-light-orbit--violet .taiji-light-orbit__head {
   border-radius: 999px;
   background: linear-gradient(135deg, #c9a24a 0%, #f7efd2 50%, #8a6a2f 100%);
   color: #050716;
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   box-shadow: 
@@ -2836,7 +2836,7 @@ body.vgc-explode .vgc-core-char { transform: translateZ(18px) scale(1.12); }
   background: rgba(5, 7, 22, 0.82);
   color: #f8fafc;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.12em;
   text-shadow: 0 0 10px currentColor;
   backdrop-filter: blur(8px);
@@ -3645,7 +3645,7 @@ body.vgc-explode .vgc-core-char { transform: translateZ(18px) scale(1.12); }
 .tarot-question-entry__label-row label {
   color: rgb(236, 254, 255) !important;
   font-size: clamp(0.98rem, 2.4vw, 1.14rem) !important;
-  font-weight: 950 !important;
+  font-weight: 900 !important;
   line-height: 1.45 !important;
   text-shadow:
     0 0 16px rgba(34, 211, 238, 0.24),
@@ -4823,7 +4823,7 @@ body.app-lite-effects .home-line-share-card::after {
   border: 1px solid rgba(255, 255, 255, 0.14);
   padding: 0.25rem 0.6rem;
   font-size: 0.75rem;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.08em;
   white-space: nowrap;
 }
@@ -5490,7 +5490,7 @@ body.app-lite-effects .home-line-share-card::after {
   padding: 0.6rem 0.75rem;
   color: #fecdd3;
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.45;
   text-align: left;
   box-shadow: 0 0 22px rgba(244, 63, 94, 0.13);
@@ -7028,7 +7028,7 @@ body.app-touching .home-trust-card::after {
   padding: 0.38rem 0.78rem;
   color: rgba(221, 214, 254, 0.92);
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1;
   letter-spacing: 0.08em;
 }
@@ -7063,7 +7063,7 @@ body.app-touching .home-trust-card::after {
   max-width: 28rem;
   color: var(--text-sub);
   font-size: 0.86rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.75;
   letter-spacing: 0;
 }
@@ -7274,7 +7274,7 @@ body.app-scrolling .modal-taiji-button {
 .music-flow-stage-heading span {
   color: var(--text-muted);
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.55;
   letter-spacing: 0;
 }
@@ -7316,7 +7316,7 @@ body.app-scrolling .modal-taiji-button {
 .music-current-step-card strong {
   color: rgba(240, 253, 250, 0.98);
   font-size: 1rem;
-  font-weight: 950;
+  font-weight: 900;
   line-height: 1.28;
 }
 
@@ -7391,7 +7391,7 @@ body.app-scrolling .modal-taiji-button {
   padding: 0.65rem 0.75rem;
   color: var(--text-sub);
   font-size: 0.74rem;
-  font-weight: 750;
+  font-weight: 900;
   line-height: 1.55;
 }
 
@@ -7637,7 +7637,7 @@ body.app-scrolling .modal-taiji-button {
   padding: 0.55rem 0.68rem;
   color: var(--text-sub);
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
@@ -7764,7 +7764,7 @@ body.app-scrolling .modal-taiji-button {
   padding: 0.55rem 0.7rem;
   color: var(--text-sub);
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
@@ -7946,7 +7946,7 @@ textarea,
   overflow-wrap: anywhere;
   color: var(--text-muted);
   font-size: 0.72rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.45;
   letter-spacing: 0;
 }
@@ -8696,7 +8696,7 @@ body.app-scrolling .home-trust-strip > [data-visitor-counter="home"].home-trust-
   padding: 0.62rem 0.7rem;
   color: var(--text-sub);
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.25;
 }
 
@@ -8711,7 +8711,7 @@ body.app-scrolling .home-trust-strip > [data-visitor-counter="home"].home-trust-
   background: rgba(15, 23, 42, 0.72);
   color: rgba(203, 213, 225, 0.82);
   font-size: 0.7rem;
-  font-weight: 950;
+  font-weight: 900;
 }
 
 .number-computing-step--done {
@@ -9408,7 +9408,7 @@ body.app-scrolling .home-trust-strip > [data-visitor-counter="home"].home-trust-
   margin-top: 0.22rem;
   color: rgba(253, 230, 138, 0.78);
   font-size: clamp(0.56rem, 2.2vw, 0.64rem);
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.45;
   letter-spacing: 0.06em;
 }
@@ -13219,7 +13219,7 @@ body.app-touching .home-taiji-cinema * {
   color: transparent;
   font-family: var(--font-serif);
   font-size: clamp(2.35rem, 7vw, 5.85rem);
-  font-weight: 950;
+  font-weight: 900;
   line-height: 0.98;
   text-wrap: balance;
   text-shadow: 0 18px 38px rgba(2, 6, 23, 0.52);
@@ -13297,7 +13297,7 @@ body.app-touching .home-taiji-cinema * {
   background: rgba(2, 6, 23, 0.66);
   color: rgb(224, 242, 254);
   font-size: 0.58rem;
-  font-weight: 950;
+  font-weight: 900;
   letter-spacing: 0.09em;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
@@ -13337,7 +13337,7 @@ body.app-touching .home-taiji-cinema * {
     rgba(2, 6, 23, 0.72);
   color: rgb(255, 248, 220);
   font-size: clamp(1.05rem, 2.6vw, 1.5rem);
-  font-weight: 950;
+  font-weight: 900;
   letter-spacing: 0.04em;
   box-shadow:
     0 0 30px rgba(253, 230, 138, 0.2),
@@ -13565,7 +13565,7 @@ body.app-touching .home-taiji-cinema * {
   margin: 0;
   color: inherit;
   font-size: 0.625rem;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.2em;
 }
 
@@ -13722,7 +13722,7 @@ body.app-touching .home-taiji-cinema * {
   margin-top: 0.5rem;
   color: var(--text-sub);
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.45;
 }
 
@@ -13771,7 +13771,7 @@ body.app-touching .home-taiji-cinema * {
   background: rgba(253, 230, 138, 0.12);
   color: rgb(254, 243, 199);
   font-size: 0.82rem;
-  font-weight: 950;
+  font-weight: 900;
   box-shadow: 0 0 20px rgba(251, 191, 36, 0.13);
 }
 
@@ -13779,7 +13779,7 @@ body.app-touching .home-taiji-cinema * {
   display: block;
   color: rgb(240, 249, 255);
   font-size: 0.9rem;
-  font-weight: 950;
+  font-weight: 900;
   line-height: 1.2;
 }
 
@@ -13787,7 +13787,7 @@ body.app-touching .home-taiji-cinema * {
   margin-top: 0.24rem;
   color: rgba(203, 213, 225, 0.82);
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.55;
 }
 
@@ -13801,7 +13801,7 @@ body.app-touching .home-taiji-cinema * {
 .tarot-question-entry__label-row label {
   color: rgb(236, 254, 255);
   font-size: 0.96rem;
-  font-weight: 950;
+  font-weight: 900;
   line-height: 1.45;
 }
 
@@ -13813,7 +13813,7 @@ body.app-touching .home-taiji-cinema * {
   padding: 0.28rem 0.58rem;
   color: rgba(207, 250, 254, 0.82);
   font-size: 0.74rem;
-  font-weight: 950;
+  font-weight: 900;
 }
 
 .tarot-question-entry__textarea {
@@ -13845,7 +13845,7 @@ body.app-touching .home-taiji-cinema * {
 
 .tarot-question-entry__textarea::placeholder {
   color: rgba(236, 254, 255, 0.82);
-  font-weight: 950;
+  font-weight: 900;
 }
 
 .tarot-question-entry__textarea:hover {
@@ -13944,7 +13944,7 @@ body.app-touching .home-taiji-cinema * {
   margin-bottom: 0.72rem;
   color: rgba(254, 243, 199, 0.92);
   font-size: 0.76rem;
-  font-weight: 950;
+  font-weight: 900;
   line-height: 1.45;
 }
 
@@ -13963,7 +13963,7 @@ body.app-touching .home-taiji-cinema * {
   margin-top: 0.22rem;
   color: rgba(191, 219, 254, 0.78);
   font-size: 0.74rem;
-  font-weight: 750;
+  font-weight: 900;
 }
 
 .tarot-question-entry__example-list {
@@ -14022,13 +14022,13 @@ body.app-touching .home-taiji-cinema * {
 .tarot-question-entry__example-copy small {
   color: rgba(125, 211, 252, 0.82);
   font-size: 0.7rem;
-  font-weight: 850;
+  font-weight: 900;
 }
 
 .tarot-question-entry__example-copy > span {
   color: rgba(255, 250, 235, 0.94);
   font-size: 0.8rem;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .tarot-question-entry__example-badge {
@@ -14040,7 +14040,7 @@ body.app-touching .home-taiji-cinema * {
   padding: 0.28rem 0.52rem;
   color: rgb(254, 240, 138);
   font-size: 0.7rem;
-  font-weight: 950;
+  font-weight: 900;
   white-space: nowrap;
 }
 
@@ -14535,7 +14535,7 @@ body.app-touching .home-taiji-cinema * {
   margin-top: 0.28rem;
   font-family: ui-sans-serif, system-ui, sans-serif;
   font-size: 0.56rem;
-  font-weight: 950;
+  font-weight: 900;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -14569,7 +14569,7 @@ body.app-touching .home-taiji-cinema * {
   color: rgb(254, 243, 199);
   font-size: 0.72rem;
   font-style: normal;
-  font-weight: 950;
+  font-weight: 900;
   letter-spacing: 0.08em;
   line-height: 1;
   padding: 0.5rem 0.64rem;
@@ -15470,7 +15470,7 @@ body.app-touching .home-taiji-cinema * {
 .tarot-original-shell .tarot-original-status p {
   margin: 0 0 8px;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.18em;
   color: var(--tarot-muted);
 }
@@ -15546,7 +15546,7 @@ body.app-touching .home-taiji-cinema * {
   border-radius: 999px;
   background: var(--tarot-button-bg);
   color: var(--tarot-text);
-  font-weight: 800;
+  font-weight: 900;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
@@ -16531,7 +16531,7 @@ body.app-touching .home-taiji-cinema * {
 
 .tarot-original-shell--revealing .tarot-original-status h1 {
   font-family: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.12em;
   color: transparent;
   background: linear-gradient(180deg, #fff7d6 0%, #f3ce78 58%, #c58b38 100%);
@@ -21561,7 +21561,7 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   margin: 0 0 0.28rem;
   color: rgba(125, 211, 252, 0.9);
   font-size: 0.68rem;
-  font-weight: 950;
+  font-weight: 900;
   line-height: 1;
   letter-spacing: 0;
 }
@@ -21570,7 +21570,7 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   margin: 0;
   color: rgba(248, 250, 252, 0.98);
   font-size: 1.16rem;
-  font-weight: 950;
+  font-weight: 900;
   line-height: 1.25;
   letter-spacing: 0;
 }
@@ -21579,7 +21579,7 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   margin: 0.28rem 0 0;
   color: rgba(251, 191, 36, 0.88);
   font-size: 0.8rem;
-  font-weight: 850;
+  font-weight: 900;
   line-height: 1.45;
 }
 
@@ -21622,7 +21622,7 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   margin: 0 0 0.5rem;
   color: rgba(251, 191, 36, 0.92);
   font-size: 0.72rem;
-  font-weight: 950;
+  font-weight: 900;
   letter-spacing: 0;
 }
 
@@ -21631,7 +21631,7 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   color: rgba(248, 250, 252, 0.98);
   font-family: var(--font-serif), serif;
   font-size: clamp(1.55rem, 7vw, 2.35rem);
-  font-weight: 950;
+  font-weight: 900;
   line-height: 1.18;
   letter-spacing: 0;
 }
@@ -21660,7 +21660,7 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   width: 100%;
   border-radius: 999px;
   font-size: 0.9rem;
-  font-weight: 950;
+  font-weight: 900;
   line-height: 1.2;
   text-align: center;
   transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
@@ -21696,7 +21696,7 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   display: block;
   color: rgba(148, 163, 184, 0.92);
   font-size: 0.68rem;
-  font-weight: 950;
+  font-weight: 900;
 }
 
 .home-sticky-journey__progress strong {
@@ -21705,7 +21705,7 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   color: rgba(254, 243, 199, 0.98);
   font-family: var(--font-serif), serif;
   font-size: 2.2rem;
-  font-weight: 950;
+  font-weight: 900;
   line-height: 1;
 }
 
@@ -21733,7 +21733,7 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   margin: 0.65rem 0 0;
   color: rgba(209, 250, 229, 0.86);
   font-size: 0.78rem;
-  font-weight: 850;
+  font-weight: 900;
 }
 
 .home-sticky-journey__promise {
@@ -21750,7 +21750,7 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   background: rgba(8, 47, 73, 0.26);
   color: rgba(224, 242, 254, 0.88);
   font-size: 0.78rem;
-  font-weight: 850;
+  font-weight: 900;
   line-height: 1.45;
 }
 
@@ -21763,7 +21763,7 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   margin: 0;
   color: rgba(103, 232, 249, 0.82);
   font-size: 0.7rem;
-  font-weight: 950;
+  font-weight: 900;
 }
 
 .home-eight-card-route__header h2 {
@@ -22039,7 +22039,7 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   margin-top: 0.22rem;
   color: rgba(186, 230, 253, 0.86);
   font-size: clamp(0.54rem, 2vw, 0.64rem);
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.35;
   letter-spacing: 0.08em;
 }
@@ -24448,7 +24448,7 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   display: block;
   color: rgb(255, 255, 255);
   font-size: clamp(1.18rem, 5.6vw, 1.75rem);
-  font-weight: 950;
+  font-weight: 900;
   line-height: 1.08;
   letter-spacing: 0;
 }
@@ -24458,7 +24458,7 @@ body.app-touching .home-taiji-cinema .unified-evolution-pulse {
   display: block;
   color: rgba(226, 232, 240, 0.88);
   font-size: clamp(0.88rem, 4vw, 1.08rem);
-  font-weight: 850;
+  font-weight: 900;
   line-height: 1.35;
   letter-spacing: 0;
 }
@@ -24503,7 +24503,7 @@ a.home-feature-launch::after {
 .mega-input-guide__eyebrow {
   color: rgba(165, 243, 252, 0.86);
   font-size: clamp(0.78rem, 3.3vw, 0.9rem);
-  font-weight: 950;
+  font-weight: 900;
   letter-spacing: 0.12em;
 }
 
@@ -24511,7 +24511,7 @@ a.home-feature-launch::after {
   margin-top: 0.35rem;
   color: rgb(255, 255, 255);
   font-size: clamp(1.85rem, 8.8vw, 3.4rem);
-  font-weight: 950;
+  font-weight: 900;
   line-height: 1.03;
   letter-spacing: 0;
   text-shadow: 0 0 18px rgba(255, 255, 255, 0.24);
@@ -24554,7 +24554,7 @@ a.home-feature-launch::after {
   margin-top: 0.85rem;
   color: rgba(254, 243, 199, 0.96);
   font-size: clamp(1.02rem, 4.8vw, 1.34rem);
-  font-weight: 950;
+  font-weight: 900;
   line-height: 1.36;
 }
 
@@ -24573,13 +24573,13 @@ a.home-feature-launch::after {
 
 .mega-input-guide__voice span {
   font-size: clamp(1.4rem, 7vw, 2.4rem);
-  font-weight: 950;
+  font-weight: 900;
   line-height: 1;
 }
 
 .mega-input-guide__voice strong {
   font-size: 0.78rem;
-  font-weight: 950;
+  font-weight: 900;
   letter-spacing: 0.05em;
 }
 
@@ -24657,7 +24657,7 @@ a.home-feature-launch::after {
   background: linear-gradient(135deg, rgba(8, 145, 178, 0.55), rgba(34, 211, 238, 0.28));
   padding: 1rem 2.4rem;
   font-size: 1.1rem;
-  font-weight: 950;
+  font-weight: 900;
   letter-spacing: 0.08em;
   color: rgb(236, 254, 255);
   box-shadow: 0 0 30px rgba(34, 211, 238, 0.3);
@@ -24702,7 +24702,7 @@ a.home-feature-launch::after {
   background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(217, 119, 6, 0.22), rgba(251, 191, 36, 0.3));
   padding: 1.15rem 2rem;
   font-size: 1.15rem;
-  font-weight: 950;
+  font-weight: 900;
   letter-spacing: 0.12em;
   color: #fff7e6;
   text-shadow: 0 0 14px rgba(251, 191, 36, 0.55);
@@ -25781,7 +25781,7 @@ a.home-feature-launch::after {
 
 .home-top-motto-link__cta {
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.12em;
   color: rgba(255, 236, 200, 0.62);
   text-shadow: 0 1px 0 rgba(20, 8, 2, 0.45);
@@ -26269,6 +26269,126 @@ a.home-feature-launch::after {
 }
 
 
+/* HOME_TOP_ASURA_RETOUCH_V1 */
+/* 阿修羅修圖：字不改、字型家族不改；質感靜態烘進字形，動畫只動 transform／opacity。
+   規則檔 docs/技能戰鬥檔案/鬼魅阿修羅/首頁箴言修圖規則.md；守門 npm run test:home-motto-retouch */
+
+/* —— 上：順天而行，感恩的心（金箔） —— */
+.home-top-motto-link--display .home-top-brush-gratitude--sun {
+  animation: none;
+  filter: none;
+}
+
+.home-top-motto-link--display .home-top-brush-gratitude__lead {
+  color: #ffefb8;
+  text-shadow:
+    0 1px 0 #8a5a14,
+    0 2px 0 #5c3612,
+    0 3px 5px rgba(20, 8, 2, 0.55),
+    0 0 14px rgba(255, 200, 80, 0.3);
+}
+
+.home-top-motto-link--display .home-top-brush-gratitude__heart {
+  animation: none;
+  filter: none;
+  -webkit-text-stroke: 0.3px rgba(122, 72, 0, 0.55);
+  background-size: 100% 100%;
+  background-image: linear-gradient(
+    180deg,
+    #fffbe6 0%,
+    #ffe08a 28%,
+    #f0c040 58%,
+    #c88a1c 100%
+  );
+}
+
+.home-top-motto-link--display .home-top-brush-gratitude__heart::after {
+  inset: -35% -18%;
+  mix-blend-mode: normal;
+  background: radial-gradient(ellipse at 50% 50%, rgba(255, 214, 110, 0.4), transparent 68%);
+  will-change: transform, opacity;
+  animation: home-asura-halo 4s ease-in-out infinite;
+}
+
+/* —— 下：逆天而行＝米田共（墨與符） —— */
+.home-top-motto-link--display .home-top-ward-seal--curse .home-top-ward-seal__curse.home-top-ward-seal__lead {
+  animation: none;
+  filter: drop-shadow(0 3px 7px rgba(80, 10, 16, 0.55));
+  -webkit-text-stroke: 0.4px rgba(52, 4, 8, 0.65);
+}
+
+.home-top-motto-link--display .home-top-ward-seal--curse .home-top-ward-seal__curse.home-top-ward-seal__lead::before {
+  content: '';
+  position: absolute;
+  inset: -25% -12%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 55%, rgba(150, 26, 36, 0.38), transparent 70%);
+  will-change: transform, opacity;
+  animation: home-asura-ink 3.8s ease-in-out infinite 0.4s;
+}
+
+.home-top-motto-link--display .home-top-ward-seal--curse .home-top-ward-seal__eq {
+  animation: home-curse-eq-glow 2.8s ease-in-out infinite;
+}
+
+.home-top-motto-link--display .home-top-ward-seal--curse .home-top-ward-seal__sealed--shared {
+  animation: none;
+}
+
+.home-top-motto-link--display .home-top-ward-seal--curse .home-top-ward-seal__sealed--shared .space-seal-paper {
+  mix-blend-mode: normal;
+  filter: drop-shadow(0 4px 9px rgba(90, 12, 18, 0.6));
+  will-change: transform, opacity;
+  animation: home-asura-paper 4.2s ease-in-out infinite;
+}
+
+.home-top-motto-link--display .home-top-ward-seal--curse .home-top-ward-seal__pulse {
+  mix-blend-mode: normal;
+  will-change: transform, opacity;
+  animation: home-ward-aura-pulse 2.6s ease-in-out infinite 0.8s;
+}
+
+.home-top-motto-link--display .home-top-ward-seal--curse .home-top-ward-seal__sealed-text {
+  color: rgba(240, 206, 130, 0.55);
+  -webkit-text-fill-color: rgba(240, 206, 130, 0.55);
+  animation: home-asura-flicker 4.6s ease-in-out infinite 1.2s;
+}
+
+@keyframes home-asura-halo {
+  0%, 100% { opacity: 0.45; transform: scale(0.94); }
+  50% { opacity: 0.85; transform: scale(1.06); }
+}
+
+@keyframes home-asura-ink {
+  0%, 100% { opacity: 0.35; transform: scale(0.96); }
+  50% { opacity: 0.75; transform: scale(1.05); }
+}
+
+@keyframes home-asura-paper {
+  0%, 100% { opacity: 0.76; transform: rotate(-10deg) skewY(-1.2deg) scale(1.03); }
+  50% { opacity: 0.88; transform: rotate(-7deg) skewY(-0.4deg) scale(1.07) translateY(-1px); }
+}
+
+@keyframes home-asura-flicker {
+  0%, 100% { opacity: 0.85; }
+  40% { opacity: 1; }
+  62% { opacity: 0.7; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-top-motto-link--display .home-top-brush-gratitude__heart::after,
+  .home-top-motto-link--display .home-top-ward-seal--curse .home-top-ward-seal__curse::before,
+  .home-top-motto-link--display .home-top-ward-seal--curse .home-top-ward-seal__eq,
+  .home-top-motto-link--display .home-top-ward-seal--curse .home-top-ward-seal__sealed--shared .space-seal-paper,
+  .home-top-motto-link--display .home-top-ward-seal--curse .home-top-ward-seal__pulse,
+  .home-top-motto-link--display .home-top-ward-seal--curse .home-top-ward-seal__sealed-text {
+    animation: none !important;
+  }
+}
+/* END_HOME_TOP_ASURA_RETOUCH_V1 */
+
+
 /* LOCK: mobile trust strip — like / dislike / visitor digits always visible, never blank zero flash */
 @media (max-width: 900px), (pointer: coarse) {
   .home-trust-strip,
@@ -26350,7 +26470,7 @@ a.home-feature-launch::after {
 .home-eight-card-route__header--sticky h2 {
   margin: 0;
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 900;
   color: rgba(248, 250, 252, 0.95);
   letter-spacing: 0.04em;
 }
@@ -26363,7 +26483,7 @@ a.home-feature-launch::after {
   margin: 0.35rem 0 0.1rem;
   padding: 0.15rem 0.2rem;
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.16em;
   color: rgba(226, 232, 240, 0.78);
 }
@@ -26548,7 +26668,7 @@ a.home-feature-launch::after {
     box-shadow: 0 0 18px rgba(34, 211, 238, 0.18);
     color: rgba(254, 243, 199, 0.92);
     font-size: 0.68rem;
-    font-weight: 850;
+    font-weight: 900;
     letter-spacing: 0.12em;
     white-space: nowrap;
     animation: taiji-play-hint-breathe 2.4s ease-in-out infinite;
@@ -26638,7 +26758,7 @@ a.home-feature-launch::after {
   background: rgba(2, 6, 23, 0.45);
   color: rgba(226, 232, 240, 0.88);
   font-size: 0.62rem;
-  font-weight: 750;
+  font-weight: 900;
   letter-spacing: 0.06em;
   line-height: 1.2;
   white-space: nowrap;
@@ -26678,7 +26798,7 @@ a.home-feature-launch::after {
 .home-sticky-journey__compact-kicker {
   margin: 0;
   font-size: 0.62rem;
-  font-weight: 850;
+  font-weight: 900;
   letter-spacing: 0.16em;
   color: rgba(253, 230, 138, 0.9);
   text-transform: none;
@@ -26686,13 +26806,13 @@ a.home-feature-launch::after {
 .home-sticky-journey__compact-copy h2 {
   margin: 0.2rem 0 0;
   font-size: 1.05rem;
-  font-weight: 850;
+  font-weight: 900;
   color: rgba(248, 250, 252, 0.96);
 }
 .home-sticky-journey__compact-copy p {
   margin: 0.25rem 0 0;
   font-size: 0.72rem;
-  font-weight: 650;
+  font-weight: 700;
   color: rgba(186, 230, 253, 0.88);
 }
 .home-sticky-journey__cta,
@@ -26708,7 +26828,7 @@ a.home-feature-launch::after {
   background: rgb(103, 232, 249);
   color: rgb(2, 6, 23);
   font-size: 0.78rem;
-  font-weight: 850;
+  font-weight: 900;
   white-space: nowrap;
 }
 
@@ -26723,7 +26843,7 @@ a.home-feature-launch::after {
   background: rgba(15, 23, 42, 0.72);
   color: rgba(226, 232, 240, 0.92);
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.06em;
 }
 
@@ -26989,7 +27109,7 @@ a.home-feature-launch::after {
   color: #1a1205 !important;
   border: 1px solid var(--shield-gold-light, #fcea86) !important;
   box-shadow: 0 6px 18px rgba(251, 158, 8, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
-  font-weight: 800 !important;
+  font-weight: 900 !important;
   letter-spacing: 0.04em !important;
 }
 #home-eight-card-route a[href="/ghost-asura"] [class*="GhostAsuraHomeEntry_cta"] * {
@@ -27175,7 +27295,7 @@ body:has(#home-eight-card-route) #home-eight-card-route .home-feature-launch[dat
   line-height: 1.6 !important;
   color: #ff4057 !important;
   filter: none !important;
-  font-weight: 800;
+  font-weight: 900;
   text-shadow: 0 0 8px rgba(255, 32, 58, .2);
   white-space: normal;
 }

@@ -17,7 +17,7 @@
 @media(hover:hover){:global(body #home-eight-card-route) .entry:hover :global(.home-feature-cta) {opacity:1 !important;}}
 
 :global(body #home-eight-card-route) .entry > :global(.relative.flex):not(:global(.home-feature-cta)) {display:none !important;}
-:global(body #home-eight-card-route) .entry .title {position:absolute;top:12px;left:16px;right:16px;z-index:3;display:block !important;opacity:1 !important;filter:none !important;font-size:16px;font-weight:800;text-align:center;color:#dcfce7;white-space:nowrap;pointer-events:none;text-shadow:0 2px 5px #000;}
+:global(body #home-eight-card-route) .entry .title {position:absolute;top:12px;left:16px;right:16px;z-index:3;display:block !important;opacity:1 !important;filter:none !important;font-size:16px;font-weight:900;text-align:center;color:#dcfce7;white-space:nowrap;pointer-events:none;text-shadow:0 2px 5px #000;}
 
 :global(body #home-eight-card-route#home-eight-card-route) .entry.entry .legacyCopy {display:none !important;}
 

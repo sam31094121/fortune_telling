@@ -32,12 +32,13 @@
     "**/*.ts",
     "**/*.tsx",
     ".next-contact-ribs-check/types/**/*.ts",
+    ".next-e2e/types/**/*.ts",
     ".next-production-final-duel-ritual/types/**/*.ts",
     ".next-production/types/**/*.ts",
     ".next-review/types/**/*.ts",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    ".next-e2e/types/**/*.ts"
+    ".next-orb-variants-build/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

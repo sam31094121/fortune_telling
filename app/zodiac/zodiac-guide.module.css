@@ -1,7 +1,7 @@
 .guide { min-width: 0; }
 .intro { margin-bottom: 18px; padding: 14px 16px; border-left: 3px solid #a5f3fc; border-radius: 0 14px 14px 0; background: #102332; color: #e2edf4; font-size: 14px; line-height: 1.8; }
 .group { margin-top: 22px; }
-.heading { margin-bottom: 12px; font-size: 17px; font-weight: 800; color: #f8edcf; }
+.heading { margin-bottom: 12px; font-size: 17px; font-weight: 900; color: #f8edcf; }
 .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .card { --tone: #c4b5fd; min-width: 0; border: 1px solid #ffffff24; border-radius: 18px; padding: 14px; background: #111524; }
 .card[data-active="true"] { border-color: var(--tone); background: linear-gradient(150deg, #242c42, #101524); }
@@ -10,7 +10,7 @@
 .card[data-kind="earth"], .card[data-kind="fixed"] { --tone: #a7f3d0; }
 .card[data-kind="air"], .card[data-kind="mutable"] { --tone: #c4b5fd; }
 .icon { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 12px; border-radius: 14px; border: 1px solid var(--tone); color: var(--tone); background: #ffffff09; font-size: 27px; }
-.label { font-size: 17px; font-weight: 800; color: #f8fafc; }
+.label { font-size: 17px; font-weight: 900; color: #f8fafc; }
 .meaning { margin-top: 7px; font-size: 14px; line-height: 1.65; color: #e2e8f0; overflow-wrap: anywhere; }
 .status { display: inline-block; margin-top: 12px; padding: 4px 8px; border-radius: 8px; font-size: 11px; line-height: 1.5; background: #ffffff0d; color: #cbd5e1; }
 .card[data-active="true"] .status { background: #ffffff15; color: var(--tone); }

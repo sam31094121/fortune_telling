@@ -111,11 +111,64 @@
     /* 投影陰影 */
     0 calc(3px * var(--orb-scale)) calc(12px * var(--orb-scale)) rgba(0, 0, 0, 0.4),
     inset 0 calc(-2px * var(--orb-scale)) calc(8px * var(--orb-scale)) rgba(0, 0, 0, 0.3);
-  animation: orbPulse var(--orb-pulse-duration, 2s) ease-in-out var(--orb-pulse-delay, 0s) infinite;
+  /* 2026-11-09 用戶鈺勝指定（動畫只做顯示、不重排／重繪）：脈動不再逐幀改 box-shadow（主執行緒每幀重算樣式＋重繪大面積光暈），
+     改成兩個偽元素各帶 0%／50% 的原始光暈，只交叉淡入淡出 opacity（合成器處理）。0% 與 50% 兩端畫面與原版逐像素同值；
+     靜止（data-animated=false）與減少動態時維持原本 0% 光暈。原 orbPulse 關鍵影格保留在下方供追溯。 */
+}
+
+.orbCore::before,
+.orbCore::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.orbCore::before {
+  box-shadow:
+      0 0 calc(24px * var(--orb-scale)) var(--orb-glow),
+      0 0 calc(48px * var(--orb-scale)) rgba(var(--orb-glow-rgb, 222, 216, 255), 0.4),
+      0 0 calc(60px * var(--orb-scale)) rgba(var(--orb-glow-rgb, 222, 216, 255), 0.3) inset,
+      0 0 calc(30px * var(--orb-scale)) rgba(var(--orb-glow-rgb, 222, 216, 255), 0.6) inset,
+      0 0 calc(12px * var(--orb-scale)) var(--orb-ring),
+      0 calc(3px * var(--orb-scale)) calc(12px * var(--orb-scale)) rgba(0, 0, 0, 0.4),
+      inset 0 calc(-2px * var(--orb-scale)) calc(8px * var(--orb-scale)) rgba(0, 0, 0, 0.3);
+  opacity: 1;
+  animation: orbPulseFrom var(--orb-pulse-duration, 2s) ease-in-out var(--orb-pulse-delay, 0s) infinite;
+}
+.orbCore::after {
+  box-shadow:
+      0 0 calc(32px * var(--orb-scale)) var(--orb-glow),
+      0 0 calc(64px * var(--orb-scale)) rgba(var(--orb-glow-rgb, 222, 216, 255), 0.5),
+      0 0 calc(80px * var(--orb-scale)) rgba(var(--orb-glow-rgb, 222, 216, 255), 0.4) inset,
+      0 0 calc(40px * var(--orb-scale)) rgba(var(--orb-glow-rgb, 222, 216, 255), 0.7) inset,
+      0 0 calc(16px * var(--orb-scale)) var(--orb-ring),
+      0 calc(4px * var(--orb-scale)) calc(16px * var(--orb-scale)) rgba(0, 0, 0, 0.5),
+      inset 0 calc(-3px * var(--orb-scale)) calc(12px * var(--orb-scale)) rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  animation: orbPulseTo var(--orb-pulse-duration, 2s) ease-in-out var(--orb-pulse-delay, 0s) infinite;
+}
+/* 動畫進行中由偽元素負責光暈，本體不再重複畫 */
+.orbContainer:not([data-animated='false']) .orbCore {
+  box-shadow: none;
 }
 
 .orbContainer[data-animated='false'] .orbCore {
   animation: none;
+}
+.orbContainer[data-animated='false'] .orbCore::before,
+.orbContainer[data-animated='false'] .orbCore::after {
+  animation: none;
+  display: none;
+}
+
+@keyframes orbPulseFrom {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+@keyframes orbPulseTo {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
 }
 
 @keyframes orbPulse {

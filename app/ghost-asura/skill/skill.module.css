@@ -123,7 +123,7 @@
 .skillName {
   font-family: var(--serif);
   font-size: clamp(24px, 7vw, 36px);
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.4;
   letter-spacing: 0.1em;
   color: var(--gold-title);
@@ -232,14 +232,14 @@
   color: #ffdae0;
   font-family: var(--serif);
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 900;
   background: rgba(190, 105, 113, 0.1);
 }
 
 .cardTitle {
   font-family: var(--serif);
   font-size: 21px;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.45;
   color: var(--gold-title);
   letter-spacing: 0.08em;
@@ -279,7 +279,7 @@
   color: var(--gold-title);
   font-family: var(--serif);
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 900;
   text-align: center;
   line-height: 1.6;
 }
@@ -367,11 +367,11 @@
   border-radius: 4px;
   background: var(--ink);
 }
-.division dt { color: var(--gold); font-weight: 800; }
+.division dt { color: var(--gold); font-weight: 900; }
 .division dd { color: var(--text-main); }
 .creed div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
 .creed { display: grid; gap: 8px; }
-.creed dt { color: var(--gold-title); font-family: var(--serif); font-size: 17px; font-weight: 800; }
+.creed dt { color: var(--gold-title); font-family: var(--serif); font-size: 17px; font-weight: 900; }
 .creed dd { color: var(--text-sub); font-size: 15px; }
 
 .twoCol { display: grid; gap: 12px; }
@@ -390,7 +390,7 @@
   position: absolute;
   left: 0;
   top: 0;
-  font-weight: 800;
+  font-weight: 900;
 }
 .list li::before { content: '◆'; color: var(--gold); font-size: 11px; top: 6px; }
 .listMust li::before { content: '✓'; color: #b9d1bd; }
@@ -417,7 +417,7 @@
   color: var(--text-main);
   font-family: var(--serif);
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.65;
 }
 
@@ -464,7 +464,7 @@
 .scrollHead strong { color: #ffdae0; font-family: var(--serif); font-size: 22px; letter-spacing: 0.1em; }
 .scrollHead span { color: var(--text-muted); font-size: 14px; }
 .scrollText p { color: var(--text-main); font-family: var(--serif); font-size: 17px; line-height: 1.8; }
-.scrollText p:first-child { color: var(--gold-title); font-weight: 800; }
+.scrollText p:first-child { color: var(--gold-title); font-weight: 900; }
 .gap { display: block; height: 10px; }
 
 /* 數量鐵律 */
@@ -478,8 +478,8 @@
   text-align: center;
 }
 .formulaRow { display: grid; gap: 4px; }
-.formulaTerm { color: var(--gold-title); font-family: var(--serif); font-size: 17px; font-weight: 800; }
-.eq { color: var(--ember); font-size: 20px; font-weight: 800; line-height: 1.2; }
+.formulaTerm { color: var(--gold-title); font-family: var(--serif); font-size: 17px; font-weight: 900; }
+.eq { color: var(--ember); font-size: 20px; font-weight: 900; line-height: 1.2; }
 
 .tableWrap { overflow-x: auto; }
 .table { width: 100%; border-collapse: collapse; font-size: 15px; }
@@ -501,7 +501,7 @@
 }
 .pairs dt, .pillars dt { color: var(--text-muted); font-size: 15px; text-decoration: line-through; text-decoration-color: rgba(190, 105, 113, 0.6); }
 .pairs dt::after, .pillars dt::after { content: ' →'; color: var(--gold); text-decoration: none; display: inline-block; margin-left: 6px; }
-.pairs dd, .pillars dd { color: var(--gold-title); font-family: var(--serif); font-size: 17px; font-weight: 800; }
+.pairs dd, .pillars dd { color: var(--gold-title); font-family: var(--serif); font-size: 17px; font-weight: 900; }
 .pillars dt { text-decoration: none; }
 
 /* 真名錄 */
@@ -530,7 +530,7 @@
   font-size: 11px;
   line-height: 1;
 }
-.nameGrid strong { color: var(--gold-title); font-family: var(--serif); font-size: 17px; font-weight: 800; line-height: 1.5; }
+.nameGrid strong { color: var(--gold-title); font-family: var(--serif); font-size: 17px; font-weight: 900; line-height: 1.5; }
 .nameGrid span { color: var(--text-muted); font-size: 14px; line-height: 1.5; }
 
 .details {
@@ -585,13 +585,13 @@
   border-radius: 4px;
   background: linear-gradient(180deg, var(--gold-faint), transparent 60%), var(--ink);
 }
-.promiseTitle { color: var(--gold-title); font-family: var(--serif); font-size: 18px; font-weight: 800; }
+.promiseTitle { color: var(--gold-title); font-family: var(--serif); font-size: 18px; font-weight: 900; }
 .promiseTitle::before { content: counter(promise, cjk-ideographic) '、'; color: var(--ember); }
 
 /* 驗收清單 */
 .checklist { display: grid; gap: 4px; }
 .checklist li { position: relative; padding-left: 24px; color: var(--text-main); font-size: 15px; }
-.checklist li::before { content: '✓'; position: absolute; left: 0; color: #b9d1bd; font-weight: 800; }
+.checklist li::before { content: '✓'; position: absolute; left: 0; color: #b9d1bd; font-weight: 900; }
 
 /* 收尾 */
 .closing {
@@ -602,7 +602,7 @@
   font-family: var(--serif);
   letter-spacing: 0.14em;
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.7;
   color: var(--text-main);
 }
@@ -736,7 +736,7 @@
 .mockCard summary::-webkit-details-marker { display: none; }
 .mockCard summary::after { content: '展開 ▾'; margin-left: auto; color: var(--text-muted); font-size: 13px; }
 .mockCard[open] summary::after { content: '收合 ▴'; }
-.mockCard summary strong { color: var(--gold-title); font-family: var(--serif); font-size: 19px; font-weight: 800; }
+.mockCard summary strong { color: var(--gold-title); font-family: var(--serif); font-size: 19px; font-weight: 900; }
 .mockNo {
   padding: 0 8px;
   border: 1.5px solid var(--ember);
@@ -744,7 +744,7 @@
   color: #ffdae0;
   font-family: var(--serif);
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 900;
 }
 .mockLevel { color: var(--text-sub); font-size: 14px; }
 .mockBody { display: grid; gap: 10px; padding: 0 14px 14px; border-top: 1px solid var(--gold-faint); padding-top: 12px; }
@@ -764,11 +764,11 @@
   font-size: 12px;
 }
 .mockFields dd { color: var(--text-main); font-size: 15px; }
-.mockFields > div:first-child dd { color: #ffdae0; font-family: var(--serif); font-size: 22px; font-weight: 800; letter-spacing: 0.1em; }
+.mockFields > div:first-child dd { color: #ffdae0; font-family: var(--serif); font-size: 22px; font-weight: 900; letter-spacing: 0.1em; }
 .mockSteps { display: grid; gap: 12px; }
 .mockSteps > li { display: grid; gap: 8px; }
 .mockSteps > li + li { padding-top: 10px; border-top: 1px solid var(--gold-faint); }
-.mockStepName { color: var(--gold-title); font-family: var(--serif); font-size: 17px; font-weight: 800; }
+.mockStepName { color: var(--gold-title); font-family: var(--serif); font-size: 17px; font-weight: 900; }
 .mockStepName::before { content: '◆ '; color: var(--ember); font-size: 12px; }
 
 @media (min-width: 900px) {
@@ -781,9 +781,9 @@
 
 .cardVoice { display: grid; gap: 6px; padding: 12px 14px; border-left: 3px solid var(--ember); background: rgba(190, 105, 113, 0.07); }
 .cardVoice p { color: var(--text-main); font-family: var(--serif); font-size: 17px; font-weight: 700; line-height: 1.75; letter-spacing: 0.1em; }
-.cardVoice p:first-child { color: var(--gold-title); font-weight: 800; }
+.cardVoice p:first-child { color: var(--gold-title); font-weight: 900; }
 .sampleSeal { padding: 12px; border: 1px solid rgba(190, 105, 113, 0.4); border-radius: 4px; background: #0a090c; }
-.sampleName { margin-bottom: 8px !important; color: #ffdae0; font-family: var(--serif); font-size: 22px; font-weight: 800; letter-spacing: 0.12em; }
+.sampleName { margin-bottom: 8px !important; color: #ffdae0; font-family: var(--serif); font-size: 22px; font-weight: 900; letter-spacing: 0.12em; }
 .cardLink {
   display: flex;
   align-items: center;

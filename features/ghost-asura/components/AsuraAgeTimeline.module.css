@@ -176,7 +176,7 @@
 .ageLabel {
   color: var(--text-muted);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1.5;
 }
@@ -319,7 +319,7 @@
 
 .hereDot {
   color: var(--text-muted);
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .hereAge {
@@ -356,7 +356,7 @@
   min-width: 0;
   color: var(--text-muted);
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.25;
   letter-spacing: 0.01em;
   text-align: center;
@@ -431,7 +431,7 @@
   background: rgba(124, 179, 66, 0.08);
   color: #E8F0D8;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.7;
   letter-spacing: 0.02em;
 }
@@ -459,7 +459,7 @@
   margin: 6px 0 0;
   color: var(--gold-hi);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.6;
 }
 
@@ -532,7 +532,7 @@
   background: transparent;
   color: var(--gold-hi);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1.5;
   text-decoration: underline;
@@ -577,7 +577,7 @@
   margin: 0 0 10px;
   color: var(--gold-bright);
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.45;
   letter-spacing: 0.06em;
   text-shadow: 0 1px 0 rgba(10, 22, 8, 0.55), 0 0 14px rgba(255, 225, 74, 0.22);
@@ -628,7 +628,7 @@
   border-left: 2px solid rgba(107, 158, 61, 0.28);
   color: var(--text-muted);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.65;
   letter-spacing: 0.02em;
 }
@@ -641,7 +641,7 @@
   background: rgba(124, 179, 66, 0.06);
   color: var(--gold-hi);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.7;
   letter-spacing: 0.03em;
   text-align: center;
@@ -667,7 +667,7 @@
   margin: 0 0 12px;
   color: var(--gold-bright);
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.4;
   letter-spacing: 0.07em;
   text-shadow: 0 1px 0 rgba(10, 22, 8, 0.55), 0 0 16px rgba(255, 225, 74, 0.22);
@@ -706,7 +706,7 @@
   background: rgba(232, 93, 76, 0.78);
   color: #FFF6C8;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0;
   line-height: 1;
   box-shadow: 0 2px 8px rgba(232, 93, 76, 0.25);
@@ -836,7 +836,7 @@
   margin: 0;
   color: var(--gold-hi);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.75;
   letter-spacing: 0.03em;
 }
@@ -848,7 +848,7 @@
   padding: 8px 12px;
   color: var(--text-muted);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1.5;
 }
@@ -859,7 +859,7 @@
   margin: 6px 0 0;
   color: #FFF6C8;
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.5;
   letter-spacing: 0.03em;
   overflow-wrap: anywhere;
@@ -871,7 +871,7 @@
 
 /* P1 type hierarchy 2026-11-06 */
 .bridge {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 13px;
   opacity: 1;
 }
@@ -883,7 +883,7 @@
 @media (max-width: 420px) {
   .bridge {
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.65;
   }
   .peelSource,
@@ -993,7 +993,7 @@
 .ageLabel { color: #A8B890; }
 .segmentCurrent .ageLabel {
   color: #FFE14A;
-  font-weight: 800;
+  font-weight: 900;
   text-shadow: 0 1px 0 rgba(6, 14, 5, 0.55);
 }
 .viewerLine { color: #EAF3D4; }
@@ -1099,7 +1099,7 @@
 }
 .progressAge {
   color: #FFE600;
-  font-weight: 800;
+  font-weight: 900;
 }
 /* Seals (tense) — saturated lemon fill, not only 現在 */
 .tense {
@@ -1240,7 +1240,7 @@
 /* Age range labels on cards — deep moss for beam clash; seals stay lemon */
 .ageLabel {
   color: #142810;
-  font-weight: 800;
+  font-weight: 900;
   text-shadow: 0 1px 0 rgba(255, 252, 210, 0.45);
   background: rgba(255, 252, 210, 0.55);
   border-radius: 4px;
@@ -1274,7 +1274,7 @@
 .ageLabel {
   color: #040A03;
   background: rgba(255, 252, 210, 0.92);
-  font-weight: 800;
+  font-weight: 900;
   text-shadow: none;
   box-shadow: 0 1px 0 rgba(4, 10, 3, 0.25);
 }
@@ -1298,7 +1298,7 @@
   color: #FFE600;
   background: rgba(4, 10, 3, 0.92);
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.7);
-  font-weight: 800;
+  font-weight: 900;
 }
 
 

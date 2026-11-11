@@ -458,7 +458,7 @@
   background: var(--std-ink);
   color: var(--std-paper);
   font-size: clamp(9px, 5.4cqw, 11px);
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.35;
 }
 
@@ -789,7 +789,7 @@
 .fv1Atk { display: flex; align-items: center; gap: 1.8cqw; }
 .fv1Cost {
   flex: none; display: inline-grid; place-items: center; width: 6.6cqw; height: 6.6cqw; border-radius: 50%;
-  font-size: 4.6cqw; font-weight: 800; color: #1a140c; background: #e2c983; box-shadow: 0 0 0 1px #8a6d2e;
+  font-size: 4.6cqw; font-weight: 900; color: #1a140c; background: #e2c983; box-shadow: 0 0 0 1px #8a6d2e;
 }
 .fv1SkillName { flex: 1; min-width: 0; font-size: 7.4cqw; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fv1Dmg { flex: none; font-size: 10cqw; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; color: #fbf4e2;

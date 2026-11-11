@@ -19,7 +19,7 @@
 .card:active { transform: scale(.97); }
 .card:disabled { opacity: .38; cursor: default; }
 .on { border-color: color-mix(in srgb, var(--gold) 80%, transparent); transform: translateY(-2px); }
-.order { position: absolute; top: -6px; right: -6px; min-width: 20px; height: 20px; border-radius: 10px; font-size: 11px; font-weight: 800; line-height: 20px; text-align: center;
+.order { position: absolute; top: -6px; right: -6px; min-width: 20px; height: 20px; border-radius: 10px; font-size: 11px; font-weight: 900; line-height: 20px; text-align: center;
   color: var(--ink); background: linear-gradient(135deg, var(--gold-pale), var(--gold) 55%, var(--gold-deep)); }
 .dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; gap: 10px; align-items: center; justify-content: center; padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
   background: color-mix(in srgb, var(--ink) 94%, transparent); border-top: 1px solid color-mix(in srgb, var(--gold) 34%, transparent); }

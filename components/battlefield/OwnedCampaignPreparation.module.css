@@ -1,5 +1,5 @@
 .panel {padding:12px;color:#f5e7bd;}
-.panel h2 {font-size:20px;font-weight:800;}
+.panel h2 {font-size:20px;font-weight:900;}
 .panel p {margin:8px 0;line-height:1.5;}
 .grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
 .grid button {min-width:0;padding:5px;border:1px solid #756348;border-radius:12px;background:#141b29;text-align:center;}
@@ -7,7 +7,7 @@
 .grid button:disabled:not([aria-pressed=true]) {opacity:.5;}
 .grid strong,.grid small {display:block;overflow-wrap:anywhere;}
 .grid strong {font-size:13px;}.grid small {font-size:11px;}
-.confirm {display:block;width:100%;min-height:48px;margin:14px 0;padding:8px;border-radius:10px;background:#e7c674;color:#211b11;font-weight:800;}
+.confirm {display:block;width:100%;min-height:48px;margin:14px 0;padding:8px;border-radius:10px;background:#e7c674;color:#211b11;font-weight:900;}
 .confirm:disabled {opacity:.5;}
 @media(min-width:600px){.grid{grid-template-columns:repeat(5,minmax(0,1fr));}}
 .fusionPair {display:grid;grid-template-columns:1fr 24px 1fr;align-items:center;gap:12px;max-width:320px;margin:12px auto;}

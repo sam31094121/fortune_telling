@@ -54,6 +54,12 @@ export default function AppStabilityGuard() {
       if (body.classList.contains(name) !== on) body.classList.toggle(name, on);
     };
 
+    // 2026-11-09 perf：頁面可在 <main> 加 data-perf-quiet-body 退出 body 上的「捲動／觸控／壓力」暫態 class。
+    // body class 每切一次，整頁都要重算樣式（星宿神獸頁約 1,800 個節點，CPU 4× 降速下單次約 250ms），
+    // 長任務又會觸發 app-stress-mode 再切一次 class，形成回饋迴圈。這三個 class 對應的 CSS 只作用在首頁／算命卡等元素，
+    // 退出的頁面上沒有受影響元素，所以畫面不變；其他頁面行為完全不變。
+    const quietBody = () => document.querySelector('main[data-perf-quiet-body]') !== null;
+
     const updatePerformanceMode = () => {
       const saveData = Boolean(connection?.saveData);
       const effectiveType = connection?.effectiveType ?? '';
@@ -101,6 +107,7 @@ export default function AppStabilityGuard() {
     };
 
     const markScrolling = () => {
+      if (quietBody()) return;
       lastScrollAt = performance.now();
       setBodyClass('app-scrolling', true);
       if (scrollIdleTimerId === undefined) {
@@ -119,6 +126,7 @@ export default function AppStabilityGuard() {
     };
 
     const markTouching = () => {
+      if (quietBody()) return;
       lastTouchAt = performance.now();
       setBodyClass('app-touching', true);
       if (touchIdleTimerId === undefined) {
@@ -127,6 +135,7 @@ export default function AppStabilityGuard() {
     };
 
     const markStressMode = () => {
+      if (quietBody()) return;
       if (stressTimerId !== undefined || body.classList.contains('app-stress-mode')) return;
       stressTimerId = window.setTimeout(() => {
         stressTimerId = undefined;

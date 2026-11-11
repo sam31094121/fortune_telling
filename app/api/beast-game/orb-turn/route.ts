@@ -27,8 +27,8 @@ export async function POST(request: Request) {
     if (p.actionId !== undefined && (typeof p.actionId !== 'string' || !p.actionId.length || p.actionId.length > 100)) throw new Error('invalid');
     if (p.treasureGuard !== undefined && ![1,0.5].includes(p.treasureGuard)) throw new Error('invalid');
     if (p.action === 'treasure') {
-      if (!isBeastElement(p.treasureElement)) throw new Error('invalid');
-      return NextResponse.json(resolveTreasureUse(p, p.treasureElement), { headers: { 'Cache-Control': 'no-store' } });
+      if (!isBeastElement(p.treasureElement) || (p.treasureVariant !== undefined && !integer(p.treasureVariant,0,4))) throw new Error('invalid');
+      return NextResponse.json(resolveTreasureUse(p, p.treasureElement, p.treasureVariant ?? 0), { headers: { 'Cache-Control': 'no-store' } });
     }
     // 能量技／連結攻擊：伺服端算傷害並回權威敵方 HP（擊倒由前端 deriveServerKnockouts 讀取，不在前端判定）。
     if (p.action === 'energy' || p.action === 'link') {

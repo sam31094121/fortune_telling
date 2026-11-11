@@ -1,6 +1,6 @@
 .scenery { position: absolute; inset: 0; pointer-events: none; background: url('/home-entry/nameology-young-scenery-v1.png') center bottom / 100% 120% no-repeat; }
 .artwork { position: absolute; pointer-events: none; }
-.title { position: absolute; top: 12px; left: 16px; right: 16px; text-align: center; white-space: nowrap; font-size: 16px; font-weight: 800; color: #fef3c7; text-shadow: 0 2px 5px #000; pointer-events: none; z-index: 3; }
+.title { position: absolute; top: 12px; left: 16px; right: 16px; text-align: center; white-space: nowrap; font-size: 16px; font-weight: 900; color: #fef3c7; text-shadow: 0 2px 5px #000; pointer-events: none; z-index: 3; }
 :global(body #home-eight-card-route) a:has(.artwork) { opacity: 1 !important; }
 :global(body #home-eight-card-route) a:has(.artwork)::after { display: none; }
 :global(body #home-eight-card-route) a:has(.artwork) .title { opacity: 1 !important; }

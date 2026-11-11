@@ -45,7 +45,7 @@
   overflow: hidden;
   color: color-mix(in srgb, var(--shield-gold-light, #fcea86) 80%, transparent);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -137,7 +137,7 @@
   flex: none;
   width: 18px;
   color: var(--shield-gold-light, #fcea86);
-  font-weight: 800;
+  font-weight: 900;
   text-align: center;
 }
 .optionSelected .check {

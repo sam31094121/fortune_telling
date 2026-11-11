@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import modeStyles from './GameModes.module.css';
 import CatalogBeastCard from '@/components/battlefield/CatalogBeastCard';
@@ -108,6 +108,14 @@ const ORB_ENTRY_BOARD = [
 const ENTRY_ELEMENTS: Record<string, BeastElement> = { 空: 'SPACE', 風: 'AIR', 水: 'WATER', 火: 'FIRE', 地: 'EARTH' };
 const ENTRY_GEMS = { 空: match3Styles.space, 風: match3Styles.air, 水: match3Styles.water, 火: match3Styles.fire, 地: match3Styles.earth } as const;
 
+// 2026-11-09 perf：示意盤 56 格是固定內容，建一次重複使用；選卡／關卡時 React 直接略過，不再重建。
+const ORB_ENTRY_CELLS = ORB_ENTRY_BOARD.flatMap((row, y) => [...row].map((element, x) => (
+  <span key={`${x}-${y}`} data-entry-element={ENTRY_ELEMENTS[element]} data-entry-shield={y === 6 && [1, 3, 5].includes(x) || undefined} className={`${match3Styles.orb} ${ENTRY_GEMS[element as ProductElement]} ${modeStyles.orbCell} ${y === 6 && [1, 3, 5].includes(x) ? `${match3Styles.magic} ${match3Styles.shieldCell}` : ''}`}>
+    <span className={match3Styles.gem} />
+    {y === 6 && [1, 3, 5].includes(x) ? <img className={match3Styles.shieldOrb} src="/pwa/save-shield-080.png" alt="" draggable={false} /> : <Match3ElementGlyph element={ENTRY_ELEMENTS[element]} className={match3Styles.elementGlyph} />}
+  </span>
+)));
+
 export default function StarBeastsPage() {
   const [season, setSeason] = useState<Season>('all');
   const [form, setForm] = useState<Form>('awakened');
@@ -116,6 +124,46 @@ export default function StarBeastsPage() {
     .filter((beast) => season === 'all' || beast.season === season)
     .toSorted((a, b) => SEASON_ORDER[a.season] - SEASON_ORDER[b.season] || a.id - b.id), [season]);
   const selected = selectedId === null ? null : BEASTS.find((beast) => beast.id === selectedId) ?? null;
+  // 2026-11-09 perf：詳細卡對話框常駐 DOM，開／關只切 display，內容沿用最後一次開啟的卡。
+  // 全站樣式表有大量 body:has()／[class*=] 規則，整個對話框插入或移除時瀏覽器要整頁重算樣式（約 1,800 節點，
+  // CPU 4× 降速下單次 250ms 以上）；改成切換顯示後只重算對話框本身。畫面與操作不變。
+  const [shownId, setShownId] = useState<number>(BEASTS[0].id);
+  const shown = BEASTS.find((beast) => beast.id === shownId) ?? BEASTS[0];
+  const openBeast = (id: number) => {
+    setShownId(id);
+    setSelectedId(id);
+  };
+  // 2026-11-09 perf round2：對話框第一次從 display:none 變成顯示時要整塊排版（4× 降速下約 100–150ms）。
+  // 頁面閒置後先把「關閉中的對話框」改成 visibility:hidden（仍排版、不繪製、不可點、不在無障礙樹），
+  // 之後開卡只剩切換可見度與換內容，畫面、版面完全不變。
+  const [dialogWarm, setDialogWarm] = useState(false);
+  useEffect(() => {
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (w.requestIdleCallback) {
+      const idleId = w.requestIdleCallback(() => setDialogWarm(true), { timeout: 1500 });
+      return () => w.cancelIdleCallback?.(idleId);
+    }
+    const timerId = window.setTimeout(() => setDialogWarm(true), 600);
+    return () => window.clearTimeout(timerId);
+  }, []);
+  // 對話框常駐後，內文捲動位置會保留。只有使用者真的捲過內文時，才在「關閉後」下一個畫格把它捲回頂端，
+  // 讓下次開卡和原本重新顯示時一樣從頂端開始；上一張／下一張照舊保留。開卡當下完全不碰排版。
+  const dialogArticleRef = useRef<HTMLElement>(null);
+  const dialogScrolledRef = useRef(false);
+  useEffect(() => {
+    if (selectedId !== null || !dialogScrolledRef.current) return;
+    const frameId = window.requestAnimationFrame(() => {
+      if (dialogArticleRef.current) dialogArticleRef.current.scrollTop = 0;
+      dialogScrolledRef.current = false;
+    });
+    return () => window.cancelAnimationFrame(frameId);
+  }, [selectedId]);
+  const closedDialogStyle: CSSProperties = dialogWarm
+    ? { visibility: 'hidden', pointerEvents: 'none', backdropFilter: 'none', WebkitBackdropFilter: 'none' }
+    : { display: 'none' };
 
   useEffect(() => {
     if (!selected) return;
@@ -132,7 +180,7 @@ export default function StarBeastsPage() {
     if (!selected) return;
     const currentIndex = visibleBeasts.findIndex((beast) => beast.id === selected.id);
     const nextIndex = (currentIndex + direction + visibleBeasts.length) % visibleBeasts.length;
-    setSelectedId(visibleBeasts[nextIndex].id);
+    openBeast(visibleBeasts[nextIndex].id);
   };
 
   const selectSeason = (nextSeason: Season) => {
@@ -142,7 +190,7 @@ export default function StarBeastsPage() {
 
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#050612] px-4 pb-16 pt-5 text-white sm:px-6 sm:pt-8">
+    <main data-perf-quiet-body className="min-h-screen overflow-x-hidden bg-[#050612] px-4 pb-16 pt-5 text-white sm:px-6 sm:pt-8">
       <div className="pointer-events-none fixed inset-0 -z-0 overflow-hidden" aria-hidden="true">
         <div className="absolute -left-32 top-0 h-80 w-80 rounded-full bg-violet-600/20 blur-3xl" />
         <div className="absolute right-0 top-1/3 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
@@ -167,12 +215,7 @@ export default function StarBeastsPage() {
                     {mode.id === 'bead-hard' ? <>
                       <span className={modeStyles.orbArtwork} aria-hidden="true">
                         <span className={modeStyles.orbBoard}>
-                          {ORB_ENTRY_BOARD.flatMap((row, y) => [...row].map((element, x) => (
-                            <span key={`${x}-${y}`} data-entry-element={ENTRY_ELEMENTS[element]} data-entry-shield={y === 6 && [1, 3, 5].includes(x) || undefined} className={`${match3Styles.orb} ${ENTRY_GEMS[element as ProductElement]} ${modeStyles.orbCell} ${y === 6 && [1, 3, 5].includes(x) ? `${match3Styles.magic} ${match3Styles.shieldCell}` : ''}`}>
-                              <span className={match3Styles.gem} />
-                              {y === 6 && [1, 3, 5].includes(x) ? <img className={match3Styles.shieldOrb} src="/pwa/save-shield-080.png" alt="" draggable={false} /> : <Match3ElementGlyph element={ENTRY_ELEMENTS[element]} className={match3Styles.elementGlyph} />}
-                            </span>
-                          )))}
+                          {ORB_ENTRY_CELLS}
                           <svg className={`${modeStyles.orbConnection} ${match3Styles.water}`} viewBox="0 0 7 8" fill="none">
                             <path data-entry-chain d="M .5 6.5 L 1.5 5.5 L 1.5 4.5 L 1.5 3.5 L 2.5 3.5 L 3.5 3.5 L 3.5 4.5 L 4.5 4.5 L 5.5 4.5 L 6.5 3.5 L 5.5 2.5 L 4.5 2.5 L 3.5 1.5 L 2.5 .5" />
                             <circle className={modeStyles.chainStart} cx=".5" cy="6.5" r=".13" />
@@ -194,7 +237,7 @@ export default function StarBeastsPage() {
               ))}
             </ul>
           </nav>
-          <SelfStarBeastEntry onFound={(id) => { setForm('awakened'); setSeason('all'); setSelectedId(id); }} />
+          <SelfStarBeastEntry onFound={(id) => { setForm('awakened'); setSeason('all'); openBeast(id); }} />
           <details className="mt-4 max-w-2xl text-xs text-slate-400">
             <summary className="min-h-[44px] cursor-pointer py-3 font-bold text-slate-300">這裡有什麼？</summary>
             <p className="mt-2 leading-6">二十八星宿分為春夏秋冬，每一宿都有本體神獸與神獸幼子。</p>
@@ -262,7 +305,7 @@ export default function StarBeastsPage() {
 
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
             {visibleBeasts.map((beast) => (
-              <button key={beast.id} type="button" onClick={() => setSelectedId(beast.id)} className="group relative text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200">
+              <button key={beast.id} type="button" onClick={() => openBeast(beast.id)} className="group relative text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200">
                 <CatalogBeastCard id={`beast_${form === 'young' ? 'y' : 'a'}${String(beast.id).padStart(2, '0')}`} />
                 <p className="mt-1 truncate text-[11px] text-amber-100/80">{beast.coreMeaning}</p>
               </button>
@@ -271,54 +314,52 @@ export default function StarBeastsPage() {
         </section>
       </div>
 
-      {selected && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/85 p-0 backdrop-blur-md sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={`${selected.name}詳細資料`}>
-          <button type="button" aria-label="關閉詳細資料" onClick={() => setSelectedId(null)} className="absolute inset-0 cursor-default" />
-          <article className="relative z-10 max-h-[92dvh] w-full max-w-4xl overflow-y-auto rounded-t-[2rem] border border-white/15 bg-[#0a1025] shadow-2xl sm:rounded-[2rem]">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#0a1025]/95 px-5 py-4 backdrop-blur sm:px-7">
-              <p className="text-xs font-black tracking-[0.18em] text-amber-200">CARD {String(selected.id).padStart(2, '0')} ・ {FORM_LABELS[form]} ・ {SEASON_NAMES[selected.season]}</p>
-              <button type="button" onClick={() => setSelectedId(null)} className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-bold text-slate-200 hover:border-white/40 hover:text-white">關閉 ✕</button>
+      <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/85 p-0 backdrop-blur-md sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={`${shown.name}詳細資料`} aria-hidden={selected ? undefined : true} style={selected ? undefined : closedDialogStyle}>
+        <button type="button" aria-label="關閉詳細資料" onClick={() => setSelectedId(null)} className="absolute inset-0 cursor-default" />
+        <article ref={dialogArticleRef} onScroll={() => { dialogScrolledRef.current = true; }} className="relative z-10 max-h-[92dvh] w-full max-w-4xl overflow-y-auto rounded-t-[2rem] border border-white/15 bg-[#0a1025] shadow-2xl sm:rounded-[2rem]">
+          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#0a1025]/95 px-5 py-4 backdrop-blur sm:px-7">
+            <p className="text-xs font-black tracking-[0.18em] text-amber-200">CARD {String(shown.id).padStart(2, '0')} ・ {FORM_LABELS[form]} ・ {SEASON_NAMES[shown.season]}</p>
+            <button type="button" onClick={() => setSelectedId(null)} className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-bold text-slate-200 hover:border-white/40 hover:text-white">關閉 ✕</button>
+          </div>
+          <div className="grid gap-6 p-5 sm:grid-cols-[minmax(230px,0.8fr)_minmax(0,1.2fr)] sm:p-7">
+            <div className="mx-auto w-full max-w-[330px] overflow-hidden rounded-2xl border border-amber-200/25 bg-slate-950 shadow-[0_18px_45px_rgba(0,0,0,0.38)]">
+              <CatalogBeastCard id={`beast_${form === 'young' ? 'y' : 'a'}${String(shown.id).padStart(2, '0')}`} />
             </div>
-            <div className="grid gap-6 p-5 sm:grid-cols-[minmax(230px,0.8fr)_minmax(0,1.2fr)] sm:p-7">
-              <div className="mx-auto w-full max-w-[330px] overflow-hidden rounded-2xl border border-amber-200/25 bg-slate-950 shadow-[0_18px_45px_rgba(0,0,0,0.38)]">
-                <CatalogBeastCard id={`beast_${form === 'young' ? 'y' : 'a'}${String(selected.id).padStart(2, '0')}`} />
+            <div className="flex min-w-0 flex-col justify-center">
+              <p className="text-sm font-bold text-slate-400">{shown.animal}・{shown.symbolicPart}</p>
+              <h2 className="mt-2 font-serif text-4xl font-black text-white">{shown.name}</h2>
+              <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
+                <span className="rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5">{PRODUCT_ELEMENT[elementForBeast(shown.name)]}元素</span>
+                <span className="rounded-full border border-emerald-200/25 bg-emerald-300/10 px-3 py-1.5 text-emerald-100">生・{PRODUCT_ELEMENT[ELEMENT_RULES[elementForBeast(shown.name)].generates]}</span>
+                <span className="rounded-full border border-rose-200/25 bg-rose-300/10 px-3 py-1.5 text-rose-100">剋・{PRODUCT_ELEMENT[ELEMENT_RULES[elementForBeast(shown.name)].overcomes]}</span>
               </div>
-              <div className="flex min-w-0 flex-col justify-center">
-                <p className="text-sm font-bold text-slate-400">{selected.animal}・{selected.symbolicPart}</p>
-                <h2 className="mt-2 font-serif text-4xl font-black text-white">{selected.name}</h2>
-                <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
-                  <span className="rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5">{PRODUCT_ELEMENT[elementForBeast(selected.name)]}元素</span>
-                  <span className="rounded-full border border-emerald-200/25 bg-emerald-300/10 px-3 py-1.5 text-emerald-100">生・{PRODUCT_ELEMENT[ELEMENT_RULES[elementForBeast(selected.name)].generates]}</span>
-                  <span className="rounded-full border border-rose-200/25 bg-rose-300/10 px-3 py-1.5 text-rose-100">剋・{PRODUCT_ELEMENT[ELEMENT_RULES[elementForBeast(selected.name)].overcomes]}</span>
-                </div>
-                <div className="mt-4 flex w-full max-w-full rounded-xl border border-white/10 bg-white/[0.04] p-1 sm:w-fit">
-                  {FORMS.map((item) => (
-                    <button key={item.id} type="button" onClick={() => setForm(item.id)} aria-pressed={form === item.id}
-                      className={`min-w-0 flex-1 rounded-lg px-2 py-2 text-xs font-black transition sm:flex-none sm:px-3 ${form === item.id ? 'bg-amber-300/20 text-amber-50' : 'text-slate-400 hover:text-white'}`}>
-                      查看{item.label}
-                    </button>
-                  ))}
-                </div>
-                <p className="mt-3 text-xs leading-6 text-slate-400">本體神獸與神獸幼子是兩張獨立收藏卡，彼此共享星宿血統。</p>
-                <div className="mt-5 rounded-2xl border border-amber-200/20 bg-amber-300/[0.07] p-4">
-                  <p className="text-xs font-black tracking-[0.16em] text-amber-200/80">核心意義</p>
-                  <p className="mt-2 font-serif text-2xl font-black text-amber-50">{selected.coreMeaning}</p>
-                </div>
-                <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-                  <p className="text-xs font-black tracking-[0.16em] text-cyan-100/75">性格與命運特質</p>
-                  <p className="mt-2 text-sm leading-7 text-slate-200">{selected.traits}</p>
-                </div>
-                <Link href="/beast-game" className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-cyan-100/40 bg-cyan-300/15 px-4 py-3 text-sm font-black text-cyan-50">開始 →</Link>
-                <div className="mt-5 flex gap-3">
-                  <button type="button" onClick={() => moveSelected(-1)} className="flex-1 rounded-xl border border-white/15 bg-white/[0.06] px-4 py-3 text-sm font-black text-white transition hover:border-cyan-200/55 hover:bg-cyan-300/10">← 上一張</button>
-                  <button type="button" onClick={() => moveSelected(1)} className="flex-1 rounded-xl border border-amber-200/35 bg-amber-300/15 px-4 py-3 text-sm font-black text-amber-50 transition hover:border-amber-100 hover:bg-amber-300/25">下一張 →</button>
-                </div>
-                <p className="mt-3 text-center text-[11px] text-slate-500">可使用鍵盤 ← → 切換，Esc 關閉</p>
+              <div className="mt-4 flex w-full max-w-full rounded-xl border border-white/10 bg-white/[0.04] p-1 sm:w-fit">
+                {FORMS.map((item) => (
+                  <button key={item.id} type="button" onClick={() => setForm(item.id)} aria-pressed={form === item.id}
+                    className={`min-w-0 flex-1 rounded-lg px-2 py-2 text-xs font-black transition sm:flex-none sm:px-3 ${form === item.id ? 'bg-amber-300/20 text-amber-50' : 'text-slate-400 hover:text-white'}`}>
+                    查看{item.label}
+                  </button>
+                ))}
               </div>
+              <p className="mt-3 text-xs leading-6 text-slate-400">本體神獸與神獸幼子是兩張獨立收藏卡，彼此共享星宿血統。</p>
+              <div className="mt-5 rounded-2xl border border-amber-200/20 bg-amber-300/[0.07] p-4">
+                <p className="text-xs font-black tracking-[0.16em] text-amber-200/80">核心意義</p>
+                <p className="mt-2 font-serif text-2xl font-black text-amber-50">{shown.coreMeaning}</p>
+              </div>
+              <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <p className="text-xs font-black tracking-[0.16em] text-cyan-100/75">性格與命運特質</p>
+                <p className="mt-2 text-sm leading-7 text-slate-200">{shown.traits}</p>
+              </div>
+              <Link href="/beast-game" className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-cyan-100/40 bg-cyan-300/15 px-4 py-3 text-sm font-black text-cyan-50">開始 →</Link>
+              <div className="mt-5 flex gap-3">
+                <button type="button" onClick={() => moveSelected(-1)} className="flex-1 rounded-xl border border-white/15 bg-white/[0.06] px-4 py-3 text-sm font-black text-white transition hover:border-cyan-200/55 hover:bg-cyan-300/10">← 上一張</button>
+                <button type="button" onClick={() => moveSelected(1)} className="flex-1 rounded-xl border border-amber-200/35 bg-amber-300/15 px-4 py-3 text-sm font-black text-amber-50 transition hover:border-amber-100 hover:bg-amber-300/25">下一張 →</button>
+              </div>
+              <p className="mt-3 text-center text-[11px] text-slate-500">可使用鍵盤 ← → 切換，Esc 關閉</p>
             </div>
-          </article>
-        </div>
-      )}
+          </div>
+        </article>
+      </div>
     </main>
   );
 }

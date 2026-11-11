@@ -67,7 +67,7 @@
   border-bottom: 3px solid transparent;
   color: rgba(245, 238, 234, 0.6);
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -196,7 +196,7 @@
 
 .yearInfo {
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #d4af37;
   margin: 0.75rem 0;
   font-family: 'Noto Serif TC', serif;

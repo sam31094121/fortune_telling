@@ -101,7 +101,7 @@
     0 0 8px rgba(0, 229, 255, 0.2),
     inset 0 0 4px rgba(0, 229, 255, 0.08);
   letter-spacing: 0.05em;
-  font-weight: 600;
+  font-weight: 700;
   border-radius: 999px;
   background: rgba(125, 211, 252, 0.16);
   font-size: 11px;
@@ -475,7 +475,7 @@
 .helpEntry { min-height: 44px; padding: 4px 10px; color: #bae6fd; font-size: 13px; text-decoration: underline; touch-action: manipulation; }
 .primaryActions button { min-height: 56px; padding: 6px 4px; flex-direction: column; gap: 3px; font-size: 13px; }
 .primaryActions button > span:first-child { font-size: 15px; line-height: 1; }
-.primaryActions small { font-size: 10px; font-weight: 500; }
+.primaryActions small { font-size: 10px; font-weight: 400; }
 .primaryActions button small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rageUnavailable { background: #243449; color: #c3d0df; border-color: #526178; box-shadow: none; }
 .rageGuide { display: grid; gap: 3px; padding: 8px 10px; border: 1px solid #6b88a3; border-radius: 10px; background: #15283d; color: #d9e9f6; font-size: 12px; line-height: 1.4; }
@@ -490,7 +490,7 @@
 .battleDetails summary { min-height: 44px; align-content: center; cursor: pointer; }
 .battleDetails p { line-height: 1.7; }
 .commandHelp { display: grid; gap: 8px; padding: 12px; border: 1px solid #527493; border-radius: 12px; color: #cbdff1; font-size: 13px; line-height: 1.7; }
-.commandHelp h3 { color: #ffe5a3; font-weight: 800; }
+.commandHelp h3 { color: #ffe5a3; font-weight: 900; }
 
 /* 手機版：隱藏非必要文字，保留關鍵資訊 */
 @media (max-width: 480px) {
@@ -575,7 +575,7 @@
   background: rgba(14,116,144,0.18);
   color: #bae6fd;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.4;
 }
 .primaryActions {

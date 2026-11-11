@@ -1,0 +1,40 @@
+{
+  "card": "beast_g_qinglong",
+  "rule": "修圖技能檔案鐵律 3：禁止 AI 生成或捏造修圖成品",
+  "approvedBy": "業主",
+  "approvedAt": "2026-11-11",
+  "approvedVia": "對話：「核准青龍例外」（回答「青龍含 AI 圖像工具產物，核准例外嗎？」）",
+  "finding": "青龍動作幀的來源鏈含內建 image_gen／內建修圖工具產物：closed-v2.json、detail-v2.json 登記 generator = built-in image_gen；v5 文件自述以內建修圖工具從 r9 原稿去背。",
+  "scope": "只限青龍（beast_g_qinglong）現行上線的四張動作幀，以下雜湊為準；來源鏈（r9 原稿、v2）視為同一批。",
+  "notGeneralizedTo": [
+    "白虎",
+    "玄武",
+    "朱雀",
+    "其餘 56 隻",
+    "青龍日後任何新增或更換的素材",
+    "其他種類的違反（畫質底線、角色一致性、手機實測等必要驗收不因此豁免）"
+  ],
+  "frames": [
+    {
+      "id": "bite-close",
+      "file": "bite-close.cutout-v5.webp",
+      "sha256": "bebc58d2d56d13d15a426247bc8cf67a1c83e65dd364a895ce722090bc5d48af"
+    },
+    {
+      "id": "pounce-open",
+      "file": "pounce-open.cutout-v5.webp",
+      "sha256": "d302b144e61e97adb8d94a6b07a3972a9d960b6421b6c78ba1fa77e6efc23526"
+    },
+    {
+      "id": "run-gather",
+      "file": "run-gather.webp",
+      "sha256": "4ac1ca22792615e4b72d23657cd20193a06a8d2e768005307aca18ed83603d11"
+    },
+    {
+      "id": "run-reach",
+      "file": "run-reach.webp",
+      "sha256": "2b62bcbcd83d4a7e484cc5e6ca35ef24d4d9a5b5d5bc4bc5fceb4b23c6f10c1e"
+    }
+  ],
+  "note": "素材任一幀的雜湊改變，本例外即失效，需重新審查並重新核准（tests/beast-qinglong-body.test.cjs 會擋）。例外不泛化成永久放行。"
+}

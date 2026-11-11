@@ -1,5 +1,5 @@
 /** Server turn resolver: UI receives facts, never invents healing or shield rewards. */
-import { grantTreasure, type TreasureBook } from './treasures';
+import { grantTreasure, treasureCatalog, type TreasureBook } from './treasures';
 import { buildOrbReplay } from './replay';
 import { buildEvents } from './events';
 import { resolveDrag, type MagicGrid } from './drag';
@@ -17,7 +17,7 @@ import { healSupport, shieldPlan, SUPPORT_POLICY, type HealFact } from './elemen
 import { playableCards } from '../registry';
 export interface TurnUnit extends Match3Fighter { maxHp: number; energy: number; name: string; thumbnail: string }
 export interface TurnFoe extends Match3Foe { name: string; thumbnail: string }
-export interface TurnInput { treasures?: TreasureBook; actionId?: string; treasureGuard?: number; action?: 'treasure' | 'energy' | 'link'; treasureElement?: import('../elements').BeastElement; /** 能量技／連結攻擊（card-attack.ts）：施放者、連線卡、沿用前端原 eventId。 */ attackerId?: string; linkIds?: string[]; eventId?: string; board: Board; magic: MagicGrid; path: Cell[]; team: TurnUnit[]; foes: TurnFoe[]; mode: Match3ModeId; wins: number; target: number; seed: number; move: number; chosen: LeadChoice; rule: SameElementRule; attackBoost: number }
+export interface TurnInput { treasures?: TreasureBook; actionId?: string; treasureGuard?: number; action?: 'treasure' | 'energy' | 'link'; treasureVariant?: number; treasureElement?: import('../elements').BeastElement; /** 能量技／連結攻擊（card-attack.ts）：施放者、連線卡、沿用前端原 eventId。 */ attackerId?: string; linkIds?: string[]; eventId?: string; board: Board; magic: MagicGrid; path: Cell[]; team: TurnUnit[]; foes: TurnFoe[]; mode: Match3ModeId; wins: number; target: number; seed: number; move: number; chosen: LeadChoice; rule: SameElementRule; attackBoost: number }
 export function resolveOrbTurn(input: TurnInput) {
   const cfg = match3Mode(input.mode), hard = cfg.id !== 'medium', stage = progressionStage(input.wins), eventId = `${input.seed}:${input.move}`;
   // Validate the action before running any skills. An invalid drag cannot create healing.
@@ -25,7 +25,7 @@ export function resolveOrbTurn(input: TurnInput) {
   const shield = res.valid && hard ? shieldPlan(input.board, input.magic, input.path) : null;
   let team = input.team, foes = input.foes, startDamage = 0;
   const skills: OrbSkillEvent[] = [], heals: HealFact[] = [], enemyHeals: HealFact[] = [];
-  if (hard && input.path.length) {
+  if (hard && input.path.length && !res.boardShieldUpgrade) {
     const started = runPlayerTurnSkills(team, foes, 'ON_TURN_START', input.wins + 1, eventId + ':start', input.target);
     team = started.team; foes = started.foes; skills.push(...started.skillEvents); startDamage = started.actualDamage;
   }
@@ -66,9 +66,9 @@ export function resolveOrbTurn(input: TurnInput) {
   if (shield && 'healPercent' in shield && shield.healPercent > 0) {
     const healed = healSupport(team, null, shield.healPercent, new Map(), 1, 'shield'); team = healed.team; heals.push(...healed.facts);
   }
-  if (res.valid) team = shareEnergy(team, energyGains(res), input.rule, input.chosen);
+  if (res.valid && !res.boardShieldUpgrade) team = shareEnergy(team, energyGains(res), input.rule, input.chosen);
   let endDamage = 0;
-  if (hard && input.path.length > 0) {
+  if (hard && input.path.length > 0 && !res.boardShieldUpgrade) {
     const ended = runPlayerTurnSkills(team, foes, 'ON_TURN_END', input.wins + 1, eventId + ':end', target);
     team = endPlayerSkillTurn(ended.team); foes = ended.foes; skills.push(...ended.skillEvents); endDamage = ended.actualDamage;
   }
@@ -84,7 +84,7 @@ export function resolveOrbTurn(input: TurnInput) {
     const healed = healSupport(eligible, source.element, SUPPORT_POLICY.healing.enemyCounterPercent, enemyBudget);
     const updated = new Map(healed.team.map(f => [f.id, f])); counter.foes = counter.foes.map(f => updated.get(f.id) ?? f); enemyHeals.push(...healed.facts);
   }
-  const nextBoost = shield?.kind === 'five' ? 1.5 : usedBoost ? 1 : input.attackBoost;
+  const nextBoost = usedBoost ? 1 : input.attackBoost;
   const source = shield?.kind === 'same' ? input.team.find(f => f.element === shield.colors[0] && actualHits.some(h => h.attackerId === f.id && h.amount > 0)) : undefined;
   const guardian = source ? playableCards().find(c => c.form === 'GUARDIAN' && c.element === source.element) : undefined;
   const summon = source && guardian ? { guardianId: guardian.id, sourceId: source.id, name: guardian.name, element: source.element } : null;
@@ -94,6 +94,7 @@ export function resolveOrbTurn(input: TurnInput) {
   const replay = hard && res.valid ? buildOrbReplay(input.board, input.magic, input.path, res, cfg.diagonal) : [];
   const events = buildEvents(res.steps, hits, { magicSpawn: res.magicSpawn, magicTriggered: res.magicTriggered, skill5Element: res.skill5 ? res.element : null, energy: energyGains(res) });
   const treasure = grantTreasure(input, res);
+  treasure.catalog = treasureCatalog(treasure.book,counter.team);
   const nextTreasureGuard = counter.hits.length ? 1 : input.treasureGuard ?? 1;
   return { treasure, nextTreasureGuard, replay, events, res, target, hits, actualHits, damage, startDamage, endDamage, skills, heals, enemyHeals, healingSummary, enemyHealingSummary, shieldGoals, summon, chainFacts, shield, guardScale, beforeCounter, counter, nextBoost };
 }

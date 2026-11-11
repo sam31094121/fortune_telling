@@ -23,7 +23,7 @@
 .sheen { position: absolute; left: 24%; top: 16%; width: 30%; height: 16%; border-radius: 50%; transform: rotate(-24deg);
   background: radial-gradient(closest-side, color-mix(in srgb, var(--bone) 85%, transparent), transparent); opacity: .26;
   animation: bpShimmer 7.5s ease-in-out var(--d, 0ms) infinite; }
-.glyph { position: relative; font-size: clamp(12px, 3.2vw, 16px); font-weight: 600; letter-spacing: .02em;
+.glyph { position: relative; font-size: clamp(12px, 3.2vw, 16px); font-weight: 700; letter-spacing: .02em;
   color: color-mix(in srgb, var(--bone) 78%, var(--el)); text-shadow: 0 1px 1px color-mix(in srgb, var(--ink) 80%, transparent); }
 .glyph::after { content: ''; position: absolute; left: 50%; bottom: -3px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--el); opacity: .9; }
 /* 形狀（色＋形雙重編碼）：風＝圓、空＝菱、水＝水滴、火＝三角、地＝圓角方 */
@@ -57,7 +57,7 @@
   mix-blend-mode: screen; }
 .magicCell .halo { background: radial-gradient(circle, color-mix(in srgb, var(--mgold) 34%, transparent) 0, transparent 70%); animation: bpBreath 4.2s ease-in-out infinite; }
 .nbadge { position: absolute; top: -14%; right: -14%; z-index: 2; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px;
-  font-size: 10px; font-weight: 800; line-height: 17px; text-align: center; color: var(--ink);
+  font-size: 10px; font-weight: 900; line-height: 17px; text-align: center; color: var(--ink);
   background: linear-gradient(135deg, var(--gold-pale), var(--gold) 55%, var(--gold-deep));
   box-shadow: 0 0 0 .5px color-mix(in srgb, var(--mgold) 80%, transparent), 0 1px 3px color-mix(in srgb, var(--ink) 80%, transparent);
   transform: scale(calc(.92 + var(--mi, 0) * .22)); }

@@ -94,7 +94,7 @@ export default function FiveStarLink({ fiveStar }: { fiveStar: FiveStarStudy }) 
               {node.present && <circle className={`${uid}-halo`} cx={pos.x} cy={pos.y} r={30} fill={gem.glow} opacity="0.5" />}
               <circle cx={pos.x} cy={pos.y} r={22} fill={node.present ? `url(#${uid}-g-${node.element})` : 'rgba(226,232,240,.05)'} stroke={node.present ? gem.light : 'rgba(226,232,240,.3)'} strokeWidth={node.present ? 1.6 : 1.2} strokeDasharray={node.present ? undefined : '3 3'} />
               <text x={pos.x} y={pos.y + 6} textAnchor="middle" fontSize="19" fontWeight="900" fill={node.present ? '#ffffff' : 'rgba(226,232,240,.5)'}>{node.element}</text>
-              <text x={pos.x} y={pos.y + 42} textAnchor="middle" fontSize="11" fontWeight="800" fill={node.present ? gem.text : 'rgba(226,232,240,.4)'}>{node.present ? node.digits.join(' ') : '—'}</text>
+              <text x={pos.x} y={pos.y + 42} textAnchor="middle" fontSize="11" fontWeight="900" fill={node.present ? gem.text : 'rgba(226,232,240,.4)'}>{node.present ? node.digits.join(' ') : '—'}</text>
             </g>
           );
         })}

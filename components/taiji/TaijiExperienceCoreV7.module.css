@@ -348,7 +348,7 @@
   top: 50%;
   color: rgba(255, 255, 255, 0.96);
   font-size: 0.68rem;
-  font-weight: 950;
+  font-weight: 900;
   transform: translate(-50%, -50%);
 }
 
@@ -469,7 +469,7 @@
 .status span {
   color: rgba(203, 213, 225, 0.88);
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .analysisRail {
@@ -516,7 +516,7 @@
   border-radius: 999px;
   padding: 0 18px;
   font-size: 0.86rem;
-  font-weight: 950;
+  font-weight: 900;
   letter-spacing: 0;
   text-decoration: none;
   touch-action: manipulation;

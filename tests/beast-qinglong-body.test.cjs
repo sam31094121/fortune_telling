@@ -48,5 +48,15 @@ const ok = (cond, msg) => { assert.ok(cond, msg); n += 1; };
     let alphaDiff = 0; for (let i = 3; i < a.data.length; i += 4) alphaDiff += Math.abs(a.data[i] - b.data[i]);
     ok(alphaDiff === 0, `${c.file} 透明度與來源逐像素相同（沒有動到去背邊緣）`);
   }
+  // ── 業主例外（鐵律 3：AI 來源）只對登記當下的雜湊有效；素材一換就失效，必須重新審查 ──
+  const exc = JSON.parse(fs.readFileSync(path.join(root, 'reports/beast-rig-review/qinglong-2026-11-08/exception-2026-11-11.json'), 'utf8'));
+  ok(exc.card === 'beast_g_qinglong' && exc.approvedBy === '業主' && exc.approvedAt === '2026-11-11', '例外登記：青龍、業主、2026-11-11');
+  ok(Array.isArray(exc.notGeneralizedTo) && exc.notGeneralizedTo.includes('白虎') && exc.notGeneralizedTo.includes('其餘 56 隻'), '例外明載不泛化到其他卡');
+  ok(exc.frames.length === manifest.frames.length, '例外涵蓋的幀數與 manifest 相同');
+  for (const f of manifest.frames) {
+    const e = exc.frames.find((x) => x.id === f.id);
+    ok(e && e.file === f.file && e.sha256 === f.sha256, `${f.id} 的素材與例外登記的雜湊一致；若失敗代表素材已更換，例外失效，需重新審查並重新核准`);
+  }
+
   console.log(`beast-qinglong-body: ${n} checks passed`);
 })().catch((e) => { console.error(e); process.exit(1); });

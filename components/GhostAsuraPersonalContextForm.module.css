@@ -14,7 +14,7 @@
 
 .legend {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   color: #d4a574;
   margin-bottom: 20px;
   display: block;
@@ -29,7 +29,7 @@
 .label {
   display: block;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   color: rgba(255, 255, 255, 0.9);
   margin-bottom: 8px;
   text-transform: uppercase;
@@ -109,7 +109,7 @@
   border-radius: 4px;
   color: #d4a574;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;

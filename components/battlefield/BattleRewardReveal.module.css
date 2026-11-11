@@ -21,7 +21,7 @@
 .heading {
   margin: 0;
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.1em;
   color: #fcea86;
 }
@@ -51,7 +51,7 @@
   background: rgba(7, 11, 31, 0.7);
   color: #fcea86;
   font-size: 52px;
-  font-weight: 800;
+  font-weight: 900;
   animation: waiting 1.4s ease-in-out infinite;
 }
 
@@ -76,7 +76,7 @@
   color: #1a1203;
   font: inherit;
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.08em;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;

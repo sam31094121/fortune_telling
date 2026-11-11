@@ -104,7 +104,7 @@
 .totalInfo .label {
   font-size: 9px;
   color: #b8c2ca;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -112,7 +112,7 @@
 .damageInfo .value,
 .totalInfo .value {
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 900;
   text-align: right;
   color: #fff;
 }

@@ -87,7 +87,7 @@
 
 .stepTitle {
   font-size: clamp(16px, 3vw, 20px);
-  font-weight: 800;
+  font-weight: 900;
   color: #e6edf8;
   margin: 0;
   letter-spacing: 0.05em;
@@ -154,7 +154,7 @@
 
 .compactTitle {
   font-size: clamp(14px, 2.5vw, 16px);
-  font-weight: 800;
+  font-weight: 900;
   color: #7dd3fc;
   margin: 0;
   letter-spacing: 0.1em;
@@ -196,7 +196,7 @@
 
 .stepTitle {
   font-size: clamp(11px, 1.8vw, 13px);
-  font-weight: 600;
+  font-weight: 700;
   color: #c0d0e4;
   margin: 0;
 }

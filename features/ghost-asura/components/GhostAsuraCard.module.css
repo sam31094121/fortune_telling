@@ -133,7 +133,7 @@
   font-size: 15px;
   color: #eed3c4;
   line-height: 1.9;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .stats {
@@ -190,7 +190,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 
 .statLabel {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: #f2ede4;
   line-height: 1.2;
 }
@@ -413,7 +413,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 3px;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.05em;
 }
 
@@ -446,7 +446,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 }
 
 .meaningStrong {
-  font-weight: 600;
+  font-weight: 700;
   color: #f0d0ae;
   margin-bottom: 8px;
 }
@@ -518,7 +518,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 
 .fieldLabel {
   color: #efc5a1;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 @media (max-width: 420px) {
@@ -933,7 +933,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 }
 .goldWording strong {
   color: #f6d3a6;
-  font: 600 18px/1.8 serif;
+  font: 700 18px/1.8 serif;
   letter-spacing: 0.06em;
 }
 
@@ -1003,7 +1003,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   padding: 6px 14px;
   min-height: 34px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   color: #f5eeea;
   background: linear-gradient(145deg, #3a2228, #1c1418);
   border: 1px solid #7c4852;
@@ -1052,7 +1052,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   font-size: 13px;
   line-height: 1.6;
 }
-.fnPanel .fnPlainLine strong { margin-right: 6px; color: #c9a45c; font-weight: 600; }
+.fnPanel .fnPlainLine strong { margin-right: 6px; color: #c9a45c; font-weight: 700; }
 .fnPanel .fnPlainTag {
   display: inline-block;
   margin-right: 6px;
@@ -1076,6 +1076,27 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  * 金光閃閃 — 印記覺醒能量光暈
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* 2026-11-09 用戶鈺勝指定（動畫只做顯示、不重排／重繪）：原本逐影格切換 background 漸層（漸層不能內插，
+   在 25%／75% 處會從 0.05 硬跳到 0.25，等於每 3 秒兩次亮度跳變，且每幀主執行緒重算樣式＋重繪 17 張印記）。
+   改成 ::before 固定為原本 50% 影格的金色漸層，只動 opacity（合成器處理）：
+   0% 有效亮度＝0.25×0.1＝0.025（原 0.05×0.5＝0.025），50%＝0.25×1（原 0.25×1），兩端與原版同值，中間平順不再硬跳。
+   選擇器重複一次是為了蓋過下方第 1667 行附近的靜態 0.14 底色（原本動畫中也是被關鍵影格蓋掉、看不到），維持原本實際顯示的金色；
+   展開時 .itemAwakened:has(details[open])::before 的 background:none 權重仍較高，照舊生效。 */
+.itemAwakened.itemAwakened::before {
+  background: linear-gradient(45deg,
+    rgba(255, 215, 0, 0) 0%,
+    rgba(255, 215, 0, 0.25) 50%,
+    rgba(255, 215, 0, 0) 100%);
+}
+@keyframes goldGlimmer {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* 減少動態：停在原本 0% 影格的亮度（0.025），不再呼吸 */
+  .itemAwakened::before { animation: none; opacity: 0.1; }
+}
+/* 原 goldGlimmer（逐影格改 background）保留供追溯：
 @keyframes goldGlimmer {
   0% {
     background: linear-gradient(45deg,
@@ -1099,6 +1120,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
     opacity: 0.5;
   }
 }
+*/
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  * 3D 旋轉 — 卡片立體進場
@@ -1463,14 +1485,14 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   background: radial-gradient(circle at 35% 30%, #a52a24, var(--nc-crimson) 60%, #5e1212);
   box-shadow: inset 0 0 0 1px rgba(230, 200, 134, 0.55), inset 0 0 0 4px rgba(94, 18, 18, 0.9), inset 0 0 0 5px rgba(230, 200, 134, 0.35);
   color: #f6e3c0;
-  font: 800 19px/1 var(--asura-kai, serif);
+  font: 900 19px/1 var(--asura-kai, serif);
 }
 .natureNameBlock { display: grid; gap: 10px; min-width: 0; }
 .natureName {
   display: block;
   overflow: hidden;
   color: var(--nc-gold-hi);
-  font: 800 26px/1.15 var(--asura-kai, serif);
+  font: 900 26px/1.15 var(--asura-kai, serif);
   letter-spacing: 0.22em;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1483,7 +1505,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   padding-top: 8px;
   border-top: 1px solid var(--nc-gold-dim);
   color: rgba(230, 200, 134, 0.72);
-  font: 600 14px/1 var(--asura-kai, serif);
+  font: 700 14px/1 var(--asura-kai, serif);
   letter-spacing: 0.3em;
 }
 .natureDot { width: 5px; height: 5px; transform: rotate(45deg); background: var(--nc-crimson); box-shadow: 0 0 0 1px rgba(230, 200, 134, 0.5); }
@@ -1512,9 +1534,9 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   background: linear-gradient(90deg, rgba(201, 164, 92, 0.10), transparent 85%);
 }
 .natureSlotRisk { border-left-color: var(--nc-crimson); background: linear-gradient(90deg, rgba(139, 30, 30, 0.22), transparent 85%); }
-.natureSlotLabel { color: var(--nc-gold-hi); font: 800 15px/1 var(--asura-kai, serif); letter-spacing: 0.4em; }
+.natureSlotLabel { color: var(--nc-gold-hi); font: 900 15px/1 var(--asura-kai, serif); letter-spacing: 0.4em; }
 .natureSlotRisk .natureSlotLabel { color: #f0b7a4; }
-.natureSlotText { margin: 0; font: 600 16px/1.9 var(--asura-serif, serif); letter-spacing: 0.04em; overflow-wrap: anywhere; }
+.natureSlotText { margin: 0; font: 700 16px/1.9 var(--asura-serif, serif); letter-spacing: 0.04em; overflow-wrap: anywhere; }
 .natureSlotEmpty {
   display: block;
   height: 44px;
@@ -1531,7 +1553,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
   border-left: 3px solid #8b1e1e;
   background: linear-gradient(90deg, rgba(139, 30, 30, 0.2), transparent 85%);
   color: #f6e3c0;
-  font: 600 16px/1.85 var(--asura-serif, serif);
+  font: 700 16px/1.85 var(--asura-serif, serif);
   letter-spacing: 0.04em;
   overflow-wrap: anywhere;
 }
@@ -1959,7 +1981,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 .card[data-display-contract] .itemHead { min-height:44px; }
 .card[data-display-contract] .itemHead::after { background:linear-gradient(#d8bf84,#ac8a4f); box-shadow:inset 0 1px 0 #fff4; }
 .card[data-display-contract] .itemBody { border-top-color:#c5a66630; padding-top:16px; padding-bottom:12px; }
-.card[data-display-contract] .meaningStrong { color:#f0deb1; font-weight:650; margin-bottom:12px; }
+.card[data-display-contract] .meaningStrong { color:#f0deb1; font-weight:700; margin-bottom:12px; }
 .card[data-display-contract] .itemBody .meaning { color:#e1ded4; line-height:1.85!important; }
 .card[data-display-contract] .itemBody .battleLine { color:#c9c6bc; line-height:1.85!important; margin-top:18px; }
 .card[data-display-contract] .sealAwakened { color:#e5c98a; background:#a88c5719; border:1px solid #c5a66640; }
@@ -1988,7 +2010,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 }
 .card[data-display-contract] .asuraTiles .tileSquare:nth-child(2) { --tab-accent:#c5ab65; }
 .card[data-display-contract] .asuraTiles .tileSquare:nth-child(3) { --tab-accent:#7aa9b8; }
-.card[data-display-contract] .asuraTiles .tileSquare:nth-of-type(n)::after { color:#ddd1b4; font-weight:500; }
+.card[data-display-contract] .asuraTiles .tileSquare:nth-of-type(n)::after { color:#ddd1b4; font-weight:400; }
 .card[data-display-contract] .asuraTiles .tileSquareOn {
   border-color:var(--tab-accent); background:linear-gradient(145deg,color-mix(in srgb,var(--tab-accent) 33%,#25231f),#24221d);
   box-shadow:inset 0 -3px 0 var(--tab-accent),inset 0 1px 0 #ffffff15,0 3px 7px #0004;
@@ -2021,7 +2043,7 @@ button.statTile:focus-visible { outline: 3px solid #bae6fd; outline-offset: 2px;
 }
 .card[data-display-contract] .asuraTiles .tileSquare:nth-of-type(n)::after {
   content:'點開查看 ▾'; bottom:9px; left:4px; width:calc(100% - 8px);
-  font-size:12px; line-height:18px; font-weight:650; letter-spacing:0;
+  font-size:12px; line-height:18px; font-weight:700; letter-spacing:0;
   color:#f3e6c7; background:#ffffff08; border-radius:4px;
 }
 .card[data-display-contract] .asuraTiles .tileSquareOn:nth-of-type(n)::after { content:'收合 ▴'; }

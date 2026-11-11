@@ -35,7 +35,7 @@ function NoWebGLNotice({ reason }: { reason: 'unsupported' | 'crashed' }) {
   return (
     <div role="alert" style={{ minHeight: '100dvh', display: 'grid', placeItems: 'center', background: '#070910', color: '#c9d2e6', padding: '24px' }}>
       <div style={{ maxWidth: 420, textAlign: 'center', lineHeight: 1.8 }}>
-        <p style={{ fontSize: 20, fontWeight: 800, color: '#f3e6b8', marginBottom: 8 }}>立體太極模型暫時無法顯示</p>
+        <p style={{ fontSize: 20, fontWeight: 900, color: '#f3e6b8', marginBottom: 8 }}>立體太極模型暫時無法顯示</p>
         <p style={{ fontSize: 15 }}>
           {reason === 'unsupported'
             ? '這台裝置或瀏覽器目前沒有開啟 3D 繪圖（WebGL）。請改用新版 Chrome 或 Safari，或在瀏覽器設定開啟「硬體加速」後重新整理。'

@@ -33,7 +33,7 @@ export default function RigPreviewPage() {
 
   return (
     <main style={{ padding: 12, color: '#e7eef9', background: '#050b18', minHeight: '100dvh' }}>
-      <h1 style={{ fontSize: 16, fontWeight: 800 }}>{name}戰鬥動畫預覽</h1>
+      <h1 style={{ fontSize: 16, fontWeight: 900 }}>{name}戰鬥動畫預覽</h1>
       <p data-rig-phase style={{ fontSize: 13 }}>階段：{phase}・{Math.round(t * RIG_STRIKE_MS)} ms／{RIG_STRIKE_MS} ms・關鍵幀{ready ? '已載入' : '載入中'}</p>
       <p data-rig-layers style={{ fontSize: 12, color: '#9db4d3' }}>疊合：{layers}</p>
       <input data-rig-slider type="range" min={0} max={1000} value={Math.round(t * 1000)} onChange={e => { setPlayKey(null); setT(Number(e.target.value) / 1000); }} style={{ width: '100%' }} />

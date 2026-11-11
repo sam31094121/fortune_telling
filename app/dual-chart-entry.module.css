@@ -48,7 +48,7 @@
 }
 
 /* Homepage visual review: retain the existing title and reveal only the action on interaction. */
-.title {position:absolute;top:12px;left:16px;right:16px;text-align:center;font-size:16px;font-weight:800;color:#fef3c7;z-index:3;pointer-events:none;}
+.title {position:absolute;top:12px;left:16px;right:16px;text-align:center;font-size:16px;font-weight:900;color:#fef3c7;z-index:3;pointer-events:none;}
 .entry.entry > .title {min-height:0;line-height:1.4;white-space:nowrap;}
 .phoenixArtwork {inset:46px 12px 48px;}
 :global(body #home-eight-card-route) a.entry.entry :global(.home-feature-cta) {position:relative;z-index:1;opacity:0 !important;transition:opacity 150ms ease;}

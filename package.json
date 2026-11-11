@@ -67,6 +67,7 @@
     "test:star-beast-entry-api": "node tests/star-beast-entry.api.test.cjs",
     "test:screen-health-policy": "node tests/screen-health-recovery-policy.test.cjs",
     "test:beast-card-spec": "node tests/beast-card-spec.test.cjs",
+    "test:home-motto-retouch": "node tests/home-motto-retouch.test.cjs",
     "test:beast-stake": "node tests/beast-stake.test.cjs && node tests/beast-collection.test.cjs",
     "test:beast-ritual": "node tests/beast-battle-ritual.test.cjs",
     "check:beast-spirits": "node scripts/check-beast-spirits.mjs",

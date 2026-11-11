@@ -84,7 +84,7 @@
   color: #d3b29c;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .value {
@@ -241,7 +241,7 @@
 
 .elementName {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: #f1cba9;
   line-height: 1.2;
 }
@@ -372,7 +372,7 @@
 
 .requirementLabel {
   flex-shrink: 0;
-  font-weight: 600;
+  font-weight: 700;
   color: #d3b29c;
   text-transform: uppercase;
   font-size: 10px;
@@ -450,7 +450,7 @@
 .messageText {
   margin: 0;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   color: #ffb882;
   line-height: 1.6;
   white-space: pre-line;

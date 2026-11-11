@@ -10,10 +10,41 @@ export function match3RigAttackers(hits: readonly { attackerId?: string | null; 
   if (actualDamage === undefined ? afterHp >= beforeHp : !Number.isFinite(actualDamage) || actualDamage <= 0) return [];
   return [...new Set(hits.filter(h => Number.isFinite(h.amount) && h.amount > 0 && h.attackerId && rigFor(h.attackerId)).map(h => h.attackerId!))];
 }
-export function Match3TargetArt({ src }: { src: string }) {
+export function useBattleArtUrl(src: string, fallback?: string): string {
+  const [current, setCurrent] = useState(src);
+  const usedFallback = useRef(false);
+  useEffect(() => {
+    setCurrent(src);
+    usedFallback.current = false;
+    if (!fallback || fallback === src) return;
+    let cancelled = false;
+    const im = new Image();
+    im.onerror = () => {
+      if (cancelled || usedFallback.current) return;
+      usedFallback.current = true;
+      setCurrent(fallback);
+    };
+    im.src = src;
+    return () => { cancelled = true; };
+  }, [src, fallback]);
+  return current;
+}
+
+export function Match3TargetArt({ src, fallback }: { src: string; fallback?: string }) {
   // Real target pixels are shared with the reversible bite/tear renderer.
+  const [current, setCurrent] = useState(src);
+  const usedFallback = useRef(false);
+  useEffect(() => {
+    setCurrent(src);
+    usedFallback.current = false;
+  }, [src]);
+  const applyFallback = () => {
+    if (usedFallback.current) return;
+    usedFallback.current = true;
+    if (fallback && fallback !== src && fallback !== current) setCurrent(fallback);
+  };
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt="" draggable={false} decoding="async" />;
+  return <img src={current} alt="" draggable={false} decoding="async" onError={applyFallback} ref={(el) => { if (el && el.complete && el.naturalWidth === 0) queueMicrotask(applyFallback); }} />;
 }
 function Strike({ rig, root, strike, tear, onImpact }: { rig: BeastRig; root: RefObject<HTMLElement | null>; strike: Match3Strike | null; tear: boolean; onImpact: (key: number) => void }) {
   const impactCallback = useRef(onImpact); impactCallback.current = onImpact;
