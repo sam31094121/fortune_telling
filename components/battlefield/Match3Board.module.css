@@ -950,9 +950,11 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
   .fusedOrb[data-spent] { opacity: 0; }
 }
 
-/* ═══ 四象決戰大圖一體成型（data-fused="duel" 幾何覆寫，2026-11-11）═══
-   重用 912b46a 包裝層／fused-rim 屬性／外殼／盾帶／徽章；另開幾何，保住中間三格與列高 100／78／54。
-   不可套方卡 100cqw，否則列高會被撐成卡寬、棋盤下移。一般卡規則一行不改。不改原圖顏色（無 filter／整卡 opacity）。 */
+/* ═══ v4 決戰魔王一體（動效助手規格，整合進 30161b0b）═══
+   規格寫在 e3a1d10 建置上量的；該 commit 只藏身分頁一句說明且已還原，與決戰幾何無關。
+   圖框維持 76px（100px 列；78 列＝54、54 列＝30），整塊下移 7px，不撐成 83px。
+   .foeArt 收成神獸框＝爆炸錨點；--pad 補各獸透明底邊；徽章貼神獸框左上。
+   血條 8px、底座 12px、行動條 2px；接縫 --join 1px。無新增動畫。 */
 .wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] > .foe:has(> [data-fused="duel"]) {
   display: block;
   position: relative;
@@ -960,41 +962,58 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] {
   width: 100%;
   height: 100%;
+  --join: 1px;
   --bar-top: calc(100% - 12px);
+  --art-h: calc(100% - 18px);
+  --art-px: 76px;
 }
+@media (max-height: 720px) and (max-width: 600px) {
+  .wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] { --art-px: 54px; }
+}
+@media (max-height: 600px) and (max-width: 600px) {
+  .wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] { --art-px: 30px; --badge-dx: -15px; }
+}
+/* --pad／--ar 由元件依神獸名稱寫入，避免 CSS 寫死卡片 ID。 */
 .wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"]::before {
   content: none;
   display: none;
   height: 0;
 }
 .wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] > .foeArt {
-  left: 0;
-  right: 0;
-  top: 0;
-  width: 100%;
-  height: calc(var(--bar-top) + var(--join));
-  max-width: none;
+  left: 50%;
+  right: auto;
+  top: calc(var(--bar-top) + var(--join) - var(--art-h));
+  width: auto;
+  height: var(--art-h);
+  max-width: 100%;
+  aspect-ratio: var(--ar, 1.5);
+  transform: translateX(-50%);
   overflow: visible;
 }
 .wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] > .foeArt > img:first-child {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 100%;
   height: 100%;
   max-width: none;
   object-fit: contain;
-  object-position: 50% var(--art-y);
+  object-position: 50% 100%;
+  transform: translateY(calc(var(--pad, 0) * 100%));
   filter: none;
 }
 .wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] .fusedShell {
-  top: calc(var(--bar-top) - min(40cqw, 36px));
-  height: calc(min(40cqw, 36px) + 13px);
-  -webkit-mask: linear-gradient(to top, #000 0 calc(13px + min(10cqw, 10px)), transparent 100%);
-  mask: linear-gradient(to top, #000 0 calc(13px + min(10cqw, 10px)), transparent 100%);
+  top: calc(var(--bar-top) - .4 * var(--art-h));
+  height: calc(.4 * var(--art-h) + 13px);
+  -webkit-mask: linear-gradient(to top, #000 0 calc(25% + 9.75px), transparent 100%);
+  mask: linear-gradient(to top, #000 0 calc(25% + 9.75px), transparent 100%);
 }
 .wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] .fusedBadge {
-  top: 2px;
+  top: calc(var(--bar-top) + var(--join) - var(--art-h) - 7px);
+  left: calc(50% - var(--art-px) * var(--ar, 1.5) / 2 + var(--badge-dx, 1px));
 }
 
-/* 覆蓋較早「決戰 .foeBar { position:relative }」規則，讓血條維持絕對定位；width:auto 避免 left:3px + width:100% 右側溢出 3px。 */
+/* 覆蓋較早「決戰 .foeBar { position:relative }」規則，血條維持絕對定位與左右內縮 3px。 */
 .wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] > .bar {
   position: absolute;
   width: auto;
@@ -1003,19 +1022,14 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
   overflow: visible;
 }
 
-/* 手機（既有 640px 斷點）：不顯示底部連線按鈕列（含小字說明）。桌面維持原列。
-   困難關棋盤列數仍為 7×8＝56（伺服端 orb-turn 把 hard 模式鎖在 8 列、path≤56，存檔與傷害也依此驗證），
-   故不增列；空出的工具列高度改加在棋盤列距，讓珠格填滿原說明列位置。 */
+/* 所有寬度：不顯示底部連線按鈕列（含小字說明），含桌機 1280。
+   困難關棋盤仍為 7×8＝56（伺服端硬鎖 8 列、path≤56），不增列也不拉大列距。
+   空出的工具列高度交給既有 --compact-board-width：正方形寶珠隨可用高度放大，且不超出棋盤寬度。 */
+.actionBar { display: none; }
+/* 窄屏外殼左右各 8px 會把 360／390 的正方形寶珠卡在 45.2／49.3；收成 2px 讓珠變大，仍不超出視窗寬。桌機外殼 max-width:560，高度才是限制，維持原左右內距。 */
 @media (max-width: 640px) {
-  .actionBar { display: none; }
-  .wrap { padding-bottom: 12px; }
-  .wrap[data-mode^="hard"][data-mobile-actions="off"] .board {
-    row-gap: calc(var(--orb-gap, 4px) + 7px);
-    margin-bottom: 2px;
-  }
-}
-@media (max-width: 640px) and (max-height: 600px) {
-  .wrap[data-mode^="hard"][data-mobile-actions="off"] .board {
-    row-gap: calc(var(--orb-gap, 4px) + 3px);
+  .wrap[data-mode^="hard"][data-mobile-actions="off"] {
+    padding-left: max(2px, env(safe-area-inset-left, 0px));
+    padding-right: max(2px, env(safe-area-inset-right, 0px));
   }
 }

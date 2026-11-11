@@ -13,14 +13,15 @@ const host = fs.readFileSync('components/battlefield/asura-death/AsuraDeathHost.
 assert(!/help && actions\}/.test(source), 'hard link bar must not depend on help panel');
 const treasuresAt = source.indexOf('<OrbTreasures catalog=');
 const rigActionsAt = source.indexOf('{rigEnabled && !mobileActionless && actions}');
-assert(rigActionsAt > treasuresAt && treasuresAt > 0, 'hard link bar still sits right after the treasure row (desktop)');
-assert.equal(source.split('{rigEnabled && !mobileActionless && actions}').length - 1, 1, 'hard bar unmounts on mobile (max-width: 640px)');
-assert.equal(source.split('{!rigEnabled && !mobileActionless && actions}').length - 1, 1, 'other modes also unmount the bar on mobile');
-assert(source.includes("MOBILE_ACTIONS_MQ = '(max-width: 640px)'"), 'uses the existing 640px mobile breakpoint');
-assert(source.includes("fireLinkWithRef.current(ids, 'auto')"), 'mobile auto-launches link attack via fireLinkWith');
+assert(rigActionsAt > treasuresAt && treasuresAt > 0, 'hard actions JSX still sits right after the treasure row, but stays unmounted');
+assert.equal(source.split('{rigEnabled && !mobileActionless && actions}').length - 1, 1, 'hard bar unmounts when actionless');
+assert.equal(source.split('{!rigEnabled && !mobileActionless && actions}').length - 1, 1, 'other modes also unmount the bar when actionless');
+assert(source.includes('const mobileActionless = true'), 'action bar is unmounted at every width, including 1280');
+assert(!source.includes('MOBILE_ACTIONS_MQ'), '640px toolbar breakpoint is gone');
+assert(source.includes("fireLinkWithRef.current(ids, 'auto')"), 'auto-launches link attack via fireLinkWith');
 assert(source.includes('data-testid="match3-link-launch"'), 'Bot_APP hook match3-link-launch records auto/tap/button');
 assert(source.includes('autoLinkArmed.current = false'), 'auto-launch fires once per ready window and will not immediately refire leftover energy');
-assert(source.includes("fireLinkWithRef.current(next, 'tap')"), 'tapping two eligible cards on mobile launches a link attack');
+assert(source.includes("fireLinkWithRef.current(next, 'tap')"), 'tapping two eligible cards launches a link attack');
 assert(source.includes("requestCardAttack('link'"), 'auto-launch reuses the same server-side link path');
 assert(/deathHold\.size > 0 \|\| deathPending\.size > 0/.test(source), 'auto-launch waits out deathHold/KO');
 assert(source.includes('counterFoes.size > 0'), 'auto-launch does not fire on the enemy turn');
@@ -56,9 +57,9 @@ function tap(over) { const calls = []; const unit = { id: 'u1', element: 'AIR', 
 assert.deepEqual(tap({}), ['energy:u1']);
 assert.deepEqual(tap({ linkMode: true }), ['link:u1']);
 assert.deepEqual(tap({ linkMode: true, link: ['u1'] }), ['link:']);
-assert.deepEqual(tap({ mobileActionless: true }), ['energy:u1'], 'mobile: a lone full-energy tap still fires the energy skill');
-assert.deepEqual(tap({ mobileActionless: true, unit: { energy: 50 } }), ['link:u1'], 'mobile: first >=50-energy tap arms a silent link');
-assert.deepEqual(tap({ mobileActionless: true, link: ['u2'] }), ['link:u2+u1', 'fire:tap:u2+u1'], 'mobile: second eligible tap launches the link attack');
+assert.deepEqual(tap({ mobileActionless: true }), ['energy:u1'], 'actionless: a lone full-energy tap still fires the energy skill');
+assert.deepEqual(tap({ mobileActionless: true, unit: { energy: 50 } }), ['link:u1'], 'actionless: first >=50-energy tap arms a silent link');
+assert.deepEqual(tap({ mobileActionless: true, link: ['u2'] }), ['link:u2+u1', 'fire:tap:u2+u1'], 'actionless: second eligible tap launches the link attack');
 
 // 4) 連結攻擊擊倒走伺服端擊倒事件（死亡動畫）
 assert(/queueKnockouts\(foes, damaged, actionId, 'server-link'/.test(source));
@@ -83,7 +84,10 @@ assert(/lockedFor: ev\?\.id, src: lockedSrc/.test(host) && /src=\{ev \? \(a\.src
 // 6) 短視窗（1280×720/800）也做高度擬合，敵方列與棋盤不會捲出畫面
 assert(source.includes("window.matchMedia('(max-width: 900px), (max-height: 960px)').matches"));
 assert(/\.wrap\[data-mode\^="hard"\] \.actionBar \{ margin: 4px 0 0;/.test(css));
-assert(/@media \(max-width: 640px\) \{\s*\.actionBar \{ display: none;/.test(css), 'mobile CSS hides the bar before hydrate');
-assert(css.includes('row-gap: calc(var(--orb-gap, 4px) + 7px)'), 'mobile reuses the former toolbar height as board row spacing; row count stays 8');
-assert(!/@media \(min-width:\s*641px\)[\s\S]*?\.actionBar \{[^}]*display:\s*none/.test(css), 'desktop must keep the action bar visible');
-console.log('PASS hard link bar desktop-only, mobile auto-link, link-mode tap precedence, stage-8 escort fx src stable, short-viewport height fit');
+assert(/^\.actionBar \{ display: none; /m.test(css) || css.includes('.actionBar { display: none; }'), 'CSS hides the action bar at every width before hydrate');
+assert(!css.includes('row-gap: calc(var(--orb-gap, 4px) + 7px)'), 'must not widen row-gap; freed height goes to square orb size via --compact-board-width');
+assert(source.includes('holdAutoLink'), 'm3debug hook can hold auto-link so a manual two-card tap can be verified');
+assert(source.includes("get('m3autolink') === '0'"), 'm3debug + m3autolink=0 also holds auto-link; production URLs without m3debug are unchanged');
+assert(source.includes('if (autoLinkHold.current) return'), 'auto-launch respects the test-only hold');
+assert(source.includes('bossFxHold'), 'duel layout and .foeArt hold through boss-death-fx done');
+console.log('PASS hard link bar unmounted at all widths, auto-link, tap precedence, stage-8 escort fx src stable, short-viewport height fit');

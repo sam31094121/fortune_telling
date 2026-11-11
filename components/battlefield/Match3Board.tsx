@@ -47,6 +47,19 @@ import BattleResultBanner from './BattleResultBanner';
 import BattleRewardReveal from './BattleRewardReveal';
 import Match3RigAttack, { Match3TargetArt, useBattleArtUrl, match3RigAttackers, type Match3Strike } from './Match3RigAttack';
 import { fusedRimVars, fusedRimState, fusedShieldVars, FUSED_HIDE_READY_ORB } from './fused-rim';
+
+/** 決戰神獸框：依各獸透明底邊補 --pad，並鎖定圖框寬高比 --ar（動效助手 v4 量測）。鍵用名稱，不寫死卡片 ID。 */
+const DUEL_ART_TRIM: Record<string, { pad: number; ar: number }> = {
+  '白虎': { pad: 0.0041, ar: 1.4257 },
+  '青龍': { pad: 0.0041, ar: 1.3234 },
+  '朱雀': { pad: 0.0137, ar: 1.5 },
+  '玄武': { pad: 0.0615, ar: 1.5 },
+};
+function duelArtVars(name: string): Record<string, string> {
+  const t = DUEL_ART_TRIM[name];
+  return t ? { '--pad': String(t.pad), '--ar': String(t.ar) } : {};
+}
+
 import { readMatch3Progress, saveMatch3Progress, type Match3ProgressOwner } from '@/lib/beast-game/match3/progress-store';
 import { readCampaign, settleWin, transactTreasures, type CampaignSettlement } from '@/lib/beast-game/match3/hard-campaign-store';
 import { validateCampaignTeam, campaignAttack, type HardCampaign } from '@/lib/beast-game/match3/hard-campaign';
@@ -110,8 +123,7 @@ const ORB_CLASS: Record<BeastElement, string> = { AIR: styles.air, SPACE: styles
 const k = (r: number, c: number) => r * 1000 + c;
 /** 可斜連模式（config diagonal:true）的提示字。 */
 const DIAG_TIP = '相鄰同色珠三顆起可消除（可斜連）；攻擊須達本關門檻';
-/** 與全站常用 640px 手機斷點一致：此寬度及以下不掛載底部「連線模式／清除連線／發動連線攻擊」列。 */
-const MOBILE_ACTIONS_MQ = '(max-width: 640px)';
+/** 所有寬度都不掛載底部「連線模式／清除連線／發動連線攻擊」列；改自動連線、點滿能量卡發能量技、點空白或再點已選卡清除。 */
 
 const OrbCell = memo(function OrbCell({ r, c, e, mp, sel, flash, shake, drop, shield, fall, empty, reward }: { r: number; c: number; e: BeastElement; mp: number; shield: boolean; sel: boolean; flash: boolean; shake: boolean; drop: boolean; fall?: RefillMotion; empty?: boolean; reward?: boolean }) {
   if (empty) return <div role="gridcell" data-r={r} data-c={c} data-empty="true" className={`${styles.orb} ${styles.emptyCell}`} aria-label="待補珠空格" />;
@@ -335,14 +347,18 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const sound = (f: number) => { if (!muted) beep(f); };
 
   // 測試專用：?m3debug=1 才掛上（ko＝我方倒下、foeHp＝設敵方 HP），不改任何卡的真實數值。
+  // holdAutoLink／?m3autolink=0 只在 m3debug 下暫停自動連線，讓手動點兩張卡的路徑可被驗證；正式遊玩（無 m3debug）不受影響。
   useEffect(() => {
     if (typeof window === 'undefined' || new URLSearchParams(window.location.search).get('m3debug') !== '1') return;
-    (window as unknown as { __m3Debug?: unknown }).__m3Debug = {
+    autoLinkHold.current = new URLSearchParams(window.location.search).get('m3autolink') === '0';
+    (window as unknown as { __m3Debug?: Record<string, unknown> }).__m3Debug = {
       ko: (i: number) => setTeam((t) => t.map((u, j) => (j === i ? { ...u, hp: 0 } : u))),
       foeHp: (i: number, hp: number) => setFoes((f) => f.map((x, j) => (j === i ? { ...x, hp } : x))),
-      fillEnergy: () => setTeam((t) => t.map((u) => ({ ...u, energy: ENERGY_MAX }))),
+      fillEnergy: (n: number = ENERGY_MAX) => setTeam((t) => t.map((u) => ({ ...u, energy: Math.max(0, Math.min(ENERGY_MAX, n)) }))),
+      setEnergy: (i: number, n: number) => setTeam((t) => t.map((u, j) => (j === i ? { ...u, energy: Math.max(0, Math.min(ENERGY_MAX, n)) } : u))),
+      holdAutoLink: (on = true) => { autoLinkHold.current = !!on; },
     };
-    return () => { delete (window as unknown as { __m3Debug?: unknown }).__m3Debug; };
+    return () => { autoLinkHold.current = false; delete (window as unknown as { __m3Debug?: unknown }).__m3Debug; };
   }, []);
 
   const teamHp = team.reduce((s, u) => s + Math.max(0, u.hp), 0);
@@ -358,19 +374,14 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   }, [over, deathPendingAny, deathPendingBoss]);
   const resultWaiting = !!over && deathPendingAny && !resultHoldExpired;
   const [scrollLocked, setScrollLocked] = useState(false);
-  const [mobileActionless, setMobileActionless] = useState(false);
+  // 已拿掉 640px 限制：桌機 1280 也不掛工具列，行為與手機相同（自動連線／點卡發技／點清除）。
+  const mobileActionless = true;
   const [linkLaunch, setLinkLaunch] = useState<{ source: 'button' | 'auto' | 'tap'; ids: string[]; key: number } | null>(null);
   const linkLaunchKey = useRef(0);
   const autoLinkArmed = useRef(true);
   const autoLinkMoves = useRef(-1);
+  const autoLinkHold = useRef(false);
   const fireLinkWithRef = useRef<(ids: string[], source?: 'button' | 'auto' | 'tap') => Promise<boolean>>(async () => false);
-  useLayoutEffect(() => {
-    const mq = window.matchMedia(MOBILE_ACTIONS_MQ);
-    const apply = () => setMobileActionless(mq.matches);
-    apply();
-    mq.addEventListener('change', apply);
-    return () => mq.removeEventListener('change', apply);
-  }, []);
   useLayoutEffect(() => {
     if (!rigEnabled || help || over) { setScrollLocked(false); return; }
     const element = root.current; if (!element) return;
@@ -383,12 +394,14 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       const height = viewport?.height ?? window.innerHeight;
       const boardElement = element.querySelector<HTMLElement>('[data-testid="match3-board"]');
       if (boardElement && window.matchMedia('(max-width: 900px), (max-height: 960px)').matches) {
-        const box = boardElement.getBoundingClientRect(), style = getComputedStyle(boardElement);
+        const box = boardElement.getBoundingClientRect(), style = getComputedStyle(boardElement), wrapStyle = getComputedStyle(element);
         const number = (v: string) => Number.parseFloat(v) || 0;
         const vertical = number(style.paddingTop) + number(style.paddingBottom) + number(style.borderTopWidth) + number(style.borderBottomWidth);
         const horizontal = number(style.paddingLeft) + number(style.paddingRight) + number(style.borderLeftWidth) + number(style.borderRightWidth);
+        // 棋盤 width:min(100%, --compact-board-width) 的 100% 是外殼 content box；不可用外殼 border-box，否則算出來的寬會被 100% 卡掉、寶珠不會變大。
+        const contentWidth = rect.width - number(wrapStyle.paddingLeft) - number(wrapStyle.paddingRight) - number(wrapStyle.borderLeftWidth) - number(wrapStyle.borderRightWidth);
         const available = height - (rect.height - box.height) - 1;
-        const cell = Math.max(18, Math.min((rect.width - horizontal - (cfg.cols - 1) * number(style.columnGap)) / cfg.cols, (available - vertical - (cfg.rows - 1) * number(style.rowGap)) / cfg.rows));
+        const cell = Math.max(18, Math.min((contentWidth - horizontal - (cfg.cols - 1) * number(style.columnGap)) / cfg.cols, (available - vertical - (cfg.rows - 1) * number(style.rowGap)) / cfg.rows));
         const width = cell * cfg.cols + (cfg.cols - 1) * number(style.columnGap) + horizontal;
         const value = Math.round(width) + 'px';
         if (element.style.getPropertyValue('--compact-board-width') !== value) element.style.setProperty('--compact-board-width', value);
@@ -412,12 +425,34 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     };
   }, [rigEnabled, help, over, cfg.rows, cfg.cols, mobileActionless]);
   const enemyReady = (index: number) => foeAvailable(foes, index, rigEnabled ? stage.wins + 1 : 0);
-  const guardianDuelReady = rigEnabled && stage.wins >= 7 && foes.length === 5 && foes[4].hp > 0 && getCard(foes[4].id)?.form === 'GUARDIAN' && foes.slice(0, 4).every(f => f.hp <= 0);
+  const bossId = foes[4]?.id;
+  const bossKoActive = !!bossId && (deathHold.has(bossId) || knockouts.some(e => e.foeId === bossId && deathPending.has(e.id)));
+  const [bossFxHold, setBossFxHold] = useState(false);
+  useEffect(() => { if (bossKoActive) setBossFxHold(true); }, [bossKoActive]);
+  // Host 在 onDone 同一拍就 settle／finish，若立刻放開 deathHold，done 當幀會卸下大圖。這裡看到 done／error 後再撐 280ms（不改爆炸範圍或裁切）。
+  useEffect(() => {
+    if (!bossFxHold) return;
+    let releaseTimer: number | undefined;
+    const tryRelease = () => {
+      const st = document.querySelector('[data-testid="boss-death-fx"]')?.getAttribute('data-state');
+      if (st === 'done' || st === 'error') {
+        if (releaseTimer === undefined) releaseTimer = window.setTimeout(() => setBossFxHold(false), 280);
+      }
+    };
+    const mo = new MutationObserver(tryRelease);
+    mo.observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['data-state'] });
+    tryRelease();
+    const failsafe = window.setTimeout(() => setBossFxHold(false), 15000);
+    return () => { mo.disconnect(); if (releaseTimer !== undefined) window.clearTimeout(releaseTimer); window.clearTimeout(failsafe); };
+  }, [bossFxHold]);
+  const bossDeathHeld = !!bossId && (deathHold.has(bossId) || knockouts.some(e => e.foeId === bossId && deathPending.has(e.id)) || bossFxHold);
+  // 決戰版面撐到 boss-death-fx 的 done（或 Host 保底逾時）：HP 歸零時若仍在 deathHold／deathPending／bossFxHold，不退回小卡，避免爆炸錨點 .foeArt 改尺寸。
+  const guardianDuelReady = rigEnabled && stage.wins >= 7 && foes.length === 5 && (foes[4].hp > 0 || bossDeathHeld) && getCard(foes[4].id)?.form === 'GUARDIAN' && foes.slice(0, 4).every(f => f.hp <= 0);
   const [duelSettled, setDuelSettled] = useState(false);
   const [retiredFoes, setRetiredFoes] = useState<Set<string>>(() => new Set());
   useEffect(() => {
-    if (!busy) setRetiredFoes(new Set(foes.filter(f => f.hp <= 0 && !deathHold.has(f.id)).map(f => f.id)));
-  }, [foes, busy, deathHold]);
+    if (!busy) setRetiredFoes(new Set(foes.filter(f => f.hp <= 0 && !deathHold.has(f.id) && !knockouts.some(e => e.foeId === f.id && deathPending.has(e.id)) && !(bossId && f.id === bossId && bossFxHold)).map(f => f.id)));
+  }, [foes, busy, deathHold, deathPending, knockouts, bossId, bossFxHold]);
   useEffect(() => {
     if (!guardianDuelReady) setDuelSettled(false);
     else if (!busy) setDuelSettled(true);
@@ -833,6 +868,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   fireLinkWithRef.current = fireLinkWith;
   useEffect(() => {
     if (!mobileActionless) return;
+    if (autoLinkHold.current) return;
     const ids = team.filter((u) => u.hp > 0 && u.energy >= LINK_ENERGY_COST && (!rigEnabled || fighterCanAct(u))).map((u) => u.id);
     if (ids.length < LINK_MIN_CARDS) { autoLinkArmed.current = true; return; }
     if (busy || over || ti < 0) return;
@@ -915,7 +951,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
             {rigEnabled && f.hp > 0 && !enemyReady(i) && <span className={styles.srOnly} data-testid="match3-boss-waiting">待命</span>}
             {(!rigEnabled || counterFoes.has(i)) && <span className={rigEnabled ? styles.srOnly : styles.cd} data-testid="match3-counter" aria-hidden="true">{rigEnabled ? '反擊中' : <>⏳{f.cd}</>}</span>}
             {/* 敵方同一套一體成型；四象決戰大圖用 data-fused="duel" 覆寫幾何，保留三欄／100px 骨架，接縫 −1px。卡圖仍走 FoeBattleArt／battleArtFallback。 */}
-            <div className={rigEnabled ? `${styles.fusedSlot} ${styles.fusedUnit}` : styles.fusedSlot} data-fused={rigEnabled ? (guardianDuel ? 'duel' : true) : undefined} data-fused-state={rigEnabled ? fusedRimState({ down: f.hp <= 0 && !deathHold.has(f.id), fired: false, ready: false, hpRatio: f.hp / f.maxHp }) : undefined} data-fused-shield={(rigEnabled && !!f.skillRuntime?.shield) || undefined} data-fused-target={(rigEnabled && i === ti && f.hp > 0) || undefined} data-fused-waiting={(rigEnabled && f.hp > 0 && !enemyReady(i)) || undefined} data-fused-hit={(rigEnabled && counterFoes.has(i)) || undefined} style={rigEnabled ? fusedRimVars() : undefined}>
+            <div className={rigEnabled ? `${styles.fusedSlot} ${styles.fusedUnit}` : styles.fusedSlot} data-fused={rigEnabled ? (guardianDuel ? 'duel' : true) : undefined} data-fused-state={rigEnabled ? fusedRimState({ down: f.hp <= 0 && !deathHold.has(f.id), fired: false, ready: false, hpRatio: f.hp / f.maxHp }) : undefined} data-fused-shield={(rigEnabled && !!f.skillRuntime?.shield) || undefined} data-fused-target={(rigEnabled && i === ti && f.hp > 0) || undefined} data-fused-waiting={(rigEnabled && f.hp > 0 && !enemyReady(i)) || undefined} data-fused-hit={(rigEnabled && counterFoes.has(i)) || undefined} style={rigEnabled ? { ...fusedRimVars(), ...(guardianDuel ? duelArtVars(f.name) : {}) } : undefined}>
             <FoeBattleArt name={f.name} src={f.thumbnail} fallback={battleArtFallback(f.id, f.thumbnail)} rigEnabled={!!rigEnabled} rigSrc={guardianDuel && duelArt && i === 4 ? duelArt : f.thumbnail} />
             {rigEnabled && <><span className={styles.fusedShell} aria-hidden="true" /><span className={styles.fusedGlint} aria-hidden="true"><i className={styles.fusedSweep} /></span></>}
             {rigEnabled && f.hp > 0 && ((f.skillRuntime?.stunnedTurns ?? 0) > 0 ? <FusedStatusBadge kind="stunned" /> : counterFoes.has(i) ? <FusedStatusBadge kind="counter" /> : !enemyReady(i) ? <FusedStatusBadge kind="standby" /> : null)}
