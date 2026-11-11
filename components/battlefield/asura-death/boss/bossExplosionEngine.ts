@@ -153,6 +153,10 @@ export class BossExplosionEngine {
   private job: Generator<void> | null = null; private jobDone = false; private jobWaiters: ((ok: boolean) => void)[] = []; private jobToken = 0; private placed = false;
   private seed = 1; private preparedReduced = false; private frameIdx = 0; private acc = 0; private probeCanvas: Cnv | null = null;
   private afterPlay: (() => void) | null = null; private probed = false;
+  /** 上緣封頂（v4c）：區域頂端被頂到視窗安全邊距時，畫布座標的天花板 y（null＝未封頂）；ceilFade＝天花板下的淡出帶高度；ceilIx＝爆心 x（側偏方向用） */
+  private ceilY: number | null = null; private ceilFade = 0; private ceilIx = 0;
+  /** v4c：封頂時震波弧／爆心暗閃的水平放大倍率（上方拿掉的面積補到左右）；未封頂＝1 */
+  private sideK = 1;
   /** CPU 端圖源（createImageBitmap，於背景執行緒解碼）：需要讀回像素的步驟只用它，避免同步解碼／GPU 讀回的長工作 */
   private dataSrc: string | null = null;
   private cpuImg: ImageBitmap | null = null; private cpuImgState = 0; private waiting = false;
@@ -205,8 +209,25 @@ export class BossExplosionEngine {
   /** 決定畫布區域（container 座標；cardBox＝整張卡）。只配置畫布，不重做預備；卡大小與預備時不同會整體縮放。 */
   place(container: Size, cardBox: BossBox, devicePixelRatio?: number): BossBox {
     const M = Math.max(cardBox.width, cardBox.height);
-    const x0 = clamp(cardBox.x - 0.8 * M, 0, container.width), x1 = clamp(cardBox.x + cardBox.width + 0.8 * M, 0, container.width);
-    const y0 = clamp(cardBox.y - 0.65 * M, 0, container.height), y1 = clamp(cardBox.y + cardBox.height + 1.25 * M, 0, container.height); // 下方留多：燃燒殘骸落下
+    const FE = BossExplosionEngine.FEATHER; // v4c：四邊各多留一條羽化帶（畫布邊緣淡出，不留硬切邊），內容可用範圍不因羽化而變小
+    let ux0 = cardBox.x - 0.8 * M - FE, ux1 = cardBox.x + cardBox.width + 0.8 * M + FE, uy0 = cardBox.y - 0.65 * M - FE, uy1 = cardBox.y + cardBox.height + 1.25 * M + FE; // 下方留多：燃燒殘骸落下
+    // v4c 上緣封頂：上方超出「視窗頂 + 安全邊距」的部分不再被裁掉，而是把區域頂端壓在安全邊距，
+    // 被拿掉的面積平均補到左右（左右碰到安全邊距時，剩下的補到下方），總面積不小於原本的完整區域。
+    const SAFE = 8, topLim = Math.min(SAFE, Math.max(0, cardBox.y)); this.ceilY = null; this.ceilFade = 0; this.sideK = 1;
+    if (uy0 < topLim) {
+      const fw = ux1 - ux0, fh = uy1 - uy0, cut = topLim - uy0, fade = clamp((cardBox.y - topLim) * 0.4, 0, 16), visTop = Math.max(0, uy0), cTop = topLim + fade * 0.5;
+      // 左右合計要補的寬度：取「完整理想區域面積」與「原本畫面上看得到的內容高度（含淡出帶）」兩者較大的需求
+      const need = Math.max((fw * cut) / Math.max(1, fh - cut), (fw * Math.max(0, cTop - visTop)) / Math.max(1, uy1 - cTop)); uy0 = topLim;
+      const roomL = Math.max(0, ux0 - SAFE), roomR = Math.max(0, container.width - SAFE - ux1); let eL = Math.min(need / 2, roomL), eR = Math.min(need / 2, roomR);
+      if (eL < need / 2) eR = Math.min(roomR, need - eL); if (eR < need / 2) eL = Math.min(roomL, need - eR);
+      // 左緣相對舊版（v4）左緣的位移取偶數 CSS px：dpr 1／1.5／2 下畫布像素格相位不變 → 起始幀卡面與舊版逐像素一致；右邊吸收差額
+      const ox0 = Math.max(0, cardBox.x - 0.8 * M); let dL = 2 * Math.ceil((ox0 - (ux0 - eL)) / 2 - 1e-6); if (ox0 - dL < SAFE) dL = Math.max(0, 2 * Math.floor((ox0 - SAFE) / 2));
+      eL = ux0 - (ox0 - dL); eR = Math.min(roomR, Math.max(0, need - eL)); ux0 -= eL; ux1 += eR;
+      const short = need - eL - eR; if (short > 0.01) uy1 += (short * (uy1 - cTop)) / (ux1 - ux0); // 左右也沒空間：補到下方
+      this.ceilY = 0; this.ceilFade = fade; this.sideK = Math.min(1.3, 1 + (0.75 * need) / Math.max(1, fw)); // 天花板＝畫布頂（視窗 y＝SAFE）；淡出帶不碰到卡
+    }
+    const x0 = clamp(ux0, 0, container.width), x1 = clamp(ux1, 0, container.width);
+    const y0 = clamp(uy0, 0, container.height), y1 = clamp(uy1, 0, container.height);
     this.region = { x: x0, y: y0, width: Math.max(1, x1 - x0), height: Math.max(1, y1 - y0) };
     this.box = { x: cardBox.x - x0, y: cardBox.y - y0, width: cardBox.width, height: cardBox.height };
     const budget = this.lowPower ? 250000 : 950000; const dd = devicePixelRatio ?? (typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1);
@@ -498,7 +519,7 @@ export class BossExplosionEngine {
     const g = this.ctx; this.clear(); const d = this.dpr; g.setTransform(d, 0, 0, d, 0, 0);
     if (this.reduced) return this.frameReduced(t);
     const T = this.timing; const { x: bx, y: by, width: bw } = this.box; const sc = bw / this.cw; const [icx, icy] = this.impact;
-    const ix = bx + icx * sc, iy = by + icy * sc; const R = this.reach * sc; const I = this.intensity; const sec = this.dur / 1000;
+    const ix = bx + icx * sc, iy = by + icy * sc; const R = this.reach * sc; const I = this.intensity; const sec = this.dur / 1000; this.ceilIx = ix;
     if (t >= T.implodeEnd && !this.burstDone && !this.shardsReady && this.tShift < 450) { this.tShift += dt * 1000; t = T.implodeEnd - 1e-4; } // 碎裂未完成：內爆最多延長 0.45s
     if (t < T.implodeEnd) {
       const pc = clamp(t / T.chargeEnd, 0, 1), pi = clamp((t - T.chargeEnd) / (T.implodeEnd - T.chargeEnd), 0, 1);
@@ -517,29 +538,49 @@ export class BossExplosionEngine {
       if (this.cracksHot) { g.beginPath(); g.arc(icx, icy, Math.max(1, easeOutCubic(pc) * this.reach * 1.2), 0, Math.PI * 2); g.clip(); g.globalAlpha = 1 - pi * 0.5; g.drawImage(this.cracksCool!, 0, 0, this.cw, this.ch); g.globalAlpha = clamp(pc * 1.5 - 0.35, 0, 1) * (1 - pi * 0.4); if (g.globalAlpha > 0.01) g.drawImage(this.cracksHot, 0, 0, this.cw, this.ch); g.globalAlpha = 1; }
       g.restore(); g.restore();
       if (pi > 0 || pc > 0.5) for (let k = 0; k < Math.ceil(3 * I); k++) { const a = this.rnd() * Math.PI * 2, r = R * (1.15 + this.rnd() * 0.6); this.spawn({ kind: 4, x: ix + Math.cos(a) * r, y: iy + Math.sin(a) * r, vx: -Math.cos(a) * r * 3.2, vy: -Math.sin(a) * r * 3.2, life: 0.28, size: 1.4 + this.rnd() * 1.6, grow: 0, depth: 1 }); }
-      { const ps = this.parts; let w = 0; for (const p of ps) { p.age += dt; if (p.age >= p.life) continue; p.x += p.vx * dt; p.y += p.vy * dt; ps[w++] = p; } ps.length = w; }
+      { const ps = this.parts; let w = 0; for (const p of ps) { p.age += dt; if (p.age >= p.life) continue; p.x += p.vx * dt; p.y += p.vy * dt; if (this.ceilY !== null) this.ceilPart(p); ps[w++] = p; } ps.length = w; }
       this.drawParticles(g, 2);
     } else {
       const tb = (t - T.implodeEnd) * sec;
       if (!this.burstDone) { this.burstDone = true; this.burst(ix, iy, R); }
+      g.save(); if (this.sideK !== 1) { g.translate(ix, 0); g.scale(this.sideK, 1); g.translate(-ix, 0); } // v4c：封頂時暗閃／紅光往左右放大
       if (tb < 0.4) { const a = 0.5 * (1 - tb / 0.4), rr = Math.min(this.region.width, this.region.height) * 0.55; const gr = g.createRadialGradient(ix, iy, 0, ix, iy, rr); gr.addColorStop(0, 'rgba(36,4,2,0)'); gr.addColorStop(0.3, `rgba(36,4,2,${a * 0.55})`); gr.addColorStop(0.65, `rgba(20,2,1,${a * 0.6})`); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(ix - rr, iy - rr, rr * 2, rr * 2); }
-      this.updateParticles(dt, ix, iy, R, tb, sc);
+      g.restore(); this.updateParticles(dt, ix, iy, R, tb, sc); g.save(); if (this.sideK !== 1) { g.translate(ix, 0); g.scale(this.sideK, 1); g.translate(-ix, 0); }
       { const left = sec * (1 - T.implodeEnd); const f = clamp(tb / 0.3, 0, 1) * clamp(1 - tb / left, 0, 1);
         if (f > 0.01 && this.level < 2) { const rr = R * 1.15; const gr = g.createRadialGradient(ix, iy + R * 0.1, 0, ix, iy + R * 0.1, rr); gr.addColorStop(0, `rgba(130,30,10,${0.22 * f})`); gr.addColorStop(1, 'rgba(60,8,4,0)'); g.fillStyle = gr; g.fillRect(ix - rr, iy + R * 0.1 - rr, rr * 2, rr * 2); } }
+      g.restore();
       if (!this.shardsReady && tb < 0.35) { g.save(); g.globalAlpha = 1 - tb / 0.35; g.translate(bx, by); g.scale(sc, sc); g.drawImage(this.card!, 0, 0, this.cw, this.ch); g.restore(); }
       if (this.level < 3 && !this.lowPower) this.drawParticles(g, 1);
       // 震波：不畫封閉圓環——不規則、斷裂的弧段（每段半徑／粗細／亮度不同，弧段總長 <55% 周長），像被碎片撕開的衝擊
       for (const f of this.shockFrags) {
         const p = (tb - f.delay) / f.life; if (p <= 0 || p >= 1) continue; const e = easeOutCubic(p), r = R * (0.25 + 2.4 * e * (0.8 + 0.2 * I)) * f.rk; const fa = (1 - p) * f.k;
         const a0 = f.a + f.drift * e, a1 = a0 + f.span * (1 - 0.35 * p);
-        g.lineWidth = (16 * (1 - p) + 2) * f.w * Math.min(1.4, R / 160); g.strokeStyle = `rgba(122,16,10,${0.6 * fa})`; g.beginPath(); g.ellipse(ix, iy, r, r * 0.86, 0, a0, a1); g.stroke();
-        if (f.hot) { g.lineWidth = 1.5 * f.w; g.strokeStyle = `rgba(250,176,84,${0.6 * fa})`; g.beginPath(); g.ellipse(ix, iy, r * 0.97, r * 0.835, 0, a0 + f.span * 0.15, a1 - f.span * 0.2); g.stroke(); }
+        g.lineWidth = (16 * (1 - p) + 2) * f.w * Math.min(1.4, R / 160); g.strokeStyle = `rgba(122,16,10,${0.6 * fa})`; g.beginPath(); g.ellipse(ix, iy, r * this.sideK, r * 0.86, 0, a0, a1); g.stroke();
+        if (f.hot) { g.lineWidth = 1.5 * f.w; g.strokeStyle = `rgba(250,176,84,${0.6 * fa})`; g.beginPath(); g.ellipse(ix, iy, r * 0.97 * this.sideK, r * 0.835, 0, a0 + f.span * 0.15, a1 - f.span * 0.2); g.stroke(); }
       }
       for (const s2 of this.secondary) { if (!s2.done || s2.shard < 0) continue; const p = (tb - s2.t) / 0.5; if (p <= 0 || p >= 1) continue; const sh = this.shards[s2.shard]; const x = bx + (sh.cx + sh.x) * sc, y = by + (sh.cy + sh.y) * sc; const r = R * s2.k * (0.12 + 0.6 * easeOutCubic(p));
         g.lineWidth = 5 * (1 - p) + 1; g.strokeStyle = `rgba(150,30,10,${0.55 * (1 - p)})`; for (let q = 0; q < 3; q++) { const a = s2.k * 9 + q * 2.1; g.beginPath(); g.arc(x, y, r * (0.9 + 0.1 * q), a, a + 0.7 + 0.25 * q); g.stroke(); } }
       this.drawShards(g, tb, dt, 0, sc); this.drawParticles(g, 0); this.drawParticles(g, 3); this.drawShards(g, tb, 0, 1, sc); this.drawParticles(g, 2);
     }
+    this.ceilMask(g);
     this.stats.peakParticles = Math.max(this.stats.peakParticles, this.parts.length); this.stats.liveShards = this.liveSet.size;
+  }
+  /** v4c：粒子上緣碰到天花板（含淡出帶一半）→ 向上的速度轉成往外側的水平速度；變大的煙／火被往下推住，不越過天花板 */
+  private ceilPart(p: P) {
+    const lt = p.age / p.life, sz = p.size * (1 + p.grow * lt); const ext = p.kind === 1 ? Math.min(sz, this.smokeCap) : p.kind === 0 ? sz * (p.core ? 1.6 : 1.3) : p.kind === 6 ? sz : p.size;
+    const lim = this.ceilY! + this.ceilFade * 0.5; if (p.y - ext >= lim) return;
+    if (p.vy < 0) { const side = p.x >= this.ceilIx ? 1 : -1; p.vx += side * -p.vy * 1.2; p.vy = 0; }
+    p.y = lim + ext;
+  }
+  static readonly FEATHER = 12;
+  /** v4c：畫布四邊的淡出帶（destination-out 線性漸層）：上緣封頂時用天花板淡出帶，其餘三邊（未封頂時含上緣）用羽化帶；任何碰到區域邊緣的內容（震波弧、閃光、火、落下殘骸）都柔和淡出，不留硬切邊 */
+  private ceilMask(g: CanvasRenderingContext2D) {
+    const W = this.region.width, H = this.region.height, FE = Math.min(BossExplosionEngine.FEATHER, W / 4, H / 4), top = this.ceilY !== null ? this.ceilFade : FE;
+    g.save(); g.globalCompositeOperation = 'destination-out'; g.globalAlpha = 1;
+    const band = (x0: number, y0: number, x1: number, y1: number, rx: number, ry: number, rw: number, rh: number) => { const gr = g.createLinearGradient(x0, y0, x1, y1); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(rx, ry, rw, rh); };
+    if (top >= 1) band(0, 0, 0, top, 0, -1, W, top + 1);
+    band(0, H, 0, H - FE, 0, H - FE, W, FE + 1); band(0, 0, FE, 0, -1, 0, FE + 1, H); band(W, 0, W - FE, 0, W - FE, 0, FE + 1, H);
+    g.restore();
   }
   /** 不規則爆心：9～17 條核心火舌、間隔不均、長度冪律分布、2～3 條特長，並有方向偏置 */
   private burst(ix: number, iy: number, R: number) {
@@ -575,7 +616,7 @@ export class BossExplosionEngine {
       if (p.kind === 2) { p.vy -= R * 0.3 * dt; p.vx += Math.sin(p.seed + p.age * 5) * R * 0.6 * dt; }
       if (p.kind === 3) p.vy += R * 1.2 * dt;
       if (p.kind === 5) { p.vy += R * 0.18 * dt; p.vx += Math.sin(p.seed + p.age * 3) * R * 0.5 * dt; }
-      p.x += p.vx * dt; p.y += p.vy * dt; ps[w++] = p;
+      p.x += p.vx * dt; p.y += p.vy * dt; if (this.ceilY !== null) this.ceilPart(p); ps[w++] = p;
     }
     ps.length = w;
     const remain = (this.dur / 1000) * (this.timing.smokeEnd - this.timing.implodeEnd) - tb; const nk = 0.55 + 0.45 * this.areaK; const rnd = this.rnd;
@@ -645,7 +686,9 @@ export class BossExplosionEngine {
   private drawShards(g: CanvasRenderingContext2D, tb: number, dt: number, layer: number, sc: number) {
     const { x: bx, y: by } = this.box; const ch = this.ch; const rnd = this.rnd;
     for (const s of this.shards) {
-      if (layer === 0 && dt > 0) { const dr = s.debris ? 1.0 : 2.1; s.vx *= Math.exp(-dr * dt); s.vy *= Math.exp(-dr * dt); s.vy += ch * (s.debris ? 1.05 : 0.45) * dt; s.x += s.vx * dt; s.y += s.vy * dt; s.rot += s.vr * dt; s.vr *= Math.exp(-0.6 * dt); }
+      if (layer === 0 && dt > 0) { const dr = s.debris ? 1.0 : 2.1; s.vx *= Math.exp(-dr * dt); s.vy *= Math.exp(-dr * dt); s.vy += ch * (s.debris ? 1.05 : 0.45) * dt; s.x += s.vx * dt; s.y += s.vy * dt; s.rot += s.vr * dt; s.vr *= Math.exp(-0.6 * dt);
+        if (this.ceilY !== null) { const hr = Math.hypot(s.bw, s.bh) * 0.5 * (1 + s.z) * sc, top = by + (s.cy + s.y) * sc - hr, lim = this.ceilY + this.ceilFade * 0.5; // v4c：碎片撞到天花板 → 往外側偏、輕微下彈
+          if (top < lim) { if (s.vy < 0) { s.vx += (s.cx >= this.impact[0] ? 1 : -1) * -s.vy * 1.0; s.vy = -s.vy * 0.15; } s.y += (lim - top) / sc; } } }
       if (s.layer !== layer) continue;
       const b = clamp((tb - s.burnAt) / s.burnDur, 0, 1); if (b >= 1) continue;
       const zs = 1 + s.z * Math.min(1, tb * 1.6), k = zs * (1 - 0.35 * b * b); const X = bx + (s.cx + s.x) * sc, Y = by + (s.cy + s.y) * sc;
