@@ -57,7 +57,14 @@ const foes = [0, 1, 2, 3, 4].map(i => ({ id: 'f' + i, thumbnail: 't' + i, hp: i 
 const dctx = { foes, rigEnabled: true, guardianDuel: true, duelArt: 'boss-full.webp' }; vm.runInNewContext(dsJs, dctx);
 for (let i = 0; i < 4; i++) assert.equal(dctx.ds('f' + i), 't' + i, `escort ${i} keeps its own art during guardian duel`);
 assert.equal(dctx.ds('f4'), 'boss-full.webp');
-assert(source.includes('<Match3TargetArt src={guardianDuel && duelArt && i === 4 ? duelArt : f.thumbnail} />'));
+// 只有第 5 隻對手（i === 4）才用守護獸對決卡圖。接受兩種寫法：行內 <Match3TargetArt src=…>（舊），
+// 或交給 FoeBattleArt 元件的 rigSrc=…（對手卡圖加備援後的新寫法）；兩種都必須帶 i === 4 條件，意圖不變。
+assert(
+  source.includes('<Match3TargetArt src={guardianDuel && duelArt && i === 4 ? duelArt : f.thumbnail} />')
+  || source.includes('rigSrc={guardianDuel && duelArt && i === 4 ? duelArt : f.thumbnail}'),
+  'target art must keep the i === 4 guard (only the 5th foe uses the guardian duel art)'
+);
+assert(!source.includes('rigSrc={guardianDuel && duelArt ? duelArt'), 'the guard must not regress to applying duel art to every foe');
 assert(/lockedFor: ev\?\.id, src: lockedSrc/.test(host) && /src=\{ev \? \(a\.src \?\? srcOf\?\.\(t\.foeId\)\) : srcOf\?\.\(t\.foeId\)\}/.test(host), 'playing regular fx locks its src');
 
 // 6) 短視窗（1280×720/800）也做高度擬合，敵方列與棋盤不會捲出畫面
