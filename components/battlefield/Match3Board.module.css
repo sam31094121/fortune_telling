@@ -1026,13 +1026,7 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
    困難關棋盤仍為 7×8＝56（伺服端硬鎖 8 列、path≤56），不增列也不拉大列距。
    空出的工具列高度交給既有 --compact-board-width：正方形寶珠隨可用高度放大，且不超出棋盤寬度。 */
 .actionBar { display: none; }
-/* 窄屏外殼左右各 8px 會把 360／390 的正方形寶珠卡在 45.2／49.3；收成 2px 讓珠變大，仍不超出視窗寬。桌機外殼 max-width:560，高度才是限制，維持原左右內距。 */
-@media (max-width: 640px) {
-  .wrap[data-mode^="hard"][data-mobile-actions="off"] {
-    padding-left: max(2px, env(safe-area-inset-left, 0px));
-    padding-right: max(2px, env(safe-area-inset-right, 0px));
-  }
-}
+/* 11/11 17:49 鈺勝選「寶珠維持原尺寸」：拿掉 832a16f4 的窄屏 2px 外殼內距，360／390 回到既有 8px（390 寶珠約 49.28px，同 d114d27a）；桌機 1280 原本就是高度限制，不受影響。 */
 
 /* 我方只剩最後一隻：放大置中（單位內全部以容器寬度換算，卡圖、血條、能量條一起放大）。 */
 .wrap[data-mode^="hard"] .team[data-last-ally="true"] { grid-template-columns: minmax(0, min(72%, 290px)); justify-content: center; }
