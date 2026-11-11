@@ -949,3 +949,47 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
   .fusedUnit .fusedSweep { opacity: 0; }
   .fusedOrb[data-spent] { opacity: 0; }
 }
+
+/* ═══ 四象決戰大圖一體成型（data-fused="duel" 幾何覆寫，2026-11-11）═══
+   重用 912b46a 包裝層／fused-rim 屬性／外殼／盾帶／徽章；另開幾何，保住中間三格與列高 100／78／54。
+   不可套方卡 100cqw，否則列高會被撐成卡寬、棋盤下移。一般卡規則一行不改。不改原圖顏色（無 filter／整卡 opacity）。 */
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] > .foe:has(> [data-fused="duel"]) {
+  display: block;
+  position: relative;
+}
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] {
+  width: 100%;
+  height: 100%;
+  --bar-top: calc(100% - 12px);
+}
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"]::before {
+  content: none;
+  display: none;
+  height: 0;
+}
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] > .foeArt {
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100%;
+  height: calc(var(--bar-top) + var(--join));
+  max-width: none;
+  overflow: visible;
+}
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] > .foeArt > img:first-child {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: contain;
+  object-position: 50% var(--art-y);
+  filter: none;
+}
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] .fusedShell {
+  top: calc(var(--bar-top) - min(40cqw, 36px));
+  height: calc(min(40cqw, 36px) + 13px);
+  -webkit-mask: linear-gradient(to top, #000 0 calc(13px + min(10cqw, 10px)), transparent 100%);
+  mask: linear-gradient(to top, #000 0 calc(13px + min(10cqw, 10px)), transparent 100%);
+}
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] .fusedBadge {
+  top: 2px;
+}
