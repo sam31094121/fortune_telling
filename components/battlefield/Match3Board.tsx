@@ -909,11 +909,13 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
         })}
       </div>
       {rigEnabled && (campaignEnabled || treasurePractice) && <OrbTreasures catalog={treasures} disabled={busy || !!over} guard={treasureGuard} onUse={useTreasure}/>}
-      {rigEnabled && actions}
+      {/* 連線攻擊工具列（連線模式／清除連線／發動連線攻擊）：業主 2026-11-11 要求隱藏，功能與程式保留，
+          不刪除。要恢復只需把 false 改回原條件並說「叫醒」；相關測試見 beast-match3-hard-link-button。 */}
+      {false && rigEnabled && actions}
       <TreasureAnimation flight={treasureFlight}/>
       {!rigEnabled && onRepick && <div className={styles.repick}><button type="button" data-testid="open-picker" onClick={onRepick}>重新選卡</button></div>}
 
-      {!rigEnabled && actions}
+      {false && !rigEnabled && actions}
 
       {over && !resultWaiting && (
         <div className={styles.result} role="dialog" aria-label="對戰結果" data-testid="match3-result" data-result={over}>

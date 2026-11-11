@@ -12,10 +12,17 @@ const host = fs.readFileSync('components/battlefield/asura-death/AsuraDeathHost.
 // 1) 連結攻擊列：困難模式常駐（不再只在「玩法與操作」打開時出現），非困難模式維持原本位置。
 assert(!/help && actions\}/.test(source), 'hard link bar must not depend on help panel');
 const treasuresAt = source.indexOf('<OrbTreasures catalog=');
-const rigActionsAt = source.indexOf('{rigEnabled && actions}');
-assert(rigActionsAt > treasuresAt && treasuresAt > 0, 'hard link bar renders right after the treasure row');
-assert.equal(source.split('{rigEnabled && actions}').length - 1, 1);
-assert.equal(source.split('{!rigEnabled && actions}').length - 1, 1, 'other modes keep their action bar');
+// 連線攻擊工具列：業主 2026-11-11 要求「隱藏、功能一樣存在」。
+// 畫面上不得渲染（兩處都被 false 擋住），但工具列 JSX、連線模式狀態與點卡邏輯全部保留；
+// 要恢復只需把 false 拿掉（說「叫醒」）。下面第 2、3 層仍然實際渲染 actions 並驗證點卡邏輯，證明功能還在。
+const hiddenRigAt = source.indexOf('{false && rigEnabled && actions}');
+assert(hiddenRigAt > treasuresAt && treasuresAt > 0, 'hidden hard link bar keeps its place right after the treasure row');
+assert.equal(source.split('{false && rigEnabled && actions}').length - 1, 1);
+assert.equal(source.split('{false && !rigEnabled && actions}').length - 1, 1, 'other modes hide the bar the same way');
+assert(!/(^|[^&\w])\{rigEnabled && actions\}/.test(source), 'the hard link bar must not be rendered anymore');
+assert(!/(^|[^&\w])\{!rigEnabled && actions\}/.test(source), 'no mode renders the link bar anymore');
+assert(source.includes('const actions = ('), 'the action bar code is kept, not deleted');
+assert(source.includes('data-testid="match3-link-fire"') && source.includes('data-testid="match3-link-mode"'), 'link mode and fire buttons are kept in code');
 
 // 2) 實際渲染 actions JSX：困難／非困難 × 開／關
 const start = source.indexOf('  const actions = (');

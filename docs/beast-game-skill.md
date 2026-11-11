@@ -2271,3 +2271,12 @@ npm run check:beast-clips        # 落地一支就驗一支
 
 - `npm run test:battle-reward`（規則、帳本、三種開局的重播一致、偽造防護、前端不運算、不提前揭曉）。
 - 既有守門照跑：`test:beast-backend-only`、`test:beast-stake`、`test:beast-stake-reward`、`beast-turns-*`。
+
+## 2026-11-11 業主追加：隱藏連線攻擊工具列（功能保留）
+
+- 寶珠戰困難盤面下方的「連線攻擊」工具列（「連線模式：開／關」、「清除連線」、「發動連線攻擊」三顆按鈕，`data-testid="match3-actionbar"`）**從畫面隱藏**。業主明示「功能一樣存在」：**不刪除任何程式**。
+- 作法：`components/battlefield/Match3Board.tsx` 兩處渲染點（困難與非困難）改為 `{false && … actions}`，工具列 JSX、連線模式狀態、點卡加入連線的邏輯、連線攻擊結算全部保留。
+- 隱藏永久生效：除非業主明說「叫醒／顯示」，不得自行恢復。要恢復只需把兩處的 `false &&` 拿掉。
+- 影響（照實說明）：隱藏後畫面上沒有入口可切換連線模式或發動連線攻擊，客戶實際上無法使用「多卡連線攻擊」；單卡滿能量點擊攻擊不受影響，核心結算與規則不變。
+- 守門：`tests/beast-match3-hard-link-button.test.cjs` 改為「必須是隱藏、程式碼必須保留、仍可實際渲染並驗證點卡邏輯」，實測把 `false` 拿掉時該測試會失敗。
+
