@@ -139,3 +139,11 @@
 
 /* 2026-11-12 百萬質感：出戰卡列像放在絨布上的卡，每張有陰影與金邊微光 */
 .dock button { box-shadow: 0 8px 16px #00000080, inset 0 1px 0 #ffffff26; }
+
+/* 我方只剩最後一隻：放大置中成大卡片，倒下的隊友收起來（高度由 --battle-dock-h 自動跟著量）。 */
+.dock[data-last-ally='true'] { grid-auto-flow: row; grid-template-columns: minmax(0, min(46%, 184px)); justify-content: center; }
+.dock[data-last-ally='true'] > .card[data-defeated='true'] { display: none; }
+.dock[data-last-ally='true'] > .card > span:first-child { width: 100%; }
+.dock[data-last-ally='true'] > .card { border-color: #ffd479; box-shadow: 0 0 24px #ffc96a59, 0 10px 22px #000a; animation: dockLastIn 360ms cubic-bezier(.2,.9,.3,1) both; }
+@keyframes dockLastIn { from { opacity: .5; transform: scale(.8); } to { opacity: 1; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .dock[data-last-ally='true'] > .card { animation: none; } }

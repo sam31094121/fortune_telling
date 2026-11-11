@@ -126,7 +126,7 @@ export default function BattleArena({ state, cards, match, view, onInspect, tapT
           const attacker = side === 'player' ? foe : mine;
           const multiplier = card && attacker ? book?.matchups[attacker.element as BeastElement]?.[card.element as BeastElement]?.multiplier ?? 1 : 1;
           return (
-            <div className={styles.fighter} key={side} data-fighter={side} aria-label={`${label}：${card?.name ?? '等待主戰'}`}>
+            <div className={styles.fighter} key={side} data-fighter={side} data-last={side === 'opponent' && match && match.opponent.team.length > 1 && match.opponent.team.filter(f => !f.defeated).length === 1 && !fighter?.defeated || undefined} aria-label={`${label}：${card?.name ?? '等待主戰'}`}>
               {side === 'opponent' && match && fighter?.defeated && card && !shredded.current.has(`${match.opponent.active}|${card.id}`) && (
                 <OpponentShred key={`${match.opponent.active}|${card.id}`} anchorRef={opponentArt} src={card.thumbnail} eventId={`${match.opponent.active}|${card.id}`}
                   onDone={() => { shredded.current.add(`${match.opponent.active}|${card.id}`); bumpShred(n => n + 1); }} />

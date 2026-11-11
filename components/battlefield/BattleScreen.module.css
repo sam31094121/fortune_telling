@@ -226,3 +226,12 @@
   .split[data-dock='true'] [data-battle-stake], .split[data-dock='true'] [data-battle-resumed] { display: none; }
   .split[data-dock='true'] > [data-battle-controls] { max-height: 38dvh; }
 }
+
+/* 說明卡：從右上角「？」展開，固定在暫停／自動下方，內容自己捲動 */
+.infoCard { position: fixed; z-index: 120; top: calc(env(safe-area-inset-top, 0px) + 46px); left: 12px; right: 12px; max-width: 520px; margin: 0 auto; max-height: min(72dvh, 640px); overflow-y: auto; overscroll-behavior: contain; padding: 14px 14px 16px; border: 1px solid #ffd47980; border-radius: 16px; background: linear-gradient(180deg, #14203a, #0a1424); color: #f5e7bd; box-shadow: 0 24px 60px #000c, 0 0 0 1px #ffffff14 inset; }
+.infoCard h2 { margin: 0 0 8px; font-size: 17px; font-weight: 900; color: #ffd479; }
+.infoCard section + section { margin-top: 14px; padding-top: 12px; border-top: 1px solid #ffffff1f; }
+.infoCard ol, .infoCard ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 14px; line-height: 1.5; }
+.infoCard p { margin: 4px 0; font-size: 14px; line-height: 1.6; }
+.infoCard a { color: #7dd3fc; font-weight: 800; }
+.infoClose { margin-top: 14px; width: 100%; min-height: 44px; border-radius: 12px; border: 1px solid #ffd47980; background: #ffffff0d; color: #ffd479; font-weight: 900; cursor: pointer; }

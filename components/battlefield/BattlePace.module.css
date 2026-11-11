@@ -102,3 +102,8 @@
   .pace { padding: 0 4px 0 8px !important; gap: 6px !important; }
   .heading strong { font-size: 12px !important; }
 }
+
+/* 2026-11-12 業主：戰鬥場不放說明文字，全部收進右上角「？」那一張卡 */
+.infoBtn { position: relative; width: 28px; height: 28px; margin-right: 2px; border-radius: 50%; border: 1px solid #ffd479a6; background: #ffffff10; color: #ffd479; font-size: 15px; font-weight: 900; line-height: 1; cursor: pointer; touch-action: manipulation; }
+.infoBtn[data-alert]::after { content: ''; position: absolute; top: -2px; right: -2px; width: 9px; height: 9px; border-radius: 50%; background: #ff6b5a; box-shadow: 0 0 6px #ff6b5a; }
+.pace, .heading strong { white-space: nowrap; } @media (max-width: 380px) { .heading strong { font-size: 11px; letter-spacing: 0; } }

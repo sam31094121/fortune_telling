@@ -65,10 +65,13 @@ const BattleDock = memo(function BattleDock({ match, view, cards, busy = false, 
   }, []);
   // 這一局主戰做了什麼（攻擊／技能／暴怒合體／受控／接替／換卡）：標在主戰那張卡上，取自戰報，不自己判斷
   const performed = performedAction(match, 'player');
+  // 業主 2026-11-12：只剩最後一隻就放大成大卡片（跟寶石捷連線的「最後一隻」同一個概念）；倒下的隊友收起來。
+  const aliveCount = team.filter(f => !f.defeated).length;
+  const lastAlly = playingMatch && team.length > 1 && aliveCount === 1;
 
   return (
     <>
-      <nav ref={nav} className={styles.dock} aria-label="出戰神獸・點卡上場或出擊" data-battle-dock data-count={team.length}>
+      <nav ref={nav} className={styles.dock} aria-label="出戰神獸・點卡上場或出擊" data-battle-dock data-count={team.length} data-last-ally={lastAlly || undefined}>
         {team.map((fighter, index) => {
           const action = switches.get(index);
           const active = index === match.player.active;

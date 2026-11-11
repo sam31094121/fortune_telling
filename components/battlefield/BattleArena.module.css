@@ -955,3 +955,17 @@
 }
 [data-dock='true'] .arenaHpBar > span::after { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 40%; background: linear-gradient(180deg, #ffffff66, transparent); border-radius: inherit; }
 [data-dock='true'] .arenaHpBar.critical > span { background: linear-gradient(180deg, #ffd1d8 0%, #fb7185 50%, #be1e3f 100%); box-shadow: 0 0 10px #fb718599; }
+
+/* 對方只剩最後一隻：大魔王登場——放大、紅金火光、腳下光暈呼吸（只用 transform／opacity） */
+[data-dock='true'] .fighter[data-last='true'] .artSpace { transform: translateY(-6px) scale(1.06); transform-origin: 50% 40%; }
+[data-dock='true'] .fighter[data-last='true'] .art {
+  border-color: #ffb08a;
+  box-shadow: 0 0 0 1px #ffe0c866, 0 24px 48px #000b, 0 0 54px #ff6b3a73, 0 0 110px #ff3a2a33, inset 0 1px 0 #ffffff40, inset 0 0 22px #00000066;
+}
+[data-dock='true'] .fighter[data-last='true']::before {
+  background: radial-gradient(ellipse at center, #ff8a5a8c 0%, #ff5a3a38 44%, transparent 74%);
+  animation: lastFoeBreath 2.2s ease-in-out infinite;
+}
+[data-dock='true'] .fighter[data-last='true'] .liveName { color: #ffd9c0; text-shadow: 0 1px 0 #000a, 0 0 14px #ff7a4acc; }
+@keyframes lastFoeBreath { 0%, 100% { opacity: .65; transform: translateX(-50%) scale(1); } 50% { opacity: 1; transform: translateX(-50%) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { [data-dock='true'] .fighter[data-last='true']::before { animation: none; } }

@@ -30,7 +30,7 @@ import {
   moveCard,
   type BattleState,
 } from '@/lib/beast-game/battlefield';
-import BattlePanel from '@/components/battlefield/BattlePanel';
+import BattlePanel, { BattleLog } from '@/components/battlefield/BattlePanel';
 import BattleDock from '@/components/battlefield/BattleDock';
 import { canStartBattle, fieldTeam } from '@/lib/beast-game/battle-bridge';
 import type { Action, Match } from '@/lib/beast-game/interactive';
@@ -542,7 +542,7 @@ function BattlefieldScreen() {
                   <button type="button" aria-pressed={prepareView === 'stake'} onClick={() => openPreparation('stake')}>{isTrial ? '體驗確認' : '押注確認'}</button>
                   <button type="button" aria-pressed={prepareView === 'help'} onClick={() => openPreparation('help')}>玩法說明</button>
                 </nav> : <><strong>{inspection ? '能力與相剋' : playing ? '動作演出中' : match?.status === 'FINISHED' ? '對戰結果' : automatic ? '自動連擊中' : <span className={styles.srOnly}>選擇本回合動作</span>}</strong>
-                  {inspection ? <span>查看不消耗回合</span> : match?.status === 'PLAYING' ? <button type="button" className={styles.helpDot} aria-expanded={battleHelp} aria-label="玩法說明" onClick={() => setBattleHelp(open => !open)}>？</button> : null}</>}
+                  {inspection ? <span>查看不消耗回合</span> : null}</>}
               </div>
               <div className={styles.controlScroll} ref={controlScroll} key={match ? 'battle' : 'prepare'} data-control-scroll>
                 {inspection && <BattleCardGuide key={`${inspection.side}-${inspection.cardId}`} cardId={inspection.cardId}
@@ -565,25 +565,29 @@ function BattlefieldScreen() {
                 {match ? (
                   <>
                     {/* 首領預告放在操作區最上方：收在戰報裡客戶看不到，就不算預告。文字由後端 bossNotice 產生送來。 */}
-                    {liveNotice && <p role="status" aria-live="polite" className={`${styles.notice} ${styles.bossLive}`} data-boss-live>🐉 {liveNotice}</p>}
-                    {battleHelp && match.status === 'PLAYING' && <section className={styles.battleHelp} data-battle-help aria-label="玩法說明">
-                      <h2>玩法</h2>
-                      <ol>
-                        <li><strong>⚔ 攻擊</strong>　用目前出戰的神獸打一下。</li>
-                        <li><strong>✦ 技能</strong>　用氣打出神獸的技能，冷卻中不能用。</li>
-                        <li><strong>🔥 暴怒合體</strong>　條件到了才能按。</li>
-                        <li><strong>▶ 自動</strong>　讓系統連續出招到分勝負。</li>
-                        <li><strong>換人</strong>　點最下方的神獸卡。</li>
-                      </ol>
-                      <button type="button" className={styles.restart} onClick={() => setBattleHelp(false)}>知道了</button>
+                    {battleHelp && match.status === 'PLAYING' && <section className={styles.infoCard} data-battle-help aria-label="玩法說明與戰報">
+                      {liveNotice && <section><h2>🐉 預告</h2><p role="status" aria-live="polite" data-boss-live>{liveNotice}</p></section>}
+                      <section>
+                        <h2>玩法</h2>
+                        <ol>
+                          <li><strong>⚔ 攻擊</strong>　用目前出戰的神獸打一下。</li>
+                          <li><strong>✦ 技能</strong>　用氣打出神獸的技能，冷卻中不能用。</li>
+                          <li><strong>🔥 暴怒合體</strong>　條件到了才能按。</li>
+                          <li><strong>▶ 自動</strong>　讓系統連續出招到分勝負。</li>
+                          <li><strong>換人</strong>　點最下方的神獸卡。</li>
+                        </ol>
+                      </section>
+                      <section><h2>本回合戰報</h2><BattleLog match={match} /></section>
+                      <section><h2>本場</h2>
+                        <p data-battle-stake>{battleStake ? `💎 押注：${cards.find(card => card.id === battleStake)?.name ?? '神獸卡'}` : '🎮 體驗戰'}</p>
+                        {resumeNotice && <p role="status" data-battle-resumed>↻ {resumeNotice}</p>}
+                        <p>{battleStake ? '回首頁會保留本局與押注卡，回到戰場即可接續。' : '回首頁會中斷本局，押卡不扣除。'}</p>
+                        <Link href="/">回首頁</Link>
+                      </section>
+                      <button type="button" className={styles.infoClose} onClick={() => setBattleHelp(false)}>收起</button>
                     </section>}
-                    <BattlePace match={match} automatic={automatic} blocked={playing || Boolean(inspection)} canAct={legal.length > 0} onAutomatic={setAutomatic} onAuto={autoStep} />
-                    <BattlePanel match={match} view={battleView} onAction={act} busy={playing} compact cards={cards} />
-                    {resumeNotice && match.status === 'PLAYING' && <p role="status" className={styles.notice} data-battle-resumed>↻ {resumeNotice}</p>}
-                    {match.status === 'PLAYING' && <p className={styles.notice} data-battle-stake>{battleStake
-                      ? `💎 押注：${cards.find(card => card.id === battleStake)?.name}`
-                      : '🎮 體驗戰'}</p>}
-                    {match.status === 'PLAYING' && <details className={styles.details}><summary>離開本場</summary><p>{battleStake ? '回首頁會保留本局與押注卡，回到戰場即可接續。' : '回首頁會中斷本局，押卡不扣除。'}</p><Link href="/">回首頁</Link></details>}
+                    <BattlePace match={match} automatic={automatic} blocked={playing || Boolean(inspection)} canAct={legal.length > 0} onAutomatic={setAutomatic} onAuto={autoStep} onInfo={() => setBattleHelp(open => !open)} infoOpen={battleHelp} infoAlert={Boolean(liveNotice) && !battleHelp} />
+                    <BattlePanel match={match} view={battleView} onAction={act} busy={playing} compact cards={cards} showLog={false} />
                     {match.status === 'FINISHED' && !playing && isTrial && (
                       <p role="status" className={styles.notice} data-battle-result={match.winner}>體驗戰結束：押注 0 張・贏得 0 張・輸掉 0 張。</p>
                     )}
