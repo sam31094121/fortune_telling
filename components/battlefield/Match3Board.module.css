@@ -993,3 +993,12 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] .fusedBadge {
   top: 2px;
 }
+
+/* 覆蓋較早「決戰 .foeBar { position:relative }」規則，讓血條維持絕對定位；width:auto 避免 left:3px + width:100% 右側溢出 3px。 */
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] > .bar {
+  position: absolute;
+  width: auto;
+  left: 3px;
+  right: 3px;
+  overflow: visible;
+}
