@@ -110,6 +110,8 @@ const ORB_CLASS: Record<BeastElement, string> = { AIR: styles.air, SPACE: styles
 const k = (r: number, c: number) => r * 1000 + c;
 /** 可斜連模式（config diagonal:true）的提示字。 */
 const DIAG_TIP = '相鄰同色珠三顆起可消除（可斜連）；攻擊須達本關門檻';
+/** 與全站常用 640px 手機斷點一致：此寬度及以下不掛載底部「連線模式／清除連線／發動連線攻擊」列。 */
+const MOBILE_ACTIONS_MQ = '(max-width: 640px)';
 
 const OrbCell = memo(function OrbCell({ r, c, e, mp, sel, flash, shake, drop, shield, fall, empty, reward }: { r: number; c: number; e: BeastElement; mp: number; shield: boolean; sel: boolean; flash: boolean; shake: boolean; drop: boolean; fall?: RefillMotion; empty?: boolean; reward?: boolean }) {
   if (empty) return <div role="gridcell" data-r={r} data-c={c} data-empty="true" className={`${styles.orb} ${styles.emptyCell}`} aria-label="待補珠空格" />;
@@ -356,6 +358,19 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   }, [over, deathPendingAny, deathPendingBoss]);
   const resultWaiting = !!over && deathPendingAny && !resultHoldExpired;
   const [scrollLocked, setScrollLocked] = useState(false);
+  const [mobileActionless, setMobileActionless] = useState(false);
+  const [linkLaunch, setLinkLaunch] = useState<{ source: 'button' | 'auto' | 'tap'; ids: string[]; key: number } | null>(null);
+  const linkLaunchKey = useRef(0);
+  const autoLinkArmed = useRef(true);
+  const autoLinkMoves = useRef(-1);
+  const fireLinkWithRef = useRef<(ids: string[], source?: 'button' | 'auto' | 'tap') => Promise<boolean>>(async () => false);
+  useLayoutEffect(() => {
+    const mq = window.matchMedia(MOBILE_ACTIONS_MQ);
+    const apply = () => setMobileActionless(mq.matches);
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
   useLayoutEffect(() => {
     if (!rigEnabled || help || over) { setScrollLocked(false); return; }
     const element = root.current; if (!element) return;
@@ -395,7 +410,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       window.removeEventListener('resize', schedule); window.removeEventListener('scroll', schedule);
       viewport?.removeEventListener('resize', schedule); viewport?.removeEventListener('scroll', schedule);
     };
-  }, [rigEnabled, help, over, cfg.rows, cfg.cols]);
+  }, [rigEnabled, help, over, cfg.rows, cfg.cols, mobileActionless]);
   const enemyReady = (index: number) => foeAvailable(foes, index, rigEnabled ? stage.wins + 1 : 0);
   const guardianDuelReady = rigEnabled && stage.wins >= 7 && foes.length === 5 && foes[4].hp > 0 && getCard(foes[4].id)?.form === 'GUARDIAN' && foes.slice(0, 4).every(f => f.hp <= 0);
   const [duelSettled, setDuelSettled] = useState(false);
@@ -696,14 +711,30 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     } else later(settle, settleAt);
   };
 
-  /** 點卡：連線模式＝加入／移出連線；否則設為優先（同屬性多張＝改當主攻）。 */
+  /** 點卡：連線模式＝加入／移出連線；否則設為優先（同屬性多張＝改當主攻）。手機無工具列：滿能量點卡發能量技；已選再點一次取消；依序點兩張 ≥50 能量卡可手動發動連線。 */
   const tapAlly = (u: Unit) => {
     if (u.hp <= 0 || over || busy) return;
+    if (link.includes(u.id)) {
+      const next = link.filter((x) => x !== u.id);
+      setLink(next);
+      if (!next.length) setLinkMode(false);
+      return;
+    }
     if (linkMode) {
-      if (link.includes(u.id)) { setLink(link.filter((x) => x !== u.id)); return; }
       if (rigEnabled && !fighterCanAct(u)) { setLog(`${u.name}目前受控，暫時無法攻擊。`); return; }
       if (u.energy < LINK_ENERGY_COST) { setLog(`${u.name}能量 ${u.energy}，連線需要 ${LINK_ENERGY_COST}。`); return; }
       setLink([...link, u.id]); setLog(`已連線 ${link.length + 1} 張（至少 ${LINK_MIN_CARDS} 張）。`); return;
+    }
+    if (mobileActionless) {
+      const canLink = u.energy >= LINK_ENERGY_COST && (!rigEnabled || fighterCanAct(u));
+      if (link.length > 0 && canLink) {
+        const next = [...link, u.id];
+        setLink(next);
+        void fireLinkWithRef.current(next, 'tap');
+        return;
+      }
+      if (rigEnabled && u.energy >= ENERGY_MAX) { unleash(u); return; }
+      if (canLink) { setLink([u.id]); return; }
     }
     if (rigEnabled && u.energy >= ENERGY_MAX) { unleash(u); return; }
     const dup = team.filter((x) => x.element === u.element).length > 1;
@@ -761,31 +792,59 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const actionableLink = link;
   const controlledLink = rigEnabled && link.some(id => { const u = team.find(x => x.id === id); return u && !fighterCanAct(u); });
   const problem = controlledLink ? 'controlled' : linkProblem(team, link);
-  const fireLink = async () => {
-    if (!linkMode || problem || over || busy || ti < 0) return;
-    if (rigEnabled && (energyClickLock.current || turnRequest.current)) return;
+  const autoLinkIds = team.filter((u) => u.hp > 0 && u.energy >= LINK_ENERGY_COST && (!rigEnabled || fighterCanAct(u))).map((u) => u.id);
+  const fireLinkWith = async (ids: string[], source: 'button' | 'auto' | 'tap' = 'button') => {
+    if (!ids.length || over || busy || ti < 0) return false;
+    if (deathHold.size > 0 || deathPending.size > 0) return false;
+    if (counterFoes.size > 0) return false;
+    if (rigEnabled && (energyClickLock.current || turnRequest.current || refillRun.current)) return false;
+    const controlled = rigEnabled && ids.some((id) => { const u = team.find((x) => x.id === id); return u && !fighterCanAct(u); });
+    if (controlled || linkProblem(team, ids)) return false;
     if (rigEnabled) energyClickLock.current = true;
-    const cards = actionableLink.map((id) => team.find((u) => u.id === id)!);
+    setLinkLaunch({ source, ids: ids.slice(), key: ++linkLaunchKey.current });
+    const cards = ids.map((id) => team.find((u) => u.id === id)!).filter(Boolean);
+    if (cards.length < LINK_MIN_CARDS) { if (rigEnabled) energyClickLock.current = false; return false; }
     const amt = linkDamage(cards.map((c) => rigEnabled ? fighterEffectiveAttack(c) : c.attack)); const foe = foes[ti];
-    const spentTeam = team.map(u => actionableLink.includes(u.id) ? { ...u, energy: u.energy - LINK_ENERGY_COST } : u);
+    const spentTeam = team.map((u) => ids.includes(u.id) ? { ...u, energy: u.energy - LINK_ENERGY_COST } : u);
     const actionId = rigEnabled ? cardActionId('link') : '';
-    const applied = rigEnabled ? await requestCardAttack('link', cards.map(c => c.id), `${init.seed}:energy:${++energyActionKey.current}`, actionId) : null;
-    if (rigEnabled && !applied) return;
+    const applied = rigEnabled ? await requestCardAttack('link', cards.map((c) => c.id), `${init.seed}:energy:${++energyActionKey.current}`, actionId) : null;
+    if (rigEnabled && !applied) return false;
     const damaged = applied?.foes ?? damageFoe(foes, ti, amt);
     const nextTeam = applied?.team ?? spentTeam;
     const actualAmount = applied?.actualDamage ?? amt;
     if (applied) showSkillEvents(applied.skillEvents);
     showStrike(applied?.actualHits ?? cards.map(c => ({ attackerId: c.id, amount: actualAmount })), foe, damaged[ti], true, rigEnabled ? actualAmount : undefined);
     if (rigEnabled) queueKnockouts(foes, damaged, actionId, 'server-link', hadRig.current ? RIG_IMPACT_MS : 0);
-    if (rigEnabled) { setFired(new Set(cards.map(c => c.id))); later(() => setFired(new Set()), 700); }
+    if (rigEnabled) { setFired(new Set(cards.map((c) => c.id))); later(() => setFired(new Set()), 700); }
     setFoes(damaged); setHitFoe(ti); later(() => setHitFoe(null), 500);
     setTeam(nextTeam);
     setLastDmg(actualAmount); setTotalDmg((s) => s + actualAmount); setLink([]); setLinkMode(false);
     if (rigEnabled) finishEnergyAttack();
     showBanner(`連線攻擊 ${cards.length} 張 −${actualAmount}`, 'skill'); if (!rigEnabled) sound(990);
     setLog(`連線攻擊：${cards.map((c) => c.name).join('＋')} 對${foe.name}造成 ${actualAmount} 點傷害（不算步數、不觸發反擊）。`);
+    return true;
+  };
+  const fireLink = async () => {
+    if (!linkMode || problem || over || busy || ti < 0) return;
+    await fireLinkWith(actionableLink);
   };
   const fireSub = !linkMode ? `需 ${LINK_MIN_CARDS} 張卡各 ${LINK_ENERGY_COST} 能量` : problem === 'tooFew' ? `再選 ${LINK_MIN_CARDS - link.length} 張` : problem === 'energyLow' ? `每張需 ${LINK_ENERGY_COST} 能量` : problem === 'controlled' ? '有卡暫時受控，請重選' : problem ? '有卡已倒下' : `${link.length} 張・預估 ${linkDamage(link.map((id) => { const u = team.find(x => x.id === id); return u ? rigEnabled ? fighterEffectiveAttack(u) : u.attack : 0; }))}`;
+
+  fireLinkWithRef.current = fireLinkWith;
+  useEffect(() => {
+    if (!mobileActionless) return;
+    const ids = team.filter((u) => u.hp > 0 && u.energy >= LINK_ENERGY_COST && (!rigEnabled || fighterCanAct(u))).map((u) => u.id);
+    if (ids.length < LINK_MIN_CARDS) { autoLinkArmed.current = true; return; }
+    if (busy || over || ti < 0) return;
+    if (deathHold.size > 0 || deathPending.size > 0) return;
+    if (counterFoes.size > 0) return;
+    if (energyClickLock.current || turnRequest.current || refillRun.current) return;
+    if (autoLinkMoves.current !== moves) autoLinkArmed.current = true;
+    if (!autoLinkArmed.current) return;
+    autoLinkArmed.current = false;
+    autoLinkMoves.current = moves;
+    void fireLinkWithRef.current(ids, 'auto').then((ok) => { if (!ok) autoLinkArmed.current = true; });
+  }, [mobileActionless, busy, over, ti, team, moves, deathHold, deathPending, counterFoes, rigEnabled]);
 
   const skillMarker = (id: string, side: 'ally' | 'enemy') => {
     const event = orbSkillDisplay(skillVisuals, id, side);
@@ -808,7 +867,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   );
 
   return (
-    <section ref={root} className={styles.wrap} data-match3-scroll-lock={scrollLocked && !help && !over ? "true" : undefined} data-match3-battle-active={rigEnabled && !help && !over ? "true" : undefined} onPointerDownCapture={() => { audio.current?.unlock(); setIntro(false); }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
+    <section ref={root} className={styles.wrap} data-match3-scroll-lock={scrollLocked && !help && !over ? "true" : undefined} data-match3-battle-active={rigEnabled && !help && !over ? "true" : undefined} data-mobile-actions={mobileActionless ? 'off' : 'on'} data-auto-link-ready={mobileActionless && autoLinkIds.length >= LINK_MIN_CARDS && !busy && !over && ti >= 0 ? 'true' : undefined} onPointerDownCapture={(e) => { audio.current?.unlock(); setIntro(false); if (mobileActionless && link.length && !(e.target instanceof Element && e.target.closest('[data-testid="match3-ally"]'))) { setLink([]); setLinkMode(false); } }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
       {rigEnabled && <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: 'absolute', pointerEvents: 'none' }}>
         <defs>
           <clipPath id="match3-soft-space" clipPathUnits="objectBoundingBox"><path d="M .42 .1 Q .5 .02 .58 .1 L .9 .42 Q .98 .5 .9 .58 L .58 .9 Q .5 .98 .42 .9 L .1 .58 Q .02 .5 .1 .42 Z" /></clipPath>
@@ -874,7 +933,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       {help && (rigEnabled ? <div className={styles.help}>
         <p>拖過相鄰同色珠，至少3格；本關合計 {stage.minChain} 顆可攻擊。可斜連，不可跳格或重疊。</p>
         <p>4顆起留數字，7顆起變盾牌。連入同色盾牌可清除同色珠；掉落連鎖也有效。</p>
-        <p>每次放開非空連線都換對方反擊，無效連線也算。能量滿100時神獸發光，點神獸攻擊後能量歸零；2張卡各有50能量，可用連線攻擊。</p>
+        <p>每次放開非空連線都換對方反擊，無效連線也算。能量滿100時神獸發光，點神獸攻擊後能量歸零。兩張卡各有50能量時，手機版會在消除與反擊動畫結束後自動發動連線攻擊；也可依序點兩張符合條件的卡發動，再點已選的卡或點空白處可取消。電腦版仍用下方按鈕。</p>
         <p>玩家消除同屬性寶珠累積能量，珠數越多充能越快；滿條後點亮起的神獸發招並歸零。敵方每次有效連珠增加四分之一，連鎖不重複累加，滿條後依關卡順序出手並歸零。受控不能出手，待命敵人不蓄力；能量技與連線技能不充能。</p>
         <p>五色盾牌連線只消耗連到的盾牌，其餘寶珠下落後全變各自屬性的盾牌，空位補普通珠；不獲得法寶。同屬性純盾牌一次連4、5、6、7、8格，分別只取得第1、2、3、4、5號法寶一件，按實際格數計算，不按盾牌儲存威力計數。同屬性隊員按順序分配不同種類，階級越高基礎威力越高。點下方寶器直接釋放，消耗一件，不增加敵方回合。自己的未用寶器可帶到下一關，親友的僅限本關；保存在本瀏覽器。</p>
         {treasures.map(x => <p key={x.element+':'+x.variant}>{x.name}：{x.description}</p>)}
@@ -883,7 +942,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
 
       {!log.startsWith('按住寶珠') && log ? <p className={rigEnabled ? styles.srOnly : styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
 
-      <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, ['--clear-duration' as string]: `${clearMs}ms` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" data-refill-epoch={rigEnabled ? refillEpoch : undefined} data-refilling={falling.size > 0 ? 'true' : undefined} data-chain-intent={rigEnabled ? chainIntent : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers}>
+      <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, ['--clear-duration' as string]: `${clearMs}ms` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" data-refill-epoch={rigEnabled ? refillEpoch : undefined} data-refilling={falling.size > 0 ? 'true' : undefined} data-chain-intent={rigEnabled ? chainIntent : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers} onPointerDown={(e) => { if ((link.length || linkMode) && !(e.target as HTMLElement).closest('[data-r]')) { setLink([]); setLinkMode(false); } drag.handlers.onPointerDown(e); }}>
         {board.map((row, r) => row.map((e, c) => { const kk = k(r, c); return (
           <OrbCell key={`${r}-${c}-${rigEnabled ? refillEpoch : 0}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} shield={rigEnabled} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} fall={falling.get(kk)} empty={emptyCells.has(kk)} reward={rewards.has(kk)} />); }))}
         {shieldBurst && <div className={styles.shieldBurst} style={{ color: ORB_COLOR[shieldBurst] }} role="status" aria-label="080 盾牌清除同色寶珠"><span /><img src="/pwa/save-shield-080.png" alt="" draggable={false} /></div>}
@@ -933,13 +992,11 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
         })}
       </div>
       {rigEnabled && (campaignEnabled || treasurePractice) && <OrbTreasures catalog={treasures} disabled={busy || !!over} guard={treasureGuard} onUse={useTreasure}/>}
-      {/* 連線攻擊工具列（連線模式／清除連線／發動連線攻擊）：業主 2026-11-11 要求隱藏，功能與程式保留，
-          不刪除。要恢復只需把 false 改回原條件並說「叫醒」；相關測試見 beast-match3-hard-link-button。 */}
-      {false && rigEnabled && actions}
+      {rigEnabled && !mobileActionless && actions}
       <TreasureAnimation flight={treasureFlight}/>
       {!rigEnabled && onRepick && <div className={styles.repick}><button type="button" data-testid="open-picker" onClick={onRepick}>重新選卡</button></div>}
 
-      {false && !rigEnabled && actions}
+      {!rigEnabled && !mobileActionless && actions}
 
       {over && !resultWaiting && (
         <div className={styles.result} role="dialog" aria-label="對戰結果" data-testid="match3-result" data-result={over}>
@@ -965,6 +1022,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       {resultWaiting && <span hidden data-testid="match3-result-pending" data-pending={deathPending.size} />}
       {rigEnabled && <Match3RigAttack ids={[...team.map(u => u.id), ...playableCards().filter(c => c.form === 'GUARDIAN' && team.some(u => u.element === c.element)).map(c => c.id)]} root={root} strike={strike} onImpact={impact} />}
       <span hidden data-testid="match3-last-damage">{lastDmg}</span>
+      <span hidden data-testid="match3-link-launch" data-source={linkLaunch?.source ?? ''} data-ids={(linkLaunch?.ids ?? []).join(',')} data-key={linkLaunch?.key ?? 0} />
     </section>
   );
 }

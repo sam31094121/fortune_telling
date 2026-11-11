@@ -12,17 +12,20 @@ const host = fs.readFileSync('components/battlefield/asura-death/AsuraDeathHost.
 // 1) 連結攻擊列：困難模式常駐（不再只在「玩法與操作」打開時出現），非困難模式維持原本位置。
 assert(!/help && actions\}/.test(source), 'hard link bar must not depend on help panel');
 const treasuresAt = source.indexOf('<OrbTreasures catalog=');
-// 連線攻擊工具列：業主 2026-11-11 要求「隱藏、功能一樣存在」。
-// 畫面上不得渲染（兩處都被 false 擋住），但工具列 JSX、連線模式狀態與點卡邏輯全部保留；
-// 要恢復只需把 false 拿掉（說「叫醒」）。下面第 2、3 層仍然實際渲染 actions 並驗證點卡邏輯，證明功能還在。
-const hiddenRigAt = source.indexOf('{false && rigEnabled && actions}');
-assert(hiddenRigAt > treasuresAt && treasuresAt > 0, 'hidden hard link bar keeps its place right after the treasure row');
-assert.equal(source.split('{false && rigEnabled && actions}').length - 1, 1);
-assert.equal(source.split('{false && !rigEnabled && actions}').length - 1, 1, 'other modes hide the bar the same way');
-assert(!/(^|[^&\w])\{rigEnabled && actions\}/.test(source), 'the hard link bar must not be rendered anymore');
-assert(!/(^|[^&\w])\{!rigEnabled && actions\}/.test(source), 'no mode renders the link bar anymore');
-assert(source.includes('const actions = ('), 'the action bar code is kept, not deleted');
-assert(source.includes('data-testid="match3-link-fire"') && source.includes('data-testid="match3-link-mode"'), 'link mode and fire buttons are kept in code');
+const rigActionsAt = source.indexOf('{rigEnabled && !mobileActionless && actions}');
+assert(rigActionsAt > treasuresAt && treasuresAt > 0, 'hard link bar still sits right after the treasure row (desktop)');
+assert.equal(source.split('{rigEnabled && !mobileActionless && actions}').length - 1, 1, 'hard bar unmounts on mobile (max-width: 640px)');
+assert.equal(source.split('{!rigEnabled && !mobileActionless && actions}').length - 1, 1, 'other modes also unmount the bar on mobile');
+assert(source.includes("MOBILE_ACTIONS_MQ = '(max-width: 640px)'"), 'uses the existing 640px mobile breakpoint');
+assert(source.includes("fireLinkWithRef.current(ids, 'auto')"), 'mobile auto-launches link attack via fireLinkWith');
+assert(source.includes('data-testid="match3-link-launch"'), 'Bot_APP hook match3-link-launch records auto/tap/button');
+assert(source.includes('autoLinkArmed.current = false'), 'auto-launch fires once per ready window and will not immediately refire leftover energy');
+assert(source.includes("fireLinkWithRef.current(next, 'tap')"), 'tapping two eligible cards on mobile launches a link attack');
+assert(source.includes("requestCardAttack('link'"), 'auto-launch reuses the same server-side link path');
+assert(/deathHold\.size > 0 \|\| deathPending\.size > 0/.test(source), 'auto-launch waits out deathHold/KO');
+assert(source.includes('counterFoes.size > 0'), 'auto-launch does not fire on the enemy turn');
+assert(source.includes("!(e.target as HTMLElement).closest('[data-r]')"), 'tap empty board clears a pending link');
+assert(source.includes('if (link.includes(u.id))'), 'retap a selected card clears it from the link');
 
 // 2) 實際渲染 actions JSX：困難／非困難 × 開／關
 const start = source.indexOf('  const actions = (');
@@ -46,13 +49,16 @@ assert(!/match3-link-mode-hint/.test(html), 'non-hard modes keep their original 
 assert(/const energyReady = rigEnabled && full && !busy && !over && !linkMode/.test(source), 'energy-ready state disabled during link mode');
 const tapBody = source.slice(source.indexOf('  const tapAlly ='), source.indexOf('  // Stored-energy attacks'));
 const tapJs = ts.transpileModule(tapBody + '\n globalThis.tap = tapAlly;', { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
-function tap(over) { const calls = []; const unit = { id: 'u1', element: 'AIR', hp: 100, energy: 100, name: 'x' };
-  const ctx = { rigEnabled: true, over: null, busy: false, linkMode: false, link: [], team: [unit], chosen: {}, ENERGY_MAX: 100, LINK_ENERGY_COST: 50, LINK_MIN_CARDS: 2, MATCH3_ORB_LABEL: { AIR: '風' }, fighterCanAct: () => true,
-    unleash: u => calls.push('energy:' + u.id), setLink: v => calls.push('link:' + v.join('+')), setLog: () => {}, setChosen: () => calls.push('lead'), chooseLead: () => ({}), ...over };
+function tap(over) { const calls = []; const unit = { id: 'u1', element: 'AIR', hp: 100, energy: 100, name: 'x', ...((over && over.unit) || {}) };
+  const ctx = { rigEnabled: true, over: null, busy: false, linkMode: false, link: [], mobileActionless: false, team: [unit], chosen: {}, ENERGY_MAX: 100, LINK_ENERGY_COST: 50, LINK_MIN_CARDS: 2, MATCH3_ORB_LABEL: { AIR: '風' }, fighterCanAct: () => true,
+    unleash: u => calls.push('energy:' + u.id), setLink: v => calls.push('link:' + v.join('+')), setLinkMode: () => {}, setLog: () => {}, setChosen: () => calls.push('lead'), chooseLead: () => ({}), fireLinkWithRef: { current: (ids, source) => calls.push('fire:' + source + ':' + ids.join('+')) }, ...over };
   vm.runInNewContext(tapJs, ctx); ctx.tap(unit); return calls; }
 assert.deepEqual(tap({}), ['energy:u1']);
 assert.deepEqual(tap({ linkMode: true }), ['link:u1']);
 assert.deepEqual(tap({ linkMode: true, link: ['u1'] }), ['link:']);
+assert.deepEqual(tap({ mobileActionless: true }), ['energy:u1'], 'mobile: a lone full-energy tap still fires the energy skill');
+assert.deepEqual(tap({ mobileActionless: true, unit: { energy: 50 } }), ['link:u1'], 'mobile: first >=50-energy tap arms a silent link');
+assert.deepEqual(tap({ mobileActionless: true, link: ['u2'] }), ['link:u2+u1', 'fire:tap:u2+u1'], 'mobile: second eligible tap launches the link attack');
 
 // 4) 連結攻擊擊倒走伺服端擊倒事件（死亡動畫）
 assert(/queueKnockouts\(foes, damaged, actionId, 'server-link'/.test(source));
@@ -77,5 +83,7 @@ assert(/lockedFor: ev\?\.id, src: lockedSrc/.test(host) && /src=\{ev \? \(a\.src
 // 6) 短視窗（1280×720/800）也做高度擬合，敵方列與棋盤不會捲出畫面
 assert(source.includes("window.matchMedia('(max-width: 900px), (max-height: 960px)').matches"));
 assert(/\.wrap\[data-mode\^="hard"\] \.actionBar \{ margin: 4px 0 0;/.test(css));
-assert(!/\.wrap\[data-mode\^="hard"\] \.actionBar \{[^}]*display:\s*none/.test(css));
-console.log('PASS hard link bar visible+flow, link-mode tap precedence, stage-8 escort fx src stable, short-viewport height fit');
+assert(/@media \(max-width: 640px\) \{\s*\.actionBar \{ display: none;/.test(css), 'mobile CSS hides the bar before hydrate');
+assert(css.includes('row-gap: calc(var(--orb-gap, 4px) + 7px)'), 'mobile reuses the former toolbar height as board row spacing; row count stays 8');
+assert(!/@media \(min-width:\s*641px\)[\s\S]*?\.actionBar \{[^}]*display:\s*none/.test(css), 'desktop must keep the action bar visible');
+console.log('PASS hard link bar desktop-only, mobile auto-link, link-mode tap precedence, stage-8 escort fx src stable, short-viewport height fit');
