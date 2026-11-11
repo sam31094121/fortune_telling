@@ -252,8 +252,8 @@
 .artSpace[data-skill='true']::after {
   content: '';
   position: absolute;
-  inset: -30%;
-  background: url('/assets/taiji/esoteric-taijitu-public-domain.svg') center / 65% no-repeat;
+  inset: -6%;
+  background: url('/assets/taiji/esoteric-taijitu-public-domain.svg') center / 52% no-repeat;
   opacity: 0;
   animation: taijiSpin 700ms ease-out both;
   animation-delay: var(--action-delay, 0ms);
@@ -264,9 +264,9 @@
 }
 @keyframes taijiSpin {
   0%   { opacity: 0; transform: scale(.25) rotate(0deg); }
-  30%  { opacity: .85; transform: scale(1.08) rotate(180deg); }
-  65%  { opacity: .6; transform: scale(1.18) rotate(290deg); }
-  100% { opacity: 0; transform: scale(1.35) rotate(360deg); }
+  30%  { opacity: .55; transform: scale(.95) rotate(180deg); }
+  65%  { opacity: .35; transform: scale(1) rotate(290deg); }
+  100% { opacity: 0; transform: scale(1.05) rotate(360deg); }
 }
 
 /* 空元素（SPACE / 雷）：疊閃電精靈圖 */
@@ -969,3 +969,9 @@
 [data-dock='true'] .fighter[data-last='true'] .liveName { color: #ffd9c0; text-shadow: 0 1px 0 #000a, 0 0 14px #ff7a4acc; }
 @keyframes lastFoeBreath { 0%, 100% { opacity: .65; transform: translateX(-50%) scale(1); } 50% { opacity: 1; transform: translateX(-50%) scale(1.08); } }
 @media (prefers-reduced-motion: reduce) { [data-dock='true'] .fighter[data-last='true']::before { animation: none; } }
+
+.strikeReadout[data-sr-only] { display: none; }
+
+/* 2026-11-12 質感：技能／元素攻擊的太極光效收斂——不再整片蓋住卡片與戰場，只在卡片範圍內閃一下 */
+[data-dock='true'] .elementStrike { opacity: .68; }
+[data-dock='true'] .elementStrike .strikeField { inset: -4%; }

@@ -48,7 +48,7 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
       </div>}
       <div className="min-w-0">
         <p className={`text-2xl font-black ${lost ? 'text-rose-200' : 'text-amber-200'}`}>
-          {isReplay ? '重播' : !summary ? '待保存' : won ? `獲得 ＋${summary.gained} 張` : lost ? `輸掉 −${summary.lost} 張` : '平手・增減 0 張'}
+          {isReplay ? '重播' : !summary ? '待保存' : won ? `獲得 ＋${summary.gained} 張` : lost ? `輸掉 −${summary.lost} 張` : '平手'}
         </p>
         <h3 className="mt-1.5 text-sm font-black break-words">
           {isReplay ? '觀看原場戰果' : !summary ? '結算尚未保存'
@@ -59,7 +59,7 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
             : !summary ? '尚未完成發獎或扣卡，請重試保存。'
               : won ? `原本 ${summary.retained} 張保留＋獎勵 ${summary.gained} 張，本場共 ${summary.retained + summary.gained} 張。`
                 : lost ? '已從持有卡片扣除。其他卡片保留；可先查看相剋，再調整陣容。'
-                  : '這場平手，持有張數不變。'}
+                  : null}
         </p>
       </div>
     </div>

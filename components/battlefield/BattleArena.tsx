@@ -88,7 +88,7 @@ export default function BattleArena({ state, cards, match, view, onInspect, tapT
         data-element={strikeElement} data-skill={String(playerAction === 'SKILL')} style={{ '--element-strike': ELEMENT_FX[strikeElement].glow, '--action-delay': `${Math.max(0, match?.log.findIndex(entry => entry.side === 'player' && entry.text.includes('：')) ?? 0) * COMBAT_BEAT_MS + (rigStrike ? RIG_IMPACT_MS : 0)}ms` } as CSSProperties} aria-hidden="true">
         <span className={styles.strikeField} />
         <span className={styles.strikeTrace} data-trace="one" />
-        <span className={styles.strikeReadout}><b>{playerAction === 'RAGE' ? '暴怒合體' : `${ELEMENT_FX[strikeElement].label}元素攻擊`}</b></span>
+        <span className={styles.strikeReadout} data-sr-only><b className="sr-only">{playerAction === 'RAGE' ? '暴怒合體' : `${ELEMENT_FX[strikeElement].label}元素攻擊`}</b></span>
       </div>}
       {/* 左手邊：對手隊伍 */}
       {match && (
