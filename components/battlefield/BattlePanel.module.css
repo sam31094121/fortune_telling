@@ -616,3 +616,7 @@
 
 /* 取消換卡按鈕後只剩三個指令（攻擊、技能、暴怒合體）：三等分填滿整列，不留空欄。 */
 .primaryActions { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+
+/* 2026-11-12：普通攻擊明確按鈕（與技能、暴怒同一排） */
+.attackButton { display: grid; place-items: center; gap: 2px; }
+.attackButton strong { font-size: 15px; }

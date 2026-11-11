@@ -26,6 +26,13 @@ import { RIG_IMPACT_MS, RIG_PHASES, RIG_STRIKE_MS } from './beast-game/beast-rig
 
 export type BattleElement = 'SPACE' | 'AIR' | 'WATER' | 'FIRE' | 'EARTH';
 
+/**
+ * 2026-11-12 業主：動物（神獸本體）的聲音全部取消。
+ * 這是總開關：false＝任何地方都不會播放 /audio/beast-voices/ 底下的檔案（音檔與對照表保留，要恢復只需改成 true）。
+ * 在 createSoundPlayer().play 這個唯一出口擋住，所以揭牌、出手、對戰各處的叫聲都一併靜音。
+ */
+export const BEAST_VOICES_ENABLED = false;
+
 /** 本體聲音由卡片身份決定，與元素、對手或勝負無關。 */
 export function beastVoiceFor(cardId: string): string | null {
   const beast = /^beast_[ay](\d{2})$/.exec(cardId);
@@ -40,6 +47,7 @@ export function playPlayerBeastVoice(
   side: 'player' | 'opponent',
   cardId: string,
 ): void {
+  if (!BEAST_VOICES_ENABLED) return;
   if (side !== 'player') return;
   const voice = beastVoiceFor(cardId);
   if (voice) play(voice, 0.35, 1);
@@ -200,6 +208,7 @@ export function createSoundPlayer(): {
     },
     play(src: string, volume = 0.45, rate = 1) {
       if (typeof window === 'undefined') return;
+      if (!BEAST_VOICES_ENABLED && src.startsWith('/audio/beast-voices/')) return;
       try {
         let audio = cache.get(src);
         if (!audio) {

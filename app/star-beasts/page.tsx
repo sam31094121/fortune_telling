@@ -121,6 +121,8 @@ export default function StarBeastsPage() {
   const [form, setForm] = useState<Form>('awakened');
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [myGuardian, setMyGuardian] = useState<string | null>(null);
+  const [myGuardianReason, setMyGuardianReason] = useState('');
+  const goMyGuardian = () => document.getElementById('my-guardian')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   const visibleBeasts = useMemo(() => BEASTS
     .filter((beast) => season === 'all' || beast.season === season)
     .toSorted((a, b) => SEASON_ORDER[a.season] - SEASON_ORDER[b.season] || a.id - b.id), [season]);
@@ -238,7 +240,7 @@ export default function StarBeastsPage() {
               ))}
             </ul>
           </nav>
-          <SelfStarBeastEntry onFound={(name) => { setMyGuardian(name); document.getElementById('four-guardians-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} />
+          <SelfStarBeastEntry onFound={(name, reason) => { setMyGuardian(name); setMyGuardianReason(reason); window.setTimeout(goMyGuardian, 2200); }} onGo={goMyGuardian} />
           <details className="mt-4 max-w-2xl text-xs text-slate-400">
             <summary className="min-h-[44px] cursor-pointer py-3 font-bold text-slate-300">這裡有什麼？</summary>
             <p className="mt-2 leading-6">二十八星宿分為春夏秋冬，每一宿都有本體神獸與神獸幼子。</p>
@@ -253,10 +255,16 @@ export default function StarBeastsPage() {
             </div>
             <span className="text-xs font-bold text-slate-400">四方守護</span>
           </div>
+          {myGuardian && (
+            <div data-testid="my-guardian-banner" role="status" className="mb-4 rounded-2xl border border-amber-200/50 bg-gradient-to-r from-amber-300/15 via-amber-200/25 to-amber-300/15 px-4 py-3 text-center">
+              <p className="font-serif text-2xl font-black tracking-[0.3em] bg-gradient-to-b from-amber-50 via-amber-200 to-amber-500 bg-clip-text text-transparent">你的神獸・{myGuardian}</p>
+              <p className="mt-1 text-sm text-amber-100/85">{myGuardianReason}</p>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {FOUR_GUARDIANS.map((guardian) => (
-              <article key={guardian.name} data-my-guardian={myGuardian === guardian.name || undefined} className={`group relative overflow-hidden rounded-2xl border bg-slate-950/70 shadow-lg ${myGuardian === guardian.name ? 'border-amber-200 ring-2 ring-amber-200 shadow-[0_0_24px_rgba(252,211,77,0.55)]' : 'border-amber-200/20'}`}>
-                {myGuardian === guardian.name && <span className="absolute left-2 top-2 z-10 rounded-full bg-amber-300 px-3 py-1 text-xs font-black text-slate-950">我的神獸</span>}
+              <article key={guardian.name} data-my-guardian={myGuardian === guardian.name || undefined} className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-slate-950/70 shadow-lg ${myGuardian === guardian.name ? 'border-amber-200 ring-2 ring-amber-200 shadow-[0_0_24px_rgba(252,211,77,0.55)]' : 'border-amber-200/20'}`}>
+                {myGuardian === guardian.name && <p id="my-guardian" className="order-last border-t border-amber-200/40 bg-gradient-to-b from-amber-300/25 to-transparent whitespace-nowrap py-2 text-center font-serif text-base font-black tracking-[0.12em] text-amber-100 drop-shadow-[0_0_6px_rgba(252,211,77,0.8)]">✦ 我的神獸 ✦</p>}
                 <div className="aspect-[63/88] overflow-hidden bg-black">
                   <CatalogBeastCard name={guardian.name} />
                 </div>

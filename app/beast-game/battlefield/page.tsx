@@ -99,6 +99,7 @@ function BattlefieldScreen() {
   const { playing, begin: beginPlayback, play: playRound, reset: resetPlayback } = useCombatPlayback();
   // 懶人玩法：開戰就自動一路連擊到結束（2026-09-15）；原本困難模式每一回合都要手動按。
   const [automatic, setAutomatic] = useState(false);
+  const [battleHelp, setBattleHelp] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [seed, setSeed] = useState(secureSeed);
   const [teamCopies, setTeamCopies] = useState<string[]>([]);
@@ -393,6 +394,15 @@ function BattlefieldScreen() {
   const act = useCallback((action: Action) => { void step({ type: 'ACTION', action }); }, [step]);
   /** 自動連擊：請後端依基礎規則替玩家決定下一招。 */
   const autoStep = useCallback(() => { void step({ type: 'AUTO' }); }, [step]);
+  // 自動模式保底：易經倒下、等後備上場的那一步（只有「繼續」可按）不能停在畫面上等人；1.2 秒沒動就替客戶按下去。
+  useEffect(() => {
+    if (!automatic || playing || !match || match.status !== 'PLAYING') return;
+    if (!match.opponent.team[match.opponent.active].defeated) return;
+    const attack = legal.find(action => action.type === 'ATTACK');
+    if (!attack) return;
+    const timer = window.setTimeout(() => act(attack), 1200);
+    return () => window.clearTimeout(timer);
+  }, [automatic, playing, match, legal, act]);
 
   /* 可以拿來押的，是成長收藏裡真正擁有的那些——不是卡池六十張。 */
   useEffect(() => {
@@ -448,6 +458,28 @@ function BattlefieldScreen() {
     純粹讓人先打過一場、看懂相剋，再去領卡打正式戰。
     有收藏卡的人不走這條路：有東西可押的人就要押，賞罰才成立。
   */
+  // 出戰陣容的回呼保持穩定：押注加碼時不會讓整排卡面（上百張）重畫。
+  const toggleTeamCopy = useCallback((id: string) => { setTeamReady(false); setTeamCopies(current => current.includes(id) ? current.filter(e => e !== id) : [...current, id]); }, []);
+  const confirmTeamRef = useRef(confirmTeam); confirmTeamRef.current = confirmTeam;
+  const confirmTeamStable = useCallback(() => confirmTeamRef.current(), []);
+  // 押注加碼：以卡種為單位，全部用函式型更新，連續快按也不會吃到舊狀態。
+  const stakeLocked = settling || settlement?.saved === false;
+  const addStakeCard = useCallback((cardId: string) => {
+    if (stakeLocked) return;
+    setStakeCardIds(current => {
+      if (current.length >= MAX_STAKE_CARDS) return current;
+      const next = ownedStake.find(card => card.cardId === cardId && !current.includes(card.id));
+      return next ? [...current, next.id] : current;
+    });
+  }, [ownedStake, stakeLocked]);
+  const removeStakeCard = useCallback((cardId: string) => {
+    if (stakeLocked) return;
+    setStakeCardIds(current => {
+      for (let i = current.length - 1; i >= 0; i--) if (ownedStake.find(card => card.id === current[i])?.cardId === cardId) return [...current.slice(0, i), ...current.slice(i + 1)];
+      return current;
+    });
+  }, [ownedStake, stakeLocked]);
+  const clearStake = useCallback(() => { if (!stakeLocked) setStakeCardIds([]); }, [stakeLocked]);
   const isTrial = match ? !battleStake : ownedStake.length === 0;
   const formationCheck = useMemo(() => state ? canStartBattle(state) : { ready: false as const }, [state]);
   const startCheck = useMemo(() => {
@@ -509,8 +541,8 @@ function BattlefieldScreen() {
                   <button type="button" aria-pressed={prepareView === 'formation'} onClick={() => openPreparation('formation')}>選卡佈陣</button>
                   <button type="button" aria-pressed={prepareView === 'stake'} onClick={() => openPreparation('stake')}>{isTrial ? '體驗確認' : '押注確認'}</button>
                   <button type="button" aria-pressed={prepareView === 'help'} onClick={() => openPreparation('help')}>玩法說明</button>
-                </nav> : <><strong>{inspection ? '能力與相剋' : playing ? '動作演出中' : match?.status === 'FINISHED' ? '對戰結果' : automatic ? '自動連擊中' : '選擇本回合動作'}</strong>
-                  <span>{inspection ? '查看不消耗回合' : '戰況同步顯示'}</span></>}
+                </nav> : <><strong>{inspection ? '能力與相剋' : playing ? '動作演出中' : match?.status === 'FINISHED' ? '對戰結果' : automatic ? '自動連擊中' : <span className={styles.srOnly}>選擇本回合動作</span>}</strong>
+                  {inspection ? <span>查看不消耗回合</span> : match?.status === 'PLAYING' ? <button type="button" className={styles.helpDot} aria-expanded={battleHelp} aria-label="玩法說明" onClick={() => setBattleHelp(open => !open)}>？</button> : null}</>}
               </div>
               <div className={styles.controlScroll} ref={controlScroll} key={match ? 'battle' : 'prepare'} data-control-scroll>
                 {inspection && <BattleCardGuide key={`${inspection.side}-${inspection.cardId}`} cardId={inspection.cardId}
@@ -534,6 +566,17 @@ function BattlefieldScreen() {
                   <>
                     {/* 首領預告放在操作區最上方：收在戰報裡客戶看不到，就不算預告。文字由後端 bossNotice 產生送來。 */}
                     {liveNotice && <p role="status" aria-live="polite" className={`${styles.notice} ${styles.bossLive}`} data-boss-live>🐉 {liveNotice}</p>}
+                    {battleHelp && match.status === 'PLAYING' && <section className={styles.battleHelp} data-battle-help aria-label="玩法說明">
+                      <h2>玩法</h2>
+                      <ol>
+                        <li><strong>⚔ 攻擊</strong>　用目前出戰的神獸打一下。</li>
+                        <li><strong>✦ 技能</strong>　用氣打出神獸的技能，冷卻中不能用。</li>
+                        <li><strong>🔥 暴怒合體</strong>　條件到了才能按。</li>
+                        <li><strong>▶ 自動</strong>　讓系統連續出招到分勝負。</li>
+                        <li><strong>換人</strong>　點最下方的神獸卡。</li>
+                      </ol>
+                      <button type="button" className={styles.restart} onClick={() => setBattleHelp(false)}>知道了</button>
+                    </section>}
                     <BattlePace match={match} automatic={automatic} blocked={playing || Boolean(inspection)} canAct={legal.length > 0} onAutomatic={setAutomatic} onAuto={autoStep} />
                     <BattlePanel match={match} view={battleView} onAction={act} busy={playing} compact cards={cards} />
                     {resumeNotice && match.status === 'PLAYING' && <p role="status" className={styles.notice} data-battle-resumed>↻ {resumeNotice}</p>}
@@ -554,18 +597,18 @@ function BattlefieldScreen() {
                     <div hidden={prepareView !== 'formation'}>
                       {ownedStake.length ? <>
                         <button type="button" className={styles.restart} onClick={() => setCultivationOpen(v => !v)}>{cultivationOpen ? '返回選隊' : '我的卡片・永久強化'}</button>
-                        {cultivationOpen ? <OwnedCardCultivation onDone={() => setCultivationOpen(false)} onSaved={() => { confirmedTeam.current=null; tableToken.current=null; dealCampaignToken.current=null; setTeamReady(false); setTeamCopies([]); setStakeCardIds([]); }} /> : <OwnedCampaignPreparation owned={ownedStake} selected={teamCopies} busy={dealing || recovering || settling} onToggle={id => { setTeamReady(false); setTeamCopies(current => current.includes(id) ? current.filter(e => e !== id) : [...current,id]); }} onConfirm={confirmTeam} />}
+                        {cultivationOpen ? <OwnedCardCultivation onDone={() => setCultivationOpen(false)} onSaved={() => { confirmedTeam.current=null; tableToken.current=null; dealCampaignToken.current=null; setTeamReady(false); setTeamCopies([]); setStakeCardIds([]); }} /> : <OwnedCampaignPreparation owned={ownedStake} selected={teamCopies} busy={dealing || recovering || settling} onToggle={toggleTeamCopy} onConfirm={confirmTeamStable} />}
                         {new Set(ownedStake.map(c => c.cardId)).size < 5 && <p role="status">收藏不足五種，請先到<Link href="/growth-center#beast-collection">成長中心取得卡片</Link>；不會代填收藏。</p>}
                       </> : <p className={styles.notice}>首次免押體驗：五張體驗卡已就緒。完成後可領取既有首次幼子禮，再以收藏正式闖關。</p>}
                       {movement && <p role="status" className={styles.notice} data-card-move>{movement}</p>}
                     </div>
                     <section hidden={prepareView !== 'stake'} className={styles.confirmation} data-preparation-progress tabIndex={-1} aria-label="開戰前確認">
                       <h2>{isTrial ? '體驗戰確認' : `選押注卡・1～${MAX_STAKE_CARDS} 張`}</h2>
-                      {!isTrial && <p className={styles.notice} data-boss-notice>易經依目前關卡出戰。請確認本場押注副本；勝局保存後才前進下一關。</p>}
                       {!state.player.active && <p className={styles.notice}>建議先到「選卡佈陣」放好主戰，再決定本場押注。</p>}
                       <StakeSlot owned={ownedStake} selected={stakeCardIds} trial={isTrial} locked={settling || settlement?.saved === false}
                         steps={[]}
-                        onSelect={cardId => { if (settling || settlement?.saved === false) return; setStakeCardIds(current => nextStakeSelection(current, cardId)); }} />
+                        onSelect={cardId => { if (settling || settlement?.saved === false) return; setStakeCardIds(current => nextStakeSelection(current, cardId)); }}
+                        onAddCard={addStakeCard} onRemoveCard={removeStakeCard} onClear={clearStake} />
                     </section>
                     <section hidden={prepareView !== 'help'} className={styles.help} aria-label="卡片戰鬥玩法說明">
                       <h2>先選卡，再出戰</h2>

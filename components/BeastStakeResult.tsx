@@ -30,6 +30,9 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
   for (const label of stakes) counts.set(label, (counts.get(label) ?? 0) + 1);
   const stakeNames = [...counts].map(([label, count]) => `${label} ×${count}`).join('、');
   const changes = receipt?.cardChanges;
+  const byType = (ids: string[]) => { const m = new Map<string, number>(); for (const id of ids) m.set(id, (m.get(id) ?? 0) + 1); return [...m]; };
+  const stakedGroups = byType(outcome.selectedEntries?.map(entry => entry.cardId) ?? []);
+  const gainedGroups: Array<[string, number]> = (changes ?? []).filter(change => change.gained > 0).map(change => [change.cardId, change.gained]);
   const gainedKinds = new Set(changes?.filter(change => change.gained > 0).map(change => change.cardId)).size;
   const movement = changes?.map(change => `${nameOf(change.cardId)}${change.gained ? `贏得 ${change.gained} 張` : `輸掉 ${change.lost} 張`}，${change.after > 0 ? `剩餘 ${change.after} 張` : '已無剩餘'}`).join('；');
   const retained = summary && !lost ? `原押注卡保留 ${summary.retained} 張。` : '';
@@ -77,19 +80,24 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
       {[['本場押注', summary.staked], ['贏得', summary.gained], ['輸掉', summary.lost]].map(([label, count]) =>
         <div key={label} className="rounded-xl bg-black/30 px-1 py-2"><dt className="text-xs text-white/70">{label}</dt><dd className="mt-1 text-lg font-black">{count} 張</dd></div>)}
     </dl>}
-    <dl className="mt-3 grid grid-cols-2 gap-2 text-xs leading-5">
-      <div className="rounded-lg bg-black/25 px-2 py-2"><dt className="text-white/60">你的押注籌碼・{staked} 張</dt><dd className="break-words">{stakeNames}</dd></div>
-      <div className="rounded-lg bg-black/25 px-2 py-2"><dt className="text-white/60">易經押注・1 張</dt><dd>{outcome.opponentStakeName} ×1</dd></div>
-    </dl>
-    {summary && <div className="mt-3 text-sm leading-6" data-card-movements>
-      {changes?.length ? changes.map(change => <p key={change.cardId}>
-        <strong>{nameOf(change.cardId)}</strong>：{change.gained ? `贏得 ${change.gained} 張` : `輸掉 ${change.lost} 張`}<br />
-        持有 {change.before} → {change.after} 張（{change.after > 0 ? `剩餘 ${change.after} 張` : '已無剩餘'}）
-      </p>) : !changes && receipt?.cardId ? <p>{name}：還有 {receipt.remaining} 張。</p> : null}
-      {!lost && <p>原押注卡保留 {summary.retained} 張。</p>}
-      <p className="mt-2 font-bold text-amber-100" data-held-card-total>持有總數 {summary.before} → {summary.total} 張<br />目前持有 {summary.total} 張卡片</p>
-      {lost && summary.total === 0 && <p>目前沒有可押卡片，可先到卡片體驗戰免押練習。</p>}
-      <p className="text-xs text-white/55">以上是這一場結算完成時的張數。</p>
+    {summary && <div className="mt-3 grid gap-3" data-card-movements data-stake-distribution>
+      <section aria-label={lost ? '輸掉的卡片' : '保留的卡片'}>
+        <p className={`mb-1.5 inline-block rounded-full px-3 py-1 text-sm font-black ${lost ? 'bg-rose-300/25 text-rose-100' : won ? 'bg-emerald-300/25 text-emerald-100' : 'bg-white/15 text-white'}`}>
+          {lost ? `✕ 輸掉 ${summary.lost} 張（你押的）` : won ? `✓ 你押的 ${summary.staked} 張，全部保留` : `你押的 ${summary.staked} 張，全部退回`}
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          {stakedGroups.map(([id, count]) => <StakeChip key={id} id={id} name={nameOf(id)} cards={cards} count={count} tone={lost ? 'lost' : 'kept'} />)}
+        </div>
+      </section>
+      {won && gainedGroups.length > 0 && <section aria-label="新得的卡片">
+        <p className="mb-1.5 inline-block rounded-full bg-amber-300/25 px-3 py-1 text-sm font-black text-amber-100">＋ 新得 {summary.gained} 張</p>
+        <div className="grid grid-cols-3 gap-2">
+          {gainedGroups.map(([id, count]) => <StakeChip key={id} id={id} name={nameOf(id)} cards={cards} count={count} tone="gain" />)}
+        </div>
+      </section>}
+      {lost && <p className="text-sm font-bold text-white/80">其他卡片都還在。</p>}
+      <p className="font-bold text-amber-100" data-held-card-total>持有 {summary.before} → {summary.total} 張</p>
+      {lost && summary.total === 0 && <p className="text-sm">目前沒有可押卡片，可先到體驗戰免押練習。</p>}
     </div>}
     {!saved && !isReplay && <>
       {settlement?.error && <p role="alert" className="mt-2 text-sm text-rose-200">{settlement.error}</p>}
@@ -98,4 +106,16 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
     {summary && settlement && <BeastBattleVoice id={settlement.matchId} text={spoken} reward={won} />}
     <p className="mt-2 text-xs leading-5 text-white/50">{COLLECTION_STORAGE_NOTICE}</p>
   </section>;
+}
+
+function StakeChip({ id, name, cards, count, tone }: { id: string; name: string; cards: Array<{ id: string; name: string; thumbnail: string }>; count: number; tone: 'kept' | 'lost' | 'gain' }) {
+  const card = cards.find(item => item.id === id);
+  const border = tone === 'lost' ? 'border-rose-300/60' : tone === 'gain' ? 'border-amber-300/80' : 'border-emerald-300/50';
+  const color = tone === 'lost' ? 'text-rose-200' : tone === 'gain' ? 'text-amber-200' : 'text-emerald-200';
+  return <div className={`rounded-lg border p-1 text-center ${border}`} data-stake-chip data-tone={tone}>
+    <div className={`overflow-hidden rounded ${tone === 'lost' ? 'opacity-45 grayscale' : ''}`} aria-label={name}>
+      {card ? <BeastCardFace card={{ ...card }} /> : <span className="block aspect-[63/88] bg-black/40" />}
+    </div>
+    <p className={`mt-1 text-base font-black leading-none ${color}`}>{tone === 'lost' ? '−' : tone === 'gain' ? '＋' : '×'}{count}</p>
+  </div>;
 }

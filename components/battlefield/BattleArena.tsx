@@ -26,6 +26,7 @@ import MatchupSummary from './MatchupSummary';
 import PhotonParticleEffect from './PhotonParticleEffect';
 import RageComboEffect from './RageComboEffect';
 import TeamRosterPanel from './TeamRosterPanel';
+import OpponentShred from './OpponentShred';
 
 type FieldProps = { state: BattleState; cards: BattlefieldCardArt[] };
 /**
@@ -44,6 +45,11 @@ export default function BattleArena({ state, cards, match, view, onInspect, tapT
   const lookup = useMemo(() => new Map(cards.map(card => [card.id, card])), [cards]);
   const mine = match ? lookup.get(match.player.team[match.player.active].cardId) : lookup.get(state?.player.active ?? '');
   const foe = match ? lookup.get(match.opponent.team[match.opponent.active].cardId) : lookup.get(state?.opponent.active ?? '');
+  // 對方卡片被打倒：撕碎動畫（每張卡每場只播一次；新的一場 revision 歸零時重置）
+  const shredded = useRef(new Set<string>());
+  const [, bumpShred] = useState(0);
+  const opponentArt = useRef<HTMLElement | null>(null);
+  if (match && match.revision === 0) shredded.current.clear();
   // 對位倍率與說明取自後端相剋戰力手冊（後端化第三階段 3B）。
   const book = useGuideBook();
   const matchup = mine && foe ? book?.matchups[mine.element as BeastElement]?.[foe.element as BeastElement] ?? null : null;
@@ -119,6 +125,10 @@ export default function BattleArena({ state, cards, match, view, onInspect, tapT
           const multiplier = card && attacker ? book?.matchups[attacker.element as BeastElement]?.[card.element as BeastElement]?.multiplier ?? 1 : 1;
           return (
             <div className={styles.fighter} key={side} data-fighter={side} aria-label={`${label}：${card?.name ?? '等待主戰'}`}>
+              {side === 'opponent' && match && fighter?.defeated && card && !shredded.current.has(`${match.opponent.active}|${card.id}`) && (
+                <OpponentShred key={`${match.opponent.active}|${card.id}`} anchorRef={opponentArt} src={card.thumbnail} eventId={`${match.opponent.active}|${card.id}`}
+                  onDone={() => { shredded.current.add(`${match.opponent.active}|${card.id}`); bumpShred(n => n + 1); }} />
+              )}
               <div className={styles.artSpace} key={`${card?.id}-${match?.revision ?? 0}`} data-rush={Boolean(rush)} data-hit={hitOrder >= 0} data-skill={action === 'SKILL'} data-action={action ?? 'NONE'} data-impact={multiplier > 1 ? 'strong' : multiplier < 1 ? 'resisted' : 'normal'}
                 style={{ '--strike-x': side === 'player' ? '18px' : '-18px', '--strike-y': side === 'player' ? '-26px' : '26px', '--action-delay': `${Math.max(0, actionOrder) * COMBAT_BEAT_MS}ms`, '--hit-delay': `${Math.max(0, hitOrder) * COMBAT_BEAT_MS + 200 + (side === 'opponent' && rigStrike ? RIG_IMPACT_MS : 0)}ms`, '--element-strike': card ? ELEMENT_FX[card.element as BattleElement]?.glow : undefined } as CSSProperties}>
                 <PhotonParticleEffect
@@ -127,7 +137,7 @@ export default function BattleArena({ state, cards, match, view, onInspect, tapT
                   intensity={action === 'RAGE' ? 'heavy' : action === 'SKILL' ? 'medium' : 'light'}
                   isSkill={action === 'SKILL' || action === 'RAGE'}
                 />
-                <button type="button" data-art-slot={side} disabled={!card || playing} aria-label={card ? `查看${card.name}的卡面與能力` : '等待主戰卡上場'} onClick={() => { if (card) onInspect(card.id, side); }}
+                <button ref={side === 'opponent' ? (el => { opponentArt.current = el; }) : undefined} data-shredded={side === 'opponent' && fighter?.defeated && card && shredded.current.has(`${match?.opponent.active}|${card.id}`) || undefined} type="button" data-art-slot={side} disabled={!card || playing} aria-label={card ? `查看${card.name}的卡面與能力` : '等待主戰卡上場'} onClick={() => { if (card) onInspect(card.id, side); }}
                   className={`${styles.art} ${fighter?.defeated ? styles.defeated : ''}`}>
                   {card ? (
                     // eslint-disable-next-line @next/next/no-img-element

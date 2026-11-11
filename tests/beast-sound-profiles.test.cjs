@@ -78,7 +78,7 @@ for (const [id, card] of Object.entries(manifest.cards)) {
   playPlayerBeastVoice((src) => playerCalls.push(src), 'opponent', id);
   assert.equal(playerCalls.length, 0, `${id}: opponent must remain silent`);
   playPlayerBeastVoice((src) => playerCalls.push(src), 'player', id);
-  assert.deepEqual(playerCalls, [path], `${id}: player must use its own voice`);
+  assert.deepEqual(playerCalls, [], `${id}: 業主 2026-11-12 取消動物聲音，玩家本體也靜音（BEAST_VOICES_ENABLED=false）`);
 }
 assert.equal(hashes.size, 60, '成品不能只是複製同一檔案換名稱；此檢查不代替聽感驗收');
 for (const id of ['beast_a00', 'beast_y29', '../evil', 'beast_g_unknown']) assert.equal(beastVoiceFor(id), null);

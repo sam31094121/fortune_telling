@@ -161,10 +161,9 @@ export function BattleActionBar({
     // Never label that transition as a normal attack that appears to do nothing.
     // 主戰倒下：接替走畫面最下方的固定選卡列（BattleDock），這裡只提示，不再另開後備清單。
     if (active.defeated) return <div className={styles.compactActions}>
-      <p className={styles.activeHint} role="status" data-swap-guide>主戰已倒下——請點最下方的卡片接替上場；這一步不出招。</p>
+      <p className={styles.activeHint} role="status" data-swap-guide>↓ 選一張後備上場</p>
     </div>;
     if (match.opponent.team[match.opponent.active].defeated && attack) return <div className={styles.compactActions}>
-      <p className={styles.activeHint} role="status">易經已倒下，接下來由後備上場；這一步不出招。</p>
       <button type="button" className={styles.actionButton} disabled={busy} onClick={() => { setCommandView(null); onAction(attack); }}>繼續，易經換卡</button>
     </div>;
     return (
@@ -173,7 +172,11 @@ export function BattleActionBar({
           {busy ? '▶' : active.stunnedTurns > 0 ? '⊘' : `⚡${match.player.energy}`}{!busy && special && !active.stunnedTurns ? ' · ✦' : ''}
         </p>
         <div className={styles.primaryActions} role="group" aria-label="本回合指令">
-          {/* 普通攻擊＝直接點最下方的主戰卡片；這裡只留技能與暴怒合體 */}
+          {/* 普通攻擊補上明確按鈕（2026-11-12 實玩：只留技能與暴怒時，技能冷卻中客戶不知道還能做什麼）。點最下方主戰卡片仍可攻擊。 */}
+          <button type="button" className={`${styles.actionButton} ${styles.attackButton}`} disabled={busy || !attack} data-testid="battle-attack" aria-label="普通攻擊" onClick={() => attack && onAction(attack)}>
+            <span aria-hidden="true">⚔</span>
+            <strong>攻擊</strong>
+          </button>
           <button type="button" className={styles.skillButton} disabled={busy || !special} aria-label={`技能 ${skill.skillName}`} onClick={() => special && onAction(special)}>
             <span aria-hidden="true">✦</span>
             <strong>技能</strong>

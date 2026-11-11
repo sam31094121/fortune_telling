@@ -208,3 +208,10 @@
 .split[data-dock='true'] [data-control-scroll] details[open] { display: block; width: 100%; }
 .split[data-dock='true'] [data-control-scroll] details summary { min-height: 36px; font-size: 13px; }
 .split[data-dock='true'] [data-control-scroll] p[data-battle-stake], .split[data-dock='true'] [data-control-scroll] p[data-battle-resumed] { margin: 4px 0 0; padding: 4px 8px; font-size: 12px; line-height: 1.4; }
+
+/* 2026-11-12：戰鬥中不放說明字；說明集中在點「？」才出現的一張卡 */
+.helpDot { min-width: 40px; min-height: 40px; border-radius: 50%; border: 1px solid #ffd47980; background: #ffffff0d; color: #ffd479; font-size: 18px; font-weight: 900; cursor: pointer; touch-action: manipulation; }
+.battleHelp { margin: 8px 0; padding: 12px; border: 1px solid #ffd47960; border-radius: 12px; background: #141b29; color: #f5e7bd; }
+.battleHelp h2 { margin: 0 0 6px; font-size: 18px; font-weight: 900; }
+.battleHelp ol { margin: 0 0 10px; padding-left: 18px; display: grid; gap: 6px; font-size: 14px; line-height: 1.5; }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

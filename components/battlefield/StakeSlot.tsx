@@ -31,11 +31,11 @@
  * 勝負來自戰鬥核心。這個元件只負責「選哪一張」與「講清楚代價」。
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './StakeSlot.module.css';
-import { BeastThumb, BeastCardFace } from './BeastCardTile';
+import CatalogBeastCard from './CatalogBeastCard';
 import { createSoundPlayer, CLASH_FX } from '@/lib/beast-battle-fx';
-import { MAX_STAKE_CARDS, MAX_REWARD_CARDS, describeStakeOdds } from '@/lib/beast-game/stake-rules';
+import { MAX_STAKE_CARDS, describeStakeBrief } from '@/lib/beast-game/stake-rules';
 
 export interface StakeCard {
   /** A real collection-entry id, not merely the card type. */
@@ -53,7 +53,7 @@ export interface StakeStep {
 }
 
 export default function StakeSlot({
-  owned, selected, steps, onSelect, trial, locked = false,
+  owned, selected, steps, onSelect, onAddCard, onRemoveCard, onClear, trial, locked = false,
 }: {
   /** 可以拿來押的卡：成長中心真正擁有的那些。 */
   owned: StakeCard[];
@@ -61,6 +61,10 @@ export default function StakeSlot({
   /** 先後順序。最後一個未完成的就是「現在該做的」。 */
   steps: StakeStep[];
   onSelect: (cardId: string) => void;
+  /** 加碼一張／取回一張／清空：以「卡種」為單位，連續按與長按都走這裡（業主 2026-11-12）。 */
+  onAddCard?: (cardId: string) => void;
+  onRemoveCard?: (cardId: string) => void;
+  onClear?: () => void;
   /** 體驗戰：收藏空著、免押注。格子的說法要跟著換，不能還喊「先押一張」。 */
   trial?: boolean;
   locked?: boolean;
@@ -85,23 +89,27 @@ export default function StakeSlot({
   }, [currentIndex]);
 
   const pickerRef = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ id: number; x: number; left: number } | null>(null);
-  const dragged = useRef(false);
   const selectedIds = useMemo(() => selected ?? [], [selected]);
   const picked = useMemo(() => selectedIds
     .map(id => owned.find(card => card.id === id))
     .filter((card): card is StakeCard => Boolean(card)), [owned, selectedIds]);
+  // 以卡種分組：同一種神獸只出現一列，「押幾張」用數字加減，不再把每一張副本各放一格。
+  const groups = useMemo(() => {
+    const map = new Map<string, StakeGroup>();
+    for (const card of owned) {
+      const g = map.get(card.cardId);
+      if (g) g.total += 1; else map.set(card.cardId, { cardId: card.cardId, name: card.name, thumbnail: card.thumbnail, total: 1 });
+    }
+    return [...map.values()];
+  }, [owned]);
+  const countByType = useMemo(() => {
+    const byEntry = new Map(owned.map(card => [card.id, card.cardId]));
+    const out = new Map<string, number>();
+    for (const id of selectedIds) { const t = byEntry.get(id); if (t) out.set(t, (out.get(t) ?? 0) + 1); }
+    return out;
+  }, [owned, selectedIds]);
+  const full = selectedIds.length >= MAX_STAKE_CARDS;
   const [announceText, setAnnounceText] = useState('');
-  const [movement, setMovement] = useState('');
-  const choose = (card: StakeCard) => {
-    const selectedNow = selectedIds.includes(card.id);
-    setMovement(selectedNow
-      ? `已取回「${card.name}」1 張，目前押注 ${Math.max(0, selectedIds.length - 1)}/${MAX_STAKE_CARDS} 張；持有張數不變。`
-      : selectedIds.length >= MAX_STAKE_CARDS
-        ? `已選滿${MAX_STAKE_CARDS}張；先點一張已選卡取回，再換另一張。`
-        : `已將「${card.name}」1 張放入押注格，目前 ${selectedIds.length + 1}/${MAX_STAKE_CARDS} 張。尚未扣卡。`);
-    onSelect(card.id);
-  };
   useEffect(() => {
     setAnnounceText(
       currentIndex < 0
@@ -129,65 +137,20 @@ export default function StakeSlot({
       {/* 聲音之外也要有字：關掉聲音或聽不到的人一樣要知道進度。 */}
       {steps.length > 0 && <p className="sr-only" role="status" aria-live="polite">{announceText}</p>}
 
-      <div className={styles.slotRow}>
-        {/*
-          押注格本身可以點。
-
-          業主定調：「壓住的卡片，只要點擊壓住的框架，再回到卡片點擊，
-          連貫起來就可以。」
-
-          原本格子是死的：要換一張，得自己往下找那排小卡。
-          現在點格子就把選卡列帶到眼前並聚焦第一張——
-          「點格子 → 點卡 → 回到格子」變成一個閉環，
-          不需要客戶自己在畫面上找路。
-
-          已經押了的再點一次＝要換，所以先清掉，回到「等你押」的狀態。
-        */}
-        <button
-          type="button"
-          className={styles.stakeTray}
-          data-stake-target
-          aria-label={trial ? '體驗戰免押卡' : `押注格，已選 ${picked.length}/${MAX_STAKE_CARDS} 張，點此移到收藏卡`}
-          disabled={trial || locked}
-          onClick={() => {
-            pickerRef.current?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
-            pickerRef.current?.querySelector('button')?.focus({ preventScroll: true });
-          }}
-        >
-          {Array.from({ length: MAX_STAKE_CARDS }, (_, index) => {
-            const card = picked[index];
-            return <span className={styles.stakeCell} key={card?.id ?? `empty-${index}`}>
-              {card ? <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <BeastThumb id={card.cardId} thumbnail={card.thumbnail} alt={card.name} />
-              </> : <span aria-hidden="true">{index + 1}</span>}
-            </span>;
-          })}
-        </button>
-        <div className={styles.slotText}>
-          {picked.length ? (
-            <>
-              <strong>押注籌碼 {picked.length}/{MAX_STAKE_CARDS} 張</strong>
-              <span className={styles.risk}>{describeStakeOdds(picked.length).lose}</span>
-              <span className={styles.risk}>{describeStakeOdds(picked.length).win}</span>
-              <span>點卡選取或取消，開戰前不扣卡。</span>
-            </>
-          ) : trial ? (
-            <>
-              <strong>體驗戰・免押注</strong>
-              <span className={styles.risk}>這一場不押卡、不發卡也不沒收。選好主戰卡即可開戰。</span>
-            </>
-          ) : (
-            <>
-              <strong>押注籌碼 0/{MAX_STAKE_CARDS} 張</strong>
-              <span className={styles.risk}>從持有卡片選 1～{MAX_STAKE_CARDS} 張。輸了只失去押上的卡；贏了至少再得同樣張數，打得越漂亮越多，最多 {MAX_REWARD_CARDS} 張。</span>
-            </>
-          )}
+      {owned.length > 0 && !trial && <>
+        <div className={styles.stakeBar}>
+          <p><strong>已押 {selectedIds.length}<em>/{MAX_STAKE_CARDS}</em></strong><span>還可押 {Math.max(0, Math.min(MAX_STAKE_CARDS, owned.length) - selectedIds.length)}</span></p>
+          <button type="button" disabled={locked || selectedIds.length === 0} onClick={() => onClear?.()}>清空</button>
         </div>
-      </div>
-      {movement && <p className={styles.movement} role="status">{movement}</p>}
-      {owned.length > 0 && <details className={styles.movement}><summary>收藏與扣卡說明</summary><p>出戰卡的移動與倒下不扣卡，只結算押注格。收藏與結果儲存在本機。</p></details>}
-
+        {/* 版面不跳動：沒押卡時這一條也佔位（隱藏），第一次點卡時下面的卡片不會往下掉，連點才不會點偏。 */}
+        <ul className={styles.stakeOdds} data-stake-brief data-empty={selectedIds.length === 0 || undefined} aria-hidden={selectedIds.length === 0 || undefined}>
+          <li data-win><b>贏</b><span>{describeStakeBrief(selectedIds.length || 1).win}</span></li>
+          <li data-lose><b>輸</b><span>{describeStakeBrief(selectedIds.length || 1).lose}</span></li>
+          <li data-draw><b>平</b><span>{describeStakeBrief(selectedIds.length || 1).draw}</span></li>
+        </ul>
+        <p className="sr-only" role="status" aria-live="polite">{`目前押注 ${selectedIds.length}/${MAX_STAKE_CARDS} 張`}</p>
+      </>}
+      {trial && <div className={styles.slotRow}><div className={styles.slotText}><strong>體驗戰・免押注</strong><span className={styles.risk}>不押卡、不發卡也不沒收</span></div></div>}
       {owned.length === 0 ? (
         <div className={styles.empty2}>
           <strong>本場使用試用戰鬥卡</strong>
@@ -195,57 +158,85 @@ export default function StakeSlot({
         </div>
       ) : (
         <>
-        <div className={styles.pickerNavigation} aria-label="移動收藏卡列">
-          <button type="button" onClick={() => pickerRef.current?.scrollBy({ left: -pickerRef.current.clientWidth * .85, behavior: 'auto' })} aria-label="前一排收藏卡">← 前一排</button>
-          <span>左右滑動或拖動選卡</span>
-          <button type="button" onClick={() => pickerRef.current?.scrollBy({ left: pickerRef.current.clientWidth * .85, behavior: 'auto' })} aria-label="後一排收藏卡">後一排 →</button>
-        </div>
-        <div ref={pickerRef} className={styles.picker} role="group" aria-label="從收藏選最多二十張押注"
-          onPointerDown={event => {
-            dragged.current = false;
-            if (event.pointerType === 'mouse' && event.button === 0) drag.current = { id: event.pointerId, x: event.clientX, left: event.currentTarget.scrollLeft };
-          }}
-          onPointerMove={event => {
-            const start = drag.current;
-            if (!start || start.id !== event.pointerId) return;
-            const distance = event.clientX - start.x;
-            if (Math.abs(distance) < 6 && !dragged.current) return;
-            dragged.current = true;
-            event.currentTarget.setPointerCapture(event.pointerId);
-            event.currentTarget.scrollLeft = start.left - distance;
-            event.preventDefault();
-          }}
-          onPointerUp={event => {
-            drag.current = null;
-            if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-          }}
-          onPointerCancel={() => { drag.current = null; }}
-          onPointerLeave={event => { if (!event.currentTarget.hasPointerCapture(event.pointerId)) drag.current = null; }}
-          onClickCapture={event => { if (dragged.current) { event.preventDefault(); event.stopPropagation(); dragged.current = false; } }}>
-          {owned.map((card) => (
-            <button
-              key={card.id}
-              type="button"
-              className={[styles.pick, selectedIds.includes(card.id) ? styles.picked : ''].filter(Boolean).join(' ')}
-              aria-label={`${selectedIds.includes(card.id) ? '取回' : '押上'}${card.name}第 ${card.copy} 張，已選 ${selectedIds.length}/${MAX_STAKE_CARDS} 張`}
-              aria-pressed={selectedIds.includes(card.id)}
-              disabled={locked}
-              onClick={() => {
-                choose(card);
-                // 押下去給一聲確認——這一下是有代價的，值得一個回饋。
-                sound.current?.play(CLASH_FX.impact, 0.28);
-                // Keep the chosen card in view. Its pressed state and the confirmation
-                // footer show the result without a delayed scroll interrupting touch input.
-              }}
-            >
-              <BeastCardFace card={{ id: card.cardId, name: card.name, thumbnail: card.thumbnail }} />
-              <span>第 {card.copy}/{card.count} 張</span>
-              <span>{selectedIds.includes(card.id) ? '已選・取消' : selectedIds.length < 5 ? '選這張' : '已選滿五張'}</span>
-            </button>
-          ))}
-        </div>
+          <div className={styles.stakeWheel} data-stake-wheel>
+          <div ref={pickerRef} className={styles.stakeGrid} role="group" aria-label="從收藏選最多二十張押注">
+            {groups.map(group => (
+              <StakeRow key={group.cardId} group={group} count={countByType.get(group.cardId) ?? 0} full={full} locked={locked}
+                onAdd={onAddCard ?? onSelect} onRemove={onRemoveCard ?? onSelect} />
+            ))}
+          </div>
+          </div>
         </>
       )}
     </section>
   );
 }
+
+interface StakeGroup { cardId: string; name: string; thumbnail: string; total: number }
+
+/**
+ * 按一下＝加一張（放開時才算）；按住 350ms 後每 90ms 連續加。
+ * 手指一滑動（在捲列表）就取消，不會因為捲動而誤押；放開、移開、取消、失焦、卸載都會停（不會卡住）。
+ */
+function useHoldRepeat(action: () => void, canRun: () => boolean) {
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const start = useRef<{ x: number; y: number } | null>(null);
+  const repeating = useRef(false);
+  const live = useRef({ action, canRun });
+  live.current = { action, canRun };
+  const stop = useCallback(() => { if (timer.current) { clearTimeout(timer.current); timer.current = null; } start.current = null; repeating.current = false; }, []);
+  useEffect(() => stop, [stop]);
+  const loop = useCallback((delay: number) => {
+    timer.current = setTimeout(() => {
+      if (!live.current.canRun()) { timer.current = null; repeating.current = false; return; }
+      repeating.current = true;
+      live.current.action();
+      loop(90);
+    }, delay);
+  }, []);
+  return {
+    onPointerDown: (event: React.PointerEvent<HTMLButtonElement>) => {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      stop();
+      start.current = { x: event.clientX, y: event.clientY };
+      loop(350);
+    },
+    onPointerMove: (event: React.PointerEvent<HTMLButtonElement>) => {
+      const s = start.current;
+      if (s && !repeating.current && Math.hypot(event.clientX - s.x, event.clientY - s.y) > 10) stop();
+    },
+    onPointerUp: () => {
+      const tap = start.current !== null && !repeating.current;
+      stop();
+      if (tap && live.current.canRun()) live.current.action();
+    },
+    onPointerLeave: stop, onPointerCancel: stop, onBlur: stop,
+    // 鍵盤（Enter／空白鍵）沒有 pointer 事件：detail === 0 代表鍵盤觸發的 click。
+    onClick: (event: React.MouseEvent<HTMLButtonElement>) => { if (event.detail === 0 && live.current.canRun()) live.current.action(); },
+    onContextMenu: (event: React.MouseEvent) => event.preventDefault(),
+  };
+}
+
+const StakeRow = memo(function StakeRow({ group, count, full, locked, onAdd, onRemove }: {
+  group: StakeGroup; count: number; full: boolean; locked: boolean;
+  onAdd: (cardId: string) => void; onRemove: (cardId: string) => void;
+}) {
+  const canAdd = !locked && !full && count < group.total;
+  const canRemove = !locked && count > 0;
+  const stateRef = useRef({ canAdd, canRemove });
+  stateRef.current = { canAdd, canRemove };
+  const add = useHoldRepeat(() => onAdd(group.cardId), () => stateRef.current.canAdd);
+  const remove = useHoldRepeat(() => onRemove(group.cardId), () => stateRef.current.canRemove);
+  return (
+    <div className={[styles.stakeRow, count > 0 ? styles.stakeRowOn : ''].filter(Boolean).join(' ')} data-stake-row data-count={count}>
+      {/* 卡片本身已經寫了名字與介紹：這裡不再重複文字，只放卡面與張數。 */}
+      <button type="button" className={styles.stakeMain} aria-label={`加碼一張${group.name}，已押 ${count} 張，持有 ${group.total} 張`} disabled={!canAdd} {...add}>
+        <CatalogBeastCard id={group.cardId} />
+      </button>
+      <div className={styles.stakeStrip}>
+        <button type="button" className={styles.stakeMinus} aria-label={`取回一張${group.name}`} disabled={!canRemove} data-hidden={count === 0 || undefined} {...remove}>－</button>
+        <output className={styles.stakeCount} data-on={count > 0 || undefined}>{count}<i>/{group.total}</i></output>
+      </div>
+    </div>
+  );
+});

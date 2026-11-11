@@ -82,7 +82,7 @@ for (const winner of ['player', 'opponent', null]) {
   onlyBattle(render(Panel, { match: { ...match, status: 'FINISHED', winner }, onAction() {}, compact: true }));
 }
 const trial = render(load('components/battlefield/StakeSlot.tsx').default, { owned: [], selected: null, steps: [], onSelect() {}, trial: true });
-assert.match(trial, /體驗戰免押卡/);
+assert.match(trial, /體驗戰・免押注/);
 assert.match(trial, /不押卡、不發卡也不沒收/);
 onlyBattle(trial);
 console.log('PASS: battle entry, no-stake guidance, live combat, abilities and all outcomes stay in battle mode');
