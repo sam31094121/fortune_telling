@@ -2,6 +2,7 @@ import { emptyTreasureBook, validateTreasureBook, type TreasureBook } from './tr
 import { campaignWin, chooseCampaignHero, enhanceCampaignProfile, newCampaign, parseCampaign, validateCampaignTeam, type HardCampaign, type CampaignReward, type EnhancementReceipt } from './hard-campaign';
 import { readMatch3Progress } from './progress-store';
 import { decodeCampaignBackup, encodeCampaignBackup } from './campaign-backup';
+import { applyFeed, feedChainEnabled, type FeedContext, type FeedPreview } from './feed-chain';
 export type CampaignOwner = 'self' | 'guest';
 export interface CampaignResult { ok: boolean; profile: HardCampaign | null; error?: string }
 export interface CampaignSettlement extends CampaignResult { saved: boolean; reward?: CampaignReward; nextWins?: number; duplicate?: boolean }
@@ -59,6 +60,23 @@ export const enhanceCampaign = (owner: CampaignOwner, operationId: string, young
   const next = enhanceCampaignProfile(current.profile, operationId, youngId, targetId);
   const result = next.duplicate ? current : write(owner, next.profile);
   return result.ok ? { ...result, receipt: next.receipt, duplicate: next.duplicate } : result;
+}, failed);
+
+/** 餵食鏈（feed-chain.ts）：開關關閉時不讀不寫。只給 UI 拿「預覽當下」的原始存檔字串，確認時比對。 */
+export function readCampaignSnapshot(owner: CampaignOwner): string | null {
+  try { return storage(owner).getItem(keys[owner]); } catch { return null; }
+}
+export interface CampaignFeedResult extends CampaignResult { preview?: FeedPreview | null; duplicate?: boolean }
+/** 同一把跨分頁鎖內：重讀最新存檔→同一 operationId 重送視為重複→存檔已被別的分頁改過就拒絕並要求重讀→同一套規則再檢查→寫入。 */
+export const feedCampaignChain = (owner: CampaignOwner, operationId: string, materialRef: string, targetId: string, expectedSnapshot: string | null, ctx: FeedContext): Promise<CampaignFeedResult> => transaction(owner, (): CampaignFeedResult => {
+  if (!(ctx.enabled ?? feedChainEnabled())) return failed(new Error('餵食鏈尚未開放'));
+  const current = readCampaign(owner);
+  if (!current.ok || !current.profile) return current;
+  const isDuplicate = (current.profile.chainReceipts ?? []).some(r => r.operationId === operationId) || (current.profile.enhancementReceipts ?? []).some(r => r.operationId === operationId);
+  if (!isDuplicate && storage(owner).getItem(keys[owner]) !== expectedSnapshot) return failed(new Error('存檔已在別處變更，請重新讀取後再確認'));
+  const next = applyFeed(current.profile, operationId, materialRef, targetId, ctx);
+  const result = next.duplicate ? current : write(owner, next.profile);
+  return result.ok ? { ...result, preview: next.preview, duplicate: next.duplicate } : result;
 }, failed);
 
 function legacyWins(): number {

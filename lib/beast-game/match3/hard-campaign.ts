@@ -4,6 +4,9 @@ import { CARD_FACE_STATS } from '../card-face-stats';
 
 export interface CampaignReward { matchId: string; cardId: string; win: number }
 export interface EnhancementReceipt { operationId: string; youngId: string; targetId: string; attackBonus: number }
+/** 餵食／合體鏈（feed-chain.ts）：本體吃進四大神獸的收據。功能開關 NEXT_PUBLIC_M3_FEED_CHAIN 關閉時完全不讀不寫。 */
+export type ChainMaterial = { kind: 'REWARD'; matchId: string } | { kind: 'IMPORT'; importKey: string };
+export interface ChainReceipt { operationId: string; material: ChainMaterial; materialCardId: string; targetId: string; inheritedAttack: number; attackBonus: number; energyBonus: number }
 export interface HardCampaign {
   version: 1;
   treasures?: TreasureBook;
@@ -16,6 +19,11 @@ export interface HardCampaign {
   consumedYoungIds?: string[];
   enhancements?: Record<string, number>;
   enhancementReceipts?: EnhancementReceipt[];
+  /** 以下三個為可選新欄位，只由 feed-chain.ts 讀寫；讀不懂只停用餵食鏈，不影響整份存檔。 */
+  chainReceipts?: ChainReceipt[];
+  consumedRewardMatchIds?: string[];
+  /** 僅供顯示的快取；一律由收據重算，不信任存下來的數字。 */
+  startEnergy?: Record<string, number>;
 }
 export const campaignAdultIds = (): string[] => playableCards().filter(c => c.form === 'ADULT').map(c => c.id).sort();
 export const campaignGuardianIds = (): string[] => playableCards().filter(c => c.form === 'GUARDIAN').map(c => c.id).sort();
