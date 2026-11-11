@@ -57,7 +57,7 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
         <p className="mt-1 text-sm leading-6 text-white/80">
           {isReplay ? '本次不發獎，也不扣卡。贏得 0 張・輸掉 0 張。'
             : !summary ? '尚未完成發獎或扣卡，請重試保存。'
-              : won ? `原本 ${summary.retained} 張保留＋獎勵 ${summary.gained} 張，本場共 ${summary.retained + summary.gained} 張。`
+              : won ? null
                 : lost ? '已從持有卡片扣除。其他卡片保留；可先查看相剋，再調整陣容。'
                   : null}
         </p>
@@ -79,7 +79,7 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
       </section>
       {won && gainedGroups.length > 0 && <section aria-label="新得的卡片">
         <p className="mb-1.5 inline-block rounded-full bg-amber-300/25 px-3 py-1 text-sm font-black text-amber-100">＋ 新得 {summary.gained} 張</p>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid max-h-[440px] grid-cols-3 gap-2 overflow-y-auto overscroll-contain pr-0.5" data-gained-scroll>
           {gainedGroups.map(([id, count]) => <StakeChip key={id} id={id} name={nameOf(id)} cards={cards} count={count} tone="gain" />)}
         </div>
       </section>}

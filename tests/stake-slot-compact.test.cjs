@@ -49,3 +49,7 @@ assert(arena.includes("data-last={side === 'opponent' && match && match.opponent
 const info = fs.readFileSync('app/beast-game/battlefield/page.tsx', 'utf8');
 assert(info.includes('showLog={false}') && info.includes('className={styles.infoCard}') && !info.includes('data-battle-stake>{battleStake'.replace('{battleStake','{battleStake') + 'XX'), '戰鬥場文字全部收進右上角「？」那一張卡');
 console.log('PASS last-one big + info card');
+
+const res2 = fs.readFileSync('components/BeastStakeResult.tsx', 'utf8');
+assert(res2.includes('data-gained-scroll') && res2.includes('max-h-[440px]'), '新得的卡很多時限定高度自己捲動');
+console.log('PASS result gained scroll');
