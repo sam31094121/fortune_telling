@@ -150,3 +150,32 @@
   }
   .sparks { display: none; }
 }
+
+/* 2026-11-11 業主要求：勝利戰利品再強化——旋轉金光、雙層衝擊環、爆開火花、持續升空的光點、卡面掃光。
+   只加視覺（transform／opacity），不碰結算與保存流程；減少動態時全部關閉。 */
+.reveal[data-presentation='orb-victory'] .heading { font-size: 20px; letter-spacing: .14em; background: linear-gradient(180deg, #fffbe0, #fcea86 45%, #d9962b); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 8px #f8c75888); animation: treasureTitle .7s cubic-bezier(.2,1.4,.3,1) both; }
+.reveal[data-presentation='orb-victory'] { box-shadow: inset 0 0 40px #f8c75824, 0 0 28px #f8c7582e, 0 12px 28px #0005; }
+.stage { padding: 34px 0 36px; }
+.stage .cardWrap { width: min(190px, 62%); filter: drop-shadow(0 0 22px #ffd575aa) drop-shadow(0 8px 14px #000a); border-radius: 12px; overflow: hidden; animation: treasureFloat 3.2s ease-in-out 1.2s infinite; }
+.stage .cardWrap::after { content: ''; position: absolute; inset: -20% -60%; z-index: 4; pointer-events: none; background: linear-gradient(100deg, transparent 42%, #fff8 50%, transparent 58%); transform: translateX(-70%); animation: treasureShine 1.1s ease-out .9s 1 both; }
+.rays { position: absolute; left: 50%; top: 50%; width: 330px; height: 330px; margin: -165px 0 0 -165px; z-index: 0; pointer-events: none; border-radius: 50%; background: repeating-conic-gradient(from 0deg, #ffe7a066 0deg 7deg, transparent 7deg 20deg); -webkit-mask: radial-gradient(circle, #000 18%, transparent 68%); mask: radial-gradient(circle, #000 18%, transparent 68%); animation: treasureRays 14s linear infinite, treasureFade 1.2s ease-out both; }
+.ring2 { position: absolute; width: 150px; height: 150px; border: 2px solid #fff1b8cc; border-radius: 50%; pointer-events: none; box-shadow: 0 0 24px #ffd575; animation: treasureShock 1.2s ease-out .15s both; }
+.ring { border-width: 2px; border-color: #f9d887cc; animation: treasureRing 1.6s ease-out .1s both; }
+.sparks i::after { width: 5px; height: 5px; animation: treasureBurst 1.5s cubic-bezier(.1,.7,.3,1) calc(.25s + var(--d, 0ms)) both; }
+.sparks i:nth-child(even)::after { animation-delay: calc(.45s + var(--d, 0ms)); }
+.embers { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.embers i { position: absolute; bottom: 8px; width: 4px; height: 4px; border-radius: 50%; background: #ffe39a; box-shadow: 0 0 8px #ffc94d; opacity: 0; animation: treasureEmber var(--t, 3s) ease-out var(--d, 1s) infinite; }
+.pedestal { height: 22px; width: 190px; background: radial-gradient(ellipse, #ffe9b0b0, #d79a3a40 45%, transparent 72%); animation: treasurePulse 2.4s ease-in-out 1s infinite; }
+@keyframes treasureTitle { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: scale(1); } }
+@keyframes treasureFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes treasureShine { to { transform: translateX(70%); } }
+@keyframes treasureRays { to { transform: rotate(360deg); } }
+@keyframes treasureFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes treasureShock { from { opacity: 1; transform: scale(.3); } to { opacity: 0; transform: scale(2.3); } }
+@keyframes treasureBurst { from { opacity: 0; transform: translateY(0) scale(.3); } 20% { opacity: 1; } to { opacity: 0; transform: translateY(calc(var(--r, 120px) * -1)) scale(.6); } }
+@keyframes treasureEmber { 0% { opacity: 0; transform: translateY(0) scale(.6); } 15% { opacity: .95; } 100% { opacity: 0; transform: translateY(-170px) scale(1); } }
+@keyframes treasurePulse { 0%, 100% { opacity: .7; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .reveal[data-presentation='orb-victory'] .heading, .rays, .ring2, .embers i, .pedestal, .stage .cardWrap, .stage .cardWrap::after, .sparks i::after { animation: none; }
+  .embers, .ring2 { display: none; }
+}
