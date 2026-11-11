@@ -88,9 +88,9 @@ const avg = a => a.reduce((x, y) => x + y, 0) / a.length;
 const q = (a, p) => [...a].sort((x, y) => x - y)[Math.min(a.length - 1, Math.floor(a.length * p))];
 
 // ── 快：真實連線的總時間（改之前：平均約 8100ms、第一段約 1500ms、P90 約 16300ms） ──
-ok(avg(totals) <= 5000, `一次連線平均 ≤ 5000ms（實測 ${Math.round(avg(totals))}ms，改之前約 8100ms）`);
-ok(q(totals, .9) <= 10500, `一次連線 P90 ≤ 10500ms（實測 ${q(totals, .9)}ms，改之前約 16300ms）`);
-ok(avg(firsts) <= 900, `沒連鎖時（第一段）平均 ≤ 900ms（實測 ${Math.round(avg(firsts))}ms，改之前約 1500ms）`);
+ok(avg(totals) <= 4000, `一次連線平均 ≤ 4000ms（實測 ${Math.round(avg(totals))}ms，改之前約 8100ms）`);
+ok(q(totals, .9) <= 8500, `一次連線 P90 ≤ 8500ms（實測 ${q(totals, .9)}ms，改之前約 16300ms）`);
+ok(avg(firsts) <= 700, `沒連鎖時（第一段）平均 ≤ 700ms（實測 ${Math.round(avg(firsts))}ms，改之前約 1500ms）`);
 // 規則：不因連鎖數壓縮——最長的連鎖仍然比短的久（沒有全域上限）
 const longest = samples.map((s, i) => ({ steps: steps[i], total: totals[i] })).sort((a, b) => b.steps - a.steps)[0];
 ok(longest.steps > 10 && longest.total > avg(totals), `連鎖越長總時間越久，沒有整串壓縮（最長 ${longest.steps} 段 ${longest.total}ms）`);
@@ -107,7 +107,7 @@ eq(refillPresentation([{ falls: [{ r: 3, c: 0, fromRow: 1 }], rewards: [{ r: 3, 
 // ── 狠＋穩：樣式 ──
 const falling = css.slice(css.indexOf('.wrap[data-mode^="hard"] .falling {'), css.indexOf('@keyframes m3RefillLand'));
 ok(/cubic-bezier\(\.333,0,\.667,\.333\)/.test(falling), '落下用重力曲線（y∝t²）');
-ok(/m3RefillLand 90ms[^;]*forwards/.test(falling) && !/m3RefillLand[^;]*both/.test(falling), '落地壓扁只在落地後才套用（forwards，不蓋住延遲中的位置）');
+ok(/m3RefillLand 80ms[^;]*forwards/.test(falling) && !/m3RefillLand[^;]*both/.test(falling), '落地壓扁只在落地後才套用（forwards，不蓋住延遲中的位置）');
 ok(/transform-origin:\s*50% 100%/.test(falling), '壓扁以底部為支點（像落在地上）');
 ok(!/filter|blur|shake|vibrate/i.test(falling), '落下動畫只用 transform／opacity，不用 filter、不震動');
 ok(/@keyframes m3RefillLand[\s\S]*?scale\(1\.07, \.9\)/.test(css), '落地壓扁幅度很小（1.07／0.9）');

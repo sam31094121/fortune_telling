@@ -379,7 +379,7 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .wrap[data-mode^="hard"] .board[data-chain-intent="attack"] > svg [data-chain-flow] { stroke: #e8faff; opacity: .95; animation-duration: .85s; }
 .wrap[data-mode^="hard"] .board[data-chain-intent="defend"] > svg polyline:first-of-type { stroke: rgba(240,219,168,.24); }
 .wrap[data-mode^="hard"] .board[data-chain-intent="defend"] > svg polyline:nth-of-type(2) { filter: drop-shadow(0 0 1px rgba(255,244,216,.85)) drop-shadow(0 0 3px rgba(225,202,146,.4)); }
-.wrap[data-mode^="hard"] .board[data-chain-intent="defend"] > svg [data-chain-flow] { stroke: #fff0cc; opacity: .9; animation-duration: 1.15s; }
+.wrap[data-mode^="hard"] .board[data-chain-intent="defend"] > svg [data-chain-flow] { stroke: #fff0cc; opacity: .9; animation-duration: 1.13s; }
 .wrap[data-mode^="hard"] .board[data-chain-intent="defend"] > svg circle { fill: #fff3d9; }
 .wrap[data-mode^="hard"] .board[aria-busy="true"]::after {
   content: ''; position: absolute; inset: 0; z-index: 7; pointer-events: none; border-radius: inherit;
@@ -605,13 +605,13 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .fire .elementGlyph { top: 7%; width: 53%; height: 53%; }
 .magic .elementGlyph { width: 52%; height: 52%; }
 .sel .elementGlyph { color: #fffaf0; }
-.wrap[data-mode^="hard"] .flash .elementGlyph { animation: m3SoftClear var(--clear-duration, .15s) ease-out forwards; }
+.wrap[data-mode^="hard"] .flash .elementGlyph { animation: m3SoftClear var(--clear-duration, .13s) ease-out forwards; }
 @media (prefers-reduced-motion: reduce) {
   .wrap[data-mode^="hard"] .flash .elementGlyph { animation: none; opacity: .3; }
 }
 .wrap[data-mode^="hard"] .drop { animation: m3SoftDrop .32s cubic-bezier(.22,.68,.3,1); }
 .wrap[data-mode^="hard"] .flash .gem,
-.wrap[data-mode^="hard"] .flash .lbl { animation: m3SoftClear var(--clear-duration, .15s) ease-out forwards; }
+.wrap[data-mode^="hard"] .flash .lbl { animation: m3SoftClear var(--clear-duration, .13s) ease-out forwards; }
 .wrap[data-mode^="hard"] .water.flash .gem { animation-name: m3SoftWaterClear; }
 @keyframes m3SoftDrop {
   from { transform: translateY(-22%) scale(.98); opacity: .35; }
@@ -651,7 +651,7 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
   will-change: transform, opacity;
   animation:
     m3RefillFall var(--fall-duration) cubic-bezier(.333,0,.667,.333) var(--fall-delay) both,
-    m3RefillLand 90ms cubic-bezier(.2,.9,.3,1) calc(var(--fall-delay) + var(--fall-duration)) forwards;
+    m3RefillLand 80ms cubic-bezier(.2,.9,.3,1) calc(var(--fall-delay) + var(--fall-duration)) forwards;
 }
 @keyframes m3RefillFall {
   0% { transform: translateY(var(--fall-offset)) scale(.98); opacity: var(--fall-opacity, 1); }

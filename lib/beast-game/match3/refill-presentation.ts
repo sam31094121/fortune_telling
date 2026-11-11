@@ -26,11 +26,11 @@ export function fusionDischarge(elements: readonly BeastElement[], board: readon
  */
 export const REFILL_TIMING = {
   /** 清除（一般／減少動態）。 */
-  clearMs: 150, reducedClearMs: 60,
+  clearMs: 130, reducedClearMs: 60,
   /** 配對停留：第一段是玩家剛拖的線，客戶已經知道，短；之後每段連鎖要看得出配到什麼。 */
-  matchFirstMs: 200, matchNextMs: 280,
+  matchFirstMs: 170, matchNextMs: 230,
   /** 單顆落程＝基礎＋係數×√落差（重力：落越遠越久，但不是整段共用最遠那顆）。 */
-  fallBaseMs: 45, fallPerRootCellMs: 68,
+  fallBaseMs: 38, fallPerRootCellMs: 58,
   /** 起點錯開的單位：同欄由下往上依序、欄與欄只差 1 單位，每顆起點唯一。 */
   rippleUnitMs: 2,
   rewardHoldMs: 260, emptyHoldMs: 140,
