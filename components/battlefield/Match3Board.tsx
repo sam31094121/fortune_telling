@@ -46,6 +46,7 @@ import { deriveServerKnockouts, reservedGuardianBossRule, type FinalBossRule, ty
 import BattleResultBanner from './BattleResultBanner';
 import BattleRewardReveal from './BattleRewardReveal';
 import Match3RigAttack, { Match3TargetArt, useBattleArtUrl, match3RigAttackers, type Match3Strike } from './Match3RigAttack';
+import { fusedRimVars, fusedRimState, fusedShieldVars, FUSED_HIDE_READY_ORB } from './fused-rim';
 import { readMatch3Progress, saveMatch3Progress, type Match3ProgressOwner } from '@/lib/beast-game/match3/progress-store';
 import { readCampaign, settleWin, transactTreasures, type CampaignSettlement } from '@/lib/beast-game/match3/hard-campaign-store';
 import { validateCampaignTeam, campaignAttack, type HardCampaign } from '@/lib/beast-game/match3/hard-campaign';
@@ -167,6 +168,16 @@ export default function Match3Board({ treasurePractice, seed, teamIds, sameEleme
   return <Match3Game treasurePractice={treasurePractice} key={`${key}:${cfg.id}:${init.revision}`} init={init} teamIds={teamIds} rule={sameElementRule} onRepick={onRepick} cfg={cfg} campaignEnabled={campaignEnabled} onCampaignContinue={onCampaignContinue} isFinalBoss={isFinalBoss} />;
 }
 
+/** 狀態徽章（動效助手 v3，鈺勝 23:46／23:53）：卡左上 14px 靜態，形狀＋色調區分；卡上不放字，狀態寫在 aria-label。 */
+type FusedBadge = 'stunned' | 'counter' | 'standby';
+function FusedStatusBadge({ kind }: { kind: FusedBadge }) {
+  return <span className={styles.fusedBadge} data-badge={kind} data-testid="match3-status-badge" aria-hidden="true"><svg viewBox="0 0 14 14">{
+    kind === 'stunned' ? <><path d="M4.9 6.6V5.1a2.1 2.1 0 0 1 4.2 0v1.5" fill="none" stroke="currentColor" strokeWidth="1.5" /><rect x="3.4" y="6.4" width="7.2" height="5.2" rx="1.1" fill="currentColor" /></>
+    : kind === 'standby' ? <path d="M4 2.8h6M4 11.2h6M4.7 3c0 2.3 2.3 2.7 2.3 4s-2.3 1.7-2.3 4M9.3 3c0 2.3-2.3 2.7-2.3 4s2.3 1.7 2.3 4" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    : <path d="M3.2 4.4l6.4 6.4M5 2.6l6.4 6.4M2.6 6.2l5.2 5.2M10.8 3.2l-7.6 7.6" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+  }</svg></span>;
+}
+
 function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, campaignEnabled, onCampaignContinue, isFinalBoss }: { isFinalBoss?: FinalBossRule; treasurePractice?: TreasurePractice; cfg: Match3ModeConfig; init: { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner }; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void; campaignEnabled: boolean; onCampaignContinue?: () => void }) {
   const rigEnabled = cfg.id === 'hard45' || cfg.id === 'hard45b';
   const [wins, setWins] = useState(init.wins);
@@ -249,6 +260,8 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const [counterFoes, setCounterFoes] = useState<Set<number>>(new Set());
   const [hitFoe, setHitFoe] = useState<number | null>(null);
   const [attacked, setAttacked] = useState<Set<string>>(new Set());
+  // 一體成型：只有能量技／連結攻擊的施放者才播「發動」（底座元素色一亮，不縮放）；普通連珠只讓外殼亮一下（data-fused-hit）。
+  const [fired, setFired] = useState<ReadonlySet<string>>(() => new Set());
   const [chosen, setChosen] = useState<LeadChoice>({});
   const [linkMode, setLinkMode] = useState(false);
   const [debug, setDebug] = useState(false);
@@ -737,6 +750,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     if (applied) showSkillEvents(applied.skillEvents);
     showStrike(applied?.actualHits ?? [{ attackerId: u.id, amount: actualAmount }], foe, damaged[ti], true, rigEnabled ? actualAmount : undefined);
     if (rigEnabled) queueKnockouts(foes, damaged, actionId, 'server-skill', hadRig.current ? RIG_IMPACT_MS : 0);
+    if (rigEnabled) { setFired(new Set([u.id])); later(() => setFired(new Set()), 700); }
     setFoes(damaged); if (actualAmount > 0) { setHitFoe(ti); later(() => setHitFoe(null), 500); }
     setTeam(nextTeam); setLastDmg(actualAmount); setTotalDmg((s) => s + actualAmount);
     if (rigEnabled) finishEnergyAttack();
@@ -763,6 +777,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     if (applied) showSkillEvents(applied.skillEvents);
     showStrike(applied?.actualHits ?? cards.map(c => ({ attackerId: c.id, amount: actualAmount })), foe, damaged[ti], true, rigEnabled ? actualAmount : undefined);
     if (rigEnabled) queueKnockouts(foes, damaged, actionId, 'server-link', hadRig.current ? RIG_IMPACT_MS : 0);
+    if (rigEnabled) { setFired(new Set(cards.map(c => c.id))); later(() => setFired(new Set()), 700); }
     setFoes(damaged); setHitFoe(ti); later(() => setHitFoe(null), 500);
     setTeam(nextTeam);
     setLastDmg(actualAmount); setTotalDmg((s) => s + actualAmount); setLink([]); setLinkMode(false);
@@ -834,17 +849,21 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
         {foes.map((f, i) => rigEnabled && f.hp <= 0 && retiredFoes.has(f.id) ? null : (
           <button type="button" key={f.id} data-testid="match3-enemy" data-id={f.id} data-hp={f.hp} data-cd={f.cd} data-target={i === ti ? '1' : '0'}
             disabled={!enemyReady(i)} data-waiting={f.hp > 0 && !enemyReady(i) ? 'true' : undefined} onClick={() => { if (enemyReady(i)) { setTarget(i); setLog(`目標改為${f.name}。`); } }}
-            aria-pressed={i === ti} aria-label={`${f.name}，${MATCH3_ORB_LABEL[f.element]}屬性，HP ${f.hp}/${f.maxHp}，${f.hp > 0 && !enemyReady(i) ? '待命，前四張敵卡倒下後才能攻擊並參戰' : rigEnabled ? (counterFoes.has(i) ? '反擊中' : '由阿修羅選擇反擊卡') : `${f.cd} 步後反擊`}${i === ti ? '，目前目標' : enemyReady(i) ? '，點擊設為目標' : ''}`}
+            aria-pressed={i === ti} aria-label={`${f.name}，${MATCH3_ORB_LABEL[f.element]}屬性，HP ${f.hp}/${f.maxHp}${f.skillRuntime?.shield ? `，護盾 ${f.skillRuntime.shield}` : ''}${(f.skillRuntime?.stunnedTurns ?? 0) > 0 ? '，暫時受控，無法出手' : ''}，${f.hp > 0 && !enemyReady(i) ? '待命，前四張敵卡倒下後才能攻擊並參戰' : rigEnabled ? (counterFoes.has(i) ? '反擊中' : '由阿修羅選擇反擊卡') : `${f.cd} 步後反擊`}${i === ti ? '，目前目標' : enemyReady(i) ? '，點擊設為目標' : ''}`}
             className={`${styles.foe} ${i === ti ? styles.foeOn : ''} ${f.hp <= 0 && !deathHold.has(f.id) ? styles.down : ''} ${hitFoe === i ? styles.allyHit : ''} ${counterFoes.has(i) ? styles.foeAttack : ''} ${!rigEnabled && f.cd === 1 && f.hp > 0 ? styles.foeHot : ''}`}
             style={{ ['--ec' as string]: ORB_COLOR[f.element], ...(rigEnabled && !guardianDuel ? { gridColumn: i + 1 } : {}) }}>
             {rigEnabled && skillMarker(f.id, 'enemy')}
-            {rigEnabled && f.hp > 0 && !enemyReady(i) && <span className={styles.cd} data-testid="match3-boss-waiting">待命</span>}
-            {rigEnabled && !!f.skillRuntime?.shield && <span className={styles.runtimeShield}>盾 {f.skillRuntime.shield}</span>}
-            {(!rigEnabled || counterFoes.has(i)) && <span className={styles.cd} data-testid="match3-counter" aria-hidden="true">{rigEnabled ? '反擊中' : <>⏳{f.cd}</>}</span>}
+            {rigEnabled && f.hp > 0 && !enemyReady(i) && <span className={styles.srOnly} data-testid="match3-boss-waiting">待命</span>}
+            {(!rigEnabled || counterFoes.has(i)) && <span className={rigEnabled ? styles.srOnly : styles.cd} data-testid="match3-counter" aria-hidden="true">{rigEnabled ? '反擊中' : <>⏳{f.cd}</>}</span>}
+            {/* 敵方同一套一體成型；四象決戰大圖（guardianDuel）維持原排版，不套。卡圖仍走 FoeBattleArt／battleArtFallback。 */}
+            <div className={rigEnabled && !guardianDuel ? `${styles.fusedSlot} ${styles.fusedUnit}` : styles.fusedSlot} data-fused={(rigEnabled && !guardianDuel) || undefined} data-fused-state={rigEnabled && !guardianDuel ? fusedRimState({ down: f.hp <= 0 && !deathHold.has(f.id), fired: false, ready: false, hpRatio: f.hp / f.maxHp }) : undefined} data-fused-shield={(rigEnabled && !guardianDuel && !!f.skillRuntime?.shield) || undefined} data-fused-target={(rigEnabled && !guardianDuel && i === ti && f.hp > 0) || undefined} data-fused-waiting={(rigEnabled && !guardianDuel && f.hp > 0 && !enemyReady(i)) || undefined} data-fused-hit={(rigEnabled && !guardianDuel && counterFoes.has(i)) || undefined} style={rigEnabled && !guardianDuel ? fusedRimVars() : undefined}>
             <FoeBattleArt name={f.name} src={f.thumbnail} fallback={battleArtFallback(f.id, f.thumbnail)} rigEnabled={!!rigEnabled} rigSrc={guardianDuel && duelArt && i === 4 ? duelArt : f.thumbnail} />
+            {rigEnabled && !guardianDuel && <><span className={styles.fusedShell} aria-hidden="true" /><span className={styles.fusedGlint} aria-hidden="true"><i className={styles.fusedSweep} /></span></>}
+            {rigEnabled && !guardianDuel && f.hp > 0 && ((f.skillRuntime?.stunnedTurns ?? 0) > 0 ? <FusedStatusBadge kind="stunned" /> : counterFoes.has(i) ? <FusedStatusBadge kind="counter" /> : !enemyReady(i) ? <FusedStatusBadge kind="standby" /> : null)}
             <div className={styles.foeName}>{f.name}</div>
-            <div className={`${styles.bar} ${styles.foeBar}`} role="progressbar" aria-label={`${f.name}生命`} aria-valuenow={f.hp} aria-valuemax={f.maxHp}><span style={{ width: pct(f.hp, f.maxHp) }} /></div>
+            <div className={`${styles.bar} ${styles.foeBar}`} role="progressbar" aria-label={`${f.name}生命`} aria-valuenow={f.hp} aria-valuemax={f.maxHp}><span style={{ width: pct(f.hp, f.maxHp) }} />{rigEnabled && !!f.skillRuntime?.shield && <b className={styles.fusedShieldBand} data-testid="match3-enemy-shield" style={fusedShieldVars(f.hp, f.skillRuntime.shield, f.maxHp)} aria-hidden="true" />}</div>
             {rigEnabled && <EnemyActionIndicator energy={f.attackEnergy ?? 0} className={styles.enemyActionState} down={f.hp <= 0} ended={!!over} waiting={!enemyReady(i)} controlled={(f.skillRuntime?.stunnedTurns ?? 0) > 0} attacking={counterFoes.has(i)} />}
+            </div>
             <div className={styles.foeHp}>{MATCH3_ORB_LABEL[f.element]} {f.hp}/{f.maxHp}</div>
             {!rigEnabled && i === ti && <span className={styles.tgt} aria-hidden="true">🎯</span>}
           </button>
@@ -891,15 +910,20 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
               className={`${styles.ally} ${down ? styles.down : ''} ${(rigEnabled ? energyReady : full) ? styles.allyFull : ''} ${hitTeam.has(u.id) ? styles.allyHit : ''} ${attacked.has(u.id) ? styles.allyAttack : ''} ${dup && lead ? styles.allyLead : ''} ${inLink ? styles.allyLink : ''} ${guardActive && !down ? styles.allyGuard : ''}`}
               style={{ ['--ec' as string]: ORB_COLOR[u.element] }}>
               {rigEnabled && skillMarker(u.id, 'ally')}
-              {rigEnabled && !(full && !linkMode) && !!u.skillRuntime?.shield && <span className={styles.runtimeShield} data-testid="match3-ally-shield">盾 {u.skillRuntime.shield}</span>}
-              {rigEnabled && !(full && !linkMode) && !!u.skillRuntime?.stunnedTurns && <span className={styles.runtimeShield} data-testid="match3-ally-stun" style={u.skillRuntime.shield ? { bottom: 20 } : undefined}>暫時受控</span>}
+              {rigEnabled && !!u.skillRuntime?.stunnedTurns && <span className={styles.srOnly} data-testid="match3-ally-stun">暫時受控</span>}
               {rigEnabled && counterVisuals.filter(h => h.targetId === u.id).map((h, i) => <span key={i} className={styles.counterDamage} data-testid="match3-counter-damage" data-actual-damage={h.actualDamage} data-hp-before={h.hpBefore} data-hp-after={h.hpAfter} style={{ ['--hit-order' as string]: i }} aria-label={`受到${h.actualDamage}點傷害，生命${h.hpBefore}降至${h.hpAfter}`}>−{h.actualDamage}</span>)}
               <button type="button" className={styles.allyBtn} disabled={down} onPointerDown={(e) => e.stopPropagation()} onClick={() => tapAlly(u)} aria-pressed={linkMode ? inLink : dup ? lead : undefined}
-                aria-label={`${u.name}，${MATCH3_ORB_LABEL[u.element]}屬性${dup ? (lead ? '，主攻' : '，輔助') : ''}，HP ${u.hp}/${u.maxHp}，能量 ${u.energy}/${ENERGY_MAX}${energyReady ? '，能量已滿，點擊發動能量攻擊' : ''}${linkMode ? (inLink ? '，已連線' : '，點擊加入連線') : ''}`}>
+                aria-label={`${u.name}，${MATCH3_ORB_LABEL[u.element]}屬性${dup ? (lead ? '，主攻' : '，輔助') : ''}，HP ${u.hp}/${u.maxHp}${u.skillRuntime?.shield ? `，護盾 ${u.skillRuntime.shield}` : ''}${u.skillRuntime?.stunnedTurns ? '，暫時受控，無法出手' : ''}，能量 ${u.energy}/${ENERGY_MAX}${energyReady ? '，能量已滿，點擊發動能量攻擊' : ''}${linkMode ? (inLink ? '，已連線' : '，點擊加入連線') : ''}`}>
+                {/* 分體承受卡 × 血條一體成型：卡圖、外殼、血條、氣條包進同一個 fusedUnit；DOM 角色／testid 全部不變，只多一層容器（不套時 display:contents）與裝飾 span。卡圖保留 battleArtFallback。 */}
+                <div className={rigEnabled ? `${styles.fusedSlot} ${styles.fusedUnit}` : styles.fusedSlot} data-fused={rigEnabled || undefined} data-fused-state={rigEnabled ? fusedRimState({ down, fired: fired.has(u.id), ready: energyReady, hpRatio: u.hp / u.maxHp }) : undefined} data-fused-shield={(rigEnabled && !down && !!u.skillRuntime?.shield) || undefined} data-fused-hit={(rigEnabled && attacked.has(u.id) && !fired.has(u.id)) || undefined} data-fused-orb={rigEnabled && FUSED_HIDE_READY_ORB ? 'hide' : undefined} style={rigEnabled ? fusedRimVars() : undefined}>
                 <div className={styles.allyCard} data-rig-source>{rigEnabled ? <Match3TargetArt src={u.thumbnail} fallback={battleArtFallback(u.id, u.thumbnail)} /> : <BeastCardFace card={{ id: u.id, name: u.name, thumbnail: u.thumbnail, element: u.element, skillName: u.skillName, description: u.description }} />}</div>
-                <div className={styles.bar} role={rigEnabled ? 'progressbar' : undefined} aria-label={rigEnabled ? `${u.name}生命` : undefined} aria-valuenow={rigEnabled ? u.hp : undefined} aria-valuemax={rigEnabled ? u.maxHp : undefined}><span style={{ width: pct(u.hp, u.maxHp) }} /></div>
+                {rigEnabled && <><span className={styles.fusedShell} aria-hidden="true" /><span className={styles.fusedGlint} aria-hidden="true"><i className={styles.fusedSweep} /></span></>}
+                {rigEnabled && !down && !!u.skillRuntime?.stunnedTurns && <FusedStatusBadge kind="stunned" />}
+                {rigEnabled && !FUSED_HIDE_READY_ORB && (energyReady || fired.has(u.id)) && <span className={styles.fusedOrb} data-testid={energyReady ? 'match3-ready-energy-orb' : undefined} data-spent={!energyReady || undefined} aria-hidden="true"><ElementTreasureOrb element={getProductOrbFromBrand(u.element.toLowerCase() as 'space' | 'air' | 'water' | 'fire' | 'earth')} released preview animated={false} visualScale={0.8} /></span>}
+                <div className={styles.bar} role={rigEnabled ? 'progressbar' : undefined} aria-label={rigEnabled ? `${u.name}生命` : undefined} aria-valuenow={rigEnabled ? u.hp : undefined} aria-valuemax={rigEnabled ? u.maxHp : undefined}><span style={{ width: pct(u.hp, u.maxHp) }} />{rigEnabled && !down && !!u.skillRuntime?.shield && <b className={styles.fusedShieldBand} data-testid="match3-ally-shield" style={fusedShieldVars(u.hp, u.skillRuntime.shield, u.maxHp)} aria-hidden="true" />}</div>
                 {rigEnabled && <span className={styles.allyHp} data-testid="match3-ally-hp">{MATCH3_ORB_LABEL[u.element]} {u.hp}/{u.maxHp}</span>}
-                <div className={styles.energy} data-ready-orb={energyReady ? 'true' : undefined} role="progressbar" aria-label={energyReady ? '能量已滿，點擊寶珠或神獸發動攻擊' : '攻擊能量'} aria-valuemin={0} aria-valuemax={ENERGY_MAX} aria-valuenow={u.energy}>{energyReady ? <span className={styles.readyEnergyOrb} data-testid="match3-ready-energy-orb"><ElementTreasureOrb element={getProductOrbFromBrand(u.element.toLowerCase() as 'space' | 'air' | 'water' | 'fire' | 'earth')} released preview animated={false} visualScale={0.8} /></span> : <span style={{ width: pct(u.energy, ENERGY_MAX) }} />}</div>
+                <div className={styles.energy} data-ready-orb={energyReady && !rigEnabled ? 'true' : undefined} role="progressbar" aria-label={energyReady ? '能量已滿，點擊寶珠或神獸發動攻擊' : '攻擊能量'} aria-valuemin={0} aria-valuemax={ENERGY_MAX} aria-valuenow={u.energy}>{energyReady && !rigEnabled ? <span className={styles.readyEnergyOrb} data-testid="match3-ready-energy-orb"><ElementTreasureOrb element={getProductOrbFromBrand(u.element.toLowerCase() as 'space' | 'air' | 'water' | 'fire' | 'earth')} released preview animated={false} visualScale={0.8} /></span> : <span style={{ width: pct(u.energy, ENERGY_MAX) }} />}</div>
+                </div>
                 <div className={styles.allyMeta}>{down ? '已倒下' : `${MATCH3_ORB_LABEL[u.element]}${dup ? (lead ? '・主攻' : '・輔助') : ''} ${u.energy}`}</div>
                 {rigEnabled && <span className={styles.compactEnergy} aria-hidden="true">氣 {u.energy}</span>}
               </button>
