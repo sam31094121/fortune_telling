@@ -38,3 +38,7 @@ assert(rules.includes('押的 ${staked} 張全留，再得 ${staked}～${MAX_REW
 const slot5 = fs.readFileSync('components/battlefield/StakeSlot.tsx', 'utf8');
 assert(/data-win>[\s\S]*data-lose>[\s\S]*data-draw>/.test(slot5), '三行：贏、輸、平手');
 console.log('PASS stake distribution');
+
+const result = fs.readFileSync('components/BeastStakeResult.tsx', 'utf8');
+assert(!result.includes('data-iching-judgment') && !result.includes('易經技術判斷') && !result.includes('ichingJudgment'), '贏的結算不再顯示易經卜卦判斷（易經判斷只屬於對手阿修羅）');
+console.log('PASS result without iching judgment');
