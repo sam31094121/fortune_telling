@@ -1,0 +1,54 @@
+/* 餵食／合體鏈 P0 視覺（動效助手，DESIGN v2-2／v2-5）。純展示：只吃 props，不讀存檔。
+   視覺語言同 v1–v4：14px 深底徽章＋1px 內框色調、形狀區分狀態（不只靠顏色）、無整圈外光、動效只用 transform／opacity、減少動態時無動畫。 */
+
+/* ── 共用 14px 徽章底 ── */
+.badge { position: absolute; z-index: 4; box-sizing: border-box; width: 14px; height: 14px; pointer-events: none; color: var(--fc-tone, #d9cfbb);
+  background: radial-gradient(circle at 35% 30%, #2a2733 0, #14121a 70%); box-shadow: inset 0 0 0 1px var(--fc-tone, #d9cfbb), 1px 1.5px 2px #000a; }
+.badge svg { position: absolute; inset: 2px; width: 10px; height: 10px; display: block; }
+.badge[data-shape="disc"] { border-radius: 50%; }
+.badge[data-shape="tile"] { border-radius: 4px; }
+
+/* 鎖定：圓形徽章＋鎖頭，金色；左上（與 fusedBadge 同位） */
+.badge[data-feed-state="locked"] { --fc-tone: #ffd08f; }
+/* 已用：方角徽章（與鎖頭的圓形不同）；寶珠端＝圓珠、神獸端＝爪印；左下 */
+.badge[data-feed-state="used-orb"] { --fc-tone: #9fd8ff; }
+.badge[data-feed-state="used-beast"] { --fc-tone: #ffb59c; }
+
+/* 放在卡上時的位置（FeedCardStack 已設 position:relative）。
+   鎖頭壓在卡圖左上角（避開 BeastCardFace 標題列的「成獸／幼子」標籤）；換別種卡面時用 --fc-lock-x／--fc-lock-y 調整。
+   已用圖示放卡左下角外框邊（與鎖頭位置不同），×N 放右下角。 */
+.atTopLeft { left: var(--fc-lock-x, calc(7% + 3px)); top: var(--fc-lock-y, calc(12.5% + 3px)); }
+.atBottomLeft { left: 4px; bottom: 9px; }
+
+/* ── 數字徽章：×N（疊卡）／N（分頁、組標題的可用張數） ── */
+.count { position: relative; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; height: 14px; min-width: 14px; padding: 0 3px; border-radius: 7px;
+  font: 700 10px/1 system-ui, -apple-system, "Segoe UI", sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 0; color: #f6eedd; white-space: nowrap;
+  background: #14121a; box-shadow: inset 0 0 0 1px #d9cfbb, 1px 1.5px 2px #000a; }
+.count .times { font-size: 9px; margin-right: .5px; color: #e9dcc0; }
+.count[data-zero="true"] { color: #cfc6b4; box-shadow: inset 0 0 0 1px #8d8576, 1px 1.5px 2px #000a; }
+.countOnCard { position: absolute; z-index: 4; right: 4px; bottom: 9px; pointer-events: none; }
+
+/* ── 疊卡：重複卡收成一張，卡底露出 1～2 層卡邊（靜態，不動）。
+   所有疊卡一律保留 5px 底部空間，單張與多張的卡面寬高完全相同（同一格線裡不會忽大忽小）。 */
+.stack { position: relative; display: block; isolation: isolate; padding-bottom: 5px; }
+.stack > .layer { position: absolute; left: 0; right: 0; top: 0; bottom: 5px; z-index: -1; border-radius: 12px; border: 1px solid #a88a5c; background: #1d222d; box-shadow: 0 1px 2px #000a; transform-origin: 50% 100%; }
+.stack > .layer[data-depth="1"] { transform: translateY(2.5px) scaleX(.95); }
+.stack > .layer[data-depth="2"] { transform: translateY(5px) scaleX(.9); border-color: #7d6544; background: #151920; }
+.stackFace { position: relative; display: block; }
+/* 已用：卡圖去色（v2-5）；鎖定不去色 */
+.stack[data-feed-state="used-orb"] .stackFace, .stack[data-feed-state="used-beast"] .stackFace { filter: grayscale(1); }
+
+/* ── 四象收合組標題：只有圖示＋可用張數＋展開箭頭，不放字 ── */
+.group { display: flex; align-items: center; gap: 8px; box-sizing: border-box; width: 100%; min-height: 44px; margin: 0; padding: 6px 10px; border: 1px solid #6b5a44; border-radius: 10px;
+  background: #2a2119; color: var(--fc-tone); font: inherit; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.group:focus-visible { outline: 3px solid #bcf0ff; outline-offset: 3px; }
+.group[aria-expanded="true"] { border-color: color-mix(in srgb, var(--fc-tone) 55%, #6b5a44); }
+.group[data-mansion="qinglong"] { --fc-tone: #6fd6b4; }
+.group[data-mansion="baihu"] { --fc-tone: #ece4d2; }
+.group[data-mansion="zhuque"] { --fc-tone: #ff9a7a; }
+.group[data-mansion="xuanwu"] { --fc-tone: #a9b7ff; }
+.emblem { flex: 0 0 auto; width: 24px; height: 24px; display: block; }
+.group .count { margin-left: 2px; }
+.chevron { flex: 0 0 auto; width: 14px; height: 14px; margin-left: auto; color: #d9cfbb; transition: transform 160ms cubic-bezier(.4,0,.2,1); }
+.group[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .chevron { transition: none; } }
