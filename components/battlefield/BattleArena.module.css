@@ -975,3 +975,6 @@
 /* 2026-11-12 質感：技能／元素攻擊的太極光效收斂——不再整片蓋住卡片與戰場，只在卡片範圍內閃一下 */
 [data-dock='true'] .elementStrike { opacity: .68; }
 [data-dock='true'] .elementStrike .strikeField { inset: -4%; }
+
+/* 2026-11-12 效能：戰場底部融進操作區改用「內陰影」，不再用 mask-image（mask 會讓整個戰場每一幀都重新合成，手機掉幀） */
+[data-dock='true'] .arena { -webkit-mask-image: none; mask-image: none; box-shadow: inset 0 -72px 52px -28px #0a1424; }

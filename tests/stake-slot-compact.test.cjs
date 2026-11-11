@@ -53,3 +53,7 @@ console.log('PASS last-one big + info card');
 const res2 = fs.readFileSync('components/BeastStakeResult.tsx', 'utf8');
 assert(res2.includes('data-gained-scroll') && res2.includes('max-h-[440px]'), '新得的卡很多時限定高度自己捲動');
 console.log('PASS result gained scroll');
+
+const arenaCss = fs.readFileSync('components/battlefield/BattleArena.module.css', 'utf8');
+assert(arenaCss.includes("[data-dock='true'] .arena { -webkit-mask-image: none; mask-image: none;"), '戰場不用 mask-image（避免每幀整片重新合成）');
+console.log('PASS arena no mask');
