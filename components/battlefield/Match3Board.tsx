@@ -460,6 +460,15 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   // Keep the defeated escort target and counter coordinates until this action
   // has finished. Later guardian actions retain the settled duel layout.
   const guardianDuel = guardianDuelReady && duelSettled;
+  // 業主 2026-11-11：敵方只剩最後一隻時，放大成魔王般的大卡片對戰（沿用四象決戰排版；大圖仍只給守護獸）。
+  const lastFoeReady = rigEnabled && foes.length > 1 && !over && foes.filter(f => f.hp > 0).length === 1 && !guardianDuelReady;
+  const [lastFoeSettled, setLastFoeSettled] = useState(false);
+  useEffect(() => {
+    if (!lastFoeReady) setLastFoeSettled(false);
+    else if (!busy) setLastFoeSettled(true);
+  }, [lastFoeReady, busy]);
+  const lastFoeBig = lastFoeReady && lastFoeSettled;
+  const bigFoe = guardianDuel || lastFoeBig;
   const duelRig = guardianDuel ? rigFor(foes[4].id) : null;
   const duelArt = duelRig ? rigFrameUrl(duelRig, duelRig.frames.some(frame => frame.id === 'land-crouch') ? 'land-crouch' : 'run-reach') : null;
   const ti = availableFoeTarget(foes, target, rigEnabled ? stage.wins + 1 : 0);
@@ -940,18 +949,18 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       {debug && <div className={styles.sub} data-testid="match3-debug">[debug] 正式神獸卡 5v5・{cfg.cols}×{cfg.rows}＝{cfg.cols * cfg.rows} 顆寶珠・敵方 HP {cfg.enemyHp}／攻 {cfg.enemyAtk}／每 {cfg.counterEvery} 步反擊【待平衡】{cfg.diagonal ? '・可斜連' : ''}・seed {init.seed}</div>}
 
       <div className={rigEnabled ? styles.srOnly : styles.secHead}><span>{rigEnabled ? '敵方神獸（點選指定目標；出手時標示反擊中）' : '敵方神獸（點選指定目標；⏳ 為反擊倒數）'}</span><span>{over === 'win' ? '勝利' : over === 'lose' ? '落敗' : '戰鬥進行中'}</span></div>
-      <div className={`${styles.foes} ${rigEnabled && stage.simultaneous && counterFoes.size > 1 ? styles.fourBeastUnion : ''}`} style={rigEnabled ? { gridTemplateColumns: `repeat(${foes.length}, minmax(0, 1fr))` } : undefined} data-testid="match3-enemies" data-guardian-duel={guardianDuel || undefined}>
+      <div className={`${styles.foes} ${rigEnabled && stage.simultaneous && counterFoes.size > 1 ? styles.fourBeastUnion : ''}`} style={rigEnabled ? { gridTemplateColumns: `repeat(${foes.length}, minmax(0, 1fr))` } : undefined} data-testid="match3-enemies" data-guardian-duel={bigFoe || undefined} data-last-foe={lastFoeBig || undefined}>
         {foes.map((f, i) => rigEnabled && f.hp <= 0 && retiredFoes.has(f.id) ? null : (
           <button type="button" key={f.id} data-testid="match3-enemy" data-id={f.id} data-hp={f.hp} data-cd={f.cd} data-target={i === ti ? '1' : '0'}
             disabled={!enemyReady(i)} data-waiting={f.hp > 0 && !enemyReady(i) ? 'true' : undefined} onClick={() => { if (enemyReady(i)) { setTarget(i); setLog(`目標改為${f.name}。`); } }}
             aria-pressed={i === ti} aria-label={`${f.name}，${MATCH3_ORB_LABEL[f.element]}屬性，HP ${f.hp}/${f.maxHp}${f.skillRuntime?.shield ? `，護盾 ${f.skillRuntime.shield}` : ''}${(f.skillRuntime?.stunnedTurns ?? 0) > 0 ? '，暫時受控，無法出手' : ''}，${f.hp > 0 && !enemyReady(i) ? '待命，前四張敵卡倒下後才能攻擊並參戰' : rigEnabled ? (counterFoes.has(i) ? '反擊中' : '由阿修羅選擇反擊卡') : `${f.cd} 步後反擊`}${i === ti ? '，目前目標' : enemyReady(i) ? '，點擊設為目標' : ''}`}
             className={`${styles.foe} ${i === ti ? styles.foeOn : ''} ${f.hp <= 0 && !deathHold.has(f.id) ? styles.down : ''} ${hitFoe === i ? styles.allyHit : ''} ${counterFoes.has(i) ? styles.foeAttack : ''} ${!rigEnabled && f.cd === 1 && f.hp > 0 ? styles.foeHot : ''}`}
-            style={{ ['--ec' as string]: ORB_COLOR[f.element], ...(rigEnabled && !guardianDuel ? { gridColumn: i + 1 } : {}) }}>
+            style={{ ['--ec' as string]: ORB_COLOR[f.element], ...(rigEnabled && !bigFoe ? { gridColumn: i + 1 } : {}) }}>
             {rigEnabled && skillMarker(f.id, 'enemy')}
             {rigEnabled && f.hp > 0 && !enemyReady(i) && <span className={styles.srOnly} data-testid="match3-boss-waiting">待命</span>}
             {(!rigEnabled || counterFoes.has(i)) && <span className={rigEnabled ? styles.srOnly : styles.cd} data-testid="match3-counter" aria-hidden="true">{rigEnabled ? '反擊中' : <>⏳{f.cd}</>}</span>}
             {/* 敵方同一套一體成型；四象決戰大圖用 data-fused="duel" 覆寫幾何，保留三欄／100px 骨架，接縫 −1px。卡圖仍走 FoeBattleArt／battleArtFallback。 */}
-            <div className={rigEnabled ? `${styles.fusedSlot} ${styles.fusedUnit}` : styles.fusedSlot} data-fused={rigEnabled ? (guardianDuel ? 'duel' : true) : undefined} data-fused-state={rigEnabled ? fusedRimState({ down: f.hp <= 0 && !deathHold.has(f.id), fired: false, ready: false, hpRatio: f.hp / f.maxHp }) : undefined} data-fused-shield={(rigEnabled && !!f.skillRuntime?.shield) || undefined} data-fused-target={(rigEnabled && i === ti && f.hp > 0) || undefined} data-fused-waiting={(rigEnabled && f.hp > 0 && !enemyReady(i)) || undefined} data-fused-hit={(rigEnabled && counterFoes.has(i)) || undefined} style={rigEnabled ? { ...fusedRimVars(), ...(guardianDuel ? duelArtVars(f.name) : {}) } : undefined}>
+            <div className={rigEnabled ? `${styles.fusedSlot} ${styles.fusedUnit}` : styles.fusedSlot} data-fused={rigEnabled ? (bigFoe ? 'duel' : true) : undefined} data-fused-state={rigEnabled ? fusedRimState({ down: f.hp <= 0 && !deathHold.has(f.id), fired: false, ready: false, hpRatio: f.hp / f.maxHp }) : undefined} data-fused-shield={(rigEnabled && !!f.skillRuntime?.shield) || undefined} data-fused-target={(rigEnabled && i === ti && f.hp > 0) || undefined} data-fused-waiting={(rigEnabled && f.hp > 0 && !enemyReady(i)) || undefined} data-fused-hit={(rigEnabled && counterFoes.has(i)) || undefined} style={rigEnabled ? { ...fusedRimVars(), ...(guardianDuel ? duelArtVars(f.name) : {}) } : undefined}>
             <FoeBattleArt name={f.name} src={f.thumbnail} fallback={battleArtFallback(f.id, f.thumbnail)} rigEnabled={!!rigEnabled} rigSrc={guardianDuel && duelArt && i === 4 ? duelArt : f.thumbnail} />
             {rigEnabled && <><span className={styles.fusedShell} aria-hidden="true" /><span className={styles.fusedGlint} aria-hidden="true"><i className={styles.fusedSweep} /></span></>}
             {rigEnabled && f.hp > 0 && ((f.skillRuntime?.stunnedTurns ?? 0) > 0 ? <FusedStatusBadge kind="stunned" /> : counterFoes.has(i) ? <FusedStatusBadge kind="counter" /> : !enemyReady(i) ? <FusedStatusBadge kind="standby" /> : null)}
