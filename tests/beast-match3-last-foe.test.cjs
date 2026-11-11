@@ -16,4 +16,5 @@ assert(/else if \(!busy\) setLastAllySettled\(true\)/.test(src), '我方放大�
 assert(src.includes('data-last-ally={lastAllyBig || undefined}'), '標記我方最後一隻');
 const css = fs.readFileSync('components/battlefield/Match3Board.module.css', 'utf8');
 assert(/\.team\[data-last-ally="true"\] \{ grid-template-columns: minmax\(0, min\(56%, 220px\)\)/.test(css) && /\.ally\[data-hp="0"\] \{ display: none; \}/.test(css), '放大排版與隱藏倒下的隊友');
+assert(/.fusedUnit > .allyCard > img:first-child { object-fit: contain; object-position: 50% 50%; }/.test(css), '放大的神獸完整顯示（contain 置中），不裁掉頭、尾巴、腳');
 console.log('PASS last-ally enlarge structure');

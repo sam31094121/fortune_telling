@@ -1035,10 +1035,10 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 }
 
 /* 我方只剩最後一隻：放大置中（單位內全部以容器寬度換算，卡圖、血條、能量條一起放大）。 */
-.wrap[data-mode^="hard"] .team[data-last-ally="true"] { grid-template-columns: minmax(0, min(56%, 220px)); justify-content: center; }
+.wrap[data-mode^="hard"] .team[data-last-ally="true"] { grid-template-columns: minmax(0, min(72%, 290px)); justify-content: center; }
 .wrap[data-mode^="hard"] .team[data-last-ally="true"] > .ally[data-hp="0"] { display: none; }
 .wrap[data-mode^="hard"] .team[data-last-ally="true"] > .ally { animation: m3LastAllyIn 380ms cubic-bezier(.2,.9,.3,1) both; box-shadow: 0 0 22px var(--ec), 0 0 0 1px var(--ec); }
 @keyframes m3LastAllyIn { from { opacity: .4; transform: scale(.7); } to { opacity: 1; transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .wrap[data-mode^="hard"] .team[data-last-ally="true"] > .ally { animation: none; } }
 .wrap[data-mode^="hard"] .team[data-last-ally="true"] .fusedUnit { --art-y: 50%; }
-.wrap[data-mode^="hard"] .team[data-last-ally="true"] .fusedUnit > .allyCard > img:first-child { object-fit: cover; object-position: 50% 40%; }
+.wrap[data-mode^="hard"] .team[data-last-ally="true"] .fusedUnit > .allyCard > img:first-child { object-fit: contain; object-position: 50% 50%; }
