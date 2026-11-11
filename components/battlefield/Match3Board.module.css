@@ -1045,3 +1045,16 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .wrap[data-mode^="hard"] .team[data-last-ally="true"] .fusedUnit > .allyCard,
 .wrap[data-mode^="hard"] .team[data-last-ally="true"] .fusedUnit > .allyCard > img:first-child { height: var(--art-h); }
 .wrap[data-mode^="hard"] .team[data-last-ally="true"] .fusedUnit > .allyCard > img:first-child { object-fit: contain; object-position: 50% 50%; }
+
+/* 手機戰場：整頁外殼改成 min-height:100dvh 的 flex column，頁首、敵方列、棋盤、我方卡、寶器列之間平均分配剩下的高度，
+   寶器列貼齊畫面底（只留安全區），不再把空白全部堆在最下面。不改單珠尺寸：棋盤寬高仍由 --compact-board-width 決定；
+   每個區塊 flex-shrink:0，矮螢幕內容超過一屏時照原本順序往下排，不會被壓扁。桌機（>640px）不套用。 */
+@media (max-width: 640px) {
+  .wrap[data-mode^="hard"][data-match3-battle-active="true"] {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100dvh;
+  }
+  .wrap[data-mode^="hard"][data-match3-battle-active="true"] > * { flex-shrink: 0; }
+}
