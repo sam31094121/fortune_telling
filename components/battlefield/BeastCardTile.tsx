@@ -74,8 +74,8 @@ const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
     front: '/beast-game/front/young-06.v2.webp?v=cf4539155f9a',
   },
   beast_y07: {
-    thumb: '/beast-game/thumb/young-07.v2.webp?v=0cae45d61297',
-    mid: '/beast-game/thumb/young-07.v2-480.webp?v=0cddca1c1ac1',
+    thumb: '/beast-game/thumb/young-07.v2.webp?v=83269749bd62',
+    mid: '/beast-game/thumb/young-07.v2-480.webp?v=99d251c4d86c',
     front: '/beast-game/front/young-07.v2.webp?v=3a52d716c24d',
   },
   beast_y08: {
@@ -119,8 +119,8 @@ const ART_V2: Record<string, { thumb: string; mid: string; front: string }> = {
     front: '/beast-game/front/young-15.v2.webp?v=fd61e3f6dd3e',
   },
   beast_y16: {
-    thumb: '/beast-game/thumb/young-16.v2.webp?v=4925bd57fda0',
-    mid: '/beast-game/thumb/young-16.v2-480.webp?v=700960d5c737',
+    thumb: '/beast-game/thumb/young-16.v2.webp?v=ab390072531b',
+    mid: '/beast-game/thumb/young-16.v2-480.webp?v=efe285c0ad4f',
     front: '/beast-game/front/young-16.v2.webp?v=f1d9cd914205',
   },
   beast_y17: {
