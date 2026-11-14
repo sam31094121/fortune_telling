@@ -1,0 +1,28 @@
+/* 永久強化光環：金色呼吸邊框＋斜向流光＋上升光點。只動 transform／opacity。 */
+.host { position: relative; display: block; }
+.aura { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; border-radius: inherit; contain: strict; }
+.edge { position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 2px #ffd979, inset 0 0 10px 1px #ffcf5c99; opacity: .55; animation: enhanceBreath 2.4s ease-in-out infinite; }
+.sheen { position: absolute; inset: 0; overflow: hidden; }
+.sheen > i { position: absolute; top: -20%; bottom: -20%; left: 0; width: 38%; background: linear-gradient(100deg, transparent 0%, #fff6d200 18%, #fff3c8b3 50%, #fff6d200 82%, transparent 100%); transform: translateX(-140%) skewX(-14deg); opacity: 0; animation: enhanceSheen 3.2s cubic-bezier(.45,.05,.25,1) infinite; }
+.sparks > i { position: absolute; top: 0; bottom: 0; width: 8px; margin-left: -4px; background: radial-gradient(circle at 50% calc(100% - 8px), #fffbe6 0 1.5px, #ffd46a 2.5px, #ffd46a00 4px); opacity: 0; animation: enhanceRise 2.6s ease-out infinite; }
+.sparks > i:nth-child(1) { left: 22%; animation-delay: .2s; }
+.sparks > i:nth-child(2) { left: 52%; animation-delay: 1.1s; }
+.sparks > i:nth-child(3) { left: 78%; animation-delay: 1.9s; }
+/* 階級：初階只有呼吸金邊＋一顆光點；中階加流光；滿階三顆光點、節奏較快、金邊較亮。 */
+.aura[data-enhance-tier="1"] .sparks > i:nth-child(n+2), .aura[data-enhance-tier="1"] .sheen { display: none; }
+.aura[data-enhance-tier="2"] .sparks > i:nth-child(3) { display: none; }
+.aura[data-enhance-tier="3"] .edge { box-shadow: inset 0 0 0 2px #ffe08f, inset 0 0 14px 2px #ffcf5cb3; animation-duration: 1.8s; }
+.aura[data-enhance-tier="3"] .sheen > i { animation-duration: 2.4s; }
+.aura[data-enhance-tier="3"] .sparks > i { animation-duration: 2s; }
+/* 戰鬥卡較小：邊框與光點縮一號。 */
+.aura[data-variant="battle"] .edge { box-shadow: inset 0 0 0 1.5px #ffd979, inset 0 0 6px 1px #ffcf5c99; }
+.aura[data-variant="battle"][data-enhance-tier="3"] .edge { box-shadow: inset 0 0 0 1.5px #ffe08f, inset 0 0 9px 1px #ffcf5cb3; }
+@keyframes enhanceBreath { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+@keyframes enhanceSheen { 0% { transform: translateX(-140%) skewX(-14deg); opacity: 0; } 8% { opacity: 1; } 55% { transform: translateX(320%) skewX(-14deg); opacity: 1; } 62%, 100% { transform: translateX(320%) skewX(-14deg); opacity: 0; } }
+@keyframes enhanceRise { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(-72%); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .edge, .sheen > i, .sparks > i { animation: none; }
+  .edge { opacity: .9; }
+  .sheen { display: none; }
+  .sparks > i { opacity: .9; transform: translateY(-30%); }
+}

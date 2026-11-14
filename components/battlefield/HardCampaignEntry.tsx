@@ -19,6 +19,8 @@ import { refreshSharedCampaign } from '@/lib/beast-game/match3/hard-campaign-sto
 import CampaignBackup from './CampaignBackup';
 import styles from './Match3Board.module.css';
 import picker from './Match3TeamPicker.module.css';
+import EnhanceAura from './EnhanceAura';
+import aura from './EnhanceAura.module.css';
 
 type Owner = 'self' | 'guest';
 type Profile = NonNullable<ReturnType<typeof readCampaign>['profile']>;
@@ -73,7 +75,10 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
     const strongest=profile?.shared?.cards.filter(c=>c.cardId===id).sort((x,y)=>{try{const d=BigInt(y.bonus)-BigInt(x.bonus);return d>0n?1:d<0n?-1:0;}catch{return 0;}})[0];
     const owned=profile?.shared?.cards.find(c=>c.id===ownedEntries[id])??strongest;
     const attack = owned ? {bonus:owned.bonus,attack:owned.orbAttack} : profile ? campaignCardAttack(profile, id) : null;
-    return <span className={picker.face}><BeastCardFace card={{ id: c.id, name: c.name, element: c.element, thumbnail: c.art.thumbnail, skillName: skill?.name, description: skill?.description, attackOverride: attack && String(attack.bonus)!=='0' ? String(attack.attack) : undefined }} />{attack && String(attack.bonus)!=='0' && <b className={picker.permanentBonus} data-fused-badge>已合體 +{attack.bonus}</b>}</span>;
+    // 光環只讀既有加成顯示階級，不改數值。
+    const enh = owned ? { bonus: Number(owned.bonus), baseAttack: Number(owned.orbAttack) - Number(owned.bonus) } : attack && 'baseAttack' in attack ? { bonus: Number(attack.bonus), baseAttack: attack.baseAttack } : null;
+    const enhanced = !!enh && enh.bonus > 0;
+    return <span className={picker.face}><span className={aura.host} data-enhanced={enhanced ? 'true' : undefined}><BeastCardFace card={{ id: c.id, name: c.name, element: c.element, thumbnail: c.art.thumbnail, skillName: skill?.name, description: skill?.description, attackOverride: attack && String(attack.bonus)!=='0' ? String(attack.attack) : undefined }} />{enhanced && enh && <EnhanceAura bonus={enh.bonus} baseAttack={enh.baseAttack} />}</span>{attack && String(attack.bonus)!=='0' && <b className={picker.permanentBonus} data-fused-badge>已合體 +{attack.bonus}</b>}</span>;
   };
   const load = async (who: Owner, repick = false, reset = false) => {
     loadRetry.current = { who, repick, reset };

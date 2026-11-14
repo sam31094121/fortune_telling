@@ -1,6 +1,6 @@
 'use client';
 /** 拖曳連珠共用：pointer events（滑鼠＋觸控），沿路徑畫線；退回上一格可撤銷。只處理手勢，規則全在 lib/beast-game/match3。 */
-import { useCallback, useRef, useState, type PointerEvent as RPointerEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type PointerEvent as RPointerEvent } from 'react';
 import { canExtend, type Board, type Cell, type MagicGrid } from '@/lib/beast-game/match3';
 
 export interface DragPoint { x: number; y: number }
@@ -11,22 +11,47 @@ export function useDragChain(board: Board, enabled: boolean, onRelease: (path: C
   const [path, setPath] = useState<Cell[]>([]);
   const [points, setPoints] = useState<DragPoint[]>([]);
 
+  /** 拖曳開始時量一次所有格子位置（相對盤面），移動中只做算術，不再每次 pointermove 呼叫 elementFromPoint＋getBoundingClientRect 強制重排。
+   *  捲動或尺寸改變時作廢，下一次再量。 */
+  const geometry = useRef<{ hostLeft: number; hostTop: number; cells: { r: number; c: number; x: number; y: number; w: number; h: number }[] } | null>(null);
+  const dropGeometry = useRef<(() => void) | null>(null);
+  const measureCells = useCallback(() => {
+    const host = ref.current; if (!host) return null;
+    const hr = host.getBoundingClientRect();
+    const cells = Array.from(host.querySelectorAll<HTMLElement>('[data-r]')).map(el => {
+      // offset 量測不含 .sel 的 scale，與格子中心一致。
+      const rc = el.getBoundingClientRect();
+      const w = el.offsetWidth || rc.width, h = el.offsetHeight || rc.height;
+      return { r: Number(el.dataset.r), c: Number(el.dataset.c), x: rc.left + rc.width / 2 - hr.left - w / 2, y: rc.top + rc.height / 2 - hr.top - h / 2, w, h };
+    });
+    geometry.current = { hostLeft: hr.left, hostTop: hr.top, cells };
+    if (!dropGeometry.current) {
+      const drop = () => { geometry.current = null; window.removeEventListener('scroll', drop, true); window.removeEventListener('resize', drop); dropGeometry.current = null; };
+      dropGeometry.current = drop;
+      window.addEventListener('scroll', drop, { capture: true, passive: true }); window.addEventListener('resize', drop);
+    }
+    return geometry.current;
+  }, []);
+  useEffect(() => () => { dropGeometry.current?.(); }, []);
+  const releaseGeometry = () => { if (dropGeometry.current) dropGeometry.current(); else geometry.current = null; };
+
   /** 指標要落在格子中心附近（約 84% 範圍）才算進入，斜向滑過角落不會誤連。 */
   const cellAt = useCallback((x: number, y: number, strict: boolean): { cell: Cell; pt: DragPoint } | null => {
-    const host = ref.current; if (!host) return null;
-    const el = (document.elementFromPoint(x, y) as HTMLElement | null)?.closest('[data-r]') as HTMLElement | null;
-    if (!el || !host.contains(el)) return null;
-    const rc = el.getBoundingClientRect(), hr = host.getBoundingClientRect();
-    const cx = rc.left + rc.width / 2, cy = rc.top + rc.height / 2;
-    if (strict && Math.hypot(x - cx, y - cy) > rc.width * 0.42) return null;
-    return { cell: { r: Number(el.dataset.r), c: Number(el.dataset.c) }, pt: { x: cx - hr.left, y: cy - hr.top } };
-  }, []);
+    const g = geometry.current ?? measureCells(); if (!g) return null;
+    const lx = x - g.hostLeft, ly = y - g.hostTop;
+    const hit = g.cells.find(q => lx >= q.x && lx < q.x + q.w && ly >= q.y && ly < q.y + q.h);
+    if (!hit) return null;
+    const cx = hit.x + hit.w / 2, cy = hit.y + hit.h / 2;
+    if (strict && Math.hypot(lx - cx, ly - cy) > hit.w * 0.42) return null;
+    return { cell: { r: hit.r, c: hit.c }, pt: { x: cx, y: cy } };
+  }, [measureCells]);
 
   const commit = (next: Cell[], pts: DragPoint[]) => { pathRef.current = next; setPath(next); setPoints(pts); };
   const ptsRef = useRef<DragPoint[]>([]);
 
   const onPointerDown = (e: RPointerEvent<HTMLDivElement>) => {
     if (!enabled || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    measureCells();
     const hit = cellAt(e.clientX, e.clientY, false); if (!hit) return;
     e.preventDefault();
     try { ref.current?.setPointerCapture(e.pointerId); } catch { /* 部分瀏覽器不支援 */ }
@@ -42,10 +67,11 @@ export function useDragChain(board: Board, enabled: boolean, onRelease: (path: C
     if (canExtend(board, cur, hit.cell, diagonal, magic, shieldMode)) { ptsRef.current = [...ptsRef.current, hit.pt]; commit([...cur, hit.cell], ptsRef.current); }
   };
   const end = () => {
+    releaseGeometry();
     const done = pathRef.current; ptsRef.current = []; commit([], []);
     if (done.length) onRelease(done);
   };
-  const cancel = () => { ptsRef.current = []; commit([], []); };
+  const cancel = () => { releaseGeometry(); ptsRef.current = []; commit([], []); };
 
   return { ref, path, points, handlers: { onPointerDown, onPointerMove, onPointerUp: end, onPointerCancel: cancel } };
 }

@@ -21,7 +21,7 @@
   touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 /* 寶珠：整格是觸控區（390 寬約 46px），內層 .gem 以「顏色＋形狀」雙重編碼：風＝圓、空＝菱形、水＝水滴、火＝三角、地＝方塊。 */
 .orb { position: relative; aspect-ratio: 1; min-width: 44px; min-height: 44px; border-radius: 10px; cursor: grab;
-  display: grid; place-items: center; -webkit-tap-highlight-color: transparent; transition: transform .14s cubic-bezier(.2,.8,.3,1.2), filter .14s ease; will-change: transform; }
+  display: grid; place-items: center; -webkit-tap-highlight-color: transparent; transition: transform .14s cubic-bezier(.2,.8,.3,1.2), filter .14s ease; }
 .gem { position: absolute; inset: 7%; background: var(--c);
   background-image: radial-gradient(circle at 32% 26%, rgba(255,255,255,.55) 0 12%, rgba(255,255,255,0) 38%), linear-gradient(160deg, rgba(255,255,255,.12), rgba(0,0,0,.28));
   box-shadow: inset 0 -3px 6px rgba(0,0,0,.35), 0 2px 4px rgba(0,0,0,.4); }
@@ -1066,3 +1066,16 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 @media (prefers-reduced-motion: reduce) { .wrap[data-mode^="hard"] .ally[data-guardian-fusion] .fusedUnit { animation: none; } }
 /* 合體期間本尊（及參與星宿）卡不留空：神獸攻擊動畫衝出卡面時，卡內保留 70% 本尊身影（本尊坐鎮）。只在 data-rig-active 時生效，不改動畫本身。 */
 .wrap[data-mode^="hard"] .ally[data-guardian-fusion][data-rig-active="true"] [data-rig-source] { opacity: .7 !important; }
+/* 米其林 11/14（動效助手）：
+   1) 拿掉 .orb 常駐 will-change（原本 56 顆寶珠＋2 共 58 個合成層）；選取縮放／掉落動畫進行時瀏覽器會自動升層，.falling 自帶 will-change。
+   2) 最後一隻／魔王大卡不再把敵方列撐高 14–20px：列高固定為平常一排的高度（--foe-row-h，Match3Board 量測），
+      大卡維持 v4 規格高度（100／78／54px），超出的部分以負 margin 向上借用標題下方空白（最多借到標題列下緣 −2px，--foe-room-up；不夠時大卡等比略小），棋盤、我方卡與寶器列都不動。
+   3) 分出勝負後版面凍結：已退場的敵卡保留佔位但隱藏；我方最後一隻倒下時仍佔原位（顯示倒下樣式），結算畫面出現前不跳動。 */
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] { --duel-h: 100px; }
+@media (max-height: 720px) and (max-width: 600px) { .wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] { --duel-h: 78px; } }
+@media (max-height: 600px) and (max-width: 600px) { .wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] { --duel-h: 54px; } }
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] { --duel-eff: min(var(--duel-h), calc(var(--foe-row-h, var(--duel-h)) + var(--foe-room-up, 0px))); }
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] > .foe { height: var(--duel-eff); margin-top: calc(var(--foe-row-h, var(--duel-eff)) - var(--duel-eff)); }
+.wrap[data-mode^="hard"] .foes[data-guardian-duel="true"] .fusedUnit[data-fused="duel"] { --art-px: calc(var(--duel-eff) - 24px); }
+.wrap[data-mode^="hard"] .foes > .foe[data-held-retired] { visibility: hidden; pointer-events: none; }
+.wrap[data-mode^="hard"] .team[data-last-ally="true"] > .ally[data-hp="0"][data-last-held] { display: block; }
