@@ -748,6 +748,30 @@ function JourneyRig({
   return null;
 }
 
+/* 【效能｜2026-11-14】整頁捲動偵測：太極的重活（4K 貼圖升級、預先上傳 GPU）只在客戶沒在捲動時做。 */
+let taijiLastPageScrollAt = 0;
+if (typeof window !== 'undefined') {
+  window.addEventListener('scroll', () => { taijiLastPageScrollAt = performance.now(); }, { passive: true });
+}
+function runWhenPageNotScrolling(run: () => void, quietMs = 700): () => void {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let cancelled = false;
+  const attempt = () => {
+    if (cancelled) return;
+    const sinceScroll = performance.now() - taijiLastPageScrollAt;
+    if (sinceScroll < quietMs) {
+      timer = setTimeout(attempt, quietMs - sinceScroll + 50);
+      return;
+    }
+    run();
+  };
+  attempt();
+  return () => {
+    cancelled = true;
+    if (timer) clearTimeout(timer);
+  };
+}
+
 /* 【效能｜2026-11-14】drei <Environment> 的 useLayoutEffect 以 children 當依賴：
    每次 TaijiSystem 重新渲染（例如捲出／捲回視窗時切換 frameloop、18 秒提示 tick）都會拿到新的 JSX，
    於是 frames={1} 的影棚環境光被重新烘焙（6 面 CubeCamera）並重跑 PMREM 模糊，
@@ -1808,13 +1832,22 @@ function TaijiCore({
 
   useEffect(() => {
     if (!ultraTexture || textureDetail >= 4096) return;
+    // 【效能｜2026-11-14】空檔觸發後若客戶正在捲動，等捲動停下再升級，避免捲動中重畫 4K 貼圖。
+    let cancelWait: (() => void) | null = null;
+    const upgrade = () => { cancelWait = runWhenPageNotScrolling(() => setTextureDetail(4096)); };
     const idle = (window as Window & { requestIdleCallback?: (cb: () => void, options?: { timeout: number }) => number }).requestIdleCallback;
     if (idle) {
-      const handle = idle(() => setTextureDetail(4096), { timeout: 4000 });
-      return () => (window as Window & { cancelIdleCallback?: (handle: number) => void }).cancelIdleCallback?.(handle);
+      const handle = idle(upgrade, { timeout: 4000 });
+      return () => {
+        cancelWait?.();
+        (window as Window & { cancelIdleCallback?: (handle: number) => void }).cancelIdleCallback?.(handle);
+      };
     }
-    const timer = setTimeout(() => setTextureDetail(4096), 1800);
-    return () => clearTimeout(timer);
+    const timer = setTimeout(upgrade, 1800);
+    return () => {
+      cancelWait?.();
+      clearTimeout(timer);
+    };
   }, [ultraTexture, textureDetail]);
   const ballTexture = useMemo(() => createTaijiSphereTexture(TAIJI_BENCHMARK_THEME, textureDetail), [textureDetail]);
   const surfaceNoise = useMemo(() => createSurfaceNoiseTexture(), []);
@@ -1831,6 +1864,17 @@ function TaijiCore({
      改成用基準色畫一次，24 響的色溫變化交給 spriteMaterial.color 著色（純 uniform，零成本）。 */
   const glowTexture = useMemo(() => createGlowTexture(TAIJI_BENCHMARK_THEME), []);
   const raysTexture = useMemo(() => createGodRaysTexture(TAIJI_BENCHMARK_THEME), []);
+  /* 【效能｜2026-11-14】球體 4K 貼圖（空檔升級）與光暈／雲隙光貼圖原本要等太極下一次「真的畫出來」才上傳 GPU；
+     手機一進站太極在視窗外，於是客戶往上捲回太極那一幀才同步上傳 4096×2048 貼圖而卡頓。
+     改成在不捲動的空檔先用 initTexture 預先上傳（同一張貼圖、同一份內容，畫面不變）。 */
+  useEffect(() => runWhenPageNotScrolling(() => {
+    const init = (warmGl as THREE.WebGLRenderer & { initTexture?: (t: THREE.Texture) => void }).initTexture;
+    if (typeof init !== 'function') return;
+    for (const texture of [ballTexture, glowTexture, raysTexture]) {
+      if (!texture) continue;
+      try { init.call(warmGl, texture); } catch { /* 上傳失敗就交回正常渲染時再上傳 */ }
+    }
+  }), [ballTexture, glowTexture, raysTexture, warmGl]);
   useEffect(() => () => {
     taijiBallGeo.dispose();
     mainGeo.dispose();
