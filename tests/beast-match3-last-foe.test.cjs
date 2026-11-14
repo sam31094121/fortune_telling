@@ -19,3 +19,8 @@ assert(/\.team\[data-last-ally="true"\] \{ grid-template-columns: minmax\(0, min
 assert(/--last-ally-art-ratio/.test(css) && /--art-h: calc\(100cqw \/ var\(--art-ratio\)\)/.test(css), '卡框比例跟隨卡圖，填滿外框');
 assert(/.fusedUnit > .allyCard > img:first-child { object-fit: contain; object-position: 50% 50%; }/.test(css), '放大的神獸完整顯示（contain 置中），不裁掉頭、尾巴、腳');
 console.log('PASS last-ally enlarge structure');
+
+assert(src.includes("const foeEnlarged = foesEl?.getAttribute('data-guardian-duel') === 'true' || foesEl?.getAttribute('data-last-foe') === 'true';"), '雙方大卡時棋盤預算要認得敵方大魔王');
+assert(src.includes('if (teamEl && !lastAllyOn && !foeEnlarged) compactReserve.current'), '只有雙方都還是多隻小卡時才更新棋盤高度預算，避免敵方大卡先登場把寶珠撐大');
+assert(src.includes('const chrome = (lastAllyOn || foeEnlarged) && compactReserve.current'), '我方或敵方大卡登場都沿用放大前的棋盤預算');
+console.log('PASS both-last-boss compact reserve');

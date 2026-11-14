@@ -407,12 +407,16 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
         const horizontal = number(style.paddingLeft) + number(style.paddingRight) + number(style.borderLeftWidth) + number(style.borderRightWidth);
         // 棋盤 width:min(100%, --compact-board-width) 的 100% 是外殼 content box；不可用外殼 border-box，否則算出來的寬會被 100% 卡掉、寶珠不會變大。
         const contentWidth = rect.width - number(wrapStyle.paddingLeft) - number(wrapStyle.paddingRight) - number(wrapStyle.borderLeftWidth) - number(wrapStyle.borderRightWidth);
-        // 最後一隻放大不得吃掉寶珠空間：棋盤高度預算用放大前的外殼（隊伍＋法寶＋頁首），大卡只使用原本隊伍列加上視窗底部留白。
+        // 最後一隻放大不得吃掉或撐大寶珠：棋盤高度預算鎖定「雙方都還是多隻小卡」時的外殼。
+        // 敵方大魔王（決戰／最後一隻）若先登場，外殼變矮，不可覆寫預算，否則 1280 寶珠會被撐大。
+        // 我方大卡只使用原本隊伍列加上視窗底部留白。
         const teamEl = element.querySelector<HTMLElement>('[data-testid="match3-ally"]')?.parentElement ?? null;
+        const foesEl = element.querySelector<HTMLElement>('[data-testid="match3-enemies"]');
         const lastAllyOn = teamEl?.getAttribute('data-last-ally') === 'true';
+        const foeEnlarged = foesEl?.getAttribute('data-guardian-duel') === 'true' || foesEl?.getAttribute('data-last-foe') === 'true';
         const liveChrome = rect.height - box.height;
-        if (teamEl && !lastAllyOn) compactReserve.current = { chrome: liveChrome, wrapH: rect.height, teamH: teamEl.getBoundingClientRect().height };
-        const chrome = lastAllyOn && compactReserve.current ? compactReserve.current.chrome : liveChrome;
+        if (teamEl && !lastAllyOn && !foeEnlarged) compactReserve.current = { chrome: liveChrome, wrapH: rect.height, teamH: teamEl.getBoundingClientRect().height };
+        const chrome = (lastAllyOn || foeEnlarged) && compactReserve.current ? compactReserve.current.chrome : liveChrome;
         const available = height - chrome - 1;
         const cell = Math.max(18, Math.min((contentWidth - horizontal - (cfg.cols - 1) * number(style.columnGap)) / cfg.cols, (available - vertical - (cfg.rows - 1) * number(style.rowGap)) / cfg.rows));
         const width = cell * cfg.cols + (cfg.cols - 1) * number(style.columnGap) + horizontal;
