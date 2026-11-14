@@ -23,7 +23,7 @@ const card: BeastCard = {
   passive: ['skill_206'],
   art: {
     thumbnail: '/beast-game/thumb/young-16.v2.webp?v=5',
-    front: '/beast-game/front/young-16.v2.webp?v=5',
+    front: '/beast-game/front/young-16.v2.webp?v=6',
     high: '/beast-game/front/young-16.v2.webp',
     back: '/beast-game/card-back.webp',
   },

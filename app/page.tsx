@@ -3221,8 +3221,8 @@ export default function HomePage() {
           {/* 2026-09-25 star-beast i18n toggle: card extracted to a client component with 中｜EN switch; href="/star-beasts" */}
           <StarBeastHomeCard />
           <Link href="/3D" className={`home-feature-launch home-feature-tier-explore order-[15] w-full relative group overflow-hidden rounded-3xl border border-violet-300/30 bg-[radial-gradient(circle_at_82%_22%,rgba(167,139,250,0.22),transparent_28%),linear-gradient(110deg,rgba(12,18,42,0.98),rgba(45,28,74,0.62),rgba(12,18,42,0.98))] p-6 text-left shadow-[0_0_30px_rgba(167,139,250,0.13)] transition-[border-color,box-shadow,transform] duration-500 hover:border-violet-200/70 hover:shadow-[0_0_50px_rgba(167,139,250,0.25)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap ${taijiArtwork.entry}`}>
-            <div className={taijiArtwork.scene} aria-hidden="true"><img src="/beast-game/front/young-07.v2.webp" alt="" draggable={false} /></div>
-            <img className={taijiArtwork.paws} src="/beast-game/front/young-07.v2.webp" alt="" aria-hidden="true" draggable={false} />
+            <div className={taijiArtwork.scene} aria-hidden="true"><img src="/beast-game/front/young-07.v2.webp?v=3a52d716c24d" alt="" draggable={false} /></div>
+            <img className={taijiArtwork.paws} src="/beast-game/front/young-07.v2.webp?v=3a52d716c24d" alt="" aria-hidden="true" draggable={false} />
             <h2 className={taijiArtwork.title}><HomeTranslatedText text="立體太極模型" /></h2>
             <p className="sr-only"><HomeTranslatedText text="空心太極包方形核心，方圓緊貼，進入四維。" /></p>
             <HomeTrustEvidence items={["免費體驗", "可旋轉", "非付費牆"]} />
@@ -3236,7 +3236,7 @@ export default function HomePage() {
             className="home-feature-launch home-feature-amber home-feature-tier-explore order-[16] w-full relative group overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 p-6 text-left shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-[border-color,box-shadow,transform] duration-500 hover:border-amber-400 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] active:scale-[0.99] flex items-center justify-between gap-6 flex-wrap"
           >
             <div className={nineGridArtwork.scenery} aria-hidden="true" />
-            <span className={nineGridArtwork.foreground} aria-hidden="true"><img className={nineGridArtwork.artwork} src="/beast-game/front/young-16.v2.webp" alt="" aria-hidden="true" draggable={false} /></span>
+            <span className={nineGridArtwork.foreground} aria-hidden="true"><img className={nineGridArtwork.artwork} src="/beast-game/front/young-16.v2.webp?v=f1d9cd914205" alt="" aria-hidden="true" draggable={false} /></span>
             <span className={nineGridArtwork.title}><HomeTranslatedText text="九宮格靈動數字" /></span>
             {/* 炫光掃過特效 */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />

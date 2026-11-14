@@ -50,7 +50,7 @@
  content:'';display:block;position:absolute;top:68px;left:50%;
  height:calc(100% - 112px);aspect-ratio:4 / 3;max-width:calc(100% - 32px);
  transform:translateX(-50%);
- background:url('/beast-game/front/young-16.v2.webp') center / contain no-repeat;
+ background:url('/beast-game/front/young-16.v2.webp?v=f1d9cd914205') center / contain no-repeat;
  mask-image:radial-gradient(ellipse 65% 65% at 50% 50%,#000 45%,rgba(0,0,0,.85) 62%,rgba(0,0,0,.3) 82%,transparent 100%);
  pointer-events:none;
 }
