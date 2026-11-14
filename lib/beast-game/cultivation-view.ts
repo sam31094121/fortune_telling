@@ -16,6 +16,7 @@ export function cultivationView(snapshot: CultivationSnapshot) {
   });
   return { revision: snapshot.revision, cards, collectionCards: cards.map(c=>({id:c.id,cardId:c.cardId,source:'DUEL_WIN' as const,at:''})), protectedIds: snapshot.state.protectedIds,
     pendingBattle: snapshot.pendingBattle,
+    shards:snapshot.shards,starterPack:snapshot.starterPack,
     canProtectFive: new Set(cards.map(c => c.cardId)).size >= 5,
     reason: snapshot.pendingBattle ? '戰鬥尚未結算，暫不能合體或更換主力。' : snapshot.state.protectedIds.length !== 5 ? '請先親選並鎖定五隻不同卡型的收藏主力。' : null };
 }

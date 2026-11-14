@@ -26,7 +26,7 @@ function saveView(view:SharedCultivationView) {
   const previous=new Map<string,{at?:string;source?:string}>(old.cards.map((c:{id:string})=>[c.id,c]));
   const cards=view.collectionCards.map(c=>({...c,at:previous.get(c.id)?.at??c.at,source:previous.get(c.id)?.source??c.source}));
   window.localStorage.setItem(CACHE,JSON.stringify(view));
-  window.localStorage.setItem(COLLECTION,JSON.stringify({...old,cards,sharedCultivation:true}));
+  window.localStorage.setItem(COLLECTION,JSON.stringify({...old,cards,shards:view.shards,starterPack:view.starterPack,sharedCultivation:true}));
   window.dispatchEvent(new Event('tdh-beast-collection-updated'));window.dispatchEvent(new Event(SHARED_UPDATED));
   return view;
 }

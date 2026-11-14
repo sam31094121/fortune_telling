@@ -9,6 +9,9 @@ export interface CultivationSnapshot {
   pendingBattle: string | null;
   receipts: CultivationReceipt[];
   creditedIds?: string[];
+  shards?: import('../beast-collection-ledger').ShardLedger;
+  starterPack?: string;
+  exchanges?: Record<string,{kind:string;cardId:string}>;
   orbLedger?: { wins:number; rewards:import('./match3/hard-campaign').CampaignReward[]; receipts:import('./match3/hard-campaign').CampaignReward[] };
   hold?: { id: string; kind: 'card' | 'orb'; entries: {id:string;cardId:string}[]; bonuses: Record<string,string>; stakeIds: string[] };
 }

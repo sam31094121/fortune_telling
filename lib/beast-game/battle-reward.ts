@@ -51,6 +51,7 @@ export type BattleOutcomeKind = 'win' | 'lose' | 'draw';
 
 /** 後端算好、隨回應送出的戰績獎勵。連勝加成不在這裡（連勝存在本機帳本，由帳本入帳時加上）。 */
 export interface BattleReward {
+  proof?: string;
   /** 這一場的唯一鑰匙（防重複入帳）。 */
   key: string;
   outcome: BattleOutcomeKind;

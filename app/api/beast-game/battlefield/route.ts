@@ -88,6 +88,7 @@ function settle(session: BattleSession): StakeOutcome | undefined {
 
 async function reply(session: BattleSession, extra: { action?: Action } = {}) {
   const { match } = session;
+  const verifiedReward=battleRewardFor(match,{campaign:session.campaign,selectedEntries:session.selectedEntries,sharedBonuses:session.cultivation?.bonuses});
   if(session.cultivation&&match.status==='FINISHED')await settleCultivationCards(session.cultivation.owner,session.cultivation.id,settle(session)??null);
   const campaign = session.campaign ? session.stakeCount>0 ? settleCardCampaign(session.campaign, match) : {...session.campaign,pending:match.status==='FINISHED'?null:session.campaign.pending} : null;
   return NextResponse.json({
@@ -99,7 +100,7 @@ async function reply(session: BattleSession, extra: { action?: Action } = {}) {
     notice: bossNotice(match),
     outcome: settle(session),
     // 戰利碎片（2026-11-08）：只有「已結束」才算得出，由後端重播整場驗證；進行中、舊票、對不上一律 null。
-    reward: battleRewardFor(match, { campaign: session.campaign, selectedEntries: session.selectedEntries, sharedBonuses:session.cultivation?.bonuses }),
+    reward: verifiedReward?{...verifiedReward,proof:signBattleSession(session)}:null,
     ...(session.cultivation?{sharedMatchId:session.cultivation.id}:{}),
     ...(campaign ? { campaign: cardCampaignStage(campaign.wins), campaignToken: signCardCampaign(campaign) } : {}),
     ...extra,

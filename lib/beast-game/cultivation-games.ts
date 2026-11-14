@@ -7,7 +7,10 @@ import { exactBonus } from './cultivation';
 import { combatNumber } from './exact-combat';
 import { getCard } from './registry';
 import type { StakeOutcome } from '../beast-collection-ledger';
-import { migrateCollection } from '../beast-collection-ledger';
+import { creditBattleReward, exchangeShards, grantStarterPack, migrateCollection } from '../beast-collection-ledger';
+import { openBattleSession } from './battle-session';
+import { battleRewardFor } from './battle-reward-server';
+import type { ShardExchangeKind } from './battle-reward';
 
 export function cultivationOwner(request: Request): string | null {
   const key = request.headers.get('x-beast-wallet');
@@ -82,10 +85,39 @@ export async function importExistingGrants(owner:string,value:unknown) {
     const seen=new Set([...(current.creditedIds??[]),...current.state.cards.map(c=>'copy:'+c.id),...current.receipts.flatMap(r=>r.changes.map(c=>'copy:'+c.materialId))]);
     const cards=ledger.cards.filter(c=>!seen.has('copy:'+c.id)&&(
       c.id===`growth:${c.cardId}`&&ledger.granted?.includes(c.cardId)
-      ||!!ledger.starterPack&&c.id.startsWith(`starter:${ledger.starterPack}:`)&&/^beast_y\d{2}$/.test(c.cardId)
-      ||/^shard:(adult|guardian):\d+$/.test(c.id)&&ledger.shards
     ));
     if(!cards.length)return current;
     return {...current,state:{...current.state,cards:[...current.state.cards,...cards.map(c=>({id:c.id,cardId:c.cardId,bonus:'0'}))]},creditedIds:[...seen,...cards.map(c=>'copy:'+c.id)]};
+  });
+}
+
+export async function creditSharedShards(owner:string,proof:unknown) {
+  const session=openBattleSession(proof);
+  if(!session||session.cultivation&&session.cultivation.owner!==owner)throw new Error('戰績憑證無效。');
+  const reward=battleRewardFor(session.match,{campaign:session.campaign,selectedEntries:session.selectedEntries,sharedBonuses:session.cultivation?.bonuses});
+  if(!reward)throw new Error('本場戰績尚未確認。');
+  return update(owner,current=>{
+    const event='shards:'+reward.key;
+    if(current.creditedIds?.includes(event))return current;
+    const result=creditBattleReward({cards:[],history:[],shards:current.shards},reward,new Date().toISOString());
+    return {...current,shards:result.collection.shards,creditedIds:[...(current.creditedIds??[]),event]};
+  });
+}
+export async function exchangeSharedShards(owner:string,kind:ShardExchangeKind,operationId:string) {
+  if(!['ADULT','GUARDIAN'].includes(kind)||typeof operationId!=='string'||!operationId||operationId.length>100)throw new Error('兌換操作無效。');
+  return update(owner,current=>{
+    const prior=current.exchanges?.[operationId];
+    if(prior){if(prior.kind!==kind)throw new Error('重送內容不一致。');return current;}
+    if(current.pendingBattle)throw new Error('請先完成原戰鬥再兌換。');
+    const result=exchangeShards({cards:[],history:[],shards:current.shards},kind,new Date().toISOString());
+    const copy=result.collection.cards[0];
+    return {...current,shards:result.collection.shards,state:{...current.state,cards:[...current.state.cards,{id:copy.id,cardId:copy.cardId,bonus:'0'}]},exchanges:{...current.exchanges,[operationId]:{kind,cardId:copy.cardId}},creditedIds:[...(current.creditedIds??[]),'copy:'+copy.id]};
+  });
+}
+export async function grantSharedStarter(owner:string,receipt:string) {
+  return update(owner,current=>{
+    if(current.starterPack)return current;
+    const grant=grantStarterPack({cards:[],history:[]},receipt,new Date().toISOString());
+    return {...current,starterPack:receipt,state:{...current.state,cards:[...current.state.cards,...grant.cards.map(c=>({id:c.id,cardId:c.cardId,bonus:'0'}))]},creditedIds:[...(current.creditedIds??[]),...grant.cards.map(c=>'copy:'+c.id)]};
   });
 }
