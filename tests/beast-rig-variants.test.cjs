@@ -92,7 +92,43 @@ assert.ok(orbitPeak(rig.QINGLONG_RIG.style, 'skill', rig.RIG_PHASES.run[0], rig.
 assert.equal(orbitPeak(rig.QINGLONG_RIG.style, 'skill', rig.RIG_PHASES.attack[0], 1), 0, 'the coil has resolved before the bite');
 assert.equal(orbitPeak(rig.QINGLONG_RIG.style, 'attack', 0, 1), 0, 'a normal attack does not coil');
 assert.equal(orbitPeak(rig.QINGLONG_RIG.style, 'rage', 0, 1), 0, 'rage is a straight overwhelming strike, not a coil');
-for (const style of [rig.BAIHU_RIG.style, rig.ZHUQUE_RIG.style, rig.XUANWU_RIG.style]) for (const name of V) assert.equal(orbitPeak(style, name, 0, 1), 0, 'only the dragon coils');
+for (const name of V) {
+  assert.equal(orbitPeak(rig.BAIHU_RIG.style, name, 0, 1), 0, 'the tiger never orbits');
+  assert.equal(orbitPeak(rig.XUANWU_RIG.style, name, 0, 1), 0, 'the tortoise never orbits: it plants itself and slams');
+}
+// 朱雀專屬技能：先拔高再高空俯衝——衝刺中向上拱起，抵達對手前歸零；普攻、暴怒仍是直線
+const lift = (name) => { let m = 0; for (let i = 0; i <= 300; i++) m = Math.max(m, -rig.strikeFrame(rig.RIG_PHASES.run[0] + (rig.RIG_PHASES.run[1] - rig.RIG_PHASES.run[0]) * i / 300, rig.ZHUQUE_RIG.style, name).orbit.y); return m; };
+assert.ok(lift('skill') > 0.7, 'the phoenix climbs high before diving in its skill');
+assert.equal(lift('attack'), 0, 'a normal attack is a straight flight');
+assert.equal(lift('rage'), 0, 'rage is a straight overwhelming strike');
+assert.equal(orbitPeak(rig.ZHUQUE_RIG.style, 'skill', rig.RIG_PHASES.attack[0], 1), 0, 'the dive has landed before the bite');
+assert.equal(orbitPeak(rig.ZHUQUE_RIG.style, 'attack', 0, 1) + orbitPeak(rig.ZHUQUE_RIG.style, 'rage', 0, 1), 0);
+// 輪廓連續：俯衝路徑不跳位（相鄰兩個取樣點的偏移差有界）
+let prevO = rig.strikeFrame(rig.RIG_PHASES.run[0], rig.ZHUQUE_RIG.style, 'skill').orbit; let maxJump = 0;
+for (let i = 1; i <= 600; i++) { const o = rig.strikeFrame(rig.RIG_PHASES.run[0] + (rig.RIG_PHASES.run[1] - rig.RIG_PHASES.run[0]) * i / 600, rig.ZHUQUE_RIG.style, 'skill').orbit; maxJump = Math.max(maxJump, Math.hypot(o.x - prevO.x, o.y - prevO.y)); prevO = o; }
+assert.ok(maxJump < 0.03, `the dive path is continuous (max step ${maxJump.toFixed(4)})`);
+
+// 玄武專屬技能：甲殼重擊——命中後兩段地震、較大衝擊波與揚塵、較長慢動作；其他招式與其他神獸沒有
+assert.ok(rig.rigVariantSpec(rig.XUANWU_RIG.style, 'skill').quake === 1 && rig.rigVariantSpec(rig.XUANWU_RIG.style, 'attack').quake === 0 && rig.rigVariantSpec(rig.XUANWU_RIG.style, 'rage').quake === 0, 'only the tortoise skill quakes');
+for (const style of [rig.BAIHU_RIG.style, rig.QINGLONG_RIG.style, rig.ZHUQUE_RIG.style]) assert.equal(rig.rigVariantSpec(style, 'skill').quake, 0, 'only the tortoise skill quakes');
+assert.ok(rig.rigVariantSpec(rig.XUANWU_RIG.style, 'skill').shake > rig.RIG_VARIANTS.skill.shake, 'the tortoise slam shakes harder than the shared skill');
+const camX = (style, ms) => { const c = rig.cameraFrame(ms / rig.RIG_STRIKE_MS, style, 'skill'); return Math.hypot(c.shakeX, c.shakeY); };
+let firstPeak = 0; let secondPeak = 0; let dip = 9;
+for (let ms = rig.RIG_IMPACT_MS; ms <= rig.RIG_IMPACT_MS + 60; ms += 2) firstPeak = Math.max(firstPeak, camX(rig.XUANWU_RIG.style, ms));
+for (let ms = rig.RIG_IMPACT_MS + 130; ms <= rig.RIG_IMPACT_MS + 250; ms += 2) secondPeak = Math.max(secondPeak, camX(rig.XUANWU_RIG.style, ms));
+assert.ok(secondPeak > 1.2, 'a second tremor follows the first');
+assert.ok(secondPeak < firstPeak, 'the second tremor is lighter than the first');
+assert.ok(Math.hypot(rig.cameraFrame(0.995, rig.XUANWU_RIG.style, 'skill').shakeX, rig.cameraFrame(0.995, rig.XUANWU_RIG.style, 'skill').shakeY) < 0.6, 'the ground stops shaking by the end');
+const quakeAt = (name) => rig.rendFrame((rig.RIG_IMPACT_MS + 100) / rig.RIG_STRIKE_MS, rig.XUANWU_RIG.style, name).quake;
+assert.ok(quakeAt('skill') > 0.7 && quakeAt('attack') === 0 && quakeAt('rage') === 0, 'dust and tremor belong to the skill only');
+assert.equal(rig.rendFrame((rig.RIG_IMPACT_MS - 30) / rig.RIG_STRIKE_MS, rig.XUANWU_RIG.style, 'skill').quake, 0, 'no quake before the slam lands');
+assert.ok(rig.strikeFrame(0.45, rig.XUANWU_RIG.style, 'skill').dust >= rig.strikeFrame(0.45, rig.XUANWU_RIG.style, 'attack').dust, 'more dust kicked up on the way in');
+// 每隻神獸的專屬招式都不動命中時刻
+for (const style of [rig.QINGLONG_RIG.style, rig.ZHUQUE_RIG.style, rig.XUANWU_RIG.style]) {
+  assert.ok(Math.abs(rig.storyTime(impact, 'skill', style) - impact) < 1e-9, 'the bite moment is untouched by signature skills');
+  let prev = -1; for (let i = 0; i <= 600; i++) { const v = rig.storyTime(i / 600, 'skill', style); assert.ok(v >= prev); prev = v; }
+  assert.equal(rig.storyTime(1, 'skill', style), 1);
+}
 
 // 7) 咬住後的拉扯力道、爪痕、衝擊波、鏡頭
 const pullPeak = (name) => { let m = 0; for (let i = 0; i <= 400; i++) m = Math.max(m, rig.bitePull(i / 400, name)[0]); return m; };
@@ -134,6 +170,8 @@ for (const [id, el] of [['beast_g_baihu', 'SPACE'], ['beast_g_qinglong', 'AIR'],
     assert.ok(tl[name].every((c) => c.volume > 0 && c.volume <= 1), `${id}/${name}: volumes are sane`);
   }
   assert.ok(tl.attack.length < tl.skill.length && tl.skill.length < tl.rage.length, `${id}: more layers for skill and rage`);
+  if (id === 'beast_g_zhuque') assert.ok(tl.skill.some((c) => c.what === 'charge' && c.rate === 1.3), 'the phoenix dive has a rising wind-rush');
+  if (id === 'beast_g_xuanwu') assert.ok(tl.skill.some((c) => c.at === rig.RIG_IMPACT_MS + 120 && c.what === 'strike'), 'the tortoise slam has a second tremor sound');
   const heavyAtImpact = (name) => tl[name].filter((c) => c.at === rig.RIG_IMPACT_MS && c.src.includes('loud-thunder')).length;
   assert.ok(heavyAtImpact('attack') === 0 && heavyAtImpact('skill') >= 1 && heavyAtImpact('rage') >= 1, `${id}: thunder under the bite only for skill and rage`);
   assert.equal(JSON.stringify(tl.attack), JSON.stringify(fx.beastActionTimeline(id, el, 'player', false, true)), `${id}: the default sound timeline is the normal attack`);
@@ -145,7 +183,7 @@ for (const [id, el] of [['beast_g_baihu', 'SPACE'], ['beast_g_qinglong', 'AIR'],
 const hook = read('components/battlefield/useRigStrike.ts');
 assert.ok(hook.includes("performedAction(match, 'player')") && hook.includes('rigVariantOf('), 'the variant comes from what the battle log says was actually performed');
 assert.ok(read('components/battlefield/BattleDock.tsx').includes('variant={rigState.variant}'), 'the dock hands the variant to the stage');
-assert.ok(read('components/battlefield/BeastRigStage.tsx').includes('storyTime(real, variant)'), 'the stage plays the variant slow motion');
+assert.ok(read('components/battlefield/BeastRigStage.tsx').includes('storyTime(real, variant, rig.style)'), 'the stage plays the variant slow motion');
 assert.ok(read('components/battlefield/BattlePanel.tsx').includes('rigVariantOf(pAction)'), 'the panel uses the variant for sound');
 assert.doesNotMatch(hook + read('components/battlefield/BeastRigStage.tsx'), /from ['"][^'"]*(adjudication|battle-session|battle-validation|stake)/, 'the animation layer imports nothing that decides outcomes');
 

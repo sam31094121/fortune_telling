@@ -396,6 +396,9 @@ export function rigActionTimeline(
     out.push({ at: launchAt, src: `${AUDIO_BASE}/cc0-cannon-fire.ogg`, volume: 0.4, rate: 0.95, what: 'charge' });
     out.push({ at: RIG_IMPACT_MS, src: CLASH_FX.heavyImpact, volume: 0.38, rate: 1.05, what: 'strike' });
     out.push({ at: RIG_IMPACT_MS + 190, src: profile.impact, volume: 0.4, rate: rate * 0.9, what: 'strike' });
+    // 專屬技能的聲音：朱雀高空俯衝要有由高而低的破風；玄武重擊在咬合後約 0.12 秒再來第二下地震悶響
+    if (cardId === 'beast_g_zhuque') out.push({ at: runAt + 220, src: ELEMENT_FX[element].attack, volume: 0.3, rate: 1.3, what: 'charge' });
+    if (cardId === 'beast_g_xuanwu') out.push({ at: RIG_IMPACT_MS + 120, src: CLASH_FX.heavyImpact, volume: 0.42, rate: 0.7, what: 'strike' });
   } else if (variant === 'rage') {
     out.push({ at: launchAt, src: CLASH_FX.heavyImpact, volume: 0.45, rate: 0.85, what: 'charge' });
     out.push({ at: runAt, src: `${AUDIO_BASE}/cc0-cannon-fire.ogg`, volume: 0.45, rate: 0.88, what: 'charge' });
