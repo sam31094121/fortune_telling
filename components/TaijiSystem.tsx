@@ -748,6 +748,22 @@ function JourneyRig({
   return null;
 }
 
+/* 【效能｜2026-11-14】drei <Environment> 的 useLayoutEffect 以 children 當依賴：
+   每次 TaijiSystem 重新渲染（例如捲出／捲回視窗時切換 frameloop、18 秒提示 tick）都會拿到新的 JSX，
+   於是 frames={1} 的影棚環境光被重新烘焙（6 面 CubeCamera）並重跑 PMREM 模糊，
+   首頁捲動實測因此卡 2.3–3.1 秒。燈光內容完全不變，改成模組常數讓 children 參考固定，
+   只在第一次（或解析度真的改變時）烘焙一次，畫面與光形不變。 */
+const TAIJI_STUDIO_LIGHTFORMERS = (
+  <>
+    <Lightformer form="rect" intensity={2.2} color="#fff2d8" position={[0, 4, 2]} scale={[6, 3, 1]} target={[0, 0, 0]} />
+    <Lightformer form="rect" intensity={0.9} color="#bcd8ea" position={[-5, 0, 1]} rotation={[0, Math.PI / 2.4, 0]} scale={[4, 1.4, 1]} target={[0, 0, 0]} />
+    <Lightformer form="ring" intensity={1.4} color="#ffd9a0" position={[3, 1.5, -3]} scale={[3, 3, 1]} target={[0, 0, 0]} />
+    <Lightformer form="circle" intensity={0.6} color="#f5e0b8" position={[0, -4, 1]} scale={[5, 5, 1]} target={[0, 0, 0]} />
+    <Lightformer form="rect" intensity={0.7} color="#ffffff" position={[4.5, 2.5, 3]} rotation={[0, -Math.PI / 3, 0]} scale={[0.35, 2.6, 1]} target={[0, 0, 0]} />
+    <Lightformer form="rect" intensity={0.4} color="#dce9f5" position={[-3.5, 3.5, 2]} rotation={[0, Math.PI / 3.2, 0]} scale={[0.25, 2, 1]} target={[0, 0, 0]} />
+  </>
+);
+
 function TaijiPerformanceGovernor({ active }: { active: boolean }) {
   const { performance } = useThree();
 
@@ -1615,6 +1631,8 @@ function TaijiCore({
   level01ImpactId = 0,
   onLevel01Reentry,
   ballWorldRef,
+  onWarmupStart,
+  onWarmupDone,
 }: {
   attractTick?: number;
   theme: TaijiVisualTheme;
@@ -1630,6 +1648,9 @@ function TaijiCore({
   onLevel01Reentry?: () => void;
   /** LEVEL_01 ONLY：外部想讀球體即時世界座標時用；不影響 LEVEL_02～24 既有行為。 */
   ballWorldRef?: { current: THREE.Mesh | null };
+  /** 著色器暖機（下方 warmRef）開始／跑完時各通知外層一次；外層據此在離屏時只為暖機開 frameloop。 */
+  onWarmupStart?: () => void;
+  onWarmupDone?: () => void;
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const diskRef = useRef<THREE.Mesh>(null);
@@ -1716,16 +1737,64 @@ function TaijiCore({
      暖機期間把物件縮到 0.0001 倍——渲染管線照樣編譯，肉眼完全看不到。
   ============================================================ */
   const warmRef = useRef({ warming: false, frames: 0, done: false });
+  const warmGl = useThree((state) => state.gl);
+  const warmScene = useThree((state) => state.scene);
+  const warmCamera = useThree((state) => state.camera);
 
   useEffect(() => {
-    const start = () => { warmRef.current.warming = true; };
+    let cancelled = false;
+    /* 【效能｜2026-11-14】
+       1) 暖機只在客戶沒在捲動時進行：最近 700ms 內有捲動就往後延，避免與捲動搶同一幀。
+       2) 暖機幀之前先用 compileAsync（KHR_parallel_shader_compile）在背景把整個場景
+          （含 visible=false 的各階段物件）的著色器送去編譯，等驅動回報完成才跑暖機幀，
+          減少暖機幀同步等編譯的時間。不支援時照舊直接暖機。 */
+    let lastScrollAt = 0;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    const onScroll = () => { lastScrollAt = performance.now(); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    const whenNotScrolling = (run: () => void) => {
+      if (cancelled || warmRef.current.done) return;
+      const sinceScroll = performance.now() - lastScrollAt;
+      if (sinceScroll < 700) {
+        retryTimer = setTimeout(() => whenNotScrolling(run), 700 - sinceScroll + 50);
+        return;
+      }
+      run();
+    };
+    const beginWarmFrames = () => whenNotScrolling(() => {
+      window.removeEventListener('scroll', onScroll);
+      warmRef.current.warming = true;
+      onWarmupStart?.();
+    });
+    const start = () => whenNotScrolling(() => {
+      const compileAsync = (warmGl as THREE.WebGLRenderer & { compileAsync?: (s: THREE.Object3D, c: THREE.Camera) => Promise<unknown> }).compileAsync;
+      if (typeof compileAsync !== 'function') {
+        beginWarmFrames();
+        return;
+      }
+      try {
+        compileAsync.call(warmGl, warmScene, warmCamera).then(beginWarmFrames, beginWarmFrames);
+      } catch {
+        beginWarmFrames();
+      }
+    });
     const idle = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
     if (idle) {
       const handle = idle(start, { timeout: 2500 });
-      return () => (window as Window & { cancelIdleCallback?: (h: number) => void }).cancelIdleCallback?.(handle);
+      return () => {
+        cancelled = true;
+        if (retryTimer) clearTimeout(retryTimer);
+        window.removeEventListener('scroll', onScroll);
+        (window as Window & { cancelIdleCallback?: (h: number) => void }).cancelIdleCallback?.(handle);
+      };
     }
     const timer = setTimeout(start, 1200);
-    return () => clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      if (retryTimer) clearTimeout(retryTimer);
+      window.removeEventListener('scroll', onScroll);
+      clearTimeout(timer);
+    };
   }, []);
 
   const activeTheme = theme ?? TAIJI_BENCHMARK_THEME;
@@ -2021,6 +2090,7 @@ function TaijiCore({
       if (warm.frames > 8) {
         warm.warming = false;
         warm.done = true;
+        onWarmupDone?.();
       }
     }
     const warming = warm.warming;
@@ -2508,6 +2578,14 @@ export default function TaijiSystem({
   const level01BallRef = useRef<THREE.Mesh | null>(null);
   const [level01Driving, setLevel01Driving] = useState(false);
   const [taijiInView, setTaijiInView] = useState(true);
+  /* 【效能｜2026-11-14】手機首頁一進站就定位到工具列（太極在視窗外），frameloop 立刻變 'never'，
+     TaijiCore 的「載入後空檔著色器暖機」因此從沒跑過；等客戶往上捲回太極的第一幀，
+     才同步編譯二十多支著色器並做 PMREM，實測整頁捲動卡 3 秒。
+     只在暖機那幾幀（空檔觸發、約 9 幀，物件縮到 0.0001 倍，肉眼看不到）讓離屏的 frameloop 跑，
+     暖機完成就恢復「離屏停 frameloop」。畫面與粒子特效不變。 */
+  const [taijiWarmupRunning, setTaijiWarmupRunning] = useState(false);
+  const handleTaijiWarmupStart = useCallback(() => setTaijiWarmupRunning(true), []);
+  const handleTaijiWarmupDone = useCallback(() => setTaijiWarmupRunning(false), []);
 
   const TAIJI_DAILY_KEY = 'tdh:taiji24:daily:v1';
   const todayKey = () => new Date().toISOString().slice(0, 10);
@@ -2763,7 +2841,7 @@ export default function TaijiSystem({
         <span className={styles.groundShadow} aria-hidden="true" />
         <Canvas
           className={`${level01Styles.taijiCanvas} ${displayLayer === 1 && touchActive ? level01Styles.taijiCanvasPressed : ''} ${displayLayer === 1 && touchRebounding ? level01Styles.taijiCanvasRebound : ''}`}
-          frameloop={taijiInView ? 'always' : 'never'}
+          frameloop={taijiInView || taijiWarmupRunning ? 'always' : 'never'}
           camera={{ position: [0, 0, 5.1], fov: 42 }}
           dpr={[canvasQuality.minDpr, canvasQuality.maxDpr]}
           gl={{
@@ -2812,12 +2890,7 @@ export default function TaijiSystem({
               頂部暖色柔光箱＋側面冷色燈條＋背部輪廓光，球面反射出真實的影棚光形，
               零網路資源、frames=1 只烘焙一次不吃效能 */}
           <Environment resolution={canvasQuality.environmentResolution} frames={1}>
-            <Lightformer form="rect" intensity={2.2} color="#fff2d8" position={[0, 4, 2]} scale={[6, 3, 1]} target={[0, 0, 0]} />
-            <Lightformer form="rect" intensity={0.9} color="#bcd8ea" position={[-5, 0, 1]} rotation={[0, Math.PI / 2.4, 0]} scale={[4, 1.4, 1]} target={[0, 0, 0]} />
-            <Lightformer form="ring" intensity={1.4} color="#ffd9a0" position={[3, 1.5, -3]} scale={[3, 3, 1]} target={[0, 0, 0]} />
-            <Lightformer form="circle" intensity={0.6} color="#f5e0b8" position={[0, -4, 1]} scale={[5, 5, 1]} target={[0, 0, 0]} />
-            <Lightformer form="rect" intensity={0.7} color="#ffffff" position={[4.5, 2.5, 3]} rotation={[0, -Math.PI / 3, 0]} scale={[0.35, 2.6, 1]} target={[0, 0, 0]} />
-            <Lightformer form="rect" intensity={0.4} color="#dce9f5" position={[-3.5, 3.5, 2]} rotation={[0, Math.PI / 3.2, 0]} scale={[0.25, 2, 1]} target={[0, 0, 0]} />
+            {TAIJI_STUDIO_LIGHTFORMERS}
           </Environment>
           {/* 鏡頭只保留太極、粒子與光子：不放小行星、星雲或任何外部物件。 */}
           <ambientLight intensity={0.22} />
@@ -2842,6 +2915,8 @@ export default function TaijiSystem({
             level01ImpactId={lightningStrikeId}
             onLevel01Reentry={() => level01Controller.playReentryWhoosh()}
             ballWorldRef={level01BallRef}
+            onWarmupStart={handleTaijiWarmupStart}
+            onWarmupDone={handleTaijiWarmupDone}
           />
           <OrbitControls
             makeDefault
