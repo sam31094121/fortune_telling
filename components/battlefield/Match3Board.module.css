@@ -1028,11 +1028,20 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .actionBar { display: none; }
 /* 11/11 17:49 鈺勝選「寶珠維持原尺寸」：拿掉 832a16f4 的窄屏 2px 外殼內距，360／390 回到既有 8px（390 寶珠約 49.28px，同 d114d27a）；桌機 1280 原本就是高度限制，不受影響。 */
 
-/* 我方只剩最後一隻：放大置中（單位內全部以容器寬度換算，卡圖、血條、能量條一起放大）。 */
-.wrap[data-mode^="hard"] .team[data-last-ally="true"] { grid-template-columns: minmax(0, min(72%, 290px)); justify-content: center; }
+/* 我方只剩最後一隻：放大置中。卡寬仍以 72%／290px 為上限，再受 --last-ally-max 限制（只用底部留白，不縮寶珠）。
+   卡框比例跟卡圖（--last-ally-art-ratio），contain 置中即可填滿、不裁頭尾腳，也不留上下大塊黑邊。 */
+.wrap[data-mode^="hard"] .team[data-last-ally="true"] { grid-template-columns: minmax(0, min(72%, 290px, var(--last-ally-max, 290px))); justify-content: center; }
 .wrap[data-mode^="hard"] .team[data-last-ally="true"] > .ally[data-hp="0"] { display: none; }
 .wrap[data-mode^="hard"] .team[data-last-ally="true"] > .ally { animation: m3LastAllyIn 380ms cubic-bezier(.2,.9,.3,1) both; box-shadow: 0 0 22px var(--ec), 0 0 0 1px var(--ec); }
 @keyframes m3LastAllyIn { from { opacity: .4; transform: scale(.7); } to { opacity: 1; transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .wrap[data-mode^="hard"] .team[data-last-ally="true"] > .ally { animation: none; } }
-.wrap[data-mode^="hard"] .team[data-last-ally="true"] .fusedUnit { --art-y: 50%; }
+.wrap[data-mode^="hard"] .team[data-last-ally="true"] .fusedUnit {
+  --art-ratio: var(--last-ally-art-ratio, 1);
+  --art-h: calc(100cqw / var(--art-ratio));
+  --bar-top: calc(var(--art-h) - var(--join));
+  --art-y: 50%;
+}
+.wrap[data-mode^="hard"] .team[data-last-ally="true"] .allyCard { aspect-ratio: auto; height: var(--art-h); }
+.wrap[data-mode^="hard"] .team[data-last-ally="true"] .fusedUnit > .allyCard,
+.wrap[data-mode^="hard"] .team[data-last-ally="true"] .fusedUnit > .allyCard > img:first-child { height: var(--art-h); }
 .wrap[data-mode^="hard"] .team[data-last-ally="true"] .fusedUnit > .allyCard > img:first-child { object-fit: contain; object-position: 50% 50%; }

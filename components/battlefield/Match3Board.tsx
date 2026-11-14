@@ -382,6 +382,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const autoLinkMoves = useRef(-1);
   const autoLinkHold = useRef(false);
   const fireLinkWithRef = useRef<(ids: string[], source?: 'button' | 'auto' | 'tap') => Promise<boolean>>(async () => false);
+  const compactReserve = useRef<{ chrome: number; wrapH: number; teamH: number } | null>(null);
   useLayoutEffect(() => {
     if (!rigEnabled || help || over) { setScrollLocked(false); return; }
     const element = root.current; if (!element) return;
@@ -400,11 +401,34 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
         const horizontal = number(style.paddingLeft) + number(style.paddingRight) + number(style.borderLeftWidth) + number(style.borderRightWidth);
         // 棋盤 width:min(100%, --compact-board-width) 的 100% 是外殼 content box；不可用外殼 border-box，否則算出來的寬會被 100% 卡掉、寶珠不會變大。
         const contentWidth = rect.width - number(wrapStyle.paddingLeft) - number(wrapStyle.paddingRight) - number(wrapStyle.borderLeftWidth) - number(wrapStyle.borderRightWidth);
-        const available = height - (rect.height - box.height) - 1;
+        // 最後一隻放大不得吃掉寶珠空間：棋盤高度預算用放大前的外殼（隊伍＋法寶＋頁首），大卡只使用原本隊伍列加上視窗底部留白。
+        const teamEl = element.querySelector<HTMLElement>('[data-testid="match3-ally"]')?.parentElement ?? null;
+        const lastAllyOn = teamEl?.getAttribute('data-last-ally') === 'true';
+        const liveChrome = rect.height - box.height;
+        if (teamEl && !lastAllyOn) compactReserve.current = { chrome: liveChrome, wrapH: rect.height, teamH: teamEl.getBoundingClientRect().height };
+        const chrome = lastAllyOn && compactReserve.current ? compactReserve.current.chrome : liveChrome;
+        const available = height - chrome - 1;
         const cell = Math.max(18, Math.min((contentWidth - horizontal - (cfg.cols - 1) * number(style.columnGap)) / cfg.cols, (available - vertical - (cfg.rows - 1) * number(style.rowGap)) / cfg.rows));
         const width = cell * cfg.cols + (cfg.cols - 1) * number(style.columnGap) + horizontal;
         const value = Math.round(width) + 'px';
         if (element.style.getPropertyValue('--compact-board-width') !== value) element.style.setProperty('--compact-board-width', value);
+        if (lastAllyOn && teamEl) {
+          const reserve = compactReserve.current;
+          const leftover = reserve ? reserve.teamH + Math.max(0, height - reserve.wrapH) : 0;
+          const live = Array.from(teamEl.querySelectorAll<HTMLElement>('[data-testid="match3-ally"]')).find(a => Number(a.getAttribute('data-hp')) > 0);
+          const img = live?.querySelector('img');
+          if (img && !img.naturalWidth) img.addEventListener('load', schedule, { once: true });
+          const ratio = img && img.naturalWidth > 0 && img.naturalHeight > 0 ? img.naturalWidth / img.naturalHeight : 1;
+          const maxByHeight = leftover > 19 ? (leftover - 19) * ratio : 0;
+          const cap = Math.max(0, Math.min(contentWidth * 0.72, 290, maxByHeight));
+          const maxVal = `${Math.round(cap * 100) / 100}px`;
+          const ratioVal = String(Math.round(ratio * 1000) / 1000);
+          if (element.style.getPropertyValue('--last-ally-max') !== maxVal) element.style.setProperty('--last-ally-max', maxVal);
+          if (element.style.getPropertyValue('--last-ally-art-ratio') !== ratioVal) element.style.setProperty('--last-ally-art-ratio', ratioVal);
+        } else {
+          element.style.removeProperty('--last-ally-max');
+          element.style.removeProperty('--last-ally-art-ratio');
+        }
         rect = element.getBoundingClientRect();
       } else element.style.removeProperty('--compact-board-width');
       const dockControls = Array.from(element.parentElement?.querySelectorAll<HTMLElement>('[data-testid="campaign-load-error"]') ?? []);
@@ -420,6 +444,8 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     return () => {
       observer.disconnect(); if (raf !== null) cancelAnimationFrame(raf);
       if (previousCompactWidth) element.style.setProperty('--compact-board-width', previousCompactWidth); else element.style.removeProperty('--compact-board-width');
+      element.style.removeProperty('--last-ally-max');
+      element.style.removeProperty('--last-ally-art-ratio');
       window.removeEventListener('resize', schedule); window.removeEventListener('scroll', schedule);
       viewport?.removeEventListener('resize', schedule); viewport?.removeEventListener('scroll', schedule);
     };
