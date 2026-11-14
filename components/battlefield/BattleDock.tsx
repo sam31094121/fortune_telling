@@ -18,6 +18,7 @@ import { memo, useCallback, useEffect, useRef, useState, type CSSProperties } fr
 import type { Action, Match } from '@/lib/beast-game/interactive';
 import type { BattleView } from '@/lib/beast-game/battle-view';
 import { RIG_STRIKE_MS } from '@/lib/beast-game/beast-rig';
+import { ELEMENT_FX, type BattleElement } from '@/lib/beast-battle-fx';
 import { performedAction } from '@/lib/beast-game/combat-presentation';
 import type { BattlefieldCardArt } from './GameBattlefield';
 import { BeastThumb } from './BeastCardTile';
@@ -131,7 +132,7 @@ const BattleDock = memo(function BattleDock({ match, view, cards, busy = false, 
         })}
       </nav>
       {/* 白虎動畫舞台：整個畫面層級的畫布，從出戰卡跳出去、回到出戰卡 */}
-      {rigState.teamRig && <BeastRigStage key={rigState.teamRig.cardId} rig={rigState.teamRig} playKey={rigState.playKey} delayMs={rigState.delayMs} onReady={onRigReady} />}
+      {rigState.teamRig && <BeastRigStage key={rigState.teamRig.cardId} rig={rigState.teamRig} playKey={rigState.playKey} delayMs={rigState.delayMs} onReady={onRigReady} variant={rigState.variant} tint={ELEMENT_FX[(match.player.team[match.player.active]?.element ?? 'SPACE') as BattleElement]?.glow} />}
     </>
   );
 });

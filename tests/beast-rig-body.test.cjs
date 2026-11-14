@@ -212,7 +212,7 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
     assert.ok(fx.beastActionTimeline(id, el, 'opponent', false, true).every((c) => c.what !== 'voice'), 'the opponent still never roars over the player');
   }
   assert.ok(read('components/battlefield/BattlePanel.tsx').includes('rigged'), 'the panel passes the rig flag to the sound timeline');
-  assert.ok(read('components/battlefield/BeastRigStage.tsx').includes('storyTime(real)'), 'the stage plays the slow-motion time map');
+  assert.ok(read('components/battlefield/BeastRigStage.tsx').includes('storyTime(real'), 'the stage plays the slow-motion time map');
   // 青龍：同一條時間軸，咬完就地散去，且每個時刻都有完全不透明的身體（沒有重影）
   for (let i = 0; i <= 200; i++) {
     const t = i / 200;

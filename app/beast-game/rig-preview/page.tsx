@@ -11,7 +11,7 @@
 
 import { useEffect, useState } from 'react';
 import BeastRigStage from '@/components/battlefield/BeastRigStage';
-import { BAIHU_RIG, QINGLONG_RIG, ZHUQUE_RIG, XUANWU_RIG, RIG_PHASES, RIG_STRIKE_MS, strikeFrame } from '@/lib/beast-game/beast-rig';
+import { BAIHU_RIG, QINGLONG_RIG, ZHUQUE_RIG, XUANWU_RIG, RIG_PHASES, RIG_STRIKE_MS, strikeFrame, type RigVariant } from '@/lib/beast-game/beast-rig';
 
 export default function RigPreviewPage() {
   const [t, setT] = useState(0.62);
@@ -19,17 +19,21 @@ export default function RigPreviewPage() {
   const [ready, setReady] = useState(false);
   // ?beast=qinglong 切到青龍（預設白虎）；網址參數只決定看哪一隻，不影響任何結果
   const [beast, setBeast] = useState<'baihu' | 'qinglong' | 'zhuque' | 'xuanwu'>('baihu');
+  // ?variant=skill｜rage 看技能、暴怒的演出（預設普攻）；同樣只決定看哪一套，不影響任何結果
+  const [variant, setVariant] = useState<RigVariant>('attack');
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     const selected = q.get('beast');
     if (selected === 'qinglong' || selected === 'zhuque' || selected === 'xuanwu') setBeast(selected);
+    const wanted = q.get('variant');
+    if (wanted === 'skill' || wanted === 'rage') setVariant(wanted);
     const ms = Number(q.get('ms')); // ?ms=1135 直接停在出擊後第 1135 毫秒（截圖驗收用）
     if (Number.isFinite(ms) && q.has('ms')) setT(Math.min(1, Math.max(0, ms / RIG_STRIKE_MS)));
   }, []);
   const rig = { baihu: BAIHU_RIG, qinglong: QINGLONG_RIG, zhuque: ZHUQUE_RIG, xuanwu: XUANWU_RIG }[beast];
   const name = { baihu: '白虎', qinglong: '青龍', zhuque: '朱雀', xuanwu: '玄武' }[beast];
   const phase = (Object.entries(RIG_PHASES).find(([, [a, b]]) => t >= a && t < b)?.[0]) ?? 'settle';
-  const layers = strikeFrame(t, rig.style).layers.map((l) => `${l.frame} ${Math.round(l.alpha * 100)}%`).join('、');
+  const layers = strikeFrame(t, rig.style, variant).layers.map((l) => `${l.frame} ${Math.round(l.alpha * 100)}%`).join('、');
 
   return (
     <main style={{ padding: 12, color: '#e7eef9', background: '#050b18', minHeight: '100dvh' }}>
@@ -38,6 +42,9 @@ export default function RigPreviewPage() {
       <p data-rig-layers style={{ fontSize: 12, color: '#9db4d3' }}>疊合：{layers}</p>
       <input data-rig-slider type="range" min={0} max={1000} value={Math.round(t * 1000)} onChange={e => { setPlayKey(null); setT(Number(e.target.value) / 1000); }} style={{ width: '100%' }} />
       <div style={{ display: 'flex', gap: 8, margin: '8px 0' }}>
+        {(['attack', 'skill', 'rage'] as const).map((name) => (
+          <button key={name} type="button" onClick={() => setVariant(name)} aria-pressed={variant === name} style={{ minHeight: 44, padding: '0 14px', border: `1px solid ${variant === name ? '#fde68a' : '#526386'}`, borderRadius: 8 }}>{{ attack: '普攻', skill: '技能', rage: '暴怒' }[name]}</button>
+        ))}
         <button type="button" onClick={() => setPlayKey(Date.now())} style={{ minHeight: 44, padding: '0 14px', border: '1px solid #7dd3fc', borderRadius: 8 }}>播放一次</button>
       </div>
       <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'minmax(0, 1fr)', justifyItems: 'center' }}>
@@ -58,7 +65,7 @@ export default function RigPreviewPage() {
           </div>
         </div>
       </div>
-      <BeastRigStage key={beast} rig={rig} playKey={playKey} onReady={setReady} onFrame={setT} seek={playKey === null ? t : null} />
+      <BeastRigStage key={beast} rig={rig} variant={variant} tint={{ baihu: '#e8eef8', qinglong: '#7ee0a0', zhuque: '#ff8a4a', xuanwu: '#6fb4ff' }[beast]} playKey={playKey} onReady={setReady} onFrame={setT} seek={playKey === null ? t : null} />
     </main>
   );
 }

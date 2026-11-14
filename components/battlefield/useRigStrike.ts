@@ -8,8 +8,8 @@
  */
 
 import { useEffect, useState } from 'react';
-import { COMBAT_BEAT_MS, isDamagingAction } from '@/lib/beast-game/combat-presentation';
-import { rigFor, type BeastRig } from '@/lib/beast-game/beast-rig';
+import { COMBAT_BEAT_MS, isDamagingAction, performedAction } from '@/lib/beast-game/combat-presentation';
+import { rigFor, rigVariantOf, type BeastRig, type RigVariant } from '@/lib/beast-game/beast-rig';
 import type { Match } from '@/lib/beast-game/interactive';
 
 export interface RigStrikeState {
@@ -23,6 +23,8 @@ export interface RigStrikeState {
   delayMs: number;
   /** 每次出擊換一個數字（戰局 revision）；不播時為 null */
   playKey: number | null;
+  /** 這次出擊是普攻、技能還是暴怒（取自戰報裡實際執行的行動，不是玩家按了什麼） */
+  variant: RigVariant;
 }
 
 export function useRigStrike(match: Match | null, playing: boolean): RigStrikeState {
@@ -40,5 +42,6 @@ export function useRigStrike(match: Match | null, playing: boolean): RigStrikeSt
   const delayMs = match && fighter
     ? Math.max(0, match.log.findIndex((entry) => entry.side === 'player' && entry.cardId === fighter.cardId)) * COMBAT_BEAT_MS
     : 0;
-  return { rig, teamRig, strike, delayMs, playKey: strike && match ? match.revision : null };
+  const variant = rigVariantOf(match ? performedAction(match, 'player') : null);
+  return { rig, teamRig, strike, delayMs, playKey: strike && match ? match.revision : null, variant };
 }

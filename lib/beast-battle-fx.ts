@@ -22,7 +22,7 @@
  * 這裡只有「哪個元素配哪個聲音、配哪張圖」的對照表——
  * 播什麼、播多久，都不會改變任何一個數字。
  */
-import { RIG_IMPACT_MS, RIG_PHASES, RIG_STRIKE_MS } from './beast-game/beast-rig';
+import { RIG_IMPACT_MS, RIG_PHASES, RIG_STRIKE_MS, type RigVariant } from './beast-game/beast-rig';
 
 export type BattleElement = 'SPACE' | 'AIR' | 'WATER' | 'FIRE' | 'EARTH';
 
@@ -373,6 +373,7 @@ export function rigActionTimeline(
   cardId: string,
   element: BattleElement,
   heavy = false,
+  variant: RigVariant = 'attack',
 ): ActionSound[] {
   const profile = cardSoundProfile(cardId, element);
   const rate = profile.rate;
@@ -390,6 +391,18 @@ export function rigActionTimeline(
   out.push({ at: RIG_IMPACT_MS + 130, src: profile.impact, volume: 0.4, rate: rate * 1.08, what: 'strike' });
   out.push({ at: RIG_IMPACT_MS + 250, src: profile.impact, volume: 0.34, rate: rate * 0.94, what: 'strike' });
   out.push({ at: RIG_IMPACT_MS + 330, src: heavy ? CLASH_FX.heavyImpact : profile.tail, volume: heavy ? 0.55 : 0.34, rate, what: 'tail' });
+  // 技能與暴怒：在普攻的聲音上再疊層，咬合那一聲仍在 RIG_IMPACT_MS（與動畫、鏡頭、受擊同一瞬間）。
+  if (variant === 'skill') {
+    out.push({ at: launchAt, src: `${AUDIO_BASE}/cc0-cannon-fire.ogg`, volume: 0.4, rate: 0.95, what: 'charge' });
+    out.push({ at: RIG_IMPACT_MS, src: CLASH_FX.heavyImpact, volume: 0.38, rate: 1.05, what: 'strike' });
+    out.push({ at: RIG_IMPACT_MS + 190, src: profile.impact, volume: 0.4, rate: rate * 0.9, what: 'strike' });
+  } else if (variant === 'rage') {
+    out.push({ at: launchAt, src: CLASH_FX.heavyImpact, volume: 0.45, rate: 0.85, what: 'charge' });
+    out.push({ at: runAt, src: `${AUDIO_BASE}/cc0-cannon-fire.ogg`, volume: 0.45, rate: 0.88, what: 'charge' });
+    out.push({ at: RIG_IMPACT_MS, src: CLASH_FX.heavyImpact, volume: 0.62, rate: 0.95, what: 'strike' });
+    out.push({ at: RIG_IMPACT_MS + 200, src: profile.impact, volume: 0.5, rate: rate * 0.85, what: 'strike' });
+    out.push({ at: RIG_IMPACT_MS + 360, src: CLASH_FX.heavyImpact, volume: 0.45, rate: 1.1, what: 'tail' });
+  }
   return out;
 }
 
@@ -406,8 +419,10 @@ export function beastActionTimeline(
   heavy = false,
   /** 這隻神獸有戰鬥動畫（跳出卡片咬對手）：聲音改走與動畫階段對齊的時間軸 */
   rig = false,
+  /** 有戰鬥動畫時：普攻、技能、暴怒各自的聲音層次 */
+  variant: RigVariant = 'attack',
 ): ActionSound[] {
-  if (rig && side === 'player') return rigActionTimeline(cardId, element, heavy);
+  if (rig && side === 'player') return rigActionTimeline(cardId, element, heavy, variant);
   const profile = cardSoundProfile(cardId, element);
   const rate = profile.rate;
   const out: ActionSound[] = [];
@@ -440,9 +455,10 @@ export function playBeastAction(
   side: 'player' | 'opponent',
   heavy = false,
   rig = false,
+  variant: RigVariant = 'attack',
 ): () => void {
   if (typeof window === 'undefined') return () => {};
-  const timers = beastActionTimeline(cardId, element, side, heavy, rig).map((cue) =>
+  const timers = beastActionTimeline(cardId, element, side, heavy, rig, variant).map((cue) =>
     cue.at === 0
       ? (play(cue.src, cue.volume, cue.rate), 0)
       : window.setTimeout(() => play(cue.src, cue.volume, cue.rate), cue.at),

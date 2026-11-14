@@ -47,7 +47,7 @@ import VictoryMoment from './VictoryMoment';
 import BattleResultBanner from './BattleResultBanner';
 import UpgradePathHint from './UpgradePathHint';
 import ShareBadge from './ShareBadge';
-import { RIG_STRIKE_EVENT, rigFor } from '@/lib/beast-game/beast-rig';
+import { RIG_STRIKE_EVENT, rigFor, rigVariantOf } from '@/lib/beast-game/beast-rig';
 import SoundEnhancer from './SoundEnhancer';
 
 /** 生命與護盾。護盾先扣，所以畫在血條上面一層。 */
@@ -291,15 +291,17 @@ const BattlePanel = memo(function BattlePanel({
       const heavy = isKoHit('player');
       // 有戰鬥動畫的神獸（且沒開減少動態）打出傷害招式：聲音等動畫「真正開始」的訊號再播，咬合那一聲才會落在 RIG_IMPACT_MS。
       // 監聽要在這一刻就掛上（動畫可能比計時器先起跑）；動畫沒載入、沒起跑時，過一會兒退回原本的時間軸，不能整場靜音。
-      const rigged = pAction !== 'RAGE' && isDamagingAction(match, 'player') && rigFor(fighter.cardId) !== null
+      const rigged = isDamagingAction(match, 'player') && rigFor(fighter.cardId) !== null
         && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (rigged) {
         let fired = false;
         const start = (withRig: boolean) => {
           if (fired || !sound.current) return;
           fired = true;
-          cancels.push(playBeastAction(sound.current.play, fighter.cardId, fighter.element as BattleElement, 'player', heavy, withRig));
-          if (pAction === 'SKILL') window.setTimeout(() => sound.current?.play('/audio/taiji/cc0-cannon-fire.ogg', heavy ? 0.52 : 0.38, 1), 80);
+          // 動畫沒起跑時（withRig=false）暴怒退回原本的暴怒聲；其餘一律走與動畫對齊的聲音層次（普攻、技能、暴怒各一套）
+          if (!withRig && pAction === 'RAGE') cancels.push(playBeastRage(sound.current.play, fighter.element as BattleElement));
+          else cancels.push(playBeastAction(sound.current.play, fighter.cardId, fighter.element as BattleElement, 'player', heavy, withRig, rigVariantOf(pAction)));
+          if (pAction === 'SKILL' && !withRig) window.setTimeout(() => sound.current?.play('/audio/taiji/cc0-cannon-fire.ogg', heavy ? 0.52 : 0.38, 1), 80);
         };
         const onStart = () => start(true);
         window.addEventListener(RIG_STRIKE_EVENT, onStart, { once: true });

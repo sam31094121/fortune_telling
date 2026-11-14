@@ -97,6 +97,33 @@ export const RIG_STYLES = {
   xuanwu: { windup: 0.1, pullback: 0.02, launchHop: 0.18, charge: 2.4, chargeHop: 0.03, gait: 1.5, pounceScale: 1.12, pounceHop: 0.12, shake: 1.2, trail: 0.15, rend: 0.8, bites: 1, size: 1.1, wave: 0.03, articulation: 0.55, morphology: 'armored' },
 } as const satisfies Record<string, RigStyle>;
 
+/**
+ * 三套招式：普攻、技能、暴怒各有自己的演出力道（純數字，不含任何結果）。
+ * 同一條時間軸、命中時刻不變、動作一樣有重量不亂抖，只改「多重」：
+ * 普攻＝一記乾脆的撕咬；技能＝更重的拉扯、爪痕交叉、龍會先盤旋纏繞；
+ * 暴怒＝元素光暈包身、全場略暗、五道爪痕加衝擊波、最長的慢動作，最猛。
+ */
+export type RigVariant = 'attack' | 'skill' | 'rage';
+export interface RigVariantSpec {
+  /** 體型、殘影、命中震動、鏡頭推進的倍率 */
+  size: number; trail: number; shake: number; zoom: number;
+  /** 咬住後沿進攻軸的拉扯力道倍率（bitePull） */
+  pull: number;
+  /** 元素色光暈強度 0..1；全場變暗 0..1 */
+  aura: number; dim: number;
+  /** 對手卡上爪痕條數、是否另有一組反向交叉爪痕、命中衝擊波強度 0..1 */
+  rakes: number; cross: boolean; ring: number;
+  /** 咬合後慢動作毫秒、蓄勢壓低倍率、龍盤旋纏繞幅度 */
+  slowMs: number; windup: number; swirl: number;
+}
+export const RIG_VARIANTS: Readonly<Record<RigVariant, RigVariantSpec>> = {
+  attack: { size: 1, trail: 1, shake: 1, zoom: 1, pull: 1, aura: 0, dim: 0, rakes: 3, cross: false, ring: 0, slowMs: 120, windup: 1, swirl: 0 },
+  skill: { size: 1.1, trail: 1.4, shake: 1.3, zoom: 1.5, pull: 1.3, aura: 0.55, dim: 0.14, rakes: 3, cross: true, ring: 0.6, slowMs: 170, windup: 1.3, swirl: 1 },
+  rage: { size: 1.28, trail: 1.8, shake: 1.8, zoom: 2.4, pull: 1.7, aura: 1, dim: 0.42, rakes: 5, cross: true, ring: 1, slowMs: 260, windup: 1.6, swirl: 0 },
+};
+/** 戰報裡的行動 → 招式；沒有對應就當普攻 */
+export const rigVariantOf = (action: string | null | undefined): RigVariant => (action === 'RAGE' ? 'rage' : action === 'SKILL' ? 'skill' : 'attack');
+
 export interface BeastRig {
   cardId: string;
   /** 動作個性 */
@@ -233,6 +260,10 @@ export interface RigFrame {
   trail: number;
   /** 腳下揚塵強度 0..1 */
   dust: number;
+  /** 元素色光暈強度 0..1（技能、暴怒才有，普攻為 0） */
+  aura: number;
+  /** 盤旋偏移（以精靈高度為單位；只有龍的技能纏繞會非 0，抵達對手前歸零） */
+  orbit: { x: number; y: number };
 }
 
 /**
@@ -250,9 +281,10 @@ function gallop(u: number): number {
  * 換姿勢一律用「下面的姿勢維持全不透明、上面的姿勢漸顯」的疊法（不是兩張各半透明），
  * 這樣任何一刻身體的覆蓋都是完整的，不會出現半透明的幽靈身體。
  */
-export function strikeFrame(t: number, style: RigStyle = RIG_STYLES.baihu): RigFrame {
+export function strikeFrame(t: number, style: RigStyle = RIG_STYLES.baihu, variant: RigVariant = 'attack'): RigFrame {
+  const v = RIG_VARIANTS[variant];
   const time = clamp01(t);
-  const frame: RigFrame = { layers: [], travel: { progress: 0, hop: 0 }, scale: 1, tilt: 0, squash: 1, alpha: 1, flash: 0, shake: 0, trail: 0, dust: 0 };
+  const frame: RigFrame = { layers: [], travel: { progress: 0, hop: 0 }, scale: 1, tilt: 0, squash: 1, alpha: 1, flash: 0, shake: 0, trail: 0, dust: 0, aura: 0, orbit: { x: 0, y: 0 } };
   const add = (id: RigFrameId, alpha: number) => { if (alpha > 0.001) frame.layers.push({ frame: id, alpha: clamp01(alpha) }); };
   /** 從 from 換成 to：w＝0 只有 from，w＝1 只有 to，中間 from 在下全不透明、to 在上漸顯。 */
   const cross = (from: RigFrameId, to: RigFrameId, w: number) => {
@@ -271,8 +303,9 @@ export function strikeFrame(t: number, style: RigStyle = RIG_STYLES.baihu): RigF
     const k = smooth(within(time, RIG_PHASES.anticipate));
     add('bite-close', 1);
     frame.scale = lerp(0.34, 0.42, k);
-    frame.squash = lerp(1, 1 - style.windup, k);
+    frame.squash = lerp(1, 1 - style.windup * v.windup, k);
     frame.alpha = smooth(k * 1.7);
+    frame.aura = v.aura * 0.5 * k;
     frame.travel = { progress: -style.pullback * k, hop: 0 };
     frame.shake = 0.06 * k * style.shake;
   } else if (time < RIG_PHASES.leap[1]) {
@@ -280,7 +313,8 @@ export function strikeFrame(t: number, style: RigStyle = RIG_STYLES.baihu): RigF
     const k = within(time, RIG_PHASES.leap);
     cross('bite-close', stableBody ? 'pounce-open' : 'run-reach', smooth((k - 0.05) * 5));
     frame.scale = lerp(0.42, 1, easeOut(k));
-    frame.squash = lerp(1 - style.windup, 1.04, smooth(k));
+    frame.squash = lerp(1 - style.windup * v.windup, 1.04, smooth(k));
+    frame.aura = v.aura * lerp(0.5, 0.8, k);
     frame.travel = { progress: lerp(-style.pullback, 0.3, easeOut(k)), hop: style.launchHop * Math.sin(k * Math.PI) };
     frame.tilt = smooth(k);
     frame.trail = k * style.trail * 0.35;
@@ -302,6 +336,12 @@ export function strikeFrame(t: number, style: RigStyle = RIG_STYLES.baihu): RigF
     frame.tilt = 1;
     frame.trail = style.trail * 0.3 * footfall;
     frame.dust = 0.7 * (1 - Math.abs(Math.sin(u * Math.PI)));
+    frame.aura = v.aura * lerp(0.8, 1, k);
+    if (style.morphology === 'serpentine' && v.swirl > 0) {
+      // 龍的技能：衝向對手前先盤旋纏繞，幅度隨靠近收斂，抵達時剛好回到路徑上
+      const amp = Math.pow(1 - k, 1.2) * v.swirl;
+      frame.orbit = { x: Math.sin(k * Math.PI * 3) * 0.5 * amp, y: -(1 - Math.cos(k * Math.PI * 3)) * 0.18 * amp };
+    }
   } else if (time < RIG_PHASES.attack[1]) {
     // 撲殺：騰空逼近、張口亮爪，咬合那一刻頓住，震動與白閃一起炸開（咬合時刻由 RIG_IMPACT_MS 對齊）
     const k = within(time, RIG_PHASES.attack);
@@ -320,6 +360,7 @@ export function strikeFrame(t: number, style: RigStyle = RIG_STYLES.baihu): RigF
     frame.flash = Math.max(0, 1 - Math.abs(k - IMPACT_K) / 0.14);
     frame.shake = k >= IMPACT_K ? 0.22 * style.shake * Math.exp(-(k - IMPACT_K) * 20) : 0;
     frame.trail = style.trail * (1 - approach) * 0.18;
+    frame.aura = v.aura;
   } else if (time < RIG_PHASES.recover[1]) {
     // 咬完就地散去：先頓住一拍（獵物倒下的重量感），再往前壓一寸、化作光霧淡出，不跑回去
     const raw = within(time, RIG_PHASES.recover);
@@ -334,6 +375,7 @@ export function strikeFrame(t: number, style: RigStyle = RIG_STYLES.baihu): RigF
     frame.alpha = 1 - smooth(k);
     frame.shake = 0;
     frame.flash = 0;
+    frame.aura = v.aura * (1 - smooth(within(time, RIG_PHASES.recover)));
   } else {
     // 已散去：交還給原始卡片（此刻戰場上沒有精靈）
     add('bite-close', 1);
@@ -342,6 +384,8 @@ export function strikeFrame(t: number, style: RigStyle = RIG_STYLES.baihu): RigF
     frame.travel = { progress: 1, hop: 0 };
     frame.tilt = 1;
   }
+  frame.shake *= v.shake;
+  frame.trail = Math.min(1, frame.trail * v.trail);
   if (style.morphology === 'armored') {
     // 重甲用肢體承力，不把硬殼當軟身壓扁回彈，也不作大幅騰空撲躍。
     frame.squash = 1;
@@ -355,22 +399,23 @@ export function strikeFrame(t: number, style: RigStyle = RIG_STYLES.baihu): RigF
  * 撕咬的視覺進度（純函式，只給畫面用）：命中那一刻起，對手卡上先劃出三道爪痕，
  * 再炸出碎片。slash／shards 都是 0..1 的進度，沒命中前為 0；style.rend 是力道。
  */
-export function rendFrame(t: number, style: RigStyle = RIG_STYLES.baihu): { slash: number; shards: number; power: number } {
+export function rendFrame(t: number, style: RigStyle = RIG_STYLES.baihu, variant: RigVariant = 'attack'): { slash: number; shards: number; power: number; marks: number; cross: boolean; ring: number; ringPower: number } {
+  const v = RIG_VARIANTS[variant];
   const since = (clamp01(t) * RIG_STRIKE_MS - RIG_IMPACT_MS) / 1000; // 命中後經過的秒數
-  if (since < 0 || t >= RIG_PHASES.settle[0]) return { slash: 0, shards: 0, power: 0 };
+  if (since < 0 || t >= RIG_PHASES.settle[0]) return { slash: 0, shards: 0, power: 0, marks: v.rakes, cross: v.cross, ring: 0, ringPower: 0 };
   // 先咬住，之後才把碎片扯開；收勢時與本體一起淡出。
   const fade = 1 - smooth(within(t, [0.9, RIG_PHASES.settle[0]]));
-  return { slash: smooth(since / 0.09), shards: smooth((since - 0.055) / 0.22), power: style.rend * fade };
+  return { slash: smooth(since / 0.09), shards: smooth((since - 0.055) / 0.22), power: style.rend * fade, marks: v.rakes, cross: v.cross, ring: clamp01(since / 0.45), ringPower: v.ring * fade };
 }
 
 /** 咬住後的一次沿進攻軸施力；[前進量, 側向量]，單位為目標卡寬。舞台須投影到攻擊方向。 */
-export function bitePull(t: number): readonly [number, number] {
+export function bitePull(t: number, variant: RigVariant = 'attack'): readonly [number, number] {
   const time = clamp01(t);
   const gripEnd = RIG_IMPACT_MS / RIG_STRIKE_MS + 0.035;
   if (time <= gripEnd || time >= RIG_PHASES.settle[0]) return [0, 0];
   const pull = time < 0.88 ? smooth(within(time, [gripEnd, 0.88]))
     : 1 - smooth(within(time, [0.88, RIG_PHASES.settle[0]]));
-  return [0.12 * pull, 0];
+  return [0.12 * pull * RIG_VARIANTS[variant].pull, 0];
 }
 
 
@@ -426,7 +471,7 @@ export interface LivingPose {
 const TAU = Math.PI * 2;
 
 /** 第 t 時刻各部位動作：重心蓄勢、頭沿前軸探出、命中閉顎、咬住停頓、單次前向撕扯。 */
-export function livingPose(t: number, style: RigStyle = RIG_STYLES.qinglong): LivingPose {
+export function livingPose(t: number, style: RigStyle = RIG_STYLES.qinglong, variant: RigVariant = 'attack'): LivingPose {
   const rest: LivingPose = { headPitch: 0, headThrust: 0, jaw: 0, clawSwing: 0, hind: [0, 0] };
   if ((style.articulation ?? style.wave) <= 0) return rest;
   const time = clamp01(t);
@@ -482,7 +527,7 @@ export function livingPose(t: number, style: RigStyle = RIG_STYLES.qinglong): Li
   }
   if (time < RIG_PHASES.settle[0]) {
     // 咬住停頓後只做一次有重量的拉扯；不以快速咀嚼和高頻頭抖代替力量。
-    const pull = bitePull(time)[0] / 0.12;
+    const pull = bitePull(time, variant)[0] / 0.12; // 含招式力道倍率：技能、暴怒咬得更重
     const release = smooth(within(time, [0.88, RIG_PHASES.settle[0]]));
     const fade = 1 - smooth(within(time, [0.9, RIG_PHASES.settle[0]]));
     return out({
@@ -591,10 +636,10 @@ export const RIG_SLOWMO_RATE = 0.3;
  * 咬合那一刻之前 1:1；咬合後 0.3 倍速慢動作約 120 毫秒（讓玩家看清那一口）；之後略加速追回，
  * 所以總長仍是 RIG_STRIKE_MS：對手受擊、元素特效、輸入鎖的時間都不用改。單調遞增、終點為 1。
  */
-export function storyTime(real: number): number {
+export function storyTime(real: number, variant: RigVariant = 'attack'): number {
   const r = clamp01(real);
   const impact = RIG_IMPACT_MS / RIG_STRIKE_MS;
-  const slowEnd = impact + RIG_SLOWMO_MS / RIG_STRIKE_MS;
+  const slowEnd = impact + RIG_VARIANTS[variant].slowMs / RIG_STRIKE_MS;
   if (r <= impact) return r;
   if (r <= slowEnd) return impact + (r - impact) * RIG_SLOWMO_RATE;
   const reached = impact + (slowEnd - impact) * RIG_SLOWMO_RATE;
@@ -610,14 +655,15 @@ export interface CameraFrame {
 }
 
 /** 第 t（動畫時間 0..1）時刻的鏡頭：撲近推進、咬合重震、之後回彈。震動用固定頻率正弦，不用亂數。 */
-export function cameraFrame(t: number, style: RigStyle = RIG_STYLES.baihu): CameraFrame {
+export function cameraFrame(t: number, style: RigStyle = RIG_STYLES.baihu, variant: RigVariant = 'attack'): CameraFrame {
+  const v = RIG_VARIANTS[variant];
   const time = clamp01(t);
   const impact = RIG_IMPACT_MS / RIG_STRIKE_MS;
   const push = smooth(within(time, [RIG_PHASES.run[0], impact])); // 衝刺到咬合：推進
   const after = Math.max(0, time - impact) * RIG_STRIKE_MS / 1000; // 咬合後經過的秒數
   const recoil = after > 0 ? (1 - Math.exp(-after * 120)) * Math.exp(-after * 12) : 0;
-  const zoom = 1 + 0.035 * push * (time <= impact ? 1 : Math.max(0, 1 - after * 6)) + 0.02 * recoil * style.shake;
+  const zoom = 1 + (0.035 * push * (time <= impact ? 1 : Math.max(0, 1 - after * 6)) + 0.02 * recoil * style.shake) * v.zoom;
   // 一次受力回彈，避免38Hz亂抖把眼睛、爪子與接觸細節震糊。
-  const amp = style.shake * 4.5 * recoil;
+  const amp = style.shake * v.shake * 4.5 * recoil;
   return { shakeX: Math.sin(after * 2 * Math.PI * 9) * amp, shakeY: Math.sin(after * 2 * Math.PI * 7) * amp * 0.55, zoom };
 }
