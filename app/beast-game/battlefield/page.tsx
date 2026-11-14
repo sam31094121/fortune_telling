@@ -46,6 +46,7 @@ import FreeBattleShards from '@/components/battlefield/FreeBattleShards';
 import type { BattleReward } from '@/lib/beast-game/battle-reward';
 import OwnedCampaignPreparation from '@/components/battlefield/OwnedCampaignPreparation';
 import OwnedCardCultivation from '@/components/battlefield/OwnedCardCultivation';
+import { sharedWalletHeaders, refreshSharedCultivation } from '@/lib/beast-cultivation-client';
 import { readOwnedCardCampaignProgress } from '@/lib/beast-collection';
 import { useCombatPlayback } from '@/components/battlefield/useCombatPlayback';
 import BattlePace from '@/components/battlefield/BattlePace';
@@ -55,7 +56,7 @@ import { MAX_REWARD_CARDS, MAX_STAKE_CARDS } from '@/lib/beast-game/stake-rules'
 /** 一副牌的張數。六十張是卡池，不是一副牌全部上桌。 */
 
 
-type CampaignReply = { campaign?: { wins: number; stage: number }; campaignToken?: string };
+type CampaignReply = { campaign?: { wins: number; stage: number }; campaignToken?: string; sharedMatchId?:string };
 type BattleReply = CampaignReply & { ok: true; match: Match; token: string; legal: Action[]; view: BattleView; notice: string | null; outcome?: StakeOutcome; action?: Action; reward?: BattleReward | null };
 type DealReply = CampaignReply & { ok: true; table: BattleState; deckIds: string[]; opening: { player: string[]; opponent: string[] }; tableToken: string };
 
@@ -68,7 +69,7 @@ const DEAL_RETRY_MESSAGE = '發牌暫時沒有完成，請點下方「重新載�
 
 async function callBattle<T = BattleReply>(body: Record<string, unknown>, timeoutMs = 30000): Promise<T> {
   const res = await fetch('/api/beast-game/battlefield', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(timeoutMs),
+    method: 'POST', headers: { 'Content-Type': 'application/json', ...sharedWalletHeaders() }, body: JSON.stringify(body), signal: AbortSignal.timeout(timeoutMs),
   });
   const data = await res.json().catch(() => null) as ({ ok: true } | { ok: false; error?: string } | null);
   if (!res.ok || !data || !data.ok) throw new Error((data && !data.ok && data.error) || '戰場暫時無法連線，押注卡未扣除。');
@@ -277,7 +278,7 @@ function BattlefieldScreen() {
       const representative = ownedStake.find(card => card.id === stakeCardIds[0]);
       const expectedCampaignToken = dealCampaignToken.current!;
       // 開戰交給後端：種子、難度（押注戰＝困難首領、體驗戰＝簡單）、易經判斷都由後端決定。
-      const opened = await callBattle({ type: 'START', tableToken: tableToken.current, playerTeam: fieldTeam(state, 'PLAYER'), opponentTeam: fieldTeam(state, 'OPPONENT'), stakeCardId: stakeCardIds.length ? representative?.cardId ?? null : null, stakeCount: stakeCardIds.length });
+      const opened = await callBattle({ type: 'START', tableToken: tableToken.current, playerTeam: fieldTeam(state, 'PLAYER'), opponentTeam: fieldTeam(state, 'OPPONENT'), stakeCardId: stakeCardIds.length ? representative?.cardId ?? null : null, stakeCount: stakeCardIds.length,stakeEntryIds:stakeCardIds });
       battleToken.current = opened.token; setLegal(opened.legal); setLiveNotice(opened.notice); setBattleView(opened.view); setReward(null);
       const next = opened.match;
       setOutcome(null); setSettlement(null); setBattleStake(representative?.cardId || null);
@@ -303,7 +304,7 @@ function BattlefieldScreen() {
           reject,
         };
         setMatch(next);
-      }), expectedCampaignToken);
+      }), expectedCampaignToken, opened.sharedMatchId);
       liveMatchId.current = null;
       if (alive.current && completed.result.stake) { setOutcome(completed.result.stake); setSettlement(completed.settlement); }
     } catch (cause) {

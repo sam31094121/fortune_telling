@@ -1,4 +1,6 @@
-import { randomInt, randomUUID } from 'node:crypto';
+import { randomInt, randomUUID, createHash } from 'node:crypto';
+import { cultivationOwner, holdCultivationBattle, settleCultivationCards, battleBonus } from '@/lib/beast-game/cultivation-games';
+import { cultivationRepository } from '@/lib/beast-game/cultivation-repository';
 import { NextResponse } from 'next/server';
 import { advance, bossNotice, chooseAI, legalActions, newMatch, type Action } from '@/lib/beast-game/interactive';
 import { openBattleSession, openTableTicket, signBattleSession, signTableTicket, openCardCampaign, signCardCampaign, type BattleSession } from '@/lib/beast-game/battle-session';
@@ -32,6 +34,7 @@ export const dynamic = 'force-dynamic';
  */
 
 type Body = {
+  stakeEntryIds?: unknown;
   campaign?: unknown;
   campaignToken?: unknown;
   selectedEntries?: unknown;
@@ -83,8 +86,9 @@ function settle(session: BattleSession): StakeOutcome | undefined {
     : base;
 }
 
-function reply(session: BattleSession, extra: { action?: Action } = {}) {
+async function reply(session: BattleSession, extra: { action?: Action } = {}) {
   const { match } = session;
+  if(session.cultivation&&match.status==='FINISHED')await settleCultivationCards(session.cultivation.owner,session.cultivation.id,settle(session)??null);
   const campaign = session.campaign ? session.stakeCount>0 ? settleCardCampaign(session.campaign, match) : {...session.campaign,pending:match.status==='FINISHED'?null:session.campaign.pending} : null;
   return NextResponse.json({
     ok: true,
@@ -95,7 +99,8 @@ function reply(session: BattleSession, extra: { action?: Action } = {}) {
     notice: bossNotice(match),
     outcome: settle(session),
     // 戰利碎片（2026-11-08）：只有「已結束」才算得出，由後端重播整場驗證；進行中、舊票、對不上一律 null。
-    reward: battleRewardFor(match, { campaign: session.campaign, selectedEntries: session.selectedEntries }),
+    reward: battleRewardFor(match, { campaign: session.campaign, selectedEntries: session.selectedEntries, sharedBonuses:session.cultivation?.bonuses }),
+    ...(session.cultivation?{sharedMatchId:session.cultivation.id}:{}),
     ...(campaign ? { campaign: cardCampaignStage(campaign.wins), campaignToken: signCardCampaign(campaign) } : {}),
     ...extra,
   }, { headers: { 'Cache-Control': 'no-store' } });
@@ -121,6 +126,7 @@ export async function POST(request: Request) {
       const campaign=getCampaign();return NextResponse.json({ok:true,campaign:cardCampaignStage(campaign.wins),campaignToken:signCardCampaign(campaign)},{headers:{'Cache-Control':'no-store'}});
     }
     if(body.type==='ENHANCE'){
+      if(cultivationOwner(request))return fail('請使用共同神獸卡庫合體，原培養入口已改為共用。');
       const campaign=getCampaign();
       if(!validOwnedCard(body.target)||!validOwnedCard(body.material))return fail('培養副本資料無效，未消耗卡片。');
       const preview=cardCampaignEnhancementPreview(campaign,body.target,body.material);
@@ -139,7 +145,9 @@ export async function POST(request: Request) {
         const rng=createRng(cardCampaignSeed(campaign));
         const fresh=newBattle(playerCards,cardCampaignOpponent(campaign),rng,false);
         const table=autoPlaceOpponent(fresh,rng,4);
-        const tableToken=signTableTicket({v:1,kind:'table',campaign,selectedEntries:entries,playerCards,opponentTeam:fieldTeam(table,'OPPONENT'),issuedAt:Date.now()});
+        const owner=cultivationOwner(request);
+        if(owner&&entries){const shared=await cultivationRepository().read(owner);if(entries.some(e=>!shared.state.cards.some(c=>c.id===e.id&&c.cardId===e.cardId)))return fail('卡庫已更新，請重新選擇持有副本。');}
+        const tableToken=signTableTicket({v:1,kind:'table',campaign,selectedEntries:entries,playerCards,opponentTeam:fieldTeam(table,'OPPONENT'),issuedAt:Date.now(),...(owner&&entries?{cultivationOwner:owner}:{})});
         return NextResponse.json({ok:true,table,tableToken,deckIds:playerCards,opening:{player:fresh.player.hand.slice(),opponent:fresh.opponent.hand.slice()},campaign:cardCampaignStage(campaign.wins),campaignToken:signCardCampaign(campaign)},{headers:{'Cache-Control':'no-store'}});
       }
       // 開局：洗牌、發牌、易經自動佈陣都在後端。易經用同一套佈陣規則上場——沒有特權、沒有額外格子。
@@ -175,19 +183,28 @@ export async function POST(request: Request) {
         if(stakeCount>0&&!table.selectedEntries)return fail('免押體驗不能冒用收藏押卡。');
         const campaign={...table.campaign,pending:randomUUID()};
         let match=newMatch(body.playerTeam,table.opponentTeam,cardCampaignSeed(campaign),{difficulty:cardCampaignStage(campaign.wins).difficulty});
-        match=applyCardCampaignStats(match,campaign,table.selectedEntries);
-        return reply({v:1,match,campaign,selectedEntries:table.selectedEntries,stakeCardId:stakeCount>0?stakeCardId:null,stakeCount,issuedAt:Date.now()});
+        let cultivation:BattleSession['cultivation'];
+        if(table.cultivationOwner){
+          if(cultivationOwner(request)!==table.cultivationOwner)return fail('卡庫與開戰憑證不符。');
+          const stakeIds=Array.isArray(body.stakeEntryIds)&&body.stakeEntryIds.every(id=>typeof id==='string')?body.stakeEntryIds as string[]:[];
+          if(stakeIds.length!==stakeCount)return fail('請確認本場實押副本。');
+          const id='card:'+createHash('sha256').update(String(body.tableToken)).digest('hex');
+          const held=await holdCultivationBattle(table.cultivationOwner,id,'card',table.selectedEntries??[],stakeIds);
+          cultivation={owner:table.cultivationOwner,id,bonuses:Object.fromEntries(Object.entries(held.bonuses).map(([key,value])=>[key,battleBonus(value)]))};
+        }
+        match=applyCardCampaignStats(match,campaign,table.selectedEntries,cultivation?.bonuses);
+        return await reply({v:1,match,campaign,cultivation,selectedEntries:table.selectedEntries,stakeCardId:stakeCount>0?stakeCardId:null,stakeCount,issuedAt:Date.now()});
       }
       // 正式押注戰＝困難首領；體驗戰（免押卡、新客人）維持簡單。難度由後端決定，不採信前端。
       const match = newMatch(body.playerTeam, table.opponentTeam, randomInt(2147483647), { difficulty: stakeCount > 0 ? 'HARD' : 'EASY' });
-      return reply({ v: 1, match, stakeCardId: stakeCount > 0 ? stakeCardId : null, stakeCount, issuedAt: Date.now() });
+      return await reply({ v: 1, match, stakeCardId: stakeCount > 0 ? stakeCardId : null, stakeCount, issuedAt: Date.now() });
     }
 
     if (body.type === 'RESUME') {
       // 重新整理後接續：只驗章、原樣回傳這一場（不出招、不改任何數值）；打完的場次一併附上同一份戰果。
       const session = openBattleSession(body.token);
       if (!session) return fail('戰局憑證無效或已過期，押注卡未扣除；請重新開戰。', 410);
-      return reply(session);
+      return await reply(session);
     }
 
     if (body.type === 'ACTION' || body.type === 'AUTO') {
@@ -198,7 +215,7 @@ export async function POST(request: Request) {
       const action = body.type === 'AUTO' ? chooseAI(session.match, 'player') : body.action;
       if (!isAction(action)) return fail('出招資料無效。');
       const next = advance(session.match, action);
-      return reply({ ...session, match: next }, { action });
+      return await reply({ ...session, match: next }, { action });
     }
 
     return fail('未知操作。');

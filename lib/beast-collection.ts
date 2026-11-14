@@ -1,4 +1,5 @@
 'use client';
+import { syncSharedCultivation, refreshSharedCultivation, sharedRequest, sharedWalletHeaders } from './beast-cultivation-client';
 
 import { cardFusionChoices, requireFusionCopies, commitOwnedFusion, fusionReceiptDisplay, withCollectionCampaign, clearCollectionCampaignPending } from './beast-game/card-campaign-fusion';
 import type { CardEnhancementReceipt } from './beast-game/card-campaign';
@@ -152,16 +153,16 @@ export async function retryStakeSettlement(matchId:string,outcome:StakeOutcome,p
  return exclusive(()=>{const journal=readJson(JOURNAL_KEY,null) as {matchId:string;result:AwardResult}|null;const result=journal?.matchId===matchId?journal.result:undefined;return applyStakeOutcome(matchId,outcome,result?.campaignToken??progress?.campaignToken,result?.campaign?.wins??progress?.wins);});
 }
 
-export async function runOwnedStakesDuel(entryIds:string[],play:(entries:Array<{id:string;cardId:string}>)=>Promise<AwardResult>,expectedCampaignToken?:string):Promise<{result:AwardResult;settlement:Settlement}>{
+export async function runOwnedStakesDuel(entryIds:string[],play:(entries:Array<{id:string;cardId:string}>)=>Promise<AwardResult>,expectedCampaignToken?:string,sharedMatchId?:string):Promise<{result:AwardResult;settlement:Settlement}>{
  return exclusive(async()=>{
   const current=readStrict();
   if(expectedCampaignToken!==undefined&&current.cardCampaign?.token!==expectedCampaignToken)throw new Error('闖關資料已在其他操作更新，請重新確認出戰。');
-  const matchId=crypto.randomUUID();const reserved=reserveOwnedStakes(current,entryIds,matchId,now());write(reserved);
+  const matchId=sharedMatchId??crypto.randomUUID();const reserved=reserveOwnedStakes(current,entryIds,matchId,now());write(reserved);
   let result:AwardResult;
   try{result=await play(reserved.pending!.entries!);if(!result.ok||!result.stake||result.isReplay)throw new Error(result.error??'沒有有效戰果，沒有扣卡。');}
   catch(e){if(isHeld(e))throw e;const current=readStrict();if(current.pending?.id===matchId)write(clearCollectionCampaignPending({...current,pending:null}));clearLiveBattle(matchId);throw e;}
   try{window.localStorage.setItem(JOURNAL_KEY,JSON.stringify({matchId,result}));}catch{/* Ledger write still attempted; no saved claim on failure. */}
-  const settlement=applyStakeOutcome(matchId,result.stake!,result.campaignToken,result.campaign?.wins);if(settlement.saved)clearLiveBattle(matchId);
+  const settlement=applyStakeOutcome(matchId,result.stake!,result.campaignToken,result.campaign?.wins);if(settlement.saved){clearLiveBattle(matchId);if(sharedMatchId)await refreshSharedCultivation();}
   return {result,settlement};
  });
 }
@@ -177,14 +178,14 @@ export async function resumeOwnedStakesDuel(matchId:string,play:(entries:Array<{
   const result=await play(current.pending.entries);
   if(!result.ok||!result.stake)throw new Error(result.error??'沒有有效戰果，押注卡仍保留。');
   try{window.localStorage.setItem(JOURNAL_KEY,JSON.stringify({matchId,result}));}catch{/* Ledger write still attempted. */}
-  const settlement=applyStakeOutcome(matchId,result.stake,result.campaignToken,result.campaign?.wins);if(settlement.saved)clearLiveBattle(matchId);
+  const settlement=applyStakeOutcome(matchId,result.stake,result.campaignToken,result.campaign?.wins);if(settlement.saved){clearLiveBattle(matchId);if(current.sharedCultivation)await refreshSharedCultivation();}
   return {result,settlement};
  });
 }
 
 /** 戰局票過期或驗章失敗：照舊退回押注卡（未扣除）。 */
 export async function releaseLiveBattle(matchId:string):Promise<void>{
- await exclusive(()=>{const current=readStrict();if(current.pending?.id===matchId)write(clearCollectionCampaignPending({...current,pending:null}));clearLiveBattle(matchId);});
+ await exclusive(async()=>{const current=readStrict();if(current.sharedCultivation)await sharedRequest({type:'RELEASE',battleId:matchId});if(current.pending?.id===matchId)write(clearCollectionCampaignPending({...current,pending:null}));clearLiveBattle(matchId);});
 }
 
 /** An interrupted request without a received outcome never confiscates a customer's card. */
@@ -324,6 +325,7 @@ export async function enhanceOwnedCard(operationId:string,targetEntryId:string,m
 }
 /** Read and persist the server's current signed campaign without racing fusion or staking. */
 export async function readOwnedCardCampaignProgress() {
+ await syncSharedCultivation();
  return exclusive(async()=>{
   const current=readStrict();if(current.pending)throw new Error('請先接續或結算目前戰鬥。');
   const reply=await campaignRequest({type:'PROGRESS',campaignToken:current.cardCampaign?.token});

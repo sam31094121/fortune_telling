@@ -62,6 +62,7 @@ function receiptMovement(before: CollectionEntry[], after: CollectionEntry[], st
   };
 }
 export interface BeastCollection {
+  sharedCultivation?: boolean;
   cardCampaign?: CardCampaignCollection;
   cards: CollectionEntry[];
   history: CollectionHistoryItem[];
@@ -91,6 +92,7 @@ export function migrateCollection(value: unknown): BeastCollection {
   if (!Array.isArray(old.cards) || !Array.isArray(old.history)) throw new Error('收藏格式無法讀取，暫不開放押注。');
   if (old.cards.some((card) => !isBeastCardId(card?.cardId))) throw new Error('收藏中有無法辨識的卡，暫不開放押注。');
   return {
+    ...(old.sharedCultivation===true?{sharedCultivation:true}:{}),
     cards: old.cards.map((card, index) => ({ ...card, id: card.id || `legacy:${index}:${card.cardId}`, source: card.source === 'GROWTH' ? 'GROWTH' : 'DUEL_WIN' })),
     history: old.history.slice(0, 60),
     granted: Array.isArray(old.granted) ? old.granted : [],

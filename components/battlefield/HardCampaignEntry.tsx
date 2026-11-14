@@ -11,6 +11,9 @@ import { campaignHeroChoice, campaignAvailableIds, campaignCollection, campaignC
 import { BeastCardFace } from './BeastCardTile';
 import Match3Board from './Match3Board';
 import CampaignEnhancement from './CampaignEnhancement';
+import SharedCultivationPanel from './SharedCultivationPanel';
+import { syncSharedCultivation, sharedRequest } from '@/lib/beast-cultivation-client';
+import { refreshSharedCampaign } from '@/lib/beast-game/match3/hard-campaign-store';
 import CampaignBackup from './CampaignBackup';
 import styles from './Match3Board.module.css';
 import picker from './Match3TeamPicker.module.css';
@@ -24,6 +27,9 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const [phase, setPhase] = useState<'hero' | 'team' | 'battle'>('hero');
   const [candidate, setCandidate] = useState<string | null>(null);
   const [selected, setSelected] = useState<string[]>([]);
+  const [ownedEntries,setOwnedEntries]=useState<Record<string,string>>({});
+  const [cultivationOpen,setCultivationOpen]=useState(false);
+  const [previousOrb,setPreviousOrb]=useState<string|null>(null);
   const [tab, setTab] = useState<BeastElement | 'ALL'>('ALL');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
@@ -61,16 +67,25 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const face = (id: string) => {
     const c = pool.find(card => card.id === id)!;
     const skill = getSkill(c.skills[0]);
-    const attack = profile ? campaignCardAttack(profile, id) : null;
-    return <span className={picker.face}><BeastCardFace card={{ id: c.id, name: c.name, element: c.element, thumbnail: c.art.thumbnail, skillName: skill?.name, description: skill?.description }} />{attack && attack.bonus > 0 && <span className={picker.permanentBonus}>永久 +{attack.bonus} · 攻擊 {attack.attack}</span>}</span>;
+    const owned=profile?.shared?.cards.find(c=>c.id===ownedEntries[id]);
+    const attack = owned ? {bonus:owned.bonus,attack:owned.orbAttack} : profile ? campaignCardAttack(profile, id) : null;
+    return <span className={picker.face}><BeastCardFace card={{ id: c.id, name: c.name, element: c.element, thumbnail: c.art.thumbnail, skillName: skill?.name, description: skill?.description }} />{attack && String(attack.bonus)!=='0' && <span className={picker.permanentBonus}>永久 +{attack.bonus} · 攻擊 {attack.attack}</span>}</span>;
   };
   const load = async (who: Owner, repick = false, reset = false) => {
     loadRetry.current = { who, repick, reset };
     setSaving(true);
-    const result = reset ? await resetGuestCampaign() : readCampaign(who);
+    let result:Awaited<ReturnType<typeof refreshSharedCampaign>>;
+    try {
+      if(who==='self'){
+        const shared=await syncSharedCultivation();
+        if(shared.pendingBattle){setPreviousOrb(shared.pendingBattle.startsWith('orb:')?shared.pendingBattle:null);throw new Error('已有進行中的戰鬥，請先接續神獸戰鬥，或結束原寶珠局後重新選卡。');}
+        result=await refreshSharedCampaign();
+      }else result=reset?await resetGuestCampaign():readCampaign(who);
+    }catch(e){setSaving(false);setError(e instanceof Error?e.message:'暫時無法讀取共同卡庫。');return;}
     setSaving(false);
     if (!result.ok || !result.profile) { setError(result.error || '暫時無法取得闖關進度，請重試。'); return; }
     const p = result.profile;
+    setOwnedEntries(p.ownedEntries??{});setPreviousOrb(null);
     setOwner(who); setProfile(p); setError(''); setTab('ALL');
     setCandidate(campaignHeroChoice(p) === 'milestone' ? p.heroId : null);
     setSelected(validateCampaignTeam(p, p.teamIds) ? [...p.teamIds] : p.heroId ? [p.heroId] : []);
@@ -83,7 +98,7 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
     <div className={picker.playerChoices}>
       <button type="button" data-testid="play-self" disabled={saving} onClick={() => load('self')}><strong>我自己</strong><span>開始或接續自己的闖關進度</span></button>
       <button type="button" data-testid="play-guest" disabled={saving} onClick={() => load('guest', false, true)}><strong>親朋好友</strong><span>從第一關開始，不影響我的進度</span></button>
-    </div>{legacyAvailable && <button type="button" className={styles.again} data-testid="resume-legacy" disabled={saving} onClick={async () => {
+    </div>{previousOrb&&<button type="button" data-release-orb disabled={saving} onClick={async()=>{try{await sharedRequest({type:'RELEASE',battleId:previousOrb});setPreviousOrb(null);await load('self',true);}catch(e){setError(e instanceof Error?e.message:'暫時無法離開原戰鬥。');}}}>結束原寶珠局，重新選卡</button>}{legacyAvailable && <button type="button" className={styles.again} data-testid="resume-legacy" disabled={saving} onClick={async () => {
       setSaving(true); const result = await importLegacyCampaign(); setSaving(false);
       if (!result.ok) { setError(result.error || '舊進度尚未儲存，請重試。'); return; }
       await load('self');
@@ -133,7 +148,11 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
       {face(c.id)}<span className={picker.choiceState}>已獲 {collection.adults.find(a => a.cardId === c.id)?.count} 張 · {selected.includes(c.id) ? '已選夥伴' : '點選出戰'}</span>
     </button>)}</div>
     {owner === 'self' && <CampaignBackup onImported={() => { void load('self', true); }} />}
-    <CampaignEnhancement owner={owner} profile={profile} onSaved={updated => { setProfile(updated); setSelected(ids => ids.filter(id => campaignAvailableIds(updated).includes(id))); }} />
+    {owner==='self'?<><button type="button" className={styles.again} data-open-shared-cultivation onClick={()=>setCultivationOpen(v=>!v)}>共同神獸卡庫・合體培養</button>{cultivationOpen&&<SharedCultivationPanel onSaved={()=>{void refreshSharedCampaign().then(result=>{if(result.profile){setProfile(result.profile);setOwnedEntries(result.profile.ownedEntries??{});}});}} onDone={()=>setCultivationOpen(false)}/>}</>:<p className={styles.hint}>親友試用牌不會消耗，也不影響自己的收藏。</p>}
+    {owner==='self'&&profile.shared&&<section aria-label="選擇實際出戰副本"><h2>出戰副本</h2><p>同一種神獸有多張收藏時，請指定本場使用哪張。免費牌標示為試用。</p>{selected.map(id=>{
+      const copies=profile.shared!.cards.filter(c=>c.cardId===id),trial=id===profile.heroId||(pool.find(c=>c.id===id)?.form==='YOUNG'&&!profile.consumedYoungIds?.includes(id));
+      return <label key={id} style={{display:'block',margin:'12px 0'}}>{pool.find(c=>c.id===id)?.name}<select data-orb-owned-copy={id} aria-label={`${pool.find(c=>c.id===id)?.name}出戰副本`} value={ownedEntries[id]??''} onChange={e=>setOwnedEntries(old=>({...old,[id]:e.target.value}))} style={{display:'block',minHeight:48,maxWidth:'100%'}}><option value="" disabled={!trial}>{trial?'免費試用牌':'請選收藏副本'}</option>{copies.map((c,i)=><option key={c.id} value={c.id}>收藏第 {i+1} 份・永久 +{c.bonus}・攻擊 {c.orbAttack}</option>)}</select></label>;
+    })}</section>}
     <h2 className={picker.sectionTitle}>幼子夥伴</h2><p className={styles.hint}>尚未消耗的幼子可自由挑選。</p>
     <div className={picker.cardGrid}>{shown.filter(c => collection.youngIds.includes(c.id)).map(c => <button type="button" className={picker.cardChoice} key={c.id} data-testid="pick-card" data-id={c.id} data-el={c.element} aria-label={`${c.name}，攻擊 ${CARD_FACE_STATS[c.id].attack}`} aria-pressed={selected.includes(c.id)} onClick={() => toggle(c.id)}>
       {face(c.id)}<span className={picker.choiceState}>{selected.includes(c.id) ? '已選夥伴' : '點選出戰'}</span>
@@ -141,7 +160,7 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
     {error && <p role="alert">{error}</p>}
     {selected.length === 5 && <p className={picker.readyHint} role="status" data-testid="team-ready-hint">隊伍已就緒，點此開始作戰</p>}
     <div className={styles.pickBar}><button ref={startButton} type="button" className={`${styles.again} ${selected.length === 5 ? picker.readyStart : ''}`} data-testid="start-battle" disabled={!validateCampaignTeam(profile, selected) || saving} onClick={async () => {
-      setSaving(true); const result = await saveCampaignTeam(owner, selected); setSaving(false);
+      setSaving(true); const result = await saveCampaignTeam(owner, selected,ownedEntries); setSaving(false);
       if (!result.ok || !result.profile) { setError(result.error || '隊伍尚未儲存，請重試。'); return; }
       setProfile(result.profile); setError(''); setRevision(n => n + 1); setPhase('battle');
     }}>{saving ? '正在儲存隊伍…' : selected.length === 5 ? '點此開始作戰 →' : `請再點選 ${5 - selected.length} 位夥伴`}</button></div>

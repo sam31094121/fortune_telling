@@ -21,6 +21,7 @@ const SECRET = process.env.BEAST_BATTLE_SECRET || process.env.JWT_SECRET || 'bea
 export const BATTLE_SESSION_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 
 export interface BattleSession {
+  cultivation?: { owner:string; id:string; bonuses:Record<string,number> };
   campaign?: CardCampaign;
   /**
    * 闖關局上陣的收藏副本。開局時 applyCardCampaignStats 會依它改能力值；
@@ -71,6 +72,7 @@ export function openBattleSession(token: unknown, now = Date.now()): BattleSessi
  * 開戰時核對：玩家上場的卡必須是這一桌發到手上的；易經陣容一律採用這裡後端排好的。
  */
 export interface TableTicket {
+  cultivationOwner?: string;
   campaign?: CardCampaign;
   selectedEntries?: OwnedCardRef[];
   v: 1;

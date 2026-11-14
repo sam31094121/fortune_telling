@@ -23,6 +23,7 @@ import type { FusionTier } from './fusion';
  *    重播時必須用同一份 campaign 與 selectedEntries 重做，否則能力值對不上。
  */
 export interface ReplayContext {
+  sharedBonuses?: Record<string,number>;
   campaign?: CardCampaign;
   selectedEntries?: readonly OwnedCardRef[];
 }
@@ -32,7 +33,7 @@ export function replayHighestFusionTier(match: Match, context: ReplayContext = {
   if (match.status !== 'FINISHED') return null;
   try {
     let m = newMatch(match.player.team.map((f) => f.cardId), match.opponent.team.map((f) => f.cardId), match.seed, { difficulty: match.difficulty });
-    if (context.campaign) m = applyCardCampaignStats(m, context.campaign, context.selectedEntries);
+    if (context.campaign) m = applyCardCampaignStats(m, context.campaign, context.selectedEntries, context.sharedBonuses);
     let best: FusionTier = 'NONE';
     for (const step of match.history) {
       m = advance(m, step.player, step.opponent);

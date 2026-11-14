@@ -62,6 +62,7 @@ function duelArtVars(name: string): Record<string, string> {
 
 import { readMatch3Progress, saveMatch3Progress, type Match3ProgressOwner } from '@/lib/beast-game/match3/progress-store';
 import { readCampaign, settleWin, transactTreasures, type CampaignSettlement } from '@/lib/beast-game/match3/hard-campaign-store';
+import { sharedRequest, sharedWalletHeaders } from '@/lib/beast-cultivation-client';
 import { validateCampaignTeam, campaignAttack, type HardCampaign } from '@/lib/beast-game/match3/hard-campaign';
 import { createMatch3Sound, type Match3SoundCue } from './match3Sound';
 import { runRefillPlayback } from '@/lib/beast-game/match3/refill-runner';
@@ -160,26 +161,30 @@ export interface TreasurePractice { scenario?: string; board: Board; magic: Magi
 export interface Match3BoardProps { treasurePractice?: TreasurePractice; seed?: number; teamIds?: readonly string[] | null; sameElementRule?: SameElementRule; onRepick?: () => void; mode?: Match3ModeId; progressOwner?: Match3ProgressOwner; campaignEnabled?: boolean; onCampaignContinue?: () => void; /** 覆寫用；未給＝第 8 關起殿後的四大神獸（reservedGuardianBossRule，與 foeAvailable 同源）。 */ isFinalBoss?: FinalBossRule }
 export default function Match3Board({ treasurePractice, seed, teamIds, sameElementRule = DEFAULT_SAME_ELEMENT_RULE, onRepick, mode, progressOwner = null, campaignEnabled = false, onCampaignContinue, isFinalBoss }: Match3BoardProps) {
   const cfg = match3Mode(mode);
-  const [init, setInit] = useState<{ rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner; revision: number } | null>(null);
+  const [init, setInit] = useState<{ rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner; sharedBattleToken?:string; sharedBattleId?:string; revision: number } | null>(null);
   const revision = useRef(0);
+  const sharedStart = useRef<string | null>(null);
   const [initError, setInitError] = useState('');
   const key = teamIds?.join(',') ?? '';
   useEffect(() => {
-    const initialize = () => {
+    const initialize = async () => {
       const s = seed ?? (Date.now() % 100000); const rng = seededRng(s);
       const owner = cfg.id === 'medium' ? null : progressOwner;
       const campaign = campaignEnabled && owner ? readCampaign(owner) : null;
       if (campaignEnabled && (!campaign?.ok || !campaign.profile)) { setInitError(campaign?.error ?? '請先選擇主角及夥伴'); return; }
       if (campaign?.profile && !validateCampaignTeam(campaign.profile, teamIds ?? [])) { setInitError('請先選擇主角及四張已解鎖夥伴'); return; }
+      let shared: {token?:string;battleId?:string} = {};
+      if(owner==='self' && campaign?.profile){sharedStart.current??=crypto.randomUUID();const opened=await sharedRequest({type:'ORB_BEGIN',profile:campaign.profile,operationId:sharedStart.current});campaign.profile=opened.profile;shared=opened;}
       const wins = cfg.id === 'medium' ? 0 : campaign?.profile?.wins ?? readMatch3Progress(owner);
-      setInit({ rng, seed: s, wins, owner, revision: ++revision.current, ...pickLineup(rng, teamIds, cfg, wins, campaign?.profile), board: generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, cfg.id === 'medium' ? 3 : progressionStage(wins).minChain) });
+      setInit({ rng, seed: s, wins, owner, sharedBattleToken:shared.token, sharedBattleId:shared.battleId, revision: ++revision.current, ...pickLineup(rng, teamIds, cfg, wins, campaign?.profile), board: generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, cfg.id === 'medium' ? 3 : progressionStage(wins).minChain) });
     };
-    initialize();
+    void initialize().catch(e=>setInitError(e instanceof Error?e.message:"暫時無法開戰。"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seed, key, cfg.id, progressOwner, campaignEnabled]);
   if (initError) return <section className={styles.wrap} role="alert">{initError}<button type="button" onClick={onRepick}>返回我的卡片</button></section>;
   if (!init) return <section className={styles.wrap} aria-busy="true" />;
-  return <Match3Game treasurePractice={treasurePractice} key={`${key}:${cfg.id}:${init.revision}`} init={init} teamIds={teamIds} rule={sameElementRule} onRepick={onRepick} cfg={cfg} campaignEnabled={campaignEnabled} onCampaignContinue={onCampaignContinue} isFinalBoss={isFinalBoss} />;
+  const leave=async(next?:()=>void)=>{try{if(init.sharedBattleId)await sharedRequest({type:'RELEASE',battleId:init.sharedBattleId});next?.();}catch(e){setInitError(e instanceof Error?e.message:'暫時無法離開戰鬥。');}};
+  return <Match3Game treasurePractice={treasurePractice} key={`${key}:${cfg.id}:${init.revision}`} init={init} teamIds={teamIds} rule={sameElementRule} onRepick={()=>void leave(onRepick)} cfg={cfg} campaignEnabled={campaignEnabled} onCampaignContinue={()=>void leave(onCampaignContinue)} isFinalBoss={isFinalBoss} />;
 }
 
 /** 狀態徽章（動效助手 v3，鈺勝 23:46／23:53）：卡左上 14px 靜態，形狀＋色調區分；卡上不放字，狀態寫在 aria-label。 */
@@ -192,7 +197,7 @@ function FusedStatusBadge({ kind }: { kind: FusedBadge }) {
   }</svg></span>;
 }
 
-function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, campaignEnabled, onCampaignContinue, isFinalBoss }: { isFinalBoss?: FinalBossRule; treasurePractice?: TreasurePractice; cfg: Match3ModeConfig; init: { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner }; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void; campaignEnabled: boolean; onCampaignContinue?: () => void }) {
+function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, campaignEnabled, onCampaignContinue, isFinalBoss }: { isFinalBoss?: FinalBossRule; treasurePractice?: TreasurePractice; cfg: Match3ModeConfig; init: { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner; sharedBattleToken?:string; sharedBattleId?:string }; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void; campaignEnabled: boolean; onCampaignContinue?: () => void }) {
   const rigEnabled = cfg.id === 'hard45' || cfg.id === 'hard45b';
   const [wins, setWins] = useState(init.wins);
   const [progressSaveFailed, setProgressSaveFailed] = useState(false);
@@ -496,7 +501,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     if (!campaignEnabled || !init.owner || savingRewardRef.current) return;
     savingRewardRef.current = true; setSavingReward(true);
     try {
-      campaignMatchId.current ??= window.crypto.randomUUID?.() ?? `orb-${window.crypto.getRandomValues(new Uint32Array(4)).join('-')}`;
+      campaignMatchId.current ??= init.sharedBattleId ? 'orb-win:'+init.sharedBattleId : window.crypto.randomUUID?.() ?? `orb-${window.crypto.getRandomValues(new Uint32Array(4)).join('-')}`;
       const result = await settleWin(init.owner, campaignMatchId.current, wins);
       setCampaignSettlement(result);
     } catch {
@@ -579,8 +584,8 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     const actionId = battleId.current + ':treasure:' + (++treasureAction.current);
     try {
       const result = await treasureTransaction(async book => {
-        const r = await fetch('/api/beast-game/orb-turn', {method:'POST', headers:{'Content-Type':'application/json'}, signal:controller.signal,
-          body:JSON.stringify({ board,magic,path:[],team,foes,mode:cfg.id,wins,target:ti,seed:init.seed,move:moves,chosen,rule,attackBoost,treasureGuard,treasures:book,action:'treasure',treasureElement:element,treasureVariant:variant,actionId })});
+        const r = await fetch('/api/beast-game/orb-turn', {method:'POST', headers:{'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, signal:controller.signal,
+          body:JSON.stringify({ sharedBattleToken:init.sharedBattleToken, board,magic,path:[],team,foes,mode:cfg.id,wins,target:ti,seed:init.seed,move:moves,chosen,rule,attackBoost,treasureGuard,treasures:book,action:'treasure',treasureElement:element,treasureVariant:variant,actionId })});
         if (!r.ok) throw new Error('暫時無法使用寶器，請重試。');
         const result: TreasureUse = await r.json();
         if (controller.signal.aborted) throw new Error('請求已中止');
@@ -607,8 +612,8 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     try {
       battleId.current ||= crypto.randomUUID();
       const request = async (book?: TreasureBook) => {
-        const response = await fetch('/api/beast-game/orb-turn', { method:'POST', headers:{'Content-Type':'application/json'}, signal:controller.signal,
-          body:JSON.stringify({ board, magic, path, team, foes, mode:cfg.id, wins, target:ti, seed:(init.seed + moves * 2654435761) >>> 0, move:moves, chosen, rule, attackBoost, treasureGuard, treasures:book, actionId:battleId.current + ':turn:' + moves }) });
+        const response = await fetch('/api/beast-game/orb-turn', { method:'POST', headers:{'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, signal:controller.signal,
+          body:JSON.stringify({ sharedBattleToken:init.sharedBattleToken, board, magic, path, team, foes, mode:cfg.id, wins, target:ti, seed:(init.seed + moves * 2654435761) >>> 0, move:moves, chosen, rule, attackBoost, treasureGuard, treasures:book, actionId:battleId.current + ':turn:' + moves }) });
         if (!response.ok) throw new Error('turn unavailable');
         const result: ReturnType<typeof resolveOrbTurn> = await response.json();
         if (controller.signal.aborted) throw new Error('aborted');
@@ -807,8 +812,8 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     const controller = new AbortController(); turnRequest.current = controller; setBusy(true);
     const timeout = window.setTimeout(() => controller.abort(), 15000);
     try {
-      const response = await fetch('/api/beast-game/orb-turn', { method:'POST', headers:{'Content-Type':'application/json'}, signal:controller.signal,
-        body:JSON.stringify({ board, magic, path:[], team, foes, mode:cfg.id, wins, target:ti, seed:init.seed, move:moves, chosen, rule, attackBoost, treasureGuard, action, ...(action === 'energy' ? { attackerId:ids[0] } : { linkIds:ids }), eventId, actionId }) });
+      const response = await fetch('/api/beast-game/orb-turn', { method:'POST', headers:{'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, signal:controller.signal,
+        body:JSON.stringify({ sharedBattleToken:init.sharedBattleToken, board, magic, path:[], team, foes, mode:cfg.id, wins, target:ti, seed:init.seed, move:moves, chosen, rule, attackBoost, treasureGuard, action, ...(action === 'energy' ? { attackerId:ids[0] } : { linkIds:ids }), eventId, actionId }) });
       if (!response.ok) throw new Error('card attack unavailable');
       const result: CardAttackResult = await response.json();
       if (controller.signal.aborted) throw new Error('aborted');
@@ -986,7 +991,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       {help && (rigEnabled ? <div className={styles.help}>
         <p>拖過相鄰同色珠，至少3格；本關合計 {stage.minChain} 顆可攻擊。可斜連，不可跳格或重疊。</p>
         <p>4顆起留數字，7顆起變盾牌。連入同色盾牌可清除同色珠；掉落連鎖也有效。</p>
-        <p>每次放開非空連線都換對方反擊，無效連線也算。能量滿100時神獸發光，點神獸攻擊後能量歸零。兩張卡各有50能量時，手機版會在消除與反擊動畫結束後自動發動連線攻擊；也可依序點兩張符合條件的卡發動，再點已選的卡或點空白處可取消。電腦版仍用下方按鈕。</p>
+        <p>每次放開非空連線都換對方反擊，無效連線也算。能量滿100時神獸發光，點神獸攻擊後能量歸零。兩張卡各有50能量時，會在消除與反擊動畫結束後自動發動連線攻擊；也可依序點兩張符合條件的卡發動，再點已選的卡或點空白處可取消。</p>
         <p>玩家消除同屬性寶珠累積能量，珠數越多充能越快；滿條後點亮起的神獸發招並歸零。敵方每次有效連珠增加四分之一，連鎖不重複累加，滿條後依關卡順序出手並歸零。受控不能出手，待命敵人不蓄力；能量技與連線技能不充能。</p>
         <p>五色盾牌連線只消耗連到的盾牌，其餘寶珠下落後全變各自屬性的盾牌，空位補普通珠；不獲得法寶。同屬性純盾牌一次連4、5、6、7、8格，分別只取得第1、2、3、4、5號法寶一件，按實際格數計算，不按盾牌儲存威力計數。同屬性隊員按順序分配不同種類，階級越高基礎威力越高。點下方寶器直接釋放，消耗一件，不增加敵方回合。自己的未用寶器可帶到下一關，親友的僅限本關；保存在本瀏覽器。</p>
         {treasures.map(x => <p key={x.element+':'+x.variant}>{x.name}：{x.description}</p>)}

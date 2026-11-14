@@ -5,6 +5,8 @@ import { CARD_FACE_STATS } from '../card-face-stats';
 export interface CampaignReward { matchId: string; cardId: string; win: number }
 export interface EnhancementReceipt { operationId: string; youngId: string; targetId: string; attackBonus: number }
 export interface HardCampaign {
+  ownedEntries?: Record<string,string>;
+  shared?: { availableIds:string[]; cards:{id:string;cardId:string;name:string;bonus:string;orbAttack:string}[]; stats:Record<string,{baseAttack:number;bonus:number;attack:number}>; selectedEntries:{id:string;cardId:string}[] };
   version: 1;
   treasures?: TreasureBook;
   wins: number;
@@ -26,9 +28,11 @@ export function campaignHeroChoice(p: HardCampaign): 'initial' | 'milestone' | '
   return !p.heroId ? 'initial' : p.wins >= 8 && !p.heroChoiceUsed ? 'milestone' : 'locked';
 }
 export function campaignAvailableIds(p: HardCampaign): string[] {
+  if(p.shared)return p.shared.availableIds;
   return [...new Set([...playableCards().filter(c => c.form === 'YOUNG' && !(p.consumedYoungIds ?? []).includes(c.id)).map(c => c.id), ...p.rewards.map(r => r.cardId), ...(p.heroId ? [p.heroId] : [])])];
 }
 export function campaignCollection(p: HardCampaign): { heroId: string | null; adults: { cardId: string; count: number }[]; youngIds: string[] } {
+  if(p.shared){const counts=new Map<string,number>();p.shared.cards.filter(c=>getCard(c.cardId)?.form!=='YOUNG').forEach(c=>counts.set(c.cardId,(counts.get(c.cardId)??0)+1));return {heroId:p.heroId,adults:[...counts].map(([cardId,count])=>({cardId,count})),youngIds:p.shared.availableIds.filter(id=>getCard(id)?.form==='YOUNG')};}
   const counts = new Map<string, number>();
   p.rewards.forEach(r => counts.set(r.cardId, (counts.get(r.cardId) ?? 0) + 1));
   return { heroId: p.heroId, adults: campaignAdultIds().filter(id => counts.has(id)).map(cardId => ({ cardId, count: counts.get(cardId)! })), youngIds: playableCards().filter(c => c.form === 'YOUNG' && !(p.consumedYoungIds ?? []).includes(c.id)).map(c => c.id) };
@@ -44,6 +48,7 @@ export function enhancementBonus(p: HardCampaign, cardId: string): number {
 }
 export function campaignAttack(p: HardCampaign, cardId: string): number { return campaignCardAttack(p, cardId).attack; }
 export function campaignCardAttack(p: HardCampaign, cardId: string): { baseAttack: number; bonus: number; attack: number } {
+  if(p.shared?.stats[cardId])return p.shared.stats[cardId];
   const card = getCard(cardId);
   if (!card) throw new Error('卡片資料不存在');
   const bonus = enhancementBonus(p, cardId);

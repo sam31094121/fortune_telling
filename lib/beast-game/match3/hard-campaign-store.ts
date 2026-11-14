@@ -1,4 +1,5 @@
 import { emptyTreasureBook, validateTreasureBook, type TreasureBook } from './treasures';
+import { sharedRequest, sharedWalletHeaders, refreshSharedCultivation } from '../../beast-cultivation-client';
 import { campaignWin, chooseCampaignHero, enhanceCampaignProfile, newCampaign, parseCampaign, validateCampaignTeam, type HardCampaign, type CampaignReward, type EnhancementReceipt } from './hard-campaign';
 import { readMatch3Progress } from './progress-store';
 import { decodeCampaignBackup, encodeCampaignBackup } from './campaign-backup';
@@ -40,18 +41,26 @@ function settleWinUnlocked(owner: CampaignOwner, matchId: string, winsAtStart: n
 function resetGuestCampaignUnlocked(): CampaignResult { return write('guest', newCampaign()); }
 
 /** Serialize every self mutation across tabs; do not claim safety without a lock. */
-async function transaction<T extends CampaignResult>(owner: CampaignOwner, action: () => T, failure: (e: unknown) => T): Promise<T> {
+async function transaction<T extends CampaignResult>(owner: CampaignOwner, action: () => T | Promise<T>, failure: (e: unknown) => T): Promise<T> {
   try {
     storage(owner);
-    if (typeof navigator !== 'undefined' && navigator.locks?.request) return await navigator.locks.request(keys[owner], action);
+    if (typeof navigator !== 'undefined' && navigator.locks?.request) return await navigator.locks.request(owner==='self'?'tdh-beast-collection':keys[owner], action);
     if (owner === 'guest') return action();
     throw new Error('此瀏覽器暫不支援安全儲存，請使用支援的瀏覽器重試');
   } catch (e) { return failure(e); }
 }
 export const selectCampaignHero = (owner: CampaignOwner, heroId: string): Promise<CampaignResult> => transaction(owner, () => selectCampaignHeroUnlocked(owner, heroId), failed);
-export const saveCampaignTeam = (owner: CampaignOwner, ids: readonly string[]): Promise<CampaignResult> => transaction(owner, () => saveCampaignTeamUnlocked(owner, ids), failed);
+export const saveCampaignTeam = (owner: CampaignOwner, ids: readonly string[],ownedEntries?:Record<string,string>): Promise<CampaignResult> => transaction(owner, async () => {
+  if(owner==='self'&&sharedWalletHeaders()['x-beast-wallet']){const current=readCampaign(owner);if(!current.profile)return current;const reply=await sharedRequest({type:'ORB_PROFILE',profile:{...current.profile,teamIds:[...ids],ownedEntries:ownedEntries??current.profile.ownedEntries??{}}});if(!validateCampaignTeam(reply.profile,ids))throw new Error('請親選主角及四位可出戰夥伴。');return write(owner,reply.profile);}
+  return saveCampaignTeamUnlocked(owner,ids);
+}, failed);
 export const resetGuestCampaign = (): Promise<CampaignResult> => transaction('guest', resetGuestCampaignUnlocked, failed);
-export const settleWin = (owner: CampaignOwner, matchId: string, winsAtStart: number): Promise<CampaignSettlement> => transaction(owner, () => settleWinUnlocked(owner, matchId, winsAtStart), e => ({ ...failed(e), saved: false }));
+export const settleWin = (owner: CampaignOwner, matchId: string, winsAtStart: number): Promise<CampaignSettlement> => transaction(owner, async () => {
+  if(owner==='self'&&sharedWalletHeaders()['x-beast-wallet']){const current=readCampaign(owner);if(!current.profile)return {...current,saved:false};const reply=await sharedRequest({type:'ORB_PROFILE',profile:current.profile});const reward=reply.profile.receipts.find((r:CampaignReward)=>r.matchId===matchId);if(!reward)throw new Error('本場勝利尚未確認入庫，請重試。');const saved=write(owner,reply.profile);if(!saved.ok)return {...saved,saved:false};await refreshSharedCultivation();return {...saved,saved:true,reward,nextWins:reply.profile.wins,duplicate:current.profile.receipts.some(r=>r.matchId===matchId)};}
+  return settleWinUnlocked(owner,matchId,winsAtStart);
+}, e => ({ ...failed(e), saved: false }));
+
+export const refreshSharedCampaign = ():Promise<CampaignResult> => transaction('self',async()=>{const current=readCampaign('self');if(!current.profile)return current;const reply=await sharedRequest({type:'ORB_PROFILE',profile:current.profile});return write('self',reply.profile);},failed);
 export interface CampaignEnhancementResult extends CampaignResult { receipt?: EnhancementReceipt; duplicate?: boolean }
 export const enhanceCampaign = (owner: CampaignOwner, operationId: string, youngId: string, targetId: string): Promise<CampaignEnhancementResult> => transaction(owner, () => {
   const current = readCampaign(owner);
