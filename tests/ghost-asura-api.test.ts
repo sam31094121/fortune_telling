@@ -36,21 +36,21 @@ afterEach(() => { jest.useRealTimers(); state.ghostAsuraReadingCache?.clear(); }
 
 describe('POST /api/ghost-asura/reading 現行契約', () => {
   test.each([
-    ['空內容', '', '請先填寫生辰。'],
-    ['超長內容', 'x'.repeat(2049), '輸入內容過長。'],
-    ['壞 JSON', '{', '請求格式不正確。'],
-    ['缺日期', '{}', '缺少出生日期。'],
-    ['null', 'null', '缺少出生日期。'],
-  ])('輸入防護：%s', async (_, raw, error) => {
+    ['空內容', '', '請先填寫生辰。', 'ASURA_EMPTY_BODY'],
+    ['超長內容', 'x'.repeat(2049), '輸入內容過長。', 'ASURA_BODY_TOO_LARGE'],
+    ['壞 JSON', '{', '請求格式不正確。', 'ASURA_INVALID_JSON'],
+    ['缺日期', '{}', '缺少出生日期。', 'ASURA_MISSING_BIRTH_DATE'],
+    ['null', 'null', '缺少出生日期。', 'ASURA_MISSING_BIRTH_DATE'],
+  ])('輸入防護：%s', async (_, raw, error, code) => {
     const response = await POST(request({}, { raw }));
     expect(response.status).toBe(400);
-    expect(await response.json()).toEqual({ error });
+    expect(await response.json()).toEqual({ error, code });
     expect(limit).not.toHaveBeenCalled();
   });
   test('外站請求先拒絕，不運算或消耗額度', async () => {
     const response = await POST(request(birth, { origin: 'https://example.invalid' }));
     expect(response.status).toBe(403);
-    expect(await response.json()).toEqual({ error: '請從本站開啟。' });
+    expect(await response.json()).toEqual({ error: '請從本站開啟。', code: 'ASURA_FORBIDDEN_ORIGIN' });
     expect(limit).not.toHaveBeenCalled();
   });
   test('回傳實際顯示契約，四柱鍵與欄名順序完整', async () => {
@@ -109,7 +109,7 @@ describe('POST /api/ghost-asura/reading 現行契約', () => {
     expect(response.status).toBe(429);
     expect(response.headers.get('retry-after')).toBe('120');
     expect(response.headers.get('x-ratelimit-remaining')).toBe('0');
-    expect(await response.json()).toEqual({ error: '戰局開得太密。刀先歇著，約 2 分鐘後再來。' });
+    expect(await response.json()).toEqual({ error: '戰局開得太密。刀先歇著，約 2 分鐘後再來。', code: 'ASURA_RATE_LIMITED' });
   });
   test('無效生辰回明確失敗且不寫成功快取', async () => {
     const response = await POST(request({ ...birth, birthDate: '9999-99-99' }));
