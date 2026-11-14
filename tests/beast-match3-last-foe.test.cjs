@@ -15,6 +15,7 @@ assert(/const lastAllyReady = rigEnabled && team\.length > 1 && !over && team\.f
 assert(/else if \(!busy\) setLastAllySettled\(true\)/.test(src), '我方放大也等動畫結束');
 assert(src.includes('data-last-ally={lastAllyBig || undefined}'), '標記我方最後一隻');
 const css = fs.readFileSync('components/battlefield/Match3Board.module.css', 'utf8');
-assert(/\.team\[data-last-ally="true"\] \{ grid-template-columns: minmax\(0, min\(72%, 290px\)\)/.test(css) && /\.ally\[data-hp="0"\] \{ display: none; \}/.test(css), '放大排版與隱藏倒下的隊友');
+assert(/\.team\[data-last-ally="true"\] \{ grid-template-columns: minmax\(0, min\(72%, 290px, var\(--last-ally-max, 290px\)\)\)/.test(css) && /\.ally\[data-hp="0"\] \{ display: none; \}/.test(css), '放大排版與隱藏倒下的隊友；卡寬受 --last-ally-max 限制，不搶寶珠空間');
+assert(/--last-ally-art-ratio/.test(css) && /--art-h: calc\(100cqw \/ var\(--art-ratio\)\)/.test(css), '卡框比例跟隨卡圖，填滿外框');
 assert(/.fusedUnit > .allyCard > img:first-child { object-fit: contain; object-position: 50% 50%; }/.test(css), '放大的神獸完整顯示（contain 置中），不裁掉頭、尾巴、腳');
 console.log('PASS last-ally enlarge structure');
