@@ -6,7 +6,7 @@ export interface CampaignReward { matchId: string; cardId: string; win: number }
 export interface EnhancementReceipt { operationId: string; youngId: string; targetId: string; attackBonus: number }
 export interface HardCampaign {
   ownedEntries?: Record<string,string>;
-  shared?: { availableIds:string[]; cards:{id:string;cardId:string;name:string;bonus:string;orbAttack:string}[]; stats:Record<string,{baseAttack:number;bonus:number;attack:number}>; selectedEntries:{id:string;cardId:string}[] };
+  shared?: { availableIds:string[]; cards:{id:string;cardId:string;name:string;bonus:string;orbAttack:string}[]; stats:Record<string,{baseAttack:number;bonus:number;attack:number;attackExact?:string}>; selectedEntries:{id:string;cardId:string}[] };
   version: 1;
   treasures?: TreasureBook;
   wins: number;
@@ -47,7 +47,7 @@ export function enhancementBonus(p: HardCampaign, cardId: string): number {
   return enhancementUnlocked(p) ? bonus : 0;
 }
 export function campaignAttack(p: HardCampaign, cardId: string): number { return campaignCardAttack(p, cardId).attack; }
-export function campaignCardAttack(p: HardCampaign, cardId: string): { baseAttack: number; bonus: number; attack: number } {
+export function campaignCardAttack(p: HardCampaign, cardId: string): { baseAttack: number; bonus: number; attack: number;attackExact?:string } {
   if(p.shared?.stats[cardId])return p.shared.stats[cardId];
   const card = getCard(cardId);
   if (!card) throw new Error('卡片資料不存在');

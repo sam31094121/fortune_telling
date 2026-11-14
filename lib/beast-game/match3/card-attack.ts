@@ -8,7 +8,7 @@
  * 回傳的 foes 是權威 HP；前端只套用，擊倒交給 knockout-events.deriveServerKnockouts。
  */
 import { ENERGY_MAX } from './config';
-import { fighterCanAct, fighterEffectiveAttack, skillAmount } from './damage';
+import { fighterCanAct, fighterEffectiveAttack, fighterExactAttack, skillAmount } from './damage';
 import { LINK_ENERGY_COST, LINK_MIN_CARDS, linkDamage, linkProblem, type Match3Foe } from './enemies';
 import { resolvePlayerCardAttack } from './player-skills';
 import { progressionStage } from './progression';
@@ -25,7 +25,7 @@ export function resolveEnergyAttack<T extends Player, F extends Match3Foe>(args:
   const u = team.find(x => x.id === attackerId);
   const foe = foes[targetIndex];
   if (!u || !foe) throw new Error('invalid');
-  const amt = skillAmount(fighterEffectiveAttack(u), u.element, foe.element);
+  const amt = skillAmount(fighterEffectiveAttack(u), u.element, foe.element, fighterExactAttack(u));
   const spentTeam = team.map(x => x.id === u.id ? { ...x, energy: 0 } : x);
   const applied = resolvePlayerCardAttack({ foes, team: spentTeam, targetIndex, attackerIds: [u.id], baseDamage: amt, stage, eventId, allowEnemyReaction: false });
   return { ...applied, baseDamage: amt };
@@ -36,7 +36,7 @@ export function resolveLinkAttack<T extends Player, F extends Match3Foe>(args: C
   const { team, foes, targetIndex, stage, eventId, linkIds } = args;
   const cards = linkIds.map(id => team.find(u => u.id === id));
   if (cards.some(c => !c) || !foes[targetIndex]) throw new Error('invalid');
-  const amt = linkDamage(cards.map(c => fighterEffectiveAttack(c!)));
+  const amt = linkDamage(cards.map(c => fighterEffectiveAttack(c!)),cards.map(c=>fighterExactAttack(c!)));
   const spentTeam = team.map(u => linkIds.includes(u.id) ? { ...u, energy: u.energy - LINK_ENERGY_COST } : u);
   const applied = resolvePlayerCardAttack({ foes, team: spentTeam, targetIndex, attackerIds: cards.map(c => c!.id), baseDamage: amt, stage, eventId, allowEnemyReaction: false });
   return { ...applied, baseDamage: amt };

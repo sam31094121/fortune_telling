@@ -14,7 +14,9 @@ export async function POST(request: Request) {
     const p = JSON.parse(raw) as TurnInput & {sharedBattleToken?:string};
     const owner=cultivationOwner(request);
     const shared=owner?await verifySharedOrb(owner,p.sharedBattleToken):null;
-    if(shared){if(p.wins!==shared.wins||JSON.stringify(p.team?.map(c=>c.id))!==JSON.stringify(shared.teamIds))throw new Error('invalid');p.team=p.team.map(c=>({...c,attack:shared.attacks[c.id]}));}
+    if(shared){if(p.wins!==shared.wins||JSON.stringify(p.team?.map(c=>c.id))!==JSON.stringify(shared.teamIds))throw new Error('invalid');p.team=p.team.map(c=>({...c,attack:shared.attacks[c.id],attackExact:shared.exactAttacks?.[c.id]}));}
+    else if(Array.isArray(p.team))p.team=p.team.map(({attackExact,...c})=>c);
+    if(Array.isArray(p.foes))p.foes=p.foes.map(({attackExact,...c})=>c);
     const integer = (v: unknown, min: number, max: number) => typeof v === 'number' && Number.isInteger(v) && v >= min && v <= max;
     if (!['medium','hard45','hard45b'].includes(p.mode) || !integer(p.seed,0,4294967295) || !integer(p.move,0,1000000) || !integer(p.wins,0,1000000) || !integer(p.target,0,4) || ![1,1.5].includes(p.attackBoost)) throw new Error('invalid');
     const rows = p.mode === 'medium' ? 5 : 8;

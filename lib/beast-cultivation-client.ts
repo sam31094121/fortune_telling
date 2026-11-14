@@ -20,6 +20,8 @@ export function readSharedCultivation():SharedCultivationView|null {
 }
 function saveView(view:SharedCultivationView) {
   if(!view||!Array.isArray(view.cards)||!Array.isArray(view.collectionCards))throw new Error('共同卡庫回應不完整。');
+  const cached=readSharedCultivation();
+  if(cached&&BigInt(cached.revision)>BigInt(view.revision))return cached;
   const old=JSON.parse(window.localStorage.getItem(COLLECTION)??'{"cards":[],"history":[]}');
   const previous=new Map<string,{at?:string;source?:string}>(old.cards.map((c:{id:string})=>[c.id,c]));
   const cards=view.collectionCards.map(c=>({...c,at:previous.get(c.id)?.at??c.at,source:previous.get(c.id)?.source??c.source}));
@@ -31,13 +33,14 @@ function saveView(view:SharedCultivationView) {
 export async function sharedRequest(body?:Record<string,unknown>) {
   const response=await fetch('/api/beast-game/cultivation',{method:body?'POST':'GET',headers:{'Content-Type':'application/json',...sharedWalletHeaders()},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(20000)});
   const result=await response.json();if(!response.ok||!result.ok)throw new Error(result.error??'共同卡庫暫時無法取得。');
-  if(result.view)saveView(result.view);
+  if(result.view)result.view=saveView(result.view);
   return result;
 }
 /** Hold the same cross-tab lock as both local game ledgers during migration/cache updates. */
 export async function syncSharedCultivation():Promise<SharedCultivationView> {
   if(!navigator.locks)throw new Error('請使用支援安全保存的瀏覽器。');
-  return navigator.locks.request('tdh-beast-collection',async()=>{
+  return navigator.locks.request('tdh-beast-collection',{ifAvailable:true},async lock=>{
+    if(!lock)throw new Error('另一分頁正在戰鬥或保存，請先完成再重試。');
     capability();
     const old=JSON.parse(window.localStorage.getItem(COLLECTION)??'{"cards":[],"history":[]}');
     if(old.pending&&!old.sharedCultivation)throw new Error('請先結算原戰鬥，再接通共同卡庫。');

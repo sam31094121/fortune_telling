@@ -1,6 +1,7 @@
 /** Read-only combat information. Values come from the same profile and stats used by the match. */
 import { interactiveCatalog, rageMaterialFor, rageUnavailableReason, RAGE_ATTACK_BONUS, type Match, type Side, type Fighter } from './interactive';
 import { effectiveStat } from './effects';
+import { effectiveAttackText } from './exact-combat';
 import { ELEMENT_LABEL, ELEMENTS, ELEMENT_COUNTER, ELEMENT_GENERATES, WUXING_TO_ELEMENT, elementMultiplier, type BeastElement } from './elements';
 import { guardianOf } from '../beast-guardians';
 import { describeCardElement } from '../beast-element-guide';
@@ -41,6 +42,7 @@ export function combatGuideFor(cardId: string, fighter?: Fighter, context?: { ma
       hp: current?.hp ?? card.stats.hp,
       maxHp: current?.maxHp ?? card.stats.hp,
       attack: current ? effectiveStat(current, 'attack') : card.stats.attack,
+      attackText: current ? effectiveAttackText(current) : String(card.stats.attack),
       defense: current ? effectiveStat(current, 'defense') : card.stats.defense,
       speed: current ? effectiveStat(current, 'speed') : card.stats.speed,
       shield: current?.shield ?? 0,

@@ -21,7 +21,7 @@ const SECRET = process.env.BEAST_BATTLE_SECRET || process.env.JWT_SECRET || 'bea
 export const BATTLE_SESSION_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 
 export interface BattleSession {
-  cultivation?: { owner:string; id:string; bonuses:Record<string,number> };
+  cultivation?: { owner:string; id:string; bonuses:Record<string,number|string> };
   campaign?: CardCampaign;
   /**
    * 闖關局上陣的收藏副本。開局時 applyCardCampaignStats 會依它改能力值；

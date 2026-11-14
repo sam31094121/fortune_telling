@@ -1,3 +1,4 @@
+import { combatNumber } from './exact-combat';
 /** Card-only campaign. Never imports or alters the orb campaign. */
 import { getCard, playableCards } from './registry';
 import { createRng } from './turn';
@@ -44,11 +45,11 @@ export function parseCardCampaign(value:unknown):CardCampaign|null {
   if(!c||c.v!==1||c.kind!=='card-campaign'||typeof c.id!=='string'||!c.id||c.id.length>100||!Number.isInteger(c.seed)||c.seed<0||c.seed>2147483647||!(c.pending===null||typeof c.pending==='string'&&c.pending.length>0&&c.pending.length<=100)||!Array.isArray(c.enhancements)||c.enhancements.length>2048)return null;
   try {cardCampaignStage(c.wins);let replay:CardCampaign={...c,pending:null,enhancements:[]};for(const r of c.enhancements){const next=enhanceCardCampaign(replay,r.operationId,{id:r.targetEntryId,cardId:r.targetCardId},{id:r.materialEntryId,cardId:r.materialCardId});if(next.duplicate||JSON.stringify(next.receipt)!==JSON.stringify(r))return null;replay=next.campaign;}return c;}catch{return null;}
 }
-export function applyCardCampaignStats(match:Match,c:CardCampaign,entries?:readonly OwnedCardRef[],sharedBonuses?:Record<string,number>):Match {
+export function applyCardCampaignStats(match:Match,c:CardCampaign,entries?:readonly OwnedCardRef[],sharedBonuses?:Record<string,number|string>):Match {
   if(entries&&(entries.length!==5||new Set(entries.map(e=>e.id)).size!==5||new Set(entries.map(e=>e.cardId)).size!==5||entries.some(e=>!validOwnedCard(e)||c.enhancements.some(r=>r.materialEntryId===e.id))))throw new Error('請親選五張仍持有且卡型不同的卡片。');
   if(match.player.team.length!==5||match.opponent.team.length!==5)throw new Error('闖關必須五對五。');
   const multiplier=cardCampaignStage(c.wins).enemyMultiplier;
-  return {...match,player:{...match.player,team:match.player.team.map(f=>{const e=entries?.find(e=>e.cardId===f.cardId);if(entries&&!e)throw new Error('上陣副本不符。');const bonus=sharedBonuses?(sharedBonuses[e?.id??'']??0):c.enhancements.filter(r=>r.targetEntryId===e?.id&&r.targetCardId===e?.cardId).reduce((n,r)=>n+r.attackBonus,0);if(!Number.isSafeInteger(bonus)||bonus<0||!Number.isSafeInteger(f.attack+bonus))throw new Error('戰鬥攻擊無法精確表示。');return {...f,attack:f.attack+bonus};})},opponent:{...match.opponent,team:match.opponent.team.map(f=>({...f,hp:Math.round(f.hp*multiplier),maxHp:Math.round(f.maxHp*multiplier),attack:Math.round(f.attack*multiplier)}))}};
+  return {...match,player:{...match.player,team:match.player.team.map(f=>{const e=entries?.find(e=>e.cardId===f.cardId);if(entries&&!e)throw new Error('上陣副本不符。');const bonus=sharedBonuses?(sharedBonuses[e?.id??'']??0):c.enhancements.filter(r=>r.targetEntryId===e?.id&&r.targetCardId===e?.cardId).reduce((n,r)=>n+r.attackBonus,0);const total=BigInt(f.attack)+BigInt(bonus);if(total<0n)throw new Error('戰鬥攻擊無效。');return {...f,attack:combatNumber(total.toString()),...(total>BigInt(Number.MAX_SAFE_INTEGER)?{attackExact:total.toString()}:{} )};})},opponent:{...match.opponent,team:match.opponent.team.map(f=>({...f,hp:Math.round(f.hp*multiplier),maxHp:Math.round(f.maxHp*multiplier),attack:Math.round(f.attack*multiplier)}))}};
 }
 export function settleCardCampaign(c:CardCampaign,match:Match):CardCampaign {
   return match.status==='FINISHED'?{...c,pending:null,wins:c.wins+(match.winner==='player'?1:0)}:c;

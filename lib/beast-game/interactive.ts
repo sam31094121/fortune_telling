@@ -1,3 +1,4 @@
+import { effectiveAttackText } from './exact-combat';
 /** Authoritative, replayable one-active-beast combat. No browser outcome calculation. */
 import { getCard, playableCards } from './registry';
 import { instantiate } from './battle';
@@ -341,7 +342,7 @@ export function advance(previous:Match,playerAction:Action,opponentAction:Action
       side, fighter, hpBefore: fighter.hp, shieldBefore: fighter.shield,
     }));
     if(rageTier?.breaksShield&&enemy.shield>0){logs.push({type:'DAMAGE',sourceName:f.name,targetName:enemy.name,applied:0,detail:`破封斬：擊碎護盾 ${enemy.shield}`});enemy.shield=0;}
-    for(const effect of effects)resolveEffects([effect],{source:f,target:effect.target==='SELF'?f:enemy,baseAttack:effectiveStat(f,'attack'),side:{draw:()=>0,discard:()=>0},log:logs});
+    for(const effect of effects)resolveEffects([effect],{source:f,target:effect.target==='SELF'?f:enemy,baseAttack:effectiveStat(f,'attack'),baseAttackExact:f.attackExact?effectiveAttackText(f):undefined,side:{draw:()=>0,discard:()=>0},log:logs});
     f.shield=Math.min(70,f.shield);
     if(enemy.counter&&enemy.hp+enemy.shield<before&&!enemy.defeated){enemy.counter=false;f.hp=Math.max(0,f.hp-24);f.defeated=f.hp===0;logs.push({type:'DAMAGE',sourceName:enemy.name,targetName:f.name,applied:24,detail:'迎擊反擊 24 點'});}
     s.log.push({side,cardId:f.cardId,action:action.type,...(rageTier?{fusionTier:rageTier.tier}:{}),text:`${f.name}・${action.type==='SKILL'?p.skillName:rageTier?`暴怒合體${rageTier.tier==='NONE'?'':`・${rageTier.skillName}`}・${material?.name}`:'普通攻擊'}：${logs.map(l=>l.detail).join('；')}`,

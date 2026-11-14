@@ -15,6 +15,7 @@
  */
 
 import { elementMultiplier, type BeastElement } from './elements';
+import { exactAdd, exactDamage, effectiveAttackText, combatNumber } from './exact-combat';
 
 export const EFFECT_TYPES = [
   'DAMAGE',
@@ -46,6 +47,7 @@ export interface EffectSpec {
 
 /** 場上一隻神獸的即時狀態。卡片本身是不可變資料，這一份才會變。 */
 export interface BeastInstance {
+  attackExact?: string;
   instanceId: string;
   cardId: string;
   name: string;
@@ -84,6 +86,7 @@ export interface EffectSideChannel {
 }
 
 export interface EffectContext {
+  baseAttackExact?:string;
   source: BeastInstance;
   target: BeastInstance | null;
   /** 攻擊型效果會用到；純輔助效果傳 0。 */
@@ -99,6 +102,7 @@ export const DEFENSE_DAMAGE_FACTOR = 0.5;
 
 /** 目前有效的屬性值＝基礎值＋所有進行中的加減益。負值一律夾到 0。 */
 export function effectiveStat(beast: BeastInstance, stat: 'attack' | 'defense' | 'speed'): number {
+  if(stat==='attack'&&beast.attackExact)return combatNumber(effectiveAttackText(beast));
   const base = beast[stat];
   const delta = beast.modifiers
     .filter((modifier) => modifier.stat === stat)
@@ -120,6 +124,8 @@ export function elementBoostPercent(beast: BeastInstance, element: BeastElement)
  * 不讓任何一處自己再乘一次——重複相乘是數值失控最常見的來源。
  */
 export function computeDamage(input: {
+  attackExact?:string;
+  maximumDamage?:number;
   attack: number;
   defense: number;
   attackerElement: BeastElement;
@@ -127,6 +133,7 @@ export function computeDamage(input: {
   boostPercent?: number;
 }): { damage: number; multiplier: number; detail: string } {
   const multiplier = elementMultiplier(input.attackerElement, input.defenderElement);
+  if(input.attackExact){const result=exactDamage(input.attackExact,[1+(input.boostPercent??0)/100,multiplier],input.defense*DEFENSE_DAMAGE_FACTOR,MINIMUM_DAMAGE,input.maximumDamage);return {damage:result.damage,multiplier,detail:`攻${input.attackExact} × 加成${1+(input.boostPercent??0)/100} × 元素${multiplier} − 防${input.defense} × ${DEFENSE_DAMAGE_FACTOR} = ${result.exact}`};}
   const boosted = input.attack * (1 + (input.boostPercent ?? 0) / 100);
   const defenseReduction = input.defense * DEFENSE_DAMAGE_FACTOR;
   const raw = boosted * multiplier - defenseReduction;
@@ -169,6 +176,7 @@ const EFFECT_HANDLERS: Record<EffectType, EffectHandler> = {
     if (!ctx.target || ctx.target.defeated) return;
     const boost = elementBoostPercent(ctx.source, ctx.source.element);
     const { damage, detail } = computeDamage({
+      ...(ctx.baseAttackExact?{attackExact:exactAdd(ctx.baseAttackExact,spec.value),maximumDamage:ctx.target.hp+ctx.target.shield}:{}),
       attack: ctx.baseAttack + spec.value,
       defense: effectiveStat(ctx.target, 'defense'),
       attackerElement: ctx.source.element,

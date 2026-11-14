@@ -3,6 +3,7 @@ import { getSkill, type SkillDefinition, type SkillTrigger } from '../../../card
 import { playableCards } from '../registry';
 import { resolveEffects, tickDurations, effectiveStat, elementBoostPercent, type BeastInstance, type EffectLogEntry } from '../effects';
 import type { BeastElement } from '../elements';
+import { effectiveAttackText } from '../exact-combat';
 
 export interface FoeSkillState {
   playerSkillsEnabled?: boolean;
@@ -15,7 +16,7 @@ export interface FoeSkillState {
   stunnedTurns?: number;
   elementBoosts?: BeastInstance['elementBoosts'];
 }
-export interface SkillFoe { id: string; element: BeastElement; hp: number; maxHp: number; attack: number; defense?: number; speed?: number; skillRuntime?: FoeSkillState }
+export interface SkillFoe { id: string; element: BeastElement; hp: number; maxHp: number; attack: number; attackExact?:string; defense?: number; speed?: number; skillRuntime?: FoeSkillState }
 export interface OrbSkillEvent {
   skillId: string; trigger: SkillTrigger; effects: EffectLogEntry[]; eventId?: string;
   sourceId: string; targetId: string; sourceSide?: 'ally' | 'enemy'; targetSide?: 'ally' | 'enemy'; hpBefore: number; hpAfter: number; actualDamage: number; shieldAbsorbed: number;
@@ -40,7 +41,7 @@ export function isMappedFoeSkill(skill: SkillDefinition): boolean {
 function instance(f: SkillFoe, runtime: FoeSkillState): BeastInstance {
   const card = playableCards().find(c => c.id === f.id);
   return { instanceId: f.id, cardId: f.id, name: card?.name ?? f.id,
-    element: f.element, hp: f.hp, maxHp: f.maxHp, attack: f.attack, defense: f.defense ?? card?.stats.defense ?? 0, speed: f.speed ?? card?.stats.speed ?? 0,
+    element: f.element, hp: f.hp, maxHp: f.maxHp, attack: f.attack, attackExact:f.attackExact, defense: f.defense ?? card?.stats.defense ?? 0, speed: f.speed ?? card?.stats.speed ?? 0,
     shield: runtime.shield, modifiers: runtime.modifiers, stunnedTurns: runtime.stunnedTurns ?? 0, elementBoosts: runtime.elementBoosts ?? [], defeated: f.hp <= 0 };
 }
 function persist<F extends SkillFoe>(f: F, beast: BeastInstance, runtime: FoeSkillState): F {
@@ -77,7 +78,7 @@ export function runOrbSkillEvent<F extends SkillFoe, T extends SkillFoe = SkillF
         // Resolve the original skill first, before guard, shield or overkill clipping.
         const probe = { ...target, hp: Number.MAX_SAFE_INTEGER, maxHp: Number.MAX_SAFE_INTEGER, shield: 0, defeated: false };
         const original: EffectLogEntry[] = [];
-        resolveEffects([effect], { source: beast, target: probe, baseAttack, side: { draw: () => 0, discard: () => 0 }, log: original });
+        resolveEffects([effect], { source: beast, target: probe, baseAttack, baseAttackExact:trigger==='ON_ATTACK'&&beast.attackExact?effectiveAttackText(beast):undefined, side: { draw: () => 0, discard: () => 0 }, log: original });
         for (const entry of original) {
           const guarded = Math.round(entry.applied * ([0.3, 0.4, 0.5].includes(context.incomingDamageScale!) ? context.incomingDamageScale! : 1));
           const absorbed = Math.min(target.shield, guarded);
@@ -88,7 +89,7 @@ export function runOrbSkillEvent<F extends SkillFoe, T extends SkillFoe = SkillF
           log.push({ ...entry, applied: before - target.hp, detail: `${entry.detail}／防禦合體減半 ${guarded}${absorbed ? `／護盾吸收 ${absorbed}` : ''}${target.defeated ? '／目標陣亡' : ''}` });
         }
       } else {
-        resolveEffects([effect], { source: beast, target, baseAttack, side: { draw: () => 0, discard: () => 0 }, log });
+        resolveEffects([effect], { source: beast, target, baseAttack, baseAttackExact:trigger==='ON_ATTACK'&&beast.attackExact?effectiveAttackText(beast):undefined, side: { draw: () => 0, discard: () => 0 }, log });
       }
       if (log.length > logStart) result.events.push({ skillId: id, trigger, eventId: context.eventId, effects: log.slice(logStart), sourceId: foe.id,
         targetId: target?.cardId ?? foe.id, sourceSide: context.sourceSide, targetSide: target === enemy ? context.targetSide : context.sourceSide, hpBefore, hpAfter: target?.hp ?? beast.hp,

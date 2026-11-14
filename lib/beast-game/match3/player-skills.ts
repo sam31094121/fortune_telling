@@ -1,13 +1,13 @@
 import { runOrbSkillEvent, orbSkillCanAttack, orbSkillSpeed, type SkillFoe, type OrbSkillEvent } from './skill-runtime';
 import { damageFoeWithSkills, availableFoeTarget, type Match3Foe } from './enemies';
-import { fighterEffectiveAttack, hitAmount, type Match3Hit } from './damage';
+import { fighterEffectiveAttack, fighterExactAttack, hitAmount, type Match3Hit } from './damage';
 import type { BeastElement } from '../elements';
 
 type Player = SkillFoe & { energy: number };
 export function recalculatePlayerHit(hit:Match3Hit,team:readonly Player[],enemyElement:BeastElement):Match3Hit {
   const actor=team.find(u=>u.id===hit.attackerId);
   if(hit.amount<=0||!actor||!orbSkillCanAttack(actor))return {...hit,amount:0};
-  return {...hit,amount:hitAmount(fighterEffectiveAttack(actor),hit.power??hit.length,hit.chain,hit.element,enemyElement)};
+  return {...hit,amount:hitAmount(fighterEffectiveAttack(actor),hit.power??hit.length,hit.chain,hit.element,enemyElement,fighterExactAttack(actor))};
 }
 export function orderPlayerHits<H extends {attackerId:string|null;chain?:number}>(hits:readonly H[],team:readonly SkillFoe[]):H[] {
   const speed=(id:string|null)=>{const unit=team.find(u=>u.id===id);return unit?orbSkillSpeed(unit):0};

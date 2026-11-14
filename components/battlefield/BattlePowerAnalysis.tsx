@@ -19,7 +19,7 @@ export default function BattlePowerAnalysis({ cardId, guide: liveGuide = null, e
     <p className={styles.note}>以下與本模式實際戰鬥使用相同數值。攻擊力不等於實際扣血，勝負還取決於技能與出招。</p>
     <dl className={styles.stats} aria-label="真實戰鬥數值">
       {(Object.keys(statLabels) as Array<keyof typeof statLabels>).map(stat => <div key={stat} data-stat={stat}>
-        <dt>{statLabels[stat]}</dt><dd>{guide.stats[stat]}{stat === 'hp' ? `/${guide.stats.maxHp}` : ''}</dd>
+        <dt>{statLabels[stat]}</dt><dd style={{overflowWrap:'anywhere'}}>{stat === 'attack' ? guide.stats.attackText ?? guide.stats.attack : guide.stats[stat]}{stat === 'hp' ? `/${guide.stats.maxHp}` : ''}</dd>
         {live && stat !== 'hp' && guide.stats[stat] !== guide.baseStats[stat] && <small>基礎 {guide.baseStats[stat]}</small>}
       </div>)}
     </dl>
@@ -30,6 +30,7 @@ export default function BattlePowerAnalysis({ cardId, guide: liveGuide = null, e
     {enemy && <article className={styles.relation} data-current-comparison>
       <strong>與目前對位的「{enemy.name}」比較</strong>
       {(['attack', 'defense', 'speed'] as const).map(stat => {
+        if(stat==='attack')return <span key={stat} style={{overflowWrap:'anywhere'}}>攻擊 {guide.stats.attackText??guide.stats.attack} 對 {enemy.stats.attackText??enemy.stats.attack}</span>;
         const delta = guide.stats[stat] - enemy.stats[stat];
         return <span key={stat}>{statLabels[stat]} {guide.stats[stat]} 對 {enemy.stats[stat]}：{delta === 0 ? '相同' : `${delta > 0 ? '高' : '低'} ${Math.abs(delta)}`}</span>;
       })}

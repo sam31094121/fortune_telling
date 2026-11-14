@@ -2,7 +2,7 @@
 import type { BeastElement } from '../elements';
 import { orbSkillCanAttack, type FoeSkillState } from './skill-runtime';
 
-export interface Match3Fighter { id: string; element: BeastElement; attack: number; hp: number; maxHp?: number; skillRuntime?: FoeSkillState }
+export interface Match3Fighter { id: string; element: BeastElement; attack: number; attackExact?:string; hp: number; maxHp?: number; skillRuntime?: FoeSkillState }
 
 /** 玩家目前選取且有資格的神獸優先攻擊（排在第一位）。 */
 export function eligibleAttackers<T extends Pick<Match3Fighter, 'element' | 'hp' | 'skillRuntime'> & { id?: string }>(team: readonly T[], element: BeastElement, selectedId?: string | null): T[] {

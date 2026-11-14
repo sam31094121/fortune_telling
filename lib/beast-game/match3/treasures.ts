@@ -2,7 +2,8 @@
 import * as policy from '../../../docs/技能戰鬥檔案/寶珠阿修羅/元素寶器.json';
 import { ELEMENTS, elementMultiplier, type BeastElement } from '../elements';
 import type { TurnInput } from './resolve-turn';
-import { fighterEffectiveAttack } from './damage';
+import { fighterEffectiveAttack, fighterExactAttack } from './damage';
+import { exactDamage } from '../exact-combat';
 import { damageFoe, foeAvailable, initializeAvailableFoes } from './enemies';
 import { isShieldFusionPath, isValidPath, type DragResult } from './drag';
 export interface TreasureBook { version: 1; counts: Record<BeastElement, number>; receipts: string[]; variants?: Record<string, number> }
@@ -55,6 +56,8 @@ export function resolveTreasureUse(input: TurnInput, element: BeastElement, vari
   if (input.mode === 'medium' || !input.actionId || !foeAvailable(input.foes, input.target, input.wins + 1) || !input.team.some(u => u.hp > 0)) throw new Error('目前不能使用寶器');
   const book = operation(input.treasures ?? emptyTreasureBook(), `use:${input.actionId}`, element, -1, variant);
   const base = Math.max(...input.team.filter(u => u.hp > 0).map(fighterEffectiveAttack));
+  const living=input.team.filter(u=>u.hp>0);
+  const exactBase=living.some(u=>u.attackExact)?living.reduce((n,u)=>{const a=BigInt(fighterExactAttack(u)??String(fighterEffectiveAttack(u)));return a>n?a:n;},0n).toString():undefined;
   let foes = initializeAvailableFoes(input.foes, input.wins + 1);
   const target = input.target, before = foes[target], shieldBefore = before.skillRuntime?.shield ?? 0;
   const broken = d.role === 'pierce' ? Math.ceil(shieldBefore * policy.SPACE.shieldBreak) : 0;
@@ -64,7 +67,7 @@ export function resolveTreasureUse(input: TurnInput, element: BeastElement, vari
   for (const multiplier of multipliers) {
     if (foes[target].hp <= 0) break;
     const prior = foes[target], shield = prior.skillRuntime?.shield ?? 0;
-    foes = damageFoe(foes, target, Math.round(base * multiplier * elementMultiplier(element, prior.element)));
+    foes = damageFoe(foes, target, exactBase?exactDamage(exactBase,[multiplier,elementMultiplier(element,prior.element)],0,0,prior.hp+shield).damage:Math.round(base * multiplier * elementMultiplier(element, prior.element)));
     hits.push({ hpBefore: prior.hp, hpAfter: foes[target].hp, damage: prior.hp - foes[target].hp, shieldAbsorbed: shield - (foes[target].skillRuntime?.shield ?? 0) });
   }
   const energyBefore = foes[target].attackEnergy ?? 0;

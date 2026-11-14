@@ -190,7 +190,7 @@ export async function POST(request: Request) {
           if(stakeIds.length!==stakeCount)return fail('請確認本場實押副本。');
           const id='card:'+createHash('sha256').update(String(body.tableToken)).digest('hex');
           const held=await holdCultivationBattle(table.cultivationOwner,id,'card',table.selectedEntries??[],stakeIds);
-          cultivation={owner:table.cultivationOwner,id,bonuses:Object.fromEntries(Object.entries(held.bonuses).map(([key,value])=>[key,battleBonus(value)]))};
+          cultivation={owner:table.cultivationOwner,id,bonuses:held.bonuses};
         }
         match=applyCardCampaignStats(match,campaign,table.selectedEntries,cultivation?.bonuses);
         return await reply({v:1,match,campaign,cultivation,selectedEntries:table.selectedEntries,stakeCardId:stakeCount>0?stakeCardId:null,stakeCount,issuedAt:Date.now()});

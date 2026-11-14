@@ -99,7 +99,7 @@ export function pickLineup(rng: Rng, teamIds?: readonly string[] | null, mode: M
   const shuffled = pool.slice().sort(() => rng() - 0.5);
   const team: Unit[] = [];
   const foeNames = enemyNamesFor(mode.id);
-  const unit = (c: (typeof pool)[number]): Unit => { const s = CARD_FACE_STATS[c.id]; const skill = getSkill(c.skills[0]); return { skillName: skill?.name, description: skill?.description, id: c.id, name: c.name, element: c.element, thumbnail: nonGuardianBattleArt(c.id, c.art.thumbnail), attack: campaign ? campaignAttack(campaign, c.id) : s.attack, hp: s.hp, maxHp: s.hp, energy: 0 }; };
+  const unit = (c: (typeof pool)[number]): Unit => { const s = CARD_FACE_STATS[c.id]; const skill = getSkill(c.skills[0]); return { skillName: skill?.name, description: skill?.description, id: c.id, name: c.name, element: c.element, thumbnail: nonGuardianBattleArt(c.id, c.art.thumbnail), attack: campaign ? campaignAttack(campaign, c.id) : s.attack, attackExact:campaign?.shared?.stats[c.id]?.attackExact, hp: s.hp, maxHp: s.hp, energy: 0 }; };
   if (validTeamIds(teamIds, pool.map((c) => c.id))) for (const id of teamIds) team.push(unit(pool.find((c) => c.id === id)!));
   else for (const el of MATCH3_ORB_ELEMENTS) {
     const c = shuffled.find((x) => x.element === el && !foeNames.includes(x.name)); if (c) team.push(unit(c));

@@ -23,7 +23,7 @@ import type { FusionTier } from './fusion';
  *    重播時必須用同一份 campaign 與 selectedEntries 重做，否則能力值對不上。
  */
 export interface ReplayContext {
-  sharedBonuses?: Record<string,number>;
+  sharedBonuses?: Record<string,number|string>;
   campaign?: CardCampaign;
   selectedEntries?: readonly OwnedCardRef[];
 }

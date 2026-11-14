@@ -8,6 +8,7 @@ import { planOrbCounter, orbCounterDamage, resolveOrbEnemyAction } from './enemy
  * 連線攻擊【待平衡】：連線模式點選 ≥2 張、每張需且消耗 50 能量；傷害＝round(Σ攻擊 × 3 × (1 + (張數-2) × 0.5))，不算步數。
  */
 import type { BeastElement } from '../elements';
+import { exactDamage } from '../exact-combat';
 import { ENEMY_COUNTER_EVERY } from './config';
 import { getCard } from '../registry';
 import policy from '../../../docs/技能戰鬥檔案/寶珠阿修羅/敵方策略.json';
@@ -141,7 +142,8 @@ export function counterPhase<T extends Ally, F extends Match3Foe>(team: readonly
 }
 
 export function linkMultiplier(n: number): number { return 1 + Math.max(0, n - LINK_MIN_CARDS) * LINK_BONUS_PER_EXTRA; }
-export function linkDamage(attacks: readonly number[]): number {
+export function linkDamage(attacks: readonly number[], exactAttacks?: readonly (string|undefined)[]): number {
+  if(exactAttacks?.some(Boolean))return exactDamage(attacks.reduce((s,a,i)=>s+BigInt(exactAttacks[i]??String(a)),0n).toString(),[LINK_BASE_MULTIPLIER,linkMultiplier(attacks.length)]).damage;
   return Math.round(attacks.reduce((s, a) => s + a, 0) * LINK_BASE_MULTIPLIER * linkMultiplier(attacks.length));
 }
 /** 連線是否可發動：null＝可以；否則回傳原因。 */

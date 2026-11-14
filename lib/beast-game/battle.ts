@@ -11,6 +11,7 @@
  */
 
 import { getSkill, type SkillDefinition } from '../../cards/skills';
+import { effectiveAttackText } from './exact-combat';
 import {
   computeDamage,
   effectiveStat,
@@ -77,6 +78,7 @@ export function triggerSkills(params: {
   enemy: BeastInstance | null;
   trigger: SkillDefinition['trigger'];
   baseAttack?: number;
+  baseAttackExact?:string;
   context: BattleContext;
 }): void {
   const { card, self, enemy, trigger, context } = params;
@@ -97,6 +99,7 @@ export function triggerSkills(params: {
         source: self,
         target,
         baseAttack: params.baseAttack ?? 0,
+        baseAttackExact:params.baseAttackExact,
         side: context.side,
         log: context.log,
       });
@@ -149,6 +152,7 @@ export function performAttack(params: {
   const defense = effectiveStat(defender, 'defense');
   const boost = elementBoostPercent(attacker, attacker.element);
   const { damage, multiplier, detail } = computeDamage({
+    ...(attacker.attackExact?{attackExact:effectiveAttackText(attacker),maximumDamage:defender.hp+defender.shield}:{}),
     attack,
     defense,
     attackerElement: attacker.element,
@@ -178,6 +182,7 @@ export function performAttack(params: {
     enemy: defender,
     trigger: 'ON_ATTACK',
     baseAttack: attack,
+    baseAttackExact:attacker.attackExact?effectiveAttackText(attacker):undefined,
     context,
   });
 

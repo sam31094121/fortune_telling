@@ -4,6 +4,7 @@ import { cultivationRepository } from './cultivation-repository';
 import type { CultivationSnapshot } from './cultivation-transaction';
 import type { CultivationCopy } from './cultivation';
 import { exactBonus } from './cultivation';
+import { combatNumber } from './exact-combat';
 import { getCard } from './registry';
 import type { StakeOutcome } from '../beast-collection-ledger';
 import { migrateCollection } from '../beast-collection-ledger';
@@ -14,11 +15,9 @@ export function cultivationOwner(request: Request): string | null {
   if (!/^[a-f0-9]{64}$/.test(key)) throw new Error('共同卡庫識別無效。');
   return createHash('sha256').update(key).digest('hex');
 }
-/** No rounding of saved growth. Refuse an unrepresentable battle instead of Infinity. */
+/** Compatibility projection only; combat also carries the complete decimal attack. */
 export function battleBonus(value: string): number {
-  const n = exactBonus(value);
-  if (n > BigInt(Number.MAX_SAFE_INTEGER - 1_000_000)) throw new Error('此卡攻擊超出目前戰鬥可精確表示範圍；培養完整保留，尚未開始戰鬥。');
-  return Number(n);
+  exactBonus(value);return combatNumber(value);
 }
 export async function updateCultivationAccount(owner:string, action:(current:CultivationSnapshot)=>CultivationSnapshot):Promise<CultivationSnapshot> {
   const repository = cultivationRepository();
