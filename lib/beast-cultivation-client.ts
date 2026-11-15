@@ -26,29 +26,32 @@ function saveView(view:SharedCultivationView) {
   const previous=new Map<string,{at?:string;source?:string}>(old.cards.map((c:{id:string})=>[c.id,c]));
   const cards=view.collectionCards.map(c=>({...c,at:previous.get(c.id)?.at??c.at,source:previous.get(c.id)?.source??c.source}));
   window.localStorage.setItem(CACHE,JSON.stringify(view));
-  window.localStorage.setItem(COLLECTION,JSON.stringify({...old,cards,shards:view.shards,starterPack:view.starterPack,sharedCultivation:true}));
+  window.localStorage.setItem(COLLECTION,JSON.stringify({...old,cards,granted:view.granted,shards:view.shards,starterPack:view.starterPack,sharedCultivation:true}));
   window.dispatchEvent(new Event('tdh-beast-collection-updated'));window.dispatchEvent(new Event(SHARED_UPDATED));
   return view;
 }
 export async function sharedRequest(body?:Record<string,unknown>) {
+  try {
   const response=await fetch('/api/beast-game/cultivation',{method:body?'POST':'GET',headers:{'Content-Type':'application/json',...sharedWalletHeaders()},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(20000)});
   const result=await response.json();if(!response.ok||!result.ok)throw new Error(result.error??'共同卡庫暫時無法取得。');
   if(result.view)result.view=saveView(result.view);
   return result;
+  }catch(error){if(error instanceof Error&&/[\u3400-\u9fff]/.test(error.message))throw error;throw new Error('連線或保存尚未確認，請重試同一次操作。');}
 }
 /** Hold the same cross-tab lock as both local game ledgers during migration/cache updates. */
-export async function syncSharedCultivation():Promise<SharedCultivationView> {
+export async function syncSharedCultivation(options?:{waitForSave?:boolean}):Promise<SharedCultivationView> {
   if(!navigator.locks)throw new Error('請使用支援安全保存的瀏覽器。');
-  return navigator.locks.request('tdh-beast-collection',{ifAvailable:true},async lock=>{
+  return navigator.locks.request('tdh-beast-collection',options?.waitForSave?{signal:AbortSignal.timeout(20000)}:{ifAvailable:true},async lock=>{
     if(!lock)throw new Error('另一分頁正在戰鬥或保存，請先完成再重試。');
     capability();
     const old=JSON.parse(window.localStorage.getItem(COLLECTION)??'{"cards":[],"history":[]}');
+    const growth={modules:JSON.parse(window.localStorage.getItem('tdh_growth_completed_modules_v1')??'[]'),checkIns:JSON.parse(window.localStorage.getItem('tdh_growth_checkin_history_v4')??'{}')};
     if(old.pending&&!old.sharedCultivation)throw new Error('請先結算原戰鬥，再接通共同卡庫。');
     if(!old.sharedCultivation) {
-      const result=await sharedRequest({type:'IMPORT',collection:old,orbProfile:window.localStorage.getItem('match3-hard-campaign-self-v1')});
+      const result=await sharedRequest({type:'IMPORT',collection:old,growth,orbProfile:window.localStorage.getItem('match3-hard-campaign-self-v1')});
       return result.view;
     }
-    const result=await sharedRequest({type:'LOCAL_GRANTS',collection:old});return result.view;
-  });
+    const result=await sharedRequest({type:'LOCAL_GRANTS',collection:old,growth});return result.view;
+  }).catch(error=>{if(error instanceof Error&&/[\u3400-\u9fff]/.test(error.message))throw error;throw new Error('卡庫保存尚未完成，請稍後重試。');});
 }
 export async function refreshSharedCultivation() {return (await sharedRequest()).view as SharedCultivationView;}

@@ -122,7 +122,7 @@ export async function transactTreasures<T>(owner: CampaignOwner, run: (book: Tre
     return next.result;
   };
   storage(owner);
-  if (typeof navigator !== 'undefined' && navigator.locks?.request) return navigator.locks.request(keys[owner], execute);
+  if (typeof navigator !== 'undefined' && navigator.locks?.request) return navigator.locks.request(owner==='self'?'tdh-beast-collection':keys[owner], execute);
   if (owner === 'guest') return execute();
   throw new Error('此瀏覽器暫不支援安全儲存，請使用支援的瀏覽器重試');
 }

@@ -5,7 +5,8 @@ import { prepareCultivationMigration } from '@/lib/beast-game/cultivation-migrat
 import { transactCultivation, type CultivationCommand } from '@/lib/beast-game/cultivation-transaction';
 import { cultivationView } from '@/lib/beast-game/cultivation-view';
 import { fuseCultivation } from '@/lib/beast-game/cultivation';
-import { importExistingGrants, releaseCultivationBattle } from '@/lib/beast-game/cultivation-games';
+import { importExistingGrants, releaseCultivationBattle, creditSharedShards, exchangeSharedShards, legacyGrowthCollection } from '@/lib/beast-game/cultivation-games';
+import { migrateCollection } from '@/lib/beast-collection-ledger';
 import { sharedOrbProfile, beginSharedOrb } from '@/lib/beast-game/cultivation-orb';
 import { parseCampaign } from '@/lib/beast-game/match3/hard-campaign';
 
@@ -13,7 +14,7 @@ export const runtime = 'nodejs';
 const headers = { 'Cache-Control': 'no-store' };
 function ownerOf(request: Request): string {
   const origin = request.headers.get('origin');
-  if (origin && new URL(origin).host !== new URL(request.url).host) throw new Error('來源不符。');
+  if (origin && new URL(origin).host !== (request.headers.get('host') ?? new URL(request.url).host)) throw new Error('來源不符。');
   const capability = request.headers.get('x-beast-wallet');
   if (!capability || !/^[a-f0-9]{64}$/.test(capability)) throw new Error('共同卡庫識別無效，請保留原存檔。');
   return createHash('sha256').update(capability).digest('hex');
@@ -33,14 +34,17 @@ export async function POST(request: Request) {
     const body = JSON.parse(raw), repository = cultivationRepository();
     if (body?.type === 'IMPORT') {
       if (!(body.orbProfile === null || typeof body.orbProfile === 'string')) throw new Error('寶珠存檔格式無效。');
-      const migration = prepareCultivationMigration(body.collection, body.orbProfile);
+      const migration = prepareCultivationMigration(legacyGrowthCollection(body.collection,body.growth), body.orbProfile);
       const orb=body.orbProfile?parseCampaign(body.orbProfile):null;
-      const snapshot = await repository.create(owner, { revision: '0', state: migration.state, pendingBattle: null, receipts: [], creditedIds:migration.state.cards.map(c=>'copy:'+c.id),orbLedger:orb?{wins:orb.wins,rewards:orb.rewards,receipts:orb.receipts}:{wins:0,rewards:[],receipts:[]} });
+      const old=migrateCollection(body.collection);
+      const snapshot = await repository.create(owner, { revision: '0', state: migration.state, pendingBattle: null, receipts: [], shards:old.shards,starterPack:old.starterPack,orbTreasures:orb?.treasures,creditedIds:[...migration.state.cards.map(c=>'copy:'+c.id),...Object.keys(old.shards?.receipts??{}).map(id=>'shards:'+id),...(old.granted??[]).map(id=>'copy:growth:'+id)],orbLedger:orb?{wins:orb.wins,rewards:orb.rewards,receipts:orb.receipts}:{wins:0,rewards:[],receipts:[]} });
       return NextResponse.json({ ok: true, view: cultivationView(snapshot) }, { headers });
     }
     if(body?.type==='ORB_PROFILE')return NextResponse.json({ok:true,profile:await sharedOrbProfile(owner,body.profile)},{headers});
-    if(body?.type==='ORB_BEGIN')return NextResponse.json({ok:true,...await beginSharedOrb(owner,body.profile,body.operationId)},{headers});
-    if(body?.type==='LOCAL_GRANTS')return NextResponse.json({ok:true,view:cultivationView(await importExistingGrants(owner,body.collection))},{headers});
+    if(body?.type==='ORB_BEGIN')return NextResponse.json({ok:true,...await beginSharedOrb(owner,body.profile,body.operationId,body.seed,body.mode)},{headers});
+    if(body?.type==='LOCAL_GRANTS')return NextResponse.json({ok:true,view:cultivationView(await importExistingGrants(owner,body.collection,body.growth))},{headers});
+    if(body?.type==='SHARD_CREDIT')return NextResponse.json({ok:true,view:cultivationView(await creditSharedShards(owner,body.proof))},{headers});
+    if(body?.type==='SHARD_EXCHANGE'){const snapshot=await exchangeSharedShards(owner,body.kind,body.operationId);return NextResponse.json({ok:true,view:cultivationView(snapshot),cardId:snapshot.exchanges![body.operationId].cardId},{headers});}
     if(body?.type==='RELEASE')return NextResponse.json({ok:true,view:cultivationView(await releaseCultivationBattle(owner,body.battleId))},{headers});
     if (body?.type === 'PREVIEW') {
       const snapshot = await repository.read(owner);

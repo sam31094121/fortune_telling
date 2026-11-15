@@ -266,6 +266,7 @@ function BattlefieldScreen() {
     if (!state || starting.current || recovering || dealing || !teamReady || settlement?.saved === false) return;
     starting.current = true;
     setStakeError('');
+    let openedSharedId:string|undefined;
     try {
       const currentCollection = readCollection();
       if (currentCollection.storageError) throw new Error(currentCollection.storageError);
@@ -279,6 +280,7 @@ function BattlefieldScreen() {
       const expectedCampaignToken = dealCampaignToken.current!;
       // 開戰交給後端：種子、難度（押注戰＝困難首領、體驗戰＝簡單）、易經判斷都由後端決定。
       const opened = await callBattle({ type: 'START', tableToken: tableToken.current, playerTeam: fieldTeam(state, 'PLAYER'), opponentTeam: fieldTeam(state, 'OPPONENT'), stakeCardId: stakeCardIds.length ? representative?.cardId ?? null : null, stakeCount: stakeCardIds.length,stakeEntryIds:stakeCardIds });
+      openedSharedId=opened.sharedMatchId;
       battleToken.current = opened.token; setLegal(opened.legal); setLiveNotice(opened.notice); setBattleView(opened.view); setReward(null);
       const next = opened.match;
       setOutcome(null); setSettlement(null); setBattleStake(representative?.cardId || null);
@@ -308,6 +310,9 @@ function BattlefieldScreen() {
       liveMatchId.current = null;
       if (alive.current && completed.result.stake) { setOutcome(completed.result.stake); setSettlement(completed.settlement); }
     } catch (cause) {
+      if(openedSharedId&&!(cause instanceof Error&&cause.name===BATTLE_HELD)){
+        try{await releaseLiveBattle(openedSharedId);}catch{if(alive.current)setStakeError('原戰局保留尚未解除，請到共同卡庫結束未完成戰局後重試。');return;}
+      }
       if (!(cause instanceof Error && cause.name === BATTLE_HELD)) liveMatchId.current = null;
       if (alive.current) setStakeError(cause instanceof Error ? cause.message : '還不能開戰，押注卡未扣除。');
     } finally { starting.current = false; if (alive.current) setSettling(false); }
@@ -602,7 +607,7 @@ function BattlefieldScreen() {
                     <div hidden={prepareView !== 'formation'}>
                       {ownedStake.length ? <>
                         <button type="button" className={styles.restart} onClick={() => setCultivationOpen(v => !v)}>{cultivationOpen ? '返回選隊' : '我的卡片・永久強化'}</button>
-                        {cultivationOpen ? <OwnedCardCultivation onDone={() => setCultivationOpen(false)} onSaved={() => { confirmedTeam.current=null; tableToken.current=null; dealCampaignToken.current=null; setTeamReady(false); setTeamCopies([]); setStakeCardIds([]); }} /> : <OwnedCampaignPreparation owned={ownedStake} selected={teamCopies} busy={dealing || recovering || settling} onToggle={toggleTeamCopy} onConfirm={confirmTeamStable} />}
+                        {cultivationOpen ? <OwnedCardCultivation onDone={() => setCultivationOpen(false)} onSaved={() => { confirmedTeam.current=null; tableToken.current=null; dealCampaignToken.current=null; setTeamReady(false); setTeamCopies([]); setStakeCardIds([]); }} /> : <OwnedCampaignPreparation owned={ownedStake} selected={teamCopies} busy={dealing || recovering || settling} onToggle={toggleTeamCopy} onReplace={(oldId,newId)=>setTeamCopies(ids=>ids.map(id=>id===oldId?newId:id))} onConfirm={confirmTeamStable} />}
                         {new Set(ownedStake.map(c => c.cardId)).size < 5 && <p role="status">收藏不足五種，請先到<Link href="/growth-center#beast-collection">成長中心取得卡片</Link>；不會代填收藏。</p>}
                       </> : <p className={styles.notice}>首次免押體驗：五張體驗卡已就緒。完成後可領取既有首次幼子禮，再以收藏正式闖關。</p>}
                       {movement && <p role="status" className={styles.notice} data-card-move>{movement}</p>}

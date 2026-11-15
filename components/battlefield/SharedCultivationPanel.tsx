@@ -18,7 +18,7 @@ export default function SharedCultivationPanel({onSaved,onDone}:{onSaved?:()=>vo
   },[target,material,view?.revision]);
   const save=async(type:'MAIN_TEAM'|'FUSE')=>{
     if(!view||busy)return;setBusy(true);setError('');operation.current??=crypto.randomUUID();
-    try{const result=await navigator.locks.request('tdh-beast-collection',()=>sharedRequest({type,revision:view.revision,operationId:operation.current,...(type==='MAIN_TEAM'?{ids:main}:{choices:[{targetId:target,materialId:material}]})}));
+    try{const result=await navigator.locks.request('tdh-beast-collection',{ifAvailable:true},lock=>{if(!lock)throw new Error('另一分頁正在戰鬥或保存，請先完成。');return sharedRequest({type,revision:view.revision,operationId:operation.current,...(type==='MAIN_TEAM'?{ids:main}:{choices:[{targetId:target,materialId:material}]})});});
       if(!alive.current)return;setView(result.view);setMain(result.view.protectedIds);setTarget('');setMaterial('');setPreview(null);operation.current=null;
       setMessage(type==='MAIN_TEAM'?'五隻主力已鎖定，可整組更換。':'合體已保存，材料已扣除，兩款遊戲共用這份成長。');onSaved?.();
     }catch(e){if(alive.current)setError(e instanceof Error?e.message:'尚未確認保存，請重試同一次操作。');}finally{if(alive.current)setBusy(false);}
@@ -30,7 +30,7 @@ export default function SharedCultivationPanel({onSaved,onDone}:{onSaved?:()=>vo
     {error&&<p role="alert">{error}<button type="button" disabled={busy} onClick={()=>void load()}>重新讀取卡庫</button></p>}
     {message&&<p role="status" data-shared-saved>{message}</p>}
     {!view?<p aria-busy="true">正在讀取卡庫…</p>:<>
-      {view.pendingBattle&&<p role="alert">戰鬥尚未結束，請先返回原戰鬥結算或離開。</p>}
+      {view.pendingBattle&&<p role="alert">戰鬥尚未結束，請先返回原戰鬥結算或離開。<button type="button" disabled={busy} onClick={async()=>{setBusy(true);try{if(view.pendingBattle?.startsWith('card:'))await (await import('@/lib/beast-collection')).releaseLiveBattle(view.pendingBattle);else await sharedRequest({type:'RELEASE',battleId:view.pendingBattle});await load();}catch(e){setError(e instanceof Error?e.message:'暫時無法結束原戰局。');}finally{setBusy(false);}}}>結束未完成戰局（不扣卡、不發獎）</button></p>}
       <h3>① 親選五隻收藏主力</h3><p>鎖定主力不能當材料。更換時一次確認完整五隻；收藏可以超過五隻。</p>
       {!view.canProtectFive&&<p role="status">目前不足五種可出戰收藏，請先取得收藏；仍可使用原本的試玩入口。</p>}
       <p>已選 {main.length}／5 隻</p>

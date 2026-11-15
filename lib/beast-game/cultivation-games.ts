@@ -7,7 +7,8 @@ import { exactBonus } from './cultivation';
 import { combatNumber } from './exact-combat';
 import { getCard } from './registry';
 import type { StakeOutcome } from '../beast-collection-ledger';
-import { creditBattleReward, exchangeShards, grantStarterPack, migrateCollection } from '../beast-collection-ledger';
+import { creditBattleReward, exchangeShards, grantStarterPack, grantGrowthCards, migrateCollection } from '../beast-collection-ledger';
+import { deriveUnlockedMansions, gameCardIdsForMansion } from '../beast-growth-rewards';
 import { openBattleSession } from './battle-session';
 import { battleRewardFor } from './battle-reward-server';
 import type { ShardExchangeKind } from './battle-reward';
@@ -57,30 +58,34 @@ export async function releaseCultivationBattle(owner:string,id:string) {
   });
 }
 /** Only server-verified game outcomes call this helper. It is not exposed as a client grant API. */
-export async function creditCultivationCards(owner:string,eventId:string,cards:CultivationCopy[],removeIds:string[]=[],battleId?:string,orbWin?:{matchId:string;cardId:string;win:number}) {
+export async function creditCultivationCards(owner:string,eventId:string,cards:CultivationCopy[],removeIds:string[]=[],battleId?:string,orbWin?:{matchId:string;cardId:string;win:number},cardOutcome?:string) {
   return update(owner,current=>{
-    if(current.creditedIds?.includes(eventId))return current;
+    if(current.creditedIds?.includes(eventId)){if(cardOutcome!==undefined&&current.cardOutcomes?.[eventId]!==undefined&&current.cardOutcomes[eventId]!==cardOutcome)throw new Error('本場已有不同的結算紀錄，請重新讀取卡庫。');return current;}
     if(battleId&&current.pendingBattle!==battleId)throw new Error('戰局卡庫保留紀錄不符，請重試結算。');
     if(cards.some(c=>!getCard(c.cardId)||current.state.cards.some(old=>old.id===c.id)))throw new Error('獎卡副本識別不符。');
     const nextCards=[...current.state.cards.filter(c=>!removeIds.includes(c.id)),...cards];
     const protectedIds=current.state.protectedIds.some(id=>removeIds.includes(id))?[]:current.state.protectedIds;
     if(orbWin&&orbWin.win!==(current.orbLedger?.wins??0)+1)throw new Error('寶珠關卡已更新，未重複發卡。');
-    return {...current,state:{cards:nextCards,protectedIds},...(orbWin?{orbLedger:{wins:orbWin.win,rewards:[...(current.orbLedger?.rewards??[]),orbWin],receipts:[...(current.orbLedger?.receipts??[]),orbWin]}}:{}),...(battleId?{pendingBattle:null,hold:undefined}:{}),creditedIds:[...(current.creditedIds??[]),eventId,...(battleId?['closed:'+battleId]:[])]};
+    return {...current,state:{cards:nextCards,protectedIds},...(cardOutcome!==undefined?{cardOutcomes:{...current.cardOutcomes,[eventId]:cardOutcome}}:{}),...(orbWin?{orbLedger:{wins:orbWin.win,rewards:[...(current.orbLedger?.rewards??[]),orbWin],receipts:[...(current.orbLedger?.receipts??[]),orbWin]}}:{}),...(battleId?{pendingBattle:null,hold:undefined}:{}),creditedIds:[...(current.creditedIds??[]),eventId,...(battleId?['closed:'+battleId]:[])]};
   });
 }
 export async function settleCultivationCards(owner:string,battleId:string,outcome:StakeOutcome|null) {
   const snapshot=await cultivationRepository().read(owner);
-  if(snapshot.creditedIds?.includes('card:'+battleId))return snapshot;
+  const outcomeKey=JSON.stringify(outcome);
+  if(snapshot.creditedIds?.includes('card:'+battleId)){if(snapshot.cardOutcomes?.['card:'+battleId]!==undefined&&snapshot.cardOutcomes['card:'+battleId]!==outcomeKey)throw new Error('本場已有不同的結算紀錄，請重新讀取卡庫。');return snapshot;}
   if(snapshot.pendingBattle!==battleId||!snapshot.hold)throw new Error('戰局卡庫紀錄不符。');
   const ids=outcome?.verdict==='WON'?outcome.rewardCardIds??[]:[];
-  return creditCultivationCards(owner,'card:'+battleId,ids.map((cardId,i)=>({id:`duel:${battleId}:${i}`,cardId,bonus:'0'})),outcome?.verdict==='LOST'?snapshot.hold.stakeIds:[],battleId);
+  return creditCultivationCards(owner,'card:'+battleId,ids.map((cardId,i)=>({id:`duel:${battleId}:${i}`,cardId,bonus:'0'})),outcome?.verdict==='LOST'?snapshot.hold.stakeIds:[],battleId,undefined,outcomeKey);
 }
 
 /** Preserve existing non-battle local reward entitlements; never accept arbitrary copy IDs.
  * Battle and orb winnings are credited by their server handlers, not by this import path.
  */
-export async function importExistingGrants(owner:string,value:unknown) {
-  const ledger=migrateCollection(value);
+export function legacyGrowthCollection(value:unknown,progress?:{modules?:unknown;checkIns?:unknown}) {
+  return grantGrowthCards(migrateCollection(value),deriveUnlockedMansions(progress?.modules,progress?.checkIns).flatMap(gameCardIdsForMansion),new Date().toISOString());
+}
+export async function importExistingGrants(owner:string,value:unknown,progress?:{modules?:unknown;checkIns?:unknown}) {
+  const ledger=legacyGrowthCollection(value,progress);
   return update(owner,current=>{
     const seen=new Set([...(current.creditedIds??[]),...current.state.cards.map(c=>'copy:'+c.id),...current.receipts.flatMap(r=>r.changes.map(c=>'copy:'+c.materialId))]);
     const cards=ledger.cards.filter(c=>!seen.has('copy:'+c.id)&&(

@@ -2,6 +2,7 @@ import {randomUUID} from 'node:crypto';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {NextResponse} from 'next/server';
+import {cultivationOwner,grantSharedStarter} from '@/lib/beast-game/cultivation-games';
 export const runtime='nodejs';
 const modules=new Set(['number','ziwei','bazi','nameology','zodiac','soul_match','music','tarot','battlefield','stake-duel']);
 
@@ -16,6 +17,8 @@ export async function POST(req:Request){
   const {completed}=await req.json();if(!modules.has(completed))return NextResponse.json({ok:false,error:'請先完成任一項遊戲。'},{status:400});
   const profileId=req.headers.get('x-growth-profile');
   if(!profileId||!/^anon_[a-z0-9_]{6,100}$/.test(profileId))return NextResponse.json({ok:false,error:'請允許此瀏覽器保存遊戲進度。'},{status:400});
+  const owner=cultivationOwner(req);
+  if(owner){const saved=await grantSharedStarter(owner,randomUUID());return NextResponse.json({ok:true,receipt:saved.starterPack,count:28});}
 
   const base=process.env.BEAST_DATA_DIR
     ?? (process.env.VERCEL ? '/tmp/beast-turn-accounts' : path.join(process.cwd(),'data','beast-turn-accounts'));

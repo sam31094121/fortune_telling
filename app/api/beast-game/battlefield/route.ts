@@ -126,16 +126,7 @@ export async function POST(request: Request) {
     if(body.type==='PROGRESS'){
       const campaign=getCampaign();return NextResponse.json({ok:true,campaign:cardCampaignStage(campaign.wins),campaignToken:signCardCampaign(campaign)},{headers:{'Cache-Control':'no-store'}});
     }
-    if(body.type==='ENHANCE'){
-      if(cultivationOwner(request))return fail('請使用共同神獸卡庫合體，原培養入口已改為共用。');
-      const campaign=getCampaign();
-      if(!validOwnedCard(body.target)||!validOwnedCard(body.material))return fail('培養副本資料無效，未消耗卡片。');
-      const preview=cardCampaignEnhancementPreview(campaign,body.target,body.material);
-      if(body.preview===true)return NextResponse.json({ok:true,preview,campaign:cardCampaignStage(campaign.wins),campaignToken:signCardCampaign(campaign)},{headers:{'Cache-Control':'no-store'}});
-      if(typeof body.operationId!=='string')return fail('培養操作識別無效。');
-      const result=enhanceCardCampaign(campaign,body.operationId,body.target,body.material);
-      return NextResponse.json({ok:true,receipt:result.receipt,duplicate:result.duplicate,campaign:cardCampaignStage(result.campaign.wins),campaignToken:signCardCampaign(result.campaign)},{headers:{'Cache-Control':'no-store'}});
-    }
+    if(body.type==='ENHANCE')return fail('請使用共同神獸卡庫合體，原培養入口已改為共用。');
     if (body.type === 'DEAL') {
       if(body.campaign===true){
         const campaign=getCampaign();if(campaign.pending)return fail('請先接續或完成原戰鬥。');

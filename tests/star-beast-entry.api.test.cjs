@@ -9,17 +9,35 @@ async function post(path, input) {
   const dateOnly = await post('/api/star-beasts/guardian', { ...sample, timeUnknown: true, birthTime: '12:00', birthHourBranch: 'chen' });
   assert.equal(dateOnly.status, 200);
   assert.equal(dateOnly.body.timeUnknown, true, 'unknown flag overrides stale stored times');
-  assert(dateOnly.body.beastId >= 1 && dateOnly.body.beastId <= 28);
+  // 2026-11-12 核定四大神獸契約；不恢復已移除的二十八宿 beastId。
+  const four = { 青龍: '木', 朱雀: '火', 白虎: '金', 玄武: '水' };
+  function guardian(body) {
+    assert.equal(body.ok, true);
+    assert(Object.hasOwn(four, body.guardian));
+    assert.equal(body.element, four[body.guardian]);
+    assert.equal(body.method, '八字日主五行對應四大神獸');
+    assert(body.reason.includes(body.guardian), '後端理由對應實際神獸');
+    assert(!Object.hasOwn(body, 'beastId'), '不得混回舊二十八宿契約');
+    return body.guardian;
+  }
+  guardian(dateOnly.body);
   const known = await post('/api/star-beasts/guardian', { ...sample, timeUnknown: false, birthHourBranch: 'chen' });
   assert.equal(known.status, 200);
   assert.equal(known.body.timeUnknown, false);
-  assert.equal(known.body.beastId, dateOnly.body.beastId, 'the same verified day pillar has one mapping');
+  assert.equal(guardian(known.body), guardian(dateOnly.body), 'the same verified day/month pillars have one mapping');
   const repeat = await post('/api/star-beasts/guardian', sample);
-  assert.equal(repeat.body.beastId, dateOnly.body.beastId);
+  assert.equal(repeat.status, 200);
+  assert.equal(guardian(repeat.body), guardian(dateOnly.body));
+  assert.equal(repeat.body.timeUnknown, true);
   const lunar = await post('/api/star-beasts/guardian', { ...sample, calendarType: 'lunar', timeUnknown: true });
   const lunarSolar = await post('/api/star-beasts/guardian', { ...sample, birthDate: '1990-01-27', timeUnknown: true });
   assert.equal(lunar.status, 200);
-  assert.equal(lunar.body.beastId, lunarSolar.body.beastId, 'lunar date is converted exactly once');
+  assert.equal(lunarSolar.status, 200);
+  assert.equal(guardian(lunar.body), guardian(lunarSolar.body), 'lunar date is converted exactly once');
+  assert.equal(lunar.body.reason, lunarSolar.body.reason);
+  const approved = await post('/api/star-beasts/guardian', { ...sample, birthDate: '1974-07-02', timeUnknown: true });
+  assert.equal(approved.status, 200);
+  assert.equal(guardian(approved.body), '青龍', '既有核定甲辰日木樣本');
   for (const invalid of [null, {}, { ...sample, birthDate: '1990-02-30' }, { ...sample, gender: '' }, { ...sample, birthHourBranch: 'pending' }, { ...sample, timeUnknown: 'true' }]) {
     const result = await post('/api/star-beasts/guardian', invalid);
     assert.equal(result.status, 422);

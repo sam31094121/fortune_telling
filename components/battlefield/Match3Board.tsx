@@ -161,7 +161,7 @@ export interface TreasurePractice { scenario?: string; board: Board; magic: Magi
 export interface Match3BoardProps { treasurePractice?: TreasurePractice; seed?: number; teamIds?: readonly string[] | null; sameElementRule?: SameElementRule; onRepick?: () => void; mode?: Match3ModeId; progressOwner?: Match3ProgressOwner; campaignEnabled?: boolean; onCampaignContinue?: () => void; /** 覆寫用；未給＝第 8 關起殿後的四大神獸（reservedGuardianBossRule，與 foeAvailable 同源）。 */ isFinalBoss?: FinalBossRule }
 export default function Match3Board({ treasurePractice, seed, teamIds, sameElementRule = DEFAULT_SAME_ELEMENT_RULE, onRepick, mode, progressOwner = null, campaignEnabled = false, onCampaignContinue, isFinalBoss }: Match3BoardProps) {
   const cfg = match3Mode(mode);
-  const [init, setInit] = useState<{ rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner; sharedBattleToken?:string; sharedBattleId?:string; revision: number } | null>(null);
+  const [init, setInit] = useState<{ rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner; sharedBattleToken?:string; sharedBattleId?:string; sharedVersion?:number; revision: number } | null>(null);
   const revision = useRef(0);
   const sharedStart = useRef<string | null>(null);
   const [initError, setInitError] = useState('');
@@ -173,10 +173,10 @@ export default function Match3Board({ treasurePractice, seed, teamIds, sameEleme
       const campaign = campaignEnabled && owner ? readCampaign(owner) : null;
       if (campaignEnabled && (!campaign?.ok || !campaign.profile)) { setInitError(campaign?.error ?? '請先選擇主角及夥伴'); return; }
       if (campaign?.profile && !validateCampaignTeam(campaign.profile, teamIds ?? [])) { setInitError('請先選擇主角及四張已解鎖夥伴'); return; }
-      let shared: {token?:string;battleId?:string} = {};
-      if(owner==='self' && campaign?.profile){sharedStart.current??=crypto.randomUUID();const opened=await sharedRequest({type:'ORB_BEGIN',profile:campaign.profile,operationId:sharedStart.current});campaign.profile=opened.profile;shared=opened;}
+      let shared: {token?:string;battleId?:string;version?:number;initial?:import('@/lib/beast-game/match3/resolve-turn').TurnInput} = {};
+      if(owner==='self' && campaign?.profile){sharedStart.current??=crypto.randomUUID();const opened=await sharedRequest({type:'ORB_BEGIN',profile:campaign.profile,operationId:sharedStart.current,seed:s,mode:cfg.id});campaign.profile=opened.profile;shared=opened;}
       const wins = cfg.id === 'medium' ? 0 : campaign?.profile?.wins ?? readMatch3Progress(owner);
-      setInit({ rng, seed: s, wins, owner, sharedBattleToken:shared.token, sharedBattleId:shared.battleId, revision: ++revision.current, ...pickLineup(rng, teamIds, cfg, wins, campaign?.profile), board: generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, cfg.id === 'medium' ? 3 : progressionStage(wins).minChain) });
+      setInit({ rng, seed: s, wins, owner, sharedBattleToken:shared.token, sharedBattleId:shared.battleId, sharedVersion:shared.version, revision: ++revision.current, ...pickLineup(rng, teamIds, cfg, wins, campaign?.profile), board: generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, cfg.id === 'medium' ? 3 : progressionStage(wins).minChain), ...(shared.initial?{seed:shared.initial.seed,team:shared.initial.team,enemies:shared.initial.foes,board:shared.initial.board}:{}) });
     };
     void initialize().catch(e=>setInitError(e instanceof Error?e.message:"暫時無法開戰。"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -197,7 +197,8 @@ function FusedStatusBadge({ kind }: { kind: FusedBadge }) {
   }</svg></span>;
 }
 
-function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, campaignEnabled, onCampaignContinue, isFinalBoss }: { isFinalBoss?: FinalBossRule; treasurePractice?: TreasurePractice; cfg: Match3ModeConfig; init: { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner; sharedBattleToken?:string; sharedBattleId?:string }; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void; campaignEnabled: boolean; onCampaignContinue?: () => void }) {
+function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, campaignEnabled, onCampaignContinue, isFinalBoss }: { isFinalBoss?: FinalBossRule; treasurePractice?: TreasurePractice; cfg: Match3ModeConfig; init: { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner; sharedBattleToken?:string; sharedBattleId?:string;sharedVersion?:number }; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void; campaignEnabled: boolean; onCampaignContinue?: () => void }) {
+  const sharedVersion = useRef(init.sharedVersion ?? 0);
   const rigEnabled = cfg.id === 'hard45' || cfg.id === 'hard45b';
   const [wins, setWins] = useState(init.wins);
   const [progressSaveFailed, setProgressSaveFailed] = useState(false);
@@ -585,13 +586,14 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     try {
       const result = await treasureTransaction(async book => {
         const r = await fetch('/api/beast-game/orb-turn', {method:'POST', headers:{'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, signal:controller.signal,
-          body:JSON.stringify({ sharedBattleToken:init.sharedBattleToken, board,magic,path:[],team,foes,mode:cfg.id,wins,target:ti,seed:init.seed,move:moves,chosen,rule,attackBoost,treasureGuard,treasures:book,action:'treasure',treasureElement:element,treasureVariant:variant,actionId })});
+          body:JSON.stringify({ sharedBattleToken:init.sharedBattleToken, sharedVersion:sharedVersion.current, board,magic,path:[],team,foes,mode:cfg.id,wins,target:ti,seed:init.seed,move:moves,chosen,rule,attackBoost,treasureGuard,treasures:book,action:'treasure',treasureElement:element,treasureVariant:variant,actionId })});
         if (!r.ok) throw new Error('暫時無法使用寶器，請重試。');
-        const result: TreasureUse = await r.json();
+        const result: TreasureUse & {sharedVersion?:number} = await r.json();
         if (controller.signal.aborted) throw new Error('請求已中止');
         return { book:result.book, result };
       });
       if (controller.signal.aborted) return;
+      if(init.sharedBattleToken)sharedVersion.current=(result as TreasureUse & {sharedVersion:number}).sharedVersion;
       const bounds = root.current!.getBoundingClientRect();
       const source = root.current!.querySelector('[data-treasure="'+element+'"][data-variant="'+variant+'"]')!.getBoundingClientRect();
       const target = root.current!.querySelector('[data-testid="match3-enemy"][data-id="'+result.effect.targetId+'"]')!.getBoundingClientRect();
@@ -613,7 +615,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       battleId.current ||= crypto.randomUUID();
       const request = async (book?: TreasureBook) => {
         const response = await fetch('/api/beast-game/orb-turn', { method:'POST', headers:{'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, signal:controller.signal,
-          body:JSON.stringify({ sharedBattleToken:init.sharedBattleToken, board, magic, path, team, foes, mode:cfg.id, wins, target:ti, seed:(init.seed + moves * 2654435761) >>> 0, move:moves, chosen, rule, attackBoost, treasureGuard, treasures:book, actionId:battleId.current + ':turn:' + moves }) });
+          body:JSON.stringify({ sharedBattleToken:init.sharedBattleToken, sharedVersion:sharedVersion.current, board, magic, path, team, foes, mode:cfg.id, wins, target:ti, seed:(init.seed + moves * 2654435761) >>> 0, move:moves, chosen, rule, attackBoost, treasureGuard, treasures:book, actionId:battleId.current + ':turn:' + moves }) });
         if (!response.ok) throw new Error('turn unavailable');
         const result: ReturnType<typeof resolveOrbTurn> = await response.json();
         if (controller.signal.aborted) throw new Error('aborted');
@@ -625,6 +627,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       if (turnRequest.current === controller) { setBusy(false); setLog('暫時無法完成本回合，盤面與生命未變更，請重新連珠。'); }
       return;
     } finally { window.clearTimeout(timeout); if (turnRequest.current === controller) turnRequest.current = null; }
+    if(init.sharedBattleToken)sharedVersion.current=(prepared as typeof prepared & {sharedVersion:number}).sharedVersion;
     const { res } = prepared;
     setShieldGoals(prepared.shieldGoals);
     setTreasureGuard(prepared.nextTreasureGuard);
@@ -813,10 +816,11 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     const timeout = window.setTimeout(() => controller.abort(), 15000);
     try {
       const response = await fetch('/api/beast-game/orb-turn', { method:'POST', headers:{'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, signal:controller.signal,
-        body:JSON.stringify({ sharedBattleToken:init.sharedBattleToken, board, magic, path:[], team, foes, mode:cfg.id, wins, target:ti, seed:init.seed, move:moves, chosen, rule, attackBoost, treasureGuard, action, ...(action === 'energy' ? { attackerId:ids[0] } : { linkIds:ids }), eventId, actionId }) });
+        body:JSON.stringify({ sharedBattleToken:init.sharedBattleToken, sharedVersion:sharedVersion.current, board, magic, path:[], team, foes, mode:cfg.id, wins, target:ti, seed:init.seed, move:moves, chosen, rule, attackBoost, treasureGuard, action, ...(action === 'energy' ? { attackerId:ids[0] } : { linkIds:ids }), eventId, actionId }) });
       if (!response.ok) throw new Error('card attack unavailable');
-      const result: CardAttackResult = await response.json();
+      const result: CardAttackResult & {sharedVersion?:number} = await response.json();
       if (controller.signal.aborted) throw new Error('aborted');
+      if(init.sharedBattleToken)sharedVersion.current=result.sharedVersion!;
       return result;
     } catch {
       if (turnRequest.current === controller) { energyClickLock.current = false; setBusy(false); setLog(action === 'energy' ? '暫時無法發動技能，能量與生命未變更，請重試。' : '暫時無法發動連線攻擊，能量與生命未變更，請重試。'); }
@@ -925,7 +929,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   );
 
   return (
-    <section ref={root} className={styles.wrap} data-match3-scroll-lock={scrollLocked && !help && !over ? "true" : undefined} data-match3-battle-active={rigEnabled && !help && !over ? "true" : undefined} data-mobile-actions={mobileActionless ? 'off' : 'on'} data-auto-link-ready={mobileActionless && autoLinkIds.length >= LINK_MIN_CARDS && !busy && !over && ti >= 0 ? 'true' : undefined} onPointerDownCapture={(e) => { audio.current?.unlock(); setIntro(false); if (mobileActionless && link.length && !(e.target instanceof Element && e.target.closest('[data-testid="match3-ally"]'))) { setLink([]); setLinkMode(false); } }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
+    <section ref={root} className={styles.wrap} aria-busy={busy} data-match3-scroll-lock={scrollLocked && !help && !over ? "true" : undefined} data-match3-battle-active={rigEnabled && !help && !over ? "true" : undefined} data-mobile-actions={mobileActionless ? 'off' : 'on'} data-auto-link-ready={mobileActionless && autoLinkIds.length >= LINK_MIN_CARDS && !busy && !over && ti >= 0 ? 'true' : undefined} onPointerDownCapture={(e) => { audio.current?.unlock(); setIntro(false); if (mobileActionless && link.length && !(e.target instanceof Element && e.target.closest('[data-testid="match3-ally"]'))) { setLink([]); setLinkMode(false); } }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
       {rigEnabled && <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: 'absolute', pointerEvents: 'none' }}>
         <defs>
           <clipPath id="match3-soft-space" clipPathUnits="objectBoundingBox"><path d="M .42 .1 Q .5 .02 .58 .1 L .9 .42 Q .98 .5 .9 .58 L .58 .9 Q .5 .98 .42 .9 L .1 .58 Q .02 .5 .1 .42 Z" /></clipPath>

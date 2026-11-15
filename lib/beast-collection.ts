@@ -150,7 +150,7 @@ export async function runOwnedDuel<T extends AwardResult>(cardId: string, play: 
 }
 
 export async function retryStakeSettlement(matchId:string,outcome:StakeOutcome,progress?:{campaignToken:string;wins:number}):Promise<Settlement>{
- return exclusive(()=>{const journal=readJson(JOURNAL_KEY,null) as {matchId:string;result:AwardResult}|null;const result=journal?.matchId===matchId?journal.result:undefined;return applyStakeOutcome(matchId,outcome,result?.campaignToken??progress?.campaignToken,result?.campaign?.wins??progress?.wins);});
+ return exclusive(async()=>{const journal=readJson(JOURNAL_KEY,null) as {matchId:string;result:AwardResult}|null;const result=journal?.matchId===matchId?journal.result:undefined;const settled=applyStakeOutcome(matchId,outcome,result?.campaignToken??progress?.campaignToken,result?.campaign?.wins??progress?.wins);if(settled.saved&&readStrict().sharedCultivation)await refreshSharedCultivation();return settled;});
 }
 
 export async function runOwnedStakesDuel(entryIds:string[],play:(entries:Array<{id:string;cardId:string}>)=>Promise<AwardResult>,expectedCampaignToken?:string,sharedMatchId?:string):Promise<{result:AwardResult;settlement:Settlement}>{
@@ -160,7 +160,7 @@ export async function runOwnedStakesDuel(entryIds:string[],play:(entries:Array<{
   const matchId=sharedMatchId??crypto.randomUUID();const reserved=reserveOwnedStakes(current,entryIds,matchId,now());write(reserved);
   let result:AwardResult;
   try{result=await play(reserved.pending!.entries!);if(!result.ok||!result.stake||result.isReplay)throw new Error(result.error??'沒有有效戰果，沒有扣卡。');}
-  catch(e){if(isHeld(e))throw e;const current=readStrict();if(current.pending?.id===matchId)write(clearCollectionCampaignPending({...current,pending:null}));clearLiveBattle(matchId);throw e;}
+  catch(e){if(isHeld(e))throw e;if(sharedMatchId)await sharedRequest({type:'RELEASE',battleId:sharedMatchId});const current=readStrict();if(current.pending?.id===matchId)write(clearCollectionCampaignPending({...current,pending:null}));clearLiveBattle(matchId);throw e;}
   try{window.localStorage.setItem(JOURNAL_KEY,JSON.stringify({matchId,result}));}catch{/* Ledger write still attempted; no saved claim on failure. */}
   const settlement=applyStakeOutcome(matchId,result.stake!,result.campaignToken,result.campaign?.wins);if(settlement.saved){clearLiveBattle(matchId);if(sharedMatchId)await refreshSharedCultivation();}
   return {result,settlement};
@@ -185,24 +185,26 @@ export async function resumeOwnedStakesDuel(matchId:string,play:(entries:Array<{
 
 /** 戰局票過期或驗章失敗：照舊退回押注卡（未扣除）。 */
 export async function releaseLiveBattle(matchId:string):Promise<void>{
- await exclusive(async()=>{const current=readStrict();if(current.sharedCultivation)await sharedRequest({type:'RELEASE',battleId:matchId});if(current.pending?.id===matchId)write(clearCollectionCampaignPending({...current,pending:null}));clearLiveBattle(matchId);});
+ await exclusive(async()=>{if(readStrict().sharedCultivation)await sharedRequest({type:'RELEASE',battleId:matchId});const current=readStrict();if(current.pending?.id===matchId)write(clearCollectionCampaignPending({...current,pending:null}));clearLiveBattle(matchId);});
 }
 
 /** An interrupted request without a received outcome never confiscates a customer's card. */
 export async function recoverPendingDuel<T extends AwardResult>(): Promise<{ result?: T; settlement?: Settlement; interrupted?: boolean; liveBattle?: LiveBattle }> {
-  return exclusive(() => {
+  return exclusive(async () => {
     const current = readStrict();
     const journal = readJson(JOURNAL_KEY, null) as { matchId: string; result: T } | null;
     if (journal?.result?.stake) {
       const settlement = applyStakeOutcome(journal.matchId, journal.result.stake,journal.result.campaignToken,journal.result.campaign?.wins);
       if (settlement.saved) clearLiveBattle(journal.matchId);
+      if(settlement.saved&&current.sharedCultivation)await refreshSharedCultivation();
       return { result: journal.result, settlement };
     }
     // 困難戰場還在打的那一場：押注卡繼續押著，交給戰場頁接續（不退回、不重押）。
     const live = readLiveBattle();
     if (current.pending && live && live.matchId === current.pending.id && current.pending.entries) return { liveBattle: live };
     if (current.pending) {
-      write(clearCollectionCampaignPending({ ...current, pending: null }));
+      if(current.sharedCultivation)await sharedRequest({type:'RELEASE',battleId:current.pending.id});
+      write(clearCollectionCampaignPending({ ...readStrict(), pending: null }));
       clearLiveBattle();
       return { interrupted: true };
     }
@@ -235,6 +237,7 @@ export const STARTER_PACK_SLOW_MESSAGE='連線較慢，卡片還沒入庫；按�
 const STARTER_PACK_TIMEOUTS=[15000,20000,25000];
 export async function claimStarterPack(completed:string,profileId:string):Promise<void>{
  if(!navigator.locks)throw new Error('請使用支援安全保存的瀏覽器。');
+ await syncSharedCultivation({waitForSave:true});
  await navigator.locks.request(LOCK,async()=>{
   if(readStrict().starterPack)return;
   let lastError=new Error(STARTER_PACK_SLOW_MESSAGE);
@@ -242,12 +245,12 @@ export async function claimStarterPack(completed:string,profileId:string):Promis
    if(attempt>0)await new Promise(resolve=>setTimeout(resolve,1500));
    let response:Response;let result:{ok?:boolean;receipt?:unknown;error?:string};
    try{
-    response=await fetch('/api/beast-game/starter-pack',{method:'POST',headers:{'Content-Type':'application/json','x-growth-profile':profileId},body:JSON.stringify({completed}),signal:AbortSignal.timeout(timeout)});
+    response=await fetch('/api/beast-game/starter-pack',{method:'POST',headers:{'Content-Type':'application/json','x-growth-profile':profileId,...sharedWalletHeaders()},body:JSON.stringify({completed}),signal:AbortSignal.timeout(timeout)});
     result=await response.json();
    }catch{lastError=new Error(STARTER_PACK_SLOW_MESSAGE);continue;}
    if(response.ok&&result.ok&&typeof result.receipt==='string'){
     const current=readStrict();if(current.starterPack)return;
-    write(grantStarterPack(current,result.receipt,now()));return;
+    await refreshSharedCultivation();return;
    }
    lastError=new Error(result.error??'獎勵尚未保存，請按「重試領卡」再送一次。');
    if(response.status<500)break;
@@ -264,27 +267,31 @@ export type ShardCreditResult = { saved: boolean; receipt?: ShardReceipt; duplic
 export async function creditFreeBattleReward(reward: BattleReward): Promise<ShardCreditResult> {
   if (typeof window === 'undefined' || !navigator.locks) return { saved: false, error: '請使用支援安全保存的瀏覽器。' };
   try {
+    await syncSharedCultivation({waitForSave:true});
     return await navigator.locks.request(LOCK, async () => {
+      await sharedRequest({type:'SHARD_CREDIT',proof:reward.proof});
       const current = readStrict();
       if (current.storageError) throw new Error(current.storageError);
-      const credited = creditBattleReward(current, reward, now());
-      if (!credited.duplicate) write(credited.collection);
-      return { saved: true, receipt: credited.receipt, duplicate: credited.duplicate, summary: shardSummary(credited.collection) };
+      const receipt=current.shards?.receipts[reward.key];if(!receipt)throw new Error('戰績收據暫時無法取得。');
+      return { saved: true, receipt, summary: shardSummary(current) };
     });
   } catch (error) {
     return { saved: false, error: error instanceof Error && /[㐀-鿿]/.test(error.message) ? error.message : '戰利碎片尚未保存，請重試。' };
   }
 }
 export type ShardExchangeResult = { saved: boolean; cardId?: string; summary?: ReturnType<typeof shardSummary>; error?: string };
+const EXCHANGE_PENDING='tdh-beast-shard-exchange-v1';
 export async function exchangeFreeBattleShards(kind: ShardExchangeKind): Promise<ShardExchangeResult> {
   if (typeof window === 'undefined' || !navigator.locks) return { saved: false, error: '請使用支援安全保存的瀏覽器。' };
   try {
+    await syncSharedCultivation();
     return await navigator.locks.request(LOCK, async () => {
-      const current = readStrict();
-      if (current.storageError) throw new Error(current.storageError);
-      const done = exchangeShards(current, kind, now());
-      write(done.collection);
-      return { saved: true, cardId: done.cardId, summary: shardSummary(done.collection) };
+      const pending=JSON.parse(window.localStorage.getItem(EXCHANGE_PENDING)??'null')??{kind,operationId:crypto.randomUUID()};
+      if(pending.kind!==kind)throw new Error('請先重試上一筆兌換。');
+      window.localStorage.setItem(EXCHANGE_PENDING,JSON.stringify(pending));
+      const done=await sharedRequest({type:'SHARD_EXCHANGE',...pending});
+      window.localStorage.removeItem(EXCHANGE_PENDING);
+      return { saved: true, cardId: done.cardId, summary: shardSummary(readStrict()) };
     });
   } catch (error) {
     return { saved: false, error: error instanceof Error && /[㐀-鿿]/.test(error.message) ? error.message : '兌換尚未完成，碎片沒有扣除，請重試。' };

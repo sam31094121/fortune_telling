@@ -1,4 +1,5 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),ts=require('typescript');
+require('./helpers/server-only-runtime.cjs');
 require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText,f);
 const Module=require('node:module'),path=require('node:path'),resolve=Module._resolveFilename;
 Module._resolveFilename=function(id,...args){return resolve.call(this,id.startsWith('@/')?path.resolve(__dirname,'..',id.slice(2)):id,...args)};

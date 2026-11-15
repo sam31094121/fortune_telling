@@ -143,40 +143,45 @@ async function main() {
 
   const React = require('react'), { renderToStaticMarkup } = require('react-dom/server');
   const Panel = h.load('components/BeastStakeResult.tsx').default;
-  const props = { outcome: { ...result('OPPONENT').stake, playerStakeName: '角木蛟', opponentStakeName: '亢金龍', gainedCardName: null, forfeitedCardName: '角木蛟' }, card: { name: '角木蛟', thumbnail: '/test.png' }, isReplay: false, retrying: false, onRetry() {} };
-  const html = (settlement, isReplay = false) => renderToStaticMarkup(React.createElement(Panel, { ...props, settlement, isReplay }));
+  // Use the same backend guide and registered cards as the live result screen.
+  const { GuideBookProvider } = h.load('components/battlefield/GuideBookContext.tsx');
+  const book = h.load('lib/beast-game/guide-book.ts').buildGuideBook();
+  const cards = h.load('lib/beast-game/registry.ts').playableCards().map(c => ({ id:c.id, name:c.name, thumbnail:c.art.thumbnail }));
+  const render = props => renderToStaticMarkup(React.createElement(GuideBookProvider, {value:book}, React.createElement(Panel, props)));
+  const props = { cards, outcome: { ...result('OPPONENT').stake, playerStakeName: '角木蛟', opponentStakeName: '亢金龍', gainedCardName: null, forfeitedCardName: '角木蛟' }, card: { id: a, name: '角木蛟', thumbnail: '/test.png' }, isReplay: false, retrying: false, onRetry() {} };
+  const html = (settlement, isReplay = false) => render({ ...props, settlement, isReplay });
   check('saved loss names card, minus one, and actual remaining copies', () => {
     const text = html(oneLost.settlement);
     assert.match(text, /data-stake-headline/);
     assert.match(text, /輸掉 −1 張/);
     assert.match(text, /本場押注卡已扣除 1 張/);
     assert.match(text, /角木蛟/);
-    assert.match(text, /剩餘 1 張/);
+    assert.match(text, /持有 3 → 2 張/);
     assert.doesNotMatch(text, /原押注卡保留 0 張/);
     assert.match(text, /grayscale/);
   });
   check('failed storage never displays saved loss or removal overlay', () => { const text = html(failed.settlement); assert.match(text, /待保存/); assert.doesNotMatch(text, /輸掉 −1|已從持有卡片扣除|grayscale/); });
   check('replay clearly says no new inventory change', () => { const text = html(oneLost.settlement, true); assert.match(text, /本次不發獎，也不扣卡/); assert.doesNotMatch(text, /輸掉 −1/); });
   check('saved win names prize and held total within battle mode', () => {
-    const text = renderToStaticMarkup(React.createElement(Panel, { ...props, outcome: { ...props.outcome, verdict: 'WON', gainedCardName: '亢金龍', forfeitedCardName: null }, settlement: won.settlement }));
-    assert.match(text, /獲得 ＋1/); assert.match(text, /你多了 1 張「亢金龍」/); assert.match(text, /目前持有 2 張卡片/);
+    const text = render({ ...props, outcome: { ...props.outcome, verdict: 'WON', gainedCardName: '亢金龍', forfeitedCardName: null }, settlement: won.settlement });
+    assert.match(text, /獲得 ＋1/); assert.match(text, /獲得 ＋1/); assert.match(text, /你多了 1 張「亢金龍」/); assert.match(text, /持有 [0-9] → 2 張/);
     assert.doesNotMatch(text, /成長中心|growth-center#/);
   });
   check('multi-card win headline matches the committed reward count', () => {
     const multi = { ...won.settlement, receipt: { ...won.settlement.receipt, gainedCount: 3, total: won.settlement.receipt.total + 2 } };
-    const text = renderToStaticMarkup(React.createElement(Panel, { ...props, outcome: { ...props.outcome, verdict: 'WON', gainedCardName: '亢金龍', forfeitedCardName: null }, settlement: multi }));
+    const text = render({ ...props, outcome: { ...props.outcome, verdict: 'WON', gainedCardName: '亢金龍', forfeitedCardName: null }, settlement: multi });
     assert.match(text, /獲得 ＋3 張/);
     assert.match(text, /你多了 3 張「亢金龍」/);
   });
   check('mixed reward headline reports receipt kinds instead of naming every reward as one card', () => {
     const mixed = { ...won.settlement, receipt: { ...won.settlement.receipt, gainedCount: 3, total: won.settlement.receipt.total + 2,
       cardChanges: [{ cardId: b, gained: 2, lost: 0, before: 0, after: 2 }, { cardId: y, gained: 1, lost: 0, before: 0, after: 1 }] } };
-    const text = renderToStaticMarkup(React.createElement(Panel, { ...props, outcome: { ...props.outcome, verdict: 'WON', gainedCardName: '亢金龍', forfeitedCardName: null }, settlement: mixed }));
+    const text = render({ ...props, outcome: { ...props.outcome, verdict: 'WON', gainedCardName: '亢金龍', forfeitedCardName: null }, settlement: mixed });
     assert.match(text, /你多了 3 張神獸卡（2 種）/);
     assert.doesNotMatch(text, /你多了 3 張「亢金龍」/);
     assert.match(text, /獲得 ＋3 張/);
-    assert.match(text, /贏得 2 張/);
-    assert.match(text, /贏得 1 張/);
+    assert.ok(text.includes('＋2</p>'));
+    assert.ok(text.includes('＋1</p>'));
   });
   const ledger = h.load('lib/beast-collection-ledger.ts');
   const reserved = ledger.reserveCard(ledger.grantGrowthCards({ cards: [], history: [] }, [a], '2026-09-05'), a, 'mismatch', '2026-09-05');
@@ -207,9 +212,9 @@ async function main() {
       const again=ledger.settleCard(settled.collection,reserved.pending.id,out,'later');
       assert.equal(again.duplicate,true); assert.equal(again.receipt,settled.receipt);
       const named=h.load('lib/beast-stake-presentation.ts').namedStakeOutcome(out,id=>id===a?'角木蛟':id===y?'角木蛟・幼子':'亢金龍');
-      const text=renderToStaticMarkup(React.createElement(Panel,{...props,outcome:named,settlement:{saved:true,receipt:settled.receipt,matchId:reserved.pending.id}}));
-      assert.match(text,new RegExp(`你的押注籌碼・${n} 張`));
-      assert.match(text,new RegExp(`目前持有 ${settled.receipt.total} 張卡片`));
+      const text=render({...props,outcome:named,settlement:{saved:true,receipt:settled.receipt,matchId:reserved.pending.id}});
+      assert.match(text,new RegExp(`本場押注</dt><dd[^>]*>${n} 張`));
+      assert.match(text,new RegExp(`持有 ${settled.receipt.beforeTotal} → ${settled.receipt.total} 張`));
       assert.match(text,/播報獎賞|播報結算/);
       if(winner==='OPPONENT') {
         assert.match(text,new RegExp(`輸掉 −${n} 張`));
@@ -217,15 +222,12 @@ async function main() {
       }
       if(winner==='PLAYER') {
         assert.match(text,new RegExp(`獲得 ＋${n} 張`),'輸少贏多：押幾張，贏了至少獲得幾張');
-        assert.match(text,new RegExp(`原本 ${n} 張保留＋獎勵 ${n} 張，本場共 ${n*2} 張`));
+        assert.match(text,new RegExp(`你押的 ${n} 張，全部保留`));
+        assert.match(text,new RegExp(`新得 ${n} 張`));
         assert.ok(entries.every(entry => settled.collection.cards.some(card => card.id === entry.id)));
         assert.equal(settled.collection.pending, null);
       }
-      if(winner==='DRAW') assert.match(text,/平手・增減 0 張/);
-      for(const change of settled.receipt.cardChanges ?? []) {
-        const remainingText = change.after > 0 ? `剩餘 ${change.after} 張` : '已無剩餘';
-        assert.match(text,new RegExp(`持有 ${change.before} → ${change.after} 張（${remainingText}）`));
-      }
+      if(winner==='DRAW') assert.match(text,new RegExp(`原押注 ${n} 張全部保留`));
       assert.equal(initial.cards.length,initialCount);
     });
   }

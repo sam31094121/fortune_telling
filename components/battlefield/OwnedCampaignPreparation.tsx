@@ -4,6 +4,7 @@ import { memo, useMemo } from 'react';
 import CatalogBeastCard from './CatalogBeastCard';
 import type { StakeCard } from './StakeSlot';
 import styles from './OwnedCampaignPreparation.module.css';
+import {readSharedCultivation} from '@/lib/beast-cultivation-client';
 
 /**
  * 親選五張出戰卡。
@@ -11,9 +12,10 @@ import styles from './OwnedCampaignPreparation.module.css';
  * 把每一張副本各列一格只會讓畫面又長又卡。實際送出的仍是真實副本 id，後端照舊驗證。
  * 用 memo 包起來：押注加碼、換分頁這些與陣容無關的狀態變動不會重畫整排卡面。
  */
-function OwnedCampaignPreparation({ owned, selected, busy, onToggle, onConfirm }: {
+function OwnedCampaignPreparation({ owned, selected, busy, onToggle, onConfirm, onReplace }: {
   owned: StakeCard[]; selected: string[]; busy: boolean;
   onToggle: (id: string) => void; onConfirm: () => void;
+  onReplace:(oldId:string,newId:string)=>void;
 }) {
   const kinds = useMemo(() => {
     const map = new Map<string, { head: StakeCard; ids: string[] }>();
@@ -40,6 +42,7 @@ function OwnedCampaignPreparation({ owned, selected, busy, onToggle, onConfirm }
         </button>;
       })}
     </div>
+    {selected.map((id,index)=>{const card=owned.find(c=>c.id===id);if(!card)return null;const copies=owned.filter(c=>c.cardId===card.cardId),view=readSharedCultivation();return <label key={id} style={{display:'block',margin:'12px 0'}}>第 {index+1} 位・{card.name}<select data-card-owned-copy={card.cardId} value={id} disabled={busy} onChange={e=>onReplace(id,e.target.value)} style={{display:'block',minHeight:48,maxWidth:'100%'}}>{copies.map((c,i)=>{const stats=view?.cards.find(s=>s.id===c.id);return <option key={c.id} value={c.id}>收藏第 {i+1} 份{stats?`・永久 +${stats.bonus}・攻擊 ${stats.battleAttack}`:''}</option>;})}</select></label>;})}
     <button type="button" className={styles.confirm} data-confirm-owned-team disabled={busy || selected.length !== 5} onClick={onConfirm}>
       {busy ? '正在準備陣容…' : '確認五張，前往押注'}
     </button>

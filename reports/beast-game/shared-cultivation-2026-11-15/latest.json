@@ -1,0 +1,272 @@
+{
+  "moves": 4,
+  "errors": [],
+  "requests": [
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "LOCAL_GRANTS",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "ORB_PROFILE",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "LOCAL_GRANTS",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "MAIN_TEAM",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "ORB_PROFILE",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "PREVIEW",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "FUSE",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "ORB_PROFILE",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "PREVIEW",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "FUSE",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "ORB_PROFILE",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "ORB_PROFILE",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "ORB_BEGIN",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "ORB_BEGIN",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/orb-treasures",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/orb-treasures",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/orb-turn",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/orb-turn",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/orb-turn",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/orb-turn",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/orb-turn",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "ORB_PROFILE",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "LOCAL_GRANTS",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "PROGRESS",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "DEAL",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "LOCAL_GRANTS",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "PROGRESS",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "DEAL",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "START",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "ACTION",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "RESUME",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "ACTION",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "AUTO",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "ACTION",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "AUTO",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "AUTO",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "AUTO",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "ACTION",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "AUTO",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "AUTO",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "ACTION",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/battlefield",
+      "type": "AUTO",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "LOCAL_GRANTS",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "LOCAL_GRANTS",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "LOCAL_GRANTS",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "LOCAL_GRANTS",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "ORB_PROFILE",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "ORB_BEGIN",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/orb-treasures",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "ORB_BEGIN",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/orb-treasures",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "RELEASE",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "LOCAL_GRANTS",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "ORB_PROFILE",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8888/api/beast-game/cultivation",
+      "type": "LOCAL_GRANTS",
+      "status": 200
+    }
+  ]
+}

@@ -161,7 +161,12 @@ try {
     }
     assert.equal(await js('document.querySelectorAll("[data-testid=match3-replay-lines]").length'),0,'no stale line after settlement');
     assert.deepEqual(observed.events.filter(e=>e.count!==undefined).map(e=>e.count),expected.flatMap(f=>f.matches.map(g=>g.count)));
-    const final=await snap();assert.equal(final.damage,observed.turn.damage+observed.turn.startDamage+observed.turn.endDamage);
+    const final=await snap();
+    // 手機版兩張卡各有 50 能量時，連線打完會自動接著發動「連線攻擊」（72e0182，2026-11-11），所以畫面上的「最後傷害」是最後一個回合的：
+    // 連線／能量技回 actualDamage，一般回合回 damage＋起手＋收尾。只比第一手會把自動連線攻擊的傷害（常等於敵人全部血量）誤判成不一致。
+    const lastTurn=await js('window.__turns.at(-1)');
+    const expectedLastDamage=lastTurn.action==='link'||lastTurn.action==='energy'?lastTurn.actualDamage:lastTurn.damage+lastTurn.startDamage+lastTurn.endDamage;
+    assert.equal(final.damage,expectedLastDamage);
     final.cells.forEach(c=>{assert.equal(c.el,observed.turn.res.board[c.r][c.c]);assert.equal(c.mp,observed.turn.res.magic[c.r][c.c]);});
     assert(final.scroll<=width);results.push({case:'recorded match then clear',width,length,reduced,chains:expected.length});
     writeFileSync(path.join(output,'replay-'+width+'-'+length+(reduced?'-reduced':'')+'.json'),JSON.stringify(observed,null,2));
