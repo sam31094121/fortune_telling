@@ -608,7 +608,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   }, [lastFoeReady, busy]);
   // 已倒下但死亡演出還沒播完的敵卡：等它退場後才放大最後一隻，避免「空卡框＋最後一隻」上下疊成兩張大卡、整個版面跳兩次（1280 時我方隊伍被擠出畫面）。
   const foeExiting = foes.some(f => f.hp <= 0 && !retiredFoes.has(f.id));
-  const lastFoeLive = lastFoeReady && lastFoeSettled && !foeExiting;
+  const lastFoeBig = lastFoeReady && lastFoeSettled && !foeExiting;
   // 業主 2026-11-11（手機實測回報）：我方只剩最後一隻神獸時，同樣放大成魔王般的大卡片（與敵方對稱）。
   const lastAllyReady = rigEnabled && team.length > 1 && !over && team.filter(u => u.hp > 0).length === 1;
   const [lastAllySettled, setLastAllySettled] = useState(false);
@@ -623,12 +623,12 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const heldLayout = useRef<HeldBattleLayout | null>(null);
   if (!over) {
     heldLayout.current = null;
-    liveLayout.current = { guardianDuel: guardianDuelLive, lastFoe: lastFoeLive, lastAlly: lastAllyLive, lastAllyId: lastAllyLive ? team.find(u => u.hp > 0)?.id ?? null : null, foeIds: foes.filter(f => !(f.hp <= 0 && retiredFoes.has(f.id))).map(f => f.id) };
+    liveLayout.current = { guardianDuel: guardianDuelLive, lastFoe: lastFoeBig, lastAlly: lastAllyLive, lastAllyId: lastAllyLive ? team.find(u => u.hp > 0)?.id ?? null : null, foeIds: foes.filter(f => !(f.hp <= 0 && retiredFoes.has(f.id))).map(f => f.id) };
   } else heldLayout.current ??= liveLayout.current;
   const held = over ? heldLayout.current : null;
   const guardianDuel = held ? held.guardianDuel : guardianDuelLive;
-  const lastFoeBig = held ? held.lastFoe : lastFoeLive;
-  const bigFoe = guardianDuel || lastFoeBig;
+  const lastFoeShown = held ? held.lastFoe : lastFoeBig;
+  const bigFoe = guardianDuel || lastFoeShown;
   const lastAllyBig = held ? held.lastAlly : lastAllyLive;
   const duelRig = guardianDuel ? rigFor(foes[4].id) : null;
   const duelArt = duelRig ? rigFrameUrl(duelRig, duelRig.frames.some(frame => frame.id === 'land-crouch') ? 'land-crouch' : 'run-reach') : null;
@@ -1123,7 +1123,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       {debug && <div className={styles.sub} data-testid="match3-debug">[debug] 正式神獸卡 5v5・{cfg.cols}×{cfg.rows}＝{cfg.cols * cfg.rows} 顆寶珠・敵方 HP {cfg.enemyHp}／攻 {cfg.enemyAtk}／每 {cfg.counterEvery} 步反擊【待平衡】{cfg.diagonal ? '・可斜連' : ''}・seed {init.seed}</div>}
 
       <div className={rigEnabled ? styles.srOnly : styles.secHead}><span>{rigEnabled ? '敵方神獸（點選指定目標；出手時標示反擊中）' : '敵方神獸（點選指定目標；⏳ 為反擊倒數）'}</span><span>{over === 'win' ? '勝利' : over === 'lose' ? '落敗' : '戰鬥進行中'}</span></div>
-      <div className={`${styles.foes} ${rigEnabled && stage.simultaneous && counterFoes.size > 1 ? styles.fourBeastUnion : ''}`} style={rigEnabled ? { gridTemplateColumns: `repeat(${foes.length}, minmax(0, 1fr))` } : undefined} data-testid="match3-enemies" data-guardian-duel={bigFoe || undefined} data-last-foe={lastFoeBig || undefined}>
+      <div className={`${styles.foes} ${rigEnabled && stage.simultaneous && counterFoes.size > 1 ? styles.fourBeastUnion : ''}`} style={rigEnabled ? { gridTemplateColumns: `repeat(${foes.length}, minmax(0, 1fr))` } : undefined} data-testid="match3-enemies" data-guardian-duel={bigFoe || undefined} data-last-foe={lastFoeShown || undefined}>
         {foes.map((f, i) => rigEnabled && f.hp <= 0 && retiredFoes.has(f.id) && !held?.foeIds.includes(f.id) ? null : (
           <button type="button" key={bigFoe ? `${f.id}:big` : f.id} data-testid="match3-enemy" data-id={f.id} data-held-retired={(rigEnabled && f.hp <= 0 && retiredFoes.has(f.id)) || undefined} data-hp={f.hp} data-cd={f.cd} data-target={i === ti ? '1' : '0'}
             disabled={!enemyReady(i)} data-waiting={f.hp > 0 && !enemyReady(i) ? 'true' : undefined} onClick={() => { if (enemyReady(i)) { setTarget(i); setLog(`目標改為${f.name}。`); } }}
