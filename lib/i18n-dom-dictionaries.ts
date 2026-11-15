@@ -23,15 +23,23 @@ function fromDictionary(dict: Record<string, string>): Translate {
   return text => dict[text] ?? dict[text.replace(/\s+/g, ' ')];
 }
 
+/** AUDIT-2 H5：神獸戰鬥頁（寶珠闖關）新增文字；排在既有字典之後，只補既有字典沒有的句子。 */
+async function withMatch3Copy(locale: 'en' | 'ja' | 'ko', base: Translate): Promise<Translate> {
+  const { createMatch3Translator, onMatch3Page } = await import('@/lib/i18n-copy/match3');
+  const m3 = createMatch3Translator(locale);
+  return text => base(text) ?? (onMatch3Page() ? m3(text) ?? m3(text.replace(/\s+/g, ' ')) : undefined);
+}
+
 export async function loadDisplayTranslator(language: InterfaceLanguage): Promise<Translate | null> {
   if (language === 'zh-Hant') return null;
   if (language === 'zh-Hans') {
-    const { toSimplified } = await import('@/lib/zh-hans/convert');
+    const [{ toSimplified }, { fixMatch3Hans }] = await Promise.all([import('@/lib/zh-hans/convert'), import('@/lib/i18n-copy/match3')]);
     const cache = new Map<string, string>();
+    // AUDIT-2 H5：神獸戰鬥頁再補大陸用語（伺服端→服务器等）；快取只存全站轉換結果，補正每次依頁面判斷。
     return text => {
       let out = cache.get(text);
       if (out === undefined) { out = toSimplified(text); if (cache.size > 5000) cache.clear(); cache.set(text, out); }
-      return out;
+      return fixMatch3Hans(out);
     };
   }
   const { phase1Copy } = await import('@/lib/i18n-copy/phase1');
@@ -39,12 +47,12 @@ export async function loadDisplayTranslator(language: InterfaceLanguage): Promis
     const [{ birthdayEnglishCopy }, { resultEnglishCopy }, { homeEnglishCopy }, { formEnglishCopy }] = await Promise.all([
       import('@/lib/birthday-english-copy'), import('@/lib/result-english-copy'), import('@/lib/home-english-copy'), import('@/lib/form-english-copy'),
     ]);
-    return withHomeCopy('en', fromDictionary({ ...phase1Copy.en, ...birthdayEnglishCopy, ...resultEnglishCopy, ...homeEnglishCopy, ...formEnglishCopy }));
+    return withMatch3Copy('en', await withHomeCopy('en', fromDictionary({ ...phase1Copy.en, ...birthdayEnglishCopy, ...resultEnglishCopy, ...homeEnglishCopy, ...formEnglishCopy })));
   }
   if (language === 'ja') {
     const { homeJapaneseCopy } = await import('@/lib/home-japanese-copy');
-    return withHomeCopy('ja', fromDictionary({ ...phase1Copy.ja, ...homeJapaneseCopy }));
+    return withMatch3Copy('ja', await withHomeCopy('ja', fromDictionary({ ...phase1Copy.ja, ...homeJapaneseCopy })));
   }
   const { koreanCopy } = await import('@/lib/korean-copy');
-  return withHomeCopy('ko', fromDictionary({ ...phase1Copy.ko, ...koreanCopy }));
+  return withMatch3Copy('ko', await withHomeCopy('ko', fromDictionary({ ...phase1Copy.ko, ...koreanCopy })));
 }
