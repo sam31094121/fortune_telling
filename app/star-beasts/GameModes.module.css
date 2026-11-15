@@ -132,3 +132,10 @@
 .duelPhoenix { right: 4%; top: 22%; transform: rotate(-24deg); }
 .duelTitle { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 0 6px; color: #fff3df; font-family: system-ui, sans-serif; font-size: clamp(20px, 3vw, 26px); font-weight: 900; line-height: 1.4; letter-spacing: .035em; }
 .duelTitle > span { color: #dbc69e; font-size: 24px; }
+
+/* 四大神獸入口：在兩張玩法卡下方獨立一列（全寬），點進去直接到強化頁。零文字：四象縮圖＋⬆ 圖示鈕。 */
+.card.fourBeastsCard { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; gap: 12px; min-height: 128px; margin-top: 12px; padding: 16px; border-color: #b59a62; background: radial-gradient(ellipse at 20% 30%, #e6c68a26, transparent 65%), linear-gradient(145deg, #2a2418, #0b0e16); overflow: hidden; }
+.fourBeastsArt { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 320px; }
+.fourBeastsArt img { display: block; width: 100%; height: auto; aspect-ratio: 63 / 88; object-fit: cover; border-radius: 8px; border: 1px solid #e6c68a66; box-shadow: 0 4px 10px #0008; }
+.fourBeastsCta { display: inline-flex; align-items: center; justify-content: center; justify-self: center; min-width: 64px; min-height: 48px; padding: 0 18px; border-radius: 999px; background: linear-gradient(145deg, #ffe3a5, #c9973f); color: #120d02; font-size: 26px; font-weight: 900; line-height: 1; }
+@media (min-width: 900px) { .card.fourBeastsCard { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 160px; margin-top: 16px; padding: 18px 24px; gap: 24px; } .fourBeastsArt { max-width: 420px; } }

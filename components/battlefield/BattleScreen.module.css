@@ -136,6 +136,10 @@
 .split[data-stake-review='true'] > [data-battle-visual] { display: none; }
 .split[data-stake-review='true'] [data-stake-slot] > [role='group'] { order: -1; }
 .split[data-stake-review='true'] [data-needs-stake='true'] [role='group'] > button:first-child { outline: 2px solid #ffe4a6; outline-offset: -2px; }
+/* 2026-11-16 一氣貫通：出戰準備（選卡、押注、我的卡片・永久強化）在所有寬度都用全高單欄。
+   原本 >600px 時 80/20 分割只剩幾 px 捲動區：1280×800 入口被底部列蓋住、820／1920 的 ✓ 落到分頁列底下。開戰後（data-preparing 不是 true）照舊 80/20。 */
+.split[data-preparing='true'] { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+.split[data-preparing='true'] > [data-battle-visual] { display: none; }
 @media (max-width: 600px), (orientation: landscape) and (max-height: 540px) {
   /* Give preparation cards the viewport instead of squeezing them below the arena. */
   .split[data-preparing='true'] { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }

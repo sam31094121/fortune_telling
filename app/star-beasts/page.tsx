@@ -100,6 +100,9 @@ const GAME_MODES = [
   { id: 'bead-hard', step: '⑤ 寶珠困難', iconPath: 'M12 3a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M6 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M18 13a4 4 0 1 0 0 8a4 4 0 1 0 0-8', title: '寶石捷連線', desc: '56 顆寶珠、數字累加、盾牌清場，逐關挑戰', href: '/beast-game/match3-hard' },
 ] as const;
 
+// 四大神獸入口卡：沿用既有四象縮圖（青龍、朱雀、白虎、玄武），純裝飾。
+const FOUR_BEAST_ENTRY_ART = ['qinglong', 'zhuque', 'baihu', 'xuanwu'].map((key) => `/beast-game/thumb/guardian-${key}.v2.webp`);
+
 // Decorative 7×8 board artwork; no game state, rewards or customer progress.
 const ORB_ENTRY_BOARD = [
   '空風水火地風空', '火地空水火水地', '風空地火水水空', '風水水水地水水',
@@ -239,6 +242,13 @@ export default function StarBeastsPage() {
                 </li>
               ))}
             </ul>
+            {/* 2026-11-16 整合：入口零文字——四象縮圖＋⬆ 圖示，名稱只給讀屏（aria-label）。 */}
+            <Link href="/beast-game/four-beasts" data-four-beasts-entry aria-label="四大神獸・點擊直接強化" className={`${modeStyles.card} ${modeStyles.fourBeastsCard}`}>
+              <span className={modeStyles.fourBeastsArt} aria-hidden="true">
+                {FOUR_BEAST_ENTRY_ART.map((src) => <img key={src} src={src} alt="" draggable={false} />)}
+              </span>
+              <span className={modeStyles.fourBeastsCta} aria-hidden="true">⬆</span>
+            </Link>
           </nav>
           <SelfStarBeastEntry onFound={(name, reason) => { setMyGuardian(name); setMyGuardianReason(reason); window.setTimeout(goMyGuardian, 2200); }} onGo={goMyGuardian} />
           <details className="mt-4 max-w-2xl text-xs text-slate-400">
