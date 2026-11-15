@@ -17,7 +17,7 @@ import Link from 'next/link';
  * 規則不變：拖過相鄰同色 ≥3 放開發動、普通威力上限 10、≥4 生成魔法珠、剛好 5 顆魔法珠＋五珠技、每顆 +10 能量、
  * 每 3 步反擊、只有主屬性相同的卡出手、克制表 elements.ts、同屬性輔助拿一半能量。卡面只讀 .v2 新卡與 card-face-stats。
  */
-import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { BeastCardFace, cardArt480 } from './BeastCardTile';
 import { useBannerQueue } from './bead/useBannerQueue';
 import { getCard, playableCards } from '@/lib/beast-game/registry';
@@ -37,7 +37,7 @@ import {
   match3Mode, type Match3ModeConfig, type Match3ModeId,
   type Board, type Cell, type MagicGrid, type Match3Fighter, type Match3Foe, type Rng,
 } from '@/lib/beast-game/match3';
-import { DragPathSvg, dragHint, useDragChain } from './useDragChain';
+import { DragPathSvg, dragHint, useDragChainStore, useDragSnapshot, type DragStore, type TapResult } from './useDragChain';
 import styles from './Match3Board.module.css';
 import Match3ElementGlyph from './Match3ElementGlyph';
 import { RIG_IMPACT_MS, RIG_STRIKE_MS, rigFor, rigFrameUrl } from '@/lib/beast-game/beast-rig';
@@ -62,12 +62,16 @@ function duelArtVars(name: string): Record<string, string> {
 
 import { readMatch3Progress, saveMatch3Progress, type Match3ProgressOwner } from '@/lib/beast-game/match3/progress-store';
 import { readCampaign, settleWin, transactTreasures, type CampaignSettlement } from '@/lib/beast-game/match3/hard-campaign-store';
-import { validateCampaignTeam, campaignAttack, type HardCampaign } from '@/lib/beast-game/match3/hard-campaign';
+import { validateCampaignTeam, campaignAttack, enhancementUnlocked, type HardCampaign } from '@/lib/beast-game/match3/hard-campaign';
+import { campaignBattleStats } from '@/lib/beast-game/match3/feed-chain';
+import { campaignLinkDamage, feedChainEnabled } from '@/lib/beast-game/match3/merge-balance';
 import { createMatch3Sound, type Match3SoundCue } from './match3Sound';
 import { runRefillPlayback } from '@/lib/beast-game/match3/refill-runner';
+import { battleResumeEnabled, orbTurnSeed, BATTLE_SESSION_MESSAGES, type BattleCore, type BattleMeta, type BattleSessionErrorCode, type BattleUi } from '@/lib/beast-game/match3/battle-resume';
+import { acquireBattleLease, battleDeviceId, clearBattleSnapshot, readBattleSnapshot, writeBattleSnapshot, SNAPSHOT_MESSAGES } from '@/lib/beast-game/match3/battle-snapshot-store';
 import { REFILL_TIMING, refillPresentation, refillLandingTimes, fusionShieldLayout, fusionDischarge, FUSION_CLEAR_AT_MS, FUSION_DISPLAY_MS, type RefillMotion } from '@/lib/beast-game/match3/refill-presentation';
 
-interface Unit extends Match3Fighter { name: string; thumbnail: string; maxHp: number; energy: number; skillName?: string; description?: string }
+interface Unit extends Match3Fighter { name: string; thumbnail: string; maxHp: number; energy: number; skillName?: string; description?: string; /** 寶珠闖關永久強化：卡面攻擊（只供畫面顯示「攻 X ▲N」）。 */ faceAttack?: number }
 /** 全滅後等死亡特效的上限（從分出勝負起算）：一般＝命中延遲 1.12s＋6 倍降速 arm＋1.9s 動畫；魔王＝1.12s＋arm 3.4s＋4.2s 爆炸。 */
 const RESULT_HOLD_MAX_MS = 6500;
 const RESULT_HOLD_BOSS_MAX_MS = 12000;
@@ -98,7 +102,9 @@ export function pickLineup(rng: Rng, teamIds?: readonly string[] | null, mode: M
   const shuffled = pool.slice().sort(() => rng() - 0.5);
   const team: Unit[] = [];
   const foeNames = enemyNamesFor(mode.id);
-  const unit = (c: (typeof pool)[number]): Unit => { const s = CARD_FACE_STATS[c.id]; const skill = getSkill(c.skills[0]); return { skillName: skill?.name, description: skill?.description, id: c.id, name: c.name, element: c.element, thumbnail: nonGuardianBattleArt(c.id, c.art.thumbnail), attack: campaign ? campaignAttack(campaign, c.id) : s.attack, hp: s.hp, maxHp: s.hp, energy: 0 }; };
+  // PLAN-v2 B1：出戰攻擊與開局能量統一由 campaignBattleStats 算（開關關閉時＝campaignAttack、能量 0，與舊版相同）。
+  const battle = campaign && teamIds ? new Map(campaignBattleStats(campaign, teamIds).map(b => [b.cardId, b])) : null;
+  const unit = (c: (typeof pool)[number]): Unit => { const s = CARD_FACE_STATS[c.id]; const skill = getSkill(c.skills[0]); const b = battle?.get(c.id); return { skillName: skill?.name, description: skill?.description, id: c.id, name: c.name, element: c.element, thumbnail: nonGuardianBattleArt(c.id, c.art.thumbnail), attack: b ? b.attack : campaign ? campaignAttack(campaign, c.id) : s.attack, hp: s.hp, maxHp: s.hp, energy: b?.startEnergy ?? 0, ...(campaign ? { faceAttack: s.attack } : {}) }; };
   if (validTeamIds(teamIds, pool.map((c) => c.id))) for (const id of teamIds) team.push(unit(pool.find((c) => c.id === id)!));
   else for (const el of MATCH3_ORB_ELEMENTS) {
     const c = shuffled.find((x) => x.element === el && !foeNames.includes(x.name)); if (c) team.push(unit(c));
@@ -125,20 +131,106 @@ const k = (r: number, c: number) => r * 1000 + c;
 const DIAG_TIP = '相鄰同色珠三顆起可消除（可斜連）；攻擊須達本關門檻';
 /** 所有寬度都不掛載底部「連線模式／清除連線／發動連線攻擊」列；改自動連線、點滿能量卡發能量技、點空白或再點已選卡清除。 */
 
-const OrbCell = memo(function OrbCell({ r, c, e, mp, sel, flash, shake, drop, shield, fall, empty, reward }: { r: number; c: number; e: BeastElement; mp: number; shield: boolean; sel: boolean; flash: boolean; shake: boolean; drop: boolean; fall?: RefillMotion; empty?: boolean; reward?: boolean }) {
-  if (empty) return <div role="gridcell" data-r={r} data-c={c} data-empty="true" className={`${styles.orb} ${styles.emptyCell}`} aria-label="待補珠空格" />;
-  const cls = [styles.orb, ORB_CLASS[e], sel ? styles.sel : '', flash ? styles.flash : '', shake ? styles.shake : '', drop ? styles.drop : '', fall ? styles.falling : '', reward ? styles.reward : '', mp > 0 ? styles.magic : '', shield && mp >= 7 ? styles.shieldCell : ''].join(' ');
+const OrbCell = memo(function OrbCell({ r, c, e, mp, sel, flash, shake, drop, shield, fall, empty, reward, focusable = false, sg }: { r: number; c: number; e: BeastElement; mp: number; shield: boolean; sel: boolean; flash: boolean; shake: boolean; drop: boolean; fall?: RefillMotion; empty?: boolean; reward?: boolean; focusable?: boolean; sg?: 'a' | 'b' | 'c' }) {
+  if (empty) return <div role="gridcell" data-r={r} data-c={c} data-empty="true" className={`${styles.orb} ${styles.emptyCell}`} aria-label="待補珠空格" tabIndex={focusable ? 0 : -1} />;
+  const cls = [styles.orb, ORB_CLASS[e], flash ? styles.flash : '', shake ? styles.shake : '', drop ? styles.drop : '', fall ? styles.falling : '', reward ? styles.reward : '', mp > 0 ? styles.magic : '', shield && mp >= 7 ? styles.shieldCell : ''].join(' ');
   return (
-    <div role="gridcell" data-r={r} data-c={c} data-el={e} data-magic={mp || undefined} className={cls}
+    <div role="gridcell" data-r={r} data-c={c} data-el={e} data-magic={mp || undefined} className={cls} data-sg={sg} data-orb-sel={sel ? 'true' : undefined} tabIndex={focusable ? 0 : -1} aria-selected={sel}
       data-fall-from={fall?.fromRow} data-fall-delay={fall?.delayMs}
       style={fall ? { ['--fall-offset' as string]: `calc(-${(r - fall.fromRow) * 100}% - ${r - fall.fromRow} * var(--orb-gap))`, ['--fall-delay' as string]: `${fall.delayMs}ms`, ['--fall-duration' as string]: `${fall.durationMs}ms`, ['--fall-opacity' as string]: fall.fromRow < 0 ? 0 : 1 } : undefined}
       aria-label={`${MATCH3_ORB_LABEL[e]}${mp ? `魔法珠威力${mp}` : '珠'}`}>
-      <span className={styles.gem} aria-hidden="true" />
+      <span className={styles.gem} aria-hidden="true">{!mp && <i className={styles.sweep} />}</span>
       {shield ? (mp < 7 && <Match3ElementGlyph element={e} className={styles.elementGlyph} />) : <span className={styles.lbl} aria-hidden="true">{MATCH3_ORB_LABEL[e]}</span>}
       {mp > 0 && (shield && mp >= 7 ? <img className={styles.shieldOrb} src="/pwa/save-shield-080.png" alt={`080 ${MATCH3_ORB_LABEL[e]}屬性清場盾牌`} draggable={false} /> : <span className={styles.power} aria-hidden="true">{mp}</span>)}
     </div>
   );
 });
+
+/** AUDIT-2 H1：原本 nth-child(3n+1)／(3n+2)／(3n) 三組掃光相位（盤面子元素順序＝r*cols+c+1）。 */
+const SWEEP_GROUP = ['c', 'a', 'b'] as const;
+/**
+ * AUDIT-2 H1：掃光時鐘。原本每顆 11 秒週期、0–86% 靜止，三組延遲 0／-3.7／-7.3 秒；
+ * 換算成每 11 秒內的掃光窗：b 組 2.16–3.70 秒、a 組 5.76–7.30 秒、c 組 9.46–11.00 秒。只在窗內掛動畫。
+ * 拖曳中、分頁隱藏、偏好減少動態時不開新的掃光（減少動態時本來就不掃）。
+ */
+const SWEEP_WINDOWS: ReadonlyArray<readonly [number, number, 'a' | 'b' | 'c']> = [[2160, 3700, 'b'], [5760, 7300, 'a'], [9460, 11000, 'c']];
+function useSweepClock(host: React.RefObject<HTMLDivElement | null>) {
+  useEffect(() => {
+    if (typeof window === 'undefined' || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const t0 = performance.now(); let timer = 0;
+    const tick = () => {
+      const h = host.current; const t = (performance.now() - t0) % 11000;
+      const win = SWEEP_WINDOWS.find(([a, b]) => t >= a && t < b);
+      if (h) {
+        const cur = h.getAttribute('data-sweep');
+        const want = win && !document.hidden && !h.hasAttribute('data-dragging') ? win[2] : null;
+        if (want && cur !== want) h.setAttribute('data-sweep', want);
+        else if (!win && cur) h.removeAttribute('data-sweep');
+      }
+      const next = win ? win[1] : (SWEEP_WINDOWS.find(([a]) => a > t)?.[0] ?? 11000 + SWEEP_WINDOWS[0][0]);
+      timer = window.setTimeout(tick, Math.max(16, next - t));
+    };
+    tick();
+    return () => { window.clearTimeout(timer); host.current?.removeAttribute('data-sweep'); };
+  }, [host]);
+}
+/**
+ * AUDIT-2 H2：盤面格子單獨訂閱拖曳狀態——按下、拖曳、放開只重畫這一層（格子本身是 memo，只有選取狀態變的格子會重畫）。
+ * AUDIT-2 H8：每一列包一層 role="row"（display: contents，不影響格線排版）；格子用 roving tabindex，方向鍵移動、Enter／空白鍵選取。
+ */
+const BoardCells = memo(function BoardCells({ store, board, magic, rig, refillEpoch, flash, shake, drop, falling, emptyCells, rewards, onKey, onCancel }: { store: DragStore; board: Board; magic: MagicGrid; rig: boolean; refillEpoch: number; flash: Set<number>; shake: Set<number>; drop: Set<number>; falling: Map<number, RefillMotion>; emptyCells: Set<number>; rewards: Set<number>; onKey: (cell: Cell) => TapResult; onCancel: () => void }) {
+  const { path } = useDragSnapshot(store);
+  const onPath = useMemo(() => new Set(path.map((p) => k(p.r, p.c))), [path]);
+  const rows = board.length, cols = board[0]?.length ?? 0;
+  const [focus, setFocus] = useState<Cell>({ r: 0, c: 0 });
+  const host = useRef<HTMLDivElement | null>(null);
+  const move = (r: number, c: number) => {
+    const next = { r: Math.max(0, Math.min(rows - 1, r)), c: Math.max(0, Math.min(cols - 1, c)) };
+    setFocus(next);
+    (host.current?.parentElement?.querySelector(`[data-r="${next.r}"][data-c="${next.c}"]`) as HTMLElement | null)?.focus();
+  };
+  const onKeyDown = (ev: ReactKeyboardEvent<HTMLDivElement>) => {
+    const t = (ev.target as HTMLElement).closest('[data-r]') as HTMLElement | null; if (!t) return;
+    const r = Number(t.dataset.r), c = Number(t.dataset.c);
+    const d: Record<string, [number, number]> = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1], Home: [0, -cols], End: [0, cols] };
+    if (d[ev.key]) { ev.preventDefault(); move(r + d[ev.key][0], c + d[ev.key][1]); return; }
+    if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); setFocus({ r, c }); onKey({ r, c }); }
+    if (ev.key === 'Escape') { ev.preventDefault(); onCancel(); }
+  };
+  return <div ref={host} role="presentation" style={{ display: 'contents' }} onKeyDown={onKeyDown} onFocus={(ev) => { const t = (ev.target as HTMLElement).closest('[data-r]') as HTMLElement | null; if (t) { const r = Number(t.dataset.r), c = Number(t.dataset.c); if (r !== focus.r || c !== focus.c) setFocus({ r, c }); } }}>
+    {board.map((row, r) => <div role="row" key={r} style={{ display: 'contents' }}>{row.map((e, c) => { const kk = k(r, c); return (
+      <OrbCell key={`${r}-${c}-${rig ? refillEpoch : 0}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} shield={rig} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} fall={falling.get(kk)} empty={emptyCells.has(kk)} reward={rewards.has(kk)} focusable={focus.r === r && focus.c === c} sg={SWEEP_GROUP[(r * cols + c + 1) % 3]} />); })}</div>)}
+  </div>;
+});
+/** AUDIT-2 H2：拖曳線與「連線意圖」只跟著拖曳重畫。 */
+function DragLayer({ store, board, magic, rig, minChain, host }: { store: DragStore; board: Board; magic: MagicGrid; rig: boolean; minChain: number; host: React.RefObject<HTMLDivElement | null> }) {
+  const { path, points } = useDragSnapshot(store);
+  const dragEl = path.length ? board[path[0].r]?.[path[0].c] : null;
+  const intent = dragIntent(path, magic, rig ? minChain : 3, rig, board);
+  useLayoutEffect(() => { const h = host.current; if (!h) return; if (rig) h.setAttribute('data-chain-intent', String(intent)); else h.removeAttribute('data-chain-intent'); }, [intent, rig, host]);
+  return <DragPathSvg points={points} color={dragEl ? ORB_COLOR[dragEl] : '#fff'} luminous={rig} persistent />;
+}
+/** AUDIT-2 H2＋M4：提示字只跟著拖曳重畫；不再設 aria-live（避免和戰鬥紀錄重複唸）。點選／鍵盤操作另有一個只播連線狀態的 live 區。 */
+function DragHint({ store, board, magic, rig, minChain, fallback, className }: { store: DragStore; board: Board; magic: MagicGrid; rig: boolean; minChain: number; fallback: string; className: string }) {
+  const { path, via } = useDragSnapshot(store);
+  const dragEl = path.length ? board[path[0].r]?.[path[0].c] : null;
+  const intent = dragIntent(path, magic, rig ? minChain : 3, rig, board);
+  const effectiveCount = rig ? effectiveDragCount(path, magic) : path.length;
+  const hint = rig && isShieldFusionPath(path, magic) ? intent === 'attack' ? '同屬性盾牌合擊：其餘同色寶珠轉為盾牌' : '盾牌合體：依顏色數結算防護與回復' : dragEl && rig && path.length >= 3 && effectiveCount < minChain ? `合計 ${effectiveCount} 顆：只消除補珠，本關需 ${minChain} 顆才會攻擊` : dragEl ? dragHint(effectiveCount, MATCH3_ORB_LABEL[dragEl], NORMAL_POWER_CAP, MAGIC_ORB_MIN_LENGTH, SKILL5_LENGTH) : '';
+  return <>
+    <p className={className} data-testid="match3-hint">{hint || fallback}</p>
+    <span className={styles.srOnly} aria-live="polite" data-testid="match3-chain-status">{via !== 'pointer' && path.length ? `已選 ${path.length} 顆。${hint}` : ''}</span>
+  </>;
+}
+/** AUDIT-2 H8：點選模式／鍵盤選到一半時的「確認出手」「取消」。 */
+function TapActions({ store, onSubmit, onCancel, disabled }: { store: DragStore; onSubmit: () => void; onCancel: () => void; disabled: boolean }) {
+  const { path, via } = useDragSnapshot(store);
+  if (via === 'pointer' || !path.length) return null;
+  return <div className={styles.tapActions} data-testid="match3-tap-actions">
+    <button type="button" data-testid="match3-tap-submit" disabled={disabled} onClick={onSubmit}>{`確認出手（${path.length} 顆）`}</button>
+    <button type="button" data-testid="match3-tap-cancel" onClick={onCancel}>取消</button>
+  </div>;
+}
 
 function changedCells(prev: Board, next: Board): Set<number> {
   const s = new Set<number>();
@@ -157,29 +249,104 @@ function beep(freq: number) {
 }
 
 export interface TreasurePractice { scenario?: string; board: Board; magic: MagicGrid; book: TreasureBook; catalog: ReturnType<typeof treasureCatalog> }
-export interface Match3BoardProps { treasurePractice?: TreasurePractice; seed?: number; teamIds?: readonly string[] | null; sameElementRule?: SameElementRule; onRepick?: () => void; mode?: Match3ModeId; progressOwner?: Match3ProgressOwner; campaignEnabled?: boolean; onCampaignContinue?: () => void; /** 覆寫用；未給＝第 8 關起殿後的四大神獸（reservedGuardianBossRule，與 foeAvailable 同源）。 */ isFinalBoss?: FinalBossRule }
-export default function Match3Board({ treasurePractice, seed, teamIds, sameElementRule = DEFAULT_SAME_ELEMENT_RULE, onRepick, mode, progressOwner = null, campaignEnabled = false, onCampaignContinue, isFinalBoss }: Match3BoardProps) {
+export interface Match3BoardProps { treasurePractice?: TreasurePractice; seed?: number; teamIds?: readonly string[] | null; sameElementRule?: SameElementRule; onRepick?: () => void; mode?: Match3ModeId; progressOwner?: Match3ProgressOwner; campaignEnabled?: boolean; onCampaignContinue?: () => void; /** PLAN-v2 B4：勝利畫面「去強化」。 */ onEnhance?: () => void; /** 覆寫用；未給＝第 8 關起殿後的四大神獸（reservedGuardianBossRule，與 foeAvailable 同源）。 */ isFinalBoss?: FinalBossRule }
+export default function Match3Board({ treasurePractice, seed, teamIds, sameElementRule = DEFAULT_SAME_ELEMENT_RULE, onRepick, mode, progressOwner = null, campaignEnabled = false, onCampaignContinue, onEnhance, isFinalBoss }: Match3BoardProps) {
   const cfg = match3Mode(mode);
-  const [init, setInit] = useState<{ rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner; revision: number } | null>(null);
+  const [init, setInit] = useState<GameInit | null>(null);
   const revision = useRef(0);
   const [initError, setInitError] = useState('');
+  const [initRetry, setInitRetry] = useState(0);
   const key = teamIds?.join(',') ?? '';
   useEffect(() => {
-    const initialize = () => {
+    let cancelled = false, release: () => void = () => {};
+    const initialize = async () => {
       const s = seed ?? (Date.now() % 100000); const rng = seededRng(s);
       const owner = cfg.id === 'medium' ? null : progressOwner;
       const campaign = campaignEnabled && owner ? readCampaign(owner) : null;
       if (campaignEnabled && (!campaign?.ok || !campaign.profile)) { setInitError(campaign?.error ?? '請先選擇主角及夥伴'); return; }
+      // PLAN-v2 A6：寶珠闖關（困難模式）中途重整接回原戰局。開關關閉、試玩或非闖關一律走舊流程。
+      const resumeOn = battleResumeEnabled() && campaignEnabled && !!owner && !treasurePractice && (cfg.id === 'hard45' || cfg.id === 'hard45b');
+      let notice: string | undefined;
+      let degraded = false;
+      if (resumeOn && owner && campaign?.profile) {
+        let lease = await acquireBattleLease(owner);
+        for (let i = 0; !lease.ok && i < 4 && !cancelled; i++) { await new Promise(r => setTimeout(r, 250)); lease = await acquireBattleLease(owner); }
+        if (cancelled) { lease.release(); return; }
+        if (!lease.ok) { setInitError(SNAPSHOT_MESSAGES.otherTab); return; }
+        release = lease.release;
+        const device = battleDeviceId();
+        const snap = readBattleSnapshot(owner);
+        if (snap.status === 'unavailable') { setInitError(snap.message); return; }
+        if (snap.status === 'corrupt' || snap.status === 'expired') { clearBattleSnapshot(owner); notice = snap.message; }
+        if (snap.status === 'ok') {
+          const sn = snap.snapshot;
+          if (campaign.profile.receipts.some(r => r.matchId === sn.meta.battleId)) clearBattleSnapshot(owner); // 已結算：殘留快照直接清掉
+          // AUDIT-2 M3：關卡或模式對不上＝進度變更（例如匯入備份），不是竄改；照實說明。
+          else if (sn.meta.mode !== cfg.id || sn.meta.wins !== campaign.profile.wins) { clearBattleSnapshot(owner); notice = SNAPSHOT_MESSAGES.progressChanged; }
+          else {
+            let res: Response;
+            try { res = await fetch('/api/beast-game/orb-battle-record', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'resume', token: sn.session.token, meta: sn.meta, core: sn.core, device }), signal: AbortSignal.timeout(15000) }); }
+            catch { if (!cancelled) setInitError(SNAPSHOT_MESSAGES.network); return; }
+            const j = await res.json().catch(() => null) as { ok?: boolean; code?: BattleSessionErrorCode; error?: string; meta?: BattleMeta; core?: BattleCore; session?: { token: string; seq: number }; advanced?: boolean } | null;
+            if (cancelled) return;
+            if (res.ok && j?.ok && j.meta && j.core && j.session) {
+              const ui = sn.ui;
+              writeBattleSnapshot({ ...sn, meta: j.meta, core: j.core, session: j.session, savedAt: Date.now() });
+              setInit({ rng, seed: j.meta.seed, wins: j.meta.wins, owner, revision: ++revision.current, team: j.core.team as unknown as Unit[], enemies: j.core.foes as unknown as Foe[], board: j.core.board,
+                session: { meta: j.meta, core: j.core, token: j.session.token, seq: j.session.seq, device, ui }, notice: j.advanced ? SNAPSHOT_MESSAGES.resumedAdvanced : SNAPSHOT_MESSAGES.resumed });
+              return;
+            }
+            // AUDIT-2 X1–X3：伺服端沒有共用戰局儲存 → 這一局降級為一般模式（不帶收據），照實提示。
+            if (res.status === 503 && j?.code === 'unavailable') { clearBattleSnapshot(owner); notice = BATTLE_SESSION_MESSAGES.unavailable; degraded = true; }
+            else if (!j?.code || res.status >= 500) { setInitError(SNAPSHOT_MESSAGES.network); return; }
+            else if (j.code === 'rate-limited') { setInitError(BATTLE_SESSION_MESSAGES['rate-limited']); return; }
+            else {
+              clearBattleSnapshot(owner);
+              notice = j.code === 'settled' ? undefined : (j.error ?? BATTLE_SESSION_MESSAGES[j.code]) + (j.code === 'closed' ? '已為你準備新的一局。' : '');
+            }
+          }
+        }
+      }
       if (campaign?.profile && !validateCampaignTeam(campaign.profile, teamIds ?? [])) { setInitError('請先選擇主角及四張已解鎖夥伴'); return; }
       const wins = cfg.id === 'medium' ? 0 : campaign?.profile?.wins ?? readMatch3Progress(owner);
-      setInit({ rng, seed: s, wins, owner, revision: ++revision.current, ...pickLineup(rng, teamIds, cfg, wins, campaign?.profile), board: generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, cfg.id === 'medium' ? 3 : progressionStage(wins).minChain) });
+      const lineup = pickLineup(rng, teamIds, cfg, wins, campaign?.profile);
+      const board = generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, cfg.id === 'medium' ? 3 : progressionStage(wins).minChain);
+      if (resumeOn && owner && !degraded) {
+        // 開局向伺服端登記：拿到 battleId 與第 0 號收據之後才能出手（沒有收據就沒有勝利結算）。
+        const device = battleDeviceId();
+        const core: BattleCore = { board, magic: emptyMagic(board), team: lineup.team as unknown as BattleCore['team'], foes: lineup.enemies as unknown as BattleCore['foes'], move: 0, attackBoost: 1, treasureGuard: 1 };
+        let j: { ok?: boolean; code?: BattleSessionErrorCode; meta?: BattleMeta; session?: { token: string; seq: number }; error?: string } | null = null;
+        try { const res = await fetch('/api/beast-game/orb-battle-record', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'start', meta: { mode: cfg.id, wins, seed: s, rule: sameElementRule }, core, device }), signal: AbortSignal.timeout(15000) }); j = await res.json().catch(() => null); }
+        catch { j = null; }
+        if (cancelled) return;
+        // AUDIT-2 X1–X3：伺服端回 unavailable（沒有共用儲存或金鑰）→ 這一局改走一般模式，照實提示；不擋玩家開打。
+        if (j?.code === 'unavailable') { setInit({ rng, seed: s, wins, owner, revision: ++revision.current, ...lineup, board, notice: [notice, BATTLE_SESSION_MESSAGES.unavailable].filter(Boolean).join(' ') }); return; }
+        if (!j?.ok || !j.meta || !j.session) { setInitError(j?.error ? '暫時無法建立戰局紀錄：' + j.error : '暫時無法建立戰局紀錄，請確認網路後按「重試」。'); return; }
+        const plain = JSON.parse(JSON.stringify(core)) as BattleCore;
+        const ui: BattleUi = { target: 0, chosen: {}, totalDmg: 0, cardAttackKey: 0, energyActionKey: 0, treasureAction: 0 };
+        writeBattleSnapshot({ v: 1, owner, meta: j.meta, core: plain, session: j.session, savedAt: Date.now(), ui });
+        setInit({ rng, seed: s, wins, owner, revision: ++revision.current, ...lineup, board, session: { meta: j.meta, core: plain, token: j.session.token, seq: j.session.seq, device, ui }, notice });
+        return;
+      }
+      setInit({ rng, seed: s, wins, owner, revision: ++revision.current, ...lineup, board, notice });
     };
-    initialize();
+    setInitError('');
+    void initialize();
+    return () => { cancelled = true; release(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seed, key, cfg.id, progressOwner, campaignEnabled]);
-  if (initError) return <section className={styles.wrap} role="alert">{initError}<button type="button" onClick={onRepick}>返回我的卡片</button></section>;
+  }, [seed, key, cfg.id, progressOwner, campaignEnabled, initRetry]);
+  if (initError) return <section className={styles.wrap} role="alert" data-testid="match3-init-error">{initError}{battleResumeEnabled() && campaignEnabled && <button type="button" data-testid="battle-resume-retry" onClick={() => { setInit(null); setInitRetry(n => n + 1); }}>重試接回</button>}<button type="button" onClick={onRepick}>返回我的卡片</button></section>;
   if (!init) return <section className={styles.wrap} aria-busy="true" />;
-  return <Match3Game treasurePractice={treasurePractice} key={`${key}:${cfg.id}:${init.revision}`} init={init} teamIds={teamIds} rule={sameElementRule} onRepick={onRepick} cfg={cfg} campaignEnabled={campaignEnabled} onCampaignContinue={onCampaignContinue} isFinalBoss={isFinalBoss} />;
+  return <Match3Game onReconnect={() => { setInit(null); setInitRetry(n => n + 1); }} treasurePractice={treasurePractice} key={`${key}:${cfg.id}:${init.revision}`} init={init} teamIds={init.session?.core.team.map(u => String((u as { id?: unknown }).id)) ?? teamIds} rule={init.session?.meta.rule ?? sameElementRule} onRepick={onRepick} cfg={cfg} campaignEnabled={campaignEnabled} onCampaignContinue={onCampaignContinue} onEnhance={onEnhance} isFinalBoss={isFinalBoss} />;
+}
+/** A6：伺服端戰局收據（有＝這場受伺服端紀錄保護；沒有＝舊流程）。 */
+interface GameSession { meta: BattleMeta; core: BattleCore; token: string; seq: number; device: string; ui: BattleUi }
+interface GameInit { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner; revision: number; session?: GameSession; notice?: string }
+class BattleSessionFailure extends Error { constructor(public code: BattleSessionErrorCode, message: string) { super(message); } }
+async function sessionFailure(response: Response): Promise<BattleSessionFailure | null> {
+  if (response.status !== 409 && response.status !== 503 && response.status !== 429) return null;
+  const j = await response.json().catch(() => null) as { code?: BattleSessionErrorCode; error?: string } | null;
+  return j?.code ? new BattleSessionFailure(j.code, j.error ?? BATTLE_SESSION_MESSAGES[j.code]) : null;
 }
 
 /** 狀態徽章（動效助手 v3，鈺勝 23:46／23:53）：卡左上 14px 靜態，形狀＋色調區分；卡上不放字，狀態寫在 aria-label。 */
@@ -192,8 +359,47 @@ function FusedStatusBadge({ kind }: { kind: FusedBadge }) {
   }</svg></span>;
 }
 
-function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, campaignEnabled, onCampaignContinue, isFinalBoss }: { isFinalBoss?: FinalBossRule; treasurePractice?: TreasurePractice; cfg: Match3ModeConfig; init: { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner }; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void; campaignEnabled: boolean; onCampaignContinue?: () => void }) {
+/** AUDIT-2 H4：斷線或逾時（不是伺服端明確拒絕）。 */
+const isNetworkError = (e: unknown) => e instanceof TypeError || (typeof DOMException !== 'undefined' && e instanceof DOMException && (e.name === 'AbortError' || e.name === 'TimeoutError')) || (e instanceof Error && (e.message === 'aborted' || e.message === '請求已中止'));
+function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, campaignEnabled, onCampaignContinue, onEnhance, isFinalBoss, onReconnect }: { onReconnect?: () => void; onEnhance?: () => void; isFinalBoss?: FinalBossRule; treasurePractice?: TreasurePractice; cfg: Match3ModeConfig; init: GameInit; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void; campaignEnabled: boolean; onCampaignContinue?: () => void }) {
   const rigEnabled = cfg.id === 'hard45' || cfg.id === 'hard45b';
+  // A6：伺服端權威核心＋最新收據。有 session 時，回合請求一律送這份（不是畫面暫存），回來就換成伺服端給的下一份並寫入快照。
+  const auth = useRef<GameSession | null>(init.session ?? null);
+  const resumed = !!init.session && (init.session.seq > 0 || init.session.core.move > 0);
+  const [sessionBlocked, setSessionBlocked] = useState('');
+  const [resumeNotice, setResumeNotice] = useState(init.notice ?? '');
+  useEffect(() => { if (!resumeNotice) return; const t = window.setTimeout(() => setResumeNotice(''), 6000); return () => window.clearTimeout(t); }, [resumeNotice]);
+  const uiRef = useRef<BattleUi>(init.session?.ui ?? { target: 0, chosen: {}, totalDmg: 0, cardAttackKey: 0, energyActionKey: 0, treasureAction: 0 });
+  const saveSnapshot = () => {
+    const a = auth.current; if (!a || !init.owner) return;
+    const w = writeBattleSnapshot({ v: 1, owner: init.owner, meta: a.meta, core: a.core, session: { token: a.token, seq: a.seq }, savedAt: Date.now(), ui: uiRef.current });
+    if (typeof window !== 'undefined') { const W = window as unknown as { __m3SnapshotCost?: { ms: number; chars: number }[] }; (W.__m3SnapshotCost ??= []).push({ ms: w.ms, chars: w.chars }); if (W.__m3SnapshotCost.length > 200) W.__m3SnapshotCost.shift(); }
+  };
+  const adoptSession = (result: { battleSession?: { token: string; seq: number }; battleCore?: BattleCore }) => {
+    if (!auth.current || !result.battleSession || !result.battleCore) return;
+    auth.current = { ...auth.current, core: result.battleCore, token: result.battleSession.token, seq: result.battleSession.seq };
+    saveSnapshot();
+  };
+  /** 送出前用伺服端核心覆蓋畫面狀態（兩者應相同；以伺服端為準）。 */
+  const sessionFields = (kind: 'orb' | 'other') => {
+    const a = auth.current; if (!a) return {};
+    return { session: { token: a.token, battleId: a.meta.battleId, device: a.device }, battleSeed: a.meta.seed, wins: a.meta.wins, rule: a.meta.rule, board: a.core.board, magic: a.core.magic, team: a.core.team, foes: a.core.foes, move: a.core.move, attackBoost: a.core.attackBoost, treasureGuard: a.core.treasureGuard, seed: kind === 'orb' ? orbTurnSeed(a.meta.seed, a.core.move) : a.meta.seed };
+  };
+  /**
+   * 伺服端拒絕這一步（stale／lost／closed…）→ 停在原狀並顯示「重新接回」。
+   * AUDIT-2 H4：有收據的戰局遇到斷線或逾時也一樣（那一步可能已送達），讓玩家按「重新接回」向伺服端確認，不再自己重連珠造成 stale。
+   * 頻率限制（rate-limited）只提示，不擋。
+   */
+  const blockSession = (e: unknown) => {
+    if (e instanceof BattleSessionFailure) {
+      if (e.code === 'rate-limited') { setLog(e.message); return true; }
+      setSessionBlocked(e.message); setLog(e.message); return true;
+    }
+    if (auth.current && isNetworkError(e)) { setSessionBlocked(SNAPSHOT_MESSAGES.connectionLost); setLog(SNAPSHOT_MESSAGES.connectionLost); return true; }
+    return false;
+  };
+  /** 同一場戰局在不同分頁的 actionId 不同；同一分頁的重送 actionId 相同（伺服端據此做冪等）。 */
+  const tabTag = useRef(init.session ? ':' + (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10)) : '');
   const [wins, setWins] = useState(init.wins);
   const [progressSaveFailed, setProgressSaveFailed] = useState(false);
   const [campaignSettlement, setCampaignSettlement] = useState<CampaignSettlement | null>(null);
@@ -210,8 +416,8 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   // position or animate a camera-like scroll into the new game.
   useLayoutEffect(() => { root.current?.scrollIntoView({ block: 'start', behavior: 'instant' }); }, []);
   const strikeKey = useRef(0);
-  const energyActionKey = useRef(0);
-  const cardAttackKey = useRef(0);
+  const energyActionKey = useRef(init.session?.ui.energyActionKey ?? 0);
+  const cardAttackKey = useRef(init.session?.ui.cardAttackKey ?? 0);
   const energyClickLock = useRef(false);
   const skillVisualKey = useRef(0);
   const [strike, setStrike] = useState<Match3Strike | null>(null);
@@ -247,12 +453,12 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   };
   const rngRef = useRef<Rng>(init.rng);
   const [board, setBoard] = useState<Board>(treasurePractice?.board ?? init.board);
-  const [magic, setMagic] = useState<MagicGrid>(() => treasurePractice?.magic ?? emptyMagic(init.board));
+  const [magic, setMagic] = useState<MagicGrid>(() => treasurePractice?.magic ?? init.session?.core.magic ?? emptyMagic(init.board));
   const [team, setTeam] = useState<Unit[]>(init.team);
   const [foes, setFoes] = useState<Foe[]>(init.enemies);
-  const [target, setTarget] = useState(0);
-  const [moves, setMoves] = useState(0);
-  const [totalDmg, setTotalDmg] = useState(0);
+  const [target, setTarget] = useState(init.session?.ui.target ?? 0);
+  const [moves, setMoves] = useState(init.session?.core.move ?? 0);
+  const [totalDmg, setTotalDmg] = useState(init.session?.ui.totalDmg ?? 0);
   const [lastDmg, setLastDmg] = useState(0);
   const [flash, setFlash] = useState<Set<number>>(new Set());
   const [shake, setShake] = useState<Set<number>>(new Set());
@@ -264,7 +470,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const [banner, setBanner, queuedBanner] = useBannerQueue();
   const [hitTeam, setHitTeam] = useState<Set<string>>(new Set());
   const [skillVisuals, setSkillVisuals] = useState<OrbSkillEvent[]>([]);
-  const [intro, setIntro] = useState(rigEnabled);
+  const [intro, setIntro] = useState(rigEnabled && !resumed);
   const [counterVisuals, setCounterVisuals] = useState<{ enemy: number; enemyId: string; element: BeastElement; targetId: string; actualDamage: number; hpBefore: number; hpAfter: number; x1: number; y1: number; x2: number; y2: number }[]>([]);
   useEffect(() => {
     if (!intro) return;
@@ -276,7 +482,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const [attacked, setAttacked] = useState<Set<string>>(new Set());
   // 一體成型：只有能量技／連結攻擊的施放者才播「發動」（底座元素色一亮，不縮放）；普通連珠只讓外殼亮一下（data-fused-hit）。
   const [fired, setFired] = useState<ReadonlySet<string>>(() => new Set());
-  const [chosen, setChosen] = useState<LeadChoice>({});
+  const [chosen, setChosen] = useState<LeadChoice>(() => (init.session?.ui.chosen ?? {}) as LeadChoice);
   const [linkMode, setLinkMode] = useState(false);
   const [debug, setDebug] = useState(false);
   const [pulse, setPulse] = useState(false);
@@ -286,9 +492,13 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   useEffect(() => {
     if (!rigEnabled) return;
     const controller = createMatch3Sound(); audio.current = controller;
+    // 閒置時預建音訊環境（暫停狀態），避免第一下按壓卡在建立 AudioContext。
+    const idle = 'requestIdleCallback' in window ? window.requestIdleCallback.bind(window) : null;
+    const prepTimer = idle ? null : window.setTimeout(() => controller.prepare(), 800);
+    const prepIdle = idle ? idle(() => controller.prepare(), { timeout: 2000 }) : null;
     const hide = () => { if (document.hidden) controller.stop(); };
     document.addEventListener('visibilitychange', hide);
-    return () => { document.removeEventListener('visibilitychange', hide); controller.dispose(); if (audio.current === controller) audio.current = null; };
+    return () => { if (prepTimer !== null) window.clearTimeout(prepTimer); if (prepIdle !== null) window.cancelIdleCallback(prepIdle); document.removeEventListener('visibilitychange', hide); controller.dispose(); if (audio.current === controller) audio.current = null; };
   }, [rigEnabled]);
   useEffect(() => { audio.current?.setMuted(muted); }, [muted]);
   const [help, setHelp] = useState(false);
@@ -297,7 +507,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const [guardActive, setGuardActive] = useState(false);
   const [log, setLog] = useState(cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊');
   const [busy, setBusy] = useState(false);
-  const [attackBoost, setAttackBoost] = useState(1);
+  const [attackBoost, setAttackBoost] = useState(init.session?.core.attackBoost ?? 1);
   const [supportText, setSupportText] = useState('');
   const [shieldGoals, setShieldGoals] = useState<ReturnType<typeof resolveOrbTurn>['shieldGoals']>([]);
   const [outgoing, setOutgoing] = useState<ElementFlight[]>([]);
@@ -308,11 +518,14 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     if (!init.owner) throw new Error('尚未選擇玩家');
     return transactTreasures(init.owner, run);
   };
-  const [treasureGuard, setTreasureGuard] = useState(1);
+  const [treasureGuard, setTreasureGuard] = useState(init.session?.core.treasureGuard ?? 1);
   const [treasureFlight, setTreasureFlight] = useState<TreasureFlight | null>(null);
   const catalogRevision = useRef(0);
-  const treasureAction = useRef(0);
-  const battleId = useRef('');
+  const treasureAction = useRef(init.session?.ui.treasureAction ?? 0);
+  const battleId = useRef(init.session?.meta.battleId ?? '');
+  // 只影響畫面的資訊（目標、主攻、累計傷害）變了就更新快照；不進簽章。
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!auth.current) return; uiRef.current = { ...uiRef.current, target, chosen: chosen as Record<string, string>, totalDmg }; saveSnapshot(); }, [target, chosen, totalDmg]);
   useEffect(() => {
     if (!rigEnabled || !campaignEnabled || !init.owner) return;
     const controller = new AbortController();
@@ -522,6 +735,18 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     if (!campaignEnabled || !init.owner || savingRewardRef.current) return;
     savingRewardRef.current = true; setSavingReward(true);
     try {
+      const a = auth.current;
+      if (a) {
+        // A6：伺服端紀錄確認敵方全滅、關卡編號一致，才記這一勝；同一場只記一次（matchId＝battleId）。
+        const res = await fetch('/api/beast-game/orb-battle-record', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'settle', token: a.token, meta: a.meta, core: a.core, device: a.device }), signal: AbortSignal.timeout(15000) });
+        const j = await res.json().catch(() => null) as { ok?: boolean; battleId?: string; wins?: number; error?: string } | null;
+        if (!res.ok || !j?.ok || j.battleId !== a.meta.battleId || j.wins !== a.meta.wins) { setCampaignSettlement({ ok: false, saved: false, profile: null, error: j?.error ?? '伺服端尚未確認這場勝利，獎勵尚未保存，請重試。' }); return; }
+        campaignMatchId.current = a.meta.battleId;
+        const result = await settleWin(init.owner, a.meta.battleId, a.meta.wins);
+        if (result.saved) clearBattleSnapshot(init.owner, a.meta.battleId);
+        setCampaignSettlement(result);
+        return;
+      }
       campaignMatchId.current ??= window.crypto.randomUUID?.() ?? `orb-${window.crypto.getRandomValues(new Uint32Array(4)).join('-')}`;
       const result = await settleWin(init.owner, campaignMatchId.current, wins);
       setCampaignSettlement(result);
@@ -530,12 +755,34 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     } finally { savingRewardRef.current = false; setSavingReward(false); }
   }, [campaignEnabled, init.owner, wins]);
   const campaignAwaiting = campaignEnabled && over === 'win' && !campaignSettlement?.saved;
+  /** A6：打到一半離開＝這場記為落敗（不發獎勵、勝場不變）；不能靠離開或重新整理把輸局變成重開。 */
+  // AUDIT-2 L1：離開確認改成頁內對話框（可翻譯、樣式一致），不用原生 window.confirm。
+  const [leaveAsk, setLeaveAsk] = useState<null | (() => void)>(null);
+  const leaveBattle = async (go: () => void, confirmed = false) => {
+    const a = auth.current;
+    if (!a || over || !init.owner || sessionBlocked) { go(); return; }
+    if (!confirmed) { setLeaveAsk(() => go); return; }
+    setLeaveAsk(null);
+    clearBattleSnapshot(init.owner, a.meta.battleId);
+    await fetch('/api/beast-game/orb-battle-record', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'close', token: a.token, meta: a.meta, core: a.core, device: a.device }), keepalive: true }).catch(() => {});
+    auth.current = null;
+    go();
+  };
   const wonCard = campaignSettlement?.saved && campaignSettlement.reward ? playableCards().find(c => c.id === campaignSettlement.reward!.cardId) : undefined;
   const wonSkill = wonCard ? getSkill(wonCard.skills[0]) : undefined;
 
   useEffect(() => {
     if (!rigEnabled || !over || treasurePractice) return;
-    if (campaignEnabled) { if (over === 'win') void saveVictory(); return; }
+    if (campaignEnabled) {
+      if (over === 'win') void saveVictory();
+      else if (over === 'lose' && auth.current && init.owner) {
+        // A6：落敗＝關閉伺服端紀錄並清掉快照（重新整理也不能把輸局變成重開）。
+        const a = auth.current;
+        clearBattleSnapshot(init.owner, a.meta.battleId);
+        void fetch('/api/beast-game/orb-battle-record', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'close', token: a.token, meta: a.meta, core: a.core, device: a.device }), keepalive: true }).catch(() => {});
+      }
+      return;
+    }
     setProgressSaveFailed(!saveMatch3Progress(init.owner, nextProgressionWins(wins, over === 'win')));
   }, [over, wins, rigEnabled, init.owner, campaignEnabled, saveVictory]);
 
@@ -597,18 +844,21 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   };
 
   const useTreasure = async (element: BeastElement, variant: number) => {
-    if (busy || turnRequest.current || over || ti < 0 || (!treasurePractice && (!init.owner || !campaignEnabled))) return;
+    if (busy || sessionBlocked || turnRequest.current || over || ti < 0 || (!treasurePractice && (!init.owner || !campaignEnabled))) return;
     catalogRevision.current++;
     const controller = new AbortController(); turnRequest.current = controller; setBusy(true);
     const timeout = window.setTimeout(() => controller.abort(), 15000);
     battleId.current ||= crypto.randomUUID();
-    const actionId = battleId.current + ':treasure:' + (++treasureAction.current);
+    const actionId = battleId.current + tabTag.current + ':treasure:' + (++treasureAction.current);
+    uiRef.current = { ...uiRef.current, treasureAction: treasureAction.current };
     try {
       const result = await treasureTransaction(async book => {
         const r = await fetch('/api/beast-game/orb-turn', {method:'POST', headers:{'Content-Type':'application/json'}, signal:controller.signal,
-          body:JSON.stringify({ board,magic,path:[],team,foes,mode:cfg.id,wins,target:ti,seed:init.seed,move:moves,chosen,rule,attackBoost,treasureGuard,treasures:book,action:'treasure',treasureElement:element,treasureVariant:variant,actionId })});
-        if (!r.ok) throw new Error('暫時無法使用寶器，請重試。');
-        const result: TreasureUse = await r.json();
+          body:JSON.stringify({ board,magic,path:[],team,foes,mode:cfg.id,wins,target:ti,seed:init.seed,move:moves,chosen,rule,attackBoost,treasureGuard,treasures:book,action:'treasure',treasureElement:element,treasureVariant:variant,actionId, ...sessionFields('other') })});
+        if (!r.ok) { const f = await sessionFailure(r); if (f) throw f; throw new Error('暫時無法使用寶器，請重試。'); }
+        const result: TreasureUse & { battleSession?: { token: string; seq: number }; battleCore?: BattleCore } = await r.json();
+        if (controller.signal.aborted) throw new Error('請求已中止');
+        adoptSession(result);
         if (controller.signal.aborted) throw new Error('請求已中止');
         return { book:result.book, result };
       });
@@ -621,12 +871,12 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       cue('charge');
       later(() => { queueKnockouts(foes, result.foes, actionId, 'server-treasure', 0); setTeam(result.team); setFoes(result.foes); setTreasureGuard(result.guardScale); setLastDmg(result.effect.damage); setTotalDmg(d=>d+result.effect.damage); setLog(result.effect.description); setSupportText(result.effect.description); cue('impact'); }, 950);
       later(() => { setTreasureFlight(null); setBusy(false); }, 1900);
-    } catch (e) { if (!controller.signal.aborted) setLog(e instanceof Error ? e.message : '寶器未保存，請重試。'); setBusy(false); }
+    } catch (e) { if (!(controller.signal.aborted && !auth.current) && !blockSession(e)) setLog(e instanceof Error ? e.message : '寶器未保存，請重試。'); setBusy(false); }
     finally { window.clearTimeout(timeout); if (turnRequest.current === controller) turnRequest.current = null; }
   };
 
   const release = async (path: Cell[]) => {
-    if (busy || turnRequest.current || over || ti < 0 || path.length === 0) return;
+    if (busy || sessionBlocked || turnRequest.current || over || ti < 0 || path.length === 0) return;
     const controller = new AbortController(); turnRequest.current = controller; setBusy(true);
     const timeout = window.setTimeout(() => controller.abort(), 15000);
     let prepared: ReturnType<typeof resolveOrbTurn>;
@@ -634,16 +884,17 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       battleId.current ||= crypto.randomUUID();
       const request = async (book?: TreasureBook) => {
         const response = await fetch('/api/beast-game/orb-turn', { method:'POST', headers:{'Content-Type':'application/json'}, signal:controller.signal,
-          body:JSON.stringify({ board, magic, path, team, foes, mode:cfg.id, wins, target:ti, seed:(init.seed + moves * 2654435761) >>> 0, move:moves, chosen, rule, attackBoost, treasureGuard, treasures:book, actionId:battleId.current + ':turn:' + moves }) });
-        if (!response.ok) throw new Error('turn unavailable');
-        const result: ReturnType<typeof resolveOrbTurn> = await response.json();
+          body:JSON.stringify({ board, magic, path, team, foes, mode:cfg.id, wins, target:ti, seed:(init.seed + moves * 2654435761) >>> 0, move:moves, chosen, rule, attackBoost, treasureGuard, treasures:book, actionId:battleId.current + tabTag.current + ':turn:' + moves, ...sessionFields('orb') }) });
+        if (!response.ok) { const f = await sessionFailure(response); if (f) throw f; throw new Error('turn unavailable'); }
+        const result: ReturnType<typeof resolveOrbTurn> & { battleSession?: { token: string; seq: number }; battleCore?: BattleCore } = await response.json();
         if (controller.signal.aborted) throw new Error('aborted');
+        adoptSession(result);
         return { book:result.treasure.book, result };
       };
       prepared = (campaignEnabled && init.owner) || treasurePractice ? await treasureTransaction(request) : (await request()).result;
       if (controller.signal.aborted) return;
-    } catch {
-      if (turnRequest.current === controller) { setBusy(false); setLog('暫時無法完成本回合，盤面與生命未變更，請重新連珠。'); }
+    } catch (e) {
+      if (turnRequest.current === controller) { setBusy(false); if (!blockSession(e)) setLog('暫時無法完成本回合，盤面與生命未變更，請重新連珠。'); }
       return;
     } finally { window.clearTimeout(timeout); if (turnRequest.current === controller) turnRequest.current = null; }
     const { res } = prepared;
@@ -828,24 +1079,26 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   };
   // 能量技／連結攻擊（rig 模式）：只送出意圖（施放者／連線卡、目標），由伺服端 orb-turn（action energy／link → card-attack.ts）以原公式算傷害、回權威敵方 HP。
   // 回傳值直接當作原本的 applied；前端不先扣血、不判擊倒，擊倒交給 queueKnockouts（id：battleId:skill:N:ko:foeId／battleId:link:N:ko:foeId，同一 id 只播一次）。
-  const cardActionId = (kind: 'skill' | 'link') => (battleId.current ||= crypto.randomUUID()) + ':' + kind + ':' + (++cardAttackKey.current);
+  const cardActionId = (kind: 'skill' | 'link') => (battleId.current ||= crypto.randomUUID()) + tabTag.current + ':' + kind + ':' + (++cardAttackKey.current);
   const requestCardAttack = async (action: 'energy' | 'link', ids: string[], eventId: string, actionId: string): Promise<CardAttackResult | null> => {
     const controller = new AbortController(); turnRequest.current = controller; setBusy(true);
     const timeout = window.setTimeout(() => controller.abort(), 15000);
     try {
       const response = await fetch('/api/beast-game/orb-turn', { method:'POST', headers:{'Content-Type':'application/json'}, signal:controller.signal,
-        body:JSON.stringify({ board, magic, path:[], team, foes, mode:cfg.id, wins, target:ti, seed:init.seed, move:moves, chosen, rule, attackBoost, treasureGuard, action, ...(action === 'energy' ? { attackerId:ids[0] } : { linkIds:ids }), eventId, actionId }) });
-      if (!response.ok) throw new Error('card attack unavailable');
-      const result: CardAttackResult = await response.json();
+        body:JSON.stringify({ board, magic, path:[], team, foes, mode:cfg.id, wins, target:ti, seed:init.seed, move:moves, chosen, rule, attackBoost, treasureGuard, action, ...(action === 'energy' ? { attackerId:ids[0] } : { linkIds:ids }), eventId, actionId, ...sessionFields('other') }) });
+      if (!response.ok) { const f = await sessionFailure(response); if (f) throw f; throw new Error('card attack unavailable'); }
+      const result: CardAttackResult & { battleSession?: { token: string; seq: number }; battleCore?: BattleCore } = await response.json();
       if (controller.signal.aborted) throw new Error('aborted');
+      uiRef.current = { ...uiRef.current, cardAttackKey: cardAttackKey.current, energyActionKey: energyActionKey.current };
+      adoptSession(result);
       return result;
-    } catch {
-      if (turnRequest.current === controller) { energyClickLock.current = false; setBusy(false); setLog(action === 'energy' ? '暫時無法發動技能，能量與生命未變更，請重試。' : '暫時無法發動連線攻擊，能量與生命未變更，請重試。'); }
+    } catch (e) {
+      if (turnRequest.current === controller) { energyClickLock.current = false; setBusy(false); if (!blockSession(e)) setLog(action === 'energy' ? '暫時無法發動技能，能量與生命未變更，請重試。' : '暫時無法發動連線攻擊，能量與生命未變更，請重試。'); }
       return null;
     } finally { window.clearTimeout(timeout); if (turnRequest.current === controller) turnRequest.current = null; }
   };
   const unleash = async (u: Unit) => {
-    if (energyClickLock.current || busy || over || u.hp <= 0 || ti < 0 || u.energy < ENERGY_MAX || (rigEnabled && !fighterCanAct(u))) return;
+    if (energyClickLock.current || busy || sessionBlocked || over || u.hp <= 0 || ti < 0 || u.energy < ENERGY_MAX || (rigEnabled && !fighterCanAct(u))) return;
     if (rigEnabled && turnRequest.current) return;
     if (rigEnabled) energyClickLock.current = true;
     const foe = foes[ti]; const amt = skillAmount(rigEnabled ? fighterEffectiveAttack(u) : u.attack, u.element, foe.element);
@@ -872,7 +1125,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const problem = controlledLink ? 'controlled' : linkProblem(team, link);
   const autoLinkIds = team.filter((u) => u.hp > 0 && u.energy >= LINK_ENERGY_COST && (!rigEnabled || fighterCanAct(u))).map((u) => u.id);
   const fireLinkWith = async (ids: string[], source: 'button' | 'auto' | 'tap' = 'button') => {
-    if (!ids.length || over || busy || ti < 0) return false;
+    if (!ids.length || over || busy || sessionBlocked || ti < 0) return false;
     if (deathHold.size > 0 || deathPending.size > 0) return false;
     if (counterFoes.size > 0) return false;
     if (rigEnabled && (energyClickLock.current || turnRequest.current || refillRun.current)) return false;
@@ -882,7 +1135,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     setLinkLaunch({ source, ids: ids.slice(), key: ++linkLaunchKey.current });
     const cards = ids.map((id) => team.find((u) => u.id === id)!).filter(Boolean);
     if (cards.length < LINK_MIN_CARDS) { if (rigEnabled) energyClickLock.current = false; return false; }
-    const amt = linkDamage(cards.map((c) => rigEnabled ? fighterEffectiveAttack(c) : c.attack)); const foe = foes[ti];
+    const amt = rigEnabled && feedChainEnabled() ? campaignLinkDamage(cards.map((c) => ({ attack: fighterEffectiveAttack(c), element: c.element })), foes[ti].element) : linkDamage(cards.map((c) => rigEnabled ? fighterEffectiveAttack(c) : c.attack)); const foe = foes[ti];
     const spentTeam = team.map((u) => ids.includes(u.id) ? { ...u, energy: u.energy - LINK_ENERGY_COST } : u);
     const actionId = rigEnabled ? cardActionId('link') : '';
     const applied = rigEnabled ? await requestCardAttack('link', cards.map((c) => c.id), `${init.seed}:energy:${++energyActionKey.current}`, actionId) : null;
@@ -906,7 +1159,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     if (!linkMode || problem || over || busy || ti < 0) return;
     await fireLinkWith(actionableLink);
   };
-  const fireSub = !linkMode ? `需 ${LINK_MIN_CARDS} 張卡各 ${LINK_ENERGY_COST} 能量` : problem === 'tooFew' ? `再選 ${LINK_MIN_CARDS - link.length} 張` : problem === 'energyLow' ? `每張需 ${LINK_ENERGY_COST} 能量` : problem === 'controlled' ? '有卡暫時受控，請重選' : problem ? '有卡已倒下' : `${link.length} 張・預估 ${linkDamage(link.map((id) => { const u = team.find(x => x.id === id); return u ? rigEnabled ? fighterEffectiveAttack(u) : u.attack : 0; }))}`;
+  const fireSub = !linkMode ? `需 ${LINK_MIN_CARDS} 張卡各 ${LINK_ENERGY_COST} 能量` : problem === 'tooFew' ? `再選 ${LINK_MIN_CARDS - link.length} 張` : problem === 'energyLow' ? `每張需 ${LINK_ENERGY_COST} 能量` : problem === 'controlled' ? '有卡暫時受控，請重選' : problem ? '有卡已倒下' : `${link.length} 張・預估 ${rigEnabled && feedChainEnabled() && foes[ti] ? campaignLinkDamage(link.map((id) => team.find(x => x.id === id)).filter((u): u is Unit => !!u).map(u => ({ attack: fighterEffectiveAttack(u), element: u.element })), foes[ti].element) : linkDamage(link.map((id) => { const u = team.find(x => x.id === id); return u ? rigEnabled ? fighterEffectiveAttack(u) : u.attack : 0; }))}`;
 
   fireLinkWithRef.current = fireLinkWith;
   useEffect(() => {
@@ -929,12 +1182,11 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     const event = orbSkillDisplay(skillVisuals, id, side);
     return event ? <span className={styles.skillFeedback} data-testid="match3-skill-event" data-source={event.sourceId} data-source-side={event.sourceSide} data-target={event.targetId} data-target-side={event.targetSide} data-actual-damage={event.displayDamage} title={event.effects.map(e => e.detail).join('；')}>{getSkill(event.skillId)?.name}{event.displayDamage > 0 ? ` −${event.displayDamage}` : ''}</span> : null;
   };
-  const drag = useDragChain(board, !busy && !over, release, cfg.diagonal, magic, rigEnabled);
-  const dragEl = drag.path.length ? board[drag.path[0].r][drag.path[0].c] : null;
-  const chainIntent = dragIntent(drag.path, magic, rigEnabled ? stage.minChain : 3, rigEnabled, board);
-  const effectiveCount = rigEnabled ? effectiveDragCount(drag.path, magic) : drag.path.length;
-  const hint = rigEnabled && isShieldFusionPath(drag.path, magic) ? chainIntent === 'attack' ? '同屬性盾牌合擊：其餘同色寶珠轉為盾牌' : '盾牌合體：依顏色數結算防護與回復' : dragEl && rigEnabled && drag.path.length >= 3 && effectiveCount < stage.minChain ? `合計 ${effectiveCount} 顆：只消除補珠，本關需 ${stage.minChain} 顆才會攻擊` : dragEl ? dragHint(effectiveCount, MATCH3_ORB_LABEL[dragEl], NORMAL_POWER_CAP, MAGIC_ORB_MIN_LENGTH, SKILL5_LENGTH) : '';
-  const onPath = new Set(drag.path.map((p) => k(p.r, p.c)));
+  // AUDIT-2 H8：點選模式（點第一顆、再點相鄰同色珠、按確認）；預設關閉＝原本的拖曳與「單點也算一回合」規則不變。
+  const [tapMode, setTapMode] = useState(false);
+  const drag = useDragChainStore(board, !busy && !over && !sessionBlocked, release, cfg.diagonal, magic, rigEnabled, { tapMode });
+  useSweepClock(drag.ref);
+  const onKeyCell = useCallback((cell: Cell) => drag.api.tapCell(cell, 'key'), [drag.api]);
   const pct = (a: number, b: number) => `${Math.max(0, Math.min(100, Math.round((a / b) * 100)))}%`;
 
   const actions = (
@@ -946,7 +1198,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   );
 
   return (
-    <section ref={root} className={styles.wrap} data-match3-scroll-lock={scrollLocked && !help && !over ? "true" : undefined} data-match3-battle-active={rigEnabled && !help && !over ? "true" : undefined} data-mobile-actions={mobileActionless ? 'off' : 'on'} data-auto-link-ready={mobileActionless && autoLinkIds.length >= LINK_MIN_CARDS && !busy && !over && ti >= 0 ? 'true' : undefined} onPointerDownCapture={(e) => { audio.current?.unlock(); setIntro(false); if (mobileActionless && link.length && !(e.target instanceof Element && e.target.closest('[data-testid="match3-ally"]'))) { setLink([]); setLinkMode(false); } }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
+    <section ref={root} className={styles.wrap} data-perf-quiet-body="battle" data-match3-scroll-lock={scrollLocked && !help && !over ? "true" : undefined} data-match3-battle-active={rigEnabled && !help && !over ? "true" : undefined} data-mobile-actions={mobileActionless ? 'off' : 'on'} data-auto-link-ready={mobileActionless && autoLinkIds.length >= LINK_MIN_CARDS && !busy && !over && ti >= 0 ? 'true' : undefined} onPointerDownCapture={(e) => { audio.current?.unlock(); setIntro(false); if (mobileActionless && link.length && !(e.target instanceof Element && e.target.closest('[data-testid="match3-ally"]'))) { setLink([]); setLinkMode(false); } }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
       {rigEnabled && <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: 'absolute', pointerEvents: 'none' }}>
         <defs>
           <clipPath id="match3-soft-space" clipPathUnits="objectBoundingBox"><path d="M .42 .1 Q .5 .02 .58 .1 L .9 .42 Q .98 .5 .9 .58 L .58 .9 Q .5 .98 .42 .9 L .1 .58 Q .02 .5 .1 .42 Z" /></clipPath>
@@ -955,7 +1207,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       </svg>}
       <header className={styles.head}>
         {rigEnabled && <Link href="/" className={styles.homeLink} data-testid="match3-home">回到首頁</Link>}
-        {rigEnabled && onRepick && <div className={`${styles.repick} ${styles.repickTop}`}><button type="button" data-testid="open-picker" disabled={busy || campaignAwaiting} onClick={onRepick}>{campaignEnabled ? '我的卡片' : '重新選卡'}</button></div>}
+        {rigEnabled && onRepick && <div className={`${styles.repick} ${styles.repickTop}`}><button type="button" data-testid="open-picker" disabled={busy || campaignAwaiting} onClick={onRepick && (() => { void leaveBattle(onRepick); })}>{campaignEnabled ? '我的卡片' : '重新選卡'}</button></div>}
         <div className={rigEnabled ? styles.srOnly : styles.headText}>
           <div className={styles.kicker} data-testid="match3-badge">{cfg.badge}</div>
           <h1 className={styles.title} data-testid="match3-title">{cfg.title}<small className={styles.subtitle}>｜{cfg.subtitle}</small></h1>
@@ -965,6 +1217,17 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
         {rigEnabled && <span className={styles.srOnly} data-testid="match3-round">{stage.label}·{moves + 1}回合</span>}
         {rigEnabled && <button type="button" className={`${styles.helpBtn} ${styles.helpTop}`} aria-expanded={help} onClick={() => setHelp(!help)}>玩法與操作</button>}
       </header>
+      {leaveAsk && <div className={styles.leaveDialog} role="alertdialog" aria-modal="true" aria-labelledby="match3-leave-title" aria-describedby="match3-leave-desc" data-testid="match3-leave-dialog" onKeyDown={e => { if (e.key === 'Escape') setLeaveAsk(null); }}>
+        <div className={styles.leavePanel}>
+          <p id="match3-leave-title" className={styles.leaveTitle}>這一局還沒打完</p>
+          <p id="match3-leave-desc">離開會把這一局記為落敗：不發獎勵、勝場不變。確定要離開嗎？</p>
+          <div className={styles.leaveActions}>
+            <button type="button" autoFocus data-testid="match3-leave-stay" onClick={() => setLeaveAsk(null)}>繼續作戰</button>
+            <button type="button" data-testid="match3-leave-confirm" onClick={() => { const go = leaveAsk; void leaveBattle(go, true); }}>確定離開</button>
+          </div>
+        </div>
+      </div>}
+      {(resumeNotice || sessionBlocked) && <div className={styles.resumeNotice} role={sessionBlocked ? 'alert' : 'status'} data-testid={sessionBlocked ? 'battle-record-blocked' : 'battle-resume-notice'} data-blocked={sessionBlocked ? 'true' : undefined}>{sessionBlocked || resumeNotice}{sessionBlocked && onReconnect && <button type="button" className={styles.reconnectBtn} data-testid="battle-reconnect" onClick={onReconnect}>重新接回</button>}{!sessionBlocked && <button type="button" aria-label="收起提示" onClick={() => setResumeNotice('')}>×</button>}</div>}
       {rigEnabled && help && intro && <div className={styles.quickIntro} data-testid="match3-quick-intro" role="status">上下、左右、左斜、右斜都可以，只要3顆相同寶珠連成一線即可；本關合計 {stage.minChain} 顆以上才具有攻擊效果，連得越多，威力越強。<button type="button" onClick={() => setIntro(false)} aria-label="收起操作提示">×</button></div>}
       {rigEnabled && counterVisuals.length > 0 && <svg className={styles.counterTrace} aria-hidden="true" data-testid="match3-counter-trace">{counterVisuals.map((h, i) => { const visual = counterVisualPath(h.enemyId, h.element, h.x1, h.y1, h.x2, h.y2); return <g key={i} data-source-id={h.enemyId} data-element={h.element} data-lightning={visual.lightning || undefined} style={{ ['--counter-color' as string]: visual.color, ['--counter-width' as string]: visual.width }}><path d={visual.path} pathLength="1" /><circle cx={h.x2} cy={h.y2} r="20" /></g>; })}</svg>}
       <OrbElementAttack flights={outgoing} side="ally" />
@@ -1007,8 +1270,9 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
           </button>
         ))}
       </div>
-      <p className={rigEnabled ? styles.srOnly : styles.hint} data-testid="match3-hint" aria-live="polite">{hint || shortMsg || (cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊')}</p>
+      <DragHint store={drag.store} board={board} magic={magic} rig={rigEnabled} minChain={stage.minChain} className={rigEnabled ? styles.srOnly : styles.hint} fallback={shortMsg || (cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊')} />
       {!rigEnabled && <button type="button" className={styles.helpBtn} aria-expanded={help} onClick={() => setHelp(!help)}>玩法說明</button>}
+      {help && <p className={styles.tapModeRow}><button type="button" aria-pressed={tapMode} data-testid="match3-tap-mode" onClick={() => { drag.api.cancel(); setTapMode(v => !v); }}>{tapMode ? '點選模式：開' : '點選模式：關'}</button><span>不方便拖曳時：開啟後點第一顆、再依序點相鄰同色珠，按「確認出手」送出；再點最後一顆可撤銷。鍵盤可用方向鍵移動、Enter 選取、Esc 取消。</span></p>}
       {help && (rigEnabled ? <div className={styles.help}>
         <p>拖過相鄰同色珠，至少3格；本關合計 {stage.minChain} 顆可攻擊。可斜連，不可跳格或重疊。</p>
         <p>4顆起留數字，7顆起變盾牌。連入同色盾牌可清除同色珠；掉落連鎖也有效。</p>
@@ -1021,13 +1285,13 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
 
       {!log.startsWith('按住寶珠') && log ? <p className={rigEnabled ? styles.srOnly : styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
 
-      <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, ['--clear-duration' as string]: `${clearMs}ms` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" data-refill-epoch={rigEnabled ? refillEpoch : undefined} data-refilling={falling.size > 0 ? 'true' : undefined} data-chain-intent={rigEnabled ? chainIntent : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers} onPointerDown={(e) => { if ((link.length || linkMode) && !(e.target as HTMLElement).closest('[data-r]')) { setLink([]); setLinkMode(false); } drag.handlers.onPointerDown(e); }}>
-        {board.map((row, r) => row.map((e, c) => { const kk = k(r, c); return (
-          <OrbCell key={`${r}-${c}-${rigEnabled ? refillEpoch : 0}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} shield={rigEnabled} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} fall={falling.get(kk)} empty={emptyCells.has(kk)} reward={rewards.has(kk)} />); }))}
+      <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, ['--clear-duration' as string]: `${clearMs}ms` }} role="grid" aria-label="寶珠盤面：按住拖曳相鄰同色珠；鍵盤可用方向鍵移動、Enter 選取，再按「確認出手」" aria-rowcount={board.length} aria-colcount={cfg.cols} data-testid="match3-board" data-tap-mode={tapMode || undefined} data-refill-epoch={rigEnabled ? refillEpoch : undefined} data-refilling={falling.size > 0 ? 'true' : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers} onPointerDown={(e) => { if ((link.length || linkMode) && !(e.target as HTMLElement).closest('[data-r]')) { setLink([]); setLinkMode(false); } drag.handlers.onPointerDown(e); }}>
+        <BoardCells store={drag.store} board={board} magic={magic} rig={rigEnabled} refillEpoch={refillEpoch} flash={flash} shake={shake} drop={drop} falling={falling} emptyCells={emptyCells} rewards={rewards} onKey={onKeyCell} onCancel={drag.api.cancel} />
         {shieldBurst && <div className={styles.shieldBurst} style={{ color: ORB_COLOR[shieldBurst] }} role="status" aria-label="080 盾牌清除同色寶珠"><span /><img src="/pwa/save-shield-080.png" alt="" draggable={false} /></div>}
         {fusionBurst && <div className={styles.fusionBurst} data-testid="shield-fusion-effect" role="status" aria-label="盾牌合體" style={{ ['--fusion-duration' as string]: `${FUSION_DISPLAY_MS}ms`, ['--fusion-colors' as string]: `conic-gradient(${fusionBurst.map(e => ORB_COLOR[e]).join(',')})` }}><div className={styles.fusionHalo} /><svg className={styles.fusionLightning} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">{fusionDischarge(fusionBurst, board).map(bolt => <polyline key={bolt.element} points={bolt.points} stroke={ORB_COLOR[bolt.element]} vectorEffect="non-scaling-stroke" />)}</svg>{fusionShieldLayout(fusionBurst.length).map((pose, i) => <span key={i} className={styles.fusionShield} data-fusion-element={fusionBurst[i]} data-primary={pose.primary || undefined} style={{ color: ORB_COLOR[fusionBurst[i]], width: `${pose.size}%`, ['--fusion-x' as string]: `${pose.x}%`, ['--fusion-y' as string]: `${pose.y}%`, ['--fusion-scale' as string]: pose.scale }}><img src="/pwa/save-shield-080.png" alt="" draggable={false} /></span>)}</div>}
         {matchFrame && <Match3ReplayLines frame={matchFrame} />}
-        <DragPathSvg points={drag.points} color={dragEl ? ORB_COLOR[dragEl] : '#fff'} luminous={rigEnabled} />
+        <DragLayer store={drag.store} board={board} magic={magic} rig={rigEnabled} minChain={stage.minChain} host={drag.ref} />
+        <TapActions store={drag.store} onSubmit={drag.api.submit} onCancel={drag.api.cancel} disabled={busy || !!over || !!sessionBlocked} />
         {banner && (banner.visual
           ? <div className={`${styles.chainEffect} ${banner.kind === 'skill' ? styles.chainCharged : ''} ${banner.kind === 'counter' ? styles.chainCounter : ''}`} data-testid="match3-chain-effect" role="status"><span className={styles.srOnly}>{banner.text}</span><span aria-hidden="true" className={styles.chainRing} /><span aria-hidden="true" className={styles.chainCore} /></div>
           : <div className={`${styles.banner} ${styles['b_' + banner.kind]}`} data-testid="match3-banner" role="status">{banner.text}</div>)}
@@ -1064,6 +1328,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
                 </div>
                 <div className={styles.allyMeta}>{down ? '已倒下' : `${MATCH3_ORB_LABEL[u.element]}${dup ? (lead ? '・主攻' : '・輔助') : ''} ${u.energy}`}</div>
                 {rigEnabled && <span className={styles.compactEnergy} aria-hidden="true">氣 {u.energy}</span>}
+                {rigEnabled && u.faceAttack !== undefined && u.attack > u.faceAttack && <span className={styles.allyBoost} data-testid="match3-ally-boost" data-face={u.faceAttack} data-attack={u.attack}>攻 {u.attack}<b>▲{u.attack - u.faceAttack}</b></span>}
               </button>
               {!rigEnabled && full && !linkMode && <button type="button" className={`${styles.skill} ${rigEnabled && u.skillRuntime?.shield ? styles.skillWithShield : ''}`} data-testid="match3-skill" disabled={rigEnabled && !fighterCanAct(u)} onPointerDown={(e) => e.stopPropagation()} onClick={() => unleash(u)}>{rigEnabled ? (fighterCanAct(u) ? '能量攻擊' : '暫時受控') : '技能'}{rigEnabled && !!u.skillRuntime?.shield && <span className={styles.skillShieldLine} data-testid="match3-ally-shield">盾 {u.skillRuntime.shield}</span>}</button>}
             </div>
@@ -1094,6 +1359,8 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
           )}
           <p>{over === 'win' ? `共 ${moves} 步擊退敵方 ${foes.length} 隻神獸，總傷害 ${totalDmg}。` : '再來一局，換個打法試試。'}</p>
           {progressSaveFailed && <p role="alert">此瀏覽器無法儲存進度，關閉頁面後可能遺失。</p>}
+          {campaignEnabled && onEnhance && over === 'win' && campaignSettlement?.saved && campaignSettlement.profile && enhancementUnlocked(campaignSettlement.profile) && <button type="button" className={`${styles.again} ${styles.enhanceCta}`} data-testid="match3-go-enhance" disabled={busy} onClick={onEnhance}>去永久強化 →<small>一鍵吃到封頂，變強馬上帶進下一關</small></button>}
+          {campaignEnabled && over === 'win' && campaignSettlement?.saved && campaignSettlement.profile && !enhancementUnlocked(campaignSettlement.profile) && <p className={styles.hint} data-testid="match3-unlock-progress">{`再贏 ${Math.max(0, 4 - campaignSettlement.profile.wins)} 場解鎖永久強化（${Math.min(4, campaignSettlement.profile.wins)}／4）`}</p>}
           <button type="button" className={styles.again} disabled={busy || campaignAwaiting} onClick={restart}>{rigEnabled ? (over === 'win' ? '挑戰下一關' : '原難度重試') : '再來一局'}</button>
         </div>
       )}

@@ -56,26 +56,33 @@ export function createMatch3Sound() {
       }
     }
   };
+  const build = () => {
+    const Audio = window.AudioContext ?? (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!Audio) return;
+    context = new Audio();
+    master = context.createGain();
+    // 不額外壓低裝置媒體音量；各聲部保留混音餘裕與柔和包絡。
+    master.gain.value = 1;
+    softener = context.createBiquadFilter();
+    softener.type = 'lowpass';
+    softener.frequency.value = 1400;
+    softener.Q.value = .5;
+    master.connect(softener);
+    softener.connect(context.destination);
+  };
   const stop = () => { priorityUntil = 0; lastDropAt = -Infinity; lastMergeAt = -Infinity; mergeUntil = 0; stopVoices(); };
   return {
+    /** 閒置時先建好（暫停中的）音訊環境，第一下按壓只需 resume，不再在手勢裡付建立成本。 */
+    prepare(): void {
+      if (disposed || muted || context || typeof window === 'undefined') return;
+      try { build(); } catch { /* Missing/blocked audio must never block the battle. */ }
+    },
     /** 呼叫端必須在真實手勢中同步呼叫；未解鎖的 play 不排隊補播。 */
     unlock(): void {
       if (disposed || muted || typeof window === 'undefined') return;
       try {
-        if (!context) {
-          const Audio = window.AudioContext ?? (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-          if (!Audio) return;
-          context = new Audio();
-          master = context.createGain();
-          // 不額外壓低裝置媒體音量；各聲部保留混音餘裕與柔和包絡。
-          master.gain.value = 1;
-          softener = context.createBiquadFilter();
-          softener.type = 'lowpass';
-          softener.frequency.value = 1400;
-          softener.Q.value = .5;
-          master.connect(softener);
-          softener.connect(context.destination);
-        }
+        if (!context) build();
+        if (!context) return;
         if (context.state !== 'running') void context.resume().catch(() => {});
       } catch { /* Missing/blocked audio must never block the battle. */ }
     },

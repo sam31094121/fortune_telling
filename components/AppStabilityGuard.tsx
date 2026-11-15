@@ -58,7 +58,10 @@ export default function AppStabilityGuard() {
     // body class 每切一次，整頁都要重算樣式（星宿神獸頁約 1,800 個節點，CPU 4× 降速下單次約 250ms），
     // 長任務又會觸發 app-stress-mode 再切一次 class，形成回饋迴圈。這三個 class 對應的 CSS 只作用在首頁／算命卡等元素，
     // 退出的頁面上沒有受影響元素，所以畫面不變；其他頁面行為完全不變。
-    const quietBody = () => document.querySelector('main[data-perf-quiet-body]') !== null;
+    // 2026-11-15 fix-3：寶珠戰鬥盤（section[data-perf-quiet-body="battle"]）也退出；實測按下／放開時
+    // app-touching 切換讓戰鬥頁整頁約 850 節點重算樣式（4× 降速單次 22–26ms）。戰鬥頁上這三個 class
+    // 只命中 body 自己的 scroll-behavior，畫面不變。
+    const quietBody = () => document.querySelector('main[data-perf-quiet-body], [data-perf-quiet-body="battle"]') !== null;
 
     const updatePerformanceMode = () => {
       const saveData = Boolean(connection?.saveData);

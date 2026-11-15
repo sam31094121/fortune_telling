@@ -32,8 +32,9 @@
 .fire { --c: #e0532c; }  .fire .gem { clip-path: polygon(50% 3%, 97% 92%, 3% 92%); inset: 2%; }
 .fire .lbl { top: 12%; }
 .earth { --c: #c39324; } .earth .gem { border-radius: 18%; inset: 12%; }
-.sel { transform: scale(1.08); }
-.sel::after { content: ''; position: absolute; inset: -1px; border-radius: 12px; border: 2px solid var(--seal); box-shadow: 0 0 10px rgba(201,164,92,.7); pointer-events: none; }
+/* AUDIT-2 H2：選取改用屬性（不是 class）。全站 lx-cards.css 有 body:not(:has([class*=…])) 規則，盤面任何 class 變動都會讓整頁重算樣式；屬性不會。權重與原本 .sel 相同。 */
+:where(.orb)[data-orb-sel] { transform: scale(1.08); }
+:where(.orb)[data-orb-sel]::after { content: ''; position: absolute; inset: -1px; border-radius: 12px; border: 2px solid var(--seal); box-shadow: 0 0 10px rgba(201,164,92,.7); pointer-events: none; }
 /* 魔法珠：金色光環＋右上角威力數字 */
 .magic::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #ffe3a1; box-shadow: 0 0 12px 3px rgba(255,214,120,.75), inset 0 0 8px rgba(255,240,200,.6);
   animation: m3magic 1.4s ease-in-out infinite; pointer-events: none; z-index: 1; }
@@ -120,10 +121,12 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 
 /* 10/30 打磨（不改規則）：訊息不截斷、拖曳線發光、拖曳頭脈動、魔法珠邊緣銳利 */
 .hint, .log { overflow-wrap: anywhere; line-height: 1.4; }
-.sel .gem { filter: brightness(1.15) saturate(1.1); }
+[data-orb-sel] .gem { filter: brightness(1.15) saturate(1.1); }
 .board svg[data-testid='drag-path'] polyline:nth-of-type(2) { filter: drop-shadow(0 0 5px rgba(255,255,255,.55)); }
 .board svg[data-testid='drag-path'] circle:last-of-type { transform-box: fill-box; transform-origin: center; animation: m3head .5s ease-in-out infinite alternate; }
 @keyframes m3head { to { transform: scale(1.25); } }
+/* fix-3：常駐拖曳線空著（隱藏）時，頭部呼吸動畫也停（隱藏中仍會每幀重算樣式）。 */
+.board svg[data-testid='drag-path'][data-empty] circle { animation: none; }
 .magic .gem { outline: 1.5px solid rgba(255,240,200,.95); outline-offset: -1.5px; }
 .magic .lbl { text-shadow: 0 0 2px #000, 0 1px 2px rgba(0,0,0,.9); }
 .power { font-variant-numeric: tabular-nums; }
@@ -207,12 +210,18 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
   box-shadow: inset 0 1px 0 var(--ring), inset 0 -1px 0 rgba(12,11,16,.55), inset 0 -4px 7px var(--deep);
   --spec: radial-gradient(circle at 31% 24%, rgba(255,255,255,.6) 0 5%, var(--lt) 9%, rgba(255,255,255,0) 15%),
     radial-gradient(ellipse 26% 14% at 68% 80%, var(--lt), rgba(255,255,255,0) 80%); }
-.orb:not(.magic) .gem::after { content: ''; position: absolute; inset: 2px; border-radius: inherit; clip-path: inherit; pointer-events: none;
+/* AUDIT-2 H1（fix-3）：掃光改成「固定的裁切窗 .sweep ＋ 裡面用 transform 平移的光帶」，交給 GPU 合成，不再每幀重算樣式與重畫。
+ * 外觀與原本 background-position 版等價：光帶仍是 300% 寬、同角度同透明度；換算：background-size 300% 時 position 130%→-130%
+ * ＝ 圖層位移 -2.6W→+2.6W ＝ 3W 寬元素 translateX(-86.667%)→(86.667%)。原本 11 秒週期裡 0–86% 是靜止（光帶在窗外看不到），
+ * 只有最後 14%（1.54 秒）在掃；所以現在只在那 1.54 秒掛上動畫（由 useSweepClock 依原本三組相位切換盤面的 data-sweep），
+ * 平常 56 顆都不掛動畫、不佔合成圖層。分組 data-sg 依原本盤面子元素順序（nth-child 3n+1／3n+2／3n）計算。 */
+.sweep { position: absolute; inset: 2px; border-radius: inherit; clip-path: inherit; overflow: hidden; pointer-events: none; }
+.sweep::before { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 300%;
   background: linear-gradient(115deg, rgba(255,255,255,0) 40%, rgba(255,255,255,.15) 50%, rgba(255,255,255,0) 60%);
-  background-size: 300% 100%; background-position: 130% 0; animation: gemSweep 11s ease-in-out infinite; }
-@keyframes gemSweep { 0%, 86% { background-position: 130% 0; } 100% { background-position: -130% 0; } }
-.orb:nth-child(3n+1) .gem::after { animation-delay: -3.7s; }
-.orb:nth-child(3n+2) .gem::after { animation-delay: -7.3s; }
+  transform: translateX(-86.667%); }
+@keyframes gemSweepT { from { transform: translateX(-86.667%); } to { transform: translateX(86.667%); } }
+.board[data-sweep="a"] [data-sg="a"] .sweep::before, .board[data-sweep="b"] [data-sg="b"] .sweep::before, .board[data-sweep="c"] [data-sg="c"] .sweep::before { animation: gemSweepT 1.54s ease-in-out; }
+.magic .sweep { display: none; }
 
 /* 空｜紫水晶菱形：ORB #443087 本體 → DEMON #5b2a86 → #120a1c 邊緣；十字切面＋兩點靜態星芒（light #dfd8ff）；細紋脈 emissive #b4a2ff */
 .space .gem::before { inset: 3px; --ring: rgba(238,233,255,.38); --lt: rgba(223,216,255,.16); --deep: rgba(18,10,28,.6);
@@ -253,7 +262,7 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .lbl { text-shadow: 0 1px 1px rgba(12,11,16,.9), 0 0 3px rgba(12,11,16,.5); letter-spacing: .02em; }
 .magic .gem::before { opacity: .62; }
 @media (prefers-reduced-motion: reduce) {
-  .orb:not(.magic) .gem::after { animation: none; background-position: 130% 0; }
+  .sweep::before, .board[data-sweep] .sweep::before { animation: none; transform: translateX(-86.667%); }
 }
 
 /* ===== 10/31 意境微細節（保留原本五形：水滴／方塊／圓／菱形／三角，只改內部質感方向；不動 clip-path／尺寸）===== */
@@ -301,7 +310,7 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .wrap[data-mode="hard45b"] .gem::before { inset: 1.5px; filter: saturate(.9) contrast(1.08); box-shadow: inset 0 .5px 0 var(--ring), inset 0 -.5px 0 rgba(12,11,16,.6), inset 0 -3px 5px var(--deep); }
 .wrap[data-mode="hard45b"] .space .gem::before, .wrap[data-mode="hard45b"] .fire .gem::before { inset: 2.25px; }
 .wrap[data-mode="hard45b"] .water .gem::before { filter: saturate(.78) brightness(.92) contrast(1.08); }
-.wrap[data-mode="hard45b"] .orb:not(.magic) .gem::after { inset: 1.5px; opacity: .7; }
+.wrap[data-mode="hard45b"] .sweep { inset: 1.5px; opacity: .7; }
 .wrap[data-mode="hard45b"] .lbl { text-shadow: 0 .5px 0 rgba(12,11,16,.95), 0 0 2px rgba(12,11,16,.55); }
 /* 2. 盤面框：深底＋一條 home-leather 金色髮絲線（用 inset shadow，不改尺寸） */
 .wrap[data-mode="hard45b"] .board { background: #0c0b10; box-shadow: inset 0 0 0 1px rgba(205,185,145,.26), inset 0 1px 0 rgba(205,185,145,.12); }
@@ -365,7 +374,9 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .wrap[data-mode^="hard"] .board > svg [data-chain-flow] { animation: chainFlow 1.1s linear infinite; opacity: .85; }
 @keyframes chainFlow { to { stroke-dashoffset: -34; } }
 @media (prefers-reduced-motion: reduce) { .wrap[data-mode^="hard"] .board > svg [data-chain-flow] { animation: none; } }
-.wrap[data-mode^="hard"] .sel::after { border-color: #e4faff; box-shadow: 0 0 7px rgba(185,232,237,.45); }
+/* 常駐拖曳路徑空著時（data-empty）流光不跑：stroke-dashoffset 不能交給合成器，隱藏中也會每幀重算樣式。 */
+.wrap[data-mode^="hard"] .board > svg[data-empty] [data-chain-flow] { animation: none; }
+.wrap[data-mode^="hard"] [data-orb-sel]::after { border-color: #e4faff; box-shadow: 0 0 7px rgba(185,232,237,.45); }
 
 /* 連線用途由後端結果標記；僅分級光感，不改寶珠尺寸與觸控規則。 */
 .wrap[data-mode^="hard"] .board[data-chain-intent="incomplete"] > svg polyline { opacity: .55; }
@@ -592,19 +603,19 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 /* 柔和寶石配色：沿用五元素色相，減少黑底與硬反光，不增大外暈或改動觸控區。 */
 .wrap[data-mode^="hard"] .gem { background: linear-gradient(140deg, #d8c6a2 0%, #b4a181 34%, #c7c4bd 50%, #ad9672 70%, #887351 100%); }
 .wrap[data-mode^="hard"] .water .gem::before { filter: saturate(.76) brightness(1.08) contrast(.92); }
-.wrap[data-mode^="hard"] .orb:not(.magic) .gem::after { opacity: .34; }
+.wrap[data-mode^="hard"] .sweep { opacity: .34; }
 .wrap[data-mode^="hard"] .lbl {
   font-family: "Orb WenKai", "BiauKai", "KaiTi", var(--font-serif);
   font-size: clamp(15px, 4.2vw, 19px); font-weight: 300; letter-spacing: .025em;
   color: #faf4e8;
   text-shadow: 0 1px 2px rgba(12,11,16,.6);
 }
-.wrap[data-mode^="hard"] .sel::after { border-radius: 16px; box-shadow: 0 0 7px rgba(201,164,92,.5); }
+.wrap[data-mode^="hard"] [data-orb-sel]::after { border-radius: 16px; box-shadow: 0 0 7px rgba(201,164,92,.5); }
 .elementGlyph { position: relative; width: 58%; height: 58%; color: #faf4e8; pointer-events: none;
   filter: drop-shadow(0 1px 1px rgba(12,11,16,.45)); }
 .fire .elementGlyph { top: 7%; width: 53%; height: 53%; }
 .magic .elementGlyph { width: 52%; height: 52%; }
-.sel .elementGlyph { color: #fffaf0; }
+[data-orb-sel] .elementGlyph { color: #fffaf0; }
 .wrap[data-mode^="hard"] .flash .elementGlyph { animation: m3SoftClear var(--clear-duration, .13s) ease-out forwards; }
 @media (prefers-reduced-motion: reduce) {
   .wrap[data-mode^="hard"] .flash .elementGlyph { animation: none; opacity: .3; }
@@ -1045,3 +1056,34 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .wrap[data-mode^="hard"] .team[data-last-ally="true"] .fusedUnit > .allyCard,
 .wrap[data-mode^="hard"] .team[data-last-ally="true"] .fusedUnit > .allyCard > img:first-child { height: var(--art-h); }
 .wrap[data-mode^="hard"] .team[data-last-ally="true"] .fusedUnit > .allyCard > img:first-child { object-fit: contain; object-position: 50% 50%; }
+
+/* PLAN-v2 B2：寶珠闖關永久強化看得見（攻 X ▲N）。 */
+.allyBoost { position: absolute; top: 2px; left: 2px; z-index: 6; display: inline-flex; gap: 2px; align-items: baseline; padding: 1px 5px; border-radius: 999px; background: rgba(20, 12, 4, .82); border: 1px solid rgba(255, 214, 120, .75); color: #ffe7a8; font-size: 10px; font-weight: 800; line-height: 1.3; pointer-events: none; white-space: nowrap; }
+.allyBoost b { color: #8dffb0; font-weight: 900; }
+.enhanceCta { display: flex; flex-direction: column; align-items: center; gap: 2px; background: linear-gradient(180deg, #ffd978, #e7a93a); color: #2a1600; font-weight: 900; }
+.enhanceCta small { font-size: 11px; font-weight: 700; opacity: .85; }
+
+/* PLAN-v2 A6：接回戰局／戰局紀錄提示。固定浮在畫面上方，不佔版面（不改棋盤尺寸與捲動鎖定量測）。 */
+.resumeNotice { position: fixed; top: max(8px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); z-index: 60; width: min(92vw, 420px); box-sizing: border-box; padding: 8px 30px 8px 12px; border-radius: 10px; background: rgba(18, 16, 24, .94); color: #f4ead2; border: 1px solid rgba(232, 196, 110, .55); font-size: 13px; line-height: 1.45; box-shadow: 0 6px 20px rgba(0, 0, 0, .45); }
+.resumeNotice[data-blocked] { border-color: rgba(240, 110, 90, .8); }
+.resumeNotice button { position: absolute; top: 4px; right: 6px; min-width: 24px; min-height: 24px; padding: 0; border: 0; background: transparent; color: inherit; font-size: 16px; line-height: 1; cursor: pointer; }
+/* AUDIT-2 H4：被擋時的「重新接回」按鈕（覆寫上面右上角 × 的定位） */
+.resumeNotice .reconnectBtn { position: static; display: block; margin: 8px 0 0; min-width: 44px; min-height: 40px; padding: 0 16px; border: 1px solid rgba(232, 196, 110, .75); border-radius: 8px; background: rgba(232, 196, 110, .18); color: #f8e7b8; font-size: 14px; font-weight: 700; }
+/* AUDIT-2 L1：離開確認對話框（取代 window.confirm） */
+.leaveDialog { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 16px; background: rgba(6, 5, 10, .62); }
+.leavePanel { width: min(92vw, 380px); box-sizing: border-box; padding: 16px; border-radius: 12px; background: rgba(20, 17, 26, .98); color: #f4ead2; border: 1px solid rgba(232, 196, 110, .55); box-shadow: 0 10px 30px rgba(0, 0, 0, .5); font-size: 14px; line-height: 1.55; }
+.leavePanel p { margin: 0 0 8px; }
+.leaveTitle { font-size: 16px; font-weight: 700; }
+.leaveActions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+.leaveActions button { min-height: 44px; min-width: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid rgba(232, 196, 110, .6); background: transparent; color: inherit; font-size: 14px; }
+.leaveActions button:first-child { background: rgba(232, 196, 110, .22); font-weight: 700; }
+/* AUDIT-2 H8：點選模式開關與確認列（只在「玩法與操作」打開或正在點選時出現，不影響原本版面） */
+.tapModeRow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 6px 0; font-size: 12px; line-height: 1.5; color: #e9dfc6; }
+.tapModeRow button { min-height: 36px; min-width: 44px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(232, 196, 110, .6); background: transparent; color: inherit; font-size: 13px; }
+.tapModeRow button[aria-pressed="true"] { background: rgba(232, 196, 110, .25); font-weight: 700; }
+.tapModeRow span { flex: 1 1 200px; min-width: 0; }
+.tapActions { position: absolute; left: 50%; top: calc(100% + 4px); transform: translateX(-50%); z-index: 6; display: flex; gap: 8px; padding: 6px; border-radius: 10px; background: rgba(18, 16, 24, .94); border: 1px solid rgba(232, 196, 110, .55); box-shadow: 0 6px 18px rgba(0, 0, 0, .45); white-space: nowrap; }
+.tapActions button { min-height: 40px; min-width: 44px; padding: 0 14px; border-radius: 8px; border: 1px solid rgba(232, 196, 110, .6); background: transparent; color: #f4ead2; font-size: 14px; }
+.tapActions button:first-child { background: rgba(232, 196, 110, .25); font-weight: 700; }
+.tapActions button:disabled { opacity: .5; }
+.board [role="gridcell"]:focus-visible { outline: 2px solid #f8e7b8; outline-offset: 1px; }
