@@ -16,6 +16,6 @@
 @keyframes absorb {to{transform:translateX(65%) scale(.15);opacity:0;}}
 @keyframes receive {50%{filter:brightness(1.5);}to{transform:scale(1.05);}}
 @media(prefers-reduced-motion:reduce){.fusionPair[data-absorbing=true]>*{animation:none;}}
-/* 食物鏈（2026-11-15）：目標卡星級列；預覽出現後確認鈕黏在手機可視範圍底部（避開 iOS 安全區）。 */
+/* 食物鏈（2026-11-15）：目標卡星級列；預覽／存檔回饋捲入畫面時避開底部固定開戰列與 iOS 安全區（本站 body 是捲動容器，sticky 不生效，改用捲動定位）。 */
 .grid small.starLine {color:#ffd977;}
-.stickyConfirm {position:sticky;bottom:max(8px,env(safe-area-inset-bottom));z-index:3;box-shadow:0 -6px 18px rgba(0,0,0,.45);}
+.feedbackAnchor {scroll-margin-bottom:calc(100px + env(safe-area-inset-bottom));scroll-margin-top:64px;}

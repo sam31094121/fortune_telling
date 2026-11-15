@@ -14,6 +14,11 @@ export default function SharedCultivationPanel({onSaved,onDone}:{onSaved?:()=>vo
   const [shortcut,setShortcut]=useState<string|null>(null);
   const [busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('');
   const operation=useRef<string|null>(null),alive=useRef(true);
+  const confirmRef=useRef<HTMLButtonElement>(null),savedRef=useRef<HTMLDivElement>(null);
+  // 手機 390：預覽出來就把「確認」捲進可視範圍（避開寶珠選隊頁固定在底部的開戰列）；存檔後把回饋卡捲到畫面中間。
+  const motion=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant' as ScrollBehavior:'smooth' as ScrollBehavior;
+  useEffect(()=>{if(preview)confirmRef.current?.scrollIntoView({block:'nearest',behavior:motion()});},[preview]);
+  useEffect(()=>{if(saved)savedRef.current?.scrollIntoView({block:'center',behavior:motion()});},[saved]);
   const load=async()=>{setBusy(true);try{const value=await syncSharedCultivation();if(alive.current){setView(value);setMain(value.protectedIds);setError('');}}catch(e){if(alive.current)setError(e instanceof Error?e.message:'卡庫暫時無法取得。');}finally{if(alive.current)setBusy(false);}};
   // 9A：「拿去強化」只預選目標與材料，仍要玩家按確認；讀一次就清掉。
   useEffect(()=>{const take=()=>{const id=takeFeedShortcut();if(id)setShortcut(id);};take();window.addEventListener(FOOD_CHAIN_SHORTCUT,take);return()=>window.removeEventListener(FOOD_CHAIN_SHORTCUT,take);},[]);
@@ -43,7 +48,7 @@ export default function SharedCultivationPanel({onSaved,onDone}:{onSaved?:()=>vo
     <p>寶石捷連線與神獸戰鬥共用收藏及成長。免費試用牌不消耗，也不計入收藏主力。</p>
     {error&&<p role="alert">{error}<button type="button" disabled={busy} onClick={()=>void load()}>重新讀取卡庫</button></p>}
     {message&&<p role="status" data-shared-saved>{message}</p>}
-    {saved&&<FoodChainFeedback key={saved.materialId} change={saved} phase="saved"/>}
+    {saved&&<div ref={savedRef} className={styles.feedbackAnchor}><FoodChainFeedback key={saved.materialId} change={saved} phase="saved"/></div>}
     {!view?<p aria-busy="true">正在讀取卡庫…</p>:<>
       {view.pendingBattle&&<p role="alert">戰鬥尚未結束，請先返回原戰鬥結算或離開。<button type="button" disabled={busy} onClick={async()=>{setBusy(true);try{if(view.pendingBattle?.startsWith('card:'))await (await import('@/lib/beast-collection')).releaseLiveBattle(view.pendingBattle);else await sharedRequest({type:'RELEASE',battleId:view.pendingBattle});await load();}catch(e){setError(e instanceof Error?e.message:'暫時無法結束原戰局。');}finally{setBusy(false);}}}>結束未完成戰局（不扣卡、不發獎）</button></p>}
       <h3>① 親選五隻收藏主力</h3><p>鎖定主力不能當材料。更換時一次確認完整五隻；收藏可以超過五隻。</p>
@@ -58,7 +63,7 @@ export default function SharedCultivationPanel({onSaved,onDone}:{onSaved?:()=>vo
       {targetCard&&<><h3>③ 選擇對應材料</h3><div className={styles.grid}>{view.cards.filter(c=>!c.protected&&c.materialTargetCardId===targetCard.cardId).map(card=><button key={card.id} type="button" data-shared-material={card.id} disabled={busy||!!view.pendingBattle} aria-pressed={material===card.id} onClick={()=>setMaterial(card.id)}><CatalogBeastCard id={card.cardId}/><strong>{card.name}</strong>{card.bonus!=='0'&&<small>永久 +{card.bonus}</small>}</button>)}</div>
         {!view.cards.some(c=>!c.protected&&c.materialTargetCardId===targetCard.cardId)&&<p role="status" data-no-material>目前沒有可以餵給這張卡的材料（鎖定主力不能當材料）。</p>}</>}
       {preview&&<div data-shared-preview><FoodChainFeedback change={preview} phase="preview"/></div>}
-      <button type="button" className={`${styles.confirm} ${preview?styles.stickyConfirm:''}`} data-confirm-shared-fusion disabled={busy||!preview||!!view.pendingBattle} onClick={()=>void save('FUSE')}>{busy?'正在保存…':'確認消耗材料並合體'}</button>
+      <button ref={confirmRef} type="button" className={`${styles.confirm} ${styles.feedbackAnchor}`} data-confirm-shared-fusion disabled={busy||!preview||!!view.pendingBattle} onClick={()=>void save('FUSE')}>{busy?'正在保存…':'確認消耗材料並合體'}</button>
     </>}
     {onDone&&<button type="button" disabled={busy} onClick={onDone}>返回選卡</button>}
   </section>;
