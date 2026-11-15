@@ -1,5 +1,10 @@
 // Regression (2026-10-19): hard battlefield resumes the same staked battle after a reload.
 // Real battlefield route + real collection runtime/ledger; synthetic qa-synth collection in a fake localStorage.
+// 正式站 3df66cc1 起戰場路由經共用卡庫模組（cultivation-games）載入：它有 import 'server-only'，且編譯產物裡 beast-growth-rewards 留著 '@/data/…' 別名。
+// 沿用正式站 cultivation 測試同一個 server-only 墊片，並把 '@/data/' 指回專案 data/（只是解析路徑，不換任何實作）。
+require('./helpers/server-only-runtime.cjs');
+{ const Module = require('node:module'), nodePath = require('node:path'); const prev = Module._resolveFilename;
+  Module._resolveFilename = function (request, ...rest) { return prev.call(this, request.startsWith('@/data/') ? nodePath.resolve('data', request.slice(7)) : request, ...rest); }; }
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -26,6 +31,8 @@ const col = { exports: {} };
 vm.runInNewContext(transpile('lib/beast-collection.ts'), { exports: col.exports, window, navigator, crypto: globalThis.crypto, Event: class {}, console, Date, JSON, Promise, Error, Object, Array, Map, Set, Math, require(name) {
   if (name === './beast-growth-rewards') return { deriveUnlockedMansions: () => [], gameCardIdsForMansion: () => [] };
   if (name === './beast-collection-ledger') return require(build('lib/beast-collection-ledger.js'));
+  // 正式站 3df66cc1 起 beast-collection.ts 匯入共用卡庫用戶端：用 beast-build 的真實編譯產物（本測試的合成收藏沒有 sharedCultivation，不會走到共用卡庫請求）。
+  if (name === './beast-cultivation-client') return require(build('lib/beast-cultivation-client.js'));
   // 14cbcf11 起 beast-collection.ts 也匯入 ./beast-game/card-campaign-fusion：改讀 beast-build 的真實編譯產物（不是假物件）。
   if (name.startsWith('./beast-game/')) return require(build('lib/' + name.slice(2) + '.js'));
   return require(name);
