@@ -40,7 +40,7 @@ const cards = [...mainIds.map((cardId, i) => ({ id: 'main:' + i, cardId, bonus: 
   // 即時預覽：選定目標一次回每張候選材料的加成與星級變化（只讀）。
   const live = await post({ type: 'PREVIEW_TARGET', revision: '0', targetId: 'adult' });
   assert.equal(live.status, 200, live.error); assert.deepEqual(live.options.map(o => o.materialId).sort(), ['young', 'young2']);
-  assert.ok(live.options.every(o => o.feedback.addedBonus === '3' && o.feedback.addedPercent.label === '5' && o.feedback.starsBefore.stars === 0 && o.feedback.starsAfter.toNext === 6));
+  assert.ok(live.options.every(o => o.feedback.addedBonus === '3' && o.feedback.addedPercent.label === '5' && o.feedback.starsBefore.stars === 0 && o.feedback.starsAfter.toNext === 30));
   const liveQ = await post({ type: 'PREVIEW_TARGET', revision: '0', targetId: 'qinglong' });
   assert.deepEqual(liveQ.options.map(o => o.materialId), ['adult'], 'only the strict next layer is offered');
   assert.equal((await post({ type: 'PREVIEW_TARGET', revision: '9', targetId: 'adult' })).ok, false);

@@ -30,26 +30,27 @@ let checks = 0; const ok = (...a) => { assert.ok(...a); checks++; }; const eq = 
   // 1. 參數：全部標待平衡暫定值，預設 v2；緊急開關退回 v1。
   const rulesSource = fs.readFileSync(path.join(__dirname, '../lib/beast-game/cultivation-rules.ts'), 'utf8');
   ok(rulesSource.includes('待平衡暫定值'), 'parameters are marked provisional');
-  eq(Ru.activeFoodChainRule(), 'v2');
-  process.env.BEAST_FOOD_CHAIN_RULE = 'v1'; eq(Ru.activeFoodChainRule(), 'v1'); delete process.env.BEAST_FOOD_CHAIN_RULE;
+  eq(Ru.activeFoodChainRule(), 'v2'); eq(Ru.ACTIVE_FOOD_CHAIN_RULE, 'v2');
+  ok(!/process\.env|createClient|supabase/i.test(rulesSource.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')), 'rules are hard-coded constants: no env var, no database, no admin setting');
+  process.env.BEAST_FOOD_CHAIN_RULE = 'v1'; eq(Ru.activeFoodChainRule(), 'v2', 'no environment switch'); delete process.env.BEAST_FOOD_CHAIN_RULE;
+  ok(Object.isFrozen(Ru.FOOD_CHAIN_V2) && Object.isFrozen(Ru.FOOD_CHAIN_V2.stars));
   eq(Ru.receiptRule(undefined), 'v1'); eq(Ru.receiptRule('v2'), 'v2'); eq(Ru.receiptRule('v9'), 'v1');
   eq(Ru.FOOD_CHAIN_V2.attackCap.num * 2, Ru.FOOD_CHAIN_V2.attackCap.den, '2B: 50% cap');
   eq(Ru.FOOD_CHAIN_V2.inherit.num * 2, Ru.FOOD_CHAIN_V2.inherit.den, '3B: 50% inheritance');
 
-  // 2. 五星門檻：第五星佔封頂一半；A 前四平分、B 依序減半；累計值無條件進位。
-  assert.deepEqual(Ru.starThresholds(1000, 'B'), [63, 125, 250, 500, 1000]);
-  assert.deepEqual(Ru.starThresholds(1000, 'A'), [125, 250, 375, 500, 1000]);
-  assert.deepEqual(Ru.starThresholds(100, 'B'), [7, 13, 25, 50, 100]);
-  assert.deepEqual(Ru.starThresholds(100, 'A'), [13, 25, 38, 50, 100]);
-  for (const mode of ['A', 'B']) for (const cap of [1, 2, 5, 16, 100, 999, 1000]) { const t = Ru.starThresholds(cap, mode); eq(t.length, 5); eq(t[4], cap); ok(t.every((v, i) => !i || v >= t[i - 1])); }
-  // 22:39 定案 B：五顆星各自張數總和＝封頂（取整保證）；突破線欄位只預留、不啟用。
-  for (const cap of [1, 3, 7, 16, 100, 101, 999, 1000, 1001]) { const t = Ru.starThresholds(cap, 'B'); const per = t.map((v, i) => v - (i ? t[i - 1] : 0)); eq(per.reduce((x, y) => x + y, 0), cap); eq(per[4], cap - t[3]); }
-  assert.deepEqual(Ru.starThresholds(1000, 'B').map((v, i, a) => v - (i ? a[i - 1] : 0)), [63, 62, 125, 250, 500]); checks++;
-  eq(Ru.FOOD_CHAIN_V2.stars.mode, 'B'); eq(Ru.FOOD_CHAIN_V2.stars.capFeeds.GUARDIAN, 1000); eq(Ru.FOOD_CHAIN_V2.stars.capFeeds.ADULT, 100);
+  // 2. 五星（22:47 定案）：一路減半 1/16、1/16、1/8、1/4、1/2；整數張數、總和＝封頂、餘數放低星。四大神獸 1000、本體 500，寫死常數。
+  assert.deepEqual([...Ru.STAR_SHARES], [1, 1, 2, 4, 8]); checks++;
+  assert.deepEqual({ ...Ru.STAR_CAP_FEEDS }, { GUARDIAN: 1000, ADULT: 500 }); checks++;
+  assert.deepEqual(Ru.starFeedsPerStar(1000), [62, 63, 125, 250, 500]); checks++;
+  assert.deepEqual(Ru.starFeedsPerStar(500), [31, 32, 62, 125, 250]); checks++;
+  assert.deepEqual(Ru.starThresholds(1000), [62, 125, 250, 500, 1000]); checks++;
+  assert.deepEqual(Ru.starThresholds(500), [31, 63, 125, 250, 500]); checks++;
+  for (const cap of [5, 7, 16, 100, 101, 499, 500, 999, 1000, 1001, 4321]) { const per = Ru.starFeedsPerStar(cap); eq(per.reduce((x, y) => x + y, 0), cap); ok(per.every(Number.isInteger)); eq(per[4], Math.floor(cap / 2)); ok(per[1] >= per[0]); ok(Ru.starThresholds(cap)[4] === cap); }
   eq(Ru.starProgress('ADULT', 3).ascension, null, 'ascension reserved, not enabled');
   const sp = Ru.starProgress('GUARDIAN', 124); eq(sp.stars, 1); eq(sp.toNext, 1); eq(sp.nextAt, 125); eq(sp.maxed, false);
   eq(Ru.starProgress('GUARDIAN', 1000).stars, 5); eq(Ru.starProgress('GUARDIAN', 1000).toNext, null); eq(Ru.starProgress('GUARDIAN', 1000).maxed, true);
-  eq(Ru.starProgress('ADULT', 0).stars, 0); eq(Ru.starProgress('ADULT', 0).toNext, 7);
+  eq(Ru.starProgress('ADULT', 0).stars, 0); eq(Ru.starProgress('ADULT', 0).toNext, 31); eq(Ru.starProgress('ADULT', 63).stars, 2); eq(Ru.starProgress('ADULT', 500).maxed, true);
+  eq(Ru.starProgress('GUARDIAN', 61).stars, 0); eq(Ru.starProgress('GUARDIAN', 62).stars, 1); eq(Ru.starProgress('GUARDIAN', 999).toNext, 1);
   checks += 4;
 
   // 3. 7A 嚴格逐層：56 組合法配對不變；幼子不能越級餵四大神獸；四大神獸不能被吃。
@@ -92,15 +93,15 @@ let checks = 0; const ok = (...a) => { assert.ok(...a); checks++; }; const eq = 
   for (const t of R.playableCards().filter(c => c.form === 'ADULT')) { const y = R.playableCards().find(c => c.form === 'YOUNG' && c.mansionId === t.mansionId); eq(Ru.feedGain('v2', { materialForm: 'YOUNG', materialBaseAttack: y.stats.attack, materialBonus: 0n, targetBaseAttack: t.stats.attack, targetBonus: 0n }).raw, BigInt(Math.max(1, Math.floor(y.stats.attack / 10)))); }
 
   // 6. 五星封頂：封頂後不能再吃，未扣材料；舊副本沒有 fed 時由收據補算。
-  const capped = base(copy('young2', 'beast_y01')); capped.cards.find(c => c.id === 'adult').fed = 100;
+  const capped = base(copy('young2', 'beast_y01')); capped.cards.find(c => c.id === 'adult').fed = 500;
   const before = JSON.stringify(capped);
   assert.throws(() => C.fuseCultivation(capped, [{ targetId: 'adult', materialId: 'young' }], { rule: 'v2' }), /五星封頂/); checks++;
   eq(JSON.stringify(capped), before, 'rejected feed changes nothing');
-  const legacyReceipts = Array.from({ length: 99 }, (_, i) => ({ operationId: 'old' + i, command: '{}', revision: String(i + 1), changes: [{ targetId: 'adult', materialId: 'gone' + i, targetCardId: 'beast_a01', materialCardId: 'beast_y01', beforeBonus: String(i * 3), addedBonus: '3', afterBonus: String(i * 3 + 3) }] }));
+  const legacyReceipts = Array.from({ length: 499 }, (_, i) => ({ operationId: 'old' + i, command: '{}', revision: String(i + 1), changes: [{ targetId: 'adult', materialId: 'gone' + i, targetCardId: 'beast_a01', materialCardId: 'beast_y01', beforeBonus: String(i * 3), addedBonus: '3', afterBonus: String(i * 3 + 3) }] }));
   const legacy = snap(base(copy('young2', 'beast_y01')), legacyReceipts);
-  eq(T.fedCounter(legacy)('adult'), 99);
+  eq(T.fedCounter(legacy)('adult'), 499);
   const last = T.fuseSnapshot(legacy, [{ targetId: 'adult', materialId: 'young' }]);
-  eq(last.changes[0].fedAfter, 100);
+  eq(last.changes[0].fedAfter, 500);
   assert.throws(() => T.fuseSnapshot({ ...legacy, state: last.state }, [{ targetId: 'adult', materialId: 'young2' }]), /五星封頂/); checks++;
 
   // 7. 舊收據永遠照 v1 重播（即使現在預設 v2）；v2 收據照 v2 重播；重送同一操作回原收據不重算。
@@ -112,12 +113,9 @@ let checks = 0; const ok = (...a) => { assert.ok(...a); checks++; }; const eq = 
   const fresh = await T.transactCultivation(repo, 'o', 'op-v2', '0', { type: 'FUSE', choices: [{ targetId: 'qinglong', materialId: 'adult' }] });
   eq(fresh.receipt.rule, 'v2'); eq(fresh.receipt.changes[0].addedBonus, '10');
   assert.deepEqual(T.replayCultivationReceipt(snap(trained), fresh.receipt).changes, fresh.receipt.changes); checks++;
-  process.env.BEAST_FOOD_CHAIN_RULE = 'v1';
   const again = await T.transactCultivation(repo, 'o', 'op-v2', '0', { type: 'FUSE', choices: [{ targetId: 'qinglong', materialId: 'adult' }] });
-  eq(again.duplicate, true); assert.deepEqual(again.receipt, fresh.receipt, 'switching the rule never re-computes an existing receipt'); checks++;
-  const killSwitch = new Repo(snap(trained));
-  eq((await T.transactCultivation(killSwitch, 'o', 'op-v1', '0', { type: 'FUSE', choices: [{ targetId: 'qinglong', materialId: 'adult' }] })).receipt.rule, undefined, 'v1 receipts keep the original shape');
-  delete process.env.BEAST_FOOD_CHAIN_RULE;
+  eq(again.duplicate, true); assert.deepEqual(again.receipt, fresh.receipt, 'resending never re-computes an existing receipt'); checks++;
+  eq(T.fuseSnapshot(snap(trained), [{ targetId: 'qinglong', materialId: 'adult' }], 'v1').changes[0].rule, undefined, 'v1 replay keeps the original receipt shape');
   eq(repo.writes, 1);
 
   // 8. 回饋欄位（伺服端算好、畫面照印）：例 角木蛟・幼子 → 角木蛟：攻擊 +3（約 +5%）、寶石 56→59、神獸戰鬥 46→49。
@@ -126,7 +124,7 @@ let checks = 0; const ok = (...a) => { assert.ok(...a); checks++; }; const eq = 
   eq(fb.addedPercent.label, '5'); eq(fb.addedPercent.bps, '535');
   eq(fb.beforeOrbAttack, String(atk('beast_a01'))); eq(fb.afterOrbAttack, String(atk('beast_a01') + 3));
   eq(fb.afterBattleAttack, String(V.battleBaseAttack('beast_a01') + 3n)); eq(BigInt(fb.afterBattleAttack) - BigInt(fb.beforeBattleAttack), 3n);
-  eq(fb.starsBefore.stars, 0); eq(fb.starsAfter.fed, 1); eq(fb.starsAfter.toNext, 6); eq(fb.consumed, true);
+  eq(fb.starsBefore.stars, 0); eq(fb.starsAfter.fed, 1); eq(fb.starsAfter.toNext, 30); eq(fb.consumed, true);
   const legacyFb = V.describeCultivationChange(v1.changes[1]);
   eq(legacyFb.rule, 'v1'); eq(legacyFb.layer, 'ADULT_TO_GUARDIAN'); eq(legacyFb.starsAfter, null, 'old receipts get display fields without rewriting data');
   eq(V.percentOf(0n, 74).label, '0'); eq(V.percentOf(1n, 1000).label, '<1');
@@ -134,7 +132,7 @@ let checks = 0; const ok = (...a) => { assert.ok(...a); checks++; }; const eq = 
   // 9. view：星級、上限、可餵給誰；舊副本補算；四大神獸／本體才有星級。
   const view = V.cultivationView(snap({ ...over }, legacyReceipts));
   const q = view.cards.find(c => c.id === 'qinglong'), a = view.cards.find(c => c.id === 'adult'), y = view.cards.find(c => c.id === 'young');
-  eq(q.atBonusCap, true); eq(q.bonusCap, '37'); eq(q.stars.stars, 0); eq(a.stars.fed, 99); eq(a.stars.stars, 4); eq(a.stars.toNext, 1);
+  eq(q.atBonusCap, true); eq(q.bonusCap, '37'); eq(q.stars.stars, 0); eq(a.stars.fed, 499); eq(a.stars.stars, 4); eq(a.stars.toNext, 1);
   eq(y.stars, undefined); eq(y.materialTargetName, '角木蛟'); eq(a.materialTargetName, '青龍'); eq(view.foodChainRule, 'v2');
 
   // 10. 5A 四象合體只顯示「已合體 +N」：判定與標籤仍是純特效，傷害不變（56063ead 守門測試另外照跑）。
@@ -143,5 +141,5 @@ let checks = 0; const ok = (...a) => { assert.ok(...a); checks++; }; const eq = 
   ok(fs.readFileSync(path.join(__dirname, '../lib/beast-game/match3/guardian-fusion.ts'), 'utf8').includes('（僅特效，不加傷害）'));
   // 11. 只用新正式卡：測試用到的卡都在 cards/beasts 新卡登錄內。
   ok([...mainIds, 'beast_g_qinglong', 'beast_a01', 'beast_y01'].every(id => R.getCard(id) && /^beast_(g_|a\d\d|y\d\d)/.test(id)));
-  console.log(`PASS food chain v2: ${checks} checks — provisional params, five-star thresholds A/B, strict layers (56 pairs), v1 bit-identical, 50% inheritance, 50% cap clamp, over-cap kept, no same-element bonus, star cap rejection without consuming, legacy fed from receipts, old receipts replay as v1, rule switch never recomputes, feedback fields, view stars/caps.`);
+  console.log(`PASS food chain v2: ${checks} checks — hard-coded provisional constants (no env/DB), five-star split 1/16·1/16·1/8·1/4·1/2 summing exactly to cap (1000 → 62/63/125/250/500, 500 → 31/32/62/125/250), strict layers (56 pairs), v1 bit-identical, 50% inheritance, 50% cap clamp, over-cap kept, no same-element bonus, star cap rejection without consuming, legacy fed from receipts, old receipts replay as v1, rule switch never recomputes, feedback fields, view stars/caps.`);
 })().catch(e => { console.error(e); process.exitCode = 1; });

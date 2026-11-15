@@ -4,7 +4,7 @@
  *   2B 加成總和上限＝目標卡面攻擊 50%
  *   3B 本體被四大神獸吃掉時，傳承它已累積加成的 50%（取整）
  *   4A 無同屬性加成　6A 不給開局能量　7A 嚴格逐層　8A 被吃卡消耗　10A 百分比以卡面原始攻擊為基準
- * 22:22 追加「五顆星封頂」：每張卡依被餵張數累進五顆星，第五星佔封頂張數一半；分配模式 A／B 與封頂張數都是參數。
+ * 22:22 追加「五顆星封頂」：每張卡依被餵張數累進五顆星，第五星佔封頂張數一半；各星份數 STAR_SHARES 與封頂張數 STAR_CAP_FEEDS 是程式碼常數。
  *
  * 規則版本寫進每張收據：v1＝37c5820f／ec138627 時的原規則（沒有上限、不傳承、沒有星級），
  * v2＝本檔參數。舊收據永遠照 v1 重播；已存在的加成不扣回（超過上限的卡保留現值，只是不能再加）。
@@ -13,36 +13,45 @@
 import 'server-only';
 
 export type FoodChainRule = 'v1' | 'v2';
-export type StarSplitMode = 'A' | 'B';
 export type FeedTargetForm = 'ADULT' | 'GUARDIAN';
+
+/**
+ * 待平衡暫定值：五顆星各自的「份數」（第一～第五星），單一常數陣列；第五星固定佔封頂一半。
+ * 22:47 使用者定案＝一路減半（第一二星各 1/16、第三 1/8、第四 1/4、第五 1/2）。
+ */
+export const STAR_SHARES: readonly [number, number, number, number, number] = [1, 1, 2, 4, 8];
+
+/** 待平衡暫定值：各層五星封頂張數（22:47 使用者定：四大神獸 1000、本體 500）。 */
+export const STAR_CAP_FEEDS: Readonly<Record<FeedTargetForm, number>> = { GUARDIAN: 1000, ADULT: 500 };
 
 export interface FoodChainParams {
   /** 待平衡暫定值：加成總和上限＝卡面攻擊 × num / den（取整）。 */
   attackCap: { num: number; den: number };
   /** 待平衡暫定值：本體被吃時傳承其累積加成 × num / den（取整）。 */
   inherit: { num: number; den: number };
-  /** 待平衡暫定值：五顆星封頂（各層封頂張數、前四顆星分配模式）。 */
-  stars: { mode: StarSplitMode; capFeeds: Record<FeedTargetForm, number> };
+  /** 待平衡暫定值：五顆星封頂（各層封頂張數、各星份數）。 */
+  stars: { shares: readonly number[]; capFeeds: Readonly<Record<FeedTargetForm, number>> };
   /**
    * 待平衡暫定值：攻擊加成已到上限、但星級還沒封頂時，是否仍可吃卡（本次加成 +0，只累積星級）。
-   * 依 22:22 指示「先保留 50% 上限，星級只管吃卡張數與封頂」兩者獨立，預設 true；預覽會清楚寫出 +0。
+   * 依 22:22 指示「先保留 50% 上限，星級只管吃卡張數與封頂」兩者獨立，設 true；預覽會清楚顯示 +0。
    */
   feedAtAttackCap: boolean;
 }
 
 /**
- * 待平衡暫定值。星級：22:39 使用者定案 B（第五星 1/2、第四 1/4、第三 1/8、第一二各 1/16），四大神獸封頂 1000、本體暫定 100。
+ * 規則全部寫死在程式碼常數（22:47 使用者指示）：沒有後台可調參數、環境變數或資料庫設定。全部是待平衡暫定值。
  */
-export const FOOD_CHAIN_V2: FoodChainParams = {
-  attackCap: { num: 1, den: 2 },
-  inherit: { num: 1, den: 2 },
-  stars: { mode: 'B', capFeeds: { GUARDIAN: 1000, ADULT: 100 } },
+export const FOOD_CHAIN_V2: FoodChainParams = Object.freeze({
+  attackCap: Object.freeze({ num: 1, den: 2 }),
+  inherit: Object.freeze({ num: 1, den: 2 }),
+  stars: Object.freeze({ shares: STAR_SHARES, capFeeds: STAR_CAP_FEEDS }),
   feedAtAttackCap: true,
-};
+});
 
-/** 新操作用的規則：預設 v2；伺服端環境變數 BEAST_FOOD_CHAIN_RULE=v1 可整條退回原規則（緊急開關）。 */
+/** 新操作一律用 v2（寫死，無開關）；v1 只用來重播沒有 rule 欄位的舊收據。 */
+export const ACTIVE_FOOD_CHAIN_RULE: FoodChainRule = 'v2';
 export function activeFoodChainRule(): FoodChainRule {
-  return process.env.BEAST_FOOD_CHAIN_RULE === 'v1' ? 'v1' : 'v2';
+  return ACTIVE_FOOD_CHAIN_RULE;
 }
 
 /** 收據上的規則版本；沒有寫的舊收據一律是 v1。 */
@@ -51,29 +60,35 @@ export function receiptRule(value: unknown): FoodChainRule {
 }
 
 /**
- * 五顆星的「累計」門檻（第 n 顆星要累計被餵幾張）。第五星佔封頂一半，所以四星滿＝封頂一半。
- *   A：前四顆平分剩下一半 → 累計 1/8、2/8、3/8、4/8、1
- *   B：依序減半 → 第四星 1/4、第三 1/8、第二與第一各 1/16 → 累計 1/16、1/8、1/4、1/2、1
- * 取整（22:39 使用者定案 B；取整須保證五顆星張數總和＝封頂）：累計值無條件進位、最後一顆固定到封頂，
- *   例 1000 張 B → 累計 63、125、250、500、1000（各星 63＋62＋125＋250＋500＝1000）；100 張 → 7、13、25、50、100（7＋6＋12＋25＋50＝100）。
+ * 各星張數（使用者 22:47 定案）：依 STAR_SHARES 份數取整數（無條件捨去），五星總和必須剛好等於封頂，
+ * 餘數放在低星（從第二星起：第二 → 第一 → 第三 → 第四 → 第五）。
+ *   1000 張 → 62／63／125／250／500（累計 62、125、250、500、1000）
+ *    500 張 → 31／32／62／125／250（累計 31、63、125、250、500）
  */
-export function starThresholds(capFeeds: number, mode: StarSplitMode): number[] {
-  if (!Number.isSafeInteger(capFeeds) || capFeeds < 1) throw new Error('星級封頂張數無效。');
-  const fractions = mode === 'A' ? [[1, 8], [2, 8], [3, 8], [4, 8]] : [[1, 16], [1, 8], [1, 4], [1, 2]];
-  const cumulative = fractions.map(([n, d]) => Math.ceil(capFeeds * n / d));
-  return [...cumulative, capFeeds].map((v, i, all) => Math.max(v, i ? all[i - 1] : 1));
+export const STAR_REMAINDER_ORDER: readonly number[] = [1, 0, 2, 3, 4];
+export function starFeedsPerStar(capFeeds: number, shares: readonly number[] = STAR_SHARES): number[] {
+  if (!Number.isSafeInteger(capFeeds) || capFeeds < 5) throw new Error('星級封頂張數無效。');
+  if (shares.length !== 5 || shares.some(v => !Number.isSafeInteger(v) || v < 1)) throw new Error('星級份數無效。');
+  const total = shares.reduce((a, b) => a + b, 0);
+  const per = shares.map(v => Math.floor(capFeeds * v / total));
+  let left = capFeeds - per.reduce((a, b) => a + b, 0);
+  for (let i = 0; left > 0; i = (i + 1) % 5, left--) per[STAR_REMAINDER_ORDER[i]]++;
+  return per;
+}
+/** 五顆星的「累計」門檻（第 n 顆星要累計被餵幾張）；最後一顆＝封頂。 */
+export function starThresholds(capFeeds: number, shares: readonly number[] = STAR_SHARES): number[] {
+  let sum = 0;
+  return starFeedsPerStar(capFeeds, shares).map(v => (sum += v));
 }
 
-/**
- * ascension：預留給日後「突破線」的欄位，本輪不啟用、沒有任何規格，一律 null（天賦網格、技能打扮同樣不做）。
- */
-export interface StarProgress { stars: number; fed: number; capFeeds: number; nextAt: number | null; toNext: number | null; maxed: boolean; thresholds: number[]; mode: StarSplitMode; ascension: null }
+/** ascension：預留給日後「突破線」的欄位，本輪不啟用、沒有任何規格，一律 null（天賦網格、技能打扮同樣不做）。 */
+export interface StarProgress { stars: number; fed: number; capFeeds: number; nextAt: number | null; toNext: number | null; maxed: boolean; thresholds: number[]; ascension: null }
 
 export function starProgress(form: FeedTargetForm, fed: number, params: FoodChainParams = FOOD_CHAIN_V2): StarProgress {
-  const capFeeds = params.stars.capFeeds[form], thresholds = starThresholds(capFeeds, params.stars.mode);
+  const capFeeds = params.stars.capFeeds[form], thresholds = starThresholds(capFeeds, params.stars.shares);
   const count = Math.max(0, Math.floor(fed));
   const stars = thresholds.filter(t => count >= t).length, nextAt = stars < 5 ? thresholds[stars] : null;
-  return { stars, fed: count, capFeeds, nextAt, toNext: nextAt === null ? null : nextAt - count, maxed: count >= capFeeds, thresholds, mode: params.stars.mode, ascension: null };
+  return { stars, fed: count, capFeeds, nextAt, toNext: nextAt === null ? null : nextAt - count, maxed: count >= capFeeds, thresholds, ascension: null };
 }
 
 /** 加成上限（以卡面原始攻擊為基準，取整）。 */
