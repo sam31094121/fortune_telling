@@ -1,0 +1,24 @@
+// AUDIT-2 L4（fix-3）：不支援 Web Locks 時的退路租約——第二個分頁拿不到、釋放後可拿、心跳過期（當掉的分頁）可接手、儲存壞掉照舊放行。
+const assert = require('node:assert/strict');
+const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm'), ts = require('typescript');
+const src = fs.readFileSync(path.join(__dirname, '../lib/beast-game/match3/battle-snapshot-store.ts'), 'utf8');
+const js = ts.transpileModule(src, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
+const mod = { exports: {} };
+const timers = [];
+vm.runInNewContext(js, { module: mod, exports: mod.exports, require: id => (id.startsWith('./') ? {} : require(id)), setInterval: (f) => { timers.push(f); return timers.length; }, clearInterval: (i) => { timers[i - 1] = null; }, JSON, Math, Date });
+const { acquireFallbackLease, FALLBACK_LEASE_POLICY } = mod.exports;
+const mem = () => { const m = new Map(); return { getItem: k => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k), m }; };
+let t = 1_000_000; const now = () => t;
+const store = mem();
+const a = acquireFallbackLease('self', store, now); assert.equal(a.ok, true, '第一個分頁拿得到');
+const b = acquireFallbackLease('self', store, now); assert.equal(b.ok, false, '第二個分頁拿不到');
+assert.equal(acquireFallbackLease('guest', store, now).ok, true, '不同玩家互不影響');
+t += FALLBACK_LEASE_POLICY.heartbeatMs; timers.forEach(f => f && f());
+t += FALLBACK_LEASE_POLICY.staleMs - 1; assert.equal(acquireFallbackLease('self', store, now).ok, false, '心跳有更新就不會被搶');
+a.release(); assert.equal(acquireFallbackLease('self', store, now).ok, true, '釋放後可以拿');
+const s2 = mem(); const c = acquireFallbackLease('self', s2, now); assert.equal(c.ok, true);
+timers.length = 0; t += FALLBACK_LEASE_POLICY.staleMs + 1; assert.equal(acquireFallbackLease('self', s2, now).ok, true, '當掉的分頁（心跳過期）可以接手');
+const broken = { getItem() { throw new Error('denied'); }, setItem() { throw new Error('denied'); }, removeItem() {} };
+assert.equal(acquireFallbackLease('self', broken, now).ok, true, '儲存不能用時照舊放行（伺服端序號把關）');
+assert.equal(acquireFallbackLease('self', undefined, now).ok, true);
+console.log('PASS beast-match3 fallback lease (L4)');

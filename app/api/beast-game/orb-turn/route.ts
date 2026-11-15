@@ -4,6 +4,11 @@ import { resolveOrbTurn, type TurnInput } from '@/lib/beast-game/match3/resolve-
 import { resolveCardAttackTurn } from '@/lib/beast-game/match3/card-attack';
 import { isBeastElement } from '@/lib/beast-game/elements';
 import { getCard } from '@/lib/beast-game/registry';
+import { battleResumeEnabled, coreFromTurnInput, nextCoreAfterCardAttack, nextCoreAfterOrbTurn, nextCoreAfterTreasure, orbTurnSeed, BATTLE_SESSION_MESSAGES, type BattleMeta } from '@/lib/beast-game/match3/battle-resume';
+import { BattleSessionError, battleLedgerStatus, runBattleTurn } from '@/lib/beast-game/match3/orb-battle-ledger';
+import { canonicalJson } from '@/lib/beast-game/match3/battle-resume';
+import { allowRequest, clientKey } from '@/lib/beast-game/match3/rate-limit';
+import { createHash } from 'node:crypto';
 export const runtime = 'nodejs';
 export async function POST(request: Request) {
   try {
@@ -26,6 +31,45 @@ export async function POST(request: Request) {
     if (p.treasures !== undefined) validateTreasureBook(p.treasures);
     if (p.actionId !== undefined && (typeof p.actionId !== 'string' || !p.actionId.length || p.actionId.length > 100)) throw new Error('invalid');
     if (p.treasureGuard !== undefined && ![1,0.5].includes(p.treasureGuard)) throw new Error('invalid');
+    // PLAN-v2 A6（開關 NEXT_PUBLIC_M3_BATTLE_RESUME）：帶 session 的回合必須和伺服端上一張收據一致，算完發下一張收據與權威核心。
+    const session = (p as { session?: { token?: unknown; battleId?: unknown; device?: unknown } }).session;
+    if (session !== undefined) {
+      if (!battleResumeEnabled() || !session || typeof session !== 'object' || p.mode === 'medium') throw new Error('invalid');
+      // AUDIT-2 X1–X3：沒有共用儲存＋金鑰時不接受帶收據的回合（照實回 unavailable，前端停在原狀並提示）。
+      if (!battleLedgerStatus().ok) return NextResponse.json({ error: BATTLE_SESSION_MESSAGES.unavailable, code: 'unavailable' }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
+      // AUDIT-2 M2：帶收據的回合有呼叫頻率限制（每台伺服器各自計算，見 rate-limit.ts）；開關關閉的舊回合不受影響。
+      if (!allowRequest('turn', clientKey(request))) return NextResponse.json({ error: BATTLE_SESSION_MESSAGES['rate-limited'], code: 'rate-limited' }, { status: 429, headers: { 'Cache-Control': 'no-store' } });
+      const meta = { battleId: session.battleId, mode: p.mode, wins: p.wins, seed: 0, rule: p.rule } as BattleMeta;
+      // 開局種子由收據核對：連珠回合的種子必須＝開局種子＋回合式，瀏覽器不能自選種子重抽補珠。
+      const base = (p as { battleSeed?: unknown }).battleSeed;
+      if (typeof base !== 'number' || !Number.isInteger(base)) throw new Error('invalid');
+      meta.seed = base;
+      if (p.action === undefined ? p.seed !== orbTurnSeed(base, p.move) : p.seed !== base) throw new Error('invalid');
+      const core = coreFromTurnInput(p);
+      try {
+        // AUDIT-2 H4：同一 actionId＋同一份請求的重送＝冪等（伺服端已記下就回上一次的結果）。
+        const requestKey = typeof p.actionId === 'string' ? p.actionId + '|' + createHash('sha256').update(canonicalJson(p)).digest('base64url') : undefined;
+        const out = await runBattleTurn<object>({ token: session.token, meta, core, device: session.device, requestKey }, () => {
+          if (p.action === 'treasure') {
+            if (!isBeastElement(p.treasureElement) || (p.treasureVariant !== undefined && !integer(p.treasureVariant,0,4))) throw new Error('invalid');
+            const result = resolveTreasureUse(p, p.treasureElement, p.treasureVariant ?? 0);
+            return { result, nextCore: nextCoreAfterTreasure(core, result) };
+          }
+          if (p.action === 'energy' || p.action === 'link') {
+            if (p.path.length !== 0) throw new Error('invalid');
+            const result = resolveCardAttackTurn(p);
+            return { result, nextCore: nextCoreAfterCardAttack(core, result) };
+          }
+          if (p.action !== undefined || p.path.length === 0) throw new Error('invalid');
+          const result = resolveOrbTurn(p);
+          return { result, nextCore: nextCoreAfterOrbTurn({ ...core, path: p.path }, result) };
+        });
+        return NextResponse.json({ ...out.result, battleSession: out.session, battleCore: out.nextCore }, { headers: { 'Cache-Control': 'no-store' } });
+      } catch (e) {
+        if (e instanceof BattleSessionError) return NextResponse.json({ error: BATTLE_SESSION_MESSAGES[e.code], code: e.code }, { status: e.code === 'unavailable' ? 503 : 409, headers: { 'Cache-Control': 'no-store' } });
+        throw e;
+      }
+    }
     if (p.action === 'treasure') {
       if (!isBeastElement(p.treasureElement) || (p.treasureVariant !== undefined && !integer(p.treasureVariant,0,4))) throw new Error('invalid');
       return NextResponse.json(resolveTreasureUse(p, p.treasureElement, p.treasureVariant ?? 0), { headers: { 'Cache-Control': 'no-store' } });
