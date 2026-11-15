@@ -16,6 +16,7 @@ import { NAMEOLOGY_ARCHIVE, type InputTierId, type Provenance } from './nameolog
 import registryData from '../docs/技能戰鬥檔案/易經/來源登記.json';
 import { evaluateClaim, indexSources, type SourceRegistry } from './iching-source-gate';
 import { deriveNameologyTotalBeast } from './nameology-total-beast';
+import { getCard } from './beast-game/registry';
 import { STATUS_WORDING } from './credibility-phrases';
 
 export type GridElement = '木' | '火' | '土' | '金' | '水';
@@ -257,6 +258,8 @@ export function buildGridReadings(grids: GridInput[], characters: StrokeChar[] =
     const entry = numberEntryFor(numberUsed);
     const element = elementOfNumber(grid.value);
     const picked = beastByKey.get(grid.key) as ReturnType<typeof deriveNameologyTotalBeast>;
+    const beastCard = getCard(`beast_a${String(picked.beast.id).padStart(2, '0')}`);
+    if (!beastCard || beastCard.mansionId !== picked.beast.id) throw new Error('暫時無法取得神獸卡圖');
     return {
       key: grid.key,
       label: grid.label,
@@ -272,7 +275,7 @@ export function buildGridReadings(grids: GridInput[], characters: StrokeChar[] =
       beast: {
         id: picked.beast.id,
         name: picked.beast.name,
-        imageUrl: `/star-beasts/adult-divine-v2/${String(picked.beast.id).padStart(2, "0")}.png`,
+        imageUrl: beastCard.art.front,
         direction: picked.direction,
         meaning: picked.beast.coreMeaning,
       },

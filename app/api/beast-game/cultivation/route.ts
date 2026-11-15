@@ -7,7 +7,7 @@ import { cultivationView, cultivationChangeView } from '@/lib/beast-game/cultiva
 import { fuseCultivation } from '@/lib/beast-game/cultivation';
 import { updateCultivationAccount, importExistingGrants, releaseCultivationBattle, creditSharedShards, exchangeSharedShards, legacyGrowthCollection } from '@/lib/beast-game/cultivation-games';
 import { migrateCollection } from '@/lib/beast-collection-ledger';
-import { sharedOrbProfile, beginSharedOrb } from '@/lib/beast-game/cultivation-orb';
+import { sharedOrbProfile, beginSharedOrb, resumeSharedOrb } from '@/lib/beast-game/cultivation-orb';
 import { parseCampaign } from '@/lib/beast-game/match3/hard-campaign';
 import { emptyTreasureBook } from '@/lib/beast-game/match3/treasures';
 import { applyLegacyClaim, CampaignConflict, LEGACY_BACKFILL_ID, LEGACY_MAX_WINS } from '@/lib/beast-game/cultivation-legacy';
@@ -56,6 +56,7 @@ export async function POST(request: Request) {
     }
     if(body?.type==='ORB_PROFILE')return NextResponse.json({ok:true,profile:await sharedOrbProfile(owner,body.profile)},{headers});
     if(body?.type==='ORB_BEGIN')return NextResponse.json({ok:true,...await beginSharedOrb(owner,body.profile,body.operationId,body.seed,body.mode)},{headers});
+    if(body?.type==='ORB_RESUME')return NextResponse.json({ok:true,...await resumeSharedOrb(owner,body.battleId)},{headers});
     if(body?.type==='LOCAL_GRANTS')return NextResponse.json({ok:true,view:cultivationView(await importExistingGrants(owner,body.collection,body.growth))},{headers});
     if(body?.type==='SHARD_CREDIT')return NextResponse.json({ok:true,view:cultivationView(await creditSharedShards(owner,body.proof))},{headers});
     if(body?.type==='SHARD_EXCHANGE'){const snapshot=await exchangeSharedShards(owner,body.kind,body.operationId);return NextResponse.json({ok:true,view:cultivationView(snapshot),cardId:snapshot.exchanges![body.operationId].cardId},{headers});}

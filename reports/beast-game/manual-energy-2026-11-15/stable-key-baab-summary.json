@@ -1,0 +1,578 @@
+[
+  {
+    "instrumentation": "RAF and longtask only; no CDP trace/profiler",
+    "label": "stable-key-baab-stable-native-4x-0",
+    "rate": 4,
+    "elapsed": 7839,
+    "epochs": 26,
+    "p95": 91.89999999999964,
+    "p99": 133.5,
+    "long": 38,
+    "workloadHash": "cb714c5db364cbe9f45b1615bad77d8f4515be1cc522c9281d1de79d608a804a",
+    "workload": [
+      {
+        "action": "drag",
+        "replay": 11,
+        "damage": 0,
+        "board": [
+          [
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "WATER",
+            "EARTH"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "WATER",
+            "FIRE",
+            "AIR",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "AIR",
+            "EARTH",
+            "WATER",
+            "AIR"
+          ],
+          [
+            "AIR",
+            "WATER",
+            "FIRE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "WATER",
+            "AIR",
+            "WATER",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "FIRE"
+          ]
+        ],
+        "team": [
+          {
+            "id": "beast_g_baihu",
+            "hp": 145,
+            "energy": 50
+          },
+          {
+            "id": "beast_y14",
+            "hp": 54,
+            "energy": 30
+          },
+          {
+            "id": "beast_y19",
+            "hp": 74,
+            "energy": 15
+          },
+          {
+            "id": "beast_y03",
+            "hp": 72,
+            "energy": 0
+          },
+          {
+            "id": "beast_y08",
+            "hp": 49,
+            "energy": 0
+          }
+        ],
+        "foes": [
+          {
+            "id": "beast_a22",
+            "hp": 333
+          },
+          {
+            "id": "beast_a16",
+            "hp": 370
+          },
+          {
+            "id": "beast_a05",
+            "hp": 472
+          },
+          {
+            "id": "beast_a27",
+            "hp": 294
+          },
+          {
+            "id": "beast_a24",
+            "hp": 343
+          }
+        ]
+      }
+    ],
+    "groups": {},
+    "top": [],
+    "errors": []
+  },
+  {
+    "instrumentation": "RAF and longtask only; no CDP trace/profiler",
+    "label": "stable-key-baab-baseline-native-4x-1",
+    "rate": 4,
+    "elapsed": 7760,
+    "epochs": 26,
+    "p95": 91.80000000000109,
+    "p99": 142,
+    "long": 41,
+    "workloadHash": "cb714c5db364cbe9f45b1615bad77d8f4515be1cc522c9281d1de79d608a804a",
+    "workload": [
+      {
+        "action": "drag",
+        "replay": 11,
+        "damage": 0,
+        "board": [
+          [
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "WATER",
+            "EARTH"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "WATER",
+            "FIRE",
+            "AIR",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "AIR",
+            "EARTH",
+            "WATER",
+            "AIR"
+          ],
+          [
+            "AIR",
+            "WATER",
+            "FIRE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "WATER",
+            "AIR",
+            "WATER",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "FIRE"
+          ]
+        ],
+        "team": [
+          {
+            "id": "beast_g_baihu",
+            "hp": 145,
+            "energy": 50
+          },
+          {
+            "id": "beast_y14",
+            "hp": 54,
+            "energy": 30
+          },
+          {
+            "id": "beast_y19",
+            "hp": 74,
+            "energy": 15
+          },
+          {
+            "id": "beast_y03",
+            "hp": 72,
+            "energy": 0
+          },
+          {
+            "id": "beast_y08",
+            "hp": 49,
+            "energy": 0
+          }
+        ],
+        "foes": [
+          {
+            "id": "beast_a22",
+            "hp": 333
+          },
+          {
+            "id": "beast_a16",
+            "hp": 370
+          },
+          {
+            "id": "beast_a05",
+            "hp": 472
+          },
+          {
+            "id": "beast_a27",
+            "hp": 294
+          },
+          {
+            "id": "beast_a24",
+            "hp": 343
+          }
+        ]
+      }
+    ],
+    "groups": {},
+    "top": [],
+    "errors": []
+  },
+  {
+    "instrumentation": "RAF and longtask only; no CDP trace/profiler",
+    "label": "stable-key-baab-baseline-native-4x-2",
+    "rate": 4,
+    "elapsed": 7559,
+    "epochs": 26,
+    "p95": 83.5,
+    "p99": 158.60000000000036,
+    "long": 42,
+    "workloadHash": "cb714c5db364cbe9f45b1615bad77d8f4515be1cc522c9281d1de79d608a804a",
+    "workload": [
+      {
+        "action": "drag",
+        "replay": 11,
+        "damage": 0,
+        "board": [
+          [
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "WATER",
+            "EARTH"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "WATER",
+            "FIRE",
+            "AIR",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "AIR",
+            "EARTH",
+            "WATER",
+            "AIR"
+          ],
+          [
+            "AIR",
+            "WATER",
+            "FIRE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "WATER",
+            "AIR",
+            "WATER",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "FIRE"
+          ]
+        ],
+        "team": [
+          {
+            "id": "beast_g_baihu",
+            "hp": 145,
+            "energy": 50
+          },
+          {
+            "id": "beast_y14",
+            "hp": 54,
+            "energy": 30
+          },
+          {
+            "id": "beast_y19",
+            "hp": 74,
+            "energy": 15
+          },
+          {
+            "id": "beast_y03",
+            "hp": 72,
+            "energy": 0
+          },
+          {
+            "id": "beast_y08",
+            "hp": 49,
+            "energy": 0
+          }
+        ],
+        "foes": [
+          {
+            "id": "beast_a22",
+            "hp": 333
+          },
+          {
+            "id": "beast_a16",
+            "hp": 370
+          },
+          {
+            "id": "beast_a05",
+            "hp": 472
+          },
+          {
+            "id": "beast_a27",
+            "hp": 294
+          },
+          {
+            "id": "beast_a24",
+            "hp": 343
+          }
+        ]
+      }
+    ],
+    "groups": {},
+    "top": [],
+    "errors": []
+  },
+  {
+    "instrumentation": "RAF and longtask only; no CDP trace/profiler",
+    "label": "stable-key-baab-stable-native-4x-3",
+    "rate": 4,
+    "elapsed": 7121,
+    "epochs": 26,
+    "p95": 58.600000000000364,
+    "p99": 116.89999999999964,
+    "long": 29,
+    "workloadHash": "cb714c5db364cbe9f45b1615bad77d8f4515be1cc522c9281d1de79d608a804a",
+    "workload": [
+      {
+        "action": "drag",
+        "replay": 11,
+        "damage": 0,
+        "board": [
+          [
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "WATER",
+            "EARTH"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "WATER",
+            "FIRE",
+            "AIR",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "AIR",
+            "EARTH",
+            "WATER",
+            "AIR"
+          ],
+          [
+            "AIR",
+            "WATER",
+            "FIRE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "WATER",
+            "AIR",
+            "WATER",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "FIRE"
+          ]
+        ],
+        "team": [
+          {
+            "id": "beast_g_baihu",
+            "hp": 145,
+            "energy": 50
+          },
+          {
+            "id": "beast_y14",
+            "hp": 54,
+            "energy": 30
+          },
+          {
+            "id": "beast_y19",
+            "hp": 74,
+            "energy": 15
+          },
+          {
+            "id": "beast_y03",
+            "hp": 72,
+            "energy": 0
+          },
+          {
+            "id": "beast_y08",
+            "hp": 49,
+            "energy": 0
+          }
+        ],
+        "foes": [
+          {
+            "id": "beast_a22",
+            "hp": 333
+          },
+          {
+            "id": "beast_a16",
+            "hp": 370
+          },
+          {
+            "id": "beast_a05",
+            "hp": 472
+          },
+          {
+            "id": "beast_a27",
+            "hp": 294
+          },
+          {
+            "id": "beast_a24",
+            "hp": 343
+          }
+        ]
+      }
+    ],
+    "groups": {},
+    "top": [],
+    "errors": []
+  }
+]

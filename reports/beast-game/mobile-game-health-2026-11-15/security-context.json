@@ -1,0 +1,14 @@
+[
+  {
+    "url": "http://localhost:8888/beast-game/match3-hard",
+    "secure": true,
+    "locks": true,
+    "uuid": "function"
+  },
+  {
+    "url": "http://10.136.23.13:8888/beast-game/match3-hard",
+    "secure": false,
+    "locks": false,
+    "uuid": "undefined"
+  }
+]

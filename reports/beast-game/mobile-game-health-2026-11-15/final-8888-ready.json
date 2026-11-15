@@ -1,0 +1,22 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "ms": 2547
+  },
+  {
+    "path": "/internal/health/ready",
+    "status": 200,
+    "ms": 2108
+  },
+  {
+    "path": "/api/beast-game",
+    "status": 200,
+    "ms": 2050
+  },
+  {
+    "path": "/beast-game/match3-hard",
+    "status": 200,
+    "ms": 2138
+  }
+]

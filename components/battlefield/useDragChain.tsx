@@ -58,13 +58,20 @@ export function useDragChain(board: Board, enabled: boolean, onRelease: (path: C
     ptsRef.current = [hit.pt]; commit([hit.cell], ptsRef.current);
   };
   const onPointerMove = (e: RPointerEvent<HTMLDivElement>) => {
-    const cur = pathRef.current; if (!cur.length) return;
-    const hit = cellAt(e.clientX, e.clientY, true); if (!hit) return;
-    const last = cur[cur.length - 1];
-    if (last.r === hit.cell.r && last.c === hit.cell.c) return;
-    const prev = cur[cur.length - 2];
-    if (prev && prev.r === hit.cell.r && prev.c === hit.cell.c) { ptsRef.current = ptsRef.current.slice(0, -1); commit(cur.slice(0, -1), ptsRef.current); return; }
-    if (canExtend(board, cur, hit.cell, diagonal, magic, shieldMode)) { ptsRef.current = [...ptsRef.current, hit.pt]; commit([...cur, hit.cell], ptsRef.current); }
+    let cur = pathRef.current; if (!cur.length) return;
+    let pts = ptsRef.current;
+    // Busy browsers batch pointer samples. Validate every recorded point, never
+    // interpolate missing cells or treat the batch's last point as a jump.
+    const samples = e.nativeEvent.getCoalescedEvents?.() ?? [];
+    for (const sample of [...samples, e]) {
+      const hit = cellAt(sample.clientX, sample.clientY, true); if (!hit) continue;
+      const last = cur[cur.length - 1];
+      if (last.r === hit.cell.r && last.c === hit.cell.c) continue;
+      const prev = cur[cur.length - 2];
+      if (prev && prev.r === hit.cell.r && prev.c === hit.cell.c) { pts = pts.slice(0, -1); cur = cur.slice(0, -1); continue; }
+      if (canExtend(board, cur, hit.cell, diagonal, magic, shieldMode)) { pts = [...pts, hit.pt]; cur = [...cur, hit.cell]; }
+    }
+    if (cur !== pathRef.current) { ptsRef.current = pts; commit(cur, pts); }
   };
   const end = () => {
     releaseGeometry();

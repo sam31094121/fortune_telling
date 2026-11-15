@@ -41,6 +41,7 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const [ownedEntries,setOwnedEntries]=useState<Record<string,string>>({});
   const [cultivationOpen,setCultivationOpen]=useState(false);
   const [previousOrb,setPreviousOrb]=useState<string|null>(null);
+  const [resumeBattleId,setResumeBattleId]=useState<string|undefined>();
   const [tab, setTab] = useState<BeastElement | 'ALL'>('ALL');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
@@ -99,13 +100,15 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
     loadRetry.current = { who, repick, reset };
     setInterrupted(false); setMismatch(null); setCardPending(false); setKeptLocal(false);
     setSaving(true);
+    let resumeId:string|undefined;
     let result:Awaited<ReturnType<typeof refreshSharedCampaign>>;
     try {
       if(who==='self'){
         const shared=await syncSharedCultivation();
-        // 重新整理自動接回：中斷的寶珠戰直接放掉暫扣、同隊從這一關重打（與「重打這一關」按鈕同一個動作），並在戰鬥畫面提示原因。
-        if(autoReplay&&shared.pendingBattle?.startsWith('orb:')){const pb=shared.pendingBattle;try{await sharedRequest({type:'RELEASE',battleId:pb});}catch{setPreviousOrb(pb);setInterrupted(true);throw new Error('上一場寶珠戰因重新整理中斷，自動重開這一關沒有成功（網路或伺服器暫時沒回應）。你的關卡進度、收藏與永久強化都還在，請按「重打這一關」再試一次。');}}
-        else if(shared.pendingBattle){const orb=shared.pendingBattle.startsWith('orb:');setPreviousOrb(orb?shared.pendingBattle:null);setInterrupted(orb);setCardPending(!orb);throw new Error(orb?'上一場寶珠戰在重新整理或離開頁面時中斷了，無法從中途接續。你的關卡進度、收藏與永久強化都還在；按「重打這一關」會用同一隊從這一關開頭重新開始，不扣任何卡。':'神獸卡片戰鬥還有一場沒結算，卡片暫時保留在那一場。請先按下方按鈕回去完成結算，再回來寶珠戰。');}
+        if(shared.pendingBattle){
+          if(shared.pendingBattle.startsWith('orb:'))resumeId=shared.pendingBattle;
+          else {setPreviousOrb(null);setCardPending(true);throw new Error('神獸卡片戰鬥還有一場沒結算，卡片暫時保留在那一場。請先按下方按鈕回去完成結算，再回來寶珠戰。');}
+        }
         result=await refreshSharedCampaign();
       }else result=reset?await resetGuestCampaign():readCampaign(who);
     }catch(e){
@@ -119,12 +122,13 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
     rememberOwner(who); setUnreadable(null); setConfirmRepair(false); setInterrupted(false);
     const p = result.profile;
     const willBattle = campaignHeroChoice(p) === 'locked' && !repick && validateCampaignTeam(p, p.teamIds);
-    if (!autoReplay && willBattle && result.notice) setResumeNotice(result.notice); else setResumeNotice(autoReplay && willBattle ? (who === 'self' ? '剛才的寶珠戰因重新整理中斷，無法從中途接續；已用同一隊從這一關開頭重新開始。關卡進度、收藏與永久強化都還在，沒有扣卡。' : '剛才的寶珠戰因重新整理中斷，已從這一關重新開始；親友這一輪的進度還在。') : '');
+    if (resumeId) setResumeNotice('已接續上次保存的寶珠戰局。'); else if (!autoReplay && willBattle && result.notice) setResumeNotice(result.notice); else setResumeNotice(autoReplay && willBattle ? (who === 'self' ? '剛才的寶珠戰因重新整理中斷，無法從中途接續；已用同一隊從這一關開頭重新開始。關卡進度、收藏與永久強化都還在，沒有扣卡。' : '剛才的寶珠戰因重新整理中斷，已從這一關重新開始；親友這一輪的進度還在。') : '');
     setOwnedEntries(p.ownedEntries??{});setPreviousOrb(null);
+    setResumeBattleId(resumeId);
     setOwner(who); setProfile(p); setError(''); setTab('ALL');
     setCandidate(campaignHeroChoice(p) === 'milestone' ? p.heroId : null);
     setSelected(validateCampaignTeam(p, p.teamIds) ? [...p.teamIds] : p.heroId ? [p.heroId] : []);
-    setPhase(campaignHeroChoice(p) !== 'locked' ? 'hero' : repick || !validateCampaignTeam(p, p.teamIds) ? 'team' : 'battle');
+    setPhase(resumeId ? 'battle' : campaignHeroChoice(p) !== 'locked' ? 'hero' : repick || !validateCampaignTeam(p, p.teamIds) ? 'team' : 'battle');
     setRevision(n => n + 1);
   };
   // 重新整理後：同一分頁記得上次是誰在玩，直接接回，不必再點一次「我自己」。親友進度存在本分頁，不重設。
@@ -178,7 +182,7 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
     {saving && !error && <p className={styles.hint} role="status" data-testid="campaign-loading">正在讀取你的進度…</p>}<p className={styles.hint}>自己的進度存在共同卡庫，靠這個瀏覽器裡的卡庫識別碼找回；換手機或清除網站資料前，請先到「存檔備份」記下識別碼。</p>
   </section>;
   if (phase === 'battle') return <>
-    <Match3Board key={revision} seed={seed} mode={mode} progressOwner={owner} campaignEnabled teamIds={profile.teamIds} onCampaignContinue={() => { setResumeNotice(''); void load(owner); }} onRepick={() => { setResumeNotice(''); void load(owner, true); }} />
+    <Match3Board key={revision} seed={seed} mode={mode} progressOwner={owner} campaignEnabled teamIds={profile.teamIds} resumeBattleId={resumeBattleId} onCampaignContinue={() => { setResumeNotice(''); void load(owner); }} onRepick={() => { setResumeNotice(''); void load(owner, true); }} />
     {resumeNotice && <p role="status" className={picker.resumeNotice} data-testid="resume-notice" onAnimationEnd={() => setResumeNotice('')}>{resumeNotice}</p>}
     {error && <div ref={loadAlert} role="alert" tabIndex={-1} className={picker.enhancement} data-testid="campaign-load-error"><p>{error}</p><button type="button" data-testid="retry-campaign-load" disabled={saving} onClick={() => {
       const retry = loadRetry.current; if (retry) void load(retry.who, retry.repick, retry.reset);

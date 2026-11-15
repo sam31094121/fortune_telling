@@ -1,0 +1,377 @@
+{
+  "initialCount": 60,
+  "allInitialBonusesZero": true,
+  "errors": [],
+  "fusions": [
+    {
+      "target": "earned:beast_a03",
+      "targetCard": "beast_a03",
+      "targetName": "氐土貉",
+      "material": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:13",
+      "materialCard": "beast_y03",
+      "materialName": "氐土貉・幼子",
+      "beforeBonus": "0",
+      "afterBonus": "2",
+      "added": 2,
+      "orbBefore": 44,
+      "orbAfter": 46,
+      "materialBonus": "0",
+      "consumed": 1
+    },
+    {
+      "target": "earned:beast_g_qinglong",
+      "targetCard": "beast_g_qinglong",
+      "targetName": "青龍",
+      "material": "earned:beast_a03",
+      "materialCard": "beast_a03",
+      "materialName": "氐土貉",
+      "beforeBonus": "0",
+      "afterBonus": "4",
+      "added": 4,
+      "orbBefore": 74,
+      "orbAfter": 78,
+      "materialBonus": "2",
+      "consumed": 1
+    },
+    {
+      "target": "earned:beast_g_qinglong",
+      "targetCard": "beast_g_qinglong",
+      "targetName": "青龍",
+      "material": "earned:beast_a04",
+      "materialCard": "beast_a04",
+      "materialName": "房日兔",
+      "beforeBonus": "4",
+      "afterBonus": "10",
+      "added": 6,
+      "orbBefore": 78,
+      "orbAfter": 84,
+      "materialBonus": "0",
+      "consumed": 1
+    }
+  ],
+  "strategy": "Normal zero-bonus cards; visible UI actions chosen from public state with existing lookahead policy; no seed/opponent/stat changes",
+  "winner": "player",
+  "battleRounds": 49,
+  "rewards": [
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:0",
+      "cardId": "beast_a07",
+      "name": "箕水豹"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:1",
+      "cardId": "beast_a03",
+      "name": "氐土貉"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:2",
+      "cardId": "beast_a05",
+      "name": "心月狐"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:3",
+      "cardId": "beast_a07",
+      "name": "箕水豹"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:4",
+      "cardId": "beast_a09",
+      "name": "牛金牛"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:5",
+      "cardId": "beast_a11",
+      "name": "虛日鼠"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:6",
+      "cardId": "beast_a13",
+      "name": "室火豬"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:7",
+      "cardId": "beast_a17",
+      "name": "胃土雉"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:8",
+      "cardId": "beast_a19",
+      "name": "畢月烏"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:9",
+      "cardId": "beast_a21",
+      "name": "參水猿"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:10",
+      "cardId": "beast_a23",
+      "name": "鬼金羊"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:11",
+      "cardId": "beast_a25",
+      "name": "星日馬"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:12",
+      "cardId": "beast_a27",
+      "name": "翼火蛇"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:13",
+      "cardId": "beast_y03",
+      "name": "氐土貉・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:14",
+      "cardId": "beast_y06",
+      "name": "尾火虎・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:15",
+      "cardId": "beast_y09",
+      "name": "牛金牛・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:16",
+      "cardId": "beast_y12",
+      "name": "危月燕・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:17",
+      "cardId": "beast_y15",
+      "name": "奎木狼・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:18",
+      "cardId": "beast_y18",
+      "name": "昴日雞・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:19",
+      "cardId": "beast_y21",
+      "name": "參水猿・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:20",
+      "cardId": "beast_y24",
+      "name": "柳土獐・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:21",
+      "cardId": "beast_y27",
+      "name": "翼火蛇・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:22",
+      "cardId": "beast_a02",
+      "name": "亢金龍"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:23",
+      "cardId": "beast_a04",
+      "name": "房日兔"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:24",
+      "cardId": "beast_a06",
+      "name": "尾火虎"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:25",
+      "cardId": "beast_a10",
+      "name": "女土蝠"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:26",
+      "cardId": "beast_a12",
+      "name": "危月燕"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:27",
+      "cardId": "beast_a14",
+      "name": "壁水貐"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:28",
+      "cardId": "beast_a16",
+      "name": "婁金狗"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:29",
+      "cardId": "beast_a18",
+      "name": "昴日雞"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:30",
+      "cardId": "beast_a20",
+      "name": "觜火猴"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:31",
+      "cardId": "beast_a24",
+      "name": "柳土獐"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:32",
+      "cardId": "beast_a26",
+      "name": "張月鹿"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:33",
+      "cardId": "beast_a28",
+      "name": "軫水蚓"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:34",
+      "cardId": "beast_y01",
+      "name": "角木蛟・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:35",
+      "cardId": "beast_y02",
+      "name": "亢金龍・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:36",
+      "cardId": "beast_y04",
+      "name": "房日兔・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:37",
+      "cardId": "beast_y05",
+      "name": "心月狐・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:38",
+      "cardId": "beast_y07",
+      "name": "箕水豹・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:39",
+      "cardId": "beast_y08",
+      "name": "斗木獬・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:40",
+      "cardId": "beast_y10",
+      "name": "女土蝠・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:41",
+      "cardId": "beast_y11",
+      "name": "虛日鼠・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:42",
+      "cardId": "beast_y13",
+      "name": "室火豬・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:43",
+      "cardId": "beast_y14",
+      "name": "壁水貐・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:44",
+      "cardId": "beast_y16",
+      "name": "婁金狗・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:45",
+      "cardId": "beast_y17",
+      "name": "胃土雉・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:46",
+      "cardId": "beast_y19",
+      "name": "畢月烏・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:47",
+      "cardId": "beast_y20",
+      "name": "觜火猴・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:48",
+      "cardId": "beast_y22",
+      "name": "井木犴・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:49",
+      "cardId": "beast_y23",
+      "name": "鬼金羊・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:50",
+      "cardId": "beast_y25",
+      "name": "星日馬・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:51",
+      "cardId": "beast_y26",
+      "name": "張月鹿・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:52",
+      "cardId": "beast_y28",
+      "name": "軫水蚓・幼子"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:53",
+      "cardId": "beast_a01",
+      "name": "角木蛟"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:54",
+      "cardId": "beast_a08",
+      "name": "斗木獬"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:55",
+      "cardId": "beast_a15",
+      "name": "奎木狼"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:56",
+      "cardId": "beast_a22",
+      "name": "井木犴"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:57",
+      "cardId": "beast_g_baihu",
+      "name": "白虎"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:58",
+      "cardId": "beast_g_qinglong",
+      "name": "青龍"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:59",
+      "cardId": "beast_g_xuanwu",
+      "name": "玄武"
+    },
+    {
+      "id": "duel:card:96a4aa30d70ddc79a77d883bbe945756c1f98adf0fce56e182b7052251599ec3:60",
+      "cardId": "beast_g_zhuque",
+      "name": "朱雀"
+    }
+  ],
+  "savedCount": 149,
+  "otherGrantedCount": 28,
+  "protectionRejected": true,
+  "sameTargetContinued": true,
+  "usedMaterialRejected": "材料或目標已不存在，未扣材料。",
+  "appliedOrb": {
+    "cardId": "beast_g_qinglong",
+    "name": "青龍",
+    "base": 74,
+    "bonus": "10",
+    "attack": 84
+  },
+  "actualTurnDamage": 128,
+  "crossEntryPersisted": true,
+  "cleaned": true
+}

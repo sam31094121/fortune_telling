@@ -48,6 +48,15 @@ export async function sharedOrbProfile(owner:string,value:unknown):Promise<HardC
 interface OrbTicket {owner:string;id:string;wins:number;teamIds:string[];attacks:Record<string,number>;exactAttacks:Record<string,string>;issuedAt:number}
 const secret=()=>process.env.BEAST_BATTLE_SECRET||process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.JWT_SECRET;
 function mac(value:string){const key=secret();if(!key)throw new Error('寶珠簽章服務尚未就緒。');return createHmac('sha256',key).update('shared-orb:'+value).digest('base64url');}
+/** Read-only recovery: never recreates a lineup, resets a turn or grants a reward. */
+export async function resumeSharedOrb(owner:string,id:unknown) {
+  const current=await cultivationRepository().read(owner),run=current.orbRun;
+  if(typeof id!=='string'||!run||run.id!==id||(current.pendingBattle!==id&&!current.creditedIds?.includes('orb-win:'+id)))throw new Error('原寶珠戰局無法接續，請返回選卡。');
+  const input=run.input;
+  const ticket:OrbTicket={owner,id,wins:input.wins,teamIds:input.team.map(c=>c.id),attacks:Object.fromEntries(input.team.map(c=>[c.id,c.attack])),exactAttacks:Object.fromEntries(input.team.map(c=>[c.id,c.attackExact??String(c.attack)])),issuedAt:Date.now()};
+  const payload=Buffer.from(JSON.stringify(ticket)).toString('base64url');
+  return {battleId:id,token:payload+'.'+mac(payload),initial:input,version:run.version,totalDamage:run.totalDamage,lastDamage:run.lastDamage};
+}
 export async function beginSharedOrb(owner:string,profile:unknown,operationId:string,seed:number,mode:Match3ModeId) {
   if(typeof operationId!=='string'||!operationId||operationId.length>100)throw new Error('戰局識別無效。');
   const p=await sharedOrbProfile(owner,profile);if(!validateCampaignTeam(p,p.teamIds))throw new Error('請選定完整隊伍。');
@@ -56,7 +65,7 @@ export async function beginSharedOrb(owner:string,profile:unknown,operationId:st
   const saved=await updateCultivationAccount(owner,current=>{
     if(current.pendingBattle!==id)throw new Error('戰局已變更。');
     if(current.orbRun?.id===id){if(JSON.stringify(current.orbRun.input.team.map(c=>c.id))!==JSON.stringify(p.teamIds)||current.orbRun.input.mode!==mode)throw new Error('同一戰局不能更換隊伍或模式。');return current;}
-    return {...current,orbRun:{id,version:0,seed,input:initial}};
+    return {...current,orbRun:{id,version:0,seed,input:initial,totalDamage:0,lastDamage:0}};
   });
   const ticket:OrbTicket={owner,id,wins:p.wins,teamIds:p.teamIds,attacks:Object.fromEntries(p.teamIds.map(id=>[id,p.shared!.stats[id].attack])),exactAttacks:Object.fromEntries(p.teamIds.map(id=>[id,p.shared!.stats[id].attackExact??String(p.shared!.stats[id].attack)])),issuedAt:Date.now()};
   const payload=Buffer.from(JSON.stringify(ticket)).toString('base64url');
@@ -68,8 +77,8 @@ export async function verifySharedOrb(owner:string,token:unknown) {
   if(rest.length||expected.length!==got.length||!timingSafeEqual(expected,got))throw new Error('寶珠戰局憑證無效。');
   const t=JSON.parse(Buffer.from(payload,'base64url').toString()) as OrbTicket;
   if(t.owner!==owner||Date.now()-t.issuedAt>12*60*60*1000)throw new Error('寶珠戰局已過期，請返回選卡。');
-  const current=await cultivationRepository().read(owner);
-  if(current.pendingBattle!==t.id&&!current.creditedIds?.includes('orb-win:'+t.id))throw new Error('寶珠戰局已離開，請重新開戰。');
+  // 不再多讀一次卡庫：resolveSharedOrbTurn 的同一筆交易會讀取並核對戰局（run.id、pendingBattle、已保存的上一招重播），
+  // 這裡再讀只會讓每一回合多一趟資料庫來回。憑證簽章、擁有者與期限仍在此驗。
   return t;
 }
 /** Persist the authoritative turn, inventory and victory receipt in one CAS write. */
@@ -85,19 +94,20 @@ export async function resolveSharedOrbTurn(t:OrbTicket,request:TurnInput,version
     if(!run.input.team.some(c=>c.hp>0)||run.input.foes.every(c=>c.hp<=0))throw new Error('戰鬥已結束。');
     const input:TurnInput={...run.input,...controls,actionId:`${t.id}:${version}`,eventId:`${t.id}:${version}`,seed:request.action?run.seed:(run.seed+run.input.move*2654435761)>>>0};
     if(!foeAvailable(input.foes,input.target,input.wins+1))throw new Error('目標尚未出戰或已倒下。');
-    let response:unknown,next:TurnInput;
+    let response:unknown,next:TurnInput,damage=0;
     if(input.action==='treasure'){
-      const r=resolveTreasureUse(input,input.treasureElement!,input.treasureVariant??0);response=r;next={...run.input,team:r.team,foes:r.foes,treasures:r.book,treasureGuard:r.guardScale};
+      const r=resolveTreasureUse(input,input.treasureElement!,input.treasureVariant??0);response=r;damage=r.effect.damage;next={...run.input,team:r.team,foes:r.foes,treasures:r.book,treasureGuard:r.guardScale};
     }else if(input.action==='energy'||input.action==='link'){
-      const r=resolveCardAttackTurn(input);response=r;next={...run.input,team:r.team,foes:r.foes};
+      const r=resolveCardAttackTurn(input);response=r;damage=r.actualDamage;next={...run.input,team:r.team,foes:r.foes};
     }else{
-      const r=resolveOrbTurn(input);response=r;
+      const r=resolveOrbTurn(input);response=r;damage=r.damage+r.startDamage+r.endDamage;
       next={...run.input,board:r.res.board,magic:r.res.magic,team:r.counter.team,foes:r.counter.foes,treasures:r.treasure.book,treasureGuard:r.nextTreasureGuard,attackBoost:r.nextBoost,move:run.input.move+(input.path.length?1:0)};
     }
+    next={...next,chosen:input.chosen,rule:input.rule,target:input.target};
     const won=next.team.some(c=>c.hp>0)&&next.foes.every(c=>c.hp<=0),event='orb-win:'+t.id;
     const reward={matchId:event,cardId:campaignAdultIds()[t.wins%28],win:t.wins+1};
     if(won&&reward.win!==(current.orbLedger?.wins??0)+1)throw new Error('關卡紀錄不符。');
-    return {...current,orbTreasures:next.treasures,orbRun:{...run,version:version+1,input:next,last:{version,command,response:{...(response as object),sharedVersion:version+1}}},
+    return {...current,orbTreasures:next.treasures,orbRun:{...run,version:version+1,input:next,totalDamage:run.totalDamage===undefined?undefined:run.totalDamage+damage,lastDamage:damage,last:{version,command,response:{...(response as object),sharedVersion:version+1}}},
       ...(won?{state:{...current.state,cards:[...current.state.cards,{id:event,cardId:reward.cardId,bonus:'0'}]},pendingBattle:null,hold:undefined,orbLedger:{wins:reward.win,rewards:[...(current.orbLedger?.rewards??[]),reward],receipts:[...(current.orbLedger?.receipts??[]),reward]},creditedIds:[...(current.creditedIds??[]),event,'closed:'+t.id]}:{})};
   });
   return saved.orbRun!.last!.response;

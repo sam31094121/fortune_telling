@@ -1,0 +1,408 @@
+{
+  "markedInitialCards": 60,
+  "allBonusesZero": true,
+  "battleRewards": [
+    {
+      "cardId": "beast_y28",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y01",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y02",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y04",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y05",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y07",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y08",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y10",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y11",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y13",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y14",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y16",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y17",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y19",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y20",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y22",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y23",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y25",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y26",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y28",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y03",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y06",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y09",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y12",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y15",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y18",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y21",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y24",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y27",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a03",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a05",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a07",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a09",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a11",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a13",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a17",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a19",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a21",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a23",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a25",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a27",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a02",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a04",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a06",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a10",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a12",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a14",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a16",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a18",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a20",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a24",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a26",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a28",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a01",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a08",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a15",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a22",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_g_baihu",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_g_qinglong",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_g_xuanwu",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_g_zhuque",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y01",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y02",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y04",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y05",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y07",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y08",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y10",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y11",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y13",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y14",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y16",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y17",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y19",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y20",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y22",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y23",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y25",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y26",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y28",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y03",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y06",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y09",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y12",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y15",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y18",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y21",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y24",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_y27",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a03",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a05",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a07",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a09",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a11",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a13",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a17",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a19",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a21",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a23",
+      "bonus": "0"
+    },
+    {
+      "cardId": "beast_a25",
+      "bonus": "0"
+    }
+  ],
+  "count": 160,
+  "cleaned": true
+}

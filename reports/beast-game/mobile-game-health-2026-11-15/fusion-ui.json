@@ -1,0 +1,12 @@
+{
+  "errors": [],
+  "preview": "目標・保留\n成獸\n角木蛟\n體\n98\n木\n4\n破陣\n攻\n56\n以攻擊力加 24 計算傷害。\n剋\n土\n生我\n水\n◆◆\n主攻\n東方蒼龍\n角木蛟\n同款第 1 張／共 1 張\n材料・消耗 × 1\n幼子\n角木蛟\n體\n61\n木\n2\n嗷嗷待哺\n攻\n36\n幼子自癒，回合結束回復少量生命。\n剋\n土\n生我\n水\n◆\n速度\n東方蒼龍\n角木蛟・幼子\n同款第 1 張／共 2 張\n\n寶石捷連線攻擊：56 + 3 = 59\n神獸戰鬥攻擊：46 + 3 = 49\n\n材料原始攻擊 36；本次永久 +3。材料消耗後不能重用，目標可持續強化；材料已有加成不轉移。",
+  "confirmationVisible": true,
+  "cancelUnchanged": true,
+  "lostResponseRetry": true,
+  "resultVisible": true,
+  "offlineUnchanged": true,
+  "repeatedTarget": true,
+  "reloadPersisted": true,
+  "cleaned": true
+}

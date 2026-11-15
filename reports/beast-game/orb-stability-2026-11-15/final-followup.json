@@ -1,0 +1,100 @@
+[
+  {
+    "label": "integrated8888-last-foe",
+    "outcome": "win",
+    "errors": [],
+    "cleaned": true,
+    "enlarged": [
+      {
+        "kind": "foe",
+        "at": 1794708222925,
+        "board": {
+          "width": 374,
+          "height": 426.875
+        },
+        "units": [
+          {
+            "id": "beast_a20",
+            "hp": 0,
+            "width": 222.796875,
+            "height": 100
+          },
+          {
+            "id": "beast_a10",
+            "hp": 419,
+            "width": 222.796875,
+            "height": 100
+          }
+        ]
+      }
+    ],
+    "continuedAfterEnlarge": [
+      {
+        "kind": "foe",
+        "subsequentGestures": 5
+      }
+    ]
+  },
+  {
+    "label": "latest8888-last-ally",
+    "outcome": "lose",
+    "errors": [],
+    "cleaned": true,
+    "enlarged": [
+      {
+        "kind": "ally",
+        "at": 1794745705586,
+        "board": {
+          "width": 374,
+          "height": 426.875
+        },
+        "units": [
+          {
+            "id": "beast_g_qinglong",
+            "hp": 0,
+            "width": 0,
+            "height": 0
+          },
+          {
+            "id": "beast_a01",
+            "hp": 0,
+            "width": 0,
+            "height": 0
+          },
+          {
+            "id": "beast_a02",
+            "hp": 0,
+            "width": 0,
+            "height": 0
+          },
+          {
+            "id": "beast_a03",
+            "hp": 0,
+            "width": 0,
+            "height": 0
+          },
+          {
+            "id": "beast_a04",
+            "hp": 11,
+            "width": 188.48594665527344,
+            "height": 196.1859130859375
+          }
+        ]
+      }
+    ],
+    "continuedAfterEnlarge": [
+      {
+        "kind": "ally",
+        "subsequentGestures": 1
+      }
+    ]
+  },
+  {
+    "label": "latest8888-recovery",
+    "errors": [],
+    "cleaned": true,
+    "resumeVerified": true,
+    "enlarged": [],
+    "continuedAfterEnlarge": []
+  }
+]

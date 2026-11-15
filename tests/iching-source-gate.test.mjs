@@ -37,11 +37,22 @@ const REGISTRIES = [
     registry: 'docs/技能戰鬥檔案/八字/來源登記.json',
     pattern: /bazi|八字/i,
     minClaims: 2,
-    governance: new Set(['docs/技能戰鬥檔案/八字/來源登記.json', 'lib/bazi-traditional-gate.ts']),
+    governance: new Set(['docs/技能戰鬥檔案/八字/來源登記.json', 'lib/bazi-traditional-gate.ts', 'lib/bazi-reviewed-output.ts']),
   },
 ];
 let passed = 0;
 const check = (name, fn) => { fn(); passed += 1; console.log(`PASS: ${name}`); };
+
+check('八字輸出治理包裝對應已核定技能入口，不能冒充原典來源', () => {
+  const policy = JSON.parse(fs.readFileSync('docs/技能戰鬥檔案/八字/八字.json', 'utf8')).reviewedOutputPolicy;
+  assert.equal(policy.entry, 'lib/bazi-reviewed-output.ts');
+  assert.equal(policy.approvedAt, '2026-11-03');
+  assert.match(policy.sourceState, /保留來源登記原狀/);
+  const source = fs.readFileSync(policy.entry, 'utf8');
+  assert.match(source, /assertThreeInOnePassed\(result\)/);
+  assert.match(source, /getBaziTraditionalOutputGate\(true\)/);
+  assert.doesNotMatch(source, /createBaziCore\(|castHexagram\(|calculateMeihuaTimeNumbers\(/);
+});
 
 for (const { label, registry: REGISTRY, pattern, minClaims, governance } of REGISTRIES) {
   const registry = JSON.parse(fs.readFileSync(REGISTRY, 'utf8'));

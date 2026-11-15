@@ -1,4 +1,5 @@
 'use client';
+import { readBeastCatalog } from '@/lib/beast-game/catalog-request';
 
 /**
  * 神獸戰場 V1
@@ -208,9 +209,7 @@ function BattlefieldScreen() {
     let disposed = false;
     setError(null);
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 12000);
-    fetch('/api/beast-game', { signal: controller.signal })
-      .then((res) => { if (!res.ok) throw new Error('卡池連線失敗'); return res.json(); })
+    readBeastCatalog<{ok:boolean;cards:BattlefieldCardArt[]}>(controller.signal)
       .then((data) => {
         if (!data?.ok || !Array.isArray(data.cards)) throw new Error('卡池回應不正確');
         if (disposed) return;
@@ -218,9 +217,8 @@ function BattlefieldScreen() {
         const loadedCards = data.cards as BattlefieldCardArt[];
         setCards(loadedCards);
       })
-      .catch(() => { if (!disposed) setError('卡池暫時無法載入，請點下方按鈕再試一次。收藏不受影響。'); })
-      .finally(() => clearTimeout(timer));
-    return () => { disposed = true; clearTimeout(timer); controller.abort(); };
+      .catch(() => { if (!disposed) setError('卡池暫時無法載入，請點下方按鈕再試一次。收藏不受影響。'); });
+    return () => { disposed = true; controller.abort(); };
   }, [loadAttempt]);
 
   // The signed campaign owns progress and the opponent; paid play uses explicit owned copies.

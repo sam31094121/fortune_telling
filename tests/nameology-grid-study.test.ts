@@ -13,6 +13,7 @@ import { STATUS_WORDING } from '../lib/credibility-phrases';
 import { NAMEOLOGY_ARCHIVE, listArchiveSentences, validateNameologyArchive } from '../lib/nameology-skill-archive';
 import { evaluateClaim, indexSources, type SourceRegistry } from '../lib/iching-source-gate';
 import { deriveNameologyTotalBeast } from '../lib/nameology-total-beast';
+import { getCard, playableCards } from '../lib/beast-game/registry';
 
 let passed = 0;
 function check(name: string, fn: () => void) { fn(); passed += 1; console.log(`  ✓ ${name}`); }
@@ -212,11 +213,16 @@ check('星宿神獸：與該格同五行、圖檔存在、五格不重複，且�
   const readings = buildGridReadings([...SAMPLE], CHARS);
   for (const r of readings) {
     assert.ok(r.beast.name.includes(r.element), `${r.label} 神獸 ${r.beast.name} 五行應為${r.element}`);
-    assert.ok(r.beast.imageUrl.startsWith('/star-beasts/adult-divine-v2/'));
-    assert.ok(fs.existsSync(`public${r.beast.imageUrl}`), `${r.beast.imageUrl} 圖檔不存在`);
+    const card = getCard(`beast_a${String(r.beast.id).padStart(2, '0')}`);
+    assert.equal(card?.mansionId, r.beast.id, '圖片必須屬於同一星宿');
+    assert.equal(r.beast.imageUrl, card?.art.front, '沿用現行核定卡圖，不造另一套素材');
+    assert.ok(fs.existsSync(`public${r.beast.imageUrl.split('?')[0]}`), `${r.beast.imageUrl} 圖檔不存在`);
     assert.ok(r.beast.direction && r.beast.meaning);
   }
   assert.equal(new Set(readings.map((r) => r.beast.id)).size, 5, '五格神獸不得重複');
+  const adults = playableCards().filter(card => card.form === 'ADULT');
+  assert.equal(adults.length, 28);
+  for (const card of adults) assert.ok(fs.existsSync(`public${card.art.front.split('?')[0]}`), `全部可能回傳的同宿圖都存在：${card.id}`);
   const total = readings.find((r) => r.key === 'total');
   const same = deriveNameologyTotalBeast({ value: 37, element: '金' }, strokes);
   assert.equal(total?.beast.id, same.beast.id, '總格神獸必須與總格神獸卡一致');

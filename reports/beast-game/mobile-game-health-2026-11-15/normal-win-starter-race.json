@@ -1,0 +1,55 @@
+{
+  "initialCount": 60,
+  "allInitialBonusesZero": true,
+  "errors": [],
+  "fusions": [],
+  "strategy": "Normal zero-bonus cards; visible UI actions chosen from public state with existing lookahead policy; no seed/opponent/stat changes",
+  "winner": "player",
+  "battleRounds": 51,
+  "rewards": [
+    {
+      "id": "duel:card:099cd3b82d7b9bd38f81ad86b18fdac4282cf3c50b6b439b55147092b3fc1e32:0",
+      "cardId": "beast_a03",
+      "name": "氐土貉"
+    },
+    {
+      "id": "duel:card:099cd3b82d7b9bd38f81ad86b18fdac4282cf3c50b6b439b55147092b3fc1e32:1",
+      "cardId": "beast_a03",
+      "name": "氐土貉"
+    },
+    {
+      "id": "duel:card:099cd3b82d7b9bd38f81ad86b18fdac4282cf3c50b6b439b55147092b3fc1e32:2",
+      "cardId": "beast_a05",
+      "name": "心月狐"
+    },
+    {
+      "id": "duel:card:099cd3b82d7b9bd38f81ad86b18fdac4282cf3c50b6b439b55147092b3fc1e32:3",
+      "cardId": "beast_a07",
+      "name": "箕水豹"
+    },
+    {
+      "id": "duel:card:099cd3b82d7b9bd38f81ad86b18fdac4282cf3c50b6b439b55147092b3fc1e32:4",
+      "cardId": "beast_a09",
+      "name": "牛金牛"
+    },
+    {
+      "id": "duel:card:099cd3b82d7b9bd38f81ad86b18fdac4282cf3c50b6b439b55147092b3fc1e32:5",
+      "cardId": "beast_a11",
+      "name": "虛日鼠"
+    },
+    {
+      "id": "duel:card:099cd3b82d7b9bd38f81ad86b18fdac4282cf3c50b6b439b55147092b3fc1e32:6",
+      "cardId": "beast_a13",
+      "name": "室火豬"
+    },
+    {
+      "id": "duel:card:099cd3b82d7b9bd38f81ad86b18fdac4282cf3c50b6b439b55147092b3fc1e32:7",
+      "cardId": "beast_a17",
+      "name": "胃土雉"
+    }
+  ],
+  "savedCount": 68,
+  "error": "AssertionError [ERR_ASSERTION]: settlement replay grants once\n\n96 !== 68\n\n    at C:\\Users\\DRAGON\\Desktop\\命理\\tests\\beast-cultivation-earned.e2e.cjs:42:84\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+  "failureVisible": "回首頁\n神獸押卡闖關\n本場結束\n本場結束霧林戰場・卡片戰鬥\n所有卡片已倒下\n奎木狼\n\n風・氣 6・0/5 存活\n\n鎮\n鎮\n鎮\n鎮\n鎮\n\n◎\n\n對戰結果\n成獸\n氐土貉\n體109\n土\n3\n護體\n攻44\n獲得 44 護盾（總上限 70）。\n剋水\n生我火\n◆◆\n守護\n東方蒼龍\n\n獲得 ＋8 張\n\n你多了 8 張神獸卡（7 種）\n\n本場押注\n5 張\n贏得\n8 張\n輸掉\n0 張\n\n✓ 你押的 5 張，全部保留\n\n幼子\n角木蛟\n體61\n木\n2\n嗷嗷待哺\n攻36\n幼子自癒，回合結束回復少量生命。\n剋土\n生我水\n◆\n速度\n東方蒼龍\n\n×1\n\n幼子\n亢金龍\n體51\n金\n1\n幼獠\n攻24\n尚未長成的獠牙，仍能咬下一口。\n剋木\n生我土\n◆\n守護\n東方蒼龍\n\n×1\n\n幼子\n氐土貉\n體72\n土\n2\n藏匿\n攻29\n受驚就躲，一回合內防禦提升。\n剋水\n生我火\n◆\n守護\n東方蒼龍\n\n×1\n\n幼子\n房日兔\n體47\n火\n1\n依偎\n攻31\n登場時依偎取暖，回復生命。\n剋金\n生我木\n◆\n輔助\n東方蒼龍\n\n×1\n\n幼子\n心月狐\n體73\n水\n2\n學步\n攻30\n一次比一次穩，兩回合內攻擊提升。\n剋火\n生我金\n◆\n控制\n東方蒼龍\n\n×1\n\n＋ 新得 8 張\n\n成獸\n氐土貉\n體109\n土\n3\n護體\n攻44\n獲得 44 護盾（總上限 70）。\n剋水\n生我火\n◆◆\n守護\n東方蒼龍\n\n＋2\n\n成獸\n心月狐\n體143\n水\n5\n制勢\n攻62\n攻擊並降低對手 19 攻擊力，持續 2 次行動。\n剋火\n生我金\n◆◆\n控制\n東方蒼龍\n\n＋1\n\n成獸\n箕水豹\n體123\n水\n4\n疾行\n攻57\n以攻擊力加 14 計算傷害，自身速度 +20，持續 2 次行動。\n剋火\n生我金\n◆◆\n速度\n東方蒼龍\n\n＋1\n\n成獸\n牛金牛\n體103\n金\n3\n護體\n攻51\n獲得 44 護盾（總上限 70）。\n剋木\n生我土\n◆◆\n守護\n北方玄武\n\n＋1\n\n成獸\n虛日鼠\n體121\n火\n5\n疾行\n攻82\n以攻擊力加 14 計算傷害，自身速度 +20，持續 2 次行動。\n剋金\n生我木\n◆◆\n速度\n北方玄武\n\n＋1\n\n成獸\n室火豬\n體111\n火\n4\n迎擊\n攻68\n獲得 24 護盾，下一次受擊反擊 24 點傷害。\n剋金\n生我木\n◆◆\n反擊\n北方玄武\n\n＋1\n\n成獸\n胃土雉\n體148\n土\n5\n回元\n攻58\n恢復自身 51 生命，不超過上限。\n剋水\n生我火\n◆◆\n輔助\n西方白虎\n\n＋1\n\n持有 60 → 68 張\n\n播報獎賞\n\n解說自由選擇，不播放也不影響結算。\n\n收藏保存在此瀏覽器；換手機或清除網站資料不會保留。\n\n📤\n分享成績\n🏆\n勝利\n你贏了！\n共 50 回合\n你贏了。末段對位互不相剋，可查看技能與換卡時機。這是末段對位，不是整場勝負的唯一原因。\n💎 戰利碎片\n\n＋1 片\n\n贏得勝利 ＋1\n\n目前共 1 片　連勝 1 場\n\n再連勝 2 場，每場多 ＋1 片\n\n成獸 還差 11 片\n四象守護獸 還差 39 片\n\n正在送出 28 張神獸幼子卡…\n\n保存完成・前往下一關選卡\n回首頁\n幼子\n角木蛟\n體61\n木\n2\n嗷嗷待哺\n攻36\n幼子自癒，回合結束回復少量生命。\n剋土\n生我水\n◆\n速度\n東方蒼龍\n角木蛟・幼子\n已倒下\n幼子\n亢金龍\n體51\n金\n1\n幼獠\n攻24\n尚未長成的獠牙，仍能咬下一口。\n剋木\n生我土\n◆\n守護\n東方蒼龍\n亢金龍・幼子\n已倒下\n幼子\n氐土貉\n體72\n土\n2\n藏匿\n攻29\n受驚就躲，一回合內防禦提升。\n剋水\n生我火\n◆\n守護\n東方蒼龍\n氐土貉・幼子\n已倒下\n幼子\n房日兔\n體47\n火\n1\n依偎\n攻31\n登場時依偎取暖，回復生命。\n剋金\n生我木\n◆\n輔助\n東方蒼龍\n房日兔・幼子\n已倒下\n幼子\n心月狐\n體73\n水\n2\n學步\n攻30\n一次比一次穩，兩回合內攻擊提升。\n剋火\n生我金\n◆\n控制\n東方蒼龍\n⚔\n心月狐・幼子\n137/156",
+  "cleaned": true
+}

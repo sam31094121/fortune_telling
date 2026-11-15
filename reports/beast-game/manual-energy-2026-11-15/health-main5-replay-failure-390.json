@@ -1,0 +1,1381 @@
+{
+  "visibility": "visible",
+  "focus": true,
+  "epoch": "0",
+  "busy": "false",
+  "samples": [],
+  "pointers": [
+    {
+      "type": "pointerdown",
+      "x": 36.640625,
+      "y": 624.78125,
+      "hit": [
+        "7",
+        "0"
+      ],
+      "coalesced": [],
+      "rect": {
+        "x": 12,
+        "y": 600.140625,
+        "w": 49.28125,
+        "h": 49.28125
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 89.421875,
+      "y": 624.78125,
+      "hit": [
+        "7",
+        "1"
+      ],
+      "coalesced": [
+        {
+          "x": 89.421875,
+          "y": 624.78125
+        }
+      ],
+      "rect": {
+        "x": 64.78125,
+        "y": 600.140625,
+        "w": 49.28125,
+        "h": 49.28125
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 142.203125,
+      "y": 624.78125,
+      "hit": [
+        "7",
+        "2"
+      ],
+      "coalesced": [
+        {
+          "x": 142.203125,
+          "y": 624.78125
+        }
+      ],
+      "rect": {
+        "x": 117.5625,
+        "y": 600.140625,
+        "w": 49.28125,
+        "h": 49.28125
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 194.9921875,
+      "y": 624.7890625,
+      "hit": [
+        "7",
+        "3"
+      ],
+      "coalesced": [
+        {
+          "x": 194.9921875,
+          "y": 624.7890625
+        }
+      ],
+      "rect": {
+        "x": 170.34375,
+        "y": 600.140625,
+        "w": 49.296875,
+        "h": 49.296875
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 247.78125,
+      "y": 624.78125,
+      "hit": [
+        "7",
+        "4"
+      ],
+      "coalesced": [
+        {
+          "x": 247.78125,
+          "y": 624.78125
+        }
+      ],
+      "rect": {
+        "x": 223.140625,
+        "y": 600.140625,
+        "w": 49.28125,
+        "h": 49.28125
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 300.5625,
+      "y": 624.78125,
+      "hit": [
+        "7",
+        "5"
+      ],
+      "coalesced": [
+        {
+          "x": 300.5625,
+          "y": 624.78125
+        }
+      ],
+      "rect": {
+        "x": 275.921875,
+        "y": 600.140625,
+        "w": 49.28125,
+        "h": 49.28125
+      }
+    },
+    {
+      "type": "pointerup",
+      "x": 300.5625,
+      "y": 624.78125,
+      "hit": [
+        "7",
+        "5"
+      ],
+      "coalesced": [],
+      "rect": {
+        "x": 275.921875,
+        "y": 600.140625,
+        "w": 49.28125,
+        "h": 49.28125
+      }
+    }
+  ],
+  "turns": [
+    {
+      "treasure": {
+        "book": {
+          "version": 1,
+          "counts": {
+            "SPACE": 0,
+            "AIR": 0,
+            "WATER": 0,
+            "FIRE": 0,
+            "EARTH": 0
+          },
+          "receipts": []
+        },
+        "earned": null,
+        "catalog": [
+          {
+            "element": "SPACE",
+            "variant": 0,
+            "role": "pierce",
+            "tier": 1,
+            "slot": 0,
+            "ownerId": "beast_g_baihu",
+            "available": true,
+            "name": "裂空環",
+            "description": "先削目標護盾50%，合計1倍基礎攻擊",
+            "count": 0
+          },
+          {
+            "element": "WATER",
+            "variant": 0,
+            "role": "drain",
+            "tier": 1,
+            "slot": 1,
+            "ownerId": "beast_y14",
+            "available": true,
+            "name": "纏流水紋",
+            "description": "目標蓄力降低25，最低為0；合計0.8倍基礎攻擊",
+            "count": 0
+          },
+          {
+            "element": "WATER",
+            "variant": 1,
+            "role": "burst",
+            "tier": 2,
+            "slot": 2,
+            "ownerId": "beast_y19",
+            "available": true,
+            "name": "驚瀾矛",
+            "description": "集中單體爆發，合計1.05倍基礎攻擊",
+            "count": 0
+          },
+          {
+            "element": "EARTH",
+            "variant": 0,
+            "role": "guard",
+            "tier": 1,
+            "slot": 3,
+            "ownerId": "beast_y03",
+            "available": true,
+            "name": "鎮岳印",
+            "description": "下次反擊減傷50%，不疊加；合計0.8倍基礎攻擊",
+            "count": 0
+          },
+          {
+            "element": "AIR",
+            "variant": 0,
+            "role": "volley",
+            "tier": 1,
+            "slot": 4,
+            "ownerId": "beast_y08",
+            "available": true,
+            "name": "迴風刃",
+            "description": "三段連擊，合計1.35倍基礎攻擊（各段分別取整）",
+            "count": 0
+          }
+        ]
+      },
+      "nextTreasureGuard": 1,
+      "replay": [],
+      "events": [],
+      "res": {
+        "valid": false,
+        "attackAllowed": false,
+        "shieldFusion": false,
+        "reason": "short",
+        "board": [
+          [
+            "FIRE",
+            "AIR",
+            "WATER",
+            "EARTH",
+            "EARTH",
+            "SPACE",
+            "FIRE"
+          ],
+          [
+            "FIRE",
+            "WATER",
+            "EARTH",
+            "WATER",
+            "WATER",
+            "AIR",
+            "WATER"
+          ],
+          [
+            "SPACE",
+            "AIR",
+            "WATER",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "SPACE"
+          ],
+          [
+            "AIR",
+            "AIR",
+            "WATER",
+            "FIRE",
+            "SPACE",
+            "SPACE",
+            "FIRE"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "WATER",
+            "FIRE",
+            "EARTH"
+          ],
+          [
+            "SPACE",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "WATER",
+            "SPACE",
+            "AIR"
+          ],
+          [
+            "FIRE",
+            "WATER",
+            "SPACE",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "FIRE",
+            "FIRE",
+            "FIRE",
+            "FIRE",
+            "FIRE",
+            "EARTH"
+          ]
+        ],
+        "magic": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "steps": [],
+        "chainLength": 2,
+        "effectiveLength": 2,
+        "element": null,
+        "magicSpawn": null,
+        "skill5": false,
+        "magicTriggered": [],
+        "reshuffled": false
+      },
+      "target": 0,
+      "hits": [],
+      "actualHits": [],
+      "damage": 0,
+      "startDamage": 0,
+      "endDamage": 0,
+      "skills": [
+        {
+          "skillId": "skill_208",
+          "trigger": "ON_TURN_START",
+          "eventId": "1001:0:start",
+          "effects": [
+            {
+              "type": "BUFF_ATTACK",
+              "sourceName": "畢月烏・幼子",
+              "targetName": "畢月烏・幼子",
+              "applied": 5,
+              "detail": "攻擊 +5，2 回合"
+            }
+          ],
+          "sourceId": "beast_y19",
+          "targetId": "beast_y19",
+          "sourceSide": "ally",
+          "targetSide": "ally",
+          "hpBefore": 74,
+          "hpAfter": 74,
+          "actualDamage": 0,
+          "shieldAbsorbed": 0
+        },
+        {
+          "skillId": "skill_202",
+          "trigger": "ON_TURN_END",
+          "eventId": "1001:0:end",
+          "effects": [
+            {
+              "type": "HEAL",
+              "sourceName": "斗木獬・幼子",
+              "targetName": "斗木獬・幼子",
+              "applied": 0,
+              "detail": "回復 0（上限 49）"
+            }
+          ],
+          "sourceId": "beast_y08",
+          "targetId": "beast_y08",
+          "sourceSide": "ally",
+          "targetSide": "ally",
+          "hpBefore": 49,
+          "hpAfter": 49,
+          "actualDamage": 0,
+          "shieldAbsorbed": 0
+        }
+      ],
+      "heals": [],
+      "enemyHeals": [],
+      "healingSummary": [],
+      "enemyHealingSummary": [],
+      "shieldGoals": [
+        {
+          "element": "SPACE",
+          "count": 0
+        },
+        {
+          "element": "AIR",
+          "count": 0
+        },
+        {
+          "element": "WATER",
+          "count": 0
+        },
+        {
+          "element": "FIRE",
+          "count": 0
+        },
+        {
+          "element": "EARTH",
+          "count": 0
+        }
+      ],
+      "summon": null,
+      "chainFacts": [],
+      "shield": null,
+      "guardScale": 1,
+      "beforeCounter": {
+        "team": [
+          {
+            "skillName": "白虎嘯陣",
+            "description": "白虎一嘯，破陣奪勢並震懾對手。整場一次。",
+            "id": "beast_g_baihu",
+            "name": "白虎",
+            "element": "SPACE",
+            "thumbnail": "/beast-game/thumb/guardian-baihu.v2.webp?v=f5380a7f9ffd",
+            "attack": 68,
+            "hp": 145,
+            "maxHp": 145,
+            "energy": 0,
+            "skillRuntime": {
+              "playerSkillsEnabled": true,
+              "uses": {
+                "skill_113": 1
+              },
+              "initialized": {
+                "ON_SUMMON": true,
+                "PASSIVE": true
+              },
+              "lastEvents": {
+                "ON_TURN_START": "1001:0:start",
+                "ON_TURN_END": "1001:0:end"
+              },
+              "shield": 0,
+              "modifiers": [
+                {
+                  "stat": "attack",
+                  "value": 7,
+                  "remainingTurns": 98,
+                  "source": "白虎"
+                }
+              ],
+              "stunnedTurns": 0,
+              "elementBoosts": []
+            }
+          },
+          {
+            "skillName": "初鳴",
+            "description": "幼子初啼，登場護體。",
+            "id": "beast_y14",
+            "name": "壁水貐・幼子",
+            "element": "WATER",
+            "thumbnail": "/beast-game/thumb/young-14.v2-480.webp?v=84f4da20c6e3",
+            "attack": 27,
+            "hp": 54,
+            "maxHp": 54,
+            "energy": 0,
+            "skillRuntime": {
+              "playerSkillsEnabled": true,
+              "uses": {
+                "skill_201": 1
+              },
+              "initialized": {
+                "ON_SUMMON": true,
+                "PASSIVE": true
+              },
+              "lastEvents": {
+                "ON_TURN_START": "1001:0:start",
+                "ON_TURN_END": "1001:0:end"
+              },
+              "shield": 8,
+              "modifiers": [],
+              "stunnedTurns": 0,
+              "elementBoosts": []
+            }
+          },
+          {
+            "skillName": "學步",
+            "description": "一次比一次穩，兩回合內攻擊提升。",
+            "id": "beast_y19",
+            "name": "畢月烏・幼子",
+            "element": "WATER",
+            "thumbnail": "/beast-game/thumb/young-19.v2-480.webp?v=aae7df0e52aa",
+            "attack": 33,
+            "hp": 74,
+            "maxHp": 74,
+            "energy": 0,
+            "skillRuntime": {
+              "playerSkillsEnabled": true,
+              "uses": {
+                "skill_208": 1
+              },
+              "initialized": {
+                "ON_SUMMON": true,
+                "PASSIVE": true
+              },
+              "lastEvents": {
+                "ON_TURN_START": "1001:0:start",
+                "ON_TURN_END": "1001:0:end"
+              },
+              "shield": 0,
+              "modifiers": [
+                {
+                  "stat": "attack",
+                  "value": 5,
+                  "remainingTurns": 1,
+                  "source": "畢月烏・幼子"
+                }
+              ],
+              "stunnedTurns": 0,
+              "elementBoosts": []
+            }
+          },
+          {
+            "skillName": "藏匿",
+            "description": "受驚就躲，一回合內防禦提升。",
+            "id": "beast_y03",
+            "name": "氐土貉・幼子",
+            "element": "EARTH",
+            "thumbnail": "/beast-game/thumb/young-03.v2-480.webp?v=db14629474fa",
+            "attack": 29,
+            "hp": 72,
+            "maxHp": 72,
+            "energy": 0,
+            "skillRuntime": {
+              "playerSkillsEnabled": true,
+              "uses": {},
+              "initialized": {
+                "ON_SUMMON": true,
+                "PASSIVE": true
+              },
+              "lastEvents": {
+                "ON_TURN_START": "1001:0:start",
+                "ON_TURN_END": "1001:0:end"
+              },
+              "shield": 0,
+              "modifiers": [],
+              "stunnedTurns": 0,
+              "elementBoosts": []
+            }
+          },
+          {
+            "skillName": "嗷嗷待哺",
+            "description": "幼子自癒，回合結束回復少量生命。",
+            "id": "beast_y08",
+            "name": "斗木獬・幼子",
+            "element": "AIR",
+            "thumbnail": "/beast-game/thumb/young-08.v2-480.webp?v=1194771ca003",
+            "attack": 30,
+            "hp": 49,
+            "maxHp": 49,
+            "energy": 0,
+            "skillRuntime": {
+              "playerSkillsEnabled": true,
+              "uses": {
+                "skill_206": 1,
+                "skill_202": 1
+              },
+              "initialized": {
+                "ON_SUMMON": true,
+                "PASSIVE": true
+              },
+              "lastEvents": {
+                "ON_TURN_START": "1001:0:start",
+                "ON_TURN_END": "1001:0:end"
+              },
+              "shield": 0,
+              "modifiers": [
+                {
+                  "stat": "speed",
+                  "value": 6,
+                  "remainingTurns": 98,
+                  "source": "斗木獬・幼子"
+                }
+              ],
+              "stunnedTurns": 0,
+              "elementBoosts": []
+            }
+          }
+        ],
+        "foes": [
+          {
+            "id": "beast_a01",
+            "element": "AIR",
+            "hp": 323,
+            "maxHp": 323,
+            "attack": 9,
+            "cd": 1,
+            "name": "角木蛟",
+            "thumbnail": "/beast-game/thumb/adult-01.v2-480.webp",
+            "skillRuntime": {
+              "uses": {},
+              "initialized": {},
+              "lastEvents": {},
+              "shield": 0,
+              "modifiers": [],
+              "stunnedTurns": 0,
+              "elementBoosts": []
+            }
+          },
+          {
+            "id": "beast_a02",
+            "element": "SPACE",
+            "hp": 426,
+            "maxHp": 426,
+            "attack": 10,
+            "cd": 1,
+            "name": "亢金龍",
+            "thumbnail": "/beast-game/thumb/adult-02.v2-480.webp?v=d12a9af6402a"
+          },
+          {
+            "id": "beast_a21",
+            "element": "WATER",
+            "hp": 356,
+            "maxHp": 356,
+            "attack": 8,
+            "cd": 1,
+            "name": "參水猿",
+            "thumbnail": "/beast-game/thumb/adult-21.v2-480.webp?v=5458ccf352fa"
+          },
+          {
+            "id": "beast_a18",
+            "element": "FIRE",
+            "hp": 287,
+            "maxHp": 287,
+            "attack": 10,
+            "cd": 1,
+            "name": "昴日雞",
+            "thumbnail": "/beast-game/thumb/adult-18.v2-480.webp?v=3ac15ba628e3"
+          },
+          {
+            "id": "beast_a17",
+            "element": "EARTH",
+            "hp": 488,
+            "maxHp": 488,
+            "attack": 10,
+            "cd": 1,
+            "name": "胃土雉",
+            "thumbnail": "/beast-game/thumb/adult-17.v2-480.webp?v=b0617c44bf41"
+          }
+        ]
+      },
+      "counter": {
+        "team": [
+          {
+            "skillName": "白虎嘯陣",
+            "description": "白虎一嘯，破陣奪勢並震懾對手。整場一次。",
+            "id": "beast_g_baihu",
+            "name": "白虎",
+            "element": "SPACE",
+            "thumbnail": "/beast-game/thumb/guardian-baihu.v2.webp?v=f5380a7f9ffd",
+            "attack": 68,
+            "hp": 145,
+            "maxHp": 145,
+            "energy": 0,
+            "skillRuntime": {
+              "playerSkillsEnabled": true,
+              "uses": {
+                "skill_113": 1
+              },
+              "initialized": {
+                "ON_SUMMON": true,
+                "PASSIVE": true
+              },
+              "lastEvents": {
+                "ON_TURN_START": "1001:0:start",
+                "ON_TURN_END": "1001:0:end"
+              },
+              "shield": 0,
+              "modifiers": [
+                {
+                  "stat": "attack",
+                  "value": 7,
+                  "remainingTurns": 98,
+                  "source": "白虎"
+                }
+              ],
+              "stunnedTurns": 0,
+              "elementBoosts": []
+            }
+          },
+          {
+            "skillName": "初鳴",
+            "description": "幼子初啼，登場護體。",
+            "id": "beast_y14",
+            "name": "壁水貐・幼子",
+            "element": "WATER",
+            "thumbnail": "/beast-game/thumb/young-14.v2-480.webp?v=84f4da20c6e3",
+            "attack": 27,
+            "hp": 54,
+            "maxHp": 54,
+            "energy": 0,
+            "skillRuntime": {
+              "playerSkillsEnabled": true,
+              "uses": {
+                "skill_201": 1
+              },
+              "initialized": {
+                "ON_SUMMON": true,
+                "PASSIVE": true
+              },
+              "lastEvents": {
+                "ON_TURN_START": "1001:0:start",
+                "ON_TURN_END": "1001:0:end"
+              },
+              "shield": 8,
+              "modifiers": [],
+              "stunnedTurns": 0,
+              "elementBoosts": []
+            }
+          },
+          {
+            "skillName": "學步",
+            "description": "一次比一次穩，兩回合內攻擊提升。",
+            "id": "beast_y19",
+            "name": "畢月烏・幼子",
+            "element": "WATER",
+            "thumbnail": "/beast-game/thumb/young-19.v2-480.webp?v=aae7df0e52aa",
+            "attack": 33,
+            "hp": 74,
+            "maxHp": 74,
+            "energy": 0,
+            "skillRuntime": {
+              "playerSkillsEnabled": true,
+              "uses": {
+                "skill_208": 1
+              },
+              "initialized": {
+                "ON_SUMMON": true,
+                "PASSIVE": true
+              },
+              "lastEvents": {
+                "ON_TURN_START": "1001:0:start",
+                "ON_TURN_END": "1001:0:end"
+              },
+              "shield": 0,
+              "modifiers": [
+                {
+                  "stat": "attack",
+                  "value": 5,
+                  "remainingTurns": 1,
+                  "source": "畢月烏・幼子"
+                }
+              ],
+              "stunnedTurns": 0,
+              "elementBoosts": []
+            }
+          },
+          {
+            "skillName": "藏匿",
+            "description": "受驚就躲，一回合內防禦提升。",
+            "id": "beast_y03",
+            "name": "氐土貉・幼子",
+            "element": "EARTH",
+            "thumbnail": "/beast-game/thumb/young-03.v2-480.webp?v=db14629474fa",
+            "attack": 29,
+            "hp": 72,
+            "maxHp": 72,
+            "energy": 0,
+            "skillRuntime": {
+              "playerSkillsEnabled": true,
+              "uses": {},
+              "initialized": {
+                "ON_SUMMON": true,
+                "PASSIVE": true
+              },
+              "lastEvents": {
+                "ON_TURN_START": "1001:0:start",
+                "ON_TURN_END": "1001:0:end"
+              },
+              "shield": 0,
+              "modifiers": [],
+              "stunnedTurns": 0,
+              "elementBoosts": []
+            }
+          },
+          {
+            "skillName": "嗷嗷待哺",
+            "description": "幼子自癒，回合結束回復少量生命。",
+            "id": "beast_y08",
+            "name": "斗木獬・幼子",
+            "element": "AIR",
+            "thumbnail": "/beast-game/thumb/young-08.v2-480.webp?v=1194771ca003",
+            "attack": 30,
+            "hp": 49,
+            "maxHp": 49,
+            "energy": 0,
+            "skillRuntime": {
+              "playerSkillsEnabled": true,
+              "uses": {
+                "skill_206": 1,
+                "skill_202": 1
+              },
+              "initialized": {
+                "ON_SUMMON": true,
+                "PASSIVE": true
+              },
+              "lastEvents": {
+                "ON_TURN_START": "1001:0:start",
+                "ON_TURN_END": "1001:0:end"
+              },
+              "shield": 0,
+              "modifiers": [
+                {
+                  "stat": "speed",
+                  "value": 6,
+                  "remainingTurns": 98,
+                  "source": "斗木獬・幼子"
+                }
+              ],
+              "stunnedTurns": 0,
+              "elementBoosts": []
+            }
+          }
+        ],
+        "foes": [
+          {
+            "id": "beast_a01",
+            "element": "AIR",
+            "hp": 323,
+            "maxHp": 323,
+            "attack": 9,
+            "cd": 1,
+            "name": "角木蛟",
+            "thumbnail": "/beast-game/thumb/adult-01.v2-480.webp",
+            "skillRuntime": {
+              "uses": {},
+              "initialized": {},
+              "lastEvents": {},
+              "shield": 0,
+              "modifiers": [],
+              "stunnedTurns": 0,
+              "elementBoosts": []
+            }
+          },
+          {
+            "id": "beast_a02",
+            "element": "SPACE",
+            "hp": 426,
+            "maxHp": 426,
+            "attack": 10,
+            "cd": 1,
+            "name": "亢金龍",
+            "thumbnail": "/beast-game/thumb/adult-02.v2-480.webp?v=d12a9af6402a"
+          },
+          {
+            "id": "beast_a21",
+            "element": "WATER",
+            "hp": 356,
+            "maxHp": 356,
+            "attack": 8,
+            "cd": 1,
+            "name": "參水猿",
+            "thumbnail": "/beast-game/thumb/adult-21.v2-480.webp?v=5458ccf352fa"
+          },
+          {
+            "id": "beast_a18",
+            "element": "FIRE",
+            "hp": 287,
+            "maxHp": 287,
+            "attack": 10,
+            "cd": 1,
+            "name": "昴日雞",
+            "thumbnail": "/beast-game/thumb/adult-18.v2-480.webp?v=3ac15ba628e3"
+          },
+          {
+            "id": "beast_a17",
+            "element": "EARTH",
+            "hp": 488,
+            "maxHp": 488,
+            "attack": 10,
+            "cd": 1,
+            "name": "胃土雉",
+            "thumbnail": "/beast-game/thumb/adult-17.v2-480.webp?v=b0617c44bf41"
+          }
+        ],
+        "hits": [],
+        "skillEvents": []
+      },
+      "nextBoost": 1
+    }
+  ],
+  "inputs": [
+    {
+      "sharedVersion": 0,
+      "board": [
+        [
+          "FIRE",
+          "AIR",
+          "WATER",
+          "EARTH",
+          "EARTH",
+          "SPACE",
+          "FIRE"
+        ],
+        [
+          "FIRE",
+          "WATER",
+          "EARTH",
+          "WATER",
+          "WATER",
+          "AIR",
+          "WATER"
+        ],
+        [
+          "SPACE",
+          "AIR",
+          "WATER",
+          "AIR",
+          "SPACE",
+          "FIRE",
+          "SPACE"
+        ],
+        [
+          "AIR",
+          "AIR",
+          "WATER",
+          "FIRE",
+          "SPACE",
+          "SPACE",
+          "FIRE"
+        ],
+        [
+          "WATER",
+          "FIRE",
+          "AIR",
+          "FIRE",
+          "WATER",
+          "FIRE",
+          "EARTH"
+        ],
+        [
+          "SPACE",
+          "FIRE",
+          "AIR",
+          "SPACE",
+          "WATER",
+          "SPACE",
+          "AIR"
+        ],
+        [
+          "FIRE",
+          "WATER",
+          "SPACE",
+          "AIR",
+          "FIRE",
+          "EARTH",
+          "SPACE"
+        ],
+        [
+          "FIRE",
+          "FIRE",
+          "FIRE",
+          "FIRE",
+          "FIRE",
+          "FIRE",
+          "EARTH"
+        ]
+      ],
+      "magic": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "path": [
+        {
+          "r": 7,
+          "c": 0
+        },
+        {
+          "r": 7,
+          "c": 1
+        }
+      ],
+      "team": [
+        {
+          "skillName": "白虎嘯陣",
+          "description": "白虎一嘯，破陣奪勢並震懾對手。整場一次。",
+          "id": "beast_g_baihu",
+          "name": "白虎",
+          "element": "SPACE",
+          "thumbnail": "/beast-game/thumb/guardian-baihu.v2.webp?v=f5380a7f9ffd",
+          "attack": 68,
+          "hp": 145,
+          "maxHp": 145,
+          "energy": 0,
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_113": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "attack",
+                "value": 7,
+                "remainingTurns": 99,
+                "source": "白虎"
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "skillName": "初鳴",
+          "description": "幼子初啼，登場護體。",
+          "id": "beast_y14",
+          "name": "壁水貐・幼子",
+          "element": "WATER",
+          "thumbnail": "/beast-game/thumb/young-14.v2-480.webp?v=84f4da20c6e3",
+          "attack": 27,
+          "hp": 54,
+          "maxHp": 54,
+          "energy": 0,
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_201": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {},
+            "shield": 8,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "skillName": "學步",
+          "description": "一次比一次穩，兩回合內攻擊提升。",
+          "id": "beast_y19",
+          "name": "畢月烏・幼子",
+          "element": "WATER",
+          "thumbnail": "/beast-game/thumb/young-19.v2-480.webp?v=aae7df0e52aa",
+          "attack": 33,
+          "hp": 74,
+          "maxHp": 74,
+          "energy": 0,
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {},
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "skillName": "藏匿",
+          "description": "受驚就躲，一回合內防禦提升。",
+          "id": "beast_y03",
+          "name": "氐土貉・幼子",
+          "element": "EARTH",
+          "thumbnail": "/beast-game/thumb/young-03.v2-480.webp?v=db14629474fa",
+          "attack": 29,
+          "hp": 72,
+          "maxHp": 72,
+          "energy": 0,
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {},
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "skillName": "嗷嗷待哺",
+          "description": "幼子自癒，回合結束回復少量生命。",
+          "id": "beast_y08",
+          "name": "斗木獬・幼子",
+          "element": "AIR",
+          "thumbnail": "/beast-game/thumb/young-08.v2-480.webp?v=1194771ca003",
+          "attack": 30,
+          "hp": 49,
+          "maxHp": 49,
+          "energy": 0,
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_206": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "speed",
+                "value": 6,
+                "remainingTurns": 99,
+                "source": "斗木獬・幼子"
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        }
+      ],
+      "foes": [
+        {
+          "id": "beast_a01",
+          "element": "AIR",
+          "hp": 323,
+          "maxHp": 323,
+          "attack": 9,
+          "cd": 1,
+          "name": "角木蛟",
+          "thumbnail": "/beast-game/thumb/adult-01.v2-480.webp"
+        },
+        {
+          "id": "beast_a02",
+          "element": "SPACE",
+          "hp": 426,
+          "maxHp": 426,
+          "attack": 10,
+          "cd": 1,
+          "name": "亢金龍",
+          "thumbnail": "/beast-game/thumb/adult-02.v2-480.webp?v=d12a9af6402a"
+        },
+        {
+          "id": "beast_a21",
+          "element": "WATER",
+          "hp": 356,
+          "maxHp": 356,
+          "attack": 8,
+          "cd": 1,
+          "name": "參水猿",
+          "thumbnail": "/beast-game/thumb/adult-21.v2-480.webp?v=5458ccf352fa"
+        },
+        {
+          "id": "beast_a18",
+          "element": "FIRE",
+          "hp": 287,
+          "maxHp": 287,
+          "attack": 10,
+          "cd": 1,
+          "name": "昴日雞",
+          "thumbnail": "/beast-game/thumb/adult-18.v2-480.webp?v=3ac15ba628e3"
+        },
+        {
+          "id": "beast_a17",
+          "element": "EARTH",
+          "hp": 488,
+          "maxHp": 488,
+          "attack": 10,
+          "cd": 1,
+          "name": "胃土雉",
+          "thumbnail": "/beast-game/thumb/adult-17.v2-480.webp?v=b0617c44bf41"
+        }
+      ],
+      "mode": "hard45",
+      "wins": 6,
+      "target": 0,
+      "seed": 1001,
+      "move": 0,
+      "chosen": {},
+      "rule": "tap-lead",
+      "attackBoost": 1,
+      "treasureGuard": 1,
+      "treasures": {
+        "version": 1,
+        "counts": {
+          "SPACE": 0,
+          "AIR": 0,
+          "WATER": 0,
+          "FIRE": 0,
+          "EARTH": 0
+        },
+        "receipts": []
+      },
+      "actionId": "4c8fd9fc-4673-485b-a640-3e862ac3b63d:turn:0"
+    }
+  ],
+  "visible": "回到首頁\n我的卡片\n困難・56 珠・可斜連\n寶珠戰・困難｜56 珠斜連\n第 7 關 · 7顆可攻擊\n困難·2回合\n玩法與操作\n5 對 5・56 顆寶珠・可斜連・敵方：角木蛟・亢金龍・參水猿・昴日雞・胃土雉\n敵方神獸（點選指定目標；出手時標示反擊中）戰鬥進行中\n\n相鄰同色珠三顆起可消除（可斜連）；攻擊須達本關門檻\n\n只連了 2 顆，至少要 3 顆同色相連才能消除。\n\n出戰神獸（點卡設優先；滿能量點「技能」）傷害 0\n1\n0\n1\n0\n2\n0\n1\n0\n1\n0",
+  "cells": [
+    {
+      "r": 587.140625,
+      "bottom": 636.421875,
+      "hit": "SPAN",
+      "hitClass": "Match3Board_gem__Xra1L",
+      "cell": true
+    },
+    {
+      "r": 587.140625,
+      "bottom": 636.421875,
+      "hit": "SPAN",
+      "hitClass": "Match3Board_gem__Xra1L",
+      "cell": true
+    },
+    {
+      "r": 587.140625,
+      "bottom": 636.421875,
+      "hit": "SPAN",
+      "hitClass": "Match3Board_gem__Xra1L",
+      "cell": true
+    },
+    {
+      "r": 587.140625,
+      "bottom": 636.4375,
+      "hit": "SPAN",
+      "hitClass": "Match3Board_gem__Xra1L",
+      "cell": true
+    },
+    {
+      "r": 587.140625,
+      "bottom": 636.421875,
+      "hit": "SPAN",
+      "hitClass": "Match3Board_gem__Xra1L",
+      "cell": true
+    },
+    {
+      "r": 587.140625,
+      "bottom": 636.421875,
+      "hit": "SPAN",
+      "hitClass": "Match3Board_gem__Xra1L",
+      "cell": true
+    },
+    {
+      "r": 587.140625,
+      "bottom": 636.421875,
+      "hit": "SPAN",
+      "hitClass": "Match3Board_gem__Xra1L",
+      "cell": true
+    }
+  ]
+}

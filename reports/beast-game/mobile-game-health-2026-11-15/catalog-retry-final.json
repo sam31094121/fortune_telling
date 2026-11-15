@@ -1,0 +1,55 @@
+{
+  "errors": [],
+  "guideStatus": [
+    200,
+    200,
+    200,
+    200,
+    200
+  ],
+  "beforeOnline": {
+    "images": 28,
+    "missing": 0
+  },
+  "afterOnline": {
+    "images": 28,
+    "missing": 0,
+    "cardCount": 8
+  },
+  "imageAssets": [
+    {
+      "url": "/beast-game/thumb/guardian-qinglong.v2.webp",
+      "status": 200
+    },
+    {
+      "url": "/beast-game/thumb/guardian-baihu.v2.webp",
+      "status": 200
+    },
+    {
+      "url": "/beast-game/thumb/guardian-zhuque.v2.webp",
+      "status": 200
+    },
+    {
+      "url": "/beast-game/thumb/guardian-xuanwu.v2.webp",
+      "status": 200
+    },
+    {
+      "url": "/beast-game/thumb/adult-28.v2.webp",
+      "status": 200
+    },
+    {
+      "url": "/beast-game/front/adult-01.tail-leaf-v3.webp",
+      "status": 200
+    },
+    {
+      "url": "/beast-game/thumb/young-01.v2.webp",
+      "status": 200
+    }
+  ],
+  "decodedOriginalImages": true,
+  "guideRequests": 0,
+  "catalogCalls": 2,
+  "revision": "0",
+  "reloadCount": 8,
+  "cleaned": true
+}

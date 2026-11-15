@@ -170,12 +170,25 @@ check('前端只照印：結果卡片裡不得出現含「，。；」的中文�
 check('首頁入口：卡片在功能卡片最下方、樣式沿用易經姓名學卡、連到 /nine-grid；英日韓文字齊全', () => {
   const home = fs.readFileSync('app/page.tsx', 'utf8').replace(/\r\n/g, '\n');
   assert.equal((home.match(/href="\/nine-grid"/g) ?? []).length, 1, '首頁只能有一張九宮格卡');
-  const idx3D = home.indexOf('href="/3D"\n            className="home-feature-launch');
-  const idxNine = home.indexOf('href="/nine-grid"');
+  const linkPositions = (source: string) => [...source.matchAll(/<Link\b[^>]*\bhref="(\/3D|\/nine-grid)"[^>]*>/g)].map(m => ({ href: m[1], index: m.index!, tag: m[0] }));
+  const links = linkPositions(home);
+  const idx3D = links.find(link => link.href === '/3D')?.index ?? -1;
+  const idxNine = links.find(link => link.href === '/nine-grid')?.index ?? -1;
+  assert.equal(links.length, 2, '兩個既有入口各一個，不能漏掉或重複');
+  assert.ok(links.every(link => link.tag.includes('home-feature-launch')));
+  for (const whitespace of [' ', '\n            ', '\r\n  ']) {
+    assert.deepEqual(linkPositions(`<Link href="/3D"${whitespace}className="home-feature-launch"/><Link href="/nine-grid" className="home-feature-launch"/>`).map(x => x.href), ['/3D', '/nine-grid']);
+  }
+  assert.notDeepEqual(linkPositions('<Link href="/nine-grid"/><Link href="/3D"/>').map(x => x.href), ['/3D', '/nine-grid'], '錯順序仍能檢出');
   assert.ok(idxNine > idx3D && idx3D > 0, '九宮格卡片要在最下方（立體太極模型之後）');
   assert.ok(home.includes('order-[16]'), '排序要在最後');
   const block = home.slice(idxNine, idxNine + 3000);
-  assert.ok(block.includes('home-feature-launch') && block.includes('home-feature-tier-explore') && block.includes('home-oracle-3d-emblem'), '要沿用既有卡片的樣式類別');
+  assert.ok(block.includes('home-feature-launch') && block.includes('home-feature-tier-explore'), '要沿用既有卡片的樣式類別');
+  for (const layer of ['scenery', 'foreground', 'artwork', 'title']) {
+    assert.ok(block.includes(`nineGridArtwork.${layer}`), `既有神獸入口不可缺少 ${layer} 圖層`);
+  }
+  assert.ok(block.includes('/beast-game/front/young-16.v2.webp'), '沿用目前已登記的九宮格入口素材');
+  assert.ok(fs.existsSync('public/beast-game/front/young-16.v2.webp'), '入口素材必須存在');
   for (const file of ['lib/home-english-copy.ts', 'lib/home-japanese-copy.ts', 'lib/korean-copy/home.ts']) {
     const text = fs.readFileSync(file, 'utf8');
     assert.ok(text.includes("'九宮格靈動數字'"), `${file} 缺卡片名稱翻譯`);

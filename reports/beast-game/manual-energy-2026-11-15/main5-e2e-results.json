@@ -1,0 +1,27 @@
+[
+  {
+    "name": "attack-direction",
+    "status": 0,
+    "at": "2026-11-15T14:39:34.204Z"
+  },
+  {
+    "name": "manual-energy",
+    "status": 0,
+    "at": "2026-11-15T14:40:13.997Z"
+  },
+  {
+    "name": "four-guardians",
+    "status": 0,
+    "at": "2026-11-15T14:41:25.238Z"
+  },
+  {
+    "name": "card-load",
+    "status": 0,
+    "at": "2026-11-15T14:41:43.450Z"
+  },
+  {
+    "name": "fusion-recovery",
+    "status": 1,
+    "at": "2026-11-15T14:41:49.322Z"
+  }
+]

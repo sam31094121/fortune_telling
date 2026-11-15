@@ -1,0 +1,888 @@
+[
+  {
+    "label": "final-native-1x-0",
+    "rate": 1,
+    "elapsed": 6706,
+    "epochs": 26,
+    "p95": 16.600000000000364,
+    "p99": 25.100000000000364,
+    "long": 1,
+    "workloadHash": "cb714c5db364cbe9f45b1615bad77d8f4515be1cc522c9281d1de79d608a804a",
+    "workload": [
+      {
+        "action": "drag",
+        "replay": 11,
+        "damage": 0,
+        "board": [
+          [
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "WATER",
+            "EARTH"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "WATER",
+            "FIRE",
+            "AIR",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "AIR",
+            "EARTH",
+            "WATER",
+            "AIR"
+          ],
+          [
+            "AIR",
+            "WATER",
+            "FIRE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "WATER",
+            "AIR",
+            "WATER",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "FIRE"
+          ]
+        ],
+        "team": [
+          {
+            "id": "beast_g_baihu",
+            "hp": 145,
+            "energy": 50
+          },
+          {
+            "id": "beast_y14",
+            "hp": 54,
+            "energy": 30
+          },
+          {
+            "id": "beast_y19",
+            "hp": 74,
+            "energy": 15
+          },
+          {
+            "id": "beast_y03",
+            "hp": 72,
+            "energy": 0
+          },
+          {
+            "id": "beast_y08",
+            "hp": 49,
+            "energy": 0
+          }
+        ],
+        "foes": [
+          {
+            "id": "beast_a22",
+            "hp": 333
+          },
+          {
+            "id": "beast_a16",
+            "hp": 370
+          },
+          {
+            "id": "beast_a05",
+            "hp": 472
+          },
+          {
+            "id": "beast_a27",
+            "hp": 294
+          },
+          {
+            "id": "beast_a24",
+            "hp": 343
+          }
+        ]
+      }
+    ],
+    "groups": {
+      "RunTask": 14339.588000001326,
+      "FireAnimationFrame": 73.94000000000027,
+      "FunctionCall": 261.3499999999898,
+      "UpdateLayoutTree": 751.7709999999996,
+      "PrePaint": 85.92200000000011,
+      "IntersectionObserverController::computeIntersections": 7.294999999999975,
+      "Paint": 262.7179999999933,
+      "PaintImage": 29.637000000000263,
+      "Layerize": 259.29500000000013,
+      "Commit": 210.6929999999996,
+      "UpdateLayer": 31.13100000001352,
+      "RasterTask": 142.0210000000011,
+      "V8.GC_TIME_TO_SAFEPOINT": 0.02500000000000001,
+      "V8.GC_HEAP_ENSURE_SWEEPING_COMPLETED": 0.72,
+      "GPUTask": 2931.029,
+      "V8.StackGuard": 6.642999999999995,
+      "V8.HandleInterrupts": 6.379999999999999,
+      "V8.InvokeApiInterruptCallbacks": 0.034,
+      "V8.BytecodeBudgetInterruptWithStackCheck": 0.06900000000000002,
+      "RunMicrotasks": 20.749999999999993,
+      "V8.BytecodeBudgetInterrupt": 0.8890000000000007,
+      "EvaluateScript": 5.6,
+      "HitTest": 5.1899999999999995,
+      "EventDispatch": 114.40200000000041,
+      "Layout": 79.768,
+      "V8.GC_HEAP_EXTERNAL_PROLOGUE": 0.152,
+      "MinorGC": 2.013,
+      "V8.GC_HEAP_PROLOGUE": 0.004,
+      "V8.GC_SCAVENGER": 1.299,
+      "V8.GC_HEAP_PROLOGUE_SAFEPOINT": 0.004,
+      "V8.GC_SCAVENGER_SCAVENGE": 1.275,
+      "V8.GC_SCAVENGER_SCAVENGE_WEAK_GLOBAL_HANDLES_IDENTIFY": 0.236,
+      "ComputeWeaknessProcessor start": 0.002,
+      "V8.GC_SCAVENGER_TRACED_HANDLES_COMPUTE_WEAKNESS_PARALLEL": 0.11399999999999999,
+      "V8.GC_SCAVENGER_BACKGROUND_TRACED_HANDLES_COMPUTE_WEAKNESS_PARALLEL": 0.09,
+      "V8.GC_SCAVENGER_SCAVENGE_COLLECT_OLD_TO_NEW_PAGES": 0.018000000000000002,
+      "V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE": 0.668,
+      "Parallel scavenge started": 0.001,
+      "V8.GC_SCAVENGER_SCAVENGE_ROOTS": 0.10500000000000001,
+      "V8.GC_SCAVENGER_BACKGROUND_SCAVENGE_PARALLEL": 1.8810000000000002,
+      "V8.GC_SCAVENGER_SCAVENGE_PARALLEL": 0.46499999999999997,
+      "V8.GC_SCAVENGER_SCAVENGE_WEAK_GLOBAL_HANDLES_PROCESS": 0.112,
+      "ClearWeaknessProcessor start": 0.002,
+      "V8.GC_SCAVENGER_TRACED_HANDLES_RESET_PARALLEL": 0.046,
+      "V8.GC_SCAVENGER_BACKGROUND_TRACED_HANDLES_RESET_PARALLEL": 0.033,
+      "V8.GC_SCAVENGER_SCAVENGE_FINALIZE": 0.137,
+      "V8.GC_SCAVENGER_SCAVENGE_RESTORE_AND_QUARANTINE_PINNED": 0.003,
+      "V8.GC_SCAVENGER_FREE_REMEMBERED_SET": 0.012,
+      "V8.GC_SCAVENGER_SWEEP_ARRAY_BUFFERS": 0.007,
+      "V8.GC_SCAVENGER_RESIZE_NEW_SPACE": 0.003,
+      "V8.GC_HEAP_EPILOGUE_SAFEPOINT": 0.01,
+      "V8.GC_MINOR_MS_BACKGROUND_SWEEPING": 0.004,
+      "V8.GC_HEAP_EPILOGUE": 0.016,
+      "V8.GC_BACKGROUND_YOUNG_ARRAY_BUFFER_SWEEP": 0.002,
+      "ArrayBufferSweeper Finished": 0.003,
+      "V8.GC_HEAP_EXTERNAL_EPILOGUE": 0.043000000000000003,
+      "Decode Image": 0.215,
+      "Responsiveness.Renderer.UserInteraction": 0.003,
+      "TimerFire": 1.8490000000000002,
+      "V8.GC_SCAVENGER_COMPLETE_SWEEP_ARRAY_BUFFERS": 0.01,
+      "V8.GC_MC_INCREMENTAL_START": 0.549,
+      "V8.GC_MC_INCREMENTAL_EXTERNAL_PROLOGUE": 0.10500000000000001,
+      "V8.GC_MC_MARK_EMBEDDER_PROLOGUE": 0.132,
+      "V8.GC_MC_MARK_ROOTS": 0.19000000000000003,
+      "Major concurrent marking started": 0.003,
+      "V8.GC_MC_BACKGROUND_MARKING": 32.849,
+      "V8.GC_MC_INCREMENTAL_EXTERNAL_EPILOGUE": 0.020999999999999998,
+      "V8.GC_MC_INCREMENTAL": 4.218999999999999,
+      "V8.GC_MC_INCREMENTAL_EMBEDDER_TRACING": 2.999999999999999,
+      "Major concurrent marking rescheduled": 0.02400000000000001,
+      "ConcurrentMarking::RunMajor Finished": 0.05600000000000002,
+      "MajorGC": 7.601,
+      "V8.GC_MARK_COMPACTOR": 7.4510000000000005,
+      "V8.GC_MC_PROLOGUE": 0.013000000000000001,
+      "V8.GC_MC_MARK": 0.8899999999999999,
+      "V8.GC_MC_MARK_FINISH_INCREMENTAL": 0.011,
+      "V8.GC_MC_MARK_CLIENT_HEAPS": 0.002,
+      "V8.GC_MC_MARK_RETAIN_MAPS": 0.011,
+      "V8.GC_MC_MARK_FULL_CLOSURE_PARALLEL": 0.687,
+      "V8.GC_MC_MARK_WEAK_CLOSURE_EPHEMERON_MARKING": 0.641,
+      "V8.GC_MC_MARK_EMBEDDER_TRACING": 0.562,
+      "V8.GC_CONSERVATIVE_STACK_SCANNING": 0.008,
+      "V8.GC_MC_MARK_FULL_CLOSURE_SERIAL": 0.017,
+      "V8.GC_MC_CLEAR": 1.082,
+      "ClearStringTableJob started": 0.004,
+      "ClearTrivialWeakRefJob started": 0.002,
+      "ClearNonTrivialWeakRefs started": 0.002,
+      "V8.GC_MC_CLEAR_JOIN_JOB": 0.863,
+      "V8.GC_MC_CLEAR_WEAK_COLLECTIONS": 0.022,
+      "V8.GC_MC_CLEAR_SWEEP_WASM_CODE_POINTER_TABLE": 0.002,
+      "V8.GC_MC_CLEAR_MAPS": 0.07100000000000001,
+      "V8.GC_MC_CLEAR_WEAK_LISTS": 0.032,
+      "V8.GC_MC_CLEAR_FLUSHED_JS_FUNCTIONS": 0.005,
+      "V8.GC_MC_CLEAR_JS_WEAK_REFERENCES": 0.005,
+      "V8.GC_MC_CLEAR_SWEEP_JS_DISPATCH_TABLE": 0.101,
+      "V8.GC_MC_CLEAR_WEAK_GLOBAL_HANDLES": 0.121,
+      "V8.GC_MC_CLEAR_EXTERNAL_STRING_TABLE": 0.169,
+      "V8.GC_MC_CLEAR_STRING_TABLE": 0.9810000000000003,
+      "V8.GC_MC_CLEAR_FLUSHABLE_BYTECODE": 0.003,
+      "V8.GC_MC_CLEAR_SWEEP_TRUSTED_POINTER_TABLE": 0.067,
+      "V8.GC_MC_CLEAR_WEAK_REFERENCES_NON_TRIVIAL": 0.036,
+      "V8.GC_MC_CLEAR_WEAK_REFERENCES_TRUSTED": 0.002,
+      "V8.GC_MC_CLEAR_WEAK_REFERENCES_TRIVIAL": 0.325,
+      "V8.GC_MC_CLEAR_SWEEP_EXTERNAL_POINTER_TABLE": 0.157,
+      "V8.GC_MC_SWEEP": 0.185,
+      "V8.GC_MC_EVACUATE": 2.5359999999999996,
+      "V8.GC_MC_EVACUATE_PROLOGUE": 0.013999999999999999,
+      "V8.GC_MC_EVACUATE_COPY": 0.922,
+      "PageEvacuationJob started": 0.005,
+      "V8.GC_MC_EVACUATE_COPY_PARALLEL": 0.615,
+      "V8.GC_MC_BACKGROUND_EVACUATE_COPY": 0.951,
+      "V8.GC_MC_BACKGROUND_SWEEPING": 3.484,
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS": 1.58,
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_TO_NEW_ROOTS": 0.923,
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_CLIENT_HEAPS": 0.002,
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_SLOTS_MAIN": 0.454,
+      "PointersUpdatingJob started": 0.004,
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_PARALLEL": 0.182,
+      "V8.GC_MC_BACKGROUND_EVACUATE_UPDATE_POINTERS": 0.7060000000000001,
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_WEAK": 0.004,
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_POINTER_TABLES": 0.177,
+      "V8.GC_MC_EVACUATE_CLEAN_UP": 0.002,
+      "V8.GC_MC_EVACUATE_EPILOGUE": 0.007,
+      "V8.GC_MC_SWEEP_NEW_LO": 0.002,
+      "V8.GC_MC_EVACUATE_REBALANCE": 0.002,
+      "V8.GC_MC_FINISH": 0.096,
+      "V8.GC_MC_FINISH_SWEEP_ARRAY_BUFFERS": 0.015,
+      "V8.GC_MC_SWEEP_START_JOBS": 0.065,
+      "V8.GC_MC_EPILOGUE": 0.003,
+      "V8.GC_HEAP_EXTERNAL_WEAK_GLOBAL_HANDLES": 0.042,
+      "V8.GC_BACKGROUND_FULL_ARRAY_BUFFER_SWEEP": 0.049,
+      "Sweeper::ConcurrentMajorSweeper Finished": 0.22400000000000003,
+      "V8.GC_HEAP_EMBEDDER_TRACING_EPILOGUE": 0.7,
+      "V8.GC_HEAP_EXTERNAL_SECOND_PASS_CALLBACKS": 0.024,
+      "V8.GC_MC_COMPLETE_SWEEP_ARRAY_BUFFERS": 0.007,
+      "V8.GC_MC_COMPLETE_SWEEPING": 0.003,
+      "ClearTrustedWeakRefJob started": 0.001,
+      "ImageDecodeTask": 17.345,
+      "Decode LazyPixelRef": 16.497,
+      "ImageUploadTask": 0.07400000000000001
+    },
+    "top": [
+      {
+        "functionName": "(program)",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 5360
+      },
+      {
+        "functionName": "(idle)",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 2976
+      },
+      {
+        "functionName": "unlock",
+        "scriptId": "27",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/8591-bb7fc7b41a8d34c1.js",
+        "lineNumber": 0,
+        "columnNumber": 35570,
+        "samples": 44
+      },
+      {
+        "functionName": "getBoundingClientRect",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 17
+      },
+      {
+        "functionName": "(garbage collector)",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 10
+      },
+      {
+        "functionName": "ew",
+        "scriptId": "27",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/8591-bb7fc7b41a8d34c1.js",
+        "lineNumber": 0,
+        "columnNumber": 30395,
+        "samples": 6
+      },
+      {
+        "functionName": "u",
+        "scriptId": "27",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/8591-bb7fc7b41a8d34c1.js",
+        "lineNumber": 0,
+        "columnNumber": 20806,
+        "samples": 4
+      },
+      {
+        "functionName": "",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 3
+      },
+      {
+        "functionName": "",
+        "scriptId": "7",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js",
+        "lineNumber": 0,
+        "columnNumber": 114507,
+        "samples": 3
+      },
+      {
+        "functionName": "l9",
+        "scriptId": "7",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js",
+        "lineNumber": 0,
+        "columnNumber": 50997,
+        "samples": 3
+      },
+      {
+        "functionName": "insertBefore",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 3
+      },
+      {
+        "functionName": "requestAnimationFrame",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 3
+      },
+      {
+        "functionName": "elementFromPoint",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 2
+      },
+      {
+        "functionName": "cc",
+        "scriptId": "7",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js",
+        "lineNumber": 0,
+        "columnNumber": 163562,
+        "samples": 2
+      },
+      {
+        "functionName": "c",
+        "scriptId": "7",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js",
+        "lineNumber": 0,
+        "columnNumber": 589,
+        "samples": 2
+      },
+      {
+        "functionName": "setProperty",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 2
+      },
+      {
+        "functionName": "requestAnimationFrame",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 2
+      },
+      {
+        "functionName": "",
+        "scriptId": "117",
+        "url": "",
+        "lineNumber": 0,
+        "columnNumber": 0,
+        "samples": 2
+      },
+      {
+        "functionName": "querySelector",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 2
+      },
+      {
+        "functionName": "computeBox",
+        "scriptId": "46",
+        "url": "",
+        "lineNumber": 3218,
+        "columnNumber": 19,
+        "samples": 1
+      }
+    ],
+    "errors": []
+  },
+  {
+    "label": "final-native-4x-1",
+    "rate": 4,
+    "elapsed": 7853,
+    "epochs": 26,
+    "p95": 91.79999999999927,
+    "p99": 141.90000000000146,
+    "long": 41,
+    "workloadHash": "cb714c5db364cbe9f45b1615bad77d8f4515be1cc522c9281d1de79d608a804a",
+    "workload": [
+      {
+        "action": "drag",
+        "replay": 11,
+        "damage": 0,
+        "board": [
+          [
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "WATER",
+            "EARTH"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "WATER",
+            "FIRE",
+            "AIR",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "AIR",
+            "EARTH",
+            "WATER",
+            "AIR"
+          ],
+          [
+            "AIR",
+            "WATER",
+            "FIRE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "WATER",
+            "AIR",
+            "WATER",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "FIRE"
+          ]
+        ],
+        "team": [
+          {
+            "id": "beast_g_baihu",
+            "hp": 145,
+            "energy": 50
+          },
+          {
+            "id": "beast_y14",
+            "hp": 54,
+            "energy": 30
+          },
+          {
+            "id": "beast_y19",
+            "hp": 74,
+            "energy": 15
+          },
+          {
+            "id": "beast_y03",
+            "hp": 72,
+            "energy": 0
+          },
+          {
+            "id": "beast_y08",
+            "hp": 49,
+            "energy": 0
+          }
+        ],
+        "foes": [
+          {
+            "id": "beast_a22",
+            "hp": 333
+          },
+          {
+            "id": "beast_a16",
+            "hp": 370
+          },
+          {
+            "id": "beast_a05",
+            "hp": 472
+          },
+          {
+            "id": "beast_a27",
+            "hp": 294
+          },
+          {
+            "id": "beast_a24",
+            "hp": 343
+          }
+        ]
+      }
+    ],
+    "groups": {
+      "RunTask": 20044.75200000205,
+      "GPUTask": 1803.4760000000008,
+      "V8.GC_TIME_TO_SAFEPOINT": 0.03200000000000001,
+      "V8.GC_HEAP_ENSURE_SWEEPING_COMPLETED": 5.269,
+      "FireAnimationFrame": 137.55199999999994,
+      "FunctionCall": 985.3150000000006,
+      "V8.StackGuard": 58.511000000000024,
+      "V8.HandleInterrupts": 56.93400000000002,
+      "V8.InvokeApiInterruptCallbacks": 0.205,
+      "UpdateLayoutTree": 2963.695999999999,
+      "PrePaint": 280.125,
+      "IntersectionObserverController::computeIntersections": 16.405999999999985,
+      "Paint": 1126.4739999999993,
+      "PaintImage": 167.4669999999988,
+      "Layerize": 718.7349999999999,
+      "Commit": 745.9529999999997,
+      "UpdateLayer": 66.56599999999219,
+      "RasterTask": 82.07000000000102,
+      "V8.BytecodeBudgetInterruptWithStackCheck": 0.41100000000000003,
+      "RunMicrotasks": 97.95899999999995,
+      "EventDispatch": 245.65299999999962,
+      "V8.BytecodeBudgetInterrupt": 6.520999999999992,
+      "EvaluateScript": 23.455,
+      "HitTest": 19.948,
+      "Layout": 455.2369999999999,
+      "TimerFire": 7.313999999999999,
+      "V8.GC_MC_INCREMENTAL_START": 3.5220000000000002,
+      "V8.GC_MC_INCREMENTAL_EXTERNAL_PROLOGUE": 0.286,
+      "V8.GC_MC_MARK_EMBEDDER_PROLOGUE": 0.839,
+      "V8.GC_MC_MARK_ROOTS": 1.791,
+      "Major concurrent marking started": 0.01,
+      "V8.GC_MC_BACKGROUND_MARKING": 48.698999999999984,
+      "V8.GC_MC_INCREMENTAL_EXTERNAL_EPILOGUE": 0.21099999999999997,
+      "V8.GC_MC_INCREMENTAL": 16.326,
+      "V8.GC_MC_INCREMENTAL_EMBEDDER_TRACING": 12.871,
+      "Major concurrent marking rescheduled": 0.18500000000000003,
+      "ConcurrentMarking::RunMajor Finished": 0.1300000000000001,
+      "Responsiveness.Renderer.UserInteraction": 0.004,
+      "V8.GC_HEAP_EXTERNAL_PROLOGUE": 0.65,
+      "MajorGC": 45.637,
+      "V8.GC_HEAP_PROLOGUE": 0.201,
+      "V8.GC_MARK_COMPACTOR": 44.741,
+      "V8.GC_HEAP_PROLOGUE_SAFEPOINT": 0.164,
+      "V8.GC_MC_PROLOGUE": 0.018,
+      "V8.GC_MC_MARK": 5.665,
+      "V8.GC_MC_MARK_FINISH_INCREMENTAL": 0.012,
+      "V8.GC_MC_MARK_CLIENT_HEAPS": 0.005,
+      "V8.GC_MC_MARK_RETAIN_MAPS": 0.18500000000000003,
+      "V8.GC_MC_MARK_FULL_CLOSURE_PARALLEL": 1.821,
+      "V8.GC_MC_MARK_WEAK_CLOSURE_EPHEMERON_MARKING": 1.2799999999999998,
+      "V8.GC_MC_MARK_EMBEDDER_TRACING": 0.863,
+      "V8.GC_CONSERVATIVE_STACK_SCANNING": 0.003,
+      "V8.GC_MC_MARK_FULL_CLOSURE_SERIAL": 0.195,
+      "V8.GC_MC_CLEAR": 3.862,
+      "ClearStringTableJob started": 0.17500000000000002,
+      "ClearTrivialWeakRefJob started": 0.003,
+      "ClearTrustedWeakRefJob started": 0.003,
+      "ClearNonTrivialWeakRefs started": 0.008,
+      "V8.GC_MC_CLEAR_JOIN_JOB": 2.611,
+      "V8.GC_MC_CLEAR_WEAK_COLLECTIONS": 0.19700000000000004,
+      "V8.GC_MC_CLEAR_SWEEP_WASM_CODE_POINTER_TABLE": 0.011,
+      "V8.GC_MC_CLEAR_MAPS": 0.17600000000000002,
+      "V8.GC_MC_CLEAR_WEAK_LISTS": 0.483,
+      "V8.GC_MC_CLEAR_FLUSHED_JS_FUNCTIONS": 0.025,
+      "V8.GC_MC_CLEAR_WEAK_GLOBAL_HANDLES": 0.34199999999999997,
+      "V8.GC_MC_CLEAR_JS_WEAK_REFERENCES": 0.004,
+      "V8.GC_MC_CLEAR_SWEEP_JS_DISPATCH_TABLE": 0.324,
+      "V8.GC_MC_CLEAR_FLUSHABLE_BYTECODE": 0.05500000000000001,
+      "V8.GC_MC_CLEAR_EXTERNAL_STRING_TABLE": 0.299,
+      "V8.GC_MC_CLEAR_STRING_TABLE": 1.9089999999999998,
+      "V8.GC_MC_CLEAR_SWEEP_TRUSTED_POINTER_TABLE": 0.174,
+      "V8.GC_MC_CLEAR_WEAK_REFERENCES_NON_TRIVIAL": 0.166,
+      "V8.GC_MC_CLEAR_WEAK_REFERENCES_TRIVIAL": 0.704,
+      "V8.GC_MC_CLEAR_WEAK_REFERENCES_TRUSTED": 0.052000000000000005,
+      "V8.GC_MC_CLEAR_SWEEP_EXTERNAL_POINTER_TABLE": 0.766,
+      "V8.GC_MC_SWEEP": 1.2910000000000001,
+      "V8.GC_MC_EVACUATE": 16.29,
+      "V8.GC_MC_EVACUATE_PROLOGUE": 0.018000000000000002,
+      "V8.GC_MC_EVACUATE_COPY": 3.839,
+      "PageEvacuationJob started": 0.015,
+      "V8.GC_MC_EVACUATE_COPY_PARALLEL": 1.6309999999999998,
+      "V8.GC_MC_BACKGROUND_EVACUATE_COPY": 2.551,
+      "V8.GC_MC_BACKGROUND_SWEEPING": 6.428,
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS": 11.972999999999999,
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_TO_NEW_ROOTS": 8.911999999999999,
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_CLIENT_HEAPS": 0.005,
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_SLOTS_MAIN": 1.0070000000000001,
+      "PointersUpdatingJob started": 0.163,
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_PARALLEL": 0.5640000000000001,
+      "V8.GC_MC_BACKGROUND_EVACUATE_UPDATE_POINTERS": 1.6269999999999998,
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_WEAK": 0.013000000000000001,
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_POINTER_TABLES": 1.845,
+      "V8.GC_MC_EVACUATE_CLEAN_UP": 0.197,
+      "V8.GC_MC_EVACUATE_EPILOGUE": 0.232,
+      "V8.GC_MC_SWEEP_NEW_LO": 0.005,
+      "V8.GC_MC_EVACUATE_REBALANCE": 0.004,
+      "V8.GC_MC_FINISH": 0.237,
+      "V8.GC_MC_FINISH_SWEEP_ARRAY_BUFFERS": 0.17700000000000002,
+      "V8.GC_MC_SWEEP_START_JOBS": 0.02,
+      "V8.GC_MC_EPILOGUE": 0.003,
+      "V8.GC_BACKGROUND_FULL_ARRAY_BUFFER_SWEEP": 0.10300000000000001,
+      "Sweeper::ConcurrentMajorSweeper Finished": 0.06100000000000004,
+      "ArrayBufferSweeper Finished": 0.004,
+      "V8.GC_HEAP_EXTERNAL_WEAK_GLOBAL_HANDLES": 0.24500000000000002,
+      "V8.GC_HEAP_EMBEDDER_TRACING_EPILOGUE": 3.8499999999999996,
+      "V8.GC_HEAP_EPILOGUE_SAFEPOINT": 0.33,
+      "V8.GC_HEAP_EPILOGUE": 0.017,
+      "V8.GC_HEAP_EXTERNAL_EPILOGUE": 0.579,
+      "V8.GC_HEAP_EXTERNAL_SECOND_PASS_CALLBACKS": 0.022,
+      "Decode Image": 1.616,
+      "V8.GC_MC_COMPLETE_SWEEP_ARRAY_BUFFERS": 0.020999999999999998,
+      "V8.GC_MC_COMPLETE_SWEEPING": 0.17,
+      "MinorGC": 3.275,
+      "V8.GC_SCAVENGER": 1.815,
+      "V8.GC_SCAVENGER_SCAVENGE": 1.647,
+      "V8.GC_SCAVENGER_SCAVENGE_WEAK_GLOBAL_HANDLES_IDENTIFY": 0.2,
+      "ComputeWeaknessProcessor start": 0.002,
+      "V8.GC_SCAVENGER_TRACED_HANDLES_COMPUTE_WEAKNESS_PARALLEL": 0.175,
+      "V8.GC_SCAVENGER_BACKGROUND_TRACED_HANDLES_COMPUTE_WEAKNESS_PARALLEL": 0.119,
+      "V8.GC_SCAVENGER_SCAVENGE_COLLECT_OLD_TO_NEW_PAGES": 0.008,
+      "V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE": 0.622,
+      "Parallel scavenge started": 0.001,
+      "V8.GC_SCAVENGER_SCAVENGE_ROOTS": 0.401,
+      "V8.GC_SCAVENGER_BACKGROUND_SCAVENGE_PARALLEL": 0.9560000000000001,
+      "V8.GC_SCAVENGER_SCAVENGE_PARALLEL": 0.186,
+      "V8.GC_SCAVENGER_SCAVENGE_WEAK_GLOBAL_HANDLES_PROCESS": 0.184,
+      "ClearWeaknessProcessor start": 0.001,
+      "V8.GC_SCAVENGER_TRACED_HANDLES_RESET_PARALLEL": 0.165,
+      "V8.GC_SCAVENGER_BACKGROUND_TRACED_HANDLES_RESET_PARALLEL": 0.029,
+      "V8.GC_SCAVENGER_SCAVENGE_FINALIZE": 0.402,
+      "V8.GC_SCAVENGER_SCAVENGE_RESTORE_AND_QUARANTINE_PINNED": 0.002,
+      "V8.GC_SCAVENGER_FREE_REMEMBERED_SET": 0.006,
+      "V8.GC_SCAVENGER_RESIZE_NEW_SPACE": 0.001,
+      "ImageDecodeTask": 18.919,
+      "Decode LazyPixelRef": 17.214,
+      "ImageUploadTask": 0.078
+    },
+    "top": [
+      {
+        "functionName": "(program)",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 7528
+      },
+      {
+        "functionName": "(idle)",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 208
+      },
+      {
+        "functionName": "getBoundingClientRect",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 116
+      },
+      {
+        "functionName": "(garbage collector)",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 41
+      },
+      {
+        "functionName": "removeChild",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 33
+      },
+      {
+        "functionName": "unlock",
+        "scriptId": "27",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/8591-bb7fc7b41a8d34c1.js",
+        "lineNumber": 0,
+        "columnNumber": 35570,
+        "samples": 23
+      },
+      {
+        "functionName": "ew",
+        "scriptId": "27",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/8591-bb7fc7b41a8d34c1.js",
+        "lineNumber": 0,
+        "columnNumber": 30395,
+        "samples": 16
+      },
+      {
+        "functionName": "",
+        "scriptId": "7",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js",
+        "lineNumber": 0,
+        "columnNumber": 136612,
+        "samples": 12
+      },
+      {
+        "functionName": "frame",
+        "scriptId": "106",
+        "url": "",
+        "lineNumber": 0,
+        "columnNumber": 108,
+        "samples": 8
+      },
+      {
+        "functionName": "requestAnimationFrame",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 8
+      },
+      {
+        "functionName": "cc",
+        "scriptId": "7",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js",
+        "lineNumber": 0,
+        "columnNumber": 163562,
+        "samples": 7
+      },
+      {
+        "functionName": "w",
+        "scriptId": "12",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/1255-cf02c4775860a5ab.js",
+        "lineNumber": 0,
+        "columnNumber": 64819,
+        "samples": 6
+      },
+      {
+        "functionName": "l9",
+        "scriptId": "7",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js",
+        "lineNumber": 0,
+        "columnNumber": 50997,
+        "samples": 6
+      },
+      {
+        "functionName": "ew",
+        "scriptId": "27",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/8591-bb7fc7b41a8d34c1.js",
+        "lineNumber": 0,
+        "columnNumber": 30395,
+        "samples": 6
+      },
+      {
+        "functionName": "",
+        "scriptId": "7",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js",
+        "lineNumber": 0,
+        "columnNumber": 43987,
+        "samples": 6
+      },
+      {
+        "functionName": "",
+        "scriptId": "7",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js",
+        "lineNumber": 0,
+        "columnNumber": 116959,
+        "samples": 6
+      },
+      {
+        "functionName": "setAttribute",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 6
+      },
+      {
+        "functionName": "insertBefore",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "samples": 6
+      },
+      {
+        "functionName": "query",
+        "scriptId": "46",
+        "url": "",
+        "lineNumber": 5866,
+        "columnNumber": 20,
+        "samples": 5
+      },
+      {
+        "functionName": "sn",
+        "scriptId": "7",
+        "url": "http://127.0.0.1:8890/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js",
+        "lineNumber": 0,
+        "columnNumber": 136202,
+        "samples": 5
+      }
+    ],
+    "errors": []
+  }
+]

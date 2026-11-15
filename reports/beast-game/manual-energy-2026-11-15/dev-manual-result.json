@@ -1,0 +1,3590 @@
+{
+  "scope": "isolated owned normal attacks, zero bonuses, 390px desktop mobile emulation",
+  "requests": [
+    {
+      "sharedBattleToken": "[isolated test token omitted]",
+      "sharedVersion": 0,
+      "board": [
+        [
+          "FIRE",
+          "SPACE",
+          "FIRE",
+          "EARTH",
+          "SPACE",
+          "SPACE",
+          "EARTH"
+        ],
+        [
+          "SPACE",
+          "EARTH",
+          "AIR",
+          "SPACE",
+          "WATER",
+          "FIRE",
+          "EARTH"
+        ],
+        [
+          "WATER",
+          "FIRE",
+          "WATER",
+          "AIR",
+          "FIRE",
+          "SPACE",
+          "WATER"
+        ],
+        [
+          "FIRE",
+          "FIRE",
+          "WATER",
+          "AIR",
+          "SPACE",
+          "SPACE",
+          "WATER"
+        ],
+        [
+          "FIRE",
+          "EARTH",
+          "EARTH",
+          "WATER",
+          "WATER",
+          "EARTH",
+          "EARTH"
+        ],
+        [
+          "EARTH",
+          "AIR",
+          "FIRE",
+          "AIR",
+          "EARTH",
+          "EARTH",
+          "WATER"
+        ],
+        [
+          "FIRE",
+          "EARTH",
+          "SPACE",
+          "FIRE",
+          "WATER",
+          "WATER",
+          "SPACE"
+        ],
+        [
+          "SPACE",
+          "EARTH",
+          "WATER",
+          "EARTH",
+          "EARTH",
+          "FIRE",
+          "FIRE"
+        ]
+      ],
+      "magic": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "path": [
+        {
+          "r": 4,
+          "c": 2
+        },
+        {
+          "r": 4,
+          "c": 1
+        },
+        {
+          "r": 5,
+          "c": 0
+        },
+        {
+          "r": 6,
+          "c": 1
+        },
+        {
+          "r": 7,
+          "c": 1
+        }
+      ],
+      "team": [
+        {
+          "id": "beast_g_qinglong",
+          "name": "青龍",
+          "thumbnail": "/beast-game/thumb/guardian-qinglong.v2.webp?v=11",
+          "element": "AIR",
+          "hp": 131,
+          "maxHp": 131,
+          "attack": 74,
+          "energy": 0,
+          "skillName": "蒼龍騰霄",
+          "description": "青龍登場，四回合內攻速齊揚。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_301": 1,
+              "skill_111": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "attack",
+                "value": 15,
+                "remainingTurns": 4,
+                "source": "青龍"
+              },
+              {
+                "stat": "speed",
+                "value": 15,
+                "remainingTurns": 4,
+                "source": "青龍"
+              },
+              {
+                "stat": "speed",
+                "value": 10,
+                "remainingTurns": 99,
+                "source": "青龍"
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "id": "beast_a01",
+          "name": "角木蛟",
+          "thumbnail": "/beast-game/thumb/adult-01.v2.webp?v=11",
+          "element": "AIR",
+          "hp": 98,
+          "maxHp": 98,
+          "attack": 56,
+          "energy": 0,
+          "skillName": "風刃",
+          "description": "風屬攻招：以風為刃，直取要害。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_106": 1,
+              "skill_111": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "speed",
+                "value": 14,
+                "remainingTurns": 3,
+                "source": "角木蛟"
+              },
+              {
+                "stat": "speed",
+                "value": 10,
+                "remainingTurns": 99,
+                "source": "角木蛟"
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "id": "beast_a02",
+          "name": "亢金龍",
+          "thumbnail": "/beast-game/thumb/adult-02.v2.webp?v=11",
+          "element": "SPACE",
+          "hp": 129,
+          "maxHp": 129,
+          "attack": 62,
+          "energy": 0,
+          "skillName": "空斷",
+          "description": "空屬攻招：斷其鋒銳，兩回合內削弱對手攻擊。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_107": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {},
+            "shield": 20,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "id": "beast_a03",
+          "name": "氐土貉",
+          "thumbnail": "/beast-game/thumb/adult-03.v2.webp?v=12",
+          "element": "EARTH",
+          "hp": 109,
+          "maxHp": 109,
+          "attack": 44,
+          "energy": 0,
+          "skillName": "地裂",
+          "description": "地屬攻招：裂其陣腳，削防為主。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {},
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "id": "beast_a04",
+          "name": "房日兔",
+          "thumbnail": "/beast-game/thumb/adult-04.v2.webp?v=11",
+          "element": "FIRE",
+          "hp": 104,
+          "maxHp": 104,
+          "attack": 67,
+          "energy": 0,
+          "skillName": "焚天",
+          "description": "火屬攻招：一擊灼盡，次數有限。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {},
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        }
+      ],
+      "foes": [
+        {
+          "id": "beast_y01",
+          "name": "角木蛟・幼子",
+          "thumbnail": "/beast-game/thumb/young-01.v2.webp?v=7",
+          "element": "AIR",
+          "hp": 122,
+          "maxHp": 122,
+          "attack": 4,
+          "cd": 1
+        },
+        {
+          "id": "beast_y16",
+          "name": "婁金狗・幼子",
+          "thumbnail": "/beast-game/thumb/young-16.v2.webp?v=6",
+          "element": "SPACE",
+          "hp": 100,
+          "maxHp": 100,
+          "attack": 3,
+          "cd": 1
+        },
+        {
+          "id": "beast_y07",
+          "name": "箕水豹・幼子",
+          "thumbnail": "/beast-game/thumb/young-07.v2.webp?v=7",
+          "element": "WATER",
+          "hp": 142,
+          "maxHp": 142,
+          "attack": 3,
+          "cd": 1
+        },
+        {
+          "id": "beast_y20",
+          "name": "觜火猴・幼子",
+          "thumbnail": "/beast-game/thumb/young-20.v2.webp?v=5",
+          "element": "FIRE",
+          "hp": 96,
+          "maxHp": 96,
+          "attack": 3,
+          "cd": 1
+        },
+        {
+          "id": "beast_y10",
+          "name": "女土蝠・幼子",
+          "thumbnail": "/beast-game/thumb/young-10.v2.webp?v=6",
+          "element": "EARTH",
+          "hp": 118,
+          "maxHp": 118,
+          "attack": 2,
+          "cd": 1
+        }
+      ],
+      "mode": "hard45",
+      "wins": 0,
+      "target": 0,
+      "seed": 17,
+      "move": 0,
+      "chosen": {
+        "AIR": "beast_g_qinglong"
+      },
+      "rule": "tap-lead",
+      "attackBoost": 1,
+      "treasureGuard": 1,
+      "treasures": {
+        "version": 1,
+        "counts": {
+          "SPACE": 0,
+          "AIR": 0,
+          "WATER": 0,
+          "FIRE": 0,
+          "EARTH": 0
+        },
+        "receipts": []
+      },
+      "actionId": "bfc5fafa-9763-4155-a159-1952598b7f98:turn:0"
+    },
+    {
+      "sharedBattleToken": "[isolated test token omitted]",
+      "sharedVersion": 1,
+      "board": [
+        [
+          "AIR",
+          "FIRE",
+          "SPACE",
+          "EARTH",
+          "EARTH",
+          "SPACE",
+          "EARTH"
+        ],
+        [
+          "AIR",
+          "FIRE",
+          "AIR",
+          "AIR",
+          "FIRE",
+          "WATER",
+          "EARTH"
+        ],
+        [
+          "WATER",
+          "SPACE",
+          "FIRE",
+          "EARTH",
+          "WATER",
+          "FIRE",
+          "WATER"
+        ],
+        [
+          "WATER",
+          "EARTH",
+          "SPACE",
+          "SPACE",
+          "WATER",
+          "SPACE",
+          "WATER"
+        ],
+        [
+          "AIR",
+          "SPACE",
+          "FIRE",
+          "AIR",
+          "FIRE",
+          "SPACE",
+          "EARTH"
+        ],
+        [
+          "FIRE",
+          "EARTH",
+          "WATER",
+          "SPACE",
+          "SPACE",
+          "EARTH",
+          "WATER"
+        ],
+        [
+          "WATER",
+          "AIR",
+          "SPACE",
+          "FIRE",
+          "WATER",
+          "WATER",
+          "SPACE"
+        ],
+        [
+          "SPACE",
+          "EARTH",
+          "WATER",
+          "EARTH",
+          "EARTH",
+          "FIRE",
+          "FIRE"
+        ]
+      ],
+      "magic": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          8,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          6,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          7,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          5,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "path": [
+        {
+          "r": 3,
+          "c": 5
+        },
+        {
+          "r": 4,
+          "c": 5
+        },
+        {
+          "r": 5,
+          "c": 4
+        },
+        {
+          "r": 5,
+          "c": 3
+        },
+        {
+          "r": 6,
+          "c": 2
+        }
+      ],
+      "team": [
+        {
+          "hp": 131,
+          "id": "beast_g_qinglong",
+          "name": "青龍",
+          "maxHp": 131,
+          "attack": 74,
+          "energy": 90,
+          "element": "AIR",
+          "skillName": "蒼龍騰霄",
+          "thumbnail": "/beast-game/thumb/guardian-qinglong.v2.webp?v=11",
+          "description": "青龍登場，四回合內攻速齊揚。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_111": 1,
+              "skill_301": 1
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "lastEvents": {
+              "ON_TURN_START": "17:0:start",
+              "ON_TURN_END": "17:0:end"
+            },
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "attack",
+                "value": 15,
+                "source": "青龍",
+                "remainingTurns": 3
+              },
+              {
+                "stat": "speed",
+                "value": 15,
+                "source": "青龍",
+                "remainingTurns": 3
+              },
+              {
+                "stat": "speed",
+                "value": 10,
+                "source": "青龍",
+                "remainingTurns": 98
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "hp": 98,
+          "id": "beast_a01",
+          "name": "角木蛟",
+          "maxHp": 98,
+          "attack": 56,
+          "energy": 45,
+          "element": "AIR",
+          "skillName": "風刃",
+          "thumbnail": "/beast-game/thumb/adult-01.v2.webp?v=11",
+          "description": "風屬攻招：以風為刃，直取要害。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_106": 1,
+              "skill_111": 1
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "lastEvents": {
+              "ON_TURN_START": "17:0:start",
+              "ON_TURN_END": "17:0:end"
+            },
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "speed",
+                "value": 14,
+                "source": "角木蛟",
+                "remainingTurns": 2
+              },
+              {
+                "stat": "speed",
+                "value": 10,
+                "source": "角木蛟",
+                "remainingTurns": 98
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "hp": 129,
+          "id": "beast_a02",
+          "name": "亢金龍",
+          "maxHp": 129,
+          "attack": 62,
+          "energy": 90,
+          "element": "SPACE",
+          "skillName": "空斷",
+          "thumbnail": "/beast-game/thumb/adult-02.v2.webp?v=11",
+          "description": "空屬攻招：斷其鋒銳，兩回合內削弱對手攻擊。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_107": 1
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "lastEvents": {
+              "ON_TURN_START": "17:0:start",
+              "ON_TURN_END": "17:0:end"
+            },
+            "shield": 20,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "hp": 109,
+          "id": "beast_a03",
+          "name": "氐土貉",
+          "maxHp": 109,
+          "attack": 44,
+          "energy": 100,
+          "element": "EARTH",
+          "skillName": "地裂",
+          "thumbnail": "/beast-game/thumb/adult-03.v2.webp?v=12",
+          "description": "地屬攻招：裂其陣腳，削防為主。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "playerAttackReceipts": [
+              "17:0:orb:0"
+            ],
+            "uses": {
+              "skill_105": 1
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "lastEvents": {
+              "ON_TURN_START": "17:0:start",
+              "ON_ATTACK": "17:0:orb:0",
+              "ON_TURN_END": "17:0:end"
+            },
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "hp": 104,
+          "id": "beast_a04",
+          "name": "房日兔",
+          "maxHp": 104,
+          "attack": 67,
+          "energy": 100,
+          "element": "FIRE",
+          "skillName": "焚天",
+          "thumbnail": "/beast-game/thumb/adult-04.v2.webp?v=11",
+          "description": "火屬攻招：一擊灼盡，次數有限。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "playerAttackReceipts": [
+              "17:0:orb:1"
+            ],
+            "uses": {},
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "lastEvents": {
+              "ON_TURN_START": "17:0:start",
+              "ON_ATTACK": "17:0:orb:1",
+              "ON_TURN_END": "17:0:end"
+            },
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        }
+      ],
+      "foes": [
+        {
+          "cd": 1,
+          "hp": 0,
+          "id": "beast_y01",
+          "name": "角木蛟・幼子",
+          "maxHp": 122,
+          "attack": 4,
+          "element": "AIR",
+          "thumbnail": "/beast-game/thumb/young-01.v2.webp?v=7",
+          "skillRuntime": {
+            "uses": {},
+            "initialized": {},
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "defense",
+                "value": -12,
+                "remainingTurns": 2,
+                "source": "氐土貉"
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          },
+          "lastCounterPhase": "17:0"
+        },
+        {
+          "cd": 1,
+          "hp": 100,
+          "id": "beast_y16",
+          "name": "婁金狗・幼子",
+          "maxHp": 100,
+          "attack": 3,
+          "element": "SPACE",
+          "thumbnail": "/beast-game/thumb/young-16.v2.webp?v=6",
+          "skillRuntime": {
+            "uses": {},
+            "initialized": {},
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          },
+          "attackEnergy": 25,
+          "lastChargeTurn": "17:0",
+          "lastCounterPhase": "17:0"
+        },
+        {
+          "cd": 1,
+          "hp": 142,
+          "id": "beast_y07",
+          "name": "箕水豹・幼子",
+          "maxHp": 142,
+          "attack": 3,
+          "element": "WATER",
+          "thumbnail": "/beast-game/thumb/young-07.v2.webp?v=7",
+          "attackEnergy": 25,
+          "lastChargeTurn": "17:0",
+          "lastCounterPhase": "17:0"
+        },
+        {
+          "cd": 1,
+          "hp": 96,
+          "id": "beast_y20",
+          "name": "觜火猴・幼子",
+          "maxHp": 96,
+          "attack": 3,
+          "element": "FIRE",
+          "thumbnail": "/beast-game/thumb/young-20.v2.webp?v=5",
+          "attackEnergy": 25,
+          "lastChargeTurn": "17:0",
+          "lastCounterPhase": "17:0"
+        },
+        {
+          "cd": 1,
+          "hp": 118,
+          "id": "beast_y10",
+          "name": "女土蝠・幼子",
+          "maxHp": 118,
+          "attack": 2,
+          "element": "EARTH",
+          "thumbnail": "/beast-game/thumb/young-10.v2.webp?v=6",
+          "attackEnergy": 25,
+          "lastChargeTurn": "17:0",
+          "lastCounterPhase": "17:0"
+        }
+      ],
+      "mode": "hard45",
+      "wins": 0,
+      "target": 1,
+      "seed": 2654435778,
+      "move": 1,
+      "chosen": {
+        "AIR": "beast_g_qinglong"
+      },
+      "rule": "tap-lead",
+      "attackBoost": 1,
+      "treasureGuard": 1,
+      "treasures": {
+        "version": 1,
+        "counts": {
+          "AIR": 0,
+          "FIRE": 0,
+          "EARTH": 0,
+          "SPACE": 0,
+          "WATER": 0
+        },
+        "receipts": []
+      },
+      "actionId": "bfc5fafa-9763-4155-a159-1952598b7f98:turn:1"
+    },
+    {
+      "sharedBattleToken": "[isolated test token omitted]",
+      "sharedVersion": 2,
+      "board": [
+        [
+          "AIR",
+          "WATER",
+          "AIR",
+          "AIR",
+          "EARTH",
+          "SPACE",
+          "WATER"
+        ],
+        [
+          "AIR",
+          "FIRE",
+          "SPACE",
+          "WATER",
+          "SPACE",
+          "SPACE",
+          "WATER"
+        ],
+        [
+          "WATER",
+          "FIRE",
+          "AIR",
+          "EARTH",
+          "EARTH",
+          "WATER",
+          "EARTH"
+        ],
+        [
+          "WATER",
+          "EARTH",
+          "FIRE",
+          "AIR",
+          "FIRE",
+          "SPACE",
+          "SPACE"
+        ],
+        [
+          "AIR",
+          "SPACE",
+          "FIRE",
+          "EARTH",
+          "WATER",
+          "FIRE",
+          "SPACE"
+        ],
+        [
+          "FIRE",
+          "EARTH",
+          "WATER",
+          "AIR",
+          "FIRE",
+          "EARTH",
+          "WATER"
+        ],
+        [
+          "WATER",
+          "AIR",
+          "SPACE",
+          "FIRE",
+          "WATER",
+          "WATER",
+          "SPACE"
+        ],
+        [
+          "SPACE",
+          "EARTH",
+          "WATER",
+          "EARTH",
+          "EARTH",
+          "FIRE",
+          "FIRE"
+        ]
+      ],
+      "magic": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          8,
+          0,
+          5,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          10,
+          7,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          5,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "path": [
+        {
+          "r": 0,
+          "c": 5
+        },
+        {
+          "r": 1,
+          "c": 4
+        },
+        {
+          "r": 1,
+          "c": 5
+        }
+      ],
+      "team": [
+        {
+          "hp": 131,
+          "id": "beast_g_qinglong",
+          "name": "青龍",
+          "maxHp": 131,
+          "attack": 74,
+          "energy": 90,
+          "element": "AIR",
+          "skillName": "蒼龍騰霄",
+          "thumbnail": "/beast-game/thumb/guardian-qinglong.v2.webp?v=11",
+          "description": "青龍登場，四回合內攻速齊揚。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_111": 1,
+              "skill_301": 1
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "lastEvents": {
+              "ON_TURN_END": "2654435778:1:end",
+              "ON_TURN_START": "2654435778:1:start"
+            },
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "attack",
+                "value": 15,
+                "source": "青龍",
+                "remainingTurns": 2
+              },
+              {
+                "stat": "speed",
+                "value": 15,
+                "source": "青龍",
+                "remainingTurns": 2
+              },
+              {
+                "stat": "speed",
+                "value": 10,
+                "source": "青龍",
+                "remainingTurns": 97
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "hp": 98,
+          "id": "beast_a01",
+          "name": "角木蛟",
+          "maxHp": 98,
+          "attack": 56,
+          "energy": 45,
+          "element": "AIR",
+          "skillName": "風刃",
+          "thumbnail": "/beast-game/thumb/adult-01.v2.webp?v=11",
+          "description": "風屬攻招：以風為刃，直取要害。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_106": 1,
+              "skill_111": 1
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "lastEvents": {
+              "ON_TURN_END": "2654435778:1:end",
+              "ON_TURN_START": "2654435778:1:start"
+            },
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "speed",
+                "value": 14,
+                "source": "角木蛟",
+                "remainingTurns": 1
+              },
+              {
+                "stat": "speed",
+                "value": 10,
+                "source": "角木蛟",
+                "remainingTurns": 97
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "hp": 129,
+          "id": "beast_a02",
+          "name": "亢金龍",
+          "maxHp": 129,
+          "attack": 62,
+          "energy": 100,
+          "element": "SPACE",
+          "skillName": "空斷",
+          "thumbnail": "/beast-game/thumb/adult-02.v2.webp?v=11",
+          "description": "空屬攻招：斷其鋒銳，兩回合內削弱對手攻擊。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "playerAttackReceipts": [
+              "2654435778:1:orb:0"
+            ],
+            "uses": {
+              "skill_107": 1,
+              "skill_102": 1
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "lastEvents": {
+              "ON_TURN_END": "2654435778:1:end",
+              "ON_TURN_START": "2654435778:1:start",
+              "ON_ATTACK": "2654435778:1:orb:0"
+            },
+            "shield": 20,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "hp": 109,
+          "id": "beast_a03",
+          "name": "氐土貉",
+          "maxHp": 109,
+          "attack": 44,
+          "energy": 100,
+          "element": "EARTH",
+          "skillName": "地裂",
+          "thumbnail": "/beast-game/thumb/adult-03.v2.webp?v=12",
+          "description": "地屬攻招：裂其陣腳，削防為主。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "playerAttackReceipts": [
+              "17:0:orb:0"
+            ],
+            "uses": {
+              "skill_105": 1
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "lastEvents": {
+              "ON_ATTACK": "17:0:orb:0",
+              "ON_TURN_END": "2654435778:1:end",
+              "ON_TURN_START": "2654435778:1:start"
+            },
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "hp": 104,
+          "id": "beast_a04",
+          "name": "房日兔",
+          "maxHp": 104,
+          "attack": 67,
+          "energy": 100,
+          "element": "FIRE",
+          "skillName": "焚天",
+          "thumbnail": "/beast-game/thumb/adult-04.v2.webp?v=11",
+          "description": "火屬攻招：一擊灼盡，次數有限。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "playerAttackReceipts": [
+              "17:0:orb:1"
+            ],
+            "uses": {},
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "lastEvents": {
+              "ON_ATTACK": "17:0:orb:1",
+              "ON_TURN_END": "2654435778:1:end",
+              "ON_TURN_START": "2654435778:1:start"
+            },
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        }
+      ],
+      "foes": [
+        {
+          "cd": 1,
+          "hp": 0,
+          "id": "beast_y01",
+          "name": "角木蛟・幼子",
+          "maxHp": 122,
+          "attack": 4,
+          "element": "AIR",
+          "thumbnail": "/beast-game/thumb/young-01.v2.webp?v=7",
+          "skillRuntime": {
+            "uses": {},
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "defense",
+                "value": -12,
+                "source": "氐土貉",
+                "remainingTurns": 2
+              }
+            ],
+            "lastEvents": {},
+            "initialized": {},
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          },
+          "lastCounterPhase": "2654435778:1"
+        },
+        {
+          "cd": 1,
+          "hp": 0,
+          "id": "beast_y16",
+          "name": "婁金狗・幼子",
+          "maxHp": 100,
+          "attack": 3,
+          "element": "SPACE",
+          "thumbnail": "/beast-game/thumb/young-16.v2.webp?v=6",
+          "attackEnergy": 25,
+          "skillRuntime": {
+            "uses": {},
+            "initialized": {},
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          },
+          "lastChargeTurn": "17:0",
+          "lastCounterPhase": "2654435778:1"
+        },
+        {
+          "cd": 1,
+          "hp": 142,
+          "id": "beast_y07",
+          "name": "箕水豹・幼子",
+          "maxHp": 142,
+          "attack": 3,
+          "element": "WATER",
+          "thumbnail": "/beast-game/thumb/young-07.v2.webp?v=7",
+          "attackEnergy": 50,
+          "lastChargeTurn": "2654435778:1",
+          "lastCounterPhase": "2654435778:1",
+          "skillRuntime": {
+            "uses": {},
+            "initialized": {},
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "cd": 1,
+          "hp": 96,
+          "id": "beast_y20",
+          "name": "觜火猴・幼子",
+          "maxHp": 96,
+          "attack": 3,
+          "element": "FIRE",
+          "thumbnail": "/beast-game/thumb/young-20.v2.webp?v=5",
+          "attackEnergy": 50,
+          "lastChargeTurn": "2654435778:1",
+          "lastCounterPhase": "2654435778:1"
+        },
+        {
+          "cd": 1,
+          "hp": 118,
+          "id": "beast_y10",
+          "name": "女土蝠・幼子",
+          "maxHp": 118,
+          "attack": 2,
+          "element": "EARTH",
+          "thumbnail": "/beast-game/thumb/young-10.v2.webp?v=6",
+          "attackEnergy": 50,
+          "lastChargeTurn": "2654435778:1",
+          "lastCounterPhase": "2654435778:1"
+        }
+      ],
+      "mode": "hard45",
+      "wins": 0,
+      "target": 2,
+      "seed": 1013904243,
+      "move": 2,
+      "chosen": {
+        "AIR": "beast_g_qinglong"
+      },
+      "rule": "tap-lead",
+      "attackBoost": 1,
+      "treasureGuard": 1,
+      "treasures": {
+        "version": 1,
+        "counts": {
+          "AIR": 0,
+          "FIRE": 0,
+          "EARTH": 0,
+          "SPACE": 0,
+          "WATER": 0
+        },
+        "receipts": []
+      },
+      "actionId": "bfc5fafa-9763-4155-a159-1952598b7f98:turn:2"
+    },
+    {
+      "sharedBattleToken": "[isolated test token omitted]",
+      "sharedVersion": 3,
+      "board": [
+        [
+          "AIR",
+          "WATER",
+          "AIR",
+          "AIR",
+          "FIRE",
+          "FIRE",
+          "WATER"
+        ],
+        [
+          "AIR",
+          "FIRE",
+          "SPACE",
+          "WATER",
+          "EARTH",
+          "SPACE",
+          "WATER"
+        ],
+        [
+          "WATER",
+          "FIRE",
+          "AIR",
+          "EARTH",
+          "EARTH",
+          "WATER",
+          "EARTH"
+        ],
+        [
+          "WATER",
+          "EARTH",
+          "FIRE",
+          "AIR",
+          "FIRE",
+          "SPACE",
+          "SPACE"
+        ],
+        [
+          "AIR",
+          "SPACE",
+          "FIRE",
+          "EARTH",
+          "WATER",
+          "FIRE",
+          "SPACE"
+        ],
+        [
+          "FIRE",
+          "EARTH",
+          "WATER",
+          "AIR",
+          "FIRE",
+          "EARTH",
+          "WATER"
+        ],
+        [
+          "WATER",
+          "AIR",
+          "SPACE",
+          "FIRE",
+          "WATER",
+          "WATER",
+          "SPACE"
+        ],
+        [
+          "SPACE",
+          "EARTH",
+          "WATER",
+          "EARTH",
+          "EARTH",
+          "FIRE",
+          "FIRE"
+        ]
+      ],
+      "magic": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          8,
+          0,
+          5,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          10,
+          7,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          5,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "path": [],
+      "team": [
+        {
+          "hp": 131,
+          "id": "beast_g_qinglong",
+          "name": "青龍",
+          "maxHp": 131,
+          "attack": 74,
+          "energy": 90,
+          "element": "AIR",
+          "skillName": "蒼龍騰霄",
+          "thumbnail": "/beast-game/thumb/guardian-qinglong.v2.webp?v=11",
+          "description": "青龍登場，四回合內攻速齊揚。",
+          "skillRuntime": {
+            "uses": {
+              "skill_111": 1,
+              "skill_301": 1
+            },
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "attack",
+                "value": 15,
+                "source": "青龍",
+                "remainingTurns": 1
+              },
+              {
+                "stat": "speed",
+                "value": 15,
+                "source": "青龍",
+                "remainingTurns": 1
+              },
+              {
+                "stat": "speed",
+                "value": 10,
+                "source": "青龍",
+                "remainingTurns": 96
+              }
+            ],
+            "lastEvents": {
+              "ON_TURN_END": "1013904243:2:end",
+              "ON_TURN_START": "1013904243:2:start"
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "stunnedTurns": 0,
+            "elementBoosts": [],
+            "playerSkillsEnabled": true
+          }
+        },
+        {
+          "hp": 98,
+          "id": "beast_a01",
+          "name": "角木蛟",
+          "maxHp": 98,
+          "attack": 56,
+          "energy": 45,
+          "element": "AIR",
+          "skillName": "風刃",
+          "thumbnail": "/beast-game/thumb/adult-01.v2.webp?v=11",
+          "description": "風屬攻招：以風為刃，直取要害。",
+          "skillRuntime": {
+            "uses": {
+              "skill_106": 1,
+              "skill_111": 1
+            },
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "speed",
+                "value": 10,
+                "source": "角木蛟",
+                "remainingTurns": 96
+              }
+            ],
+            "lastEvents": {
+              "ON_TURN_END": "1013904243:2:end",
+              "ON_TURN_START": "1013904243:2:start"
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "stunnedTurns": 0,
+            "elementBoosts": [],
+            "playerSkillsEnabled": true
+          }
+        },
+        {
+          "hp": 129,
+          "id": "beast_a02",
+          "name": "亢金龍",
+          "maxHp": 129,
+          "attack": 62,
+          "energy": 100,
+          "element": "SPACE",
+          "skillName": "空斷",
+          "thumbnail": "/beast-game/thumb/adult-02.v2.webp?v=11",
+          "description": "空屬攻招：斷其鋒銳，兩回合內削弱對手攻擊。",
+          "skillRuntime": {
+            "uses": {
+              "skill_102": 2,
+              "skill_107": 1
+            },
+            "shield": 20,
+            "modifiers": [],
+            "lastEvents": {
+              "ON_ATTACK": "1013904243:2:orb:0",
+              "ON_TURN_END": "1013904243:2:end",
+              "ON_TURN_START": "1013904243:2:start"
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "stunnedTurns": 0,
+            "elementBoosts": [],
+            "playerSkillsEnabled": true,
+            "playerAttackReceipts": [
+              "2654435778:1:orb:0",
+              "1013904243:2:orb:0"
+            ]
+          }
+        },
+        {
+          "hp": 109,
+          "id": "beast_a03",
+          "name": "氐土貉",
+          "maxHp": 109,
+          "attack": 44,
+          "energy": 100,
+          "element": "EARTH",
+          "skillName": "地裂",
+          "thumbnail": "/beast-game/thumb/adult-03.v2.webp?v=12",
+          "description": "地屬攻招：裂其陣腳，削防為主。",
+          "skillRuntime": {
+            "uses": {
+              "skill_105": 1
+            },
+            "shield": 0,
+            "modifiers": [],
+            "lastEvents": {
+              "ON_ATTACK": "17:0:orb:0",
+              "ON_TURN_END": "1013904243:2:end",
+              "ON_TURN_START": "1013904243:2:start"
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "stunnedTurns": 0,
+            "elementBoosts": [],
+            "playerSkillsEnabled": true,
+            "playerAttackReceipts": [
+              "17:0:orb:0"
+            ]
+          }
+        },
+        {
+          "hp": 104,
+          "id": "beast_a04",
+          "name": "房日兔",
+          "maxHp": 104,
+          "attack": 67,
+          "energy": 100,
+          "element": "FIRE",
+          "skillName": "焚天",
+          "thumbnail": "/beast-game/thumb/adult-04.v2.webp?v=11",
+          "description": "火屬攻招：一擊灼盡，次數有限。",
+          "skillRuntime": {
+            "uses": {},
+            "shield": 0,
+            "modifiers": [],
+            "lastEvents": {
+              "ON_ATTACK": "17:0:orb:1",
+              "ON_TURN_END": "1013904243:2:end",
+              "ON_TURN_START": "1013904243:2:start"
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "stunnedTurns": 0,
+            "elementBoosts": [],
+            "playerSkillsEnabled": true,
+            "playerAttackReceipts": [
+              "17:0:orb:1"
+            ]
+          }
+        }
+      ],
+      "foes": [
+        {
+          "cd": 1,
+          "hp": 0,
+          "id": "beast_y01",
+          "name": "角木蛟・幼子",
+          "maxHp": 122,
+          "attack": 4,
+          "element": "AIR",
+          "thumbnail": "/beast-game/thumb/young-01.v2.webp?v=7",
+          "skillRuntime": {
+            "uses": {},
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "defense",
+                "value": -12,
+                "source": "氐土貉",
+                "remainingTurns": 2
+              }
+            ],
+            "lastEvents": {},
+            "initialized": {},
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          },
+          "lastCounterPhase": "1013904243:2"
+        },
+        {
+          "cd": 1,
+          "hp": 0,
+          "id": "beast_y16",
+          "name": "婁金狗・幼子",
+          "maxHp": 100,
+          "attack": 3,
+          "element": "SPACE",
+          "thumbnail": "/beast-game/thumb/young-16.v2.webp?v=6",
+          "attackEnergy": 25,
+          "skillRuntime": {
+            "uses": {},
+            "shield": 0,
+            "modifiers": [],
+            "lastEvents": {},
+            "initialized": {},
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          },
+          "lastChargeTurn": "17:0",
+          "lastCounterPhase": "1013904243:2"
+        },
+        {
+          "cd": 1,
+          "hp": 56,
+          "id": "beast_y07",
+          "name": "箕水豹・幼子",
+          "maxHp": 142,
+          "attack": 3,
+          "element": "WATER",
+          "thumbnail": "/beast-game/thumb/young-07.v2.webp?v=7",
+          "attackEnergy": 75,
+          "skillRuntime": {
+            "uses": {},
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "attack",
+                "value": -8,
+                "source": "亢金龍",
+                "remainingTurns": 2
+              }
+            ],
+            "lastEvents": {},
+            "initialized": {},
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          },
+          "lastChargeTurn": "1013904243:2",
+          "lastCounterPhase": "1013904243:2"
+        },
+        {
+          "cd": 1,
+          "hp": 96,
+          "id": "beast_y20",
+          "name": "觜火猴・幼子",
+          "maxHp": 96,
+          "attack": 3,
+          "element": "FIRE",
+          "thumbnail": "/beast-game/thumb/young-20.v2.webp?v=5",
+          "attackEnergy": 75,
+          "lastChargeTurn": "1013904243:2",
+          "lastCounterPhase": "1013904243:2"
+        },
+        {
+          "cd": 1,
+          "hp": 118,
+          "id": "beast_y10",
+          "name": "女土蝠・幼子",
+          "maxHp": 118,
+          "attack": 2,
+          "element": "EARTH",
+          "thumbnail": "/beast-game/thumb/young-10.v2.webp?v=6",
+          "attackEnergy": 75,
+          "lastChargeTurn": "1013904243:2",
+          "lastCounterPhase": "1013904243:2"
+        }
+      ],
+      "mode": "hard45",
+      "wins": 0,
+      "target": 2,
+      "seed": 17,
+      "move": 3,
+      "chosen": {
+        "AIR": "beast_g_qinglong"
+      },
+      "rule": "tap-lead",
+      "attackBoost": 1,
+      "treasureGuard": 1,
+      "action": "energy",
+      "attackerId": "beast_a02",
+      "eventId": "17:energy:1",
+      "actionId": "1600110c-3a05-4f85-bd60-8a1c2b807eb3:skill:1"
+    },
+    {
+      "sharedBattleToken": "[isolated test token omitted]",
+      "sharedVersion": 3,
+      "board": [
+        [
+          "AIR",
+          "WATER",
+          "AIR",
+          "AIR",
+          "FIRE",
+          "FIRE",
+          "WATER"
+        ],
+        [
+          "AIR",
+          "FIRE",
+          "SPACE",
+          "WATER",
+          "EARTH",
+          "SPACE",
+          "WATER"
+        ],
+        [
+          "WATER",
+          "FIRE",
+          "AIR",
+          "EARTH",
+          "EARTH",
+          "WATER",
+          "EARTH"
+        ],
+        [
+          "WATER",
+          "EARTH",
+          "FIRE",
+          "AIR",
+          "FIRE",
+          "SPACE",
+          "SPACE"
+        ],
+        [
+          "AIR",
+          "SPACE",
+          "FIRE",
+          "EARTH",
+          "WATER",
+          "FIRE",
+          "SPACE"
+        ],
+        [
+          "FIRE",
+          "EARTH",
+          "WATER",
+          "AIR",
+          "FIRE",
+          "EARTH",
+          "WATER"
+        ],
+        [
+          "WATER",
+          "AIR",
+          "SPACE",
+          "FIRE",
+          "WATER",
+          "WATER",
+          "SPACE"
+        ],
+        [
+          "SPACE",
+          "EARTH",
+          "WATER",
+          "EARTH",
+          "EARTH",
+          "FIRE",
+          "FIRE"
+        ]
+      ],
+      "magic": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          8,
+          0,
+          5,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          10,
+          7,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          5,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "path": [],
+      "team": [
+        {
+          "hp": 131,
+          "id": "beast_g_qinglong",
+          "name": "青龍",
+          "maxHp": 131,
+          "attack": 74,
+          "energy": 90,
+          "element": "AIR",
+          "skillName": "蒼龍騰霄",
+          "thumbnail": "/beast-game/thumb/guardian-qinglong.v2.webp?v=11",
+          "description": "青龍登場，四回合內攻速齊揚。",
+          "skillRuntime": {
+            "uses": {
+              "skill_111": 1,
+              "skill_301": 1
+            },
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "attack",
+                "value": 15,
+                "source": "青龍",
+                "remainingTurns": 1
+              },
+              {
+                "stat": "speed",
+                "value": 15,
+                "source": "青龍",
+                "remainingTurns": 1
+              },
+              {
+                "stat": "speed",
+                "value": 10,
+                "source": "青龍",
+                "remainingTurns": 96
+              }
+            ],
+            "lastEvents": {
+              "ON_TURN_END": "1013904243:2:end",
+              "ON_TURN_START": "1013904243:2:start"
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "stunnedTurns": 0,
+            "elementBoosts": [],
+            "playerSkillsEnabled": true
+          }
+        },
+        {
+          "hp": 98,
+          "id": "beast_a01",
+          "name": "角木蛟",
+          "maxHp": 98,
+          "attack": 56,
+          "energy": 45,
+          "element": "AIR",
+          "skillName": "風刃",
+          "thumbnail": "/beast-game/thumb/adult-01.v2.webp?v=11",
+          "description": "風屬攻招：以風為刃，直取要害。",
+          "skillRuntime": {
+            "uses": {
+              "skill_106": 1,
+              "skill_111": 1
+            },
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "speed",
+                "value": 10,
+                "source": "角木蛟",
+                "remainingTurns": 96
+              }
+            ],
+            "lastEvents": {
+              "ON_TURN_END": "1013904243:2:end",
+              "ON_TURN_START": "1013904243:2:start"
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "stunnedTurns": 0,
+            "elementBoosts": [],
+            "playerSkillsEnabled": true
+          }
+        },
+        {
+          "hp": 129,
+          "id": "beast_a02",
+          "name": "亢金龍",
+          "maxHp": 129,
+          "attack": 62,
+          "energy": 100,
+          "element": "SPACE",
+          "skillName": "空斷",
+          "thumbnail": "/beast-game/thumb/adult-02.v2.webp?v=11",
+          "description": "空屬攻招：斷其鋒銳，兩回合內削弱對手攻擊。",
+          "skillRuntime": {
+            "uses": {
+              "skill_102": 2,
+              "skill_107": 1
+            },
+            "shield": 20,
+            "modifiers": [],
+            "lastEvents": {
+              "ON_ATTACK": "1013904243:2:orb:0",
+              "ON_TURN_END": "1013904243:2:end",
+              "ON_TURN_START": "1013904243:2:start"
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "stunnedTurns": 0,
+            "elementBoosts": [],
+            "playerSkillsEnabled": true,
+            "playerAttackReceipts": [
+              "2654435778:1:orb:0",
+              "1013904243:2:orb:0"
+            ]
+          }
+        },
+        {
+          "hp": 109,
+          "id": "beast_a03",
+          "name": "氐土貉",
+          "maxHp": 109,
+          "attack": 44,
+          "energy": 100,
+          "element": "EARTH",
+          "skillName": "地裂",
+          "thumbnail": "/beast-game/thumb/adult-03.v2.webp?v=12",
+          "description": "地屬攻招：裂其陣腳，削防為主。",
+          "skillRuntime": {
+            "uses": {
+              "skill_105": 1
+            },
+            "shield": 0,
+            "modifiers": [],
+            "lastEvents": {
+              "ON_ATTACK": "17:0:orb:0",
+              "ON_TURN_END": "1013904243:2:end",
+              "ON_TURN_START": "1013904243:2:start"
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "stunnedTurns": 0,
+            "elementBoosts": [],
+            "playerSkillsEnabled": true,
+            "playerAttackReceipts": [
+              "17:0:orb:0"
+            ]
+          }
+        },
+        {
+          "hp": 104,
+          "id": "beast_a04",
+          "name": "房日兔",
+          "maxHp": 104,
+          "attack": 67,
+          "energy": 100,
+          "element": "FIRE",
+          "skillName": "焚天",
+          "thumbnail": "/beast-game/thumb/adult-04.v2.webp?v=11",
+          "description": "火屬攻招：一擊灼盡，次數有限。",
+          "skillRuntime": {
+            "uses": {},
+            "shield": 0,
+            "modifiers": [],
+            "lastEvents": {
+              "ON_ATTACK": "17:0:orb:1",
+              "ON_TURN_END": "1013904243:2:end",
+              "ON_TURN_START": "1013904243:2:start"
+            },
+            "initialized": {
+              "PASSIVE": true,
+              "ON_SUMMON": true
+            },
+            "stunnedTurns": 0,
+            "elementBoosts": [],
+            "playerSkillsEnabled": true,
+            "playerAttackReceipts": [
+              "17:0:orb:1"
+            ]
+          }
+        }
+      ],
+      "foes": [
+        {
+          "cd": 1,
+          "hp": 0,
+          "id": "beast_y01",
+          "name": "角木蛟・幼子",
+          "maxHp": 122,
+          "attack": 4,
+          "element": "AIR",
+          "thumbnail": "/beast-game/thumb/young-01.v2.webp?v=7",
+          "skillRuntime": {
+            "uses": {},
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "defense",
+                "value": -12,
+                "source": "氐土貉",
+                "remainingTurns": 2
+              }
+            ],
+            "lastEvents": {},
+            "initialized": {},
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          },
+          "lastCounterPhase": "1013904243:2"
+        },
+        {
+          "cd": 1,
+          "hp": 0,
+          "id": "beast_y16",
+          "name": "婁金狗・幼子",
+          "maxHp": 100,
+          "attack": 3,
+          "element": "SPACE",
+          "thumbnail": "/beast-game/thumb/young-16.v2.webp?v=6",
+          "attackEnergy": 25,
+          "skillRuntime": {
+            "uses": {},
+            "shield": 0,
+            "modifiers": [],
+            "lastEvents": {},
+            "initialized": {},
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          },
+          "lastChargeTurn": "17:0",
+          "lastCounterPhase": "1013904243:2"
+        },
+        {
+          "cd": 1,
+          "hp": 56,
+          "id": "beast_y07",
+          "name": "箕水豹・幼子",
+          "maxHp": 142,
+          "attack": 3,
+          "element": "WATER",
+          "thumbnail": "/beast-game/thumb/young-07.v2.webp?v=7",
+          "attackEnergy": 75,
+          "skillRuntime": {
+            "uses": {},
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "attack",
+                "value": -8,
+                "source": "亢金龍",
+                "remainingTurns": 2
+              }
+            ],
+            "lastEvents": {},
+            "initialized": {},
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          },
+          "lastChargeTurn": "1013904243:2",
+          "lastCounterPhase": "1013904243:2"
+        },
+        {
+          "cd": 1,
+          "hp": 96,
+          "id": "beast_y20",
+          "name": "觜火猴・幼子",
+          "maxHp": 96,
+          "attack": 3,
+          "element": "FIRE",
+          "thumbnail": "/beast-game/thumb/young-20.v2.webp?v=5",
+          "attackEnergy": 75,
+          "lastChargeTurn": "1013904243:2",
+          "lastCounterPhase": "1013904243:2"
+        },
+        {
+          "cd": 1,
+          "hp": 118,
+          "id": "beast_y10",
+          "name": "女土蝠・幼子",
+          "maxHp": 118,
+          "attack": 2,
+          "element": "EARTH",
+          "thumbnail": "/beast-game/thumb/young-10.v2.webp?v=6",
+          "attackEnergy": 75,
+          "lastChargeTurn": "1013904243:2",
+          "lastCounterPhase": "1013904243:2"
+        }
+      ],
+      "mode": "hard45",
+      "wins": 0,
+      "target": 2,
+      "seed": 17,
+      "move": 3,
+      "chosen": {
+        "AIR": "beast_g_qinglong"
+      },
+      "rule": "tap-lead",
+      "attackBoost": 1,
+      "treasureGuard": 1,
+      "action": "energy",
+      "attackerId": "beast_a02",
+      "eventId": "17:energy:1",
+      "actionId": "1600110c-3a05-4f85-bd60-8a1c2b807eb3:skill:1"
+    }
+  ],
+  "errors": [],
+  "notFullExplained": true,
+  "actor": "beast_a02",
+  "waitWithoutAttack": true,
+  "before": {
+    "foes": [
+      {
+        "cd": 1,
+        "hp": 0,
+        "id": "beast_y01",
+        "name": "角木蛟・幼子",
+        "maxHp": 122,
+        "attack": 4,
+        "element": "AIR",
+        "thumbnail": "/beast-game/thumb/young-01.v2.webp?v=7",
+        "skillRuntime": {
+          "uses": {},
+          "shield": 0,
+          "modifiers": [
+            {
+              "stat": "defense",
+              "value": -12,
+              "source": "氐土貉",
+              "remainingTurns": 2
+            }
+          ],
+          "lastEvents": {},
+          "initialized": {},
+          "stunnedTurns": 0,
+          "elementBoosts": []
+        },
+        "lastCounterPhase": "1013904243:2"
+      },
+      {
+        "cd": 1,
+        "hp": 0,
+        "id": "beast_y16",
+        "name": "婁金狗・幼子",
+        "maxHp": 100,
+        "attack": 3,
+        "element": "SPACE",
+        "thumbnail": "/beast-game/thumb/young-16.v2.webp?v=6",
+        "attackEnergy": 25,
+        "skillRuntime": {
+          "uses": {},
+          "shield": 0,
+          "modifiers": [],
+          "lastEvents": {},
+          "initialized": {},
+          "stunnedTurns": 0,
+          "elementBoosts": []
+        },
+        "lastChargeTurn": "17:0",
+        "lastCounterPhase": "1013904243:2"
+      },
+      {
+        "cd": 1,
+        "hp": 56,
+        "id": "beast_y07",
+        "name": "箕水豹・幼子",
+        "maxHp": 142,
+        "attack": 3,
+        "element": "WATER",
+        "thumbnail": "/beast-game/thumb/young-07.v2.webp?v=7",
+        "attackEnergy": 75,
+        "skillRuntime": {
+          "uses": {},
+          "shield": 0,
+          "modifiers": [
+            {
+              "stat": "attack",
+              "value": -8,
+              "source": "亢金龍",
+              "remainingTurns": 2
+            }
+          ],
+          "lastEvents": {},
+          "initialized": {},
+          "stunnedTurns": 0,
+          "elementBoosts": []
+        },
+        "lastChargeTurn": "1013904243:2",
+        "lastCounterPhase": "1013904243:2"
+      },
+      {
+        "cd": 1,
+        "hp": 96,
+        "id": "beast_y20",
+        "name": "觜火猴・幼子",
+        "maxHp": 96,
+        "attack": 3,
+        "element": "FIRE",
+        "thumbnail": "/beast-game/thumb/young-20.v2.webp?v=5",
+        "attackEnergy": 75,
+        "lastChargeTurn": "1013904243:2",
+        "lastCounterPhase": "1013904243:2"
+      },
+      {
+        "cd": 1,
+        "hp": 118,
+        "id": "beast_y10",
+        "name": "女土蝠・幼子",
+        "maxHp": 118,
+        "attack": 2,
+        "element": "EARTH",
+        "thumbnail": "/beast-game/thumb/young-10.v2.webp?v=6",
+        "attackEnergy": 75,
+        "lastChargeTurn": "1013904243:2",
+        "lastCounterPhase": "1013904243:2"
+      }
+    ],
+    "mode": "hard45",
+    "move": 3,
+    "path": [],
+    "rule": "tap-lead",
+    "seed": 17,
+    "team": [
+      {
+        "hp": 131,
+        "id": "beast_g_qinglong",
+        "name": "青龍",
+        "maxHp": 131,
+        "attack": 74,
+        "energy": 90,
+        "element": "AIR",
+        "skillName": "蒼龍騰霄",
+        "thumbnail": "/beast-game/thumb/guardian-qinglong.v2.webp?v=11",
+        "description": "青龍登場，四回合內攻速齊揚。",
+        "skillRuntime": {
+          "uses": {
+            "skill_111": 1,
+            "skill_301": 1
+          },
+          "shield": 0,
+          "modifiers": [
+            {
+              "stat": "attack",
+              "value": 15,
+              "source": "青龍",
+              "remainingTurns": 1
+            },
+            {
+              "stat": "speed",
+              "value": 15,
+              "source": "青龍",
+              "remainingTurns": 1
+            },
+            {
+              "stat": "speed",
+              "value": 10,
+              "source": "青龍",
+              "remainingTurns": 96
+            }
+          ],
+          "lastEvents": {
+            "ON_TURN_END": "1013904243:2:end",
+            "ON_TURN_START": "1013904243:2:start"
+          },
+          "initialized": {
+            "PASSIVE": true,
+            "ON_SUMMON": true
+          },
+          "stunnedTurns": 0,
+          "elementBoosts": [],
+          "playerSkillsEnabled": true
+        }
+      },
+      {
+        "hp": 98,
+        "id": "beast_a01",
+        "name": "角木蛟",
+        "maxHp": 98,
+        "attack": 56,
+        "energy": 45,
+        "element": "AIR",
+        "skillName": "風刃",
+        "thumbnail": "/beast-game/thumb/adult-01.v2.webp?v=11",
+        "description": "風屬攻招：以風為刃，直取要害。",
+        "skillRuntime": {
+          "uses": {
+            "skill_106": 1,
+            "skill_111": 1
+          },
+          "shield": 0,
+          "modifiers": [
+            {
+              "stat": "speed",
+              "value": 10,
+              "source": "角木蛟",
+              "remainingTurns": 96
+            }
+          ],
+          "lastEvents": {
+            "ON_TURN_END": "1013904243:2:end",
+            "ON_TURN_START": "1013904243:2:start"
+          },
+          "initialized": {
+            "PASSIVE": true,
+            "ON_SUMMON": true
+          },
+          "stunnedTurns": 0,
+          "elementBoosts": [],
+          "playerSkillsEnabled": true
+        }
+      },
+      {
+        "hp": 129,
+        "id": "beast_a02",
+        "name": "亢金龍",
+        "maxHp": 129,
+        "attack": 62,
+        "energy": 100,
+        "element": "SPACE",
+        "skillName": "空斷",
+        "thumbnail": "/beast-game/thumb/adult-02.v2.webp?v=11",
+        "description": "空屬攻招：斷其鋒銳，兩回合內削弱對手攻擊。",
+        "skillRuntime": {
+          "uses": {
+            "skill_102": 2,
+            "skill_107": 1
+          },
+          "shield": 20,
+          "modifiers": [],
+          "lastEvents": {
+            "ON_ATTACK": "1013904243:2:orb:0",
+            "ON_TURN_END": "1013904243:2:end",
+            "ON_TURN_START": "1013904243:2:start"
+          },
+          "initialized": {
+            "PASSIVE": true,
+            "ON_SUMMON": true
+          },
+          "stunnedTurns": 0,
+          "elementBoosts": [],
+          "playerSkillsEnabled": true,
+          "playerAttackReceipts": [
+            "2654435778:1:orb:0",
+            "1013904243:2:orb:0"
+          ]
+        }
+      },
+      {
+        "hp": 109,
+        "id": "beast_a03",
+        "name": "氐土貉",
+        "maxHp": 109,
+        "attack": 44,
+        "energy": 100,
+        "element": "EARTH",
+        "skillName": "地裂",
+        "thumbnail": "/beast-game/thumb/adult-03.v2.webp?v=12",
+        "description": "地屬攻招：裂其陣腳，削防為主。",
+        "skillRuntime": {
+          "uses": {
+            "skill_105": 1
+          },
+          "shield": 0,
+          "modifiers": [],
+          "lastEvents": {
+            "ON_ATTACK": "17:0:orb:0",
+            "ON_TURN_END": "1013904243:2:end",
+            "ON_TURN_START": "1013904243:2:start"
+          },
+          "initialized": {
+            "PASSIVE": true,
+            "ON_SUMMON": true
+          },
+          "stunnedTurns": 0,
+          "elementBoosts": [],
+          "playerSkillsEnabled": true,
+          "playerAttackReceipts": [
+            "17:0:orb:0"
+          ]
+        }
+      },
+      {
+        "hp": 104,
+        "id": "beast_a04",
+        "name": "房日兔",
+        "maxHp": 104,
+        "attack": 67,
+        "energy": 100,
+        "element": "FIRE",
+        "skillName": "焚天",
+        "thumbnail": "/beast-game/thumb/adult-04.v2.webp?v=11",
+        "description": "火屬攻招：一擊灼盡，次數有限。",
+        "skillRuntime": {
+          "uses": {},
+          "shield": 0,
+          "modifiers": [],
+          "lastEvents": {
+            "ON_ATTACK": "17:0:orb:1",
+            "ON_TURN_END": "1013904243:2:end",
+            "ON_TURN_START": "1013904243:2:start"
+          },
+          "initialized": {
+            "PASSIVE": true,
+            "ON_SUMMON": true
+          },
+          "stunnedTurns": 0,
+          "elementBoosts": [],
+          "playerSkillsEnabled": true,
+          "playerAttackReceipts": [
+            "17:0:orb:1"
+          ]
+        }
+      }
+    ],
+    "wins": 0,
+    "board": [
+      [
+        "AIR",
+        "WATER",
+        "AIR",
+        "AIR",
+        "FIRE",
+        "FIRE",
+        "WATER"
+      ],
+      [
+        "AIR",
+        "FIRE",
+        "SPACE",
+        "WATER",
+        "EARTH",
+        "SPACE",
+        "WATER"
+      ],
+      [
+        "WATER",
+        "FIRE",
+        "AIR",
+        "EARTH",
+        "EARTH",
+        "WATER",
+        "EARTH"
+      ],
+      [
+        "WATER",
+        "EARTH",
+        "FIRE",
+        "AIR",
+        "FIRE",
+        "SPACE",
+        "SPACE"
+      ],
+      [
+        "AIR",
+        "SPACE",
+        "FIRE",
+        "EARTH",
+        "WATER",
+        "FIRE",
+        "SPACE"
+      ],
+      [
+        "FIRE",
+        "EARTH",
+        "WATER",
+        "AIR",
+        "FIRE",
+        "EARTH",
+        "WATER"
+      ],
+      [
+        "WATER",
+        "AIR",
+        "SPACE",
+        "FIRE",
+        "WATER",
+        "WATER",
+        "SPACE"
+      ],
+      [
+        "SPACE",
+        "EARTH",
+        "WATER",
+        "EARTH",
+        "EARTH",
+        "FIRE",
+        "FIRE"
+      ]
+    ],
+    "magic": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        8,
+        0,
+        5,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        10,
+        7,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        5,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "chosen": {
+      "AIR": "beast_g_qinglong"
+    },
+    "target": 2,
+    "treasures": {
+      "counts": {
+        "AIR": 0,
+        "FIRE": 0,
+        "EARTH": 0,
+        "SPACE": 0,
+        "WATER": 0
+      },
+      "version": 1,
+      "receipts": []
+    },
+    "attackBoost": 1,
+    "treasureGuard": 1
+  },
+  "reloadWithoutAttack": true,
+  "committedEnergyReply": {
+    "action": "energy",
+    "actionId": "orb:eaf6ae32-6fcb-4dc2-9a3f-2490d99a7c9e:3",
+    "targetId": "beast_y07",
+    "attackerIds": [
+      "beast_a02"
+    ],
+    "team": [
+      {
+        "hp": 131,
+        "id": "beast_g_qinglong",
+        "name": "青龍",
+        "maxHp": 131,
+        "attack": 74,
+        "energy": 90,
+        "element": "AIR",
+        "skillName": "蒼龍騰霄",
+        "thumbnail": "/beast-game/thumb/guardian-qinglong.v2.webp?v=11",
+        "description": "青龍登場，四回合內攻速齊揚。",
+        "skillRuntime": {
+          "uses": {
+            "skill_111": 1,
+            "skill_301": 1
+          },
+          "shield": 0,
+          "modifiers": [
+            {
+              "stat": "attack",
+              "value": 15,
+              "source": "青龍",
+              "remainingTurns": 1
+            },
+            {
+              "stat": "speed",
+              "value": 15,
+              "source": "青龍",
+              "remainingTurns": 1
+            },
+            {
+              "stat": "speed",
+              "value": 10,
+              "source": "青龍",
+              "remainingTurns": 96
+            }
+          ],
+          "lastEvents": {
+            "ON_TURN_END": "1013904243:2:end",
+            "ON_TURN_START": "1013904243:2:start"
+          },
+          "initialized": {
+            "PASSIVE": true,
+            "ON_SUMMON": true
+          },
+          "stunnedTurns": 0,
+          "elementBoosts": [],
+          "playerSkillsEnabled": true
+        }
+      },
+      {
+        "hp": 98,
+        "id": "beast_a01",
+        "name": "角木蛟",
+        "maxHp": 98,
+        "attack": 56,
+        "energy": 45,
+        "element": "AIR",
+        "skillName": "風刃",
+        "thumbnail": "/beast-game/thumb/adult-01.v2.webp?v=11",
+        "description": "風屬攻招：以風為刃，直取要害。",
+        "skillRuntime": {
+          "uses": {
+            "skill_106": 1,
+            "skill_111": 1
+          },
+          "shield": 0,
+          "modifiers": [
+            {
+              "stat": "speed",
+              "value": 10,
+              "source": "角木蛟",
+              "remainingTurns": 96
+            }
+          ],
+          "lastEvents": {
+            "ON_TURN_END": "1013904243:2:end",
+            "ON_TURN_START": "1013904243:2:start"
+          },
+          "initialized": {
+            "PASSIVE": true,
+            "ON_SUMMON": true
+          },
+          "stunnedTurns": 0,
+          "elementBoosts": [],
+          "playerSkillsEnabled": true
+        }
+      },
+      {
+        "hp": 129,
+        "id": "beast_a02",
+        "name": "亢金龍",
+        "maxHp": 129,
+        "attack": 62,
+        "energy": 0,
+        "element": "SPACE",
+        "skillName": "空斷",
+        "thumbnail": "/beast-game/thumb/adult-02.v2.webp?v=11",
+        "description": "空屬攻招：斷其鋒銳，兩回合內削弱對手攻擊。",
+        "skillRuntime": {
+          "playerSkillsEnabled": true,
+          "playerAttackReceipts": [
+            "2654435778:1:orb:0",
+            "1013904243:2:orb:0",
+            "orb:eaf6ae32-6fcb-4dc2-9a3f-2490d99a7c9e:3"
+          ],
+          "uses": {
+            "skill_102": 2,
+            "skill_107": 1
+          },
+          "initialized": {
+            "PASSIVE": true,
+            "ON_SUMMON": true
+          },
+          "lastEvents": {
+            "ON_ATTACK": "orb:eaf6ae32-6fcb-4dc2-9a3f-2490d99a7c9e:3",
+            "ON_TURN_END": "1013904243:2:end",
+            "ON_TURN_START": "1013904243:2:start"
+          },
+          "shield": 20,
+          "modifiers": [],
+          "stunnedTurns": 0,
+          "elementBoosts": []
+        }
+      },
+      {
+        "hp": 109,
+        "id": "beast_a03",
+        "name": "氐土貉",
+        "maxHp": 109,
+        "attack": 44,
+        "energy": 100,
+        "element": "EARTH",
+        "skillName": "地裂",
+        "thumbnail": "/beast-game/thumb/adult-03.v2.webp?v=12",
+        "description": "地屬攻招：裂其陣腳，削防為主。",
+        "skillRuntime": {
+          "uses": {
+            "skill_105": 1
+          },
+          "shield": 0,
+          "modifiers": [],
+          "lastEvents": {
+            "ON_ATTACK": "17:0:orb:0",
+            "ON_TURN_END": "1013904243:2:end",
+            "ON_TURN_START": "1013904243:2:start"
+          },
+          "initialized": {
+            "PASSIVE": true,
+            "ON_SUMMON": true
+          },
+          "stunnedTurns": 0,
+          "elementBoosts": [],
+          "playerSkillsEnabled": true,
+          "playerAttackReceipts": [
+            "17:0:orb:0"
+          ]
+        }
+      },
+      {
+        "hp": 104,
+        "id": "beast_a04",
+        "name": "房日兔",
+        "maxHp": 104,
+        "attack": 67,
+        "energy": 100,
+        "element": "FIRE",
+        "skillName": "焚天",
+        "thumbnail": "/beast-game/thumb/adult-04.v2.webp?v=11",
+        "description": "火屬攻招：一擊灼盡，次數有限。",
+        "skillRuntime": {
+          "uses": {},
+          "shield": 0,
+          "modifiers": [],
+          "lastEvents": {
+            "ON_ATTACK": "17:0:orb:1",
+            "ON_TURN_END": "1013904243:2:end",
+            "ON_TURN_START": "1013904243:2:start"
+          },
+          "initialized": {
+            "PASSIVE": true,
+            "ON_SUMMON": true
+          },
+          "stunnedTurns": 0,
+          "elementBoosts": [],
+          "playerSkillsEnabled": true,
+          "playerAttackReceipts": [
+            "17:0:orb:1"
+          ]
+        }
+      }
+    ],
+    "foes": [
+      {
+        "cd": 1,
+        "hp": 0,
+        "id": "beast_y01",
+        "name": "角木蛟・幼子",
+        "maxHp": 122,
+        "attack": 4,
+        "element": "AIR",
+        "thumbnail": "/beast-game/thumb/young-01.v2.webp?v=7",
+        "skillRuntime": {
+          "uses": {},
+          "shield": 0,
+          "modifiers": [
+            {
+              "stat": "defense",
+              "value": -12,
+              "source": "氐土貉",
+              "remainingTurns": 2
+            }
+          ],
+          "lastEvents": {},
+          "initialized": {},
+          "stunnedTurns": 0,
+          "elementBoosts": []
+        },
+        "lastCounterPhase": "1013904243:2"
+      },
+      {
+        "cd": 1,
+        "hp": 0,
+        "id": "beast_y16",
+        "name": "婁金狗・幼子",
+        "maxHp": 100,
+        "attack": 3,
+        "element": "SPACE",
+        "thumbnail": "/beast-game/thumb/young-16.v2.webp?v=6",
+        "attackEnergy": 25,
+        "skillRuntime": {
+          "uses": {},
+          "shield": 0,
+          "modifiers": [],
+          "lastEvents": {},
+          "initialized": {},
+          "stunnedTurns": 0,
+          "elementBoosts": []
+        },
+        "lastChargeTurn": "17:0",
+        "lastCounterPhase": "1013904243:2"
+      },
+      {
+        "cd": 1,
+        "hp": 0,
+        "id": "beast_y07",
+        "name": "箕水豹・幼子",
+        "maxHp": 142,
+        "attack": 3,
+        "element": "WATER",
+        "thumbnail": "/beast-game/thumb/young-07.v2.webp?v=7",
+        "attackEnergy": 75,
+        "skillRuntime": {
+          "uses": {},
+          "initialized": {},
+          "lastEvents": {},
+          "shield": 0,
+          "modifiers": [
+            {
+              "stat": "attack",
+              "value": -8,
+              "source": "亢金龍",
+              "remainingTurns": 2
+            }
+          ],
+          "stunnedTurns": 0,
+          "elementBoosts": []
+        },
+        "lastChargeTurn": "1013904243:2",
+        "lastCounterPhase": "1013904243:2"
+      },
+      {
+        "cd": 1,
+        "hp": 96,
+        "id": "beast_y20",
+        "name": "觜火猴・幼子",
+        "maxHp": 96,
+        "attack": 3,
+        "element": "FIRE",
+        "thumbnail": "/beast-game/thumb/young-20.v2.webp?v=5",
+        "attackEnergy": 75,
+        "lastChargeTurn": "1013904243:2",
+        "lastCounterPhase": "1013904243:2"
+      },
+      {
+        "cd": 1,
+        "hp": 118,
+        "id": "beast_y10",
+        "name": "女土蝠・幼子",
+        "maxHp": 118,
+        "attack": 2,
+        "element": "EARTH",
+        "thumbnail": "/beast-game/thumb/young-10.v2.webp?v=6",
+        "attackEnergy": 75,
+        "lastChargeTurn": "1013904243:2",
+        "lastCounterPhase": "1013904243:2"
+      }
+    ],
+    "skillEvents": [],
+    "actualHits": [
+      {
+        "attackerId": "beast_a02",
+        "amount": 56
+      },
+      {
+        "attackerId": "beast_a02",
+        "amount": 0
+      }
+    ],
+    "actualDamage": 56,
+    "baseDamage": 124,
+    "sharedVersion": 4
+  },
+  "after": {
+    "foes": [
+      {
+        "cd": 1,
+        "hp": 0,
+        "id": "beast_y01",
+        "name": "角木蛟・幼子",
+        "maxHp": 122,
+        "attack": 4,
+        "element": "AIR",
+        "thumbnail": "/beast-game/thumb/young-01.v2.webp?v=7",
+        "skillRuntime": {
+          "uses": {},
+          "shield": 0,
+          "modifiers": [
+            {
+              "stat": "defense",
+              "value": -12,
+              "source": "氐土貉",
+              "remainingTurns": 2
+            }
+          ],
+          "lastEvents": {},
+          "initialized": {},
+          "stunnedTurns": 0,
+          "elementBoosts": []
+        },
+        "lastCounterPhase": "1013904243:2"
+      },
+      {
+        "cd": 1,
+        "hp": 0,
+        "id": "beast_y16",
+        "name": "婁金狗・幼子",
+        "maxHp": 100,
+        "attack": 3,
+        "element": "SPACE",
+        "thumbnail": "/beast-game/thumb/young-16.v2.webp?v=6",
+        "attackEnergy": 25,
+        "skillRuntime": {
+          "uses": {},
+          "shield": 0,
+          "modifiers": [],
+          "lastEvents": {},
+          "initialized": {},
+          "stunnedTurns": 0,
+          "elementBoosts": []
+        },
+        "lastChargeTurn": "17:0",
+        "lastCounterPhase": "1013904243:2"
+      },
+      {
+        "cd": 1,
+        "hp": 0,
+        "id": "beast_y07",
+        "name": "箕水豹・幼子",
+        "maxHp": 142,
+        "attack": 3,
+        "element": "WATER",
+        "thumbnail": "/beast-game/thumb/young-07.v2.webp?v=7",
+        "attackEnergy": 75,
+        "skillRuntime": {
+          "uses": {},
+          "shield": 0,
+          "modifiers": [
+            {
+              "stat": "attack",
+              "value": -8,
+              "source": "亢金龍",
+              "remainingTurns": 2
+            }
+          ],
+          "lastEvents": {},
+          "initialized": {},
+          "stunnedTurns": 0,
+          "elementBoosts": []
+        },
+        "lastChargeTurn": "1013904243:2",
+        "lastCounterPhase": "1013904243:2"
+      },
+      {
+        "cd": 1,
+        "hp": 96,
+        "id": "beast_y20",
+        "name": "觜火猴・幼子",
+        "maxHp": 96,
+        "attack": 3,
+        "element": "FIRE",
+        "thumbnail": "/beast-game/thumb/young-20.v2.webp?v=5",
+        "attackEnergy": 75,
+        "lastChargeTurn": "1013904243:2",
+        "lastCounterPhase": "1013904243:2"
+      },
+      {
+        "cd": 1,
+        "hp": 118,
+        "id": "beast_y10",
+        "name": "女土蝠・幼子",
+        "maxHp": 118,
+        "attack": 2,
+        "element": "EARTH",
+        "thumbnail": "/beast-game/thumb/young-10.v2.webp?v=6",
+        "attackEnergy": 75,
+        "lastChargeTurn": "1013904243:2",
+        "lastCounterPhase": "1013904243:2"
+      }
+    ],
+    "mode": "hard45",
+    "move": 3,
+    "path": [],
+    "rule": "tap-lead",
+    "seed": 17,
+    "team": [
+      {
+        "hp": 131,
+        "id": "beast_g_qinglong",
+        "name": "青龍",
+        "maxHp": 131,
+        "attack": 74,
+        "energy": 90,
+        "element": "AIR",
+        "skillName": "蒼龍騰霄",
+        "thumbnail": "/beast-game/thumb/guardian-qinglong.v2.webp?v=11",
+        "description": "青龍登場，四回合內攻速齊揚。",
+        "skillRuntime": {
+          "uses": {
+            "skill_111": 1,
+            "skill_301": 1
+          },
+          "shield": 0,
+          "modifiers": [
+            {
+              "stat": "attack",
+              "value": 15,
+              "source": "青龍",
+              "remainingTurns": 1
+            },
+            {
+              "stat": "speed",
+              "value": 15,
+              "source": "青龍",
+              "remainingTurns": 1
+            },
+            {
+              "stat": "speed",
+              "value": 10,
+              "source": "青龍",
+              "remainingTurns": 96
+            }
+          ],
+          "lastEvents": {
+            "ON_TURN_END": "1013904243:2:end",
+            "ON_TURN_START": "1013904243:2:start"
+          },
+          "initialized": {
+            "PASSIVE": true,
+            "ON_SUMMON": true
+          },
+          "stunnedTurns": 0,
+          "elementBoosts": [],
+          "playerSkillsEnabled": true
+        }
+      },
+      {
+        "hp": 98,
+        "id": "beast_a01",
+        "name": "角木蛟",
+        "maxHp": 98,
+        "attack": 56,
+        "energy": 45,
+        "element": "AIR",
+        "skillName": "風刃",
+        "thumbnail": "/beast-game/thumb/adult-01.v2.webp?v=11",
+        "description": "風屬攻招：以風為刃，直取要害。",
+        "skillRuntime": {
+          "uses": {
+            "skill_106": 1,
+            "skill_111": 1
+          },
+          "shield": 0,
+          "modifiers": [
+            {
+              "stat": "speed",
+              "value": 10,
+              "source": "角木蛟",
+              "remainingTurns": 96
+            }
+          ],
+          "lastEvents": {
+            "ON_TURN_END": "1013904243:2:end",
+            "ON_TURN_START": "1013904243:2:start"
+          },
+          "initialized": {
+            "PASSIVE": true,
+            "ON_SUMMON": true
+          },
+          "stunnedTurns": 0,
+          "elementBoosts": [],
+          "playerSkillsEnabled": true
+        }
+      },
+      {
+        "hp": 129,
+        "id": "beast_a02",
+        "name": "亢金龍",
+        "maxHp": 129,
+        "attack": 62,
+        "energy": 0,
+        "element": "SPACE",
+        "skillName": "空斷",
+        "thumbnail": "/beast-game/thumb/adult-02.v2.webp?v=11",
+        "description": "空屬攻招：斷其鋒銳，兩回合內削弱對手攻擊。",
+        "skillRuntime": {
+          "uses": {
+            "skill_102": 2,
+            "skill_107": 1
+          },
+          "shield": 20,
+          "modifiers": [],
+          "lastEvents": {
+            "ON_ATTACK": "orb:eaf6ae32-6fcb-4dc2-9a3f-2490d99a7c9e:3",
+            "ON_TURN_END": "1013904243:2:end",
+            "ON_TURN_START": "1013904243:2:start"
+          },
+          "initialized": {
+            "PASSIVE": true,
+            "ON_SUMMON": true
+          },
+          "stunnedTurns": 0,
+          "elementBoosts": [],
+          "playerSkillsEnabled": true,
+          "playerAttackReceipts": [
+            "2654435778:1:orb:0",
+            "1013904243:2:orb:0",
+            "orb:eaf6ae32-6fcb-4dc2-9a3f-2490d99a7c9e:3"
+          ]
+        }
+      },
+      {
+        "hp": 109,
+        "id": "beast_a03",
+        "name": "氐土貉",
+        "maxHp": 109,
+        "attack": 44,
+        "energy": 100,
+        "element": "EARTH",
+        "skillName": "地裂",
+        "thumbnail": "/beast-game/thumb/adult-03.v2.webp?v=12",
+        "description": "地屬攻招：裂其陣腳，削防為主。",
+        "skillRuntime": {
+          "uses": {
+            "skill_105": 1
+          },
+          "shield": 0,
+          "modifiers": [],
+          "lastEvents": {
+            "ON_ATTACK": "17:0:orb:0",
+            "ON_TURN_END": "1013904243:2:end",
+            "ON_TURN_START": "1013904243:2:start"
+          },
+          "initialized": {
+            "PASSIVE": true,
+            "ON_SUMMON": true
+          },
+          "stunnedTurns": 0,
+          "elementBoosts": [],
+          "playerSkillsEnabled": true,
+          "playerAttackReceipts": [
+            "17:0:orb:0"
+          ]
+        }
+      },
+      {
+        "hp": 104,
+        "id": "beast_a04",
+        "name": "房日兔",
+        "maxHp": 104,
+        "attack": 67,
+        "energy": 100,
+        "element": "FIRE",
+        "skillName": "焚天",
+        "thumbnail": "/beast-game/thumb/adult-04.v2.webp?v=11",
+        "description": "火屬攻招：一擊灼盡，次數有限。",
+        "skillRuntime": {
+          "uses": {},
+          "shield": 0,
+          "modifiers": [],
+          "lastEvents": {
+            "ON_ATTACK": "17:0:orb:1",
+            "ON_TURN_END": "1013904243:2:end",
+            "ON_TURN_START": "1013904243:2:start"
+          },
+          "initialized": {
+            "PASSIVE": true,
+            "ON_SUMMON": true
+          },
+          "stunnedTurns": 0,
+          "elementBoosts": [],
+          "playerSkillsEnabled": true,
+          "playerAttackReceipts": [
+            "17:0:orb:1"
+          ]
+        }
+      }
+    ],
+    "wins": 0,
+    "board": [
+      [
+        "AIR",
+        "WATER",
+        "AIR",
+        "AIR",
+        "FIRE",
+        "FIRE",
+        "WATER"
+      ],
+      [
+        "AIR",
+        "FIRE",
+        "SPACE",
+        "WATER",
+        "EARTH",
+        "SPACE",
+        "WATER"
+      ],
+      [
+        "WATER",
+        "FIRE",
+        "AIR",
+        "EARTH",
+        "EARTH",
+        "WATER",
+        "EARTH"
+      ],
+      [
+        "WATER",
+        "EARTH",
+        "FIRE",
+        "AIR",
+        "FIRE",
+        "SPACE",
+        "SPACE"
+      ],
+      [
+        "AIR",
+        "SPACE",
+        "FIRE",
+        "EARTH",
+        "WATER",
+        "FIRE",
+        "SPACE"
+      ],
+      [
+        "FIRE",
+        "EARTH",
+        "WATER",
+        "AIR",
+        "FIRE",
+        "EARTH",
+        "WATER"
+      ],
+      [
+        "WATER",
+        "AIR",
+        "SPACE",
+        "FIRE",
+        "WATER",
+        "WATER",
+        "SPACE"
+      ],
+      [
+        "SPACE",
+        "EARTH",
+        "WATER",
+        "EARTH",
+        "EARTH",
+        "FIRE",
+        "FIRE"
+      ]
+    ],
+    "magic": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        8,
+        0,
+        5,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        10,
+        7,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        5,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "chosen": {
+      "AIR": "beast_g_qinglong"
+    },
+    "target": 2,
+    "treasures": {
+      "counts": {
+        "AIR": 0,
+        "FIRE": 0,
+        "EARTH": 0,
+        "SPACE": 0,
+        "WATER": 0
+      },
+      "version": 1,
+      "receipts": []
+    },
+    "attackBoost": 1,
+    "treasureGuard": 1
+  },
+  "doubleTapAndLostResponseOnce": true,
+  "passed": true,
+  "video": "C:\\Users\\DRAGON\\Desktop\\命理\\reports\\beast-game\\manual-energy-2026-11-15\\page@23e735b3a2ed09f9c1f683a2de1ca996.webm",
+  "cleaned": true
+}

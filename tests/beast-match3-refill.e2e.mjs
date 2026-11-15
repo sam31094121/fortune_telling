@@ -14,17 +14,18 @@ const base = process.env.MATCH3_E2E_BASE || 'http://localhost:8888';
 // MATCH3_E2E_BROWSER：非 Windows 驗收機可指定 Chromium 執行檔（同一套 CDP 流程與斷言）；未指定時仍要求 Edge。
 const edgePath = process.env.MATCH3_E2E_BROWSER || ['C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe', 'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe'].find(existsSync);
 assert(edgePath, 'Edge is required');
-const port = 9700 + Math.floor(Math.random() * 150);
+let port;
 const profile = mkdtempSync(path.join(os.tmpdir(), 'match3-mobile-review-'));
 const output = process.env.MATCH3_SOUND_OUTPUT || path.join(os.tmpdir(),'match3-replay-acceptance-20261109');
 mkdirSync(output, { recursive: true });
-const browser = spawn(edgePath, ['--headless=new', '--inprivate', '--no-first-run', '--disable-default-apps', '--hide-scrollbars', `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore', windowsHide: true });
+const browser = spawn(edgePath, ['--headless=new', '--inprivate', '--no-first-run', '--disable-default-apps', '--hide-scrollbars', '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'], { stdio: ['ignore','ignore','pipe'], windowsHide: true });
+let browserOutput='';browser.stderr.on('data',chunk=>{browserOutput=(browserOutput+chunk).slice(-12000);});
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const results = []; let ws; const errors = [];
 try {
   let target;
-  for (let i = 0; i < 150 && !target; i++) { await sleep(200); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find(t => t.type === 'page' && t.url === 'about:blank'); } catch {} }
-  assert(target, 'Headless Edge did not start');
+  for (let i = 0; i < 150 && !target; i++) { await sleep(200); try { port=Number(readFileSync(path.join(profile,'DevToolsActivePort'),'utf8').split('\n')[0]);target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find(t => t.type === 'page' && t.url === 'about:blank'); } catch {} }
+  assert(target, 'Headless Edge did not start: '+browserOutput);
   ws = new WebSocket(target.webSocketDebuggerUrl);
   await new Promise(r => ws.addEventListener('open', r, { once: true }));
   let id = 0; const pending = new Map();
@@ -34,6 +35,7 @@ try {
   const wait = async (expression, timeout = 90000) => { const end = Date.now() + timeout; while (Date.now() < end) { if (await js(`Boolean(${expression})`)) return; await sleep(150); } throw Error(`Wait failed: ${expression}`); };
   const save = async name => { const shot = await send('Page.captureScreenshot', { format: 'png' }); writeFileSync(path.join(output, name + '.png'), Buffer.from(shot.data, 'base64')); };
   await send('Page.enable'); await send('Runtime.enable');
+  if(process.env.MATCH3_REPLAY_CPU)await send('Emulation.setCPUThrottlingRate',{rate:Number(process.env.MATCH3_REPLAY_CPU)});
   const snap = () => js(`({round:document.querySelector('[data-testid="match3-round"]')?.textContent, enemy:[...document.querySelectorAll('[data-testid="match3-enemy"]')].map(e=>({id:e.dataset.id,hp:+e.dataset.hp})), ally:[...document.querySelectorAll('[data-testid="match3-ally"]')].map(e=>({id:e.dataset.id,hp:+e.dataset.hp})), damage:+document.querySelector('[data-testid="match3-last-damage"]')?.textContent, cells:[...document.querySelectorAll('[data-testid="match3-board"] [data-r]')].map(e=>({r:+e.dataset.r,c:+e.dataset.c,el:e.dataset.el,mp:+e.dataset.magic||0})), width:innerWidth, scroll:document.documentElement.scrollWidth})`);
   const findPath = (cells, length, diagonal = true, accept = () => true) => {
     const map = new Map(cells.map(c => [`${c.r},${c.c}`, c]));
@@ -68,15 +70,16 @@ try {
     for (const p of points) assert(p.y > 0 && p.y < 844, 'Drag route must remain visible');
     if(touchInput) {
       await send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{...points[0],id:1}]});
-      for(const p of points.slice(1)){await sleep(75);await send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{...p,id:1}]});}
+      if(process.env.MATCH3_DRAG_BURST==='1')await Promise.all(points.slice(1).map(p=>send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{...p,id:1}]})));
+      else for(const p of points.slice(1)){await sleep(Number(process.env.MATCH3_DRAG_MS??75));await send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{...p,id:1}]});}
       await send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
     } else {
     await send('Input.dispatchMouseEvent', { type: 'mouseMoved', ...points[0] });
     await send('Input.dispatchMouseEvent', { type: 'mousePressed', ...points[0], button: 'left', buttons: 1, clickCount: 1 });
-    for (const p of points.slice(1)) { await sleep(75); await send('Input.dispatchMouseEvent', { type: 'mouseMoved', ...p, button: 'left', buttons: 1 }); }
+    for (const p of points.slice(1)) { await sleep(Number(process.env.MATCH3_DRAG_MS??75)); await send('Input.dispatchMouseEvent', { type: 'mouseMoved', ...p, button: 'left', buttons: 1 }); }
     await send('Input.dispatchMouseEvent', { type: 'mouseReleased', ...points.at(-1), button: 'left', buttons: 0, clickCount: 1 });
     }
-    await wait(`document.querySelector('[data-testid="match3-round"]')?.textContent !== ${JSON.stringify(oldRound)} && !document.querySelector('[data-testid="open-picker"]')?.disabled`);
+    await wait(`document.querySelector('[data-testid="match3-round"]')?.textContent !== ${JSON.stringify(oldRound)} && document.querySelector('[data-testid="match3-board"]')?.getAttribute('aria-busy') === 'false'`);
     await sleep(150);
   };
   const start = async (wins, width) => {
@@ -128,14 +131,16 @@ try {
 
   // Deterministic input fixture, real server response and real pointer playback.
   // Isolated browser profile: never edits the customer's saved game.
-  for (const [width, length, reduced] of [[320,5,false],[390,6,false],[1440,7,false],[390,5,true]]) {
+  for (const [width, length, reduced] of Array.from({length:Number(process.env.MATCH3_REPLAY_REPEAT)||1},()=>[[320,5,false],[390,6,false],[1440,7,false],[390,5,true]]).flat()) {
+    if(process.env.MATCH3_REPLAY_CASE&&String(width)!==process.env.MATCH3_REPLAY_CASE)continue;
     await send('Emulation.setEmulatedMedia',{features: reduced ? [{name:'prefers-reduced-motion',value:'reduce'}] : []});
     await start(6,width);
     touchInput=width<768;await send('Emulation.setTouchEmulationEnabled',{enabled:touchInput});
     console.log('Checking replay',width,length,reduced);
     const board=M.generateBoard(M.seededRng(1),8,7,true);board[7].fill('FIRE',0,length);
     await state({board,magic:M.emptyMagic(board)}); await sleep(100);
-    await js(`window.__replaySamples=[];window.__turns=[];window.__turnInputs=[];
+    await js(`window.__replaySamples=[];window.__turns=[];window.__turnInputs=[];window.__pointerSamples=[];
+      for(const type of ['pointerdown','pointermove','pointerup'])document.addEventListener(type,e=>{const h=document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-r]'),r=h?.getBoundingClientRect();window.__pointerSamples.push({type,x:e.clientX,y:e.clientY,hit:h?[h.dataset.r,h.dataset.c]:null,coalesced:e.getCoalescedEvents?.().map(p=>({x:p.clientX,y:p.clientY}))??[],rect:r?{x:r.x,y:r.y,w:r.width,h:r.height}:null});},true);
       const nativeFetch=window.fetch;window.fetch=async (url,options)=>{
         if(String(url).includes('/api/beast-game/orb-turn')){const input=JSON.parse(options.body);input.seed=1001;window.__turnInputs.push(input);options={...options,body:JSON.stringify(input)};const response=await nativeFetch(url,options);window.__turns.push(await response.clone().json());return response;}return nativeFetch(url,options);
       };
@@ -151,9 +156,13 @@ try {
             cells:[...g.querySelectorAll('circle')].map(c=>{const [r,col]=c.dataset.matchCell.split(':').map(Number);const cell=b.querySelector('[data-r="'+r+'"][data-c="'+col+'"]'),cr=cell.getBoundingClientRect();return {r,c:col,dx:Math.abs(rect.x+c.cx.baseVal.value-cr.x-cr.width/2),dy:Math.abs(rect.y+c.cy.baseVal.value-cr.y-cr.height/2),animation:getComputedStyle(c).animationName};})}))});
       });window.__replayObserver.observe(document.querySelector('[data-testid=match3-board]'),{subtree:true,childList:true,attributes:true});`);
     const playing=drag(Array.from({length},(_,c)=>({r:7,c})));
-    await wait('document.querySelector("[data-testid=match3-replay-lines]")?.querySelector("circle")');
+    void playing.catch(()=>{});
+    try{await wait('window.__replaySamples.length > 0',Number(process.env.MATCH3_REPLAY_WAIT_MS)||90000);}catch(error){
+      writeFileSync(path.join(output,'replay-failure-'+width+'.json'),JSON.stringify(await js(`({visibility:document.visibilityState,focus:document.hasFocus(),epoch:document.querySelector('[data-testid=match3-board]')?.dataset.refillEpoch,busy:document.querySelector('[data-testid=match3-board]')?.getAttribute('aria-busy'),samples:window.__replaySamples,pointers:window.__pointerSamples,turns:window.__turns,inputs:window.__turnInputs,visible:document.body.innerText,cells:[...document.querySelectorAll('[data-testid=match3-board] [data-r="7"]')].map(e=>{const r=e.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return {r:r.y,bottom:r.bottom,hit:hit?.tagName,hitClass:hit?.className,cell:!!hit?.closest('[data-r]')}})})`),null,2));await save('replay-failure-'+width);throw error;
+    }
     await save('match-lines-'+width+'-'+length+(reduced?'-reduced':''));await playing;
-    const observed=await js('window.__replayObserver.disconnect();({samples:window.__replaySamples,turn:window.__turns[0],input:window.__turnInputs[0],events:window.__match3Events})');
+    const observed=await js('window.__replayObserver.disconnect();({samples:window.__replaySamples,pointers:window.__pointerSamples,turn:window.__turns[0],input:window.__turnInputs[0],events:window.__match3Events})');
+    assert.deepEqual(observed.input.path,Array.from({length},(_,c)=>({r:7,c})),'every selected cell reaches the backend');
     const expected=observed.turn.replay.filter(f=>f.matches.length);
     assert.equal(observed.samples.length,expected.length,'every real match is shown before disappearing');
     for(const [i,sample] of observed.samples.entries()){
@@ -166,15 +175,19 @@ try {
     assert.equal(await js('document.querySelectorAll("[data-testid=match3-replay-lines]").length'),0,'no stale line after settlement');
     assert.deepEqual(observed.events.filter(e=>e.count!==undefined).map(e=>e.count),expected.flatMap(f=>f.matches.map(g=>g.count)));
     const final=await snap();
-    // 手機版兩張卡各有 50 能量時，連線打完會自動接著發動「連線攻擊」（72e0182，2026-11-11），所以畫面上的「最後傷害」是最後一個回合的：
+    // 2026-11-15：蓄能改為手動，這筆拖珠完成後不可自動追加能量攻擊；仍核對最後一筆實際後端事件。
     // 連線／能量技回 actualDamage，一般回合回 damage＋起手＋收尾。只比第一手會把自動連線攻擊的傷害（常等於敵人全部血量）誤判成不一致。
     const lastTurn=await js('window.__turns.at(-1)');
+    assert(!lastTurn.action || lastTurn.action==='drag', 'replay must not automatically spend stored energy');
     const expectedLastDamage=lastTurn.action==='link'||lastTurn.action==='energy'?lastTurn.actualDamage:lastTurn.damage+lastTurn.startDamage+lastTurn.endDamage;
     assert.equal(final.damage,expectedLastDamage);
     final.cells.forEach(c=>{assert.equal(c.el,observed.turn.res.board[c.r][c.c]);assert.equal(c.mp,observed.turn.res.magic[c.r][c.c]);});
     assert(final.scroll<=width);results.push({case:'recorded match then clear',width,length,reduced,chains:expected.length});
     writeFileSync(path.join(output,'replay-'+width+'-'+length+(reduced?'-reduced':'')+'.json'),JSON.stringify(observed,null,2));
   }
+  if(process.env.MATCH3_REPLAY_ONLY==='1'){
+    assert.equal(errors.length,0,errors.join('\n'));writeFileSync(path.join(output,'refill-result.json'),JSON.stringify({passed:true,scope:'replay-only',results,errors},null,2));console.log('PASS replay-only cases: '+results.length);
+  }else{
   await send('Emulation.setEmulatedMedia',{features:[]});
 
   touchInput=false;await send('Emulation.setTouchEmulationEnabled',{enabled:false});
@@ -209,5 +222,6 @@ try {
   assert(await js('window.__audioLog.some(e=>e.kind==="close")'));
   assert(!(await js('window.__audioLog.some(e=>e.kind==="start"&&e.t>'+leftAt+')')),'leaving during refill cancels delayed attacks and sounds');results.push({case:'leave during refill cancels pending actions'});
   assert.equal(errors.length,0,errors.join('\n'));writeFileSync(path.join(output,'refill-result.json'),JSON.stringify({passed:true,results,reduced:names,errors},null,2));console.log('PASS real refill, mobile/tablet/desktop, settle, unity gain, reduced motion, home: '+output);
+  }
 }catch(error){writeFileSync(path.join(output,'refill-result.json'),JSON.stringify({passed:false,results,errors,error:String(error)},null,2));console.error(error);process.exitCode=1}
 finally{try{ws?.close()}catch{}try{browser.kill()}catch{}}

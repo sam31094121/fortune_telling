@@ -8,7 +8,7 @@ assert(src.includes('const lastFoeBig = lastFoeReady && lastFoeSettled && !foeEx
 console.log('PASS last-foe waits for exiting foes');
 // 2) 拖珠中不自動發動連線攻擊（否則放開時整筆拖曳被吃掉）
 assert(src.includes('const [dragging, setDragging] = useState(false);'));
-assert(/if \(energyClickLock\.current \|\| turnRequest\.current \|\| refillRun\.current\) return;\r?\n    if \(dragging\) return;/.test(src), '自動連線等手指放開');
-assert(src.includes('counterFoes, rigEnabled, dragging]);'), '放開後重新檢查自動連線');
 assert(src.includes('onPointerUp={() => { setDragging(false); drag.handlers.onPointerUp(); }}') && src.includes('onLostPointerCapture={() => setDragging(false)}'), '放開／取消／失去捕捉都解除拖曳狀態');
-console.log('PASS auto-link waits for finger release');
+assert(!src.includes("fireLinkWithRef.current(ids, 'auto')"), '2026-11-15: energy must wait for manual intent');
+assert(src.includes('refillRun.current || dragging || deathHold.size'), 'manual energy cannot interrupt drag or ongoing presentation');
+console.log('PASS manual-only energy preserves drag and presentation locks');

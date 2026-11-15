@@ -18,9 +18,9 @@ assert.equal(source.split('{rigEnabled && !mobileActionless && actions}').length
 assert.equal(source.split('{!rigEnabled && !mobileActionless && actions}').length - 1, 1, 'other modes also unmount the bar when actionless');
 assert(source.includes('const mobileActionless = true'), 'action bar is unmounted at every width, including 1280');
 assert(!source.includes('MOBILE_ACTIONS_MQ'), '640px toolbar breakpoint is gone');
-assert(source.includes("fireLinkWithRef.current(ids, 'auto')"), 'auto-launches link attack via fireLinkWith');
+assert(!source.includes("fireLinkWithRef.current(ids, 'auto')"), 'stored energy never launches automatically');
 assert(source.includes('data-testid="match3-link-launch"'), 'Bot_APP hook match3-link-launch records auto/tap/button');
-assert(source.includes('autoLinkArmed.current = false'), 'auto-launch fires once per ready window and will not immediately refire leftover energy');
+assert(!source.includes('autoLinkArmed'), 'no automatic ready-window scheduler remains');
 assert(source.includes("fireLinkWithRef.current(next, 'tap')"), 'tapping two eligible cards launches a link attack');
 assert(source.includes("requestCardAttack('link'"), 'auto-launch reuses the same server-side link path');
 assert(/deathHold\.size > 0 \|\| deathPending\.size > 0/.test(source), 'auto-launch waits out deathHold/KO');
@@ -35,7 +35,7 @@ const jsx = source.slice(start, end);
 const js = ts.transpileModule(jsx + '\nglobalThis.out = actions;', { compilerOptions: { target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React } }).outputText;
 function render(over) {
   const ctx = { React, styles: { actionBar: 'actionBar', on: 'on', pulse: 'pulse', fire: 'fire' }, linkMode: false, pulse: false, link: [], problem: 'tooFew', over: null, fireSub: 'sub', rigEnabled: true, LINK_MIN_CARDS: 2, LINK_ENERGY_COST: 50,
-    setLinkMode: () => {}, setLink: () => {}, setLog: () => {}, setPulse: () => {}, later: () => {}, fireLink: () => {}, ...over };
+    setLinkMode: () => {}, setLink: () => {}, setLog: () => {}, setAttackCaption: () => {}, setPulse: () => {}, later: () => {}, fireLink: () => {}, ...over };
   vm.runInNewContext(js, ctx); return renderToStaticMarkup(ctx.out);
 }
 let html = render({});
@@ -52,7 +52,7 @@ const tapBody = source.slice(source.indexOf('  const tapAlly ='), source.indexOf
 const tapJs = ts.transpileModule(tapBody + '\n globalThis.tap = tapAlly;', { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
 function tap(over) { const calls = []; const unit = { id: 'u1', element: 'AIR', hp: 100, energy: 100, name: 'x', ...((over && over.unit) || {}) };
   const ctx = { rigEnabled: true, over: null, busy: false, linkMode: false, link: [], mobileActionless: false, team: [unit], chosen: {}, ENERGY_MAX: 100, LINK_ENERGY_COST: 50, LINK_MIN_CARDS: 2, MATCH3_ORB_LABEL: { AIR: '風' }, fighterCanAct: () => true,
-    unleash: u => calls.push('energy:' + u.id), setLink: v => calls.push('link:' + v.join('+')), setLinkMode: () => {}, setLog: () => {}, setChosen: () => calls.push('lead'), chooseLead: () => ({}), fireLinkWithRef: { current: (ids, source) => calls.push('fire:' + source + ':' + ids.join('+')) }, ...over };
+    unleash: u => calls.push('energy:' + u.id), setLink: v => calls.push('link:' + v.join('+')), setLinkMode: () => {}, setLog: () => {}, setAttackCaption: () => {}, setChosen: () => calls.push('lead'), chooseLead: () => ({}), fireLinkWithRef: { current: (ids, source) => calls.push('fire:' + source + ':' + ids.join('+')) }, ...over };
   vm.runInNewContext(tapJs, ctx); ctx.tap(unit); return calls; }
 assert.deepEqual(tap({}), ['energy:u1']);
 assert.deepEqual(tap({ linkMode: true }), ['link:u1']);
@@ -86,8 +86,6 @@ assert(source.includes("window.matchMedia('(max-width: 900px), (max-height: 960p
 assert(/\.wrap\[data-mode\^="hard"\] \.actionBar \{ margin: 4px 0 0;/.test(css));
 assert(/^\.actionBar \{ display: none; /m.test(css) || css.includes('.actionBar { display: none; }'), 'CSS hides the action bar at every width before hydrate');
 assert(!css.includes('row-gap: calc(var(--orb-gap, 4px) + 7px)'), 'must not widen row-gap; freed height goes to square orb size via --compact-board-width');
-assert(source.includes('holdAutoLink'), 'm3debug hook can hold auto-link so a manual two-card tap can be verified');
-assert(source.includes("get('m3autolink') === '0'"), 'm3debug + m3autolink=0 also holds auto-link; production URLs without m3debug are unchanged');
-assert(source.includes('if (autoLinkHold.current) return'), 'auto-launch respects the test-only hold');
+assert(source.includes('onClick={e => { e.stopPropagation(); void unleash(u); }}'), 'energy orb dispatches only on explicit click');
 assert(source.includes('bossFxHold'), 'duel layout and .foeArt hold through boss-death-fx done');
-console.log('PASS hard link bar unmounted at all widths, auto-link, tap precedence, stage-8 escort fx src stable, short-viewport height fit');
+console.log('PASS hard link bar unmounted at all widths, manual-only link, tap precedence, stage-8 escort fx src stable, short-viewport height fit');

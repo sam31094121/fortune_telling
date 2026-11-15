@@ -51,3 +51,26 @@ assert.strictEqual(m.externalOpenFailed('?openExternalBrowser=1&installShield=op
 assert.strictEqual(m.externalOpenFailed('?a=1', 'line'), false);
 assert.strictEqual(m.stripInstallParams('https://a.tw/bazi?x=1&openExternalBrowser=1&installShield=open#top'), 'https://a.tw/bazi?x=1#top');
 console.log('install-shield tests: 45 passed');
+
+(async () => {
+  const previousNavigator = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
+  const version = require('../.install-shield-test-build/share-preview.js').SHARE_IMAGE_VERSION;
+  try {
+    globalThis.window = { location: { origin: 'https://example.test' } };
+    let sent;
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { share: async data => { sent = data; } } });
+    assert.strictEqual(await m.openIosShareSheet(), true);
+    assert.deepStrictEqual(sent, { title: '太極命理', url: `https://example.test/?v=${version}` });
+    navigator.share = async () => { throw new DOMException('cancelled', 'AbortError'); };
+    assert.strictEqual(await m.openIosShareSheet(), true);
+    navigator.share = async () => { throw new Error('unavailable'); };
+    assert.strictEqual(await m.openIosShareSheet(), false);
+    navigator.share = undefined;
+    assert.strictEqual(await m.openIosShareSheet(), false);
+    console.log('PASS real install share call: versioned homepage, cancellation, failure and unsupported browser');
+  } finally {
+    if (previousNavigator) Object.defineProperty(globalThis, 'navigator', previousNavigator); else delete globalThis.navigator;
+    if (previousWindow) Object.defineProperty(globalThis, 'window', previousWindow); else delete globalThis.window;
+  }
+})().catch(error => { console.error(error); process.exitCode = 1; });

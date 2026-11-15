@@ -1,0 +1,12 @@
+{
+  "syntheticInventory": true,
+  "initialCount": 17,
+  "allInitialBonusesZero": true,
+  "fusions": [],
+  "battles": [],
+  "errors": [],
+  "protectedRejected": "鎖定主力不能作為材料，請先整組更換主力。",
+  "wrongClanRejected": "幼子只能合體對應本體，本體只能合體所屬四大神獸。",
+  "error": "locator.tap: Timeout 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-shared-material=\"four:beast_a03\"]')\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" aria-pressed=\"true\" data-shared-material=\"four:beast_a03\">…</button>\u001b[22m\n\u001b[2m  - attempting tap action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying tap action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is not visible\u001b[22m\n\u001b[2m  2 × retrying tap action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not stable\u001b[22m\n\u001b[2m  - retrying tap action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is not stable\u001b[22m\n\u001b[2m  114 × retrying tap action\u001b[22m\n\u001b[2m        - waiting 500ms\u001b[22m\n\u001b[2m        - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m        - element is not visible\u001b[22m\n\u001b[2m  - retrying tap action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\n    at C:\\Users\\DRAGON\\Desktop\\命理\\tests\\beast-four-guardians.e2e.cjs:26:269",
+  "cleaned": true
+}

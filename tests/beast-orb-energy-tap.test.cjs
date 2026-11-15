@@ -13,7 +13,7 @@ const MOBILE_ACTIONLESS = actionlessMatch[1] === 'true';
 function scenario(overrides={}) {
  const calls=[];
  const unit={id:'dragon',element:'AIR',hp:100,energy:100,name:'青龍'};
- const ctx={rigEnabled:true,over:false,busy:false,linkMode:false,link:[],team:[unit],chosen:{},ENERGY_MAX:100,LINK_ENERGY_COST:50,LINK_MIN_CARDS:2,MATCH3_ORB_LABEL:{AIR:'風'},fighterCanAct:u=>!u.controlled,unleash:u=>calls.push(['attack',u.id]),setLink:v=>calls.push(['link',v]),setLog:()=>{},setChosen:()=>calls.push(['lead']),chooseLead:()=>({}),mobileActionless:MOBILE_ACTIONLESS,fireLinkWithRef:{current:(ids,how)=>calls.push(['fire',ids,how])},...overrides};
+ const ctx={rigEnabled:true,over:false,busy:false,linkMode:false,link:[],team:[unit],chosen:{},ENERGY_MAX:100,LINK_ENERGY_COST:50,LINK_MIN_CARDS:2,MATCH3_ORB_LABEL:{AIR:'風'},fighterCanAct:u=>!u.controlled,unleash:u=>calls.push(['attack',u.id]),setLink:v=>calls.push(['link',v]),setLog:()=>{},setAttackCaption:()=>{},setChosen:()=>calls.push(['lead']),chooseLead:()=>({}),mobileActionless:MOBILE_ACTIONLESS,fireLinkWithRef:{current:(ids,how)=>calls.push(['fire',ids,how])},...overrides};
  vm.runInNewContext(js,ctx);return {ctx,unit,calls};
 }
 let s=scenario();s.ctx.tap(s.unit);assert.deepEqual(s.calls,[['attack','dragon']]);

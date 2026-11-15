@@ -1,0 +1,18 @@
+{
+  "errors": [],
+  "guideStatus": [
+    503
+  ],
+  "beforeOnline": {
+    "images": 0,
+    "missing": 14
+  },
+  "afterOnline": {
+    "images": 0,
+    "missing": 14,
+    "cardCount": 8
+  },
+  "guideRequests": 1,
+  "revision": "0",
+  "cleaned": true
+}
