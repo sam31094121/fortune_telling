@@ -153,6 +153,9 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
       if (id === './Match3Board') return { default: Board };
       if (id === './CampaignEnhancement') return { default: () => null };
       if (id === './SharedCultivationPanel') return { default: () => null };
+      // 食物鏈：已獲成獸的五顆星條與勝利後「拿去強化」捷徑（只讀 sessionStorage，訪客不會有捷徑）。
+      if (id === './CardStarBar') return { default: () => null };
+      if (id === '@/lib/beast-food-chain-client') return { feedTargetCardId: () => null, peekFeedShortcut: () => false };
       if (id === '@/lib/beast-cultivation-client') return {
         syncSharedCultivation: () => { throw new Error('Guest must not access owned inventory'); },
         sharedRequest: () => { throw new Error('Guest must not mutate owned inventory'); },
