@@ -19,6 +19,9 @@ export function fusionDischarge(elements: readonly BeastElement[], board: readon
  * 掉落時序（2026-11-11 業主：連線後掉下來要快、要狠、要準、要穩）。
  * 565 次真實連線量測：一次連線平均 8.1 秒 → 約 4.3 秒（快 47%）；沒連鎖的一般連線 1.5 秒 → 0.75 秒（快 51%）。
  *
+ * 2026-11-15 再縮短約兩成（業主：縮短動畫、每手更快）：清除 130→100、配對停留 170/230→130/170、
+ *   落程 38+58√n → 44+46√n（測試要求一格落程不低於 90ms，不能再快）。順序與「先標示再消除、舊珠落定再補新珠」不變，只縮每段時長。
+ *
  * 不變的規則（業主核定，測試守著）：
  * - 清除 → 舊珠全部落定 → 新珠依序補入；不得整盤先消失再重落、不得突然補滿。
  * - 每段保持自然時長：不因連鎖數整串壓縮、不用手動動畫時鐘（歷史上會跳落）。
@@ -26,11 +29,11 @@ export function fusionDischarge(elements: readonly BeastElement[], board: readon
  */
 export const REFILL_TIMING = {
   /** 清除（一般／減少動態）。 */
-  clearMs: 130, reducedClearMs: 60,
+  clearMs: 100, reducedClearMs: 60,
   /** 配對停留：第一段是玩家剛拖的線，客戶已經知道，短；之後每段連鎖要看得出配到什麼。 */
-  matchFirstMs: 170, matchNextMs: 230,
+  matchFirstMs: 130, matchNextMs: 170,
   /** 單顆落程＝基礎＋係數×√落差（重力：落越遠越久，但不是整段共用最遠那顆）。 */
-  fallBaseMs: 38, fallPerRootCellMs: 58,
+  fallBaseMs: 44, fallPerRootCellMs: 46,
   /** 起點錯開的單位：同欄由下往上依序、欄與欄只差 1 單位，每顆起點唯一。 */
   rippleUnitMs: 2,
   rewardHoldMs: 260, emptyHoldMs: 140,
