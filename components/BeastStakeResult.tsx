@@ -31,7 +31,8 @@ export default function BeastStakeResult({ outcome, card, cards = [], settlement
   const stakeNames = [...counts].map(([label, count]) => `${label} ×${count}`).join('、');
   const changes = receipt?.cardChanges;
   const byType = (ids: string[]) => { const m = new Map<string, number>(); for (const id of ids) m.set(id, (m.get(id) ?? 0) + 1); return [...m]; };
-  const stakedGroups = byType(outcome.selectedEntries?.map(entry => entry.cardId) ?? []);
+  // 舊版單張押注（runOwnedDuel，如 BeastLegacyGame）沒有 selectedEntries：退回用 stakes.player，免得「你押的／輸掉的卡片」格子是空的。
+  const stakedGroups = byType(outcome.selectedEntries?.map(entry => entry.cardId) ?? (outcome.stakes?.player ? [outcome.stakes.player] : []));
   const gainedGroups: Array<[string, number]> = (changes ?? []).filter(change => change.gained > 0).map(change => [change.cardId, change.gained]);
   const gainedKinds = new Set(changes?.filter(change => change.gained > 0).map(change => change.cardId)).size;
   const movement = changes?.map(change => `${nameOf(change.cardId)}${change.gained ? `贏得 ${change.gained} 張` : `輸掉 ${change.lost} 張`}，${change.after > 0 ? `剩餘 ${change.after} 張` : '已無剩餘'}`).join('；');

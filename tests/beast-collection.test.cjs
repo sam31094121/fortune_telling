@@ -145,13 +145,25 @@ async function main() {
   const Panel = h.load('components/BeastStakeResult.tsx').default;
   const props = { outcome: { ...result('OPPONENT').stake, playerStakeName: '角木蛟', opponentStakeName: '亢金龍', gainedCardName: null, forfeitedCardName: '角木蛟' }, card: { name: '角木蛟', thumbnail: '/test.png' }, isReplay: false, retrying: false, onRetry() {} };
   const html = (settlement, isReplay = false) => renderToStaticMarkup(React.createElement(Panel, { ...props, settlement, isReplay }));
+  // 2026-11-11 9ba55fa1 起結算改成「分配圖」：每種卡一個卡片小格（data-stake-chip，名稱在 aria-label、底下印 −N／＋N／×N），
+  // 原本逐張的文字列（持有 X → Y 張（剩餘 N 張）、目前持有 N 張卡片、原本 N 張保留＋獎勵…、平手・增減 0 張、你的押注籌碼）
+  // 是業主陸續要求拿掉的重複說明（0e4da49b、3461e61d）。以下改驗同一批數字在新版的實際位置，數字照樣逐一比對收據，不放寬。
+  const chips = text => text.split('data-stake-chip="true"').slice(1).map(seg => ({
+    tone: seg.match(/^ data-tone="(\w+)"/)?.[1], name: seg.match(/aria-label="([^"]+)"/)?.[1], count: seg.match(/<p class="mt-1 text-base[^"]*">([−＋×])(\d+)<\/p>/)?.slice(1).join(''),
+  }));
+  const hasChip = (text, tone, name, count) => assert.ok(chips(text).some(c => c.tone === tone && (name === null || c.name === name) && c.count === count), `結算分配圖缺少 ${tone} ${name ?? ''} ${count}：${JSON.stringify(chips(text))}`);
+  const held = (text, receipt) => assert.match(text, new RegExp(`data-held-card-total="true">持有 ${receipt.beforeTotal} → ${receipt.total} 張<`));
+  const counts = (text, staked, gained, lost) => { for (const [label, n] of [['本場押注', staked], ['贏得', gained], ['輸掉', lost]]) assert.match(text, new RegExp(`<dt[^>]*>${label}</dt><dd[^>]*>${n} 張</dd>`)); };
   check('saved loss names card, minus one, and actual remaining copies', () => {
     const text = html(oneLost.settlement);
     assert.match(text, /data-stake-headline/);
     assert.match(text, /輸掉 −1 張/);
     assert.match(text, /本場押注卡已扣除 1 張/);
     assert.match(text, /角木蛟/);
-    assert.match(text, /剩餘 1 張/);
+    // 舊斷言 /剩餘 1 張/：新版以「輸掉的卡片」小格（角木蛟 −1）＋持有總數（收據 beforeTotal → total）呈現，逐格比對。
+    hasChip(text, 'lost', '角木蛟', '−1');
+    held(text, oneLost.settlement.receipt);
+    counts(text, 1, 0, 1);
     assert.doesNotMatch(text, /原押注卡保留 0 張/);
     assert.match(text, /grayscale/);
   });
@@ -159,7 +171,7 @@ async function main() {
   check('replay clearly says no new inventory change', () => { const text = html(oneLost.settlement, true); assert.match(text, /本次不發獎，也不扣卡/); assert.doesNotMatch(text, /輸掉 −1/); });
   check('saved win names prize and held total within battle mode', () => {
     const text = renderToStaticMarkup(React.createElement(Panel, { ...props, outcome: { ...props.outcome, verdict: 'WON', gainedCardName: '亢金龍', forfeitedCardName: null }, settlement: won.settlement }));
-    assert.match(text, /獲得 ＋1/); assert.match(text, /你多了 1 張「亢金龍」/); assert.match(text, /目前持有 2 張卡片/);
+    assert.match(text, /獲得 ＋1/); assert.match(text, /你多了 1 張「亢金龍」/); held(text, won.settlement.receipt); assert.equal(won.settlement.receipt.total, 2); hasChip(text, 'kept', null, '×1');
     assert.doesNotMatch(text, /成長中心|growth-center#/);
   });
   check('multi-card win headline matches the committed reward count', () => {
@@ -175,8 +187,9 @@ async function main() {
     assert.match(text, /你多了 3 張神獸卡（2 種）/);
     assert.doesNotMatch(text, /你多了 3 張「亢金龍」/);
     assert.match(text, /獲得 ＋3 張/);
-    assert.match(text, /贏得 2 張/);
-    assert.match(text, /贏得 1 張/);
+    // 舊斷言 /贏得 2 張/、/贏得 1 張/：新版在「新得的卡片」逐種一格印 ＋2、＋1。
+    hasChip(text, 'gain', null, '＋2');
+    hasChip(text, 'gain', null, '＋1');
   });
   const ledger = h.load('lib/beast-collection-ledger.ts');
   const reserved = ledger.reserveCard(ledger.grantGrowthCards({ cards: [], history: [] }, [a], '2026-09-05'), a, 'mismatch', '2026-09-05');
@@ -208,8 +221,8 @@ async function main() {
       assert.equal(again.duplicate,true); assert.equal(again.receipt,settled.receipt);
       const named=h.load('lib/beast-stake-presentation.ts').namedStakeOutcome(out,id=>id===a?'角木蛟':id===y?'角木蛟・幼子':'亢金龍');
       const text=renderToStaticMarkup(React.createElement(Panel,{...props,outcome:named,settlement:{saved:true,receipt:settled.receipt,matchId:reserved.pending.id}}));
-      assert.match(text,new RegExp(`你的押注籌碼・${n} 張`));
-      assert.match(text,new RegExp(`目前持有 ${settled.receipt.total} 張卡片`));
+      counts(text, n, settled.receipt.gainedCount, settled.receipt.lostCount);
+      held(text, settled.receipt);
       assert.match(text,/播報獎賞|播報結算/);
       if(winner==='OPPONENT') {
         assert.match(text,new RegExp(`輸掉 −${n} 張`));
@@ -217,14 +230,16 @@ async function main() {
       }
       if(winner==='PLAYER') {
         assert.match(text,new RegExp(`獲得 ＋${n} 張`),'輸少贏多：押幾張，贏了至少獲得幾張');
-        assert.match(text,new RegExp(`原本 ${n} 張保留＋獎勵 ${n} 張，本場共 ${n*2} 張`));
+        assert.match(text,new RegExp(`✓ 你押的 ${n} 張，全部保留`));
+        assert.match(text,new RegExp(`＋ 新得 ${n} 張`));
         assert.ok(entries.every(entry => settled.collection.cards.some(card => card.id === entry.id)));
         assert.equal(settled.collection.pending, null);
       }
-      if(winner==='DRAW') assert.match(text,/平手・增減 0 張/);
+      if(winner==='DRAW') { assert.match(text,/>平手</); assert.match(text,new RegExp(`你押的 ${n} 張，全部退回`)); }
+      // 舊斷言「持有 before → after 張（剩餘 N 張）」逐種文字列已依業主改版拿掉；改驗每種卡的分配小格數字與收據一致。
       for(const change of settled.receipt.cardChanges ?? []) {
-        const remainingText = change.after > 0 ? `剩餘 ${change.after} 張` : '已無剩餘';
-        assert.match(text,new RegExp(`持有 ${change.before} → ${change.after} 張（${remainingText}）`));
+        if(change.lost) hasChip(text,'lost',null,`−${change.lost}`);
+        if(change.gained) hasChip(text,'gain',null,`＋${change.gained}`);
       }
       assert.equal(initial.cards.length,initialCount);
     });
