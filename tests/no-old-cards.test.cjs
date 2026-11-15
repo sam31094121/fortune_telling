@@ -40,7 +40,21 @@ for (const ok of ["c.id.startsWith('beast_g_')", "'/beast-game/thumb/adult-' + a
 assert.equal(joinConcat("'/beast-game/thumb/adult-' + a[1].padStart(2, '0') + '.v2-480.webp'"), "'/beast-game/thumb/adult-00.v2-480.webp'", '相加路徑還原');
 assert.equal(joinConcat("'/beast-game/thumb/young-' + n + '.webp'"), "'/beast-game/thumb/young-00.webp'", '相加舊圖還原後仍是舊圖');
 const errs = [];
-for (const f of BATTLE) errs.push(...scanSource(f.replace(/\\/g, '/'), rd(f)));
+// 唯一例外（只免「<img> 直接畫卡圖」這一條，舊 ID／舊圖路徑照掃）：阿修羅死亡動畫的內部預覽頁（1f452bbb，屬受保護的死亡動畫檔，不能改）。
+// 必須同時證明：正式環境預設 404（asuraDeathPreviewEnabled＋notFound）、卡圖只來自新正式卡 playableCards() 的 art.thumbnail。
+const DEATH_PREVIEW = 'app/beast-game/asura-death-preview/AsuraDeathPreview.tsx';
+const deathPreviewProven = () => {
+  const page = rd('app/beast-game/asura-death-preview/page.tsx'), src = rd(DEATH_PREVIEW), gate = rd('lib/beast-game/match3/asura-death-preview-gate.ts');
+  const thumbs = [...src.matchAll(/thumbnail:\s*([^,}]+)/g)].map(m => m[1].trim()).filter(v => !/^string\b/.test(v));
+  return /if \(!asuraDeathPreviewEnabled\(\)\) notFound\(\);/.test(page) && /ASURA_DEATH_PREVIEW/.test(gate)
+    && /import \{ playableCards \} from '@\/lib\/beast-game\/registry';/.test(src)
+    && thumbs.length > 0 && thumbs.every(v => v === 'c.art.thumbnail') && (src.match(/<img\b/g) || []).length === 1;
+};
+for (const f of BATTLE) {
+  const rel = f.replace(/\\/g, '/');
+  const found = scanSource(rel, rd(f));
+  errs.push(...(rel === DEATH_PREVIEW && deathPreviewProven() ? found.filter(e => !e.endsWith('以 <img> 直接畫卡圖（應改 FrameV1Tile）')) : found));
+}
 // 對戰卡池（cards/beasts → registry）只能有新卡 ID
 for (const f of walk('cards/beasts')) for (const m of rd(f).matchAll(/\bid:\s*['"]([^'"]+)['"]/g)) if (/^beast_/.test(m[1]) && !NEW_ID.test(m[1])) errs.push(`${f}: 對戰卡池含舊卡 ID ${m[1]}`);
 // 新框元件本身：卡面只能從 ART_V2 取 v2 圖
