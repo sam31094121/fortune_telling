@@ -72,7 +72,7 @@ async function callBattle<T = BattleReply>(body: Record<string, unknown>, timeou
     method: 'POST', headers: { 'Content-Type': 'application/json', ...sharedWalletHeaders() }, body: JSON.stringify(body), signal: AbortSignal.timeout(timeoutMs),
   });
   const data = await res.json().catch(() => null) as ({ ok: true } | { ok: false; error?: string } | null);
-  if (!res.ok || !data || !data.ok) throw new Error((data && !data.ok && data.error) || '戰場暫時無法連線，押注卡未扣除。');
+  if (!res.ok || !data || !data.ok) throw Object.assign(new Error((data && !data.ok && data.error) || '戰場暫時無法連線，押注卡未扣除。'), { status: res.status });
   return data as T;
 }
 
@@ -385,9 +385,16 @@ function BattlefieldScreen() {
     try {
       // 正式站偶爾有一次請求卡十幾秒（2026-09-16 實測 AUTO 16 秒），畫面停在「動作演出中」像壞掉。
       // 戰局票無狀態、同一張票同一招結果相同，重送不會重複出招：先等 6 秒，沒回就自動再送一次。
-      let reply: BattleReply;
-      try { reply = await callBattle(payload, 6000); }
-      catch (first) { if (!(first instanceof DOMException && (first.name === 'TimeoutError' || first.name === 'AbortError'))) throw first; reply = await callBattle(payload); }
+      // 暫時性失敗（逾時、斷線、伺服器 5xx）一律自動重送最多三次，不讓自動連擊靜靜停在半途；4xx 是真的被拒絕，直接報給客戶。
+      const transient = (e: unknown) => e instanceof DOMException ? (e.name === 'TimeoutError' || e.name === 'AbortError')
+        : e instanceof TypeError || ((e as { status?: number } | null)?.status !== undefined && (e as { status: number }).status >= 500);
+      let reply: BattleReply | undefined, last: unknown;
+      for (let attempt = 0; attempt < 3 && !reply; attempt++) {
+        if (attempt) await new Promise(resolve => setTimeout(resolve, 500 * attempt));
+        try { reply = await callBattle(payload, attempt === 0 ? 6000 : 20000); }
+        catch (cause) { last = cause; if (!transient(cause)) throw cause; }
+      }
+      if (!reply) throw last;
       applyReply(reply);
     }
     catch (cause) { resetPlayback(); setAutomatic(false); setStakeError(cause instanceof Error ? cause.message : '戰場暫時無法連線，請再按一次。'); }
