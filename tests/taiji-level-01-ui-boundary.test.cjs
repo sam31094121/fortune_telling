@@ -22,7 +22,14 @@ if (!overlay.includes('data-level01-surface="dynamic-shadow"')) throw new Error(
 if (overlay.includes('data-level01-layer="world-reference"') || overlay.includes('太極體感進度') || overlay.includes('第一層必要控制')) throw new Error('customer level 01 must stay visually clean without instructional HUD text');
 if (styles.includes('.touchInvitation') || overlay.includes('輕觸太極，立即感受回應')) throw new Error('the obsolete explicit-start prompt must not remain in the automatic first-layer experience');
 if (!overlay.includes('attemptAutomaticSensorStart()') || !controller.includes('canAutoStartLevel01Sensors()')) throw new Error('level 01 must start automatically when it becomes visible');
-if (!taijiSystem.includes('IntersectionObserver') || !taijiSystem.includes("frameloop={taijiInView ? 'always' : 'never'}")) throw new Error('level 01 rendering and sensors must pause after the taiji leaves the viewport');
+// 首頁捲動修正（d5648ea3／fix-3 M14）：離屏時只允許「一次性、最多 8 幀」的著色器暖機讓 frameloop 暫時跑，暖機結束一定回到 never。
+// 沒有這組有界暖機的證據，就照舊要求原本的寫法；不放寬「離開視窗就暫停」。
+const pauseOffscreen = taijiSystem.includes("frameloop={taijiInView ? 'always' : 'never'}")
+  || (taijiSystem.includes("frameloop={taijiInView || taijiWarmupRunning ? 'always' : 'never'}")
+    && taijiSystem.includes('const handleTaijiWarmupDone = useCallback(() => setTaijiWarmupRunning(false), [])')
+    && /if \(warm\.frames > 8\) \{\s*warm\.warming = false;\s*warm\.done = true;\s*onWarmupDone\?\.\(\);/.test(taijiSystem)
+    && taijiSystem.includes('if (cancelled || warmRef.current.done) return;'));
+if (!taijiSystem.includes('IntersectionObserver') || !pauseOffscreen) throw new Error('level 01 rendering and sensors must pause after the taiji leaves the viewport');
 if (!taijiSystem.includes('const motionSplit = 0') || !taijiSystem.includes("if (displayLayer === 1)")) throw new Error('clicking or progressing inside level 01 must not reveal level 02 macro visuals');
 if (overlay.includes("pose.motionGameEnabled ? '轉動手機，感受太極回應'")) throw new Error('the customer view must not stack a duplicate motion instruction over the taiji surface');
 if (!taijiSystem.includes("params.get('taijiReview') === '1'") || taijiSystem.includes('const SHOW_LAYER_REVIEW_PANEL = true')) throw new Error('the 24-layer engineering review panel must stay hidden from the customer view');

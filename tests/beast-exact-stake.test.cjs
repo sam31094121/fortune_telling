@@ -3,7 +3,9 @@ const fs = require('node:fs');
 const ts = require('typescript');
 const vm = require('node:vm');
 const exportsObject = {};
-vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/beast-collection-ledger.ts','utf8'), {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports:exportsObject});
+vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/beast-collection-ledger.ts','utf8'), {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports:exportsObject,
+  // 14cbcf11 起帳本匯入 ./beast-game/card-campaign-fusion：改讀 beast-build 的真實編譯產物（先跑 node scripts/beast-build.mjs）。
+  require:id=>require(id.startsWith('./beast-game/')?require('node:path').resolve('.beast-game-build/lib',id.slice(2)):id)});
 const {reserveCard,settleCard}=exportsObject;
 const card='beast_a01',other='beast_a02';
 const initial={cards:[{id:'first',cardId:card,source:'GROWTH'},{id:'chosen',cardId:card,source:'DUEL_WIN'},{id:'other',cardId:other,source:'GROWTH'}],history:[],receipts:{}};
@@ -78,7 +80,10 @@ console.log('PASS: 多張押注勝局獎勵可到一百張，原押卡保留且�
 for(const path of ['components/battlefield/StakeSlot.tsx','app/beast-game/battlefield/page.tsx']){
  const source=fs.readFileSync(path,'utf8');
  assert.match(source,/MAX_STAKE_CARDS/);
- assert.match(source,/MAX_REWARD_CARDS|100/);
  assert.doesNotMatch(source,/勝得 1 張|獎勵一張/);
 }
+// 9ba55fa1 押注頁改版後，獎勵上限提示由押注頁本身（緊鄰 StakeSlot 的說明列與風險提示）顯示，StakeSlot 只管押注張數。
+{ const page=fs.readFileSync('app/beast-game/battlefield/page.tsx','utf8');
+  assert.match(page,/<StakeSlot /);
+  assert.ok((page.match(/最多 \$\{MAX_REWARD_CARDS\} 張/g)||[]).length>=2,'押注說明列與開戰風險提示都要寫獎勵上限'); }
 console.log('PASS: 押注上限 20 張與技術獎勵上限 100 張提示一致');

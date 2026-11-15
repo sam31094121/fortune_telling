@@ -27,7 +27,8 @@ for (const name of fs.readdirSync(path.join(root, 'components'))) {
   }
 }
 
-const banned = /\bAI\b|電腦/;
+// 「電腦版」是指桌機介面（72e01822 寶珠戰玩法說明「電腦版仍用下方按鈕」），不是對手名稱；其餘「電腦」一律仍禁止。
+const banned = /\bAI\b|電腦(?!版)/;
 const violations = [];
 for (const file of files) {
   const source = ts.createSourceFile(file, fs.readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);

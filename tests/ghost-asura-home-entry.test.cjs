@@ -14,7 +14,12 @@ assert.match(html, /<h2[^>]*>鬼魅阿修羅<\/h2>/);
 assert.doesNotMatch(html, /命魂戰局|<button/);
 assert.match(html, /印記示意：/);
 assert.match(html, /印記示意：五陰纏影/, 'Keep the accepted homepage example unchanged');
-assert.match(html, /data-asura-age-gate[^>]*>18 歲禁忌｜未滿 18 歲禁止進入</, 'Only Ghost Asura homepage card carries the 18+ age gate');
+// 首頁卡上的「18 歲禁忌」提示列已依業主明確指示移除（reports/beast-game/home-entry-sequential-review-2026-11-05.md 第 99 行：
+// 「依業主明確指示移除首頁18歲提示區塊，保留入口/目的頁」，落在 1633686e；GhostAsuraHomeEntry.tsx 現為受保護檔）。
+// 18 歲限制本身沒有取消：改驗後端守門仍在（流年與解盤內容未滿 18 歲回 WITHHELD），首頁卡不得自行再長出另一套提示。
+assert.doesNotMatch(html, /data-asura-age-gate/, 'Homepage card follows the owner instruction that removed the 18+ notice row');
+assert.match(fs.readFileSync('app/api/ghost-asura/timeline/route.ts', 'utf8'), /evaluateAsuraAgeGate\([\s\S]*?if \(ageGate\.status === 'WITHHELD'\)/, '18+ restriction is still enforced by the backend');
+assert.match(fs.readFileSync('lib/server/ghost-asura-display.ts', 'utf8'), /evaluateAsuraAgeGate/, 'Reading display still applies the backend 18+ gate');
 assert.doesNotMatch(fs.readFileSync('app/page.tsx', 'utf8'), /data-asura-age-gate|18 歲禁忌｜未滿 18 歲禁止進入/, 'Other homepage cards must not be affected by the Ghost Asura 18+ restriction');
 assert.deepEqual([...cache.keys()].filter(file => /[/\\]lib[/\\].*asura/i.test(file)), [],
   'The new homepage entry must not load a legacy Asura registry');

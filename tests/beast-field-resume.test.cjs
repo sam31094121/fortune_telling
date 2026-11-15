@@ -26,6 +26,8 @@ const col = { exports: {} };
 vm.runInNewContext(transpile('lib/beast-collection.ts'), { exports: col.exports, window, navigator, crypto: globalThis.crypto, Event: class {}, console, Date, JSON, Promise, Error, Object, Array, Map, Set, Math, require(name) {
   if (name === './beast-growth-rewards') return { deriveUnlockedMansions: () => [], gameCardIdsForMansion: () => [] };
   if (name === './beast-collection-ledger') return require(build('lib/beast-collection-ledger.js'));
+  // 14cbcf11 起 beast-collection.ts 也匯入 ./beast-game/card-campaign-fusion：改讀 beast-build 的真實編譯產物（不是假物件）。
+  if (name.startsWith('./beast-game/')) return require(build('lib/' + name.slice(2) + '.js'));
   return require(name);
 } });
 const C = col.exports;

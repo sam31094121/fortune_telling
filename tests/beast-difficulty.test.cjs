@@ -162,6 +162,13 @@ check('困難頁：只有押注戰用困難，體驗戰維持簡單，並明白�
   // 已核定的 2026-11-12 版面把提示集中在「？」卡；不恢復舊固定文案。
   assert.match(page, /data-battle-help aria-label="玩法說明與戰報"/);
   assert.match(page, /setBattleHelp\(/, '客戶仍可開啟玩法及首領提示');
+  // 14cbcf11 起押注戰改走關卡流程：難度由 cardCampaignStage(wins) 決定（前 3 關簡單、4～7 普通、8 起困難），
+  // 頁面不能再一律寫「困難：易經是首領」（簡單關會誤導）；9ba55fa1（押注頁改版）拿掉整條戰前告示，
+  // 改在標題列顯示「第 N 關」，首領反制則由後端 bossNotice 在戰鬥中即時預告（下一個 check 驗 data-boss-live）。
+  assert.doesNotMatch(page, /困難：易經是首領/, '簡單／普通關不得被一律告知為困難首領');
+  assert.match(page, /campaignStage \? '第 ' \+ campaignStage \+ ' 關'/, '戰前顯示目前關卡');
+  assert.match(fs.readFileSync('app/api/beast-game/battlefield/route.ts', 'utf8'), /difficulty:cardCampaignStage\(campaign\.wins\)\.difficulty/);
+  assert.match(fs.readFileSync('lib/beast-game/card-campaign.ts', 'utf8'), /difficulty:wins>=7\?'HARD':wins>=3\?'NORMAL':'EASY'/);
   assert.ok(!/線上對戰|真人對戰/.test(page), '不得宣稱真人');
 });
 

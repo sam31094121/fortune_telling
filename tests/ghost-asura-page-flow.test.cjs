@@ -24,6 +24,8 @@ const particles = {
   createCardEnergyFlow: card => particleCalls.push(['card', card]),
   createImpressionGlow: element => particleCalls.push(['glow', element]),
   createShockwave: () => particleCalls.push(['shockwave']),
+  // 開卡時一次批次讀幾何（GhostAsuraPageClient 效能修正）：粒子畫布容器的位置。
+  getContainerRect: () => ({ left: 0, top: 0, width: 400, height: 800 }),
 };
 const router = { refresh() {} };
 const hooks = {
@@ -63,7 +65,7 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/ghost-asura/GhostAsur
     if (id === 'react') return hooks;
     if (id === 'next/navigation') return { useRouter: () => router };
     if (id === 'next/link') return () => null;
-    if (id.endsWith('.module.css')) return {};
+    if (id.endsWith('.module.css')) return { __esModule: true, default: new Proxy({}, { get: (_, k) => typeof k === 'string' ? k : undefined }) }; // CSS module：class 名稱照原名回傳，讓測試認得卡片揭示容器
     if (id === '@/components/UnifiedBirthForm') return { UnifiedBirthForm: BirthForm, hourBranchToBirthTime: (b) => (b && b !== 'unknown' ? ({ wu: '11:30' })[b] : undefined) };
     if (id === '@/components/IdentitySplitSelector') return { default: () => null };
     if (id === '@/lib/identity-split-client') return {
@@ -75,6 +77,8 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/ghost-asura/GhostAsur
     if (id === '@/lib/ghost-asura-audio') return { initializeAudio: async () => {}, cleanupAudio: () => { audioCleanups++; }, playCardRevealSound: () => {}, playImpressionGlowSound: () => {}, playShareSuccessSound: () => {}, playDownloadSuccessSound: () => {} };
     if (id === '@/lib/ghost-asura-particles') return { initializeParticleSystem: () => {}, getParticleSystem: () => particles, cleanupParticleSystem: () => {} };
     if (id === '@/features/ghost-asura/components/GhostAsuraCard') return { GhostAsuraCard: Card };
+    // 2026-11-09 開卡前離屏排版預熱（看不見、不含命盤內容的效能元件）；本測試只驗頁面流程，用空元件代替。
+    if (id === '@/features/ghost-asura/components/AsuraLayoutPrewarm') return { AsuraLayoutPrewarm: () => null };
     if (id === './skill/AsuraConversation') return { default: Conversation, __esModule: true };
     if (id === '@/features/ghost-asura/components/AsuraVoiceCard') return load('features/ghost-asura/components/AsuraVoiceCard.tsx');
     if (id === '@/lib/dual-chart-form') return { dualChartHourStatus };
@@ -87,7 +91,7 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/ghost-asura/GhostAsur
 function render() {
   cursor = 0;
   const tree = target.exports.default({ unlocked, configured: true });
-  const card = find(tree, x => x.type === 'div' && x.props?.style?.animation?.startsWith('asuraCardReveal'));
+  const card = find(tree, x => x.type === 'div' && (x.props?.style?.animation?.startsWith('asuraCardReveal') || x.props?.className === 'asuraCardReveal'));
   if (card) card.props.ref.current = cardElement;
   const queued = pendingEffects; pendingEffects = []; queued.forEach(fn => fn());
   return tree;
@@ -259,7 +263,7 @@ const ready = { birthDate: '1990-01-01', gender: 'male', birthHourBranch: 'wu', 
   finishJson({ data: { contract: 'ghost-asura-display/v1', fixture: 'late-json' } }); await tick();
   assert.equal(result(), undefined);
 
-  const localImpression = { getAttribute: () => 'same-id' };
+  const localImpression = { getAttribute: () => 'same-id', getBoundingClientRect: () => ({ left: 10, top: 20, width: 40, height: 40 }) };
   cardElement = { querySelectorAll: selector => { assert.equal(selector, '[data-asura-id]'); return [localImpression]; }, getBoundingClientRect: () => ({ left: 0, top: 0, width: 200, height: 300 }) };
   form().props.onSubmit(ready);
   pending.at(-1).resolve({ ok: true, status: 200, json: async () => ({ data: { contract: 'ghost-asura-display/v1', fixture: 'animated', glowIds: ['same-id'] } }) });
