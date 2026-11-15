@@ -101,3 +101,4 @@
   animation: resumeNoticeOut 6.5s ease forwards; }
 @keyframes resumeNoticeOut { 0%, 85% { opacity: 1; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .resumeNotice { animation: resumeNoticeOut 6.5s steps(1, end) forwards; } }
+a.recoveryPrimary { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }

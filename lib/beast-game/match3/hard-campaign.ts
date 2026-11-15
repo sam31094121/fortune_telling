@@ -131,7 +131,7 @@ export function parseCampaign(raw: string): HardCampaign {
   const adults = new Set(campaignAdultIds());
   if (!p || p.version !== 1 || !Number.isSafeInteger(p.wins) || p.wins < 0 || typeof p.heroChoiceUsed !== 'boolean' || (p.heroId !== null && !campaignGuardianIds().includes(p.heroId)) || !Array.isArray(p.teamIds) || !Array.isArray(p.rewards) || !Array.isArray(p.receipts)) throw new Error('寶珠存檔格式不完整');
   if (p.teamIds.length && !validateCampaignTeam(p, p.teamIds)) throw new Error('寶珠隊伍存檔無效');
-  if (p.heroChoiceUsed && (!p.heroId || p.wins < 8)) throw new Error('主角選擇紀錄不一致');
+  if (p.heroChoiceUsed && (!p.heroId || p.wins < 8)) throw new Error('主角重選紀錄和關卡數對不起來（存檔可能來自舊版或被改動）');
   const orderedAdults = campaignAdultIds();
   if (p.rewards.length !== p.receipts.length || new Set(p.receipts.map(r => r.matchId)).size !== p.receipts.length || p.receipts.some((r, i) => !r || typeof r.matchId !== 'string' || !r.matchId.trim() || !adults.has(r.cardId) || !Number.isSafeInteger(r.win) || r.win < 1 || r.win > p.wins || (i > 0 && r.win !== p.receipts[i - 1].win + 1) || r.cardId !== orderedAdults[(r.win - 1) % orderedAdults.length] || JSON.stringify(r) !== JSON.stringify(p.rewards[i]))) throw new Error('寶珠獎勵紀錄不一致');
   if (p.receipts.length && p.receipts[p.receipts.length - 1].win !== p.wins) throw new Error('勝場與最後獎勵紀錄不一致');

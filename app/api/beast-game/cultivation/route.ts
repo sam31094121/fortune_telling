@@ -5,10 +5,12 @@ import { prepareCultivationMigration } from '@/lib/beast-game/cultivation-migrat
 import { transactCultivation, type CultivationCommand } from '@/lib/beast-game/cultivation-transaction';
 import { cultivationView } from '@/lib/beast-game/cultivation-view';
 import { fuseCultivation } from '@/lib/beast-game/cultivation';
-import { importExistingGrants, releaseCultivationBattle, creditSharedShards, exchangeSharedShards, legacyGrowthCollection } from '@/lib/beast-game/cultivation-games';
+import { updateCultivationAccount, importExistingGrants, releaseCultivationBattle, creditSharedShards, exchangeSharedShards, legacyGrowthCollection } from '@/lib/beast-game/cultivation-games';
 import { migrateCollection } from '@/lib/beast-collection-ledger';
 import { sharedOrbProfile, beginSharedOrb } from '@/lib/beast-game/cultivation-orb';
 import { parseCampaign } from '@/lib/beast-game/match3/hard-campaign';
+import { emptyTreasureBook } from '@/lib/beast-game/match3/treasures';
+import { applyLegacyClaim, CampaignConflict, LEGACY_BACKFILL_ID, LEGACY_MAX_WINS } from '@/lib/beast-game/cultivation-legacy';
 
 export const runtime = 'nodejs';
 // 共同卡庫資料庫在東京（Supabase ap-northeast-1）；函式預設在美東，每次資料庫來回多耗數百毫秒，改放東京。
@@ -23,7 +25,9 @@ function ownerOf(request: Request): string {
 }
 function failure(error: unknown) {
   const message = error instanceof Error && /[\u3400-\u9fff]/.test(error.message) ? error.message : '共同卡庫暫時無法取得，請重試同一次操作。';
-  return NextResponse.json({ ok: false, error: message }, { status: 400, headers });
+  // 本機存檔與伺服器紀錄對不起來時帶代碼，畫面才能給「以伺服器為準／保留本機備份」的選擇。
+  const conflict = error instanceof CampaignConflict ? { code: error.code, serverWins: error.serverWins } : {};
+  return NextResponse.json({ ok: false, error: message, ...conflict }, { status: conflict.code ? 409 : 400, headers });
 }
 export async function GET(request: Request) {
   try { return NextResponse.json({ ok: true, view: cultivationView(await cultivationRepository().read(ownerOf(request))) }, { headers }); }
@@ -38,9 +42,17 @@ export async function POST(request: Request) {
       if (!(body.orbProfile === null || typeof body.orbProfile === 'string')) throw new Error('寶珠存檔格式無效。');
       const migration = prepareCultivationMigration(legacyGrowthCollection(body.collection,body.growth), body.orbProfile);
       const orb=body.orbProfile?parseCampaign(body.orbProfile):null;
+      // 舊進度鍵只記勝場、沒有獎卡收據：限制在合理範圍，避免異常值。
+      if(orb&&!orb.receipts.length&&orb.wins>LEGACY_MAX_WINS)throw new Error(`舊進度勝場超過 ${LEGACY_MAX_WINS}，無法自動帶入，請聯絡客服。`);
       const old=migrateCollection(body.collection);
-      const snapshot = await repository.create(owner, { revision: '0', state: migration.state, pendingBattle: null, receipts: [], shards:old.shards,starterPack:old.starterPack,orbTreasures:orb?.treasures,creditedIds:[...migration.state.cards.map(c=>'copy:'+c.id),...Object.keys(old.shards?.receipts??{}).map(id=>'shards:'+id),...(old.granted??[]).map(id=>'copy:growth:'+id)],orbLedger:orb?{wins:orb.wins,rewards:orb.rewards,receipts:orb.receipts}:{wins:0,rewards:[],receipts:[]} });
+      const snapshot = await repository.create(owner, { revision: '0', state: migration.state, pendingBattle: null, receipts: [], shards:old.shards,starterPack:old.starterPack,orbTreasures:orb?.treasures??emptyTreasureBook(),creditedIds:[LEGACY_BACKFILL_ID,...migration.state.cards.map(c=>'copy:'+c.id),...Object.keys(old.shards?.receipts??{}).map(id=>'shards:'+id),...(old.granted??[]).map(id=>'copy:growth:'+id)],orbLedger:orb?{wins:orb.wins,rewards:orb.rewards,receipts:orb.receipts}:{wins:0,rewards:[],receipts:[]} });
       return NextResponse.json({ ok: true, view: cultivationView(snapshot) }, { headers });
+    }
+    if(body?.type==='ORB_LEGACY_CLAIM'){
+      // 一次性舊進度認領：只補勝場（不發卡），每個卡庫一次，記錄在 creditedIds 並寫入伺服器日誌。
+      await updateCultivationAccount(owner,current=>applyLegacyClaim(current,body.wins));
+      console.info('[beast-legacy-claim]',JSON.stringify({owner:owner.slice(0,12),wins:body.wins,at:new Date().toISOString()}));
+      return NextResponse.json({ok:true,profile:await sharedOrbProfile(owner,body.profile)},{headers});
     }
     if(body?.type==='ORB_PROFILE')return NextResponse.json({ok:true,profile:await sharedOrbProfile(owner,body.profile)},{headers});
     if(body?.type==='ORB_BEGIN')return NextResponse.json({ok:true,...await beginSharedOrb(owner,body.profile,body.operationId,body.seed,body.mode)},{headers});

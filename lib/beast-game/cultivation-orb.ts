@@ -4,6 +4,7 @@ import { cultivationRepository } from './cultivation-repository';
 import { cultivationView } from './cultivation-view';
 import { battleBonus, holdCultivationBattle, updateCultivationAccount } from './cultivation-games';
 import { initialSharedOrb } from './cultivation-orb-state';
+import { adoptLegacyTreasures, normalizeHeroChoice, CampaignConflict } from './cultivation-legacy';
 import type { Match3ModeId } from './match3/config';
 import { parseCampaign, campaignCardAttack, campaignAdultIds, validateCampaignTeam, type HardCampaign } from './match3/hard-campaign';
 import { playableCards } from './registry';
@@ -17,10 +18,15 @@ export async function sharedOrbProfile(owner:string,value:unknown):Promise<HardC
   if(!value||typeof value!=='object')throw new Error('寶珠進度無法讀取。');
   const raw={...(value as HardCampaign)},teamIds=raw.teamIds,selected=raw.ownedEntries??{};
   delete raw.shared;raw.teamIds=[];
-  const snapshot=await cultivationRepository().read(owner);
+  let snapshot=await cultivationRepository().read(owner);
+  // 伺服器從沒存過寶器（上線初期的帳本）：先接受本機寶器一次並寫回，不讓本機變少。
+  if(snapshot.orbTreasures===undefined)snapshot=await updateCultivationAccount(owner,current=>adoptLegacyTreasures(current,raw.treasures,emptyTreasureBook()));
   if(snapshot.orbLedger)Object.assign(raw,snapshot.orbLedger);
   raw.treasures=snapshot.orbTreasures??emptyTreasureBook();
-  const p=parseCampaign(JSON.stringify(raw)),view=cultivationView(snapshot);
+  let p:HardCampaign;
+  try{p=parseCampaign(JSON.stringify(normalizeHeroChoice(raw)));}
+  catch{throw new CampaignConflict(snapshot.orbLedger?.wins??0);}
+  const view=cultivationView(snapshot);
   const trial=playableCards().filter(c=>c.form==='YOUNG'&&!p.consumedYoungIds?.includes(c.id)).map(c=>c.id);
   const availableIds=[...new Set([...trial,...(p.heroId?[p.heroId]:[]),...view.cards.map(c=>c.cardId)])];
   const stats:NonNullable<HardCampaign['shared']>['stats']={},entries:{id:string;cardId:string}[]=[];

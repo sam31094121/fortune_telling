@@ -3,6 +3,8 @@ import type { cultivationView } from './beast-game/cultivation-view';
 export type SharedCultivationView=ReturnType<typeof cultivationView>;
 const KEY='tdh_beast_wallet_v1',CACHE='tdh_beast_shared_view_v1',COLLECTION='tdh_beast_collection_v1';
 import { recoverWalletKey, mirrorWalletKey } from './beast-wallet-recovery';
+import { orbProfileForImport, LEGACY_PROGRESS_SELF_KEY } from './beast-game/match3/campaign-safety';
+import { backupLocal } from './beast-local-backup';
 export const SHARED_UPDATED='tdh-beast-shared-updated';
 export const WALLET_LOST_MESSAGE='找不到這支手機的卡庫識別碼（可能被清除了）。請到「存檔備份」輸入識別碼還原；沒有識別碼才選「改用全新卡庫」。';
 export function sharedWalletHeaders():Record<string,string> {
@@ -40,18 +42,24 @@ function saveView(view:SharedCultivationView) {
   if(!view||!Array.isArray(view.cards)||!Array.isArray(view.collectionCards))throw new Error('共同卡庫回應不完整。');
   const cached=readSharedCultivation();
   if(cached&&BigInt(cached.revision)>BigInt(view.revision))return cached;
-  const old=JSON.parse(window.localStorage.getItem(COLLECTION)??'{"cards":[],"history":[]}');
+  const oldRaw=window.localStorage.getItem(COLLECTION);
+  const old=JSON.parse(oldRaw??'{"cards":[],"history":[]}');
   const previous=new Map<string,{at?:string;source?:string}>(old.cards.map((c:{id:string})=>[c.id,c]));
   const cards=view.collectionCards.map(c=>({...c,at:previous.get(c.id)?.at??c.at,source:previous.get(c.id)?.source??c.source}));
+  // 同步不讓本機變少：伺服器沒有的碎片／首戰禮保留本機值（下一次同步由伺服器一次性補存），已解鎖成長卡取聯集。
+  const next={...old,cards,granted:[...new Set([...(Array.isArray(old.granted)?old.granted:[]),...(view.granted??[])])],shards:view.shards??old.shards,starterPack:view.starterPack??old.starterPack,sharedCultivation:true};
+  // 覆蓋前備份：本機有伺服器沒有的卡、碎片變少、或首戰禮紀錄會消失時，先存時間戳記備份；備份失敗就不覆蓋。
+  const ids=new Set(cards.map((c:{id:string})=>c.id));
+  if(oldRaw!==null&&(old.cards.some((c:{id:string})=>!ids.has(c.id))||(old.shards&&(!next.shards||next.shards.shards<old.shards.shards||next.shards.totalEarned<old.shards.totalEarned))||(old.starterPack&&!next.starterPack)))backupLocal('collection',oldRaw);
   window.localStorage.setItem(CACHE,JSON.stringify(view));
-  window.localStorage.setItem(COLLECTION,JSON.stringify({...old,cards,granted:view.granted,shards:view.shards,starterPack:view.starterPack,sharedCultivation:true}));
+  window.localStorage.setItem(COLLECTION,JSON.stringify(next));
   window.dispatchEvent(new Event('tdh-beast-collection-updated'));window.dispatchEvent(new Event(SHARED_UPDATED));
   return view;
 }
 export async function sharedRequest(body?:Record<string,unknown>) {
   try {
   const response=await fetch('/api/beast-game/cultivation',{method:body?'POST':'GET',headers:{'Content-Type':'application/json',...sharedWalletHeaders()},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(20000)});
-  const result=await response.json();if(!response.ok||!result.ok)throw new Error(result.error??'共同卡庫暫時無法取得。');
+  const result=await response.json();if(!response.ok||!result.ok)throw Object.assign(new Error(result.error??'共同卡庫暫時無法取得。'),result.code?{code:result.code,serverWins:result.serverWins}:{});
   if(result.view)result.view=saveView(result.view);
   return result;
   }catch(error){if(error instanceof Error&&/[\u3400-\u9fff]/.test(error.message))throw error;throw new Error('連線或保存尚未確認，請重試同一次操作。');}
@@ -68,7 +76,7 @@ export async function syncSharedCultivation(options?:{waitForSave?:boolean}):Pro
     const growth={modules:JSON.parse(window.localStorage.getItem('tdh_growth_completed_modules_v1')??'[]'),checkIns:JSON.parse(window.localStorage.getItem('tdh_growth_checkin_history_v4')??'{}')};
     if(old.pending&&!old.sharedCultivation)throw new Error('請先結算原戰鬥，再接通共同卡庫。');
     if(!old.sharedCultivation) {
-      const result=await sharedRequest({type:'IMPORT',collection:old,growth,orbProfile:window.localStorage.getItem('match3-hard-campaign-self-v1')});
+      const result=await sharedRequest({type:'IMPORT',collection:old,growth,orbProfile:orbProfileForImport(window.localStorage.getItem('match3-hard-campaign-self-v1'),window.localStorage.getItem(LEGACY_PROGRESS_SELF_KEY))});
       return result.view;
     }
     const result=await sharedRequest({type:'LOCAL_GRANTS',collection:old,growth});return result.view;

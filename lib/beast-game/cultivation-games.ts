@@ -11,6 +11,7 @@ import { creditBattleReward, exchangeShards, grantStarterPack, grantGrowthCards,
 import { deriveUnlockedMansions, gameCardIdsForMansion } from '../beast-growth-rewards';
 import { openBattleSession } from './battle-session';
 import { battleRewardFor } from './battle-reward-server';
+import { backfillLegacyCollection } from './cultivation-legacy';
 import type { ShardExchangeKind } from './battle-reward';
 
 export function cultivationOwner(request: Request): string | null {
@@ -86,7 +87,9 @@ export function legacyGrowthCollection(value:unknown,progress?:{modules?:unknown
 }
 export async function importExistingGrants(owner:string,value:unknown,progress?:{modules?:unknown;checkIns?:unknown}) {
   const ledger=legacyGrowthCollection(value,progress);
-  return update(owner,current=>{
+  return update(owner,existing=>{
+    // 上線初期建立的帳本沒存碎片／首戰禮：只補一次伺服器從沒存過的欄位，不讓本機變少（cultivation-legacy.ts）。
+    const current=backfillLegacyCollection(existing,value);
     const seen=new Set([...(current.creditedIds??[]),...current.state.cards.map(c=>'copy:'+c.id),...current.receipts.flatMap(r=>r.changes.map(c=>'copy:'+c.materialId))]);
     const cards=ledger.cards.filter(c=>!seen.has('copy:'+c.id)&&(
       c.id===`growth:${c.cardId}`&&ledger.granted?.includes(c.cardId)

@@ -15,7 +15,7 @@ import Match3Board from './Match3Board';
 import CampaignEnhancement from './CampaignEnhancement';
 import SharedCultivationPanel from './SharedCultivationPanel';
 import { syncSharedCultivation, sharedRequest } from '@/lib/beast-cultivation-client';
-import { refreshSharedCampaign, inspectCampaignSave, repairUnreadableCampaign, UNREADABLE_BACKUP_SUFFIX } from '@/lib/beast-game/match3/hard-campaign-store';
+import { refreshSharedCampaign, inspectCampaignSave, repairUnreadableCampaign, UNREADABLE_BACKUP_SUFFIX, adoptServerCampaign, rawCampaignSave, type CampaignMismatch } from '@/lib/beast-game/match3/hard-campaign-store';
 import CampaignBackup from './CampaignBackup';
 import styles from './Match3Board.module.css';
 import picker from './Match3TeamPicker.module.css';
@@ -45,6 +45,10 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const [confirmRepair, setConfirmRepair] = useState(false);
   const [interrupted, setInterrupted] = useState(false);
   const [resumeNotice, setResumeNotice] = useState('');
+  const [mismatch, setMismatch] = useState<CampaignMismatch | null>(null);
+  const [cardPending, setCardPending] = useState(false);
+  const [notice, setNotice] = useState('');
+  const [keptLocal, setKeptLocal] = useState(false);
   const startButton = useRef<HTMLButtonElement>(null);
   const confirmHeroButton = useRef<HTMLButtonElement>(null);
   const teamHeading = useRef<HTMLHeadingElement>(null);
@@ -89,7 +93,7 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   };
   const load = async (who: Owner, repick = false, reset = false, autoReplay = false) => {
     loadRetry.current = { who, repick, reset };
-    setInterrupted(false);
+    setInterrupted(false); setMismatch(null); setCardPending(false); setKeptLocal(false);
     setSaving(true);
     let result:Awaited<ReturnType<typeof refreshSharedCampaign>>;
     try {
@@ -97,16 +101,17 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
         const shared=await syncSharedCultivation();
         // 重新整理自動接回：中斷的寶珠戰直接放掉暫扣、同隊從這一關重打（與「重打這一關」按鈕同一個動作），並在戰鬥畫面提示原因。
         if(autoReplay&&shared.pendingBattle?.startsWith('orb:')){const pb=shared.pendingBattle;try{await sharedRequest({type:'RELEASE',battleId:pb});}catch{setPreviousOrb(pb);setInterrupted(true);throw new Error('上一場寶珠戰因重新整理中斷，自動重開這一關沒有成功（網路或伺服器暫時沒回應）。你的關卡進度、收藏與永久強化都還在，請按「重打這一關」再試一次。');}}
-        else if(shared.pendingBattle){const orb=shared.pendingBattle.startsWith('orb:');setPreviousOrb(orb?shared.pendingBattle:null);setInterrupted(orb);throw new Error(orb?'上一場寶珠戰在重新整理或離開頁面時中斷了。你的關卡進度、收藏與永久強化都還在；這一關會從頭重打，不扣任何卡。':'已有進行中的神獸戰鬥。請先回神獸戰鬥結算，再來寶珠戰。');}
+        else if(shared.pendingBattle){const orb=shared.pendingBattle.startsWith('orb:');setPreviousOrb(orb?shared.pendingBattle:null);setInterrupted(orb);setCardPending(!orb);throw new Error(orb?'上一場寶珠戰在重新整理或離開頁面時中斷了，無法從中途接續。你的關卡進度、收藏與永久強化都還在；按「重打這一關」會用同一隊從這一關開頭重新開始，不扣任何卡。':'神獸卡片戰鬥還有一場沒結算，卡片暫時保留在那一場。請先按下方按鈕回去完成結算，再回來寶珠戰。');}
         result=await refreshSharedCampaign();
       }else result=reset?await resetGuestCampaign():readCampaign(who);
     }catch(e){setSaving(false);setUnreadable(inspectCampaignSave(who).unreadable?who:null);setError(e instanceof Error?e.message:'暫時無法讀取共同卡庫。');return;}
     setSaving(false);
-    if (!result.ok || !result.profile) { setUnreadable(inspectCampaignSave(who).unreadable?who:null); setError(result.error || '暫時無法取得闖關進度，請重試。'); return; }
+    if (!result.ok || !result.profile) { setMismatch(result.mismatch ?? null); setUnreadable(result.mismatch ? null : inspectCampaignSave(who).unreadable?who:null); setError(result.error || '暫時無法取得闖關進度，請重試。'); return; }
+    setNotice(result.notice ?? '');
     rememberOwner(who); setUnreadable(null); setConfirmRepair(false); setInterrupted(false);
     const p = result.profile;
     const willBattle = campaignHeroChoice(p) === 'locked' && !repick && validateCampaignTeam(p, p.teamIds);
-    setResumeNotice(autoReplay && willBattle ? (who === 'self' ? '剛才的寶珠戰因重新整理中斷，已用同一隊從這一關重新開始；關卡進度、收藏與永久強化都還在，沒有扣卡。' : '剛才的寶珠戰因重新整理中斷，已從這一關重新開始；親友這一輪的進度還在。') : '');
+    if (!autoReplay && willBattle && result.notice) setResumeNotice(result.notice); else setResumeNotice(autoReplay && willBattle ? (who === 'self' ? '剛才的寶珠戰因重新整理中斷，無法從中途接續；已用同一隊從這一關開頭重新開始。關卡進度、收藏與永久強化都還在，沒有扣卡。' : '剛才的寶珠戰因重新整理中斷，已從這一關重新開始；親友這一輪的進度還在。') : '');
     setOwnedEntries(p.ownedEntries??{});setPreviousOrb(null);
     setOwner(who); setProfile(p); setError(''); setTab('ALL');
     setCandidate(campaignHeroChoice(p) === 'milestone' ? p.heroId : null);
@@ -122,6 +127,12 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
     if (last === 'self' || last === 'guest') void load(last, false, false, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const downloadRaw = (raw: string | null | undefined, name: string) => {
+    if (!raw) return;
+    const url = URL.createObjectURL(new Blob([raw], { type: 'application/json' }));
+    const a = document.createElement('a'); a.href = url; a.download = `${name}-${new Date().toISOString().slice(0, 10)}.json`; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  };
   const downloadUnreadable = (who: Owner) => {
     const raw = inspectCampaignSave(who).raw; if (!raw) return;
     const url = URL.createObjectURL(new Blob([raw], { type: 'application/json' }));
@@ -145,11 +156,18 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
       await load('self');
     }}>確認這是我的舊進度，接續闖關</button>}{error && <p role="alert" data-testid="campaign-choice-error" data-interrupted={interrupted ? 'true' : undefined}>{unreadable ? `這個瀏覽器裡的寶珠存檔讀不懂（${error}）。這不是你操作錯誤，原檔還在，沒有被刪除。` : error}</p>}
     {unreadable && <div className={picker.recovery} data-testid="campaign-unreadable" role="group" aria-label="修復寶珠存檔">
-      <p className={styles.hint}>修復會先把原檔另存一份備份（{UNREADABLE_BACKUP_SUFFIX.slice(1)}），再重新讀取進度。{unreadable === 'self' ? '已接通共同卡庫時，勝場與獎卡以伺服器帳本為準；沒有其他紀錄時，會從第一關重新開始。' : '親友進度只存在這個分頁，修復後從第一關開始。'}</p>
+      <p className={styles.hint}>修復不會刪除存檔：會先把原檔另存備份（{UNREADABLE_BACKUP_SUFFIX.slice(1)}＋時間戳記備份），再保留還讀得懂的部分（關卡、主角、獎卡、寶器）。{unreadable === 'self' ? '已接通共同卡庫時，勝場與獎卡仍以共同卡庫的紀錄為準。' : '親友進度只存在這個分頁。'}</p>
       <button type="button" className={styles.again} data-testid="download-unreadable" disabled={saving} onClick={() => downloadUnreadable(unreadable)}>先下載原存檔</button>
       {confirmRepair ? <button type="button" className={picker.recoveryPrimary} data-testid="confirm-repair" disabled={saving} onClick={() => void repair(unreadable)}>{saving ? '正在修復…' : '確定修復並重新讀取'}</button> : <button type="button" className={picker.recoveryPrimary} data-testid="repair-save" disabled={saving} onClick={() => setConfirmRepair(true)}>修復存檔</button>}
     </div>}
-    {saving && !error && <p className={styles.hint} role="status" data-testid="campaign-loading">正在讀取你的進度…</p>}<p className={styles.hint}>自己的進度保存在這個瀏覽器。</p>
+    {mismatch && <div className={picker.recovery} data-testid="campaign-mismatch" role="group" aria-label="寶珠存檔和共同卡庫紀錄不一樣">
+      <p className={styles.hint}>「以伺服器為準」：本機存檔會先存一份時間戳記備份，再改用共同卡庫已確認的第 {mismatch.serverWins} 關繼續。「保留本機備份」：下載這個瀏覽器的存檔檔案，什麼都不改。</p>
+      <button type="button" className={picker.recoveryPrimary} data-testid="mismatch-use-server" disabled={saving} onClick={async () => { setSaving(true); const r = await adoptServerCampaign(); setSaving(false); if (!r.ok) { setError(r.error || '還沒切換成功，存檔沒有變更，請重試。'); return; } setMismatch(null); await load('self'); }}>{saving ? '正在切換…' : `以伺服器為準（第 ${mismatch.serverWins} 關）`}</button>
+      <button type="button" className={styles.again} data-testid="mismatch-keep-local" disabled={saving} onClick={() => { downloadRaw(rawCampaignSave('self'), '寶珠存檔-本機備份'); setKeptLocal(true); }}>保留本機備份（下載存檔）</button>
+      {keptLocal && <p className={styles.hint} role="status" data-testid="mismatch-kept">已下載本機存檔，這個瀏覽器的存檔沒有任何變更。需要時可到「存檔備份」匯入，或聯絡客服協助比對。</p>}
+    </div>}
+    {cardPending && <Link href="/beast-game/battlefield" className={picker.recoveryPrimary} data-testid="go-card-settle">回神獸卡片戰鬥完成結算</Link>}
+    {saving && !error && <p className={styles.hint} role="status" data-testid="campaign-loading">正在讀取你的進度…</p>}<p className={styles.hint}>自己的進度存在共同卡庫，靠這個瀏覽器裡的卡庫識別碼找回；換手機或清除網站資料前，請先到「存檔備份」記下識別碼。</p>
   </section>;
   if (phase === 'battle') return <>
     <Match3Board key={revision} seed={seed} mode={mode} progressOwner={owner} campaignEnabled teamIds={profile.teamIds} onCampaignContinue={() => { setResumeNotice(''); void load(owner); }} onRepick={() => { setResumeNotice(''); void load(owner, true); }} />
@@ -161,7 +179,7 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const choice = campaignHeroChoice(profile);
   const changePlayer = <button type="button" className={styles.again} data-testid="change-player" disabled={saving} onClick={() => { rememberOwner(null); setOwner(null); setProfile(null); setError(''); }}>更換玩家</button>;
   if (phase === 'hero') return <section className={`${styles.picker} ${picker.stickyHost}`} data-testid="match3-hero-choice" aria-label="選擇主角">
-    {home}{changePlayer}<h1>{choice === 'milestone' ? '保留或重新選擇主角' : '選擇你的四象主角'}</h1>
+    {home}{changePlayer}<h1>{choice === 'milestone' ? '保留或重新選擇主角' : '選擇你的四象主角'}</h1>{notice && <p className={styles.hint} role="status" data-testid="campaign-notice">{notice}</p>}
     <p className={styles.hint}>{choice === 'milestone' ? '通過第八關，可保留原主角或更換一次。確認後主角固定。' : profile.wins >= 8 ? '你的進度已通過第八關；這次選擇即使用唯一的重選機會，確認後主角固定。' : '主角占一個出戰位置。選定後固定，通過第八關可重新選擇一次。'}</p>
     {choice === 'milestone' && <p className={styles.hint}>永久強化留在原卡，不會轉移到新主角；原卡加成仍會保留。</p>}
     <div className={picker.cardGrid}>{pool.filter(c => c.id.startsWith('beast_g_')).map(c => <button type="button" className={picker.cardChoice} key={c.id} data-testid="pick-hero" data-id={c.id} aria-pressed={candidate === c.id} onClick={() => setCandidate(c.id)}>
@@ -184,7 +202,7 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const kin = (id: string) => heroGuardian && guardianOf(id)?.key === heroGuardian.key ? `${GUARDIAN_SHORT[heroGuardian.key]}宿・` : '';
   const toggle = (id: string) => { if (id !== profile.heroId && allowed.includes(id)) setSelected(s => s.includes(id) ? s.filter(x => x !== id) : s.length < 5 ? [...s, id] : s); };
   return <section className={`${styles.picker} ${picker.stickyHost}`} data-testid="team-picker" aria-label="選擇主角的四位夥伴">
-    {home}{changePlayer}<h1 ref={teamHeading} tabIndex={-1}>第二步：點選四位夥伴</h1>
+    {home}{changePlayer}<h1 ref={teamHeading} tabIndex={-1}>第二步：點選四位夥伴</h1>{notice && <p className={styles.hint} role="status" data-testid="campaign-notice">{notice}</p>}
     <div className={picker.companionGuide} role="status" aria-live="polite">
       <strong>{selected.length === 5 ? '四位夥伴已選齊！' : `已選 ${Math.max(0, selected.length - 1)}／4 位夥伴，還差 ${5 - selected.length} 位`}</strong>
       <p>{selected.length === 5 ? '請點下方金色「開始作戰」按鈕，帶隊出發。' : '往下滑，點喜歡的卡片加入隊伍。主角已保留，不用再選。'}</p>
