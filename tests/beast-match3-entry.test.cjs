@@ -144,6 +144,9 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
       if (id === '@/lib/beast-game/match3') return M;
       if (id === '@/lib/beast-game/match3/hard-campaign') return C;
       if (id === '@/lib/beast-game/match3/hard-campaign-store') return store;
+      // 56063ead（正式站，寶石捷連線・四象合體）讓 HardCampaignEntry 多匯入這兩個模組：接真實編譯產物（只是解析路徑，不換實作）。
+      if (id === '@/lib/beast-guardians') return require('../.beast-game-build/lib/beast-guardians');
+      if (id === '@/lib/beast-game/match3/guardian-fusion') return require('../.beast-game-build/lib/beast-game/match3/guardian-fusion');
       if (id === './Match3Board') return { default: Board };
       if (id === './CampaignEnhancement') return { default: () => null };
       if (id === './SharedCultivationPanel') return { default: () => null };
