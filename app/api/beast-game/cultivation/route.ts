@@ -2,9 +2,9 @@ import { createHash } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { cultivationRepository } from '@/lib/beast-game/cultivation-repository';
 import { prepareCultivationMigration } from '@/lib/beast-game/cultivation-migration';
-import { transactCultivation, type CultivationCommand } from '@/lib/beast-game/cultivation-transaction';
-import { cultivationView, cultivationChangeView } from '@/lib/beast-game/cultivation-view';
-import { fuseCultivation } from '@/lib/beast-game/cultivation';
+import { transactCultivation, fuseSnapshot, type CultivationCommand } from '@/lib/beast-game/cultivation-transaction';
+import { cultivationView, cultivationChangeView, describeCultivationChange } from '@/lib/beast-game/cultivation-view';
+import { cultivationTarget } from '@/lib/beast-game/cultivation';
 import { updateCultivationAccount, importExistingGrants, releaseCultivationBattle, creditSharedShards, exchangeSharedShards, legacyGrowthCollection } from '@/lib/beast-game/cultivation-games';
 import { migrateCollection } from '@/lib/beast-collection-ledger';
 import { sharedOrbProfile, beginSharedOrb, resumeSharedOrb } from '@/lib/beast-game/cultivation-orb';
@@ -61,16 +61,27 @@ export async function POST(request: Request) {
     if(body?.type==='SHARD_CREDIT')return NextResponse.json({ok:true,view:cultivationView(await creditSharedShards(owner,body.proof))},{headers});
     if(body?.type==='SHARD_EXCHANGE'){const snapshot=await exchangeSharedShards(owner,body.kind,body.operationId);return NextResponse.json({ok:true,view:cultivationView(snapshot),cardId:snapshot.exchanges![body.operationId].cardId},{headers});}
     if(body?.type==='RELEASE')return NextResponse.json({ok:true,view:cultivationView(await releaseCultivationBattle(owner,body.battleId))},{headers});
+    if (body?.type === 'PREVIEW_TARGET') {
+      // 餵食面板即時預覽：選定目標後一次算好每張候選材料的加成與星級變化（只讀、不寫入；數字仍由伺服端計算）。
+      const snapshot = await repository.read(owner);
+      if (snapshot.revision !== body.revision) throw new Error('卡庫已更新，請重新選擇。');
+      if (snapshot.pendingBattle) throw new Error('戰鬥尚未結算，暫不能合體。');
+      const target = snapshot.state.cards.find(c => c.id === body.targetId);
+      if (!target) throw new Error('材料或目標已不存在，未扣材料。');
+      const candidates = snapshot.state.cards.filter(c => c.id !== target.id && !snapshot.state.protectedIds.includes(c.id) && cultivationTarget(c.cardId) === target.cardId).slice(0, 200);
+      const options = candidates.map(c => { try { return { materialId: c.id, feedback: describeCultivationChange(fuseSnapshot(snapshot, [{ targetId: target.id, materialId: c.id }]).changes[0]) }; } catch (error) { return { materialId: c.id, error: error instanceof Error && /[\u3400-\u9fff]/.test(error.message) ? error.message : '暫時無法預覽。' }; } });
+      return NextResponse.json({ ok: true, targetId: target.id, options }, { headers });
+    }
     if (body?.type === 'PREVIEW') {
       const snapshot = await repository.read(owner);
       if (snapshot.revision !== body.revision) throw new Error('卡庫已更新，請重新選擇。');
       if (snapshot.pendingBattle) throw new Error('戰鬥尚未結算，暫不能合體。');
-      const preview = fuseCultivation(snapshot.state, body.choices);
-      return NextResponse.json({ ok: true, changes: preview.changes.map(cultivationChangeView) }, { headers });
+      const preview = fuseSnapshot(snapshot, body.choices);
+      return NextResponse.json({ ok: true, changes: preview.changes.map(cultivationChangeView), feedback: preview.changes.map(describeCultivationChange) }, { headers });
     }
     if (body?.type !== 'FUSE' && body?.type !== 'MAIN_TEAM') throw new Error('共同卡庫操作無效。');
     const command: CultivationCommand = body.type === 'FUSE' ? { type: 'FUSE', choices: body.choices } : { type: 'MAIN_TEAM', ids: body.ids };
     const result = await transactCultivation(repository, owner, body.operationId, body.revision, command);
-    return NextResponse.json({ ok: true, view: cultivationView(result.snapshot), receipt: result.receipt, changes: result.receipt.changes.map(cultivationChangeView), duplicate: result.duplicate }, { headers });
+    return NextResponse.json({ ok: true, view: cultivationView(result.snapshot), receipt: result.receipt, changes: result.receipt.changes.map(cultivationChangeView), feedback: result.receipt.changes.map(describeCultivationChange), duplicate: result.duplicate }, { headers });
   } catch (error) { return failure(error); }
 }

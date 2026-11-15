@@ -68,6 +68,7 @@ import EnhanceAura, { type EnhanceInfo } from './EnhanceAura';
 import { createMatch3Sound, type Match3SoundCue } from './match3Sound';
 import { runRefillPlayback } from '@/lib/beast-game/match3/refill-runner';
 import GuardianFusionTrace from './GuardianFusionTrace';
+import { feedShortcutFor, requestFeedShortcut } from '@/lib/beast-food-chain-client';
 import { stepGuardianFusion, fusionStrikers, guardianFusionLabel, GUARDIAN_FUSION_MS, GUARDIAN_FUSION_START, type GuardianFusion, type GuardianFusionState } from '@/lib/beast-game/match3/guardian-fusion';
 import { REFILL_TIMING, refillPresentation, refillLandingTimes, fusionShieldLayout, fusionDischarge, FUSION_CLEAR_AT_MS, FUSION_DISPLAY_MS, type RefillMotion } from '@/lib/beast-game/match3/refill-presentation';
 
@@ -1238,6 +1239,8 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
               viewDisabled={busy}
             />
           )}
+          {/* 食物鏈：贏到的卡可以順著線拿去強化——只打開共同卡庫面板並預選，仍要按確認（9A）。 */}
+          {campaignEnabled && over === 'win' && wonCard && onRepick && init.owner === 'self' && (() => { const feed = feedShortcutFor(wonCard.id); return feed ? <button type="button" className={`${styles.again} ${styles.resultSecondary}`} data-testid="match3-feed-shortcut" data-feed-target={feed.targetCardId} disabled={busy} onClick={() => { requestFeedShortcut(wonCard.id); onRepick(); }}><span>拿去強化</span>〈{feed.targetName}〉</button> : null; })()}
           <p className={styles.resultSummary}>{over === 'win' ? `共 ${moves} 步擊退敵方 ${foes.length} 隻神獸，總傷害 ${totalDmg ?? '暫時無法取得'}。` : '再來一局，換個打法試試。'}</p>
           {progressSaveFailed && <p role="alert">此瀏覽器無法儲存進度，關閉頁面後可能遺失。</p>}
           {/* 下一步：主按鈕金色＋次要「查看我的卡片」並排在底部固定列，任何寬度都看得到、不會被擠出或裁切。 */}
@@ -1249,7 +1252,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       )}
       <AsuraDeathHost events={knockouts} root={root} startDelayMs={ev => deathDelay.current.get(ev.id) ?? 0} warm={deathWarm} srcOf={deathSrc} preloadBoss={deathBossPresent} bossOnStage={deathBossOnStage} onSettled={settleDeath} onEventFinished={finishDeath} />
       {resultWaiting && <span hidden data-testid="match3-result-pending" data-pending={deathPending.size} />}
-      {rigEnabled && <GuardianFusionTrace fx={guardianFx} root={root} colorOf={f => ORB_COLOR[f.element]} label={f => guardianFusionLabel(f, id => team.find(u => u.id === id)?.name)} />}
+      {rigEnabled && <GuardianFusionTrace fx={guardianFx} root={root} colorOf={f => ORB_COLOR[f.element]} label={f => guardianFusionLabel(f, id => team.find(u => u.id === id)?.name)} bonusOf={id => init.enhance?.[id]?.bonus} />}
       {rigEnabled && <Match3RigAttack ids={[...team.map(u => u.id), ...playableCards().filter(c => c.form === 'GUARDIAN' && team.some(u => u.element === c.element)).map(c => c.id)]} root={root} strike={strike} onImpact={impact} />}
       <span hidden data-testid="match3-last-damage">{lastDmg}</span>
       <span hidden data-testid="match3-link-launch" data-source={linkLaunch?.source ?? ''} data-ids={(linkLaunch?.ids ?? []).join(',')} data-key={linkLaunch?.key ?? 0} />

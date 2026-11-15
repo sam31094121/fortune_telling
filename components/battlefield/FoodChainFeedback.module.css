@@ -1,0 +1,46 @@
+/* 食物鏈吃卡回饋：手機 390 單欄優先；平板／電腦只置中限寬。動畫只用 transform／opacity。 */
+.card {box-sizing:border-box;width:100%;max-width:440px;margin:12px auto;padding:12px;border:1px solid #b8964f;border-radius:14px;background:linear-gradient(180deg,#1d1a12,#12141d);color:#f5e7bd;text-align:center;}
+.pair {display:grid;grid-template-columns:64px 28px 64px;justify-content:center;align-items:center;gap:10px;}
+.thumb {position:relative;width:64px;}
+.thumb > * {max-width:100%;}
+.arrow {font-size:22px;color:#f0cc72;}
+.pop {position:absolute;left:50%;top:-6px;transform:translate(-50%,0);padding:1px 8px;border-radius:999px;background:#f0cc72;color:#211b11;font-size:16px;font-weight:900;opacity:0;animation:pop 1.2s ease-out .55s forwards;}
+.pair[data-absorbing=true] > :first-child {animation:absorb .7s ease-in forwards;}
+.pair[data-absorbing=true] > :last-child {animation:receive 1.2s ease-out forwards;}
+@keyframes absorb {to{transform:translateX(102px) scale(.2);opacity:0;}}
+@keyframes receive {45%{transform:scale(1);}60%{transform:scale(1.12);}100%{transform:scale(1);}}
+@keyframes pop {0%{opacity:0;transform:translate(-50%,8px) scale(.6);}35%{opacity:1;transform:translate(-50%,-6px) scale(1.1);}100%{opacity:1;transform:translate(-50%,-10px) scale(1);}}
+.who {margin:8px 0 2px;font-size:15px;line-height:1.4;overflow-wrap:anywhere;}
+.gain {margin:4px 0;font-size:16px;font-weight:800;}
+.gain b {font-size:24px;color:#ffd977;}
+.pct {font-size:15px;color:#f0cc72;}
+.compare {display:grid;gap:4px;margin:8px 0 0;padding:0;text-align:left;}
+.compare > div {display:flex;justify-content:space-between;gap:8px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,.05);font-size:14px;}
+.compare dt {margin:0;}
+.compare dd {margin:0;white-space:nowrap;}
+.compare b {color:#ffd977;font-size:16px;}
+.compare small {font-size:12px;opacity:.85;}
+.note {margin:6px 0 0;font-size:13px;color:#ffcf8a;}
+.starRow {display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;margin-top:8px;font-size:14px;}
+.stars {letter-spacing:1px;font-size:16px;color:#5c5340;}
+.stars i {font-style:normal;}
+.stars i[data-on=true] {color:#ffd257;text-shadow:0 0 6px rgba(255,210,87,.6);}
+.next b {color:#ffd977;}
+.warn {margin:10px 0 0;padding:6px 8px;border-radius:8px;background:rgba(170,40,40,.25);color:#ffb4a8;font-size:14px;font-weight:700;}
+@media (prefers-reduced-motion: reduce) {
+  .pair[data-absorbing=true] > :first-child, .pair[data-absorbing=true] > :last-child {animation:none;}
+  .pop {animation:none;opacity:1;}
+}
+/* 純圖示版（神獸戰鬥）：大數字、圖示、無說明文字。 */
+.iconCard {padding:10px 10px 12px;}
+.eatMark {position:absolute;right:-8px;bottom:-6px;font-size:20px;filter:drop-shadow(0 1px 2px #000);}
+.bigGain {margin:6px 0 2px;display:flex;justify-content:center;align-items:center;gap:8px;}
+.bigGain b {font-size:30px;font-weight:900;color:#ffd977;line-height:1;}
+.capIcon,.inheritIcon {font-size:16px;color:#ffcf8a;font-weight:800;}
+.iconCompare {display:flex;justify-content:center;flex-wrap:wrap;gap:6px 14px;font-size:16px;font-variant-numeric:tabular-nums;}
+.iconCompare span {display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:8px;background:rgba(255,255,255,.06);}
+.iconCompare i {font-style:normal;}
+.iconCompare em {font-style:normal;opacity:.7;}
+.iconCompare b {color:#ffd977;}
+.starUp {color:#7dff9c;font-weight:900;animation:pop 0.9s ease-out both;}
+.next i {font-style:normal;margin-right:2px;}
