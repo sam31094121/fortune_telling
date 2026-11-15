@@ -1,9 +1,11 @@
 const assert = require('node:assert/strict');
 const core = require('../.beast-game-build/lib/beast-game');
+// 網址可用 BEAST_TEST_BASE_URL 指定（預設維持原本的本機 8888），避免把測試綁死在特定埠。
+const BASE = (process.env.BEAST_TEST_BASE_URL || 'http://localhost:8888').replace(/\/$/, '');
 (async () => {
   const ids = core.playableCards().map((card) => card.id);
   const lineup = core.buildLineup(ids, core.createRng(1));
-  const response = await fetch('http://localhost:8888/api/beast-game', {
+  const response = await fetch(BASE + '/api/beast-game', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ lineup, replaySeed: 1, stake: ids[0] }),
   });
@@ -18,7 +20,7 @@ const core = require('../.beast-game-build/lib/beast-game');
   const fusionSlot=[0,1].find(index=>core.seriesFusionMaterial(lineup,index));
   assert.notEqual(fusionSlot,undefined,'測試陣容必須有相生席位');
   if(fusionSlot!==undefined){
-    const fusedResponse=await fetch('http://localhost:8888/api/beast-game',{
+    const fusedResponse=await fetch(BASE + '/api/beast-game',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({lineup,replaySeed:1,stake:ids[0],fusionSlot}),
     });
@@ -35,7 +37,7 @@ const core = require('../.beast-game-build/lib/beast-game');
     if(firedOnSeed1)assert.ok(fused.timeline.some(entry=>entry.note.includes('暴怒合體')),'合體須能從前端戰報核對');
     let covered=firedOnSeed1;
     for(let seed=2;seed<40&&!covered;seed++){
-      const res=await (await fetch('http://localhost:8888/api/beast-game',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lineup,replaySeed:seed,stake:ids[0],fusionSlot})})).json();
+      const res=await (await fetch(BASE + '/api/beast-game',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lineup,replaySeed:seed,stake:ids[0],fusionSlot})})).json();
       assert.deepEqual(res.series,core.playSeries(lineup,res.opponentLineupIds,seed,res.fusion));
       if(res.series.pairs.flatMap(pair=>pair.actions).some(action=>action.side==='PLAYER'&&action.fusion)){
         assert.ok(res.timeline.some(entry=>entry.note.includes('暴怒合體')),'合體須能從前端戰報核對');
@@ -46,7 +48,7 @@ const core = require('../.beast-game-build/lib/beast-game');
     assert.ok(fused.series.pairs.flatMap(pair=>pair.actions).filter(action=>action.side==='PLAYER'&&action.fusion).length<=1);
     if(fused.winner==='PLAYER')assert.ok(fused.stake.gainedCount>=1&&fused.stake.gainedCount<=100,'技術型獎勵由 API 算，不由前端補算');
   }
-  const invalid=await fetch('http://localhost:8888/api/beast-game',{
+  const invalid=await fetch(BASE + '/api/beast-game',{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({lineup,replaySeed:1,stake:ids[0],fusionSlot:2}),
   });
