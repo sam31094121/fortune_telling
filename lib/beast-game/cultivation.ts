@@ -59,6 +59,7 @@ export function fuseCultivation(state: CultivationState, choices: readonly Fusio
     if (cultivationTarget(material.cardId) !== target.cardId) throw new Error('幼子只能合體對應本體，本體只能合體所屬四大神獸。');
     // Original formula: floor(material ORIGINAL attack / 10), minimum one.
     // A trained material does not transfer its bonus; no new growth formula is introduced.
+    // 2026-11-15 最新定案：材料消耗後不能再用；目標可用新的合法材料持續累加。
     const added = BigInt(Math.max(1, Math.floor(getCard(material.cardId)!.stats.attack / 10)));
     const before = exactBonus(target.bonus), after = before + added;
     cards = cards.filter(c => c.id !== material.id).map(c => c.id === target.id ? { ...c, bonus: after.toString() } : c);
