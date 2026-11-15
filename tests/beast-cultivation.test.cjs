@@ -56,16 +56,16 @@ class Repo {
   assert.throws(() => C.replaceCultivationMainTeam({ cards: main.slice(0, 4), protectedIds: [] }, main.map(c => c.id)));
   assert.throws(() => C.replaceCultivationMainTeam(original, ['adult', 'young', 'young2', 'main:0', 'main:1']), /不同/);
   assert.throws(() => C.replaceCultivationMainTeam({ ...original, cards: [...original.cards, copy('fake', 'invalid')] }, main.map(c => c.id)));
+  // 每張卡終身只能合體一次（業主定案 2026-11-15）：永久加成大於 0 就是已合體過，再合體整批退回、不扣材料
   const huge = state(); huge.cards.find(c => c.id === 'adult').bonus = '9'.repeat(400);
-  const increased = C.fuseCultivation(huge, [{ targetId: 'adult', materialId: 'young' }]);
-  assert.equal(BigInt(increased.changes[0].afterBonus) - BigInt(increased.changes[0].beforeBonus), BigInt(increased.changes[0].addedBonus));
+  assert.throws(() => C.fuseCultivation(huge, [{ targetId: 'adult', materialId: 'young' }]), /終身只能合體一次/);
   assert.throws(() => C.exactBonus('Infinity')); assert.throws(() => C.exactBonus('1e100')); assert.throws(() => C.exactBonus('-1'));
   const continued = state();
-  const batch = Array.from({ length: 2100 }, (_, i) => ({ targetId: 'adult', materialId: 'batch:' + i }));
-  continued.cards.push(...batch.map(c => copy(c.materialId, 'beast_y01')));
-  const grown = C.fuseCultivation(continued, batch);
-  assert.equal(grown.changes.length, 2100, 'no 100-card requirement or 2048-operation gameplay cap');
-  assert.equal(grown.changes.at(-1).afterBonus, String(2100 * Math.max(1, Math.floor(R.getCard('beast_y01').stats.attack / 10))));
+  continued.cards.push(copy('batch:0', 'beast_y01'), copy('batch:1', 'beast_y01'));
+  const once = C.fuseCultivation(continued, [{ targetId: 'adult', materialId: 'batch:0' }]);
+  assert.equal(once.changes.length, 1);
+  assert.throws(() => C.fuseCultivation(once.state, [{ targetId: 'adult', materialId: 'batch:1' }]), /終身只能合體一次/, '同一張卡第二次合體被擋');
+  assert.throws(() => C.fuseCultivation(continued, [{ targetId: 'adult', materialId: 'batch:0' }, { targetId: 'adult', materialId: 'batch:1' }]), /終身只能合體一次/, '同一批內重複合同一張也被擋');
   const repo = new Repo(), command = { type: 'FUSE', choices: [{ targetId: 'adult', materialId: 'young' }] };
   const twins = await Promise.all([T.transactCultivation(repo, 'test', 'same', '0', command), T.transactCultivation(repo, 'test', 'same', '0', command)]);
   assert.equal(repo.writes, 1); assert.equal(twins.filter(r => r.duplicate).length, 1);
