@@ -69,9 +69,11 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const face = (id: string) => {
     const c = pool.find(card => card.id === id)!;
     const skill = getSkill(c.skills[0]);
-    const owned=profile?.shared?.cards.find(c=>c.id===ownedEntries[id]);
+    // 已指定出戰副本就用那一張；沒指定就用這種神獸「最強的一張」照印（數字全是後端給的，這裡只比大小挑代表）。
+    const strongest=profile?.shared?.cards.filter(c=>c.cardId===id).sort((x,y)=>{try{const d=BigInt(y.bonus)-BigInt(x.bonus);return d>0n?1:d<0n?-1:0;}catch{return 0;}})[0];
+    const owned=profile?.shared?.cards.find(c=>c.id===ownedEntries[id])??strongest;
     const attack = owned ? {bonus:owned.bonus,attack:owned.orbAttack} : profile ? campaignCardAttack(profile, id) : null;
-    return <span className={picker.face}><BeastCardFace card={{ id: c.id, name: c.name, element: c.element, thumbnail: c.art.thumbnail, skillName: skill?.name, description: skill?.description }} />{attack && String(attack.bonus)!=='0' && <span className={picker.permanentBonus}>永久 +{attack.bonus} · 攻擊 {attack.attack}</span>}</span>;
+    return <span className={picker.face}><BeastCardFace card={{ id: c.id, name: c.name, element: c.element, thumbnail: c.art.thumbnail, skillName: skill?.name, description: skill?.description, attackOverride: attack && String(attack.bonus)!=='0' ? String(attack.attack) : undefined }} />{attack && String(attack.bonus)!=='0' && <b className={picker.permanentBonus} data-fused-badge>已合體 +{attack.bonus}</b>}</span>;
   };
   const load = async (who: Owner, repick = false, reset = false) => {
     loadRetry.current = { who, repick, reset };

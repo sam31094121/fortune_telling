@@ -352,6 +352,8 @@ function hasDesignedWeapon(weapon: { part: string }): boolean {
 
 export interface BeastTileCard {
   id: string;
+  /** 合體強化後的攻擊（後端算好的字串，只照印）。有值就取代卡檔原始攻擊顯示。 */
+  attackOverride?: string;
   name: string;
   thumbnail: string;
   element: string;
@@ -546,7 +548,7 @@ function FrameV1Tile({
               <span className={styles.fv1Atk}>
                 {typeof cost === 'number' && <span className={styles.fv1Cost} aria-hidden="true">{cost}</span>}
                 <span className={styles.fv1SkillName}>{shortSkill}</span>
-                {stats && <span className={styles.fv1Dmg}><small>攻</small>{stats.attack}</span>}
+                {stats && <span className={styles.fv1Dmg} data-fused={card.attackOverride ? 'true' : undefined}><small>攻</small>{card.attackOverride ?? stats.attack}</span>}
               </span>
             )}
             {skillText && <span className={styles.fv1Text}>{skillText}</span>}

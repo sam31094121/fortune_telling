@@ -17,14 +17,18 @@ function OwnedCampaignPreparation({ owned, selected, busy, onToggle, onConfirm, 
   onToggle: (id: string) => void; onConfirm: () => void;
   onReplace:(oldId:string,newId:string)=>void;
 }) {
+  // 合體強化的數字全由後端算好（共同卡庫檢視）；這裡只挑「最強的那一張」當代表並照印，不自己算。
+  const view = readSharedCultivation();
+  const power = new Map((view?.cards ?? []).map(c => [c.id, c]));
+  const bonusOf = (id: string) => { try { return BigInt(power.get(id)?.bonus ?? '0'); } catch { return 0n; } };
   const kinds = useMemo(() => {
     const map = new Map<string, { head: StakeCard; ids: string[] }>();
-    for (const card of owned) {
+    for (const card of [...owned].sort((a, b) => (bonusOf(b.id) > bonusOf(a.id) ? 1 : bonusOf(b.id) < bonusOf(a.id) ? -1 : 0))) {
       const entry = map.get(card.cardId);
       if (entry) entry.ids.push(card.id); else map.set(card.cardId, { head: card, ids: [card.id] });
     }
     return [...map.values()];
-  }, [owned]);
+  }, [owned, view?.revision]);
   return <section className={styles.panel} data-owned-campaign-team>
     <h2>親選五張出戰卡</h2>
     <p>選五種不同神獸，第一張為主戰。出戰與押注分開確認。</p>
@@ -37,8 +41,11 @@ function OwnedCampaignPreparation({ owned, selected, busy, onToggle, onConfirm, 
         return <button type="button" key={head.cardId} data-team-copy={targetId} aria-pressed={index >= 0}
           disabled={busy || (index < 0 && selected.length >= 5)}
           onClick={() => onToggle(targetId)}>
-          <CatalogBeastCard id={head.cardId} />
-          <strong>{head.name}</strong><small>持有 {ids.length} 張 {index >= 0 ? `・第 ${index + 1} 位` : ''}</small>
+          {(() => { const fused = power.get(targetId); const on = fused && bonusOf(targetId) > 0n;
+            return <>
+              <CatalogBeastCard id={head.cardId} attackOverride={on ? fused.orbAttack : undefined} />
+              <strong>{head.name}</strong>{on && <b data-fused-badge style={{ display: 'block', fontSize: 16, fontWeight: 800, color: '#fde68a' }}>已合體 +{fused.bonus}</b>}<small>持有 {ids.length} 張 {index >= 0 ? `・第 ${index + 1} 位` : ''}</small>
+            </>; })()}
         </button>;
       })}
     </div>
