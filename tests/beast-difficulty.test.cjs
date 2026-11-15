@@ -159,7 +159,9 @@ check('困難頁：只有押注戰用困難，體驗戰維持簡單，並明白�
   const page = fs.readFileSync('app/beast-game/battlefield/page.tsx', 'utf8');
   // 2026-09-15 後端化：難度由困難戰場 API 依押注決定，頁面不自己決定。
   assert.match(fs.readFileSync('app/api/beast-game/battlefield/route.ts', 'utf8'), /difficulty: stakeCount > 0 \? 'HARD' : 'EASY'/);
-  assert.match(page, /data-boss-notice>困難：易經是首領/);
+  // 已核定的 2026-11-12 版面把提示集中在「？」卡；不恢復舊固定文案。
+  assert.match(page, /data-battle-help aria-label="玩法說明與戰報"/);
+  assert.match(page, /setBattleHelp\(/, '客戶仍可開啟玩法及首領提示');
   assert.ok(!/線上對戰|真人對戰/.test(page), '不得宣稱真人');
 });
 
@@ -173,7 +175,7 @@ check('首領預告在戰鬥畫面看得到：預告時照印對策，生效後�
   assert.match(bossNotice(warned), /暫停/, '要附對策');
   assert.match(bossNotice(advance(warned, ATTACK, ATTACK)), /你的魔珠全部被封印/);
   const page = fs.readFileSync('app/beast-game/battlefield/page.tsx', 'utf8');
-  assert.match(page, /liveNotice && <p role="status"[^>]*data-boss-live>/, '困難頁要把後端送來的提示放在操作區');
+  assert.match(page, /liveNotice && <section><h2>🐉 預告<\/h2><p role="status"[^>]*data-boss-live>\{liveNotice\}/, '玩法說明照印後端預告與對策');
   assert.match(fs.readFileSync('app/api/beast-game/battlefield/route.ts', 'utf8'), /notice: bossNotice\(match\)/, '首領提示由後端產生');
 });
 

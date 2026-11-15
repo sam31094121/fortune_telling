@@ -22,7 +22,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const results = []; let ws; const errors = [];
 try {
   let target;
-  for (let i = 0; i < 50 && !target; i++) { await sleep(200); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find(t => t.type === 'page' && t.url === 'about:blank'); } catch {} }
+  for (let i = 0; i < 150 && !target; i++) { await sleep(200); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find(t => t.type === 'page' && t.url === 'about:blank'); } catch {} }
   assert(target, 'Headless Edge did not start');
   ws = new WebSocket(target.webSocketDebuggerUrl);
   await new Promise(r => ws.addEventListener('open', r, { once: true }));
@@ -82,21 +82,22 @@ try {
     await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 2, mobile: width < 768 });
     await send('Page.navigate', { url: `${base}/beast-game/match3-hard` });
     await wait(`document.querySelector('[data-testid="match3-player-choice"]')`);
-    await click('[data-testid="play-self"]');
+    // Animation fixtures use an isolated guest session. Real shared inventory
+    // and authoritative victories are covered by beast-cultivation-mobile.cjs.
+    await click('[data-testid="play-guest"]');
     await wait(`document.querySelector('[data-testid="pick-hero"]') || document.querySelector('[data-testid="match3-board"]')`);
     if(await js('!!document.querySelector("[data-testid=pick-hero]")')) {
       await click('[data-testid="pick-hero"]'); await click('[data-testid="confirm-hero"]');
       await wait(`document.querySelectorAll('[data-testid="pick-card"]').length>=4`);
       const choices=await js(`[...document.querySelectorAll('[data-testid="pick-card"]')].slice(0,4).map(c=>c.dataset.id)`);
       for(const id of choices)await click('[data-testid="pick-card"][data-id="'+id+'"]');
+      // Wait for the real selection flow; never force-enable the start button.
+      await wait(`(()=>{const b=document.querySelector('[data-testid="start-battle"]');return b&&!b.disabled;})()`);
+      await js(`(()=>{const key='match3-hard-campaign-guest-v1',p=JSON.parse(sessionStorage.getItem(key));p.wins=${wins};sessionStorage.setItem(key,JSON.stringify(p));})()`);
       await click('[data-testid="start-battle"]');
     }
     await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===56`);
-    await js(`(()=>{const key='match3-hard-campaign-self-v1',p=JSON.parse(localStorage.getItem(key));p.wins=${wins};localStorage.setItem(key,JSON.stringify(p));localStorage.setItem('match3-hard-progress-self-v1','${wins}');})()`);
-    await send('Page.reload');
-    await wait(`document.querySelector('[data-testid="match3-player-choice"]')`);
-    await click('[data-testid="play-self"]');
-    await wait(`document.querySelectorAll('[data-testid="match3-board"] [data-r]').length===56`); await sleep(300);
+    await sleep(300);
   };
   const state = async (fixture=false) => js(`(()=>{
     const root=document.querySelector('[data-testid="match3-board"]');

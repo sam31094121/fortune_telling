@@ -1,0 +1,178 @@
+[
+  {
+    "task": "test:three-core",
+    "exit": 0
+  },
+  {
+    "task": "test:three-in-one",
+    "exit": 0
+  },
+  {
+    "task": "test:bazi-contract",
+    "exit": 0
+  },
+  {
+    "task": "test:taiji-ios",
+    "exit": 0
+  },
+  {
+    "task": "test:ghost-asura-skill",
+    "exit": 0
+  },
+  {
+    "task": "test:nine-grid-asura-fusion",
+    "exit": 0
+  },
+  {
+    "task": "test:ghost-asura-skill-file",
+    "exit": 0
+  },
+  {
+    "task": "test:ghost-asura-customer-output",
+    "exit": 0
+  },
+  {
+    "task": "test:ghost-asura-three-core-voice",
+    "exit": 0
+  },
+  {
+    "task": "test:ghost-asura-life-stages",
+    "exit": 0
+  },
+  {
+    "task": "test:ghost-asura-seal-voice",
+    "exit": 0
+  },
+  {
+    "task": "test:ghost-asura-gold-wording",
+    "exit": 0
+  },
+  {
+    "task": "test:ghost-asura-card-toggle",
+    "exit": 0
+  },
+  {
+    "task": "test:beast-game",
+    "exit": 0
+  },
+  {
+    "task": "test:beast-ritual",
+    "exit": 0
+  },
+  {
+    "task": "test:beast-clip",
+    "exit": 0
+  },
+  {
+    "task": "test:beast-voice",
+    "exit": 0
+  },
+  {
+    "task": "test:beast-battlefield",
+    "exit": 0
+  },
+  {
+    "task": "test:beast-bridge",
+    "exit": 0
+  },
+  {
+    "task": "test:beast-interactive:full",
+    "exit": 0
+  },
+  {
+    "task": "test:beast-difficulty",
+    "exit": 1
+  },
+  {
+    "task": "test:iching-sources",
+    "exit": 1
+  },
+  {
+    "task": "test:ziwei-quanshu",
+    "exit": 0
+  },
+  {
+    "task": "test:ziwei-wording-authority",
+    "exit": 0
+  },
+  {
+    "task": "test:mobile-zoom-pan",
+    "exit": 0
+  },
+  {
+    "task": "test:locked-cards",
+    "exit": 0
+  },
+  {
+    "task": "test:share-version",
+    "exit": 1
+  },
+  {
+    "task": "test:beast-backend-only",
+    "exit": 0
+  },
+  {
+    "task": "test:beast-battle-dock",
+    "exit": 0
+  },
+  {
+    "task": "test:beast-rig-body",
+    "exit": 0
+  },
+  {
+    "task": "test:true-solar-time",
+    "exit": 0
+  },
+  {
+    "task": "test:credibility-wording",
+    "exit": 0
+  },
+  {
+    "task": "test:soul-match",
+    "exit": 0
+  },
+  {
+    "task": "test:nameology-grids",
+    "exit": 1
+  },
+  {
+    "task": "test:nine-grid",
+    "exit": 1
+  },
+  {
+    "task": "test:model-lab-lattice",
+    "exit": 0
+  },
+  {
+    "task": "test:taiji-square-cavity",
+    "exit": 0
+  },
+  {
+    "task": "test:model-lab-projection",
+    "exit": 0
+  },
+  {
+    "task": "test:model-lab-multiverse",
+    "exit": 0
+  },
+  {
+    "task": "test:taiji-4d-cells",
+    "exit": 0
+  },
+  {
+    "task": "test:taiji-contact-ribs",
+    "exit": 0
+  },
+  {
+    "task": "test:model-lab-equal-edge",
+    "exit": 0
+  },
+  {
+    "task": "test:taiji-hollow-squares",
+    "exit": 0
+  },
+  {
+    "task": "test:model-lab-4d-audit",
+    "exit": 0
+  }
+]

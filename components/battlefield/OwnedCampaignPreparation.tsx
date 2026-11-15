@@ -42,7 +42,7 @@ function OwnedCampaignPreparation({ owned, selected, busy, onToggle, onConfirm, 
         </button>;
       })}
     </div>
-    {selected.map((id,index)=>{const card=owned.find(c=>c.id===id);if(!card)return null;const copies=owned.filter(c=>c.cardId===card.cardId),view=readSharedCultivation();return <label key={id} style={{display:'block',margin:'12px 0'}}>第 {index+1} 位・{card.name}<select data-card-owned-copy={card.cardId} value={id} disabled={busy} onChange={e=>onReplace(id,e.target.value)} style={{display:'block',minHeight:48,maxWidth:'100%'}}>{copies.map((c,i)=>{const stats=view?.cards.find(s=>s.id===c.id);return <option key={c.id} value={c.id}>收藏第 {i+1} 份{stats?`・永久 +${stats.bonus}・攻擊 ${stats.battleAttack}`:''}</option>;})}</select></label>;})}
+    {selected.map((id,index)=>{const card=owned.find(c=>c.id===id);if(!card)return null;const copies=owned.filter(c=>c.cardId===card.cardId),view=readSharedCultivation();return <label key={id} style={{display:'block',margin:'12px 0'}}>第 {index+1} 位・{card.name}<select data-card-owned-copy={card.cardId} value={id} disabled={busy} onChange={e=>onReplace(id,e.target.value)} style={{display:'block',minHeight:48,maxWidth:'100%',background:'#0f172a',color:'#fff7ed',border:'1px solid #bca777',borderRadius:8,padding:8}}>{copies.map((c,i)=>{const stats=view?.cards.find(s=>s.id===c.id);return <option key={c.id} value={c.id}>收藏第 {i+1} 份{stats?`・永久 +${stats.bonus}・攻擊 ${stats.battleAttack}`:''}</option>;})}</select></label>;})}
     <button type="button" className={styles.confirm} data-confirm-owned-team disabled={busy || selected.length !== 5} onClick={onConfirm}>
       {busy ? '正在準備陣容…' : '確認五張，前往押注'}
     </button>

@@ -109,6 +109,7 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
   vm.runInNewContext(compile('lib/beast-game/match3/hard-campaign.ts'), { module: campaignModule, exports: campaignModule.exports, require: id => {
     if (id === '../registry') return require('../.beast-game-build/lib/beast-game/registry');
     if (id === '../card-face-stats') return { CARD_FACE_STATS: realStats };
+    if (id === './treasures') return require('../.beast-game-build/lib/beast-game/match3/treasures');
     return require(id);
   } });
   const C = campaignModule.exports;
@@ -145,6 +146,11 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
       if (id === '@/lib/beast-game/match3/hard-campaign-store') return store;
       if (id === './Match3Board') return { default: Board };
       if (id === './CampaignEnhancement') return { default: () => null };
+      if (id === './SharedCultivationPanel') return { default: () => null };
+      if (id === '@/lib/beast-cultivation-client') return {
+        syncSharedCultivation: () => { throw new Error('Guest must not access owned inventory'); },
+        sharedRequest: () => { throw new Error('Guest must not mutate owned inventory'); },
+      };
       if (id === './CampaignBackup') return { default: () => null };
       if (id === './BeastCardTile') return { BeastCardFace: CardFace };
       if (id.endsWith('.css')) return { default: {} };
