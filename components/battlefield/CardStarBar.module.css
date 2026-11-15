@@ -6,3 +6,4 @@
 .power {color:#ffd977;font-weight:700;}
 .next {opacity:.92;}
 .next b {color:#ffd977;}
+.iconLine {display:inline-flex;gap:6px;align-items:center;font-size:12px;}

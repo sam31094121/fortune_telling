@@ -31,3 +31,16 @@
   .pair[data-absorbing=true] > :first-child, .pair[data-absorbing=true] > :last-child {animation:none;}
   .pop {animation:none;opacity:1;}
 }
+/* 純圖示版（神獸戰鬥）：大數字、圖示、無說明文字。 */
+.iconCard {padding:10px 10px 12px;}
+.eatMark {position:absolute;right:-8px;bottom:-6px;font-size:20px;filter:drop-shadow(0 1px 2px #000);}
+.bigGain {margin:6px 0 2px;display:flex;justify-content:center;align-items:center;gap:8px;}
+.bigGain b {font-size:30px;font-weight:900;color:#ffd977;line-height:1;}
+.capIcon,.inheritIcon {font-size:16px;color:#ffcf8a;font-weight:800;}
+.iconCompare {display:flex;justify-content:center;flex-wrap:wrap;gap:6px 14px;font-size:16px;font-variant-numeric:tabular-nums;}
+.iconCompare span {display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:8px;background:rgba(255,255,255,.06);}
+.iconCompare i {font-style:normal;}
+.iconCompare em {font-style:normal;opacity:.7;}
+.iconCompare b {color:#ffd977;}
+.starUp {color:#7dff9c;font-weight:900;animation:pop 0.9s ease-out both;}
+.next i {font-style:normal;margin-right:2px;}

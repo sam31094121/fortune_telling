@@ -577,7 +577,7 @@ function BattlefieldScreen() {
                   card={cards.find(card => card.id === (outcome.gainedCardId ?? outcome.forfeitedCardId ?? outcome.stakes.player))}
                   cards={cards} settlement={settlement} isReplay={false} retrying={settling} onRetry={() => void retrySettlement()} />}
                 {/* 食物鏈：押注戰贏到的卡順著線拿去強化——回到選隊並打開「我的卡片・永久強化」預選，仍要按確認（9A）。 */}
-                {outcome?.verdict === 'WON' && outcome.gainedCardId && settlement?.saved === true && !playing && !isTrial && (() => { const feed = feedShortcutFor(outcome.gainedCardId); return feed ? <button type="button" className={styles.restart} data-battle-feed-shortcut data-feed-target={feed.targetCardId} disabled={settling} onClick={() => { requestFeedShortcut(outcome.gainedCardId!); redeal(); setCultivationOpen(true); setPrepareView('formation'); }}><span>拿去強化</span>〈{feed.targetName}〉</button> : null; })()}
+                {outcome?.verdict === 'WON' && outcome.gainedCardId && settlement?.saved === true && !playing && !isTrial && (() => { const feed = feedShortcutFor(outcome.gainedCardId); return feed ? <button type="button" className={styles.restart} data-battle-feed-shortcut data-feed-target={feed.targetCardId} aria-label={`拿去強化〈${feed.targetName}〉`} style={{ minWidth: 56, minHeight: 48, fontSize: 24, lineHeight: 1 }} disabled={settling} onClick={() => { requestFeedShortcut(outcome.gainedCardId!); redeal(); setCultivationOpen(true); setPrepareView('formation'); }}><span aria-hidden="true">🍴➜⬆</span></button> : null; })()}
                 {match ? (
                   <>
                     {/* 首領預告放在操作區最上方：收在戰報裡客戶看不到，就不算預告。文字由後端 bossNotice 產生送來。 */}
