@@ -31,7 +31,7 @@ export interface FoodChainParams {
 }
 
 /**
- * 待平衡暫定值。星級：截至完成時仍未收到確切數字，依指示暫用 B（依序減半）、四大神獸 1000 張、本體 100 張。
+ * 待平衡暫定值。星級：22:39 使用者定案 B（第五星 1/2、第四 1/4、第三 1/8、第一二各 1/16），四大神獸封頂 1000、本體暫定 100。
  */
 export const FOOD_CHAIN_V2: FoodChainParams = {
   attackCap: { num: 1, den: 2 },
@@ -54,7 +54,8 @@ export function receiptRule(value: unknown): FoodChainRule {
  * 五顆星的「累計」門檻（第 n 顆星要累計被餵幾張）。第五星佔封頂一半，所以四星滿＝封頂一半。
  *   A：前四顆平分剩下一半 → 累計 1/8、2/8、3/8、4/8、1
  *   B：依序減半 → 第四星 1/4、第三 1/8、第二與第一各 1/16 → 累計 1/16、1/8、1/4、1/2、1
- * 取整（待定）：累計值無條件進位，例 1000 張 B → 63、125、250、500、1000。
+ * 取整（22:39 使用者定案 B；取整須保證五顆星張數總和＝封頂）：累計值無條件進位、最後一顆固定到封頂，
+ *   例 1000 張 B → 累計 63、125、250、500、1000（各星 63＋62＋125＋250＋500＝1000）；100 張 → 7、13、25、50、100（7＋6＋12＋25＋50＝100）。
  */
 export function starThresholds(capFeeds: number, mode: StarSplitMode): number[] {
   if (!Number.isSafeInteger(capFeeds) || capFeeds < 1) throw new Error('星級封頂張數無效。');
@@ -63,13 +64,16 @@ export function starThresholds(capFeeds: number, mode: StarSplitMode): number[] 
   return [...cumulative, capFeeds].map((v, i, all) => Math.max(v, i ? all[i - 1] : 1));
 }
 
-export interface StarProgress { stars: number; fed: number; capFeeds: number; nextAt: number | null; toNext: number | null; maxed: boolean; thresholds: number[]; mode: StarSplitMode }
+/**
+ * ascension：預留給日後「突破線」的欄位，本輪不啟用、沒有任何規格，一律 null（天賦網格、技能打扮同樣不做）。
+ */
+export interface StarProgress { stars: number; fed: number; capFeeds: number; nextAt: number | null; toNext: number | null; maxed: boolean; thresholds: number[]; mode: StarSplitMode; ascension: null }
 
 export function starProgress(form: FeedTargetForm, fed: number, params: FoodChainParams = FOOD_CHAIN_V2): StarProgress {
   const capFeeds = params.stars.capFeeds[form], thresholds = starThresholds(capFeeds, params.stars.mode);
   const count = Math.max(0, Math.floor(fed));
   const stars = thresholds.filter(t => count >= t).length, nextAt = stars < 5 ? thresholds[stars] : null;
-  return { stars, fed: count, capFeeds, nextAt, toNext: nextAt === null ? null : nextAt - count, maxed: count >= capFeeds, thresholds, mode: params.stars.mode };
+  return { stars, fed: count, capFeeds, nextAt, toNext: nextAt === null ? null : nextAt - count, maxed: count >= capFeeds, thresholds, mode: params.stars.mode, ascension: null };
 }
 
 /** 加成上限（以卡面原始攻擊為基準，取整）。 */

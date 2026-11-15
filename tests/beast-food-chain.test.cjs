@@ -42,6 +42,11 @@ let checks = 0; const ok = (...a) => { assert.ok(...a); checks++; }; const eq = 
   assert.deepEqual(Ru.starThresholds(100, 'B'), [7, 13, 25, 50, 100]);
   assert.deepEqual(Ru.starThresholds(100, 'A'), [13, 25, 38, 50, 100]);
   for (const mode of ['A', 'B']) for (const cap of [1, 2, 5, 16, 100, 999, 1000]) { const t = Ru.starThresholds(cap, mode); eq(t.length, 5); eq(t[4], cap); ok(t.every((v, i) => !i || v >= t[i - 1])); }
+  // 22:39 定案 B：五顆星各自張數總和＝封頂（取整保證）；突破線欄位只預留、不啟用。
+  for (const cap of [1, 3, 7, 16, 100, 101, 999, 1000, 1001]) { const t = Ru.starThresholds(cap, 'B'); const per = t.map((v, i) => v - (i ? t[i - 1] : 0)); eq(per.reduce((x, y) => x + y, 0), cap); eq(per[4], cap - t[3]); }
+  assert.deepEqual(Ru.starThresholds(1000, 'B').map((v, i, a) => v - (i ? a[i - 1] : 0)), [63, 62, 125, 250, 500]); checks++;
+  eq(Ru.FOOD_CHAIN_V2.stars.mode, 'B'); eq(Ru.FOOD_CHAIN_V2.stars.capFeeds.GUARDIAN, 1000); eq(Ru.FOOD_CHAIN_V2.stars.capFeeds.ADULT, 100);
+  eq(Ru.starProgress('ADULT', 3).ascension, null, 'ascension reserved, not enabled');
   const sp = Ru.starProgress('GUARDIAN', 124); eq(sp.stars, 1); eq(sp.toNext, 1); eq(sp.nextAt, 125); eq(sp.maxed, false);
   eq(Ru.starProgress('GUARDIAN', 1000).stars, 5); eq(Ru.starProgress('GUARDIAN', 1000).toNext, null); eq(Ru.starProgress('GUARDIAN', 1000).maxed, true);
   eq(Ru.starProgress('ADULT', 0).stars, 0); eq(Ru.starProgress('ADULT', 0).toNext, 7);

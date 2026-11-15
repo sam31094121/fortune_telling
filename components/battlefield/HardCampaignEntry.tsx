@@ -14,6 +14,7 @@ import { BeastCardFace } from './BeastCardTile';
 import Match3Board from './Match3Board';
 import CampaignEnhancement from './CampaignEnhancement';
 import SharedCultivationPanel from './SharedCultivationPanel';
+import CardStarBar, { type CardStarInfo } from './CardStarBar';
 import { feedTargetCardId, peekFeedShortcut } from '@/lib/beast-food-chain-client';
 import { syncSharedCultivation, sharedRequest } from '@/lib/beast-cultivation-client';
 import { refreshSharedCampaign, inspectCampaignSave, repairUnreadableCampaign, UNREADABLE_BACKUP_SUFFIX, adoptServerCampaign, rawCampaignSave, type CampaignMismatch } from '@/lib/beast-game/match3/hard-campaign-store';
@@ -223,6 +224,7 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
     <div className={styles.pickTabs}>{(['ALL', ...MATCH3_ORB_ELEMENTS] as const).map(e => <button type="button" key={e} aria-pressed={tab === e} onClick={() => setTab(e)}>{e === 'ALL' ? '全部' : MATCH3_ORB_LABEL[e]}</button>)}</div>
     <h2 className={picker.sectionTitle}>已獲成獸</h2>{collection.adults.length === 0 && <p className={styles.hint}>贏得第一場，即可獲得第一張成獸卡。</p>}<div className={picker.cardGrid}>{shown.filter(c => collection.adults.some(a => a.cardId === c.id)).map(c => <button type="button" className={picker.cardChoice} key={c.id} data-testid="pick-card" data-id={c.id} data-el={c.element} aria-label={`${c.name}，攻擊 ${CARD_FACE_STATS[c.id].attack}`} aria-pressed={selected.includes(c.id)} onClick={() => toggle(c.id)}>
       {face(c.id)}<span className={picker.choiceState}>{kin(c.id)}已獲 {collection.adults.find(a => a.cardId === c.id)?.count} 張 · {selected.includes(c.id) ? '已選夥伴' : '點選出戰'}</span>
+      {owner === 'self' && (() => { const copies = (profile.shared?.cards ?? []).filter(x => x.cardId === c.id) as (NonNullable<Profile['shared']>['cards'][number] & { fed?: number; stars?: CardStarInfo; bonusPercent?: string; atBonusCap?: boolean })[]; const shown = copies.find(x => x.id === ownedEntries[c.id]) ?? [...copies].sort((x, y) => (y.fed ?? 0) - (x.fed ?? 0))[0]; return shown?.stars ? <CardStarBar stars={shown.stars} percent={shown.bonusPercent} atCap={shown.atBonusCap} /> : null; })()}
       {owner === 'self' && feedTargetCardId(c.id) && <span className={picker.choiceState} data-feed-to={feedTargetCardId(c.id)!}><span>可餵給</span> {pool.find(p => p.id === feedTargetCardId(c.id))?.name}</span>}
     </button>)}</div>
     {owner === 'self' && <CampaignBackup onImported={() => { void load('self', true); }} />}

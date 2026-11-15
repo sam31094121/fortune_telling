@@ -2,6 +2,7 @@
 
 import { memo, useMemo } from 'react';
 import CatalogBeastCard from './CatalogBeastCard';
+import CardStarBar from './CardStarBar';
 import type { StakeCard } from './StakeSlot';
 import styles from './OwnedCampaignPreparation.module.css';
 import {readSharedCultivation} from '@/lib/beast-cultivation-client';
@@ -44,7 +45,7 @@ function OwnedCampaignPreparation({ owned, selected, busy, onToggle, onConfirm, 
           {(() => { const fused = power.get(targetId); const on = fused && bonusOf(targetId) > 0n;
             return <>
               <CatalogBeastCard id={head.cardId} attackOverride={on ? fused.orbAttack : undefined} />
-              <strong>{head.name}</strong>{on && <b data-fused-badge style={{ display: 'block', fontSize: 16, fontWeight: 800, color: '#fde68a' }}>已合體 +{fused.bonus}</b>}<small>持有 {ids.length} 張 {index >= 0 ? `・第 ${index + 1} 位` : ''}</small>
+              <CardStarBar stars={fused?.stars} percent={fused?.bonusPercent} atCap={fused?.atBonusCap} /><strong>{head.name}</strong>{on && <b data-fused-badge style={{ display: 'block', fontSize: 16, fontWeight: 800, color: '#fde68a' }}>已合體 +{fused.bonus}</b>}<small>持有 {ids.length} 張 {index >= 0 ? `・第 ${index + 1} 位` : ''}</small>
             </>; })()}
         </button>;
       })}

@@ -37,6 +37,14 @@ const cards = [...mainIds.map((cardId, i) => ({ id: 'main:' + i, cardId, bonus: 
   const preview = await post({ type: 'PREVIEW', revision: '0', choices: [{ targetId: 'adult', materialId: 'young', bonus: '99999', addedBonus: '99999' }], addedBonus: '99999', attack: 9999 });
   assert.equal(preview.status, 200, preview.error); assert.equal(preview.feedback[0].addedBonus, '3'); assert.equal(preview.feedback[0].afterOrbAttack, '59');
   assert.equal(memory.writes, 0, 'preview never writes');
+  // 即時預覽：選定目標一次回每張候選材料的加成與星級變化（只讀）。
+  const live = await post({ type: 'PREVIEW_TARGET', revision: '0', targetId: 'adult' });
+  assert.equal(live.status, 200, live.error); assert.deepEqual(live.options.map(o => o.materialId).sort(), ['young', 'young2']);
+  assert.ok(live.options.every(o => o.feedback.addedBonus === '3' && o.feedback.addedPercent.label === '5' && o.feedback.starsBefore.stars === 0 && o.feedback.starsAfter.toNext === 6));
+  const liveQ = await post({ type: 'PREVIEW_TARGET', revision: '0', targetId: 'qinglong' });
+  assert.deepEqual(liveQ.options.map(o => o.materialId), ['adult'], 'only the strict next layer is offered');
+  assert.equal((await post({ type: 'PREVIEW_TARGET', revision: '9', targetId: 'adult' })).ok, false);
+  assert.equal(memory.writes, 0, 'live preview never writes');
   // 兩台裝置同時吃同一張材料：只能一成一敗，材料只少一張、加成只加一次。
   const [a, b] = await Promise.all([
     post({ type: 'FUSE', revision: '0', operationId: 'device-A', choices: [{ targetId: 'adult', materialId: 'young' }] }),

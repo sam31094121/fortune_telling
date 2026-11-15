@@ -23,12 +23,12 @@ export default function FoodChainFeedback({ change, phase }: { change: Cultivati
     </div>
     <p className={styles.who}><strong data-fc-material>{change.materialName}</strong><span aria-hidden="true"> → </span><strong data-fc-target>{change.targetName}</strong></p>
     <p className={styles.gain} data-fc-gain={change.addedBonus}>
-      <span>攻擊</span> <b>+{change.addedBonus}</b> <span className={styles.pct}><span>（約</span> <span data-fc-percent>+{change.addedPercent.label}%</span><span>）</span></span>
+      <span>攻擊</span> <b>+{change.addedBonus}</b> <span className={styles.pct}>· <span>約</span> <span data-fc-percent>+{change.addedPercent.label}%</span></span>
     </p>
     <dl className={styles.compare}>
       <div data-fc-orb><dt>寶石捷連線攻擊</dt><dd><span>{change.beforeOrbAttack}</span><span aria-hidden="true"> → </span><b>{change.afterOrbAttack}</b></dd></div>
       <div data-fc-battle><dt>神獸戰鬥攻擊</dt><dd><span>{change.beforeBattleAttack}</span><span aria-hidden="true"> → </span><b>{change.afterBattleAttack}</b></dd></div>
-      <div data-fc-total><dt>累計永久加成</dt><dd><span>+{change.beforeBonus}</span><span aria-hidden="true"> → </span><b>+{change.afterBonus}</b> <small><span>（約</span> +{change.totalPercentAfter.label}%<span>）</span></small></dd></div>
+      <div data-fc-total><dt>累計永久加成</dt><dd><span>+{change.beforeBonus}</span><span aria-hidden="true"> → </span><b>+{change.afterBonus}</b> <small>· <span>約</span> +{change.totalPercentAfter.label}%</small></dd></div>
     </dl>
     {change.inheritedBonus && change.inheritedBonus !== '0' && <p className={styles.note} data-fc-inherited={change.inheritedBonus}><span>含本體累積加成傳承</span> <b>+{change.inheritedBonus}</b></p>}
     {change.capped && <p className={styles.note} data-fc-capped><span>{zero ? '攻擊加成已達上限（卡面 50%），這次只累積星級。' : '已到攻擊加成上限（卡面 50%），這次只加到上限。'}</span></p>}
@@ -36,6 +36,6 @@ export default function FoodChainFeedback({ change, phase }: { change: Cultivati
       <span>星級</span>{before && before.stars !== s.stars ? <><Stars count={before.stars} /><span aria-hidden="true">→</span></> : null}<Stars count={s.stars} />
       {s.toNext !== null ? <span className={styles.next}><span>下一星還差</span> <b data-fc-to-next>{s.toNext}</b> <span>張</span></span> : <span className={styles.next} data-fc-maxed><span>已五星封頂</span></span>}
     </div>}
-    {phase === 'preview' && <p className={styles.warn} data-fc-consume><span>確認後</span><strong>{change.materialName}</strong><span>會被吃掉（永久消耗）</span></p>}
+    {phase === 'preview' && <p className={styles.warn} data-fc-consume><span>確認後</span>{' '}<strong>{change.materialName}</strong>{' '}<span>會被吃掉（永久消耗）</span></p>}
   </section>;
 }

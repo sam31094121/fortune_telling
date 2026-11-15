@@ -5,6 +5,7 @@ import { takeFeedShortcut, FOOD_CHAIN_SHORTCUT } from '@/lib/beast-food-chain-cl
 import type { CultivationFeedback } from '@/lib/beast-game/cultivation-view';
 import CatalogBeastCard from './CatalogBeastCard';
 import FoodChainFeedback from './FoodChainFeedback';
+import CardStarBar from './CardStarBar';
 import styles from './OwnedCampaignPreparation.module.css';
 
 export default function SharedCultivationPanel({onSaved,onDone}:{onSaved?:()=>void;onDone?:()=>void}) {
@@ -29,10 +30,21 @@ export default function SharedCultivationPanel({onSaved,onDone}:{onSaved?:()=>vo
     setShortcut(null);
   },[shortcut,view]);
   useEffect(()=>{alive.current=true;void load();const update=()=>{const value=readSharedCultivation();if(value)setView(value);};window.addEventListener(SHARED_UPDATED,update);return()=>{alive.current=false;window.removeEventListener(SHARED_UPDATED,update);};},[]);
-  useEffect(()=>{let active=true;setPreview(null);operation.current=null;
+  // 即時預覽：選定目標就向伺服端一次取回每張候選材料的「攻擊 +N・約 +X%・星級變化」（只讀），選材料時立刻顯示，不用再等一趟。
+  const [options,setOptions]=useState<{targetId:string;revision:string;byId:Record<string,{feedback?:CultivationFeedback;error?:string}>}|null>(null);
+  useEffect(()=>{let active=true;
+    if(target&&view)void sharedRequest({type:'PREVIEW_TARGET',revision:view.revision,targetId:target}).then(r=>{if(active)setOptions({targetId:target,revision:view.revision,byId:Object.fromEntries((r.options??[]).map((o:{materialId:string;feedback?:CultivationFeedback;error?:string})=>[o.materialId,o]))});}).catch(()=>{if(active)setOptions(null);});
+    else setOptions(null);
+    return()=>{active=false;};
+  },[target,view?.revision]);
+  useEffect(()=>{let active=true;operation.current=null;
+    const known=options&&options.targetId===target&&options.revision===view?.revision?options.byId[material]:undefined;
+    if(known?.feedback){setPreview(known.feedback);setError('');return;}
+    setPreview(null);
+    if(known?.error){setError(known.error);return;}
     if(target&&material&&view)void sharedRequest({type:'PREVIEW',revision:view.revision,choices:[{targetId:target,materialId:material}]}).then(r=>{if(active){setPreview(r.feedback?.[0]??null);setError('');}}).catch(e=>{if(active)setError(e.message);});
     return()=>{active=false;};
-  },[target,material,view?.revision]);
+  },[target,material,view?.revision,options]);
   const save=async(type:'MAIN_TEAM'|'FUSE')=>{
     if(!view||busy)return;setBusy(true);setError('');operation.current??=crypto.randomUUID();
     try{const result=await navigator.locks.request('tdh-beast-collection',{ifAvailable:true},lock=>{if(!lock)throw new Error('另一分頁正在戰鬥或保存，請先完成。');return sharedRequest({type,revision:view.revision,operationId:operation.current,...(type==='MAIN_TEAM'?{ids:main}:{choices:[{targetId:target,materialId:material}]})});});
@@ -59,8 +71,8 @@ export default function SharedCultivationPanel({onSaved,onDone}:{onSaved?:()=>vo
       </button>)}</div>
       <button type="button" className={styles.confirm} data-save-main disabled={busy||!!view.pendingBattle||main.length!==5} onClick={()=>void save('MAIN_TEAM')}>確認這五隻主力</button>
       <h3>② 選擇要強化的神獸</h3><p>同星宿幼子 → 本體；本體 → 所屬四大神獸。每次只消耗親選的材料副本。</p>
-      <div className={styles.grid}>{view.cards.filter(c=>c.form!=='YOUNG').map(card=><button key={card.id} type="button" data-shared-target={card.id} disabled={busy||!!view.pendingBattle} aria-pressed={target===card.id} onClick={()=>{setTarget(card.id);setMaterial('');setMessage('');setSaved(null);}}><CatalogBeastCard id={card.cardId}/><strong>{card.name}</strong><small>永久 +{card.bonus} · 寶石攻擊 {card.orbAttack} · 神獸戰鬥攻擊 {card.battleAttack}</small>{card.stars&&<small className={styles.starLine} data-target-stars={card.stars.stars}><span aria-hidden="true">{'★'.repeat(card.stars.stars)}{'☆'.repeat(5-card.stars.stars)}</span> {card.stars.toNext===null?<span>已五星封頂</span>:<><span>下一星還差</span> {card.stars.toNext} <span>張</span></>}{card.atBonusCap?<> · <span>攻擊加成已滿</span></>:null}</small>}</button>)}</div>
-      {targetCard&&<><h3>③ 選擇對應材料</h3><div className={styles.grid}>{view.cards.filter(c=>!c.protected&&c.materialTargetCardId===targetCard.cardId).map(card=><button key={card.id} type="button" data-shared-material={card.id} disabled={busy||!!view.pendingBattle} aria-pressed={material===card.id} onClick={()=>setMaterial(card.id)}><CatalogBeastCard id={card.cardId}/><strong>{card.name}</strong>{card.bonus!=='0'&&<small>永久 +{card.bonus}</small>}</button>)}</div>
+      <div className={styles.grid}>{view.cards.filter(c=>c.form!=='YOUNG').map(card=><button key={card.id} type="button" data-shared-target={card.id} disabled={busy||!!view.pendingBattle} aria-pressed={target===card.id} onClick={()=>{setTarget(card.id);setMaterial('');setMessage('');setSaved(null);}}><CatalogBeastCard id={card.cardId}/><strong>{card.name}</strong><small>永久 +{card.bonus} · 寶石攻擊 {card.orbAttack} · 神獸戰鬥攻擊 {card.battleAttack}</small>{card.stars&&<span data-target-stars={card.stars.stars}><CardStarBar stars={card.stars} percent={card.bonusPercent} atCap={card.atBonusCap}/></span>}</button>)}</div>
+      {targetCard&&<><h3>③ 選擇對應材料</h3><div className={styles.grid}>{view.cards.filter(c=>!c.protected&&c.materialTargetCardId===targetCard.cardId).map(card=><button key={card.id} type="button" data-shared-material={card.id} disabled={busy||!!view.pendingBattle} aria-pressed={material===card.id} onClick={()=>setMaterial(card.id)}><CatalogBeastCard id={card.cardId}/><strong>{card.name}</strong>{(()=>{const o=options?.targetId===target?options.byId[card.id]:undefined;if(!o)return null;if(o.error)return <small className={styles.feedChip} data-feed-chip-error>{o.error}</small>;const f=o.feedback!;return <small className={styles.feedChip} data-feed-chip={f.addedBonus}><span>攻擊</span> +{f.addedBonus} · <span>約</span> +{f.addedPercent.label}%{f.starsBefore&&f.starsAfter?<><br/>★{f.starsBefore.stars}→★{f.starsAfter.stars}{f.starsAfter.toNext!==null?<> · <span>下一星還差</span> {f.starsAfter.toNext} <span>張</span></>:<> · <span>已五星封頂</span></>}</>:null}</small>;})()}{card.bonus!=='0'&&<small>永久 +{card.bonus}</small>}</button>)}</div>
         {!view.cards.some(c=>!c.protected&&c.materialTargetCardId===targetCard.cardId)&&<p role="status" data-no-material>目前沒有可以餵給這張卡的材料（鎖定主力不能當材料）。</p>}</>}
       {preview&&<div data-shared-preview><FoodChainFeedback change={preview} phase="preview"/></div>}
       <button ref={confirmRef} type="button" className={`${styles.confirm} ${styles.feedbackAnchor}`} data-confirm-shared-fusion disabled={busy||!preview||!!view.pendingBattle} onClick={()=>void save('FUSE')}>{busy?'正在保存…':'確認消耗材料並合體'}</button>
