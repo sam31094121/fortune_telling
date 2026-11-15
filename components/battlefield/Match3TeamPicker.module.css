@@ -27,6 +27,7 @@
 .enhancementFaces { display: grid; grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr); gap: 5px; max-width: 460px; margin: 0 auto; }
 .enhancementArrow { align-self: center; text-align: center; font-size: 24px; color: #e5ce98; }
 .enhancementEquation, .permanentBonus { display: block; padding: 8px 4px; color: #ffe3a0; font-size: 14px; line-height: 1.6; }
+.permanentBonus[data-fused-badge] { color: #fde68a; font-size: 16px; font-weight: 800; padding: 4px; }
 .enhancementStats { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
 .enhancementStats dd { margin: 0; font-variant-numeric: tabular-nums; }
 @media (min-width: 600px) { .cardGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } }

@@ -817,3 +817,5 @@
 .fv1Face .fv1Card { display: block; }
 
 .fullFaceThumb { display: block; width: 100%; aspect-ratio: 63 / 88; }
+/* 合體強化後的攻擊數字：金色，一眼看出變強了（數字由後端提供） */
+.fv1Dmg[data-fused="true"] { color: #fde68a; text-shadow: 0 0 6px rgba(253, 230, 138, 0.7); }
