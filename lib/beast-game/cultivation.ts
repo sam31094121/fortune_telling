@@ -59,8 +59,6 @@ export function fuseCultivation(state: CultivationState, choices: readonly Fusio
     if (cultivationTarget(material.cardId) !== target.cardId) throw new Error('幼子只能合體對應本體，本體只能合體所屬四大神獸。');
     // Original formula: floor(material ORIGINAL attack / 10), minimum one.
     // A trained material does not transfer its bonus; no new growth formula is introduced.
-    // 業主定案（2026-11-15）：每張卡終身只能合體一次。永久加成大於 0 就代表這張已合體過（含舊版寶珠強化）。
-    if (exactBonus(target.bonus) > 0n) throw new Error('這張卡已合體過一次，每張卡終身只能合體一次，未扣材料。');
     const added = BigInt(Math.max(1, Math.floor(getCard(material.cardId)!.stats.attack / 10)));
     const before = exactBonus(target.bonus), after = before + added;
     cards = cards.filter(c => c.id !== material.id).map(c => c.id === target.id ? { ...c, bonus: after.toString() } : c);

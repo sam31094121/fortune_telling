@@ -11,7 +11,6 @@ export function cultivationView(snapshot: CultivationSnapshot) {
     const bonus = exactBonus(copy.bonus);
     return { id: copy.id, cardId: copy.cardId, name: card.name, form: card.form,
       protected: snapshot.state.protectedIds.includes(copy.id), materialTargetCardId: cultivationTarget(copy.cardId),
-      fused: bonus > 0n,
       bonus: bonus.toString(), orbAttack: (BigInt(card.stats.attack) + bonus).toString(),
       battleAttack: (BigInt(newMatch([card.id], [card.id], 0).player.team[0].attack) + bonus).toString() };
   });
