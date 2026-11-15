@@ -74,7 +74,8 @@ function Strike({ rig, root, strike, tear, onImpact }: { rig: BeastRig; root: Re
       event.fired = true; impactCallback.current(event.key);
     }
     if (!card.current) return;
-    card.current.style.opacity = t >= RIG_CARD_HIDDEN[0] && t < RIG_CARD_HIDDEN[1] ? '0' : '';
+    // 出擊中原卡留淡淡的殘影（不留空框）；神獸本體在上層畫布。只改 opacity，不觸發重排。
+    card.current.style.opacity = t >= RIG_CARD_HIDDEN[0] && t < RIG_CARD_HIDDEN[1] ? '0.3' : '';
     const holder = card.current.closest('[data-testid="match3-ally"]');
     if (t < 1) holder?.setAttribute('data-rig-active', 'true'); else restore();
   }, [restore]);

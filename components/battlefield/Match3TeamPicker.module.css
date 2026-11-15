@@ -85,3 +85,19 @@
 
 .enhancementFaces[data-enhancement-animation] .enhancementMaterial p { visibility: hidden; }
 .enhancementCloseup { overscroll-behavior: contain; }
+/* 中斷／壞檔修復：主要動作金色、至少 48px，次要動作在旁。 */
+.recovery { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0; }
+.recovery > p { flex-basis: 100%; }
+.recoveryPrimary { min-height: 48px; padding: 10px 20px; border-radius: 10px; border: 1px solid #f0d295; background: linear-gradient(135deg, #ead39f, #c8a66a); color: #241c11; font-size: 16px; font-weight: 800; box-shadow: 0 0 0 1px #f0d29566, 0 3px 14px #d0ac6330; }
+.recoveryPrimary:disabled { opacity: .6; }
+/* 選隊頁：開戰按鈕固定在畫面底部，選滿不用往下找。 */
+.stickyStart { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; margin: 0; padding: 14px 12px max(10px, env(safe-area-inset-bottom)); background: linear-gradient(180deg, #0b0a1000, #0b0a10ee 34%); }
+.stickyStart > button { margin-top: 0; min-height: 48px; max-width: 420px; width: 100%; }
+/* 固定開戰列不遮住最後一排卡片 */
+.stickyHost { padding-bottom: 96px; }
+/* 重新整理後自動重打的提示：浮在頂列下方（不蓋頂列按鈕、不擋寶珠盤），不吃觸控，6 秒淡出；不佔版面（無位移）。 */
+.resumeNotice { position: fixed; z-index: 30; left: 50%; top: 52px; transform: translateX(-50%); width: min(92vw, 420px); margin: 0; padding: 10px 14px; box-sizing: border-box;
+  border-radius: 10px; border: 1px solid rgba(232,196,108,.55); background: rgba(16,14,20,.94); color: #f4ead2; font-size: 14px; line-height: 1.5; pointer-events: none;
+  animation: resumeNoticeOut 6.5s ease forwards; }
+@keyframes resumeNoticeOut { 0%, 85% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .resumeNotice { animation: resumeNoticeOut 6.5s steps(1, end) forwards; } }

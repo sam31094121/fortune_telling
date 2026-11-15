@@ -125,6 +125,9 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
   const store = {
     readCampaign: () => readFails ? ({ok:false,profile:null,error:'測試進度暫時無法讀取'}) : ({ ok: true, profile }),
     readLegacyCampaignStatus: () => ({ canImport: false, legacyWins: 0 }),
+    inspectCampaignSave: () => ({ unreadable: false, raw: null }),
+    repairUnreadableCampaign: async () => ({ ok: true }),
+    UNREADABLE_BACKUP_SUFFIX: '.unreadable-backup',
     resetGuestCampaign: async () => ({ ok: true, profile: profile = C.newCampaign() }),
     selectCampaignHero: async (_, id) => ({ ok: true, profile: profile = C.chooseCampaignHero(profile, id) }),
     saveCampaignTeam: async (_, ids) => {
@@ -155,6 +158,7 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
         sharedRequest: () => { throw new Error('Guest must not mutate owned inventory'); },
       };
       if (id === './CampaignBackup') return { default: () => null };
+      if (id === './EnhanceAura') return { default: () => null };
       if (id === './BeastCardTile') return { BeastCardFace: CardFace };
       if (id.endsWith('.css')) return { default: {} };
       return require(id);

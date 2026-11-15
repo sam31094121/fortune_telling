@@ -93,6 +93,29 @@ export const importLegacyCampaign = (): Promise<CampaignResult> => transaction('
   return write('self', newCampaign(Math.max(own.profile.wins, state.legacyWins)));
 }, failed);
 
+/** 讀不懂的存檔（格式或紀錄不一致）。只檢查、不改動；不把「瀏覽器不允許儲存」誤判成存檔壞掉。 */
+export const UNREADABLE_BACKUP_SUFFIX = '.unreadable-backup';
+export function inspectCampaignSave(owner: CampaignOwner): { unreadable: boolean; raw?: string; backupSaved?: boolean } {
+  try {
+    const store = storage(owner), raw = store.getItem(keys[owner]);
+    if (raw === null) return { unreadable: false };
+    try { parseCampaign(raw); return { unreadable: false }; } catch { return { unreadable: true, raw, backupSaved: store.getItem(keys[owner] + UNREADABLE_BACKUP_SUFFIX) === raw }; }
+  } catch { return { unreadable: false }; }
+}
+/**
+ * 修復讀不懂的存檔：先把原文完整另存備份並確認，再移除壞檔，改用既有「沒有存檔」的讀法重新讀取。
+ * 不改任何進度規則：勝場只來自既有來源（共同卡庫伺服器帳本或舊進度紀錄），不憑空補發。
+ */
+export const repairUnreadableCampaign = (owner: CampaignOwner): Promise<CampaignResult> => transaction(owner, () => {
+  const store = storage(owner), raw = store.getItem(keys[owner]);
+  if (raw === null) return readCampaign(owner);
+  try { parseCampaign(raw); return readCampaign(owner); } catch { /* 確認是壞檔才修 */ }
+  const backup = keys[owner] + UNREADABLE_BACKUP_SUFFIX;
+  store.setItem(backup, raw);
+  if (store.getItem(backup) !== raw) throw new Error('原存檔備份尚未確認，沒有做任何更動，請重試');
+  store.removeItem(keys[owner]);
+  return readCampaign(owner);
+}, failed);
 /** A file transfer, not cloud sync. Never export guest or an unsaved migration. */
 export function exportCampaignBackup(owner: CampaignOwner): { ok: boolean; backup?: string; error?: string } {
   try {

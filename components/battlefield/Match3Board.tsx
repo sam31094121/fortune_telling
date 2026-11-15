@@ -139,7 +139,7 @@ const OrbCell = memo(function OrbCell({ r, c, e, mp, sel, flash, shake, drop, sh
       data-fall-from={fall?.fromRow} data-fall-delay={fall?.delayMs}
       style={fall ? { ['--fall-offset' as string]: `calc(-${(r - fall.fromRow) * 100}% - ${r - fall.fromRow} * var(--orb-gap))`, ['--fall-delay' as string]: `${fall.delayMs}ms`, ['--fall-duration' as string]: `${fall.durationMs}ms`, ['--fall-opacity' as string]: fall.fromRow < 0 ? 0 : 1 } : undefined}
       aria-label={`${MATCH3_ORB_LABEL[e]}${mp ? `魔法珠威力${mp}` : '珠'}`}>
-      <span className={styles.gem} aria-hidden="true" />
+      <span className={styles.gem} aria-hidden="true">{mp ? <i className={styles.facet} /> : <i className={styles.sweep} />}</span>
       {shield ? (mp < 7 && <Match3ElementGlyph element={e} className={styles.elementGlyph} />) : <span className={styles.lbl} aria-hidden="true">{MATCH3_ORB_LABEL[e]}</span>}
       {mp > 0 && (shield && mp >= 7 ? <img className={styles.shieldOrb} src="/pwa/save-shield-080.png" alt={`080 ${MATCH3_ORB_LABEL[e]}屬性清場盾牌`} draggable={false} /> : <span className={styles.power} aria-hidden="true">{mp}</span>)}
     </div>
@@ -421,7 +421,9 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const autoLinkMoves = useRef(-1);
   const autoLinkHold = useRef(false);
   const fireLinkWithRef = useRef<(ids: string[], source?: 'button' | 'auto' | 'tap') => Promise<boolean>>(async () => false);
-  const compactReserve = useRef<{ chrome: number; wrapH: number; teamH: number } | null>(null);
+  const compactReserve = useRef<{ chrome: number; wrapH: number; teamH: number; hold?: { g1: number; g2: number; below: number; teamH: number; vw: number; vh: number } } | null>(null);
+  // 手機 B 版面已量到「棋盤以上」間距：最後一隻放大那一次 render 就直接凍結（React 屬性，與放大同一幀生效）。
+  const holdTopReady = useRef(false);
   // 米其林 11/14：分出勝負（擊倒最後一隻、魔王爆炸）時不再重算棋盤寬與放大卡空間，也不還原 --compact-board-width，
   // 版面凍結到結算畫面出現為止（1280 寶珠不再 57.7→73.14px、手機放大卡不再縮回一排）。下一局（over 清空）再恢復量測。
   useLayoutEffect(() => {
@@ -475,16 +477,51 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
         const lastAllyOn = teamEl?.getAttribute('data-last-ally') === 'true';
         const foeEnlarged = foesEl?.getAttribute('data-guardian-duel') === 'true' || foesEl?.getAttribute('data-last-foe') === 'true';
         const liveChrome = flowHeight - box.height;
-        if (teamEl && !lastAllyOn && !foeEnlarged) compactReserve.current = { chrome: liveChrome, wrapH: flowHeight, teamH: teamEl.getBoundingClientRect().height };
+        // 手機 flex 版面（B 版）：記住「多隻小卡」時棋盤以上的兩段間距與棋盤以下的空白。
+        // 最後一隻放大時棋盤以上照原位凍結（棋盤、敵方列不位移，CLS≈0），大卡只吃棋盤以下的空白。
+        // 每次「多隻小卡」的量測都更新間距（在棋盤寬度設定之後），放大那一刻棋盤停在前一刻的位置。
+        if (teamEl && !lastAllyOn && !foeEnlarged) compactReserve.current = { chrome: liveChrome, wrapH: flowHeight, teamH: teamEl.getBoundingClientRect().height, hold: compactReserve.current?.hold };
         const chrome = (lastAllyOn || foeEnlarged) && compactReserve.current ? compactReserve.current.chrome : liveChrome;
         const available = height - chrome - 1;
         const cell = Math.max(18, Math.min((contentWidth - horizontal - (cfg.cols - 1) * number(style.columnGap)) / cfg.cols, (available - vertical - (cfg.rows - 1) * number(style.rowGap)) / cfg.rows));
         const width = cell * cfg.cols + (cfg.cols - 1) * number(style.columnGap) + horizontal;
         const value = Math.round(width) + 'px';
         if (element.style.getPropertyValue('--compact-board-width') !== value) element.style.setProperty('--compact-board-width', value);
+        if (teamEl && !lastAllyOn && !foeEnlarged && compactReserve.current) {
+          // 棋盤寬度設定之後才量（getBoundingClientRect 會拿到這一幀最終版面），否則第一幀量到的是舊棋盤尺寸，間距偏大。
+          const box2 = boardElement.getBoundingClientRect();
+          let hold: { g1: number; g2: number; below: number; teamH: number; vw: number; vh: number } | undefined;
+          const headEl = element.querySelector<HTMLElement>('header'), treasEl = element.querySelector<HTMLElement>('[data-testid="orb-treasures"]');
+          if (wrapStyle.display.includes('flex') && headEl && foesEl && treasEl) {
+            const hb = headEl.getBoundingClientRect(), fb = foesEl.getBoundingClientRect(), tb = teamEl.getBoundingClientRect(), rb = treasEl.getBoundingClientRect(), trs = getComputedStyle(treasEl);
+            const boardBottomOuter = box2.bottom + number(style.marginBottom);
+            // 量到的是「兩區塊外框之間」的距離，含 flex gap 與上一塊的 margin-bottom；換成 margin-top 時要扣掉，否則凍結那一幀會多推一個 gap。
+            const rg = number(wrapStyle.rowGap), hs = getComputedStyle(headEl), fs = getComputedStyle(foesEl), ts = getComputedStyle(teamEl);
+            hold = { g1: Math.max(0, fb.top - hb.bottom - number(hs.marginBottom) - rg), g2: Math.max(0, box2.top - fb.bottom - number(fs.marginBottom) - rg), below: Math.max(0, rb.top - number(trs.marginTop) - boardBottomOuter - tb.height - 2 * rg - number(ts.marginTop) - number(ts.marginBottom)), teamH: tb.height, vw: window.innerWidth, vh: height };
+          }
+          compactReserve.current.hold = hold;
+          holdTopReady.current = !!hold;
+          if (hold) {
+            const g1 = `${Math.round(hold.g1 * 100) / 100}px`, g2 = `${Math.round(hold.g2 * 100) / 100}px`;
+            if (element.style.getPropertyValue('--hold-g1') !== g1) element.style.setProperty('--hold-g1', g1);
+            if (element.style.getPropertyValue('--hold-g2') !== g2) element.style.setProperty('--hold-g2', g2);
+            // 預先算好最保守的大卡寬（所有在場我方卡圖中最直的比例）：放大那一幀就不會超出，之後量到實際卡圖只會一樣或更大。
+            const leftoverPre = hold.teamH + hold.below - 8;
+            const ratios = Array.from(teamEl.querySelectorAll<HTMLImageElement>('[data-testid="match3-ally"] img')).map(i => i.naturalWidth > 0 && i.naturalHeight > 0 ? i.naturalWidth / i.naturalHeight : 1);
+            const rMin = ratios.length ? Math.min(...ratios) : 1;
+            const pre = Math.max(0, Math.min(contentWidth * 0.72, 290, leftoverPre > 19 ? (leftoverPre - 19) * rMin : 0));
+            const preVal = `${Math.round(pre * 100) / 100}px`;
+            if (element.style.getPropertyValue('--last-ally-max') !== preVal) element.style.setProperty('--last-ally-max', preVal);
+            // 比例也一併預設成最直的那張：大卡登場第一幀高度＝寬÷比例，剛好落在預算內，不會先撐高一幀再縮回。
+            const preRatio = String(Math.round(rMin * 1000) / 1000);
+            if (element.style.getPropertyValue('--last-ally-art-ratio') !== preRatio) element.style.setProperty('--last-ally-art-ratio', preRatio);
+          }
+        }
         if (lastAllyOn && teamEl) {
           const reserve = compactReserve.current;
-          const leftover = reserve ? reserve.teamH + Math.max(0, height - reserve.wrapH) : 0;
+          const hold = wrapStyle.display.includes('flex') ? reserve?.hold : undefined;
+          // 凍結棋盤以上時，大卡可用高度＝原隊伍列＋棋盤以下的空白（留 8px 與棋盤分開）；其餘情況照原本算法。
+          const leftover = reserve ? (hold ? hold.teamH + hold.below - 8 : reserve.teamH + Math.max(0, height - reserve.wrapH)) : 0;
           const live = Array.from(teamEl.querySelectorAll<HTMLElement>('[data-testid="match3-ally"]')).find(a => Number(a.getAttribute('data-hp')) > 0);
           const img = live?.querySelector('img');
           if (img && !img.naturalWidth) img.addEventListener('load', schedule, { once: true });
@@ -495,7 +532,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
           const ratioVal = String(Math.round(ratio * 1000) / 1000);
           if (element.style.getPropertyValue('--last-ally-max') !== maxVal) element.style.setProperty('--last-ally-max', maxVal);
           if (element.style.getPropertyValue('--last-ally-art-ratio') !== ratioVal) element.style.setProperty('--last-ally-art-ratio', ratioVal);
-        } else {
+        } else if (!holdTopReady.current) {
           element.style.removeProperty('--last-ally-max');
           element.style.removeProperty('--last-ally-art-ratio');
         }
@@ -509,6 +546,9 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     const schedule = () => { if (raf === null) raf = requestAnimationFrame(measure); };
     remeasure.current = schedule;
     const observer = new ResizeObserver(schedule); observer.observe(element); if (element.parentElement) observer.observe(element.parentElement);
+    // 手機 flex 版面的間距會隨敵方列、隊伍列（卡圖載入後）長高而改變，外殼高度卻不變；一併觀察這些區塊，凍結用的間距才是最新的一幀。
+    for (const sel of ['header', '[data-testid="match3-enemies"]', '[data-testid="orb-treasures"]']) { const child = element.querySelector(sel); if (child) observer.observe(child); }
+    { const team = element.querySelector('[data-testid="match3-ally"]')?.parentElement; if (team) observer.observe(team); }
     window.addEventListener('resize', schedule); window.addEventListener('scroll', schedule, { passive: true });
     viewport?.addEventListener('resize', schedule); viewport?.addEventListener('scroll', schedule);
     measure();
@@ -517,6 +557,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       if (previousCompactWidth) element.style.setProperty('--compact-board-width', previousCompactWidth); else element.style.removeProperty('--compact-board-width');
       element.style.removeProperty('--last-ally-max');
       element.style.removeProperty('--last-ally-art-ratio');
+      element.style.removeProperty('--hold-g1'); element.style.removeProperty('--hold-g2'); holdTopReady.current = false;
       window.removeEventListener('resize', schedule); window.removeEventListener('scroll', schedule);
       viewport?.removeEventListener('resize', schedule); viewport?.removeEventListener('scroll', schedule);
     };
@@ -1045,7 +1086,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   );
 
   return (
-    <section ref={root} className={styles.wrap} aria-busy={busy} data-match3-scroll-lock={scrollLocked && !help && !resultShown ? "true" : undefined} data-match3-battle-active={rigEnabled && !help && !resultShown ? "true" : undefined} data-mobile-actions={mobileActionless ? 'off' : 'on'} data-auto-link-ready={mobileActionless && autoLinkIds.length >= LINK_MIN_CARDS && !busy && !over && ti >= 0 ? 'true' : undefined} onPointerDownCapture={(e) => { audio.current?.unlock(); setIntro(false); if (mobileActionless && link.length && !(e.target instanceof Element && e.target.closest('[data-testid="match3-ally"]'))) { setLink([]); setLinkMode(false); } }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
+    <section ref={root} className={styles.wrap} aria-busy={busy} data-match3-scroll-lock={scrollLocked && !help && !resultShown ? "true" : undefined} data-match3-battle-active={rigEnabled && !help && !resultShown ? "true" : undefined} data-hold-top={lastAllyBig && holdTopReady.current ? 'true' : undefined} data-mobile-actions={mobileActionless ? 'off' : 'on'} data-auto-link-ready={mobileActionless && autoLinkIds.length >= LINK_MIN_CARDS && !busy && !over && ti >= 0 ? 'true' : undefined} onPointerDownCapture={(e) => { audio.current?.unlock(); setIntro(false); if (mobileActionless && link.length && !(e.target instanceof Element && e.target.closest('[data-testid="match3-ally"]'))) { setLink([]); setLinkMode(false); } }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
       {rigEnabled && <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: 'absolute', pointerEvents: 'none' }}>
         <defs>
           <clipPath id="match3-soft-space" clipPathUnits="objectBoundingBox"><path d="M .42 .1 Q .5 .02 .58 .1 L .9 .42 Q .98 .5 .9 .58 L .58 .9 Q .5 .98 .42 .9 L .1 .58 Q .02 .5 .1 .42 Z" /></clipPath>
@@ -1121,7 +1162,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
 
       {!log.startsWith('按住寶珠') && log ? <p className={rigEnabled ? styles.srOnly : styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
 
-      <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, ['--clear-duration' as string]: `${clearMs}ms` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" data-refill-epoch={rigEnabled ? refillEpoch : undefined} data-refilling={falling.size > 0 ? 'true' : undefined} data-chain-intent={rigEnabled ? chainIntent : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers} onPointerDown={(e) => { if ((link.length || linkMode) && !(e.target as HTMLElement).closest('[data-r]')) { setLink([]); setLinkMode(false); } if (!busy && !over && (e.target as HTMLElement).closest('[data-r]')) setDragging(true); drag.handlers.onPointerDown(e); }} onPointerUp={() => { setDragging(false); drag.handlers.onPointerUp(); }} onPointerCancel={() => { setDragging(false); drag.handlers.onPointerCancel(); }} onLostPointerCapture={() => setDragging(false)}>
+      <div ref={drag.ref} data-dragging={drag.path.length ? 'true' : undefined} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, ['--clear-duration' as string]: `${clearMs}ms` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" data-refill-epoch={rigEnabled ? refillEpoch : undefined} data-refilling={falling.size > 0 ? 'true' : undefined} data-chain-intent={rigEnabled ? chainIntent : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers} onPointerDown={(e) => { if ((link.length || linkMode) && !(e.target as HTMLElement).closest('[data-r]')) { setLink([]); setLinkMode(false); } if (!busy && !over && (e.target as HTMLElement).closest('[data-r]')) setDragging(true); drag.handlers.onPointerDown(e); }} onPointerUp={() => { setDragging(false); drag.handlers.onPointerUp(); }} onPointerCancel={() => { setDragging(false); drag.handlers.onPointerCancel(); }} onLostPointerCapture={() => setDragging(false)}>
         {board.map((row, r) => row.map((e, c) => { const kk = k(r, c); return (
           <OrbCell key={rigEnabled && (falling.has(kk) || flash.has(kk) || rewards.has(kk)) ? `${r}-${c}-${refillEpoch}` : `${r}-${c}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} shield={rigEnabled} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} fall={falling.get(kk)} empty={emptyCells.has(kk)} reward={rewards.has(kk)} />); }))}
         {shieldBurst && <div className={styles.shieldBurst} style={{ color: ORB_COLOR[shieldBurst] }} role="status" aria-label="080 盾牌清除同色寶珠"><span /><img src="/pwa/save-shield-080.png" alt="" draggable={false} /></div>}
@@ -1190,13 +1231,17 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
               message={savingReward ? '正在保存本局獎勵…' : wonCard ? `多了一張${wonCard.name}！已存入寶珠「我的卡片」，可選作下一局夥伴。` : (campaignSettlement?.error ?? '獎勵尚未保存。')}
               card={wonCard ? <BeastCardFace card={{ id: wonCard.id, name: wonCard.name, element: wonCard.element, thumbnail: wonCard.art.thumbnail, skillName: wonSkill?.name, description: wonSkill?.description }} /> : undefined}
               onRetry={() => void saveVictory()}
-              onViewCards={onRepick}
+              onViewCards={undefined}
               viewDisabled={busy}
             />
           )}
-          <p>{over === 'win' ? `共 ${moves} 步擊退敵方 ${foes.length} 隻神獸，總傷害 ${totalDmg}。` : '再來一局，換個打法試試。'}</p>
+          <p className={styles.resultSummary}>{over === 'win' ? `共 ${moves} 步擊退敵方 ${foes.length} 隻神獸，總傷害 ${totalDmg}。` : '再來一局，換個打法試試。'}</p>
           {progressSaveFailed && <p role="alert">此瀏覽器無法儲存進度，關閉頁面後可能遺失。</p>}
-          <button type="button" className={styles.again} disabled={busy || campaignAwaiting} onClick={restart}>{rigEnabled ? (over === 'win' ? '挑戰下一關' : '原難度重試') : '再來一局'}</button>
+          {/* 下一步：主按鈕金色＋次要「查看我的卡片」並排在底部固定列，任何寬度都看得到、不會被擠出或裁切。 */}
+          <div className={styles.resultFooter} data-testid="match3-result-actions">
+            {campaignEnabled && over === 'win' && wonCard && onRepick && <button type="button" className={`${styles.again} ${styles.resultSecondary}`} data-testid="match3-view-cards" disabled={busy} onClick={onRepick}>查看我的卡片</button>}
+            <button type="button" className={`${styles.again} ${styles.nextPrimary}`} data-testid="match3-next" disabled={busy || campaignAwaiting} onClick={restart}>{rigEnabled ? (over === 'win' ? (campaignAwaiting ? (savingReward ? '正在保存獎勵…' : '獎勵保存後才能前進') : '挑戰下一關 →') : '原難度重試') : '再來一局'}</button>
+          </div>
         </div>
       )}
       <AsuraDeathHost events={knockouts} root={root} startDelayMs={ev => deathDelay.current.get(ev.id) ?? 0} warm={deathWarm} srcOf={deathSrc} preloadBoss={deathBossPresent} bossOnStage={deathBossOnStage} onSettled={settleDeath} onEventFinished={finishDeath} />

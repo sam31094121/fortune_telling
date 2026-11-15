@@ -80,13 +80,22 @@ export function useDragChain(board: Board, enabled: boolean, onRelease: (path: C
 export function DragPathSvg({ points, color, luminous = false }: { points: DragPoint[]; color: string; luminous?: boolean }) {
   if (points.length === 0) return null;
   const d = points.map((p) => `${p.x},${p.y}`).join(' ');
+  const layer = { position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible', zIndex: 3 } as const;
+  const head = points[points.length - 1];
+  // 會動的流光與拖曳頭放在獨立一層（無濾鏡），每幀只重畫這層；帶發光濾鏡的路徑層只在進出格子時重畫（拖曳 90 FPS 預算）。
   return (
-    <svg aria-hidden="true" data-testid="drag-path" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible', zIndex: 3 }}>
-      <polyline points={d} fill="none" stroke="rgba(0,0,0,.55)" strokeWidth={14} strokeLinecap="round" strokeLinejoin="round" />
-      <polyline points={d} fill="none" stroke={color} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" />
-      {luminous && <polyline data-chain-flow="true" points={d} fill="none" stroke="#effdff" strokeWidth={2} strokeDasharray="8 26" strokeLinecap="round" strokeLinejoin="round" />}
-      {points.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r={i === points.length - 1 ? 9 : 6} fill="#fff" stroke={color} strokeWidth={3} />)}
-    </svg>
+    <>
+      <svg aria-hidden="true" data-testid="drag-path" style={layer}>
+        <polyline points={d} fill="none" stroke="rgba(0,0,0,.55)" strokeWidth={14} strokeLinecap="round" strokeLinejoin="round" />
+        <polyline points={d} fill="none" stroke={color} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" />
+        {points.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r={i === points.length - 1 ? 9 : 6} fill="#fff" stroke={color} strokeWidth={3} />)}
+      </svg>
+      {luminous && <svg aria-hidden="true" data-testid="drag-flow" style={layer}>
+        <polyline data-chain-flow="true" points={d} fill="none" stroke="#effdff" strokeWidth={2} strokeDasharray="8 26" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>}
+      {/* 拖曳頭用 HTML 圓點（transform 脈動走合成器，不必每幀重算樣式／重畫）。 */}
+      {luminous && <span aria-hidden="true" data-drag-head="true" style={{ position: 'absolute', left: head.x - 10.5, top: head.y - 10.5, width: 21, height: 21, boxSizing: 'border-box', borderRadius: '50%', background: 'var(--m3-head-fill, #fff)', border: `var(--m3-head-stroke, 3px) solid ${color}`, pointerEvents: 'none', zIndex: 3 }} />}
+    </>
   );
 }
 
