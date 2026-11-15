@@ -64,8 +64,15 @@ export async function sharedRequest(body?:Record<string,unknown>) {
   return result;
   }catch(error){if(error instanceof Error&&/[\u3400-\u9fff]/.test(error.message))throw error;throw new Error('連線或保存尚未確認，請重試同一次操作。');}
 }
+let synchronizing:Promise<SharedCultivationView>|null=null;
+/** Share same-page reads (including StrictMode mounts), while other tabs still use the lock. */
+export function syncSharedCultivation(options?:{waitForSave?:boolean}):Promise<SharedCultivationView> {
+  if(synchronizing)return synchronizing;
+  const pending=syncSharedCultivationOnce(options).finally(()=>{if(synchronizing===pending)synchronizing=null;});
+  synchronizing=pending;return pending;
+}
 /** Hold the same cross-tab lock as both local game ledgers during migration/cache updates. */
-export async function syncSharedCultivation(options?:{waitForSave?:boolean}):Promise<SharedCultivationView> {
+async function syncSharedCultivationOnce(options?:{waitForSave?:boolean}):Promise<SharedCultivationView> {
   if(!navigator.locks)throw new Error('請使用支援安全保存的瀏覽器。');
   return navigator.locks.request('tdh-beast-collection',options?.waitForSave?{signal:AbortSignal.timeout(20000)}:{ifAvailable:true},async lock=>{
     if(!lock)throw new Error('另一分頁正在戰鬥或保存，請先完成再重試。');

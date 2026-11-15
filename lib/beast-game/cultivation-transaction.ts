@@ -16,7 +16,7 @@ export interface CultivationSnapshot {
   orbTreasures?: import('./match3/treasures').TreasureBook;
   cardOutcomes?: Record<string,string>;
   exchanges?: Record<string,{kind:string;cardId:string}>;
-  orbRun?: {id:string;version:number;seed:number;input:import('./match3/resolve-turn').TurnInput;last?:{version:number;command:string;response:unknown}};
+  orbRun?: {id:string;version:number;seed:number;totalDamage?:number;lastDamage?:number;input:import('./match3/resolve-turn').TurnInput;last?:{version:number;command:string;response:unknown}};
   orbLedger?: { wins:number; rewards:import('./match3/hard-campaign').CampaignReward[]; receipts:import('./match3/hard-campaign').CampaignReward[] };
   hold?: { id: string; kind: 'card' | 'orb'; entries: {id:string;cardId:string}[]; bonuses: Record<string,string>; stakeIds: string[] };
 }

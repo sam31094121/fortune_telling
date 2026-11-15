@@ -18,5 +18,9 @@ const view=(revision,id)=>({revision,cards:[{id,cardId:'beast_a01',bonus:'0'}],c
  await client.sharedRequest();response=view('1','old');const late=await client.sharedRequest();assert.equal(late.view.revision,'2');assert.equal(JSON.parse(values.get('tdh_beast_collection_v1')).cards[0].id,'new');
  const original=storage.setItem;storage.setItem=(k,v)=>{if(k==='tdh_beast_collection_v1')throw Error('disk unavailable');original(k,v)};response=view('3','saved-server-side');await assert.rejects(client.sharedRequest());storage.setItem=original;await client.sharedRequest();assert.equal(JSON.parse(values.get('tdh_beast_collection_v1')).cards[0].id,'saved-server-side');
  global.navigator.locks.request=async(name,options,fn)=>{assert.equal(options.ifAvailable,true);return fn(null)};await assert.rejects(client.syncSharedCultivation(),/另一分頁/);
+ let locks=0,release;global.navigator.locks.request=async(name,options,fn)=>{locks++;return fn({name});};
+ global.fetch=()=>new Promise(resolve=>{release=()=>resolve({ok:true,json:async()=>({ok:true,view:view('4','shared-read')})});});
+ const first=client.syncSharedCultivation(),second=client.syncSharedCultivation();assert.equal(first,second,'same-page StrictMode reads share the operation');assert.equal(locks,1);release();assert.deepEqual(await first,await second);
+ global.fetch=async()=>({ok:true,json:async()=>({ok:true,view:view('5','fresh-read')})});await client.syncSharedCultivation();assert.equal(locks,2,'later reads still refresh');
  console.log('PASS client: late response cannot roll back inventory; local-save failure stays retryable and recovers same server revision; another-tab battle fails promptly instead of waiting indefinitely.');
 })().catch(e=>{console.error(e.stack);process.exitCode=1});

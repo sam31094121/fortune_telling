@@ -68,6 +68,7 @@ export function fuseCultivation(state: CultivationState, choices: readonly Fusio
     if (cultivationTarget(material.cardId) !== target.cardId) throw new Error('幼子只能合體對應本體，本體只能合體所屬四大神獸。');
     const targetCard = getCard(target.cardId)!, materialCard = getCard(material.cardId)!;
     const before = exactBonus(target.bonus);
+    // 2026-11-15 最新定案：材料消耗後不能再用；目標可用新的合法材料持續累加。
     // v1 (original): floor(material ORIGINAL attack / 10), minimum one; a trained material does not transfer its bonus; no cap.
     // v2 (food chain, 待平衡暫定值): + 50% inheritance from an eaten adult, capped at 50% of the target's face attack; five-star feed cap.
     const gain = feedGain(rule, { materialForm: materialCard.form, materialBaseAttack: materialCard.stats.attack, materialBonus: exactBonus(material.bonus), targetBaseAttack: targetCard.stats.attack, targetBonus: before }, params);

@@ -40,9 +40,17 @@ function findChain(b,magic,colors){for(let r=0;r<b.length;r++)for(let c=0;c<b[0]
    const body={...s,team:s.team.map(t=>({...t,hp:t.maxHp})),foes:s.foes.map(f=>({...f,hp:0})),path:chain,target,actionId:'gesture:'+turns,sharedBattleToken:start.token,sharedVersion:run.version};
    const parallel=turns===0?await Promise.all([post(orbApi,body),post(orbApi,body)]):[await post(orbApi,body)];const r=parallel[0];if(parallel[1])assert.deepEqual(r,parallel[1]);assert.equal(r.status,200,JSON.stringify(r));
    if(turns===0){const duplicate=await post(orbApi,body);assert.deepEqual(r,duplicate);assert.equal((await repo.read(owner)).orbRun.version,1);const bad=await post(orbApi,{...body,target:(target+1)%5});assert.equal(bad.status,400);assert.equal((await repo.read(owner)).orbLedger.wins,0,'fabricated client zero HP did not win');}
+   if(turns===0){const saved=await repo.read(owner),resume=await post(api,{type:'ORB_RESUME',battleId:start.battleId});assert.equal(resume.status,200);assert.deepEqual(resume.initial,saved.orbRun.input);assert.equal(resume.version,1);assert.deepEqual(await repo.read(owner),saved);}
    finished=(await repo.read(owner)).orbLedger.wins===1;turns++;lastBody=body;
   }
   assert(finished,'real server battle reached victory');
+  const beforeResume=await repo.read(owner),resumed=await post(api,{type:'ORB_RESUME',battleId:start.battleId});
+  assert.equal(resumed.status,200);assert.deepEqual(resumed.initial,beforeResume.orbRun.input);assert.equal(resumed.version,beforeResume.orbRun.version);
+  assert.deepEqual(await repo.read(owner),beforeResume,'resume is read-only, including won battle rewards');
+  assert.equal((await post(api,{type:'ORB_RESUME',battleId:'orb:other'})).status,400);
+  await assert.rejects(orb.resumeSharedOrb('f'.repeat(64),start.battleId),'another owner cannot resume');
+  assert.equal(resumed.totalDamage,beforeResume.orbRun.totalDamage);assert.equal(resumed.lastDamage,beforeResume.orbRun.lastDamage);
+  if(process.env.ORB_RECOVERY_ONLY==='1'){console.log('PASS actual Supabase orb recovery: exact board/magic/HP/energy/counters/turn and damage totals; active and won states; no mutation or duplicate grant; wrong battle/owner refused.');return;}
   let saved=await repo.read(owner);assert.equal(saved.state.cards.length,6);assert.equal(saved.pendingBattle,null);assert.equal(saved.orbLedger.receipts.length,1);
   const finalReplay=await post(orbApi,lastBody);assert.equal(finalReplay.status,200);assert.equal((await repo.read(owner)).state.cards.length,6);
   const dealt=await post(battleApi,{type:'DEAL',campaign:true,selectedEntries:cards.map(({id,cardId})=>({id,cardId}))});assert.equal(dealt.status,200,JSON.stringify(dealt));
