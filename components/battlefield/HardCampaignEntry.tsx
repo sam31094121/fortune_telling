@@ -14,6 +14,7 @@ import { BeastCardFace } from './BeastCardTile';
 import Match3Board from './Match3Board';
 import CampaignEnhancement from './CampaignEnhancement';
 import SharedCultivationPanel from './SharedCultivationPanel';
+import { feedTargetCardId, peekFeedShortcut } from '@/lib/beast-food-chain-client';
 import { syncSharedCultivation, sharedRequest } from '@/lib/beast-cultivation-client';
 import { refreshSharedCampaign, inspectCampaignSave, repairUnreadableCampaign, UNREADABLE_BACKUP_SUFFIX, adoptServerCampaign, rawCampaignSave, type CampaignMismatch } from '@/lib/beast-game/match3/hard-campaign-store';
 import CampaignBackup from './CampaignBackup';
@@ -52,6 +53,13 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const startButton = useRef<HTMLButtonElement>(null);
   const confirmHeroButton = useRef<HTMLButtonElement>(null);
   const teamHeading = useRef<HTMLHeadingElement>(null);
+  const cultivationAnchor = useRef<HTMLDivElement>(null);
+  // 食物鏈：勝利畫面按「拿去強化」回到這裡時，自動打開共同卡庫面板（只預選，仍要按確認）。
+  useEffect(() => {
+    if (phase !== 'team' || owner !== 'self' || !peekFeedShortcut()) return;
+    setCultivationOpen(true);
+    requestAnimationFrame(() => cultivationAnchor.current?.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }));
+  }, [phase, owner]);
   useEffect(() => {
     if (phase === 'hero' && candidate) {
       confirmHeroButton.current?.scrollIntoView({ block: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
@@ -215,9 +223,10 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
     <div className={styles.pickTabs}>{(['ALL', ...MATCH3_ORB_ELEMENTS] as const).map(e => <button type="button" key={e} aria-pressed={tab === e} onClick={() => setTab(e)}>{e === 'ALL' ? '全部' : MATCH3_ORB_LABEL[e]}</button>)}</div>
     <h2 className={picker.sectionTitle}>已獲成獸</h2>{collection.adults.length === 0 && <p className={styles.hint}>贏得第一場，即可獲得第一張成獸卡。</p>}<div className={picker.cardGrid}>{shown.filter(c => collection.adults.some(a => a.cardId === c.id)).map(c => <button type="button" className={picker.cardChoice} key={c.id} data-testid="pick-card" data-id={c.id} data-el={c.element} aria-label={`${c.name}，攻擊 ${CARD_FACE_STATS[c.id].attack}`} aria-pressed={selected.includes(c.id)} onClick={() => toggle(c.id)}>
       {face(c.id)}<span className={picker.choiceState}>{kin(c.id)}已獲 {collection.adults.find(a => a.cardId === c.id)?.count} 張 · {selected.includes(c.id) ? '已選夥伴' : '點選出戰'}</span>
+      {owner === 'self' && feedTargetCardId(c.id) && <span className={picker.choiceState} data-feed-to={feedTargetCardId(c.id)!}><span>可餵給</span> {pool.find(p => p.id === feedTargetCardId(c.id))?.name}</span>}
     </button>)}</div>
     {owner === 'self' && <CampaignBackup onImported={() => { void load('self', true); }} />}
-    {owner==='self'?<><button type="button" className={styles.again} data-open-shared-cultivation onClick={()=>setCultivationOpen(v=>!v)}>共同神獸卡庫・合體培養</button>{cultivationOpen&&<SharedCultivationPanel onSaved={()=>{void refreshSharedCampaign().then(result=>{if(result.profile){setProfile(result.profile);setOwnedEntries(result.profile.ownedEntries??{});}});}} onDone={()=>setCultivationOpen(false)}/>}</>:<p className={styles.hint}>親友試用牌不會消耗，也不影響自己的收藏。</p>}
+    {owner==='self'?<><div ref={cultivationAnchor} /><button type="button" className={styles.again} data-open-shared-cultivation onClick={()=>setCultivationOpen(v=>!v)}>共同神獸卡庫・合體培養</button>{cultivationOpen&&<SharedCultivationPanel onSaved={()=>{void refreshSharedCampaign().then(result=>{if(result.profile){setProfile(result.profile);setOwnedEntries(result.profile.ownedEntries??{});}});}} onDone={()=>setCultivationOpen(false)}/>}</>:<p className={styles.hint}>親友試用牌不會消耗，也不影響自己的收藏。</p>}
     {owner==='self'&&profile.shared&&<section aria-label="選擇實際出戰副本"><h2>出戰副本</h2><p>同一種神獸有多張收藏時，請指定本場使用哪張。免費牌標示為試用。</p>{selected.map(id=>{
       const copies=profile.shared!.cards.filter(c=>c.cardId===id),trial=id===profile.heroId||(pool.find(c=>c.id===id)?.form==='YOUNG'&&!profile.consumedYoungIds?.includes(id));
       return <label key={id} style={{display:'block',margin:'12px 0'}}>{pool.find(c=>c.id===id)?.name}<select data-orb-owned-copy={id} aria-label={`${pool.find(c=>c.id===id)?.name}出戰副本`} value={ownedEntries[id]??''} onChange={e=>setOwnedEntries(old=>({...old,[id]:e.target.value}))} style={{display:'block',minHeight:48,maxWidth:'100%',background:'#0f172a',color:'#fff7ed',border:'1px solid #bca777',borderRadius:8,padding:8}}><option value="" disabled={!trial}>{trial?'免費試用牌':'請選收藏副本'}</option>{copies.map((c,i)=><option key={c.id} value={c.id}>收藏第 {i+1} 份・永久 +{c.bonus}・攻擊 {c.orbAttack}</option>)}</select></label>;

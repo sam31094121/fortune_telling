@@ -28,3 +28,5 @@
   .trace path { animation: none; stroke-dashoffset: 0; opacity: .85; }
   .trace circle, .seal { animation: none; }
 }
+/* 食物鏈 5A：本尊有永久加成時的「已合體 +N」小標（只顯示）。 */
+.seal em { font-style: normal; font-size: 10px; margin-left: 4px; padding-left: 4px; border-left: 1px solid color-mix(in srgb, var(--gf, #f5d27a) 70%, transparent); color: #ffe7a3; }
