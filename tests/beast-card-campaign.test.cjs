@@ -1,6 +1,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),ts=require('typescript'),vm=require('node:vm'),path=require('node:path');
 const transpile=f=>ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;
 require.extensions['.ts']=(m,f)=>m._compile(transpile(f),f);
+require('./helpers/server-only-runtime.cjs'); // 正式站共用卡庫模組有 import 'server-only'：沿用正式站 cultivation 測試同一個執行期墊片
 const Module=require('node:module'),resolve=Module._resolveFilename;Module._resolveFilename=function(name,...args){return resolve.call(this,name.startsWith('@/')?path.join(__dirname,'..',name.slice(2)):name,...args)};
 const C=require('../lib/beast-game/card-campaign.ts'),R=require('../lib/beast-game/registry.ts'),B=require('../lib/beast-game/battle-session.ts'),I=require('../lib/beast-game/interactive.ts');
 const c={v:1,kind:'card-campaign',id:'test-campaign',seed:100,wins:0,pending:null,enhancements:[]};
@@ -36,12 +37,12 @@ async function call(body){return route.exports.POST(new Request('http://localhos
  const trialStart=(await call({type:'START',tableToken:trial.tableToken,playerTeam:trial.table.player.hand,stakeCount:0})).data;assert(trialStart.ok);
  const trialSession=B.openBattleSession(trialStart.token);trialSession.match.status='FINISHED';trialSession.match.winner='player';assert.equal((await call({type:'RESUME',token:B.signBattleSession(trialSession)})).data.campaign.wins,0,'free trial cannot advance staked campaign');
  assert.equal((await call({type:'START',tableToken:deal.tableToken,playerTeam:selected.slice(0,4).map(e=>e.cardId),stakeCount:0})).status,400);
- const before=(await call({type:'ENHANCE',preview:true,campaignToken:progress.campaignToken,target,material})).data;assert(before.preview.allowed);
- const save=(await call({type:'ENHANCE',campaignToken:before.campaignToken,target,material,operationId:'saved'})).data;assert(save.ok);assert.equal(save.receipt.attackBonus,preview.attackBonus);
- assert.deepEqual(save.receipt.display,preview.display);
- const trainedDeal=(await call({...request,campaignToken:save.campaignToken,opponentTeam:['fake']})).data;
- const trainedStart=(await call({type:'START',tableToken:trainedDeal.tableToken,playerTeam:selected.map(e=>e.cardId),stakeCount:1,stakeCardId:young.id,opponentTeam:['fake']})).data;
- assert.equal(trainedStart.match.player.team[0].attack,save.receipt.display.afterAttack,'signed real-copy bonus reaches original battle attack');
+ // 正式站 3df66cc1 起押注戰場的 ENHANCE（原培養入口）停用、改到「共同神獸卡庫・合體培養」（共用卡庫的合體與加成接戰鬥由 beast-cultivation*.test.cjs 驗）。
+ // 這裡改驗：預覽與儲存都被後端拒絕（400＋指引訊息）、進度簽章不變，戰場不再自行加成。舊斷言（預覽 allowed、收據 attackBonus／display、加成帶進攻擊）對應的是已拿掉的入口。
+ for(const body of [{type:'ENHANCE',preview:true,campaignToken:progress.campaignToken,target,material},{type:'ENHANCE',campaignToken:progress.campaignToken,target,material,operationId:'saved'}]){const r=await call(body);assert.equal(r.status,400);assert.equal(r.data.ok,false);assert.match(r.data.error,/共同神獸卡庫/);assert.equal(r.data.campaignToken,undefined);}
+ const trainedDeal=(await call({...request,opponentTeam:['fake']})).data;assert(trainedDeal.ok);assert.deepEqual(trainedDeal.table.opponent,deal.table.opponent,'client cannot inject an opponent');
+ const trainedStart=(await call({type:'START',tableToken:trainedDeal.tableToken,playerTeam:selected.map(e=>e.cardId),stakeCount:1,stakeCardId:young.id,opponentTeam:['fake']})).data;assert(trainedStart.ok);
+ assert.deepEqual(trainedStart.match.player.team.map(u=>u.attack),started.match.player.team.map(u=>u.attack),'battlefield no longer applies its own enhancement');
  assert.deepEqual(trainedStart.match.opponent.team,started.match.opponent.team,'player enhancement does not inflate fixed opponent');
  const move=(await call({type:'ACTION',token:trainedStart.token,action:{type:'ATTACK'}})).data;assert(move.ok);assert.equal(move.match.revision,1);assert.equal(move.campaign.wins,0,'an action cannot advance the stage');
  console.log('PASS card campaign: fixed 5v5 opponent, stage strategy/2% independent stats, signed progress, win-only once/trial no promotion, owned-copy enhancement original formula/capacity/replay, unchanged card definitions');
