@@ -288,6 +288,8 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const [pulse, setPulse] = useState(false);
   useEffect(() => { setDebug(new URLSearchParams(window.location.search).get('debug') === '1'); }, []);
   const [link, setLink] = useState<string[]>([]);
+  // 玩家正在拖珠：自動連線攻擊要等手指放開再發動，否則會鎖住盤面、把這一筆拖曳整條吃掉（放開時 release 因 busy 直接 return）。
+  const [dragging, setDragging] = useState(false);
   const [muted, setMuted] = useState(false);
   useEffect(() => {
     if (!rigEnabled) return;
@@ -516,7 +518,9 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     if (!lastFoeReady) setLastFoeSettled(false);
     else if (!busy) setLastFoeSettled(true);
   }, [lastFoeReady, busy]);
-  const lastFoeBig = lastFoeReady && lastFoeSettled;
+  // 已倒下但死亡演出還沒播完的敵卡：等它退場後才放大最後一隻，避免「空卡框＋最後一隻」上下疊成兩張大卡、整個版面跳兩次（1280 時我方隊伍被擠出畫面）。
+  const foeExiting = foes.some(f => f.hp <= 0 && !retiredFoes.has(f.id));
+  const lastFoeBig = lastFoeReady && lastFoeSettled && !foeExiting;
   const bigFoe = guardianDuel || lastFoeBig;
   // 業主 2026-11-11（手機實測回報）：我方只剩最後一隻神獸時，同樣放大成魔王般的大卡片（與敵方對稱）。
   const lastAllyReady = rigEnabled && team.length > 1 && !over && team.filter(u => u.hp > 0).length === 1;
@@ -944,12 +948,13 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     if (deathHold.size > 0 || deathPending.size > 0) return;
     if (counterFoes.size > 0) return;
     if (energyClickLock.current || turnRequest.current || refillRun.current) return;
+    if (dragging) return;
     if (autoLinkMoves.current !== moves) autoLinkArmed.current = true;
     if (!autoLinkArmed.current) return;
     autoLinkArmed.current = false;
     autoLinkMoves.current = moves;
     void fireLinkWithRef.current(ids, 'auto').then((ok) => { if (!ok) autoLinkArmed.current = true; });
-  }, [mobileActionless, busy, over, ti, team, moves, deathHold, deathPending, counterFoes, rigEnabled]);
+  }, [mobileActionless, busy, over, ti, team, moves, deathHold, deathPending, counterFoes, rigEnabled, dragging]);
 
   const skillMarker = (id: string, side: 'ally' | 'enemy') => {
     const event = orbSkillDisplay(skillVisuals, id, side);
@@ -1047,7 +1052,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
 
       {!log.startsWith('按住寶珠') && log ? <p className={rigEnabled ? styles.srOnly : styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
 
-      <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, ['--clear-duration' as string]: `${clearMs}ms` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" data-refill-epoch={rigEnabled ? refillEpoch : undefined} data-refilling={falling.size > 0 ? 'true' : undefined} data-chain-intent={rigEnabled ? chainIntent : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers} onPointerDown={(e) => { if ((link.length || linkMode) && !(e.target as HTMLElement).closest('[data-r]')) { setLink([]); setLinkMode(false); } drag.handlers.onPointerDown(e); }}>
+      <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, ['--clear-duration' as string]: `${clearMs}ms` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" data-refill-epoch={rigEnabled ? refillEpoch : undefined} data-refilling={falling.size > 0 ? 'true' : undefined} data-chain-intent={rigEnabled ? chainIntent : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers} onPointerDown={(e) => { if ((link.length || linkMode) && !(e.target as HTMLElement).closest('[data-r]')) { setLink([]); setLinkMode(false); } if (!busy && !over && (e.target as HTMLElement).closest('[data-r]')) setDragging(true); drag.handlers.onPointerDown(e); }} onPointerUp={() => { setDragging(false); drag.handlers.onPointerUp(); }} onPointerCancel={() => { setDragging(false); drag.handlers.onPointerCancel(); }} onLostPointerCapture={() => setDragging(false)}>
         {board.map((row, r) => row.map((e, c) => { const kk = k(r, c); return (
           <OrbCell key={`${r}-${c}-${rigEnabled ? refillEpoch : 0}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} shield={rigEnabled} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} fall={falling.get(kk)} empty={emptyCells.has(kk)} reward={rewards.has(kk)} />); }))}
         {shieldBurst && <div className={styles.shieldBurst} style={{ color: ORB_COLOR[shieldBurst] }} role="status" aria-label="080 盾牌清除同色寶珠"><span /><img src="/pwa/save-shield-080.png" alt="" draggable={false} /></div>}
