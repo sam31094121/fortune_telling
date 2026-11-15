@@ -23,10 +23,17 @@
 .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @keyframes gfDraw { 0% { stroke-dashoffset: 1; opacity: 0; } 12% { opacity: 1; } 55% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
 @keyframes gfStar { 0% { opacity: 0; transform-box: fill-box; transform-origin: center; transform: scale(.2); } 25% { opacity: 1; transform: scale(1.4); } 70% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1); } }
-@keyframes gfSeal { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.6); } 22% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); } 34% { transform: translate(-50%, -50%) scale(1); } 82% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1); } }
+/* --gfit 由 GuardianFusionTrace 依卡寬算出：放大最大的 1.08 那格乘上 --gfit 後仍完整在本尊卡內。 */
+@keyframes gfSeal { 0% { opacity: 0; transform: translate(-50%, -50%) scale(calc(var(--gfit, 1) * .6)); } 22% { opacity: 1; transform: translate(-50%, -50%) scale(calc(var(--gfit, 1) * 1.08)); } 34% { transform: translate(-50%, -50%) scale(var(--gfit, 1)); } 82% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(var(--gfit, 1)); } }
 @media (prefers-reduced-motion: reduce) {
   .trace path { animation: none; stroke-dashoffset: 0; opacity: .85; }
   .trace circle, .seal { animation: none; }
+  .seal { transform: translate(-50%, -50%) scale(var(--gfit, 1)); }
 }
 /* 食物鏈 5A：本尊有永久加成時的「已合體 +N」小標（只顯示）。 */
 .seal em { font-style: normal; font-size: 10px; margin-left: 4px; padding-left: 4px; border-left: 1px solid color-mix(in srgb, var(--gf, #f5d27a) 70%, transparent); color: #ffe7a3; }
+/* 有「已合體 +N」時排成兩行（只改排版，數值與顯示條件照 bonusOf）：第一行「白虎合體」、第二行「已合體 +N」。
+   用 inline-grid：寬度＝較寬的那一行（約 63px），不是兩行相加，兩行模式左右內距收窄、第二行不加字距，+250 時縮放後 360 手機上第二行字仍約 9px。
+   兩行版貼本尊卡底（GuardianFusionTrace 依實測高度定位），上緣避開卡上方浮出的招式名。 */
+.seal[data-has-bonus="true"] { display: inline-grid; grid-template-columns: auto auto; justify-content: center; align-items: baseline; row-gap: 1px; padding: 1px 3px 2px; border-radius: 9px; }
+.seal[data-has-bonus="true"] em { grid-column: 1 / -1; justify-self: center; margin-left: 0; padding-left: 0; border-left: 0; letter-spacing: 0; padding-top: 1px; border-top: 1px solid color-mix(in srgb, var(--gf, #f5d27a) 70%, transparent); }
