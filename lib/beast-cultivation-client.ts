@@ -61,7 +61,9 @@ export async function syncSharedCultivation(options?:{waitForSave?:boolean}):Pro
   if(!navigator.locks)throw new Error('請使用支援安全保存的瀏覽器。');
   return navigator.locks.request('tdh-beast-collection',options?.waitForSave?{signal:AbortSignal.timeout(20000)}:{ifAvailable:true},async lock=>{
     if(!lock)throw new Error('另一分頁正在戰鬥或保存，請先完成再重試。');
-    await capability();
+    // 識別碼就在本機時不等任何非同步（維持「進鎖後立刻送出請求」），只在背景補存備份；不在才去 cookie／IndexedDB 找或建立。
+    const present=window.localStorage.getItem(KEY);
+    if(present)void mirrorWalletKey(present);else await capability();
     const old=JSON.parse(window.localStorage.getItem(COLLECTION)??'{"cards":[],"history":[]}');
     const growth={modules:JSON.parse(window.localStorage.getItem('tdh_growth_completed_modules_v1')??'[]'),checkIns:JSON.parse(window.localStorage.getItem('tdh_growth_checkin_history_v4')??'{}')};
     if(old.pending&&!old.sharedCultivation)throw new Error('請先結算原戰鬥，再接通共同卡庫。');
