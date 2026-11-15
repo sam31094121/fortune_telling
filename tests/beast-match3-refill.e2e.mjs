@@ -11,7 +11,8 @@ import os from 'node:os';
 import path from 'node:path';
 
 const base = process.env.MATCH3_E2E_BASE || 'http://localhost:8888';
-const edgePath = ['C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe', 'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe'].find(existsSync);
+// MATCH3_E2E_BROWSER：非 Windows 驗收機可指定 Chromium 執行檔（同一套 CDP 流程與斷言）；未指定時仍要求 Edge。
+const edgePath = process.env.MATCH3_E2E_BROWSER || ['C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe', 'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe'].find(existsSync);
 assert(edgePath, 'Edge is required');
 const port = 9700 + Math.floor(Math.random() * 150);
 const profile = mkdtempSync(path.join(os.tmpdir(), 'match3-mobile-review-'));
