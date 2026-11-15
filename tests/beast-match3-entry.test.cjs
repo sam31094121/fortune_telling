@@ -161,6 +161,7 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
         sharedRequest: () => { throw new Error('Guest must not mutate owned inventory'); },
       };
       if (id === './CampaignBackup') return { default: () => null };
+      if (id === './OwnedCopyPicker') return { default: () => null };
       if (id === './EnhanceAura') return { default: () => null };
       if (id === './BeastCardTile') return { BeastCardFace: CardFace };
       if (id.endsWith('.css')) return { default: {} };
