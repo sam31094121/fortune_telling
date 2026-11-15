@@ -100,5 +100,11 @@ const seed = async (cards, protectedIds = [], extra = {}) => { const w = wallet(
   ok(panel.includes('data-sticky-confirm') && /\.stickyConfirm \{position:sticky;bottom:/.test(css));
   const confirm = panel.split('\n').find(l => l.includes('data-confirm-shared-fusion aria-label'));
   ok(confirm && !/protectedIds|main\.length/.test(confirm), 'confirm button does not require a locked five');
+  // 23:52 強化畫面零文字：無材料不顯示確認鈕、改空材料槽＋🃏＋取卡入口；封頂目標不可點；卡面未載入只顯示 ⏳。
+  const iconPart = panel.slice(panel.indexOf('function IconPanel('));
+  ok(/targetCard&&foods\.length>0&&<button ref=\{confirmRef\}/.test(iconPart), 'no confirm without material');
+  ok(iconPart.includes('data-get-cards') && iconPart.includes('href="/growth-center#beast-collection"') && /\.emptySlot \{[^}]*animation:breathe/.test(css));
+  ok(/disabled=\{busy\|\|!!view\.pendingBattle\|\|card\.stars\?\.toNext===null\}/.test(iconPart), 'maxed target not clickable');
+  ok(!/卡面載入中|卡面暫時無法取得/.test(iconPart), 'no loading words in icon panel');
   console.log(`PASS food chain new player: ${checks} checks — eat without locking five, locked main never eaten, five-type campaign protection kept, MAIN_TEAM still five, revision/receipt/replay unchanged, sticky confirm.`);
 })().catch(e => { console.error(e); process.exitCode = 1; });

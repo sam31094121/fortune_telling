@@ -8,7 +8,7 @@ import FoodChainFeedback from './FoodChainFeedback';
 import CardStarBar from './CardStarBar';
 import styles from './OwnedCampaignPreparation.module.css';
 import fusion from './SharedCultivationPanel.module.css';
-import { GuideBookProvider } from './GuideBookContext';
+import { GuideBookProvider, useGuideBook } from './GuideBookContext';
 import type { GuideBook } from '@/lib/beast-game/guide-book';
 import type { cultivationChangeView } from '@/lib/beast-game/cultivation-view';
 import icon from './FoodChainIcons.module.css';
@@ -80,7 +80,7 @@ export default function SharedCultivationPanel({onSaved,onDone,iconOnly=false}:{
   const materialCard=view?.cards.find(c=>c.id===material);
   const face=(id:string)=>book?<CatalogBeastCard id={id}/>:<span role="status">{bookError?'卡面暫時無法取得':'卡面載入中…'}</span>;
   const previewReady=!!preview&&previewRevision===view?.revision&&preview.targetId===target&&preview.materialId===material;
-  if(iconOnly)return <GuideBookProvider value={book}><IconPanel {...{view,main,setMain,target,setTarget:(id:string)=>{setPreview(null);setTarget(id);setMaterial(autoMaterial(view?.cards.find(c=>c.id===id)?.cardId??''));setMessage('');setSavedChange(null);setSavedFeedback(null);},material,setMaterial:(id:string)=>{if(material!==id){setPreview(null);setMaterial(id);}},preview:previewReady?feedback:null,saved:savedFeedback,busy,error,message,options,operation,resultRef,load,save,onDone,setBusy,setError,ready:previewReady&&!!book}}/></GuideBookProvider>;
+  if(iconOnly)return <GuideBookProvider value={book}><IconPanel {...{view,main,setMain,target,setTarget:(id:string)=>{setPreview(null);setTarget(id);setMaterial(autoMaterial(view?.cards.find(c=>c.id===id)?.cardId??''));setMessage('');setSavedChange(null);setSavedFeedback(null);},material,setMaterial:(id:string)=>{if(material!==id){setPreview(null);setMaterial(id);}},preview:previewReady?feedback:null,saved:savedFeedback,busy,error,message,options,operation,resultRef,load,save,onDone,setBusy,setError,ready:previewReady&&!!book,bookError:!!bookError,bookLoading,loadBook}}/></GuideBookProvider>;
   return <GuideBookProvider value={book}><section className={`${styles.panel} ${fusion.panel}`} data-shared-cultivation>
     <h2>共同神獸卡庫・合體培養</h2>
     <details data-testid="fusion-manual"><summary>說明書</summary>
@@ -128,7 +128,7 @@ function errorIcon(message:string):{glyph:string;kind:string} {
   return {glyph:'⚠',kind:'other'};
 }
 function Sr({children}:{children:React.ReactNode}){return <span className={icon.sr}>{children}</span>;}
-type IconProps={view:SharedCultivationView|null;main:string[];setMain:React.Dispatch<React.SetStateAction<string[]>>;target:string;setTarget:(v:string)=>void;material:string;setMaterial:(v:string)=>void;preview:CultivationFeedback|null;saved:CultivationFeedback|null;busy:boolean;error:string;message:string;options:{targetId:string;byId:Record<string,{feedback?:CultivationFeedback;error?:string}>}|null;operation:React.MutableRefObject<string|null>;resultRef:React.RefObject<HTMLDivElement|null>;ready:boolean;load:()=>Promise<void>;save:(t:'MAIN_TEAM'|'FUSE')=>Promise<void>;onDone?:()=>void;setBusy:(v:boolean)=>void;setError:(v:string)=>void};
+type IconProps={view:SharedCultivationView|null;main:string[];setMain:React.Dispatch<React.SetStateAction<string[]>>;target:string;setTarget:(v:string)=>void;material:string;setMaterial:(v:string)=>void;preview:CultivationFeedback|null;saved:CultivationFeedback|null;busy:boolean;error:string;message:string;options:{targetId:string;byId:Record<string,{feedback?:CultivationFeedback;error?:string}>}|null;operation:React.MutableRefObject<string|null>;resultRef:React.RefObject<HTMLDivElement|null>;ready:boolean;load:()=>Promise<void>;save:(t:'MAIN_TEAM'|'FUSE')=>Promise<void>;onDone?:()=>void;setBusy:(v:boolean)=>void;setError:(v:string)=>void;bookError:boolean;bookLoading:boolean;loadBook:()=>Promise<void>};
 function IconPanel(p:IconProps) {
   const {view,main,target,material,preview,saved,busy,error,options}=p;
   // 手機 390：勾勾確認鈕黏在捲動區底部（sticky，永遠在畫面內，不壓到底部「返回選隊」列）；
@@ -137,26 +137,32 @@ function IconPanel(p:IconProps) {
   useEffect(()=>{if(preview)(previewRef.current??confirmRef.current)?.scrollIntoView({block:'nearest',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});},[preview]);
   const targetCard=view?.cards.find(c=>c.id===target);
   const err=error?errorIcon(error):null;
+  // 2026-11-15 23:52 使用者硬性規定：強化畫面絕對零文字（卡面印刷字與數字除外）。卡面未載入時只顯示 ⏳，不顯示載入字樣。
+  const book=useGuideBook();
+  const face=(id:string)=>book?<CatalogBeastCard id={id}/>:<span className={icon.facePending} aria-hidden="true">⏳</span>;
+  const foods=targetCard&&view?view.cards.filter(c=>!c.protected&&c.materialTargetCardId===targetCard.cardId):[];
   return <section className={`${styles.panel} ${icon.panel}`} data-shared-cultivation data-icon-only aria-label="共同神獸卡庫・合體培養">
     {err&&<div role="alert" className={icon.alert} data-error-kind={err.kind} key={error}><span className={icon.alertGlyph} aria-hidden="true">{err.glyph}</span><Sr>{error}</Sr><button type="button" className={icon.iconBtn} disabled={busy} onClick={()=>void p.load()} aria-label="重新讀取卡庫"><span aria-hidden="true">↻</span></button></div>}
+    {p.bookError&&<div role="alert" className={icon.alert} data-error-kind="book"><span className={icon.alertGlyph} aria-hidden="true">🖼</span><Sr>卡面資料暫時無法取得，收藏未變更。</Sr><button type="button" className={icon.iconBtn} disabled={p.bookLoading} onClick={()=>void p.loadBook()} aria-label="重新載入卡面"><span aria-hidden="true">↻</span></button></div>}
     {p.message&&<p role="status" data-shared-saved className={icon.sr}>{p.message}</p>}
     {saved&&<div ref={p.resultRef} tabIndex={-1} className={styles.feedbackAnchor}><FoodChainFeedback key={saved.materialId} change={saved} phase="saved" iconOnly/></div>}
     {!view?<p aria-busy="true" className={icon.loading}><span aria-hidden="true">⏳</span><Sr>正在讀取卡庫…</Sr></p>:<>
       {view.pendingBattle&&<div role="alert" className={icon.alert} data-error-kind="battle"><span className={icon.alertGlyph} aria-hidden="true">⚔⏳</span><Sr>戰鬥尚未結束，請先返回原戰鬥結算或離開。</Sr><button type="button" className={icon.iconBtn} disabled={busy} aria-label="結束未完成戰局（不扣卡、不發獎）" onClick={async()=>{p.setBusy(true);try{if(view.pendingBattle?.startsWith('card:'))await (await import('@/lib/beast-collection')).releaseLiveBattle(view.pendingBattle);else await sharedRequest({type:'RELEASE',battleId:view.pendingBattle});await p.load();}catch(e){p.setError(e instanceof Error?e.message:'暫時無法結束原戰局。');}finally{p.setBusy(false);}}}><span aria-hidden="true">✖</span></button></div>}
       <div className={icon.stepHead} aria-hidden="true"><span>🔒</span><b>{main.length}/5</b></div>
       <div className={styles.grid} role="group" aria-label="親選五隻收藏主力（鎖定主力不能當材料）">{view.cards.map(card=><button key={card.id} type="button" data-main-copy={card.id} aria-pressed={main.includes(card.id)} aria-label={`${card.name}${card.protected?'，主力已鎖定':''}`} disabled={busy||!!view.pendingBattle} onClick={()=>{p.operation.current=null;p.setMain(ids=>ids.includes(card.id)?ids.filter(id=>id!==card.id):ids.length<5?[...ids,card.id]:ids);}}>
-        <CatalogBeastCard id={card.cardId}/>{main.includes(card.id)&&<span className={icon.badge} aria-hidden="true">🔒</span>}{card.bonus!=='0'&&<b className={icon.num} aria-hidden="true">+{card.bonusPercent}%</b>}
+        {face(card.cardId)}{main.includes(card.id)&&<span className={icon.badge} aria-hidden="true">🔒</span>}{card.bonus!=='0'&&<b className={icon.num} aria-hidden="true">+{card.bonusPercent}%</b>}
       </button>)}</div>
       <button type="button" className={`${styles.confirm} ${icon.check}`} data-save-main aria-label="確認這五隻主力" disabled={busy||!!view.pendingBattle||main.length!==5} onClick={()=>void p.save('MAIN_TEAM')}><span aria-hidden="true">🔒✓</span></button>
       <div className={icon.stepHead} aria-hidden="true"><span>⬆</span></div>
-      <div className={styles.grid} role="group" aria-label="選擇要強化的神獸">{view.cards.filter(c=>c.form!=='YOUNG').map(card=><button key={card.id} type="button" data-shared-target={card.id} disabled={busy||!!view.pendingBattle} aria-pressed={target===card.id} aria-label={`${card.name}，永久 +${card.bonus}，寶石攻擊 ${card.orbAttack}，神獸戰鬥攻擊 ${card.battleAttack}${card.stars?`，${card.stars.stars} 星${card.stars.toNext===null?'，已五星封頂':`，下一星還差 ${card.stars.toNext} 張`}`:''}`} onClick={()=>p.setTarget(card.id)}><CatalogBeastCard id={card.cardId}/>{card.stars&&<span data-target-stars={card.stars.stars}><CardStarBar stars={card.stars} percent={card.bonusPercent} atCap={card.atBonusCap} iconOnly/></span>}</button>)}</div>
-      {targetCard&&<><div className={icon.stepHead} aria-hidden="true"><span>🍴</span></div><div className={styles.grid} role="group" aria-label="選擇對應材料">{view.cards.filter(c=>!c.protected&&c.materialTargetCardId===targetCard.cardId).map(card=>{const o=options?.targetId===target?options.byId[card.id]:undefined,f=o?.feedback,e=o?.error?errorIcon(o.error):null;
-        return <button key={card.id} type="button" data-shared-material={card.id} disabled={busy||!!view.pendingBattle} aria-pressed={material===card.id} aria-label={`${card.name}${f?`，攻擊 +${f.addedBonus}，約 +${f.addedPercent.label}%`:''}${o?.error?`，${o.error}`:''}`} onClick={()=>p.setMaterial(card.id)}><CatalogBeastCard id={card.cardId}/>
+      <div className={styles.grid} role="group" aria-label="選擇要強化的神獸">{view.cards.filter(c=>c.form!=='YOUNG').map(card=><button key={card.id} type="button" data-shared-target={card.id} data-maxed={card.stars?.toNext===null?'true':undefined} disabled={busy||!!view.pendingBattle||card.stars?.toNext===null} aria-pressed={target===card.id} aria-label={`${card.name}，永久 +${card.bonus}，寶石攻擊 ${card.orbAttack}，神獸戰鬥攻擊 ${card.battleAttack}${card.stars?`，${card.stars.stars} 星${card.stars.toNext===null?'，已五星封頂':`，下一星還差 ${card.stars.toNext} 張`}`:''}`} onClick={()=>p.setTarget(card.id)}>{face(card.cardId)}{card.stars&&<span data-target-stars={card.stars.stars}><CardStarBar stars={card.stars} percent={card.bonusPercent} atCap={card.atBonusCap} iconOnly/></span>}</button>)}</div>
+      {targetCard&&<><div className={icon.stepHead} aria-hidden="true"><span>🍴</span></div><div className={styles.grid} role="group" aria-label="選擇對應材料">{foods.map(card=>{const o=options?.targetId===target?options.byId[card.id]:undefined,f=o?.feedback,e=o?.error?errorIcon(o.error):null;
+        return <button key={card.id} type="button" data-shared-material={card.id} disabled={busy||!!view.pendingBattle} aria-pressed={material===card.id} aria-label={`${card.name}${f?`，攻擊 +${f.addedBonus}，約 +${f.addedPercent.label}%`:''}${o?.error?`，${o.error}`:''}`} onClick={()=>p.setMaterial(card.id)}>{face(card.cardId)}
           {e?<b className={`${icon.chip} ${icon.chipError}`} data-feed-chip-error data-error-kind={e.kind} aria-hidden="true">{e.glyph}</b>:f?<b className={icon.chip} data-feed-chip={f.addedBonus} aria-hidden="true">+{f.addedPercent.label}%{f.starsBefore&&f.starsAfter&&f.starsAfter.stars>f.starsBefore.stars?<> ★↑</>:null}</b>:null}
         </button>;})}</div>
-        {!view.cards.some(c=>!c.protected&&c.materialTargetCardId===targetCard.cardId)&&<div role="status" data-no-material className={icon.alert} data-error-kind="empty"><span className={icon.alertGlyph} aria-hidden="true">🍴✖</span><Sr>目前沒有可以餵給這張卡的材料（鎖定主力不能當材料）。</Sr></div>}</>}
+        {!foods.length&&<div role="status" data-no-material className={icon.emptyRow}><span className={icon.emptySlot} aria-hidden="true">🍴</span><Sr>目前沒有可以餵給這張卡的材料（鎖定主力不能當材料）。</Sr><a href="/growth-center#beast-collection" className={icon.getCards} data-get-cards aria-label="去取得卡片"><span aria-hidden="true">🃏＋</span></a></div>}</>}
       {preview&&<div ref={previewRef} data-shared-preview className={icon.previewAnchor}><FoodChainFeedback change={preview} phase="preview" iconOnly/></div>}
-      <button ref={confirmRef} type="button" className={`${styles.confirm} ${styles.feedbackAnchor} ${icon.check} ${icon.stickyConfirm}`} data-sticky-confirm data-confirm-shared-fusion aria-label={busy?'正在保存…':'確認消耗材料並合體'} disabled={busy||!p.ready||!!view.pendingBattle} onClick={()=>void p.save('FUSE')}><span aria-hidden="true">{busy?'⏳':'✓'}</span></button>
+      {/* 無材料（或還沒點目標）時不顯示確認鈕；有材料時黏底、永遠在畫面內。 */}
+      {targetCard&&foods.length>0&&<button ref={confirmRef} type="button" className={`${styles.confirm} ${styles.feedbackAnchor} ${icon.check} ${icon.stickyConfirm}`} data-sticky-confirm data-confirm-shared-fusion aria-label={busy?'正在保存…':'確認消耗材料並合體'} disabled={busy||!p.ready||!!view.pendingBattle} onClick={()=>void p.save('FUSE')}><span aria-hidden="true">{busy?'⏳':'✓'}</span></button>}
     </>}
     {p.onDone&&<button type="button" className={icon.iconBtn} disabled={busy} onClick={p.onDone} aria-label="返回選卡"><span aria-hidden="true">↩</span></button>}
   </section>;
