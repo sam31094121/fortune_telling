@@ -14,7 +14,7 @@ function scenario({ ready = true, ziweiPassed = true, mismatch = false, sourceRe
     pillarDetails: Object.fromEntries(Object.keys(pillars).map(key => [key, { ganzhi: mismatch && key === 'hour' ? '乙丑' : '甲子' }])),
     traditionalInterpretationGate: { coreReady: sourceReady },
   } };
-  const module = { exports: {} };
+  const cjsModule = { exports: {} };
   const deps = {
     './bazi/engine': {},
     // 通過所有上游關卡之後的第一步（神煞衍生鏈從 runZiweiLayer 開始）＝「到達輸出」；之前任何一關失敗都必須停住。
@@ -32,8 +32,8 @@ function scenario({ ready = true, ziweiPassed = true, mismatch = false, sourceRe
     './bazi-professional-result-v5': { attachBaziProfessionalCoreV5: value => value },
     'lunar-typescript': {},
   };
-  vm.runInNewContext(code, { module, exports: module.exports, require: id => deps[id] });
-  return { calls, run: () => module.exports.calculateDualChart(input) };
+  vm.runInNewContext(code, { module: cjsModule, exports: cjsModule.exports, require: id => deps[id] });
+  return { calls, run: () => cjsModule.exports.calculateDualChart(input) };
 }
 let check = scenario({ ready: false });
 assert.throws(check.run, /八字資料核對未通過/);

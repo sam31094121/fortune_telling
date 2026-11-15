@@ -8,14 +8,14 @@ const bazi = load('lib/bazi-engine.ts');
 const gates = load('lib/bazi-traditional-gate.ts');
 
 function loadRoute({ corruptFoundation = false, approvedSources = false } = {}) {
-  const module = { exports: {} };
+  const cjsModule = { exports: {} };
   const source = fs.readFileSync('app/api/match-generate/route.ts', 'utf8');
   const code = ts.transpileModule(source, { compilerOptions: {
     module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022,
   } }).outputText;
   let generated = 0;
   vm.runInNewContext(code, {
-    module, exports: module.exports, Date, console: { error() {}, info() {} },
+    module: cjsModule, exports: cjsModule.exports, Date, console: { error() {}, info() {} },
     require(id) {
       if (id === '@/lib/bazi-engine') return { ...bazi, analyzeBazi(input) {
         const chart = bazi.analyzeBazi(input);
@@ -34,7 +34,7 @@ function loadRoute({ corruptFoundation = false, approvedSources = false } = {}) 
       return require(id);
     },
   });
-  return { ...module.exports, generated: () => generated };
+  return { ...cjsModule.exports, generated: () => generated };
 }
 
 const personA = { name: '測試甲', birthDate: '1990-05-20', birthHourBranch: '未', bloodType: 'unknown', gender: 'male' };

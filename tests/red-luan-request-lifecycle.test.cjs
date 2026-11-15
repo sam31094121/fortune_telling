@@ -20,8 +20,8 @@ const code=ts.transpileModule(pieces.join('\n')+'\nexports.api={submit,cancelPen
 }).outputText;
 function mount() {
   let timerId=0,writes=0;
-  const requests=[],timers=new Map(),module={exports:{}};
-  const ctx={module,exports:module.exports,AbortController,JSON,Promise,Error,
+  const requests=[],timers=new Map(),cjsModule={exports:{}};
+  const ctx={module: cjsModule,exports:cjsModule.exports,AbortController,JSON,Promise,Error,
     useCallback:fn=>fn,
     requestRef:{current:null},deadlineRef:{current:null},submitLock:{current:false},
     form:{birthDate:'1990-01-01',gender:'male',timeUnknown:true,birthHourBranch:'unknown'},
@@ -37,7 +37,7 @@ function mount() {
   for(const key of ['form','context','guidedQuestion','reading','loading','error','ritualStep','retryMode'])ctx['set'+key[0].toUpperCase()+key.slice(1)]=value=>ctx[key]=value;
   for(const name of ['setMissing','setReturningName','setEditingBirth','setAppliedContext','setAlignmentChoice','setOpenedLayer','setReflectionChoice','setPeeled','setTeacherKey','setOpenedFolds','setFollowUp','setShowReminderMonths','setRevealedEntrances'])ctx[name]=()=>{};
   vm.runInNewContext(code,ctx);
-  return {ctx,api:module.exports.api,requests,timers,writes:()=>writes,
+  return {ctx,api:cjsModule.exports.api,requests,timers,writes:()=>writes,
     success(i,id){requests[i].resolve({ok:true,json:async()=>({result:{id},person:{hourKnown:false}})});},
   };
 }

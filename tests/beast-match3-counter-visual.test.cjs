@@ -3,10 +3,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const ts = require('typescript');
 function load(file) {
-  const module = { exports: {} };
+  const cjsModule = { exports: {} };
   const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-  new Function('require', 'module', 'exports', code)(name => load(path.resolve(path.dirname(file), name + '.ts')), module, module.exports);
-  return module.exports;
+  new Function('require', 'module', 'exports', code)(name => load(path.resolve(path.dirname(file), name + '.ts')), cjsModule, cjsModule.exports);
+  return cjsModule.exports;
 }
 const root = path.resolve(__dirname, '..');
 const { counterVisualPath } = load(path.join(root, 'lib/beast-game/match3/counter-visual.ts'));

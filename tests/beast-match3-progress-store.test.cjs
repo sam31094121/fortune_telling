@@ -13,10 +13,10 @@ function fresh(win) {
   const cache = new Map();
   const load = file => {
     file = path.resolve(file); if (cache.has(file)) return cache.get(file).exports;
-    const module = {exports:{}}; cache.set(file,module);
+    const cjsModule = {exports:{}}; cache.set(file,cjsModule);
     const code = ts.transpileModule(fs.readFileSync(file,'utf8'), {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
-    vm.runInNewContext(code,{module,exports:module.exports,window:win,require:id=>load(path.resolve(path.dirname(file),id+'.ts'))},{filename:file});
-    return module.exports;
+    vm.runInNewContext(code,{module: cjsModule,exports:cjsModule.exports,window:win,require:id=>load(path.resolve(path.dirname(file),id+'.ts'))},{filename:file});
+    return cjsModule.exports;
   };
   return load('lib/beast-game/match3/progress-store.ts');
 }

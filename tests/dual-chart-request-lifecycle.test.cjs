@@ -42,7 +42,7 @@ function mount() {
   };
   const formModule = { exports: {} };
   vm.runInNewContext(formSource, { module: formModule, exports: formModule.exports });
-  const module = { exports: {} };
+  const cjsModule = { exports: {} };
   const window = {
     innerWidth: 390,
     addEventListener(name, fn) { listeners.set(name, fn); },
@@ -50,7 +50,7 @@ function mount() {
     setTimeout(fn) { const id = timers.size + 1; timers.set(id, fn); return id; },
     clearTimeout(id) { timers.delete(id); },
   };
-  vm.runInNewContext(source, { module, exports: module.exports, window, AbortController, DOMException, URL,
+  vm.runInNewContext(source, { module: cjsModule, exports: cjsModule.exports, window, AbortController, DOMException, URL,
     fetch(url, options) { const d = deferred(); network.push({ ...d, url, options }); return d.promise; },
     require(id) {
       if (id === 'react') return react;
@@ -66,7 +66,7 @@ function mount() {
   });
   function render(nextProps) {
     props = { ...props, ...nextProps };
-    cursor = 0; tree = module.exports.default(props);
+    cursor = 0; tree = cjsModule.exports.default(props);
     while (effects.length) effects.shift()();
     return tree;
   }

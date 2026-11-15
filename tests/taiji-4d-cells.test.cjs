@@ -16,11 +16,11 @@ const ts = require('typescript');
 
 function load(file) {
   const source = fs.readFileSync(file, 'utf8');
-  const module = { exports: {} };
+  const cjsModule = { exports: {} };
   const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
   const require_ = (id) => (id.startsWith('.') ? load(path.join(path.dirname(file), `${id}.ts`)) : require(id));
-  new Function('exports', 'module', 'require', compiled)(module.exports, module, require_);
-  return module.exports;
+  new Function('exports', 'module', 'require', compiled)(cjsModule.exports, cjsModule, require_);
+  return cjsModule.exports;
 }
 
 const { taijiCellCenters, taijiCellRods, TAIJI_CELL_SIZE, TAIJI_UNIT_SCALE, inscribedUnitRods, INSCRIBED_EDGE, HOLLOW_RADIUS, SHELL_THICKNESS } = load('components/model-lab/taijiCells.ts');
