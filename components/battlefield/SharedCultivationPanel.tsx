@@ -32,8 +32,9 @@ export default function SharedCultivationPanel({onSaved,onDone}:{onSaved?:()=>vo
     if(!view||busy)return;setBusy(true);setError('');operation.current??=crypto.randomUUID();
     try{const result=await navigator.locks.request('tdh-beast-collection',{ifAvailable:true},lock=>{if(!lock)throw new Error('另一分頁正在戰鬥或保存，請先完成。');return sharedRequest({type,revision:view.revision,operationId:operation.current,...(type==='MAIN_TEAM'?{ids:main}:{choices:[{targetId:target,materialId:material}]})});});
       if(!alive.current)return;setView(result.view);setMain(result.view.protectedIds);setTarget('');setMaterial('');setPreview(null);operation.current=null;
+      // 具體回饋（吃了誰、攻擊 +N、兩款遊戲攻擊前後）由下方 FoodChainFeedback 照印伺服端數字；狀態句維持固定字串，五語字典對得上。
       const done:CultivationFeedback|undefined=type==='FUSE'?result.feedback?.[0]:undefined;setSaved(done??null);
-      setMessage(type==='MAIN_TEAM'?'五隻主力已鎖定，可整組更換。':done?`合體已保存：〈${done.targetName}〉吃了〈${done.materialName}〉，攻擊 +${done.addedBonus}（寶石 ${done.beforeOrbAttack}→${done.afterOrbAttack}・神獸戰鬥 ${done.beforeBattleAttack}→${done.afterBattleAttack}）。材料已扣除，兩款遊戲共用這份成長。`:'合體已保存，材料已扣除，兩款遊戲共用這份成長。');onSaved?.();
+      setMessage(type==='MAIN_TEAM'?'五隻主力已鎖定，可整組更換。':'合體已保存，材料已扣除，兩款遊戲共用這份成長。');onSaved?.();
     }catch(e){if(alive.current)setError(e instanceof Error?e.message:'尚未確認保存，請重試同一次操作。');}finally{if(alive.current)setBusy(false);}
   };
   const targetCard=view?.cards.find(c=>c.id===target);
