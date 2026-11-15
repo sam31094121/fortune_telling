@@ -183,8 +183,8 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   if (!owner || !profile) return <section className={styles.picker} data-testid="match3-player-choice" aria-label="選擇遊玩身分">
     {home}<h1>寶珠戰</h1>
     <div className={picker.playerChoices}>
-      <button type="button" data-testid="play-self" disabled={saving} onClick={() => load('self')}><strong>我自己</strong><span>開始或接續自己的闖關進度</span></button>
-      <button type="button" data-testid="play-guest" disabled={saving} onClick={() => load('guest', false, true)}><strong>親朋好友</strong><span>從第一關開始，不影響我的進度</span></button>
+      <button type="button" data-testid="play-self" disabled={saving} onClick={() => load('self')}><strong>我自己</strong></button>
+      <button type="button" data-testid="play-guest" disabled={saving} onClick={() => load('guest', false, true)}><strong>親朋好友</strong></button>
     </div>{error===SLOW_MESSAGE&&<div role="alert" data-testid="campaign-slow" ref={el => { el?.scrollIntoView({ block: 'center' }); }}><p style={{ fontSize: 20, fontWeight: 700, lineHeight: 1.6, margin: '16px 0 8px' }}>{SLOW_MESSAGE}</p><button type="button" data-testid="retry-self" className={`${styles.again} ${picker.readyStart}`} style={{ width: '100%', minHeight: 56, fontSize: 20 }} disabled={saving} onClick={() => void load('self')}>再試一次</button></div>}<CampaignBackup onImported={() => { setError(''); void load('self'); }} />{previousOrb&&<div className={picker.recovery} data-testid="orb-interrupted" role="group" aria-label="上一場寶珠戰已中斷"><button type="button" className={picker.recoveryPrimary} data-testid="orb-replay-stage" data-release-orb disabled={saving} onClick={async()=>{try{setSaving(true);await sharedRequest({type:'RELEASE',battleId:previousOrb});setPreviousOrb(null);setSaving(false);await load('self');}catch(e){setSaving(false);setError(e instanceof Error?e.message:'暫時無法離開原戰鬥，請重試。');}}}>{saving?'正在準備這一關…':'重打這一關（隊伍不變）'}</button><button type="button" className={styles.again} data-testid="orb-release-repick" disabled={saving} onClick={async()=>{try{setSaving(true);await sharedRequest({type:'RELEASE',battleId:previousOrb});setPreviousOrb(null);setSaving(false);await load('self',true);}catch(e){setSaving(false);setError(e instanceof Error?e.message:'暫時無法離開原戰鬥，請重試。');}}}>重新選卡再打</button></div>}{legacyAvailable && <button type="button" className={styles.again} data-testid="resume-legacy" disabled={saving} onClick={async () => {
       setSaving(true); const result = await importLegacyCampaign(); setSaving(false);
       if (!result.ok) { setError(result.error || '舊進度尚未儲存，請重試。'); return; }
@@ -202,7 +202,7 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
       {keptLocal && <p className={styles.hint} role="status" data-testid="mismatch-kept">已下載本機存檔，這個瀏覽器的存檔沒有任何變更。需要時可到「存檔備份」匯入，或聯絡客服協助比對。</p>}
     </div>}
     {cardPending && <Link href="/beast-game/battlefield" className={picker.recoveryPrimary} data-testid="go-card-settle">回神獸卡片戰鬥完成結算</Link>}
-    {saving && !error && <p className={styles.hint} role="status" data-testid="campaign-loading">正在讀取你的進度…</p>}<p className={styles.hint}>自己的進度存在共同卡庫，靠這個瀏覽器裡的卡庫識別碼找回；換手機或清除網站資料前，請先到「存檔備份」記下識別碼。</p>
+    {saving && !error && <p className={styles.hint} role="status" data-testid="campaign-loading" aria-label="讀取中" style={{ fontSize: 40, textAlign: 'center' }}>⏳</p>}
   </section>;
   if (phase === 'battle') return <>
     <Match3Board key={revision} seed={seed} mode={mode} progressOwner={owner} campaignEnabled teamIds={profile.teamIds} onCampaignContinue={() => { setResumeNotice(''); void load(owner); }} onRepick={() => { setResumeNotice(''); void load(owner, true); }} />
@@ -215,13 +215,10 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const changePlayer = <button type="button" className={styles.again} data-testid="change-player" disabled={saving} onClick={() => { rememberOwner(null); setOwner(null); setProfile(null); setError(''); }}>更換玩家</button>;
   if (phase === 'hero') return <section className={`${styles.picker} ${picker.stickyHost}`} data-testid="match3-hero-choice" aria-label="選擇主角">
     {home}{changePlayer}<h1>{choice === 'milestone' ? '保留或重新選擇主角' : '選擇你的四象主角'}</h1>{notice && <p className={styles.hint} role="status" data-testid="campaign-notice">{notice}</p>}
-    <p className={styles.hint}>{choice === 'milestone' ? '通過第八關，可保留原主角或更換一次。確認後主角固定。' : profile.wins >= 8 ? '你的進度已通過第八關；這次選擇即使用唯一的重選機會，確認後主角固定。' : '主角占一個出戰位置。選定後固定，通過第八關可重新選擇一次。'}</p>
-    {choice === 'milestone' && <p className={styles.hint}>永久強化留在原卡，不會轉移到新主角；原卡加成仍會保留。</p>}
     <div className={picker.cardGrid}>{pool.filter(c => c.id.startsWith('beast_g_')).map(c => <button type="button" className={picker.cardChoice} key={c.id} data-testid="pick-hero" data-id={c.id} aria-pressed={candidate === c.id} onClick={() => setCandidate(c.id)}>
       {face(c.id)}<span className={picker.choiceState}>{candidate === c.id ? `已選 ${c.name}・請按下方確認` : profile.heroId === c.id ? '保留原主角' : `點選 ${c.name}`}</span>
     </button>)}</div>
     {error && <p role="alert">{error}</p>}
-    <p className={picker.readyHint} role="status">{candidate ? `已選 ${pool.find(c => c.id === candidate)?.name}，請點下方按鈕確認，再選擇四位夥伴。` : '先點選一張主角卡，再按下方按鈕確認。'}</p>
     <div className={`${styles.pickBar} ${picker.stickyStart}`}><button ref={confirmHeroButton} type="button" className={`${styles.again} ${candidate ? picker.readyStart : ''}`} data-testid="confirm-hero" disabled={!candidate || saving} onClick={async () => {
       if (!candidate) return;
       setSaving(true); const result = await selectCampaignHero(owner, candidate); setSaving(false);
@@ -238,17 +235,14 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const toggle = (id: string) => { if (id !== profile.heroId && allowed.includes(id)) setSelected(s => s.includes(id) ? s.filter(x => x !== id) : s.length < 5 ? [...s, id] : s); };
   return <section className={`${styles.picker} ${picker.stickyHost}`} data-testid="team-picker" aria-label="選擇主角的四位夥伴">
     {home}{changePlayer}<h1 ref={teamHeading} tabIndex={-1}>第二步：點選四位夥伴</h1>{notice && <p className={styles.hint} role="status" data-testid="campaign-notice">{notice}</p>}
-    <div className={picker.companionGuide} role="status" aria-live="polite">
-      <strong>{selected.length === 5 ? '四位夥伴已選齊！' : `已選 ${Math.max(0, selected.length - 1)}／4 位夥伴，還差 ${5 - selected.length} 位`}</strong>
-      <p>{selected.length === 5 ? '請點下方金色「開始作戰」按鈕，帶隊出發。' : '往下滑，點喜歡的卡片加入隊伍。主角已保留，不用再選。'}</p>
-      <p>想換夥伴？再點一次已選卡片即可取消。</p>
-    </div>
-    <p className={styles.hint}>勝利獲得的成獸保存在這裡，也能加入隊伍。</p><h2 className={picker.sectionTitle}>主角與出戰隊伍</h2>
+    <div className={picker.companionGuide} role="status" aria-live="polite" aria-label={`已選 ${Math.max(0, selected.length - 1)} 位夥伴，共 4 位`} data-testid="team-progress">
+      <strong style={{ fontSize: 32, letterSpacing: 10, color: '#fde68a' }}>{'●'.repeat(Math.max(0, selected.length - 1))}{'○'.repeat(Math.max(0, 5 - selected.length))}{selected.length === 5 ? ' ✓' : ''}</strong>
+    </div><h2 className={picker.sectionTitle}>主角與出戰隊伍</h2>
     <div className={picker.selectedRow} data-testid="picked-row" aria-label={`已選 ${selected.length} 張`}>{selected.map(id => <button type="button" key={id} className={picker.selectedCard} disabled={id === profile.heroId} aria-label={id === profile.heroId ? '固定主角' : `移除${pool.find(c => c.id === id)?.name}`} onClick={() => toggle(id)}>
       {face(id)}<span className={picker.remove}>{id === profile.heroId ? '主角・固定' : '移除夥伴'}</span>
     </button>)}</div>
     <div className={styles.pickTabs}>{(['ALL', ...MATCH3_ORB_ELEMENTS] as const).map(e => <button type="button" key={e} aria-pressed={tab === e} onClick={() => setTab(e)}>{e === 'ALL' ? '全部' : MATCH3_ORB_LABEL[e]}</button>)}</div>
-    <h2 className={picker.sectionTitle}>已獲成獸</h2>{collection.adults.length === 0 && <p className={styles.hint}>贏得第一場，即可獲得第一張成獸卡。</p>}<div className={picker.cardGrid}>{shown.filter(c => collection.adults.some(a => a.cardId === c.id)).map(c => <button type="button" className={picker.cardChoice} key={c.id} data-testid="pick-card" data-id={c.id} data-el={c.element} aria-label={`${c.name}，攻擊 ${CARD_FACE_STATS[c.id].attack}`} aria-pressed={selected.includes(c.id)} onClick={() => toggle(c.id)}>
+    <h2 className={picker.sectionTitle}>已獲成獸</h2><div className={picker.cardGrid}>{shown.filter(c => collection.adults.some(a => a.cardId === c.id)).map(c => <button type="button" className={picker.cardChoice} key={c.id} data-testid="pick-card" data-id={c.id} data-el={c.element} aria-label={`${c.name}，攻擊 ${CARD_FACE_STATS[c.id].attack}`} aria-pressed={selected.includes(c.id)} onClick={() => toggle(c.id)}>
       {face(c.id)}<span className={picker.choiceState}>{kin(c.id)}已獲 {collection.adults.find(a => a.cardId === c.id)?.count} 張 · {selected.includes(c.id) ? '已選夥伴' : '點選出戰'}</span>
       {owner === 'self' && (() => { const copies = (profile.shared?.cards ?? []).filter(x => x.cardId === c.id) as (NonNullable<Profile['shared']>['cards'][number] & { fed?: number; stars?: CardStarInfo; bonusPercent?: string; atBonusCap?: boolean })[]; const shown = copies.find(x => x.id === ownedEntries[c.id]) ?? [...copies].sort((x, y) => (y.fed ?? 0) - (x.fed ?? 0))[0]; return shown?.stars ? <CardStarBar stars={shown.stars} percent={shown.bonusPercent} atCap={shown.atBonusCap} /> : null; })()}
       {owner === 'self' && feedTargetCardId(c.id) && <span className={picker.choiceState} data-feed-to={feedTargetCardId(c.id)!}><span>可餵給</span> {pool.find(p => p.id === feedTargetCardId(c.id))?.name}</span>}
@@ -260,12 +254,12 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
       const trial=id===profile.heroId||(card?.form==='YOUNG'&&!profile.consumedYoungIds?.includes(id));
       return {cardId:id,name:card?.name??'',thumbnail:card?.art.thumbnail??'',trial,copies,value:ownedEntries[id]??''};
     })}/>}
-    <h2 className={picker.sectionTitle}>幼子夥伴</h2><p className={styles.hint}>尚未消耗的幼子可自由挑選。</p>
+    <h2 className={picker.sectionTitle}>幼子夥伴</h2>
     <div className={picker.cardGrid}>{shown.filter(c => collection.youngIds.includes(c.id)).map(c => <button type="button" className={picker.cardChoice} key={c.id} data-testid="pick-card" data-id={c.id} data-el={c.element} aria-label={`${c.name}，攻擊 ${CARD_FACE_STATS[c.id].attack}`} aria-pressed={selected.includes(c.id)} onClick={() => toggle(c.id)}>
       {face(c.id)}<span className={picker.choiceState} data-guardian-kin={kin(c.id) ? heroGuardian?.key : undefined}>{kin(c.id)}{selected.includes(c.id) ? '已選夥伴' : '點選出戰'}</span>
     </button>)}</div>
     {error && <p role="alert">{error}</p>}
-    {selected.length === 5 && <p className={picker.readyHint} role="status" data-testid="team-ready-hint">隊伍已就緒，點此開始作戰</p>}
+    {selected.length === 5 && <p className={picker.readyHint} role="status" data-testid="team-ready-hint" aria-label="隊伍已就緒" style={{ fontSize: 32 }}>✓</p>}
     <div className={`${styles.pickBar} ${picker.stickyStart}`} data-testid="start-bar"><button ref={startButton} type="button" className={`${styles.again} ${selected.length === 5 ? picker.readyStart : ''}`} data-testid="start-battle" disabled={!validateCampaignTeam(profile, selected) || saving} onClick={async () => {
       setSaving(true); const result = await saveCampaignTeam(owner, selected,ownedEntries); setSaving(false);
       if (!result.ok || !result.profile) { setError(result.error || '隊伍尚未儲存，請重試。'); return; }
