@@ -30,7 +30,13 @@ export default function BattlePowerAnalysis({ cardId, guide: liveGuide = null, e
     {enemy && <article className={styles.relation} data-current-comparison>
       <strong>與目前對位的「{enemy.name}」比較</strong>
       {(['attack', 'defense', 'speed'] as const).map(stat => {
-        if(stat==='attack')return <span key={stat} style={{overflowWrap:'anywhere'}}>攻擊 {guide.stats.attackText??guide.stats.attack} 對 {enemy.stats.attackText??enemy.stats.attack}</span>;
+        if(stat==='attack'){
+          // 攻擊可能是培養後的超大整數字串：用 BigInt 比較，維持「高／低／相同」說明；字串不是整數時只顯示兩邊數值。
+          const mine=String(guide.stats.attackText??guide.stats.attack), theirs=String(enemy.stats.attackText??enemy.stats.attack);
+          let note='';
+          if(/^-?\d+$/.test(mine)&&/^-?\d+$/.test(theirs)){const d=BigInt(mine)-BigInt(theirs),zero=BigInt(0);note=`：${d===zero?'相同':`${d>zero?'高':'低'} ${(d<zero?-d:d).toString()}`}`;}
+          return <span key={stat} style={{overflowWrap:'anywhere'}}>攻擊 {mine} 對 {theirs}{note}</span>;
+        }
         const delta = guide.stats[stat] - enemy.stats[stat];
         return <span key={stat}>{statLabels[stat]} {guide.stats[stat]} 對 {enemy.stats[stat]}：{delta === 0 ? '相同' : `${delta > 0 ? '高' : '低'} ${Math.abs(delta)}`}</span>;
       })}
