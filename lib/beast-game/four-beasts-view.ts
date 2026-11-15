@@ -48,7 +48,7 @@ export function fourBeastsView(snapshot: CultivationSnapshot): FourBeastsView {
   const pendingBattle = !!snapshot.pendingBattle;
   // 大卡選擇：同卡型持有多張時，強化加成最高那張（同分取主力，再取 id），只是顯示用的預設，不是規則。
   const bestCopy = (cardId: string) => state.cards.filter(c => c.cardId === cardId)
-    .toSorted((a, b) => { const d = exactBonus(b.bonus) - exactBonus(a.bonus); return d ? (d > 0n ? 1 : -1) : Number(state.protectedIds.includes(b.id)) - Number(state.protectedIds.includes(a.id)) || a.id.localeCompare(b.id); })[0] ?? null;
+    .sort((a, b) => { const d = exactBonus(b.bonus) - exactBonus(a.bonus); return d ? (d > 0n ? 1 : -1) : Number(state.protectedIds.includes(b.id)) - Number(state.protectedIds.includes(a.id)) || a.id.localeCompare(b.id); })[0] ?? null;
   const materials: EnhanceMaterial[] = [];
   for (const copy of state.cards) {
     const source = copySource(snapshot, copy as { id: string; origin?: { kind?: string } }, orbIds);
