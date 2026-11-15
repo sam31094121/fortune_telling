@@ -66,6 +66,8 @@ import { sharedRequest, sharedWalletHeaders } from '@/lib/beast-cultivation-clie
 import { validateCampaignTeam, campaignAttack, type HardCampaign } from '@/lib/beast-game/match3/hard-campaign';
 import { createMatch3Sound, type Match3SoundCue } from './match3Sound';
 import { runRefillPlayback } from '@/lib/beast-game/match3/refill-runner';
+import GuardianFusionTrace from './GuardianFusionTrace';
+import { guardianFusions, fusionStrikers, nextFusionCarry, guardianFusionLabel, GUARDIAN_FUSION_MS, type GuardianFusion } from '@/lib/beast-game/match3/guardian-fusion';
 import { REFILL_TIMING, refillPresentation, refillLandingTimes, fusionShieldLayout, fusionDischarge, FUSION_CLEAR_AT_MS, FUSION_DISPLAY_MS, type RefillMotion } from '@/lib/beast-game/match3/refill-presentation';
 
 interface Unit extends Match3Fighter { name: string; thumbnail: string; maxHp: number; energy: number; skillName?: string; description?: string }
@@ -302,6 +304,10 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const [help, setHelp] = useState(false);
   const [shieldBurst, setShieldBurst] = useState<BeastElement | null>(null);
   const [fusionBurst, setFusionBurst] = useState<BeastElement[] | null>(null);
+  // 四象合體（純視覺）：本尊與本象星宿同一步或緊接下一步都打出實際傷害時亮起；不改傷害。
+  const [guardianFx, setGuardianFx] = useState<{ key: number; fusions: GuardianFusion[] } | null>(null);
+  const fusionCarry = useRef<string[]>([]);
+  const guardianFxKey = useRef(0);
   const [guardActive, setGuardActive] = useState(false);
   const [log, setLog] = useState(cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊');
   const [busy, setBusy] = useState(false);
@@ -353,6 +359,18 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   }, []);
   const showBanner = (text: string, kind: 'magic' | 'skill' | 'counter' | 'info', visual = rigEnabled) => queuedBanner(text, kind, visual);
   const sound = (f: number) => { if (!muted) beep(f); };
+  /** 每次玩家出手（連珠、能量技、連線攻擊）結算後呼叫；回傳給 log 的簡述。 */
+  const noteGuardianFusion = (hits: readonly { attackerId?: string | null; amount: number }[], teamNow: readonly Unit[]): string => {
+    if (!rigEnabled) return '';
+    const current = fusionStrikers(hits);
+    const fused = guardianFusions(teamNow, current, fusionCarry.current);
+    fusionCarry.current = nextFusionCarry(current, fused);
+    if (!fused.length) return '';
+    const fx = { key: ++guardianFxKey.current, fusions: fused };
+    setGuardianFx(fx); cue('fusion');
+    later(() => setGuardianFx(cur => cur?.key === fx.key ? null : cur), GUARDIAN_FUSION_MS);
+    return fused.map(f => guardianFusionLabel(f, id => teamNow.find(u => u.id === id)?.name)).join('；');
+  };
 
   // 測試專用：?m3debug=1 才掛上（ko＝我方倒下、foeHp＝設敵方 HP），不改任何卡的真實數值。
   // holdAutoLink／?m3autolink=0 只在 m3debug 下暫停自動連線，讓手動點兩張卡的路徑可被驗證；正式遊玩（無 m3debug）不受影響。
@@ -572,7 +590,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     if (campaignEnabled) { if (!campaignAwaiting) onCampaignContinue?.(); return; }
     setFalling(new Map()); setFlash(new Set()); setDrop(new Set()); setEmptyCells(new Set()); setRewards(new Set());
     setKnockouts([]); setDeathHold(new Set()); setDeathPending(new Set()); setResultHoldExpired(false); setWarmFreeze(null); deathDelay.current.clear();
-    setStrike(null); setShieldBurst(null); setFusionBurst(null); setGuardActive(false); setCounterFoes(new Set()); setCounterVisuals([]); setHitTeam(new Set()); setSkillVisuals([]);
+    setStrike(null); setShieldBurst(null); setFusionBurst(null); setGuardianFx(null); fusionCarry.current = []; setGuardActive(false); setCounterFoes(new Set()); setCounterVisuals([]); setHitTeam(new Set()); setSkillVisuals([]);
     const rng = rngRef.current; const nextWins = rigEnabled ? nextProgressionWins(wins, over === 'win') : 0; setWins(nextWins); const n = pickLineup(rng, teamIds, cfg, nextWins); const b = generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, rigEnabled ? progressionStage(nextWins).minChain : 3);
     showSkillEvents(n.playerSkillEvents ?? []);
     setTeam(n.team); setFoes(n.enemies); setTarget(0); setBoard(b); setMagic(emptyMagic(b)); setMoves(0); setTotalDmg(0); setLastDmg(0); setBanner(null);
@@ -763,6 +781,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       if (res.magicSpawn) msg += `，生成魔法珠（威力 ${res.magicSpawn.power}）`;
       if (res.reshuffled) msg += '；沒有可攻擊連線，已整理普通寶珠；數字與盾牌保留';
       if (nf[actionTarget].hp <= 0) msg += `；${foe.name}倒下`;
+      { const fusedText = noteGuardianFusion(actualHits, nextTeam); if (fusedText) msg += `；${fusedText}`; }
       endStep(nextTeam, nf, msg, actualDealt > 0, rigEnabled, prepared.guardScale < 1, true, prepared);
     };
     if (playback) {
@@ -894,7 +913,8 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     setTeam(nextTeam); setLastDmg(actualAmount); setTotalDmg((s) => s + actualAmount);
     if (rigEnabled) finishEnergyAttack();
     showBanner(`${u.name}技能 −${actualAmount}`, 'skill'); if (!rigEnabled) sound(880);
-    setLog(`${u.name}發動技能，對${foe.name}造成 ${actualAmount} 點傷害（不算步數、不觸發反擊）。`);
+    const fusedText = noteGuardianFusion(applied?.actualHits ?? [{ attackerId: u.id, amount: actualAmount }], nextTeam);
+    setLog(`${u.name}發動技能，對${foe.name}造成 ${actualAmount} 點傷害（不算步數、不觸發反擊）。${fusedText ? fusedText + '。' : ''}`);
   };
 
   const actionableLink = link;
@@ -929,7 +949,8 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     setLastDmg(actualAmount); setTotalDmg((s) => s + actualAmount); setLink([]); setLinkMode(false);
     if (rigEnabled) finishEnergyAttack();
     showBanner(`連線攻擊 ${cards.length} 張 −${actualAmount}`, 'skill'); if (!rigEnabled) sound(990);
-    setLog(`連線攻擊：${cards.map((c) => c.name).join('＋')} 對${foe.name}造成 ${actualAmount} 點傷害（不算步數、不觸發反擊）。`);
+    const fusedText = noteGuardianFusion(applied?.actualHits ?? cards.map(c => ({ attackerId: c.id, amount: actualAmount })), nextTeam);
+    setLog(`連線攻擊：${cards.map((c) => c.name).join('＋')} 對${foe.name}造成 ${actualAmount} 點傷害（不算步數、不觸發反擊）。${fusedText ? fusedText + '。' : ''}`);
     return true;
   };
   const fireLink = async () => {
@@ -1047,6 +1068,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
         <p>玩家消除同屬性寶珠累積能量，珠數越多充能越快；滿條後點亮起的神獸發招並歸零。敵方每次有效連珠增加四分之一，連鎖不重複累加，滿條後依關卡順序出手並歸零。受控不能出手，待命敵人不蓄力；能量技與連線技能不充能。</p>
         <p>五色盾牌連線只消耗連到的盾牌，其餘寶珠下落後全變各自屬性的盾牌，空位補普通珠；不獲得法寶。同屬性純盾牌一次連4、5、6、7、8格，分別只取得第1、2、3、4、5號法寶一件，按實際格數計算，不按盾牌儲存威力計數。同屬性隊員按順序分配不同種類，階級越高基礎威力越高。點下方寶器直接釋放，消耗一件，不增加敵方回合。自己的未用寶器可帶到下一關，親友的僅限本關；保存在本瀏覽器。</p>
         {treasures.map(x => <p key={x.element+':'+x.variant}>{x.name}：{x.description}</p>)}
+        <p data-testid="match3-guardian-fusion-help">四象合體：主角四象與自己統領的星宿（青龍：角亢氐房心尾箕；朱雀：井鬼柳星張翼軫；白虎：奎婁胃昴畢觜參；玄武：斗牛女虛危室壁），在同一步或緊接的下一步都打出傷害，就會連成星宿線並亮起合體印。只是特效，不加傷害、不改規則。</p>
         <p>五行補血與盾牌組合請點開「五行與盾牌目標」。獲勝挑戰下一關，落敗原難度重試。</p>
       </div> : <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆同屬性純盾牌連接會合擊，消耗本次連到的盾牌，按既有卡片與儲存顆數攻擊，本次寶珠攻擊強化1.5倍；其餘同屬性寶珠轉為盾牌，原本較高的數值保留。至少三顆不同顏色純盾牌連接，二至四色合體清除整盤對應顏色；五色只消耗連到的盾牌，其餘寶珠依原屬性升為盾牌並保留高數值，空位補普通珠，依實際消除數量替對應卡片充能，最多充滿現有技能條；雙色或三色減傷50%、四色減傷60%並回復10%生命、五色只升盾，不附帶攻擊、回血、減傷或法寶；防護只限本輪、不疊加。剩餘珠子先下落合成，再補新珠；自然連線累計四顆以上會保留數字，七顆以上變盾牌，三顆只消除。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「{rigEnabled ? '能量攻擊' : '技能'}」。{rigEnabled && '我方原卡招牌技能依登場、攻擊、受創及回合時機自動觸發，沿用原次數；能量按鈕保留通用攻擊，不另消耗回合。敵方從第八關起逐步啟用原卡技能；沒有抽棄牌區，抽棄牌效果不適用。'}{rigEnabled ? '每次非空寶珠連線都算一次回合，誤按一、二顆或無效路線也會由對方反擊一次；連三顆起才可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。儲存能量的單卡與多卡攻擊不消耗回合，也不觸發反擊。全關卡五對五。第一關五張幼子、第二至第七關五張成獸；第八關起，敵方前四格為成獸，第五格為一張神獸，前四張倒下後才參戰並可被攻擊，後續始終只有這一個神獸席位，通關後依白虎、朱雀、青龍、玄武輪替，失敗重試不換；每次由一張存活卡反擊。第八關及之後連六顆以上即可攻擊，第一至第七關維持各關門檻；對方強度繼續逐關提高。獲勝升一關，落敗保留難度重試；本人進度保存在這個瀏覽器，親友進度只在本分頁保留，重新選擇親友會重來。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>)}
 
@@ -1074,10 +1096,12 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
           const dup = team.filter((x) => x.element === u.element).length > 1;
           const lead = rule === 'all-attack' || leads.has(u.id);
           const inLink = link.includes(u.id);
+          const gfFusion = guardianFx?.fusions.find(f => f.coreId === u.id || f.memberIds.includes(u.id));
+          const gfRole = gfFusion ? (gfFusion.coreId === u.id ? 'core' : 'member') : undefined;
           return (
-            <div key={u.id} data-testid="match3-ally" data-id={u.id} data-el={u.element} data-energy={u.energy} data-hp={u.hp} data-energy-ready={energyReady ? "true" : undefined} data-lead={lead ? '1' : '0'} data-link={inLink ? '1' : undefined} data-attacked={attacked.has(u.id) ? '1' : undefined} data-shield-guard={guardActive && !down ? 'true' : undefined}
+            <div key={u.id} data-testid="match3-ally" data-id={u.id} data-el={u.element} data-energy={u.energy} data-hp={u.hp} data-energy-ready={energyReady ? "true" : undefined} data-lead={lead ? '1' : '0'} data-link={inLink ? '1' : undefined} data-attacked={attacked.has(u.id) ? '1' : undefined} data-shield-guard={guardActive && !down ? 'true' : undefined} data-guardian-fusion={gfRole}
               className={`${styles.ally} ${down ? styles.down : ''} ${(rigEnabled ? energyReady : full) ? styles.allyFull : ''} ${hitTeam.has(u.id) ? styles.allyHit : ''} ${attacked.has(u.id) ? styles.allyAttack : ''} ${dup && lead ? styles.allyLead : ''} ${inLink ? styles.allyLink : ''} ${guardActive && !down ? styles.allyGuard : ''}`}
-              style={{ ['--ec' as string]: ORB_COLOR[u.element] }}>
+              style={{ ['--ec' as string]: ORB_COLOR[u.element], ...(gfFusion ? { ['--gf' as string]: ORB_COLOR[gfFusion.element] } : {}) }}>
               {rigEnabled && skillMarker(u.id, 'ally')}
               {rigEnabled && !!u.skillRuntime?.stunnedTurns && <span className={styles.srOnly} data-testid="match3-ally-stun">暫時受控</span>}
               {rigEnabled && counterVisuals.filter(h => h.targetId === u.id).map((h, i) => <span key={i} className={styles.counterDamage} data-testid="match3-counter-damage" data-actual-damage={h.actualDamage} data-hp-before={h.hpBefore} data-hp-after={h.hpAfter} style={{ ['--hit-order' as string]: i }} aria-label={`受到${h.actualDamage}點傷害，生命${h.hpBefore}降至${h.hpAfter}`}>−{h.actualDamage}</span>)}
@@ -1130,6 +1154,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       )}
       <AsuraDeathHost events={knockouts} root={root} startDelayMs={ev => deathDelay.current.get(ev.id) ?? 0} warm={deathWarm} srcOf={deathSrc} preloadBoss={deathBossPresent} bossOnStage={deathBossOnStage} onSettled={settleDeath} onEventFinished={finishDeath} />
       {resultWaiting && <span hidden data-testid="match3-result-pending" data-pending={deathPending.size} />}
+      {rigEnabled && <GuardianFusionTrace fx={guardianFx} root={root} colorOf={f => ORB_COLOR[f.element]} label={f => guardianFusionLabel(f, id => team.find(u => u.id === id)?.name)} />}
       {rigEnabled && <Match3RigAttack ids={[...team.map(u => u.id), ...playableCards().filter(c => c.form === 'GUARDIAN' && team.some(u => u.element === c.element)).map(c => c.id)]} root={root} strike={strike} onImpact={impact} />}
       <span hidden data-testid="match3-last-damage">{lastDmg}</span>
       <span hidden data-testid="match3-link-launch" data-source={linkLaunch?.source ?? ''} data-ids={(linkLaunch?.ids ?? []).join(',')} data-key={linkLaunch?.key ?? 0} />

@@ -5,6 +5,8 @@ import { playableCards } from '@/lib/beast-game/registry';
 import { CARD_FACE_STATS } from '@/lib/beast-game/card-face-stats';
 import { getSkill } from '@/cards/skills';
 import { MATCH3_ORB_ELEMENTS, MATCH3_ORB_LABEL, type Match3ModeId } from '@/lib/beast-game/match3';
+import { guardianOf } from '@/lib/beast-guardians';
+import { GUARDIAN_SHORT } from '@/lib/beast-game/match3/guardian-fusion';
 import type { BeastElement } from '@/lib/beast-game/elements';
 import { readLegacyCampaignStatus, importLegacyCampaign, readCampaign, selectCampaignHero, saveCampaignTeam, resetGuestCampaign } from '@/lib/beast-game/match3/hard-campaign-store';
 import { campaignHeroChoice, campaignAvailableIds, campaignCollection, campaignCardAttack, validateCampaignTeam } from '@/lib/beast-game/match3/hard-campaign';
@@ -131,6 +133,9 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
   const allowed = campaignAvailableIds(profile);
   const collection = campaignCollection(profile);
   const shown = pool.filter(c => allowed.includes(c.id) && c.id !== profile.heroId && (tab === 'ALL' || c.element === tab));
+  // 四象合體提示：與主角同一象的星宿標「白虎宿」，選進隊伍才有機會在戰場上合體（只是標示，不改選卡規則）。
+  const heroGuardian = profile.heroId ? guardianOf(profile.heroId) : null;
+  const kin = (id: string) => heroGuardian && guardianOf(id)?.key === heroGuardian.key ? `${GUARDIAN_SHORT[heroGuardian.key]}宿・` : '';
   const toggle = (id: string) => { if (id !== profile.heroId && allowed.includes(id)) setSelected(s => s.includes(id) ? s.filter(x => x !== id) : s.length < 5 ? [...s, id] : s); };
   return <section className={styles.picker} data-testid="team-picker" aria-label="選擇主角的四位夥伴">
     {home}{changePlayer}<h1 ref={teamHeading} tabIndex={-1}>第二步：點選四位夥伴</h1>
@@ -145,7 +150,7 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
     </button>)}</div>
     <div className={styles.pickTabs}>{(['ALL', ...MATCH3_ORB_ELEMENTS] as const).map(e => <button type="button" key={e} aria-pressed={tab === e} onClick={() => setTab(e)}>{e === 'ALL' ? '全部' : MATCH3_ORB_LABEL[e]}</button>)}</div>
     <h2 className={picker.sectionTitle}>已獲成獸</h2>{collection.adults.length === 0 && <p className={styles.hint}>贏得第一場，即可獲得第一張成獸卡。</p>}<div className={picker.cardGrid}>{shown.filter(c => collection.adults.some(a => a.cardId === c.id)).map(c => <button type="button" className={picker.cardChoice} key={c.id} data-testid="pick-card" data-id={c.id} data-el={c.element} aria-label={`${c.name}，攻擊 ${CARD_FACE_STATS[c.id].attack}`} aria-pressed={selected.includes(c.id)} onClick={() => toggle(c.id)}>
-      {face(c.id)}<span className={picker.choiceState}>已獲 {collection.adults.find(a => a.cardId === c.id)?.count} 張 · {selected.includes(c.id) ? '已選夥伴' : '點選出戰'}</span>
+      {face(c.id)}<span className={picker.choiceState}>{kin(c.id)}已獲 {collection.adults.find(a => a.cardId === c.id)?.count} 張 · {selected.includes(c.id) ? '已選夥伴' : '點選出戰'}</span>
     </button>)}</div>
     {owner === 'self' && <CampaignBackup onImported={() => { void load('self', true); }} />}
     {owner==='self'?<><button type="button" className={styles.again} data-open-shared-cultivation onClick={()=>setCultivationOpen(v=>!v)}>共同神獸卡庫・合體培養</button>{cultivationOpen&&<SharedCultivationPanel onSaved={()=>{void refreshSharedCampaign().then(result=>{if(result.profile){setProfile(result.profile);setOwnedEntries(result.profile.ownedEntries??{});}});}} onDone={()=>setCultivationOpen(false)}/>}</>:<p className={styles.hint}>親友試用牌不會消耗，也不影響自己的收藏。</p>}
@@ -155,7 +160,7 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
     })}</section>}
     <h2 className={picker.sectionTitle}>幼子夥伴</h2><p className={styles.hint}>尚未消耗的幼子可自由挑選。</p>
     <div className={picker.cardGrid}>{shown.filter(c => collection.youngIds.includes(c.id)).map(c => <button type="button" className={picker.cardChoice} key={c.id} data-testid="pick-card" data-id={c.id} data-el={c.element} aria-label={`${c.name}，攻擊 ${CARD_FACE_STATS[c.id].attack}`} aria-pressed={selected.includes(c.id)} onClick={() => toggle(c.id)}>
-      {face(c.id)}<span className={picker.choiceState}>{selected.includes(c.id) ? '已選夥伴' : '點選出戰'}</span>
+      {face(c.id)}<span className={picker.choiceState} data-guardian-kin={kin(c.id) ? heroGuardian?.key : undefined}>{kin(c.id)}{selected.includes(c.id) ? '已選夥伴' : '點選出戰'}</span>
     </button>)}</div>
     {error && <p role="alert">{error}</p>}
     {selected.length === 5 && <p className={picker.readyHint} role="status" data-testid="team-ready-hint">隊伍已就緒，點此開始作戰</p>}
