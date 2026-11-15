@@ -98,7 +98,7 @@ export default function HardCampaignEntry({ seed, mode }: { seed?: number; mode?
     <div className={picker.playerChoices}>
       <button type="button" data-testid="play-self" disabled={saving} onClick={() => load('self')}><strong>我自己</strong><span>開始或接續自己的闖關進度</span></button>
       <button type="button" data-testid="play-guest" disabled={saving} onClick={() => load('guest', false, true)}><strong>親朋好友</strong><span>從第一關開始，不影響我的進度</span></button>
-    </div>{previousOrb&&<button type="button" data-release-orb disabled={saving} onClick={async()=>{try{await sharedRequest({type:'RELEASE',battleId:previousOrb});setPreviousOrb(null);await load('self',true);}catch(e){setError(e instanceof Error?e.message:'暫時無法離開原戰鬥。');}}}>結束原寶珠局，重新選卡</button>}{legacyAvailable && <button type="button" className={styles.again} data-testid="resume-legacy" disabled={saving} onClick={async () => {
+    </div><CampaignBackup onImported={() => { setError(''); void load('self'); }} />{previousOrb&&<button type="button" data-release-orb disabled={saving} onClick={async()=>{try{await sharedRequest({type:'RELEASE',battleId:previousOrb});setPreviousOrb(null);await load('self',true);}catch(e){setError(e instanceof Error?e.message:'暫時無法離開原戰鬥。');}}}>結束原寶珠局，重新選卡</button>}{legacyAvailable && <button type="button" className={styles.again} data-testid="resume-legacy" disabled={saving} onClick={async () => {
       setSaving(true); const result = await importLegacyCampaign(); setSaving(false);
       if (!result.ok) { setError(result.error || '舊進度尚未儲存，請重試。'); return; }
       await load('self');
