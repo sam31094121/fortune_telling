@@ -1,0 +1,573 @@
+{
+  "visibility": "visible",
+  "focus": true,
+  "epoch": "0",
+  "busy": "false",
+  "samples": [],
+  "pointers": [
+    {
+      "type": "pointerdown",
+      "x": 31.90625,
+      "y": 589.453125,
+      "hit": [
+        "7",
+        "0"
+      ],
+      "coalesced": [],
+      "rect": {
+        "x": 12,
+        "y": 569.546875,
+        "w": 39.8125,
+        "h": 39.8125
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 74.6015625,
+      "y": 589.4609375,
+      "hit": [
+        "7",
+        "1"
+      ],
+      "coalesced": [
+        {
+          "x": 74.6015625,
+          "y": 589.4609375
+        }
+      ],
+      "rect": {
+        "x": 54.6875,
+        "y": 569.546875,
+        "w": 39.828125,
+        "h": 39.828125
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 117.296875,
+      "y": 589.453125,
+      "hit": [
+        "7",
+        "2"
+      ],
+      "coalesced": [
+        {
+          "x": 117.296875,
+          "y": 589.453125
+        }
+      ],
+      "rect": {
+        "x": 97.390625,
+        "y": 569.546875,
+        "w": 39.8125,
+        "h": 39.8125
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 159.9921875,
+      "y": 589.4609375,
+      "hit": [
+        "7",
+        "3"
+      ],
+      "coalesced": [
+        {
+          "x": 159.9921875,
+          "y": 589.4609375
+        }
+      ],
+      "rect": {
+        "x": 140.078125,
+        "y": 569.546875,
+        "w": 39.828125,
+        "h": 39.828125
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 202.6875,
+      "y": 589.453125,
+      "hit": [
+        "7",
+        "4"
+      ],
+      "coalesced": [
+        {
+          "x": 202.6875,
+          "y": 589.453125
+        }
+      ],
+      "rect": {
+        "x": 182.78125,
+        "y": 569.546875,
+        "w": 39.8125,
+        "h": 39.8125
+      }
+    },
+    {
+      "type": "pointerup",
+      "x": 202.6875,
+      "y": 589.453125,
+      "hit": [
+        "7",
+        "4"
+      ],
+      "coalesced": [],
+      "rect": {
+        "x": 182.78125,
+        "y": 569.546875,
+        "w": 39.8125,
+        "h": 39.8125
+      }
+    }
+  ],
+  "turns": [],
+  "inputs": [
+    {
+      "sharedVersion": 0,
+      "board": [
+        [
+          "FIRE",
+          "AIR",
+          "WATER",
+          "EARTH",
+          "EARTH",
+          "SPACE",
+          "FIRE"
+        ],
+        [
+          "FIRE",
+          "WATER",
+          "EARTH",
+          "WATER",
+          "WATER",
+          "AIR",
+          "WATER"
+        ],
+        [
+          "SPACE",
+          "AIR",
+          "WATER",
+          "AIR",
+          "SPACE",
+          "FIRE",
+          "SPACE"
+        ],
+        [
+          "AIR",
+          "AIR",
+          "WATER",
+          "FIRE",
+          "SPACE",
+          "SPACE",
+          "FIRE"
+        ],
+        [
+          "WATER",
+          "FIRE",
+          "AIR",
+          "FIRE",
+          "WATER",
+          "FIRE",
+          "EARTH"
+        ],
+        [
+          "SPACE",
+          "FIRE",
+          "AIR",
+          "SPACE",
+          "WATER",
+          "SPACE",
+          "AIR"
+        ],
+        [
+          "FIRE",
+          "WATER",
+          "SPACE",
+          "AIR",
+          "FIRE",
+          "EARTH",
+          "SPACE"
+        ],
+        [
+          "FIRE",
+          "FIRE",
+          "FIRE",
+          "FIRE",
+          "FIRE",
+          "EARTH",
+          "EARTH"
+        ]
+      ],
+      "magic": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "path": [
+        {
+          "r": 7,
+          "c": 0
+        },
+        {
+          "r": 7,
+          "c": 1
+        },
+        {
+          "r": 7,
+          "c": 2
+        },
+        {
+          "r": 7,
+          "c": 3
+        },
+        {
+          "r": 7,
+          "c": 4
+        }
+      ],
+      "team": [
+        {
+          "skillName": "白虎嘯陣",
+          "description": "白虎一嘯，破陣奪勢並震懾對手。整場一次。",
+          "id": "beast_g_baihu",
+          "name": "白虎",
+          "element": "SPACE",
+          "thumbnail": "/beast-game/thumb/guardian-baihu.v2.webp?v=f5380a7f9ffd",
+          "attack": 68,
+          "hp": 145,
+          "maxHp": 145,
+          "energy": 0,
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_113": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "attack",
+                "value": 7,
+                "remainingTurns": 99,
+                "source": "白虎"
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "skillName": "初鳴",
+          "description": "幼子初啼，登場護體。",
+          "id": "beast_y14",
+          "name": "壁水貐・幼子",
+          "element": "WATER",
+          "thumbnail": "/beast-game/thumb/young-14.v2-480.webp?v=84f4da20c6e3",
+          "attack": 27,
+          "hp": 54,
+          "maxHp": 54,
+          "energy": 0,
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_201": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {},
+            "shield": 8,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "skillName": "學步",
+          "description": "一次比一次穩，兩回合內攻擊提升。",
+          "id": "beast_y19",
+          "name": "畢月烏・幼子",
+          "element": "WATER",
+          "thumbnail": "/beast-game/thumb/young-19.v2-480.webp?v=aae7df0e52aa",
+          "attack": 33,
+          "hp": 74,
+          "maxHp": 74,
+          "energy": 0,
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {},
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "skillName": "藏匿",
+          "description": "受驚就躲，一回合內防禦提升。",
+          "id": "beast_y03",
+          "name": "氐土貉・幼子",
+          "element": "EARTH",
+          "thumbnail": "/beast-game/thumb/young-03.v2-480.webp?v=db14629474fa",
+          "attack": 29,
+          "hp": 72,
+          "maxHp": 72,
+          "energy": 0,
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {},
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "skillName": "嗷嗷待哺",
+          "description": "幼子自癒，回合結束回復少量生命。",
+          "id": "beast_y08",
+          "name": "斗木獬・幼子",
+          "element": "AIR",
+          "thumbnail": "/beast-game/thumb/young-08.v2-480.webp?v=1194771ca003",
+          "attack": 30,
+          "hp": 49,
+          "maxHp": 49,
+          "energy": 0,
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_206": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "speed",
+                "value": 6,
+                "remainingTurns": 99,
+                "source": "斗木獬・幼子"
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        }
+      ],
+      "foes": [
+        {
+          "id": "beast_a01",
+          "element": "AIR",
+          "hp": 323,
+          "maxHp": 323,
+          "attack": 9,
+          "cd": 1,
+          "name": "角木蛟",
+          "thumbnail": "/beast-game/thumb/adult-01.v2-480.webp"
+        },
+        {
+          "id": "beast_a16",
+          "element": "SPACE",
+          "hp": 370,
+          "maxHp": 370,
+          "attack": 9,
+          "cd": 1,
+          "name": "婁金狗",
+          "thumbnail": "/beast-game/thumb/adult-16.v2-480.webp?v=21cbd86cb3f6"
+        },
+        {
+          "id": "beast_a12",
+          "element": "WATER",
+          "hp": 350,
+          "maxHp": 350,
+          "attack": 8,
+          "cd": 1,
+          "name": "危月燕",
+          "thumbnail": "/beast-game/thumb/adult-12.v2-480.webp?v=f1e8bd091212"
+        },
+        {
+          "id": "beast_a27",
+          "element": "FIRE",
+          "hp": 294,
+          "maxHp": 294,
+          "attack": 10,
+          "cd": 1,
+          "name": "翼火蛇",
+          "thumbnail": "/beast-game/thumb/adult-27.v2-480.webp?v=e37309b58439"
+        },
+        {
+          "id": "beast_a10",
+          "element": "EARTH",
+          "hp": 419,
+          "maxHp": 419,
+          "attack": 8,
+          "cd": 1,
+          "name": "女土蝠",
+          "thumbnail": "/beast-game/thumb/adult-10.v2-480.webp?v=c36d2c013af9"
+        }
+      ],
+      "mode": "hard45",
+      "wins": 6,
+      "target": 0,
+      "seed": 1001,
+      "move": 0,
+      "chosen": {},
+      "rule": "tap-lead",
+      "attackBoost": 1,
+      "treasureGuard": 1,
+      "treasures": {
+        "version": 1,
+        "counts": {
+          "SPACE": 0,
+          "AIR": 0,
+          "WATER": 0,
+          "FIRE": 0,
+          "EARTH": 0
+        },
+        "receipts": []
+      },
+      "actionId": "4b1fc69a-fab4-4774-bee6-aa2ed389ddd6:turn:0"
+    }
+  ],
+  "visible": "回到首頁\n我的卡片\n困難・56 珠・可斜連\n寶珠戰・困難｜56 珠斜連\n第 7 關 · 7顆可攻擊\n困難·1回合\n玩法與操作\n5 對 5・56 顆寶珠・可斜連・敵方：角木蛟・婁金狗・危月燕・翼火蛇・女土蝠\n敵方神獸（點選指定目標；出手時標示反擊中）戰鬥進行中\n\n相鄰同色珠三顆起可消除（可斜連）；攻擊須達本關門檻\n\n暫時無法完成本回合，請重新連珠。\n\n出戰神獸（點卡設優先；滿能量點「技能」）傷害 0\n1\n0\n1\n0\n2\n0\n1\n0\n1\n0",
+  "cells": [
+    {
+      "r": 556.546875,
+      "bottom": 596.359375,
+      "hit": "SPAN",
+      "hitClass": "Match3Board_gem__Xra1L",
+      "cell": true
+    },
+    {
+      "r": 556.546875,
+      "bottom": 596.375,
+      "hit": "SPAN",
+      "hitClass": "Match3Board_gem__Xra1L",
+      "cell": true
+    },
+    {
+      "r": 556.546875,
+      "bottom": 596.359375,
+      "hit": "SPAN",
+      "hitClass": "Match3Board_gem__Xra1L",
+      "cell": true
+    },
+    {
+      "r": 556.546875,
+      "bottom": 596.375,
+      "hit": "SPAN",
+      "hitClass": "Match3Board_gem__Xra1L",
+      "cell": true
+    },
+    {
+      "r": 556.546875,
+      "bottom": 596.359375,
+      "hit": "SPAN",
+      "hitClass": "Match3Board_gem__Xra1L",
+      "cell": true
+    },
+    {
+      "r": 556.546875,
+      "bottom": 596.375,
+      "hit": "SPAN",
+      "hitClass": "Match3Board_gem__Xra1L",
+      "cell": true
+    },
+    {
+      "r": 556.546875,
+      "bottom": 596.375,
+      "hit": "SPAN",
+      "hitClass": "Match3Board_gem__Xra1L",
+      "cell": true
+    }
+  ]
+}

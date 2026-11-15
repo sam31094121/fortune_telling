@@ -57,7 +57,7 @@ export function useDragChain(board: Board, enabled: boolean, onRelease: (path: C
     try { ref.current?.setPointerCapture(e.pointerId); } catch { /* 部分瀏覽器不支援 */ }
     ptsRef.current = [hit.pt]; commit([hit.cell], ptsRef.current);
   };
-  const onPointerMove = (e: RPointerEvent<HTMLDivElement>) => {
+  const onPointerMove = (e: Pick<RPointerEvent<HTMLDivElement>, 'clientX' | 'clientY' | 'nativeEvent'>) => {
     let cur = pathRef.current; if (!cur.length) return;
     let pts = ptsRef.current;
     // Busy browsers batch pointer samples. Validate every recorded point, never
@@ -73,6 +73,17 @@ export function useDragChain(board: Board, enabled: boolean, onRelease: (path: C
     }
     if (cur !== pathRef.current) { ptsRef.current = pts; commit(cur, pts); }
   };
+  // Native delivery preserves every browser sample while React is rendering.
+  // React continuous-event delivery may skip intermediate moves under load.
+  const moveHandler = useRef(onPointerMove);
+  moveHandler.current = onPointerMove;
+  useEffect(() => {
+    const host = ref.current; if (!host) return;
+    const move = (event: PointerEvent) => moveHandler.current({ clientX: event.clientX, clientY: event.clientY, nativeEvent: event });
+    host.addEventListener('pointermove', move);
+    return () => host.removeEventListener('pointermove', move);
+  }, []);
+
   const end = () => {
     releaseGeometry();
     const done = pathRef.current; ptsRef.current = []; commit([], []);
@@ -80,7 +91,7 @@ export function useDragChain(board: Board, enabled: boolean, onRelease: (path: C
   };
   const cancel = () => { releaseGeometry(); ptsRef.current = []; commit([], []); };
 
-  return { ref, path, points, handlers: { onPointerDown, onPointerMove, onPointerUp: end, onPointerCancel: cancel } };
+  return { ref, path, points, handlers: { onPointerDown, onPointerUp: end, onPointerCancel: cancel } };
 }
 
 /** 拖曳路徑：SVG 折線，疊在盤面上，不擋指標。 */

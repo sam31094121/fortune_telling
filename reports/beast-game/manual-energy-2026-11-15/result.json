@@ -416,7 +416,7 @@
         },
         "receipts": []
       },
-      "actionId": "d8146e94-e389-4622-b0ce-f82b0552d74b:turn:0"
+      "actionId": "3c86fc44-66fd-4837-9d7e-aa687a8398e0:turn:0"
     },
     {
       "sharedBattleToken": "[isolated test token omitted]",
@@ -895,7 +895,7 @@
         },
         "receipts": []
       },
-      "actionId": "d8146e94-e389-4622-b0ce-f82b0552d74b:turn:1"
+      "actionId": "3c86fc44-66fd-4837-9d7e-aa687a8398e0:turn:1"
     },
     {
       "sharedBattleToken": "[isolated test token omitted]",
@@ -1380,7 +1380,7 @@
         },
         "receipts": []
       },
-      "actionId": "d8146e94-e389-4622-b0ce-f82b0552d74b:turn:2"
+      "actionId": "3c86fc44-66fd-4837-9d7e-aa687a8398e0:turn:2"
     },
     {
       "sharedBattleToken": "[isolated test token omitted]",
@@ -1846,7 +1846,7 @@
       "action": "energy",
       "attackerId": "beast_a02",
       "eventId": "17:energy:1",
-      "actionId": "52bf3508-6bc9-42b4-84ec-46338926c24e:skill:1"
+      "actionId": "e858d493-4d19-4285-b0c0-9148f85cda77:skill:1"
     },
     {
       "sharedBattleToken": "[isolated test token omitted]",
@@ -2312,7 +2312,7 @@
       "action": "energy",
       "attackerId": "beast_a02",
       "eventId": "17:energy:1",
-      "actionId": "52bf3508-6bc9-42b4-84ec-46338926c24e:skill:1"
+      "actionId": "e858d493-4d19-4285-b0c0-9148f85cda77:skill:1"
     }
   ],
   "errors": [],
@@ -2793,7 +2793,7 @@
   "reloadWithoutAttack": true,
   "committedEnergyReply": {
     "action": "energy",
-    "actionId": "orb:942e9fbe-caf3-49d4-9397-e668be881b6c:3",
+    "actionId": "orb:f3cc6752-b05f-494a-87d7-fc581dbdee71:3",
     "targetId": "beast_y07",
     "attackerIds": [
       "beast_a02"
@@ -2903,7 +2903,7 @@
           "playerAttackReceipts": [
             "2654435778:1:orb:0",
             "1013904243:2:orb:0",
-            "orb:942e9fbe-caf3-49d4-9397-e668be881b6c:3"
+            "orb:f3cc6752-b05f-494a-87d7-fc581dbdee71:3"
           ],
           "uses": {
             "skill_102": 2,
@@ -2914,7 +2914,7 @@
             "ON_SUMMON": true
           },
           "lastEvents": {
-            "ON_ATTACK": "orb:942e9fbe-caf3-49d4-9397-e668be881b6c:3",
+            "ON_ATTACK": "orb:f3cc6752-b05f-494a-87d7-fc581dbdee71:3",
             "ON_TURN_END": "1013904243:2:end",
             "ON_TURN_START": "1013904243:2:start"
           },
@@ -3332,7 +3332,7 @@
           "shield": 20,
           "modifiers": [],
           "lastEvents": {
-            "ON_ATTACK": "orb:942e9fbe-caf3-49d4-9397-e668be881b6c:3",
+            "ON_ATTACK": "orb:f3cc6752-b05f-494a-87d7-fc581dbdee71:3",
             "ON_TURN_END": "1013904243:2:end",
             "ON_TURN_START": "1013904243:2:start"
           },
@@ -3346,7 +3346,7 @@
           "playerAttackReceipts": [
             "2654435778:1:orb:0",
             "1013904243:2:orb:0",
-            "orb:942e9fbe-caf3-49d4-9397-e668be881b6c:3"
+            "orb:f3cc6752-b05f-494a-87d7-fc581dbdee71:3"
           ]
         }
       },
@@ -3586,6 +3586,6 @@
   },
   "doubleTapAndLostResponseOnce": true,
   "passed": true,
-  "video": "C:\\Users\\DRAGON\\Desktop\\命理\\reports\\beast-game\\manual-energy-2026-11-15\\page@d3509bc6be8f63ffee02beb32fe2f18f.webm",
+  "video": "C:\\Users\\DRAGON\\Desktop\\命理\\reports\\beast-game\\manual-energy-2026-11-15\\page@17948f534454a7a601d435faa84dc0a0.webm",
   "cleaned": true
 }
