@@ -235,3 +235,6 @@
 .infoCard p { margin: 4px 0; font-size: 14px; line-height: 1.6; }
 .infoCard a { color: #7dd3fc; font-weight: 800; }
 .infoClose { margin-top: 14px; width: 100%; min-height: 44px; border-radius: 12px; border: 1px solid #ffd47980; background: #ffffff0d; color: #ffd479; font-weight: 900; cursor: pointer; }
+
+/* 食物鏈 2026-11-15：「收藏不足五種」提示放在捲動區最後，留出底部空間（含 iOS safe-area），捲到底能完整看見、不被底部「返回選隊」列或黏底確認鈕壓住。 */
+.shortage { margin: 12px 0 0; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); line-height: 1.6; scroll-margin-bottom: 16px; }

@@ -72,7 +72,8 @@ export function cultivationView(snapshot: CultivationSnapshot) {
     shards:snapshot.shards,starterPack:snapshot.starterPack,
     granted:(snapshot.creditedIds??[]).filter(id=>id.startsWith('copy:growth:')).map(id=>id.slice('copy:growth:'.length)),
     canProtectFive: new Set(cards.map(c => c.cardId)).size >= 5,
-    reason: snapshot.pendingBattle ? '戰鬥尚未結算，暫不能合體或更換主力。' : snapshot.state.protectedIds.length !== 5 ? '請先親選並鎖定五隻不同卡型的收藏主力。' : null };
+    // 吃卡不再要求先鎖五隻主力（2026-11-15 23:32）；只剩戰鬥未結算會擋。
+    reason: snapshot.pendingBattle ? '戰鬥尚未結算，暫不能合體或更換主力。' : null };
 }
 
 /** The UI prints these exact server values; it never recomputes attack gains. */

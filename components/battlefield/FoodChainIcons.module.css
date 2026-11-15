@@ -16,6 +16,9 @@
 .alertGlyph {font-size:28px;line-height:1;}
 .loading {font-size:28px;text-align:center;}
 .grid button, .panel :global(button) {min-height:44px;}
+.panel .stickyConfirm {position:sticky;bottom:4px;z-index:5;box-shadow:0 0 0 4px #101b2d,0 -10px 16px rgba(5,11,24,.9);}
+.panel .stickyConfirm:disabled {background:#8a7a52;color:#211b11;opacity:1;}
+.previewAnchor {scroll-margin-bottom:calc(76px + env(safe-area-inset-bottom, 0px));scroll-margin-top:12px;}
 .panel [data-main-copy], .panel [data-shared-target], .panel [data-shared-material] {position:relative;}
 @keyframes nope {0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(3px);}}
 @keyframes spin {from{transform:rotate(0);}to{transform:rotate(360deg);}}

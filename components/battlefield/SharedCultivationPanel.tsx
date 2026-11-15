@@ -131,9 +131,10 @@ function Sr({children}:{children:React.ReactNode}){return <span className={icon.
 type IconProps={view:SharedCultivationView|null;main:string[];setMain:React.Dispatch<React.SetStateAction<string[]>>;target:string;setTarget:(v:string)=>void;material:string;setMaterial:(v:string)=>void;preview:CultivationFeedback|null;saved:CultivationFeedback|null;busy:boolean;error:string;message:string;options:{targetId:string;byId:Record<string,{feedback?:CultivationFeedback;error?:string}>}|null;operation:React.MutableRefObject<string|null>;resultRef:React.RefObject<HTMLDivElement|null>;ready:boolean;load:()=>Promise<void>;save:(t:'MAIN_TEAM'|'FUSE')=>Promise<void>;onDone?:()=>void;setBusy:(v:boolean)=>void;setError:(v:string)=>void};
 function IconPanel(p:IconProps) {
   const {view,main,target,material,preview,saved,busy,error,options}=p;
-  // 手機 390：預覽出來就把勾勾確認鈕捲進可視範圍（避開底部固定列）。
-  const confirmRef=useRef<HTMLButtonElement>(null);
-  useEffect(()=>{if(preview)confirmRef.current?.scrollIntoView({block:'nearest',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});},[preview]);
+  // 手機 390：勾勾確認鈕黏在捲動區底部（sticky，永遠在畫面內，不壓到底部「返回選隊」列）；
+  // 預覽出來時把即時 +X% 捲進可視範圍，並預留確認鈕的高度（scroll-margin-bottom），數字不被鈕蓋住。純版面，不改邏輯。
+  const confirmRef=useRef<HTMLButtonElement>(null),previewRef=useRef<HTMLDivElement>(null);
+  useEffect(()=>{if(preview)(previewRef.current??confirmRef.current)?.scrollIntoView({block:'nearest',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});},[preview]);
   const targetCard=view?.cards.find(c=>c.id===target);
   const err=error?errorIcon(error):null;
   return <section className={`${styles.panel} ${icon.panel}`} data-shared-cultivation data-icon-only aria-label="共同神獸卡庫・合體培養">
@@ -154,8 +155,8 @@ function IconPanel(p:IconProps) {
           {e?<b className={`${icon.chip} ${icon.chipError}`} data-feed-chip-error data-error-kind={e.kind} aria-hidden="true">{e.glyph}</b>:f?<b className={icon.chip} data-feed-chip={f.addedBonus} aria-hidden="true">+{f.addedPercent.label}%{f.starsBefore&&f.starsAfter&&f.starsAfter.stars>f.starsBefore.stars?<> ★↑</>:null}</b>:null}
         </button>;})}</div>
         {!view.cards.some(c=>!c.protected&&c.materialTargetCardId===targetCard.cardId)&&<div role="status" data-no-material className={icon.alert} data-error-kind="empty"><span className={icon.alertGlyph} aria-hidden="true">🍴✖</span><Sr>目前沒有可以餵給這張卡的材料（鎖定主力不能當材料）。</Sr></div>}</>}
-      {preview&&<div data-shared-preview><FoodChainFeedback change={preview} phase="preview" iconOnly/></div>}
-      <button ref={confirmRef} type="button" className={`${styles.confirm} ${styles.feedbackAnchor} ${icon.check}`} data-confirm-shared-fusion aria-label={busy?'正在保存…':'確認消耗材料並合體'} disabled={busy||!p.ready||!!view.pendingBattle} onClick={()=>void p.save('FUSE')}><span aria-hidden="true">{busy?'⏳':'✓'}</span></button>
+      {preview&&<div ref={previewRef} data-shared-preview className={icon.previewAnchor}><FoodChainFeedback change={preview} phase="preview" iconOnly/></div>}
+      <button ref={confirmRef} type="button" className={`${styles.confirm} ${styles.feedbackAnchor} ${icon.check} ${icon.stickyConfirm}`} data-sticky-confirm data-confirm-shared-fusion aria-label={busy?'正在保存…':'確認消耗材料並合體'} disabled={busy||!p.ready||!!view.pendingBattle} onClick={()=>void p.save('FUSE')}><span aria-hidden="true">{busy?'⏳':'✓'}</span></button>
     </>}
     {p.onDone&&<button type="button" className={icon.iconBtn} disabled={busy} onClick={p.onDone} aria-label="返回選卡"><span aria-hidden="true">↩</span></button>}
   </section>;
