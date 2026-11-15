@@ -23,10 +23,12 @@
 .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @keyframes gfDraw { 0% { stroke-dashoffset: 1; opacity: 0; } 12% { opacity: 1; } 55% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
 @keyframes gfStar { 0% { opacity: 0; transform-box: fill-box; transform-origin: center; transform: scale(.2); } 25% { opacity: 1; transform: scale(1.4); } 70% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1); } }
-@keyframes gfSeal { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.6); } 22% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); } 34% { transform: translate(-50%, -50%) scale(1); } 82% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1); } }
+/* --gfit 由 GuardianFusionTrace 依卡寬算出：放大最大的 1.08 那格乘上 --gfit 後仍完整在本尊卡內。 */
+@keyframes gfSeal { 0% { opacity: 0; transform: translate(-50%, -50%) scale(calc(var(--gfit, 1) * .6)); } 22% { opacity: 1; transform: translate(-50%, -50%) scale(calc(var(--gfit, 1) * 1.08)); } 34% { transform: translate(-50%, -50%) scale(var(--gfit, 1)); } 82% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(var(--gfit, 1)); } }
 @media (prefers-reduced-motion: reduce) {
   .trace path { animation: none; stroke-dashoffset: 0; opacity: .85; }
   .trace circle, .seal { animation: none; }
+  .seal { transform: translate(-50%, -50%) scale(var(--gfit, 1)); }
 }
 /* 食物鏈 5A：本尊有永久加成時的「已合體 +N」小標（只顯示）。 */
 .seal em { font-style: normal; font-size: 10px; margin-left: 4px; padding-left: 4px; border-left: 1px solid color-mix(in srgb, var(--gf, #f5d27a) 70%, transparent); color: #ffe7a3; }

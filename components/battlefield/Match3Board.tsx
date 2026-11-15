@@ -370,9 +370,9 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
   const showBanner = (text: string, kind: 'magic' | 'skill' | 'counter' | 'info', visual = rigEnabled) => queuedBanner(text, kind, visual);
   const sound = (f: number) => { if (!muted) beep(f); };
   /** 每次玩家出手（連珠、能量技、連線攻擊）結算後呼叫；回傳給 log 的簡述。 */
-  const noteGuardianFusion = (hits: readonly { attackerId?: string | null; amount: number }[], teamNow: readonly Unit[]): string => {
+  const noteGuardianFusion = (hits: readonly { attackerId?: string | null; amount: number }[], teamNow: readonly Unit[], newMove = false): string => {
     if (!rigEnabled) return '';
-    const stepped = stepGuardianFusion(teamNow, fusionStrikers(hits), fusionState.current);
+    const stepped = stepGuardianFusion(teamNow, fusionStrikers(hits), fusionState.current, newMove);
     fusionState.current = stepped.state;
     const fused = stepped.fusions;
     if (!fused.length) return '';
@@ -870,7 +870,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
       if (res.magicSpawn) msg += `，生成魔法珠（威力 ${res.magicSpawn.power}）`;
       if (res.reshuffled) msg += '；沒有可攻擊連線，已整理普通寶珠；數字與盾牌保留';
       if (nf[actionTarget].hp <= 0) msg += `；${foe.name}倒下`;
-      { const fusedText = noteGuardianFusion(actualHits, nextTeam); if (fusedText) msg += `；${fusedText}`; }
+      { const fusedText = noteGuardianFusion(actualHits, nextTeam, true); if (fusedText) msg += `；${fusedText}`; }
       endStep(nextTeam, nf, msg, actualDealt > 0, rigEnabled, prepared.guardScale < 1, true, prepared);
     };
     if (playback) {
@@ -1157,7 +1157,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
         <p>玩家消除同屬性寶珠累積能量，珠數越多充能越快；滿條後點亮起的神獸發招並歸零。敵方每次有效連珠增加四分之一，連鎖不重複累加，滿條後依關卡順序出手並歸零。受控不能出手，待命敵人不蓄力；能量技與連線技能不充能。</p>
         <p>五色盾牌連線只消耗連到的盾牌，其餘寶珠下落後全變各自屬性的盾牌，空位補普通珠；不獲得法寶。同屬性純盾牌一次連4、5、6、7、8格，分別只取得第1、2、3、4、5號法寶一件，按實際格數計算，不按盾牌儲存威力計數。同屬性隊員按順序分配不同種類，階級越高基礎威力越高。點下方寶器直接釋放，消耗一件，不增加敵方回合。自己的未用寶器可帶到下一關，親友的僅限本關；保存在本瀏覽器。</p>
         {treasures.map(x => <p key={x.element+':'+x.variant}>{x.name}：{x.description}</p>)}
-        <p data-testid="match3-guardian-fusion-help">四象合體：主角四象與自己統領的星宿（青龍：角亢氐房心尾箕；朱雀：井鬼柳星張翼軫；白虎：奎婁胃昴畢觜參；玄武：斗牛女虛危室壁），在同一步或緊接的下一步都打出傷害，就會連成星宿線並亮起合體印；合體後緊接的下一步休息一次，不再合體。只是特效，不加傷害、不改規則。</p>
+        <p data-testid="match3-guardian-fusion-help">四象合體：主角四象與自己統領的星宿（青龍：角亢氐房心尾箕；朱雀：井鬼柳星張翼軫；白虎：奎婁胃昴畢觜參；玄武：斗牛女虛危室壁），在同一步或緊接的下一步都打出傷害，就會連成星宿線並亮起合體印；合體後，下一次拖珠（連同它帶出的連線攻擊、能量技）休息一次，不再合體。只是特效，不加傷害、不改規則。</p>
         <p>五行補血與盾牌組合請點開「五行與盾牌目標」。獲勝挑戰下一關，落敗原難度重試。</p>
       </div> : <p className={styles.help}>{rigEnabled ? '至少連過三格同色珠，普通珠算一顆，數字珠按其數字累加；例如三顆普通珠加數字五，合計八顆。合計七顆以上可獲得一顆 080 盾牌；之後以有效同色連線連入盾牌，清除整盤同色珠。至少三顆同屬性純盾牌連接會合擊，消耗本次連到的盾牌，按既有卡片與儲存顆數攻擊，本次寶珠攻擊強化1.5倍；其餘同屬性寶珠轉為盾牌，原本較高的數值保留。至少三顆不同顏色純盾牌連接，二至四色合體清除整盤對應顏色；五色只消耗連到的盾牌，其餘寶珠依原屬性升為盾牌並保留高數值，空位補普通珠，依實際消除數量替對應卡片充能，最多充滿現有技能條；雙色或三色減傷50%、四色減傷60%並回復10%生命、五色只升盾，不附帶攻擊、回血、減傷或法寶；防護只限本輪、不疊加。剩餘珠子先下落合成，再補新珠；自然連線累計四顆以上會保留數字，七顆以上變盾牌，三顆只消除。連線不能交叉、重疊或跳格。' : ''}{cfg.diagonal ? '本模式可斜連：上下左右與四個斜角都算相鄰。' : ''}拖過相鄰同色珠 3 顆以上可消除；本關連 {rigEnabled ? stage.minChain : 3} 顆以上放開才會攻擊目前目標；只有主屬性相同的卡出手。連 4 顆以上生成魔法珠，剛好 5 顆觸發五珠技（該屬性卡能量集滿）。每顆 +10 能量，滿 100 點「{rigEnabled ? '能量攻擊' : '技能'}」。{rigEnabled && '我方原卡招牌技能依登場、攻擊、受創及回合時機自動觸發，沿用原次數；能量按鈕保留通用攻擊，不另消耗回合。敵方從第八關起逐步啟用原卡技能；沒有抽棄牌區，抽棄牌效果不適用。'}{rigEnabled ? '每次非空寶石捷連線都算一次回合，誤按一、二顆或無效路線也會由對方反擊一次；連三顆起才可消除補珠；未達本關攻擊顆數則我方傷害為零，仍換對方攻擊。儲存能量的單卡與多卡攻擊不消耗回合，也不觸發反擊。全關卡五對五。第一關五張幼子、第二至第七關五張成獸；第八關起，敵方前四格為成獸，第五格為一張神獸，前四張倒下後才參戰並可被攻擊，後續始終只有這一個神獸席位，通關後依白虎、朱雀、青龍、玄武輪替，失敗重試不換；每次由一張存活卡反擊。第八關及之後連六顆以上即可攻擊，第一至第七關維持各關門檻；對方強度繼續逐關提高。獲勝升一關，落敗保留難度重試；本人進度保存在這個瀏覽器，親友進度只在本分頁保留，重新選擇親友會重來。生命歸零倒下，全隊倒下結算。' : <>每隻敵人 ⏳ 倒數到 0 就反擊（本模式每 {cfg.counterEvery} 步）。</>}連線模式：點選 2 張以上、每張 50 能量的卡，按「發動連線攻擊」。</p>)}
 

@@ -1,16 +1,16 @@
 'use client';
 /**
  * 寶石捷連線・四象合體特效（純視覺）。
- * 本尊與一起出手的本象星宿之間拉出星宿連線，本尊卡內下段（招牌技能字下方、血條上方）短暫浮出一枚「白虎合體」印，不超出卡框、不壓到棋盤；1.4 秒後自動消失。
+ * 本尊與一起出手的本象星宿之間拉出星宿連線，本尊卡內下段（招牌技能字下方、血條上方）短暫浮出一枚「白虎合體」印；印的大小依卡寬自動縮放，連彈出放大的那一格也不超出卡框、不壓到棋盤；1.4 秒後自動消失。
  * 不攔截點擊（pointer-events: none），不改任何數值；判定見 lib/beast-game/match3/guardian-fusion.ts。
- * 食物鏈 5A（2026-11-15）：本尊已有永久加成時，合體印多顯示「已合體 +N」（N＝伺服端凍結進本局的加成），只顯示、傷害不變。
+ * 食物鏈 5A（2026-11-15）：本尊已有永久加成時，合體印多顯示「已合體 +N」（N＝伺服端凍結進本局的加成），只顯示、傷害不變；「+N」在同一枚印內，跟著印一起依卡寬縮放。
  */
-import { useLayoutEffect, useState, type RefObject } from 'react';
-import type { GuardianFusion } from '@/lib/beast-game/match3/guardian-fusion';
+import { useLayoutEffect, useRef, useState, type RefObject } from 'react';
+import { guardianSealFit, GUARDIAN_SEAL_Y, type GuardianFusion } from '@/lib/beast-game/match3/guardian-fusion';
 import styles from './GuardianFusionTrace.module.css';
 
 interface Point { x: number; y: number; w: number; h: number }
-interface Drawn { fusion: GuardianFusion; core: Point; members: Point[]; width: number }
+interface Drawn { fusion: GuardianFusion; core: Point; members: Point[] }
 
 export default function GuardianFusionTrace({ fx, root, colorOf, label, bonusOf }: {
   fx: { key: number; fusions: GuardianFusion[] } | null;
@@ -20,6 +20,8 @@ export default function GuardianFusionTrace({ fx, root, colorOf, label, bonusOf 
   bonusOf?: (id: string) => number | undefined;
 }) {
   const [drawn, setDrawn] = useState<Drawn[]>([]);
+  const [fits, setFits] = useState<Record<string, number>>({});
+  const seals = useRef(new Map<string, HTMLElement>());
   useLayoutEffect(() => {
     const host = root.current;
     if (!fx || !host) { setDrawn([]); return; }
@@ -32,12 +34,18 @@ export default function GuardianFusionTrace({ fx, root, colorOf, label, bonusOf 
     setDrawn(fx.fusions.flatMap(fusion => {
       const core = at(fusion.coreId);
       const members = fusion.memberIds.map(at).filter((p): p is Point => !!p);
-      return core ? [{ fusion, core, members, width: box.width }] : [];
+      return core ? [{ fusion, core, members }] : [];
     }));
   }, [fx, root]);
+  // 量到印的實際尺寸後才決定縮放（在第一次繪製前完成），保證 0%→22% 彈出的每一格都不出卡框。
+  useLayoutEffect(() => {
+    const next: Record<string, number> = {};
+    for (const d of drawn) { const el = seals.current.get(d.fusion.key); if (el) next[d.fusion.key] = guardianSealFit(d.core, { w: el.offsetWidth, h: el.offsetHeight }); }
+    setFits(cur => JSON.stringify(cur) === JSON.stringify(next) ? cur : next);
+  }, [drawn]);
   if (!fx || !drawn.length) return null;
   return <div className={styles.layer} data-testid="match3-guardian-fusion" data-key={fx.key} data-guardians={drawn.map(d => d.fusion.key).join(',')} role="status">
-    {drawn.map(({ fusion, core, members, width }) => <div key={fusion.key} className={styles.group} style={{ ['--gf' as string]: colorOf(fusion) }} data-guardian={fusion.key} data-core={fusion.coreId} data-members={fusion.memberIds.join(',')}>
+    {drawn.map(({ fusion, core, members }) => <div key={fusion.key} className={styles.group} style={{ ['--gf' as string]: colorOf(fusion) }} data-guardian={fusion.key} data-core={fusion.coreId} data-members={fusion.memberIds.join(',')}>
       <span className={styles.srOnly}>{label(fusion)}</span>
       <svg className={styles.trace} aria-hidden="true">
         {members.map((m, i) => <g key={i}>
@@ -45,7 +53,7 @@ export default function GuardianFusionTrace({ fx, root, colorOf, label, bonusOf 
           <circle cx={m.x} cy={m.y - m.h * 0.18} r="3.2" style={{ ['--i' as string]: i }} />
         </g>)}
       </svg>
-      <span className={styles.seal} aria-hidden="true" style={{ left: Math.min(Math.max(core.x, 36), width - 36), top: core.y + core.h * 0.18 }}><b>{fusion.short}</b><i>合體</i>{(bonusOf?.(fusion.coreId) ?? 0) > 0 && <em data-fusion-bonus={bonusOf!(fusion.coreId)}><span>已合體</span> +{bonusOf!(fusion.coreId)}</em>}</span>
+      <span className={styles.seal} aria-hidden="true" data-seal-fit={fits[fusion.key] ?? ''} ref={el => { if (el) seals.current.set(fusion.key, el); else seals.current.delete(fusion.key); }} style={{ left: core.x, top: core.y + core.h * GUARDIAN_SEAL_Y, ['--gfit' as string]: fits[fusion.key] ?? 1, visibility: fits[fusion.key] === undefined ? 'hidden' : undefined }}><b>{fusion.short}</b><i>合體</i>{(bonusOf?.(fusion.coreId) ?? 0) > 0 && <em data-fusion-bonus={bonusOf!(fusion.coreId)}><span>已合體</span> +{bonusOf!(fusion.coreId)}</em>}</span>
     </div>)}
   </div>;
 }

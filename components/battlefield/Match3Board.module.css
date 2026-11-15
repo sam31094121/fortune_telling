@@ -1072,8 +1072,8 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .wrap[data-mode^="hard"] .ally[data-guardian-fusion="core"] .fusedUnit { outline-width: 3px; }
 @keyframes guardianFusionRim { 0% { outline-color: transparent; } 18% { outline-color: var(--gf); } 80% { outline-color: var(--gf); } 100% { outline-color: transparent; } }
 @media (prefers-reduced-motion: reduce) { .wrap[data-mode^="hard"] .ally[data-guardian-fusion] .fusedUnit { animation: none; } }
-/* 合體期間本尊（及參與星宿）卡不留空：神獸攻擊動畫衝出卡面時，卡內保留 70% 本尊身影（本尊坐鎮）。只在 data-rig-active 時生效，不改動畫本身。 */
-.wrap[data-mode^="hard"] .ally[data-guardian-fusion][data-rig-active="true"] [data-rig-source] { opacity: .7 !important; }
+/* 合體期間本尊（及參與星宿）卡不留空、不半透明：神獸攻擊動畫衝出卡面時，卡面維持實心（本尊坐鎮）。只在 data-rig-active 時生效，不改動畫本身（BeastRigStage 只量卡的位置，不讀透明度）。 */
+.wrap[data-mode^="hard"] .ally[data-guardian-fusion][data-rig-active="true"] [data-rig-source] { opacity: 1 !important; }
 /* 米其林 11/14（動效助手）：
    1) 拿掉 .orb 常駐 will-change（原本 56 顆寶珠＋2 共 58 個合成層）；選取縮放／掉落動畫進行時瀏覽器會自動升層，.falling 自帶 will-change。
    2) 最後一隻／魔王大卡不再把敵方列撐高 14–20px：列高固定為平常一排的高度（--foe-row-h，Match3Board 量測），
