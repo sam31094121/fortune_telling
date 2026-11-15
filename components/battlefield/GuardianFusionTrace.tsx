@@ -1,7 +1,7 @@
 'use client';
 /**
  * 寶石捷連線・四象合體特效（純視覺）。
- * 本尊與一起出手的本象星宿之間拉出星宿連線，本尊卡頂緣上方短暫浮出一枚「白虎合體」印（不蓋住卡上的招牌技能字）；1.4 秒後自動消失。
+ * 本尊與一起出手的本象星宿之間拉出星宿連線，本尊卡內下段（招牌技能字下方、血條上方）短暫浮出一枚「白虎合體」印，不超出卡框、不壓到棋盤；1.4 秒後自動消失。
  * 不攔截點擊（pointer-events: none），不改任何數值；判定見 lib/beast-game/match3/guardian-fusion.ts。
  */
 import { useLayoutEffect, useState, type RefObject } from 'react';
@@ -43,7 +43,7 @@ export default function GuardianFusionTrace({ fx, root, colorOf, label }: {
           <circle cx={m.x} cy={m.y - m.h * 0.18} r="3.2" style={{ ['--i' as string]: i }} />
         </g>)}
       </svg>
-      <span className={styles.seal} aria-hidden="true" style={{ left: Math.min(Math.max(core.x, 36), width - 36), top: core.y - core.h / 2 - 3 }}><b>{fusion.short}</b><i>合體</i></span>
+      <span className={styles.seal} aria-hidden="true" style={{ left: Math.min(Math.max(core.x, 36), width - 36), top: core.y + core.h * 0.18 }}><b>{fusion.short}</b><i>合體</i></span>
     </div>)}
   </div>;
 }

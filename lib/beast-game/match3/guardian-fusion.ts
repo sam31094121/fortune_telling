@@ -71,6 +71,20 @@ export function nextFusionCarry(current: readonly string[], fused: readonly Guar
   return fused.length ? [] : [...current];
 }
 
+/** 合體判定的跨步狀態：carry＝上一步留下的出手者；cooldown＝上一步剛合體，這一步冷卻。 */
+export interface GuardianFusionState { carry: string[]; cooldown: boolean }
+export const GUARDIAN_FUSION_START: GuardianFusionState = Object.freeze({ carry: [], cooldown: false }) as GuardianFusionState;
+
+/**
+ * 一步一呼叫（連珠、能量技、連線攻擊各算一步）。
+ * 冷卻：合體後緊接的下一步不判定合體，該步出手者也不累積；再下一步恢復正常判定。
+ */
+export function stepGuardianFusion(team: readonly FusionUnit[], current: readonly string[], state: GuardianFusionState = GUARDIAN_FUSION_START): { fusions: GuardianFusion[]; state: GuardianFusionState } {
+  if (state.cooldown) return { fusions: [], state: { carry: [], cooldown: false } };
+  const fusions = guardianFusions(team, current, state.carry);
+  return { fusions, state: { carry: nextFusionCarry(current, fusions), cooldown: fusions.length > 0 } };
+}
+
 /** 給說明與無障礙文字用：「白虎合體：西方白虎＋奎木狼」。 */
 export function guardianFusionLabel(f: GuardianFusion, nameOf: (id: string) => string | undefined): string {
   return `${f.short}合體：${[f.coreId, ...f.memberIds].map(id => nameOf(id) ?? '隊友').join('＋')}（僅特效，不加傷害）`;
