@@ -2,9 +2,8 @@ import { createHash } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { cultivationRepository } from '@/lib/beast-game/cultivation-repository';
 import { prepareCultivationMigration } from '@/lib/beast-game/cultivation-migration';
-import { transactCultivation, type CultivationCommand } from '@/lib/beast-game/cultivation-transaction';
-import { cultivationView } from '@/lib/beast-game/cultivation-view';
-import { fuseCultivation } from '@/lib/beast-game/cultivation';
+import { transactCultivation, fuseSnapshot, type CultivationCommand } from '@/lib/beast-game/cultivation-transaction';
+import { cultivationView, describeCultivationChange } from '@/lib/beast-game/cultivation-view';
 import { updateCultivationAccount, importExistingGrants, releaseCultivationBattle, creditSharedShards, exchangeSharedShards, legacyGrowthCollection } from '@/lib/beast-game/cultivation-games';
 import { migrateCollection } from '@/lib/beast-collection-ledger';
 import { sharedOrbProfile, beginSharedOrb } from '@/lib/beast-game/cultivation-orb';
@@ -64,12 +63,12 @@ export async function POST(request: Request) {
       const snapshot = await repository.read(owner);
       if (snapshot.revision !== body.revision) throw new Error('卡庫已更新，請重新選擇。');
       if (snapshot.pendingBattle) throw new Error('戰鬥尚未結算，暫不能合體。');
-      const preview = fuseCultivation(snapshot.state, body.choices);
-      return NextResponse.json({ ok: true, changes: preview.changes }, { headers });
+      const preview = fuseSnapshot(snapshot, body.choices);
+      return NextResponse.json({ ok: true, changes: preview.changes, feedback: preview.changes.map(describeCultivationChange) }, { headers });
     }
     if (body?.type !== 'FUSE' && body?.type !== 'MAIN_TEAM') throw new Error('共同卡庫操作無效。');
     const command: CultivationCommand = body.type === 'FUSE' ? { type: 'FUSE', choices: body.choices } : { type: 'MAIN_TEAM', ids: body.ids };
     const result = await transactCultivation(repository, owner, body.operationId, body.revision, command);
-    return NextResponse.json({ ok: true, view: cultivationView(result.snapshot), receipt: result.receipt, duplicate: result.duplicate }, { headers });
+    return NextResponse.json({ ok: true, view: cultivationView(result.snapshot), receipt: result.receipt, feedback: result.receipt.changes.map(describeCultivationChange), duplicate: result.duplicate }, { headers });
   } catch (error) { return failure(error); }
 }

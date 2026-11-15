@@ -1,21 +1,70 @@
 import 'server-only';
-import { exactBonus, cultivationTarget } from './cultivation';
-import type { CultivationSnapshot } from './cultivation-transaction';
+import { exactBonus, cultivationTarget, type CultivationChange } from './cultivation';
+import { fedCounter, type CultivationSnapshot } from './cultivation-transaction';
+import { attackBonusCap, starProgress, activeFoodChainRule, type StarProgress } from './cultivation-rules';
 import { getCard } from './registry';
 import { newMatch } from './interactive';
 
+/** 神獸戰鬥的卡面原始攻擊（與寶石捷連線的卡面攻擊分開保存）。 */
+export function battleBaseAttack(cardId: string): bigint {
+  return BigInt(newMatch([cardId], [cardId], 0).player.team[0].attack);
+}
+/** 百分比以目標卡面原始攻擊為基準（10A），伺服端換算好給畫面照印：bps＝萬分比整數，label＝四捨五入整數百分比（>0 但不到 1% 印「<1」）。 */
+export function percentOf(bonus: bigint, baseAttack: number): { bps: string; label: string } {
+  if (baseAttack <= 0) return { bps: '0', label: '0' };
+  const bps = bonus * 10000n / BigInt(baseAttack), rounded = (bonus * 100n * 2n + BigInt(baseAttack)) / (BigInt(baseAttack) * 2n);
+  return { bps: bps.toString(), label: bonus > 0n && rounded === 0n ? '<1' : rounded.toString() };
+}
+function stars(form: string, fed: number): StarProgress | null {
+  return form === 'ADULT' || form === 'GUARDIAN' ? starProgress(form, fed) : null;
+}
+
+/**
+ * 吃卡回饋（預覽與存檔後共用）：吃了誰、攻擊加幾成、兩款遊戲攻擊前後、星級前後。
+ * 只補顯示欄位，不改寫收據；舊收據（v1、沒有新欄位）也能補算顯示。
+ */
+export function describeCultivationChange(change: CultivationChange) {
+  const target = getCard(change.targetCardId)!, material = getCard(change.materialCardId)!;
+  const before = exactBonus(change.beforeBonus), after = exactBonus(change.afterBonus), added = exactBonus(change.addedBonus);
+  const orbBase = BigInt(target.stats.attack), battleBase = battleBaseAttack(target.id);
+  const fedBefore = change.fedBefore, fedAfter = change.fedAfter;
+  return {
+    ...change,
+    rule: change.rule ?? 'v1',
+    layer: material.form === 'YOUNG' ? 'YOUNG_TO_ADULT' as const : 'ADULT_TO_GUARDIAN' as const,
+    materialName: material.name, targetName: target.name, materialForm: material.form, targetForm: target.form,
+    targetBaseAttack: String(target.stats.attack),
+    addedPercent: percentOf(added, target.stats.attack), totalPercentBefore: percentOf(before, target.stats.attack), totalPercentAfter: percentOf(after, target.stats.attack),
+    beforeOrbAttack: (orbBase + before).toString(), afterOrbAttack: (orbBase + after).toString(),
+    beforeBattleAttack: (battleBase + before).toString(), afterBattleAttack: (battleBase + after).toString(),
+    starsBefore: fedBefore === undefined ? null : stars(target.form, fedBefore),
+    starsAfter: fedAfter === undefined ? null : stars(target.form, fedAfter),
+    consumed: true as const,
+  };
+}
+export type CultivationFeedback = ReturnType<typeof describeCultivationChange>;
+
 /** Both game-specific original attack bases are preserved; the owned-copy bonus is shared. */
 export function cultivationView(snapshot: CultivationSnapshot) {
+  const fedOf = fedCounter(snapshot), v2 = activeFoodChainRule() === 'v2';
   const cards = snapshot.state.cards.map(copy => {
     const card = getCard(copy.cardId)!;
     const bonus = exactBonus(copy.bonus);
+    const fed = fedOf(copy.id), cap = attackBonusCap(card.stats.attack);
+    const target = cultivationTarget(copy.cardId);
     return { id: copy.id, cardId: copy.cardId, name: card.name, form: card.form,
-      protected: snapshot.state.protectedIds.includes(copy.id), materialTargetCardId: cultivationTarget(copy.cardId),
+      protected: snapshot.state.protectedIds.includes(copy.id), materialTargetCardId: target,
+      materialTargetName: target ? getCard(target)?.name ?? null : null,
       bonus: bonus.toString(), orbAttack: (BigInt(card.stats.attack) + bonus).toString(),
-      battleAttack: (BigInt(newMatch([card.id], [card.id], 0).player.team[0].attack) + bonus).toString() };
+      battleAttack: (battleBaseAttack(card.id) + bonus).toString(),
+      // 食物鏈顯示欄位（只讀；伺服端算好）。
+      bonusPercent: percentOf(bonus, card.stats.attack).label,
+      ...(v2 && card.form !== 'YOUNG' ? { bonusCap: cap.toString(), atBonusCap: bonus >= cap, stars: stars(card.form, fed) } : {}),
+      fed };
   });
   return { revision: snapshot.revision, cards, collectionCards: cards.map(c=>({id:c.id,cardId:c.cardId,source:'DUEL_WIN' as const,at:''})), protectedIds: snapshot.state.protectedIds,
     pendingBattle: snapshot.pendingBattle,
+    foodChainRule: v2 ? 'v2' as const : 'v1' as const,
     shards:snapshot.shards,starterPack:snapshot.starterPack,
     granted:(snapshot.creditedIds??[]).filter(id=>id.startsWith('copy:growth:')).map(id=>id.slice('copy:growth:'.length)),
     canProtectFive: new Set(cards.map(c => c.cardId)).size >= 5,
