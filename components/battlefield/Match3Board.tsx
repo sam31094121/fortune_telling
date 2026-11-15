@@ -1359,7 +1359,7 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
           )}
           <p>{over === 'win' ? `共 ${moves} 步擊退敵方 ${foes.length} 隻神獸，總傷害 ${totalDmg}。` : '再來一局，換個打法試試。'}</p>
           {progressSaveFailed && <p role="alert">此瀏覽器無法儲存進度，關閉頁面後可能遺失。</p>}
-          {campaignEnabled && onEnhance && over === 'win' && campaignSettlement?.saved && campaignSettlement.profile && enhancementUnlocked(campaignSettlement.profile) && <button type="button" className={`${styles.again} ${styles.enhanceCta}`} data-testid="match3-go-enhance" disabled={busy} onClick={onEnhance}>去永久強化 →<small>一鍵吃到封頂，變強馬上帶進下一關</small></button>}
+          {campaignEnabled && onEnhance && over === 'win' && campaignSettlement?.saved && campaignSettlement.profile && enhancementUnlocked(campaignSettlement.profile) && <button type="button" className={`${styles.again} ${styles.enhanceCta}`} data-testid="match3-go-enhance" disabled={busy} onClick={onEnhance}>去永久強化 →<small>{feedChainEnabled() ? '一鍵吃到封頂，變強馬上帶進下一關' : '把幼子吃進主角，變強馬上帶進下一關'}</small></button>}
           {campaignEnabled && over === 'win' && campaignSettlement?.saved && campaignSettlement.profile && !enhancementUnlocked(campaignSettlement.profile) && <p className={styles.hint} data-testid="match3-unlock-progress">{`再贏 ${Math.max(0, 4 - campaignSettlement.profile.wins)} 場解鎖永久強化（${Math.min(4, campaignSettlement.profile.wins)}／4）`}</p>}
           <button type="button" className={styles.again} disabled={busy || campaignAwaiting} onClick={restart}>{rigEnabled ? (over === 'win' ? '挑戰下一關' : '原難度重試') : '再來一局'}</button>
         </div>

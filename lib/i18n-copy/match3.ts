@@ -120,6 +120,7 @@ const ROWS: Record<string, Row> = {
   '盾牌合體：依顏色數結算防護與回復': ['Shield fusion: protection and healing depend on the number of colors', '盾の合体：色の数に応じて防御と回復を計算します', '방패 합체: 색 수에 따라 방어와 회복을 계산합니다'],
   '去永久強化 →': ['Go to permanent boosts →', '永久強化へ →', '영구 강화로 →'],
   '一鍵吃到封頂，變強馬上帶進下一關': ['Auto-feed to the cap and take the boost straight into the next stage', '上限まで一括強化して、強さをそのまま次のステージへ', '상한까지 한 번에 강화하고 바로 다음 스테이지로'],
+  '把幼子吃進主角，變強馬上帶進下一關': ['Feed young beasts to your hero and take the boost into the next stage', '幼獣を主役に取り込んで、強さを次のステージへ', '어린 신수를 주인공에게 흡수시켜 다음 스테이지로'],
   '這一局還沒打完': ["This battle isn't finished", 'この対戦はまだ終わっていません', '이 판은 아직 끝나지 않았습니다'],
   '離開會把這一局記為落敗：不發獎勵、勝場不變。確定要離開嗎？': ["Leaving will count this battle as a loss: no reward, and your win count won't change. Leave anyway?", '離れるとこの対戦は敗北として記録されます。報酬はなく、勝利数も変わりません。本当に離れますか？', '나가면 이 판은 패배로 기록됩니다. 보상은 없고 승수도 바뀌지 않습니다. 정말 나가시겠습니까?'],
   '繼續作戰': ['Keep fighting', '戦闘を続ける', '계속 싸우기'],
