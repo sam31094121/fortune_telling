@@ -178,7 +178,11 @@ assert.deepEqual([...new Set(personaKeys)].sort(), [...keys].sort(), 'image tabl
 // 10. 翻譯層不 import 任何命理引擎（只准契約、別名層與 server-only）
 const tlSrc = fs.readFileSync(path.join(root, 'lib/server/ghost-asura-translation-layer.ts'), 'utf8');
 const imports = [...tlSrc.matchAll(/^import[^'"]*['"]([^'"]+)['"]/gm)].map((m) => m[1]);
-assert.deepEqual(imports.sort(), ['@/lib/asura-display-alias', '@/lib/ghost-asura-display-contract', '@/lib/ghost-asura-nature-contract', 'server-only'].sort()); checks++;
+// 0b5ba011 起翻譯層借用 ghost-asura-voice 的 plainActionOrder（白話行動句排序）；voice 本身只准 import 'server-only'，
+// 所以翻譯層仍然不會（直接或間接）碰到任何命理引擎。
+assert.deepEqual(imports.sort(), ['@/lib/asura-display-alias', '@/lib/ghost-asura-display-contract', '@/lib/ghost-asura-nature-contract', '@/lib/server/ghost-asura-voice', 'server-only'].sort()); checks++;
+{ const voiceImports = [...fs.readFileSync(path.join(root, 'lib/server/ghost-asura-voice.ts'), 'utf8').matchAll(/^import[^'"]*['"]([^'"]+)['"]/gm)].map((m) => m[1]);
+  assert.deepEqual(voiceImports, ['server-only'], 'ghost-asura-voice must stay engine-free'); checks++; }
 for (const dep of ['lib/asura-display-alias.ts', 'lib/ghost-asura-nature-contract.ts']) {
   ok(!/^import\s(?!type)/m.test(fs.readFileSync(path.join(root, dep), 'utf8')), `${dep} has no runtime imports`);
 }

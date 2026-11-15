@@ -4,9 +4,13 @@ const vm = require('node:vm');
 const ts = require('typescript');
 const React = require('react');
 const {renderToStaticMarkup} = require('react-dom/server');
+const path=require('node:path');
 function load(file) {
- const box={exports:{},require:name=>name.endsWith('.css')?new Proxy({},{get:(_,k)=>k}):require(name)};
- vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText,box);
+ // 同層相對匯入（例如 asura-reading-guidance → ./ghost-asura-translation-layer）從真實原始碼載入；'server-only' 在測試裡是空模組。
+ const rel=name=>{const base=path.join(path.dirname(file),name);for(const ext of ['.ts','.tsx'])if(fs.existsSync(base+ext))return load(base+ext);return require(name);};
+ const alias=name=>{const base=name.slice(2);for(const ext of ['.ts','.tsx'])if(fs.existsSync(base+ext))return load(base+ext);return require(name);};
+ const box={exports:{},require:name=>name.endsWith('.css')?new Proxy({},{get:(_,k)=>k}):name==='server-only'?{}:name.startsWith('.')?rel(name):name.startsWith('@/')?alias(name):require(name)};
+ vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText,box);
  return box.exports;
 }
 const {PresentGuide}=load('features/ghost-asura/components/PresentGuide.tsx');
