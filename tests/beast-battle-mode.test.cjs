@@ -395,14 +395,19 @@ for (const card of interactiveCatalog()) {
   assert.match(html,/戰鬥力分析/);
   for (const stat of ['hp','attack','defense','speed']) {
     const cell = html.match(new RegExp(`<div data-stat="${stat}">([\\s\\S]*?)<\\/div>`))?.[1];
-    assert.ok(cell?.includes(`<dd>${card.stats[stat]}${stat==='hp'?`/${card.stats.hp}`:''}</dd>`),`${card.id}: exact ${stat}`);
+    // 5fd50d78（正式站「精確數值」）起 <dd> 加了 style（overflow-wrap:anywhere，長數字可換行）；數值仍逐一精確比對。
+    const dd = cell?.match(/<dd(?: style="[^"]*")?>([^<]*)<\/dd>/)?.[1];
+    assert.equal(dd, `${card.stats[stat]}${stat==='hp'?`/${card.stats.hp}`:''}`,`${card.id}: exact ${stat}`);
   }
   assert.match(html,/對五元素的攻守強弱/); assert.match(html,/相生合體/);
   assert.doesNotMatch(html,/預測勝率|保證獲勝|戰力差距很小/);
 }
 const changed=structuredClone(match);changed.player.team[0].modifiers.push({stat:'attack',value:-200,remainingTurns:2,source:'test'});
 const analysisHtml=render(Analysis,{cardId:changed.player.team[0].cardId,guide:combatGuideFor(changed.player.team[0].cardId,changed.player.team[0],{match:changed,side:'player'}),enemy:combatGuideFor(changed.opponent.team[0].cardId,changed.opponent.team[0]),live:true});
-assert.match(analysisHtml,/攻擊 0 對 46：低 46/);
+// 5fd50d78（正式站「精確數值」）起攻擊比較改印完整精確數字（attackText，可能超過安全整數），不再附「：低 N」差值；
+// 兩邊數字仍逐一比對；防禦／速度仍附高低差值，一併驗。
+assert.match(analysisHtml,/<span[^>]*>攻擊 0 對 46<\/span>/);
+assert.match(analysisHtml,/<span>防禦 30 對 30：相同<\/span>/); assert.match(analysisHtml,/<span>速度 58 對 56：高 2<\/span>/);
 const tileSource=fs.readFileSync(path.join(root,'components/battlefield/BeastCardTile.tsx'),'utf8');
 const freeSource=fs.readFileSync(path.join(root,'components/BeastTurnGame.tsx'),'utf8');
 assert.doesNotMatch(tileSource,/powerScore|powerLabel/, 'Display-only weighted scores cannot be called combat power');
