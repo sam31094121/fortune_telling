@@ -172,7 +172,9 @@ for (const scenario of [
 assert.match(battlefieldPage, /hidden=\{prepareView !== 'stake'\}[^>]*data-preparation-progress/, 'Stake review remains reachable as a separate pane');
 assert.match(battlefieldPage, /hidden=\{prepareView !== 'help'\}/, 'Instructions do not occupy the main controls');
 assert.match(battlefieldPage, /!match && !inspection \?/, 'Inspection never competes with the start footer');
-assert.match(battlefieldPage, /陣容滿了再精準換位/);
+// 14cbcf11（11/04 統一卡片戰鬥入口與關卡流程）拿掉「陣容滿了再精準換位」流程與說明，改成親選五張依序上陣；說明頁改驗新流程的第一條。
+assert.match(battlefieldPage, /<li><strong>親選五種收藏神獸<\/strong><p>第一張為主戰，其餘四張為後備/);
+assert.doesNotMatch(battlefieldPage, /陣容滿了再精準換位/, '已移除的換位流程不能留在說明裡誤導');
 assert.match(battlefieldPage, /onReviewStep=\{reviewStep\}/);
 assert.match(battlefieldPage, /onStart=\{\(\) => void start\(\)\}/, 'Starting remains a separate explicit action');
 console.log('PASS: real readiness drives the highlighted step; recommendations do not block play; waiting and actionable guidance are distinct');
@@ -186,9 +188,10 @@ assert.equal(JSON.stringify(nextStakeSelection(fullStake, '21')), JSON.stringify
 assert.deepEqual(selected, ['beast_a01'], 'Selection helper does not mutate existing state');
 assert.match(battlefieldPage, /runOwnedStakesDuel\(stakeCardIds/, 'Five actual collection entries use the shared atomic settlement');
 const compactActions = render(load('components/battlefield/BattlePanel.tsx').BattleActionBar, { match, view: viewOf(match), onAction() { throw new Error('Read-only render'); }, compact: true, cards: interactiveCatalog() });
-assert.equal((compactActions.match(/<button\b/g) || []).length, 2, 'Combat keeps two commands (skill, rage fusion); attacking is tapping the bottom dock card');
-assert.ok(!compactActions.includes('普通攻擊'), 'No separate attack button: the active dock card attacks');
-for (const text of ['技能', '暴怒合體']) assert.ok(compactActions.includes(text), `Current command remains accessible: ${text}`);
+// 2026-11-12 實玩後業主要求補回明確的「攻擊」鈕（只留技能與暴怒時，技能冷卻中客戶不知道還能做什麼）；點主戰卡片仍可攻擊。
+assert.equal((compactActions.match(/<button\b/g) || []).length, 3, 'Combat keeps three commands (attack, skill, rage fusion)');
+assert.match(compactActions, /data-testid="battle-attack" aria-label="普通攻擊"/, 'Explicit attack button restored after playtest');
+for (const text of ['攻擊', '技能', '暴怒合體']) assert.ok(compactActions.includes(text), `Current command remains accessible: ${text}`);
 assert.doesNotMatch(compactActions, /換卡|data-swap-entry/, 'No separate swap button or second confirmation step remains');
 assert.doesNotMatch(compactActions, /aria-label="點戰鬥卡換上場"/, 'No reserve panel inside the action bar');
 const prepSource = fs.readFileSync(path.join(root, 'components/battlefield/BattleArena.tsx'), 'utf8');
@@ -214,7 +217,8 @@ assert.equal(replaced.opponent.team[1].hp, opponentDown.opponent.team[1].hp, 'Co
 const playerDown = structuredClone(match);
 playerDown.player.team[0].hp = 0; playerDown.player.team[0].defeated = true;
 const forcedHtml = render(ActionBar, { match: playerDown, view: viewOf(playerDown), compact: true, onAction() {}, cards: interactiveCatalog() });
-assert.match(forcedHtml, /請點最下方的卡片接替上場/, 'Forced replacement points to the always-visible bottom dock');
+// 9ba55fa1 改版文案：「請點最下方的卡片接替上場」→「↓ 選一張後備上場」（同樣指向最下方固定選卡列）。
+assert.match(forcedHtml, /data-swap-guide="true">↓ 選一張後備上場</, 'Forced replacement points to the always-visible bottom dock');
 assert.doesNotMatch(forcedHtml, /普通攻擊|本回合指令/);
 assert.equal((forcedHtml.match(/<button\b/g) || []).length, 0, 'Replacement choices live in the dock, not in the action bar');
 // 固定選卡列：同一份主戰已倒下的對局，只有活著的後備能點；主戰與倒下的按不下去
@@ -257,10 +261,14 @@ function assertSameBeastPortrait(html, card) {
   const expected = new URL(card.front, 'http://localhost').pathname;
   const urls = images.flatMap(image => [...image.matchAll(/\b(?:src|srcSet)="([^"]+)"/g)]
     .flatMap(([, value]) => value.split(',').map(candidate => candidate.trim().split(/\s+/)[0])));
-  assert.ok(urls.some(url => new URL(url, 'http://localhost').pathname === expected), 'Original artwork remains a responsive source');
+  // 業主驗收的修補圖（例：角木蛟 adult-01.tail-leaf-v3.webp，見 reports/beast-rig-review/jiaomujiao-2026-11-08/static-card-acceptance.md）
+  // 與正式 v2 原圖逐位元組相同才算同一張；檔名不同但內容不同照樣失敗（同 no-old-cards 的內容證明作法）。
+  const sameBytes = url => { const a = publicArtworkFile(url), b = publicArtworkFile(expected); return fs.existsSync(a) && fs.existsSync(b) && fs.readFileSync(a).equals(fs.readFileSync(b)); };
+  const isOriginal = url => new URL(url, 'http://localhost').pathname === expected || sameBytes(url);
+  assert.ok(urls.some(isOriginal), 'Original artwork remains a responsive source');
   for (const url of urls) {
     const pathname = new URL(url, 'http://localhost').pathname;
-    assert.equal(path.basename(pathname).replace(/-480(?=\.webp$)/, ''), path.basename(expected), 'Every size and decorative layer belongs to this beast');
+    if (!sameBytes(url)) assert.equal(path.basename(pathname).replace(/-480(?=\.webp$)/, ''), path.basename(expected), 'Every size and decorative layer belongs to this beast');
     assert.ok(fs.existsSync(publicArtworkFile(url)), card.id + ': responsive artwork exists');
   }
 }
@@ -347,7 +355,9 @@ const impactHtml=render(Arena,{match:killed, view: viewOf(killed),cards:interact
 assert.match(impactHtml, /aria-label="生命 0\/160，氣 3"/);
 assert.match(impactHtml, /style="width:0%"/);
 assert.match(impactHtml, /data-hit="true"/);
-assert.match(impactHtml, /易經/);
+// 7567116e（11/11）對手名稱統一為「阿修羅」；戰場不得再出現舊名「易經」當對手。
+assert.match(impactHtml, /阿修羅/);
+assert.doesNotMatch(impactHtml, /易經/);
 const playingHtml=render(Arena,{match:shielded, view: viewOf(shielded),cards:interactiveCatalog(),onInspect(){}});
 assert.doesNotMatch(playingHtml,/你贏了|對手獲勝|必勝/);
 console.log('PASS: recorded HP/shield loss, capped healing/shields, counter overkill, old logs and replacements display honestly');
