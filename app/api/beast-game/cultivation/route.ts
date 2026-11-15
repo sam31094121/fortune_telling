@@ -11,6 +11,8 @@ import { sharedOrbProfile, beginSharedOrb } from '@/lib/beast-game/cultivation-o
 import { parseCampaign } from '@/lib/beast-game/match3/hard-campaign';
 
 export const runtime = 'nodejs';
+// 共同卡庫資料庫在東京（Supabase ap-northeast-1）；函式預設在美東，每次資料庫來回多耗數百毫秒，改放東京。
+export const preferredRegion = 'hnd1';
 const headers = { 'Cache-Control': 'no-store' };
 function ownerOf(request: Request): string {
   const origin = request.headers.get('origin');

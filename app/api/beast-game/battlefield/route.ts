@@ -19,6 +19,8 @@ import { BATTLEFIELD_DECK_SIZE, buildFreshOpeningDeck, buildUniqueDeck, sanitize
 import type { StakeOutcome } from '@/lib/beast-collection-ledger';
 
 export const runtime = 'nodejs';
+// 共同卡庫資料庫在東京（Supabase ap-northeast-1）；函式預設在美東，每次資料庫來回多耗數百毫秒，改放東京。
+export const preferredRegion = 'hnd1';
 export const dynamic = 'force-dynamic';
 
 /**

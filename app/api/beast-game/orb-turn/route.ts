@@ -7,6 +7,8 @@ import { getCard } from '@/lib/beast-game/registry';
 import { cultivationOwner } from '@/lib/beast-game/cultivation-games';
 import { verifySharedOrb, resolveSharedOrbTurn } from '@/lib/beast-game/cultivation-orb';
 export const runtime = 'nodejs';
+// 共同卡庫資料庫在東京（Supabase ap-northeast-1）；函式預設在美東，每次資料庫來回多耗數百毫秒，改放東京。
+export const preferredRegion = 'hnd1';
 export async function POST(request: Request) {
   try {
     const raw = await request.text();

@@ -4,6 +4,8 @@ import path from 'node:path';
 import {NextResponse} from 'next/server';
 import {cultivationOwner,grantSharedStarter} from '@/lib/beast-game/cultivation-games';
 export const runtime='nodejs';
+// 共同卡庫資料庫在東京（Supabase ap-northeast-1）；函式預設在美東，每次資料庫來回多耗數百毫秒，改放東京。
+export const preferredRegion = 'hnd1';
 const modules=new Set(['number','ziwei','bazi','nameology','zodiac','soul_match','music','tarot','battlefield','stake-duel']);
 
 /**
