@@ -30,8 +30,8 @@ function mount() {
       hooks[i] = { deps, cleanup: old?.cleanup }; queue.push(() => { hooks[i].cleanup?.(); hooks[i].cleanup = fn(); });
     } },
   };
-  const module = { exports: {} };
-  vm.runInNewContext(source, { module, exports: module.exports, AbortController, TypeError, console,
+  const cjsModule = { exports: {} };
+  vm.runInNewContext(source, { module: cjsModule, exports: cjsModule.exports, AbortController, TypeError, console,
     window: {
       localStorage: { getItem: () => null },
       addEventListener(name, fn) { if (!listeners.has(name)) listeners.set(name, new Set()); listeners.get(name).add(fn); },
@@ -51,7 +51,7 @@ function mount() {
   });
   function render() {
     for (let n = 0; n < 20; n++) {
-      dirty = false; cursor = 0; tree = module.exports.default();
+      dirty = false; cursor = 0; tree = cjsModule.exports.default();
       while (queue.length) queue.shift()();
       if (!dirty) return tree;
     }

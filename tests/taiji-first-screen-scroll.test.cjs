@@ -19,15 +19,15 @@ if (page.includes('data-taiji-scroll-theater') || shell.includes('TaijiScrollThe
 }
 
 function load(source, dependencies = {}, globals = {}) {
-  const module = { exports: {} };
+  const cjsModule = { exports: {} };
   const code = ts.transpileModule(source, { compilerOptions: {
     module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020,
   } }).outputText;
-  vm.runInNewContext(code, { module, exports: module.exports, require: id => {
+  vm.runInNewContext(code, { module: cjsModule, exports: cjsModule.exports, require: id => {
     if (!(id in dependencies)) throw new Error(`Unexpected dependency: ${id}`);
     return dependencies[id];
   }, ...globals });
-  return module.exports;
+  return cjsModule.exports;
 }
 const journey = load(src);
 const { shouldDriveTaijiFromPageScroll } = journey;

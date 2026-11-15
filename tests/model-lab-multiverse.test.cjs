@@ -20,11 +20,11 @@ const path = require('node:path');
 /** 直接跑 .ts：相對匯入照檔案位置解析，套件（three）交給 node 自己 require。 */
 function load(file) {
   const source = fs.readFileSync(file, 'utf8');
-  const module = { exports: {} };
+  const cjsModule = { exports: {} };
   const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
   const require_ = (id) => (id.startsWith('.') ? load(path.join(path.dirname(file), `${id}.ts`)) : require(id));
-  new Function('exports', 'module', 'require', compiled)(module.exports, module, require_);
-  return module.exports;
+  new Function('exports', 'module', 'require', compiled)(cjsModule.exports, cjsModule, require_);
+  return cjsModule.exports;
 }
 
 const { CELL_SPACING, ROD_WIDTH, cellRods, multiverseCells, multiverseRods, geometryFacts } = load('components/model-lab/multiverseMath.ts');

@@ -10,12 +10,12 @@ const { NextResponse } = require('next/server');
 // Passing does not certify that audio generation or persistent scan storage exists.
 function loadRoute({ exists = false } = {}) {
   const calls = { reads: [], checks: [], logs: [] };
-  const module = { exports: {} };
+  const cjsModule = { exports: {} };
   const source = ts.transpileModule(fs.readFileSync('app/api/audio/guide/[cardId]/route.ts', 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
   }).outputText;
   vm.runInNewContext(source, {
-    module, exports: module.exports, process, Date,
+    module: cjsModule, exports: cjsModule.exports, process, Date,
     console: { log(...args) { calls.logs.push(args); }, error() {} },
     require(id) {
       if (id === 'next/server') return { NextResponse };
@@ -27,7 +27,7 @@ function loadRoute({ exists = false } = {}) {
       throw new Error(`Unexpected dependency: ${id}`);
     },
   });
-  return { ...module.exports, calls };
+  return { ...cjsModule.exports, calls };
 }
 
 test('GET awaits route params before validating an invalid card ID', async () => {

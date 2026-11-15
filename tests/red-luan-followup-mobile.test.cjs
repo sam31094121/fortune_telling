@@ -8,9 +8,9 @@ const code = ts.transpileModule(fs.readFileSync('lib/red-luan-followup.ts', 'utf
 const reminder = { name: 'Test', startsOn: '2027-01-01', endsOn: '2027-01-31', monthLine: 'Test month', typeHeadline: '', daysAway: 1, topCandidate: '', url: 'https://example.test/red-luan-heartbeat' };
 function load(navigator) {
   const state = { clicks: 0, revoked: 0, timers: [] };
-  const module = { exports: {} };
+  const cjsModule = { exports: {} };
   vm.runInNewContext(code, {
-    module, exports: module.exports, navigator, Blob, File, Error, URLSearchParams,
+    module: cjsModule, exports: cjsModule.exports, navigator, Blob, File, Error, URLSearchParams,
     URL: { createObjectURL: () => 'blob:test', revokeObjectURL: () => state.revoked++ },
     document: {
       createElement: () => ({ click: () => state.clicks++, remove() {} }),
@@ -18,7 +18,7 @@ function load(navigator) {
     },
     setTimeout: (fn, delay) => state.timers.push({ fn, delay }),
   });
-  return { api: module.exports, state };
+  return { api: cjsModule.exports, state };
 }
 (async () => {
   let shared;

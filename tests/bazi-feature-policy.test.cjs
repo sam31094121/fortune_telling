@@ -65,16 +65,16 @@ test('approved static sources cannot bypass per-request review in the actual Baz
     },
     '@/lib/bazi-traditional-gate': gateModule,
   };
-  const module = { exports: {} };
+  const cjsModule = { exports: {} };
   const code = ts.transpileModule(fs.readFileSync('app/api/bazi/route.ts', 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText;
-  vm.runInNewContext(code, { module, exports: module.exports, console,
+  vm.runInNewContext(code, { module: cjsModule, exports: cjsModule.exports, console,
     require(id) { assert.ok(id in dependencies, `unexpected dependency: ${id}`); return dependencies[id]; },
   });
   const input = { name: '工程測試', birthDate: '1990-05-20', birthTime: '14:00', gender: 'male', country: '台灣', city: '台北', calendarType: 'solar' };
   const call = async extra => {
-    const response = await module.exports.POST(new Request('http://localhost/api/bazi', {
+    const response = await cjsModule.exports.POST(new Request('http://localhost/api/bazi', {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ ...input, verified: true, interpretationReady: true, ...extra }),
     }));

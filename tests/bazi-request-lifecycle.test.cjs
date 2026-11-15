@@ -17,8 +17,8 @@ function mount() {
     useCallback(fn,deps) { const i=cursor++,old=hooks[i];if(!old||deps.some((d,j)=>!Object.is(d,old.deps[j])))hooks[i]={deps,fn};return hooks[i].fn; },
     useEffect(fn,deps) { const i=cursor++,old=hooks[i];if(!old||deps.some((d,j)=>!Object.is(d,old.deps[j]))){hooks[i]={deps,cleanup:old?.cleanup};queue.push(()=>{hooks[i].cleanup?.();hooks[i].cleanup=fn();});} },
   };
-  const module={exports:{}};
-  vm.runInNewContext(source,{module,exports:module.exports,console,crypto:{randomUUID:()=> 'synthetic-session'},
+  const cjsModule={exports:{}};
+  vm.runInNewContext(source,{module: cjsModule,exports:cjsModule.exports,console,crypto:{randomUUID:()=> 'synthetic-session'},
     window:{addEventListener:(name,fn)=>listeners.set(name,fn),removeEventListener:name=>listeners.delete(name),localStorage:{getItem:()=>null,setItem(){}},sessionStorage:{getItem:()=>null,setItem(){}}},
     document:{querySelector:()=>null},
     require(id){
@@ -34,7 +34,7 @@ function mount() {
       return ()=>null;
     },
   });
-  function render(){for(let n=0;n<20;n++){dirty=false;cursor=0;tree=module.exports.default();while(queue.length)queue.shift()();if(!dirty)return tree;}throw new Error('Unsettled render');}
+  function render(){for(let n=0;n<20;n++){dirty=false;cursor=0;tree=cjsModule.exports.default();while(queue.length)queue.shift()();if(!dirty)return tree;}throw new Error('Unsettled render');}
   function find(node,p){if(!node||typeof node!=='object')return;if(Array.isArray(node)){for(const x of node){const found=find(x,p);if(found)return found;}return;}if(p(node))return node;return find(node.props?.children,p);}
   const form=()=>find(render(),n=>n.type==='BirthForm');
   return {jobs,
