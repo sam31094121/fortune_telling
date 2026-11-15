@@ -28,7 +28,9 @@ export function campaignHeroChoice(p: HardCampaign): 'initial' | 'milestone' | '
   return !p.heroId ? 'initial' : p.wins >= 8 && !p.heroChoiceUsed ? 'milestone' : 'locked';
 }
 export function campaignAvailableIds(p: HardCampaign): string[] {
-  if(p.shared)return p.shared.availableIds;
+  // 共同卡庫的可用名單是伺服器在「當時的主角」下算的；新玩家剛選完主角，名單還沒更新，
+  // 伺服器（cultivation-orb）本來就把主角算進去，這裡照同一規則補上，否則第一次玩會停在「按鈕灰掉、開不了戰」。
+  if(p.shared)return [...new Set([...p.shared.availableIds,...(p.heroId?[p.heroId]:[])])];
   return [...new Set([...playableCards().filter(c => c.form === 'YOUNG' && !(p.consumedYoungIds ?? []).includes(c.id)).map(c => c.id), ...p.rewards.map(r => r.cardId), ...(p.heroId ? [p.heroId] : [])])];
 }
 export function campaignCollection(p: HardCampaign): { heroId: string | null; adults: { cardId: string; count: number }[]; youngIds: string[] } {

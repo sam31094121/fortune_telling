@@ -54,5 +54,8 @@ async function setup(owner='self'){assert((await S.selectCampaignHero(owner,hero
  const unlocked={...early,wins:4};assert(C.enhancementUnlocked(unlocked));assert(C.previewCampaignEnhancement(unlocked,earlyMaterial,heroes[0]).allowed);guest.setItem('match3-hard-campaign-guest-v1',JSON.stringify(unlocked));assert((await S.enhanceCampaign('guest','stage5',earlyMaterial,heroes[0])).ok);assert.equal(C.campaignHeroChoice(unlocked),'locked');assert.equal(C.campaignHeroChoice({...unlocked,wins:8}),'milestone');
  const savedEnhanced=self.getItem(selfKey);await S.resetGuestCampaign();assert.equal(self.getItem(selfKey),savedEnhanced);
  const consistent=S.readCampaign('self').profile;const inconsistent={...consistent,wins:consistent.wins+1};assert.throws(()=>C.parseCampaign(JSON.stringify(inconsistent)),/勝場與最後獎勵紀錄不一致/);const keep=self.getItem(selfKey);self.setItem(selfKey,JSON.stringify(inconsistent));assert(!S.readCampaign('self').ok);assert(!(await S.settleWin('self','bad-tail',inconsistent.wins)).saved);assert.equal(self.getItem(selfKey),JSON.stringify(inconsistent));self.setItem(selfKey,keep);
+ // 新玩家剛選完主角時，共同卡庫的可用名單還是「無主角」那一版，主角仍要算可出戰（否則開戰鈕永遠灰掉）
+ {const fresh=C.newCampaign(0),stale={...fresh,heroId:heroes[0],shared:{availableIds:['beast_y01'],cards:[],stats:{},selectedEntries:[]}};
+  assert(C.campaignAvailableIds(stale).includes(heroes[0]));assert(C.validateCampaignTeam(stale,[heroes[0],'beast_y01','beast_y01x','a','b'])===false);}
  console.log('PASS campaign: initial/8-win hero lock, 28-adult rotation, actual persistence, duplicate/race/retry, owners, corruption, unsupported-lock policy');
 })().catch(e=>{console.error(e);process.exitCode=1});
