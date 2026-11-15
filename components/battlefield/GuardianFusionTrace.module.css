@@ -32,3 +32,8 @@
 }
 /* 食物鏈 5A：本尊有永久加成時的「已合體 +N」小標（只顯示）。 */
 .seal em { font-style: normal; font-size: 10px; margin-left: 4px; padding-left: 4px; border-left: 1px solid color-mix(in srgb, var(--gf, #f5d27a) 70%, transparent); color: #ffe7a3; }
+/* 有「已合體 +N」時排成兩行（只改排版，數值與顯示條件照 bonusOf）：第一行「白虎合體」、第二行「已合體 +N」。
+   用 inline-grid：寬度＝較寬的那一行（約 63px），不是兩行相加，兩行模式左右內距收窄、第二行不加字距，+250 時縮放後 360 手機上第二行字仍約 9px。
+   兩行版貼本尊卡底（GuardianFusionTrace 依實測高度定位），上緣避開卡上方浮出的招式名。 */
+.seal[data-has-bonus="true"] { display: inline-grid; grid-template-columns: auto auto; justify-content: center; align-items: baseline; row-gap: 1px; padding: 1px 3px 2px; border-radius: 9px; }
+.seal[data-has-bonus="true"] em { grid-column: 1 / -1; justify-self: center; margin-left: 0; padding-left: 0; border-left: 0; letter-spacing: 0; padding-top: 1px; border-top: 1px solid color-mix(in srgb, var(--gf, #f5d27a) 70%, transparent); }

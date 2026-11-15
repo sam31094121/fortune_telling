@@ -111,3 +111,15 @@ export function guardianSealFit(card: { w: number; h: number }, seal: { w: numbe
   const fit = Math.min(1, (card.w - pad * 2) / (seal.w * peak), (halfRoomY * 2) / (seal.h * peak));
   return Math.floor(fit * 1000) / 1000; // 只往下取整：寧可小一點，也不出框
 }
+
+/**
+ * 合體印的縮放與垂直位置（相對本尊卡中心的位移 dy）。
+ * 一行版：沿用 guardianSealFit，中心在卡的 68% 高度。
+ * 兩行版（有「已合體 +N」）：貼卡底（留 pad），讓上緣避開卡上方浮出的招式名；最大放大那格也完整在卡內。
+ */
+export function guardianSealPlacement(card: { w: number; h: number }, seal: { w: number; h: number }, twoLine: boolean, peak = GUARDIAN_SEAL_PEAK, pad = 2): { fit: number; dy: number } {
+  if (!twoLine) return { fit: guardianSealFit(card, seal, peak, pad), dy: card.h * GUARDIAN_SEAL_Y };
+  if (!(seal.w > 0) || !(seal.h > 0) || !(card.w > 0) || !(card.h > 0)) return { fit: 1, dy: card.h * GUARDIAN_SEAL_Y };
+  const fit = Math.floor(Math.min(1, (card.w - pad * 2) / (seal.w * peak), (card.h - pad * 2) / (seal.h * peak)) * 1000) / 1000;
+  return { fit, dy: card.h / 2 - pad - (seal.h * fit * peak) / 2 };
+}

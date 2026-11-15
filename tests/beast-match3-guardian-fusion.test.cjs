@@ -131,9 +131,9 @@ const css = fs.readFileSync('components/battlefield/GuardianFusionTrace.module.c
 assert(/\.layer \{[^}]*pointer-events: none/.test(css), '特效不攔截拖珠與點卡');
 assert(css.includes('prefers-reduced-motion'), '減少動態時不播動畫');
 assert(trace.includes('data-testid="match3-guardian-fusion"'));
-assert(trace.includes('top: core.y + core.h * GUARDIAN_SEAL_Y') && M.GUARDIAN_SEAL_Y === 0.18, '合體印在本尊卡內下段，不壓棋盤');
+assert(trace.includes('top: core.y + (fits[fusion.key]?.dy ?? core.h * GUARDIAN_SEAL_Y)') && M.GUARDIAN_SEAL_Y === 0.18, '合體印在本尊卡內下段，不壓棋盤');
 assert(!/Math\.max\(core\.x, 36\)/.test(trace) && trace.includes('left: core.x'), '印對準本尊卡中心，不再被畫面邊緣推離卡面');
-assert(trace.includes("['--gfit' as string]") && trace.includes('guardianSealFit(d.core, { w: el.offsetWidth, h: el.offsetHeight })'), '印依實際尺寸縮放');
+assert(trace.includes("['--gfit' as string]: fits[fusion.key]?.fit ?? 1") && trace.includes("guardianSealPlacement(d.core, { w: el.offsetWidth, h: el.offsetHeight }, el.dataset.hasBonus === 'true')"), '印依實際尺寸縮放、定位');
 // 彈出動畫每一格都乘上 --gfit，最大那格的倍率與 GUARDIAN_SEAL_PEAK 一致
 const sealKf = css.split('\n').find(l => l.startsWith('@keyframes gfSeal'));
 const scales = [...sealKf.matchAll(/transform: ([^;}]*)/g)].map(m => m[1].trim());
@@ -151,6 +151,23 @@ for (const [w, card, seal] of [[360, { w: 66, h: 77 }, { w: 63, h: 20 }], [390, 
   }
 }
 assert.equal(M.guardianSealFit({ w: 200, h: 200 }, { w: 63, h: 18 }), 1, '卡夠大時不縮小');
+// 「已合體 +N」兩行版（只改排版）：bonusOf 判斷原封不動，印標 data-has-bonus，CSS 以 inline-grid 讓第二行單獨一行
+assert(trace.includes("data-has-bonus={(bonusOf?.(fusion.coreId) ?? 0) > 0 ? 'true' : undefined}"), '有加成才切兩行，條件與 bonusOf 顯示條件相同');
+assert(trace.includes('{(bonusOf?.(fusion.coreId) ?? 0) > 0 && <em data-fusion-bonus={bonusOf!(fusion.coreId)}><span>已合體</span> +{bonusOf!(fusion.coreId)}</em>}'), '正式站「已合體 +N」顯示原樣保留');
+assert(/\.seal\[data-has-bonus="true"\] \{ display: inline-grid;/.test(css) && /\.seal\[data-has-bonus="true"\] em \{ grid-column: 1 \/ -1;/.test(css), '第二行獨佔一行');
+// 兩行版位置：貼卡底、上緣盡量高於卡上方招式名；360／390／1280 實測卡＋印（+250，Chromium 量測）每一格都在卡內，第二行 ≥ 9px
+for (const [w, card, seal] of [[360, { w: 66, h: 77 }, { w: 61, h: 31 }], [390, { w: 72, h: 83 }, { w: 61, h: 31 }], [1280, { w: 106, h: 117 }, { w: 61, h: 30 }], ['+5', { w: 66, h: 77 }, { w: 57, h: 31 }]]) {
+  const { fit, dy } = M.guardianSealPlacement(card, seal, true);
+  assert(10 * fit >= 9, w + ' 第二行字 ' + (10 * fit).toFixed(2) + 'px');
+  for (const k of [.6, 1.08, 1]) {
+    const sw = seal.w * k * fit, sh = seal.h * k * fit;
+    assert(sw <= card.w - 4 + 1e-9, w + ' 寬');
+    assert(dy + sh / 2 <= card.h / 2 - 2 + 1e-9 && dy - sh / 2 >= -card.h / 2 + 2 - 1e-9, w + ' 第 ' + k + ' 倍那格超出卡上下緣');
+  }
+  assert(dy - seal.h * fit / 2 >= card.h * 0.04, w + ' 兩行印貼卡下段（上緣在卡中線以下附近）');
+}
+// 一行版位置不變（中心在 68% 高）
+assert.deepEqual(M.guardianSealPlacement({ w: 66, h: 77 }, { w: 63, h: 20 }, false), { fit: M.guardianSealFit({ w: 66, h: 77 }, { w: 63, h: 20 }), dy: 77 * 0.18 });
 assert.equal(M.guardianSealFit({ w: 66, h: 77 }, { w: 0, h: 0 }), 1, '量不到時不亂縮');
 const boardCss = fs.readFileSync('components/battlefield/Match3Board.module.css', 'utf8');
 assert(boardCss.includes('.ally[data-guardian-fusion][data-rig-active="true"] [data-rig-source] { opacity: 1 !important; }'), '合體期間本尊卡實心、不留空');
