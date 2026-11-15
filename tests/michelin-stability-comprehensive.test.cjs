@@ -54,10 +54,13 @@ class MichelinStabilityTest {
     const baziChartCode = fs.readFileSync(baziChartPath, 'utf-8');
 
     // 後端應返回 shenShaVisibility 對象
-    assertMatch(dualChartCode, /shenShaVisibility\s*=\s*{/, '後端應返回 shenShaVisibility 對象');
-    assertMatch(dualChartCode, /allowed:\s*allowedShenShaIds/, '應包含 allowed 字段');
-    assertMatch(dualChartCode, /conflicts:\s*shenShaRuleIds/, '應包含 conflicts 字段');
-    assertMatch(dualChartCode, /pending:\s*shenShaRuleIds/, '應包含 pending 字段');
+    // 4acf367f 起神煞可見性抽成後端函式 buildShenShaVisibility（lib/dual-chart-shensha-visibility.ts），dual-chart 只呼叫並回傳。
+    const visibilityCode = fs.readFileSync(path.join(process.cwd(), 'lib', 'dual-chart-shensha-visibility.ts'), 'utf-8');
+    assertMatch(dualChartCode, /shenShaVisibility\s*=\s*buildShenShaVisibility\(gate\)/, '後端應返回 shenShaVisibility 對象');
+    assertMatch(dualChartCode, /^\s*shenShaVisibility,/m, '後端結果應帶出 shenShaVisibility');
+    assertMatch(visibilityCode, /export function buildShenShaVisibility[\s\S]*return \{[\s\S]*\ballowed,/, '應包含 allowed 字段');
+    assertMatch(visibilityCode, /conflicts:\s*ruleIds\.filter/, '應包含 conflicts 字段');
+    assertMatch(visibilityCode, /pending:\s*ruleIds\.filter/, '應包含 pending 字段');
 
     // 後端應預關聯 periodsByBranch 於每個宮位
     assertMatch(dualChartCode, /periodsByBranch\s*=\s*new Map/, '後端應預關聯 periodsByBranch');

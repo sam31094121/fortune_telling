@@ -9,17 +9,22 @@ async function post(path, input) {
   const dateOnly = await post('/api/star-beasts/guardian', { ...sample, timeUnknown: true, birthTime: '12:00', birthHourBranch: 'chen' });
   assert.equal(dateOnly.status, 200);
   assert.equal(dateOnly.body.timeUnknown, true, 'unknown flag overrides stale stored times');
-  assert(dateOnly.body.beastId >= 1 && dateOnly.body.beastId <= 28);
+  // 20fbe65a 起「找出我的神獸」只從四大神獸四選一（日主五行；土日主依月令季節），不再回 28 宿編號。
+  const GUARDIANS = ['青龍', '白虎', '朱雀', '玄武'];
+  assert(GUARDIANS.includes(dateOnly.body.guardian), `guardian must be one of the four, got ${dateOnly.body.guardian}`);
+  assert.equal(typeof dateOnly.body.reason, 'string'); assert(dateOnly.body.reason.length > 0);
   const known = await post('/api/star-beasts/guardian', { ...sample, timeUnknown: false, birthHourBranch: 'chen' });
   assert.equal(known.status, 200);
   assert.equal(known.body.timeUnknown, false);
-  assert.equal(known.body.beastId, dateOnly.body.beastId, 'the same verified day pillar has one mapping');
+  assert.equal(known.body.guardian, dateOnly.body.guardian, 'the same verified day pillar has one mapping');
   const repeat = await post('/api/star-beasts/guardian', sample);
-  assert.equal(repeat.body.beastId, dateOnly.body.beastId);
+  assert.equal(repeat.body.guardian, dateOnly.body.guardian);
   const lunar = await post('/api/star-beasts/guardian', { ...sample, calendarType: 'lunar', timeUnknown: true });
   const lunarSolar = await post('/api/star-beasts/guardian', { ...sample, birthDate: '1990-01-27', timeUnknown: true });
   assert.equal(lunar.status, 200);
-  assert.equal(lunar.body.beastId, lunarSolar.body.beastId, 'lunar date is converted exactly once');
+  assert(GUARDIANS.includes(lunar.body.guardian));
+  assert.equal(lunar.body.guardian, lunarSolar.body.guardian, 'lunar date is converted exactly once');
+  assert.equal(lunar.body.reason, lunarSolar.body.reason, 'lunar date is converted exactly once (same reason)');
   for (const invalid of [null, {}, { ...sample, birthDate: '1990-02-30' }, { ...sample, gender: '' }, { ...sample, birthHourBranch: 'pending' }, { ...sample, timeUnknown: 'true' }]) {
     const result = await post('/api/star-beasts/guardian', invalid);
     assert.equal(result.status, 422);

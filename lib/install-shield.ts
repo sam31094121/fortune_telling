@@ -1,4 +1,5 @@
 // 手機「儲存網站」金盾牌的純邏輯（無 DOM 依賴，可單獨測試）。
+import { withShareVersion } from './share-preview';
 export type InAppBrowser = 'line' | 'facebook' | 'instagram' | null;
 export type InstallPlatform = 'ios' | 'android' | 'other';
 
@@ -106,7 +107,8 @@ export function mobileGuideFor(ua: string, platform: InstallPlatform, inApp: InA
 export async function openIosShareSheet(): Promise<boolean> {
   if (typeof navigator === 'undefined' || typeof navigator.share !== 'function') return false;
   try {
-    await navigator.share({ title: '太極命理', url: window.location.origin + '/' });
+    // 分享面板也可能直接傳給朋友：網址照全站規則帶分享版本號，避免對方看到舊的連結預覽。
+    await navigator.share({ title: '太極命理', url: withShareVersion(window.location.origin + '/') });
     return true;
   } catch (err) {
     // 使用者關掉面板（AbortError）也算叫出過；其他錯誤退回步驟說明
