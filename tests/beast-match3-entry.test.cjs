@@ -4,6 +4,7 @@ const vm = require('node:vm');
 const ts = require('typescript');
 const React = require('react');
 const M = require('../.beast-game-build/lib/beast-game/match3');
+const path = require('node:path');
 const compile = file => ts.transpileModule(fs.readFileSync(file, 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
 }).outputText;
@@ -105,10 +106,27 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
   vm.runInNewContext(compile('lib/beast-game/card-face-stats.ts'), { module: statsModule, exports: statsModule.exports,
     require: id => require(id.startsWith('@/') ? '../.beast-game-build/' + id.slice(2) : id) });
   const realStats = statsModule.exports.CARD_FACE_STATS;
+  const match3Cache = new Map();
+  const loadMatch3 = (name) => {
+    if (match3Cache.has(name)) return match3Cache.get(name).exports;
+    const mod = { exports: {} }; match3Cache.set(name, mod);
+    vm.runInNewContext(compile(`lib/beast-game/match3/${name}.ts`), { module: mod, exports: mod.exports, process, console, require: id => {
+      if (id === '../registry') return require('../.beast-game-build/lib/beast-game/registry');
+      if (id === '../card-face-stats') return { CARD_FACE_STATS: realStats };
+      if (id.endsWith('.json')) return require(path.resolve('lib/beast-game/match3', id));
+      if (id.startsWith('./')) return loadMatch3(id.slice(2));
+      if (id.startsWith('../')) return require(path.resolve('.beast-game-build/lib/beast-game/match3', id));
+      return require(id.startsWith('@/') ? '../.beast-game-build/' + id.slice(2) : id);
+    } });
+    return mod.exports;
+  };
   const campaignModule = { exports: {} };
   vm.runInNewContext(compile('lib/beast-game/match3/hard-campaign.ts'), { module: campaignModule, exports: campaignModule.exports, require: id => {
     if (id === '../registry') return require('../.beast-game-build/lib/beast-game/registry');
     if (id === '../card-face-stats') return { CARD_FACE_STATS: realStats };
+    // hard-campaign.ts 之後新增的同層相對匯入（./treasures、./merge-balance、./merge-tier）：從真實原始碼編譯，
+    // 並沿用同一套對應（../card-face-stats 用上面的真實數值），不是假物件。
+    if (id.startsWith('./')) return loadMatch3(id.slice(2));
     return require(id);
   } });
   const C = campaignModule.exports;
@@ -134,6 +152,7 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
   const mod = { exports: {} };
   vm.runInNewContext(compile('components/battlefield/HardCampaignEntry.tsx'), {
     module: mod, exports: mod.exports,
+    URLSearchParams, // HardCampaignEntry 讀 ?team= 用的瀏覽器內建物件
     window: { matchMedia: () => ({ matches: reducedMotion }), location: { search: '?team=' + realPool.filter(c => c.form === 'ADULT').slice(0, 5).map(c => c.id).join(',') } },
     require: id => {
       if (id === 'react') return hooks;
@@ -143,6 +162,8 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
       if (id === '@/lib/beast-game/match3') return M;
       if (id === '@/lib/beast-game/match3/hard-campaign') return C;
       if (id === '@/lib/beast-game/match3/hard-campaign-store') return store;
+      // 合併強化（feed-chain／merge-balance 等）在 NEXT_PUBLIC_M3_FEED_CHAIN 關閉時也會被匯入：用真實原始碼編譯。
+      if (id.startsWith('@/lib/beast-game/match3/')) return loadMatch3(id.slice('@/lib/beast-game/match3/'.length));
       if (id === './Match3Board') return { default: Board };
       if (id === './CampaignEnhancement') return { default: () => null };
       if (id === './CampaignBackup') return { default: () => null };
@@ -164,7 +185,13 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
   const heroes = nodes(render()).filter(n => n.props?.['data-testid'] === 'pick-hero');
   assert.equal(heroes.length, 4);
   heroes[0].props.onClick(); await by('confirm-hero').props.onClick();
+  // AUDIT-2 H9（選隊頁縮短）：清單預設只列 6 張，另有「顯示全部 28 張幼子」展開鈕；展開後仍要 28 張全在。
   let choices = nodes(render()).filter(n => n.props?.['data-testid'] === 'pick-card');
+  assert.equal(choices.length, 6, 'Collapsed list previews 6 cards');
+  assert.equal(by('show-all-young').props['aria-expanded'], false);
+  by('show-all-young').props.onClick();
+  assert.equal(by('show-all-young').props['aria-expanded'], true);
+  choices = nodes(render()).filter(n => n.props?.['data-testid'] === 'pick-card');
   assert.equal(choices.length, 28);
   assert(choices.every(n => realPool.find(c => c.id === n.props['data-id']).form === 'YOUNG'));
   assert.equal(nodes(by('picked-row')).find(n => n.type === 'button').props.disabled, true, 'Hero is locked');
@@ -176,14 +203,15 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
   choices.slice(0, 5).forEach(n => n.props.onClick());
   assert.equal(nodes(by('picked-row')).filter(n => n.type === CardFace).length, 5, 'Hero plus four only');
   assert.equal(by('team-ready-hint').props.children, '隊伍已就緒，點此開始作戰');
-  assert.equal(scrolls.length, 1); assert.equal(scrolls[0].block, 'nearest'); assert.equal(scrolls[0].behavior, 'smooth');
-  render(); render(); assert.equal(scrolls.length, 1, 'Rerenders must not scroll repeatedly');
+  // AUDIT-2 H9：開戰列固定在畫面底部（start-bar），選滿五張不再自動捲動（原本會越過強化區）。
+  assert(by('start-bar'), 'Sticky start bar is rendered'); assert.equal(scrolls.length, 0, 'Full team must not auto-scroll past enhancement');
+  render(); render(); assert.equal(scrolls.length, 0, 'Rerenders must not scroll');
   assert.notEqual(render().type, Board, 'Full team must not auto-start');
   const removable = nodes(by('picked-row')).find(n => n.type === 'button' && !n.props.disabled);
   removable.props.onClick(); render(); assert.equal(by('team-ready-hint'), undefined);
   reducedMotion = true;
   nodes(render()).find(n => n.props?.['data-testid'] === 'pick-card' && n.props['data-id'] === choices[0].props['data-id']).props.onClick();
-  render(); assert.equal(scrolls.length, 2); assert.equal(scrolls[1].behavior, 'instant');
+  render(); assert.equal(scrolls.length, 0, 'Refilling the team must not auto-scroll either');
   assert.equal(by('start-battle').props.disabled, false);
   await by('start-battle').props.onClick();
   assert(nodes(render()).some(n => n.type === Board)); assert.equal(nodes(render()).find(n => n.type === Board).props.campaignEnabled, true); assert.equal(writes, 1);
@@ -222,8 +250,13 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
         operationIds.push(op); attempts++;
         if (attempts === 1) return { ok: false, profile: null, error: '測試儲存失敗' };
         return { ok: true, ...C.enhanceCampaignProfile(profile, op, young, target) };
-      } };
+      },
+      // 合併強化（NEXT_PUBLIC_M3_FEED_CHAIN）新增的存檔接口：開關關閉時不得被呼叫，被呼叫就讓測試失敗。
+      readCampaignSnapshot: () => JSON.stringify(profile),
+      feedCampaignChain: async () => { throw new Error('feed chain must stay off by default'); },
+      feedCampaignToCap: async () => { throw new Error('feed chain must stay off by default'); } };
       if (id === './BeastCardTile') return { BeastCardFace: CardFace };
+      if (id.startsWith('@/lib/beast-game/match3/')) return loadMatch3(id.slice('@/lib/beast-game/match3/'.length));
       if (id.endsWith('.css')) return { default: {} };
       return require(id);
     },
@@ -234,7 +267,11 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
   while (profile.wins < 4) profile = C.campaignWin(profile, `entry-stage-${profile.wins}`, profile.wins).profile;
   const completedFour = profile;
   profile = { ...profile, wins: 3 };
-  assert.equal(enhanceBy('enhancement-locked').props.children, '第五關解鎖永久強化');
+  // PLAN-v2 B5：未解鎖時改顯示「再贏 N 場」與進度條（3／4 勝），仍要求第五關才解鎖。
+  { const locked = nodes(enhanceBy('enhancement-locked'));
+    assert(locked.some(n => n.type === 'p' && n.props.children === '再贏 1 場解鎖永久強化（第五關起）'));
+    const bar = locked.find(n => n.props?.role === 'progressbar');
+    assert.equal(bar.props['aria-valuenow'], 3); assert.equal(bar.props['aria-valuemax'], 4); }
   assert.equal(enhanceBy('enhance-material'), undefined, 'First four stages cannot expose consumption form');
   profile = completedFour;
   assert(enhanceBy('campaign-enhancement'), 'Entering fifth stage unlocks the form');
