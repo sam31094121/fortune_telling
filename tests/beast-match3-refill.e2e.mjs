@@ -81,6 +81,8 @@ try {
   };
   const start = async (wins, width) => {
     await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 2, mobile: width < 768 });
+    // 同分頁重新整理會自動接回上次的玩家（產品行為）；這裡模擬全新進入，先清掉那個記號再導頁，斷言不變。
+    await js(`(()=>{try{sessionStorage.removeItem('m3-campaign-last-owner')}catch{}return true})()`);
     await send('Page.navigate', { url: `${base}/beast-game/match3-hard` });
     await wait(`document.querySelector('[data-testid="match3-player-choice"]')`);
     // Animation fixtures use an isolated guest session. Real shared inventory
