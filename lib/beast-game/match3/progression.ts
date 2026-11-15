@@ -2,6 +2,7 @@
 import type { BeastElement } from '../elements';
 import type { Rng } from './board';
 import { MATCH3_ORB_ELEMENTS } from './config';
+import { earlyPressure } from './merge-balance';
 
 export interface ProgressionCard {
   id: string;
@@ -107,8 +108,10 @@ export function progressionEnemyStats(card: ProgressionCard, wins: number): { hp
   // Mixed adults retain adult scales; guardian scales are never applied twice.
   const hpScale = mixedAdult ? STAGES[1].hpScale * stage.strengthMultiplier : stage.hpScale;
   const attackScale = mixedAdult ? STAGES[1].attackScale * stage.strengthMultiplier : stage.attackScale;
-  const hp = scaled(card.stats.hp, hpScale);
-  return { hp, maxHp: hp, attack: scaled(card.stats.attack, attackScale), cd: 1 };
+  // PLAN-v2 B7：前 5 關加一點壓力（開關開啟時；倍率為【待平衡暫定值】）。第 6 關起與第 8 關起的總預算不變。
+  const pressure = earlyPressure(stage.wins);
+  const hp = scaled(card.stats.hp, hpScale * pressure.hp);
+  return { hp, maxHp: hp, attack: scaled(card.stats.attack, attackScale * pressure.attack), cd: 1 };
 }
 
 /** Encounter-only budgets; registry card statistics are never overwritten. */

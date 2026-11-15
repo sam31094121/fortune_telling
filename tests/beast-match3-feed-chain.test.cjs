@@ -105,10 +105,12 @@ test('鎖定清單：前五＋能量第一＋出戰隊伍＋全部四大神獸',
 });
 
 // ── 第 10 點 1–6（各一個被拒測試）＋往上吃＋解鎖 ─────────────────
-test('第10點-1 不能自己吃自己（含重複的同一張）', () => {
-  const p = campaign(30); // beast_a01、beast_a02 各兩張
-  const pv = F.previewFeed(p, rewardRef(p, 'beast_a01', 1), 'beast_a01', ON);
-  assert.equal(pv.allowed, false); assert(pv.reasons.includes('SELF'));
+test('第10點-1（PLAN-v2 B9 改）只有一張時不能自己吃自己；同一種卡的第二張起改放進自己的共鳴格', () => {
+  const p = campaign(30); // beast_a01、beast_a02 各兩張，beast_a03 只有一張
+  const dup = F.previewFeed(p, rewardRef(p, 'beast_a01', 1), 'beast_a01', ON);
+  assert.equal(dup.kind, 'RESONANCE'); assert.equal(dup.allowed, true, dup.reasons.join());
+  const single = F.previewFeed(p, rewardRef(p, 'beast_a03', 0), 'beast_a03', ON);
+  assert.equal(single.allowed, false); assert(single.reasons.includes('SELF'));
 });
 test('第10點-2 四大神獸不能被吃（主角也不行）', () => {
   const p = campaign(8), imports = [{ key: 'collection:duel:x:0', sourceEntryId: 'duel:x:0', cardId: 'beast_g_baihu', source: 'DUEL_WIN', status: 'AVAILABLE' }];

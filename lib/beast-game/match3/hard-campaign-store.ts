@@ -2,7 +2,7 @@ import { emptyTreasureBook, validateTreasureBook, type TreasureBook } from './tr
 import { campaignWin, chooseCampaignHero, enhanceCampaignProfile, newCampaign, parseCampaign, validateCampaignTeam, type HardCampaign, type CampaignReward, type EnhancementReceipt } from './hard-campaign';
 import { readMatch3Progress } from './progress-store';
 import { decodeCampaignBackup, encodeCampaignBackup } from './campaign-backup';
-import { applyFeed, feedChainEnabled, type FeedContext, type FeedPreview } from './feed-chain';
+import { applyFeed, feedChainEnabled, planFeedToCap, type FeedContext, type FeedPreview, type FeedToCapPlan } from './feed-chain';
 export type CampaignOwner = 'self' | 'guest';
 export interface CampaignResult { ok: boolean; profile: HardCampaign | null; error?: string }
 export interface CampaignSettlement extends CampaignResult { saved: boolean; reward?: CampaignReward; nextWins?: number; duplicate?: boolean }
@@ -77,6 +77,34 @@ export const feedCampaignChain = (owner: CampaignOwner, operationId: string, mat
   const next = applyFeed(current.profile, operationId, materialRef, targetId, ctx);
   const result = next.duplicate ? current : write(owner, next.profile);
   return result.ok ? { ...result, preview: next.preview, duplicate: next.duplicate } : result;
+}, failed);
+
+export interface CampaignFeedToCapResult extends CampaignResult { plan?: FeedToCapPlan; duplicate?: boolean }
+/**
+ * PLAN-v2 B3 一鍵吃到封頂：同一把跨分頁鎖內重讀→重新規劃→必須和玩家看到的預覽一模一樣（材料順序相同）才寫入，
+ * 否則拒絕並要求重新預覽。整批一次寫入；同一 operationId 重送視為重複，不會多扣卡。
+ */
+export const feedCampaignToCap = (owner: CampaignOwner, operationId: string, targetId: string, expectedRefs: readonly string[], ctx: Omit<FeedContext, 'inBattle'> = {}): Promise<CampaignFeedToCapResult> => transaction(owner, (): CampaignFeedToCapResult => {
+  if (!operationId.trim() || operationId.length > 150) return failed(new Error('強化操作識別無效'));
+  const current = readCampaign(owner);
+  if (!current.ok || !current.profile) return current;
+  const enabled = ctx.enabled ?? feedChainEnabled();
+  const first = operationId + ':0';
+  const done = (current.profile.enhancementReceipts ?? []).some(r => r.operationId === first) || (current.profile.chainReceipts ?? []).some(r => r.operationId === first) || (current.profile.resonanceReceipts ?? []).some(r => r.operationId === first);
+  if (done) return { ...current, duplicate: true };
+  const plan = planFeedToCap(current.profile, targetId, { ...ctx, enabled });
+  if (!plan.steps.length) return failed(new Error(plan.reason ?? '目前沒有能放進去的材料'));
+  if (plan.steps.length !== expectedRefs.length || plan.steps.some((st, i) => st.materialRef !== expectedRefs[i])) return failed(new Error('材料或進度已在別處變更，請重新預覽後再確認'));
+  let next = current.profile;
+  try {
+    plan.steps.forEach((st, i) => {
+      const id = operationId + ':' + i;
+      next = enabled ? applyFeed(next, id, st.materialRef, targetId, { ...ctx, enabled: true, inBattle: false }).profile : enhanceCampaignProfile(next, id, st.materialCardId, targetId).profile;
+    });
+    parseCampaign(JSON.stringify(next));
+  } catch (e) { return failed(e); }
+  const result = write(owner, next);
+  return result.ok ? { ...result, plan, duplicate: false } : result;
 }, failed);
 
 function legacyWins(): number {

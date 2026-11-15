@@ -14,6 +14,7 @@ import { resolvePlayerCardAttack } from './player-skills';
 import { progressionStage } from './progression';
 import type { SkillFoe } from './skill-runtime';
 import type { TurnInput } from './resolve-turn';
+import { campaignLinkDamage, feedChainEnabled } from './merge-balance';
 
 type Player = SkillFoe & { energy: number };
 
@@ -36,7 +37,8 @@ export function resolveLinkAttack<T extends Player, F extends Match3Foe>(args: C
   const { team, foes, targetIndex, stage, eventId, linkIds } = args;
   const cards = linkIds.map(id => team.find(u => u.id === id));
   if (cards.some(c => !c) || !foes[targetIndex]) throw new Error('invalid');
-  const amt = linkDamage(cards.map(c => fighterEffectiveAttack(c!)));
+  // PLAN-v2 A7：開關開啟時改用寶珠闖關連結公式（各卡主屬性套克制、係數【待平衡暫定值】）；關閉時與 1f452bb 原式相同。
+  const amt = feedChainEnabled() ? campaignLinkDamage(cards.map(c => ({ attack: fighterEffectiveAttack(c!), element: c!.element })), foes[targetIndex].element) : linkDamage(cards.map(c => fighterEffectiveAttack(c!)));
   const spentTeam = team.map(u => linkIds.includes(u.id) ? { ...u, energy: u.energy - LINK_ENERGY_COST } : u);
   const applied = resolvePlayerCardAttack({ foes, team: spentTeam, targetIndex, attackerIds: cards.map(c => c!.id), baseDamage: amt, stage, eventId, allowEnemyReaction: false });
   return { ...applied, baseDamage: amt };

@@ -84,3 +84,26 @@
 
 .enhancementFaces[data-enhancement-animation] .enhancementMaterial p { visibility: hidden; }
 .enhancementCloseup { overscroll-behavior: contain; }
+
+/* PLAN-v2：解鎖進度、上限標示、一鍵吃到封頂。 */
+.unlockText { margin: 0 0 8px; font-size: 17px; font-weight: 800; color: #ffe3a0; }
+.unlockBar { height: 10px; border-radius: 999px; background: #2a303b; overflow: hidden; border: 1px solid #776044; }
+.unlockBar span { display: block; height: 100%; background: linear-gradient(90deg, #e5ce98, #ffb84d); }
+.unlockSub { margin: 8px 0 0; font-size: 13px; color: #e8dcc2; }
+.capLine, .capFull, .capBlocked { display: block; padding: 4px 2px 2px; font-size: 12px; font-weight: 800; line-height: 1.35; text-align: center; font-variant-numeric: tabular-nums; }
+.capLine { color: #ffe3a0; }
+.capFull { color: #8dffb0; }
+.capBlocked { color: #c9b9a0; font-weight: 600; }
+.capSummary { margin: 0 0 10px; text-align: center; font-weight: 800; color: #ffe3a0; }
+.enhancement .feedAll { margin: 0 0 12px; background: linear-gradient(180deg, #ffd978, #e7a93a); color: #2a1600; font-weight: 900; }
+.planBox { padding: 4px 0; }
+.planHeadline { font-size: 18px; color: #ffe3a0; text-align: center; font-variant-numeric: tabular-nums; }
+.planList { font-size: 13px; color: #e8dcc2; }
+.permanentBonusTop { display: block; margin: 0 0 4px; padding: 3px 6px; border-radius: 8px; background: rgba(20, 12, 4, .85); border: 1px solid rgba(255, 214, 120, .75); color: #ffe7a8; font-size: 12px; font-weight: 800; text-align: center; font-variant-numeric: tabular-nums; }
+.permanentBonusTop b { color: #8dffb0; }
+.quickTeam { margin: 6px 0 10px; }
+/* AUDIT-2 H9：開戰列固定在畫面底部（只在困難闖關選隊頁）。全站 body 設了 overflow-x: hidden，position: sticky 不會黏住，所以用 fixed＋原位佔位（不擋到頁尾內容）。 */
+.startDock { min-height: calc(76px + env(safe-area-inset-bottom)); }
+.startDockInner { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: linear-gradient(to top, rgba(12, 11, 16, .97) 74%, rgba(12, 11, 16, 0)); }
+.startDockInner > button { width: min(100%, 520px); min-height: 48px; }
+.moreToggle { justify-self: center; min-height: 44px; margin-top: 4px; }

@@ -6,6 +6,8 @@ import modeStyles from './GameModes.module.css';
 import CatalogBeastCard from '@/components/battlefield/CatalogBeastCard';
 import starBeastsData from '@/data/star-beasts.json';
 import SelfStarBeastEntry from '@/components/SelfStarBeastEntry';
+import CampaignBoostSummary from '@/components/battlefield/CampaignBoostSummary';
+import { feedChainEnabled } from '@/lib/beast-game/match3/merge-balance';
 import Match3ElementGlyph from '@/components/battlefield/Match3ElementGlyph';
 import match3Styles from '@/components/battlefield/Match3Board.module.css';
 import type { BeastElement } from '@/lib/beast-game/elements';
@@ -214,7 +216,7 @@ export default function StarBeastsPage() {
             <ul className={modeStyles.list}>
               {GAME_MODES.filter((mode) => !['bead', 'orb'].includes(mode.id)).map((mode) => (
                 <li key={mode.id} className={modeStyles.item}>
-                  <Link href={mode.href} data-difficulty-choice={mode.id} className={`${modeStyles.card} ${mode.id === 'bead-hard' ? modeStyles.orbGameCard : modeStyles.duelGameCard}`}>
+                  <Link href={mode.id === 'bead-hard' && feedChainEnabled() ? `${mode.href}?owner=self` : mode.href} data-difficulty-choice={mode.id} className={`${modeStyles.card} ${mode.id === 'bead-hard' ? modeStyles.orbGameCard : modeStyles.duelGameCard}`}>
                     {mode.id === 'bead-hard' ? <>
                       <span className={modeStyles.orbArtwork} aria-hidden="true">
                         <span className={modeStyles.orbBoard}>
@@ -240,6 +242,7 @@ export default function StarBeastsPage() {
               ))}
             </ul>
           </nav>
+          <CampaignBoostSummary />
           <SelfStarBeastEntry onFound={(name, reason) => { setMyGuardian(name); setMyGuardianReason(reason); window.setTimeout(goMyGuardian, 2200); }} onGo={goMyGuardian} />
           <details className="mt-4 max-w-2xl text-xs text-slate-400">
             <summary className="min-h-[44px] cursor-pointer py-3 font-bold text-slate-300">這裡有什麼？</summary>

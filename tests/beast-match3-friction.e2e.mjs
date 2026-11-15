@@ -81,7 +81,7 @@ try {
   await js(`document.querySelector('[data-testid="match3-board"]').scrollIntoView({block:'center',behavior:'instant'})`);await sleep(100);
   const points=await js(`(${JSON.stringify(route)}).map(p=>{const r=document.querySelector('[data-testid="match3-board"] [data-r="'+p.r+'"][data-c="'+p.c+'"]').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,width:r.width}})`);
   const move=async p=>{await send('Input.dispatchMouseEvent',{type:'mouseMoved',x:p.x,y:p.y,button:'left',buttons:1});await sleep(70)};
-  const pointCount=()=>js(`document.querySelectorAll('[data-testid="drag-path"] circle').length`);
+  const pointCount=()=>js(`document.querySelectorAll('[data-testid="drag-path"] circle:not([display="none"])').length`);
   await send('Input.dispatchMouseEvent',{type:'mousePressed',x:points[0].x,y:points[0].y,button:'left',buttons:1,clickCount:1});
   await move({...points[1],x:points[1].x+points[1].width*.46});const edgeCount=await pointCount();
   await move(points[1]);const centerCount=await pointCount();await move(points[2]);await move(points[1]);const rollbackCount=await pointCount();await move(points[2]);
