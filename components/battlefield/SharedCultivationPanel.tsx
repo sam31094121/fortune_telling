@@ -191,11 +191,17 @@ function IconPanel(p:IconProps) {
   // 點一張卡＝它單獨放大到最上方（看得到的第一個反應）；✕ 回到點卡前（目標、所有已加入材料、預覽全清），✓ 才吃卡。
   // 2026-11-16 批次吃卡（使用者定案）：材料按卡種疊成一張＋×N；點一下 +1、長按加速連續加入，不逐張確認；
   // 小提示只有圖示＋數字（🃏×N ⚔+N，加成滿 🔒、五星封頂 ★✓）；最後一個 ✓ 一次結算。上限、加成都由伺服端給。
-  const confirmRef=useRef<HTMLButtonElement>(null),previewRef=useRef<HTMLDivElement>(null),stageRef=useRef<HTMLDivElement>(null);
+  const confirmRef=useRef<HTMLButtonElement>(null),previewRef=useRef<HTMLDivElement>(null),stageRef=useRef<HTMLDivElement>(null),dockRef=useRef<HTMLDivElement>(null);
   const reduce=()=>typeof window!=='undefined'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   // 預覽出現、以及停手後數字算好（ready）時，把總結卡捲到黏底 ✓ 列上方（長按中不捲，免得卡堆從手指下移走）。
   const hasSummary=!!summary,fresh=hasSummary&&p.ready;
-  useEffect(()=>{if(hasSummary)(previewRef.current??confirmRef.current)?.scrollIntoView({block:'nearest',behavior:reduce()?'instant':'smooth'});},[hasSummary,fresh]);
+  // 不用 scrollIntoView：黏底 dock 的停靠線會被捲動區 padding 往上推（桌機 96px），改量實際位置，捲到總結卡底邊剛好在 dock 上方。
+  useEffect(()=>{const pv=previewRef.current,dock=dockRef.current;if(!hasSummary||!pv||!dock)return;
+    let port:HTMLElement|null=pv.parentElement;while(port&&!(/(auto|scroll)/.test(getComputedStyle(port).overflowY)&&port.scrollHeight>port.clientHeight))port=port.parentElement;
+    const top=port?port.getBoundingClientRect().top:0,r=pv.getBoundingClientRect(),d=dock.getBoundingClientRect();
+    const delta=r.bottom+8>d.top?Math.min(r.bottom+8-d.top,r.top-top-8):r.top<top?r.top-top-8:0;
+    if(delta)(port??window).scrollBy({top:delta,behavior:reduce()?'instant':'smooth'});
+  },[hasSummary,fresh]);
   useEffect(()=>{if(target)stageRef.current?.scrollIntoView({block:'nearest',behavior:reduce()?'instant':'smooth'});},[target]);
   const targetCard=view?.cards.find(c=>c.id===target);
   const err=error?errorIcon(error):null;
@@ -251,7 +257,7 @@ function IconPanel(p:IconProps) {
         {!foods.length&&<div role="status" data-no-material className={icon.emptyRow}><span className={icon.emptySlot} aria-hidden="true">🍴</span><Sr>目前沒有可以餵給這張卡的材料（鎖定主力不能當材料）。</Sr><a href="/growth-center#beast-collection" className={icon.getCards} data-get-cards aria-label="去取得卡片"><span aria-hidden="true">🃏＋</span></a></div>}</>}
       {summary&&total>0&&<div ref={previewRef} data-shared-preview data-fresh={p.ready?'true':undefined} className={icon.previewAnchor}><FoodChainFeedback change={summary} phase="preview" iconOnly/></div>}
       {/* ③ ✓ 一次結算／✕ 一次全清：黏底、永遠在畫面內；上面一列小提示 🃏×N ⚔+N（🔒 加成滿、★✓ 五星封頂）；失敗時 ⚠ 就在 ✓ 旁。無材料時不顯示 ✓，只留 ✕ 跟在空材料槽後面（不黏底，免得蓋住 🃏＋）。 */}
-      {targetCard&&<div className={foods.length>0?`${icon.dock} ${icon.stickyConfirm}`:icon.dock} data-sticky-confirm={foods.length>0?'true':undefined} data-fusion-dock>
+      {targetCard&&<div className={foods.length>0?`${icon.dock} ${icon.stickyConfirm}`:icon.dock} data-sticky-confirm={foods.length>0?'true':undefined} data-fusion-dock ref={dockRef}>
         {total>0&&<div className={icon.hint} data-batch-hint role="status" aria-label={`已加入 ${total} 張${summary?`，神獸戰鬥攻擊 +${summary.addedBonus}`:''}${summary?.atBonusCap?'，攻擊加成已滿':''}${roomFull?'，已到五星封頂':''}`}>
           <span aria-hidden="true">🃏×<b data-hint-count>{total}</b></span>
           <span aria-hidden="true" data-hint-attack-wrap data-stale={p.ready?undefined:'true'}>⚔+<b data-hint-attack>{summary?summary.addedBonus:'⏳'}</b></span>
