@@ -722,7 +722,9 @@ function Match3Game({ treasurePractice, init, teamIds, rule, onRepick, cfg, camp
     };
     if (rigEnabled) {
       setBusy(true); setTeam(t); setFoes(f);
-      later(applyCounter, attack ? (hadRig.current ? RIG_STRIKE_MS : prepared ? 900 : 240) : 0);
+      // 敵方反擊從「咬合命中」之後馬上接（RIG_IMPACT_MS 1120ms＋一點緩衝），不必等四象整段撲殺（1500ms）演完——
+      // 神獸收尾淡出與反擊重疊，每手少等約 0.3 秒；演出順序、勝負、傷害一概不變（反擊的結果早已由後端算好）。
+      later(applyCounter, attack ? (hadRig.current ? RIG_IMPACT_MS + 100 : prepared ? 900 : 240) : 0);
     } else applyCounter();
   };
 
