@@ -5,6 +5,7 @@ import { prepareCultivationMigration } from '@/lib/beast-game/cultivation-migrat
 import { transactCultivation, fuseSnapshot, type CultivationCommand } from '@/lib/beast-game/cultivation-transaction';
 import { cultivationView, cultivationChangeView, describeCultivationChange } from '@/lib/beast-game/cultivation-view';
 import { cultivationTarget } from '@/lib/beast-game/cultivation';
+import { batchLimits, summarizeCultivationChanges } from '@/lib/beast-game/cultivation-batch';
 import { updateCultivationAccount, importExistingGrants, releaseCultivationBattle, creditSharedShards, exchangeSharedShards, legacyGrowthCollection } from '@/lib/beast-game/cultivation-games';
 import { migrateCollection } from '@/lib/beast-collection-ledger';
 import { sharedOrbProfile, beginSharedOrb } from '@/lib/beast-game/cultivation-orb';
@@ -67,20 +68,29 @@ export async function POST(request: Request) {
       if (snapshot.pendingBattle) throw new Error('戰鬥尚未結算，暫不能合體。');
       const target = snapshot.state.cards.find(c => c.id === body.targetId);
       if (!target) throw new Error('材料或目標已不存在，未扣材料。');
-      const candidates = snapshot.state.cards.filter(c => c.id !== target.id && !snapshot.state.protectedIds.includes(c.id) && cultivationTarget(c.cardId) === target.cardId).slice(0, 200);
+      // piles:true（2026-11-16 批次吃卡）：材料按卡種疊堆＋各堆上限＋還能吃幾張到封頂；候選預覽只算每堆第一張（不回上千筆）。
+      const batch = body.piles === true ? batchLimits(snapshot, target.id) : null;
+      const candidates = batch ? batch.piles.filter(p => p.ids.length).map(p => snapshot.state.cards.find(c => c.id === p.ids[0])!) : snapshot.state.cards.filter(c => c.id !== target.id && !snapshot.state.protectedIds.includes(c.id) && cultivationTarget(c.cardId) === target.cardId).slice(0, 200);
       const options = candidates.map(c => { try { return { materialId: c.id, feedback: describeCultivationChange(fuseSnapshot(snapshot, [{ targetId: target.id, materialId: c.id }]).changes[0]) }; } catch (error) { return { materialId: c.id, error: error instanceof Error && /[\u3400-\u9fff]/.test(error.message) ? error.message : '暫時無法預覽。' }; } });
-      return NextResponse.json({ ok: true, targetId: target.id, options }, { headers });
+      return NextResponse.json({ ok: true, targetId: target.id, options, ...(batch ? { batch } : {}) }, { headers });
     }
     if (body?.type === 'PREVIEW') {
       const snapshot = await repository.read(owner);
       if (snapshot.revision !== body.revision) throw new Error('卡庫已更新，請重新選擇。');
       if (snapshot.pendingBattle) throw new Error('戰鬥尚未結算，暫不能合體。');
       const preview = fuseSnapshot(snapshot, body.choices);
+      // summaryOnly：批次預覽只回一份總結（張數、加成總和、攻擊前後、星級前後），不回逐張陣列。
+      if (body.summaryOnly === true) return NextResponse.json({ ok: true, revision: snapshot.revision, summary: summarizeCultivationChanges(preview.changes) }, { headers });
       return NextResponse.json({ ok: true, changes: preview.changes.map(cultivationChangeView), feedback: preview.changes.map(describeCultivationChange) }, { headers });
     }
     if (body?.type !== 'FUSE' && body?.type !== 'MAIN_TEAM') throw new Error('共同卡庫操作無效。');
     const command: CultivationCommand = body.type === 'FUSE' ? { type: 'FUSE', choices: body.choices } : { type: 'MAIN_TEAM', ids: body.ids };
     const result = await transactCultivation(repository, owner, body.operationId, body.revision, command);
+    // summaryOnly：批次結算只回卡庫檢視＋一份總結；存檔與收據格式不變（每張一筆 change，重播／查帳照舊）。
+    if (body.type === 'FUSE' && body.summaryOnly === true) {
+      const { operationId, revision, rule } = result.receipt;
+      return NextResponse.json({ ok: true, view: cultivationView(result.snapshot), receipt: { operationId, revision, rule, count: result.receipt.changes.length }, summary: summarizeCultivationChanges(result.receipt.changes), duplicate: result.duplicate }, { headers });
+    }
     return NextResponse.json({ ok: true, view: cultivationView(result.snapshot), receipt: result.receipt, changes: result.receipt.changes.map(cultivationChangeView), feedback: result.receipt.changes.map(describeCultivationChange), duplicate: result.duplicate }, { headers });
   } catch (error) { return failure(error); }
 }
