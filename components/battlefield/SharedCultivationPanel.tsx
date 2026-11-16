@@ -193,8 +193,9 @@ function IconPanel(p:IconProps) {
   // 小提示只有圖示＋數字（🃏×N ⚔+N，加成滿 🔒、五星封頂 ★✓）；最後一個 ✓ 一次結算。上限、加成都由伺服端給。
   const confirmRef=useRef<HTMLButtonElement>(null),previewRef=useRef<HTMLDivElement>(null),stageRef=useRef<HTMLDivElement>(null);
   const reduce=()=>typeof window!=='undefined'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const hasSummary=!!summary;
-  useEffect(()=>{if(hasSummary)(previewRef.current??confirmRef.current)?.scrollIntoView({block:'nearest',behavior:reduce()?'instant':'smooth'});},[hasSummary]);
+  // 預覽出現、以及停手後數字算好（ready）時，把總結卡捲到黏底 ✓ 列上方（長按中不捲，免得卡堆從手指下移走）。
+  const hasSummary=!!summary,fresh=hasSummary&&p.ready;
+  useEffect(()=>{if(hasSummary)(previewRef.current??confirmRef.current)?.scrollIntoView({block:'nearest',behavior:reduce()?'instant':'smooth'});},[hasSummary,fresh]);
   useEffect(()=>{if(target)stageRef.current?.scrollIntoView({block:'nearest',behavior:reduce()?'instant':'smooth'});},[target]);
   const targetCard=view?.cards.find(c=>c.id===target);
   const err=error?errorIcon(error):null;
