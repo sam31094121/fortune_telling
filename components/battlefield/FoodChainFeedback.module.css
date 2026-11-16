@@ -44,3 +44,5 @@
 .iconCompare b {color:#ffd977;}
 .starUp {color:#7dff9c;font-weight:900;animation:pop 0.9s ease-out both;}
 .next i {font-style:normal;margin-right:2px;}
+/* 2026-11-16 批次吃卡：材料縮圖角落 ×N（這一批吃了幾張）。 */
+.countMark {position:absolute;left:-6px;top:-8px;padding:1px 6px;border-radius:999px;background:#141b29;border:1px solid #f0cc72;color:#ffd977;font-size:14px;font-weight:900;font-variant-numeric:tabular-nums;}

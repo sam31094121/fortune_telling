@@ -37,3 +37,17 @@
 @keyframes nope {0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(3px);}}
 @keyframes spin {from{transform:rotate(0);}to{transform:rotate(360deg);}}
 @media (prefers-reduced-motion: reduce) { .alert, .chipError, .alert .alertGlyph, .emptySlot, .stage > button { animation: none !important; } }
+/* 2026-11-16 批次吃卡：材料堆（×N 剩餘、🍴N 已加入）、長按不跳選單／不選字；提示列 🃏×N ⚔+N；⚠ 在 ✓ 旁；等待時 ✓ 顯示 ⏳ 呼吸。 */
+.count {position:absolute;top:4px;left:4px;padding:1px 6px;border-radius:999px;background:rgba(10,16,28,.85);border:1px solid rgba(240,204,114,.6);color:#ffd977;font-size:13px;font-weight:900;line-height:1.2;font-variant-numeric:tabular-nums;pointer-events:none;}
+.pile {touch-action:manipulation;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;}
+.pile * {pointer-events:none;}
+.picked {background:rgba(240,204,114,.32);color:#fff3c4;font-variant-numeric:tabular-nums;}
+.bumpMark {position:absolute;inset:auto 0 40% 0;margin:auto;width:max-content;padding:2px 8px;border-radius:999px;background:rgba(10,16,28,.9);border:1px solid #f0cc72;color:#ffd977;font-size:18px;font-weight:900;animation:bump .9s ease-out both;}
+@keyframes bump {0%{opacity:0;transform:scale(.6);}25%{opacity:1;transform:scale(1.12);}70%{opacity:1;transform:scale(1);}100%{opacity:0;transform:scale(1);}}
+.dock > .hint, .dock > .dockAlert {grid-column:1 / -1;}
+.hint {display:flex;align-items:center;justify-content:center;gap:14px;min-height:32px;font-size:18px;line-height:1;color:#f5e7bd;font-variant-numeric:tabular-nums;}
+.hint b {font-size:20px;color:#ffd977;}
+.hint [data-stale=true] {opacity:.55;}
+.dockAlert {margin:0;}
+.wait {display:inline-block;animation:breathe 1.2s ease-in-out infinite;}
+@media (prefers-reduced-motion: reduce) { .bumpMark, .wait { animation: none !important; } }
