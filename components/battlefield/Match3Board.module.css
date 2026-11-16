@@ -91,7 +91,7 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .picker { display: grid; gap: 10px; max-width: 960px; margin: 0 auto; padding: 12px; color: #f4ead8; }
 .pickBar { display: flex; gap: 8px; justify-content: center; padding: 8px; }
 .pickTabs, .pickRow { display: flex; flex-wrap: wrap; gap: 6px; }
-.pickTabs button, .pickRow button, .pickGrid button { min-height: 44px; padding: 6px 10px; border-radius: 10px; border: 1px solid #6b5a44; background: #2a2119; color: inherit; }
+.pickTabs button, .pickRow button, .pickGrid button { min-height: 44px; min-width: 44px; padding: 6px 10px; border-radius: 10px; border: 1px solid #6b5a44; background: #2a2119; color: inherit; }
 .pickTabs button[aria-pressed='true'], .pickGrid button[aria-pressed='true'] { background: #6b4f1f; border-color: #ffe3a1; }
 .pickGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; }
 .pickGrid small { display: block; opacity: .75; }

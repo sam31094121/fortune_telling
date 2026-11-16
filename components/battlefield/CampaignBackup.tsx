@@ -6,14 +6,14 @@ import { CAMPAIGN_BACKUP_MAX_BYTES, campaignBackupPreview } from '@/lib/beast-ga
 import { exportCampaignBackup, importCampaignBackup } from '@/lib/beast-game/match3/hard-campaign-store';
 import styles from './Match3TeamPicker.module.css';
 
-export default function CampaignBackup({ onImported }: { onImported: () => void }) {
+export default function CampaignBackup({ onImported, open }: { onImported: () => void; open?: boolean }) {
   const [raw, setRaw] = useState('');
   const [preview, setPreview] = useState<ReturnType<typeof campaignBackupPreview> | null>(null);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [code, setCode] = useState(''), [typed, setTyped] = useState(''), [walletMessage, setWalletMessage] = useState('');
   useEffect(() => { let alive = true; void recoverWalletKey().then(found => { if (alive) setCode(found.key ? formatRecoveryCode(found.key) : ''); }); return () => { alive = false; }; }, []);
-  return <details className={styles.enhancement} data-testid="campaign-backup">
+  return <details key={String(!!open)} open={open || undefined} className={styles.enhancement} data-testid="campaign-backup">
     <summary>存檔備份</summary>
     <section data-testid="wallet-recovery" aria-label="共同卡庫識別碼">
       <h3>共同卡庫識別碼</h3>
