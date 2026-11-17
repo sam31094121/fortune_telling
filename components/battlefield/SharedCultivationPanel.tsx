@@ -27,7 +27,7 @@ const NO_PICKS:Record<string,number>=Object.freeze({}) as Record<string,number>;
  * 食物鏈（2026-11-15）：吃卡回饋（攻擊 +N・約 +X%・兩款遊戲攻擊前後・五顆星）一律照印伺服端數字（feedback）。
  * iconOnly（22:44 使用者指示，神獸戰鬥）：純圖示導向——畫面不顯示說明文字，只留卡圖、五顆星、吃卡箭頭、勾勾確認鈕與數字；
  * 每顆按鈕保留 aria-label（讀屏用，畫面不顯示），觸控區 ≥44px；錯誤用圖示＋短動效（封頂、不可吃、版本衝突）。
- * 文字版先選目標，再顯示單張目標與合法材料；點材料預覽、另行確認，說明與主力管理獨立顯示。
+ * 寶石捷連線維持正式站的文字版（一鍵自動挑最弱材料、說明書），只加上五顆星與吃卡回饋。規則、伺服端計算、確認步驟都不變。
  */
 
 export default function SharedCultivationPanel({onSaved,onDone,iconOnly=false,focus}:{onSaved?:()=>void;onDone?:()=>void;iconOnly?:boolean;focus?:'GUARDIAN'}) {
@@ -45,7 +45,7 @@ export default function SharedCultivationPanel({onSaved,onDone,iconOnly=false,fo
   const [busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('');
   const [book,setBook]=useState<GuideBook|null>(null),[bookError,setBookError]=useState(''),[bookLoading,setBookLoading]=useState(false);
   const bookRequest=useRef<Promise<GuideBook>|null>(null),saving=useRef(false);
-  const reviewRef=useRef<HTMLDivElement>(null);
+  const reviewRef=useRef<HTMLDivElement>(null),materialRef=useRef<HTMLHeadingElement>(null);
   const loadBook=async()=>{
     setBookLoading(true);setBookError('');
     bookRequest.current??=(async()=>{for(let attempt=0;attempt<2;attempt++){try{const response=await fetch('/api/beast-game/guide-book',{signal:AbortSignal.timeout(20000)});if(!response.ok)throw new Error('卡面資料暫時無法取得');const data=await response.json();if(!data.ok||!data.book?.cards)throw new Error('卡面資料不完整');return data.book as GuideBook;}catch(cause){if(attempt===1)throw cause;}}throw new Error('卡面資料暫時無法取得');})();
@@ -126,7 +126,7 @@ export default function SharedCultivationPanel({onSaved,onDone,iconOnly=false,fo
   const autoMaterial=(targetCardId:string,within?:BatchLimits)=>{const base=(c:{orbAttack:string;bonus:string})=>{try{return BigInt(c.orbAttack)-BigInt(c.bonus);}catch{return 0n;}};const options=(view?.cards??[]).filter(c=>!c.protected&&c.materialTargetCardId===targetCardId&&(!within||(within.piles.find(p=>p.cardId===c.cardId)?.max??0)>0)).sort((a,b)=>{const d=base(a)-base(b);return d>0n?1:d<0n?-1:0;});return options[0]?.id??'';};
   const targetCard=view?.cards.find(c=>c.id===target);
   const materialCard=view?.cards.find(c=>c.id===material);
-  const face=(id:string,attack?:string)=>book?<CatalogBeastCard id={id} attackOverride={attack}/>:<span role="status">{bookError?'卡面暫時無法取得':'卡面載入中…'}</span>;
+  const face=(id:string)=>book?<CatalogBeastCard id={id}/>:<span role="status">{bookError?'卡面暫時無法取得':'卡面載入中…'}</span>;
   const previewReady=!!preview&&previewRevision===view?.revision&&preview.targetId===target&&preview.materialId===material;
   if(iconOnly)return <GuideBookProvider value={book}><IconPanel {...{view,main,setMain,target,setTarget:(id:string)=>{setPreview(null);setTarget(id);autoPick.current=id;picksRef.current={};setPicks({});setBatchPreview(null);setError('');setMessage('');setSavedChange(null);setSavedFeedback(null);},picks,limits,addPick,summary:batchPreview&&batchPreview.key.split('|')[1]===target?batchPreview.summary:null,saved:savedFeedback,busy,error,message,options,operation,resultRef,load,save,onDone,setBusy,setError,ready:batchReady&&!!book,bookError:!!bookError,bookLoading,loadBook,focus,reset:()=>{operation.current=null;setPreview(null);setFeedback(null);setTarget('');setMaterial('');setPicks(NO_PICKS);setBatchPreview(null);setError('');setMessage('');setSavedChange(null);setSavedFeedback(null);}}}/></GuideBookProvider>;
   return <GuideBookProvider value={book}><section className={`${styles.panel} ${fusion.panel}`} data-shared-cultivation>
@@ -137,18 +137,18 @@ export default function SharedCultivationPanel({onSaved,onDone,iconOnly=false,fo
       <p>同星宿幼子被對應本體吃掉；本體被所屬四大神獸吃掉。每次消耗一張材料，目標保留並永久增加攻擊；材料不能重用，目標可繼續強化。</p>
       <p>每次加攻＝材料原始攻擊 ÷ 10，無條件捨去，最低 +1；本體被四大神獸吃掉時，另傳承它累積加成的一半。永久加成總和最多到卡面攻擊的 50%。只增加攻擊，生命與技能不變。</p>
       <p>五顆星：每吃一張累計一次，四大神獸吃滿 1000 張、本體吃滿 500 張封頂（第五星佔一半，前面依序減半），封頂後不能再吃。</p>
-    </div>}
+    </details>
     {bookError&&<div role="alert" className={fusion.notice}>{bookError}<button type="button" disabled={bookLoading} onClick={()=>void loadBook()}>重新載入卡面</button></div>}
     {error&&<p ref={errorRef} tabIndex={-1} role="alert">{error}<button type="button" disabled={busy} onClick={()=>void load()}>重新讀取卡庫</button></p>}
     {message&&<p role="status" data-shared-saved>{message}</p>}
     {savedChange&&<div ref={resultRef} tabIndex={-1} role="status" data-shared-growth-result>{savedFeedback?<FoodChainFeedback key={savedFeedback.materialId} change={savedFeedback} phase="saved" iconOnly/>:<p data-fusion-sentence><b>{savedChange.targetName}吃掉{savedChange.materialName}</b>：寶石攻擊 {savedChange.orbBeforeAttack}→{savedChange.orbAfterAttack}，神獸戰鬥攻擊 {savedChange.battleBeforeAttack}→{savedChange.battleAfterAttack}</p>}</div>}
     {!view?<p aria-busy="true">正在讀取卡庫…</p>:<>
       {view.pendingBattle&&<p role="alert">戰鬥尚未結束，請先返回原戰鬥結算或離開。<button type="button" disabled={busy} onClick={async()=>{setBusy(true);try{if(view.pendingBattle?.startsWith('card:'))await (await import('@/lib/beast-collection')).releaseLiveBattle(view.pendingBattle);else await sharedRequest({type:'RELEASE',battleId:view.pendingBattle});await load();}catch(e){setError(e instanceof Error?e.message:'暫時無法結束原戰局。');}finally{setBusy(false);}}}>結束未完成戰局（不扣卡、不發獎）</button></p>}
-      {(screen==='main'||(screen==='fusion'&&view.reason&&!view.pendingBattle))&&<div data-cultivation-prerequisite><Sr>{view.reason??'選擇五張保護卡'}</Sr><div className={fusion.slots} role="group" aria-label={view.protectionReason} data-strongest-protected>{view.strongestProtectedIds.map(id=>{const card=view.cards.find(c=>c.id===id);return card?<div key={id} aria-label={card.name+'，累積培養 +'+card.bonus+'，已自動保護'}>{face(card.cardId,card.orbAttack)}<span aria-hidden="true">🔒</span></div>:null;})}</div><div className={fusion.slots} role="group" aria-label="五張保護卡槽">{Array.from({length:5},(_,i)=>{const card=view.cards.find(c=>c.id===main[i]);return <button key={i} type="button" aria-label={card?'取消保護 '+card.name:'未選卡槽 '+(i+1)} disabled={busy||!card} onClick={()=>{operation.current=null;setMain(ids=>ids.filter(id=>id!==card?.id));}}>{card?face(card.cardId,card.orbAttack):<span aria-hidden="true">＋</span>}</button>;})}</div>
+      <h3>① 五隻主力</h3>
       {!view.canProtectFive&&<p role="status">目前不足五種可出戰收藏，請先取得收藏；仍可使用原本的試玩入口。</p>}
-      <p aria-label="已選保護卡數" className={fusion.count}>🔒 {main.length}/5</p>
-      <div className={styles.grid}>{view.cards.map(card=><button key={card.id} type="button" data-main-copy={card.id} aria-label={card.name+'，'+card.copyLabel} aria-pressed={main.includes(card.id)} disabled={busy||!!view.pendingBattle} onClick={()=>{operation.current=null;setMain(ids=>ids.includes(card.id)?ids.filter(id=>id!==card.id):ids.length<5?[...ids,card.id]:ids);}}>
-        {face(card.cardId,card.orbAttack)}{main.includes(card.id)&&<span className={fusion.selectedMark} aria-hidden="true">✓</span>}
+      <p>已選 {main.length}／5 隻</p>
+      <div className={styles.grid}>{view.cards.map(card=><button key={card.id} type="button" data-main-copy={card.id} aria-pressed={main.includes(card.id)} disabled={busy||!!view.pendingBattle} onClick={()=>{operation.current=null;setMain(ids=>ids.includes(card.id)?ids.filter(id=>id!==card.id):ids.length<5?[...ids,card.id]:ids);}}>
+        {face(card.cardId)}<strong>{card.name}</strong><small>{card.copyLabel} · 永久加成 +{card.bonus} {card.protected?'・主力已鎖定':''}</small>
       </button>)}</div>
       <button type="button" className={styles.confirm} data-save-main disabled={busy||!!view.pendingBattle||main.length!==5} onClick={()=>void save('MAIN_TEAM')}>確認這五隻主力</button>
       <h3>② 點一張卡來強化</h3>
@@ -162,7 +162,7 @@ export default function SharedCultivationPanel({onSaved,onDone,iconOnly=false,fo
       {target&&<div className={fusion.actions}><button type="button" disabled={busy} onClick={()=>{setMaterial('');setPreview(null);materialRef.current?.focus();materialRef.current?.scrollIntoView({block:'start'});}}>重選材料</button><button type="button" disabled={busy} onClick={()=>{setTarget('');setMaterial('');setPreview(null);setError('');}}>取消本次合體</button></div>}
       </div>
     </>}
-    {onDone&&<button type="button" className={icon.iconBtn} aria-label="返回選卡" disabled={busy} onClick={onDone}><span aria-hidden="true">↩</span></button>}
+    {onDone&&<button type="button" disabled={busy} onClick={onDone}>返回選卡</button>}
   </section></GuideBookProvider>;
 }
 
@@ -279,8 +279,4 @@ function IconPanel(p:IconProps) {
     </>}
     {p.onDone&&<button type="button" className={icon.iconBtn} disabled={busy} onClick={p.onDone} aria-label="返回選卡"><span aria-hidden="true">↩</span></button>}
   </section>;
-}
-
-function FusionStage({enabled,children}:{enabled:boolean;children:React.ReactNode}) {
-  return enabled?<div className={fusion.workspace}>{children}</div>:<>{children}</>;
 }

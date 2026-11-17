@@ -1,4 +1,3 @@
-// Formula/transaction fixtures keep five higher-bonus guards so consumable trained cards are outside the protected top five.
 // 食物鏈（卡吃卡）規則 v2：純函式與交易層。儲存是 CAS 記憶體替身，不是正式資料庫測試。
 const assert = require('node:assert/strict');
 require('./helpers/server-only-runtime.cjs');
@@ -16,7 +15,7 @@ const G = require('../lib/beast-guardians.ts');
 
 const copy = (id, cardId, bonus = '0', extra = {}) => ({ id, cardId, bonus, ...extra });
 const mainIds = ['beast_g_zhuque', 'beast_g_baihu', 'beast_g_xuanwu', 'beast_a28', 'beast_a27'];
-const main = mainIds.map((cardId, i) => copy('main:' + i, cardId, '100'));
+const main = mainIds.map((cardId, i) => copy('main:' + i, cardId));
 const base = (...extra) => ({ cards: [...main, copy('qinglong', 'beast_g_qinglong'), copy('adult', 'beast_a01'), copy('young', 'beast_y01'), ...extra], protectedIds: main.map(c => c.id) });
 const snap = (state, receipts = []) => ({ revision: String(receipts.length), state, pendingBattle: null, receipts });
 const atk = id => R.getCard(id).stats.attack;

@@ -13,8 +13,7 @@ export interface CultivationChange extends FusionChoice {
   /** 以下只在 v2 收據出現；沒有 rule 的舊收據＝v1。 */
   rule?: 'v2'; inheritedBonus?: string; rawBonus?: string; capBonus?: string; capped?: boolean; fedBefore?: number; fedAfter?: number;
 }
-export type ProtectionRule = 'manual-five-v1' | 'strongest-five-v1';
-export interface FuseOptions { protectionRule?: ProtectionRule; rule?: FoodChainRule; fedOf?: (copyId: string) => number; params?: FoodChainParams }
+export interface FuseOptions { rule?: FoodChainRule; fedOf?: (copyId: string) => number; params?: FoodChainParams }
 
 /** Decimal strings retain exact growth beyond Number.MAX_SAFE_INTEGER. No gameplay cap. */
 export function exactBonus(value: string): bigint {
@@ -75,7 +74,6 @@ export function fuseCultivation(state: CultivationState, choices: readonly Fusio
     const target = cards.find(c => c.id === choice?.targetId), material = cards.find(c => c.id === choice?.materialId);
     if (!target || !material || target.id === material.id) throw new Error('材料或目標已不存在，未扣材料。');
     if (state.protectedIds.includes(material.id)) throw new Error('鎖定主力不能作為材料，請先整組更換主力。');
-    if (options.protectionRule !== 'manual-five-v1' && cultivationProtection({ cards, protectedIds: state.protectedIds }).strongestIds.includes(material.id)) throw new Error('這張是累積培養加成最高五種神獸的保護副本，為守護培養心血，不能作為材料；未扣卡。');
     if (cultivationTarget(material.cardId) !== target.cardId) throw new Error('幼子只能合體對應本體，本體只能合體所屬四大神獸。');
     const targetCard = getCard(target.cardId)!, materialCard = getCard(material.cardId)!;
     const before = exactBonus(target.bonus);

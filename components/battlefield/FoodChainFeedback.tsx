@@ -19,14 +19,14 @@ function Stars({ count }: { count: number }) {
 export default function FoodChainFeedback({ change, phase, iconOnly = false }: { change: Change; phase: 'preview' | 'saved'; iconOnly?: boolean }) {
   const s = change.starsAfter, before = change.starsBefore;
   const zero = change.addedBonus === '0';
-  if (iconOnly) return <IconFeedback change={change} phase={phase} concise={concise} />;
+  if (iconOnly) return <IconFeedback change={change} phase={phase} />;
   return <section className={styles.card} data-food-chain-feedback={phase} data-layer={change.layer} data-rule={change.rule} aria-live={phase === 'saved' ? 'polite' : undefined}>
-    {!concise && <div className={styles.pair} data-absorbing={phase === 'saved' ? 'true' : undefined}>
+    <div className={styles.pair} data-absorbing={phase === 'saved' ? 'true' : undefined}>
       <div className={styles.thumb} data-fc-material-thumb><CatalogBeastCard id={change.materialCardId} /></div>
       <span className={styles.arrow} aria-hidden="true">➜</span>
       <div className={styles.thumb} data-fc-target-thumb><CatalogBeastCard id={change.targetCardId} />{phase === 'saved' && <b className={styles.pop} aria-hidden="true">+{change.addedBonus}</b>}</div>
-    </div>}
-    {!concise && <p className={styles.who}><strong data-fc-material>{change.materialName}</strong><span aria-hidden="true"> → </span><strong data-fc-target>{change.targetName}</strong></p>}
+    </div>
+    <p className={styles.who}><strong data-fc-material>{change.materialName}</strong><span aria-hidden="true"> → </span><strong data-fc-target>{change.targetName}</strong></p>
     <p className={styles.gain} data-fc-gain={change.addedBonus}>
       <span>攻擊</span> <b>+{change.addedBonus}</b> <span className={styles.pct}>· <span>約</span> <span data-fc-percent>+{change.addedPercent.label}%</span></span>
     </p>
@@ -41,7 +41,7 @@ export default function FoodChainFeedback({ change, phase, iconOnly = false }: {
       <span>星級</span>{before && before.stars !== s.stars ? <><Stars count={before.stars} /><span aria-hidden="true">→</span></> : null}<Stars count={s.stars} />
       {s.toNext !== null ? <span className={styles.next}><span>下一星還差</span> <b data-fc-to-next>{s.toNext}</b> <span>張</span></span> : <span className={styles.next} data-fc-maxed><span>已五星封頂</span></span>}
     </div>}
-    {phase === 'preview' && <p className={styles.warn} data-fc-consume>{concise ? <span>確認後永久消耗這張材料</span> : <><span>確認後</span>{' '}<strong>{change.materialName}</strong>{' '}<span>會被吃掉（永久消耗）</span></>}</p>}
+    {phase === 'preview' && <p className={styles.warn} data-fc-consume><span>確認後</span>{' '}<strong>{change.materialName}</strong>{' '}<span>會被吃掉（永久消耗）</span></p>}
   </section>;
 }
 
@@ -61,7 +61,7 @@ function IconFeedback({ change, phase }: { change: Change; phase: 'preview' | 's
       <div className={styles.thumb} data-fc-material-thumb><CatalogBeastCard id={change.materialCardId} />{phase === 'preview' && <span className={styles.eatMark}>🍴</span>}{count > 1 && <b className={styles.countMark} data-fc-count={count}>×{count}</b>}</div>
       <span className={styles.arrow}>➜</span>
       <div className={styles.thumb} data-fc-target-thumb><CatalogBeastCard id={change.targetCardId} />{phase === 'saved' && <b className={styles.pop}>+{change.addedPercent.label}%</b>}</div>
-    </div>}
+    </div>
     <p className={styles.bigGain} aria-hidden="true" data-fc-gain={change.addedBonus}><b data-fc-percent>+{change.addedPercent.label}%</b>{change.capped && <span className={styles.capIcon}>🔒</span>}{change.inheritedBonus && change.inheritedBonus !== '0' && <span className={styles.inheritIcon} data-fc-inherited={change.inheritedBonus}>⬆+{change.inheritedBonus}</span>}</p>
     <div className={styles.iconCompare} aria-hidden="true">
       <span data-fc-orb><i>💎</i>{change.beforeOrbAttack}<em>→</em><b>{change.afterOrbAttack}</b></span>
@@ -69,7 +69,7 @@ function IconFeedback({ change, phase }: { change: Change; phase: 'preview' | 's
     </div>
     {s && <div className={styles.starRow} data-fc-star-row aria-hidden="true">
       <Stars count={s.stars} />{up && <span className={styles.starUp}>↑</span>}
-      {s.toNext !== null ? <span className={styles.next} data-fc-to-next-wrap><i>🃏</i><small>還差</small><b data-fc-to-next>{s.toNext}</b><small>張升星</small></span> : <span className={styles.next} data-fc-maxed>✓</span>}
+      {s.toNext !== null ? <span className={styles.next} data-fc-to-next-wrap><i>🃏</i><b data-fc-to-next>{s.toNext}</b></span> : <span className={styles.next} data-fc-maxed>✓</span>}
     </div>}
   </section>;
 }

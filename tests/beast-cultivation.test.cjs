@@ -1,4 +1,3 @@
-// Formula/transaction fixtures keep five higher-bonus guards so consumable trained cards are outside the protected top five.
 const assert = require('node:assert/strict');
 require('./helpers/server-only-runtime.cjs');
 const path = require('node:path');
@@ -14,7 +13,7 @@ const G = require('../lib/beast-guardians.ts');
 const M = require('../lib/beast-game/cultivation-migration.ts');
 const O = require('../lib/beast-game/match3/hard-campaign.ts');
 const copy = (id, cardId, bonus = '0') => ({ id, cardId, bonus });
-const main = ['beast_g_qinglong', 'beast_g_baihu', 'beast_g_zhuque', 'beast_g_xuanwu', 'beast_a28'].map((id, i) => copy('main:' + i, id, '100'));
+const main = ['beast_g_qinglong', 'beast_g_baihu', 'beast_g_zhuque', 'beast_g_xuanwu', 'beast_a28'].map((id, i) => copy('main:' + i, id));
 const state = () => ({ cards: [...main, copy('adult', 'beast_a01'), copy('young', 'beast_y01'), copy('young2', 'beast_y01')], protectedIds: main.map(c => c.id) });
 const snapshot = () => ({ revision: '0', state: state(), pendingBattle: null, receipts: [] });
 class Repo {

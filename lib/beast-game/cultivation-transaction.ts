@@ -1,10 +1,10 @@
 import 'server-only';
-import { fuseCultivation, replaceCultivationMainTeam, type CultivationState, type CultivationChange, type FusionChoice, type ProtectionRule } from './cultivation';
+import { fuseCultivation, replaceCultivationMainTeam, type CultivationState, type CultivationChange, type FusionChoice } from './cultivation';
 import { activeFoodChainRule, receiptRule, type FoodChainRule } from './cultivation-rules';
 
 export type CultivationCommand = { type: 'FUSE'; choices: FusionChoice[] } | { type: 'MAIN_TEAM'; ids: string[] };
 /** rule：v2 起寫入；沒有這欄的舊收據＝v1，永遠照 v1 重播。 */
-export interface CultivationReceipt { operationId: string; command: string; revision: string; changes: CultivationChange[]; rule?: FoodChainRule; protectionRule?: ProtectionRule }
+export interface CultivationReceipt { operationId: string; command: string; revision: string; changes: CultivationChange[]; rule?: FoodChainRule }
 export interface CultivationSnapshot {
   revision: string;
   state: CultivationState;
@@ -32,14 +32,14 @@ export function fedCounter(snapshot: Pick<CultivationSnapshot, 'receipts' | 'sta
   return id => snapshot.state.cards.find(c => c.id === id)?.fed ?? counts.get(id) ?? 0;
 }
 /** 預覽與正式合體共用同一套規則（伺服端權威）。 */
-export function fuseSnapshot(snapshot: CultivationSnapshot, choices: FusionChoice[], rule: FoodChainRule = activeFoodChainRule(), protectionRule: ProtectionRule = 'strongest-five-v1') {
-  return { rule, ...fuseCultivation(snapshot.state, choices, { rule, protectionRule, fedOf: fedCounter(snapshot) }) };
+export function fuseSnapshot(snapshot: CultivationSnapshot, choices: FusionChoice[], rule: FoodChainRule = activeFoodChainRule()) {
+  return { rule, ...fuseCultivation(snapshot.state, choices, { rule, fedOf: fedCounter(snapshot) }) };
 }
 /** 依收據上的規則版本重算（審計／測試用）：舊收據沒有 rule 欄＝v1。 */
 export function replayCultivationReceipt(before: CultivationSnapshot, receipt: CultivationReceipt) {
   const parsed = JSON.parse(receipt.command);
   if (parsed?.type !== 'FUSE') return null;
-  return fuseSnapshot(before, parsed.choices, receiptRule(receipt.rule), receipt.protectionRule ?? 'manual-five-v1');
+  return fuseSnapshot(before, parsed.choices, receiptRule(receipt.rule));
 }
 function commandKey(command: CultivationCommand): string {
   if (command?.type === 'FUSE' && Array.isArray(command.choices)) return JSON.stringify({ type: command.type, choices: command.choices.map(c => ({ targetId: c?.targetId, materialId: c?.materialId })) });
@@ -61,7 +61,7 @@ export async function transactCultivation(repository: CultivationRepository, own
   if (current.pendingBattle) throw new Error('戰鬥尚未結算，暫不能合體或更換主力。');
   const result = command.type === 'FUSE' ? fuseSnapshot(current, command.choices) : { rule: undefined, state: replaceCultivationMainTeam(current.state, command.ids), changes: [] };
   const revision = (BigInt(current.revision) + 1n).toString();
-  const receipt: CultivationReceipt = { operationId, command: key, revision, changes: result.changes, ...(command.type === 'FUSE' ? { protectionRule: 'strongest-five-v1' as const } : {}), ...(result.rule === 'v2' ? { rule: 'v2' as const } : {}) };
+  const receipt: CultivationReceipt = { operationId, command: key, revision, changes: result.changes, ...(result.rule === 'v2' ? { rule: 'v2' as const } : {}) };
   const next = { ...current, revision, state: result.state, receipts: [...current.receipts, receipt] };
   if (await repository.compareAndSwap(owner, current.revision, next)) return { snapshot: next, receipt, duplicate: false };
   // The other writer may be the identical request whose response was lost.

@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),crypto=require('node:crypto');
 const {chromium}=require('../.tmp/shared-qa/node_modules/playwright'),{createClient}=require('@supabase/supabase-js');
 if(process.env.BEAST_CULTIVATION_STORAGE_TEST!=='1')throw Error('Explicit opt-in required');process.loadEnvFile('.env.local');
-const base='http://localhost:8888',out='.tmp/fusion-recovery';fs.mkdirSync(out,{recursive:true});
+const base=process.env.ORB_BASE||'http://localhost:8888',out='.tmp/fusion-recovery';fs.mkdirSync(out,{recursive:true});
 (async()=>{const db=createClient(process.env.SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}}),key=crypto.randomBytes(32).toString('hex'),owner=crypto.createHash('sha256').update(key).digest('hex');
 const cards=['beast_g_qinglong','beast_g_baihu','beast_g_zhuque','beast_g_xuanwu','beast_a28','beast_a01','beast_y01','beast_y01'].map((cardId,i)=>({id:'recovery:'+i,cardId,bonus:'0'}));const stats={errors:[]};let browser,page,created=false;
 const read=async()=>{const r=await db.from('beast_cultivation_accounts').select('snapshot').eq('owner_hash',owner).single();assert.ifError(r.error);return r.data.snapshot;};
