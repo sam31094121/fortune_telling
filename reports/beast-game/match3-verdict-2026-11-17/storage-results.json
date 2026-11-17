@@ -1,0 +1,13 @@
+{
+  "isolated": true,
+  "realDatabase": true,
+  "cases": [
+    "active resume is exact and read-only",
+    "real final hit -> win -> atomic single reward",
+    "lost-reply retry identical and no second reward",
+    "old version with changed intent rejected",
+    "terminal resume retains player victory, board, HP and one reward"
+  ],
+  "passed": true,
+  "cleaned": true
+}

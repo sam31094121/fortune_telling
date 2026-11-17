@@ -17,7 +17,7 @@ function outcome(r){return r.outcome??r.verdict??r.winner;}
  const loss=fixture();loss.board[0].fill(loss.team[0].element);loss.path=[0,1,2].map(c=>({r:0,c}));loss.team[0].attack=0;loss.foes[0].hp=100;
  const l=await post(loss);check('living enemy counter kills last player; no victory from attack animation',()=>{assert.equal(l.status,200);assert(l.body.counter.team.every(f=>f.hp===0));assert(l.body.counter.foes.some(f=>f.hp>0));assert(l.body.counter.hits.some(h=>h.hpBefore===1&&h.hpAfter===0&&h.actualDamage===1))});
  check('server explicitly confirms player defeat',()=>assert(['lose','opponent','OPPONENT','LOST'].includes(outcome(l.body)),'no authoritative terminal result in response'));
- check('identical guest request replay has identical facts',()=>{});const replay=await post(win);check('guest replay deterministic (not a persistent receipt test)',()=>assert.deepEqual(replay,w));
+ const replay=await post(win);check('guest replay deterministic (not a persistent receipt test)',()=>assert.deepEqual(replay,w));
  const malformed=await post({...win,target:99});check('invalid operation rejected',()=>assert.equal(malformed.status,400));
  let pw;for(const candidate of [process.env.PLAYWRIGHT_MODULE,'playwright','../.tmp/shared-qa/node_modules/playwright','../scripts/card-preview/node_modules/playwright'].filter(Boolean)){try{pw=require(candidate);break}catch{}}
  if(!pw)throw Error('Chrome browser audit requires installed Playwright; not skipped');
@@ -31,7 +31,11 @@ function outcome(r){return r.outcome??r.verdict??r.winner;}
  // Damage and the final result still come from a real HTTP action.
  await page.evaluate(()=>{for(let i=1;i<5;i++)window.__m3Debug.foeHp(i,0);window.__m3Debug.foeHp(0,1);window.__m3Debug.fillEnergy()});
  await page.route('**/api/beast-game/orb-turn',route=>route.abort());await page.getByTestId('match3-ally').first().click();await page.waitForFunction(()=>document.querySelector('[data-testid="match3-board"]')?.getAttribute('aria-busy')==='false');
- check('failed request cannot display victory',()=>{});assert.equal(await page.getByTestId('match3-result').count(),0);await page.unroute('**/api/beast-game/orb-turn');
+ const failedResults=await page.getByTestId('match3-result').count();check('failed request cannot display victory',()=>assert.equal(failedResults,0));await page.unroute('**/api/beast-game/orb-turn');
+ // A response missing authority must not be "repaired" by the browser from HP.
+ await page.route('**/api/beast-game/orb-turn',async route=>{const r=await route.fetch(),body=await r.json();delete body.outcome;await route.fulfill({response:r,json:body})});
+ await page.getByTestId('match3-ally').first().click();await page.waitForFunction(()=>document.querySelector('[data-testid="match3-board"]')?.getAttribute('aria-busy')==='false');
+ const absentVerdict=await page.getByTestId('match3-result').count();check('missing server outcome cannot produce client-guessed victory',()=>assert.equal(absentVerdict,0));await page.unroute('**/api/beast-game/orb-turn');
  const pending=page.waitForResponse(r=>r.url().endsWith('/orb-turn'));
  await page.getByTestId('match3-ally').first().click();const response=await pending,body=await response.json();await page.getByTestId('match3-result').waitFor();
  const shown=await page.getByTestId('match3-result').getAttribute('data-result');

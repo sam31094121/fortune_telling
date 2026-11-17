@@ -1,4 +1,5 @@
 'use client';
+import type { OrbOutcome } from '@/lib/beast-game/match3/battle-outcome';
 import { ElementTreasureOrb } from '@/components/bazi/customer/ElementTreasureOrb';
 import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
 import type { resolveOrbTurn } from '@/lib/beast-game/match3/resolve-turn';
@@ -167,7 +168,7 @@ export interface TreasurePractice { scenario?: string; board: Board; magic: Magi
 export interface Match3BoardProps { resumeBattleId?: string; treasurePractice?: TreasurePractice; seed?: number; teamIds?: readonly string[] | null; sameElementRule?: SameElementRule; onRepick?: () => void; mode?: Match3ModeId; progressOwner?: Match3ProgressOwner; campaignEnabled?: boolean; onCampaignContinue?: () => void; /** 覆寫用；未給＝第 8 關起殿後的四大神獸（reservedGuardianBossRule，與 foeAvailable 同源）。 */ isFinalBoss?: FinalBossRule }
 export default function Match3Board({ resumeBattleId, treasurePractice, seed, teamIds, sameElementRule = DEFAULT_SAME_ELEMENT_RULE, onRepick, mode, progressOwner = null, campaignEnabled = false, onCampaignContinue, isFinalBoss }: Match3BoardProps) {
   const cfg = match3Mode(mode);
-  const [init, setInit] = useState<{ rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner; sharedBattleToken?:string; sharedBattleId?:string; sharedVersion?:number;totalDamage?:number;lastDamage?:number; resumeInput?: import('@/lib/beast-game/match3/resolve-turn').TurnInput; revision: number; enhance?: Readonly<Record<string, EnhanceInfo>> } | null>(null);
+  const [init, setInit] = useState<{ rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner; sharedBattleToken?:string; sharedBattleId?:string; sharedVersion?:number;outcome?:OrbOutcome;totalDamage?:number;lastDamage?:number; resumeInput?: import('@/lib/beast-game/match3/resolve-turn').TurnInput; revision: number; enhance?: Readonly<Record<string, EnhanceInfo>> } | null>(null);
   const revision = useRef(0);
   const sharedStart = useRef<string | null>(null);
   const [initError, setInitError] = useState('');
@@ -190,7 +191,7 @@ export default function Match3Board({ resumeBattleId, treasurePractice, seed, te
       const campaign = campaignEnabled && owner ? readCampaign(owner) : null;
       if (campaignEnabled && (!campaign?.ok || !campaign.profile)) { setInitError(campaign?.error ?? '請先選擇主角及夥伴'); return; }
       if (!resumeId.current && campaign?.profile && !validateCampaignTeam(campaign.profile, teamIds ?? [])) { setInitError('請先選擇主角及四張已解鎖夥伴'); return; }
-      let shared: {token?:string;battleId?:string;version?:number;totalDamage?:number;lastDamage?:number;initial?:import('@/lib/beast-game/match3/resolve-turn').TurnInput} = {};
+      let shared: {token?:string;battleId?:string;version?:number;outcome?:OrbOutcome;totalDamage?:number;lastDamage?:number;initial?:import('@/lib/beast-game/match3/resolve-turn').TurnInput} = {};
       if(owner==='self' && campaign?.profile){
         sharedStart.current??=crypto.randomUUID();
         const requestKey = [key,cfg.id,recovery,resumeId.current ?? sharedStart.current].join(':');
@@ -209,7 +210,7 @@ export default function Match3Board({ resumeBattleId, treasurePractice, seed, te
       const profile = campaign?.profile;
       const enhance: Record<string, EnhanceInfo> = {};
       if (profile) for (const u of team) { const a = campaignCardAttack(profile, u.id); const bonus = Number(a.bonus); if (bonus > 0) enhance[u.id] = { bonus, baseAttack: Number(a.baseAttack) }; }
-      setInit({ rng, seed: s, wins, owner, sharedBattleToken:shared.token, sharedBattleId:shared.battleId, sharedVersion:shared.version, revision: ++revision.current, ...lineup, enhance, board: generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, cfg.id === 'medium' ? 3 : progressionStage(wins).minChain), ...(shared.initial?{seed:shared.initial.seed,wins:shared.initial.wins,team:shared.initial.team,enemies:shared.initial.foes,board:shared.initial.board,resumeInput:shared.initial,totalDamage:shared.totalDamage,lastDamage:shared.lastDamage}:{}) });
+      setInit({ rng, seed: s, wins, owner, sharedBattleToken:shared.token, sharedBattleId:shared.battleId, sharedVersion:shared.version, outcome:shared.outcome, revision: ++revision.current, ...lineup, enhance, board: generateDragBoard(rng, cfg.rows, cfg.cols, cfg.diagonal, cfg.id === 'medium' ? 3 : progressionStage(wins).minChain), ...(shared.initial?{seed:shared.initial.seed,wins:shared.initial.wins,team:shared.initial.team,enemies:shared.initial.foes,board:shared.initial.board,resumeInput:shared.initial,totalDamage:shared.totalDamage,lastDamage:shared.lastDamage}:{}) });
     };
     void initialize().catch(e=>{if(active)setInitError(e instanceof Error?e.message:"暫時無法開戰。");});
     return () => { active = false; };
@@ -231,7 +232,7 @@ function FusedStatusBadge({ kind }: { kind: FusedBadge }) {
   }</svg></span>;
 }
 
-function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick, cfg, campaignEnabled, onCampaignContinue, isFinalBoss }: { onRecover: () => void; isFinalBoss?: FinalBossRule; treasurePractice?: TreasurePractice; cfg: Match3ModeConfig; init: { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner; sharedBattleToken?:string; sharedBattleId?:string;sharedVersion?:number;totalDamage?:number;lastDamage?:number;enhance?: Readonly<Record<string, EnhanceInfo>>;resumeInput?:import('@/lib/beast-game/match3/resolve-turn').TurnInput }; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void; campaignEnabled: boolean; onCampaignContinue?: () => void }) {
+function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick, cfg, campaignEnabled, onCampaignContinue, isFinalBoss }: { onRecover: () => void; isFinalBoss?: FinalBossRule; treasurePractice?: TreasurePractice; cfg: Match3ModeConfig; init: { rng: Rng; seed: number; wins: number; team: Unit[]; enemies: Foe[]; playerSkillEvents?: OrbSkillEvent[]; board: Board; owner: Match3ProgressOwner; sharedBattleToken?:string; sharedBattleId?:string;sharedVersion?:number;outcome?:OrbOutcome;totalDamage?:number;lastDamage?:number;enhance?: Readonly<Record<string, EnhanceInfo>>;resumeInput?:import('@/lib/beast-game/match3/resolve-turn').TurnInput }; teamIds?: readonly string[] | null; rule: SameElementRule; onRepick?: () => void; campaignEnabled: boolean; onCampaignContinue?: () => void }) {
   const sharedVersion = useRef(init.sharedVersion ?? 0);
   const rigEnabled = cfg.id === 'hard45' || cfg.id === 'hard45b';
   const [wins, setWins] = useState(init.wins);
@@ -434,8 +435,11 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     return () => { delete (window as unknown as { __m3Debug?: unknown }).__m3Debug; };
   }, []);
 
-  const teamHp = team.reduce((s, u) => s + Math.max(0, u.hp), 0);
-  const over = foes.every((f) => f.hp <= 0) ? 'win' : teamHp <= 0 ? 'lose' : null;
+  const [confirmedOutcome, setConfirmedOutcome] = useState<OrbOutcome>(init.outcome ?? null);
+  const requireOutcome = (result: { outcome?: OrbOutcome }) => {
+    if (cfg.id === 'hard45' && ![null, 'win', 'lose', 'unavailable'].includes(result.outcome!)) throw new Error('尚未取得後端勝負確認');
+  };
+  const over = cfg.id === 'hard45' ? (confirmedOutcome === 'unavailable' ? null : confirmedOutcome) : foes.every(f => f.hp <= 0) ? 'win' : team.every(u => u.hp <= 0) ? 'lose' : null;
   // 結算畫面等最後的死亡特效播完（魔王等爆炸 done）才顯示；保底上限避免卡住（一般 6.5s、魔王 12s，從分出勝負起算，涵蓋 6 倍降速）。
   const deathPendingAny = deathPending.size > 0;
   const deathPendingBoss = knockouts.some(e => e.isFinalBoss && deathPending.has(e.id));
@@ -702,6 +706,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   }, [over, wins, rigEnabled, init.owner, campaignEnabled, saveVictory]);
 
   const restart = useCallback(() => {
+    setConfirmedOutcome(null);
     audio.current?.stop();
     if (treasurePractice) { window.location.reload(); return; }
     if (campaignEnabled) { if (!campaignAwaiting) onCampaignContinue?.(); return; }
@@ -752,7 +757,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       }
       // 伺服端反擊階段（prepared.counter）若造成敵方倒下（例如反傷），同樣排入擊倒事件；瀏覽器自算的 counterPhase 不排。
       if (prepared) queueKnockouts(f, cp.foes, battleId.current + ':counter:' + moves, 'server-counter', 0);
-      setTeam(cp.team); setFoes(cp.foes); setLog(msg);
+      setTeam(cp.team); setFoes(cp.foes); if (prepared) setConfirmedOutcome(prepared.outcome); setLog(msg);
       if (rigEnabled) later(() => setBusy(false), cp.hits.length ? 420 : 0);
     };
     if (rigEnabled) {
@@ -775,6 +780,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         const r = await postOrbTurn(JSON.stringify({ sharedBattleToken:init.sharedBattleToken, sharedVersion:sharedVersion.current, board,magic,path:[],team,foes,mode:cfg.id,wins,target:ti,seed:init.seed,move:moves,chosen,rule,attackBoost,treasureGuard,treasures:book,action:'treasure',treasureElement:element,treasureVariant:variant,actionId }), {'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, controller.signal);
         if (!r.ok) throw new Error('暫時無法使用寶器，請重試。');
         const result: TreasureUse & {sharedVersion?:number} = await r.json();
+        requireOutcome(result);
         if (controller.signal.aborted) throw new Error('請求已中止');
         return { book:result.book, result };
       });
@@ -786,7 +792,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       setTreasures(result.catalog);
       setTreasureFlight({effect:result.effect,x1:source.left+source.width/2-bounds.left,y1:source.top+source.height/2-bounds.top,x2:target.left+target.width/2-bounds.left,y2:target.top+target.height/2-bounds.top});
       cue('charge');
-      later(() => { queueKnockouts(foes, result.foes, actionId, 'server-treasure', 0); setTeam(result.team); setFoes(result.foes); setTreasureGuard(result.guardScale); setLastDmg(result.effect.damage); setTotalDmg(d=>d===null?null:d+result.effect.damage); setLog(result.effect.description); setSupportText(result.effect.description); cue('impact'); }, 950);
+      later(() => { queueKnockouts(foes, result.foes, actionId, 'server-treasure', 0); setTeam(result.team); setFoes(result.foes); setConfirmedOutcome(result.outcome); setTreasureGuard(result.guardScale); setLastDmg(result.effect.damage); setTotalDmg(d=>d===null?null:d+result.effect.damage); setLog(result.effect.description); setSupportText(result.effect.description); cue('impact'); }, 950);
       later(() => { setTreasureFlight(null); setBusy(false); }, 1900);
     } catch (e) { if(turnRequest.current===controller){if (init.sharedBattleToken) onRecover(); else { setLog(e instanceof Error ? e.message : '寶器未保存，請重試。'); setBusy(false); }} }
     finally { window.clearTimeout(timeout); if (turnRequest.current === controller) turnRequest.current = null; }
@@ -803,6 +809,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         const response = await postOrbTurn(JSON.stringify({ sharedBattleToken:init.sharedBattleToken, sharedVersion:sharedVersion.current, board, magic, path, team, foes, mode:cfg.id, wins, target:ti, seed:(init.seed + moves * 2654435761) >>> 0, move:moves, chosen, rule, attackBoost, treasureGuard, treasures:book, actionId:battleId.current + ':turn:' + moves }), {'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, controller.signal);
         if (!response.ok) throw new Error('turn unavailable');
         const result: ReturnType<typeof resolveOrbTurn> = await response.json();
+        requireOutcome(result);
         if (controller.signal.aborted) throw new Error('aborted');
         return { book:result.treasure.book, result };
       };
@@ -995,6 +1002,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       const response = await postOrbTurn(JSON.stringify({ sharedBattleToken:init.sharedBattleToken, sharedVersion:sharedVersion.current, board, magic, path:[], team, foes, mode:cfg.id, wins, target:ti, seed:init.seed, move:moves, chosen, rule, attackBoost, treasureGuard, action, ...(action === 'energy' ? { attackerId:ids[0] } : { linkIds:ids }), eventId, actionId }), {'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, controller.signal);
       if (!response.ok) throw new Error('card attack unavailable');
       const result: CardAttackResult & {sharedVersion?:number} = await response.json();
+      requireOutcome(result);
       if (controller.signal.aborted) throw new Error('aborted');
       if(init.sharedBattleToken)sharedVersion.current=result.sharedVersion!;
       return result;
@@ -1016,7 +1024,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     const damaged = applied?.foes ?? damageFoe(foes, ti, amt);
     const nextTeam = applied?.team ?? spentTeam;
     const actualAmount = applied?.actualDamage ?? amt;
-    if (applied) showSkillEvents(applied.skillEvents);
+    if (applied) { showSkillEvents(applied.skillEvents); setConfirmedOutcome(applied.outcome); }
     showStrike(applied?.actualHits ?? [{ attackerId: u.id, amount: actualAmount }], foe, damaged[ti], true, rigEnabled ? actualAmount : undefined);
     if (rigEnabled) queueKnockouts(foes, damaged, actionId, 'server-skill', hadRig.current ? RIG_IMPACT_MS : 0);
     if (rigEnabled) { setFired(new Set([u.id])); later(() => setFired(new Set()), 700); }
@@ -1051,7 +1059,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     const damaged = applied?.foes ?? damageFoe(foes, ti, amt);
     const nextTeam = applied?.team ?? spentTeam;
     const actualAmount = applied?.actualDamage ?? amt;
-    if (applied) showSkillEvents(applied.skillEvents);
+    if (applied) { showSkillEvents(applied.skillEvents); setConfirmedOutcome(applied.outcome); }
     showStrike(applied?.actualHits ?? cards.map(c => ({ attackerId: c.id, amount: actualAmount })), foe, damaged[ti], true, rigEnabled ? actualAmount : undefined);
     if (rigEnabled) queueKnockouts(foes, damaged, actionId, 'server-link', hadRig.current ? RIG_IMPACT_MS : 0);
     if (rigEnabled) { setFired(new Set(cards.map((c) => c.id))); later(() => setFired(new Set()), 700); }
@@ -1091,6 +1099,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       </div>
   );
 
+  if (cfg.id === 'hard45' && confirmedOutcome === 'unavailable') return <section className={styles.wrap} role="alert">暫時無法確認本局勝負，尚未發放獎勵。<button type="button" onClick={onRepick}>返回我的卡片</button></section>;
   return (
     <section ref={root} className={styles.wrap} aria-busy={busy} data-match3-scroll-lock={scrollLocked && !help && !resultShown ? "true" : undefined} data-match3-battle-active={rigEnabled && !help && !resultShown ? "true" : undefined} data-hold-top={lastAllyBig && holdTopReady.current ? 'true' : undefined} data-mobile-actions={mobileActionless ? 'off' : 'on'} data-manual-link-ready={mobileActionless && readyLinkIds.length >= LINK_MIN_CARDS && !busy && !over && ti >= 0 ? 'true' : undefined} onPointerDownCapture={(e) => { audio.current?.unlock(); setIntro(false); if (mobileActionless && link.length && !(e.target instanceof Element && e.target.closest('[data-testid="match3-ally"]'))) { setLink([]); setLinkMode(false); } }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
       {rigEnabled && <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: 'absolute', pointerEvents: 'none' }}>

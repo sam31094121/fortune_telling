@@ -1,0 +1,13 @@
+{
+  "fixture": "guest, existing debug hook fills energy only; real API computes damage",
+  "errors": [],
+  "actualDamage": 128,
+  "outcome": null,
+  "status": 200,
+  "reduced": {
+    "animations": 0,
+    "branches": "none"
+  },
+  "overflow": false,
+  "passed": true
+}
