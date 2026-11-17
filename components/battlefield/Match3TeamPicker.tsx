@@ -45,10 +45,10 @@ function LegacyMatch3Entry({ seed, mode }: { seed?: number; mode?: Match3ModeId 
       <h1>寶珠戰</h1>
       <div className={pickerStyles.playerChoices}>
         <button type="button" data-testid="play-self" onClick={() => setPlayer('self')}>
-          <strong>我自己</strong><span>開始或接續自己的闖關進度</span>
+          <strong>我自己</strong>
         </button>
         <button type="button" data-testid="play-guest" onClick={() => { resetGuestMatch3Progress(); setPlayer('guest'); }}>
-          <strong>親朋好友</strong><span>從第一關開始，不影響我的進度</span>
+          <strong>親朋好友</strong>
         </button>
       </div>
       {hasLegacyProgress && <button type="button" className={styles.again} data-testid="resume-legacy" onClick={() => {

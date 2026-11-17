@@ -64,7 +64,7 @@
     "test:iching-hour": "node tests/iching-no-fabricated-hour.test.cjs",
     "test:beast-game": "node scripts/beast-build.mjs && node .beast-game-build/tests/beast-game.test.js",
     "test:beast-fairness": "npm run test:beast-game && node tests/beast-game-review.test.cjs && node tests/beast-opponent-name.test.cjs && node scripts/audit-beast-game-balance.cjs",
-    "test:beast-cultivation": "node tests/beast-cultivation.test.cjs && node tests/beast-cultivation-combat.test.cjs && node tests/beast-cultivation-client.test.cjs && node tests/beast-food-chain.test.cjs && node tests/beast-food-chain-concurrency.test.cjs && node tests/beast-strongest-five.test.cjs",
+    "test:beast-cultivation": "node tests/beast-cultivation.test.cjs && node tests/beast-cultivation-combat.test.cjs && node tests/beast-cultivation-client.test.cjs && node tests/beast-food-chain.test.cjs && node tests/beast-food-chain-concurrency.test.cjs && node tests/beast-food-chain-newplayer.test.cjs && node tests/beast-four-beasts-view.test.cjs && node tests/beast-food-chain-unify.test.cjs && node tests/beast-food-chain-batch.test.cjs",
     "test:star-beast-entry-api": "node tests/star-beast-entry.api.test.cjs",
     "test:screen-health-policy": "node tests/screen-health-recovery-policy.test.cjs",
     "test:beast-card-spec": "node tests/beast-card-spec.test.cjs",
@@ -160,7 +160,8 @@
     "test:beast-match3-replay": "node tests/beast-match3-replay.test.cjs && node tests/beast-match3-refill-runner.test.cjs && node tests/beast-match3-drop-timing.test.cjs && node tests/beast-match3-last-foe.test.cjs && node tests/beast-drag-coalesced.test.cjs && node tests/beast-match3-refill.e2e.mjs",
     "test:beast-match3": "node scripts/beast-build.mjs && node tests/beast-match3-core.test.cjs && node tests/beast-match3-outcome.test.cjs && node tests/beast-match3-team.test.cjs && node tests/beast-match3-enemies.test.cjs && node tests/beast-match3-no-old-cards.test.cjs && node tests/beast-match3-hard45.test.cjs && node tests/beast-match3-diagonal.test.cjs && node tests/beast-match3-hard2.test.cjs && node tests/beast-match3-progression.test.cjs && node tests/beast-match3-weighted.test.cjs && node tests/beast-match3-shield-fusion.test.cjs && node tests/beast-match3-hard-campaign.test.cjs && node tests/beast-match3-backup.test.cjs && node tests/beast-match3-skill-capabilities.test.cjs && node tests/beast-match3-skill-runtime.test.cjs && node tests/beast-match3-player-status.test.cjs && node tests/beast-match3-event-history.test.cjs && node tests/beast-match3-rig.test.cjs && node tests/beast-match3-progress-store.test.cjs && node tests/beast-match3-sound.test.cjs && node tests/beast-match3-refill.test.cjs && node tests/beast-match3-refill-runner.test.cjs && node tests/beast-match3-picker-render.test.cjs && node tests/beast-match3-counter-visual.test.cjs && node tests/beast-match3-boss-reserve.test.cjs && node tests/beast-match3-cascade-attack.test.cjs && node tests/beast-match3-player-skills.test.cjs && node tests/beast-match3-enemy-energy.test.cjs && node tests/beast-match3-replay.test.cjs && node tests/beast-match3-hard-link-button.test.cjs && node tests/beast-match3-flow-fixes.test.cjs && node tests/beast-match3-guardian-fusion.test.cjs",
     "test:beast-wallet-recovery": "node tests/beast-wallet-recovery.test.cjs",
-    "test:beast-campaign-data-safety": "node tests/beast-campaign-data-safety.test.cjs"
+    "test:beast-campaign-data-safety": "node tests/beast-campaign-data-safety.test.cjs",
+    "test:beast-no-copy-clutter": "node tests/beast-no-copy-clutter.test.cjs"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",

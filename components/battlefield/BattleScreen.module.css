@@ -136,6 +136,10 @@
 .split[data-stake-review='true'] > [data-battle-visual] { display: none; }
 .split[data-stake-review='true'] [data-stake-slot] > [role='group'] { order: -1; }
 .split[data-stake-review='true'] [data-needs-stake='true'] [role='group'] > button:first-child { outline: 2px solid #ffe4a6; outline-offset: -2px; }
+/* 2026-11-16 一氣貫通：出戰準備（選卡、押注、我的卡片・永久強化）在所有寬度都用全高單欄。
+   原本 >600px 時 80/20 分割只剩幾 px 捲動區：1280×800 入口被底部列蓋住、820／1920 的 ✓ 落到分頁列底下。開戰後（data-preparing 不是 true）照舊 80/20。 */
+.split[data-preparing='true'] { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+.split[data-preparing='true'] > [data-battle-visual] { display: none; }
 @media (max-width: 600px), (orientation: landscape) and (max-height: 540px) {
   /* Give preparation cards the viewport instead of squeezing them below the arena. */
   .split[data-preparing='true'] { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
@@ -235,3 +239,6 @@
 .infoCard p { margin: 4px 0; font-size: 14px; line-height: 1.6; }
 .infoCard a { color: #7dd3fc; font-weight: 800; }
 .infoClose { margin-top: 14px; width: 100%; min-height: 44px; border-radius: 12px; border: 1px solid #ffd47980; background: #ffffff0d; color: #ffd479; font-weight: 900; cursor: pointer; }
+
+/* 食物鏈 2026-11-15：「收藏不足五種」提示放在捲動區最後，留出底部空間（含 iOS safe-area），捲到底能完整看見、不被底部「返回選隊」列或黏底確認鈕壓住。 */
+.shortage { margin: 12px 0 0; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); line-height: 1.6; scroll-margin-bottom: 16px; }

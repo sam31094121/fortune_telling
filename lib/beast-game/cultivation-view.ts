@@ -6,8 +6,12 @@ import { getCard, playableCards } from './registry';
 import { newMatch } from './interactive';
 
 /** 神獸戰鬥的卡面原始攻擊（與寶石捷連線的卡面攻擊分開保存）。 */
+const battleBaseCache = new Map<string, bigint>();
 export function battleBaseAttack(cardId: string): bigint {
-  return BigInt(newMatch([cardId], [cardId], 0).player.team[0].attack);
+  // 同一張卡面的原始攻擊固定不變：快取起來，持有上千張副本時 cultivationView 不必每張都開一局試算。
+  let value = battleBaseCache.get(cardId);
+  if (value === undefined) { value = BigInt(newMatch([cardId], [cardId], 0).player.team[0].attack); battleBaseCache.set(cardId, value); }
+  return value;
 }
 /** 百分比以目標卡面原始攻擊為基準（10A），伺服端換算好給畫面照印：bps＝萬分比整數，label＝四捨五入整數百分比（>0 但不到 1% 印「<1」）。 */
 export function percentOf(bonus: bigint, baseAttack: number): { bps: string; label: string } {
@@ -70,7 +74,9 @@ export function cultivationView(snapshot: CultivationSnapshot) {
       battleAttack: (battleBaseAttack(card.id) + bonus).toString(),
       // 食物鏈顯示欄位（只讀；伺服端算好）。
       bonusPercent: percentOf(bonus, card.stats.attack).label,
-      ...(v2 && card.form !== 'YOUNG' ? { bonusCap: cap.toString(), atBonusCap: bonus >= cap, stars: stars(card.form, fed) } : {}),
+      ...(v2 && card.form !== 'YOUNG' ? (() => { const st = stars(card.form, fed); return { bonusCap: cap.toString(), atBonusCap: bonus >= cap, stars: st,
+        // 2026-11-16 批次吃卡：還能再吃幾張到五星封頂（伺服端算好，前端不做減法）。
+        feedRoom: st ? Math.max(0, st.capFeeds - st.fed) : 0 }; })() : {}),
       fed };
   });
   return { revision: snapshot.revision, cards, collectionCards: cards.map(c=>({id:c.id,cardId:c.cardId,source:'DUEL_WIN' as const,at:''})), protectedIds: snapshot.state.protectedIds,
@@ -80,14 +86,15 @@ export function cultivationView(snapshot: CultivationSnapshot) {
     shards:snapshot.shards,starterPack:snapshot.starterPack,
     granted:(snapshot.creditedIds??[]).filter(id=>id.startsWith('copy:growth:')).map(id=>id.slice('copy:growth:'.length)),
     canProtectFive: new Set(cards.map(c => c.cardId)).size >= 5,
-    reason: snapshot.pendingBattle ? '戰鬥尚未結算，暫不能合體或更換主力。' : snapshot.state.protectedIds.length !== 5 ? '請先親選並鎖定五隻不同卡型的收藏主力。' : null };
+    // 吃卡不再要求先鎖五隻主力（2026-11-15 23:32）；只剩戰鬥未結算會擋。
+    reason: snapshot.pendingBattle ? '戰鬥尚未結算，暫不能合體或更換主力。' : null };
 }
 
 /** The UI prints these exact server values; it never recomputes attack gains. */
 export function cultivationChangeView(change: CultivationChange) {
   const target=getCard(change.targetCardId)!,material=getCard(change.materialCardId)!;
   const before=exactBonus(change.beforeBonus),after=exactBonus(change.afterBonus);
-  const orbBase=BigInt(target.stats.attack),battleBase=BigInt(newMatch([target.id],[target.id],0).player.team[0].attack);
+  const orbBase=BigInt(target.stats.attack),battleBase=battleBaseAttack(target.id);
   return {...change,targetName:target.name,materialName:material.name,materialCount:1,
     materialBaseAttack:String(material.stats.attack),orbBeforeAttack:String(orbBase+before),orbAfterAttack:String(orbBase+after),
     battleBeforeAttack:String(battleBase+before),battleAfterAttack:String(battleBase+after)};

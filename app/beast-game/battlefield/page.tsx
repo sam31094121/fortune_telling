@@ -614,9 +614,10 @@ function BattlefieldScreen() {
                   <>
                     <div hidden={prepareView !== 'formation'}>
                       {ownedStake.length ? <>
-                        <button type="button" className={styles.restart} onClick={() => setCultivationOpen(v => !v)}>{cultivationOpen ? '返回選隊' : '我的卡片・永久強化'}</button>
+                        <button type="button" className={styles.restart} aria-label={cultivationOpen ? '返回選隊' : undefined} onClick={() => setCultivationOpen(v => !v)}>{cultivationOpen ? <span aria-hidden="true">↩</span> : '我的卡片・永久強化'}</button>
                         {cultivationOpen ? <OwnedCardCultivation onDone={() => setCultivationOpen(false)} onSaved={() => { confirmedTeam.current=null; tableToken.current=null; dealCampaignToken.current=null; setTeamReady(false); setTeamCopies([]); setStakeCardIds([]); }} /> : <OwnedCampaignPreparation owned={ownedStake} selected={teamCopies} busy={dealing || recovering || settling} onToggle={toggleTeamCopy} onReplace={(oldId,newId)=>setTeamCopies(ids=>ids.map(id=>id===oldId?newId:id))} onConfirm={confirmTeamStable} />}
-                        {new Set(ownedStake.map(c => c.cardId)).size < 5 && <p role="status">收藏不足五種，請先到<Link href="/growth-center#beast-collection">成長中心取得卡片</Link>；不會代填收藏。</p>}
+                        {/* 強化畫面零文字（23:52）：打開強化時不顯示這句，改由面板內 🃏＋ 圖示通往取卡入口。 */}
+                        {!cultivationOpen && new Set(ownedStake.map(c => c.cardId)).size < 5 && <p role="status" className={styles.shortage} data-collection-shortage>收藏不足五種，請先到<Link href="/growth-center#beast-collection">成長中心取得卡片</Link>；不會代填收藏。</p>}
                       </> : <p className={styles.notice}>首次免押體驗：五張體驗卡已就緒。完成後可領取既有首次幼子禮，再以收藏正式闖關。</p>}
                       {movement && <p role="status" className={styles.notice} data-card-move>{movement}</p>}
                     </div>
@@ -648,7 +649,7 @@ function BattlefieldScreen() {
               </div>
               {!match && !inspection ? (
                 <div className={styles.footer}>
-                  {!isTrial && cultivationOpen && prepareView === 'formation' ? <button type="button" className={styles.restart} onClick={() => setCultivationOpen(false)}>返回選隊</button> : !isTrial && !teamReady ? <>
+                  {!isTrial && cultivationOpen && prepareView === 'formation' ? <button type="button" className={styles.restart} aria-label="返回選隊" onClick={() => setCultivationOpen(false)}><span aria-hidden="true">↩</span></button> : !isTrial && !teamReady ? <>
                     <p role="status">已選 {teamCopies.length}／5 張出戰卡</p>
                     <button type="button" className={styles.restart} disabled={dealing || recovering || settling || (prepareView === 'formation' && teamCopies.length !== 5)} onClick={() => prepareView === 'formation' ? confirmTeam() : openPreparation('formation')}>
                       {dealing ? '正在準備陣容…' : prepareView !== 'formation' ? '返回選卡佈陣' : teamCopies.length === 5 ? '確認五張，前往押注' : '請先選齊五張卡'}

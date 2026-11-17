@@ -161,6 +161,7 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
         sharedRequest: () => { throw new Error('Guest must not mutate owned inventory'); },
       };
       if (id === './CampaignBackup') return { default: () => null };
+      if (id === './OwnedCopyPicker') return { default: () => null };
       if (id === './EnhanceAura') return { default: () => null };
       if (id === './BeastCardTile') return { BeastCardFace: CardFace };
       if (id.endsWith('.css')) return { default: {} };
@@ -191,7 +192,7 @@ console.log('PASS: one public orb entry, retired URLs redirect, invalid query re
   }
   choices.slice(0, 5).forEach(n => n.props.onClick());
   assert.equal(nodes(by('picked-row')).filter(n => n.type === CardFace).length, 5, 'Hero plus four only');
-  assert.equal(by('team-ready-hint').props.children, '隊伍已就緒，點此開始作戰');
+  assert.equal(by('team-ready-hint').props['aria-label'], '隊伍已就緒'); assert.equal(by('team-ready-hint').props.children, '✓', '隊伍就緒只用圖示，不放說明句');
   assert.equal(scrolls.length, 1); assert.equal(scrolls[0].block, 'nearest'); assert.equal(scrolls[0].behavior, 'smooth');
   render(); render(); assert.equal(scrolls.length, 1, 'Rerenders must not scroll repeatedly');
   assert.notEqual(render().type, Board, 'Full team must not auto-start');

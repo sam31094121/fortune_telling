@@ -49,28 +49,8 @@ function requireFive(state: CultivationState, ids: readonly string[]): void {
   }
 }
 
-/** Shared server ranking: exact accumulated bonus, manual locks on ties, then ordinal card/copy IDs.
- * One strongest copy per card kind; fewer than five kinds protects every available kind.
- * Manual locks remain additional protection and are never silently reassigned.
- */
-export function cultivationProtection(state: CultivationState) {
-  const manual = new Set(state.protectedIds);
-  const ordinal = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
-  const ranked = [...state.cards].sort((a,b) => {
-    const delta = exactBonus(b.bonus) - exactBonus(a.bonus);
-    return (delta > 0n ? 1 : delta < 0n ? -1 : 0)
-      || Number(manual.has(b.id)) - Number(manual.has(a.id))
-      || ordinal(a.cardId,b.cardId) || ordinal(a.id,b.id);
-  });
-  const seen = new Set<string>(), strongestIds: string[] = [];
-  for (const copy of ranked) {
-    if (seen.has(copy.cardId)) continue;
-    seen.add(copy.cardId); strongestIds.push(copy.id);
-    if (strongestIds.length === 5) break;
-  }
-  return { strongestIds, protectedIds: [...new Set([...state.protectedIds,...strongestIds])],
-    reason: '為守護您長期培養的心血，累積培養加成最高的五種神獸各保護最強一張，不可作合體材料；不足五種時保護現有各種。親選鎖定的主力也繼續保護。',
-    tieBreak: '同分優先親選主力，再按神獸編號、副本編號固定排序。' };
+function playableTypeCount(cards: readonly CultivationCopy[]): number {
+  return new Set(cards.filter(c => getCard(c.cardId)).map(c => c.cardId)).size;
 }
 
 /** Replace all five in one transaction; there is no intermediate unlock operation. */
@@ -82,8 +62,13 @@ export function replaceCultivationMainTeam(state: CultivationState, ids: readonl
 /** Pure transaction: any failed item rejects the complete batch without mutating input. */
 export function fuseCultivation(state: CultivationState, choices: readonly FusionChoice[], options: FuseOptions = {}): { state: CultivationState; changes: CultivationChange[] } {
   const rule = options.rule ?? 'v1', params = options.params ?? FOOD_CHAIN_V2;
-  validateCultivationState(state); requireFive(state, state.protectedIds);
+  // 2026-11-15 23:32 使用者指示：吃卡不再強制先鎖五隻主力（新玩家卡少也能強化）。
+  // 已鎖定的主力仍不可當材料；若有鎖定，validate 仍核對那五隻完整有效。
+  validateCultivationState(state);
   if (!Array.isArray(choices) || !choices.length) throw new Error('請選擇合體材料。');
+  // 押卡闖關需要五種不同卡型：已湊滿五種的收藏不能因吃卡掉到不足五種（原規則保留）；
+  // 本來就不足五種的新玩家不受此限（目標卡一定保留，不會吃光）。
+  const typesBefore = playableTypeCount(state.cards);
   let cards = state.cards.map(c => ({ ...c }));
   const changes: CultivationChange[] = [];
   for (const choice of choices) {
@@ -107,8 +92,8 @@ export function fuseCultivation(state: CultivationState, choices: readonly Fusio
       if (added === 0n && !params.feedAtAttackCap) throw new Error('這張卡的攻擊加成已達上限，未扣材料。');
     }
     cards = cards.filter(c => c.id !== material.id).map(c => c.id === target.id ? { ...c, bonus: after.toString(), ...(rule === 'v2' ? { fed: fedBefore + 1 } : {}) } : c);
-    if (new Set(cards.filter(c => getCard(c.cardId)).map(c => c.cardId)).size < 5) throw new Error('合體後至少須保留五隻不同卡型可出戰神獸。');
-    requireFive({ cards, protectedIds: state.protectedIds }, state.protectedIds);
+    if (typesBefore >= 5 && playableTypeCount(cards) < 5) throw new Error('合體後至少須保留五隻不同卡型可出戰神獸。');
+    if (state.protectedIds.length) requireFive({ cards, protectedIds: state.protectedIds }, state.protectedIds);
     changes.push({ ...choice, targetCardId: target.cardId, materialCardId: material.cardId, beforeBonus: before.toString(), addedBonus: added.toString(), afterBonus: after.toString(),
       ...(rule === 'v2' ? { rule: 'v2' as const, inheritedBonus: gain.inherited.toString(), rawBonus: gain.raw.toString(), capBonus: gain.cap!.toString(), capped: gain.capped, fedBefore, fedAfter: fedBefore + 1 } : {}) });
   }

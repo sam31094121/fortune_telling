@@ -5,6 +5,10 @@
  * 減少動態時直接顯示結果。固定中文與數字分成不同元素，五語字典逐句對得上、數字不進字典。
  */
 import type { CultivationFeedback } from '@/lib/beast-game/cultivation-view';
+import type { CultivationBatchSummary } from '@/lib/beast-game/cultivation-batch';
+/** 單張回饋或批次總結（2026-11-16 批次吃卡：count＝這一批吃了幾張，數字仍全由伺服端算）。 */
+type Change = CultivationFeedback | CultivationBatchSummary;
+const countOf = (change: Change) => ('count' in change ? change.count : 1);
 import CatalogBeastCard from './CatalogBeastCard';
 import styles from './FoodChainFeedback.module.css';
 
@@ -12,7 +16,7 @@ function Stars({ count }: { count: number }) {
   return <span className={styles.stars} aria-label={`${count}/5`} data-fc-stars={count}>{Array.from({ length: 5 }, (_, i) => <i key={i} data-on={i < count ? 'true' : undefined}>★</i>)}</span>;
 }
 
-export default function FoodChainFeedback({ change, phase, iconOnly = false, concise = false }: { change: CultivationFeedback; phase: 'preview' | 'saved'; iconOnly?: boolean; concise?: boolean }) {
+export default function FoodChainFeedback({ change, phase, iconOnly = false }: { change: Change; phase: 'preview' | 'saved'; iconOnly?: boolean }) {
   const s = change.starsAfter, before = change.starsBefore;
   const zero = change.addedBonus === '0';
   if (iconOnly) return <IconFeedback change={change} phase={phase} concise={concise} />;
@@ -45,16 +49,16 @@ export default function FoodChainFeedback({ change, phase, iconOnly = false, con
  * 純圖示版（神獸戰鬥）：卡圖 → 卡圖、大字「+X%」、💎／⚔ 攻擊前後數字、五顆星、還差幾張；
  * 不顯示說明文字，完整句子放讀屏專用的 aria 描述。
  */
-function IconFeedback({ change, phase, concise = false }: { change: CultivationFeedback; phase: 'preview' | 'saved'; concise?: boolean }) {
-  const s = change.starsAfter, before = change.starsBefore, up = Boolean(s && before && s.stars > before.stars);
-  const spoken = `${change.materialName} → ${change.targetName}：攻擊 +${change.addedBonus}（約 +${change.addedPercent.label}%），寶石捷連線攻擊 ${change.beforeOrbAttack} → ${change.afterOrbAttack}，神獸戰鬥攻擊 ${change.beforeBattleAttack} → ${change.afterBattleAttack}`
+function IconFeedback({ change, phase }: { change: Change; phase: 'preview' | 'saved' }) {
+  const s = change.starsAfter, before = change.starsBefore, up = Boolean(s && before && s.stars > before.stars), count = countOf(change);
+  const spoken = `${change.materialName}${count > 1 ? ` × ${count} 張` : ''} → ${change.targetName}：攻擊 +${change.addedBonus}（約 +${change.addedPercent.label}%），寶石捷連線攻擊 ${change.beforeOrbAttack} → ${change.afterOrbAttack}，神獸戰鬥攻擊 ${change.beforeBattleAttack} → ${change.afterBattleAttack}`
     + (change.inheritedBonus && change.inheritedBonus !== '0' ? `，含本體累積加成傳承 +${change.inheritedBonus}` : '')
     + (change.capped ? '，已到攻擊加成上限' : '')
     + (s ? `，${s.stars} 星${s.toNext === null ? '，已五星封頂' : `，下一星還差 ${s.toNext} 張`}` : '')
-    + (phase === 'preview' ? `。確認後${change.materialName}會被吃掉（永久消耗）` : '。合體已保存');
-  return <section className={`${styles.card} ${styles.iconCard}`} data-food-chain-feedback={phase} data-icon-only data-layer={change.layer} data-rule={change.rule} role={phase === 'saved' ? 'status' : undefined} aria-label={spoken}>
-    {!concise && <div className={styles.pair} data-absorbing={phase === 'saved' ? 'true' : undefined} aria-hidden="true">
-      <div className={styles.thumb} data-fc-material-thumb><CatalogBeastCard id={change.materialCardId} />{phase === 'preview' && <span className={styles.eatMark}>🍴</span>}</div>
+    + (phase === 'preview' ? `。確認後${count > 1 ? `這 ${count} 張材料` : change.materialName}會被吃掉（永久消耗）` : '。合體已保存');
+  return <section className={`${styles.card} ${styles.iconCard}`} data-food-chain-feedback={phase} data-icon-only data-count={count} data-layer={change.layer} data-rule={change.rule} role={phase === 'saved' ? 'status' : undefined} aria-label={spoken}>
+    <div className={styles.pair} data-absorbing={phase === 'saved' ? 'true' : undefined} aria-hidden="true">
+      <div className={styles.thumb} data-fc-material-thumb><CatalogBeastCard id={change.materialCardId} />{phase === 'preview' && <span className={styles.eatMark}>🍴</span>}{count > 1 && <b className={styles.countMark} data-fc-count={count}>×{count}</b>}</div>
       <span className={styles.arrow}>➜</span>
       <div className={styles.thumb} data-fc-target-thumb><CatalogBeastCard id={change.targetCardId} />{phase === 'saved' && <b className={styles.pop}>+{change.addedPercent.label}%</b>}</div>
     </div>}

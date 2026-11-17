@@ -39,8 +39,8 @@ const {chromium}=require('../.tmp/shared-qa/node_modules/playwright');
   await fuse('adult','young');await fuse('qa:0','adult');let saved=await repo.read(owner);assert.equal(saved.state.cards.length,6);assert.equal(saved.state.protectedIds.length,5);assert(BigInt(saved.state.cards[0].bonus)>1000n);
   await page.screenshot({path:dir+'/390-cultivation.png'});await page.getByRole('button',{name:'返回選卡',exact:true}).tap();
   for(const id of ids.slice(1))await page.locator('[data-testid="pick-card"][data-id="'+id+'"]').tap();
-  for(let i=0;i<5;i++)await page.locator('[data-orb-owned-copy="'+ids[i]+'"]').selectOption('qa:'+i);
-  assert((await page.locator('[data-orb-owned-copy="beast_a02"] option').allTextContents()).some(t=>t.includes('+3')),'duplicate copy is selectable');
+  for(let i=0;i<5;i++)await page.locator('[data-orb-owned-copy="'+ids[i]+'"] [data-copy-id="qa:'+i+'"]').tap();
+  assert((await page.locator('[data-orb-owned-copy="beast_a02"] [data-copy-id]').allTextContents()).some(t=>t.includes('+3')),'duplicate copy is selectable');
   await page.screenshot({path:dir+'/390-selected.png'});await page.getByTestId('start-battle').tap();await page.getByTestId('match3-board').waitFor();console.log('PASS mobile: manual five-copy locking, two-stage fusion, owned-copy choice, orb entry');
   const touch=await context.newCDPSession(page);let moves=0;
   while(!await page.getByTestId('match3-result').count()&&moves<40){

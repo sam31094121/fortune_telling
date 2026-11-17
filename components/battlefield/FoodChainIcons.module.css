@@ -16,7 +16,38 @@
 .alertGlyph {font-size:28px;line-height:1;}
 .loading {font-size:28px;text-align:center;}
 .grid button, .panel :global(button) {min-height:44px;}
+.panel .stickyConfirm {position:sticky;bottom:4px;z-index:5;box-shadow:0 0 0 4px #101b2d,0 -10px 16px rgba(5,11,24,.9);}
+.panel .stickyConfirm:disabled, .panel .stickyConfirm :disabled {background:#8a7a52;color:#211b11;opacity:1;}
+/* 2026-11-16：✓ 吃卡＋✕ 還原同一列黏底；點選的目標單獨放大在最上方（第一個看得到的反應）。 */
+.dock {display:grid;grid-template-columns:minmax(0,1fr) 64px;gap:8px;align-items:stretch;margin:12px 0 4px;padding:4px 0;background:#101b2d;border-radius:12px;}
+.dock > :only-child {grid-column:1 / -1;justify-self:end;width:64px;}
+.dock > button {margin:0;min-height:52px;}
+.cancel {width:64px;border:1px solid #756348;border-radius:10px;background:#141b29;color:#f5e7bd;}
+.stage {display:flex;justify-content:center;margin:4px 0 2px;scroll-margin-top:8px;}
+.stage > button {position:relative;width:min(46vw,200px);padding:6px;border:2px solid #f0cc72;border-radius:14px;background:#302919;box-shadow:0 0 0 3px rgba(240,204,114,.25),0 0 22px rgba(240,204,114,.35);animation:pop .32s ease-out both;}
+@keyframes pop {0%{transform:scale(.86);opacity:.6;}70%{transform:scale(1.04);opacity:1;}100%{transform:scale(1);}}
+.panel [data-maxed=true] {opacity:1;cursor:not-allowed;border-color:#f0cc72;box-shadow:0 0 0 1px rgba(240,204,114,.5) inset;}
+.facePending {display:flex;align-items:center;justify-content:center;aspect-ratio:63 / 88;font-size:26px;opacity:.7;}
+.emptyRow {display:flex;align-items:center;gap:14px;margin:6px 2px;}
+.emptySlot {display:flex;align-items:center;justify-content:center;width:96px;aspect-ratio:63 / 88;border:2px dashed rgba(240,204,114,.6);border-radius:12px;font-size:28px;color:#f0cc72;animation:breathe 2.4s ease-in-out infinite;}
+.getCards {display:inline-flex;align-items:center;justify-content:center;min-width:56px;min-height:56px;padding:0 12px;border:1px solid #f0cc72;border-radius:14px;background:#302919;color:#ffd977;font-size:26px;line-height:1;text-decoration:none;}
+@keyframes breathe {0%,100%{opacity:.55;transform:scale(.97);}50%{opacity:1;transform:scale(1);}}
+.previewAnchor {scroll-margin-bottom:calc(140px + env(safe-area-inset-bottom, 0px));scroll-margin-top:12px;}
 .panel [data-main-copy], .panel [data-shared-target], .panel [data-shared-material] {position:relative;}
 @keyframes nope {0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(3px);}}
 @keyframes spin {from{transform:rotate(0);}to{transform:rotate(360deg);}}
-@media (prefers-reduced-motion: reduce) { .alert, .chipError, .alert .alertGlyph { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { .alert, .chipError, .alert .alertGlyph, .emptySlot, .stage > button { animation: none !important; } }
+/* 2026-11-16 批次吃卡：材料堆（×N 剩餘、🍴N 已加入）、長按不跳選單／不選字；提示列 🃏×N ⚔+N；⚠ 在 ✓ 旁；等待時 ✓ 顯示 ⏳ 呼吸。 */
+.count {position:absolute;top:4px;left:4px;padding:1px 6px;border-radius:999px;background:rgba(10,16,28,.85);border:1px solid rgba(240,204,114,.6);color:#ffd977;font-size:13px;font-weight:900;line-height:1.2;font-variant-numeric:tabular-nums;pointer-events:none;}
+.pile {touch-action:manipulation;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;}
+.pile * {pointer-events:none;}
+.picked {background:rgba(240,204,114,.32);color:#fff3c4;font-variant-numeric:tabular-nums;}
+.bumpMark {position:absolute;inset:auto 0 40% 0;margin:auto;width:max-content;padding:2px 8px;border-radius:999px;background:rgba(10,16,28,.9);border:1px solid #f0cc72;color:#ffd977;font-size:18px;font-weight:900;animation:bump .9s ease-out both;}
+@keyframes bump {0%{opacity:0;transform:scale(.6);}25%{opacity:1;transform:scale(1.12);}70%{opacity:1;transform:scale(1);}100%{opacity:0;transform:scale(1);}}
+.dock > .hint, .dock > .dockAlert {grid-column:1 / -1;}
+.hint {display:flex;align-items:center;justify-content:center;gap:14px;min-height:32px;font-size:18px;line-height:1;color:#f5e7bd;font-variant-numeric:tabular-nums;}
+.hint b {font-size:20px;color:#ffd977;}
+.hint [data-stale=true] {opacity:.55;}
+.dockAlert {margin:0;}
+.wait {display:inline-block;animation:breathe 1.2s ease-in-out infinite;}
+@media (prefers-reduced-motion: reduce) { .bumpMark, .wait { animation: none !important; } }

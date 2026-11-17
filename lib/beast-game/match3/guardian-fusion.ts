@@ -71,21 +71,55 @@ export function nextFusionCarry(current: readonly string[], fused: readonly Guar
   return fused.length ? [] : [...current];
 }
 
-/** 合體判定的跨步狀態：carry＝上一步留下的出手者；cooldown＝上一步剛合體，這一步冷卻。 */
-export interface GuardianFusionState { carry: string[]; cooldown: boolean }
-export const GUARDIAN_FUSION_START: GuardianFusionState = Object.freeze({ carry: [], cooldown: false }) as GuardianFusionState;
+/**
+ * 合體判定的跨步狀態。
+ * move＝第幾次拖珠（每次連珠結算＋1；之後由它帶出的連線攻擊、能量技都算同一次拖珠）。
+ * quietThrough＝合體冷卻到第幾次拖珠為止（含）；-1＝不冷卻。
+ * carry＝上一步留下、尚未合體的出手者。
+ */
+export interface GuardianFusionState { carry: string[]; move: number; quietThrough: number }
+export const GUARDIAN_FUSION_START: GuardianFusionState = Object.freeze({ carry: [], move: 0, quietThrough: -1 }) as GuardianFusionState;
 
 /**
- * 一步一呼叫（連珠、能量技、連線攻擊各算一步）。
- * 冷卻：合體後緊接的下一步不判定合體，該步出手者也不累積；再下一步恢復正常判定。
+ * 一步一呼叫（連珠、能量技、連線攻擊各算一步；連珠那一步傳 newMove=true）。
+ * 冷卻以「拖珠」計：合體那次拖珠剩下的步驟（例如它帶出的自動連線攻擊）＋緊接的下一次拖珠（含它帶出的連線、能量技）都不合體，
+ * 冷卻中的出手者也不累積；再下一次拖珠恢復正常判定。玩家看到的就是「連續兩次拖珠不會都亮合體印」。
  */
-export function stepGuardianFusion(team: readonly FusionUnit[], current: readonly string[], state: GuardianFusionState = GUARDIAN_FUSION_START): { fusions: GuardianFusion[]; state: GuardianFusionState } {
-  if (state.cooldown) return { fusions: [], state: { carry: [], cooldown: false } };
+export function stepGuardianFusion(team: readonly FusionUnit[], current: readonly string[], state: GuardianFusionState = GUARDIAN_FUSION_START, newMove = false): { fusions: GuardianFusion[]; state: GuardianFusionState } {
+  const move = state.move + (newMove ? 1 : 0);
+  if (move <= state.quietThrough) return { fusions: [], state: { carry: [], move, quietThrough: state.quietThrough } };
   const fusions = guardianFusions(team, current, state.carry);
-  return { fusions, state: { carry: nextFusionCarry(current, fusions), cooldown: fusions.length > 0 } };
+  return { fusions, state: { carry: nextFusionCarry(current, fusions), move, quietThrough: fusions.length ? move + 1 : state.quietThrough } };
 }
 
 /** 給說明與無障礙文字用：「白虎合體：西方白虎＋奎木狼」。 */
 export function guardianFusionLabel(f: GuardianFusion, nameOf: (id: string) => string | undefined): string {
   return `${f.short}合體：${[f.coreId, ...f.memberIds].map(id => nameOf(id) ?? '隊友').join('＋')}（僅特效，不加傷害）`;
+}
+
+/** 合體印彈出時的最大放大倍率（與 components/battlefield/GuardianFusionTrace.module.css 的 gfSeal 關鍵影格 22% 的 1.08 一致）。 */
+export const GUARDIAN_SEAL_PEAK = 1.08;
+/** 印的中心在本尊卡的 68% 高度（卡內下段）。 */
+export const GUARDIAN_SEAL_Y = 0.18;
+/**
+ * 合體印縮放係數：讓「最大放大那一格」也完整落在本尊卡內（左右、上下各留 2px）。
+ * sealW/sealH 是未縮放的印尺寸（offsetWidth/offsetHeight，不受 transform 影響）。
+ */
+export function guardianSealFit(card: { w: number; h: number }, seal: { w: number; h: number }, peak = GUARDIAN_SEAL_PEAK, pad = 2): number {
+  if (!(seal.w > 0) || !(seal.h > 0) || !(card.w > 0) || !(card.h > 0)) return 1;
+  const halfRoomY = card.h * (0.5 - GUARDIAN_SEAL_Y) - pad; // 印中心到卡底的距離（比到卡頂近）
+  const fit = Math.min(1, (card.w - pad * 2) / (seal.w * peak), (halfRoomY * 2) / (seal.h * peak));
+  return Math.floor(fit * 1000) / 1000; // 只往下取整：寧可小一點，也不出框
+}
+
+/**
+ * 合體印的縮放與垂直位置（相對本尊卡中心的位移 dy）。
+ * 一行版：沿用 guardianSealFit，中心在卡的 68% 高度。
+ * 兩行版（有「已合體 +N」）：貼卡底（留 pad），讓上緣避開卡上方浮出的招式名；最大放大那格也完整在卡內。
+ */
+export function guardianSealPlacement(card: { w: number; h: number }, seal: { w: number; h: number }, twoLine: boolean, peak = GUARDIAN_SEAL_PEAK, pad = 2): { fit: number; dy: number } {
+  if (!twoLine) return { fit: guardianSealFit(card, seal, peak, pad), dy: card.h * GUARDIAN_SEAL_Y };
+  if (!(seal.w > 0) || !(seal.h > 0) || !(card.w > 0) || !(card.h > 0)) return { fit: 1, dy: card.h * GUARDIAN_SEAL_Y };
+  const fit = Math.floor(Math.min(1, (card.w - pad * 2) / (seal.w * peak), (card.h - pad * 2) / (seal.h * peak)) * 1000) / 1000;
+  return { fit, dy: card.h / 2 - pad - (seal.h * fit * peak) / 2 };
 }
