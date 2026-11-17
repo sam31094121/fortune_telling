@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
+import EnhanceIcon from '@/components/beast-enhance/EnhanceIcon';
 import modeStyles from './GameModes.module.css';
 import CatalogBeastCard from '@/components/battlefield/CatalogBeastCard';
 import starBeastsData from '@/data/star-beasts.json';
@@ -242,12 +243,15 @@ export default function StarBeastsPage() {
                 </li>
               ))}
             </ul>
-            {/* 2026-11-16 整合：入口零文字——四象縮圖＋⬆ 圖示，名稱只給讀屏（aria-label）。 */}
+            {/* 使用者 23:21 語音：入口卡要看得到「四大神獸」「點擊直接強化」，並有明確的點擊提示（取代 11-16 的零文字版）。 */}
             <Link href="/beast-game/four-beasts" data-four-beasts-entry aria-label="四大神獸・點擊直接強化" className={`${modeStyles.card} ${modeStyles.fourBeastsCard}`}>
               <span className={modeStyles.fourBeastsArt} aria-hidden="true">
                 {FOUR_BEAST_ENTRY_ART.map((src) => <img key={src} src={src} alt="" draggable={false} />)}
               </span>
-              <span className={modeStyles.fourBeastsCta} aria-hidden="true">⬆</span>
+              <span className={modeStyles.fourBeastsText} aria-hidden="true">
+                <strong className={modeStyles.fourBeastsTitle}>四大神獸</strong>
+                <span className={modeStyles.fourBeastsCta}>點擊直接強化<EnhanceIcon name="tap" className={modeStyles.fourBeastsTap} /></span>
+              </span>
             </Link>
           </nav>
           <SelfStarBeastEntry onFound={(name, reason) => { setMyGuardian(name); setMyGuardianReason(reason); window.setTimeout(goMyGuardian, 2200); }} onGo={goMyGuardian} />

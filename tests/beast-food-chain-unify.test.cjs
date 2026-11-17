@@ -78,7 +78,10 @@ const post = async (key, body) => { const res = await api.POST(new Request('http
   eq(jsxText.length, 0, 'four-beasts page has no visible text nodes: ' + jsxText.join('|'));
   const entry = fs.readFileSync(path.join(root, 'app/star-beasts/page.tsx'), 'utf8');
   const entryBlock = entry.slice(entry.indexOf('data-four-beasts-entry'), entry.indexOf('</Link>', entry.indexOf('data-four-beasts-entry')));
-  ok(!/>[^<>{}]*\p{L}[^<>{}]*</u.test(entryBlock), 'entry card shows icons only');
+  // 使用者 23:21 語音：入口卡改成看得到「四大神獸」「點擊直接強化」＋點擊提示（取代 11-16 零文字入口）。
+  ok(/>四大神獸</.test(entryBlock), 'entry card shows visible title 四大神獸');
+  ok(/>點擊直接強化</.test(entryBlock), 'entry card shows visible CTA 點擊直接強化');
+  ok(/<EnhanceIcon name="tap"/.test(entryBlock), 'entry card has a tap affordance icon');
   ok(/aria-label="四大神獸・點擊直接強化"/.test(entryBlock));
 
   // G. 神獸戰鬥面板：順序、隱藏鎖主力、✕ 還原
