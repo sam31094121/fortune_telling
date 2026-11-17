@@ -13,6 +13,7 @@ import { resolveOrbTurn, type TurnInput } from './match3/resolve-turn';
 import { resolveCardAttackTurn } from './match3/card-attack';
 import { resolveTreasureUse, emptyTreasureBook } from './match3/treasures';
 import { foeAvailable } from './match3/enemies';
+import { orbOutcome } from './match3/battle-outcome';
 
 export async function sharedOrbProfile(owner:string,value:unknown):Promise<HardCampaign> {
   if(!value||typeof value!=='object')throw new Error('寶珠進度無法讀取。');
@@ -60,7 +61,17 @@ export async function beginSharedOrb(owner:string,profile:unknown,operationId:st
   });
   const ticket:OrbTicket={owner,id,wins:p.wins,teamIds:p.teamIds,attacks:Object.fromEntries(p.teamIds.map(id=>[id,p.shared!.stats[id].attack])),exactAttacks:Object.fromEntries(p.teamIds.map(id=>[id,p.shared!.stats[id].attackExact??String(p.shared!.stats[id].attack)])),issuedAt:Date.now()};
   const payload=Buffer.from(JSON.stringify(ticket)).toString('base64url');
-  return {profile:p,battleId:id,token:payload+'.'+mac(payload),initial:saved.orbRun!.input,version:saved.orbRun!.version};
+  return {profile:p,battleId:id,token:payload+'.'+mac(payload),initial:saved.orbRun!.input,version:saved.orbRun!.version,outcome:orbOutcome(saved.orbRun!.input.team,saved.orbRun!.input.foes)};
+}
+/** Read only: resume the saved turn without reopening or granting another reward. */
+export async function resumeSharedOrb(owner:string,battleId:unknown) {
+  if(typeof battleId!=='string')throw new Error('戰局識別無效。');
+  const saved=await cultivationRepository().read(owner),run=saved.orbRun;
+  if(!run||run.id!==battleId||(saved.pendingBattle!==battleId&&!saved.creditedIds?.includes('orb-win:'+battleId)))throw new Error('原寶珠戰局暫時無法取得。');
+  const input=run.input;
+  const ticket:OrbTicket={owner,id:run.id,wins:input.wins,teamIds:input.team.map(c=>c.id),attacks:Object.fromEntries(input.team.map(c=>[c.id,c.attack])),exactAttacks:Object.fromEntries(input.team.map(c=>[c.id,c.attackExact??String(c.attack)])),issuedAt:Date.now()};
+  const payload=Buffer.from(JSON.stringify(ticket)).toString('base64url');
+  return {battleId:run.id,token:payload+'.'+mac(payload),initial:input,version:run.version,totalDamage:run.totalDamage,lastDamage:run.lastDamage,outcome:orbOutcome(input.team,input.foes)};
 }
 export async function verifySharedOrb(owner:string,token:unknown) {
   if(typeof token!=='string')throw new Error('寶珠戰局憑證無效。');const [payload,signature,...rest]=token.split('.');
@@ -94,7 +105,7 @@ export async function resolveSharedOrbTurn(t:OrbTicket,request:TurnInput,version
       const r=resolveOrbTurn(input);response=r;
       next={...run.input,board:r.res.board,magic:r.res.magic,team:r.counter.team,foes:r.counter.foes,treasures:r.treasure.book,treasureGuard:r.nextTreasureGuard,attackBoost:r.nextBoost,move:run.input.move+(input.path.length?1:0)};
     }
-    const won=next.team.some(c=>c.hp>0)&&next.foes.every(c=>c.hp<=0),event='orb-win:'+t.id;
+    const won=orbOutcome(next.team,next.foes)==='win',event='orb-win:'+t.id;
     const reward={matchId:event,cardId:campaignAdultIds()[t.wins%28],win:t.wins+1};
     if(won&&reward.win!==(current.orbLedger?.wins??0)+1)throw new Error('關卡紀錄不符。');
     return {...current,orbTreasures:next.treasures,orbRun:{...run,version:version+1,input:next,last:{version,command,response:{...(response as object),sharedVersion:version+1}}},

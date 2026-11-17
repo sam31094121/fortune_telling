@@ -1113,7 +1113,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       </header>
       {rigEnabled && attackCaption && <div className={styles.attackCaption} data-testid="match3-attack-caption" data-side={attackCaption.side}><strong>{attackCaption.hint ? '操作提示' : attackCaption.side === 'enemy' ? '敵方出手' : '我方出手'}</strong> {attackCaption.text}</div>}
       {rigEnabled && help && intro && <div className={styles.quickIntro} data-testid="match3-quick-intro" role="status">上下、左右、左斜、右斜都可以，只要3顆相同寶珠連成一線即可；本關合計 {stage.minChain} 顆以上才具有攻擊效果，連得越多，威力越強。<button type="button" onClick={() => setIntro(false)} aria-label="收起操作提示">×</button></div>}
-      <OrbElementAttack flights={outgoing} side="ally" />
+      <OrbElementAttack flights={outgoing} side="ally" refinedLightning={cfg.id === 'hard45'} />
       <OrbElementAttack flights={counterVisuals.map((h,i)=>({...h,id:`counter:${i}`,sourceId:h.enemyId,sourceName:foes.find(f=>f.id===h.enemyId)?.name,targetName:team.find(u=>u.id===h.targetId)?.name,amount:h.actualDamage}))} side="enemy" />
       <div className={rigEnabled ? styles.srOnly : styles.sub} data-testid="match3-sub">{team.length} 對 {foes.length}・{cfg.cols * cfg.rows} 顆寶珠{cfg.diagonal ? '・可斜連' : ''}・敵方：{cfg.enemyHint ?? foes.map((f) => f.name).join('・')}</div>
       {help && <details className={styles.elementRules}>

@@ -315,6 +315,13 @@ const BEHAVIOR_CHECKS = [
     script: 'test:beast-match3-treasures',
   },
   {
+    id: 'BEAST_ORB_AUTHORITY',
+    module: 'beast_orb_authority',
+    title: '寶石捷連線：獨立終局預期、後端確認、畫面與重送保存一致',
+    script: 'test:beast-orb-authority',
+    timeoutMs: 180000,
+  },
+  {
     id: 'BEAST_ORB_REPLAY',
     module: 'beast_orb_replay',
     title: '寶珠逐輪真實連線：5/6/7顆、保留珠、手機桌面先標示再消除',

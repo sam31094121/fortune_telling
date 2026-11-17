@@ -75,8 +75,9 @@ export function resolveTreasureUse(input: TurnInput, element: BeastElement, vari
   foes[target] = { ...foes[target], attackEnergy: energyAfter };
   const guardScale = d.role === 'guard' ? policy.EARTH.guardScale : input.treasureGuard ?? 1;
   const damage = hits.reduce((sum, hit) => sum + hit.damage, 0);
-  return { book, catalog: treasureCatalog(book,input.team), team: input.team, foes: initializeAvailableFoes(foes, input.wins + 1), guardScale,
+  return { outcome: orbOutcome(input.team, foes), book, catalog: treasureCatalog(book,input.team), team: input.team, foes: initializeAvailableFoes(foes, input.wins + 1), guardScale,
     effect: { id: input.actionId, element, variant, role: d.role as TreasureRole, tier:variant+1, ownerId:slot.ownerId, name: d.name, targetId: before.id, damage, shieldBroken: broken, hits, energyBefore, energyAfter,
       description: `${d.name}：實際傷害 ${damage}${broken ? `，削除護盾 ${broken}` : ''}${energyBefore !== energyAfter ? `，蓄力 ${energyBefore} → ${energyAfter}` : ''}${d.role === 'guard' ? '，下次敵方反擊減傷50%' : ''}` } };
 }
 export type TreasureUse = ReturnType<typeof resolveTreasureUse>;
+import { orbOutcome } from './battle-outcome';

@@ -1,0 +1,7 @@
+AssertionError [ERR_ASSERTION]: last_escort_then_guardian{"error":"暫時無法完成本回合，請重試；尚未套用結果。"}
+
+400 !== 200
+
+    at test (C:\Users\DRAGON\Desktop\命理\reports\beast-game\match3-verdict-2026-11-17\check.cjs:12:225)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\Users\DRAGON\Desktop\命理\reports\beast-game\match3-verdict-2026-11-17\check.cjs:17:246

@@ -55,15 +55,16 @@ export function resolveCardAttackTurn(input: TurnInput) {
     const u = input.team.find(x => x.id === input.attackerId);
     if (!u || u.hp <= 0 || u.energy < ENERGY_MAX || !fighterCanAct(u)) throw new Error('invalid');
     const r = resolveEnergyAttack({ team: input.team, foes: input.foes, targetIndex, stage, eventId: input.eventId, attackerId: u.id });
-    return { action: 'energy' as const, actionId: input.actionId, targetId: foe.id, attackerIds: [u.id], ...r };
+    return { action: 'energy' as const, actionId: input.actionId, targetId: foe.id, attackerIds: [u.id], ...r, outcome: orbOutcome(r.team, r.foes) };
   }
   if (input.action === 'link') {
     const ids = input.linkIds;
     if (!Array.isArray(ids) || ids.length < LINK_MIN_CARDS || ids.length > input.team.length || ids.some(id => typeof id !== 'string') || new Set(ids).size !== ids.length) throw new Error('invalid');
     if (linkProblem(input.team, ids) || ids.some(id => !fighterCanAct(input.team.find(u => u.id === id)!))) throw new Error('invalid');
     const r = resolveLinkAttack({ team: input.team, foes: input.foes, targetIndex, stage, eventId: input.eventId, linkIds: ids });
-    return { action: 'link' as const, actionId: input.actionId, targetId: foe.id, attackerIds: [...ids], ...r };
+    return { action: 'link' as const, actionId: input.actionId, targetId: foe.id, attackerIds: [...ids], ...r, outcome: orbOutcome(r.team, r.foes) };
   }
   throw new Error('invalid');
 }
 export type CardAttackResult = ReturnType<typeof resolveCardAttackTurn>;
+import { orbOutcome } from './battle-outcome';

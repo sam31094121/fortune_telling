@@ -23,6 +23,7 @@
     "check:dual-chart-iching-shensha-display": "node scripts/dual-chart-iching-shensha-display-check.cjs",
     "test:bazi-output-availability": "node tests/bazi-functional-health.test.cjs && node tests/bazi-basic-reading.test.cjs && node tests/bazi-progress-availability.test.cjs && node tests/dual-chart-iching-shensha-output.test.cjs",
     "health:check": "node scripts/screen-health-monitor.mjs --mobile-first --recover-server",
+    "test:beast-orb-authority": "node tests/beast-orb-authority.test.cjs",
     "test:card-request-lifecycle": "node --test tests/numerology-request-lifecycle.test.cjs tests/bazi-request-lifecycle.test.cjs tests/red-luan-request-lifecycle.test.cjs",
     "screen:watch": "node scripts/screen-health-monitor.mjs --watch",
     "platform:v6:audit": "node scripts/platform-core-v6-audit.mjs",

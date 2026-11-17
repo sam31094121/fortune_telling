@@ -1,0 +1,7 @@
+## main...origin/main
+ M components/battlefield/SharedCultivationPanel.tsx
+ M reports/beast-production/release-summary.json
+ M reports/screen-health/latest.json
+?? reports/beast-game/four-beasts-play-2026-11-17/
+?? reports/beast-game/match3-health-2026-11-17/
+?? tests/beast-four-beasts-play.e2e.cjs

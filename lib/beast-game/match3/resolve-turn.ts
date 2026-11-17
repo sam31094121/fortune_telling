@@ -15,6 +15,7 @@ import type { Match3Fighter } from './eligibility';
 import type { OrbSkillEvent } from './skill-runtime';
 import { healSupport, shieldPlan, SUPPORT_POLICY, type HealFact } from './element-support';
 import { playableCards } from '../registry';
+import { orbOutcome } from './battle-outcome';
 export interface TurnUnit extends Match3Fighter { maxHp: number; energy: number; name: string; thumbnail: string }
 export interface TurnFoe extends Match3Foe { name: string; thumbnail: string }
 export interface TurnInput { treasures?: TreasureBook; actionId?: string; treasureGuard?: number; action?: 'treasure' | 'energy' | 'link'; treasureVariant?: number; treasureElement?: import('../elements').BeastElement; /** 能量技／連結攻擊（card-attack.ts）：施放者、連線卡、沿用前端原 eventId。 */ attackerId?: string; linkIds?: string[]; eventId?: string; board: Board; magic: MagicGrid; path: Cell[]; team: TurnUnit[]; foes: TurnFoe[]; mode: Match3ModeId; wins: number; target: number; seed: number; move: number; chosen: LeadChoice; rule: SameElementRule; attackBoost: number }
@@ -96,5 +97,5 @@ export function resolveOrbTurn(input: TurnInput) {
   const treasure = grantTreasure(input, res);
   treasure.catalog = treasureCatalog(treasure.book,counter.team);
   const nextTreasureGuard = counter.hits.length ? 1 : input.treasureGuard ?? 1;
-  return { treasure, nextTreasureGuard, replay, events, res, target, hits, actualHits, damage, startDamage, endDamage, skills, heals, enemyHeals, healingSummary, enemyHealingSummary, shieldGoals, summon, chainFacts, shield, guardScale, beforeCounter, counter, nextBoost };
+  return { outcome: orbOutcome(counter.team, counter.foes), treasure, nextTreasureGuard, replay, events, res, target, hits, actualHits, damage, startDamage, endDamage, skills, heals, enemyHeals, healingSummary, enemyHealingSummary, shieldGoals, summon, chainFacts, shield, guardScale, beforeCounter, counter, nextBoost };
 }

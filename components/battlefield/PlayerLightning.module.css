@@ -1,0 +1,22 @@
+.discharge { pointer-events: none; }
+.channel { animation: discharge 650ms ease-out both; }
+.halo { opacity: .16; filter: blur(2px); }
+.branches { opacity: .58; }
+.core { opacity: .95; }
+.impact { opacity: 0; transform-box: fill-box; transform-origin: center; animation: contact 220ms 650ms ease-out both; }
+@keyframes discharge {
+  0% { opacity: 0; }
+  10% { opacity: .95; }
+  24% { opacity: .55; }
+  42% { opacity: .85; }
+  70% { opacity: .35; }
+  100% { opacity: 0; }
+}
+@keyframes contact {
+  from { opacity: .85; transform: scale(.7); }
+  to { opacity: 0; transform: scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .channel { animation: none; opacity: .45; }
+  .halo, .branches, .impact { display: none; animation: none; }
+}
