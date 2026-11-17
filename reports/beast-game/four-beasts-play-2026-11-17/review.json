@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-17",
+  "route": "http://localhost:8888/beast-game/four-beasts",
+  "scope": [
+    "components/battlefield/SharedCultivationPanel.tsx",
+    "tests/beast-four-beasts-play.e2e.cjs"
+  ],
+  "fault": "PREVIEW_TARGET failed once. Reloading inventory at the same revision cleared the error but never reran the material-limits request. Confirm stayed disabled with a spinner.",
+  "before": "before/result.json: reproduced timeout after retry; synthetic owner cleaned; no consumption.",
+  "fix": "For focus=GUARDIAN only, incremented load retry attempt participates in the material-preview effect dependencies. No formula, protection, consumption, card selection or presentation changes.",
+  "validation": {
+    "play": "Live localhost UI and API with random disposable Supabase owner; normal previews/saves are real. Only specified failure requests are intercepted/aborted, including dropping a genuine saved response.",
+    "sizes": [
+      320,
+      390
+    ],
+    "types": "pass",
+    "build": "pass with warnings",
+    "cultivation": "pass including batch/newplayer/unify/concurrency",
+    "fairness": "pass, 1000 games",
+    "customerInventory": "never used; every created test account cleaned",
+    "health": {
+      "summary": {
+        "total": 64,
+        "passed": 61,
+        "failed": 3,
+        "warnings": 0,
+        "screenStatus": "UNHEALTHY"
+      },
+      "failed": [
+        {
+          "id": "BAZI_SOURCE_REGISTRY_COMPLETE",
+          "title": "八字來源登記完整性（未驗證或缺古籍來源即失敗）"
+        },
+        {
+          "id": "THREE_CORE_TRADITIONAL_DEFECTS",
+          "title": "三核心原典缺陷：禁止以流程通過代替算法正確"
+        },
+        {
+          "id": "DUAL_CHART_SHENSHA_DISPLAY",
+          "title": "易經神煞：四柱神煞後端運算到前端顯示"
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "Existing auto-selection and batch behavior retained as in current approved implementation.",
+    "The previous cultivation route and its tests are not evidence for this route."
+  ],
+  "publication": "Not committed or pushed: three pre-existing unrelated source gates still fail. No source/policy changes made."
+}

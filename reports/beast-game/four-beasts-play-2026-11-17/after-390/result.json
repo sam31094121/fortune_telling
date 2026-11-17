@@ -1,0 +1,24 @@
+{
+  "route": "/beast-game/four-beasts",
+  "realApi": true,
+  "realDatabase": true,
+  "syntheticOwner": true,
+  "steps": [
+    "real collection load retry",
+    "target materials load retry",
+    "cancel unchanged, change target, no material exit",
+    "two selected, real backend preview, no consumption",
+    "pre-save network failure unchanged, double click blocked",
+    "real database saved, reply lost, same receipt retry, no duplicate consumption",
+    "refresh persisted real bonus and inventory"
+  ],
+  "errors": [],
+  "injected": [
+    "one collection load failure",
+    "one PREVIEW_TARGET failure",
+    "one FUSE aborted before server",
+    "one FUSE response dropped after server save"
+  ],
+  "passed": true,
+  "cleaned": true
+}

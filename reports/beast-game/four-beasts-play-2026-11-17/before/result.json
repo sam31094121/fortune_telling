@@ -1,0 +1,19 @@
+{
+  "route": "/beast-game/four-beasts",
+  "realApi": true,
+  "realDatabase": true,
+  "syntheticOwner": true,
+  "steps": [
+    "real collection load retry"
+  ],
+  "errors": [],
+  "injected": [
+    "one collection load failure",
+    "one PREVIEW_TARGET failure",
+    "one FUSE aborted before server",
+    "one FUSE response dropped after server save"
+  ],
+  "error": "page.waitForFunction: Timeout 10000ms exceeded.\n    at C:\\Users\\DRAGON\\Desktop\\命理\\tests\\beast-four-beasts-play.e2e.cjs:15:236",
+  "visible": "↩\n\n🍴\n5\n\n四象\n青龍\n體131\n木\n7\n回元\n攻74\n恢復自身 65 生命，不超過上限。\n剋土\n生我水\n◆◆◆\n輔助\n東\n★\n★\n★\n★\n★\n🃏62\n⬆\n🍴\n成獸\n角木蛟\n體\n98\n木\n4\n破陣\n攻\n56\n以攻擊力加 24 計算傷害。\n剋土\n生我水\n◆◆\n主攻\n東方蒼龍\n×5\n⏳\n✕",
+  "cleaned": true
+}

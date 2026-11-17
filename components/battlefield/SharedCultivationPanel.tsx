@@ -68,11 +68,13 @@ export default function SharedCultivationPanel({onSaved,onDone,iconOnly=false,fo
   },[shortcut,view,iconOnly]);
   // 即時回饋：選定目標就向伺服端一次取回每張候選材料的「攻擊 +N・約 +X%・星級變化」（只讀），顯示在材料卡上。
   const [options,setOptions]=useState<{targetId:string;revision:string;byId:Record<string,{feedback?:CultivationFeedback;error?:string}>;batch:BatchLimits|null}|null>(null);
+  // Standalone guardian recovery must refetch material limits even when the inventory revision is unchanged.
+  const targetPreviewAttempt=focus==='GUARDIAN'?previewAttempt:0;
   useEffect(()=>{let active=true;
     if(target&&view)void sharedRequest({type:'PREVIEW_TARGET',revision:view.revision,targetId:target,...(iconOnly?{piles:true}:{})}).then(r=>{if(active)setOptions({targetId:target,revision:view.revision,byId:Object.fromEntries((r.options??[]).map((o:{materialId:string;feedback?:CultivationFeedback;error?:string})=>[o.materialId,o])),batch:r.batch??null});}).catch(e=>{if(active){setOptions(null);if(iconOnly)setError(e instanceof Error?e.message:'暫時無法預覽。');}});
     else setOptions(null);
     return()=>{active=false;};
-  },[target,view?.revision,iconOnly]);
+  },[target,view?.revision,iconOnly,targetPreviewAttempt]);
   useEffect(()=>{let active=true;setPreview(null);setFeedback(null);operation.current=null;
     if(target&&material&&view)void sharedRequest({type:'PREVIEW',revision:view.revision,choices:[{targetId:target,materialId:material}]}).then(r=>{if(active){setPreview(r.changes[0]);setFeedback(r.feedback?.[0]??null);setPreviewRevision(view.revision);setError('');}}).catch(e=>{if(active)setError(e.message);});
     return()=>{active=false;};
