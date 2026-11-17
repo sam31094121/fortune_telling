@@ -33,7 +33,7 @@ export default function FourBeastsEnhance() {
       <span className={s.thumbs} aria-hidden="true">{['qinglong', 'zhuque', 'baihu', 'xuanwu'].map(k => <img key={k} src={`/beast-game/thumb/guardian-${k}.v2.webp`} alt="" draggable={false} />)}</span>
       {failed
         ? <button type="button" className={s.count} onClick={() => void load()} aria-label="重新讀取可強化張數"><span aria-hidden="true">↻</span></button>
-        : <p className={s.count} data-enhanceable-count={view?.enhanceableCount ?? ''} aria-label={view ? `可強化 ${view.enhanceableCount} 張；神獸戰鬥贏得 ${view.sources.duel} 張；寶珠連線贏得 ${view.sources.orb} 張` : '讀取中'}>
+        : <p className={s.count} data-enhanceable-count={view?.enhanceableCount ?? ''} aria-label={view ? `可強化 ${view.enhanceableCount} 張；神獸戰鬥贏得 ${view.sources.duel} 張；寶石捷連線贏得 ${view.sources.orb} 張` : '讀取中'}>
           <span aria-hidden="true">🍴</span><strong aria-hidden="true">{view ? view.enhanceableCount : '⏳'}</strong>
           {view && view.sources.duel > 0 && <span className={s.src} data-source="duel" aria-hidden="true">⚔{view.sources.duel}</span>}
           {view && view.sources.orb > 0 && <span className={s.src} data-source="orb" aria-hidden="true">●{view.sources.orb}</span>}
