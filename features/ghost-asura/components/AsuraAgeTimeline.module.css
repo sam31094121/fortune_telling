@@ -1465,3 +1465,44 @@
     transition: none;
   }
 }
+
+/* Age navigation only: reuse the shared orb, without ritual or reward state. */
+.hereBar .progress {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 4px;
+  padding: 12px 0 2px;
+}
+.hereBar .progressItem { max-width: none; min-width: 0; }
+.orbNav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px 1px 8px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.orbStage { position: relative; display: block; width: clamp(32px, 8vw, 54px); height: clamp(32px, 8vw, 54px); margin: 6px 0 10px; pointer-events: none; }
+.orbNav .progressAge { font-size: 11px; line-height: 1.5; color: #edf4e4; }
+.orbStatus { font-size: 11px; line-height: 1.5; color: #c5d6b6; }
+.orbSelection { font-size: 10px; line-height: 1.4; color: #c5d6b6; }
+.orbNav[aria-current='step'] .orbStatus { color: #fff4ac; font-weight: 800; }
+.orbNav[aria-current='step'] .orbStatus::before { content: '◆ '; }
+.orbNav[aria-pressed='true'] { border-color: rgba(232, 244, 205, .65); background: rgba(10, 24, 14, .5); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
+.orbNav[aria-pressed='true'] .orbSelection { color: #fff4ac; }
+.orbNav:hover { background: rgba(10, 24, 14, .35); }
+.orbNav:focus-visible { outline: 2px solid #fff4ac; outline-offset: 2px; }
+@media (max-width: 360px) {
+  .hereBar { padding-left: 6px; padding-right: 6px; }
+  .hereBar .progress { gap: 2px; }
+  .orbNav .progressAge { font-size: 10px; }
+}

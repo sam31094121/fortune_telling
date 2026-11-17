@@ -1,0 +1,20 @@
+{
+  "at": "2026-11-17T11:17:07.713Z",
+  "checks": [
+    {
+      "route": "/",
+      "status": 200,
+      "ms": 3317
+    },
+    {
+      "route": "/internal/health/ready",
+      "status": 200,
+      "ms": 3101
+    },
+    {
+      "route": "/beast-game/match3-hard",
+      "status": 200,
+      "ms": 3283
+    }
+  ]
+}

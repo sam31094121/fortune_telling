@@ -1,0 +1,152 @@
+[
+  {
+    "case": "natural battle action",
+    "action": "drag",
+    "version": 1,
+    "outcome": null,
+    "teamHp": [
+      145,
+      54,
+      74,
+      72,
+      49
+    ],
+    "foeHp": [
+      0,
+      100,
+      146,
+      124,
+      106
+    ]
+  },
+  {
+    "case": "natural battle action",
+    "action": "drag",
+    "version": 2,
+    "outcome": null,
+    "teamHp": [
+      145,
+      54,
+      74,
+      72,
+      49
+    ],
+    "foeHp": [
+      0,
+      0,
+      146,
+      124,
+      106
+    ]
+  },
+  {
+    "case": "natural battle action",
+    "action": "drag",
+    "version": 3,
+    "outcome": null,
+    "teamHp": [
+      145,
+      54,
+      74,
+      72,
+      49
+    ],
+    "foeHp": [
+      0,
+      0,
+      120,
+      124,
+      106
+    ]
+  },
+  {
+    "case": "natural battle action",
+    "action": "energy",
+    "version": 4,
+    "outcome": null,
+    "teamHp": [
+      145,
+      54,
+      74,
+      72,
+      49
+    ],
+    "foeHp": [
+      0,
+      0,
+      0,
+      124,
+      106
+    ]
+  },
+  {
+    "case": "natural battle action",
+    "action": "drag",
+    "version": 5,
+    "outcome": null,
+    "teamHp": [
+      145,
+      54,
+      74,
+      72,
+      47
+    ],
+    "foeHp": [
+      0,
+      0,
+      0,
+      14,
+      106
+    ]
+  },
+  {
+    "case": "natural battle action",
+    "action": "energy",
+    "version": 6,
+    "outcome": null,
+    "teamHp": [
+      145,
+      54,
+      74,
+      72,
+      47
+    ],
+    "foeHp": [
+      0,
+      0,
+      0,
+      0,
+      106
+    ]
+  },
+  {
+    "case": "natural battle action",
+    "action": "drag",
+    "version": 7,
+    "outcome": "win",
+    "teamHp": [
+      145,
+      54,
+      74,
+      72,
+      49
+    ],
+    "foeHp": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "case": "natural win, next stage and reload retain exactly one reward",
+    "wins": 1,
+    "receipts": 1
+  },
+  {
+    "case": "development treasure fixture remains playable without saving guest progress",
+    "version": 1,
+    "outcome": null
+  }
+]

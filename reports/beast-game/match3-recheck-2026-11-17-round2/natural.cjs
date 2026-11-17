@@ -14,7 +14,7 @@ const {chromium}=require('../../../.tmp/shared-qa/node_modules/playwright'),asse
    for(const length of [5,4,3]){for(const cell of cells.slice().sort((a,b)=>Number(b.el==='SPACE')-Number(a.el==='SPACE'))){chain=walk([cell],length);if(chain)break;}if(chain)break;}assert(chain,'a legal natural path exists');body=await drag(chain);
   }
   const team=body.counter?.team??body.team,foes=body.counter?.foes??body.foes;
-  if(!body.outcome){assert.deepEqual(await page.getByTestId('match3-enemy').evaluateAll(es=>es.map(e=>+e.dataset.hp)),foes.map(f=>f.hp));assert.deepEqual(await page.getByTestId('match3-ally').evaluateAll(es=>es.map(e=>+e.dataset.hp)),team.map(f=>f.hp));}
+  if(!body.outcome){const displayed=await page.getByTestId('match3-enemy').evaluateAll(es=>es.map(e=>({id:e.dataset.id,hp:+e.dataset.hp})));for(const f of foes){const shown=displayed.find(d=>d.id===f.id);if(shown)assert.equal(shown.hp,f.hp);else assert.equal(f.hp,0,'only defeated retired enemies may disappear');}assert.deepEqual(await page.getByTestId('match3-ally').evaluateAll(es=>es.map(e=>+e.dataset.hp)),team.map(f=>f.hp));}
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   results.push({case:'natural battle action',action:body.action??'drag',version:body.guestVersion,outcome:body.outcome,teamHp:team.map(f=>f.hp),foeHp:foes.map(f=>f.hp)});console.log('action',turn+1,body.outcome,foes.map(f=>f.hp).join(','));
   if(body.outcome){await page.getByTestId('match3-result').waitFor();assert.equal(await page.getByTestId('match3-result').getAttribute('data-result'),body.outcome);assert.equal(body.outcome,'win','natural run must finish with a verified win');won=true;break;}

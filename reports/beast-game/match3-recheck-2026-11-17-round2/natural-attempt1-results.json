@@ -1,0 +1,42 @@
+[
+  {
+    "case": "natural battle action",
+    "action": "drag",
+    "version": 1,
+    "outcome": null,
+    "teamHp": [
+      145,
+      54,
+      74,
+      72,
+      49
+    ],
+    "foeHp": [
+      69,
+      138,
+      142,
+      94,
+      106
+    ]
+  },
+  {
+    "case": "natural battle action",
+    "action": "drag",
+    "version": 2,
+    "outcome": null,
+    "teamHp": [
+      145,
+      54,
+      74,
+      72,
+      49
+    ],
+    "foeHp": [
+      0,
+      138,
+      142,
+      94,
+      106
+    ]
+  }
+]

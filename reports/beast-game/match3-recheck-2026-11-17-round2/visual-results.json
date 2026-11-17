@@ -1,0 +1,15 @@
+{
+  "fixture": "guest, offline signed energy fixture; real API computes damage",
+  "errors": [],
+  "actualDamage": 98,
+  "outcome": null,
+  "status": 200,
+  "hpLoss": 98,
+  "displayHpMatches": true,
+  "reduced": {
+    "animations": 0,
+    "branches": "none"
+  },
+  "overflow": false,
+  "passed": true
+}

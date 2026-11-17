@@ -11,6 +11,10 @@ import { Fragment, startTransition, useEffect, useMemo, useState } from 'react';
 import type { AsuraAgeTimeline as AsuraAgeTimelineData } from '@/lib/ghost-asura-display-contract';
 import styles from './AsuraAgeTimeline.module.css';
 import motion from './AsuraAgeTimeline.motion.module.css';
+import { ElementTreasureOrb } from '@/components/bazi/customer/ElementTreasureOrb';
+
+// Decorative navigation only; these elements do not describe the age segment.
+const NAV_ORBS = ['空', '風', '水', '火', '地'] as const;
 
 /** Mobile or reduced-motion: instant scroll (perf). */
 function asuraScrollBehavior(): ScrollBehavior {
@@ -257,28 +261,32 @@ export function AsuraAgeTimeline({
           </p>
         ) : null}
         <ol className={styles.progress} aria-label="年齡段進度">
-          {segments.map((seg, i) => {
+          {segments.map((seg, i) => ({ seg, i }))
+            .filter(({ i }) => segments.length !== 6 || i !== 0)
+            .map(({ seg, i }, navIndex) => {
             const state = seg.isCurrent ? 'current' : visited[i] ? 'visited' : 'idle';
-            const dotClass =
-              state === 'current'
-                ? `${styles.progressDot} ${styles.dotCurrent}`
-                : state === 'visited'
-                  ? `${styles.progressDot} ${styles.dotVisited}`
-                  : `${styles.progressDot} ${styles.dotIdle}`;
             return (
               <li key={`dot-${i}`} className={styles.progressItem}>
                 <button
                   type="button"
-                  className={dotClass}
+                  className={styles.orbNav}
+                  data-age-nav-index={i}
+                  data-state={state}
                   aria-label={`${seg.ageLabel}・${seg.tense}`}
                   aria-current={seg.isCurrent ? 'step' : undefined}
+                  aria-pressed={openedIndex === i}
+                  aria-controls={`asura-age-seg-${i}`}
                   onClick={() => openSegment(i)}
-                />
-                {seg.ageLabel ? (
+                >
+                  <span className={styles.orbStage}>
+                    <ElementTreasureOrb element={NAV_ORBS[navIndex % NAV_ORBS.length]} released preview animated={false} visualScale={1} />
+                  </span>
                   <span className={styles.progressAge} aria-hidden="true">
                     {seg.ageLabel}
                   </span>
-                ) : null}
+                  <span className={styles.orbStatus} aria-hidden="true">{seg.isCurrent ? '現在' : seg.tense}</span>
+                  <span className={styles.orbSelection} aria-hidden="true">{openedIndex === i ? '瀏覽中' : visited[i] ? '已瀏覽' : '點閱'}</span>
+                </button>
               </li>
             );
           })}

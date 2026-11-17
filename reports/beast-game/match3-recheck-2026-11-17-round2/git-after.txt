@@ -1,0 +1,15 @@
+## main...origin/main
+ M reports/beast-game/match3-recheck-2026-11-17-round2/natural.cjs
+ M reports/beast-game/match3-recheck-2026-11-17-round2/visual.cjs
+ M reports/screen-health/latest.json
+?? reports/beast-game/match3-recheck-2026-11-17-round2/git-after.txt
+?? reports/beast-game/match3-recheck-2026-11-17-round2/head-after.txt
+?? reports/beast-game/match3-recheck-2026-11-17-round2/health-after.json
+?? reports/beast-game/match3-recheck-2026-11-17-round2/lightning-after.webm
+?? reports/beast-game/match3-recheck-2026-11-17-round2/natural-attempt1-results.json
+?? reports/beast-game/match3-recheck-2026-11-17-round2/natural-results.json
+?? reports/beast-game/match3-recheck-2026-11-17-round2/replay/
+?? reports/beast-game/match3-recheck-2026-11-17-round2/report.md
+?? reports/beast-game/match3-recheck-2026-11-17-round2/service-final.json
+?? reports/beast-game/match3-recheck-2026-11-17-round2/video/
+?? reports/beast-game/match3-recheck-2026-11-17-round2/visual-results.json

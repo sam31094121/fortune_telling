@@ -1,0 +1,6393 @@
+{
+  "samples": [
+    {
+      "epoch": "2",
+      "t": 4301.5,
+      "chain": 1,
+      "busy": "true",
+      "pointer": "none",
+      "cells": [
+        {
+          "r": 0,
+          "c": 0,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 0,
+          "c": 1,
+          "el": "AIR",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 0,
+          "c": 2,
+          "el": "WATER",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 0,
+          "c": 3,
+          "el": "EARTH",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 0,
+          "c": 4,
+          "el": "EARTH",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 0,
+          "c": 5,
+          "el": "SPACE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 0,
+          "c": 6,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 1,
+          "c": 0,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "el": "WATER",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 1,
+          "c": 2,
+          "el": "EARTH",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 1,
+          "c": 3,
+          "el": "WATER",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 1,
+          "c": 4,
+          "el": "WATER",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 1,
+          "c": 5,
+          "el": "AIR",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 1,
+          "c": 6,
+          "el": "WATER",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 2,
+          "c": 0,
+          "el": "SPACE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 2,
+          "c": 1,
+          "el": "AIR",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 2,
+          "c": 2,
+          "el": "WATER",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 2,
+          "c": 3,
+          "el": "AIR",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 2,
+          "c": 4,
+          "el": "SPACE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 2,
+          "c": 5,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 2,
+          "c": 6,
+          "el": "SPACE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 3,
+          "c": 0,
+          "el": "AIR",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 3,
+          "c": 1,
+          "el": "AIR",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 3,
+          "c": 2,
+          "el": "WATER",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 3,
+          "c": 3,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 3,
+          "c": 4,
+          "el": "SPACE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 3,
+          "c": 5,
+          "el": "SPACE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 3,
+          "c": 6,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 4,
+          "c": 0,
+          "el": "WATER",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 4,
+          "c": 1,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 4,
+          "c": 2,
+          "el": "AIR",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 4,
+          "c": 3,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 4,
+          "c": 4,
+          "el": "WATER",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 4,
+          "c": 5,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 4,
+          "c": 6,
+          "el": "EARTH",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 5,
+          "c": 0,
+          "el": "SPACE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 5,
+          "c": 1,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 5,
+          "c": 2,
+          "el": "AIR",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 5,
+          "c": 3,
+          "el": "SPACE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 5,
+          "c": 4,
+          "el": "WATER",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 5,
+          "c": 5,
+          "el": "SPACE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 5,
+          "c": 6,
+          "el": "AIR",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 6,
+          "c": 0,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 6,
+          "c": 1,
+          "el": "WATER",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 6,
+          "c": 2,
+          "el": "SPACE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 6,
+          "c": 3,
+          "el": "AIR",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 6,
+          "c": 4,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 6,
+          "c": 5,
+          "el": "EARTH",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 6,
+          "c": 6,
+          "el": "SPACE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 7,
+          "c": 0,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 7,
+          "c": 1,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 7,
+          "c": 2,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 7,
+          "c": 3,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 7,
+          "c": 4,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 7,
+          "c": 5,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        },
+        {
+          "r": 7,
+          "c": 6,
+          "el": "FIRE",
+          "magic": 0,
+          "flash": false
+        }
+      ],
+      "groups": [
+        {
+          "count": 7,
+          "element": "FIRE",
+          "label": "7 顆",
+          "paths": [
+            [
+              {
+                "r": 7,
+                "c": 0
+              },
+              {
+                "r": 7,
+                "c": 1
+              },
+              {
+                "r": 7,
+                "c": 2
+              },
+              {
+                "r": 7,
+                "c": 3
+              },
+              {
+                "r": 7,
+                "c": 4
+              },
+              {
+                "r": 7,
+                "c": 5
+              },
+              {
+                "r": 7,
+                "c": 6
+              }
+            ]
+          ],
+          "strokes": [
+            {
+              "colour": "rgb(255, 243, 174)",
+              "width": "4px"
+            }
+          ],
+          "cells": [
+            {
+              "r": 7,
+              "c": 0,
+              "dx": 0,
+              "dy": 0,
+              "animation": "Match3Board_m3MatchOnce__Z1xb5"
+            },
+            {
+              "r": 7,
+              "c": 1,
+              "dx": 0,
+              "dy": 0,
+              "animation": "Match3Board_m3MatchOnce__Z1xb5"
+            },
+            {
+              "r": 7,
+              "c": 2,
+              "dx": 0,
+              "dy": 0,
+              "animation": "Match3Board_m3MatchOnce__Z1xb5"
+            },
+            {
+              "r": 7,
+              "c": 3,
+              "dx": 0,
+              "dy": 0,
+              "animation": "Match3Board_m3MatchOnce__Z1xb5"
+            },
+            {
+              "r": 7,
+              "c": 4,
+              "dx": 0,
+              "dy": 0,
+              "animation": "Match3Board_m3MatchOnce__Z1xb5"
+            },
+            {
+              "r": 7,
+              "c": 5,
+              "dx": 0,
+              "dy": 0,
+              "animation": "Match3Board_m3MatchOnce__Z1xb5"
+            },
+            {
+              "r": 7,
+              "c": 6,
+              "dx": 0,
+              "dy": 0,
+              "animation": "Match3Board_m3MatchOnce__Z1xb5"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "pointers": [
+    {
+      "type": "pointermove",
+      "x": 525.8515625,
+      "y": 652.9921875,
+      "hit": [
+        "7",
+        "0"
+      ],
+      "coalesced": [
+        {
+          "x": 525.8515625,
+          "y": 652.9921875
+        }
+      ],
+      "rect": {
+        "x": 495.5,
+        "y": 622.640625,
+        "w": 60.703125,
+        "h": 60.703125
+      }
+    },
+    {
+      "type": "pointerdown",
+      "x": 525.8515625,
+      "y": 652.9921875,
+      "hit": [
+        "7",
+        "0"
+      ],
+      "coalesced": [],
+      "rect": {
+        "x": 495.5,
+        "y": 622.640625,
+        "w": 60.703125,
+        "h": 60.703125
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 590.5625,
+      "y": 653,
+      "hit": [
+        "7",
+        "1"
+      ],
+      "coalesced": [
+        {
+          "x": 590.5625,
+          "y": 653
+        }
+      ],
+      "rect": {
+        "x": 560.203125,
+        "y": 622.640625,
+        "w": 60.71875,
+        "h": 60.71875
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 655.28125,
+      "y": 653,
+      "hit": [
+        "7",
+        "2"
+      ],
+      "coalesced": [
+        {
+          "x": 655.28125,
+          "y": 653
+        }
+      ],
+      "rect": {
+        "x": 624.921875,
+        "y": 622.640625,
+        "w": 60.71875,
+        "h": 60.71875
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 719.9921875,
+      "y": 652.9921875,
+      "hit": [
+        "7",
+        "3"
+      ],
+      "coalesced": [
+        {
+          "x": 719.9921875,
+          "y": 652.9921875
+        }
+      ],
+      "rect": {
+        "x": 689.640625,
+        "y": 622.640625,
+        "w": 60.703125,
+        "h": 60.703125
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 784.703125,
+      "y": 653,
+      "hit": [
+        "7",
+        "4"
+      ],
+      "coalesced": [
+        {
+          "x": 784.703125,
+          "y": 653
+        }
+      ],
+      "rect": {
+        "x": 754.34375,
+        "y": 622.640625,
+        "w": 60.71875,
+        "h": 60.71875
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 849.421875,
+      "y": 653,
+      "hit": [
+        "7",
+        "5"
+      ],
+      "coalesced": [
+        {
+          "x": 849.421875,
+          "y": 653
+        }
+      ],
+      "rect": {
+        "x": 819.0625,
+        "y": 622.640625,
+        "w": 60.71875,
+        "h": 60.71875
+      }
+    },
+    {
+      "type": "pointermove",
+      "x": 914.140625,
+      "y": 653,
+      "hit": [
+        "7",
+        "6"
+      ],
+      "coalesced": [
+        {
+          "x": 914.140625,
+          "y": 653
+        }
+      ],
+      "rect": {
+        "x": 883.78125,
+        "y": 622.640625,
+        "w": 60.71875,
+        "h": 60.71875
+      }
+    },
+    {
+      "type": "pointerup",
+      "x": 914.140625,
+      "y": 653,
+      "hit": [
+        "7",
+        "6"
+      ],
+      "coalesced": [],
+      "rect": {
+        "x": 883.78125,
+        "y": 622.640625,
+        "w": 60.71875,
+        "h": 60.71875
+      }
+    }
+  ],
+  "turn": {
+    "outcome": null,
+    "treasure": {
+      "book": {
+        "version": 1,
+        "counts": {
+          "SPACE": 0,
+          "AIR": 0,
+          "WATER": 0,
+          "FIRE": 0,
+          "EARTH": 0
+        },
+        "receipts": []
+      },
+      "earned": null,
+      "catalog": [
+        {
+          "element": "SPACE",
+          "variant": 0,
+          "role": "pierce",
+          "tier": 1,
+          "slot": 0,
+          "ownerId": "beast_g_baihu",
+          "available": true,
+          "name": "裂空環",
+          "description": "先削目標護盾50%，合計1倍基礎攻擊",
+          "count": 0
+        },
+        {
+          "element": "WATER",
+          "variant": 0,
+          "role": "drain",
+          "tier": 1,
+          "slot": 1,
+          "ownerId": "beast_y14",
+          "available": true,
+          "name": "纏流水紋",
+          "description": "目標蓄力降低25，最低為0；合計0.8倍基礎攻擊",
+          "count": 0
+        },
+        {
+          "element": "WATER",
+          "variant": 1,
+          "role": "burst",
+          "tier": 2,
+          "slot": 2,
+          "ownerId": "beast_y19",
+          "available": true,
+          "name": "驚瀾矛",
+          "description": "集中單體爆發，合計1.05倍基礎攻擊",
+          "count": 0
+        },
+        {
+          "element": "EARTH",
+          "variant": 0,
+          "role": "guard",
+          "tier": 1,
+          "slot": 3,
+          "ownerId": "beast_y03",
+          "available": true,
+          "name": "鎮岳印",
+          "description": "下次反擊減傷50%，不疊加；合計0.8倍基礎攻擊",
+          "count": 0
+        },
+        {
+          "element": "AIR",
+          "variant": 0,
+          "role": "volley",
+          "tier": 1,
+          "slot": 4,
+          "ownerId": "beast_y08",
+          "available": true,
+          "name": "迴風刃",
+          "description": "三段連擊，合計1.35倍基礎攻擊（各段分別取整）",
+          "count": 0
+        }
+      ]
+    },
+    "nextTreasureGuard": 1,
+    "replay": [
+      {
+        "chain": 1,
+        "groups": [
+          {
+            "element": "FIRE",
+            "cells": [
+              {
+                "r": 7,
+                "c": 0
+              },
+              {
+                "r": 7,
+                "c": 1
+              },
+              {
+                "r": 7,
+                "c": 2
+              },
+              {
+                "r": 7,
+                "c": 3
+              },
+              {
+                "r": 7,
+                "c": 4
+              },
+              {
+                "r": 7,
+                "c": 5
+              },
+              {
+                "r": 7,
+                "c": 6
+              }
+            ],
+            "size": 7,
+            "longest": 7,
+            "runs": [
+              7
+            ],
+            "power": 7,
+            "attackAllowed": true
+          }
+        ],
+        "boardAfter": [
+          [
+            "FIRE",
+            "AIR",
+            "WATER",
+            "EARTH",
+            "EARTH",
+            "SPACE",
+            "FIRE"
+          ],
+          [
+            "FIRE",
+            "AIR",
+            "WATER",
+            "EARTH",
+            "EARTH",
+            "SPACE",
+            "WATER"
+          ],
+          [
+            "FIRE",
+            "WATER",
+            "EARTH",
+            "WATER",
+            "WATER",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "SPACE",
+            "AIR",
+            "WATER",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "FIRE"
+          ],
+          [
+            "AIR",
+            "AIR",
+            "WATER",
+            "FIRE",
+            "SPACE",
+            "SPACE",
+            "EARTH"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "WATER",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "SPACE",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "WATER",
+            "SPACE",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ]
+        ],
+        "magicAfter": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "falls": [
+          {
+            "r": 7,
+            "c": 0,
+            "fromRow": 6
+          },
+          {
+            "r": 6,
+            "c": 0,
+            "fromRow": 5
+          },
+          {
+            "r": 5,
+            "c": 0,
+            "fromRow": 4
+          },
+          {
+            "r": 4,
+            "c": 0,
+            "fromRow": 3
+          },
+          {
+            "r": 3,
+            "c": 0,
+            "fromRow": 2
+          },
+          {
+            "r": 2,
+            "c": 0,
+            "fromRow": 1
+          },
+          {
+            "r": 1,
+            "c": 0,
+            "fromRow": 0
+          },
+          {
+            "r": 7,
+            "c": 1,
+            "fromRow": 6
+          },
+          {
+            "r": 6,
+            "c": 1,
+            "fromRow": 5
+          },
+          {
+            "r": 5,
+            "c": 1,
+            "fromRow": 4
+          },
+          {
+            "r": 4,
+            "c": 1,
+            "fromRow": 3
+          },
+          {
+            "r": 3,
+            "c": 1,
+            "fromRow": 2
+          },
+          {
+            "r": 2,
+            "c": 1,
+            "fromRow": 1
+          },
+          {
+            "r": 1,
+            "c": 1,
+            "fromRow": 0
+          },
+          {
+            "r": 7,
+            "c": 2,
+            "fromRow": 6
+          },
+          {
+            "r": 6,
+            "c": 2,
+            "fromRow": 5
+          },
+          {
+            "r": 5,
+            "c": 2,
+            "fromRow": 4
+          },
+          {
+            "r": 4,
+            "c": 2,
+            "fromRow": 3
+          },
+          {
+            "r": 3,
+            "c": 2,
+            "fromRow": 2
+          },
+          {
+            "r": 2,
+            "c": 2,
+            "fromRow": 1
+          },
+          {
+            "r": 1,
+            "c": 2,
+            "fromRow": 0
+          },
+          {
+            "r": 7,
+            "c": 3,
+            "fromRow": 6
+          },
+          {
+            "r": 6,
+            "c": 3,
+            "fromRow": 5
+          },
+          {
+            "r": 5,
+            "c": 3,
+            "fromRow": 4
+          },
+          {
+            "r": 4,
+            "c": 3,
+            "fromRow": 3
+          },
+          {
+            "r": 3,
+            "c": 3,
+            "fromRow": 2
+          },
+          {
+            "r": 2,
+            "c": 3,
+            "fromRow": 1
+          },
+          {
+            "r": 1,
+            "c": 3,
+            "fromRow": 0
+          },
+          {
+            "r": 7,
+            "c": 4,
+            "fromRow": 6
+          },
+          {
+            "r": 6,
+            "c": 4,
+            "fromRow": 5
+          },
+          {
+            "r": 5,
+            "c": 4,
+            "fromRow": 4
+          },
+          {
+            "r": 4,
+            "c": 4,
+            "fromRow": 3
+          },
+          {
+            "r": 3,
+            "c": 4,
+            "fromRow": 2
+          },
+          {
+            "r": 2,
+            "c": 4,
+            "fromRow": 1
+          },
+          {
+            "r": 1,
+            "c": 4,
+            "fromRow": 0
+          },
+          {
+            "r": 7,
+            "c": 5,
+            "fromRow": 6
+          },
+          {
+            "r": 6,
+            "c": 5,
+            "fromRow": 5
+          },
+          {
+            "r": 5,
+            "c": 5,
+            "fromRow": 4
+          },
+          {
+            "r": 4,
+            "c": 5,
+            "fromRow": 3
+          },
+          {
+            "r": 3,
+            "c": 5,
+            "fromRow": 2
+          },
+          {
+            "r": 2,
+            "c": 5,
+            "fromRow": 1
+          },
+          {
+            "r": 1,
+            "c": 5,
+            "fromRow": 0
+          }
+        ],
+        "clearedCells": [
+          {
+            "r": 7,
+            "c": 0
+          },
+          {
+            "r": 7,
+            "c": 1
+          },
+          {
+            "r": 7,
+            "c": 2
+          },
+          {
+            "r": 7,
+            "c": 3
+          },
+          {
+            "r": 7,
+            "c": 4
+          },
+          {
+            "r": 7,
+            "c": 5
+          }
+        ],
+        "emptyCells": [
+          {
+            "r": 0,
+            "c": 0
+          },
+          {
+            "r": 0,
+            "c": 1
+          },
+          {
+            "r": 0,
+            "c": 2
+          },
+          {
+            "r": 0,
+            "c": 3
+          },
+          {
+            "r": 0,
+            "c": 4
+          },
+          {
+            "r": 0,
+            "c": 5
+          }
+        ],
+        "rewards": [
+          {
+            "r": 7,
+            "c": 6,
+            "element": "FIRE",
+            "power": 7
+          }
+        ],
+        "attackAllowed": true,
+        "boardBefore": [
+          [
+            "FIRE",
+            "AIR",
+            "WATER",
+            "EARTH",
+            "EARTH",
+            "SPACE",
+            "FIRE"
+          ],
+          [
+            "FIRE",
+            "WATER",
+            "EARTH",
+            "WATER",
+            "WATER",
+            "AIR",
+            "WATER"
+          ],
+          [
+            "SPACE",
+            "AIR",
+            "WATER",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "SPACE"
+          ],
+          [
+            "AIR",
+            "AIR",
+            "WATER",
+            "FIRE",
+            "SPACE",
+            "SPACE",
+            "FIRE"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "WATER",
+            "FIRE",
+            "EARTH"
+          ],
+          [
+            "SPACE",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "WATER",
+            "SPACE",
+            "AIR"
+          ],
+          [
+            "FIRE",
+            "WATER",
+            "SPACE",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "FIRE",
+            "FIRE",
+            "FIRE",
+            "FIRE",
+            "FIRE",
+            "FIRE"
+          ]
+        ],
+        "magicBefore": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "emptyBefore": [],
+        "matches": [
+          {
+            "element": "FIRE",
+            "count": 7,
+            "cells": [
+              {
+                "r": 7,
+                "c": 0
+              },
+              {
+                "r": 7,
+                "c": 1
+              },
+              {
+                "r": 7,
+                "c": 2
+              },
+              {
+                "r": 7,
+                "c": 3
+              },
+              {
+                "r": 7,
+                "c": 4
+              },
+              {
+                "r": 7,
+                "c": 5
+              },
+              {
+                "r": 7,
+                "c": 6
+              }
+            ],
+            "paths": [
+              [
+                {
+                  "r": 7,
+                  "c": 0
+                },
+                {
+                  "r": 7,
+                  "c": 1
+                },
+                {
+                  "r": 7,
+                  "c": 2
+                },
+                {
+                  "r": 7,
+                  "c": 3
+                },
+                {
+                  "r": 7,
+                  "c": 4
+                },
+                {
+                  "r": 7,
+                  "c": 5
+                },
+                {
+                  "r": 7,
+                  "c": 6
+                }
+              ]
+            ],
+            "retained": [
+              {
+                "r": 7,
+                "c": 6
+              }
+            ],
+            "label": "7 顆",
+            "description": "火 7 顆，保留 1 顆盾牌"
+          }
+        ],
+        "kind": "match"
+      },
+      {
+        "chain": 1,
+        "groups": [],
+        "boardAfter": [
+          [
+            "AIR",
+            "SPACE",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "FIRE",
+            "AIR",
+            "WATER",
+            "EARTH",
+            "EARTH",
+            "SPACE",
+            "WATER"
+          ],
+          [
+            "FIRE",
+            "WATER",
+            "EARTH",
+            "WATER",
+            "WATER",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "SPACE",
+            "AIR",
+            "WATER",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "FIRE"
+          ],
+          [
+            "AIR",
+            "AIR",
+            "WATER",
+            "FIRE",
+            "SPACE",
+            "SPACE",
+            "EARTH"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "WATER",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "SPACE",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "WATER",
+            "SPACE",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ]
+        ],
+        "magicAfter": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "falls": [
+          {
+            "r": 0,
+            "c": 0,
+            "fromRow": -1
+          },
+          {
+            "r": 0,
+            "c": 1,
+            "fromRow": -1
+          },
+          {
+            "r": 0,
+            "c": 2,
+            "fromRow": -1
+          },
+          {
+            "r": 0,
+            "c": 3,
+            "fromRow": -1
+          },
+          {
+            "r": 0,
+            "c": 4,
+            "fromRow": -1
+          },
+          {
+            "r": 0,
+            "c": 5,
+            "fromRow": -1
+          }
+        ],
+        "clearedCells": [],
+        "emptyCells": [],
+        "rewards": [],
+        "attackAllowed": false,
+        "boardBefore": [
+          [
+            "FIRE",
+            "AIR",
+            "WATER",
+            "EARTH",
+            "EARTH",
+            "SPACE",
+            "FIRE"
+          ],
+          [
+            "FIRE",
+            "AIR",
+            "WATER",
+            "EARTH",
+            "EARTH",
+            "SPACE",
+            "WATER"
+          ],
+          [
+            "FIRE",
+            "WATER",
+            "EARTH",
+            "WATER",
+            "WATER",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "SPACE",
+            "AIR",
+            "WATER",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "FIRE"
+          ],
+          [
+            "AIR",
+            "AIR",
+            "WATER",
+            "FIRE",
+            "SPACE",
+            "SPACE",
+            "EARTH"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "WATER",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "SPACE",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "WATER",
+            "SPACE",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ]
+        ],
+        "magicBefore": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "emptyBefore": [
+          {
+            "r": 0,
+            "c": 0
+          },
+          {
+            "r": 0,
+            "c": 1
+          },
+          {
+            "r": 0,
+            "c": 2
+          },
+          {
+            "r": 0,
+            "c": 3
+          },
+          {
+            "r": 0,
+            "c": 4
+          },
+          {
+            "r": 0,
+            "c": 5
+          }
+        ],
+        "matches": [],
+        "kind": "refill"
+      },
+      {
+        "chain": 0,
+        "groups": [],
+        "attackAllowed": false,
+        "boardAfter": [
+          [
+            "AIR",
+            "SPACE",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "AIR",
+            "WATER",
+            "EARTH",
+            "EARTH",
+            "SPACE",
+            "WATER"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "WATER",
+            "WATER",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "AIR",
+            "AIR",
+            "WATER",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "AIR",
+            "WATER",
+            "FIRE",
+            "SPACE",
+            "SPACE",
+            "EARTH"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "WATER",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "WATER",
+            "SPACE",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ]
+        ],
+        "magicAfter": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "clearedCells": [
+          {
+            "r": 0,
+            "c": 0
+          },
+          {
+            "r": 1,
+            "c": 0
+          },
+          {
+            "r": 2,
+            "c": 0
+          },
+          {
+            "r": 3,
+            "c": 0
+          },
+          {
+            "r": 4,
+            "c": 0
+          },
+          {
+            "r": 5,
+            "c": 0
+          },
+          {
+            "r": 6,
+            "c": 0
+          },
+          {
+            "r": 7,
+            "c": 0
+          }
+        ],
+        "falls": [
+          {
+            "r": 0,
+            "c": 0,
+            "fromRow": -1
+          },
+          {
+            "r": 1,
+            "c": 0,
+            "fromRow": -1
+          },
+          {
+            "r": 2,
+            "c": 0,
+            "fromRow": -1
+          },
+          {
+            "r": 3,
+            "c": 0,
+            "fromRow": -1
+          },
+          {
+            "r": 4,
+            "c": 0,
+            "fromRow": -1
+          },
+          {
+            "r": 5,
+            "c": 0,
+            "fromRow": -1
+          },
+          {
+            "r": 6,
+            "c": 0,
+            "fromRow": -1
+          },
+          {
+            "r": 7,
+            "c": 0,
+            "fromRow": -1
+          }
+        ],
+        "emptyCells": [],
+        "rewards": [],
+        "boardBefore": [
+          [
+            "AIR",
+            "SPACE",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "FIRE",
+            "AIR",
+            "WATER",
+            "EARTH",
+            "EARTH",
+            "SPACE",
+            "WATER"
+          ],
+          [
+            "FIRE",
+            "WATER",
+            "EARTH",
+            "WATER",
+            "WATER",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "SPACE",
+            "AIR",
+            "WATER",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "FIRE"
+          ],
+          [
+            "AIR",
+            "AIR",
+            "WATER",
+            "FIRE",
+            "SPACE",
+            "SPACE",
+            "EARTH"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "WATER",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "SPACE",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "WATER",
+            "SPACE",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ]
+        ],
+        "magicBefore": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "emptyBefore": [],
+        "matches": [],
+        "kind": "shuffle"
+      },
+      {
+        "chain": 0,
+        "groups": [],
+        "attackAllowed": false,
+        "boardAfter": [
+          [
+            "AIR",
+            "SPACE",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "WATER",
+            "EARTH",
+            "EARTH",
+            "SPACE",
+            "WATER"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "EARTH",
+            "WATER",
+            "WATER",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "AIR",
+            "FIRE",
+            "WATER",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "WATER",
+            "FIRE",
+            "SPACE",
+            "SPACE",
+            "EARTH"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "WATER",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "AIR",
+            "SPACE",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "FIRE",
+            "SPACE",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ]
+        ],
+        "magicAfter": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "clearedCells": [
+          {
+            "r": 0,
+            "c": 1
+          },
+          {
+            "r": 1,
+            "c": 1
+          },
+          {
+            "r": 2,
+            "c": 1
+          },
+          {
+            "r": 3,
+            "c": 1
+          },
+          {
+            "r": 4,
+            "c": 1
+          },
+          {
+            "r": 5,
+            "c": 1
+          },
+          {
+            "r": 6,
+            "c": 1
+          },
+          {
+            "r": 7,
+            "c": 1
+          }
+        ],
+        "falls": [
+          {
+            "r": 0,
+            "c": 1,
+            "fromRow": -1
+          },
+          {
+            "r": 1,
+            "c": 1,
+            "fromRow": -1
+          },
+          {
+            "r": 2,
+            "c": 1,
+            "fromRow": -1
+          },
+          {
+            "r": 3,
+            "c": 1,
+            "fromRow": -1
+          },
+          {
+            "r": 4,
+            "c": 1,
+            "fromRow": -1
+          },
+          {
+            "r": 5,
+            "c": 1,
+            "fromRow": -1
+          },
+          {
+            "r": 6,
+            "c": 1,
+            "fromRow": -1
+          },
+          {
+            "r": 7,
+            "c": 1,
+            "fromRow": -1
+          }
+        ],
+        "emptyCells": [],
+        "rewards": [],
+        "boardBefore": [
+          [
+            "AIR",
+            "SPACE",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "AIR",
+            "WATER",
+            "EARTH",
+            "EARTH",
+            "SPACE",
+            "WATER"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "WATER",
+            "WATER",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "AIR",
+            "AIR",
+            "WATER",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "AIR",
+            "WATER",
+            "FIRE",
+            "SPACE",
+            "SPACE",
+            "EARTH"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "WATER",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "WATER",
+            "SPACE",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ]
+        ],
+        "magicBefore": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "emptyBefore": [],
+        "matches": [],
+        "kind": "shuffle"
+      },
+      {
+        "chain": 0,
+        "groups": [],
+        "attackAllowed": false,
+        "boardAfter": [
+          [
+            "AIR",
+            "SPACE",
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "EARTH",
+            "EARTH",
+            "EARTH",
+            "SPACE",
+            "WATER"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "WATER",
+            "WATER",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "SPACE",
+            "EARTH"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "WATER",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "AIR",
+            "SPACE",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ]
+        ],
+        "magicAfter": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "clearedCells": [
+          {
+            "r": 0,
+            "c": 2
+          },
+          {
+            "r": 1,
+            "c": 2
+          },
+          {
+            "r": 2,
+            "c": 2
+          },
+          {
+            "r": 3,
+            "c": 2
+          },
+          {
+            "r": 4,
+            "c": 2
+          },
+          {
+            "r": 5,
+            "c": 2
+          },
+          {
+            "r": 6,
+            "c": 2
+          },
+          {
+            "r": 7,
+            "c": 2
+          }
+        ],
+        "falls": [
+          {
+            "r": 0,
+            "c": 2,
+            "fromRow": -1
+          },
+          {
+            "r": 1,
+            "c": 2,
+            "fromRow": -1
+          },
+          {
+            "r": 2,
+            "c": 2,
+            "fromRow": -1
+          },
+          {
+            "r": 3,
+            "c": 2,
+            "fromRow": -1
+          },
+          {
+            "r": 4,
+            "c": 2,
+            "fromRow": -1
+          },
+          {
+            "r": 5,
+            "c": 2,
+            "fromRow": -1
+          },
+          {
+            "r": 6,
+            "c": 2,
+            "fromRow": -1
+          },
+          {
+            "r": 7,
+            "c": 2,
+            "fromRow": -1
+          }
+        ],
+        "emptyCells": [],
+        "rewards": [],
+        "boardBefore": [
+          [
+            "AIR",
+            "SPACE",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "WATER",
+            "EARTH",
+            "EARTH",
+            "SPACE",
+            "WATER"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "EARTH",
+            "WATER",
+            "WATER",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "AIR",
+            "FIRE",
+            "WATER",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "WATER",
+            "FIRE",
+            "SPACE",
+            "SPACE",
+            "EARTH"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "WATER",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "AIR",
+            "SPACE",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "FIRE",
+            "SPACE",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ]
+        ],
+        "magicBefore": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "emptyBefore": [],
+        "matches": [],
+        "kind": "shuffle"
+      },
+      {
+        "chain": 0,
+        "groups": [],
+        "attackAllowed": false,
+        "boardAfter": [
+          [
+            "AIR",
+            "SPACE",
+            "SPACE",
+            "EARTH",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "EARTH",
+            "FIRE",
+            "EARTH",
+            "SPACE",
+            "WATER"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "FIRE",
+            "WATER",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "SPACE",
+            "SPACE",
+            "SPACE",
+            "EARTH"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "WATER",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "AIR",
+            "AIR",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ]
+        ],
+        "magicAfter": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "clearedCells": [
+          {
+            "r": 0,
+            "c": 3
+          },
+          {
+            "r": 1,
+            "c": 3
+          },
+          {
+            "r": 2,
+            "c": 3
+          },
+          {
+            "r": 3,
+            "c": 3
+          },
+          {
+            "r": 4,
+            "c": 3
+          },
+          {
+            "r": 5,
+            "c": 3
+          },
+          {
+            "r": 6,
+            "c": 3
+          },
+          {
+            "r": 7,
+            "c": 3
+          }
+        ],
+        "falls": [
+          {
+            "r": 0,
+            "c": 3,
+            "fromRow": -1
+          },
+          {
+            "r": 1,
+            "c": 3,
+            "fromRow": -1
+          },
+          {
+            "r": 2,
+            "c": 3,
+            "fromRow": -1
+          },
+          {
+            "r": 3,
+            "c": 3,
+            "fromRow": -1
+          },
+          {
+            "r": 4,
+            "c": 3,
+            "fromRow": -1
+          },
+          {
+            "r": 5,
+            "c": 3,
+            "fromRow": -1
+          },
+          {
+            "r": 6,
+            "c": 3,
+            "fromRow": -1
+          },
+          {
+            "r": 7,
+            "c": 3,
+            "fromRow": -1
+          }
+        ],
+        "emptyCells": [],
+        "rewards": [],
+        "boardBefore": [
+          [
+            "AIR",
+            "SPACE",
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "EARTH",
+            "EARTH",
+            "EARTH",
+            "SPACE",
+            "WATER"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "WATER",
+            "WATER",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "SPACE",
+            "EARTH"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "WATER",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "AIR",
+            "SPACE",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ]
+        ],
+        "magicBefore": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "emptyBefore": [],
+        "matches": [],
+        "kind": "shuffle"
+      },
+      {
+        "chain": 0,
+        "groups": [],
+        "attackAllowed": false,
+        "boardAfter": [
+          [
+            "AIR",
+            "SPACE",
+            "SPACE",
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "EARTH",
+            "FIRE",
+            "EARTH",
+            "SPACE",
+            "WATER"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "SPACE",
+            "AIR",
+            "SPACE",
+            "EARTH"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "AIR",
+            "AIR",
+            "FIRE",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ]
+        ],
+        "magicAfter": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "clearedCells": [
+          {
+            "r": 0,
+            "c": 4
+          },
+          {
+            "r": 1,
+            "c": 4
+          },
+          {
+            "r": 2,
+            "c": 4
+          },
+          {
+            "r": 3,
+            "c": 4
+          },
+          {
+            "r": 4,
+            "c": 4
+          },
+          {
+            "r": 5,
+            "c": 4
+          },
+          {
+            "r": 6,
+            "c": 4
+          },
+          {
+            "r": 7,
+            "c": 4
+          }
+        ],
+        "falls": [
+          {
+            "r": 0,
+            "c": 4,
+            "fromRow": -1
+          },
+          {
+            "r": 1,
+            "c": 4,
+            "fromRow": -1
+          },
+          {
+            "r": 2,
+            "c": 4,
+            "fromRow": -1
+          },
+          {
+            "r": 3,
+            "c": 4,
+            "fromRow": -1
+          },
+          {
+            "r": 4,
+            "c": 4,
+            "fromRow": -1
+          },
+          {
+            "r": 5,
+            "c": 4,
+            "fromRow": -1
+          },
+          {
+            "r": 6,
+            "c": 4,
+            "fromRow": -1
+          },
+          {
+            "r": 7,
+            "c": 4,
+            "fromRow": -1
+          }
+        ],
+        "emptyCells": [],
+        "rewards": [],
+        "boardBefore": [
+          [
+            "AIR",
+            "SPACE",
+            "SPACE",
+            "EARTH",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "EARTH",
+            "FIRE",
+            "EARTH",
+            "SPACE",
+            "WATER"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "FIRE",
+            "WATER",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "FIRE",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "SPACE",
+            "SPACE",
+            "SPACE",
+            "EARTH"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "WATER",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "AIR",
+            "AIR",
+            "WATER",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ]
+        ],
+        "magicBefore": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "emptyBefore": [],
+        "matches": [],
+        "kind": "shuffle"
+      },
+      {
+        "chain": 0,
+        "groups": [],
+        "attackAllowed": false,
+        "boardAfter": [
+          [
+            "AIR",
+            "SPACE",
+            "SPACE",
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "EARTH",
+            "FIRE",
+            "EARTH",
+            "SPACE",
+            "WATER"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "WATER",
+            "SPACE"
+          ],
+          [
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "AIR",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "SPACE",
+            "AIR",
+            "AIR",
+            "EARTH"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "AIR",
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "FIRE",
+            "SPACE",
+            "FIRE"
+          ]
+        ],
+        "magicAfter": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "clearedCells": [
+          {
+            "r": 0,
+            "c": 5
+          },
+          {
+            "r": 1,
+            "c": 5
+          },
+          {
+            "r": 2,
+            "c": 5
+          },
+          {
+            "r": 3,
+            "c": 5
+          },
+          {
+            "r": 4,
+            "c": 5
+          },
+          {
+            "r": 5,
+            "c": 5
+          },
+          {
+            "r": 6,
+            "c": 5
+          },
+          {
+            "r": 7,
+            "c": 5
+          }
+        ],
+        "falls": [
+          {
+            "r": 0,
+            "c": 5,
+            "fromRow": -1
+          },
+          {
+            "r": 1,
+            "c": 5,
+            "fromRow": -1
+          },
+          {
+            "r": 2,
+            "c": 5,
+            "fromRow": -1
+          },
+          {
+            "r": 3,
+            "c": 5,
+            "fromRow": -1
+          },
+          {
+            "r": 4,
+            "c": 5,
+            "fromRow": -1
+          },
+          {
+            "r": 5,
+            "c": 5,
+            "fromRow": -1
+          },
+          {
+            "r": 6,
+            "c": 5,
+            "fromRow": -1
+          },
+          {
+            "r": 7,
+            "c": 5,
+            "fromRow": -1
+          }
+        ],
+        "emptyCells": [],
+        "rewards": [],
+        "boardBefore": [
+          [
+            "AIR",
+            "SPACE",
+            "SPACE",
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "EARTH",
+            "FIRE",
+            "EARTH",
+            "SPACE",
+            "WATER"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "SPACE",
+            "AIR",
+            "SPACE",
+            "EARTH"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "AIR",
+            "AIR",
+            "FIRE",
+            "SPACE",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "FIRE",
+            "EARTH",
+            "FIRE"
+          ]
+        ],
+        "magicBefore": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "emptyBefore": [],
+        "matches": [],
+        "kind": "shuffle"
+      },
+      {
+        "chain": 0,
+        "groups": [],
+        "attackAllowed": false,
+        "boardAfter": [
+          [
+            "AIR",
+            "SPACE",
+            "SPACE",
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "AIR"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "EARTH",
+            "FIRE",
+            "EARTH",
+            "SPACE",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "WATER",
+            "EARTH"
+          ],
+          [
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "AIR",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "SPACE",
+            "AIR",
+            "AIR",
+            "SPACE"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "AIR",
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "WATER"
+          ],
+          [
+            "FIRE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "FIRE",
+            "SPACE",
+            "FIRE"
+          ]
+        ],
+        "magicAfter": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "clearedCells": [
+          {
+            "r": 0,
+            "c": 6
+          },
+          {
+            "r": 1,
+            "c": 6
+          },
+          {
+            "r": 2,
+            "c": 6
+          },
+          {
+            "r": 3,
+            "c": 6
+          },
+          {
+            "r": 4,
+            "c": 6
+          },
+          {
+            "r": 5,
+            "c": 6
+          },
+          {
+            "r": 6,
+            "c": 6
+          }
+        ],
+        "falls": [
+          {
+            "r": 0,
+            "c": 6,
+            "fromRow": -1
+          },
+          {
+            "r": 1,
+            "c": 6,
+            "fromRow": -1
+          },
+          {
+            "r": 2,
+            "c": 6,
+            "fromRow": -1
+          },
+          {
+            "r": 3,
+            "c": 6,
+            "fromRow": -1
+          },
+          {
+            "r": 4,
+            "c": 6,
+            "fromRow": -1
+          },
+          {
+            "r": 5,
+            "c": 6,
+            "fromRow": -1
+          },
+          {
+            "r": 6,
+            "c": 6,
+            "fromRow": -1
+          }
+        ],
+        "emptyCells": [],
+        "rewards": [],
+        "boardBefore": [
+          [
+            "AIR",
+            "SPACE",
+            "SPACE",
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "FIRE"
+          ],
+          [
+            "SPACE",
+            "SPACE",
+            "EARTH",
+            "FIRE",
+            "EARTH",
+            "SPACE",
+            "WATER"
+          ],
+          [
+            "EARTH",
+            "FIRE",
+            "SPACE",
+            "FIRE",
+            "EARTH",
+            "WATER",
+            "SPACE"
+          ],
+          [
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "AIR",
+            "FIRE",
+            "AIR",
+            "FIRE"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "EARTH",
+            "SPACE",
+            "AIR",
+            "AIR",
+            "EARTH"
+          ],
+          [
+            "WATER",
+            "FIRE",
+            "AIR",
+            "SPACE",
+            "SPACE",
+            "FIRE",
+            "AIR"
+          ],
+          [
+            "EARTH",
+            "WATER",
+            "AIR",
+            "AIR",
+            "FIRE",
+            "FIRE",
+            "SPACE"
+          ],
+          [
+            "FIRE",
+            "FIRE",
+            "EARTH",
+            "AIR",
+            "FIRE",
+            "SPACE",
+            "FIRE"
+          ]
+        ],
+        "magicBefore": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7
+          ]
+        ],
+        "emptyBefore": [],
+        "matches": [],
+        "kind": "shuffle"
+      }
+    ],
+    "events": [
+      {
+        "type": "clear",
+        "element": "FIRE",
+        "count": 7,
+        "cascadeStep": 1,
+        "eligible": false,
+        "chain": 1,
+        "orbs": 7,
+        "length": 7,
+        "power": 7
+      },
+      {
+        "type": "magicOrbSpawn",
+        "r": 7,
+        "c": 6,
+        "element": "FIRE",
+        "power": 7
+      },
+      {
+        "type": "energy",
+        "element": "FIRE",
+        "gain": 70,
+        "fill": false
+      },
+      {
+        "type": "attack",
+        "chain": 1,
+        "attackerId": null,
+        "element": "FIRE",
+        "amount": 0
+      }
+    ],
+    "res": {
+      "valid": true,
+      "attackAllowed": true,
+      "shieldFusion": false,
+      "board": [
+        [
+          "AIR",
+          "SPACE",
+          "SPACE",
+          "EARTH",
+          "WATER",
+          "EARTH",
+          "AIR"
+        ],
+        [
+          "SPACE",
+          "SPACE",
+          "EARTH",
+          "FIRE",
+          "EARTH",
+          "SPACE",
+          "FIRE"
+        ],
+        [
+          "EARTH",
+          "FIRE",
+          "SPACE",
+          "FIRE",
+          "EARTH",
+          "WATER",
+          "EARTH"
+        ],
+        [
+          "AIR",
+          "FIRE",
+          "FIRE",
+          "AIR",
+          "FIRE",
+          "AIR",
+          "FIRE"
+        ],
+        [
+          "EARTH",
+          "WATER",
+          "EARTH",
+          "SPACE",
+          "AIR",
+          "AIR",
+          "SPACE"
+        ],
+        [
+          "WATER",
+          "FIRE",
+          "AIR",
+          "SPACE",
+          "SPACE",
+          "FIRE",
+          "AIR"
+        ],
+        [
+          "EARTH",
+          "WATER",
+          "AIR",
+          "AIR",
+          "FIRE",
+          "FIRE",
+          "WATER"
+        ],
+        [
+          "FIRE",
+          "FIRE",
+          "EARTH",
+          "AIR",
+          "FIRE",
+          "SPACE",
+          "FIRE"
+        ]
+      ],
+      "magic": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          7
+        ]
+      ],
+      "steps": [
+        {
+          "chain": 1,
+          "groups": [
+            {
+              "element": "FIRE",
+              "cells": [
+                {
+                  "r": 7,
+                  "c": 0
+                },
+                {
+                  "r": 7,
+                  "c": 1
+                },
+                {
+                  "r": 7,
+                  "c": 2
+                },
+                {
+                  "r": 7,
+                  "c": 3
+                },
+                {
+                  "r": 7,
+                  "c": 4
+                },
+                {
+                  "r": 7,
+                  "c": 5
+                },
+                {
+                  "r": 7,
+                  "c": 6
+                }
+              ],
+              "size": 7,
+              "longest": 7,
+              "runs": [
+                7
+              ],
+              "power": 7,
+              "attackAllowed": true
+            }
+          ],
+          "boardAfter": [
+            [
+              "FIRE",
+              "AIR",
+              "WATER",
+              "EARTH",
+              "EARTH",
+              "SPACE",
+              "FIRE"
+            ],
+            [
+              "FIRE",
+              "AIR",
+              "WATER",
+              "EARTH",
+              "EARTH",
+              "SPACE",
+              "WATER"
+            ],
+            [
+              "FIRE",
+              "WATER",
+              "EARTH",
+              "WATER",
+              "WATER",
+              "AIR",
+              "SPACE"
+            ],
+            [
+              "SPACE",
+              "AIR",
+              "WATER",
+              "AIR",
+              "SPACE",
+              "FIRE",
+              "FIRE"
+            ],
+            [
+              "AIR",
+              "AIR",
+              "WATER",
+              "FIRE",
+              "SPACE",
+              "SPACE",
+              "EARTH"
+            ],
+            [
+              "WATER",
+              "FIRE",
+              "AIR",
+              "FIRE",
+              "WATER",
+              "FIRE",
+              "AIR"
+            ],
+            [
+              "SPACE",
+              "FIRE",
+              "AIR",
+              "SPACE",
+              "WATER",
+              "SPACE",
+              "SPACE"
+            ],
+            [
+              "FIRE",
+              "WATER",
+              "SPACE",
+              "AIR",
+              "FIRE",
+              "EARTH",
+              "FIRE"
+            ]
+          ],
+          "magicAfter": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              7
+            ]
+          ],
+          "falls": [
+            {
+              "r": 7,
+              "c": 0,
+              "fromRow": 6
+            },
+            {
+              "r": 6,
+              "c": 0,
+              "fromRow": 5
+            },
+            {
+              "r": 5,
+              "c": 0,
+              "fromRow": 4
+            },
+            {
+              "r": 4,
+              "c": 0,
+              "fromRow": 3
+            },
+            {
+              "r": 3,
+              "c": 0,
+              "fromRow": 2
+            },
+            {
+              "r": 2,
+              "c": 0,
+              "fromRow": 1
+            },
+            {
+              "r": 1,
+              "c": 0,
+              "fromRow": 0
+            },
+            {
+              "r": 7,
+              "c": 1,
+              "fromRow": 6
+            },
+            {
+              "r": 6,
+              "c": 1,
+              "fromRow": 5
+            },
+            {
+              "r": 5,
+              "c": 1,
+              "fromRow": 4
+            },
+            {
+              "r": 4,
+              "c": 1,
+              "fromRow": 3
+            },
+            {
+              "r": 3,
+              "c": 1,
+              "fromRow": 2
+            },
+            {
+              "r": 2,
+              "c": 1,
+              "fromRow": 1
+            },
+            {
+              "r": 1,
+              "c": 1,
+              "fromRow": 0
+            },
+            {
+              "r": 7,
+              "c": 2,
+              "fromRow": 6
+            },
+            {
+              "r": 6,
+              "c": 2,
+              "fromRow": 5
+            },
+            {
+              "r": 5,
+              "c": 2,
+              "fromRow": 4
+            },
+            {
+              "r": 4,
+              "c": 2,
+              "fromRow": 3
+            },
+            {
+              "r": 3,
+              "c": 2,
+              "fromRow": 2
+            },
+            {
+              "r": 2,
+              "c": 2,
+              "fromRow": 1
+            },
+            {
+              "r": 1,
+              "c": 2,
+              "fromRow": 0
+            },
+            {
+              "r": 7,
+              "c": 3,
+              "fromRow": 6
+            },
+            {
+              "r": 6,
+              "c": 3,
+              "fromRow": 5
+            },
+            {
+              "r": 5,
+              "c": 3,
+              "fromRow": 4
+            },
+            {
+              "r": 4,
+              "c": 3,
+              "fromRow": 3
+            },
+            {
+              "r": 3,
+              "c": 3,
+              "fromRow": 2
+            },
+            {
+              "r": 2,
+              "c": 3,
+              "fromRow": 1
+            },
+            {
+              "r": 1,
+              "c": 3,
+              "fromRow": 0
+            },
+            {
+              "r": 7,
+              "c": 4,
+              "fromRow": 6
+            },
+            {
+              "r": 6,
+              "c": 4,
+              "fromRow": 5
+            },
+            {
+              "r": 5,
+              "c": 4,
+              "fromRow": 4
+            },
+            {
+              "r": 4,
+              "c": 4,
+              "fromRow": 3
+            },
+            {
+              "r": 3,
+              "c": 4,
+              "fromRow": 2
+            },
+            {
+              "r": 2,
+              "c": 4,
+              "fromRow": 1
+            },
+            {
+              "r": 1,
+              "c": 4,
+              "fromRow": 0
+            },
+            {
+              "r": 7,
+              "c": 5,
+              "fromRow": 6
+            },
+            {
+              "r": 6,
+              "c": 5,
+              "fromRow": 5
+            },
+            {
+              "r": 5,
+              "c": 5,
+              "fromRow": 4
+            },
+            {
+              "r": 4,
+              "c": 5,
+              "fromRow": 3
+            },
+            {
+              "r": 3,
+              "c": 5,
+              "fromRow": 2
+            },
+            {
+              "r": 2,
+              "c": 5,
+              "fromRow": 1
+            },
+            {
+              "r": 1,
+              "c": 5,
+              "fromRow": 0
+            }
+          ],
+          "clearedCells": [
+            {
+              "r": 7,
+              "c": 0
+            },
+            {
+              "r": 7,
+              "c": 1
+            },
+            {
+              "r": 7,
+              "c": 2
+            },
+            {
+              "r": 7,
+              "c": 3
+            },
+            {
+              "r": 7,
+              "c": 4
+            },
+            {
+              "r": 7,
+              "c": 5
+            }
+          ],
+          "emptyCells": [
+            {
+              "r": 0,
+              "c": 0
+            },
+            {
+              "r": 0,
+              "c": 1
+            },
+            {
+              "r": 0,
+              "c": 2
+            },
+            {
+              "r": 0,
+              "c": 3
+            },
+            {
+              "r": 0,
+              "c": 4
+            },
+            {
+              "r": 0,
+              "c": 5
+            }
+          ],
+          "rewards": [
+            {
+              "r": 7,
+              "c": 6,
+              "element": "FIRE",
+              "power": 7
+            }
+          ],
+          "attackAllowed": true
+        },
+        {
+          "chain": 1,
+          "groups": [],
+          "boardAfter": [
+            [
+              "AIR",
+              "SPACE",
+              "AIR",
+              "SPACE",
+              "FIRE",
+              "EARTH",
+              "FIRE"
+            ],
+            [
+              "FIRE",
+              "AIR",
+              "WATER",
+              "EARTH",
+              "EARTH",
+              "SPACE",
+              "WATER"
+            ],
+            [
+              "FIRE",
+              "WATER",
+              "EARTH",
+              "WATER",
+              "WATER",
+              "AIR",
+              "SPACE"
+            ],
+            [
+              "SPACE",
+              "AIR",
+              "WATER",
+              "AIR",
+              "SPACE",
+              "FIRE",
+              "FIRE"
+            ],
+            [
+              "AIR",
+              "AIR",
+              "WATER",
+              "FIRE",
+              "SPACE",
+              "SPACE",
+              "EARTH"
+            ],
+            [
+              "WATER",
+              "FIRE",
+              "AIR",
+              "FIRE",
+              "WATER",
+              "FIRE",
+              "AIR"
+            ],
+            [
+              "SPACE",
+              "FIRE",
+              "AIR",
+              "SPACE",
+              "WATER",
+              "SPACE",
+              "SPACE"
+            ],
+            [
+              "FIRE",
+              "WATER",
+              "SPACE",
+              "AIR",
+              "FIRE",
+              "EARTH",
+              "FIRE"
+            ]
+          ],
+          "magicAfter": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              7
+            ]
+          ],
+          "falls": [
+            {
+              "r": 0,
+              "c": 0,
+              "fromRow": -1
+            },
+            {
+              "r": 0,
+              "c": 1,
+              "fromRow": -1
+            },
+            {
+              "r": 0,
+              "c": 2,
+              "fromRow": -1
+            },
+            {
+              "r": 0,
+              "c": 3,
+              "fromRow": -1
+            },
+            {
+              "r": 0,
+              "c": 4,
+              "fromRow": -1
+            },
+            {
+              "r": 0,
+              "c": 5,
+              "fromRow": -1
+            }
+          ],
+          "clearedCells": [],
+          "emptyCells": [],
+          "rewards": [],
+          "attackAllowed": false
+        }
+      ],
+      "chainLength": 7,
+      "effectiveLength": 7,
+      "element": "FIRE",
+      "magicSpawn": {
+        "r": 7,
+        "c": 6,
+        "element": "FIRE",
+        "power": 7
+      },
+      "skill5": false,
+      "magicTriggered": [],
+      "reshuffled": true,
+      "cascadeCount": 1
+    },
+    "target": 0,
+    "hits": [
+      {
+        "attackerId": null,
+        "element": "FIRE",
+        "orbs": 7,
+        "length": 7,
+        "chain": 1,
+        "amount": 0,
+        "power": 7
+      }
+    ],
+    "actualHits": [],
+    "damage": 0,
+    "startDamage": 0,
+    "endDamage": 0,
+    "skills": [
+      {
+        "skillId": "skill_208",
+        "trigger": "ON_TURN_START",
+        "eventId": "1001:0:start",
+        "effects": [
+          {
+            "type": "BUFF_ATTACK",
+            "sourceName": "畢月烏・幼子",
+            "targetName": "畢月烏・幼子",
+            "applied": 5,
+            "detail": "攻擊 +5，2 回合"
+          }
+        ],
+        "sourceId": "beast_y19",
+        "targetId": "beast_y19",
+        "sourceSide": "ally",
+        "targetSide": "ally",
+        "hpBefore": 74,
+        "hpAfter": 74,
+        "actualDamage": 0,
+        "shieldAbsorbed": 0
+      },
+      {
+        "skillId": "skill_202",
+        "trigger": "ON_TURN_END",
+        "eventId": "1001:0:end",
+        "effects": [
+          {
+            "type": "HEAL",
+            "sourceName": "斗木獬・幼子",
+            "targetName": "斗木獬・幼子",
+            "applied": 0,
+            "detail": "回復 0（上限 49）"
+          }
+        ],
+        "sourceId": "beast_y08",
+        "targetId": "beast_y08",
+        "sourceSide": "ally",
+        "targetSide": "ally",
+        "hpBefore": 49,
+        "hpAfter": 49,
+        "actualDamage": 0,
+        "shieldAbsorbed": 0
+      }
+    ],
+    "heals": [],
+    "enemyHeals": [],
+    "healingSummary": [],
+    "enemyHealingSummary": [],
+    "shieldGoals": [
+      {
+        "element": "SPACE",
+        "count": 0
+      },
+      {
+        "element": "AIR",
+        "count": 0
+      },
+      {
+        "element": "WATER",
+        "count": 0
+      },
+      {
+        "element": "FIRE",
+        "count": 1
+      },
+      {
+        "element": "EARTH",
+        "count": 0
+      }
+    ],
+    "summon": null,
+    "chainFacts": [
+      {
+        "chain": 1,
+        "heals": [],
+        "damage": 0
+      }
+    ],
+    "shield": null,
+    "guardScale": 1,
+    "beforeCounter": {
+      "team": [
+        {
+          "id": "beast_g_baihu",
+          "name": "白虎",
+          "thumbnail": "/beast-game/thumb/guardian-baihu.v2.webp?v=f5380a7f9ffd",
+          "element": "SPACE",
+          "hp": 145,
+          "maxHp": 145,
+          "attack": 68,
+          "energy": 0,
+          "skillName": "白虎嘯陣",
+          "description": "白虎一嘯，破陣奪勢並震懾對手。整場一次。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_113": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {
+              "ON_TURN_START": "1001:0:start",
+              "ON_TURN_END": "1001:0:end"
+            },
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "attack",
+                "value": 7,
+                "remainingTurns": 98,
+                "source": "白虎"
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "id": "beast_y14",
+          "name": "壁水貐・幼子",
+          "thumbnail": "/beast-game/thumb/young-14.v2.webp?v=6",
+          "element": "WATER",
+          "hp": 54,
+          "maxHp": 54,
+          "attack": 27,
+          "energy": 0,
+          "skillName": "初鳴",
+          "description": "幼子初啼，登場護體。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_201": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {
+              "ON_TURN_START": "1001:0:start",
+              "ON_TURN_END": "1001:0:end"
+            },
+            "shield": 8,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "id": "beast_y19",
+          "name": "畢月烏・幼子",
+          "thumbnail": "/beast-game/thumb/young-19.v2.webp?v=5",
+          "element": "WATER",
+          "hp": 74,
+          "maxHp": 74,
+          "attack": 33,
+          "energy": 0,
+          "skillName": "學步",
+          "description": "一次比一次穩，兩回合內攻擊提升。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_208": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {
+              "ON_TURN_START": "1001:0:start",
+              "ON_TURN_END": "1001:0:end"
+            },
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "attack",
+                "value": 5,
+                "remainingTurns": 1,
+                "source": "畢月烏・幼子"
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "id": "beast_y03",
+          "name": "氐土貉・幼子",
+          "thumbnail": "/beast-game/thumb/young-03.v2.webp?v=6",
+          "element": "EARTH",
+          "hp": 72,
+          "maxHp": 72,
+          "attack": 29,
+          "energy": 0,
+          "skillName": "藏匿",
+          "description": "受驚就躲，一回合內防禦提升。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {},
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {
+              "ON_TURN_START": "1001:0:start",
+              "ON_TURN_END": "1001:0:end"
+            },
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "id": "beast_y08",
+          "name": "斗木獬・幼子",
+          "thumbnail": "/beast-game/thumb/young-08.v2.webp?v=6",
+          "element": "AIR",
+          "hp": 49,
+          "maxHp": 49,
+          "attack": 30,
+          "energy": 0,
+          "skillName": "嗷嗷待哺",
+          "description": "幼子自癒，回合結束回復少量生命。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_206": 1,
+              "skill_202": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {
+              "ON_TURN_START": "1001:0:start",
+              "ON_TURN_END": "1001:0:end"
+            },
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "speed",
+                "value": 6,
+                "remainingTurns": 98,
+                "source": "斗木獬・幼子"
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        }
+      ],
+      "foes": [
+        {
+          "id": "beast_a15",
+          "name": "奎木狼",
+          "thumbnail": "/beast-game/thumb/adult-15.v2.webp?v=11",
+          "element": "AIR",
+          "hp": 294,
+          "maxHp": 294,
+          "attack": 8,
+          "cd": 1,
+          "skillRuntime": {
+            "uses": {},
+            "initialized": {},
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          },
+          "attackEnergy": 25,
+          "lastChargeTurn": "1001:0"
+        },
+        {
+          "id": "beast_a09",
+          "name": "牛金牛",
+          "thumbnail": "/beast-game/thumb/adult-09.v2.webp?v=11",
+          "element": "SPACE",
+          "hp": 340,
+          "maxHp": 340,
+          "attack": 8,
+          "cd": 1,
+          "attackEnergy": 25,
+          "lastChargeTurn": "1001:0"
+        },
+        {
+          "id": "beast_a05",
+          "name": "心月狐",
+          "thumbnail": "/beast-game/thumb/adult-05.v2.webp?v=11",
+          "element": "WATER",
+          "hp": 472,
+          "maxHp": 472,
+          "attack": 10,
+          "cd": 1,
+          "attackEnergy": 25,
+          "lastChargeTurn": "1001:0"
+        },
+        {
+          "id": "beast_a04",
+          "name": "房日兔",
+          "thumbnail": "/beast-game/thumb/adult-04.v2.webp?v=11",
+          "element": "FIRE",
+          "hp": 343,
+          "maxHp": 343,
+          "attack": 11,
+          "cd": 1,
+          "attackEnergy": 25,
+          "lastChargeTurn": "1001:0"
+        },
+        {
+          "id": "beast_a17",
+          "name": "胃土雉",
+          "thumbnail": "/beast-game/thumb/adult-17.v2.webp?v=11",
+          "element": "EARTH",
+          "hp": 488,
+          "maxHp": 488,
+          "attack": 10,
+          "cd": 1,
+          "attackEnergy": 25,
+          "lastChargeTurn": "1001:0"
+        }
+      ]
+    },
+    "counter": {
+      "team": [
+        {
+          "id": "beast_g_baihu",
+          "name": "白虎",
+          "thumbnail": "/beast-game/thumb/guardian-baihu.v2.webp?v=f5380a7f9ffd",
+          "element": "SPACE",
+          "hp": 145,
+          "maxHp": 145,
+          "attack": 68,
+          "energy": 0,
+          "skillName": "白虎嘯陣",
+          "description": "白虎一嘯，破陣奪勢並震懾對手。整場一次。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_113": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {
+              "ON_TURN_START": "1001:0:start",
+              "ON_TURN_END": "1001:0:end"
+            },
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "attack",
+                "value": 7,
+                "remainingTurns": 98,
+                "source": "白虎"
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "id": "beast_y14",
+          "name": "壁水貐・幼子",
+          "thumbnail": "/beast-game/thumb/young-14.v2.webp?v=6",
+          "element": "WATER",
+          "hp": 54,
+          "maxHp": 54,
+          "attack": 27,
+          "energy": 0,
+          "skillName": "初鳴",
+          "description": "幼子初啼，登場護體。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_201": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {
+              "ON_TURN_START": "1001:0:start",
+              "ON_TURN_END": "1001:0:end"
+            },
+            "shield": 8,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "id": "beast_y19",
+          "name": "畢月烏・幼子",
+          "thumbnail": "/beast-game/thumb/young-19.v2.webp?v=5",
+          "element": "WATER",
+          "hp": 74,
+          "maxHp": 74,
+          "attack": 33,
+          "energy": 0,
+          "skillName": "學步",
+          "description": "一次比一次穩，兩回合內攻擊提升。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_208": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {
+              "ON_TURN_START": "1001:0:start",
+              "ON_TURN_END": "1001:0:end"
+            },
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "attack",
+                "value": 5,
+                "remainingTurns": 1,
+                "source": "畢月烏・幼子"
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "id": "beast_y03",
+          "name": "氐土貉・幼子",
+          "thumbnail": "/beast-game/thumb/young-03.v2.webp?v=6",
+          "element": "EARTH",
+          "hp": 72,
+          "maxHp": 72,
+          "attack": 29,
+          "energy": 0,
+          "skillName": "藏匿",
+          "description": "受驚就躲，一回合內防禦提升。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {},
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {
+              "ON_TURN_START": "1001:0:start",
+              "ON_TURN_END": "1001:0:end"
+            },
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        },
+        {
+          "id": "beast_y08",
+          "name": "斗木獬・幼子",
+          "thumbnail": "/beast-game/thumb/young-08.v2.webp?v=6",
+          "element": "AIR",
+          "hp": 49,
+          "maxHp": 49,
+          "attack": 30,
+          "energy": 0,
+          "skillName": "嗷嗷待哺",
+          "description": "幼子自癒，回合結束回復少量生命。",
+          "skillRuntime": {
+            "playerSkillsEnabled": true,
+            "uses": {
+              "skill_206": 1,
+              "skill_202": 1
+            },
+            "initialized": {
+              "ON_SUMMON": true,
+              "PASSIVE": true
+            },
+            "lastEvents": {
+              "ON_TURN_START": "1001:0:start",
+              "ON_TURN_END": "1001:0:end"
+            },
+            "shield": 0,
+            "modifiers": [
+              {
+                "stat": "speed",
+                "value": 6,
+                "remainingTurns": 98,
+                "source": "斗木獬・幼子"
+              }
+            ],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          }
+        }
+      ],
+      "foes": [
+        {
+          "id": "beast_a15",
+          "name": "奎木狼",
+          "thumbnail": "/beast-game/thumb/adult-15.v2.webp?v=11",
+          "element": "AIR",
+          "hp": 294,
+          "maxHp": 294,
+          "attack": 8,
+          "cd": 1,
+          "skillRuntime": {
+            "uses": {},
+            "initialized": {},
+            "lastEvents": {},
+            "shield": 0,
+            "modifiers": [],
+            "stunnedTurns": 0,
+            "elementBoosts": []
+          },
+          "attackEnergy": 25,
+          "lastChargeTurn": "1001:0",
+          "lastCounterPhase": "1001:0"
+        },
+        {
+          "id": "beast_a09",
+          "name": "牛金牛",
+          "thumbnail": "/beast-game/thumb/adult-09.v2.webp?v=11",
+          "element": "SPACE",
+          "hp": 340,
+          "maxHp": 340,
+          "attack": 8,
+          "cd": 1,
+          "attackEnergy": 25,
+          "lastChargeTurn": "1001:0",
+          "lastCounterPhase": "1001:0"
+        },
+        {
+          "id": "beast_a05",
+          "name": "心月狐",
+          "thumbnail": "/beast-game/thumb/adult-05.v2.webp?v=11",
+          "element": "WATER",
+          "hp": 472,
+          "maxHp": 472,
+          "attack": 10,
+          "cd": 1,
+          "attackEnergy": 25,
+          "lastChargeTurn": "1001:0",
+          "lastCounterPhase": "1001:0"
+        },
+        {
+          "id": "beast_a04",
+          "name": "房日兔",
+          "thumbnail": "/beast-game/thumb/adult-04.v2.webp?v=11",
+          "element": "FIRE",
+          "hp": 343,
+          "maxHp": 343,
+          "attack": 11,
+          "cd": 1,
+          "attackEnergy": 25,
+          "lastChargeTurn": "1001:0",
+          "lastCounterPhase": "1001:0"
+        },
+        {
+          "id": "beast_a17",
+          "name": "胃土雉",
+          "thumbnail": "/beast-game/thumb/adult-17.v2.webp?v=11",
+          "element": "EARTH",
+          "hp": 488,
+          "maxHp": 488,
+          "attack": 10,
+          "cd": 1,
+          "attackEnergy": 25,
+          "lastChargeTurn": "1001:0",
+          "lastCounterPhase": "1001:0"
+        }
+      ],
+      "hits": [],
+      "skillEvents": []
+    },
+    "nextBoost": 1,
+    "guestBattleToken": "zVhtT9tWFP4v57PT2omTOJamiXXZmg-lFdBOE4rQjX2TWHXsyC90DEViRQgYtNCVjjLo6FrRja6ojDGVtaz9Ma2d5FP_wnT9klwTPGgREwLJ99x77ss5z3PPObnjcF3RZBChhCxLxcCAQqRcls9KGSGdSAuCkODZUjKRQ3wqgUslucQlWQ5ly8DAKDZMRddA5BgwMZZB5FiWY0DR6rYF4jhYGNVAHB73Vy1hZFojlZESUqo2MKChGgYRmiv_tFZuAwNW1a6VNKSoIMJ5TzlRQTV83us_X7GRIStIS3jTz40mz93Apfqno5-U0ymBRdlyrlyWgQGs4hrWLBBh8ErfhTwwUK2DyPFpBmrom4thG1kWkq6DmBEYwBo2KmMgsgyY1xVV7acP5tx_3l55DAzI2JQMpW55FgeD7_YmnPvP3-_PNx_utlceOxtPnblH7_aetNem3enXzvYtd3bu7cRN996u83D33d6E--yXtxM3IdhnwNYshWw1DnUVjWFjkPSaeQ2VVOJNy7AxA7aJTaLiTRnhuBSIXIM4WbEUpCrfEs1xuNw_Mnj10qXL_eG0K32Dg4VreV9sMKAi08qPYs0yA_WhqwP9I4NDfQNDIAIBTmRF00KGBUxnON__eXcQazI0GDCrClZlz1s1XVbKCjZMD2TTQsTtgWcZGEWqjUHMMmDgGlI0RasM2YZmgpgTGDB125Ao_BtFBkzL1jQsB1psB8zPdN0k5x4uNhpMhE1jHN9lkvP4O3d7t7Wz-HbylfP3vrO1eCSrxnRbqyQ4nuJTJkKir_qG8gMBidJ8h0OkGVIomY2lkDPzoP3nbg95_MM5Mw-ce_uEPCuvnIe7ra0X7d-XTkiPJMudEXoIUXp8JLo5Kk7ce-SuzTQnFz4Y3RyFbjoW3WwX3SyFbioVj-7Wnru10YOuf8_d50t-o7m5-X5_3pnadFZ_dhZnnKlf3aVX7t3v3YVF59b0ifEWzgjexw0H6d5wwNHRoBflj4wMbKrLHXd70Vlbb-3Mfih32FRsZMj3DQxdDLmT7HInSUWGXCx3WssLzvyb3siwsNze_MnZ_qP1cuf9_jzJLyFr2vd3mk-enIw1Z5AoHwmuQIH747K79lvz1rMPBleIBbevEIYFPteBljQ7YYGNDwvLL8j_6ynn7suY0N-aftpc-YGEBQ_d5l-L7oN10n696WzfaU8vNJfWnTv_nDg4ZPzLFUjJMx4qzDopIjuRInNE4XAI7scNFUUGyjo2D9amiEtT1cTGbbL83P6RbEKyrVoJLk2xieNi6JTMddOM1w4JJTAgyV24KLzj7u5BaE56x8Kz5ANaJ9P-BheqyKhgMrODKAQjuq1Z2LhSRSbujh24q4ilk_jsanv6TnN29ZhOZXPxTqXr-xTPdtzqtXvdekrG0Yx5M0ly19zR8Scw7j8YQ1cmPJVeeDq_cOxpW0dV1-7MG3d5w5laOq51fLx1XxQGusilKORSlHHcKRvHZbvGtSYnnbX19urscS97Nt44ujDgBaELHWmfHnRFBko6MmQQh4eDgBPekPAbniwkVygT7SIzHKsfwBWK4bDXTeYd0IuMx-1K5vmnDNSCT6SPEuh9Dp4_3NBXp20ns0LtyJoHTaUGD9uJXjl6Xl-DzIn207493DPFIqFGRZEIYixD_RWZ_1XOeifRZcKmKjJknsS0GwpJFJnoy05NH8UeZ6WqbmLNTzqGrZKZFqonVIxIAvcZ7aUWT9syMDJtA39pe_ykerySgn5Hkgi5vV7fVyRVEReSr-9q0vL8Rxq-l0WWHANLWKl3clkdWVUvvxveE4TkKVESF5GSESkVkfiIlI5IGXLtLHJTLb8OrCIDy9dCg0gikkjlVyBxp8yyqZyE0wmZz8gJHgnpBGKRlCiVc3wmLXNlLJVEyzY0L1hB3dDLiooPeqgDTBUbeuGwhzUycKGqKxK-ahLsykg1MeO9xhVk4p-eGfRjCv3Tm_4p1a28i8TZN5AhB7UF7XmCoGbaNSx_TWrsQqiDtSrSJC9EBrUK1TMQWeC0udFo_As.KTw9QzeTyTTHG9-Z6pmQDeXBqTC9X0J7ABG2sdm15ek",
+    "guestVersion": 1,
+    "guestProfile": {
+      "version": 1,
+      "wins": 6,
+      "heroId": "beast_g_baihu",
+      "heroChoiceUsed": false,
+      "teamIds": [
+        "beast_g_baihu",
+        "beast_y14",
+        "beast_y19",
+        "beast_y03",
+        "beast_y08"
+      ],
+      "rewards": [],
+      "receipts": [],
+      "consumedYoungIds": [],
+      "enhancements": {},
+      "enhancementReceipts": [],
+      "treasures": {
+        "version": 1,
+        "counts": {
+          "SPACE": 0,
+          "AIR": 0,
+          "WATER": 0,
+          "FIRE": 0,
+          "EARTH": 0
+        },
+        "receipts": []
+      },
+      "guestProof": "ZY_NasMwEITfZc46OKSUVjcTXKpbcVJKKCUo8iYWiaWgtRqK0buXWP2J29N-s7sz7A44WNdA4hT8zh4J4ofkgHcKbL2DnAmcrWPIW4GWglcXy5Y095v9ZqttG5EHi9ZbQ89MDeROH5kEetKdahjy9Z8j64_ZzRXf_3Ixv-I7vAkEOuswZo3CkD31X8p4x7GjZu2j26vvHXKtdoY6cpe9IU069SSgD6Q5BuK_nxsfsxvLp3JRQRYCparH-lKuqkwPqs6jqqxXj5BFml6YUvoE.wkHJy4tGmwn2HZ81rFmjC8d8R1JTre72GpUoQVxa230"
+    }
+  },
+  "input": {
+    "guestBattleToken": "3VdbTxtHFP4v53mc7NprvF6pqmhEGx5yESStKmShsXdsr1jvWnshpcgSDUJAIYE0pIRCSpoIWtKgUEoVmpDkxySztp_4C9XsxR5jtpCkyUNlyz4ze87MOec7tx2HEc1QQYE8dhydAAKNrbIZKVPokdOJtCzLCUnIJxNZLKUSJJ9X82JSEHGmCAhGiWVrpgGKgMAmRAUlLaezKQSaUXUdUMbBIbgCytB4cGyeYNsZLg3nsVZ2AYGBKwQUqK-8aKzcBARO2a3kDazpoMBZnzlRwhVy1t8_W3KxpWrYSPjiZ0aTZ66RfPXT0U-K6ZQs4EwxWyyqgIDopEIMBxQYvNx7rg8QlKugiFIaQQV_cz6isePgwggoPTICYhCrNBbYMaLp-kVeMXr3SXPlISBQiV2wtKrjmxw-fLM_Qe8-OTyYr9_fa648pBuP6NyDN_ubzbVpb_ol3bnhzc69nrju3dmj9_fe7E94j395PXEdwnsGXMPR2FXjUNXxGLEG2a7dZ-C8ztzpWC5B4NrEZiy-yLAopkARa8zJmqNhXfuWcY7DpYvDg1cvXLh0MRK73Ds42P9lX7CsIdCx7fSNEsNhh9UQ2GWN6KpvdMVUtaJGLNvHynYw817oIASjWHcJKBkEFqlgzdCM0hXXMmxQslkEtulaBQ7GWg6B7biGQdSQS2hh8plp2uz6oVythjqCYkyU2gFBH37n7ew1dhdfTz6nfx_Q7cUTg2PMdI1SQpS4sOjpiIWveq_0DYSxkJZaocDIKBKSmdhIoDP3mn_udcVAoByduUfvHLAYWHlO7-81tp82f196T5STgvjfoix3ovyOIGW5rL3zwFubqU8uvDVIWQ6kdCxImTZIGQ6kVCoepO19b3ujC6Qg67wnSwFR39o6PJinU1t09We6OEOnfvWWnnu3v_cWFumN6XeF7cPl47shJaTaSHk7i3RtvbE7-7ZICanYdOrrHbhyPkIq2UYqyaVTNhapxvICnX_VnU4Ly82tn-jOH41nu4cH86y2Rhg17-7WNzf_ZxjJHEY_Lntrv9VvPH5rjORYjHr7o1ySsi2EGNnKJSE-l5afsu_LKXr7WUzZa0w_qq_8wHLJB6n-16J3b53RL7fozq3m9EJ9aZ3eevHehbDn47Q7u8ommFa36zmh2x0D2Gk7Xw5B0ST20bkIi2muBW7cZMfPHZwYBlh1dSchprkwEMWYOEhm20XVp6NIkBEUVN_PnSoJfMGfXW1O36rPrp5SJSEbrxI_maUkoaWUT5-oFO-nV5OsC82dnC6hUv_iJ777SFxRk_iqJgpxWnEDjDfzylveoFNLp9VKitfq8_6BtqdSnKdSnFJijFJipq1UY3KSrq03V2dPG1KZeKX48i_JcttVjO52VQ5B3sSWCsrQUAv70LBoGR0ZRGvwG-zl0FALG34_Wh17IBOK2CLhkCGQChf8wUym-_o2T7QORU_SLmQ7YmfnRZFk9M9zddrJG3Scr7qNYxIdu0cv6TwmeJrLMTBLWoFhJSDuk0MfeZ3zKzUL3TK2VIll_TWNldWeI6-bFXOU-MW2UDZtYgT13nJ1JurgakInmFX2IC79SgyKiMCxCLZdi3zh-qHJ7fj9p_V2y5LLdINGEvqOXca8xv4DvzHKdzYjAscqAlODFIhWDUs_gip2ysHA4GCrRJyAqWqZRU0nR29tWVsmltl_3Bs0e3CubGoFctVmDili3SbIf-3uV9mdXRL86xY_1fNzY3s-yTEDrmFLDacc3hrmFcN2K0T9mk0i_REPMcrYKPiVImy93M5AxwEf2t-12j8.DJyApaEYXAFYmrPwoYUq1AqgbAamJ067UbOzEyvCoK0",
+    "sharedVersion": 0,
+    "board": [
+      [
+        "FIRE",
+        "AIR",
+        "WATER",
+        "EARTH",
+        "EARTH",
+        "SPACE",
+        "FIRE"
+      ],
+      [
+        "FIRE",
+        "WATER",
+        "EARTH",
+        "WATER",
+        "WATER",
+        "AIR",
+        "WATER"
+      ],
+      [
+        "SPACE",
+        "AIR",
+        "WATER",
+        "AIR",
+        "SPACE",
+        "FIRE",
+        "SPACE"
+      ],
+      [
+        "AIR",
+        "AIR",
+        "WATER",
+        "FIRE",
+        "SPACE",
+        "SPACE",
+        "FIRE"
+      ],
+      [
+        "WATER",
+        "FIRE",
+        "AIR",
+        "FIRE",
+        "WATER",
+        "FIRE",
+        "EARTH"
+      ],
+      [
+        "SPACE",
+        "FIRE",
+        "AIR",
+        "SPACE",
+        "WATER",
+        "SPACE",
+        "AIR"
+      ],
+      [
+        "FIRE",
+        "WATER",
+        "SPACE",
+        "AIR",
+        "FIRE",
+        "EARTH",
+        "SPACE"
+      ],
+      [
+        "FIRE",
+        "FIRE",
+        "FIRE",
+        "FIRE",
+        "FIRE",
+        "FIRE",
+        "FIRE"
+      ]
+    ],
+    "magic": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "path": [
+      {
+        "r": 7,
+        "c": 0
+      },
+      {
+        "r": 7,
+        "c": 1
+      },
+      {
+        "r": 7,
+        "c": 2
+      },
+      {
+        "r": 7,
+        "c": 3
+      },
+      {
+        "r": 7,
+        "c": 4
+      },
+      {
+        "r": 7,
+        "c": 5
+      },
+      {
+        "r": 7,
+        "c": 6
+      }
+    ],
+    "team": [
+      {
+        "id": "beast_g_baihu",
+        "name": "白虎",
+        "thumbnail": "/beast-game/thumb/guardian-baihu.v2.webp?v=f5380a7f9ffd",
+        "element": "SPACE",
+        "hp": 145,
+        "maxHp": 145,
+        "attack": 68,
+        "energy": 0,
+        "skillName": "白虎嘯陣",
+        "description": "白虎一嘯，破陣奪勢並震懾對手。整場一次。",
+        "skillRuntime": {
+          "playerSkillsEnabled": true,
+          "uses": {
+            "skill_113": 1
+          },
+          "initialized": {
+            "ON_SUMMON": true,
+            "PASSIVE": true
+          },
+          "lastEvents": {},
+          "shield": 0,
+          "modifiers": [
+            {
+              "stat": "attack",
+              "value": 7,
+              "remainingTurns": 99,
+              "source": "白虎"
+            }
+          ],
+          "stunnedTurns": 0,
+          "elementBoosts": []
+        }
+      },
+      {
+        "id": "beast_y14",
+        "name": "壁水貐・幼子",
+        "thumbnail": "/beast-game/thumb/young-14.v2.webp?v=6",
+        "element": "WATER",
+        "hp": 54,
+        "maxHp": 54,
+        "attack": 27,
+        "energy": 0,
+        "skillName": "初鳴",
+        "description": "幼子初啼，登場護體。",
+        "skillRuntime": {
+          "playerSkillsEnabled": true,
+          "uses": {
+            "skill_201": 1
+          },
+          "initialized": {
+            "ON_SUMMON": true,
+            "PASSIVE": true
+          },
+          "lastEvents": {},
+          "shield": 8,
+          "modifiers": [],
+          "stunnedTurns": 0,
+          "elementBoosts": []
+        }
+      },
+      {
+        "id": "beast_y19",
+        "name": "畢月烏・幼子",
+        "thumbnail": "/beast-game/thumb/young-19.v2.webp?v=5",
+        "element": "WATER",
+        "hp": 74,
+        "maxHp": 74,
+        "attack": 33,
+        "energy": 0,
+        "skillName": "學步",
+        "description": "一次比一次穩，兩回合內攻擊提升。",
+        "skillRuntime": {
+          "playerSkillsEnabled": true,
+          "uses": {},
+          "initialized": {
+            "ON_SUMMON": true,
+            "PASSIVE": true
+          },
+          "lastEvents": {},
+          "shield": 0,
+          "modifiers": [],
+          "stunnedTurns": 0,
+          "elementBoosts": []
+        }
+      },
+      {
+        "id": "beast_y03",
+        "name": "氐土貉・幼子",
+        "thumbnail": "/beast-game/thumb/young-03.v2.webp?v=6",
+        "element": "EARTH",
+        "hp": 72,
+        "maxHp": 72,
+        "attack": 29,
+        "energy": 0,
+        "skillName": "藏匿",
+        "description": "受驚就躲，一回合內防禦提升。",
+        "skillRuntime": {
+          "playerSkillsEnabled": true,
+          "uses": {},
+          "initialized": {
+            "ON_SUMMON": true,
+            "PASSIVE": true
+          },
+          "lastEvents": {},
+          "shield": 0,
+          "modifiers": [],
+          "stunnedTurns": 0,
+          "elementBoosts": []
+        }
+      },
+      {
+        "id": "beast_y08",
+        "name": "斗木獬・幼子",
+        "thumbnail": "/beast-game/thumb/young-08.v2.webp?v=6",
+        "element": "AIR",
+        "hp": 49,
+        "maxHp": 49,
+        "attack": 30,
+        "energy": 0,
+        "skillName": "嗷嗷待哺",
+        "description": "幼子自癒，回合結束回復少量生命。",
+        "skillRuntime": {
+          "playerSkillsEnabled": true,
+          "uses": {
+            "skill_206": 1
+          },
+          "initialized": {
+            "ON_SUMMON": true,
+            "PASSIVE": true
+          },
+          "lastEvents": {},
+          "shield": 0,
+          "modifiers": [
+            {
+              "stat": "speed",
+              "value": 6,
+              "remainingTurns": 99,
+              "source": "斗木獬・幼子"
+            }
+          ],
+          "stunnedTurns": 0,
+          "elementBoosts": []
+        }
+      }
+    ],
+    "foes": [
+      {
+        "id": "beast_a15",
+        "name": "奎木狼",
+        "thumbnail": "/beast-game/thumb/adult-15.v2.webp?v=11",
+        "element": "AIR",
+        "hp": 294,
+        "maxHp": 294,
+        "attack": 8,
+        "cd": 1
+      },
+      {
+        "id": "beast_a09",
+        "name": "牛金牛",
+        "thumbnail": "/beast-game/thumb/adult-09.v2.webp?v=11",
+        "element": "SPACE",
+        "hp": 340,
+        "maxHp": 340,
+        "attack": 8,
+        "cd": 1
+      },
+      {
+        "id": "beast_a05",
+        "name": "心月狐",
+        "thumbnail": "/beast-game/thumb/adult-05.v2.webp?v=11",
+        "element": "WATER",
+        "hp": 472,
+        "maxHp": 472,
+        "attack": 10,
+        "cd": 1
+      },
+      {
+        "id": "beast_a04",
+        "name": "房日兔",
+        "thumbnail": "/beast-game/thumb/adult-04.v2.webp?v=11",
+        "element": "FIRE",
+        "hp": 343,
+        "maxHp": 343,
+        "attack": 11,
+        "cd": 1
+      },
+      {
+        "id": "beast_a17",
+        "name": "胃土雉",
+        "thumbnail": "/beast-game/thumb/adult-17.v2.webp?v=11",
+        "element": "EARTH",
+        "hp": 488,
+        "maxHp": 488,
+        "attack": 10,
+        "cd": 1
+      }
+    ],
+    "mode": "hard45",
+    "wins": 6,
+    "target": 0,
+    "seed": 1001,
+    "move": 0,
+    "chosen": {},
+    "rule": "tap-lead",
+    "attackBoost": 1,
+    "treasureGuard": 1,
+    "treasures": {
+      "version": 1,
+      "counts": {
+        "SPACE": 0,
+        "AIR": 0,
+        "WATER": 0,
+        "FIRE": 0,
+        "EARTH": 0
+      },
+      "receipts": []
+    },
+    "actionId": "f0039ce5-d46d-4a85-a0ac-bf9465d1fecb:turn:0"
+  },
+  "events": [
+    {
+      "element": "FIRE",
+      "count": 7,
+      "cascadeStep": 1,
+      "eligible": false,
+      "power": 7,
+      "target": "beast_a15"
+    },
+    {
+      "type": "magicOrbSpawn",
+      "r": 7,
+      "c": 6,
+      "element": "FIRE",
+      "power": 7
+    },
+    {
+      "type": "energy",
+      "element": "FIRE",
+      "gain": 70,
+      "fill": false
+    }
+  ]
+}
