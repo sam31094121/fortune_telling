@@ -1,0 +1,38 @@
+{
+  "startedAt": "2026-11-17T10:03:36.085Z",
+  "completedAt": "2026-11-17T10:08:25.129Z",
+  "summary": {
+    "total": 65,
+    "passed": 60,
+    "failed": 5,
+    "warnings": 0,
+    "screenStatus": "UNHEALTHY"
+  },
+  "failed": [
+    {
+      "id": "CARD_BEAST_GAME",
+      "title": "神獸決鬥組陣台",
+      "error": "This operation was aborted"
+    },
+    {
+      "id": "CARD_STAR_BEASTS",
+      "title": "神獸圖鑑與本人神獸入口",
+      "error": "This operation was aborted"
+    },
+    {
+      "id": "BAZI_SOURCE_REGISTRY_COMPLETE",
+      "title": "八字來源登記完整性（未驗證或缺古籍來源即失敗）",
+      "error": "Command failed: cmd.exe /d /s /c npm.cmd run check:bazi-registry-completeness\n"
+    },
+    {
+      "id": "STAR_BEAST_SELF_ENTRY_API",
+      "title": "本人神獸入口：無假時辰、生日核對與對戰陣容限制",
+      "error": "Command failed: cmd.exe /d /s /c npm.cmd run test:star-beast-entry-api\nDOMException [TimeoutError]: The operation was aborted due to timeout\n    at no"
+    },
+    {
+      "id": "DUAL_CHART_SHENSHA_DISPLAY",
+      "title": "易經神煞：四柱神煞後端運算到前端顯示",
+      "error": "Command failed: C:\\Program Files\\nodejs\\node.exe scripts/dual-chart-iching-shensha-display-check.cjs\n"
+    }
+  ]
+}

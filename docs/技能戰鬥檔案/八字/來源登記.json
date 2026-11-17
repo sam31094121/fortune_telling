@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-10-15",
+  "updatedAt": "2026-11-17",
   "rule": "八字沿用《易經》來源治理（docs/技能戰鬥檔案/易經/來源治理.md）：交叉比對的來源、權威性的檔案、大數據的來源；狀態由 lib/iching-source-gate.ts 計算，不得手填 VERIFIED。",
   "sources": [
     {
@@ -817,6 +817,24 @@
       "edition": "The Seasons of a Man's Life（1978，Knopf）；版次與頁碼待查核，本站未逐頁核對原文（本次只讀到二手整理）",
       "trust": "B",
       "note": "研究對象為 35–45 歲的 40 位男性訪談，分期歲數被視為其理論中最具爭議的部分；話術只取「約 40 歲前後的轉換期」。"
+    },
+    {
+      "source_id": "S-ZWDS-QUANSHU-RULES",
+      "author": "題宋・陳摶（希夷）撰；明・潘希尹補輯（維基文庫數位錄文）",
+      "locator": "data/ziwei/quanshu-rules.md（《紫微斗數全書》卷二安星口訣逐字存檔）",
+      "data_type": "紫微斗數古籍安星口訣",
+      "kind": "原典",
+      "can_cite": "待查核",
+      "can_reproduce": "待查核",
+      "bulk_extraction": "待查核",
+      "automated_crawl": "待查核",
+      "training_use": "待查核",
+      "license_terms": "古籍原文屬公有領域；維基文庫錄文版面 CC BY-SA 4.0，條款未經人工確認，待查核",
+      "accessed_at": "2026-10-12",
+      "edition": "維基文庫錄文（2026-10-12）",
+      "trust": "A",
+      "tracked_path": "data/ziwei/quanshu-rules.md",
+      "note": "逐字存檔供獨立核對；錄文簡體，第二行「甲戊」為「甲戌」之誤。｜2026-11-17 自紫微斗數來源登記複製，供紅鸞天喜年支定位交叉比對；本表授權欄位與原登記相同，維持待查核，須人工確認維基文庫條款後才可改 PASS。"
     }
   ],
   "claims": [
@@ -988,7 +1006,29 @@
       ],
       "conflicts": [],
       "status": "PENDING_POOL",
-      "note": "2026-10-28已核對星學大成四庫卷一紅鸞天喜年支定位及NDL/CiNii版本書目；書目權限待核，不將書目作配對效度證據。外型職業仍為本站詮釋，沒有古籍條文。不得因此放行整個月份與人物主張。"
+      "note": "2026-10-28已核對星學大成四庫卷一紅鸞天喜年支定位及NDL/CiNii版本書目；書目權限待核，不將書目作配對效度證據。外型職業仍為本站詮釋，沒有古籍條文。不得因此放行整個月份與人物主張。｜2026-11-17 紅鸞、天喜的年支定位已拆出為 C-RED-LUAN-YEAR-BRANCH；本筆其餘部分（月份排序、外型職業對應、桃花、天乙貴人）為本站詮釋，沒有古籍條文，維持待驗證。"
+    },
+    {
+      "claim_id": "C-RED-LUAN-YEAR-BRANCH",
+      "title": "紅鸞、天喜的年支定位（子年紅鸞在卯、天喜在酉，依年支逆行；天喜在紅鸞對宮）",
+      "domain": "八字知識",
+      "files": [
+        "lib/red-luan-heartbeat-engine.ts"
+      ],
+      "authority_files": [
+        "S-XINGXUE-DACHENG"
+      ],
+      "big_data_sources": [
+        "S-NDL-CINII-XINGXUE-CATALOG"
+      ],
+      "cross_references": [
+        "S-XINGXUE-DACHENG",
+        "S-ZWDS-QUANSHU-RULES",
+        "S-TEST-RED-LUAN"
+      ],
+      "conflicts": [],
+      "status": "PENDING_POOL",
+      "note": "2026-11-17 自 C-RED-LUAN-SHENSHA 拆出，只主張兩項年支定位。《星學大成》卷一〈論紅鸞天喜〉與《紫微斗數全書》卷二口訣（卯上起子逆數，數到當生太歲支為紅鸞，對宮天喜）互相印證；tests/red-luan-heartbeat.test.ts 覆蓋十二年支。不含最佳月份排序、外型職業、桃花、天乙貴人。目前卡在：S-ZWDS-QUANSHU-RULES 的引用授權為「待查核」（維基文庫 CC BY-SA 4.0 條款須人工確認）。確認後由人工把該來源 can_cite 改 PASS 並移除 license_terms 中的「待查核」；狀態一律由閘門計算，不得手填 VERIFIED。"
     },
     {
       "claim_id": "C-BAZI-FIVE-GODS",

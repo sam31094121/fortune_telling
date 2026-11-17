@@ -11,11 +11,15 @@
 
 頁內顯示為「你贏了／敵方守住了」，阿修羅是策略說明用語。未更名對手，未改攻擊數值、元素、反擊強度、獎勵數量或回合計時。
 
-## 尚未完成、被門檻抓出的真實缺口
+## 親友原始狀態信任缺口：已作最小修復
 
-親友模式仍接受瀏覽器提供的戰鬥 snapshot。同一 actionId/eventId，把攻擊從 20 改為 1,000,000，API 仍回 200，實扣從 40 改成 100，outcome 從 null 變 win。這是「原始戰鬥狀態未經後端驗真」，不是單純勝負文字對調，也不是已證明有人故意作弊。本人模式有已保存戰局與版本控制，不能把親友結果泛化為本人也相同。
+修前同一 actionId/eventId 把攻擊從 20 改為 1,000,000，API 仍回 200，實扣從 40 改成 100、outcome 從 null 變 win。這證明親友 snapshot 未驗真，並未證明客戶歷史那局的反轉原因或有人故意作弊。
 
-`test:beast-orb-authority` 已包含這個反向測試，會如實失敗。不能只因後端回應和前端顯示相同，就宣稱整條鏈正確。所需後續最小工程是親友戰局的後端可驗證狀態／重送收據，保留現行分頁生命週期；不能藉此改成登入制、停用親友、改客戶資料或偷偷改保存契約。本輪沒有實作這項狀態契約遷移，因此不能宣稱全面 backend-only 完成。
+追加授權後新增 guest-orb 後端簽章：初始隊伍、HP、攻擊、盤面、寶器、進度與每步狀態以 HMAC 憑據隨分頁保存；後端只採用拖曳、指定目標等操作意圖，忽略請求重寫的戰鬥事實。缺少／竄改憑據拒絕，終局不可再出手；同憑據同操作回應與獎勵收據固定。親友勝場與獎勵由後端計算，前端只保存回傳的帶簽章 profile，不另發獎。沒有新增登入、資料庫帳本、顧客蒐集或雲端永久收藏。
+
+保留界線：為維持既有分頁存檔，不刪除原先未簽章進度；首次接入仍依原 parseCampaign 驗證並採納舊進度，不能追溯認證歷史勝場。刪除憑據後冒充舊檔，仍屬此相容入口的限制。無狀態簽章能防篡改，不能阻止玩家保存舊憑據後選另一個合法操作形成分支；不宣稱全域單次 nonce、雲端防回滾或全面防作弊。沒有將這些限制隱藏為「全部 backend-only 完成」。
+
+工程寶器試玩原本共用 hard45 API，因此同步改由僅開發環境的伺服器頁面簽出固定測試盤；不提供任意客戶 snapshot 簽章 API，該戰局不發獎、不寫親友進度。既有動畫人工盤面測試使用離線簽章工具，與防竄改門檻分開；防竄改測試的改寫請求絕不重新簽章。
 
 ## 雷電效果
 
@@ -26,20 +30,23 @@
 - lightning-before.png：修改前真實能量技回應畫面。
 - lightning-after.png：修改後真實能量技命中，為檢視將 CSS 停在 180ms；不是自然完整播放速度。
 - lightning-reduced.png：減少動態模式。
-- lightning-after.webm：實際瀏覽器錄影；合成環境只用現有 debug hook 填滿能量，傷害由真實 API 運算。部分取證畫格暫停動畫，不是完整效能測量。
+- lightning-after.webm：實際瀏覽器錄影；合成環境以離線簽章預置滿能量，傷害由真實 API 運算。部分取證畫格暫停動畫，不是完整效能測量。
 - visual-results.json：HTTP 200、實扣 128、reduced 動畫數 0、無橫向溢出、pageerror 0。Chrome 手機模擬，未做真實 iOS／Android GPU 驗證。
 
 ## 驗證
 
 - 修前新門檻：三項失敗，均為 API 缺少終局欄位／UI 自行判定；修後這三項通過。
-- 最終 authority-final.log：14 通過、1 失敗。失敗為上述親友 snapshot 改寫。同時涵蓋獨立 1 HP 終局預期、真實 API 與 UI 勝局、已驗證敗局資料回放、無回應／缺 outcome 不補勝利、舊回應不得影響下局、親友獎勵重載去重。敗局畫面測試為已核對真實後端事實的展示契約回放，並非自然完整敗局試玩。
+- authority-final.log 保留修前 14 通過／1 失敗證據；authority-signed.log 與 health-final-signed.log 記錄最終 22/22 通過。涵蓋獨立 1 HP 終局預期、同憑據改寫攻擊／HP／進度／種子、真實 API 與 UI 勝局、已驗證敗局展示回放、缺 outcome 不補勝利、舊回應不得影響下局與重載去重。敗局畫面測試不是自然完整敗局試玩。
+- natural-results.json：未修改盤面／能量的實際親友拖珠連續兩回合，畫面敵方 HP 與後端相同；工程寶器試玩也通過且未改親友存檔。
+- 中途 health-signed.log（58/65）抓出本輪初始 profile 漏附空寶器庫，一般拖珠被前端保存流程擋住。已由 beginGuestOrb 附上後端 initial.treasures，新增門檻固定檢查，並以自然拖珠及完整回放重測。另有 3 個頁面和本人神獸入口 API 逾時、2 個來源門檻失敗，不將它們無證據歸因本輪。
+- replay-signed.log：修復後完整回放通過，包括 800 組 seeded 盤、62,883 項時序檢查及 320/390/1440 寬度、5/6/7 連珠、減少動態、返回首頁的實際瀏覽器驗證。
 - storage-results.json：真實 Supabase 隨機隔離 owner；預置近終局狀態，只經真實 API 出最後一招。勝與敗重載一致、勝局原子入庫一次、同指令重送一致、舊版本不同意圖拒絕、獎勵與關卡不重複。所有測試帳本均在 finally 精確刪除並核對 1 筆，沒有讀寫客戶帳本。
 - 1,000 組 seeded 回合不變量通過；4,000 組能量／連線與既有傷害算法對照零差異；原傳輸失敗重試測試通過。
-- TypeScript noEmit 與 git diff --check 通過。
-- 全站掃描結果另存 health-final.log／最終 health snapshot。不得把局部結果當全站通過。其他聊天修改使三核心原典門檻與最初掃描不同，不將他人修復歸功於本輪。
+- TypeScript noEmit（typecheck-signed.txt）與 git diff --check 通過。
+- 最終全站掃描 60/65，結果另存 health-final-signed.log／health-final-snapshot.json。失敗為神獸決鬥組陣台頁面、神獸圖鑑入口頁面、本人神獸入口 API 逾時，以及八字來源登記、易經神煞來源門檻。寶珠 authority 22/22 與完整 replay 在本次全站掃描內也通過。不得把局部結果當全站通過。其他聊天修改使三核心原典門檻與最初掃描不同，不將他人修復歸功於本輪。
 
 ## 範圍與發布
 
-本輪修改：Match3Board、OrbElementAttack、新 PlayerLightning/CSS、battle-outcome、resolve-turn、card-attack、treasures、cultivation-orb、cultivation API 的 ORB_RESUME、authority 測試、package.json 和健康檢查接入，以及診斷證據。沒有改其他命理卡片或來源規則。
+本輪修改：Match3Board、OrbElementAttack、新 PlayerLightning/CSS、battle-outcome、resolve-turn、card-attack、treasures、cultivation-orb、cultivation API 的 ORB_RESUME、authority 測試、package.json 和健康檢查接入，以及追加的 guest-orb、orb-guest、hard-campaign-store、親友 proof 欄位、工程寶器試玩與相關測試相容修正及診斷證據。沒有改其他命理卡片或來源規則。
 
-本聊天未執行 git commit 或 git push。驗證中其他共享工作區操作已提交並推送部分尚在進行的檔案（觀察到 60f18aa、b39246a 等）；不能把那些提交當成本聊天通過發布門檻。最終 Git 狀態見 git-status.txt，HEAD 見 git-head.txt。仍有失敗，不由本聊天追加發布。
+本聊天未執行 git commit 或 git push。驗證中其他共享工作區操作已提交並推送部分尚在進行的檔案（觀察到 60f18aa、b39246a、287d21b 等）；不能把那些提交當成本聊天通過發布門檻。最終 Git 狀態見 git-status.txt，HEAD 見 git-head.txt。仍有失敗，不由本聊天追加發布。

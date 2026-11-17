@@ -1,0 +1,15 @@
+## main...origin/main
+ M app/beast-game/treasure-preview/page.tsx
+ M components/battlefield/Match3Board.tsx
+ M lib/beast-game/guest-orb.ts
+ M reports/beast-game/match3-verdict-2026-11-17/report.md
+ M reports/beast-production/release-summary.json
+ M reports/screen-health/latest.json
+ M tests/beast-orb-authority.test.cjs
+?? reports/beast-game/match3-verdict-2026-11-17/git-head.txt
+?? reports/beast-game/match3-verdict-2026-11-17/git-status.txt
+?? reports/beast-game/match3-verdict-2026-11-17/health-final-snapshot.json
+?? reports/beast-game/match3-verdict-2026-11-17/health-final-summary.json
+?? reports/beast-game/match3-verdict-2026-11-17/natural-results.json
+?? reports/beast-game/match3-verdict-2026-11-17/natural.cjs
+?? reports/beast-game/match3-verdict-2026-11-17/replay-signed/

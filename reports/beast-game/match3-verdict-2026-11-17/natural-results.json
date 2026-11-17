@@ -1,0 +1,17 @@
+[
+  {
+    "case": "unmodified natural guest drag",
+    "version": 1,
+    "outcome": null
+  },
+  {
+    "case": "unmodified natural guest drag",
+    "version": 2,
+    "outcome": null
+  },
+  {
+    "case": "development treasure fixture remains playable without saving guest progress",
+    "version": 1,
+    "outcome": null
+  }
+]

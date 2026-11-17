@@ -28,11 +28,21 @@ function outcome(r){return r.outcome??r.verdict??r.winner;}
  const firstCommand=await post(originalCommand);
  const rewritten=await post({...originalCommand,team:originalCommand.team.map((f,i)=>i?f:{...f,attack:1000000})});
  check('guest cannot rewrite attack stats on the same recorded command',()=>{
+   assert.equal(firstCommand.status,200);assert.equal(firstCommand.body.actualDamage,40);
    if(rewritten.status===400||rewritten.status===409)return;
    assert.deepEqual(rewritten,firstCommand,'guest endpoint trusts rewritten client combat state; authenticated guest state/receipt is still missing');
  });
  const unsigned=await post({...win,guestBattleToken:undefined});check('unsigned hard45 snapshot rejected',()=>assert.equal(unsigned.status,400));
  const altered=await post({...win,guestBattleToken:win.guestBattleToken+'x'});check('modified guest signature rejected',()=>assert.equal(altered.status,400));
+ const stateRewrite=await post({...originalCommand,foes:originalCommand.foes.map(f=>({...f,hp:0})),wins:999,seed:999,attackBoost:1.5});
+ check('HP, progress, seed and boost rewrites cannot alter signed result',()=>assert.deepEqual(stateRewrite,firstCommand));
+ const ended=await post({...win,guestBattleToken:w.body.guestBattleToken});check('terminal signed battle cannot act or award again',()=>assert.equal(ended.status,400));
+ check('backend guest reward is exactly one receipt for this victory',()=>{assert.equal(w.body.guestProfile.wins,1);assert.equal(w.body.guestProfile.receipts.length,1);assert.equal(w.body.guestProfile.receipts[0].matchId,'guest-win:authority-fixture')});
+ const freshProfile={...w.body.guestProfile,guestProof:undefined,wins:0,rewards:[],receipts:[],treasures:undefined};
+ const fresh=await fetch(base+'/api/beast-game/orb-guest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profile:freshProfile,seed:71})});const freshBody=await fresh.json();
+ check('new guest supplies backend empty treasure book for ordinary drag',()=>{assert.equal(fresh.status,200);assert.deepEqual(freshBody.profile.treasures,freshBody.initial.treasures);assert.deepEqual(Object.values(freshBody.profile.treasures.counts),[0,0,0,0,0])});
+ const reopened=await fetch(base+'/api/beast-game/orb-guest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profile:{...w.body.guestProfile,wins:999,rewards:[]},seed:71})});
+ const opened=await reopened.json();check('new battle uses signed progress despite rewritten profile',()=>{assert.equal(reopened.status,200);assert.equal(opened.initial.wins,1);assert.equal(opened.profile.receipts.length,1)});
  const malformed=await post({...win,target:99});check('invalid operation rejected',()=>assert.equal(malformed.status,400));
  let pw;for(const candidate of [process.env.PLAYWRIGHT_MODULE,'playwright','../.tmp/shared-qa/node_modules/playwright','../scripts/card-preview/node_modules/playwright'].filter(Boolean)){try{pw=require(candidate);break}catch{}}
  if(!pw)throw Error('Chrome browser audit requires installed Playwright; not skipped');

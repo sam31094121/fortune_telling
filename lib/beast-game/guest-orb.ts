@@ -10,7 +10,7 @@ import { resolveTreasureUse, emptyTreasureBook } from './match3/treasures';
 import { orbOutcome } from './match3/battle-outcome';
 
 /** Signed, tab-held guest state. No database, wallet, login or customer collection. */
-export interface GuestOrbTicket { kind:'battle'; id:string; version:number; seed:number; input:TurnInput; profile:HardCampaign }
+export interface GuestOrbTicket { kind:'battle'; practice?:true; id:string; version:number; seed:number; input:TurnInput; profile:HardCampaign }
 function mac(payload:string) {
   const key=process.env.BEAST_BATTLE_SECRET||process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.JWT_SECRET;
   if(!key)throw new Error('親友戰局驗證服務暫時無法取得。');
@@ -45,6 +45,7 @@ export function beginGuestOrb(raw:HardCampaign,seed:number) {
   if(!validateCampaignTeam(p,p.teamIds))throw new Error('請選定主角與四位夥伴。');
   const stats=Object.fromEntries(playableCards().map(c=>[c.id,campaignCardAttack(p,c.id)]));
   const initial=initialSharedOrb({...p,shared:{availableIds:p.teamIds,cards:[],stats,selectedEntries:[]}},seed,'hard45');
+  p={...p,treasures:initial.treasures};
   const ticket:GuestOrbTicket={kind:'battle',id:randomUUID(),version:0,seed,input:initial,profile:clean(p)};
   return {initial,profile:signedProfile(p),guestBattleId:ticket.id,guestBattleToken:sealGuestOrb(ticket),guestVersion:0,outcome:orbOutcome(initial.team,initial.foes)};
 }
@@ -68,7 +69,7 @@ export function resolveGuestOrb(ticket:GuestOrbTicket,input:TurnInput) {
   }
   // Existing guest rule: no permanent treasure book; reward stays in this tab only.
   let profile={...ticket.profile,treasures:next.treasures};
-  if(orbOutcome(next.team,next.foes)==='win')profile={...campaignWin(profile,'guest-win:'+ticket.id,ticket.input.wins).profile,treasures:emptyTreasureBook()};
+  if(!ticket.practice&&orbOutcome(next.team,next.foes)==='win')profile={...campaignWin(profile,'guest-win:'+ticket.id,ticket.input.wins).profile,treasures:emptyTreasureBook()};
   const updated:GuestOrbTicket={...ticket,version:ticket.version+1,input:next,profile};
   return {...response,guestBattleToken:sealGuestOrb(updated),guestVersion:updated.version,guestProfile:signedProfile(profile)};
 }

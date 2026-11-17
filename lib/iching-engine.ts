@@ -231,7 +231,10 @@ export function castHexagramFromBirth(birthDate: string, shichenIndex?: number |
     原典取數（2026-11-17 修正 MEIHUA_GREGORIAN_SUM）。依據字串格式維持
     「梅花易數|生日|時辰N」不變——three-core-engine 與 match-three-core-view 依賴這個格式；農曆由生日決定性換算，不需寫進字串：
     《梅花易數》年月日時起例是「年地支序數＋農曆月數＋農曆日數」，不是公曆年月日數字直接相加。
-    · 年界：農曆正月初一（春節）換年——與梅花原典用農曆年一致；不以立春為界。
+    · 年界：以立春換年，與八字年柱同一界線（業主 2026-11-17 改定，三核心年支一致）。月、日仍取農曆。
+      已知限制：這裡只拿得到生日日期與時辰，立春當天一律算新年；八字引擎以立春「實刻」為界，
+      所以立春當天、立春時刻之前出生者，易經年支可能比八字年柱多一年（約每年一天）。要徹底消除，
+      須改成直接取八字引擎的年柱（四柱唯一來源），那會牽動所有呼叫端，另案處理。
     · 閏月：按本月數計（閏三月當三月）。
     · 農曆換算沿用全站同一套曆法函式庫（lunar-typescript），不另寫第二套。
     取數後交給 calculateMeihuaTimeNumbers，與原典算例（觀梅占、牡丹占）共用同一段上下卦／動爻算法。
@@ -253,12 +256,13 @@ export function meihuaBirthNumbers(year: number, month: number, day: number, hou
     throw new Error('MEIHUA_INVALID_BIRTH_DATE: 生日不是有效的公曆日期。');
   }
   const lunar = Solar.fromYmd(year, month, day).getLunar();
-  const yearNumber = EARTHLY_BRANCHES.indexOf(lunar.getYearZhi()) + 1;
+  const yearBranch = lunar.getYearZhiByLiChun(); // 立春換年，與八字年柱同界
+  const yearNumber = EARTHLY_BRANCHES.indexOf(yearBranch) + 1;
   const monthNumber = Math.abs(lunar.getMonth()); // 閏月以負數表示，取本月數
   const dayNumber = lunar.getDay();
   return {
     yearNumber, monthNumber, dayNumber, hourNumber,
-    lunarLabel: `${lunar.getYearZhi()}年${lunar.getMonth() < 0 ? '閏' : ''}${monthNumber}月${dayNumber}日`,
+    lunarLabel: `${yearBranch}年${lunar.getMonth() < 0 ? '閏' : ''}${monthNumber}月${dayNumber}日`,
   };
 }
 

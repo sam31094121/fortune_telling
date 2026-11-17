@@ -20,7 +20,8 @@
 import { createBaziCore, BRANCHES, type Branch } from '../lib/bazi/engine';
 import { calculateZiweiSanFang } from '../lib/ziwei-sanfang-engine';
 import { computeShichenProfile } from '../lib/shichen-engine';
-import { castHexagram, castHexagramFromBirth } from '../lib/iching-engine';
+import { castHexagram, castHexagramFromBirth, meihuaBirthNumbers } from '../lib/iching-engine';
+import { Solar } from 'lunar-typescript';
 import fsForPage from 'node:fs';
 import pathForPage from 'node:path';
 import { patternNameOf } from '../lib/iching-psychology';
@@ -206,13 +207,17 @@ for (const item of CASES) {
   //   1990-05-20 ＝ 農曆庚午年四月廿六 → 午=7、月=4、日=26，和 37；亥時（時辰12）→ 總和 49
   //   上卦 37 除 8 餘 5＝巽，下卦 49 除 8 餘 1＝乾，動爻 49 除 6 餘 1 → 風天小畜、動爻第 1 爻
   check('紅鸞・生辰卦是原典取數（農曆）', [hex.upper.name, hex.lower.name, hex.changingLine], ['巽', '乾', 1]);
-  // 年界與閏月政策（2026-11-17 定案）：以農曆正月初一換年；閏月按本月數計。
-  //   2024-02-05（癸卯年臘月廿六，春節前）→ 年支卯=4、月 12、日 26、巳時(6)：和 42／48 → 上卦 2＝兌、下卦 8＝坤、動爻 6
-  //   2024-02-11（甲辰年正月初二）→ 辰=5、月 1、日 2、巳時(6)：和 8／14 → 上卦 8＝坤、下卦 6＝坎、動爻 2
-  const beforeNewYear = castHexagramFromBirth('2024-02-05', 5);
+  // 年界與閏月政策（2026-11-17 業主定案）：年支以立春換年（與八字年柱同界）、月日取農曆；閏月按本月數計。
+  //   2024 年立春為 02-04。以下農曆月日以曆法函式庫實查（02-03＝臘月廿四、02-05＝臘月廿六、02-11＝正月初二），巳時（時辰數 6）：
+  //   2024-02-03（立春前）→ 年支卯=4、月 12、日 24：和 40／46 → 上卦 40 除 8 餘 0＝坤、下卦 46 除 8 餘 6＝坎、動爻 46 除 6 餘 4
+  //   2024-02-05（立春後、春節前）→ 年支辰=5、月 12、日 26：和 43／49 → 上卦 3＝離、下卦 1＝乾、動爻 1
+  //   2024-02-11（春節後）→ 年支辰=5、月 1、日 2：和 8／14 → 上卦 8＝坤、下卦 6＝坎、動爻 2
+  const beforeLiChun = castHexagramFromBirth('2024-02-03', 5);
+  const afterLiChun = castHexagramFromBirth('2024-02-05', 5);
   const afterNewYear = castHexagramFromBirth('2024-02-11', 5);
-  check('梅花・春節前仍算舊年（卯）', [beforeNewYear.upper.name, beforeNewYear.lower.name, beforeNewYear.changingLine], ['兌', '坤', 6]);
-  check('梅花・春節後算新年（辰）', [afterNewYear.upper.name, afterNewYear.lower.name, afterNewYear.changingLine], ['坤', '坎', 2]);
+  check('梅花・立春前仍算舊年（卯）', [beforeLiChun.upper.name, beforeLiChun.lower.name, beforeLiChun.changingLine], ['坤', '坎', 4]);
+  check('梅花・立春後算新年（辰），春節前也一樣', [afterLiChun.upper.name, afterLiChun.lower.name, afterLiChun.changingLine], ['離', '乾', 1]);
+  check('梅花・春節不再換年支（仍是辰）', [afterNewYear.upper.name, afterNewYear.lower.name, afterNewYear.changingLine], ['坤', '坎', 2]);
   //   2023-04-01 ＝ 農曆癸卯年閏二月十一 → 卯=4、閏二月按 2、日 11，和 17；午時（時辰6）→ 總和 23
   //   上卦 17 除 8 餘 1＝乾，下卦 23 除 8 餘 7＝艮，動爻 23 除 6 餘 5 → 天山遯、動爻第 5 爻
   const leapMonth = castHexagramFromBirth('2023-04-01', 5);
@@ -220,6 +225,32 @@ for (const item of CASES) {
   let invalidDateBlocked = false;
   try { castHexagramFromBirth('2023-02-31', 5); } catch { invalidDateBlocked = true; }
   check('梅花・不存在的日期明確擋下（不進位成別天）', invalidDateBlocked, true);
+
+  // 三核心年支一致：易經取數用的年支必須等於八字引擎（唯一權威）算出的年柱地支。
+  // 逐日掃 2020–2025 年的 1/15～3/10（涵蓋立春與春節兩條界線）。立春當天已知會有半天差距
+  //（八字用立春實刻，易經只有日期），所以排除每年「立春制年支換年的那一天」，其餘每天都必須一致。
+  const liChunYear = (y: number, m: number, d: number) => Solar.fromYmd(y, m, d).getLunar().getYearZhiByLiChun();
+  let compared = 0;
+  const mismatches: string[] = [];
+  for (let y = 2020; y <= 2025; y += 1) {
+    const dates: Array<[number, number]> = [];
+    for (let d = 15; d <= 31; d += 1) dates.push([1, d]);
+    for (let d = 1; d <= 29; d += 1) dates.push([2, d]);
+    for (let d = 1; d <= 10; d += 1) dates.push([3, d]);
+    for (const [m, d] of dates) {
+      if (m === 2 && d > new Date(y, 2, 0).getDate()) continue;
+      const prev = new Date(Date.UTC(y, m - 1, d - 1));
+      const isLiChunDay = liChunYear(prev.getUTCFullYear(), prev.getUTCMonth() + 1, prev.getUTCDate()) !== liChunYear(y, m, d);
+      if (isLiChunDay) continue;
+      const iso = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const bazi = createBaziCore({ gender: 'male', birthDate: iso, calendarType: 'SOLAR', birthTimeKnown: true, traditionalHour: '巳', timezone: 'Asia/Taipei' });
+      const baziBranchNumber = BRANCHES.indexOf(bazi.pillars.year.earthlyBranch as Branch) + 1;
+      const ichingYearNumber = meihuaBirthNumbers(y, m, d, 6).yearNumber;
+      compared += 1;
+      if (baziBranchNumber !== ichingYearNumber) mismatches.push(`${iso}：八字年柱地支序 ${baziBranchNumber}／易經年支序 ${ichingYearNumber}`);
+    }
+  }
+  check(`梅花・年支與八字年柱逐日一致（${compared} 天，立春日除外）`, mismatches.slice(0, 5), []);
 }
 
 // ============================================================================

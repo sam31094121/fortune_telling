@@ -164,7 +164,7 @@ function beep(freq: number) {
   } catch { /* 無音效環境略過 */ }
 }
 
-export interface TreasurePractice { scenario?: string; board: Board; magic: MagicGrid; book: TreasureBook; catalog: ReturnType<typeof treasureCatalog> }
+export interface TreasurePractice { start?: {initial:import('@/lib/beast-game/match3/resolve-turn').TurnInput;guestBattleToken:string;guestBattleId:string;guestVersion:number}; scenario?: string; board: Board; magic: MagicGrid; book: TreasureBook; catalog: ReturnType<typeof treasureCatalog> }
 export interface Match3BoardProps { resumeBattleId?: string; treasurePractice?: TreasurePractice; seed?: number; teamIds?: readonly string[] | null; sameElementRule?: SameElementRule; onRepick?: () => void; mode?: Match3ModeId; progressOwner?: Match3ProgressOwner; campaignEnabled?: boolean; onCampaignContinue?: () => void; /** 覆寫用；未給＝第 8 關起殿後的四大神獸（reservedGuardianBossRule，與 foeAvailable 同源）。 */ isFinalBoss?: FinalBossRule }
 export default function Match3Board({ resumeBattleId, treasurePractice, seed, teamIds, sameElementRule = DEFAULT_SAME_ELEMENT_RULE, onRepick, mode, progressOwner = null, campaignEnabled = false, onCampaignContinue, isFinalBoss }: Match3BoardProps) {
   const cfg = match3Mode(mode);
@@ -210,6 +210,7 @@ export default function Match3Board({ resumeBattleId, treasurePractice, seed, te
         saveGuestOrbProfile(opened.profile);campaign.profile=opened.profile;shared=opened;
       }
       if(!active)return;
+      if(treasurePractice?.start)shared=treasurePractice.start;
       const wins = cfg.id === 'medium' ? 0 : campaign?.profile?.wins ?? readMatch3Progress(owner);
       const lineup = pickLineup(rng, teamIds, cfg, wins, campaign?.profile);
       const team = shared.initial ? shared.initial.team : lineup.team;
@@ -246,7 +247,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     if(!init.guestBattleToken)return;
     const result=value as {guestBattleToken?:string;guestVersion?:number;guestProfile?:HardCampaign};
     if(!result.guestBattleToken || result.guestVersion!==guestState.current.version+1 || !result.guestProfile)throw new Error('暫時無法確認訪客戰局。');
-    saveGuestOrbProfile(result.guestProfile);
+    if(!treasurePractice)saveGuestOrbProfile(result.guestProfile);
     guestState.current={token:result.guestBattleToken,version:result.guestVersion};
   };
   const rigEnabled = cfg.id === 'hard45' || cfg.id === 'hard45b';
