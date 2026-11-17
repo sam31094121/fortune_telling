@@ -197,9 +197,29 @@ for (const item of CASES) {
 
   // 紅鸞的卦必須與全站易經層同一顆——同模組不得出現兩顆卦。
   const hex = castHexagramFromBirth('1990-05-20', 11);
-  check('紅鸞・卦象與易經層一致', hex.hexagramName, '山火賁');
-  check('紅鸞・格局名', patternNameOf(hex), '山鎮抱火格');
+  check('紅鸞・卦象與易經層一致', hex.hexagramName, '風天小畜');
+  check('紅鸞・格局名', patternNameOf(hex), '風行御龍格');
   check('紅鸞・起卦依據可回查', hex.seedText, '梅花易數|1990-05-20|時辰12');
+
+  // 生辰起卦必須是《梅花易數》原典取數（年地支序數＋農曆月＋農曆日＋時辰數），不是公曆年月日直接相加
+  // （MEIHUA_GREGORIAN_SUM，2026-11-17 修正）。期望值手算，不抄引擎輸出：
+  //   1990-05-20 ＝ 農曆庚午年四月廿六 → 午=7、月=4、日=26，和 37；亥時（時辰12）→ 總和 49
+  //   上卦 37 除 8 餘 5＝巽，下卦 49 除 8 餘 1＝乾，動爻 49 除 6 餘 1 → 風天小畜、動爻第 1 爻
+  check('紅鸞・生辰卦是原典取數（農曆）', [hex.upper.name, hex.lower.name, hex.changingLine], ['巽', '乾', 1]);
+  // 年界與閏月政策（2026-11-17 定案）：以農曆正月初一換年；閏月按本月數計。
+  //   2024-02-05（癸卯年臘月廿六，春節前）→ 年支卯=4、月 12、日 26、巳時(6)：和 42／48 → 上卦 2＝兌、下卦 8＝坤、動爻 6
+  //   2024-02-11（甲辰年正月初二）→ 辰=5、月 1、日 2、巳時(6)：和 8／14 → 上卦 8＝坤、下卦 6＝坎、動爻 2
+  const beforeNewYear = castHexagramFromBirth('2024-02-05', 5);
+  const afterNewYear = castHexagramFromBirth('2024-02-11', 5);
+  check('梅花・春節前仍算舊年（卯）', [beforeNewYear.upper.name, beforeNewYear.lower.name, beforeNewYear.changingLine], ['兌', '坤', 6]);
+  check('梅花・春節後算新年（辰）', [afterNewYear.upper.name, afterNewYear.lower.name, afterNewYear.changingLine], ['坤', '坎', 2]);
+  //   2023-04-01 ＝ 農曆癸卯年閏二月十一 → 卯=4、閏二月按 2、日 11，和 17；午時（時辰6）→ 總和 23
+  //   上卦 17 除 8 餘 1＝乾，下卦 23 除 8 餘 7＝艮，動爻 23 除 6 餘 5 → 天山遯、動爻第 5 爻
+  const leapMonth = castHexagramFromBirth('2023-04-01', 5);
+  check('梅花・閏月按本月數計', [leapMonth.upper.name, leapMonth.lower.name, leapMonth.changingLine], ['乾', '艮', 5]);
+  let invalidDateBlocked = false;
+  try { castHexagramFromBirth('2023-02-31', 5); } catch { invalidDateBlocked = true; }
+  check('梅花・不存在的日期明確擋下（不進位成別天）', invalidDateBlocked, true);
 }
 
 // ============================================================================
@@ -277,7 +297,7 @@ for (const item of CASES) {
 
   // 有時辰：必須與紫微卡、紅鸞卡同一顆生辰卦
   const birthHex = castHexagramFromBirth('1990-05-20', 11);
-  check('姓名學・有時辰時與全站同一顆生辰卦', birthHex.hexagramName, '山火賁');
+  check('姓名學・有時辰時與全站同一顆生辰卦', birthHex.hexagramName, '風天小畜');
   check('姓名學・生辰卦可回查', birthHex.seedText, '梅花易數|1990-05-20|時辰12');
 
   // 無時辰：不得用生辰起卦（那會被迫補時辰），必須另走姓名象徵起卦
@@ -324,8 +344,8 @@ for (const item of CASES) {
     );
   }
   if (known.iching.status === 'READY') {
-    check('三合一引擎・卦象', known.iching.reading.hexagramName, '山火賁');
-    check('三合一引擎・格局名', known.iching.patternName, '山鎮抱火格');
+    check('三合一引擎・卦象', known.iching.reading.hexagramName, '風天小畜');
+    check('三合一引擎・格局名', known.iching.patternName, '風行御龍格');
   }
 
   // 未知時辰：三柱照給，但不得代填、不得硬排、不得硬起卦
@@ -396,7 +416,7 @@ for (const item of CASES) {
     try {
       issued = castHexagramCertified(good, '1990-05-20', 11).hexagramName;
     } catch { issued = 'THREW'; }
-    check('禁止造假・憑證齊全才出卦', issued, '山火賁');
+    check('禁止造假・憑證齊全才出卦', issued, '風天小畜');
 
     // 引擎簽發的憑證必須三項全真
     if (known.iching.status === 'READY') {

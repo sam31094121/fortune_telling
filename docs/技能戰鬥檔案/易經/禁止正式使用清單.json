@@ -1,19 +1,26 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-10-27",
+  "updatedAt": "2026-11-17",
   "scope": "禁止作為已核實的傳統命理規則或正式解讀依據；保留原檔供追查，不等於所有呼叫端已完成停用",
   "items": [
     {
       "id": "MEIHUA_GREGORIAN_SUM",
       "path": "lib/iching-engine.ts",
       "symbol": "castHexagramFromBirth",
-      "status": "BLOCKED_FOR_TRADITIONAL_USE",
+      "status": "RESOLVED",
       "reason": "公曆年月日直接加總與已閱梅花年月日時取數傳本不符",
       "runtimeDisabled": false,
       "releaseConditions": [
         "固定版本與年界、閏月、生辰用途",
         "替換錯誤取數並通過原典獨立算例",
         "所有呼叫端回歸及快取版本更新"
+      ],
+      "runtimeRestriction": "生辰起卦已改為梅花易數原典取數（年地支序數＋農曆月＋農曆日＋時辰數）。年界以農曆正月初一換年、閏月按本月數計，為業主 2026-11-17 核准的取法政策；不代表原刻本影像已校勘、不代表占卜有效性或預測準確度。",
+      "resolutionEvidence": [
+        "lib/iching-engine.ts：castHexagramFromBirth 改用 meihuaBirthNumbers（沿用全站同一套 lunar-typescript 農曆換算）取得年支序數、農曆月、農曆日，再交給 calculateMeihuaTimeNumbers——與原典算例共用同一段上下卦／動爻算法；不存在的日期明確擋下，不進位成別天。",
+        "依據字串格式「梅花易數|生日|時辰N」不變，three-core-engine 的 ICHING_SEED_TRACEABLE 與 match-three-core-view 的回查說明不受影響。",
+        "tests/bazi-ziwei-cross.test.ts（2026-11-17 通過）：手算期望值——1990-05-20 亥時為風天小畜動爻 1；春節前後（2024-02-05 卯年、2024-02-11 辰年）換年；閏二月（2023-04-01）按本月數；2023-02-31 擋下。tests/meihua-original-cases（觀梅占、牡丹占原典算例）、three-core、three-in-one 全過。",
+        "影響：所有以生辰起卦的客戶功能（星座、洞察、易經心理學、紅鸞、姓名學、三合一）同一生辰的卦會與修正前不同。已查伺服器端快取（紫微老師、洞察、姓名學、因果故事等）皆為程式內記憶體 Map，部署重啟即清空，沒有寫進資料庫的卦象快取；瀏覽器端是否另有留存舊卦的本機資料，本次未逐一查證。"
       ]
     },
     {
@@ -26,7 +33,7 @@
       "status": "RESOLVED",
       "reason": "另以姓名與文案雜湊起卦，未沿用三核心已核對卦象",
       "runtimeDisabled": true,
-      "runtimeRestriction": "本項僅關閉已消除的姓名／文案另起卦缺陷；進階解讀仍受來源閘阻擋，MEIHUA_GREGORIAN_SUM仍未解除，不代表核心算法或客戶功能已放行。",
+      "runtimeRestriction": "本項僅關閉已消除的姓名／文案另起卦缺陷；進階解讀仍受來源閘阻擋，MEIHUA_GREGORIAN_SUM 已於 2026-11-17 改為原典取數（取法政策見該項），不代表核心算法或客戶功能已放行。",
       "resolutionEvidence": [
         "lib/bazi-verified-reading.ts：只接受原始出生資料，重新執行runThreeInOne及assertThreeInOnePassed；忽略前端命盤與成功標記。",
         "兩支真實路由皆僅消費verifiedBaziReading返回的四柱、卦象及命盤指紋，不保留姓名／文案另起卦分支。",
@@ -68,7 +75,7 @@
       ],
       "runtimeDisabled": true,
       "symbol": "castPalaceHexagram",
-      "runtimeRestriction": "僅關閉宮名／主星／流年另起雜湊卦旁路；三位老師與娛樂入口沿用同次後端核對結果。MEIHUA_GREGORIAN_SUM 仍未解除，不代表取數原典或所有功能已核定。",
+      "runtimeRestriction": "僅關閉宮名／主星／流年另起雜湊卦旁路；三位老師與娛樂入口沿用同次後端核對結果。MEIHUA_GREGORIAN_SUM 已於 2026-11-17 改為原典取數（取法政策見該項），不代表取數原典或所有功能已核定。",
       "resolutionEvidence": [
         "lib/ziwei-teacher/teachers.ts：移除 castHexagram 呼叫，入口 assertThreeInOnePassed 後只讀 context.reviewedThreeCore.result.yijing.reading；缺核對或內容不一致不出老師結果。",
         "兩支紫微老師路由傳入本次後端 runThreeInOne 結果，更新快取版本並加入命盤指紋；每次請求仍先核對再讀快取，不讀前端核對標記或卦象。",
@@ -78,28 +85,38 @@
     {
       "path": "lib/growth-center-engine.ts",
       "reason": "週次與個人種子文字映射未有原典依據",
-      "status": "BLOCKED_FOR_TRADITIONAL_USE",
+      "status": "RESOLVED",
       "id": "GROWTH_WEEK_HASH",
       "releaseConditions": [
         "原典版本與取法依據",
         "同次三核心資料及用途一致",
         "独立算例與入口回歸"
       ],
-      "runtimeDisabled": false,
-      "symbol": "castHexagram call"
+      "runtimeDisabled": true,
+      "symbol": "castHexagram call",
+      "runtimeRestriction": "僅停用成長中心「主任每週卜卦」的週次＋個人種子文字雜湊起卦；該區塊固定顯示「暫時無法取得」，不放任何卦象或預設文案。",
+      "resolutionEvidence": [
+        "lib/growth-center-engine.ts：chiefPsychologist 固定為 null，移除 castHexagram／buildEmpathicFromHexagram／buildGhostDecoding 呼叫。",
+        "app/growth-center/page.tsx：該區塊只顯示明確中文狀態「暫時無法取得」，不顯示卦象、話術或預設文案。"
+      ]
     },
     {
       "path": "app/api/solar-term/route.ts",
       "reason": "節氣名稱與年份映射卦象不等於官方曆法或正統起卦",
-      "status": "BLOCKED_FOR_TRADITIONAL_USE",
+      "status": "RESOLVED",
       "id": "SOLAR_TERM_HASH",
       "releaseConditions": [
         "原典版本與取法依據",
         "同次三核心資料及用途一致",
         "独立算例與入口回歸"
       ],
-      "runtimeDisabled": false,
-      "symbol": "GET"
+      "runtimeDisabled": true,
+      "symbol": "GET",
+      "runtimeRestriction": "僅停用節氣 API 附帶的卦象；節氣名稱、日期與農曆日期仍由曆法函式庫提供，與卦象分開，不因此替任何卦象背書。",
+      "resolutionEvidence": [
+        "app/api/solar-term/route.ts：移除 castHexagram 與回傳的 iching 區塊，只回傳節氣、下一個節氣與農曆日期。",
+        "全專案沒有任何前端元件讀取 /api/solar-term 的 iching 欄位（搜尋確認），停用不影響畫面。"
+      ]
     }
   ]
 }

@@ -511,22 +511,9 @@ export default function GrowthCenterPage() {
                   <p className="text-[11px] font-black uppercase tracking-[0.22em] text-violet-200">I-CHING WEEKLY CASTING・易經每週卜卦</p>
                   <h2 className="mt-2 font-serif text-2xl font-black leading-8 text-violet-50 sm:text-3xl">易經讀完你的八張卡，親自為你收整這一卦。</h2>
                 </div>
-                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-violet-200/35 bg-violet-400/12 font-serif text-3xl font-black text-violet-100" aria-hidden="true">{data.chiefPsychologist.glyph}</span>
               </div>
-              <p className="mt-4 rounded-2xl border border-amber-200/30 bg-amber-300/10 px-4 py-3 text-base font-black leading-7 text-amber-50">{data.chiefPsychologist.castingLine}</p>
-              <div className="mt-3 grid gap-2">
-                <p className="rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold leading-7 text-violet-50/90">{data.chiefPsychologist.specialYou}</p>
-                <p className="rounded-xl border border-rose-200/25 bg-rose-400/10 px-4 py-3 text-sm font-black leading-7 text-rose-50">{data.chiefPsychologist.absolution}</p>
-              </div>
-              <details className="growth-detail-drawer mt-3">
-                <summary>易經三段拆卦（磁場・詭異・因果）</summary>
-                <div className="mt-2 space-y-2">
-                  <p className="text-sm font-semibold leading-6 text-[color:var(--text-sub)]">{data.chiefPsychologist.ghost.field}</p>
-                  <p className="text-sm font-semibold leading-6 text-[color:var(--text-sub)]">{data.chiefPsychologist.ghost.spirit}</p>
-                  <p className="text-sm font-semibold leading-6 text-[color:var(--text-sub)]">{data.chiefPsychologist.ghost.karma}</p>
-                </div>
-              </details>
-              <p className="mt-3 rounded-xl border border-cyan-200/20 bg-cyan-300/[0.07] px-4 py-3 text-sm font-bold leading-6 text-cyan-100">{data.chiefPsychologist.returnHook}</p>
+              {/* 每週卜卦已停用（原典起卦法尚未核定）：只顯示明確狀態，不放任何卦象或預設文案。 */}
+              <p className="mt-4 rounded-2xl border border-violet-200/25 bg-black/25 px-4 py-3 text-base font-bold leading-7 text-violet-50" role="status">暫時無法取得</p>
             </section>
 
             <section className="rounded-[28px] border border-amber-300/35 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.22),rgba(16,185,129,0.12)_42%,rgba(15,23,42,0.88)_100%)] p-5 shadow-[0_0_44px_rgba(251,191,36,0.16)] sm:p-6">

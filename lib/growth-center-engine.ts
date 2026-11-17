@@ -3,8 +3,6 @@ import type { AiCompanionStage, AiIntegrationElement, AiIntegrationModuleId, AiI
 import { buildSystemStabilitySnapshot } from './platform-stability-layer';
 import { buildAiCopywritingStyleSnapshot } from './ai-copywriting-style-center';
 import { buildAiFollowUpSystem } from './ai-follow-up-system';
-import { castHexagram } from './iching-engine';
-import { buildEmpathicFromHexagram, buildGhostDecoding, patternNameOf } from './iching-psychology';
 
 export type GrowthModuleId = AiIntegrationModuleId;
 export type GrowthElement = AiIntegrationElement;
@@ -197,17 +195,8 @@ export type GrowthCenterResult = {
     weeklyInspiration: SuccessQuote;
     // 心理學主任層：八張卡是八位心理學醫生，主任每週親自為你卜一卦——
     // 卦象＋專屬特殊格局＋洋蔥式溫度話術（同一週同一人永遠同一卦，可回查）。
-    chiefPsychologist: {
-      weekKey: string;
-      hexagramName: string;
-      glyph: string;
-      patternName: string;
-      castingLine: string; // 主任的卜卦宣告（含特殊格局）
-      specialYou: string; // 外冷內熱的溫度話（無條件正向關懷）
-      absolution: string; // 核心脆弱性：「那不是你的錯」
-      ghost: { spirit: string; field: string; karma: string }; // 靈異・磁場・因果
-      returnHook: string; // 回診黏著鉤：主任下週等你
-    };
+    // 每週卜卦已停用（GROWTH_WEEK_HASH）：固定為 null，畫面顯示明確的中文狀態；不得恢復為週次＋種子的雜湊起卦。
+    chiefPsychologist: null;
     fiveElement: {
       primaryElement: GrowthElement;
       secondaryElement: GrowthElement;
@@ -546,23 +535,9 @@ export function buildGrowthCenter(input: GrowthCenterInput): GrowthCenterResult 
         message: `本週能量色是 ${color.colorName}。可用在 ${color.usage.slice(0, 2).join('、')}——心理學叫「環境線索」：把提醒放進每天會看到的地方，大腦就會自動幫你記得補強 ${themeData.label}，不用靠意志力。`,
       },
       weeklyInspiration: quote,
-      chiefPsychologist: (() => {
-        // 主任每週卜卦：週次＋個人種子＋本週補強元素決定性起卦
-        const gua = castHexagram(integration.weekKey, integration.personalizationSeed, themeData.label);
-        const empathic = buildEmpathicFromHexagram('朋友', gua);
-        const ghost = buildGhostDecoding(gua);
-        return {
-          weekKey: integration.weekKey,
-          hexagramName: gua.hexagramName,
-          glyph: gua.glyph,
-          patternName: patternNameOf(gua),
-          castingLine: `易經親自為你起了這一卦：第${gua.kingWen}卦「${gua.hexagramName}」${gua.glyph}——特殊格局「${patternNameOf(gua)}」，六十四格裡就這一格是你。${gua.essence}。`,
-          specialYou: empathic.specialYou,
-          absolution: empathic.absolution,
-          ghost: { spirit: ghost.spirit, field: ghost.field, karma: ghost.karma },
-          returnHook: `這一卦易經會替你留著。下週同一時間回來，我們核對這一週「${themeData.label}」有沒有真的補進去——你不用表現，也不用交代，易經只想看看你過得好不好。`,
-        };
-      })(),
+      // 每週卜卦已停用（GROWTH_WEEK_HASH，禁止正式使用清單）：週次與個人種子的文字雜湊不是任何原典的起卦法。
+      // 不再另起卦，也不以預設文案頂替；畫面顯示明確的中文狀態。
+      chiefPsychologist: null,
       fiveElement: {
         primaryElement: integration.primaryElement,
         secondaryElement: integration.secondaryElement,

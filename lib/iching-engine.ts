@@ -7,6 +7,8 @@
  * 供紫微解說、塔羅直答、三位老師後備引擎引用。
  */
 
+import { Solar } from 'lunar-typescript';
+
 export type Trigram = {
   name: string; // 乾、兌、離、震、巽、坎、艮、坤
   nature: string; // 天、澤、火、雷、風、水、山、地
@@ -225,11 +227,39 @@ export function castHexagramFromBirth(birthDate: string, shichenIndex?: number |
     );
   }
   const hour = shichenIndex + 1;
-  const base = y + m + d;
-  const upperIdx = ((base % 8) + 7) % 8; // 餘 1 為乾…餘 0 為坤，對映 TRIGRAMS 索引
-  const lowerIdx = (((base + hour) % 8) + 7) % 8;
-  const changingLine = ((base + hour) % 6 + 5) % 6 + 1;
-  return buildReading(upperIdx, lowerIdx, changingLine, `梅花易數|${birthDate}|時辰${hour}`);
+  /*
+    原典取數（2026-11-17 修正 MEIHUA_GREGORIAN_SUM）。依據字串格式維持
+    「梅花易數|生日|時辰N」不變——three-core-engine 與 match-three-core-view 依賴這個格式；農曆由生日決定性換算，不需寫進字串：
+    《梅花易數》年月日時起例是「年地支序數＋農曆月數＋農曆日數」，不是公曆年月日數字直接相加。
+    · 年界：農曆正月初一（春節）換年——與梅花原典用農曆年一致；不以立春為界。
+    · 閏月：按本月數計（閏三月當三月）。
+    · 農曆換算沿用全站同一套曆法函式庫（lunar-typescript），不另寫第二套。
+    取數後交給 calculateMeihuaTimeNumbers，與原典算例（觀梅占、牡丹占）共用同一段上下卦／動爻算法。
+  */
+  const numbers = meihuaBirthNumbers(y, m, d, hour);
+  const reading = calculateMeihuaTimeNumbers(numbers);
+  const upperIdx = (reading.upperSum - 1) % 8;
+  const lowerIdx = (reading.totalSum - 1) % 8;
+  return buildReading(upperIdx, lowerIdx, reading.changingLine, `梅花易數|${birthDate}|時辰${hour}`);
+}
+
+const EARTHLY_BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+
+/** 公曆生日 → 梅花原典取數（年支序數、農曆月、農曆日、時辰數）。日期不合法時丟例外，不補值。 */
+export function meihuaBirthNumbers(year: number, month: number, day: number, hourNumber: number) {
+  // 曆法函式庫不擋不存在的日期（如 2 月 31 日），這裡先用標準日期往返明確擋下，不讓錯日期變成另一天的卦。
+  const probe = new Date(Date.UTC(year, month - 1, day));
+  if (!Number.isInteger(year) || year < 1 || year > 9999 || probe.getUTCFullYear() !== year || probe.getUTCMonth() !== month - 1 || probe.getUTCDate() !== day) {
+    throw new Error('MEIHUA_INVALID_BIRTH_DATE: 生日不是有效的公曆日期。');
+  }
+  const lunar = Solar.fromYmd(year, month, day).getLunar();
+  const yearNumber = EARTHLY_BRANCHES.indexOf(lunar.getYearZhi()) + 1;
+  const monthNumber = Math.abs(lunar.getMonth()); // 閏月以負數表示，取本月數
+  const dayNumber = lunar.getDay();
+  return {
+    yearNumber, monthNumber, dayNumber, hourNumber,
+    lunarLabel: `${lunar.getYearZhi()}年${lunar.getMonth() < 0 ? '閏' : ''}${monthNumber}月${dayNumber}日`,
+  };
 }
 
 /**
