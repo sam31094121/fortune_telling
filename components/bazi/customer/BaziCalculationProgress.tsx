@@ -348,9 +348,13 @@ export function BaziCalculationCeremony({ phase, view, onOpenResult }: {
                 <p className="text-sm font-black text-emerald-100"><HomeTranslatedText text={"排盤資料確認"} /></p>
                 <p className="text-xs font-black text-emerald-200">{completedItems.length} / {totalReveal}</p>
               </div>
+              {/*
+                2026-11-17 P1 版面位移：原本每 120ms 插入一列，下方「未提供」區塊與頁尾一路被往下推（八字 CLS）。
+                改成所有已通過的列一開始就佔好位置、未揭示前不可見，揭示時只淡入；列數、字樣、節奏不變。
+              */}
               <div className="space-y-1.5">
-                {completedItems.map((item, idx) => (
-                  <div key={item.key} className="flex items-center justify-between gap-3 rounded-xl bg-white/[0.025] px-4 py-2" style={{ animation: 'fadeIn 200ms ease' }}>
+                {completedAll.map((item, idx) => (
+                  <div key={item.key} className={`flex items-center justify-between gap-3 rounded-xl bg-white/[0.025] px-4 py-2 ${idx < revealed ? '' : 'invisible'}`} aria-hidden={idx < revealed ? undefined : true} style={idx < revealed ? { animation: 'fadeIn 200ms ease' } : undefined}>
                     <span className="text-sm font-bold text-white/70"><span className="mr-2 text-[11px] font-black text-emerald-300/70">{String(idx + 1).padStart(2, '0')}</span>{item.label}</span>
                     <span className="shrink-0 text-sm font-black text-emerald-300"><HomeTranslatedText text={"✓ 通過"} /></span>
                   </div>
