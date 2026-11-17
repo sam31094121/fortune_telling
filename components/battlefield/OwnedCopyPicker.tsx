@@ -1,4 +1,5 @@
 'use client';
+import { BeastThumb } from './BeastCardTile';
 /**
  * 出戰副本選擇：只用圖案與數字，不放說明文字（說明請客戶自己點「說明」看）。
  * ★＝免費試用牌；◆＝沒有強化的收藏；「+N」＝已合體的永久加成（數字由後端共同卡庫提供，這裡只照印）。
@@ -20,8 +21,8 @@ export default function OwnedCopyPicker({ rows, onPick }: { rows: CopyRow[]; onP
   return <section aria-label="出戰副本" data-testid="copy-picker" style={{ display: 'grid', gap: 10, margin: '12px 0' }}>
     {shown.map(row => <div key={row.cardId} role="radiogroup" aria-label={`${row.name}出戰副本`} data-orb-owned-copy={row.cardId}
       style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={row.thumbnail} alt="" width={44} height={44} style={{ objectFit: 'cover', borderRadius: 10, border: `2px solid ${gold}` }} />
+      {/* 卡圖一律經卡框縮圖元件；找不到卡（沒有縮圖）就不畫，不出空 src。 */}
+      {row.thumbnail && <span aria-hidden="true" style={{ display: 'block', flex: '0 0 44px', width: 44, borderRadius: 10, overflow: 'hidden', border: `2px solid ${gold}` }}><BeastThumb id={row.cardId} thumbnail={row.thumbnail} draggable={false} /></span>}
       {row.trial && <button type="button" role="radio" aria-checked={row.value === ''} aria-label="試用" data-copy-id="" style={chipStyle(row.value === '')} onClick={() => onPick(row.cardId, '')}>★</button>}
       {row.copies.map((copy, index) => {
         const on = row.value === copy.id; let fused = false; try { fused = BigInt(copy.bonus) > 0n; } catch { /* 不合法就當沒強化 */ }
