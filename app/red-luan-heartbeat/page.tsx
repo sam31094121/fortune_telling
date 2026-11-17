@@ -16,6 +16,7 @@ import { buildRedLuanShareText, redLuanCalendarDraft, exportRedLuanReminder, RED
 import { buildRedLuanReturnLine, readRedLuanReturnVisit, saveRedLuanReturnVisit, taipeiToday, type RedLuanReturnVisit } from '@/lib/red-luan-return-visit';
 import { readCanonicalBirthProfile, saveCanonicalBirthProfile } from '@/lib/canonical-birth-profile-client';
 import { fromUnifiedBirthProfile, toUnifiedBirthProfile } from '@/lib/canonical-birth-profile';
+import layoutStyles from './RedLuanLayout.module.css';
 import { RED_LUAN_ARCHIVE_COPY, RED_LUAN_PUBLIC_ARCHIVED } from '@/lib/red-luan-public-access';
 
 type Evidence = { label: string; targetBranch: string; evidence: string };
@@ -1010,18 +1011,18 @@ function RedLuanHeartbeatExperience() {
               className={`red-luan-sealed-entry min-w-0 rounded-2xl border px-2 py-3 text-center transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-100 disabled:opacity-60 ${item.ready ? 'border-amber-200/50 bg-amber-300/15' : 'border-rose-100/20 bg-black/20'}`}
               data-revealed={item.ready && revealedEntrances.includes(item.target)}
             >
-              <span className="red-luan-orb-stage" aria-hidden="true">
+              <span className={`red-luan-orb-stage ${layoutStyles.orbStage}`} aria-hidden="true">
                 <ElementTreasureOrb element={item.element} preview visualScale={1.05} burning={openingEntrance === item.target} released={item.ready && revealedEntrances.includes(item.target)} />
               </span>
               <span className="mt-2 block text-xs font-black text-rose-50 sm:text-sm">{item.label}</span>
-              <span className="mt-1 block text-[10px] leading-4 text-amber-100/80">{openingEntrance === item.target ? `心中許個願・${entranceCountdown}` : loading ? '核對中' : item.ready ? revealedEntrances.includes(item.target) ? '已揭符・再查看' : '點擊揭符' : reading ? '暫無結果' : '填寫後可揭符'}</span>
+              <span className="mt-1 block min-h-[2lh] text-[10px] leading-4 text-amber-100/80 max-[379px]:min-h-[3lh] sm:min-h-0">{openingEntrance === item.target ? `心中許個願・${entranceCountdown}` : loading ? '核對中' : item.ready ? revealedEntrances.includes(item.target) ? '已揭符・再查看' : '點擊揭符' : reading ? '暫無結果' : '填寫後可揭符'}</span>
             </button>
           ))}
         </div>
-        <p className="mt-3 text-xs leading-6 text-rose-100/80" role="status">{loading ? '正在核對資料，結果完成後才會解鎖。' : reading ? '已產生的結果可點選查看，其他項目會標示暫無結果。' : '填好生日與性別，選擇時辰或「不知道」，再按「抽出我的心動月份」。'}</p>
+        <p className="mt-3 min-h-[2lh] text-xs leading-6 text-rose-100/80 sm:min-h-0" role="status">{loading ? '正在核對資料，結果完成後才會解鎖。' : reading ? '已產生的結果可點選查看，其他項目會標示暫無結果。' : '填好生日與性別，選擇時辰或「不知道」，再按「抽出我的心動月份」。'}</p>
       </header>
 
-      <section className="red-luan-unified-flow mt-5 rounded-3xl border border-white/[0.12] bg-slate-950/70 p-5 shadow-[0_18px_48px_rgba(2,6,23,0.35)]">
+      <section className={`red-luan-unified-flow ${layoutStyles.unifiedFlow} mt-5 rounded-3xl border border-white/[0.12] bg-slate-950/70 p-5 shadow-[0_18px_48px_rgba(2,6,23,0.35)]`}>
         <div className="mb-5 flex items-center justify-between gap-3"><div><p className="text-xs font-black tracking-[0.16em] text-amber-200">只要生日和時辰</p><h2 className="mt-1 text-xl font-black text-white">你的出生資料</h2></div><span className="rounded-full border border-white/15 px-3 py-1 text-xs font-bold text-white/70">只填一位</span></div>
         {/*
           回訪辨識：出生資料早就存著，表單也會自動帶入，但客戶回來時
@@ -1139,15 +1140,9 @@ function RedLuanHeartbeatExperience() {
         )}
       </section>
       <style jsx>{`
-        .red-luan-orb-stage { position: relative; display: block; width: min(100%, 116px); aspect-ratio: 1; margin: 18px auto 22px; }
         .red-luan-orb-stage :global(.space-seal-paper--burning) { animation-duration: 3s; }
         .red-luan-orb-stage :global(.space-seal-ash::before) { animation-duration: 2.7s; }
         .red-luan-orb-stage :global(.space-seal-ash i) { animation-duration: 2.15s; animation-delay: calc(var(--ash-delay, 0s) / 4); }
-        .red-luan-unified-flow :global(.mega-friendly-form > p),
-        .red-luan-unified-flow :global(.mega-friendly-form > button[type='submit']),
-        .red-luan-unified-flow :global(.mega-friendly-form > section:last-child) {
-          display: none;
-        }
       `}</style>
 
       {reading && <section id="red-luan-result" className="mt-6 scroll-mt-5 space-y-4" aria-live="polite">
