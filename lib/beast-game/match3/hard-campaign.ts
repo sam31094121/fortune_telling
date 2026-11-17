@@ -5,6 +5,7 @@ import { CARD_FACE_STATS } from '../card-face-stats';
 export interface CampaignReward { matchId: string; cardId: string; win: number }
 export interface EnhancementReceipt { operationId: string; youngId: string; targetId: string; attackBonus: number }
 export interface HardCampaign {
+  guestProof?: string;
   ownedEntries?: Record<string,string>;
   shared?: { availableIds:string[]; cards:{id:string;cardId:string;name:string;bonus:string;orbAttack:string}[]; stats:Record<string,{baseAttack:number;bonus:number;attack:number;attackExact?:string}>; selectedEntries:{id:string;cardId:string}[] };
   version: 1;

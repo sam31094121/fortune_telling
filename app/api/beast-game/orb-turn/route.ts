@@ -6,6 +6,7 @@ import { isBeastElement } from '@/lib/beast-game/elements';
 import { getCard } from '@/lib/beast-game/registry';
 import { cultivationOwner } from '@/lib/beast-game/cultivation-games';
 import { verifySharedOrb, resolveSharedOrbTurn } from '@/lib/beast-game/cultivation-orb';
+import { openGuestOrb, guestOrbInput, resolveGuestOrb } from '@/lib/beast-game/guest-orb';
 export const runtime = 'nodejs';
 // 共同卡庫資料庫在東京（Supabase ap-northeast-1）；函式預設在美東，每次資料庫來回多耗數百毫秒，改放東京。
 export const preferredRegion = 'hnd1';
@@ -13,11 +14,14 @@ export async function POST(request: Request) {
   try {
     const raw = await request.text();
     if (raw.length > 120000) return NextResponse.json({ error: '戰鬥資料過大，請重試。' }, { status: 413 });
-    const p = JSON.parse(raw) as TurnInput & {sharedBattleToken?:string;sharedVersion?:number};
+    let p = JSON.parse(raw) as TurnInput & {sharedBattleToken?:string;sharedVersion?:number;guestBattleToken?:string};
+    const guest=p.guestBattleToken?openGuestOrb(p.guestBattleToken):null;
+    if(guest)p=guestOrbInput(guest,p);
     const owner=cultivationOwner(request);
-    const shared=owner?await verifySharedOrb(owner,p.sharedBattleToken):null;
+    const shared=owner&&!guest?await verifySharedOrb(owner,p.sharedBattleToken):null;
+    if(p.mode==='hard45'&&!shared&&!guest)throw new Error('親友戰局缺少驗證憑據');
     if(shared){if(p.wins!==shared.wins||JSON.stringify(p.team?.map(c=>c.id))!==JSON.stringify(shared.teamIds))throw new Error('invalid');p.team=p.team.map(c=>({...c,attack:shared.attacks[c.id],attackExact:shared.exactAttacks?.[c.id]}));}
-    else if(Array.isArray(p.team))p.team=p.team.map(({attackExact,...c})=>c);
+    else if(!guest&&Array.isArray(p.team))p.team=p.team.map(({attackExact,...c})=>c);
     if(Array.isArray(p.foes))p.foes=p.foes.map(f=>{const c={...f} as typeof f & {attackExact?:string};delete c.attackExact;return c;});
     const integer = (v: unknown, min: number, max: number) => typeof v === 'number' && Number.isInteger(v) && v >= min && v <= max;
     if (!['medium','hard45','hard45b'].includes(p.mode) || !integer(p.seed,0,4294967295) || !integer(p.move,0,1000000) || !integer(p.wins,0,1000000) || !integer(p.target,0,4) || ![1,1.5].includes(p.attackBoost)) throw new Error('invalid');
@@ -35,6 +39,12 @@ export async function POST(request: Request) {
     if (p.treasures !== undefined) validateTreasureBook(p.treasures);
     if (p.actionId !== undefined && (typeof p.actionId !== 'string' || !p.actionId.length || p.actionId.length > 100)) throw new Error('invalid');
     if (p.treasureGuard !== undefined && ![1,0.5].includes(p.treasureGuard)) throw new Error('invalid');
+    if(guest){
+      if(p.action!==undefined&&!['treasure','energy','link'].includes(p.action))throw new Error('invalid');
+      if(p.action&&p.path.length)throw new Error('invalid');
+      if(p.action==='treasure'&&!isBeastElement(p.treasureElement))throw new Error('invalid');
+      return NextResponse.json(resolveGuestOrb(guest,p),{headers:{'Cache-Control':'no-store'}});
+    }
     if(shared){
       if(p.action!==undefined&&!['treasure','energy','link'].includes(p.action))throw new Error('invalid');
       if(p.action==='treasure'&&!isBeastElement(p.treasureElement))throw new Error('invalid');

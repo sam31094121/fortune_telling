@@ -1,7 +1,8 @@
 const assert=require('node:assert/strict');
+const {signedFixture}=require('./guest-orb-fixture.cjs');
 const {fixture}=require('./beast-orb-turn.test.cjs');
 const endpoint=(process.env.ORB_TEST_BASE_URL || 'http://127.0.0.1:8888')+'/api/beast-game/orb-turn';
-async function post(p){return fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:typeof p==='string'?p:JSON.stringify(p)});}
+async function post(p){return fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:typeof p==='string'?p:JSON.stringify(p.mode==='hard45'?signedFixture(p):p)});}
 (async()=>{
  for(const mode of ['medium','hard45','hard45b'])for(const rule of ['tap-lead','first-attacks','all-attack']){
   const p=fixture();p.mode=mode;p.rule=rule;if(mode==='medium'){p.board=p.board.slice(0,5);p.magic=p.magic.slice(0,5);}p.board[0].fill('WATER');

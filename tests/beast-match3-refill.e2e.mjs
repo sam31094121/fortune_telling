@@ -5,6 +5,7 @@ const require = createRequire(import.meta.url);
 const ts = require('typescript');
 require.extensions['.ts'] = (m, f) => m._compile(ts.transpileModule(readFileSync(f, 'utf8'), {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText, f);
 const M = require('../lib/beast-game/match3/index.ts');
+const {openGuestOrb,sealGuestOrb}=require('./guest-orb-fixture.cjs');
 import { spawn } from 'node:child_process';
 import { existsSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import os from 'node:os';
@@ -35,6 +36,19 @@ try {
   const wait = async (expression, timeout = 90000) => { const end = Date.now() + timeout; while (Date.now() < end) { if (await js(`Boolean(${expression})`)) return; await sleep(150); } throw Error(`Wait failed: ${expression}`); };
   const save = async name => { const shot = await send('Page.captureScreenshot', { format: 'png' }); writeFileSync(path.join(output, name + '.png'), Buffer.from(shot.data, 'base64')); };
   await send('Page.enable'); await send('Runtime.enable');
+  // Offline fixture adapter: authenticate the test's explicitly injected board/magic.
+  // Production has no signing endpoint; authority.test separately forbids snapshot tampering.
+  await send('Fetch.enable',{patterns:[{urlPattern:'*/api/beast-game/orb-turn',requestStage:'Request'}]});
+  ws.addEventListener('message',async event=>{
+    const m=JSON.parse(event.data);if(m.method!=='Fetch.requestPaused')return;
+    try{
+      const input=JSON.parse(m.params.request.postData),ticket=openGuestOrb(input.guestBattleToken);
+      const {guestBattleToken,...snapshot}=input;
+      ticket.input={...ticket.input,...snapshot};ticket.seed=(1001-input.move*2654435761)>>>0;
+      input.guestBattleToken=sealGuestOrb(ticket);
+      await send('Fetch.continueRequest',{requestId:m.params.requestId,postData:Buffer.from(JSON.stringify(input)).toString('base64')});
+    }catch(error){errors.push(String(error));await send('Fetch.failRequest',{requestId:m.params.requestId,errorReason:'Failed'});}
+  });
   if(process.env.MATCH3_REPLAY_CPU)await send('Emulation.setCPUThrottlingRate',{rate:Number(process.env.MATCH3_REPLAY_CPU)});
   const snap = () => js(`({round:document.querySelector('[data-testid="match3-round"]')?.textContent, enemy:[...document.querySelectorAll('[data-testid="match3-enemy"]')].map(e=>({id:e.dataset.id,hp:+e.dataset.hp})), ally:[...document.querySelectorAll('[data-testid="match3-ally"]')].map(e=>({id:e.dataset.id,hp:+e.dataset.hp})), damage:+document.querySelector('[data-testid="match3-last-damage"]')?.textContent, cells:[...document.querySelectorAll('[data-testid="match3-board"] [data-r]')].map(e=>({r:+e.dataset.r,c:+e.dataset.c,el:e.dataset.el,mp:+e.dataset.magic||0})), width:innerWidth, scroll:document.documentElement.scrollWidth})`);
   const findPath = (cells, length, diagonal = true, accept = () => true) => {

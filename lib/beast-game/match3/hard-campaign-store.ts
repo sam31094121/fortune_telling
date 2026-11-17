@@ -23,6 +23,11 @@ function write(owner: CampaignOwner, p: HardCampaign): CampaignResult {
   try { const store = storage(owner), raw = JSON.stringify(p); store.setItem(keys[owner], raw); if (store.getItem(keys[owner]) !== raw) throw new Error('儲存未確認，請重試'); return { ok: true, profile: p }; }
   catch (e) { return failed(e); }
 }
+/** Store the server-computed guest profile without calculating rewards in the browser. */
+export function saveGuestOrbProfile(profile:HardCampaign):void {
+  if(!profile?.guestProof)throw new Error('尚未取得親友進度確認');
+  const result=write('guest',profile);if(!result.ok)throw new Error(result.error);
+}
 /** 用伺服器資料覆蓋本機前：內容會改變就先存時間戳記備份；備份失敗就不覆蓋。 */
 function writeFromServer(owner: CampaignOwner, p: HardCampaign): CampaignResult {
   try { const old = storage(owner).getItem(keys[owner]); if (old !== null && campaignWouldChange(old, p)) backupLocal('orb-campaign-' + owner, old); }
@@ -40,6 +45,7 @@ function saveCampaignTeamUnlocked(owner: CampaignOwner, ids: readonly string[]):
 }
 function settleWinUnlocked(owner: CampaignOwner, matchId: string, winsAtStart: number): CampaignSettlement {
   const current = readCampaign(owner); if (!current.ok || !current.profile) return { ...current, saved: false };
+  if(owner==='guest'&&current.profile.guestProof){const reward=current.profile.receipts.find(r=>r.matchId===matchId);return reward?{...current,saved:true,reward,nextWins:current.profile.wins,duplicate:true}:{...current,ok:false,saved:false,error:'尚未取得後端獎勵確認。'};}
   try {
     const next = campaignWin(current.profile, matchId, winsAtStart);
     // Existing receipt is already read from durable storage; never mint another copy.
