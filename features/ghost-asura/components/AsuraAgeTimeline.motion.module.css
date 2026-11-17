@@ -569,3 +569,23 @@
     filter: none !important;
   }
 }
+/* Current age is a reading position, not a repeating motion prompt.
+   Scope follows the backend isCurrent class, regardless of age or index. */
+.motionRoot .motionSegment.motionSegmentCurrent:nth-child(n),
+.motionRoot .motionSegment.motionSegmentCurrent:hover,
+.motionRoot .motionSegment.motionSegmentCurrent:active {
+  animation: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+  transition: none !important;
+  will-change: auto;
+}
+.motionRoot .motionSegmentCurrent .motionLine,
+.motionRoot .motionSegmentCurrent .motionPeelLayer,
+.motionRoot .motionSegmentCurrent .motionEntranceCurrentMark {
+  animation: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+  transition: none !important;
+  will-change: auto;
+}

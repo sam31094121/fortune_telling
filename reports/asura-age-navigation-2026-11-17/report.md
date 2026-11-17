@@ -21,3 +21,13 @@
 - bazi-source-gate.txt / iching-source-gate.txt：本輪來源閘門輸出。
 
 未提交、未推送：AGENTS.md 要求檢查失敗時禁止自動更新。main 與 origin/main 同步，但工作區有本輪未提交內容及原有其他聊天 reports/beast-game、reports/screen-health 變更；原有變更未處理。
+
+## 條件提交授權後重查（2026-11-17 19:39 台北）
+
+已 git fetch origin main，HEAD 與 origin/main 均為 a9b0ad90c9429bdeb02de1518932d2cd026706eb；本輪視覺程式尚未提交。重新審查差異確認僅導覽，不改後端、命盤 API 或解讀。
+
+再次通過：check:ghost-asura:types、soft-element-orb、ghost-asura-stability、ghost-asura-page-flow、五寬度瀏覽器 verify.cjs 與 git diff --check。既有其他同版本回歸證據仍適用。
+
+完整手機優先健康檢查 19:36–19:39：64/66、2 failed、0 warnings、1 flaky。來源阻擋仍為 BAZI_SOURCE_REGISTRY_COMPLETE 與 DUAL_CHART_SHENSHA_DISPLAY。以原健康腳本副本執行，只調整相依模組的絕對引用及報告輸出目錄，使用 --mobile-first --no-repair，沒有修改檢查斷言；完整結果在 health-recheck/latest.json，保留其他聊天的 reports/screen-health/latest.json。
+
+收尾再次查核發現其他操作已於 19:38 建立並推送 c31afd81cda4c5a932dcae7fe517c09b11151087；fetch 後 HEAD 與 origin/main 相同，遠端包含兩個 AsuraAgeTimeline 檔、合成預覽及先前報告。本代理沒有執行 commit / push，也不建立空提交。完整健康檢查仍有兩項失敗，不能宣稱符合健康全通過條件。現在只留下本次報告追加與 health-recheck 證據未提交。
