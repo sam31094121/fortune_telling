@@ -506,7 +506,10 @@ function PersonStep({
     if (value.birthHourBranch && value.birthHourBranch !== 'unknown') setShowShichenOptions(true);
   }, [value.birthHourBranch]);
   return (
-    <div className="fortune-card p-5 sm:p-7">
+    // 2026-11-17 P1 版面位移：全域 .fortune-card 是 content-visibility:auto（佔位 180px），
+    // 開頁第一幀這張表單卡只有約 238px，下一幀才撐開到 1100px，下方按鈕與進度列整段被推走（1280 CLS 0.195）。
+    // 這張是開頁就在畫面上的主表單，直接排版真實高度。
+    <div className="fortune-card p-5 sm:p-7" style={{ contentVisibility: 'visible' }}>
       <div className="max-w-2xl">
         <p className={`inline-flex rounded-full border px-3.5 py-1 text-xs font-black uppercase tracking-[0.24em] ${accent === 'violet' ? 'border-violet-400/25 bg-violet-950/20 text-violet-300' : 'border-amber-400/25 bg-amber-950/20 text-amber-300'}`}><HomeTranslatedText text={"配對資料"} /></p>
         <h2 className="mt-3 font-serif text-2xl font-black leading-tight text-[color:var(--text-main)] sm:text-3xl">
