@@ -75,9 +75,9 @@ export interface Match3ModeConfig {
 }
 export const MATCH3_MODES: Record<Match3ModeId, Match3ModeConfig> = {
   medium: { id: 'medium', kicker: '寶珠戰・簡單', title: '寶珠戰・簡單', subtitle: '五元素對決', badge: '簡單・35 珠', accent: '#6fb6ff', enemyHint: null, cols: MATCH3_COLS, rows: MATCH3_ROWS, enemyHp: 300, enemyAtk: 8, counterEvery: ENEMY_COUNTER_EVERY, placeholder: true, diagonal: false },
-  /** 【待平衡】HP ×1.5、ATK ×1.5、反擊每 2 步（比中等快 1 步）。 */
+  /** 【待平衡】HP ×1.5、ATK ×1.5、反擊每 1 步（中等每 3 步，快 2 步）。 */
   hard45: { id: 'hard45', kicker: '寶珠戰・困難', title: '寶珠戰・困難', subtitle: '56 珠斜連', badge: '困難・56 珠・可斜連', accent: '#ff8a5c', enemyHint: null, cols: 7, rows: 8, enemyHp: 450, enemyAtk: 12, counterEvery: 1, placeholder: true, diagonal: true },
-  /** 【待平衡】數值＝hard45（450／12／2），未新增任何數字。 */
+  /** 【待平衡】數值＝hard45（450／12／1），未新增任何數字。 */
   hard45b: { id: 'hard45b', kicker: '寶珠戰・困難 II', title: '寶珠戰・困難 II', subtitle: '二十八宿軍團', badge: '困難 II・56 珠・可斜連', accent: '#cdb991', enemyHint: '東方青龍七宿：角・亢・氐・房・心', cols: 7, rows: 8, enemyHp: 450, enemyAtk: 12, counterEvery: 1, placeholder: true, diagonal: true },
 };
 export function match3Mode(id?: Match3ModeId | null): Match3ModeConfig { return MATCH3_MODES[id ?? 'medium'] ?? MATCH3_MODES.medium; }
