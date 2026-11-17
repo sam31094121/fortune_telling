@@ -97,7 +97,8 @@ export const LAB_MODELS: LabModel[] = [
     Component: EqualEdgeTesseract,
     layers: [{ id: 'spin', name: '自動旋轉', defaultOn: true }],
   },
-  { id: 'empty', name: '空舞台（佔位）', note: '還沒放模型。燈光與相機在跑，代表舞台正常。', Component: EmptySlot },
+  // 「空舞台（佔位）」只給開發時檢查燈光與相機用，正式站不列給玩家。
+  ...(process.env.NODE_ENV === 'production' ? [] : [{ id: 'empty', name: '空舞台（佔位）', note: '還沒放模型。燈光與相機在跑，代表舞台正常。', Component: EmptySlot }]),
   { id: 'ruler', name: '比例尺 1.7m', note: '1 單位 = 1 公尺。拿來對影片裡物件的相對大小。', Component: ScaleRuler },
 ];
 

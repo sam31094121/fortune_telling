@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   detectDeviceType,
   validateCrossDeviceOnClient,
@@ -24,7 +24,15 @@ export default function CrossDeviceMonitorPage() {
   const [error, setError] = useState<string | null>(null);
   const [metricsTracker] = useState(() => new ValidationMetricsTracker());
   const [metrics, setMetrics] = useState(metricsTracker.getMetrics());
-  const [currentDevice] = useState(() => detectDeviceType());
+  // 裝置類型與視窗寬度只在瀏覽器掛載後才讀：伺服器輸出與第一次 hydrate 一致，避免 React #418。
+  const [currentDevice, setCurrentDevice] = useState<ReturnType<typeof detectDeviceType> | null>(null);
+  const [viewportWidth, setViewportWidth] = useState<number | null>(null);
+  useEffect(() => {
+    const read = () => { setCurrentDevice(detectDeviceType()); setViewportWidth(window.innerWidth); };
+    read();
+    window.addEventListener('resize', read);
+    return () => window.removeEventListener('resize', read);
+  }, []);
 
   const handleValidate = useCallback(async () => {
     setIsLoading(true);
@@ -74,7 +82,7 @@ export default function CrossDeviceMonitorPage() {
             {currentDevice === 'desktop' && '💻 電腦'}
           </div>
           <p className={styles.smallText}>
-            視窗寬度: {typeof window !== 'undefined' ? window.innerWidth : 'N/A'}px
+            視窗寬度: {viewportWidth ?? 'N/A'}px
           </p>
         </div>
       </section>
