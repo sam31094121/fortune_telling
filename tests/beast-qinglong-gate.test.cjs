@@ -46,9 +46,19 @@ async function analyse(file, { skipDarkBg = false, region = null } = {}) {
 (async () => {
   // 母版有深藍夜空背景、沒有透明通道：只取中央身體區並濾掉深色底，避免背景被算進鱗片（實測整張取樣會讓明度在 0.18～0.25 間浮動，中央身體區 0.22～0.25）
   const master = await analyse(path.join(root, 'public/beast-game/front/guardian-qinglong.v2.webp'), { skipDarkBg: true, region: [0.2, 0.8, 0.25, 0.85] });
+  // 調色候選：candidates.json 標「作廢」或檔案不在（.gitignore 忽略 reports/**/*.webp，從未入庫）就印 SKIP、不讀檔；
+  // 只是跳過已作廢且不會交付的候選，上線素材照樣逐張全驗，門檻一個都不放寬。
+  const cand = JSON.parse(fs.readFileSync(path.join(candDir, 'candidates.json'), 'utf8'));
+  const candVoid = /作廢/.test(cand.status || '');
+  const skipped = [];
+  const candidates = cand.files.filter((c) => {
+    const file = path.join(candDir, c.file);
+    if (candVoid || !fs.existsSync(file)) { skipped.push(`候選 ${c.id}（${c.file}）：${candVoid ? '已作廢' : ''}${candVoid && !fs.existsSync(file) ? '、' : ''}${!fs.existsSync(file) ? '檔案未入版控' : ''}`); return false; }
+    return true;
+  });
   const targets = [
     ...manifest.frames.map((f) => ({ label: `上線 ${f.id}（${f.file}）`, group: '上線中的素材', file: path.join(dir, f.file) })),
-    ...JSON.parse(fs.readFileSync(path.join(candDir, 'candidates.json'), 'utf8')).files.map((c) => ({ label: `候選 ${c.id}（${c.file}）`, group: '調色候選', file: path.join(candDir, c.file) })),
+    ...candidates.map((c) => ({ label: `候選 ${c.id}（${c.file}）`, group: '調色候選', file: path.join(candDir, c.file) })),
   ];
   const analysed = [];
   for (const t of targets) {
@@ -61,6 +71,7 @@ async function analyse(file, { skipDarkBg = false, region = null } = {}) {
   }
   for (const group of ['上線中的素材', '調色候選']) {
     const g = analysed.filter((x) => x.group === group);
+    if (!g.length) continue; // 該組全部 SKIP（例：候選已作廢）就不做串播比對
     const bv = g.map((x) => x.a.blue.v);
     // 候選只有兩幀，要拿它和上線的飛行兩幀合起來看才是「串著播」的實際情況
     const mix = group === '調色候選' ? [...g, ...analysed.filter((x) => x.group === '上線中的素材' && /run-/.test(x.label))] : g;
@@ -76,7 +87,8 @@ async function analyse(file, { skipDarkBg = false, region = null } = {}) {
     console.log(`  ${r.pass ? 'PASS' : 'FAIL'}  ${r.name}  → ${r.detail}`);
   }
   const failed = results.filter((r) => !r.pass);
-  console.log(`\n青龍交付門檻：${results.length - failed.length} 通過／${failed.length} 未通過`);
+  for (const line of skipped) console.log(`  SKIP  ${line}`);
+  console.log(`\n青龍交付門檻：${results.length - failed.length} 通過／${failed.length} 未通過${skipped.length ? `（另 SKIP ${skipped.length} 個作廢候選）` : ''}`);
   if (failed.length) {
     console.log('結論：未通過，依修圖技能檔鐵律不得交付或上線。這不是測試壞掉；請依上列未通過項目修復並重驗；尺寸合格不替代配色與視覺驗收。');
     process.exit(1);
