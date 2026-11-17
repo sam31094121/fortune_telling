@@ -7,6 +7,7 @@ import process from 'node:process';
 import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
 import { canRecoverService } from './screen-health-recovery-policy.mjs';
+import { TIMED_OUT_MARKER, runWithTimeoutRetry, warmUpUrls, assessEnvironment } from './screen-health-stability.mjs';
 
 const execFileAsync = promisify(execFile);
 
@@ -349,6 +350,12 @@ const BEHAVIOR_CHECKS = [
     script: 'test:screen-health-policy',
   },
   {
+    id: 'HEALTH_STABILITY',
+    module: 'health_stability',
+    title: '健檢穩定性：只重試逾時、斷言不重試、不穩照實標示、預熱後量環境',
+    script: 'test:screen-health-stability',
+  },
+  {
     id: 'THREE_IN_ONE_INTEGRATION',
     module: 'three_in_one_integration',
     title: '三合一整合：八字×紫微四柱核對，缺一不成立',
@@ -619,7 +626,12 @@ async function runSharedBeastBuild() {
   }
 }
 
-async function checkHealthScript(check) {
+// 逾時類失敗（環境慢）重試一次，通過就標 flaky；斷言失敗永遠不重試。規則見 screen-health-stability.mjs。
+function checkHealthScript(check) {
+  return runWithTimeoutRetry(() => checkHealthScriptOnce(check));
+}
+
+async function checkHealthScriptOnce(check) {
   const startedAt = Date.now();
   // npm.cmd is a batch file on Windows and cannot be spawned directly with
   // execFile. Run it through cmd.exe so a healthy verification is never
@@ -650,7 +662,8 @@ async function checkHealthScript(check) {
       output: `${stdout}${stderr}`.trim().slice(-2000),
     };
   } catch (error) {
-    const detail = error instanceof Error ? error.message : String(error);
+    // execFile 的 timeout 會直接殺掉子行程，訊息裡沒有逾時字樣；補上記號才分得出「被殺」和「斷言失敗」。
+    const detail = (error instanceof Error ? error.message : String(error)) + (error && error.killed === true ? ` ${TIMED_OUT_MARKER}` : '');
     // 檢查腳本多把逐項結果印在 stdout；execFile 的 error.message 只帶 stderr，失敗項目名稱會被吃掉。
     // 把 ERROR／NOT READY／FAIL／UNAVAILABLE／UNRESOLVED／SUMMARY 行帶進 issue，讓報告直接列出未放行的 claim／功能。
     const childStdout = error && typeof error.stdout === 'string' ? error.stdout : '';
@@ -717,6 +730,26 @@ async function scanScreenHealth() {
   const startedAt = nowIso();
   const routes = [];
 
+  // 預熱：先用長逾時把每個頁面各打兩輪（只 GET）。開發伺服器第一次編譯一頁常超過 12 秒，
+  // 不預熱的話冷頁面會被誤判成壞掉；第二輪的耗時同時用來判斷環境是否偏慢。
+  const warmUp = assessEnvironment(await warmUpUrls([...HEALTH_ROUTES, ...CARD_ROUTES].map((route) => routeUrl(route.path))));
+  await log(
+    `Warm-up: ${warmUp.count} pages, median ${warmUp.medianMs}ms, slowest ${warmUp.slowest ? `${warmUp.slowest.url} ${warmUp.slowest.ms}ms` : 'n/a'}${warmUp.slow ? ' — environment is SLOW' : ''}.`,
+    warmUp.slow ? 'WARN' : 'INFO',
+  );
+  if (warmUp.slow) {
+    // 只發警告、不算失敗、不重啟：環境慢時其他項目的逾時失敗要先懷疑環境，不要先懷疑程式。
+    routes.push({
+      id: 'ENV_SLOW',
+      title: '環境偏慢（逾時類失敗請先懷疑環境）',
+      path: null,
+      status: 'WARNING',
+      httpStatus: null,
+      durationMs: warmUp.maxMs,
+      issue: `預熱後頁面耗時中位數 ${warmUp.medianMs}ms、最慢 ${warmUp.slowest ? `${warmUp.slowest.url} ${warmUp.slowest.ms}ms` : ''}；開發伺服器可能已膨脹，建議重啟（清 8888 再開）後重跑。`,
+    });
+  }
+
   for (const route of [...HEALTH_ROUTES, ...CARD_ROUTES]) {
     const result = await checkRoute(route);
     routes.push(result);
@@ -760,7 +793,7 @@ async function scanScreenHealth() {
     const result = behaviourResults.find((r) => r.id === check.id);
     if (!result) continue;
     routes.push(result);
-    await log(`${result.status} ${result.title} health verification (${result.durationMs}ms)`, result.status === 'PASSED' ? 'INFO' : 'WARN');
+    await log(`${result.status}${result.flaky ? ' (FLAKY: passed on retry)' : ''} ${result.title} health verification (${result.durationMs}ms)`, result.status === 'PASSED' && !result.flaky ? 'INFO' : 'WARN');
   }
 
   const shenShaDisplay = await checkDualChartShenShaDisplay();
@@ -770,6 +803,8 @@ async function scanScreenHealth() {
   // WARNING 只提醒、不算失敗：不影響 report.ok，也不會觸發任何復原。
   const warned = routes.filter((route) => route.status === 'WARNING');
   const failed = routes.filter((route) => route.status !== 'PASSED' && route.status !== 'WARNING');
+  // 逾時後重試才通過的項目：算通過，但必須照實列出，不得悄悄變綠。
+  const flaky = routes.filter((route) => route.flaky === true);
   return {
     ok: failed.length === 0,
     version: 'screen-health-monitor-v1',
@@ -785,8 +820,16 @@ async function scanScreenHealth() {
       passed: routes.length - failed.length - warned.length,
       failed: failed.length,
       warnings: warned.length,
+      flaky: flaky.length,
       screenStatus: failed.length === 0 ? 'HEALTHY' : 'UNHEALTHY',
     },
+    environment: { warmUp },
+    flakyRoutes: flaky.map((route) => ({
+      id: route.id,
+      title: route.title,
+      attempts: route.attempts,
+      firstFailure: route.firstFailure,
+    })),
     failedRoutes: failed.map((route) => ({
       id: route.id,
       title: route.title,
@@ -967,7 +1010,7 @@ async function runOnce() {
   }
 
   await writeReport(report);
-  await log(`Screen health result: ${report.summary.screenStatus} (${report.summary.passed}/${report.summary.total}, warnings ${report.summary.warnings ?? 0})`, report.ok ? 'SUCCESS' : 'ERROR');
+  await log(`Screen health result: ${report.summary.screenStatus} (${report.summary.passed}/${report.summary.total}, warnings ${report.summary.warnings ?? 0}, flaky ${report.summary.flaky ?? 0})`, report.ok ? 'SUCCESS' : 'ERROR');
   return report;
 }
 

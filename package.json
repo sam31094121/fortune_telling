@@ -68,6 +68,7 @@
     "test:beast-cultivation": "node tests/beast-cultivation.test.cjs && node tests/beast-cultivation-combat.test.cjs && node tests/beast-cultivation-client.test.cjs && node tests/beast-food-chain.test.cjs && node tests/beast-food-chain-concurrency.test.cjs && node tests/beast-food-chain-newplayer.test.cjs && node tests/beast-four-beasts-view.test.cjs && node tests/beast-food-chain-unify.test.cjs && node tests/beast-food-chain-batch.test.cjs",
     "test:star-beast-entry-api": "node tests/star-beast-entry.api.test.cjs",
     "test:screen-health-policy": "node tests/screen-health-recovery-policy.test.cjs",
+    "test:screen-health-stability": "node tests/screen-health-stability.test.cjs",
     "test:beast-card-spec": "node tests/beast-card-spec.test.cjs",
     "test:home-motto-retouch": "node tests/home-motto-retouch.test.cjs",
     "test:beast-stake": "node tests/beast-stake.test.cjs && node tests/beast-collection.test.cjs",
