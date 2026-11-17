@@ -5300,13 +5300,34 @@ export default function InsightPage() {
               </svg>
             </div>
             {result?.ziweiSanFang?.timeConfidence === 'exact' && result?.ritualSteps?.length ? (
-              <>
+              /*
+                2026-11-17 P1 版面位移：原本逐宮驗證面板在文件流裡，演完自動收合（grid 1fr→0fr）時，
+                下面整份結果往上跳 400～500px，CLS 0.2～0.44。改成：驗證摘要列的位置一開始就保留，
+                驗證面板疊在結果上方（absolute），收合只做淡出，結果本身從頭到尾不移動。內容與流程不變。
+              */
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setRitualCollapsed(false)}
+                  aria-expanded={false}
+                  aria-hidden={!ritualCollapsed || undefined}
+                  tabIndex={ritualCollapsed ? undefined : -1}
+                  className={`mb-5 flex w-full items-center justify-between gap-3 rounded-2xl border border-emerald-300/25 bg-emerald-950/20 px-4 py-3 text-left transition hover:border-emerald-300/50 hover:bg-emerald-950/35 ${ritualCollapsed ? '' : 'invisible'}`}
+                >
+                  <span className="text-sm font-black text-emerald-100">
+                    命盤逐宮驗證・{result.ritualSteps.length}/{result.ritualSteps.length} 通過
+                  </span>
+                  <span className="shrink-0 text-xs font-black text-emerald-200/80">看驗證明細 ▾</span>
+                </button>
+                {/*
+                  這 12 項是真實的後端檢查，是整張卡最有力的可信度證據；
+                  收合後仍可由上面的摘要列叫回來。
+                */}
                 <div
-                  className="grid overflow-hidden transition-[grid-template-rows] duration-500 ease-out"
-                  style={{ gridTemplateRows: ritualCollapsed ? '0fr' : '1fr' }}
+                  className={`absolute inset-x-0 top-0 z-10 transition-opacity duration-500 ease-out ${ritualCollapsed ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
                   aria-hidden={ritualCollapsed || undefined}
                 >
-                  <div className="min-h-0 pb-5">
+                  <div className="pb-5">
                     <ZiweiRitualStepsPanel steps={result.ritualSteps} revealCount={ritualRevealCount} collapsing={ritualCollapsed} />
                     {/* 驗證是價值，但不能變成等待：想直接看結果的人一鍵跳過，不必等十二項跑完。 */}
                     {!ritualCollapsed && (
@@ -5320,25 +5341,7 @@ export default function InsightPage() {
                     )}
                   </div>
                 </div>
-                {/*
-                  這 12 項是真實的後端檢查，是整張卡最有力的可信度證據；
-                  原本演完就收合成一條看不見的 20px，客戶再也叫不回來，
-                  隱藏的文字卻還留在無障礙樹裡被讀屏唸出來。
-                */}
-                {ritualCollapsed && (
-                  <button
-                    type="button"
-                    onClick={() => setRitualCollapsed(false)}
-                    aria-expanded={false}
-                    className="mb-5 flex w-full items-center justify-between gap-3 rounded-2xl border border-emerald-300/25 bg-emerald-950/20 px-4 py-3 text-left transition hover:border-emerald-300/50 hover:bg-emerald-950/35"
-                  >
-                    <span className="text-sm font-black text-emerald-100">
-                      命盤逐宮驗證・{result.ritualSteps.length}/{result.ritualSteps.length} 通過
-                    </span>
-                    <span className="shrink-0 text-xs font-black text-emerald-200/80">看驗證明細 ▾</span>
-                  </button>
-                )}
-              </>
+              </div>
             ) : null}
             <div className={`space-y-6 transition-opacity duration-500 ${result?.ziweiSanFang?.timeConfidence !== 'exact' || !result?.ritualSteps?.length || ritualCollapsed ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
             <DailyAnalysisNotice record={dailyRecord} className="mb-5" moduleName="易經紫微斗數" onViewResult={jumpToTodayResult} />
