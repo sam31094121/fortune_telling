@@ -1,7 +1,7 @@
 'use client';
 import type { cultivationView } from './beast-game/cultivation-view';
 export type SharedCultivationView=ReturnType<typeof cultivationView>;
-const KEY='tdh_beast_wallet_v1',CACHE='tdh_beast_shared_view_v1',COLLECTION='tdh_beast_collection_v1';
+const KEY='tdh_beast_wallet_v1',CACHE='tdh_beast_shared_view_v1',COLLECTION='tdh_beast_collection_v1',CACHE_OWNER='tdh_beast_shared_view_owner_v1';
 import { recoverWalletKey, mirrorWalletKey } from './beast-wallet-recovery';
 import { orbProfileForImport, LEGACY_PROGRESS_SELF_KEY } from './beast-game/match3/campaign-safety';
 import { backupLocal } from './beast-local-backup';
@@ -35,8 +35,19 @@ export function startFreshWallet() {
   window.localStorage.removeItem(KEY);window.localStorage.removeItem(CACHE);
   window.localStorage.setItem(COLLECTION,JSON.stringify(old));
 }
+/** 快取屬於哪支錢包：只存簡短雜湊（FNV-1a），不重複存識別碼本身。 */
+function walletTag():string|null {
+  const key=window.localStorage.getItem(KEY);if(!key)return null;
+  let h=0x811c9dc5;for(let i=0;i<key.length;i++){h^=key.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}
+  return h.toString(16);
+}
+/** 快取與目前錢包對不上（換過錢包、或舊版沒記錄）就當沒有快取，改讀伺服器；伺服器永遠是準的。 */
 export function readSharedCultivation():SharedCultivationView|null {
-  try{return JSON.parse(window.localStorage.getItem(CACHE)??'null');}catch{return null;}
+  try{
+    const tag=walletTag();
+    if(tag===null||window.localStorage.getItem(CACHE_OWNER)!==tag)return null;
+    return JSON.parse(window.localStorage.getItem(CACHE)??'null');
+  }catch{return null;}
 }
 function saveView(view:SharedCultivationView) {
   if(!view||!Array.isArray(view.cards)||!Array.isArray(view.collectionCards))throw new Error('共同卡庫回應不完整。');
@@ -52,6 +63,7 @@ function saveView(view:SharedCultivationView) {
   const ids=new Set(cards.map((c:{id:string})=>c.id));
   if(oldRaw!==null&&(old.cards.some((c:{id:string})=>!ids.has(c.id))||(old.shards&&(!next.shards||next.shards.shards<old.shards.shards||next.shards.totalEarned<old.shards.totalEarned))||(old.starterPack&&!next.starterPack)))backupLocal('collection',oldRaw);
   window.localStorage.setItem(CACHE,JSON.stringify(view));
+  const tag=walletTag();if(tag!==null)window.localStorage.setItem(CACHE_OWNER,tag);
   window.localStorage.setItem(COLLECTION,JSON.stringify(next));
   window.dispatchEvent(new Event('tdh-beast-collection-updated'));window.dispatchEvent(new Event(SHARED_UPDATED));
   return view;

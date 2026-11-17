@@ -22,5 +22,16 @@ const view=(revision,id)=>({revision,cards:[{id,cardId:'beast_a01',bonus:'0'}],c
  global.fetch=()=>new Promise(resolve=>{release=()=>resolve({ok:true,json:async()=>({ok:true,view:view('4','shared-read')})});});
  const first=client.syncSharedCultivation(),second=client.syncSharedCultivation();assert.equal(first,second,'same-page StrictMode reads share the operation');assert.equal(locks,1);release();assert.deepEqual(await first,await second);
  global.fetch=async()=>({ok:true,json:async()=>({ok:true,view:view('5','fresh-read')})});await client.syncSharedCultivation();assert.equal(locks,2,'later reads still refresh');
- console.log('PASS client: late response cannot roll back inventory; local-save failure stays retryable and recovers same server revision; another-tab battle fails promptly instead of waiting indefinitely.');
+ // 快取綁錢包：別支錢包留下的高版本快取、或舊版沒有擁有者記錄的快取，都不能壓過這支錢包的伺服器資料。
+ values.set('tdh_beast_wallet_v1','b'.repeat(64));
+ const wallet=client.readSharedCultivation;assert.equal(wallet(),null,'new wallet has no cache of its own yet');
+ values.set('tdh_beast_shared_view_v1',JSON.stringify(view('999','other-wallet')));values.set('tdh_beast_shared_view_owner_v1','not-this-wallet');
+ assert.equal(wallet(),null,'cache from another wallet is ignored');
+ global.fetch=async()=>({ok:true,json:async()=>({ok:true,view:view('2','mine')})});
+ const mine=await client.sharedRequest();assert.equal(mine.view.revision,'2','server view wins over another wallet\'s higher revision');assert.equal(wallet().cards[0].id,'mine');
+ values.delete('tdh_beast_shared_view_owner_v1');assert.equal(wallet(),null,'legacy cache without owner is not trusted');
+ const again=await client.sharedRequest();assert.equal(again.view.revision,'2');assert.equal(wallet().revision,'2','cache is re-owned after the next sync');
+ // 同一支錢包的「較晚到的舊回應不能讓庫存倒退」仍然成立。
+ global.fetch=async()=>({ok:true,json:async()=>({ok:true,view:view('1','stale')})});assert.equal((await client.sharedRequest()).view.revision,'2');
+ console.log('PASS client: late response cannot roll back inventory; local-save failure stays retryable and recovers same server revision; another-tab battle fails promptly instead of waiting indefinitely; cache is bound to its wallet (another wallet\'s or legacy cache never beats the server).');
 })().catch(e=>{console.error(e.stack);process.exitCode=1});
