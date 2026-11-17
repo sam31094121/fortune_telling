@@ -180,4 +180,4 @@
   .embers, .ring2 { display: none; }
 }
 /* 矮視窗（例 1280×800）：勝利戰利品光圈上下留白收一點，讓結算摘要句不被底部按鈕列蓋住；卡面大小不變。 */
-@media (max-height: 820px) { .reveal[data-presentation='orb-victory'] .stage { padding: 22px 0 24px; } }
+@media (max-height: 820px) { .reveal[data-presentation='orb-victory'] .stage { padding: 18px 0 20px; } }
