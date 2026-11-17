@@ -95,6 +95,9 @@
 .stickyStart > button { margin-top: 0; min-height: 48px; max-width: 420px; width: 100%; }
 /* 固定開戰列不遮住最後一排卡片 */
 .stickyHost { padding-bottom: 96px; }
+/* 固定開戰列（高約 72px）不蓋住被捲到底部的按鈕：捲動定位（scrollIntoView、鍵盤 Tab、聚焦）一律把底部 88px 讓給它。 */
+:global(html):has(.stickyHost) { scroll-padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
+.stickyHost button { scroll-margin-bottom: calc(88px + env(safe-area-inset-bottom)); }
 /* 重新整理後自動重打的提示：浮在頂列下方（不蓋頂列按鈕、不擋寶珠盤），不吃觸控，6 秒淡出；不佔版面（無位移）。 */
 .resumeNotice { position: fixed; z-index: 30; left: 50%; top: 52px; transform: translateX(-50%); width: min(92vw, 420px); margin: 0; padding: 10px 14px; box-sizing: border-box;
   border-radius: 10px; border: 1px solid rgba(232,196,108,.55); background: rgba(16,14,20,.94); color: #f4ead2; font-size: 14px; line-height: 1.5; pointer-events: none;
