@@ -1106,6 +1106,8 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .resultSecondary { flex: 0 1 auto; min-height: 52px; padding: 10px 14px; font-size: 15px; background: #1d1810; border-color: #b9975e; color: #f3e2bd; }
 .nextPrimary:disabled { opacity: .7; }
 .resultSummary { font-size: 14px; opacity: .92; }
+/* 矮視窗（例 1280×800）：結算內容收緊一點，摘要句「共 N 步擊退…」一打開就在底部按鈕列上方，不被蓋住。 */
+@media (max-height: 820px) { .result { gap: 4px; } }
 /* 頂列按鈕：畫面高度不變（不壓縮寶珠），觸控熱區上下各延伸 7px（次像素取整後仍 ≥44px）。 */
 .wrap[data-mode^="hard"] .head .homeLink, .wrap[data-mode^="hard"] .head .repickTop button, .wrap[data-mode^="hard"] .head .helpTop { position: relative; z-index: 6; }
 .wrap[data-mode^="hard"] .head .homeLink::after, .wrap[data-mode^="hard"] .head .repickTop button::after, .wrap[data-mode^="hard"] .head .helpTop::after { content: ''; position: absolute; left: 0; right: 0; top: -7px; bottom: -7px; }
