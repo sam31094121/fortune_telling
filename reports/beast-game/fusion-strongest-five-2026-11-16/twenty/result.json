@@ -1,0 +1,3416 @@
+{
+  "synthetic": true,
+  "initialCount": 45,
+  "rows": [
+    {
+      "layer": 1,
+      "number": 1,
+      "guardian": "青龍",
+      "targetId": "adult:0:0",
+      "materialId": "young:0:0",
+      "materialBonus": "0",
+      "materialBaseAttack": "29",
+      "rawGain": 2,
+      "rule": "v2",
+      "capped": false,
+      "capBonus": "22",
+      "fedAfter": 1,
+      "rawBonus": "2",
+      "fedBefore": 0,
+      "addedBonus": "2",
+      "afterBonus": "2",
+      "beforeBonus": "0",
+      "targetCardId": "beast_a03",
+      "inheritedBonus": "0",
+      "materialCardId": "beast_y03",
+      "targetName": "氐土貉",
+      "materialName": "氐土貉・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "44",
+      "orbAfterAttack": "46",
+      "battleBeforeAttack": "43",
+      "battleAfterAttack": "45",
+      "countBefore": 45,
+      "countAfter": 44
+    },
+    {
+      "layer": 1,
+      "number": 2,
+      "guardian": "青龍",
+      "targetId": "adult:0:0",
+      "materialId": "young:0:1",
+      "materialBonus": "0",
+      "materialBaseAttack": "29",
+      "rawGain": 2,
+      "targetCardId": "beast_a03",
+      "materialCardId": "beast_y03",
+      "beforeBonus": "2",
+      "addedBonus": "2",
+      "afterBonus": "4",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "2",
+      "capBonus": "22",
+      "capped": false,
+      "fedBefore": 1,
+      "fedAfter": 2,
+      "targetName": "氐土貉",
+      "materialName": "氐土貉・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "46",
+      "orbAfterAttack": "48",
+      "battleBeforeAttack": "45",
+      "battleAfterAttack": "47",
+      "countBefore": 44,
+      "countAfter": 43
+    },
+    {
+      "layer": 1,
+      "number": 3,
+      "guardian": "青龍",
+      "targetId": "adult:0:0",
+      "materialId": "young:0:2",
+      "materialBonus": "0",
+      "materialBaseAttack": "29",
+      "rawGain": 2,
+      "targetCardId": "beast_a03",
+      "materialCardId": "beast_y03",
+      "beforeBonus": "4",
+      "addedBonus": "2",
+      "afterBonus": "6",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "2",
+      "capBonus": "22",
+      "capped": false,
+      "fedBefore": 2,
+      "fedAfter": 3,
+      "targetName": "氐土貉",
+      "materialName": "氐土貉・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "48",
+      "orbAfterAttack": "50",
+      "battleBeforeAttack": "47",
+      "battleAfterAttack": "49",
+      "countBefore": 43,
+      "countAfter": 42
+    },
+    {
+      "layer": 1,
+      "number": 4,
+      "guardian": "青龍",
+      "targetId": "adult:0:0",
+      "materialId": "young:0:3",
+      "materialBonus": "0",
+      "materialBaseAttack": "29",
+      "rawGain": 2,
+      "targetCardId": "beast_a03",
+      "materialCardId": "beast_y03",
+      "beforeBonus": "6",
+      "addedBonus": "2",
+      "afterBonus": "8",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "2",
+      "capBonus": "22",
+      "capped": false,
+      "fedBefore": 3,
+      "fedAfter": 4,
+      "targetName": "氐土貉",
+      "materialName": "氐土貉・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "50",
+      "orbAfterAttack": "52",
+      "battleBeforeAttack": "49",
+      "battleAfterAttack": "51",
+      "countBefore": 42,
+      "countAfter": 41
+    },
+    {
+      "layer": 1,
+      "number": 5,
+      "guardian": "青龍",
+      "targetId": "adult:0:0",
+      "materialId": "young:0:4",
+      "materialBonus": "0",
+      "materialBaseAttack": "29",
+      "rawGain": 2,
+      "targetCardId": "beast_a03",
+      "materialCardId": "beast_y03",
+      "beforeBonus": "8",
+      "addedBonus": "2",
+      "afterBonus": "10",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "2",
+      "capBonus": "22",
+      "capped": false,
+      "fedBefore": 4,
+      "fedAfter": 5,
+      "targetName": "氐土貉",
+      "materialName": "氐土貉・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "52",
+      "orbAfterAttack": "54",
+      "battleBeforeAttack": "51",
+      "battleAfterAttack": "53",
+      "countBefore": 41,
+      "countAfter": 40
+    },
+    {
+      "layer": 1,
+      "number": 6,
+      "guardian": "白虎",
+      "targetId": "adult:1:0",
+      "materialId": "young:1:0",
+      "materialBonus": "0",
+      "materialBaseAttack": "33",
+      "rawGain": 3,
+      "targetCardId": "beast_a19",
+      "materialCardId": "beast_y19",
+      "beforeBonus": "0",
+      "addedBonus": "3",
+      "afterBonus": "3",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "3",
+      "capBonus": "28",
+      "capped": false,
+      "fedBefore": 0,
+      "fedAfter": 1,
+      "targetName": "畢月烏",
+      "materialName": "畢月烏・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "57",
+      "orbAfterAttack": "60",
+      "battleBeforeAttack": "43",
+      "battleAfterAttack": "46",
+      "countBefore": 40,
+      "countAfter": 39
+    },
+    {
+      "layer": 1,
+      "number": 7,
+      "guardian": "白虎",
+      "targetId": "adult:1:0",
+      "materialId": "young:1:1",
+      "materialBonus": "0",
+      "materialBaseAttack": "33",
+      "rawGain": 3,
+      "targetCardId": "beast_a19",
+      "materialCardId": "beast_y19",
+      "beforeBonus": "3",
+      "addedBonus": "3",
+      "afterBonus": "6",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "3",
+      "capBonus": "28",
+      "capped": false,
+      "fedBefore": 1,
+      "fedAfter": 2,
+      "targetName": "畢月烏",
+      "materialName": "畢月烏・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "60",
+      "orbAfterAttack": "63",
+      "battleBeforeAttack": "46",
+      "battleAfterAttack": "49",
+      "countBefore": 39,
+      "countAfter": 38
+    },
+    {
+      "layer": 1,
+      "number": 8,
+      "guardian": "白虎",
+      "targetId": "adult:1:0",
+      "materialId": "young:1:2",
+      "materialBonus": "0",
+      "materialBaseAttack": "33",
+      "rawGain": 3,
+      "targetCardId": "beast_a19",
+      "materialCardId": "beast_y19",
+      "beforeBonus": "6",
+      "addedBonus": "3",
+      "afterBonus": "9",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "3",
+      "capBonus": "28",
+      "capped": false,
+      "fedBefore": 2,
+      "fedAfter": 3,
+      "targetName": "畢月烏",
+      "materialName": "畢月烏・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "63",
+      "orbAfterAttack": "66",
+      "battleBeforeAttack": "49",
+      "battleAfterAttack": "52",
+      "countBefore": 38,
+      "countAfter": 37
+    },
+    {
+      "layer": 1,
+      "number": 9,
+      "guardian": "白虎",
+      "targetId": "adult:1:0",
+      "materialId": "young:1:3",
+      "materialBonus": "0",
+      "materialBaseAttack": "33",
+      "rawGain": 3,
+      "targetCardId": "beast_a19",
+      "materialCardId": "beast_y19",
+      "beforeBonus": "9",
+      "addedBonus": "3",
+      "afterBonus": "12",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "3",
+      "capBonus": "28",
+      "capped": false,
+      "fedBefore": 3,
+      "fedAfter": 4,
+      "targetName": "畢月烏",
+      "materialName": "畢月烏・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "66",
+      "orbAfterAttack": "69",
+      "battleBeforeAttack": "52",
+      "battleAfterAttack": "55",
+      "countBefore": 37,
+      "countAfter": 36
+    },
+    {
+      "layer": 1,
+      "number": 10,
+      "guardian": "白虎",
+      "targetId": "adult:1:0",
+      "materialId": "young:1:4",
+      "materialBonus": "0",
+      "materialBaseAttack": "33",
+      "rawGain": 3,
+      "targetCardId": "beast_a19",
+      "materialCardId": "beast_y19",
+      "beforeBonus": "12",
+      "addedBonus": "3",
+      "afterBonus": "15",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "3",
+      "capBonus": "28",
+      "capped": false,
+      "fedBefore": 4,
+      "fedAfter": 5,
+      "targetName": "畢月烏",
+      "materialName": "畢月烏・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "69",
+      "orbAfterAttack": "72",
+      "battleBeforeAttack": "55",
+      "battleAfterAttack": "58",
+      "countBefore": 36,
+      "countAfter": 35
+    },
+    {
+      "layer": 1,
+      "number": 11,
+      "guardian": "朱雀",
+      "targetId": "adult:2:0",
+      "materialId": "young:2:0",
+      "materialBonus": "0",
+      "materialBaseAttack": "31",
+      "rawGain": 3,
+      "targetCardId": "beast_a23",
+      "materialCardId": "beast_y23",
+      "beforeBonus": "0",
+      "addedBonus": "3",
+      "afterBonus": "3",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "3",
+      "capBonus": "31",
+      "capped": false,
+      "fedBefore": 0,
+      "fedAfter": 1,
+      "targetName": "鬼金羊",
+      "materialName": "鬼金羊・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "63",
+      "orbAfterAttack": "66",
+      "battleBeforeAttack": "43",
+      "battleAfterAttack": "46",
+      "countBefore": 35,
+      "countAfter": 34
+    },
+    {
+      "layer": 1,
+      "number": 12,
+      "guardian": "朱雀",
+      "targetId": "adult:2:0",
+      "materialId": "young:2:1",
+      "materialBonus": "0",
+      "materialBaseAttack": "31",
+      "rawGain": 3,
+      "targetCardId": "beast_a23",
+      "materialCardId": "beast_y23",
+      "beforeBonus": "3",
+      "addedBonus": "3",
+      "afterBonus": "6",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "3",
+      "capBonus": "31",
+      "capped": false,
+      "fedBefore": 1,
+      "fedAfter": 2,
+      "targetName": "鬼金羊",
+      "materialName": "鬼金羊・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "66",
+      "orbAfterAttack": "69",
+      "battleBeforeAttack": "46",
+      "battleAfterAttack": "49",
+      "countBefore": 34,
+      "countAfter": 33
+    },
+    {
+      "layer": 1,
+      "number": 13,
+      "guardian": "朱雀",
+      "targetId": "adult:2:0",
+      "materialId": "young:2:2",
+      "materialBonus": "0",
+      "materialBaseAttack": "31",
+      "rawGain": 3,
+      "targetCardId": "beast_a23",
+      "materialCardId": "beast_y23",
+      "beforeBonus": "6",
+      "addedBonus": "3",
+      "afterBonus": "9",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "3",
+      "capBonus": "31",
+      "capped": false,
+      "fedBefore": 2,
+      "fedAfter": 3,
+      "targetName": "鬼金羊",
+      "materialName": "鬼金羊・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "69",
+      "orbAfterAttack": "72",
+      "battleBeforeAttack": "49",
+      "battleAfterAttack": "52",
+      "countBefore": 33,
+      "countAfter": 32
+    },
+    {
+      "layer": 1,
+      "number": 14,
+      "guardian": "朱雀",
+      "targetId": "adult:2:0",
+      "materialId": "young:2:3",
+      "materialBonus": "0",
+      "materialBaseAttack": "31",
+      "rawGain": 3,
+      "targetCardId": "beast_a23",
+      "materialCardId": "beast_y23",
+      "beforeBonus": "9",
+      "addedBonus": "3",
+      "afterBonus": "12",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "3",
+      "capBonus": "31",
+      "capped": false,
+      "fedBefore": 3,
+      "fedAfter": 4,
+      "targetName": "鬼金羊",
+      "materialName": "鬼金羊・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "72",
+      "orbAfterAttack": "75",
+      "battleBeforeAttack": "52",
+      "battleAfterAttack": "55",
+      "countBefore": 32,
+      "countAfter": 31
+    },
+    {
+      "layer": 1,
+      "number": 15,
+      "guardian": "朱雀",
+      "targetId": "adult:2:0",
+      "materialId": "young:2:4",
+      "materialBonus": "0",
+      "materialBaseAttack": "31",
+      "rawGain": 3,
+      "targetCardId": "beast_a23",
+      "materialCardId": "beast_y23",
+      "beforeBonus": "12",
+      "addedBonus": "3",
+      "afterBonus": "15",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "3",
+      "capBonus": "31",
+      "capped": false,
+      "fedBefore": 4,
+      "fedAfter": 5,
+      "targetName": "鬼金羊",
+      "materialName": "鬼金羊・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "75",
+      "orbAfterAttack": "78",
+      "battleBeforeAttack": "55",
+      "battleAfterAttack": "58",
+      "countBefore": 31,
+      "countAfter": 30
+    },
+    {
+      "layer": 1,
+      "number": 16,
+      "guardian": "玄武",
+      "targetId": "adult:3:0",
+      "materialId": "young:3:0",
+      "materialBonus": "0",
+      "materialBaseAttack": "27",
+      "rawGain": 2,
+      "targetCardId": "beast_a14",
+      "materialCardId": "beast_y14",
+      "beforeBonus": "0",
+      "addedBonus": "2",
+      "afterBonus": "2",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "2",
+      "capBonus": "32",
+      "capped": false,
+      "fedBefore": 0,
+      "fedAfter": 1,
+      "targetName": "壁水貐",
+      "materialName": "壁水貐・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "65",
+      "orbAfterAttack": "67",
+      "battleBeforeAttack": "43",
+      "battleAfterAttack": "45",
+      "countBefore": 30,
+      "countAfter": 29
+    },
+    {
+      "layer": 1,
+      "number": 17,
+      "guardian": "玄武",
+      "targetId": "adult:3:0",
+      "materialId": "young:3:1",
+      "materialBonus": "0",
+      "materialBaseAttack": "27",
+      "rawGain": 2,
+      "targetCardId": "beast_a14",
+      "materialCardId": "beast_y14",
+      "beforeBonus": "2",
+      "addedBonus": "2",
+      "afterBonus": "4",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "2",
+      "capBonus": "32",
+      "capped": false,
+      "fedBefore": 1,
+      "fedAfter": 2,
+      "targetName": "壁水貐",
+      "materialName": "壁水貐・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "67",
+      "orbAfterAttack": "69",
+      "battleBeforeAttack": "45",
+      "battleAfterAttack": "47",
+      "countBefore": 29,
+      "countAfter": 28
+    },
+    {
+      "layer": 1,
+      "number": 18,
+      "guardian": "玄武",
+      "targetId": "adult:3:0",
+      "materialId": "young:3:2",
+      "materialBonus": "0",
+      "materialBaseAttack": "27",
+      "rawGain": 2,
+      "targetCardId": "beast_a14",
+      "materialCardId": "beast_y14",
+      "beforeBonus": "4",
+      "addedBonus": "2",
+      "afterBonus": "6",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "2",
+      "capBonus": "32",
+      "capped": false,
+      "fedBefore": 2,
+      "fedAfter": 3,
+      "targetName": "壁水貐",
+      "materialName": "壁水貐・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "69",
+      "orbAfterAttack": "71",
+      "battleBeforeAttack": "47",
+      "battleAfterAttack": "49",
+      "countBefore": 28,
+      "countAfter": 27
+    },
+    {
+      "layer": 1,
+      "number": 19,
+      "guardian": "玄武",
+      "targetId": "adult:3:0",
+      "materialId": "young:3:3",
+      "materialBonus": "0",
+      "materialBaseAttack": "27",
+      "rawGain": 2,
+      "targetCardId": "beast_a14",
+      "materialCardId": "beast_y14",
+      "beforeBonus": "6",
+      "addedBonus": "2",
+      "afterBonus": "8",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "2",
+      "capBonus": "32",
+      "capped": false,
+      "fedBefore": 3,
+      "fedAfter": 4,
+      "targetName": "壁水貐",
+      "materialName": "壁水貐・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "71",
+      "orbAfterAttack": "73",
+      "battleBeforeAttack": "49",
+      "battleAfterAttack": "51",
+      "countBefore": 27,
+      "countAfter": 26
+    },
+    {
+      "layer": 1,
+      "number": 20,
+      "guardian": "玄武",
+      "targetId": "adult:3:0",
+      "materialId": "young:3:4",
+      "materialBonus": "0",
+      "materialBaseAttack": "27",
+      "rawGain": 2,
+      "targetCardId": "beast_a14",
+      "materialCardId": "beast_y14",
+      "beforeBonus": "8",
+      "addedBonus": "2",
+      "afterBonus": "10",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "2",
+      "capBonus": "32",
+      "capped": false,
+      "fedBefore": 4,
+      "fedAfter": 5,
+      "targetName": "壁水貐",
+      "materialName": "壁水貐・幼子",
+      "materialCount": 1,
+      "orbBeforeAttack": "73",
+      "orbAfterAttack": "75",
+      "battleBeforeAttack": "51",
+      "battleAfterAttack": "53",
+      "countBefore": 26,
+      "countAfter": 25
+    },
+    {
+      "layer": 2,
+      "number": 1,
+      "guardian": "青龍",
+      "targetId": "lock:0",
+      "materialId": "adult:0:0",
+      "materialBonus": "10",
+      "materialBaseAttack": "44",
+      "rawGain": 9,
+      "targetCardId": "beast_g_qinglong",
+      "materialCardId": "beast_a03",
+      "beforeBonus": "20",
+      "addedBonus": "9",
+      "afterBonus": "29",
+      "rule": "v2",
+      "inheritedBonus": "5",
+      "rawBonus": "9",
+      "capBonus": "37",
+      "capped": false,
+      "fedBefore": 0,
+      "fedAfter": 1,
+      "targetName": "青龍",
+      "materialName": "氐土貉",
+      "materialCount": 1,
+      "orbBeforeAttack": "94",
+      "orbAfterAttack": "103",
+      "battleBeforeAttack": "63",
+      "battleAfterAttack": "72",
+      "countBefore": 25,
+      "countAfter": 24
+    },
+    {
+      "layer": 2,
+      "number": 2,
+      "guardian": "青龍",
+      "targetId": "lock:0",
+      "materialId": "adult:0:1",
+      "materialBonus": "0",
+      "materialBaseAttack": "44",
+      "rawGain": 4,
+      "targetCardId": "beast_g_qinglong",
+      "materialCardId": "beast_a03",
+      "beforeBonus": "29",
+      "addedBonus": "4",
+      "afterBonus": "33",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "4",
+      "capBonus": "37",
+      "capped": false,
+      "fedBefore": 1,
+      "fedAfter": 2,
+      "targetName": "青龍",
+      "materialName": "氐土貉",
+      "materialCount": 1,
+      "orbBeforeAttack": "103",
+      "orbAfterAttack": "107",
+      "battleBeforeAttack": "72",
+      "battleAfterAttack": "76",
+      "countBefore": 24,
+      "countAfter": 23
+    },
+    {
+      "layer": 2,
+      "number": 3,
+      "guardian": "青龍",
+      "targetId": "lock:0",
+      "materialId": "adult:0:2",
+      "materialBonus": "0",
+      "materialBaseAttack": "44",
+      "rawGain": 4,
+      "targetCardId": "beast_g_qinglong",
+      "materialCardId": "beast_a03",
+      "beforeBonus": "33",
+      "addedBonus": "4",
+      "afterBonus": "37",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "4",
+      "capBonus": "37",
+      "capped": false,
+      "fedBefore": 2,
+      "fedAfter": 3,
+      "targetName": "青龍",
+      "materialName": "氐土貉",
+      "materialCount": 1,
+      "orbBeforeAttack": "107",
+      "orbAfterAttack": "111",
+      "battleBeforeAttack": "76",
+      "battleAfterAttack": "80",
+      "countBefore": 23,
+      "countAfter": 22
+    },
+    {
+      "layer": 2,
+      "number": 4,
+      "guardian": "青龍",
+      "targetId": "lock:0",
+      "materialId": "adult:0:3",
+      "materialBonus": "0",
+      "materialBaseAttack": "44",
+      "rawGain": 4,
+      "targetCardId": "beast_g_qinglong",
+      "materialCardId": "beast_a03",
+      "beforeBonus": "37",
+      "addedBonus": "0",
+      "afterBonus": "37",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "4",
+      "capBonus": "37",
+      "capped": true,
+      "fedBefore": 3,
+      "fedAfter": 4,
+      "targetName": "青龍",
+      "materialName": "氐土貉",
+      "materialCount": 1,
+      "orbBeforeAttack": "111",
+      "orbAfterAttack": "111",
+      "battleBeforeAttack": "80",
+      "battleAfterAttack": "80",
+      "countBefore": 22,
+      "countAfter": 21
+    },
+    {
+      "layer": 2,
+      "number": 5,
+      "guardian": "青龍",
+      "targetId": "lock:0",
+      "materialId": "adult:0:4",
+      "materialBonus": "0",
+      "materialBaseAttack": "44",
+      "rawGain": 4,
+      "targetCardId": "beast_g_qinglong",
+      "materialCardId": "beast_a03",
+      "beforeBonus": "37",
+      "addedBonus": "0",
+      "afterBonus": "37",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "4",
+      "capBonus": "37",
+      "capped": true,
+      "fedBefore": 4,
+      "fedAfter": 5,
+      "targetName": "青龍",
+      "materialName": "氐土貉",
+      "materialCount": 1,
+      "orbBeforeAttack": "111",
+      "orbAfterAttack": "111",
+      "battleBeforeAttack": "80",
+      "battleAfterAttack": "80",
+      "countBefore": 21,
+      "countAfter": 20
+    },
+    {
+      "layer": 2,
+      "number": 6,
+      "guardian": "白虎",
+      "targetId": "lock:1",
+      "materialId": "adult:1:0",
+      "materialBonus": "15",
+      "materialBaseAttack": "57",
+      "rawGain": 12,
+      "targetCardId": "beast_g_baihu",
+      "materialCardId": "beast_a19",
+      "beforeBonus": "20",
+      "addedBonus": "12",
+      "afterBonus": "32",
+      "rule": "v2",
+      "inheritedBonus": "7",
+      "rawBonus": "12",
+      "capBonus": "34",
+      "capped": false,
+      "fedBefore": 0,
+      "fedAfter": 1,
+      "targetName": "白虎",
+      "materialName": "畢月烏",
+      "materialCount": 1,
+      "orbBeforeAttack": "88",
+      "orbAfterAttack": "100",
+      "battleBeforeAttack": "66",
+      "battleAfterAttack": "78",
+      "countBefore": 20,
+      "countAfter": 19
+    },
+    {
+      "layer": 2,
+      "number": 7,
+      "guardian": "白虎",
+      "targetId": "lock:1",
+      "materialId": "adult:1:1",
+      "materialBonus": "0",
+      "materialBaseAttack": "57",
+      "rawGain": 5,
+      "targetCardId": "beast_g_baihu",
+      "materialCardId": "beast_a19",
+      "beforeBonus": "32",
+      "addedBonus": "2",
+      "afterBonus": "34",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "5",
+      "capBonus": "34",
+      "capped": true,
+      "fedBefore": 1,
+      "fedAfter": 2,
+      "targetName": "白虎",
+      "materialName": "畢月烏",
+      "materialCount": 1,
+      "orbBeforeAttack": "100",
+      "orbAfterAttack": "102",
+      "battleBeforeAttack": "78",
+      "battleAfterAttack": "80",
+      "countBefore": 19,
+      "countAfter": 18
+    },
+    {
+      "layer": 2,
+      "number": 8,
+      "guardian": "白虎",
+      "targetId": "lock:1",
+      "materialId": "adult:1:2",
+      "materialBonus": "0",
+      "materialBaseAttack": "57",
+      "rawGain": 5,
+      "targetCardId": "beast_g_baihu",
+      "materialCardId": "beast_a19",
+      "beforeBonus": "34",
+      "addedBonus": "0",
+      "afterBonus": "34",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "5",
+      "capBonus": "34",
+      "capped": true,
+      "fedBefore": 2,
+      "fedAfter": 3,
+      "targetName": "白虎",
+      "materialName": "畢月烏",
+      "materialCount": 1,
+      "orbBeforeAttack": "102",
+      "orbAfterAttack": "102",
+      "battleBeforeAttack": "80",
+      "battleAfterAttack": "80",
+      "countBefore": 18,
+      "countAfter": 17
+    },
+    {
+      "layer": 2,
+      "number": 9,
+      "guardian": "白虎",
+      "targetId": "lock:1",
+      "materialId": "adult:1:3",
+      "materialBonus": "0",
+      "materialBaseAttack": "57",
+      "rawGain": 5,
+      "targetCardId": "beast_g_baihu",
+      "materialCardId": "beast_a19",
+      "beforeBonus": "34",
+      "addedBonus": "0",
+      "afterBonus": "34",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "5",
+      "capBonus": "34",
+      "capped": true,
+      "fedBefore": 3,
+      "fedAfter": 4,
+      "targetName": "白虎",
+      "materialName": "畢月烏",
+      "materialCount": 1,
+      "orbBeforeAttack": "102",
+      "orbAfterAttack": "102",
+      "battleBeforeAttack": "80",
+      "battleAfterAttack": "80",
+      "countBefore": 17,
+      "countAfter": 16
+    },
+    {
+      "layer": 2,
+      "number": 10,
+      "guardian": "白虎",
+      "targetId": "lock:1",
+      "materialId": "adult:1:4",
+      "materialBonus": "0",
+      "materialBaseAttack": "57",
+      "rawGain": 5,
+      "targetCardId": "beast_g_baihu",
+      "materialCardId": "beast_a19",
+      "beforeBonus": "34",
+      "addedBonus": "0",
+      "afterBonus": "34",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "5",
+      "capBonus": "34",
+      "capped": true,
+      "fedBefore": 4,
+      "fedAfter": 5,
+      "targetName": "白虎",
+      "materialName": "畢月烏",
+      "materialCount": 1,
+      "orbBeforeAttack": "102",
+      "orbAfterAttack": "102",
+      "battleBeforeAttack": "80",
+      "battleAfterAttack": "80",
+      "countBefore": 16,
+      "countAfter": 15
+    },
+    {
+      "layer": 2,
+      "number": 11,
+      "guardian": "朱雀",
+      "targetId": "lock:2",
+      "materialId": "adult:2:0",
+      "materialBonus": "15",
+      "materialBaseAttack": "63",
+      "rawGain": 13,
+      "targetCardId": "beast_g_zhuque",
+      "materialCardId": "beast_a23",
+      "beforeBonus": "20",
+      "addedBonus": "13",
+      "afterBonus": "33",
+      "rule": "v2",
+      "inheritedBonus": "7",
+      "rawBonus": "13",
+      "capBonus": "44",
+      "capped": false,
+      "fedBefore": 0,
+      "fedAfter": 1,
+      "targetName": "朱雀",
+      "materialName": "鬼金羊",
+      "materialCount": 1,
+      "orbBeforeAttack": "108",
+      "orbAfterAttack": "121",
+      "battleBeforeAttack": "66",
+      "battleAfterAttack": "79",
+      "countBefore": 15,
+      "countAfter": 14
+    },
+    {
+      "layer": 2,
+      "number": 12,
+      "guardian": "朱雀",
+      "targetId": "lock:2",
+      "materialId": "adult:2:1",
+      "materialBonus": "0",
+      "materialBaseAttack": "63",
+      "rawGain": 6,
+      "targetCardId": "beast_g_zhuque",
+      "materialCardId": "beast_a23",
+      "beforeBonus": "33",
+      "addedBonus": "6",
+      "afterBonus": "39",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "6",
+      "capBonus": "44",
+      "capped": false,
+      "fedBefore": 1,
+      "fedAfter": 2,
+      "targetName": "朱雀",
+      "materialName": "鬼金羊",
+      "materialCount": 1,
+      "orbBeforeAttack": "121",
+      "orbAfterAttack": "127",
+      "battleBeforeAttack": "79",
+      "battleAfterAttack": "85",
+      "countBefore": 14,
+      "countAfter": 13
+    },
+    {
+      "layer": 2,
+      "number": 13,
+      "guardian": "朱雀",
+      "targetId": "lock:2",
+      "materialId": "adult:2:2",
+      "materialBonus": "0",
+      "materialBaseAttack": "63",
+      "rawGain": 6,
+      "targetCardId": "beast_g_zhuque",
+      "materialCardId": "beast_a23",
+      "beforeBonus": "39",
+      "addedBonus": "5",
+      "afterBonus": "44",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "6",
+      "capBonus": "44",
+      "capped": true,
+      "fedBefore": 2,
+      "fedAfter": 3,
+      "targetName": "朱雀",
+      "materialName": "鬼金羊",
+      "materialCount": 1,
+      "orbBeforeAttack": "127",
+      "orbAfterAttack": "132",
+      "battleBeforeAttack": "85",
+      "battleAfterAttack": "90",
+      "countBefore": 13,
+      "countAfter": 12
+    },
+    {
+      "layer": 2,
+      "number": 14,
+      "guardian": "朱雀",
+      "targetId": "lock:2",
+      "materialId": "adult:2:3",
+      "materialBonus": "0",
+      "materialBaseAttack": "63",
+      "rawGain": 6,
+      "targetCardId": "beast_g_zhuque",
+      "materialCardId": "beast_a23",
+      "beforeBonus": "44",
+      "addedBonus": "0",
+      "afterBonus": "44",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "6",
+      "capBonus": "44",
+      "capped": true,
+      "fedBefore": 3,
+      "fedAfter": 4,
+      "targetName": "朱雀",
+      "materialName": "鬼金羊",
+      "materialCount": 1,
+      "orbBeforeAttack": "132",
+      "orbAfterAttack": "132",
+      "battleBeforeAttack": "90",
+      "battleAfterAttack": "90",
+      "countBefore": 12,
+      "countAfter": 11
+    },
+    {
+      "layer": 2,
+      "number": 15,
+      "guardian": "朱雀",
+      "targetId": "lock:2",
+      "materialId": "adult:2:4",
+      "materialBonus": "0",
+      "materialBaseAttack": "63",
+      "rawGain": 6,
+      "targetCardId": "beast_g_zhuque",
+      "materialCardId": "beast_a23",
+      "beforeBonus": "44",
+      "addedBonus": "0",
+      "afterBonus": "44",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "6",
+      "capBonus": "44",
+      "capped": true,
+      "fedBefore": 4,
+      "fedAfter": 5,
+      "targetName": "朱雀",
+      "materialName": "鬼金羊",
+      "materialCount": 1,
+      "orbBeforeAttack": "132",
+      "orbAfterAttack": "132",
+      "battleBeforeAttack": "90",
+      "battleAfterAttack": "90",
+      "countBefore": 11,
+      "countAfter": 10
+    },
+    {
+      "layer": 2,
+      "number": 16,
+      "guardian": "玄武",
+      "targetId": "lock:3",
+      "materialId": "adult:3:0",
+      "materialBonus": "10",
+      "materialBaseAttack": "65",
+      "rawGain": 11,
+      "targetCardId": "beast_g_xuanwu",
+      "materialCardId": "beast_a14",
+      "beforeBonus": "20",
+      "addedBonus": "11",
+      "afterBonus": "31",
+      "rule": "v2",
+      "inheritedBonus": "5",
+      "rawBonus": "11",
+      "capBonus": "38",
+      "capped": false,
+      "fedBefore": 0,
+      "fedAfter": 1,
+      "targetName": "玄武",
+      "materialName": "壁水貐",
+      "materialCount": 1,
+      "orbBeforeAttack": "97",
+      "orbAfterAttack": "108",
+      "battleBeforeAttack": "63",
+      "battleAfterAttack": "74",
+      "countBefore": 10,
+      "countAfter": 9
+    },
+    {
+      "layer": 2,
+      "number": 17,
+      "guardian": "玄武",
+      "targetId": "lock:3",
+      "materialId": "adult:3:1",
+      "materialBonus": "0",
+      "materialBaseAttack": "65",
+      "rawGain": 6,
+      "targetCardId": "beast_g_xuanwu",
+      "materialCardId": "beast_a14",
+      "beforeBonus": "31",
+      "addedBonus": "6",
+      "afterBonus": "37",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "6",
+      "capBonus": "38",
+      "capped": false,
+      "fedBefore": 1,
+      "fedAfter": 2,
+      "targetName": "玄武",
+      "materialName": "壁水貐",
+      "materialCount": 1,
+      "orbBeforeAttack": "108",
+      "orbAfterAttack": "114",
+      "battleBeforeAttack": "74",
+      "battleAfterAttack": "80",
+      "countBefore": 9,
+      "countAfter": 8
+    },
+    {
+      "layer": 2,
+      "number": 18,
+      "guardian": "玄武",
+      "targetId": "lock:3",
+      "materialId": "adult:3:2",
+      "materialBonus": "0",
+      "materialBaseAttack": "65",
+      "rawGain": 6,
+      "targetCardId": "beast_g_xuanwu",
+      "materialCardId": "beast_a14",
+      "beforeBonus": "37",
+      "addedBonus": "1",
+      "afterBonus": "38",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "6",
+      "capBonus": "38",
+      "capped": true,
+      "fedBefore": 2,
+      "fedAfter": 3,
+      "targetName": "玄武",
+      "materialName": "壁水貐",
+      "materialCount": 1,
+      "orbBeforeAttack": "114",
+      "orbAfterAttack": "115",
+      "battleBeforeAttack": "80",
+      "battleAfterAttack": "81",
+      "countBefore": 8,
+      "countAfter": 7
+    },
+    {
+      "layer": 2,
+      "number": 19,
+      "guardian": "玄武",
+      "targetId": "lock:3",
+      "materialId": "adult:3:3",
+      "materialBonus": "0",
+      "materialBaseAttack": "65",
+      "rawGain": 6,
+      "targetCardId": "beast_g_xuanwu",
+      "materialCardId": "beast_a14",
+      "beforeBonus": "38",
+      "addedBonus": "0",
+      "afterBonus": "38",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "6",
+      "capBonus": "38",
+      "capped": true,
+      "fedBefore": 3,
+      "fedAfter": 4,
+      "targetName": "玄武",
+      "materialName": "壁水貐",
+      "materialCount": 1,
+      "orbBeforeAttack": "115",
+      "orbAfterAttack": "115",
+      "battleBeforeAttack": "81",
+      "battleAfterAttack": "81",
+      "countBefore": 7,
+      "countAfter": 6
+    },
+    {
+      "layer": 2,
+      "number": 20,
+      "guardian": "玄武",
+      "targetId": "lock:3",
+      "materialId": "adult:3:4",
+      "materialBonus": "0",
+      "materialBaseAttack": "65",
+      "rawGain": 6,
+      "targetCardId": "beast_g_xuanwu",
+      "materialCardId": "beast_a14",
+      "beforeBonus": "38",
+      "addedBonus": "0",
+      "afterBonus": "38",
+      "rule": "v2",
+      "inheritedBonus": "0",
+      "rawBonus": "6",
+      "capBonus": "38",
+      "capped": true,
+      "fedBefore": 4,
+      "fedAfter": 5,
+      "targetName": "玄武",
+      "materialName": "壁水貐",
+      "materialCount": 1,
+      "orbBeforeAttack": "115",
+      "orbAfterAttack": "115",
+      "battleBeforeAttack": "81",
+      "battleAfterAttack": "81",
+      "countBefore": 6,
+      "countAfter": 5
+    }
+  ],
+  "errors": [],
+  "requests": [
+    {
+      "type": "FUSE",
+      "revision": "1",
+      "operationId": "15f82524-3c61-4e38-b71e-5949fa8036dd",
+      "choices": [
+        {
+          "targetId": "adult:0:0",
+          "materialId": "young:0:0"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "1",
+      "operationId": "15f82524-3c61-4e38-b71e-5949fa8036dd",
+      "choices": [
+        {
+          "targetId": "adult:0:0",
+          "materialId": "young:0:0"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "2",
+      "operationId": "4f21df6d-d620-4259-9b3f-55cf45798a68",
+      "choices": [
+        {
+          "targetId": "adult:0:0",
+          "materialId": "young:0:1"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "3",
+      "operationId": "d8c4b950-eeb9-4daa-b404-eab85b825bdb",
+      "choices": [
+        {
+          "targetId": "adult:0:0",
+          "materialId": "young:0:2"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "4",
+      "operationId": "601837e1-86d4-4301-bbb9-41b762901810",
+      "choices": [
+        {
+          "targetId": "adult:0:0",
+          "materialId": "young:0:3"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "5",
+      "operationId": "fc67a1d4-0863-462d-ac27-c930b19a8252",
+      "choices": [
+        {
+          "targetId": "adult:0:0",
+          "materialId": "young:0:4"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "6",
+      "operationId": "78aa3902-e656-44ba-969c-68f70c4076d9",
+      "choices": [
+        {
+          "targetId": "adult:1:0",
+          "materialId": "young:1:0"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "7",
+      "operationId": "ea1c854c-cee8-447e-8b26-40813d3b06f8",
+      "choices": [
+        {
+          "targetId": "adult:1:0",
+          "materialId": "young:1:1"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "8",
+      "operationId": "76236cc2-c063-4cdb-be6d-bd874ac125a5",
+      "choices": [
+        {
+          "targetId": "adult:1:0",
+          "materialId": "young:1:2"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "9",
+      "operationId": "7d944acc-ec54-4317-976a-7d3b55f4aff0",
+      "choices": [
+        {
+          "targetId": "adult:1:0",
+          "materialId": "young:1:3"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "10",
+      "operationId": "1c1f9c11-e18e-45df-8f24-f6f1e8211d17",
+      "choices": [
+        {
+          "targetId": "adult:1:0",
+          "materialId": "young:1:4"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "11",
+      "operationId": "952a674c-41c3-4c34-9dfc-1cab008442ce",
+      "choices": [
+        {
+          "targetId": "adult:2:0",
+          "materialId": "young:2:0"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "12",
+      "operationId": "7312f07f-a74b-4218-adac-4f953146628d",
+      "choices": [
+        {
+          "targetId": "adult:2:0",
+          "materialId": "young:2:1"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "13",
+      "operationId": "11a7825c-c577-412a-9b19-c2311c9f4d71",
+      "choices": [
+        {
+          "targetId": "adult:2:0",
+          "materialId": "young:2:2"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "14",
+      "operationId": "260d331f-a4c5-4df6-b0a8-24e219279d78",
+      "choices": [
+        {
+          "targetId": "adult:2:0",
+          "materialId": "young:2:3"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "15",
+      "operationId": "c7a81d08-f11f-42ae-a202-c4eefefc3fa3",
+      "choices": [
+        {
+          "targetId": "adult:2:0",
+          "materialId": "young:2:4"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "16",
+      "operationId": "0845126e-68d2-467c-979b-8f1d2ef7e147",
+      "choices": [
+        {
+          "targetId": "adult:3:0",
+          "materialId": "young:3:0"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "17",
+      "operationId": "2a804b56-3e63-4c6a-ae58-8efa58b843b3",
+      "choices": [
+        {
+          "targetId": "adult:3:0",
+          "materialId": "young:3:1"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "18",
+      "operationId": "13703ea1-8869-4d4c-b1b7-f8510490c505",
+      "choices": [
+        {
+          "targetId": "adult:3:0",
+          "materialId": "young:3:2"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "19",
+      "operationId": "3b467870-fd1e-47e1-85e0-82709c5779d5",
+      "choices": [
+        {
+          "targetId": "adult:3:0",
+          "materialId": "young:3:3"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "20",
+      "operationId": "f689bfb0-61a3-40f2-ab29-8d8c5d91cf35",
+      "choices": [
+        {
+          "targetId": "adult:3:0",
+          "materialId": "young:3:4"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "21",
+      "operationId": "9ef622f7-24c4-4cb7-bb41-79ed4aed3343",
+      "choices": [
+        {
+          "targetId": "lock:0",
+          "materialId": "adult:0:0"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "22",
+      "operationId": "c3525e2a-08f7-4b46-976e-2d96af50db14",
+      "choices": [
+        {
+          "targetId": "lock:0",
+          "materialId": "adult:0:1"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "23",
+      "operationId": "d4191220-b0cd-4911-8717-b7bf26d82c6d",
+      "choices": [
+        {
+          "targetId": "lock:0",
+          "materialId": "adult:0:2"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "24",
+      "operationId": "a6fb7bc6-99f6-4384-a7b3-53231eccc03e",
+      "choices": [
+        {
+          "targetId": "lock:0",
+          "materialId": "adult:0:3"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "25",
+      "operationId": "3ad9a2ef-1b86-407b-bf47-1f5e8f6ef676",
+      "choices": [
+        {
+          "targetId": "lock:0",
+          "materialId": "adult:0:4"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "26",
+      "operationId": "af36fc68-829e-43ee-811a-6d1671978615",
+      "choices": [
+        {
+          "targetId": "lock:1",
+          "materialId": "adult:1:0"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "27",
+      "operationId": "3d98c10b-11d8-46f0-958f-f2a8eca0d12b",
+      "choices": [
+        {
+          "targetId": "lock:1",
+          "materialId": "adult:1:1"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "28",
+      "operationId": "c98261fa-e580-4328-b033-4e0c5c9bfd3e",
+      "choices": [
+        {
+          "targetId": "lock:1",
+          "materialId": "adult:1:2"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "29",
+      "operationId": "ae750465-6b31-4c12-a444-3d88b96dfdcc",
+      "choices": [
+        {
+          "targetId": "lock:1",
+          "materialId": "adult:1:3"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "30",
+      "operationId": "85e45d8f-9943-4d10-a1b6-404e3463d739",
+      "choices": [
+        {
+          "targetId": "lock:1",
+          "materialId": "adult:1:4"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "31",
+      "operationId": "80d66f25-888b-43a4-a633-3eca052a6701",
+      "choices": [
+        {
+          "targetId": "lock:2",
+          "materialId": "adult:2:0"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "32",
+      "operationId": "c35d1dff-7a6b-4dd0-8856-f1fd24b97177",
+      "choices": [
+        {
+          "targetId": "lock:2",
+          "materialId": "adult:2:1"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "33",
+      "operationId": "65f1a606-a078-4dc5-a9e5-f10bac0775db",
+      "choices": [
+        {
+          "targetId": "lock:2",
+          "materialId": "adult:2:2"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "34",
+      "operationId": "1b161204-99d4-49f1-b139-883c93092c54",
+      "choices": [
+        {
+          "targetId": "lock:2",
+          "materialId": "adult:2:3"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "35",
+      "operationId": "f820c38e-20c3-4f6d-a45e-b26b10085d06",
+      "choices": [
+        {
+          "targetId": "lock:2",
+          "materialId": "adult:2:4"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "36",
+      "operationId": "1e750270-7920-45e0-aadb-823a71f0427b",
+      "choices": [
+        {
+          "targetId": "lock:3",
+          "materialId": "adult:3:0"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "37",
+      "operationId": "3763ec43-dfe3-47bd-bd3c-d5141e16f1ea",
+      "choices": [
+        {
+          "targetId": "lock:3",
+          "materialId": "adult:3:1"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "38",
+      "operationId": "4ab5ddca-4e1f-424b-b8f2-0e50af9f1f2e",
+      "choices": [
+        {
+          "targetId": "lock:3",
+          "materialId": "adult:3:2"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "39",
+      "operationId": "a703a808-a0e5-4082-a83b-33f841bc8d7c",
+      "choices": [
+        {
+          "targetId": "lock:3",
+          "materialId": "adult:3:3"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "40",
+      "operationId": "1f55ae2e-b381-429b-a5d9-e87c0f63b905",
+      "choices": [
+        {
+          "targetId": "lock:3",
+          "materialId": "adult:3:4"
+        }
+      ]
+    }
+  ],
+  "wrongClanRejected": "幼子只能合體對應本體，本體只能合體所屬四大神獸。",
+  "protectedRejected": "鎖定主力不能作為材料，請先整組更換主力。",
+  "doubleTapLostResponseOnce": true,
+  "stage1": {
+    "state": {
+      "cards": [
+        {
+          "id": "lock:0",
+          "bonus": "20",
+          "cardId": "beast_g_qinglong"
+        },
+        {
+          "id": "lock:1",
+          "bonus": "20",
+          "cardId": "beast_g_baihu"
+        },
+        {
+          "id": "lock:2",
+          "bonus": "20",
+          "cardId": "beast_g_zhuque"
+        },
+        {
+          "id": "lock:3",
+          "bonus": "20",
+          "cardId": "beast_g_xuanwu"
+        },
+        {
+          "id": "lock:4",
+          "bonus": "20",
+          "cardId": "beast_y28"
+        },
+        {
+          "id": "adult:0:0",
+          "fed": 5,
+          "bonus": "10",
+          "cardId": "beast_a03"
+        },
+        {
+          "id": "adult:0:1",
+          "bonus": "0",
+          "cardId": "beast_a03"
+        },
+        {
+          "id": "adult:0:2",
+          "bonus": "0",
+          "cardId": "beast_a03"
+        },
+        {
+          "id": "adult:0:3",
+          "bonus": "0",
+          "cardId": "beast_a03"
+        },
+        {
+          "id": "adult:0:4",
+          "bonus": "0",
+          "cardId": "beast_a03"
+        },
+        {
+          "id": "adult:1:0",
+          "fed": 5,
+          "bonus": "15",
+          "cardId": "beast_a19"
+        },
+        {
+          "id": "adult:1:1",
+          "bonus": "0",
+          "cardId": "beast_a19"
+        },
+        {
+          "id": "adult:1:2",
+          "bonus": "0",
+          "cardId": "beast_a19"
+        },
+        {
+          "id": "adult:1:3",
+          "bonus": "0",
+          "cardId": "beast_a19"
+        },
+        {
+          "id": "adult:1:4",
+          "bonus": "0",
+          "cardId": "beast_a19"
+        },
+        {
+          "id": "adult:2:0",
+          "fed": 5,
+          "bonus": "15",
+          "cardId": "beast_a23"
+        },
+        {
+          "id": "adult:2:1",
+          "bonus": "0",
+          "cardId": "beast_a23"
+        },
+        {
+          "id": "adult:2:2",
+          "bonus": "0",
+          "cardId": "beast_a23"
+        },
+        {
+          "id": "adult:2:3",
+          "bonus": "0",
+          "cardId": "beast_a23"
+        },
+        {
+          "id": "adult:2:4",
+          "bonus": "0",
+          "cardId": "beast_a23"
+        },
+        {
+          "id": "adult:3:0",
+          "fed": 5,
+          "bonus": "10",
+          "cardId": "beast_a14"
+        },
+        {
+          "id": "adult:3:1",
+          "bonus": "0",
+          "cardId": "beast_a14"
+        },
+        {
+          "id": "adult:3:2",
+          "bonus": "0",
+          "cardId": "beast_a14"
+        },
+        {
+          "id": "adult:3:3",
+          "bonus": "0",
+          "cardId": "beast_a14"
+        },
+        {
+          "id": "adult:3:4",
+          "bonus": "0",
+          "cardId": "beast_a14"
+        }
+      ],
+      "protectedIds": [
+        "lock:0",
+        "lock:1",
+        "lock:2",
+        "lock:3",
+        "lock:4"
+      ]
+    },
+    "receipts": [
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "22",
+            "fedAfter": 1,
+            "rawBonus": "2",
+            "targetId": "adult:0:0",
+            "fedBefore": 0,
+            "addedBonus": "2",
+            "afterBonus": "2",
+            "materialId": "young:0:0",
+            "beforeBonus": "0",
+            "targetCardId": "beast_a03",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y03"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:0:0\",\"materialId\":\"young:0:0\"}]}",
+        "revision": "2",
+        "operationId": "15f82524-3c61-4e38-b71e-5949fa8036dd",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "22",
+            "fedAfter": 2,
+            "rawBonus": "2",
+            "targetId": "adult:0:0",
+            "fedBefore": 1,
+            "addedBonus": "2",
+            "afterBonus": "4",
+            "materialId": "young:0:1",
+            "beforeBonus": "2",
+            "targetCardId": "beast_a03",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y03"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:0:0\",\"materialId\":\"young:0:1\"}]}",
+        "revision": "3",
+        "operationId": "4f21df6d-d620-4259-9b3f-55cf45798a68",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "22",
+            "fedAfter": 3,
+            "rawBonus": "2",
+            "targetId": "adult:0:0",
+            "fedBefore": 2,
+            "addedBonus": "2",
+            "afterBonus": "6",
+            "materialId": "young:0:2",
+            "beforeBonus": "4",
+            "targetCardId": "beast_a03",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y03"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:0:0\",\"materialId\":\"young:0:2\"}]}",
+        "revision": "4",
+        "operationId": "d8c4b950-eeb9-4daa-b404-eab85b825bdb",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "22",
+            "fedAfter": 4,
+            "rawBonus": "2",
+            "targetId": "adult:0:0",
+            "fedBefore": 3,
+            "addedBonus": "2",
+            "afterBonus": "8",
+            "materialId": "young:0:3",
+            "beforeBonus": "6",
+            "targetCardId": "beast_a03",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y03"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:0:0\",\"materialId\":\"young:0:3\"}]}",
+        "revision": "5",
+        "operationId": "601837e1-86d4-4301-bbb9-41b762901810",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "22",
+            "fedAfter": 5,
+            "rawBonus": "2",
+            "targetId": "adult:0:0",
+            "fedBefore": 4,
+            "addedBonus": "2",
+            "afterBonus": "10",
+            "materialId": "young:0:4",
+            "beforeBonus": "8",
+            "targetCardId": "beast_a03",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y03"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:0:0\",\"materialId\":\"young:0:4\"}]}",
+        "revision": "6",
+        "operationId": "fc67a1d4-0863-462d-ac27-c930b19a8252",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "28",
+            "fedAfter": 1,
+            "rawBonus": "3",
+            "targetId": "adult:1:0",
+            "fedBefore": 0,
+            "addedBonus": "3",
+            "afterBonus": "3",
+            "materialId": "young:1:0",
+            "beforeBonus": "0",
+            "targetCardId": "beast_a19",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y19"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:1:0\",\"materialId\":\"young:1:0\"}]}",
+        "revision": "7",
+        "operationId": "78aa3902-e656-44ba-969c-68f70c4076d9",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "28",
+            "fedAfter": 2,
+            "rawBonus": "3",
+            "targetId": "adult:1:0",
+            "fedBefore": 1,
+            "addedBonus": "3",
+            "afterBonus": "6",
+            "materialId": "young:1:1",
+            "beforeBonus": "3",
+            "targetCardId": "beast_a19",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y19"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:1:0\",\"materialId\":\"young:1:1\"}]}",
+        "revision": "8",
+        "operationId": "ea1c854c-cee8-447e-8b26-40813d3b06f8",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "28",
+            "fedAfter": 3,
+            "rawBonus": "3",
+            "targetId": "adult:1:0",
+            "fedBefore": 2,
+            "addedBonus": "3",
+            "afterBonus": "9",
+            "materialId": "young:1:2",
+            "beforeBonus": "6",
+            "targetCardId": "beast_a19",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y19"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:1:0\",\"materialId\":\"young:1:2\"}]}",
+        "revision": "9",
+        "operationId": "76236cc2-c063-4cdb-be6d-bd874ac125a5",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "28",
+            "fedAfter": 4,
+            "rawBonus": "3",
+            "targetId": "adult:1:0",
+            "fedBefore": 3,
+            "addedBonus": "3",
+            "afterBonus": "12",
+            "materialId": "young:1:3",
+            "beforeBonus": "9",
+            "targetCardId": "beast_a19",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y19"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:1:0\",\"materialId\":\"young:1:3\"}]}",
+        "revision": "10",
+        "operationId": "7d944acc-ec54-4317-976a-7d3b55f4aff0",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "28",
+            "fedAfter": 5,
+            "rawBonus": "3",
+            "targetId": "adult:1:0",
+            "fedBefore": 4,
+            "addedBonus": "3",
+            "afterBonus": "15",
+            "materialId": "young:1:4",
+            "beforeBonus": "12",
+            "targetCardId": "beast_a19",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y19"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:1:0\",\"materialId\":\"young:1:4\"}]}",
+        "revision": "11",
+        "operationId": "1c1f9c11-e18e-45df-8f24-f6f1e8211d17",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "31",
+            "fedAfter": 1,
+            "rawBonus": "3",
+            "targetId": "adult:2:0",
+            "fedBefore": 0,
+            "addedBonus": "3",
+            "afterBonus": "3",
+            "materialId": "young:2:0",
+            "beforeBonus": "0",
+            "targetCardId": "beast_a23",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y23"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:2:0\",\"materialId\":\"young:2:0\"}]}",
+        "revision": "12",
+        "operationId": "952a674c-41c3-4c34-9dfc-1cab008442ce",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "31",
+            "fedAfter": 2,
+            "rawBonus": "3",
+            "targetId": "adult:2:0",
+            "fedBefore": 1,
+            "addedBonus": "3",
+            "afterBonus": "6",
+            "materialId": "young:2:1",
+            "beforeBonus": "3",
+            "targetCardId": "beast_a23",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y23"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:2:0\",\"materialId\":\"young:2:1\"}]}",
+        "revision": "13",
+        "operationId": "7312f07f-a74b-4218-adac-4f953146628d",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "31",
+            "fedAfter": 3,
+            "rawBonus": "3",
+            "targetId": "adult:2:0",
+            "fedBefore": 2,
+            "addedBonus": "3",
+            "afterBonus": "9",
+            "materialId": "young:2:2",
+            "beforeBonus": "6",
+            "targetCardId": "beast_a23",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y23"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:2:0\",\"materialId\":\"young:2:2\"}]}",
+        "revision": "14",
+        "operationId": "11a7825c-c577-412a-9b19-c2311c9f4d71",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "31",
+            "fedAfter": 4,
+            "rawBonus": "3",
+            "targetId": "adult:2:0",
+            "fedBefore": 3,
+            "addedBonus": "3",
+            "afterBonus": "12",
+            "materialId": "young:2:3",
+            "beforeBonus": "9",
+            "targetCardId": "beast_a23",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y23"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:2:0\",\"materialId\":\"young:2:3\"}]}",
+        "revision": "15",
+        "operationId": "260d331f-a4c5-4df6-b0a8-24e219279d78",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "31",
+            "fedAfter": 5,
+            "rawBonus": "3",
+            "targetId": "adult:2:0",
+            "fedBefore": 4,
+            "addedBonus": "3",
+            "afterBonus": "15",
+            "materialId": "young:2:4",
+            "beforeBonus": "12",
+            "targetCardId": "beast_a23",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y23"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:2:0\",\"materialId\":\"young:2:4\"}]}",
+        "revision": "16",
+        "operationId": "c7a81d08-f11f-42ae-a202-c4eefefc3fa3",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "32",
+            "fedAfter": 1,
+            "rawBonus": "2",
+            "targetId": "adult:3:0",
+            "fedBefore": 0,
+            "addedBonus": "2",
+            "afterBonus": "2",
+            "materialId": "young:3:0",
+            "beforeBonus": "0",
+            "targetCardId": "beast_a14",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y14"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:3:0\",\"materialId\":\"young:3:0\"}]}",
+        "revision": "17",
+        "operationId": "0845126e-68d2-467c-979b-8f1d2ef7e147",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "32",
+            "fedAfter": 2,
+            "rawBonus": "2",
+            "targetId": "adult:3:0",
+            "fedBefore": 1,
+            "addedBonus": "2",
+            "afterBonus": "4",
+            "materialId": "young:3:1",
+            "beforeBonus": "2",
+            "targetCardId": "beast_a14",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y14"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:3:0\",\"materialId\":\"young:3:1\"}]}",
+        "revision": "18",
+        "operationId": "2a804b56-3e63-4c6a-ae58-8efa58b843b3",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "32",
+            "fedAfter": 3,
+            "rawBonus": "2",
+            "targetId": "adult:3:0",
+            "fedBefore": 2,
+            "addedBonus": "2",
+            "afterBonus": "6",
+            "materialId": "young:3:2",
+            "beforeBonus": "4",
+            "targetCardId": "beast_a14",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y14"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:3:0\",\"materialId\":\"young:3:2\"}]}",
+        "revision": "19",
+        "operationId": "13703ea1-8869-4d4c-b1b7-f8510490c505",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "32",
+            "fedAfter": 4,
+            "rawBonus": "2",
+            "targetId": "adult:3:0",
+            "fedBefore": 3,
+            "addedBonus": "2",
+            "afterBonus": "8",
+            "materialId": "young:3:3",
+            "beforeBonus": "6",
+            "targetCardId": "beast_a14",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y14"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:3:0\",\"materialId\":\"young:3:3\"}]}",
+        "revision": "20",
+        "operationId": "3b467870-fd1e-47e1-85e0-82709c5779d5",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "32",
+            "fedAfter": 5,
+            "rawBonus": "2",
+            "targetId": "adult:3:0",
+            "fedBefore": 4,
+            "addedBonus": "2",
+            "afterBonus": "10",
+            "materialId": "young:3:4",
+            "beforeBonus": "8",
+            "targetCardId": "beast_a14",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y14"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:3:0\",\"materialId\":\"young:3:4\"}]}",
+        "revision": "21",
+        "operationId": "f689bfb0-61a3-40f2-ab29-8d8c5d91cf35",
+        "protectionRule": "strongest-five-v1"
+      }
+    ],
+    "revision": "21",
+    "orbLedger": {
+      "wins": 0,
+      "rewards": [],
+      "receipts": []
+    },
+    "creditedIds": [
+      "legacy-backfill:v1"
+    ],
+    "pendingBattle": null
+  },
+  "consumedRejected": "材料或目標已不存在，未扣材料。",
+  "replayedOldReceiptUnchanged": true,
+  "final": {
+    "state": {
+      "cards": [
+        {
+          "id": "lock:0",
+          "fed": 5,
+          "bonus": "37",
+          "cardId": "beast_g_qinglong"
+        },
+        {
+          "id": "lock:1",
+          "fed": 5,
+          "bonus": "34",
+          "cardId": "beast_g_baihu"
+        },
+        {
+          "id": "lock:2",
+          "fed": 5,
+          "bonus": "44",
+          "cardId": "beast_g_zhuque"
+        },
+        {
+          "id": "lock:3",
+          "fed": 5,
+          "bonus": "38",
+          "cardId": "beast_g_xuanwu"
+        },
+        {
+          "id": "lock:4",
+          "bonus": "20",
+          "cardId": "beast_y28"
+        }
+      ],
+      "protectedIds": [
+        "lock:0",
+        "lock:1",
+        "lock:2",
+        "lock:3",
+        "lock:4"
+      ]
+    },
+    "receipts": [
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "22",
+            "fedAfter": 1,
+            "rawBonus": "2",
+            "targetId": "adult:0:0",
+            "fedBefore": 0,
+            "addedBonus": "2",
+            "afterBonus": "2",
+            "materialId": "young:0:0",
+            "beforeBonus": "0",
+            "targetCardId": "beast_a03",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y03"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:0:0\",\"materialId\":\"young:0:0\"}]}",
+        "revision": "2",
+        "operationId": "15f82524-3c61-4e38-b71e-5949fa8036dd",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "22",
+            "fedAfter": 2,
+            "rawBonus": "2",
+            "targetId": "adult:0:0",
+            "fedBefore": 1,
+            "addedBonus": "2",
+            "afterBonus": "4",
+            "materialId": "young:0:1",
+            "beforeBonus": "2",
+            "targetCardId": "beast_a03",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y03"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:0:0\",\"materialId\":\"young:0:1\"}]}",
+        "revision": "3",
+        "operationId": "4f21df6d-d620-4259-9b3f-55cf45798a68",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "22",
+            "fedAfter": 3,
+            "rawBonus": "2",
+            "targetId": "adult:0:0",
+            "fedBefore": 2,
+            "addedBonus": "2",
+            "afterBonus": "6",
+            "materialId": "young:0:2",
+            "beforeBonus": "4",
+            "targetCardId": "beast_a03",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y03"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:0:0\",\"materialId\":\"young:0:2\"}]}",
+        "revision": "4",
+        "operationId": "d8c4b950-eeb9-4daa-b404-eab85b825bdb",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "22",
+            "fedAfter": 4,
+            "rawBonus": "2",
+            "targetId": "adult:0:0",
+            "fedBefore": 3,
+            "addedBonus": "2",
+            "afterBonus": "8",
+            "materialId": "young:0:3",
+            "beforeBonus": "6",
+            "targetCardId": "beast_a03",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y03"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:0:0\",\"materialId\":\"young:0:3\"}]}",
+        "revision": "5",
+        "operationId": "601837e1-86d4-4301-bbb9-41b762901810",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "22",
+            "fedAfter": 5,
+            "rawBonus": "2",
+            "targetId": "adult:0:0",
+            "fedBefore": 4,
+            "addedBonus": "2",
+            "afterBonus": "10",
+            "materialId": "young:0:4",
+            "beforeBonus": "8",
+            "targetCardId": "beast_a03",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y03"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:0:0\",\"materialId\":\"young:0:4\"}]}",
+        "revision": "6",
+        "operationId": "fc67a1d4-0863-462d-ac27-c930b19a8252",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "28",
+            "fedAfter": 1,
+            "rawBonus": "3",
+            "targetId": "adult:1:0",
+            "fedBefore": 0,
+            "addedBonus": "3",
+            "afterBonus": "3",
+            "materialId": "young:1:0",
+            "beforeBonus": "0",
+            "targetCardId": "beast_a19",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y19"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:1:0\",\"materialId\":\"young:1:0\"}]}",
+        "revision": "7",
+        "operationId": "78aa3902-e656-44ba-969c-68f70c4076d9",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "28",
+            "fedAfter": 2,
+            "rawBonus": "3",
+            "targetId": "adult:1:0",
+            "fedBefore": 1,
+            "addedBonus": "3",
+            "afterBonus": "6",
+            "materialId": "young:1:1",
+            "beforeBonus": "3",
+            "targetCardId": "beast_a19",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y19"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:1:0\",\"materialId\":\"young:1:1\"}]}",
+        "revision": "8",
+        "operationId": "ea1c854c-cee8-447e-8b26-40813d3b06f8",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "28",
+            "fedAfter": 3,
+            "rawBonus": "3",
+            "targetId": "adult:1:0",
+            "fedBefore": 2,
+            "addedBonus": "3",
+            "afterBonus": "9",
+            "materialId": "young:1:2",
+            "beforeBonus": "6",
+            "targetCardId": "beast_a19",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y19"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:1:0\",\"materialId\":\"young:1:2\"}]}",
+        "revision": "9",
+        "operationId": "76236cc2-c063-4cdb-be6d-bd874ac125a5",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "28",
+            "fedAfter": 4,
+            "rawBonus": "3",
+            "targetId": "adult:1:0",
+            "fedBefore": 3,
+            "addedBonus": "3",
+            "afterBonus": "12",
+            "materialId": "young:1:3",
+            "beforeBonus": "9",
+            "targetCardId": "beast_a19",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y19"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:1:0\",\"materialId\":\"young:1:3\"}]}",
+        "revision": "10",
+        "operationId": "7d944acc-ec54-4317-976a-7d3b55f4aff0",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "28",
+            "fedAfter": 5,
+            "rawBonus": "3",
+            "targetId": "adult:1:0",
+            "fedBefore": 4,
+            "addedBonus": "3",
+            "afterBonus": "15",
+            "materialId": "young:1:4",
+            "beforeBonus": "12",
+            "targetCardId": "beast_a19",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y19"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:1:0\",\"materialId\":\"young:1:4\"}]}",
+        "revision": "11",
+        "operationId": "1c1f9c11-e18e-45df-8f24-f6f1e8211d17",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "31",
+            "fedAfter": 1,
+            "rawBonus": "3",
+            "targetId": "adult:2:0",
+            "fedBefore": 0,
+            "addedBonus": "3",
+            "afterBonus": "3",
+            "materialId": "young:2:0",
+            "beforeBonus": "0",
+            "targetCardId": "beast_a23",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y23"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:2:0\",\"materialId\":\"young:2:0\"}]}",
+        "revision": "12",
+        "operationId": "952a674c-41c3-4c34-9dfc-1cab008442ce",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "31",
+            "fedAfter": 2,
+            "rawBonus": "3",
+            "targetId": "adult:2:0",
+            "fedBefore": 1,
+            "addedBonus": "3",
+            "afterBonus": "6",
+            "materialId": "young:2:1",
+            "beforeBonus": "3",
+            "targetCardId": "beast_a23",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y23"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:2:0\",\"materialId\":\"young:2:1\"}]}",
+        "revision": "13",
+        "operationId": "7312f07f-a74b-4218-adac-4f953146628d",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "31",
+            "fedAfter": 3,
+            "rawBonus": "3",
+            "targetId": "adult:2:0",
+            "fedBefore": 2,
+            "addedBonus": "3",
+            "afterBonus": "9",
+            "materialId": "young:2:2",
+            "beforeBonus": "6",
+            "targetCardId": "beast_a23",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y23"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:2:0\",\"materialId\":\"young:2:2\"}]}",
+        "revision": "14",
+        "operationId": "11a7825c-c577-412a-9b19-c2311c9f4d71",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "31",
+            "fedAfter": 4,
+            "rawBonus": "3",
+            "targetId": "adult:2:0",
+            "fedBefore": 3,
+            "addedBonus": "3",
+            "afterBonus": "12",
+            "materialId": "young:2:3",
+            "beforeBonus": "9",
+            "targetCardId": "beast_a23",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y23"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:2:0\",\"materialId\":\"young:2:3\"}]}",
+        "revision": "15",
+        "operationId": "260d331f-a4c5-4df6-b0a8-24e219279d78",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "31",
+            "fedAfter": 5,
+            "rawBonus": "3",
+            "targetId": "adult:2:0",
+            "fedBefore": 4,
+            "addedBonus": "3",
+            "afterBonus": "15",
+            "materialId": "young:2:4",
+            "beforeBonus": "12",
+            "targetCardId": "beast_a23",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y23"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:2:0\",\"materialId\":\"young:2:4\"}]}",
+        "revision": "16",
+        "operationId": "c7a81d08-f11f-42ae-a202-c4eefefc3fa3",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "32",
+            "fedAfter": 1,
+            "rawBonus": "2",
+            "targetId": "adult:3:0",
+            "fedBefore": 0,
+            "addedBonus": "2",
+            "afterBonus": "2",
+            "materialId": "young:3:0",
+            "beforeBonus": "0",
+            "targetCardId": "beast_a14",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y14"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:3:0\",\"materialId\":\"young:3:0\"}]}",
+        "revision": "17",
+        "operationId": "0845126e-68d2-467c-979b-8f1d2ef7e147",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "32",
+            "fedAfter": 2,
+            "rawBonus": "2",
+            "targetId": "adult:3:0",
+            "fedBefore": 1,
+            "addedBonus": "2",
+            "afterBonus": "4",
+            "materialId": "young:3:1",
+            "beforeBonus": "2",
+            "targetCardId": "beast_a14",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y14"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:3:0\",\"materialId\":\"young:3:1\"}]}",
+        "revision": "18",
+        "operationId": "2a804b56-3e63-4c6a-ae58-8efa58b843b3",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "32",
+            "fedAfter": 3,
+            "rawBonus": "2",
+            "targetId": "adult:3:0",
+            "fedBefore": 2,
+            "addedBonus": "2",
+            "afterBonus": "6",
+            "materialId": "young:3:2",
+            "beforeBonus": "4",
+            "targetCardId": "beast_a14",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y14"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:3:0\",\"materialId\":\"young:3:2\"}]}",
+        "revision": "19",
+        "operationId": "13703ea1-8869-4d4c-b1b7-f8510490c505",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "32",
+            "fedAfter": 4,
+            "rawBonus": "2",
+            "targetId": "adult:3:0",
+            "fedBefore": 3,
+            "addedBonus": "2",
+            "afterBonus": "8",
+            "materialId": "young:3:3",
+            "beforeBonus": "6",
+            "targetCardId": "beast_a14",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y14"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:3:0\",\"materialId\":\"young:3:3\"}]}",
+        "revision": "20",
+        "operationId": "3b467870-fd1e-47e1-85e0-82709c5779d5",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "32",
+            "fedAfter": 5,
+            "rawBonus": "2",
+            "targetId": "adult:3:0",
+            "fedBefore": 4,
+            "addedBonus": "2",
+            "afterBonus": "10",
+            "materialId": "young:3:4",
+            "beforeBonus": "8",
+            "targetCardId": "beast_a14",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_y14"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"adult:3:0\",\"materialId\":\"young:3:4\"}]}",
+        "revision": "21",
+        "operationId": "f689bfb0-61a3-40f2-ab29-8d8c5d91cf35",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "37",
+            "fedAfter": 1,
+            "rawBonus": "9",
+            "targetId": "lock:0",
+            "fedBefore": 0,
+            "addedBonus": "9",
+            "afterBonus": "29",
+            "materialId": "adult:0:0",
+            "beforeBonus": "20",
+            "targetCardId": "beast_g_qinglong",
+            "inheritedBonus": "5",
+            "materialCardId": "beast_a03"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:0\",\"materialId\":\"adult:0:0\"}]}",
+        "revision": "22",
+        "operationId": "9ef622f7-24c4-4cb7-bb41-79ed4aed3343",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "37",
+            "fedAfter": 2,
+            "rawBonus": "4",
+            "targetId": "lock:0",
+            "fedBefore": 1,
+            "addedBonus": "4",
+            "afterBonus": "33",
+            "materialId": "adult:0:1",
+            "beforeBonus": "29",
+            "targetCardId": "beast_g_qinglong",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_a03"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:0\",\"materialId\":\"adult:0:1\"}]}",
+        "revision": "23",
+        "operationId": "c3525e2a-08f7-4b46-976e-2d96af50db14",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "37",
+            "fedAfter": 3,
+            "rawBonus": "4",
+            "targetId": "lock:0",
+            "fedBefore": 2,
+            "addedBonus": "4",
+            "afterBonus": "37",
+            "materialId": "adult:0:2",
+            "beforeBonus": "33",
+            "targetCardId": "beast_g_qinglong",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_a03"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:0\",\"materialId\":\"adult:0:2\"}]}",
+        "revision": "24",
+        "operationId": "d4191220-b0cd-4911-8717-b7bf26d82c6d",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": true,
+            "capBonus": "37",
+            "fedAfter": 4,
+            "rawBonus": "4",
+            "targetId": "lock:0",
+            "fedBefore": 3,
+            "addedBonus": "0",
+            "afterBonus": "37",
+            "materialId": "adult:0:3",
+            "beforeBonus": "37",
+            "targetCardId": "beast_g_qinglong",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_a03"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:0\",\"materialId\":\"adult:0:3\"}]}",
+        "revision": "25",
+        "operationId": "a6fb7bc6-99f6-4384-a7b3-53231eccc03e",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": true,
+            "capBonus": "37",
+            "fedAfter": 5,
+            "rawBonus": "4",
+            "targetId": "lock:0",
+            "fedBefore": 4,
+            "addedBonus": "0",
+            "afterBonus": "37",
+            "materialId": "adult:0:4",
+            "beforeBonus": "37",
+            "targetCardId": "beast_g_qinglong",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_a03"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:0\",\"materialId\":\"adult:0:4\"}]}",
+        "revision": "26",
+        "operationId": "3ad9a2ef-1b86-407b-bf47-1f5e8f6ef676",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "34",
+            "fedAfter": 1,
+            "rawBonus": "12",
+            "targetId": "lock:1",
+            "fedBefore": 0,
+            "addedBonus": "12",
+            "afterBonus": "32",
+            "materialId": "adult:1:0",
+            "beforeBonus": "20",
+            "targetCardId": "beast_g_baihu",
+            "inheritedBonus": "7",
+            "materialCardId": "beast_a19"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:1\",\"materialId\":\"adult:1:0\"}]}",
+        "revision": "27",
+        "operationId": "af36fc68-829e-43ee-811a-6d1671978615",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": true,
+            "capBonus": "34",
+            "fedAfter": 2,
+            "rawBonus": "5",
+            "targetId": "lock:1",
+            "fedBefore": 1,
+            "addedBonus": "2",
+            "afterBonus": "34",
+            "materialId": "adult:1:1",
+            "beforeBonus": "32",
+            "targetCardId": "beast_g_baihu",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_a19"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:1\",\"materialId\":\"adult:1:1\"}]}",
+        "revision": "28",
+        "operationId": "3d98c10b-11d8-46f0-958f-f2a8eca0d12b",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": true,
+            "capBonus": "34",
+            "fedAfter": 3,
+            "rawBonus": "5",
+            "targetId": "lock:1",
+            "fedBefore": 2,
+            "addedBonus": "0",
+            "afterBonus": "34",
+            "materialId": "adult:1:2",
+            "beforeBonus": "34",
+            "targetCardId": "beast_g_baihu",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_a19"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:1\",\"materialId\":\"adult:1:2\"}]}",
+        "revision": "29",
+        "operationId": "c98261fa-e580-4328-b033-4e0c5c9bfd3e",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": true,
+            "capBonus": "34",
+            "fedAfter": 4,
+            "rawBonus": "5",
+            "targetId": "lock:1",
+            "fedBefore": 3,
+            "addedBonus": "0",
+            "afterBonus": "34",
+            "materialId": "adult:1:3",
+            "beforeBonus": "34",
+            "targetCardId": "beast_g_baihu",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_a19"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:1\",\"materialId\":\"adult:1:3\"}]}",
+        "revision": "30",
+        "operationId": "ae750465-6b31-4c12-a444-3d88b96dfdcc",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": true,
+            "capBonus": "34",
+            "fedAfter": 5,
+            "rawBonus": "5",
+            "targetId": "lock:1",
+            "fedBefore": 4,
+            "addedBonus": "0",
+            "afterBonus": "34",
+            "materialId": "adult:1:4",
+            "beforeBonus": "34",
+            "targetCardId": "beast_g_baihu",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_a19"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:1\",\"materialId\":\"adult:1:4\"}]}",
+        "revision": "31",
+        "operationId": "85e45d8f-9943-4d10-a1b6-404e3463d739",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "44",
+            "fedAfter": 1,
+            "rawBonus": "13",
+            "targetId": "lock:2",
+            "fedBefore": 0,
+            "addedBonus": "13",
+            "afterBonus": "33",
+            "materialId": "adult:2:0",
+            "beforeBonus": "20",
+            "targetCardId": "beast_g_zhuque",
+            "inheritedBonus": "7",
+            "materialCardId": "beast_a23"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:2\",\"materialId\":\"adult:2:0\"}]}",
+        "revision": "32",
+        "operationId": "80d66f25-888b-43a4-a633-3eca052a6701",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "44",
+            "fedAfter": 2,
+            "rawBonus": "6",
+            "targetId": "lock:2",
+            "fedBefore": 1,
+            "addedBonus": "6",
+            "afterBonus": "39",
+            "materialId": "adult:2:1",
+            "beforeBonus": "33",
+            "targetCardId": "beast_g_zhuque",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_a23"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:2\",\"materialId\":\"adult:2:1\"}]}",
+        "revision": "33",
+        "operationId": "c35d1dff-7a6b-4dd0-8856-f1fd24b97177",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": true,
+            "capBonus": "44",
+            "fedAfter": 3,
+            "rawBonus": "6",
+            "targetId": "lock:2",
+            "fedBefore": 2,
+            "addedBonus": "5",
+            "afterBonus": "44",
+            "materialId": "adult:2:2",
+            "beforeBonus": "39",
+            "targetCardId": "beast_g_zhuque",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_a23"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:2\",\"materialId\":\"adult:2:2\"}]}",
+        "revision": "34",
+        "operationId": "65f1a606-a078-4dc5-a9e5-f10bac0775db",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": true,
+            "capBonus": "44",
+            "fedAfter": 4,
+            "rawBonus": "6",
+            "targetId": "lock:2",
+            "fedBefore": 3,
+            "addedBonus": "0",
+            "afterBonus": "44",
+            "materialId": "adult:2:3",
+            "beforeBonus": "44",
+            "targetCardId": "beast_g_zhuque",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_a23"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:2\",\"materialId\":\"adult:2:3\"}]}",
+        "revision": "35",
+        "operationId": "1b161204-99d4-49f1-b139-883c93092c54",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": true,
+            "capBonus": "44",
+            "fedAfter": 5,
+            "rawBonus": "6",
+            "targetId": "lock:2",
+            "fedBefore": 4,
+            "addedBonus": "0",
+            "afterBonus": "44",
+            "materialId": "adult:2:4",
+            "beforeBonus": "44",
+            "targetCardId": "beast_g_zhuque",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_a23"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:2\",\"materialId\":\"adult:2:4\"}]}",
+        "revision": "36",
+        "operationId": "f820c38e-20c3-4f6d-a45e-b26b10085d06",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "38",
+            "fedAfter": 1,
+            "rawBonus": "11",
+            "targetId": "lock:3",
+            "fedBefore": 0,
+            "addedBonus": "11",
+            "afterBonus": "31",
+            "materialId": "adult:3:0",
+            "beforeBonus": "20",
+            "targetCardId": "beast_g_xuanwu",
+            "inheritedBonus": "5",
+            "materialCardId": "beast_a14"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:3\",\"materialId\":\"adult:3:0\"}]}",
+        "revision": "37",
+        "operationId": "1e750270-7920-45e0-aadb-823a71f0427b",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": false,
+            "capBonus": "38",
+            "fedAfter": 2,
+            "rawBonus": "6",
+            "targetId": "lock:3",
+            "fedBefore": 1,
+            "addedBonus": "6",
+            "afterBonus": "37",
+            "materialId": "adult:3:1",
+            "beforeBonus": "31",
+            "targetCardId": "beast_g_xuanwu",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_a14"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:3\",\"materialId\":\"adult:3:1\"}]}",
+        "revision": "38",
+        "operationId": "3763ec43-dfe3-47bd-bd3c-d5141e16f1ea",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": true,
+            "capBonus": "38",
+            "fedAfter": 3,
+            "rawBonus": "6",
+            "targetId": "lock:3",
+            "fedBefore": 2,
+            "addedBonus": "1",
+            "afterBonus": "38",
+            "materialId": "adult:3:2",
+            "beforeBonus": "37",
+            "targetCardId": "beast_g_xuanwu",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_a14"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:3\",\"materialId\":\"adult:3:2\"}]}",
+        "revision": "39",
+        "operationId": "4ab5ddca-4e1f-424b-b8f2-0e50af9f1f2e",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": true,
+            "capBonus": "38",
+            "fedAfter": 4,
+            "rawBonus": "6",
+            "targetId": "lock:3",
+            "fedBefore": 3,
+            "addedBonus": "0",
+            "afterBonus": "38",
+            "materialId": "adult:3:3",
+            "beforeBonus": "38",
+            "targetCardId": "beast_g_xuanwu",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_a14"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:3\",\"materialId\":\"adult:3:3\"}]}",
+        "revision": "40",
+        "operationId": "a703a808-a0e5-4082-a83b-33f841bc8d7c",
+        "protectionRule": "strongest-five-v1"
+      },
+      {
+        "rule": "v2",
+        "changes": [
+          {
+            "rule": "v2",
+            "capped": true,
+            "capBonus": "38",
+            "fedAfter": 5,
+            "rawBonus": "6",
+            "targetId": "lock:3",
+            "fedBefore": 4,
+            "addedBonus": "0",
+            "afterBonus": "38",
+            "materialId": "adult:3:4",
+            "beforeBonus": "38",
+            "targetCardId": "beast_g_xuanwu",
+            "inheritedBonus": "0",
+            "materialCardId": "beast_a14"
+          }
+        ],
+        "command": "{\"type\":\"FUSE\",\"choices\":[{\"targetId\":\"lock:3\",\"materialId\":\"adult:3:4\"}]}",
+        "revision": "41",
+        "operationId": "1f55ae2e-b381-429b-a5d9-e87c0f63b905",
+        "protectionRule": "strongest-five-v1"
+      }
+    ],
+    "revision": "41",
+    "orbLedger": {
+      "wins": 0,
+      "rewards": [],
+      "receipts": []
+    },
+    "creditedIds": [
+      "legacy-backfill:v1"
+    ],
+    "pendingBattle": null
+  },
+  "refreshPersisted": true,
+  "passed": true,
+  "cleaned": true
+}

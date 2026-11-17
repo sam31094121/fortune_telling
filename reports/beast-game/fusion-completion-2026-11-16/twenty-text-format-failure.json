@@ -1,0 +1,36 @@
+{
+  "synthetic": true,
+  "initialCount": 45,
+  "rows": [],
+  "errors": [],
+  "requests": [
+    {
+      "type": "FUSE",
+      "revision": "1",
+      "operationId": "8ff91eb8-1ab7-4c5b-b163-34b1b9612cb7",
+      "choices": [
+        {
+          "targetId": "adult:0:0",
+          "materialId": "young:0:0"
+        }
+      ]
+    },
+    {
+      "type": "FUSE",
+      "revision": "1",
+      "operationId": "8ff91eb8-1ab7-4c5b-b163-34b1b9612cb7",
+      "choices": [
+        {
+          "targetId": "adult:0:0",
+          "materialId": "young:0:0"
+        }
+      ]
+    }
+  ],
+  "wrongClanRejected": "幼子只能合體對應本體，本體只能合體所屬四大神獸。",
+  "protectedRejected": "鎖定主力不能作為材料，請先整組更換主力。",
+  "doubleTapLostResponseOnce": true,
+  "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert(preview.includes(`${change.orbBeforeAttack}→${change.orbAfterAttack}`))\n\n    at doFeed (C:\\Users\\DRAGON\\Desktop\\命理\\tests\\beast-fusion-twenty.e2e.cjs:20:804)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async C:\\Users\\DRAGON\\Desktop\\命理\\tests\\beast-fusion-twenty.e2e.cjs:21:75",
+  "visible": "↩\n神獸合體強化\nⓘ\n🔒\n成獸\n氐土貉\n體109\n土\n3\n護體\n攻46\n獲得 44 護盾（總上限 70）。\n剋水\n生我火\n◆◆\n守護\n東方蒼龍\n↻\n幼子\n氐土貉\n體\n72\n土\n2\n藏匿\n攻\n29\n受驚就躲，一回合內防禦提升。\n剋水\n生我火\n◆\n守護\n東方蒼龍\n幼子\n氐土貉\n體\n72\n土\n2\n藏匿\n攻\n29\n受驚就躲，一回合內防禦提升。\n剋水\n生我火\n◆\n守護\n東方蒼龍\n幼子\n氐土貉\n體\n72\n土\n2\n藏匿\n攻\n29\n受驚就躲，一回合內防禦提升。\n剋水\n生我火\n◆\n守護\n東方蒼龍\n幼子\n氐土貉\n體\n72\n土\n2\n藏匿\n攻\n29\n受驚就躲，一回合內防禦提升。\n剋水\n生我火\n◆\n守護\n東方蒼龍\n\n+5%\n\n💎\n44\n→\n46\n⚔\n43\n→\n45\n★★★★★\n🃏30",
+  "cleaned": true
+}

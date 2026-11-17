@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "errors": [],
+  "steps": [],
+  "entryText": "神獸合體強化 ↗\n直接進入我的卡庫・選卡培養",
+  "rect": {
+    "x": 46,
+    "y": 366.328125,
+    "width": 298,
+    "height": 112
+  },
+  "cards": 9,
+  "returned": true,
+  "passed": true,
+  "cleaned": true
+}

@@ -132,3 +132,8 @@
 .duelPhoenix { right: 4%; top: 22%; transform: rotate(-24deg); }
 .duelTitle { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 0 6px; color: #fff3df; font-family: system-ui, sans-serif; font-size: clamp(20px, 3vw, 26px); font-weight: 900; line-height: 1.4; letter-spacing: .035em; }
 .duelTitle > span { color: #dbc69e; font-size: 24px; }
+.cultivationEntry { display: flex; align-items: center; gap: 16px; width: 100%; min-height: 112px; margin-top: 14px; padding: 12px 20px; border: 1px solid #bca56d; border-radius: 18px; color: #fff2cc; background: linear-gradient(115deg, #17202b, #30271b); text-align: left; text-decoration: none; }
+.cultivationEntry img { width: 84px; height: 84px; flex: none; object-fit: contain; }
+.cultivationEntry strong { display: block; font-size: 20px; line-height: 1.4; }
+.cultivationEntry small { display: block; margin-top: 6px; color: #e3d3ac; font-size: 13px; line-height: 1.6; }
+.cultivationEntry:focus-visible { outline: 3px solid #ffe0a0; outline-offset: 3px; }

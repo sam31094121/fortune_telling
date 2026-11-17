@@ -1,0 +1,35 @@
+{
+  "checkedAt": "2026-11-15T16:33:07.346Z",
+  "head": "5afce7737d4d4e747ad7d6882e75b6f1711d203e",
+  "originMain": "f112f14cb2f5b9622deab9201ae119e6646fc8fe",
+  "mergeHead": "300f7aa5e053ffe001ad8bddc3c9aad853b027c3",
+  "unmergedIndexEntries": 0,
+  "mergeStillInProgress": false,
+  "tests": {
+    "test:beast-cultivation": 0,
+    "check:bazi-service-health": 0,
+    "test:bazi-feature-complete": 0,
+    "check:bazi-registry-completeness": 1
+  },
+  "sourceClaims": {
+    "total": 18,
+    "ok": 11,
+    "error": 7
+  },
+  "blockers": [
+    "來源完整性檢查仍失敗，未修改任務外來源政策",
+    "另一作業完成先前合併，但本機／遠端仍各有提交；遠端首次五隻前置／不足五種合體政策與本輪要求不一致",
+    "技能檔無上限不傳承與現行 v2 50% 上限／傳承尚未取得可核對之人類規則決策"
+  ],
+  "committed": false,
+  "pushed": false,
+  "deploymentTriggeredByThisTask": false,
+  "fullBuildRun": false,
+  "fullHealthScanRun": false,
+  "note": "已有確定失敗及範圍／規則阻擋，不以新全站 build 取代必要決策；未修改、跳過或偽造來源結果。未操作原右側分頁。",
+  "finalCheckedAt": "2026-11-15T16:34:02.655Z",
+  "finalHead": "57c03f4666e46d73e14a8c2a19c773c6460ea283",
+  "finalMergeHead": null,
+  "finalBranchStatus": "main...origin/main [ahead 3, behind 3]",
+  "concurrentChange": "最後核對發現其他作業建立 57c03f4 並 stage 目前 UI 與報告；本代理未 commit/push，未覆蓋別人工作。"
+}

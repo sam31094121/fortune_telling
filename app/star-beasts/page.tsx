@@ -239,6 +239,10 @@ export default function StarBeastsPage() {
                 </li>
               ))}
             </ul>
+            <Link href="/beast-game/cultivation" className={modeStyles.cultivationEntry} data-testid="beast-cultivation-entry">
+              <img src="/beast-game/thumb/guardian-qinglong.v2.webp" alt="" draggable={false} />
+              <span><strong>神獸合體強化 <span aria-hidden="true">↗</span></strong><small>直接進入我的卡庫・選卡培養</small></span>
+            </Link>
           </nav>
           <SelfStarBeastEntry onFound={(name, reason) => { setMyGuardian(name); setMyGuardianReason(reason); window.setTimeout(goMyGuardian, 2200); }} onGo={goMyGuardian} />
           <details className="mt-4 max-w-2xl text-xs text-slate-400">

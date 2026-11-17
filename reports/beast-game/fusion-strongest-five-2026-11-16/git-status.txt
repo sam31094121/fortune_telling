@@ -1,0 +1,40 @@
+## main...origin/main [ahead 3, behind 19]
+ M app/api/beast-game/cultivation/route.ts
+A  app/beast-game/cultivation/page.tsx
+M  app/star-beasts/GameModes.module.css
+M  app/star-beasts/page.tsx
+M  components/battlefield/FoodChainFeedback.tsx
+M  components/battlefield/SharedCultivationPanel.module.css
+MM components/battlefield/SharedCultivationPanel.tsx
+MM docs/beast-game-skill.md
+ M lib/beast-game/cultivation-transaction.ts
+ M lib/beast-game/cultivation-view.ts
+ M lib/beast-game/cultivation.ts
+ M package.json
+A  reports/beast-game/fusion-copy-review-2026-11-15/after/result.json
+A  reports/beast-game/fusion-copy-review-2026-11-15/before/result.json
+A  reports/beast-game/fusion-copy-review-2026-11-15/review.md
+A  reports/beast-game/fusion-copy-review-2026-11-15/two-zone/result.json
+A  reports/beast-game/fusion-twenty-2026-11-15.md
+A  reports/beast-game/fusion-twenty-2026-11-15/entry-result.json
+A  reports/beast-game/fusion-twenty-2026-11-15/first-run-interrupted.json
+A  reports/beast-game/fusion-twenty-2026-11-15/progress.json
+A  reports/beast-game/fusion-twenty-2026-11-15/result.json
+A  reports/beast-game/fusion-usability-2026-11-16/after/result.json
+A  reports/beast-game/fusion-usability-2026-11-16/before/result.json
+A  reports/beast-game/fusion-usability-2026-11-16/cards-only/first-run-return-overlay.json
+A  reports/beast-game/fusion-usability-2026-11-16/cards-only/result.json
+A  reports/beast-game/fusion-usability-2026-11-16/cards-only/second-run-entry-response.json
+A  reports/beast-game/fusion-usability-2026-11-16/diagnosis.md
+A  reports/beast-game/fusion-usability-2026-11-16/integration-audit.md
+MM reports/beast-production/release-summary.json
+MM reports/screen-health/latest.json
+ M tests/beast-cultivation.test.cjs
+ M tests/beast-food-chain-concurrency.test.cjs
+ M tests/beast-food-chain.test.cjs
+AM tests/beast-fusion-twenty.e2e.cjs
+AM tests/beast-fusion-usability.e2e.cjs
+?? reports/beast-game/fusion-completion-2026-11-16/
+?? reports/beast-game/fusion-strongest-five-2026-11-16/
+?? reports/beast-game/fusion-usability-2026-11-16/release-check/
+?? tests/beast-strongest-five.test.cjs

@@ -1,0 +1,6 @@
+{
+  "path": "/dual-chart",
+  "status": 200,
+  "ms": 2671,
+  "note": "Narrow recheck after health timeout; HTTP reachability only, not functional verification."
+}

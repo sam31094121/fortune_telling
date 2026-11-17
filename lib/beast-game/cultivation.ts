@@ -13,7 +13,8 @@ export interface CultivationChange extends FusionChoice {
   /** 以下只在 v2 收據出現；沒有 rule 的舊收據＝v1。 */
   rule?: 'v2'; inheritedBonus?: string; rawBonus?: string; capBonus?: string; capped?: boolean; fedBefore?: number; fedAfter?: number;
 }
-export interface FuseOptions { rule?: FoodChainRule; fedOf?: (copyId: string) => number; params?: FoodChainParams }
+export type ProtectionRule = 'manual-five-v1' | 'strongest-five-v1';
+export interface FuseOptions { protectionRule?: ProtectionRule; rule?: FoodChainRule; fedOf?: (copyId: string) => number; params?: FoodChainParams }
 
 /** Decimal strings retain exact growth beyond Number.MAX_SAFE_INTEGER. No gameplay cap. */
 export function exactBonus(value: string): bigint {
@@ -48,6 +49,30 @@ function requireFive(state: CultivationState, ids: readonly string[]): void {
   }
 }
 
+/** Shared server ranking: exact accumulated bonus, manual locks on ties, then ordinal card/copy IDs.
+ * One strongest copy per card kind; fewer than five kinds protects every available kind.
+ * Manual locks remain additional protection and are never silently reassigned.
+ */
+export function cultivationProtection(state: CultivationState) {
+  const manual = new Set(state.protectedIds);
+  const ordinal = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
+  const ranked = [...state.cards].sort((a,b) => {
+    const delta = exactBonus(b.bonus) - exactBonus(a.bonus);
+    return (delta > 0n ? 1 : delta < 0n ? -1 : 0)
+      || Number(manual.has(b.id)) - Number(manual.has(a.id))
+      || ordinal(a.cardId,b.cardId) || ordinal(a.id,b.id);
+  });
+  const seen = new Set<string>(), strongestIds: string[] = [];
+  for (const copy of ranked) {
+    if (seen.has(copy.cardId)) continue;
+    seen.add(copy.cardId); strongestIds.push(copy.id);
+    if (strongestIds.length === 5) break;
+  }
+  return { strongestIds, protectedIds: [...new Set([...state.protectedIds,...strongestIds])],
+    reason: '為守護您長期培養的心血，累積培養加成最高的五種神獸各保護最強一張，不可作合體材料；不足五種時保護現有各種。親選鎖定的主力也繼續保護。',
+    tieBreak: '同分優先親選主力，再按神獸編號、副本編號固定排序。' };
+}
+
 /** Replace all five in one transaction; there is no intermediate unlock operation. */
 export function replaceCultivationMainTeam(state: CultivationState, ids: readonly string[]): CultivationState {
   validateCultivationState(state); requireFive(state, ids);
@@ -65,6 +90,7 @@ export function fuseCultivation(state: CultivationState, choices: readonly Fusio
     const target = cards.find(c => c.id === choice?.targetId), material = cards.find(c => c.id === choice?.materialId);
     if (!target || !material || target.id === material.id) throw new Error('材料或目標已不存在，未扣材料。');
     if (state.protectedIds.includes(material.id)) throw new Error('鎖定主力不能作為材料，請先整組更換主力。');
+    if (options.protectionRule !== 'manual-five-v1' && cultivationProtection({ cards, protectedIds: state.protectedIds }).strongestIds.includes(material.id)) throw new Error('這張是累積培養加成最高五種神獸的保護副本，為守護培養心血，不能作為材料；未扣卡。');
     if (cultivationTarget(material.cardId) !== target.cardId) throw new Error('幼子只能合體對應本體，本體只能合體所屬四大神獸。');
     const targetCard = getCard(target.cardId)!, materialCard = getCard(material.cardId)!;
     const before = exactBonus(target.bonus);

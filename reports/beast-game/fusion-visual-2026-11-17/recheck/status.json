@@ -1,0 +1,46 @@
+{
+  "checkedAt": "2026-11-17T08:26:42.730Z",
+  "head": "57c03f4666e46d73e14a8c2a19c773c6460ea283",
+  "originMain": "78b12dac19df6b069c0baf6734e9eb89a59a4ed5",
+  "divergence": "3\t19",
+  "mergeConflict": "tests/beast-cultivation-recovery.e2e.cjs",
+  "mergeScope": "Read-only merge-tree analysis of committed tips only; existing dirty working tree not integrated.",
+  "remoteOverlap": [
+    "app/api/beast-game/cultivation/route.ts",
+    "components/battlefield/SharedCultivationPanel.tsx",
+    "components/battlefield/FoodChainFeedback.tsx",
+    "lib/beast-game/cultivation.ts",
+    "lib/beast-game/cultivation-view.ts",
+    "package.json"
+  ],
+  "uiInspection": "Codex window reported minimized; original right-panel live state could not be inspected. Isolated local browser test screenshots are separate evidence.",
+  "productChangesThisRecheck": [],
+  "customerWrites": 0,
+  "health": {
+    "summary": {
+      "total": 64,
+      "passed": 61,
+      "failed": 3,
+      "warnings": 0,
+      "screenStatus": "UNHEALTHY"
+    },
+    "failed": [
+      {
+        "id": "BAZI_SOURCE_REGISTRY_COMPLETE",
+        "title": "八字來源登記完整性（未驗證或缺古籍來源即失敗）",
+        "issue": "八字來源登記完整性（未驗證或缺古籍來源即失敗） verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:bazi-registry-completeness\n\nERROR: C-BAZI-CLASSICS status=CONFLICT gate=CONFLICT 來源 7 個 | 閘門計算 CONFLICT：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 64，未達 90；D 級來源不得作為交叉依據；有來源版本不可追溯；重大衝突：《三命通會》作者與內容增竄；重大衝突：《淵海子平》《滴天髓》《子平真詮》版本與作者不可追溯 / 登記狀態 CONFLICT（非 VERIFIED）\nERROR: C-BAZI-VALIDITY status=PENDING_POOL gate=PENDING_POOL 來源 4 個 | 閘門計算 PENDING_POOL：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 81，未達 90；有來源版本不可追溯 / 登記狀態 PENDING_POOL（非 VERIFIED）\nERROR: C-RED-LUAN-SHENSHA status=PENDING_POOL gate=PENDING_POOL 來源 4 個 | 閘門計算 PENDING_POOL：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 86，未達 90 / 登記狀態 PENDING_POOL（非 VERIFIED）\nERROR: C-BAZI-FIVE-GODS status=CONFLICT gate=CONFLICT 來源 4 個 | 閘門計算 CONFLICT：缺大數據的來源；交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 46，未達 90；D 級來源不得作為交叉依據；缺原典（或原始研究）來源；有來源版本不可追溯；重大衝突：身弱用印時，喜神取比劫還是取生印的官殺 / 登記狀態 CONFLICT（非 VERIFIED） / 未掛原典（古籍）來源\nERROR: C-SHENSHA-RULE-INTEGRITY status=PENDING_POOL gate=PENDING_POOL 來源 2 個 | 閘門計算 PENDING_POOL：交叉比對來源 2 個，未達 3 個；缺原典（或原始研究）來源 / 登記狀態 PENDING_POOL（非 VERIFIED） / 未掛原典（古籍）來源\nERROR: C-ASURA-LIFE-STAGES status=CONFLICT gate=CONFLICT 來源 6 個 | 閘門計算 CONFLICT：交叉來源授權未全數通過（含待查核）；交叉來源可信度平均 83，未達 90；有來源版本不可追溯；重大衝突：四柱對應歲數：古籍無歲數，後世分界不一 / 登記狀態 CONFLICT（非 VERIFIED）\nERROR: C-ASURA-GOLD-WORDING status=PENDING_POOL gate=PENDING_POOL 無來源 | 閘門計算 PENDING_POOL：缺權威性的檔案；缺大數據的來源；交叉比對來源 0 個，未達 3 個；交叉來源可信度平均 0，未達 90；缺原典（或原始研究）來源 / 登記狀態 PENDING_POOL（非 VERIFIED） / 未掛任何登記表內存在的來源 / 未掛原典（古籍）來源\nSUMMARY: 18 筆 claim，OK 11，ERROR 7"
+      },
+      {
+        "id": "THREE_CORE_TRADITIONAL_DEFECTS",
+        "title": "三核心原典缺陷：禁止以流程通過代替算法正確",
+        "issue": "三核心原典缺陷：禁止以流程通過代替算法正確 verification failed: Command failed: cmd.exe /d /s /c npm.cmd run check:three-core-traditional-health\n\nUNRESOLVED: MEIHUA_GREGORIAN_SUM — 公曆年月日直接加總與已閱梅花年月日時取數傳本不符\nUNRESOLVED: GROWTH_WEEK_HASH — 週次與個人種子文字映射未有原典依據\nUNRESOLVED: SOLAR_TERM_HASH — 節氣名稱與年份映射卦象不等於官方曆法或正統起卦"
+      },
+      {
+        "id": "DUAL_CHART_SHENSHA_DISPLAY",
+        "title": "易經神煞：四柱神煞後端運算到前端顯示",
+        "issue": "規則 taohua 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 waiTaohua 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jiangxing 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 gejiao 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tiande 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yuede 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tiandehe 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 longde 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tiangou 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 wugui 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jinkui 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 zaisha 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 liue 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yuepo 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 ripo 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 muyu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 kuigang 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 kongwang 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jinyu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 xuetang 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 guchen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 guasu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jiesha 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 lushen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tianyiDoctor 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 guoyin 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tianchu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tianshe 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 sanqi 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 wangshen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yinyangChacuo 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 guluan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 shieDabai 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 liuxia 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 sifei 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yuedehe 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 feiren 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jinshen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 bazhuan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jiuchou 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 liuxiu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 sangmen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 baihu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 bingfu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 pima 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 suipo 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 yuekong 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jielu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tianzhuan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 dizhuan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 shiling 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 ride 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 rigui 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 panan 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 anlu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 jinshenDay 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 gonglu 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 tuishen 來源仍為 PENDING_POOL；顯示一致不等於原典核定；規則 hongyan 來源仍為 PENDING_POOL；顯示一致不等於原典核定"
+      }
+    ]
+  },
+  "publication": "Blocked; no commit, merge, push, branch or worktree created."
+}

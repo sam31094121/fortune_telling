@@ -1,0 +1,49 @@
+{
+  "isolated": true,
+  "persistentWrites": 0,
+  "cases": [
+    {
+      "width": 390,
+      "reducedMotion": false,
+      "selection": true,
+      "cancel": true,
+      "replace": true,
+      "previewNoConsume": true,
+      "failedSaveUnchanged": true,
+      "lostReplyNoSuccess": true,
+      "retrySameReceipt": true,
+      "doubleSubmitGuard": true,
+      "keyboard": true,
+      "noOverflow": true
+    },
+    {
+      "width": 320,
+      "reducedMotion": true,
+      "selection": true,
+      "cancel": true,
+      "replace": true,
+      "previewNoConsume": true,
+      "failedSaveUnchanged": true,
+      "lostReplyNoSuccess": true,
+      "retrySameReceipt": true,
+      "doubleSubmitGuard": true,
+      "keyboard": true,
+      "noOverflow": true
+    },
+    {
+      "width": 768,
+      "reducedMotion": false,
+      "selection": true,
+      "cancel": true,
+      "replace": true,
+      "previewNoConsume": true,
+      "failedSaveUnchanged": true,
+      "lostReplyNoSuccess": true,
+      "retrySameReceipt": true,
+      "doubleSubmitGuard": true,
+      "keyboard": true,
+      "noOverflow": true
+    }
+  ],
+  "passed": true
+}

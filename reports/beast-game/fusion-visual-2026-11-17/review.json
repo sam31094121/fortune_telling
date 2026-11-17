@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-17",
+  "scope": [
+    "app/beast-game/cultivation/page.tsx",
+    "components/battlefield/SharedCultivationPanel.tsx",
+    "components/battlefield/SharedCultivationPanel.module.css",
+    "tests/beast-fusion-visual.e2e.cjs"
+  ],
+  "baselineGit": "main ahead 3 behind 19; pre-existing staged and unstaged changes preserved",
+  "checks": {
+    "types": "passed",
+    "build": "passed with existing repository warnings",
+    "fairness": "passed, 1000 fixed-seed games",
+    "cultivation": "passed including concurrency and same-operation replay",
+    "visual": "passed at 320/390/768; synthetic memory backend using production transaction/view functions; no persistent customer writes",
+    "health": {
+      "passed": 60,
+      "total": 64,
+      "failed": [
+        "CARD_DUAL_CHART",
+        "BAZI_SOURCE_REGISTRY_COMPLETE",
+        "THREE_CORE_TRADITIONAL_DEFECTS",
+        "DUAL_CHART_SHENSHA_DISPLAY"
+      ],
+      "baselineFailed": [
+        "BAZI_SOURCE_REGISTRY_COMPLETE",
+        "BEAST_ORB_REPLAY",
+        "STAR_BEAST_SELF_ENTRY_API",
+        "THREE_CORE_TRADITIONAL_DEFECTS",
+        "DUAL_CHART_SHENSHA_DISPLAY"
+      ]
+    }
+  },
+  "limitations": [
+    "No real database durability claim; browser tests intercept cultivation API and use production transaction functions with an isolated memory CAS repository.",
+    "No production deployment; divergent Git history and release gates must be resolved separately.",
+    "Original full card-face text and existing help/protection/error access retained; no new instructional text or button labels on screen."
+  ],
+  "release": "Not committed or pushed: Git divergence and non-passing health gate. Existing unrelated rule sources were not changed."
+}

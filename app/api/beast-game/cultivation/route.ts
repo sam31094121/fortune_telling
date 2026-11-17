@@ -4,7 +4,7 @@ import { cultivationRepository } from '@/lib/beast-game/cultivation-repository';
 import { prepareCultivationMigration } from '@/lib/beast-game/cultivation-migration';
 import { transactCultivation, fuseSnapshot, type CultivationCommand } from '@/lib/beast-game/cultivation-transaction';
 import { cultivationView, cultivationChangeView, describeCultivationChange } from '@/lib/beast-game/cultivation-view';
-import { cultivationTarget } from '@/lib/beast-game/cultivation';
+import { cultivationTarget, cultivationProtection } from '@/lib/beast-game/cultivation';
 import { updateCultivationAccount, importExistingGrants, releaseCultivationBattle, creditSharedShards, exchangeSharedShards, legacyGrowthCollection } from '@/lib/beast-game/cultivation-games';
 import { migrateCollection } from '@/lib/beast-collection-ledger';
 import { sharedOrbProfile, beginSharedOrb, resumeSharedOrb } from '@/lib/beast-game/cultivation-orb';
@@ -68,7 +68,8 @@ export async function POST(request: Request) {
       if (snapshot.pendingBattle) throw new Error('戰鬥尚未結算，暫不能合體。');
       const target = snapshot.state.cards.find(c => c.id === body.targetId);
       if (!target) throw new Error('材料或目標已不存在，未扣材料。');
-      const candidates = snapshot.state.cards.filter(c => c.id !== target.id && !snapshot.state.protectedIds.includes(c.id) && cultivationTarget(c.cardId) === target.cardId).slice(0, 200);
+      const protectedIds = cultivationProtection(snapshot.state).protectedIds;
+      const candidates = snapshot.state.cards.filter(c => c.id !== target.id && !protectedIds.includes(c.id) && cultivationTarget(c.cardId) === target.cardId).slice(0, 200);
       const options = candidates.map(c => { try { return { materialId: c.id, feedback: describeCultivationChange(fuseSnapshot(snapshot, [{ targetId: target.id, materialId: c.id }]).changes[0]) }; } catch (error) { return { materialId: c.id, error: error instanceof Error && /[\u3400-\u9fff]/.test(error.message) ? error.message : '暫時無法預覽。' }; } });
       return NextResponse.json({ ok: true, targetId: target.id, options }, { headers });
     }

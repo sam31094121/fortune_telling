@@ -1,0 +1,13 @@
+[
+  {
+    "path": "/internal/health/ready",
+    "status": 200,
+    "ms": 564
+  },
+  {
+    "path": "/beast-game/cultivation",
+    "status": 200,
+    "ms": 144,
+    "visualGuide": true
+  }
+]

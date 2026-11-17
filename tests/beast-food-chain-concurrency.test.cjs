@@ -1,3 +1,4 @@
+// Formula/transaction fixtures keep five higher-bonus guards so consumable trained cards are outside the protected top five.
 // 食物鏈：經由真正的 /api/beast-game/cultivation 路由（伺服端權威）＋記憶體 CAS 儲存替身驗證併發與防竄改。
 // 這不是正式 Supabase 測試：本機沒有金鑰，儲存層換成與 SupabaseCultivationRepository 同介面的記憶體版（條件式比對版本號）。
 const assert = require('node:assert/strict');
@@ -29,7 +30,7 @@ const api = require('../app/api/beast-game/cultivation/route.ts');
 const key = crypto.randomBytes(32).toString('hex'), owner = crypto.createHash('sha256').update(key).digest('hex');
 const post = async (body, k = key) => { const res = await api.POST(new Request('http://localhost:3150/api/beast-game/cultivation', { method: 'POST', headers: { 'x-beast-wallet': k, 'content-type': 'application/json' }, body: JSON.stringify(body) })); return { status: res.status, ...(await res.json()) }; };
 const mainIds = ['beast_g_zhuque', 'beast_g_baihu', 'beast_g_xuanwu', 'beast_a28', 'beast_a27'];
-const cards = [...mainIds.map((cardId, i) => ({ id: 'main:' + i, cardId, bonus: '0' })), { id: 'qinglong', cardId: 'beast_g_qinglong', bonus: '0' }, { id: 'adult', cardId: 'beast_a01', bonus: '0' }, { id: 'young', cardId: 'beast_y01', bonus: '0' }, { id: 'young2', cardId: 'beast_y01', bonus: '0' }];
+const cards = [...mainIds.map((cardId, i) => ({ id: 'main:' + i, cardId, bonus: '100' })), { id: 'qinglong', cardId: 'beast_g_qinglong', bonus: '0' }, { id: 'adult', cardId: 'beast_a01', bonus: '0' }, { id: 'young', cardId: 'beast_y01', bonus: '0' }, { id: 'young2', cardId: 'beast_y01', bonus: '0' }];
 
 (async () => {
   await memory.create(owner, { revision: '0', state: { cards, protectedIds: mainIds.map((_, i) => 'main:' + i) }, pendingBattle: null, receipts: [] });
