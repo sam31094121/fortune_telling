@@ -15,3 +15,21 @@
 .thumbs { grid-template-columns: repeat(4, minmax(44px, 1fr)); gap: 4px; }
 .top { grid-template-columns: 48px minmax(0, 1fr); }
 .count { grid-column: 1 / -1; justify-self: end; }
+/* 2026-11-17 P1：沒有大卡可餵時的底部提示（缺的大卡剪影 ← ⬆ ← 等著餵的卡，＋ ⚔ 去拿四象卡）。fixed 疊在底部，不推動版面；動畫只用 transform／opacity。 */
+.withCue { padding-bottom: calc(160px + env(safe-area-inset-bottom, 0px)); }
+.cue { position: fixed; left: 50%; bottom: max(10px, env(safe-area-inset-bottom, 0px)); z-index: 8; display: flex; align-items: center; justify-content: space-between; gap: 12px; width: min(620px, calc(100% - 20px)); padding: 10px 12px; border: 1px solid #e6c68a; border-radius: 18px; background: #141b29f2; box-shadow: 0 -6px 24px #000a; transform: translateX(-50%); animation: cueIn .35s ease-out both; }
+@keyframes cueIn { from { opacity: 0; transform: translate(-50%, 16px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.cueChain { display: flex; gap: 10px; min-width: 0; overflow: hidden; }
+.cueCol { display: grid; justify-items: center; gap: 2px; }
+.ghost { display: block; width: 40px; aspect-ratio: 63 / 88; border: 2px dashed #e6c68acc; border-radius: 7px; overflow: hidden; background: #0b1120; }
+.ghost img { display: block; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) brightness(.35); opacity: .8; }
+.cueUp { width: 18px; height: 18px; color: #ffe3a5; animation: cueUp 1.2s ease-in-out infinite; }
+@keyframes cueUp { 0%, 100% { transform: translateY(2px); opacity: .7; } 50% { transform: translateY(-2px); opacity: 1; } }
+.feed { position: relative; display: block; width: 30px; aspect-ratio: 63 / 88; }
+.feed img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 5px; border: 1px solid #e6c68a66; }
+.feed i { position: absolute; right: -8px; bottom: -6px; padding: 0 4px; border-radius: 999px; background: #ffe3a5; color: #120d02; font-size: 11px; font-style: normal; font-weight: 900; line-height: 16px; }
+.cueGo { display: inline-flex; flex: none; align-items: center; justify-content: center; gap: 2px; min-width: 64px; min-height: 56px; padding: 0 14px; border-radius: 999px; background: linear-gradient(145deg, #ffe3a5, #c9973f); color: #120d02; text-decoration: none; box-shadow: 0 6px 14px #0008; }
+.cueGo svg { width: 24px; height: 24px; }
+.cueGo .cueGoUp { width: 18px; height: 18px; }
+.cueGo:focus-visible { outline: 3px solid #ffe3a5; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .cue, .cueUp { animation: none; } }

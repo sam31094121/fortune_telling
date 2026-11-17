@@ -76,6 +76,9 @@ const post = async (key, body) => { const res = await api.POST(new Request('http
   ok(!/type: 'FUSE'|先鎖定五隻主力|重新讀取<|>強化<|<h1/.test(page), 'no duplicate FUSE flow or visible copy');
   const jsxText = page.replace(/\{\/\*[\s\S]*?\*\/\}/g, '').match(/>([^<>{}]*[\p{L}][^<>{}]*)</gu) || [];
   eq(jsxText.length, 0, 'four-beasts page has no visible text nodes: ' + jsxText.join('|'));
+  // 2026-11-17 P1：可強化 0 張且伺服端逐張回 NO_TARGET → 底部圖示提示（缺的大卡剪影＋⬆＋⚔ 去拿四象卡），只照伺服端狀態畫。
+  ok(/status === 'NO_TARGET'/.test(page) && /enhanceableCount !== 0/.test(page), 'no-target cue is driven by server per-card status');
+  ok(/data-no-target-cue/.test(page) && /data-get-guardian/.test(page) && /href="\/beast-game\/battlefield"/.test(page), 'cue has silhouette chain and a go-get-guardian button');
   const entry = fs.readFileSync(path.join(root, 'app/star-beasts/page.tsx'), 'utf8');
   const entryBlock = entry.slice(entry.indexOf('data-four-beasts-entry'), entry.indexOf('</Link>', entry.indexOf('data-four-beasts-entry')));
   // 使用者 23:21 語音：入口卡改成看得到「四大神獸」「點擊直接強化」＋點擊提示（取代 11-16 零文字入口）。
