@@ -107,9 +107,11 @@ export default function SharedCultivationPanel({onSaved,onDone,iconOnly=false,fo
     const pile=lim.piles.find(p=>p.cardId===cardId);if(!pile)return 'none';
     const cur=picksRef.current,total=Object.values(cur).reduce((a,b)=>a+b,0),have=cur[cardId]??0;
     const roomLeft=lim.max-total,pileLeft=pile.max-have,n=Math.min(step,roomLeft,pileLeft);
+    // 只有真的到五星封頂（伺服端給的 room 用完）才回 'room'（★✓）；材料堆用完一律回 'pile'（×0）。
+    const capLeft=lim.room===null?Infinity:lim.room-total;
     if(n>0){const next={...cur,[cardId]:have+n};picksRef.current=next;setPicks(next);}
-    if(roomLeft-Math.max(n,0)<=0)return 'room';
-    if(pileLeft-Math.max(n,0)<=0)return 'pile';
+    if(capLeft-Math.max(n,0)<=0)return 'room';
+    if(roomLeft-Math.max(n,0)<=0||pileLeft-Math.max(n,0)<=0)return 'pile';
     return 'ok';
   };
   const save=async(type:'MAIN_TEAM'|'FUSE')=>{
@@ -154,14 +156,14 @@ export default function SharedCultivationPanel({onSaved,onDone,iconOnly=false,fo
       </button>)}</div>
       <button type="button" className={styles.confirm} data-save-main disabled={busy||!!view.pendingBattle||main.length!==5} onClick={()=>void save('MAIN_TEAM')}>確認這五隻主力</button>
       <h3>② 點一張卡來強化</h3>
-      <div className={`${styles.grid} ${fusion.selection}`}>{view.cards.filter(c=>c.form!=='YOUNG').map(card=><button key={card.id} type="button" data-shared-target={card.id} disabled={busy||!!view.pendingBattle} aria-pressed={target===card.id} aria-label={`${card.name}，永久 +${card.bonus}，寶石攻擊 ${card.orbAttack}，神獸戰鬥攻擊 ${card.battleAttack}`} onClick={()=>{setPreview(null);setTarget(card.id);setMaterial(autoMaterial(card.cardId));setMessage('');setSavedChange(null);}}><span className={fusion.badge}>{target===card.id?'✓ 強化這張':'點我強化'}</span>{face(card.cardId)}<strong>{card.name}</strong><small aria-hidden="true">💎{card.orbAttack} ⚔{card.battleAttack}{card.bonus!=='0'?` +${card.bonus}`:''}</small>{card.stars&&<span data-target-stars={card.stars.stars}><CardStarBar stars={card.stars} percent={card.bonusPercent} atCap={card.atBonusCap} iconOnly/></span>}</button>)}</div>
+      <div className={`${styles.grid} ${fusion.selection}`}>{view.cards.filter(c=>c.form!=='YOUNG').map(card=><button key={card.id} type="button" data-shared-target={card.id} disabled={busy||!!view.pendingBattle} aria-pressed={target===card.id} aria-label={`${card.name}，永久 +${card.bonus}，寶石攻擊 ${card.orbAttack}，神獸戰鬥攻擊 ${card.battleAttack}`} onClick={()=>{if(target===card.id)return;setPreview(null);setTarget(card.id);setMaterial(autoMaterial(card.cardId));setMessage('');setSavedChange(null);}}><span className={fusion.badge}>{target===card.id?'✓ 強化這張':'點我強化'}</span>{face(card.cardId)}<strong>{card.name}</strong><small aria-hidden="true">💎{card.orbAttack} ⚔{card.battleAttack}{card.bonus!=='0'?` +${card.bonus}`:''}</small>{card.stars&&<span data-target-stars={card.stars.stars}><CardStarBar stars={card.stars} percent={card.bonusPercent} atCap={card.atBonusCap} iconOnly/></span>}</button>)}</div>
       {targetCard&&!material&&<p role="status" data-no-material>這張目前沒有可以吃的材料</p>}
       {targetCard&&<details data-testid="pick-material-manually"><summary ref={materialRef as unknown as React.Ref<HTMLElement>} tabIndex={-1}>自己選材料</summary><div className={`${styles.grid} ${fusion.selection}`}>{view.cards.filter(c=>!c.protected&&c.materialTargetCardId===targetCard.cardId).map(card=><button key={card.id} type="button" data-shared-material={card.id} disabled={busy||!!view.pendingBattle} aria-pressed={material===card.id} onClick={()=>{if(material!==card.id){setPreview(null);setMaterial(card.id);}}}><span className={fusion.badge}>{material===card.id?'✓ 已選材料・會消耗':'材料・確認後消耗'}</span>{face(card.cardId)}<strong>{card.name}</strong><small>{card.copyLabel} · 永久 +{card.bonus}</small>{(()=>{const o=options?.targetId===target?options.byId[card.id]:undefined;if(!o)return null;if(o.error)return <small className={styles.feedChip} data-feed-chip-error>{o.error}</small>;const f=o.feedback!;return <small className={styles.feedChip} data-feed-chip={f.addedBonus}><span>攻擊</span> +{f.addedBonus} · <span>約</span> +{f.addedPercent.label}%</small>;})()}</button>)}</div></details>}
       <div ref={reviewRef} className={fusion.review}>
       {previewReady&&preview&&<div data-shared-preview>{feedback?<FoodChainFeedback change={feedback} phase="preview" iconOnly/>:<p data-fusion-sentence><b>{preview.targetName}吃掉{preview.materialName}</b>：寶石攻擊 {preview.orbBeforeAttack}→{preview.orbAfterAttack}，神獸戰鬥攻擊 {preview.battleBeforeAttack}→{preview.battleAfterAttack}</p>}</div>}
       {target&&material&&!previewReady&&!error&&<p role="status">正在取得後端合體預覽…</p>}
-      <button type="button" className={styles.confirm} data-confirm-shared-fusion disabled={busy||!previewReady||!book||!!view.pendingBattle} onClick={()=>void save('FUSE')}>{busy?'正在保存…':'強化一次'}</button>
-      {target&&<div className={fusion.actions}><button type="button" disabled={busy} onClick={()=>{setMaterial('');setPreview(null);materialRef.current?.focus();materialRef.current?.scrollIntoView({block:'start'});}}>重選材料</button><button type="button" disabled={busy} onClick={()=>{setTarget('');setMaterial('');setPreview(null);setError('');}}>取消本次合體</button></div>}
+      {target&&material&&<button type="button" className={styles.confirm} data-confirm-shared-fusion disabled={busy||!previewReady||!book||!!view.pendingBattle} onClick={()=>void save('FUSE')}>{busy?'正在保存…':'強化一次'}</button>}
+      {target&&<div className={fusion.actions}>{material&&<button type="button" disabled={busy} onClick={()=>{setMaterial('');setPreview(null);materialRef.current?.focus();materialRef.current?.scrollIntoView({block:'start'});}}>重選材料</button>}<button type="button" disabled={busy} onClick={()=>{setTarget('');setMaterial('');setPreview(null);setError('');}}>取消本次合體</button></div>}
       </div>
     </>}
     {onDone&&<button type="button" disabled={busy} onClick={onDone}>返回選卡</button>}
