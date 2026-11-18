@@ -1,0 +1,32 @@
+{
+  "production": false,
+  "isolatedGuest": true,
+  "errors": [],
+  "turns": [
+    {
+      "releaseToReadyMs": 2952
+    },
+    {
+      "releaseToReadyMs": 2002
+    },
+    {
+      "releaseToReadyMs": 7349
+    }
+  ],
+  "network": [
+    {
+      "status": 200,
+      "responseStartMs": 249
+    },
+    {
+      "status": 200,
+      "responseStartMs": 24
+    },
+    {
+      "status": 200,
+      "responseStartMs": 25
+    }
+  ],
+  "waitStatus": "連線已送出・正在處理",
+  "passed": true
+}

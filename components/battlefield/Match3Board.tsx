@@ -378,6 +378,8 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   const [guardActive, setGuardActive] = useState(false);
   const [log, setLog] = useState(cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊');
   const [busy, setBusy] = useState(false);
+  const [awaitingTurn, setAwaitingTurn] = useState(false);
+  const [lastHealing, setLastHealing] = useState<{id:string;actual:number}[]>([]);
   const [attackBoost, setAttackBoost] = useState(init.resumeInput?.attackBoost ?? 1);
   const [supportText, setSupportText] = useState(init.resumeInput?.comebackText ?? '');
   const [shieldGoals, setShieldGoals] = useState<ReturnType<typeof resolveOrbTurn>['shieldGoals']>([]);
@@ -793,7 +795,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   const useTreasure = async (element: BeastElement, variant: number) => {
     if (busy || turnRequest.current || over || ti < 0 || (!treasurePractice && (!init.owner || !campaignEnabled))) return;
     catalogRevision.current++;
-    const controller = new AbortController(); turnRequest.current = controller; setBusy(true);
+    const controller = new AbortController(); turnRequest.current = controller; setBusy(true); setLastHealing([]);
     const timeout = window.setTimeout(() => controller.abort(), 15000);
     battleId.current ||= crypto.randomUUID();
     const actionId = battleId.current + ':treasure:' + (++treasureAction.current);
@@ -823,8 +825,9 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
 
   const release = async (path: Cell[]) => {
     if (busy || turnRequest.current || over || ti < 0 || path.length === 0) return;
-    const controller = new AbortController(); turnRequest.current = controller; setBusy(true);
+    const controller = new AbortController(); turnRequest.current = controller; setBusy(true); setLastHealing([]);
     const timeout = window.setTimeout(() => controller.abort(), 15000);
+    setAwaitingTurn(true);
     let prepared: ReturnType<typeof resolveOrbTurn>;
     try {
       battleId.current ||= crypto.randomUUID();
@@ -842,7 +845,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     } catch {
       if (turnRequest.current === controller) { if(init.sharedBattleToken)onRecover(); else { setBusy(false); setLog('暫時無法完成本回合，請重新連珠。'); } }
       return;
-    } finally { window.clearTimeout(timeout); if (turnRequest.current === controller) turnRequest.current = null; }
+    } finally { window.clearTimeout(timeout); if (turnRequest.current === controller) { turnRequest.current = null; setAwaitingTurn(false); } }
     if(init.sharedBattleToken)sharedVersion.current=(prepared as typeof prepared & {sharedVersion:number}).sharedVersion;
     const { res } = prepared;
     setShieldGoals(prepared.shieldGoals);
@@ -901,6 +904,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       showSkillEvents(prepared.skills);
       setAttackBoost(prepared.nextBoost);
       const healing = prepared.healingSummary.map(h => `${h.name} +${h.actual}`).join('、');
+      setLastHealing(prepared.healingSummary);
       const enemyHealing = prepared.enemyHealingSummary.map(h => `${h.name} +${h.actual}`).join('、');
       setSupportText([prepared.comebackText, prepared.shield?.name, healing && `我方回復：${healing}`, enemyHealing && `敵方相生回復：${enemyHealing}`].filter(Boolean).join('；'));
       showStrike(rigEnabled ? actualHits : hits, foe, nf[actionTarget], false, rigEnabled ? actualDealt : undefined, prepared.summon);
@@ -1020,7 +1024,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   // 回傳值直接當作原本的 applied；前端不先扣血、不判擊倒，擊倒交給 queueKnockouts（id：battleId:skill:N:ko:foeId／battleId:link:N:ko:foeId，同一 id 只播一次）。
   const cardActionId = (kind: 'skill' | 'link') => (battleId.current ||= crypto.randomUUID()) + ':' + kind + ':' + (++cardAttackKey.current);
   const requestCardAttack = async (action: 'energy' | 'link', ids: string[], eventId: string, actionId: string): Promise<CardAttackResult | null> => {
-    const controller = new AbortController(); turnRequest.current = controller; setBusy(true);
+    const controller = new AbortController(); turnRequest.current = controller; setBusy(true); setLastHealing([]);
     const timeout = window.setTimeout(() => controller.abort(), 15000);
     try {
       const response = await postOrbTurn(JSON.stringify({ guestBattleToken:guestState.current.token, sharedBattleToken:init.sharedBattleToken, sharedVersion:sharedVersion.current, board, magic, path:[], team, foes, mode:cfg.id, wins, target:ti, seed:init.seed, move:moves, chosen, rule, attackBoost, treasureGuard, action, ...(action === 'energy' ? { attackerId:ids[0] } : { linkIds:ids }), eventId, actionId }), {'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, controller.signal);
@@ -1145,6 +1149,10 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         {rigEnabled && <span className={styles.srOnly} data-testid="match3-round">{stage.label}·{moves + 1}回合</span>}
         {rigEnabled && <button type="button" className={`${styles.helpBtn} ${styles.helpTop}`} aria-expanded={help} onClick={() => setHelp(!help)}>玩法與操作</button>}
       </header>
+      {cfg.id === 'hard45' && <div className={styles.turnFeedback} data-testid="match3-turn-feedback">
+        <span role="status" aria-live="polite" data-testid="match3-input-status">{over?'本局已結束':awaitingTurn?'連線已送出・正在處理':busy?'戰鬥演出中':dragging?'放手完成連線':ti<0?'等待對手入場':'可以連線'}</span>
+        {moves > 0 && <span data-testid="match3-visible-damage">本步傷害 <b>{lastDmg}</b></span>}
+      </div>}
       {rigEnabled && attackCaption && <div className={styles.attackCaption} data-testid="match3-attack-caption" data-side={attackCaption.side}><strong>{attackCaption.hint ? '操作提示' : attackCaption.side === 'enemy' ? '敵方出手' : '我方出手'}</strong> {attackCaption.text}</div>}
       {rigEnabled && help && intro && <div className={styles.quickIntro} data-testid="match3-quick-intro" role="status">上下、左右、左斜、右斜都可以，只要3顆相同寶珠連成一線即可；本關合計 {stage.minChain} 顆以上才具有攻擊效果，連得越多，威力越強。<button type="button" onClick={() => setIntro(false)} aria-label="收起操作提示">×</button></div>}
       <OrbElementAttack flights={outgoing} side="ally" refinedLightning={cfg.id === 'hard45'} />
@@ -1231,6 +1239,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
               className={`${styles.ally} ${down ? styles.down : ''} ${(rigEnabled ? energyReady : full) ? styles.allyFull : ''} ${hitTeam.has(u.id) ? styles.allyHit : ''} ${attacked.has(u.id) ? styles.allyAttack : ''} ${dup && lead ? styles.allyLead : ''} ${inLink ? styles.allyLink : ''} ${guardActive && !down ? styles.allyGuard : ''}`}
               style={{ ['--ec' as string]: ORB_COLOR[u.element], ...(gfFusion ? { ['--gf' as string]: ORB_COLOR[gfFusion.element] } : {}) }}>
               {rigEnabled && skillMarker(u.id, 'ally')}
+              {cfg.id === 'hard45' && lastHealing.filter(h=>h.id===u.id&&h.actual>0).map(h=><span key={h.id} className={styles.healReceipt} data-testid="match3-heal-receipt" data-target-id={h.id} data-actual-heal={h.actual} aria-label={u.name+'本步實際回復'+h.actual+'生命'}>♥ +{h.actual}</span>)}
               {rigEnabled && !!u.skillRuntime?.stunnedTurns && <span className={styles.srOnly} data-testid="match3-ally-stun">暫時受控</span>}
               {rigEnabled && counterVisuals.filter(h => h.targetId === u.id).map((h, i) => <span key={i} className={styles.counterDamage} data-testid="match3-counter-damage" data-actual-damage={h.actualDamage} data-hp-before={h.hpBefore} data-hp-after={h.hpAfter} style={{ ['--hit-order' as string]: i }} data-source-id={h.enemyId} data-target-id={h.targetId} aria-label={`${foes.find(f=>f.id===h.enemyId)?.name}攻擊${u.name}，受到${h.actualDamage}點傷害，生命${h.hpBefore}降至${h.hpAfter}`}><small>{foes.find(f=>f.id===h.enemyId)?.name} →</small>−{h.actualDamage}</span>)}
               <button type="button" className={styles.allyBtn} disabled={down} onPointerDown={(e) => e.stopPropagation()} onClick={() => tapAlly(u)} aria-pressed={linkMode ? inLink : dup ? lead : undefined}

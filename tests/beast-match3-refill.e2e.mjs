@@ -135,6 +135,7 @@ try {
     const e=chosen.find(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length&&h.memoizedState[0]?.cd!==undefined&&h.memoizedState[0]?.hp!==undefined);
     if(${JSON.stringify(fixture)} && typeof ${JSON.stringify(fixture)} === 'object'){const f=${JSON.stringify(fixture)};b.queue.dispatch(f.board);m.queue.dispatch(f.magic);}
     else if(${JSON.stringify(fixture)}){const els=['FIRE','WATER','AIR','SPACE','EARTH'];const board=Array.from({length:8},(_,r)=>Array.from({length:7},(_,c)=>els[(r*2+c)%5]));const magic=Array.from({length:8},()=>Array(7).fill(0));for(let c=0;c<3;c++)magic[3][c]=7;board[6][0]=board[6][1]=board[6][2]='EARTH';b.queue.dispatch(board);m.queue.dispatch(magic);}
+    if(${process.env.MATCH3_FEEDBACK_AUDIT === '1'})t.queue.dispatch(t.memoizedState.map(u=>({...u,hp:Math.max(1,Math.floor(u.maxHp/2))})));
     return {team:t.memoizedState,foes:e.memoizedState};
   })()`);
   await send('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{
@@ -200,6 +201,13 @@ try {
     assert(!lastTurn.action || lastTurn.action==='drag', 'replay must not automatically spend stored energy');
     const expectedLastDamage=lastTurn.action==='link'||lastTurn.action==='energy'?lastTurn.actualDamage:lastTurn.damage+lastTurn.startDamage+lastTurn.endDamage;
     assert.equal(final.damage,expectedLastDamage);
+    if(process.env.MATCH3_FEEDBACK_AUDIT==='1'){
+      assert.equal(await js('document.querySelector("[data-testid=match3-visible-damage]")?.textContent'),'本步傷害 '+expectedLastDamage);
+      const healed=observed.turn.healingSummary.filter(h=>h.actual>0).map(h=>({id:h.id,actual:h.actual})).sort((a,b)=>a.id.localeCompare(b.id));
+      assert(healed.length>0,'injured fixture must exercise real healing');
+      assert.deepEqual(await js('[...document.querySelectorAll("[data-testid=match3-heal-receipt]")].map(e=>({id:e.dataset.targetId,actual:+e.dataset.actualHeal})).sort((a,b)=>a.id.localeCompare(b.id))'),healed);
+      await save('feedback-'+width+'-'+length);
+    }
     final.cells.forEach(c=>{assert.equal(c.el,observed.turn.res.board[c.r][c.c]);assert.equal(c.mp,observed.turn.res.magic[c.r][c.c]);});
     assert(final.scroll<=width);results.push({case:'recorded match then clear',width,length,reduced,chains:expected.length,releaseToReadyMs});
     writeFileSync(path.join(output,'replay-'+width+'-'+length+(reduced?'-reduced':'')+'.json'),JSON.stringify(observed,null,2));

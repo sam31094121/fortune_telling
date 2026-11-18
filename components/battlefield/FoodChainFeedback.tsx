@@ -57,6 +57,7 @@ function IconFeedback({ change, phase }: { change: Change; phase: 'preview' | 's
     + (s ? `，${s.stars} 星${s.toNext === null ? '，已五星封頂' : `，下一星還差 ${s.toNext} 張`}` : '')
     + (phase === 'preview' ? `。確認後${count > 1 ? `這 ${count} 張材料` : change.materialName}會被吃掉（永久消耗）` : '。合體已保存');
   return <section className={`${styles.card} ${styles.iconCard}`} data-food-chain-feedback={phase} data-icon-only data-count={count} data-layer={change.layer} data-rule={change.rule} role={phase === 'saved' ? 'status' : undefined} aria-label={spoken}>
+    <p className={styles.resultLabel} data-fc-result-label>{phase === 'saved' ? (up ? '升星成功・已保存' : '強化已保存') : '本次強化預覽'}</p>
     <div className={styles.pair} data-absorbing={phase === 'saved' ? 'true' : undefined} aria-hidden="true">
       <div className={styles.thumb} data-fc-material-thumb><CatalogBeastCard id={change.materialCardId} />{phase === 'preview' && <span className={styles.eatMark}>🍴</span>}{count > 1 && <b className={styles.countMark} data-fc-count={count}>×{count}</b>}</div>
       <span className={styles.arrow}>➜</span>
@@ -64,12 +65,14 @@ function IconFeedback({ change, phase }: { change: Change; phase: 'preview' | 's
     </div>
     <p className={styles.bigGain} aria-hidden="true" data-fc-gain={change.addedBonus}><b data-fc-percent>+{change.addedPercent.label}%</b>{change.capped && <span className={styles.capIcon}>🔒</span>}{change.inheritedBonus && change.inheritedBonus !== '0' && <span className={styles.inheritIcon} data-fc-inherited={change.inheritedBonus}>⬆+{change.inheritedBonus}</span>}</p>
     <div className={styles.iconCompare} aria-hidden="true">
-      <span data-fc-orb><i>💎</i>{change.beforeOrbAttack}<em>→</em><b>{change.afterOrbAttack}</b></span>
-      <span data-fc-battle><i>⚔</i>{change.beforeBattleAttack}<em>→</em><b>{change.afterBattleAttack}</b></span>
+      <span data-fc-orb><i>💎</i><small>連線攻擊</small>{change.beforeOrbAttack}<em>→</em><b>{change.afterOrbAttack}</b></span>
+      <span data-fc-battle><i>⚔</i><small>神獸戰鬥</small>{change.beforeBattleAttack}<em>→</em><b>{change.afterBattleAttack}</b></span>
     </div>
     {s && <div className={styles.starRow} data-fc-star-row aria-hidden="true">
       <Stars count={s.stars} />{up && <span className={styles.starUp}>↑</span>}
-      {s.toNext !== null ? <span className={styles.next} data-fc-to-next-wrap><i>🃏</i><b data-fc-to-next>{s.toNext}</b></span> : <span className={styles.next} data-fc-maxed>✓</span>}
+      {s.toNext !== null ? <span className={styles.next} data-fc-to-next-wrap><span>下一星還差 </span><b data-fc-to-next>{s.toNext}</b><span> 張</span></span> : <span className={styles.next} data-fc-maxed>五星已滿 ✓</span>}
     </div>}
+    {change.rule === 'v4' && change.addedBonus === '0' && s && <p className={styles.note} data-fc-fraction>{phase === 'preview'?'確認後累積成長進度，本次攻擊尚不增加整數點。':'成長進度已累積，攻擊尚未增加整數點。'}</p>}
+    {phase === 'preview' && <p className={styles.note}>確認後消耗 {count} 張材料</p>}
   </section>;
 }
