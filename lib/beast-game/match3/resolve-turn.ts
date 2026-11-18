@@ -4,7 +4,7 @@ import { buildOrbReplay } from './replay';
 import { buildEvents } from './events';
 import { resolveDrag, type MagicGrid } from './drag';
 import { seededRng, type Board, type Cell } from './board';
-import { match3Mode, type Match3ModeId } from './config';
+import { ENERGY_MAX, match3Mode, type Match3ModeId } from './config';
 import { progressionStage } from './progression';
 import { computeHits, endPlayerSkillTurn, fighterCanAct } from './damage';
 import { attackingTeam, shareEnergy, type LeadChoice, type SameElementRule } from './team';
@@ -17,6 +17,7 @@ import { healSupport, shieldPlan, SUPPORT_POLICY, type HealFact } from './elemen
 import { playableCards } from '../registry';
 import { orbOutcome } from './battle-outcome';
 import { comebackMultiplier, finishComeback, rescueStrike, COMEBACK_POLICY, type ComebackState } from './comeback';
+import { comebackBoard } from './comeback-board';
 export interface TurnUnit extends Match3Fighter { maxHp: number; energy: number; name: string; thumbnail: string }
 export interface TurnFoe extends Match3Foe { name: string; thumbnail: string }
 export interface TurnInput { comebackText?: string; comeback?: ComebackState; treasures?: TreasureBook; actionId?: string; treasureGuard?: number; action?: 'treasure' | 'energy' | 'link'; treasureVariant?: number; treasureElement?: import('../elements').BeastElement; /** 能量技／連結攻擊（card-attack.ts）：施放者、連線卡、沿用前端原 eventId。 */ attackerId?: string; linkIds?: string[]; eventId?: string; board: Board; magic: MagicGrid; path: Cell[]; team: TurnUnit[]; foes: TurnFoe[]; mode: Match3ModeId; wins: number; target: number; seed: number; move: number; chosen: LeadChoice; rule: SameElementRule; attackBoost: number }
@@ -88,13 +89,26 @@ export function resolveOrbTurn(input: TurnInput) {
     team = endPlayerSkillTurn(ended.team); foes = ended.foes; skills.push(...ended.skillEvents); endDamage = ended.actualDamage;
   }
   if (hard && res.valid) foes = chargeEnemyAttack(foes, input.wins + 1, eventId);
-  const rescue = rescueStrike(foes, opening.state, input.wins, target, res.valid && team.some(c => c.hp > 0));
+  const treasure = grantTreasure({ ...input, team }, res);
+  const caughtIds = new Set(treasure.drops.flatMap(d => d.ownerId ? [d.ownerId] : []));
+  team = team.map(unit => {
+    if (unit.hp <= 0 || !caughtIds.has(unit.id)) return unit;
+    const actual = Math.max(0, unit.maxHp - unit.hp);
+    if (actual) heals.push({ id: unit.id, source: unit.element, hpBefore: unit.hp, hpAfter: unit.maxHp, actual, reason: 'formation', chain: 1 });
+    return { ...unit, hp: unit.maxHp, energy: ENERGY_MAX, orbDropCharges: (unit.orbDropCharges ?? 0) + treasure.drops.filter(d=>d.ownerId===unit.id).length };
+  });
+  const helper=team.find(c=>c.hp>0);
+  const assisted=res.valid && opening.state?.rescue && opening.state.strikesLeft>0 && helper && foes.some(c=>c.hp>0)
+    ? comebackBoard(res.board,res.magic,helper.element,stage.minChain) : null;
+  if(assisted){res.board=assisted.board;res.reshuffled=true;}
+  const rescue = rescueStrike(foes, opening.state, input.wins, target, !!assisted);
   foes = rescue.foes; endDamage += rescue.damage;
   const beforeCounter = { team, foes };
   const guardScale = Math.min(input.treasureGuard ?? 1, shield && 'damageScale' in shield ? shield.damageScale : 1);
   const counter = input.path.length === 0 || !res.valid ? { team, foes, hits: [], skillEvents: [] } : counterPhase(team, foes, cfg.counterEvery, hard && !stage.simultaneous ? input.move : undefined, guardScale, hard ? input.wins + 1 : undefined, hard ? { turnId: eventId, energyGate: true } : undefined);
   const enemyBudget = new Map<string, number>();
   for (const h of counter.hits) {
+    if(h.blocked)continue;
     const source = counter.foes.find(f => f.id === h.enemyId);
     if (!source || source.hp <= 0) continue;
     const eligible = counter.foes.filter((_, i) => foeAvailable(counter.foes, i, hard ? input.wins + 1 : 0));
@@ -112,7 +126,6 @@ export function resolveOrbTurn(input: TurnInput) {
   const shieldGoals = (['SPACE','AIR','WATER','FIRE','EARTH'] as const).map(element=>({element,count:res.board.reduce((sum,row,r)=>sum+row.filter((e,c)=>e===element && res.magic[r][c]>=7).length,0)}));
   const replay = hard && res.valid ? buildOrbReplay(input.board, input.magic, input.path, res, cfg.diagonal) : [];
   const events = buildEvents(res.steps, hits, { magicSpawn: res.magicSpawn, magicTriggered: res.magicTriggered, skill5Element: res.skill5 ? res.element : null, energy: energyGains(res) });
-  const treasure = grantTreasure(input, res);
   treasure.catalog = treasureCatalog(treasure.book,counter.team,input.mode === 'hard45' && !!input.comeback);
   const nextTreasureGuard = counter.hits.length ? 1 : input.treasureGuard ?? 1;
   return { ...(recovery.state ? {comeback:recovery.state} : {}), comebackFacts: [...opening.facts, ...rescue.facts, ...recovery.facts], comebackText: [opening.facts.length ? opening.message : '',rescue.facts.length ? `破陣援擊：實際傷害 ${rescue.damage}。` : '',recovery.message].filter(Boolean).join(' '), outcome: orbOutcome(counter.team, counter.foes), treasure, nextTreasureGuard, replay, events, res, target, hits, actualHits, damage, startDamage, endDamage, skills, heals, enemyHeals, healingSummary, enemyHealingSummary, shieldGoals, summon, chainFacts, shield, guardScale, beforeCounter, counter, nextBoost };

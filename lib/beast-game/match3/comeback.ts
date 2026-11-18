@@ -1,5 +1,5 @@
 import policy from '../../../docs/技能戰鬥檔案/寶珠阿修羅/敗部復活.json';
-import { availableFoeTarget, damageFoe, initializeAvailableFoes } from './enemies';
+import { availableFoeTarget, initializeAvailableFoes } from './enemies';
 import type { TurnUnit, TurnFoe } from './resolve-turn';
 
 export interface ComebackRecord { wins: number; losses: number }
@@ -16,18 +16,15 @@ export function nextComebackRecord(wins: number, prior: ComebackRecord | undefin
 export function comebackMultiplier(state?: ComebackState): number { return state?.boostLeft ? policy.attackMultiplier : 1; }
 export function comebackLabel(state?: ComebackState): string {
   if (!state) return '';
-  if (state.rescue) return `保底援助：有效連線觸發破陣援擊，剩餘 ${state.strikesLeft} 次。`;
+  if (state.rescue) return `連線援助：補珠後提供較容易辨識的連線路徑，仍須手動連線攻擊，剩餘 ${state.strikesLeft} 次。`;
   return state.rallies ? `逆境奮起已觸發；寶珠與法寶攻擊增強剩餘 ${state.boostLeft} 次。` : '本局生命不高於30%時，存活隊友可獲一次逆境援助。';
 }
-/** Explicit rescue strike: spends a charge and deals HP + shield damage to one available foe. */
+/** Compatibility entry: rescue now spends a board-assistance charge, never damages a foe. */
 export function rescueStrike(foes: TurnFoe[], state: ComebackState | undefined, wins: number, target: number, valid: boolean) {
   const ready = initializeAvailableFoes(foes, wins + 1);
   const index = availableFoeTarget(ready, target, wins + 1);
   if (!valid || !state?.rescue || state.strikesLeft <= 0 || index < 0) return { foes, state, facts: [] as ComebackFact[], damage: 0 };
-  const before = ready[index], shield = before.skillRuntime?.shield ?? 0;
-  const next = damageFoe(ready, index, before.hp + shield);
-  const fact: ComebackFact = { kind: 'rescue', id: before.id, before: before.hp, after: next[index].hp, actual: before.hp - next[index].hp, shieldAbsorbed: shield - (next[index].skillRuntime?.shield ?? 0) };
-  return { foes: initializeAvailableFoes(next, wins + 1), state: { ...state, strikesLeft: state.strikesLeft - 1 }, facts: [fact], damage: fact.actual };
+  return { foes, state: { ...state, strikesLeft: state.strikesLeft - 1 }, facts: [] as ComebackFact[], damage: 0 };
 }
 /** In-battle rally only: zero-HP fighters and completed defeats are never revived. */
 export function finishComeback(team: TurnUnit[], foes: TurnFoe[], state: ComebackState | undefined, consumed: boolean) {

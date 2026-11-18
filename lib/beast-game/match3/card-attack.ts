@@ -9,13 +9,13 @@
  */
 import { ENERGY_MAX } from './config';
 import { fighterCanAct, fighterEffectiveAttack, fighterExactAttack, skillAmount } from './damage';
-import { LINK_ENERGY_COST, LINK_MIN_CARDS, linkDamage, linkProblem, type Match3Foe } from './enemies';
+import { damageFoe, LINK_ENERGY_COST, LINK_MIN_CARDS, linkDamage, linkProblem, type Match3Foe } from './enemies';
 import { resolvePlayerCardAttack } from './player-skills';
 import { progressionStage } from './progression';
 import type { SkillFoe } from './skill-runtime';
 import type { TurnInput } from './resolve-turn';
 
-type Player = SkillFoe & { energy: number };
+type Player = SkillFoe & { energy: number; orbDropCharges?: number };
 
 export interface CardAttackArgs<T extends Player, F extends Match3Foe> { team: readonly T[]; foes: readonly F[]; targetIndex: number; stage: number; eventId: string }
 
@@ -25,9 +25,23 @@ export function resolveEnergyAttack<T extends Player, F extends Match3Foe>(args:
   const u = team.find(x => x.id === attackerId);
   const foe = foes[targetIndex];
   if (!u || !foe) throw new Error('invalid');
+  if (u.skillRuntime?.playerAttackReceipts?.includes(eventId)) throw new Error('這次攻擊已處理');
   const amt = skillAmount(fighterEffectiveAttack(u), u.element, foe.element, fighterExactAttack(u));
   const spentTeam = team.map(x => x.id === u.id ? { ...x, energy: 0 } : x);
   const applied = resolvePlayerCardAttack({ foes, team: spentTeam, targetIndex, attackerIds: [u.id], baseDamage: amt, stage, eventId, allowEnemyReaction: false });
+  if ((u.orbDropCharges ?? 0) > 0) {
+    const minimum = Math.min(foe.hp, Math.ceil(foe.maxHp / 2));
+    const dealt = Math.max(0, foe.hp - applied.foes[targetIndex].hp);
+    const missing = Math.max(0, minimum - dealt);
+    if (missing) {
+      const before = applied.foes[targetIndex];
+      applied.foes = damageFoe(applied.foes, targetIndex, missing + (before.skillRuntime?.shield ?? 0));
+      const extra = before.hp - applied.foes[targetIndex].hp;
+      applied.actualDamage += extra; applied.actualHits.push({attackerId:u.id,amount:extra});
+    }
+    applied.foes = applied.foes.map((f,i)=>i===targetIndex && f.hp>0 ? {...f,orbDropCounterBlocked:true} : f);
+    applied.team = applied.team.map(x=>x.id===u.id ? {...x,orbDropCharges:Math.max(0,(u.orbDropCharges ?? 0)-1)} : x);
+  }
   return { ...applied, baseDamage: amt };
 }
 

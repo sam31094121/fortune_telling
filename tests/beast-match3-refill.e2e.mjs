@@ -44,7 +44,7 @@ try {
     try{
       const input=JSON.parse(m.params.request.postData),ticket=openGuestOrb(input.guestBattleToken);
       const {guestBattleToken,...snapshot}=input;
-      ticket.input={...ticket.input,...snapshot};ticket.seed=(1001-input.move*2654435761)>>>0;
+      ticket.input={...ticket.input,...snapshot};ticket.seed=((process.env.MATCH3_DROP_AUDIT==='1'?1004:1001)-input.move*2654435761)>>>0;
       input.guestBattleToken=sealGuestOrb(ticket);
       await send('Fetch.continueRequest',{requestId:m.params.requestId,postData:Buffer.from(JSON.stringify(input)).toString('base64')});
     }catch(error){errors.push(String(error));await send('Fetch.failRequest',{requestId:m.params.requestId,errorReason:'Failed'});}
@@ -102,7 +102,7 @@ try {
     return releaseToReadyMs;
   };
   const start = async (wins, width) => {
-    await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 2, mobile: width < 768 });
+    await send('Emulation.setDeviceMetricsOverride', { width, height: Number(process.env.MATCH3_VIEWPORT_HEIGHT)||844, deviceScaleFactor: 2, mobile: width < 768 });
     // 同分頁重新整理會自動接回上次的玩家（產品行為）；這裡模擬全新進入，先清掉那個記號再導頁，斷言不變。
     await js(`(()=>{try{sessionStorage.removeItem('m3-campaign-last-owner')}catch{}return true})()`);
     await send('Page.navigate', { url: `${base}/beast-game/match3-hard` });
@@ -133,9 +133,10 @@ try {
     const b=matrix.find(h=>typeof h.memoizedState[0][0]==='string'), m=matrix.find(h=>typeof h.memoizedState[0][0]==='number');
     const t=chosen.find(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length&&h.memoizedState[0]?.energy!==undefined&&h.memoizedState[0]?.hp!==undefined);
     const e=chosen.find(h=>Array.isArray(h.memoizedState)&&h.memoizedState.length&&h.memoizedState[0]?.cd!==undefined&&h.memoizedState[0]?.hp!==undefined);
-    if(${JSON.stringify(fixture)} && typeof ${JSON.stringify(fixture)} === 'object'){const f=${JSON.stringify(fixture)};b.queue.dispatch(f.board);m.queue.dispatch(f.magic);}
+    if(${JSON.stringify(fixture)} && typeof ${JSON.stringify(fixture)} === 'object'){const f=${JSON.stringify(fixture)};b.queue.dispatch(f.board);m.queue.dispatch(f.magic);if(f.lastAlly)t.queue.dispatch(t.memoizedState.map((u,i)=>({...u,hp:i?0:u.hp})));}
     else if(${JSON.stringify(fixture)}){const els=['FIRE','WATER','AIR','SPACE','EARTH'];const board=Array.from({length:8},(_,r)=>Array.from({length:7},(_,c)=>els[(r*2+c)%5]));const magic=Array.from({length:8},()=>Array(7).fill(0));for(let c=0;c<3;c++)magic[3][c]=7;board[6][0]=board[6][1]=board[6][2]='EARTH';b.queue.dispatch(board);m.queue.dispatch(magic);}
     if(${process.env.MATCH3_FEEDBACK_AUDIT === '1'})t.queue.dispatch(t.memoizedState.map(u=>({...u,hp:Math.max(1,Math.floor(u.maxHp/2))})));
+    if(${process.env.MATCH3_DROP_AUDIT === '1'}){t.queue.dispatch(t.memoizedState.map(u=>({...u,hp:Math.max(1,Math.floor(u.maxHp/3)),attack:1,energy:0})));e.queue.dispatch(e.memoizedState.map(u=>({...u,hp:10000,maxHp:10000,attack:1,attackEnergy:0})));}
     return {team:t.memoizedState,foes:e.memoizedState};
   })()`);
   await send('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{
@@ -158,6 +159,38 @@ try {
     touchInput=width<768;await send('Emulation.setTouchEmulationEnabled',{enabled:touchInput});
     console.log('Checking replay',width,length,reduced);
     const board=M.generateBoard(M.seededRng(1),8,7,true);board[7].fill('FIRE',0,length);
+    if(process.env.MATCH3_DROP_AUDIT==='1'){
+      const n=width===1440?11:width===390&&!reduced?10:9;
+      const route=[...[0,1,2,3,4,5,6].map(c=>({r:6,c})),...[6,5,4,3,2,1,0].map(c=>({r:7,c}))].slice(0,n);
+      const magic=M.emptyMagic(board);route.forEach(p=>{board[p.r][p.c]='SPACE';magic[p.r][p.c]=7;});
+      await state({board,magic});await sleep(150);
+      await js(`window.__dropReply=null;const oldFetch=window.fetch;window.fetch=async(...args)=>{const r=await oldFetch(...args);if(String(args[0]).includes('/orb-turn'))window.__dropReply=await r.clone().json();return r;}`);
+      const playing=drag(route);void playing.catch(()=>{});
+      if(!reduced){await wait('document.querySelector("[data-testid=orb-drop-stage]")');assert.equal(await js('document.querySelectorAll("[data-drop-index]").length'),n-8);await save('drop-'+width+'-'+n);}
+      await playing;
+      const reply=await js('window.__dropReply');assert.equal(reply.treasure.drops.length,n-8);
+      const caught=reply.treasure.drops.filter(d=>d.ownerId);
+      assert.equal(reply.treasure.catalog.reduce((sum,c)=>sum+c.count,0),caught.length);
+      if(caught.length){
+        const owner=caught[0].ownerId,u=reply.beforeCounter.team.find(u=>u.id===owner);assert.equal(u.hp,u.maxHp);assert.equal(u.energy,100);
+        await click('[data-testid="match3-ready-energy-orb"][data-source-id="'+owner+'"]');
+        await wait('window.__dropReply?.action==="energy"');
+        const attack=await js('window.__dropReply');assert(attack.actualDamage>=5000);assert(attack.foes.some(f=>f.orbDropCounterBlocked));
+      }
+      await save('drop-result-'+width+'-'+n);results.push({case:'server pinball',width,reduced,shields:n,drops:reply.treasure.drops.map(d=>({owner:d.ownerId,duration:d.durationMs,impacts:d.impacts.length})),caught:caught.length});continue;
+    }
+    if(process.env.MATCH3_SIDE_DOCK_AUDIT==='1' && width<=640){
+      const geometry=()=>js(`(()=>{const b=document.querySelector('[data-testid="match3-board"]').getBoundingClientRect();return {x:b.x,y:b.y,w:b.width,h:b.height};})()`);
+      const before=await geometry();
+      await state({board,magic:M.emptyMagic(board),lastAlly:true});
+      await wait('document.querySelector("[data-last-ally-stage=true]")');await sleep(500);
+      const after=await geometry();await save('side-dock-'+width);
+      const dock=await js(`(()=>{const es=[...document.querySelectorAll('[data-testid="orb-treasures"] button')];return es.map(e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom};});})()`);
+      assert(Math.abs(before.w-after.w)<1&&Math.abs(before.y-after.y)<1,'enlarging last ally keeps board size and position');
+      assert(dock.length===5&&dock.every(r=>r.w>=44&&r.h>=44&&r.x>=0&&r.right<=width+1),'side weapons retain usable touch targets');
+      assert(dock.every(r=>r.y>=after.y+after.h-1&&r.bottom<=(Number(process.env.MATCH3_VIEWPORT_HEIGHT)||844)),'weapons do not cover board or leave screen');
+      results.push({case:'last ally side dock',width,before,after,dock});continue;
+    }
     await state({board,magic:M.emptyMagic(board)}); await sleep(100);
     await js(`window.__replaySamples=[];window.__turns=[];window.__turnInputs=[];window.__pointerSamples=[];
       for(const type of ['pointerdown','pointermove','pointerup'])document.addEventListener(type,e=>{const h=document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-r]'),r=h?.getBoundingClientRect();window.__pointerSamples.push({type,x:e.clientX,y:e.clientY,hit:h?[h.dataset.r,h.dataset.c]:null,coalesced:e.getCoalescedEvents?.().map(p=>({x:p.clientX,y:p.clientY}))??[],rect:r?{x:r.x,y:r.y,w:r.width,h:r.height}:null});},true);
@@ -195,6 +228,10 @@ try {
     assert.equal(await js('document.querySelectorAll("[data-testid=match3-replay-lines]").length'),0,'no stale line after settlement');
     assert.deepEqual(observed.events.filter(e=>e.count!==undefined).map(e=>e.count),expected.flatMap(f=>f.matches.map(g=>g.count)));
     const final=await snap();
+    if(width<=640){
+      assert(await js('(()=>{const e=document.querySelector("[data-testid=orb-support-result]");return !e||getComputedStyle(e).display==="none";})()'),'settlement paragraphs stay out of mobile battle');
+      assert(await js('document.querySelector("[data-testid=match3-turn-feedback]").getBoundingClientRect().height<=1'),'status does not consume mobile height');
+    }
     // 2026-11-15：蓄能改為手動，這筆拖珠完成後不可自動追加能量攻擊；仍核對最後一筆實際後端事件。
     // 連線／能量技回 actualDamage，一般回合回 damage＋起手＋收尾。只比第一手會把自動連線攻擊的傷害（常等於敵人全部血量）誤判成不一致。
     const lastTurn=await js('window.__turns.at(-1)');

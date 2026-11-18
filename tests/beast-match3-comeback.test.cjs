@@ -36,7 +36,7 @@ assert.equal(C.finishComeback(p.team,p.foes.map(u=>({...u,hp:0})),p.comeback,fal
 let record=C.nextComebackRecord(0,undefined,'lose');assert(!C.initialComeback(0,record).rescue);
 record=C.nextComebackRecord(0,record,'lose');let state=C.initialComeback(0,record);assert(state.rescue);
 assert(!C.initialComeback(1,record).rescue);assert.deepEqual(C.nextComebackRecord(0,record,'win'),{wins:1,losses:0});
-let strike=C.rescueStrike(p.foes,state,0,0,true);assert.equal(strike.damage,1000);assert.equal(strike.facts[0].shieldAbsorbed,5000);assert.equal(strike.state.strikesLeft,4);
+let strike=C.rescueStrike(p.foes,state,0,0,true);assert.equal(strike.damage,0);assert.deepEqual(strike.foes,p.foes);assert.equal(strike.facts.length,0);assert.equal(strike.state.strikesLeft,4);
 assert.equal(C.rescueStrike(p.foes,state,0,0,false).state.strikesLeft,5);
 p.team=p.team.map(u=>({...u,hp:1}));const invalid=resolveOrbTurn(p);assert.deepEqual(invalid.counter.team,p.team);assert.equal(invalid.comeback.rallies,0);
 const formed=fixture();formed.board[0].fill('FIRE');formed.path=Array.from({length:7},(_,c)=>({r:0,c}));

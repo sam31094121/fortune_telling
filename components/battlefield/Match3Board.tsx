@@ -4,6 +4,7 @@ import { ElementTreasureOrb } from '@/components/bazi/customer/ElementTreasureOr
 import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
 import type { resolveOrbTurn } from '@/lib/beast-game/match3/resolve-turn';
 import OrbTreasures, { TreasureAnimation, type TreasureFlight } from './OrbTreasures';
+import OrbDropAnimation from './OrbDropAnimation';
 import type { TreasureBook, TreasureUse, treasureCatalog } from '@/lib/beast-game/match3/treasures';
 import Match3ReplayLines from './Match3ReplayLines';
 import type { OrbReplayFrame } from '@/lib/beast-game/match3/replay';
@@ -371,6 +372,8 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   const [help, setHelp] = useState(false);
   const [shieldBurst, setShieldBurst] = useState<BeastElement | null>(null);
   const [fusionBurst, setFusionBurst] = useState<BeastElement[] | null>(null);
+  const [orbDrops, setOrbDrops] = useState<ReturnType<typeof resolveOrbTurn>['treasure'] | null>(null);
+  const finishOrbDrops = useRef<(() => void) | null>(null);
   // 四象合體（純視覺）：本尊與本象星宿同一步或緊接下一步都打出實際傷害時亮起；不改傷害。
   const [guardianFx, setGuardianFx] = useState<{ key: number; fusions: GuardianFusion[] } | null>(null);
   const fusionState = useRef<GuardianFusionState>(GUARDIAN_FUSION_START);
@@ -559,7 +562,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
             const boardBottomOuter = box2.bottom + number(style.marginBottom);
             // 量到的是「兩區塊外框之間」的距離，含 flex gap 與上一塊的 margin-bottom；換成 margin-top 時要扣掉，否則凍結那一幀會多推一個 gap。
             const rg = number(wrapStyle.rowGap), hs = getComputedStyle(headEl), fs = getComputedStyle(foesEl), ts = getComputedStyle(teamEl);
-            hold = { g1: Math.max(0, fb.top - hb.bottom - number(hs.marginBottom) - rg), g2: Math.max(0, box2.top - fb.bottom - number(fs.marginBottom) - rg), below: Math.max(0, rb.top - number(trs.marginTop) - boardBottomOuter - tb.height - 2 * rg - number(ts.marginTop) - number(ts.marginBottom)), teamH: tb.height, vw: window.innerWidth, vh: height };
+            hold = { g1: Math.max(0, fb.top - hb.bottom - number(hs.marginBottom) - rg), g2: Math.max(0, box2.top - fb.bottom - number(fs.marginBottom) - rg), below: Math.max(0, rb.top - number(trs.marginTop) - boardBottomOuter - tb.height - 2 * rg - number(ts.marginTop) - number(ts.marginBottom)), teamH: tb.height + (cfg.id === 'hard45' ? rb.height : 0), vw: window.innerWidth, vh: height };
           }
           compactReserve.current.hold = hold;
           holdTopReady.current = !!hold;
@@ -571,7 +574,8 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
             const leftoverPre = hold.teamH + hold.below - 8;
             const ratios = Array.from(teamEl.querySelectorAll<HTMLImageElement>('[data-testid="match3-ally"] img')).map(i => i.naturalWidth > 0 && i.naturalHeight > 0 ? i.naturalWidth / i.naturalHeight : 1);
             const rMin = ratios.length ? Math.min(...ratios) : 1;
-            const pre = Math.max(0, Math.min(contentWidth * 0.72, 290, leftoverPre > 19 ? (leftoverPre - 19) * rMin : 0));
+            const preWidth = cfg.id === 'hard45' && window.innerWidth <= 640 ? contentWidth - (height <= 650 ? 216 : 128) : contentWidth * 0.72;
+            const pre = Math.max(0, Math.min(preWidth, 290, leftoverPre > 19 ? (leftoverPre - 19) * rMin : 0));
             const preVal = `${Math.round(pre * 100) / 100}px`;
             if (element.style.getPropertyValue('--last-ally-max') !== preVal) element.style.setProperty('--last-ally-max', preVal);
             // 比例也一併預設成最直的那張：大卡登場第一幀高度＝寬÷比例，剛好落在預算內，不會先撐高一幀再縮回。
@@ -589,7 +593,8 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
           if (img && !img.naturalWidth) img.addEventListener('load', schedule, { once: true });
           const ratio = img && img.naturalWidth > 0 && img.naturalHeight > 0 ? img.naturalWidth / img.naturalHeight : 1;
           const maxByHeight = leftover > 19 ? (leftover - 19) * ratio : 0;
-          const cap = Math.max(0, Math.min(contentWidth * 0.72, 290, maxByHeight));
+          const sideDock = cfg.id === 'hard45' && window.innerWidth <= 640;
+          const cap = Math.max(0, Math.min(sideDock ? contentWidth - (height <= 650 ? 216 : 128) : contentWidth * 0.72, 290, maxByHeight));
           const maxVal = `${Math.round(cap * 100) / 100}px`;
           const ratioVal = String(Math.round(ratio * 1000) / 1000);
           if (element.style.getPropertyValue('--last-ally-max') !== maxVal) element.style.setProperty('--last-ally-max', maxVal);
@@ -597,6 +602,13 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         } else if (!holdTopReady.current) {
           element.style.removeProperty('--last-ally-max');
           element.style.removeProperty('--last-ally-art-ratio');
+        }
+        if (lastAllyOn && teamEl && cfg.id === 'hard45') {
+          const tb=teamEl.getBoundingClientRect(), eb=element.getBoundingClientRect();
+          const dockHeight=Math.max(tb.height, height<=650 ? 92 : 140);
+          const dockTop=Math.min(tb.top, top+height-dockHeight-8);
+          element.style.setProperty('--last-team-top', (dockTop-eb.top)+'px');
+          element.style.setProperty('--last-team-height', dockHeight+'px');
         }
         rect = element.getBoundingClientRect();
       } else element.style.removeProperty('--compact-board-width');
@@ -755,25 +767,26 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     const t = prepared ? prepared.beforeCounter.team : rigEnabled && validAction ? endPlayerSkillTurn(ended?.team ?? inputTeam) : inputTeam;
     const cp = prepared?.counter ?? (rigEnabled && !attack && !forceCounter ? { team: t, foes: f, hits: [], skillEvents: [] } : counterPhase(t, f, cfg.counterEvery, rigEnabled && !stage.simultaneous ? moves : undefined, rigEnabled && shieldGuard, rigEnabled ? stage.wins + 1 : undefined, rigEnabled ? { turnId: `${init.seed}:${moves}` } : undefined));
     const applyCounter = () => {
+      const counterHits = cp.hits.filter(h => !h.blocked);
       showSkillEvents(cp.skillEvents);
-      setGuardActive(shieldGuard && cp.hits.length > 0);
-      if (cp.hits.length) {
-        setAttackCaption({ side: 'enemy', text: cp.hits.map(h => `${cp.foes.find(f => f.id === h.enemyId)?.name ?? '暫時無法取得'} → ${t.find(u => u.id === h.targetId)?.name ?? '暫時無法取得'} −${h.actualDamage}｜生命 ${h.hpBefore} → ${h.hpAfter}`).join('；') });
+      setGuardActive(shieldGuard && counterHits.length > 0);
+      if (counterHits.length) {
+        setAttackCaption({ side: 'enemy', text: counterHits.map(h => `${cp.foes.find(f => f.id === h.enemyId)?.name ?? '暫時無法取得'} → ${t.find(u => u.id === h.targetId)?.name ?? '暫時無法取得'} −${h.actualDamage}｜生命 ${h.hpBefore} → ${h.hpAfter}`).join('；') });
         // 版面讀取排到下一幀開頭（版面已乾淨），不在狀態更新中途強制同步重排。
         if (rigEnabled && root.current) requestAnimationFrame(() => {
           const host = root.current; if (!host) return;
           const bounds = host.getBoundingClientRect();
           const enemies = Array.from(host.querySelectorAll<HTMLElement>('[data-testid="match3-enemy"]'));
           const allies = Array.from(host.querySelectorAll<HTMLElement>('[data-testid="match3-ally"]'));
-          setCounterVisuals(cp.hits.flatMap(h => {
+          setCounterVisuals(counterHits.flatMap(h => {
             const source = cp.foes.find(f => f.id === h.enemyId);
             const from = enemies.find(e => e.dataset.id === h.enemyId)?.getBoundingClientRect();
             const to = allies.find(a => a.dataset.id === h.targetId)?.getBoundingClientRect();
             return source && from && to ? [{ ...h, element: source.element, x1: from.left + from.width / 2 - bounds.left, y1: from.top + from.height / 2 - bounds.top, x2: to.left + to.width / 2 - bounds.left, y2: to.top + to.height / 2 - bounds.top }] : [];
           }));
         });
-        setCounterFoes(new Set(cp.hits.map(h => h.enemy)));
-        setHitTeam(new Set(cp.hits.map(h => h.targetId)));
+        setCounterFoes(new Set(counterHits.map(h => h.enemy)));
+        setHitTeam(new Set(counterHits.map(h => h.targetId)));
         showBanner(shieldGuard ? `${prepared?.shield?.name ?? '防禦合體'}：本輪防護生效` : '敵方反擊', 'counter');
         if (rigEnabled) cue(shieldGuard ? 'guard' : 'counter'); else sound(160);
         later(() => { setCounterFoes(new Set()); setHitTeam(new Set()); setGuardActive(false); setCounterVisuals([]); }, 420);
@@ -929,6 +942,12 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       { const fusedText = noteGuardianFusion(actualHits, nextTeam, true); if (fusedText) msg += `；${fusedText}`; }
       endStep(nextTeam, nf, msg, actualDealt > 0, rigEnabled, prepared.guardScale < 1, true, prepared);
     };
+    const settleWithDrops = () => {
+      if (prepared.treasure.drops?.length) {
+        setFusionBurst(null); setShieldBurst(null); setMatchFrame(null);
+        finishOrbDrops.current = settle; setOrbDrops(prepared.treasure);
+      } else settle();
+    };
     if (playback) {
       refillRun.current?.abort();
       const controller = new AbortController(); refillRun.current = controller;
@@ -977,9 +996,9 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
             if (target instanceof Element && target.isConnected && animation.playState === 'paused') animation.play();
           } paused.clear(); }
         },
-        complete: () => { if (refillRun.current === controller) refillRun.current = null; settle(); },
+        complete: () => { if (refillRun.current === controller) refillRun.current = null; settleWithDrops(); },
       }).catch(error => { if (error?.name !== 'AbortError') console.error('[match3-refill]', error); }).finally(() => paused.clear());
-    } else later(settle, settleAt);
+    } else later(settleWithDrops, settleAt);
   };
 
   /** 點卡：連線模式＝加入／移出連線；否則設為優先（同屬性多張＝改當主攻）。手機無工具列：滿能量點寶珠或卡發能量技；已選再點一次取消；依序點兩張 ≥50 能量卡可手動發動連線。 */
@@ -1130,7 +1149,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
 
   if (cfg.id === 'hard45' && confirmedOutcome === 'unavailable') return <section className={styles.wrap} role="alert">暫時無法確認本局勝負，尚未發放獎勵。<button type="button" onClick={onRepick}>返回我的卡片</button></section>;
   return (
-    <section ref={root} className={styles.wrap} aria-busy={busy} data-match3-scroll-lock={scrollLocked && !help && !resultShown ? "true" : undefined} data-match3-battle-active={rigEnabled && !help && !resultShown ? "true" : undefined} data-hold-top={lastAllyBig && holdTopReady.current ? 'true' : undefined} data-mobile-actions={mobileActionless ? 'off' : 'on'} data-manual-link-ready={mobileActionless && readyLinkIds.length >= LINK_MIN_CARDS && !busy && !over && ti >= 0 ? 'true' : undefined} onPointerDownCapture={(e) => { audio.current?.unlock(); setIntro(false); if (mobileActionless && link.length && !(e.target instanceof Element && e.target.closest('[data-testid="match3-ally"]'))) { setLink([]); setLinkMode(false); } }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
+    <section ref={root} className={styles.wrap} aria-busy={busy} data-match3-scroll-lock={scrollLocked && !help && !resultShown ? "true" : undefined} data-match3-battle-active={rigEnabled && !help && !resultShown ? "true" : undefined} data-last-ally-stage={cfg.id==='hard45'&&lastAllyBig?'true':undefined} data-hold-top={lastAllyBig && holdTopReady.current ? 'true' : undefined} data-mobile-actions={mobileActionless ? 'off' : 'on'} data-manual-link-ready={mobileActionless && readyLinkIds.length >= LINK_MIN_CARDS && !busy && !over && ti >= 0 ? 'true' : undefined} onPointerDownCapture={(e) => { audio.current?.unlock(); setIntro(false); if (mobileActionless && link.length && !(e.target instanceof Element && e.target.closest('[data-testid="match3-ally"]'))) { setLink([]); setLinkMode(false); } }} onKeyDownCapture={() => audio.current?.unlock()} style={{ ['--accent' as string]: cfg.accent }} aria-label={`${cfg.title}｜${cfg.subtitle}`} data-mode={cfg.id} data-cols={cfg.cols} data-rows={cfg.rows}>
       {rigEnabled && <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: 'absolute', pointerEvents: 'none' }}>
         <defs>
           <clipPath id="match3-soft-space" clipPathUnits="objectBoundingBox"><path d="M .42 .1 Q .5 .02 .58 .1 L .9 .42 Q .98 .5 .9 .58 L .58 .9 Q .5 .98 .42 .9 L .1 .58 Q .02 .5 .1 .42 Z" /></clipPath>
@@ -1153,7 +1172,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         <span role="status" aria-live="polite" data-testid="match3-input-status">{over?'本局已結束':awaitingTurn?'連線已送出・正在處理':busy?'戰鬥演出中':dragging?'放手完成連線':ti<0?'等待對手入場':'可以連線'}</span>
         {moves > 0 && <span data-testid="match3-visible-damage">本步傷害 <b>{lastDmg}</b></span>}
       </div>}
-      {rigEnabled && attackCaption && <div className={styles.attackCaption} data-testid="match3-attack-caption" data-side={attackCaption.side}><strong>{attackCaption.hint ? '操作提示' : attackCaption.side === 'enemy' ? '敵方出手' : '我方出手'}</strong> {attackCaption.text}</div>}
+      {rigEnabled && attackCaption && <div className={styles.attackCaption} data-testid="match3-attack-caption" data-hint={attackCaption.hint?'true':'false'} data-side={attackCaption.side}><strong>{attackCaption.hint ? '操作提示' : attackCaption.side === 'enemy' ? '敵方出手' : '我方出手'}</strong> {attackCaption.text}</div>}
       {rigEnabled && help && intro && <div className={styles.quickIntro} data-testid="match3-quick-intro" role="status">上下、左右、左斜、右斜都可以，只要3顆相同寶珠連成一線即可；本關合計 {stage.minChain} 顆以上才具有攻擊效果，連得越多，威力越強。<button type="button" onClick={() => setIntro(false)} aria-label="收起操作提示">×</button></div>}
       <OrbElementAttack flights={outgoing} side="ally" refinedLightning={cfg.id === 'hard45'} />
       <OrbElementAttack flights={counterVisuals.map((h,i)=>({...h,id:`counter:${i}`,sourceId:h.enemyId,sourceName:foes.find(f=>f.id===h.enemyId)?.name,targetName:team.find(u=>u.id===h.targetId)?.name,amount:h.actualDamage}))} side="enemy" />
@@ -1262,7 +1281,8 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
           );
         })}
       </div>
-      {rigEnabled && (campaignEnabled || treasurePractice) && <OrbTreasures catalog={treasures} disabled={busy || !!over} guard={treasureGuard} onUse={useTreasure}/>}
+      {rigEnabled && (campaignEnabled || treasurePractice) && <OrbTreasures catalog={treasures} sideDock={cfg.id==='hard45'&&lastAllyBig} disabled={busy || !!over} guard={treasureGuard} onUse={useTreasure}/>}
+      {orbDrops && <OrbDropAnimation drops={orbDrops.drops} catches={orbDrops.catches} onSound={cue} onDone={() => { const finish=finishOrbDrops.current; finishOrbDrops.current=null; setOrbDrops(null); finish?.(); }}/>}
       {rigEnabled && !mobileActionless && actions}
       <TreasureAnimation flight={treasureFlight}/>
       {!rigEnabled && onRepick && <div className={styles.repick}><button type="button" data-testid="open-picker" onClick={onRepick}>重新選卡</button></div>}

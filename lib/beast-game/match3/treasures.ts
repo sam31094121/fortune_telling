@@ -8,6 +8,7 @@ import { damageFoe, foeAvailable, initializeAvailableFoes } from './enemies';
 import { isShieldFusionPath, isValidPath, type DragResult } from './drag';
 import { comebackMultiplier, finishComeback } from './comeback';
 import * as comebackPolicy from '../../../docs/技能戰鬥檔案/寶珠阿修羅/敗部復活.json';
+import { dropCatches, simulateOrbDrops, type OrbDrop, type DropCatch } from './orb-drop';
 export interface TreasureBook { version: 1; counts: Record<BeastElement, number>; receipts: string[]; variants?: Record<string, number> }
 export const emptyTreasureBook = (): TreasureBook => ({ version: 1, counts: { SPACE: 0, AIR: 0, WATER: 0, FIRE: 0, EARTH: 0 }, receipts: [] });
 export function validateTreasureBook(value: unknown): TreasureBook {
@@ -43,13 +44,27 @@ function operation(book: TreasureBook, id: string, element: BeastElement, delta:
 }
 export function grantTreasure(input: TurnInput, res: DragResult) {
   const book = validateTreasureBook(input.treasures ?? emptyTreasureBook());
-  if (!input.actionId || input.mode === 'medium' || !res.valid || !isValidPath(input.board, input.path, true, input.magic, true) || !isShieldFusionPath(input.path, input.magic) || new Set(input.path.map(p => input.board[p.r][p.c])).size !== 1 || input.path.length < 4 || input.path.length > 8) return { book, earned: null, catalog: treasureCatalog(book,input.team,input.mode === 'hard45' && !!input.comeback) };
+  const none = { book, earned: null, drops: [] as OrbDrop[], catches: [] as DropCatch[], catalog: treasureCatalog(book,input.team,input.mode === 'hard45' && !!input.comeback) };
+  if (!input.actionId || input.mode === 'medium' || !res.valid || !isValidPath(input.board, input.path, true, input.magic, true) || !isShieldFusionPath(input.path, input.magic) || new Set(input.path.map(p => input.board[p.r][p.c])).size !== 1 || input.path.length < 4) return none;
   const end = input.path[input.path.length - 1], element = input.board[end.r][end.c];
   const id = `grant:${input.actionId}`;
-  if (book.receipts.includes(id)) return { book, earned: null, catalog: treasureCatalog(book,input.team,input.mode === 'hard45' && !!input.comeback) };
+  if (book.receipts.includes(id)) return none;
+  if (input.path.length >= 9) {
+    if (input.mode !== 'hard45') return none;
+    const catches = dropCatches(input.team);
+    const drops = simulateOrbDrops({ count: input.path.length - 8, element, seed: input.seed, launchX: (end.c + .5) / input.board[0].length * 1000, catches });
+    let next = book;
+    for (const drop of drops) {
+      const owner = none.catalog.find(c => c.ownerId === drop.ownerId && c.available);
+      if (owner) next = operation(next, `drop:${input.actionId}:${drop.index}`, owner.element, 1, owner.variant);
+    }
+    // Include misses in the batch receipt: retrying cannot reroll or regrant them.
+    next = validateTreasureBook(next); next.receipts.push(id);
+    return { book: next, earned: null, drops, catches, catalog: treasureCatalog(next,input.team,input.mode === 'hard45' && !!input.comeback) };
+  }
   const variant = input.path.length - 4;
   const next = operation(book, id, element, policy.grant.amount, variant);
-  return { book: next, earned: { element, variant, name: definition(element,variant).name, count: policy.grant.amount }, catalog: treasureCatalog(next,input.team,input.mode === 'hard45' && !!input.comeback) };
+  return { book: next, earned: { element, variant, name: definition(element,variant).name, count: policy.grant.amount }, drops: [] as OrbDrop[], catches: [] as DropCatch[], catalog: treasureCatalog(next,input.team,input.mode === 'hard45' && !!input.comeback) };
 }
 export function resolveTreasureUse(input: TurnInput, element: BeastElement, variant = 0) {
   const d = definition(element,variant);

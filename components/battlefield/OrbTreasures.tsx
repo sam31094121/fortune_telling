@@ -18,8 +18,8 @@ export function TreasureGlyph({ element: affinity, role }: { element: BeastEleme
     {element === 'EARTH' && !(role === 'guard' && affinity === 'WATER') && <><path d="m24 5 16 10v23H8V15ZM8 15h32M15 23h18v9H15Z"/><path d="M3 43h42M18 15V8m12 7V8"/></>}
   </svg>;
 }
-export default function OrbTreasures({ catalog, disabled, guard, onUse }: { catalog: ReturnType<typeof treasureCatalog>; disabled: boolean; guard: number; onUse: (element: BeastElement, variant: number) => void }) {
-  return <div className={styles.inventory} data-testid="orb-treasures" data-guard={guard}>
+export default function OrbTreasures({ catalog, disabled, guard, onUse, sideDock=false }: { sideDock?: boolean; catalog: ReturnType<typeof treasureCatalog>; disabled: boolean; guard: number; onUse: (element: BeastElement, variant: number) => void }) {
+  return <div className={styles.inventory} data-testid="orb-treasures" data-side-dock={sideDock?'true':undefined} data-guard={guard}>
     <div className={styles.slots}>{catalog.map(x => <button key={x.element+':'+x.variant} type="button" data-treasure={x.element} data-variant={x.variant} data-role={x.role} data-owner={x.ownerId} data-count={x.count} disabled={disabled || x.count < 1 || !x.available} aria-label={x.name+'，第'+x.tier+'階，'+x.count+'件，點擊釋放'} onClick={() => onUse(x.element,x.variant)} style={{ '--treasure-color': colors[x.element], '--affinity-color': colors[x.element], '--gem-color': gemColors[x.variant] } as CSSProperties}><small className={styles.tier}>{x.tier}</small><TreasureGlyph element={x.element} role={x.role}/><span>{x.count}</span></button>)}</div>
   </div>;
 }

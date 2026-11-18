@@ -1139,3 +1139,16 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .turnFeedback{display:flex;justify-content:space-between;gap:6px;min-height:22px;padding:2px 6px;font-size:12px;line-height:18px;color:#f5e7bd;pointer-events:none;}
 .turnFeedback b{color:#ffd977;font-variant-numeric:tabular-nums;}
 .healReceipt{position:absolute;right:2px;bottom:18px;z-index:5;padding:1px 3px;background:rgba(9,35,24,.92);color:#adffca;font-size:11px;line-height:15px;white-space:nowrap;pointer-events:none;border-radius:4px;}
+
+/* 手機戰鬥保持一屏：狀態供讀屏使用，不新增頂部文字列；詳細回復紀錄由玩法展開。 */
+@media(max-width:640px){
+  .wrap[data-mode="hard45"][data-match3-battle-active="true"] > .turnFeedback{position:absolute;width:1px;height:1px;min-height:0;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;}
+  .wrap[data-mode="hard45"][data-match3-battle-active="true"] > .supportResult{display:none;}
+  .wrap[data-mode="hard45"][data-match3-battle-active="true"] > .attackCaption[data-hint="false"]{display:none;}
+}
+
+@media(max-width:640px){
+ .wrap[data-mode="hard45"][data-last-ally-stage="true"] .team[data-last-ally="true"]{margin-bottom:8px;}
+ .wrap[data-mode="hard45"] .team[data-last-ally="true"] .fusedUnit>.bar{left:-12px;top:var(--art-h);width:var(--art-h);height:7px;transform-origin:0 0;transform:rotate(-90deg);}
+ .wrap[data-mode="hard45"] .team[data-last-ally="true"] .fusedUnit>.energy{position:absolute;left:calc(100% + 6px);top:var(--art-h);width:var(--art-h);height:6px;transform-origin:0 0;transform:rotate(-90deg);}
+}
