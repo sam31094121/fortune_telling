@@ -6,6 +6,8 @@ const path = require('node:path'), fs = require('node:fs'), ts = require('typesc
 const Module = require('node:module'), resolve = Module._resolveFilename;
 Module._resolveFilename = function (name, ...rest) { return resolve.call(this, name.startsWith('@/') ? path.join(__dirname, '..', name.slice(2)) : name, ...rest); };
 require.extensions['.ts'] = (m, f) => m._compile(ts.transpileModule(fs.readFileSync(f, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText, f);
+// Archived v2 endpoint behavior; the unmocked v3 suite tests current production rules.
+require('../lib/beast-game/cultivation-rules.ts').activeFoodChainRule = () => 'v2';
 delete process.env.BEAST_FOOD_CHAIN_RULE;
 const repoModule = require('../lib/beast-game/cultivation-repository.ts');
 const { validateCultivationState } = require('../lib/beast-game/cultivation.ts');

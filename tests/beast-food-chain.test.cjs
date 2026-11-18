@@ -30,9 +30,11 @@ let checks = 0; const ok = (...a) => { assert.ok(...a); checks++; }; const eq = 
   // 1. 參數：全部標待平衡暫定值，預設 v2；緊急開關退回 v1。
   const rulesSource = fs.readFileSync(path.join(__dirname, '../lib/beast-game/cultivation-rules.ts'), 'utf8');
   ok(rulesSource.includes('待平衡暫定值'), 'parameters are marked provisional');
-  eq(Ru.activeFoodChainRule(), 'v2'); eq(Ru.ACTIVE_FOOD_CHAIN_RULE, 'v2');
+  eq(Ru.activeFoodChainRule(), 'v3'); eq(Ru.ACTIVE_FOOD_CHAIN_RULE, 'v3');
   ok(!/process\.env|createClient|supabase/i.test(rulesSource.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')), 'rules are hard-coded constants: no env var, no database, no admin setting');
-  process.env.BEAST_FOOD_CHAIN_RULE = 'v1'; eq(Ru.activeFoodChainRule(), 'v2', 'no environment switch'); delete process.env.BEAST_FOOD_CHAIN_RULE;
+  process.env.BEAST_FOOD_CHAIN_RULE = 'v1'; eq(Ru.activeFoodChainRule(), 'v3', 'no environment switch'); delete process.env.BEAST_FOOD_CHAIN_RULE;
+  // Archived v2 calculations and receipts must remain replayable after v3 rollout.
+  Ru.activeFoodChainRule = () => 'v2';
   ok(Object.isFrozen(Ru.FOOD_CHAIN_V2) && Object.isFrozen(Ru.FOOD_CHAIN_V2.stars));
   eq(Ru.receiptRule(undefined), 'v1'); eq(Ru.receiptRule('v2'), 'v2'); eq(Ru.receiptRule('v9'), 'v1');
   eq(Ru.FOOD_CHAIN_V2.attackCap.num * 2, Ru.FOOD_CHAIN_V2.attackCap.den, '2B: 50% cap');
@@ -141,5 +143,5 @@ let checks = 0; const ok = (...a) => { assert.ok(...a); checks++; }; const eq = 
   ok(fs.readFileSync(path.join(__dirname, '../lib/beast-game/match3/guardian-fusion.ts'), 'utf8').includes('（僅特效，不加傷害）'));
   // 11. 只用新正式卡：測試用到的卡都在 cards/beasts 新卡登錄內。
   ok([...mainIds, 'beast_g_qinglong', 'beast_a01', 'beast_y01'].every(id => R.getCard(id) && /^beast_(g_|a\d\d|y\d\d)/.test(id)));
-  console.log(`PASS food chain v2: ${checks} checks — hard-coded provisional constants (no env/DB), five-star split 1/16·1/16·1/8·1/4·1/2 summing exactly to cap (1000 → 62/63/125/250/500, 500 → 31/32/62/125/250), strict layers (56 pairs), v1 bit-identical, 50% inheritance, 50% cap clamp, over-cap kept, no same-element bonus, star cap rejection without consuming, legacy fed from receipts, old receipts replay as v1, rule switch never recomputes, feedback fields, view stars/caps.`);
+  console.log(`PASS archived food chain v2 compatibility: ${checks} checks — hard-coded provisional constants (no env/DB), five-star split 1/16·1/16·1/8·1/4·1/2 summing exactly to cap (1000 → 62/63/125/250/500, 500 → 31/32/62/125/250), strict layers (56 pairs), v1 bit-identical, 50% inheritance, 50% cap clamp, over-cap kept, no same-element bonus, star cap rejection without consuming, legacy fed from receipts, old receipts replay as v1, rule switch never recomputes, feedback fields, view stars/caps.`);
 })().catch(e => { console.error(e); process.exitCode = 1; });

@@ -13,6 +13,8 @@ const root = path.join(__dirname, '..');
 const repoModule = require('../lib/beast-game/cultivation-repository.ts');
 const C = require('../lib/beast-game/cultivation.ts');
 const Ru = require('../lib/beast-game/cultivation-rules.ts');
+// Historical v2 batch/replay regression; production v3 covered separately.
+Ru.activeFoodChainRule = () => 'v2';
 const Reg = require('../lib/beast-game/registry.ts');
 class MemoryRepository {
   constructor() { this.rows = new Map(); this.writes = 0; }
@@ -129,7 +131,7 @@ const timings = {};
   ok(/data-dock-alert/.test(iconPart), '⚠ beside ✓');
   ok(/waiting\?'⏳'/.test(iconPart) || /\?'⏳':'✓'/.test(iconPart), '✓ shows ⏳ while waiting');
   const jsxText = iconPart.replace(/\{\/\*[\s\S]*?\*\/\}/g, '').replace(/aria-label=\{[^}]*\}/g, '').replace(/<Sr>[^<]*<\/Sr>/g, '').match(/>([^<>{}=;()]*[\p{Script=Han}][^<>{}=;()]*)</gu) || [];
-  eq(jsxText.length, 0, 'icon panel has no visible text nodes: ' + jsxText.join('|'));
-  console.log(`PASS food chain batch: ${checks} checks — 1000 cards in one request (summary ${timings.fuse1000Bytes} B vs legacy ${timings.legacyPreviewBytes} B, preview ${timings.preview1000Ms} ms, fuse ${timings.fuse1000Ms} ms), server room/pile limits, over-cap batch rejected, 50% cap 🔒, five-type keep-one, concurrent/resend single deduction, ✕ clears all, zero visible text.`);
+  assert.deepEqual(jsxText, ['>① 選要強化的神獸<','>② 選要吃掉的材料<','>加入可用材料<','>清空選擇<'], 'approved concise two-step controls');
+  console.log(`PASS archived v2 food chain batch: ${checks} checks — 1000 cards in one request (summary ${timings.fuse1000Bytes} B vs legacy ${timings.legacyPreviewBytes} B, preview ${timings.preview1000Ms} ms, fuse ${timings.fuse1000Ms} ms), server room/pile limits, over-cap batch rejected, 50% cap 🔒, five-type keep-one, concurrent/resend single deduction, ✕ clears all, approved concise controls.`);
   if (process.env.BATCH_TIMINGS) fs.writeFileSync(process.env.BATCH_TIMINGS, JSON.stringify(timings, null, 2));
 })().catch(e => { console.error(e); process.exitCode = 1; });

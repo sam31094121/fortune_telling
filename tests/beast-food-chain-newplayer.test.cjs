@@ -7,6 +7,8 @@ const path = require('node:path'), fs = require('node:fs'), ts = require('typesc
 const Module = require('node:module'), resolve = Module._resolveFilename;
 Module._resolveFilename = function (name, ...rest) { return resolve.call(this, name.startsWith('@/') ? path.join(__dirname, '..', name.slice(2)) : name, ...rest); };
 require.extensions['.ts'] = (m, f) => m._compile(ts.transpileModule(fs.readFileSync(f, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText, f);
+// Archived v2 endpoint behavior; the unmocked v3 suite tests current production rules.
+require('../lib/beast-game/cultivation-rules.ts').activeFoodChainRule = () => 'v2';
 delete process.env.BEAST_FOOD_CHAIN_RULE;
 const repoModule = require('../lib/beast-game/cultivation-repository.ts');
 const C = require('../lib/beast-game/cultivation.ts');
@@ -104,7 +106,7 @@ const seed = async (cards, protectedIds = [], extra = {}) => { const w = wallet(
   const iconPart = panel.slice(panel.indexOf('function IconPanel('));
   ok(/\{foods\.length>0&&<button ref=\{confirmRef\}/.test(iconPart) && /\{targetCard&&<div className=\{foods\.length>0\?`\$\{icon\.dock\}/.test(iconPart), 'no confirm without material (2026-11-16: ✓ lives in the target dock beside ✕)');
   ok(iconPart.includes('data-get-cards') && iconPart.includes('href="/growth-center#beast-collection"') && /\.emptySlot \{[^}]*animation:breathe/.test(css));
-  ok(/disabled=\{busy\|\|!!view\.pendingBattle\|\|card\.stars\?\.toNext===null\}/.test(iconPart), 'maxed target not clickable');
+  ok(iconPart.includes('data-maxed={card.stars?.toNext===null?') && iconPart.includes('disabled={busy} aria-pressed={target===card.id}'), 'maxed target inspectable; backend still blocks feeding');
   ok(!/卡面載入中|卡面暫時無法取得/.test(iconPart), 'no loading words in icon panel');
   console.log(`PASS food chain new player: ${checks} checks — eat without locking five, locked main never eaten, five-type campaign protection kept, MAIN_TEAM still five, revision/receipt/replay unchanged, sticky confirm.`);
 })().catch(e => { console.error(e); process.exitCode = 1; });

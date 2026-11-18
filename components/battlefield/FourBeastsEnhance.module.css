@@ -9,3 +9,9 @@
 .src { font-size: 15px; font-weight: 800; opacity: .9; }
 .body { background: #101b2d; border: 1px solid #526386; border-radius: 16px; }
 @media (max-width: 359px) { .thumbs { grid-template-columns: repeat(4, 28px); } .thumbs img { width: 28px; } }
+
+.thumbs button { padding: 3px; min-width: 44px; min-height: 48px; background: #101b2d; border: 1px solid #756348; border-radius: 8px; cursor: pointer; }
+.thumbs button[aria-pressed="true"] { border-color: #ffe3a5; box-shadow: 0 0 0 2px #ffe3a5; }
+.thumbs { grid-template-columns: repeat(4, minmax(44px, 1fr)); gap: 4px; }
+.top { grid-template-columns: 48px minmax(0, 1fr); }
+.count { grid-column: 1 / -1; justify-self: end; }

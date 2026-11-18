@@ -62,7 +62,7 @@ export async function transactCultivation(repository: CultivationRepository, own
   if (current.pendingBattle) throw new Error('戰鬥尚未結算，暫不能合體或更換主力。');
   const result = command.type === 'FUSE' ? fuseSnapshot(current, command.choices) : { rule: undefined, state: replaceCultivationMainTeam(current.state, command.ids), changes: [] };
   const revision = (BigInt(current.revision) + 1n).toString();
-  const receipt: CultivationReceipt = { operationId, command: key, revision, changes: result.changes, ...(result.rule === 'v2' ? { rule: 'v2' as const } : {}) };
+  const receipt: CultivationReceipt = { operationId, command: key, revision, changes: result.changes, ...(result.rule ? { rule: result.rule } : {}) };
   const next = { ...current, revision, state: result.state, receipts: [...current.receipts, receipt] };
   if (await repository.compareAndSwap(owner, current.revision, next)) return { snapshot: next, receipt, duplicate: false };
   // The other writer may be the identical request whose response was lost.

@@ -2,8 +2,8 @@
  * 「四大神獸・點擊直接強化」頁的資料（只在伺服器算；前端只照著畫）。
  *
  * 不新增任何規則：
- * - 誰能吃誰：沿用 cultivation.ts 的 cultivationTarget（同宿幼子 → 本體；本體 → 所屬四大神獸）。
- * - 能不能真的合體、加多少：直接拿 fuseSnapshot（和 PREVIEW／FUSE 同一套 v2 食物鏈規則：星級、50% 上限、50% 傳承、五星封頂）試算，不寫入；失敗就標成不能。
+ * - 誰能吃誰：沿用 cultivation.ts 的 canCultivatePair；v3接受各卡種材料。
+ * - 能不能真的合體、加多少：直接拿 fuseSnapshot（和 PREVIEW／FUSE 同一套當前升星規則：元素增量、傳承、五星封頂）試算，不寫入；失敗就標成不能。
  * - 卡片來源：伺服器發卡時寫進副本 id 的來源只拿來「顯示計數」（神獸戰鬥 duel:、寶珠連線 orb-win: 或舊進度帶上來的寶珠獎卡，其餘＝OTHER）。
  * 2026-11-16 整合（使用者 00:35 授權，以正式站共同卡庫為準）：
  * - 拿掉「未鎖定五隻主力不能強化」（NO_MAIN／mainTeamReady）：正式站 d9bce150 起新玩家不必先鎖五隻也能吃卡；已鎖定主力仍不能當材料（LOCKED）。
@@ -11,8 +11,10 @@
  */
 import 'server-only';
 import { createHash } from 'node:crypto';
+import { activeFoodChainRule, starProgress } from './cultivation-rules';
+import { fedCounter } from './cultivation-transaction';
 import { GUARDIANS } from '../beast-guardians';
-import { cultivationTarget, exactBonus } from './cultivation';
+import { cultivationTarget, canCultivatePair, exactBonus } from './cultivation';
 import { fuseSnapshot, type CultivationSnapshot } from './cultivation-transaction';
 import { getCard, playableCards } from './registry';
 
@@ -20,7 +22,7 @@ export type EnhanceSource = 'DUEL' | 'ORB' | 'OTHER';
 /** READY 可直接強化；LOCKED 是鎖定主力；NO_TARGET 還沒有大卡；PENDING 戰鬥未結算；BLOCKED 試算不通過（例如五星封頂、或已滿五種的收藏吃完會不足五種）。 */
 export type EnhanceStatus = 'READY' | 'LOCKED' | 'NO_TARGET' | 'PENDING' | 'BLOCKED';
 
-export interface EnhanceMaterial { copyId: string; cardId: string; thumb: string; source: EnhanceSource; tier: 'YOUNG_TO_ADULT' | 'ADULT_TO_GUARDIAN'; targetCardId: string; targetCopyId: string | null; status: EnhanceStatus; addedBonus: string | null }
+export interface EnhanceMaterial { copyId: string; cardId: string; thumb: string; source: EnhanceSource; tier: 'YOUNG_TO_ADULT' | 'ADULT_TO_GUARDIAN' | 'CULTIVATION'; targetCardId: string; targetCopyId: string | null; status: EnhanceStatus; addedBonus: string | null }
 export interface EnhanceNode { cardId: string; thumb: string; owned: number; bonus: string; ready: number; waiting: number }
 export interface FourBeastsView {
   revision: string;
@@ -50,11 +52,18 @@ export function fourBeastsView(snapshot: CultivationSnapshot): FourBeastsView {
   const bestCopy = (cardId: string) => state.cards.filter(c => c.cardId === cardId)
     .sort((a, b) => { const d = exactBonus(b.bonus) - exactBonus(a.bonus); return d ? (d > 0n ? 1 : -1) : Number(state.protectedIds.includes(b.id)) - Number(state.protectedIds.includes(a.id)) || a.id.localeCompare(b.id); })[0] ?? null;
   const materials: EnhanceMaterial[] = [];
+  const rule=activeFoodChainRule(),fedOf=fedCounter(snapshot);
+  const targets=state.cards.filter(c=>getCard(c.cardId)?.form!=='YOUNG');
+  const hasRoom=new Set(targets.filter(c=>{const form=getCard(c.cardId)!.form;return (form==='ADULT'||form==='GUARDIAN')&&!starProgress(form,fedOf(c.id)).maxed;}).map(c=>c.id));
   for (const copy of state.cards) {
     const source = copySource(snapshot, copy as { id: string; origin?: { kind?: string } }, orbIds);
-    const card = getCard(copy.cardId), targetCardId = cultivationTarget(copy.cardId);
-    if (!card || !targetCardId) continue; // 四大神獸本身是最大卡，不當材料
-    const target = bestCopy(targetCardId);
+    const card = getCard(copy.cardId);
+    if (!card) continue;
+    const preferred = cultivationTarget(copy.cardId);
+    const candidates = targets.filter(c=>c.id!==copy.id&&canCultivatePair(copy.cardId,c.cardId,rule)).sort((a,b)=>Number(b.cardId===preferred)-Number(a.cardId===preferred));
+    const target = candidates.find(c=>hasRoom.has(c.id))??candidates[0]??null;
+    const targetCardId = target?.cardId ?? preferred ?? '';
+    if (!targetCardId) continue;
     let status: EnhanceStatus, addedBonus: string | null = null;
     if (state.protectedIds.includes(copy.id)) status = 'LOCKED';
     else if (!target) status = 'NO_TARGET';
@@ -63,7 +72,7 @@ export function fourBeastsView(snapshot: CultivationSnapshot): FourBeastsView {
       try { addedBonus = fuseSnapshot(snapshot, [{ targetId: target.id, materialId: copy.id }]).changes[0].addedBonus; status = 'READY'; }
       catch { status = 'BLOCKED'; }
     }
-    materials.push({ copyId: copy.id, cardId: copy.cardId, thumb: thumbOf(copy.cardId), source, tier: card.form === 'YOUNG' ? 'YOUNG_TO_ADULT' : 'ADULT_TO_GUARDIAN', targetCardId, targetCopyId: target?.id ?? null, status, addedBonus });
+    materials.push({ copyId: copy.id, cardId: copy.cardId, thumb: thumbOf(copy.cardId), source, tier: rule === 'v3' ? 'CULTIVATION' : card.form === 'YOUNG' ? 'YOUNG_TO_ADULT' : 'ADULT_TO_GUARDIAN', targetCardId, targetCopyId: target?.id ?? null, status, addedBonus });
   }
   const node = (cardId: string): EnhanceNode => {
     const best = bestCopy(cardId), into = materials.filter(m => m.targetCardId === cardId);

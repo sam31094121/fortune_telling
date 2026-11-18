@@ -51,3 +51,7 @@
 .dockAlert {margin:0;}
 .wait {display:inline-block;animation:breathe 1.2s ease-in-out infinite;}
 @media (prefers-reduced-motion: reduce) { .bumpMark, .wait { animation: none !important; } }
+
+/* 升星材料操作：手機觸控區與明確文字。 */
+.materialActions {display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;}
+.materialActions button {min-height:44px;padding:8px 12px;font:inherit;border-radius:8px;}
