@@ -1,0 +1,82 @@
+{
+  "isolatedMemory": true,
+  "errors": [],
+  "steps": [
+    "Header selects owned guardian; no auto-selected materials",
+    "Add-all respects two-card remaining capacity; clear and manual multi-select preview do not consume",
+    "Double-click saves exactly one two-card transaction; fifth star reached",
+    "Refresh preserves five stars; maxed target inspectable but cannot feed",
+    "Same header can reselect after cancel",
+    "Active battle permits inspection and return link, blocks material consumption",
+    "Requested viewport: no horizontal overflow, guardian buttons at least 44px"
+  ],
+  "requests": [
+    {
+      "type": "LOCAL_GRANTS",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "type": "PREVIEW_TARGET",
+      "ms": 2,
+      "status": 200
+    },
+    {
+      "type": "PREVIEW_TARGET",
+      "ms": 1,
+      "status": 200
+    },
+    {
+      "type": "PREVIEW",
+      "ms": 1,
+      "status": 200
+    },
+    {
+      "type": "PREVIEW",
+      "ms": 1,
+      "status": 200
+    },
+    {
+      "type": "PREVIEW",
+      "ms": 1,
+      "status": 200
+    },
+    {
+      "type": "FUSE",
+      "ms": 1,
+      "status": 200
+    },
+    {
+      "type": "PREVIEW_TARGET",
+      "ms": 1,
+      "status": 200
+    },
+    {
+      "type": "LOCAL_GRANTS",
+      "ms": 1,
+      "status": 200
+    },
+    {
+      "type": "PREVIEW_TARGET",
+      "ms": 1,
+      "status": 200
+    },
+    {
+      "type": "PREVIEW_TARGET",
+      "ms": 1,
+      "status": 200
+    },
+    {
+      "type": "LOCAL_GRANTS",
+      "ms": 1,
+      "status": 200
+    }
+  ],
+  "passed": true,
+  "viewport": {
+    "width": 768,
+    "height": 1024
+  },
+  "input": "touch",
+  "browser": "Edge Chromium desktop device emulation"
+}
