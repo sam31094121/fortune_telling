@@ -36,10 +36,22 @@ export async function loadDisplayTranslator(language: InterfaceLanguage): Promis
   }
   const { phase1Copy } = await import('@/lib/i18n-copy/phase1');
   if (language === 'en') {
-    const [{ birthdayEnglishCopy }, { resultEnglishCopy }, { homeEnglishCopy }, { formEnglishCopy }] = await Promise.all([
-      import('@/lib/birthday-english-copy'), import('@/lib/result-english-copy'), import('@/lib/home-english-copy'), import('@/lib/form-english-copy'),
+    const [{ birthdayEnglishCopy }, { resultEnglishCopy }, { homeEnglishCopy }, { formEnglishCopy }, { englishPageCopy, englishPatterns }] = await Promise.all([
+      import('@/lib/birthday-english-copy'), import('@/lib/result-english-copy'), import('@/lib/home-english-copy'), import('@/lib/form-english-copy'), import('@/lib/english-copy'),
     ]);
-    return withHomeCopy('en', fromDictionary({ ...phase1Copy.en, ...birthdayEnglishCopy, ...resultEnglishCopy, ...homeEnglishCopy, ...formEnglishCopy }));
+    // englishPageCopy（每頁一檔）只補缺：既有字典有的句子仍以既有字典為準。
+    const lookup = fromDictionary({ ...englishPageCopy, ...phase1Copy.en, ...birthdayEnglishCopy, ...resultEnglishCopy, ...homeEnglishCopy, ...formEnglishCopy });
+    // 帶數字或名稱的固定句型（例如「恢復自身 51 生命」）無法逐筆列進字典，改用句型比對，數字與名稱原樣帶過去。
+    const withPatterns: Translate = text => {
+      const exact = lookup(text);
+      if (exact !== undefined) return exact;
+      for (const [pattern, build] of englishPatterns) {
+        const m = text.match(pattern);
+        if (m) return build(m, zh => lookup(zh) ?? zh);
+      }
+      return undefined;
+    };
+    return withHomeCopy('en', withPatterns);
   }
   if (language === 'ja') {
     const { homeJapaneseCopy } = await import('@/lib/home-japanese-copy');

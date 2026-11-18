@@ -1,11 +1,39 @@
 'use client';
 /** 拖曳連珠共用：pointer events（滑鼠＋觸控），沿路徑畫線；退回上一格可撤銷。只處理手勢，規則全在 lib/beast-game/match3。 */
-import { useCallback, useEffect, useRef, useState, type PointerEvent as RPointerEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type PointerEvent as RPointerEvent } from 'react';
 import { canExtend, type Board, type Cell, type MagicGrid } from '@/lib/beast-game/match3';
 
 export interface DragPoint { x: number; y: number }
 
-export function useDragChain(board: Board, enabled: boolean, onRelease: (path: Cell[]) => void, diagonal = false, magic?: MagicGrid, shieldMode = false) {
+/** 碰撞範圍 = 魔法珠／盾牌那圈金色閃光框（Match3Board.module.css 的 .magic::before：inset 0、border-radius 50%）。
+ *  它是格子的內切圓，半徑 = 0.5 倍格寬。指標進到這個圓就算選中，圓外（格角與格間空隙）都是空的。
+ *  所有珠子共用同一個圓；測試會核對 CSS 的圓與這個數字一致。 */
+const ENTER_RADIUS = 0.5;
+
+/** 拖曳路徑的外部儲存：進出格子只通知「真的用到路徑」的小元件，不讓整個戰鬥畫面（敵我卡、寶器、說明）跟著重新渲染。
+ *  手機 CPU 弱，整頁重渲染一次就卡一下，手指跟不上；電腦夠快看不出來。 */
+export interface DragSnapshot { path: readonly Cell[]; points: readonly DragPoint[] }
+export interface DragStore { get(): DragSnapshot; subscribe(fn: () => void): () => void }
+const IDLE_DRAG: DragSnapshot = { path: [], points: [] };
+function createDragStore(): DragStore & { set(path: readonly Cell[], points: readonly DragPoint[]): void } {
+  let snap = IDLE_DRAG; const subs = new Set<() => void>();
+  return {
+    get: () => snap,
+    subscribe: (fn) => { subs.add(fn); return () => { subs.delete(fn); }; },
+    set: (path, points) => { snap = path.length ? { path, points } : IDLE_DRAG; subs.forEach(fn => fn()); },
+  };
+}
+/** 整條路徑（提示字、拖曳線、盤面屬性用）。 */
+export function useDragSnapshot(store: DragStore): DragSnapshot { return useSyncExternalStore(store.subscribe, store.get, store.get); }
+/** 單一格是否在路徑上：回傳布林，只有這一格的選取狀態改變時才重渲染這一格。 */
+export function useDragSelected(store: DragStore, r: number, c: number): boolean {
+  return useSyncExternalStore(store.subscribe, () => store.get().path.some(p => p.r === r && p.c === c), () => false);
+}
+
+/** reactive=false：路徑只進 store，不設 React state（呼叫端用 useDragSnapshot／useDragSelected 讀），回傳的 path／points 恆為空。 */
+export function useDragChain(board: Board, enabled: boolean, onRelease: (path: Cell[]) => void, diagonal = false, magic?: MagicGrid, shieldMode = false, reactive = true) {
+  const storeRef = useRef<ReturnType<typeof createDragStore> | null>(null);
+  const store = (storeRef.current ??= createDragStore());
   const ref = useRef<HTMLDivElement>(null);
   const pathRef = useRef<Cell[]>([]);
   const [path, setPath] = useState<Cell[]>([]);
@@ -35,18 +63,18 @@ export function useDragChain(board: Board, enabled: boolean, onRelease: (path: C
   useEffect(() => () => { dropGeometry.current?.(); }, []);
   const releaseGeometry = () => { if (dropGeometry.current) dropGeometry.current(); else geometry.current = null; };
 
-  /** 指標要落在格子中心附近（約 84% 範圍）才算進入，斜向滑過角落不會誤連。 */
+  /** 指標要進到該格的碰撞圓（半徑 ENTER_RADIUS 倍格寬）才算進入；格角與格間空隙不算。 */
   const cellAt = useCallback((x: number, y: number, strict: boolean): { cell: Cell; pt: DragPoint } | null => {
     const g = geometry.current ?? measureCells(); if (!g) return null;
     const lx = x - g.hostLeft, ly = y - g.hostTop;
     const hit = g.cells.find(q => lx >= q.x && lx < q.x + q.w && ly >= q.y && ly < q.y + q.h);
     if (!hit) return null;
     const cx = hit.x + hit.w / 2, cy = hit.y + hit.h / 2;
-    if (strict && Math.hypot(lx - cx, ly - cy) > hit.w * 0.42) return null;
+    if (strict && Math.hypot(lx - cx, ly - cy) > hit.w * ENTER_RADIUS) return null;
     return { cell: { r: hit.r, c: hit.c }, pt: { x: cx, y: cy } };
   }, [measureCells]);
 
-  const commit = (next: Cell[], pts: DragPoint[]) => { pathRef.current = next; setPath(next); setPoints(pts); };
+  const commit = (next: Cell[], pts: DragPoint[]) => { pathRef.current = next; store.set(next, pts); if (reactive) { setPath(next); setPoints(pts); } };
   const ptsRef = useRef<DragPoint[]>([]);
 
   const onPointerDown = (e: RPointerEvent<HTMLDivElement>) => {
@@ -91,11 +119,11 @@ export function useDragChain(board: Board, enabled: boolean, onRelease: (path: C
   };
   const cancel = () => { releaseGeometry(); ptsRef.current = []; commit([], []); };
 
-  return { ref, path, points, handlers: { onPointerDown, onPointerUp: end, onPointerCancel: cancel } };
+  return { ref, path, points, store: store as DragStore, handlers: { onPointerDown, onPointerUp: end, onPointerCancel: cancel } };
 }
 
 /** 拖曳路徑：SVG 折線，疊在盤面上，不擋指標。 */
-export function DragPathSvg({ points, color, luminous = false }: { points: DragPoint[]; color: string; luminous?: boolean }) {
+export function DragPathSvg({ points, color, luminous = false }: { points: readonly DragPoint[]; color: string; luminous?: boolean }) {
   if (points.length === 0) return null;
   const d = points.map((p) => `${p.x},${p.y}`).join(' ');
   const layer = { position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible', zIndex: 3 } as const;

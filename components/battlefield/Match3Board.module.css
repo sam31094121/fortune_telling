@@ -124,7 +124,7 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 
 /* 10/30 打磨（不改規則）：訊息不截斷、拖曳線發光、拖曳頭脈動、魔法珠邊緣銳利 */
 .hint, .log { overflow-wrap: anywhere; line-height: 1.4; }
-.sel .gem { filter: brightness(1.15) saturate(1.1); }
+/* 選取不再用 filter（手機每進一格就重畫一次濾鏡）；選取靠放大＋金環。 */
 .board svg[data-testid='drag-path'] polyline:nth-of-type(2) { filter: drop-shadow(0 0 5px rgba(255,255,255,.55)); }
 .board svg[data-testid='drag-path'] circle:last-of-type { transform-box: fill-box; transform-origin: center; animation: m3head .5s ease-in-out infinite alternate; }
 @keyframes m3head { to { transform: scale(1.25); } }
@@ -1135,3 +1135,9 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
   .wrap[data-mode^="hard"][data-match3-battle-active="true"][data-hold-top="true"] > [data-testid="match3-board"] { margin-top: var(--hold-g2, 8px); }
   .wrap[data-mode^="hard"][data-match3-battle-active="true"][data-hold-top="true"] > .team { margin-top: auto; }
 }
+
+/* 手機拖曳順暢度：手指按住盤面時，暫停 56 顆寶珠常駐的掃光與魔法珠動畫，把繪製預算留給「跟著手指的線和選取」。
+ * 只暫停（paused）不移除，放開手後從原位繼續；不影響消除、掉落動畫（那些不在拖曳期間播放）。 */
+.board[data-dragging='true'] .orb .sweep::before,
+.board[data-dragging='true'] .orb .facet::before,
+.board[data-dragging='true'] .orb.magic::before { animation-play-state: paused; }

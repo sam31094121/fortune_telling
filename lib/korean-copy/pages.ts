@@ -12,6 +12,7 @@ import { koGrowthCenterCopy } from './pages/growth-center';
 import { koSharedCopy } from './pages/shared';
 import { koBeastGameCopy } from './pages/beast-game';
 import { koMiscCopy } from './pages/misc';
+import { koHomeLeftoversCopy } from './pages/home-leftovers';
 
 export const pagesKoreanCopy: Record<string, string> = {
   ...koBaziCopy,
@@ -27,4 +28,5 @@ export const pagesKoreanCopy: Record<string, string> = {
   ...koSharedCopy,
   ...koBeastGameCopy,
   ...koMiscCopy,
+  ...koHomeLeftoversCopy,
 };

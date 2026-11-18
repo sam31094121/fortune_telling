@@ -180,13 +180,13 @@ function EnergyLine({ tier }: { tier: NumerologyDisplayTier }) {
         return (
           <div
             key={step.label}
-            className={`flex flex-1 flex-col items-center gap-1.5 rounded-lg py-1.5 transition-all duration-500 ${active ? 'bg-white/[0.06]' : ''}`}
+            className={`flex min-w-0 flex-1 flex-col items-center gap-1.5 overflow-hidden rounded-lg py-1.5 transition-all duration-500 ${active ? 'bg-white/[0.06]' : ''}`}
           >
             <span
               className={`h-1.5 w-full rounded-full ${step.tone} transition-all duration-500 ${active ? `opacity-100 ${FORTUNE_TIER_GLOW[step.label] ?? ''}` : 'opacity-25'}`}
             />
             <span
-              className={`flex h-12 items-center justify-center font-mono text-[10px] font-black leading-tight tracking-[0.08em] transition-all duration-500 ${active ? `${step.labelTone} opacity-100` : 'text-white/[0.32] opacity-80'}`}
+              className={`flex min-h-[3.75rem] items-center justify-center whitespace-nowrap font-mono text-[10px] font-black leading-none tracking-[0.04em] transition-all duration-500 ${active ? `${step.labelTone} opacity-100` : 'text-white/[0.32] opacity-80'}`}
               style={{ writingMode: 'vertical-rl' }}
             >
               {step.label}
@@ -625,7 +625,7 @@ export default function NumerologyPage() {
             {result.iching && (
               <details className="numerology-hexagram-disclosure rounded-2xl border border-amber-200/30 bg-[linear-gradient(140deg,rgba(251,191,36,0.1),rgba(15,23,42,0.7))] p-4" aria-label="你的數字屬什麼卦">
                 <summary className="flex min-h-[56px] cursor-pointer items-center justify-between gap-3 rounded-xl px-3 py-1.5 text-left transition hover:bg-amber-100/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-100 sm:min-h-[60px] sm:px-4">
-                  <span className="numerology-hexagram-title min-w-0 whitespace-nowrap text-xl font-black leading-none tracking-[0.1em] text-amber-50 sm:text-2xl">數字易經卦象</span>
+                  <span className="numerology-hexagram-title min-w-0 flex-1 break-words text-xl font-black leading-none tracking-[0.1em] text-amber-50 sm:text-2xl">數字易經卦象</span>
                   <span className="numerology-hexagram-disclosure__trigger shrink-0 rounded-full border border-amber-100/35 bg-amber-100/10 px-2.5 py-1 text-right text-[11px] font-black tracking-[0.08em] text-amber-50">點閱 <span aria-hidden="true">⌄</span></span>
                 </summary>
                 <div className="flex items-start justify-between gap-3">
@@ -735,7 +735,7 @@ export default function NumerologyPage() {
               <details className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
                 <summary className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 text-sm font-black text-cyan-50">
                   深入看金錢與感情強弱
-                  <span className="text-[10px] text-cyan-100/60">展開</span>
+                  <span className="shrink-0 whitespace-nowrap text-[10px] text-cyan-100/60">展開</span>
                 </summary>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   {twoAxisScores.map((axis) => (

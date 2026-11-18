@@ -1,0 +1,190 @@
+/**
+ * English display-only dictionary: number reading page (/numerology).
+ * Keys are byte-identical to the Traditional Chinese source text on the page. Values are English.
+ * Display only: never use these strings as calculation input. No interpolated sentences, no user input, no chart values.
+ *
+ * Conventions (shared by every English dictionary file; keep them when adding pages):
+ *  - Product terms: Ba Zi (八字), Zi Wei Dou Shu (紫微斗數), I Ching (易經), Shen Sha (神煞), Wu Xing → "five elements".
+ *  - Tone: plain, calm UI English. Cultural reference, never certainty: no "will", "guaranteed", "destiny".
+ *  - Fragments that sit next to a variable carry their own leading/trailing space inside the value,
+ *    because the display layer only keeps the original string's outer whitespace.
+ *  - Tier labels use the same wording everywhere (see TIER_* below).
+ */
+export const enNumerologyCopy: Record<string, string> = {
+  // Purpose options
+  "萬用碼": "Universal number",
+  "這組數字": "this number",
+  "不限定用途，直接看整體結構": "No set purpose; look at the overall structure",
+  "車牌號碼": "License plate",
+  "這張車牌": "this license plate",
+  "汽車與機車都可用，直接解讀車牌的數字結構": "Works for cars and motorcycles; reads the number structure of the plate",
+  "電話號碼": "Phone number",
+  "這支電話": "this phone number",
+  "直接解讀聯絡與溝通節奏": "Reads your contact and communication rhythm",
+  "出生年月日": "Date of birth",
+  "這組生日數字": "this birthday number",
+  "直接解讀個人節奏與成長": "Reads your personal rhythm and growth",
+
+  // Strength / caution labels
+  "可運用的地方": "Where it can help",
+  "需要留意的地方": "What to watch",
+  "可作為安排目前使用節奏與資源的參考。": "A reference for arranging your current pace and resources.",
+  "適合優先安排與調整的地方。": "A good place to arrange and adjust first.",
+  "這股能量主要反映在你目前整體的節奏與資源分配上。": "This energy mainly shows up in your overall pace and how you allocate resources right now.",
+  "車牌可運用的地方": "Where this plate can help",
+  "車牌需要留意的地方": "What to watch with this plate",
+  "在這張車牌的數字解讀中，較能支持出行、往來與使用安排。": "In this plate's number reading, it is better at supporting travel, getting around and how you plan its use.",
+  "是這張車牌在使用節奏與外出安排上較需要留意的地方；不代表車況或行車安全的保證。": "This is where the plate calls for more attention in usage rhythm and outings. It is not a guarantee about the vehicle's condition or driving safety.",
+  "這股能量主要反映在你的出行、往來與車輛使用節奏上。": "This energy mainly shows up in your travel, comings and goings, and how you use the vehicle.",
+  "電話號碼可運用的地方": "Where this phone number can help",
+  "電話號碼需要留意的地方": "What to watch with this phone number",
+  "在這支電話的數字解讀中，較能支持聯絡、人際與工作溝通。": "In this phone number's reading, it is better at supporting contact, relationships and work communication.",
+  "是這支電話在溝通節奏、回應壓力或人際往來上較需要留意的地方。": "This is where the number calls for more attention in communication rhythm, pressure to respond, or dealings with people.",
+  "這股能量主要反映在你的聯絡節奏、人際互動與工作溝通上。": "This energy mainly shows up in your contact rhythm, social interaction and work communication.",
+  "出生年月日可運用的地方": "Where your date of birth can help",
+  "出生年月日需要留意的地方": "What to watch with your date of birth",
+  "在這組生日數字的解讀中，較能支持個人節奏與成長方向。": "In this birthday number's reading, it is better at supporting your personal rhythm and direction of growth.",
+  "是這組生日數字反映出的壓力傾向，適合用來安排生活節奏。": "This reflects where pressure tends to build, and is useful for planning your daily rhythm.",
+  "這股能量主要反映在你的個人成長步調與生活節奏上。": "This energy mainly shows up in your personal pace of growth and daily rhythm.",
+
+  // Digit-count modes
+  "二碼判定": "2-digit reading",
+  "三碼判定": "3-digit reading",
+  "後四碼": "Last 4 digits",
+  "五碼判定": "5-digit reading",
+  "六碼": "6 digits",
+  "七碼判定": "7-digit reading",
+  "八碼": "8 digits",
+  "九碼判定": "9-digit reading",
+  "十碼完整判定": "Full 10-digit reading",
+
+  // Eight aspects
+  "財務資源": "Financial resources",
+  "事業推進": "Career momentum",
+  "感情互動": "Emotional connection",
+  "家庭穩定": "Family stability",
+  "人際連結": "Social connections",
+  "身心節奏": "Mind-body rhythm",
+  "成長動能": "Growth drive",
+  "節奏提醒": "Rhythm reminder",
+  "負荷安排": "Workload planning",
+  "結構": "Structure",
+  "平衡": "Balance",
+  "組合": "Combination",
+  "趨勢": "Trend",
+
+  // Two axes
+  "金錢": "Money",
+  "財務資源、事業推進、成長動能、穩定度融合成的物質面向。": "The material side, combining financial resources, career momentum, growth drive and stability.",
+  "感情": "Relationships",
+  "感情互動、家庭穩定、人際連結、身心節奏融合成的關係面向。": "The relational side, combining emotional connection, family stability, social ties and mind-body rhythm.",
+
+  // Tier feel lines
+  "結構較順": "Structure flows well",
+  "這組排列較容易形成連貫節奏，可挑一件事穩定推進。": "This arrangement forms a steady rhythm more easily. Pick one thing and move it forward steadily.",
+  "節奏可用": "Workable rhythm",
+  "這組排列有可運用的地方，先把重點放在穩定與清楚。": "This arrangement has parts you can use. Start by focusing on stability and clarity.",
+  "需要安排": "Needs planning",
+  "這組排列提醒你先安排節奏，再決定要不要往前推進。": "This arrangement suggests setting your pace first, then deciding whether to move ahead.",
+  "先整理節奏": "Sort out your rhythm first",
+  "先把訊息、時間或資源整理清楚，再做下一個選擇。": "Get your information, time or resources in order before making the next choice.",
+  "先從簡單處開始": "Start with something simple",
+  "不急著放大這組數字的意義，先回到一個可完成的小步驟。": "There is no need to read too much into this number. Go back to one small step you can finish.",
+
+  // Tier labels
+  "大吉": "Highly auspicious",
+  "大吉帶吉": "Highly auspicious with ease",
+  "吉": "Auspicious",
+  "半吉": "Mildly auspicious",
+  "凶帶吉": "Challenging with promise",
+  "凶": "Challenging",
+  "大凶帶凶": "Very challenging with strain",
+  "大凶": "Very challenging",
+  "萬事亨通，富貴繁榮。": "Things go smoothly, with prosperity.",
+  "青雲直上，多得貴人。": "Steady rise, with helpful people along the way.",
+  "平安順遂，衣食無憂。": "Peaceful and smooth, with daily needs met.",
+  "吉凶參半，三分靠天七分靠人。": "A mix of good and hard; a little luck, mostly your own effort.",
+  "先苦後甘，外美內苦。": "Hard first, sweeter later; looks fine outside, heavier inside.",
+  "阻礙重重，力不從心。": "Many obstacles, and effort feels short of the need.",
+  "波折不斷，易招是非。": "Repeated turns, and prone to disputes.",
+  "萬事休止，前途坎坷。": "Everything slows to a halt, and the road ahead is rough.",
+
+  // Errors
+  "請輸入 2 到 10 碼阿拉伯數字。": "Please enter 2 to 10 digits (0-9).",
+  "數字分析暫時無法完成，請再試一次。": "The number analysis could not be completed right now. Please try again.",
+
+  // Page header and steps
+  "數字文化解讀": "Number culture reading",
+  "免費輸入一組數字，30 秒看它的節奏訊號。": "Enter a number for free and see its rhythm signal in 30 seconds.",
+  "接收": "Receive",
+  "運算": "Compute",
+  "判定": "Verdict",
+  "接著選用途並輸入數字": "Next, choose a purpose and enter the number",
+  "上次收藏的數字解讀": "Your last saved number reading",
+  "上次收藏・": "Last saved · ",
+  "已保留": "Kept",
+
+  // Input area
+  "請填阿拉伯數字": "Please enter digits",
+  "只輸入 0-9": "Digits 0-9 only",
+  "可填 2 到 10 碼": "2 to 10 digits",
+  "看清大字後再按開始": "Check the large digits, then press start",
+  "免費立即解讀": "Free instant reading",
+  "輸入一組數字": "Enter a number",
+  "2 到 10 碼都可以": "Anywhere from 2 to 10 digits",
+  "這組數字要用在哪裡？可略過": "Where will this number be used? Optional",
+  "預設推薦": "Recommended default",
+  "目前：": "Current: ",
+  "。依輸入位數與組合進行判定。": ". The reading follows the number of digits and how they combine.",
+  "直接輸入 0–9，例如 2559": "Type 0-9 directly, for example 2559",
+  "輸入數字": "Enter a number",
+  "易經正在完成判定": "The I Ching is completing the reading",
+  "30 秒看數字訊號": "See the number's signal in 30 seconds",
+  "清除": "Clear",
+
+  // Result
+  "交叉判定尚未完成": "Cross-check not complete yet",
+  "需要同時取得數字結構與易經交叉資料後，才會顯示最終吉凶與能量線。請重新嘗試，不會以原始分數替代結論。": "The final verdict and energy line appear only after both the number structure and the I Ching cross-check are available. Please try again. A raw score is never shown in place of the conclusion.",
+  "數字解讀完成": "Number reading complete",
+  "這組數字的節奏": "The rhythm of this number",
+  "· 固定規則的結構提示": "· Structural hint from fixed rules",
+  "文化參考": "Cultural reference",
+  "你的數字屬什麼卦": "Which hexagram your number belongs to",
+  "數字易經卦象": "Number I Ching hexagram",
+  "點閱": "Tap to view",
+  "」・主題「": "\" · Theme \"",
+  "逐碼配卦・每一個數字都有它的卦": "Digit-by-digit hexagrams · every digit has its own hexagram",
+  "查看逐碼關係與計算依據": "View digit relationships and how it was calculated",
+  "深入看延伸解說": "Read the extended explanation",
+  "可運用・本次最強": "Can use · strongest this time",
+  "先留意・本次待補強": "Watch first · needs support this time",
+  "可運用": "Can use",
+  "看見可用的安排": "See what you can work with",
+  "先留意": "Watch first",
+  "先收好需要調整處": "Note what needs adjusting",
+  "今天怎麼安排": "How to plan today",
+  "只做一個小決定": "Make just one small decision",
+  "《易經》論數字：金錢與感情兩個中軸": "The I Ching on numbers: the money and relationship axes",
+  "已啟用極位文化反思提示": "Extreme-position cultural reflection prompt enabled",
+  "一般判定": "Standard verdict",
+  "融會貫通・單一判定": "Integrated · single verdict",
+  "論吉凶：": " verdict: ",
+  "想換一組數字重新探索嗎？這是數字結構的文化解讀，不代表改變命運或避免任何現實事件。": "Want to explore a different number? This is a cultural reading of number structure. It does not mean changing fate or preventing any real-world event.",
+  "換一個號碼再試": "Try another number",
+  "以下是這項判定融合出來的組成依據：金錢、感情兩個中軸。": "Below are the components this verdict combines: the money and relationship axes.",
+  "深入看金錢與感情強弱": "Look closer at money and relationship strength",
+  "展開": "Expand",
+  "金錢、感情兩個中軸各自融合 4 個面向的平均分數，共用同一條八階能量線，最高「大吉」、最低「大凶」。能量線保留大吉、大吉帶吉、吉、半吉、凶帶吉、凶、大凶帶凶、大凶八個位置，呈現分數落點的細微差異；但最終判定只會落在大吉、大吉帶吉、吉、凶、大凶帶凶、大凶六種標籤：55 至 59 分會跳至「吉」，50 至 54 分會跳至「凶」，所以「半吉」與「凶帶吉」只作為視覺刻度、不會成為判定落點。原始分數與 8 個面向的計算依據完整保留。分級門檻依這套固定規則實際算出的分數範圍校準，不是機率統計或人生保證。": "Each of the money and relationship axes averages 4 aspects and shares one eight-step energy line, from \"Highly auspicious\" at the top to \"Very challenging\" at the bottom. The line keeps eight positions to show small differences in where a score lands, but the final verdict only ever lands on six labels. Scores of 55 to 59 move up to \"Auspicious\" and 50 to 54 move down to \"Challenging\", so \"Mildly auspicious\" and \"Challenging with promise\" are visual marks only and are never a verdict. The raw scores and the working behind all 8 aspects are kept in full. Thresholds are calibrated to the score range these fixed rules actually produce. They are not statistics or a guarantee about life.",
+  "這不是在幫你貼標籤，是想讓你先看懂自己此刻站在哪一階；易經懂你走到這裡的不容易，才知道下一步怎麼走最順。": "This is not about labeling you. It is to help you see which step you are standing on right now. The I Ching understands that getting here was not easy, so you can tell what the smoothest next step is.",
+
+  // Save-for-later card
+  "收藏這次解讀": "Save this reading",
+  "留給下次的自己": "A note for your next visit",
+  "收藏本次重點；下次開啟時會先顯示這句提醒，不保存完整輸入數字。": "Saves this reading's key point. It is shown first when you return, and the full number you entered is not stored.",
+  "已收藏這次解讀": "Reading saved",
+  "收藏本次重點": "Save this key point",
+  "補充：結構重點": "More: structure highlights",
+  "較可運用": "Easier to use",
+  "老師模式：完整指標": "Teacher mode: full indicators",
+  "老師模式只保留後端運算指標，給需要細看的人展開；一般客戶先看上方三句判定即可。": "Teacher mode keeps only the backend-calculated indicators, for those who want a closer look. Most readers can start with the three verdict lines above."
+};

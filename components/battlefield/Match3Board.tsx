@@ -17,7 +17,7 @@ import Link from 'next/link';
  * 規則不變：拖過相鄰同色 ≥3 放開發動、普通威力上限 10、≥4 生成魔法珠、剛好 5 顆魔法珠＋五珠技、每顆 +10 能量、
  * 每 3 步反擊、只有主屬性相同的卡出手、克制表 elements.ts、同屬性輔助拿一半能量。卡面只讀 .v2 新卡與 card-face-stats。
  */
-import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { BeastCardFace, cardArt480 } from './BeastCardTile';
 import { useBannerQueue } from './bead/useBannerQueue';
 import { getCard, playableCards } from '@/lib/beast-game/registry';
@@ -37,7 +37,7 @@ import {
   match3Mode, type Match3ModeConfig, type Match3ModeId,
   type Board, type Cell, type MagicGrid, type Match3Fighter, type Match3Foe, type Rng,
 } from '@/lib/beast-game/match3';
-import { DragPathSvg, dragHint, useDragChain } from './useDragChain';
+import { DragPathSvg, dragHint, useDragChain, useDragSelected, useDragSnapshot, type DragStore } from './useDragChain';
 import styles from './Match3Board.module.css';
 import Match3ElementGlyph from './Match3ElementGlyph';
 import { RIG_IMPACT_MS, RIG_STRIKE_MS, rigFor, rigFrameUrl } from '@/lib/beast-game/beast-rig';
@@ -133,7 +133,8 @@ const k = (r: number, c: number) => r * 1000 + c;
 const DIAG_TIP = '相鄰同色珠三顆起可消除（可斜連）；攻擊須達本關門檻';
 /** 所有寬度都不掛載底部「連線模式／清除連線／發動連線攻擊」列；改自動連線、點滿能量卡發能量技、點空白或再點已選卡清除。 */
 
-const OrbCell = memo(function OrbCell({ r, c, e, mp, sel, flash, shake, drop, shield, fall, empty, reward }: { r: number; c: number; e: BeastElement; mp: number; shield: boolean; sel: boolean; flash: boolean; shake: boolean; drop: boolean; fall?: RefillMotion; empty?: boolean; reward?: boolean }) {
+const OrbCell = memo(function OrbCell({ r, c, e, mp, store, flash, shake, drop, shield, fall, empty, reward }: { r: number; c: number; e: BeastElement; mp: number; shield: boolean; store: DragStore; flash: boolean; shake: boolean; drop: boolean; fall?: RefillMotion; empty?: boolean; reward?: boolean }) {
+  const sel = useDragSelected(store, r, c);
   if (empty) return <div role="gridcell" data-r={r} data-c={c} data-empty="true" className={`${styles.orb} ${styles.emptyCell}`} aria-label="待補珠空格" />;
   const cls = [styles.orb, ORB_CLASS[e], sel ? styles.sel : '', flash ? styles.flash : '', shake ? styles.shake : '', drop ? styles.drop : '', fall ? styles.falling : '', reward ? styles.reward : '', mp > 0 ? styles.magic : '', shield && mp >= 7 ? styles.shieldCell : ''].join(' ');
   return (
@@ -147,6 +148,38 @@ const OrbCell = memo(function OrbCell({ r, c, e, mp, sel, flash, shake, drop, sh
     </div>
   );
 });
+
+/** 拖曳提示字：自己訂閱拖曳路徑，進出格子只重畫這一行，不連動整個戰鬥畫面。 */
+function DragHintLine({ store, board, magic, rigEnabled, minChain, fallback }: { store: DragStore; board: Board; magic: MagicGrid; rigEnabled: boolean; minChain: number; fallback: string }) {
+  const { path } = useDragSnapshot(store);
+  const dragEl = path.length ? board[path[0].r]?.[path[0].c] : null;
+  const effectiveCount = rigEnabled ? effectiveDragCount(path, magic) : path.length;
+  const hint = rigEnabled && isShieldFusionPath(path, magic)
+    ? dragIntent(path, magic, minChain, rigEnabled, board) === 'attack' ? '同屬性盾牌合擊：其餘同色寶珠轉為盾牌' : '盾牌合體：依顏色數結算防護與回復'
+    : dragEl && rigEnabled && path.length >= 3 && effectiveCount < minChain ? `合計 ${effectiveCount} 顆：只消除補珠，本關需 ${minChain} 顆才會攻擊`
+    : dragEl ? dragHint(effectiveCount, MATCH3_ORB_LABEL[dragEl], NORMAL_POWER_CAP, MAGIC_ORB_MIN_LENGTH, SKILL5_LENGTH) : '';
+  return <p className={rigEnabled ? styles.srOnly : styles.hint} data-testid="match3-hint" aria-live="polite">{hint || fallback}</p>;
+}
+
+/** 拖曳線：同樣自己訂閱；顏色取自路徑起點那一顆。 */
+function DragPathLayer({ store, board, rigEnabled }: { store: DragStore; board: Board; rigEnabled: boolean }) {
+  const { path, points } = useDragSnapshot(store);
+  const el = path.length ? board[path[0].r]?.[path[0].c] : null;
+  return <DragPathSvg points={points} color={el ? ORB_COLOR[el] : '#fff'} luminous={rigEnabled} />;
+}
+
+/** 盤面上的 data-dragging／data-chain-intent（CSS 靠它們換拖曳線樣式）：用 layout effect 直接寫在盤面元素上，
+ *  不經過戰鬥畫面的 render。 */
+function DragBoardAttrs({ store, host, board, magic, rigEnabled, minChain }: { store: DragStore; host: RefObject<HTMLDivElement | null>; board: Board; magic: MagicGrid; rigEnabled: boolean; minChain: number }) {
+  const { path } = useDragSnapshot(store);
+  const intent = rigEnabled ? dragIntent(path, magic, minChain, rigEnabled, board) : null;
+  useLayoutEffect(() => {
+    const el = host.current; if (!el) return;
+    if (path.length) el.setAttribute('data-dragging', 'true'); else el.removeAttribute('data-dragging');
+    if (intent) el.setAttribute('data-chain-intent', intent); else el.removeAttribute('data-chain-intent');
+  }, [host, path.length, intent]);
+  return null;
+}
 
 function changedCells(prev: Board, next: Board): Set<number> {
   const s = new Set<number>();
@@ -1107,12 +1140,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     const event = orbSkillDisplay(skillVisuals, id, side);
     return event ? <span className={styles.skillFeedback} data-testid="match3-skill-event" data-source={event.sourceId} data-source-side={event.sourceSide} data-target={event.targetId} data-target-side={event.targetSide} data-actual-damage={event.displayDamage} title={event.effects.map(e => e.detail).join('；')}>{getSkill(event.skillId)?.name}{event.displayDamage > 0 ? ` −${event.displayDamage}` : ''}</span> : null;
   };
-  const drag = useDragChain(board, !busy && !over, release, cfg.diagonal, magic, rigEnabled);
-  const dragEl = drag.path.length ? board[drag.path[0].r][drag.path[0].c] : null;
-  const chainIntent = dragIntent(drag.path, magic, rigEnabled ? stage.minChain : 3, rigEnabled, board);
-  const effectiveCount = rigEnabled ? effectiveDragCount(drag.path, magic) : drag.path.length;
-  const hint = rigEnabled && isShieldFusionPath(drag.path, magic) ? chainIntent === 'attack' ? '同屬性盾牌合擊：其餘同色寶珠轉為盾牌' : '盾牌合體：依顏色數結算防護與回復' : dragEl && rigEnabled && drag.path.length >= 3 && effectiveCount < stage.minChain ? `合計 ${effectiveCount} 顆：只消除補珠，本關需 ${stage.minChain} 顆才會攻擊` : dragEl ? dragHint(effectiveCount, MATCH3_ORB_LABEL[dragEl], NORMAL_POWER_CAP, MAGIC_ORB_MIN_LENGTH, SKILL5_LENGTH) : '';
-  const onPath = new Set(drag.path.map((p) => k(p.r, p.c)));
+  const drag = useDragChain(board, !busy && !over, release, cfg.diagonal, magic, rigEnabled, false);
   const pct = (a: number, b: number) => `${Math.max(0, Math.min(100, Math.round((a / b) * 100)))}%`;
 
   const actions = (
@@ -1186,7 +1214,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
           </button>
         ))}
       </div>
-      <p className={rigEnabled ? styles.srOnly : styles.hint} data-testid="match3-hint" aria-live="polite">{hint || shortMsg || (cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊')}</p>
+      <DragHintLine store={drag.store} board={board} magic={magic} rigEnabled={rigEnabled} minChain={rigEnabled ? stage.minChain : 3} fallback={shortMsg || (cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊')} />
       {!rigEnabled && <button type="button" className={styles.helpBtn} aria-expanded={help} onClick={() => setHelp(!help)}>玩法說明</button>}
       {help && (rigEnabled ? <div className={styles.help}>
         <p>拖過相鄰同色珠，至少3格；本關合計 {stage.minChain} 顆可攻擊。可斜連，不可跳格或重疊。</p>
@@ -1201,13 +1229,14 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
 
       {!log.startsWith('按住寶珠') && log ? <p className={rigEnabled ? styles.srOnly : styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
 
-      <div ref={drag.ref} data-dragging={drag.path.length ? 'true' : undefined} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, ['--clear-duration' as string]: `${clearMs}ms` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" data-refill-epoch={rigEnabled ? refillEpoch : undefined} data-refilling={falling.size > 0 ? 'true' : undefined} data-chain-intent={rigEnabled ? chainIntent : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers} onPointerDown={(e) => { if ((link.length || linkMode) && !(e.target as HTMLElement).closest('[data-r]')) { setLink([]); setLinkMode(false); } if (!busy && !over && (e.target as HTMLElement).closest('[data-r]')) setDragging(true); drag.handlers.onPointerDown(e); }} onPointerUp={() => { setDragging(false); drag.handlers.onPointerUp(); }} onPointerCancel={() => { setDragging(false); drag.handlers.onPointerCancel(); }} onLostPointerCapture={() => setDragging(false)}>
+      <div ref={drag.ref} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, ['--clear-duration' as string]: `${clearMs}ms` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" data-refill-epoch={rigEnabled ? refillEpoch : undefined} data-refilling={falling.size > 0 ? 'true' : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers} onPointerDown={(e) => { if ((link.length || linkMode) && !(e.target as HTMLElement).closest('[data-r]')) { setLink([]); setLinkMode(false); } if (!busy && !over && (e.target as HTMLElement).closest('[data-r]')) setDragging(true); drag.handlers.onPointerDown(e); }} onPointerUp={() => { setDragging(false); drag.handlers.onPointerUp(); }} onPointerCancel={() => { setDragging(false); drag.handlers.onPointerCancel(); }} onLostPointerCapture={() => setDragging(false)}>
         {board.map((row, r) => row.map((e, c) => { const kk = k(r, c); return (
-          <OrbCell key={`${r}-${c}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} shield={rigEnabled} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} fall={falling.get(kk)} empty={emptyCells.has(kk)} reward={rewards.has(kk)} />); }))}
+          <OrbCell key={`${r}-${c}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} shield={rigEnabled} store={drag.store} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} fall={falling.get(kk)} empty={emptyCells.has(kk)} reward={rewards.has(kk)} />); }))}
         {shieldBurst && <div className={styles.shieldBurst} style={{ color: ORB_COLOR[shieldBurst] }} role="status" aria-label="080 盾牌清除同色寶珠"><span /><img src="/pwa/save-shield-080.png" alt="" draggable={false} /></div>}
         {fusionBurst && <div className={styles.fusionBurst} data-testid="shield-fusion-effect" role="status" aria-label="盾牌合體" style={{ ['--fusion-duration' as string]: `${FUSION_DISPLAY_MS}ms`, ['--fusion-colors' as string]: `conic-gradient(${fusionBurst.map(e => ORB_COLOR[e]).join(',')})` }}><div className={styles.fusionHalo} /><svg className={styles.fusionLightning} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">{fusionDischarge(fusionBurst, board).map(bolt => <polyline key={bolt.element} points={bolt.points} stroke={ORB_COLOR[bolt.element]} vectorEffect="non-scaling-stroke" />)}</svg>{fusionShieldLayout(fusionBurst.length).map((pose, i) => <span key={i} className={styles.fusionShield} data-fusion-element={fusionBurst[i]} data-primary={pose.primary || undefined} style={{ color: ORB_COLOR[fusionBurst[i]], width: `${pose.size}%`, ['--fusion-x' as string]: `${pose.x}%`, ['--fusion-y' as string]: `${pose.y}%`, ['--fusion-scale' as string]: pose.scale }}><img src="/pwa/save-shield-080.png" alt="" draggable={false} /></span>)}</div>}
         {matchFrame && <Match3ReplayLines frame={matchFrame} />}
-        <DragPathSvg points={drag.points} color={dragEl ? ORB_COLOR[dragEl] : '#fff'} luminous={rigEnabled} />
+        <DragPathLayer store={drag.store} board={board} rigEnabled={rigEnabled} />
+        <DragBoardAttrs store={drag.store} host={drag.ref} board={board} magic={magic} rigEnabled={rigEnabled} minChain={rigEnabled ? stage.minChain : 3} />
         {banner && (banner.visual
           ? <div className={`${styles.chainEffect} ${banner.kind === 'skill' ? styles.chainCharged : ''} ${banner.kind === 'counter' ? styles.chainCounter : ''}`} data-testid="match3-chain-effect" role="status"><span className={styles.srOnly}>{banner.text}</span><span aria-hidden="true" className={styles.chainRing} /><span aria-hidden="true" className={styles.chainCore} /></div>
           : <div className={`${styles.banner} ${styles['b_' + banner.kind]}`} data-testid="match3-banner" role="status">{banner.text}</div>)}
