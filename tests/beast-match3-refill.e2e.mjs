@@ -82,19 +82,24 @@ try {
     await js(`document.querySelector('[data-testid="match3-board"]').scrollIntoView({block:'center',behavior:'instant'})`); await sleep(200);
     const points = await js(`(${JSON.stringify(route)}).map(p=>{const e=document.querySelector('[data-testid="match3-board"] [data-r="'+p.r+'"][data-c="'+p.c+'"]'),r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})`);
     for (const p of points) assert(p.y > 0 && p.y < 844, 'Drag route must remain visible');
+    let releasedAt;
     if(touchInput) {
       await send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{...points[0],id:1}]});
       if(process.env.MATCH3_DRAG_BURST==='1')await Promise.all(points.slice(1).map(p=>send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{...p,id:1}]})));
       else for(const p of points.slice(1)){await sleep(Number(process.env.MATCH3_DRAG_MS??75));await send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{...p,id:1}]});}
+      releasedAt=Date.now();
       await send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
     } else {
     await send('Input.dispatchMouseEvent', { type: 'mouseMoved', ...points[0] });
     await send('Input.dispatchMouseEvent', { type: 'mousePressed', ...points[0], button: 'left', buttons: 1, clickCount: 1 });
     for (const p of points.slice(1)) { await sleep(Number(process.env.MATCH3_DRAG_MS??75)); await send('Input.dispatchMouseEvent', { type: 'mouseMoved', ...p, button: 'left', buttons: 1 }); }
+    releasedAt=Date.now();
     await send('Input.dispatchMouseEvent', { type: 'mouseReleased', ...points.at(-1), button: 'left', buttons: 0, clickCount: 1 });
     }
     await wait(`document.querySelector('[data-testid="match3-round"]')?.textContent !== ${JSON.stringify(oldRound)} && document.querySelector('[data-testid="match3-board"]')?.getAttribute('aria-busy') === 'false'`);
+    const releaseToReadyMs=Date.now()-releasedAt;
     await sleep(150);
+    return releaseToReadyMs;
   };
   const start = async (wins, width) => {
     await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 2, mobile: width < 768 });
@@ -174,7 +179,7 @@ try {
     try{await wait('window.__replaySamples.length > 0',Number(process.env.MATCH3_REPLAY_WAIT_MS)||90000);}catch(error){
       writeFileSync(path.join(output,'replay-failure-'+width+'.json'),JSON.stringify(await js(`({visibility:document.visibilityState,focus:document.hasFocus(),epoch:document.querySelector('[data-testid=match3-board]')?.dataset.refillEpoch,busy:document.querySelector('[data-testid=match3-board]')?.getAttribute('aria-busy'),samples:window.__replaySamples,pointers:window.__pointerSamples,turns:window.__turns,inputs:window.__turnInputs,visible:document.body.innerText,cells:[...document.querySelectorAll('[data-testid=match3-board] [data-r="7"]')].map(e=>{const r=e.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return {r:r.y,bottom:r.bottom,hit:hit?.tagName,hitClass:hit?.className,cell:!!hit?.closest('[data-r]')}})})`),null,2));await save('replay-failure-'+width);throw error;
     }
-    await save('match-lines-'+width+'-'+length+(reduced?'-reduced':''));await playing;
+    await save('match-lines-'+width+'-'+length+(reduced?'-reduced':''));const releaseToReadyMs=await playing;
     const observed=await js('window.__replayObserver.disconnect();({samples:window.__replaySamples,pointers:window.__pointerSamples,turn:window.__turns[0],input:window.__turnInputs[0],events:window.__match3Events})');
     assert.deepEqual(observed.input.path,Array.from({length},(_,c)=>({r:7,c})),'every selected cell reaches the backend');
     const expected=observed.turn.replay.filter(f=>f.matches.length);
@@ -196,7 +201,7 @@ try {
     const expectedLastDamage=lastTurn.action==='link'||lastTurn.action==='energy'?lastTurn.actualDamage:lastTurn.damage+lastTurn.startDamage+lastTurn.endDamage;
     assert.equal(final.damage,expectedLastDamage);
     final.cells.forEach(c=>{assert.equal(c.el,observed.turn.res.board[c.r][c.c]);assert.equal(c.mp,observed.turn.res.magic[c.r][c.c]);});
-    assert(final.scroll<=width);results.push({case:'recorded match then clear',width,length,reduced,chains:expected.length});
+    assert(final.scroll<=width);results.push({case:'recorded match then clear',width,length,reduced,chains:expected.length,releaseToReadyMs});
     writeFileSync(path.join(output,'replay-'+width+'-'+length+(reduced?'-reduced':'')+'.json'),JSON.stringify(observed,null,2));
   }
   if(process.env.MATCH3_REPLAY_ONLY==='1'){

@@ -1,0 +1,31 @@
+{
+  "production": true,
+  "isolatedGuest": true,
+  "errors": [],
+  "turns": [
+    {
+      "releaseToReadyMs": 2538
+    },
+    {
+      "releaseToReadyMs": 2639
+    },
+    {
+      "releaseToReadyMs": 1904
+    }
+  ],
+  "network": [
+    {
+      "status": 200,
+      "responseStartMs": 171
+    },
+    {
+      "status": 200,
+      "responseStartMs": 144
+    },
+    {
+      "status": 200,
+      "responseStartMs": 162
+    }
+  ],
+  "passed": true
+}

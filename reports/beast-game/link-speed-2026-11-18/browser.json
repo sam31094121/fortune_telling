@@ -1,0 +1,39 @@
+{
+  "passed": true,
+  "scope": "replay-only",
+  "results": [
+    {
+      "case": "recorded match then clear",
+      "width": 320,
+      "length": 5,
+      "reduced": false,
+      "chains": 8,
+      "releaseToReadyMs": 6201
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 390,
+      "length": 6,
+      "reduced": false,
+      "chains": 3,
+      "releaseToReadyMs": 4593
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 1440,
+      "length": 7,
+      "reduced": false,
+      "chains": 1,
+      "releaseToReadyMs": 3436
+    },
+    {
+      "case": "recorded match then clear",
+      "width": 390,
+      "length": 5,
+      "reduced": true,
+      "chains": 8,
+      "releaseToReadyMs": 3210
+    }
+  ],
+  "errors": []
+}
