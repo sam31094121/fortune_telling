@@ -17,6 +17,16 @@ export const DROP_FIELD = {
   ],
 } as const;
 
+/** Existing neighbouring card edges act as physical dividers, not reward reassignment. */
+export function dropDividers(catches: readonly DropCatch[]): {x:number;y:number}[] {
+  const sorted=[...catches].sort((a,b)=>a.left-b.left);
+  const dividers=sorted.slice(1).flatMap((right,i)=>{
+    const left=sorted[i];
+    return right.slot===left.slot+1 ? [{x:(left.right+right.left)/2,y:555}] : [];
+  });
+  return dividers;
+}
+
 /** Catch mouths are narrower than cards; empty/dead slots are never reassigned. */
 export function dropCatches(team: readonly { id: string; hp: number }[]): DropCatch[] {
   const live = team.map((u, slot) => ({ ...u, slot })).filter(u => u.hp > 0);
@@ -29,6 +39,7 @@ export function simulateOrbDrops(input: {
   count: number; element: BeastElement; seed: number; launchX: number; catches: readonly DropCatch[];
 }): OrbDrop[] {
   if (!Number.isInteger(input.count) || input.count < 1 || input.count > 48 || !Number.isFinite(input.launchX)) throw new Error('法珠掉落數量或起點無效');
+  const dividers=dropDividers(input.catches);
   const rng = seededRng(input.seed), dt = 1 / 120, radius = DROP_FIELD.radius;
   return Array.from({ length: input.count }, (_, index) => {
     let x = Math.max(radius, Math.min(1000 - radius, input.launchX)), y: number = radius;
@@ -51,6 +62,19 @@ export function simulateOrbDrops(input: {
           vx -= 1.62 * normalSpeed * nx; vy -= 1.62 * normalSpeed * ny;
           vx *= .98; vy *= .98; impacts.push(Math.round(step * dt * 1000));
         }
+      }
+      // Sloped card-edge divider: reflect on its surface, never assign a recipient here.
+      for(const divider of dividers) {
+        if(y < divider.y-radius) continue;
+        const side=x===divider.x ? (vx<0?-1:1) : (x<divider.x?-1:1);
+        const slope=48/(DROP_FIELD.height-divider.y);
+        const halfWidth=Math.max(0,y-divider.y)*slope;
+        if(Math.abs(x-divider.x)>=halfWidth+radius) continue;
+        x=divider.x+side*(halfWidth+radius);
+        const length=Math.hypot(1,slope), nx=side/length, ny=-slope/length;
+        const normalSpeed=vx*nx+vy*ny;
+        if(normalSpeed<0) {vx-=1.62*normalSpeed*nx;vy-=1.62*normalSpeed*ny;}
+        impacts.push(Math.round(step*dt*1000));
       }
       elapsed = Math.round(step * dt * 1000);
       if (y >= DROP_FIELD.height) {

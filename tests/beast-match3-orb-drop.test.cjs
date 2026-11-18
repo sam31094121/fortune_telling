@@ -65,3 +65,13 @@ const rescueTurn=resolveOrbTurn(rescueInput),plainTurn=resolveOrbTurn({...rescue
 assert.equal(rescueTurn.endDamage,plainTurn.endDamage,'board assistance never adds damage');assert.deepEqual(rescueTurn.counter.foes,plainTurn.counter.foes);
 assert(rescueTurn.comeback.strikesLeft===4);assert(rescueTurn.replay.some(f=>f.kind==='shuffle'),'visible board assistance replay');
 console.log('PASS nine/ten/eleven shields, legacy eight, real catches/misses, deterministic paths, healing/energy, no duplicate grants; 200 physics seeds');
+
+// Regression: the formerly missed first ball must bounce into a living card.
+const allCatches=D.dropCatches(team);
+assert.equal(D.dropDividers(allCatches).length,4);
+assert.equal(D.dropDividers(D.dropCatches(team.map((u,i)=>({...u,hp:i===2?100:0})))).length,0);
+assert.equal(D.dropDividers(D.dropCatches(team.map((u,i)=>({...u,hp:i===1?0:100})))).length,2);
+const split=D.simulateOrbDrops({count:2,element:'SPACE',seed:1004,launchX:4500/7,catches:allCatches});
+assert.equal(split[0].ownerId,team[1].id);assert.equal(split[1].ownerId,team[4].id);
+for(const d of split){const c=allCatches.find(c=>c.ownerId===d.ownerId),last=d.points.at(-1);assert(last.x>=c.left+D.DROP_FIELD.radius&&last.x<=c.right-D.DROP_FIELD.radius);}
+console.log('PASS living-card dividers, dead-slot gaps, and former centre-gap miss now physically caught');
