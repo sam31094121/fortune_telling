@@ -11,6 +11,7 @@ import { initializePlayerSkills } from './match3/player-skills';
 import { emptyTreasureBook } from './match3/treasures';
 import type { HardCampaign } from './match3/hard-campaign';
 import type { TurnInput } from './match3/resolve-turn';
+import { initialComeback, comebackLabel, COMEBACK_POLICY } from './match3/comeback';
 
 /** Same registry, lineup progression and board generator as the existing game. */
 export function initialSharedOrb(profile:HardCampaign,seed:number,mode:Match3ModeId):TurnInput {
@@ -23,7 +24,8 @@ export function initialSharedOrb(profile:HardCampaign,seed:number,mode:Match3Mod
     return {id,name:c.name,thumbnail:c.art.thumbnail,element:c.element,hp:s.hp,maxHp:s.hp,attack:a.attack,...(a.attackExact?{attackExact:a.attackExact}:{}),energy:0,skillName:skill?.name,description:skill?.description};
   })).team;
   const selected=selectProgressionEnemies(pool,rng,profile.wins),stats=progressionLineupStats(selected,profile.wins,pool);
-  const foes=initializeAvailableFoes(selected.map((c,i)=>({id:c.id,name:c.name,thumbnail:c.art.thumbnail,element:c.element,hp:stats[i].hp,maxHp:stats[i].hp,attack:stats[i].attack,cd:1})),profile.wins+1);
+  const challenge = mode === 'hard45' && profile.wins + 1 >= COMEBACK_POLICY.challengeStage;
+  const foes=initializeAvailableFoes(selected.map((c,i)=>{const hp=Math.round(stats[i].hp*(challenge?COMEBACK_POLICY.challengeHpMultiplier:1));return {id:c.id,name:c.name,thumbnail:c.art.thumbnail,element:c.element,hp,maxHp:hp,attack:Math.round(stats[i].attack*(challenge?COMEBACK_POLICY.challengeAttackMultiplier:1)),cd:1};}),profile.wins+1);
   const board=generateDragBoard(rng,cfg.rows,cfg.cols,cfg.diagonal,progressionStage(profile.wins).minChain);
-  return {team,foes,board,magic:emptyMagic(board),mode,wins:profile.wins,seed,move:0,chosen:{},rule:'tap-lead',attackBoost:1,treasureGuard:1,treasures:profile.treasures??emptyTreasureBook(),path:[],target:0};
+  return {team,foes,board,magic:emptyMagic(board),mode,wins:profile.wins,seed,move:0,chosen:{},rule:'tap-lead',attackBoost:1,treasureGuard:1,treasures:profile.treasures??emptyTreasureBook(),path:[],target:0,...(mode==='hard45'?{comeback:initialComeback(profile.wins,profile.comebackRecord),comebackText:comebackLabel(initialComeback(profile.wins,profile.comebackRecord))}:{})};
 }

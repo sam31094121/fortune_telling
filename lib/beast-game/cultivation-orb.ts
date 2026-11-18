@@ -14,6 +14,7 @@ import { resolveCardAttackTurn } from './match3/card-attack';
 import { resolveTreasureUse, emptyTreasureBook } from './match3/treasures';
 import { foeAvailable } from './match3/enemies';
 import { orbOutcome } from './match3/battle-outcome';
+import { nextComebackRecord } from './match3/comeback';
 
 export async function sharedOrbProfile(owner:string,value:unknown):Promise<HardCampaign> {
   if(!value||typeof value!=='object')throw new Error('寶珠進度無法讀取。');
@@ -24,6 +25,7 @@ export async function sharedOrbProfile(owner:string,value:unknown):Promise<HardC
   if(snapshot.orbTreasures===undefined)snapshot=await updateCultivationAccount(owner,current=>adoptLegacyTreasures(current,raw.treasures,emptyTreasureBook()));
   if(snapshot.orbLedger)Object.assign(raw,snapshot.orbLedger);
   raw.treasures=snapshot.orbTreasures??emptyTreasureBook();
+  raw.comebackRecord=snapshot.orbComeback;
   let p:HardCampaign;
   try{p=parseCampaign(JSON.stringify(normalizeHeroChoice(raw)));}
   catch{throw new CampaignConflict(snapshot.orbLedger?.wins??0);}
@@ -57,6 +59,7 @@ export async function beginSharedOrb(owner:string,profile:unknown,operationId:st
   const saved=await updateCultivationAccount(owner,current=>{
     if(current.pendingBattle!==id)throw new Error('戰局已變更。');
     if(current.orbRun?.id===id){if(JSON.stringify(current.orbRun.input.team.map(c=>c.id))!==JSON.stringify(p.teamIds)||current.orbRun.input.mode!==mode)throw new Error('同一戰局不能更換隊伍或模式。');return current;}
+    if(initial.comeback && JSON.stringify(p.comebackRecord)!==JSON.stringify(current.orbComeback))throw new Error('挑戰次數已更新，請重新開始本局。');
     return {...current,orbRun:{id,version:0,seed,input:initial}};
   });
   const ticket:OrbTicket={owner,id,wins:p.wins,teamIds:p.teamIds,attacks:Object.fromEntries(p.teamIds.map(id=>[id,p.shared!.stats[id].attack])),exactAttacks:Object.fromEntries(p.teamIds.map(id=>[id,p.shared!.stats[id].attackExact??String(p.shared!.stats[id].attack)])),issuedAt:Date.now()};
@@ -98,17 +101,17 @@ export async function resolveSharedOrbTurn(t:OrbTicket,request:TurnInput,version
     if(!foeAvailable(input.foes,input.target,input.wins+1))throw new Error('目標尚未出戰或已倒下。');
     let response:unknown,next:TurnInput;
     if(input.action==='treasure'){
-      const r=resolveTreasureUse(input,input.treasureElement!,input.treasureVariant??0);response=r;next={...run.input,team:r.team,foes:r.foes,treasures:r.book,treasureGuard:r.guardScale};
+      const r=resolveTreasureUse(input,input.treasureElement!,input.treasureVariant??0);response=r;next={...run.input,team:r.team,foes:r.foes,treasures:r.book,treasureGuard:r.guardScale,comeback:r.comeback,comebackText:r.comebackText};
     }else if(input.action==='energy'||input.action==='link'){
       const r=resolveCardAttackTurn(input);response=r;next={...run.input,team:r.team,foes:r.foes};
     }else{
       const r=resolveOrbTurn(input);response=r;
-      next={...run.input,board:r.res.board,magic:r.res.magic,team:r.counter.team,foes:r.counter.foes,treasures:r.treasure.book,treasureGuard:r.nextTreasureGuard,attackBoost:r.nextBoost,move:run.input.move+(input.path.length?1:0)};
+      next={...run.input,board:r.res.board,magic:r.res.magic,team:r.counter.team,foes:r.counter.foes,treasures:r.treasure.book,treasureGuard:r.nextTreasureGuard,attackBoost:r.nextBoost,move:run.input.move+(input.path.length?1:0),comeback:r.comeback,comebackText:r.comebackText};
     }
-    const won=orbOutcome(next.team,next.foes)==='win',event='orb-win:'+t.id;
+    const outcome=orbOutcome(next.team,next.foes),won=outcome==='win',event='orb-win:'+t.id;
     const reward={matchId:event,cardId:campaignAdultIds()[t.wins%28],win:t.wins+1};
     if(won&&reward.win!==(current.orbLedger?.wins??0)+1)throw new Error('關卡紀錄不符。');
-    return {...current,orbTreasures:next.treasures,orbRun:{...run,version:version+1,input:next,last:{version,command,response:{...(response as object),sharedVersion:version+1}}},
+    return {...current,...(input.comeback&&(outcome==='win'||outcome==='lose')?{orbComeback:nextComebackRecord(input.wins,current.orbComeback,outcome)}:{}),orbTreasures:next.treasures,orbRun:{...run,version:version+1,input:next,last:{version,command,response:{...(response as object),sharedVersion:version+1}}},
       ...(won?{state:{...current.state,cards:[...current.state.cards,{id:event,cardId:reward.cardId,bonus:'0'}]},pendingBattle:null,hold:undefined,orbLedger:{wins:reward.win,rewards:[...(current.orbLedger?.rewards??[]),reward],receipts:[...(current.orbLedger?.receipts??[]),reward]},creditedIds:[...(current.creditedIds??[]),event,'closed:'+t.id]}:{})};
   });
   return saved.orbRun!.last!.response;

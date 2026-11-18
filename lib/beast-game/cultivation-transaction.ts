@@ -14,6 +14,7 @@ export interface CultivationSnapshot {
   shards?: import('../beast-collection-ledger').ShardLedger;
   starterPack?: string;
   orbTreasures?: import('./match3/treasures').TreasureBook;
+  orbComeback?: import('./match3/comeback').ComebackRecord;
   cardOutcomes?: Record<string,string>;
   exchanges?: Record<string,{kind:string;cardId:string}>;
   orbRun?: {id:string;version:number;seed:number;totalDamage?:number;lastDamage?:number;input:import('./match3/resolve-turn').TurnInput;last?:{version:number;command:string;response:unknown}};

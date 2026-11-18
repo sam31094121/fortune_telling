@@ -379,7 +379,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   const [log, setLog] = useState(cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊');
   const [busy, setBusy] = useState(false);
   const [attackBoost, setAttackBoost] = useState(init.resumeInput?.attackBoost ?? 1);
-  const [supportText, setSupportText] = useState('');
+  const [supportText, setSupportText] = useState(init.resumeInput?.comebackText ?? '');
   const [shieldGoals, setShieldGoals] = useState<ReturnType<typeof resolveOrbTurn>['shieldGoals']>([]);
   const [outgoing, setOutgoing] = useState<ElementFlight[]>([]);
   const [treasures, setTreasures] = useState<ReturnType<typeof treasureCatalog>>(treasurePractice?.catalog ?? []);
@@ -405,7 +405,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     const current = readCampaign(init.owner);
     if (!current.ok || !current.profile) return;
     const book = init.resumeInput?.treasures ?? current.profile.treasures ?? { version: 1, counts: { SPACE:0, AIR:0, WATER:0, FIRE:0, EARTH:0 }, receipts: [] };
-    fetch('/api/beast-game/orb-treasures', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({book,team:init.team}), signal:controller.signal })
+    fetch('/api/beast-game/orb-treasures', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({book,team:init.team,mode:cfg.id}), signal:controller.signal })
       .then(async r => { if (!r.ok) throw new Error(); const catalog = await r.json(); if (catalogRevision.current === 0) setTreasures(catalog); })
       .catch(() => { if (!controller.signal.aborted) setLog('暫時無法讀取寶器，請重新進入戰場。'); });
     return () => controller.abort();
@@ -778,6 +778,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       }
       // 伺服端反擊階段（prepared.counter）若造成敵方倒下（例如反傷），同樣排入擊倒事件；瀏覽器自算的 counterPhase 不排。
       if (prepared) queueKnockouts(f, cp.foes, battleId.current + ':counter:' + moves, 'server-counter', 0);
+      if (prepared?.comebackText) setSupportText(text => text.includes(prepared.comebackText) ? text : [text, prepared.comebackText].filter(Boolean).join("；"));
       setTeam(cp.team); setFoes(cp.foes); if (prepared) setConfirmedOutcome(prepared.outcome); setLog(msg);
       if (rigEnabled) later(() => setBusy(false), cp.hits.length ? 420 : 0);
     };
@@ -814,7 +815,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       setTreasures(result.catalog);
       setTreasureFlight({effect:result.effect,x1:source.left+source.width/2-bounds.left,y1:source.top+source.height/2-bounds.top,x2:target.left+target.width/2-bounds.left,y2:target.top+target.height/2-bounds.top});
       cue('charge');
-      later(() => { queueKnockouts(foes, result.foes, actionId, 'server-treasure', 0); setTeam(result.team); setFoes(result.foes); setConfirmedOutcome(result.outcome); setTreasureGuard(result.guardScale); setLastDmg(result.effect.damage); setTotalDmg(d=>d===null?null:d+result.effect.damage); setLog(result.effect.description); setSupportText(result.effect.description); cue('impact'); }, 950);
+      later(() => { queueKnockouts(foes, result.foes, actionId, 'server-treasure', 0); setTeam(result.team); setFoes(result.foes); setConfirmedOutcome(result.outcome); setTreasureGuard(result.guardScale); setLastDmg(result.effect.damage); setTotalDmg(d=>d===null?null:d+result.effect.damage); setLog(result.effect.description); setSupportText([result.effect.description,result.comebackText].filter(Boolean).join('；')); cue('impact'); }, 950);
       later(() => { setTreasureFlight(null); setBusy(false); }, 1900);
     } catch (e) { if(turnRequest.current===controller){if (init.sharedBattleToken) onRecover(); else { setLog(e instanceof Error ? e.message : '寶器未保存，請重試。'); setBusy(false); }} }
     finally { window.clearTimeout(timeout); if (turnRequest.current === controller) turnRequest.current = null; }
@@ -901,7 +902,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       setAttackBoost(prepared.nextBoost);
       const healing = prepared.healingSummary.map(h => `${h.name} +${h.actual}`).join('、');
       const enemyHealing = prepared.enemyHealingSummary.map(h => `${h.name} +${h.actual}`).join('、');
-      setSupportText([prepared.shield?.name, healing && `我方回復：${healing}`, enemyHealing && `敵方相生回復：${enemyHealing}`].filter(Boolean).join('；'));
+      setSupportText([prepared.comebackText, prepared.shield?.name, healing && `我方回復：${healing}`, enemyHealing && `敵方相生回復：${enemyHealing}`].filter(Boolean).join('；'));
       showStrike(rigEnabled ? actualHits : hits, foe, nf[actionTarget], false, rigEnabled ? actualDealt : undefined, prepared.summon);
       // 伺服端回合已確認的擊倒；rig 攻擊時等咬合命中（RIG_IMPACT_MS）後才開播。連鎖在 settle（整段播放完）才結算，因此必在擊倒那段之後。
       queueKnockouts(actionFoes, nf, battleId.current + ':turn:' + moves, 'server-turn', hadRig.current ? RIG_IMPACT_MS : 0);
@@ -1158,7 +1159,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         <p>同色三盾強化本次寶珠攻擊1.5倍，須有該屬性隊員可出手。空召白虎、風召青龍、水召玄武、火召朱雀；地以岩槌強攻，效果同等，不另造第五隻神獸。</p>
         {shieldGoals.length > 0 && <p data-testid="shield-color-goals">盤面盾牌：{shieldGoals.map(g => <span key={g.element} style={{color:ORB_COLOR[g.element]}}>{MATCH3_ORB_LABEL[g.element]} {g.count > 0 ? `${g.count}枚` : '尚缺'}　</span>)}<br/>須拖過相鄰盾牌才會合體，盤面有盾牌不代表已觸發。</p>}
       </details>}
-      {help && <p role="status" className={styles.supportResult} data-testid="orb-support-result">{supportText || '尚無本回合紀錄。'}{attackBoost > 1 && <><br/>五行反攻已就緒：下一次有效寶珠攻擊 ×1.5</>}</p>}
+      {(help || (rigEnabled && !!supportText)) && <p role="status" className={styles.supportResult} data-testid="orb-support-result">{supportText || '尚無本回合紀錄。'}{attackBoost > 1 && <><br/>五行反攻已就緒：下一次有效寶珠攻擊 ×1.5</>}</p>}
       {debug && <div className={styles.sub} data-testid="match3-debug">[debug] 正式神獸卡 5v5・{cfg.cols}×{cfg.rows}＝{cfg.cols * cfg.rows} 顆寶珠・敵方 HP {cfg.enemyHp}／攻 {cfg.enemyAtk}／每 {cfg.counterEvery} 步反擊【待平衡】{cfg.diagonal ? '・可斜連' : ''}・seed {init.seed}</div>}
 
       <div className={rigEnabled ? styles.srOnly : styles.secHead}><span>{rigEnabled ? '敵方神獸（點選指定目標；出手時標示反擊中）' : '敵方神獸（點選指定目標；⏳ 為反擊倒數）'}</span><span>{over === 'win' ? '勝利' : over === 'lose' ? '落敗' : '戰鬥進行中'}</span></div>

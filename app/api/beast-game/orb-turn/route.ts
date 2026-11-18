@@ -17,6 +17,7 @@ export async function POST(request: Request) {
     let p = JSON.parse(raw) as TurnInput & {sharedBattleToken?:string;sharedVersion?:number;guestBattleToken?:string};
     const guest=p.guestBattleToken?openGuestOrb(p.guestBattleToken):null;
     if(guest)p=guestOrbInput(guest,p);
+    else delete p.comeback; // Only the persisted/signed battle may grant comeback authority.
     const owner=cultivationOwner(request);
     const shared=owner&&!guest?await verifySharedOrb(owner,p.sharedBattleToken):null;
     if(p.mode==='hard45'&&!shared&&!guest)throw new Error('親友戰局缺少驗證憑據');
