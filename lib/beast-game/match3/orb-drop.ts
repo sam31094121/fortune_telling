@@ -5,15 +5,17 @@ import type { BeastElement } from '../elements';
 export interface DropPoint { t: number; x: number; y: number }
 export interface DropCatch { ownerId: string; slot: number; left: number; right: number }
 export interface OrbDrop {
-  index: number; element: BeastElement; delayMs: number; points: DropPoint[];
-  impacts: number[]; ownerId: string | null; slot: number | null; durationMs: number;
+  index: number; element: BeastElement; source?: {r:number;c:number}; delayMs: number; points: DropPoint[];
+  impacts: number[]; pairImpacts?: number[]; ownerId: string | null; slot: number | null; durationMs: number;
 }
 export const DROP_FIELD = {
-  width: 1000, height: 650, radius: 14,
+  width: 1000, height: 650, radius: 36,
   pegs: [
-    { x: 160, y: 150 }, { x: 390, y: 150 }, { x: 620, y: 150 }, { x: 850, y: 150 },
-    { x: 275, y: 310 }, { x: 505, y: 310 }, { x: 735, y: 310 },
-    { x: 160, y: 465 }, { x: 390, y: 465 }, { x: 620, y: 465 }, { x: 850, y: 465 },
+    { x:160,y:95 },{ x:390,y:95 },{ x:620,y:95 },{ x:850,y:95 },
+    { x:275,y:185 },{ x:505,y:185 },{ x:735,y:185 },
+    { x:160,y:275 },{ x:390,y:275 },{ x:620,y:275 },{ x:850,y:275 },
+    { x:275,y:365 },{ x:505,y:365 },{ x:735,y:365 },
+    { x:160,y:455 },{ x:390,y:455 },{ x:620,y:455 },{ x:850,y:455 },
   ],
 } as const;
 
@@ -34,57 +36,76 @@ export function dropCatches(team: readonly { id: string; hp: number }[]): DropCa
   return live.map(u => ({ ownerId: u.id, slot: u.slot, left: u.slot * 200 + 30, right: u.slot * 200 + 170 }));
 }
 
-/** Fixed-step gravity and dissipative reflection, bounded to protect response time. */
+/** Shared fixed-step simulation: equal-mass balls collide on the same clock. */
 export function simulateOrbDrops(input: {
-  count: number; element: BeastElement; seed: number; launchX: number; catches: readonly DropCatch[];
+  count: number; element: BeastElement; seed: number; launchX: number; catches: readonly DropCatch[]; sources?: readonly {r:number;c:number;element:BeastElement;x:number}[];
 }): OrbDrop[] {
   if (!Number.isInteger(input.count) || input.count < 1 || input.count > 48 || !Number.isFinite(input.launchX)) throw new Error('法珠掉落數量或起點無效');
-  const dividers=dropDividers(input.catches);
-  const rng = seededRng(input.seed), dt = 1 / 120, radius = DROP_FIELD.radius;
-  return Array.from({ length: input.count }, (_, index) => {
-    let x = Math.max(radius, Math.min(1000 - radius, input.launchX)), y: number = radius;
-    let vx = (rng() - .5) * 240, vy = 0, elapsed = 0;
-    const points: DropPoint[] = [{ t: 0, x, y }], impacts: number[] = [];
-    for (let step = 1; step <= 720 && y < DROP_FIELD.height; step++) {
-      const previousX = x, previousY = y;
-      vy += 1050 * dt; x += vx * dt; y += vy * dt;
-      if (x < radius || x > 1000 - radius) {
-        x = Math.max(radius, Math.min(1000 - radius, x)); vx *= -.62;
-        impacts.push(Math.round(step * dt * 1000));
-      }
-      for (const peg of DROP_FIELD.pegs) {
-        const dx = x - peg.x, dy = y - peg.y, distance = Math.hypot(dx, dy), contact = radius + 13;
-        if (distance >= contact) continue;
-        const nx = distance > .001 ? dx / distance : 0, ny = distance > .001 ? dy / distance : -1;
-        x = peg.x + nx * contact; y = peg.y + ny * contact;
-        const normalSpeed = vx * nx + vy * ny;
-        if (normalSpeed < 0) {
-          vx -= 1.62 * normalSpeed * nx; vy -= 1.62 * normalSpeed * ny;
-          vx *= .98; vy *= .98; impacts.push(Math.round(step * dt * 1000));
+  const dividers=dropDividers(input.catches), rng=seededRng(input.seed), dt=1/120, radius=DROP_FIELD.radius, scale=1.6;
+  type Ball={index:number;x:number;y:number;vx:number;vy:number;born:number;finished:boolean;points:DropPoint[];impacts:number[];pairImpacts:number[]};
+  const balls:Ball[]=[], output:OrbDrop[]=[];
+  const launchX=Math.max(radius,Math.min(1000-radius,input.launchX));
+  const stamp=(b:Ball,step:number)=>Math.round((step-b.born)*dt*1000);
+  const impact=(b:Ball,step:number)=>{const t=stamp(b,step);if(b.impacts.at(-1)!==t)b.impacts.push(t);};
+  const world=(b:Ball,step:number)=>{
+    if(b.x<radius||b.x>1000-radius){b.x=Math.max(radius,Math.min(1000-radius,b.x));b.vx*=-.62;impact(b,step);}
+    if(b.y<radius){b.y=radius;if(b.vy<0)b.vy*=-.62;}
+    for(const peg of DROP_FIELD.pegs){
+      const dx=b.x-peg.x,dy=b.y-peg.y,d=Math.hypot(dx,dy),contact=radius+13;
+      if(d>=contact)continue;
+      const nx=d>.001?dx/d:0,ny=d>.001?dy/d:-1;
+      b.x=peg.x+nx*contact;b.y=peg.y+ny*contact;
+      const speed=b.vx*nx+b.vy*ny;
+      if(speed<0){b.vx-=1.62*speed*nx;b.vy-=1.62*speed*ny;b.vx*=.98;b.vy*=.98;impact(b,step);}
+    }
+    for(const q of dividers){
+      const side=b.x===q.x?(b.vx<0?-1:1):(b.x<q.x?-1:1),ex=side*48,ey=650-q.y,l=Math.hypot(ex,ey);
+      const t=Math.max(0,Math.min(1,((b.x-q.x)*ex+(b.y-q.y)*ey)/(l*l)));
+      const qx=q.x+t*ex,qy=q.y+t*ey,dx=b.x-qx,dy=b.y-qy,d=Math.hypot(dx,dy);
+      const inside=b.y>=q.y&&Math.abs(b.x-q.x)<(b.y-q.y)*Math.abs(ex)/ey;
+      if(!inside&&d>=radius)continue;
+      const nx=inside||d<.001?side*ey/l:dx/d,ny=inside||d<.001?-Math.abs(ex)/l:dy/d;
+      const depth=inside?radius-(dx*nx+dy*ny):radius-d;
+      b.x+=nx*(depth+.01);b.y+=ny*(depth+.01);
+      const speed=b.vx*nx+b.vy*ny;if(speed<0){b.vx-=1.62*speed*nx;b.vy-=1.62*speed*ny;}impact(b,step);
+    }
+  };
+  for(let step=0;step<=720*(input.count+1)&&output.length<input.count;step++){
+    let active=balls.filter(b=>!b.finished);
+    const source=input.sources?.[balls.length];
+    const entrance=source?.x ?? launchX;
+    // Release at the physical entrance only when the previous sphere has cleared it.
+    if(balls.length<input.count&&(balls.length===0||step-balls[balls.length-1].born>=36)&&active.every(b=>Math.hypot(b.x-entrance,b.y-radius)>=2*radius+2)){
+      const b:Ball={index:balls.length,x:entrance,y:radius,vx:(rng()-.5)*240,vy:0,born:step,finished:false,points:[{t:0,x:entrance,y:radius}],impacts:[],pairImpacts:[]};
+      balls.push(b);active.push(b);
+    }
+    for(const b of active){if(b.born===step)continue;b.vy+=1050*dt;b.x+=b.vx*dt;b.y=Math.min(650,b.y+b.vy*dt);world(b,step);}
+    // Iterative contacts prevent a ball-ball correction pushing a sphere through a nearby wall.
+    for(let pass=0;pass<24;pass++){
+      let touching=false;
+      for(let i=0;i<active.length;i++)for(let j=i+1;j<active.length;j++){
+        const a=active[i],b=active[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);
+        if(d>=2*radius||a.y>=650||b.y>=650)continue;
+        touching=true;const nx=d>.001?dx/d:1,ny=d>.001?dy/d:0,depth=(2*radius-d+.02)/2;
+        a.x-=nx*depth;a.y-=ny*depth;b.x+=nx*depth;b.y+=ny*depth;
+        const closing=(b.vx-a.vx)*nx+(b.vy-a.vy)*ny;
+        if(closing<0){const impulse=-1.62*closing/2;a.vx-=impulse*nx;a.vy-=impulse*ny;b.vx+=impulse*nx;b.vy+=impulse*ny;
+          for(const ball of [a,b]){impact(ball,step);const t=stamp(ball,step);if(ball.pairImpacts.at(-1)!==t)ball.pairImpacts.push(t);}
         }
       }
-      // Sloped card-edge divider: reflect on its surface, never assign a recipient here.
-      for(const divider of dividers) {
-        if(y < divider.y-radius) continue;
-        const side=x===divider.x ? (vx<0?-1:1) : (x<divider.x?-1:1);
-        const slope=48/(DROP_FIELD.height-divider.y);
-        const halfWidth=Math.max(0,y-divider.y)*slope;
-        if(Math.abs(x-divider.x)>=halfWidth+radius) continue;
-        x=divider.x+side*(halfWidth+radius);
-        const length=Math.hypot(1,slope), nx=side/length, ny=-slope/length;
-        const normalSpeed=vx*nx+vy*ny;
-        if(normalSpeed<0) {vx-=1.62*normalSpeed*nx;vy-=1.62*normalSpeed*ny;}
-        impacts.push(Math.round(step*dt*1000));
-      }
-      elapsed = Math.round(step * dt * 1000);
-      if (y >= DROP_FIELD.height) {
-        const fraction = (DROP_FIELD.height - previousY) / (y - previousY);
-        x = previousX + (x - previousX) * fraction; y = DROP_FIELD.height;
-      }
-      if (step % 2 === 0 || y === DROP_FIELD.height || impacts.at(-1) === elapsed) points.push({ t: elapsed, x, y });
+      if(!touching)break;for(const b of active)world(b,step);
     }
-    const caught = y === DROP_FIELD.height ? input.catches.find(c => x >= c.left + radius && x <= c.right - radius) : undefined;
-    const ritualScale = 1.6;
-    return { index, element: input.element, delayMs: index * 160, points: points.map(p=>({...p,t:p.t*ritualScale})), impacts: impacts.map(t=>t*ritualScale), durationMs: elapsed*ritualScale, ownerId: caught?.ownerId ?? null, slot: caught?.slot ?? null };
-  });
+    for(const b of active){
+      if(b.born===step)continue;
+      const elapsed=stamp(b,step),reached=b.y>=650,timedOut=step-b.born>=720;
+      if(reached)b.y=650;
+      b.points.push({t:elapsed,x:b.x,y:b.y});
+      if(reached||timedOut){
+        b.finished=true;const caught=reached?input.catches.find(c=>b.x>=c.left+radius&&b.x<=c.right-radius):undefined;
+        output.push({index:b.index,element:input.sources?.[b.index]?.element ?? input.element,...(input.sources?.[b.index]?{source:{r:input.sources[b.index].r,c:input.sources[b.index].c}}:{}),delayMs:b.born*dt*1000*scale,points:b.points.map(p=>({...p,t:p.t*scale})),impacts:b.impacts.map(t=>t*scale),pairImpacts:b.pairImpacts.map(t=>t*scale),durationMs:elapsed*scale,ownerId:caught?.ownerId??null,slot:caught?.slot??null});
+      }
+    }
+  }
+  if(output.length!==input.count)throw new Error('法珠物理運算尚未完成');
+  return output.sort((a,b)=>a.index-b.index);
 }

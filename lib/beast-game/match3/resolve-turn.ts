@@ -100,7 +100,9 @@ export function resolveOrbTurn(input: TurnInput) {
   const helper=team.find(c=>c.hp>0);
   const assisted=res.valid && opening.state?.rescue && opening.state.strikesLeft>0 && helper && foes.some(c=>c.hp>0)
     ? comebackBoard(res.board,res.magic,helper.element,stage.minChain) : null;
-  if(assisted){res.board=assisted.board;res.reshuffled=true;}
+  if(assisted){res.board=assisted.board;res.reshuffled=true;
+    for(const drop of treasure.drops)if(drop.source)drop.element=res.board[drop.source.r][drop.source.c];
+  }
   const rescue = rescueStrike(foes, opening.state, input.wins, target, !!assisted);
   foes = rescue.foes; endDamage += rescue.damage;
   const beforeCounter = { team, foes };

@@ -72,6 +72,32 @@ assert.equal(D.dropDividers(allCatches).length,4);
 assert.equal(D.dropDividers(D.dropCatches(team.map((u,i)=>({...u,hp:i===2?100:0})))).length,0);
 assert.equal(D.dropDividers(D.dropCatches(team.map((u,i)=>({...u,hp:i===1?0:100})))).length,2);
 const split=D.simulateOrbDrops({count:2,element:'SPACE',seed:1004,launchX:4500/7,catches:allCatches});
-assert.equal(split[0].ownerId,team[1].id);assert.equal(split[1].ownerId,team[4].id);
+// Radius now matches the visible sphere; the deterministic destinations change accordingly.
+assert.equal(split[0].ownerId,team[3].id);assert.equal(split[1].ownerId,team[2].id);
 for(const d of split){const c=allCatches.find(c=>c.ownerId===d.ownerId),last=d.points.at(-1);assert(last.x>=c.left+D.DROP_FIELD.radius&&last.x<=c.right-D.DROP_FIELD.radius);}
 console.log('PASS living-card dividers, dead-slot gaps, and former centre-gap miss now physically caught');
+
+// The visible sphere and triangle edge use the same physical radius.
+for(let seed=1;seed<=300;seed++){
+ const d=D.simulateOrbDrops({count:1,seed,element:'SPACE',launchX:500,catches:allCatches})[0];
+ for(const p of d.points)for(const q of D.dropDividers(allCatches))for(const side of [-1,1]){
+  const ex=side*48,ey=650-q.y,l=ex*ex+ey*ey;
+  const t=Math.max(0,Math.min(1,((p.x-q.x)*ex+(p.y-q.y)*ey)/l));
+  assert(Math.hypot(p.x-q.x-ex*t,p.y-q.y-ey*t)>=D.DROP_FIELD.radius-.2,'sphere penetrated divider edge');
+ }
+}
+console.log('PASS 300 trajectories do not penetrate either triangle edge');
+
+let pairContacts=0;
+for(const count of [2,3,12,48])for(let seed=1;seed<=5;seed++){
+ const ds=D.simulateOrbDrops({count,seed,element:'SPACE',launchX:500,catches:allCatches}),frames=new Map();
+ for(const d of ds){pairContacts+=(d.pairImpacts??[]).length;for(const p of d.points){if(p.y>=650)continue;const frame=Math.round((d.delayMs+p.t)/(1000/120*1.6));const list=frames.get(frame)??[];for(const q of list)assert(Math.hypot(p.x-q.x,p.y-q.y)>=2*D.DROP_FIELD.radius-.2,'two sphere bodies overlap');list.push(p);frames.set(frame,list);}}
+}
+assert(pairContacts>0,'real pair collision impulses are recorded');
+const ceremony=resolveOrbTurn(fixture(14));
+assert.deepEqual(ceremony.treasure.drops.map(d=>d.source.c),[3,4,2,5,1,6]);
+for(const d of ceremony.treasure.drops)assert.equal(d.element,ceremony.res.board[d.source.r][d.source.c]);
+console.log('PASS shared-clock collisions for 2/3/12/48 balls, centre-out birth order and true source colours');
+
+const aidedBirth=resolveOrbTurn({...fixture(14),comeback:{version:1,rescue:true,rallies:1,boostLeft:0,strikesLeft:5}});
+for(const d of aidedBirth.treasure.drops)assert.equal(d.element,aidedBirth.res.board[d.source.r][d.source.c],'birth colour follows final assisted board');

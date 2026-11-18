@@ -166,7 +166,12 @@ try {
       await state({board,magic});await sleep(150);
       await js(`window.__dropReply=null;const oldFetch=window.fetch;window.fetch=async(...args)=>{const r=await oldFetch(...args);if(String(args[0]).includes('/orb-turn'))window.__dropReply=await r.clone().json();return r;}`);
       const playing=drag(route);void playing.catch(()=>{});
-      if(!reduced){await wait('document.querySelector("[data-testid=orb-drop-stage]")');assert.equal(await js('document.querySelectorAll("[data-drop-index]").length'),n-8);await save('drop-'+width+'-'+n);}
+      if(!reduced){await wait('document.querySelector("[data-testid=orb-drop-stage]")');assert.equal(await js('document.querySelectorAll("[data-drop-index]").length'),n-8);
+        await wait('document.querySelector("[data-testid=orb-card-divider]")?.getBoundingClientRect().width > 0');
+        const geometry=await js('(()=>{const b=document.querySelector("[data-testid=match3-board]").getBoundingClientRect(),s=document.querySelector("[data-testid=orb-drop-stage]").getBoundingClientRect();return {boardBottom:b.bottom,stageWidth:s.width,dividers:[...document.querySelectorAll("[data-testid=orb-card-divider]")].map(e=>({top:e.getBoundingClientRect().top,width:e.getBoundingClientRect().width})),orbWidth:document.querySelector("[data-drop-index]").getBoundingClientRect().width};})()');
+        assert(geometry.dividers.every(d=>d.top>=geometry.boardBottom),'divider overlaps playable board');
+        assert(Math.abs(geometry.orbWidth-geometry.stageWidth*.072)<1,'visible body differs from physical diameter');
+        await save('drop-'+width+'-'+n);}
       await playing;
       const reply=await js('window.__dropReply');assert.equal(reply.treasure.drops.length,n-8);
       const caught=reply.treasure.drops.filter(d=>d.ownerId);

@@ -52,7 +52,10 @@ export function grantTreasure(input: TurnInput, res: DragResult) {
   if (input.path.length >= 9) {
     if (input.mode !== 'hard45') return none;
     const catches = dropCatches(input.team);
-    const drops = simulateOrbDrops({ count: input.path.length - 8, element, seed: input.seed, launchX: (end.c + .5) / input.board[0].length * 1000, catches });
+    const columns=res.board[0].length, middle=Math.floor(columns/2);
+    const order=Array.from({length:columns},(_,i)=>middle+(i%2 ? Math.ceil(i/2) : -i/2));
+    const sources=Array.from({length:input.path.length-8},(_,i)=>{const c=order[i%columns];return {r:0,c,element:res.board[0][c],x:(c+.5)/columns*1000};});
+    const drops = simulateOrbDrops({ count: input.path.length - 8, element, seed: input.seed, launchX: (end.c + .5) / input.board[0].length * 1000, catches, sources });
     let next = book;
     for (const drop of drops) {
       const owner = none.catalog.find(c => c.ownerId === drop.ownerId && c.available);

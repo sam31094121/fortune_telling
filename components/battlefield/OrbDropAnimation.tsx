@@ -1,5 +1,6 @@
 'use client';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { ORB_MATERIAL } from '@/components/bazi/customer/elementOrbPalette';
 import { ElementTreasureOrb } from '@/components/bazi/customer/ElementTreasureOrb';
 import { getProductOrbFromBrand } from '@/lib/five-element-orb-map';
 import { DROP_FIELD, dropDividers, type OrbDrop, type DropCatch } from '@/lib/beast-game/match3/orb-drop';
@@ -13,7 +14,8 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound }: {
 }) {
   const root = useRef<HTMLDivElement>(null), done = useRef(onDone), sound = useRef(onSound);
   done.current = onDone; sound.current = onSound;
-  const [bounds, setBounds] = useState<{left:number;top:number;width:number;height:number} | null>(null);
+  const [bounds, setBounds] = useState<{left:number;top:number;width:number;height:number;dividerY:number} | null>(null);
+  const [birthSites,setBirthSites]=useState<{x:number;y:number}[]>([]);
   const [rewards, setRewards] = useState<{index:number;x:number;y:number}[]>([]);
   useLayoutEffect(() => {
     const parent = root.current?.parentElement, board = parent?.querySelector('[data-testid="match3-board"]');
@@ -21,22 +23,24 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound }: {
     if (!parent || !board || !team) return;
     const measure = () => {
       const p = parent.getBoundingClientRect(), b = board.getBoundingClientRect(), t = team.getBoundingClientRect();
-      setBounds({left:t.left-p.left,top:b.top-p.top,width:t.width,height:Math.max(1,t.top-b.top + Math.min(48,t.height * .25))});
+      setBirthSites(drops.map(d=>{const cell=d.source?board.querySelector('[data-r="'+d.source.r+'"][data-c="'+d.source.c+'"]'):null;const c=cell?.getBoundingClientRect();return {x:c?c.left+c.width/2-t.left:t.width/2,y:c?c.top+c.height/2-b.top:16};}));
+      setBounds({left:t.left-p.left,top:b.top-p.top,width:t.width,height:Math.max(1,t.bottom-b.top+12),dividerY:Math.max(b.bottom-b.top+10,t.bottom-b.top+12-(DROP_FIELD.height-555)*t.width/DROP_FIELD.width)});
     };
     measure(); const observer = new ResizeObserver(measure); observer.observe(parent); observer.observe(team);
     return () => observer.disconnect();
   }, []);
+  const pathY = (y:number) => y<=555 ? `calc(var(--drop-divider-y) * ${y/555})` : `calc(var(--drop-divider-y) + (100% - var(--drop-divider-y)) * ${(y-555)/(DROP_FIELD.height-555)})`;
   useEffect(() => {
     if (!bounds || !root.current) return;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const playbackScale = 1.2;
     const animations = drops.map(drop => {
       const el = root.current!.querySelector<HTMLElement>(`[data-drop-index="${drop.index}"]`)!;
-      return el.animate(drop.points.map(p => ({ offset:p.t/drop.durationMs, left:`${p.x/10}%`, top:`${p.y/DROP_FIELD.height*100}%` })),
-        {duration: reduced ? 1 : drop.durationMs * playbackScale, delay: reduced ? 0 : drop.delayMs * playbackScale, fill:'both', easing:'linear'});
+      return el.animate(drop.points.map(p => ({ offset:p.t/drop.durationMs, left:`${p.x/10}%`, top:pathY(p.y) })),
+        {duration: reduced ? 1 : drop.durationMs * playbackScale, delay: reduced ? 0 : 400 + drop.delayMs * playbackScale, fill:'both', easing:'linear'});
     });
     let raf = 0, ended = false, receiptAt: number | null = null;
-    const lastImpact = drops.map(() => -1), landed = new Set<number>();
+    const lastImpact = drops.map(() => -1), landed = new Set<number>(), birthed=new Set<number>();
     const cardGlows: Animation[] = [];
     let sinking = 0;
     const visibility = () => [...animations,...cardGlows].forEach(a => {
@@ -47,7 +51,15 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound }: {
     const tick = () => {
       if (ended) return;
       animations.forEach((a,i) => {
-        const drop=drops[i], time=Number(a.currentTime ?? 0)/playbackScale-drop.delayMs;
+        const drop=drops[i], time=(Number(a.currentTime ?? 0)-(reduced?0:400))/playbackScale-drop.delayMs;
+        const birth=root.current?.querySelector<HTMLElement>('[data-birth-index="'+drop.index+'"]');
+        if(birth)birth.dataset.active=time>=-260&&time<0?'true':'false';
+        if(time>=0 || reduced){const orb=root.current?.querySelector<HTMLElement>('[data-drop-index="'+drop.index+'"]');if(orb)orb.dataset.born='true';}
+        if(time>=-260&&!birthed.has(i)){
+          birthed.add(i);
+          const cell=drop.source?root.current?.parentElement?.querySelector<HTMLElement>('[data-testid="match3-board"] [data-r="'+drop.source.r+'"][data-c="'+drop.source.c+'"]'):null;
+          if(cell)cardGlows.push(cell.animate([{filter:'brightness(1)'},{filter:'brightness(1.7)',offset:.5},{filter:'brightness(1)'}],{duration:reduced?1:300}));
+        }
         if (!document.hidden && !reduced) {
           let impact=-1; drop.impacts.forEach((t,j)=>{if(t<=time)impact=j;});
           if (impact>lastImpact[i]) { sound.current('drop'); lastImpact[i]=impact; }
@@ -109,11 +121,10 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound }: {
     // A resize rescales the same path; it does not reroll or restart the timeline.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!bounds, drops]);
-  return <div ref={root} className={styles.stage} style={bounds ?? {visibility:'hidden'}} data-testid="orb-drop-stage" aria-label="法珠掉落" role="status">
-    <svg className={styles.pegs} viewBox="0 0 1000 650" preserveAspectRatio="none" aria-hidden="true">
-      {DROP_FIELD.pegs.map(p=><circle key={p.x+':'+p.y} cx={p.x} cy={p.y} r="13"/>)}
-    </svg>
-    {dropDividers(catches).map(p=><span key={p.x} className={`${styles.divider} ${boardStyles.orb} ${boardStyles.fire}`} style={{position:"absolute",width:24,height:24,minWidth:0,minHeight:0,left:`${p.x/10}%`,top:`${p.y/DROP_FIELD.height*100}%`}} aria-hidden="true"><span className={boardStyles.gem}><i className={boardStyles.sweep}/></span><Match3ElementGlyph element="FIRE" className={boardStyles.elementGlyph}/></span>)}
+  return <div ref={root} className={styles.stage} style={bounds ? {left:bounds.left,top:bounds.top,width:bounds.width,height:bounds.height,'--drop-divider-y':bounds.dividerY+'px'} as CSSProperties : {visibility:'hidden'}} data-testid="orb-drop-stage" aria-label="法珠掉落" role="status">
+    {DROP_FIELD.pegs.map(p=><span key={p.x+":"+p.y} className={styles.peg} style={{left:`${p.x/10}%`,top:pathY(p.y)}} aria-hidden="true"/>)}
+    {dropDividers(catches).map(p=><span key={p.x} data-testid="orb-card-divider" className={`${styles.divider} ${boardStyles.orb} ${boardStyles.fire}`} style={{position:"absolute",width:"9.6%",height:"calc(100% - var(--drop-divider-y))",minWidth:0,minHeight:0,left:`${p.x/10}%`,top:pathY(p.y)}} aria-hidden="true"><span className={boardStyles.gem}><i className={boardStyles.sweep}/></span><Match3ElementGlyph element="FIRE" className={boardStyles.elementGlyph}/></span>)}
+    {drops.map((d,i)=><span key={d.index} className={styles.birth} data-birth-index={d.index} style={{left:birthSites[i]?.x??0,top:birthSites[i]?.y??0,color:ORB_MATERIAL[getProductOrbFromBrand(d.element.toLowerCase() as 'space'|'air'|'water'|'fire'|'earth')].light}} aria-hidden="true"><svg viewBox="0 0 40 70"><path d="M23 0L12 22L25 19L13 43L24 38L18 65"/></svg></span>)}
     {rewards.map(r=><span key={r.index} className={styles.reward} style={{left:r.x,top:r.y}} role="status" aria-label="武器增加一件">+1</span>)}
     {drops.map(d=><div key={d.index} className={styles.orb} data-drop-index={d.index} data-owner={d.ownerId ?? ''}>
       <ElementTreasureOrb element={getProductOrbFromBrand(d.element.toLowerCase() as 'space'|'air'|'water'|'fire'|'earth')} released animated={false} visualScale={0.85}/>
