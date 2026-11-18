@@ -1,4 +1,5 @@
 import 'server-only';
+import { balancedSnapshot } from './cultivation-balance';
 import { fuseCultivation, replaceCultivationMainTeam, type CultivationState, type CultivationChange, type FusionChoice } from './cultivation';
 import { activeFoodChainRule, receiptRule, type FoodChainRule } from './cultivation-rules';
 
@@ -34,7 +35,7 @@ export function fedCounter(snapshot: Pick<CultivationSnapshot, 'receipts' | 'sta
 }
 /** 預覽與正式合體共用同一套規則（伺服端權威）。 */
 export function fuseSnapshot(snapshot: CultivationSnapshot, choices: FusionChoice[], rule: FoodChainRule = activeFoodChainRule()) {
-  return { rule, ...fuseCultivation(snapshot.state, choices, { rule, fedOf: fedCounter(snapshot) }) };
+  return { rule, ...fuseCultivation((rule==='v4'?balancedSnapshot(snapshot):snapshot).state, choices, { rule, fedOf: fedCounter(snapshot) }) };
 }
 /** 依收據上的規則版本重算（審計／測試用）：舊收據沒有 rule 欄＝v1。 */
 export function replayCultivationReceipt(before: CultivationSnapshot, receipt: CultivationReceipt) {

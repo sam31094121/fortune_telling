@@ -3,7 +3,8 @@ require('./guest-orb-fixture.cjs');
 const C=require('../lib/beast-game/cultivation.ts'),R=require('../lib/beast-game/cultivation-rules.ts'),T=require('../lib/beast-game/cultivation-transaction.ts'),V=require('../lib/beast-game/cultivation-view.ts'),B=require('../lib/beast-game/cultivation-batch.ts');
 const cards=require('../lib/beast-game/registry.ts').playableCards();
 const {ELEMENT_GENERATES}=require('../lib/beast-game/elements.ts');
-assert.equal(R.activeFoodChainRule(),'v3');
+// Archived v3 receipts remain replayable. Production v4 is tested separately.
+assert.equal(R.activeFoodChainRule(),'v4');R.activeFoodChainRule=()=> 'v3';
 let pairs=0;
 for(const target of cards.filter(c=>c.form!=='YOUNG'))for(const material of cards){
  const state={cards:[{id:'t',cardId:target.id,bonus:'100000',fed:0},{id:'m',cardId:material.id,bonus:'0'}],protectedIds:[]};
@@ -49,5 +50,5 @@ const post=async body=>{const r=await api.POST(new Request('http://localhost/api
  assert.equal((await post(command)).status,200);assert.equal(writes,1);
  assert.equal((await post({...command,choices:choices.slice(2,4)})).status,400);
  saved={...snap(),pendingBattle:'orb:held'};const held=await post({...command,operationId:'held'});assert.equal(held.status,400);assert.equal(saved.state.cards.length,1001);
- console.log('PASS unmocked production v3: '+pairs+' material/target pairs, element direction/rounding, no attack cap, 500/1000 star thresholds, 1000-card atomic batch, replay, preview, concurrent/repeated API single deduction, battle lock');
+ console.log('PASS archived v3: '+pairs+' material/target pairs, element direction/rounding, no attack cap, 500/1000 star thresholds, 1000-card atomic batch, replay, preview, concurrent/repeated API single deduction, battle lock');
 })().catch(e=>{console.error(e);process.exitCode=1});

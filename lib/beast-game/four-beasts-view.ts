@@ -10,6 +10,7 @@
  * - 材料不再只限兩種來源：FUSE 與神獸戰鬥強化面板都接受所有自己的副本（新玩家的成長卡也能吃），這頁和面板列出同一批，才不會互相矛盾。
  */
 import 'server-only';
+import { balancedSnapshot } from './cultivation-balance';
 import { createHash } from 'node:crypto';
 import { activeFoodChainRule, starProgress } from './cultivation-rules';
 import { fedCounter } from './cultivation-transaction';
@@ -45,6 +46,7 @@ export function copySource(snapshot: CultivationSnapshot, copy: { id: string; or
 const thumbOf = (cardId: string) => getCard(cardId)?.art.thumbnail ?? '';
 
 export function fourBeastsView(snapshot: CultivationSnapshot): FourBeastsView {
+  if(activeFoodChainRule()==='v4')snapshot=balancedSnapshot(snapshot);
   const { state } = snapshot;
   const orbIds = new Set((snapshot.orbLedger?.rewards ?? []).map(r => orbRewardId(r.matchId)));
   const pendingBattle = !!snapshot.pendingBattle;
@@ -72,7 +74,7 @@ export function fourBeastsView(snapshot: CultivationSnapshot): FourBeastsView {
       try { addedBonus = fuseSnapshot(snapshot, [{ targetId: target.id, materialId: copy.id }]).changes[0].addedBonus; status = 'READY'; }
       catch { status = 'BLOCKED'; }
     }
-    materials.push({ copyId: copy.id, cardId: copy.cardId, thumb: thumbOf(copy.cardId), source, tier: rule === 'v3' ? 'CULTIVATION' : card.form === 'YOUNG' ? 'YOUNG_TO_ADULT' : 'ADULT_TO_GUARDIAN', targetCardId, targetCopyId: target?.id ?? null, status, addedBonus });
+    materials.push({ copyId: copy.id, cardId: copy.cardId, thumb: thumbOf(copy.cardId), source, tier: (rule === 'v3'||rule==='v4') ? 'CULTIVATION' : card.form === 'YOUNG' ? 'YOUNG_TO_ADULT' : 'ADULT_TO_GUARDIAN', targetCardId, targetCopyId: target?.id ?? null, status, addedBonus });
   }
   const node = (cardId: string): EnhanceNode => {
     const best = bestCopy(cardId), into = materials.filter(m => m.targetCardId === cardId);

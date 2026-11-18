@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),crypto=require('node:crypto');
 require('./guest-orb-fixture.cjs');
 const {chromium}=require('../.tmp/shared-qa/node_modules/playwright');
-const out='reports/five-star-entry-2026-11-18/mobile';fs.mkdirSync(out,{recursive:true});
+const out='reports/five-star-balance-2026-11-18/mobile';fs.mkdirSync(out,{recursive:true});
 const key=crypto.randomBytes(32).toString('hex');
 const copy=(id,cardId,fed=0)=>({id,cardId,bonus:'0',fed});
 let saved={revision:'0',pendingBattle:null,receipts:[],state:{cards:[copy('target','beast_g_qinglong',998),copy('adult','beast_a01'),copy('food1','beast_y08'),copy('food2','beast_y08'),copy('food3','beast_y08')],protectedIds:[]}},writes=0;
@@ -49,7 +49,7 @@ const report={isolatedMemory:true,errors:[],steps:[],requests:[]};
  assert.equal(writes,0);report.steps.push('Add-all respects two-card remaining capacity; clear and manual multi-select preview do not consume');
  await page.locator('[data-confirm-shared-fusion]').evaluate(b=>{b.click();b.click();});
  await page.locator('[data-food-chain-feedback="saved"]').waitFor();assert.equal(writes,1);
- assert.equal(saved.state.cards.find(c=>c.id==='target').fed,1000);assert.equal(saved.state.cards.length,3);assert.equal(saved.receipts[0].rule,'v3');
+ assert.equal(saved.state.cards.find(c=>c.id==='target').fed,1000);assert.equal(saved.state.cards.length,3);assert.equal(saved.receipts[0].rule,'v4');
  assert(!saved.state.cards.some(c=>c.id==='food1'||c.id==='food2'));report.steps.push('Double-click saves exactly one two-card transaction; fifth star reached');
  await page.reload();await page.locator('[data-shared-target="target"]').waitFor();
  await page.locator('[data-select-guardian="qinglong"]').tap();await page.locator('[data-target-stars="5"]').waitFor();

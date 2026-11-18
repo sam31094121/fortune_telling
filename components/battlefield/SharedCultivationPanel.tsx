@@ -142,7 +142,7 @@ export default function SharedCultivationPanel({onSaved,onDone,iconOnly=false,fo
       <p>寶石捷連線與神獸戰鬥共用收藏及成長。免費試用牌不消耗，也不計入收藏主力。</p>
       <p>鎖定主力不能當材料；更換時一次確認完整五隻，收藏可以超過五隻。</p>
       <p>先選要強化的神獸，再選材料並確認。可使用不同卡種材料，同屬性或材料相生給目標加成較高；每吃一張消耗一張，五星進度增加一張。</p>
-      <p>每次加攻＝材料原始攻擊 ÷ 10，無條件捨去，最低 +1；同屬性或材料相生給目標時，基礎加成乘以 1.5 並向上取整；本體材料另傳承累積加成的一半。不設舊版攻擊加成上限。只增加攻擊，生命與技能不變。</p>
+      <p>按五星比例提升原始攻擊：普通材料每星10%，同屬性或材料相生給目標最高每星15%；五星合計50%至75%。星內進度按張數累積，不複利、不疊加材料原始攻擊；生命與技能不變。</p>
       <p>五顆星：每吃一張累計一次，四大神獸吃滿 1000 張、本體吃滿 500 張封頂（第五星佔一半，前面依序減半），封頂後不能再吃。</p>
     </details>
     {bookError&&<div role="alert" className={fusion.notice}>{bookError}<button type="button" disabled={bookLoading} onClick={()=>void loadBook()}>重新載入卡面</button></div>}
@@ -265,9 +265,9 @@ function IconPanel(p:IconProps) {
       {summary&&total>0&&<div ref={previewRef} data-shared-preview data-fresh={p.ready?'true':undefined} className={icon.previewAnchor}><FoodChainFeedback change={summary} phase="preview" iconOnly/></div>}
       {/* ③ ✓ 一次結算／✕ 一次全清：黏底、永遠在畫面內；上面一列小提示 🃏×N ⚔+N（🔒 加成滿、★✓ 五星封頂）；失敗時 ⚠ 就在 ✓ 旁。無材料時不顯示 ✓，只留 ✕ 跟在空材料槽後面（不黏底，免得蓋住 🃏＋）。 */}
       {targetCard&&<div className={foods.length>0?`${icon.dock} ${icon.stickyConfirm}`:icon.dock} data-sticky-confirm={foods.length>0?'true':undefined} data-fusion-dock ref={dockRef}>
-        {total>0&&<div className={icon.hint} data-batch-hint role="status" aria-label={`已加入 ${total} 張${summary?`，神獸戰鬥攻擊 +${summary.addedBonus}`:''}${summary?.atBonusCap?'，攻擊加成已滿':''}${roomFull?'，已到五星封頂':''}`}>
+        {total>0&&<div className={icon.hint} data-batch-hint role="status" aria-label={`已加入 ${total} 張${summary?`，神獸戰鬥攻擊 +${summary.addedBattleBonus}`:''}${summary?.atBonusCap?'，攻擊加成已滿':''}${roomFull?'，已到五星封頂':''}`}>
           <span aria-hidden="true">🃏×<b data-hint-count>{total}</b></span>
-          <span aria-hidden="true" data-hint-attack-wrap data-stale={p.ready?undefined:'true'}>⚔+<b data-hint-attack>{summary?summary.addedBonus:'⏳'}</b></span>
+          <span aria-hidden="true" data-hint-attack-wrap data-stale={p.ready?undefined:'true'}>⚔+<b data-hint-attack>{summary?summary.addedBattleBonus:'⏳'}</b></span>
           {summary?.atBonusCap&&<span aria-hidden="true" data-hint-cap>🔒</span>}
           {roomFull&&<span aria-hidden="true" data-hint-room>★✓</span>}
         </div>}

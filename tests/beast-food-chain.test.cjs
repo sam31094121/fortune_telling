@@ -30,9 +30,9 @@ let checks = 0; const ok = (...a) => { assert.ok(...a); checks++; }; const eq = 
   // 1. 參數：全部標待平衡暫定值，預設 v2；緊急開關退回 v1。
   const rulesSource = fs.readFileSync(path.join(__dirname, '../lib/beast-game/cultivation-rules.ts'), 'utf8');
   ok(rulesSource.includes('待平衡暫定值'), 'parameters are marked provisional');
-  eq(Ru.activeFoodChainRule(), 'v3'); eq(Ru.ACTIVE_FOOD_CHAIN_RULE, 'v3');
+  eq(Ru.activeFoodChainRule(), 'v4'); eq(Ru.ACTIVE_FOOD_CHAIN_RULE, 'v4');
   ok(!/process\.env|createClient|supabase/i.test(rulesSource.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')), 'rules are hard-coded constants: no env var, no database, no admin setting');
-  process.env.BEAST_FOOD_CHAIN_RULE = 'v1'; eq(Ru.activeFoodChainRule(), 'v3', 'no environment switch'); delete process.env.BEAST_FOOD_CHAIN_RULE;
+  process.env.BEAST_FOOD_CHAIN_RULE = 'v1'; eq(Ru.activeFoodChainRule(), 'v4', 'no environment switch'); delete process.env.BEAST_FOOD_CHAIN_RULE;
   // Archived v2 calculations and receipts must remain replayable after v3 rollout.
   Ru.activeFoodChainRule = () => 'v2';
   ok(Object.isFrozen(Ru.FOOD_CHAIN_V2) && Object.isFrozen(Ru.FOOD_CHAIN_V2.stars));

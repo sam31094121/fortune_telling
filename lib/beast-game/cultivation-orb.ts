@@ -37,7 +37,8 @@ export async function sharedOrbProfile(owner:string,value:unknown):Promise<HardC
     if(selected[c.id]){
       const copy=snapshot.state.cards.find(x=>x.id===selected[c.id]&&x.cardId===c.id);
       if(!copy){delete selected[c.id];stats[c.id]=campaignCardAttack(p,c.id);continue;}
-      const bonus=battleBonus(copy.bonus),attackExact=(BigInt(c.stats.attack)+BigInt(copy.bonus)).toString();
+      const displayed=view.cards.find(x=>x.id===copy.id)!;
+      const bonus=battleBonus(displayed.bonus),attackExact=displayed.orbAttack;
       stats[c.id]={baseAttack:c.stats.attack,bonus,attack:combatNumber(attackExact),...(BigInt(attackExact)>BigInt(Number.MAX_SAFE_INTEGER)?{attackExact}:{})};
       if(teamIds?.includes(c.id))entries.push({id:copy.id,cardId:copy.cardId});
     } else stats[c.id]=campaignCardAttack(p,c.id);

@@ -68,6 +68,7 @@ export function summarizeCultivationChanges(changes: readonly CultivationChange[
     capped: changes.some(c => c.capped === true),
     addedPercent: percentOf(added, target.stats.attack), totalPercentBefore: first.totalPercentBefore,
     beforeOrbAttack: first.beforeOrbAttack, beforeBattleAttack: first.beforeBattleAttack,
+    addedBattleBonus:(BigInt(last.afterBattleAttack)-BigInt(first.beforeBattleAttack)).toString(),
     starsBefore: first.starsBefore,
     count: changes.length, zeroCount, materials,
     atBonusCap: capBonus !== undefined && exactBonus(last.afterBonus) >= exactBonus(capBonus),

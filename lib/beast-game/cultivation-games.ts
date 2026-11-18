@@ -1,4 +1,7 @@
 import 'server-only';
+import { balancedSnapshot,proportionalBonus } from './cultivation-balance';
+import { activeFoodChainRule } from './cultivation-rules';
+import { battleBaseAttack } from './cultivation-view';
 import { createHash } from 'node:crypto';
 import { cultivationRepository } from './cultivation-repository';
 import type { CultivationSnapshot } from './cultivation-transaction';
@@ -45,7 +48,8 @@ export async function holdCultivationBattle(owner:string,id:string,kind:'card'|'
     if(current.creditedIds?.includes('closed:'+id))throw new Error('此戰局已結束，請重新開戰。');
     if(!id||id.length>200||!Array.isArray(entries)||entries.length>5||new Set(entries.map(e=>e.id)).size!==entries.length||new Set(entries.map(e=>e.cardId)).size!==entries.length)throw new Error('出戰副本無效。');
     const bonuses:Record<string,string>={};
-    for(const e of entries){const copy=current.state.cards.find(c=>c.id===e.id&&c.cardId===e.cardId);if(!copy)throw new Error('出戰卡已消耗或不在收藏，請重新選卡。');battleBonus(copy.bonus);bonuses[e.id]=copy.bonus;}
+    const combatSnapshot=activeFoodChainRule()==='v4'?balancedSnapshot(current):current;
+    for(const e of entries){const copy=combatSnapshot.state.cards.find(c=>c.id===e.id&&c.cardId===e.cardId);if(!copy)throw new Error('出戰卡已消耗或不在收藏，請重新選卡。');battleBonus(copy.bonus);bonuses[e.id]=activeFoodChainRule()==='v4'&&kind==='card'?proportionalBonus(battleBaseAttack(copy.cardId),copy.powerUnits??0).toString():copy.bonus;}
     if(new Set(stakeIds).size!==stakeIds.length||stakeIds.some(id=>!current.state.cards.some(c=>c.id===id)))throw new Error('押注副本已變更。');
     return {...current,pendingBattle:id,hold:{id,kind,entries,bonuses,stakeIds}};
   });

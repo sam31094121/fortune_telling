@@ -14,7 +14,7 @@
 import 'server-only';
 import { ELEMENT_GENERATES, type BeastElement } from './elements';
 
-export type FoodChainRule = 'v1' | 'v2' | 'v3';
+export type FoodChainRule = 'v1' | 'v2' | 'v3' | 'v4';
 export type FeedTargetForm = 'ADULT' | 'GUARDIAN';
 
 /**
@@ -50,15 +50,15 @@ export const FOOD_CHAIN_V2: FoodChainParams = Object.freeze({
   feedAtAttackCap: true,
 });
 
-/** 新操作一律用 v3：不限材料卡種、元素加成、移除攻擊上限；v1/v2 僅供歷史收據重播。 */
-export const ACTIVE_FOOD_CHAIN_RULE: FoodChainRule = 'v3';
+/** 新操作一律用 v4：五星比例成長（cultivation-balance）；v1/v2/v3 僅供歷史收據重播。 */
+export const ACTIVE_FOOD_CHAIN_RULE: FoodChainRule = 'v4';
 export function activeFoodChainRule(): FoodChainRule {
   return ACTIVE_FOOD_CHAIN_RULE;
 }
 
 /** 收據上的規則版本；沒有寫的舊收據一律是 v1。 */
 export function receiptRule(value: unknown): FoodChainRule {
-  return value === 'v3' ? 'v3' : value === 'v2' ? 'v2' : 'v1';
+  return value === 'v4' ? 'v4' : value === 'v3' ? 'v3' : value === 'v2' ? 'v2' : 'v1';
 }
 
 /**
