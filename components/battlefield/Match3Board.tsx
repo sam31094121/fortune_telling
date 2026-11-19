@@ -8,6 +8,8 @@ import OrbDropAnimation from './OrbDropAnimation';
 import type { TreasureBook, TreasureUse, treasureCatalog } from '@/lib/beast-game/match3/treasures';
 import Match3ReplayLines from './Match3ReplayLines';
 import type { OrbReplayFrame } from '@/lib/beast-game/match3/replay';
+import { predictOrbBoard } from '@/lib/beast-game/match3/board-prediction';
+import { replayDigest, type RefereeRuling } from '@/lib/beast-game/match3/referee';
 import OrbElementAttack, { type ElementFlight } from './OrbElementAttack';
 import EnemyActionIndicator from './EnemyActionIndicator';
 import Link from 'next/link';
@@ -382,6 +384,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   const [log, setLog] = useState(cfg.diagonal ? DIAG_TIP : '按住寶珠拖過相鄰同色珠（≥3）放開攻擊');
   const [busy, setBusy] = useState(false);
   const [awaitingTurn, setAwaitingTurn] = useState(false);
+  const [submittedPath, setSubmittedPath] = useState<Cell[]>([]);
   const [lastHealing, setLastHealing] = useState<{id:string;actual:number}[]>([]);
   const [attackBoost, setAttackBoost] = useState(init.resumeInput?.attackBoost ?? 1);
   const [supportText, setSupportText] = useState(init.resumeInput?.comebackText ?? '');
@@ -606,7 +609,9 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         if (lastAllyOn && teamEl && cfg.id === 'hard45') {
           const tb=teamEl.getBoundingClientRect(), eb=element.getBoundingClientRect();
           const dockHeight=Math.max(tb.height, height<=650 ? 92 : 140);
-          const dockTop=Math.min(tb.top, top+height-dockHeight-8);
+          // 短螢幕不可為了塞入武器而向上壓住棋盤；空間不足時由外層保留捲動。
+          const boardBottom=boardElement.getBoundingClientRect().bottom;
+          const dockTop=Math.max(boardBottom+8, Math.min(tb.top, top+height-dockHeight-8));
           element.style.setProperty('--last-team-top', (dockTop-eb.top)+'px');
           element.style.setProperty('--last-team-height', dockHeight+'px');
         }
@@ -614,14 +619,16 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       } else element.style.removeProperty('--compact-board-width');
       const dockControls = Array.from(element.parentElement?.querySelectorAll<HTMLElement>('[data-testid="campaign-load-error"]') ?? []);
       const hasExtraControls = dockControls.some(control => control.getClientRects().length > 0);
-      const fits = !hasExtraControls && Math.abs((viewport?.scale ?? 1) - 1) < .01 && rect.height <= height + 1 && rect.top >= top - 1 && rect.bottom <= top + height + 1;
+      const weapons = element.querySelector<HTMLElement>('[data-testid="orb-treasures"]');
+      const weaponsFit = !weapons || weapons.getBoundingClientRect().bottom <= top + height + 1;
+      const fits = !hasExtraControls && weaponsFit && Math.abs((viewport?.scale ?? 1) - 1) < .01 && rect.height <= height + 1 && rect.top >= top - 1 && rect.bottom <= top + height + 1;
       setScrollLocked(fits);
     };
     const schedule = () => { if (raf === null) raf = requestAnimationFrame(measure); };
     remeasure.current = schedule;
     const observer = new ResizeObserver(schedule); observer.observe(element); if (element.parentElement) observer.observe(element.parentElement);
     // 手機 flex 版面的間距會隨敵方列、隊伍列（卡圖載入後）長高而改變，外殼高度卻不變；一併觀察這些區塊，凍結用的間距才是最新的一幀。
-    for (const sel of ['header', '[data-testid="match3-enemies"]', '[data-testid="orb-treasures"]']) { const child = element.querySelector(sel); if (child) observer.observe(child); }
+    for (const sel of ['header', '[data-testid="match3-enemies"]', '[data-testid="match3-board"]', '[data-testid="orb-treasures"]']) { const child = element.querySelector(sel); if (child) observer.observe(child); }
     { const team = element.querySelector('[data-testid="match3-ally"]')?.parentElement; if (team) observer.observe(team); }
     window.addEventListener('resize', schedule); window.addEventListener('scroll', schedule, { passive: true });
     viewport?.addEventListener('resize', schedule); viewport?.addEventListener('scroll', schedule);
@@ -840,7 +847,74 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
     if (busy || turnRequest.current || over || ti < 0 || path.length === 0) return;
     const controller = new AbortController(); turnRequest.current = controller; setBusy(true); setLastHealing([]);
     const timeout = window.setTimeout(() => controller.abort(), 15000);
-    setAwaitingTurn(true);
+    setSubmittedPath(path); setAwaitingTurn(true);
+    let prediction: ReturnType<typeof predictOrbBoard> | undefined;
+    let predictedPlayback: Promise<void> | undefined;
+    let predictionController: AbortController | undefined;
+    let predictionAccepted = false;
+    const resetPrediction = () => {
+      setMatchFrame(null); setFlash(new Set()); setFalling(new Map()); setEmptyCells(new Set()); setRewards(new Set());
+      setFusionBurst(null); setShieldBurst(null); setBoard(board); setMagic(magic);
+    };
+    // 先算預演（純運算、幾毫秒），讓請求能帶著「我演的長這樣」的指紋交給後端裁判；動畫另在請求送出後才開演。
+    const computePrediction = () => {
+      if (!rigEnabled || prediction) return;
+      prediction = predictOrbBoard(board, magic, path, (init.seed + moves * 2654435761) >>> 0, cfg.diagonal, stage.minChain);
+    };
+    const startPrediction = () => {
+      if (!rigEnabled || predictedPlayback) return;
+      computePrediction();
+      if (!prediction || !prediction.result.valid) return;
+      const preview = prediction;
+      const fusion = preview.result.shieldFusion || !!preview.result.shieldConversion;
+      const shield = preview.result.magicTriggered.some(t => t.chain === 1 && t.power >= 7);
+      const timing = refillPresentation(preview.replay, window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      predictionController = new AbortController();
+      const signal = predictionController.signal;
+      const paused = new Set<Animation>();
+      controller.signal.addEventListener('abort', () => predictionController?.abort(), { once: true });
+      refillRun.current?.abort(); refillRun.current = predictionController;
+      if (fusion) setFusionBurst(path.map(p => board[p.r][p.c]));
+      else if (shield) setShieldBurst(preview.result.element);
+      cue(fusion ? 'fusion' : shield ? 'shield' : 'clear');
+      predictedPlayback = runRefillPlayback(timing.frames, {
+        signal, initialDelayMs: fusion ? FUSION_DISPLAY_MS : shield ? 900 : 0,
+        commit: (phase, i) => new Promise<void>(resolve => {
+          refillCommit.current = resolve;
+          const frame = preview.replay[i];
+          setFlash(new Set()); setFalling(new Map()); setRewards(new Set());
+          if (phase === 'match') {
+            setBoard(frame.boardBefore); setMagic(frame.magicBefore); setMatchFrame(frame);
+            setEmptyCells(new Set(frame.emptyBefore.map(p => k(p.r, p.c))));
+          } else if (phase === 'clear') {
+            setMatchFrame(null); setFusionBurst(null); setShieldBurst(null);
+            setBoard(frame.boardBefore); setMagic(frame.magicBefore); setClearMs(timing.frames[i].clearMs);
+            setFlash(new Set((frame.clearedCells ?? frame.groups.flatMap(g => g.cells)).map(p => k(p.r, p.c))));
+            setEmptyCells(new Set(frame.emptyBefore.map(p => k(p.r, p.c))));
+          } else {
+            setBoard(frame.boardAfter); setMagic(frame.magicAfter);
+            setEmptyCells(new Set((frame.emptyCells ?? []).map(p => k(p.r, p.c))));
+            setRewards(new Set((frame.rewards ?? []).map(p => k(p.r, p.c))));
+            setFalling(new Map(timing.frames[i].motions.map(m => [k(m.r, m.c), m])));
+          }
+          setRefillEpoch(epoch => epoch + 1);
+        }),
+        pause: hidden => {
+          if (hidden) for (const animation of drag.ref.current?.getAnimations({ subtree: true }) ?? []) {
+            if (animation.playState === 'running') { paused.add(animation); animation.pause(); }
+          } else {
+            for (const animation of paused) if (animation.playState === 'paused') animation.play();
+            paused.clear();
+          }
+        },
+        complete: () => {},
+      }).catch(error => { if (error?.name !== 'AbortError') throw error; }).finally(() => {
+        for (const animation of paused) if (animation.playState === 'paused') animation.play();
+        paused.clear();
+      });
+      // Attach immediately: a failed renderer must not create an unhandled rejection while the network is pending.
+      void predictedPlayback.catch(() => predictionController?.abort());
+    };
     let prepared: ReturnType<typeof resolveOrbTurn>;
     try {
       battleId.current ||= crypto.randomUUID();
@@ -849,7 +923,11 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         const card = live.length === 1 ? Array.from(root.current?.querySelectorAll<HTMLElement>('[data-testid="match3-ally"]') ?? []).find(c => c.dataset.id === live[0].id) : undefined;
         const field = card?.parentElement?.getBoundingClientRect();
         const singleCatchWidth = card && field?.width ? Math.min(720, Math.max(72, card.getBoundingClientRect().width / field.width * 1000)) : undefined;
-        const response = await postOrbTurn(JSON.stringify({ guestBattleToken:guestState.current.token, sharedBattleToken:init.sharedBattleToken, sharedVersion:sharedVersion.current, singleCatchWidth, board, magic, path, team, foes, mode:cfg.id, wins, target:ti, seed:(init.seed + moves * 2654435761) >>> 0, move:moves, chosen, rule, attackBoost, treasureGuard, treasures:book, actionId:battleId.current + ':turn:' + moves }), {'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, controller.signal);
+        let claim: string | undefined;
+        try { computePrediction(); if (prediction?.result.valid) claim = replayDigest(prediction.replay); } catch { prediction = undefined; }
+        const pendingResponse = postOrbTurn(JSON.stringify({ claim, guestBattleToken:guestState.current.token, sharedBattleToken:init.sharedBattleToken, sharedVersion:sharedVersion.current, singleCatchWidth, board, magic, path, team, foes, mode:cfg.id, wins, target:ti, seed:(init.seed + moves * 2654435761) >>> 0, move:moves, chosen, rule, attackBoost, treasureGuard, treasures:book, actionId:battleId.current + ':turn:' + moves }), {'Content-Type':'application/json',...(init.sharedBattleToken?sharedWalletHeaders():{})}, controller.signal);
+        try { startPrediction(); } catch { predictionController?.abort(); prediction = undefined; resetPrediction(); }
+        const response = await pendingResponse;
         if (!response.ok) throw new Error('turn unavailable');
         const result: ReturnType<typeof resolveOrbTurn> = await response.json();
         requireOutcome(result);
@@ -858,8 +936,20 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         return { book:result.treasure.book, result };
       };
       prepared = (campaignEnabled && init.owner) || treasurePractice ? await treasureTransaction(request) : (await request()).result;
+      window.clearTimeout(timeout);
       if (controller.signal.aborted) return;
+      // 前端不自己判對錯：留不留預演動畫，只看後端裁判的判決（PASS 才留；FOUL／沒判決一律恢復原盤、改播後端版本）。
+      const ruling = (prepared as { referee?: RefereeRuling }).referee;
+      predictionAccepted = !!prediction && !!predictedPlayback && ruling?.verdict === 'PASS' && !predictionController?.signal.aborted;
+      if (!predictionAccepted) predictionController?.abort();
+      try { await predictedPlayback; } catch { predictionAccepted = false; }
+      if (controller.signal.aborted) return;
+      if (refillRun.current === predictionController) refillRun.current = null;
+      if (!predictionAccepted && prediction) resetPrediction();
     } catch {
+      predictionController?.abort(); await predictedPlayback?.catch(() => {});
+      if (refillRun.current === predictionController) refillRun.current = null;
+      resetPrediction();
       if (turnRequest.current === controller) { if(init.sharedBattleToken)onRecover(); else { setBusy(false); setLog('暫時無法完成本回合，請重新連珠。'); } }
       return;
     } finally { window.clearTimeout(timeout); if (turnRequest.current === controller) { turnRequest.current = null; setAwaitingTurn(false); } }
@@ -899,8 +989,8 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
       cells: new Set((st.clearedCells ?? st.groups.flatMap(g => g.cells)).map(c => k(c.r, c.c))) }));
     const fusionEffect = res.shieldFusion || !!res.shieldConversion;
     const shieldDelay = rigEnabled && fusionEffect ? FUSION_CLEAR_AT_MS : rigEnabled && res.magicTriggered.some(t => t.chain === 1 && t.power >= 7) ? 900 : 0;
-    if (rigEnabled) cue(fusionEffect ? 'fusion' : shieldDelay ? 'shield' : dealt > 0 ? 'charge' : 'clear');
-    if (shieldDelay) {
+    if (rigEnabled && !predictionAccepted) cue(fusionEffect ? 'fusion' : shieldDelay ? 'shield' : dealt > 0 ? 'charge' : 'clear');
+    if (shieldDelay && !predictionAccepted) {
       if (fusionEffect) setFusionBurst(path.map(p => board[p.r][p.c]));
       else setShieldBurst(el);
     }
@@ -952,7 +1042,10 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         finishOrbDrops.current = settle; setOrbDrops(prepared.treasure);
       } else settle();
     };
-    if (playback) {
+    if (predictionAccepted) {
+      for (const chain of new Set(prepared.replay.filter(frame => frame.matches.length).map(frame => frame.chain))) publish(chain);
+      settleWithDrops();
+    } else if (playback) {
       refillRun.current?.abort();
       const controller = new AbortController(); refillRun.current = controller;
       const paused = new Set<Animation>();
@@ -1140,7 +1233,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
   const chainIntent = dragIntent(drag.path, magic, rigEnabled ? stage.minChain : 3, rigEnabled, board);
   const effectiveCount = rigEnabled ? effectiveDragCount(drag.path, magic) : drag.path.length;
   const hint = rigEnabled && isShieldFusionPath(drag.path, magic) ? chainIntent === 'attack' ? '同屬性盾牌合擊：其餘同色寶珠轉為盾牌' : '盾牌合體：依顏色數結算防護與回復' : dragEl && rigEnabled && drag.path.length >= 3 && effectiveCount < stage.minChain ? `合計 ${effectiveCount} 顆：只消除補珠，本關需 ${stage.minChain} 顆才會攻擊` : dragEl ? dragHint(effectiveCount, MATCH3_ORB_LABEL[dragEl], NORMAL_POWER_CAP, MAGIC_ORB_MIN_LENGTH, SKILL5_LENGTH) : '';
-  const onPath = new Set(drag.path.map((p) => k(p.r, p.c)));
+  const onPath = new Set((awaitingTurn ? submittedPath : drag.path).map((p) => k(p.r, p.c)));
   const pct = (a: number, b: number) => `${Math.max(0, Math.min(100, Math.round((a / b) * 100)))}%`;
 
   const actions = (
@@ -1233,7 +1326,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
 
       {!log.startsWith('按住寶珠') && log ? <p className={rigEnabled ? styles.srOnly : styles.log} aria-live="polite" data-testid="match3-log">{log}</p> : <span data-testid="match3-log" aria-live="polite" hidden />}
 
-      <div ref={drag.ref} data-dragging={drag.path.length ? 'true' : undefined} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, ['--clear-duration' as string]: `${clearMs}ms` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" data-refill-epoch={rigEnabled ? refillEpoch : undefined} data-refilling={falling.size > 0 ? 'true' : undefined} data-chain-intent={rigEnabled ? chainIntent : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers} onPointerDown={(e) => { if ((link.length || linkMode) && !(e.target as HTMLElement).closest('[data-r]')) { setLink([]); setLinkMode(false); } if (!busy && !over && (e.target as HTMLElement).closest('[data-r]')) setDragging(true); drag.handlers.onPointerDown(e); }} onPointerUp={() => { setDragging(false); drag.handlers.onPointerUp(); }} onPointerCancel={() => { setDragging(false); drag.handlers.onPointerCancel(); }} onLostPointerCapture={() => setDragging(false)}>
+      <div ref={drag.ref} data-submitting={awaitingTurn ? 'true' : undefined} data-dragging={drag.path.length ? 'true' : undefined} className={`${styles.board} ${cfg.cols > 7 ? styles.dense : ''}`} style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, ['--clear-duration' as string]: `${clearMs}ms` }} role="grid" aria-label="寶珠盤面（按住拖曳相鄰同色珠）" data-testid="match3-board" data-refill-epoch={rigEnabled ? refillEpoch : undefined} data-refilling={falling.size > 0 ? 'true' : undefined} data-chain-intent={rigEnabled ? chainIntent : undefined} aria-busy={rigEnabled ? busy : undefined} {...drag.handlers} onPointerDown={(e) => { if ((link.length || linkMode) && !(e.target as HTMLElement).closest('[data-r]')) { setLink([]); setLinkMode(false); } if (!busy && !over && (e.target as HTMLElement).closest('[data-r]')) setDragging(true); drag.handlers.onPointerDown(e); }} onPointerUp={() => { setDragging(false); drag.handlers.onPointerUp(); }} onPointerCancel={() => { setDragging(false); drag.handlers.onPointerCancel(); }} onLostPointerCapture={() => setDragging(false)}>
         {board.map((row, r) => row.map((e, c) => { const kk = k(r, c); return (
           <OrbCell key={`${r}-${c}`} r={r} c={c} e={e} mp={magic[r]?.[c] ?? 0} shield={rigEnabled} sel={onPath.has(kk)} flash={flash.has(kk)} shake={shake.has(kk)} drop={drop.has(kk)} fall={falling.get(kk)} empty={emptyCells.has(kk)} reward={rewards.has(kk)} />); }))}
         {shieldBurst && <div className={styles.shieldBurst} style={{ color: ORB_COLOR[shieldBurst] }} role="status" aria-label="080 盾牌清除同色寶珠"><span /><img src="/pwa/save-shield-080.png" alt="" draggable={false} /></div>}
@@ -1286,7 +1379,7 @@ function Match3Game({ onRecover, treasurePractice, init, teamIds, rule, onRepick
         })}
       </div>
       {rigEnabled && (campaignEnabled || treasurePractice) && <OrbTreasures catalog={treasures} sideDock={cfg.id==='hard45'&&lastAllyBig} disabled={busy || !!over} guard={treasureGuard} onUse={useTreasure}/>}
-      {orbDrops && <OrbDropAnimation drops={orbDrops.drops} catches={orbDrops.catches} onSound={cue} onDone={() => { const finish=finishOrbDrops.current; finishOrbDrops.current=null; setOrbDrops(null); finish?.(); }}/>}
+      {orbDrops && <OrbDropAnimation drops={orbDrops.drops} catches={orbDrops.catches} onSound={cue} onCredit={drop => { const reward=drop.reward; if(reward)setTreasures(items=>items.map(x=>x.ownerId===drop.ownerId && x.element===reward.element && x.variant===reward.variant && reward.count>x.count ? {...x,count:reward.count} : x)); }} onDone={() => { const finish=finishOrbDrops.current; finishOrbDrops.current=null; setOrbDrops(null); finish?.(); }}/>}
       {rigEnabled && !mobileActionless && actions}
       <TreasureAnimation flight={treasureFlight}/>
       {!rigEnabled && onRepick && <div className={styles.repick}><button type="button" data-testid="open-picker" onClick={onRepick}>重新選卡</button></div>}

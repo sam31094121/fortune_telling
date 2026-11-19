@@ -4,7 +4,7 @@
 .orb[data-landed]{opacity:0;transform:translate(-50%,-35%) scale(.5);}
 @media(prefers-reduced-motion:reduce){.orb{transition:none;}}
 
-.reward{position:absolute;z-index:6;color:#fff1b8;text-shadow:0 1px 3px #251600;font-size:16px;font-weight:800;transform:translate(-50%,-100%);pointer-events:none;animation:rewardRise 550ms ease-out both;}
+.reward{position:absolute;z-index:6;color:#fff1b8;text-shadow:0 1px 3px #251600;font-size:16px;font-weight:800;transform:translate(-50%,-100%);pointer-events:none;animation:rewardRise 850ms ease-out both;}
 @keyframes rewardRise{from{opacity:0;translate:0 5px;}25%,80%{opacity:1;}to{opacity:0;translate:0 -9px;}}
 @media(prefers-reduced-motion:reduce){.reward{animation:none;}}
 

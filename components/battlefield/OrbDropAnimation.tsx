@@ -9,11 +9,12 @@ import boardStyles from './Match3Board.module.css';
 import Match3ElementGlyph from './Match3ElementGlyph';
 
 /** Plays server points only; neither hit testing nor inventory changes happen here. */
-export default function OrbDropAnimation({ drops, catches, onDone, onSound }: {
-  drops: OrbDrop[]; catches: DropCatch[]; onDone: () => void; onSound: (kind: 'drop' | 'merge') => void;
+export default function OrbDropAnimation({ drops, catches, onDone, onSound, onCredit }: {
+  drops: OrbDrop[]; catches: DropCatch[]; onDone: () => void; onSound: (kind: 'drop' | 'merge') => void; onCredit?: (drop: OrbDrop) => void;
 }) {
   const root = useRef<HTMLDivElement>(null), done = useRef(onDone), sound = useRef(onSound);
   done.current = onDone; sound.current = onSound;
+  const credit = useRef(onCredit); credit.current = onCredit;
   const [bounds, setBounds] = useState<{left:number;top:number;width:number;height:number;dividerY:number} | null>(null);
   const [birthSites,setBirthSites]=useState<{x:number;y:number}[]>([]);
   const [rewards, setRewards] = useState<{index:number;x:number;y:number}[]>([]);
@@ -24,7 +25,7 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound }: {
     const measure = () => {
       const p = parent.getBoundingClientRect(), b = board.getBoundingClientRect(), t = team.getBoundingClientRect();
       const single = team.getAttribute('data-last-ally') === 'true' ? Array.from(team.querySelectorAll<HTMLElement>('[data-testid="match3-ally"]')).find(c => Number(c.dataset.hp) > 0)?.getBoundingClientRect() : undefined;
-      const bottom = single ? single.top + Math.min(single.height * .2, 28) : t.bottom + 12;
+      const bottom = single ? single.bottom - 14 : t.bottom + 12;
       setBirthSites(drops.map(d=>{const cell=d.source?board.querySelector('[data-r="'+d.source.r+'"][data-c="'+d.source.c+'"]'):null;const c=cell?.getBoundingClientRect();return {x:c?c.left+c.width/2-t.left:t.width/2,y:c?c.top+c.height/2-b.top:16};}));
       setBounds({left:t.left-p.left,top:b.top-p.top,width:t.width,height:Math.max(1,bottom-b.top),dividerY:Math.max(b.bottom-b.top+10,bottom-b.top-(DROP_FIELD.height-555)*t.width/DROP_FIELD.width)});
     };
@@ -87,15 +88,17 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound }: {
               sinking++;
               const sink=el.animate([
                 {left:x+'px',top:y+'px',transform:'translate(-50%,-50%) scale(1)'},
-                {left:x+'px',top:(y-5)+'px',transform:'translate(-50%,-50%) scale(.96)',offset:.15},
+                {left:x+'px',top:(y-9)+'px',transform:'translate(-50%,-50%) scale(.96)',offset:.18},
+                {left:x+'px',top:y+'px',transform:'translate(-50%,-50%) scale(.9)',offset:.35},
                 {left:tx+'px',top:ty+'px',transform:'translate(-50%,-50%) scale(.7)'}
-              ],{duration:reduced?1:900,fill:'forwards',easing:'ease-in'});
+              ],{duration:reduced?1:1100,fill:'forwards',easing:'ease-in-out'});
               cardGlows.push(sink);
               sink.onfinish=()=>{
                 if(ended)return;
                 sinking--; el.dataset.landed='true';
+                credit.current?.(drop);
                 setRewards(items=>[...items,{index:drop.index,x:tx,y:w.top-r.top}]);
-                cardGlows.push(destination.animate([{filter:'brightness(1)'},{filter:'brightness(1.8)',offset:.3},{filter:'brightness(1)'}],{duration:reduced?1:550}));
+                cardGlows.push(destination.animate([{filter:'brightness(1)',transform:'scale(1)'},{filter:'brightness(1.8)',transform:'scale(1.12)',offset:.3},{filter:'brightness(1)',transform:'scale(1)'}],{duration:reduced?1:850}));
                 if(!document.hidden)sound.current('merge');
               };
             } else if(el) el.dataset.landed='true';
@@ -117,7 +120,7 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound }: {
       });
       if (landed.size===drops.length && sinking===0 && !document.hidden) {
         receiptAt ??= performance.now();
-        if(performance.now()-receiptAt >= (reduced ? 0 : 550)) { ended=true; done.current(); return; }
+        if(performance.now()-receiptAt >= (reduced ? 0 : 900)) { ended=true; done.current(); return; }
       }
       raf=requestAnimationFrame(tick);
     };

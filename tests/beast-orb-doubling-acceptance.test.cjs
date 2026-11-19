@@ -31,6 +31,13 @@ for (const shields of [9,10,11,12,13,14,15,16,17,18,56]) {
     }
   }
   const credited = reward.catalog.reduce((sum,c)=>sum+c.count,0);
+  const receipts = new Map();
+  for(const drop of [...reward.drops].sort((a,b)=>a.delayMs+a.durationMs-b.delayMs-b.durationMs||a.index-b.index)){
+    if(!drop.ownerId){assert.equal(drop.reward,undefined,'misses have no visible credit');continue;}
+    const previous=receipts.get(drop.ownerId)||0;
+    assert.equal(drop.reward.count,previous+1,'server supplies exact per-catch visible balance in landing order');
+    receipts.set(drop.ownerId,drop.reward.count);
+  }
   if(shields===17){
     const frames = new Map();
     for(const drop of reward.drops)for(const point of drop.points){

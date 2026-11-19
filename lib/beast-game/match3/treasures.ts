@@ -58,9 +58,12 @@ export function grantTreasure(input: TurnInput, res: DragResult) {
     const sources=Array.from({length:count},(_,i)=>{const c=order[i%columns];return {r:0,c,element:res.board[0][c],x:(c+.5)/columns*1000};});
     const drops = simulateOrbDrops({ count, element, seed: input.seed, launchX: (end.c + .5) / input.board[0].length * 1000, catches, sources });
     let next = book;
-    for (const drop of drops) {
+    for (const drop of [...drops].sort((a,b)=>(a.delayMs+a.durationMs)-(b.delayMs+b.durationMs)||a.index-b.index)) {
       const owner = none.catalog.find(c => c.ownerId === drop.ownerId && c.available);
-      if (owner) next = operation(next, `drop:${input.actionId}:${drop.index}`, owner.element, 1, owner.variant);
+      if (owner) {
+        next = operation(next, `drop:${input.actionId}:${drop.index}`, owner.element, 1, owner.variant);
+        drop.reward = {element:owner.element,variant:owner.variant,count:treasureCount(next,owner.element,owner.variant)};
+      }
     }
     // Include misses in the batch receipt: retrying cannot reroll or regrant them.
     next = validateTreasureBook(next); next.receipts.push(id);

@@ -42,9 +42,12 @@ try {
   ws.addEventListener('message',async event=>{
     const m=JSON.parse(event.data);if(m.method!=='Fetch.requestPaused')return;
     try{
+      if(process.env.MATCH3_PREDICTION_REJECT==='1'){
+        await send('Fetch.fulfillRequest',{requestId:m.params.requestId,responseCode:400,responseHeaders:[{name:'Content-Type',value:'application/json'}],body:Buffer.from(JSON.stringify({error:'測試：裁判拒絕此操作'})).toString('base64')});return;
+      }
       const input=JSON.parse(m.params.request.postData),ticket=openGuestOrb(input.guestBattleToken);
       const {guestBattleToken,...snapshot}=input;
-      ticket.input={...ticket.input,...snapshot};ticket.seed=((process.env.MATCH3_DROP_AUDIT==='1'?1004:1001)-input.move*2654435761)>>>0;
+      ticket.input={...ticket.input,...snapshot};ticket.seed=((process.env.MATCH3_DROP_AUDIT==='1'?1004:input.seed)-input.move*2654435761)>>>0;
       input.guestBattleToken=sealGuestOrb(ticket);
       await send('Fetch.continueRequest',{requestId:m.params.requestId,postData:Buffer.from(JSON.stringify(input)).toString('base64')});
     }catch(error){errors.push(String(error));await send('Fetch.failRequest',{requestId:m.params.requestId,errorReason:'Failed'});}
@@ -96,7 +99,7 @@ try {
     releasedAt=Date.now();
     await send('Input.dispatchMouseEvent', { type: 'mouseReleased', ...points.at(-1), button: 'left', buttons: 0, clickCount: 1 });
     }
-    await wait(`document.querySelector('[data-testid="match3-round"]')?.textContent !== ${JSON.stringify(oldRound)} && document.querySelector('[data-testid="match3-board"]')?.getAttribute('aria-busy') === 'false'`,Number(process.env.MATCH3_DROP_WAIT_MS)||90000);
+    await wait(`${process.env.MATCH3_PREDICTION_REJECT==='1'?'window.__turns?.length>0':`document.querySelector('[data-testid="match3-round"]')?.textContent !== ${JSON.stringify(oldRound)}`} && document.querySelector('[data-testid="match3-board"]')?.getAttribute('aria-busy') === 'false'`,Number(process.env.MATCH3_DROP_WAIT_MS)||90000);
     const releaseToReadyMs=Date.now()-releasedAt;
     await sleep(150);
     return releaseToReadyMs;
@@ -165,16 +168,23 @@ try {
       const magic=M.emptyMagic(board);route.forEach(p=>{board[p.r][p.c]='SPACE';magic[p.r][p.c]=7;});
       await state({board,magic});await sleep(150);
       await js(`window.__dropReply=null;const oldFetch=window.fetch;window.fetch=async(...args)=>{const r=await oldFetch(...args);if(String(args[0]).includes('/orb-turn'))window.__dropReply=await r.clone().json();return r;}`);
+      await js(`window.__dropCredits=[];new MutationObserver(ms=>{for(const m of ms)if(m.attributeName==='data-count'&&m.target.matches('[data-treasure]'))window.__dropCredits.push({owner:m.target.dataset.owner,count:Number(m.target.dataset.count),duringDrop:!!document.querySelector('[data-testid="orb-drop-stage"]')});}).observe(document,{subtree:true,attributes:true,attributeFilter:['data-count']});`);
       const playing=drag(route);void playing.catch(()=>{});
       if(!reduced){await wait('document.querySelector("[data-testid=orb-drop-stage]")');assert.equal(await js('document.querySelectorAll("[data-drop-index]").length'),Math.min(256,2**(n-9)));
         if(process.env.MATCH3_SOLO_DROP!=='1')await wait('document.querySelector("[data-testid=orb-card-divider]")?.getBoundingClientRect().width > 0');
         const geometry=await js('(()=>{const b=document.querySelector("[data-testid=match3-board]").getBoundingClientRect(),s=document.querySelector("[data-testid=orb-drop-stage]").getBoundingClientRect();return {boardBottom:b.bottom,stageWidth:s.width,dividers:[...document.querySelectorAll("[data-testid=orb-card-divider]")].map(e=>({top:e.getBoundingClientRect().top,width:e.getBoundingClientRect().width})),orbWidth:document.querySelector("[data-drop-index]").getBoundingClientRect().width};})()');
         assert(geometry.dividers.every(d=>d.top>=geometry.boardBottom),'divider overlaps playable board');
         assert(Math.abs(geometry.orbWidth-geometry.stageWidth*.072)<1,'visible body differs from physical diameter');
-        await save('drop-'+width+'-'+n);}
+        await save('drop-'+width+'-'+n);
+        if(process.env.MATCH3_CREDIT_CAPTURE==='1'){
+          await wait('[...document.querySelectorAll("[data-treasure]")].some(e=>Number(e.dataset.count)>0)');
+          assert(await js('!!document.querySelector("[data-testid=orb-drop-stage]")'),'catch feedback remains visible before playback completes');
+          await save('drop-credit-'+width+'-'+n);
+        }}
       await playing;
       const reply=await js('window.__dropReply');assert.equal(reply.treasure.drops.length,Math.min(256,2**(n-9)));
       const caught=reply.treasure.drops.filter(d=>d.ownerId);
+      if(caught.length&&!reduced){const credits=await js('window.__dropCredits');assert(credits.some(c=>c.duringDrop&&c.count>0),'treasure count must visibly increase during drop playback, not only after the whole batch');}
       if(process.env.MATCH3_SOLO_DROP==='1'){
         const mouth=reply.treasure.catches[0];
         const geometry=await js(`(()=>{const c=[...document.querySelectorAll('[data-testid="match3-ally"]')].find(e=>Number(e.dataset.hp)>0),r=c.getBoundingClientRect(),t=c.parentElement.getBoundingClientRect();return {width:r.width/t.width*1000,id:c.dataset.id};})()`);
@@ -199,19 +209,21 @@ try {
       await wait('document.querySelector("[data-last-ally-stage=true]")');await sleep(500);
       const after=await geometry();await save('side-dock-'+width);
       const dock=await js(`(()=>{const es=[...document.querySelectorAll('[data-testid="orb-treasures"] button')];return es.map(e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom};});})()`);
-      assert(Math.abs(before.w-after.w)<1&&Math.abs(before.y-after.y)<1,'enlarging last ally keeps board size and position');
+      writeFileSync(path.join(output,'side-dock-geometry-'+width+(reduced?'-reduced':'')+'.json'),JSON.stringify({before,after,dock},null,2));
+      assert(Math.abs(before.w-after.w)<1&&Math.abs(before.y-after.y)<1,'enlarging last ally keeps board size and position: '+JSON.stringify({before,after}));
       assert(dock.length===5&&dock.every(r=>r.w>=44&&r.h>=44&&r.x>=0&&r.right<=width+1),'side weapons retain usable touch targets');
       assert(dock.every(r=>r.y>=after.y+after.h-1&&r.bottom<=(Number(process.env.MATCH3_VIEWPORT_HEIGHT)||844)),'weapons do not cover board or leave screen');
       results.push({case:'last ally side dock',width,before,after,dock});continue;
     }
     await state({board,magic:M.emptyMagic(board)}); await sleep(100);
-    await js(`window.__replaySamples=[];window.__turns=[];window.__turnInputs=[];window.__pointerSamples=[];
+    await js(`window.__replaySamples=[];window.__turns=[];window.__turnInputs=[];window.__pointerSamples=[];window.__submitAck=null;
       for(const type of ['pointerdown','pointermove','pointerup'])document.addEventListener(type,e=>{const h=document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-r]'),r=h?.getBoundingClientRect();window.__pointerSamples.push({type,x:e.clientX,y:e.clientY,hit:h?[h.dataset.r,h.dataset.c]:null,coalesced:e.getCoalescedEvents?.().map(p=>({x:p.clientX,y:p.clientY}))??[],rect:r?{x:r.x,y:r.y,w:r.width,h:r.height}:null});},true);
       const nativeFetch=window.fetch;window.fetch=async (url,options)=>{
-        if(String(url).includes('/api/beast-game/orb-turn')){const input=JSON.parse(options.body);input.seed=1001;window.__turnInputs.push(input);options={...options,body:JSON.stringify(input)};const response=await nativeFetch(url,options);window.__turns.push(await response.clone().json());return response;}return nativeFetch(url,options);
+        if(String(url).includes('/api/beast-game/orb-turn')){const input=JSON.parse(options.body);if(${Number(process.env.MATCH3_PREDICTION_MISMATCH)||0})input.seed=1001;window.__turnInputs.push(input);options={...options,body:JSON.stringify(input)};const started=performance.now();if(${Number(process.env.MATCH3_RESPONSE_DELAY_MS)||0})await new Promise(r=>setTimeout(r,${Number(process.env.MATCH3_RESPONSE_DELAY_MS)||0}));const response=await nativeFetch(url,options);window.__turns.push(await response.clone().json());window.__requestLatency={started,received:performance.now()};return response;}return nativeFetch(url,options);
       };
       window.__replayObserver=new MutationObserver(()=>{
         const b=document.querySelector('[data-testid=match3-board]'),svg=b?.querySelector('[data-testid=match3-replay-lines]');
+        if(!window.__submitAck&&b?.dataset.submitting==='true')window.__submitAck={at:performance.now(),selected:b.querySelectorAll('[data-r][class*="_sel"]').length};
         if(!svg || !svg.querySelector('circle'))return;
         const epoch=b.dataset.refillEpoch;if(window.__replaySamples.some(s=>s.epoch===epoch))return;
         const rect=svg.getBoundingClientRect();
@@ -221,6 +233,7 @@ try {
             paths:[...g.querySelectorAll('polyline')].map(p=>JSON.parse(p.dataset.matchPath)),strokes:[...g.querySelectorAll('polyline')].map(p=>({colour:getComputedStyle(p).stroke,width:getComputedStyle(p).strokeWidth})),
             cells:[...g.querySelectorAll('circle')].map(c=>{const [r,col]=c.dataset.matchCell.split(':').map(Number);const cell=b.querySelector('[data-r="'+r+'"][data-c="'+col+'"]'),cr=cell.getBoundingClientRect();return {r,c:col,dx:Math.abs(rect.x+c.cx.baseVal.value-cr.x-cr.width/2),dy:Math.abs(rect.y+c.cy.baseVal.value-cr.y-cr.height/2),animation:getComputedStyle(c).animationName};})}))});
       });window.__replayObserver.observe(document.querySelector('[data-testid=match3-board]'),{subtree:true,childList:true,attributes:true});`);
+    const beforePrediction=await snap();
     const playing=drag(Array.from({length},(_,c)=>({r:7,c})));
     void playing.catch(()=>{});
     try{await wait('window.__replaySamples.length > 0',Number(process.env.MATCH3_REPLAY_WAIT_MS)||90000);}catch(error){
@@ -228,8 +241,22 @@ try {
     }
     await save('match-lines-'+width+'-'+length+(reduced?'-reduced':''));const releaseToReadyMs=await playing;
     const observed=await js('window.__replayObserver.disconnect();({samples:window.__replaySamples,pointers:window.__pointerSamples,turn:window.__turns[0],input:window.__turnInputs[0],events:window.__match3Events})');
+    if(process.env.MATCH3_PREDICTION_REJECT==='1'){
+      const restored=await snap();
+      assert.deepEqual(restored.cells,beforePrediction.cells,'rejected prediction restores confirmed board');
+      assert.deepEqual(restored.ally,beforePrediction.ally,'rejected prediction cannot heal or spend HP');
+      assert.deepEqual(restored.enemy,beforePrediction.enemy,'rejected prediction cannot damage foes');
+      assert.equal(restored.round,beforePrediction.round,'rejected prediction cannot advance turn');
+      assert.equal(await js('document.querySelectorAll("[data-testid=match3-replay-lines]").length'),0);
+      results.push({case:'referee rejection restores board',width,reduced});continue;
+    }
     assert.deepEqual(observed.input.path,Array.from({length},(_,c)=>({r:7,c})),'every selected cell reaches the backend');
     const expected=observed.turn.replay.filter(f=>f.matches.length);
+    if(process.env.MATCH3_PREDICTION_MISMATCH==='1') {
+      assert(observed.samples.length>expected.length,'divergent prediction must be replaced by authoritative playback');
+      observed.predictedSamples=observed.samples.slice(0,-expected.length);
+      observed.samples=observed.samples.slice(-expected.length);
+    }
     assert.equal(observed.samples.length,expected.length,'every real match is shown before disappearing');
     for(const [i,sample] of observed.samples.entries()){
       const f=expected[i];assert.equal(sample.chain,f.chain);assert.equal(sample.busy,'true');assert.equal(sample.pointer,'none');
@@ -259,7 +286,12 @@ try {
       await save('feedback-'+width+'-'+length);
     }
     final.cells.forEach(c=>{assert.equal(c.el,observed.turn.res.board[c.r][c.c]);assert.equal(c.mp,observed.turn.res.magic[c.r][c.c]);});
-    assert(final.scroll<=width);results.push({case:'recorded match then clear',width,length,reduced,chains:expected.length,releaseToReadyMs});
+    const latency=await js('window.__requestLatency');
+    const ack=await js('window.__submitAck');
+    assert(ack&&ack.selected===length,'released route remains visibly acknowledged while waiting');
+    assert(ack.at<latency.received,'input feedback appears before the server response');
+    if(Number(process.env.MATCH3_RESPONSE_DELAY_MS)>=800)assert((observed.predictedSamples??observed.samples)[0].t<latency.received,'local board calculation plays before the referee response');
+    assert(final.scroll<=width);results.push({case:'recorded match then clear',width,length,reduced,chains:expected.length,releaseToReadyMs,requestMs:Math.round(latency.received-latency.started),responseToFirstMatchMs:Math.round(observed.samples[0].t-latency.received),inputFeedbackMs:Math.round(ack.at-latency.started)});
     writeFileSync(path.join(output,'replay-'+width+'-'+length+(reduced?'-reduced':'')+'.json'),JSON.stringify(observed,null,2));
   }
   if(process.env.MATCH3_REPLAY_ONLY==='1'){

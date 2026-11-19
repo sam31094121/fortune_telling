@@ -7,6 +7,7 @@ import { getCard } from '@/lib/beast-game/registry';
 import { cultivationOwner } from '@/lib/beast-game/cultivation-games';
 import { verifySharedOrb, resolveSharedOrbTurn } from '@/lib/beast-game/cultivation-orb';
 import { openGuestOrb, guestOrbInput, resolveGuestOrb } from '@/lib/beast-game/guest-orb';
+import { withReferee } from '@/lib/beast-game/match3/referee';
 export const runtime = 'nodejs';
 // 共同卡庫資料庫在東京（Supabase ap-northeast-1）；函式預設在美東，每次資料庫來回多耗數百毫秒，改放東京。
 export const preferredRegion = 'hnd1';
@@ -14,6 +15,8 @@ export async function POST(request: Request) {
   try {
     const raw = await request.text();
     if (raw.length > 120000) return NextResponse.json({ error: '戰鬥資料過大，請重試。' }, { status: 413 });
+    // 裁判：前端先演、後端判決。claim 只決定「預演動畫留不留」，傷害、獎勵、掉珠永遠只看後端結算。
+    const claim = (() => { try { return (JSON.parse(raw) as { claim?: unknown }).claim; } catch { return undefined; } })();
     let p = JSON.parse(raw) as TurnInput & {sharedBattleToken?:string;sharedVersion?:number;guestBattleToken?:string};
     const guest=p.guestBattleToken?openGuestOrb(p.guestBattleToken):null;
     if(guest)p=guestOrbInput(guest,p);
@@ -44,13 +47,13 @@ export async function POST(request: Request) {
       if(p.action!==undefined&&!['treasure','energy','link'].includes(p.action))throw new Error('invalid');
       if(p.action&&p.path.length)throw new Error('invalid');
       if(p.action==='treasure'&&!isBeastElement(p.treasureElement))throw new Error('invalid');
-      return NextResponse.json(resolveGuestOrb(guest,p),{headers:{'Cache-Control':'no-store'}});
+      return NextResponse.json(withReferee(resolveGuestOrb(guest,p),claim),{headers:{'Cache-Control':'no-store'}});
     }
     if(shared){
       if(p.action!==undefined&&!['treasure','energy','link'].includes(p.action))throw new Error('invalid');
       if(p.action==='treasure'&&!isBeastElement(p.treasureElement))throw new Error('invalid');
       if(p.action&&p.path.length)throw new Error('invalid');
-      return NextResponse.json(await resolveSharedOrbTurn(shared,p,p.sharedVersion!),{headers:{'Cache-Control':'no-store'}});
+      return NextResponse.json(withReferee(await resolveSharedOrbTurn(shared,p,p.sharedVersion!),claim),{headers:{'Cache-Control':'no-store'}});
     }
     if (p.action === 'treasure') {
       if (!isBeastElement(p.treasureElement) || (p.treasureVariant !== undefined && !integer(p.treasureVariant,0,4))) throw new Error('invalid');
@@ -64,7 +67,7 @@ export async function POST(request: Request) {
       return NextResponse.json(result, { headers: { 'Cache-Control': 'no-store' } });
     }
     if (p.action !== undefined) throw new Error('invalid');
-    const result=resolveOrbTurn(p);
+    const result=withReferee(resolveOrbTurn(p),claim);
     return NextResponse.json(result, { headers: { 'Cache-Control': 'no-store' } });
   } catch {
     return NextResponse.json({ error: '暫時無法完成本回合，請重試；尚未套用結果。' }, { status: 400, headers: { 'Cache-Control': 'no-store' } });

@@ -33,6 +33,9 @@
 .fire .lbl { top: 12%; }
 .earth { --c: #c39324; } .earth .gem { border-radius: 18%; inset: 12%; }
 .sel { transform: scale(1.08); }
+.board[data-submitting="true"] .sel::after { animation: submittedOrbPulse 520ms ease-in-out infinite alternate; }
+@keyframes submittedOrbPulse { from { opacity: 1; } to { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .board[data-submitting="true"] .sel::after { animation: none; } }
 .sel::after { content: ''; position: absolute; inset: -1px; border-radius: 12px; border: 2px solid var(--seal); box-shadow: 0 0 10px rgba(201,164,92,.7); pointer-events: none; }
 /* 魔法珠：金色光環＋右上角威力數字 */
 .magic::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #ffe3a1; box-shadow: 0 0 12px 3px rgba(255,214,120,.75), inset 0 0 8px rgba(255,240,200,.6);

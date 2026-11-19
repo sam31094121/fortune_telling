@@ -5,6 +5,7 @@ import type { BeastElement } from '../elements';
 export interface DropPoint { t: number; x: number; y: number }
 export interface DropCatch { ownerId: string; slot: number; left: number; right: number }
 export interface OrbDrop {
+  reward?: { element: BeastElement; variant: number; count: number };
   index: number; element: BeastElement; source?: {r:number;c:number}; delayMs: number; points: DropPoint[];
   impacts: number[]; pairImpacts?: number[]; ownerId: string | null; slot: number | null; durationMs: number;
 }
