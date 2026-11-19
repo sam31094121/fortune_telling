@@ -37,8 +37,11 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound, onCr
     if (!bounds || !root.current) return;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const playbackScale = 1.2;
-    const animations = drops.map(drop => {
-      const el = root.current!.querySelector<HTMLElement>(`[data-drop-index="${drop.index}"]`)!;
+    // These keyed nodes remain mounted for this drop sequence.
+    const orbNodes = drops.map(drop => root.current!.querySelector<HTMLElement>(`[data-drop-index="${drop.index}"]`)!);
+    const birthNodes = drops.map(drop => root.current!.querySelector<HTMLElement>(`[data-birth-index="${drop.index}"]`));
+    const animations = drops.map((drop, i) => {
+      const el = orbNodes[i];
       return el.animate(drop.points.map(p => ({ offset:p.t/drop.durationMs, left:`${p.x/10}%`, top:pathY(p.y) })),
         {duration: reduced ? 1 : drop.durationMs * playbackScale, delay: reduced ? 0 : 400 + drop.delayMs * playbackScale, fill:'both', easing:'linear'});
     });
@@ -57,9 +60,9 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound, onCr
         const drop=drops[i], time=(Number(a.currentTime ?? 0)-(reduced?0:400))/playbackScale-drop.delayMs;
         // Future waves and completed balls have no per-frame DOM work.
         if(landed.has(i) || (!reduced && time < -260)) return;
-        const birth=root.current?.querySelector<HTMLElement>('[data-birth-index="'+drop.index+'"]');
-        if(birth)birth.dataset.active=time>=-260&&time<0?'true':'false';
-        if(time>=0 || reduced){const orb=root.current?.querySelector<HTMLElement>('[data-drop-index="'+drop.index+'"]');if(orb)orb.dataset.born='true';}
+        const birth=birthNodes[i], active=time>=-260&&time<0?'true':'false';
+        if(birth && birth.dataset.active!==active)birth.dataset.active=active;
+        if((time>=0 || reduced) && orbNodes[i].dataset.born!=='true')orbNodes[i].dataset.born='true';
         if(time>=-260&&!birthed.has(i)){
           birthed.add(i);
           const cell=drop.source?root.current?.parentElement?.querySelector<HTMLElement>('[data-testid="match3-board"] [data-r="'+drop.source.r+'"][data-c="'+drop.source.c+'"]'):null;
@@ -71,7 +74,7 @@ export default function OrbDropAnimation({ drops, catches, onDone, onSound, onCr
         }
         if (a.playState==='finished' && !landed.has(i)) {
           landed.add(i);
-          const el=root.current?.querySelector<HTMLElement>(`[data-drop-index="${drop.index}"]`);
+          const el=orbNodes[i];
           if(drop.ownerId) {
             const card=Array.from(root.current?.parentElement?.querySelectorAll<HTMLElement>('[data-testid="match3-ally"]') ?? []).find(c=>c.dataset.id===drop.ownerId);
             if(card) cardGlows.push(card.animate([

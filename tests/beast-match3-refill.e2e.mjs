@@ -244,6 +244,7 @@ try {
       await state({board,magic});await sleep(150);
       await js(`window.__dropReply=null;const oldFetch=window.fetch;window.fetch=async(...args)=>{const r=await oldFetch(...args);if(String(args[0]).includes('/orb-turn'))window.__dropReply=await r.clone().json();return r;}`);
       await js(`window.__dropCredits=[];new MutationObserver(ms=>{for(const m of ms)if(m.attributeName==='data-count'&&m.target.matches('[data-treasure]'))window.__dropCredits.push({owner:m.target.dataset.owner,count:Number(m.target.dataset.count),duringDrop:!!document.querySelector('[data-testid="orb-drop-stage"]')});}).observe(document,{subtree:true,attributes:true,attributeFilter:['data-count']});`);
+      if(process.env.MATCH3_DROP_PERF_AUDIT==='1')await js(`window.__dropWrites=0;window.__dropWriteObserver=new MutationObserver(ms=>{for(const m of ms)if(m.target.matches('[data-drop-index],[data-birth-index]'))window.__dropWrites++;});window.__dropWriteObserver.observe(document,{subtree:true,attributes:true,attributeFilter:['data-born','data-active']});`);
       const playing=drag(route);void playing.catch(()=>{});
       if(!reduced){await wait('document.querySelector("[data-testid=orb-drop-stage]")');assert.equal(await js('document.querySelectorAll("[data-drop-index]").length'),Math.min(256,2**(n-9)));
         if(process.env.MATCH3_SOLO_DROP!=='1')await wait('document.querySelector("[data-testid=orb-card-divider]")?.getBoundingClientRect().width > 0');
@@ -258,6 +259,11 @@ try {
         }}
       await playing;
       const reply=await js('window.__dropReply');assert.equal(reply.treasure.drops.length,Math.min(256,2**(n-9)));
+      if(process.env.MATCH3_DROP_PERF_AUDIT==='1'){
+        const writes=await js('window.__dropWriteObserver.disconnect();window.__dropWrites');
+        results.push({case:'drop render work',width,reduced,drops:reply.treasure.drops.length,statusWrites:writes,maxStatusWrites:reply.treasure.drops.length*3});
+        assert(writes<=reply.treasure.drops.length*3,'drop visibility writes must follow state changes, not every animation frame: '+writes);
+      }
       const caught=reply.treasure.drops.filter(d=>d.ownerId);
       if(caught.length&&!reduced){const credits=await js('window.__dropCredits');assert(credits.some(c=>c.duringDrop&&c.count>0),'treasure count must visibly increase during drop playback, not only after the whole batch');}
       if(process.env.MATCH3_SOLO_DROP==='1'){

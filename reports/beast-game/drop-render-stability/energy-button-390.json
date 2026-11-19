@@ -1,0 +1,36 @@
+{
+  "button": {
+    "disabled": false,
+    "label": "白虎能量寶珠，能量已滿，點擊攻擊"
+  },
+  "team": [
+    {
+      "id": "beast_g_baihu",
+      "hp": 48,
+      "energy": 100
+    },
+    {
+      "id": "beast_y14",
+      "hp": 54,
+      "energy": 100,
+      "charges": 1
+    },
+    {
+      "id": "beast_y19",
+      "hp": 74,
+      "energy": 100,
+      "charges": 1
+    },
+    {
+      "id": "beast_y03",
+      "hp": 72,
+      "energy": 100,
+      "charges": 2
+    },
+    {
+      "id": "beast_y08",
+      "hp": 22,
+      "energy": 0
+    }
+  ]
+}

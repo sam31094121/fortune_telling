@@ -337,6 +337,13 @@ const BEHAVIOR_CHECKS = [
     timeoutMs: 240000,
   },
   {
+    id: 'BEAST_ORB_DROP_RENDER_STABILITY',
+    module: 'beast_orb_render_stability',
+    title: '寶石捷連線：掉珠狀態僅按變化更新、接取計數與手動攻擊正常',
+    script: 'test:beast-drop-render-stability',
+    timeoutMs: 180000,
+  },
+  {
     id: 'BEAST_INTERACTIVE',
     module: 'beast_interactive',
     title: '新回合制：六十張定位、能量、補位與一千場煙霧抽樣',
