@@ -7,13 +7,14 @@
 .scenery::before, .scenery::after { display: none; }
 .artwork {
   position: absolute;
-  top: 42px;
+  --h: min(calc(100% - 112px), calc((100cqw - 32px) * 0.75));
+  top: calc(74.5% - var(--h) * 0.86);
   left: 50%;
   width: auto;
-  height: calc(100% - 112px);
-  max-width: calc(100% - 32px);
+  height: var(--h);
+  aspect-ratio: 4 / 3;
   transform: translateX(-50%);
-  object-fit: contain;
+  object-fit: fill;
   pointer-events: none;
 }
 .title {
@@ -33,7 +34,7 @@
 :global(body #home-eight-card-route) a:has(.artwork) { opacity:1 !important; }
 :global(body #home-eight-card-route) a:has(.artwork)::after { display:none; }
 :global(body #home-eight-card-route) a:has(.artwork) .artwork {
- top:68px; height:calc(100% - 112px); z-index:2;
+ top:calc(74.5% - var(--h) * 0.86); height:var(--h); z-index:2;
  opacity:1 !important; filter:none !important;
  mask-image:url('/home-entry/nine-grid-dog-silhouette.svg');
  -webkit-mask-image:url('/home-entry/nine-grid-dog-silhouette.svg');
@@ -45,15 +46,7 @@
 :global(body #home-eight-card-route) a:has(.artwork):focus-visible :global(.home-feature-cta) { opacity:1 !important; }
 @media(hover:hover) { :global(body #home-eight-card-route) a:has(.artwork):hover :global(.home-feature-cta) { opacity:1 !important; } }
 
-/* Retain the source contact lighting behind the untouched foreground. */
-.scenery::after {
- content:'';display:block;position:absolute;top:68px;left:50%;
- height:calc(100% - 112px);aspect-ratio:4 / 3;max-width:calc(100% - 32px);
- transform:translateX(-50%);
- background:url('/beast-game/front/young-16.v2.webp?v=f1d9cd914205') center / contain no-repeat;
- mask-image:radial-gradient(ellipse 65% 65% at 50% 50%,#000 45%,rgba(0,0,0,.85) 62%,rgba(0,0,0,.3) 82%,transparent 100%);
- pointer-events:none;
-}
+/* 2026-11-19：首頁小狗只畫一次。原本背景再疊一份柔邊副本，手機上與前景有次像素位移，尾巴出現第二個輪廓。 */
 
 :global(body #home-eight-card-route) a:has(.artwork) .scenery { filter:none !important; }
 
@@ -61,3 +54,6 @@
 .foreground { position:absolute; inset:0; z-index:2; pointer-events:none; filter:drop-shadow(0 1px 0.7px rgba(0,0,0,.72)); }
 
 :global(body #home-eight-card-route) a:has(.artwork) .foreground { opacity:1 !important; filter:drop-shadow(0 1px 0.7px rgba(0,0,0,.72)) !important; }
+
+/* 容器單位用來讓神獸寬度永遠不超過卡片，字級放大、卡片變高時不被裁切。 */
+:global(body #home-eight-card-route) a:has(.artwork) { container-type:inline-size; }
