@@ -1194,3 +1194,17 @@ button.ally { font: inherit; color: inherit; border: 1px solid transparent; bord
 .wrap[data-mode="hard45"] .team[data-team-count="3"] { grid-template-columns: repeat(3,minmax(0,min(120px,var(--party-card-max,120px)))); justify-content: center; }
 .wrap[data-mode="hard45"] .team[data-team-count="4"] { grid-template-columns: repeat(4,minmax(0,min(110px,var(--party-card-max,110px)))); justify-content: center; }
 .wrap[data-mode="hard45"] .team[data-last-ally="true"] { grid-template-columns: minmax(0,min(72%,290px,var(--last-ally-max,290px))); }
+
+/* Reserve a stable energy-orb lane between each card and its weapon. */
+.wrap[data-mode="hard45"] .team[data-team-count]:not([data-team-count="1"]):not([data-last-ally="true"]){padding-bottom:52px;}
+.wrap[data-mode="hard45"] .team[data-team-count]:not([data-last-ally="true"]) .manualEnergyOrb{top:auto;bottom:-48px;right:auto;left:50%;transform:translateX(-50%);width:44px;height:44px;border:0;background:none;box-shadow:none;padding:0;}
+.wrap[data-mode="hard45"] .team[data-team-count]:not([data-last-ally="true"]) .manualEnergyOrb > [data-element-treasure-orb]{inset:0 auto auto 4px;width:36px;height:36px;}
+
+/* Keep each card/orb/weapon group together; distribute spare room above it. */
+@media(max-width:640px){
+ .wrap[data-mode="hard45"][data-match3-battle-active="true"]:has(.team[data-team-count]:not([data-team-count="1"]):not([data-last-ally="true"])){justify-content:flex-start;}
+ .wrap[data-mode="hard45"][data-match3-battle-active="true"]:has(.team[data-team-count]:not([data-team-count="1"]):not([data-last-ally="true"])) > .foes,
+ .wrap[data-mode="hard45"][data-match3-battle-active="true"]:has(.team[data-team-count]:not([data-team-count="1"]):not([data-last-ally="true"])) > .board,
+ .wrap[data-mode="hard45"][data-match3-battle-active="true"]:has(.team[data-team-count]:not([data-team-count="1"]):not([data-last-ally="true"])) > .team{margin-top:auto;}
+}
+.wrap[data-mode="hard45"] .team:not([data-last-ally="true"]) .manualEnergyOrb > [data-element-treasure-orb]::before{box-shadow:0 0 5px rgba(var(--orb-glow-rgb),.22);opacity:.45;}

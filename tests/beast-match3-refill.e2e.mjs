@@ -157,6 +157,7 @@ try {
     else if(${JSON.stringify(fixture)}){const els=['FIRE','WATER','AIR','SPACE','EARTH'];const board=Array.from({length:8},(_,r)=>Array.from({length:7},(_,c)=>els[(r*2+c)%5]));const magic=Array.from({length:8},()=>Array(7).fill(0));for(let c=0;c<3;c++)magic[3][c]=7;board[6][0]=board[6][1]=board[6][2]='EARTH';b.queue.dispatch(board);m.queue.dispatch(magic);}
     if(${process.env.MATCH3_FEEDBACK_AUDIT === '1'})t.queue.dispatch(t.memoizedState.map(u=>({...u,hp:Math.max(1,Math.floor(u.maxHp/2))})));
     if(${process.env.MATCH3_DROP_AUDIT === '1'}){t.queue.dispatch(t.memoizedState.map((u,i)=>({...u,hp:${process.env.MATCH3_SOLO_DROP === '1'}&&i?0:Math.max(1,Math.floor(u.maxHp/3)),attack:1,energy:0})));e.queue.dispatch(e.memoizedState.map(u=>({...u,hp:10000,maxHp:10000,attack:1,attackEnergy:0})));}
+    if(${process.env.MATCH3_PARTY_ENERGY === '1'})t.queue.dispatch(t.memoizedState.map(u=>({...u,energy:100})));
     return {team:t.memoizedState,foes:e.memoizedState};
   })()`);
   await send('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{
@@ -179,6 +180,15 @@ try {
       assert.equal(layout.count,count);assert(!layout.overflow);assert(layout.cards.every(r=>r.w>40&&r.h>40&&r.x>=0&&r.x+r.w<=layout.width+1));
       for(let i=1;i<count;i++)assert(layout.cards[i].x>=layout.cards[i-1].x+layout.cards[i-1].w,'cards must not overlap');
       if(count>1){assert.equal(layout.weapons.length,count);for(let i=0;i<count;i++)assert(Math.abs(layout.cards[i].x+layout.cards[i].w/2-layout.weapons[i].x-layout.weapons[i].w/2)<=1,'weapon must align with its ally');}
+      if(process.env.MATCH3_PARTY_ENERGY==='1'){
+        await state();await sleep(500);
+        for(let wait=0;wait<40&&await js(`document.querySelectorAll('[data-testid="orb-treasures"] button').length`)!==count;wait++)await sleep(250);
+        const ready=await js(`(()=>{const r=e=>{const b=e.getBoundingClientRect();return {x:b.x,y:b.y,w:b.width,h:b.height}};return {board:r(document.querySelector('[data-testid="match3-board"]')),orbs:[...document.querySelectorAll('[data-testid="match3-ready-energy-orb"]')].map(r),weapons:[...document.querySelectorAll('[data-testid="orb-treasures"] button')].map(r)}})()`);
+        assert.equal(ready.orbs.length,count);assert(Math.abs(ready.board.w-layout.board.w)<=1&&Math.abs(ready.board.h-layout.board.h)<=1,'energy reveal must not resize board');
+        if(count>1)for(let i=0;i<count;i++){assert(Math.abs(ready.orbs[i].x+ready.orbs[i].w/2-layout.cards[i].x-layout.cards[i].w/2)<=1);assert(ready.orbs[i].y>=layout.cards[i].y+layout.cards[i].h-1);assert(ready.orbs[i].y+ready.orbs[i].h<=ready.weapons[i].y+1,'energy stays between card and weapon');}
+        if(count===1){const c=layout.cards[0],w=ready.weapons[0],o=ready.orbs[0];assert(c.x-(w.x+w.w)>=10,'solo left weapon needs visible clearance');assert(o.x-(c.x+c.w)>=10,'solo right orb needs visible clearance');}
+        layout.ready=ready;
+      }
       await save('party-'+count);results.push({kind:'party-layout',...layout});console.log('Party layout',count,'PASS');await sleep(liveServer?4500:0);
     }
   }
