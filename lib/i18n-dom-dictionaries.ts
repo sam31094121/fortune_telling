@@ -54,8 +54,20 @@ export async function loadDisplayTranslator(language: InterfaceLanguage): Promis
     return withHomeCopy('en', withPatterns);
   }
   if (language === 'ja') {
-    const { homeJapaneseCopy } = await import('@/lib/home-japanese-copy');
-    return withHomeCopy('ja', fromDictionary({ ...phase1Copy.ja, ...homeJapaneseCopy }));
+    const [{ homeJapaneseCopy }, { japanesePageCopy, japanesePatterns }] = await Promise.all([import('@/lib/home-japanese-copy'), import('@/lib/japanese-copy')]);
+    // japanesePageCopy（每頁一檔）只補缺：既有字典有的句子仍以既有字典為準。
+    const lookup = fromDictionary({ ...japanesePageCopy, ...phase1Copy.ja, ...homeJapaneseCopy });
+    // 帶數字或名稱的固定句型無法逐筆列進字典，改用句型比對，數字與名稱原樣帶過去。
+    const withPatterns: Translate = text => {
+      const exact = lookup(text);
+      if (exact !== undefined) return exact;
+      for (const [pattern, build] of japanesePatterns) {
+        const m = text.match(pattern);
+        if (m) return build(m, zh => lookup(zh) ?? zh);
+      }
+      return undefined;
+    };
+    return withHomeCopy('ja', withPatterns);
   }
   const { koreanCopy } = await import('@/lib/korean-copy');
   return withHomeCopy('ko', fromDictionary({ ...phase1Copy.ko, ...koreanCopy }));

@@ -43,19 +43,23 @@ const only = process.argv[2];
       await page.goto(BASE + route, { waitUntil: 'load', timeout: 180000 });
       await page.waitForFunction(lang => document.documentElement.getAttribute('data-reading-lang') === lang, LANG, { timeout: 30000 }).catch(() => {});
       await page.waitForTimeout(6000);
-      const left = await page.evaluate(() => {
+      const left = await page.evaluate(lang => {
+        // 英文：只要還有漢字就算漏譯。日文／韓文本身會用漢字，所以改成：有漢字、但沒有假名／韓文字母（整句還是中文）才算漏譯；
+        // 另外含有日文不用的繁體專用字（這個們說點開關無對時來為與學號）的也算漏譯。
+        const HAN = /[㐀-鿿]/; const KANA = /[぀-ヿ]/; const HANGUL = /[가-힯]/; const TRAD = /[這個們說點開關無對時來為與學號]/;
+        const untranslated = t => !HAN.test(t) ? false : lang === 'ja' ? (!KANA.test(t) && (t.length >= 3 || TRAD.test(t))) || TRAD.test(t) : lang === 'ko' ? !HANGUL.test(t) && t.length >= 3 : true;
         const out = [];
         const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
         for (let n = walker.nextNode(); n; n = walker.nextNode()) {
           const t = n.nodeValue.trim(); const el = n.parentElement;
-          if (!t || !/[㐀-鿿]/.test(t) || !el) continue;
+          if (!t || !untranslated(t) || !el) continue;
           if (['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(el.tagName) || el.closest('[data-language-picker]') || el.closest('[data-i18n-skip],[translate="no"]')) continue;
           out.push(t);
         }
         for (const el of document.querySelectorAll('[aria-label],[title],[placeholder],[alt]'))
-          if (!el.closest('[data-language-picker]')) for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && /[㐀-鿿]/.test(v)) out.push(`[${a}] ${v}`); }
+          if (!el.closest('[data-language-picker]')) for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && untranslated(v)) out.push(`[${a}] ${v}`); }
         return out;
-      });
+      }, LANG);
       total += left.length;
       if (only) console.log(left.join('\n')); else console.log(route.padEnd(24), '剩中文', String(left.length).padStart(4));
     } catch (e) { console.log(route.padEnd(24), '無法開啟', e.message.slice(0, 60)); }
